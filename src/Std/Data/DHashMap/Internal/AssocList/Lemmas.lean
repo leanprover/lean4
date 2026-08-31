@@ -3,9 +3,16 @@ Copyright (c) 2024 Lean FRO, LLC. All rights reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Markus Himmel
 -/
+module
+
 prelude
-import Std.Data.DHashMap.Internal.AssocList.Basic
-import Std.Data.Internal.List.Associative
+public import Std.Data.DHashMap.Internal.AssocList.Basic
+import all Std.Data.DHashMap.Internal.AssocList.Basic
+public import Std.Data.Internal.List.Associative
+import Init.ByCases
+import Init.Data.Array.Bootstrap
+
+public section
 
 /-!
 This is an internal implementation file of the hash map. Users of the hash map should not rely on
@@ -20,18 +27,18 @@ set_option autoImplicit false
 open Std.DHashMap.Internal
 open List (Perm perm_middle)
 
-universe w v u
+universe w v u w'
 
-variable {α : Type u} {β : α → Type v} {γ : α → Type w} {δ : Type w} {m : Type w → Type w} [Monad m]
+variable {α : Type u} {β : α → Type v} {γ : α → Type w} {δ : Type w} {m : Type w → Type w'} [Monad m]
 
 namespace Std.DHashMap.Internal.AssocList
 
 open Std.Internal.List
 open Std.Internal
 
-@[simp] theorem toList_nil : (nil : AssocList α β).toList = [] := rfl
+@[simp] theorem toList_nil : (nil : AssocList α β).toList = [] := (rfl)
 @[simp] theorem toList_cons {l : AssocList α β} {a : α} {b : β a} :
-    (l.cons a b).toList = ⟨a, b⟩ :: l.toList := rfl
+    (l.cons a b).toList = ⟨a, b⟩ :: l.toList := (rfl)
 
 @[simp]
 theorem foldl_eq {f : δ → (a : α) → β a → δ} {init : δ} {l : AssocList α β} :
@@ -44,7 +51,7 @@ theorem length_eq {l : AssocList α β} : l.length = l.toList.length := by
   suffices ∀ n, l.toList.foldl (fun d _ => d + 1) n = l.toList.length + n by simp
   induction l
   · simp
-  · next _ _ t ih =>
+  next _ _ t ih =>
     intro n
     simp [ih, Nat.add_assoc, Nat.add_comm n 1]
 
@@ -61,28 +68,60 @@ theorem getCast?_eq [BEq α] [LawfulBEq α] {l : AssocList α β} {a : α} :
 @[simp]
 theorem contains_eq [BEq α] {l : AssocList α β} {a : α} :
     l.contains a = containsKey a l.toList := by
-  induction l <;> simp_all [contains, List.containsKey]
+  induction l <;> simp_all [contains]
 
 @[simp]
 theorem getCast_eq [BEq α] [LawfulBEq α] {l : AssocList α β} {a : α} {h} :
     l.getCast a h = getValueCast a l.toList (contains_eq.symm.trans h) := by
   induction l
   · simp [contains] at h
-  · next k v t ih => simp only [getCast, toList_cons, List.getValueCast_cons, ih]
+  next k v t ih => simp only [getCast, toList_cons, List.getValueCast_cons, ih]
 
 @[simp]
 theorem get_eq {β : Type v} [BEq α] {l : AssocList α (fun _ => β)} {a : α} {h} :
     l.get a h = getValue a l.toList (contains_eq.symm.trans h) := by
   induction l
   · simp [contains] at h
-  · next k v t ih => simp only [get, toList_cons, List.getValue_cons, ih]
+  next k v t ih => simp only [get, toList_cons, List.getValue_cons, ih]
+
+@[simp]
+theorem getEntry_eq [BEq α] {l : AssocList α β} {a : α} {h} :
+    l.getEntry a h = List.getEntry a l.toList (contains_eq.symm.trans h) := by
+  induction l
+  · simp [contains] at h
+  next k v t ih =>
+    simp only [getEntry, toList_cons, List.getEntry_cons, ih]
+
+@[simp]
+theorem getEntry?_eq [BEq α] {l : AssocList α β} {a : α} :
+    l.getEntry? a = List.getEntry? a l.toList  := by
+  induction l
+  · simp only [getEntry?, toList_nil, getEntry?_nil]
+  next k v t ih =>
+    simp only [getEntry?, ih, toList_cons, getEntry?_cons]
+
+@[simp]
+theorem getEntryD_eq [BEq α] {l : AssocList α β} {a : α} {fallback : (a : α) × β a} :
+    l.getEntryD a fallback = List.getEntryD a fallback l.toList := by
+  induction l
+  · simp only [getEntryD, toList_nil, getEntryD_nil]
+  next k v t ih =>
+    simp only [getEntryD, ih, toList_cons, getEntryD_cons]
+
+@[simp]
+theorem getEntry!_eq [BEq α] {l : AssocList α β} {a : α} [Inhabited ((a : α) × β a)] :
+    l.getEntry! a = List.getEntry! a l.toList := by
+  induction l
+  · simp only [getEntry!, toList_nil, getEntry!_nil]
+  next k v t ih =>
+    simp only [getEntry!, ih, toList_cons, List.getEntry!_cons]
 
 @[simp]
 theorem getCastD_eq [BEq α] [LawfulBEq α] {l : AssocList α β} {a : α} {fallback : β a} :
     l.getCastD a fallback = getValueCastD a l.toList fallback := by
   induction l
-  · simp [getCastD, List.getValueCastD]
-  · simp_all [getCastD, List.getValueCastD, List.getValueCastD, List.getValueCast?_cons,
+  · simp [getCastD]
+  · simp_all [getCastD, List.getValueCastD, List.getValueCast?_cons,
       apply_dite (fun x => Option.getD x fallback)]
 
 @[simp]
@@ -91,7 +130,7 @@ theorem getD_eq {β : Type v} [BEq α] {l : AssocList α (fun _ => β)} {a : α}
   induction l
   · simp [getD, List.getValueD]
   · simp_all [getD, List.getValueD, List.getValueD, List.getValue?_cons,
-      Bool.apply_cond (fun x => Option.getD x fallback)]
+      apply_ite (fun x => Option.getD x fallback)]
 
 @[simp]
 theorem panicWithPosWithDecl_eq [Inhabited α] {modName declName line col msg} :
@@ -110,8 +149,7 @@ theorem get!_eq {β : Type v} [BEq α] [Inhabited β] {l : AssocList α (fun _ =
     l.get! a = getValue! a l.toList := by
   induction l
   · simp [get!, List.getValue!]
-  · simp_all [get!, List.getValue!, List.getValue!, List.getValue?_cons,
-      Bool.apply_cond Option.get!]
+  · simp_all [get!, List.getValue!, List.getValue!, List.getValue?_cons, apply_ite Option.get!]
 
 @[simp]
 theorem getKey?_eq [BEq α] {l : AssocList α β} {a : α} :
@@ -123,35 +161,35 @@ theorem getKey_eq [BEq α] {l : AssocList α β} {a : α} {h} :
     l.getKey a h = List.getKey a l.toList (contains_eq.symm.trans h) := by
   induction l
   · simp [contains] at h
-  · next k v t ih => simp only [getKey, toList_cons, List.getKey_cons, ih]
+  next k v t ih => simp only [getKey, toList_cons, List.getKey_cons, ih]
 
 @[simp]
 theorem getKeyD_eq [BEq α] {l : AssocList α β} {a fallback : α} :
     l.getKeyD a fallback = List.getKeyD a l.toList fallback := by
   induction l
   · simp [getKeyD, List.getKeyD]
-  · simp_all [getKeyD, List.getKeyD, Bool.apply_cond (fun x => Option.getD x fallback)]
+  · simp_all [getKeyD, List.getKeyD, apply_ite (fun x => Option.getD x fallback)]
 
 @[simp]
 theorem getKey!_eq [BEq α] [Inhabited α] {l : AssocList α β} {a : α} :
     l.getKey! a = List.getKey! a l.toList := by
   induction l
   · simp [getKey!, List.getKey!]
-  · simp_all [getKey!, List.getKey!, Bool.apply_cond Option.get!]
+  · simp_all [getKey!, List.getKey!, apply_ite Option.get!]
 
 @[simp]
 theorem toList_replace [BEq α] {l : AssocList α β} {a : α} {b : β a} :
     (l.replace a b).toList = replaceEntry a b l.toList := by
   induction l
   · simp [replace]
-  · next k v t ih => cases h : k == a <;> simp_all [replace, List.replaceEntry_cons]
+  next k v t ih => cases h : k == a <;> simp_all [replace, List.replaceEntry_cons]
 
 @[simp]
 theorem toList_erase [BEq α] {l : AssocList α β} {a : α} :
     (l.erase a).toList = eraseKey a l.toList := by
   induction l
   · simp [erase]
-  · next k v t ih => cases h : k == a <;> simp_all [erase, List.eraseKey_cons]
+  next k v t ih => cases h : k == a <;> simp_all [erase, List.eraseKey_cons]
 
 theorem toList_filterMap {f : (a : α) → β a → Option (γ a)} {l : AssocList α β} :
     Perm (l.filterMap f).toList (l.toList.filterMap fun p => (f p.1 p.2).map (⟨p.1, ·⟩)) := by
@@ -159,14 +197,14 @@ theorem toList_filterMap {f : (a : α) → β a → Option (γ a)} {l : AssocLis
   suffices ∀ l l', Perm (filterMap.go f l l').toList
       (l.toList ++ l'.toList.filterMap fun p => (f p.1 p.2).map (⟨p.1, ·⟩)) by
     simpa using this .nil l
-  intros l l'
+  intro l l'
   induction l' generalizing l
   · simp [filterMap.go]
-  · next k v t ih =>
+  next k v t ih =>
     simp only [filterMap.go, toList_cons, List.filterMap_cons]
     split
-    · next h => exact (ih _).trans (by simp [h])
-    · next h =>
+    next h => exact (ih _).trans (by simp [h])
+    next h =>
       refine (ih _).trans ?_
       simp only [toList_cons, List.cons_append]
       exact perm_middle.symm.trans (by simp [h])
@@ -177,10 +215,10 @@ theorem toList_map {f : (a : α) → β a → γ a} {l : AssocList α β} :
   suffices ∀ l l', Perm (map.go f l l').toList
       (l.toList ++ l'.toList.map fun p => ⟨p.1, f p.1 p.2⟩) by
     simpa using this .nil l
-  intros l l'
+  intro l l'
   induction l' generalizing l
   · simp [map.go]
-  · next k v t ih =>
+  next k v t ih =>
     simp only [map.go, toList_cons, List.map_cons]
     refine (ih _).trans ?_
     simpa using perm_middle.symm
@@ -191,11 +229,11 @@ theorem toList_filter {f : (a : α) → β a → Bool} {l : AssocList α β} :
   suffices ∀ l l', Perm (filter.go f l l').toList
       (l.toList ++ l'.toList.filter fun p => f p.1 p.2) by
     simpa using this .nil l
-  intros l l'
+  intro l l'
   induction l' generalizing l
   · simp [filter.go]
-  · next k v t ih =>
-    simp only [filter.go, toList_cons, List.filter_cons, cond_eq_if]
+  next k v t ih =>
+    simp only [filter.go, toList_cons, List.filter_cons, cond_eq_ite]
     split
     · exact (ih _).trans (by simpa using perm_middle.symm)
     · exact ih _
@@ -215,7 +253,7 @@ theorem filterMap_eq_filter {f : (a : α) → β a → Bool} {l : AssocList α �
   induction l generalizing l' with
   | nil => rfl
   | cons k v t ih =>
-    simp only [filterMap.go, filter.go, ih, Option.guard, cond_eq_if]
+    simp only [filterMap.go, filter.go, ih, Option.guard, cond_eq_ite]
     symm; split <;> rfl
 
 theorem toList_alter [BEq α] [LawfulBEq α] {a : α} {f : Option (β a) → Option (β a)}
@@ -233,7 +271,7 @@ theorem modify_eq_alter [BEq α] [LawfulBEq α] {a : α} {f : β a → β a} {l 
     modify a f l = alter a (·.map f) l := by
   induction l
   · rfl
-  · next ih => simp only [modify, beq_iff_eq, alter, Option.map_some, ih]
+  next ih => simp only [modify, beq_iff_eq, alter, Option.map_some, ih]
 
 namespace Const
 
@@ -242,7 +280,7 @@ variable {β : Type v}
 theorem toList_alter [BEq α] [EquivBEq α] {a : α} {f : Option β → Option β}
     {l : AssocList α (fun _ => β)} : Perm (alter a f l).toList (Const.alterKey a f l.toList) := by
   induction l
-  · simp only [alter, toList_nil, alterKey_nil]
+  · simp only [alter, toList_nil]
     split <;> simp_all
   · rw [toList]
     refine Perm.trans ?_ Const.alterKey_cons_perm.symm
@@ -253,7 +291,7 @@ theorem modify_eq_alter [BEq α] [EquivBEq α] {a : α} {f : β → β} {l : Ass
     modify a f l = alter a (·.map f) l := by
   induction l
   · rfl
-  · next ih => simp only [modify, beq_iff_eq, alter, Option.map_some, ih]
+  next ih => simp only [modify, alter, Option.map_some, ih]
 
 end Const
 
@@ -266,5 +304,14 @@ theorem foldr_apply {l : AssocList α β} {acc : List δ} (f : (a : α) → β a
     l.foldr (fun k v acc => f k v :: acc) acc =
       (l.toList.map (fun p => f p.1 p.2)) ++ acc := by
   induction l generalizing acc <;> simp_all [AssocList.foldr, AssocList.foldrM]
+
+theorem foldl_push_apply {l : AssocList α β} {acc : Array δ} (f : (a : α) → β a → δ) :
+    l.foldl (fun acc k v => acc.push (f k v)) acc =
+      acc ++ (l.toList.toArray.map (fun p => f p.1 p.2)) := by
+  simp [foldl]
+  induction l generalizing acc with
+  | nil => simp [foldlM]
+  | cons k v tl ih =>
+    simp [foldlM, ih]
 
 end Std.DHashMap.Internal.AssocList

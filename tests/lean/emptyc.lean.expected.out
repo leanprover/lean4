@@ -1,4 +1,0 @@
-emptyc.lean:19:0-19:2: error: ambiguous, possible interpretations 
-  ∅ : A
-  
-  { } : A

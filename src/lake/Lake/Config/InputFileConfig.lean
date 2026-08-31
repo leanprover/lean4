@@ -3,16 +3,21 @@ Copyright (c) 2025 Mac Malone. All rights reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Mac Malone
 -/
+module
+
 prelude
+public import Lake.Config.Pattern
+public import Lake.Config.MetaClasses
+public import Init.Data.ToString.Name
+meta import all Lake.Config.Meta
 import Lake.Config.Meta
-import Lake.Config.Pattern
 
 open Lean System
 
 namespace Lake
 
 /-- The declarative configuration for a single input file. -/
-configuration InputFileConfig (name : Name) where
+public configuration InputFileConfig (name : Name) where
   /--
   The path to the input file (relative to the package root).
 
@@ -28,10 +33,8 @@ configuration InputFileConfig (name : Name) where
   -/
   text : Bool := false
 
-instance : EmptyCollection (InputFileConfig name) := ⟨{}⟩
-
 /-- The declarative configuration for an input directory. -/
-configuration InputDirConfig (name : Name) where
+public configuration InputDirConfig (name : Name) where
   /--
   The path to the input directory (relative to the package root).
 
@@ -48,10 +51,8 @@ configuration InputDirConfig (name : Name) where
   text : Bool := false
   /-
   Includes only the files from the directory
-  whose paths statisify the pattern.
+  whose paths satisfy the pattern.
 
   Defaults to including every file.
   -/
   filter : PathPat := .star
-
-instance : EmptyCollection (InputDirConfig name) := ⟨{}⟩

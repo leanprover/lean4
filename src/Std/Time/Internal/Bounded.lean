@@ -3,10 +3,16 @@ Copyright (c) 2024 Lean FRO, LLC. All rights reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Sofia Rodrigues
 -/
+module
+
 prelude
-import Init.Omega
-import Init.Data.Int.DivMod.Lemmas
-import Std.Classes.Ord.Basic
+public import Init.Data.Int.DivMod.Lemmas
+public import Init.Data.Order.Ord
+public import Init.Data.Int.Repr
+public import Init.Omega
+import Init.Ext
+
+@[expose] public section
 
 namespace Std
 namespace Time
@@ -57,7 +63,7 @@ instance : LawfulEqOrd (Bounded rel n m) where
 variable {rel a b}
 
 /--
-A `Bounded` integer that the relation used is the the less-equal relation so, it includes all
+A `Bounded` integer where the relation used is the less-equal relation, so it includes all
 integers that `lo ≤ val ≤ hi`.
 -/
 abbrev LE := @Bounded LE.le
@@ -70,7 +76,7 @@ def cast {rel : Int → Int → Prop} {lo₁ lo₂ hi₁ hi₂ : Int} (h₁ : lo
   .mk b.val ⟨h₁ ▸ b.property.1, h₂ ▸ b.property.2⟩
 
 /--
-A `Bounded` integer that the relation used is the the less-than relation so, it includes all
+A `Bounded` integer where the relation used is the less-than relation, so it includes all
 integers that `lo < val < hi`.
 -/
 abbrev LT := @Bounded LT.lt
@@ -115,12 +121,12 @@ def ofNatWrapping { lo hi : Int } (val : Int) (h : lo ≤ hi) : Bounded.LE lo hi
 
 instance {k : Nat} : OfNat (Bounded.LE lo (lo + k)) n where
   ofNat :=
-    let h : lo ≤ lo + k := Int.le_add_of_nonneg_right (Int.ofNat_zero_le k)
+    let h : lo ≤ lo + k := Int.le_add_of_nonneg_right (Int.natCast_nonneg k)
     ofNatWrapping n h
 
 instance {k : Nat} : Inhabited (Bounded.LE lo (lo + k)) where
   default :=
-    let h : lo ≤ lo + k := Int.le_add_of_nonneg_right (Int.ofNat_zero_le k)
+    let h : lo ≤ lo + k := Int.le_add_of_nonneg_right (Int.natCast_nonneg k)
     ofNatWrapping lo h
 
 /--
@@ -151,7 +157,7 @@ Convert a `Nat` to a `Bounded.LE`.
 -/
 @[inline]
 def ofNat (val : Nat) (h : val ≤ hi) : Bounded.LE 0 hi :=
-  Bounded.mk val (And.intro (Int.ofNat_zero_le val) (Int.ofNat_le.mpr h))
+  Bounded.mk val (And.intro (Int.natCast_nonneg val) (Int.ofNat_le.mpr h))
 
 /--
 Convert a `Nat` to a `Bounded.LE` if it checks.
@@ -233,7 +239,7 @@ def ofFin' {lo : Nat} (fin : Fin (Nat.succ hi)) (h : lo ≤ hi) : Bounded.LE lo 
     else ofNat' lo (And.intro (Nat.le_refl lo) h)
 
 /--
-Creates a new `Bounded.LE` using a the modulus of a number.
+Creates a new `Bounded.LE` using the modulus of a number.
 -/
 @[inline]
 def byEmod (b : Int) (i : Int) (hi : i > 0) : Bounded.LE 0 (i - 1) := by
@@ -242,11 +248,11 @@ def byEmod (b : Int) (i : Int) (hi : i > 0) : Bounded.LE 0 (i - 1) := by
     intro a
     simp_all [Int.lt_irrefl]
   · apply Int.le_of_lt_add_one
-    simp [Int.add_sub_assoc]
+    simp
     exact Int.emod_lt_of_pos b hi
 
 /--
-Creates a new `Bounded.LE` using a the Truncating modulus of a number.
+Creates a new `Bounded.LE` using the Truncating modulus of a number.
 -/
 @[inline]
 def byMod (b : Int) (i : Int) (hi : 0 < i) : Bounded.LE (- (i - 1)) (i - 1) := by
@@ -471,11 +477,11 @@ def max (bounded : Bounded.LE n m) (val : Int) : Bounded.LE (Max.max n val) (Max
     simp [Int.max_def]
     split <;> split
 
-  next h => simp [h, Int.le_trans left h]
+  next h => simp
   next h h₁ => exact Int.le_of_lt <| Int.not_le.mp h₁
-  next h => simp [h, Int.le_trans left h]
+  next h => simp [Int.le_trans left h]
   next h h₁ => exact left
-  next h h₁ => simp [h, Int.le_trans left h]
+  next h h₁ => simp
   next h h₁ => exact Int.le_of_lt <| Int.not_le.mp h₁
   next h h₁ =>
     let h₃ := Int.lt_of_lt_of_le (Int.not_le.mp h) right

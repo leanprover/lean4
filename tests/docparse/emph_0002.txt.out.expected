@@ -1,0 +1,7 @@
+Failure @4 (⟨1, 4⟩): expected '_' without preceding space
+Final stack:
+  (Lean.Doc.Syntax.emph
+   "_"
+   [(Lean.Doc.Syntax.text (str "\"aa \""))]
+   <missing>)
+Remaining: "_"

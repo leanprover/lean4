@@ -3,9 +3,13 @@ Copyright (c) 2025 Lean FRO, LLC. All rights reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Paul Reichert
 -/
+module
+
 prelude
-import Std.Data.DTreeMap.Raw.Basic
-import Std.Data.DTreeMap.Internal.WF.Lemmas
+public import Std.Data.DTreeMap.Raw.Basic
+public import Std.Data.DTreeMap.Internal.WF.Lemmas
+
+@[expose] public section
 
 /-!
 # Additional dependent tree map operations
@@ -20,10 +24,10 @@ set_option linter.missingDocs true
 universe u v w
 
 variable {α : Type u} {β : α → Type v} {γ : α → Type w} {cmp : α → α → Ordering}
-private local instance : Coe (Type v) (α → Type v) where coe γ := fun _ => γ
 
 namespace Std.DTreeMap
-open Internal (Impl)
+local instance : Coe (Type v) (α → Type v) where coe γ := fun _ => γ
+open Std.DTreeMap.Internal (Impl)
 
 /--
 Updates the values of the map by applying the given function to all mappings, keeping

@@ -3,14 +3,16 @@ Copyright (c) 2024 Lean FRO, LLC. All rights reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Sofia Rodrigues
 -/
+module
+
 prelude
-import Std.Internal.Rat
-import Std.Time.Time.Unit.Nanosecond
+public import Std.Time.Time.Unit.Nanosecond
+
+@[expose] public section
 
 namespace Std
 namespace Time
 namespace Second
-open Std.Internal
 open Internal
 
 set_option linter.all true
@@ -34,7 +36,7 @@ instance : ToString (Ordinal leap) where
   toString r := toString r.val
 
 instance : OfNat (Ordinal leap) n := by
-  have inst := inferInstanceAs (OfNat (Bounded.LE 0 (0 + (59 : Nat))) n)
+  have inst : OfNat (Bounded.LE 0 (0 + (59 : Nat))) n := inferInstance
   cases leap
   · exact inst
   · exact ⟨inst.ofNat.expandTop (by decide)⟩

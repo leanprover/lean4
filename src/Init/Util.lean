@@ -6,8 +6,9 @@ Authors: Leonardo de Moura
 module
 
 prelude
-import Init.Data.String.Basic
-import Init.Data.ToString.Basic
+public import Init.Data.ToString.Basic
+
+public section
 
 universe u v
 
@@ -23,23 +24,59 @@ def dbgTraceVal {α : Type u} [ToString α] (a : α) : α :=
 set_option linter.unusedVariables.funArgs false in
 /-- Display the given message if `a` is shared, that is, RC(a) > 1 -/
 @[never_extract, extern "lean_dbg_trace_if_shared"]
-def dbgTraceIfShared {α : Type u} (s : String) (a : α) : α := a
+def dbgTraceIfShared {α : Type u} (s : @& String) (a : α) : α := a
 
 /-- Print stack trace to stderr before evaluating given closure. Currently supported on Linux only. -/
 @[never_extract, extern "lean_dbg_stack_trace"]
 def dbgStackTrace {α : Type u} (f : Unit → α) : α := f ()
 
+/--
+Print stack trace to stderr before evaluating given closure if `cond` is true.
+Currently supported on Linux only.
+-/
+@[never_extract]
+def dbgStackTraceIf {α : Type u} (cond : Bool) (f : Unit → α) : α :=
+  if cond then dbgStackTrace f else f ()
+
 @[extern "lean_dbg_sleep"]
 def dbgSleep {α : Type u} (ms : UInt32) (f : Unit → α) : α := f ()
 
 @[noinline] def mkPanicMessage (modName : String) (line col : Nat) (msg : String) : String :=
-  "PANIC at " ++ modName ++ ":" ++ toString line ++ ":" ++ toString col ++ ": " ++ msg
+  String.Internal.append
+    (String.Internal.append
+      (String.Internal.append
+        (String.Internal.append
+          (String.Internal.append
+            (String.Internal.append
+              (String.Internal.append "PANIC at " modName)
+              ":")
+            (toString line))
+          ":")
+        (toString col))
+      ": ")
+    msg
 
 @[never_extract, inline, expose] def panicWithPos {α : Sort u} [Inhabited α] (modName : String) (line col : Nat) (msg : String) : α :=
   panic (mkPanicMessage modName line col msg)
 
 @[noinline, expose] def mkPanicMessageWithDecl (modName : String) (declName : String) (line col : Nat) (msg : String) : String :=
-  "PANIC at " ++ declName ++ " " ++ modName ++ ":" ++ toString line ++ ":" ++ toString col ++ ": " ++ msg
+  String.Internal.append
+    (String.Internal.append
+      (String.Internal.append
+        (String.Internal.append
+          (String.Internal.append
+            (String.Internal.append
+              (String.Internal.append
+                (String.Internal.append
+                  (String.Internal.append "PANIC at " declName)
+                  " ")
+                modName)
+              ":")
+            (toString line))
+          ":")
+        (toString col))
+      ": ")
+    msg
 
 @[never_extract, inline, expose] def panicWithPosWithDecl {α : Sort u} [Inhabited α] (modName : String) (declName : String) (line col : Nat) (msg : String) : α :=
   panic (mkPanicMessageWithDecl modName declName line col msg)

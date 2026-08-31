@@ -6,8 +6,13 @@ Authors: François G. Dorais
 module
 
 prelude
-import Init.Data.List.FinRange
+public import Init.Data.Array.Basic
+import Init.Data.Array.Lemmas
 import Init.Data.Array.OfFn
+import Init.Data.Fin.Lemmas
+import Init.Omega
+
+public section
 
 set_option linter.listVariables true -- Enforce naming conventions for `List`/`Array`/`Vector` variables.
 set_option linter.indexVariables true -- Enforce naming conventions for index variables.
@@ -21,7 +26,7 @@ Examples:
  * `Array.finRange 0 = (#[] : Array (Fin 0))`
  * `Array.finRange 2 = (#[0, 1] : Array (Fin 2))`
 -/
-protected def finRange (n : Nat) : Array (Fin n) := ofFn fun i => i
+@[expose, instance_reducible] protected def finRange (n : Nat) : Array (Fin n) := ofFn fun i => i
 
 @[simp, grind =] theorem size_finRange {n} : (Array.finRange n).size = n := by
   simp [Array.finRange]

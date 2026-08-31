@@ -4,6 +4,8 @@ Released under Apache 2.0 license as described in the file LICENSE.
 
 Authors: Wojciech Nawrocki, Leonardo de Moura, Sebastian Ullrich
 -/
+module
+
 prelude
-import Lean.Elab.InfoTree.Types
-import Lean.Elab.InfoTree.Main
+public import Lean.Elab.InfoTree.Types
+public import Lean.Elab.InfoTree.Main

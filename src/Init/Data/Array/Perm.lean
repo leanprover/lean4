@@ -6,9 +6,15 @@ Authors: Kim Morrison
 module
 
 prelude
-import Init.Data.List.Nat.Perm
 import all Init.Data.Array.Basic
+public import Init.Data.Array.Basic
 import Init.Data.Array.Lemmas
+import Init.Data.List.Nat.Perm
+import Init.Data.List.Nat.TakeDrop
+import Init.Data.List.Perm
+import Init.Omega
+
+public section
 
 set_option linter.listVariables true -- Enforce naming conventions for `List`/`Array`/`Vector` variables.
 set_option linter.indexVariables true -- Enforce naming conventions for index variables.
@@ -82,14 +88,14 @@ theorem Perm.size_eq {xs ys : Array α} (p : xs ~ ys) : xs.size = ys.size := by
   simp only [perm_iff_toList_perm] at p
   simpa using p.length_eq
 
-@[deprecated Perm.size_eq (since := "2025-04-17")]
-abbrev Perm.length_eq := @Perm.size_eq
-
 theorem Perm.mem_iff {a : α} {xs ys : Array α} (p : xs ~ ys) : a ∈ xs ↔ a ∈ ys := by
   rcases xs with ⟨xs⟩
   rcases ys with ⟨ys⟩
   simp only [perm_iff_toList_perm] at p
   simpa using p.mem_iff
+
+grind_pattern Perm.mem_iff => xs ~ ys, a ∈ xs
+grind_pattern Perm.mem_iff => xs ~ ys, a ∈ ys
 
 theorem Perm.append {xs ys as bs : Array α} (p₁ : xs ~ ys) (p₂ : as ~ bs) :
     xs ++ as ~ ys ++ bs := by
@@ -97,10 +103,16 @@ theorem Perm.append {xs ys as bs : Array α} (p₁ : xs ~ ys) (p₂ : as ~ bs) :
   simp only [append_toArray, perm_iff_toList_perm] at p₁ p₂ ⊢
   exact p₁.append p₂
 
+grind_pattern Perm.append => xs ~ ys, as ~ bs, xs ++ as
+grind_pattern Perm.append => xs ~ ys, as ~ bs, ys ++ bs
+
 theorem Perm.push (x : α) {xs ys : Array α} (p : xs ~ ys) :
     xs.push x ~ ys.push x := by
-  rw [push_eq_append_singleton]
+  rw [push_eq_append]
   exact p.append .rfl
+
+grind_pattern Perm.push => xs ~ ys, xs.push x
+grind_pattern Perm.push => xs ~ ys, ys.push x
 
 theorem Perm.push_comm (x y : α) {xs ys : Array α} (p : xs ~ ys) :
     (xs.push x).push y ~ (ys.push y).push x := by
@@ -114,6 +126,14 @@ theorem swap_perm {xs : Array α} {i j : Nat} (h₁ : i < xs.size) (h₂ : j < x
   simp only [swap, perm_iff_toList_perm, toList_set]
   apply set_set_perm
 
+theorem Perm.pairwise_iff {R : α → α → Prop} (S : ∀ {x y}, R x y → R y x) {xs ys : Array α}
+    : ∀ _p : xs.Perm ys, xs.toList.Pairwise R ↔ ys.toList.Pairwise R := by
+  simpa only [perm_iff_toList_perm] using List.Perm.pairwise_iff S
+
+theorem Perm.pairwise {R : α → α → Prop} {xs ys : Array α} (hp : xs ~ ys)
+    (hR : xs.toList.Pairwise R) (hsymm : ∀ {x y}, R x y → R y x) :
+    ys.toList.Pairwise R := (hp.pairwise_iff hsymm).mp hR
+
 namespace Perm
 
 set_option linter.indexVariables false in
@@ -123,7 +143,7 @@ theorem extract {xs ys : Array α} (h : xs ~ ys) {lo hi : Nat}
   rcases xs with ⟨xs⟩
   rcases ys with ⟨ys⟩
   simp_all only [perm_iff_toList_perm, List.getElem?_toArray, List.extract_toArray,
-    List.extract_eq_drop_take]
+    List.extract_eq_take_drop]
   apply List.Perm.take_of_getElem? (w := fun i h => by simpa using whi (lo + i) (by omega))
   apply List.Perm.drop_of_getElem? (w := wlo)
   exact h

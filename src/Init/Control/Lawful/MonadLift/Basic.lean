@@ -6,7 +6,9 @@ Authors: Quang Dao
 module
 
 prelude
-import Init.Control.Basic
+public import Init.Notation
+
+public section
 
 /-!
 # LawfulMonadLift and LawfulMonadLiftT

@@ -8,8 +8,11 @@ Additional `Task` definitions.
 module
 
 prelude
-import Init.Core
+public import Init.Core
 import Init.Data.List.Basic
+import Init.Data.Nat.Bitwise.Basic
+
+public section
 
 namespace Task
 

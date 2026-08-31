@@ -3,13 +3,13 @@ Copyright (c) 2025 Amazon.com, Inc. or its affiliates. All Rights Reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Leonardo de Moura
 -/
+module
 prelude
 import Init.Grind
-import Init.Simproc
 import Lean.Meta.Tactic.Contradiction
 import Lean.Meta.Tactic.Grind.ProveEq
-import Lean.Meta.Tactic.Grind.PropagatorAttr
-
+public import Lean.Meta.Tactic.Grind.PropagatorAttr
+public section
 namespace Lean.Meta.Grind
 /-
 Remark: the `simp` module has some support for `MatchCond`, but it is
@@ -148,23 +148,23 @@ Moreover, `C₁` is definitionally equal to `l t s`, and `C₂` is definitionall
 Then, if `grind` infers that `t = a` and `s = b`, it will detect that `l t s` and `l a b` are
 equal by congruence, and consequently `C₁` is equal to `C₂`.
 
-Gruesome details for heterogenenous equalities.
+Gruesome details for heterogeneous equalities.
 
-When pattern matching on indexing families, the generated conditions often use heterogenenous equalities. Here is an example:
+When pattern matching on indexing families, the generated conditions often use heterogeneous equalities. Here is an example:
 ```
-(∀ (x : Vec α 0), n = 0 → HEq as Vec.nil → HEq bs x → False)
+(∀ (x : Vec α 0), n = 0 → as ≍ Vec.nil → bs ≍ x → False)
 ```
 In this case, it is not sufficient to abstract the left-hand side. We also have
 to abstract its type. The following is produced in this case.
 ```
 (#[n, Vec α n, as, Vec α n, bs],
  (fun (x_0 : Nat) (ty_1 : Type u_1) (x_1 : ty_1) (ty_2 : Type u_1) (x_2 : ty_2) =>
-    ∀ (x : Vec α 0), x_0 = 0 → HEq x_1 Vec.nil → HEq x_2 x → False)
+    ∀ (x : Vec α 0), x_0 = 0 → x_1 ≍ Vec.nil → x_2 ≍ x → False)
  n (Vec α n) as (Vec α n) bs)
 ```
 The example makes it clear why this is needed, `as` and `bs` depend on `n`.
-Note that we can abstract the type without introducing typer errors because
-heterogenenous equality is used for `as` and `bs`.
+Note that we can abstract the type without introducing type errors because
+heterogeneous equality is used for `as` and `bs`.
 -/
 def collectMatchCondLhssAndAbstract (matchCond : Expr) : GoalM (Array Expr × Expr) := do
   let_expr Grind.MatchCond e := matchCond | return (#[], matchCond)
@@ -212,7 +212,7 @@ where
       if ctorLhs.name ≠ ctorRhs.name then return true
       let lhsArgs := root.self.getAppArgs
       let rhsArgs := rhs.getAppArgs
-      for i in [ctorLhs.numParams : ctorLhs.numParams + ctorLhs.numFields] do
+      for i in ctorLhs.numParams...(ctorLhs.numParams + ctorLhs.numFields) do
         if (← isFalse lhsArgs[i]! rhsArgs[i]!) then
           return true
       return false
@@ -224,7 +224,7 @@ where
       return false
 
 /--
-Returns `true` if `e` is a `Grind.MatchCond`, and it has been satifisfied.
+Returns `true` if `e` is a `Grind.MatchCond`, and it has been satisfied.
 Recall that we use `Grind.MatchCond` to annotate conditional `match`-equations.
 Consider the following example:
 ```
@@ -251,7 +251,7 @@ the following auxiliary `Grind.MatchCond` terms for an application `f a b`:
 `isSatisfied` uses the fact that constructor applications and literal values
 are always the root of their equivalence classes.
 -/
-private partial def isStatisfied (e : Expr) : GoalM Bool := do
+private partial def isSatisfied (e : Expr) : GoalM Bool := do
   let_expr Grind.MatchCond e ← e | return false
   let mut e := e
   repeat
@@ -280,7 +280,6 @@ where
     trace_goal[grind.debug.matchCond] "go?: {← inferType h}"
     let some (α?, lhs, rhs) := isEqHEq? (← inferType h)
       | return none
-    let target ← (← get).mvarId.getType
     -- We use `shareCommon` here because we may accessing a new expression
     -- created when we infer the type of the `noConfusion` term below
     let lhs ← shareCommon lhs
@@ -298,7 +297,8 @@ where
       let some ctorLhs ← isConstructorApp? root.self | return none
       let some ctorRhs ← isConstructorApp? rhs | return none
       -- See comment on `shareCommon` above.
-      let h ← mkNoConfusion target h
+      -- Recall that `match`-expression conditions always have `False` as their conclusion.
+      let h ← mkNoConfusion (← getFalseExpr) h
       if ctorLhs.name ≠ ctorRhs.name then
         return some h
       else
@@ -317,6 +317,15 @@ where
         return none
     else
       return none
+
+/--
+Returns `true` if `e` looks like a `match`-pattern instance: a metavariable (pattern
+variable), a constructor application, or a literal value.
+-/
+private def isPatternLike (e : Expr) : GoalM Bool := do
+  if e.getAppFn.isMVar then return true
+  if (← isConstructorApp? e).isSome then return true
+  isLitValue e
 
 /--
 Given a `match`-expression condition `e` that is known to be equal to `True`,
@@ -357,11 +366,25 @@ partial def tryToProveFalse (e : Expr) : GoalM Unit := do
       if target then
         let some (α?, lhs, rhs) := isEqHEq? (← inferType arg)
           | return none
-        let lhs' ← go lhs
-        trace[grind.debug.matchCond.proveFalse] "{lhs'} =?= {rhs}"
-        unless (← withDefault <| isDefEq lhs' rhs) do
-          return none
         let isHEq := α?.isSome
+        let rhs ← instantiateMVars rhs
+        let lhs' ← if (← pure !rhs.hasExprMVar <&&> isEqv lhs rhs) then
+          -- The congruence closure already knows that `lhs = rhs`.
+          pure rhs
+        else
+          let lhs' ← go lhs
+          trace[grind.debug.matchCond.proveFalse] "{lhs'} =?= {rhs}"
+          /-
+          `rhs` is pattern-like for actual `match`-expression conditions. For hypotheses that
+          merely have the shape of a condition (e.g., `h : a = b → False` where `b` is not a
+          constructor application), `isDefEqD` may trigger arbitrarily expensive reductions
+          trying to decide `a =?= b`. See issue #14441.
+          -/
+          unless (← isPatternLike rhs) do
+            return none
+          unless (← isDefEqD lhs' rhs) do
+            return none
+          pure lhs'
         let some lhsEqLhs' ← if isHEq then proveHEq? lhs lhs' else proveEq? lhs lhs'
           | return none
         unless (← isDefEq arg lhsEqLhs') do
@@ -392,7 +415,7 @@ where
       let some ctorInfo ← isConstructorApp? ctor | return ctor
       let mut ctorArgs := ctor.getAppArgs
       let mut modified := false
-      for i in [ctorInfo.numParams : ctorInfo.numParams + ctorInfo.numFields] do
+      for i in ctorInfo.numParams...(ctorInfo.numParams + ctorInfo.numFields) do
         let arg  := ctorArgs[i]!
         let arg' ← go arg
         unless isSameExpr arg arg' do
@@ -411,10 +434,10 @@ where
 builtin_grind_propagator propagateMatchCondUp ↑Grind.MatchCond := fun e => do
   trace_goal[grind.debug.matchCond] "visiting{indentExpr e}"
   if (← isEqTrue e) then
-    unless (← isStatisfied e) do
+    unless (← isSatisfied e) do
       tryToProveFalse e
   else
-    if !(← isStatisfied e) then return ()
+    if !(← isSatisfied e) then return ()
     let some h ← mkMatchCondProof? e
        | reportIssue! "failed to construct proof for{indentExpr e}"; return ()
     trace_goal[grind.debug.matchCond] "{← inferType h}"
@@ -423,7 +446,7 @@ builtin_grind_propagator propagateMatchCondUp ↑Grind.MatchCond := fun e => do
 /-- Propagates `MatchCond` downwards -/
 builtin_grind_propagator propagateMatchCondDown ↓Grind.MatchCond := fun e => do
   if (← isEqTrue e) then
-    unless (← isStatisfied e) do
+    unless (← isSatisfied e) do
       tryToProveFalse e
 
 end Lean.Meta.Grind

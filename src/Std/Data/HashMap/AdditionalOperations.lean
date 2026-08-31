@@ -3,10 +3,14 @@ Copyright (c) 2024 Lean FRO, LLC. All rights reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Markus Himmel
 -/
+module
+
 prelude
-import Std.Data.DHashMap.AdditionalOperations
-import Std.Data.HashMap.Basic
-import Std.Data.HashMap.Raw
+public import Std.Data.DHashMap.AdditionalOperations
+public import Std.Data.HashMap.Basic
+public import Std.Data.HashMap.Raw
+
+@[expose] public section
 
 /-!
 # Additional hash map operations
@@ -37,11 +41,11 @@ theorem WF.map [BEq α] [Hashable α] {m : Raw α β} {f : α → β → γ} (h 
 
 end Raw
 
-@[inline, inherit_doc DHashMap.filterMap] def filterMap [BEq α] [Hashable α] (f : α → β → Option γ)
+@[cbv_opaque, inline, inherit_doc DHashMap.filterMap] def filterMap [BEq α] [Hashable α] (f : α → β → Option γ)
     (m : HashMap α β) : HashMap α γ :=
   ⟨m.inner.filterMap f⟩
 
-@[inline, inherit_doc DHashMap.map] def map [BEq α] [Hashable α] (f : α → β → γ) (m : HashMap α β) :
+@[cbv_opaque, inline, inherit_doc DHashMap.map] def map [BEq α] [Hashable α] (f : α → β → γ) (m : HashMap α β) :
     HashMap α γ :=
   ⟨m.inner.map f⟩
 

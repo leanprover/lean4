@@ -3,10 +3,12 @@ Copyright (c) 2021 Microsoft Corporation. All rights reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Sebastian Ullrich, Daniel Selsam, Wojciech Nawrocki
 -/
+module
+
 prelude
-import Lean.Meta.Basic
-import Lean.SubExpr
-import Lean.Data.RBMap
+public import Lean.SubExpr
+
+public section
 
 /-!
 # Subexpr utilities for delaborator.
@@ -16,15 +18,15 @@ in sync with the `Nat` "position" values that refer to them.
 
 namespace Lean.PrettyPrinter.Delaborator
 
-abbrev OptionsPerPos := RBMap SubExpr.Pos Options compare
+abbrev OptionsPerPos := Std.TreeMap SubExpr.Pos Options
 
 def OptionsPerPos.insertAt (optionsPerPos : OptionsPerPos) (pos : SubExpr.Pos) (name : Name) (value : DataValue) : OptionsPerPos :=
-  let opts := optionsPerPos.find? pos |>.getD {}
-  optionsPerPos.insert pos <| opts.insert name value
+  let opts := optionsPerPos.get? pos |>.getD {}
+  optionsPerPos.insert pos <| opts.set name value
 
 /-- Merges two collections of options, where the second overrides the first. -/
 def OptionsPerPos.merge : OptionsPerPos → OptionsPerPos → OptionsPerPos :=
-  RBMap.mergeBy (fun _ => KVMap.mergeBy (fun _ _ dv => dv))
+  Std.TreeMap.mergeWith (fun _ => Options.mergeBy (fun _ _ dv => dv))
 
 namespace SubExpr
 
@@ -121,8 +123,8 @@ def withLetValue (x : m α) : m α := do
   descend v 1 x
 
 def withLetBody (x : m α) : m α := do
-  let Expr.letE n t v b _ ← getExpr | unreachable!
-  Meta.withLetDecl n t v fun fvar =>
+  let Expr.letE n t v b nondep ← getExpr | unreachable!
+  Meta.withLetDecl n t v (nondep := nondep) fun fvar =>
     let b := b.instantiate1 fvar
     descend b 2 x
 

@@ -3,9 +3,13 @@ Copyright (c) 2020 Microsoft Corporation. All rights reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Leonardo de Moura
 -/
+module
+
 prelude
-import Lean.Meta.Diagnostics
-import Lean.Meta.Tactic.Simp.Types
+public import Lean.Meta.Diagnostics
+public import Lean.Meta.Tactic.Simp.Types
+
+public section
 
 namespace Lean.Meta.Simp
 
@@ -63,6 +67,9 @@ def mkDiagMessages (diag : Simp.Diagnostics) : MetaM (Array MessageData) := do
 
 def reportDiag (diag : Simp.Diagnostics) : MetaM Unit := do
   if (← isDiagnosticsEnabled) then
+    -- Diagnostic output may reference private declarations that are not visible
+    -- in exporting mode (issue #13581).
+    withoutExporting do
     let m ← mkDiagMessages diag
     unless m.isEmpty do
       logInfo <| .trace { cls := `simp, collapsed := false } "Diagnostics" m

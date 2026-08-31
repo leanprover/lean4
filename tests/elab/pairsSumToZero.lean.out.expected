@@ -1,0 +1,7 @@
+Try this:
+  [apply] [grind .] for pattern: [@ExistsPair #1 #0 (@nil _)]
+Try this:
+  [apply] [grind =] for pattern: [@ExistsPair #3 #2 (@cons _ #1 #0)]
+Try these:
+  [apply] [grind =] for pattern: [@ExistsPair #3 #2 (@HAppend.hAppend (List _) (List _) (List _) _ #1 #0)]
+  [apply] [grind =_] for pattern: [@ExistsPair #3 #2 #1, @ExistsPair _ #2 #0, @Exists _ _]

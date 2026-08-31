@@ -1,0 +1,6 @@
+name = "test"
+enableArtifactCache = true
+restoreAllArtifacts = true
+
+[[lean_lib]]
+name = "Test"

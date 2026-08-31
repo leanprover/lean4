@@ -6,12 +6,15 @@ Authors: Mario Carneiro, Yury G. Kudryashov
 module
 
 prelude
-import Init.PropLemmas
+public import Init.PropLemmas
+import Init.LawfulBEqTactics
+
+public section
 
 /-!
 # Disjoint union of types
 
-This file defines basic operations on the the sum type `α ⊕ β`.
+This file defines basic operations on the sum type `α ⊕ β`.
 
 `α ⊕ β` is the type made of a copy of `α` and a copy of `β`. It is also called *disjoint union*.
 
@@ -44,7 +47,9 @@ universe signature in consequence. The `Prop` version is `Or`.
 
 namespace Sum
 
-deriving instance BEq for Sum
+@[expose] section
+deriving instance BEq, ReflBEq, LawfulBEq for Sum
+end
 
 section get
 
@@ -76,18 +81,18 @@ section get
   | inr b => some b
   | inl _ => none
 
-@[simp] theorem isLeft_inl : (inl x : α ⊕ β).isLeft = true := rfl
-@[simp] theorem isLeft_inr : (inr x : α ⊕ β).isLeft = false := rfl
-@[simp] theorem isRight_inl : (inl x : α ⊕ β).isRight = false := rfl
-@[simp] theorem isRight_inr : (inr x : α ⊕ β).isRight = true := rfl
+@[simp, grind =] theorem isLeft_inl : (inl x : α ⊕ β).isLeft = true := rfl
+@[simp, grind =] theorem isLeft_inr : (inr x : α ⊕ β).isLeft = false := rfl
+@[simp, grind =] theorem isRight_inl : (inl x : α ⊕ β).isRight = false := rfl
+@[simp, grind =] theorem isRight_inr : (inr x : α ⊕ β).isRight = true := rfl
 
-@[simp] theorem getLeft_inl (h : (inl x : α ⊕ β).isLeft) : (inl x).getLeft h = x := rfl
-@[simp] theorem getRight_inr (h : (inr x : α ⊕ β).isRight) : (inr x).getRight h = x := rfl
+@[simp, grind =] theorem getLeft_inl (h : (inl x : α ⊕ β).isLeft) : (inl x).getLeft h = x := rfl
+@[simp, grind =] theorem getRight_inr (h : (inr x : α ⊕ β).isRight) : (inr x).getRight h = x := rfl
 
-@[simp] theorem getLeft?_inl : (inl x : α ⊕ β).getLeft? = some x := rfl
-@[simp] theorem getLeft?_inr : (inr x : α ⊕ β).getLeft? = none := rfl
-@[simp] theorem getRight?_inl : (inl x : α ⊕ β).getRight? = none := rfl
-@[simp] theorem getRight?_inr : (inr x : α ⊕ β).getRight? = some x := rfl
+@[simp, grind =] theorem getLeft?_inl : (inl x : α ⊕ β).getLeft? = some x := rfl
+@[simp, grind =] theorem getLeft?_inr : (inr x : α ⊕ β).getLeft? = none := rfl
+@[simp, grind =] theorem getRight?_inl : (inl x : α ⊕ β).getRight? = none := rfl
+@[simp, grind =] theorem getRight?_inr : (inr x : α ⊕ β).getRight? = some x := rfl
 
 end get
 
@@ -98,10 +103,10 @@ constructor is present.
 @[expose] protected def elim {α β γ} (f : α → γ) (g : β → γ) : α ⊕ β → γ :=
   fun x => Sum.casesOn x f g
 
-@[simp] theorem elim_inl (f : α → γ) (g : β → γ) (x : α) :
+@[simp, grind =] theorem elim_inl (f : α → γ) (g : β → γ) (x : α) :
     Sum.elim f g (inl x) = f x := rfl
 
-@[simp] theorem elim_inr (f : α → γ) (g : β → γ) (x : β) :
+@[simp, grind =] theorem elim_inr (f : α → γ) (g : β → γ) (x : β) :
     Sum.elim f g (inr x) = g x := rfl
 
 /--
@@ -112,9 +117,9 @@ This function maps `α ⊕ β` to `α' ⊕ β'`, sending `α` to `α'` and `β` 
 @[expose] protected def map (f : α → α') (g : β → β') : α ⊕ β → α' ⊕ β' :=
   Sum.elim (inl ∘ f) (inr ∘ g)
 
-@[simp] theorem map_inl (f : α → α') (g : β → β') (x : α) : (inl x).map f g = inl (f x) := rfl
+@[simp, grind =] theorem map_inl (f : α → α') (g : β → β') (x : α) : (inl x).map f g = inl (f x) := rfl
 
-@[simp] theorem map_inr (f : α → α') (g : β → β') (x : β) : (inr x).map f g = inr (g x) := rfl
+@[simp, grind =] theorem map_inr (f : α → α') (g : β → β') (x : β) : (inr x).map f g = inr (g x) := rfl
 
 /--
 Swaps the factors of a sum type.
@@ -123,9 +128,9 @@ The constructor `Sum.inl` is replaced with `Sum.inr`, and vice versa.
 -/
 @[expose] def swap : α ⊕ β → β ⊕ α := Sum.elim inr inl
 
-@[simp] theorem swap_inl : swap (inl x : α ⊕ β) = inr x := rfl
+@[simp, grind =] theorem swap_inl : swap (inl x : α ⊕ β) = inr x := rfl
 
-@[simp] theorem swap_inr : swap (inr x : α ⊕ β) = inl x := rfl
+@[simp, grind =] theorem swap_inr : swap (inr x : α ⊕ β) = inl x := rfl
 
 section LiftRel
 
@@ -137,14 +142,14 @@ inductive LiftRel (r : α → γ → Prop) (s : β → δ → Prop) : α ⊕ β 
   /-- `inr b` and `inr d` are related via `LiftRel r s` if `b` and `d` are related via `s`. -/
   | protected inr {b d} : s b d → LiftRel r s (inr b) (inr d)
 
-@[simp] theorem liftRel_inl_inl : LiftRel r s (inl a) (inl c) ↔ r a c :=
+@[simp, grind =] theorem liftRel_inl_inl : LiftRel r s (inl a) (inl c) ↔ r a c :=
   ⟨fun h => by cases h; assumption, LiftRel.inl⟩
 
-@[simp] theorem not_liftRel_inl_inr : ¬LiftRel r s (inl a) (inr d) := nofun
+@[simp, grind ←] theorem not_liftRel_inl_inr : ¬LiftRel r s (inl a) (inr d) := nofun
 
-@[simp] theorem not_liftRel_inr_inl : ¬LiftRel r s (inr b) (inl c) := nofun
+@[simp, grind ←] theorem not_liftRel_inr_inl : ¬LiftRel r s (inr b) (inl c) := nofun
 
-@[simp] theorem liftRel_inr_inr : LiftRel r s (inr b) (inr d) ↔ s b d :=
+@[simp, grind =] theorem liftRel_inr_inr : LiftRel r s (inr b) (inr d) ↔ s b d :=
   ⟨fun h => by cases h; assumption, LiftRel.inr⟩
 
 instance {r : α → γ → Prop} {s : β → δ → Prop}
@@ -171,13 +176,13 @@ inductive Lex (r : α → α → Prop) (s : β → β → Prop) : α ⊕ β → 
 
 attribute [simp] Lex.sep
 
-@[simp] theorem lex_inl_inl : Lex r s (inl a₁) (inl a₂) ↔ r a₁ a₂ :=
+@[simp, grind =] theorem lex_inl_inl : Lex r s (inl a₁) (inl a₂) ↔ r a₁ a₂ :=
   ⟨fun h => by cases h; assumption, Lex.inl⟩
 
-@[simp] theorem lex_inr_inr : Lex r s (inr b₁) (inr b₂) ↔ s b₁ b₂ :=
+@[simp, grind =] theorem lex_inr_inr : Lex r s (inr b₁) (inr b₂) ↔ s b₁ b₂ :=
   ⟨fun h => by cases h; assumption, Lex.inr⟩
 
-@[simp] theorem lex_inr_inl : ¬Lex r s (inr b) (inl a) := nofun
+@[simp, grind ←] theorem lex_inr_inl : ¬Lex r s (inr b) (inl a) := nofun
 
 instance instDecidableRelSumLex [DecidableRel r] [DecidableRel s] : DecidableRel (Lex r s)
   | inl _, inl _ => decidable_of_iff' _ lex_inl_inl

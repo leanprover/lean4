@@ -1,6 +1,6 @@
 // Lean compiler output
 // Module: Std.Tactic.BVDecide.Bitblast.BVExpr.Circuit.Impl.Operations.GetLsbD
-// Imports: Std.Sat.AIG.CachedGatesLemmas Std.Sat.AIG.RefVec
+// Imports: public import Std.Sat.AIG.RefVec
 #include <lean/lean.h>
 #if defined(__clang__)
 #pragma clang diagnostic ignored "-Wunused-parameter"
@@ -13,99 +13,127 @@
 #ifdef __cplusplus
 extern "C" {
 #endif
-LEAN_EXPORT lean_object* l_Std_Tactic_BVDecide_BVPred_blastGetLsbD___rarg(lean_object*, lean_object*, lean_object*, lean_object*);
-lean_object* lean_nat_div(lean_object*, lean_object*);
-lean_object* lean_nat_land(lean_object*, lean_object*);
-LEAN_EXPORT lean_object* l_Std_Tactic_BVDecide_BVPred_blastGetLsbD(lean_object*);
-LEAN_EXPORT lean_object* l_Std_Tactic_BVDecide_BVPred_blastGetLsbD___rarg___boxed(lean_object*, lean_object*, lean_object*, lean_object*);
-lean_object* lean_array_fget(lean_object*, lean_object*);
-uint8_t lean_nat_dec_eq(lean_object*, lean_object*);
 uint8_t lean_nat_dec_lt(lean_object*, lean_object*);
-LEAN_EXPORT lean_object* l_Std_Tactic_BVDecide_BVPred_blastGetLsbD___rarg(lean_object* x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4) {
+lean_object* lean_array_fget_borrowed(lean_object*, lean_object*);
+lean_object* lean_nat_shiftr(lean_object*, lean_object*);
+lean_object* lean_nat_land(lean_object*, lean_object*);
+uint8_t lean_nat_dec_eq(lean_object*, lean_object*);
+LEAN_EXPORT lean_object* l_Std_Tactic_BVDecide_BVPred_blastGetLsbD___redArg(lean_object*);
+LEAN_EXPORT lean_object* l_Std_Tactic_BVDecide_BVPred_blastGetLsbD___redArg___boxed(lean_object*);
+LEAN_EXPORT lean_object* l_Std_Tactic_BVDecide_BVPred_blastGetLsbD(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
+LEAN_EXPORT lean_object* l_Std_Tactic_BVDecide_BVPred_blastGetLsbD___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
+LEAN_EXPORT lean_object* l_Std_Tactic_BVDecide_BVPred_blastGetLsbD___redArg(lean_object* v_target_1_){
 _start:
 {
-lean_object* x_5; lean_object* x_6; uint8_t x_7; 
-x_5 = lean_ctor_get(x_4, 2);
-x_6 = lean_ctor_get(x_4, 0);
-x_7 = lean_nat_dec_lt(x_5, x_6);
-if (x_7 == 0)
+lean_object* v_w_2_; lean_object* v_vec_3_; lean_object* v_idx_4_; uint8_t v___x_5_; 
+v_w_2_ = lean_ctor_get(v_target_1_, 0);
+v_vec_3_ = lean_ctor_get(v_target_1_, 1);
+v_idx_4_ = lean_ctor_get(v_target_1_, 2);
+v___x_5_ = lean_nat_dec_lt(v_idx_4_, v_w_2_);
+if (v___x_5_ == 0)
 {
-lean_object* x_8; uint8_t x_9; lean_object* x_10; 
-x_8 = lean_unsigned_to_nat(0u);
-x_9 = 0;
-x_10 = lean_alloc_ctor(0, 1, 1);
-lean_ctor_set(x_10, 0, x_8);
-lean_ctor_set_uint8(x_10, sizeof(void*)*1, x_9);
-return x_10;
+lean_object* v___x_6_; lean_object* v___x_7_; 
+v___x_6_ = lean_unsigned_to_nat(0u);
+v___x_7_ = lean_alloc_ctor(0, 1, 1);
+lean_ctor_set(v___x_7_, 0, v___x_6_);
+lean_ctor_set_uint8(v___x_7_, sizeof(void*)*1, v___x_5_);
+return v___x_7_;
 }
 else
 {
-lean_object* x_11; lean_object* x_12; lean_object* x_13; lean_object* x_14; lean_object* x_15; lean_object* x_16; lean_object* x_17; uint8_t x_18; 
-x_11 = lean_ctor_get(x_4, 1);
-x_12 = lean_array_fget(x_11, x_5);
-x_13 = lean_unsigned_to_nat(2u);
-x_14 = lean_nat_div(x_12, x_13);
-x_15 = lean_unsigned_to_nat(1u);
-x_16 = lean_nat_land(x_15, x_12);
-lean_dec(x_12);
-x_17 = lean_unsigned_to_nat(0u);
-x_18 = lean_nat_dec_eq(x_16, x_17);
-lean_dec(x_16);
-if (x_18 == 0)
+lean_object* v_ref_8_; lean_object* v___x_9_; lean_object* v___x_10_; lean_object* v___x_11_; lean_object* v___x_12_; uint8_t v___x_13_; 
+v_ref_8_ = lean_array_fget_borrowed(v_vec_3_, v_idx_4_);
+v___x_9_ = lean_unsigned_to_nat(1u);
+v___x_10_ = lean_nat_shiftr(v_ref_8_, v___x_9_);
+v___x_11_ = lean_nat_land(v___x_9_, v_ref_8_);
+v___x_12_ = lean_unsigned_to_nat(0u);
+v___x_13_ = lean_nat_dec_eq(v___x_11_, v___x_12_);
+lean_dec(v___x_11_);
+if (v___x_13_ == 0)
 {
-uint8_t x_19; lean_object* x_20; 
-x_19 = 1;
-x_20 = lean_alloc_ctor(0, 1, 1);
-lean_ctor_set(x_20, 0, x_14);
-lean_ctor_set_uint8(x_20, sizeof(void*)*1, x_19);
-return x_20;
+lean_object* v___x_14_; 
+v___x_14_ = lean_alloc_ctor(0, 1, 1);
+lean_ctor_set(v___x_14_, 0, v___x_10_);
+lean_ctor_set_uint8(v___x_14_, sizeof(void*)*1, v___x_5_);
+return v___x_14_;
 }
 else
 {
-uint8_t x_21; lean_object* x_22; 
-x_21 = 0;
-x_22 = lean_alloc_ctor(0, 1, 1);
-lean_ctor_set(x_22, 0, x_14);
-lean_ctor_set_uint8(x_22, sizeof(void*)*1, x_21);
-return x_22;
+uint8_t v___x_15_; lean_object* v___x_16_; 
+v___x_15_ = 0;
+v___x_16_ = lean_alloc_ctor(0, 1, 1);
+lean_ctor_set(v___x_16_, 0, v___x_10_);
+lean_ctor_set_uint8(v___x_16_, sizeof(void*)*1, v___x_15_);
+return v___x_16_;
 }
 }
 }
 }
-LEAN_EXPORT lean_object* l_Std_Tactic_BVDecide_BVPred_blastGetLsbD(lean_object* x_1) {
+LEAN_EXPORT lean_object* l_Std_Tactic_BVDecide_BVPred_blastGetLsbD___redArg___boxed(lean_object* v_target_17_){
 _start:
 {
-lean_object* x_2; 
-x_2 = lean_alloc_closure((void*)(l_Std_Tactic_BVDecide_BVPred_blastGetLsbD___rarg___boxed), 4, 0);
-return x_2;
+lean_object* v_res_18_; 
+v_res_18_ = l_Std_Tactic_BVDecide_BVPred_blastGetLsbD___redArg(v_target_17_);
+lean_dec_ref(v_target_17_);
+return v_res_18_;
 }
 }
-LEAN_EXPORT lean_object* l_Std_Tactic_BVDecide_BVPred_blastGetLsbD___rarg___boxed(lean_object* x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4) {
+LEAN_EXPORT lean_object* l_Std_Tactic_BVDecide_BVPred_blastGetLsbD(lean_object* v_00_u03b1_19_, lean_object* v_inst_20_, lean_object* v_inst_21_, lean_object* v_aig_22_, lean_object* v_target_23_){
 _start:
 {
-lean_object* x_5; 
-x_5 = l_Std_Tactic_BVDecide_BVPred_blastGetLsbD___rarg(x_1, x_2, x_3, x_4);
-lean_dec(x_4);
-lean_dec(x_3);
-lean_dec(x_2);
-lean_dec(x_1);
-return x_5;
+lean_object* v___x_24_; 
+v___x_24_ = l_Std_Tactic_BVDecide_BVPred_blastGetLsbD___redArg(v_target_23_);
+return v___x_24_;
 }
 }
-lean_object* initialize_Std_Sat_AIG_CachedGatesLemmas(uint8_t builtin, lean_object*);
-lean_object* initialize_Std_Sat_AIG_RefVec(uint8_t builtin, lean_object*);
-static bool _G_initialized = false;
-LEAN_EXPORT lean_object* initialize_Std_Tactic_BVDecide_Bitblast_BVExpr_Circuit_Impl_Operations_GetLsbD(uint8_t builtin, lean_object* w) {
+LEAN_EXPORT lean_object* l_Std_Tactic_BVDecide_BVPred_blastGetLsbD___boxed(lean_object* v_00_u03b1_25_, lean_object* v_inst_26_, lean_object* v_inst_27_, lean_object* v_aig_28_, lean_object* v_target_29_){
+_start:
+{
+lean_object* v_res_30_; 
+v_res_30_ = l_Std_Tactic_BVDecide_BVPred_blastGetLsbD(v_00_u03b1_25_, v_inst_26_, v_inst_27_, v_aig_28_, v_target_29_);
+lean_dec_ref(v_target_29_);
+lean_dec_ref(v_aig_28_);
+lean_dec_ref(v_inst_27_);
+lean_dec_ref(v_inst_26_);
+return v_res_30_;
+}
+}
+lean_object* runtime_initialize_Std_Sat_AIG_RefVec(uint8_t builtin);
+void lean_initialize_runtime_module();
+static bool _G_runtime_initialized = false;
+LEAN_EXPORT lean_object* runtime_initialize_Std_Tactic_BVDecide_Bitblast_BVExpr_Circuit_Impl_Operations_GetLsbD(uint8_t builtin) {
 lean_object * res;
-if (_G_initialized) return lean_io_result_mk_ok(lean_box(0));
-_G_initialized = true;
-res = initialize_Std_Sat_AIG_CachedGatesLemmas(builtin, lean_io_mk_world());
-if (lean_io_result_is_error(res)) return res;
-lean_dec_ref(res);
-res = initialize_Std_Sat_AIG_RefVec(builtin, lean_io_mk_world());
+if (_G_runtime_initialized) return lean_io_result_mk_ok(lean_box(0));
+_G_runtime_initialized = true;
+lean_initialize_runtime_module();
+res = runtime_initialize_Std_Sat_AIG_RefVec(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
 return lean_io_result_mk_ok(lean_box(0));
+}
+static bool _G_meta_initialized = false;
+LEAN_EXPORT lean_object* meta_initialize_Std_Tactic_BVDecide_Bitblast_BVExpr_Circuit_Impl_Operations_GetLsbD(uint8_t builtin) {
+lean_object * res;
+if (_G_meta_initialized) return lean_io_result_mk_ok(lean_box(0));
+_G_meta_initialized = true;
+return lean_io_result_mk_ok(lean_box(0));
+}
+lean_object* initialize_Std_Sat_AIG_RefVec(uint8_t builtin);
+static bool _G_initialized = false;
+LEAN_EXPORT lean_object* initialize_Std_Tactic_BVDecide_Bitblast_BVExpr_Circuit_Impl_Operations_GetLsbD(uint8_t builtin) {
+lean_object * res;
+if (_G_initialized) return lean_io_result_mk_ok(lean_box(0));
+_G_initialized = true;
+res = initialize_Std_Sat_AIG_RefVec(builtin);
+if (lean_io_result_is_error(res)) return res;
+lean_dec_ref(res);
+res = runtime_initialize_Std_Tactic_BVDecide_Bitblast_BVExpr_Circuit_Impl_Operations_GetLsbD(builtin);
+if (lean_io_result_is_error(res)) return res;
+lean_dec_ref(res);
+res = meta_initialize_Std_Tactic_BVDecide_Bitblast_BVExpr_Circuit_Impl_Operations_GetLsbD(builtin);
+if (lean_io_result_is_error(res)) return res;
+lean_dec_ref(res);
+return initialize_Std_Tactic_BVDecide_Bitblast_BVExpr_Circuit_Impl_Operations_GetLsbD(builtin);
 }
 #ifdef __cplusplus
 }

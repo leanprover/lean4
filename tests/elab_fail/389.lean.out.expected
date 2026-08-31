@@ -1,0 +1,9 @@
+389.lean:7:14-7:17: error: Application type mismatch: The argument
+  bar
+has type
+  Bar Nat
+but is expected to have type
+  Foo ?m
+in the application
+  getFoo bar
+getFoo bar.toFoo : Nat

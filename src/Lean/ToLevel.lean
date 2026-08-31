@@ -3,8 +3,12 @@ Copyright (c) 2023 Kyle Miller. All rights reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Kyle Miller, Alex Keizer
 -/
+module
+
 prelude
-import Lean.Expr
+public import Lean.Expr
+
+public section
 
 /-!
 # `ToLevel` class
@@ -30,10 +34,12 @@ instance [ToLevel.{u}] : ToLevel.{u+1} where
   toLevel := .succ toLevel.{u}
 
 /-- `ToLevel` for `max u v`. This is not an instance since it causes divergence. -/
+@[instance_reducible]
 def ToLevel.max [ToLevel.{u}] [ToLevel.{v}] : ToLevel.{max u v} where
   toLevel := .max toLevel.{u} toLevel.{v}
 
 /-- `ToLevel` for `imax u v`. This is not an instance since it causes divergence. -/
+@[instance_reducible]
 def ToLevel.imax [ToLevel.{u}] [ToLevel.{v}] : ToLevel.{imax u v} where
   toLevel := .imax toLevel.{u} toLevel.{v}
 

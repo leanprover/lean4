@@ -3,9 +3,13 @@ Copyright (c) 2024 Lean FRO, LLC. All rights reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Henrik Böving
 -/
+module
+
 prelude
-import Std.Sat.AIG.CachedGatesLemmas
-import Std.Sat.AIG.LawfulVecOperator
+public import Std.Sat.AIG.LawfulVecOperator
+import Init.Omega
+
+@[expose] public section
 
 /-!
 Besides introducing a way to construct an if statement in an `AIG`, this module also demonstrates
@@ -60,16 +64,14 @@ def mkIfCached (aig : AIG α) (input : TernaryInput aig) : Entrypoint α :=
 instance : LawfulOperator α TernaryInput mkIfCached where
   le_size := by
     intros
-    unfold mkIfCached
-    dsimp only
+    simp only [mkIfCached]
     apply LawfulOperator.le_size_of_le_aig_size (f := mkOrCached)
     apply LawfulOperator.le_size_of_le_aig_size (f := mkAndCached)
     apply LawfulOperator.le_size_of_le_aig_size (f := mkNotCached)
     apply LawfulOperator.le_size (f := mkAndCached)
   decl_eq := by
     intros
-    unfold mkIfCached
-    dsimp only
+    simp only [mkIfCached]
     rw [LawfulOperator.decl_eq (f := mkOrCached)]
     rw [LawfulOperator.decl_eq (f := mkAndCached)]
     rw [LawfulOperator.decl_eq (f := mkNotCached)]
@@ -84,28 +86,34 @@ instance : LawfulOperator α TernaryInput mkIfCached where
       apply LawfulOperator.lt_size_of_lt_aig_size (f := mkAndCached)
       omega
 
-theorem if_as_bool (d l r : Bool) : (if d then l else r) = ((d && l) || (!d && r))  := by
+theorem ite_as_bool (d l r : Bool) : (if d then l else r) = ((d && l) || (!d && r))  := by
   revert d l r
   decide
+
+@[deprecated Std.Sat.AIG.ite_as_bool (since := "2026-07-21")]
+theorem if_as_bool (d : Bool) (l : Bool) (r : Bool) : (if d = Bool.true then l else r) = (d && l || !d && r) := Std.Sat.AIG.ite_as_bool d l r
 
 @[simp]
 theorem denote_mkIfCached {aig : AIG α} {input : TernaryInput aig} :
     ⟦aig.mkIfCached input, assign⟧
       =
     if ⟦aig, input.discr, assign⟧ then ⟦aig, input.lhs, assign⟧ else ⟦aig, input.rhs, assign⟧ := by
-  rw [if_as_bool]
-  unfold mkIfCached
-  dsimp only
-  simp only [TernaryInput.cast, Ref.cast_eq, id_eq, Int.reduceNeg, denote_mkOrCached,
-    denote_projected_entry, denote_mkAndCached, denote_mkNotCached]
+  rw [ite_as_bool]
+  simp only [mkIfCached]
+  simp only [TernaryInput.cast, Ref.cast_eq, Ref.cast, denote_mkOrCached, denote_projected_entry,
+    denote_mkAndCached, denote_mkNotCached]
   congr 2
   · rw [LawfulOperator.denote_mem_prefix]
     rw [LawfulOperator.denote_mem_prefix]
     · simp
     · simp [Ref.hgate]
+    · apply LawfulOperator.lt_size_of_lt_aig_size (f := mkNotCached)
+      simp [Ref.hgate]
   · rw [LawfulOperator.denote_mem_prefix]
   · rw [LawfulOperator.denote_mem_prefix]
     rw [LawfulOperator.denote_mem_prefix]
+    · apply LawfulOperator.lt_size_of_lt_aig_size (f := mkAndCached)
+      simp [Ref.hgate]
 
 namespace RefVec
 
@@ -176,7 +184,7 @@ instance : LawfulVecOperator α IfInput ite where
     apply ite.go_le_size
   decl_eq := by
     intros
-    unfold ite
+    simp only [ite]
     rw [ite.go_decl_eq]
 
 namespace ite
@@ -194,15 +202,13 @@ theorem go_get_aux {w : Nat} (aig : AIG α) (curr : Nat) (hcurr : curr ≤ w) (d
   split at hgo
   · rw [← hgo]
     intros
-    rw [go_get_aux]
-    rw [AIG.RefVec.get_push_ref_lt]
-    · simp only [Ref.cast, Ref.mk.injEq]
-      rw [AIG.RefVec.get_cast]
-      · simp
-      · assumption
-    · apply go_le_size
+    rw [go_get_aux (hidx := Nat.lt_succ_of_lt hidx) (hfoo := go_le_size ..)]
+    rw [AIG.RefVec.get_push_ref_lt (hidx := hidx)]
+    simp only [Ref.cast]
+    rw [AIG.RefVec.get_cast]
+    simp
   · rw [← hgo]
-    simp only [Nat.le_refl, get, Ref.gate_cast, Ref.mk.injEq, true_implies]
+    simp only [Nat.le_refl, get]
     have : curr = w := by omega
     subst this
     simp
@@ -251,17 +257,17 @@ theorem denote_go {w : Nat} (aig : AIG α) (curr : Nat) (hcurr : curr ≤ w) (di
   intro idx hidx1 hidx2
   generalize hgo : go aig curr hcurr discr lhs rhs s = res
   unfold go at hgo
-  dsimp only at hgo
+  simp only at hgo
   split at hgo
   · cases Nat.eq_or_lt_of_le hidx2 with
     | inl heq =>
       subst heq
       rw [← hgo]
-      rw [go_get]
+      rw [go_get]; case hidx => omega
       rw [AIG.RefVec.get_push_ref_eq']
       · rw [go_denote_mem_prefix]
-        · simp
-        · simp [Ref.hgate]
+        · simp [Ref.cast]
+        · simp [Ref.cast, Ref.hgate]
       · omega
     | inr heq =>
       rw [← hgo]

@@ -1,6 +1,6 @@
 // Lean compiler output
 // Module: Init.Data.Array.OfFn
-// Imports: Init.Data.Array.Basic Init.Data.Array.Lemmas Init.Data.Array.Monadic Init.Data.List.OfFn Init.Data.List.FinRange
+// Imports: import all Init.Data.Array.Basic public import Init.Data.List.OfFn import Init.Data.Array.Bootstrap import Init.Data.Array.Monadic import Init.Data.Fin.Lemmas import Init.Data.List.FinRange import Init.Data.Option.Lemmas import Init.Omega
 #include <lean/lean.h>
 #if defined(__clang__)
 #pragma clang diagnostic ignored "-Wunused-parameter"
@@ -13,196 +13,216 @@
 #ifdef __cplusplus
 extern "C" {
 #endif
-LEAN_EXPORT lean_object* l___private_Init_Data_Array_OfFn_0__Array_ofFn_go_match__1_splitter___boxed(lean_object*, lean_object*);
-lean_object* l_Array_push___boxed(lean_object*, lean_object*, lean_object*);
-LEAN_EXPORT lean_object* l___private_Init_Data_Array_OfFn_0__Array_ofFn_go_match__1_splitter___rarg___boxed(lean_object*, lean_object*, lean_object*, lean_object*);
-LEAN_EXPORT lean_object* l_Array_ofFnM(lean_object*, lean_object*);
-LEAN_EXPORT lean_object* l___private_Init_Data_Array_OfFn_0__Array_ofFn_go_match__1_splitter(lean_object*, lean_object*);
-LEAN_EXPORT lean_object* l_Array_ofFnM___rarg(lean_object*, lean_object*, lean_object*);
 uint8_t lean_nat_dec_eq(lean_object*, lean_object*);
-uint8_t lean_nat_dec_lt(lean_object*, lean_object*);
-LEAN_EXPORT lean_object* l_Fin_foldlM_loop___at_Array_ofFnM___spec__1___rarg___lambda__1___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* lean_nat_sub(lean_object*, lean_object*);
-LEAN_EXPORT lean_object* l_Fin_foldlM_loop___at_Array_ofFnM___spec__1(lean_object*, lean_object*);
-LEAN_EXPORT lean_object* l___private_Init_Data_Array_OfFn_0__Array_ofFn_go_match__1_splitter___rarg(lean_object*, lean_object*, lean_object*, lean_object*);
-LEAN_EXPORT lean_object* l_Fin_foldlM_loop___at_Array_ofFnM___spec__1___rarg(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
-LEAN_EXPORT lean_object* l_Fin_foldlM_loop___at_Array_ofFnM___spec__1___rarg___lambda__1(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
-lean_object* lean_nat_add(lean_object*, lean_object*);
+lean_object* l_Array_push___boxed(lean_object*, lean_object*, lean_object*);
 lean_object* lean_mk_empty_array_with_capacity(lean_object*);
-LEAN_EXPORT lean_object* l___private_Init_Data_Array_OfFn_0__Array_ofFn_go_match__1_splitter___rarg(lean_object* x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4) {
+lean_object* l___private_Init_Data_Fin_Fold_0__Fin_foldlM_loop(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
+LEAN_EXPORT lean_object* l___private_Init_Data_Array_OfFn_0__Array_ofFn_go_match__1_splitter___redArg(lean_object*, lean_object*, lean_object*);
+LEAN_EXPORT lean_object* l___private_Init_Data_Array_OfFn_0__Array_ofFn_go_match__1_splitter___redArg___boxed(lean_object*, lean_object*, lean_object*);
+LEAN_EXPORT lean_object* l___private_Init_Data_Array_OfFn_0__Array_ofFn_go_match__1_splitter(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
+LEAN_EXPORT lean_object* l___private_Init_Data_Array_OfFn_0__Array_ofFn_go_match__1_splitter___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
+LEAN_EXPORT lean_object* l_Array_ofFnM___redArg___lam__0(lean_object*, lean_object*, lean_object*, lean_object*);
+LEAN_EXPORT lean_object* l_Array_ofFnM___redArg(lean_object*, lean_object*, lean_object*);
+LEAN_EXPORT lean_object* l_Array_ofFnM(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
+LEAN_EXPORT lean_object* l___private_Init_Data_Array_OfFn_0__Array_ofFn_go_match__1_splitter___redArg(lean_object* v_x_1_, lean_object* v_h__1_2_, lean_object* v_h__2_3_){
 _start:
 {
-lean_object* x_5; uint8_t x_6; 
-x_5 = lean_unsigned_to_nat(0u);
-x_6 = lean_nat_dec_eq(x_1, x_5);
-if (x_6 == 0)
+lean_object* v_zero_4_; uint8_t v_isZero_5_; 
+v_zero_4_ = lean_unsigned_to_nat(0u);
+v_isZero_5_ = lean_nat_dec_eq(v_x_1_, v_zero_4_);
+if (v_isZero_5_ == 1)
 {
-lean_object* x_7; lean_object* x_8; lean_object* x_9; 
-lean_dec(x_4);
-x_7 = lean_unsigned_to_nat(1u);
-x_8 = lean_nat_sub(x_1, x_7);
-x_9 = lean_apply_2(x_3, x_8, lean_box(0));
-return x_9;
+lean_object* v___x_6_; 
+lean_dec(v_h__1_2_);
+v___x_6_ = lean_apply_1(v_h__2_3_, lean_box(0));
+return v___x_6_;
 }
 else
 {
-lean_object* x_10; 
-lean_dec(x_3);
-x_10 = lean_apply_1(x_4, lean_box(0));
-return x_10;
+lean_object* v_one_7_; lean_object* v_n_8_; lean_object* v___x_9_; 
+lean_dec(v_h__2_3_);
+v_one_7_ = lean_unsigned_to_nat(1u);
+v_n_8_ = lean_nat_sub(v_x_1_, v_one_7_);
+v___x_9_ = lean_apply_2(v_h__1_2_, v_n_8_, lean_box(0));
+return v___x_9_;
 }
 }
 }
-LEAN_EXPORT lean_object* l___private_Init_Data_Array_OfFn_0__Array_ofFn_go_match__1_splitter(lean_object* x_1, lean_object* x_2) {
+LEAN_EXPORT lean_object* l___private_Init_Data_Array_OfFn_0__Array_ofFn_go_match__1_splitter___redArg___boxed(lean_object* v_x_10_, lean_object* v_h__1_11_, lean_object* v_h__2_12_){
 _start:
 {
-lean_object* x_3; 
-x_3 = lean_alloc_closure((void*)(l___private_Init_Data_Array_OfFn_0__Array_ofFn_go_match__1_splitter___rarg___boxed), 4, 0);
-return x_3;
+lean_object* v_res_13_; 
+v_res_13_ = l___private_Init_Data_Array_OfFn_0__Array_ofFn_go_match__1_splitter___redArg(v_x_10_, v_h__1_11_, v_h__2_12_);
+lean_dec(v_x_10_);
+return v_res_13_;
 }
 }
-LEAN_EXPORT lean_object* l___private_Init_Data_Array_OfFn_0__Array_ofFn_go_match__1_splitter___rarg___boxed(lean_object* x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4) {
+LEAN_EXPORT lean_object* l___private_Init_Data_Array_OfFn_0__Array_ofFn_go_match__1_splitter(lean_object* v_n_14_, lean_object* v_motive_15_, lean_object* v_x_16_, lean_object* v_x_17_, lean_object* v_h__1_18_, lean_object* v_h__2_19_){
 _start:
 {
-lean_object* x_5; 
-x_5 = l___private_Init_Data_Array_OfFn_0__Array_ofFn_go_match__1_splitter___rarg(x_1, x_2, x_3, x_4);
-lean_dec(x_1);
-return x_5;
-}
-}
-LEAN_EXPORT lean_object* l___private_Init_Data_Array_OfFn_0__Array_ofFn_go_match__1_splitter___boxed(lean_object* x_1, lean_object* x_2) {
-_start:
+lean_object* v_zero_20_; uint8_t v_isZero_21_; 
+v_zero_20_ = lean_unsigned_to_nat(0u);
+v_isZero_21_ = lean_nat_dec_eq(v_x_16_, v_zero_20_);
+if (v_isZero_21_ == 1)
 {
-lean_object* x_3; 
-x_3 = l___private_Init_Data_Array_OfFn_0__Array_ofFn_go_match__1_splitter(x_1, x_2);
-lean_dec(x_1);
-return x_3;
-}
-}
-LEAN_EXPORT lean_object* l_Fin_foldlM_loop___at_Array_ofFnM___spec__1___rarg___lambda__1(lean_object* x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4, lean_object* x_5, lean_object* x_6) {
-_start:
-{
-lean_object* x_7; lean_object* x_8; lean_object* x_9; 
-x_7 = lean_unsigned_to_nat(1u);
-x_8 = lean_nat_add(x_1, x_7);
-x_9 = l_Fin_foldlM_loop___at_Array_ofFnM___spec__1___rarg(x_2, x_3, x_4, x_5, x_6, x_8);
-return x_9;
-}
-}
-LEAN_EXPORT lean_object* l_Fin_foldlM_loop___at_Array_ofFnM___spec__1___rarg(lean_object* x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4, lean_object* x_5, lean_object* x_6) {
-_start:
-{
-uint8_t x_7; 
-x_7 = lean_nat_dec_lt(x_6, x_4);
-if (x_7 == 0)
-{
-lean_object* x_8; lean_object* x_9; lean_object* x_10; 
-lean_dec(x_6);
-lean_dec(x_4);
-lean_dec(x_3);
-lean_dec(x_1);
-x_8 = lean_ctor_get(x_2, 0);
-lean_inc(x_8);
-lean_dec(x_2);
-x_9 = lean_ctor_get(x_8, 1);
-lean_inc(x_9);
-lean_dec(x_8);
-x_10 = lean_apply_2(x_9, lean_box(0), x_5);
-return x_10;
+lean_object* v___x_22_; 
+lean_dec(v_h__1_18_);
+v___x_22_ = lean_apply_1(v_h__2_19_, lean_box(0));
+return v___x_22_;
 }
 else
 {
-lean_object* x_11; lean_object* x_12; lean_object* x_13; lean_object* x_14; lean_object* x_15; lean_object* x_16; lean_object* x_17; lean_object* x_18; lean_object* x_19; 
-x_11 = lean_ctor_get(x_2, 1);
-lean_inc(x_11);
-x_12 = lean_ctor_get(x_2, 0);
-lean_inc(x_12);
-x_13 = lean_ctor_get(x_12, 0);
-lean_inc(x_13);
-lean_dec(x_12);
-x_14 = lean_ctor_get(x_13, 0);
-lean_inc(x_14);
-lean_dec(x_13);
-x_15 = lean_alloc_closure((void*)(l_Array_push___boxed), 3, 2);
-lean_closure_set(x_15, 0, lean_box(0));
-lean_closure_set(x_15, 1, x_5);
-lean_inc(x_3);
-lean_inc(x_6);
-x_16 = lean_apply_1(x_3, x_6);
-x_17 = lean_apply_4(x_14, lean_box(0), lean_box(0), x_15, x_16);
-x_18 = lean_alloc_closure((void*)(l_Fin_foldlM_loop___at_Array_ofFnM___spec__1___rarg___lambda__1___boxed), 6, 5);
-lean_closure_set(x_18, 0, x_6);
-lean_closure_set(x_18, 1, x_1);
-lean_closure_set(x_18, 2, x_2);
-lean_closure_set(x_18, 3, x_3);
-lean_closure_set(x_18, 4, x_4);
-x_19 = lean_apply_4(x_11, lean_box(0), lean_box(0), x_17, x_18);
-return x_19;
+lean_object* v_one_23_; lean_object* v_n_24_; lean_object* v___x_25_; 
+lean_dec(v_h__2_19_);
+v_one_23_ = lean_unsigned_to_nat(1u);
+v_n_24_ = lean_nat_sub(v_x_16_, v_one_23_);
+v___x_25_ = lean_apply_2(v_h__1_18_, v_n_24_, lean_box(0));
+return v___x_25_;
 }
 }
 }
-LEAN_EXPORT lean_object* l_Fin_foldlM_loop___at_Array_ofFnM___spec__1(lean_object* x_1, lean_object* x_2) {
+LEAN_EXPORT lean_object* l___private_Init_Data_Array_OfFn_0__Array_ofFn_go_match__1_splitter___boxed(lean_object* v_n_26_, lean_object* v_motive_27_, lean_object* v_x_28_, lean_object* v_x_29_, lean_object* v_h__1_30_, lean_object* v_h__2_31_){
 _start:
 {
-lean_object* x_3; 
-x_3 = lean_alloc_closure((void*)(l_Fin_foldlM_loop___at_Array_ofFnM___spec__1___rarg), 6, 0);
-return x_3;
+lean_object* v_res_32_; 
+v_res_32_ = l___private_Init_Data_Array_OfFn_0__Array_ofFn_go_match__1_splitter(v_n_26_, v_motive_27_, v_x_28_, v_x_29_, v_h__1_30_, v_h__2_31_);
+lean_dec(v_x_28_);
+lean_dec(v_n_26_);
+return v_res_32_;
 }
 }
-LEAN_EXPORT lean_object* l_Array_ofFnM___rarg(lean_object* x_1, lean_object* x_2, lean_object* x_3) {
+LEAN_EXPORT lean_object* l_Array_ofFnM___redArg___lam__0(lean_object* v_toFunctor_33_, lean_object* v_f_34_, lean_object* v_xs_35_, lean_object* v_i_36_){
 _start:
 {
-lean_object* x_4; lean_object* x_5; lean_object* x_6; 
-x_4 = lean_mk_empty_array_with_capacity(x_1);
-x_5 = lean_unsigned_to_nat(0u);
-lean_inc(x_1);
-x_6 = l_Fin_foldlM_loop___at_Array_ofFnM___spec__1___rarg(x_1, x_2, x_3, x_1, x_4, x_5);
-return x_6;
+lean_object* v_map_37_; lean_object* v___x_38_; lean_object* v___x_39_; lean_object* v___x_40_; 
+v_map_37_ = lean_ctor_get(v_toFunctor_33_, 0);
+lean_inc(v_map_37_);
+lean_dec_ref(v_toFunctor_33_);
+v___x_38_ = lean_alloc_closure((void*)(l_Array_push___boxed), 3, 2);
+lean_closure_set(v___x_38_, 0, lean_box(0));
+lean_closure_set(v___x_38_, 1, v_xs_35_);
+v___x_39_ = lean_apply_1(v_f_34_, v_i_36_);
+v___x_40_ = lean_apply_4(v_map_37_, lean_box(0), lean_box(0), v___x_38_, v___x_39_);
+return v___x_40_;
 }
 }
-LEAN_EXPORT lean_object* l_Array_ofFnM(lean_object* x_1, lean_object* x_2) {
+LEAN_EXPORT lean_object* l_Array_ofFnM___redArg(lean_object* v_n_41_, lean_object* v_inst_42_, lean_object* v_f_43_){
 _start:
 {
-lean_object* x_3; 
-x_3 = lean_alloc_closure((void*)(l_Array_ofFnM___rarg), 3, 0);
-return x_3;
+lean_object* v_toApplicative_44_; lean_object* v_toFunctor_45_; lean_object* v___f_46_; lean_object* v___x_47_; lean_object* v___x_48_; lean_object* v___x_49_; 
+v_toApplicative_44_ = lean_ctor_get(v_inst_42_, 0);
+v_toFunctor_45_ = lean_ctor_get(v_toApplicative_44_, 0);
+lean_inc_ref(v_toFunctor_45_);
+v___f_46_ = lean_alloc_closure((void*)(l_Array_ofFnM___redArg___lam__0), 4, 2);
+lean_closure_set(v___f_46_, 0, v_toFunctor_45_);
+lean_closure_set(v___f_46_, 1, v_f_43_);
+v___x_47_ = lean_mk_empty_array_with_capacity(v_n_41_);
+v___x_48_ = lean_unsigned_to_nat(0u);
+v___x_49_ = l___private_Init_Data_Fin_Fold_0__Fin_foldlM_loop(lean_box(0), lean_box(0), v_inst_42_, v_n_41_, v___f_46_, v___x_47_, v___x_48_);
+return v___x_49_;
 }
 }
-LEAN_EXPORT lean_object* l_Fin_foldlM_loop___at_Array_ofFnM___spec__1___rarg___lambda__1___boxed(lean_object* x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4, lean_object* x_5, lean_object* x_6) {
+LEAN_EXPORT lean_object* l_Array_ofFnM(lean_object* v_m_50_, lean_object* v_00_u03b1_51_, lean_object* v_n_52_, lean_object* v_inst_53_, lean_object* v_f_54_){
 _start:
 {
-lean_object* x_7; 
-x_7 = l_Fin_foldlM_loop___at_Array_ofFnM___spec__1___rarg___lambda__1(x_1, x_2, x_3, x_4, x_5, x_6);
-lean_dec(x_1);
-return x_7;
+lean_object* v___x_55_; 
+v___x_55_ = l_Array_ofFnM___redArg(v_n_52_, v_inst_53_, v_f_54_);
+return v___x_55_;
 }
 }
-lean_object* initialize_Init_Data_Array_Basic(uint8_t builtin, lean_object*);
-lean_object* initialize_Init_Data_Array_Lemmas(uint8_t builtin, lean_object*);
-lean_object* initialize_Init_Data_Array_Monadic(uint8_t builtin, lean_object*);
-lean_object* initialize_Init_Data_List_OfFn(uint8_t builtin, lean_object*);
-lean_object* initialize_Init_Data_List_FinRange(uint8_t builtin, lean_object*);
-static bool _G_initialized = false;
-LEAN_EXPORT lean_object* initialize_Init_Data_Array_OfFn(uint8_t builtin, lean_object* w) {
+lean_object* runtime_initialize_Init_Data_Array_Basic(uint8_t builtin);
+lean_object* runtime_initialize_Init_Data_List_OfFn(uint8_t builtin);
+lean_object* runtime_initialize_Init_Data_Array_Bootstrap(uint8_t builtin);
+lean_object* runtime_initialize_Init_Data_Array_Monadic(uint8_t builtin);
+lean_object* runtime_initialize_Init_Data_Fin_Lemmas(uint8_t builtin);
+lean_object* runtime_initialize_Init_Data_List_FinRange(uint8_t builtin);
+lean_object* runtime_initialize_Init_Data_Option_Lemmas(uint8_t builtin);
+lean_object* runtime_initialize_Init_Omega(uint8_t builtin);
+void lean_initialize_runtime_module();
+static bool _G_runtime_initialized = false;
+LEAN_EXPORT lean_object* runtime_initialize_Init_Data_Array_OfFn(uint8_t builtin) {
 lean_object * res;
-if (_G_initialized) return lean_io_result_mk_ok(lean_box(0));
-_G_initialized = true;
-res = initialize_Init_Data_Array_Basic(builtin, lean_io_mk_world());
+if (_G_runtime_initialized) return lean_io_result_mk_ok(lean_box(0));
+_G_runtime_initialized = true;
+lean_initialize_runtime_module();
+res = runtime_initialize_Init_Data_Array_Basic(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
-res = initialize_Init_Data_Array_Lemmas(builtin, lean_io_mk_world());
+res = runtime_initialize_Init_Data_List_OfFn(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
-res = initialize_Init_Data_Array_Monadic(builtin, lean_io_mk_world());
+res = runtime_initialize_Init_Data_Array_Bootstrap(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
-res = initialize_Init_Data_List_OfFn(builtin, lean_io_mk_world());
+res = runtime_initialize_Init_Data_Array_Monadic(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
-res = initialize_Init_Data_List_FinRange(builtin, lean_io_mk_world());
+res = runtime_initialize_Init_Data_Fin_Lemmas(builtin);
+if (lean_io_result_is_error(res)) return res;
+lean_dec_ref(res);
+res = runtime_initialize_Init_Data_List_FinRange(builtin);
+if (lean_io_result_is_error(res)) return res;
+lean_dec_ref(res);
+res = runtime_initialize_Init_Data_Option_Lemmas(builtin);
+if (lean_io_result_is_error(res)) return res;
+lean_dec_ref(res);
+res = runtime_initialize_Init_Omega(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
 return lean_io_result_mk_ok(lean_box(0));
+}
+static bool _G_meta_initialized = false;
+LEAN_EXPORT lean_object* meta_initialize_Init_Data_Array_OfFn(uint8_t builtin) {
+lean_object * res;
+if (_G_meta_initialized) return lean_io_result_mk_ok(lean_box(0));
+_G_meta_initialized = true;
+return lean_io_result_mk_ok(lean_box(0));
+}
+lean_object* initialize_Init_Data_Array_Basic(uint8_t builtin);
+lean_object* initialize_Init_Data_List_OfFn(uint8_t builtin);
+lean_object* initialize_Init_Data_Array_Bootstrap(uint8_t builtin);
+lean_object* initialize_Init_Data_Array_Monadic(uint8_t builtin);
+lean_object* initialize_Init_Data_Fin_Lemmas(uint8_t builtin);
+lean_object* initialize_Init_Data_List_FinRange(uint8_t builtin);
+lean_object* initialize_Init_Data_Option_Lemmas(uint8_t builtin);
+lean_object* initialize_Init_Omega(uint8_t builtin);
+static bool _G_initialized = false;
+LEAN_EXPORT lean_object* initialize_Init_Data_Array_OfFn(uint8_t builtin) {
+lean_object * res;
+if (_G_initialized) return lean_io_result_mk_ok(lean_box(0));
+_G_initialized = true;
+res = initialize_Init_Data_Array_Basic(builtin);
+if (lean_io_result_is_error(res)) return res;
+lean_dec_ref(res);
+res = initialize_Init_Data_List_OfFn(builtin);
+if (lean_io_result_is_error(res)) return res;
+lean_dec_ref(res);
+res = initialize_Init_Data_Array_Bootstrap(builtin);
+if (lean_io_result_is_error(res)) return res;
+lean_dec_ref(res);
+res = initialize_Init_Data_Array_Monadic(builtin);
+if (lean_io_result_is_error(res)) return res;
+lean_dec_ref(res);
+res = initialize_Init_Data_Fin_Lemmas(builtin);
+if (lean_io_result_is_error(res)) return res;
+lean_dec_ref(res);
+res = initialize_Init_Data_List_FinRange(builtin);
+if (lean_io_result_is_error(res)) return res;
+lean_dec_ref(res);
+res = initialize_Init_Data_Option_Lemmas(builtin);
+if (lean_io_result_is_error(res)) return res;
+lean_dec_ref(res);
+res = initialize_Init_Omega(builtin);
+if (lean_io_result_is_error(res)) return res;
+lean_dec_ref(res);
+res = runtime_initialize_Init_Data_Array_OfFn(builtin);
+if (lean_io_result_is_error(res)) return res;
+lean_dec_ref(res);
+res = meta_initialize_Init_Data_Array_OfFn(builtin);
+if (lean_io_result_is_error(res)) return res;
+lean_dec_ref(res);
+return initialize_Init_Data_Array_OfFn(builtin);
 }
 #ifdef __cplusplus
 }

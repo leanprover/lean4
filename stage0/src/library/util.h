@@ -198,18 +198,8 @@ expr mk_bool_true();
 expr mk_bool_false();
 expr to_bool_expr(bool b);
 
-/* Similar to is_head_beta, but ignores annotations around the function. */
-bool is_annotated_head_beta(expr const & t);
-/* Similar to head_beta_reduce, but also reduces annotations around the function. */
-expr annotated_head_beta_reduce(expr const & t);
-
 bool is_exists(expr const & e, expr & A, expr & p);
 bool is_exists(expr const & e);
-
-expr try_eta(expr const & e);
-expr beta_reduce(expr t);
-expr eta_reduce(expr t);
-expr beta_eta_reduce(expr t);
 
 enum class implicit_infer_kind { Implicit, RelaxedImplicit };
 
@@ -226,16 +216,7 @@ name get_dep_recursor(environment const & env, name const & n);
     even if \c n is an inductive predicate. */
 name get_dep_cases_on(environment const & env, name const & n);
 
-/** We generate auxiliary unsafe definitions for regular recursive definitions.
-    The auxiliary unsafe definition has a clear runtime cost execution model, and
-    we use it in the VM and code generators. This function returns an auxiliary unsafe definition for the given name. */
-name mk_unsafe_rec_name(name const & n);
-
-/** Return some(n') if \c n is a name created using mk_unsafe_rec_name(n') */
-optional<name> is_unsafe_rec_name(name const & n);
-
 LEAN_EXPORT std::string const & get_short_version_string();
-LEAN_EXPORT std::string const & get_version_string();
 
 expr const & extract_mdata(expr const &);
 

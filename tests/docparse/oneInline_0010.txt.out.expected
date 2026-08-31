@@ -1,0 +1,10 @@
+Success! Final stack:
+  (Lean.Doc.Syntax.link
+   "["
+   [(Lean.Doc.Syntax.text (str "\"Wikipedia\""))]
+   "]"
+   (Lean.Doc.Syntax.url
+    "("
+    (str "\"https://en.wikipedia.org\"")
+    ")"))
+All input consumed.

@@ -3,9 +3,15 @@ Copyright (c) 2024 Lean FRO, LLC. All rights reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Henrik Böving
 -/
+module
+
 prelude
-import Init.Data.BitVec
-import Std.Tactic.BVDecide.Syntax
+public import Init.Data.BitVec.Lemmas
+public import Std.Tactic.BVDecide.Syntax
+public import Init.Data.BitVec.Bootstrap
+import Init.PropLemmas
+
+@[expose] public section
 
 /-!
 This contains theorems responsible for turning both `Bool` and `BitVec` goals into the
@@ -20,7 +26,7 @@ theorem BitVec.eq_to_beq (a b : BitVec w) : (a = b) = ((a == b) = true) := by
   simp
 
 @[bv_normalize]
-theorem BitVec.ne_to_beq (a b : BitVec w) : (a ≠ b) = ((!(a == b)) = true) := by
+theorem BitVec.ne_to_beq (a b : BitVec w) : (¬a = b) = ((!(a == b)) = true) := by
   simp
 
 theorem Bool.eq_to_beq (a b : Bool) : (a = b) = ((a == b) = true) := by simp
@@ -38,7 +44,7 @@ theorem Bool.neg_to_not (a : Bool) : (¬a) = ((!a) = true) := by
   simp
 
 @[bv_normalize]
-theorem Bool.ne_to_beq (a b : Bool) : (a ≠ b) = ((!(a == b)) = true) := by
+theorem Bool.ne_to_beq (a b : Bool) : (¬a = b) = ((!(a == b)) = true) := by
   simp
 
 @[bv_normalize]
@@ -76,10 +82,8 @@ theorem BitVec.lt_ult (x y : BitVec w) : (x < y) = (BitVec.ult x y = true) := by
   simp only [(· < ·)]
   simp
 
-@[bv_normalize]
 theorem Bool.or_elim : ∀ (a b : Bool), (a || b) = !(!a && !b) := by decide
 
-@[bv_normalize]
 theorem BitVec.or_elim (x y : BitVec w) : x ||| y = ~~~(~~~x &&& ~~~y) := by
   ext
   simp
@@ -98,9 +102,15 @@ attribute [bv_normalize] BitVec.neg_eq
 attribute [bv_normalize] BitVec.mul_eq
 attribute [bv_normalize] BitVec.udiv_eq
 attribute [bv_normalize] BitVec.umod_eq
-attribute [bv_normalize ←] BitVec.shiftLeft_eq'
-attribute [bv_normalize ←] BitVec.sshiftRight_eq'
-attribute [bv_normalize ←] BitVec.ushiftRight_eq'
+
+@[bv_normalize]
+theorem BitVec.shiftLeft_eq' {x : BitVec w₁} {y : BitVec w₂} :  x <<< y.toNat = x <<< y := rfl
+
+@[bv_normalize]
+theorem BitVec.sshiftRight_eq' (x : BitVec w) : x.sshiftRight y.toNat = x.sshiftRight' y  := rfl
+
+@[bv_normalize]
+theorem BitVec.ushiftRight_eq' (x : BitVec w₁) (y : BitVec w₂) : x >>> y.toNat = x >>> y := rfl
 
 end Normalize
 end Std.Tactic.BVDecide

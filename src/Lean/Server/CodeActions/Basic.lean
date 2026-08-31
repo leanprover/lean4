@@ -4,9 +4,12 @@ Released under Apache 2.0 license as described in the file LICENSE.
 
 Authors: E.W.Ayers
 -/
+module
+
 prelude
-import Lean.Server.FileWorker.RequestHandling
-import Lean.Server.InfoUtils
+public import Lean.Server.Requests
+
+public section
 
 namespace Lean.Server
 
@@ -65,7 +68,7 @@ When implementing your own `CodeActionProvider`, we assume that no long-running 
 If you need to create a code-action with a long-running computation, you can use the `lazy?` field on `LazyCodeAction`
 to perform the computation after the user has clicked on the code action in their editor.
 -/
-def CodeActionProvider := CodeActionParams → Snapshot → RequestM (Array LazyCodeAction)
+@[expose] def CodeActionProvider := CodeActionParams → Snapshot → RequestM (Array LazyCodeAction)
 deriving instance Inhabited for CodeActionProvider
 
 private builtin_initialize builtinCodeActionProviders : IO.Ref (NameMap CodeActionProvider) ←
@@ -87,10 +90,13 @@ builtin_initialize
       "Use to decorate methods for suggesting code actions. This is a low-level interface for making code actions."
     applicationTime := .afterCompilation
     add             := fun decl stx kind => do
+      if !builtin then
+        ensureAttrDeclIsMeta `name decl kind
       Attribute.Builtin.ensureNoArgs stx
-      unless kind == AttributeKind.global do throwError "invalid attribute '{name}', must be global"
-      unless (← getConstInfo decl).type.isConstOf ``CodeActionProvider do
-        throwError "invalid attribute '{name}', must be of type `Lean.Server.CodeActionProvider`"
+      unless kind == AttributeKind.global do throwAttrMustBeGlobal name kind
+      let declType := (← getConstInfo decl).type
+      unless declType.isConstOf ``CodeActionProvider do
+        throwAttrDeclNotOfExpectedType name decl declType (mkConst ``Lean.Server.CodeActionProvider)
       let env ← getEnv
       if builtin then
         let h := mkConst decl
@@ -128,7 +134,6 @@ def handleCodeAction (params : CodeActionParams) : RequestM (RequestTask (Array 
         RequestM.checkCancelled
         let cas ← cap params snap
         cas.mapIdxM fun i lca => do
-          if lca.lazy?.isNone then return lca.eager
           let data : CodeActionResolveData := {
             params, providerName, providerResultIndex := i
           }
@@ -159,7 +164,8 @@ def handleCodeActionResolve (param : CodeAction) : RequestM (RequestTask CodeAct
       let some ca := cas[data.providerResultIndex]?
         | throw <| RequestError.internalError s!"Failed to resolve code action index {data.providerResultIndex}."
       let some lazy := ca.lazy?
-        | throw <| RequestError.internalError s!"Can't resolve; nothing further to resolve."
+        -- Eager code action - return unchanged
+        | return param
       let r ← liftM lazy
       return r
 

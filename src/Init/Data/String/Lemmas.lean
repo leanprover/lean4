@@ -6,30 +6,19 @@ Authors: Leonardo de Moura
 module
 
 prelude
-import Init.Data.Char.Lemmas
-import Init.Data.List.Lex
-
-namespace String
-
-protected theorem data_eq_of_eq {a b : String} (h : a = b) : a.data = b.data :=
-  h ▸ rfl
-protected theorem ne_of_data_ne {a b : String} (h : a.data ≠ b.data) : a ≠ b :=
-  fun h' => absurd (String.data_eq_of_eq h') h
-
-@[simp] protected theorem not_le {a b : String} : ¬ a ≤ b ↔ b < a := Decidable.not_not
-@[simp] protected theorem not_lt {a b : String} : ¬ a < b ↔ b ≤ a := Iff.rfl
-@[simp] protected theorem le_refl (a : String) : a ≤ a := List.le_refl _
-@[simp] protected theorem lt_irrefl (a : String) : ¬ a < a := List.lt_irrefl _
-
-attribute [local instance] Char.notLTTrans Char.notLTAntisymm Char.notLTTotal
-
-protected theorem le_trans {a b c : String} : a ≤ b → b ≤ c → a ≤ c := List.le_trans
-protected theorem lt_trans {a b c : String} : a < b → b < c → a < c := List.lt_trans
-protected theorem le_total (a b : String) : a ≤ b ∨ b ≤ a := List.le_total _ _
-protected theorem le_antisymm {a b : String} : a ≤ b → b ≤ a → a = b := fun h₁ h₂ => String.ext (List.le_antisymm (as := a.data) (bs := b.data) h₁ h₂)
-protected theorem lt_asymm {a b : String} (h : a < b) : ¬ b < a := List.lt_asymm h
-protected theorem ne_of_lt {a b : String} (h : a < b) : a ≠ b := by
-  have := String.lt_irrefl a
-  intro h; subst h; contradiction
-
-end String
+public import Init.Data.String.Lemmas.Splits
+public import Init.Data.String.Lemmas.Modify
+public import Init.Data.String.Lemmas.Search
+public import Init.Data.String.Lemmas.FindPos
+public import Init.Data.String.Lemmas.Basic
+public import Init.Data.String.Lemmas.Order
+public import Init.Data.String.Lemmas.IsEmpty
+public import Init.Data.String.Lemmas.Pattern
+public import Init.Data.String.Lemmas.Slice
+public import Init.Data.String.Lemmas.Iterate
+public import Init.Data.String.Lemmas.Intercalate
+public import Init.Data.String.Lemmas.Iter
+public import Init.Data.String.Lemmas.Hashable
+public import Init.Data.String.Lemmas.TakeDrop
+public import Init.Data.String.Lemmas.StringOrder
+public import Init.Data.String.Lemmas.Length

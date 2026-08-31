@@ -4,12 +4,10 @@ Released under Apache 2.0 license as described in the file LICENSE.
 
 Authors: E.W.Ayers
 -/
+module
+
 prelude
-import Lean.Meta.PPGoal
-import Lean.Widget.InteractiveCode
-import Lean.Widget.InteractiveGoal
-import Lean.Data.Lsp.Extra
-import Lean.Elab.InfoTree
+public import Lean.Widget.InteractiveGoal
 
 namespace Lean.Widget
 
@@ -18,13 +16,13 @@ register_builtin_option showTacticDiff : Bool := {
   descr := "When true, interactive goals for tactics will be decorated with diffing information. "
 }
 
-open Server Std Lean SubExpr
+open Server Lean SubExpr
 
 /-- A marker for a point in the expression where a subexpression has been inserted.
 
 NOTE: in the future we may add other tags.
   -/
-private inductive ExprDiffTag where
+inductive ExprDiffTag where
   | change
   | delete
   | insert
@@ -58,13 +56,13 @@ structure ExprDiff where
 instance : EmptyCollection ExprDiff := ⟨{}⟩
 instance : Append ExprDiff where
   append a b := {
-    changesBefore := RBMap.mergeBy (fun _ _ b => b) a.changesBefore b.changesBefore,
-    changesAfter := RBMap.mergeBy (fun _ _ b => b) a.changesAfter b.changesAfter
+    changesBefore := Std.TreeMap.mergeWith (fun _ _ b => b) a.changesBefore b.changesBefore,
+    changesAfter := Std.TreeMap.mergeWith (fun _ _ b => b) a.changesAfter b.changesAfter
   }
 instance : ToString ExprDiff where
   toString x :=
     let f := fun (p : PosMap ExprDiffTag) =>
-      RBMap.toList p |>.map (fun (k,v) => s!"({toString k}:{toString v})")
+      p.toList.map (fun (k,v) => s!"({toString k}:{toString v})")
     s!"before: {f x.changesBefore}\nafter: {f x.changesAfter}"
 
 /-- Add a tag at the given position to the `changesBefore` dict. -/
@@ -76,8 +74,8 @@ def ExprDiff.insertAfterChange (p : Pos) (d : ExprDiffTag := .change) (δ : Expr
   {δ with changesAfter := δ.changesAfter.insert p d}
 
 def ExprDiff.withChangePos (before after : Pos) (d : ExprDiffTag := .change) : ExprDiff :=
-  { changesAfter := RBMap.empty.insert after d
-    changesBefore := RBMap.empty.insert before d
+  { changesAfter := Std.TreeMap.empty.insert after d
+    changesBefore := Std.TreeMap.empty.insert before d
   }
 
 /-- Add a tag to the diff at the positions given by `before` and `after`. -/
@@ -171,7 +169,7 @@ partial def exprDiffCore (before after : SubExpr) : MetaM ExprDiff := do
             ⟨body₀.instantiateRev fvars.toArray, before.pos.pushNthBindingBody s.length⟩
             after
         ) <|> (pure ∅)
-        for i in [0:s.length] do
+        for i in *...s.length do
           δ := δ.insertBeforeChange (before.pos.pushNthBindingDomain i) .delete
         -- [todo] maybe here insert a tag on the after case indicating an expression was deleted above the expression?
         return δ
@@ -208,7 +206,7 @@ def diffHypothesesBundle (useAfter : Bool) (ctx₀  : LocalContext) (h₁ : Inte
     if !(ctx₀.contains fvid) then
       if let some decl₀ := ctx₀.findFromUserName? (.mkSimple ppName) then
         -- on ctx₀ there is an fvar with the same name as this one.
-        let t₀ := decl₀.type
+        let t₀ ← instantiateMVars decl₀.type
         return ← withTypeDiff t₀ h₁
       else
         if useAfter then
@@ -221,7 +219,7 @@ where
   withTypeDiff (t₀ : Expr) (h₁ : InteractiveHypothesisBundle) : MetaM InteractiveHypothesisBundle := do
     let some x₁ := h₁.fvarIds[0]?
       | throwError "internal error: empty fvar list!"
-    let t₁ ← inferType <| Expr.fvar x₁
+    let t₁ ← instantiateMVars =<< inferType (Expr.fvar x₁)
     let tδ ← exprDiff t₀ t₁ useAfter
     let c₁ ← addDiffTags useAfter tδ h₁.type
     return {h₁ with type := c₁}
@@ -252,16 +250,16 @@ def diffInteractiveGoal (useAfter : Bool) (g₀ : MVarId) (i₁ : InteractiveGoa
 /-- Modifies `goalsAfter` with additional information about how it is different to `goalsBefore`.
 If `useAfter` is `true` then `igs₁` is the set of interactive goals _after_ the tactic has been applied.
 Otherwise `igs₁` is the set of interactive goals _before_. -/
-def diffInteractiveGoals (useAfter : Bool) (info : Elab.TacticInfo) (igs₁ : InteractiveGoals) : MetaM InteractiveGoals := do
+public def diffInteractiveGoals (useAfter : Bool) (info : Elab.TacticInfo) (igs₁ : InteractiveGoals) : MetaM InteractiveGoals := do
     if ! showTacticDiff.get (← getOptions) then return igs₁ else
     let goals₀ := if useAfter then info.goalsBefore else info.goalsAfter
     let parentMap : MVarIdMap MVarIdSet ← info.goalsBefore.foldlM (init := ∅) (fun s g => do
       let ms ← Expr.mvar g |> Lean.Meta.getMVars
-      let ms : MVarIdSet := RBTree.fromArray ms _
+      let ms := MVarIdSet.ofArray ms
       return s.insert g ms
     )
     let isParent (before after : MVarId) : Bool :=
-       match parentMap.find? before with
+       match parentMap.get? before with
        | some xs => xs.contains after
        | none => false
     let goals ← igs₁.goals.mapM (fun ig₁ => do

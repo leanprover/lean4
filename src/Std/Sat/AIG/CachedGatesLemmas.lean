@@ -3,9 +3,13 @@ Copyright (c) 2024 Lean FRO, LLC. All rights reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Henrik Böving
 -/
+module
+
 prelude
-import Std.Sat.AIG.CachedGates
-import Std.Sat.AIG.LawfulOperator
+public import Std.Sat.AIG.CachedGates
+import Init.Omega
+
+@[expose] public section
 
 /-!
 This module contains the theory of the cached gate creation functions, mostly enabled by the
@@ -120,8 +124,8 @@ theorem mkXorCached_decl_eq idx (aig : AIG α) (input : BinaryInput aig) {h : id
   simp only [mkXorCached]
   rw [AIG.LawfulOperator.decl_eq (f := mkGateCached)]
   rw [AIG.LawfulOperator.decl_eq (f := mkGateCached)]
-  · rw [AIG.LawfulOperator.decl_eq (f := mkGateCached)]
-    apply LawfulOperator.lt_size_of_lt_aig_size
+  rw [AIG.LawfulOperator.decl_eq (f := mkGateCached)]
+  · apply LawfulOperator.lt_size_of_lt_aig_size
     assumption
   · apply LawfulOperator.lt_size_of_lt_aig_size
     apply LawfulOperator.lt_size_of_lt_aig_size
@@ -155,8 +159,8 @@ theorem mkBEqCached_decl_eq idx (aig : AIG α) (input : BinaryInput aig) {h : id
   simp only [mkBEqCached]
   rw [AIG.LawfulOperator.decl_eq (f := mkGateCached)]
   rw [AIG.LawfulOperator.decl_eq (f := mkGateCached)]
-  · rw [AIG.LawfulOperator.decl_eq (f := mkGateCached)]
-    apply LawfulOperator.lt_size_of_lt_aig_size
+  rw [AIG.LawfulOperator.decl_eq (f := mkGateCached)]
+  · apply LawfulOperator.lt_size_of_lt_aig_size
     assumption
   · apply LawfulOperator.lt_size_of_lt_aig_size
     apply LawfulOperator.lt_size_of_lt_aig_size

@@ -3,8 +3,12 @@ Copyright (c) 2021 Microsoft Corporation. All rights reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Leonardo de Moura
 -/
+module
+
 prelude
-import Lean.Elab.Term
+public import Lean.Elab.Term
+
+public section
 
 namespace Lean.Elab.Term
 
@@ -17,11 +21,11 @@ def «match» := leading_parser:leadPrec "match " >> sepBy1 matchDiscr ", " >> o
 ```
 -/
 
-structure MatchAltView where
+structure MatchAltView (k : SyntaxNodeKinds) where
   ref      : Syntax
   patterns : Array Syntax
   lhs      : Syntax
-  rhs      : Syntax
+  rhs      : TSyntax k
   deriving Inhabited
 
 end Lean.Elab.Term

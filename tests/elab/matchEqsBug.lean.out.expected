@@ -1,0 +1,40 @@
+{ eqnNames := #[Lean.Name.mkStr (Lean.Name.mkStr (Lean.Name.mkStr (Lean.Name.mkNum `_private.elab.matchEqsBug 0) "f") "match_1") "eq_1",
+                Lean.Name.mkStr (Lean.Name.mkStr (Lean.Name.mkStr (Lean.Name.mkNum `_private.elab.matchEqsBug 0) "f") "match_1") "eq_2",
+                Lean.Name.mkStr (Lean.Name.mkStr (Lean.Name.mkStr (Lean.Name.mkNum `_private.elab.matchEqsBug 0) "f") "match_1") "eq_3"],
+  splitterName := Lean.Name.mkStr (Lean.Name.mkStr (Lean.Name.mkStr (Lean.Name.mkNum `_private.elab.matchEqsBug 0) "f") "match_1") "splitter",
+  splitterMatchInfo := { numParams := 0,
+                         numDiscrs := 1,
+                         altInfos := #[{ numFields := 0, numOverlaps := 0, hasUnitThunk := true },
+                                       { numFields := 1, numOverlaps := 0, hasUnitThunk := false },
+                                       { numFields := 1, numOverlaps := 2, hasUnitThunk := false }],
+                         uElimPos? := some 0,
+                         discrInfos := #[{ hName? := none }],
+                         overlaps := { map := Std.HashMap.ofList [(2, Std.TreeSet.ofList [0, 1])] } } }
+f.match_1.splitter.{u_1} (motive : List Nat → Sort u_1) (x✝ : List Nat) (h_1 : Unit → motive [])
+  (h_2 : (a : Nat) → motive [a]) (h_3 : (x : List Nat) → (x = [] → False) → (∀ (a : Nat), x = [a] → False) → motive x) :
+  motive x✝
+{ eqnNames := #[Lean.Name.mkStr (Lean.Name.mkStr (Lean.Name.mkStr (Lean.Name.mkNum `_private.elab.matchEqsBug 0) "g") "match_1") "eq_1",
+                Lean.Name.mkStr (Lean.Name.mkStr (Lean.Name.mkStr (Lean.Name.mkNum `_private.elab.matchEqsBug 0) "g") "match_1") "eq_2"],
+  splitterName := Lean.Name.mkStr (Lean.Name.mkStr (Lean.Name.mkStr (Lean.Name.mkNum `_private.elab.matchEqsBug 0) "g") "match_1") "splitter",
+  splitterMatchInfo := { numParams := 0,
+                         numDiscrs := 2,
+                         altInfos := #[{ numFields := 1, numOverlaps := 0, hasUnitThunk := false },
+                                       { numFields := 2, numOverlaps := 1, hasUnitThunk := false }],
+                         uElimPos? := some 0,
+                         discrInfos := #[{ hName? := none }, { hName? := none }],
+                         overlaps := { map := Std.HashMap.ofList [(1, Std.TreeSet.ofList [0])] } } }
+g.match_1.eq_1.{u_1} (motive : Unit → Bool → Sort u_1) (x✝ : Unit) (h_1 : (x : Unit) → motive x true)
+  (h_2 : (x : Unit) → (x_1 : Bool) → motive x x_1) :
+  (match x✝, true with
+    | x, true => h_1 ()
+    | x, x_1 => h_2 x x_1) =
+    h_1 x✝
+g.match_1.eq_2.{u_1} (motive : Unit → Bool → Sort u_1) (x : Unit) (x✝ : Bool) (h_1 : (x : Unit) → motive x true)
+  (h_2 : (x : Unit) → (x_1 : Bool) → motive x x_1) :
+  (x✝ = true → False) →
+    (match x, x✝ with
+      | x, true => h_1 ()
+      | x, x_1 => h_2 x x_1) =
+      h_2 x x✝
+g.match_1.splitter.{u_1} (motive : Unit → Bool → Sort u_1) (x✝ : Unit) (y✝ : Bool) (h_1 : (x : Unit) → motive x true)
+  (h_2 : (x : Unit) → (x_1 : Bool) → (x_1 = true → False) → motive x x_1) : motive x✝ y✝

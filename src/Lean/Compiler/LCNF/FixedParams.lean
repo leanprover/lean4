@@ -3,9 +3,12 @@ Copyright (c) 2022 Microsoft Corporation. All rights reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Leonardo de Moura
 -/
+module
+
 prelude
-import Lean.Compiler.LCNF.Basic
-import Lean.Compiler.LCNF.Types
+public import Lean.Compiler.LCNF.Basic
+
+public section
 
 namespace Lean.Compiler.LCNF
 namespace FixedParams
@@ -43,12 +46,12 @@ inductive AbsValue where
 
 structure Context where
   /-- Declaration in the same mutual block. -/
-  decls : Array Decl
+  decls : Array (Decl .pure)
   /--
   Function being analyzed. We check every recursive call to this function.
   Remark: `main` is in `decls`.
   -/
-  main : Decl
+  main : Decl .pure
   /--
   The assignment maps free variable ids in the current code being analyzed to abstract values.
   We only track the abstract value assigned to parameters.
@@ -78,20 +81,20 @@ abbrev abort : FixParamM α := do
   throw ()
 
 def evalFVar (fvarId : FVarId) : FixParamM AbsValue := do
-  let some val := (← read).assignment.find? fvarId | return .top
+  let some val := (← read).assignment.get? fvarId | return .top
   return val
 
-def evalArg (arg : Arg) : FixParamM AbsValue := do
+def evalArg (arg : Arg .pure) : FixParamM AbsValue := do
   match arg with
   | .erased => return .erased
-  | .type (.fvar fvarId) => evalFVar fvarId
-  | .type _ => return .top
+  | .type (.fvar fvarId) _ => evalFVar fvarId
+  | .type _ _ => return .top
   | .fvar fvarId => evalFVar fvarId
 
 def inMutualBlock (declName : Name) : FixParamM Bool :=
   return (← read).decls.any (·.name == declName)
 
-def mkAssignment (decl : Decl) (values : Array AbsValue) : FVarIdMap AbsValue := Id.run do
+def mkAssignment (decl : Decl .pure) (values : Array AbsValue) : FVarIdMap AbsValue := Id.run do
   let mut assignment := {}
   for param in decl.params, value in values do
     assignment := assignment.insert param.fvarId value
@@ -99,28 +102,49 @@ def mkAssignment (decl : Decl) (values : Array AbsValue) : FVarIdMap AbsValue :=
 
 mutual
 
-partial def evalLetValue (e : LetValue) : FixParamM Unit := do
+partial def evalLetValue (e : LetValue .pure) : FixParamM Unit := do
   match e with
-  | .const declName _ args => evalApp declName args
+  | .const declName _ args _ => evalApp declName args
   | _ => return ()
 
-partial def evalCode (code : Code) : FixParamM Unit := do
+partial def isEquivalentFunDecl? (decl : FunDecl .pure) : FixParamM (Option Nat) := do
+  let .let { fvarId, value := (.fvar funFvarId args), .. } k := decl.value | return none
+  if args.size != decl.params.size then return none
+  let .return retFVarId := k | return none
+  if retFVarId != fvarId then return none
+  let some (.val funIdx) := (← read).assignment.get? funFvarId | return none
+  for h : i in [:decl.params.size] do
+    let param := decl.params[i]
+    -- TODO: Eliminate this dynamic bounds check.
+    let arg := args[i]!
+    if arg != .fvar param.fvarId && arg != .erased then return none
+  return some funIdx
+
+partial def evalCode (code : Code .pure) : FixParamM Unit := do
   match code with
   | .let decl k => evalLetValue decl.value; evalCode k
-  | .fun decl k | .jp decl k => evalCode decl.value; evalCode k
+  | .fun decl k _ =>
+    if let some paramIdx ← isEquivalentFunDecl? decl then
+      withReader (fun ctx =>
+                    { ctx with assignment := ctx.assignment.insert decl.fvarId (.val paramIdx) })
+        do evalCode k
+    else
+      evalCode decl.value
+      evalCode k
+  | .jp decl k => evalCode decl.value; evalCode k
   | .cases c => c.alts.forM fun alt => evalCode alt.getCode
   | .unreach .. | .jmp .. | .return .. => return ()
 
-partial def evalApp (declName : Name) (args : Array Arg) : FixParamM Unit := do
+partial def evalApp (declName : Name) (args : Array (Arg .pure)) : FixParamM Unit := do
   let main := (← read).main
   if declName == main.name then
     -- Recursive call to the function being analyzed
-    for h : i in [:main.params.size] do
+    for h : i in *...main.params.size do
       if _h : i < args.size then
-        have : i < main.params.size := h.upper
+        have : i < main.params.size := h
         let param := main.params[i]
         let val ← evalArg args[i]
-        unless val == .val i || (val == .erased && param.type.isErased) do
+        unless val == .val i || val == .erased do
           -- Found non fixed argument
           -- Remark: if the argument is erased and the type of the parameter is erased we assume it is a fixed "propositonal" parameter.
           modify fun s => { s with fixed := s.fixed.set! i false }
@@ -133,7 +157,7 @@ partial def evalApp (declName : Name) (args : Array Arg) : FixParamM Unit := do
     if declName == decl.name then
       -- Call to another function in the same mutual block.
       let mut values := #[]
-      for i in [:decl.params.size] do
+      for i in *...decl.params.size do
         if h : i < args.size then
           values := values.push (← evalArg args[i])
         else
@@ -149,12 +173,15 @@ end
 
 def mkInitialValues (numParams : Nat) : Array AbsValue := Id.run do
   let mut values := #[]
-  for i in [:numParams] do
+  for i in *...numParams do
     values := values.push <| .val i
   return values
 
 end FixedParams
 open FixedParams
+
+-- TODO: consider making it phase polymorphic, this requires detecting in place mutations of
+-- variables etc in addition to just graph theory
 
 /--
 Given the (potentially mutually) recursive declarations `decls`,
@@ -164,7 +191,7 @@ applications.
 The function assumes that if a function `f` was declared in a mutual block, then `decls`
 contains all (computationally relevant) functions in the mutual block.
 -/
-def mkFixedParamsMap (decls : Array Decl) : NameMap (Array Bool) := Id.run do
+def mkFixedParamsMap (decls : Array (Decl .pure)) : NameMap (Array Bool) := Id.run do
   let mut result := {}
   for decl in decls do
     let values := mkInitialValues decl.params.size

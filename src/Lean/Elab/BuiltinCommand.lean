@@ -3,36 +3,55 @@ Copyright (c) 2021 Microsoft Corporation. All rights reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Leonardo de Moura
 -/
+module
+
 prelude
-import Lean.Util.CollectLevelParams
-import Lean.Util.CollectAxioms
-import Lean.Meta.Reduce
-import Lean.Elab.DeclarationRange
-import Lean.Elab.Eval
-import Lean.Elab.Command
-import Lean.Elab.Open
-import Lean.Elab.SetOption
+public import Lean.Meta.Reduce
+public import Lean.Elab.Eval
+public import Lean.Elab.Command
+import Lean.Elab.ConfigEval
+import Lean.Elab.DeprecatedSyntax
+public import Lean.Elab.Open
+import Init.Data.Nat.Order
+import Init.Data.Order.Lemmas
 import Init.System.Platform
+import Lean.DeprecatedModule
+
+public section
 
 namespace Lean.Elab.Command
 
 @[builtin_command_elab moduleDoc] def elabModuleDoc : CommandElab := fun stx => do
+  let some range ← Elab.getDeclarationRange? stx
+    | return  -- must be from partial syntax, ignore
+
   match stx[1] with
   | Syntax.atom _ val =>
-    let doc := val.extract 0 (val.endPos - ⟨2⟩)
-    let some range ← Elab.getDeclarationRange? stx
-      | return  -- must be from partial syntax, ignore
-    modifyEnv fun env => addMainModuleDoc env ⟨doc, range⟩
-  | _ => throwErrorAt stx "unexpected module doc string{indentD stx[1]}"
+    if getMainVersoModuleDocs (← getEnv) |>.isEmpty then
+      let doc := String.Pos.Raw.extract val 0 (val.rawEndPos.unoffsetBy ⟨2⟩)
+      modifyEnv fun env => addMainModuleDoc env ⟨doc, range⟩
+    else
+      throwError m!"Can't add Markdown-format module docs because there is already Verso-format content present."
+  | Syntax.node _ ``Lean.Parser.Command.versoCommentBody args =>
+    let docSyntax := args.getD 0 .missing
+    if docSyntax.getKind == `Lean.Doc.Syntax.parseFailure then
+      -- Report parser errors without attempting elaboration
+      runTermElabM fun _ => reportVersoParseFailure docSyntax
+    else
+      runTermElabM fun _ => do
+        addVersoModDocString range ⟨docSyntax⟩
+  | _ => throwErrorAt stx "unexpected module doc string{indentD <| stx}"
 
 private def addScope (isNewNamespace : Bool) (header : String) (newNamespace : Name)
-    (isNoncomputable : Bool := false) (attrs : List (TSyntax ``Parser.Term.attrInstance) := []) :
+    (isNoncomputable isPublic isMeta : Bool := false) (attrs : List (TSyntax ``Parser.Term.attrInstance) := []) :
     CommandElabM Unit := do
   modify fun s => { s with
     env    := s.env.registerNamespace newNamespace,
     scopes := { s.scopes.head! with
       header := header, currNamespace := newNamespace
       isNoncomputable := s.scopes.head!.isNoncomputable || isNoncomputable
+      isPublic := s.scopes.head!.isPublic || isPublic
+      isMeta := s.scopes.head!.isMeta || isMeta
       attrs := s.scopes.head!.attrs ++ attrs
     } :: s.scopes
   }
@@ -40,7 +59,7 @@ private def addScope (isNewNamespace : Bool) (header : String) (newNamespace : N
   if isNewNamespace then
     activateScoped newNamespace
 
-private def addScopes (header : Name) (isNewNamespace : Bool) (isNoncomputable : Bool := false)
+private def addScopes (header : Name) (isNewNamespace : Bool) (isNoncomputable isPublic isMeta : Bool := false)
     (attrs : List (TSyntax ``Parser.Term.attrInstance) := []) : CommandElabM Unit :=
   go header
 where go
@@ -48,23 +67,24 @@ where go
   | .str p header => do
     go p
     let currNamespace ← getCurrNamespace
-    addScope isNewNamespace header (if isNewNamespace then Name.mkStr currNamespace header else currNamespace) isNoncomputable attrs
+    addScope isNewNamespace header (if isNewNamespace then Name.mkStr currNamespace header else currNamespace) isNoncomputable isPublic isMeta attrs
   | _ => throwError "invalid scope"
 
 private def addNamespace (header : Name) : CommandElabM Unit :=
   addScopes (isNewNamespace := true) (isNoncomputable := false) (attrs := []) header
 
+private def popScopes (numScopes : Nat) : CommandElabM Unit :=
+  for _ in *...numScopes do
+    popScope
+
 def withNamespace {α} (ns : Name) (elabFn : CommandElabM α) : CommandElabM α := do
   addNamespace ns
   let a ← elabFn
   modify fun s => { s with scopes := s.scopes.drop ns.getNumParts }
+  popScopes ns.getNumParts
   pure a
 
-private def popScopes (numScopes : Nat) : CommandElabM Unit :=
-  for _ in [0:numScopes] do
-    popScope
-
-private def checkAnonymousScope : List Scope → Option Name
+private def innermostScopeName? : List Scope → Option Name
   | { header := "", .. } :: _ => none
   | { header := h, .. }  :: _ => some <| .mkSimple h
   | _                         => some .anonymous -- should not happen
@@ -85,40 +105,169 @@ private def checkEndHeader : Name → List Scope → Option Name
 
 @[builtin_command_elab «section»] def elabSection : CommandElab := fun stx => do
   match stx with
-  | `($[@[expose%$expTk]]? $[noncomputable%$ncTk]? section $(header?)?) =>
+  | `(Parser.Command.section| $[@[expose%$expTk]]? $[public%$publicTk]? $[noncomputable%$ncTk]? $[meta%$metaTk]? section $(header?)?) =>
     -- TODO: allow more attributes?
     let attrs ← if expTk.isSome then
       pure [← `(Parser.Term.attrInstance| expose)]
     else
       pure []
     if let some header := header? then
-      addScopes (isNewNamespace := false) (isNoncomputable := ncTk.isSome) (attrs := attrs) header.getId
+      addScopes (isNewNamespace := false) (isNoncomputable := ncTk.isSome) (isPublic := publicTk.isSome) (isMeta := metaTk.isSome) (attrs := attrs) header.getId
     else
-      addScope (isNewNamespace := false) (isNoncomputable := ncTk.isSome) (attrs := attrs) "" (← getCurrNamespace)
+      addScope (isNewNamespace := false) (isNoncomputable := ncTk.isSome) (isPublic := publicTk.isSome) (isMeta := metaTk.isSome) (attrs := attrs) "" (← getCurrNamespace)
   | _                        => throwUnsupportedSyntax
 
+@[builtin_command_elab InternalSyntax.end_local_scope] def elabEndLocalScope : CommandElab := fun stx => do
+  let depth := stx[1].toNat
+  setDelimitsLocal depth
+
+/--
+Produces a `Name` composed of the names of at most the innermost `n` scopes in `ss`, truncating if an
+empty scope is reached (so that we do not suggest names like `Foo.«».Bar`).
+
+If `n` is not specified, will use all scopes in `ss`.
+-/
+private def nameOfScopes : (ss : List Scope) → (n : Nat := ss.length) → Name
+  | _, 0 => .anonymous
+  | [], _ => .anonymous
+  | s :: ss, n + 1 =>
+    if s.header == "" then
+      .anonymous
+    else
+    .str (nameOfScopes ss n) s.header
+
+/--
+Returns the first suffix of `base` that begins with `seg`, if one exists.
+
+Note: this uses a naive, O(m*n) implementation for simplicity; we assume repeated partial overlap of
+name components to be relatively uncommon, so that practical performance is closer to linear.
+-/
+private def findSuffixWithPrefix (base : Name) (seg : Name) : Option Name :=
+  findSuffixMatch base seg true
+where
+  /--
+  Helper for `findSuffixWithPrefix`. If `allowOffset` is `false`, then `seg` must be a suffix of
+  `base`, not just a prefix of a suffix.
+  -/
+  findSuffixMatch : (base : Name) → (seg : Name) → (allowOffset : Bool) → Option Name
+  | _, .anonymous, _ => some .anonymous
+  | .anonymous, _, _ => none
+  | .num p n, seg@(.num p' n'), allowOffset => do
+    if n == n' then
+      if let some nm := findSuffixMatch p p' (allowOffset := false) then
+        return .num nm n
+    if allowOffset then
+      return .num (← findSuffixMatch p seg allowOffset) n
+    else
+      none
+  | .str p s, seg@(.str p' s'), allowOffset => do
+    if s == s' then
+      if let some nm := findSuffixMatch p p' (allowOffset := false) then
+        return .str nm s
+    if allowOffset then
+      return .str (← findSuffixMatch p seg allowOffset) s
+    else
+      none
+  | .str p s, seg, allowOffset =>
+    if allowOffset then
+      return .str (← findSuffixMatch p seg allowOffset) s
+    else
+      none
+  | .num p n, seg, allowOffset =>
+    if allowOffset then
+      return .num (← findSuffixMatch p seg allowOffset) n
+    else
+      none
+
+private def throwNoScope : CommandElabM Unit :=
+  throwError m!"Invalid `end`: There is no current scope to end"
+    ++ .note m!"Scopes are introduced using `namespace` and `section`"
+
+private def throwMissingName (name : Name) : CommandElabM Unit := do
+  let hint ← liftCoreM <| MessageData.hint m!"To end the current scope `{name}`, specify its name:"
+    #[← `(end $(mkIdent name))] (codeActionPrefix? := "Add scope name: ")
+  throwError "Missing name after `end`: Expected the current scope name `{name}`{hint}"
+
+/--
+Produces a hint message with a suggestion to replace the name following `end` at the current ref
+with the name given by `scopes` if there is only one active scope; otherwise, returns `none`.
+
+Rationale: When there is only one active scope, only one valid `end` command is possible, so we
+suggest it; if there are multiple, then it is harder to determine with confidence which the user
+intended to end.
+-/
+private def mkSingleScopeReplacementHint? (scopes : List Scope) := do
+  -- Recall that there is always an anonymous topmost scope, so `scopes.length = 2` when there is
+  -- only one active scope:
+  if scopes.length == 2 then
+    let name := nameOfScopes scopes
+    some <$> MessageData.hint m!"Use current scope name `{name}`:" #[(← `(end $(mkIdent name)))]
+      (codeActionPrefix? := "Replace scope name: ")
+  else
+    return none
+
+private def throwTooManyScopeComponents (header : Name) (scopes : List Scope) : CommandElabM Unit := do
+  let hint ← liftCoreM do
+    if let some hint ← mkSingleScopeReplacementHint? scopes then
+      pure hint
+    else
+      let scopesName := nameOfScopes scopes
+      pure <| MessageData.hint' m!"The name after `end` must be `{scopesName}` or some suffix thereof"
+  throwError m!"Invalid name after `end`: `{header}` contains too many components" ++ hint
+
+private def throwScopeNameMismatch (header : Name) (scopes : List Scope) (endSize : Nat)
+    : CommandElabM Unit := do
+  let correspondingScopes := nameOfScopes scopes endSize
+  let allScopes := nameOfScopes scopes
+  let help ← liftCoreM do
+    if let some hint ← mkSingleScopeReplacementHint? scopes then
+      pure hint
+    else if let some suffix := findSuffixWithPrefix allScopes header then
+      let hintMsg := m!"If you meant to end the outer scope(s) `{header}`, you must end all the \
+        intervening scopes `{suffix}`:"
+      MessageData.hint hintMsg #[← `(end $(mkIdent suffix))]
+        (codeActionPrefix? := "Add intervening scopes: ")
+    else if correspondingScopes != allScopes then
+      pure <| .note m!"The current scopes are `{allScopes}`"
+    else pure .nil
+  throwError m!"Invalid name after `end`: Expected `{correspondingScopes}`, but found `{header}`" ++ help
+
+private def throwUnnecessaryScopeName (header : Name) : CommandElabM Unit := do
+  let hintMsg := m!"Delete the name `{header}` to end the current unnamed scope; outer named scopes \
+    can then be closed using additional `end` command(s):"
+  let hint ← liftCoreM <| MessageData.hint hintMsg #[← `(end)] (codeActionPrefix? := "Delete name: ")
+  throwError m!"Unexpected name `{header}` after `end`: The current section is unnamed" ++ hint
+
 @[builtin_command_elab «end»] def elabEnd : CommandElab := fun stx => do
-  let header? := (stx.getArg 1).getOptionalIdent?;
-  let endSize := match header? with
+  let `(end $[$header? $[.%$trailingDotTk?$_]?]?) := stx
+    | throwUnsupportedSyntax
+  let header? := header?.map (·.getId)
+  let danglingDot := trailingDotTk?.join.isSome
+  let endSize : Nat := match header? with
     | none   => 1
     | some n => n.getNumParts
   let scopes ← getScopes
-  if endSize < scopes.length then
-    modify fun s => { s with scopes := s.scopes.drop endSize }
-    popScopes endSize
-  else -- we keep "root" scope
-    let n := (← get).scopes.length - 1
-    modify fun s => { s with scopes := s.scopes.drop n }
-    popScopes n
-    throwError "invalid 'end', insufficient scopes"
+  let numScopes := scopes.length
+  if numScopes == 1 then
+    throwNoScope
   match header? with
   | none        =>
-    if let some name := checkAnonymousScope scopes then
-      throwError "invalid 'end', name is missing (expected {name})"
+    addCompletionInfo <| .endSection stx none false <| scopes.map (·.header)
+    if let some name := innermostScopeName? scopes then
+      throwMissingName name
   | some header =>
-    if let some name := checkEndHeader header scopes then
-      addCompletionInfo <| CompletionInfo.endSection stx (scopes.map fun scope => scope.header)
-      throwError "invalid 'end', name mismatch (expected {if name == `«» then `nothing else name})"
+    if endSize >= numScopes then
+      throwTooManyScopeComponents header scopes
+    else
+      addCompletionInfo <| .endSection stx header danglingDot <| scopes.map (·.header)
+      let scopesName := nameOfScopes scopes endSize
+      if scopesName != header then
+        if scopesName == .anonymous then
+          throwUnnecessaryScopeName header
+        else
+          throwScopeNameMismatch header scopes endSize
+  modify fun s => {s with scopes := s.scopes.drop endSize }
+  popScopes endSize
 
 private partial def elabChoiceAux (cmds : Array Syntax) (i : Nat) : CommandElabM Unit :=
   if h : i < cmds.size then
@@ -136,6 +285,15 @@ private partial def elabChoiceAux (cmds : Array Syntax) (i : Nat) : CommandElabM
 
 @[builtin_command_elab «init_quot»] def elabInitQuot : CommandElab := fun _ => do
   liftCoreM <| addDecl Declaration.quotDecl
+
+@[builtin_command_elab «docs_to_verso»] def elabDocsToVerso : CommandElab := fun stx => do
+  let xs := stx[1].getArgs
+  for x in xs do
+    if x.getKind == identKind then -- skip commas
+      let declName ← liftCoreM <| realizeGlobalConstNoOverload x
+      runTermElabM <| fun _ => withRef x <| makeDocStringVerso declName
+      -- Add the info afterwards so the hover shows the updated docstring
+      addConstInfo x declName
 
 @[builtin_command_elab «export»] def elabExport : CommandElab := fun stx => do
   let `(export $ns ($ids*)) := stx | throwUnsupportedSyntax
@@ -223,7 +381,7 @@ private def replaceBinderAnnotation (binder : TSyntax ``Parser.Term.bracketedBin
         | .strictImplicit => `(bracketedBinderF| {{$id $[: $ty?]?}})
         | .instImplicit => do
           let some ty := ty?
-            | throwErrorAt binder "cannot update binder annotation of variable '{id}' to instance implicit:\n\
+            | throwErrorAt binder "cannot update binder annotation of variable `{id}` to instance implicit:\n\
                 variable was originally declared without an explicit type"
           `(bracketedBinderF| [$(⟨id⟩) : $ty])
       for id in ids.reverse do
@@ -237,7 +395,7 @@ private def replaceBinderAnnotation (binder : TSyntax ``Parser.Term.bracketedBin
               runTermElabM fun _ => Term.withSynthesize <| Term.withAutoBoundImplicit <|
                 Term.elabBinder newBinder fun _ => pure ()
             catch e =>
-              throwErrorAt binder m!"cannot update binder annotation of variable '{id}' to instance implicit:\n\
+              throwErrorAt binder m!"cannot update binder annotation of variable `{id}` to instance implicit:\n\
                 {e.toMessageData}"
           varDeclsNew := varDeclsNew.push (← mkBinder id binderInfo)
         else
@@ -296,23 +454,25 @@ def elabCheckCore (ignoreStuckTC : Bool) : CommandElab
 
 @[builtin_command_elab Lean.Parser.Command.check] def elabCheck : CommandElab := elabCheckCore (ignoreStuckTC := true)
 
+declare_command_config_elab elabReduceConfig Command.ReduceConfig
+
 @[builtin_command_elab Lean.reduceCmd] def elabReduce : CommandElab
-  | `(#reduce%$tk $term) => go tk term
-  | `(#reduce%$tk (proofs := true) $term) => go tk term (skipProofs := false)
-  | `(#reduce%$tk (types := true) $term) => go tk term (skipTypes := false)
-  | `(#reduce%$tk (proofs := true) (types := true) $term) => go tk term (skipProofs := false) (skipTypes := false)
+  | `(#reduce%$tk $cfg $term) => do
+    let cfg ← elabReduceConfig cfg
+    go tk term cfg
   | _ => throwUnsupportedSyntax
 where
-  go (tk : Syntax) (term : Syntax) (skipProofs := true) (skipTypes := true) : CommandElabM Unit :=
+  go (tk : Syntax) (term : Syntax) (cfg : Command.ReduceConfig) : CommandElabM Unit :=
     withoutModifyingEnv <| runTermElabM fun _ => Term.withDeclName `_reduce do
       let e ← Term.elabTerm term none
-      Term.synthesizeSyntheticMVarsNoPostponing
-      -- Users might be testing out buggy elaborators. Let's typecheck before proceeding:
-      withRef tk <| Meta.check e
+      Term.synthesizeSyntheticMVarsNoPostponing (ignoreStuckTC := cfg.ignoreStuckTC)
+      let e ← instantiateMVars e
+      if cfg.check then
+        -- Users might be testing out buggy elaborators. Let's typecheck before proceeding:
+        withRef tk <| Meta.check e
       let e ← Term.levelMVarToParam (← instantiateMVars e)
-      -- TODO: add options or notation for setting the following parameters
-      withTheReader Core.Context (fun ctx => { ctx with options := ctx.options.setBool `smartUnfolding false }) do
-        let e ← withTransparency (mode := TransparencyMode.all) <| reduce e (skipProofs := skipProofs) (skipTypes := skipTypes)
+      withTheReader Core.Context (fun ctx => { ctx with options := ctx.options.set `smartUnfolding cfg.smartUnfolding }) do
+        let e ← withTransparency (mode := cfg.transparency) <| reduce e (explicitOnly := !cfg.implicits) (skipProofs := !cfg.proofs) (skipTypes := !cfg.types)
         logInfoAt tk e
 
 def hasNoErrorMessages : CommandElabM Bool := do
@@ -354,14 +514,25 @@ def failIfSucceeds (x : CommandElabM Unit) : CommandElabM Unit := do
     pure ()
 
 @[builtin_command_elab «set_option»] def elabSetOption : CommandElab := fun stx => do
-  let options ← Elab.elabSetOption stx[1] stx[3]
+  let (options, decl) ← Elab.elabSetOption stx[1] stx[3]
+  withRef stx[1] <| Elab.checkDeprecatedOption (stx[1].getId.eraseMacroScopes) decl
   modify fun s => { s with maxRecDepth := maxRecDepth.get options }
   modifyScope fun scope => { scope with opts := options }
 
+@[builtin_command_elab «unlock_limits»] def elabUnlockLimits : CommandElab := fun _ => do
+  let opts ← getOptions
+  let opts := maxHeartbeats.set opts 0
+  let opts := maxRecDepth.set opts 0
+  let opts := synthInstance.maxHeartbeats.set opts 0
+  modifyScope ({ · with opts })
+  -- update cached value as well
+  modify ({ · with maxRecDepth := 0 })
+
+open Lean.Parser.Command.InternalSyntax in
 @[builtin_macro Lean.Parser.Command.«in»] def expandInCmd : Macro
   | `($cmd₁ in%$tk $cmd₂) =>
     -- Limit ref variability for incrementality; see Note [Incremental Macros]
-    withRef tk `(section $cmd₁:command $cmd₂ end)
+    withRef tk `(section $cmd₁:command $(endLocalScopeSyntax 1):command $cmd₂ end)
   | _                 => Macro.throwUnsupported
 
 @[builtin_command_elab Parser.Command.addDocString] def elabAddDeclDoc : CommandElab := fun stx => do
@@ -374,7 +545,7 @@ def failIfSucceeds (x : CommandElabM Unit) : CommandElabM Unit := do
       -- this is only relevant for declarations added without a declaration range
       -- in particular `Quot.mk` et al which are added by `init_quot`
       addDeclarationRangesFromSyntax declName stx id
-    addDocString declName doc
+    runTermElabM fun _ => addDocString declName (mkNullNode #[]) doc
   | _ => throwUnsupportedSyntax
 
 @[builtin_command_elab Lean.Parser.Command.include] def elabInclude : CommandElab
@@ -386,7 +557,7 @@ def failIfSucceeds (x : CommandElabM Unit) : CommandElabM Unit := do
       if let some idx := vars.findIdx? (· == id.getId) then
         uids := uids.push sc.varUIds[idx]!
       else
-        throwError "invalid 'include', variable '{id}' has not been declared in the current scope"
+        throwError "invalid 'include', variable `{id}` has not been declared in the current scope"
     modifyScope fun sc => { sc with
       includedVars := sc.includedVars ++ uids.toList
       omittedVars := sc.omittedVars.filter (!uids.contains ·) }
@@ -425,10 +596,10 @@ def failIfSucceeds (x : CommandElabM Unit) : CommandElabM Unit := do
             omittedVars := omittedVars.push uid
             omitsUsed := omitsUsed.set! idx true
           else
-            throwError "invalid 'omit', '{ldecl.userName}' has not been declared in the current scope"
+            throwError "invalid 'omit', `{ldecl.userName}` has not been declared in the current scope"
       for o in omits, used in omitsUsed do
         unless used do
-          throwError "'{o}' did not match any variables in the current scope"
+          throwError "`{o}` did not match any variables in the current scope"
       return omittedVars
     modifyScope fun sc => { sc with
       omittedVars := sc.omittedVars ++ omittedVars.toList
@@ -442,6 +613,7 @@ def failIfSucceeds (x : CommandElabM Unit) : CommandElabM Unit := do
   let platforms :=
     (if System.Platform.isWindows then [" Windows"] else [])
     ++ (if System.Platform.isOSX then [" macOS"] else [])
+    ++ (if System.Platform.isLinux then [" Linux"] else [])
     ++ (if System.Platform.isEmscripten then [" Emscripten"] else [])
   logInfo m!"Lean {Lean.versionString}\nTarget: {target}{String.join platforms}"
 
@@ -457,9 +629,14 @@ def failIfSucceeds (x : CommandElabM Unit) : CommandElabM Unit := do
 @[builtin_command_elab Parser.Command.where] def elabWhere : CommandElab := fun _ => do
   let scope ← getScope
   let mut msg : Array MessageData := #[]
-  -- Noncomputable
-  if scope.isNoncomputable then
-    msg := msg.push <| ← `(Parser.Command.section| noncomputable section)
+  let isExpose := scope.attrs.any (· matches `(attrInstance| expose))
+  -- Section header
+  if isExpose || scope.isPublic || scope.isNoncomputable || scope.isMeta then
+    let expTk? := if isExpose then some Syntax.missing else none
+    let publicTk? := if scope.isPublic then some Syntax.missing else none
+    let ncTk? := if scope.isNoncomputable then some Syntax.missing else none
+    let metaTk? := if scope.isMeta then some Syntax.missing else none
+    msg := msg.push <| ← `(Parser.Command.section| $[@[expose%$expTk?]]? $[public%$publicTk?]? $[noncomputable%$ncTk?]? $[meta%$metaTk?]? section)
   -- Namespace
   if !scope.currNamespace.isAnonymous then
     msg := msg.push <| ← `(command| namespace $(mkIdent scope.currNamespace))
@@ -477,6 +654,9 @@ def failIfSucceeds (x : CommandElabM Unit) : CommandElabM Unit := do
   -- Included variables
   if !scope.includedVars.isEmpty then
     msg := msg.push <| ← `(command| include $(scope.includedVars.toArray.map (mkIdent ·.eraseMacroScopes))*)
+  -- Omitted variables
+  if !scope.omittedVars.isEmpty then
+    msg := msg.push <| ← `(command| omit $(scope.omittedVars.toArray.map (mkIdent ·.eraseMacroScopes))*)
   -- Options
   if let some optionsMsg ← describeOptions scope.opts then
     msg := msg.push optionsMsg
@@ -550,5 +730,55 @@ where
   fun _ => do
     let env ← getEnv
     IO.eprintln (← env.dbgFormatAsyncState)
+
+/-- Elaborate `deprecated_module`, marking the current module as deprecated. -/
+@[builtin_command_elab Parser.Command.deprecated_module]
+def elabDeprecatedModule : CommandElab
+  | `(Parser.Command.deprecated_module| deprecated_module $[$msg?]? $[(since := $since?)]?) => do
+    let message? := msg?.map TSyntax.getString
+    let since? := since?.map TSyntax.getString
+    if (deprecatedModuleExt.getState (← getEnv)).isSome then
+      logWarning "module is already marked as deprecated"
+    if since?.isNone then
+      logWarning "`deprecated_module` should specify the date or library version \
+        at which the deprecation was introduced, using `(since := \"...\")`"
+    modifyEnv fun env => env.setDeprecatedModule (some { message?, since? })
+  | _ => throwUnsupportedSyntax
+
+/-- Elaborate `#show_deprecated_modules`, displaying all deprecated modules. -/
+@[builtin_command_elab Parser.Command.showDeprecatedModules]
+def elabShowDeprecatedModules : CommandElab := fun _ => do
+  let env ← getEnv
+  let mut parts : Array String := #["Deprecated modules\n"]
+  for h : idx in [:env.header.moduleNames.size] do
+    if let some entry := env.getDeprecatedModuleByIdx? idx then
+      let modName := env.header.moduleNames[idx]
+      let msg := match entry.message? with
+        | some str => s!"message '{str}'"
+        | none => "no message"
+      let replacements := env.header.moduleData[idx]!.imports.filter fun imp =>
+        imp.module != `Init
+      parts := parts.push s!"'{modName}' deprecates to\n{replacements.map (·.module)}\nwith {msg}\n"
+  -- Also show the current module's deprecation if set.
+  if let some entry := deprecatedModuleExt.getState env then
+    let modName := env.mainModule
+    let msg := match entry.message? with
+      | some str => s!"message '{str}'"
+      | none => "no message"
+    let replacements := env.imports.filter fun imp =>
+      imp.module != `Init
+    parts := parts.push s!"'{modName}' deprecates to\n{replacements.map (·.module)}\nwith {msg}\n"
+  logInfo (String.intercalate "\n" parts.toList)
+
+@[builtin_command_elab Parser.Command.deprecatedSyntax] def elabDeprecatedSyntax : CommandElab := fun stx => do
+  let id := stx[1]
+  let kind ← liftCoreM <| checkSyntaxNodeKindAtNamespaces id.getId (← getCurrNamespace)
+  let text? := if stx[2].isNone then none else stx[2][0].isStrLit?
+  let since? := if stx[3].isNone then none else stx[3][3].isStrLit?
+  if since?.isNone then
+    logWarning "`deprecated_syntax` should specify the date or library version at which the \
+      deprecation was introduced, using `(since := \"...\")`"
+  modifyEnv fun env =>
+    deprecatedSyntaxExt.addEntry env { kind, text?, since? }
 
 end Lean.Elab.Command

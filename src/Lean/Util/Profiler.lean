@@ -3,14 +3,19 @@ Copyright (c) 2024 Lean FRO, LLC. All rights reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Sebastian Ullrich
 -/
+module
+
 prelude
-import Lean.Util.Trace
+public import Lean.Util.Trace
+import Init.Data.Range.Polymorphic.Iterators
+
+public section
 
 /-! `trace.profiler.output` Firefox Profiler integration -/
 
 namespace Lean.Firefox
 
-/-! Definitions from https://github.com/firefox-devtools/profiler/blob/main/src/types/profile.js -/
+/-! Definitions from https://github.com/firefox-devtools/profiler/blob/main/src/types/profile.ts -/
 
 structure Milliseconds where
   ms : Float
@@ -145,6 +150,7 @@ structure Thread where
   stackTable : StackTable
   frameTable : FrameTable
   resourceTable : ResourceTable := {}
+  nativeSymbols : ResourceTable := {}
   stringArray : Array String
   funcTable : FuncTable
 deriving FromJson, ToJson
@@ -325,20 +331,20 @@ private partial def collideThreads (thread : ThreadWithCollideMaps) (add : Threa
   StateT.run collideSamples thread |>.2
 where
   collideSamples : StateM ThreadWithCollideMaps Unit := do
-    for oldSampleIdx in [0:add.samples.length] do
+    for oldSampleIdx in *...add.samples.length do
       let oldStackIdx := add.samples.stack[oldSampleIdx]!
       let stackIdx ← collideStacks oldStackIdx
       modify fun thread =>
         if let some idx := thread.sampleMap[stackIdx]? then
           -- imperative to preserve linear use of arrays here!
-          let ⟨⟨⟨t1, t2, t3, samples, t5, t6, t7, t8, t9, t10⟩, o2, o3, o4, o5⟩, o6⟩ := thread
+          let ⟨⟨⟨t1, t2, t3, samples, t5, t6, t7, t8, t9, t10, t11⟩, o2, o3, o4, o5⟩, o6⟩ := thread
           let ⟨s1, s2, weight, s3, s4, s5⟩ := samples
           let weight := weight.set! idx <| weight[idx]! + add.samples.weight[oldSampleIdx]!
           let samples := ⟨s1, s2, weight, s3, s4, s5⟩
-          ⟨⟨⟨t1, t2, t3, samples, t5, t6, t7, t8, t9, t10⟩, o2, o3, o4, o5⟩, o6⟩
+          ⟨⟨⟨t1, t2, t3, samples, t5, t6, t7, t8, t9, t10, t11⟩, o2, o3, o4, o5⟩, o6⟩
         else
           -- imperative to preserve linear use of arrays here!
-          let ⟨⟨⟨t1, t2, t3, samples, t5, t6, t7, t8, t9, t10⟩, o2, o3, o4, o5⟩, sampleMap⟩ :=
+          let ⟨⟨⟨t1, t2, t3, samples, t5, t6, t7, t8, t9, t10, t11⟩, o2, o3, o4, o5⟩, sampleMap⟩ :=
             thread
           let ⟨stack, time, weight, _, threadCPUDelta, length⟩ := samples
           let samples := {
@@ -349,7 +355,7 @@ where
               length := length + 1
             }
           let sampleMap := sampleMap.insert stackIdx sampleMap.size
-          ⟨⟨⟨t1, t2, t3, samples, t5, t6, t7, t8, t9, t10⟩, o2, o3, o4, o5⟩, sampleMap⟩
+          ⟨⟨⟨t1, t2, t3, samples, t5, t6, t7, t8, t9, t10, t11⟩, o2, o3, o4, o5⟩, sampleMap⟩
   collideStacks oldStackIdx : StateM ThreadWithCollideMaps Nat := do
     let oldParentStackIdx? := add.stackTable.prefix[oldStackIdx]!
     let parentStackIdx? ← oldParentStackIdx?.mapM (collideStacks ·)
@@ -380,7 +386,7 @@ where
         (idx, thread)
       else
         (thread.stackMap.size,
-          let ⟨⟨⟨t1,t2, t3, t4, t5, stackTable, t7, t8, t9, t10⟩, o2, o3, stackMap, o5⟩, o6⟩ :=
+          let ⟨⟨⟨t1,t2, t3, t4, t5, stackTable, t7, t8, t9, t10, t11⟩, o2, o3, stackMap, o5⟩, o6⟩ :=
             thread
           let { frame, «prefix», category, subcategory, length } := stackTable
           let stackTable := {
@@ -391,7 +397,7 @@ where
             length := length + 1
           }
           let stackMap := stackMap.insert (frameIdx, parentStackIdx?) stackMap.size
-          ⟨⟨⟨t1,t2, t3, t4, t5, stackTable, t7, t8, t9, t10⟩, o2, o3, stackMap, o5⟩, o6⟩)
+          ⟨⟨⟨t1,t2, t3, t4, t5, stackTable, t7, t8, t9, t10, t11⟩, o2, o3, stackMap, o5⟩, o6⟩)
   getStrIdx (s : String) :=
     modifyGet fun thread =>
       if let some idx := thread.stringMap[s]? then

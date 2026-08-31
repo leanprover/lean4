@@ -3,12 +3,14 @@ Copyright (c) 2025 Amazon.com, Inc. or its affiliates. All Rights Reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Leonardo de Moura
 -/
+module
 prelude
+public import Lean.Meta.Tactic.Grind.Arith.CommRing.RingId
 import Lean.Meta.Tactic.Grind.Simp
-import Lean.Meta.Tactic.Grind.Arith.CommRing.RingId
+import Lean.Meta.Tactic.Grind.Arith.Util
 import Lean.Meta.Tactic.Grind.Arith.CommRing.Reify
 import Lean.Meta.Tactic.Grind.Arith.CommRing.DenoteExpr
-
+public section
 namespace Lean.Meta.Grind.Arith.CommRing
 
 /-- If `e` is a function application supported by the `CommRing` module, return its type. -/
@@ -17,6 +19,11 @@ private def getType? (e : Expr) : Option Expr :=
   | HAdd.hAdd α _ _ _ _ _ => some α
   | HSub.hSub α _ _ _ _ _ => some α
   | HMul.hMul α _ _ _ _ _ => some α
+  | HSMul.hSMul α β _ _ _ _ =>
+    match_expr α with
+    | Nat => some β
+    | Int => some β
+    | _ => none
   | HPow.hPow α β _ _ _ _ =>
     let_expr Nat := β | none
     some α
@@ -35,21 +42,22 @@ private def isForbiddenParent (parent? : Option Expr) : Bool :=
       -- Remark: `HDiv` should appear in `getType?` as soon as we add support for `Field`,
       -- `LE.le` linear combinations
       match_expr parent with
+      | LT.lt _ _ _ _ => true
       | LE.le _ _ _ _ => true
       | HDiv.hDiv _ _ _ _ _ _ => true
       | HMod.hMod _ _ _ _ _ _ => true
       | _ => false
   else
-    true
+    false
 
 private partial def toInt? (e : Expr) : RingM (Option Int) := do
   match_expr e with
   | Neg.neg _ i a =>
-    if isNegInst (← getRing) i then return (- .) <$> (← toInt? a) else return none
+    if (← isNegInst i) then return (- .) <$> (← toInt? a) else return none
   | IntCast.intCast _ i a =>
-    if isIntCastInst (← getRing) i then getIntValue? a else return none
+    if (← isIntCastInst i) then getIntValue? a else return none
   | NatCast.natCast _ i a =>
-    if isNatCastInst (← getRing) i then
+    if (← isNatCastInst i) then
       let some v ← getNatValue? a | return none
       return some (Int.ofNat v)
     else
@@ -59,70 +67,114 @@ private partial def toInt? (e : Expr) : RingM (Option Int) := do
     return some (Int.ofNat v)
   | _ => return none
 
-private def isDivInst (inst : Expr) : RingM Bool := do
-  let some fn := (← getRing).divFn? | return false
-  return isSameExpr fn.appArg! inst
+private def isInvInst (inst : Expr) : RingM Bool := do
+  if (← getCommRing).fieldInst?.isNone then return false
+  return isSameExpr (← getInvFn).appArg! inst
 
 /--
-Given `e` of the form `@HDiv.hDiv _ _ _ inst a b`,
-asserts `a = b * e` if `b` is a numeral.
-Otherwise, asserts `b = 0 ∨ a = b * e`
+Given `e` of the form `@Inv.inv _ inst a`,
+asserts `a * a⁻¹ = 1` if `a` is a numeral.
+Otherwise, asserts `if a = 0 then a⁻¹ = 0 else a * a⁻¹ = 1`
 -/
-private def processDiv (e inst a b : Expr) : RingM Unit := do
-  unless (← isDivInst inst) do return ()
-  if (← getRing).divSet.contains (a, b) then return ()
-  modifyRing fun s => { s with divSet := s.divSet.insert (a, b) }
-  if let some k ← toInt? b then
-    let ring ← getRing
-    let some fieldInst := ring.fieldInst? | return ()
+private def processInv (e inst a : Expr) : RingM Unit := do
+  unless (← isInvInst inst) do return ()
+  let ring ← getCommRing
+  let some fieldInst := ring.fieldInst? | return ()
+  if (← getCommRing).invSet.contains a then return ()
+  modifyCommRing fun s => { s with invSet := s.invSet.insert a }
+  if let some k ← toInt? a then
     if k == 0 then
-      pushNewFact <| mkApp3 (mkConst ``Grind.CommRing.div_zero_eq [ring.u]) ring.type fieldInst a
-    else if (← hasChar) then
+      /-
+      **Remark:** We have a normalization rule for `0⁻¹ = 0`, but we may still encounter `0⁻¹` for one of the following reasons:
+      - `0⁻¹` appears in a subterm that cannot be rewritten by `simp` without introducing a type error.
+      - `preprocessLight`, which does not apply `simp`, was used to preprocess the term. Even if we extended `preprocessLight` to
+        apply `rfl` theorems, it would not be enough since `0⁻¹ = 0` is not a `rfl` theorem.
+      -/
+      pushEq e a <| mkApp2 (mkConst ``Grind.Field.inv_zero [ring.u]) ring.type fieldInst
+      return ()
+    if (← hasChar) then
       let (charInst, c) ← getCharInst
       if c == 0 then
-        let expected ← mkEq a (mkApp2 ring.mulFn b e)
+        let expected ← mkEq (mkApp2 (← getMulFn) a e) (← denoteNum 1)
         pushNewFact <| mkExpectedPropHint
-          (mkApp6 (mkConst ``Grind.CommRing.div_int_eq [ring.u]) ring.type fieldInst charInst a (mkIntLit k) reflBoolTrue)
+          (mkApp5 (mkConst ``Grind.CommRing.inv_int_eq [ring.u]) ring.type fieldInst charInst (mkIntLit k) eagerReflBoolTrue)
           expected
       else if k % c == 0 then
         let expected ← mkEq e (← denoteNum 0)
         pushNewFact <| mkExpectedPropHint
-          (mkApp7 (mkConst ``Grind.CommRing.div_zero_eqC [ring.u]) ring.type (mkNatLit c) fieldInst charInst a (mkIntLit k) reflBoolTrue)
+          (mkApp6 (mkConst ``Grind.CommRing.inv_zero_eqC [ring.u]) ring.type (mkNatLit c) fieldInst charInst (mkIntLit k) eagerReflBoolTrue)
           expected
       else
-        let expected ← mkEq a (mkApp2 ring.mulFn b e)
+        let expected ← mkEq (mkApp2 (← getMulFn) a e) (← denoteNum 1)
         pushNewFact <| mkExpectedPropHint
-          (mkApp7 (mkConst ``Grind.CommRing.div_int_eqC [ring.u]) ring.type (mkNatLit c) fieldInst charInst a (mkIntLit k) reflBoolTrue)
+          (mkApp6 (mkConst ``Grind.CommRing.inv_int_eqC [ring.u]) ring.type (mkNatLit c) fieldInst charInst (mkIntLit k) eagerReflBoolTrue)
           expected
-  else
-    -- TODO
-    return ()
+      return ()
+  pushNewFact <| mkApp3 (mkConst ``Grind.CommRing.inv_split [ring.u]) ring.type fieldInst a
 
 /--
-Returns `true` if `e` is a term `a/b` or `a⁻¹`.
+For each new variable `x` in a ring with `PowIdentity α p`,
+push the equation `x ^ p = x` as a new fact into grind.
 -/
-private def internalizeDivInv (e : Expr) : GoalM Bool := do
+private def processPowIdentityVars : RingM Unit := do
+  let ring ← getCommRing
+  let some (powIdentityInst, csInst, p) := ring.powIdentityInst? | return ()
+  let startIdx := ring.powIdentityVarCount
+  let vars := ring.toRing.vars
+  if startIdx >= vars.size then return ()
+  for i in [startIdx:vars.size] do
+    let x := vars[i]!
+    trace_goal[grind.ring] "PowIdentity: pushing x^{p} = x for {x}"
+    -- Construct proof: @PowIdentity.pow_eq α csInst p powIdentityInst x
+    let proof := mkApp5 (mkConst ``Grind.PowIdentity.pow_eq [ring.u])
+      ring.type csInst (mkNatLit p) powIdentityInst x
+    pushNewFact proof
+  modifyCommRing fun s => { s with powIdentityVarCount := vars.size }
+
+/-- Returns `true` if `e` is a term `a⁻¹`. -/
+private def internalizeInv (e : Expr) : GoalM Bool := do
   match_expr e with
-  | HDiv.hDiv α _ _ inst a b =>
-    let some ringId ← getRingId? α | return true
-    RingM.run ringId do processDiv e inst a b
-    return true
-  | Inv.inv _α _inst _a =>
-    -- TODO
+  | Inv.inv α inst a =>
+    let some ringId ← getCommRingId? α | return true
+    RingM.run ringId do processInv e inst a
     return true
   | _ => return false
 
 def internalize (e : Expr) (parent? : Option Expr) : GoalM Unit := do
-  if !(← getConfig).ring && !(← getConfig).ringNull then return ()
-  if (← internalizeDivInv e) then return ()
+  if !(← getConfig).ring then return ()
+  if isIntModuleVirtualParent parent? then
+    -- `e` is an auxiliary term used to convert `CommRing` to `IntModule`
+    return ()
+  if (← internalizeInv e) then return ()
   let some type := getType? e | return ()
   if isForbiddenParent parent? then return ()
-  let some ringId ← getRingId? type | return ()
-  RingM.run ringId do
+  if let some ringId ← getCommRingId? type then RingM.run ringId do
     let some re ← reify? e | return ()
     trace_goal[grind.ring.internalize] "[{ringId}]: {e}"
     setTermRingId e
-    markAsCommRingTerm e
+    ringExt.markTerm e
+    modifyCommRing fun s => { s with
+      denote := s.denote.insert { expr := e } re
+      denoteEntries := s.denoteEntries.push (e, re)
+    }
+    processPowIdentityVars
+  else if let some semiringId ← getCommSemiringId? type then SemiringM.run semiringId do
+    let some re ← sreify? e | return ()
+    trace_goal[grind.ring.internalize] "semiring [{semiringId}]: {e}"
+    setTermSemiringId e
+    ringExt.markTerm e
+    modifySemiring fun s => { s with denote := s.denote.insert { expr := e } re }
+  else if let some ncRingId ← getNonCommRingId? type then NonCommRingM.run ncRingId do
+    let some re ← ncreify? e | return ()
+    trace_goal[grind.ring.internalize] "(non-comm) ring [{ncRingId}]: {e}"
+    setTermNonCommRingId e
+    ringExt.markTerm e
     modifyRing fun s => { s with denote := s.denote.insert { expr := e } re }
+  else if let some ncSemiringId ← getNonCommSemiringId? type then NonCommSemiringM.run ncSemiringId do
+    let some re ← ncsreify? e | return ()
+    trace_goal[grind.ring.internalize] "(non-comm) semiring [{ncSemiringId}]: {e}"
+    setTermNonCommSemiringId e
+    ringExt.markTerm e
+    modifySemiring fun s => { s with denote := s.denote.insert { expr := e } re }
 
 end Lean.Meta.Grind.Arith.CommRing

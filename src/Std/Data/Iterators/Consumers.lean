@@ -1,11 +1,10 @@
 /-
-Copyright (c) 2025 Lean FRO, LLC. All rights reserved.
+Copyright (c) 2026 Lean FRO, LLC. All rights reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
-Authors: Paul Reichert
+Authors: Markus Himmel
 -/
+module
+
 prelude
-import Std.Data.Iterators.Consumers.Monadic
-import Std.Data.Iterators.Consumers.Access
-import Std.Data.Iterators.Consumers.Collect
-import Std.Data.Iterators.Consumers.Loop
-import Std.Data.Iterators.Consumers.Partial
+public import Std.Data.Iterators.Consumers.Monadic
+public import Std.Data.Iterators.Consumers.Set

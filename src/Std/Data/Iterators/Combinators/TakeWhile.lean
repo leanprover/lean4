@@ -3,10 +3,14 @@ Copyright (c) 2025 Lean FRO, LLC. All rights reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Paul Reichert
 -/
-prelude
-import Std.Data.Iterators.Combinators.Monadic.TakeWhile
+module
 
-namespace Std.Iterators
+prelude
+public import Std.Data.Iterators.Combinators.Monadic.TakeWhile
+
+@[expose] public section
+
+namespace Std
 
 /--
 Given an iterator `it` and a predicate `P`, `it.takeWhile P` is an iterator that outputs
@@ -38,8 +42,8 @@ In this case, the `Finite` (or `Productive`) instance needs to be proved manuall
 This combinator calls `P` on each output of `it` until the predicate evaluates to false. Then
 it terminates.
 -/
-@[always_inline, inline]
+@[cbv_opaque, always_inline, inline]
 def Iter.takeWhile {α : Type w} {β : Type w} (P : β → Bool) (it : Iter (α := α) β) :=
   (it.toIterM.takeWhile P |>.toIter : Iter β)
 
-end Std.Iterators
+end Std

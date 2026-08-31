@@ -1,0 +1,10 @@
+def y : Unit :=
+Foo.x
+641.lean:9:17-9:18: error: Ambiguous term
+  x
+Possible interpretations:
+  Bar.x : Unit
+  
+  Foo.x : Unit
+def Rig.x : Nat :=
+_root_.x

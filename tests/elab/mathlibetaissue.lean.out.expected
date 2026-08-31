@@ -1,0 +1,2 @@
+mathlibetaissue.lean:121:0-121:8: warning: declaration uses `sorry`
+mathlibetaissue.lean:149:9-149:23: warning: declaration uses `sorry`

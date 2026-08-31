@@ -1,0 +1,17 @@
+Failure @16 (⟨1, 16⟩): '_'
+Final stack:
+  [(Lean.Doc.Syntax.para
+    "para{"
+    [(Lean.Doc.Syntax.bold
+      "*"
+      [(Lean.Doc.Syntax.text (str "\"This is \""))
+       (Lean.Doc.Syntax.emph
+        "_"
+        [(Lean.Doc.Syntax.text
+          (str "\"strong\""))]
+        <missing>)]
+      "*")
+     (Lean.Doc.Syntax.text
+      (str "\" not regular\""))]
+    "}")]
+Remaining: "* not regular_ emphasis"

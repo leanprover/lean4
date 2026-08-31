@@ -3,9 +3,14 @@ Copyright (c) 2024 Lean FRO, LLC. All rights reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Henrik Böving
 -/
+module
+
 prelude
-import Std.Tactic.BVDecide.Bitblast.BVExpr.Circuit.Lemmas.Operations.Udiv
-import Std.Tactic.BVDecide.Bitblast.BVExpr.Circuit.Impl.Operations.Umod
+public import Std.Tactic.BVDecide.Bitblast.BVExpr.Circuit.Lemmas.Operations.Udiv
+import all Std.Tactic.BVDecide.Bitblast.BVExpr.Circuit.Impl.Operations.Udiv
+public import Std.Tactic.BVDecide.Bitblast.BVExpr.Circuit.Impl.Operations.Umod
+
+@[expose] public section
 
 /-!
 This module contains the verification of the `BitVec.umod` bitblaster from `Impl.Operations.Umod`.
@@ -48,7 +53,7 @@ theorem denote_go_eq_divRec_r (aig : AIG α) (assign : α → Bool) (curr : Nat)
     intro idx hidx
     rw [go, BitVec.divRec_succ, BitVec.divSubtractShift]
     split
-    · next hdiscr =>
+    next hdiscr =>
       rw [ih]
       · rfl
       · intro idx hidx
@@ -74,7 +79,7 @@ theorem denote_go_eq_divRec_r (aig : AIG α) (assign : α → Bool) (curr : Nat)
         · exact hleft
         · exact hright
         · exact hr
-    · next hdiscr =>
+    next hdiscr =>
       rw [ih]
       · rfl
       · intro idx hidx
@@ -138,26 +143,29 @@ theorem denote_blastUmod (aig : AIG α) (lhs rhs : BitVec w) (assign : α → Bo
         (lhs % rhs).getLsbD idx := by
   intro idx hidx
   unfold blastUmod
-  simp only [Ref.cast_eq, id_eq, Int.reduceNeg, RefVec.denote_ite,
-    LawfulVecOperator.denote_input_entry, RefVec.get_cast]
+  simp only [Ref.cast_eq, RefVec.denote_ite,
+    RefVec.get_cast]
   split
-  · next hdiscr =>
-    rw [blastUdiv.go_denote_mem_prefix] at hdiscr
+  next hdiscr =>
+    rw [blastUdiv.go_denote_mem_prefix (hstart := Ref.hgate _)] at hdiscr
     rw [BVPred.mkEq_denote_eq (lhs := rhs) (rhs := 0#w)] at hdiscr
     · simp only [beq_iff_eq] at hdiscr
       rw [hdiscr]
-      rw [blastUdiv.go_denote_mem_prefix]
+      rw [blastUdiv.go_denote_mem_prefix (hstart := ?h)]
+      case h =>
+        apply AIG.LawfulOperator.lt_size_of_lt_aig_size (f := BVPred.mkEq)
+        exact Ref.hgate _
       rw [AIG.LawfulOperator.denote_mem_prefix (f := BVPred.mkEq)]
       · simp [hleft]
       · simp [Ref.hgate]
     · intro idx hidx
       simp [hright]
     · intro idx hidx
-      simp only [RefVec.get_cast, Ref.cast_eq, BitVec.getLsbD_zero]
+      simp only [BitVec.getLsbD_zero]
       rw [denote_blastConst]
       simp
-  · next hdiscr =>
-    rw [blastUdiv.go_denote_mem_prefix] at hdiscr
+  next hdiscr =>
+    rw [blastUdiv.go_denote_mem_prefix (hstart := Ref.hgate _)] at hdiscr
     rw [BVPred.mkEq_denote_eq (lhs := rhs) (rhs := 0#w)] at hdiscr
     · have hzero : 0#w < rhs := by
         rw [Normalize.BitVec.zero_lt_iff_zero_neq]

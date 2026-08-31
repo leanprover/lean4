@@ -7,10 +7,11 @@ module
 
 prelude
 import all Init.Data.Array.Basic
-import Init.Data.Array.Lemmas
-import Init.Data.Array.Attach
-import Init.Data.Array.OfFn
+public import Init.Data.List.MapIdx
 import all Init.Data.List.MapIdx
+import Init.Data.Array.OfFn
+
+public section
 
 set_option linter.listVariables true -- Enforce naming conventions for `List`/`Array`/`Vector` variables.
 set_option linter.indexVariables true -- Enforce naming conventions for index variables.
@@ -58,7 +59,7 @@ theorem mapFinIdx_spec {xs : Array α} {f : (i : Nat) → α → (h : i < xs.siz
 @[simp, grind =] theorem size_zipIdx {xs : Array α} {k : Nat} : (xs.zipIdx k).size = xs.size :=
   Array.size_mapFinIdx
 
-@[deprecated size_zipIdx (since := "2025-01-21")] abbrev size_zipWithIndex := @size_zipIdx
+
 
 @[simp, grind =] theorem getElem_mapFinIdx {xs : Array α} {f : (i : Nat) → α → (h : i < xs.size) → β} {i : Nat}
     (h : i < (xs.mapFinIdx f).size) :
@@ -130,23 +131,20 @@ namespace Array
     (xs.zipIdx k)[i] = (xs[i]'(by simp_all), k + i) := by
   simp [zipIdx]
 
-@[deprecated getElem_zipIdx (since := "2025-01-21")]
-abbrev getElem_zipWithIndex := @getElem_zipIdx
+
 
 @[simp, grind =] theorem zipIdx_toArray {l : List α} {k : Nat} :
     l.toArray.zipIdx k = (l.zipIdx k).toArray := by
-  ext i hi₁ hi₂ <;> simp [Nat.add_comm]
+  ext i hi₁ hi₂ <;> simp
 
-@[deprecated zipIdx_toArray (since := "2025-01-21")]
-abbrev zipWithIndex_toArray := @zipIdx_toArray
+
 
 @[simp, grind =] theorem toList_zipIdx {xs : Array α} {k : Nat} :
     (xs.zipIdx k).toList = xs.toList.zipIdx k := by
   rcases xs with ⟨xs⟩
   simp
 
-@[deprecated toList_zipIdx (since := "2025-01-21")]
-abbrev toList_zipWithIndex := @toList_zipIdx
+
 
 theorem mk_mem_zipIdx_iff_le_and_getElem?_sub {k i : Nat} {x : α} {xs : Array α} :
     (x, i) ∈ xs.zipIdx k ↔ k ≤ i ∧ xs[i - k]? = some x := by
@@ -171,11 +169,7 @@ theorem mem_zipIdx_iff_getElem? {x : α × Nat} {xs : Array α} :
     x ∈ xs.zipIdx ↔ xs[x.2]? = some x.1 := by
   rw [mk_mem_zipIdx_iff_getElem?]
 
-@[deprecated mk_mem_zipIdx_iff_getElem? (since := "2025-01-21")]
-abbrev mk_mem_zipWithIndex_iff_getElem? := @mk_mem_zipIdx_iff_getElem?
 
-@[deprecated mem_zipIdx_iff_getElem? (since := "2025-01-21")]
-abbrev mem_zipWithIndex_iff_getElem? := @mem_zipIdx_iff_getElem?
 
 /-! ### mapFinIdx -/
 
@@ -220,8 +214,7 @@ theorem mapFinIdx_eq_zipIdx_map {xs : Array α} {f : (i : Nat) → α → (h : i
         f i x (by simp [mk_mem_zipIdx_iff_getElem?, getElem?_eq_some_iff] at m; exact m.1) := by
   ext <;> simp
 
-@[deprecated mapFinIdx_eq_zipIdx_map (since := "2025-01-21")]
-abbrev mapFinIdx_eq_zipWithIndex_map := @mapFinIdx_eq_zipIdx_map
+
 
 @[simp]
 theorem mapFinIdx_eq_empty_iff {xs : Array α} {f : (i : Nat) → α → (h : i < xs.size) → β} :
@@ -303,9 +296,6 @@ theorem mapFinIdx_eq_replicate_iff {xs : Array α} {f : (i : Nat) → α → (h 
   rw [← toList_inj]
   simp [List.mapFinIdx_eq_replicate_iff]
 
-@[deprecated mapFinIdx_eq_replicate_iff (since := "2025-03-18")]
-abbrev mapFinIdx_eq_mkArray_iff := @mapFinIdx_eq_replicate_iff
-
 @[simp, grind =] theorem mapFinIdx_reverse {xs : Array α} {f : (i : Nat) → α → (h : i < xs.reverse.size) → β} :
     xs.reverse.mapFinIdx f = (xs.mapFinIdx (fun i a h => f (xs.size - 1 - i) a (by simp; omega))).reverse := by
   rcases xs with ⟨l⟩
@@ -330,8 +320,7 @@ theorem mapIdx_eq_zipIdx_map {xs : Array α} {f : Nat → α → β} :
     xs.mapIdx f = xs.zipIdx.map fun ⟨a, i⟩ => f i a := by
   ext <;> simp
 
-@[deprecated mapIdx_eq_zipIdx_map (since := "2025-01-21")]
-abbrev mapIdx_eq_zipWithIndex_map := @mapIdx_eq_zipIdx_map
+
 
 @[grind =]
 theorem mapIdx_append {xs ys : Array α} :
@@ -445,9 +434,6 @@ theorem mapIdx_eq_replicate_iff {xs : Array α} {f : Nat → α → β} {b : β}
   rcases xs with ⟨xs⟩
   rw [← toList_inj]
   simp [List.mapIdx_eq_replicate_iff]
-
-@[deprecated mapIdx_eq_replicate_iff (since := "2025-03-18")]
-abbrev mapIdx_eq_mkArray_iff := @mapIdx_eq_replicate_iff
 
 @[simp, grind =] theorem mapIdx_reverse {xs : Array α} {f : Nat → α → β} :
     xs.reverse.mapIdx f = (mapIdx (fun i => f (xs.size - 1 - i)) xs).reverse := by

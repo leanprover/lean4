@@ -3,9 +3,14 @@ Copyright (c) 2024 Lean FRO, LLC. All rights reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Sofia Rodrigues
 -/
+module
+
 prelude
-import Std.Time.Zoned.ZoneRules
-import Std.Time.Zoned.Database.TzIf
+public import Std.Time.Zoned.ZoneRules
+public import Std.Time.Zoned.Database.TzIf
+import Std.Time.Zoned.Database.PosixTz
+
+public section
 
 namespace Std
 namespace Time
@@ -28,6 +33,7 @@ protected class Database (α : Type) where
   getLocalZoneRules : α → IO TimeZone.ZoneRules
 
 namespace TimeZone
+open Std.Time.Internal
 
 /--
 Converts a Boolean value to a corresponding `StdWall` type.
@@ -77,14 +83,14 @@ Converts a `TZif.TZifV1` structure to a `ZoneRules` structure.
 def convertTZifV1 (tz : TZif.TZifV1) (id : String) : Except String ZoneRules := do
   let mut times : Array LocalTimeType := #[]
 
-  for i in [0:tz.header.typecnt.toNat] do
+  for i in *...tz.header.typecnt.toNat do
     if let some result := convertLocalTimeType i tz id
       then times := times.push result
       else .error s!"cannot convert local time {i} of the file"
 
   let mut transitions := #[]
 
-  for i in [0:tz.transitionTimes.size] do
+  for i in *...tz.transitionTimes.size do
     if let some result := convertTransition times i tz
       then transitions := transitions.push result
       else .error s!"cannot convert transition {i} of the file"
@@ -99,11 +105,26 @@ def convertTZifV1 (tz : TZif.TZifV1) (id : String) : Except String ZoneRules := 
 
   .ok { transitions, initialLocalTimeType }
 
+
 /--
-Converts a `TZif.TZifV2` structure to a `ZoneRules` structure.
+Converts a `TZif.TZifV2` structure to a `ZoneRules` structure, extending transitions beyond
+the last stored entry using the POSIX TZ footer string when present.
 -/
 def convertTZifV2 (tz : TZif.TZifV2) (id : String) : Except String ZoneRules := do
-   convertTZifV1 tz.toTZifV1 id
+  let rules ← convertTZifV1 tz.toTZifV1 id
+
+  let some footer := tz.footer
+    | return rules
+
+  -- TZif v3 files allow extended hour ranges (±0–167) in transition times (RFC 8536 §3.3).
+  let extended := tz.header.version == '3'.toUInt8
+
+  if footer == "" then
+    return rules
+
+  match parsePosixTz footer extended with
+  | .ok transitionRule => return { rules with transitionRule := some transitionRule }
+  | .error err => throw s!"failed to parse tzif footer: {err}"
 
 /--
 Converts a `TZif.TZif` structure to a `ZoneRules` structure.

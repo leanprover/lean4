@@ -1,0 +1,8 @@
+sorryAtError.lean:13:46-13:47: error: Application type mismatch: The argument
+  Γ
+has type
+  x.ty.ctx
+but is expected to have type
+  ty.ctx
+in the application
+  ty.ty Γ

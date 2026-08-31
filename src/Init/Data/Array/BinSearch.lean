@@ -6,9 +6,12 @@ Authors: Leonardo de Moura
 module
 
 prelude
-import Init.Data.Array.Basic
-import Init.Data.Int.DivMod.Lemmas
+public import Init.Data.Array.Basic
+import Init.Data.Bool
 import Init.Omega
+import Init.WFTactics
+
+public section
 universe u v
 
 set_option linter.listVariables true -- Enforce naming conventions for `List`/`Array`/`Vector` variables.

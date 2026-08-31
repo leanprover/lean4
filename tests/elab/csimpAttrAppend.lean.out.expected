@@ -1,0 +1,5 @@
+[Compiler.IR] [init]
+    def f (x_1 : tobj) (x_2 : tobj) (x_3 : tobj) : tobj :=
+      let x_4 : tobj := List.appendTR._redArg x_1 x_2;
+      let x_5 : tobj := List.appendTR._redArg x_4 x_3;
+      ret x_5

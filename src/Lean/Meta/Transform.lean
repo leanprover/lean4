@@ -3,9 +3,11 @@ Copyright (c) 2020 Microsoft Corporation. All rights reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Leonardo de Moura
 -/
+module
 prelude
-import Lean.Meta.Basic
-
+public import Lean.Meta.FunInfo
+import Init.Data.Range.Polymorphic.Iterators
+public section
 namespace Lean
 
 inductive TransformStep where
@@ -26,16 +28,18 @@ inductive TransformStep where
 namespace Core
 
 /--
-  Transform the expression `input` using `pre` and `post`.
-  - First `pre` is invoked with the current expression and recursion is continued according to the `TransformStep` result.
-    In all cases, the expression contained in the result, if any, must be definitionally equal to the current expression.
-  - After recursion, if any, `post` is invoked on the resulting expression.
+Recursively transforms `input` using `pre` and `post` callbacks.
 
-  The term `s` in both `pre s` and `post s` may contain loose bound variables. So, this method is not appropriate for
-  if one needs to apply operations (e.g., `whnf`, `inferType`) that do not handle loose bound variables.
-  Consider using `Meta.transform` to avoid loose bound variables.
+For each subexpression:
+1. `pre` is invoked first; recursion continues according to the `TransformStep` result.
+2. After recursion (if any), `post` is invoked on the resulting expression.
 
-  This method is useful for applying transformations such as beta-reduction and delta-reduction.
+The expressions passed to `pre` and `post` may contain loose bound variables.
+Use `Meta.transform` instead if you need operations like `whnf` or `inferType`
+that require expressions without loose bound variables.
+
+Results are cached using pointer equality (`ExprStructEq`), so structurally
+identical subexpressions are transformed only once.
 -/
 partial def transform {m} [Monad m] [MonadLiftT CoreM m] [MonadControlT CoreM m]
     (input : Expr)
@@ -46,6 +50,7 @@ partial def transform {m} [Monad m] [MonadLiftT CoreM m] [MonadControlT CoreM m]
   let _ : MonadLiftT (ST IO.RealWorld) m := { monadLift := fun x => liftM (m := CoreM) (liftM (m := ST IO.RealWorld) x) }
   let rec visit (e : Expr) : MonadCacheT ExprStructEq Expr m Expr :=
     checkCache { val := e : ExprStructEq } fun _ => Core.withIncRecDepth do
+      Core.checkSystem "transform"
       let rec visitPost (e : Expr) : MonadCacheT ExprStructEq Expr m Expr := do
         match (← post e) with
         | .done e      => pure e
@@ -59,13 +64,14 @@ partial def transform {m} [Monad m] [MonadLiftT CoreM m] [MonadControlT CoreM m]
         match e with
         | .forallE _ d b _ => visitPost (e.updateForallE! (← visit d) (← visit b))
         | .lam _ d b _     => visitPost (e.updateLambdaE! (← visit d) (← visit b))
-        | .letE _ t v b _  => visitPost (e.updateLet! (← visit t) (← visit v) (← visit b))
+        | .letE _ t v b _  => visitPost (e.updateLetE! (← visit t) (← visit v) (← visit b))
         | .app ..          => e.withApp fun f args => do visitPost (mkAppN (← visit f) (← args.mapM visit))
         | .mdata _ b       => visitPost (e.updateMData! (← visit b))
         | .proj _ _ b      => visitPost (e.updateProj! (← visit b))
         | _                => visitPost e
   visit input |>.run
 
+/-- Applies beta reduction to all beta-reducible subexpressions in `e`. -/
 def betaReduce (e : Expr) : CoreM Expr :=
   transform e (pre := fun e => return if e.isHeadBetaTarget then .visit e.headBeta else .continue)
 
@@ -74,12 +80,19 @@ end Core
 namespace Meta
 
 /--
-Similar to `Meta.transform`, but allows the use of a pre-existing cache.
+Like `Meta.transform`, but accepts and returns a cache for reuse across multiple calls.
 
-Warnings:
-- For the cache to be valid, it must always use the same `pre` and `post` functions.
-- It is important that there are no other references to `cache` when it is passed to
-  `transformWithCache`, to avoid unnecessary copying of the hash map.
+Parameters:
+- `usedLetOnly`: when true, `mkLambdaFVars`/`mkForallFVars`/`mkLetFVars` only abstract
+  over variables that are actually used in the body.
+- `skipConstInApp`: when true, constant heads in applications are not visited separately.
+- `skipInstances`: when true, instance arguments (determined via `getFunInfo`) are not visited.
+
+The `skipInstances` flag is used by `dsimp` to avoid rewriting instances.
+
+**Warnings:**
+- The cache is only valid when using the same `pre` and `post` functions.
+- Ensure there are no other references to `cache` to avoid unnecessary hash map copying.
 -/
 @[inline]
 partial def transformWithCache {m} [Monad m] [MonadLiftT MetaM m] [MonadControlT MetaM m]
@@ -89,11 +102,13 @@ partial def transformWithCache {m} [Monad m] [MonadLiftT MetaM m] [MonadControlT
     (post  : Expr → m TransformStep := fun e => return .done e)
     (usedLetOnly := false)
     (skipConstInApp := false)
+    (skipInstances := false)
     : m (Expr × Std.HashMap ExprStructEq Expr) :=
   let _ : STWorld IO.RealWorld m := ⟨⟩
   let _ : MonadLiftT (ST IO.RealWorld) m := { monadLift := fun x => liftM (m := MetaM) (liftM (m := ST IO.RealWorld) x) }
   let rec visit (e : Expr) : MonadCacheT ExprStructEq Expr m Expr :=
     checkCache { val := e : ExprStructEq } fun _ => Meta.withIncRecDepth do
+      (Core.checkSystem "transform" : MetaM Unit)
       let rec visitPost (e : Expr) : MonadCacheT ExprStructEq Expr m Expr := do
         match (← post e) with
         | .done e      => pure e
@@ -113,16 +128,28 @@ partial def transformWithCache {m} [Monad m] [MonadLiftT MetaM m] [MonadControlT
         | e => visitPost (← mkForallFVars (usedLetOnly := usedLetOnly) fvars (← visit (e.instantiateRev fvars)))
       let rec visitLet (fvars : Array Expr) (e : Expr) : MonadCacheT ExprStructEq Expr m Expr := do
         match e with
-        | .letE n t v b _ =>
-          withLetDecl n (← visit (t.instantiateRev fvars)) (← visit (v.instantiateRev fvars)) fun x =>
+        | .letE n t v b nondep =>
+          withLetDecl n (← visit (t.instantiateRev fvars)) (← visit (v.instantiateRev fvars)) (nondep := nondep) fun x =>
             visitLet (fvars.push x) b
-        | e => visitPost (← mkLetFVars (usedLetOnly := usedLetOnly) fvars (← visit (e.instantiateRev fvars)))
+        | e => visitPost (← mkLetFVars (usedLetOnly := usedLetOnly) (generalizeNondepLet := false) fvars (← visit (e.instantiateRev fvars)))
       let visitApp (e : Expr) : MonadCacheT ExprStructEq Expr m Expr :=
         e.withApp fun f args => do
-          if skipConstInApp && f.isConst then
-            visitPost (mkAppN f (← args.mapM visit))
-          else
-            visitPost (mkAppN (← visit f) (← args.mapM visit))
+        let f ← if skipConstInApp && f.isConst then pure f else visit f
+        if skipInstances then
+          let infos := (← getFunInfoNArgs f args.size).paramInfo
+          let mut args := args.toVector
+          for h : i in *...args.size do
+            let arg := args[i]
+            if h : i < infos.size then
+              let info := infos[i]
+              if skipInstances && info.isInstance then
+                continue
+              args := args.set i (← visit arg)
+            else
+              args := args.set i (← visit arg)
+          visitPost (mkAppN f args.toArray)
+        else
+          visitPost (mkAppN f (← args.mapM visit))
       match (← pre e) with
       | .done e  => pure e
       | .visit e => visit e
@@ -159,17 +186,36 @@ def transform {m} [Monad m] [MonadLiftT MetaM m] [MonadControlT MetaM m]
   let (e, _) ← transformWithCache input {} pre post usedLetOnly skipConstInApp
   return e
 
--- TODO: add options to distinguish zeta and zetaDelta reduction
-def zetaReduce (e : Expr) : MetaM Expr := do
-  let pre (e : Expr) : MetaM TransformStep := do
-    let .fvar fvarId := e | return .continue
-    let some localDecl := (← getLCtx).find? fvarId | return .done e
-    let some value := localDecl.value? | return .done e
-    return .visit (← instantiateMVars value)
-  transform e (pre := pre) (usedLetOnly := true)
+/--
+Zeta-reduces `let`/`have` expressions in `e`, and also zeta-delta reduces let-bound variables.
+Removes unused `let`/`have` expressions.
+
+Options:
+- If `zetaDelta` is true (default: true), then zeta-delta reduces (unfolds) let-bound variables.
+- If `zetaHave` is false (default: true), then does not zeta reduce `have` expressions.
+- If `beta` is true (default: true), then beta reduce applications of substituted values
+-/
+def zetaReduce (e : Expr) (zetaDelta := true) (zetaHave := true) (beta := true) : MetaM Expr := do
+  let n := (← getLCtx).numIndices
+  let unfold? (fvarId : FVarId) : MetaM (Option Expr) := do
+    let some decl ← fvarId.findDecl? | return none
+    if !zetaDelta && decl.index < n then return none
+    -- Values for nondep ldecls created by `transform` are valid.
+    return decl.value? (allowNondep := zetaHave && decl.index ≥ n)
+  if beta then
+    transform e (usedLetOnly := true) (pre := fun e => do
+      let .fvar fvarId := e.getAppFn | return .continue
+      let some value ← unfold? fvarId | return .continue
+      return .visit <| (← instantiateMVars value).beta e.getAppArgs)
+  else
+    transform e (usedLetOnly := true) (pre := fun e => do
+      let .fvar fvarId := e | return .continue
+      let some value ← unfold? fvarId | return .done e
+      return .visit (← instantiateMVars value))
 
 /--
-Zeta reduces only the provided fvars, beta reducing the substitutions.
+Zeta-reduces only the specified free variables, applying beta reduction after substitution.
+For example, if `x` has value `fun y => y + 1` and appears as `x 2`, the result is `2 + 1`.
 -/
 def zetaDeltaFVars (e : Expr) (fvars : Array FVarId) : MetaM Expr :=
   let unfold? (fvarId : FVarId) : MetaM (Option Expr) := do
@@ -187,21 +233,69 @@ def zetaDeltaFVars (e : Expr) (fvars : Array FVarId) : MetaM Expr :=
 def unfoldDeclsFrom (biggerEnv : Environment) (e : Expr) : CoreM Expr := do
   withoutModifyingEnv do
     let env ← getEnv
+    -- There might have been nested proof abstractions, which yield private helper theorems, so
+    -- make sure we can find them. They will later be re-abstracted again.
+    let biggerEnv := biggerEnv.setExporting false
     setEnv biggerEnv -- `e` has declarations from `biggerEnv` that are not in `env`
     let pre (e : Expr) : CoreM TransformStep := do
       let .const declName us := e | return .continue
       if env.contains declName then
         return .done e
       let some info := biggerEnv.find? declName | return .done e
-      if info.hasValue then
-        return .visit (← instantiateValueLevelParams info us)
+      if info.hasValue (allowOpaque := true) then
+        return .visit (← instantiateValueLevelParams info us (allowOpaque := true))
       else
         return .done e
     Core.transform e (pre := pre)
 
+/--
+Unfolds theorems that are applied to `f x₁ .. xₙ` where `f` is in `fnNames` and
+`n ≤ numSectionVars` (i.e., an unsaturated application of `f`).
+
+This is used to undo proof abstraction for termination checking, as otherwise the bare
+occurrence of the recursive function prevents termination checking from succeeding.
+
+Usually, the argument is just `f` (the constant), arising from `mkAuxTheorem` abstracting over the
+aux decl representing `f`. If the mutual function is defined within the scope of `variable` commands,
+it is `f x y` where `x y` are the variables in scope, so we use the `numSectionVars` to recognize that
+while avoiding to unfold theorems applied to saturated applications of `f`.
+
+This unfolds from the private environment. The resulting definitions are (usually) not
+exposed anyways.
+-/
+def unfoldIfArgIsAppOf (fnNames : Array Name) (numSectionVars : Nat) (e : Expr) : CoreM Expr := withoutExporting do
+  let env ← getEnv
+  -- Unfold abstracted proofs
+  Core.transform e
+    (pre := fun e => e.withAppRev fun f revArgs => do
+      if f.isConst then
+        /-
+        How do we avoid unfolding declarations where the user happened to
+        have called with the recursive function as an unsaturated argument?
+        Such cases are not caught by the following check,
+        because such explicit recursive calls would always have a
+        isRecApp mdata wrapper around.
+        This is arguably somewhat fragile, but it works for now.
+        Alternatives if this breaks:
+         * Keep a local env extension to reliably recognize abstracted proofs
+         * Avoid abstracting over implementation detail applications
+        (The code below is restricted to theorems, as otherwise it would unfold
+        matchers, which can also abstract over recursive calls without an `mdata` wrapper, #2102.)
+        -/
+        if revArgs.any isInterestingArg then
+          if let some info@(.thmInfo _) := env.find? f.constName! then
+            return .visit <| (← instantiateValueLevelParams info f.constLevels! (allowOpaque := true)).betaRev revArgs
+      return .continue)
+  where
+    isInterestingArg (a : Expr) : Bool := a.withApp fun af axs =>
+      af.isConst && fnNames.any fun f => af.constName! == f && axs.size ≤ numSectionVars
+
+
+/-- Removes all `inaccessible` annotations from `e`. -/
 def eraseInaccessibleAnnotations (e : Expr) : CoreM Expr :=
   Core.transform e (post := fun e => return .done <| if let some e := inaccessible? e then e else e)
 
+/-- Removes all `patternWithRef` annotations from `e`. -/
 def erasePatternRefAnnotations (e : Expr) : CoreM Expr :=
   Core.transform e (post := fun e => return .done <| if let some (_, e) := patternWithRef? e then e else e)
 

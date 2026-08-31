@@ -1,0 +1,4 @@
+Failure @0 (⟨1, 0⟩): expected '(', '+', '-', expected identifier, string, or number or token
+Final stack:
+  <missing>
+Remaining: "\n(x:=1)"

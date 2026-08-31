@@ -6,9 +6,10 @@ Author: Leonardo de Moura
 module
 
 prelude
-import Init.Control.Basic
-import Init.Data.Nat.Basic
+public import Init.Notation
 import Init.Omega
+
+public section
 
 set_option linter.missingDocs true
 

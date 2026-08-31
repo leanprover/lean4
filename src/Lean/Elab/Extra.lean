@@ -3,9 +3,13 @@ Copyright (c) 2021 Microsoft Corporation. All rights reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Leonardo de Moura, Kyle Miller, Sebastian Ullrich
 -/
+module
+
 prelude
-import Lean.Elab.App
-import Lean.Elab.BuiltinNotation
+public import Lean.Elab.App
+public import Lean.Elab.BuiltinNotation
+
+public section
 
 /-! # Auxiliary elaboration functions: AKA custom elaborators -/
 
@@ -194,8 +198,8 @@ where
     | `(unop% $f $arg) => processUnOp s f arg
     | `(leftact% $f $lhs $rhs) => processBinOp s .leftact f lhs rhs
     | `(rightact% $f $lhs $rhs) => processBinOp s .rightact f lhs rhs
-    | `(($e)) =>
-      if hasCDot e then
+    | `(($h:hygieneInfo $e)) =>
+      if hasCDot e h.getHygieneInfo then
         processLeaf s
       else
         go e
@@ -542,7 +546,7 @@ def elabBinRelCore (noProp : Bool) (stx : Syntax) (expectedType? : Option Expr) 
       let mut maxType := r.max?.get!
       /- If `noProp == true` and `maxType` is `Prop`, then set `maxType := Bool`. `See toBoolIfNecessary` -/
       if noProp then
-        if (← withNewMCtxDepth <| isDefEq maxType (mkSort levelZero)) then
+        if (← withNewMCtxDepth <| isDefEq maxType (mkSort Level.zero)) then
           maxType := Lean.mkConst ``Bool
       let result ← toExprCore (← applyCoe tree maxType (isPred := true))
       trace[Elab.binrel] "result: {result}"
@@ -553,7 +557,7 @@ where
   toBoolIfNecessary (e : Expr) : TermElabM Expr := do
     if noProp then
       -- We use `withNewMCtxDepth` to make sure metavariables are not assigned
-      if (← withNewMCtxDepth <| isDefEq (← inferType e) (mkSort levelZero)) then
+      if (← withNewMCtxDepth <| isDefEq (← inferType e) (mkSort Level.zero)) then
         return (← ensureHasType (Lean.mkConst ``Bool) e)
     return e
 
@@ -569,11 +573,16 @@ def elabDefaultOrNonempty : TermElab :=  fun stx expectedType? => do
   | some expectedType =>
     try
       mkDefault expectedType
-    catch ex => try
+    catch _ => try
       mkOfNonempty expectedType
     catch _ =>
       if stx[1].isNone then
-        throw ex
+        throwError "\
+          failed to synthesize '{.ofConstName ``Inhabited}' or '{.ofConstName ``Nonempty}' instance for\
+          {indentExpr expectedType}\n\
+          \n\
+          If this type is defined using the 'structure' or 'inductive' command, \
+          you can try adding a 'deriving Nonempty' clause to it."
       else
         -- It is in the context of an `unsafe` constant. We can use sorry instead.
         -- Another option is to make a recursive application since it is unsafe.

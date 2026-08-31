@@ -1,0 +1,4 @@
+[1, 2, 3]
+(2, 3)
+trailingComma.lean:5:13-5:14: error: unexpected token ','; expected ']'
+trailingComma.lean:6:11-6:12: error: unexpected token ','; expected ')'

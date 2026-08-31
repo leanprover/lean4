@@ -3,10 +3,13 @@ Copyright (c) 2020 Microsoft Corporation. All rights reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Leonardo de Moura
 -/
+module
+
 prelude
-import Lean.Expr
-import Lean.Util.PtrSet
-import Lean.Declaration
+public import Lean.Util.PtrSet
+public import Lean.Declaration
+
+public section
 
 namespace Lean
 namespace Expr
@@ -19,6 +22,12 @@ unsafe structure State where
 unsafe abbrev FoldM := StateM State
 
 unsafe def fold {α : Type} (f : Name → α → α) (e : Expr) (acc : α) : FoldM α :=
+  let visitConst (c : Name) (acc : α) := do
+    if (← get).visitedConsts.contains c then
+      return acc
+    else
+      modify fun s => { s with visitedConsts := s.visitedConsts.insert c };
+      return f c acc
   let rec visit (e : Expr) (acc : α) : FoldM α := do
     if (← get).visited.contains e then
       return acc
@@ -29,13 +38,8 @@ unsafe def fold {α : Type} (f : Name → α → α) (e : Expr) (acc : α) : Fol
     | .mdata _ b         => visit b acc
     | .letE _ t v b _    => visit b (← visit v (← visit t acc))
     | .app f a           => visit a (← visit f acc)
-    | .proj _ _ b        => visit b acc
-    | .const c _         =>
-      if (← get).visitedConsts.contains c then
-        return acc
-      else
-        modify fun s => { s with visitedConsts := s.visitedConsts.insert c };
-        return f c acc
+    | .proj typeName _ b => visit b (← visitConst typeName acc)
+    | .const c _         => visitConst c acc
     | _ => return acc
   visit e acc
 
@@ -61,11 +65,10 @@ namespace ConstantInfo
 
 /-- Return all names appearing in the type or value of a `ConstantInfo`. -/
 def getUsedConstantsAsSet (c : ConstantInfo) : NameSet :=
-  c.type.getUsedConstantsAsSet ++ match c.value? with
+  c.type.getUsedConstantsAsSet ++ match c.value? (allowOpaque := true) with
   | some v => v.getUsedConstantsAsSet
   | none => match c with
     | .inductInfo val => .ofList val.ctors
-    | .opaqueInfo val => val.value.getUsedConstantsAsSet
     | .ctorInfo val => ({} : NameSet).insert val.name
     | .recInfo val => .ofList val.all
     | _ => {}

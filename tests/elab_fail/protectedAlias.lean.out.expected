@@ -1,0 +1,2 @@
+Nat.double (x : Nat) : Nat
+protectedAlias.lean:9:7-9:13: error(lean.unknownIdentifier): Unknown identifier `double`

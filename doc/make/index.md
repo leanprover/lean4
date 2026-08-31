@@ -1,6 +1,6 @@
 These are instructions to set up a working development environment for those who wish to make changes to Lean itself. It is part of the [Development Guide](../dev/index.md).
 
-We strongly suggest that new users instead follow the [Quickstart](../quickstart.md) to get started using Lean, since this sets up an environment that can automatically manage multiple Lean toolchain versions, which is necessary when working within the Lean ecosystem.
+We strongly suggest that new users instead follow the [Installation Instructions](https://lean-lang.org/install/) to get started using Lean, since this sets up an environment that can automatically manage multiple Lean toolchain versions, which is necessary when working within the Lean ecosystem.
 
 Requirements
 ------------
@@ -9,6 +9,7 @@ Requirements
 - [CMake](http://www.cmake.org)
 - [GMP (GNU multiprecision library)](http://gmplib.org/)
 - [LibUV](https://libuv.org/)
+- [OpenSSL](https://www.openssl.org/)
 
 Platform-Specific Setup
 -----------------------
@@ -30,6 +31,9 @@ cd lean4
 cmake --preset release
 make -C build/release -j$(nproc || sysctl -n hw.logicalcpu)
 ```
+
+For development, `cmake --preset dev-release` (reusing the same `build/release` output directory) is recommended instead.
+
 You can replace `$(nproc || sysctl -n hw.logicalcpu)` with the desired parallelism amount.
 
 The above commands will compile the Lean library and binaries into the
@@ -44,14 +48,27 @@ Useful CMake Configuration Settings
 Pass these along with the `cmake --preset release` command.
 There are also two alternative presets that combine some of these options you can use instead of `release`: `debug` and `sandebug` (sanitize + debug).
 
-* `-D CMAKE_BUILD_TYPE=`\
+* `-DCMAKE_BUILD_TYPE=`\
   Select the build type. Valid values are `RELEASE` (default), `DEBUG`,
   `RELWITHDEBINFO`, and `MINSIZEREL`.
 
-* `-D CMAKE_C_COMPILER=`\
-  `-D CMAKE_CXX_COMPILER=`\
+* `-DCMAKE_C_COMPILER=`\
+  `-DCMAKE_CXX_COMPILER=`\
   Select the C/C++ compilers to use. Official Lean releases currently use Clang;
   see also `.github/workflows/ci.yml` for the CI config.
+
+* `-DUSE_GMP=`\
+  Use GMP for arbitrary-precision integers (default `ON`). Lean requires GMP
+  6.3.0 or newer, because earlier versions contain bugs that can make Lean
+  produce unsound results. Set `-DUSE_GMP=OFF` to use Lean's built-in bignum
+  implementation instead, which needs no external GMP (safest; some performance
+  cost).
+
+* `-DFORCE_GMP=`\
+  Build against the GMP found on the system even if it is older than 6.3.0
+  (default `OFF`). Not recommended: Lean may produce unsound results in corner
+  cases. Independent kernels that do not depend on GMP will catch the
+  unsoundness.
 
 Lean will automatically use [CCache](https://ccache.dev/) if available to avoid
 redundant builds, especially after stage 0 has been updated.

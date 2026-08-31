@@ -8,9 +8,15 @@ notation, basic datatypes and type classes
 module
 
 prelude
-meta import Init.Prelude
-import Init.SizeOf
+public import Init.SizeOf
+public import Init.Tactics
+
+public section
 set_option linter.missingDocs true -- keep it documented
+
+-- BEq instance for Option defined here so it's available early in the import chain
+-- (before Init.Grind.Config and Init.MetaTypes which need BEq (Option Nat))
+deriving instance BEq for Option
 
 @[expose] section
 
@@ -26,6 +32,29 @@ which applies to all applications of the function).
 theorem id_def {α : Sort u} (a : α) : id a = a := rfl
 
 attribute [grind] id
+
+/--
+A helper gadget for instructing the kernel to eagerly reduce terms.
+
+When the gadget wraps the argument of an application, then when checking that
+the expected and inferred type of the argument match, the kernel will evaluate terms more eagerly.
+It is often used to wrap `Eq.refl true` proof terms as `eagerReduce (Eq.refl true)`
+when using proof by reflection.
+As an example, consider the theorem:
+```
+theorem eq_norm (ctx : Context) (p₁ p₂ : Poly) (h : (p₁.norm == p₂) = true) :
+  p₁.denote ctx = 0 → p₂.denote ctx = 0
+```
+The argument `h : (p₁.norm == p₂) = true` is a candidate for `eagerReduce`.
+When applying this theorem, we would write:
+
+```
+eq_norm ctx p q (eagerReduce (Eq.refl true)) h
+```
+to instruct the kernel to use eager reduction when establishing that `(p.norm == q) = true` is
+definitionally equal to `true = true`.
+-/
+def eagerReduce {α : Sort u} (a : α) : α := a
 
 /--
 `flip f a b` is `f b a`. It is useful for "point-free" programming,
@@ -119,8 +148,9 @@ Computed values are cached, so the value is not recomputed.
   x.fn ()
 
 -- Ensure `Thunk.fn` is still computable even if it shouldn't be accessed directly.
-@[inline] private def Thunk.fnImpl (x : Thunk α) : Unit → α := fun _ => x.get
-@[csimp] private theorem Thunk.fn_eq_fnImpl : @Thunk.fn = @Thunk.fnImpl := rfl
+/-- Implementation detail. -/
+@[inline] def Thunk.fnImpl (x : Thunk α) : Unit → α := fun _ => x.get
+@[csimp] theorem Thunk.fn_eq_fnImpl : @Thunk.fn = @Thunk.fnImpl := rfl
 
 /--
 Constructs a new thunk that forces `x` and then applies `x` to the result. Upon forcing, the result
@@ -141,6 +171,8 @@ Constructs a new thunk that applies `f` to the result of `x` when forced.
 instance thunkCoe : CoeTail α (Thunk α) where
   -- Since coercions are expanded eagerly, `a` is evaluated lazily.
   coe a := ⟨fun _ => a⟩
+
+instance [Inhabited α] : Inhabited (Thunk α) := ⟨.pure default⟩
 
 /-- A variation on `Eq.ndrec` with the equality argument first. -/
 abbrev Eq.ndrecOn.{u1, u2} {α : Sort u2} {a : α} {motive : α → Sort u1} {b : α} (h : a = b) (m : motive a) : motive b :=
@@ -176,6 +208,7 @@ An element of `α ⊕ β` is either an `a : α` wrapped in `Sum.inl` or a `b : �
 indication of which of the two types was chosen. The union of a singleton set with itself contains
 one element, while `Unit ⊕ Unit` contains distinct values `inl ()` and `inr ()`.
 -/
+@[suggest_for Either]
 inductive Sum (α : Type u) (β : Type v) where
   /-- Left injection into the sum type `α ⊕ β`. -/
   | inl (val : α) : Sum α β
@@ -283,7 +316,7 @@ asserts that there is some `x` of type `α` such that `p x` holds.
 To create an existential proof, use the `exists` tactic,
 or the anonymous constructor notation `⟨x, h⟩`.
 To unpack an existential, use `cases h` where `h` is a proof of `∃ x : α, p x`,
-or `let ⟨x, hx⟩ := h` where `.
+or `let ⟨x, hx⟩ := h`.
 
 Because Lean has proof irrelevance, any two proofs of an existential are
 definitionally equal. One consequence of this is that it is impossible to recover the
@@ -311,7 +344,7 @@ inductive Exists {α : Sort u} (p : α → Prop) : Prop where
 An indication of whether a loop's body terminated early that's used to compile the `for x in xs`
 notation.
 
-A collection's `ForIn` or `ForIn'` instance describe's how to iterate over its elements. The monadic
+A collection's `ForIn` or `ForIn'` instance describes how to iterate over its elements. The monadic
 action that represents the body of the loop returns a `ForInStep α`, where `α` is the local state
 used to implement features such as `let mut`.
 -/
@@ -352,7 +385,7 @@ class ForIn (m : Type u₁ → Type u₂) (ρ : Type u) (α : outParam (Type v))
   More information about the translation of `for` loops into `ForIn.forIn` is available in [the Lean
   reference manual](lean-manual://section/monad-iteration-syntax).
   -/
-  forIn {β} [Monad m] (xs : ρ) (b : β) (f : α → β → m (ForInStep β)) : m β
+  forIn {β} (xs : ρ) (b : β) (f : α → β → m (ForInStep β)) : m β
 
 export ForIn (forIn)
 
@@ -380,7 +413,7 @@ class ForIn' (m : Type u₁ → Type u₂) (ρ : Type u) (α : outParam (Type v)
   More information about the translation of `for` loops into `ForIn'.forIn'` is available in [the
   Lean reference manual](lean-manual://section/monad-iteration-syntax).
   -/
-  forIn' {β} [Monad m] (x : ρ) (b : β) (f : (a : α) → a ∈ x → β → m (ForInStep β)) : m β
+  forIn' {β} (x : ρ) (b : β) (f : (a : α) → a ∈ x → β → m (ForInStep β)) : m β
 
 export ForIn' (forIn')
 
@@ -458,6 +491,8 @@ class HasEquiv (α : Sort u) where
   the notion of equivalence is type-dependent. -/
   Equiv : α → α → Sort v
 
+attribute [reducible] HasEquiv.Equiv
+
 @[inherit_doc] infix:50 " ≈ "  => HasEquiv.Equiv
 
 recommended_spelling "equiv" for "≈" in [HasEquiv.Equiv, «term_≈_»]
@@ -484,12 +519,12 @@ abbrev SSuperset [HasSSubset α] (a b : α) := SSubset b a
 
 /-- Notation type class for the union operation `∪`. -/
 class Union (α : Type u) where
-  /-- `a ∪ b` is the union of`a` and `b`. -/
+  /-- `a ∪ b` is the union of `a` and `b`. -/
   union : α → α → α
 
 /-- Notation type class for the intersection operation `∩`. -/
 class Inter (α : Type u) where
-  /-- `a ∩ b` is the intersection of`a` and `b`. -/
+  /-- `a ∩ b` is the intersection of `a` and `b`. -/
   inter : α → α → α
 
 /-- Notation type class for the set difference `\`. -/
@@ -512,10 +547,10 @@ infix:50 " ⊇ " => Superset
 /-- Strict superset relation: `a ⊃ b`  -/
 infix:50 " ⊃ " => SSuperset
 
-/-- `a ∪ b` is the union of`a` and `b`. -/
+/-- `a ∪ b` is the union of `a` and `b`. -/
 infixl:65 " ∪ " => Union.union
 
-/-- `a ∩ b` is the intersection of`a` and `b`. -/
+/-- `a ∩ b` is the intersection of `a` and `b`. -/
 infixl:70 " ∩ " => Inter.inter
 
 /--
@@ -574,17 +609,6 @@ class LawfulSingleton (α : Type u) (β : Type v) [EmptyCollection β] [Insert �
 export LawfulSingleton (insert_empty_eq)
 
 attribute [simp] insert_empty_eq
-
-@[deprecated insert_empty_eq (since := "2025-03-12")]
-theorem insert_emptyc_eq [EmptyCollection β] [Insert α β] [Singleton α β]
-    [LawfulSingleton α β] (x : α) : (insert x ∅ : β) = singleton x :=
-  insert_empty_eq _
-
-@[deprecated insert_empty_eq (since := "2025-03-12")]
-theorem LawfulSingleton.insert_emptyc_eq [EmptyCollection β] [Insert α β] [Singleton α β]
-    [LawfulSingleton α β] (x : α) : (insert x ∅ : β) = singleton x :=
-  insert_empty_eq _
-
 
 /-- Type class used to implement the notation `{ a ∈ c | p a }` -/
 class Sep (α : outParam <| Type u) (γ : Type v) where
@@ -745,10 +769,12 @@ the `BEq` typeclass.
 Unlike `x ≠ y` (which is notation for `Ne x y`), this is `Bool` valued instead of
 `Prop` valued. It is mainly intended for programming applications.
 -/
-@[inline] def bne {α : Type u} [BEq α] (a b : α) : Bool :=
+@[inline, implicit_reducible] def bne {α : Type u} [BEq α] (a b : α) : Bool :=
   !(a == b)
 
 @[inherit_doc] infix:50 " != " => bne
+
+macro_rules | `($x != $y) => `(binrel_no_prop% bne $x $y)
 
 recommended_spelling "bne" for "!=" in [bne, «term_!=_»]
 
@@ -791,10 +817,12 @@ instance [DecidableEq α] : LawfulBEq α where
 Non-instance for `DecidableEq` from `LawfulBEq`.
 To use this, add `attribute [local instance 5] instDecidableEqOfLawfulBEq` at the top of a file.
 -/
+@[instance_reducible]
 def instDecidableEqOfLawfulBEq [BEq α] [LawfulBEq α] : DecidableEq α := fun x y =>
-  match h : x == y with
-  | false => .isFalse (not_eq_of_beq_eq_false h)
-  | true => .isTrue (eq_of_beq h)
+  Decidable.intro (x == y)
+    (match h : x == y with
+    | false => not_eq_of_beq_eq_false h
+    | true => eq_of_beq h)
 
 instance : LawfulBEq Char := inferInstance
 
@@ -851,6 +879,8 @@ and asserts that `a` and `b` are not equal.
 
 @[inherit_doc] infix:50 " ≠ "  => Ne
 
+macro_rules | `($x ≠ $y) => `(binrel% Ne $x $y)
+
 recommended_spelling "ne" for "≠" in [Ne, «term_≠_»]
 
 section Ne
@@ -858,8 +888,6 @@ variable {α : Sort u}
 variable {a b : α} {p : Prop}
 
 theorem Ne.intro (h : a = b → False) : a ≠ b := h
-
-theorem Ne.elim (h : a ≠ b) : a = b → False := h
 
 theorem Ne.irrefl (h : a ≠ a) : False := h rfl
 
@@ -909,6 +937,14 @@ noncomputable def HEq.ndrec.{u1, u2} {α : Sort u2} {a : α} {motive : {β : Sor
 noncomputable def HEq.ndrecOn.{u1, u2} {α : Sort u2} {a : α} {motive : {β : Sort u2} → β → Sort u1} {β : Sort u2} {b : β} (h : a ≍ b) (m : motive a) : motive b :=
   h.rec m
 
+/-- `HEq.ndrec` specialized to homogeneous heterogeneous equality -/
+noncomputable def HEq.homo_ndrec.{u1, u2} {α : Sort u2} {a : α} {motive : α → Sort u1} (m : motive a) {b : α} (h : a ≍ b) : motive b :=
+  (eq_of_heq h).ndrec m
+
+/-- `HEq.ndrec` specialized to homogeneous heterogeneous equality, symmetric variant -/
+noncomputable def HEq.homo_ndrec_symm.{u1, u2} {α : Sort u2} {a : α} {motive : α → Sort u1} (m : motive a) {b : α} (h : b ≍ a) : motive b :=
+  (eq_of_heq h).ndrec_symm m
+
 /-- `HEq.ndrec` variant -/
 noncomputable def HEq.elim {α : Sort u} {a : α} {p : α → Sort v} {b : α} (h₁ : a ≍ b) (h₂ : p a) : p b :=
   eq_of_heq h₁ ▸ h₂
@@ -921,9 +957,7 @@ theorem HEq.subst {p : (T : Sort u) → T → Prop} (h₁ : a ≍ b) (h₂ : p �
 @[symm] theorem HEq.symm (h : a ≍ b) : b ≍ a :=
   h.rec (HEq.refl a)
 
-/-- Propositionally equal terms are also heterogeneously equal. -/
-theorem heq_of_eq (h : a = a') : a ≍ a' :=
-  Eq.subst h (HEq.refl a)
+
 
 /-- Heterogeneous equality is transitive. -/
 theorem HEq.trans (h₁ : a ≍ b) (h₂ : b ≍ c) : a ≍ c :=
@@ -955,7 +989,7 @@ Heterogeneous equality with an `Eq.rec` application on the left is equivalent to
 equality on the original term.
 -/
 theorem eqRec_heq_iff {α : Sort u} {a : α} {motive : (b : α) → a = b → Sort v}
-    {b : α} {refl : motive a (Eq.refl a)} {h : a = b} {c : motive b h}
+    {b : α} {refl : motive a (Eq.refl a)} {h : a = b} {c : β}
     : @Eq.rec α a motive refl b h ≍ c ↔ refl ≍ c :=
   h.rec (fun _ => ⟨id, id⟩) c
 
@@ -964,7 +998,7 @@ Heterogeneous equality with an `Eq.rec` application on the right is equivalent t
 equality on the original term.
 -/
 theorem heq_eqRec_iff {α : Sort u} {a : α} {motive : (b : α) → a = b → Sort v}
-    {b : α} {refl : motive a (Eq.refl a)} {h : a = b} {c : motive b h} :
+    {b : α} {refl : motive a (Eq.refl a)} {h : a = b} {c : β} :
     c ≍ @Eq.rec α a motive refl b h ↔ c ≍ refl :=
   h.rec (fun _ => ⟨id, id⟩) c
 
@@ -1055,7 +1089,7 @@ theorem Exists.elim {α : Sort u} {p : α → Prop} {b : Prop}
 
 /-- Similar to `decide`, but uses an explicit instance -/
 @[inline] def toBoolUsing {p : Prop} (d : Decidable p) : Bool :=
-  decide (h := d)
+  d.decide
 
 theorem toBoolUsing_eq_true {p : Prop} (d : Decidable p) (h : p) : toBoolUsing d = true :=
   decide_eq_true (inst := d) h
@@ -1065,14 +1099,6 @@ theorem of_toBoolUsing_eq_true {p : Prop} {d : Decidable p} (h : toBoolUsing d =
 
 theorem of_toBoolUsing_eq_false {p : Prop} {d : Decidable p} (h : toBoolUsing d = false) : ¬p :=
   of_decide_eq_false h
-
-set_option linter.missingDocs false in
-@[deprecated of_toBoolUsing_eq_true (since := "2025-04-04")]
-abbrev ofBoolUsing_eq_true := @of_toBoolUsing_eq_true
-
-set_option linter.missingDocs false in
-@[deprecated of_toBoolUsing_eq_false (since := "2025-04-04")]
-abbrev ofBoolUsing_eq_false := @of_toBoolUsing_eq_false
 
 instance : Decidable True :=
   isTrue trivial
@@ -1119,14 +1145,15 @@ end Decidable
 section
 variable {p q : Prop}
 /-- Transfer a decidability proof across an equivalence of propositions. -/
-@[inline] def decidable_of_decidable_of_iff [Decidable p] (h : p ↔ q) : Decidable q :=
-  if hp : p then
-    isTrue (Iff.mp h hp)
-  else
-    isFalse fun hq => absurd (Iff.mpr h hq) hp
+abbrev decidable_of_decidable_of_iff [dp : Decidable p] (h : p ↔ q) : Decidable q where
+  decide := decide p
+  reflects_decide :=
+    match dp with
+    | isTrue hp => Iff.mp h hp
+    | isFalse hp => fun hq => absurd (Iff.mpr h hq) hp
 
 /-- Transfer a decidability proof across an equality of propositions. -/
-@[inline] def decidable_of_decidable_of_eq [Decidable p] (h : p = q) : Decidable q :=
+abbrev decidable_of_decidable_of_eq [Decidable p] (h : p = q) : Decidable q :=
   decidable_of_decidable_of_iff (p := p) (h ▸ Iff.rfl)
 end
 
@@ -1136,29 +1163,35 @@ end
     else isFalse (fun h => absurd (h hp) hq)
   else isTrue (fun h => absurd h hp)
 
-instance {p q} [Decidable p] [Decidable q] : Decidable (p ↔ q) :=
-  if hp : p then
-    if hq : q then
-      isTrue ⟨fun _ => hq, fun _ => hp⟩
-    else
-      isFalse fun h => hq (h.1 hp)
-  else
-    if hq : q then
-      isFalse fun h => hp (h.2 hq)
-    else
-      isTrue ⟨fun h => absurd h hp, fun h => absurd h hq⟩
+@[inline]
+instance {p q} [dp : Decidable p] [dq : Decidable q] : Decidable (p ↔ q) where
+  decide := decide p == decide q
+  reflects_decide :=
+    match dp, dq with
+    | isTrue  hp, isTrue  hq => ⟨fun _ => hq, fun _ => hp⟩
+    | isTrue  hp, isFalse hq => fun h => hq (h.1 hp)
+    | isFalse hp, isTrue  hq => fun h => hp (h.2 hq)
+    | isFalse hp, isFalse hq => ⟨fun h => absurd h hp, fun h => absurd h hq⟩
 
 /-! # if-then-else expression theorems -/
 
-theorem if_pos {c : Prop} {h : Decidable c} (hc : c) {α : Sort u} {t e : α} : (ite c t e) = t :=
+@[suggest_for ite_pos ite_of_pos]
+theorem ite_eq_left {c : Prop} {h : Decidable c} (hc : c) {α : Sort u} {t e : α} : (ite c t e) = t :=
   match h with
   | isTrue  _   => rfl
   | isFalse hnc => absurd hc hnc
 
-theorem if_neg {c : Prop} {h : Decidable c} (hnc : ¬c) {α : Sort u} {t e : α} : (ite c t e) = e :=
+@[deprecated ite_eq_left (since := "2026-07-21")]
+theorem if_pos {c : Prop} {h : Decidable c} (hc : c) {α : Sort u} {t : α} {e : α} : (if c then t else e) = t := ite_eq_left hc
+
+@[suggest_for ite_neg ite_of_neg]
+theorem ite_eq_right {c : Prop} {h : Decidable c} (hnc : ¬c) {α : Sort u} {t e : α} : (ite c t e) = e :=
   match h with
   | isTrue hc   => absurd hc hnc
   | isFalse _   => rfl
+
+@[deprecated ite_eq_right (since := "2026-07-21")]
+theorem if_neg {c : Prop} {h : Decidable c} (hnc : ¬c) {α : Sort u} {t : α} {e : α} : (if c then t else e) = e := ite_eq_right hnc
 
 /-- Split an if-then-else into cases. The `split` tactic is generally easier to use than this theorem. -/
 def iteInduction {c} [inst : Decidable c] {motive : α → Sort _} {t e : α}
@@ -1167,45 +1200,47 @@ def iteInduction {c} [inst : Decidable c] {motive : α → Sort _} {t e : α}
   | isTrue h => hpos h
   | isFalse h => hneg h
 
-theorem dif_pos {c : Prop} {h : Decidable c} (hc : c) {α : Sort u} {t : c → α} {e : ¬ c → α} : (dite c t e) = t hc :=
+@[suggest_for dite_pos dite_of_pos]
+theorem dite_eq_left {c : Prop} {h : Decidable c} (hc : c) {α : Sort u} {t : c → α} {e : ¬ c → α} : (dite c t e) = t hc :=
   match h with
   | isTrue  _   => rfl
   | isFalse hnc => absurd hc hnc
 
-theorem dif_neg {c : Prop} {h : Decidable c} (hnc : ¬c) {α : Sort u} {t : c → α} {e : ¬ c → α} : (dite c t e) = e hnc :=
+@[deprecated dite_eq_left (since := "2026-07-21")]
+theorem dif_pos {c : Prop} {h : Decidable c} (hc : c) {α : Sort u} {t : c → α} {e : ¬c → α} : dite c t e = t hc := dite_eq_left hc
+
+@[suggest_for dite_neg dite_of_neg]
+theorem dite_eq_right {c : Prop} {h : Decidable c} (hnc : ¬c) {α : Sort u} {t : c → α} {e : ¬ c → α} : (dite c t e) = e hnc :=
   match h with
   | isTrue hc   => absurd hc hnc
   | isFalse _   => rfl
 
--- Remark: dite and ite are "defally equal" when we ignore the proofs.
-theorem dif_eq_if (c : Prop) {h : Decidable c} {α : Sort u} (t : α) (e : α) : dite c (fun _ => t) (fun _ => e) = ite c t e :=
-  match h with
-  | isTrue _    => rfl
-  | isFalse _   => rfl
+@[deprecated dite_eq_right (since := "2026-07-21")]
+theorem dif_neg {c : Prop} {h : Decidable c} (hnc : ¬c) {α : Sort u} {t : c → α} {e : ¬c → α} : dite c t e = e hnc := dite_eq_right hnc
 
+@[macro_inline]
 instance {c t e : Prop} [dC : Decidable c] [dT : Decidable t] [dE : Decidable e] : Decidable (if c then t else e) :=
   match dC with
   | isTrue _   => dT
   | isFalse _  => dE
 
+@[inline]
 instance {c : Prop} {t : c → Prop} {e : ¬c → Prop} [dC : Decidable c] [dT : ∀ h, Decidable (t h)] [dE : ∀ h, Decidable (e h)] : Decidable (if h : c then t h else e h) :=
   match dC with
   | isTrue hc  => dT hc
   | isFalse hc => dE hc
 
 /-- Auxiliary definition for generating compact `noConfusion` for enumeration types -/
-abbrev noConfusionTypeEnum {α : Sort u} {β : Sort v} [inst : DecidableEq β] (f : α → β) (P : Sort w) (x y : α) : Sort w :=
-  (inst (f x) (f y)).casesOn
-    (fun _ => P)
-    (fun _ => P → P)
+abbrev noConfusionTypeEnum {α : Sort u} (f : α → Nat) (P : Sort w) (x y : α) : Sort w :=
+  ((f x).beq (f y)).casesOn P (P → P)
 
 /-- Auxiliary definition for generating compact `noConfusion` for enumeration types -/
-abbrev noConfusionEnum {α : Sort u} {β : Sort v} [inst : DecidableEq β] (f : α → β) {P : Sort w} {x y : α} (h : x = y) : noConfusionTypeEnum f P x y :=
-  Decidable.casesOn
-    (motive := fun (inst : Decidable (f x = f y)) => Decidable.casesOn (motive := fun _ => Sort w) inst (fun _ => P) (fun _ => P → P))
-    (inst (f x) (f y))
-    (fun h' => False.elim (h' (congrArg f h)))
-    (fun _ => fun x => x)
+abbrev noConfusionEnum {α : Sort u} (f : α → Nat) {P : Sort w} {x y : α} (h : x = y) : noConfusionTypeEnum f P x y :=
+  ((f x).beq (f y)).casesOn
+    (motive := fun b => (f x).beq (f y) = b → b.casesOn P (P → P))
+    (fun h' => False.elim (Nat.ne_of_beq_eq_false h' (congrArg f h)))
+    (fun _ a => a)
+    rfl
 
 /-! # Inhabited -/
 
@@ -1270,7 +1305,7 @@ theorem recSubsingleton
      {h₂ : ¬p → Sort u}
      [h₃ : ∀ (h : p), Subsingleton (h₁ h)]
      [h₄ : ∀ (h : ¬p), Subsingleton (h₂ h)]
-     : Subsingleton (h.casesOn h₂ h₁) :=
+     : Subsingleton (h.falseTrueCases h₂ h₁) :=
   match h with
   | isTrue h  => h₃ h
   | isFalse h => h₄ h
@@ -1308,7 +1343,7 @@ def Subrelation {α : Sort u} (q r : α → α → Prop) :=
 The inverse image of `r : β → β → Prop` by a function `α → β` is the relation
 `s : α → α → Prop` defined by `s a b = r (f a) (f b)`.
 -/
-def InvImage {α : Sort u} {β : Sort v} (r : β → β → Prop) (f : α → β) : α → α → Prop :=
+@[implicit_reducible] def InvImage {α : Sort u} {β : Sort v} (r : β → β → Prop) (f : α → β) : α → α → Prop :=
   fun a₁ a₂ => r (f a₁) (f a₂)
 
 /--
@@ -1318,10 +1353,10 @@ transitive and contains `r`. `TransGen r a z` if and only if there exists a sequ
 -/
 inductive Relation.TransGen {α : Sort u} (r : α → α → Prop) : α → α → Prop
   /-- If `r a b`, then `TransGen r a b`. This is the base case of the transitive closure. -/
-  | single {a b} : r a b → TransGen r a b
+  | single {a b : α} : r a b → TransGen r a b
   /-- If `TransGen r a b` and `r b c`, then `TransGen r a c`.
   This is the inductive case of the transitive closure. -/
-  | tail {a b c} : TransGen r a b → r b c → TransGen r a c
+  | tail {a b c : α} : TransGen r a b → r b c → TransGen r a c
 
 /-- The transitive closure is transitive. -/
 theorem Relation.TransGen.trans {α : Sort u} {r : α → α → Prop} {a b c} :
@@ -1338,12 +1373,12 @@ namespace Subtype
 theorem exists_of_subtype {α : Type u} {p : α → Prop} : { x // p x } → Exists (fun x => p x)
   | ⟨a, h⟩ => ⟨a, h⟩
 
-set_option linter.missingDocs false in
-@[deprecated exists_of_subtype (since := "2025-04-04")]
-abbrev existsOfSubtype := @exists_of_subtype
+variable {α : Sort u} {p : α → Prop}
 
-variable {α : Type u} {p : α → Prop}
+protected theorem ext : ∀ {a1 a2 : {x // p x}}, val a1 = val a2 → a1 = a2
+  | ⟨_, _⟩, ⟨_, _⟩, rfl => rfl
 
+@[deprecated Subtype.ext (since := "2025-10-26")]
 protected theorem eq : ∀ {a1 a2 : {x // p x}}, val a1 = val a2 → a1 = a2
   | ⟨_, _⟩, ⟨_, _⟩, rfl => rfl
 
@@ -1358,12 +1393,12 @@ instance {α : Type u} {p : α → Prop} [BEq α] [ReflBEq α] : ReflBEq {x : α
   rfl {x} := BEq.refl x.1
 
 instance {α : Type u} {p : α → Prop} [BEq α] [LawfulBEq α] : LawfulBEq {x : α // p x} where
-  eq_of_beq h := Subtype.eq (eq_of_beq h)
+  eq_of_beq h := Subtype.ext (eq_of_beq h)
 
-instance {α : Type u} {p : α → Prop} [DecidableEq α] : DecidableEq {x : α // p x} :=
+instance {α : Sort u} {p : α → Prop} [DecidableEq α] : DecidableEq {x : α // p x} :=
   fun ⟨a, h₁⟩ ⟨b, h₂⟩ =>
     if h : a = b then isTrue (by subst h; exact rfl)
-    else isFalse (fun h' => Subtype.noConfusion h' (fun h' => absurd h' h))
+    else isFalse (fun h' => Subtype.noConfusion rfl .rfl (heq_of_eq h') (fun h' => absurd (eq_of_heq h') h))
 
 end Subtype
 
@@ -1416,14 +1451,15 @@ instance [Inhabited α] [Inhabited β] : Inhabited (MProd α β) where
 instance [Inhabited α] [Inhabited β] : Inhabited (PProd α β) where
   default := ⟨default, default⟩
 
-instance [DecidableEq α] [DecidableEq β] : DecidableEq (α × β) :=
+instance [h : DecidableEq α] [h' : DecidableEq β] : DecidableEq (α × β) :=
   fun (a, b) (a', b') =>
-    match decEq a a' with
-    | isTrue e₁ =>
-      match decEq b b' with
-      | isTrue e₂  => isTrue (e₁ ▸ e₂ ▸ rfl)
-      | isFalse n₂ => isFalse fun h => Prod.noConfusion h fun _   e₂' => absurd e₂' n₂
-    | isFalse n₁ => isFalse fun h => Prod.noConfusion h fun e₁' _   => absurd e₁' n₁
+    Decidable.intro (decide (a = a') && decide (b = b'))
+      (match h a a' with
+      | isTrue e₁ =>
+        match h' b b' with
+        | isTrue e₂  => (e₁ ▸ e₂ ▸ rfl : (a, b) = (a', b'))
+        | isFalse n₂ => fun h => Prod.noConfusion rfl rfl (heq_of_eq h) fun _ e₂' => absurd (eq_of_heq e₂') n₂
+      | isFalse n₁ => fun h => Prod.noConfusion rfl rfl (heq_of_eq h) fun e₁' _   => absurd (eq_of_heq e₁') n₁)
 
 instance [BEq α] [BEq β] : BEq (α × β) where
   beq := fun (a₁, b₁) (a₂, b₂) => a₁ == a₂ && b₁ == b₂
@@ -1455,16 +1491,41 @@ Examples:
  * `(1, 2).map (· + 1) (· * 3) = (2, 6)`
  * `(1, 2).map toString (· * 3) = ("1", 6)`
 -/
-def Prod.map {α₁ : Type u₁} {α₂ : Type u₂} {β₁ : Type v₁} {β₂ : Type v₂}
+@[implicit_reducible] def Prod.map {α₁ : Type u₁} {α₂ : Type u₂} {β₁ : Type v₁} {β₂ : Type v₂}
     (f : α₁ → α₂) (g : β₁ → β₂) : α₁ × β₁ → α₂ × β₂
   | (a, b) => (f a, g b)
 
 @[simp] theorem Prod.map_apply (f : α → β) (g : γ → δ) (x) (y) :
     Prod.map f g (x, y) = (f x, g y) := rfl
+
+-- We add `@[grind =]` to these in `Init.Data.Prod`.
 @[simp] theorem Prod.map_fst (f : α → β) (g : γ → δ) (x) : (Prod.map f g x).1 = f x.1 := rfl
 @[simp] theorem Prod.map_snd (f : α → β) (g : γ → δ) (x) : (Prod.map f g x).2 = g x.2 := rfl
 
 /-! # Dependent products -/
+
+instance {α : Type u} {β : α → Type v} [h₁ : DecidableEq α] [h₂ : ∀ a, DecidableEq (β a)] :
+    DecidableEq (Sigma β)
+  | ⟨a₁, b₁⟩, ⟨a₂, b₂⟩ =>
+    match a₁, b₁, a₂, b₂, h₁ a₁ a₂ with
+    | _, b₁, _, b₂, isTrue (Eq.refl _) =>
+      match b₁, b₂, h₂ _ b₁ b₂ with
+      | _, _, isTrue (Eq.refl _) => isTrue rfl
+      | _, _, isFalse n => isFalse fun h ↦
+        Sigma.noConfusion rfl .rfl (heq_of_eq h) fun _ e₂ ↦ n (eq_of_heq e₂)
+    | _, _, _, _, isFalse n => isFalse fun h ↦
+      Sigma.noConfusion rfl .rfl (heq_of_eq h) fun e₁ _ ↦ n (eq_of_heq e₁)
+
+instance {α : Sort u} {β : α → Sort v} [h₁ : DecidableEq α] [h₂ : ∀ a, DecidableEq (β a)] : DecidableEq (PSigma β)
+  | ⟨a₁, b₁⟩, ⟨a₂, b₂⟩ =>
+    match a₁, b₁, a₂, b₂, h₁ a₁ a₂ with
+    | _, b₁, _, b₂, isTrue (Eq.refl _) =>
+      match b₁, b₂, h₂ _ b₁ b₂ with
+      | _, _, isTrue (Eq.refl _) => isTrue rfl
+      | _, _, isFalse n => isFalse fun h ↦
+        PSigma.noConfusion rfl .rfl (heq_of_eq h) fun _ e₂ ↦ n (eq_of_heq e₂)
+    | _, _, _, _, isFalse n => isFalse fun h ↦
+      PSigma.noConfusion rfl .rfl (heq_of_eq h) fun e₁ _ ↦ n (eq_of_heq e₁)
 
 theorem Exists.of_psigma_prop {α : Sort u} {p : α → Prop} : (PSigma (fun x => p x)) → Exists (fun x => p x)
   | ⟨x, hx⟩ => ⟨x, hx⟩
@@ -1477,20 +1538,24 @@ protected theorem PSigma.eta {α : Sort u} {β : α → Sort v} {a₁ a₂ : α}
 
 /-! # Universe polymorphic unit -/
 
+theorem PUnit.ext (a b : PUnit) : a = b := by
+  cases a; cases b; exact rfl
+
+@[deprecated PUnit.ext (since := "2025-10-26")]
 theorem PUnit.subsingleton (a b : PUnit) : a = b := by
   cases a; cases b; exact rfl
 
 theorem PUnit.eq_punit (a : PUnit) : a = ⟨⟩ :=
-  PUnit.subsingleton a ⟨⟩
+  PUnit.ext a ⟨⟩
 
 instance : Subsingleton PUnit :=
-  Subsingleton.intro PUnit.subsingleton
+  Subsingleton.intro PUnit.ext
 
 instance : Inhabited PUnit where
   default := ⟨⟩
 
 instance : DecidableEq PUnit :=
-  fun a b => isTrue (PUnit.subsingleton a b)
+  fun a b => isTrue (PUnit.ext a b)
 
 /-! # Setoid -/
 
@@ -1530,38 +1595,13 @@ end Setoid
 /-! # Propositional extensionality -/
 
 /--
-The axiom of **propositional extensionality**. It asserts that if propositions
-`a` and `b` are logically equivalent (i.e. we can prove `a` from `b` and vice versa),
-then `a` and `b` are *equal*, meaning that we can replace `a` with `b` in all
-contexts.
+The [axiom](lean-manual://section/axioms) of **propositional extensionality**. It asserts that if
+propositions `a` and `b` are logically equivalent (that is, if `a` can be proved from `b` and vice
+versa), then `a` and `b` are *equal*, meaning `a` can be replaced with `b` in all contexts.
 
-For simple expressions like `a ∧ c ∨ d → e` we can prove that because all the logical
-connectives respect logical equivalence, we can replace `a` with `b` in this expression
-without using `propext`. However, for higher order expressions like `P a` where
-`P : Prop → Prop` is unknown, or indeed for `a = b` itself, we cannot replace `a` with `b`
-without an axiom which says exactly this.
-
-This is a relatively uncontroversial axiom, which is intuitionistically valid.
-It does however block computation when using `#reduce` to reduce proofs directly
-(which is not recommended), meaning that canonicity,
-the property that all closed terms of type `Nat` normalize to numerals,
-fails to hold when this (or any) axiom is used:
-```
-set_option pp.proofs true
-
-def foo : Nat := by
-  have : (True → True) ↔ True := ⟨λ _ => trivial, λ _ _ => trivial⟩
-  have := propext this ▸ (2 : Nat)
-  exact this
-
-#reduce foo
--- propext { mp := fun x x => True.intro, mpr := fun x => True.intro } ▸ 2
-
-#eval foo -- 2
-```
-`#eval` can evaluate it to a numeral because the compiler erases casts and
-does not evaluate proofs, so `propext`, whose return type is a proposition,
-can never block it.
+The standard logical connectives provably respect propositional extensionality. However, an axiom is
+needed for higher order expressions like `P a` where `P : Prop → Prop` is unknown, as well as for
+equality. Propositional extensionality is intuitionistically valid.
 -/
 axiom propext {a b : Prop} : (a ↔ b) → a = b
 
@@ -1570,12 +1610,15 @@ theorem Eq.propIntro {a b : Prop} (h₁ : a → b) (h₂ : b → a) : a = b :=
 
 -- Eq for Prop is now decidable if the equivalent Iff is decidable
 instance {p q : Prop} [d : Decidable (p ↔ q)] : Decidable (p = q) :=
-  match d with
-  | isTrue h => isTrue (propext h)
-  | isFalse h => isFalse fun heq => h (heq ▸ Iff.rfl)
+  decidable_of_decidable_of_iff ⟨propext, Iff.of_eq⟩
+
+/-- Helper theorem for proving injectivity theorems -/
+theorem Lean.injEq_helper {P Q R : Prop} :
+  (P → Q → R) → (P ∧ Q → R) := by intro h ⟨h₁,h₂⟩; exact h h₁ h₂
 
 gen_injective_theorems% Array
 gen_injective_theorems% BitVec
+gen_injective_theorems% ByteArray
 gen_injective_theorems% Char
 gen_injective_theorems% DoResultBC
 gen_injective_theorems% DoResultPR
@@ -1592,6 +1635,7 @@ gen_injective_theorems% MProd
 gen_injective_theorems% NonScalar
 gen_injective_theorems% Option
 gen_injective_theorems% PLift
+gen_injective_theorems% PULift
 gen_injective_theorems% PNonScalar
 gen_injective_theorems% PProd
 gen_injective_theorems% Prod
@@ -1599,8 +1643,8 @@ gen_injective_theorems% PSigma
 gen_injective_theorems% PSum
 gen_injective_theorems% Sigma
 gen_injective_theorems% String
-gen_injective_theorems% String.Pos
-gen_injective_theorems% Substring
+gen_injective_theorems% String.Pos.Raw
+gen_injective_theorems% Substring.Raw
 gen_injective_theorems% Subtype
 gen_injective_theorems% Sum
 gen_injective_theorems% Task
@@ -1736,24 +1780,6 @@ theorem imp_iff_not (hb : ¬b) : a → b ↔ ¬a := imp_congr_right fun _ => iff
 /-! # Quotients -/
 
 namespace Quot
-/--
-The **quotient axiom**, which asserts the equality of elements related by the quotient's relation.
-
-The relation `r` does not need to be an equivalence relation to use this axiom. When `r` is not an
-equivalence relation, the quotient is with respect to the equivalence relation generated by `r`.
-
-`Quot.sound` is part of the built-in primitive quotient type:
- * `Quot` is the built-in quotient type.
- * `Quot.mk` places elements of the underlying type `α` into the quotient.
- * `Quot.lift` allows the definition of functions from the quotient to some other type.
- * `Quot.ind` is used to write proofs about quotients by assuming that all elements are constructed
-   with `Quot.mk`; it is analogous to the [recursor](lean-manual://section/recursors) for a
-   structure.
-
-[Quotient types](lean-manual://section/quotients) are described in more detail in the Lean Language
-Reference.
--/
-axiom sound : ∀ {α : Sort u} {r : α → α → Prop} {a b : α}, r a b → Quot.mk r a = Quot.mk r b
 
 protected theorem liftBeta {α : Sort u} {r : α → α → Prop} {β : Sort v}
     (f : α → β)
@@ -1767,23 +1793,6 @@ protected theorem indBeta {α : Sort u} {r : α → α → Prop} {motive : Quot 
     (a : α)
     : (ind p (Quot.mk r a) : motive (Quot.mk r a)) = p a :=
   rfl
-
-/--
-Lifts a function from an underlying type to a function on a quotient, requiring that it respects the
-quotient's relation.
-
-Given a relation `r : α → α → Prop` and a quotient's value `q : Quot r`, applying a `f : α → β`
-requires a proof `c` that `f` respects `r`. In this case, `Quot.liftOn q f h : β` evaluates
-to the result of applying `f` to the underlying value in `α` from `q`.
-
-`Quot.liftOn` is a version of the built-in primitive `Quot.lift` with its parameters re-ordered.
-
-[Quotient types](lean-manual://section/quotients) are described in more detail in the Lean Language
-Reference.
--/
-protected abbrev liftOn {α : Sort u} {β : Sort v} {r : α → α → Prop}
-  (q : Quot r) (f : α → β) (c : (a b : α) → r a b → f a = f b) : β :=
-  lift f c q
 
 @[elab_as_elim]
 protected theorem inductionOn {α : Sort u} {r : α → α → Prop} {motive : Quot r → Prop}
@@ -1950,6 +1959,7 @@ must respect `s.r`. `Quotient.lift` allows values in a quotient to be mapped to 
 as the mapping respects `s.r`.
 
 -/
+@[implicit_reducible]
 protected def mk' {α : Sort u} [s : Setoid α] (a : α) : Quotient s :=
   Quotient.mk s a
 
@@ -2230,30 +2240,10 @@ instance Quotient.decidableEq {α : Sort u} {s : Setoid α} [d : ∀ (a b : α),
   fun (q₁ q₂ : Quotient s) =>
     Quotient.recOnSubsingleton₂ q₁ q₂
       fun a₁ a₂ =>
-        match d a₁ a₂ with
-        | isTrue h₁  => isTrue (Quotient.sound h₁)
-        | isFalse h₂ => isFalse fun h => absurd (Quotient.exact h) h₂
-
-/-! # Function extensionality -/
-
-/--
-**Function extensionality.** If two functions return equal results for all possible arguments, then
-they are equal.
-
-It is called “extensionality” because it provides a way to prove two objects equal based on the
-properties of the underlying mathematical functions, rather than based on the syntax used to denote
-them. Function extensionality is a theorem that can be [proved using quotient
-types](lean-manual://section/quotient-funext).
--/
-theorem funext {α : Sort u} {β : α → Sort v} {f g : (x : α) → β x}
-    (h : ∀ x, f x = g x) : f = g := by
-  let eqv (f g : (x : α) → β x) := ∀ x, f x = g x
-  let extfunApp (f : Quot eqv) (x : α) : β x :=
-    Quot.liftOn f
-      (fun (f : ∀ (x : α), β x) => f x)
-      (fun _ _ h => h x)
-  change extfunApp (Quot.mk eqv f) = extfunApp (Quot.mk eqv g)
-  exact congrArg extfunApp (Quot.sound h)
+        Decidable.intro (decide (a₁ ≈ a₂))
+          (match d a₁ a₂ with
+          | isTrue h₁  => Quotient.sound h₁
+          | isFalse h₂ => fun h => absurd (Quotient.exact h) h₂)
 
 /--
 Like `Quot.liftOn q f h` but allows `f a` to "know" that `q = Quot.mk r a`.
@@ -2282,6 +2272,13 @@ instance Pi.instSubsingleton {α : Sort u} {β : α → Sort v} [∀ a, Subsingl
 
 /-! # Squash -/
 
+theorem equivalence_true (α : Sort u) : Equivalence fun _ _ : α => True :=
+  ⟨fun _ => trivial, fun _ => trivial, fun _ _ => trivial⟩
+
+/-- Always-true relation as a `Setoid`. -/
+protected def Setoid.trivial (α : Sort u) : Setoid α :=
+  ⟨_, equivalence_true α⟩
+
 /--
 The quotient of `α` by the universal relation. The elements of `Squash α` are those of `α`, but all
 of them are equal and cannot be distinguished.
@@ -2295,8 +2292,11 @@ and its representation in compiled code is identical to that of `α`.
 
 Consequently, `Squash.lift` may extract an `α` value into any subsingleton type `β`, while
 `Nonempty.rec` can only do the same when `β` is a proposition.
+
+`Squash` is defined in terms of `Quotient`, so `Squash` can be used when a `Quotient` argument is
+expected.
 -/
-def Squash (α : Sort u) := Quot (fun (_ _ : α) => True)
+def Squash (α : Sort u) := Quotient (Setoid.trivial α)
 
 /--
 Places a value into its squash type, in which it cannot be distinguished from any other.
@@ -2327,77 +2327,6 @@ instance : Subsingleton (Squash α) where
     trivial
 
 namespace Lean
-/-! # Kernel reduction hints -/
-
-/--
-Depends on the correctness of the Lean compiler, interpreter, and all `[implemented_by ...]` and `[extern ...]` annotations.
--/
-axiom trustCompiler : True
-
-/--
-When the kernel tries to reduce a term `Lean.reduceBool c`, it will invoke the Lean interpreter to evaluate `c`.
-The kernel will not use the interpreter if `c` is not a constant.
-This feature is useful for performing proofs by reflection.
-
-Remark: the Lean frontend allows terms of the from `Lean.reduceBool t` where `t` is a term not containing
-free variables. The frontend automatically declares a fresh auxiliary constant `c` and replaces the term with
-`Lean.reduceBool c`. The main motivation is that the code for `t` will be pre-compiled.
-
-Warning: by using this feature, the Lean compiler and interpreter become part of your trusted code base.
-This is extra 30k lines of code. More importantly, you will probably not be able to check your development using
-external type checkers that do not implement this feature.
-Keep in mind that if you are using Lean as programming language, you are already trusting the Lean compiler and interpreter.
-So, you are mainly losing the capability of type checking your development using external checkers.
-
-Recall that the compiler trusts the correctness of all `[implemented_by ...]` and `[extern ...]` annotations.
-If an extern function is executed, then the trusted code base will also include the implementation of the associated
-foreign function.
--/
-opaque reduceBool (b : Bool) : Bool :=
-  -- This ensures that `#print axioms` will track use of `reduceBool`.
-  have := trustCompiler
-  b
-
-/--
-Similar to `Lean.reduceBool` for closed `Nat` terms.
-
-Remark: we do not have plans for supporting a generic `reduceValue {α} (a : α) : α := a`.
-The main issue is that it is non-trivial to convert an arbitrary runtime object back into a Lean expression.
-We believe `Lean.reduceBool` enables most interesting applications (e.g., proof by reflection).
--/
-opaque reduceNat (n : Nat) : Nat :=
-  -- This ensures that `#print axioms` will track use of `reduceNat`.
-  have := trustCompiler
-  n
-
-
-/--
-The axiom `ofReduceBool` is used to perform proofs by reflection. See `reduceBool`.
-
-This axiom is usually not used directly, because it has some syntactic restrictions.
-Instead, the `native_decide` tactic can be used to prove any proposition whose
-decidability instance can be evaluated to `true` using the lean compiler / interpreter.
-
-Warning: by using this feature, the Lean compiler and interpreter become part of your trusted code base.
-This is extra 30k lines of code. More importantly, you will probably not be able to check your development using
-external type checkers that do not implement this feature.
-Keep in mind that if you are using Lean as programming language, you are already trusting the Lean compiler and interpreter.
-So, you are mainly losing the capability of type checking your development using external checkers.
--/
-axiom ofReduceBool (a b : Bool) (h : reduceBool a = b) : a = b
-
-/--
-The axiom `ofReduceNat` is used to perform proofs by reflection. See `reduceBool`.
-
-Warning: by using this feature, the Lean compiler and interpreter become part of your trusted code base.
-This is extra 30k lines of code. More importantly, you will probably not be able to check your development using
-external type checkers that do not implement this feature.
-Keep in mind that if you are using Lean as programming language, you are already trusting the Lean compiler and interpreter.
-So, you are mainly losing the capability of type checking your development using external checkers.
--/
-axiom ofReduceNat (a b : Nat) (h : reduceNat a = b) : a = b
-
-
 /--
 The term `opaqueId x` will not be reduced by the kernel.
 -/
@@ -2445,7 +2374,7 @@ class IdempotentOp (op : α → α → α) : Prop where
   idempotent : (x : α) → op x x = x
 
 /--
-`LeftIdentify op o` indicates `o` is a left identity of `op`.
+`LeftIdentity op o` indicates `o` is a left identity of `op`.
 
 This class does not require a proof that `o` is an identity, and
 is used primarily for inferring the identity using class resolution.
@@ -2453,7 +2382,7 @@ is used primarily for inferring the identity using class resolution.
 class LeftIdentity (op : α → β → β) (o : outParam α) : Prop
 
 /--
-`LawfulLeftIdentify op o` indicates `o` is a verified left identity of
+`LawfulLeftIdentity op o` indicates `o` is a verified left identity of
 `op`.
 -/
 class LawfulLeftIdentity (op : α → β → β) (o : outParam α) : Prop extends LeftIdentity op o where
@@ -2461,7 +2390,7 @@ class LawfulLeftIdentity (op : α → β → β) (o : outParam α) : Prop extend
   left_id : ∀ a, op o a = a
 
 /--
-`RightIdentify op o` indicates `o` is a right identity `o` of `op`.
+`RightIdentity op o` indicates `o` is a right identity `o` of `op`.
 
 This class does not require a proof that `o` is an identity, and is used
 primarily for inferring the identity using class resolution.
@@ -2469,7 +2398,7 @@ primarily for inferring the identity using class resolution.
 class RightIdentity (op : α → β → α) (o : outParam β) : Prop
 
 /--
-`LawfulRightIdentify op o` indicates `o` is a verified right identity of
+`LawfulRightIdentity op o` indicates `o` is a verified right identity of
 `op`.
 -/
 class LawfulRightIdentity (op : α → β → α) (o : outParam β) : Prop extends RightIdentity op o where
@@ -2517,22 +2446,37 @@ class Antisymm (r : α → α → Prop) : Prop where
   /-- An antisymmetric relation `r` satisfies `r a b → r b a → a = b`. -/
   antisymm (a b : α) : r a b → r b a → a = b
 
-/-- `Asymm X r` means that the binary relation `r` on `X` is asymmetric, that is,
-`r a b → ¬ r b a`. -/
+/-- `Asymm r` means that the binary relation `r` is asymmetric, that is, `r a b → ¬ r b a`. -/
 class Asymm (r : α → α → Prop) : Prop where
   /-- An asymmetric relation satisfies `r a b → ¬ r b a`. -/
   asymm : ∀ a b, r a b → ¬r b a
 
-/-- `Total X r` means that the binary relation `r` on `X` is total, that is, that for any
-`x y : X` we have `r x y` or `r y x`. -/
+/-- `Symm r` means that the binary relation `r` is symmetric, that is, `r a b → r b a`.  -/
+class Symm (r : α → α → Prop) : Prop where
+  /-- A symmetric relation satisfies `r a b → r b a`. -/
+  symm : ∀ a b, r a b → r b a
+
+/-- `Total X r` means that the binary relation `r` on `X` is total, that is, `r a b` or `r b a`. -/
 class Total (r : α → α → Prop) : Prop where
-  /-- A total relation satisfies `r a b ∨ r b a`. -/
+  /-- A total relation satisfies `r a b` or `r b a`. -/
   total : ∀ a b, r a b ∨ r b a
 
-/-- `Irrefl r` means the binary relation `r` is irreflexive, that is, `r x x` never
-holds. -/
+/-- `Irrefl r` means the binary relation `r` is irreflexive, that is, `r x x` never holds. -/
 class Irrefl (r : α → α → Prop) : Prop where
   /-- An irreflexive relation satisfies `¬ r a a`. -/
   irrefl : ∀ a, ¬r a a
 
+/-- `Trichotomous r` says that `r` is trichotomous, that is, `¬ r a b → ¬ r b a → a = b`. -/
+class Trichotomous (r : α → α → Prop) : Prop where
+  /-- An trichotomous relation `r` satisfies `¬ r a b → ¬ r b a → a = b`. -/
+  trichotomous (a b : α) : ¬ r a b → ¬ r b a → a = b
+
 end Std
+
+@[simp] theorem flip_flip {α : Sort u} {β : Sort v} {φ : Sort w} {f : α → β → φ} :
+    flip (flip f) = f := by
+  apply funext
+  intro a
+  apply funext
+  intro b
+  rw [flip, flip]

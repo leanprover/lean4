@@ -1,0 +1,5 @@
+Success! Final stack:
+  (Lean.Doc.Syntax.anon
+   (Lean.Doc.Syntax.arg_str
+    (str "\"a b c\t d\"")))
+All input consumed.

@@ -3,11 +3,13 @@ Copyright (c) 2020 Microsoft Corporation. All rights reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Leonardo de Moura
 -/
+module
+
 prelude
-import Lean.Parser.Term
-import Lean.Elab.Match
-import Lean.Elab.Tactic.Basic
-import Lean.Elab.Tactic.Induction
+public import Lean.Elab.Match
+public import Lean.Elab.Tactic.Induction
+
+public section
 
 namespace Lean.Elab.Tactic
 open Meta

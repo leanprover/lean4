@@ -7,10 +7,15 @@ module
 
 prelude
 import all Init.Data.Array.Basic
-import Init.Data.Array.Lemmas
+public import Init.Data.List.OfFn
+import Init.Data.Array.Bootstrap
 import Init.Data.Array.Monadic
-import Init.Data.List.OfFn
+import Init.Data.Fin.Lemmas
 import Init.Data.List.FinRange
+import Init.Data.Option.Lemmas
+import Init.Omega
+
+public section
 
 /-!
 # Theorems about `Array.ofFn`
@@ -54,6 +59,11 @@ theorem ofFn_succ' {f : Fin (n+1) → α} :
   simp [List.ofFn_succ]
 
 @[simp]
+theorem ofFn_getElem {xs : Array α} :
+    Array.ofFn (fun i : Fin xs.size => xs[i.val]) = xs := by
+  ext <;> simp
+
+@[simp]
 theorem ofFn_eq_empty_iff {f : Fin n → α} : ofFn f = #[] ↔ n = 0 := by
   rw [← Array.toList_inj]
   simp
@@ -66,6 +76,12 @@ theorem mem_ofFn {n} {f : Fin n → α} {a : α} : a ∈ ofFn f ↔ ∃ i, f i =
     exact ⟨⟨i, by simpa using h⟩, by simp⟩
   · rintro ⟨i, rfl⟩
     apply mem_of_getElem (i := i) <;> simp
+
+@[simp, grind =]
+theorem map_ofFn {f : Fin n → α} {g : α → β} :
+    (Array.ofFn f).map g = Array.ofFn (g ∘ f) := by
+  apply Array.ext_getElem?
+  simp [Array.getElem?_ofFn]
 
 /-! ### ofFnM -/
 

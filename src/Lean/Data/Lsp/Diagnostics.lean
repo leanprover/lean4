@@ -4,12 +4,14 @@ Released under Apache 2.0 license as described in the file LICENSE.
 
 Authors: Marc Huisinga, Wojciech Nawrocki
 -/
-prelude
-import Lean.Data.Json
-import Lean.Data.Lsp.Basic
-import Lean.Data.Lsp.Utf16
+module
 
-import Lean.Message
+prelude
+public import Lean.Data.Lsp.Basic
+public import Lean.Data.Lsp.Utf16
+
+
+public section
 
 /-! Definitions and functionality for emitting diagnostic information
 such as errors, warnings and #command outputs from the LSP server.
@@ -114,7 +116,7 @@ structure DiagnosticRelatedInformation where
 /-- Represents a diagnostic, such as a compiler error or warning. Diagnostic objects are only valid in the scope of a resource.
 
 LSP accepts a `Diagnostic := DiagnosticWith String`.
-The infoview also accepts `InteractiveDiagnostic := DiagnosticWith (TaggedText MsgEmbed)`.
+The infoview also accepts `InteractiveDiagnostic := DiagnosticWith InteractiveMessage`.
 
 [reference](https://microsoft.github.io/language-server-protocol/specifications/lsp/3.17/specification/#diagnostic) -/
 structure DiagnosticWith (α : Type) where
@@ -157,6 +159,14 @@ abbrev Diagnostic := DiagnosticWith String
 structure PublishDiagnosticsParams where
   uri : DocumentUri
   version? : Option Int := none
+  /--
+  Whether the client should append this set of diagnostics to the previous set
+  rather than replacing the previous set by this one (the default LSP behavior).
+  `false` means the client should replace.
+  `none` is equivalent to `false`.
+  This is a Lean-specific extension (see `LeanClientCapabilities`).
+  -/
+  isIncremental? : Option Bool := none
   diagnostics : Array Diagnostic
   deriving Inhabited, BEq, ToJson, FromJson
 

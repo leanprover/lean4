@@ -3,9 +3,13 @@ Copyright (c) 2024 Lean FRO, LLC. All rights reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Markus Himmel
 -/
+module
+
 prelude
-import Std.Data.DHashMap.Internal.Raw
-import Std.Data.DHashMap.Internal.WF
+public import Std.Data.DHashMap.Internal.Raw
+public import Std.Data.DHashMap.Internal.WF
+
+public section
 
 /-!
 # Additional dependent hash map operations
@@ -39,11 +43,11 @@ theorem WF.map [BEq α] [Hashable α] {m : Raw α β} (h : m.WF) {f : (a : α) �
 
 end Raw
 
-@[inline, inherit_doc Raw.filterMap] def filterMap [BEq α] [Hashable α]
+@[cbv_opaque, inline, inherit_doc Raw.filterMap] def filterMap [BEq α] [Hashable α]
     (f : (a : α) → β a → Option (δ a)) (m : DHashMap α β) : DHashMap α δ :=
   ⟨Raw₀.filterMap f ⟨m.1, m.2.size_buckets_pos⟩, Raw₀.wf_filterMap₀ m.2⟩
 
-@[inline, inherit_doc Raw.map] def map [BEq α] [Hashable α] (f : (a : α) → β a → δ a)
+@[cbv_opaque, inline, inherit_doc Raw.map] def map [BEq α] [Hashable α] (f : (a : α) → β a → δ a)
     (m : DHashMap α β) : DHashMap α δ :=
   ⟨Raw₀.map f ⟨m.1, m.2.size_buckets_pos⟩, Raw₀.wf_map₀ m.2⟩
 

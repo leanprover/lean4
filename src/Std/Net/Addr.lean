@@ -3,9 +3,13 @@ Copyright (c) 2025 Lean FRO, LLC. All rights reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Henrik Böving
 -/
+module
+
 prelude
-import Init.System.IO
-import Init.Data.Vector.Basic
+public import Init.System.IO
+public import Init.Data.Vector.Basic
+
+@[expose] public section
 
 /-!
 This module contains Lean representations of IP and socket addresses:
@@ -120,6 +124,9 @@ end IPv4Addr
 
 namespace SocketAddressV4
 
+instance : ToString SocketAddressV4 where
+  toString sa := toString sa.addr ++ ":" ++ toString sa.port
+
 instance : Coe SocketAddressV4 SocketAddress where
   coe addr := .v4 addr
 
@@ -157,6 +164,9 @@ end IPv6Addr
 
 namespace SocketAddressV6
 
+instance : ToString SocketAddressV6 where
+  toString sa := "[" ++ toString sa.addr ++ "]:" ++ toString sa.port
+
 instance : Coe SocketAddressV6 SocketAddress where
   coe addr := .v6 addr
 
@@ -181,6 +191,11 @@ instance : ToString IPAddr where
 end IPAddr
 
 namespace SocketAddress
+
+instance : ToString SocketAddress where
+  toString
+    | .v4 sa => toString sa
+    | .v6 sa => toString sa
 
 /--
 Obtain the `AddressFamily` associated with a `SocketAddress`.

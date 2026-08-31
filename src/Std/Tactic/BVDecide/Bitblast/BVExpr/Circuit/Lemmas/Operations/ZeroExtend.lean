@@ -3,9 +3,14 @@ Copyright (c) 2024 Lean FRO, LLC. All rights reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Henrik Böving
 -/
+module
+
 prelude
-import Std.Tactic.BVDecide.Bitblast.BVExpr.Circuit.Lemmas.Basic
-import Std.Tactic.BVDecide.Bitblast.BVExpr.Circuit.Impl.Operations.ZeroExtend
+public import Std.Tactic.BVDecide.Bitblast.BVExpr.Circuit.Lemmas.Basic
+public import Std.Tactic.BVDecide.Bitblast.BVExpr.Circuit.Impl.Operations.ZeroExtend
+import Init.Omega
+
+@[expose] public section
 
 /-!
 This module contains the verification of the bitblaster `BitVec.zeroExtend` from `Impl.Operations.ZeroExtend`.
@@ -36,16 +41,16 @@ theorem go_get_aux (aig : AIG α) (w : Nat) (input : AIG.RefVec aig w) (newWidth
   · dsimp only at hgo
     split at hgo
     · rw [← hgo]
-      intros
-      rw [go_get_aux]
+      intro hfoo
+      rw [go_get_aux (hfoo := hfoo)]; case hidx => omega
       rw [AIG.RefVec.get_push_ref_lt]
     · rw [← hgo]
-      intros
-      rw [go_get_aux]
+      intro hfoo
+      rw [go_get_aux (hfoo := hfoo)]; case hidx => omega
       rw [AIG.RefVec.get_push_ref_lt]
   · dsimp only at hgo
     rw [← hgo]
-    simp only [Nat.le_refl, get, Ref.gate_cast, Ref.mk.injEq, true_implies]
+    simp only [Nat.le_refl]
     have : curr = newWidth := by omega
     subst this
     simp
@@ -100,21 +105,21 @@ theorem go_denote_eq (aig : AIG α) (w : Nat) (input : AIG.RefVec aig w) (newWid
     cases Nat.eq_or_lt_of_le hidx2 with
     | inl heq =>
       split at hgo
-      · next hsplit =>
+      next hsplit =>
         rw [heq] at hsplit
         simp only [hsplit, ↓reduceDIte]
         rw [← hgo]
-        rw [go_get]
+        rw [go_get]; case hidx => omega
         rw [AIG.RefVec.get_push_ref_eq']
         · rw [go_denote_mem_prefix]
           · simp [heq]
           · simp [Ref.hgate]
         · omega
-      · next hsplit =>
+      next hsplit =>
         rw [heq] at hsplit
         simp only [hsplit, ↓reduceDIte]
         rw [← hgo]
-        rw [go_get]
+        rw [go_get]; case hidx => omega
         rw [AIG.RefVec.get_push_ref_eq']
         · rw [go_denote_mem_prefix]
           · simp only [Ref.cast_eq]

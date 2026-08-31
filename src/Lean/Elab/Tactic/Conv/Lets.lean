@@ -3,9 +3,13 @@ Copyright (c) 2024 Lean FRO, LLC. All rights reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Kyle Miller
 -/
+module
+
 prelude
-import Lean.Elab.Tactic.Lets
-import Lean.Elab.Tactic.Conv.Basic
+public import Lean.Elab.Tactic.Lets
+public import Lean.Elab.Tactic.Conv.Basic
+
+public section
 
 /-!
 # Conv tactics to manipulate `let` expressions
@@ -19,7 +23,7 @@ namespace Lean.Elab.Tactic.Conv
 ### `extract_lets`
 -/
 
-@[builtin_tactic Lean.Parser.Tactic.Conv.extractLets] elab_rules : tactic
+@[builtin_tactic Lean.Parser.Tactic.Conv.extractLets] def evalExtractLets : Tactic
   | `(conv| extract_lets $cfg:optConfig $ids*) => do
     let mut config ← elabExtractLetsConfig cfg
     let givenNames := (ids.map getNameOfIdent').toList
@@ -42,12 +46,13 @@ namespace Lean.Elab.Tactic.Conv
         assign mvarId g
         return (fvarIds, [g.mvarId!])
     extractLetsAddVarInfo ids fvars
+  | _ => throwUnsupportedSyntax
 
 /-!
 ### `lift_lets`
 -/
 
-@[builtin_tactic Lean.Parser.Tactic.Conv.liftLets] elab_rules : tactic
+@[builtin_tactic Lean.Parser.Tactic.Conv.liftLets] def evalLiftLets : Tactic
   | `(conv| lift_lets $cfg:optConfig) => do
     let mut config ← elabLiftLetsConfig cfg
     withMainContext do
@@ -56,5 +61,20 @@ namespace Lean.Elab.Tactic.Conv
       if lhs == lhs' then
         throwTacticEx `lift_lets (← getMainGoal) m!"made no progress"
       changeLhs lhs'
+  | _ => throwUnsupportedSyntax
+
+/-!
+### `let_to_have`
+-/
+
+@[builtin_tactic Lean.Parser.Tactic.Conv.letToHave] def evalLetToHave : Tactic
+  | `(conv| let_to_have) => do
+    withMainContext do
+      let lhs ← getLhs
+      let lhs' ← Meta.letToHave lhs
+      if lhs == lhs' then
+        throwTacticEx `let_to_have (← getMainGoal) m!"made no progress"
+      changeLhs lhs'
+  | _ => throwUnsupportedSyntax
 
 end Lean.Elab.Tactic.Conv

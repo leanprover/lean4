@@ -3,9 +3,15 @@ Copyright (c) 2020 Microsoft Corporation. All rights reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Leonardo de Moura, Sebastian Ullrich
 -/
+module
+
 prelude
-import Lean.Meta.Tactic.Util
-import Lean.Elab.Term
+public import Lean.Meta.Tactic.Util
+public import Lean.Elab.Term
+import Lean.Elab.DeprecatedSyntax
+import Init.Omega
+
+public section
 
 namespace Lean.Elab
 open Meta
@@ -58,7 +64,7 @@ See comment at `Monad TermElabM`
 -/
 @[always_inline]
 instance : Monad TacticM :=
-  let i := inferInstanceAs (Monad TacticM);
+  let i : Monad TacticM := inferInstance;
   { pure := i.pure, bind := i.bind }
 
 instance : Inhabited (TacticM α) where
@@ -141,6 +147,15 @@ directly.
 unsafe builtin_initialize tacticElabAttribute : KeyedDeclsAttribute Tactic ←
   mkElabAttribute Tactic `builtin_tactic `tactic `Lean.Parser.Tactic `Lean.Elab.Tactic.Tactic "tactic"
 
+/--
+Disables automatic fallback of this tactic macro/elaborator to other macros/elaborators of the same
+syntax on failure. An elaborator that does not handle the given syntax should still signal this by
+throwing `unsupportedSyntax`, which is not affected by this attribute.
+-/
+@[builtin_doc]
+builtin_initialize noFallbackAttr : TagAttribute ←
+  registerTagAttribute `no_fallback "disables automatic fallback on tactic macro/elab failure"
+
 def mkTacticInfo (mctxBefore : MetavarContext) (goalsBefore : List MVarId) (stx : Syntax) : TacticM Info :=
   return Info.ofTacticInfo {
     elaborator    := (← read).elaborator
@@ -187,14 +202,16 @@ partial def evalTactic (stx : Syntax) : TacticM Unit := do
         Term.withoutTacticIncrementality true <| withTacticInfoContext stx do
           stx.getArgs.forM evalTactic
       else withTraceNode `Elab.step (fun _ => return stx) (tag := stx.getKind.toString) do
+        if (← readThe Term.Context).checkDeprecated then
+          checkDeprecatedSyntax stx (← readThe Term.Context).macroStack
         let evalFns := tacticElabAttribute.getEntries (← getEnv) stx.getKind
         let macros  := macroAttribute.getEntries (← getEnv) stx.getKind
         if evalFns.isEmpty && macros.isEmpty then
-          throwErrorAt stx "tactic '{stx.getKind}' has not been implemented"
+          throwErrorAt stx "Tactic `{stx.getKind}` has not been implemented"
         let s ← Tactic.saveState
         expandEval s macros evalFns #[]
     | .missing => pure ()
-    | _ => throwError m!"unexpected tactic{indentD stx}"
+    | _ => throwError m!"Unexpected tactic{indentD stx}"
 where
     throwExs (failures : Array EvalTacticFailure) : TacticM Unit := do
      if h : 0 < failures.size  then
@@ -203,19 +220,24 @@ where
        fail.state.restore (restoreInfo := true)
        throw fail.exception -- (*)
      else
-       throwErrorAt stx "unexpected syntax {indentD stx}"
+       throwErrorAt stx "Unexpected syntax{indentD stx}"
 
-    @[inline] handleEx (s : SavedState) (failures : Array EvalTacticFailure) (ex : Exception) (k : Array EvalTacticFailure → TacticM Unit) := do
+    @[inline] handleEx (declName : Name) (s : SavedState) (failures : Array EvalTacticFailure) (ex : Exception) (k : Array EvalTacticFailure → TacticM Unit) := do
+      let noFallback := noFallbackAttr.hasTag (← getEnv) declName
       match ex with
       | .error .. =>
+        if noFallback then throw ex
         trace[Elab.tactic.backtrack] ex.toMessageData
         let failures := failures.push ⟨ex, ← Tactic.saveState⟩
         s.restore (restoreInfo := true); k failures
       | .internal id _ =>
         if id == unsupportedSyntaxExceptionId then
           -- We do not store `unsupportedSyntaxExceptionId`, see throwExs
+          -- `unsupportedSyntax` is the elaborator declining the syntax before any commit, so
+          -- `[no_fallback]` does not apply here.
           s.restore (restoreInfo := true); k failures
         else if id == abortTacticExceptionId then
+          if noFallback then throw ex
           for msg in (← Core.getMessageLog).toList do
             trace[Elab.tactic.backtrack] msg.data
           let failures := failures.push ⟨ex, ← Tactic.saveState⟩
@@ -231,6 +253,7 @@ where
           withReader ({ · with elaborator := m.declName }) do
             withTacticInfoContext stx do
               let stx' ← adaptMacro m.value stx
+              recordExtraModUseFromDecl (isMeta := true) m.declName
               -- Support incrementality; see also Note [Incremental Macros]
               if evalFns.isEmpty && ms.isEmpty then  -- Only try incrementality in one branch
                 if let some snap := (← readThe Term.Context).tacSnap? then
@@ -240,7 +263,9 @@ where
                     let old ← snap.old?
                     -- If the kind is equal, we can assume the old version was a macro as well
                     guard <| old.stx.isOfKind stx.getKind
-                    let state ← old.val.get.finished.get.state?
+                    -- (access to `raw` is fine here as there should be no transformation in this
+                    -- case anyway, see `resolve` below)
+                    let state ← old.val.get.transformed.raw.finished.get.state?
                     guard <| state.term.meta.core.nextMacroScope == nextMacroScope
                     -- check absence of traces; see Note [Incremental Macros]
                     guard <| state.term.meta.core.traceState.traces.size == 0
@@ -252,13 +277,15 @@ where
                   -- Store new unfolding in the snapshot tree
                   let cancelTk? := (← readThe Core.Context).cancelTk?
                   snap.new.resolve {
-                    stx := stx'
-                    diagnostics := .empty
-                    inner? := none
-                    finished := .finished stx' {
+                    transformed.raw := {
+                      stx := stx'
                       diagnostics := .empty
-                      state? := (← Tactic.saveState)
-                      moreSnaps := #[]
+                      inner? := none
+                      finished := .finished stx' {
+                        diagnostics := .empty
+                        state? := (← Tactic.saveState)
+                        moreSnaps := #[]
+                      }
                     }
                     next := #[{ stx? := stx', task := promise.resultD default, cancelTk? }]
                   }
@@ -267,12 +294,13 @@ where
                     new := promise
                     old? := do
                       let old ← old?
-                      return ⟨old.stx, (← old.next[0]?)⟩
+                      -- (access to `raw`: as above)
+                      return ⟨old.transformed.raw.stx, (← old.next[0]?)⟩
                   } }) do
                     evalTactic stx'
                   return
               evalTactic stx'
-        catch ex => handleEx s failures ex (expandEval s ms evalFns)
+        catch ex => handleEx m.declName s failures ex (expandEval s ms evalFns)
 
     eval (s : SavedState) (evalFns : List _) (failures : Array EvalTacticFailure) : TacticM Unit := do
       match evalFns with
@@ -284,10 +312,12 @@ where
           withReader ({ · with elaborator := evalFn.declName }) do
           withTacticInfoContext stx do
             evalFn.value stx
-        catch ex => handleEx s failures ex (eval s evalFns)
+            if !evalFn.isBuiltin then
+              recordExtraModUseFromDecl (isMeta := true) evalFn.declName
+        catch ex => handleEx evalFn.declName s failures ex (eval s evalFns)
 
 def throwNoGoalsToBeSolved : TacticM α :=
-  throwError "no goals to be solved"
+  throwError "No goals to be solved"
 
 def done : TacticM Unit := do
   let gs ← getUnsolvedGoals
@@ -357,6 +387,52 @@ instance : MonadExcept Exception TacticM where
 def withoutRecover (x : TacticM α) : TacticM α :=
   withReader (fun ctx => { ctx with recover := false }) x
 
+/-- Execute `x` with error recovery disabled -/
+def withRecover (recover : Bool) (x : TacticM α) : TacticM α :=
+  withReader (fun ctx => { ctx with recover }) x
+
+/-! ## Message log utilities -/
+
+/-- Execute an action while suppressing any new messages it generates.
+    Restores the original message log after the action completes.
+    Useful for trying tactics without polluting the message log with errors from failed attempts. -/
+def withSuppressedMessages (action : TacticM α) : TacticM α := do
+  let initialLog ← Core.getMessageLog
+  try
+    action
+  finally
+    Core.setMessageLog initialLog
+
+/-- Execute an action and return any new messages it generates.
+    Restores the original message log afterward.
+    Useful for inspecting messages produced by a tactic without committing them. -/
+def withCapturedMessages (action : TacticM α) : TacticM (α × List Message) := do
+  let initialLog ← Core.getMessageLog
+  let initialMsgCount := initialLog.toList.length
+  let result ← action
+  let newMsgs := (← Core.getMessageLog).toList.drop initialMsgCount
+  Core.setMessageLog initialLog
+  return (result, newMsgs)
+
+/-- Check if any messages in the list are errors. -/
+def hasErrorMessages (msgs : List Message) : Bool :=
+  msgs.any (·.severity == .error)
+
+/--
+Like `throwErrorAt`, but, if recovery is enabled, logs the error instead.
+-/
+def throwOrLogErrorAt (ref : Syntax) (msg : MessageData) : TacticM Unit := do
+  if (← read).recover then
+    logErrorAt ref msg
+  else
+    throwErrorAt ref msg
+
+/--
+Like `throwError`, but, if recovery is enabled, logs the error instead.
+-/
+def throwOrLogError (msg : MessageData) : TacticM Unit := do
+  throwOrLogErrorAt (← getRef) msg
+
 @[inline] protected def orElse (x : TacticM α) (y : Unit → TacticM α) : TacticM α := do
   try withoutRecover x catch _ => y ()
 
@@ -364,7 +440,7 @@ instance : OrElse (TacticM α) where
   orElse := Tactic.orElse
 
 instance : Alternative TacticM where
-  failure := fun {_} => throwError "failed"
+  failure := fun {_} => throwError "Failed"
   orElse  := Tactic.orElse
 
 /--
@@ -475,7 +551,7 @@ def ensureHasNoMVars (e : Expr) : TacticM Unit := do
   let pendingMVars ← getMVars e
   discard <| Term.logUnassignedUsingErrorInfos pendingMVars
   if e.hasExprMVar then
-    throwError "tactic failed, resulting expression contains metavariables{indentExpr e}"
+    throwError "Tactic failed: Resulting expression contains metavariables{indentExpr e}"
 
 /--
 Closes main goal using the given expression.
@@ -489,7 +565,7 @@ def closeMainGoal (tacName : Name) (val : Expr) (checkUnassigned := true): Tacti
   if (← mvarId.checkedAssign val) then
     replaceMainGoal []
   else
-    throwTacticEx tacName mvarId m!"attempting to close the goal using{indentExpr val}\nthis is often due occurs-check failure"
+    throwTacticEx tacName mvarId m!"attempting to close the goal using{indentExpr val}\nthis is often due to an occurs-check failure"
 
 @[inline] def liftMetaMAtMain (x : MVarId → MetaM α) : TacticM α := do
   withMainContext do x (← getMainGoal)

@@ -3,9 +3,17 @@ Copyright (c) 2024 Lean FRO, LLC. All rights reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Henrik Böving
 -/
+module
+
 prelude
-import Std.Data.HashSet
-import Init.Data.Vector.Basic
+public import Std.Data.HashSet
+public import Init.Data.Vector.Basic
+public import Init.Data.Hashable
+public import Init.Data.String.Defs
+public import Init.Data.ToString.Macro
+import Init.Omega
+
+@[expose] public section
 
 namespace Std
 namespace Sat
@@ -27,8 +35,8 @@ node which consists of a `Nat` describing the input node and a `Bool` saying whe
 on the input.
 -/
 structure Fanin where
-  private of ::
-    private val : Nat
+  ofRaw ::
+    val : Nat
   deriving Hashable, Repr, DecidableEq, Inhabited
 
 namespace Fanin
@@ -77,7 +85,7 @@ private theorem invert_eq_testBit (f : Fanin) : f.invert = f.val.testBit 0 := by
   simp [invert, Nat.testBit]
 
 @[simp]
-theorem invert_flip (f : Fanin) : (f.flip v).invert = f.invert ^^ v := by
+theorem invert_flip (f : Fanin) : (f.flip v).invert = (f.invert ^^ v) := by
   cases v <;> simp [flip, invert_eq_testBit, -Nat.mod_two_not_eq_one]
 
 end Fanin
@@ -194,7 +202,7 @@ theorem Cache.get?_property {decls : Array (Decl α)} {idx : Nat} (c : Cache α 
     split
     · apply ih
       simp [hfound]
-    · next hbounds =>
+    next hbounds =>
       exfalso
       apply hbounds
       specialize ih _ hfound
@@ -213,7 +221,7 @@ theorem Cache.get?_property {decls : Array (Decl α)} {idx : Nat} (c : Cache α 
       | false =>
         apply ih
         simpa [BEq.symm_false heq] using hfound
-    · next hbounds =>
+    next hbounds =>
       simp only [HashMap.getElem?_insert] at hfound
       match heq : decl == decl' with
       | true =>
@@ -222,7 +230,7 @@ theorem Cache.get?_property {decls : Array (Decl α)} {idx : Nat} (c : Cache α 
       | false =>
         exfalso
         apply hbounds
-        simp only [BEq.symm_false heq, cond_false] at hfound
+        simp only [BEq.symm_false heq] at hfound
         specialize ih _ hfound
         apply Array.lt_of_getElem
         assumption
@@ -241,7 +249,7 @@ def Cache.get? (cache : Cache α decls) (decl : Decl α) : Option (CacheHit decl
 An `Array Decl` is a Direct Acyclic Graph (DAG) if a gate at index `i` only points to nodes with index lower than `i`.
 -/
 def IsDAG (α : Type) (decls : Array (Decl α)) : Prop :=
-  ∀ {i lhs rhs} (h : i < decls.size),
+  ∀ ⦃i lhs rhs⦄ (h : i < decls.size),
       decls[i] = .gate lhs rhs → lhs.gate < i ∧ rhs.gate < i
 
 /--
@@ -313,7 +321,7 @@ structure Ref (aig : AIG α) where
 /--
 A `Ref` into `aig1` is also valid for `aig2` if `aig1` is smaller than `aig2`.
 -/
-@[inline]
+@[inline, implicit_reducible]
 def Ref.cast {aig1 aig2 : AIG α} (ref : Ref aig1) (h : aig1.decls.size ≤ aig2.decls.size) :
     Ref aig2 :=
   { ref with hgate := by have := ref.hgate; omega }
@@ -480,6 +488,7 @@ where
       let lval := go lhs.gate decls assign (by omega) h2
       let rval := go rhs.gate decls assign (by omega) h2
       xor lval lhs.invert && xor rval rhs.invert
+  termination_by (x, 0) -- Don't allow reduction, we have large concrete gate entries
 
 /--
 Denotation of an `AIG` at a specific `Entrypoint`.
@@ -496,7 +505,7 @@ macro_rules
 | `(⟦$aig, $ref, $assign⟧) => `(denote $assign (Entrypoint.mk $aig $ref))
 
 @[app_unexpander AIG.denote]
-def unexpandDenote : Lean.PrettyPrinter.Unexpander
+meta def unexpandDenote : Lean.PrettyPrinter.Unexpander
   | `($(_) {aig := $aig, start := $start, inv := $hbound} $assign) =>
     `(⟦$aig, ⟨$start, $hbound⟩, $assign⟧)
   | `($(_) $entry $assign) => `(⟦$entry, $assign⟧)
@@ -525,7 +534,7 @@ def mkGate (aig : AIG α) (input : BinaryInput aig) : Entrypoint α :=
   let cache := aig.cache.noUpdate
   have hdag := by
     intro i lhs' rhs' h1 h2
-    simp only [Array.getElem_push] at h2
+    simp only [decls, Array.getElem_push] at h2
     split at h2
     · apply aig.hdag <;> assumption
     · injection h2 with hl hr
@@ -547,7 +556,7 @@ def mkAtom (aig : AIG α) (n : α) : Entrypoint α :=
   let cache := aig.cache.noUpdate
   have hdag := by
     intro i lhs rhs h1 h2
-    simp only [Array.getElem_push] at h2
+    simp only [decls, Array.getElem_push] at h2
     split at h2
     · apply aig.hdag <;> assumption
     · contradiction
@@ -565,7 +574,7 @@ def mkConst (aig : AIG α) (val : Bool) : Entrypoint α :=
   let cache := aig.cache.noUpdate
   have hdag := by
     intro i lhs rhs h1 h2
-    simp only [Array.getElem_push] at h2
+    simp only [decls, Array.getElem_push] at h2
     split at h2
     · apply aig.hdag <;> assumption
     · contradiction

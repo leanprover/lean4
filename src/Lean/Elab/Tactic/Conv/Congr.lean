@@ -3,10 +3,14 @@ Copyright (c) 2021 Microsoft Corporation. All rights reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Leonardo de Moura
 -/
+module
+
 prelude
-import Lean.Meta.Tactic.Simp.Main
-import Lean.Meta.Tactic.Congr
-import Lean.Elab.Tactic.Conv.Basic
+public import Lean.Meta.Tactic.Simp.Main
+public import Lean.Meta.Tactic.Congr
+public import Lean.Elab.Tactic.Conv.Basic
+
+public section
 
 namespace Lean.Elab.Tactic.Conv
 open Meta
@@ -34,7 +38,7 @@ private partial def mkCongrThm (origTag : Name) (f : Expr) (args : Array Expr) (
   let mut proof := congrThm.proof
   let mut mvarIdsNew := #[]
   let mut mvarIdsNewInsts := #[]
-  for h : i in [:congrThm.argKinds.size] do
+  for h : i in *...congrThm.argKinds.size do
     let arg := args[i]!
     let argInfo := funInfo.paramInfo[i]!
     match congrThm.argKinds[i] with
@@ -66,8 +70,8 @@ private partial def mkCongrThm (origTag : Name) (f : Expr) (args : Array Expr) (
     if congrThm.argKinds.size == 0 then
       throwError "'congr' conv tactic failed to create congruence theorem"
     let (proof', mvarIdsNew', mvarIdsNewInsts') ←
-      mkCongrThm origTag eNew args[funInfo.getArity:] addImplicitArgs nameSubgoals
-    for arg in args[funInfo.getArity:] do
+      mkCongrThm origTag eNew args[funInfo.getArity...*] addImplicitArgs nameSubgoals
+    for arg in args[funInfo.getArity...*] do
       proof ← Meta.mkCongrFun proof arg
     proof ← mkEqTrans proof proof'
     mvarIdsNew := mvarIdsNew ++ mvarIdsNew'
@@ -76,10 +80,10 @@ private partial def mkCongrThm (origTag : Name) (f : Expr) (args : Array Expr) (
 
 private def resolveRhs (tacticName : String) (rhs rhs' : Expr) : MetaM Unit := do
   unless (← isDefEqGuarded rhs rhs') do
-    throwError "invalid '{tacticName}' conv tactic, failed to resolve{indentExpr rhs}\n=?={indentExpr rhs'}"
+    throwError "invalid `{tacticName}` conv tactic, failed to resolve{indentExpr rhs}\n=?={indentExpr rhs'}"
 
 private def resolveRhsFromProof (tacticName : String) (rhs proof : Expr) : MetaM Unit := do
-  let some (_, _, rhs') := (← whnf (← inferType proof)).eq? | throwError "'{tacticName}' conv tactic failed, equality expected"
+  let some (_, _, rhs') := (← whnf (← inferType proof)).eq? | throwError "`{tacticName}` conv tactic failed, equality expected"
   resolveRhs tacticName rhs rhs'
 
 def congr (mvarId : MVarId) (addImplicitArgs := false) (nameSubgoals := true) :
@@ -117,14 +121,14 @@ private partial def mkCongrArgZeroThm (tacticName : String) (origTag : Name) (f 
     MetaM (Expr × MVarId × Array MVarId) := do
   let funInfo ← getFunInfoNArgs f args.size
   let some congrThm ← mkCongrSimpCore? f funInfo (← getCongrSimpKindsForArgZero funInfo) (subsingletonInstImplicitRhs := false)
-    | throwError "'{tacticName}' conv tactic failed to create congruence theorem"
+    | throwError "`{tacticName}` conv tactic failed to create congruence theorem"
   unless congrThm.argKinds[0]! matches .eq do
-    throwError "'{tacticName}' conv tactic failed, cannot select argument"
+    throwError "`{tacticName}` conv tactic failed, cannot select argument"
   let mut eNew := f
   let mut proof := congrThm.proof
   let mut mvarIdNew? := none
   let mut mvarIdsNewInsts := #[]
-  for h : i in [:congrThm.argKinds.size] do
+  for h : i in *...congrThm.argKinds.size do
     let arg := args[i]!
     let argInfo := funInfo.paramInfo[i]!
     match congrThm.argKinds[i] with
@@ -135,7 +139,7 @@ private partial def mkCongrArgZeroThm (tacticName : String) (origTag : Name) (f 
       let (rhs, mvarNew) ← mkConvGoalFor arg origTag
       eNew := mkApp eNew rhs
       proof := mkApp3 proof arg rhs mvarNew
-      if mvarIdNew?.isSome then throwError "'{tacticName}' conv tactic failed, cannot select argument"
+      if mvarIdNew?.isSome then throwError "`{tacticName}` conv tactic failed, cannot select argument"
       mvarIdNew? := some mvarNew.mvarId!
     | .subsingletonInst =>
       proof := mkApp proof arg
@@ -144,7 +148,7 @@ private partial def mkCongrArgZeroThm (tacticName : String) (origTag : Name) (f 
       proof := mkApp proof rhs
       mvarIdsNewInsts := mvarIdsNewInsts.push rhs.mvarId!
     | .heq | .fixedNoParam => unreachable!
-  let proof' ← args[congrThm.argKinds.size:].foldlM (init := proof) mkCongrFun
+  let proof' ← args[congrThm.argKinds.size...*].foldlM (init := proof) mkCongrFun
   return (proof', mvarIdNew?.get!, mvarIdsNewInsts)
 
 /--
@@ -165,7 +169,7 @@ def congrArgForall (tacticName : String) (domain : Bool) (mvarId : MVarId) (lhs 
       mvarId.assign proof
       return [g.mvarId!]
     else
-      throwError m!"'{tacticName}' conv tactic failed, cannot select domain"
+      throwError m!"`{tacticName}` conv tactic failed, cannot select domain"
   else
     withLocalDeclD (← mkFreshUserName n) t fun arg => do
       let u ← getLevel t
@@ -183,7 +187,7 @@ def congrArgN (tacticName : String) (mvarId : MVarId) (i : Int) (explicit : Bool
   let (lhs, rhs) ← getLhsRhsCore mvarId
   let lhs := (← instantiateMVars lhs).cleanupAnnotations
   if lhs.isForall then
-    if i < -2 || i == 0 || i > 2 then throwError "invalid '{tacticName}' conv tactic, index is out of bounds for pi type"
+    if i < -2 || i == 0 || i > 2 then throwError "invalid `{tacticName}` conv tactic, index is out of bounds for pi type"
     let domain := i == 1 || i == -2
     return ← congrArgForall tacticName domain mvarId lhs rhs
   else if lhs.isApp then
@@ -194,20 +198,20 @@ def congrArgN (tacticName : String) (mvarId : MVarId) (i : Int) (explicit : Bool
       mvarId.assign proof
       return mvarIdNew :: mvarIdsNewInsts.toList
   else
-    throwError "invalid '{tacticName}' conv tactic, application or implication expected{indentExpr lhs}"
+    throwError "invalid `{tacticName}` conv tactic, application or implication expected{indentExpr lhs}"
 where
   applyArgs (f : Expr) (xs : Array Expr) (i : Int) : MetaM (Expr × Array Expr) := do
     if explicit then
       let i := if i > 0 then i - 1 else i + xs.size
       if i < 0 || i ≥ xs.size then
-        throwError "invalid '{tacticName}' tactic, application has {xs.size} argument(s) but the index is out of bounds"
+        throwError "invalid `{tacticName}` tactic, application has {xs.size} argument(s) but the index is out of bounds"
       let idx := i.natAbs
-      return (mkAppN f xs[0:idx], xs[idx:])
+      return (mkAppN f xs[*...idx], xs[idx...*])
     else
       let mut fType ← inferType f
       let mut j := 0
       let mut explicitIdxs := #[]
-      for k in [0:xs.size] do
+      for k in *...xs.size do
         unless fType.isForall do
           fType ← withTransparency .all <| whnf (fType.instantiateRevRange j k xs)
           j := k
@@ -217,9 +221,9 @@ where
           explicitIdxs := explicitIdxs.push k
       let i := if i > 0 then i - 1 else i + explicitIdxs.size
       if i < 0 || i ≥ explicitIdxs.size then
-        throwError "invalid '{tacticName}' tactic, application has {explicitIdxs.size} explicit argument(s) but the index is out of bounds"
+        throwError "invalid `{tacticName}` tactic, application has {explicitIdxs.size} explicit argument(s) but the index is out of bounds"
       let idx := explicitIdxs[i.natAbs]!
-      return (mkAppN f xs[0:idx], xs[idx:])
+      return (mkAppN f xs[*...idx], xs[idx...*])
 
 def evalArg (tacticName : String) (i : Int) (explicit : Bool) : TacticM Unit := do
   if i == 0 then
@@ -332,7 +336,7 @@ private def ext (userName? : Option Name) : TacticM Unit := do
   -- show initial state up to (incl.) `[`
   withTacticInfoContext (mkNullNode #[token, lbrak]) (pure ())
   let numEnterArgs := (enterArgsAndSeps.size + 1) / 2
-  for i in [:numEnterArgs] do
+  for i in *...numEnterArgs do
     let enterArg := enterArgsAndSeps[2 * i]!
     let sep := enterArgsAndSeps.getD (2 * i + 1) .missing
     -- show state up to (incl.) next `,` and show errors on `enterArg`

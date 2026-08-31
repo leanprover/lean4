@@ -1,0 +1,47 @@
+"hellohello"
+"hello hello"
+5
+['h', 'e', 'l', 'l', 'o']
+['α', 'β']
+[]
+['α', 'β', 'γ']
+"αβγ"
+"αβγ"
+"αβγ"
+{ byteIdx := 2 }
+['α', 'β']
+"αβa"
+"α α-"
+'A'
+"aβγ"
+"abγ"
+"abc"
+"cbγ"
+"0bc"
+"01c"
+"012"
+"21c"
+"λbc"
+"abc-bc"
+"abc"
+"a\x00bb"
+4
+false
+true
+false
+false
+true
+true
+false
+true
+false
+"βγ"
+"γ"
+"αβγδ".toRawSubstring
+"abcd".toRawSubstring
+"abcd".toRawSubstring
+["abc".toRawSubstring, "αβγ".toRawSubstring, "123".toRawSubstring, "".toRawSubstring]
+["abc".toRawSubstring, "αβγ".toRawSubstring, "123".toRawSubstring, "".toRawSubstring]
+'α'
+'β'
+{ byteIdx := 4 }

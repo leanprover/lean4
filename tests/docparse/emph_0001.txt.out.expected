@@ -1,0 +1,6 @@
+Success! Final stack:
+  (Lean.Doc.Syntax.emph
+   "_"
+   [(Lean.Doc.Syntax.text (str "\"aa\""))]
+   "_")
+All input consumed.

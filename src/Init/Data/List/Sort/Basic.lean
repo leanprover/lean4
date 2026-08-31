@@ -6,8 +6,13 @@ Authors: Kim Morrison
 module
 
 prelude
-import Init.Data.List.Impl
+public import Init.Ext
 import Init.Data.List.Nat.TakeDrop
+import Init.Data.List.TakeDrop
+import Init.Data.Nat.Lemmas
+import Init.Omega
+
+public section
 
 /-!
 # Definition of `merge` and `mergeSort`.
@@ -44,8 +49,8 @@ def merge (xs ys : List α) (le : α → α → Bool := by exact fun a b => a �
 @[simp] theorem nil_merge (ys : List α) : merge [] ys le = ys := by simp [merge]
 @[simp] theorem merge_right (xs : List α) : merge xs [] le = xs := by
   induction xs with
-  | nil => simp [merge]
-  | cons x xs ih => simp [merge, ih]
+  | nil => simp
+  | cons x xs ih => simp [merge]
 
 /--
 Split a list in two equal parts. If the length is odd, the first part will be one element longer.
@@ -59,6 +64,7 @@ def MergeSort.Internal.splitInTwo (l : { l : List α // l.length = n }) :
 
 open MergeSort.Internal in
 set_option linter.unusedVariables false in
+set_option backward.isDefEq.respectTransparency false in
 /--
 A stable merge sort.
 

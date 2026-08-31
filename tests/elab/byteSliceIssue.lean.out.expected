@@ -1,0 +1,11 @@
+@forIn.loop.eq_1 : ∀ {m : Type u_1 → Type u_2} {β : Type u_1} [inst : Monad m] (f : UInt8 → β → m (ForInStep β))
+  (arr : ByteArray) (off _end i : Nat) (b : β),
+  forIn.loop f arr off _end i b =
+    if h : i < _end then do
+      let __do_lift ← f (arr.get! i) b
+      match __do_lift with
+        | ForInStep.done b => pure b
+        | ForInStep.yield b =>
+          have this := ⋯;
+          forIn.loop f arr off _end (i + 1) b
+    else pure b

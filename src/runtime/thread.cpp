@@ -7,11 +7,9 @@ Author: Leonardo de Moura
 #include <utility>
 #include <vector>
 #include <iostream>
+#include <cstring>
 #ifdef LEAN_WINDOWS
 #include <windows.h>
-# ifdef LEAN_AUTO_THREAD_FINALIZATION
-#include <pthread.h>
-# endif
 #else
 #include <pthread.h>
 #endif
@@ -21,9 +19,14 @@ Author: Leonardo de Moura
 #include "runtime/exception.h"
 #include "runtime/alloc.h"
 #include "runtime/stack_overflow.h"
+#include "runtime/sstream.h"
 
 #ifndef LEAN_DEFAULT_THREAD_STACK_SIZE
-#define LEAN_DEFAULT_THREAD_STACK_SIZE 8*1024*1024 // 8Mb
+#ifdef LEAN_EMSCRIPTEN
+#define LEAN_DEFAULT_THREAD_STACK_SIZE 8*1024*1024 // 8MB for 32-bit
+#else
+#define LEAN_DEFAULT_THREAD_STACK_SIZE 1024*1024*1024 // 1GB for 64-bit
+#endif
 #endif
 
 namespace lean {
@@ -50,9 +53,6 @@ void reset_thread_local() {
 using runnable = std::function<void()>;
 
 extern "C" LEAN_EXPORT void lean_initialize_thread() {
-#ifdef LEAN_SMALL_ALLOCATOR
-    init_thread_heap();
-#endif
 }
 
 extern "C" LEAN_EXPORT void lean_finalize_thread() {
@@ -62,12 +62,10 @@ extern "C" LEAN_EXPORT void lean_finalize_thread() {
 
 static void thread_main(void * p) {
     lean_initialize_thread();
-    std::unique_ptr<runnable> f;
-    f.reset(reinterpret_cast<runnable *>(p));
-
-    (*f)();
-    f.reset();
-
+    {
+        std::unique_ptr<runnable> f(reinterpret_cast<runnable *>(p));
+        (*f)();
+    }
     lean_finalize_thread();
 }
 
@@ -98,12 +96,15 @@ struct lthread::imp {
     }
 
     imp(runnable const & p) {
-        runnable * f = new std::function<void()>(mk_thread_proc(p, get_max_heartbeat()));
+        std::unique_ptr<runnable> f = std::make_unique<runnable>(mk_thread_proc(p, get_max_heartbeat()));
+        // Without `IS_A_RESERVATION`, `m_thread_stack_size` would be the initial *commit* size,
+        // quickly exhausting the available address space with our large default stack size.
         m_thread = CreateThread(nullptr, m_thread_stack_size,
-                                _main, f, 0, nullptr);
+                                _main, f.get(), STACK_SIZE_PARAM_IS_A_RESERVATION, nullptr);
         if (m_thread == NULL) {
-            throw exception("failed to create thread");
+            throw exception((sstream() << "failed to create thread: " << GetLastError()).str());
         }
+        f.release();  // Now owned by thread_main
     }
 
     ~imp() {
@@ -131,13 +132,14 @@ struct lthread::imp {
 
     imp(runnable const & p) {
         pthread_attr_init(&m_attr);
-        if (pthread_attr_setstacksize(&m_attr, m_thread_stack_size)) {
-            throw exception("failed to set thread stack size");
+        if (int err = pthread_attr_setstacksize(&m_attr, m_thread_stack_size); err != 0) {
+            throw exception((sstream() << "failed to set thread stack size: " << strerror(err)).str());
         }
-        runnable * f = new std::function<void()>(mk_thread_proc(p, get_max_heartbeat()));
-        if (pthread_create(&m_thread, &m_attr, _main, f)) {
-            throw exception("failed to create thread");
+        std::unique_ptr<runnable> f = std::make_unique<runnable>(mk_thread_proc(p, get_max_heartbeat()));
+        if (int err = pthread_create(&m_thread, &m_attr, _main, f.get()); err != 0) {
+            throw exception((sstream() << "failed to create thread: " << strerror(err)).str());
         }
+        f.release();  // Now owned by thread_main
     }
 
     ~imp() {
@@ -160,6 +162,41 @@ lthread::~lthread() {}
 void lthread::join() { m_imp->join(); }
 #endif
 
+/* setThreadStackSize (sz : USize) : BaseIO Unit */
+extern "C" LEAN_EXPORT lean_obj_res lean_internal_set_thread_stack_size(size_t sz) {
+    lthread::set_thread_stack_size(sz);
+    return lean_box(0);
+}
+
+LEAN_EXPORT void set_thread_stack_size_from_env() {
+    const char * stack_size_env = std::getenv("LEAN_STACK_SIZE_KB");
+    if (stack_size_env) {
+        size_t sz = std::strtoull(stack_size_env, nullptr, 10);
+        sz = sz / 4 * 4 * 1024; // as in `Shell`
+        if (sz > 0) {
+            lthread::set_thread_stack_size(sz);
+        }
+    }
+}
+
+LEAN_EXPORT void run_with_thread_stack(std::function<void()> const & fn) {
+    const char * use_thread_env = std::getenv("LEAN_MAIN_USE_THREAD");
+    if (use_thread_env && std::strcmp(use_thread_env, "0") == 0) {
+        fn();
+    } else {
+        // Start new thread to use given/default stack size
+        lthread t(fn);
+        t.join();
+    }
+}
+
+extern "C" LEAN_EXPORT lean_object * lean_run_main(lean_object * (*main_fn)(int, char **), int argc, char ** argv) {
+    set_thread_stack_size_from_env();
+    lean_object * res = nullptr;
+    run_with_thread_stack([&]() { res = main_fn(argc, argv); });
+    return res;
+}
+
 LEAN_THREAD_VALUE(bool, g_finalizing, false);
 
 bool in_thread_finalization() {
@@ -179,107 +216,6 @@ void run_thread_finalizers_core(thread_finalizers & fns) {
     fns.clear();
 }
 
-// We have two different implementations of the following procedures.
-//
-//   void register_thread_finalizer(thread_finalizer fn, void * p);
-//   void register_post_thread_finalizer(thread_finalizer fn, void * p);
-//   void run_thread_finalizers();
-//
-// The implementation is selected by using the LEAN_AUTO_THREAD_FINALIZATION compilation directive.
-// We can remove the implementation based on pthreads after the new thread_local C++11 keyword is properly
-// implemented in all platforms.
-// In the meantime, when LEAN_AUTO_THREAD_FINALIZATION is defined/set, we use a thread finalization
-// procedure based on the pthread API.
-// Remark: we only need this feature when Lean is being used as a library.
-// Example: the C API is being used from Haskell, and the execution threads
-// are being created by Haskell.
-// Remark: for the threads created by Lean, we explicitly create the thread finalizers.
-// The idea is to avoid memory leaks even when LEAN_AUTO_THREAD_FINALIZATION is not used.
-
-#if defined(LEAN_AUTO_THREAD_FINALIZATION)
-// pthread based implementation
-
-typedef std::pair<thread_finalizers, thread_finalizers> thread_finalizers_pair;
-
-class thread_finalizers_manager {
-    pthread_key_t g_key;
-public:
-    thread_finalizers_manager() {
-        pthread_key_create(&g_key, finalize_thread);
-        init_thread(); // initialize main thread
-    }
-
-    ~thread_finalizers_manager() {
-        finalize_thread(get_pair()); // finalize main thread
-        pthread_key_delete(g_key);
-    }
-
-    thread_finalizers_pair * get_pair() {
-        return reinterpret_cast<thread_finalizers_pair*>(pthread_getspecific(g_key));
-    }
-
-    void init_thread() {
-        if (get_pair() == nullptr) {
-            thread_finalizers_pair * p = new thread_finalizers_pair();
-            pthread_setspecific(g_key, p);
-        }
-    }
-
-    thread_finalizers & get_thread_finalizers() {
-        init_thread();
-        return get_pair()->first;
-    }
-
-    thread_finalizers & get_post_thread_finalizers() {
-        init_thread();
-        return get_pair()->second;
-    }
-
-    static void finalize_thread(void * d) {
-        if (d) {
-            thread_finalizers_pair * p = reinterpret_cast<thread_finalizers_pair*>(d);
-            run_thread_finalizers_core(p->first);
-            run_thread_finalizers_core(p->second);
-            delete p;
-        }
-    }
-};
-
-static thread_finalizers_manager * g_thread_finalizers_mgr = nullptr;
-
-// TODO(gabriel): race condition with thread finalizers
-void delete_thread_finalizer_manager() {
-    // delete g_thread_finalizers_mgr;
-    // g_thread_finalizers_mgr = nullptr;
-}
-
-void register_thread_finalizer(thread_finalizer fn, void * p) {
-    g_thread_finalizers_mgr->get_thread_finalizers().emplace_back(fn, p);
-}
-
-void register_post_thread_finalizer(thread_finalizer fn, void * p) {
-    g_thread_finalizers_mgr->get_post_thread_finalizers().emplace_back(fn, p);
-}
-
-void run_thread_finalizers() {
-    if (auto p = g_thread_finalizers_mgr->get_pair())
-        run_thread_finalizers_core(p->first);
-}
-
-void run_post_thread_finalizers() {
-    if (auto p = g_thread_finalizers_mgr->get_pair())
-        run_thread_finalizers_core(p->second);
-}
-
-void initialize_thread() {
-    g_thread_finalizers_mgr = new thread_finalizers_manager;
-    initialize_thread_local_reset_fns();
-}
-void finalize_thread() {
-    finalize_thread_local_reset_fns();
-}
-#else
-// reference implementation
 LEAN_THREAD_PTR(thread_finalizers, g_finalizers);
 LEAN_THREAD_PTR(thread_finalizers, g_post_finalizers);
 
@@ -320,5 +256,4 @@ void initialize_thread() {
 void finalize_thread() {
     finalize_thread_local_reset_fns();
 }
-#endif
 }

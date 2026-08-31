@@ -7,7 +7,10 @@ Authors: Joachim Breitner
 module
 
 prelude
+public import Init.GetElem
 import Init.PropLemmas
+
+public section
 
 @[expose] section
 
@@ -34,7 +37,7 @@ inductive RArray (α : Type u) : Type u where
 variable {α : Type u}
 
 /-- The crucial operation, written with very little abstractional overhead -/
-noncomputable def RArray.get (a : RArray α) (n : Nat) : α :=
+noncomputable abbrev RArray.get (a : RArray α) (n : Nat) : α :=
   RArray.rec (fun x => x) (fun p _ _ l r => (Nat.ble p n).rec l r) a
 
 private theorem RArray.get_eq_def (a : RArray α) (n : Nat) :

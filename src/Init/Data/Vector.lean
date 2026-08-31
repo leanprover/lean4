@@ -6,19 +6,23 @@ Authors: Kim Morrison
 module
 
 prelude
-import Init.Data.Vector.Basic
-import Init.Data.Vector.Lemmas
-import Init.Data.Vector.Lex
-import Init.Data.Vector.MapIdx
-import Init.Data.Vector.Count
-import Init.Data.Vector.DecidableEq
-import Init.Data.Vector.Zip
-import Init.Data.Vector.OfFn
-import Init.Data.Vector.Range
-import Init.Data.Vector.Erase
-import Init.Data.Vector.Monadic
-import Init.Data.Vector.InsertIdx
-import Init.Data.Vector.FinRange
-import Init.Data.Vector.Extract
-import Init.Data.Vector.Perm
-import Init.Data.Vector.Find
+public import Init.Data.Vector.Basic
+public import Init.Data.Vector.Lemmas
+public import Init.Data.Vector.Lex
+public import Init.Data.Vector.MapIdx
+public import Init.Data.Vector.Count
+public import Init.Data.Vector.DecidableEq
+public import Init.Data.Vector.Zip
+public import Init.Data.Vector.OfFn
+public import Init.Data.Vector.Range
+public import Init.Data.Vector.Erase
+public import Init.Data.Vector.Monadic
+public import Init.Data.Vector.InsertIdx
+public import Init.Data.Vector.FinRange
+public import Init.Data.Vector.Extract
+public import Init.Data.Vector.Perm
+public import Init.Data.Vector.Find
+public import Init.Data.Vector.Algebra
+public import Init.Data.Vector.Stream
+public import Init.Data.Vector.Nat
+public import Init.Data.Vector.Int

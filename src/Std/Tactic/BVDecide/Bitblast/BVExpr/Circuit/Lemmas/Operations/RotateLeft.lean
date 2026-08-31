@@ -3,9 +3,14 @@ Copyright (c) 2024 Lean FRO, LLC. All rights reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Henrik Böving
 -/
+module
+
 prelude
-import Std.Tactic.BVDecide.Bitblast.BVExpr.Circuit.Lemmas.Basic
-import Std.Tactic.BVDecide.Bitblast.BVExpr.Circuit.Impl.Operations.RotateLeft
+public import Std.Tactic.BVDecide.Bitblast.BVExpr.Circuit.Lemmas.Basic
+public import Std.Tactic.BVDecide.Bitblast.BVExpr.Circuit.Impl.Operations.RotateLeft
+import Init.Omega
+
+@[expose] public section
 
 /-!
 This module contains the verification of the bitblaster for `BitVec.rotateLeft` from
@@ -35,9 +40,9 @@ theorem go_get_aux (aig : AIG α) (distance : Nat) (input : AIG.RefVec aig w)
   split
   · dsimp only
     split
-    · rw [go_get_aux]
+    · rw [go_get_aux]; case hidx => omega
       rw [AIG.RefVec.get_push_ref_lt]
-    · rw [go_get_aux]
+    · rw [go_get_aux]; case hidx => omega
       rw [AIG.RefVec.get_push_ref_lt]
   · dsimp only
     simp only [RefVec.get, Ref.mk.injEq]
@@ -65,14 +70,14 @@ theorem go_get (aig : AIG α) (distance : Nat) (input : AIG.RefVec aig w)
     | inl heq =>
       split
       · split
-        · rw [go_get_aux]
+        · rw [go_get_aux]; case hidx => omega
           rw [AIG.RefVec.get_push_ref_eq']
           · simp [heq]
           · omega
         · omega
       · split
         · omega
-        · rw [go_get_aux]
+        · rw [go_get_aux]; case hidx => omega
           rw [AIG.RefVec.get_push_ref_eq']
           · simp [heq]
           · omega

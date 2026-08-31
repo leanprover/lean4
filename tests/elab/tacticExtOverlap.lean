@@ -1,0 +1,25 @@
+open Lean
+
+syntax (name := myintro) "intro" sepBy(ident, ",") : tactic
+
+macro_rules (kind := myintro)
+| `(tactic| intro $x,*) => pure $ mkNode `Lean.Parser.Tactic.intro #[mkAtom "intro", mkNullNode x]
+
+theorem tst1 {p q : Prop} : p → q → p :=
+by {
+  intro h1, h2;
+  assumption
+}
+
+theorem tst2 {p q : Prop} : p → q → p :=
+by {
+  intro h1; -- the builtin and myintro overlap here.
+  intro h2; -- the builtin and myintro overlap here.
+  assumption
+}
+
+theorem tst3 {p q : Prop} : p → q → p :=
+by {
+  intro h1 h2;
+  assumption
+}

@@ -3,8 +3,12 @@ Copyright (c) 2021 Microsoft Corporation. All rights reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Leonardo de Moura
 -/
+module
+
 prelude
-import Init.System.IO
+public import Init.System.IO
+
+public section
 namespace Lean
 
 private builtin_initialize importingRef : IO.Ref Bool ← IO.mkRef false
@@ -24,22 +28,22 @@ Remark: Compacted module regions must not be freed when using this flag as the
 Remark: The Lean frontend executes this method at startup time.
 -/
 @[export lean_enable_initializer_execution]
-unsafe def enableInitializersExecution : IO Unit :=
+unsafe def enableInitializersExecution : BaseIO Unit :=
   runInitializersRef.set true
 
-def isInitializerExecutionEnabled : IO Bool :=
+def isInitializerExecutionEnabled : BaseIO Bool :=
   runInitializersRef.get
 
 /--
 We say Lean is "initializing" when it is executing `builtin_initialize` declarations or importing modules.
 Recall that Lean executes `initialize` declarations while importing modules.
 -/
-def initializing : IO Bool :=
+def initializing : BaseIO Bool :=
   IO.initializing <||> importingRef.get
 
 /--
 Execute `x` with "importing" flag turned on.
-When the "importing" flag is set to true, we allow user-extensions defined with with
+When the "importing" flag is set to true, we allow user-extensions defined with
 the `initialize` command to update global references.
 IMPORTANT: There is no semaphore controlling the access to these global references.
 We assume these global references are updated by a single execution thread.
@@ -54,5 +58,16 @@ def withImporting (x : IO α) : IO α :=
   finally
     importingRef.set false
     runInitializersRef.set false
+
+/--
+Toggle the "importing" flag.
+
+This is intended for C code that needs to emulate multiple `withImporting` calls.
+As with `withImporting`, users must make sure there is only one execution thread accessing
+the global references.
+-/
+@[export lean_set_initializing]
+private def setInitializing (initializing : Bool) : BaseIO Unit :=
+  importingRef.set initializing
 
 end Lean

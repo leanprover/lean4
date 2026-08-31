@@ -6,10 +6,21 @@ Authors: Quang Dao
 module
 
 prelude
-import Init.Control.Lawful.Basic
-import Init.Control.Lawful.MonadLift.Basic
+public import Init.Control.Lawful.Basic
+public import Init.Control.Lawful.MonadLift.Basic
+import Init.Ext
+
+public section
 
 universe u v w
+
+theorem instMonadLiftTOfMonadLift_instMonadLiftTOfPure [Monad m] [Monad n] {_ : MonadLift m n}
+    [LawfulMonadLift m n] : instMonadLiftTOfMonadLift Id m n = Id.instMonadLiftTOfPure := by
+  have hext {a b : MonadLiftT Id n} (h : @a.monadLift = @b.monadLift) : a = b := by
+    cases a; cases b; simp [monadLift] at h; simp [h]
+  apply hext
+  ext α x
+  simp [monadLift, LawfulMonadLift.monadLift_pure]
 
 variable {m : Type u → Type v} {n : Type u → Type w} [Monad m] [Monad n] [MonadLiftT m n]
   [LawfulMonadLiftT m n] {α β : Type u}
@@ -21,7 +32,7 @@ theorem monadLift_map [LawfulMonad m] [LawfulMonad n] (f : α → β) (ma : m α
 
 theorem monadLift_seq [LawfulMonad m] [LawfulMonad n] (mf : m (α → β)) (ma : m α) :
     monadLift (mf <*> ma) = monadLift mf <*> (monadLift ma : n α) := by
-  simp only [seq_eq_bind, monadLift_map, monadLift_bind]
+  simp only [seq_eq_bind_map, monadLift_map, monadLift_bind]
 
 theorem monadLift_seqLeft [LawfulMonad m] [LawfulMonad n] (x : m α) (y : m β) :
     monadLift (x <* y) = (monadLift x : n α) <* (monadLift y : n β) := by

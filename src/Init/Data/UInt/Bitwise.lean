@@ -8,29 +8,45 @@ module
 prelude
 import all Init.Data.BitVec.Basic
 import all Init.Data.UInt.Basic
-import Init.Data.UInt.Lemmas
+public import Init.Data.Nat.Bitwise
+public import Init.Data.Nat.Lemmas
+public import Init.Data.UInt.Basic
+public import Init.Ext
+import Init.Data.BitVec.Bootstrap
+import Init.Data.BitVec.Lemmas
 import Init.Data.Fin.Bitwise
+import Init.Data.UInt.Lemmas
+import Init.System.Platform
 
+public section
+
+open Lean in
 set_option hygiene false in
-macro "declare_bitwise_uint_theorems" typeName:ident bits:term:arg : command =>
-`(
+macro "declare_bitwise_uint_theorems" typeName:ident bits:term:arg : command => do
+  let isUSize := typeName.getId == ``USize
+  let mut cmds ← Syntax.getArgs <$> `(
 namespace $typeName
 
-@[simp, int_toBitVec] protected theorem toBitVec_not {a : $typeName} : (~~~a).toBitVec = ~~~a.toBitVec := (rfl)
-@[simp, int_toBitVec] protected theorem toBitVec_and (a b : $typeName) : (a &&& b).toBitVec = a.toBitVec &&& b.toBitVec := (rfl)
-@[simp, int_toBitVec] protected theorem toBitVec_or (a b : $typeName) : (a ||| b).toBitVec = a.toBitVec ||| b.toBitVec := (rfl)
-@[simp, int_toBitVec] protected theorem toBitVec_xor (a b : $typeName) : (a ^^^ b).toBitVec = a.toBitVec ^^^ b.toBitVec := (rfl)
-@[simp, int_toBitVec] protected theorem toBitVec_shiftLeft (a b : $typeName) : (a <<< b).toBitVec = a.toBitVec <<< (b.toBitVec % $bits) := (rfl)
-@[simp, int_toBitVec] protected theorem toBitVec_shiftRight (a b : $typeName) : (a >>> b).toBitVec = a.toBitVec >>> (b.toBitVec % $bits) := (rfl)
+@[simp] protected theorem toBitVec_not {a : $typeName} : (~~~a).toBitVec = ~~~a.toBitVec := (rfl)
+@[simp] protected theorem toBitVec_and (a b : $typeName) : (a &&& b).toBitVec = a.toBitVec &&& b.toBitVec := (rfl)
+@[simp] protected theorem toBitVec_or (a b : $typeName) : (a ||| b).toBitVec = a.toBitVec ||| b.toBitVec := (rfl)
+@[simp] protected theorem toBitVec_xor (a b : $typeName) : (a ^^^ b).toBitVec = a.toBitVec ^^^ b.toBitVec := (rfl)
+@[simp] protected theorem toBitVec_shiftLeft (a b : $typeName) : (a <<< b).toBitVec = a.toBitVec <<< (b.toBitVec % $bits) := (rfl)
+@[simp] protected theorem toBitVec_shiftRight (a b : $typeName) : (a >>> b).toBitVec = a.toBitVec >>> (b.toBitVec % $bits) := (rfl)
 
 @[simp] protected theorem toNat_and (a b : $typeName) : (a &&& b).toNat = a.toNat &&& b.toNat := by simp [toNat, -toNat_toBitVec]
 @[simp] protected theorem toNat_or (a b : $typeName) : (a ||| b).toNat = a.toNat ||| b.toNat := by simp [toNat, -toNat_toBitVec]
 @[simp] protected theorem toNat_xor (a b : $typeName) : (a ^^^ b).toNat = a.toNat ^^^ b.toNat := by simp [toNat, -toNat_toBitVec]
 @[simp] protected theorem toNat_shiftLeft (a b : $typeName) : (a <<< b).toNat = a.toNat <<< (b.toNat % $bits) % 2 ^ $bits := by simp [toNat, -toNat_toBitVec]
 @[simp] protected theorem toNat_shiftRight (a b : $typeName) : (a >>> b).toNat = a.toNat >>> (b.toNat % $bits) := by simp [toNat, -toNat_toBitVec]
-
-end $typeName
-)
+  )
+  unless isUSize do
+    let names := #[`toBitVec_not, `toBitVec_and, `toBitVec_or, `toBitVec_xor, `toBitVec_shiftLeft,
+      `toBitVec_shiftRight]
+    let idents := names.map fun n => mkIdent (typeName.getId ++ n)
+    cmds := cmds.push <| ← `(attribute [int_toBitVec] $idents*)
+  cmds := cmds.push <| ← `(end $typeName)
+  return ⟨mkNullNode cmds⟩
 declare_bitwise_uint_theorems UInt8 8
 declare_bitwise_uint_theorems UInt16 16
 declare_bitwise_uint_theorems UInt32 32
@@ -57,7 +73,7 @@ theorem Bool.toBitVec_toUInt64 {b : Bool} :
     b.toUInt64.toBitVec = (BitVec.ofBool b).setWidth 64 := by
   cases b <;> simp [toUInt64]
 
-@[simp, int_toBitVec]
+@[simp]
 theorem Bool.toBitVec_toUSize {b : Bool} :
     b.toUSize.toBitVec = (BitVec.ofBool b).setWidth System.Platform.numBits := by
   cases b
@@ -1230,7 +1246,7 @@ theorem USize.shiftLeft_add {a b c : USize} (hb : b < USize.ofNat System.Platfor
     (-1) <<< b ||| a <<< b = (-1) <<< b := by simp [← UInt16.shiftLeft_or]
 @[simp] theorem UInt32.neg_one_shiftLeft_or_shiftLeft {a b : UInt32} :
     (-1) <<< b ||| a <<< b = (-1) <<< b := by simp [← UInt32.shiftLeft_or]
-@[simp] theorem UInt64.neg_one_shiftLeft_or_shiftLeft {a b : UInt8} :
+@[simp] theorem UInt64.neg_one_shiftLeft_or_shiftLeft {a b : UInt64} :
     (-1) <<< b ||| a <<< b = (-1) <<< b := by simp [← UInt64.shiftLeft_or]
 @[simp] theorem USize.neg_one_shiftLeft_or_shiftLeft {a b : USize} :
     (-1) <<< b ||| a <<< b = (-1) <<< b := by simp [← USize.shiftLeft_or]
@@ -1323,3 +1339,14 @@ theorem UInt64.right_le_or {a b : UInt64} : b ≤ a ||| b := by
   simpa [UInt64.le_iff_toNat_le] using Nat.right_le_or
 theorem USize.right_le_or {a b : USize} : b ≤ a ||| b := by
   simpa [USize.le_iff_toNat_le] using Nat.right_le_or
+
+theorem UInt8.and_lt_add_one {b c : UInt8} (h : c ≠ -1) : b &&& c < c + 1 :=
+  UInt8.lt_of_le_of_lt UInt8.and_le_right (UInt8.lt_add_one h)
+theorem UInt16.and_lt_add_one {b c : UInt16} (h : c ≠ -1) : b &&& c < c + 1 :=
+  UInt16.lt_of_le_of_lt UInt16.and_le_right (UInt16.lt_add_one h)
+theorem UInt32.and_lt_add_one {b c : UInt32} (h : c ≠ -1) : b &&& c < c + 1 :=
+  UInt32.lt_of_le_of_lt UInt32.and_le_right (UInt32.lt_add_one h)
+theorem UInt64.and_lt_add_one {b c : UInt64} (h : c ≠ -1) : b &&& c < c + 1 :=
+  UInt64.lt_of_le_of_lt UInt64.and_le_right (UInt64.lt_add_one h)
+theorem USize.and_lt_add_one {b c : USize} (h : c ≠ -1) : b &&& c < c + 1 :=
+  USize.lt_of_le_of_lt USize.and_le_right (USize.lt_add_one h)

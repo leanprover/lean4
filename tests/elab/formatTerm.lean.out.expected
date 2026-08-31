@@ -1,0 +1,144 @@
+if c✝ then do
+  t✝
+else e✝
+if c✝ then do
+  t✝;
+  t✝
+else e✝
+if c✝ then do
+  t✝
+else do
+  e✝
+if let x✝ := c✝ then do
+  t✝
+else do
+  e✝
+if c✝ then do
+  t✝
+else
+  if c✝ then do
+    t✝
+  else do
+    e✝
+do
+  if c✝ then 
+    t✝
+  else
+    e✝
+do
+  if c✝ then 
+    t✝
+  else if c✝ then
+    t✝
+  else
+    e✝
+do
+  for x✝ in xs✝ do
+    pure✝ ()
+do
+  let mut acc✝ := 0;
+  for x✝ in xs✝ do
+    acc✝ := acc✝ + x✝;
+    return acc✝
+do
+  while c✝ do
+    pure✝ ()
+do
+  unless c✝ do
+    pure✝ ()
+do
+  assert 0 ≤ acc✝
+do
+  assert s✝ => s✝ ≤ acc✝
+do
+  for x✝ in xs✝
+      invariant pref✝ suff✝ => 0 ≤ acc✝ do
+    pure✝ ()
+do
+  for x✝ in xs✝
+      invariant pref✝ suff✝ s✝ => s✝ ≤ acc✝ do
+    pure✝ ()
+do
+  while i✝ < n✝
+      invariant _ => i✝ ≤ n✝
+      decreasing n✝ - i✝ do
+    pure✝ ()
+do
+  repeat
+      decreasing n✝ - i✝
+    do
+      pure✝ ()
+do
+  repeat
+      invariant exit✝ => if exit✝ then i✝ = n✝ else i✝ ≤ n✝
+      decreasing n✝ - i✝
+    do
+      pure✝ ()
+do
+  repeat
+      invariant _ => i✝ ≤ n✝
+      decreasing n✝ - i✝
+    do
+      pure✝ ()
+  until i✝ = n✝
+def clampLow✝ (n✝ lo✝ : Nat✝) : Id✝ Nat✝
+    requires lo✝ ≤ n✝
+    ensures r✝ => r✝ = n✝ :=
+  pure✝ n✝
+def k✝ (x✝ : Nat✝)
+    requires s✝ => s✝ > x✝
+    ensures r✝ => r✝ ≥ x✝ :=
+  pure✝ x✝
+def g✝ (x✝ : Nat✝)
+    requires x✝ > 0
+    ensures r✝ => r✝ ≥ x✝ :=
+  pure✝ x✝
+def m✝ (x✝ : Nat✝)
+    requires x✝ > 0
+    ensures (lo✝, hi✝) => lo✝ ≤ hi✝ :=
+  pure✝ (x✝, x✝)
+def h✝ (x✝ : Nat✝) : Id✝ Nat✝
+    ensures r✝ => r✝ = x✝ :=
+  pure✝ x✝
+where
+finally
+  | spec✝ => skip
+def foo✝ := by
+  · skip; skip
+  · skip; skip
+    skip
+    (skip; skip)
+    ( skip; skip
+      try skip; skip
+      try
+        skip
+        skip
+      skip)
+by
+  try
+    skip
+    skip
+by try
+      skip
+      skip
+by try  skip
+        skip
+by  try skip
+        skip
+    skip
+{ foo✝ := bar✝
+  bar✝ := foo✝ + bar✝ }
+let x✝ :=
+  { foo✝ := bar✝
+    bar✝ := foo✝ + bar✝ }
+x✝
+def foo✝ : a✝ b✝ c✝ d✝ e✝ f✝ g✝ a✝ b✝ c✝ d✝ e✝ f✝ g✝ h✝
+    where
+  h✝ := 42
+  i✝ := 42
+  j✝ := 42
+  k✝ := 42
+calc
+  1 = 1 := rfl✝
+  1 = 1 := rfl✝
+by rw [] at h✝

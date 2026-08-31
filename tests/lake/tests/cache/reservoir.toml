@@ -1,0 +1,7 @@
+name = "test"
+enableArtifactCache = true
+
+# Example package with dependencies on Reservoir
+[[require]]
+name = "Cli"
+scope = "leanprover"

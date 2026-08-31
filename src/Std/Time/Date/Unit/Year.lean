@@ -3,16 +3,16 @@ Copyright (c) 2024 Lean FRO, LLC. All rights reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Sofia Rodrigues
 -/
+module
+
 prelude
-import Std.Time.Internal
-import Std.Internal.Rat
-import Std.Time.Date.Unit.Day
-import Std.Time.Date.Unit.Month
+public import Std.Time.Date.Unit.Month
+
+public section
 
 namespace Std
 namespace Time
 namespace Year
-open Std.Internal
 open Internal
 
 set_option linter.all true
@@ -36,13 +36,15 @@ instance : ToString Era where
 /--
 `Offset` represents a year offset, defined as an `Int`.
 -/
-def Offset : Type := Int
+@[expose, implicit_reducible] def Offset : Type := Int
 deriving Repr, DecidableEq, Inhabited, Add, Sub, Neg, LE, LT, ToString
 
+set_option backward.inferInstanceAs.wrap.instances false in
 instance {x y : Offset} : Decidable (x ≤ y) :=
   let x : Int := x
   inferInstanceAs (Decidable (x ≤ y))
 
+set_option backward.inferInstanceAs.wrap.instances false in
 instance {x y : Offset} : Decidable (x < y) :=
   let x : Int := x
   inferInstanceAs (Decidable (x < y))
@@ -105,8 +107,8 @@ Calculates the number of days in the specified `year`.
 -/
 def days (year : Offset) : Bounded.LE 365 366 :=
   if year.isLeap
-    then .ofNatWrapping 366 (by decide)
-    else .ofNatWrapping 355 (by decide)
+    then .mk 366 (by decide)
+    else .mk 365 (by decide)
 
 /--
 Calculates the number of weeks in the specified `year`.

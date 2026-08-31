@@ -3,9 +3,13 @@ Copyright (c) 2022 Sebastian Ullrich. All rights reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Sebastian Ullrich
 -/
+module
+
 prelude
-import Lean.Meta.Eval
-import Lean.Elab.SyntheticMVars
+public import Lean.Meta.Eval
+public import Lean.Elab.SyntheticMVars
+
+public section
 
 namespace Lean.Elab.Term
 open Meta

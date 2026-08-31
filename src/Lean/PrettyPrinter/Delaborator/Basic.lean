@@ -3,11 +3,16 @@ Copyright (c) 2020 Microsoft Corporation. All rights reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Sebastian Ullrich
 -/
+module
+
 prelude
-import Lean.KeyedDeclsAttribute
-import Lean.PrettyPrinter.Delaborator.Options
-import Lean.PrettyPrinter.Delaborator.SubExpr
-import Lean.PrettyPrinter.Delaborator.TopDownAnalyze
+public import Lean.KeyedDeclsAttribute
+public import Lean.PrettyPrinter.Delaborator.TopDownAnalyze
+import Lean.Elab.InfoTree.Main
+import Lean.ExtraModUses
+public meta import Init.Data.ToString.Name
+
+public section
 
 /-!
 The delaborator is the first stage of the pretty printer, and the inverse of the
@@ -43,6 +48,9 @@ structure Context where
   subExpr        : SubExpr
   /-- Current recursion depth during delaboration. Used by the `pp.deepTerms false` option. -/
   depth          : Nat := 0
+  /-- Initial state of `LocalContext.numIndices`, to keep track of which variables were introduced
+  during delaboration. -/
+  lctxInitIndices : Nat
 
 structure State where
   /-- The number of `delab` steps so far. Used by `pp.maxSteps` to stop delaboration. -/
@@ -91,14 +99,6 @@ instance (priority := low) : MonadStateOf SubExpr.HoleIterator DelabM where
     let (ret, holeIter') := f s.holeIter
     (ret, { s with holeIter := holeIter' })
 
--- Macro scopes in the delaborator output are ultimately ignored by the pretty printer,
--- so give a trivial implementation.
-instance : MonadQuotation DelabM := {
-  getCurrMacroScope   := pure default
-  getMainModule       := pure default
-  withFreshMacroScope := fun x => x
-}
-
 /--
 Registers a delaborator.
 
@@ -118,10 +118,14 @@ unsafe builtin_initialize delabAttribute : KeyedDeclsAttribute Delab ←
     evalKey := fun _ stx => do
       let stx ← Attribute.Builtin.getIdent stx
       let kind := stx.getId
-      if (← Elab.getInfoState).enabled && kind.getRoot == `app then
+      if (← Elab.getInfoState).enabled && !kind.isAtomic && kind.getRoot == `app then
         let c := kind.replacePrefix `app .anonymous
+        -- Create identifier dropping `app` prefix, for completions and term info
+        let stx' := mkIdentFrom (mkNullNode (Syntax.identComponents stx).tail.toArray) c (canonical := true)
+        Elab.addCompletionInfo <| .id stx' c (danglingDot := false) (lctx := {}) (expectedType? := none)
         if (← getEnv).contains c then
-          Elab.addConstInfo stx c none
+          recordExtraModUseFromDecl (isMeta := false) c
+          Elab.addConstInfo stx' c none
       pure kind
   }
 
@@ -136,9 +140,9 @@ as `@[app_delab c]` first performs name resolution on `c` in the current scope.
 -/
 macro "app_delab" id:ident : attr => do
   match ← Macro.resolveGlobalName id.getId with
-  | [] => Macro.throwErrorAt id s!"unknown declaration '{id.getId}'"
+  | [] => Macro.throwErrorAt id s!"unknown declaration `{id.getId}`"
   | [(c, [])] => `(attr| delab $(mkIdentFrom (canonical := true) id (`app ++ c)))
-  | _ => Macro.throwErrorAt id s!"ambiguous declaration '{id.getId}'"
+  | _ => Macro.throwErrorAt id s!"ambiguous declaration `{id.getId}`"
 
 def getExprKind : DelabM Name := do
   let e ← getExpr
@@ -165,9 +169,9 @@ def getExprKind : DelabM Name := do
 def getOptionsAtCurrPos : DelabM Options := do
   let ctx ← read
   let mut opts ← getOptions
-  if let some opts' := ctx.optionsPerPos.find? (← getPos) then
+  if let some opts' := ctx.optionsPerPos.get? (← getPos) then
     for (k, v) in opts' do
-      opts := opts.insert k v
+      opts := opts.set k v
   return opts
 
 /-- Evaluate option accessor, using subterm-specific options if set. -/
@@ -187,7 +191,7 @@ def withOptionAtCurrPos (k : Name) (v : DataValue) (x : DelabM α) : DelabM α :
   let pos ← getPos
   withReader
     (fun ctx =>
-      let opts' := ctx.optionsPerPos.find? pos |>.getD {} |>.insert k v
+      let opts' := ctx.optionsPerPos.get? pos |>.getD {} |>.set k v
       { ctx with optionsPerPos := ctx.optionsPerPos.insert pos opts' })
     x
 
@@ -222,12 +226,21 @@ where
     stx := stx
   }
 
+/--
+Adds `DelabTermInfo` at the given position.
+
+Either `docString?` or `mkDocString?` can be provided. The `docString?` field is a convenient
+interface for `mkDocString?`.
+-/
 def addDelabTermInfo (pos : Pos) (stx : Syntax) (e : Expr) (isBinder : Bool := false)
-    (location? : Option DeclarationLocation := none) (docString? : Option String := none) (explicit : Bool := true) : DelabM Unit := do
+    (location? : Option DeclarationLocation := none)
+    (docString? : Option String := none)
+    (mkDocString? : Option (PPContext → IO String) := none)
+    (explicit : Bool := true) : DelabM Unit := do
   let info := Info.ofDelabTermInfo {
     toTermInfo := ← addTermInfo.mkTermInfo stx e (isBinder := isBinder)
     location?  := location?
-    docString? := docString?
+    mkDocString? := mkDocString? <|> docString?.map (fun _ => pure ·)
     explicit   := explicit
   }
   modify fun s => { s with infos := s.infos.insert pos info }
@@ -270,12 +283,13 @@ def withAnnotateTermInfoUnlessAnnotated (d : Delab) : Delab := do
 Gets an name based on `suggestion` that is unused in the local context.
 Erases macro scopes.
 If `pp.safeShadowing` is true, then the name is allowed to shadow a name in the local context
-if the name does not appear in `body`.
+if the name does not appear in `body` or in the `avoid` set.
+(The `avoid` set is assumed to be a subset of the names used by the local context.)
 
 If `preserveName` is false, then returns the name, possibly with fresh macro scopes added.
 If `suggestion` has macro scopes then the result does as well.
 -/
-def getUnusedName (suggestion : Name) (body : Expr) (preserveName : Bool := false) : DelabM Name := do
+def getUnusedName (suggestion : Name) (body : Expr) (preserveName : Bool := false) (avoid : NameSet := {}) : DelabM Name := do
   let (hasScopes, suggestion) :=
     if suggestion.isAnonymous then
       -- Use a nicer binder name than `[anonymous]`. We probably shouldn't do this in all LocalContext use cases, so do it here.
@@ -287,7 +301,7 @@ def getUnusedName (suggestion : Name) (body : Expr) (preserveName : Bool := fals
     return suggestion
   else if preserveName then
     withFreshMacroScope <| MonadQuotation.addMacroScope suggestion
-  else if (← getPPOption getPPSafeShadowing) && !bodyUsesSuggestion lctx suggestion then
+  else if (← getPPOption getPPSafeShadowing) && !avoid.contains suggestion && !bodyUsesSuggestion lctx suggestion then
     return suggestion
   else
     return lctx.getUnusedName suggestion
@@ -314,11 +328,15 @@ Enters the body of the current expression, which must be a lambda or forall.
 The binding variable is passed to `d` as `Syntax`, and it is an identifier that has been annotated with the fvar expression
 for the variable.
 
+If `pp.safeShadowing` is true, then the name is allowed to shadow a name in the local context
+if the name does not appear in the body or in the `avoid` set.
+(The `avoid` set is assumed to be a subset of the names used by the local context.)
+
 If `preserveName` is `false` (the default), gives the binder an unused name.
 Otherwise, it tries to preserve the textual form of the name, preserving whether it is hygienic.
 -/
-def withBindingBodyUnusedName {α} (d : Syntax → DelabM α) (preserveName := false) : DelabM α := do
-  let n ← getUnusedName (← getExpr).bindingName! (← getExpr).bindingBody! (preserveName := preserveName)
+def withBindingBodyUnusedName {α} (d : Syntax → DelabM α) (preserveName := false) (avoid : NameSet := {}) : DelabM α := do
+  let n ← getUnusedName (← getExpr).bindingName! (← getExpr).bindingBody! (preserveName := preserveName) (avoid := avoid)
   withBindingBody' n (mkAnnotatedIdent n) (d ·)
 
 inductive OmissionReason
@@ -440,12 +458,16 @@ partial def delab : Delab := do
       return pf
 
   let k ← getExprKind
-  let stx ← withIncDepth <| delabFor k <|> (liftM $ show MetaM _ from throwError "don't know how to delaborate '{k}'")
+  let stx ← withIncDepth <| delabFor k <|> (liftM $ show MetaM _ from throwError "don't know how to delaborate `{k}`")
   if ← getPPOption getPPAnalyzeTypeAscriptions <&&> getPPOption getPPAnalysisNeedsType <&&> pure !e.isMData then
     let typeStx ← withType delab
     `(($stx : $typeStx)) >>= annotateCurPos
   else
     return stx
+
+def delabLevel (l : Level) (prec : Nat) : DelabM Syntax.Level := do
+  let mvars ← getPPOption getPPMVarsLevels
+  return Level.quote l prec (mvars := mvars) (lIndex? := (← getMCtx).findLevelIndex?)
 
 /--
 Registers an unexpander for applications of a given constant.
@@ -466,13 +488,20 @@ unsafe builtin_initialize appUnexpanderAttribute : KeyedDeclsAttribute Unexpande
     descr := "Register an unexpander for applications of a given constant.",
     valueTypeName := `Lean.PrettyPrinter.Unexpander
     evalKey := fun _ stx => do
-      Elab.realizeGlobalConstNoOverloadWithInfo (← Attribute.Builtin.getIdent stx)
+      let id ← Elab.realizeGlobalConstNoOverloadWithInfo (← Attribute.Builtin.getIdent stx)
+      recordExtraModUseFromDecl (isMeta := false) id
+      return id
   }
 
 end Delaborator
 
 open SubExpr (Pos PosMap)
-open Delaborator (OptionsPerPos topDownAnalyze DelabM)
+open Delaborator (OptionsPerPos topDownAnalyze DelabM getPPOption)
+
+def delabLevel (l : Level) (prec : Nat) : MetaM Syntax.Level := do
+  let l ← if getPPInstantiateMVars (← getOptions) then instantiateLevelMVars l else pure l
+  let mvars := getPPMVarsLevels (← getOptions)
+  return Level.quote l prec (mvars := mvars) (lIndex? := (← getMCtx).findLevelIndex?)
 
 def delabCore (e : Expr) (optionsPerPos : OptionsPerPos := {}) (delab : DelabM α) :
     MetaM (α × PosMap Elab.Info) := do
@@ -501,7 +530,8 @@ def delabCore (e : Expr) (optionsPerPos : OptionsPerPos := {}) (delab : DelabM �
             currNamespace := (← getCurrNamespace)
             openDecls := (← getOpenDecls)
             subExpr := SubExpr.mkRoot e
-            inPattern := opts.getInPattern }
+            inPattern := opts.getInPattern
+            lctxInitIndices := (← getLCtx).numIndices }
           |>.run { : Delaborator.State })
         (fun _ => unreachable!)
     return (stx, infos)

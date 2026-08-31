@@ -3,8 +3,12 @@ Copyright (c) 2022 Microsoft Corporation. All rights reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Leonardo de Moura
 -/
+module
+
 prelude
-import Lean.Compiler.LCNF.Simp.SimpM
+public import Lean.Compiler.LCNF.Simp.SimpM
+
+public section
 
 namespace Lean.Compiler.LCNF
 namespace Simp
@@ -35,7 +39,7 @@ and the free variable containing the result (`FVarId`). The resulting `FVarId` o
 subset of `Array CodeDecl`. However, this method does try to filter the relevant ones.
 We rely on the `used` var set available in `SimpM` to filter them. See `attachCodeDecls`.
 -/
-partial def inlineProjInst? (e : LetValue) : SimpM (Option (Array CodeDecl × FVarId)) := do
+partial def inlineProjInst? (e : LetValue .pure) : SimpM (Option (Array (CodeDecl .pure) × FVarId)) := do
   let .proj _ i s := e | return none
   let sType ← getType s
   unless (← isClass? sType).isSome do return none
@@ -48,7 +52,7 @@ partial def inlineProjInst? (e : LetValue) : SimpM (Option (Array CodeDecl × FV
     eraseCodeDecls decls
     return none
 where
-  visit (fvarId : FVarId) (projs : List Nat) : OptionT (StateRefT (Array CodeDecl) SimpM) FVarId := do
+  visit (fvarId : FVarId) (projs : List Nat) : OptionT (StateRefT (Array (CodeDecl .pure)) SimpM) FVarId := do
     let some letDecl ← findLetDecl? fvarId | failure
     match letDecl.value with
     | .proj _ i s => visit s (i :: projs)
@@ -68,17 +72,17 @@ where
         else
           visit fvarId projs
       else
-        let some decl ← getDecl? declName | failure
+        let some ⟨.pure, decl⟩ ← getDecl? declName | failure
         match decl.value with
         | .code code =>
-          guard (decl.getArity == args.size)
+          guard (!decl.recursive && decl.getArity == args.size)
           let params := decl.instantiateParamsLevelParams us
           let code := code.instantiateValueLevelParams decl.levelParams us
           let code ← betaReduce params code args (mustInline := true)
           visitCode code projs
         | .extern .. => failure
 
-  visitCode (code : Code) (projs : List Nat) : OptionT (StateRefT (Array CodeDecl) SimpM) FVarId := do
+  visitCode (code : Code .pure) (projs : List Nat) : OptionT (StateRefT (Array (CodeDecl .pure)) SimpM) FVarId := do
     match code with
     | .let decl k => modify (·.push (.let decl)); visitCode k projs
     | .fun decl k => modify (·.push (.fun decl)); visitCode k projs

@@ -3,8 +3,26 @@ Copyright (c) 2021 Microsoft Corporation. All rights reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Leonardo de Moura
 -/
+module
+
 prelude
-import Lean.Parser.Term
+public import Lean.Parser.Term
+meta import Lean.Parser.Term
+meta import Lean.Parser.Do
+import Init.Syntax
+
+public section
+
+/--
+Determines the local declaration kind of a binder using its name.
+
+Names that begin with `__` are implementation details (`.implDetail`).
+-/
+def Lean.LocalDeclKind.ofBinderName (binderName : Name) : LocalDeclKind :=
+  if binderName.isImplementationDetail then
+    .implDetail
+  else
+    .default
 
 namespace Lean.Elab.Term
 /--
@@ -28,17 +46,18 @@ def getMatchAltsNumPatterns (matchAlts : Syntax) : Nat :=
   let pats := alt0[1][0].getSepArgs
   pats.size
 
+open TSyntax.Compat in
 /--
   Expand a match alternative such as `| 0 | 1 => rhs` to an array containing `| 0 => rhs` and `| 1 => rhs`.
 -/
-def expandMatchAlt (stx : TSyntax ``matchAlt) : MacroM (Array (TSyntax ``matchAlt)) :=
-  match stx with
-  | `(matchAltExpr| | $[$patss,*]|* => $rhs) =>
-     if patss.size ≤ 1 then
-       return #[stx]
-     else
-       patss.mapM fun pats => `(matchAltExpr| | $pats,* => $rhs)
-  | _ => return #[stx]
+def expandMatchAlt (stx : TSyntax ``matchAlt) : Array (TSyntax ``matchAlt) :=
+  -- Not using syntax quotations here to keep source location
+  -- of the pattern sequence (`$term,*`) intact
+  let patss := stx.raw[1].getSepArgs
+  if patss.size ≤ 1 then
+    #[stx]
+  else
+    patss.map fun pats => stx.raw.setArg 1 (mkNullNode #[pats])
 
 def shouldExpandMatchAlt : TSyntax ``matchAlt → Bool
   | `(matchAltExpr| | $[$patss,*]|* => $_) => patss.size > 1
@@ -47,12 +66,19 @@ def shouldExpandMatchAlt : TSyntax ``matchAlt → Bool
 def expandMatchAlts? (stx : Syntax) : MacroM (Option Syntax) := do
   match stx with
   | `(match $[$gen]? $[$motive]? $discrs,* with $alts:matchAlt*) =>
-    if alts.any shouldExpandMatchAlt then
-      let alts ← alts.foldlM (init := #[]) fun alts alt => return alts ++ (← expandMatchAlt alt)
+     expand alts >>= fun alts? => alts?.mapM fun alts =>
       `(match $[$gen]? $[$motive]? $discrs,* with $alts:matchAlt*)
-    else
-      return none
+  | `(doElem| match $[$dep?]? $[$gen]? $[$motive]? $discrs,* with $alts:matchAlt*) =>
+     expand alts >>= fun alts? => alts?.mapM fun alts =>
+      `(doElem| match $[$dep?]? $[$gen]? $[$motive]? $discrs,* with $alts:matchAlt*)
   | _ => return none
+  where
+    expand (alts : Array (TSyntax ``matchAlt)) : MacroM (Option (Array (TSyntax ``matchAlt))) := do
+      if alts.any shouldExpandMatchAlt then
+        let alts ← alts.foldlM (init := #[]) fun alts alt => return alts ++ expandMatchAlt alt
+        return some alts
+      else
+        return none
 
 open TSyntax.Compat in
 def clearInMatchAlt (stx : TSyntax ``matchAlt) (vars : Array Ident) : TSyntax ``matchAlt :=

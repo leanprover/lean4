@@ -3,12 +3,14 @@ Copyright (c) 2024 Lean FRO, LLC. All rights reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Henrik Böving
 -/
+module
+
 prelude
-import Std.Tactic.BVDecide.Bitblast.BVExpr.Circuit.Lemmas.Operations.Eq
-import Std.Tactic.BVDecide.Bitblast.BVExpr.Circuit.Lemmas.Operations.Ult
-import Std.Tactic.BVDecide.Bitblast.BVExpr.Circuit.Lemmas.Operations.GetLsbD
-import Std.Tactic.BVDecide.Bitblast.BVExpr.Circuit.Lemmas.Expr
-import Std.Tactic.BVDecide.Bitblast.BVExpr.Circuit.Impl.Pred
+public import Std.Tactic.BVDecide.Bitblast.BVExpr.Circuit.Lemmas.Expr
+public import Std.Tactic.BVDecide.Bitblast.BVExpr.Circuit.Impl.Pred
+import Init.Omega
+
+@[expose] public section
 
 /-!
 This module contains the verification of the bitblaster for predicates over `BitVec` expressions
@@ -48,7 +50,7 @@ theorem bitblast_Inv_of_Inv (input : BVExpr.WithCache BVPred aig)
   unfold bitblast
   dsimp only
   split
-  · next op _ _ =>
+  next op _ _ =>
     cases op
     · dsimp only
       apply BVExpr.Cache.Inv_cast
@@ -104,7 +106,7 @@ theorem denote_bitblast (aig : AIG BVBit) (input : BVExpr.WithCache BVPred aig)
         apply BVExpr.bitblast_Inv_of_Inv
         exact hinv
   | getLsbD expr idx =>
-    simp only [bitblast, denote_projected_entry, denote_blastGetLsbD, eval_getLsbD]
+    simp only [bitblast, denote_blastGetLsbD, eval_getLsbD]
     split
     · rw [BVExpr.denote_bitblast]
       exact hinv

@@ -1,0 +1,4 @@
+Success! Final stack:
+  (Lean.Doc.Syntax.text (str "\"a \""))
+Remaining:
+"* b"

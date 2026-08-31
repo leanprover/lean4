@@ -3,9 +3,12 @@ Copyright (c) 2024 Lean FRO, LLC. All rights reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Kim Morrison
 -/
+module
+
 prelude
-import Init.Notation
-import Init.Data.Bool
+public import Init.Data.String.Basic
+
+@[expose] public section
 
 /-!
 This module contains the definition of a generic boolean substructure for SMT problems with

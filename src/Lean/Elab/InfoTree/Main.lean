@@ -4,10 +4,15 @@ Released under Apache 2.0 license as described in the file LICENSE.
 
 Authors: Wojciech Nawrocki, Leonardo de Moura, Sebastian Ullrich
 -/
+module
+
 prelude
-import Init.Task
-import Lean.Meta.PPGoal
-import Lean.ReservedNameAction
+public import Lean.Elab.InfoTree.Basic
+public import Lean.Meta.PPGoal
+public import Lean.ReservedNameAction
+import Init.Data.Format.Macro
+
+public section
 
 namespace Lean.Elab.CommandContextInfo
 
@@ -29,79 +34,10 @@ def save [MonadFileMap m] : m CommandContextInfo := do
 
 end CommandContextInfo
 
-/--
-Merges the `inner` partial context into the `outer` context s.t. fields of the `inner` context
-overwrite fields of the `outer` context. Panics if the invariant described in the documentation
-for `PartialContextInfo` is violated.
-
-When traversing an `InfoTree`, this function should be used to combine the context of outer
-nodes with the partial context of their subtrees. This ensures that the traversal has the context
-from the inner node to the root node of the `InfoTree` available, with partial contexts of
-inner nodes taking priority over contexts of outer nodes.
--/
-def PartialContextInfo.mergeIntoOuter?
-    : (inner : PartialContextInfo) → (outer? : Option ContextInfo) → Option ContextInfo
-  | .commandCtx info, none =>
-    some { info with }
-  | .parentDeclCtx _, none =>
-    panic! "Unexpected incomplete InfoTree context info."
-  | .commandCtx innerInfo, some outer =>
-    some { outer with toCommandContextInfo := innerInfo }
-  | .parentDeclCtx innerParentDecl, some outer =>
-    some { outer with parentDecl? := innerParentDecl }
-
-def CompletionInfo.stx : CompletionInfo → Syntax
-  | dot i ..          => i.stx
-  | id stx ..         => stx
-  | dotId stx ..      => stx
-  | fieldId stx ..    => stx
-  | namespaceId stx   => stx
-  | option stx        => stx
-  | endSection stx .. => stx
-  | tactic stx ..     => stx
-
-/--
-Obtains the `LocalContext` from this `CompletionInfo` if available and yields an empty context
-otherwise.
--/
-def CompletionInfo.lctx : CompletionInfo → LocalContext
-  | dot i ..            => i.lctx
-  | id _ _ _ lctx ..    => lctx
-  | dotId _ _ lctx ..   => lctx
-  | fieldId _ _ lctx .. => lctx
-  | _                   => .empty
-
 def CustomInfo.format : CustomInfo → Format
   | i => f!"[CustomInfo({i.value.typeName})]"
 
 instance : ToFormat CustomInfo := ⟨CustomInfo.format⟩
-
-partial def InfoTree.findInfo? (p : Info → Bool) (t : InfoTree) : Option Info :=
-  match t with
-  | context _ t => findInfo? p t
-  | node i ts   =>
-    if p i then
-      some i
-    else
-      ts.findSome? (findInfo? p)
-  | _ => none
-
-/-- Instantiate the holes on the given `tree` with the assignment table.
-(analogous to instantiating the metavariables in an expression) -/
-partial def InfoTree.substitute (tree : InfoTree) (assignment : PersistentHashMap MVarId InfoTree) : InfoTree :=
-  match tree with
-  | node i c => node i <| c.map (substitute · assignment)
-  | context i t => context i (substitute t assignment)
-  | hole id  => match assignment.find? id with
-    | none      => hole id
-    | some tree => substitute tree assignment
-
-/-- Applies `s.lazyAssignment` to `s.trees`, asynchronously. -/
-def InfoState.substituteLazy (s : InfoState) : Task InfoState :=
-  Task.mapList (tasks := s.lazyAssignment.toList.map (·.2)) fun _ => { s with
-    trees := s.trees.map (·.substitute <| s.lazyAssignment.map (·.get))
-    lazyAssignment := {}
-  }
 
 /-- Embeds a `CoreM` action in `IO` by supplying the information stored in `info`. -/
 def ContextInfo.runCoreM (info : ContextInfo) (x : CoreM α) : IO α := do
@@ -172,6 +108,9 @@ def CommandInfo.format (ctx : ContextInfo) (info : CommandInfo) : IO Format := d
 def OptionInfo.format (ctx : ContextInfo) (info : OptionInfo) : IO Format := do
   return f!"[Option] {info.optionName} @ {formatStxRange ctx info.stx}"
 
+def ErrorNameInfo.format (ctx : ContextInfo) (info : ErrorNameInfo) : IO Format := do
+  return f!"[ErrorName] {info.errorName} @ {formatStxRange ctx info.stx}"
+
 def FieldInfo.format (ctx : ContextInfo) (info : FieldInfo) : IO Format := do
   ctx.runMetaM info.lctx do
     return f!"[Field] {info.fieldName} : {← Meta.ppExpr (← Meta.inferType info.val)} := {← Meta.ppExpr info.val} @ {formatStxRange ctx info.stx}"
@@ -203,15 +142,31 @@ def FVarAliasInfo.format (info : FVarAliasInfo) : Format :=
 def FieldRedeclInfo.format (ctx : ContextInfo) (info : FieldRedeclInfo) : Format :=
   f!"[FieldRedecl] @ {formatStxRange ctx info.stx}"
 
+def DelabTermInfo.docString? (ppCtx : PPContext) (info : DelabTermInfo) : IO (Option String) := do
+  match info.mkDocString? with
+  | none => return none
+  | some act =>
+    try
+      act ppCtx
+    catch ex =>
+      return s!"[Error: {ex.toString}]"
+
 def DelabTermInfo.format (ctx : ContextInfo) (info : DelabTermInfo) : IO Format := do
   let loc := if let some loc := info.location? then f!"{loc.module} {loc.range.pos}-{loc.range.endPos}" else "none"
+  let docString? ← info.docString? (ctx.toPPContext info.lctx)
   return f!"[DelabTerm] @ {← TermInfo.format ctx info.toTermInfo}\n\
     Location: {loc}\n\
-    Docstring: {repr info.docString?}\n\
+    Docstring: {repr docString?}\n\
     Explicit: {info.explicit}"
 
 def ChoiceInfo.format (ctx : ContextInfo) (info : ChoiceInfo) : Format :=
   f!"[Choice] @ {formatElabInfo ctx info.toElabInfo}"
+
+def DocInfo.format (ctx : ContextInfo) (info : DocInfo) : Format :=
+  f!"[Doc] {info.stx.getKind} @ {formatElabInfo ctx info.toElabInfo}"
+
+def DocElabInfo.format (ctx : ContextInfo) (info : DocElabInfo) : Format :=
+  f!"[DocElab] {info.name} ({repr info.kind}) @ {formatElabInfo ctx info.toElabInfo}"
 
 def Info.format (ctx : ContextInfo) : Info → IO Format
   | ofTacticInfo i         => i.format ctx
@@ -220,6 +175,7 @@ def Info.format (ctx : ContextInfo) : Info → IO Format
   | ofCommandInfo i        => i.format ctx
   | ofMacroExpansionInfo i => i.format ctx
   | ofOptionInfo i         => i.format ctx
+  | ofErrorNameInfo i      => i.format ctx
   | ofFieldInfo i          => i.format ctx
   | ofCompletionInfo i     => i.format ctx
   | ofUserWidgetInfo i     => pure <| i.format
@@ -228,40 +184,14 @@ def Info.format (ctx : ContextInfo) : Info → IO Format
   | ofFieldRedeclInfo i    => pure <| i.format ctx
   | ofDelabTermInfo i      => i.format ctx
   | ofChoiceInfo i         => pure <| i.format ctx
+  | ofDocInfo i            => pure <| i.format ctx
+  | ofDocElabInfo i        => pure <| i.format ctx
 
-def Info.toElabInfo? : Info → Option ElabInfo
-  | ofTacticInfo i         => some i.toElabInfo
-  | ofTermInfo i           => some i.toElabInfo
-  | ofPartialTermInfo i    => some i.toElabInfo
-  | ofCommandInfo i        => some i.toElabInfo
-  | ofMacroExpansionInfo _ => none
-  | ofOptionInfo _         => none
-  | ofFieldInfo _          => none
-  | ofCompletionInfo _     => none
-  | ofUserWidgetInfo _     => none
-  | ofCustomInfo _         => none
-  | ofFVarAliasInfo _      => none
-  | ofFieldRedeclInfo _    => none
-  | ofDelabTermInfo i      => some i.toElabInfo
-  | ofChoiceInfo i         => some i.toElabInfo
-
-/--
-  Helper function for propagating the tactic metavariable context to its children nodes.
-  We need this function because we preserve `TacticInfo` nodes during backtracking *and* their
-  children. Moreover, we backtrack the metavariable context to undo metavariable assignments.
-  `TacticInfo` nodes save the metavariable context before/after the tactic application, and
-  can be pretty printed without any extra information. This is not the case for `TermInfo` nodes.
-  Without this function, the formatting method would often fail when processing `TermInfo` nodes
-  that are children of `TacticInfo` nodes that have been preserved during backtracking.
-  Saving the metavariable context at `TermInfo` nodes is also not a good option because
-  at `TermInfo` creation time, the metavariable context often miss information, e.g.,
-  a TC problem has not been resolved, a postponed subterm has not been elaborated, etc.
-
-  See `Term.SavedState.restore`.
--/
-def Info.updateContext? : Option ContextInfo → Info → Option ContextInfo
-  | some ctx, ofTacticInfo i => some { ctx with mctx := i.mctxAfter }
-  | ctx?, _ => ctx?
+def PartialContextInfo.format (ctx : PartialContextInfo) : Format :=
+  match ctx with
+  | .commandCtx _ => "command"
+  | .parentDeclCtx n => s!"parent[{n}]"
+  | .autoImplicitCtx implicits => s!"autoImplicits[{implicits}]"
 
 partial def InfoTree.format (tree : InfoTree) (ctx? : Option ContextInfo := none) : IO Format := do
   match tree with
@@ -313,7 +243,7 @@ def addConstInfo [MonadEnv m] [MonadError m]
 /-- This does the same job as `realizeGlobalConstNoOverload`; resolving an identifier
 syntax to a unique fully resolved name or throwing if there are ambiguities.
 But also adds this resolved name to the infotree. This means that when you hover
-over a name in the sourcefile you will see the fully resolved name in the hover info.-/
+over a name in the source file you will see the fully resolved name in the hover info.-/
 def realizeGlobalConstNoOverloadWithInfo (id : Syntax) (expectedType? : Option Expr := none) : CoreM Name := do
   let n ← realizeGlobalConstNoOverload id
   if (← getInfoState).enabled then
@@ -433,6 +363,16 @@ def withSaveParentDeclInfoContext [MonadFinally m] [MonadParentDecl m] (x : m α
       | return none
     return some <| .parentDeclCtx declName
 
+/--
+Resets the trees state `t₀`, runs `x` to produce a new trees state `t₁` and sets the state to be
+`t₀ ++ (InfoTree.context (PartialContextInfo.autoImplicitCtx Γ) <$> t₁)` where `Γ` is the set of
+auto-implicits provided by `MonadAutoImplicits m`.
+-/
+def withSaveAutoImplicitInfoContext [MonadFinally m] [MonadAutoImplicits m] (x : m α) : m α := do
+  withSavedPartialInfoContext x do
+    let autoImplicits ← getAutoImplicits
+    return some <| .autoImplicitCtx autoImplicits
+
 def getInfoHoleIdAssignment? (mvarId : MVarId) : m (Option InfoTree) :=
   return (← getInfoState).assignment[mvarId]
 
@@ -449,6 +389,10 @@ def withMacroExpansionInfo [MonadFinally m] [Monad m] [MonadInfoTree m] [MonadLC
     }
   withInfoContext x mkInfo
 
+/--
+Runs `x`. The last info tree that is pushed while running `x` is assigned to `mvarId`. All other
+pushed info trees are silently discarded.
+-/
 @[inline] def withInfoHole [MonadFinally m] [Monad m] [MonadInfoTree m] (mvarId : MVarId) (x : m α) : m α := do
   if (← getInfoState).enabled then
     let treesSaved ← getResetInfoTrees

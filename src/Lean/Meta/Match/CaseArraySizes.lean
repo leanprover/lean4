@@ -3,32 +3,36 @@ Copyright (c) 2020 Microsoft Corporation. All rights reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Leonardo de Moura
 -/
+module
+
 prelude
-import Lean.Meta.Tactic.Assert
+public import Lean.Meta.Basic
+public import Lean.Meta.Tactic.FVarSubst
 import Lean.Meta.Match.CaseValues
+import Lean.Meta.Tactic.Subst
 
 namespace Lean.Meta
 
-structure CaseArraySizesSubgoal where
+public structure CaseArraySizesSubgoal where
   mvarId : MVarId
   elems  : Array FVarId := #[]
   diseqs : Array FVarId := #[]
   subst  : FVarSubst := {}
   deriving Inhabited
 
-def getArrayArgType (a : Expr) : MetaM Expr := do
+public def getArrayArgType (a : Expr) : MetaM Expr := do
   let aType ← inferType a
   let aType ← whnfD aType
   unless aType.isAppOfArity ``Array 1 do
     throwError "array expected{indentExpr a}"
   pure aType.appArg!
 
-private def mkArrayGetLit (a : Expr) (i : Nat) (n : Nat) (h : Expr) : MetaM Expr := do
+def mkArrayGetLit (a : Expr) (i : Nat) (n : Nat) (h : Expr) : MetaM Expr := do
   let lt    ← mkLt (mkRawNatLit i) (mkRawNatLit n)
   let ltPrf ← mkDecideProof lt
   mkAppM `Array.getLit #[a, mkRawNatLit i, h, ltPrf]
 
-private partial def introArrayLit (mvarId : MVarId) (a : Expr) (n : Nat) (xNamePrefix : Name) (aSizeEqN : Expr) : MetaM MVarId := do
+partial def introArrayLit (mvarId : MVarId) (a : Expr) (n : Nat) (xNamePrefix : Name) (aSizeEqN : Expr) : MetaM MVarId := do
   let α ← getArrayArgType a
   let rec loop (i : Nat) (xs : Array Expr) (args : Array Expr) := do
     if i < n then
@@ -58,7 +62,7 @@ private partial def introArrayLit (mvarId : MVarId) (a : Expr) (n : Nat) (xNameP
   n) `..., x_1 ... x_{sizes[n-1]}  |- C #[x_1, ..., x_{sizes[n-1]}]`
   n+1) `..., (h_1 : a.size != sizes[0]), ..., (h_n : a.size != sizes[n-1]) |- C a`
   where `n = sizes.size` -/
-def caseArraySizes (mvarId : MVarId) (fvarId : FVarId) (sizes : Array Nat) (xNamePrefix := `x) (hNamePrefix := `h) : MetaM (Array CaseArraySizesSubgoal) :=
+public def caseArraySizes (mvarId : MVarId) (fvarId : FVarId) (sizes : Array Nat) (xNamePrefix := `x) (hNamePrefix := `h) : MetaM (Array CaseArraySizesSubgoal) :=
   mvarId.withContext do
     let a := mkFVar fvarId
     let aSize ← mkAppM `Array.size #[a]
@@ -69,22 +73,20 @@ def caseArraySizes (mvarId : MVarId) (fvarId : FVarId) (sizes : Array Nat) (xNam
     subgoals.mapIdxM fun i subgoal => do
       let subst  := subgoal.subst
       let mvarId := subgoal.mvarId
-      let hEqSz  := (subst.get hEq).fvarId!
       if h : i < sizes.size then
-         let n := sizes[i]
-         let mvarId ← mvarId.clear subgoal.newHs[0]!
-         let mvarId ← mvarId.clear (subst.get aSizeFVarId).fvarId!
-         mvarId.withContext do
-           let hEqSzSymm ← mkEqSymm (mkFVar hEqSz)
-           let mvarId ← introArrayLit mvarId a n xNamePrefix hEqSzSymm
-           let (xs, mvarId)  ← mvarId.introN n
-           let (hEqLit, mvarId) ← mvarId.intro1
-           let mvarId ← mvarId.clear hEqSz
-           let (subst, mvarId) ← substCore mvarId hEqLit false subst
-           pure { mvarId := mvarId, elems := xs, subst := subst }
+        let hEqSz  := (subst.get hEq).fvarId!
+        let n := sizes[i]
+        mvarId.withContext do
+          let hEqSzSymm ← mkEqSymm (mkFVar hEqSz)
+          let mvarId ← introArrayLit mvarId a n xNamePrefix hEqSzSymm
+          let (xs, mvarId)  ← mvarId.introN n
+          let (hEqLit, mvarId) ← mvarId.intro1
+          let mvarId ← mvarId.clear hEqSz
+          let (subst, mvarId) ← substCore mvarId hEqLit (symm := false) subst
+          pure { mvarId := mvarId, elems := xs, subst := subst }
       else
-         let (subst, mvarId) ← substCore mvarId hEq false subst
-         let diseqs := subgoal.newHs.map fun fvarId => (subst.get fvarId).fvarId!
-         pure { mvarId := mvarId, diseqs := diseqs, subst := subst }
+        let (subst, mvarId) ← substCore mvarId hEq (symm := false) subst
+        let diseqs := subgoal.newHs.map fun fvarId => (subst.get fvarId).fvarId!
+        pure { mvarId := mvarId, diseqs := diseqs, subst := subst }
 
 end Lean.Meta

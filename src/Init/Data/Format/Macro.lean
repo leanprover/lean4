@@ -6,8 +6,10 @@ Author: Leonardo de Moura
 module
 
 prelude
-import Init.Data.Format.Basic
-import Init.Data.ToString.Macro
+public meta import Init.Meta
+public import Init.Notation
+
+public section
 
 namespace Std
 

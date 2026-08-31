@@ -48,7 +48,7 @@ name name_generator::next_with(name const & base_prefix) {
     return replace_base_prefix(next(), base_prefix);
 }
 
-void swap(name_generator & a, name_generator & b) {
+void swap(name_generator & a, name_generator & b) noexcept {
     swap(a.m_prefix, b.m_prefix);
     std::swap(a.m_next_idx, b.m_next_idx);
 }

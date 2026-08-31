@@ -1,0 +1,15 @@
+3 failures:
+  @6 (⟨1, 6⟩): expected ')'
+    ""
+  @6 (⟨1, 6⟩): expected ':='
+    ""
+  @6 (⟨1, 6⟩): unexpected end of input
+    ""
+
+Final stack:
+  (Lean.Doc.Syntax.named
+   "("
+   `x
+   <missing>
+   <missing>
+   <missing>)

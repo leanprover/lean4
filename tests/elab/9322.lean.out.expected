@@ -1,0 +1,6 @@
+9322.lean:14:4-14:10: warning: declaration uses `sorry`
+9322.lean:29:4-29:7: warning: declaration uses `sorry`
+9322.lean:29:4-29:7: warning: declaration uses `sorry`
+9322.lean:27:0-56:3: warning: declaration uses `sorry`
+9322.lean:27:0-56:3: warning: declaration uses `sorry`
+9322.lean:27:0-56:3: warning: declaration uses `sorry`

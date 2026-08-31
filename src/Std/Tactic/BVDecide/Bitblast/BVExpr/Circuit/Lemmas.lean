@@ -3,9 +3,13 @@ Copyright (c) 2024 Lean FRO, LLC. All rights reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Henrik Böving
 -/
+module
+
 prelude
-import Std.Tactic.BVDecide.Bitblast.BVExpr.Circuit.Impl
-import Std.Tactic.BVDecide.Bitblast.BVExpr.Circuit.Lemmas.Pred
+public import Std.Tactic.BVDecide.Bitblast.BVExpr.Circuit.Impl
+public import Std.Tactic.BVDecide.Bitblast.BVExpr.Circuit.Lemmas.Pred
+
+@[expose] public section
 
 /-!
 This module contains the verification of the bitblaster for general `BitVec` problems with boolean
@@ -46,7 +50,7 @@ theorem go_Inv_of_Inv (expr : BVLogicalExpr) (aig : AIG BVBit) (assign : BVExpr.
   | gate g lhs rhs lih rih =>
     cases g
     all_goals
-      simp [go, Gate.eval]
+      simp [go]
       apply BVExpr.Cache.Inv_cast
       · apply LawfulOperator.isPrefix_aig
       · apply rih
@@ -78,7 +82,7 @@ theorem go_eval_eq_eval (expr : BVLogicalExpr) (aig : AIG BVBit) (assign : BVExp
     all_goals
       simp [go, Gate.eval]
       congr 1
-      · rw [go_denote_mem_prefix]
+      · rw [go_denote_mem_prefix (hstart := Ref.hgate _)]
         apply lih
         exact hinv
       · apply rih
@@ -88,13 +92,15 @@ theorem go_eval_eq_eval (expr : BVLogicalExpr) (aig : AIG BVBit) (assign : BVExp
     simp only [go, Ref.cast_eq, denote_mkIfCached, denote_projected_entry,
       eval_ite, Bool.ite_eq_cond_iff]
     apply ite_congr
-    · rw [go_denote_mem_prefix]
-      rw [go_denote_mem_prefix]
-      · specialize dih _ _ hinv
-        simp [dih]
-      · simp [Ref.hgate]
+    · rw [go_denote_mem_prefix (hstart := ?h)]
+      case h =>
+        apply go_lt_size_of_lt_aig_size
+        exact Ref.hgate _
+      rw [go_denote_mem_prefix (hstart := Ref.hgate _)]
+      specialize dih _ _ hinv
+      simp [dih]
     · intro h
-      rw [go_denote_mem_prefix]
+      rw [go_denote_mem_prefix (hstart := Ref.hgate _)]
       apply lih
       apply go_Inv_of_Inv
       exact hinv

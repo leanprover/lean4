@@ -3,10 +3,14 @@ Copyright (c) 2024 Lean FRO, LLC. All rights reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Henrik Böving
 -/
+module
+
 prelude
-import Std.Tactic.BVDecide.Bitblast.BVExpr.Basic
-import Std.Sat.AIG.CachedGatesLemmas
-import Std.Sat.AIG.LawfulVecOperator
+public import Std.Tactic.BVDecide.Bitblast.BVExpr.Basic
+public import Std.Sat.AIG.LawfulVecOperator
+import Init.Omega
+
+@[expose] public section
 
 /-!
 This module contains the implementation of a bitblaster for `BitVec.add`. The implemented
@@ -70,14 +74,12 @@ def mkFullAdderOut (aig : AIG α) (input : FullAdderInput aig) : AIG.Entrypoint 
 instance : AIG.LawfulOperator α FullAdderInput mkFullAdderOut where
   le_size := by
     intros
-    unfold mkFullAdderOut
-    dsimp only
+    simp only [mkFullAdderOut]
     apply AIG.LawfulOperator.le_size_of_le_aig_size
     apply AIG.LawfulOperator.le_size
   decl_eq := by
     intros
-    unfold mkFullAdderOut
-    dsimp only
+    simp only [mkFullAdderOut]
     rw [AIG.LawfulOperator.decl_eq]
     rw [AIG.LawfulOperator.decl_eq]
     apply AIG.LawfulOperator.lt_size_of_lt_aig_size
@@ -112,8 +114,7 @@ def mkFullAdderCarry (aig : AIG α) (input : FullAdderInput aig) : AIG.Entrypoin
 instance : AIG.LawfulOperator α FullAdderInput mkFullAdderCarry where
   le_size := by
     intros
-    unfold mkFullAdderCarry
-    dsimp only
+    simp only [mkFullAdderCarry]
     apply AIG.LawfulOperator.le_size_of_le_aig_size (f := AIG.mkOrCached)
     apply AIG.LawfulOperator.le_size_of_le_aig_size (f := AIG.mkAndCached)
     apply AIG.LawfulOperator.le_size_of_le_aig_size (f := AIG.mkAndCached)
@@ -121,8 +122,7 @@ instance : AIG.LawfulOperator α FullAdderInput mkFullAdderCarry where
 
   decl_eq := by
     intros
-    unfold mkFullAdderCarry
-    dsimp only
+    simp only [mkFullAdderCarry]
     rw [AIG.LawfulOperator.decl_eq]
     rw [AIG.LawfulOperator.decl_eq]
     rw [AIG.LawfulOperator.decl_eq]
@@ -216,30 +216,30 @@ theorem go_decl_eq (aig : AIG α) (curr : Nat) (hcurr : curr ≤ w) (cin : AIG.R
   unfold go at hgo
   dsimp only at hgo
   split at hgo
-  · rw [← hgo]
-    intros
-    rw [go_decl_eq]
-    unfold mkFullAdder
-    rw [AIG.LawfulOperator.decl_eq (f := mkFullAdderCarry)]
+  next h =>
+    rw [← hgo]
+    intro idx h1 h2
+    have h3 : idx < (mkFullAdderOut aig { lhs := lhs.get curr h, rhs := rhs.get curr h, cin := cin }).aig.decls.size := by
+      apply AIG.LawfulOperator.lt_size_of_lt_aig_size
+      exact h1
+    have h4 : idx < (mkFullAdder aig { lhs := lhs.get curr h, rhs := rhs.get curr h, cin := cin }).aig.decls.size := by
+      apply AIG.LawfulOperator.lt_size_of_lt_aig_size
+      exact h3
+    rw [go_decl_eq (w := w) (curr := curr + 1) (h1 := h4)]
+    simp only [mkFullAdder]
+    rw [AIG.LawfulOperator.decl_eq (f := mkFullAdderCarry) (h1 := h3)]
     rw [AIG.LawfulOperator.decl_eq (f := mkFullAdderOut)]
-    · apply AIG.LawfulOperator.lt_size_of_lt_aig_size (f := mkFullAdderOut)
-      assumption
-    · apply AIG.LawfulOperator.lt_size_of_lt_aig_size (f := mkFullAdderCarry)
-      apply AIG.LawfulOperator.lt_size_of_lt_aig_size (f := mkFullAdderOut)
-      assumption
   · simp [← hgo]
 termination_by w - curr
 
 instance : AIG.LawfulVecOperator α AIG.BinaryRefVec blast where
   le_size := by
     intros
-    unfold blast
-    dsimp only
+    simp only [blast]
     apply go_le_size
   decl_eq := by
     intros
-    unfold blast
-    dsimp only
+    simp only [blast]
     rw [go_decl_eq]
 
 end blastAdd

@@ -1,6 +1,6 @@
 // Lean compiler output
 // Module: Init.Grind.Module.Basic
-// Imports: Init.Data.Int.Order Init.Grind.ToInt
+// Imports: public import Init.Data.Int.DivMod.Basic import Init.Data.Int.Lemmas
 #include <lean/lean.h>
 #if defined(__clang__)
 #pragma clang diagnostic ignored "-Wunused-parameter"
@@ -13,61 +13,95 @@
 #ifdef __cplusplus
 extern "C" {
 #endif
-LEAN_EXPORT lean_object* l_Lean_Grind_IntModule_toNatModule___rarg(lean_object*);
-LEAN_EXPORT lean_object* l_Lean_Grind_IntModule_toNatModule(lean_object*);
-lean_object* lean_nat_to_int(lean_object*);
-LEAN_EXPORT lean_object* l_Lean_Grind_IntModule_toNatModule___rarg___lambda__1(lean_object*, lean_object*, lean_object*);
-LEAN_EXPORT lean_object* l_Lean_Grind_IntModule_toNatModule___rarg___lambda__1(lean_object* x_1, lean_object* x_2, lean_object* x_3) {
+LEAN_EXPORT lean_object* l_Lean_Grind_IntModule_toNatModule___redArg(lean_object*);
+LEAN_EXPORT lean_object* l_Lean_Grind_IntModule_toNatModule___redArg___boxed(lean_object*);
+LEAN_EXPORT lean_object* l_Lean_Grind_IntModule_toNatModule(lean_object*, lean_object*);
+LEAN_EXPORT lean_object* l_Lean_Grind_IntModule_toNatModule___boxed(lean_object*, lean_object*);
+LEAN_EXPORT lean_object* l_Lean_Grind_IntModule_toNatModule___redArg(lean_object* v_I_1_){
 _start:
 {
-lean_object* x_4; lean_object* x_5; lean_object* x_6; 
-x_4 = lean_ctor_get(x_1, 4);
-lean_inc(x_4);
-lean_dec(x_1);
-x_5 = lean_nat_to_int(x_2);
-x_6 = lean_apply_2(x_4, x_5, x_3);
-return x_6;
+lean_object* v_toAddCommGroup_2_; lean_object* v_nsmul_3_; lean_object* v_toAddCommMonoid_4_; lean_object* v___x_5_; 
+v_toAddCommGroup_2_ = lean_ctor_get(v_I_1_, 0);
+v_nsmul_3_ = lean_ctor_get(v_I_1_, 1);
+v_toAddCommMonoid_4_ = lean_ctor_get(v_toAddCommGroup_2_, 0);
+lean_inc(v_nsmul_3_);
+lean_inc_ref(v_toAddCommMonoid_4_);
+v___x_5_ = lean_alloc_ctor(0, 2, 0);
+lean_ctor_set(v___x_5_, 0, v_toAddCommMonoid_4_);
+lean_ctor_set(v___x_5_, 1, v_nsmul_3_);
+return v___x_5_;
 }
 }
-LEAN_EXPORT lean_object* l_Lean_Grind_IntModule_toNatModule___rarg(lean_object* x_1) {
+LEAN_EXPORT lean_object* l_Lean_Grind_IntModule_toNatModule___redArg___boxed(lean_object* v_I_6_){
 _start:
 {
-lean_object* x_2; lean_object* x_3; lean_object* x_4; lean_object* x_5; 
-x_2 = lean_ctor_get(x_1, 0);
-lean_inc(x_2);
-x_3 = lean_ctor_get(x_1, 1);
-lean_inc(x_3);
-x_4 = lean_alloc_closure((void*)(l_Lean_Grind_IntModule_toNatModule___rarg___lambda__1), 3, 1);
-lean_closure_set(x_4, 0, x_1);
-x_5 = lean_alloc_ctor(0, 3, 0);
-lean_ctor_set(x_5, 0, x_2);
-lean_ctor_set(x_5, 1, x_3);
-lean_ctor_set(x_5, 2, x_4);
-return x_5;
+lean_object* v_res_7_; 
+v_res_7_ = l_Lean_Grind_IntModule_toNatModule___redArg(v_I_6_);
+lean_dec_ref(v_I_6_);
+return v_res_7_;
 }
 }
-LEAN_EXPORT lean_object* l_Lean_Grind_IntModule_toNatModule(lean_object* x_1) {
+LEAN_EXPORT lean_object* l_Lean_Grind_IntModule_toNatModule(lean_object* v_M_8_, lean_object* v_I_9_){
 _start:
 {
-lean_object* x_2; 
-x_2 = lean_alloc_closure((void*)(l_Lean_Grind_IntModule_toNatModule___rarg), 1, 0);
-return x_2;
+lean_object* v___x_10_; 
+v___x_10_ = l_Lean_Grind_IntModule_toNatModule___redArg(v_I_9_);
+return v___x_10_;
 }
 }
-lean_object* initialize_Init_Data_Int_Order(uint8_t builtin, lean_object*);
-lean_object* initialize_Init_Grind_ToInt(uint8_t builtin, lean_object*);
-static bool _G_initialized = false;
-LEAN_EXPORT lean_object* initialize_Init_Grind_Module_Basic(uint8_t builtin, lean_object* w) {
+LEAN_EXPORT lean_object* l_Lean_Grind_IntModule_toNatModule___boxed(lean_object* v_M_11_, lean_object* v_I_12_){
+_start:
+{
+lean_object* v_res_13_; 
+v_res_13_ = l_Lean_Grind_IntModule_toNatModule(v_M_11_, v_I_12_);
+lean_dec_ref(v_I_12_);
+return v_res_13_;
+}
+}
+lean_object* runtime_initialize_Init_Data_Int_DivMod_Basic(uint8_t builtin);
+lean_object* runtime_initialize_Init_Data_Int_Lemmas(uint8_t builtin);
+void lean_initialize_runtime_module();
+static bool _G_runtime_initialized = false;
+LEAN_EXPORT lean_object* runtime_initialize_Init_Grind_Module_Basic(uint8_t builtin) {
 lean_object * res;
-if (_G_initialized) return lean_io_result_mk_ok(lean_box(0));
-_G_initialized = true;
-res = initialize_Init_Data_Int_Order(builtin, lean_io_mk_world());
+if (_G_runtime_initialized) return lean_io_result_mk_ok(lean_box(0));
+_G_runtime_initialized = true;
+lean_initialize_runtime_module();
+res = runtime_initialize_Init_Data_Int_DivMod_Basic(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
-res = initialize_Init_Grind_ToInt(builtin, lean_io_mk_world());
+res = runtime_initialize_Init_Data_Int_Lemmas(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
 return lean_io_result_mk_ok(lean_box(0));
+}
+static bool _G_meta_initialized = false;
+LEAN_EXPORT lean_object* meta_initialize_Init_Grind_Module_Basic(uint8_t builtin) {
+lean_object * res;
+if (_G_meta_initialized) return lean_io_result_mk_ok(lean_box(0));
+_G_meta_initialized = true;
+return lean_io_result_mk_ok(lean_box(0));
+}
+lean_object* initialize_Init_Data_Int_DivMod_Basic(uint8_t builtin);
+lean_object* initialize_Init_Data_Int_Lemmas(uint8_t builtin);
+static bool _G_initialized = false;
+LEAN_EXPORT lean_object* initialize_Init_Grind_Module_Basic(uint8_t builtin) {
+lean_object * res;
+if (_G_initialized) return lean_io_result_mk_ok(lean_box(0));
+_G_initialized = true;
+res = initialize_Init_Data_Int_DivMod_Basic(builtin);
+if (lean_io_result_is_error(res)) return res;
+lean_dec_ref(res);
+res = initialize_Init_Data_Int_Lemmas(builtin);
+if (lean_io_result_is_error(res)) return res;
+lean_dec_ref(res);
+res = runtime_initialize_Init_Grind_Module_Basic(builtin);
+if (lean_io_result_is_error(res)) return res;
+lean_dec_ref(res);
+res = meta_initialize_Init_Grind_Module_Basic(builtin);
+if (lean_io_result_is_error(res)) return res;
+lean_dec_ref(res);
+return initialize_Init_Grind_Module_Basic(builtin);
 }
 #ifdef __cplusplus
 }

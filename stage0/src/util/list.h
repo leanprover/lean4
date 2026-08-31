@@ -40,7 +40,7 @@ public:
     list(T const & h, list const & t):m_ptr(new cell(h, t)) {}
     explicit list(T const & h):m_ptr(new cell(h, list())) {}
     list(list const & s):m_ptr(s.m_ptr) { if (m_ptr) m_ptr->inc_ref(); }
-    list(list&& s):m_ptr(s.m_ptr) { s.m_ptr = nullptr; }
+    list(list&& s) noexcept:m_ptr(s.m_ptr) { s.m_ptr = nullptr; }
     list(std::initializer_list<T> const & l):list() {
         auto it = l.end();
         while (it != l.begin()) {

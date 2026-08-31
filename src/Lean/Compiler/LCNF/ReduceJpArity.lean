@@ -3,10 +3,12 @@ Copyright (c) 2022 Microsoft Corporation. All rights reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Leonardo de Moura
 -/
+module
+
 prelude
-import Lean.Compiler.LCNF.CompilerM
-import Lean.Compiler.LCNF.InferType
-import Lean.Compiler.LCNF.PassManager
+public import Lean.Compiler.LCNF.InferType
+
+public section
 
 namespace Lean.Compiler.LCNF
 /-!
@@ -16,7 +18,7 @@ namespace ReduceJpArity
 
 abbrev ReduceM := ReaderT (FVarIdMap (Array Bool)) CompilerM
 
-partial def reduce (code : Code) : ReduceM Code := do
+partial def reduce (code : Code .pure) : ReduceM (Code .pure) := do
   match code with
   | .let decl k => return code.updateLet! decl (← reduce k)
   | .fun decl k =>
@@ -51,7 +53,7 @@ partial def reduce (code : Code) : ReduceM Code := do
     return code.updateAlts! alts
   | .return .. | .unreach .. => return code
   | .jmp fvarId args =>
-    if let some mask := (← read).find? fvarId then
+    if let some mask := (← read).get? fvarId then
       let mut argsNew := #[]
       for keep in mask, arg in args do
         if keep then
@@ -67,12 +69,14 @@ open ReduceJpArity
 /--
 Try to reduce arity of join points
 -/
-def Decl.reduceJpArity (decl : Decl) : CompilerM Decl := do
+def Decl.reduceJpArity (decl : Decl .pure) : CompilerM (Decl .pure) := do
   let value ← decl.value.mapCodeM reduce |>.run {}
   return { decl with value }
 
+-- TODO: This can be made Purity generic
 def reduceJpArity (phase := Phase.base) : Pass :=
-  .mkPerDeclaration `reduceJpArity Decl.reduceJpArity phase
+  phase.withPurityCheck .pure fun h =>
+    .mkPerDeclaration `reduceJpArity phase (h ▸ Decl.reduceJpArity)
 
 builtin_initialize
   registerTraceClass `Compiler.reduceJpArity (inherited := true)

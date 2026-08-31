@@ -3,17 +3,20 @@ Copyright (c) 2022 Microsoft Corporation. All rights reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Dany Fabian
 -/
+module
+
 prelude
-import Init.Data.AC
-import Lean.Meta.AppBuilder
-import Lean.Meta.Tactic.Refl
-import Lean.Meta.Tactic.Simp.Main
-import Lean.Elab.Tactic.Rewrite
+public import Lean.Meta.Tactic.Refl
+public import Lean.Meta.Tactic.Simp.Main
+public import Lean.Elab.Tactic.Rewrite
+import Init.Omega
+
+public section
 
 namespace Lean.Meta.AC
 open Lean.Data.AC
 open Lean.Elab.Tactic
-open Std
+open _root_.Std
 
 abbrev ACExpr := Lean.Data.AC.Expr
 
@@ -60,7 +63,7 @@ inductive PreExpr
 | op (lhs rhs : PreExpr)
 | var (e : Expr)
 
-@[match_pattern] def bin (op l r : Expr) :=
+@[match_pattern, expose] def bin (op l r : Expr) :=
   Expr.app (Expr.app op l) r
 
 def toACExpr (op l r : Expr) : MetaM (Array Expr × ACExpr) := do

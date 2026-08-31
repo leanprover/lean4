@@ -7,9 +7,11 @@ Authors: David Thrane Christiansen
 module
 
 prelude
-import Init.Data.Array.Basic
+public import Init.Data.Array.Subarray
 import all Init.Data.Array.Subarray
 import Init.Omega
+
+public section
 
 /-
 This module contains splitting operations on subarrays that crucially rely on `omega` for proof
@@ -21,44 +23,24 @@ set_option linter.listVariables true -- Enforce naming conventions for `List`/`A
 set_option linter.indexVariables true -- Enforce naming conventions for index variables.
 
 namespace Subarray
-/--
-Splits a subarray into two parts, the first of which contains the first `i` elements and the second
-of which contains the remainder.
--/
-def split (s : Subarray α) (i : Fin s.size.succ) : (Subarray α × Subarray α) :=
-  let ⟨i', isLt⟩ := i
-  have := s.start_le_stop
-  have := s.stop_le_array_size
-  have : s.start + i' ≤ s.stop := by
-    simp only [size] at isLt
-    omega
-  let pre := {s with
-    stop := s.start + i',
-    start_le_stop := by omega,
-    stop_le_array_size := by omega
-  }
-  let post := {s with
-    start := s.start + i'
-    start_le_stop := by assumption
-  }
-  (pre, post)
 
 /--
 Removes the first `i` elements of the subarray. If there are `i` or fewer elements, the resulting
 subarray is empty.
 -/
-def drop (arr : Subarray α) (i : Nat) : Subarray α where
+def drop (arr : Subarray α) (i : Nat) : Subarray α := ⟨{
   array := arr.array
   start := min (arr.start + i) arr.stop
   stop := arr.stop
   start_le_stop := by omega
   stop_le_array_size := arr.stop_le_array_size
+}⟩
 
 /--
 Keeps only the first `i` elements of the subarray. If there are `i` or fewer elements, the resulting
 subarray is empty.
 -/
-def take (arr : Subarray α) (i : Nat) : Subarray α where
+def take (arr : Subarray α) (i : Nat) : Subarray α := ⟨{
   array := arr.array
   start := arr.start
   stop := min (arr.start + i) arr.stop
@@ -68,3 +50,11 @@ def take (arr : Subarray α) (i : Nat) : Subarray α where
   stop_le_array_size := by
     have := arr.stop_le_array_size
     omega
+}⟩
+
+/--
+Splits a subarray into two parts, the first of which contains the first `i` elements and the second
+of which contains the remainder.
+-/
+def split (s : Subarray α) (i : Fin s.size.succ) : (Subarray α × Subarray α) :=
+  (s.take i, s.drop i)

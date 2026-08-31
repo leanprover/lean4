@@ -18,17 +18,27 @@ concurrency:
 
 jobs:
   update-stage0:
-    runs-on: ubuntu-latest
+    runs-on: nscloud-ubuntu-22.04-amd64-8x16
+    defaults:
+      run:
+        # like Linux release
+        shell: nix develop .#oldGlibc -c bash -euxo pipefail {0}
+    env:
+      CCACHE_DIR: ${{ github.workspace }}/.ccache
+      CCACHE_COMPRESS: true
+      CCACHE_MAXSIZE: 400M
     steps:
     # This action should push to an otherwise protected branch, so it
     # uses a deploy key with write permissions, as suggested at
     # https://stackoverflow.com/a/76135647/946226
-    - uses: actions/checkout@v4
+    - uses: actions/checkout@v6
       with:
         ssh-key: ${{secrets.STAGE0_SSH_KEY}}
-    - run: echo "should_update_stage0=yes" >> "$GITHUB_ENV"
+    - shell: bash
+      run: echo "should_update_stage0=yes" >> "$GITHUB_ENV"
     - name: Check if automatic update is needed
       if: github.event_name == 'push'
+      shell: bash
       run: |
         if diff -u src/stdlib_flags.h stage0/src/stdlib_flags.h
         then
@@ -37,27 +47,52 @@ jobs:
         fi
     - name: Setup git user
       if: env.should_update_stage0 == 'yes'
+      shell: bash
       run: |
           git config --global user.name "Lean stage0 autoupdater"
           git config --global user.email "<>"
     - if: env.should_update_stage0 == 'yes'
       name: Install Nix
-      uses: DeterminateSystems/nix-installer-action@main
+      uses: DeterminateSystems/nix-installer-action@ef8a148080ab6020fd15196c2084a2eea5ff2d25 # v22
     - name: Open Nix shell once
       if: env.should_update_stage0 == 'yes'
       run: true
-      shell: 'nix develop -c bash -euxo pipefail {0}'
     - name: Set up NPROC
       if: env.should_update_stage0 == 'yes'
       run: |
         echo "NPROC=$(nproc 2>/dev/null || sysctl -n hw.logicalcpu 2>/dev/null || echo 4)" >> $GITHUB_ENV
-      shell: 'nix develop -c bash -euxo pipefail {0}'
+    - name: Restore CCache
+      if: env.should_update_stage0 == 'yes'
+      uses: actions/cache/restore@v6
+      with:
+        # NOTE: must be in sync with `restore-ccache` in `build-template.yml`
+        path: .ccache
+        key: Linux release-build-v5-${{ github.sha }}
+        # fall back to (latest) previous cache
+        restore-keys: |
+          Linux release-build-v5
     - if: env.should_update_stage0 == 'yes'
-      run: cmake --preset release
-      shell: 'nix develop -c bash -euxo pipefail {0}'
+      name: Configure Build
+      # sync options with `Linux release` to ensure cache reuse
+      run: |
+        mkdir -p build
+        cd build
+        wget -q https://github.com/leanprover/lean-llvm/releases/download/22.1.4/lean-llvm-x86_64-linux-gnu.tar.zst
+        PREPARE="$(../script/prepare-llvm-linux.sh lean-llvm*)"
+        eval "OPTIONS=($PREPARE)"
+        cmake .. --preset release -B . -DWFAIL=ON -DLEAN_EXTRA_CXX_FLAGS=-Werror -DUSE_LAKE_CACHE=ON "${OPTIONS[@]}"
     - if: env.should_update_stage0 == 'yes'
-      run: make -j$NPROC -C build/release  update-stage0-commit
-      shell: 'nix develop -c bash -euxo pipefail {0}'
+      name: Download Lake Cache
+      # This build does not set `CHECK_OLEAN_VERSION`, so unlike the release job it may reuse
+      # `.olean`s stamped with another commit's githash. The pending stage0 update is not committed
+      # yet, so the cache still holds artifacts for the stage0 tree this build uses.
+      run: |
+        make -j$NPROC -C build cache-get
+      timeout-minutes: 20 # prevent excessive hanging from network issues
+      continue-on-error: true
+    - if: env.should_update_stage0 == 'yes'
+      run: |
+        make -j$NPROC -C build update-stage0-commit
     - if: env.should_update_stage0 == 'yes'
       run: git show --stat
     - if: env.should_update_stage0 == 'yes' && github.event_name == 'push'

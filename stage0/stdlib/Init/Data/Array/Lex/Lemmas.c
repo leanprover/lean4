@@ -1,6 +1,6 @@
 // Lean compiler output
 // Module: Init.Data.Array.Lex.Lemmas
-// Imports: Init.Data.Array.Lex.Basic Init.Data.Array.Lemmas Init.Data.List.Lex
+// Imports: import all Init.Data.Array.Lex.Basic public import Init.Data.Array.Lex.Basic import Init.Data.Range.Polymorphic.NatLemmas public import Init.Data.BEq import Init.Data.Array.DecidableEq import Init.Data.Array.Lemmas import Init.Data.Bool import Init.Data.List.Lex import Init.Data.Range.Polymorphic.Lemmas
 #include <lean/lean.h>
 #if defined(__clang__)
 #pragma clang diagnostic ignored "-Wunused-parameter"
@@ -13,910 +13,341 @@
 #ifdef __cplusplus
 extern "C" {
 #endif
-LEAN_EXPORT lean_object* l_Array_instDecidableLTOfDecidableEq(lean_object*);
-LEAN_EXPORT lean_object* l___private_Init_Data_Array_Lex_Lemmas_0__Array_lex_match__1_splitter(lean_object*);
-LEAN_EXPORT lean_object* l_Array_instDecidableLEOfDecidableEqOfDecidableLT___rarg___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
+lean_object* l_instBEqOfDecidableEq___redArg___lam__0___boxed(lean_object*, lean_object*, lean_object*);
+uint8_t l_Array_lex___redArg(lean_object*, lean_object*, lean_object*, lean_object*);
+LEAN_EXPORT lean_object* l___private_Init_Data_Array_Lex_Lemmas_0__Break_runK_match__1_splitter___redArg(lean_object*, lean_object*, lean_object*);
+LEAN_EXPORT lean_object* l___private_Init_Data_Array_Lex_Lemmas_0__Break_runK_match__1_splitter(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
+LEAN_EXPORT lean_object* l___private_Init_Data_Array_Lex_Lemmas_0__List_forIn_x27__cons_match__1_splitter___redArg(lean_object*, lean_object*, lean_object*);
+LEAN_EXPORT lean_object* l___private_Init_Data_Array_Lex_Lemmas_0__List_forIn_x27__cons_match__1_splitter(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Array_instTransLt(lean_object*, lean_object*, lean_object*);
-LEAN_EXPORT uint8_t l_Array_lex___at_Array_instDecidableLEOfDecidableEqOfDecidableLT___spec__1___rarg(lean_object*, lean_object*, lean_object*, lean_object*);
-LEAN_EXPORT lean_object* l_Array_lex___at_Array_instDecidableLTOfDecidableEq___spec__1___rarg___boxed(lean_object*, lean_object*, lean_object*, lean_object*);
-LEAN_EXPORT lean_object* l_Array_instTransLeOfDecidableEqOfDecidableLTOfIrreflOfAsymmOfAntisymmOfNotLt(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
-LEAN_EXPORT uint8_t l_Array_lex___at_Array_instDecidableLTOfDecidableEq___spec__1___rarg___lambda__1(lean_object*, lean_object*, lean_object*);
-static lean_object* l_Std_Range_forIn_x27_loop___at_Array_instDecidableLTOfDecidableEq___spec__2___rarg___closed__3;
-static lean_object* l_Array_lex___at_Array_instDecidableLTOfDecidableEq___spec__1___rarg___closed__1;
-LEAN_EXPORT lean_object* l_Std_Range_forIn_x27_loop___at_Array_instDecidableLEOfDecidableEqOfDecidableLT___spec__3(lean_object*);
-LEAN_EXPORT lean_object* l___private_Init_Data_Array_Lex_Lemmas_0__Array_lex_match__1_splitter___rarg(lean_object*, lean_object*, lean_object*);
-LEAN_EXPORT lean_object* l_Std_Range_forIn_x27_loop___at_Array_instDecidableLTOfDecidableEq___spec__3(lean_object*);
-LEAN_EXPORT lean_object* l_Array_instDecidableLEOfDecidableEqOfDecidableLT(lean_object*);
-LEAN_EXPORT uint8_t l_Array_lex___at_Array_instDecidableLTOfDecidableEq___spec__1___rarg(lean_object*, lean_object*, lean_object*, lean_object*);
-LEAN_EXPORT lean_object* l_Array_lex___at_Array_instDecidableLEOfDecidableEqOfDecidableLT___spec__1(lean_object*);
-LEAN_EXPORT lean_object* l_Array_instTransLeOfDecidableEqOfDecidableLTOfIrreflOfAsymmOfAntisymmOfNotLt___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
-LEAN_EXPORT lean_object* l_Std_Range_forIn_x27_loop___at_Array_instDecidableLEOfDecidableEqOfDecidableLT___spec__3___rarg(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
-LEAN_EXPORT lean_object* l_Std_Range_forIn_x27_loop___at_Array_instDecidableLEOfDecidableEqOfDecidableLT___spec__3___rarg___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
-static lean_object* l_Std_Range_forIn_x27_loop___at_Array_instDecidableLTOfDecidableEq___spec__2___rarg___closed__4;
-LEAN_EXPORT lean_object* l_Std_Range_forIn_x27_loop___at_Array_instDecidableLTOfDecidableEq___spec__2___rarg___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
-LEAN_EXPORT lean_object* l___private_Init_Data_Array_Lex_Lemmas_0__Array_lex_match__1_splitter___rarg___boxed(lean_object*, lean_object*, lean_object*);
-LEAN_EXPORT lean_object* l_Std_Range_forIn_x27_loop___at_Array_instDecidableLTOfDecidableEq___spec__3___rarg___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
-LEAN_EXPORT uint8_t l_Array_instDecidableLEOfDecidableEqOfDecidableLT___rarg(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
-LEAN_EXPORT lean_object* l_Array_instDecidableLTOfDecidableEq___rarg___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
-LEAN_EXPORT uint8_t l_Array_instDecidableLTOfDecidableEq___rarg(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
-static lean_object* l_Std_Range_forIn_x27_loop___at_Array_instDecidableLTOfDecidableEq___spec__2___rarg___closed__1;
-LEAN_EXPORT lean_object* l_Std_Range_forIn_x27_loop___at_Array_instDecidableLEOfDecidableEqOfDecidableLT___spec__2(lean_object*);
-LEAN_EXPORT lean_object* l_Std_Range_forIn_x27_loop___at_Array_instDecidableLEOfDecidableEqOfDecidableLT___spec__2___rarg___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
-lean_object* lean_array_fget(lean_object*, lean_object*);
-LEAN_EXPORT lean_object* l_Std_Range_forIn_x27_loop___at_Array_instDecidableLEOfDecidableEqOfDecidableLT___spec__2___rarg(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
-uint8_t lean_nat_dec_lt(lean_object*, lean_object*);
-LEAN_EXPORT lean_object* l___private_Init_Data_Array_Lex_Lemmas_0__List_forIn_x27__cons_match__1_splitter(lean_object*, lean_object*);
-LEAN_EXPORT lean_object* l_Array_lex___at_Array_instDecidableLEOfDecidableEqOfDecidableLT___spec__1___rarg___boxed(lean_object*, lean_object*, lean_object*, lean_object*);
-LEAN_EXPORT lean_object* l_Array_instTransLt___boxed(lean_object*, lean_object*, lean_object*);
-LEAN_EXPORT lean_object* l_Std_Range_forIn_x27_loop___at_Array_instDecidableLTOfDecidableEq___spec__2___rarg(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
-LEAN_EXPORT lean_object* l_Std_Range_forIn_x27_loop___at_Array_instDecidableLTOfDecidableEq___spec__3___rarg(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
-LEAN_EXPORT lean_object* l_Array_lex___at_Array_instDecidableLTOfDecidableEq___spec__1___rarg___lambda__1___boxed(lean_object*, lean_object*, lean_object*);
-LEAN_EXPORT lean_object* l_Std_Range_forIn_x27_loop___at_Array_instDecidableLTOfDecidableEq___spec__2(lean_object*);
-lean_object* lean_array_get_size(lean_object*);
-uint8_t lean_nat_dec_le(lean_object*, lean_object*);
-LEAN_EXPORT lean_object* l_Array_lex___at_Array_instDecidableLTOfDecidableEq___spec__1(lean_object*);
-lean_object* lean_nat_add(lean_object*, lean_object*);
-LEAN_EXPORT lean_object* l___private_Init_Data_Array_Lex_Lemmas_0__List_forIn_x27__cons_match__1_splitter___rarg(lean_object*, lean_object*, lean_object*);
-static lean_object* l_Std_Range_forIn_x27_loop___at_Array_instDecidableLTOfDecidableEq___spec__2___rarg___closed__2;
-LEAN_EXPORT lean_object* l___private_Init_Data_Array_Lex_Lemmas_0__Array_lex_match__1_splitter___rarg(lean_object* x_1, lean_object* x_2, lean_object* x_3) {
+LEAN_EXPORT lean_object* l_Array_instTransLeOfLawfulOrderLTOfIsLinearOrder(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
+LEAN_EXPORT uint8_t l_Array_instDecidableLTOfDecidableEq___redArg___lam__0(lean_object*, lean_object*, lean_object*);
+LEAN_EXPORT lean_object* l_Array_instDecidableLTOfDecidableEq___redArg___lam__0___boxed(lean_object*, lean_object*, lean_object*);
+LEAN_EXPORT uint8_t l_Array_instDecidableLTOfDecidableEq___redArg(lean_object*, lean_object*, lean_object*, lean_object*);
+LEAN_EXPORT lean_object* l_Array_instDecidableLTOfDecidableEq___redArg___boxed(lean_object*, lean_object*, lean_object*, lean_object*);
+LEAN_EXPORT uint8_t l_Array_instDecidableLTOfDecidableEq(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
+LEAN_EXPORT lean_object* l_Array_instDecidableLTOfDecidableEq___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
+LEAN_EXPORT uint8_t l_Array_instDecidableLEOfDecidableEqOfDecidableLT___redArg(lean_object*, lean_object*, lean_object*, lean_object*);
+LEAN_EXPORT lean_object* l_Array_instDecidableLEOfDecidableEqOfDecidableLT___redArg___boxed(lean_object*, lean_object*, lean_object*, lean_object*);
+LEAN_EXPORT uint8_t l_Array_instDecidableLEOfDecidableEqOfDecidableLT(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
+LEAN_EXPORT lean_object* l_Array_instDecidableLEOfDecidableEqOfDecidableLT___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
+LEAN_EXPORT lean_object* l___private_Init_Data_Array_Lex_Lemmas_0__Break_runK_match__1_splitter___redArg(lean_object* v_x_1_, lean_object* v_h__1_2_, lean_object* v_h__2_3_){
 _start:
 {
-if (lean_obj_tag(x_1) == 0)
+if (lean_obj_tag(v_x_1_) == 0)
 {
-lean_dec(x_3);
-lean_inc(x_2);
-return x_2;
+lean_object* v___x_4_; lean_object* v___x_5_; 
+lean_dec(v_h__1_2_);
+v___x_4_ = lean_box(0);
+v___x_5_ = lean_apply_1(v_h__2_3_, v___x_4_);
+return v___x_5_;
 }
 else
 {
-lean_object* x_4; lean_object* x_5; 
-x_4 = lean_ctor_get(x_1, 0);
-lean_inc(x_4);
-lean_dec(x_1);
-x_5 = lean_apply_1(x_3, x_4);
-return x_5;
+lean_object* v_val_6_; lean_object* v___x_7_; 
+lean_dec(v_h__2_3_);
+v_val_6_ = lean_ctor_get(v_x_1_, 0);
+lean_inc(v_val_6_);
+lean_dec_ref_known(v_x_1_, 1);
+v___x_7_ = lean_apply_1(v_h__1_2_, v_val_6_);
+return v___x_7_;
 }
 }
 }
-LEAN_EXPORT lean_object* l___private_Init_Data_Array_Lex_Lemmas_0__Array_lex_match__1_splitter(lean_object* x_1) {
+LEAN_EXPORT lean_object* l___private_Init_Data_Array_Lex_Lemmas_0__Break_runK_match__1_splitter(lean_object* v_00_u03b1_8_, lean_object* v_motive_9_, lean_object* v_x_10_, lean_object* v_h__1_11_, lean_object* v_h__2_12_){
 _start:
 {
-lean_object* x_2; 
-x_2 = lean_alloc_closure((void*)(l___private_Init_Data_Array_Lex_Lemmas_0__Array_lex_match__1_splitter___rarg___boxed), 3, 0);
-return x_2;
-}
-}
-LEAN_EXPORT lean_object* l___private_Init_Data_Array_Lex_Lemmas_0__Array_lex_match__1_splitter___rarg___boxed(lean_object* x_1, lean_object* x_2, lean_object* x_3) {
-_start:
+if (lean_obj_tag(v_x_10_) == 0)
 {
-lean_object* x_4; 
-x_4 = l___private_Init_Data_Array_Lex_Lemmas_0__Array_lex_match__1_splitter___rarg(x_1, x_2, x_3);
-lean_dec(x_2);
-return x_4;
-}
-}
-LEAN_EXPORT lean_object* l___private_Init_Data_Array_Lex_Lemmas_0__List_forIn_x27__cons_match__1_splitter___rarg(lean_object* x_1, lean_object* x_2, lean_object* x_3) {
-_start:
-{
-if (lean_obj_tag(x_1) == 0)
-{
-lean_object* x_4; lean_object* x_5; 
-lean_dec(x_3);
-x_4 = lean_ctor_get(x_1, 0);
-lean_inc(x_4);
-lean_dec(x_1);
-x_5 = lean_apply_1(x_2, x_4);
-return x_5;
+lean_object* v___x_13_; lean_object* v___x_14_; 
+lean_dec(v_h__1_11_);
+v___x_13_ = lean_box(0);
+v___x_14_ = lean_apply_1(v_h__2_12_, v___x_13_);
+return v___x_14_;
 }
 else
 {
-lean_object* x_6; lean_object* x_7; 
-lean_dec(x_2);
-x_6 = lean_ctor_get(x_1, 0);
-lean_inc(x_6);
-lean_dec(x_1);
-x_7 = lean_apply_1(x_3, x_6);
-return x_7;
+lean_object* v_val_15_; lean_object* v___x_16_; 
+lean_dec(v_h__2_12_);
+v_val_15_ = lean_ctor_get(v_x_10_, 0);
+lean_inc(v_val_15_);
+lean_dec_ref_known(v_x_10_, 1);
+v___x_16_ = lean_apply_1(v_h__1_11_, v_val_15_);
+return v___x_16_;
 }
 }
 }
-LEAN_EXPORT lean_object* l___private_Init_Data_Array_Lex_Lemmas_0__List_forIn_x27__cons_match__1_splitter(lean_object* x_1, lean_object* x_2) {
+LEAN_EXPORT lean_object* l___private_Init_Data_Array_Lex_Lemmas_0__List_forIn_x27__cons_match__1_splitter___redArg(lean_object* v_x_17_, lean_object* v_h__1_18_, lean_object* v_h__2_19_){
 _start:
 {
-lean_object* x_3; 
-x_3 = lean_alloc_closure((void*)(l___private_Init_Data_Array_Lex_Lemmas_0__List_forIn_x27__cons_match__1_splitter___rarg), 3, 0);
-return x_3;
-}
-}
-LEAN_EXPORT lean_object* l_Array_instTransLt(lean_object* x_1, lean_object* x_2, lean_object* x_3) {
-_start:
+if (lean_obj_tag(v_x_17_) == 0)
 {
-return lean_box(0);
-}
-}
-LEAN_EXPORT lean_object* l_Array_instTransLt___boxed(lean_object* x_1, lean_object* x_2, lean_object* x_3) {
-_start:
-{
-lean_object* x_4; 
-x_4 = l_Array_instTransLt(x_1, x_2, x_3);
-lean_dec(x_2);
-return x_4;
-}
-}
-LEAN_EXPORT lean_object* l_Array_instTransLeOfDecidableEqOfDecidableLTOfIrreflOfAsymmOfAntisymmOfNotLt(lean_object* x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4, lean_object* x_5, lean_object* x_6, lean_object* x_7, lean_object* x_8) {
-_start:
-{
-return lean_box(0);
-}
-}
-LEAN_EXPORT lean_object* l_Array_instTransLeOfDecidableEqOfDecidableLTOfIrreflOfAsymmOfAntisymmOfNotLt___boxed(lean_object* x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4, lean_object* x_5, lean_object* x_6, lean_object* x_7, lean_object* x_8) {
-_start:
-{
-lean_object* x_9; 
-x_9 = l_Array_instTransLeOfDecidableEqOfDecidableLTOfIrreflOfAsymmOfAntisymmOfNotLt(x_1, x_2, x_3, x_4, x_5, x_6, x_7, x_8);
-lean_dec(x_4);
-lean_dec(x_3);
-lean_dec(x_2);
-return x_9;
-}
-}
-static lean_object* _init_l_Std_Range_forIn_x27_loop___at_Array_instDecidableLTOfDecidableEq___spec__2___rarg___closed__1() {
-_start:
-{
-uint8_t x_1; lean_object* x_2; lean_object* x_3; 
-x_1 = 0;
-x_2 = lean_box(x_1);
-x_3 = lean_alloc_ctor(1, 1, 0);
-lean_ctor_set(x_3, 0, x_2);
-return x_3;
-}
-}
-static lean_object* _init_l_Std_Range_forIn_x27_loop___at_Array_instDecidableLTOfDecidableEq___spec__2___rarg___closed__2() {
-_start:
-{
-lean_object* x_1; lean_object* x_2; lean_object* x_3; 
-x_1 = l_Std_Range_forIn_x27_loop___at_Array_instDecidableLTOfDecidableEq___spec__2___rarg___closed__1;
-x_2 = lean_box(0);
-x_3 = lean_alloc_ctor(0, 2, 0);
-lean_ctor_set(x_3, 0, x_1);
-lean_ctor_set(x_3, 1, x_2);
-return x_3;
-}
-}
-static lean_object* _init_l_Std_Range_forIn_x27_loop___at_Array_instDecidableLTOfDecidableEq___spec__2___rarg___closed__3() {
-_start:
-{
-uint8_t x_1; lean_object* x_2; lean_object* x_3; 
-x_1 = 1;
-x_2 = lean_box(x_1);
-x_3 = lean_alloc_ctor(1, 1, 0);
-lean_ctor_set(x_3, 0, x_2);
-return x_3;
-}
-}
-static lean_object* _init_l_Std_Range_forIn_x27_loop___at_Array_instDecidableLTOfDecidableEq___spec__2___rarg___closed__4() {
-_start:
-{
-lean_object* x_1; lean_object* x_2; lean_object* x_3; 
-x_1 = l_Std_Range_forIn_x27_loop___at_Array_instDecidableLTOfDecidableEq___spec__2___rarg___closed__3;
-x_2 = lean_box(0);
-x_3 = lean_alloc_ctor(0, 2, 0);
-lean_ctor_set(x_3, 0, x_1);
-lean_ctor_set(x_3, 1, x_2);
-return x_3;
-}
-}
-LEAN_EXPORT lean_object* l_Std_Range_forIn_x27_loop___at_Array_instDecidableLTOfDecidableEq___spec__2___rarg(lean_object* x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4, lean_object* x_5, lean_object* x_6, lean_object* x_7, lean_object* x_8, lean_object* x_9, lean_object* x_10) {
-_start:
-{
-lean_object* x_11; uint8_t x_12; 
-x_11 = lean_ctor_get(x_6, 1);
-x_12 = lean_nat_dec_lt(x_8, x_11);
-if (x_12 == 0)
-{
-lean_dec(x_8);
-lean_dec(x_4);
-lean_dec(x_1);
-lean_inc(x_7);
-return x_7;
+lean_object* v_a_20_; lean_object* v___x_21_; 
+lean_dec(v_h__2_19_);
+v_a_20_ = lean_ctor_get(v_x_17_, 0);
+lean_inc(v_a_20_);
+lean_dec_ref_known(v_x_17_, 1);
+v___x_21_ = lean_apply_1(v_h__1_18_, v_a_20_);
+return v___x_21_;
 }
 else
 {
-lean_object* x_13; lean_object* x_14; lean_object* x_15; uint8_t x_16; 
-x_13 = lean_array_fget(x_2, x_8);
-x_14 = lean_array_fget(x_3, x_8);
-lean_inc(x_4);
-lean_inc(x_14);
-lean_inc(x_13);
-x_15 = lean_apply_2(x_4, x_13, x_14);
-x_16 = lean_unbox(x_15);
-lean_dec(x_15);
-if (x_16 == 0)
+lean_object* v_a_22_; lean_object* v___x_23_; 
+lean_dec(v_h__1_18_);
+v_a_22_ = lean_ctor_get(v_x_17_, 0);
+lean_inc(v_a_22_);
+lean_dec_ref_known(v_x_17_, 1);
+v___x_23_ = lean_apply_1(v_h__2_19_, v_a_22_);
+return v___x_23_;
+}
+}
+}
+LEAN_EXPORT lean_object* l___private_Init_Data_Array_Lex_Lemmas_0__List_forIn_x27__cons_match__1_splitter(lean_object* v_00_u03b2_24_, lean_object* v_motive_25_, lean_object* v_x_26_, lean_object* v_h__1_27_, lean_object* v_h__2_28_){
+_start:
 {
-lean_object* x_17; uint8_t x_18; 
-lean_inc(x_1);
-x_17 = lean_apply_2(x_1, x_13, x_14);
-x_18 = lean_unbox(x_17);
-lean_dec(x_17);
-if (x_18 == 0)
+if (lean_obj_tag(v_x_26_) == 0)
 {
-lean_object* x_19; 
-lean_dec(x_8);
-lean_dec(x_4);
-lean_dec(x_1);
-x_19 = l_Std_Range_forIn_x27_loop___at_Array_instDecidableLTOfDecidableEq___spec__2___rarg___closed__2;
-return x_19;
+lean_object* v_a_29_; lean_object* v___x_30_; 
+lean_dec(v_h__2_28_);
+v_a_29_ = lean_ctor_get(v_x_26_, 0);
+lean_inc(v_a_29_);
+lean_dec_ref_known(v_x_26_, 1);
+v___x_30_ = lean_apply_1(v_h__1_27_, v_a_29_);
+return v___x_30_;
 }
 else
 {
-lean_object* x_20; lean_object* x_21; 
-x_20 = lean_ctor_get(x_6, 2);
-x_21 = lean_nat_add(x_8, x_20);
-lean_dec(x_8);
+lean_object* v_a_31_; lean_object* v___x_32_; 
+lean_dec(v_h__1_27_);
+v_a_31_ = lean_ctor_get(v_x_26_, 0);
+lean_inc(v_a_31_);
+lean_dec_ref_known(v_x_26_, 1);
+v___x_32_ = lean_apply_1(v_h__2_28_, v_a_31_);
+return v___x_32_;
+}
+}
+}
+LEAN_EXPORT lean_object* l_Array_instTransLt(lean_object* v_00_u03b1_33_, lean_object* v_inst_34_, lean_object* v_inst_35_){
+_start:
 {
-lean_object* _tmp_6 = x_5;
-lean_object* _tmp_7 = x_21;
-lean_object* _tmp_8 = lean_box(0);
-lean_object* _tmp_9 = lean_box(0);
-x_7 = _tmp_6;
-x_8 = _tmp_7;
-x_9 = _tmp_8;
-x_10 = _tmp_9;
+lean_object* v___x_36_; 
+v___x_36_ = lean_box(0);
+return v___x_36_;
 }
-goto _start;
 }
+LEAN_EXPORT lean_object* l_Array_instTransLeOfLawfulOrderLTOfIsLinearOrder(lean_object* v_00_u03b1_37_, lean_object* v_inst_38_, lean_object* v_inst_39_, lean_object* v_inst_40_, lean_object* v_inst_41_){
+_start:
+{
+lean_object* v___x_42_; 
+v___x_42_ = lean_box(0);
+return v___x_42_;
+}
+}
+LEAN_EXPORT uint8_t l_Array_instDecidableLTOfDecidableEq___redArg___lam__0(lean_object* v_inst_43_, lean_object* v_x1_44_, lean_object* v_x2_45_){
+_start:
+{
+lean_object* v___x_46_; uint8_t v___x_47_; 
+v___x_46_ = lean_apply_2(v_inst_43_, v_x1_44_, v_x2_45_);
+v___x_47_ = lean_unbox(v___x_46_);
+return v___x_47_;
+}
+}
+LEAN_EXPORT lean_object* l_Array_instDecidableLTOfDecidableEq___redArg___lam__0___boxed(lean_object* v_inst_48_, lean_object* v_x1_49_, lean_object* v_x2_50_){
+_start:
+{
+uint8_t v_res_51_; lean_object* v_r_52_; 
+v_res_51_ = l_Array_instDecidableLTOfDecidableEq___redArg___lam__0(v_inst_48_, v_x1_49_, v_x2_50_);
+v_r_52_ = lean_box(v_res_51_);
+return v_r_52_;
+}
+}
+LEAN_EXPORT uint8_t l_Array_instDecidableLTOfDecidableEq___redArg(lean_object* v_inst_53_, lean_object* v_inst_54_, lean_object* v_xs_55_, lean_object* v_ys_56_){
+_start:
+{
+lean_object* v___f_57_; lean_object* v___f_58_; uint8_t v___x_59_; 
+v___f_57_ = lean_alloc_closure((void*)(l_Array_instDecidableLTOfDecidableEq___redArg___lam__0___boxed), 3, 1);
+lean_closure_set(v___f_57_, 0, v_inst_54_);
+v___f_58_ = lean_alloc_closure((void*)(l_instBEqOfDecidableEq___redArg___lam__0___boxed), 3, 1);
+lean_closure_set(v___f_58_, 0, v_inst_53_);
+v___x_59_ = l_Array_lex___redArg(v___f_58_, v_xs_55_, v_ys_56_, v___f_57_);
+return v___x_59_;
+}
+}
+LEAN_EXPORT lean_object* l_Array_instDecidableLTOfDecidableEq___redArg___boxed(lean_object* v_inst_60_, lean_object* v_inst_61_, lean_object* v_xs_62_, lean_object* v_ys_63_){
+_start:
+{
+uint8_t v_res_64_; lean_object* v_r_65_; 
+v_res_64_ = l_Array_instDecidableLTOfDecidableEq___redArg(v_inst_60_, v_inst_61_, v_xs_62_, v_ys_63_);
+v_r_65_ = lean_box(v_res_64_);
+return v_r_65_;
+}
+}
+LEAN_EXPORT uint8_t l_Array_instDecidableLTOfDecidableEq(lean_object* v_00_u03b1_66_, lean_object* v_inst_67_, lean_object* v_inst_68_, lean_object* v_inst_69_, lean_object* v_xs_70_, lean_object* v_ys_71_){
+_start:
+{
+uint8_t v___x_72_; 
+v___x_72_ = l_Array_instDecidableLTOfDecidableEq___redArg(v_inst_67_, v_inst_69_, v_xs_70_, v_ys_71_);
+return v___x_72_;
+}
+}
+LEAN_EXPORT lean_object* l_Array_instDecidableLTOfDecidableEq___boxed(lean_object* v_00_u03b1_73_, lean_object* v_inst_74_, lean_object* v_inst_75_, lean_object* v_inst_76_, lean_object* v_xs_77_, lean_object* v_ys_78_){
+_start:
+{
+uint8_t v_res_79_; lean_object* v_r_80_; 
+v_res_79_ = l_Array_instDecidableLTOfDecidableEq(v_00_u03b1_73_, v_inst_74_, v_inst_75_, v_inst_76_, v_xs_77_, v_ys_78_);
+v_r_80_ = lean_box(v_res_79_);
+return v_r_80_;
+}
+}
+LEAN_EXPORT uint8_t l_Array_instDecidableLEOfDecidableEqOfDecidableLT___redArg(lean_object* v_inst_81_, lean_object* v_inst_82_, lean_object* v_xs_83_, lean_object* v_ys_84_){
+_start:
+{
+lean_object* v___f_85_; lean_object* v___f_86_; uint8_t v___x_87_; 
+v___f_85_ = lean_alloc_closure((void*)(l_Array_instDecidableLTOfDecidableEq___redArg___lam__0___boxed), 3, 1);
+lean_closure_set(v___f_85_, 0, v_inst_82_);
+v___f_86_ = lean_alloc_closure((void*)(l_instBEqOfDecidableEq___redArg___lam__0___boxed), 3, 1);
+lean_closure_set(v___f_86_, 0, v_inst_81_);
+v___x_87_ = l_Array_lex___redArg(v___f_86_, v_ys_84_, v_xs_83_, v___f_85_);
+if (v___x_87_ == 0)
+{
+uint8_t v___x_88_; 
+v___x_88_ = 1;
+return v___x_88_;
 }
 else
 {
-lean_object* x_23; 
-lean_dec(x_14);
-lean_dec(x_13);
-lean_dec(x_8);
-lean_dec(x_4);
-lean_dec(x_1);
-x_23 = l_Std_Range_forIn_x27_loop___at_Array_instDecidableLTOfDecidableEq___spec__2___rarg___closed__4;
-return x_23;
+uint8_t v___x_89_; 
+v___x_89_ = 0;
+return v___x_89_;
 }
 }
 }
-}
-LEAN_EXPORT lean_object* l_Std_Range_forIn_x27_loop___at_Array_instDecidableLTOfDecidableEq___spec__2(lean_object* x_1) {
+LEAN_EXPORT lean_object* l_Array_instDecidableLEOfDecidableEqOfDecidableLT___redArg___boxed(lean_object* v_inst_90_, lean_object* v_inst_91_, lean_object* v_xs_92_, lean_object* v_ys_93_){
 _start:
 {
-lean_object* x_2; 
-x_2 = lean_alloc_closure((void*)(l_Std_Range_forIn_x27_loop___at_Array_instDecidableLTOfDecidableEq___spec__2___rarg___boxed), 10, 0);
-return x_2;
+uint8_t v_res_94_; lean_object* v_r_95_; 
+v_res_94_ = l_Array_instDecidableLEOfDecidableEqOfDecidableLT___redArg(v_inst_90_, v_inst_91_, v_xs_92_, v_ys_93_);
+v_r_95_ = lean_box(v_res_94_);
+return v_r_95_;
 }
 }
-LEAN_EXPORT lean_object* l_Std_Range_forIn_x27_loop___at_Array_instDecidableLTOfDecidableEq___spec__3___rarg(lean_object* x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4, lean_object* x_5, lean_object* x_6, lean_object* x_7, lean_object* x_8, lean_object* x_9, lean_object* x_10) {
+LEAN_EXPORT uint8_t l_Array_instDecidableLEOfDecidableEqOfDecidableLT(lean_object* v_00_u03b1_96_, lean_object* v_inst_97_, lean_object* v_inst_98_, lean_object* v_inst_99_, lean_object* v_xs_100_, lean_object* v_ys_101_){
 _start:
 {
-lean_object* x_11; uint8_t x_12; 
-x_11 = lean_ctor_get(x_6, 1);
-x_12 = lean_nat_dec_lt(x_8, x_11);
-if (x_12 == 0)
-{
-lean_dec(x_8);
-lean_dec(x_4);
-lean_dec(x_1);
-lean_inc(x_7);
-return x_7;
-}
-else
-{
-lean_object* x_13; lean_object* x_14; lean_object* x_15; uint8_t x_16; 
-x_13 = lean_array_fget(x_2, x_8);
-x_14 = lean_array_fget(x_3, x_8);
-lean_inc(x_4);
-lean_inc(x_14);
-lean_inc(x_13);
-x_15 = lean_apply_2(x_4, x_13, x_14);
-x_16 = lean_unbox(x_15);
-lean_dec(x_15);
-if (x_16 == 0)
-{
-lean_object* x_17; uint8_t x_18; 
-lean_inc(x_1);
-x_17 = lean_apply_2(x_1, x_13, x_14);
-x_18 = lean_unbox(x_17);
-lean_dec(x_17);
-if (x_18 == 0)
-{
-lean_object* x_19; 
-lean_dec(x_8);
-lean_dec(x_4);
-lean_dec(x_1);
-x_19 = l_Std_Range_forIn_x27_loop___at_Array_instDecidableLTOfDecidableEq___spec__2___rarg___closed__2;
-return x_19;
-}
-else
-{
-lean_object* x_20; lean_object* x_21; 
-x_20 = lean_ctor_get(x_6, 2);
-x_21 = lean_nat_add(x_8, x_20);
-lean_dec(x_8);
-{
-lean_object* _tmp_6 = x_5;
-lean_object* _tmp_7 = x_21;
-lean_object* _tmp_8 = lean_box(0);
-lean_object* _tmp_9 = lean_box(0);
-x_7 = _tmp_6;
-x_8 = _tmp_7;
-x_9 = _tmp_8;
-x_10 = _tmp_9;
-}
-goto _start;
+uint8_t v___x_102_; 
+v___x_102_ = l_Array_instDecidableLEOfDecidableEqOfDecidableLT___redArg(v_inst_97_, v_inst_99_, v_xs_100_, v_ys_101_);
+return v___x_102_;
 }
 }
-else
-{
-lean_object* x_23; 
-lean_dec(x_14);
-lean_dec(x_13);
-lean_dec(x_8);
-lean_dec(x_4);
-lean_dec(x_1);
-x_23 = l_Std_Range_forIn_x27_loop___at_Array_instDecidableLTOfDecidableEq___spec__2___rarg___closed__4;
-return x_23;
-}
-}
-}
-}
-LEAN_EXPORT lean_object* l_Std_Range_forIn_x27_loop___at_Array_instDecidableLTOfDecidableEq___spec__3(lean_object* x_1) {
+LEAN_EXPORT lean_object* l_Array_instDecidableLEOfDecidableEqOfDecidableLT___boxed(lean_object* v_00_u03b1_103_, lean_object* v_inst_104_, lean_object* v_inst_105_, lean_object* v_inst_106_, lean_object* v_xs_107_, lean_object* v_ys_108_){
 _start:
 {
-lean_object* x_2; 
-x_2 = lean_alloc_closure((void*)(l_Std_Range_forIn_x27_loop___at_Array_instDecidableLTOfDecidableEq___spec__3___rarg___boxed), 10, 0);
-return x_2;
-}
-}
-LEAN_EXPORT uint8_t l_Array_lex___at_Array_instDecidableLTOfDecidableEq___spec__1___rarg___lambda__1(lean_object* x_1, lean_object* x_2, lean_object* x_3) {
-_start:
-{
-uint8_t x_4; 
-x_4 = lean_nat_dec_lt(x_1, x_2);
-return x_4;
-}
-}
-static lean_object* _init_l_Array_lex___at_Array_instDecidableLTOfDecidableEq___spec__1___rarg___closed__1() {
-_start:
-{
-lean_object* x_1; lean_object* x_2; lean_object* x_3; 
-x_1 = lean_box(0);
-x_2 = lean_box(0);
-x_3 = lean_alloc_ctor(0, 2, 0);
-lean_ctor_set(x_3, 0, x_1);
-lean_ctor_set(x_3, 1, x_2);
-return x_3;
-}
-}
-LEAN_EXPORT uint8_t l_Array_lex___at_Array_instDecidableLTOfDecidableEq___spec__1___rarg(lean_object* x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4) {
-_start:
-{
-lean_object* x_5; lean_object* x_6; uint8_t x_7; 
-x_5 = lean_array_get_size(x_2);
-x_6 = lean_array_get_size(x_3);
-x_7 = lean_nat_dec_le(x_5, x_6);
-if (x_7 == 0)
-{
-lean_object* x_8; lean_object* x_9; lean_object* x_10; lean_object* x_11; lean_object* x_12; lean_object* x_13; 
-x_8 = lean_unsigned_to_nat(0u);
-x_9 = lean_unsigned_to_nat(1u);
-lean_inc(x_6);
-x_10 = lean_alloc_ctor(0, 3, 0);
-lean_ctor_set(x_10, 0, x_8);
-lean_ctor_set(x_10, 1, x_6);
-lean_ctor_set(x_10, 2, x_9);
-x_11 = l_Array_lex___at_Array_instDecidableLTOfDecidableEq___spec__1___rarg___closed__1;
-x_12 = l_Std_Range_forIn_x27_loop___at_Array_instDecidableLTOfDecidableEq___spec__2___rarg(x_1, x_2, x_3, x_4, x_11, x_10, x_11, x_8, lean_box(0), lean_box(0));
-lean_dec(x_10);
-x_13 = lean_ctor_get(x_12, 0);
-lean_inc(x_13);
-lean_dec(x_12);
-if (lean_obj_tag(x_13) == 0)
-{
-uint8_t x_14; 
-x_14 = lean_nat_dec_lt(x_5, x_6);
-lean_dec(x_6);
-lean_dec(x_5);
-return x_14;
-}
-else
-{
-lean_object* x_15; uint8_t x_16; 
-lean_dec(x_6);
-lean_dec(x_5);
-x_15 = lean_ctor_get(x_13, 0);
-lean_inc(x_15);
-lean_dec(x_13);
-x_16 = lean_unbox(x_15);
-lean_dec(x_15);
-return x_16;
-}
-}
-else
-{
-lean_object* x_17; lean_object* x_18; lean_object* x_19; lean_object* x_20; lean_object* x_21; lean_object* x_22; 
-x_17 = lean_unsigned_to_nat(0u);
-x_18 = lean_unsigned_to_nat(1u);
-lean_inc(x_5);
-x_19 = lean_alloc_ctor(0, 3, 0);
-lean_ctor_set(x_19, 0, x_17);
-lean_ctor_set(x_19, 1, x_5);
-lean_ctor_set(x_19, 2, x_18);
-x_20 = l_Array_lex___at_Array_instDecidableLTOfDecidableEq___spec__1___rarg___closed__1;
-x_21 = l_Std_Range_forIn_x27_loop___at_Array_instDecidableLTOfDecidableEq___spec__3___rarg(x_1, x_2, x_3, x_4, x_20, x_19, x_20, x_17, lean_box(0), lean_box(0));
-lean_dec(x_19);
-x_22 = lean_ctor_get(x_21, 0);
-lean_inc(x_22);
-lean_dec(x_21);
-if (lean_obj_tag(x_22) == 0)
-{
-uint8_t x_23; 
-x_23 = lean_nat_dec_lt(x_5, x_6);
-lean_dec(x_6);
-lean_dec(x_5);
-return x_23;
-}
-else
-{
-lean_object* x_24; uint8_t x_25; 
-lean_dec(x_6);
-lean_dec(x_5);
-x_24 = lean_ctor_get(x_22, 0);
-lean_inc(x_24);
-lean_dec(x_22);
-x_25 = lean_unbox(x_24);
-lean_dec(x_24);
-return x_25;
-}
-}
-}
-}
-LEAN_EXPORT lean_object* l_Array_lex___at_Array_instDecidableLTOfDecidableEq___spec__1(lean_object* x_1) {
-_start:
-{
-lean_object* x_2; 
-x_2 = lean_alloc_closure((void*)(l_Array_lex___at_Array_instDecidableLTOfDecidableEq___spec__1___rarg___boxed), 4, 0);
-return x_2;
-}
-}
-LEAN_EXPORT uint8_t l_Array_instDecidableLTOfDecidableEq___rarg(lean_object* x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4, lean_object* x_5) {
-_start:
-{
-uint8_t x_6; 
-x_6 = l_Array_lex___at_Array_instDecidableLTOfDecidableEq___spec__1___rarg(x_1, x_4, x_5, x_3);
-return x_6;
-}
-}
-LEAN_EXPORT lean_object* l_Array_instDecidableLTOfDecidableEq(lean_object* x_1) {
-_start:
-{
-lean_object* x_2; 
-x_2 = lean_alloc_closure((void*)(l_Array_instDecidableLTOfDecidableEq___rarg___boxed), 5, 0);
-return x_2;
-}
-}
-LEAN_EXPORT lean_object* l_Std_Range_forIn_x27_loop___at_Array_instDecidableLTOfDecidableEq___spec__2___rarg___boxed(lean_object* x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4, lean_object* x_5, lean_object* x_6, lean_object* x_7, lean_object* x_8, lean_object* x_9, lean_object* x_10) {
-_start:
-{
-lean_object* x_11; 
-x_11 = l_Std_Range_forIn_x27_loop___at_Array_instDecidableLTOfDecidableEq___spec__2___rarg(x_1, x_2, x_3, x_4, x_5, x_6, x_7, x_8, x_9, x_10);
-lean_dec(x_7);
-lean_dec(x_6);
-lean_dec(x_5);
-lean_dec(x_3);
-lean_dec(x_2);
-return x_11;
-}
-}
-LEAN_EXPORT lean_object* l_Std_Range_forIn_x27_loop___at_Array_instDecidableLTOfDecidableEq___spec__3___rarg___boxed(lean_object* x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4, lean_object* x_5, lean_object* x_6, lean_object* x_7, lean_object* x_8, lean_object* x_9, lean_object* x_10) {
-_start:
-{
-lean_object* x_11; 
-x_11 = l_Std_Range_forIn_x27_loop___at_Array_instDecidableLTOfDecidableEq___spec__3___rarg(x_1, x_2, x_3, x_4, x_5, x_6, x_7, x_8, x_9, x_10);
-lean_dec(x_7);
-lean_dec(x_6);
-lean_dec(x_5);
-lean_dec(x_3);
-lean_dec(x_2);
-return x_11;
-}
-}
-LEAN_EXPORT lean_object* l_Array_lex___at_Array_instDecidableLTOfDecidableEq___spec__1___rarg___lambda__1___boxed(lean_object* x_1, lean_object* x_2, lean_object* x_3) {
-_start:
-{
-uint8_t x_4; lean_object* x_5; 
-x_4 = l_Array_lex___at_Array_instDecidableLTOfDecidableEq___spec__1___rarg___lambda__1(x_1, x_2, x_3);
-lean_dec(x_3);
-lean_dec(x_2);
-lean_dec(x_1);
-x_5 = lean_box(x_4);
-return x_5;
-}
-}
-LEAN_EXPORT lean_object* l_Array_lex___at_Array_instDecidableLTOfDecidableEq___spec__1___rarg___boxed(lean_object* x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4) {
-_start:
-{
-uint8_t x_5; lean_object* x_6; 
-x_5 = l_Array_lex___at_Array_instDecidableLTOfDecidableEq___spec__1___rarg(x_1, x_2, x_3, x_4);
-lean_dec(x_3);
-lean_dec(x_2);
-x_6 = lean_box(x_5);
-return x_6;
-}
-}
-LEAN_EXPORT lean_object* l_Array_instDecidableLTOfDecidableEq___rarg___boxed(lean_object* x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4, lean_object* x_5) {
-_start:
-{
-uint8_t x_6; lean_object* x_7; 
-x_6 = l_Array_instDecidableLTOfDecidableEq___rarg(x_1, x_2, x_3, x_4, x_5);
-lean_dec(x_5);
-lean_dec(x_4);
-lean_dec(x_2);
-x_7 = lean_box(x_6);
-return x_7;
-}
-}
-LEAN_EXPORT lean_object* l_Std_Range_forIn_x27_loop___at_Array_instDecidableLEOfDecidableEqOfDecidableLT___spec__2___rarg(lean_object* x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4, lean_object* x_5, lean_object* x_6, lean_object* x_7, lean_object* x_8, lean_object* x_9, lean_object* x_10) {
-_start:
-{
-lean_object* x_11; uint8_t x_12; 
-x_11 = lean_ctor_get(x_6, 1);
-x_12 = lean_nat_dec_lt(x_8, x_11);
-if (x_12 == 0)
-{
-lean_dec(x_8);
-lean_dec(x_4);
-lean_dec(x_1);
-lean_inc(x_7);
-return x_7;
-}
-else
-{
-lean_object* x_13; lean_object* x_14; lean_object* x_15; uint8_t x_16; 
-x_13 = lean_array_fget(x_2, x_8);
-x_14 = lean_array_fget(x_3, x_8);
-lean_inc(x_4);
-lean_inc(x_14);
-lean_inc(x_13);
-x_15 = lean_apply_2(x_4, x_13, x_14);
-x_16 = lean_unbox(x_15);
-lean_dec(x_15);
-if (x_16 == 0)
-{
-lean_object* x_17; uint8_t x_18; 
-lean_inc(x_1);
-x_17 = lean_apply_2(x_1, x_13, x_14);
-x_18 = lean_unbox(x_17);
-lean_dec(x_17);
-if (x_18 == 0)
-{
-lean_object* x_19; 
-lean_dec(x_8);
-lean_dec(x_4);
-lean_dec(x_1);
-x_19 = l_Std_Range_forIn_x27_loop___at_Array_instDecidableLTOfDecidableEq___spec__2___rarg___closed__2;
-return x_19;
-}
-else
-{
-lean_object* x_20; lean_object* x_21; 
-x_20 = lean_ctor_get(x_6, 2);
-x_21 = lean_nat_add(x_8, x_20);
-lean_dec(x_8);
-{
-lean_object* _tmp_6 = x_5;
-lean_object* _tmp_7 = x_21;
-lean_object* _tmp_8 = lean_box(0);
-lean_object* _tmp_9 = lean_box(0);
-x_7 = _tmp_6;
-x_8 = _tmp_7;
-x_9 = _tmp_8;
-x_10 = _tmp_9;
-}
-goto _start;
-}
-}
-else
-{
-lean_object* x_23; 
-lean_dec(x_14);
-lean_dec(x_13);
-lean_dec(x_8);
-lean_dec(x_4);
-lean_dec(x_1);
-x_23 = l_Std_Range_forIn_x27_loop___at_Array_instDecidableLTOfDecidableEq___spec__2___rarg___closed__4;
-return x_23;
-}
-}
-}
-}
-LEAN_EXPORT lean_object* l_Std_Range_forIn_x27_loop___at_Array_instDecidableLEOfDecidableEqOfDecidableLT___spec__2(lean_object* x_1) {
-_start:
-{
-lean_object* x_2; 
-x_2 = lean_alloc_closure((void*)(l_Std_Range_forIn_x27_loop___at_Array_instDecidableLEOfDecidableEqOfDecidableLT___spec__2___rarg___boxed), 10, 0);
-return x_2;
-}
-}
-LEAN_EXPORT lean_object* l_Std_Range_forIn_x27_loop___at_Array_instDecidableLEOfDecidableEqOfDecidableLT___spec__3___rarg(lean_object* x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4, lean_object* x_5, lean_object* x_6, lean_object* x_7, lean_object* x_8, lean_object* x_9, lean_object* x_10) {
-_start:
-{
-lean_object* x_11; uint8_t x_12; 
-x_11 = lean_ctor_get(x_6, 1);
-x_12 = lean_nat_dec_lt(x_8, x_11);
-if (x_12 == 0)
-{
-lean_dec(x_8);
-lean_dec(x_4);
-lean_dec(x_1);
-lean_inc(x_7);
-return x_7;
-}
-else
-{
-lean_object* x_13; lean_object* x_14; lean_object* x_15; uint8_t x_16; 
-x_13 = lean_array_fget(x_2, x_8);
-x_14 = lean_array_fget(x_3, x_8);
-lean_inc(x_4);
-lean_inc(x_14);
-lean_inc(x_13);
-x_15 = lean_apply_2(x_4, x_13, x_14);
-x_16 = lean_unbox(x_15);
-lean_dec(x_15);
-if (x_16 == 0)
-{
-lean_object* x_17; uint8_t x_18; 
-lean_inc(x_1);
-x_17 = lean_apply_2(x_1, x_13, x_14);
-x_18 = lean_unbox(x_17);
-lean_dec(x_17);
-if (x_18 == 0)
-{
-lean_object* x_19; 
-lean_dec(x_8);
-lean_dec(x_4);
-lean_dec(x_1);
-x_19 = l_Std_Range_forIn_x27_loop___at_Array_instDecidableLTOfDecidableEq___spec__2___rarg___closed__2;
-return x_19;
-}
-else
-{
-lean_object* x_20; lean_object* x_21; 
-x_20 = lean_ctor_get(x_6, 2);
-x_21 = lean_nat_add(x_8, x_20);
-lean_dec(x_8);
-{
-lean_object* _tmp_6 = x_5;
-lean_object* _tmp_7 = x_21;
-lean_object* _tmp_8 = lean_box(0);
-lean_object* _tmp_9 = lean_box(0);
-x_7 = _tmp_6;
-x_8 = _tmp_7;
-x_9 = _tmp_8;
-x_10 = _tmp_9;
-}
-goto _start;
-}
-}
-else
-{
-lean_object* x_23; 
-lean_dec(x_14);
-lean_dec(x_13);
-lean_dec(x_8);
-lean_dec(x_4);
-lean_dec(x_1);
-x_23 = l_Std_Range_forIn_x27_loop___at_Array_instDecidableLTOfDecidableEq___spec__2___rarg___closed__4;
-return x_23;
-}
-}
-}
-}
-LEAN_EXPORT lean_object* l_Std_Range_forIn_x27_loop___at_Array_instDecidableLEOfDecidableEqOfDecidableLT___spec__3(lean_object* x_1) {
-_start:
-{
-lean_object* x_2; 
-x_2 = lean_alloc_closure((void*)(l_Std_Range_forIn_x27_loop___at_Array_instDecidableLEOfDecidableEqOfDecidableLT___spec__3___rarg___boxed), 10, 0);
-return x_2;
-}
-}
-LEAN_EXPORT uint8_t l_Array_lex___at_Array_instDecidableLEOfDecidableEqOfDecidableLT___spec__1___rarg(lean_object* x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4) {
-_start:
-{
-lean_object* x_5; lean_object* x_6; uint8_t x_7; 
-x_5 = lean_array_get_size(x_2);
-x_6 = lean_array_get_size(x_3);
-x_7 = lean_nat_dec_le(x_5, x_6);
-if (x_7 == 0)
-{
-lean_object* x_8; lean_object* x_9; lean_object* x_10; lean_object* x_11; lean_object* x_12; lean_object* x_13; 
-x_8 = lean_unsigned_to_nat(0u);
-x_9 = lean_unsigned_to_nat(1u);
-lean_inc(x_6);
-x_10 = lean_alloc_ctor(0, 3, 0);
-lean_ctor_set(x_10, 0, x_8);
-lean_ctor_set(x_10, 1, x_6);
-lean_ctor_set(x_10, 2, x_9);
-x_11 = l_Array_lex___at_Array_instDecidableLTOfDecidableEq___spec__1___rarg___closed__1;
-x_12 = l_Std_Range_forIn_x27_loop___at_Array_instDecidableLEOfDecidableEqOfDecidableLT___spec__2___rarg(x_1, x_2, x_3, x_4, x_11, x_10, x_11, x_8, lean_box(0), lean_box(0));
-lean_dec(x_10);
-x_13 = lean_ctor_get(x_12, 0);
-lean_inc(x_13);
-lean_dec(x_12);
-if (lean_obj_tag(x_13) == 0)
-{
-uint8_t x_14; 
-x_14 = lean_nat_dec_lt(x_5, x_6);
-lean_dec(x_6);
-lean_dec(x_5);
-return x_14;
-}
-else
-{
-lean_object* x_15; uint8_t x_16; 
-lean_dec(x_6);
-lean_dec(x_5);
-x_15 = lean_ctor_get(x_13, 0);
-lean_inc(x_15);
-lean_dec(x_13);
-x_16 = lean_unbox(x_15);
-lean_dec(x_15);
-return x_16;
-}
-}
-else
-{
-lean_object* x_17; lean_object* x_18; lean_object* x_19; lean_object* x_20; lean_object* x_21; lean_object* x_22; 
-x_17 = lean_unsigned_to_nat(0u);
-x_18 = lean_unsigned_to_nat(1u);
-lean_inc(x_5);
-x_19 = lean_alloc_ctor(0, 3, 0);
-lean_ctor_set(x_19, 0, x_17);
-lean_ctor_set(x_19, 1, x_5);
-lean_ctor_set(x_19, 2, x_18);
-x_20 = l_Array_lex___at_Array_instDecidableLTOfDecidableEq___spec__1___rarg___closed__1;
-x_21 = l_Std_Range_forIn_x27_loop___at_Array_instDecidableLEOfDecidableEqOfDecidableLT___spec__3___rarg(x_1, x_2, x_3, x_4, x_20, x_19, x_20, x_17, lean_box(0), lean_box(0));
-lean_dec(x_19);
-x_22 = lean_ctor_get(x_21, 0);
-lean_inc(x_22);
-lean_dec(x_21);
-if (lean_obj_tag(x_22) == 0)
-{
-uint8_t x_23; 
-x_23 = lean_nat_dec_lt(x_5, x_6);
-lean_dec(x_6);
-lean_dec(x_5);
-return x_23;
-}
-else
-{
-lean_object* x_24; uint8_t x_25; 
-lean_dec(x_6);
-lean_dec(x_5);
-x_24 = lean_ctor_get(x_22, 0);
-lean_inc(x_24);
-lean_dec(x_22);
-x_25 = lean_unbox(x_24);
-lean_dec(x_24);
-return x_25;
-}
-}
-}
-}
-LEAN_EXPORT lean_object* l_Array_lex___at_Array_instDecidableLEOfDecidableEqOfDecidableLT___spec__1(lean_object* x_1) {
-_start:
-{
-lean_object* x_2; 
-x_2 = lean_alloc_closure((void*)(l_Array_lex___at_Array_instDecidableLEOfDecidableEqOfDecidableLT___spec__1___rarg___boxed), 4, 0);
-return x_2;
-}
-}
-LEAN_EXPORT uint8_t l_Array_instDecidableLEOfDecidableEqOfDecidableLT___rarg(lean_object* x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4, lean_object* x_5) {
-_start:
-{
-uint8_t x_6; 
-x_6 = l_Array_lex___at_Array_instDecidableLEOfDecidableEqOfDecidableLT___spec__1___rarg(x_1, x_5, x_4, x_3);
-if (x_6 == 0)
-{
-uint8_t x_7; 
-x_7 = 1;
-return x_7;
-}
-else
-{
-uint8_t x_8; 
-x_8 = 0;
-return x_8;
-}
-}
-}
-LEAN_EXPORT lean_object* l_Array_instDecidableLEOfDecidableEqOfDecidableLT(lean_object* x_1) {
-_start:
-{
-lean_object* x_2; 
-x_2 = lean_alloc_closure((void*)(l_Array_instDecidableLEOfDecidableEqOfDecidableLT___rarg___boxed), 5, 0);
-return x_2;
-}
-}
-LEAN_EXPORT lean_object* l_Std_Range_forIn_x27_loop___at_Array_instDecidableLEOfDecidableEqOfDecidableLT___spec__2___rarg___boxed(lean_object* x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4, lean_object* x_5, lean_object* x_6, lean_object* x_7, lean_object* x_8, lean_object* x_9, lean_object* x_10) {
-_start:
-{
-lean_object* x_11; 
-x_11 = l_Std_Range_forIn_x27_loop___at_Array_instDecidableLEOfDecidableEqOfDecidableLT___spec__2___rarg(x_1, x_2, x_3, x_4, x_5, x_6, x_7, x_8, x_9, x_10);
-lean_dec(x_7);
-lean_dec(x_6);
-lean_dec(x_5);
-lean_dec(x_3);
-lean_dec(x_2);
-return x_11;
-}
-}
-LEAN_EXPORT lean_object* l_Std_Range_forIn_x27_loop___at_Array_instDecidableLEOfDecidableEqOfDecidableLT___spec__3___rarg___boxed(lean_object* x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4, lean_object* x_5, lean_object* x_6, lean_object* x_7, lean_object* x_8, lean_object* x_9, lean_object* x_10) {
-_start:
-{
-lean_object* x_11; 
-x_11 = l_Std_Range_forIn_x27_loop___at_Array_instDecidableLEOfDecidableEqOfDecidableLT___spec__3___rarg(x_1, x_2, x_3, x_4, x_5, x_6, x_7, x_8, x_9, x_10);
-lean_dec(x_7);
-lean_dec(x_6);
-lean_dec(x_5);
-lean_dec(x_3);
-lean_dec(x_2);
-return x_11;
-}
-}
-LEAN_EXPORT lean_object* l_Array_lex___at_Array_instDecidableLEOfDecidableEqOfDecidableLT___spec__1___rarg___boxed(lean_object* x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4) {
-_start:
-{
-uint8_t x_5; lean_object* x_6; 
-x_5 = l_Array_lex___at_Array_instDecidableLEOfDecidableEqOfDecidableLT___spec__1___rarg(x_1, x_2, x_3, x_4);
-lean_dec(x_3);
-lean_dec(x_2);
-x_6 = lean_box(x_5);
-return x_6;
-}
-}
-LEAN_EXPORT lean_object* l_Array_instDecidableLEOfDecidableEqOfDecidableLT___rarg___boxed(lean_object* x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4, lean_object* x_5) {
-_start:
-{
-uint8_t x_6; lean_object* x_7; 
-x_6 = l_Array_instDecidableLEOfDecidableEqOfDecidableLT___rarg(x_1, x_2, x_3, x_4, x_5);
-lean_dec(x_5);
-lean_dec(x_4);
-lean_dec(x_2);
-x_7 = lean_box(x_6);
-return x_7;
-}
-}
-lean_object* initialize_Init_Data_Array_Lex_Basic(uint8_t builtin, lean_object*);
-lean_object* initialize_Init_Data_Array_Lemmas(uint8_t builtin, lean_object*);
-lean_object* initialize_Init_Data_List_Lex(uint8_t builtin, lean_object*);
+uint8_t v_res_109_; lean_object* v_r_110_; 
+v_res_109_ = l_Array_instDecidableLEOfDecidableEqOfDecidableLT(v_00_u03b1_103_, v_inst_104_, v_inst_105_, v_inst_106_, v_xs_107_, v_ys_108_);
+v_r_110_ = lean_box(v_res_109_);
+return v_r_110_;
+}
+}
+lean_object* runtime_initialize_Init_Data_Array_Lex_Basic(uint8_t builtin);
+lean_object* runtime_initialize_Init_Data_Array_Lex_Basic(uint8_t builtin);
+lean_object* runtime_initialize_Init_Data_Range_Polymorphic_NatLemmas(uint8_t builtin);
+lean_object* runtime_initialize_Init_Data_BEq(uint8_t builtin);
+lean_object* runtime_initialize_Init_Data_Array_DecidableEq(uint8_t builtin);
+lean_object* runtime_initialize_Init_Data_Array_Lemmas(uint8_t builtin);
+lean_object* runtime_initialize_Init_Data_Bool(uint8_t builtin);
+lean_object* runtime_initialize_Init_Data_List_Lex(uint8_t builtin);
+lean_object* runtime_initialize_Init_Data_Range_Polymorphic_Lemmas(uint8_t builtin);
+void lean_initialize_runtime_module();
+static bool _G_runtime_initialized = false;
+LEAN_EXPORT lean_object* runtime_initialize_Init_Data_Array_Lex_Lemmas(uint8_t builtin) {
+lean_object * res;
+if (_G_runtime_initialized) return lean_io_result_mk_ok(lean_box(0));
+_G_runtime_initialized = true;
+lean_initialize_runtime_module();
+res = runtime_initialize_Init_Data_Array_Lex_Basic(builtin);
+if (lean_io_result_is_error(res)) return res;
+lean_dec_ref(res);
+res = runtime_initialize_Init_Data_Array_Lex_Basic(builtin);
+if (lean_io_result_is_error(res)) return res;
+lean_dec_ref(res);
+res = runtime_initialize_Init_Data_Range_Polymorphic_NatLemmas(builtin);
+if (lean_io_result_is_error(res)) return res;
+lean_dec_ref(res);
+res = runtime_initialize_Init_Data_BEq(builtin);
+if (lean_io_result_is_error(res)) return res;
+lean_dec_ref(res);
+res = runtime_initialize_Init_Data_Array_DecidableEq(builtin);
+if (lean_io_result_is_error(res)) return res;
+lean_dec_ref(res);
+res = runtime_initialize_Init_Data_Array_Lemmas(builtin);
+if (lean_io_result_is_error(res)) return res;
+lean_dec_ref(res);
+res = runtime_initialize_Init_Data_Bool(builtin);
+if (lean_io_result_is_error(res)) return res;
+lean_dec_ref(res);
+res = runtime_initialize_Init_Data_List_Lex(builtin);
+if (lean_io_result_is_error(res)) return res;
+lean_dec_ref(res);
+res = runtime_initialize_Init_Data_Range_Polymorphic_Lemmas(builtin);
+if (lean_io_result_is_error(res)) return res;
+lean_dec_ref(res);
+return lean_io_result_mk_ok(lean_box(0));
+}
+static bool _G_meta_initialized = false;
+LEAN_EXPORT lean_object* meta_initialize_Init_Data_Array_Lex_Lemmas(uint8_t builtin) {
+lean_object * res;
+if (_G_meta_initialized) return lean_io_result_mk_ok(lean_box(0));
+_G_meta_initialized = true;
+return lean_io_result_mk_ok(lean_box(0));
+}
+lean_object* initialize_Init_Data_Array_Lex_Basic(uint8_t builtin);
+lean_object* initialize_Init_Data_Array_Lex_Basic(uint8_t builtin);
+lean_object* initialize_Init_Data_Range_Polymorphic_NatLemmas(uint8_t builtin);
+lean_object* initialize_Init_Data_BEq(uint8_t builtin);
+lean_object* initialize_Init_Data_Array_DecidableEq(uint8_t builtin);
+lean_object* initialize_Init_Data_Array_Lemmas(uint8_t builtin);
+lean_object* initialize_Init_Data_Bool(uint8_t builtin);
+lean_object* initialize_Init_Data_List_Lex(uint8_t builtin);
+lean_object* initialize_Init_Data_Range_Polymorphic_Lemmas(uint8_t builtin);
 static bool _G_initialized = false;
-LEAN_EXPORT lean_object* initialize_Init_Data_Array_Lex_Lemmas(uint8_t builtin, lean_object* w) {
+LEAN_EXPORT lean_object* initialize_Init_Data_Array_Lex_Lemmas(uint8_t builtin) {
 lean_object * res;
 if (_G_initialized) return lean_io_result_mk_ok(lean_box(0));
 _G_initialized = true;
-res = initialize_Init_Data_Array_Lex_Basic(builtin, lean_io_mk_world());
+res = initialize_Init_Data_Array_Lex_Basic(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
-res = initialize_Init_Data_Array_Lemmas(builtin, lean_io_mk_world());
+res = initialize_Init_Data_Array_Lex_Basic(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
-res = initialize_Init_Data_List_Lex(builtin, lean_io_mk_world());
+res = initialize_Init_Data_Range_Polymorphic_NatLemmas(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
-l_Std_Range_forIn_x27_loop___at_Array_instDecidableLTOfDecidableEq___spec__2___rarg___closed__1 = _init_l_Std_Range_forIn_x27_loop___at_Array_instDecidableLTOfDecidableEq___spec__2___rarg___closed__1();
-lean_mark_persistent(l_Std_Range_forIn_x27_loop___at_Array_instDecidableLTOfDecidableEq___spec__2___rarg___closed__1);
-l_Std_Range_forIn_x27_loop___at_Array_instDecidableLTOfDecidableEq___spec__2___rarg___closed__2 = _init_l_Std_Range_forIn_x27_loop___at_Array_instDecidableLTOfDecidableEq___spec__2___rarg___closed__2();
-lean_mark_persistent(l_Std_Range_forIn_x27_loop___at_Array_instDecidableLTOfDecidableEq___spec__2___rarg___closed__2);
-l_Std_Range_forIn_x27_loop___at_Array_instDecidableLTOfDecidableEq___spec__2___rarg___closed__3 = _init_l_Std_Range_forIn_x27_loop___at_Array_instDecidableLTOfDecidableEq___spec__2___rarg___closed__3();
-lean_mark_persistent(l_Std_Range_forIn_x27_loop___at_Array_instDecidableLTOfDecidableEq___spec__2___rarg___closed__3);
-l_Std_Range_forIn_x27_loop___at_Array_instDecidableLTOfDecidableEq___spec__2___rarg___closed__4 = _init_l_Std_Range_forIn_x27_loop___at_Array_instDecidableLTOfDecidableEq___spec__2___rarg___closed__4();
-lean_mark_persistent(l_Std_Range_forIn_x27_loop___at_Array_instDecidableLTOfDecidableEq___spec__2___rarg___closed__4);
-l_Array_lex___at_Array_instDecidableLTOfDecidableEq___spec__1___rarg___closed__1 = _init_l_Array_lex___at_Array_instDecidableLTOfDecidableEq___spec__1___rarg___closed__1();
-lean_mark_persistent(l_Array_lex___at_Array_instDecidableLTOfDecidableEq___spec__1___rarg___closed__1);
-return lean_io_result_mk_ok(lean_box(0));
+res = initialize_Init_Data_BEq(builtin);
+if (lean_io_result_is_error(res)) return res;
+lean_dec_ref(res);
+res = initialize_Init_Data_Array_DecidableEq(builtin);
+if (lean_io_result_is_error(res)) return res;
+lean_dec_ref(res);
+res = initialize_Init_Data_Array_Lemmas(builtin);
+if (lean_io_result_is_error(res)) return res;
+lean_dec_ref(res);
+res = initialize_Init_Data_Bool(builtin);
+if (lean_io_result_is_error(res)) return res;
+lean_dec_ref(res);
+res = initialize_Init_Data_List_Lex(builtin);
+if (lean_io_result_is_error(res)) return res;
+lean_dec_ref(res);
+res = initialize_Init_Data_Range_Polymorphic_Lemmas(builtin);
+if (lean_io_result_is_error(res)) return res;
+lean_dec_ref(res);
+res = runtime_initialize_Init_Data_Array_Lex_Lemmas(builtin);
+if (lean_io_result_is_error(res)) return res;
+lean_dec_ref(res);
+res = meta_initialize_Init_Data_Array_Lex_Lemmas(builtin);
+if (lean_io_result_is_error(res)) return res;
+lean_dec_ref(res);
+return initialize_Init_Data_Array_Lex_Lemmas(builtin);
 }
 #ifdef __cplusplus
 }

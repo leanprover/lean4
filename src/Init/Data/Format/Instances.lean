@@ -6,9 +6,11 @@ Author: Leonardo de Moura
 module
 
 prelude
-import Init.Data.Format.Basic
-import Init.Data.Array.Basic
-import Init.Data.ToString.Basic
+import Init.Data.String.Search
+public import Init.Data.ToString.Basic
+import Init.Data.Iterators.Consumers.Collect
+
+public section
 
 open Std
 
@@ -46,7 +48,7 @@ Converts a string to a pretty-printer document, replacing newlines in the string
 `Std.Format.line`.
 -/
 def String.toFormat (s : String) : Std.Format :=
-  Std.Format.joinSep (s.splitOn "\n") Std.Format.line
+  Std.Format.joinSep (s.split '\n').toList Std.Format.line
 
-instance : ToFormat String.Pos where
+instance : ToFormat String.Pos.Raw where
   format p := format p.byteIdx

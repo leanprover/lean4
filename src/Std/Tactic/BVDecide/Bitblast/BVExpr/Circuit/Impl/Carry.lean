@@ -3,8 +3,13 @@ Copyright (c) 2024 Lean FRO, LLC. All rights reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Henrik Böving
 -/
+module
+
 prelude
-import Std.Tactic.BVDecide.Bitblast.BVExpr.Circuit.Impl.Operations.Add
+public import Std.Tactic.BVDecide.Bitblast.BVExpr.Circuit.Impl.Operations.Add
+import Init.Omega
+
+@[expose] public section
 
 /-!
 This module contains the implementation of a circuit to determine whether a certain addition would
@@ -80,13 +85,11 @@ termination_by w - curr
 instance : AIG.LawfulOperator α OverflowInput mkOverflowBit where
   le_size := by
     intros
-    unfold mkOverflowBit
-    dsimp only
+    simp only [mkOverflowBit]
     apply go_le_size
   decl_eq := by
     intros
-    unfold mkOverflowBit
-    dsimp only
+    simp only [mkOverflowBit]
     rw [go_decl_eq]
 
 end mkOverflowBit

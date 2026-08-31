@@ -3,14 +3,17 @@ Copyright (c) 2024 Lean FRO, LLC. All rights reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Sofia Rodrigues
 -/
+module
+
 prelude
-import Std.Internal.Rat
-import Std.Time.Date.Unit.Day
+public import Std.Time.Date.Unit.Day
+import Init.Data.Fin.Lemmas
+
+public section
 
 namespace Std
 namespace Time
 namespace Month
-open Std.Internal
 open Internal
 
 set_option linter.all true
@@ -18,7 +21,7 @@ set_option linter.all true
 /--
 `Ordinal` represents a bounded value for months, which ranges between 1 and 12.
 -/
-def Ordinal := Bounded.LE 1 12
+@[expose] def Ordinal := Bounded.LE 1 12
 deriving Repr, DecidableEq, LE, LT
 
 instance : OfNat Ordinal n :=
@@ -42,7 +45,7 @@ instance : LawfulEqOrd Ordinal := inferInstanceAs <| LawfulEqOrd (Bounded.LE 1 _
 /--
 `Offset` represents an offset in months. It is defined as an `Int`.
 -/
-def Offset : Type := Int
+@[expose] def Offset : Type := Int
 deriving Repr, DecidableEq, Inhabited, Add, Sub, Mul, Div, Neg, ToString, LT, LE
 
 instance {x y : Offset} : Decidable (x ≤ y) :=
@@ -63,7 +66,7 @@ instance : LawfulEqOrd Offset := inferInstanceAs <| LawfulEqOrd Int
 /--
 `Quarter` represents a value between 1 and 4, inclusive, corresponding to the four quarters of a year.
 -/
-def Quarter := Bounded.LE 1 4
+@[expose] def Quarter := Bounded.LE 1 4
 deriving Repr, DecidableEq, LT, LE
 
 instance : OfNat Quarter n := inferInstanceAs <| OfNat (Bounded.LE 1 (1 + (3 : Nat))) n
@@ -224,24 +227,21 @@ Transforms `Month.Ordinal` into `Minute.Offset`.
 -/
 @[inline]
 def toMinutes (leap : Bool) (month : Ordinal) : Minute.Offset :=
-  toSeconds leap month
-  |>.ediv 60
+  toSeconds leap month |>.toMinutes
 
 /--
 Transforms `Month.Ordinal` into `Hour.Offset`.
 -/
 @[inline]
 def toHours (leap : Bool) (month : Ordinal) : Hour.Offset :=
-  toMinutes leap month
-  |>.ediv 60
+  toMinutes leap month |>.toHours
 
 /--
 Transforms `Month.Ordinal` into `Day.Offset`.
 -/
 @[inline]
 def toDays (leap : Bool) (month : Ordinal) : Day.Offset :=
-  toSeconds leap month
-  |>.convert
+  toSeconds leap month |>.convert
 
 /--
 Size in days of each month if the year is not a leap year.

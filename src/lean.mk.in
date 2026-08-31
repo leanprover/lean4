@@ -145,7 +145,7 @@ $(LIB_OUT)/$(STATIC_LIB_NAME).export: $(addsuffix .export,$(NAT_OBJS)) | $(LIB_O
 	$(file >$@.in) $(foreach O,$^,$(file >>$@.in,"$O"))
 	# "T"hin archive seems necessary to preserve paths so that we can distinguish
 	# between object files with the same file name when manipulating the archive for
-	# `libleanshared_1`
+	# `libleanshared_*`
 	@$(LEAN_AR) rcsT $@ @$@.in
 	@rm -f $@.in
 else

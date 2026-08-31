@@ -3,10 +3,14 @@ Copyright (c) 2022 Microsoft Corporation. All rights reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
 Author: Leonardo de Moura
 -/
+module
+
 prelude
-import Lean.Data.AssocList
-import Lean.HeadIndex
-import Lean.Meta.Basic
+public import Lean.Data.AssocList
+public import Lean.HeadIndex
+public import Lean.Meta.Basic
+
+public section
 
 namespace Lean.Meta
 

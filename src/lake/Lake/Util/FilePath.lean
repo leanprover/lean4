@@ -3,15 +3,20 @@ Copyright (c) 2024 Mac Malone. All rights reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Mac Malone
 -/
+module
+
 prelude
-import Lean.Data.Json
+public import Lean.Data.Json
+import Init.Data.String.TakeDrop
+import Init.Data.String.Modify
+import Init.System.Platform
 
 open System Lean
 
 namespace Lake
 
 /-- Returns the portion of `path` relative to `root`. If none, returns `path` verbatim. -/
-def relPathFrom (root path : FilePath) : FilePath :=
+public def relPathFrom (root path : FilePath) : FilePath :=
   if let some relPath := path.toString.dropPrefix? root.toString then
     FilePath.mk (relPath.drop 1).toString -- remove leading `/`
   else
@@ -21,28 +26,28 @@ def relPathFrom (root path : FilePath) : FilePath :=
 Convert a relative file path to a platform-independent string.
 Uses `/` as the path separator, even on Windows.
 -/
-def mkRelPathString (path : FilePath) : String :=
+public def mkRelPathString (path : FilePath) : String :=
   if System.Platform.isWindows then
     path.toString.map fun c => if c = '\\' then '/' else c
   else
     path.toString
 
-scoped instance : ToJson FilePath where
+public scoped instance : ToJson FilePath where
   toJson path := toJson <| mkRelPathString path
 
 /--
 Joins a two (potentially) relative paths.
 If either path is `.`, this returns the other.
 -/
-def joinRelative (a b : FilePath) : System.FilePath :=
+public def joinRelative (a b : FilePath) : System.FilePath :=
   if b == "." then a
   else if a == "." then b
   else inline FilePath.join a b
 
-scoped instance : Div FilePath where
+public scoped instance : Div FilePath where
   div := joinRelative
 
-scoped instance : HDiv FilePath String FilePath where
+public scoped instance : HDiv FilePath String FilePath where
   hDiv p sub := joinRelative p ⟨sub⟩
 
 /--
@@ -58,31 +63,24 @@ Examples:
 * ``modOfFilePath "Foo/Bar.tar.gz" = `Foo.Bar``
 * ``modOfFilePath "Foo/Bar.lean/" = `Foo.«Bar.lean»``
 -/
-def modOfFilePath (path : FilePath) : Name :=
+public def modOfFilePath (path : FilePath) : Name :=
   let path := removeExts path.normalize.toString
-  let path := path.stripSuffix FilePath.pathSeparator.toString
-  FilePath.components path |>.foldl .str .anonymous
+  let path := path.dropSuffix FilePath.pathSeparator.toString
+  FilePath.components path.copy |>.foldl .str .anonymous
 where
-  removeExts (s : String) (i := s.endPos) (e := s.endPos) :=
+  removeExts (s : String) (i := s.rawEndPos) (e := s.rawEndPos) :=
     if h : i = 0 then
-      s.extract 0 e
+      String.Pos.Raw.extract s 0 e
     else
-      have := String.prev_lt_of_pos s i h
-      let i' := s.prev i
-      let c  := s.get i'
+      have := String.Pos.Raw.prev_lt_of_pos s i h
+      let i' := i.prev s
+      let c  := i'.get s
       if c == FilePath.pathSeparator then
-        s.extract 0 e
+        String.Pos.Raw.extract s 0 e
       else if c == '.' then
         removeExts s i' i'
       else
         removeExts s i' e
   termination_by i.1
 
--- sanity check
-example :
-  modOfFilePath "Foo/Bar" = `Foo.Bar
-  ∧ modOfFilePath "Foo/Bar/" = `Foo.Bar
-  ∧ modOfFilePath "Foo/Bar.lean" = `Foo.Bar
-  ∧ modOfFilePath "Foo/Bar.tar.gz" = `Foo.Bar
-  ∧ modOfFilePath "Foo/Bar.lean/" = `Foo.«Bar.lean»
-:= by native_decide
+attribute [deprecated "Deprecated without replacement." (since := "2025-08-01")] modOfFilePath

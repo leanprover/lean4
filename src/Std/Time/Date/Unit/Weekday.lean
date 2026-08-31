@@ -3,13 +3,15 @@ Copyright (c) 2024 Lean FRO, LLC. All rights reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Sofia Rodrigues
 -/
+module
+
 prelude
-import Std.Internal.Rat
-import Std.Time.Date.Unit.Day
+public import Std.Time.Date.Unit.Day
+
+public section
 
 namespace Std
 namespace Time
-open Std.Internal
 open Internal
 
 set_option linter.all true
@@ -45,7 +47,7 @@ namespace Weekday
 /--
 `Ordinal` represents a bounded value for weekdays, which ranges between 1 and 7.
 -/
-def Ordinal := Bounded.LE 1 7
+@[expose] def Ordinal := Bounded.LE 1 7
 deriving Repr, DecidableEq, LT, LE
 
 instance {x y : Ordinal} : Decidable (x ≤ y) :=

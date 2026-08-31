@@ -10,13 +10,13 @@ import gdb
 import gdb.printing
 
 def is_scalar(o):
-    return o.cast(gdb.lookup_type('uintptr_t')) & 1 == 1
+    return o.cast(gdb.lookup_type('size_t')) & 1 == 1
 
 def box(n):
     return gdb.Value(n << 1 | 1).cast(gdb.lookup_type('lean_object').pointer())
 
 def unbox(o):
-    return o.cast(gdb.lookup_type('uintptr_t')) >> 1
+    return o.cast(gdb.lookup_type('size_t')) >> 1
 
 def to_cnstr(o):
     return o.cast(gdb.lookup_type('lean_ctor_object').pointer())
@@ -99,28 +99,6 @@ class LeanObjectPrinter:
                 yield ('', val['m_objs'][i].cast(gdb.lookup_type('lean_object').pointer()))
         elif typ == 'string':
             yield ('', val['m_data'])
-
-
-class LeanOptionalPrinter:
-    """Print a lean::optional object."""
-
-    def __init__(self, val):
-        self.val = val
-
-    def get_val(self):
-        if hasattr(self.val, 'm_some'):
-            if not self.val['m_some']:
-                return None
-        elif not self.val['m_value'].cast(gdb.lookup_type('char').pointer()):
-            return None
-        return self.val['m_value']
-
-    def children(self):
-        val = self.get_val()
-        return [('', val)] if val else []
-
-    def to_string(self):
-        return str(self.val.type)
 
 class LeanNamePrinter:
     """Print a lean::name object."""
@@ -300,7 +278,6 @@ class LeanRBMapPrinter:
 def build_pretty_printer():
     pp = gdb.printing.RegexpCollectionPrettyPrinter("lean")
     pp.add_printer('object', '^lean(_|::)object$', LeanObjectPrinter)
-    pp.add_printer('optional', '^lean::optional', LeanOptionalPrinter)
     pp.add_printer('name', '^lean::name$', LeanNamePrinter)
     pp.add_printer('expr', '^lean::expr$', LeanExprPrinter)
     #pp.add_printer('level', '^lean::level$', LeanLevelPrinter)

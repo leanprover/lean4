@@ -3,8 +3,12 @@ Copyright (c) 2020 Sebastian Ullrich. All rights reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Sebastian Ullrich
 -/
+module
+
 prelude
-import Lean.KeyedDeclsAttribute
+public import Lean.KeyedDeclsAttribute
+
+public section
 
 namespace Lean
 namespace PrettyPrinter
@@ -23,7 +27,7 @@ unsafe def runForNodeKind {α} (attr : KeyedDeclsAttribute α) (k : SyntaxNodeKi
       let d ← evalConst ParserDescr k
       interp d
     else
-      throwError "no declaration of attribute [{attr.defn.name}] found for '{k}'"
+      throwError "no declaration of attribute [{attr.defn.name}] found for `{k}`"
 
 end PrettyPrinter
 end Lean

@@ -3,17 +3,19 @@ Copyright (c) 2023 Mario Carneiro. All rights reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Mario Carneiro
 -/
+module
+
 prelude
-import Lean.Server.CodeActions.Basic
+public import Lean.Server.CodeActions.Basic
+import Lean.Compiler.IR.CompilerM
+
+public section
 
 /-!
 # Initial setup for code action attributes
 
 * Attribute `@[hole_code_action]` collects code actions which will be called
   on each occurrence of a hole (`_`, `?_` or `sorry`).
-
-* Attribute `@[tactic_code_action]` collects code actions which will be called
-  on each occurrence of a tactic.
 
 * Attribute `@[command_code_action]` collects code actions which will be called
   on each occurrence of a command.
@@ -51,7 +53,8 @@ builtin_initialize
     add := fun decl stx kind => do
       Attribute.Builtin.ensureNoArgs stx
       unless kind == AttributeKind.global do
-        throwError "invalid attribute 'hole_code_action', must be global"
+        throwAttrMustBeGlobal `hole_code_action kind
+      ensureAttrDeclIsMeta `hole_code_action decl kind
       if (IR.getSorryDep (← getEnv) decl).isSome then return -- ignore in progress definitions
       modifyEnv (holeCodeActionExt.addEntry · (decl, ← mkHoleCodeAction decl))
   }
@@ -90,7 +93,7 @@ def CommandCodeActions.insert (self : CommandCodeActions)
     { self with onAnyCmd := self.onAnyCmd.push action }
   else
     { self with onCmd := tacticKinds.foldl (init := self.onCmd) fun m a =>
-        m.insert a ((m.findD a #[]).push action) }
+        m.insert a ((m.getD a #[]).push action) }
 
 builtin_initialize builtinCmdCodeActions : IO.Ref CommandCodeActions ← IO.mkRef {}
 
@@ -119,10 +122,12 @@ builtin_initialize
     applicationTime := .afterCompilation
     add := fun decl stx kind => do
       unless kind == AttributeKind.global do
-        throwError "invalid attribute 'command_code_action', must be global"
+        throwAttrMustBeGlobal `command_code_action kind
+      ensureAttrDeclIsMeta `command_code_action decl kind
       let `(attr| command_code_action $args*) := stx | return
       let args ← args.mapM realizeGlobalConstNoOverloadWithInfo
       if (IR.getSorryDep (← getEnv) decl).isSome then return -- ignore in progress definitions
+      args.forM (recordExtraModUseFromDecl (isMeta := false))
       modifyEnv (cmdCodeActionExt.addEntry · (⟨decl, args⟩, ← mkCommandCodeAction decl))
   }
 
@@ -141,9 +146,9 @@ builtin_initialize
     applicationTime := .afterCompilation
     add             := fun decl stx kind => do
       unless kind == AttributeKind.global do
-        throwError "invalid attribute 'command_code_action', must be global"
+        throwAttrMustBeGlobal `command_code_action kind
       let `(attr| builtin_command_code_action $args*) := stx |
-        throwError "unexpected 'command_code_action' attribute syntax"
+        throwError "Unexpected `command_code_action` attribute syntax"
       let args ← args.mapM realizeGlobalConstNoOverloadWithInfo
       if (IR.getSorryDep (← getEnv) decl).isSome then return -- ignore in progress definitions
       addBuiltin decl args

@@ -3,13 +3,18 @@ Copyright (c) 2024 Lean FRO, LLC. All rights reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Henrik Böving
 -/
+module
+
 prelude
-import Std.Tactic.BVDecide.Bitblast.BVExpr.Circuit.Impl.Pred
+public import Std.Tactic.BVDecide.Bitblast.BVExpr.Circuit.Impl.Pred
+import Init.Omega
+
+@[expose] public section
 
 /-!
 This module contains the logic to turn a `BVLogicalExpr` into an `AIG` with maximum subterm sharing,
 through the use of a cache that re-uses sub-circuits if possible. Additionally a term level cache
-is used to prevent rerunning bitblasting on commong bitvector subexpressions.
+is used to prevent rerunning bitblasting on common bitvector subexpressions.
 -/
 
 namespace Std.Tactic.BVDecide

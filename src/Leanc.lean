@@ -40,7 +40,9 @@ Interesting options:
   let cflags := getCFlags root
   let mut cflagsInternal := getInternalCFlags root
   let mut ldflagsInternal := getInternalLinkerFlags root
-  let ldflags := getLinkerFlags root linkStatic
+  let mut ldflags := getLinkerFlags root linkStatic
+  if System.Platform.isWindows && !args.contains "-shared" then
+    ldflags := ldflags ++ #["-Wl,--whole-archive", "-lleanmanifest", "-Wl,--no-whole-archive"]
 
   for arg in args do
     match arg with

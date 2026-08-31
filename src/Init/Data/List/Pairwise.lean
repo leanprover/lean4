@@ -6,8 +6,14 @@ Authors: Parikshit Khanna, Jeremy Avigad, Leonardo de Moura, Floris van Doorn, M
 module
 
 prelude
+public import Init.Data.List.Attach
+import Init.ByCases
+import Init.Data.List.Count
 import Init.Data.List.Sublist
-import Init.Data.List.Attach
+import Init.Data.List.TakeDrop
+import Init.Data.Option.Lemmas
+
+public section
 
 /-!
 # Lemmas about `List.Pairwise` and `List.Nodup`.
@@ -24,10 +30,24 @@ open Nat
 
 /-! ### Pairwise -/
 
+theorem pairwise_iff_getElem {l : List α} : Pairwise R l ↔
+    ∀ (i j : Nat) (_hi : i < l.length) (_hj : j < l.length) (_hij : i < j), R l[i] l[j] := by
+  induction l with | nil => simp | cons a l ihl =>
+  simp only [pairwise_cons, length_cons, mem_iff_getElem, ihl, forall_exists_index,
+    forall_comm (α := α), forall_apply_eq_imp_iff]
+  refine ⟨fun ⟨h0, hs⟩ => ?_, fun h => ?_⟩
+  · rintro (_ | i) (_ | j) hi hj hij <;> try contradiction
+    · apply h0
+    · apply hs; simpa [succ_lt_succ_iff] using hij
+  · simpa [succ_lt_succ_iff] using And.intro (fun j => h 0 (j + 1)) (fun i j => h (i + 1) (j + 1))
+
+theorem Pairwise.rel_getElem_of_lt {l : List α} {i j} (hi : i < l.length) (hj : j < l.length)
+    (h : Pairwise R l) : i < j → R l[i] l[j] := pairwise_iff_getElem.mp h _ _ _ _
+
 @[grind →] theorem Pairwise.sublist : l₁ <+ l₂ → l₂.Pairwise R → l₁.Pairwise R
   | .slnil, h => h
   | .cons _ s, .cons _ h₂ => h₂.sublist s
-  | .cons₂ _ s, .cons h₁ h₂ => (h₂.sublist s).cons fun _ h => h₁ _ (s.subset h)
+  | .cons_cons _ s, .cons h₁ h₂ => (h₂.sublist s).cons fun _ h => h₁ _ (s.subset h)
 
 theorem Pairwise.imp {α R S} (H : ∀ {a b}, R a b → S a b) :
     ∀ {l : List α}, l.Pairwise R → l.Pairwise S
@@ -41,7 +61,7 @@ theorem rel_of_pairwise_cons (p : (a :: l).Pairwise R) : ∀ {a'}, a' ∈ l → 
   (pairwise_cons.1 p).2
 
 set_option linter.unusedVariables false in
-@[grind] theorem Pairwise.tail : ∀ {l : List α} (h : Pairwise R l), Pairwise R l.tail
+@[grind ←] theorem Pairwise.tail : ∀ {l : List α} (h : Pairwise R l), Pairwise R l.tail
   | [], h => h
   | _ :: _, h => h.of_cons
 
@@ -59,7 +79,7 @@ theorem Pairwise.and (hR : Pairwise R l) (hS : Pairwise S l) :
   induction hR with
   | nil => simp only [Pairwise.nil]
   | cons R1 _ IH =>
-    simp only [Pairwise.nil, pairwise_cons] at hS ⊢
+    simp only [pairwise_cons] at hS ⊢
     exact ⟨fun b bl => ⟨R1 b bl, hS.1 b bl⟩, IH hS.2⟩
 
 theorem pairwise_and_iff : l.Pairwise (fun a b => R a b ∧ S a b) ↔ Pairwise R l ∧ Pairwise S l :=
@@ -101,7 +121,7 @@ theorem Pairwise.forall_of_forall_of_flip (h₁ : ∀ x ∈ l, R x x) (h₂ : Pa
     · exact h₃.1 _ hx
     · exact ih (fun x hx => h₁ _ <| mem_cons_of_mem _ hx) h₂.2 h₃.2 hx hy
 
-@[grind] theorem pairwise_singleton (R) (a : α) : Pairwise R [a] := by simp
+@[grind ←] theorem pairwise_singleton (R) (a : α) : Pairwise R [a] := by simp
 
 @[grind =] theorem pairwise_pair {a b : α} : Pairwise R [a, b] ↔ R a b := by simp
 
@@ -115,7 +135,7 @@ theorem Pairwise.of_map {S : β → β → Prop} (f : α → β) (H : ∀ a b : 
     (p : Pairwise S (map f l)) : Pairwise R l :=
   (pairwise_map.1 p).imp (H _ _)
 
-@[grind] theorem Pairwise.map {S : β → β → Prop} (f : α → β) (H : ∀ a b : α, R a b → S (f a) (f b))
+@[grind <=] theorem Pairwise.map {S : β → β → Prop} (f : α → β) (H : ∀ a b : α, R a b → S (f a) (f b))
     (p : Pairwise R l) : Pairwise S (map f l) :=
   pairwise_map.2 <| p.imp (H _ _)
 
@@ -134,7 +154,7 @@ theorem Pairwise.of_map {S : β → β → Prop} (f : α → β) (H : ∀ a b : 
     simpa [IH, e] using fun _ =>
       ⟨fun h a ha b hab => h _ _ ha hab, fun h a b ha hab => h _ ha _ hab⟩
 
-@[grind] theorem Pairwise.filterMap {S : β → β → Prop} (f : α → Option β)
+@[grind <=] theorem Pairwise.filterMap {S : β → β → Prop} (f : α → Option β)
     (H : ∀ a a' : α, R a a' → ∀ b, f a = some b → ∀ b', f a' = some b' → S b b') {l : List α} (p : Pairwise R l) :
     Pairwise S (filterMap f l) :=
   pairwise_filterMap.2 <| p.imp (H _ _)
@@ -144,7 +164,7 @@ theorem Pairwise.of_map {S : β → β → Prop} (f : α → β) (H : ∀ a b : 
   rw [← filterMap_eq_filter, pairwise_filterMap]
   simp
 
-@[grind] theorem Pairwise.filter (p : α → Bool) : Pairwise R l → Pairwise R (filter p l) :=
+@[grind ←] theorem Pairwise.filter (p : α → Bool) : Pairwise R l → Pairwise R (filter p l) :=
   Pairwise.sublist filter_sublist
 
 @[grind =] theorem pairwise_append {l₁ l₂ : List α} :
@@ -169,7 +189,7 @@ theorem pairwise_append_comm {R : α → α → Prop} (s : ∀ {x y}, R x y → 
   induction L with
   | nil => simp
   | cons l L IH =>
-    simp only [flatten, pairwise_append, IH, mem_flatten, exists_imp, and_imp, forall_mem_cons,
+    simp only [flatten_cons, pairwise_append, IH, mem_flatten, exists_imp, and_imp, forall_mem_cons,
       pairwise_cons, and_assoc, and_congr_right_iff]
     rw [and_comm, and_congr_left_iff]
     intros; exact ⟨fun h l' b c d e => h c d e l' b, fun h c d e l' b => h l' b c d e⟩
@@ -205,13 +225,13 @@ theorem pairwise_append_comm {R : α → α → Prop} (s : ∀ {x y}, R x y → 
         simp
       · exact ⟨fun _ => h, Or.inr h⟩
 
-@[grind] theorem Pairwise.drop {l : List α} {i : Nat} (h : List.Pairwise R l) : List.Pairwise R (l.drop i) :=
+@[grind ←] theorem Pairwise.drop {l : List α} {i : Nat} (h : List.Pairwise R l) : List.Pairwise R (l.drop i) :=
   h.sublist (drop_sublist _ _)
 
-@[grind] theorem Pairwise.take {l : List α} {i : Nat} (h : List.Pairwise R l) : List.Pairwise R (l.take i) :=
+@[grind ←] theorem Pairwise.take {l : List α} {i : Nat} (h : List.Pairwise R l) : List.Pairwise R (l.take i) :=
   h.sublist (take_sublist _ _)
 
-@[grind =]
+-- This theorem is not annotated with `grind` because it leads to a loop of instantiations with `Pairwise.sublist`.
 theorem pairwise_iff_forall_sublist : l.Pairwise R ↔ (∀ {a b}, [a,b] <+ l → R a b) := by
   induction l with
   | nil => simp
@@ -220,7 +240,7 @@ theorem pairwise_iff_forall_sublist : l.Pairwise R ↔ (∀ {a b}, [a,b] <+ l �
     constructor <;> intro h
     · intro
       | a, b, .cons _ hab => exact IH.mp h.2 hab
-      | _, b, .cons₂ _ hab => refine h.1 _ (hab.subset ?_); simp
+      | _, b, .cons_cons _ hab => refine h.1 _ (hab.subset ?_); simp
     · constructor
       · intro x hx
         apply h
@@ -229,6 +249,10 @@ theorem pairwise_iff_forall_sublist : l.Pairwise R ↔ (∀ {a b}, [a,b] <+ l �
       · apply IH.mpr
         intro a b hab
         apply h; exact hab.cons _
+
+theorem pairwise_of_forall_sublist (g : ∀ {a b}, [a,b] <+ l → R a b) : l.Pairwise R := pairwise_iff_forall_sublist.mpr g
+
+theorem Pairwise.forall_sublist (h : l.Pairwise R) : ∀ {a b}, [a,b] <+ l → R a b := pairwise_iff_forall_sublist.mp h
 
 theorem Pairwise.rel_of_mem_take_of_mem_drop
     {l : List α} (h : l.Pairwise R) (hx : x ∈ l.take i) (hy : y ∈ l.drop i) : R x y := by
@@ -260,7 +284,7 @@ theorem pairwise_of_forall_mem_list {l : List α} {r : α → α → Prop} (h : 
     rintro H _ b hb rfl
     exact H b hb _ _
 
-@[grind] theorem Pairwise.pmap {l : List α} (hl : Pairwise R l) {p : α → Prop} {f : ∀ a, p a → β}
+@[grind <=] theorem Pairwise.pmap {l : List α} (hl : Pairwise R l) {p : α → Prop} {f : ∀ a, p a → β}
     (h : ∀ x ∈ l, p x) {S : β → β → Prop}
     (hS : ∀ ⦃x⦄ (hx : p x) ⦃y⦄ (hy : p y), R x y → S (f x hx) (f y hy)) :
     Pairwise S (l.pmap f h) := by
@@ -271,15 +295,77 @@ theorem pairwise_of_forall_mem_list {l : List α} {r : α → α → Prop} (h : 
 
 @[grind =] theorem nodup_iff_pairwise_ne : List.Nodup l ↔ List.Pairwise (· ≠ ·) l := Iff.rfl
 
-@[simp, grind]
+theorem nodup_iff_eq_of_getElem_eq {l : List α} : List.Nodup l ↔
+    ∀ (i j : Nat) (_hi : i < l.length) (_hj : j < l.length), l[i] = l[j] → i = j := by
+  simp only [nodup_iff_pairwise_ne, pairwise_iff_getElem, Nat.le_antisymm_iff,
+    ← Nat.not_le, Decidable.not_imp_not, forall_and, forall_comm (α := Nat)]
+  exact ⟨fun h => ⟨fun i hi j hj => (h _ hj _ hi ·.symm), h⟩, fun ⟨_, h⟩ => h⟩
+
+theorem Nodup.eq_of_getElem_eq {xs : List α} (h : Nodup xs) (hi : i < xs.length)
+    (hj : j < xs.length) : xs[i] = xs[j] → i = j := nodup_iff_eq_of_getElem_eq.mp h _ _ _ _
+
+theorem Nodup.eq_of_getElem?_eq {xs : List α} (h : Nodup xs) (hi : i < xs.length)
+    (hij : xs[i]? = xs[j]?) : i = j := by
+  simp [getElem?_def, hi] at hij
+  rcases hij with ⟨hj, hij⟩
+  exact h.eq_of_getElem_eq hi hj hij
+
+@[simp] theorem Nodup.getElem_inj {xs : List α} (h : Nodup xs) {hi : i < xs.length}
+    {hj : j < xs.length} : xs[i] = xs[j] ↔ i = j :=
+  ⟨h.eq_of_getElem_eq hi hj, (getElem_congr rfl · hi)⟩
+
+grind_pattern Nodup.getElem_inj => Nodup xs, xs[i]'hi, xs[j]'hj where
+  i =/= j
+
+theorem Nodup.getElem?_inj {xs : List α} (h₀ : i < xs.length) (h₁ : xs.Nodup) :
+    xs[i]? = xs[j]? ↔ i = j := by
+  simp [getElem?_def, h₀, h₁.getElem_inj]
+  exact fun h => h ▸ h₀
+
+theorem Nodup.getD_inj {xs : List α}
+    (h₀ : i < xs.length) (h₁ : j < xs.length) (h₂ : Nodup xs) :
+    xs.getD i fallback = xs.getD j fallback ↔ i = j := by
+  simp only [List.getD_eq_getElem?_getD]
+  rw [Option.getD_inj, h₂.getElem?_inj h₀] <;> simpa
+
+theorem Nodup.getElem!_inj [Inhabited α] {xs : List α}
+    (h₀ : i < xs.length) (h₁ : j < xs.length) (h₂ : Nodup xs) : xs[i]! = xs[j]! ↔ i = j := by
+  simp only [getElem!_eq_getElem?_getD, ← getD_eq_getElem?_getD, h₂.getD_inj h₀ h₁]
+
+@[deprecated Nodup.getElem?_inj (since := "2026-07-15")]
+theorem getElem?_inj {l : List α} (h₀ : i < l.length) (h₁ : List.Nodup l) :
+    l[i]? = l[j]? ↔ i = j := h₁.getElem?_inj h₀
+
+@[deprecated Nodup.getElem_inj +typeChanged (since := "2026-07-15")]
+theorem getElem_inj {xs : List α}
+    {h₀ : i < xs.length} {h₁ : j < xs.length} (h : Nodup xs) : xs[i] = xs[j] ↔ i = j :=
+  h.getElem_inj
+
+@[deprecated Nodup.getD_inj (since := "2026-07-15")]
+theorem getD_inj {xs : List α}
+    (h₀ : i < xs.length) (h₁ : j < xs.length) (h₂ : Nodup xs) :
+    xs.getD i fallback = xs.getD j fallback ↔ i = j := h₂.getD_inj h₀ h₁
+
+@[deprecated Nodup.getElem!_inj (since := "2026-07-15")]
+theorem getElem!_inj [Inhabited α] {xs : List α}
+    (h₀ : i < xs.length) (h₁ : j < xs.length) (h₂ : Nodup xs) : xs[i]! = xs[j]! ↔ i = j :=
+  h₂.getElem!_inj h₀ h₁
+
+@[simp]
 theorem nodup_nil : @Nodup α [] :=
   Pairwise.nil
+
+grind_pattern nodup_nil => @Nodup α []
 
 @[simp, grind =]
 theorem nodup_cons {a : α} {l : List α} : Nodup (a :: l) ↔ a ∉ l ∧ Nodup l := by
   simp only [Nodup, pairwise_cons, forall_mem_ne]
 
-@[grind →] theorem Nodup.sublist : l₁ <+ l₂ → Nodup l₂ → Nodup l₁ :=
+@[grind =] theorem nodup_append {l₁ l₂ : List α} :
+    (l₁ ++ l₂).Nodup ↔ l₁.Nodup ∧ l₂.Nodup ∧ ∀ a ∈ l₁, ∀ b ∈ l₂, a ≠ b :=
+  pairwise_append
+
+theorem Nodup.sublist : l₁ <+ l₂ → Nodup l₂ → Nodup l₁ :=
   Pairwise.sublist
 
 grind_pattern Nodup.sublist => l₁ <+ l₂, Nodup l₁
@@ -288,28 +374,32 @@ grind_pattern Nodup.sublist => l₁ <+ l₂, Nodup l₂
 theorem Sublist.nodup : l₁ <+ l₂ → Nodup l₂ → Nodup l₁ :=
   Nodup.sublist
 
-theorem getElem?_inj {xs : List α}
-    (h₀ : i < xs.length) (h₁ : Nodup xs) (h₂ : xs[i]? = xs[j]?) : i = j := by
-  induction xs generalizing i j with
-  | nil => cases h₀
-  | cons x xs ih =>
-    match i, j with
-    | 0, 0 => rfl
-    | i+1, j+1 =>
-      cases h₁ with
-      | cons ha h₁ =>
-        simp only [getElem?_cons_succ] at h₂
-        exact congrArg (· + 1) (ih (Nat.lt_of_succ_lt_succ h₀) h₁ h₂)
-    | i+1, 0 => ?_
-    | 0, j+1 => ?_
-    all_goals
-      simp only [getElem?_cons_zero, getElem?_cons_succ] at h₂
-      cases h₁; rename_i h' h
-      have := h x ?_ rfl; cases this
-      rw [mem_iff_getElem?]
-    exact ⟨_, h₂⟩; exact ⟨_ , h₂.symm⟩
-
 @[simp, grind =] theorem nodup_replicate {n : Nat} {a : α} :
     (replicate n a).Nodup ↔ n ≤ 1 := by simp [Nodup]
+
+theorem nodup_iff_count_of_mem [BEq α] [LawfulBEq α] {l : List α} :
+    l.Nodup ↔ ∀ a ∈ l, count a l = 1 := by
+  induction l with | nil => simp | cons b l ihl =>
+  simp only [nodup_cons, mem_cons, forall_eq_or_imp, count_cons_self,
+    succ_inj, count_eq_zero, and_congr_right_iff, ihl]
+  exact fun hb => forall₂_congr fun a ha => count_cons_of_ne (hb <| · ▸ ha : b ≠ a) ▸ Iff.rfl
+
+theorem nodup_iff_count_eq_ite [BEq α] [LawfulBEq α] {l : List α} :
+    l.Nodup ↔ ∀ a, count a l = if a ∈ l then 1 else 0 :=
+  nodup_iff_count_of_mem.trans <| forall_congr' fun a => by
+  by_cases ha : a ∈ l <;> simp [ha, count_eq_zero]
+
+theorem Nodup.count [BEq α] [LawfulBEq α] {a : α} {l : List α} (h : Nodup l) :
+    l.count a = if a ∈ l then 1 else 0 := nodup_iff_count_eq_ite.mp h _
+
+theorem Nodup.count_of_mem [BEq α] [LawfulBEq α] {a : α} {l : List α} (h : Nodup l) (ha : a ∈ l) :
+    l.count a = 1 := h.count ▸ ite_eq_left ha
+
+grind_pattern Nodup.count => count a l, Nodup l
+
+@[grind =]
+theorem nodup_iff_count [BEq α] [LawfulBEq α] {l : List α} : l.Nodup ↔ ∀ a, count a l ≤ 1 := by
+  simp only [nodup_iff_count_of_mem, Nat.le_iff_lt_or_eq, Nat.lt_one_iff, count_eq_zero]
+  exact forall_congr' fun _ => Decidable.imp_iff_not_or
 
 end List

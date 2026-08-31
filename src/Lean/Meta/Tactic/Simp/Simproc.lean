@@ -3,11 +3,13 @@ Copyright (c) 2023 Amazon.com, Inc. or its affiliates. All Rights Reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Leonardo de Moura
 -/
+module
+
 prelude
-import Lean.ScopedEnvExtension
-import Lean.Compiler.InitAttr
-import Lean.Meta.DiscrTree
-import Lean.Meta.Tactic.Simp.Types
+public import Lean.Compiler.InitAttr
+public import Lean.Meta.Tactic.Simp.Types
+
+public section
 
 namespace Lean.Meta.Simp
 
@@ -81,9 +83,9 @@ This method is invoked by the command `builtin_simproc_pattern%` elaborator.
 -/
 def registerBuiltinSimprocCore (declName : Name) (key : Array SimpTheoremKey) (proc : Sum Simproc DSimproc) : IO Unit := do
   unless (← initializing) do
-    throw (IO.userError s!"invalid builtin simproc declaration, it can only be registered during initialization")
+    throw (IO.userError s!"Invalid builtin simproc declaration: It can only be registered during initialization")
   if (← builtinSimprocDeclsRef.get).keys.contains declName then
-    throw (IO.userError s!"invalid builtin simproc declaration '{declName}', it has already been declared")
+    throw (IO.userError s!"Invalid builtin simproc declaration `{privateToUserName declName}`: This builtin simproc has already been declared")
   builtinSimprocDeclsRef.modify fun { keys, procs } =>
     { keys := keys.insert declName key, procs := procs.insert declName proc }
 
@@ -96,9 +98,9 @@ def registerBuiltinDSimproc (declName : Name) (key : Array SimpTheoremKey) (proc
 def registerSimproc (declName : Name) (keys : Array SimpTheoremKey) : CoreM Unit := do
   let env ← getEnv
   unless (env.getModuleIdxFor? declName).isNone do
-    throwError "invalid simproc declaration '{declName}', function declaration is in an imported module"
+    throwError "Invalid simproc declaration `{.ofConstName declName}`: This function is declared in an imported module"
   if (← isSimproc declName) then
-    throwError "invalid simproc declaration '{declName}', it has already been declared"
+    throwError "Invalid simproc declaration `{.ofConstName declName}`: This simproc has already been declared"
   modifyEnv fun env => simprocDeclExt.modifyState env fun s => { s with newEntries := s.newEntries.insert declName keys }
 
 instance : BEq SimprocEntry where
@@ -121,15 +123,14 @@ abbrev SimprocExtension := ScopedEnvExtension SimprocOLeanEntry SimprocEntry Sim
 unsafe def getSimprocFromDeclImpl (declName : Name) : ImportM (Sum Simproc DSimproc) := do
   let ctx ← read
   match ctx.env.find? declName with
-  | none      => throw <| IO.userError ("unknown constant '" ++ toString declName ++ "'")
+  | none      => throw <| IO.userError ("Unknown constant `" ++ toString declName ++ "`")
   | some info =>
     match info.type with
     | .const ``Simproc _ =>
       return .inl (← IO.ofExcept <| ctx.env.evalConst Simproc ctx.opts declName)
     | .const ``DSimproc _ =>
       return .inr (← IO.ofExcept <| ctx.env.evalConst DSimproc ctx.opts declName)
-    | _ => throw <| IO.userError "unexpected type at simproc"
-
+    | _ => throw <| IO.userError s!"Simproc `{privateToUserName declName}` has an unexpected type: Expected `Simproc` or `DSimproc`, but found `{info.type}`"
 
 @[implemented_by getSimprocFromDeclImpl]
 opaque getSimprocFromDecl (declName: Name) : ImportM (Sum Simproc DSimproc)
@@ -140,28 +141,28 @@ def toSimprocEntry (e : SimprocOLeanEntry) : ImportM SimprocEntry := do
 def eraseSimprocAttr (ext : SimprocExtension) (declName : Name) : AttrM Unit := do
   let s := ext.getState (← getEnv)
   unless s.simprocNames.contains declName do
-    throwError "'{declName}' does not have a simproc attribute"
+    throwError "`{.ofConstName declName}` does not have a [simproc] attribute"
   modifyEnv fun env => ext.modifyState env fun s => s.erase declName
 
 def addSimprocAttrCore (ext : SimprocExtension) (declName : Name) (kind : AttributeKind) (post : Bool) : CoreM Unit := do
   let proc ← getSimprocFromDecl declName
   let some keys ← getSimprocDeclKeys? declName |
-    throwError "invalid [simproc] attribute, '{declName}' is not a simproc"
+    throwError "Invalid `[simproc]` attribute: `{.ofConstName declName}` is not a simproc"
   ext.add { declName, post, keys, proc } kind
 
 def Simprocs.addCore (s : Simprocs) (keys : Array SimpTheoremKey) (declName : Name) (post : Bool) (proc : Sum Simproc DSimproc) : Simprocs :=
   let s := { s with simprocNames := s.simprocNames.insert declName, erased := s.erased.erase declName }
   if post then
-    { s with post := s.post.insertCore keys { declName, keys, post, proc } }
+    { s with post := s.post.insertKeyValue keys { declName, keys, post, proc } }
   else
-    { s with pre := s.pre.insertCore keys { declName, keys, post, proc } }
+    { s with pre := s.pre.insertKeyValue keys { declName, keys, post, proc } }
 
 /--
 Implements attributes `builtin_simproc` and `builtin_sevalproc`.
 -/
 def addSimprocBuiltinAttrCore (ref : IO.Ref Simprocs) (declName : Name) (post : Bool) (proc : Sum Simproc DSimproc) : IO Unit := do
   let some keys := (← builtinSimprocDeclsRef.get).keys[declName]? |
-    throw (IO.userError "invalid [builtin_simproc] attribute, '{declName}' is not a builtin simproc")
+    throw (IO.userError s!"Invalid `[builtin_simproc]` attribute: `{privateToUserName declName}` is not a builtin simproc")
   ref.modify fun s => s.addCore keys declName post proc
 
 def addSimprocBuiltinAttr (declName : Name) (post : Bool) (proc : Sum Simproc DSimproc) : IO Unit :=
@@ -177,18 +178,25 @@ def Simprocs.add (s : Simprocs) (declName : Name) (post : Bool) : CoreM Simprocs
     catch e =>
       if (← isBuiltinSimproc declName) then
         let some proc := (← builtinSimprocDeclsRef.get).procs[declName]?
-          | throwError "invalid [simproc] attribute, '{declName}' is not a simproc"
+          | throwError "Invalid `[simproc]` attribute: `{.ofConstName declName}` is not a simproc"
         pure proc
       else
         throw e
   let some keys ← getSimprocDeclKeys? declName |
-    throwError "invalid [simproc] attribute, '{declName}' is not a simproc"
+    throwError "Invalid `[simproc]` attribute: `{.ofConstName declName}` is not a simproc"
   return s.addCore keys declName post proc
 
+/--
+Applies `s` to `e` after peeling off `numExtraArgs` trailing arguments, and re-applies them to the
+result. This is how a simproc keyed on `f a b` fires on the over-application `f a b c`.
+
+`numExtraArgs` must be the number `getMatchWithExtra` returned for `e` itself; a number obtained for
+a different expression may exceed the number of arguments `e` has.
+-/
 def SimprocEntry.try (s : SimprocEntry) (numExtraArgs : Nat) (e : Expr) : SimpM Step := do
   let mut extraArgs := #[]
   let mut e := e
-  for _ in [:numExtraArgs] do
+  for _ in *...numExtraArgs do
     extraArgs := extraArgs.push e.appArg!
     e := e.appFn!
   extraArgs := extraArgs.reverse
@@ -204,7 +212,7 @@ def SimprocEntry.try (s : SimprocEntry) (numExtraArgs : Nat) (e : Expr) : SimpM 
 def SimprocEntry.tryD (s : SimprocEntry) (numExtraArgs : Nat) (e : Expr) : SimpM DStep := do
   let mut extraArgs := #[]
   let mut e := e
-  for _ in [:numExtraArgs] do
+  for _ in *...numExtraArgs do
     extraArgs := extraArgs.push e.appArg!
     e := e.appFn!
   extraArgs := extraArgs.reverse
@@ -212,6 +220,13 @@ def SimprocEntry.tryD (s : SimprocEntry) (numExtraArgs : Nat) (e : Expr) : SimpM
   | .inl _ => return .continue
   | .inr proc => return (← proc e).addExtraArgs extraArgs
 
+/--
+Runs the applicable simprocs in `s` on `e`, and returns as soon as one of them rewrites `e`.
+
+We must not keep going with the remaining candidates: they were selected for `e`, and the number of
+extra arguments recorded for each of them only makes sense for `e`. The simplifier looks up
+candidates afresh when it revisits the rewritten expression.
+-/
 def simprocCore (post : Bool) (s : SimprocTree) (erased : PHashSet Name) (e : Expr) : SimpM Step := do
   let candidates ← withSimpIndexConfig <| s.getMatchWithExtra e
   if candidates.isEmpty then
@@ -219,36 +234,19 @@ def simprocCore (post : Bool) (s : SimprocTree) (erased : PHashSet Name) (e : Ex
     trace[Debug.Meta.Tactic.simp] "no {tag}-simprocs found for {e}"
     return .continue
   else
-    let mut e  := e
-    let mut proof? : Option Expr := none
-    let mut found := false
-    let mut cache := true
     for (simprocEntry, numExtraArgs) in candidates do
       unless erased.contains simprocEntry.declName do
-        let s ← simprocEntry.try numExtraArgs e
-        match s with
-        | .visit r =>
+        let step ← simprocEntry.try numExtraArgs e
+        match step with
+        | .visit r | .done r | .continue (some r) =>
           trace[Debug.Meta.Tactic.simp] "simproc result {e} => {r.expr}"
           recordSimpTheorem (.decl simprocEntry.declName post)
-          return .visit (← mkEqTransOptProofResult proof? cache r)
-        | .done r =>
-          trace[Debug.Meta.Tactic.simp] "simproc result {e} => {r.expr}"
-          recordSimpTheorem (.decl simprocEntry.declName post)
-          return .done (← mkEqTransOptProofResult proof? cache r)
-        | .continue (some r) =>
-          trace[Debug.Meta.Tactic.simp] "simproc result {e} => {r.expr}"
-          recordSimpTheorem (.decl simprocEntry.declName post)
-          e := r.expr
-          proof? ← mkEqTrans? proof? r.proof?
-          cache := cache && r.cache
-          found := true
+          return step
         | .continue none =>
           pure ()
-    if found then
-      return .continue (some { expr := e, proof?, cache })
-    else
-      return .continue
+    return .continue
 
+/-- Similar to `simprocCore`, but for `DSimproc`s. -/
 def dsimprocCore (post : Bool) (s : SimprocTree) (erased : PHashSet Name) (e : Expr) : SimpM DStep := do
   let candidates ← withSimpIndexConfig <| s.getMatchWithExtra e
   if candidates.isEmpty then
@@ -256,31 +254,17 @@ def dsimprocCore (post : Bool) (s : SimprocTree) (erased : PHashSet Name) (e : E
     trace[Debug.Meta.Tactic.simp] "no {tag}-simprocs found for {e}"
     return .continue
   else
-    let mut e  := e
-    let mut found := false
     for (simprocEntry, numExtraArgs) in candidates do
       unless erased.contains simprocEntry.declName do
-        let s ← simprocEntry.tryD numExtraArgs e
-        match s with
-        | .visit eNew =>
+        let step ← simprocEntry.tryD numExtraArgs e
+        match step with
+        | .visit eNew | .done eNew | .continue (some eNew) =>
           trace[Debug.Meta.Tactic.simp] "simproc result {e} => {eNew}"
           recordSimpTheorem (.decl simprocEntry.declName post)
-          return .visit eNew
-        | .done eNew =>
-          trace[Debug.Meta.Tactic.simp] "simproc result {e} => {eNew}"
-          recordSimpTheorem (.decl simprocEntry.declName post)
-          return .done eNew
-        | .continue (some eNew) =>
-          trace[Debug.Meta.Tactic.simp] "simproc result {e} => {eNew}"
-          recordSimpTheorem (.decl simprocEntry.declName post)
-          e := eNew
-          found := true
+          return step
         | .continue none =>
           pure ()
-    if found then
-      return .continue (some e)
-    else
-      return .continue
+    return .continue
 
 abbrev SimprocsArray := Array Simprocs
 
@@ -335,7 +319,6 @@ def dsimprocArrayCore (post : Bool) (ss : SimprocsArray) (e : Expr) : SimpM DSte
 
 register_builtin_option simprocs : Bool := {
   defValue := true
-  group    := "backward compatibility"
   descr    := "Enable/disable `simproc`s (simplification procedures)."
 }
 
@@ -368,7 +351,8 @@ def mkSimprocExt (name : Name := by exact decl_name%) (ref? : Option (IO.Ref Sim
     addEntry      := fun s e => s.addCore e.keys e.declName e.post e.proc
   }
 
-def addSimprocAttr (ext : SimprocExtension) (declName : Name) (stx : Syntax) (attrKind : AttributeKind) : AttrM Unit := do
+def addSimprocAttr (attrName : Name) (ext : SimprocExtension) (declName : Name) (stx : Syntax) (attrKind : AttributeKind) : AttrM Unit := do
+  ensureAttrDeclIsMeta attrName declName attrKind
   let go : MetaM Unit := do
     let post := if stx[1].isNone then true else stx[1][0].getKind == ``Lean.Parser.Tactic.simpPost
     addSimprocAttrCore ext declName attrKind post
@@ -380,7 +364,7 @@ def mkSimprocAttr (attrName : Name) (attrDescr : String) (ext : SimprocExtension
     name  := attrName
     descr := attrDescr
     applicationTime := AttributeApplicationTime.afterCompilation
-    add   := addSimprocAttr ext
+    add   := addSimprocAttr attrName ext
     erase := eraseSimprocAttr ext
   }
 
@@ -405,7 +389,8 @@ private def addBuiltin (declName : Name) (stx : Syntax) (addDeclName : Name) : A
     let procExpr ← match (← getConstInfo declName).type with
       | .const ``Simproc _  => pure <| mkApp3 (mkConst ``Sum.inl [0, 0]) (mkConst ``Simproc) (mkConst ``DSimproc) (mkConst declName)
       | .const ``DSimproc _ => pure <| mkApp3 (mkConst ``Sum.inr [0, 0]) (mkConst ``Simproc) (mkConst ``DSimproc) (mkConst declName)
-      | _ => throwError "unexpected type at simproc"
+      | tp => throwError "Unexpected simproc type: Expected {.ofConstName ``Lean.Meta.Simp.Simproc} or {.ofConstName ``Lean.Meta.Simp.DSimproc}, \
+                but `{.ofConstName declName}` has type{indentExpr tp}"
     let val := mkAppN (mkConst addDeclName) #[toExpr declName, toExpr post, procExpr]
     let initDeclName ← mkFreshUserName (declName ++ `declare)
     declareBuiltin initDeclName val

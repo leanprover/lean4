@@ -3,10 +3,14 @@ Copyright (c) 2023 Lean FRO, LLC. All rights reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Kim Morrison
 -/
+module
+
 prelude
-import Lean.Elab.Tactic.Basic
-import Lean.Meta.Tactic.Apply
-import Lean.Meta.Tactic.Intro
+public import Lean.Elab.Tactic.Basic
+public import Lean.Meta.Tactic.Apply
+public import Lean.Meta.Tactic.Intro
+
+public section
 
 /-!
 # `false_or_by_contra` tactic
@@ -54,12 +58,12 @@ partial def falseOrByContra (g : MVarId) (useClassical : Option Bool := none) : 
     match gs with
     | some [] => return none
     | some [g] => return some (← g.intro1).2
-    | some _ => panic! "expected at most one sugoal"
+    | some _ => panic! "expected at most one subgoal"
     | none =>
       match (← g.applyConst ``False.elim) with
       | [] => return none
       | [g] => return some g
-      | _ => panic! "expected at most one sugoal"
+      | _ => panic! "expected at most one subgoal"
 
 @[builtin_tactic Lean.Parser.Tactic.falseOrByContra]
 def elabFalseOrByContra : Tactic

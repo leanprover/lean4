@@ -9,8 +9,11 @@ Extra notation that depends on Init/Meta
 module
 
 prelude
+public meta import Init.Meta
+public import Init.Notation
 import Init.Data.ToString.Macro
-import Init.Meta
+
+public section
 
 namespace Lean
 

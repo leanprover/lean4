@@ -3,13 +3,17 @@ Copyright (c) 2024 Lean FRO. All Rights Reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Kim Morrison
 -/
+module
+
 prelude
-import Lean.Meta.LitValues
-import Lean.Meta.Tactic.Simp.BuiltinSimprocs.Nat
+public import Lean.Meta.Tactic.Simp.BuiltinSimprocs.Nat
+
+public section
 
 namespace List
 open Lean Meta Simp
 
+set_option linter.coreInternal.internalModule false in -- User-facing builtin simprocs are fine
 /-- Simplification procedure for `List.replicate` applied to a `Nat` literal. -/
 -- We don't always want `List.replicate_succ` as a `simp` lemma,
 -- so we use this `dsimproc` to unfold `List.replicate` applied to literals.

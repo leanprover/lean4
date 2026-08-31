@@ -1,0 +1,6 @@
+[grind.inj] succ_inj: [succ]
+[grind.inj] double_inj: [double]
+[grind.inj] mul_2_inj: [HMul.hMul, OfNat.ofNat]
+[grind.inj] array_inj: [Array, GetElem?.getElem?, Fin, Array.size]
+[grind.inj] fn_inj: [InjFn.f]
+[grind.inj] toList_inj: [toList]

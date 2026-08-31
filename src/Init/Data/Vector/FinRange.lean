@@ -6,8 +6,13 @@ Authors: François G. Dorais
 module
 
 prelude
-import Init.Data.Array.FinRange
+public import Init.Data.Vector.Basic
+import Init.Data.Fin.Lemmas
+import Init.Data.Vector.Lemmas
 import Init.Data.Vector.OfFn
+import Init.Omega
+
+public section
 
 set_option linter.listVariables true -- Enforce naming conventions for `List`/`Array`/`Vector` variables.
 set_option linter.indexVariables true -- Enforce naming conventions for index variables.

@@ -11,7 +11,6 @@ Author: Leonardo de Moura
 #include "kernel/find_fn.h"
 #include "kernel/instantiate.h"
 #include "library/formatter.h"
-#include "library/annotation.h"
 #include "library/util.h"
 #include "library/print.h"
 
@@ -191,8 +190,9 @@ struct print_expr_fn {
     }
 
     void print_let(expr const & e) {
+        out() << (let_nondep(e) ? "have " : "let ");
         auto p = let_body_fresh(e);
-        out() << "let " << p.second << " : ";
+        out() << p.second << " : ";
         print(let_type(e));
         out() << " := ";
         print(let_value(e));

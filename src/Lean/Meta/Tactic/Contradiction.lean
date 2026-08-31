@@ -3,11 +3,16 @@ Copyright (c) 2021 Microsoft Corporation. All rights reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Leonardo de Moura
 -/
+module
+
 prelude
-import Lean.Meta.MatchUtil
-import Lean.Meta.Tactic.Assumption
-import Lean.Meta.Tactic.Cases
-import Lean.Meta.Tactic.Apply
+public import Lean.Meta.Tactic.Assumption
+public import Lean.Meta.Tactic.Cases
+public import Lean.Meta.Tactic.Apply
+import Lean.Meta.HasNotBit
+import Lean.Meta.Tactic.Simp.Rewrite
+
+public section
 
 namespace Lean.Meta
 
@@ -163,6 +168,10 @@ def _root_.Lean.MVarId.contradictionCore (mvarId : MVarId) (config : Contradicti
             -- We use `False.elim` because `p`'s type may be Type
             mvarId.assign (← mkFalseElim (← mvarId.getType) (mkApp localDecl.toExpr (mkFVar pFVarId)))
             return true
+        -- (h : Nat.hasNotBit mask i) where that bit is set
+        if let some prf ← refutableHasNotBit? localDecl.type then
+          mvarId.assign (← mkAbsurd (← mvarId.getType) prf localDecl.toExpr)
+          return true
         -- (h : x ≠ x)
         if let some (_, lhs, rhs) ← matchNe? localDecl.type then
           if (← isDefEq lhs rhs) then
@@ -178,7 +187,7 @@ def _root_.Lean.MVarId.contradictionCore (mvarId : MVarId) (config : Contradicti
             mvarId.assign (← mkNoConfusion (← mvarId.getType) localDecl.toExpr)
             return true
         let mut isHEq := false
-        -- (h : HEq (ctor₁ ...) (ctor₂ ...))
+        -- (h : ctor₁ ... ≍ ctor₂ ...)
         if let some (α, lhs, β, rhs) ← matchHEq? localDecl.type then
           isHEq := true
           if let some lhsCtor ← matchConstructorApp? lhs then
@@ -216,6 +225,7 @@ def _root_.Lean.MVarId.contradictionCore (mvarId : MVarId) (config : Contradicti
 Try to close the goal using "contradictions" such as
 - Contradictory hypotheses `h₁ : p` and `h₂ : ¬ p`.
 - Contradictory disequality `h : x ≠ x`.
+- Contradictory bit mask test: `h : Nat.hasNotBit mask i` where that bit is set
 - Contradictory equality between different constructors, e.g., `h : List.nil = List.cons x xs`.
 - Empty inductive types, e.g., `x : Fin 0`.
 - Decidable propositions that evaluate to false, i.e., a hypothesis `h : p` s.t. `decide p` reduces to `false`.

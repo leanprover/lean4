@@ -1,0 +1,13 @@
+Success! Final stack:
+  (Lean.Doc.Syntax.role
+   "{"
+   `hello
+   [(Lean.Doc.Syntax.named_no_paren
+     `world
+     ":="
+     (Lean.Doc.Syntax.arg_ident `gaia))]
+   "}"
+   "["
+   [(Lean.Doc.Syntax.text (str "\"there\""))]
+   "]")
+All input consumed.

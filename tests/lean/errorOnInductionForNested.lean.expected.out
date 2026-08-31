@@ -1,1 +1,0 @@
-errorOnInductionForNested.lean:7:2-7:14: error: 'induction' tactic does not support nested inductive types, the eliminator 'LazyList.rec' has multiple motives

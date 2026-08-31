@@ -3,10 +3,15 @@ Copyright (c) 2024 Lean FRO, LLC. All rights reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Henrik Böving
 -/
+module
+
 prelude
-import Std.Sat.AIG.LawfulOperator
-import Std.Sat.AIG.CachedGatesLemmas
-import Init.Data.Vector.Lemmas
+public import Std.Sat.AIG.CachedGatesLemmas
+public import Init.Data.Vector.Lemmas
+import Init.ByCases
+import Init.Omega
+
+@[expose] public section
 
 namespace Std
 namespace Sat
@@ -29,7 +34,7 @@ def emptyWithCapacity (c : Nat) : RefVec aig 0 where
 theorem emptyWithCapacity_eq : emptyWithCapacity (aig := aig) c = empty := by
   rfl
 
-@[inline]
+@[inline, implicit_reducible]
 def cast' {aig1 aig2 : AIG α} (s : RefVec aig1 len)
     (h :
       (∀ {i : Nat} (h : i < len), s.refs[i].gate < aig1.decls.size)
@@ -43,7 +48,7 @@ def cast' {aig1 aig2 : AIG α} (s : RefVec aig1 len)
       apply s.hrefs
   }
 
-@[inline]
+@[inline, implicit_reducible]
 def cast {aig1 aig2 : AIG α} (s : RefVec aig1 len) (h : aig1.decls.size ≤ aig2.decls.size) :
     RefVec aig2 len :=
   s.cast' <| by
@@ -91,7 +96,7 @@ theorem get_push_ref_lt (s : RefVec aig len) (ref : AIG.Ref aig) (idx : Nat)
     (s.push ref).get idx (by omega) = s.get idx hidx := by
   simp only [get, push, Ref.mk.injEq]
   cases ref
-  simp only [Ref.mk.injEq]
+  simp only
   rw [Vector.getElem_push_lt]
   · simp
   · simp [hidx]
@@ -102,7 +107,7 @@ theorem get_cast {aig1 aig2 : AIG α} (s : RefVec aig1 len) (idx : Nat) (hidx : 
     (s.cast hcast).get idx hidx
       =
     (s.get idx hidx).cast hcast := by
-  simp [cast, cast', get]
+  simp [get, cast, cast']
 
 @[inline]
 def append (lhs : RefVec aig lw) (rhs : RefVec aig rw) : RefVec aig (lw + rw) :=

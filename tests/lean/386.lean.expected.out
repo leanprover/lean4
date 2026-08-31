@@ -1,4 +1,0 @@
-386.lean:9:2-9:46: error: failed to synthesize
-  Fintype ?m
-
-Additional diagnostic information may be available using the `set_option diagnostics true` command.

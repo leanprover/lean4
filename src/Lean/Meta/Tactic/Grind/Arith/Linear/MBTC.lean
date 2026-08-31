@@ -3,12 +3,14 @@ Copyright (c) 2025 Amazon.com, Inc. or its affiliates. All Rights Reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Leonardo de Moura
 -/
+module
 prelude
-import Lean.Meta.Tactic.Grind.Canon
+public import Lean.Meta.Tactic.Grind.Types
 import Lean.Meta.Tactic.Grind.MBTC
+import Lean.Meta.Tactic.Grind.Arith.ModelUtil
 import Lean.Meta.Tactic.Grind.Arith.Linear.Model
-import Lean.Meta.Tactic.Grind.Arith.Linear.PropagateEq
-
+import Lean.Meta.Tactic.Grind.Arith.Linear.LinearM
+public section
 namespace Lean.Meta.Grind.Arith.Linear
 
 private partial def toRatValue? (a : Expr) : Option Rat :=
@@ -23,7 +25,7 @@ private partial def toRatValue? (a : Expr) : Option Rat :=
   else if a.isAppOfArity ``HDiv.hDiv 6 then
     (· / ·) <$> toRatValue? a.appFn!.appArg! <*> toRatValue? a.appArg!
   else if let .lit (.natVal n) := a then
-    some (Std.Internal.mkRat n 1)
+    some (mkRat n 1)
   else
     none
 
@@ -34,7 +36,7 @@ private def getAssignmentExt? (s : Struct) (a : Expr) : Option Rat := do
     toRatValue? a
 
 private def hasTheoryVar (e : Expr) : GoalM Bool := do
-  return (← getRootENode e).linarith?.isSome || (toRatValue? e).isSome
+  return (← linearExt.hasTermAtRoot e) || (toRatValue? e).isSome
 
 private def isInterpreted (e : Expr) : GoalM Bool := do
   if isInterpretedTerm e then return true
@@ -42,12 +44,12 @@ private def isInterpreted (e : Expr) : GoalM Bool := do
   return f.isConstOf ``LE.le || f.isConstOf ``LT.lt || f.isConstOf ``Dvd.dvd
 
 private def eqAssignment (a b : Expr) : GoalM Bool := do
-  let structId₁? := (← get).arith.linear.exprToStructId.find? { expr := a }
-  let structId₂? := (← get).arith.linear.exprToStructId.find? { expr := b }
+  let structId₁? := (← get').exprToStructId.find? { expr := a }
+  let structId₂? := (← get').exprToStructId.find? { expr := b }
   let some structId := structId₁? <|> structId₂? | return false
-  let s := (← get).arith.linear.structs[structId]!
+  let s := (← get').structs[structId]!
   -- It is pointless to generate case-splits unless we have support for disequality.
-  unless s.linearInst?.isSome do return false
+  unless s.isLinearInst?.isSome do return false
   let some v₁ := getAssignmentExt? s a | return false
   let some v₂ := getAssignmentExt? s b | return false
   return v₁ == v₂

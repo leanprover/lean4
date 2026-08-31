@@ -1,0 +1,27 @@
+"<missing>"
+pure 0 : Id Nat
+let rhs := fun a => pure a;
+rhs 0 : Id Nat
+toString
+  (do
+      let a ←
+        do
+          let info ← MonadRef.mkInfoFromRefPos
+          let scp ← getCurrMacroScope
+          let quotCtx ← MonadQuotation.getContext
+          pure
+              {
+                raw :=
+                  Syntax.ident info "Nat.one".toRawSubstring' (addMacroScope quotCtx `Nat.one scp)
+                    [Syntax.Preresolved.decl `Nat ["one"]] }
+      let rhs_0 : Syntax → Syntax → Unhygienic Syntax := fun a b => pure Syntax.missing
+      let rhs_1 : Unit → Unhygienic Syntax := fun _a => pure Syntax.missing
+      let discr_2 : TSyntax `term := a
+      if discr_2.raw.isOfKind ((((Name.anonymous.mkStr "Lean").mkStr "Parser").mkStr "Term").mkStr "add") = true then
+          let discr_3 := discr_2.raw.getArg 0;
+          let discr_4 := discr_2.raw.getArg 1;
+          let discr_5 := discr_2.raw.getArg 2;
+          rhs_0 discr_3 discr_5
+        else
+          let discr_7 := a;
+          rhs_1 ()).run : String

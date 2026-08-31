@@ -1,0 +1,10 @@
+Here's some error recovery for directives.
+
+::::foo 5
+
+Indeed.
+
+It is.
+:::: a
+
+x

@@ -1,0 +1,4 @@
+Failure @0 (⟨1, 0⟩): unexpected space or newline after opener
+Final stack:
+  (Lean.Doc.Syntax.emph "_" <missing>)
+Remaining: "_ aa_"

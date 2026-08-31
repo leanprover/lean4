@@ -3,18 +3,49 @@ Copyright (c) 2025 Amazon.com, Inc. or its affiliates. All Rights Reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Leonardo de Moura
 -/
+module
 prelude
-import Lean.Meta.Tactic.Util
-import Lean.Meta.Tactic.Cases
+public import Lean.Meta.Tactic.Util
+import Lean.Meta.Tactic.Grind.Util
 import Lean.Meta.Match.MatcherApp
-import Lean.Meta.Tactic.Grind.MatchCond
-
+import Lean.Meta.Tactic.Cases
+public section
 namespace Lean.Meta.Grind
 
-/-- Returns `true` if `e` is of the form `∀ ..., _ = _ ... -> False` -/
-def isMatchCondCandidate (e : Expr) : Bool :=
-  -- TODO: see comment at the beginning of `MatchCond.lean`.
-  Simp.isEqnThmHypothesis e
+/--
+Returns `true` if `e` is of the form `∀ ..., _ = _ ... -> False`.
+The lhs of each equation must not have loose bound variables.
+Recall that the `lhs` should correspond to variables in a given alternative.
+For example, the given match-condition
+```
+∀ (head : Nat) (tail : List Nat), a = 1 → as = head :: tail → False
+```
+is generated for the second alternative at
+```
+def f : List Nat → List Nat → Nat
+  | _, 1 :: _ :: _ => ...
+  | _, a :: as => ...
+  | _, _  => ...
+```
+That is, `a` must be different from `1`, or `as` must not be of the form `_ :: _`. That is,
+they must not be a match for the first alternative.
+**Note**: We were *not* previously checking whether the `lhs` did not have loose bound variables.
+This missing check caused a panic at `tryToProveFalse` function at `MatchCond.lean` because
+it assumes the `lhs` does not have loose bound variables.
+**Note**: This function is an approximation. It may return `true` for terms that do not
+correspond to match-conditions.
+-/
+partial def isMatchCondCandidate (e : Expr) : Bool :=
+  e.isForall && go e
+where
+  go (e : Expr) : Bool :=
+    if let .forallE _ d b _ := e then
+      match_expr d with
+      | Eq _ lhs _ => !lhs.hasLooseBVars && go b
+      | HEq _ lhs _ _ => !lhs.hasLooseBVars && go b
+      | _ => b.hasLooseBVar 0 && go b
+    else
+      e.isFalse
 
 /--
 Given a splitter alternative, annotate the terms that are `match`-expression

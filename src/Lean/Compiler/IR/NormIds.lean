@@ -3,8 +3,12 @@ Copyright (c) 2019 Microsoft Corporation. All rights reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Leonardo de Moura
 -/
+module
+
 prelude
-import Lean.Compiler.IR.Basic
+public import Lean.Compiler.IR.Basic
+
+public section
 
 namespace Lean.IR.UniqueIds
 
@@ -39,7 +43,7 @@ namespace NormalizeIds
 abbrev M := ReaderT IndexRenaming Id
 
 def normIndex (x : Index) : M Index := fun m =>
-  match m.find? x with
+  match m.get? x with
   | some y => y
   | none   => x
 
@@ -50,8 +54,8 @@ def normJP (x : JoinPointId) : M JoinPointId :=
   JoinPointId.mk <$> normIndex x.idx
 
 def normArg : Arg → M Arg
-  | Arg.var x => Arg.var <$> normVar x
-  | other     => pure other
+  | .var x => .var <$> normVar x
+  | .erased => pure .erased
 
 def normArgs (as : Array Arg) : M (Array Arg) := fun m =>
   as.map fun a => normArg a m
@@ -103,10 +107,9 @@ partial def normFnBody : FnBody → N FnBody
   | FnBody.inc x n c p b    => return FnBody.inc (← normVar x) n c p (← normFnBody b)
   | FnBody.dec x n c p b    => return FnBody.dec (← normVar x) n c p (← normFnBody b)
   | FnBody.del x b          => return FnBody.del (← normVar x) (← normFnBody b)
-  | FnBody.mdata d b        => return FnBody.mdata d (← normFnBody b)
   | FnBody.case tid x xType alts => do
     let x ← normVar x
-    let alts ← alts.mapM fun alt => alt.mmodifyBody normFnBody
+    let alts ← alts.mapM fun alt => alt.modifyBodyM normFnBody
     return FnBody.case tid x xType alts
   | FnBody.jmp j ys        => return FnBody.jmp (← normJP j) (← normArgs ys)
   | FnBody.ret x           => return FnBody.ret (← normArg x)
@@ -128,8 +131,8 @@ def Decl.normalizeIds (d : Decl) : Decl :=
 namespace MapVars
 
 @[inline] def mapArg (f : VarId → VarId) : Arg → Arg
-  | Arg.var x => Arg.var (f x)
-  | a         => a
+  | .var x => .var (f x)
+  | .erased => .erased
 
 def mapArgs (f : VarId → VarId) (as : Array Arg) : Array Arg :=
   as.map (mapArg f)
@@ -159,7 +162,6 @@ partial def mapFnBody (f : VarId → VarId) : FnBody → FnBody
   | FnBody.inc x n c p b         => FnBody.inc (f x) n c p (mapFnBody f b)
   | FnBody.dec x n c p b         => FnBody.dec (f x) n c p (mapFnBody f b)
   | FnBody.del x b               => FnBody.del (f x) (mapFnBody f b)
-  | FnBody.mdata d b             => FnBody.mdata d (mapFnBody f b)
   | FnBody.case tid x xType alts => FnBody.case tid (f x) xType (alts.map fun alt => alt.modifyBody (mapFnBody f))
   | FnBody.jmp j ys              => FnBody.jmp j (mapArgs f ys)
   | FnBody.ret x                 => FnBody.ret (mapArg f x)

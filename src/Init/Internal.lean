@@ -6,7 +6,9 @@ Authors: Joachim Breitner
 module
 
 prelude
-import Init.Internal.Order
+public import Init.Internal.Order
+
+public section
 
 /-!
 This directory is used for components of the standard library that are either considered

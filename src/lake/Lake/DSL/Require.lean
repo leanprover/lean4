@@ -3,12 +3,11 @@ Copyright (c) 2021 Mac Malone. All rights reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Mac Malone
 -/
+module
+
 prelude
-import Lean.Parser.Command
+public import Lake.DSL.Syntax
 import Lake.Config.Dependency
-import Lake.DSL.Extensions
-import Lake.DSL.DeclUtil
-import Lake.DSL.Syntax
 
 open Lean Parser Command
 
@@ -43,28 +42,26 @@ def expandDepSpec (stx : TSyntax ``depSpec) (doc? : Option DocComment) : MacroM 
   let ver ←
     if let some ver := ver? then withRef ver do
       match ver with
-      | `(verSpec|git $ver) => ``(some ("git#" ++ $ver))
-      | `(verSpec|$ver:term) => ``(some $ver)
+      | `(verSpec|git $rev) => ``(InputVer.git $rev)
+      | `(verSpec|$ver:term) => ``((eval_ver% $ver : InputVer))
       | _ => Macro.throwErrorAt ver "ill-formed version syntax"
+    else if let some src := src? then
+      match src with
+      | `(fromSource|git $_ @ $rev $[/ $_]?) => withRef rev ``(InputVer.git $rev)
+      | _ => ``(InputVer.none)
     else
-      ``(none)
+       ``(InputVer.none)
   let name := expandIdentOrStrAsIdent nameStx
   `($[$doc?:docComment]? @[package_dep] def $name : $(mkCIdent ``Dependency) := {
     name :=  $(quote name.getId),
     scope := $scope,
-    version? := $ver,
+    version := $ver,
     src? := $(← quoteOptTerm src?),
     opts := $(opts?.getD <| ← `({})),
   })
-
 
 @[builtin_macro requireDecl]
 def expandRequireDecl : Macro := fun stx => do
   let `(requireDecl|$(doc?)? require%$kw $spec) := stx
     | Macro.throwErrorAt stx "ill-formed require declaration"
   withRef kw do expandDepSpec spec doc?
-
-@[inherit_doc requireDecl] abbrev RequireDecl := TSyntax ``requireDecl
-
-instance : Coe RequireDecl Command where
-  coe x := ⟨x.raw⟩

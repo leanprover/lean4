@@ -8,10 +8,14 @@ driver. See the [server readme](../Server/README.md#worker-architecture) for an 
 Authors: Sebastian Ullrich
 -/
 
+module
+
 prelude
-import Init.System.Promise
-import Lean.Parser.Types
-import Lean.Util.Trace
+public import Lean.Parser.Types
+public import Lean.Util.Trace
+import Lean.Elab.InfoTree.Basic
+
+public section
 
 set_option linter.missingDocs true
 
@@ -64,14 +68,34 @@ structure Snapshot where
   `diagnostics`) occurred that prevents processing of the remainder of the file.
   -/
   isFatal := false
+
+instance : Inhabited Snapshot where
+  default := { desc := "", diagnostics := default }
+
+/-- Range that is marked as being processed by the server while a task is running. -/
+inductive SnapshotTask.ReportingRange where
+  /-- Inherit range from outer task if any, or else the entire file. -/
+  | inherit
+  /-- Use given range. -/
+  | protected some (range : Lean.Syntax.Range)
+  /-- Do not mark as being processed. Child nodes are still visited. -/
+  | skip
 deriving Inhabited
 
 /--
-Yields the default reporting range of a `Syntax`, which is just the `canonicalOnly` range
-of the syntax.
+Constructs a reporting range by replacing a missing range with `inherit`, which is a reasonable
+default to ensure that a range is shown in all cases.
 -/
-def SnapshotTask.defaultReportingRange? (stx? : Option Syntax) : Option String.Range :=
-  stx?.bind (·.getRange? (canonicalOnly := true))
+def SnapshotTask.ReportingRange.ofOptionInheriting : Option Lean.Syntax.Range → SnapshotTask.ReportingRange
+  | some range => .some range
+  | none       => .inherit
+
+/--
+Yields the default reporting range of a `Syntax`, which is just the `canonicalOnly` range
+of the syntax if any, or `inherit` otherwise.
+-/
+def SnapshotTask.defaultReportingRange (stx? : Option Syntax) : ReportingRange :=
+  .ofOptionInheriting <| stx?.bind (·.getRange? (canonicalOnly := true))
 
 /-- A task producing some snapshot type (usually a subclass of `Snapshot`). -/
 -- Longer-term TODO: Give the server more control over the priority of tasks, depending on e.g. the
@@ -90,11 +114,8 @@ structure SnapshotTask (α : Type) where
   contain message log information.
   -/
   stx? : Option Syntax
-  /--
-  Range that is marked as being processed by the server while the task is running. If `none`,
-  the range of the outer task if some or else the entire file is reported.
-  -/
-  reportingRange? : Option String.Range := SnapshotTask.defaultReportingRange? stx?
+  /-- Range that is marked as being processed by the server while the task is running. -/
+  reportingRange : SnapshotTask.ReportingRange := SnapshotTask.defaultReportingRange stx?
   /--
   Cancellation token that can be set by the server to cancel the task when it detects the results
   are not needed anymore.
@@ -106,10 +127,10 @@ deriving Nonempty, Inhabited
 
 /-- Creates a snapshot task from the syntax processed by the task and a `BaseIO` action. -/
 def SnapshotTask.ofIO (stx? : Option Syntax) (cancelTk? : Option IO.CancelToken)
-    (reportingRange? : Option String.Range := defaultReportingRange? stx?) (act : BaseIO α) :
+    (reportingRange : SnapshotTask.ReportingRange := SnapshotTask.defaultReportingRange stx?) (act : BaseIO α) :
     BaseIO (SnapshotTask α) := do
   return {
-    stx?, reportingRange?, cancelTk?
+    stx?, reportingRange, cancelTk?
     task := (← BaseIO.asTask act)
   }
 
@@ -117,14 +138,14 @@ def SnapshotTask.ofIO (stx? : Option Syntax) (cancelTk? : Option IO.CancelToken)
 def SnapshotTask.finished (stx? : Option Syntax) (a : α) : SnapshotTask α where
   stx?
   -- irrelevant when already finished
-  reportingRange? := none
+  reportingRange := .skip
   task := .pure a
   cancelTk? := none
 
 /-- Transforms a task's output without changing the processed syntax. -/
 def SnapshotTask.map (t : SnapshotTask α) (f : α → β) (stx? : Option Syntax := t.stx?)
-    (reportingRange? : Option String.Range := t.reportingRange?) (sync := false) : SnapshotTask β :=
-  { stx?, cancelTk? := t.cancelTk?, reportingRange?, task := t.task.map (sync := sync) f }
+    (reportingRange : SnapshotTask.ReportingRange := t.reportingRange) (sync := false) : SnapshotTask β :=
+  { stx?, cancelTk? := t.cancelTk?, reportingRange, task := t.task.map (sync := sync) f }
 
 /--
   Chains two snapshot tasks. The processed syntax and the reporting range are taken from the first
@@ -132,10 +153,10 @@ def SnapshotTask.map (t : SnapshotTask α) (f : α → β) (stx? : Option Syntax
   discarded. The cancellation tokens of both tasks are discarded. They are replaced with the given
   token if any. -/
 def SnapshotTask.bindIO (t : SnapshotTask α) (act : α → BaseIO (SnapshotTask β))
-    (stx? : Option Syntax := t.stx?) (reportingRange? : Option String.Range := t.reportingRange?)
+    (stx? : Option Syntax := t.stx?) (reportingRange : SnapshotTask.ReportingRange := t.reportingRange)
     (cancelTk? : Option IO.CancelToken) (sync := false) : BaseIO (SnapshotTask β) := do
   return {
-    stx?, reportingRange?, cancelTk?
+    stx?, reportingRange, cancelTk?
     task := (← BaseIO.bindTask (sync := sync) t.task fun a => (·.task) <$> (act a))
   }
 
@@ -193,19 +214,121 @@ structure SnapshotTree where
 deriving Inhabited, TypeName
 
 /--
+Transformation to be applied while walking a snapshot tree; applied implicitly on untyped walk
+in `toSnapshotTreeM`. Used so that snapshot trees inside the transformation stay identical across
+certain edits and thus allow for elab reuse.
+
+More transformation elements may be added in the future.
+-/
+structure SnapshotTreeTransform where
+  /-- Whitespace to be appended to contained syntax. -/
+  addTrailing : Substring.Raw := "".toRawSubstring
+deriving Inhabited
+
+/-- Whether the transformation is the identity transformation. -/
+def SnapshotTreeTransform.isIdentity (trans : SnapshotTreeTransform) : Bool :=
+  trans.addTrailing.isEmpty
+
+/-- Applies the transformation to the given syntax tree. -/
+def SnapshotTreeTransform.transformSyntax (trans : SnapshotTreeTransform) (stx : Syntax) : Syntax :=
+  stx.addTrailing trans.addTrailing
+
+/-- Applies the transformation to the given info tree. -/
+def SnapshotTreeTransform.transformInfoTree (trans : SnapshotTreeTransform) (t : Elab.InfoTree) : Elab.InfoTree :=
+  t.addTrailing trans.addTrailing
+
+/-- Applies the transformation to the given info tree; `none` if the tree is unchanged. -/
+def SnapshotTreeTransform.transformInfoTree? (trans : SnapshotTreeTransform) (t : Elab.InfoTree) :
+    Option Elab.InfoTree :=
+  t.addTrailing? trans.addTrailing
+
+/-- Composes two `SnapshotTreeTransform`s, applying `inner` first and then `outer`. -/
+def SnapshotTreeTransform.compose (outer inner : SnapshotTreeTransform) : SnapshotTreeTransform where
+  addTrailing :=
+    if inner.addTrailing.stopPos == outer.addTrailing.startPos then
+      { inner.addTrailing with stopPos := outer.addTrailing.stopPos }
+    else inner.addTrailing
+
+/-- Reader monad threading a `SnapshotTreeTransform` through `SnapshotTree` construction. -/
+abbrev ToSnapshotTreeM (α : Type) := ReaderT SnapshotTreeTransform Id α
+
+/-- Applies the current `SnapshotTreeTransform` to a `Snapshot`. -/
+def Snapshot.transform (s : Snapshot) : ToSnapshotTreeM Snapshot := do
+  if (← read).isIdentity then
+    return s
+  match s.infoTree?.bind ((← read).transformInfoTree? ·) with
+  | some t => return { s with infoTree? := some t }
+  | none   => return s
+
+/-- Applies the current `SnapshotTreeTransform` to a `SnapshotTree` and recursively to its children. -/
+partial def SnapshotTree.transform (t : SnapshotTree) : ToSnapshotTreeM SnapshotTree := do
+  if (← read).isIdentity then
+    return t
+  let element ← Snapshot.transform t.element
+  let trans ← read
+  let children := t.children.map (·.map (sync := true) (·.transform trans))
+  return { element, children }
+
+/--
   Helper class for projecting a heterogeneous hierarchy of snapshot classes to a homogeneous
   representation. -/
 class ToSnapshotTree (α : Type) where
   /-- Transforms a language-specific snapshot to a homogeneous snapshot tree. -/
-  toSnapshotTree : α → SnapshotTree
-export ToSnapshotTree (toSnapshotTree)
+  toSnapshotTreeM : α → ToSnapshotTreeM SnapshotTree
+export ToSnapshotTree (toSnapshotTreeM)
+
+/--
+Converts a typed snapshot to a `SnapshotTree` using the default (identity) transformation.
+
+`toSnapshotTreeM` must be used instead when in context of a transformation, e.g. when implementing
+`ToSnapshotTree`.
+-/
+def toSnapshotTree [ToSnapshotTree α] (a : α) : SnapshotTree :=
+  toSnapshotTreeM a |>.run default
+
+/-- A typed snapshot paired with a `SnapshotTreeTransform`. -/
+structure TransformedSnap (α : Type) where
+  /--
+  Untransformed snapshot; should be accessed with care so as not to present untransformed data. Use
+  a corresponding `applyTransform` function to access transformed data instead.
+  -/
+  raw     : α
+  /-- Transformation to be applied to the snapshot. -/
+  transform : SnapshotTreeTransform := default
+
+instance [Inhabited α] : Inhabited (TransformedSnap α) where
+  default := { raw := default }
+
+instance [ToSnapshotTree α] : ToSnapshotTree (TransformedSnap α) where
+  toSnapshotTreeM s := do
+    withReader (·.compose s.transform) do
+      toSnapshotTreeM s.raw
+
+/-- Composes an outer transformation with a snapshot-transform pair. -/
+def TransformedSnap.compose (outer : SnapshotTreeTransform) (s : TransformedSnap α) : TransformedSnap α :=
+  { s with transform := outer.compose s.transform }
+
+/--
+Lifts a typed snapshot inside a task to a `SnapshotTree` task by mapping with `f`, propagating the
+current transform. Useful in recursive `ToSnapshotTree` instances, where the typeclass instance for
+the recursive type is not yet available and `f` is the local recursive function.
+-/
+def SnapshotTask.transformWith (t : SnapshotTask α)
+    (f : α → ToSnapshotTreeM SnapshotTree) :
+    ToSnapshotTreeM (SnapshotTask SnapshotTree) :=
+  return t.map (sync := true) (f · |>.run (← read))
+
+/-- Lifts a typed snapshot inside a task to a `SnapshotTree` task via `ToSnapshotTree`. -/
+def SnapshotTask.transform [ToSnapshotTree α] (t : SnapshotTask α) :
+    ToSnapshotTreeM (SnapshotTask SnapshotTree) :=
+  t.transformWith toSnapshotTreeM
 
 instance : ToSnapshotTree SnapshotTree where
-  toSnapshotTree s := s
+  toSnapshotTreeM s := s.transform
 
 instance [ToSnapshotTree α] : ToSnapshotTree (Option α) where
-  toSnapshotTree
-    | some a => toSnapshotTree a
+  toSnapshotTreeM
+    | some a => toSnapshotTreeM a
     | none   => default
 
 /--
@@ -218,30 +341,28 @@ partial def SnapshotTask.cancelRec [ToSnapshotTree α] (t : SnapshotTask α) : B
 
 /-- Snapshot type without child nodes. -/
 structure SnapshotLeaf extends Snapshot
-deriving Nonempty, TypeName
+deriving TypeName
+
+instance : Inhabited SnapshotLeaf where
+  default := { toSnapshot := default }
 
 instance : ToSnapshotTree SnapshotLeaf where
-  toSnapshotTree s := SnapshotTree.mk s.toSnapshot #[]
+  toSnapshotTreeM s := return SnapshotTree.mk (← s.toSnapshot.transform) #[]
 
 /-- Arbitrary snapshot type, used for extensibility. -/
 structure DynamicSnapshot where
   /-- Concrete snapshot value as `Dynamic`. -/
   val  : Dynamic
-  /--
-  Snapshot tree retrieved from `val` before erasure. We do thunk even the first level as accessing
-  it too early can create some unnecessary tasks from `toSnapshotTree` that are otherwise avoided by
-  `(sync := true)` when accessing only after elaboration has finished. Early access can even lead to
-  deadlocks when later forcing these unnecessary tasks on a starved thread pool.
-  -/
-  tree : Thunk SnapshotTree
+  /-- Snapshot tree accessor retrieved from `val` before erasure. -/
+  toSnapshotTreeM : ToSnapshotTreeM SnapshotTree
 
 instance : ToSnapshotTree DynamicSnapshot where
-  toSnapshotTree s := s.tree.get
+  toSnapshotTreeM s := s.toSnapshotTreeM
 
 /-- Creates a `DynamicSnapshot` from a typed snapshot value. -/
 def DynamicSnapshot.ofTyped [TypeName α] [ToSnapshotTree α] (val : α) : DynamicSnapshot where
   val := .mk val
-  tree := ToSnapshotTree.toSnapshotTree val
+  toSnapshotTreeM := ToSnapshotTree.toSnapshotTreeM val
 
 /-- Returns the original snapshot value if it is of the given type. -/
 def DynamicSnapshot.toTyped? (α : Type) [TypeName α] (snap : DynamicSnapshot) :
@@ -278,20 +399,34 @@ register_builtin_option printMessageEndPos : Bool := {
   defValue := false, descr := "print end position of each message in addition to start position"
 }
 
+/-- Maximum number of errors to report. -/
+register_builtin_option maxErrors : Nat := {
+  defValue := 100
+  descr := "maximum number of errors to report (0 for no limit)"
+}
+
 /--
-Reports messages on stdout and returns whether an error was reported.
+Reports messages on stdout and returns the new total number of errors reported.
 If `json` is true, prints messages as JSON (one per line).
 If a message's kind is in `severityOverrides`, it will be reported with
 the specified severity.
 -/
-def reportMessages (msgLog : MessageLog) (opts : Options)
-    (json := false) (severityOverrides : NameMap MessageSeverity := {}) : IO Bool := do
+private def reportMessages (msgLog : MessageLog) (opts : Options)
+    (json : Bool) (severityOverrides : NameMap MessageSeverity) (numErrors : Nat) : IO Nat := do
   let includeEndPos := printMessageEndPos.get opts
-  msgLog.unreported.foldlM (init := false) fun hasErrors msg => do
+  msgLog.unreported.foldlM (init := numErrors) fun numErrors msg => do
     let msg : Message :=
       if let some severity := severityOverrides.find? msg.kind then
         {msg with severity}
       else
+        msg
+    let numErrors := numErrors + (if msg.severity matches .error then 1 else 0)
+    let maxErrorsReached := maxErrors.get opts != 0 && numErrors > maxErrors.get opts
+    let msg : Message :=
+      if maxErrorsReached then { msg with
+        data := s!"maximum number of errors ({maxErrors.get opts}; from option `maxErrors`) reached, exiting"
+        severity := .error
+      } else
         msg
     unless msg.isSilent do
       if json then
@@ -300,7 +435,9 @@ def reportMessages (msgLog : MessageLog) (opts : Options)
       else
         let s ← msg.toString includeEndPos
         IO.print s
-    return hasErrors || msg.severity matches .error
+    if maxErrorsReached then
+      IO.Process.exit 1
+    return numErrors
 
 /--
   Runs a tree of snapshots to conclusion and incrementally report messages on stdout. Messages are
@@ -309,9 +446,9 @@ def reportMessages (msgLog : MessageLog) (opts : Options)
   the language server reports snapshots asynchronously.  -/
 def SnapshotTree.runAndReport (s : SnapshotTree) (opts : Options)
     (json := false) (severityOverrides : NameMap MessageSeverity := {}) : IO Bool := do
-  s.foldM (init := false) fun e snap => do
-    let e' ← reportMessages snap.diagnostics.msgLog opts json severityOverrides
-    return strictOr e e'
+  let numErrors ← s.foldM (init := 0) fun e snap => do
+    reportMessages snap.diagnostics.msgLog opts json severityOverrides e
+  return numErrors > 0
 
 /-- Waits on and returns all snapshots in the tree. -/
 def SnapshotTree.getAll (s : SnapshotTree) : Array Snapshot :=
@@ -349,7 +486,7 @@ def diagnosticsOfHeaderError (msg : String) : ProcessingM Snapshot.Diagnostics :
   let msgLog := MessageLog.empty.add {
     fileName := "<input>"
     pos := ⟨1, 0⟩
-    endPos := (← read).fileMap.toPosition (← read).fileMap.source.endPos
+    endPos := (← read).fileMap.toPosition (← read).fileMap.source.rawEndPos
     data := msg
   }
   Snapshot.Diagnostics.ofMessageLog msgLog

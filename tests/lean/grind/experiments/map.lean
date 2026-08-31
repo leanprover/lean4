@@ -4,7 +4,8 @@ import Std.Data.ExtHashMap
 open Std
 
 -- Do we want this?
-example (m : HashMap Nat Nat) (h : m.isEmpty) : m[3]? = none := by grind [HashMap.getElem?_of_isEmpty]
+grind_pattern HashMap.getElem?_of_isEmpty => m.isEmpty, m[a]?
+example (m : HashMap Nat Nat) (h : m.isEmpty) : m[3]? = none := by grind
 
 -- Do this for List etc?
 -- attribute [grind] HashMap.getElem?_eq_some_getElem -- Do we do this for list?

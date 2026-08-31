@@ -3,10 +3,15 @@ Copyright (c) 2022 Microsoft Corporation. All rights reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Gabriel Ebner
 -/
+module
+
 prelude
-import Lean.Meta.Constructions.CasesOn
-import Lean.Compiler.ImplementedByAttr
-import Lean.Elab.PreDefinition.WF.Eqns
+public import Lean.Meta.Constructions.CasesOn
+public import Lean.Compiler.ImplementedByAttr
+public import Lean.Elab.PreDefinition.WF.Eqns
+import Lean.Compiler.ExternAttr
+
+public section
 
 /-!
 # Computed fields
@@ -51,14 +56,14 @@ with
   | .cons x l => x + l.sum
   @[computed_field] length : NatList → Nat
   | .nil => 0
-  | .cons _ l => l.length + 1 
+  | .cons _ l => l.length + 1
 ```
 -/
 @[builtin_doc]
 builtin_initialize computedFieldAttr : TagAttribute ←
   registerTagAttribute `computed_field "Marks a function as a computed field of an inductive" fun _ => do
     unless (← getOptions).getBool `elaboratingComputedFields do
-      throwError "The @[computed_field] attribute can only be used in the with-block of an inductive"
+      throwError "The `[computed_field]` attribute can only be used in the with-block of an inductive"
 
 def mkUnsafeCastTo (expectedType : Expr) (e : Expr) : MetaM Expr :=
   mkAppOptM ``unsafeCast #[none, expectedType, e]
@@ -99,16 +104,18 @@ def validateComputedFields : M Unit := do
     if indices.any (ty.containsFVar ·.fvarId!) then
       throwError "computed field {cf}'s type must not depend on indices{indentExpr ty}"
 
-def mkImplType : M Unit := do
+def mkImplType : M Name := do
   let {name, isUnsafe, type, ctors, levelParams, numParams, lparams, params, compFieldVars, ..} ← read
+  let name := name ++ `_impl
   addDecl <| .inductDecl levelParams numParams
     (isUnsafe := isUnsafe) -- Note: inlining is disabled with unsafe inductives
-    [{ name := name ++ `_impl, type,
+    [{ name, type,
        ctors := ← ctors.mapM fun ctor => do
          forallTelescope (← inferType (mkAppN (mkConst ctor lparams) params)) fun fields retTy => do
-           let retTy := mkAppN (mkConst (name ++ `_impl) lparams) retTy.getAppArgs
+           let retTy := mkAppN (mkConst name lparams) retTy.getAppArgs
            let type ← mkForallFVars (params ++ (if ← isScalarField ctor then #[] else compFieldVars) ++ fields) retTy
            return { name := ctor ++ `_impl, type } }]
+  return name
 
 def overrideCasesOn : M Unit := do
   let {name, numIndices, ctors, lparams, params, compFieldVars, ..} ← read
@@ -116,8 +123,8 @@ def overrideCasesOn : M Unit := do
   mkCasesOn (name ++ `_impl)
   let value ←
     forallTelescope (← instantiateForall casesOn.type params) fun xs constMotive => do
-      let (indices, major, minors) := (xs[1:numIndices+1].toArray,
-        xs[numIndices+1]!, xs[numIndices+2:].toArray)
+      let (indices, major, minors) := (xs[1...=numIndices].toArray,
+        xs[numIndices+1]!, xs[(numIndices+2)...*].toArray)
       let majorImplTy := mkAppN (mkConst (name ++ `_impl) lparams) (params ++ indices)
       mkLambdaFVars (params ++ xs) <|
         mkAppN (mkConst (mkCasesOnName (name ++ `_impl))
@@ -127,7 +134,7 @@ def overrideCasesOn : M Unit := do
           withLetDecl `m (← inferType constMotive) constMotive fun m => do
           mkLambdaFVars (#[m] ++ indices ++ #[majorImpl]) m] ++
         indices ++ #[← mkUnsafeCastTo majorImplTy major] ++
-        (← (minors.zip ctors.toArray).mapM fun (minor, ctor) => do
+        (← minors.zipWithM (bs:=ctors.toArray) fun minor ctor => do
           forallTelescope (← inferType minor) fun args _ => do
             mkLambdaFVars ((if ← isScalarField ctor then #[] else compFieldVars) ++ args)
               (← mkUnsafeCastTo constMotive (mkAppN minor args)))
@@ -169,7 +176,7 @@ def overrideComputedFields : M Unit := do
   withLocalDeclD `x (mkAppN (mkConst (name ++ `_impl) lparams) (params ++ indices)) fun xImpl => do
   for cfn in compFields, cf in compFieldVars do
     if isExtern (← getEnv) cfn then
-      compileDecls [cfn]
+      compileDecls #[cfn]
       continue
     let cases ←
       -- elaborating a non-exposed def body
@@ -181,8 +188,9 @@ def overrideComputedFields : M Unit := do
                 ← getComputedFieldValue cfn (mkAppN (mkConst ctor lparams) (params ++ fields))
             else
               mkLambdaFVars (compFieldVars ++ fields) cf
+    let cfnOverride := cfn ++ `_override
     addDecl <| .defnDecl {
-      name := cfn ++ `_override
+      name := cfnOverride
       levelParams
       type := ← mkForallFVars (params ++ indices ++ #[val]) (← inferType cf)
       value := ← mkLambdaFVars (params ++ indices ++ #[val]) <|
@@ -192,7 +200,9 @@ def overrideComputedFields : M Unit := do
       safety := .unsafe
       hints := .opaque
     }
-    setImplementedBy cfn (cfn ++ `_override)
+    if let some inlineAttr := Compiler.getInlineAttribute? (← getEnv) cfn then
+      setInlineAttribute cfnOverride inlineAttr
+    setImplementedBy cfn cfnOverride
 
 def mkComputedFieldOverrides (declName : Name) (compFields : Array Name) : MetaM Unit := do
   let ind ← getConstInfoInduct declName
@@ -201,8 +211,8 @@ def mkComputedFieldOverrides (declName : Name) (compFields : Array Name) : MetaM
   let lparams := ind.levelParams.map mkLevelParam
   forallTelescope ind.type fun paramsIndices _ => do
   withLocalDeclD `x (mkAppN (mkConst ind.name lparams) paramsIndices) fun val => do
-    let params := paramsIndices[:ind.numParams].toArray
-    let indices := paramsIndices[ind.numParams:].toArray
+    let params := paramsIndices[*...ind.numParams].toArray
+    let indices := paramsIndices[ind.numParams...*].toArray
     let compFieldVars := compFields.map fun fieldDeclName =>
       (fieldDeclName.updatePrefix .anonymous,
         fun _ => do inferType (← mkAppM fieldDeclName (params ++ indices ++ #[val])))
@@ -210,7 +220,8 @@ def mkComputedFieldOverrides (declName : Name) (compFields : Array Name) : MetaM
       let ctx := { ind with lparams, params, compFields, compFieldVars, indices, val }
       ReaderT.run (r := ctx) do
         validateComputedFields
-        mkImplType
+        let ty ← mkImplType
+        Lean.compileDecls #[ty]
         overrideCasesOn
         overrideConstructors
         overrideComputedFields
@@ -232,7 +243,7 @@ def setComputedFields (computedFields : Array (Name × Array Name)) : MetaM Unit
     mkComputedFieldOverrides indName computedFieldNames
 
   -- Once all the implemented_by infrastructure is set up, compile everything.
-  compileDecls <| computedFields.toList.map fun (indName, _) =>
+  compileDecls <| computedFields.map fun (indName, _) =>
     mkCasesOnName indName ++ `_override
 
   let mut toCompile := #[]
@@ -243,4 +254,4 @@ def setComputedFields (computedFields : Array (Name × Array Name)) : MetaM Unit
     for fieldName in computedFields do
       unless isExtern (← getEnv) fieldName do
         toCompile := toCompile.push <| fieldName ++ `_override
-  compileDecls toCompile.toList
+  compileDecls toCompile

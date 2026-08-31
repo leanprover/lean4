@@ -3,10 +3,14 @@ Copyright (c) 2024 Lean FRO, LLC. All rights reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Henrik Böving
 -/
+module
+
 prelude
-import Init.System.IO
-import Std.Tactic.BVDecide.LRAT.Actions
-import Std.Internal.Parsec
+public import Init.System.IO
+public import Std.Tactic.BVDecide.LRAT.Actions
+public import Std.Internal.Parsec
+
+public section
 
 /-!
 This module implements parsers and serializers for both the binary and non-binary LRAT format.
@@ -114,7 +118,13 @@ def parseRat (ident : Nat) : Parser IntAction := do
   match clause.size, ratHints.size with
   | 0, 0 => return .addEmpty ident rupHints
   | 0, _ => fail "There cannot be any ratHints for adding the empty clause"
-  | _, 0 => return .addRup ident clause rupHints
+  | _, 0 =>
+    if rupHints.isEmpty then
+      -- An addition without any hints can only be checked as a RAT step without resolution
+      -- candidates, e.g. a BVA definition clause on a fresh pivot variable.
+      return .addRat ident clause (getPivot clause) #[] #[]
+    else
+      return .addRup ident clause rupHints
   | _, _ => return .addRat ident clause (getPivot clause) rupHints ratHints
 
 def parseAction : Parser IntAction := do
@@ -254,7 +264,13 @@ where
     match clause.size, ratHints.size with
     | 0, 0 => return .addEmpty ident rupHints
     | 0, _ => fail "There cannot be any ratHints for adding the empty clause"
-    | _, 0 => return .addRup ident clause rupHints
+    | _, 0 =>
+      if rupHints.isEmpty then
+        -- An addition without any hints can only be checked as a RAT step without resolution
+        -- candidates, e.g. a BVA definition clause on a fresh pivot variable.
+        return .addRat ident clause (getPivot clause) #[] #[]
+      else
+        return .addRup ident clause rupHints
     | _, _ => return .addRat ident clause (getPivot clause) rupHints ratHints
 
   parseDelete : Parser IntAction := do

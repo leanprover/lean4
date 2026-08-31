@@ -1,7 +1,7 @@
 module
 
 prelude
-import Module.ImportedAll
+public import Module.ImportedAll
 
 /-! `import all` should not transitively expose private info. -/
 

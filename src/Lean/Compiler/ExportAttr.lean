@@ -3,14 +3,18 @@ Copyright (c) 2019 Microsoft Corporation. All rights reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Leonardo de Moura
 -/
+module
+
 prelude
-import Lean.Attributes
+public import Lean.Attributes
+
+public section
 
 namespace Lean
 
 private def isValidCppId (id : String) : Bool :=
-  let first := id.get 0;
-  first.isAlpha  && (id.toSubstring.drop 1).all (fun c => c.isAlpha || c.isDigit || c == '_')
+  let first := id.front;
+  first.isAlpha  && (id.toRawSubstring.drop 1).all (fun c => c.isAlpha || c.isDigit || c == '_')
 
 private def isValidCppName : Name → Bool
   | .str .anonymous s => isValidCppId s
@@ -54,7 +58,7 @@ builtin_initialize exportAttr : ParametricAttribute Name ←
     getParam := fun _ stx => do
       let exportName ← Attribute.Builtin.getId stx
       unless isValidCppName exportName do
-        throwError "invalid 'export' function name, is not a valid C++ identifier"
+        throwError "Invalid `export` function name: `{exportName}` is not a valid C++ identifier"
       return exportName
   }
 

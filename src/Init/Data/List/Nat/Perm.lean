@@ -6,8 +6,14 @@ Authors: Kim Morrison
 module
 
 prelude
+public import Init.GetElem
 import Init.Data.List.Nat.TakeDrop
 import Init.Data.List.Perm
+import Init.Data.List.TakeDrop
+import Init.Omega
+import Init.TacticsExtra
+
+public section
 
 set_option linter.listVariables true -- Enforce naming conventions for `List`/`Array`/`Vector` variables.
 set_option linter.indexVariables true -- Enforce naming conventions for index variables.
@@ -58,14 +64,14 @@ theorem set_set_perm {as : List α} {i j : Nat} (h₁ : i < as.length) (h₂ : j
 
 namespace Perm
 
-/-- Variant of `List.Perm.take` specifying the the permutation is constant after `i` elementwise. -/
+/-- Variant of `List.Perm.take` specifying that the permutation is constant after `i` elementwise. -/
 theorem take_of_getElem? {l₁ l₂ : List α} (h : l₁ ~ l₂) {i : Nat} (w : ∀ j, i ≤ j → l₁[j]? = l₂[j]?) :
     l₁.take i ~ l₂.take i := by
   refine h.take (Perm.of_eq ?_)
   ext1 j
   simpa using w (i + j) (by omega)
 
-/-- Variant of `List.Perm.drop` specifying the the permutation is constant before `i` elementwise. -/
+/-- Variant of `List.Perm.drop` specifying that the permutation is constant before `i` elementwise. -/
 theorem drop_of_getElem? {l₁ l₂ : List α} (h : l₁ ~ l₂) {i : Nat} (w : ∀ j, j < i → l₁[j]? = l₂[j]?) :
     l₁.drop i ~ l₂.drop i := by
   refine h.drop (Perm.of_eq ?_)

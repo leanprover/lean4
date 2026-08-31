@@ -9,8 +9,9 @@ needed for Core and SimpLemmas.
 module
 
 prelude
-import Init.Core
-import Init.NotationExtra
+public import Init.NotationExtra
+
+public section
 set_option linter.missingDocs true -- keep it documented
 
 /-! ## cast and equality -/
@@ -25,7 +26,7 @@ set_option linter.missingDocs true -- keep it documented
 @[simp] theorem eq_true_eq_id : Eq True = id := by
   funext _; simp only [true_iff, id_def, eq_iff_iff]
 
-theorem proof_irrel_heq {p q : Prop} (hp : p) (hq : q) : HEq hp hq := by
+theorem proof_irrel_heq {p q : Prop} (hp : p) (hq : q) : hp ≍ hq := by
   cases propext (iff_of_true hp hq); rfl
 
 /-! ## not -/
@@ -71,6 +72,12 @@ theorem and_and_right : (a ∧ b) ∧ c ↔ (a ∧ c) ∧ b ∧ c := by rw [and_
 theorem and_iff_left  (hb : b) : a ∧ b ↔ a := Iff.intro And.left  (And.intro · hb)
 theorem and_iff_right (ha : a) : a ∧ b ↔ b := Iff.intro And.right (And.intro ha ·)
 
+@[simp] theorem and_imp_left_iff_true {P Q : Prop} : (P ∧ Q → P) ↔ True := by
+  simpa using And.left
+
+@[simp] theorem and_imp_right_iff_true {P Q : Prop} : (P ∧ Q → Q) ↔ True := by
+  simp
+
 /-! ## or -/
 
 theorem or_self_iff : a ∨ a ↔ a := or_self _ ▸ .rfl
@@ -92,6 +99,12 @@ theorem or_rotate : a ∨ b ∨ c ↔ b ∨ c ∨ a := by simp only [or_left_com
 
 theorem or_iff_left  (hb : ¬b) : a ∨ b ↔ a := or_iff_left_iff_imp.mpr  hb.elim
 theorem or_iff_right (ha : ¬a) : a ∨ b ↔ b := or_iff_right_iff_imp.mpr ha.elim
+
+theorem imp_or_left_iff_true {P Q : Prop} : (P → P ∨ Q) ↔ True := by
+  simpa using Or.inl
+
+theorem imp_or_right_iff_true {P Q : Prop} : (Q → P ∨ Q) ↔ True := by
+  simpa using Or.inr
 
 /-! ## distributivity -/
 
@@ -145,26 +158,38 @@ theorem ne_of_apply_ne {α β : Sort _} (f : α → β) {x y : α} : f x ≠ f y
 /-! ## Ite -/
 
 @[simp]
-theorem if_false_left [h : Decidable p] :
+theorem ite_false_left [h : Decidable p] :
     ite p False q ↔ ¬p ∧ q := by cases h <;> (rename_i g; simp [g])
 
+@[deprecated ite_false_left (since := "2026-07-21")]
+theorem if_false_left {p : Prop} {q : Prop} [h : Decidable p] : (if p then False else q) ↔ ¬p ∧ q := ite_false_left
+
 @[simp]
-theorem if_false_right [h : Decidable p] :
+theorem ite_false_right [h : Decidable p] :
     ite p q False ↔ p ∧ q := by cases h <;> (rename_i g; simp [g])
 
+@[deprecated ite_false_right (since := "2026-07-21")]
+theorem if_false_right {p : Prop} {q : Prop} [h : Decidable p] : (if p then q else False) ↔ p ∧ q := ite_false_right
+
 /-
-`if_true_left` and `if_true_right` are lower priority because
-they introduce disjunctions and we prefer `if_false_left` and
-`if_false_right` if they overlap.
+`ite_true_left` and `ite_true_right` are lower priority because
+they introduce disjunctions and we prefer `ite_false_left` and
+`ite_false_right` if they overlap.
 -/
 
 @[simp low]
-theorem if_true_left [h : Decidable p] :
+theorem ite_true_left [h : Decidable p] :
     ite p True q ↔ ¬p → q := by cases h <;> (rename_i g; simp [g])
 
+@[deprecated ite_true_left (since := "2026-07-21")]
+theorem if_true_left {p : Prop} {q : Prop} [h : Decidable p] : (if p then True else q) ↔ ¬p → q := ite_true_left
+
 @[simp low]
-theorem if_true_right [h : Decidable p] :
+theorem ite_true_right [h : Decidable p] :
     ite p q True ↔ p → q := by cases h <;> (rename_i g; simp [g])
+
+@[deprecated ite_true_right (since := "2026-07-21")]
+theorem if_true_right {p : Prop} {q : Prop} [h : Decidable p] : (if p then q else True) ↔ p → q := ite_true_right
 
 /-- Negation of the condition `P : Prop` in a `dite` is the same as swapping the branches. -/
 @[simp] theorem dite_not [hn : Decidable (¬p)] [h : Decidable p]  (x : ¬p → α) (y : ¬¬p → α) :
@@ -175,17 +200,29 @@ theorem if_true_right [h : Decidable p] :
 @[simp] theorem ite_not (p : Prop) [Decidable p] (x y : α) : ite (¬p) x y = ite p y x :=
   dite_not (fun _ => x) (fun _ => y)
 
-@[simp] theorem ite_then_self {p q : Prop} [h : Decidable p] : (if p then p else q) ↔ (¬p → q) := by
+@[simp] theorem ite_self_left {p q : Prop} [h : Decidable p] : (if p then p else q) ↔ (¬p → q) := by
   cases h <;> (rename_i g; simp [g])
 
-@[simp] theorem ite_else_self {p q : Prop} [h : Decidable p] : (if p then q else p) ↔ (p ∧ q) := by
+@[deprecated ite_self_left (since := "2026-07-21")]
+theorem ite_then_self {p : Prop} {q : Prop} [h : Decidable p] : (if p then p else q) ↔ ¬p → q := ite_self_left
+
+@[simp] theorem ite_self_right {p q : Prop} [h : Decidable p] : (if p then q else p) ↔ (p ∧ q) := by
   cases h <;> (rename_i g; simp [g])
 
-@[simp] theorem ite_then_not_self {p : Prop} [Decidable p] {q : Prop} : (if p then ¬p else q) ↔ ¬p ∧ q := by
+@[deprecated ite_self_right (since := "2026-07-21")]
+theorem ite_else_self {p : Prop} {q : Prop} [h : Decidable p] : (if p then q else p) ↔ p ∧ q := ite_self_right
+
+@[simp] theorem ite_not_self_left {p : Prop} [Decidable p] {q : Prop} : (if p then ¬p else q) ↔ ¬p ∧ q := by
   split <;> simp_all
 
-@[simp] theorem ite_else_not_self {p : Prop} [Decidable p] {q : Prop} : (if p then q else ¬p) ↔ p → q := by
+@[deprecated ite_not_self_left (since := "2026-07-21")]
+theorem ite_then_not_self {p : Prop} [Decidable p] {q : Prop} : (if p then ¬p else q) ↔ ¬p ∧ q := ite_not_self_left
+
+@[simp] theorem ite_not_self_right {p : Prop} [Decidable p] {q : Prop} : (if p then q else ¬p) ↔ p → q := by
   split <;> simp_all
+
+@[deprecated ite_not_self_right (since := "2026-07-21")]
+theorem ite_else_not_self {p : Prop} [Decidable p] {q : Prop} : (if p then q else ¬p) ↔ p → q := ite_not_self_right
 
 /-- If two if-then-else statements only differ by the `Decidable` instances, they are equal. -/
 -- This is useful for ensuring confluence, but rarely otherwise.
@@ -309,10 +346,6 @@ theorem exists_or : (∃ x, p x ∨ q x) ↔ (∃ x, p x) ∨ ∃ x, q x :=
 
 theorem Exists.nonempty : (∃ x, p x) → Nonempty α | ⟨x, _⟩ => ⟨x⟩
 
-@[deprecated Exists.nonempty (since := "2025-05-19")]
-theorem nonempty_of_exists {α : Sort u} {p : α → Prop} : Exists (fun x => p x) → Nonempty α
-  | ⟨w, _⟩ => ⟨w⟩
-
 theorem not_forall_of_exists_not {p : α → Prop} : (∃ x, ¬p x) → ¬∀ x, p x
   | ⟨x, hn⟩, h => hn (h x)
 
@@ -347,11 +380,33 @@ theorem not_forall_of_exists_not {p : α → Prop} : (∃ x, ¬p x) → ¬∀ x,
 @[simp] theorem exists_prop_eq' {p : (a : α) → a' = a → Prop} :
     (∃ (a : α) (h : a' = a), p a h) ↔ p a' rfl := by simp [@eq_comm _ a']
 
-@[simp] theorem forall_eq_or_imp : (∀ a, a = a' ∨ q a → p a) ↔ p a' ∧ ∀ a, q a → p a := by
+@[simp] theorem forall_eq_or_imp {P Q : α → Prop} :
+    (∀ a, a = a' ∨ Q a → P a) ↔ P a' ∧ ∀ a, Q a → P a := by
   simp only [or_imp, forall_and, forall_eq]
+
+theorem forall_eq_or_imp' {P Q : α → Prop} {a' : α} :
+    (∀ (a : α), a' = a ∨ Q a → P a) ↔ P a' ∧ ∀ (a : α), Q a → P a := by
+  simp only [or_imp, forall_and, forall_eq']
+
+theorem forall_or_eq_imp {P Q : α → Prop} :
+    (∀ a, Q a ∨ a = a' → P a) ↔ (∀ a, Q a → P a) ∧ P a' := by
+  simp only [or_imp, forall_and, forall_eq]
+
+theorem forall_or_eq_imp' {P Q : α → Prop} :
+    (∀ a, Q a ∨ a' = a → P a) ↔ (∀ a, Q a → P a) ∧ P a' := by
+  simp only [or_imp, forall_and, forall_eq']
 
 @[simp] theorem exists_eq_or_imp : (∃ a, (a = a' ∨ q a) ∧ p a) ↔ p a' ∨ ∃ a, q a ∧ p a := by
   simp only [or_and_right, exists_or, exists_eq_left]
+
+@[simp] theorem exists_eq_or_imp' : (∃ a, (a' = a ∨ q a) ∧ p a) ↔ p a' ∨ ∃ a, q a ∧ p a := by
+  simp only [or_and_right, exists_or, exists_eq_left']
+
+@[simp] theorem exists_or_eq_imp : (∃ a, (q a ∨ a = a') ∧ p a) ↔ (∃ a, q a ∧ p a) ∨ p a' := by
+  simp only [or_and_right, exists_or, exists_eq_left]
+
+@[simp] theorem exists_or_eq_imp' : (∃ a, (q a ∨ a' = a) ∧ p a) ↔ (∃ a, q a ∧ p a) ∨ p a' := by
+  simp only [or_and_right, exists_or, exists_eq_left']
 
 @[simp] theorem exists_eq_right_right : (∃ (a : α), p a ∧ q a ∧ a = a') ↔ p a' ∧ q a' := by
   simp [← and_assoc]
@@ -407,6 +462,22 @@ theorem forall_prop_of_false {p : Prop} {q : p → Prop} (hn : ¬p) : (∀ h' : 
 @[simp] theorem forall_self_imp (P : Prop) (Q : P → Prop) : (∀ p : P, P → Q p) ↔ ∀ p, Q p :=
   ⟨fun h p => h p p, fun h _ p => h p⟩
 
+theorem forall_or_imp_or_self_right_right {P Q R : α → Prop} :
+    (∀ a, P a ∨ Q a → R a ∨ Q a) ↔ (∀ a, P a → R a ∨ Q a) := by
+  simp only [or_imp, imp_or_right_iff_true, and_true]
+
+theorem forall_or_imp_or_self_right_left {P Q R : α → Prop} :
+    (∀ a, P a ∨ Q a → Q a ∨ R a) ↔ (∀ a, P a → Q a ∨ R a) := by
+  simp only [or_imp, imp_or_left_iff_true, and_true]
+
+theorem forall_or_imp_or_self_left_right {P Q R : α → Prop} :
+    (∀ a, Q a ∨ P a → R a ∨ Q a) ↔ (∀ a, P a → R a ∨ Q a) := by
+  simp only [or_imp, imp_or_right_iff_true, true_and]
+
+theorem forall_or_imp_or_self_left_left {P Q R : α → Prop} :
+    (∀ a, Q a ∨ P a → Q a ∨ R a) ↔ (∀ a, P a → Q a ∨ R a) := by
+  simp only [or_imp, imp_or_left_iff_true, true_and]
+
 end quantifiers
 
 /-! ## membership -/
@@ -429,6 +500,7 @@ end Mem
 
 @[simp] theorem Decidable.not_not [Decidable p] : ¬¬p ↔ p := ⟨of_not_not, not_not_intro⟩
 
+set_option linter.defProp false in
 /-- Excluded middle.  Added as alias for Decidable.em -/
 abbrev Decidable.or_not_self := em
 
@@ -439,24 +511,36 @@ theorem Decidable.not_or_self (p : Prop) [h : Decidable p] : ¬p ∨ p := by
 theorem Decidable.by_contra [Decidable p] : (¬p → False) → p := of_not_not
 
 /-- Construct a non-Prop by cases on an `Or`, when the left conjunct is decidable. -/
-protected def Or.by_cases [Decidable p] {α : Sort u} (h : p ∨ q) (h₁ : p → α) (h₂ : q → α) : α :=
+@[expose] protected def Or.by_cases [Decidable p] {α : Sort u} (h : p ∨ q) (h₁ : p → α) (h₂ : q → α) : α :=
   if hp : p then h₁ hp else h₂ (h.resolve_left hp)
 
 /-- Construct a non-Prop by cases on an `Or`, when the right conjunct is decidable. -/
-protected def Or.by_cases' [Decidable q] {α : Sort u} (h : p ∨ q) (h₁ : p → α) (h₂ : q → α) : α :=
+@[expose] protected def Or.by_cases' [Decidable q] {α : Sort u} (h : p ∨ q) (h₁ : p → α) (h₂ : q → α) : α :=
   if hq : q then h₂ hq else h₁ (h.resolve_right hq)
 
+@[inline]
 instance exists_prop_decidable {p} (P : p → Prop)
-  [Decidable p] [∀ h, Decidable (P h)] : Decidable (∃ h, P h) :=
-if h : p then
-  decidable_of_decidable_of_iff ⟨fun h2 => ⟨h, h2⟩, fun ⟨_, h2⟩ => h2⟩
-else isFalse fun ⟨h', _⟩ => h h'
+    [hp : Decidable p] [hP : ∀ h, Decidable (P h)] : Decidable (Exists P) where
+  decide := if h : p then decide (P h) else false
+  reflects_decide :=
+    match hp with
+    | isTrue h => show (decide (P h)).Reflects (Exists P) from
+      match hP h with
+      | isTrue h2 => ⟨h, h2⟩
+      | isFalse h2 => fun ⟨_, h2'⟩ => h2 h2'
+    | isFalse h => fun ⟨h', _⟩ => h h'
 
+@[inline]
 instance forall_prop_decidable {p} (P : p → Prop)
-  [Decidable p] [∀ h, Decidable (P h)] : Decidable (∀ h, P h) :=
-if h : p then
-  decidable_of_decidable_of_iff ⟨fun h2 _ => h2, fun al => al h⟩
-else isTrue fun h2 => absurd h2 h
+    [hp : Decidable p] [hP : ∀ h, Decidable (P h)] : Decidable (∀ h, P h) where
+  decide := if h : p then decide (P h) else true
+  reflects_decide :=
+    match hp with
+    | isTrue h => show (decide (P h)).Reflects (∀ h, P h) from
+      match hP h with
+      | isTrue h2 => fun _ => h2
+      | isFalse h2 => fun al => absurd (al h) h2
+    | isFalse h => fun h2 => absurd h2 h
 
 @[bool_to_prop] theorem decide_eq_true_iff {p : Prop} [Decidable p] : (decide p = true) ↔ p := by simp
 
@@ -542,30 +626,14 @@ theorem Decidable.not_and_not_right [Decidable b] : ¬(a ∧ ¬b) ↔ (a → b) 
 theorem Decidable.not_and_iff_not_or_not [Decidable a] : ¬(a ∧ b) ↔ ¬a ∨ ¬b :=
   ⟨fun h => if ha : a then .inr (h ⟨ha, ·⟩) else .inl ha, not_and_of_not_or_not⟩
 
-set_option linter.missingDocs false in
-@[deprecated Decidable.not_and_iff_not_or_not (since := "2025-03-18")]
-abbrev Decidable.not_and_iff_or_not_not := @Decidable.not_and_iff_not_or_not
-
 theorem Decidable.not_and_iff_not_or_not' [Decidable b] : ¬(a ∧ b) ↔ ¬a ∨ ¬b :=
   ⟨fun h => if hb : b then .inl (h ⟨·, hb⟩) else .inr hb, not_and_of_not_or_not⟩
-
-set_option linter.missingDocs false in
-@[deprecated Decidable.not_and_iff_not_or_not' (since := "2025-03-18")]
-abbrev Decidable.not_and_iff_or_not_not' := @Decidable.not_and_iff_not_or_not'
 
 theorem Decidable.or_iff_not_not_and_not [Decidable a] [Decidable b] : a ∨ b ↔ ¬(¬a ∧ ¬b) := by
   rw [← not_or, not_not]
 
-set_option linter.missingDocs false in
-@[deprecated Decidable.or_iff_not_not_and_not (since := "2025-03-18")]
-abbrev Decidable.or_iff_not_and_not := @Decidable.or_iff_not_not_and_not
-
 theorem Decidable.and_iff_not_not_or_not [Decidable a] [Decidable b] : a ∧ b ↔ ¬(¬a ∨ ¬b) := by
   rw [← not_and_iff_not_or_not, not_not]
-
-set_option linter.missingDocs false in
-@[deprecated Decidable.and_iff_not_not_or_not (since := "2025-03-18")]
-abbrev Decidable.and_iff_not_or_not := @Decidable.and_iff_not_not_or_not
 
 theorem Decidable.imp_iff_right_iff [Decidable a] : (a → b ↔ b) ↔ a ∨ b :=
   Iff.intro
@@ -587,22 +655,22 @@ theorem Decidable.or_congr_right' [Decidable a] (h : ¬a → (b ↔ c)) : a ∨ 
 
 @[simp] theorem Decidable.iff_congr_left {P Q R : Prop} [Decidable P] [Decidable Q] [Decidable R] :
     ((P ↔ R) ↔ (Q ↔ R)) ↔ (P ↔ Q) :=
-  if h : R then by simp_all [Decidable.not_iff_not] else by simp_all [Decidable.not_iff_not]
+  if h : R then by simp_all else by simp_all [Decidable.not_iff_not]
 
 @[simp] theorem Decidable.iff_congr_right {P Q R : Prop} [Decidable P] [Decidable Q] [Decidable R] :
     ((P ↔ Q) ↔ (P ↔ R)) ↔ (Q ↔ R) :=
-  if h : P then by simp_all [Decidable.not_iff_not] else by simp_all [Decidable.not_iff_not]
+  if h : P then by simp_all else by simp_all [Decidable.not_iff_not]
 
 /-- Transfer decidability of `a` to decidability of `b`, if the propositions are equivalent.
 **Important**: this function should be used instead of `rw` on `Decidable b`, because the
 kernel will get stuck reducing the usage of `propext` otherwise,
 and `decide` will not work. -/
-@[inline] def decidable_of_iff (a : Prop) (h : a ↔ b) [Decidable a] : Decidable b :=
+abbrev decidable_of_iff (a : Prop) (h : a ↔ b) [Decidable a] : Decidable b :=
   decidable_of_decidable_of_iff h
 
 /-- Transfer decidability of `b` to decidability of `a`, if the propositions are equivalent.
 This is the same as `decidable_of_iff` but the iff is flipped. -/
-@[inline, expose] def decidable_of_iff' (b : Prop) (h : a ↔ b) [Decidable b] : Decidable a :=
+abbrev decidable_of_iff' (b : Prop) (h : a ↔ b) [Decidable b] : Decidable a :=
   decidable_of_decidable_of_iff h.symm
 
 instance Decidable.predToBool (p : α → Prop) [DecidablePred p] :
@@ -611,11 +679,12 @@ instance Decidable.predToBool (p : α → Prop) [DecidablePred p] :
 instance [DecidablePred p] : DecidablePred (p ∘ f) :=
   fun x => inferInstanceAs (Decidable (p (f x)))
 
-/-- Prove that `a` is decidable by constructing a boolean `b` and a proof that `b ↔ a`.
-(This is sometimes taken as an alternate definition of decidability.) -/
-def decidable_of_bool : ∀ (b : Bool), (b ↔ a) → Decidable a
-  | true, h => isTrue (h.1 rfl)
-  | false, h => isFalse (mt h.2 Bool.noConfusion)
+/-- Prove that `a` is decidable by constructing a boolean `b` and a proof that `b ↔ a`. -/
+abbrev decidable_of_bool (b : Bool) (h : b ↔ a) : Decidable a :=
+  Decidable.intro b
+    (match b, h with
+    | true, h => h.1 rfl
+    | false, h => mt h.2 Bool.noConfusion)
 
 protected theorem Decidable.not_forall {p : α → Prop} [Decidable (∃ x, ¬p x)]
     [∀ x, Decidable (p x)] : (¬∀ x, p x) ↔ ∃ x, ¬p x :=
@@ -670,23 +739,39 @@ theorem decide_ite (u : Prop) [du : Decidable u] (p q : Prop)
     decide (ite u p q) = ite u (decide p) (decide q) := by
   cases du <;> simp [*]
 
-/- Confluence for `ite_then_self` and `decide_ite`. -/
-@[simp] theorem ite_then_decide_self (p : Prop) [h : Decidable p] {w : Decidable p} (q : Bool) :
+/- Confluence for `ite_self_left` and `decide_ite`. -/
+@[simp] theorem ite_decide_self_left (p : Prop) [h : Decidable p] {w : Decidable p} (q : Bool) :
     (@ite _ p h (decide p) q) = (decide p || q) := by
   split <;> simp_all
 
-/- Confluence for `ite_else_self` and `decide_ite`. -/
-@[simp] theorem ite_else_decide_self (p : Prop) [h : Decidable p] {w : Decidable p} (q : Bool) :
+@[deprecated ite_decide_self_left (since := "2026-07-21")]
+theorem ite_then_decide_self (p : Prop) [h : Decidable p] {w : Decidable p} (q : Bool) :
+    (@ite _ p h (@decide p w) q) = (@decide p w || q) := @ite_decide_self_left p h w q
+
+/- Confluence for `ite_self_right` and `decide_ite`. -/
+@[simp] theorem ite_decide_self_right (p : Prop) [h : Decidable p] {w : Decidable p} (q : Bool) :
     (@ite _ p h q (decide p)) = (decide p && q) := by
   split <;> simp_all
 
-@[simp] theorem ite_then_decide_not_self (p : Prop) [h : Decidable p] {w : Decidable p} (q : Bool) :
+@[deprecated ite_decide_self_right (since := "2026-07-21")]
+theorem ite_else_decide_self (p : Prop) [h : Decidable p] {w : Decidable p} (q : Bool) :
+    (@ite _ p h q (@decide p w)) = (@decide p w && q) := @ite_decide_self_right p h w q
+
+@[simp] theorem ite_decide_not_self_left (p : Prop) [h : Decidable p] {w : Decidable p} (q : Bool) :
     (@ite _ p h (!decide p) q) = (!decide p && q) := by
   split <;> simp_all
 
-@[simp] theorem ite_else_decide_not_self (p : Prop) [h : Decidable p] {w : Decidable p} (q : Bool) :
+@[deprecated ite_decide_not_self_left (since := "2026-07-21")]
+theorem ite_then_decide_not_self (p : Prop) [h : Decidable p] {w : Decidable p} (q : Bool) :
+    (@ite _ p h (!@decide p w) q) = (!@decide p w && q) := @ite_decide_not_self_left p h w q
+
+@[simp] theorem ite_decide_not_self_right (p : Prop) [h : Decidable p] {w : Decidable p} (q : Bool) :
    (@ite _ p h q (!decide p)) = (!decide p || q) := by
   split <;> simp_all
+
+@[deprecated ite_decide_not_self_right (since := "2026-07-21")]
+theorem ite_else_decide_not_self (p : Prop) [h : Decidable p] {w : Decidable p} (q : Bool) :
+    (@ite _ p h q (!@decide p w)) = (!@decide p w || q) := @ite_decide_not_self_right p h w q
 
 attribute [local simp] Decidable.imp_iff_left_iff
 
@@ -738,14 +823,123 @@ attribute [local simp] Decidable.imp_iff_left_iff
 @[simp] theorem right_iff_ite_iff {p : Prop} [Decidable p] {x y : Prop} : (y ↔ (if p then x else y)) ↔ p → y = x := by
   split <;> simp_all
 
-@[simp] theorem dite_then_false {p : Prop} [Decidable p] {x : ¬ p → Prop} : (if h : p then False else x h) ↔ ∃ h : ¬ p, x h := by
+@[simp] theorem dite_false_left {p : Prop} [Decidable p] {x : ¬ p → Prop} : (if h : p then False else x h) ↔ ∃ h : ¬ p, x h := by
   split <;> simp_all
 
-@[simp] theorem dite_else_false {p : Prop} [Decidable p] {x : p → Prop} : (if h : p then x h else False) ↔ ∃ h : p, x h := by
+@[deprecated dite_false_left (since := "2026-07-21")]
+theorem dite_then_false {p : Prop} [Decidable p] {x : ¬p → Prop} : (if h : p then False else x h) ↔ ∃ h, x h := dite_false_left
+
+@[simp] theorem dite_false_right {p : Prop} [Decidable p] {x : p → Prop} : (if h : p then x h else False) ↔ ∃ h : p, x h := by
   split <;> simp_all
 
-@[simp] theorem dite_then_true {p : Prop} [Decidable p] {x : ¬ p → Prop} : (if h : p then True else x h) ↔ ∀ h : ¬ p, x h := by
+@[deprecated dite_false_right (since := "2026-07-21")]
+theorem dite_else_false {p : Prop} [Decidable p] {x : p → Prop} : (if h : p then x h else False) ↔ ∃ h, x h := dite_false_right
+
+@[simp] theorem dite_true_left {p : Prop} [Decidable p] {x : ¬ p → Prop} : (if h : p then True else x h) ↔ ∀ h : ¬ p, x h := by
   split <;> simp_all
 
-@[simp] theorem dite_else_true {p : Prop} [Decidable p] {x : p → Prop} : (if h : p then x h else True) ↔ ∀ h : p, x h := by
+@[deprecated dite_true_left (since := "2026-07-21")]
+theorem dite_then_true {p : Prop} [Decidable p] {x : ¬p → Prop} : (if h : p then True else x h) ↔ ∀ (h : ¬p), x h := dite_true_left
+
+@[simp] theorem dite_true_right {p : Prop} [Decidable p] {x : p → Prop} : (if h : p then x h else True) ↔ ∀ h : p, x h := by
   split <;> simp_all
+
+@[deprecated dite_true_right (since := "2026-07-21")]
+theorem dite_else_true {p : Prop} [Decidable p] {x : p → Prop} : (if h : p then x h else True) ↔ ∀ (h : p), x h := dite_true_right
+
+@[simp] theorem Bool.ite_false_left_eq_true {p : Prop} [Decidable p] {x : Bool} : (if p then false else x) = true ↔ ¬ p ∧ x := by
+  split <;> simp_all
+
+@[deprecated Bool.ite_false_left_eq_true (since := "2026-07-21")]
+theorem Bool.ite_then_false {p : Prop} [Decidable p] {x : Bool} : (if p then Bool.false else x) = Bool.true ↔ ¬p ∧ x = Bool.true := Bool.ite_false_left_eq_true
+
+@[simp] theorem Bool.ite_true_left_eq_false {p : Prop} [Decidable p] {x : Bool} : (if p then true else x) = false ↔ ¬ p ∧ x = false := by
+  split <;> simp_all
+
+@[deprecated Bool.ite_true_left_eq_false (since := "2026-07-21")]
+theorem Bool.ite_then_true_eq_false {p : Prop} [Decidable p] {x : Bool} : (if p then Bool.true else x) = Bool.false ↔ ¬p ∧ x = Bool.false := Bool.ite_true_left_eq_false
+
+@[simp] theorem Bool.ite_false_right_eq_true {p : Prop} [Decidable p] {x : Bool} : (if p then x else false) = true ↔ p ∧ x := by
+  split <;> simp_all
+
+@[deprecated Bool.ite_false_right_eq_true (since := "2026-07-21")]
+theorem Bool.ite_else_false {p : Prop} [Decidable p] {x : Bool} : (if p then x else Bool.false) = Bool.true ↔ p ∧ x = Bool.true := Bool.ite_false_right_eq_true
+
+@[simp] theorem Bool.ite_true_right_eq_false {p : Prop} [Decidable p] {x :Bool} : (if p then x else true) = false ↔ p ∧ x = false := by
+  split <;> simp_all
+
+@[deprecated Bool.ite_true_right_eq_false (since := "2026-07-21")]
+theorem Bool.ite_else_true_eq_false {p : Prop} [Decidable p] {x : Bool} : (if p then x else Bool.true) = Bool.false ↔ p ∧ x = Bool.false := Bool.ite_true_right_eq_false
+
+@[simp] theorem Bool.ite_true_left_eq_true {p : Prop} [Decidable p] {x : Bool} : (if p then true else x) = true ↔ p ∨ x := by
+  split <;> simp_all
+
+@[deprecated Bool.ite_true_left_eq_true (since := "2026-07-21")]
+theorem Bool.ite_then_true {p : Prop} [Decidable p] {x : Bool} : (if p then Bool.true else x) = Bool.true ↔ p ∨ x = Bool.true := Bool.ite_true_left_eq_true
+
+@[simp] theorem Bool.ite_false_left_eq_false {p : Prop} [Decidable p] {x : Bool} : (if p then false else x) = false ↔ p ∨ x = false := by
+  split <;> simp_all
+
+@[deprecated Bool.ite_false_left_eq_false (since := "2026-07-21")]
+theorem Bool.ite_then_false_eq_false {p : Prop} [Decidable p] {x : Bool} : (if p then Bool.false else x) = Bool.false ↔ p ∨ x = Bool.false := Bool.ite_false_left_eq_false
+
+@[simp] theorem Bool.ite_true_right_eq_true {p : Prop} [Decidable p] {x : Bool} : (if p then x else true) = true ↔ ¬ p ∨ x := by
+  split <;> simp_all
+
+@[deprecated Bool.ite_true_right_eq_true (since := "2026-07-21")]
+theorem Bool.ite_else_true {p : Prop} [Decidable p] {x : Bool} : (if p then x else Bool.true) = Bool.true ↔ ¬p ∨ x = Bool.true := Bool.ite_true_right_eq_true
+
+@[simp] theorem Bool.ite_false_right_eq_false {p : Prop} [Decidable p] {x : Bool} : (if p then x else false) = false ↔ ¬ p ∨ x = false := by
+  split <;> simp_all
+
+@[deprecated Bool.ite_false_right_eq_false (since := "2026-07-21")]
+theorem Bool.ite_else_false_eq_false {p : Prop} [Decidable p] {x : Bool} : (if p then x else Bool.false) = Bool.false ↔ ¬p ∨ x = Bool.false := Bool.ite_false_right_eq_false
+
+@[simp] theorem Bool.dite_false_left_eq_true {p : Prop} [Decidable p] {x : ¬ p → Bool} : (if h : p then false else x h) = true ↔ ∃ h : ¬ p, x h := by
+  split <;> simp_all
+
+@[deprecated Bool.dite_false_left_eq_true (since := "2026-07-21")]
+theorem Bool.dite_then_false {p : Prop} [Decidable p] {x : ¬p → Bool} : (if h : p then Bool.false else x h) = Bool.true ↔ ∃ h, x h = Bool.true := Bool.dite_false_left_eq_true
+
+@[simp] theorem Bool.dite_true_left_eq_false {p : Prop} [Decidable p] {x : ¬ p → Bool} : (if h : p then true else x h) = false ↔ ∃ h : ¬ p, x h = false := by
+  split <;> simp_all
+
+@[deprecated Bool.dite_true_left_eq_false (since := "2026-07-21")]
+theorem Bool.dite_then_true_eq_false {p : Prop} [Decidable p] {x : ¬p → Bool} : (if h : p then Bool.true else x h) = Bool.false ↔ ∃ h, x h = Bool.false := Bool.dite_true_left_eq_false
+
+@[simp] theorem Bool.dite_false_right_eq_true {p : Prop} [Decidable p] {x : p → Bool} : (if h : p then x h else false) = true ↔ ∃ h : p, x h := by
+  split <;> simp_all
+
+@[deprecated Bool.dite_false_right_eq_true (since := "2026-07-21")]
+theorem Bool.dite_else_false {p : Prop} [Decidable p] {x : p → Bool} : (if h : p then x h else Bool.false) = Bool.true ↔ ∃ h, x h = Bool.true := Bool.dite_false_right_eq_true
+
+@[simp] theorem Bool.dite_true_right_eq_false {p : Prop} [Decidable p] {x : p → Bool} : (if h : p then x h else true) = false ↔ ∃ h : p, x h = false := by
+  split <;> simp_all
+
+@[deprecated Bool.dite_true_right_eq_false (since := "2026-07-21")]
+theorem Bool.dite_else_true_eq_false {p : Prop} [Decidable p] {x : p → Bool} : (if h : p then x h else Bool.true) = Bool.false ↔ ∃ h, x h = Bool.false := Bool.dite_true_right_eq_false
+
+@[simp] theorem Bool.dite_true_left_eq_true {p : Prop} [Decidable p] {x : ¬ p → Bool} : (if h : p then true else x h) = true ↔ ∀ h : ¬ p, x h := by
+  split <;> simp_all
+
+@[deprecated Bool.dite_true_left_eq_true (since := "2026-07-21")]
+theorem Bool.dite_then_true {p : Prop} [Decidable p] {x : ¬p → Bool} : (if h : p then Bool.true else x h) = Bool.true ↔ ∀ (h : ¬p), x h = Bool.true := Bool.dite_true_left_eq_true
+
+@[simp] theorem Bool.dite_false_left_eq_false {p : Prop} [Decidable p] {x : ¬ p → Bool} : (if h : p then false else x h) = false ↔ ∀ h : ¬ p, x h = false := by
+  split <;> simp_all
+
+@[deprecated Bool.dite_false_left_eq_false (since := "2026-07-21")]
+theorem Bool.dite_then_false_eq_false {p : Prop} [Decidable p] {x : ¬p → Bool} : (if h : p then Bool.false else x h) = Bool.false ↔ ∀ (h : ¬p), x h = Bool.false := Bool.dite_false_left_eq_false
+
+@[simp] theorem Bool.dite_true_right_eq_true {p : Prop} [Decidable p] {x : p → Bool} : (if h : p then x h else true) = true ↔ ∀ h : p, x h := by
+  split <;> simp_all
+
+@[deprecated Bool.dite_true_right_eq_true (since := "2026-07-21")]
+theorem Bool.dite_else_true {p : Prop} [Decidable p] {x : p → Bool} : (if h : p then x h else Bool.true) = Bool.true ↔ ∀ (h : p), x h = Bool.true := Bool.dite_true_right_eq_true
+
+@[simp] theorem Bool.dite_false_right_eq_false {p : Prop} [Decidable p] {x : p → Bool} : (if h : p then x h else false) = false ↔ ∀ h : p, x h = false := by
+  split <;> simp_all
+
+@[deprecated Bool.dite_false_right_eq_false (since := "2026-07-21")]
+theorem Bool.dite_else_false_eq_false {p : Prop} [Decidable p] {x : p → Bool} : (if h : p then x h else Bool.false) = Bool.false ↔ ∀ (h : p), x h = Bool.false := Bool.dite_false_right_eq_false
+

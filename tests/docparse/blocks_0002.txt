@@ -1,0 +1,2 @@
+Newlines are preserved
+in paragraphs.

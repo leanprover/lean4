@@ -3,9 +3,12 @@ Copyright (c) 2024 Lean FRO, LLC. All rights reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Henrik Böving
 -/
+module
+
 prelude
-import Std.Tactic.BVDecide.Bitblast.BVExpr.Basic
-import Std.Tactic.BVDecide.Bitblast.BVExpr.Circuit.Impl.Operations.Udiv
+public import Std.Tactic.BVDecide.Bitblast.BVExpr.Circuit.Impl.Operations.Udiv
+
+@[expose] public section
 
 /-!
 This module contains the implementation of a bitblaster for `BitVec.umod`. The implemented
@@ -45,13 +48,13 @@ def blastUmod (aig : AIG α) (input : AIG.BinaryRefVec aig w) : AIG.RefVecEntry 
 instance : AIG.LawfulVecOperator α AIG.BinaryRefVec blastUmod where
   le_size := by
     intros
-    unfold blastUmod
+    simp only [blastUmod]
     apply AIG.LawfulVecOperator.le_size_of_le_aig_size (f := AIG.RefVec.ite)
     refine Nat.le_trans ?_ (by apply blastUdiv.go_le_size)
     apply AIG.LawfulOperator.le_size (f := BVPred.mkEq)
   decl_eq := by
     intros
-    unfold blastUmod
+    simp only [blastUmod]
     rw [AIG.LawfulVecOperator.decl_eq (f := AIG.RefVec.ite)]
     rw [blastUdiv.go_decl_eq]
     rw [AIG.LawfulOperator.decl_eq (f := BVPred.mkEq)]

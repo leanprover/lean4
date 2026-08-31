@@ -3,15 +3,16 @@ Copyright (c) 2020 Microsoft Corporation. All rights reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Leonardo de Moura
 -/
+module
 prelude
-import Lean.Meta.Eqns
-import Lean.Util.CollectAxioms
-import Lean.Elab.Command
-
+public import Lean.Meta.Eqns
+public import Lean.Elab.Command
+import Lean.PrettyPrinter.Delaborator.Builtins
+public section
 namespace Lean.Elab.Command
 
 private def throwUnknownId (id : Name) : CommandElabM Unit :=
-  throwError "unknown identifier '{.ofConstName id}'"
+  throwError "Unknown identifier `{.ofConstName id}`"
 
 private def levelParamsToMessageData (levelParams : List Name) : MessageData :=
   match levelParams with
@@ -25,12 +26,20 @@ private def levelParamsToMessageData (levelParams : List Name) : MessageData :=
 private def mkHeader (kind : String) (id : Name) (levelParams : List Name) (type : Expr) (safety : DefinitionSafety) (sig : Bool := true) : CommandElabM MessageData := do
   let mut attrs := #[]
   match (← getReducibilityStatus id) with
-  | ReducibilityStatus.irreducible =>   attrs := attrs.push m!"irreducible"
-  | ReducibilityStatus.reducible =>     attrs := attrs.push m!"reducible"
-  | ReducibilityStatus.semireducible => pure ()
+  | .irreducible =>   attrs := attrs.push m!"irreducible"
+  | .reducible =>     attrs := attrs.push m!"reducible"
+  | .implicitReducible => attrs := attrs.push m!"implicit_reducible"
+  | .instanceReducible => attrs := attrs.push m!"instance_reducible"
+  | .semireducible => pure ()
+
+  let env ← getEnv
+  if env.header.isModule && (env.setExporting true |>.find? id |>.any (·.isDefinition)) then
+    attrs := attrs.push m!"expose"
 
   if defeqAttr.hasTag (← getEnv) id then
     attrs := attrs.push m!"defeq"
+  else if backwardDefeqAttr.hasTag (← getEnv) id then
+    attrs := attrs.push m!"backward_defeq"
 
   let mut m : MessageData := m!""
   unless attrs.isEmpty do
@@ -41,15 +50,18 @@ private def mkHeader (kind : String) (id : Name) (levelParams : List Name) (type
   | DefinitionSafety.partial => m := m ++ "partial "
   | DefinitionSafety.safe    => pure ()
 
-  if isProtected (← getEnv) id then
-    m := m ++ "protected "
-
   let id' ← match privateToUserName? id with
     | some id' =>
       m := m ++ "private "
-      pure id'
+      if getPPPrivateNames (← getOptions) then pure id else pure id'
     | none =>
       pure id
+
+  if isProtected (← getEnv) id then
+    m := m ++ "protected "
+
+  if isMarkedMeta (← getEnv) id then
+    m := m ++ "meta "
 
   if sig then
     return m!"{m}{kind} {id'}{levelParamsToMessageData levelParams} : {type}"
@@ -83,6 +95,72 @@ private def printInduct (id : Name) (levelParams : List Name) (numParams : Nat) 
     let cinfo ← getConstInfo ctor
     m := m ++ Format.line ++ ctor ++ " : " ++ cinfo.type
   logInfo m
+
+open Meta in
+private def printRecursor (sigOnly : Bool) (recInfo : RecursorVal) : CommandElabM Unit := do
+  let mut m ← mkHeader "recursor" recInfo.name recInfo.levelParams recInfo.type (if recInfo.isUnsafe then .unsafe else .safe) (sig := false)
+  m := m!"{m} {.signature recInfo.name}"
+  unless sigOnly do
+    m := m ++ Format.line ++ m!"number of parameters: {recInfo.numParams}{positionsString 0 recInfo.numParams}"
+    m := m ++ Format.line ++ m!"number of motives: {recInfo.numMotives}{positionsString recInfo.numParams recInfo.numMotives}"
+    m := m ++ Format.line ++ m!"number of minor premises: {recInfo.numMinors}{positionsString recInfo.getFirstMinorIdx recInfo.numMinors}"
+    m := m ++ Format.line ++ m!"number of indices: {recInfo.numIndices}{positionsString recInfo.getFirstIndexIdx recInfo.numIndices}"
+    m := m ++ Format.line ++ m!"major premise position: {recInfo.getMajorIdx+1}"
+    if recInfo.k then
+      m := m ++ Format.line ++ m!"supports K-like reduction"
+    if recInfo.rules.isEmpty then
+      m := m ++ Format.line ++ "rules: (none)"
+    else
+      m := m ++ Format.line ++ "rules:"
+      for rule in recInfo.rules do
+        let ruleMsg ← liftTermElabM do mkRuleMsg rule
+        m := m ++ indentD ruleMsg
+  logInfo m
+where
+  positionsString (firstIndex count : Nat) : String :=
+    if count = 0 then ""
+    else if count = 1 then s!" (position {firstIndex+1})"
+    else s!" (positions {firstIndex+1}–{firstIndex+count})"
+  /--
+  Given the recursor rule, creates a message like `List.rec nil cons (List.cons x xs) ==> cons x xs`.
+  Recall that each rule is a lambda expression whose parameters correspond to the arguments
+  of the recursor followed by the fields of the constructor.
+  We need to synthesize a major premise from this to fully render the reduction rule.
+  The main complication is the recursors for nested inductive types, since the number of inductive
+  parameters for the rule is for the auxiliary inductive type as part of the kernel's internal
+  construction, *not* the number of inductive parameters for the type being nested through.
+  -/
+  mkRuleMsg (rule : RecursorRule) : TermElabM MessageData := do
+    lambdaTelescope rule.rhs fun xs rhs => do
+      -- Start building the recursor application, applying parameters, motives, and minor premises
+      let numRecArgs := recInfo.numParams + recInfo.numMotives + recInfo.numMinors
+      let levels := recInfo.levelParams.map Level.param
+      let recApp := mkAppN (.const recInfo.name levels) xs[0...numRecArgs]
+      -- The remaining rule parameters correspond to constructor fields. These are the last `nfields`
+      -- of the constructor. Note that in nested inductive types, the number of inductive parameters
+      -- for the constructor might not equal the number of inductive parameters for the recursor.
+      let fields := xs[numRecArgs...*]
+      assert! fields.size == rule.nfields
+      -- We can get the constructor inductive parameters from the type of the major premise,
+      -- taking all arguments before the reported number of indices.
+      -- We can also get the constructor universe levels from this.
+      let (majorLevels, params) ←
+        forallBoundedTelescope (← inferType recApp) (some (recInfo.numIndices + 1)) fun xs' _ => do
+          let major := xs'[recInfo.numIndices]!
+          (← inferType major).withApp fun t args => do
+            let us := t.constLevels!
+            let params := args[0...(args.size - recInfo.numIndices)]
+            pure (us, params)
+      -- Now we can build the major premise
+      let major := mkAppN (mkAppN (.const rule.ctor majorLevels) params) fields
+      -- From this we can compute the indices for the recursor
+      let majorTypeArgs := (← inferType major).getAppArgs
+      let indices := majorTypeArgs[(majorTypeArgs.size - recInfo.numIndices)...*]
+      -- Then we can build the left-hand side of the rule and the final message
+      let lhs := mkApp (mkAppN recApp indices) major
+      -- Inductive predicates should pretty print. We universally enable pretty printing proofs here.
+      withOptions (fun opts => opts.set pp.proofs.name true) do
+        addMessageContext <| lhs ++ indentD m!"==> {rhs}"
 
 /--
 Computes the origin of a field. Returns its `StructureFieldInfo` at the origin.
@@ -125,7 +203,7 @@ private partial def printStructure (id : Name) (levelParams : List Name) (numPar
       let flatCtorName := mkFlatCtorOfStructCtorName ctor
       let flatCtorInfo ← getConstInfo flatCtorName
       let autoParams : NameMap Syntax ← forallTelescope flatCtorInfo.type fun args _ =>
-        args[numParams:].foldlM (init := {}) fun set arg => do
+        args[numParams...*].foldlM (init := {}) fun set arg => do
           let decl ← arg.fvarId!.getDecl
           if let some (.const tacticDecl _) := decl.type.getAutoParamTactic? then
             let tacticSyntax ← ofExcept <| evalSyntaxConstant (← getEnv) (← getOptions) tacticDecl
@@ -145,7 +223,7 @@ private partial def printStructure (id : Name) (levelParams : List Name) (numPar
           let fi ← getFieldOrigin source field
           let proj := fi.projFn
           let modifier := if isPrivateName proj then "private " else ""
-          let ftype ← inferType (fieldMap.find! field)
+          let ftype ← inferType (fieldMap.get! field)
           let value ←
             if let some stx := autoParams.find? field then
               let stx : TSyntax ``Parser.Tactic.tacticSeq := ⟨stx⟩
@@ -184,7 +262,7 @@ private def printIdCore (sigOnly : Bool) (id : Name) : CommandElabM Unit := do
   | ConstantInfo.opaqueInfo  { levelParams := us, type := t, isUnsafe := u, .. } => printAxiomLike "opaque" id us t (if u then .unsafe else .safe)
   | ConstantInfo.quotInfo  { levelParams := us, type := t, .. } => printQuot id us t
   | ConstantInfo.ctorInfo { levelParams := us, type := t, isUnsafe := u, .. } => printAxiomLike "constructor" id us t (if u then .unsafe else .safe)
-  | ConstantInfo.recInfo { levelParams := us, type := t, isUnsafe := u, .. } => printAxiomLike "recursor" id us t (if u then .unsafe else .safe)
+  | ConstantInfo.recInfo recInfo => printRecursor sigOnly recInfo
   | ConstantInfo.inductInfo { levelParams := us, numParams, type := t, ctors, isUnsafe := u, .. } =>
     if isStructure env id then
       printStructure id us numParams t ctors[0]! u
@@ -217,14 +295,10 @@ private def printAxiomsOf (constName : Name) : CommandElabM Unit := do
   if axioms.isEmpty then
     logInfo m!"'{constName}' does not depend on any axioms"
   else
-    logInfo m!"'{constName}' depends on axioms: {axioms.qsort Name.lt |>.toList}"
+    logInfo m!"'{constName}' depends on axioms: {axioms.qsort Name.lt |>.map MessageData.ofConstName |>.toList}"
 
 @[builtin_command_elab «printAxioms»] def elabPrintAxioms : CommandElab
   | `(#print%$tk axioms $id) => withRef tk do
-    if (← getEnv).header.isModule then
-      throwError "cannot use `#print axioms` in a `module`; consider temporarily removing the \
-        `module` header or placing the command in a separate file"
-
     let cs ← liftCoreM <| realizeGlobalConstWithInfos id
     cs.forM printAxiomsOf
   | _ => throwUnsupportedSyntax

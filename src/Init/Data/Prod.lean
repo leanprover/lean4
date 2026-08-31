@@ -6,10 +6,13 @@ Author: Leonardo de Moura
 module
 
 prelude
-import Init.SimpLemmas
-import Init.NotationExtra
+public import Init.NotationExtra
+
+public section
 
 namespace Prod
+
+attribute [grind =] Prod.map_fst Prod.map_snd
 
 instance [BEq α] [BEq β] [ReflBEq α] [ReflBEq β] : ReflBEq (α × β) where
   rfl {a} := by cases a; simp [BEq.beq]
@@ -43,6 +46,7 @@ theorem map_comp_map (f : α → β) (f' : γ → δ) (g : β → ε) (g' : δ �
 Composing a `Prod.map` with another `Prod.map` is equal to
 a single `Prod.map` of composed functions, fully applied.
 -/
+@[grind _=_]
 theorem map_map (f : α → β) (f' : γ → δ) (g : β → ε) (g' : δ → ζ) (x : α × γ) :
     Prod.map g g' (Prod.map f f' x) = Prod.map (g ∘ f) (g' ∘ f') x :=
   rfl
@@ -54,21 +58,21 @@ Examples:
  * `(1, 2).swap = (2, 1)`
  * `("orange", -87).swap = (-87, "orange")`
 -/
-@[expose] def swap : α × β → β × α := fun p => (p.2, p.1)
+@[expose, implicit_reducible] def swap : α × β → β × α := fun p => (p.2, p.1)
 
-@[simp]
+@[simp, grind =]
 theorem swap_swap : ∀ x : α × β, swap (swap x) = x
   | ⟨_, _⟩ => rfl
 
-@[simp]
+@[simp, grind =]
 theorem fst_swap {p : α × β} : (swap p).1 = p.2 :=
   rfl
 
-@[simp]
+@[simp, grind =]
 theorem snd_swap {p : α × β} : (swap p).2 = p.1 :=
   rfl
 
-@[simp]
+@[simp, grind =]
 theorem swap_prod_mk {a : α} {b : β} : swap (a, b) = (b, a) :=
   rfl
 

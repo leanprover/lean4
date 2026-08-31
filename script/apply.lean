@@ -60,7 +60,7 @@ if (arity == fixed + {n}) \{
   for j in [n:max + 1] do
     let fs := mkFsArgs (j - n)
     let sep := if j = n then "" else ", "
-    emit s!"    case {j}: \{ obj* r = FN{j}(f)({fs}{sep}{args}); lean_free_small_object(f); return r; }\n"
+    emit s!"    case {j}: \{ obj* r = FN{j}(f)({fs}{sep}{args}); lean_free_object(f); return r; }\n"
   emit "    }
   }
   switch (arity) {\n"
@@ -162,7 +162,7 @@ static obj* fix_args(obj* f, unsigned n, obj*const* as) {
       for (unsigned i = 0; i < fixed; i++, source++, target++) {
           *target = *source;
       }
-      lean_free_small_object(f);
+      lean_free_object(f);
     }
     for (unsigned i = 0; i < n; i++, as++, target++) {
         *target = *as;

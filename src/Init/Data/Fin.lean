@@ -6,8 +6,9 @@ Author: Leonardo de Moura
 module
 
 prelude
-import Init.Data.Fin.Basic
-import Init.Data.Fin.Log2
-import Init.Data.Fin.Iterate
-import Init.Data.Fin.Fold
-import Init.Data.Fin.Lemmas
+public import Init.Data.Fin.Basic
+public import Init.Data.Fin.Log2
+public import Init.Data.Fin.Iterate
+public import Init.Data.Fin.Fold
+public import Init.Data.Fin.Lemmas
+public import Init.Data.Fin.OverflowAware

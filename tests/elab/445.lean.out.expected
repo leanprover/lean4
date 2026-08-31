@@ -1,0 +1,15 @@
+true
+(match i with
+  | 0 => true
+  | n.succ => true) &&
+  f i
+if i < 5 then 0 else 1
+if i < 5 then 0 else g i j
+i + 1
+i + h i j
+i + 1
+i + i * 2
+i + i * r i j
+i + i * r i j
+have z := s i j;
+z + z

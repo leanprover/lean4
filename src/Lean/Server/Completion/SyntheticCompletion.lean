@@ -3,9 +3,13 @@ Copyright (c) 2024 Lean FRO, LLC. All rights reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Marc Huisinga
 -/
+module
+
 prelude
-import Lean.Server.InfoUtils
-import Lean.Server.Completion.CompletionUtils
+public import Lean.Server.InfoUtils
+public import Lean.Server.Completion.CompletionUtils
+
+public section
 
 namespace Lean.Server.Completion
 open Elab
@@ -48,7 +52,7 @@ yields the closest one of those `Info`s.
 Otherwise, yields the closest `Info` that contains `hoverPos` and has an empty `LocalContext`.
 -/
 private def findClosestInfoWithLocalContextAt?
-    (hoverPos : String.Pos)
+    (hoverPos : String.Pos.Raw)
     (infoTree : InfoTree)
     : Option (ContextInfo × Info) :=
   findBest? infoTree isBetter fun ctx info _ =>
@@ -72,7 +76,7 @@ where
       false
 
 private def findSyntheticIdentifierCompletion?
-    (hoverPos : String.Pos)
+    (hoverPos : String.Pos.Raw)
     (infoTree : InfoTree)
     : Option ContextualizedCompletionInfo := do
   let some (ctx, info) := findClosestInfoWithLocalContextAt? hoverPos infoTree
@@ -95,30 +99,31 @@ private def findSyntheticIdentifierCompletion?
   let tailPos := stx.getTailPos?.get!
   let hoverInfo :=
     if hoverPos < tailPos then
-      HoverInfo.inside (tailPos - hoverPos).byteIdx
+      HoverInfo.inside (hoverPos.byteDistance tailPos)
     else
       HoverInfo.after
   some { hoverInfo, ctx, info := .id stx id danglingDot info.lctx none }
 
-private partial def isCursorOnWhitespace (fileMap : FileMap) (hoverPos : String.Pos) : Bool :=
-  fileMap.source.atEnd hoverPos || (fileMap.source.get hoverPos).isWhitespace
+private partial def isCursorOnWhitespace (fileMap : FileMap) (hoverPos : String.Pos.Raw) : Bool :=
+  hoverPos.atEnd fileMap.source || (hoverPos.get fileMap.source).isWhitespace
 
-private partial def isCursorInProperWhitespace (fileMap : FileMap) (hoverPos : String.Pos) : Bool :=
-  (fileMap.source.atEnd hoverPos || (fileMap.source.get hoverPos).isWhitespace)
-    && (fileMap.source.get (hoverPos - ⟨1⟩)).isWhitespace
+private partial def isCursorInProperWhitespace (fileMap : FileMap) (hoverPos : String.Pos.Raw) : Bool :=
+  (hoverPos.atEnd fileMap.source || (hoverPos.get fileMap.source).isWhitespace)
+    && ((hoverPos.unoffsetBy ⟨1⟩).get fileMap.source).isWhitespace
 
 private partial def isSyntheticTacticCompletion
     (fileMap  : FileMap)
-    (hoverPos : String.Pos)
+    (hoverPos : String.Pos.Raw)
     (cmdStx   : Syntax)
     : Bool := Id.run do
   let hoverFilePos := fileMap.toPosition hoverPos
-  go hoverFilePos cmdStx 0
+  go hoverFilePos cmdStx 0 none
 where
   go
-      (hoverFilePos : Position)
-      (stx : Syntax)
-      (leadingWs : Nat)
+      (hoverFilePos         : Position)
+      (stx                  : Syntax)
+      (leadingWs            : Nat)
+      (leadingTokenTailPos? : Option String.Pos.Raw)
       : Bool := Id.run do
     match stx.getPos?, stx.getTailPos? with
     | some startPos, some endPos =>
@@ -128,8 +133,9 @@ where
       if ! isCursorInCompletionRange then
         return false
       let mut wsBeforeArg := leadingWs
+      let mut lastArgTailPos? := leadingTokenTailPos?
       for arg in stx.getArgs do
-        if go hoverFilePos arg wsBeforeArg then
+        if go hoverFilePos arg wsBeforeArg lastArgTailPos? then
           return true
         -- We must account for the whitespace before an argument because the syntax nodes we use
         -- to identify tactic blocks only start *after* the whitespace following a `by`, and we
@@ -137,7 +143,12 @@ where
         -- This method of computing whitespace assumes that there are no syntax nodes without tokens
         -- after `by` and before the first proper tactic syntax.
         wsBeforeArg := arg.getTrailingSize
-      return isCompletionInEmptyTacticBlock stx
+        -- Track the tail position of the most recent preceding sibling that has a position so
+        -- that empty tactic blocks (which lack positions) can locate their opening token (e.g.
+        -- the `by` keyword) for indentation checking. The tail position lets us distinguish
+        -- cursors before and after the opener on the opener's line.
+        lastArgTailPos? := arg.getTailPos? <|> lastArgTailPos?
+      return isCompletionInEmptyTacticBlock stx lastArgTailPos?
         || isCompletionAfterSemicolon stx
         || isCompletionOnTacticBlockIndentation hoverFilePos stx
     | _, _ =>
@@ -146,7 +157,7 @@ where
       -- tactic blocks always occur within other syntax with ranges that let us narrow down the
       -- search to the degree that we can be sure that the cursor is indeed in this empty tactic
       -- block.
-      return isCompletionInEmptyTacticBlock stx
+      return isCompletionInEmptyTacticBlock stx leadingTokenTailPos?
 
   isCompletionOnTacticBlockIndentation
       (hoverFilePos : Position)
@@ -186,8 +197,47 @@ where
     else
       none
 
-  isCompletionInEmptyTacticBlock (stx : Syntax) : Bool :=
-    isCursorInProperWhitespace fileMap hoverPos && isEmptyTacticBlock stx
+  isCompletionInEmptyTacticBlock (stx : Syntax) (leadingTokenTailPos? : Option String.Pos.Raw) : Bool := Id.run do
+    if ! isCursorInProperWhitespace fileMap hoverPos then
+      return false
+    if ! isEmptyTacticBlock stx then
+      return false
+    -- Bracketed tactic blocks `{ ... }` are delimited by the braces themselves, so tactics
+    -- inserted in an empty bracketed block can appear at any column between the braces
+    -- (`withoutPosition` disables indentation constraints inside `tacticSeqBracketed`).
+    if stx.getKind == ``Parser.Tactic.tacticSeqBracketed then
+      let some openEndPos := stx[0].getTailPos?
+        | return false
+      let some closeStartPos := stx[2].getPos?
+        | return false
+      return openEndPos.byteIdx <= hoverPos.byteIdx && hoverPos.byteIdx <= closeStartPos.byteIdx
+    return isAtExpectedTacticIndentation leadingTokenTailPos?
+
+  -- After an empty tactic opener like `by`, tactics on a subsequent line must be inserted at an
+  -- increased indentation level (two spaces past the indentation of the line containing the
+  -- opener token). We mirror that here so that tactic completions are not offered in positions
+  -- where a tactic could not actually be inserted. On the same line as the opener, completions
+  -- are allowed only in the trailing whitespace past the opener — cursors earlier on the line
+  -- belong to the surrounding term, not to the tactic block.
+  isAtExpectedTacticIndentation (leadingTokenTailPos? : Option String.Pos.Raw) : Bool := Id.run do
+    let some tokenTailPos := leadingTokenTailPos?
+      | return true
+    let hoverFilePos := fileMap.toPosition hoverPos
+    let tokenTailFilePos := fileMap.toPosition tokenTailPos
+    if hoverFilePos.line == tokenTailFilePos.line then
+      return hoverPos.byteIdx >= tokenTailPos.byteIdx
+    let expectedColumn := countLeadingSpaces (fileMap.lineStart tokenTailFilePos.line) + 2
+    return hoverFilePos.column == expectedColumn
+
+  countLeadingSpaces (pos : String.Pos.Raw) : Nat := Id.run do
+    let mut p := pos
+    let mut n : Nat := 0
+    while ! p.atEnd fileMap.source do
+      if p.get fileMap.source != ' ' then
+        break
+      p := p.next fileMap.source
+      n := n + 1
+    return n
 
   isEmptyTacticBlock (stx : Syntax) : Bool :=
     stx.getKind == ``Parser.Tactic.tacticSeq && isEmpty stx
@@ -220,7 +270,7 @@ where
 
 private def findSyntheticTacticCompletion?
     (fileMap  : FileMap)
-    (hoverPos : String.Pos)
+    (hoverPos : String.Pos.Raw)
     (cmdStx   : Syntax)
     (infoTree : InfoTree)
     : Option ContextualizedCompletionInfo := do
@@ -230,7 +280,7 @@ private def findSyntheticTacticCompletion?
   -- Neither `HoverInfo` nor the syntax in `.tactic` are important for tactic completion.
   return { hoverInfo := HoverInfo.after, ctx, info := .tactic .missing }
 
-private def findExpectedTypeAt (infoTree : InfoTree) (hoverPos : String.Pos) : Option (ContextInfo × Expr) := do
+private def findExpectedTypeAt (infoTree : InfoTree) (hoverPos : String.Pos.Raw) : Option (ContextInfo × Expr) := do
   let (ctx, .ofTermInfo i) ← infoTree.smallestInfo? fun i => Id.run do
       let some pos := i.pos?
         | return false
@@ -280,7 +330,7 @@ private def findWithLeadingToken?
 
 private def isSyntheticStructFieldCompletion
     (fileMap  : FileMap)
-    (hoverPos : String.Pos)
+    (hoverPos : String.Pos.Raw)
     (cmdStx   : Syntax)
     : Bool := Id.run do
   let isCursorOnWhitespace := isCursorOnWhitespace fileMap hoverPos
@@ -304,7 +354,7 @@ private def isSyntheticStructFieldCompletion
         stx.getTrailingTailPos? (canonicalOnly := true)
           <|> leadingToken.getTrailingTailPos? (canonicalOnly := true)
       | return false
-    let outerBounds : String.Range := ⟨outerBoundsStart, outerBoundsStop⟩
+    let outerBounds : Lean.Syntax.Range := ⟨outerBoundsStart, outerBoundsStop⟩
 
     let isCompletionInEmptyBlock :=
       fieldsAndSeps.isEmpty && outerBounds.contains hoverPos (includeStop := true)
@@ -334,7 +384,7 @@ private def isSyntheticStructFieldCompletion
 
 private def findSyntheticFieldCompletion?
   (fileMap  : FileMap)
-  (hoverPos : String.Pos)
+  (hoverPos : String.Pos.Raw)
   (cmdStx   : Syntax)
   (infoTree : InfoTree)
   : Option ContextualizedCompletionInfo := do
@@ -349,7 +399,7 @@ private def findSyntheticFieldCompletion?
 
 def findSyntheticCompletions
     (fileMap  : FileMap)
-    (hoverPos : String.Pos)
+    (hoverPos : String.Pos.Raw)
     (cmdStx   : Syntax)
     (infoTree : InfoTree)
     : Array ContextualizedCompletionInfo :=

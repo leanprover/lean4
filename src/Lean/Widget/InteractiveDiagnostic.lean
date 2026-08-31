@@ -4,10 +4,15 @@ Released under Apache 2.0 license as described in the file LICENSE.
 
 Authors: Wojciech Nawrocki
 -/
+module
+
 prelude
+public import Lean.Server.Utils
+public import Lean.Widget.InteractiveGoal
+public import Init.Data.Array.Subarray.Split
 import Lean.Linter.UnusedVariables
-import Lean.Server.Utils
-import Lean.Widget.InteractiveGoal
+
+public section
 
 namespace Lean.Widget
 open Lsp Server
@@ -40,6 +45,10 @@ inductive MsgEmbed where
       (children : StrictOrLazy (Array (TaggedText MsgEmbed)) (WithRpcRef LazyTraceChildren))
   deriving Inhabited, RpcEncodable
 
+abbrev InteractiveMessage := TaggedText MsgEmbed
+
+instance : TypeName InteractiveMessage := unsafe (TypeName.mk _ ``InteractiveMessage)
+
 /-- The `message` field is the text of a message
 possibly containing interactive *embeds* of type `MsgEmbed`.
 We maintain the invariant that embeds are stored in `.tag`s with empty `.text` subtrees,
@@ -47,7 +56,7 @@ i.e., `.tag embed (.text "")`.
 
 Client-side display algorithms render tags in a custom way,
 ignoring the nested text. -/
-abbrev InteractiveDiagnostic := Lsp.DiagnosticWith (TaggedText MsgEmbed)
+abbrev InteractiveDiagnostic := Lsp.DiagnosticWith InteractiveMessage
 
 deriving instance RpcEncodable for Lsp.DiagnosticWith
 
@@ -57,8 +66,8 @@ open MsgEmbed
 partial def toDiagnostic (diag : InteractiveDiagnostic) : Lsp.Diagnostic :=
   { diag with message := prettyTt diag.message }
 where
-  prettyTt (tt : TaggedText MsgEmbed) : String :=
-    let tt : TaggedText MsgEmbed := tt.rewrite fun
+  prettyTt (tt : InteractiveMessage) : String :=
+    let tt : InteractiveMessage := tt.rewrite fun
       | .expr tt,      _ => .text tt.stripTags
       | .goal g,       _ => .text (toString g.pretty)
       | .widget _ alt, _ => .text $ prettyTt alt
@@ -72,7 +81,7 @@ private def mkPPContext (nCtx : NamingContext) (ctx : MessageDataContext) : PPCo
   currNamespace := nCtx.currNamespace, openDecls := nCtx.openDecls
 }
 
-/-! The `msgToInteractive` algorithm turns a `MessageData` into `TaggedText MsgEmbed` in two stages.
+/-! The `msgToInteractive` algorithm turns a `MessageData` into `InteractiveMessage` in two stages.
 
 First, in `msgToInteractiveAux` we produce a `Format` object whose `.tag` nodes refer to `EmbedFmt`
 objects stored in an auxiliary array. Only the most shallow `.tag` in every branch through the
@@ -80,18 +89,18 @@ objects stored in an auxiliary array. Only the most shallow `.tag` in every bran
 object (possibly including further `.tag`s), is processed. For example, if the output is
 `.tag (.expr ctx infos) fmt` then tags in the nested `fmt` object refer to elements of `infos`.
 
-In the second stage, we recursively transform such a `Format` into `TaggedText MsgEmbed` according
+In the second stage, we recursively transform such a `Format` into `InteractiveMessage` according
 to the rule above by first pretty-printing it and then grabbing data referenced by the tags from
 all the nested arrays (such as the `infos` array in the example above).
 
-We cannot easily do the translation in a single `MessageData → TaggedText MsgEmbed` step because
+We cannot easily do the translation in a single `MessageData → InteractiveMessage` step because
 that would effectively require reimplementing the (stateful, to keep track of indentation)
 `Format.prettyM` algorithm.
 -/
 
 private inductive EmbedFmt
   /-- Nested tags denote `Info` objects in `infos`. -/
-  | code (ctx : Elab.ContextInfo) (infos : RBMap Nat Elab.Info compare)
+  | code (ctx : Elab.ContextInfo) (infos : Std.TreeMap Nat Elab.Info)
   /-- Nested text is ignored. -/
   | goal (ctx : Elab.ContextInfo) (lctx : LocalContext) (g : MVarId)
   /-- Nested text is ignored. -/
@@ -107,7 +116,7 @@ private abbrev MsgFmtM := StateT (Array EmbedFmt) IO
 
 open MessageData in
 private partial def msgToInteractiveAux (msgData : MessageData) : IO (Format × Array EmbedFmt) :=
-  go { currNamespace := Name.anonymous, openDecls := [] } none msgData #[]
+  go { currNamespace := Name.anonymous, openDecls := [] } none msgData |>.run #[]
 where
   pushEmbed (e : EmbedFmt) : MsgFmtM Nat :=
     modifyGet fun es => (es.size, es.push e)
@@ -141,6 +150,7 @@ where
   | _,        withContext ctx d        => go nCtx ctx d
   | ctx,      withNamingContext nCtx d => go nCtx ctx d
   | ctx,      tagged _ d               => go nCtx ctx d
+  | ctx,      ofOriginatingSyntax _ d  => go nCtx ctx d
   | ctx,      nest n d                 => Format.nest n <$> go nCtx ctx d
   | ctx,      compose d₁ d₂            => do let d₁ ← go nCtx ctx d₁; let d₂ ← go nCtx ctx d₂; pure $ d₁ ++ d₂
   | ctx,      group d                  => Format.group <$> go nCtx ctx d
@@ -152,6 +162,9 @@ where
       return .join (← children.mapM (go nCtx ctx)).toList
 
     let mut header := (← go nCtx ctx header).nest 4
+    header := match data.result? with
+      | some r => f!"{r.toEmoji} {header}"
+      | none => header
     if data.startTime != 0 then
       header := f!"[{data.stopTime - data.startTime}] {header}"
     let nodes ←
@@ -163,7 +176,7 @@ where
             | none     => child
         let blockSize := ctx.bind (maxTraceChildren.get? ·.opts)
           |>.getD maxTraceChildren.defValue
-        let children := chopUpChildren data.cls blockSize children.toSubarray
+        let children := chopUpChildren data.cls blockSize children[*...*]
         pure (.lazy children)
       else
         pure (.strict (← children.mapM (go nCtx ctx)))
@@ -179,17 +192,17 @@ where
   chopUpChildren (cls : Name) (blockSize : Nat) (children : Subarray MessageData) :
       Array MessageData :=
     if blockSize > 0 && children.size > blockSize + 1 then  -- + 1 to make idempotent
-      let more := chopUpChildren cls blockSize children[blockSize:]
-      children[:blockSize].toArray.push <|
+      let more := chopUpChildren cls blockSize (children.drop blockSize)
+      (children.take blockSize).toArray.push <|
         .trace { collapsed := true, cls }
           f!"{children.size - blockSize} more entries..." more
     else children
 
-partial def msgToInteractive (msgData : MessageData) (hasWidgets : Bool) (indent : Nat := 0) : IO (TaggedText MsgEmbed) := do
+partial def msgToInteractive (msgData : MessageData) (hasWidgets : Bool) (indent : Nat := 0) : IO InteractiveMessage := do
   if !hasWidgets then
     return (TaggedText.prettyTagged (← msgData.format)).rewrite fun _ tt => .text tt.stripTags
   let (fmt, embeds) ← msgToInteractiveAux msgData
-  let rec fmtToTT (fmt : Format) (indent : Nat) : IO (TaggedText MsgEmbed) :=
+  let rec fmtToTT (fmt : Format) (indent : Nat) : IO InteractiveMessage :=
     (TaggedText.prettyTagged fmt indent).rewriteM fun (n, col) tt =>
       match embeds[n]! with
         | .code ctx infos => do

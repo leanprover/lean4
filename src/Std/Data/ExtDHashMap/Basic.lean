@@ -3,8 +3,13 @@ Copyright (c) 2025 Robin Arnez. All rights reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Robin Arnez
 -/
+module
+
 prelude
-import Std.Data.DHashMap.Lemmas
+public import Std.Data.DHashMap.Lemmas
+import all Std.Data.DHashMap.Lemmas
+
+public section
 
 /-!
 # Extensional dependent hash maps
@@ -34,7 +39,7 @@ namespace Std
 Extensional dependent hash maps.
 
 This is a simple separate-chaining hash table. The data of the hash map consists of a cached size
-and an array of buckets, where each bucket is a linked list of key-value pais. The number of buckets
+and an array of buckets, where each bucket is a linked list of key-value pairs. The number of buckets
 is always a power of two. The hash map doubles its size upon inserting an element such that the
 number of elements is more than 75% of the number of buckets.
 
@@ -69,11 +74,15 @@ abbrev mk (m : DHashMap α β) : ExtDHashMap α β :=
   mk' (.mk _ m)
 
 /-- Internal implementation detail of the hash map. -/
-abbrev lift {γ : Sort w} (f : DHashMap α β → γ) (h : ∀ a b, a ~m b → f a = f b) (m : ExtDHashMap α β) : γ :=
+def lift {γ : Sort w} (f : DHashMap α β → γ) (h : ∀ a b, a ~m b → f a = f b) (m : ExtDHashMap α β) : γ :=
   m.1.lift f h
 
 /-- Internal implementation detail of the hash map. -/
-abbrev pliftOn {γ : Sort w} (m : ExtDHashMap α β) (f : (a : DHashMap α β) → m = mk a → γ)
+def lift₂ {γ : Sort w} (f : DHashMap α β → DHashMap α β → γ) (h : ∀ a b c d, a ~m c → b ~m d → f a b = f c d) (m₁ m₂ : ExtDHashMap α β) : γ :=
+  Quotient.lift₂ f h m₁.inner m₂.inner
+
+/-- Internal implementation detail of the hash map. -/
+def pliftOn {γ : Sort w} (m : ExtDHashMap α β) (f : (a : DHashMap α β) → m = mk a → γ)
     (h : ∀ a b h₁ h₂, a ~m b → f a h₁ = f b h₂) : γ :=
   m.1.pliftOn (fun a ha => f a (by cases m; cases ha; rfl)) (fun _ _ _ _ h' => h _ _ _ _ h')
 
@@ -342,7 +351,66 @@ def Const.insertManyIfNewUnit [EquivBEq α] [LawfulHashable α] {ρ : Type w}
     m := ⟨m.1.insertIfNew a (), fun _ init step => step (m.2 _ init step)⟩
   return m.1
 
--- TODO (after verification): partition, union
+@[inline, inherit_doc DHashMap.union]
+def union [EquivBEq α] [LawfulHashable α] (m₁ m₂ : ExtDHashMap α β) : ExtDHashMap α β := lift₂ (fun x y : DHashMap α β => mk (x.union y))
+  (fun a b c d equiv₁ equiv₂ => by
+    simp only [DHashMap.union_eq, mk'.injEq]
+    apply Quotient.sound
+    apply DHashMap.Equiv.union_congr
+    . exact equiv₁
+    . exact equiv₂) m₁ m₂
+
+instance [EquivBEq α] [LawfulHashable α] : Union (ExtDHashMap α β) := ⟨union⟩
+
+instance [LawfulBEq α] [∀ k, BEq (β k)] : BEq (ExtDHashMap α β) where
+  beq m₁ m₂ := lift₂ (fun x y : DHashMap α β => x.beq y) (fun _ _ _ _ => DHashMap.Equiv.beq_congr) m₁ m₂
+
+instance [LawfulBEq α] [∀ k, BEq (β k)] [∀ k, ReflBEq (β k)] : ReflBEq (ExtDHashMap α β) where
+  rfl {a} := a.inductionOn fun x => DHashMap.Equiv.beq <| DHashMap.Equiv.refl x
+
+instance [LawfulBEq α] [∀ k, BEq (β k)] [∀ k, LawfulBEq (β k)] : LawfulBEq (ExtDHashMap α β) where
+  eq_of_beq {m₁} {m₂} := m₁.inductionOn₂ m₂ fun _ _ hyp => sound <| DHashMap.equiv_of_beq hyp
+
+instance {α : Type u} {β : α → Type v} [BEq α] [LawfulBEq α] [Hashable α] [∀ k, BEq (β k)] [∀ k, LawfulBEq (β k)] : DecidableEq (ExtDHashMap α β) :=
+  fun _ _ => decidable_of_iff _ beq_iff_eq
+
+namespace Const
+
+variable {β : Type v}
+
+@[inline, inherit_doc DHashMap.beq]
+def beq [EquivBEq α] [LawfulHashable α] [BEq β] (m₁ m₂ : ExtDHashMap α fun _ => β) : Bool :=
+  lift₂ (fun x y : DHashMap α fun _ => β => DHashMap.Const.beq x y) (fun _ _ _ _ => DHashMap.Const.Equiv.beq_congr) m₁ m₂
+
+theorem beq_of_eq [EquivBEq α] [LawfulHashable α] [BEq β] [ReflBEq β] (m₁ m₂ : ExtDHashMap α fun _ => β) : m₁ = m₂ → Const.beq m₁ m₂ :=
+  m₁.inductionOn₂ m₂ fun _ _ h => DHashMap.Const.Equiv.beq <| exact h
+
+theorem eq_of_beq [LawfulBEq α] [BEq β] [LawfulBEq β] (m₁ m₂ : ExtDHashMap α fun _ => β) : Const.beq m₁ m₂ → m₁ = m₂ :=
+  m₁.inductionOn₂ m₂ fun _ _ h => sound <| DHashMap.Const.equiv_of_beq h
+
+end Const
+
+@[inline, inherit_doc DHashMap.inter]
+def inter [EquivBEq α] [LawfulHashable α] (m₁ m₂ : ExtDHashMap α β) : ExtDHashMap α β := lift₂ (fun x y : DHashMap α β => mk (x.inter y))
+  (fun a b c d equiv₁ equiv₂ => by
+    simp only [DHashMap.inter_eq, mk'.injEq]
+    apply Quotient.sound
+    apply DHashMap.Equiv.inter_congr
+    · exact equiv₁
+    · exact equiv₂) m₁ m₂
+
+instance [EquivBEq α] [LawfulHashable α] : Inter (ExtDHashMap α β) := ⟨inter⟩
+
+@[inline, inherit_doc DHashMap.diff]
+def diff [EquivBEq α] [LawfulHashable α] (m₁ m₂ : ExtDHashMap α β) : ExtDHashMap α β := lift₂ (fun x y : DHashMap α β => mk (x.diff y))
+  (fun a b c d equiv₁ equiv₂ => by
+    simp only [DHashMap.diff_eq, mk'.injEq]
+    apply Quotient.sound
+    apply DHashMap.Equiv.diff_congr
+    · exact equiv₁
+    · exact equiv₂) m₁ m₂
+
+instance [EquivBEq α] [LawfulHashable α] : SDiff (ExtDHashMap α β) := ⟨diff⟩
 
 @[inline, inherit_doc DHashMap.Const.unitOfArray]
 def Const.unitOfArray [BEq α] [Hashable α] (l : Array α) :

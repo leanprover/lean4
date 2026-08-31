@@ -9,7 +9,9 @@ Author: Markus Himmel, Sofia Rodrigues
 #include "runtime/uv/event_loop.h"
 #include "runtime/uv/timer.h"
 #include "runtime/uv/tcp.h"
+#include "runtime/uv/dns.h"
 #include "runtime/uv/udp.h"
+#include "runtime/uv/signal.h"
 #include "runtime/alloc.h"
 #include "runtime/io.h"
 #include "runtime/utf8.h"
@@ -21,6 +23,7 @@ Author: Markus Himmel, Sofia Rodrigues
 namespace lean {
 
 extern "C" void initialize_libuv();
+extern "C" LEAN_EXPORT char ** lean_setup_args(int argc, char ** argv);
 
 // =======================================
 // General LibUV functions.

@@ -3,8 +3,11 @@ Copyright (c) 2021 Mac Malone. All rights reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Mac Malone, Gabriel Ebner, Sebastian Ullrich
 -/
+module
+
 prelude
-import Init.System.IO
+public import Init.System.IO
+import Init.Data.ToString.Macro
 
 /-! # Lock File Utilities
 
@@ -22,7 +25,7 @@ during a build, the lock file was deemed too disruptive for users.
 open System
 namespace Lake
 
-@[inline] partial def busyAcquireLockFile (lockFile : FilePath) : IO PUnit := do
+@[inline] public partial def busyAcquireLockFile (lockFile : FilePath) : IO PUnit := do
   busyLoop true
 where
   busyLoop firstTime :=
@@ -37,14 +40,18 @@ where
       | .alreadyExists .. => do
         if firstTime then
           let stderr ← IO.getStderr
-          stderr.putStrLn s!"warning: waiting for prior `lake build` invocation to finish... (remove '{lockFile}' if stuck)"
+          stderr.putStrLn s!"\
+            warning: waiting for prior `lake build` invocation to finish... \
+            (remove '{lockFile}' if stuck)"
           stderr.flush
         IO.sleep (ms := 300)
         busyLoop false
       | e => throw e
 
 /-- Busy wait to acquire the lock of `lockFile`, run `act`, and then release the lock. -/
-@[inline] def withLockFile [Monad m] [MonadFinally m] [MonadLiftT IO m] (lockFile : FilePath) (act : m α) : m α := do
+@[inline] public def withLockFile
+  [Monad m] [MonadFinally m] [MonadLiftT IO m] (lockFile : FilePath) (act : m α)
+: m α := do
   try
     busyAcquireLockFile lockFile; act
   finally show IO _ from do

@@ -3,9 +3,13 @@ Copyright (c) 2024 Lean FRO, LLC. All rights reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
 Authors: David Thrane Christiansen
 -/
+module
+
 prelude
-import Lean.Elab.Command
-import Lean.Linter.Util
+public import Lean.Elab.Command
+public import Lean.Linter.Util
+
+public section
 
 set_option linter.missingDocs true
 
@@ -30,11 +34,14 @@ matches a particular constructor. Use `linter.constructorNameAsVariable` to disa
 -/
 def constructorNameAsVariable : Linter where
   run cmdStx := do
+    unless getLinterValue linter.constructorNameAsVariable (← getLinterOptions) do
+      return
     let some cmdStxRange := cmdStx.getRange?
       | return
 
     let infoTrees := (← get).infoState.trees.toArray
-    let warnings : IO.Ref (Std.HashMap String.Range (Syntax × Name × Name)) ← IO.mkRef {}
+    let warnings : IO.Ref (Std.HashMap Lean.Syntax.Range (Syntax × Name × Name)) ← IO.mkRef {}
+    let constRanges : IO.Ref (Std.HashSet Lean.Syntax.Range) ← IO.mkRef {}
 
     for tree in infoTrees do
       tree.visitM' (postNode := fun ci info _ => do
@@ -51,9 +58,9 @@ def constructorNameAsVariable : Linter where
               -- Skip declarations which are outside the command syntax range, like `variable`s
               -- (it would be confusing to lint these), or those which are macro-generated
               if !cmdStxRange.contains range.start || ldecl.userName.hasMacroScopes then return
-              let opts := ci.options
+              let opts ← ci.options.toLinterOptions
               -- we have to check for the option again here because it can be set locally
-              if !linter.constructorNameAsVariable.get opts then return
+              if !getLinterValue linter.constructorNameAsVariable opts then return
               if let n@(.str .anonymous s) := info.stx.getId then
                 -- Check whether the type is an inductive type, and get its constructors
                 let ty ←
@@ -71,13 +78,20 @@ def constructorNameAsVariable : Linter where
                         if cn == s then
                           warnings.modify (·.insert range (info.stx, n, c))
             else pure ()
+          | .const .. =>
+            let some range := info.range? | return
+            let .original .. := info.stx.getHeadInfo | return
+            if ti.isBinder then
+              constRanges.modify fun s => s.insert range
           | _ => pure ()
         | _ => pure ())
 
-    -- Sort the outputs by position
-    for (_range, declStx, userName, ctorName) in (← warnings.get).toArray.qsort (·.1.start < ·.1.start) do
-      logLint linter.constructorNameAsVariable declStx <|
-        m!"Local variable '{userName}' resembles constructor '{ctorName}' - " ++
-        m!"write '.{userName}' (with a dot) or '{ctorName}' to use the constructor."
+    -- Sort the outputs by position, excluding those that are also defining global constants.
+    -- Global constants occur for example in `structure` fields
+    for (range, declStx, userName, ctorName) in (← warnings.get).toArray.qsort (·.1.start < ·.1.start) do
+      unless (← constRanges.get).contains range do
+        logLint linter.constructorNameAsVariable declStx <|
+          m!"Local variable '{userName}' resembles constructor '{ctorName}' - " ++
+          m!"write '.{userName}' (with a dot) or '{ctorName}' to use the constructor."
 
 builtin_initialize addLinter constructorNameAsVariable

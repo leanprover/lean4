@@ -3,39 +3,58 @@ Copyright (c) 2022 Mac Malone. All rights reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Mac Malone
 -/
-prelude
-import Lean.Data.Name
-import Lean.Data.Options
-import Lake.Config.Env
-import Lake.Load.Manifest
-import Lake.Util.FilePath
+module
 
-namespace Lake
+prelude
+public import Lake.Config.Env
+public import Lake.Config.Lang
+public import Lake.Config.LakeConfig
+public import Lake.Load.Manifest
+
+set_option doc.verso true
+
 open System Lean
 
+namespace Lake
+
 /-- Context for loading a Lake configuration. -/
-structure LoadConfig where
+public structure LoadConfig where
   /-- The Lake environment of the load process. -/
   lakeEnv : Lake.Env
   /--
   The CLI arguments Lake was run with.
   Used to perform a restart of Lake on a toolchain update.
-  A value of `none` means that Lake is not restartable via the CLI.
+  A value of {lean}`none` means that Lake is not restartable via the CLI.
   -/
   lakeArgs? : Option (Array String) := none
   /-- The absolute path to the root directory of the Lake workspace. -/
   wsDir : FilePath
+  /-- The index of the package in the workspace. Used to disambiguate packages with the same name. -/
+  pkgIdx : Nat := 0
+  /--
+  The assigned name of the package.
+  If {lean}`Name.anonymous`, the package's own name will be used.
+  -/
+  pkgName : Name := .anonymous
   /-- The loaded package's directory (relative to the workspace directory). -/
   relPkgDir : FilePath := "."
   /-- The absolute path to the loaded package's directory. -/
   pkgDir : FilePath := wsDir / relPkgDir
   /-- The package's Lake configuration file (relative to its directory). -/
   relConfigFile : FilePath := defaultConfigFile
-    /-- The full path to the loaded package's Lake configuration file. -/
+  /-- The full path to the loaded package's Lake configuration file. -/
   configFile : FilePath := pkgDir / relConfigFile
+  /-
+  The format of the package's configuration file.
+
+  If {lean}`none`, the format will be determined by the file's extension.
+  -/
+  configLang? : Option ConfigLang := none
+  /-- The package's Lake manifest file (relative to its directory). -/
+  relManifestFile : FilePath := defaultManifestFile
   /-- Additional package overrides for this workspace load. -/
   packageOverrides : Array PackageEntry := #[]
-  /-- A set of key-value Lake configuration options (i.e., `-K` settings). -/
+  /-- A set of key-value Lake configuration options (i.e., {lit}`-K` settings). -/
   lakeOpts : NameMap String := {}
   /-- The Lean options with which to elaborate the configuration file. -/
   leanOpts : Options := {}
@@ -44,8 +63,9 @@ structure LoadConfig where
   /-- Whether to update dependencies when loading the workspace. -/
   updateDeps : Bool := false
   /--
-  Whether to update the workspace's `lean-toolchain` when dependencies are updated.
-  If `true` and a toolchain update occurs, Lake will need to be restarted.
+  Whether to update the workspace's {lit}`lean-toolchain` when dependencies are updated.
+
+  If {lean}`true` and a toolchain update occurs, Lake will need to be restarted.
   -/
   updateToolchain : Bool := true
   /-- The package's scope (e.g., in Reservoir). -/
@@ -53,6 +73,12 @@ structure LoadConfig where
   /-- The URL to this package's Git remote (if any). -/
   remoteUrl : String := ""
 
+namespace LoadConfig
+
 /-- The package's Lake directory (for Lake temporary files). -/
-@[inline] def LoadConfig.lakeDir (cfg : LoadConfig) : FilePath :=
+@[inline] public def lakeDir (cfg : LoadConfig) : FilePath :=
   cfg.pkgDir / defaultLakeDir
+
+/-- The absolute path where compiled configurations are stored. -/
+@[inline] public def configDir (cfg : LoadConfig) : FilePath :=
+  cfg.wsDir / defaultLakeDir / "config" / toString cfg.pkgIdx

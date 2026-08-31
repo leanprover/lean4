@@ -7,13 +7,17 @@ Authors: Shreyas Srinivas, François G. Dorais, Kim Morrison
 module
 
 prelude
-meta import Init.Coe
-import Init.Data.Array.Lemmas
-import Init.Data.Array.MapIdx
+-- TODO: Making this private leads to a panic in Init.Grind.Ring.Poly.
+import Init.Data.Array.Nat
+public import Init.Data.Array.DecidableEq
+public import Init.Data.Range.Polymorphic.RangeIterator
 import Init.Data.Array.InsertIdx
-import Init.Data.Array.Range
-import Init.Data.Range
-import Init.Data.Stream
+import Init.Data.Array.MapIdx
+import Init.Data.Range.Polymorphic.Iterators
+import Init.Data.Range.Polymorphic.Nat
+import Init.Omega
+
+public section
 
 /-!
 # Vectors
@@ -24,6 +28,8 @@ import Init.Data.Stream
 set_option linter.listVariables true -- Enforce naming conventions for `List`/`Array`/`Vector` variables.
 set_option linter.indexVariables true -- Enforce naming conventions for index variables.
 
+-- Disable linter for the `toArray` field
+set_option linter.listVariables false in
 /-- `Vector α n` is an `Array α` with size `n`. -/
 structure Vector (α : Type u) (n : Nat) where
   /-- The underlying array. -/
@@ -32,7 +38,7 @@ structure Vector (α : Type u) (n : Nat) where
   size_toArray : toArray.size = n
 deriving Repr, DecidableEq
 
-attribute [simp, grind] Vector.size_toArray
+attribute [simp, grind =] Vector.size_toArray
 
 /--
 Converts an array to a vector. The resulting vector's size is the array's size.
@@ -51,11 +57,16 @@ open Lean in
 macro_rules
   | `(#v[ $elems,* ]) => `(Vector.mk (n := $(quote elems.getElems.size)) #[$elems,*] rfl)
 
+@[app_unexpander Vector.mk]
+meta def unexpandMk : Lean.PrettyPrinter.Unexpander
+  | `($_ #[ $elems,* ] $_) => `(#v[ $elems,* ])
+  | _ => throw ()
+
 recommended_spelling "empty" for "#v[]" in [Vector.mk, «term#v[_,]»]
 recommended_spelling "singleton" for "#v[x]" in [Vector.mk, «term#v[_,]»]
 
 /-- Convert a vector to a list. -/
-@[expose]
+@[expose, implicit_reducible]
 def toList (xs : Vector α n) : List α := xs.toArray.toList
 
 /-- Custom eliminator for `Vector α n` through `Array α` -/
@@ -75,14 +86,8 @@ def elimAsList {motive : Vector α n → Sort u}
 /-- Make an empty vector with pre-allocated capacity. -/
 @[inline, expose] def emptyWithCapacity (capacity : Nat) : Vector α 0 := ⟨.emptyWithCapacity capacity, by simp⟩
 
-@[deprecated emptyWithCapacity (since := "2025-03-12"), inherit_doc emptyWithCapacity]
-abbrev mkEmpty := @emptyWithCapacity
-
 /-- Makes a vector of size `n` with all cells containing `v`. -/
 @[inline, expose] def replicate (n) (v : α) : Vector α n := ⟨Array.replicate n v, by simp⟩
-
-@[deprecated replicate (since := "2025-03-18")]
-abbrev mkVector := @replicate
 
 instance : Nonempty (Vector α 0) := ⟨#v[]⟩
 instance [Nonempty α] : Nonempty (Vector α n) := ⟨replicate _ Classical.ofNonempty⟩
@@ -235,7 +240,7 @@ We immediately simplify this to the `extract` operation, so there is no verifica
   simp [shrink, take]
 
 /-- Maps elements of a vector using the function `f`. -/
-@[inline, expose] def map (f : α → β) (xs : Vector α n) : Vector β n :=
+@[inline, expose, implicit_reducible] def map (f : α → β) (xs : Vector α n) : Vector β n :=
   ⟨xs.toArray.map f, by simp⟩
 
 /-- Maps elements of a vector using the function `f`, which also receives the index of the element. -/
@@ -275,7 +280,7 @@ def mapFinIdxM {α : Type u} {β : Type v} {m : Type v → Type w} [Monad m]
     (xs : Vector α n) (f : (i : Nat) → α → (h : i < n) → m β) : m (Vector β n) :=
   let rec @[specialize] map (i : Nat) (j : Nat) (inv : i + j = n) (ys : Vector β (n - i)) : m (Vector β n) := do
     match i, inv with
-    | 0,    _  => pure ys
+    | 0,   inv => return ys.cast (by omega)
     | i+1, inv =>
       have j_lt : j < n := by
         rw [← inv, Nat.add_assoc, Nat.add_comm 1 j, Nat.add_comm]
@@ -301,8 +306,7 @@ def mapIdxM {α : Type u} {β : Type v} {m : Type v → Type w} [Monad m] (f : N
 @[inline, expose] def zipIdx (xs : Vector α n) (k : Nat := 0) : Vector (α × Nat) n :=
   ⟨xs.toArray.zipIdx k, by simp⟩
 
-@[deprecated zipIdx (since := "2025-01-21")]
-abbrev zipWithIndex := @zipIdx
+
 
 @[inline, expose] def zip (as : Vector α n) (bs : Vector β n) : Vector (α × β) n :=
   ⟨as.toArray.zip bs.toArray, by simp⟩
@@ -424,8 +428,7 @@ no element of the index matches the given value.
 @[inline, expose] def finIdxOf? [BEq α] (xs : Vector α n) (x : α) : Option (Fin n) :=
   (xs.toArray.finIdxOf? x).map (Fin.cast xs.size_toArray)
 
-@[deprecated finIdxOf? (since := "2025-01-29")]
-abbrev indexOf? := @finIdxOf?
+
 
 /-- Finds the first index of a given value in a vector using a predicate. Returns `none` if the
 no element of the index matches the given value. -/
@@ -477,11 +480,11 @@ to avoid having to have the predicate live in `p : α → m (ULift Bool)`.
   xs.toArray.allM p
 
 /-- Returns `true` if `p` returns `true` for any element of the vector. -/
-@[inline, expose] def any (xs : Vector α n) (p : α → Bool) : Bool :=
+@[inline, expose, suggest_for Vector.some] def any (xs : Vector α n) (p : α → Bool) : Bool :=
   xs.toArray.any p
 
 /-- Returns `true` if `p` returns `true` for all elements of the vector. -/
-@[inline, expose] def all (xs : Vector α n) (p : α → Bool) : Bool :=
+@[inline, expose, suggest_for Vector.every] def all (xs : Vector α n) (p : α → Bool) : Bool :=
   xs.toArray.all p
 
 /-- Count the number of elements of a vector that satisfy the predicate `p`. -/
@@ -506,6 +509,16 @@ Examples:
   xs.toArray.sum
 
 /--
+Computes the product of the elements of a vector.
+
+Examples:
+ * `#v[a, b, c].prod = a * (b * (c * 1))`
+ * `#v[1, 2, 5].prod = 10`
+-/
+@[inline, expose] def prod [Mul α] [One α] (xs : Vector α n) : α :=
+  xs.toArray.prod
+
+/--
 Pad a vector on the left with a given element.
 
 Note that we immediately simplify this to an `++` operation,
@@ -528,22 +541,18 @@ and do not provide separate verification theorems.
 @[simp] theorem mem_toArray_iff (a : α) (xs : Vector α n) : a ∈ xs.toArray ↔ a ∈ xs :=
   ⟨fun h => ⟨h⟩, fun ⟨h⟩ => h⟩
 
-instance : ForIn' m (Vector α n) α inferInstance where
+instance [Monad m] : ForIn' m (Vector α n) α inferInstance where
   forIn' xs b f := Array.forIn' xs.toArray b (fun a h b => f a (by simpa using h) b)
 
 /-! ### ForM instance -/
 
-instance : ForM m (Vector α n) α where
+instance [Monad m] : ForM m (Vector α n) α where
   forM := Vector.forM
 
 -- We simplify `Vector.forM` to `forM`.
 @[simp] theorem forM_eq_forM [Monad m] (f : α → m PUnit) :
     Vector.forM v f = forM v f := rfl
 
-/-! ### ToStream instance -/
-
-instance : ToStream (Vector α n) (Subarray α) where
-  toStream xs := xs.toArray[:n]
 
 /-! ### Lexicographic ordering -/
 
@@ -558,7 +567,7 @@ Lexicographic comparator for vectors.
 - there is an index `i` such that `lt v[i] w[i]`, and for all `j < i`, `v[j] == w[j]`.
 -/
 def lex [BEq α] (xs ys : Vector α n) (lt : α → α → Bool := by exact (· < ·)) : Bool := Id.run do
-  for h : i in [0 : n] do
+  for h : i in 0...n do
     if lt xs[i] ys[i] then
       return true
     else if xs[i] != ys[i] then

@@ -3,9 +3,12 @@ Copyright (c) 2021 Microsoft Corporation. All rights reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Leonardo de Moura
 -/
+module
+
 prelude
-import Lean.Meta.Basic
-import Lean.Meta.InferType
+public import Lean.Meta.InferType
+
+public section
 
 namespace Lean.Meta
 
@@ -66,9 +69,16 @@ def decLevel (u : Level) : MetaM Level := do
 
 /-- This method is useful for inferring universe level parameters for function that take arguments such as `{α : Type u}`.
    Recall that `Type u` is `Sort (u+1)` in Lean. Thus, given `α`, we must infer its universe level,
-   and then decrement 1 to obtain `u`. -/
+   instantiate and normalize it, and then decrement 1 to obtain `u`. -/
 def getDecLevel (type : Expr) : MetaM Level := do
-  decLevel (← getLevel type)
+  let l ← getLevel type
+  let l ← normalizeLevel l
+  decLevel l
+
+def getDecLevel? (type : Expr) : MetaM (Option Level) := do
+  let l ← getLevel type
+  let l ← normalizeLevel l
+  decLevel? l
 
 builtin_initialize
   registerTraceClass `Meta.isLevelDefEq.step

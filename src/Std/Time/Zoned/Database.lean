@@ -3,12 +3,16 @@ Copyright (c) 2024 Lean FRO, LLC. All rights reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Sofia Rodrigues
 -/
+module
+
 prelude
-import Std.Time.Zoned.ZonedDateTime
-import Std.Time.Zoned.Database.Basic
-import Std.Time.Zoned.Database.TZdb
-import Std.Time.Zoned.Database.Windows
+public import Std.Time.Zoned.Database.Basic
+public import Std.Time.Zoned.Database.TZdb
+public import Std.Time.Zoned.Database.Windows
+public import Std.Time.DateTime
 import Init.System.Platform
+
+public section
 
 namespace Std
 namespace Time
@@ -22,17 +26,17 @@ Gets the zone rules for a specific time zone identifier, handling Windows and no
 In windows it uses the current `icu.h` in Windows SDK. If it's linux or macos then it will use the `tzdata`
 files.
 -/
-def defaultGetZoneRules : String → IO TimeZone.ZoneRules :=
+def defaultGetZoneRules (name : String) : IO TimeZone.ZoneRules := do
   if System.Platform.isWindows
-    then getZoneRules WindowsDb.default
-    else getZoneRules TZdb.default
+    then getZoneRules WindowsDb.default name
+    else getZoneRules TZdb.default name
 
 /--
 Gets the local zone rules, accounting for platform differences.
 In windows it uses the current `icu.h` in Windows SDK. If it's linux or macos then it will use the `tzdata`
 files.
 -/
-def defaultGetLocalZoneRules : IO TimeZone.ZoneRules :=
+def defaultGetLocalZoneRules : IO TimeZone.ZoneRules := do
   if System.Platform.isWindows
     then getLocalZoneRules WindowsDb.default
     else getLocalZoneRules TZdb.default

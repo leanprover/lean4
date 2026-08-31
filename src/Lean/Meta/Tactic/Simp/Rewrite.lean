@@ -3,21 +3,18 @@ Copyright (c) 2020 Microsoft Corporation. All rights reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Leonardo de Moura
 -/
+module
 prelude
-import Lean.Meta.ACLt
-import Lean.Meta.Match.MatchEqsExt
-import Lean.Meta.AppBuilder
-import Lean.Meta.SynthInstance
-import Lean.Meta.Tactic.Util
-import Lean.Meta.Tactic.UnifyEq
-import Lean.Meta.Tactic.Simp.Types
-import Lean.Meta.Tactic.Simp.Arith
-import Lean.Meta.Tactic.Simp.Simproc
-import Lean.Meta.Tactic.Simp.Attr
-import Lean.Meta.BinderNameHint
-
+public import Lean.Meta.ACLt
+public import Lean.Meta.Match.MatchEqsExt
+public import Lean.Meta.Tactic.UnifyEq
+public import Lean.Meta.Tactic.Simp.Arith
+public import Lean.Meta.Tactic.Simp.Attr
+public import Lean.Meta.BinderNameHint
+import Lean.Meta.WHNF
+public import Lean.Meta.HasAssignableMVar
+public section
 namespace Lean.Meta.Simp
-
 /--
 Helper type for implementing `discharge?'`
 -/
@@ -103,14 +100,14 @@ where
       if (← withReducibleAndInstances <| isDefEq x val) then
         return true
       else
-        trace[Meta.Tactic.simp.discharge] "{← ppOrigin thmId}, failed to assign instance{indentExpr type}\nsythesized value{indentExpr val}\nis not definitionally equal to{indentExpr x}"
+        trace[Meta.Tactic.simp.discharge] "{← ppOrigin thmId}, failed to assign instance{indentExpr type}\nsynthesized value{indentExpr val}\nis not definitionally equal to{indentExpr x}"
         return false
     | _ =>
       trace[Meta.Tactic.simp.discharge] "{← ppOrigin thmId}, failed to synthesize instance{indentExpr type}"
       return false
 
 private def useImplicitDefEqProof (thm : SimpTheorem) : SimpM Bool := do
-  if thm.rfl then
+  if thm.rfl || (thm.backwardRfl && backward.defeqAttrib.useBackward.get (← getOptions)) then
     return (← getConfig).implicitDefEqProofs
   else
     return false
@@ -118,6 +115,7 @@ private def useImplicitDefEqProof (thm : SimpTheorem) : SimpM Bool := do
 private def tryTheoremCore (lhs : Expr) (xs : Array Expr) (bis : Array BinderInfo) (val : Expr) (type : Expr) (e : Expr) (thm : SimpTheorem) (numExtraArgs : Nat) : SimpM (Option Result) := do
   recordTriedSimpTheorem thm.origin
   let rec go (e : Expr) : SimpM (Option Result) := do
+    trace[Debug.Meta.Tactic.simp] "trying {← ppSimpTheorem thm} to rewrite{indentExpr e}"
     if (← withSimpMetaConfig <| isDefEq lhs e) then
       unless (← synthesizeArgs thm.origin bis xs) do
         return none
@@ -138,6 +136,9 @@ private def tryTheoremCore (lhs : Expr) (xs : Array Expr) (bis : Array BinderInf
       we seldom have assigned metavariables in goals.
       -/
       if (← instantiateMVars e) == rhs then
+        trace[Debug.Meta.Tactic.simp] "Not applying {← ppSimpTheorem thm} with type\
+          {indentExpr type}\nto{indentExpr e}\nas the result is structurally equal \
+          to the original expression"
         return none
       if thm.perm then
         /-
@@ -162,7 +163,7 @@ private def tryTheoremCore (lhs : Expr) (xs : Array Expr) (bis : Array BinderInf
      This simple approach was good enough for Mathlib 3 -/
   let mut extraArgs := #[]
   let mut e := e
-  for _ in [:numExtraArgs] do
+  for _ in *...numExtraArgs do
     extraArgs := extraArgs.push e.appArg!
     e := e.appFn!
   extraArgs := extraArgs.reverse
@@ -217,10 +218,12 @@ where
       return none
     else
       let candidates := candidates.insertionSort fun e₁ e₂ => e₁.1.priority > e₂.1.priority
+      let useBackward := backward.defeqAttrib.useBackward.get (← getOptions)
       for (thm, numExtraArgs) in candidates do
+        checkSystem "simp"
         if inErasedSet thm then continue
         if rflOnly then
-          unless thm.rfl do
+          unless thm.rfl || (useBackward && thm.backwardRfl) do
             if debug.tactic.simp.checkDefEqAttr.get (← getOptions) &&
                backward.dsimp.useDefEqAttr.get (← getOptions) then
               let isRflOld ← withOptions (backward.dsimp.useDefEqAttr.set · false) do
@@ -230,6 +233,9 @@ where
             continue
         if let some result ← tryTheoremWithExtraArgs? e thm numExtraArgs then
           trace[Debug.Meta.Tactic.simp] "rewrite result {e} => {result.expr}"
+          if rflOnly && !thm.rfl && thm.backwardRfl then
+            trace[Meta.Tactic.simp.backwardDefEq]
+              "used `[backward_defeq]` theorem {← ppOrigin thm.origin} to rewrite{indentExpr e}"
           return some result
       return none
 
@@ -244,8 +250,10 @@ where
       return none
     else
       let candidates := candidates.insertionSort fun e₁ e₂ => e₁.priority > e₂.priority
+      let useBackward := backward.defeqAttrib.useBackward.get (← getOptions)
       for thm in candidates do
-        unless inErasedSet thm || (rflOnly && !thm.rfl) do
+        checkSystem "simp"
+        unless inErasedSet thm || (rflOnly && !(thm.rfl || (useBackward && thm.backwardRfl))) do
           let result? ← withNewMCtxDepth do
             let val  ← thm.getValue
             let type ← inferType val
@@ -256,6 +264,9 @@ where
             tryTheoremCore lhs xs bis val type e thm (numArgs - lhsNumArgs)
           if let some result := result? then
             trace[Debug.Meta.Tactic.simp] "rewrite result {e} => {result.expr}"
+            if rflOnly && !thm.rfl && thm.backwardRfl then
+              trace[Meta.Tactic.simp.backwardDefEq]
+                "used `[backward_defeq]` theorem {← ppOrigin thm.origin} to rewrite{indentExpr e}"
             diagnoseWhenNoIndex thm
             return some result
     return none
@@ -289,11 +300,6 @@ where
   catch _ =>
     return .continue
 
-private def isNatExpr (e : Expr) : MetaM Bool := do
-  let type ← inferType e
-  let_expr Nat ← type | return false
-  return true
-
 def simpArith (e : Expr) : SimpM Step := do
   unless (← getConfig).arith do
     return .continue
@@ -305,18 +311,19 @@ def simpArith (e : Expr) : SimpM Step := do
     if let some (e', h) ← Arith.Int.simpEq? e then
       return .visit { expr := e', proof? := h }
     return .continue
-  let isNat ← isNatExpr e
-  if Arith.isLinearTerm e isNat then
-    if Arith.parentIsTarget (← getContext).parent? isNat then
+  if let some α := Arith.isLinearTerm? e then
+    if Arith.parentIsTarget (← getContext).parent? then
       -- We mark `cache := false` to ensure we do not miss simplifications.
       return .continue (some { expr := e, cache := false })
-    if isNat then
+    match_expr α with
+    | Nat =>
       let some (e', h) ← Arith.Nat.simpExpr? e | pure ()
       return .visit { expr := e', proof? := h }
-    else
+    | Int =>
       let some (e', h) ← Arith.Int.simpExpr? e | pure ()
       return .visit { expr := e', proof? := h }
-    return .continue
+    | _ =>
+      return .continue
   if Arith.isDvdCnstr e then
     let some (e', h) ← Arith.Int.simpDvd? e | pure ()
     return .visit { expr := e', proof? := h }
@@ -337,7 +344,7 @@ def simpMatchDiscrs? (info : MatcherInfo) (e : Expr) : SimpM (Option Result) := 
   let args  := e.getAppArgsN n
   let mut r : Result := { expr := f }
   let mut modified := false
-  for i in [0 : info.numDiscrs] do
+  for i in *...info.numDiscrs do
     let arg := args[i]!
     if i < infos.size && !infos[i]!.hasFwdDeps then
       let argNew ← simp arg
@@ -353,7 +360,7 @@ def simpMatchDiscrs? (info : MatcherInfo) (e : Expr) : SimpM (Option Result) := 
       r ← mkCongrFun r argNew
   unless modified do
     return none
-  for h : i in [info.numDiscrs : args.size] do
+  for h : i in info.numDiscrs...args.size do
     let arg := args[i]
     r ← mkCongrFun r arg
   return some r
@@ -361,7 +368,7 @@ def simpMatchDiscrs? (info : MatcherInfo) (e : Expr) : SimpM (Option Result) := 
 def simpMatchCore (matcherName : Name) (e : Expr) : SimpM Step := do
   for matchEq in (← Match.getEquationsFor matcherName).eqnNames do
     -- Try lemma
-    match (← withReducible <| Simp.tryTheorem? e { origin := .decl matchEq, proof := mkConst matchEq, rfl := (← isRflTheorem matchEq) }) with
+    match (← withReducible <| Simp.tryTheorem? e { origin := .decl matchEq, proof := mkConst matchEq, rfl := (← isRflTheorem matchEq), backwardRfl := (← isBackwardRflTheorem matchEq) }) with
     | none   => pure ()
     | some r => return .visit r
   return .continue
@@ -442,7 +449,7 @@ def sevalGround : Simproc := fun e => do
     -- `declName` has equation theorems associated with it.
     for eqn in eqns do
       -- TODO: cache SimpTheorem to avoid calls to `isRflTheorem`
-      if let some result ← Simp.tryTheorem? e { origin := .decl eqn, proof := mkConst eqn, rfl := (← isRflTheorem eqn) } then
+      if let some result ← Simp.tryTheorem? e { origin := .decl eqn, proof := mkConst eqn, rfl := (← isRflTheorem eqn), backwardRfl := (← isBackwardRflTheorem eqn) } then
         trace[Meta.Tactic.simp.ground] "unfolded, {e} => {result.expr}"
         return .visit result
     return .continue
@@ -588,7 +595,7 @@ private def dischargeUsingAssumption? (e : Expr) : SimpM (Option Expr) := do
 partial def dischargeEqnThmHypothesis? (e : Expr) : MetaM (Option Expr) := do
   assert! isEqnThmHypothesis e
   let mvar ← mkFreshExprSyntheticOpaqueMVar e
-  withCanUnfoldPred canUnfoldAtMatcher do
+  withCanUnfoldAtMatcherPred do
     if let .none ← go? mvar.mvarId! then
       instantiateMVars mvar
     else
@@ -611,7 +618,7 @@ where
 
 /--
 Discharges assumptions of the form `∀ …, a = b` using `rfl`. This is particularly useful for higher
-order assumptions of the form `∀ …, e = ?g x y` to instaniate  a parameter `g` even if that does not
+order assumptions of the form `∀ …, e = ?g x y` to instantiate a parameter `g` even if that does not
 appear on the lhs of the rule.
 -/
 def dischargeRfl (e : Expr) : SimpM (Option Expr) := do
@@ -634,7 +641,7 @@ def dischargeDefault? (e : Expr) : SimpM (Option Expr) := do
     if let some r ← dischargeEqnThmHypothesis? e then return some r
   let r ← simp e
   if let some p ← dischargeRfl r.expr then
-    return some (mkApp4 (mkConst ``Eq.mpr [levelZero]) e r.expr (← r.getProof) p)
+    return some (mkApp4 (mkConst ``Eq.mpr [Level.zero]) e r.expr (← r.getProof) p)
   else if r.expr.isTrue then
     return some (← mkOfEqTrue (← r.getProof))
   else

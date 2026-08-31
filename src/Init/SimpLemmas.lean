@@ -8,7 +8,9 @@ notation, basic datatypes and type classes
 module
 
 prelude
-import Init.Core
+public import Init.Core
+
+public section
 set_option linter.missingDocs true -- keep it documented
 
 theorem of_eq_true (h : p = True) : p := h ▸ trivial
@@ -18,7 +20,7 @@ theorem eq_true (h : p) : p = True :=
   propext ⟨fun _ => trivial, fun _ => h⟩
 
 -- Adding this attribute needs `eq_true`.
-attribute [simp] cast_heq
+attribute [simp] cast_heq eqRec_heq_iff heq_eqRec_iff
 
 theorem eq_false (h : ¬ p) : p = False :=
   propext ⟨fun h' => absurd h' h, fun h' => False.elim h'⟩
@@ -35,6 +37,67 @@ theorem eq_false_of_decide {p : Prop} {_ : Decidable p} (h : decide p = false) :
 
 theorem implies_congr {p₁ p₂ : Sort u} {q₁ q₂ : Sort v} (h₁ : p₁ = p₂) (h₂ : q₁ = q₂) : (p₁ → q₁) = (p₂ → q₂) :=
   h₁ ▸ h₂ ▸ rfl
+
+theorem implies_congr_left {p₁ p₂ : Sort u} {q : Sort v} (h : p₁ = p₂) : (p₁ → q) = (p₂ → q) :=
+  h ▸ rfl
+
+theorem implies_congr_right {p : Sort u} {q₁ q₂ : Sort v} (h : q₁ = q₂) : (p → q₁) = (p → q₂) :=
+  h ▸ rfl
+
+namespace Lean
+/--
+`Arrow α β` is definitionally equal to `α → β`, but represented as a function
+application rather than `Expr.forallE`.
+
+This representation is useful for proof automation that builds nested implications
+like `pₙ → ... → p₂ → p₁`. With `Expr.forallE`, each nesting level introduces a
+binder that bumps de Bruijn indices in subterms, destroying sharing even with
+hash-consing. For example, if `p₁` contains `#20`, then at depth 2 it becomes `#21`,
+at depth 3 it becomes `#22`, etc., causing quadratic proof growth.
+
+With `arrow`, both arguments are explicit (not under binders), so subterms remain
+identical across nesting levels and can be shared, yielding linear-sized proofs.
+-/
+def Arrow (α : Sort u) (β : Sort v) : Sort (imax u v) := α → β
+
+theorem arrow_congr {p₁ p₂ : Sort u} {q₁ q₂ : Sort v} (h₁ : p₁ = p₂) (h₂ : q₁ = q₂) : Arrow p₁ q₁ = Arrow p₂ q₂ :=
+  h₁ ▸ h₂ ▸ rfl
+
+theorem arrow_congr_left {p₁ p₂ : Sort u} {q : Sort v} (h : p₁ = p₂) : Arrow p₁ q = Arrow p₂ q :=
+  h ▸ rfl
+
+theorem arrow_congr_right {p : Sort u} {q₁ q₂ : Sort v} (h : q₁ = q₂) : Arrow p q₁ = Arrow p q₂ :=
+  h ▸ rfl
+
+theorem true_arrow (p : Prop) : Arrow True p = p := by
+  simp [Arrow]; constructor
+  next => intro h; exact h .intro
+  next => intros; assumption
+
+theorem true_arrow_congr_left (p q : Prop) : p = True → Arrow p q = q := by
+  intros; subst p; apply true_arrow
+
+theorem true_arrow_congr_right (q q' : Prop) : q = q' → Arrow True q = q' := by
+  intros; subst q; apply true_arrow
+
+theorem true_arrow_congr (p q q' : Prop) : p = True → q = q' → Arrow p q = q' := by
+  intros; subst p q; apply true_arrow
+
+theorem false_arrow (p : Prop) : Arrow False p = True := by
+  simp [Arrow]; constructor
+  next => intros; exact .intro
+  next => intros; contradiction
+
+theorem false_arrow_congr (p q : Prop) : p = False → Arrow p q = True := by
+  intros; subst p; apply false_arrow
+
+theorem arrow_true (α : Sort u) : Arrow α True = True := by
+  simp [Arrow]; constructor <;> intros <;> exact .intro
+
+theorem arrow_true_congr (α : Sort u) (p : Prop) : p = True → Arrow α p = True := by
+  intros; subst p; apply arrow_true
+
+end Lean
 
 theorem iff_congr {p₁ p₂ q₁ q₂ : Prop} (h₁ : p₁ ↔ p₂) (h₂ : q₁ ↔ q₂) : (p₁ ↔ q₁) ↔ (p₂ ↔ q₂) :=
   Iff.of_eq (propext h₁ ▸ propext h₂ ▸ rfl)
@@ -74,27 +137,79 @@ theorem let_body_congr {α : Sort u} {β : α → Sort v} {b b' : (a : α) → �
     (a : α) (h : ∀ x, b x = b' x) : (let x := a; b x) = (let x := a; b' x) :=
   (funext h : b = b') ▸ rfl
 
-theorem letFun_unused {α : Sort u} {β : Sort v} (a : α) {b b' : β} (h : b = b') : @letFun α (fun _ => β) a (fun _ => b) = b' :=
-  h
+/-!
+Congruence lemmas for `have` have kernel performance issues when stated using `have` directly.
+Illustration of the problem: the kernel infers that the type of
+`have_congr (fun x => b) (fun x => b') h₁ h₂`
+is
+`(have x := a; (fun x => b) x) = (have x := a'; (fun x => b') x)`
+rather than
+`(have x := a; b x) = (have x := a'; b' x)`
+That means the kernel will do `whnf_core` at every step of checking a sequence of these lemmas.
+Thus, we get quadratically many zeta reductions.
 
-theorem letFun_congr {α : Sort u} {β : Sort v}  {a a' : α} {f f' : α → β} (h₁ : a = a') (h₂ : ∀ x, f x = f' x)
-    : @letFun α (fun _ => β) a f = @letFun α (fun _ => β) a' f' := by
-  rw [h₁, funext h₂]
+For reference, we have the `have` versions of the theorems in the following comment,
+and then after that we have the versions that `simpHaveTelescope` actually uses,
+which avoid this issue.
+-/
+/-
+theorem have_unused {α : Sort u} {β : Sort v} (a : α) {b b' : β}
+    (h : b = b') : (have _ := a; b) = b' := h
 
-theorem letFun_body_congr {α : Sort u} {β : Sort v}  (a : α) {f f' : α → β} (h : ∀ x, f x = f' x)
-    : @letFun α (fun _ => β) a f = @letFun α (fun _ => β) a f' := by
-  rw [funext h]
+theorem have_unused_dep {α : Sort u} {β : Sort v} (a : α) {b : α → β} {b' : β}
+    (h : ∀ x, b x = b') : (have x := a; b x) = b' := h a
 
-theorem letFun_val_congr {α : Sort u} {β : Sort v} {a a' : α} {f : α → β} (h : a = a')
-    : @letFun α (fun _ => β) a f = @letFun α (fun _ => β) a' f := by
-  rw [h]
+theorem have_congr {α : Sort u} {β : Sort v} {a a' : α} {f f' : α → β}
+    (h₁ : a = a') (h₂ : ∀ x, f x = f' x) : (have x := a; f x) = (have x := a'; f' x) :=
+  @congr α β f f' a a' (funext h₂) h₁
+
+theorem have_val_congr {α : Sort u} {β : Sort v} {a a' : α} {f : α → β}
+    (h : a = a') : (have x := a; f x) = (have x := a'; f x) :=
+  @congrArg α β a a' f h
+
+theorem have_body_congr_dep {α : Sort u} {β : α → Sort v} (a : α) {f f' : (x : α) → β x}
+    (h : ∀ x, f x = f' x) : (have x := a; f x) = (have x := a; f' x) :=
+  h a
+
+theorem have_body_congr {α : Sort u} {β : Sort v} (a : α) {f f' : α → β}
+    (h : ∀ x, f x = f' x) : (have x := a; f x) = (have x := a; f' x) :=
+  h a
+-/
+
+theorem have_unused' {α : Sort u} {β : Sort v} (a : α) {b b' : β}
+    (h : b = b') : (fun _ => b) a = b' := h
+
+theorem have_unused_dep' {α : Sort u} {β : Sort v} (a : α) {b : α → β} {b' : β}
+    (h : ∀ x, b x = b') : b a = b' := h a
+
+theorem have_congr' {α : Sort u} {β : Sort v} {a a' : α} {f f' : α → β}
+    (h₁ : a = a') (h₂ : ∀ x, f x = f' x) : f a = f' a' :=
+  @congr α β f f' a a' (funext h₂) h₁
+
+theorem have_val_congr' {α : Sort u} {β : Sort v} {a a' : α} {f : α → β}
+    (h : a = a') : f a = f a' :=
+  @congrArg α β a a' f h
+
+theorem have_body_congr_dep' {α : Sort u} {β : α → Sort v} (a : α) {f f' : (x : α) → β x}
+    (h : ∀ x, f x = f' x) : f a = f' a :=
+  h a
+
+theorem have_body_congr' {α : Sort u} {β : Sort v} (a : α) {f f' : α → β}
+    (h : ∀ x, f x = f' x) : f a = f' a :=
+  h a
 
 @[congr]
 theorem ite_congr {x y u v : α} {s : Decidable b} [Decidable c]
     (h₁ : b = c) (h₂ : c → x = u) (h₃ : ¬ c → y = v) : ite b x y = ite c u v := by
   cases Decidable.em c with
-  | inl h => rw [if_pos h]; subst b; rw [if_pos h]; exact h₂ h
-  | inr h => rw [if_neg h]; subst b; rw [if_neg h]; exact h₃ h
+  | inl h => rw [ite_eq_left h]; subst b; rw [ite_eq_left h]; exact h₂ h
+  | inr h => rw [ite_eq_right h]; subst b; rw [ite_eq_right h]; exact h₃ h
+
+theorem ite_cond_congr {α} {b c : Prop} {s : Decidable b} [Decidable c] {x y : α}
+    (h₁ : b = c) : ite b x y = ite c x y := by
+  cases Decidable.em c with
+  | inl h => rw [ite_eq_left h]; subst b; rw [ite_eq_left h]
+  | inr h => rw [ite_eq_right h]; subst b; rw [ite_eq_right h]
 
 theorem Eq.mpr_prop {p q : Prop} (h₁ : p = q) (h₂ : q)  : p  := h₁ ▸ h₂
 theorem Eq.mpr_not  {p q : Prop} (h₁ : p = q) (h₂ : ¬q) : ¬p := h₁ ▸ h₂
@@ -107,21 +222,40 @@ theorem dite_congr {_ : Decidable b} [Decidable c]
     (h₃ : (h : ¬c) → y (h₁.mpr_not h)  = v h) :
     dite b x y = dite c u v := by
   cases Decidable.em c with
-  | inl h => rw [dif_pos h]; subst b; rw [dif_pos h]; exact h₂ h
-  | inr h => rw [dif_neg h]; subst b; rw [dif_neg h]; exact h₃ h
+  | inl h => rw [dite_eq_left h]; subst b; rw [dite_eq_left h]; exact h₂ h
+  | inr h => rw [dite_eq_right h]; subst b; rw [dite_eq_right h]; exact h₃ h
+
+theorem dite_cond_congr {α} {b c : Prop} {s : Decidable b} [Decidable c]
+    {x : b → α} {y : ¬ b → α} (h₁ : b = c) :
+    dite b x y = dite c (fun h => x (h₁.mpr_prop h)) (fun h => y (h₁.mpr_not h)) := by
+  cases Decidable.em c with
+  | inl h => rw [dite_eq_left h]; subst b; rw [dite_eq_left h]
+  | inr h => rw [dite_eq_right h]; subst b; rw [dite_eq_right h]
 
 @[simp] theorem ne_eq (a b : α) : (a ≠ b) = ¬(a = b) := rfl
 norm_cast_add_elim ne_eq
-@[simp] theorem ite_true (a b : α) : (if True then a else b) = a := rfl
-@[simp] theorem ite_false (a b : α) : (if False then a else b) = b := rfl
-@[simp] theorem dite_true {α : Sort u} {t : True → α} {e : ¬ True → α} : (dite True t e) = t True.intro := rfl
-@[simp] theorem dite_false {α : Sort u} {t : False → α} {e : ¬ False → α} : (dite False t e) = e not_false := rfl
+@[simp] theorem ite_true {_ : Decidable True} (a b : α) : (if True then a else b) = a := ite_eq_left trivial
+@[simp] theorem ite_false {_ : Decidable False} (a b : α) : (if False then a else b) = b := ite_eq_right id
+@[simp] theorem dite_true {α : Sort u} {_ : Decidable True} {t : True → α} {e : ¬ True → α} : (dite True t e) = t True.intro := dite_eq_left trivial
+@[simp] theorem dite_false {α : Sort u} {_ : Decidable False} {t : False → α} {e : ¬ False → α} : (dite False t e) = e not_false := dite_eq_right id
 section SimprocHelperLemmas
 set_option simprocs false
-theorem ite_cond_eq_true {α : Sort u} {c : Prop} {_ : Decidable c} (a b : α) (h : c = True) : (if c then a else b) = a := by simp [h]
-theorem ite_cond_eq_false {α : Sort u} {c : Prop} {_ : Decidable c} (a b : α) (h : c = False) : (if c then a else b) = b := by simp [h]
-theorem dite_cond_eq_true {α : Sort u} {c : Prop} {_ : Decidable c} {t : c → α} {e : ¬ c → α} (h : c = True) : (dite c t e) = t (of_eq_true h) := by simp [h]
-theorem dite_cond_eq_false {α : Sort u} {c : Prop} {_ : Decidable c} {t : c → α} {e : ¬ c → α} (h : c = False) : (dite c t e) = e (of_eq_false h) := by simp [h]
+theorem ite_eq_left_of_eq_true {α : Sort u} {c : Prop} {_ : Decidable c} (a b : α) (h : c = True) : (if c then a else b) = a := by simp [h]
+theorem ite_eq_right_of_eq_false {α : Sort u} {c : Prop} {_ : Decidable c} (a b : α) (h : c = False) : (if c then a else b) = b := by simp [h]
+theorem dite_eq_left_of_eq_true {α : Sort u} {c : Prop} {_ : Decidable c} {t : c → α} {e : ¬ c → α} (h : c = True) : (dite c t e) = t (of_eq_true h) := by simp [h]
+theorem dite_eq_right_of_eq_false {α : Sort u} {c : Prop} {_ : Decidable c} {t : c → α} {e : ¬ c → α} (h : c = False) : (dite c t e) = e (of_eq_false h) := by simp [h]
+
+@[deprecated ite_eq_left_of_eq_true (since := "2026-07-24")]
+theorem ite_cond_eq_true {α : Sort u} {c : Prop} {_ : Decidable c} (a b : α) (h : c = True) : (if c then a else b) = a := ite_eq_left_of_eq_true a b h
+
+@[deprecated ite_eq_right_of_eq_false (since := "2026-07-24")]
+theorem ite_cond_eq_false {α : Sort u} {c : Prop} {_ : Decidable c} (a b : α) (h : c = False) : (if c then a else b) = b := ite_eq_right_of_eq_false a b h
+
+@[deprecated dite_eq_left_of_eq_true (since := "2026-07-24")]
+theorem dite_cond_eq_true {α : Sort u} {c : Prop} {_ : Decidable c} {t : c → α} {e : ¬ c → α} (h : c = True) : (dite c t e) = t (of_eq_true h) := dite_eq_left_of_eq_true h
+
+@[deprecated dite_eq_right_of_eq_false (since := "2026-07-24")]
+theorem dite_cond_eq_false {α : Sort u} {c : Prop} {_ : Decidable c} {t : c → α} {e : ¬ c → α} (h : c = False) : (dite c t e) = e (of_eq_false h) := dite_eq_right_of_eq_false h
 end SimprocHelperLemmas
 @[simp] theorem ite_self {α : Sort u} {c : Prop} {d : Decidable c} (a : α) : ite c a a = a := by cases d <;> rfl
 
@@ -285,9 +419,6 @@ theorem Bool.not_eq_false' (b : Bool) : ((!b) = false) = (b = true) := by simp
 theorem not_decide_eq_true [h : Decidable p] : ((!decide p) = true) = ¬ p := by simp
 
 @[simp] theorem heq_eq_eq (a b : α) : (a ≍ b) = (a = b) := propext <| Iff.intro eq_of_heq heq_of_eq
-
-@[simp] theorem cond_true (a b : α) : cond true a b = a := rfl
-@[simp] theorem cond_false (a b : α) : cond false a b = b := rfl
 
 theorem beq_self_eq_true [BEq α] [ReflBEq α] (a : α) : (a == a) = true := BEq.rfl
 theorem beq_self_eq_true' [DecidableEq α] (a : α) : (a == a) = true := BEq.rfl

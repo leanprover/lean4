@@ -1,0 +1,5 @@
+Try these:
+  [apply] [grind =] for pattern: [@getElem (List #3) `[Nat] _ _ _ (@cons _ #2 #1) `[0] #0]
+  [apply] [grind →] for pattern: [@LE.le `[Nat] `[instLENat] `[1] (@length #3 (@cons _ #2 #1))]
+  [apply] [grind! →] for pattern: [@cons #3 #2 #1]
+grind_proveEqIssue.lean:7:8-7:20: warning: declaration uses `sorry`

@@ -1,0 +1,13 @@
+2 failures:
+  @7 (⟨1, 7⟩): expected ')'
+    ""
+  @7 (⟨1, 7⟩): unterminated string literal
+    ""
+
+Final stack:
+  (Lean.Doc.Syntax.named
+   "("
+   `x
+   ":="
+   (Lean.Doc.Syntax.arg_str <missing>)
+   <missing>)

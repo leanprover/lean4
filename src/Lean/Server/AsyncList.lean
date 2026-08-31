@@ -4,11 +4,14 @@ Released under Apache 2.0 license as described in the file LICENSE.
 
 Authors: Wojciech Nawrocki
 -/
-prelude
-import Lean.Server.ServerTask
-import Init.System.Promise
+module
 
-namespace IO
+prelude
+public import Lean.Server.ServerTask
+
+public section
+
+namespace Lean
 
 universe u v
 
@@ -74,7 +77,7 @@ partial def getFinishedPrefix : AsyncList ε α → BaseIO (List α × Option ε
   | nil => pure ⟨[], none, true⟩
   | delayed tl => do
     if ← tl.hasFinished then
-      match tl.get with
+      match ← tl.wait with
       | Except.ok tl => tl.getFinishedPrefix
       | Except.error e => pure ⟨[], some e, true⟩
     else pure ⟨[], none, false⟩
@@ -98,14 +101,18 @@ where
       return ⟨hd :: tl, e?, isComplete⟩
     | nil => return ⟨[], none, true⟩
     | delayed tl =>
-      let tl : ServerTask (Except ε (AsyncList ε α)) := tl
-      let tl := tl.mapCheap .inr
-      let cancelTks := cancelTks.map (·.mapCheap .inl)
-      let r ← ServerTask.waitAny (tl :: cancelTks ++ [timeoutTask])
-      match r with
-      | .inl _ => return ⟨[], none, false⟩ -- Timeout or cancellation - stop waiting
-      | .inr (.ok tl) => go timeoutTask tl
-      | .inr (.error e) => return ⟨[], some e, true⟩
+      if ← tl.hasFinished then
+        match ← tl.wait with
+        | .ok tl => go timeoutTask tl
+        | .error e => return ⟨[], some e, true⟩
+      else
+        let tl := tl.mapCheap .inr
+        let cancelTks := cancelTks.map (·.mapCheap .inl)
+        let r ← ServerTask.waitAny (tl :: cancelTks ++ [timeoutTask])
+        match r with
+        | .inl _ => return ⟨[], none, false⟩ -- Timeout or cancellation - stop waiting
+        | .inr (.ok tl) => go timeoutTask tl
+        | .inr (.error e) => return ⟨[], some e, true⟩
 
 partial def getFinishedPrefixWithConsistentLatency (xs : AsyncList ε α) (latencyMs : UInt32)
     (cancelTks : List (ServerTask Unit) := []) : BaseIO (List α × Option ε × Bool) := do
@@ -130,4 +137,4 @@ where
 
 end AsyncList
 
-end IO
+end Lean

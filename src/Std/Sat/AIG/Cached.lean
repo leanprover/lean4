@@ -3,9 +3,13 @@ Copyright (c) 2024 Lean FRO, LLC. All rights reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Henrik Böving
 -/
+module
+
 prelude
-import Std.Sat.AIG.Basic
-import Std.Sat.AIG.Lemmas
+public import Std.Sat.AIG.Lemmas
+import Init.Omega
+
+@[expose] public section
 
 /-!
 This module contains functions to construct AIG nodes while making use of the sub-circuit cache
@@ -36,7 +40,7 @@ def mkAtomCached (aig : AIG α) (n : α) : Entrypoint α :=
     let decls := decls.push decl
     have hdag := by
       intro i lhs rhs h1 h2
-      simp only [Array.getElem_push] at h2
+      simp only [decls, Array.getElem_push] at h2
       split at h2
       · apply hdag <;> assumption
       · contradiction
@@ -112,7 +116,7 @@ where
           let decls := decls.push decl
           have hdag := by
             intro i lhs rhs h1 h2
-            simp only [Array.getElem_push] at h2
+            simp only [decls, Array.getElem_push] at h2
             simp_all
             split at h2
             · apply hdag <;> assumption

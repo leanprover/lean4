@@ -6,7 +6,11 @@ Authors: Leonardo de Moura
 module
 
 prelude
-import Init.NotationExtra
+public meta import Init.Meta
+public import Init.Tactics
+import Init.Meta.Defs
+
+public section
 
 namespace Lean.Parser
 

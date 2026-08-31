@@ -5,7 +5,7 @@ Released under Apache 2.0 license as described in the file LICENSE.
 Author: Leonardo de Moura
 */
 // DO NOT EDIT, this is an automatically generated file
-// Generated using script: ../../gen/apply.lean
+// Generated using script: script/apply.lean
 #include "runtime/apply.h"
 namespace lean {
 #define obj lean_object

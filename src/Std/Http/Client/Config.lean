@@ -188,7 +188,6 @@ def apply (overrides : RequestOverrides) (config : Config) : Config :=
   { config with
     requestTimeout := overrides.requestTimeout.getD config.requestTimeout
     maxRedirects := overrides.maxRedirects.getD config.maxRedirects
-    onlySafeRedirects := overrides.onlySafeRedirects.getD config.onlySafeRedirects
   }
 
 end RequestOverrides

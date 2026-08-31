@@ -322,6 +322,7 @@ object_offset object_compactor::insert_array(object * o) {
     lean_set_non_heap_header_for_big((lean_object*)new_o, LeanArray, 0);
     new_o->m_size     = sz;
     new_o->m_capacity = sz;
+    if (lean_array_is_marked_linear(o)) lean_array_mark_linear_core((lean_object*)new_o);
     for (size_t i = 0; i < sz; i++)
         lean_array_set_core((lean_object*)new_o, i, m_tmp[base + i]);
     m_tmp.resize(base);

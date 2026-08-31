@@ -2716,6 +2716,7 @@ extern "C" LEAN_EXPORT obj_res lean_copy_expand_array(obj_arg a, bool expand) {
     if (expand) cap = (cap + 1) * 2;
     lean_assert(!expand || cap > sz);
     object * r     = lean_alloc_array(sz, cap);
+    if (lean_array_is_marked_linear(a)) lean_array_mark_linear_core(r);
     object ** it   = lean_array_cptr(a);
     object ** end  = it + sz;
     object ** dest = lean_array_cptr(r);
@@ -2733,8 +2734,19 @@ extern "C" LEAN_EXPORT obj_res lean_copy_expand_array(obj_arg a, bool expand) {
     return r;
 }
 
+static bool should_abort_on_nonlinearity() {
+#ifdef LEAN_EMSCRIPTEN
+    return false;
+#else
+    return std::getenv("LEAN_ABORT_ON_NONLINEAR");
+#endif
+}
+
 __attribute__((noinline))
 extern "C" LEAN_EXPORT obj_res lean_copy_expand_array_nonlinear(obj_arg a, bool expand) {
+    if (lean_array_is_marked_linear(a) && should_abort_on_nonlinearity()) {
+        lean_internal_panic("array marked by `Array.markLinear` was used non-linearly");
+    }
     return lean_copy_expand_array(a, expand);
 }
 

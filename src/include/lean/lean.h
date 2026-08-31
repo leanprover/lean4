@@ -555,6 +555,19 @@ static inline void lean_free_small_object(lean_object * o) {
 LEAN_EXPORT lean_object * lean_alloc_object(size_t sz);
 LEAN_EXPORT void lean_free_object(lean_object * o);
 
+/* Usable size of the block backing an object returned by `lean_alloc_object(sz)`.
+   The allocator may hand out a block larger than requested; objects with a capacity
+   (arrays, scalar arrays, strings) extend their capacity to the full block. */
+static inline size_t lean_alloc_object_usable_size(void * mem, size_t sz) {
+#ifdef LEAN_MIMALLOC
+    (void)sz;
+    return mi_usable_size(mem);
+#else
+    (void)mem;
+    return sz;
+#endif
+}
+
 
 static inline void lean_del_object(lean_object * o) {
     if (!lean_is_scalar(o)) {
@@ -938,10 +951,11 @@ LEAN_EXPORT lean_object* lean_apply_m(lean_object* f, unsigned n, lean_object** 
 
 /* Arrays of objects (low level API) */
 static inline lean_obj_res lean_alloc_array(size_t size, size_t capacity) {
-    lean_array_object * o = (lean_array_object*)lean_alloc_object(lean_usize_add_checked(sizeof(lean_array_object), lean_usize_mul_checked(sizeof(void*), capacity)));
+    size_t sz = lean_usize_add_checked(sizeof(lean_array_object), lean_usize_mul_checked(sizeof(void*), capacity));
+    lean_array_object * o = (lean_array_object*)lean_alloc_object(sz);
     lean_set_st_header((lean_object*)o, LeanArray, 0);
     o->m_size = size;
-    o->m_capacity = capacity;
+    o->m_capacity = (lean_alloc_object_usable_size(o, sz) - sizeof(lean_array_object)) / sizeof(void*);
     return (lean_object*)o;
 }
 static inline size_t lean_array_size(b_lean_obj_arg o) { return lean_to_array(o)->m_size; }
@@ -1126,10 +1140,11 @@ static inline bool lean_alloc_sarray_would_overflow(unsigned elem_size, size_t c
 }
 
 static inline lean_obj_res lean_alloc_sarray(unsigned elem_size, size_t size, size_t capacity) {
-    lean_sarray_object * o = (lean_sarray_object*)lean_alloc_object(lean_usize_add_checked(sizeof(lean_sarray_object), lean_usize_mul_checked(elem_size, capacity)));
+    size_t sz = lean_usize_add_checked(sizeof(lean_sarray_object), lean_usize_mul_checked(elem_size, capacity));
+    lean_sarray_object * o = (lean_sarray_object*)lean_alloc_object(sz);
     lean_set_st_header((lean_object*)o, LeanScalarArray, elem_size);
     o->m_size = size;
-    o->m_capacity = capacity;
+    o->m_capacity = (lean_alloc_object_usable_size(o, sz) - sizeof(lean_sarray_object)) / elem_size;
     return (lean_object*)o;
 }
 static inline unsigned lean_sarray_elem_size(lean_object * o) {
@@ -1288,10 +1303,11 @@ static inline lean_obj_res lean_float_array_set(lean_obj_arg a, b_lean_obj_arg i
 /* Strings */
 
 static inline lean_obj_res lean_alloc_string(size_t size, size_t capacity, size_t len) {
-    lean_string_object * o = (lean_string_object*)lean_alloc_object(lean_usize_add_checked(sizeof(lean_string_object), capacity));
+    size_t sz = lean_usize_add_checked(sizeof(lean_string_object), capacity);
+    lean_string_object * o = (lean_string_object*)lean_alloc_object(sz);
     lean_set_st_header((lean_object*)o, LeanString, 0);
     o->m_size = size;
-    o->m_capacity = capacity;
+    o->m_capacity = lean_alloc_object_usable_size(o, sz) - sizeof(lean_string_object);
     o->m_length = len;
     return (lean_object*)o;
 }

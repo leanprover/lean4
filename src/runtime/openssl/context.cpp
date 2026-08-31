@@ -36,6 +36,15 @@ static lean_obj_res reject_embedded_nul(b_obj_arg path) {
         : mk_embedded_nul_error(path);
 }
 
+// PEM material the caller named: a path when `is_file`, otherwise the bytes themselves.
+struct pem_source {
+    b_obj_arg obj;
+    bool is_file;
+
+    char const * data() const { return lean_string_cstr(obj); }
+    size_t size() const { return lean_string_size(obj) - 1; }
+};
+
 // Reports a failure against a path, as an errno-derived IO error where the errno is meaningful.
 static lean_obj_res mk_ssl_file_error(b_obj_arg file, char const * msg) {
     ERR_clear_error();
@@ -71,6 +80,29 @@ static int reject_encrypted_pem(char *, int, int, void *) { return -1; }
 static lean_obj_res mk_ssl_invalid_argument(char const * msg) {
     ERR_clear_error();
     return lean_io_result_mk_error(lean_mk_io_error_invalid_argument(EINVAL, mk_string(msg)));
+}
+
+// Reports a failure against PEM material, naming the path when there is one to name.
+static lean_obj_res mk_pem_error(pem_source src, char const * msg) {
+    return src.is_file ? mk_ssl_file_error(src.obj, msg) : mk_ssl_invalid_argument(msg);
+}
+
+// Opens `src` for reading. On failure returns nullptr and stores an IO error in `*err`.
+static BIO * open_pem_bio(pem_source src, char const * unreadable, lean_obj_res * err) {
+    if (src.is_file) {
+        BIO * bio = BIO_new_file(src.data(), "r");
+        if (bio == nullptr) *err = mk_ssl_file_error(src.obj, unreadable);
+        return bio;
+    }
+
+    if (src.size() > (size_t)INT_MAX) {
+        *err = mk_ssl_invalid_argument("the PEM string is too large");
+        return nullptr;
+    }
+
+    BIO * bio = BIO_new_mem_buf(src.data(), (int)src.size());
+    if (bio == nullptr) *err = mk_ssl_invalid_argument(unreadable);
+    return bio;
 }
 
 // Whether a certificate was turned away on policy grounds rather than being unreadable as PEM.
@@ -138,8 +170,9 @@ static void configure_ctx_options(SSL_CTX * ctx) {
     // Read only by the server state machine.
     SSL_CTX_set_num_tickets(ctx, 0);
 
-    // Covers the certificate chain and the private key. A CA bundle is read through a bare BIO
-    // rather than the context, so `load_ca_bundle` has to pass the same callback itself.
+    // A backstop. Every read this file performs goes through a bare BIO and passes the callback
+    // itself, so nothing here consults this one; it is set so that any OpenSSL path reaching for the
+    // context's callback still cannot end up prompting on a terminal.
     SSL_CTX_set_default_passwd_cb(ctx, reject_encrypted_pem);
 
     // Backs the flags above: a TLS 1.2 server still offers session-ID resumption through this cache,
@@ -190,39 +223,105 @@ static lean_obj_res wrap_ssl_context(ssl_ctx_ptr ctx) {
     return lean_io_result_mk_ok(obj);
 }
 
-// Loads the certificate chain the server presents and the key it signs with, from paths the caller
-// has passed through `reject_embedded_nul`.
-static lean_obj_res load_server_credentials(SSL_CTX * ctx, b_obj_arg cert_file, b_obj_arg key_file) {
+// What `SSL_CTX_use_certificate_chain_file` does, against an arbitrary BIO: the leaf certificate
+// plus every intermediate behind it, so the whole chain reaches the peer. There is no public
+// `SSL_CTX_use_certificate_chain_bio`, so in-memory material has to go the long way round.
+static bool use_certificate_chain_bio(SSL_CTX * ctx, BIO * bio) {
+    // `_AUX` so a certificate carrying OpenSSL's trust extensions is read the same way the file
+    // variant reads it.
+    X509 * leaf = PEM_read_bio_X509_AUX(bio, nullptr, reject_encrypted_pem, nullptr);
+    if (leaf == nullptr) return false;
+
+    bool used = SSL_CTX_use_certificate(ctx, leaf) == 1;
+    X509_free(leaf);
+
+    if (!used || SSL_CTX_clear_chain_certs(ctx) != 1) return false;
+
+    while (X509 * ca = PEM_read_bio_X509(bio, nullptr, reject_encrypted_pem, nullptr)) {
+        // Takes ownership only on success.
+        if (SSL_CTX_add0_chain_cert(ctx, ca) != 1) {
+            X509_free(ca);
+            return false;
+        }
+    }
+
+    // The loop ends either on a malformed block or on running out of them; only the latter is fine,
+    // so a corrupt intermediate is rejected rather than silently dropping the rest of the chain.
+    unsigned long err = ERR_peek_last_error();
+
+    if (ERR_GET_LIB(err) != ERR_LIB_PEM || ERR_GET_REASON(err) != PEM_R_NO_START_LINE) return false;
+
+    ERR_clear_error();
+    return true;
+}
+
+// Loads the certificate chain the server presents and the key it signs with.
+static lean_obj_res load_server_credentials(SSL_CTX * ctx, pem_source cert, pem_source key) {
     ERR_clear_error();
 
-    if (SSL_CTX_use_certificate_chain_file(ctx, lean_string_cstr(cert_file)) <= 0) {
-        return mk_ssl_file_error(cert_file, rejected_by_security_level()
+    char const * unreadable_cert = "could not read a PEM certificate chain";
+    lean_obj_res err = nullptr;
+    BIO * cert_bio = open_pem_bio(cert, unreadable_cert, &err);
+
+    if (cert_bio == nullptr) return err;
+
+    bool cert_ok = use_certificate_chain_bio(ctx, cert_bio);
+    BIO_free(cert_bio);
+
+    if (!cert_ok) {
+        return mk_pem_error(cert, rejected_by_security_level()
             ? "the certificate is rejected by the TLS security level (key too small or signature "
               "digest too weak)"
-            : "could not read a PEM certificate chain");
+            : unreadable_cert);
     }
 
     ERR_clear_error();
 
+    char const * unreadable_key = "could not read an unencrypted PEM private key";
     char const * mismatch = "the private key does not match the certificate";
+    BIO * key_bio = open_pem_bio(key, unreadable_key, &err);
 
-    if (SSL_CTX_use_PrivateKey_file(ctx, lean_string_cstr(key_file), SSL_FILETYPE_PEM) <= 0) {
-        return mk_ssl_file_error(key_file, ERR_GET_LIB(ERR_peek_last_error()) == ERR_LIB_X509
+    if (key_bio == nullptr) return err;
+
+    EVP_PKEY * pkey = PEM_read_bio_PrivateKey(key_bio, nullptr, reject_encrypted_pem, nullptr);
+    BIO_free(key_bio);
+
+    if (pkey == nullptr) return mk_pem_error(key, unreadable_key);
+
+    bool used = SSL_CTX_use_PrivateKey(ctx, pkey) == 1;
+    EVP_PKEY_free(pkey);
+
+    // A key of the certificate's own algorithm is compared here and rejected outright; one of a
+    // different algorithm lands in an unused slot instead, which only the check below catches.
+    if (!used) {
+        return mk_pem_error(key, ERR_GET_LIB(ERR_peek_last_error()) == ERR_LIB_X509
             ? mismatch
-            : "could not read an unencrypted PEM private key");
+            : unreadable_key);
     }
 
     ERR_clear_error();
 
-    if (SSL_CTX_check_private_key(ctx) != 1) return mk_ssl_file_error(key_file, mismatch);
+    if (SSL_CTX_check_private_key(ctx) != 1) return mk_pem_error(key, mismatch);
 
     return nullptr;
 }
 
-/* Std.Internal.SSL.Context.Server.mk (certFile keyFile : @& String) : IO Context.Server */
-extern "C" LEAN_EXPORT lean_obj_res lean_ssl_ctx_mk_server(b_obj_arg cert_file, b_obj_arg key_file) {
-    if (lean_obj_res err = reject_embedded_nul(cert_file)) return err;
-    if (lean_obj_res err = reject_embedded_nul(key_file)) return err;
+/* Std.Internal.SSL.Context.Server.mkImpl (cert : @& String) (certIsFile : Bool)
+   (key : @& String) (keyIsFile : Bool) : IO Context.Server */
+extern "C" LEAN_EXPORT lean_obj_res lean_ssl_ctx_mk_server(b_obj_arg cert, uint8_t cert_is_file,
+                                                           b_obj_arg key, uint8_t key_is_file) {
+    pem_source cert_src{cert, cert_is_file != 0};
+    pem_source key_src{key, key_is_file != 0};
+
+    // Only a path has to survive the trip through a C string; in-memory PEM is read with a length,
+    // so a NUL there is data.
+    if (cert_src.is_file) {
+        if (lean_obj_res err = reject_embedded_nul(cert)) return err;
+    }
+
+    if (key_src.is_file) {
+        if (lean_obj_res err = reject_embedded_nul(key)) return err;
+    }
 
     lean_obj_res base_err = nullptr;
     ssl_ctx_ptr ctx = mk_ssl_ctx_base(TLS_server_method(), &base_err);
@@ -231,18 +330,61 @@ extern "C" LEAN_EXPORT lean_obj_res lean_ssl_ctx_mk_server(b_obj_arg cert_file, 
     // The server presents its certificate but never authenticates the client (no mutual TLS).
     SSL_CTX_set_verify(ctx.get(), SSL_VERIFY_NONE, nullptr);
 
-    if (lean_obj_res err = load_server_credentials(ctx.get(), cert_file, key_file)) return err;
+    if (lean_obj_res err = load_server_credentials(ctx.get(), cert_src, key_src)) return err;
 
     return wrap_ssl_context(std::move(ctx));
 }
 
-// Shared skeleton of the client constructors; `load_ca` returns nullptr or an IO error to propagate.
+// Adds every certificate `src` yields to the trust store, on top of whatever it already holds.
+static lean_obj_res load_ca_bundle(SSL_CTX * ctx, pem_source src) {
+    char const * unreadable = src.is_file
+        ? "could not read PEM CA certificates"
+        : "could not read PEM CA certificates from the given string";
+
+    char const * no_certs = src.is_file
+        ? "the CA file contains no certificates"
+        : "the given CA PEM string contains no certificates";
+
+    lean_obj_res err = nullptr;
+    BIO * bio = open_pem_bio(src, unreadable, &err);
+
+    if (bio == nullptr) return err;
+
+    STACK_OF(X509_INFO) * infos = PEM_X509_INFO_read_bio(bio, nullptr, reject_encrypted_pem, nullptr);
+    BIO_free(bio);
+
+    if (infos == nullptr) return mk_pem_error(src, unreadable);
+
+    X509_STORE * store = SSL_CTX_get_cert_store(ctx);
+    int cert_count = 0;
+
+    for (int i = 0, n = sk_X509_INFO_num(infos); i < n; i++) {
+        // A bundle may hold private keys and CRLs; only certificates are anchors.
+        X509 * cert = sk_X509_INFO_value(infos, i)->x509;
+
+        if (cert == nullptr) continue;
+        cert_count++;
+
+        if (X509_STORE_add_cert(store, cert) != 1) {
+            err = mk_openssl_io_error("X509_STORE_add_cert failed");
+            break;
+        }
+    }
+
+    sk_X509_INFO_pop_free(infos, X509_INFO_free);
+
+    if (err != nullptr) return err;
+    if (cert_count == 0) return mk_pem_error(src, no_certs);
+
+    return nullptr;
+}
+
 // `has_ca` says whether the caller supplied CA material at all, which decides whether dropping the
-// platform anchors would leave nothing behind. `load_ca` is what enforces that supplied material
-// actually yields a certificate, so the two together guarantee a verifying context has an anchor.
-template<typename LoadCA>
+// platform anchors would leave nothing behind. `load_ca_bundle` is what enforces that supplied
+// material actually yields a certificate, so the two together guarantee a verifying context has an
+// anchor.
 static lean_obj_res mk_client_ctx(uint8_t verify_peer, uint8_t trust_system_roots, bool has_ca,
-                                  LoadCA load_ca) {
+                                  pem_source ca) {
     if (verify_peer && !trust_system_roots && !has_ca) {
         return mk_ssl_invalid_argument(
             "no trust anchors: peer verification is on, the platform trust anchors are excluded, "
@@ -272,98 +414,41 @@ static lean_obj_res mk_client_ctx(uint8_t verify_peer, uint8_t trust_system_root
 
     // The caller's own CAs are added to whatever the store already holds: on top of the platform
     // anchors, or into an otherwise empty store when those were excluded.
-    if (lean_obj_res ca_err = load_ca(ctx.get())) return ca_err;
+    if (has_ca) {
+        if (lean_obj_res ca_err = load_ca_bundle(ctx.get(), ca)) return ca_err;
+    }
 
     SSL_CTX_set_verify(ctx.get(), SSL_VERIFY_PEER, nullptr);
     return wrap_ssl_context(std::move(ctx));
 }
 
-// Adds every certificate `bio` yields to the trust store, on top of the system anchors already there,
-// and frees `bio`.
-template<typename MkErr>
-static lean_obj_res load_ca_bundle(SSL_CTX * ctx, BIO * bio, char const * unreadable, char const * no_certs, MkErr mk_err) {
-    if (bio == nullptr) return mk_err(unreadable);
+/* Std.Internal.SSL.Context.Client.mkImpl (ca : @& String) (caIsFile hasCA verifyPeer
+   trustSystemRoots : Bool) : IO Context.Client */
+extern "C" LEAN_EXPORT lean_obj_res lean_ssl_ctx_mk_client(b_obj_arg ca, uint8_t ca_is_file,
+                                                           uint8_t has_ca, uint8_t verify_peer,
+                                                           uint8_t trust_system_roots) {
+    pem_source ca_src{ca, ca_is_file != 0};
 
-    STACK_OF(X509_INFO) * infos = PEM_X509_INFO_read_bio(bio, nullptr, reject_encrypted_pem, nullptr);
-    BIO_free(bio);
-
-    if (infos == nullptr) return mk_err(unreadable);
-
-    X509_STORE * store = SSL_CTX_get_cert_store(ctx);
-    lean_obj_res err = nullptr;
-    int cert_count = 0;
-
-    for (int i = 0, n = sk_X509_INFO_num(infos); i < n; i++) {
-        X509 * cert = sk_X509_INFO_value(infos, i)->x509;
-
-        if (cert == nullptr) continue;
-        cert_count++;
-
-        if (X509_STORE_add_cert(store, cert) != 1) {
-            err = mk_openssl_io_error("X509_STORE_add_cert failed");
-            break;
-        }
+    // Checked before `verifyPeer` is consulted, so a path that could never be opened is reported as
+    // such even where it would not have been read.
+    if (has_ca && ca_src.is_file) {
+        if (lean_obj_res err = reject_embedded_nul(ca)) return err;
     }
 
-    sk_X509_INFO_pop_free(infos, X509_INFO_free);
-
-    if (err != nullptr) return err;
-    if (cert_count == 0) return mk_err(no_certs);
-
-    return nullptr;
-}
-
-/* Std.Internal.SSL.Context.Client.mkImpl (caFile : @& String) (verifyPeer trustSystemRoots : Bool) : IO Context.Client */
-extern "C" LEAN_EXPORT lean_obj_res lean_ssl_ctx_mk_client(b_obj_arg ca_file, uint8_t verify_peer,
-                                                           uint8_t trust_system_roots) {
-    if (lean_obj_res err = reject_embedded_nul(ca_file)) return err;
-
-    const char * ca = lean_string_cstr(ca_file);
-
-    return mk_client_ctx(verify_peer, trust_system_roots, ca[0] != '\0',
-                         [&](SSL_CTX * ctx) -> lean_obj_res {
-        // An empty CA path leaves the client with just the system trust anchors.
-        if (ca[0] == '\0') return nullptr;
-
-        return load_ca_bundle(ctx, BIO_new_file(ca, "r"),
-            "could not read PEM CA certificates", "the CA file contains no certificates",
-            [&](char const * msg) { return mk_ssl_file_error(ca_file, msg); });
-    });
-}
-
-/* Std.Internal.SSL.Context.Client.mkFromPEM (caPEM : @& String) (verifyPeer trustSystemRoots : Bool) : IO Context.Client */
-extern "C" LEAN_EXPORT lean_obj_res lean_ssl_ctx_mk_client_from_pem(b_obj_arg ca_pem, uint8_t verify_peer,
-                                                                    uint8_t trust_system_roots) {
-    const char * pem = lean_string_cstr(ca_pem);
-    size_t pem_size = lean_string_size(ca_pem) - 1;
-
-    return mk_client_ctx(verify_peer, trust_system_roots, pem_size != 0,
-                         [&](SSL_CTX * ctx) -> lean_obj_res {
-        if (pem_size == 0) return nullptr;
-        if (pem_size > INT_MAX) return mk_ssl_invalid_argument("the CA PEM string is too large");
-
-        return load_ca_bundle(ctx, BIO_new_mem_buf(pem, (int)pem_size),
-            "could not read PEM CA certificates from the given string",
-            "the given CA PEM string contains no certificates",
-            mk_ssl_invalid_argument);
-    });
+    return mk_client_ctx(verify_peer, trust_system_roots, has_ca != 0, ca_src);
 }
 
 #else
 
 void initialize_openssl_context() {}
 
-extern "C" LEAN_EXPORT lean_obj_res lean_ssl_ctx_mk_server(b_obj_arg /*cert_file*/, b_obj_arg /*key_file*/) {
+extern "C" LEAN_EXPORT lean_obj_res lean_ssl_ctx_mk_server(b_obj_arg /*cert*/,
+        uint8_t /*cert_is_file*/, b_obj_arg /*key*/, uint8_t /*key_is_file*/) {
     lean_always_assert(false && "Please build a version of Lean4 with OpenSSL to invoke this.");
 }
 
-extern "C" LEAN_EXPORT lean_obj_res lean_ssl_ctx_mk_client(b_obj_arg /*ca_file*/,
-        uint8_t /*verify_peer*/, uint8_t /*trust_system_roots*/) {
-    lean_always_assert(false && "Please build a version of Lean4 with OpenSSL to invoke this.");
-}
-
-extern "C" LEAN_EXPORT lean_obj_res lean_ssl_ctx_mk_client_from_pem(b_obj_arg /*ca_pem*/,
-        uint8_t /*verify_peer*/, uint8_t /*trust_system_roots*/) {
+extern "C" LEAN_EXPORT lean_obj_res lean_ssl_ctx_mk_client(b_obj_arg /*ca*/, uint8_t /*ca_is_file*/,
+        uint8_t /*has_ca*/, uint8_t /*verify_peer*/, uint8_t /*trust_system_roots*/) {
     lean_always_assert(false && "Please build a version of Lean4 with OpenSSL to invoke this.");
 }
 

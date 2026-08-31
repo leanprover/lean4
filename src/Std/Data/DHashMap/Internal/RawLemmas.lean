@@ -13,7 +13,6 @@ import all Std.Data.DHashMap.Raw
 import all Std.Data.DHashMap.Basic
 import all Std.Data.DHashMap.RawDef
 meta import Std.Data.DHashMap.Basic
-import all Lean.Log
 
 public section
 
@@ -5315,9 +5314,13 @@ private theorem mem_toList_fst_partition [EquivBEq α] [LawfulHashable α] (h : 
 theorem fst_partition_equiv_filter [EquivBEq α] [LawfulHashable α]
     {p : (a : α) → β a → Bool} (h : m.1.WF)  :
     (m.partition p).1.1.Equiv (m.filter p).1 := by
-  have h' : Raw.WFImp m.1 := by wf_trivial
-  simp only [Raw.equiv_iff_toListModel_perm, List.Perm.congr_left (toListModel_fst_partition h'),
-    List.Perm.congr_right toListModel_filter, List.Perm.refl]
+  -- simp_to_model [partition, Equiv, filter]
+  simp (discharger := wf_trivial) only [
+    Raw.equiv_iff_toListModel_perm,
+    -- Not generated
+    List.Perm.congr_left (toListModel_fst_partition _),
+    List.Perm.congr_right toListModel_filter,
+    List.Perm.refl]
 
 theorem snd_partition_equiv_filter_not [EquivBEq α] [LawfulHashable α]
     {p : (a : α) → β a → Bool} (h : m.1.WF)  :

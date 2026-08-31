@@ -181,6 +181,54 @@ def malformedPEMError (detail : String) : String :=
 def testMkFromPEMEmptyFallsBack : IO Unit := do
   let _clientCtx ← Context.Client.mkFromPEM "" true
 
+/-!
+`trustSystemRoots := false` narrows the store to the supplied CA, which is what pinning against a
+private authority needs. The store a context starts with is empty, so excluding the platform anchors
+without naming a CA would leave nothing to verify against — a context that could never complete a
+handshake. That is refused at construction instead of at connection time.
+-/
+
+def noAnchorsError : String :=
+  malformedPEMError "no trust anchors: peer verification is on, the platform trust anchors are \
+    excluded, and no CA certificate was given"
+
+def testPinnedToSuppliedCA (certFile : String) : IO Unit := do
+  let _clientCtx ← Context.Client.mk certFile true false
+  let _clientCtx2 ← Context.Client.mkFromPEM testCertPEM true false
+  let _clientCtx3 ← Context.Client.mkFromPEM testBundlePEM true false
+
+def testPinningRejectsEmptyCA : IO Unit := do
+  assertErrorMessage "pinned with no CA path" noAnchorsError
+    (discard <| Context.Client.mk "" true false)
+
+  assertErrorMessage "pinned with no CA PEM" noAnchorsError
+    (discard <| Context.Client.mkFromPEM "" true false)
+
+-- With verification off there is no store to be empty, so excluding the platform anchors is not a
+-- contradiction and `trustSystemRoots` is simply ignored.
+def testPinningIgnoredWithoutVerification : IO Unit := do
+  let _clientCtx ← Context.Client.mk "" false false
+  let _clientCtx2 ← Context.Client.mkFromPEM "" false false
+
+-- Supplied CA material still has to yield a certificate. These reach the ordinary bundle-loading
+-- failures rather than the "no trust anchors" one, which is what pins the check to the *absence* of
+-- CA material rather than to it being unusable.
+def testPinningStillValidatesCA (junkFile : String) : IO Unit := do
+  assertErrorMessage "pinned to a malformed CA file"
+    (malformedFileError junkFile "the CA file contains no certificates")
+    (discard <| Context.Client.mk junkFile true false)
+
+  assertErrorMessage "pinned to a CA string with no certificates"
+    (malformedPEMError "the given CA PEM string contains no certificates")
+    (discard <| Context.Client.mkFromPEM "not a certificate at all" true false)
+
+-- An unusable path is still rejected as a path, before the anchor bookkeeping is consulted.
+def testPinningRejectsNulInCAFile : IO Unit := do
+  let caPath := "ca\x00.pem"
+
+  assertErrorMessage "NUL byte in a pinned CA path" (nulByteError caPath)
+    (discard <| Context.Client.mk caPath true false)
+
 -- `verifyPeer := false` succeeds without parsing the CA material, even for a real bundle.
 def testMkFromPEMNoVerify (certFile : String) : IO Unit := do
   let caPEM ← IO.FS.readFile certFile
@@ -579,6 +627,16 @@ def testMkRejectsNonDirectoryParent (notADirPath : String) : IO Unit := do
   testMkClientFromPEM certFile
 
 #eval testMkFromPEMEmptyFallsBack
+
+-- Pinning: the supplied CA replaces the platform anchors rather than joining them.
+#eval do
+  let (certFile, _) ← setupTestCerts
+
+  testPinnedToSuppliedCA certFile
+  testPinningRejectsEmptyCA
+  testPinningIgnoredWithoutVerification
+  testPinningStillValidatesCA (← setupMalformedFile)
+  testPinningRejectsNulInCAFile
 
 #eval do
   let (certFile, _) ← setupTestCerts

@@ -73,19 +73,26 @@ takes `caFile` explicitly and the public wrapper below carries the default. Only
 carrying the default is affected, which is why `mkFromPEM` needs no such wrapper.
 -/
 @[extern "lean_ssl_ctx_mk_client"]
-private opaque mkImpl (caFile : @& String) (verifyPeer : Bool) : IO Context.Client
+private opaque mkImpl (caFile : @& String) (verifyPeer : Bool) (trustSystemRoots : Bool) :
+    IO Context.Client
 
 /--
 Creates a client-side TLS context, reading CA trust anchors from a PEM bundle file.
 
 Trust-anchor semantics:
-- With `verifyPeer := true` (the default) the client trusts the platform default trust anchors (the
-  system root store) and verifies the peer certificate, so connections to public HTTPS servers work
-  out of the box. A non-empty `caFile` is trusted *in addition* to those system anchors, so public
-  servers keep working while a private CA also becomes trusted. That CA has to be self-signed: a
-  chain is only accepted once it reaches a self-signed certificate, so trusting an intermediate
-  alone loads without complaint and then fails every handshake. There is no way to trust `caFile`
-  alone, so this cannot be used to pin against a single CA.
+- With `verifyPeer := true` (the default) the client verifies the peer certificate against the
+  anchors selected below.
+- With `trustSystemRoots := true` (the default) the platform default trust anchors (the system root
+  store) are trusted, so connections to public HTTPS servers work out of the box. A non-empty
+  `caFile` is then trusted *in addition* to those system anchors, so public servers keep working
+  while a private CA also becomes trusted.
+- With `trustSystemRoots := false` only `caFile` is trusted, which is how to pin against a specific
+  CA: a certificate issued by any other authority, public roots included, is rejected. `caFile` must
+  then name at least one certificate, since a verifying context with no anchor at all could never
+  complete a handshake; that combination is refused here rather than at connection time.
+- A trusted CA has to be self-signed: a chain is only accepted once it reaches a self-signed
+  certificate, so trusting an intermediate alone loads without complaint and then fails every
+  handshake.
 - An empty `caFile` with `verifyPeer := true` uses just the platform default trust anchors. Which
   anchors those are is platform-specific: the Keychain on macOS, the `ROOT` store on Windows,
   OpenSSL's configured paths elsewhere. `SSL_CERT_FILE` and `SSL_CERT_DIR` are honoured on every
@@ -98,9 +105,11 @@ Trust-anchor semantics:
   anchor cannot carry that restriction. OpenSSL's own bundle is not merged on top of the Keychain,
   as it would reinstate the roots those settings turned away; it is read only when the Keychain
   yields no anchor at all. `SSL_CERT_FILE` and `SSL_CERT_DIR` name locations of their own, which are
-  read in addition to the Keychain and do not drag OpenSSL's bundle in with them.
-- `verifyPeer := false` disables peer verification entirely and the CA file is not parsed. This
-  cannot be undone: a context built this way can never be made to verify.
+  read in addition to the Keychain and do not drag OpenSSL's bundle in with them. All of this is
+  skipped entirely when `trustSystemRoots := false`, environment variables included.
+- `verifyPeer := false` disables peer verification entirely; neither the CA file nor the system
+  anchors are consulted, and `trustSystemRoots` is therefore ignored. This cannot be undone: a
+  context built this way can never be made to verify.
 
 `caFile` must be a path without embedded NUL bytes, which is checked before `verifyPeer` is
 consulted. Where the file is read, private key and CRL entries are ignored — no revocation checking
@@ -109,20 +118,24 @@ is performed — and a file yielding no certificate at all is rejected.
 Verifying the peer proves the certificate chains to a trusted anchor; it does **not** prove the
 certificate belongs to the host being connected to. Binding a hostname is the session layer's job.
 -/
-@[inline] def mk (caFile : String := "") (verifyPeer : Bool := true) : IO Context.Client :=
-  mkImpl caFile verifyPeer
+@[inline] def mk (caFile : String := "") (verifyPeer : Bool := true)
+    (trustSystemRoots : Bool := true) : IO Context.Client :=
+  mkImpl caFile verifyPeer trustSystemRoots
 
 /--
 Creates a client-side TLS context with CA trust anchors from an in-memory PEM string instead of a
 file path. Accepts one or more PEM-encoded certificates (same format as a CA bundle file); private
 key and CRL entries are ignored, and a string yielding no certificates at all is rejected.
 
-Trust-anchor semantics match `mk`, including that the platform anchors cannot be excluded and that
-hostname verification is left to the session layer:
-- With `verifyPeer := true` the client always trusts the platform default trust anchors; a non-empty
-  `caPEM` is trusted *in addition* to them.
+Trust-anchor semantics match `mk`, hostname verification included — that is the session layer's job:
+- With `verifyPeer := true` and `trustSystemRoots := true` (both the default) the client trusts the
+  platform default trust anchors, and a non-empty `caPEM` is trusted *in addition* to them.
+- With `trustSystemRoots := false` only `caPEM` is trusted, which is how to pin against a specific
+  CA. It must then yield at least one certificate; an empty `caPEM` is refused, since the context
+  would have no anchor to verify against.
 - An empty `caPEM` with `verifyPeer := true` uses just the platform default trust anchors.
-- `verifyPeer := false` disables peer verification entirely (the PEM is not parsed).
+- `verifyPeer := false` disables peer verification entirely (the PEM is not parsed, and
+  `trustSystemRoots` is ignored).
 
 Unlike `mk`, which takes a path and so rejects embedded NUL bytes, this reads `caPEM` as bytes with
 an explicit length, so a NUL does not truncate it. It is still an ordinary junk byte to the PEM
@@ -135,7 +148,8 @@ rejects the whole string, valid certificates alongside it included. Outside any 
 Use this when the CA certificate is embedded in the binary rather than on disk.
 -/
 @[extern "lean_ssl_ctx_mk_client_from_pem"]
-opaque mkFromPEM (caPEM : @& String) (verifyPeer : Bool := true) : IO Context.Client
+opaque mkFromPEM (caPEM : @& String) (verifyPeer : Bool := true)
+  (trustSystemRoots : Bool := true) : IO Context.Client
 
 end Client
 end Context

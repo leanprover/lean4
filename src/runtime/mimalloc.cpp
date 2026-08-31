@@ -17,20 +17,32 @@ compiled Lean code reaches the allocator, including the heartbeat update, with a
 #include <lean/lean.h>
 #include "runtime/alloc.h"
 
+/* The initial cache value is mimalloc's read-only empty theap — the same sentinel mimalloc uses
+   for its own default-theap thread-local: its free-page lookup always misses, routing allocations
+   into the generic path, which handles an uninitialized theap. This keeps the fast path free of
+   an initialization check while threads that skip `lean_mi_theap_cache_init` stay correct. The
+   sentinel is internal to mimalloc but part of this translation unit. */
+#ifdef _MSC_VER
+extern "C" __declspec(thread) lean_runtime_tls lean_g_tls = { 0, (mi_theap_t*)&_mi_theap_empty };
+#else
+extern "C" __thread lean_runtime_tls lean_g_tls = { 0, (mi_theap_t*)&_mi_theap_empty };
+#endif
+
+extern "C" void lean_mi_theap_cache_init(void) {
+    lean_g_tls.mi_theap_default = mi_theap_get_default();
+}
+
+extern "C" void lean_mi_theap_cache_reset(void) {
+    lean_g_tls.mi_theap_default = (mi_theap_t*)&_mi_theap_empty;
+}
+
 extern "C" LEAN_EXPORT LEAN_ATTR_MALLOC lean_object * lean_alloc_small_object_core(unsigned sz) {
     lean_runtime_tls * tls = &lean_g_tls;
     tls->heartbeat++;
     // the callers guarantee `sz > 0 && sz % LEAN_OBJECT_SIZE_DELTA == 0 && sz <= MI_SMALL_SIZE_MAX`
-    mi_theap_t * theap = tls->mi_theap_default;
-    if (LEAN_UNLIKELY(theap == NULL)) {
-        // thread skipped `lean_initialize_thread` (e.g. the main thread) or allocates after
-        // `lean_finalize_thread`; see `runtime/alloc_tls.h`
-        theap = mi_theap_get_default();
-        tls->mi_theap_default = theap;
-    }
     /* Feeding the cached theap into mimalloc saves the load of mimalloc's own thread-local: the
-       heartbeat update and the theap read above share one TLS address computation. */
-    void * mem = mi_theap_malloc_small(theap, sz);
+       heartbeat update and the theap read share one TLS address computation. */
+    void * mem = mi_theap_malloc_small(tls->mi_theap_default, sz);
     if (LEAN_UNLIKELY(mem == NULL)) lean_internal_panic_out_of_memory();
     lean_object * o = (lean_object *)mem;
     /* `m_cs_sz` must be the exact (aligned) requested size, not mimalloc's potentially larger

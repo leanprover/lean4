@@ -9,19 +9,25 @@ Author: Julia M. Himmel
 
 /* The runtime's hot thread-local state, combined into one struct so that the allocation fast path
    reaches all of it through a single TLS address computation. Kept free of other runtime and
-   mimalloc header dependencies: `runtime/mimalloc.cpp` includes it next to all of mimalloc.
-   Defined in `runtime/alloc.cpp`.
+   mimalloc header dependencies.
 
    `heartbeat` is the heartbeat counter of the current thread, incremented on every small-object
    allocation.
 
-   With mimalloc, `mi_theap_default` caches the current thread's default mimalloc theap
-   (`mi_theap_get_default()`) for `lean_alloc_small_object_core`, following the embedding pattern
-   of the Koka runtime: filled in `lean_initialize_thread` or lazily on the first allocation,
-   cleared in `lean_finalize_thread`, and `NULL` while not cached. mimalloc frees the theap during
-   its own thread-local teardown at thread exit, so Lean code must not allocate after that point;
-   allocating between `lean_finalize_thread` and thread exit is still safe as the cleared cache
-   refills from the live default. Unused in non-mimalloc builds. */
+   With mimalloc, `mi_theap_default` caches the current thread's default mimalloc theap for
+   `lean_alloc_small_object_core`, following the embedding pattern of the Koka runtime. It always
+   points to a valid theap, so the fast path needs no initialization check: it holds the real
+   theap between `lean_mi_theap_cache_init` (called from `initialize_alloc` on the main thread and
+   from `lean_initialize_thread` on every other thread the runtime starts or is told about) and
+   `lean_mi_theap_cache_reset`, and mimalloc's read-only empty theap otherwise, which routes every
+   allocation through mimalloc's generic path — correct, but slow, so foreign threads running Lean
+   code should call `lean_initialize_thread`. mimalloc frees the real theap during its own
+   thread-local teardown at thread exit, so Lean code must not allocate after that point;
+   allocating between `lean_finalize_thread` and thread exit is safe but slow. Unused in
+   non-mimalloc builds.
+
+   Defined in `runtime/mimalloc.cpp` when built with mimalloc (the initial value is mimalloc's
+   internal empty-theap sentinel), in `runtime/alloc.cpp` otherwise. */
 struct mi_theap_s;
 extern "C" {
 typedef struct lean_runtime_tls {
@@ -33,4 +39,7 @@ extern __declspec(thread) lean_runtime_tls lean_g_tls;
 #else
 extern __thread lean_runtime_tls lean_g_tls;
 #endif
+/* Defined in `runtime/mimalloc.cpp`; only available (and only needed) with mimalloc. */
+void lean_mi_theap_cache_init(void);
+void lean_mi_theap_cache_reset(void);
 }

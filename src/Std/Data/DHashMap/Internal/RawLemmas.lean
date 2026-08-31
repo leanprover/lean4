@@ -135,7 +135,7 @@ private meta def modifyMap : Std.DHashMap Name (fun _ => Array Name) :=
      ⟨`filter, #[``toListModel_filter]⟩,
      ⟨`map, #[``toListModel_map]⟩,
      ⟨`filterMap, #[``toListModel_filterMap]⟩,
-     ⟨`partition, #[``toListModel_fst_partition, ``toListModel_snd_partition]⟩]
+     ⟨`partition, #[``toListModel_fst_partition]⟩]
 
 private theorem perm_map_congr_left {α : Type u} {β : Type v} {l l' : List α} {f : α → β}
     {l₂ : List β} (h : l.Perm l') : (l.map f).Perm l₂ ↔ (l'.map f).Perm l₂ :=
@@ -5312,12 +5312,11 @@ private theorem mem_toList_fst_partition [EquivBEq α] [LawfulHashable α] (h : 
       · simp only [List.pairwise_cons] at h₄
         apply h₄.2
 
+#info_trees in
 theorem fst_partition_equiv_filter [EquivBEq α] [LawfulHashable α]
     {p : (a : α) → β a → Bool} (h : m.1.WF)  :
     (m.partition p).1.1.Equiv (m.filter p).1 := by
-  simp_to_model [partition, Equiv, filter]
-  apply toListModel_fst_partition
-  wf_trivial
+  simp_to_model [Equiv, filter] using toListModel_fst_partition
 
 theorem snd_partition_equiv_filter_not [EquivBEq α] [LawfulHashable α]
     {p : (a : α) → β a → Bool} (h : m.1.WF)  :

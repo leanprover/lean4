@@ -46,26 +46,6 @@ set_option mvcgen.warning false
 
 namespace Mpn
 
-section Digits
-
-/-- `mpn_digit`, which `mpn.h` fixes at `uint32_t`. -/
-abbrev Digit := UInt32
-
-/-- `typedef uint64_t mpn_double_digit;` -/
-abbrev DoubleDigit := UInt64
-
-/-- `sizeof(mpn_digit)`, which `mpn.h` fixes at 4. -/
-@[reducible] def digitBytes : Nat := 4
-
-/-- `#define DIGIT_BITS (sizeof(mpn_digit)*8)` -/
-@[reducible] def digitBits : Nat := digitBytes * 8
-
-/-- `#define BASE ((mpn_double_digit)0x01 << DIGIT_BITS)` -/
-def base : Nat := 1 <<< digitBits
-
-/-- `#define MASK_FIRST (~((mpn_digit)(-1) >> 1))` -/
-def maskFirst : Digit := ~~~((-1 : Digit) >>> 1)
-
 /-!
 ## The operations C++ leaves undefined
 
@@ -113,6 +93,27 @@ namespace CPP
 @[simp] def mod (a b : UInt32) (_h : b ≠ 0) : UInt32 := a % b
 
 end CPP
+
+
+section Digits
+
+/-- `mpn_digit`, which `mpn.h` fixes at `uint32_t`. -/
+abbrev Digit := UInt32
+
+/-- `typedef uint64_t mpn_double_digit;` -/
+abbrev DoubleDigit := UInt64
+
+/-- `sizeof(mpn_digit)`, which `mpn.h` fixes at 4. -/
+@[reducible] def digitBytes : Nat := 4
+
+/-- `#define DIGIT_BITS (sizeof(mpn_digit)*8)` -/
+@[reducible] def digitBits : Nat := digitBytes * 8
+
+/-- `#define BASE ((mpn_double_digit)0x01 << DIGIT_BITS)` -/
+def base : Nat := 1 <<< digitBits
+
+/-- `#define MASK_FIRST (~((mpn_digit)(-1) >> 1))` -/
+def maskFirst : Digit := ~~~((-1 : Digit) >>> 1)
 
 /--
 `c[i+j] = (t << DIGIT_BITS) >> DIGIT_BITS`, the low word of a double digit. The

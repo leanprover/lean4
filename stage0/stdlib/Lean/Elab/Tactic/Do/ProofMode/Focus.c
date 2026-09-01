@@ -901,7 +901,7 @@ v_mctx_261_ = lean_ctor_get(v___x_260_, 0);
 lean_inc_ref(v_mctx_261_);
 lean_dec(v___x_260_);
 v_lctx_262_ = lean_ctor_get(v___y_253_, 2);
-v_options_263_ = lean_ctor_get(v___y_255_, 2);
+v_options_263_ = lean_ctor_get(v___y_255_, 1);
 lean_inc_ref(v_options_263_);
 lean_inc_ref(v_lctx_262_);
 v___x_264_ = lean_alloc_ctor(0, 4, 0);
@@ -933,7 +933,7 @@ LEAN_EXPORT lean_object* l_Lean_throwError___at___00Lean_Elab_Tactic_Do_ProofMod
 _start:
 {
 lean_object* v_ref_280_; lean_object* v___x_281_; lean_object* v_a_282_; lean_object* v___x_284_; uint8_t v_isShared_285_; uint8_t v_isSharedCheck_290_; 
-v_ref_280_ = lean_ctor_get(v___y_277_, 5);
+v_ref_280_ = lean_ctor_get(v___y_277_, 4);
 v___x_281_ = l_Lean_addMessageContextFull___at___00Lean_throwError___at___00Lean_Elab_Tactic_Do_ProofMode_MGoal_focusHypWithInfo_spec__0_spec__0(v_msg_274_, v___y_275_, v___y_276_, v___y_277_, v___y_278_);
 v_a_282_ = lean_ctor_get(v___x_281_, 0);
 v_isSharedCheck_290_ = !lean_is_exclusive(v___x_281_);

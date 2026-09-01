@@ -1,9 +1,9 @@
 import Cases.GetThrowSet
 import Driver
 
-set_option mvcgen.warning false
+set_option experimental.vcgen true
 
-open Lean Order Parser Meta Elab Tactic Sym Std Internal.Do
+open Lean Order Parser Meta Elab Tactic Sym Std WP
 open GetThrowSet
 
 -- Copy Goal into a separate namespace so the benchmark label reads `GetThrowSetGrind(n)`

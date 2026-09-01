@@ -42,6 +42,9 @@ theorem BitVec.gt_ult (x y : BitVec w) : x > y ↔ (y.ult x = true) := by
 theorem BitVec.ge_ule (x y : BitVec w) : x ≥ y ↔ ((!x.ult y) = true) := by
   simp [BitVec.le_ult]
 
+attribute [bv_normalize] BitVec.min_def
+attribute [bv_normalize] BitVec.max_def
+
 attribute [bv_normalize] BitVec.zeroExtend_eq_setWidth
 attribute [bv_normalize] BitVec.truncate_eq_setWidth
 attribute [bv_normalize] BitVec.setWidth'_eq
@@ -58,8 +61,6 @@ theorem BitVec.slt_eq_ult (x y : BitVec w) :
 theorem BitVec.sle_eq_ult (x y : BitVec w) :
     x.sle y = !((!x.getLsbD (w - 1) == y.getLsbD (w - 1)) ^^ y.ult x) := by
   rw [BitVec.sle_eq_not_slt, BitVec.slt_eq_ult, Bool.beq_comm]
-
-attribute [bv_normalize] BitVec.ofNat_eq_ofNat
 
 @[bv_normalize]
 theorem BitVec.ofNatLT_reduce (n : Nat) (h) : BitVec.ofNatLT n h = BitVec.ofNat w n := by
@@ -279,12 +280,20 @@ theorem BitVec.shiftLeft_zero' (n : BitVec w) : n <<< 0#w' = n := by
   simp
 
 @[bv_normalize]
+theorem BitVec.zero_shiftLeft' (n : BitVec w) : 0#w' <<< n = 0#w' := by
+  rw [_root_.BitVec.shiftLeft_eq', _root_.BitVec.zero_shiftLeft]
+
+@[bv_normalize]
 theorem BitVec.shiftLeft_neg {x : BitVec w₁} {y : BitVec w₂} :
     (~~~x + 1#w₁) <<< y = ~~~(x <<< y) + 1 := by
   simp [← BitVec.neg_eq_not_add, _root_.BitVec.shiftLeft_neg]
 
 attribute [bv_normalize] BitVec.zero_sshiftRight
 attribute [bv_normalize] BitVec.sshiftRight_zero
+
+@[bv_normalize]
+theorem BitVec.zero_sshiftRight' (n : BitVec w) : (0#w').sshiftRight' n = 0#w' := by
+  rw [_root_.BitVec.sshiftRight_eq', _root_.BitVec.zero_sshiftRight]
 
 attribute [bv_normalize] BitVec.zero_ushiftRight
 attribute [bv_normalize] BitVec.ushiftRight_zero
@@ -294,6 +303,10 @@ theorem BitVec.ushiftRight_zero' (n : BitVec w) : n >>> 0#w' = n := by
   ext i
   simp only [(· >>> ·)]
   simp
+
+@[bv_normalize]
+theorem BitVec.zero_ushiftRight' (n : BitVec w) : 0#w' >>> n = 0#w' := by
+  rw [_root_.BitVec.ushiftRight_eq', _root_.BitVec.zero_ushiftRight]
 
 theorem BitVec.ushiftRight_self (n : BitVec w) : n >>> n = 0#w := by
   simp
@@ -356,10 +369,6 @@ attribute [bv_normalize] BitVec.ssubOverflow_eq
 attribute [bv_normalize] BitVec.sdivOverflow_eq
 attribute [bv_normalize] BitVec.ctz
 
-
-attribute [bv_normalize] BitVec.append_zero_add_zero_append
-attribute [bv_normalize] BitVec.zero_append_add_append_zero
-
 /-- `x / (BitVec.ofNat n)` where `n = 2^k` is the same as shifting `x` right by `k`. -/
 theorem BitVec.udiv_ofNat_eq_of_lt (w : Nat) (x : BitVec w) (n : Nat) (k : Nat) (hk : 2 ^ k = n) (hlt : k < w) :
     x / (BitVec.ofNat w n) = x >>> k := by
@@ -369,6 +378,11 @@ theorem BitVec.udiv_ofNat_eq_of_lt (w : Nat) (x : BitVec w) (n : Nat) (k : Nat) 
 theorem BitVec.extractLsb'_ite {x y : BitVec w} (s l : Nat) :
     BitVec.extractLsb' s l (bif c then x else y) = bif c then (BitVec.extractLsb' s l x) else (BitVec.extractLsb' s l y) := by
   cases c <;> simp
+
+/-- Used in the `extractLsb'` simproc to reduce extraction at a symbolic offset to a shift. -/
+theorem BitVec.extractLsb'_eq_setWidth_ushiftRight (x : BitVec w) (s l : Nat) :
+    BitVec.extractLsb' s l x = (x >>> s).setWidth l :=
+  BitVec.setWidth_ushiftRight_eq_extractLsb.symm
 
 @[deprecated Std.Tactic.BVDecide.Normalize.BitVec.extractLsb'_ite (since := "2026-07-21")]
 theorem BitVec.extractLsb'_if {w : Nat} {c : Bool} {x : BitVec w} {y : BitVec w} (s : Nat) (l : Nat) : BitVec.extractLsb' s l (bif c then x else y) = bif c then BitVec.extractLsb' s l x else BitVec.extractLsb' s l y := Std.Tactic.BVDecide.Normalize.BitVec.extractLsb'_ite s l
@@ -424,8 +438,6 @@ theorem BitVec.and_const_right' {a : BitVec w} :
     (a &&& BitVec.ofNat w b) &&& BitVec.ofNat w c = (BitVec.ofNat w b &&& BitVec.ofNat w c) &&& a := by
   ac_rfl
 
--- Explicit no_index so this theorem works in the presence of constant folding if w1/w2/w3 are fixed
-@[bv_normalize]
 theorem BitVec.append_const_left {c : BitVec w3} :
     HAppend.hAppend (β := BitVec (no_index _)) (γ := BitVec (no_index _))
       (BitVec.ofNat w1 a)
@@ -434,7 +446,6 @@ theorem BitVec.append_const_left {c : BitVec w3} :
   rw [BitVec.append_assoc]
   simp
 
-@[bv_normalize]
 theorem BitVec.append_const_right {a : BitVec w1} :
     HAppend.hAppend (α := BitVec (no_index _)) (γ := BitVec (no_index _))
       (HAppend.hAppend (γ := BitVec (no_index _)) a (BitVec.ofNat w2 b))

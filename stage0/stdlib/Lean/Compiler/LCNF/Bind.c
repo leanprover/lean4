@@ -67,7 +67,7 @@ LEAN_EXPORT lean_object* l_Lean_throwError___at___00__private_Lean_Compiler_LCNF
 LEAN_EXPORT lean_object* l_Lean_throwError___at___00__private_Lean_Compiler_LCNF_Bind_0__Lean_Compiler_LCNF_CompilerM_codeBind_go_spec__1___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT uint8_t l_Std_DTreeMap_Internal_Impl_contains___at___00__private_Lean_Compiler_LCNF_Bind_0__Lean_Compiler_LCNF_CompilerM_codeBind_go_spec__0___redArg(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Std_DTreeMap_Internal_Impl_contains___at___00__private_Lean_Compiler_LCNF_Bind_0__Lean_Compiler_LCNF_CompilerM_codeBind_go_spec__0___redArg___boxed(lean_object*, lean_object*);
-static const lean_string_object l___private_Lean_Compiler_LCNF_Bind_0__Lean_Compiler_LCNF_CompilerM_codeBind_go___closed__0_value = {.m_header = {.m_rc = 0, .m_cs_sz = 0, .m_other = 0, .m_tag = 249}, .m_size = 58, .m_capacity = 58, .m_length = 57, .m_data = "`Code.bind` failed, it contains a out of scope join point"};
+static const lean_string_object l___private_Lean_Compiler_LCNF_Bind_0__Lean_Compiler_LCNF_CompilerM_codeBind_go___closed__0_value = {.m_header = {.m_rc = 0, .m_cs_sz = 0, .m_other = 0, .m_tag = 249}, .m_size = 59, .m_capacity = 59, .m_length = 58, .m_data = "`Code.bind` failed, it contains an out-of-scope join point"};
 static const lean_object* l___private_Lean_Compiler_LCNF_Bind_0__Lean_Compiler_LCNF_CompilerM_codeBind_go___closed__0 = (const lean_object*)&l___private_Lean_Compiler_LCNF_Bind_0__Lean_Compiler_LCNF_CompilerM_codeBind_go___closed__0_value;
 static lean_once_cell_t l___private_Lean_Compiler_LCNF_Bind_0__Lean_Compiler_LCNF_CompilerM_codeBind_go___closed__1_once = LEAN_ONCE_CELL_INITIALIZER;
 static lean_object* l___private_Lean_Compiler_LCNF_Bind_0__Lean_Compiler_LCNF_CompilerM_codeBind_go___closed__1;
@@ -184,7 +184,7 @@ _start:
 lean_object* v___x_30_; lean_object* v___x_31_; lean_object* v___x_32_; 
 v___x_30_ = lean_obj_once(&l_Lean_throwError___at___00__private_Lean_Compiler_LCNF_Bind_0__Lean_Compiler_LCNF_CompilerM_codeBind_go_spec__1___redArg___closed__1, &l_Lean_throwError___at___00__private_Lean_Compiler_LCNF_Bind_0__Lean_Compiler_LCNF_CompilerM_codeBind_go_spec__1___redArg___closed__1_once, _init_l_Lean_throwError___at___00__private_Lean_Compiler_LCNF_Bind_0__Lean_Compiler_LCNF_CompilerM_codeBind_go_spec__1___redArg___closed__1);
 v___x_31_ = lean_unsigned_to_nat(0u);
-v___x_32_ = lean_alloc_ctor(0, 10, 0);
+v___x_32_ = lean_alloc_ctor(0, 11, 0);
 lean_ctor_set(v___x_32_, 0, v___x_31_);
 lean_ctor_set(v___x_32_, 1, v___x_31_);
 lean_ctor_set(v___x_32_, 2, v___x_31_);
@@ -195,6 +195,7 @@ lean_ctor_set(v___x_32_, 6, v___x_30_);
 lean_ctor_set(v___x_32_, 7, v___x_30_);
 lean_ctor_set(v___x_32_, 8, v___x_30_);
 lean_ctor_set(v___x_32_, 9, v___x_30_);
+lean_ctor_set(v___x_32_, 10, v___x_30_);
 return v___x_32_;
 }
 }
@@ -202,8 +203,8 @@ LEAN_EXPORT lean_object* l_Lean_throwError___at___00__private_Lean_Compiler_LCNF
 _start:
 {
 lean_object* v_options_39_; lean_object* v_ref_40_; lean_object* v___x_41_; lean_object* v___x_42_; lean_object* v___x_43_; 
-v_options_39_ = lean_ctor_get(v___y_36_, 2);
-v_ref_40_ = lean_ctor_get(v___y_36_, 5);
+v_options_39_ = lean_ctor_get(v___y_36_, 1);
+v_ref_40_ = lean_ctor_get(v___y_36_, 4);
 v___x_41_ = lean_st_ref_get(v___y_37_);
 v___x_42_ = lean_st_ref_get(v___y_35_);
 v___x_43_ = l_Lean_Compiler_LCNF_getPurity___redArg(v___y_34_);
@@ -3373,9 +3374,9 @@ return v___x_865_;
 LEAN_EXPORT lean_object* l_Lean_Compiler_LCNF_etaExpandCore___lam__0___boxed(lean_object* v___x_868_, lean_object* v___x_869_, lean_object* v_fvarId_870_, lean_object* v___y_871_, lean_object* v___y_872_, lean_object* v___y_873_, lean_object* v___y_874_, lean_object* v___y_875_){
 _start:
 {
-uint8_t v___x_903__boxed_876_; lean_object* v_res_877_; 
-v___x_903__boxed_876_ = lean_unbox(v___x_869_);
-v_res_877_ = l_Lean_Compiler_LCNF_etaExpandCore___lam__0(v___x_868_, v___x_903__boxed_876_, v_fvarId_870_, v___y_871_, v___y_872_, v___y_873_, v___y_874_);
+uint8_t v___x_899__boxed_876_; lean_object* v_res_877_; 
+v___x_899__boxed_876_ = lean_unbox(v___x_869_);
+v_res_877_ = l_Lean_Compiler_LCNF_etaExpandCore___lam__0(v___x_868_, v___x_899__boxed_876_, v_fvarId_870_, v___y_871_, v___y_872_, v___y_873_, v___y_874_);
 lean_dec(v___y_874_);
 lean_dec_ref(v___y_873_);
 lean_dec(v___y_872_);

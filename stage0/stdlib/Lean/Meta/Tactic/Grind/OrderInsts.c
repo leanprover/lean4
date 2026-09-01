@@ -207,7 +207,7 @@ goto v___jp_34_;
 else
 {
 lean_object* v_options_50_; lean_object* v___x_51_; uint8_t v___x_52_; 
-v_options_50_ = lean_ctor_get(v_a_31_, 2);
+v_options_50_ = lean_ctor_get(v_a_31_, 1);
 v___x_51_ = l_Lean_Meta_Sym_sym_debug;
 v___x_52_ = l_Lean_Option_get___at___00Lean_Meta_Grind_mkLawfulOrderLTInst_x3f_spec__0(v_options_50_, v___x_51_);
 if (v___x_52_ == 0)
@@ -476,8 +476,8 @@ return v___x_155_;
 else
 {
 lean_object* v___x_157_; 
-lean_dec(v_a_156_);
 lean_dec_ref_known(v___x_155_, 1);
+lean_dec(v_a_156_);
 v___x_157_ = l_Lean_Meta_Sym_getConfig___redArg(v_a_138_);
 if (lean_obj_tag(v___x_157_) == 0)
 {
@@ -495,7 +495,7 @@ goto v___jp_145_;
 else
 {
 lean_object* v_options_160_; lean_object* v___x_161_; uint8_t v___x_162_; 
-v_options_160_ = lean_ctor_get(v_a_142_, 2);
+v_options_160_ = lean_ctor_get(v_a_142_, 1);
 v___x_161_ = l_Lean_Meta_Sym_sym_debug;
 v___x_162_ = l_Lean_Option_get___at___00Lean_Meta_Grind_mkLawfulOrderLTInst_x3f_spec__0(v_options_160_, v___x_161_);
 if (v___x_162_ == 0)
@@ -714,8 +714,8 @@ return v___x_253_;
 else
 {
 lean_object* v___x_255_; 
-lean_dec(v_a_254_);
 lean_dec_ref_known(v___x_253_, 1);
+lean_dec(v_a_254_);
 v___x_255_ = l_Lean_Meta_Sym_getConfig___redArg(v_a_236_);
 if (lean_obj_tag(v___x_255_) == 0)
 {
@@ -733,7 +733,7 @@ goto v___jp_243_;
 else
 {
 lean_object* v_options_258_; lean_object* v___x_259_; uint8_t v___x_260_; 
-v_options_258_ = lean_ctor_get(v_a_240_, 2);
+v_options_258_ = lean_ctor_get(v_a_240_, 1);
 v___x_259_ = l_Lean_Meta_Sym_sym_debug;
 v___x_260_ = l_Lean_Option_get___at___00Lean_Meta_Grind_mkLawfulOrderLTInst_x3f_spec__0(v_options_258_, v___x_259_);
 if (v___x_260_ == 0)
@@ -971,7 +971,7 @@ goto v___jp_341_;
 else
 {
 lean_object* v_options_356_; lean_object* v___x_357_; uint8_t v___x_358_; 
-v_options_356_ = lean_ctor_get(v_a_338_, 2);
+v_options_356_ = lean_ctor_get(v_a_338_, 1);
 v___x_357_ = l_Lean_Meta_Sym_sym_debug;
 v___x_358_ = l_Lean_Option_get___at___00Lean_Meta_Grind_mkLawfulOrderLTInst_x3f_spec__0(v_options_356_, v___x_357_);
 if (v___x_358_ == 0)
@@ -1209,7 +1209,7 @@ goto v___jp_439_;
 else
 {
 lean_object* v_options_454_; lean_object* v___x_455_; uint8_t v___x_456_; 
-v_options_454_ = lean_ctor_get(v_a_436_, 2);
+v_options_454_ = lean_ctor_get(v_a_436_, 1);
 v___x_455_ = l_Lean_Meta_Sym_sym_debug;
 v___x_456_ = l_Lean_Option_get___at___00Lean_Meta_Grind_mkLawfulOrderLTInst_x3f_spec__0(v_options_454_, v___x_455_);
 if (v___x_456_ == 0)

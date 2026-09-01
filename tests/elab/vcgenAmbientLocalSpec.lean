@@ -1,4 +1,4 @@
-import Std.Internal.Do
+import Std.WP
 import Std.Tactic.Do
 
 /-! `vcgen` ranks the specs available at a call site into priority bands: a spec named in the
@@ -16,8 +16,8 @@ the same program, including when the program's state type is a variable. `namedS
 unfolding at a recursive call.
 -/
 
-open Std.Internal.Do Lean.Order
-set_option mvcgen.warning false
+open Std.WP Lean.Order
+set_option experimental.vcgen true
 set_option linter.unusedVariables false
 
 abbrev P := ExceptT String (StateM (List Char))

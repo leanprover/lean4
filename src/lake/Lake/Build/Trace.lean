@@ -181,7 +181,7 @@ public instance : ToString Hash := ⟨Hash.toString⟩
 @[inline] public def ofByteArray (bytes : ByteArray) : Hash :=
   ofHashable bytes
 
-@[inline, deprecated ofHashable (since := "2026-02-06")]
+@[inline, deprecated ofHashable +typeChanged (since := "2026-02-06")]
 public def ofBool (b : Bool) : Hash  :=
   ofHashable b
 

@@ -452,6 +452,41 @@ private def checkComputable (ref : Name) : M Unit := do
     throwNamedError lean.dependsOnNoncomputable f!"`{ref}` not supported by code generator; consider marking definition as `noncomputable`"
 
 /--
+Given a motive `fun ... => ∀ (h₁ : p₁) ... (hₙ : pₙ), ...` where all `pᵢ` are propositions,
+returns `min maxArgs n`.
+-/
+def countProofOverApp (motive : Expr) (maxArgs : Nat) : MetaM Nat := do
+  Meta.lambdaTelescope motive fun _ body => do
+    Meta.forallTelescope body fun forallVars _ => do
+      let n := min maxArgs forallVars.size
+      for h : i in 0...n do
+        have h : i < min maxArgs forallVars.size := h.2
+        unless ← Meta.isProof forallVars[i] do
+          return i
+      return n
+
+/--
+Given `e : ∀ (h₁ : p₁) ... (hₙ : pₙ), b h₁ ... hₙ`,
+returns the beta reduced `e (lcProof p₁) ... (lcProof pₙ)`.
+-/
+def mkProofOverApp (e : Expr) (n : Nat) : MetaM Expr := do
+  let mut type ← Meta.inferType e
+  if type.getNumHeadForalls < n then
+    type ← Meta.forallBoundedTelescope type n Meta.mkForallFVars
+  go type n #[]
+where
+  go (type : Expr) (n : Nat) (vars : Array Expr) : MetaM Expr :=
+    match n with
+    | 0 => return e.beta vars
+    | k + 1 =>
+      match type with
+      | .forallE _ t b _ =>
+        let t := t.instantiateRev vars
+        go b k (vars.push (mkLcProof t))
+      | .mdata _ type => go type n vars
+      | _ => Meta.throwFunctionExpected (e.beta vars)
+
+/--
 Eta reduce implicits. We use this function to eliminate introduced by the implicit lambda feature,
 where it generates terms such as `fun {α} => ReaderT.pure`
 -/
@@ -581,11 +616,11 @@ where
   /--
   Visit a `matcher`/`casesOn` alternative.
   -/
-  visitAlt (casesAltInfo : CasesAltInfo) (e : Expr) : M (Expr × (Alt .pure)) := do
+  visitAlt (casesAltInfo : CasesAltInfo) (e : Expr) (nproofs : Nat) : M (Expr × (Alt .pure)) := do
     withNewScope do
     match casesAltInfo with
     | .default numHyps =>
-      let c ← toCode (← visit (mkAppN e (Array.replicate numHyps erasedExpr)))
+      let c ← toCode (← visit (← liftMetaM <| mkProofOverApp e (numHyps + nproofs)))
       let altType ← c.inferType
       return (altType, .default c)
     | .ctor ctorName numParams =>
@@ -614,14 +649,16 @@ where
         not occur in the type of `as : List α`.
         -/
         p.update (← applyToAny p.type)
-      let c ← toCode (← visit e)
+      let c ← toCode (← visit (← liftMetaM <| mkProofOverApp e nproofs))
       let altType ← c.inferType
       return (altType, .alt ctorName ps c)
 
   visitCases (casesInfo : CasesInfo) (e : Expr) : M (Arg .pure) :=
     etaIfUnderApplied e casesInfo.arity do
       let args := e.getAppArgs
-      let mut resultType ← toLCNFType (← liftMetaM do Meta.inferType (mkAppN e.getAppFn args[*...casesInfo.arity]))
+      let nproofs ← liftMetaM <| countProofOverApp args[casesInfo.motivePos]! (args.size - casesInfo.arity)
+      let arity := casesInfo.arity + nproofs
+      let mut resultType ← toLCNFType (← liftMetaM do Meta.inferType (mkAppN e.getAppFn args[*...arity]))
       let typeName := casesInfo.indName
       let .inductInfo indVal ← getConstInfo typeName | unreachable!
       if casesInfo.numAlts == 0 then
@@ -651,13 +688,12 @@ where
               fieldArgs := fieldArgs.push fieldArg
             return fieldArgs
         let f := args[casesInfo.altsRange.lower]!
-        let arity := casesInfo.arity
-        if args.size == arity then
+        if args.size == casesInfo.arity then
           visit (mkAppN f fieldArgs)
         else
           withoutExpectedType do
-            let result ← visit (mkAppN f fieldArgs)
-            mkOverApplication result args casesInfo.arity
+            let result ← visit (← liftMetaM <| mkProofOverApp (mkAppN f fieldArgs) nproofs)
+            mkOverApplication result args arity
       else
         let mut alts := #[]
         let discr ← withoutExpectedType do
@@ -666,7 +702,7 @@ where
           | .fvar discrFVarId => pure discrFVarId
           | .erased | .type .. => mkAuxLetDecl .erased
         for i in casesInfo.altsRange, numParams in casesInfo.altNumParams do
-          let (altType, alt) ← visitAlt numParams args[i]!
+          let (altType, alt) ← visitAlt numParams args[i]! nproofs
           resultType := joinTypes altType resultType
           alts := alts.push alt
         let cases := ⟨typeName, resultType, discrFVarId, alts⟩
@@ -674,7 +710,7 @@ where
         pushElement (.cases auxDecl cases)
         let result := .fvar auxDecl.fvarId
         withoutExpectedType do
-          mkOverApplication result args casesInfo.arity
+          mkOverApplication result args arity
 
   visitCtor (arity : Nat) (e : Expr) : M (Arg .pure) :=
     withoutExpectedType do

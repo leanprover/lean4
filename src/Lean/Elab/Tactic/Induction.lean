@@ -1035,7 +1035,7 @@ def elabFunTargetCall (cases : Bool) (stx : Syntax) : TacticM Expr := do
     let unfolding := tactic.fun_induction.unfolding.get (← getOptions)
     let some funIndInfo ← getFunIndInfo? (cases := cases) (unfolding := unfolding) fnName |
       let theoremKind := if cases then "cases" else "induction"
-      throwError "No functional {theoremKind} theorem for `{.ofConstName fnName}`, or function is mutually recursive "
+      throwError "No functional {theoremKind} theorem for `{.ofConstName fnName}`, or the function is mutually recursive"
     let candidates ← FunInd.collect funIndInfo (← getMainGoal)
     if candidates.isEmpty then
       throwError "Could not find suitable call of `{.ofConstName fnName}` in the goal"
@@ -1058,7 +1058,7 @@ def elabFunTarget (cases : Bool) (stx : Syntax) : TacticM (ElimInfo × Array Exp
     let unfolding := tactic.fun_induction.unfolding.get (← getOptions)
     let some funIndInfo ← getFunIndInfo? (cases := cases) (unfolding := unfolding) fnName |
       let theoremKind := if cases then "cases" else "induction"
-      throwError "No functional {theoremKind} theorem for `{.ofConstName fnName}`, or function is mutually recursive "
+      throwError "No functional {theoremKind} theorem for `{.ofConstName fnName}`, or the function is mutually recursive"
     if funArgs.size != funIndInfo.params.size then
       throwError "Expected fully applied application of `{.ofConstName fnName}` with \
         {funIndInfo.params.size} arguments, but found {funArgs.size} arguments"

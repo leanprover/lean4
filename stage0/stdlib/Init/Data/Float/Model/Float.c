@@ -197,12 +197,12 @@ return v___x_3_;
 LEAN_EXPORT lean_object* l_Float_instDecidableEqModel_decEq___boxed(lean_object* v_x_4_, lean_object* v_x_5_){
 _start:
 {
-uint64_t v_x_33__boxed_6_; uint64_t v_x_34__boxed_7_; uint8_t v_res_8_; lean_object* v_r_9_; 
-v_x_33__boxed_6_ = lean_unbox_uint64(v_x_4_);
+uint64_t v_x_39__boxed_6_; uint64_t v_x_40__boxed_7_; uint8_t v_res_8_; lean_object* v_r_9_; 
+v_x_39__boxed_6_ = lean_unbox_uint64(v_x_4_);
 lean_dec_ref(v_x_4_);
-v_x_34__boxed_7_ = lean_unbox_uint64(v_x_5_);
+v_x_40__boxed_7_ = lean_unbox_uint64(v_x_5_);
 lean_dec_ref(v_x_5_);
-v_res_8_ = l_Float_instDecidableEqModel_decEq(v_x_33__boxed_6_, v_x_34__boxed_7_);
+v_res_8_ = l_Float_instDecidableEqModel_decEq(v_x_39__boxed_6_, v_x_40__boxed_7_);
 v_r_9_ = lean_box(v_res_8_);
 return v_r_9_;
 }

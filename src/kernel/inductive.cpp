@@ -4,6 +4,7 @@ Released under Apache 2.0 license as described in the file LICENSE.
 
 Author: Leonardo de Moura
 */
+#include <algorithm>
 #include "runtime/sstream.h"
 #include "runtime/utf8.h"
 #include "util/name_generator.h"
@@ -118,6 +119,48 @@ optional<recursor_rule> get_rec_rule_for(recursor_val const & rec_val, expr cons
             return optional<recursor_rule>(rule);
     }
     return optional<recursor_rule>();
+}
+
+/* Check that every occurrence of a datatype being declared in a constructor type of `d` is applied
+   to the declaration's universe levels and to its parameters, which at binder depth `offset` are the
+   bound variables `#(offset-1) … #(offset-nparams)`. That those binders really are the parameters is
+   established later, by `get_params` and the parameter check in `check_constructors`.
+
+   Later phases inspect the constructor types modulo `whnf`, which can erase an occurrence (as in
+   `(fun _ => Unit) (T Nat)`), and the parametric arguments of a nested occurrence are dropped from
+   the auxiliary declaration altogether, so a non-uniform occurrence could escape checking there.
+   Reduction never creates an occurrence of a datatype being declared, since those are not yet in the
+   environment, so checking the syntactic occurrences here covers all of them. */
+static void check_uniform_ind_occs(environment const & env, inductive_decl const & d) {
+    if (!d.get_nparams().is_small())
+        throw kernel_exception(env, "invalid inductive datatype, number of parameters is too big");
+    unsigned nparams = d.get_nparams().get_small_value();
+    levels lvls = lparams_to_levels(d.get_lparams());
+    buffer<name> ind_names;
+    for (inductive_type const & ind_type : d.get_types())
+        ind_names.push_back(ind_type.get_name());
+    for (inductive_type const & ind_type : d.get_types()) {
+        for (constructor const & cnstr : ind_type.get_cnstrs()) {
+            for_each(constructor_type(cnstr), [&](expr const & t, unsigned offset) {
+                    buffer<expr> args;
+                    expr const & fn = get_app_args(t, args);
+                    if (!is_constant(fn) || std::find(ind_names.begin(), ind_names.end(), const_name(fn)) == ind_names.end())
+                        return true;
+                    /* Over-applied: descend, so that occurrences in the indices are checked too. The
+                       parameter application itself is visited as a subterm of `t` and checked below. */
+                    if (args.size() > nparams)
+                        return true;
+                    bool ok = args.size() == nparams && offset >= nparams && const_levels(fn) == lvls;
+                    for (unsigned i = 0; ok && i < nparams; i++)
+                        ok = is_bvar(args[i], offset - 1 - i);
+                    if (!ok)
+                        throw kernel_exception(env, sstream() << "invalid occurrence of datatype '" << const_name(fn)
+                                               << "' being declared: it must be applied to the parameters and universe "
+                                               "levels of the mutual declaration");
+                    return false;
+                });
+        }
+    }
 }
 
 /* Auxiliary class for adding a mutual inductive datatype declaration. */
@@ -775,6 +818,53 @@ public:
         }
     }
 
+    /** \brief Defensively type-check the generated recursors.
+
+        `add_core` installs a recursor and its computation rules without re-checking them. We verify
+        here that (1) each recursor's type is well typed, and (2) each computation rule is
+        type-preserving: reducing the recursor applied to a constructor yields a term whose type is
+        the recursor's declared result type. This catches a recursor whose minor-premise type and
+        reduction rule disagree; checking only that a rule's right-hand side has *some* type is
+        insufficient, because an under-applied minor premise is still a well-typed (function) term. */
+    void check_recursors() {
+        buffer<expr> Cs; collect_Cs(Cs);
+        buffer<expr> minors; collect_minor_premises(minors);
+        for (unsigned d_idx = 0; d_idx < m_ind_types.size(); d_idx++) {
+            name rec_name        = mk_rec_name(m_ind_types[d_idx].get_name());
+            constant_info rec_ci = m_env.get(rec_name);
+            /* (1) The recursor type must be well typed. */
+            tc().check(rec_ci.get_type(), get_rec_lparams());
+            expr rec_pre = mk_app(mk_app(mk_app(mk_constant(rec_name, get_rec_levels()), m_params), Cs), minors);
+            /* (2) Each computation rule must preserve types. */
+            for (constructor const & cnstr : m_ind_types[d_idx].get_cnstrs()) {
+                buffer<expr> b_u;
+                expr t     = constructor_type(cnstr);
+                unsigned i = 0;
+                while (is_pi(t)) {
+                    if (i < m_nparams) {
+                        t = instantiate(binding_body(t), m_params[i]);
+                    } else {
+                        expr l = mk_local_decl_for(t);
+                        b_u.push_back(l);
+                        t = instantiate(binding_body(t), l);
+                    }
+                    i++;
+                }
+                buffer<expr> it_indices;
+                get_I_indices(t, it_indices);
+                expr intro_app      = mk_app(mk_app(mk_constant(constructor_name(cnstr), m_levels), m_params), b_u);
+                expr lhs            = mk_app(mk_app(rec_pre, it_indices), intro_app);
+                type_checker tcheck = tc();
+                expr expected       = tcheck.infer(lhs);
+                expr reduct         = tcheck.whnf(lhs);
+                expr actual         = tcheck.infer(reduct);
+                if (!tcheck.is_def_eq(actual, expected))
+                    throw kernel_exception(m_env, sstream() << "generated recursor computation rule for '"
+                                           << constructor_name(cnstr) << "' is not type-preserving");
+            }
+        }
+    }
+
     environment operator()() {
         m_env.check_duplicated_univ_params(m_lparams);
         check_inductive_types();
@@ -785,6 +875,7 @@ public:
         init_K_target();
         mk_rec_infos();
         declare_recursors();
+        check_recursors();
         return m_env;
     }
 };
@@ -818,11 +909,18 @@ struct elim_nested_inductive_result {
         return optional<pair<expr, name>>(std::in_place, *nested, auxI_name);
     }
 
+    /* The conditions checked below are established by `elim_nested_inductive_fn`. They are tested
+       rather than asserted because violating them is not a wrong answer but an out-of-bounds read:
+       `binding_*` and `const_name` would fetch a field the expression does not have, and
+       `args.size() - m_params.size()` would underflow into the argument count of `mk_app`. */
     name restore_constructor_name(environment const & aux_env, name const & cnstr_name) const {
         optional<pair<expr, name>> p = get_nested_if_aux_constructor(aux_env, cnstr_name);
-        lean_assert(p);
+        if (!p)
+            throw kernel_exception(aux_env, sstream() << "failed to restore nested inductive types, '"
+                                   << cnstr_name << "' is not a constructor of an auxiliary type");
         expr const & I = get_app_fn(p->first);
-        lean_assert(is_constant(I));
+        if (!is_constant(I))
+            throw kernel_exception(aux_env, "failed to restore nested inductive types, nested occurrence is not an inductive type application");
         return cnstr_name.replace_prefix(p->second, const_name(I));
     }
 
@@ -831,7 +929,8 @@ struct elim_nested_inductive_result {
         buffer<expr> As;
         bool pi = is_pi(e);
         for (unsigned i = 0; i < m_params.size(); i++) {
-            lean_assert(is_pi(e) || is_lambda(e));
+            if (!is_pi(e) && !is_lambda(e))
+                throw kernel_exception(aux_env, "failed to restore nested inductive types, fewer binders than parameters");
             As.push_back(lctx.mk_local_decl(m_ngen, binding_name(e), binding_domain(e), binding_info(e)));
             e = instantiate(binding_body(e), As.back());
         }
@@ -846,7 +945,8 @@ struct elim_nested_inductive_result {
                     if (expr const * nested = m_aux2nested.find(const_name(fn))) {
                         buffer<expr> args;
                         get_app_args(t, args);
-                        lean_assert(args.size() >= m_params.size());
+                        if (args.size() < m_params.size())
+                            throw kernel_exception(aux_env, "failed to restore nested inductive types, auxiliary type is not applied to all parameters");
                         expr new_t = instantiate_rev(abstract(*nested, m_params.size(), m_params.data()), As.size(), As.data());
                         return some_expr(mk_app(new_t, args.size() - m_params.size(), args.data() + m_params.size()));
                     }
@@ -856,11 +956,13 @@ struct elim_nested_inductive_result {
                         /* `t` is a constructor-application of an auxiliary inductive type */
                         buffer<expr> args;
                         get_app_args(t, args);
-                        lean_assert(args.size() >= m_params.size());
+                        if (args.size() < m_params.size())
+                            throw kernel_exception(aux_env, "failed to restore nested inductive types, auxiliary constructor is not applied to all parameters");
                         expr new_nested = instantiate_rev(abstract(nested, m_params.size(), m_params.data()), As.size(), As.data());
                         buffer<expr> I_args;
                         expr I = get_app_args(new_nested, I_args);
-                        lean_assert(is_constant(I));
+                        if (!is_constant(I))
+                            throw kernel_exception(aux_env, "failed to restore nested inductive types, nested occurrence is not an inductive type application");
                         name new_fn_name = const_name(fn).replace_prefix(auxI_name, const_name(I));
                         expr new_fn = mk_constant(new_fn_name, const_levels(I));
                         expr new_t  = mk_app(mk_app(new_fn, I_args), args.size() - m_params.size(), args.data() + m_params.size());
@@ -1143,6 +1245,7 @@ environment environment::add_inductive(declaration const & d) const {
             }
         }
     }
+    check_uniform_ind_occs(*this, inductive_decl(d));
     elim_nested_inductive_result res = elim_nested_inductive_fn(*this, d)();
     unsigned nnested = res.m_aux2nested.size();
     scoped_diagnostics diag(*this, true);

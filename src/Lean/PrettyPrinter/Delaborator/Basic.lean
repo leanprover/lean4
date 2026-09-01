@@ -118,11 +118,14 @@ unsafe builtin_initialize delabAttribute : KeyedDeclsAttribute Delab ←
     evalKey := fun _ stx => do
       let stx ← Attribute.Builtin.getIdent stx
       let kind := stx.getId
-      if (← Elab.getInfoState).enabled && kind.getRoot == `app then
+      if (← Elab.getInfoState).enabled && !kind.isAtomic && kind.getRoot == `app then
         let c := kind.replacePrefix `app .anonymous
+        -- Create identifier dropping `app` prefix, for completions and term info
+        let stx' := mkIdentFrom (mkNullNode (Syntax.identComponents stx).tail.toArray) c (canonical := true)
+        Elab.addCompletionInfo <| .id stx' c (danglingDot := false) (lctx := {}) (expectedType? := none)
         if (← getEnv).contains c then
           recordExtraModUseFromDecl (isMeta := false) c
-          Elab.addConstInfo stx c none
+          Elab.addConstInfo stx' c none
       pure kind
   }
 

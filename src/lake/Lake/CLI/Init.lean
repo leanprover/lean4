@@ -230,7 +230,7 @@ weak.linter.mathlibStandardSet = true
 
 [[require]]
 name = \"cslib\"
-scope = \"leanprover-community\"
+scope = \"leanprover\"
 rev = {repr rev}
 
 [[lean_lib]]
@@ -354,6 +354,83 @@ jobs:
           # END CONFIGURATION BLOCK 2
 "
 
+def cslibBuildActionWorkflowContents :=
+"name: CSLib CI
+
+on:
+  push:
+  pull_request:
+  workflow_dispatch:
+
+# Sets permissions of the GITHUB_TOKEN to allow deployment to GitHub Pages
+permissions:
+  contents: read # Read access to repository contents
+  pages: write # Write access to GitHub Pages
+  id-token: write # Write access to ID tokens
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@v5
+      - name: Build project with CSLib
+        uses: leanprover/lean-action@v1
+      - name: Build and deploy documentation
+        uses: leanprover-community/docgen-action@v1
+"
+
+def cslibUpdateActionWorkflowContents :=
+"name: Update CSLib
+
+on:
+  # schedule:
+  #   - cron: \"0 8 * * *\" # Every day at 08:00 AM UTC
+  workflow_dispatch:
+
+jobs:
+  update-cslib:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+      issues: write
+      pull-requests: write
+    steps:
+      - name: Checkout project
+        uses: actions/checkout@v5
+      - name: Update CSLib and its Lean toolchain
+        uses: leanprover-community/lean-update@main
+        with:
+          update_if_modified: lake-manifest.json
+          on_update_succeeds: pr
+          on_update_fails: issue
+"
+
+def cslibCreateReleaseActionWorkflowContents :=
+"name: Create CSLib-compatible Release
+
+on:
+  push:
+    branches:
+      - 'main'
+      - 'master'
+    paths:
+      - 'lean-toolchain'
+
+jobs:
+  cslib-release-tag:
+    name: Add CSLib-compatible Lean release tag
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+    steps:
+    - name: Create release for the new CSLib toolchain
+      uses: leanprover-community/lean-release-tag@v1
+      with:
+        do-release: true
+        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+"
+
 def createReleaseActionWorkflowContents :=
 "name: Create Release
 
@@ -426,7 +503,7 @@ def InitTemplate.configFileContents
   | .math, .lean => mathLeanConfigFileContents pkgNameStr (escapeName! root) mathRev
   | .math, .toml => mathTomlConfigFileContents pkgNameStr root.toString mathRev
   | .cslib, .toml => cslibTomlConfigFileContents pkgNameStr root.toString cslibRev
-  | .cslib, .lean => cslibTomlConfigFileContents pkgNameStr (escapeName! root) cslibRev
+  | .cslib, .lean => cslibLeanConfigFileContents pkgNameStr (escapeName! root) cslibRev
 
 def createLeanActionWorkflow (dir : FilePath) (tmp : InitTemplate) : LogIO PUnit := do
   logVerbose "creating lean-action CI workflow"
@@ -437,26 +514,35 @@ def createLeanActionWorkflow (dir : FilePath) (tmp : InitTemplate) : LogIO PUnit
   if (← workflowFile.pathExists) then
     logVerbose "lean-action CI workflow already exists"
     return
-  if tmp = .math then
-    IO.FS.writeFile workflowFile mathBuildActionWorkflowContents
-  else
-    IO.FS.writeFile workflowFile leanActionWorkflowContents
+  let contents := match tmp with
+    | .math => mathBuildActionWorkflowContents
+    | .cslib => cslibBuildActionWorkflowContents
+    | _ => leanActionWorkflowContents
+  IO.FS.writeFile workflowFile contents
   logVerbose s!"created lean-action CI workflow at '{workflowFile}'"
 
-  if tmp = .math then
+  if tmp = .math || tmp = .cslib then
     -- A workflow for automatically creating update PRs/issues.
     let workflowFile := workflowDir / "update.yml"
     if (← workflowFile.pathExists) then
-      logVerbose "Mathlib update CI workflow already exists"
+      logVerbose "dependency update CI workflow already exists"
       return
-    IO.FS.writeFile workflowFile mathUpdateActionWorkflowContents
-    logVerbose s!"created Mathlib update CI workflow at '{workflowFile}'"
+    let contents := if tmp = .cslib then
+      cslibUpdateActionWorkflowContents
+    else
+      mathUpdateActionWorkflowContents
+    IO.FS.writeFile workflowFile contents
+    logVerbose s!"created dependency update CI workflow at '{workflowFile}'"
     -- A workflow for tagging commits that bump the Lean toolchain version.
     let workflowFile := workflowDir / "create-release.yml"
     if (← workflowFile.pathExists) then
       logVerbose "create-release CI workflow already exists"
       return
-    IO.FS.writeFile workflowFile createReleaseActionWorkflowContents
+    let contents := if tmp = .cslib then
+      cslibCreateReleaseActionWorkflowContents
+    else
+      createReleaseActionWorkflowContents
+    IO.FS.writeFile workflowFile contents
     logVerbose s!"created create-release CI workflow at '{workflowFile}'"
 
 /-- Initialize a new Lake package in the given directory with the given name. -/
@@ -499,7 +585,7 @@ def initPkg
     unless (← basicFile.pathExists) do
       IO.FS.createDirAll libDir
       IO.FS.writeFile basicFile basicFileContents
-    let rootContents := if tmp = .math then
+    let rootContents := if tmp = .math || tmp = .cslib then
       mathLibRootFileContents root
     else
       libRootFileContents root.toString root
@@ -517,6 +603,8 @@ def initPkg
   unless (← readmeFile.pathExists) do
     let contents := if tmp = .math then
         mathReadmeFileContents <| dotlessName name
+      else if tmp = .cslib then
+        csReadmeFileContents <| dotlessName name
       else
         readmeFileContents <| dotlessName name
     IO.FS.writeFile readmeFile contents
@@ -550,12 +638,16 @@ def initPkg
             no known toolchain name for the current Elan/Lean/Lake"
     else
       IO.FS.writeFile toolchainFile <| env.toolchain ++ "\n"
-  if tmp matches .mathLax | .math then
+  if tmp matches .mathLax | .math | .cslib then
     if leanVer?.isNone then
-      logWarning "creating a new math package with a non-release Lean toolchain; \
-        Mathlib may not work properly"
+      if tmp = .cslib then
+        logWarning "creating a new cs package with a non-release Lean toolchain; \
+          CSLib may not work properly"
+      else
+        logWarning "creating a new math package with a non-release Lean toolchain; \
+          Mathlib may not work properly"
     unless offline do
-      -- Checkout mathlib and pin the version in the manifest
+      -- Checkout the template dependency and pin the version in the manifest
       updateManifest { lakeEnv := env, wsDir := dir, updateToolchain := false }
 
 def validatePkgName (pkgName : String) : LogIO PUnit := do

@@ -90,6 +90,7 @@ The initial configuration and starter files are based on the template:
   lib                   library only
   math-lax              library only with a Mathlib dependency
   math                  library with Mathlib standards for linting and workflows
+  cs                    library with CSLib standards and CSLib-specific workflows
 
 Templates can be suffixed with `.lean` or `.toml` to produce a Lean or TOML
 version of the configuration file, respectively. The default is TOML."

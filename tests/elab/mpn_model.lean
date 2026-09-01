@@ -33,7 +33,9 @@ resting on it is proved here instead, by the specification that covers it: the `
 `natDiv` and the arms of `natSub`, `natMod`, `natBle` and `natBeq` that answer without computing.
 
 Each definition quotes the code it stands for, so the two can be read side by side without opening
-the source. Deviations are marked `NOTE:`.
+the source. Deviations are marked `NOTE:`. Each routine is transliterated whole; where a proof
+needs the loop's length or buffers free, the loop is repeated as a `private` helper that an `rfl`
+lemma ties back to it, so a divergence between the two is a compile error.
 
 A transliteration is only worth as much as its fidelity to the original, and nothing here checks
 that mechanically: it rests on reading the two side by side, which is what the quotations are for.
@@ -412,10 +414,30 @@ theorem compare_eq (a b : Array Digit) :
 /-! ## `mpn_add` -/
 
 /--
-`mpn_add`'s digit loop, `len` result digits plus the final carry:
+`mpn_add`'s trimming of the result length:
 ```
+    size_t &os = *plngc;
+    for (os = len+1; os > 1 && c[os-1] == 0; ) os--;
+```
+-/
+def trim (c : Array Digit) : Array Digit :=
+  if 1 < c.size && c.getD (c.size - 1) 0 == 0 then trim c.pop else c
+termination_by c.size
+decreasing_by simp_all; omega
+
+/--
+`mpn_add`, Knuth's Algorithm A:
+```
+void  mpn_add(mpn_digit const * a, size_t const lnga,
+              mpn_digit const * b, size_t const lngb,
+              mpn_digit * c, size_t const lngc_alloc,
+              size_t * plngc) {
+    // Essentially Knuth's Algorithm A
     size_t len = max(lnga, lngb);
+    lean_assert(lngc_alloc == len+1 && len > 0);
     mpn_digit k = 0;
+    mpn_digit r;
+    bool c1, c2;
     for (size_t j = 0; j < len; j++) {
         mpn_digit const & u_j = (j < lnga) ? a[j] : zero;
         mpn_digit const & v_j = (j < lngb) ? b[j] : zero;
@@ -424,14 +446,37 @@ theorem compare_eq (a b : Array Digit) :
         k = c1 | c2;
     }
     c[len] = k;
+    size_t &os = *plngc;
+    for (os = len+1; os > 1 && c[os-1] == 0; ) os--;
+    lean_assert(os > 0 && os <= len+1);
+}
 ```
-NOTE: `mpn_add` writes into `c`, a buffer its caller allocates, by index; the
-model pushes onto an empty array. The digits are the same sequence, and `c.size`
-becomes the loop counter, so `denote_push` carries a whole iteration and
-`addLoop_spec` can induct on `len` without also tracking that the digits above
-it are untouched. The trailing `c[len] = k` is the `push` in `add`.
+The caller allocates `c` with `lngc_alloc` digits and reads the trimmed length
+back out of `*plngc`. Here the trimmed prefix is the result, so neither appears.
+
+NOTE: `c` is written by index and pushed here. The digits are the same sequence,
+and `c.size` becomes the loop counter, so `denote_push` carries a whole iteration
+and `addLoop_spec` can induct on `len` without also tracking that the digits
+above it are untouched.
 -/
-def addLoop (a b : Array Digit) (len : Nat) : Array Digit × Digit := Id.run do
+def add (a b : Array Digit) : Array Digit :=
+  let (c, k) := Id.run do
+    let len := max a.size b.size
+    let mut c : Array Digit := #[]
+    let mut k : Digit := 0
+    for j in List.range len do
+      let u_j := a.getD j 0
+      let v_j := b.getD j 0
+      let r := u_j + v_j; let c1 := r < u_j
+      let cj := r + k; let c2 := cj < r
+      c := c.push cj
+      k := if c1 || c2 then 1 else 0
+    return (c, k)
+  -- `c[len] = k`, then the trimming loop
+  trim (c.push k)
+
+/-- The digit loop above with its length free, so that `addLoop_spec` can induct on it. -/
+private def addLoop (a b : Array Digit) (len : Nat) : Array Digit × Digit := Id.run do
   let mut c : Array Digit := #[]
   let mut k : Digit := 0
   for j in List.range len do
@@ -443,7 +488,7 @@ def addLoop (a b : Array Digit) (len : Nat) : Array Digit × Digit := Id.run do
     k := if c1 || c2 then 1 else 0
   return (c, k)
 
-/-- One iteration of the loop below, for `addLoop_eq` to fold over. -/
+/-- One iteration of the loop, for `addLoop_eq` to fold over. -/
 private def addStep (a b : Array Digit) (s : Array Digit × Digit) (j : Nat) : Array Digit × Digit :=
   let (c, k) := s
   let u_j := a.getD j 0
@@ -460,47 +505,24 @@ theorem addLoop_eq (a b : Array Digit) (len : Nat) :
   simp [addLoop, addStep, Id.run]
   rfl
 
-/--
-`mpn_add`'s trimming of the result length:
-```
-    size_t &os = *plngc;
-    for (os = len+1; os > 1 && c[os-1] == 0; ) os--;
-```
--/
-def trim (c : Array Digit) : Array Digit :=
-  if 1 < c.size && c.getD (c.size - 1) 0 == 0 then trim c.pop else c
-termination_by c.size
-decreasing_by simp_all; omega
-
-/--
-`mpn_add`, Knuth's Algorithm A, whose digit loop is `addLoop` and whose trimming
-is `trim`:
-```
-void  mpn_add(mpn_digit const * a, size_t const lnga,
-              mpn_digit const * b, size_t const lngb,
-              mpn_digit * c, size_t const lngc_alloc,
-              size_t * plngc) {
-    size_t len = max(lnga, lngb);
-    lean_assert(lngc_alloc == len+1 && len > 0);
-    ...
-    lean_assert(os > 0 && os <= len+1);
-}
-```
-The caller allocates `c` with `lngc_alloc` digits and reads the trimmed length
-back out of `*plngc`. Here the trimmed prefix is the result, so neither appears.
--/
-def add (a b : Array Digit) : Array Digit :=
-  let len := max a.size b.size
-  let (c, k) := addLoop a b len
-  trim (c.push k)
+/-- `mpn_add` is its digit loop, the carry pushed on top, trimmed. -/
+theorem add_eq (a b : Array Digit) :
+    add a b = trim ((addLoop a b (max a.size b.size)).1.push (addLoop a b (max a.size b.size)).2) :=
+  rfl
 
 /-! ## `mpn_sub` -/
 
 /--
-`mpn_sub`'s digit loop, `len` result digits plus the final borrow:
+`mpn_sub`, Knuth's Algorithm S:
 ```
+void mpn_sub(mpn_digit const * a, size_t const lnga,
+             mpn_digit const * b, size_t const lngb,
+             mpn_digit * c, mpn_digit * pborrow) {
+    // Essentially Knuth's Algorithm S
     size_t len = max(lnga, lngb);
     mpn_digit & k = *pborrow; k = 0;
+    mpn_digit r;
+    bool c1, c2;
     for (size_t j = 0; j < len; j++) {
         mpn_digit const & u_j = (j < lnga) ? a[j] : zero;
         mpn_digit const & v_j = (j < lngb) ? b[j] : zero;
@@ -508,12 +530,14 @@ def add (a b : Array Digit) : Array Digit :=
         c[j] = r - k;  c2 = c[j] > r;
         k = c1 | c2;
     }
+}
 ```
-NOTE: `c` is written by index into a caller-supplied buffer and pushed here, for
-the reason given at `addLoop`. There is no trailing digit to write: the borrow
-leaves through `*pborrow`, which is the second result.
+NOTE: `c` is written by index into a buffer the caller allocates with `len`
+digits and pushed here, for the reason given at `addLoop`. The borrow leaves
+through `*pborrow`, which is the second result.
 -/
-def subLoop (a b : Array Digit) (len : Nat) : Array Digit × Digit := Id.run do
+def sub (a b : Array Digit) : Array Digit × Digit := Id.run do
+  let len := max a.size b.size
   let mut c : Array Digit := #[]
   let mut k : Digit := 0
   for j in List.range len do
@@ -525,7 +549,23 @@ def subLoop (a b : Array Digit) (len : Nat) : Array Digit × Digit := Id.run do
     k := if c1 || c2 then 1 else 0
   return (c, k)
 
-/-- One iteration of the loop below, for `subLoop_eq` to fold over. -/
+/-- The loop above with its length free, so that `subLoop_spec` can induct on it. -/
+private def subLoop (a b : Array Digit) (len : Nat) : Array Digit × Digit := Id.run do
+  let mut c : Array Digit := #[]
+  let mut k : Digit := 0
+  for j in List.range len do
+    let u_j := a.getD j 0
+    let v_j := b.getD j 0
+    let r := u_j - v_j; let c1 := r > u_j
+    let cj := r - k; let c2 := cj > r
+    c := c.push cj
+    k := if c1 || c2 then 1 else 0
+  return (c, k)
+
+/-- `mpn_sub` is its loop at the length the C++ computes. -/
+theorem sub_eq (a b : Array Digit) : sub a b = subLoop a b (max a.size b.size) := rfl
+
+/-- One iteration of the loop, for `subLoop_eq` to fold over. -/
 private def subStep (a b : Array Digit) (s : Array Digit × Digit) (j : Nat) : Array Digit × Digit :=
   let (c, k) := s
   let u_j := a.getD j 0
@@ -541,21 +581,6 @@ theorem subLoop_eq (a b : Array Digit) (len : Nat) :
     subLoop a b len = (List.range len).foldl (fun s j => subStep a b s j) (#[], 0) := by
   simp [subLoop, subStep, Id.run]
   rfl
-
-/--
-`mpn_sub`, Knuth's Algorithm S, whose digit loop is `subLoop`:
-```
-void mpn_sub(mpn_digit const * a, size_t const lnga,
-             mpn_digit const * b, size_t const lngb,
-             mpn_digit * c, mpn_digit * pborrow) {
-    ...
-}
-```
-The caller allocates `c` with `max(lnga, lngb)` digits and reads the borrow back
-out of `*pborrow`. Here the two are the two results.
--/
-def sub (a b : Array Digit) : Array Digit × Digit :=
-  subLoop a b (max a.size b.size)
 
 
 /--
@@ -626,8 +651,7 @@ private theorem subInPlace_succ (u b : Array Digit) (off len : Nat) :
 ```
 -/
 def mulInner (a : Array Digit) (v_j : Digit) (j : Nat) (c : Array Digit) (lnga : Nat) :
-    Array Digit × Digit :=
-    Id.run do
+    Array Digit × Digit := Id.run do
   let mut c := c
   let mut k : Digit := 0
   for i in List.range lnga do
@@ -679,22 +703,36 @@ def mulOuterStep (a b : Array Digit) (c : Array Digit) (j : Nat) : Array Digit :
     c.set! (j + a.size) k
 
 /--
-`mpn_mul`'s outer loop over the first `m` digits of `b`:
+`mpn_mul`, Knuth's Algorithm M, returning `lnga + lngb` digits:
 ```
+void mpn_mul(mpn_digit const * a, size_t const lnga,
+             mpn_digit const * b, size_t const lngb,
+             mpn_digit * c) {
     for (unsigned i = 0; i < lnga; i++)
         c[i] = 0;
 
     for (size_t j = 0; j < lngb; j++) { ... }
+}
 ```
 NOTE: `mpn_mul` zeroes only `c[0..lnga)` and relies on the outer loop to write
 every digit from `lnga` up; zeroing the whole buffer here computes the same
 result and states the invariant more simply.
 -/
-def mulLoop (a b : Array Digit) (m : Nat) : Array Digit := Id.run do
+def mul (a b : Array Digit) : Array Digit := Id.run do
+  let mut c := Array.replicate (a.size + b.size) 0
+  for j in List.range b.size do
+    c := mulOuterStep a b c j
+  return c
+
+/-- The loop above with its length free, so that `mulLoop_spec` can induct on it. -/
+private def mulLoop (a b : Array Digit) (m : Nat) : Array Digit := Id.run do
   let mut c := Array.replicate (a.size + b.size) 0
   for j in List.range m do
     c := mulOuterStep a b c j
   return c
+
+/-- `mpn_mul` is its outer loop run over every digit of `b`. -/
+theorem mul_eq (a b : Array Digit) : mul a b = mulLoop a b b.size := rfl
 
 /-- The loop as the fold its proof inducts over. -/
 theorem mulLoop_eq (a b : Array Digit) (m : Nat) :
@@ -703,9 +741,6 @@ theorem mulLoop_eq (a b : Array Digit) (m : Nat) :
           (Array.replicate (a.size + b.size) 0) := by
   simp [mulLoop, Id.run]
   rfl
-
-/-- `mpn_mul`, Knuth's Algorithm M. Returns `lnga + lngb` digits. -/
-def mul (a b : Array Digit) : Array Digit := mulLoop a b b.size
 
 /-! ## division -/
 
@@ -1072,17 +1107,39 @@ def div1Step (denom : Digit) (hden : denom.toUInt64 ≠ 0)
   else (u, quot)
 
 /--
-`div_1`'s loop, running from digit `j` down to digit 1:
+`div_1`. Single-digit division; returns the updated numerator (holding the
+remainder in its lowest digit) and `numer.size - 1` quotient digits:
 ```
+static void div_1(mpn_buffer & numer, mpn_digit const denom,
+                  mpn_digit * quot) {
+    mpn_double_digit q_hat, temp, ms;
+    mpn_digit borrow;
+
     for (size_t j = numer.size()-1; j > 0; j--) { ... }
+}
 ```
+`quot` is a caller-supplied buffer of `numer.size() - 1` digits, allocated here
+as the second component of the state.
 -/
-def div1Loop (denom : Digit) (hden : denom.toUInt64 ≠ 0) (u quot : Array Digit)
+def div1 (numer : Array Digit) (denom : Digit) (hden : denom.toUInt64 ≠ 0) :
+    Array Digit × Array Digit := Id.run do
+  let mut s := (numer, Array.replicate (numer.size - 1) 0)
+  for j in (List.range (numer.size - 1)).reverse do
+    s := div1Step denom hden s (j+1)
+  return s
+
+/-- The loop above with its buffers and length free, so that `div1_spec` can induct on it. -/
+private def div1Loop (denom : Digit) (hden : denom.toUInt64 ≠ 0) (u quot : Array Digit)
     (m : Nat) : Array Digit × Array Digit := Id.run do
   let mut s := (u, quot)
   for j in (List.range m).reverse do
     s := div1Step denom hden s (j+1)
   return s
+
+/-- `div_1` is its loop over a zeroed quotient buffer. -/
+theorem div1_eq (numer : Array Digit) (denom : Digit) (hden : denom.toUInt64 ≠ 0) :
+    div1 numer denom hden
+      = div1Loop denom hden numer (Array.replicate (numer.size - 1) 0) (numer.size - 1) := rfl
 
 /-- The loop as the descending recursion its proof inducts over. -/
 theorem div1Loop_eq (denom : Digit) (hden : denom.toUInt64 ≠ 0) (u quot : Array Digit)
@@ -1100,14 +1157,6 @@ theorem div1Loop_succ (denom : Digit) (hden : denom.toUInt64 ≠ 0) (u quot : Ar
           (div1Step denom hden (u, quot) (m+1)).2 m := by
   rw [div1Loop_eq, div1Loop_eq, List.range_succ, List.reverse_append]
   simp
-
-/--
-`div_1`. Single-digit division; returns the updated numerator (holding the
-remainder in its lowest digit) and `numer.size - 1` quotient digits.
--/
-def div1 (numer : Array Digit) (denom : Digit) (hden : denom.toUInt64 ≠ 0) :
-    Array Digit × Array Digit :=
-  div1Loop denom hden numer (Array.replicate (numer.size - 1) 0) (numer.size - 1)
 
 /--
 The `recheck:` correction loop of `div_n`, i.e. step D3 of Knuth's Algorithm D:
@@ -1216,19 +1265,44 @@ def divNStep (denom : Array Digit) (hv : (denom.getD (denom.size - 1) 0).toUInt6
   else (u, quot.set! j q_hat_small)
 
 /--
-`div_n`'s outer loop, running from quotient digit `m-1` down to digit 0:
+`div_n`, i.e. Knuth's Algorithm D. Returns the updated numerator (holding the
+normalized remainder) and `m` quotient digits:
 ```
+static void div_n(mpn_buffer & numer, mpn_buffer const & denom,
+                  mpn_digit * quot, mpn_digit * rem,
+                  mpn_buffer & ms, mpn_buffer & ab) {
+    lean_assert(denom.size() > 1);
     size_t m = numer.size() - denom.size();
     size_t n = denom.size();
+    lean_assert(numer.size() == m+n);
+    ms.resize(n+1);
     for (size_t j = m-1; j != (size_t)-1; j--) { ... }
+}
 ```
+`quot` is a caller-supplied buffer of `m` digits, allocated here as the second
+component of the state. `ms` and `ab` are scratch buffers that `divNStep`
+produces as values instead.
 -/
-def divNLoop (denom : Array Digit) (hv : (denom.getD (denom.size - 1) 0).toUInt64 ≠ 0)
+def divN (numer denom : Array Digit) (hv : (denom.getD (denom.size - 1) 0).toUInt64 ≠ 0) :
+    Array Digit × Array Digit := Id.run do
+  let mut s := (numer, Array.replicate (numer.size - denom.size) 0)
+  for j in (List.range (numer.size - denom.size)).reverse do
+    s := divNStep denom hv s j
+  return s
+
+/-- The loop above with its buffers and length free, so that `divN_spec` can induct on it. -/
+private def divNLoop (denom : Array Digit) (hv : (denom.getD (denom.size - 1) 0).toUInt64 ≠ 0)
     (u quot : Array Digit) (m : Nat) : Array Digit × Array Digit := Id.run do
   let mut s := (u, quot)
   for j in (List.range m).reverse do
     s := divNStep denom hv s j
   return s
+
+/-- `div_n` is its outer loop over a zeroed quotient buffer. -/
+theorem divN_eq (numer denom : Array Digit) (hv : (denom.getD (denom.size - 1) 0).toUInt64 ≠ 0) :
+    divN numer denom hv
+      = divNLoop denom hv numer (Array.replicate (numer.size - denom.size) 0)
+          (numer.size - denom.size) := rfl
 
 /-- The loop as the descending recursion its proof inducts over. -/
 theorem divNLoop_eq (denom : Array Digit) (hv : (denom.getD (denom.size - 1) 0).toUInt64 ≠ 0)
@@ -1246,15 +1320,6 @@ theorem divNLoop_succ (denom : Array Digit) (hv : (denom.getD (denom.size - 1) 0
           (divNStep denom hv (u, quot) m).2 m := by
   rw [divNLoop_eq, divNLoop_eq, List.range_succ, List.reverse_append]
   simp
-
-/--
-`div_n`, i.e. Knuth's Algorithm D. Returns the updated numerator (holding the
-normalized remainder) and `m` quotient digits.
--/
-def divN (numer denom : Array Digit) (hv : (denom.getD (denom.size - 1) 0).toUInt64 ≠ 0) :
-    Array Digit × Array Digit :=
-  divNLoop denom hv numer (Array.replicate (numer.size - denom.size) 0)
-    (numer.size - denom.size)
 
 /--
 `mpn_div`. Returns `lnum - lden + 1` quotient digits and `lden` remainder digits:
@@ -1381,7 +1446,7 @@ decreasing_by simp_all; omega
 /-- `mpn_add` computes the sum. -/
 theorem denote_add (a b : Array Digit) : denote (add a b) = denote a + denote b := by
   obtain ⟨hsz, _, hval⟩ := addLoop_spec a b (max a.size b.size)
-  simp only [add, denote_trim, denote_push, hsz]
+  simp only [add_eq, denote_trim, denote_push, hsz]
   rw [hval, denoteN_of_ge a (Nat.le_max_left ..), denoteN_of_ge b (Nat.le_max_right ..)]
 
 /-! ## Correctness of `mpn_sub` -/
@@ -1440,7 +1505,7 @@ theorem denote_sub (a b : Array Digit) :
     denote (sub a b).1 + denote b
       = denote a + (sub a b).2.toNat * base ^ (max a.size b.size) := by
   obtain ⟨_, _, hval⟩ := subLoop_spec a b (max a.size b.size)
-  simpa only [sub, denoteN_of_ge a (Nat.le_max_left ..),
+  simpa only [sub_eq, denoteN_of_ge a (Nat.le_max_left ..),
     denoteN_of_ge b (Nat.le_max_right ..)] using hval
 
 /--
@@ -2699,7 +2764,7 @@ private theorem toNat_pred32 {q : Digit} (h : 0 < q.toNat) : (q - 1).toNat = q.t
 
 private theorem sub_eq_subLoop (a b : Array Digit) (len : Nat)
     (ha : a.size = len) (hb : b.size = len) : sub a b = subLoop a b len := by
-  rw [sub, ha, hb, Nat.max_self]
+  rw [sub_eq, ha, hb, Nat.max_self]
 
 /--
 Subtracting in place is subtracting into a fresh buffer and copying the result
@@ -2965,7 +3030,7 @@ theorem divN_spec (numer denom : Array Digit) (k : Nat)
     (numer.size - denom.size) numer (Array.replicate (numer.size - denom.size) 0)
     (Nat.le_refl _) (by omega) (by simp) (fun i hi => getD_of_ge numer (by omega))
     (fun i _ => getD_replicate_zero _ _) hbound
-  rw [divN]
+  rw [divN_eq]
   refine ⟨by rw [g1]; omega, g2, g3, ?_⟩
   rw [g4, denote_replicate_zero, Nat.zero_mul, Nat.zero_add]
 
@@ -3937,10 +4002,9 @@ def Num.powMul (power result : Num) (p : Digit) : Num :=
   if p &&& 1 = 1 then result.mul power else result
 
 /--
-`mpz::pow`'s loop:
+The `while` loop of `mpz::pow` below, with `power` and `result` as parameters so
+that `val_powLoop` can induct on the exponent:
 ```
-    mpz power(*this);
-    mpz result(1);
     while (p != 0) {
         if (p & 1)
             result *= power;
@@ -3948,11 +4012,10 @@ def Num.powMul (power result : Num) (p : Digit) : Num :=
         if (p != 0)
             power *= power;
     }
-    return result;
 ```
 The exponent's bits are consumed from the bottom, `power` multiplied into
 `result` where a bit is set and squared for the next bit. The final squaring is
-skipped once the remaining exponent is zero, as in `mpz::pow`.
+skipped once the remaining exponent is zero.
 -/
 def Num.powLoop (power result : Num) (p : Digit) : Num :=
   if p = 0 then result
@@ -3965,7 +4028,17 @@ decreasing_by
   have : p.toNat ≠ 0 := fun h0 => hne (UInt32.toNat_inj.mp (by rw [h0]; rfl))
   omega
 
-/-- `pow`: square and multiply, starting from `mpz(1)`. -/
+/--
+`mpz::pow`, square and multiply:
+```
+mpz mpz::pow(unsigned int p) const {
+    mpz power(*this);
+    mpz result(1);
+    while (p != 0) { ... }
+    return result;
+}
+```
+-/
 def Num.pow (a : Num) (p : Digit) : Num := Num.powLoop a Num.one p
 
 theorem Num.val_powMul (power result : Num) (p : Digit) :
@@ -4152,7 +4225,17 @@ def NatObj.val : NatObj → Nat
 /-- What `panic!` falls back to; `lean_internal_panic` does not return at all. -/
 instance : Inhabited NatObj := ⟨.small 0 (Nat.zero_le _)⟩
 
-/-- `mpz_to_nat`: re-box anything that fits in a scalar. -/
+/--
+`mpz_to_nat`, which re-boxes anything that fits in a scalar:
+```
+static inline obj_res mpz_to_nat(mpz const & m) {
+    if (m.is_size_t() && m.get_size_t() <= LEAN_MAX_SMALL_NAT)
+        return lean_box(m.get_size_t());
+    else
+        return mpz_to_nat_core(m);
+}
+```
+-/
 def mpzToNat (m : Num) : NatObj :=
   if h : m.val ≤ maxSmallNat then .small m.val h else .big m (by omega)
 

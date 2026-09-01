@@ -96,6 +96,8 @@ theorem isEqv_self_beq [BEq α] [ReflBEq α] (xs : Array α) : Array.isEqv xs xs
 theorem isEqv_self [DecidableEq α] (xs : Array α) : Array.isEqv xs xs (· = ·) = true := by
   simp [isEqv, isEqvAux_self]
 
+-- Exposed so that `Array` equality reduces across module boundaries.
+@[expose]
 def instDecidableEqImpl [DecidableEq α] : DecidableEq (Array α) := fun xs ys =>
   match h:isEqv xs ys (fun a b => a = b) with
   | true  => isTrue (eq_of_isEqv xs ys h)

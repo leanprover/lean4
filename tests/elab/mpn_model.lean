@@ -382,36 +382,6 @@ def compare (a b : Array Digit) : Int := Id.run do
     else if u_j < v_j then res := -1
   return res
 
-/-- The loop above as a recursion, for `compare_eq` to induct over. -/
-private def compareLoop (a b : Array Digit) : Nat → Int
-  | 0 => 0
-  | j+1 =>
-    let u_j := a.getD j 0
-    let v_j := b.getD j 0
-    if u_j > v_j then 1 else if u_j < v_j then -1 else compareLoop a b j
-
-/-- The loop as the descending recursion its proof inducts over. -/
-theorem compare_eq (a b : Array Digit) :
-    compare a b = compareLoop a b (max a.size b.size) := by
-  simp only [compare, Id.run]
-  generalize max a.size b.size = n
-  induction n with
-  | zero => rfl
-  | succ n ih =>
-    rw [List.range_succ, List.reverse_append]
-    simp only [List.reverse_cons, List.reverse_nil, List.nil_append, List.cons_append,
-      List.forIn_cons, compareLoop]
-    simp only [bne_self_eq_false, Bool.false_eq_true, ite_false]
-    split
-    · cases h : (List.range n).reverse with
-      | nil => rfl
-      | cons x xs => simp only [List.forIn_cons]; rfl
-    · split
-      · cases h : (List.range n).reverse with
-        | nil => rfl
-        | cons x xs => simp only [List.forIn_cons]; rfl
-      · exact ih
-
 /-! ## `mpn_add` -/
 
 /--
@@ -1860,8 +1830,6 @@ theorem denote_shiftLeftDigits (a : Array Digit) {d : Nat} (hd : d < digitBits)
           omega)
     grind
 
-/-! ## Correctness of `div_normalize`'s shift amount -/
-
 /-! ## Correctness of `div_normalize` -/
 
 /--
@@ -3068,11 +3036,6 @@ theorem denote_copyInto_replicate (src : Array Digit) (n len : Nat) (h : len ≤
   have hc := denoteN_copyInto (Array.replicate n 0) src 0 len (by rw [hrsz]; omega)
   simpa [denoteN] using hc
 
-/-- Both operands scaled by the same amount: same quotient, remainder scaled. -/
-private theorem div_mod_scaled (N D t : Nat) (ht : 0 < t) :
-    (N * t) / (D * t) = N / D ∧ (N * t) % (D * t) = (N % D) * t :=
-  ⟨Nat.mul_div_mul_right _ _ ht, Nat.mul_mod_mul_right ..⟩
-
 /--
 `mpn_div` divides: what it returns are the quotient and remainder of the
 operands. The preconditions are the ones every in-tree caller satisfies, since
@@ -3234,48 +3197,6 @@ theorem div_spec (numer denom : Array Digit)
       · rw [divUnnormalize, denote_shiftRightDigits u' hd32 hden, hrval, huval, hvval,
           Nat.mul_mod_mul_right, Nat.mul_div_cancel _ h2d]
 
-/-! ## Correctness of `mpn_compare` -/
-
-/-- A bigger leading digit outweighs everything below it. -/
-private theorem denoteN_lt_of_digit_lt (a b : Array Digit) (n : Nat)
-    (h : (a.getD n 0).toNat < (b.getD n 0).toNat) : denoteN a (n+1) < denoteN b (n+1) := by
-  have h1 : denoteN a n < base ^ n := denoteN_lt a n
-  have h2 : ((a.getD n 0).toNat + 1) * base ^ n ≤ (b.getD n 0).toNat * base ^ n :=
-    Nat.mul_le_mul_right _ (by omega)
-  have h3 : ((a.getD n 0).toNat + 1) * base ^ n
-      = (a.getD n 0).toNat * base ^ n + base ^ n := by grind
-  have h4 : (b.getD n 0).toNat * base ^ n ≤ denoteN b (n+1) := by rw [denoteN]; omega
-  rw [denoteN]
-  omega
-
-/-- The scan reports the order of the digits it has seen. -/
-theorem compareLoop_spec (a b : Array Digit) (n : Nat) :
-    compareLoop a b n =
-      if denoteN b n < denoteN a n then 1 else if denoteN a n < denoteN b n then -1 else 0 := by
-  induction n with
-  | zero => simp [compareLoop, denoteN]
-  | succ n ih =>
-    have hgt : (a.getD n 0 > b.getD n 0) = ((b.getD n 0).toNat < (a.getD n 0).toNat) := rfl
-    have hlt : (a.getD n 0 < b.getD n 0) = ((a.getD n 0).toNat < (b.getD n 0).toNat) := rfl
-    rw [compareLoop]
-    simp only [hgt, hlt]
-    rcases Nat.lt_trichotomy (a.getD n 0).toNat (b.getD n 0).toNat with h | h | h
-    · have hd := denoteN_lt_of_digit_lt a b n h
-      simp only [show ((b.getD n 0).toNat < (a.getD n 0).toNat) = False from eq_false (by omega),
-        show ((a.getD n 0).toNat < (b.getD n 0).toNat) = True from eq_true h,
-        show (denoteN b (n+1) < denoteN a (n+1)) = False from eq_false (by omega),
-        show (denoteN a (n+1) < denoteN b (n+1)) = True from eq_true hd, ite_true]
-    · have hdeq : a.getD n 0 = b.getD n 0 := UInt32.toNat_inj.mp h
-      simp [ih, denoteN, hdeq]
-    · have hd := denoteN_lt_of_digit_lt b a n h
-      omega
-
-/-- `mpn_compare` reports the order of its operands. -/
-theorem compare_spec (a b : Array Digit) :
-    compare a b = if denote b < denote a then 1 else if denote a < denote b then -1 else 0 := by
-  rw [compare_eq, compareLoop_spec, denoteN_of_ge a (Nat.le_max_left ..),
-    denoteN_of_ge b (Nat.le_max_right ..)]
-
 /-!
 ## The `mpz` layer
 
@@ -3427,10 +3348,6 @@ orders its operands and how `lean_nat_big_le` compares two `mpz`.
 -/
 def Num.compare (a b : Num) : Int := Mpn.compare a.digits b.digits
 
-theorem Num.compare_spec (a b : Num) :
-    a.compare b = if b.val < a.val then 1 else if a.val < b.val then -1 else 0 :=
-  Mpn.compare_spec a.digits b.digits
-
 /--
 `mpz::operator+=` on non-negative values, its `m_sign == sign` arm:
 ```
@@ -3457,9 +3374,6 @@ def Num.add (a b : Num) : Num := Num.ofArray (Mpn.add a.digits b.digits) (size_a
 -/
 def Num.mul (a b : Num) : Num :=
   Num.ofArray (Mpn.mul a.digits b.digits) (by rw [size_mul]; have := a.size_pos; omega)
-
-@[simp] theorem Num.val_mul (a b : Num) : (a.mul b).val = a.val * b.val := by
-  rw [Num.mul, Num.val_ofArray, denote_mul, Num.val, Num.val]
 
 /--
 `Nat.sub` at the `mpz` layer. `mpz::operator-=` is `add` with the operand's sign
@@ -3499,39 +3413,6 @@ def Num.sub (a b : Num) : Num :=
   else Num.ofArray (Mpn.sub a.digits b.digits).1 (by
     rw [size_sub]; have := a.size_pos; omega)
 
-@[simp] theorem Num.val_sub (a b : Num) : (a.sub b).val = a.val - b.val := by
-  have hc : Mpn.compare a.digits b.digits
-      = if b.val < a.val then 1 else if a.val < b.val then -1 else 0 := Num.compare_spec a b
-  rw [Num.sub]
-  split <;> rename_i h
-  · -- the guard says the difference would be negative, so the result is zero
-    show denote #[0] = _
-    rw [denote_singleton, show ((0 : Digit)).toNat = 0 from rfl]
-    omega
-  · have hlt : b.val < a.val := by
-      rcases Nat.lt_or_ge b.val a.val with hlt | hle
-      · exact hlt
-      · omega
-    -- with `b` below `a` the subtraction cannot borrow out of the top digit
-    have hd := denote_sub a.digits b.digits
-    have hlen : (Mpn.sub a.digits b.digits).1.size = max a.digits.size b.digits.size := size_sub ..
-    have hsmall : denote (Mpn.sub a.digits b.digits).1
-        < base ^ (max a.digits.size b.digits.size) := by
-      rw [denote, hlen]; exact denoteN_lt _ _
-    simp only [Num.val] at hlt
-    have hb0 : (Mpn.sub a.digits b.digits).2.toNat = 0 := by
-      rcases Nat.eq_zero_or_pos (Mpn.sub a.digits b.digits).2.toNat with h0 | h0
-      · exact h0
-      · exfalso
-        have hge : base ^ (max a.digits.size b.digits.size)
-            ≤ (Mpn.sub a.digits b.digits).2.toNat * base ^ (max a.digits.size b.digits.size) :=
-          Nat.le_mul_of_pos_left _ h0
-        omega
-    rw [hb0] at hd
-    rw [Num.val_ofArray]
-    simp only [Num.val]
-    omega
-
 /--
 `mpz::div` on non-negative values:
 ```
@@ -3565,18 +3446,6 @@ def Num.mod (a b : Num) (hb : b.val ≠ 0) : Num :=
   if h : a.digits.size < b.digits.size then a
   else Num.ofArray (Mpn.div a.digits b.digits b.size_pos (by omega) (Num.top_pos b hb)).2 (by
     rw [size_div_rem _ _ b.size_pos (by omega) (Num.top_pos b hb)]; exact b.size_pos)
-
-theorem Num.val_div (a b : Num) (hb : b.val ≠ 0) : (a.div b hb).val = a.val / b.val := by
-  rw [Num.div]
-  split <;> rename_i h
-  · have hlt : a.val < b.val := by
-      rcases Nat.lt_or_ge a.val b.val with h2 | h2
-      · exact h2
-      · exact absurd (Num.size_le_of_val_le b a h2) (by omega)
-    rw [Nat.div_eq_of_lt hlt]
-    rfl
-  · rw [Num.val_ofArray]
-    exact (div_spec a.digits b.digits b.size_pos (by omega) (b.top_pos hb)).1
 
 theorem Num.val_mod (a b : Num) (hb : b.val ≠ 0) : (a.mod b hb).val = a.val % b.val := by
   rw [Num.mod]
@@ -3700,141 +3569,7 @@ def Num.ofArray! (a : Array Digit) : Num :=
   split <;> rename_i h2
   · exact Num.val_ofArray a h2
   · exact absurd h h2
-theorem base_pow (w : Nat) : base ^ w = 2 ^ (32 * w) := by
-  rw [show (base : Nat) = 2 ^ 32 from rfl, ← Nat.pow_mul]
-
-private theorem getD_zeros_append_lt (w i : Nat) (b : Array Digit) (h : i < w) :
-    ((Array.replicate w (0 : Digit)) ++ b).getD i 0 = 0 := by
-  simp [Array.getElem?_append, h]
-
-private theorem getD_zeros_append_ge (w i : Nat) (b : Array Digit) (h : w ≤ i) :
-    ((Array.replicate w (0 : Digit)) ++ b).getD i 0 = b.getD (i - w) 0 := by
-  simp [Array.getElem?_append, Nat.not_lt.mpr h]
-
-private theorem denoteN_of_all_zero (c : Array Digit) (n : Nat)
-    (h : ∀ i, i < n → c.getD i 0 = 0) : denoteN c n = 0 := by
-  induction n with
-  | zero => rfl
-  | succ n ih => rw [denoteN, ih (fun i hi => h i (by omega)), h n (by omega)]; simp
-
-/-- Prepending `w` zero digits multiplies the denotation by `base ^ w`. -/
-theorem denote_zeros_append (b : Array Digit) (w : Nat) :
-    denote ((Array.replicate w (0 : Digit)) ++ b) = denote b * base ^ w := by
-  have hsz : ((Array.replicate w (0 : Digit)) ++ b).size = w + b.size := by simp
-  have key : ∀ j, denoteN ((Array.replicate w (0 : Digit)) ++ b) (w + j) = denoteN b j * base ^ w := by
-    intro j
-    induction j with
-    | zero =>
-      have hzero : denoteN ((Array.replicate w (0 : Digit)) ++ b) w = 0 :=
-        denoteN_of_all_zero _ w (fun i hi => getD_zeros_append_lt w i b hi)
-      simpa [denoteN] using hzero
-    | succ j ih =>
-      rw [show w + (j+1) = (w + j) + 1 by omega, denoteN, ih,
-        getD_zeros_append_ge w (w+j) b (by omega), show w + j - w = j by omega, denoteN,
-        Nat.add_mul, Nat.mul_assoc, ← Nat.pow_add, Nat.add_comm j w]
-  rw [denote, hsz, key b.size, denote]
-
-theorem Num.val_isZero (a : Num) (h : a.isZero) : a.val = 0 := by
-  simp only [Num.isZero, Bool.and_eq_true, decide_eq_true_eq, beq_iff_eq] at h
-  simp [Num.val, denote, h.1, denoteN, h.2]
-
-/-- `mul2k` shifts left: it multiplies by `2^k`. -/
-theorem Num.val_shiftLeft (a : Num) (k : Nat) : (a.shiftLeft k).val = a.val * 2 ^ k := by
-  rw [Num.shiftLeft]
-  split <;> rename_i h
-  · simp only [Bool.or_eq_true, decide_eq_true_eq] at h
-    rcases h with h | h
-    · simp [h]
-    · simp [Num.val_isZero a h]
-  · simp only [Bool.or_eq_true, decide_eq_true_eq] at h
-    have hbit : k % digitBits < digitBits := Nat.mod_lt _ (by simp [digitBits_eq])
-    have hpad : denote ((Array.replicate (k / digitBits) (0 : Digit)) ++ a.digits)
-        = a.val * base ^ (k / digitBits) := denote_zeros_append a.digits _
-    have hfit : denote ((Array.replicate (k / digitBits) (0 : Digit)) ++ a.digits)
-        * 2 ^ (k % digitBits) < base ^ (a.digits.size + k / digitBits + 1) := by
-      have h1 : a.val < base ^ a.digits.size := a.val_lt
-      have h2 : (2:Nat) ^ (k % digitBits) ≤ base := by
-        calc (2:Nat) ^ (k % digitBits) ≤ 2 ^ 32 :=
-              Nat.pow_le_pow_right (by omega) (by simp only [digitBits_eq] at hbit ⊢; omega)
-          _ = base := rfl
-      calc denote ((Array.replicate (k / digitBits) (0 : Digit)) ++ a.digits)
-            * 2 ^ (k % digitBits)
-          = a.val * base ^ (k / digitBits) * 2 ^ (k % digitBits) := by grind
-        _ < base ^ a.digits.size * base ^ (k / digitBits) * 2 ^ (k % digitBits) := by
-            refine (Nat.mul_lt_mul_right (Nat.two_pow_pos _)).mpr ?_
-            exact (Nat.mul_lt_mul_right (Nat.pow_pos (by simp [base_eq]))).mpr h1
-        _ ≤ base ^ a.digits.size * base ^ (k / digitBits) * base :=
-            Nat.mul_le_mul_left _ h2
-        _ = base ^ (a.digits.size + k / digitBits + 1) := by
-            rw [← Nat.pow_add, ← Nat.pow_succ]
-    rw [Num.val_ofArray,
-      denote_shiftLeftDigits _ hbit (by simp; omega) hfit, hpad, Nat.mul_assoc,
-      base_pow, ← Nat.pow_add]
-    congr 2
-    simp only [digitBits_eq]
-    omega
-
-/-- `div2k` shifts right: it divides by `2^k`. -/
-theorem Num.val_shiftRight (a : Num) (k : Nat) : (a.shiftRight k).val = a.val / 2 ^ k := by
-  have hbit : k % digitBits < digitBits := Nat.mod_lt _ (by simp [digitBits_eq])
-  have hk : 32 * (k / digitBits) + k % digitBits = k := by
-    simp only [digitBits_eq]; omega
-  rw [Num.shiftRight]
-  split <;> rename_i h
-  · simp only [Bool.or_eq_true, decide_eq_true_eq] at h
-    rcases h with h | h
-    · simp [h]
-    · simp [Num.val_isZero a h]
-  · split <;> rename_i h2
-    · -- the shift clears every digit
-      refine (Nat.div_eq_of_lt ?_).symm
-      have h1 : a.val < base ^ a.digits.size := a.val_lt
-      have h3 : base ^ a.digits.size ≤ 2 ^ k := by
-        rw [base_pow]
-        exact Nat.pow_le_pow_right (by omega) (by simp only [digitBits_eq] at h2 ⊢; omega)
-      omega
-    · -- the general case: drop `k / 32` digits, then shift the rest
-      have hw : k / digitBits ≤ a.digits.size := by omega
-      have hext : (a.digits.extract (k / digitBits) a.digits.size).size
-          = a.digits.size - k / digitBits := by simp
-      have hsplit : a.val = denoteN a.digits (k / digitBits)
-          + denote (a.digits.extract (k / digitBits) a.digits.size) * base ^ (k / digitBits) := by
-        exact denoteN_extract (j := k / digitBits) a.digits a.digits.size hw (Nat.le_refl _)
-      have hlow : denoteN a.digits (k / digitBits) < base ^ (k / digitBits) :=
-        denoteN_lt a.digits _
-      have hdiv : a.val / base ^ (k / digitBits)
-          = denote (a.digits.extract (k / digitBits) a.digits.size) := by
-        rw [hsplit, Nat.add_mul_div_right _ _ (Nat.pow_pos (by simp [base_eq])),
-          Nat.div_eq_of_lt hlow, Nat.zero_add]
-      rw [Num.val_ofArray,
-        denote_shiftRightDigits _ hbit (by omega),
-        show denoteN (a.digits.extract (k / digitBits) a.digits.size)
-            (a.digits.size - k / digitBits)
-          = denote (a.digits.extract (k / digitBits) a.digits.size) from by
-            rw [denote, hext],
-        ← hdiv, Nat.div_div_eq_div_mul, base_pow, ← Nat.pow_add, hk]
-
 /-! ### Bitwise operations, as `mpz` implements them -/
-
-/-- Digit `i` of a value, read off its denotation. -/
-theorem denote_digit (a : Array Digit) (i : Nat) :
-    denote a / base ^ i % base = (a.getD i 0).toNat := by
-  have hb : base ^ (i+1) = base ^ i * base := Nat.pow_succ base i
-  have hlow : denoteN a i < base ^ i := denoteN_lt a i
-  rw [← Nat.mod_mul_right_div_self, ← hb, ← denoteN_mod, denoteN,
-    Nat.add_mul_div_right _ _ (Nat.pow_pos (by simp [base_eq])), Nat.div_eq_of_lt hlow, Nat.zero_add]
-
-/-- Bit `j` of a value is bit `j % 32` of its digit `j / 32`. -/
-theorem testBit_denote (a : Array Digit) (j : Nat) :
-    (denote a).testBit j = (a.getD (j / digitBits) 0).toNat.testBit (j % digitBits) := by
-  obtain ⟨q, r, hr, hj⟩ : ∃ q r, r < 32 ∧ j = r + 32 * q :=
-    ⟨j / 32, j % 32, Nat.mod_lt _ (by omega), by omega⟩
-  subst hj
-  have hq : (r + 32 * q) / digitBits = q := by simp only [digitBits_eq]; omega
-  have hrm : (r + 32 * q) % digitBits = r := by simp only [digitBits_eq]; omega
-  rw [hq, hrm, Nat.testBit_add, ← base_pow, ← denote_digit a q,
-    show (base : Nat) = 2 ^ 32 from rfl, Nat.testBit_mod_two_pow]
-  simp [hr]
 
 /--
 `mpz::operator&=` and friends, which combine digits pointwise over the longer
@@ -3872,32 +3607,6 @@ theorem bitwiseDigits_eq (f : Digit → Digit → Digit) (a b : Array Digit) :
 @[simp] theorem size_bitwiseDigits (f : Digit → Digit → Digit) (a b : Array Digit) :
     (bitwiseDigits f a b).size = max a.size b.size := by simp [bitwiseDigits_eq]
 
-private theorem getD_bitwiseDigits (f : Digit → Digit → Digit) (hf : f 0 0 = 0)
-    (a b : Array Digit) (i : Nat) :
-    (bitwiseDigits f a b).getD i 0 = f (a.getD i 0) (b.getD i 0) := by
-  rcases Nat.lt_or_ge i (max a.size b.size) with h | h
-  · simp [bitwiseDigits_eq, h]
-  · rw [getD_of_ge _ (by rw [size_bitwiseDigits]; omega), getD_of_ge a (by omega),
-      getD_of_ge b (by omega), hf]
-
-theorem denote_bitwiseDigits_and (a b : Array Digit) :
-    denote (bitwiseDigits (· &&& ·) a b) = denote a &&& denote b := by
-  refine Nat.eq_of_testBit_eq fun j => ?_
-  rw [testBit_denote, getD_bitwiseDigits _ (by decide) a b, UInt32.toNat_and,
-    Nat.testBit_and, Nat.testBit_and, testBit_denote, testBit_denote]
-
-theorem denote_bitwiseDigits_or (a b : Array Digit) :
-    denote (bitwiseDigits (· ||| ·) a b) = denote a ||| denote b := by
-  refine Nat.eq_of_testBit_eq fun j => ?_
-  rw [testBit_denote, getD_bitwiseDigits _ (by decide) a b, UInt32.toNat_or,
-    Nat.testBit_or, Nat.testBit_or, testBit_denote, testBit_denote]
-
-theorem denote_bitwiseDigits_xor (a b : Array Digit) :
-    denote (bitwiseDigits (· ^^^ ·) a b) = denote a ^^^ denote b := by
-  refine Nat.eq_of_testBit_eq fun j => ?_
-  rw [testBit_denote, getD_bitwiseDigits _ (by decide) a b, UInt32.toNat_xor,
-    Nat.testBit_xor, Nat.testBit_xor, testBit_denote, testBit_denote]
-
 /-- `mpz::operator&=`. -/
 def Num.land (a b : Num) : Num :=
   Num.ofArray (bitwiseDigits (· &&& ·) a.digits b.digits)
@@ -3912,15 +3621,6 @@ def Num.lor (a b : Num) : Num :=
 def Num.xor (a b : Num) : Num :=
   Num.ofArray (bitwiseDigits (· ^^^ ·) a.digits b.digits)
     (by rw [size_bitwiseDigits]; have := a.size_pos; omega)
-
-@[simp] theorem Num.val_land (a b : Num) : (a.land b).val = a.val &&& b.val := by
-  rw [Num.land, Num.val_ofArray, denote_bitwiseDigits_and, Num.val, Num.val]
-
-@[simp] theorem Num.val_lor (a b : Num) : (a.lor b).val = a.val ||| b.val := by
-  rw [Num.lor, Num.val_ofArray, denote_bitwiseDigits_or, Num.val, Num.val]
-
-@[simp] theorem Num.val_xor (a b : Num) : (a.xor b).val = a.val ^^^ b.val := by
-  rw [Num.xor, Num.val_ofArray, denote_bitwiseDigits_xor, Num.val, Num.val]
 
 /-! ### `gcd`, as `mpz` implements it -/
 
@@ -3960,35 +3660,12 @@ decreasing_by
 def Num.gcd (a b : Num) : Num :=
   if Mpn.compare a.digits b.digits < 0 then Num.gcdLoop b a else Num.gcdLoop a b
 
-private theorem Nat.gcd_step (m n : Nat) : Nat.gcd m n = Nat.gcd n (m % n) := by
-  rw [Nat.gcd_comm m n, Nat.gcd_rec n m, Nat.gcd_comm]
-
-theorem Num.val_gcdLoop (a b : Num) : (a.gcdLoop b).val = Nat.gcd a.val b.val := by
-  rw [Num.gcdLoop]
-  split <;> rename_i h
-  · simp [h]
-  · rw [Num.val_gcdLoop b (a.mod b h), Num.val_mod a b h, ← Nat.gcd_step]
-termination_by b.val
-decreasing_by
-  rename_i h
-  rw [Num.val_mod a b h]
-  exact Nat.mod_lt _ (by omega)
-
-/-- `gcd` computes the greatest common divisor. -/
-theorem Num.val_gcd (a b : Num) : (a.gcd b).val = Nat.gcd a.val b.val := by
-  rw [Num.gcd]
-  split
-  · rw [Num.val_gcdLoop, Nat.gcd_comm]
-  · rw [Num.val_gcdLoop]
-
 /-- `mpz(1)`. -/
 def Num.one : Num := ⟨#[1], by simp, by simp⟩
 
 @[simp] theorem Num.val_one : Num.one.val = 1 := denote_singleton 1
 
 private theorem toNat_shiftRight_one (p : Digit) : (p >>> 1).toNat = p.toNat / 2 := rfl
-
-private theorem toNat_and_one (p : Digit) : (p &&& 1).toNat = p.toNat % 2 := by simp
 
 /-- `if (p & 1) result *= power;`, the conditional multiply in `mpz::pow`. -/
 def Num.powMul (power result : Num) (p : Digit) : Num :=
@@ -4033,42 +3710,6 @@ mpz mpz::pow(unsigned int p) const {
 ```
 -/
 def Num.pow (a : Num) (p : Digit) : Num := Num.powLoop a Num.one p
-
-theorem Num.val_powMul (power result : Num) (p : Digit) :
-    (Num.powMul power result p).val = result.val * power.val ^ (p.toNat % 2) := by
-  rw [Num.powMul]
-  split <;> rename_i hb
-  · have : p.toNat % 2 = 1 := by rw [← toNat_and_one, hb]; rfl
-    rw [this, Num.val_mul, Nat.pow_one]
-  · have h1 : (p &&& 1).toNat ≠ 1 := fun hx => hb (UInt32.toNat_inj.mp (by rw [hx]; rfl))
-    simp_all
-
-theorem Num.val_powLoop (power result : Num) (p : Digit) :
-    (Num.powLoop power result p).val = result.val * power.val ^ p.toNat := by
-  rw [Num.powLoop]
-  split <;> rename_i h
-  · subst h; simp
-  · have hp : p.toNat ≠ 0 := fun h0 => h (UInt32.toNat_inj.mp (by rw [h0]; rfl))
-    split <;> rename_i h1
-    · have h2 : p.toNat / 2 = 0 := by rw [← toNat_shiftRight_one, h1]; rfl
-      rw [Num.val_powMul]
-      have : p.toNat % 2 = p.toNat := by omega
-      rw [this]
-    · rw [Num.val_powLoop, Num.val_powMul, toNat_shiftRight_one, Num.val_mul,
-        Nat.mul_pow, ← Nat.pow_add, Nat.mul_assoc, ← Nat.pow_add]
-      grind
-termination_by p.toNat
-decreasing_by
-  rename_i hne _
-  rw [toNat_shiftRight_one]
-  have : p.toNat ≠ 0 := fun h0 => hne (UInt32.toNat_inj.mp (by rw [h0]; rfl))
-  omega
-
-/-- `pow` raises to a power. It terminates for every exponent, including `2^31`
-and above, where the `mpz.cpp` loop this replaces used to spin forever. -/
-theorem Num.val_pow (a : Num) (p : Digit) : (a.pow p).val = a.val ^ p.toNat := by
-  rw [Num.pow, Num.val_powLoop, Num.val_one, Nat.one_mul]
-
 
 /-!
 ## The `lean_object` layer
@@ -4187,21 +3828,6 @@ theorem box_or (m n : Nat) (hm : m ≤ maxSmallNat) (hn : n ≤ maxSmallNat) :
   exact two_mul_add_one_or m n
 
 /--
-`lean_nat_le`'s fast path compares the boxed values directly:
-```
-        // This comparison is UB according to the standard but allowed as per the
-        // GCC documentation and the address sanitizer does not complain about it.
-        return a1 < a2;
-```
-Boxing is monotone, so the comparison on the tagged values is the comparison on
-the numbers. Only the pointer comparison itself is outside the standard.
--/
-theorem box_le_box (m n : Nat) (hm : m ≤ maxSmallNat) (hn : n ≤ maxSmallNat) :
-    (box m ≤ box n) ↔ m ≤ n := by
-  rw [UInt64.le_iff_toNat_le, toNat_box m hm, toNat_box n hn]
-  omega
-
-/--
 A `Nat` object: a boxed scalar, or an `mpz`. The `big` case is never small
 enough to be boxed, which is the invariant `mpz_to_nat` maintains.
 -/
@@ -4232,9 +3858,6 @@ static inline obj_res mpz_to_nat(mpz const & m) {
 def mpzToNat (m : Num) : NatObj :=
   if h : m.val ≤ maxSmallNat then .small m.val h else .big m (by omega)
 
-@[simp] theorem mpzToNat_val (m : Num) : (mpzToNat m).val = m.val := by
-  unfold mpzToNat; split <;> rfl
-
 /--
 `mpz_to_nat_core`, which allocates without re-boxing:
 ```
@@ -4246,9 +3869,6 @@ object * mpz_to_nat_core(mpz const & m) {
 Its assertion is the invariant `big` already carries, so it is the constructor.
 -/
 def mpzToNatCore (m : Num) (h : maxSmallNat < m.val) : NatObj := .big m h
-
-@[simp] theorem mpzToNatCore_val (m : Num) (h : maxSmallNat < m.val) :
-    (mpzToNatCore m h).val = m.val := rfl
 
 /--
 `mpz::of_size_t`, which on a 64-bit target is `init_uint64`:
@@ -4340,49 +3960,10 @@ def natDiv : NatObj → NatObj → NatObj
       rw [Num.val_ofSizeT n₂ (by simp only [maxSmallNat, base_eq] at *; omega)]; exact h))
   | .big m₁ _, .big m₂ h₂ => mpzToNat (m₁.div m₂ (by omega))
 
-/--
-`lean_nat_div` divides, for every pair of objects. There is no precondition:
-division by zero is a branch rather than an assumption, and the branch that
-returns zero without dividing is sound because a `big` object never holds a
-value a scalar could have held, which is what the type records and what the
-`lean_assert` in `lean_nat_big_div` only checks in a debug build.
--/
-theorem natDiv_val (a b : NatObj) : (natDiv a b).val = a.val / b.val := by
-  cases a with
-  | small n₁ h₁ =>
-    cases b with
-    | small n₂ h₂ =>
-      simp only [natDiv]
-      split <;> rename_i h
-      · subst h; simp [NatObj.val]
-      · rfl
-    | big m₂ h₂ =>
-      simp only [NatObj.val]
-      exact (Nat.div_eq_of_lt (by omega)).symm
-  | big m₁ h₁ =>
-    cases b with
-    | small n₂ h₂ =>
-      simp only [natDiv]
-      split <;> rename_i h
-      · subst h; simp [NatObj.val]
-      · rw [mpzToNat_val, Num.val_div, NatObj.val, NatObj.val,
-          Num.val_ofSizeT n₂ (by simp only [maxSmallNat, base_eq] at *; omega)]
-    | big m₂ h₂ =>
-      simp only [natDiv]
-      rw [mpzToNat_val, Num.val_div, NatObj.val, NatObj.val]
-
 /-- The `mpz` an object denotes, which is what `lean_nat_big_*` reads. -/
 def NatObj.toNum : NatObj → Num
   | .small n _ => Num.ofSizeT n
   | .big m _ => m
-
-private theorem small_lt_base_sq {n : Nat} (h : n ≤ maxSmallNat) : n < base ^ 2 := by
-  simp only [maxSmallNat, base_eq] at *; omega
-
-@[simp] theorem NatObj.val_toNum (a : NatObj) : a.toNum.val = a.val := by
-  cases a with
-  | small n h => rw [toNum, NatObj.val, Num.val_ofSizeT n (small_lt_base_sq h)]
-  | big m _ => rfl
 
 /--
 `lean_usize_to_nat`:
@@ -4398,11 +3979,6 @@ static inline lean_obj_res lean_usize_to_nat(size_t n) {
 def usizeToNat (n : Nat) (h64 : n < base ^ 2) : NatObj :=
   if h : n ≤ maxSmallNat then .small n h
   else .big (Num.ofSizeT n) (by rw [Num.val_ofSizeT n h64]; omega)
-
-@[simp] theorem usizeToNat_val (n : Nat) (h64 : n < base ^ 2) : (usizeToNat n h64).val = n := by
-  unfold usizeToNat; split
-  · rfl
-  · rw [NatObj.val, Num.val_ofSizeT n h64]
 
 /--
 `lean_nat_add`:
@@ -4426,21 +4002,6 @@ def natAdd : NatObj → NatObj → NatObj
   | .big m₁ h₁, .small n₂ _ =>
     mpzToNatCore (m₁.add (Num.ofSizeT n₂)) (by rw [Num.val_add]; omega)
   | .big m₁ h₁, .big m₂ _ => mpzToNatCore (m₁.add m₂) (by rw [Num.val_add]; omega)
-
-@[simp] theorem natAdd_val (a b : NatObj) : (natAdd a b).val = a.val + b.val := by
-  cases a with
-  | small n₁ h₁ =>
-    cases b with
-    | small n₂ h₂ => simp only [natAdd]; rw [usizeToNat_val]; rfl
-    | big m₂ _ =>
-      simp only [natAdd]
-      rw [mpzToNatCore_val, Num.val_add, Num.val_ofSizeT n₁ (small_lt_base_sq h₁)]; rfl
-  | big m₁ _ =>
-    cases b with
-    | small n₂ h₂ =>
-      simp only [natAdd]
-      rw [mpzToNatCore_val, Num.val_add, Num.val_ofSizeT n₂ (small_lt_base_sq h₂)]; rfl
-    | big m₂ _ => simp only [natAdd]; rw [mpzToNatCore_val, Num.val_add]; rfl
 
 /--
 `lean_nat_sub`, which clamps at zero as `Nat` subtraction does:
@@ -4466,27 +4027,6 @@ def natSub : NatObj → NatObj → NatObj
   | .big m₁ _, .small n₂ _ => mpzToNat (m₁.sub (Num.ofSizeT n₂))
   | .big m₁ _, .big m₂ _ =>
     if m₁.val < m₂.val then .small 0 (Nat.zero_le _) else mpzToNat (m₁.sub m₂)
-
-@[simp] theorem natSub_val (a b : NatObj) : (natSub a b).val = a.val - b.val := by
-  cases a with
-  | small n₁ h₁ =>
-    cases b with
-    | small n₂ h₂ =>
-      simp only [natSub]
-      split <;> rename_i h
-      · show (0 : Nat) = n₁ - n₂; omega
-      · rfl
-    | big m₂ h₂ => show (0 : Nat) = n₁ - m₂.val; omega
-  | big m₁ h₁ =>
-    cases b with
-    | small n₂ h₂ =>
-      simp only [natSub]
-      rw [mpzToNat_val, Num.val_sub, Num.val_ofSizeT n₂ (small_lt_base_sq h₂)]; rfl
-    | big m₂ _ =>
-      simp only [natSub]
-      split <;> rename_i h
-      · show (0 : Nat) = m₁.val - m₂.val; omega
-      · rw [mpzToNat_val, Num.val_sub]; rfl
 
 /--
 `lean_nat_mul`:
@@ -4517,25 +4057,6 @@ def natMul : NatObj → NatObj → NatObj
     else mpzToNat ((Num.ofSizeT n₁).mul (Num.ofSizeT n₂))
   | a, b => mpzToNat (a.toNum.mul b.toNum)
 
-@[simp] theorem natMul_val (a b : NatObj) : (natMul a b).val = a.val * b.val := by
-  cases a with
-  | small n₁ h₁ =>
-    cases b with
-    | small n₂ h₂ =>
-      simp only [natMul]
-      split <;> rename_i h
-      · subst h; simp [NatObj.val]
-      · split
-        · rfl
-        · rw [mpzToNat_val, Num.val_mul, Num.val_ofSizeT n₁ (small_lt_base_sq h₁),
-            Num.val_ofSizeT n₂ (small_lt_base_sq h₂)]
-          rfl
-    | big m₂ _ => simp only [natMul]; rw [mpzToNat_val, Num.val_mul, NatObj.val_toNum,
-        NatObj.val_toNum]
-  | big m₁ _ =>
-    cases b <;> (simp only [natMul]
-                 rw [mpzToNat_val, Num.val_mul, NatObj.val_toNum, NatObj.val_toNum])
-
 /--
 `lean_nat_mod`, which returns the dividend when the divisor is zero:
 ```
@@ -4564,27 +4085,6 @@ def natMod : NatObj → NatObj → NatObj
       rw [Num.val_ofSizeT n₂ (by simp only [maxSmallNat, base_eq] at *; omega)]; exact h))
   | .big m₁ _, .big m₂ h₂ => mpzToNat (m₁.mod m₂ (by omega))
 
-@[simp] theorem natMod_val (a b : NatObj) : (natMod a b).val = a.val % b.val := by
-  cases a with
-  | small n₁ h₁ =>
-    cases b with
-    | small n₂ h₂ =>
-      simp only [natMod]
-      split <;> rename_i h
-      · subst h; simp [NatObj.val]
-      · rfl
-    | big m₂ h₂ =>
-      show n₁ = n₁ % m₂.val
-      exact (Nat.mod_eq_of_lt (by omega)).symm
-  | big m₁ h₁ =>
-    cases b with
-    | small n₂ h₂ =>
-      simp only [natMod]
-      split <;> rename_i h
-      · subst h; show m₁.val = m₁.val % 0; simp
-      · rw [mpzToNat_val, Num.val_mod, Num.val_ofSizeT n₂ (small_lt_base_sq h₂)]; rfl
-    | big m₂ _ => simp only [natMod]; rw [mpzToNat_val, Num.val_mod]; rfl
-
 /--
 `lean_nat_land`, whose scalar path never unboxes:
 ```
@@ -4606,20 +4106,6 @@ def natLand : NatObj → NatObj → NatObj
       exact Nat.le_trans (Nat.and_le_left ..) h₁)
   | a, b => mpzToNat (a.toNum.land b.toNum)
 
-@[simp] theorem natLand_val (a b : NatObj) : (natLand a b).val = a.val &&& b.val := by
-  cases a with
-  | small n₁ h₁ =>
-    cases b with
-    | small n₂ h₂ =>
-      show unbox (box n₁ &&& box n₂) = _
-      rw [box_and n₁ n₂ h₁ h₂, unbox_box _ (Nat.le_trans (Nat.and_le_left ..) h₁)]
-      rfl
-    | big m₂ _ => simp only [natLand]; rw [mpzToNat_val, Num.val_land, NatObj.val_toNum,
-        NatObj.val_toNum]
-  | big m₁ _ =>
-    cases b <;> (simp only [natLand]
-                 rw [mpzToNat_val, Num.val_land, NatObj.val_toNum, NatObj.val_toNum])
-
 /--
 `lean_nat_lor`, which keeps the tag for the same reason as `land`:
 ```
@@ -4640,29 +4126,6 @@ def natLor : NatObj → NatObj → NatObj
         exact Nat.lt_succ_iff.mp (Nat.or_lt_two_pow (n := 63) (by omega) (by omega))
       rw [box_or n₁ n₂ h₁ h₂, unbox_box _ hb]; exact hb)
   | a, b => mpzToNat (a.toNum.lor b.toNum)
-
-@[simp] theorem natLor_val (a b : NatObj) : (natLor a b).val = a.val ||| b.val := by
-  cases a with
-  | small n₁ h₁ =>
-    cases b with
-    | small n₂ h₂ =>
-      have hb : n₁ ||| n₂ ≤ maxSmallNat := by
-        simp only [maxSmallNat] at *
-        exact Nat.lt_succ_iff.mp (Nat.or_lt_two_pow (n := 63) (by omega) (by omega))
-      show unbox (box n₁ ||| box n₂) = _
-      rw [box_or n₁ n₂ h₁ h₂, unbox_box _ hb]
-      rfl
-    | big m₂ _ => simp only [natLor]; rw [mpzToNat_val, Num.val_lor, NatObj.val_toNum,
-        NatObj.val_toNum]
-  | big m₁ _ =>
-    cases b <;> (simp only [natLor]
-                 rw [mpzToNat_val, Num.val_lor, NatObj.val_toNum, NatObj.val_toNum])
-
-private theorem compare_le_zero (x y : Num) : (x.compare y ≤ 0) ↔ (x.val ≤ y.val) := by
-  rw [Num.compare_spec]
-  split <;> rename_i h1
-  · omega
-  · omega
 
 /--
 `lean_nat_le`, whose scalar path compares the tagged values directly:
@@ -4686,30 +4149,6 @@ def natBle : NatObj → NatObj → Bool
   | .big _ _, .small _ _ => false
   | .big m₁ _, .big m₂ _ => m₁.compare m₂ ≤ 0
 
-@[simp] theorem natBle_val (a b : NatObj) : natBle a b = decide (a.val ≤ b.val) := by
-  cases a with
-  | small n₁ h₁ =>
-    cases b with
-    | small n₂ h₂ =>
-      show decide (box n₁ ≤ box n₂) = decide (n₁ ≤ n₂)
-      simp only [decide_eq_decide]
-      exact box_le_box n₁ n₂ h₁ h₂
-    | big m₂ h₂ => exact (decide_eq_true (by omega : n₁ ≤ m₂.val)).symm
-  | big m₁ h₁ =>
-    cases b with
-    | small n₂ h₂ => exact (decide_eq_false (by omega : ¬ (m₁.val ≤ n₂))).symm
-    | big m₂ _ =>
-      show decide (m₁.compare m₂ ≤ (0 : Int)) = decide (m₁.val ≤ m₂.val)
-      simp only [decide_eq_decide]
-      exact compare_le_zero m₁ m₂
-
-/-- Boxing is injective, which is what makes the pointer comparison meaningful. -/
-theorem box_inj (m n : Nat) (hm : m ≤ maxSmallNat) (hn : n ≤ maxSmallNat) :
-    box m = box n ↔ m = n := by
-  constructor
-  · intro h; rw [← unbox_box m hm, ← unbox_box n hn, h]
-  · grind
-
 /--
 `lean_nat_eq`, whose scalar path compares the tagged values directly:
 ```
@@ -4730,28 +4169,6 @@ def natBeq : NatObj → NatObj → Bool
   | .big _ _, .small _ _ => false
   | .big m₁ _, .big m₂ _ => m₁.compare m₂ == 0
 
-@[simp] theorem natBeq_val (a b : NatObj) : natBeq a b = decide (a.val = b.val) := by
-  have hcmp : ∀ x y : Num, (x.compare y == 0) = decide (x.val = y.val) := by
-    intro x y
-    rw [Num.compare_spec]
-    split <;> rename_i h1
-    · grind
-    · grind
-  cases a with
-  | small n₁ h₁ =>
-    cases b with
-    | small n₂ h₂ =>
-      show (box n₁ == box n₂) = decide (n₁ = n₂)
-      by_cases h : n₁ = n₂
-      · grind
-      · have hne : box n₁ ≠ box n₂ := fun hb => h ((box_inj n₁ n₂ h₁ h₂).mp hb)
-        simp [hne, h]
-    | big m₂ h₂ => exact (decide_eq_false (by omega : ¬ (n₁ = m₂.val))).symm
-  | big m₁ h₁ =>
-    cases b with
-    | small n₂ h₂ => exact (decide_eq_false (by omega : ¬ (m₁.val = n₂))).symm
-    | big m₂ _ => show (m₁.compare m₂ == 0) = decide (m₁.val = m₂.val); exact hcmp m₁ m₂
-
 /--
 `lean_nat_succ`:
 ```
@@ -4766,11 +4183,6 @@ static inline lean_obj_res lean_nat_succ(b_lean_obj_arg a) {
 def natSucc : NatObj → NatObj
   | .small n h => usizeToNat (n + 1) (by simp only [maxSmallNat, base_eq] at *; omega)
   | .big m h => mpzToNatCore (m.add Num.one) (by rw [Num.val_add, Num.val_one]; omega)
-
-@[simp] theorem natSucc_val (a : NatObj) : (natSucc a).val = a.val + 1 := by
-  cases a with
-  | small n h => simp only [natSucc]; rw [usizeToNat_val]; rfl
-  | big m _ => simp only [natSucc]; rw [mpzToNatCore_val, Num.val_add]; rfl
 
 /--
 `lean_nat_shiftr`, and `lean_nat_big_shiftr` behind it:
@@ -4831,6 +4243,694 @@ def natShiftRight (a b : NatObj) : NatObj :=
       else .small 0 (Nat.zero_le _)
     else mpzToNat (m₁.shiftRight n₂)
 
+/--
+`lean_nat_shiftl`:
+```
+extern "C" LEAN_EXPORT lean_obj_res lean_nat_shiftl(b_lean_obj_arg a1, b_lean_obj_arg a2) {
+    // Special case for shifted value is 0.
+    if (lean_is_scalar(a1) && lean_unbox(a1) == 0) {
+        return lean_box(0);
+    }
+    auto a = lean_is_scalar(a1)
+           ? mpz::of_size_t(lean_unbox(a1))
+           : mpz_value(a1);
+    if (!lean_is_scalar(a2) || lean_unbox(a2) > UINT_MAX) {
+        lean_internal_panic("Nat.shiftl exponent is too big");
+    }
+    mpz r;
+    mul2k(r, a, lean_unbox(a2));
+    return mpz_to_nat(r);
+}
+```
+The panic is the precondition `hb`: an exponent past `UINT_MAX` has no answer to
+give. A `big` object is never zero, so testing the scalar for zero is testing
+the value.
+-/
+def natShiftLeft (a b : NatObj) : NatObj :=
+  if a.val = 0 then .small 0 (Nat.zero_le _)
+  else if base ≤ b.val then panic! "Nat.shiftl exponent is too big"
+  else mpzToNat (a.toNum.shiftLeft b.val)
+
+/--
+`lean_nat_lxor`:
+```
+static inline lean_obj_res lean_nat_lxor(b_lean_obj_arg a1, b_lean_obj_arg a2) {
+    if (LEAN_LIKELY(lean_is_scalar(a1) && lean_is_scalar(a2))) {
+        return lean_box(lean_unbox(a1) ^ lean_unbox(a2));
+    } else {
+        return lean_nat_big_xor(a1, a2);
+    }
+}
+```
+Unlike `land` and `lor` this unboxes first, because `^` on two tagged values
+would clear the tag rather than keep it.
+-/
+def natXor : NatObj → NatObj → NatObj
+  | .small n₁ h₁, .small n₂ h₂ =>
+    .small (n₁ ^^^ n₂) (by
+      simp only [maxSmallNat] at *
+      exact Nat.lt_succ_iff.mp (Nat.xor_lt_two_pow (n := 63) (by omega) (by omega)))
+  | a, b => mpzToNat (a.toNum.xor b.toNum)
+
+/--
+`lean_nat_gcd`:
+```
+extern "C" LEAN_EXPORT lean_obj_res lean_nat_gcd(b_lean_obj_arg a1, b_lean_obj_arg a2) {
+    if (lean_is_scalar(a1)) {
+      if (lean_is_scalar(a2))
+        return mpz_to_nat(gcd(mpz::of_size_t(lean_unbox(a1)), mpz::of_size_t(lean_unbox(a2))));
+      else
+        return mpz_to_nat(gcd(mpz::of_size_t(lean_unbox(a1)), mpz_value(a2)));
+    } else {
+      if (lean_is_scalar(a2))
+        return mpz_to_nat(gcd(mpz_value(a1), mpz::of_size_t(lean_unbox(a2))));
+      else
+        return mpz_to_nat(gcd(mpz_value(a1), mpz_value(a2)));
+    }
+}
+```
+All four arms are `gcd` on the two values as `mpz`, which is what `toNum` reads
+off an object, so the dispatch collapses here.
+-/
+def natGcd (a b : NatObj) : NatObj := mpzToNat (a.toNum.gcd b.toNum)
+
+/--
+`lean_nat_pow`:
+```
+extern "C" LEAN_EXPORT lean_obj_res lean_nat_pow(b_lean_obj_arg a1, b_lean_obj_arg a2) {
+    if (!lean_is_scalar(a2) || lean_unbox(a2) > UINT_MAX) {
+        lean_internal_panic("Nat.pow exponent is too big");
+    }
+    if (lean_is_scalar(a1))
+        return mpz_to_nat(mpz::of_size_t(lean_unbox(a1)).pow(lean_unbox(a2)));
+    else
+        return mpz_to_nat(mpz_value(a1).pow(lean_unbox(a2)));
+}
+```
+The exponent is an object here rather than an `unsigned`, and the guard is what
+bounds `type_checker::reduce_pow` to `UINT_MAX`. A `big` object exceeds
+`UINT_MAX` on its own, so `!lean_is_scalar(a2) || lean_unbox(a2) > UINT_MAX` is
+the single test `base ≤ p.val`.
+-/
+def natPow (a p : NatObj) : NatObj :=
+  if base ≤ p.val then panic! "Nat.pow exponent is too big"
+  else
+    match a with
+    | .small n _ => mpzToNat ((Num.ofSizeT n).pow (UInt32.ofNat p.val))
+    | .big m _ => mpzToNat (m.pow (UInt32.ofNat p.val))
+
+
+/-!
+## Proofs
+
+Nothing below is needed by a definition above. It is the loop helpers whose free
+length or buffers the invariants induct over, and the specifications themselves.
+-/
+
+/-- The loop above as a recursion, for `compare_eq` to induct over. -/
+private def compareLoop (a b : Array Digit) : Nat → Int
+  | 0 => 0
+  | j+1 =>
+    let u_j := a.getD j 0
+    let v_j := b.getD j 0
+    if u_j > v_j then 1 else if u_j < v_j then -1 else compareLoop a b j
+
+/-- The loop as the descending recursion its proof inducts over. -/
+theorem compare_eq (a b : Array Digit) :
+    compare a b = compareLoop a b (max a.size b.size) := by
+  simp only [compare, Id.run]
+  generalize max a.size b.size = n
+  induction n with
+  | zero => rfl
+  | succ n ih =>
+    rw [List.range_succ, List.reverse_append]
+    simp only [List.reverse_cons, List.reverse_nil, List.nil_append, List.cons_append,
+      List.forIn_cons, compareLoop]
+    simp only [bne_self_eq_false, Bool.false_eq_true, ite_false]
+    split
+    · cases h : (List.range n).reverse with
+      | nil => rfl
+      | cons x xs => simp only [List.forIn_cons]; rfl
+    · split
+      · cases h : (List.range n).reverse with
+        | nil => rfl
+        | cons x xs => simp only [List.forIn_cons]; rfl
+      · exact ih
+
+/-- Both operands scaled by the same amount: same quotient, remainder scaled. -/
+private theorem div_mod_scaled (N D t : Nat) (ht : 0 < t) :
+    (N * t) / (D * t) = N / D ∧ (N * t) % (D * t) = (N % D) * t :=
+  ⟨Nat.mul_div_mul_right _ _ ht, Nat.mul_mod_mul_right ..⟩
+
+/-- A bigger leading digit outweighs everything below it. -/
+private theorem denoteN_lt_of_digit_lt (a b : Array Digit) (n : Nat)
+    (h : (a.getD n 0).toNat < (b.getD n 0).toNat) : denoteN a (n+1) < denoteN b (n+1) := by
+  have h1 : denoteN a n < base ^ n := denoteN_lt a n
+  have h2 : ((a.getD n 0).toNat + 1) * base ^ n ≤ (b.getD n 0).toNat * base ^ n :=
+    Nat.mul_le_mul_right _ (by omega)
+  have h3 : ((a.getD n 0).toNat + 1) * base ^ n
+      = (a.getD n 0).toNat * base ^ n + base ^ n := by grind
+  have h4 : (b.getD n 0).toNat * base ^ n ≤ denoteN b (n+1) := by rw [denoteN]; omega
+  rw [denoteN]
+  omega
+
+/-- The scan reports the order of the digits it has seen. -/
+theorem compareLoop_spec (a b : Array Digit) (n : Nat) :
+    compareLoop a b n =
+      if denoteN b n < denoteN a n then 1 else if denoteN a n < denoteN b n then -1 else 0 := by
+  induction n with
+  | zero => simp [compareLoop, denoteN]
+  | succ n ih =>
+    have hgt : (a.getD n 0 > b.getD n 0) = ((b.getD n 0).toNat < (a.getD n 0).toNat) := rfl
+    have hlt : (a.getD n 0 < b.getD n 0) = ((a.getD n 0).toNat < (b.getD n 0).toNat) := rfl
+    rw [compareLoop]
+    simp only [hgt, hlt]
+    rcases Nat.lt_trichotomy (a.getD n 0).toNat (b.getD n 0).toNat with h | h | h
+    · have hd := denoteN_lt_of_digit_lt a b n h
+      simp only [show ((b.getD n 0).toNat < (a.getD n 0).toNat) = False from eq_false (by omega),
+        show ((a.getD n 0).toNat < (b.getD n 0).toNat) = True from eq_true h,
+        show (denoteN b (n+1) < denoteN a (n+1)) = False from eq_false (by omega),
+        show (denoteN a (n+1) < denoteN b (n+1)) = True from eq_true hd, ite_true]
+    · have hdeq : a.getD n 0 = b.getD n 0 := UInt32.toNat_inj.mp h
+      simp [ih, denoteN, hdeq]
+    · have hd := denoteN_lt_of_digit_lt b a n h
+      omega
+
+/-- `mpn_compare` reports the order of its operands. -/
+theorem compare_spec (a b : Array Digit) :
+    compare a b = if denote b < denote a then 1 else if denote a < denote b then -1 else 0 := by
+  rw [compare_eq, compareLoop_spec, denoteN_of_ge a (Nat.le_max_left ..),
+    denoteN_of_ge b (Nat.le_max_right ..)]
+
+theorem Num.compare_spec (a b : Num) :
+    a.compare b = if b.val < a.val then 1 else if a.val < b.val then -1 else 0 :=
+  Mpn.compare_spec a.digits b.digits
+
+@[simp] theorem Num.val_mul (a b : Num) : (a.mul b).val = a.val * b.val := by
+  rw [Num.mul, Num.val_ofArray, denote_mul, Num.val, Num.val]
+
+@[simp] theorem Num.val_sub (a b : Num) : (a.sub b).val = a.val - b.val := by
+  have hc : Mpn.compare a.digits b.digits
+      = if b.val < a.val then 1 else if a.val < b.val then -1 else 0 := Num.compare_spec a b
+  rw [Num.sub]
+  split <;> rename_i h
+  · -- the guard says the difference would be negative, so the result is zero
+    show denote #[0] = _
+    rw [denote_singleton, show ((0 : Digit)).toNat = 0 from rfl]
+    omega
+  · have hlt : b.val < a.val := by
+      rcases Nat.lt_or_ge b.val a.val with hlt | hle
+      · exact hlt
+      · omega
+    -- with `b` below `a` the subtraction cannot borrow out of the top digit
+    have hd := denote_sub a.digits b.digits
+    have hlen : (Mpn.sub a.digits b.digits).1.size = max a.digits.size b.digits.size := size_sub ..
+    have hsmall : denote (Mpn.sub a.digits b.digits).1
+        < base ^ (max a.digits.size b.digits.size) := by
+      rw [denote, hlen]; exact denoteN_lt _ _
+    simp only [Num.val] at hlt
+    have hb0 : (Mpn.sub a.digits b.digits).2.toNat = 0 := by
+      rcases Nat.eq_zero_or_pos (Mpn.sub a.digits b.digits).2.toNat with h0 | h0
+      · exact h0
+      · exfalso
+        have hge : base ^ (max a.digits.size b.digits.size)
+            ≤ (Mpn.sub a.digits b.digits).2.toNat * base ^ (max a.digits.size b.digits.size) :=
+          Nat.le_mul_of_pos_left _ h0
+        omega
+    rw [hb0] at hd
+    rw [Num.val_ofArray]
+    simp only [Num.val]
+    omega
+
+theorem Num.val_div (a b : Num) (hb : b.val ≠ 0) : (a.div b hb).val = a.val / b.val := by
+  rw [Num.div]
+  split <;> rename_i h
+  · have hlt : a.val < b.val := by
+      rcases Nat.lt_or_ge a.val b.val with h2 | h2
+      · exact h2
+      · exact absurd (Num.size_le_of_val_le b a h2) (by omega)
+    rw [Nat.div_eq_of_lt hlt]
+    rfl
+  · rw [Num.val_ofArray]
+    exact (div_spec a.digits b.digits b.size_pos (by omega) (b.top_pos hb)).1
+
+theorem base_pow (w : Nat) : base ^ w = 2 ^ (32 * w) := by
+  rw [show (base : Nat) = 2 ^ 32 from rfl, ← Nat.pow_mul]
+
+private theorem getD_zeros_append_lt (w i : Nat) (b : Array Digit) (h : i < w) :
+    ((Array.replicate w (0 : Digit)) ++ b).getD i 0 = 0 := by
+  simp [Array.getElem?_append, h]
+
+private theorem getD_zeros_append_ge (w i : Nat) (b : Array Digit) (h : w ≤ i) :
+    ((Array.replicate w (0 : Digit)) ++ b).getD i 0 = b.getD (i - w) 0 := by
+  simp [Array.getElem?_append, Nat.not_lt.mpr h]
+
+private theorem denoteN_of_all_zero (c : Array Digit) (n : Nat)
+    (h : ∀ i, i < n → c.getD i 0 = 0) : denoteN c n = 0 := by
+  induction n with
+  | zero => rfl
+  | succ n ih => rw [denoteN, ih (fun i hi => h i (by omega)), h n (by omega)]; simp
+
+/-- Prepending `w` zero digits multiplies the denotation by `base ^ w`. -/
+theorem denote_zeros_append (b : Array Digit) (w : Nat) :
+    denote ((Array.replicate w (0 : Digit)) ++ b) = denote b * base ^ w := by
+  have hsz : ((Array.replicate w (0 : Digit)) ++ b).size = w + b.size := by simp
+  have key : ∀ j, denoteN ((Array.replicate w (0 : Digit)) ++ b) (w + j) = denoteN b j * base ^ w := by
+    intro j
+    induction j with
+    | zero =>
+      have hzero : denoteN ((Array.replicate w (0 : Digit)) ++ b) w = 0 :=
+        denoteN_of_all_zero _ w (fun i hi => getD_zeros_append_lt w i b hi)
+      simpa [denoteN] using hzero
+    | succ j ih =>
+      rw [show w + (j+1) = (w + j) + 1 by omega, denoteN, ih,
+        getD_zeros_append_ge w (w+j) b (by omega), show w + j - w = j by omega, denoteN,
+        Nat.add_mul, Nat.mul_assoc, ← Nat.pow_add, Nat.add_comm j w]
+  rw [denote, hsz, key b.size, denote]
+
+theorem Num.val_isZero (a : Num) (h : a.isZero) : a.val = 0 := by
+  simp only [Num.isZero, Bool.and_eq_true, decide_eq_true_eq, beq_iff_eq] at h
+  simp [Num.val, denote, h.1, denoteN, h.2]
+
+/-- `mul2k` shifts left: it multiplies by `2^k`. -/
+theorem Num.val_shiftLeft (a : Num) (k : Nat) : (a.shiftLeft k).val = a.val * 2 ^ k := by
+  rw [Num.shiftLeft]
+  split <;> rename_i h
+  · simp only [Bool.or_eq_true, decide_eq_true_eq] at h
+    rcases h with h | h
+    · simp [h]
+    · simp [Num.val_isZero a h]
+  · simp only [Bool.or_eq_true, decide_eq_true_eq] at h
+    have hbit : k % digitBits < digitBits := Nat.mod_lt _ (by simp [digitBits_eq])
+    have hpad : denote ((Array.replicate (k / digitBits) (0 : Digit)) ++ a.digits)
+        = a.val * base ^ (k / digitBits) := denote_zeros_append a.digits _
+    have hfit : denote ((Array.replicate (k / digitBits) (0 : Digit)) ++ a.digits)
+        * 2 ^ (k % digitBits) < base ^ (a.digits.size + k / digitBits + 1) := by
+      have h1 : a.val < base ^ a.digits.size := a.val_lt
+      have h2 : (2:Nat) ^ (k % digitBits) ≤ base := by
+        calc (2:Nat) ^ (k % digitBits) ≤ 2 ^ 32 :=
+              Nat.pow_le_pow_right (by omega) (by simp only [digitBits_eq] at hbit ⊢; omega)
+          _ = base := rfl
+      calc denote ((Array.replicate (k / digitBits) (0 : Digit)) ++ a.digits)
+            * 2 ^ (k % digitBits)
+          = a.val * base ^ (k / digitBits) * 2 ^ (k % digitBits) := by grind
+        _ < base ^ a.digits.size * base ^ (k / digitBits) * 2 ^ (k % digitBits) := by
+            refine (Nat.mul_lt_mul_right (Nat.two_pow_pos _)).mpr ?_
+            exact (Nat.mul_lt_mul_right (Nat.pow_pos (by simp [base_eq]))).mpr h1
+        _ ≤ base ^ a.digits.size * base ^ (k / digitBits) * base :=
+            Nat.mul_le_mul_left _ h2
+        _ = base ^ (a.digits.size + k / digitBits + 1) := by
+            rw [← Nat.pow_add, ← Nat.pow_succ]
+    rw [Num.val_ofArray,
+      denote_shiftLeftDigits _ hbit (by simp; omega) hfit, hpad, Nat.mul_assoc,
+      base_pow, ← Nat.pow_add]
+    congr 2
+    simp only [digitBits_eq]
+    omega
+
+/-- `div2k` shifts right: it divides by `2^k`. -/
+theorem Num.val_shiftRight (a : Num) (k : Nat) : (a.shiftRight k).val = a.val / 2 ^ k := by
+  have hbit : k % digitBits < digitBits := Nat.mod_lt _ (by simp [digitBits_eq])
+  have hk : 32 * (k / digitBits) + k % digitBits = k := by
+    simp only [digitBits_eq]; omega
+  rw [Num.shiftRight]
+  split <;> rename_i h
+  · simp only [Bool.or_eq_true, decide_eq_true_eq] at h
+    rcases h with h | h
+    · simp [h]
+    · simp [Num.val_isZero a h]
+  · split <;> rename_i h2
+    · -- the shift clears every digit
+      refine (Nat.div_eq_of_lt ?_).symm
+      have h1 : a.val < base ^ a.digits.size := a.val_lt
+      have h3 : base ^ a.digits.size ≤ 2 ^ k := by
+        rw [base_pow]
+        exact Nat.pow_le_pow_right (by omega) (by simp only [digitBits_eq] at h2 ⊢; omega)
+      omega
+    · -- the general case: drop `k / 32` digits, then shift the rest
+      have hw : k / digitBits ≤ a.digits.size := by omega
+      have hext : (a.digits.extract (k / digitBits) a.digits.size).size
+          = a.digits.size - k / digitBits := by simp
+      have hsplit : a.val = denoteN a.digits (k / digitBits)
+          + denote (a.digits.extract (k / digitBits) a.digits.size) * base ^ (k / digitBits) := by
+        exact denoteN_extract (j := k / digitBits) a.digits a.digits.size hw (Nat.le_refl _)
+      have hlow : denoteN a.digits (k / digitBits) < base ^ (k / digitBits) :=
+        denoteN_lt a.digits _
+      have hdiv : a.val / base ^ (k / digitBits)
+          = denote (a.digits.extract (k / digitBits) a.digits.size) := by
+        rw [hsplit, Nat.add_mul_div_right _ _ (Nat.pow_pos (by simp [base_eq])),
+          Nat.div_eq_of_lt hlow, Nat.zero_add]
+      rw [Num.val_ofArray,
+        denote_shiftRightDigits _ hbit (by omega),
+        show denoteN (a.digits.extract (k / digitBits) a.digits.size)
+            (a.digits.size - k / digitBits)
+          = denote (a.digits.extract (k / digitBits) a.digits.size) from by
+            rw [denote, hext],
+        ← hdiv, Nat.div_div_eq_div_mul, base_pow, ← Nat.pow_add, hk]
+
+/-- Digit `i` of a value, read off its denotation. -/
+theorem denote_digit (a : Array Digit) (i : Nat) :
+    denote a / base ^ i % base = (a.getD i 0).toNat := by
+  have hb : base ^ (i+1) = base ^ i * base := Nat.pow_succ base i
+  have hlow : denoteN a i < base ^ i := denoteN_lt a i
+  rw [← Nat.mod_mul_right_div_self, ← hb, ← denoteN_mod, denoteN,
+    Nat.add_mul_div_right _ _ (Nat.pow_pos (by simp [base_eq])), Nat.div_eq_of_lt hlow, Nat.zero_add]
+
+/-- Bit `j` of a value is bit `j % 32` of its digit `j / 32`. -/
+theorem testBit_denote (a : Array Digit) (j : Nat) :
+    (denote a).testBit j = (a.getD (j / digitBits) 0).toNat.testBit (j % digitBits) := by
+  obtain ⟨q, r, hr, hj⟩ : ∃ q r, r < 32 ∧ j = r + 32 * q :=
+    ⟨j / 32, j % 32, Nat.mod_lt _ (by omega), by omega⟩
+  subst hj
+  have hq : (r + 32 * q) / digitBits = q := by simp only [digitBits_eq]; omega
+  have hrm : (r + 32 * q) % digitBits = r := by simp only [digitBits_eq]; omega
+  rw [hq, hrm, Nat.testBit_add, ← base_pow, ← denote_digit a q,
+    show (base : Nat) = 2 ^ 32 from rfl, Nat.testBit_mod_two_pow]
+  simp [hr]
+
+private theorem getD_bitwiseDigits (f : Digit → Digit → Digit) (hf : f 0 0 = 0)
+    (a b : Array Digit) (i : Nat) :
+    (bitwiseDigits f a b).getD i 0 = f (a.getD i 0) (b.getD i 0) := by
+  rcases Nat.lt_or_ge i (max a.size b.size) with h | h
+  · simp [bitwiseDigits_eq, h]
+  · rw [getD_of_ge _ (by rw [size_bitwiseDigits]; omega), getD_of_ge a (by omega),
+      getD_of_ge b (by omega), hf]
+
+theorem denote_bitwiseDigits_and (a b : Array Digit) :
+    denote (bitwiseDigits (· &&& ·) a b) = denote a &&& denote b := by
+  refine Nat.eq_of_testBit_eq fun j => ?_
+  rw [testBit_denote, getD_bitwiseDigits _ (by decide) a b, UInt32.toNat_and,
+    Nat.testBit_and, Nat.testBit_and, testBit_denote, testBit_denote]
+
+theorem denote_bitwiseDigits_or (a b : Array Digit) :
+    denote (bitwiseDigits (· ||| ·) a b) = denote a ||| denote b := by
+  refine Nat.eq_of_testBit_eq fun j => ?_
+  rw [testBit_denote, getD_bitwiseDigits _ (by decide) a b, UInt32.toNat_or,
+    Nat.testBit_or, Nat.testBit_or, testBit_denote, testBit_denote]
+
+theorem denote_bitwiseDigits_xor (a b : Array Digit) :
+    denote (bitwiseDigits (· ^^^ ·) a b) = denote a ^^^ denote b := by
+  refine Nat.eq_of_testBit_eq fun j => ?_
+  rw [testBit_denote, getD_bitwiseDigits _ (by decide) a b, UInt32.toNat_xor,
+    Nat.testBit_xor, Nat.testBit_xor, testBit_denote, testBit_denote]
+
+@[simp] theorem Num.val_land (a b : Num) : (a.land b).val = a.val &&& b.val := by
+  rw [Num.land, Num.val_ofArray, denote_bitwiseDigits_and, Num.val, Num.val]
+
+@[simp] theorem Num.val_lor (a b : Num) : (a.lor b).val = a.val ||| b.val := by
+  rw [Num.lor, Num.val_ofArray, denote_bitwiseDigits_or, Num.val, Num.val]
+
+@[simp] theorem Num.val_xor (a b : Num) : (a.xor b).val = a.val ^^^ b.val := by
+  rw [Num.xor, Num.val_ofArray, denote_bitwiseDigits_xor, Num.val, Num.val]
+
+private theorem Nat.gcd_step (m n : Nat) : Nat.gcd m n = Nat.gcd n (m % n) := by
+  rw [Nat.gcd_comm m n, Nat.gcd_rec n m, Nat.gcd_comm]
+
+theorem Num.val_gcdLoop (a b : Num) : (a.gcdLoop b).val = Nat.gcd a.val b.val := by
+  rw [Num.gcdLoop]
+  split <;> rename_i h
+  · simp [h]
+  · rw [Num.val_gcdLoop b (a.mod b h), Num.val_mod a b h, ← Nat.gcd_step]
+termination_by b.val
+decreasing_by
+  rename_i h
+  rw [Num.val_mod a b h]
+  exact Nat.mod_lt _ (by omega)
+
+/-- `gcd` computes the greatest common divisor. -/
+theorem Num.val_gcd (a b : Num) : (a.gcd b).val = Nat.gcd a.val b.val := by
+  rw [Num.gcd]
+  split
+  · rw [Num.val_gcdLoop, Nat.gcd_comm]
+  · rw [Num.val_gcdLoop]
+
+private theorem toNat_and_one (p : Digit) : (p &&& 1).toNat = p.toNat % 2 := by simp
+
+theorem Num.val_powMul (power result : Num) (p : Digit) :
+    (Num.powMul power result p).val = result.val * power.val ^ (p.toNat % 2) := by
+  rw [Num.powMul]
+  split <;> rename_i hb
+  · have : p.toNat % 2 = 1 := by rw [← toNat_and_one, hb]; rfl
+    rw [this, Num.val_mul, Nat.pow_one]
+  · have h1 : (p &&& 1).toNat ≠ 1 := fun hx => hb (UInt32.toNat_inj.mp (by rw [hx]; rfl))
+    simp_all
+
+theorem Num.val_powLoop (power result : Num) (p : Digit) :
+    (Num.powLoop power result p).val = result.val * power.val ^ p.toNat := by
+  rw [Num.powLoop]
+  split <;> rename_i h
+  · subst h; simp
+  · have hp : p.toNat ≠ 0 := fun h0 => h (UInt32.toNat_inj.mp (by rw [h0]; rfl))
+    split <;> rename_i h1
+    · have h2 : p.toNat / 2 = 0 := by rw [← toNat_shiftRight_one, h1]; rfl
+      rw [Num.val_powMul]
+      have : p.toNat % 2 = p.toNat := by omega
+      rw [this]
+    · rw [Num.val_powLoop, Num.val_powMul, toNat_shiftRight_one, Num.val_mul,
+        Nat.mul_pow, ← Nat.pow_add, Nat.mul_assoc, ← Nat.pow_add]
+      grind
+termination_by p.toNat
+decreasing_by
+  rename_i hne _
+  rw [toNat_shiftRight_one]
+  have : p.toNat ≠ 0 := fun h0 => hne (UInt32.toNat_inj.mp (by rw [h0]; rfl))
+  omega
+
+/-- `pow` raises to a power. It terminates for every exponent, including `2^31`
+and above, where the `mpz.cpp` loop this replaces used to spin forever. -/
+theorem Num.val_pow (a : Num) (p : Digit) : (a.pow p).val = a.val ^ p.toNat := by
+  rw [Num.pow, Num.val_powLoop, Num.val_one, Nat.one_mul]
+
+
+/--
+`lean_nat_le`'s fast path compares the boxed values directly:
+```
+        // This comparison is UB according to the standard but allowed as per the
+        // GCC documentation and the address sanitizer does not complain about it.
+        return a1 < a2;
+```
+Boxing is monotone, so the comparison on the tagged values is the comparison on
+the numbers. Only the pointer comparison itself is outside the standard.
+-/
+theorem box_le_box (m n : Nat) (hm : m ≤ maxSmallNat) (hn : n ≤ maxSmallNat) :
+    (box m ≤ box n) ↔ m ≤ n := by
+  rw [UInt64.le_iff_toNat_le, toNat_box m hm, toNat_box n hn]
+  omega
+
+@[simp] theorem mpzToNat_val (m : Num) : (mpzToNat m).val = m.val := by
+  unfold mpzToNat; split <;> rfl
+
+@[simp] theorem mpzToNatCore_val (m : Num) (h : maxSmallNat < m.val) :
+    (mpzToNatCore m h).val = m.val := rfl
+
+/--
+`lean_nat_div` divides, for every pair of objects. There is no precondition:
+division by zero is a branch rather than an assumption, and the branch that
+returns zero without dividing is sound because a `big` object never holds a
+value a scalar could have held, which is what the type records and what the
+`lean_assert` in `lean_nat_big_div` only checks in a debug build.
+-/
+theorem natDiv_val (a b : NatObj) : (natDiv a b).val = a.val / b.val := by
+  cases a with
+  | small n₁ h₁ =>
+    cases b with
+    | small n₂ h₂ =>
+      simp only [natDiv]
+      split <;> rename_i h
+      · subst h; simp [NatObj.val]
+      · rfl
+    | big m₂ h₂ =>
+      simp only [NatObj.val]
+      exact (Nat.div_eq_of_lt (by omega)).symm
+  | big m₁ h₁ =>
+    cases b with
+    | small n₂ h₂ =>
+      simp only [natDiv]
+      split <;> rename_i h
+      · subst h; simp [NatObj.val]
+      · rw [mpzToNat_val, Num.val_div, NatObj.val, NatObj.val,
+          Num.val_ofSizeT n₂ (by simp only [maxSmallNat, base_eq] at *; omega)]
+    | big m₂ h₂ =>
+      simp only [natDiv]
+      rw [mpzToNat_val, Num.val_div, NatObj.val, NatObj.val]
+
+private theorem small_lt_base_sq {n : Nat} (h : n ≤ maxSmallNat) : n < base ^ 2 := by
+  simp only [maxSmallNat, base_eq] at *; omega
+
+@[simp] theorem NatObj.val_toNum (a : NatObj) : a.toNum.val = a.val := by
+  cases a with
+  | small n h => rw [toNum, NatObj.val, Num.val_ofSizeT n (small_lt_base_sq h)]
+  | big m _ => rfl
+
+@[simp] theorem usizeToNat_val (n : Nat) (h64 : n < base ^ 2) : (usizeToNat n h64).val = n := by
+  unfold usizeToNat; split
+  · rfl
+  · rw [NatObj.val, Num.val_ofSizeT n h64]
+
+@[simp] theorem natAdd_val (a b : NatObj) : (natAdd a b).val = a.val + b.val := by
+  cases a with
+  | small n₁ h₁ =>
+    cases b with
+    | small n₂ h₂ => simp only [natAdd]; rw [usizeToNat_val]; rfl
+    | big m₂ _ =>
+      simp only [natAdd]
+      rw [mpzToNatCore_val, Num.val_add, Num.val_ofSizeT n₁ (small_lt_base_sq h₁)]; rfl
+  | big m₁ _ =>
+    cases b with
+    | small n₂ h₂ =>
+      simp only [natAdd]
+      rw [mpzToNatCore_val, Num.val_add, Num.val_ofSizeT n₂ (small_lt_base_sq h₂)]; rfl
+    | big m₂ _ => simp only [natAdd]; rw [mpzToNatCore_val, Num.val_add]; rfl
+
+@[simp] theorem natSub_val (a b : NatObj) : (natSub a b).val = a.val - b.val := by
+  cases a with
+  | small n₁ h₁ =>
+    cases b with
+    | small n₂ h₂ =>
+      simp only [natSub]
+      split <;> rename_i h
+      · show (0 : Nat) = n₁ - n₂; omega
+      · rfl
+    | big m₂ h₂ => show (0 : Nat) = n₁ - m₂.val; omega
+  | big m₁ h₁ =>
+    cases b with
+    | small n₂ h₂ =>
+      simp only [natSub]
+      rw [mpzToNat_val, Num.val_sub, Num.val_ofSizeT n₂ (small_lt_base_sq h₂)]; rfl
+    | big m₂ _ =>
+      simp only [natSub]
+      split <;> rename_i h
+      · show (0 : Nat) = m₁.val - m₂.val; omega
+      · rw [mpzToNat_val, Num.val_sub]; rfl
+
+@[simp] theorem natMul_val (a b : NatObj) : (natMul a b).val = a.val * b.val := by
+  cases a with
+  | small n₁ h₁ =>
+    cases b with
+    | small n₂ h₂ =>
+      simp only [natMul]
+      split <;> rename_i h
+      · subst h; simp [NatObj.val]
+      · split
+        · rfl
+        · rw [mpzToNat_val, Num.val_mul, Num.val_ofSizeT n₁ (small_lt_base_sq h₁),
+            Num.val_ofSizeT n₂ (small_lt_base_sq h₂)]
+          rfl
+    | big m₂ _ => simp only [natMul]; rw [mpzToNat_val, Num.val_mul, NatObj.val_toNum,
+        NatObj.val_toNum]
+  | big m₁ _ =>
+    cases b <;> (simp only [natMul]
+                 rw [mpzToNat_val, Num.val_mul, NatObj.val_toNum, NatObj.val_toNum])
+
+@[simp] theorem natMod_val (a b : NatObj) : (natMod a b).val = a.val % b.val := by
+  cases a with
+  | small n₁ h₁ =>
+    cases b with
+    | small n₂ h₂ =>
+      simp only [natMod]
+      split <;> rename_i h
+      · subst h; simp [NatObj.val]
+      · rfl
+    | big m₂ h₂ =>
+      show n₁ = n₁ % m₂.val
+      exact (Nat.mod_eq_of_lt (by omega)).symm
+  | big m₁ h₁ =>
+    cases b with
+    | small n₂ h₂ =>
+      simp only [natMod]
+      split <;> rename_i h
+      · subst h; show m₁.val = m₁.val % 0; simp
+      · rw [mpzToNat_val, Num.val_mod, Num.val_ofSizeT n₂ (small_lt_base_sq h₂)]; rfl
+    | big m₂ _ => simp only [natMod]; rw [mpzToNat_val, Num.val_mod]; rfl
+
+@[simp] theorem natLand_val (a b : NatObj) : (natLand a b).val = a.val &&& b.val := by
+  cases a with
+  | small n₁ h₁ =>
+    cases b with
+    | small n₂ h₂ =>
+      show unbox (box n₁ &&& box n₂) = _
+      rw [box_and n₁ n₂ h₁ h₂, unbox_box _ (Nat.le_trans (Nat.and_le_left ..) h₁)]
+      rfl
+    | big m₂ _ => simp only [natLand]; rw [mpzToNat_val, Num.val_land, NatObj.val_toNum,
+        NatObj.val_toNum]
+  | big m₁ _ =>
+    cases b <;> (simp only [natLand]
+                 rw [mpzToNat_val, Num.val_land, NatObj.val_toNum, NatObj.val_toNum])
+
+@[simp] theorem natLor_val (a b : NatObj) : (natLor a b).val = a.val ||| b.val := by
+  cases a with
+  | small n₁ h₁ =>
+    cases b with
+    | small n₂ h₂ =>
+      have hb : n₁ ||| n₂ ≤ maxSmallNat := by
+        simp only [maxSmallNat] at *
+        exact Nat.lt_succ_iff.mp (Nat.or_lt_two_pow (n := 63) (by omega) (by omega))
+      show unbox (box n₁ ||| box n₂) = _
+      rw [box_or n₁ n₂ h₁ h₂, unbox_box _ hb]
+      rfl
+    | big m₂ _ => simp only [natLor]; rw [mpzToNat_val, Num.val_lor, NatObj.val_toNum,
+        NatObj.val_toNum]
+  | big m₁ _ =>
+    cases b <;> (simp only [natLor]
+                 rw [mpzToNat_val, Num.val_lor, NatObj.val_toNum, NatObj.val_toNum])
+
+private theorem compare_le_zero (x y : Num) : (x.compare y ≤ 0) ↔ (x.val ≤ y.val) := by
+  rw [Num.compare_spec]
+  split <;> rename_i h1
+  · omega
+  · omega
+
+@[simp] theorem natBle_val (a b : NatObj) : natBle a b = decide (a.val ≤ b.val) := by
+  cases a with
+  | small n₁ h₁ =>
+    cases b with
+    | small n₂ h₂ =>
+      show decide (box n₁ ≤ box n₂) = decide (n₁ ≤ n₂)
+      simp only [decide_eq_decide]
+      exact box_le_box n₁ n₂ h₁ h₂
+    | big m₂ h₂ => exact (decide_eq_true (by omega : n₁ ≤ m₂.val)).symm
+  | big m₁ h₁ =>
+    cases b with
+    | small n₂ h₂ => exact (decide_eq_false (by omega : ¬ (m₁.val ≤ n₂))).symm
+    | big m₂ _ =>
+      show decide (m₁.compare m₂ ≤ (0 : Int)) = decide (m₁.val ≤ m₂.val)
+      simp only [decide_eq_decide]
+      exact compare_le_zero m₁ m₂
+
+/-- Boxing is injective, which is what makes the pointer comparison meaningful. -/
+theorem box_inj (m n : Nat) (hm : m ≤ maxSmallNat) (hn : n ≤ maxSmallNat) :
+    box m = box n ↔ m = n := by
+  constructor
+  · intro h; rw [← unbox_box m hm, ← unbox_box n hn, h]
+  · grind
+
+@[simp] theorem natBeq_val (a b : NatObj) : natBeq a b = decide (a.val = b.val) := by
+  have hcmp : ∀ x y : Num, (x.compare y == 0) = decide (x.val = y.val) := by
+    intro x y
+    rw [Num.compare_spec]
+    split <;> rename_i h1
+    · grind
+    · grind
+  cases a with
+  | small n₁ h₁ =>
+    cases b with
+    | small n₂ h₂ =>
+      show (box n₁ == box n₂) = decide (n₁ = n₂)
+      by_cases h : n₁ = n₂
+      · grind
+      · have hne : box n₁ ≠ box n₂ := fun hb => h ((box_inj n₁ n₂ h₁ h₂).mp hb)
+        simp [hne, h]
+    | big m₂ h₂ => exact (decide_eq_false (by omega : ¬ (n₁ = m₂.val))).symm
+  | big m₁ h₁ =>
+    cases b with
+    | small n₂ h₂ => exact (decide_eq_false (by omega : ¬ (m₁.val = n₂))).symm
+    | big m₂ _ => show (m₁.compare m₂ == 0) = decide (m₁.val = m₂.val); exact hcmp m₁ m₂
+
+@[simp] theorem natSucc_val (a : NatObj) : (natSucc a).val = a.val + 1 := by
+  cases a with
+  | small n h => simp only [natSucc]; rw [usizeToNat_val]; rfl
+  | big m _ => simp only [natSucc]; rw [mpzToNatCore_val, Num.val_add]; rfl
+
 @[simp] theorem natShiftRight_val (a b : NatObj) (hb : base ≤ b.val → a.val < 2 ^ b.val) :
     (natShiftRight a b).val = a.val >>> b.val := by
   have hzero : ∀ x y : Nat, x < 2 ^ y → (0 : Nat) = x >>> y := by
@@ -4869,34 +4969,6 @@ def natShiftRight (a b : NatObj) : NatObj :=
       simp only [base_eq]
       omega
 
-/--
-`lean_nat_shiftl`:
-```
-extern "C" LEAN_EXPORT lean_obj_res lean_nat_shiftl(b_lean_obj_arg a1, b_lean_obj_arg a2) {
-    // Special case for shifted value is 0.
-    if (lean_is_scalar(a1) && lean_unbox(a1) == 0) {
-        return lean_box(0);
-    }
-    auto a = lean_is_scalar(a1)
-           ? mpz::of_size_t(lean_unbox(a1))
-           : mpz_value(a1);
-    if (!lean_is_scalar(a2) || lean_unbox(a2) > UINT_MAX) {
-        lean_internal_panic("Nat.shiftl exponent is too big");
-    }
-    mpz r;
-    mul2k(r, a, lean_unbox(a2));
-    return mpz_to_nat(r);
-}
-```
-The panic is the precondition `hb`: an exponent past `UINT_MAX` has no answer to
-give. A `big` object is never zero, so testing the scalar for zero is testing
-the value.
--/
-def natShiftLeft (a b : NatObj) : NatObj :=
-  if a.val = 0 then .small 0 (Nat.zero_le _)
-  else if base ≤ b.val then panic! "Nat.shiftl exponent is too big"
-  else mpzToNat (a.toNum.shiftLeft b.val)
-
 @[simp] theorem natShiftLeft_val (a b : NatObj) (hb : b.val < base) :
     (natShiftLeft a b).val = a.val <<< b.val := by
   rw [natShiftLeft]
@@ -4906,27 +4978,6 @@ def natShiftLeft (a b : NatObj) : NatObj :=
   · split <;> rename_i h2
     · exact absurd h2 (by omega)
     · rw [mpzToNat_val, Num.val_shiftLeft, NatObj.val_toNum, Nat.shiftLeft_eq]
-
-/--
-`lean_nat_lxor`:
-```
-static inline lean_obj_res lean_nat_lxor(b_lean_obj_arg a1, b_lean_obj_arg a2) {
-    if (LEAN_LIKELY(lean_is_scalar(a1) && lean_is_scalar(a2))) {
-        return lean_box(lean_unbox(a1) ^ lean_unbox(a2));
-    } else {
-        return lean_nat_big_xor(a1, a2);
-    }
-}
-```
-Unlike `land` and `lor` this unboxes first, because `^` on two tagged values
-would clear the tag rather than keep it.
--/
-def natXor : NatObj → NatObj → NatObj
-  | .small n₁ h₁, .small n₂ h₂ =>
-    .small (n₁ ^^^ n₂) (by
-      simp only [maxSmallNat] at *
-      exact Nat.lt_succ_iff.mp (Nat.xor_lt_two_pow (n := 63) (by omega) (by omega)))
-  | a, b => mpzToNat (a.toNum.xor b.toNum)
 
 @[simp] theorem natXor_val (a b : NatObj) : (natXor a b).val = a.val ^^^ b.val := by
   cases a with
@@ -4939,55 +4990,8 @@ def natXor : NatObj → NatObj → NatObj
     cases b <;> (simp only [natXor]
                  rw [mpzToNat_val, Num.val_xor, NatObj.val_toNum, NatObj.val_toNum])
 
-/--
-`lean_nat_gcd`:
-```
-extern "C" LEAN_EXPORT lean_obj_res lean_nat_gcd(b_lean_obj_arg a1, b_lean_obj_arg a2) {
-    if (lean_is_scalar(a1)) {
-      if (lean_is_scalar(a2))
-        return mpz_to_nat(gcd(mpz::of_size_t(lean_unbox(a1)), mpz::of_size_t(lean_unbox(a2))));
-      else
-        return mpz_to_nat(gcd(mpz::of_size_t(lean_unbox(a1)), mpz_value(a2)));
-    } else {
-      if (lean_is_scalar(a2))
-        return mpz_to_nat(gcd(mpz_value(a1), mpz::of_size_t(lean_unbox(a2))));
-      else
-        return mpz_to_nat(gcd(mpz_value(a1), mpz_value(a2)));
-    }
-}
-```
-All four arms are `gcd` on the two values as `mpz`, which is what `toNum` reads
-off an object, so the dispatch collapses here.
--/
-def natGcd (a b : NatObj) : NatObj := mpzToNat (a.toNum.gcd b.toNum)
-
 @[simp] theorem natGcd_val (a b : NatObj) : (natGcd a b).val = Nat.gcd a.val b.val := by
   rw [natGcd, mpzToNat_val, Num.val_gcd, NatObj.val_toNum, NatObj.val_toNum]
-
-/--
-`lean_nat_pow`:
-```
-extern "C" LEAN_EXPORT lean_obj_res lean_nat_pow(b_lean_obj_arg a1, b_lean_obj_arg a2) {
-    if (!lean_is_scalar(a2) || lean_unbox(a2) > UINT_MAX) {
-        lean_internal_panic("Nat.pow exponent is too big");
-    }
-    if (lean_is_scalar(a1))
-        return mpz_to_nat(mpz::of_size_t(lean_unbox(a1)).pow(lean_unbox(a2)));
-    else
-        return mpz_to_nat(mpz_value(a1).pow(lean_unbox(a2)));
-}
-```
-The exponent is an object here rather than an `unsigned`, and the guard is what
-bounds `type_checker::reduce_pow` to `UINT_MAX`. A `big` object exceeds
-`UINT_MAX` on its own, so `!lean_is_scalar(a2) || lean_unbox(a2) > UINT_MAX` is
-the single test `base ≤ p.val`.
--/
-def natPow (a p : NatObj) : NatObj :=
-  if base ≤ p.val then panic! "Nat.pow exponent is too big"
-  else
-    match a with
-    | .small n _ => mpzToNat ((Num.ofSizeT n).pow (UInt32.ofNat p.val))
-    | .big m _ => mpzToNat (m.pow (UInt32.ofNat p.val))
 
 @[simp] theorem natPow_val (a p : NatObj) (hp : p.val < base) :
     (natPow a p).val = a.val ^ p.val := by

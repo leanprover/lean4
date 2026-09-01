@@ -381,7 +381,7 @@ jobs:
 
 /-- Lake package template identifier. -/
 public inductive InitTemplate
-| std | exe | lib | mathLax | math
+| std | exe | lib | mathLax | math | cslib
 deriving Repr, DecidableEq
 
 public instance : Inhabited InitTemplate := ⟨.std⟩
@@ -392,6 +392,7 @@ public def InitTemplate.ofString? : String → Option InitTemplate
 | "lib" => some .lib
 | "math-lax" => some .mathLax
 | "math" => some .math
+| "cs" => some .cslib
 | _ => none
 
 def escapeIdent (id : String) : String :=
@@ -412,6 +413,7 @@ def InitTemplate.configFileContents
 : String :=
   let pkgNameStr := dotlessName pkgName
   let mathRev := leanVer?.elim "master" (s!"v{·.toString}")
+  let cslibRev := leanVer?.elim "main" (s!"v{·.toString}")
   match tmp, lang with
   | .std, .lean => stdLeanConfigFileContents pkgNameStr (escapeName! root) pkgNameStr.toLower
   | .std, .toml => stdTomlConfigFileContents pkgNameStr root.toString pkgNameStr.toLower
@@ -423,6 +425,8 @@ def InitTemplate.configFileContents
   | .mathLax, .toml => mathLaxTomlConfigFileContents pkgNameStr root.toString mathRev
   | .math, .lean => mathLeanConfigFileContents pkgNameStr (escapeName! root) mathRev
   | .math, .toml => mathTomlConfigFileContents pkgNameStr root.toString mathRev
+  | .cslib, .toml => cslibTomlConfigFileContents pkgNameStr root.toString cslibRev
+  | .cslib, .lean => cslibTomlConfigFileContents pkgNameStr (escapeName! root) cslibRev
 
 def createLeanActionWorkflow (dir : FilePath) (tmp : InitTemplate) : LogIO PUnit := do
   logVerbose "creating lean-action CI workflow"

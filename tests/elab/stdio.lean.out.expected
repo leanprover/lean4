@@ -1,0 +1,11 @@
+print stdout
+print stderr
+line 4
+
+> stdio.lean.stdout1.txt
+line 1
+my error
+line 3
+
+> stdio.lean.stdout2.txt
+line 2

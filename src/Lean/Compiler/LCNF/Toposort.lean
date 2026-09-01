@@ -8,6 +8,7 @@ module
 prelude
 public import Lean.Compiler.LCNF.CompilerM
 public import Lean.Compiler.LCNF.PassManager
+import Lean.Compiler.InitAttr
 
 /-!
 This module "topologically sorts" an SCC of decls (an SCC of decls in the pipeline may in fact
@@ -42,8 +43,11 @@ where
     if (← get).seen.contains decl.name then
       return ()
 
+    let env ← getEnv
     modify fun s => { s with seen := s.seen.insert decl.name }
     decl.value.forCodeM (·.forM visitConsts)
+    if let some initializer := getBuiltinInitFnNameFor? env decl.name <|> getInitFnNameFor? env decl.name then
+      visitConst initializer
     modify fun s => { s with order := s.order.push decl }
 
   visitConsts (code : Code pu) : ToposortM pu Unit := do
@@ -51,15 +55,16 @@ where
     | .let decl _ =>
       match decl.value with
       | .const declName .. | .fap declName .. | .pap declName .. =>
-        if let some d := (← read).declsMap[declName]? then
-          process d
+        visitConst declName
       | _ => return ()
     | _ => return ()
 
+  visitConst (declName : Name) : ToposortM pu Unit := do
+    if let some d := (← read).declsMap[declName]? then
+      process d
+
 public def toposortDecls (decls : Array (Decl pu)) : CompilerM (Array (Decl pu)) := do
-  let (externDecls, otherDecls) := decls.partition (fun decl => decl.value matches .extern ..)
-  let otherDecls ← toposort otherDecls
-  return externDecls ++ otherDecls
+  toposort decls
 
 public def toposortPass : Pass where
   phase := .impure

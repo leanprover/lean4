@@ -38,7 +38,7 @@ theorem Iter.step_uLift [Iterator α Id β] {it : Iter (α := α) β} :
     PlausibleIterStep.done, pure_bind]
   cases it.toIterM.step.run.inflate using PlausibleIterStep.casesOn <;> simp
 
-@[simp]
+@[cbv_eval, simp]
 theorem Iter.toList_uLift [Iterator α Id β] {it : Iter (α := α) β}
     [Finite α Id] :
     it.uLift.toList = it.toList.map ULift.up := by
@@ -52,7 +52,7 @@ theorem Iter.toListRev_uLift [Iterator α Id β] {it : Iter (α := α) β}
     it.uLift.toListRev = it.toListRev.map ULift.up := by
   rw [toListRev_eq, toListRev_eq, toList_uLift, List.map_reverse]
 
-@[simp]
+@[cbv_eval, simp]
 theorem Iter.toArray_uLift [Iterator α Id β] {it : Iter (α := α) β}
     [Finite α Id] :
     it.uLift.toArray = it.toArray.map ULift.up := by
@@ -67,6 +67,7 @@ theorem Iter.length_uLift [Iterator α Id β] {it : Iter (α := α) β}
   rw [IterM.length_uLift]
   simp [monadLift]
 
+set_option linter.defProp false in
 @[deprecated Iter.length_uLift (since := "2026-01-28")]
 def Iter.count_uLift := @Iter.length_uLift
 

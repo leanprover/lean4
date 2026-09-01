@@ -73,8 +73,9 @@ def splitMatchOrCasesOn (mvarId : MVarId) (e : Expr) (matcherInfo : MatcherInfo)
   if (← isMatcherApp e) then
     Split.splitMatch mvarId e
   else
-    assert! matcherInfo.numDiscrs = 1
-    let discr := e.getAppArgs[matcherInfo.numParams + 1]!
+    -- For casesOn, the last discriminant is the major premise;
+    -- `cases` will handle any index discriminants automatically.
+    let discr := e.getAppArgs[matcherInfo.numParams + matcherInfo.numDiscrs]!
     assert! discr.isFVar
     let subgoals ← mvarId.cases discr.fvarId!
     return subgoals.map (·.mvarId) |>.toList

@@ -67,7 +67,7 @@ private def setLevelMVarsAtPreDef (preDef : PreDefinition) : PreDefinition :=
     let value' :=
       preDef.value.replaceLevel fun l =>
         match l with
-        | .mvar _ => levelZero
+        | .mvar _ => Level.zero
         | _       => none
     { preDef with value := value' }
   else
@@ -336,7 +336,7 @@ def addPreDefinitions (docCtx : LocalContext × LocalInstances) (preDefs : Array
                   (structuralRecursion docCtx preDefs termMeasures?s)
                   (wfRecursion docCtx preDefs termMeasures?s))
                 (fun msg =>
-                  let preDefMsgs := preDefs.toList.map (MessageData.ofExpr $ mkConst ·.declName)
+                  let preDefMsgs := preDefs.toList.map (MessageData.ofConstName <| ·.declName)
                   m!"fail to show termination for{indentD (MessageData.joinSep preDefMsgs Format.line)}\nwith errors\n{msg}")
           catch ex =>
             logException ex

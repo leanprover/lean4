@@ -35,12 +35,12 @@ public def maxOn [i : LE β] [DecidableLE β] (f : α → β) (x y : α) :=
 
 public theorem minOn_id [Min α] [LE α] [DecidableLE α] [LawfulOrderLeftLeaningMin α] {x y : α} :
     minOn id x y = min x y := by
-  simp [minOn, min_eq_if]
+  simp [minOn, min_eq_ite]
 
 public theorem maxOn_id [Max α] [LE α] [DecidableLE α] [LawfulOrderLeftLeaningMax α] {x y : α} :
     maxOn id x y = max x y := by
-  letI : LE α := (inferInstanceAs (LE α)).opposite
-  letI : Min α := (inferInstanceAs (Max α)).oppositeMin
+  letI : LE α := (inferInstance : LE α).opposite
+  letI : Min α := (inferInstance : Max α).oppositeMin
   simp [maxOn, minOn_id, Max.min_oppositeMin, this]
 
 public theorem minOn_eq_or [LE β] [DecidableLE β] {f : α → β} {x y : α} :
@@ -112,7 +112,7 @@ public theorem minOn_assoc [LE β] [DecidableLE β] [IsLinearPreorder β] {f : �
     · have : f z < f y := not_le.mp ‹¬ f y ≤ f z›
       have : f y < f x := not_le.mp ‹¬ f x ≤ f y›
       have : f z < f x := lt_trans ‹_› ‹_›
-      rw [if_neg]
+      rw [ite_eq_right]
       exact not_le.mpr ‹_›
 
 public instance [LE β] [DecidableLE β] [IsLinearPreorder β] {f : α → β} :
@@ -121,17 +121,20 @@ public instance [LE β] [DecidableLE β] [IsLinearPreorder β] {f : α → β} :
 
 public theorem min_apply [LE β] [DecidableLE β] [Min β] [LawfulOrderLeftLeaningMin β]
     {f : α → β} {x y : α} : min (f x) (f y) = f (minOn f x y) := by
-  rw [min_eq_if, minOn]
+  rw [min_eq_ite, minOn]
   split <;> rfl
 
-public theorem minOn_eq_if [LE β] [DecidableLE β] {f : α → β} {a b : α} :
+public theorem minOn_eq_ite [LE β] [DecidableLE β] {f : α → β} {a b : α} :
     minOn f a b = if f a ≤ f b then a else b :=
   (rfl)
+
+@[deprecated minOn_eq_ite (since := "2026-07-21")]
+public theorem minOn_eq_if {β : Type u_1} {α : Sort u_2} [LE β] [DecidableLE β] {f : α → β} {a : α} {b : α} : minOn f a b = if f a ≤ f b then a else b := minOn_eq_ite
 
 public theorem minOn_eq_min [Min α] [LE α] [DecidableLE α] [LawfulOrderLeftLeaningMin α] [LE β]
     [DecidableLE β] {f : α → β} {a b : α} (hf : f a ≤ f b ↔ a ≤ b) :
     minOn f a b = min a b := by
-  simp [minOn_eq_if, min_eq_if, hf]
+  simp [minOn_eq_ite, min_eq_ite, hf]
 
 public theorem min_apply_eq_min [LE α] [DecidableLE α] [Min α] [LawfulOrderLeftLeaningMin α]
     [Min β] [LE β] [DecidableLE β] [LawfulOrderLeftLeaningMin β]
@@ -168,32 +171,32 @@ public theorem maxOn_eq_right_of_lt
     [LE β] [DecidableLE β] [LT β] [Total (α := β) (· ≤ ·)] [LawfulOrderLT β]
     {f : α → β} {x y : α} (h : f x < f y) :
     maxOn f x y = y :=
-  letI : LE β := (inferInstanceAs (LE β)).opposite
-  letI : LT β := (inferInstanceAs (LT β)).opposite
+  letI : LE β := (inferInstance : LE β).opposite
+  letI : LT β := (inferInstance : LT β).opposite
   minOn_eq_right_of_lt (h := by simpa [LT.lt_opposite_iff] using h) ..
 
 public theorem left_le_apply_maxOn [le : LE β] [DecidableLE β] [IsLinearPreorder β] {f : α → β}
     {x y : α} : f x ≤ f (maxOn f x y) := by
   rw [maxOn_eq_minOn]
-  letI : LE β := (inferInstanceAs (LE β)).opposite
+  letI : LE β := (inferInstance : LE β).opposite
   simpa only [LE.le_opposite_iff] using apply_minOn_le_left (f := f) ..
 
 public theorem right_le_apply_maxOn [LE β] [DecidableLE β] [IsLinearPreorder β] {f : α → β}
     {x y : α} : f y ≤ f (maxOn f x y) := by
   rw [maxOn_eq_minOn]
-  letI : LE β := (inferInstanceAs (LE β)).opposite
+  letI : LE β := (inferInstance : LE β).opposite
   simpa only [LE.le_opposite_iff] using apply_minOn_le_right (f := f)
 
 public theorem apply_maxOn_le_iff [LE β] [DecidableLE β] [IsLinearPreorder β] {f : α → β}
     {x y : α} {b : β} :
     f (maxOn f x y) ≤ b ↔ f x ≤ b ∧ f y ≤ b := by
   rw [maxOn_eq_minOn]
-  letI : LE β := (inferInstanceAs (LE β)).opposite
+  letI : LE β := (inferInstance : LE β).opposite
   simpa only [LE.le_opposite_iff] using le_apply_minOn_iff (f := f)
 
 public theorem maxOn_assoc [LE β] [DecidableLE β] [IsLinearPreorder β] {f : α → β}
     {x y z : α} : maxOn f (maxOn f x y) z = maxOn f x (maxOn f y z) :=
-  letI : LE β := (inferInstanceAs (LE β)).opposite
+  letI : LE β := (inferInstance : LE β).opposite
   minOn_assoc (f := f)
 
 public instance [LE β] [DecidableLE β] [IsLinearPreorder β] {f : α → β} :
@@ -203,22 +206,25 @@ public instance [LE β] [DecidableLE β] [IsLinearPreorder β] {f : α → β} :
 
 public theorem max_apply [LE β] [DecidableLE β] [Max β] [LawfulOrderLeftLeaningMax β]
     {f : α → β} {x y : α} : max (f x) (f y) = f (maxOn f x y) := by
-  letI : LE β := (inferInstanceAs (LE β)).opposite
-  letI : Min β := (inferInstanceAs (Max β)).oppositeMin
-  simpa [Max.min_oppositeMin] using min_apply (f := f)
+  letI : LE β := (inferInstance : LE β).opposite
+  letI : Min β := (inferInstance : Max β).oppositeMin
+  simpa [Max.min_oppositeMin] using! min_apply (f := f)
 
 public theorem apply_maxOn [LE β] [DecidableLE β] [Max β] [LawfulOrderLeftLeaningMax β]
     {f : α → β} {x y : α} : f (maxOn f x y) = max (f x) (f y) :=
   max_apply.symm
 
-public theorem maxOn_eq_if [LE β] [DecidableLE β] {f : α → β} {a b : α} :
+public theorem maxOn_eq_ite [LE β] [DecidableLE β] {f : α → β} {a b : α} :
     maxOn f a b = if f b ≤ f a then a else b := by
-  simp only [maxOn_eq_minOn, minOn_eq_if, LE.le_opposite_iff]
+  simp only [maxOn_eq_minOn, minOn_eq_ite, LE.le_opposite_iff]
+
+@[deprecated maxOn_eq_ite (since := "2026-07-21")]
+public theorem maxOn_eq_if {β : Type u_1} {α : Sort u_2} [LE β] [DecidableLE β] {f : α → β} {a : α} {b : α} : maxOn f a b = if f b ≤ f a then a else b := maxOn_eq_ite
 
 public theorem maxOn_eq_max [Max α] [LE α] [DecidableLE α] [LawfulOrderLeftLeaningMax α] [LE β]
     [DecidableLE β] {f : α → β} {a b : α} (hf : f b ≤ f a ↔ b ≤ a) :
     maxOn f a b = max a b := by
-  simp [maxOn_eq_if, max_eq_if, hf]
+  simp [maxOn_eq_ite, max_eq_ite, hf]
 
 public theorem max_apply_eq_max [LE α] [DecidableLE α] [Max α] [LawfulOrderLeftLeaningMax α]
     [Max β] [LE β] [DecidableLE β] [LawfulOrderLeftLeaningMax β]

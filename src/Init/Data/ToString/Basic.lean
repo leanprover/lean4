@@ -51,29 +51,6 @@ instance {p : Prop} : ToString (Decidable p) := ⟨fun h =>
   | Decidable.isTrue _  => "true"
   | Decidable.isFalse _ => "false"⟩
 
-/--
-Converts a list into a string, using `ToString.toString` to convert its elements.
-
-The resulting string resembles list literal syntax, with the elements separated by `", "` and
-enclosed in square brackets.
-
-The resulting string may not be valid Lean syntax, because there's no such expectation for
-`ToString` instances.
-
-Examples:
-* `[1, 2, 3].toString = "[1, 2, 3]"`
-* `["cat", "dog"].toString = "[cat, dog]"`
-* `["cat", "dog", ""].toString = "[cat, dog, ]"`
--/
-protected def List.toString [ToString α] : List α → String
-  | [] => "[]"
-  | [x] => String.Internal.append (String.Internal.append "[" (toString x)) "]"
-  | x::xs => String.push (xs.foldl (fun l r => String.Internal.append (String.Internal.append l ", ") (toString r))
-      (String.Internal.append "[" (toString x))) ']'
-
-instance {α : Type u} [ToString α] : ToString (List α) :=
-  ⟨List.toString⟩
-
 instance : ToString PUnit.{u+1} :=
   ⟨fun _ => "()"⟩
 
@@ -88,11 +65,6 @@ instance : ToString Nat :=
 
 instance : ToString String.Pos.Raw :=
   ⟨fun p => Nat.repr p.byteIdx⟩
-
-instance : ToString Int where
-  toString
-    | Int.ofNat m   => toString m
-    | Int.negSucc m => String.Internal.append "-" (toString (succ m))
 
 instance (n : Nat) : ToString (Fin n) :=
   ⟨fun f => toString (Fin.val f)⟩

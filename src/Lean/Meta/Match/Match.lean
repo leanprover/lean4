@@ -33,12 +33,12 @@ The high-level overview of moves are
   * If there is an alternative, solve its constraints
   * Else use `contradiction` to prove completeness of the match
 * Process “independent prefixes” of patterns. These are patterns that can be processed without
-  affecting the aother alternatives, and without side effects in the sense of updating the `mvarId`.
+  affecting the other alternatives, and without side effects in the sense of updating the `mvarId`.
   These are
   - variable patterns; substitute
   - inaccessible patterns; add equality constraints
   - as-patterns: substitute value and equality
-  After thes have been processed, we use `.inaccessible x` where `x` is the variable being matched
+  After these have been processed, we use `.inaccessible x` where `x` is the variable being matched
   to mark them as “done”.
 * If all patterns start with “done”, drop the first variable
 * The first alt has only “done” patterns, drop remaining alts (they're overlapped)
@@ -76,6 +76,14 @@ register_builtin_option backward.match.rowMajor : Bool := {
   descr := "If true (the default), match compilation will split the discrimnants based \
     on position of the first constructor pattern in the first alternative. If false, \
     it splits them from left to right, which can lead to unnecessary code bloat."
+}
+
+register_builtin_option match.maxCounterExamples : Nat := {
+  defValue := 5
+  descr := "Maximum number of missing-case counter-examples to generate. \
+    When this limit is reached, the match compiler stops exploring further \
+    case splits for counter-example generation. Increase if you need to see \
+    all missing cases."
 }
 
 private def mkIncorrectNumberOfPatternsMsg [ToMessageData α]
@@ -138,7 +146,12 @@ where
 private def withAlts {α} (motive : Expr) (discrs : Array Expr) (discrInfos : Array DiscrInfo)
     (lhss : List AltLHS) (isSplitter : Option Overlaps)
     (k : List Alt → Array Expr → Array AltParamInfo → MetaM α) : MetaM α :=
-  loop lhss [] #[] #[] #[]
+  let overlappingAlts : Std.HashSet Nat :=
+    match isSplitter with
+    | none => {}
+    | some overlaps =>
+      overlaps.map.fold (fun set _ overlapping => set.insertMany overlapping) {}
+  loop lhss [] #[] #[] #[] overlappingAlts
 where
   mkSplitterHyps (idx : Nat) (lhs : AltLHS) (notAlts : Array Expr) : MetaM (Array Expr × Array Nat) := do
     withExistingLocalDecls lhs.fvarDecls do
@@ -171,15 +184,17 @@ where
       notAlt ← mkForallFVars (discrs ++ xs) notAlt
       return notAlt
 
-  loop (lhss : List AltLHS) (alts : List Alt) (minors : Array Expr) (altInfos : Array AltParamInfo) (notAlts : Array Expr) : MetaM α := do
+  loop (lhss : List AltLHS) (alts : List Alt) (minors : Array Expr) (altInfos : Array AltParamInfo) (notAlts : Array Expr) (overlappingAlts : Std.HashSet Nat) : MetaM α := do
     match lhss with
     | [] => k alts.reverse minors altInfos
     | lhs::lhss =>
-      let idx       := alts.length
+      let idx := notAlts.size
       let xs := lhs.fvarDecls.toArray.map LocalDecl.toExpr
       let (notAltHs, notAltIdxs) ← if isSplitter.isSome then mkSplitterHyps idx lhs notAlts else pure (#[], #[])
       let minorType ← mkMinorType xs lhs notAltHs
-      let notAlt ← mkNotAlt xs lhs
+      -- We only compute a `notAlt` if the index of the current alternative is part of the overlaps,
+      -- that is `idx ∈ isSplitter.get!.overlapping idx'` for some alternative index `idx'`.
+      let notAlt ← if overlappingAlts.contains idx then mkNotAlt xs lhs else pure default
       let hasParams := !xs.isEmpty || !notAltHs.isEmpty || discrInfos.any fun info => info.hName?.isSome
       let minorType := if hasParams then minorType else mkSimpleThunkType minorType
       let minorName := (`h).appendIndexAfter (idx+1)
@@ -191,7 +206,7 @@ where
         let fvarDecls ← lhs.fvarDecls.mapM instantiateLocalDeclMVars
         let alt    := { ref := lhs.ref, idx := idx, rhs := rhs, fvarDecls := fvarDecls, patterns := lhs.patterns, cnstrs := [], notAltIdxs := notAltIdxs }
         let alts   := alt :: alts
-        loop lhss alts minors altInfos (notAlts.push notAlt)
+        loop lhss alts minors altInfos (notAlts.push notAlt) overlappingAlts
 
 structure State where
   /-- Used alternatives -/
@@ -202,7 +217,7 @@ structure State where
   Used during splitter generation to avoid going through all pairs of patterns.
   -/
   overlaps        : Overlaps := {}
-  counterExamples : List (List Example) := []
+  counterExamples : Array (List Example) := #[]
 
 /-- Return true if the given (sub-)problem has been solved. -/
 private def isDone (p : Problem) : Bool :=
@@ -269,10 +284,16 @@ def isCurrVarInductive (p : Problem) : MetaM Bool := do
     let val? ← getInductiveVal? x
     return val?.isSome
 
-private def isConstructorTransition (p : Problem) : MetaM Bool := do
-  return (← isCurrVarInductive p)
-    && (hasCtorPattern p || p.alts.isEmpty)
-    && p.alts.all fun alt => match alt.patterns with
+private def isConstructorTransition (p : Problem) : StateRefT State MetaM Bool := do
+  if !(← isCurrVarInductive p) then return false
+  if p.alts.isEmpty then
+    /- When there are no alternatives left and we have already accumulated enough
+       counter-examples, stop exploring further case splits. This prevents
+       combinatorial explosion when generating "missing cases" diagnostics. -/
+    let maxCEx := match.maxCounterExamples.get (← getOptions)
+    return (← get).counterExamples.size < maxCEx
+  else
+    return hasCtorPattern p && p.alts.all fun alt => match alt.patterns with
       | .ctor .. :: _        => true
       | .inaccessible _ :: _ => true -- should be a done pattern by now
       | _                    => false
@@ -431,7 +452,7 @@ private def isCtorIdxHasNotBit? (e : Expr) : Option FVarId := do
 
 private partial def contradiction (mvarId : MVarId) : MetaM Bool := do
   mvarId.withContext do
-    withTraceNode `Meta.Match.match (msg := (return m!"{exceptBoolEmoji ·} Match.contradiction")) do
+    withTraceNode `Meta.Match.match (msg := (fun _ => return m!"Match.contradiction")) do
     trace[Meta.Match.match] m!"Match.contradiction:\n{mvarId}"
     if (← mvarId.contradictionCore {}) then
       trace[Meta.Match.match] "Contradiction found!"
@@ -467,7 +488,7 @@ where
         trace[Meta.Match.match] "contradiction succeeded"
       else
         trace[Meta.Match.match] "contradiction failed, missing alternative"
-        modify fun s => { s with counterExamples := p.examples :: s.counterExamples }
+        modify fun s => { s with counterExamples := s.counterExamples.push p.examples }
     | alt :: overlapped =>
       solveCnstrs p.mvarId alt
       for otherAlt in overlapped do
@@ -937,7 +958,7 @@ private def processFirstVarDone (p : Problem) : Problem :=
 private def tracedForM (xs : Array α) (process : α → StateRefT State MetaM Unit) : StateRefT State MetaM Unit :=
   if xs.size > 1 then
     for x in xs, i in [:xs.size] do
-      withTraceNode `Meta.Match.match (msg := (return m!"{exceptEmoji ·} subgoal {i+1}/{xs.size}")) do
+      withTraceNode `Meta.Match.match (msg := (fun _ => return m!"subgoal {i+1}/{xs.size}")) do
         process x
   else
     for x in xs do
@@ -1045,7 +1066,7 @@ private partial def process (p : Problem) : StateRefT State MetaM Unit := do
   throwNonSupported p
 
 private def getUElimPos? (matcherLevels : List Level) (uElim : Level) : MetaM (Option Nat) :=
-  if uElim == levelZero then
+  if uElim == Level.zero then
     return none
   else match matcherLevels.idxOf? uElim with
     | none => throwError "Dependent match elimination failed: Universe level not found"
@@ -1094,10 +1115,17 @@ def mkMatcherAuxDefinition (name : Name) (type : Expr) (value : Expr) (isSplitte
       -- matcher bodies should always be exported, if not private anyway
       withExporting do
         addDecl decl
+      -- If `matcher` is not private, mark it `[instance_reducible]` so that TC synthesis
+      -- can unfold it. Matchers aren't strictly type class instances, but TC instances often
+      -- contain `match` expressions in their bodies (e.g. `instance : Decidable (match ...)`),
+      -- and these matchers must unfold at `.instances` transparency to compare instance terms.
+      unless isPrivateName name do
+        setReducibilityStatus name .instanceReducible
       unless isSplitter do
         modifyEnv fun env => matcherExt.modifyState env fun s => s.insert key name
         addMatcherInfo name mi
-      setInlineAttribute name
+      if compile then
+        setInlineAttribute name
       enableRealizationsForConst name
       if compile then
         compileDecl decl
@@ -1155,10 +1183,10 @@ def mkMatcher (input : MkMatcherInput) : MetaM MatcherResult := withCleanLCtxFor
   forallBoundedTelescope matchType numDiscrs fun discrs matchTypeBody => do
   /- We generate an matcher that can eliminate using different motives with different universe levels.
      `uElim` is the universe level the caller wants to eliminate to.
-     If it is not levelZero, we create a matcher that can eliminate in any universe level.
+     If it is not Level.zero, we create a matcher that can eliminate in any universe level.
      This is useful for implementing `MatcherApp.addArg` because it may have to change the universe level. -/
   let uElim ← getLevel matchTypeBody
-  let uElimGen ← if uElim == levelZero then pure levelZero else mkFreshLevelMVar
+  let uElimGen ← if uElim == Level.zero then pure Level.zero else mkFreshLevelMVar
   let mkMatcher (type val : Expr) (altInfos : Array AltParamInfo) (s : State) : MetaM MatcherResult := do
     trace[Meta.Match.debug] "matcher value: {val}\ntype: {type}"
     /- The option `bootstrap.gen_matcher_code` is a helper hack. It is useful, for example,
@@ -1252,7 +1280,7 @@ def getMkMatcherInputInContext (matcherApp : MatcherApp) (unfoldNamed : Bool) : 
     let u :=
       if let some idx := matcherInfo.uElimPos?
       then mkLevelParam matcherConst.levelParams.toArray[idx]!
-      else levelZero
+      else Level.zero
     forallBoundedTelescope matcherType (some matcherInfo.numDiscrs) fun discrs _ => do
     mkForallFVars discrs (mkConst ``PUnit [u])
 

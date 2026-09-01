@@ -28,13 +28,15 @@ public section
 set_option linter.listVariables true -- Enforce naming conventions for `List`/`Array`/`Vector` variables.
 set_option linter.indexVariables true -- Enforce naming conventions for index variables.
 
+-- Disable linter for the `toArray` field
+set_option linter.listVariables false in
 /-- `Vector α n` is an `Array α` with size `n`. -/
 structure Vector (α : Type u) (n : Nat) where
   /-- The underlying array. -/
   toArray : Array α
   /-- Array size. -/
   size_toArray : toArray.size = n
-deriving Repr, DecidableEq
+deriving DecidableEq
 
 attribute [simp, grind =] Vector.size_toArray
 
@@ -63,8 +65,18 @@ meta def unexpandMk : Lean.PrettyPrinter.Unexpander
 recommended_spelling "empty" for "#v[]" in [Vector.mk, «term#v[_,]»]
 recommended_spelling "singleton" for "#v[x]" in [Vector.mk, «term#v[_,]»]
 
+protected def Vector.repr {α : Type u} [Repr α] {n : Nat} (xs : Vector α n) : Std.Format :=
+  let _ : Std.ToFormat α := ⟨repr⟩
+  if xs.size == 0 then
+    "#v[]"
+  else
+    Std.Format.bracketFill "#v[" (Std.Format.joinSep (xs.toArray.toList) ("," ++ Std.Format.line)) "]"
+
+instance Vector.instRepr {α : Type u} [Repr α] {n : Nat} : Repr (Vector α n) where
+  reprPrec xs _ := Vector.repr xs
+
 /-- Convert a vector to a list. -/
-@[expose]
+@[expose, implicit_reducible]
 def toList (xs : Vector α n) : List α := xs.toArray.toList
 
 /-- Custom eliminator for `Vector α n` through `Array α` -/
@@ -238,7 +250,7 @@ We immediately simplify this to the `extract` operation, so there is no verifica
   simp [shrink, take]
 
 /-- Maps elements of a vector using the function `f`. -/
-@[inline, expose] def map (f : α → β) (xs : Vector α n) : Vector β n :=
+@[inline, expose, implicit_reducible] def map (f : α → β) (xs : Vector α n) : Vector β n :=
   ⟨xs.toArray.map f, by simp⟩
 
 /-- Maps elements of a vector using the function `f`, which also receives the index of the element. -/
@@ -278,7 +290,7 @@ def mapFinIdxM {α : Type u} {β : Type v} {m : Type v → Type w} [Monad m]
     (xs : Vector α n) (f : (i : Nat) → α → (h : i < n) → m β) : m (Vector β n) :=
   let rec @[specialize] map (i : Nat) (j : Nat) (inv : i + j = n) (ys : Vector β (n - i)) : m (Vector β n) := do
     match i, inv with
-    | 0,    _  => pure ys
+    | 0,   inv => return ys.cast (by omega)
     | i+1, inv =>
       have j_lt : j < n := by
         rw [← inv, Nat.add_assoc, Nat.add_comm 1 j, Nat.add_comm]
@@ -505,6 +517,16 @@ Examples:
 -/
 @[inline, expose] def sum [Add α] [Zero α] (xs : Vector α n) : α :=
   xs.toArray.sum
+
+/--
+Computes the product of the elements of a vector.
+
+Examples:
+ * `#v[a, b, c].prod = a * (b * (c * 1))`
+ * `#v[1, 2, 5].prod = 10`
+-/
+@[inline, expose] def prod [Mul α] [One α] (xs : Vector α n) : α :=
+  xs.toArray.prod
 
 /--
 Pad a vector on the left with a given element.

@@ -7,6 +7,7 @@ module
 
 prelude
 public import Init.Data.Ord.Basic
+public import Lean.Data.Json
 import Lake.Util.String
 import Init.Data.String.Search
 import Init.Data.Iterators.Consumers.Collect
@@ -18,6 +19,8 @@ import Init.Data.ToString.Macro
 A year-mont-day date. Used by Lake's TOML parser and its toolchain version
 parser (for nightlies).
 -/
+
+open Lean (Json FromJson ToJson fromJson? toJson)
 
 namespace Lake
 
@@ -62,7 +65,21 @@ public def ofString? (t : String) : Option Date := do
     ofValid? (← y.toNat?) (← m.toNat?) (← d.toNat?)
   | _ => none
 
+public protected def fromJson? (j : Json) : Except String Date := do
+  let .str s := j
+    | throw "expected date"
+  let some d := ofString? s
+    | throw "expected date"
+  return d
+
+public instance : FromJson Date := ⟨Date.fromJson?⟩
+
 public protected def toString (d : Date) : String :=
   s!"{zpad d.year 4}-{zpad d.month 2}-{zpad d.day 2}"
 
 public instance : ToString Date := ⟨Date.toString⟩
+
+@[inline] public protected def toJson (d : Date) : Json :=
+  d.toString
+
+public instance : ToJson Date := ⟨Date.toJson⟩

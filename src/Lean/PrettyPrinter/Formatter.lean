@@ -234,10 +234,12 @@ def recover'.formatter (fmt : PrettyPrinter.Formatter) := fmt
 -- Note that there is a mutual recursion
 -- `categoryParser -> mkAntiquot -> termParser -> categoryParser`, so we need to introduce an indirection somewhere
 -- anyway.
+set_option compiler.ignoreBorrowAnnotation true in
 @[extern "lean_mk_antiquot_formatter"]
 opaque mkAntiquot.formatter' (name : String) (kind : SyntaxNodeKind) (anonymous := true) (isPseudoKind := false) : Formatter
 
 -- break up big mutual recursion
+set_option compiler.ignoreBorrowAnnotation true in
 @[extern "lean_pretty_printer_formatter_interpret_parser_descr"]
 opaque interpretParserDescr' : ParserDescr → CoreM Formatter
 
@@ -343,6 +345,10 @@ def node.formatter (k : SyntaxNodeKind) (p : Formatter) : Formatter := do
 
 @[combinator_formatter withFn, expose]
 def withFn.formatter (_ : ParserFn → ParserFn) (p : Formatter) : Formatter := p
+
+@[combinator_formatter withForbiddens, expose]
+def withForbiddens.formatter (tks : Array Token) (p : Formatter) (_h : tks.toList.Nodup) :
+    Formatter := p
 
 @[combinator_formatter trailingNode, expose]
 def trailingNode.formatter (k : SyntaxNodeKind) (_ _ : Nat) (p : Formatter) : Formatter := do

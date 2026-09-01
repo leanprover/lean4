@@ -1,0 +1,11 @@
+name = "lint-module"
+defaultTargets = ["Main", "Clean", "Linters"]
+
+[[lean_lib]]
+name = "Main"
+
+[[lean_lib]]
+name = "Clean"
+
+[[lean_lib]]
+name = "Linters"

@@ -9,6 +9,7 @@ public import Lean.Meta.Tactic.Grind.Arith.CommRing.NonCommRingM
 public import Lean.Meta.Tactic.Grind.Arith.CommRing.NonCommSemiringM
 public section
 namespace Lean.Meta.Grind.Arith.CommRing
+open Sym.Arith (MonadCanon)
 
 variable [MonadLiftT MetaM m] [MonadError m] [Monad m] [MonadCanon m] [MonadRing m]
 

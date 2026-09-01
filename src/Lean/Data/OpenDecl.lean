@@ -7,6 +7,7 @@ module
 
 prelude
 public import Init.Data.ToString.Name
+public import Init.Data.ToString.Extra
 
 public section
 

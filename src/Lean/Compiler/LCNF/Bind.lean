@@ -54,7 +54,7 @@ where
     | .return fvarId => f fvarId
     | .jmp fvarId .. =>
       unless (← read).contains fvarId do
-        throwError "`Code.bind` failed, it contains a out of scope join point"
+        throwError "`Code.bind` failed, it contains an out-of-scope join point"
       return c
     | .unreach type =>
       /-
@@ -68,7 +68,8 @@ where
       eraseCode k
       eraseParam auxParam
       return .unreach typeNew
-    | .sset (k := k) .. | .uset (k := k) .. | .inc (k := k) .. | .dec (k := k) .. =>
+    | .oset (k := k) ..| .sset (k := k) .. | .uset (k := k) .. | .inc (k := k) .. | .dec (k := k) ..
+    | .del (k := k) .. | .setTag (k := k) .. =>
       return c.updateCont! (← go k)
 
 instance : MonadCodeBind CompilerM where
@@ -92,7 +93,7 @@ where
     match type with
     | .forallE _ d b _ =>
       let d := d.instantiateRev xs
-      let p ← mkAuxParam d
+      let p ← mkAuxParam d (isMarkedBorrowed d)
       go b (xs.push (.fvar p.fvarId)) (ps.push p)
     | _ =>
       let type := type.instantiateRev xs

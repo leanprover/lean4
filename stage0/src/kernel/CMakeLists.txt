@@ -14,9 +14,7 @@ add_library(
   type_checker.cpp
   init_module.cpp
   expr_cache.cpp
-  equiv_manager.cpp
   quot.cpp
   inductive.cpp
   trace.cpp
-  instantiate_mvars.cpp
 )

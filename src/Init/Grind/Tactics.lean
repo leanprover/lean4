@@ -175,6 +175,7 @@ This *model-based* search is **complete for LIA**.
 
 * `grind -lia` disable the solver (useful for debugging)
 * `grind +qlia` accept rational models (shrinks the search space but is incomplete for ℤ)
+* `grind (liaSteps := n)` cap the number of steps performed by the model search (the solver becomes incomplete when the threshold is reached)
 
 #### Examples:
 
@@ -294,6 +295,24 @@ syntax (name := grindTrace)
   "grind?" optConfig (&" only")?
   (" [" withoutPosition(grindParam,*) "]")?
   : tactic
+
+/--
+`sym` enters an interactive symbolic simulation mode built on `grind`.
+Unlike `grind =>`, it does not eagerly introduce hypotheses or apply by-contradiction,
+giving the user explicit control over `intro`, `apply`, and `internalize` steps.
+
+Example:
+```
+example (x : Nat) : myP x → myQ x := by
+  sym [myP_myQ] =>
+    intro h
+    finish
+```
+-/
+syntax (name := sym)
+  "sym" optConfig (&" only")?
+  (" [" withoutPosition(grindParam,*) "]")?
+  " => " grindSeq : tactic
 
 /--
 `cutsat` solves linear integer arithmetic goals.

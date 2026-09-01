@@ -36,6 +36,8 @@ theorem BEq.symm [BEq α] [Std.Symm (α := α) (· == ·)] {a b : α} : a == b �
 theorem BEq.comm [BEq α] [PartialEquivBEq α] {a b : α} : (a == b) = (b == a) :=
   Bool.eq_iff_iff.2 ⟨BEq.symm, BEq.symm⟩
 
+theorem bne_eq [BEq α] {a b : α} : (a != b) = !(a == b) := rfl
+
 theorem bne_comm [BEq α] [PartialEquivBEq α] {a b : α} : (a != b) = (b != a) := by
   rw [bne, BEq.comm, bne]
 
@@ -64,3 +66,8 @@ theorem BEq.neq_of_beq_of_neq [BEq α] [PartialEquivBEq α] {a b c : α} :
 instance (priority := low) [BEq α] [LawfulBEq α] : EquivBEq α where
   symm h := beq_iff_eq.2 <| Eq.symm <| beq_iff_eq.1 h
   trans hab hbc := beq_iff_eq.2 <| (beq_iff_eq.1 hab).trans <| beq_iff_eq.1 hbc
+
+theorem equivBEq_of_iff_apply_eq [BEq α] (f : α → β) (hf : ∀ a b, a == b ↔ f a = f b) : EquivBEq α where
+  rfl := by simp [hf]
+  symm := by simp [hf, eq_comm]
+  trans hab hbc := (hf _ _).2 (Eq.trans ((hf _ _).1 hab) ((hf _ _).1 hbc))

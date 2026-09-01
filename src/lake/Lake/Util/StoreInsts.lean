@@ -16,27 +16,27 @@ open Lean
 namespace Lake
 
 public instance {cmp : κ → κ → Ordering} [Monad m] [Std.LawfulEqCmp cmp] : MonadDStore κ β (StateT (Std.DTreeMap κ β cmp) m) where
-  fetch? k := return (← get).get? k
+  fetch? k := modifyGet fun m => (m.get? k, m)
   store k a := modify (·.insert k a)
 
 public instance {cmp : κ → κ → Ordering} [MonadLiftT (ST ω) m] [Monad m] [Std.LawfulEqCmp cmp] : MonadDStore κ β (StateRefT' ω (Std.DTreeMap κ β cmp) m) where
-  fetch? k := return (← get).get? k
+  fetch? k := modifyGet fun m => (m.get? k, m)
   store k a := modify (·.insert k a)
 
 public instance [Monad m] : MonadStore κ α (StateT (RBArray κ α cmp) m) where
-  fetch? k := return (← get).find? k
+  fetch? k := modifyGet fun m => (m.find? k, m)
   store k a := modify (·.insert k a)
 
 public instance [MonadLiftT (ST ω) m] [Monad m] : MonadStore κ α (StateRefT' ω (RBArray κ α cmp) m) where
-  fetch? k := return (← get).find? k
+  fetch? k := modifyGet fun m => (m.find? k, m)
   store k a := modify (·.insert k a)
 
 public instance [Monad m] : MonadStore Name α (StateT (NameMap α) m) where
-  fetch? k := return (← get).find? k
+  fetch? k := modifyGet fun m => (m.find? k, m)
   store k a := modify (·.insert k a)
 
 public instance [MonadLiftT (ST ω) m] [Monad m] : MonadStore Name α (StateRefT' ω (NameMap α) m) where
-  fetch? k := return (← get).find? k
+  fetch? k := modifyGet fun m => (m.find? k, m)
   store k a := modify (·.insert k a)
 
 public instance [MonadDStore κ β m] [t : FamilyOut β k α] : MonadStore1Of k α m where

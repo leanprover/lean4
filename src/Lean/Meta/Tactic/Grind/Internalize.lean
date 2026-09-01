@@ -185,7 +185,9 @@ private def mkENode' (e : Expr) (generation : Nat) (funCC := false) : GoalM Unit
 private partial def internalizePattern (pattern : Expr) (generation : Nat) (origin : Origin) : GoalM Expr := do
   -- Recall that it is important to ensure patterns are maximally shared since
   -- we assume that in functions such as `getAppsOf` in `EMatch.lean`
-  go (← shareCommon pattern)
+  -- **Note**: We disable `shareCommonChecks` because patterns contain
+  -- loose bound variables and repair cannot be performed.
+  go (← Sym.shareCommonWithoutChecks pattern)
 where
   go (pattern : Expr) : GoalM Expr := do
     if pattern.isBVar || isPatternDontCare pattern then
@@ -317,7 +319,7 @@ def activateInjectiveTheorem (injThm : InjectiveTheorem) (generation : Nat) : Go
     let some thm := thm? | reportIssue! "failed to assert injectivity theorem `{injThm.origin.pp}`"
     activateTheorem thm generation
   else
-    addNewRawFact injThm.proof type generation (.inj injThm.origin)
+    addNewRawFact injThm.proof type generation (.inj injThm.origin) .other
 
 private def activateInjectiveTheorems (declName : Name) (generation : Nat) : GoalM Unit := do
   if (← getConfig).inj then
@@ -346,7 +348,7 @@ these facts.
 private def propagateEtaStruct (a : Expr) (generation : Nat) : GoalM Unit := do
   unless (← getConfig).etaStruct do return ()
   let aType ← whnf (← inferType a)
-  matchConstStructureLike aType.getAppFn (fun _ => return ()) fun inductVal us ctorVal => do
+  matchConstNonRecStructure aType.getAppFn (fun _ => return ()) fun inductVal us ctorVal => do
     unless a.isAppOf ctorVal.name do
       -- TODO: remove ctorVal.numFields after update stage0
       if (← isExtTheorem inductVal.name) || ctorVal.numFields == 0 then
@@ -443,7 +445,7 @@ Returns `true` if we should use `funCC` for applications of the given constant s
 private def useFunCongrAtDecl (declName : Name) : GrindM Bool := do
   if (← hasFunCCModifier declName) then
     return true
-  if (← isImplicitReducible declName) then
+  if (← isInstanceReducible declName) then
     /- **Note**: Instances are support elements. No `funCC` -/
     return false
   if let some projInfo ← getProjectionFnInfo? declName then
@@ -535,6 +537,7 @@ private def internalizeOfNatFinBitVecLiteral (e : Expr) (generation : Nat) (pare
   updateIndicesFound (.const ``OfNat.ofNat)
   activateTheorems ``OfNat.ofNat generation
 
+set_option compiler.ignoreBorrowAnnotation true in
 @[export lean_grind_internalize]
 private partial def internalizeImpl (e : Expr) (generation : Nat) (parent? : Option Expr := none) : GoalM Unit := withIncRecDepth do
   if (← alreadyInternalized e) then
@@ -563,15 +566,19 @@ where
       unless they are `grind` gadgets.
       -/
       mkENode' e generation
+      Solvers.internalize e parent?
     | .fvar .. =>
       mkENode' e generation
       checkAndAddSplitCandidate e
+      Solvers.internalize e parent?
     | .letE .. =>
       mkENode' e generation
+      Solvers.internalize e parent?
     | .lam .. =>
       addSplitCandidatesForFunext e generation parent?
       mkENode' e generation
       tryEta e generation
+      Solvers.internalize e parent?
     | .forallE _ d b _ =>
       mkENode' e generation
       internalizeImpl d generation e
@@ -583,20 +590,26 @@ where
       if (← isProp d <&&> isProp e) then
         propagateUp e
         checkAndAddSplitCandidate e
+      Solvers.internalize e parent?
     | .lit .. =>
       mkENode e generation
+      Solvers.internalize e parent?
     | .const declName _ =>
       updateIndicesFound (.const declName)
       mkENode e generation
       activateTheorems declName generation
+      Solvers.internalize e parent?
     | .mvar .. =>
       mkENode' e generation
+      Solvers.internalize e parent?
     | .mdata .. =>
       reportIssue! "unexpected metadata found during internalization{indentExpr e}\n`grind` uses a pre-processing step that eliminates metadata"
       mkENode' e generation
+      Solvers.internalize e parent?
     | .proj .. =>
       reportIssue! "unexpected kernel projection term during internalization{indentExpr e}\n`grind` uses a pre-processing step that folds them as projection applications, the pre-processor failed to fold this term"
       mkENode' e generation
+      Solvers.internalize e parent?
     | .app .. =>
       if (← isNonParametricLitValue e) then
         internalizeNonParametricLiteral e generation parent?
@@ -609,7 +622,6 @@ where
         mkENode e generation (funCC := funCC)
         updateAppMap e
         checkAndAddSplitCandidate e
-        pushCastHEqs e
         addMatchEqns f generation
         if args.size == 2 && f.isConstOf ``Grind.nestedProof then
           -- We only internalize the proposition. We can skip the proof because of
@@ -655,6 +667,7 @@ where
               let arg := args[i]
               internalizeImpl arg generation e
               registerParent e arg
+        pushCastHEqs e
         addCongrTable e
         Solvers.internalize e parent?
         propagateUp e

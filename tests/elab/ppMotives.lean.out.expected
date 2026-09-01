@@ -1,0 +1,24 @@
+@[reducible] def myAdd._f : (x : Nat) → Nat.below x → Nat → Nat :=
+fun x f x_1 =>
+  (match x, x_1 with
+    | 0, m => fun x => m
+    | n.succ, m => fun x => (x.1 m).succ)
+    f
+@[reducible] def myAdd._f : (x : Nat) → Nat.below (motive := fun x => Nat → Nat) x → Nat → Nat :=
+fun x f x_1 =>
+  (match (motive := (x : Nat) → Nat → Nat.below (motive := fun x => Nat → Nat) x → Nat) x, x_1 with
+    | 0, m => fun x => m
+    | n.succ, m => fun x => (x.1 m).succ)
+    f
+theorem ex.{u} : ∀ {α β : Sort u} (h : α = β) (a : α), cast h a ≍ a :=
+fun x x_1 x_2 x_3 =>
+  match x, x_1, x_2, x_3 with
+  | α, .(α), Eq.refl α, a => HEq.refl a
+theorem ex.{u} : ∀ {α β : Sort u} (h : α = β) (a : α), cast h a ≍ a :=
+fun x x_1 x_2 x_3 =>
+  match (motive := ∀ (x x_4 : Sort u) (x_5 : x = x_4) (x_6 : x), cast x_5 x_6 ≍ x_6) x, x_1, x_2, x_3 with
+  | α, .(α), Eq.refl α, a => HEq.refl a
+def fact : Nat → Nat :=
+fun n => Nat.recOn n 1 fun n acc => (n + 1) * acc
+def fact : Nat → Nat :=
+fun n => Nat.recOn (motive := fun x => Nat) n 1 fun n acc => (n + 1) * acc

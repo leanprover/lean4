@@ -546,7 +546,7 @@ def elabBinRelCore (noProp : Bool) (stx : Syntax) (expectedType? : Option Expr) 
       let mut maxType := r.max?.get!
       /- If `noProp == true` and `maxType` is `Prop`, then set `maxType := Bool`. `See toBoolIfNecessary` -/
       if noProp then
-        if (← withNewMCtxDepth <| isDefEq maxType (mkSort levelZero)) then
+        if (← withNewMCtxDepth <| isDefEq maxType (mkSort Level.zero)) then
           maxType := Lean.mkConst ``Bool
       let result ← toExprCore (← applyCoe tree maxType (isPred := true))
       trace[Elab.binrel] "result: {result}"
@@ -557,7 +557,7 @@ where
   toBoolIfNecessary (e : Expr) : TermElabM Expr := do
     if noProp then
       -- We use `withNewMCtxDepth` to make sure metavariables are not assigned
-      if (← withNewMCtxDepth <| isDefEq (← inferType e) (mkSort levelZero)) then
+      if (← withNewMCtxDepth <| isDefEq (← inferType e) (mkSort Level.zero)) then
         return (← ensureHasType (Lean.mkConst ``Bool) e)
     return e
 

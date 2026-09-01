@@ -8,6 +8,7 @@ prelude
 public import Lean.Meta.SynthInstance
 public import Lean.Meta.DecLevel
 import Lean.Meta.CtorRecognizer
+public import Lean.Meta.HasAssignableMVar
 import Lean.Structure
 import Init.Omega
 public section
@@ -26,7 +27,7 @@ def mkExpectedTypeHintCore (e : Expr) (expectedType : Expr) (expectedTypeUniv : 
 Given `proof` s.t. `inferType proof` is definitionally equal to `expectedProp`, returns
 term `@id expectedProp proof`. -/
 def mkExpectedPropHint (proof : Expr) (expectedProp : Expr) : Expr :=
-  mkExpectedTypeHintCore proof expectedProp levelZero
+  mkExpectedTypeHintCore proof expectedProp Level.zero
 
 /--
 Given `e` s.t. `inferType e` is definitionally equal to `expectedType`, returns
@@ -34,25 +35,6 @@ term `@id expectedType e`. -/
 def mkExpectedTypeHint (e : Expr) (expectedType : Expr) : MetaM Expr := do
   let u ← getLevel expectedType
   return mkExpectedTypeHintCore e expectedType u
-
-/--
-`mkLetFun x v e` creates `letFun v (fun x => e)`.
-The expression `x` can either be a free variable or a metavariable, and the function suitably abstracts `x` in `e`.
--/
-@[deprecated mkLetFVars (since := "2026-06-29")]
-def mkLetFun (x : Expr) (v : Expr) (e : Expr) : MetaM Expr := do
-  -- If `x` is an `ldecl`, then the result of `mkLambdaFVars` is a let expression.
-  let ensureLambda : Expr → Expr
-    | .letE n t _ b _ => .lam n t b .default
-    | e@(.lam ..)     => e
-    | _               => unreachable!
-  let f ← ensureLambda <$> mkLambdaFVars (usedLetOnly := false) #[x] e
-  let ety ← inferType e
-  let α ← inferType x
-  let β ← ensureLambda <$> mkLambdaFVars (usedLetOnly := false) #[x] ety
-  let u1 ← getLevel α
-  let u2 ← getLevel ety
-  return mkAppN (.const ``letFun [u1, u2]) #[α, β, v, f]
 
 /-- Returns `a = b`. -/
 def mkEq (a b : Expr) : MetaM Expr := do
@@ -341,8 +323,7 @@ private def mkFun (constName : Name) : MetaM (Expr × Expr) := do
 
 private def withAppBuilderTrace [ToMessageData α] [ToMessageData β]
     (f : α) (xs : β) (k : MetaM Expr) : MetaM Expr :=
-  let emoji | .ok .. => checkEmoji | .error .. => crossEmoji
-  withTraceNode `Meta.appBuilder (return m!"{emoji ·} f: {f}, xs: {xs}") do
+  withTraceNode `Meta.appBuilder (fun _ => return m!"f: {f}, xs: {xs}") do
     try
       let res ← k
       trace[Meta.appBuilder.result] res

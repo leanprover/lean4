@@ -65,10 +65,21 @@ structure WorkspaceClientCapabilities where
 
 structure LeanClientCapabilities where
   /--
+  Whether the client supports incremental `textDocument/publishDiagnostics` updates.
+  If `none` or `false`, the server will never set `PublishDiagnosticsParams.isIncremental?`
+  and always report full diagnostic updates that replace the previous one.
+  -/
+  incrementalDiagnosticSupport? : Option Bool := none
+  /--
   Whether the client supports `DiagnosticWith.isSilent = true`.
   If `none` or `false`, silent diagnostics will not be served to the client.
   -/
   silentDiagnosticSupport? : Option Bool := none
+  /--
+  The latest RPC wire format supported by the client.
+  Defaults to `v0` when `none`.
+  -/
+  rpcWireFormat? : Option RpcWireFormat := none
   deriving ToJson, FromJson
 
 structure ClientCapabilities where
@@ -79,12 +90,26 @@ structure ClientCapabilities where
   lean?         : Option LeanClientCapabilities         := none
   deriving ToJson, FromJson
 
+def ClientCapabilities.incrementalDiagnosticSupport (c : ClientCapabilities) : Bool := Id.run do
+  let some lean := c.lean?
+    | return false
+  let some incrementalDiagnosticSupport := lean.incrementalDiagnosticSupport?
+    | return false
+  return incrementalDiagnosticSupport
+
 def ClientCapabilities.silentDiagnosticSupport (c : ClientCapabilities) : Bool := Id.run do
   let some lean := c.lean?
     | return false
   let some silentDiagnosticSupport := lean.silentDiagnosticSupport?
     | return false
   return silentDiagnosticSupport
+
+def ClientCapabilities.rpcWireFormat (c : ClientCapabilities) : RpcWireFormat := Id.run do
+  let some lean := c.lean?
+    | return .v0
+  let some v := lean.rpcWireFormat?
+    | return .v0
+  return v
 
 structure LeanServerCapabilities where
   moduleHierarchyProvider? : Option ModuleHierarchyOptions

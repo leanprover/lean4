@@ -65,7 +65,7 @@ set so that it can hold the given number of elements without reallocating. It is
 use the empty collection notations `∅` and `{}` to create an empty hash set with the default
 capacity.
 -/
-@[inline] def emptyWithCapacity [BEq α] [Hashable α] (capacity := 8) : HashSet α :=
+@[cbv_opaque, inline] def emptyWithCapacity [BEq α] [Hashable α] (capacity := 8) : HashSet α :=
   ⟨HashMap.emptyWithCapacity capacity⟩
 
 instance [BEq α] [Hashable α] : EmptyCollection (HashSet α) where
@@ -91,7 +91,7 @@ Note: this non-replacement behavior is true for `HashSet` and `HashSet.Raw`.
 The `insert` function on `HashMap`, `DHashMap`, `HashMap.Raw` and `DHashMap.Raw` behaves
 differently: it will overwrite an existing mapping.
 -/
-@[inline] def insert (m : HashSet α) (a : α) : HashSet α :=
+@[cbv_opaque, inline] def insert (m : HashSet α) (a : α) : HashSet α :=
   ⟨m.inner.insertIfNew a ()⟩
 
 instance : Singleton α (HashSet α) := ⟨fun a => (∅ : HashSet α).insert a⟩
@@ -126,7 +126,7 @@ instance [BEq α] [Hashable α] {m : HashSet α} {a : α} : Decidable (a ∈ m) 
   inferInstanceAs (Decidable (a ∈ m.inner))
 
 /-- Removes the element if it exists. -/
-@[inline] def erase (m : HashSet α) (a : α) : HashSet α :=
+@[cbv_opaque, inline] def erase (m : HashSet α) (a : α) : HashSet α :=
   ⟨m.inner.erase a⟩
 
 /-- The number of elements present in the set -/
@@ -213,7 +213,7 @@ instance [BEq α] [Hashable α] {m : Type v → Type w} [Monad m] : ForIn m (Has
   forIn m init f := m.forIn f init
 
 /-- Removes all elements from the hash set for which the given function returns `false`. -/
-@[inline] def filter (f : α → Bool) (m : HashSet α) : HashSet α :=
+@[cbv_opaque, inline] def filter (f : α → Bool) (m : HashSet α) : HashSet α :=
   ⟨m.inner.filter fun a _ => f a⟩
 
 /--

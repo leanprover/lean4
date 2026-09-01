@@ -1,0 +1,9 @@
+3943.lean:1:0-1:7: warning: declaration uses `sorry`
+3943.lean:6:0-6:7: warning: declaration uses `sorry`
+3943.lean:11:0-11:7: warning: declaration uses `sorry`
+3943.lean:21:0-21:7: warning: declaration uses `sorry`
+3943.lean:26:0-26:7: warning: declaration uses `sorry`
+3943.lean:33:0-33:7: warning: declaration uses `sorry`
+3943.lean:41:16-41:20: warning: declaration uses `sorry`
+3943.lean:43:0-43:7: warning: declaration uses `sorry`
+3943.lean:48:0-48:7: warning: declaration uses `sorry`

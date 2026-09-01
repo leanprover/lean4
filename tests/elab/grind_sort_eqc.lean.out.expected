@@ -1,0 +1,2 @@
+grind_sort_eqc.lean:3:8-3:11: warning: declaration uses `sorry`
+grind_sort_eqc.lean:5:8-5:11: warning: declaration uses `sorry`

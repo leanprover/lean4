@@ -27,6 +27,7 @@ deriving Inhabited
 /--
 Creates an iterator over the valid positions within {name}`s`, starting at {name}`p`.
 -/
+@[cbv_opaque]
 def positionsFrom {s : Slice} (p : s.Pos) :
     Std.Iter (α := PosIterator s) { p : s.Pos // p ≠ s.endPos } :=
   { internalState := { currPos := p } }
@@ -81,7 +82,6 @@ private def finitenessRelation [Pure m] :
     · cases h'
     · cases h
 
-@[no_expose]
 instance [Pure m] : Std.Iterators.Finite (PosIterator s) m :=
   .of_finitenessRelation finitenessRelation
 
@@ -99,7 +99,7 @@ Examples:
  * {lean}`"abc".toSlice.chars.toList = ['a', 'b', 'c']`
  * {lean}`"ab∀c".toSlice.chars.toList = ['a', 'b', '∀', 'c']`
 -/
-@[expose, inline]
+@[cbv_opaque, expose, inline]
 def chars (s : Slice) :=
   Std.Iter.map (fun ⟨pos, h⟩ => pos.get h) (positions s)
 
@@ -169,7 +169,6 @@ private def finitenessRelation [Pure m] :
     · cases h'
     · cases h
 
-@[no_expose]
 instance [Pure m] : Std.Iterators.Finite (RevPosIterator s) m :=
   .of_finitenessRelation finitenessRelation
 
@@ -188,7 +187,7 @@ Example:
  * {lean}`"abc".toSlice.revChars.toList = ['c', 'b', 'a']`
  * {lean}`"ab∀c".toSlice.revChars.toList = ['c', '∀', 'b', 'a']`
 -/
-@[expose, inline]
+@[cbv_opaque, expose, inline]
 def revChars (s : Slice) :=
   Std.Iter.map (fun ⟨pos, h⟩ => pos.get h) (revPositions s)
 
@@ -246,7 +245,6 @@ private def finitenessRelation [Pure m] :
     · cases h'
     · cases h
 
-@[no_expose]
 instance [Pure m] : Std.Iterators.Finite ByteIterator m :=
   .of_finitenessRelation finitenessRelation
 
@@ -324,7 +322,6 @@ private def finitenessRelation [Pure m] :
     · cases h'
     · cases h
 
-@[no_expose]
 instance [Pure m] : Std.Iterators.Finite RevByteIterator m :=
   .of_finitenessRelation finitenessRelation
 
@@ -347,7 +344,7 @@ Examples:
  * {lean}`"coffee tea and water".toSlice.foldl (fun n c => if c.isWhitespace then n + 1 else n) 0 = 3`
  * {lean}`"coffee tea water".toSlice.foldl (·.push ·) "" = "coffee tea water"`
 -/
-@[inline]
+@[cbv_opaque, inline]
 def foldl {α : Type u} (f : α → Char → α) (init : α) (s : Slice) : α :=
   Std.Iter.fold f init (chars s)
 
@@ -398,7 +395,7 @@ Examples:
  * {lean}`"abc".chars.toList = ['a', 'b', 'c']`
  * {lean}`"ab∀c".chars.toList = ['a', 'b', '∀', 'c']`
 -/
-@[inline]
+@[cbv_opaque, inline]
 def chars (s : String) :=
   (s.toSlice.chars : Std.Iter Char)
 
@@ -432,7 +429,7 @@ Example:
  * {lean}`"abc".revChars.toList = ['c', 'b', 'a']`
  * {lean}`"ab∀c".revChars.toList = ['c', '∀', 'b', 'a']`
 -/
-@[inline]
+@[cbv_opaque, inline]
 def revChars (s : String) :=
   (s.toSlice.revChars : Std.Iter Char)
 
@@ -461,5 +458,33 @@ def revBytes (s : String) :=
 
 instance {m : Type u → Type v} [Monad m] : ForIn m String Char where
   forIn s b f := ForIn.forIn s.toSlice b f
+
+/--
+Folds a function over a string from the start, accumulating a value starting with {name}`init`. The
+accumulated value is combined with each character in order, using {name}`f`.
+
+Examples:
+ * {lean}`"coffee tea water".foldl (fun n c => if c.isWhitespace then n + 1 else n) 0 = 2`
+ * {lean}`"coffee tea and water".foldl (fun n c => if c.isWhitespace then n + 1 else n) 0 = 3`
+ * {lean}`"coffee tea water".foldl (·.push ·) "" = "coffee tea water"`
+-/
+@[inline] def foldl {α : Type u} (f : α → Char → α) (init : α) (s : String) : α :=
+  s.toSlice.foldl f init
+
+@[export lean_string_foldl]
+def Internal.foldlImpl (f : String → Char → String) (init : String) (s : String) : String :=
+  String.foldl f init s
+
+/--
+Folds a function over a string from the right, accumulating a value starting with {lean}`init`. The
+accumulated value is combined with each character in reverse order, using {lean}`f`.
+
+Examples:
+ * {lean}`"coffee tea water".foldr (fun c n => if c.isWhitespace then n + 1 else n) 0 = 2`
+ * {lean}`"coffee tea and water".foldr (fun c n => if c.isWhitespace then n + 1 else n) 0 = 3`
+ * {lean}`"coffee tea water".foldr (fun c s => s.push c) "" = "retaw aet eeffoc"`
+-/
+@[inline] def foldr {α : Type u} (f : Char → α → α) (init : α) (s : String) : α :=
+  s.toSlice.foldr f init
 
 end String

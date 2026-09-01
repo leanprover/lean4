@@ -23,13 +23,13 @@ namespace Char
 /--
 One character is less than another if its code point is strictly less than the other's.
 -/
-@[expose] protected def lt (a b : Char) : Prop := a.val < b.val
+protected def lt (a b : Char) : Prop := a.val < b.val
 
 /--
 One character is less than or equal to another if its code point is less than or equal to the
 other's.
 -/
-@[expose] protected def le (a b : Char) : Prop := a.val ≤ b.val
+protected def le (a b : Char) : Prop := a.val ≤ b.val
 
 instance : LT Char := ⟨Char.lt⟩
 instance : LE Char := ⟨Char.le⟩
@@ -69,7 +69,7 @@ theorem isValidChar_zero : isValidChar 0 :=
 /--
 The character's Unicode code point as a `Nat`.
 -/
-@[inline] def toNat (c : Char) : Nat :=
+@[inline, implicit_reducible] def toNat (c : Char) : Nat :=
   c.val.toNat
 
 /--
@@ -94,7 +94,7 @@ instance : Inhabited Char where
 Returns `true` if the character is a space `(' ', U+0020)`, a tab `('\t', U+0009)`, a carriage
 return `('\r', U+000D)`, or a newline `('\n', U+000A)`.
 -/
-@[inline] def isWhitespace (c : Char) : Bool :=
+@[inline, implicit_reducible] def isWhitespace (c : Char) : Bool :=
   c = ' ' || c = '\t' || c = '\r' || c = '\n'
 
 /--
@@ -102,7 +102,7 @@ Returns `true` if the character is a uppercase ASCII letter.
 
 The uppercase ASCII letters are the following: `ABCDEFGHIJKLMNOPQRSTUVWXYZ`.
 -/
-@[inline] def isUpper (c : Char) : Bool :=
+@[inline, implicit_reducible] def isUpper (c : Char) : Bool :=
   c.val ≥ 'A'.val ∧ c.val ≤ 'Z'.val
 
 /--
@@ -110,7 +110,7 @@ Returns `true` if the character is a lowercase ASCII letter.
 
 The lowercase ASCII letters are the following: `abcdefghijklmnopqrstuvwxyz`.
 -/
-@[inline] def isLower (c : Char) : Bool :=
+@[inline, implicit_reducible] def isLower (c : Char) : Bool :=
   c.val ≥ 'a'.val && c.val ≤ 'z'.val
 
 /--
@@ -118,7 +118,7 @@ Returns `true` if the character is an ASCII letter.
 
 The ASCII letters are the following: `ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz`.
 -/
-@[inline] def isAlpha (c : Char) : Bool :=
+@[inline, implicit_reducible] def isAlpha (c : Char) : Bool :=
   c.isUpper || c.isLower
 
 /--
@@ -126,8 +126,16 @@ Returns `true` if the character is an ASCII digit.
 
 The ASCII digits are the following: `0123456789`.
 -/
-@[inline] def isDigit (c : Char) : Bool :=
+@[inline, implicit_reducible] def isDigit (c : Char) : Bool :=
   c.val ≥ '0'.val && c.val ≤ '9'.val
+
+/--
+Returns `true` if the character is an ASCII hexadecimal digit.
+
+The ASCII hexadecimal digits are the following: `0123456789abcdefABCDEF`.
+-/
+@[inline] def isHexDigit (c : Char) : Bool :=
+  c.isDigit || (c.val ≥ 'a'.val && c.val ≤ 'f'.val) || (c.val ≥ 'A'.val && c.val ≤ 'F'.val)
 
 /--
 Returns `true` if the character is an ASCII letter or digit.
@@ -135,7 +143,7 @@ Returns `true` if the character is an ASCII letter or digit.
 The ASCII letters are the following: `ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz`.
 The ASCII digits are the following: `0123456789`.
 -/
-@[inline] def isAlphanum (c : Char) : Bool :=
+@[inline, implicit_reducible] def isAlphanum (c : Char) : Bool :=
   c.isAlpha || c.isDigit
 
 /--
@@ -144,7 +152,7 @@ alphabet are returned unchanged.
 
 The uppercase ASCII letters are the following: `ABCDEFGHIJKLMNOPQRSTUVWXYZ`.
 -/
-@[inline]
+@[inline, implicit_reducible]
 def toLower (c : Char) : Char :=
   if h : c.val ≥ 'A'.val ∧ c.val ≤ 'Z'.val then
     ⟨c.val + ('a'.val - 'A'.val), ?_⟩
@@ -161,7 +169,7 @@ alphabet are returned unchanged.
 
 The lowercase ASCII letters are the following: `abcdefghijklmnopqrstuvwxyz`.
 -/
-@[inline]
+@[inline, implicit_reducible]
 def toUpper (c : Char) : Char :=
   if h : 'a'.val ≤ c.val ∧ c.val ≤ 'z'.val then
     ⟨c.val + ('A'.val - 'a'.val), ?_⟩

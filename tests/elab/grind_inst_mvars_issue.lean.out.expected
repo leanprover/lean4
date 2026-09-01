@@ -1,0 +1,3 @@
+grind_inst_mvars_issue.lean:11:8-11:27: warning: declaration uses `sorry`
+grind_inst_mvars_issue.lean:13:8-13:42: warning: declaration uses `sorry`
+grind_inst_mvars_issue.lean:22:8-22:42: warning: declaration uses `sorry`

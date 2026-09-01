@@ -1,0 +1,3 @@
+elabAsElim.lean:120:4-120:17: warning: declaration uses `sorry`
+elabAsElim.lean:172:4-172:11: warning: declaration uses `sorry`
+elabAsElim.lean:175:8-175:20: warning: declaration uses `sorry`

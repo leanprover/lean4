@@ -141,7 +141,7 @@ def natMaybeZero : Parser Nat := do
 @[inline]
 def numSign : Parser Int := do
   let c ← peek!
-  let sign ← if c == '-' then
+  if c == '-' then
     skip
     return (-1 : Int)
   else

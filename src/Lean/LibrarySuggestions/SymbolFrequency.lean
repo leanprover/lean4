@@ -66,7 +66,11 @@ Helper function for running `MetaM` code during module export, when there is not
 Panics on errors.
 -/
 unsafe def _root_.Lean.Environment.unsafeRunMetaM [Inhabited α] (env : Environment) (x : MetaM α) : α :=
-   match unsafeEIO ((((withoutExporting x).run' {} {}).run' { fileName := "symbolFrequency", fileMap := default } { env })) with
+   match unsafeEIO ((((withoutExporting x).run' {} {}).run'
+    { fileName := "symbolFrequency", fileMap := default
+      -- avoid triggering since limit cannot be raised here
+      maxHeartbeats := 0 }
+    { env })) with
    | Except.ok a => a
    | Except.error ex => panic! match unsafeIO ex.toMessageData.toString with
      | Except.ok s => s
@@ -86,7 +90,9 @@ builtin_initialize symbolFrequencyExt : PersistentEnvExtension (NameMap Nat) Emp
     mkInitial       := pure ∅
     addImportedFn   := fun mapss _ => pure mapss
     addEntryFn      := nofun
-    exportEntriesFnEx := fun env _ _ => unsafe env.unsafeRunMetaM do return #[← cachedLocalSymbolFrequencyMap]
+    exportEntriesFnEx := fun env _ => unsafe
+      let ents := env.unsafeRunMetaM do return #[← cachedLocalSymbolFrequencyMap]
+      .uniform ents
     statsFn         := fun _ => "symbol frequency extension"
   }
 

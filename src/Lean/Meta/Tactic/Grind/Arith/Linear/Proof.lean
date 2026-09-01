@@ -11,8 +11,8 @@ import Lean.Data.RArray
 import Lean.Meta.Tactic.Grind.Arith.Linear.ToExpr
 import Lean.Meta.Tactic.Grind.Diseq
 import Lean.Meta.Tactic.Grind.ProofUtil
-import Lean.Meta.Tactic.Grind.Arith.CommRing.VarRename
-import Lean.Meta.Tactic.Grind.Arith.CommRing.ToExpr
+import Lean.Meta.Sym.Arith.VarRename
+import Lean.Meta.Sym.Arith.ToExpr
 import Lean.Meta.Tactic.Grind.Arith.Linear.VarRename
 public import Lean.Meta.Tactic.Grind.Arith.Linear.DenoteExpr
 public import Lean.Meta.Tactic.Grind.Arith.Linear.OfNatModule

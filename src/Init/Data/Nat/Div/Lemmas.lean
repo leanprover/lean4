@@ -123,7 +123,7 @@ theorem succ_div_of_dvd {a b : Nat} (h : b ∣ a + 1) :
   | zero => simp at h
   | succ b =>
     by_cases h' : b ≤ a
-    · rw [Nat.div_eq]
+    · rw [Nat.div_eq_ite]
       simp only [zero_lt_succ, Nat.add_le_add_iff_right, h', and_self, ↓reduceIte,
         Nat.reduceSubDiff, Nat.add_right_cancel_iff]
       obtain ⟨_|k, h⟩ := Nat.dvd_of_mod_eq_zero h
@@ -192,7 +192,7 @@ theorem mod_add_mod_lt_of_add_mod_eq_sub_one (w : 0 < c) (h : (a + b) % c = c - 
 theorem add_div_of_dvd_add_add_one (h : c ∣ a + b + 1) : (a + b) / c = a / c + b / c := by
   have w : c ≠ 0 := by rintro rfl; simp at h
   replace w : 0 < c := by omega
-  rw [Nat.add_div w, if_neg, Nat.add_zero]
+  rw [Nat.add_div w, ite_eq_right, Nat.add_zero]
   have := mod_add_mod_lt_of_add_mod_eq_sub_one w ((mod_eq_sub_iff Nat.zero_lt_one w).mpr h)
   omega
 
@@ -252,5 +252,17 @@ theorem ext_div_mod {n a b : Nat} (h0 : a / n = b / n) (h1 : a % n = b % n) : a 
 
 theorem ext_div_mod_iff (n a b : Nat) : a = b ↔ a / n = b / n ∧ a % n = b % n :=
   ⟨fun h => ⟨h ▸ rfl, h ▸ rfl⟩, fun ⟨h0, h1⟩ => ext_div_mod h0 h1⟩
+
+/-- An induction principle mirroring the base-`b` representation of the number. -/
+theorem base_induction {P : Nat → Prop} {n : Nat} (b : Nat) (hb : 1 < b) (single : ∀ m, m < b → P m)
+    (digit : ∀ m k, k < b → 0 < m → P m → P (b * m + k)) : P n := by
+  induction n using Nat.strongRecOn with | ind n ih
+  rcases Nat.lt_or_ge n b with hn | hn
+  · exact single _ hn
+  · have := div_add_mod n b
+    rw [← this]
+    apply digit _ _ (mod_lt _ (by omega)) _ (ih _ _)
+    · exact Nat.div_pos_iff.mpr ⟨by omega, hn⟩
+    · exact div_lt_self (by omega) (by omega)
 
 end Nat

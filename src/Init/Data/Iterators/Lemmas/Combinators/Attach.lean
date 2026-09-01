@@ -34,7 +34,7 @@ theorem Iter.unattach_toList_attachWith [Iterator α Id β]
     ← Id.run_map (f := List.unattach), IterM.map_unattach_toList_attachWith,
     Iter.toList_eq_toList_toIterM]
 
-@[simp]
+@[cbv_eval, simp]
 theorem Iter.toList_attachWith [Iterator α Id β]
     {it : Iter (α := α) β} {hP}
     [Finite α Id] :
@@ -68,7 +68,7 @@ theorem Iter.unattach_toArray_attachWith [Iterator α Id β]
     (it.attachWith P hP).toListRev.unattach = it.toListRev := by
   simp [toListRev_eq]
 
-@[simp]
+@[cbv_eval, simp]
 theorem Iter.toArray_attachWith [Iterator α Id β]
     {it : Iter (α := α) β} {hP}
     [Finite α Id] :
@@ -88,6 +88,7 @@ theorem Iter.length_attachWith [Iterator α Id β]
   rw [← Iter.length_toList_eq_length, toList_attachWith]
   simp
 
+set_option linter.defProp false in
 @[deprecated Iter.length_attachWith (since := "2026-01-28")]
 def Iter.count_attachWith := @Iter.length_attachWith
 

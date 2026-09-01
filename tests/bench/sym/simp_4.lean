@@ -9,13 +9,13 @@ def implies (p q : Prop) := p → q
 
 def getProofSize (r : Sym.Simp.Result) : MetaM Nat := do
   match r with
-  | .rfl _ => return 0
-  | .step _ p _ => (ShareCommon.shareCommon' p).numObjs
+  | .rfl _ _ => return 0
+  | .step _ p _ _ => (ShareCommon.shareCommon' p).numObjs
 
 def checkWithKernel (r : Sym.Simp.Result) : MetaM Float := do
   match r with
-  | .rfl _ => return 0.0
-  | .step _ p _ =>
+  | .rfl _ _ => return 0.0
+  | .step _ p _ _ =>
     let p := ShareCommon.shareCommon' p
     let startTime ← IO.monoNanosNow
     Meta.checkWithKernel p
@@ -40,8 +40,8 @@ def simp (e : Expr) (arrowTelescope : Bool) : MetaM (Sym.Simp.Result × Float) :
   let timeMs := (endTime - startTime).toFloat / 1000000.0
   -- logInfo e
   -- match r with
-  -- | .rfl _ => logInfo "rfl"
-  -- | .step e' h _ =>
+  -- | .rfl _ _ => logInfo "rfl"
+  -- | .step e' h _ _ =>
   --   logInfo e'; logInfo h
   return (r, timeMs)
 
@@ -50,8 +50,8 @@ def ppExample (e : Expr) (arrowTelescope : Bool) (info := false) : MetaM Unit :=
   IO.println (← ppExpr e)
   IO.println "====>"
   match (← simp e arrowTelescope).1 with
-  | .rfl _ => IO.println "<no change>"
-  | .step e' h _ =>
+  | .rfl _ _ => IO.println "<no change>"
+  | .step e' h _ _ =>
     IO.println (← ppExpr e')
     IO.println "Proof:"
     if info then

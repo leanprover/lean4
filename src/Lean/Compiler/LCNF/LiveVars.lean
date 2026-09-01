@@ -65,6 +65,8 @@ where
     | .jp decl k => go decl.value <||> (do markJpVisited decl.fvarId; go k)
     | .uset fvarId _ y k _ | .sset fvarId _ _ y _ k _ =>
       visitVar fvarId <||> visitVar y <||> go k
+    | .oset fvarId _ y k _ =>
+      visitVar fvarId <||> pure (y.dependsOn (← read).targetSet) <||> go k
     | .cases c => visitVar c.discr <||> c.alts.anyM (go ·.getCode)
     | .jmp fvarId args =>
       (pure <| args.any (·.dependsOn (← read).targetSet)) <||> do
@@ -76,7 +78,8 @@ where
           go decl.value
     | .return var => visitVar var
     | .unreach .. => return false
-    | .inc (fvarId := fvarId) (k := k) .. | .dec (fvarId := fvarId) (k := k) .. =>
+    | .inc (fvarId := fvarId) (k := k) .. | .dec (fvarId := fvarId) (k := k) ..
+    | .setTag (fvarId := fvarId) (k := k) .. | .del (fvarId := fvarId) (k := k) =>
       visitVar fvarId <||> go k
 
   @[inline]

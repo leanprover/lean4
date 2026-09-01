@@ -13,12 +13,14 @@ public section
 namespace Lean.Grind
 
 /-- A helper gadget for annotating nested proofs in goals. -/
-def nestedProof (p : Prop) {h : p} : p := h
+theorem nestedProof (p : Prop) {h : p} : p := h
 
 /-- A helper gadget for annotating nested decidable instances in goals. -/
 -- Remark: we currently have special gadgets for the two most common subsingletons in Lean, and are the only
 -- currently supported in `grind`. We may add a generic `nestedSubsingleton` inn the future.
-@[expose] def nestedDecidable {p : Prop} (h : Decidable p) : Decidable p := h
+-- **Note**: We mark it as an abbreviation to ensure the kernel will not get confused when checking
+-- that `t =?= Grind.nestedDecidable t`
+abbrev nestedDecidable {p : Prop} (h : Decidable p) : Decidable p := h
 
 /--
 Gadget for marking `match`-expressions that should not be reduced by the `grind` simplifier, but the discriminants should be normalized.
@@ -30,7 +32,13 @@ simpMatchDiscrsOnly (match 0 with | 0 => true | _ => false) = true
 ```
 using `eq_self`.
 -/
-def simpMatchDiscrsOnly {α : Sort u} (a : α) : α := a
+@[expose] def simpMatchDiscrsOnly {α : Sort u} (a : α) : α := a
+
+/--
+Gadget for protecting lambda abstractions created by `abstractGroundMismatches?`
+from beta reduction during preprocessing. See `ProveEq.lean` for details.
+-/
+@[expose] def abstractFn {α : Sort u} (a : α) : α := a
 
 /-- Gadget for representing offsets `t+k` in patterns. -/
 def offset (a b : Nat) : Nat := a + b
@@ -63,7 +71,9 @@ theorem nestedProof_congr (p q : Prop) (h : p = q) (hp : p) (hq : q) : @nestedPr
   subst h; apply HEq.refl
 
 theorem nestedDecidable_congr (p q : Prop) (h : p = q) (hp : Decidable p) (hq : Decidable q) : @nestedDecidable p hp ≍ @nestedDecidable q hq := by
-  subst h; cases hp <;> cases hq <;> simp <;> contradiction
+  subst h; cases hp <;> cases hq <;> unfold nestedDecidable <;> try simp
+  next h1 h2 => exact False.elim (h1 h2)
+  next h1 h2 => exact False.elim (h2 h1)
 
 @[app_unexpander nestedProof]
 meta def nestedProofUnexpander : PrettyPrinter.Unexpander := fun stx => do

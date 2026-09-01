@@ -127,9 +127,11 @@ builtin_initialize extension : SimplePersistentEnvExtension Entry State ←
     addEntryFn    := State.addEntry
     addImportedFn := fun es => (mkStateFromImportedEntries State.addEntry {} es).switch
     asyncMode     := .async .mainEnv
-    exportEntriesFnEx? := some fun env _ entries _ =>
-      -- Do not export info for private defs
-      entries.filter (env.contains (skipRealize := false) ·.name) |>.toArray
+    exportEntriesFnEx? := some fun env _ entries =>
+      let all := entries.toArray
+      -- Do not export info for private defs at exported/server levels
+      let exported := all.filter ((env.setExporting true).contains (skipRealize := false) ·.name)
+      { exported, server := exported, «private» := all }
   }
 
 def addMatcherInfo (env : Environment) (matcherName : Name) (info : MatcherInfo) : Environment :=
@@ -157,7 +159,6 @@ def getMatcherInfoCore? (env : Environment) (declName : Name) : Option MatcherIn
 def getMatcherInfo? [Monad m] [MonadEnv m] (declName : Name) : m (Option MatcherInfo) :=
   return getMatcherInfoCore? (← getEnv) declName
 
-@[export lean_is_matcher]
 def isMatcherCore (env : Environment) (declName : Name) : Bool :=
   getMatcherInfoCore? env declName |>.isSome
 
@@ -179,5 +180,21 @@ def isMatcherAppCore (env : Environment) (e : Expr) : Bool :=
 
 def isMatcherApp [Monad m] [MonadEnv m] (e : Expr) : m Bool :=
   return isMatcherAppCore (← getEnv) e
+
+/--
+Tag extension for declarations that should be inlined like matchers during LCNF conversion,
+but are not matchers themselves (e.g. the `.het` auxiliaries from `mkCasesOnSameCtor`).
+-/
+builtin_initialize matcherLikeExt : TagDeclarationExtension ←
+  mkTagDeclarationExtension (asyncMode := .sync)
+
+def markMatcherLike (env : Environment) (declName : Name) : Environment :=
+  matcherLikeExt.tag env declName
+
+def isMatcherLikeCore (env : Environment) (declName : Name) : Bool :=
+  matcherLikeExt.isTagged env declName
+
+def isMatcherLike [Monad m] [MonadEnv m] (declName : Name) : m Bool :=
+  return isMatcherLikeCore (← getEnv) declName
 
 end Lean.Meta

@@ -34,6 +34,10 @@ structure BuilderState where
   we access an fvar in the conversion.
   -/
   subst : LCNF.FVarSubst .pure := {}
+  /--
+  For each join point, tracks which parameters are computationally relevant (i.e. not void or erased).
+  -/
+  jpParamMask : Std.HashMap FVarId (Array Bool) := {}
 
 abbrev ToImpureM := StateRefT BuilderState CompilerM
 
@@ -227,13 +231,21 @@ partial def Code.toImpure (c : Code .pure) : ToImpureM (Code .impure) := do
   | .let decl k => lowerLet decl k
   | .jp decl k =>
     let params ← decl.params.mapM (·.toImpure)
+    let keepMask := params.map fun p => !(p.type.isVoid || p.type.isErased)
+    modify fun s => { s with jpParamMask := s.jpParamMask.insert decl.fvarId keepMask }
+    let filteredParams := (params.zip keepMask).foldl (init := #[]) fun acc (p, keep) =>
+      if keep then acc.push p else acc
     let value ← decl.value.toImpure
     let k ← k.toImpure
     let type ← lowerResultType decl.type params.size
-    let decl := ⟨decl.fvarId, decl.binderName, params, type, value⟩
+    let decl := ⟨decl.fvarId, decl.binderName, filteredParams, type, value⟩
     modifyLCtx fun lctx => lctx.addFunDecl decl
     return .jp decl k
-  | .jmp fvarId args => return .jmp fvarId (← args.mapM (·.toImpure))
+  | .jmp fvarId args =>
+    let keepMask := (← get).jpParamMask[fvarId]!
+    let filteredArgs ← (args.zip keepMask).foldlM (init := #[]) fun acc (a, keep) => do
+      if keep then return acc.push (← a.toImpure) else return acc
+    return .jmp fvarId filteredArgs
   | .cases c =>
     if let some info ← hasTrivialImpureStructure? c.typeName then
       assert! c.alts.size == 1

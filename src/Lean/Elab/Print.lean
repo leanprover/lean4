@@ -29,6 +29,7 @@ private def mkHeader (kind : String) (id : Name) (levelParams : List Name) (type
   | .irreducible =>   attrs := attrs.push m!"irreducible"
   | .reducible =>     attrs := attrs.push m!"reducible"
   | .implicitReducible => attrs := attrs.push m!"implicit_reducible"
+  | .instanceReducible => attrs := attrs.push m!"instance_reducible"
   | .semireducible => pure ()
 
   let env ← getEnv
@@ -37,6 +38,8 @@ private def mkHeader (kind : String) (id : Name) (levelParams : List Name) (type
 
   if defeqAttr.hasTag (← getEnv) id then
     attrs := attrs.push m!"defeq"
+  else if backwardDefeqAttr.hasTag (← getEnv) id then
+    attrs := attrs.push m!"backward_defeq"
 
   let mut m : MessageData := m!""
   unless attrs.isEmpty do
@@ -50,7 +53,7 @@ private def mkHeader (kind : String) (id : Name) (levelParams : List Name) (type
   let id' ← match privateToUserName? id with
     | some id' =>
       m := m ++ "private "
-      pure id'
+      if getPPPrivateNames (← getOptions) then pure id else pure id'
     | none =>
       pure id
 
@@ -93,18 +96,71 @@ private def printInduct (id : Name) (levelParams : List Name) (numParams : Nat) 
     m := m ++ Format.line ++ ctor ++ " : " ++ cinfo.type
   logInfo m
 
-private def printRecursor (recInfo : RecursorVal) : CommandElabM Unit := do
-  let mut m ← mkHeader "recursor" recInfo.name recInfo.levelParams recInfo.type (if recInfo.isUnsafe then .unsafe else .safe)
-  m := m ++ Format.line ++ m!"number of parameters: {recInfo.numParams}"
-  m := m ++ Format.line ++ m!"number of indices: {recInfo.numIndices}"
-  m := m ++ Format.line ++ m!"number of motives: {recInfo.numMotives}"
-  m := m ++ Format.line ++ m!"number of minors: {recInfo.numMinors}"
-  if recInfo.k then
-    m := m ++ Format.line ++ m!"supports k-like reduction"
-  m := m ++ Format.line ++ "rules:"
-  for rule in recInfo.rules do
-    m := m ++ Format.line ++ m!"for {rule.ctor} ({rule.nfields} fields): {rule.rhs}"
+open Meta in
+private def printRecursor (sigOnly : Bool) (recInfo : RecursorVal) : CommandElabM Unit := do
+  let mut m ← mkHeader "recursor" recInfo.name recInfo.levelParams recInfo.type (if recInfo.isUnsafe then .unsafe else .safe) (sig := false)
+  m := m!"{m} {.signature recInfo.name}"
+  unless sigOnly do
+    m := m ++ Format.line ++ m!"number of parameters: {recInfo.numParams}{positionsString 0 recInfo.numParams}"
+    m := m ++ Format.line ++ m!"number of motives: {recInfo.numMotives}{positionsString recInfo.numParams recInfo.numMotives}"
+    m := m ++ Format.line ++ m!"number of minor premises: {recInfo.numMinors}{positionsString recInfo.getFirstMinorIdx recInfo.numMinors}"
+    m := m ++ Format.line ++ m!"number of indices: {recInfo.numIndices}{positionsString recInfo.getFirstIndexIdx recInfo.numIndices}"
+    m := m ++ Format.line ++ m!"major premise position: {recInfo.getMajorIdx+1}"
+    if recInfo.k then
+      m := m ++ Format.line ++ m!"supports K-like reduction"
+    if recInfo.rules.isEmpty then
+      m := m ++ Format.line ++ "rules: (none)"
+    else
+      m := m ++ Format.line ++ "rules:"
+      for rule in recInfo.rules do
+        let ruleMsg ← liftTermElabM do mkRuleMsg rule
+        m := m ++ indentD ruleMsg
   logInfo m
+where
+  positionsString (firstIndex count : Nat) : String :=
+    if count = 0 then ""
+    else if count = 1 then s!" (position {firstIndex+1})"
+    else s!" (positions {firstIndex+1}–{firstIndex+count})"
+  /--
+  Given the recursor rule, creates a message like `List.rec nil cons (List.cons x xs) ==> cons x xs`.
+  Recall that each rule is a lambda expression whose parameters correspond to the arguments
+  of the recursor followed by the fields of the constructor.
+  We need to synthesize a major premise from this to fully render the reduction rule.
+  The main complication is the recursors for nested inductive types, since the number of inductive
+  parameters for the rule is for the auxiliary inductive type as part of the kernel's internal
+  construction, *not* the number of inductive parameters for the type being nested through.
+  -/
+  mkRuleMsg (rule : RecursorRule) : TermElabM MessageData := do
+    lambdaTelescope rule.rhs fun xs rhs => do
+      -- Start building the recursor application, applying parameters, motives, and minor premises
+      let numRecArgs := recInfo.numParams + recInfo.numMotives + recInfo.numMinors
+      let levels := recInfo.levelParams.map Level.param
+      let recApp := mkAppN (.const recInfo.name levels) xs[0...numRecArgs]
+      -- The remaining rule parameters correspond to constructor fields. These are the last `nfields`
+      -- of the constructor. Note that in nested inductive types, the number of inductive parameters
+      -- for the constructor might not equal the number of inductive parameters for the recursor.
+      let fields := xs[numRecArgs...*]
+      assert! fields.size == rule.nfields
+      -- We can get the constructor inductive parameters from the type of the major premise,
+      -- taking all arguments before the reported number of indices.
+      -- We can also get the constructor universe levels from this.
+      let (majorLevels, params) ←
+        forallBoundedTelescope (← inferType recApp) (some (recInfo.numIndices + 1)) fun xs' _ => do
+          let major := xs'[recInfo.numIndices]!
+          (← inferType major).withApp fun t args => do
+            let us := t.constLevels!
+            let params := args[0...(args.size - recInfo.numIndices)]
+            pure (us, params)
+      -- Now we can build the major premise
+      let major := mkAppN (mkAppN (.const rule.ctor majorLevels) params) fields
+      -- From this we can compute the indices for the recursor
+      let majorTypeArgs := (← inferType major).getAppArgs
+      let indices := majorTypeArgs[(majorTypeArgs.size - recInfo.numIndices)...*]
+      -- Then we can build the left-hand side of the rule and the final message
+      let lhs := mkApp (mkAppN recApp indices) major
+      -- Inductive predicates should pretty print. We universally enable pretty printing proofs here.
+      withOptions (fun opts => opts.set pp.proofs.name true) do
+        addMessageContext <| lhs ++ indentD m!"==> {rhs}"
 
 /--
 Computes the origin of a field. Returns its `StructureFieldInfo` at the origin.
@@ -206,7 +262,7 @@ private def printIdCore (sigOnly : Bool) (id : Name) : CommandElabM Unit := do
   | ConstantInfo.opaqueInfo  { levelParams := us, type := t, isUnsafe := u, .. } => printAxiomLike "opaque" id us t (if u then .unsafe else .safe)
   | ConstantInfo.quotInfo  { levelParams := us, type := t, .. } => printQuot id us t
   | ConstantInfo.ctorInfo { levelParams := us, type := t, isUnsafe := u, .. } => printAxiomLike "constructor" id us t (if u then .unsafe else .safe)
-  | ConstantInfo.recInfo recInfo => printRecursor recInfo
+  | ConstantInfo.recInfo recInfo => printRecursor sigOnly recInfo
   | ConstantInfo.inductInfo { levelParams := us, numParams, type := t, ctors, isUnsafe := u, .. } =>
     if isStructure env id then
       printStructure id us numParams t ctors[0]! u
@@ -243,10 +299,6 @@ private def printAxiomsOf (constName : Name) : CommandElabM Unit := do
 
 @[builtin_command_elab «printAxioms»] def elabPrintAxioms : CommandElab
   | `(#print%$tk axioms $id) => withRef tk do
-    if (← getEnv).header.isModule then
-      throwError "cannot use `#print axioms` in a `module`; consider temporarily removing the \
-        `module` header or placing the command in a separate file"
-
     let cs ← liftCoreM <| realizeGlobalConstWithInfos id
     cs.forM printAxiomsOf
   | _ => throwUnsupportedSyntax

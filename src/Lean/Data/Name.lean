@@ -11,6 +11,7 @@ import Init.Data.String.TakeDrop
 import Init.Data.Ord.String
 import Init.Data.Ord.UInt
 import Init.Data.String.Search
+import Init.Data.String.Length
 
 public section
 namespace Lean
@@ -156,7 +157,7 @@ def isInternalDetail : Name → Bool
 where
   /-- Check that a string begins with the given prefix, and then is only digits/'_'. -/
   matchPrefix (s : String) (pre : String) :=
-    s.startsWith pre && (s |>.drop pre.length |>.all fun c => c.isDigit || c == '_')
+    (s.dropPrefix? pre).any (·.all fun c => c.isDigit || c == '_')
 
 /--
 Checks whether the name is an implementation-detail hypothesis name.
@@ -205,7 +206,7 @@ def anyS (n : Name) (f : String → Bool) : Bool :=
 /-- Return true if the name is in a namespace associated to metaprogramming. -/
 def isMetaprogramming (n : Name) : Bool :=
   let components := n.components
-  components.head? == some `Lean || (components.any fun n => n == `Tactic || n == `Linter)
+  components.head?.any (· == `Lean) || (components.any (· matches `Tactic | `Linter | `Simproc | `Meta))
 
 end Name
 end Lean

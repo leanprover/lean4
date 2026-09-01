@@ -186,11 +186,11 @@ def registerTagAttribute (name : Name) (descr : String)
     mkInitial       := pure {}
     addImportedFn   := fun _ _ => pure {}
     addEntryFn      := fun (s : NameSet) n => s.insert n
-    exportEntriesFnEx := fun env es _ =>
-      let r : Array Name := es.foldl (fun a e => a.push e) #[]
-      -- Do not export info for private defs
-      let r := r.filter (env.contains (skipRealize := false))
-      r.qsort Name.quickLt
+    exportEntriesFnEx := fun env es =>
+      let all : Array Name := es.foldl (fun a e => a.push e) #[] |>.qsort Name.quickLt
+      -- Do not export info for private defs at exported/server levels
+      let exported := all.filter ((env.setExporting true).contains (skipRealize := false))
+      { exported, server := exported, «private» := all }
     statsFn         := fun s => "tag attribute" ++ Format.line ++ "number of local entries: " ++ format s.size
     asyncMode       := asyncMode
     replay?         := some fun _ newState newConsts s =>
@@ -260,23 +260,29 @@ structure ParametricAttributeImpl (α : Type) extends AttributeImplCore where
   filterExport : Environment → Name → α → Bool := fun env n _ =>
     env.contains (skipRealize := false) n
 
-def registerParametricAttribute (impl : ParametricAttributeImpl α) : IO (ParametricAttribute α) := do
-  let ext : PersistentEnvExtension (Name × α) (Name × α) (List Name × NameMap α) ← registerPersistentEnvExtension {
-    name            := impl.ref
+def registerParametricAttributeExt (ref : Name) (preserveOrder : Bool := false)
+    (filterExport : Environment → Name → α → Bool := fun env n _ =>
+      env.contains (skipRealize := false) n) :
+    IO (PersistentEnvExtension (Name × α) (Name × α) (List Name × NameMap α)) :=
+  registerPersistentEnvExtension {
+    name            := ref
     mkInitial       := pure ([], {})
     addImportedFn   := fun _ => pure ([], {})
     addEntryFn      := fun (decls, m) (p : Name × α) => (p.1 :: decls, m.insert p.1 p.2)
-    exportEntriesFnEx := fun env (decls, m) lvl => Id.run do
-      let mut r := if impl.preserveOrder then
+    exportEntriesFnEx := fun env (decls, m) => Id.run do
+      let all := if preserveOrder then
         decls.toArray.reverse.filterMap (fun n => return (n, ← m.find? n))
       else
         let r := m.foldl (fun a n p => a.push (n, p)) #[]
         r.qsort (fun a b => Name.quickLt a.1 b.1)
-      if lvl != .private then
-        r := r.filter (fun ⟨n, a⟩ => impl.filterExport env n a)
-      r
+      let exported := all.filter (fun ⟨n, a⟩ => filterExport env n a)
+      { exported, server := exported, «private» := all }
     statsFn         := fun (_, m) => "parametric attribute" ++ Format.line ++ "number of local entries: " ++ format m.size
   }
+
+def registerParametricAttributeForExt (impl : ParametricAttributeImpl α)
+    (ext : PersistentEnvExtension (Name × α) (Name × α) (List Name × NameMap α)) :
+    IO (ParametricAttribute α) := do
   let attrImpl : AttributeImpl := {
     impl.toAttributeImplCore with
     add   := fun decl stx kind => do
@@ -291,27 +297,40 @@ def registerParametricAttribute (impl : ParametricAttributeImpl α) : IO (Parame
   registerBuiltinAttribute attrImpl
   pure { attr := attrImpl, ext, preserveOrder := impl.preserveOrder }
 
+def registerParametricAttribute (impl : ParametricAttributeImpl α) : IO (ParametricAttribute α) := do
+  let ext ← registerParametricAttributeExt (α := α) impl.ref impl.preserveOrder impl.filterExport
+  registerParametricAttributeForExt impl ext
+
 namespace ParametricAttribute
 
-def getParam? [Inhabited α] (attr : ParametricAttribute α) (env : Environment) (decl : Name) : Option α :=
+def getParamFromExt? [Inhabited α]
+    (ext : PersistentEnvExtension (Name × α) (Name × α) (List Name × NameMap α))
+    (preserveOrder : Bool) (env : Environment) (decl : Name) : Option α :=
   match env.getModuleIdxFor? decl with
   | some modIdx =>
-    let entry? := if attr.preserveOrder then
-      (attr.ext.getModuleEntries env modIdx).find? (·.1 == decl)
+    let entry? := if preserveOrder then
+      (ext.getModuleEntries env modIdx).find? (·.1 == decl)
     else
-      (attr.ext.getModuleEntries env modIdx).binSearch (decl, default) (fun a b => Name.quickLt a.1 b.1)
+      (ext.getModuleEntries env modIdx).binSearch (decl, default) (fun a b => Name.quickLt a.1 b.1)
     match entry? with
     | some (_, val) => some val
     | none          => none
-  | none        => (attr.ext.getState env).2.find? decl
+  | none        => (ext.getState env).2.find? decl
+
+def getParam? [Inhabited α] (attr : ParametricAttribute α) (env : Environment) (decl : Name) : Option α :=
+  getParamFromExt? attr.ext attr.preserveOrder env decl
+
+def setParamFromExt
+  (ext : PersistentEnvExtension (Name × α) (Name × α) (List Name × NameMap α)) (attr : AttributeImpl) (env : Environment) (decl : Name) (param : α) : Except String Environment :=
+  if (env.getModuleIdxFor? decl).isSome then
+    Except.error (s!"Failed to add parametric attribute `[{attr.name}]` to `{decl}`: Declaration is in an imported module")
+  else if ((ext.getState env).2.find? decl).isSome then
+    Except.error (s!"Failed to add parametric attribute `[{attr.name}]` to `{decl}`: Attribute has already been set")
+  else
+    Except.ok (ext.addEntry env (decl, param))
 
 def setParam (attr : ParametricAttribute α) (env : Environment) (decl : Name) (param : α) : Except String Environment :=
-  if (env.getModuleIdxFor? decl).isSome then
-    Except.error (s!"Failed to add parametric attribute `[{attr.attr.name}]` to `{decl}`: Declaration is in an imported module")
-  else if ((attr.ext.getState env).2.find? decl).isSome then
-    Except.error (s!"Failed to add parametric attribute `[{attr.attr.name}]` to `{decl}`: Attribute has already been set")
-  else
-    Except.ok (attr.ext.addEntry env (decl, param))
+  setParamFromExt attr.ext attr.attr env decl param
 
 end ParametricAttribute
 
@@ -333,11 +352,11 @@ def registerEnumAttributes (attrDescrs : List (Name × String × α))
     mkInitial       := pure {}
     addImportedFn   := fun _ _ => pure {}
     addEntryFn      := fun (s : NameMap α) (p : Name × α) => s.insert p.1 p.2
-    exportEntriesFnEx := fun env m _ =>
-      let r : Array (Name × α) := m.foldl (fun a n p => a.push (n, p)) #[]
-      -- Do not export info for private defs
-      let r := r.filter (env.contains (skipRealize := false) ·.1)
-      r.qsort (fun a b => Name.quickLt a.1 b.1)
+    exportEntriesFnEx := fun env m =>
+      let all : Array (Name × α) := m.foldl (fun a n p => a.push (n, p)) #[] |>.qsort (fun a b => Name.quickLt a.1 b.1)
+      -- Do not export info for private defs at exported/server levels
+      let exported := all.filter ((env.setExporting true).contains (skipRealize := false) ·.1)
+      { exported, server := exported, «private» := all }
     statsFn         := fun s => "enumeration attribute extension" ++ Format.line ++ "number of local entries: " ++ format s.size
     -- We assume (and check in `modifyState`) that, if used asynchronously, enum attributes are set
     -- only in the same context in which the tagged declaration was created
@@ -459,7 +478,6 @@ builtin_initialize attributeExtension : AttributeExtension ←
   }
 
 /-- Return true iff `n` is the name of a registered attribute. -/
-@[export lean_is_attribute]
 def isBuiltinAttribute (n : Name) : IO Bool := do
   let m ← attributeMapRef.get; pure (m.contains n)
 
@@ -472,11 +490,6 @@ def getBuiltinAttributeImpl (attrName : Name) : IO AttributeImpl := do
   match m[attrName]? with
   | some attr => pure attr
   | none      => throw (IO.userError s!"Unknown attribute `{attrName}`")
-
-@[export lean_attribute_application_time]
-def getBuiltinAttributeApplicationTime (n : Name) : IO AttributeApplicationTime := do
-  let attr ← getBuiltinAttributeImpl n
-  pure attr.applicationTime
 
 def isAttribute (env : Environment) (attrName : Name) : Bool :=
   (attributeExtension.getState env).map.contains attrName

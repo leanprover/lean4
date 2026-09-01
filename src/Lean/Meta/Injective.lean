@@ -107,7 +107,7 @@ def mkInjectiveTheoremNameFor (ctorName : Name) : Name :=
 
 private def mkInjectiveTheorem (ctorVal : ConstructorVal) : MetaM Unit := do
   let name := mkInjectiveTheoremNameFor ctorVal.name
-  withTraceNode `Meta.injective (msg := (return m!"{exceptEmoji ·} generating `{name}`")) do
+  withTraceNode `Meta.injective (msg := (fun _ => return m!"generating `{name}`")) do
   let some type ← mkInjectiveTheoremType? ctorVal
     | return ()
   trace[Meta.injective] "type: {type}"
@@ -164,7 +164,7 @@ private def mkInjectiveEqTheoremValue (ctorVal : ConstructorVal) (targetType : E
 
 private def mkInjectiveEqTheorem (ctorVal : ConstructorVal) : MetaM Unit := do
   let name := mkInjectiveEqTheoremNameFor ctorVal.name
-  withTraceNode `Meta.injective (msg := (return m!"{exceptEmoji ·} generating `{name}`")) do
+  withTraceNode `Meta.injective (msg := (fun _ => return m!"generating `{name}`")) do
   let some type ← mkInjectiveEqTheoremType? ctorVal
     | return ()
   trace[Meta.injective] "type: {type}"
@@ -186,7 +186,7 @@ register_builtin_option genInjectivity : Bool := {
 
 def mkInjectiveTheorems (declName : Name) : MetaM Unit := do
   if (← getEnv).contains ``Eq.propIntro && genInjectivity.get (← getOptions) &&  !(← isInductivePredicate declName) then
-    withTraceNode `Meta.injective (return m!"{exceptEmoji ·} {declName}") do
+    withTraceNode `Meta.injective (fun _ => return m!"{declName}") do
     let info ← getConstInfoInduct declName
     unless info.isUnsafe do
       -- We need to reset the local context here because `solveEqOfCtorEq` uses

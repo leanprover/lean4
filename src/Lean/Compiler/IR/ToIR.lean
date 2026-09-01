@@ -73,7 +73,7 @@ def lowerArg (a : LCNF.Arg .impure) : M Arg := do
 def lowerParam (p : LCNF.Param .impure) : M Param := do
   let x ← bindVar p.fvarId
   let ty := toIRType p.type
-  return { x, borrow := p.borrow, ty }
+  return { x, borrow := p.borrow && !ty.isScalar, ty }
 
 @[inline]
 def lowerCtorInfo (i : LCNF.CtorInfo) : CtorInfo :=
@@ -101,6 +101,10 @@ partial def lowerCode (c : LCNF.Code .impure) : M FnBody := do
     let ret ← getFVarValue fvarId
     return .ret ret
   | .unreach .. => return .unreachable
+  | .oset fvarId i y k _ =>
+    let y ← lowerArg y
+    let .var fvarId ← getFVarValue fvarId | unreachable!
+    return .set fvarId i y (← lowerCode k)
   | .sset fvarId i offset y type k _ =>
     let .var y ← getFVarValue y | unreachable!
     let .var fvarId ← getFVarValue fvarId | unreachable!
@@ -109,12 +113,18 @@ partial def lowerCode (c : LCNF.Code .impure) : M FnBody := do
     let .var y ← getFVarValue y | unreachable!
     let .var fvarId ← getFVarValue fvarId | unreachable!
     return .uset fvarId i y (← lowerCode k)
+  | .setTag fvarId cidx k _ =>
+    let .var var ← getFVarValue fvarId | unreachable!
+    return .setTag var cidx (← lowerCode k)
   | .inc fvarId n check persistent k _ =>
     let .var var ← getFVarValue fvarId | unreachable!
     return .inc var n check persistent (← lowerCode k)
-  | .dec fvarId n check persistent k _ =>
+  | .dec fvarId n check persistent _ k _ =>
     let .var var ← getFVarValue fvarId | unreachable!
     return .dec var n check persistent (← lowerCode k)
+  | .del fvarId k _ =>
+    let .var var ← getFVarValue fvarId | unreachable!
+    return .del var (← lowerCode k)
   | .fun .. => panic! "all local functions should be λ-lifted"
 
 partial def lowerLet (decl : LCNF.LetDecl .impure) (k : LCNF.Code .impure) : M FnBody := do
@@ -155,6 +165,9 @@ partial def lowerLet (decl : LCNF.LetDecl .impure) (k : LCNF.Code .impure) : M F
   | .unbox var =>
     withGetFVarValue var fun var => do
       continueLet (.unbox var)
+  | .isShared var =>
+    withGetFVarValue var fun var => do
+      continueLet (.isShared var)
   | .erased => mkErased ()
 where
   mkErased (_ : Unit) : M FnBody := do

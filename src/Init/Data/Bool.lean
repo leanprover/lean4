@@ -32,16 +32,18 @@ abbrev xor : Bool → Bool → Bool := bne
 recommended_spelling "xor" for "^^" in [xor, «term_^^_»]
 
 instance (p : Bool → Prop) [inst : DecidablePred p] : Decidable (∀ x, p x) :=
-  match inst true, inst false with
-  | isFalse ht, _ => isFalse fun h => absurd (h _) ht
-  | _, isFalse hf => isFalse fun h => absurd (h _) hf
-  | isTrue ht, isTrue hf => isTrue fun | true => ht | false => hf
+  Decidable.intro (p true && p false)
+    (match inst true, inst false with
+    | isFalse ht, _ => fun h => absurd (h _) ht
+    | isTrue _, isFalse hf => fun h => absurd (h _) hf
+    | isTrue ht, isTrue hf => fun | true => ht | false => hf)
 
 instance (p : Bool → Prop) [inst : DecidablePred p] : Decidable (∃ x, p x) :=
-  match inst true, inst false with
-  | isTrue ht, _ => isTrue ⟨_, ht⟩
-  | _, isTrue hf => isTrue ⟨_, hf⟩
-  | isFalse ht, isFalse hf => isFalse fun | ⟨true, h⟩ => absurd h ht | ⟨false, h⟩ => absurd h hf
+  Decidable.intro (p true || p false)
+    (match inst true, inst false with
+    | isTrue ht, _ => ⟨_, ht⟩
+    | isFalse _, isTrue hf => ⟨_, hf⟩
+    | isFalse ht, isFalse hf => fun | ⟨true, h⟩ => absurd h ht | ⟨false, h⟩ => absurd h hf)
 
 @[simp] theorem default_bool : default = false := rfl
 
@@ -64,8 +66,8 @@ theorem ne_false_iff : {b : Bool} → b ≠ false ↔ b = true := by decide
 
 theorem eq_iff_iff {a b : Bool} : a = b ↔ (a ↔ b) := by cases b <;> simp
 
-@[simp] theorem decide_eq_true  {b : Bool} [Decidable (b = true)]  : decide (b = true)  =  b := by cases b <;> simp
-@[simp] theorem decide_eq_false {b : Bool} [Decidable (b = false)] : decide (b = false) = !b := by cases b <;> simp
+@[simp] theorem decide_eq_true  {b : Bool} {_ : Decidable (b = true)}  : decide (b = true)  =  b := by cases b <;> simp
+@[simp] theorem decide_eq_false {b : Bool} {_ : Decidable (b = false)} : decide (b = false) = !b := by cases b <;> simp
 theorem decide_true_eq  {b : Bool} [Decidable (true = b)]  : decide (true  = b) =  b := by cases b <;> simp
 theorem decide_false_eq {b : Bool} [Decidable (false = b)] : decide (false = b) = !b := by cases b <;> simp
 
@@ -385,7 +387,7 @@ theorem and_or_inj_left_iff :
 /--
 Converts `true` to `1` and `false` to `0`.
 -/
-@[expose] def toNat (b : Bool) : Nat := cond b 1 0
+@[expose, implicit_reducible] def toNat (b : Bool) : Nat := cond b 1 0
 
 @[simp, bitvec_to_nat, grind =] theorem toNat_false : false.toNat = 0 := rfl
 
@@ -416,17 +418,29 @@ Converts `true` to `1` and `false` to `0`.
 
 /-! ### ite -/
 
-@[simp] theorem if_true_left  (p : Prop) [h : Decidable p] (f : Bool) :
+@[simp] theorem ite_true_left  (p : Prop) [h : Decidable p] (f : Bool) :
     (ite p true f) = (p || f) := by cases h with | _ p => simp [p]
 
-@[simp] theorem if_false_left  (p : Prop) [h : Decidable p] (f : Bool) :
+@[deprecated Bool.ite_true_left (since := "2026-07-21")]
+theorem if_true_left (p : Prop) [h : Decidable p] (f : Bool) : (if p then Bool.true else f) = (Decidable.decide p || f) := Bool.ite_true_left p f
+
+@[simp] theorem ite_false_left  (p : Prop) [h : Decidable p] (f : Bool) :
     (ite p false f) = (!p && f) := by cases h with | _ p => simp [p]
 
-@[simp] theorem if_true_right  (p : Prop) [h : Decidable p] (t : Bool) :
+@[deprecated Bool.ite_false_left (since := "2026-07-21")]
+theorem if_false_left (p : Prop) [h : Decidable p] (f : Bool) : (if p then Bool.false else f) = (!Decidable.decide p && f) := Bool.ite_false_left p f
+
+@[simp] theorem ite_true_right  (p : Prop) [h : Decidable p] (t : Bool) :
     (ite p t true) = (!(p : Bool) || t) := by cases h with | _ p => simp [p]
 
-@[simp] theorem if_false_right  (p : Prop) [h : Decidable p] (t : Bool) :
+@[deprecated Bool.ite_true_right (since := "2026-07-21")]
+theorem if_true_right (p : Prop) [h : Decidable p] (t : Bool) : (if p then t else Bool.true) = (!Decidable.decide p || t) := Bool.ite_true_right p t
+
+@[simp] theorem ite_false_right  (p : Prop) [h : Decidable p] (t : Bool) :
     (ite p t false) = (p && t) := by cases h with | _ p => simp [p]
+
+@[deprecated Bool.ite_false_right (since := "2026-07-21")]
+theorem if_false_right (p : Prop) [h : Decidable p] (t : Bool) : (if p then t else Bool.false) = (Decidable.decide p && t) := Bool.ite_false_right p t
 
 @[simp] theorem ite_eq_true_distrib (p : Prop) [h : Decidable p] (t f : Bool) :
     (ite p t f = true) = ite p (t = true) (f = true) := by
@@ -439,9 +453,12 @@ Converts `true` to `1` and `false` to `0`.
 @[simp] theorem ite_eq_false : (if b = false then p else q) ↔ if b then q else p := by
   cases b <;> simp
 
-@[simp] theorem ite_eq_true_else_eq_false {q : Prop} :
+@[simp] theorem ite_eq_false_right {q : Prop} :
     (if b = true then q else b = false) ↔ (b = true → q) := by
   cases b <;> simp
+
+@[deprecated Bool.ite_eq_false_right (since := "2026-07-21")]
+theorem ite_eq_true_else_eq_false {b : Bool} {q : Prop} : (if b = Bool.true then q else b = Bool.false) ↔ b = Bool.true → q := Bool.ite_eq_false_right
 
 /-
 `not_ite_eq_true_eq_true` and related theorems below are added for
@@ -477,14 +494,14 @@ theorem not_ite_eq_false_eq_true {p : Prop} [h : Decidable p] {b c : Bool} :
   cases h with | _ p => simp [p]
 
 /-
-It would be nice to have this for confluence between `if_true_left` and `ite_false_same` on
+It would be nice to have this for confluence between `ite_true_left` and `ite_false_same` on
 `if b = true then True else b = true`.
 However the discrimination tree key is just `→`, so this is tried too often.
 -/
 theorem eq_false_imp_eq_true : ∀ {b : Bool}, (b = false → b = true) ↔ (b = true) := by decide
 
 /-
-It would be nice to have this for confluence between `if_true_left` and `ite_false_same` on
+It would be nice to have this for confluence between `ite_true_left` and `ite_false_same` on
 `if b = false then True else b = false`.
 However the discrimination tree key is just `→`, so this is tried too often.
 -/
@@ -511,21 +528,24 @@ theorem exists_bool {p : Bool → Prop} : (∃ b, p b) ↔ p false ∨ p true :=
 
 /-! ### cond -/
 
-theorem cond_eq_ite {α} (b : Bool) (t e : α) : cond b t e = if b then t else e := by
-  cases b <;> simp
+theorem cond_true  {α : Sort u} {a b : α} : cond true  a b = a := rfl
+theorem cond_false {α : Sort u} {a b : α} : cond false a b = b := rfl
 
-@[deprecated cond_eq_ite (since := "2025-10-29")]
+@[simp]
+theorem cond_eq_ite {α} (b : Bool) (t e : α) : cond b t e = if b then t else e := by
+  cases b <;> simp [Bool.cond_true, Bool.cond_false]
+
+@[deprecated cond_eq_ite +typeChanged (since := "2025-10-29")]
 theorem cond_eq_if : (bif b then x else y) = (if b then x else y) := cond_eq_ite b x y
 
-@[simp] theorem cond_not (b : Bool) (t e : α) : cond (!b) t e = cond b e t := by
+theorem cond_not (b : Bool) (t e : α) : cond (!b) t e = cond b e t := by
   cases b <;> rfl
 
-@[simp] theorem cond_self (c : Bool) (t : α) : cond c t t = t := by cases c <;> rfl
+theorem cond_self (c : Bool) (t : α) : cond c t t = t := by simp
 
-/-- If the return values are propositions, there is no harm in simplifying a `bif` to an `if`. -/
-@[simp] theorem cond_prop {b : Bool} {p q : Prop} :
+theorem cond_prop {b : Bool} {p q : Prop} :
     (bif b then p else q) ↔ if b then p else q := by
-  cases b <;> simp
+  simp
 
 /-
 This is a simp rule in Mathlib, but results in non-confluence that is difficult
@@ -542,37 +562,54 @@ operations like `cond` to a mix of `Prop` and `Bool`.
 -/
 theorem cond_decide {α} (p : Prop) [Decidable p] (t e : α) :
     cond (decide p) t e = if p then t else e := by
-  simp [cond_eq_ite]
+  simp
 
-@[simp] theorem cond_eq_ite_iff {a : Bool} {p : Prop} [h : Decidable p] {x y u v : α} :
-  (cond a x y = ite p u v) ↔ ite a x y = ite p u v := by
-  simp [Bool.cond_eq_ite]
+theorem cond_eq_ite_iff {a : Bool} {p : Prop} [h : Decidable p] {x y u v : α} :
+    (cond a x y = ite p u v) ↔ ite a x y = ite p u v := by
+  simp
 
-@[simp] theorem ite_eq_cond_iff {p : Prop} {a : Bool} [h : Decidable p] {x y u v : α} :
-  (ite p x y = cond a u v) ↔ ite p x y = ite a u v := by
-  simp [Bool.cond_eq_ite]
+theorem ite_eq_cond_iff {p : Prop} {a : Bool} [h : Decidable p] {x y u v : α} :
+    (ite p x y = cond a u v) ↔ ite p x y = ite a u v := by
+  simp
 
-@[simp] theorem cond_eq_true_distrib : ∀(c t f : Bool),
+theorem cond_eq_true_distrib : ∀(c t f : Bool),
     (cond c t f = true) = ite (c = true) (t = true) (f = true) := by
-  decide
+  simp
 
-@[simp] theorem cond_eq_false_distrib : ∀(c t f : Bool),
-    (cond c t f = false) = ite (c = true) (t = false) (f = false) := by decide
+theorem cond_eq_false_distrib : ∀(c t f : Bool),
+    (cond c t f = false) = ite (c = true) (t = false) (f = false) := by
+  simp
 
-protected theorem cond_true  {α : Sort u} {a b : α} : cond true  a b = a := cond_true  a b
-protected theorem cond_false {α : Sort u} {a b : α} : cond false a b = b := cond_false a b
+@[deprecated Bool.cond_true (since := "2026-07-28")]
+theorem _root_.cond_true (a b : α) : cond true a b = a := rfl
+@[deprecated Bool.cond_false (since := "2026-07-28")]
+theorem _root_.cond_false (a b : α) : cond false a b = b := rfl
 
-@[simp] theorem cond_true_left   : ∀(c f : Bool), cond c true f  = ( c || f) := by decide
-@[simp] theorem cond_false_left  : ∀(c f : Bool), cond c false f = (!c && f) := by decide
-@[simp] theorem cond_true_right  : ∀(c t : Bool), cond c t true  = (!c || t) := by decide
-@[simp] theorem cond_false_right : ∀(c t : Bool), cond c t false = ( c && t) := by decide
+theorem cond_true_left   : ∀(c f : Bool), cond c true f  = ( c || f) := by simp
+theorem cond_false_left  : ∀(c f : Bool), cond c false f = (!c && f) := by simp
+theorem cond_true_right  : ∀(c t : Bool), cond c t true  = (!c || t) := by simp
+theorem cond_false_right : ∀(c t : Bool), cond c t false = ( c && t) := by simp
 
 -- These restore confluence between the above lemmas and `cond_not`.
-@[simp] theorem cond_then_not_self  : ∀ (c b : Bool), cond c (!c) b = (!c && b) := by decide
-@[simp] theorem cond_else_not_self : ∀ (c b : Bool), cond c b (!c) = (!c || b) := by decide
+theorem cond_not_self_left  : ∀ (c b : Bool), cond c (!c) b = (!c && b) := by simp
 
-@[simp] theorem cond_then_self  : ∀ (c b : Bool), cond c c b = (c || b) := by decide
-@[simp] theorem cond_else_self : ∀ (c b : Bool), cond c b c = (c && b) := by decide
+@[deprecated Bool.cond_not_self_left (since := "2026-07-21")]
+theorem cond_then_not_self (c : Bool) (b : Bool) : (bif c then !c else b) = (!c && b) := Bool.cond_not_self_left c b
+
+theorem cond_not_self_right : ∀ (c b : Bool), cond c b (!c) = (!c || b) := by simp
+
+@[deprecated Bool.cond_not_self_right (since := "2026-07-21")]
+theorem cond_else_not_self (c : Bool) (b : Bool) : (bif c then b else !c) = (!c || b) := Bool.cond_not_self_right c b
+
+theorem cond_self_left  : ∀ (c b : Bool), cond c c b = (c || b) := by simp
+
+@[deprecated Bool.cond_self_left (since := "2026-07-21")]
+theorem cond_then_self (c : Bool) (b : Bool) : (bif c then c else b) = (c || b) := Bool.cond_self_left c b
+
+theorem cond_self_right : ∀ (c b : Bool), cond c b c = (c && b) := by simp
+
+@[deprecated Bool.cond_self_right (since := "2026-07-21")]
+theorem cond_else_self (c : Bool) (b : Bool) : (bif c then b else c) = (c && b) := Bool.cond_self_right c b
 
 theorem cond_pos {b : Bool} {a a' : α} (h : b = true) : (bif b then a else a') = a := by
   rw [h, cond_true]
@@ -601,15 +638,15 @@ protected theorem decide_coe (b : Bool) [Decidable (b = true)] : decide (b = tru
   cases dp with | _ p => simp [p]
 
 @[bool_to_prop]
-theorem and_eq_decide (p q : Bool) : (p && q) = decide (p ∧ q) := by simp
+theorem and_eq_decide (p q : Bool) : (p && q) = decide (p ∧ q) := rfl
 
 @[bool_to_prop]
-theorem or_eq_decide (p q : Bool) : (p || q) = decide (p ∨ q) := by simp
+theorem or_eq_decide (p q : Bool) : (p || q) = decide (p ∨ q) := rfl
 
 @[bool_to_prop]
-theorem decide_beq_decide (p q : Prop) [dpq : Decidable (p ↔ q)] [dp : Decidable p] [dq : Decidable q] :
-    (decide p == decide q) = decide (p ↔ q) := by
-  cases dp with | _ p => simp [p]
+theorem decide_beq_decide (p q : Prop) [dp : Decidable p] [dq : Decidable q] :
+    (decide p == decide q) = decide (p ↔ q) :=
+  rfl
 
 end Bool
 
@@ -629,6 +666,7 @@ export Bool (cond_eq_if cond_eq_ite xor and or not)
 This should not be turned on globally as an instance because it degrades performance in Mathlib,
 but may be used locally.
 -/
+@[instance_reducible]
 def boolPredToPred : Coe (α → Bool) (α  → Prop) where
   coe r := fun a => Eq (r a) true
 
@@ -636,7 +674,7 @@ def boolPredToPred : Coe (α → Bool) (α  → Prop) where
 This should not be turned on globally as an instance because it degrades performance in Mathlib,
 but may be used locally.
 -/
-@[expose, implicit_reducible] def boolRelToRel : Coe (α → α → Bool) (α → α → Prop) where
+@[expose, instance_reducible] def boolRelToRel : Coe (α → α → Bool) (α → α → Prop) where
   coe r := fun a b => Eq (r a b) true
 
 /-! ### subtypes -/
@@ -646,20 +684,49 @@ but may be used locally.
 
 /-! ### Proof by reflection support  -/
 
-@[expose] protected noncomputable def Bool.and' (a b : Bool) : Bool :=
-  Bool.rec false b a
+/--
+This used to be a variant of `Bool.and` with better kernel behavior, but `Bool.and` was redefined
+to have this kernel-efficient definition.
+-/
+@[deprecated Bool.and (since := "2026-08-18")]
+abbrev Bool.and' (a b : Bool) : Bool :=
+  Bool.and a b
 
-@[expose] protected noncomputable def Bool.or' (a b : Bool) : Bool :=
-  Bool.rec b true a
+/--
+This used to be a variant of `Bool.or` with better kernel behavior, but `Bool.or` was redefined
+to have this kernel-efficient definition.
+-/
+@[deprecated Bool.or (since := "2026-08-18")]
+abbrev Bool.or' (a b : Bool) : Bool :=
+  Bool.or a b
 
-@[expose] protected noncomputable def Bool.not' (a : Bool) : Bool :=
-  Bool.rec true false a
+/--
+This used to be a variant of `Bool.not` with better kernel behavior, but `Bool.not` was redefined
+to have this kernel-efficient definition.
+-/
+@[deprecated Bool.not (since := "2026-08-18")]
+abbrev Bool.not' (a : Bool) : Bool :=
+  Bool.not a
 
-@[simp] theorem Bool.and'_eq_and (a b : Bool) : a.and' b = a.and b := by
-  cases a <;> simp [Bool.and']
+section
 
-@[simp] theorem Bool.or'_eq_or (a b : Bool) : a.or' b = a.or b := by
-  cases a <;> simp [Bool.or']
+theorem Bool.rec_eq {α : Sort _} (b : Bool) {x y : α} : Bool.rec y x b = if b then x else y := by
+  cases b <;> simp
 
-@[simp] theorem Bool.not'_eq_not (a : Bool) : a.not' = a.not := by
-  cases a <;> simp [Bool.not']
+/-! ### Deprecations -/
+
+@[deprecated Bool.eq_false_of_ne_true (since := "2026-07-24")]
+theorem eq_false_of_ne_true {b : Bool} : b ≠ true → b = false :=
+  Bool.eq_false_of_ne_true
+
+@[deprecated Bool.eq_true_of_ne_false (since := "2026-07-24")]
+theorem eq_true_of_ne_false {b : Bool} : b ≠ false → b = true :=
+  Bool.eq_true_of_ne_false
+
+@[deprecated Bool.ne_false_of_eq_true (since := "2026-07-24")]
+theorem ne_false_of_eq_true {b : Bool} : b = true → b ≠ false :=
+  Bool.ne_false_of_eq_true
+
+@[deprecated Bool.ne_true_of_eq_false (since := "2026-07-24")]
+theorem ne_true_of_eq_false {b : Bool} : b = false → b ≠ true :=
+  Bool.ne_true_of_eq_false

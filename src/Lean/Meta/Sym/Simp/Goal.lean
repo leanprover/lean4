@@ -44,8 +44,8 @@ Converts a `Simp.Result` value into `SimpGoalResult`.
 public def Simp.Result.toSimpGoalResult (result : Simp.Result) (mvarId : MVarId) : SymM SimpGoalResult := do
   let decl ← mvarId.getDecl
   match result with
-  | .rfl _ => return .noProgress
-  | .step target' h _ =>
+  | .rfl _ _ => return .noProgress
+  | .step target' h _ _ =>
     let mvarNew ← mkFreshExprSyntheticOpaqueMVar target' decl.userName
     let u ← getLevel decl.type
     let h := mkApp4 (mkConst ``Eq.mpr [u]) decl.type target' h mvarNew

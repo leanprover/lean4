@@ -7,8 +7,6 @@ import CbvAttr.PublicFunctionPrivateTheorem
 import CbvAttr.InvertedTheorem
 import CbvAttr.InvertedLocalTheorem
 
-set_option cbv.warning false
-
 /- Function does not have an exposed body, but has a public theorem for unrolling it-/
 example : f1 1 = 2 := by conv => lhs; cbv
 

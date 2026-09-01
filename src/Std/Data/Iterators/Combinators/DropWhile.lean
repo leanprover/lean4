@@ -56,7 +56,7 @@ Depending on `P`, it is possible that `it.dropWhileM P` is productive although
 This combinator calls `P` on each output of `it` until the predicate evaluates to false. After
 that, the combinator incurs an additional O(1) cost for each value emitted by `it`.
 -/
-@[always_inline, inline]
+@[cbv_opaque, always_inline, inline]
 def Iter.dropWhile {α : Type w} {β : Type w} (P : β → Bool) (it : Iter (α := α) β) :=
   (it.toIterM.dropWhile P |>.toIter : Iter β)
 

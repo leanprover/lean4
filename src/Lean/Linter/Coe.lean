@@ -8,7 +8,7 @@ module
 prelude
 public import Lean.Elab.Command
 public import Lean.Server.InfoUtils
-import Lean.Linter.Basic
+import Lean.Linter.Init
 import all Lean.Elab.Term.TermElabM
 
 public section
@@ -38,7 +38,7 @@ def coercionsBannedInCore : Array Name := #[``optionCoe, ``instCoeSubarrayArray]
 def coeLinter : Linter where
   run := fun _ => do
     let mainModule ← getMainModule
-    let isCoreModule := mainModule = `lean.run.linterCoe ∨ (mainModule.getRoot ∈ [`Init, `Std])
+    let isCoreModule := mainModule = `elab.linterCoe ∨ (mainModule.getRoot ∈ [`Init, `Std])
     let shouldWarnOnDeprecated := getLinterValue linter.deprecatedCoercions (← getLinterOptions)
     let trees ← Elab.getInfoTrees
     for tree in trees do

@@ -11,7 +11,7 @@ public import Init.Data.Order.Classes
 public import Init.NotationExtra
 import Init.ByCases
 import Init.Data.Nat.Lemmas
-import Init.Data.Nat.Linear
+import Init.Data.Nat.Internal.Linear
 import Init.Omega
 import Init.TacticsExtra
 import Init.Hints
@@ -49,7 +49,7 @@ theorem pos_iff_nonempty {n : Nat} : 0 < n ↔ Nonempty (Fin n) :=
 
 @[simp] protected theorem eta (a : Fin n) (h : a < n) : (⟨a, h⟩ : Fin n) = a := rfl
 
-@[ext, grind ext]
+@[ext]
 protected theorem ext {a b : Fin n} (h : (a : Nat) = b) : a = b := eq_of_val_eq h
 
 theorem val_ne_iff {a b : Fin n} : a.1 ≠ b.1 ↔ a ≠ b := not_congr val_inj
@@ -123,7 +123,7 @@ For example, for `x : Fin k` and `n : Nat`,
 it causes `x < n` to be elaborated as `x < ↑n` rather than `↑x < n`,
 silently introducing wraparound arithmetic.
 -/
-@[expose, implicit_reducible]
+@[instance_reducible]
 def instNatCast (n : Nat) [NeZero n] : NatCast (Fin n) where
   natCast a := Fin.ofNat n a
 
@@ -131,7 +131,6 @@ attribute [scoped instance] instNatCast
 
 end NatCast
 
-@[expose]
 def intCast [NeZero n] (a : Int) : Fin n :=
   if 0 ≤ a then
     Fin.ofNat n a.natAbs
@@ -145,7 +144,7 @@ This is not a global instance, but may be activated locally via `open Fin.IntCas
 
 See the doc-string for `Fin.NatCast.instNatCast` for more details.
 -/
-@[expose, implicit_reducible]
+@[instance_reducible]
 def instIntCast (n : Nat) [NeZero n] : IntCast (Fin n) where
   intCast := Fin.intCast
 
@@ -153,7 +152,7 @@ attribute [scoped instance] instIntCast
 
 end IntCast
 
-open IntCast in
+open Fin.IntCast in
 theorem intCast_def {n : Nat} [NeZero n] (x : Int) :
     (x : Fin n) = if 0 ≤ x then Fin.ofNat n x.natAbs else -Fin.ofNat n x.natAbs := rfl
 
@@ -521,11 +520,17 @@ theorem coe_cast (h : n = m) (i : Fin n) : (i.cast h : Nat) = i := rfl
 @[simp, grind =] theorem cast_cast {k : Nat} (h : n = m) (h' : m = k) {i : Fin n} :
     (i.cast h).cast h' = i.cast (Eq.trans h h') := rfl
 
-@[deprecated cast_cast (since := "2025-09-03")] abbrev cast_trans := @cast_cast
-
 theorem castLE_of_eq {m n : Nat} (h : m = n) {h' : m ≤ n} : castLE h' = Fin.cast h := rfl
 
 @[simp, grind =] theorem val_castAdd (m : Nat) (i : Fin n) : (castAdd m i : Nat) = i := rfl
+
+/-
+**Note**
+The current pattern inference heuristic includes the implicit term `n + m` as pattern of the pattern,
+but arithmetic is problematic in patterns because it is an interpreted symbol. For example,
+we will fail to match `@val n (castNat 0 i)`. Thus, we mark the implicit subterm with `no_index`
+-/
+grind_pattern val_castAdd => @val (no_index _) (castAdd m i)
 
 @[deprecated val_castAdd (since := "2025-11-21")]
 theorem coe_castAdd (m : Nat) (i : Fin n) : (castAdd m i : Nat) = i := rfl
@@ -578,7 +583,7 @@ theorem castSucc_lt_succ {i : Fin n} : i.castSucc < i.succ :=
   lt_def.2 <| by simp only [val_castSucc, val_succ, Nat.lt_succ_self]
 
 theorem le_castSucc_iff {i : Fin (n + 1)} {j : Fin n} : i ≤ j.castSucc ↔ i < j.succ := by
-  simpa only [lt_def, le_def] using Nat.add_one_le_add_one_iff.symm
+  simpa only [lt_def, le_def] using! Nat.add_one_le_add_one_iff.symm
 
 theorem castSucc_lt_iff_succ_le {n : Nat} {i : Fin n} {j : Fin (n + 1)} :
     i.castSucc < j ↔ i.succ ≤ j := .rfl
@@ -637,7 +642,15 @@ theorem exists_castSucc_eq {n : Nat} {i : Fin (n + 1)} : (∃ j, castSucc j = i)
 
 theorem succ_castSucc {n : Nat} (i : Fin n) : i.castSucc.succ = i.succ.castSucc := rfl
 
-@[simp, grind =] theorem val_addNat (m : Nat) (i : Fin n) : (addNat i m : Nat) = i + m := rfl
+@[simp] theorem val_addNat (m : Nat) (i : Fin n) : (addNat i m : Nat) = i + m := rfl
+
+/-
+**Note**
+The current pattern inference heuristic includes the implicit term `n + m` as pattern of the pattern,
+but arithmetic is problematic in patterns because it is an interpreted symbol. For example,
+we will fail to match `@val n (addNat i 0)`. Thus, we mark the implicit subterm with `no_index`
+-/
+grind_pattern val_addNat => @val (no_index _) (addNat i m)
 
 @[deprecated val_addNat (since := "2025-11-21")]
 theorem coe_addNat (m : Nat) (i : Fin n) : (addNat i m : Nat) = i + m := rfl
@@ -893,7 +906,7 @@ parameter, `Fin.cases` is the corresponding case analysis operator, and `Fin.rev
 version that starts at the greatest value instead of `0`.
 -/
 -- FIXME: Performance review
-@[elab_as_elim, expose] def induction {motive : Fin (n + 1) → Sort _} (zero : motive 0)
+@[elab_as_elim] def induction {motive : Fin (n + 1) → Sort _} (zero : motive 0)
     (succ : ∀ i : Fin n, motive (castSucc i) → motive i.succ) :
     ∀ i : Fin (n + 1), motive i
   | ⟨i, hi⟩ => go i hi
@@ -935,7 +948,7 @@ The two cases are:
 
 The corresponding induction principle is `Fin.induction`.
 -/
-@[elab_as_elim, expose] def cases {motive : Fin (n + 1) → Sort _}
+@[elab_as_elim] def cases {motive : Fin (n + 1) → Sort _}
     (zero : motive 0) (succ : ∀ i : Fin n, motive i.succ) :
     ∀ i : Fin (n + 1), motive i := induction zero fun i _ => succ i
 
@@ -997,7 +1010,7 @@ For the induction:
 
 @[simp, grind =] theorem reverseInduction_last {n : Nat} {motive : Fin (n + 1) → Sort _} {zero succ} :
     (reverseInduction zero succ (Fin.last n) : motive (Fin.last n)) = zero := by
-  rw [reverseInduction, reverseInduction.go]; simp; rfl
+  rw [reverseInduction, reverseInduction.go]; simp
 
 private theorem reverseInduction_castSucc_aux {n : Nat} {motive : Fin (n + 1) → Sort _} {succ}
     (i : Fin n) (j : Nat) (h) (h2 : i.1 < j) (zero : motive ⟨j, h⟩) :
@@ -1006,11 +1019,11 @@ private theorem reverseInduction_castSucc_aux {n : Nat} {motive : Fin (n + 1) �
   induction j generalizing i with
   | zero => omega
   | succ j ih =>
-    rw [reverseInduction.go, dif_neg (by exact Nat.ne_of_lt h2)]
+    rw [reverseInduction.go, dite_eq_right (by exact Nat.ne_of_lt h2)]
     by_cases hij : i = j
-    · subst hij; simp [reverseInduction.go]; rfl
+    · subst hij; simp [reverseInduction.go]
     · dsimp only
-      rw [ih _ _ (by omega), eq_comm, reverseInduction.go, dif_neg (by change i.1 + 1 ≠ _; omega)]
+      rw [ih _ _ (by omega), eq_comm, reverseInduction.go, dite_eq_right (by change i.1 + 1 ≠ _; omega)]
 
 @[simp, grind =] theorem reverseInduction_castSucc {n : Nat} {motive : Fin (n + 1) → Sort _} {zero succ}
     (i : Fin n) : reverseInduction (motive := motive) zero succ (castSucc i) =
@@ -1057,13 +1070,13 @@ as `Fin.natAdd m (j : Fin n)`.
 
 @[simp, grind =] theorem addCases_left {m n : Nat} {motive : Fin (m + n) → Sort _} {left right} (i : Fin m) :
     addCases (motive := motive) left right (Fin.castAdd n i) = left i := by
-  rw [addCases, dif_pos (castAdd_lt _ _)]; rfl
+  rw [addCases, dite_eq_left (castAdd_lt _ _)]; rfl
 
 @[simp, grind =]
 theorem addCases_right {m n : Nat} {motive : Fin (m + n) → Sort _} {left right} (i : Fin n) :
     addCases (motive := motive) left right (natAdd m i) = right i := by
   have : ¬(natAdd m i : Nat) < m := Nat.not_lt.2 (le_coe_natAdd ..)
-  rw [addCases, dif_neg this]; exact eq_of_heq <| (eqRec_heq _ _).trans (by congr 1; simp)
+  rw [addCases, dite_eq_right this]; exact eq_of_heq <| (eqRec_heq _ _).trans (by congr 1; simp)
 
 /-! ### zero -/
 
@@ -1109,7 +1122,7 @@ theorem sub_ofNat [NeZero n] (x : Fin n) (y : Nat) :
 
 private theorem _root_.Nat.mod_eq_sub_of_lt_two_mul {x n} (h₁ : n ≤ x) (h₂ : x < 2 * n) :
     x % n = x - n := by
-  rw [Nat.mod_eq, if_pos (by omega), Nat.mod_eq_of_lt (by omega)]
+  rw [Nat.mod_eq_ite, ite_eq_left (by omega), Nat.mod_eq_of_lt (by omega)]
 
 theorem coe_sub_iff_le {a b : Fin n} : (↑(a - b) : Nat) = a - b ↔ b ≤ a := by
   rw [sub_def, le_def]

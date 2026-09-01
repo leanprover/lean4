@@ -70,6 +70,9 @@ def ppExprLegacy (env : Environment) (mctx : MetavarContext) (lctx : LocalContex
     { fileName := "<PrettyPrinter>", fileMap := default }
     { env := env }
 
+def ppLevel (l : Level) : MetaM Format := do
+  ppCategory `level (← delabLevel l (prec := 0))
+
 def ppTactic (stx : TSyntax `tactic) : CoreM Format := ppCategory `tactic stx
 
 def ppCommand (stx : Syntax.Command) : CoreM Format := ppCategory `command stx
@@ -110,7 +113,7 @@ builtin_initialize
     ppExprWithInfos := fun ctx e => ctx.runMetaM <| withoutContext <| ppExprWithInfos e
     ppConstNameWithInfos := fun ctx n => ctx.runMetaM <| withoutContext <| ppConstNameWithInfos n
     ppTerm := fun ctx stx => ctx.runCoreM <| withoutContext <| ppTerm stx
-    ppLevel := fun ctx l => return l.format (mvars := getPPMVarsLevels ctx.opts)
+    ppLevel := fun ctx l => ctx.runMetaM <| withoutContext <| ppLevel l
     ppGoal := fun ctx mvarId => ctx.runMetaM <| withoutContext <| Meta.ppGoal mvarId
   }
 

@@ -8,6 +8,8 @@ module
 prelude
 public import Lean.Elab.App
 public import Lean.Elab.DeclNameGen
+import Lean.Compiler.NoncomputableAttr
+import Lean.Meta.WrapInstance
 
 public section
 
@@ -173,19 +175,20 @@ We prevent `classStx` from referring to these local variables; instead it's expe
 This function can handle being run from within a nontrivial local context,
 and it uses `mkValueTypeClosure` to construct the final instance.
 -/
-def processDefDeriving (view : DerivingClassView) (decl : Expr) : TermElabM Unit := do
+def processDefDeriving (view : DerivingClassView) (decl : Expr) (isNoncomputable := false)
+    (cmdRef? : Option Syntax := none) : TermElabM Unit := do
   let { cls := classStx, hasExpose := _ /- todo? -/, .. } := view
   let decl ← whnfCore decl
   let .const declName _ := decl.getAppFn
     | throwError "Failed to delta derive instance, expecting a term of the form `C ...` where `C` is a constant, given{indentExpr decl}"
-  let exposed := (← getEnv).setExporting true |>.find? declName |>.any (·.hasValue)
+  let exposed := (← getEnv).hasExposedBody declName
   -- When the definition body is private, the deriving handler will need access to the private scope,
   -- and the instance body will automatically be private as well.
   withExporting (isExporting := exposed) do
   let ConstantInfo.defnInfo info ← getConstInfo declName
     | throwError "Failed to delta derive instance, `{.ofConstName declName}` is not a definition."
   let value := info.value.beta decl.getAppArgs
-  let result : Closure.MkValueTypeClosureResult ←
+  let (result, preNormValue, instName) : Closure.MkValueTypeClosureResult × Expr × Name ←
     -- Assumption: users intend delta deriving to apply to the body of a definition, even if in the source code
     -- the function is written as a lambda expression.
     -- Furthermore, we don't use `forallTelescope` because users want to derive instances for monads.
@@ -208,21 +211,64 @@ def processDefDeriving (view : DerivingClassView) (decl : Expr) : TermElabM Unit
           -- We don't reduce because of abbreviations such as `DecidableEq`
           forallTelescope classExpr fun _ classExpr => do
             let result ← mkInst classExpr declName decl value
-            Closure.mkValueTypeClosure result.instType result.instVal (zetaDelta := true)
+            -- Save the pre-wrapping value for the noncomputable check below,
+            -- since `wrapInstance` may inline noncomputable constants.
+            let preNormClosure ← Closure.mkValueTypeClosure result.instType result.instVal (zetaDelta := true)
+            -- Compute instance name early so `wrapInstance` can use it for aux def naming.
+            let env ← getEnv
+            let mut instName := (← getCurrNamespace) ++ (← NameGen.mkBaseNameWithSuffix "inst" preNormClosure.type)
+            instName ← liftMacroM <| mkUnusedBaseName instName
+            if isPrivateName declName then
+              instName := mkPrivateName env instName
+            let isMeta := (← read).isMetaSection || isMarkedMeta (← getEnv) declName
+            let inst ← if backward.inferInstanceAs.wrap.get (← getOptions) then
+              withDeclNameForAuxNaming instName <| withNewMCtxDepth <|
+                wrapInstance result.instVal result.instType
+                  (logCompileErrors := false)  -- covered by noncomputable check below
+                  (isMeta := isMeta)
+            else
+              pure result.instVal
+            let closure ← Closure.mkValueTypeClosure result.instType inst (zetaDelta := true)
+            return (closure, preNormClosure.value, instName)
         finally
           Core.setMessageLog (msgLog ++ (← Core.getMessageLog))
   let env ← getEnv
-  let mut instName := (← getCurrNamespace) ++ (← NameGen.mkBaseNameWithSuffix "inst" result.type)
-  -- We don't have a facility to let users override derived names, so make an unused name if needed.
-  instName ← liftMacroM <| mkUnusedBaseName instName
-  -- Make the instance private if the declaration is private.
-  if isPrivateName declName then
-    instName := mkPrivateName env instName
-  let hints := ReducibilityHints.regular (getMaxHeight env result.value + 1)
-  let decl ← mkDefinitionValInferringUnsafe instName result.levelParams.toList result.type result.value hints
-  addAndCompile (logCompileErrors := !(← read).isNoncomputableSection) <| Declaration.defnDecl decl
+  let isPropType ← isProp result.type
+  if isPropType then
+    let decl ← mkThmOrUnsafeDef {
+      name := instName, levelParams := result.levelParams.toList,
+      type := result.type, value := result.value
+    }
+    addDecl decl
+  else
+    let hints := ReducibilityHints.regular (getMaxHeight env result.value + 1)
+    let decl ← mkDefinitionValInferringUnsafe instName result.levelParams.toList result.type result.value hints
+    -- Pre-check: if the instance value depends on noncomputable definitions and the user didn't write
+    -- `noncomputable`, give an actionable error with a `Try this:` suggestion.
+    unless isNoncomputable || (← read).isNoncomputableSection do
+      let noncompRef? := preNormValue.foldConsts none fun n acc =>
+        acc <|> if Lean.isNoncomputable (asyncMode := .local) env n then some n else none
+      if let some noncompRef := noncompRef? then
+        if let some cmdRef := cmdRef? then
+          if let some origText := cmdRef.reprint then
+            let newText := (origText.replace "deriving instance " "deriving noncomputable instance ").trimAscii
+            logInfoAt cmdRef m!"Try this: {newText}"
+        throwError "failed to derive instance because it depends on \
+          `{.ofConstName noncompRef}`, which is noncomputable"
+    let isMeta := (← read).isMetaSection || isMarkedMeta (← getEnv) declName
+    if isNoncomputable || (← read).isNoncomputableSection then
+      addDecl <| Declaration.defnDecl decl
+      modifyEnv (addNoncomputable · instName)
+    else
+      addAndCompile (Declaration.defnDecl decl) (markMeta := isMeta)
   trace[Elab.Deriving] "Derived instance `{.ofConstName instName}`"
-  registerInstance instName AttributeKind.global (eval_prio default)
+  -- For Prop-typed instances (theorems), skip `instance_reducible` since reducibility hints are
+  -- irrelevant for theorems. This matches the behavior of the handwritten `instance` command
+  -- (see `MutualDef.lean`).
+  if isPropType then
+    addInstance instName AttributeKind.global (eval_prio default)
+  else
+    registerInstance instName AttributeKind.global (eval_prio default)
   addDeclarationRangesFromSyntax instName (← getRef)
 
 end Term
@@ -284,8 +330,8 @@ def DerivingClassView.applyHandlers (view : DerivingClassView) (declNames : Arra
   withRef view.ref do
     applyDerivingHandlers (setExpose := view.hasExpose) (← liftCoreM <| view.getClassName) declNames
 
-private def elabDefDeriving (classes : Array DerivingClassView) (decls : Array Syntax) :
-    CommandElabM Unit := runTermElabM fun _ => do
+private def elabDefDeriving (classes : Array DerivingClassView) (decls : Array Syntax)
+    (isNoncomputable := false) (cmdRef? : Option Syntax := none) : CommandElabM Unit := runTermElabM fun _ => do
   for decl in decls do
     withRef decl <| withLogging do
       let declExpr ←
@@ -304,11 +350,12 @@ private def elabDefDeriving (classes : Array DerivingClassView) (decls : Array S
       for cls in classes do
         withLogging do
         withTraceNode `Elab.Deriving (fun _ => return m!"running delta deriving handler for `{cls.cls}` and definition `{declExpr}`") do
-          Term.processDefDeriving cls declExpr
+          Term.processDefDeriving cls declExpr (isNoncomputable := isNoncomputable) (cmdRef? := cmdRef?)
 
 
 @[builtin_command_elab «deriving»] def elabDeriving : CommandElab
-  | `(deriving instance $[$classes],* for $[$decls],*) => do
+  | stx@`(deriving $[noncomputable%$ncTk?]? instance $[$classes],* for $[$decls],*) => do
+    let isNoncomputable := ncTk?.isSome
     let classes ← liftCoreM <| classes.mapM DerivingClassView.ofSyntax
     let decls : Array Syntax := decls
     if decls.all Syntax.isIdent then
@@ -316,13 +363,18 @@ private def elabDefDeriving (classes : Array DerivingClassView) (decls : Array S
       -- If any of the declarations are definitions, then we commit to delta deriving.
       let infos ← declNames.mapM getConstInfo
       if infos.any (·.isDefinition) then
-        elabDefDeriving classes decls
+        elabDefDeriving classes decls (isNoncomputable := isNoncomputable) (cmdRef? := stx)
       else
         -- Otherwise, we commit to using deriving handlers.
-        for cls in classes do
-          cls.applyHandlers declNames
+        if isNoncomputable then
+          withScope (fun sc => { sc with isNoncomputable := true }) do
+            for cls in classes do
+              cls.applyHandlers declNames
+        else
+          for cls in classes do
+            cls.applyHandlers declNames
     else
-      elabDefDeriving classes decls
+      elabDefDeriving classes decls (isNoncomputable := isNoncomputable) (cmdRef? := stx)
   | _ => throwUnsupportedSyntax
 
 builtin_initialize

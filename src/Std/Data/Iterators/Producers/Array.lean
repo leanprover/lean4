@@ -29,7 +29,7 @@ The monadic version of this iterator is `Array.iterFromIdxM`.
 * `Finite` instance: always
 * `Productive` instance: always
 -/
-@[always_inline, inline]
+@[cbv_opaque, always_inline, inline]
 def Array.iterFromIdx {α : Type w} (l : Array α) (pos : Nat) :
     Iter (α := ArrayIterator α) α :=
   ((l.iterFromIdxM Id pos).toIter : Iter α)
@@ -45,7 +45,7 @@ The monadic version of this iterator is `Array.iterM`.
 * `Finite` instance: always
 * `Productive` instance: always
 -/
-@[always_inline, inline]
+@[cbv_opaque, always_inline, inline]
 def Array.iter {α : Type w} (l : Array α) :
     Iter (α := ArrayIterator α) α :=
   ((l.iterM Id).toIter : Iter α)

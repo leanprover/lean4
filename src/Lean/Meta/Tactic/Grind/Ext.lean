@@ -40,7 +40,7 @@ def instantiateExtTheorem (thm : Ext.ExtTheorem) (e : Expr) : GoalM Unit := with
   -- `e` is equal to `False`
   let eEqFalse ← mkEqFalseProof e
   -- So, we use `Eq.mp` to build a `proof` of `False`
-  let proof := mkApp4 (mkConst ``Eq.mp [levelZero]) e (← getFalseExpr) eEqFalse proof
+  let proof := mkApp4 (mkConst ``Eq.mp [Level.zero]) e (← getFalseExpr) eEqFalse proof
   let mvars ← mvars.filterM fun mvar => return !(← mvar.mvarId!.isAssigned)
   let proof' ← instantiateMVars (← mkLambdaFVars mvars proof)
   let prop' ← inferType proof'
@@ -48,6 +48,6 @@ def instantiateExtTheorem (thm : Ext.ExtTheorem) (e : Expr) : GoalM Unit := with
     reportIssue! "failed to apply extensionality theorem `{thm.declName}` for {indentExpr e}\nresulting terms contain metavariables"
     return ()
   trace[grind.ext] "{thm.declName}: {prop'}"
-  addNewRawFact proof' prop' ((← getGeneration e) + 1) (.ext thm.declName)
+  addNewRawFact proof' prop' ((← getGeneration e) + 1) (.ext thm.declName) .other
 
 end Lean.Meta.Grind

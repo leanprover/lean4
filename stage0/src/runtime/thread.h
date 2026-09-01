@@ -181,9 +181,11 @@ public:
 template<typename T> class unique_lock {
 public:
     unique_lock(T const &) {}
+    unique_lock(T const &, std::adopt_lock_t) {}
     ~unique_lock() {}
     void lock() {}
     void unlock() {}
+    T * release() { return nullptr; }
 };
 inline unsigned hardware_concurrency() { return 1; }
 }
@@ -265,4 +267,6 @@ LEAN_EXPORT void register_thread_local_reset_fn(std::function<void()> fn);
    We invoke this function before processing a command
    and before executing a task. */
 LEAN_EXPORT void reset_thread_local();
+LEAN_EXPORT void run_with_thread_stack(std::function<void()> const & fn);
+LEAN_EXPORT void set_thread_stack_size_from_env();
 }

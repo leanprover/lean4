@@ -54,7 +54,7 @@ def applyTactics (cfg : ApplyConfig := {}) (transparency : TransparencyMode := .
     (lemmas : List Expr) (g : MVarId) : MetaM (Lean.Meta.Iterator (List Lean.MVarId)) := do
   pure <|
     (← Meta.Iterator.ofList lemmas).filterMapM (fun e => observing? do
-      withTraceNode `Meta.Tactic.solveByElim (return m!"{exceptEmoji ·} trying to apply: {e}") do
+      withTraceNode `Meta.Tactic.solveByElim (fun _ => return m!"trying to apply: {e}") do
         let goals ← withTransparency transparency (g.apply e cfg)
         -- When we call `apply` interactively, `Lean.Elab.Tactic.evalApplyLikeTactic`
         -- deals with closing new typeclass goals by calling

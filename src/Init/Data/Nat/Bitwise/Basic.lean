@@ -75,7 +75,7 @@ Examples:
  * `0 <<< 3 = 0`
  * `0xf1 <<< 4 = 0xf10`
 -/
-@[extern "lean_nat_shiftl", expose]
+@[extern "lean_nat_shiftl", expose, implicit_reducible]
 def shiftLeft : @& Nat → @& Nat → Nat
   | n, 0 => n
   | n, succ m => shiftLeft (2*n) m
@@ -91,7 +91,7 @@ Examples:
  * `0 >>> 3 = 0`
  * `0xf13a >>> 8 = 0xf1`
 -/
-@[extern "lean_nat_shiftr", expose]
+@[extern "lean_nat_shiftr", expose, implicit_reducible]
 def shiftRight : @& Nat → @& Nat → Nat
   | n, 0 => n
   | n, succ m => shiftRight n m / 2
@@ -101,6 +101,12 @@ instance : OrOp Nat := ⟨Nat.lor⟩
 instance : XorOp Nat := ⟨Nat.xor⟩
 instance : ShiftLeft Nat := ⟨Nat.shiftLeft⟩
 instance : ShiftRight Nat := ⟨Nat.shiftRight⟩
+
+@[simp] theorem land_eq {m n : Nat} : m.land n = m &&& n := rfl
+@[simp] theorem lor_eq {m n : Nat} : m.lor n = m ||| n := rfl
+@[simp] theorem xor_eq {m n : Nat} : m.xor n = m ^^^ n := rfl
+@[simp] theorem shiftLeft_eq' {m n : Nat} : m.shiftLeft n = m <<< n := rfl
+@[simp] theorem shiftRight_eq' {m n : Nat} : m.shiftRight n = m >>> n := rfl
 
 theorem shiftLeft_eq (a b : Nat) : a <<< b = a * 2 ^ b :=
   match b with
@@ -138,7 +144,7 @@ of a number.
 /--
 Returns `true` if the `(n+1)`th least significant bit is `1`, or `false` if it is `0`.
 -/
-@[expose] def testBit (m n : Nat) : Bool :=
+@[expose, implicit_reducible] def testBit (m n : Nat) : Bool :=
   -- `1 &&& n` is faster than `n &&& 1` for big `n`.
   1 &&& (m >>> n) != 0
 

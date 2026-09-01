@@ -6,6 +6,7 @@ Authors: Leonardo de Moura
 module
 prelude
 public import Lean.Meta.Basic
+public import Lean.Meta.HasAssignableMVar
 public import Lean.Meta.LevelDefEq
 public import Lean.Meta.WHNF
 public import Lean.Meta.InferType
@@ -27,6 +28,7 @@ public import Lean.Meta.Match
 public import Lean.Meta.ReduceEval
 public import Lean.Meta.Closure
 public import Lean.Meta.AbstractNestedProofs
+public import Lean.Meta.WrapInstance
 public import Lean.Meta.LetToHave
 public import Lean.Meta.ForEachExpr
 public import Lean.Meta.Transform

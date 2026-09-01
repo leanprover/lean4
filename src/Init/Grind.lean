@@ -14,11 +14,10 @@ public import Init.Grind.Util
 public import Init.Grind.Offset
 public import Init.Grind.PP
 public import Init.Grind.Ring
+public import Init.Grind.ToInt
 public import Init.Grind.Module
 public import Init.Grind.Ordered
 public import Init.Grind.Ext
-public import Init.Grind.ToInt
-public import Init.Grind.ToIntLemmas
 public import Init.Grind.Attr
 public import Init.Grind.AC
 public import Init.Grind.Injective
@@ -28,3 +27,4 @@ public import Init.Grind.Lint
 public import Init.Grind.Annotated
 public import Init.Grind.FieldNormNum
 public import Init.Grind.Config
+public import Init.Grind.Homo

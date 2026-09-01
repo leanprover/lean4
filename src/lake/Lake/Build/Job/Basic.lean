@@ -29,11 +29,18 @@ namespace Lake
 public inductive JobAction
 /-- No information about this job's action is available. -/
 | unknown
-/-- Tried to replay a cached build action (set by `buildFileUnlessUpToDate`) -/
+/-- Tried to reuse a cached build (e.g., can be set by `replayCachedIfUpToDate`). -/
+| reuse
+/-- Tried to replay a completed build action (e.g., can be set by `replayIfUpToDate`). -/
 | replay
-/-- Tried to fetch a build from a store (can be set by `buildUnlessUpToDate?`) -/
+/-- Tried to unpack a build from an archive (e.g., unpacking a module `ltar`). -/
+| unpack
+/--
+Tried to fetch a build from a remote store (e.g., set when downloading an artifact
+on-demand from a cache service in `buildArtifactUnlessUpToDate`).
+-/
 | fetch
-/-- Tried to perform a build action (set by `buildUnlessUpToDate?`) -/
+/-- Tried to perform a build action (e.g., set by `buildAction`). -/
 | build
 deriving Inhabited, Repr, DecidableEq, Ord
 
@@ -45,11 +52,13 @@ public instance : Min JobAction := minOfLe
 public instance : Max JobAction := maxOfLe
 
 public def merge (a b : JobAction) : JobAction :=
-  max a b
+  max a b -- inlines `max`
 
-public def verb (failed : Bool) : JobAction → String
+public def verb (failed : Bool) : (self : JobAction) → String
 | .unknown => if failed then "Running" else "Ran"
+| .reuse => if failed then "Reusing" else "Reused"
 | .replay => if failed then "Replaying" else "Replayed"
+| .unpack => if failed then "Unpacking" else "Unpacked"
 | .fetch => if failed then "Fetching" else "Fetched"
 | .build => if failed then "Building" else "Built"
 
@@ -94,6 +103,28 @@ public def JobResult.prependLog (log : Log) (self : JobResult α) : JobResult α
   match self with
   | .ok a s => .ok a <| s.modifyLog (log ++ ·)
   | .error e s => .error ⟨log.size + e.val⟩ <| s.modifyLog (log ++ ·)
+
+/--
+**For internal use only.**
+Log message marking a job continuation canceled by the build's cancellation
+token. Do not match this directly; use `JobResult.isCanceled`.
+-/
+public def cancelMessage : String := "canceled after earlier build failure"
+
+/--
+Whether this result is a cancellation.
+
+Also correct on merged results (e.g., from `zipResultWith`, `mix`,
+`collectArray`): a result that contains both a genuine failure and
+cancellations is classified as failed.
+-/
+public def JobResult.isCanceled : JobResult α → Bool
+  | .error _ s =>
+    -- Scan the log, not the entry at the error position: merges concatenate
+    -- logs but reset the position. Assumes failures log at error level.
+    s.log.maxLv < .error &&
+    s.log.any fun e => e.level == .trace && e.message == cancelMessage
+  | .ok .. => false
 
 /-- The `Task` of a Lake job. -/
 public abbrev JobTask α := BaseIOTask (JobResult α)
@@ -191,7 +222,7 @@ end Job
 /-- A Lake job task with an opaque value in `Type`. -/
 public abbrev OpaqueJobTask := JobTask Opaque
 
-@[inline] private unsafe def JobTask.toOpaqueImpl (self : JobTask α) : OpaqueJobTask :=
+@[inline] unsafe def JobTask.toOpaqueImpl (self : JobTask α) : OpaqueJobTask :=
   unsafeCast self
 
 /-- Forget the value of a job task. Implemented as a no-op cast. -/

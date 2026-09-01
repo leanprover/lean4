@@ -7,6 +7,7 @@ module
 
 prelude
 public import Init.Data.List.Int.Sum
+public import Init.Data.List.Int.Prod
 public import Init.Data.Array.MinMax
 import Init.Data.Int.Lemmas
 
@@ -73,5 +74,18 @@ theorem sum_div_length_le_max_of_max?_eq_some_int {xs : Array Int} (h : xs.max? 
   rcases xs with ⟨l⟩
   simpa [List.max?_toArray, List.sum_toArray] using
     List.sum_div_length_le_max_of_max?_eq_some_int (by simpa using h)
+
+@[simp] theorem prod_replicate_int {n : Nat} {a : Int} : (replicate n a).prod = a ^ n := by
+  rw [← List.toArray_replicate, List.prod_toArray]
+  simp
+
+theorem prod_append_int {as₁ as₂ : Array Int} : (as₁ ++ as₂).prod = as₁.prod * as₂.prod := by
+  simp [prod_append]
+
+theorem prod_reverse_int (xs : Array Int) : xs.reverse.prod = xs.prod := by
+  simp [prod_reverse]
+
+theorem prod_eq_foldl_int {xs : Array Int} : xs.prod = xs.foldl (init := 1) (· * ·) := by
+  simp only [foldl_eq_foldr_reverse, Int.mul_comm, ← prod_eq_foldr, prod_reverse_int]
 
 end Array

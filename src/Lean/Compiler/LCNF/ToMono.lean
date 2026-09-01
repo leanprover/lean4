@@ -82,15 +82,7 @@ partial def LetValue.toMono (e : LetValue .pure) : ToMonoM (LetValue .pure) := d
   match e with
   | .erased | .lit .. => return e
   | .const declName _ args =>
-    if declName == ``Decidable.isTrue then
-      return .const ``Bool.true [] #[]
-    else if declName == ``Decidable.isFalse then
-      return .const ``Bool.false [] #[]
-    else if declName == ``Decidable.decide then
-      -- Decidable.decide is the identity function since Decidable
-      -- and Bool have the same runtime representation.
-      return args[1]!.toLetValue
-    else if declName == ``Quot.mk then
+    if declName == ``Quot.mk then
       return args[2]!.toLetValue
     else if declName == ``Quot.lcInv then
       match args[2]! with
@@ -173,18 +165,6 @@ partial def FunDecl.toMono (decl : FunDecl .pure) : ToMonoM (FunDecl .pure) := d
   let params ← decl.params.mapM (·.toMono)
   let value ← decl.value.toMono
   decl.update type params value
-
-/-- Convert `cases` `Decidable` => `Bool` -/
-partial def decToMono (c : Cases .pure) (_ : c.typeName == ``Decidable) : ToMonoM (Code .pure) := do
-  let resultType ← toMonoType c.resultType
-  let alts ← c.alts.mapM fun alt => do
-    match alt with
-    | .default k => return alt.updateCode (← k.toMono)
-    | .alt ctorName ps k =>
-      eraseParams ps
-      let ctorName := if ctorName == ``Decidable.isTrue then ``Bool.true else ``Bool.false
-      return .alt ctorName #[] (← k.toMono)
-  return .cases ⟨``Bool, resultType, c.discr, alts⟩
 
 /-- Eliminate `cases` for `Nat`. -/
 partial def casesNatToMono (c: Cases .pure) (_ : c.typeName == ``Nat) : ToMonoM (Code .pure) := do
@@ -279,13 +259,35 @@ partial def casesFloatArrayToMono (c : Cases .pure) (_ : c.typeName == ``FloatAr
   let k ← k.toMono
   return .let decl k
 
-/-- Eliminate `cases` for `String. -/
+/-- Eliminate `cases` for `String`. -/
 partial def casesStringToMono (c : Cases .pure) (_ : c.typeName == ``String) : ToMonoM (Code .pure) := do
   assert! c.alts.size == 1
   let .alt _ ps k := c.alts[0]! | unreachable!
   eraseParams ps
   let p := ps[0]!
-  let decl := { fvarId := p.fvarId, binderName := p.binderName, type := anyExpr, value := .const ``String.toList [] #[.fvar c.discr] }
+  let decl := { fvarId := p.fvarId, binderName := p.binderName, type := anyExpr, value := .const ``String.toByteArray [] #[.fvar c.discr] }
+  modifyLCtx fun lctx => lctx.addLetDecl decl
+  let k ← k.toMono
+  return .let decl k
+
+/-- Eliminate `cases` for `Float`. -/
+partial def casesFloatToMono (c : Cases .pure) (_ : c.typeName == ``Float) : ToMonoM (Code .pure) := do
+  assert! c.alts.size == 1
+  let .alt _ ps k := c.alts[0]! | unreachable!
+  eraseParams ps
+  let p := ps[0]!
+  let decl := { fvarId := p.fvarId, binderName := p.binderName, type := anyExpr, value := .const ``Float.toModel [] #[.fvar c.discr] }
+  modifyLCtx fun lctx => lctx.addLetDecl decl
+  let k ← k.toMono
+  return .let decl k
+
+/-- Eliminate `cases` for `Float32`. -/
+partial def casesFloat32ToMono (c : Cases .pure) (_ : c.typeName == ``Float32) : ToMonoM (Code .pure) := do
+  assert! c.alts.size == 1
+  let .alt _ ps k := c.alts[0]! | unreachable!
+  eraseParams ps
+  let p := ps[0]!
+  let decl := { fvarId := p.fvarId, binderName := p.binderName, type := anyExpr, value := .const ``Float32.toModel [] #[.fvar c.discr] }
   modifyLCtx fun lctx => lctx.addLetDecl decl
   let k ← k.toMono
   return .let decl k
@@ -351,9 +353,7 @@ partial def Code.toMono (code : Code .pure) : ToMonoM (Code .pure) := do
   | .jmp fvarId args => return code.updateJmp! fvarId (← args.mapM argToMono)
   | .return .. => return code
   | .cases c =>
-    if h : c.typeName == ``Decidable then
-      decToMono c h
-    else if h : c.typeName == ``Nat then
+    if h : c.typeName == ``Nat then
       casesNatToMono c h
     else if h : c.typeName == ``Int then
       casesIntToMono c h
@@ -373,6 +373,10 @@ partial def Code.toMono (code : Code .pure) : ToMonoM (Code .pure) := do
       casesFloatArrayToMono c h
     else if h : c.typeName == ``String then
       casesStringToMono c h
+    else if h : c.typeName == ``Float then
+      casesFloatToMono c h
+    else if h : c.typeName == ``Float32 then
+      casesFloat32ToMono c h
     else if h : c.typeName == ``Thunk then
       casesThunkToMono c h
     else if h : c.typeName == ``Task then

@@ -78,7 +78,7 @@ where
 
 end ToExpr
 
-open ToExpr
+open Lean.Compiler.LCNF.ToExpr
 
 private def Arg.toExprM (arg : Arg pu) : ToExprM Expr :=
   return arg.toExpr.abstract' (← read) (← get)
@@ -116,24 +116,37 @@ partial def Code.toExprM (code : Code pu) : ToExprM Expr := do
     let value := mkApp5 (mkConst `sset) (.fvar fvarId) (toExpr i) (toExpr offset) (.fvar y) ty
     let body ← withFVar fvarId k.toExprM
     return .letE `dummy (mkConst ``Unit) value body true
+  | .oset fvarId offset y k _ =>
+    let value := mkApp3 (mkConst `oset) (.fvar fvarId) (toExpr offset) (← y.toExprM)
+    let body ← withFVar fvarId k.toExprM
+    return .letE `dummy (mkConst ``Unit) value body true
   | .uset fvarId offset y k _ =>
     let value := mkApp3 (mkConst `uset) (.fvar fvarId) (toExpr offset) (.fvar y)
     let body ← withFVar fvarId k.toExprM
+    return .letE `dummy (mkConst ``Unit) value body true
+  | .setTag fvarId cidx k _ =>
+    let body ← withFVar fvarId k.toExprM
+    let value := mkApp2 (mkConst `setTag) (.fvar fvarId) (toExpr cidx)
     return .letE `dummy (mkConst ``Unit) value body true
   | .inc fvarId n check persistent k _ =>
     let value := mkApp4 (mkConst `inc) (.fvar fvarId) (toExpr n) (toExpr check) (toExpr persistent)
     let body ← withFVar fvarId k.toExprM
     return .letE `dummy (mkConst ``Unit) value body true
-  | .dec fvarId n check persistent k _ =>
+  | .dec fvarId n check persistent o k _ =>
     let body ← withFVar fvarId k.toExprM
-    let value := mkApp4 (mkConst `dec) (.fvar fvarId) (toExpr n) (toExpr check) (toExpr persistent)
+    let value :=
+      mkApp5 (mkConst `dec) (.fvar fvarId) (toExpr n) (toExpr check) (toExpr persistent) (toExpr o)
+    return .letE `dummy (mkConst ``Unit) value body true
+  | .del fvarId k _ =>
+    let body ← withFVar fvarId k.toExprM
+    let value := mkApp (mkConst `del) (.fvar fvarId)
     return .letE `dummy (mkConst ``Unit) value body true
 end
 
-public def Code.toExpr (code : Code pu) (xs : Array FVarId := #[]) : Expr :=
+def Code.toExpr (code : Code pu) (xs : Array FVarId := #[]) : Expr :=
   run' code.toExprM xs
 
-public def FunDecl.toExpr (decl : FunDecl pu) (xs : Array FVarId := #[]) : Expr :=
+def FunDecl.toExpr (decl : FunDecl pu) (xs : Array FVarId := #[]) : Expr :=
   run' decl.toExprM xs
 
 end Lean.Compiler.LCNF

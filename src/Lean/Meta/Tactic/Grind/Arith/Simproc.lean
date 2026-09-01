@@ -8,8 +8,13 @@ prelude
 public import Init.Grind.Ring.Basic
 public import Init.Simproc
 public import Lean.Meta.Tactic.Grind.SynthInstance
+public import Init.Simproc
+public import Lean.Meta.Tactic.Simp.BuiltinSimprocs.Util
+import Lean.Meta.LitValues
 import Init.Grind.Ring.Field
+import Lean.Meta.DecLevel
 import Lean.Meta.Tactic.Grind.Arith.FieldNormNum
+import Lean.Util.SafeExponentiation
 public section
 namespace Lean.Meta.Grind.Arith
 

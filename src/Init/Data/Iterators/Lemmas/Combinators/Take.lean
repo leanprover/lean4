@@ -67,7 +67,7 @@ theorem Iter.atIdxSlow?_take {α β}
     simp only [atIdxSlow?_eq_match (it := it.take k), step_take, h']
     cases k <;> cases l <;> simp
 
-@[simp]
+@[cbv_eval, simp]
 theorem Iter.toList_take_of_finite {α β} [Iterator α Id β] {n : Nat}
     [Finite α Id] {it : Iter (α := α) β} :
     (it.take n).toList = it.toList.take n := by
@@ -89,7 +89,7 @@ theorem Iter.toListRev_take_of_finite {α β} [Iterator α Id β] {n : Nat}
     (it.take n).toListRev = it.toListRev.drop (it.toList.length - n) := by
   rw [toListRev_eq, toList_take_of_finite, List.reverse_take, toListRev_eq]
 
-@[simp]
+@[cbv_eval, simp]
 theorem Iter.toArray_take_of_finite {α β} [Iterator α Id β] {n : Nat}
     [Finite α Id] {it : Iter (α := α) β} :
     (it.take n).toArray = it.toArray.take n := by
@@ -109,6 +109,7 @@ theorem Iter.step_toTake {α β} [Iterator α Id β] [Finite α Id]
         | .yield it' out h => .yield it'.toTake out (.yield h Nat.zero_ne_one)
         | .skip it' h => .skip it'.toTake (.skip h Nat.zero_ne_one)
         | .done h => .done (.done h)) := by
+  apply Subtype.ext
   simp only [toTake_eq_toIter_toTake_toIterM, Iter.step, toIterM_toIter, IterM.step_toTake,
     Id.run_bind]
   cases it.toIterM.step.run.inflate using PlausibleIterStep.casesOn <;> simp

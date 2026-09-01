@@ -751,7 +751,7 @@ private:
                     break;
                 }
                 case fn_body_kind::Del: // delete object of unique reference
-                    lean_free_object(var(fn_body_del_var(b)).m_obj);
+                    lean_del_object(var(fn_body_del_var(b)).m_obj);
                     b = fn_body_del_cont(b);
                     break;
                 case fn_body_kind::Case: { // branch according to constructor tag
@@ -882,9 +882,6 @@ private:
         auto cached_entry = m_constant_cache.find(fn);
         if (cached_entry != m_constant_cache.end()) {
             auto cached = cached_entry->second;
-            if (!cached.m_is_scalar) {
-                inc(cached.m_val.m_obj);
-            }
             return cached.m_val;
         }
         auto o_entry = g_init_globals->find(fn);
@@ -931,9 +928,6 @@ private:
         lean_always_assert(fn_body_tag(decl_fun_body(e.m_decl)) != fn_body_kind::Unreachable);
         value r = eval_body(decl_fun_body(e.m_decl));
         pop_frame(r, decl_type(e.m_decl));
-        if (!type_is_scalar(t)) {
-            inc(r.m_obj);
-        }
         m_constant_cache.insert({ fn, constant_cache_entry { type_is_scalar(t), r } });
         return r;
     }
@@ -952,6 +946,9 @@ private:
                     // originally borrowed parameters because the wrapper will decrement these after the call.
                     // Basically the wrapper is more homogeneous (removing both unboxed and borrowed parameters) than we
                     // would need in this instance.
+                    // A scalar parameter would break this: `box_t` allocates a box that this call alone owns and the
+                    // wrapper's decrement frees. `Lean.IR.ToIR.lowerParam` establishes that such a parameter is owned.
+                    lean_assert(!type_is_scalar(t));
                     inc(args2[i]);
                 }
             }
@@ -1073,7 +1070,11 @@ public:
         unsigned arity = decl_params(e.m_decl).size();
         object * r;
         if (arity == 0) {
-            r = box_t(load(fn, decl_type(e.m_decl)), decl_type(e.m_decl));
+            type t = decl_type(e.m_decl);
+            r = box_t(load(fn, t), t);
+            if (!type_is_scalar(t)) {
+                inc(r);
+            }
         } else {
             // First allocate a closure with zero fixed parameters. This is slightly wasteful in the under-application
             // case, but simpler to handle.
@@ -1128,7 +1129,7 @@ public:
 
     object * run_init(name const & decl, name const & init_decl) {
         try {
-            object * args[] = {};
+            object * args[] = { io_mk_world() };
             object * r = call_boxed(init_decl, 1, args);
             if (io_result_is_ok(r)) {
                 object * o = io_result_get_value(r);
@@ -1164,21 +1165,12 @@ object * run_boxed(elab_environment const & env, options const & opts, name cons
     return interpreter::with_interpreter<object *>(env, opts, fn, [&](interpreter & interp) { return interp.call_boxed(fn, n, args); });
 }
 
-extern "C" obj_res lean_elab_environment_of_kernel_env(obj_arg);
-elab_environment elab_environment_of_kernel_env(environment const & env) {
-    return elab_environment(lean_elab_environment_of_kernel_env(env.to_obj_arg()));
-}
-
-object * run_boxed_kernel(environment const & env, options const & opts, name const & fn, unsigned n, object **args) {
-    return run_boxed(elab_environment_of_kernel_env(env), opts, fn, n, args);
-}
-
 uint32 run_main(elab_environment const & env, options const & opts, list_ref<string_ref> const & args) {
     return interpreter::with_interpreter<uint32>(env, opts, "main", [&](interpreter & interp) { return interp.run_main(args); });
 }
 
-/* runMain (env : Environment) (opts : Iptions) (args : List String) : BaseIO UInt32 */
-extern "C" LEAN_EXPORT uint32_t lean_run_main(b_obj_arg env, b_obj_arg opts, b_obj_arg args) {
+/* runMain (env : Environment) (opts : Options) (args : List String) : BaseIO UInt32 */
+extern "C" LEAN_EXPORT uint32_t lean_eval_main(b_obj_arg env, b_obj_arg opts, b_obj_arg args) {
     uint32 ret = run_main(TO_REF(elab_environment, env), TO_REF(options, opts), TO_REF(list_ref<string_ref>, args));
     return ret;
 }

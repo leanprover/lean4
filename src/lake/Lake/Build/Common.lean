@@ -126,7 +126,7 @@ public def BuildMetadata.parse (contents : String) : Except String BuildMetadata
 public def BuildMetadata.ofFetch (inputHash : Hash) (outputs : Json) : BuildMetadata :=
   {depHash := inputHash, outputs? := outputs, synthetic := true, inputs := #[], log := {}}
 
-private partial def serializeInputs (inputs : Array BuildTrace) : Array (String × Json) :=
+partial def serializeInputs (inputs : Array BuildTrace) : Array (String × Json) :=
   inputs.foldl (init := {}) fun r trace =>
     let val :=
       if trace.inputs.isEmpty then
@@ -135,7 +135,7 @@ private partial def serializeInputs (inputs : Array BuildTrace) : Array (String 
         toJson (serializeInputs trace.inputs)
     r.push (trace.caption, val)
 
-private def BuildMetadata.ofBuildCore
+def BuildMetadata.ofBuildCore
   (depTrace : BuildTrace) (outputs : Json) (log : Log)
 : BuildMetadata where
   inputs := serializeInputs depTrace.inputs
@@ -210,7 +210,7 @@ deriving DecidableEq
 @[inline] public def OutputStatus.isCacheable (status : OutputStatus) : Bool :=
   status != .mtimeUpToDate
 
-@[specialize] private def checkHashUpToDate'
+@[specialize] def checkHashUpToDate'
   [CheckExists ι] [GetMTime ι]
   (info : ι) (depTrace : BuildTrace) (depHash : Option Hash)
   (oldTrace := depTrace.mtime)
@@ -227,13 +227,15 @@ Checks if the `info` is up-to-date by comparing `depTrace` with `depHash`.
 If old mode is enabled (e.g., `--old`), uses the `oldTrace` modification time
 as the point of comparison instead.
 -/
-@[inline] public def checkHashUpToDate
+@[inline, deprecated "Deprecated without replacement." (since := "2025-03-04")]
+public def checkHashUpToDate
   [CheckExists ι] [GetMTime ι]
   (info : ι) (depTrace : BuildTrace) (depHash : Option Hash)
   (oldTrace := depTrace.mtime)
 : JobM Bool := (·.isUpToDate) <$> checkHashUpToDate' info depTrace depHash oldTrace
 
 /--
+**For internal use only.**
 Checks whether `info` is up-to-date with the trace.
 If so, replays the log of the trace if available.
 -/
@@ -265,23 +267,27 @@ If so, replays the log of the trace if available.
 : JobM Bool := (·.isUpToDate) <$> savedTrace.replayIfUpToDate' info depTrace oldTrace
 
 /--
-Returns if the saved trace exists and its hash matches `inputHash`.
+Returns `true` if the saved trace exists and its hash matches `inputHash`.
 
 If up-to-date, replays the saved log from the trace and sets the current
 build action to `replay`. Otherwise, if the log is empty and trace is synthetic,
-or if the trace is not up-to-date, the build action will be set ot `fetch`.
+or if the trace is not up-to-date, the build action will be set to `reuse`.
 -/
-public def SavedTrace.replayOrFetchIfUpToDate (inputHash : Hash) (self : SavedTrace) : JobM Bool := do
+public def SavedTrace.replayCachedIfUpToDate (inputHash : Hash) (self : SavedTrace) : JobM Bool := do
   if let .ok data := self then
     if data.depHash == inputHash then
       if data.synthetic && data.log.isEmpty then
-        updateAction .fetch
+        updateAction .reuse
       else
         updateAction .replay
         data.log.replay
       return true
-  updateAction .fetch
+  updateAction .reuse
   return false
+
+@[deprecated replayCachedIfUpToDate (since := "2026-04-15")]
+public abbrev SavedTrace.replayOrFetchIfUpToDate (inputHash : Hash) (self : SavedTrace) : JobM Bool := do
+  self.replayCachedIfUpToDate inputHash
 
 /-- **For internal use only.** -/
 public class ToOutputJson (α : Type u) where
@@ -307,7 +313,8 @@ and log are saved to `traceFile`, if the build completes without a fatal error
   let noBuildTraceFile := traceFile.addExtension "nobuild"
   if (← getNoBuild) then
     modify ({· with wantsRebuild := true})
-    writeBuildTrace noBuildTraceFile depTrace Json.null {}
+    if (← traceFile.pathExists) then
+      writeBuildTrace noBuildTraceFile depTrace Json.null {}
     error s!"target is out-of-date and needs to be rebuilt"
   else
     let startTime ← IO.monoMsNow
@@ -460,10 +467,12 @@ public def Cache.saveArtifact
       IO.setAccessRights file ⟨r, r, r⟩
       unless (← cacheFile.pathExists) do
         createParentDirs cacheFile
-        IO.FS.writeFile cacheFile normalized
-        IO.setAccessRights cacheFile ⟨r, r, r⟩
+        -- other functions can race to create the file
+        -- use `writeFileIfNew` to prevent errors on races
+        writeFileIfNew cacheFile normalized
+      IO.setAccessRights cacheFile ⟨r, r, r⟩
       writeFileHash file hash
-      let mtime := (← getMTime cacheFile |>.toBaseIO).toOption.getD 0
+      let mtime ← getMTime cacheFile
       let path := if useLocalFile then file else cacheFile
       return {descr, name := file.toString, path, mtime}
     else
@@ -477,11 +486,14 @@ public def Cache.saveArtifact
       IO.setAccessRights file ⟨r, r, r⟩
       unless (← cacheFile.pathExists) do
         createParentDirs cacheFile
-        if let .error _ ← (IO.FS.hardLink file cacheFile).toBaseIO then
-          IO.FS.writeBinFile cacheFile contents
-          IO.setAccessRights cacheFile ⟨r, r, r⟩
+        if let .error e ← (IO.FS.hardLink file cacheFile).toBaseIO then
+          -- other functions can race to create the file
+          unless e matches .alreadyExists .. do
+            -- use `writeBinFileIfNew` to prevent errors on races
+            writeBinFileIfNew cacheFile contents
+      IO.setAccessRights cacheFile ⟨r, r, r⟩
       writeFileHash file hash
-      let mtime := (← getMTime cacheFile |>.toBaseIO).toOption.getD 0
+      let mtime ← getMTime cacheFile
       let path := if useLocalFile then file else cacheFile
       return {descr, name := file.toString, path, mtime}
   catch e =>
@@ -494,50 +506,124 @@ public def cacheArtifact
 : m Artifact := do (← getLakeCache).saveArtifact file ext text exe useLocalFile
 
 /-- **For internal use only.** -/
-public class ResolveOutputs (m : Type v → Type w) (α : Type v) where
+public class ResolveOutputs (α : Type) where
   /-- **For internal use only.** -/
-  resolveOutputs? (outputs : Json) : m (Except String α)
+  resolveOutputs (out : CacheOutput) : JobM α
+
 
 open ResolveOutputs in
 /--
-Retrieve artifacts from the Lake cache using the outputs stored
-in either the saved trace file or in the cached input-to-content mapping.
+Retrieve artifacts from the Lake cache using only the outputs
+stored in the cached input-to-content mapping.
 
 **For internal use only.**
 -/
-@[specialize] public nonrec def getArtifacts?
-  [ResolveOutputs JobM α]
-  (inputHash : Hash) (savedTrace : SavedTrace)
-  (cache : Cache) (pkg : Package)
+@[specialize] def getArtifactsUsingCache?
+  [ResolveOutputs α] (inputHash : Hash) (pkg : Package)
 : JobM (Option α) := do
-  let updateCache ← pkg.isArtifactCacheWritable
-  if let some out ← cache.readOutputs? pkg.cacheScope inputHash then
-    match (← resolveOutputs? out) with
-    | .ok arts =>
-      return some arts
-    | .error e =>
-      logWarning s!"\
-        input '{inputHash.toString.take 7}' found in package artifact cache, \
-        but some output(s) have issues: {e}"
+  try
+    (← (← getLakeCache).readOutputs? pkg.cacheScope inputHash).mapM resolveOutputs
+  catch e =>
+    let log ← takeLogFrom e
+    let msg := s!"input '{inputHash.toString.take 7}' found in package artifact cache, \
+      but some output(s) have issues:"
+    let msg := log.entries.foldl (s!"{·}\n- {·.message}") msg
+    -- Must be `trace` to avoid breaking `--wfail` / `--iofail` builds
+    -- TODO: Figure out a way to split cache and build failures
+    logVerbose msg
+    return none
+
+open ResolveOutputs in
+/--
+Retrieve artifacts from the Lake cache using only the outputs stored in the saved trace file.
+
+If the cache is writable, saves the input-to-output mapping derived from the trace to the cache,
+unless a mapping for the `inputHash` already exists.
+
+**For internal use only.**
+-/
+@[specialize] public def getArtifactsUsingTrace?
+  [ResolveOutputs α] (inputHash : Hash) (savedTrace : SavedTrace) (pkg : Package)
+: JobM (Option α) := do
   if let .ok data := savedTrace then
     if data.depHash == inputHash then
       if let some out := data.outputs? then
-        if let .ok arts ← resolveOutputs? out then
-          if updateCache then
-            cache.writeOutputs pkg.cacheScope inputHash out
+        try
+          let arts ← resolveOutputs (.ofData out)
+          if (← pkg.isArtifactCacheWritable) then
+            let act := (← getLakeCache).writeOutputs pkg.cacheScope inputHash out (overwrite := false)
+            if let .error e ← act.toBaseIO then
+              logWarning s!"could not write outputs to cache: {e}"
           return some arts
+        catch e =>
+          dropLogFrom e
   return none
 
-@[inline] def resolveArtifactOutput?
-  [MonadWorkspace m] [MonadLiftT BaseIO m] [Monad m] (output : Json)
-: m (Except String Artifact) := do
-  match fromJson? output with
-  | .ok descr => (← getLakeCache).getArtifact descr |>.toBaseIO
-  | .error e => return .error s!"ill-formed artifact output `{output}`: {e}"
+open ResolveOutputs in
+/--
+Retrieve artifacts from the Lake cache using the outputs stored in either
+the saved trace file or in the cached input-to-content mapping.
 
-instance
-  [MonadWorkspace m] [MonadLiftT BaseIO m] [Monad m]
-: ResolveOutputs m Artifact := ⟨resolveArtifactOutput?⟩
+**For internal use only.**
+-/
+@[inline] public nonrec def getArtifacts?
+  [ResolveOutputs α] (inputHash : Hash) (savedTrace : SavedTrace) (pkg : Package)
+: JobM (Option α) := do
+  if let some a ← getArtifactsUsingTrace? inputHash savedTrace pkg then
+    return some a
+  if let some a ← getArtifactsUsingCache? inputHash pkg then
+    return some a
+  return none
+
+/-- **For internal use only.** -/
+public def resolveArtifact
+  (descr : ArtifactDescr)
+  (service? : Option CacheServiceName) (scope? : Option CacheServiceScope) (exe := false)
+: JobM Artifact := do
+  let ws ← getWorkspace
+  let path := ws.lakeCache.artifactDir / descr.relPath
+  match (← getMTime path |>.toBaseIO) with
+  | .ok mtime =>
+    return {descr, path, mtime}
+  | .error (.noFileOrDirectory ..) => withLogErrorPos do
+    -- we redownload artifacts on any error
+    if let some service := service? then
+      updateAction .fetch
+      if let some service := ws.findCacheService? service.toString then
+        let some scope := scope?
+          | error s!"artifact with associated cache service but no scope"
+        let url := service.artifactUrl descr.hash scope
+        logVerbose s!"\
+          downloaded artifact {descr.hash}\
+          \n  local path: {path}\
+          \n  remote URL: {url}"
+        liftM <| downloadArtifactCore descr.hash url path
+        let r := {read := true, write := false, execution := exe}
+        if let .error e ← IO.setAccessRights path ⟨r, r, r⟩ |>.toBaseIO then
+          logWarning s!"could not mark downloaded artifact read-only: {e}"
+        match (← getMTime path |>.toBaseIO) with
+        | .ok mtime =>
+          return {descr, path, mtime}
+        | .error e =>
+          error s!"download succeeded, but artifact failed to resolve: {e}"
+      else
+        error s!"artifact cache service is not configured: {service}"
+    else
+      error s!"artifact not found in cache:\n  {path}"
+  | .error e =>
+    error s!"failed to retrieve artifact from cache: {e}"
+
+/-- **For internal use only.** -/
+public def resolveArtifactOutput (out : CacheOutput) (exe := false) : JobM Artifact := do
+  match fromJson? out.data with
+  | .ok descr => resolveArtifact descr out.service? out.scope? exe
+  | .error e => error s!"ill-formed artifact output:\n{out.data.render.pretty 80 2}\n{e}"
+
+set_option linter.unusedVariables false in
+/-- An artifact equipped with information about whether it is executable. -/
+def XArtifact (exe : Bool) := Artifact
+
+instance : ResolveOutputs (XArtifact exe) := ⟨(resolveArtifactOutput (exe := exe))⟩
 
 /--
 Construct an artifact from a path outside the Lake artifact cache.
@@ -570,6 +656,11 @@ public def restoreArtifact (file : FilePath) (art : Artifact) (exe := false) : L
       -- writing to such paths as this can corrupt the cache if the file was hard linked instead
       let r := {read := true, write := false, execution := exe}
       IO.setAccessRights file ⟨r, r, r⟩
+    else if exe then
+      -- Ensure restored executables are executable
+      -- They may not have been if acquired through `lake cache get`
+      let r := {read := true, write := false, execution := exe}
+      IO.setAccessRights file ⟨r, r, r⟩
     logVerbose s!"restored artifact from cache to: {file}"
     writeFileHash file art.hash
   return art.useLocalFile file
@@ -585,21 +676,26 @@ If `text := true`, `file` is hashed as a text file rather than a binary file.
 If `restore := true`, if `file` is missing but the artifact is in the cache,
 it will be copied to the `file`. This function will also return `file` rather
 than the path to the cached artifact.
+
+If `exe := true`, the `file` will be marked executable.
+
+If `platformIndependent := true`, the artifact will be included in
+platform-independent caches.
 -/
 public def buildArtifactUnlessUpToDate
   (file : FilePath) (build : JobM PUnit)
   (text := false) (ext := "art") (restore := false) (exe := false)
+  (platformIndependent := false)
 : JobM Artifact := do
   let depTrace ← getTrace
   let traceFile := FilePath.mk <| file.toString ++ ".trace"
   let savedTrace ← readTraceFile traceFile
   if let some pkg ← getCurrPackage? then
-    let cache ← getLakeCache
     let inputHash := depTrace.hash
     let fetchArt? restore := do
-      let some (art : Artifact) ← getArtifacts? inputHash savedTrace cache pkg
+      let some (art : XArtifact exe) ← getArtifacts? inputHash savedTrace pkg
         | return none
-      unless (← savedTrace.replayOrFetchIfUpToDate inputHash) do
+      unless (← savedTrace.replayCachedIfUpToDate inputHash) do
         removeFileIfExists file
         writeFetchTrace traceFile inputHash (toJson art.descr)
       if restore then
@@ -608,7 +704,7 @@ public def buildArtifactUnlessUpToDate
         return some art
     let art ← id do
       if (← pkg.isArtifactCacheWritable) then
-        let restore := restore || pkg.restoreAllArtifacts
+        let restore := restore || (← pkg.restoreAllArtifacts)
         if let some art ← fetchArt? restore then
           return art
         else
@@ -617,7 +713,7 @@ public def buildArtifactUnlessUpToDate
             discard <| doBuild depTrace traceFile
           if status.isCacheable then
             let art ← cacheArtifact file ext text exe restore
-            cache.writeOutputs pkg.cacheScope inputHash art.descr
+            (← getLakeCache).writeOutputs pkg.cacheScope inputHash art.descr
             return art
           else
             computeArtifact file ext text
@@ -628,10 +724,11 @@ public def buildArtifactUnlessUpToDate
           if let some art ← fetchArt? (restore := true) then
             return art
         doBuild depTrace traceFile
-    if let some outputsRef := pkg.outputsRef? then
-      outputsRef.insert inputHash art.descr
+    if pkg.isRoot then
+      if let some outputsRef := (← getBuildContext).outputsRef? then
+        outputsRef.insert inputHash art.descr platformIndependent
     setTrace art.trace
-    return art
+    setMTime art traceFile
   else
     let art ←
       if (← savedTrace.replayIfUpToDate file depTrace) then
@@ -639,7 +736,7 @@ public def buildArtifactUnlessUpToDate
       else
         doBuild depTrace traceFile
     setTrace art.trace
-    return art
+    setMTime art traceFile
 where
   doBuild depTrace traceFile :=
     inline <| buildAction depTrace traceFile do
@@ -648,6 +745,14 @@ where
       clearFileHash file
       removeFileIfExists traceFile
       computeArtifact file ext text
+  setMTime art traceFile := do
+    match (← getMTime traceFile |>.toBaseIO) with
+    | .ok mtime =>
+      return {art with mtime}
+    | .error (.noFileOrDirectory ..) => -- trace file may not exist
+      return art
+    | .error e =>
+      error s!"failed to retrieve artifact modification time: {e}"
 
 /--
 Build `file` using `build` after `dep` completes if the dependency's
@@ -746,24 +851,38 @@ which will be computed in the resulting `Job` before building.
     return art.path
 
 /--
+**For internal use only.**
 Build an object file from a source fie job (i.e, a `lean -c` output)
 using the Lean toolchain's C compiler.
 -/
-public def buildLeanO
+public def Internal.buildLeanO
   (oFile : FilePath) (srcJob : Job FilePath)
   (weakArgs traceArgs : Array String := #[])
-  (leanIncludeDir? : Option FilePath := none)
+  (leanIncludeDir? : Option (FilePath × BuildTrace) := none)
 : SpawnM (Job FilePath) :=
   srcJob.mapM fun srcFile => do
     addLeanTrace
+    if let some (_, trace) := leanIncludeDir? then
+      -- Lean-produced C files contain `#include <lean/lean.h>`.
+      -- Usually this dependency is captured by the Lean trace, but not with an override.
+      addTrace trace
     addPureTrace traceArgs "traceArgs"
     addPlatformTrace -- object files are platform-dependent artifacts
     let art ← buildArtifactUnlessUpToDate oFile (ext := "o") do
       let lean ← getLeanInstall
-      let includeDir := leanIncludeDir?.getD lean.includeDir
+      let includeDir := leanIncludeDir?.elim lean.includeDir (·.1)
       let args := #["-I", includeDir.toString] ++ lean.ccFlags ++ weakArgs ++ traceArgs
       compileO oFile srcFile args lean.cc
     return art.path
+
+/--
+Build an object file from a source fie job (i.e, a `lean -c` output)
+using the Lean toolchain's C compiler.
+-/
+@[inline] public def buildLeanO
+  (oFile : FilePath) (srcJob : Job FilePath)
+  (weakArgs traceArgs : Array String := #[])
+: SpawnM (Job FilePath) := Internal.buildLeanO oFile srcJob weakArgs traceArgs
 
 /-- Build a static library from object file jobs using the Lean toolchain's `ar`. -/
 public def buildStaticLib
@@ -774,9 +893,13 @@ public def buildStaticLib
       compileStaticLib libFile oFiles (← getLeanAr) thin
     return art.path
 
-private def mkLinkObjArgs
-  (objs : Array FilePath) (libs : Array Dynlib) : Array String
-:= Id.run do
+/--
+Returns linker arguments to statically link in `objs` (e.g., object files or
+static libraries) and dynamically link to `libs` (but *not* their `deps`).
+-/
+def mkLinkObjArgs
+  (objs : Array FilePath) (libs : Array Dynlib)
+: Array String := Id.run do
   let mut args := #[]
   for obj in objs do
     args := args.push obj.toString
@@ -790,7 +913,7 @@ private def mkLinkObjArgs
 Topologically sorts the library dependency tree by name.
 Libraries come *before* their dependencies.
 -/
-private partial def mkLinkOrder (libs : Array Dynlib) : JobM (Array Dynlib) := do
+public partial def mkLinkOrder (libs : Array Dynlib) : JobM (Array Dynlib) := do
   let r := libs.foldlM (m := Except (Cycle String)) (init := ({}, #[])) fun (v, o) lib =>
     go lib [] v o
   match r with
@@ -810,8 +933,71 @@ where
     return (v, o)
 
 /--
-Build a shared library by linking the results of `linkJobs`
-using the Lean toolchain's C compiler.
+Returns linker arguments to statically link in `objs` (e.g., object files or
+static libraries) and, if `linkDeps := true`, dynamically link to `libs` (and their
+transitive `deps`).
+-/
+@[inline] public def mkLinkArgs
+  (objs : Array FilePath) (libs : Array Dynlib)
+  (linkDeps := Platform.isWindows)
+: JobM (Array String) := do
+  let libs ← if linkDeps then mkLinkOrder libs else pure #[]
+  return mkLinkObjArgs objs libs
+
+@[inline] def mkLeanLinkArgs
+  (objs : Array FilePath) (libs : Array Dynlib) (args : Array String)
+  (linkDeps := Platform.isWindows) (sharedLean := true)
+: JobM (Array String) := do
+  let lean ← getLeanInstall
+  let baseArgs ← mkLinkArgs objs libs linkDeps
+  return baseArgs ++ args ++ #["-L", lean.leanLibDir.toString] ++ lean.ccLinkFlags sharedLean
+
+/--
+Build a shared library using `linker`.
+
+The library will statically link in `linkObjs` (e.g., object files or
+static libraries) and, if `linkDeps := true`, dynamically link to `linkLibs`
+(and their transitive `deps`).
+
+Additional arguments to the linker can be provided via `args`.
+These will come *after* any other arguments.
+
+If `plugin := true`, the resulting `Dynlib` will be marked as a Lean plugin.
+This means it is expected to have a `initialize_<libName>` symbol.
+-/
+public def buildSharedLibSync
+  (libName : String) (libFile : FilePath)
+  (linkObjs : Array FilePath) (linkLibs : Array Dynlib)
+  (args : Array String := #[]) (linker := "c++")
+  (plugin := false) (linkDeps := Platform.isWindows)
+  (macosxDeploymentTarget? : Option String := none)
+: JobM Dynlib := do
+  -- shared libraries are platform-dependent artifacts
+  addPlatformTrace
+  let macosxDeploymentTarget? :=
+    macosxDeploymentTarget? <|> (← getMacOSXDeploymentTarget?)
+  if let some ver := macosxDeploymentTarget? then
+    addPureTrace ver "MACOSX_DEPLOYMENT_TARGET"
+  -- Lean plugins are required to have a specific name
+  -- and thus need to restored from the cache with that name
+  let art ← buildArtifactUnlessUpToDate libFile (ext := sharedLibExt) (restore := true) do
+    let baseArgs ← mkLinkArgs linkObjs linkLibs linkDeps
+    compileSharedLib libFile (baseArgs ++ args) linker macosxDeploymentTarget?
+  return {name := libName, path := art.path, deps := linkLibs, plugin}
+
+/--
+Build a shared library using `linker`.
+
+The library will statically link in the results of `linkObjs` (e.g., object
+files or static libraries) and, if `linkDeps := true`, dynamically link to the
+results of `linkLibs`.
+
+Additional arguments to the linker can be provided via `weakArgs` and `traceArgs`.
+These will come *after* any other arguments. `traceArgs` will be included in
+the build's input trace, `weakArgs` will not.
+
+If `plugin := true`, the resulting `Dynlib` will be marked as a Lean plugin.
+This means it is expected to have a `initialize_<libName>` symbol.
 -/
 public def buildSharedLib
   (libName : String) (libFile : FilePath)
@@ -819,63 +1005,122 @@ public def buildSharedLib
   (weakArgs traceArgs : Array String := #[]) (linker := "c++")
   (extraDepTrace : JobM _ := pure BuildTrace.nil)
   (plugin := false) (linkDeps := Platform.isWindows)
+  (macosxDeploymentTarget? : Option String := none)
 : SpawnM (Job Dynlib) :=
   (Job.collectArray linkObjs "linkObjs").bindM (sync := true) fun objs => do
   (Job.collectArray linkLibs "linkLibs").mapM fun libs => do
-    addPureTrace traceArgs "traceArgs"
-    addPlatformTrace -- shared libraries are platform-dependent artifacts
     addTrace (← extraDepTrace)
-    -- Lean plugins are required to have a specific name
-    -- and thus need to copied from the cache with that name
-    let art ← buildArtifactUnlessUpToDate libFile (ext := sharedLibExt) (restore := true) do
-      let libs ← if linkDeps then mkLinkOrder libs else pure #[]
-      let args := mkLinkObjArgs objs libs ++ weakArgs ++ traceArgs
-      compileSharedLib libFile args linker
-    return {name := libName, path := art.path, deps := libs, plugin}
+    addPureTrace traceArgs "traceArgs"
+    buildSharedLibSync libName libFile objs libs (weakArgs ++ traceArgs)
+      linker plugin linkDeps macosxDeploymentTarget?
 
 /--
-Build a shared library by linking the results of `linkJobs`
-using `linker`.
+Build a shared library linking Lean by using the Lean toolchain's linker.
+
+The library will statically link in `linkObjs` (e.g., object files or
+static libraries) and, if `linkDeps := true`, dynamically link to `linkLibs`
+(and their transitive `deps`).
+
+Additional arguments to the linker can be provided via `args`.
+
+If `plugin := true`, the resulting `Dynlib` will be marked as a Lean plugin.
+This means it is expected to have a `initialize_<libName>` symbol.
+-/
+public def buildLeanSharedLibSync
+  (libName : String) (libFile : FilePath)
+  (linkObjs : Array FilePath) (linkLibs : Array Dynlib)
+  (args : Array String := #[]) (plugin := false)
+  (linkDeps := Platform.isWindows)
+  (macosxDeploymentTarget? : Option String := none)
+: JobM Dynlib := do
+  addLeanTrace
+  addPlatformTrace -- shared libraries are platform-dependent artifacts
+  -- Lean plugins are required to have a specific name
+  -- and thus need to restored from the cache with that name
+  let art ← buildArtifactUnlessUpToDate libFile (ext := sharedLibExt) (restore := true) do
+    let args ← mkLeanLinkArgs linkObjs linkLibs args linkDeps (sharedLean := true)
+    compileSharedLib libFile args (← getLeanCc) macosxDeploymentTarget?
+  return {name := libName, path := art.path, deps := linkLibs, plugin}
+
+/--
+Build a shared library linking Lean by using the Lean toolchain's linker.
+
+The library will statically link in the results of `linkObjs` (e.g., object
+files or static libraries) and, if `linkDeps := true`, dynamically link to the
+results of `linkLibs` (and their transitive `deps`).
+
+Additional arguments to the linker can be provided via `weakArgs` and `traceArgs`.
+`traceArgs` will be included in the build's input trace, `weakArgs` will not.
+
+If `plugin := true`, the resulting `Dynlib` will be marked as a Lean plugin.
+This means it is expected to have a `initialize_<libName>` symbol.
 -/
 public def buildLeanSharedLib
   (libName : String) (libFile : FilePath)
   (linkObjs : Array (Job FilePath)) (linkLibs : Array (Job Dynlib))
   (weakArgs traceArgs : Array String := #[]) (plugin := false)
   (linkDeps := Platform.isWindows)
+  (macosxDeploymentTarget? : Option String := none)
 : SpawnM (Job Dynlib) :=
   (Job.collectArray linkObjs "linkObjs").bindM (sync := true) fun objs => do
   (Job.collectArray linkLibs "linkLibs").mapM fun libs => do
-    addLeanTrace
     addPureTrace traceArgs "traceArgs"
-    addPlatformTrace -- shared libraries are platform-dependent artifacts
-    -- Lean plugins are required to have a specific name
-    -- and thus need to copied from the cache with that name
-    let art ← buildArtifactUnlessUpToDate libFile (ext := sharedLibExt) (restore := true) do
-      let lean ← getLeanInstall
-      let libs ← if linkDeps then mkLinkOrder libs else pure #[]
-      let args := mkLinkObjArgs objs libs ++ weakArgs ++ traceArgs ++
-        #["-L", lean.leanLibDir.toString] ++ lean.ccLinkSharedFlags
-      compileSharedLib libFile args lean.cc
-    return {name := libName, path := art.path, deps := libs, plugin}
+    buildLeanSharedLibSync libName libFile objs libs (weakArgs ++ traceArgs)
+      plugin linkDeps macosxDeploymentTarget?
 
 /--
-Build an executable by linking the results of `linkJobs`
-using the Lean toolchain's linker.
+Build an executable linking Lean by using the Lean toolchain's linker.
+
+The executable will statically link in `linkObjs` (e.g., object files or
+static libraries) and dynamically link to `linkLibs` (and their transitive
+`deps`).
+
+By default, Lean will be statically linked to the executable.
+If `sharedLean := true`, it will instead be dynamically linked.
+This means users of the resulting executable will need to have Lean's
+shared libraries on their system.
+
+Additional arguments to the linker can be provided via `args`.
+-/
+public def buildLeanExeSync
+  (exeFile : FilePath) (linkObjs : Array FilePath) (linkLibs : Array Dynlib)
+  (args : Array String := #[]) (sharedLean : Bool := false)
+  (macosxDeploymentTarget? : Option String := none)
+: JobM FilePath := do
+  addLeanTrace
+  -- executables are platform-dependent artifacts
+  addPlatformTrace
+  let macosxDeploymentTarget? :=
+    macosxDeploymentTarget? <|> (← getMacOSXDeploymentTarget?)
+  if let some ver := macosxDeploymentTarget? then
+    addPureTrace ver "MACOSX_DEPLOYMENT_TARGET"
+  let art ← buildArtifactUnlessUpToDate exeFile (ext := FilePath.exeExtension) (exe := true) (restore := true) do
+    let args ← mkLeanLinkArgs linkObjs linkLibs args (linkDeps := true) sharedLean
+    compileExe exeFile args (← getLeanCc) macosxDeploymentTarget?
+  return art.path
+
+/--
+Build an executable linking Lean by using the Lean toolchain's linker.
+
+The executable will statically link in the results of `linkObjs` (e.g., object
+files or static libraries) and dynamically link to the results of `linkLibs`
+(and their transitive `deps`).
+
+By default, Lean will be statically linked to the executable.
+If `sharedLean := true`, it will instead be dynamically linked.
+This means users of the resulting executable will need to have Lean's
+shared libraries on their system.
+
+Additional arguments to the linker can be provided via `weakArgs` and `traceArgs`.
+`traceArgs` will be included in the build's input trace, `weakArgs` will not.
 -/
 public def buildLeanExe
   (exeFile : FilePath)
   (linkObjs : Array (Job FilePath)) (linkLibs : Array (Job Dynlib))
   (weakArgs traceArgs : Array String := #[]) (sharedLean : Bool := false)
+  (macosxDeploymentTarget? : Option String := none)
 : SpawnM (Job FilePath) :=
   (Job.collectArray linkObjs "linkObjs").bindM (sync := true) fun objs => do
   (Job.collectArray linkLibs "linkLibs").mapM fun libs => do
-    addLeanTrace
     addPureTrace traceArgs "traceArgs"
-    addPlatformTrace -- executables are platform-dependent artifacts
-    let art ← buildArtifactUnlessUpToDate exeFile (ext := FilePath.exeExtension) (exe := true) (restore := true) do
-      let lean ← getLeanInstall
-      let libs ← mkLinkOrder libs
-      let args := mkLinkObjArgs objs libs ++ weakArgs ++ traceArgs ++
-        #["-L", lean.leanLibDir.toString] ++ lean.ccLinkFlags sharedLean
-      compileExe exeFile args lean.cc
-    return art.path
+    buildLeanExeSync exeFile objs libs (weakArgs ++ traceArgs) sharedLean macosxDeploymentTarget?

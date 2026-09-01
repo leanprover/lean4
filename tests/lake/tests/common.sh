@@ -46,6 +46,17 @@ else
 fi
 norm_dirname() { norm_path "$(dirname -- "$1")";  }
 
+# Copy the given paths into the ignored `work/` directory and `cd` into it, so that tests
+# which mutate their inputs or initialize a Git repository leave the checked-in source tree
+# untouched. The copies are made writable because `cp` propagates the source mode and CI
+# runs the suite with tracked files read-only.
+copy_to_work() {
+  mkdir -p work
+  cp -r "$@" work/
+  chmod -R u+w work
+  cd work
+}
+
 init_git() {
   echo "# initialize test repository"
   set -x
@@ -112,6 +123,19 @@ test_status() {
     return 0
   else
     echo "FAILURE: Expected Lake to exit with code $expected."
+    return 1
+  fi
+}
+
+test_status_out() {
+  expected_rc=$1; shift
+  expected=$1; shift
+  if lake_out "$@"; then rc=$?; else rc=$?; fi
+  match_text "$expected" produced.out
+  if [ $rc = $expected_rc ]; then
+    return 0
+  else
+    echo "FAILURE: Expected Lake to exit with code $expected_rc."
     return 1
   fi
 }
@@ -222,7 +246,7 @@ test_err() {
   if match_text "$expected" produced.out; then
     if [ $rc == 0 ]; then
       echo "FAILURE: Lake unexpectedly succeeded"
-      return $rc
+      return 1
     fi
   else
     return 1
@@ -254,10 +278,11 @@ check_diff() {
 
 test_out_diff() {
   expected=$1; shift
-  cat "$expected" > produced.expected.out
+  # We avoid a `.expected.out` name here so `lint.py` does not pick up these orphaned files
+  cat "$expected" > produced.expected
   echo '$' lake "$@"
   if "$LAKE" "$@" >produced.out 2>&1; then rc=$?; else rc=$?; fi
-  if check_diff_core produced.expected.out produced.out; then
+  if check_diff_core produced.expected produced.out; then
     if [ $rc != 0 ]; then
       echo "FAILURE: Program exited with code $rc"
       return 1
@@ -272,10 +297,10 @@ test_out_diff() {
 
 test_err_diff() {
   expected=$1; shift
-  cat "$expected" > produced.expected.out
+  cat "$expected" > produced.expected
   echo '$' lake "$@"
   if "$LAKE" "$@" >produced.out 2>&1; then rc=$?; else rc=$?; fi
-  if check_diff_core produced.expected.out produced.out; then
+  if check_diff_core produced.expected produced.out; then
     if [ $rc == 0 ]; then
       echo "FAILURE: Lake unexpectedly succeeded"
       return 1
@@ -294,7 +319,7 @@ test_no_out() {
   return $rc
 }
 
-test_no_warn() {
+test_no_stderr() {
   echo '$' lake "$@"
   if "$LAKE" "$@" 2>produced.out; then
     diff produced.out /dev/null

@@ -33,7 +33,8 @@ private theorem nonzero_helper {α} [Field α] {z : Int} {n m : Nat} (hn : (n : 
   have : z.natAbs.gcd (n * m) ∣ (n * m) := Nat.gcd_dvd_right z.natAbs (n * m)
   obtain ⟨k, hk⟩ := this
   replace hk := congrArg (fun x : Nat => (x : α)) hk
-  dsimp at hk
+   -- TODO(kmill): remove after stage0 update
+  try dsimp at hk
   rw [Semiring.natCast_mul, Semiring.natCast_mul, h, Semiring.zero_mul] at hk
   replace hk := Field.of_mul_eq_zero hk
   simp_all
@@ -87,7 +88,7 @@ theorem ofRat_div' {α} [Field α] {a b : Rat} (ha : (a.den : α) ≠ 0) (hb : (
     (ofRat (a / b) : α) = ofRat a / ofRat b := by
   replace hb : ((b⁻¹).den : α) ≠ 0 := by
     simp only [Rat.den_inv, Rat.num_eq_zero, ne_eq]
-    rw [if_neg (by intro h; simp_all)]
+    rw [ite_eq_right (by intro h; simp_all)]
     rw [← Ring.intCast_natCast]
     by_cases h : 0 ≤ b.num
     · have : (b.num.natAbs : Int) = b.num := Int.natAbs_of_nonneg h

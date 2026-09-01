@@ -63,11 +63,16 @@ def addPreDefAttributes (preDefs : Array PreDefinition) : TermElabM Unit := do
   a wrong setting and creates bad `defEq` equations.
   -/
   for preDef in preDefs do
-    unless preDef.modifiers.attrs.any fun a => a.name = `reducible || a.name = `semireducible do
-      setIrreducibleAttribute preDef.declName
+    unless preDef.kind.isTheorem do
+      unless preDef.modifiers.attrs.any fun a =>
+          a.name = `reducible || a.name = `semireducible ||
+          a.name = `instance_reducible || a.name = `implicit_reducible do
+        setIrreducibleAttribute preDef.declName
+
+  for preDef in preDefs do
+    saveEqnAffectingOptions preDef.declName
 
   /-
-  `enableRealizationsForConst` must happen before `generateEagerEqns`
   It must happen in reverse order so that constants realized as part of the first decl
   have realizations for the other ones enabled
   -/
@@ -75,7 +80,6 @@ def addPreDefAttributes (preDefs : Array PreDefinition) : TermElabM Unit := do
     enableRealizationsForConst preDef.declName
 
   for preDef in preDefs do
-    generateEagerEqns preDef.declName
     applyAttributesOf #[preDef] AttributeApplicationTime.afterCompilation
 
 end Lean.Elab.Mutual

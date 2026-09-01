@@ -6,7 +6,7 @@ Authors: Leonardo de Moura
 module
 prelude
 public import Lean.Meta.Tactic.Grind.Arith.CommRing.RingM
-import Lean.Meta.Tactic.Grind.Arith.CommRing.Poly
+import Lean.Meta.Sym.Arith.Poly
 public section
 namespace Lean.Meta.Grind.Arith.CommRing
 

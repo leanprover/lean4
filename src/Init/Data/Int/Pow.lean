@@ -118,16 +118,19 @@ theorem toNat_pow_of_nonneg {x : Int} (h : 0 ≤ x) (k : Nat) : (x ^ k).toNat = 
   | succ k ih =>
     rw [Int.pow_succ, Int.toNat_mul (Int.pow_nonneg h) h, ih, Nat.pow_succ]
 
-protected theorem sq_nonnneg (m : Int) : 0 ≤ m ^ 2 := by
+protected theorem sq_nonneg (m : Int) : 0 ≤ m ^ 2 := by
   rw [Int.pow_succ, Int.pow_one]
   cases m
   · apply Int.mul_nonneg <;> simp
   · apply Int.mul_nonneg_of_nonpos_of_nonpos <;> exact negSucc_le_zero _
 
+@[deprecated Int.sq_nonneg (since := "2026-03-13")]
+protected theorem sq_nonnneg (m : Int) : 0 ≤ m ^ 2 := Int.sq_nonneg m
+
 protected theorem pow_nonneg_of_even {m : Int} {n : Nat} (h : n % 2 = 0) : 0 ≤ m ^ n := by
   rw [← Nat.mod_add_div n 2, h, Nat.zero_add, Int.pow_mul]
   apply Int.pow_nonneg
-  exact Int.sq_nonnneg m
+  exact Int.sq_nonneg m
 
 protected theorem neg_pow {m : Int} {n : Nat} : (-m)^n = (-1)^(n % 2) * m^n := by
   rw [Int.neg_eq_neg_one_mul, Int.mul_pow]

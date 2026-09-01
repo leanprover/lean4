@@ -1,0 +1,2 @@
+grind_cat2.lean:179:4-179:14: warning: declaration uses `sorry`
+grind_cat2.lean:244:4-244:19: warning: declaration uses `sorry`

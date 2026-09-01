@@ -296,19 +296,19 @@ theorem find?_pmap {P : α → Prop} {f : (a : α) → P a → β} {xs : Vector 
   rfl
 
 theorem find?_eq_some_iff_getElem {xs : Vector α n} {p : α → Bool} {b : α} :
-    xs.find? p = some b ↔ p b ∧ ∃ i h, xs[i] = b ∧ ∀ j : Nat, (hj : j < i) → !p xs[j] := by
+    xs.find? p = some b ↔ p b ∧ ∃ (i : Nat) (h : i < n), xs[i] = b ∧ ∀ j : Nat, (hj : j < i) → !p xs[j] := by
   rcases xs with ⟨xs, rfl⟩
   simp [Array.find?_eq_some_iff_getElem]
 
 /-! ### findFinIdx? -/
 
 @[grind =]
-theorem findFinIdx?_empty {p : α → Bool} : findFinIdx? p (#v[] : Vector α 0) = none := by simp; rfl
+theorem findFinIdx?_empty {p : α → Bool} : findFinIdx? p (#v[] : Vector α 0) = none := by simp
 
 @[grind =]
 theorem findFinIdx?_singleton {a : α} {p : α → Bool} :
     #[a].findFinIdx? p = if p a then some ⟨0, by simp⟩ else none := by
-  simp; rfl
+  simp
 
 @[congr] theorem findFinIdx?_congr {p : α → Bool} {xs : Vector α n} {ys : Vector α n} (w : xs = ys) :
     findFinIdx? p xs = findFinIdx? p ys := by

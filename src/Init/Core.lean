@@ -54,7 +54,7 @@ eq_norm ctx p q (eagerReduce (Eq.refl true)) h
 to instruct the kernel to use eager reduction when establishing that `(p.norm == q) = true` is
 definitionally equal to `true = true`.
 -/
-@[expose] def eagerReduce {α : Sort u} (a : α) : α := a
+def eagerReduce {α : Sort u} (a : α) : α := a
 
 /--
 `flip f a b` is `f b a`. It is useful for "point-free" programming,
@@ -171,6 +171,8 @@ Constructs a new thunk that applies `f` to the result of `x` when forced.
 instance thunkCoe : CoeTail α (Thunk α) where
   -- Since coercions are expanded eagerly, `a` is evaluated lazily.
   coe a := ⟨fun _ => a⟩
+
+instance [Inhabited α] : Inhabited (Thunk α) := ⟨.pure default⟩
 
 /-- A variation on `Eq.ndrec` with the equality argument first. -/
 abbrev Eq.ndrecOn.{u1, u2} {α : Sort u2} {a : α} {motive : α → Sort u1} {b : α} (h : a = b) (m : motive a) : motive b :=
@@ -314,7 +316,7 @@ asserts that there is some `x` of type `α` such that `p x` holds.
 To create an existential proof, use the `exists` tactic,
 or the anonymous constructor notation `⟨x, h⟩`.
 To unpack an existential, use `cases h` where `h` is a proof of `∃ x : α, p x`,
-or `let ⟨x, hx⟩ := h` where `.
+or `let ⟨x, hx⟩ := h`.
 
 Because Lean has proof irrelevance, any two proofs of an existential are
 definitionally equal. One consequence of this is that it is impossible to recover the
@@ -767,7 +769,7 @@ the `BEq` typeclass.
 Unlike `x ≠ y` (which is notation for `Ne x y`), this is `Bool` valued instead of
 `Prop` valued. It is mainly intended for programming applications.
 -/
-@[inline] def bne {α : Type u} [BEq α] (a b : α) : Bool :=
+@[inline, implicit_reducible] def bne {α : Type u} [BEq α] (a b : α) : Bool :=
   !(a == b)
 
 @[inherit_doc] infix:50 " != " => bne
@@ -815,10 +817,12 @@ instance [DecidableEq α] : LawfulBEq α where
 Non-instance for `DecidableEq` from `LawfulBEq`.
 To use this, add `attribute [local instance 5] instDecidableEqOfLawfulBEq` at the top of a file.
 -/
+@[instance_reducible]
 def instDecidableEqOfLawfulBEq [BEq α] [LawfulBEq α] : DecidableEq α := fun x y =>
-  match h : x == y with
-  | false => .isFalse (not_eq_of_beq_eq_false h)
-  | true => .isTrue (eq_of_beq h)
+  Decidable.intro (x == y)
+    (match h : x == y with
+    | false => not_eq_of_beq_eq_false h
+    | true => eq_of_beq h)
 
 instance : LawfulBEq Char := inferInstance
 
@@ -884,8 +888,6 @@ variable {α : Sort u}
 variable {a b : α} {p : Prop}
 
 theorem Ne.intro (h : a = b → False) : a ≠ b := h
-
-theorem Ne.elim (h : a ≠ b) : a = b → False := h
 
 theorem Ne.irrefl (h : a ≠ a) : False := h rfl
 
@@ -987,7 +989,7 @@ Heterogeneous equality with an `Eq.rec` application on the left is equivalent to
 equality on the original term.
 -/
 theorem eqRec_heq_iff {α : Sort u} {a : α} {motive : (b : α) → a = b → Sort v}
-    {b : α} {refl : motive a (Eq.refl a)} {h : a = b} {c : motive b h}
+    {b : α} {refl : motive a (Eq.refl a)} {h : a = b} {c : β}
     : @Eq.rec α a motive refl b h ≍ c ↔ refl ≍ c :=
   h.rec (fun _ => ⟨id, id⟩) c
 
@@ -996,7 +998,7 @@ Heterogeneous equality with an `Eq.rec` application on the right is equivalent t
 equality on the original term.
 -/
 theorem heq_eqRec_iff {α : Sort u} {a : α} {motive : (b : α) → a = b → Sort v}
-    {b : α} {refl : motive a (Eq.refl a)} {h : a = b} {c : motive b h} :
+    {b : α} {refl : motive a (Eq.refl a)} {h : a = b} {c : β} :
     c ≍ @Eq.rec α a motive refl b h ↔ c ≍ refl :=
   h.rec (fun _ => ⟨id, id⟩) c
 
@@ -1087,7 +1089,7 @@ theorem Exists.elim {α : Sort u} {p : α → Prop} {b : Prop}
 
 /-- Similar to `decide`, but uses an explicit instance -/
 @[inline] def toBoolUsing {p : Prop} (d : Decidable p) : Bool :=
-  decide (h := d)
+  d.decide
 
 theorem toBoolUsing_eq_true {p : Prop} (d : Decidable p) (h : p) : toBoolUsing d = true :=
   decide_eq_true (inst := d) h
@@ -1143,14 +1145,15 @@ end Decidable
 section
 variable {p q : Prop}
 /-- Transfer a decidability proof across an equivalence of propositions. -/
-@[inline] def decidable_of_decidable_of_iff [Decidable p] (h : p ↔ q) : Decidable q :=
-  if hp : p then
-    isTrue (Iff.mp h hp)
-  else
-    isFalse fun hq => absurd (Iff.mpr h hq) hp
+abbrev decidable_of_decidable_of_iff [dp : Decidable p] (h : p ↔ q) : Decidable q where
+  decide := decide p
+  reflects_decide :=
+    match dp with
+    | isTrue hp => Iff.mp h hp
+    | isFalse hp => fun hq => absurd (Iff.mpr h hq) hp
 
 /-- Transfer a decidability proof across an equality of propositions. -/
-@[inline] def decidable_of_decidable_of_eq [Decidable p] (h : p = q) : Decidable q :=
+abbrev decidable_of_decidable_of_eq [Decidable p] (h : p = q) : Decidable q :=
   decidable_of_decidable_of_iff (p := p) (h ▸ Iff.rfl)
 end
 
@@ -1161,29 +1164,34 @@ end
   else isTrue (fun h => absurd h hp)
 
 @[inline]
-instance {p q} [Decidable p] [Decidable q] : Decidable (p ↔ q) :=
-  if hp : p then
-    if hq : q then
-      isTrue ⟨fun _ => hq, fun _ => hp⟩
-    else
-      isFalse fun h => hq (h.1 hp)
-  else
-    if hq : q then
-      isFalse fun h => hp (h.2 hq)
-    else
-      isTrue ⟨fun h => absurd h hp, fun h => absurd h hq⟩
+instance {p q} [dp : Decidable p] [dq : Decidable q] : Decidable (p ↔ q) where
+  decide := decide p == decide q
+  reflects_decide :=
+    match dp, dq with
+    | isTrue  hp, isTrue  hq => ⟨fun _ => hq, fun _ => hp⟩
+    | isTrue  hp, isFalse hq => fun h => hq (h.1 hp)
+    | isFalse hp, isTrue  hq => fun h => hp (h.2 hq)
+    | isFalse hp, isFalse hq => ⟨fun h => absurd h hp, fun h => absurd h hq⟩
 
 /-! # if-then-else expression theorems -/
 
-theorem if_pos {c : Prop} {h : Decidable c} (hc : c) {α : Sort u} {t e : α} : (ite c t e) = t :=
+@[suggest_for ite_pos ite_of_pos]
+theorem ite_eq_left {c : Prop} {h : Decidable c} (hc : c) {α : Sort u} {t e : α} : (ite c t e) = t :=
   match h with
   | isTrue  _   => rfl
   | isFalse hnc => absurd hc hnc
 
-theorem if_neg {c : Prop} {h : Decidable c} (hnc : ¬c) {α : Sort u} {t e : α} : (ite c t e) = e :=
+@[deprecated ite_eq_left (since := "2026-07-21")]
+theorem if_pos {c : Prop} {h : Decidable c} (hc : c) {α : Sort u} {t : α} {e : α} : (if c then t else e) = t := ite_eq_left hc
+
+@[suggest_for ite_neg ite_of_neg]
+theorem ite_eq_right {c : Prop} {h : Decidable c} (hnc : ¬c) {α : Sort u} {t e : α} : (ite c t e) = e :=
   match h with
   | isTrue hc   => absurd hc hnc
   | isFalse _   => rfl
+
+@[deprecated ite_eq_right (since := "2026-07-21")]
+theorem if_neg {c : Prop} {h : Decidable c} (hnc : ¬c) {α : Sort u} {t : α} {e : α} : (if c then t else e) = e := ite_eq_right hnc
 
 /-- Split an if-then-else into cases. The `split` tactic is generally easier to use than this theorem. -/
 def iteInduction {c} [inst : Decidable c] {motive : α → Sort _} {t e : α}
@@ -1192,15 +1200,23 @@ def iteInduction {c} [inst : Decidable c] {motive : α → Sort _} {t e : α}
   | isTrue h => hpos h
   | isFalse h => hneg h
 
-theorem dif_pos {c : Prop} {h : Decidable c} (hc : c) {α : Sort u} {t : c → α} {e : ¬ c → α} : (dite c t e) = t hc :=
+@[suggest_for dite_pos dite_of_pos]
+theorem dite_eq_left {c : Prop} {h : Decidable c} (hc : c) {α : Sort u} {t : c → α} {e : ¬ c → α} : (dite c t e) = t hc :=
   match h with
   | isTrue  _   => rfl
   | isFalse hnc => absurd hc hnc
 
-theorem dif_neg {c : Prop} {h : Decidable c} (hnc : ¬c) {α : Sort u} {t : c → α} {e : ¬ c → α} : (dite c t e) = e hnc :=
+@[deprecated dite_eq_left (since := "2026-07-21")]
+theorem dif_pos {c : Prop} {h : Decidable c} (hc : c) {α : Sort u} {t : c → α} {e : ¬c → α} : dite c t e = t hc := dite_eq_left hc
+
+@[suggest_for dite_neg dite_of_neg]
+theorem dite_eq_right {c : Prop} {h : Decidable c} (hnc : ¬c) {α : Sort u} {t : c → α} {e : ¬ c → α} : (dite c t e) = e hnc :=
   match h with
   | isTrue hc   => absurd hc hnc
   | isFalse _   => rfl
+
+@[deprecated dite_eq_right (since := "2026-07-21")]
+theorem dif_neg {c : Prop} {h : Decidable c} (hnc : ¬c) {α : Sort u} {t : c → α} {e : ¬c → α} : dite c t e = e hnc := dite_eq_right hnc
 
 @[macro_inline]
 instance {c t e : Prop} [dC : Decidable c] [dT : Decidable t] [dE : Decidable e] : Decidable (if c then t else e) :=
@@ -1215,18 +1231,16 @@ instance {c : Prop} {t : c → Prop} {e : ¬c → Prop} [dC : Decidable c] [dT :
   | isFalse hc => dE hc
 
 /-- Auxiliary definition for generating compact `noConfusion` for enumeration types -/
-abbrev noConfusionTypeEnum {α : Sort u} {β : Sort v} [inst : DecidableEq β] (f : α → β) (P : Sort w) (x y : α) : Sort w :=
-  (inst (f x) (f y)).casesOn
-    (fun _ => P)
-    (fun _ => P → P)
+abbrev noConfusionTypeEnum {α : Sort u} (f : α → Nat) (P : Sort w) (x y : α) : Sort w :=
+  ((f x).beq (f y)).casesOn P (P → P)
 
 /-- Auxiliary definition for generating compact `noConfusion` for enumeration types -/
-abbrev noConfusionEnum {α : Sort u} {β : Sort v} [inst : DecidableEq β] (f : α → β) {P : Sort w} {x y : α} (h : x = y) : noConfusionTypeEnum f P x y :=
-  Decidable.casesOn
-    (motive := fun (inst : Decidable (f x = f y)) => Decidable.casesOn (motive := fun _ => Sort w) inst (fun _ => P) (fun _ => P → P))
-    (inst (f x) (f y))
-    (fun h' => False.elim (h' (congrArg f h)))
-    (fun _ => fun x => x)
+abbrev noConfusionEnum {α : Sort u} (f : α → Nat) {P : Sort w} {x y : α} (h : x = y) : noConfusionTypeEnum f P x y :=
+  ((f x).beq (f y)).casesOn
+    (motive := fun b => (f x).beq (f y) = b → b.casesOn P (P → P))
+    (fun h' => False.elim (Nat.ne_of_beq_eq_false h' (congrArg f h)))
+    (fun _ a => a)
+    rfl
 
 /-! # Inhabited -/
 
@@ -1291,7 +1305,7 @@ theorem recSubsingleton
      {h₂ : ¬p → Sort u}
      [h₃ : ∀ (h : p), Subsingleton (h₁ h)]
      [h₄ : ∀ (h : ¬p), Subsingleton (h₂ h)]
-     : Subsingleton (h.casesOn h₂ h₁) :=
+     : Subsingleton (h.falseTrueCases h₂ h₁) :=
   match h with
   | isTrue h  => h₃ h
   | isFalse h => h₄ h
@@ -1329,7 +1343,7 @@ def Subrelation {α : Sort u} (q r : α → α → Prop) :=
 The inverse image of `r : β → β → Prop` by a function `α → β` is the relation
 `s : α → α → Prop` defined by `s a b = r (f a) (f b)`.
 -/
-def InvImage {α : Sort u} {β : Sort v} (r : β → β → Prop) (f : α → β) : α → α → Prop :=
+@[implicit_reducible] def InvImage {α : Sort u} {β : Sort v} (r : β → β → Prop) (f : α → β) : α → α → Prop :=
   fun a₁ a₂ => r (f a₁) (f a₂)
 
 /--
@@ -1339,10 +1353,10 @@ transitive and contains `r`. `TransGen r a z` if and only if there exists a sequ
 -/
 inductive Relation.TransGen {α : Sort u} (r : α → α → Prop) : α → α → Prop
   /-- If `r a b`, then `TransGen r a b`. This is the base case of the transitive closure. -/
-  | single {a b} : r a b → TransGen r a b
+  | single {a b : α} : r a b → TransGen r a b
   /-- If `TransGen r a b` and `r b c`, then `TransGen r a c`.
   This is the inductive case of the transitive closure. -/
-  | tail {a b c} : TransGen r a b → r b c → TransGen r a c
+  | tail {a b c : α} : TransGen r a b → r b c → TransGen r a c
 
 /-- The transitive closure is transitive. -/
 theorem Relation.TransGen.trans {α : Sort u} {r : α → α → Prop} {a b c} :
@@ -1437,14 +1451,15 @@ instance [Inhabited α] [Inhabited β] : Inhabited (MProd α β) where
 instance [Inhabited α] [Inhabited β] : Inhabited (PProd α β) where
   default := ⟨default, default⟩
 
-instance [DecidableEq α] [DecidableEq β] : DecidableEq (α × β) :=
+instance [h : DecidableEq α] [h' : DecidableEq β] : DecidableEq (α × β) :=
   fun (a, b) (a', b') =>
-    match decEq a a' with
-    | isTrue e₁ =>
-      match decEq b b' with
-      | isTrue e₂  => isTrue (e₁ ▸ e₂ ▸ rfl)
-      | isFalse n₂ => isFalse fun h => Prod.noConfusion rfl rfl (heq_of_eq h) fun _   e₂' => absurd (eq_of_heq e₂') n₂
-    | isFalse n₁ => isFalse fun h => Prod.noConfusion rfl rfl (heq_of_eq h) fun e₁' _   => absurd (eq_of_heq e₁') n₁
+    Decidable.intro (decide (a = a') && decide (b = b'))
+      (match h a a' with
+      | isTrue e₁ =>
+        match h' b b' with
+        | isTrue e₂  => (e₁ ▸ e₂ ▸ rfl : (a, b) = (a', b'))
+        | isFalse n₂ => fun h => Prod.noConfusion rfl rfl (heq_of_eq h) fun _ e₂' => absurd (eq_of_heq e₂') n₂
+      | isFalse n₁ => fun h => Prod.noConfusion rfl rfl (heq_of_eq h) fun e₁' _   => absurd (eq_of_heq e₁') n₁)
 
 instance [BEq α] [BEq β] : BEq (α × β) where
   beq := fun (a₁, b₁) (a₂, b₂) => a₁ == a₂ && b₁ == b₂
@@ -1476,7 +1491,7 @@ Examples:
  * `(1, 2).map (· + 1) (· * 3) = (2, 6)`
  * `(1, 2).map toString (· * 3) = ("1", 6)`
 -/
-def Prod.map {α₁ : Type u₁} {α₂ : Type u₂} {β₁ : Type v₁} {β₂ : Type v₂}
+@[implicit_reducible] def Prod.map {α₁ : Type u₁} {α₂ : Type u₂} {β₁ : Type v₁} {β₂ : Type v₂}
     (f : α₁ → α₂) (g : β₁ → β₂) : α₁ × β₁ → α₂ × β₂
   | (a, b) => (f a, g b)
 
@@ -1595,9 +1610,7 @@ theorem Eq.propIntro {a b : Prop} (h₁ : a → b) (h₂ : b → a) : a = b :=
 
 -- Eq for Prop is now decidable if the equivalent Iff is decidable
 instance {p q : Prop} [d : Decidable (p ↔ q)] : Decidable (p = q) :=
-  match d with
-  | isTrue h => isTrue (propext h)
-  | isFalse h => isFalse fun heq => h (heq ▸ Iff.rfl)
+  decidable_of_decidable_of_iff ⟨propext, Iff.of_eq⟩
 
 /-- Helper theorem for proving injectivity theorems -/
 theorem Lean.injEq_helper {P Q R : Prop} :
@@ -1767,24 +1780,6 @@ theorem imp_iff_not (hb : ¬b) : a → b ↔ ¬a := imp_congr_right fun _ => iff
 /-! # Quotients -/
 
 namespace Quot
-/--
-The **quotient axiom**, which asserts the equality of elements related by the quotient's relation.
-
-The relation `r` does not need to be an equivalence relation to use this axiom. When `r` is not an
-equivalence relation, the quotient is with respect to the equivalence relation generated by `r`.
-
-`Quot.sound` is part of the built-in primitive quotient type:
- * `Quot` is the built-in quotient type.
- * `Quot.mk` places elements of the underlying type `α` into the quotient.
- * `Quot.lift` allows the definition of functions from the quotient to some other type.
- * `Quot.ind` is used to write proofs about quotients by assuming that all elements are constructed
-   with `Quot.mk`; it is analogous to the [recursor](lean-manual://section/recursors) for a
-   structure.
-
-[Quotient types](lean-manual://section/quotients) are described in more detail in the Lean Language
-Reference.
--/
-axiom sound : ∀ {α : Sort u} {r : α → α → Prop} {a b : α}, r a b → Quot.mk r a = Quot.mk r b
 
 protected theorem liftBeta {α : Sort u} {r : α → α → Prop} {β : Sort v}
     (f : α → β)
@@ -1798,23 +1793,6 @@ protected theorem indBeta {α : Sort u} {r : α → α → Prop} {motive : Quot 
     (a : α)
     : (ind p (Quot.mk r a) : motive (Quot.mk r a)) = p a :=
   rfl
-
-/--
-Lifts a function from an underlying type to a function on a quotient, requiring that it respects the
-quotient's relation.
-
-Given a relation `r : α → α → Prop` and a quotient's value `q : Quot r`, applying a `f : α → β`
-requires a proof `c` that `f` respects `r`. In this case, `Quot.liftOn q f h : β` evaluates
-to the result of applying `f` to the underlying value in `α` from `q`.
-
-`Quot.liftOn` is a version of the built-in primitive `Quot.lift` with its parameters re-ordered.
-
-[Quotient types](lean-manual://section/quotients) are described in more detail in the Lean Language
-Reference.
--/
-protected abbrev liftOn {α : Sort u} {β : Sort v} {r : α → α → Prop}
-  (q : Quot r) (f : α → β) (c : (a b : α) → r a b → f a = f b) : β :=
-  lift f c q
 
 @[elab_as_elim]
 protected theorem inductionOn {α : Sort u} {r : α → α → Prop} {motive : Quot r → Prop}
@@ -1981,6 +1959,7 @@ must respect `s.r`. `Quotient.lift` allows values in a quotient to be mapped to 
 as the mapping respects `s.r`.
 
 -/
+@[implicit_reducible]
 protected def mk' {α : Sort u} [s : Setoid α] (a : α) : Quotient s :=
   Quotient.mk s a
 
@@ -2261,30 +2240,10 @@ instance Quotient.decidableEq {α : Sort u} {s : Setoid α} [d : ∀ (a b : α),
   fun (q₁ q₂ : Quotient s) =>
     Quotient.recOnSubsingleton₂ q₁ q₂
       fun a₁ a₂ =>
-        match d a₁ a₂ with
-        | isTrue h₁  => isTrue (Quotient.sound h₁)
-        | isFalse h₂ => isFalse fun h => absurd (Quotient.exact h) h₂
-
-/-! # Function extensionality -/
-
-/--
-**Function extensionality.** If two functions return equal results for all possible arguments, then
-they are equal.
-
-It is called “extensionality” because it provides a way to prove two objects equal based on the
-properties of the underlying mathematical functions, rather than based on the syntax used to denote
-them. Function extensionality is a theorem that can be [proved using quotient
-types](lean-manual://section/quotient-funext).
--/
-theorem funext {α : Sort u} {β : α → Sort v} {f g : (x : α) → β x}
-    (h : ∀ x, f x = g x) : f = g := by
-  let eqv (f g : (x : α) → β x) := ∀ x, f x = g x
-  let extfunApp (f : Quot eqv) (x : α) : β x :=
-    Quot.liftOn f
-      (fun (f : ∀ (x : α), β x) => f x)
-      (fun _ _ h => h x)
-  change extfunApp (Quot.mk eqv f) = extfunApp (Quot.mk eqv g)
-  exact congrArg extfunApp (Quot.sound h)
+        Decidable.intro (decide (a₁ ≈ a₂))
+          (match d a₁ a₂ with
+          | isTrue h₁  => Quotient.sound h₁
+          | isFalse h₂ => fun h => absurd (Quotient.exact h) h₂)
 
 /--
 Like `Quot.liftOn q f h` but allows `f a` to "know" that `q = Quot.mk r a`.
@@ -2368,86 +2327,6 @@ instance : Subsingleton (Squash α) where
     trivial
 
 namespace Lean
-/-! # Kernel reduction hints -/
-
-/--
-Depends on the correctness of the Lean compiler, interpreter, and all `[implemented_by ...]` and `[extern ...]` annotations.
--/
-@[deprecated "in-kernel native reduction is deprecated; assert native evaluations with axioms instead" (since := "2026-02-01")]
-axiom trustCompiler : True
-
-set_option linter.deprecated false in
-/--
-When the kernel tries to reduce a term `Lean.reduceBool c`, it will invoke the Lean interpreter to evaluate `c`.
-The kernel will not use the interpreter if `c` is not a constant.
-This feature is useful for performing proofs by reflection.
-
-Remark: the Lean frontend allows terms of the from `Lean.reduceBool t` where `t` is a term not containing
-free variables. The frontend automatically declares a fresh auxiliary constant `c` and replaces the term with
-`Lean.reduceBool c`. The main motivation is that the code for `t` will be pre-compiled.
-
-Warning: by using this feature, the Lean compiler and interpreter become part of your trusted code base.
-This is extra 30k lines of code. More importantly, you will probably not be able to check your development using
-external type checkers that do not implement this feature.
-Keep in mind that if you are using Lean as programming language, you are already trusting the Lean compiler and interpreter.
-So, you are mainly losing the capability of type checking your development using external checkers.
-
-Recall that the compiler trusts the correctness of all `[implemented_by ...]` and `[extern ...]` annotations.
-If an extern function is executed, then the trusted code base will also include the implementation of the associated
-foreign function.
--/
-@[deprecated "in-kernel native reduction is deprecated; assert native evaluations with axioms instead" (since := "2026-02-01")]
-opaque reduceBool (b : Bool) : Bool :=
-  -- This ensures that `#print axioms` will track use of `reduceBool`.
-  have := trustCompiler
-  b
-
-set_option linter.deprecated false in
-/--
-Similar to `Lean.reduceBool` for closed `Nat` terms.
-
-Remark: we do not have plans for supporting a generic `reduceValue {α} (a : α) : α := a`.
-The main issue is that it is non-trivial to convert an arbitrary runtime object back into a Lean expression.
-We believe `Lean.reduceBool` enables most interesting applications (e.g., proof by reflection).
--/
-@[deprecated "in-kernel native reduction is deprecated; assert native evaluations with axioms instead" (since := "2026-02-01")]
-opaque reduceNat (n : Nat) : Nat :=
-  -- This ensures that `#print axioms` will track use of `reduceNat`.
-  have := trustCompiler
-  n
-
-
-set_option linter.deprecated false in
-/--
-The axiom `ofReduceBool` is used to perform proofs by reflection. See `reduceBool`.
-
-This axiom is usually not used directly, because it has some syntactic restrictions.
-Instead, the `native_decide` tactic can be used to prove any proposition whose
-decidability instance can be evaluated to `true` using the lean compiler / interpreter.
-
-Warning: by using this feature, the Lean compiler and interpreter become part of your trusted code base.
-This is extra 30k lines of code. More importantly, you will probably not be able to check your development using
-external type checkers that do not implement this feature.
-Keep in mind that if you are using Lean as programming language, you are already trusting the Lean compiler and interpreter.
-So, you are mainly losing the capability of type checking your development using external checkers.
--/
-@[deprecated "in-kernel native reduction is deprecated; assert native evaluations with axioms instead" (since := "2026-02-01")]
-axiom ofReduceBool (a b : Bool) (h : reduceBool a = b) : a = b
-
-set_option linter.deprecated false in
-/--
-The axiom `ofReduceNat` is used to perform proofs by reflection. See `reduceBool`.
-
-Warning: by using this feature, the Lean compiler and interpreter become part of your trusted code base.
-This is extra 30k lines of code. More importantly, you will probably not be able to check your development using
-external type checkers that do not implement this feature.
-Keep in mind that if you are using Lean as programming language, you are already trusting the Lean compiler and interpreter.
-So, you are mainly losing the capability of type checking your development using external checkers.
--/
-@[deprecated "in-kernel native reduction is deprecated; assert native evaluations with axioms instead" (since := "2026-02-01")]
-axiom ofReduceNat (a b : Nat) (h : reduceNat a = b) : a = b
-
-
 /--
 The term `opaqueId x` will not be reduced by the kernel.
 -/

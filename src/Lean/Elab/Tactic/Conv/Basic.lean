@@ -107,6 +107,7 @@ target.
 -/
 def convClear (mvarId : MVarId) (fvarId : FVarId) : MetaM MVarId := do
   let (lhs, rhs) ← getLhsRhsCore mvarId
+  let rhs ← instantiateMVars rhs
   unless rhs.isMVar do
     return (← mvarId.clear fvarId)
   let rhsKind ← rhs.mvarId!.getKind

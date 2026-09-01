@@ -157,7 +157,7 @@ def checkJpInScope (jp : FVarId) : CheckM Unit := do
 
 def checkParam (param : Param .pure) : CheckM Unit := do
   unless param == (← getParam param.fvarId) do
-    throwError "LCNF parameter mismatch at `{param.binderName}`, does not value in local context"
+    throwError "LCNF parameter mismatch at `{param.binderName}`, does not match value in local context"
 
 def checkParams (params : Array (Param .pure)) : CheckM Unit :=
   params.forM checkParam
@@ -210,7 +210,7 @@ partial def checkFunDecl (funDecl : FunDecl .pure) : CheckM Unit := do
   unless decl.type == funDecl.type do
     throwError "LCNF local function declaration mismatch at `{funDecl.binderName}`, type in local context{indentExpr decl.type}\nexpected{indentExpr funDecl.type}"
   unless (← getFunDecl funDecl.fvarId) == funDecl do
-    throwError "LCNF local function declaration mismatch at `{funDecl.binderName}`, declaration in local context does match"
+    throwError "LCNF local function declaration mismatch at `{funDecl.binderName}`, declaration in local context does not match"
 
 partial def checkCases (c : Cases .pure) : CheckM Unit := do
   let mut ctorNames : NameSet := {}
@@ -228,10 +228,11 @@ partial def checkCases (c : Cases .pure) : CheckM Unit := do
       unless val.induct == c.typeName do
         throwError "invalid LCNF `cases`, `{ctorName}` is not a constructor of `{c.typeName}`"
       unless params.size == val.numFields do
-        throwError "invalid LCNF `cases`, `{ctorName}` has # {val.numFields} fields, but alternative has # {params.size} alternatives"
+        throwError "invalid LCNF `cases`, `{ctorName}` has # {val.numFields} fields, but alternative has # {params.size} parameters"
       withParams params do check k
 
 partial def check (code : Code .pure) : CheckM Unit := do
+  checkSystem "LCNF check"
   match code with
   | .let decl k => checkLetDecl decl; withFVarId decl.fvarId do check k
   | .fun decl k =>
@@ -257,7 +258,7 @@ def run (x : CheckM α) : CompilerM α :=
 end Pure
 end Check
 
-def Decl.check (decl : Decl pu) : CompilerM Unit := do
+def Decl.check (decl : Decl pu) : CompilerM Unit :=
   match pu with
   | .pure => Check.Pure.run do decl.value.forCodeM (Check.Pure.checkFunDeclCore decl.name decl.params decl.type)
   | .impure => return () -- TODO: port the IR check once it actually makes sense to

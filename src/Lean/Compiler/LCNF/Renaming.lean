@@ -53,7 +53,8 @@ partial def Code.applyRenaming (code : Code pu) (r : Renaming) : CompilerM (Code
       | .ctorAlt _ k _ => return alt.updateCode (← k.applyRenaming r)
     return code.updateAlts! alts
   | .jmp .. | .unreach .. | .return .. => return code
-  | .sset (k := k) .. | .uset (k := k) .. | .inc (k := k) .. | .dec (k := k) .. =>
+  | .oset (k := k) .. | .sset (k := k) .. | .uset (k := k) .. | .inc (k := k) .. | .dec (k := k) ..
+  | .del (k := k) .. | .setTag (k := k) .. =>
     return code.updateCont! (← k.applyRenaming r)
 end
 

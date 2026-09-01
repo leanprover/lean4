@@ -44,7 +44,7 @@ def propagateCtorIdxUp (e : Expr) : GoalM Unit := e.withApp fun f xs => do
       let proof := mkConst hinjName us
       let proof := mkApp (mkAppN proof aType.getAppArgs) a
       let proof := mkApp (mkAppN proof bType.getAppArgs) b
-      addNewRawFact proof (← inferType proof) gen (.inj (.decl hinjName))
+      addNewRawFact proof (← inferType proof) gen (.inj (.decl hinjName)) .other
       return
   -- Homogeneous case
   let e' ← shareCommon (mkNatLit conInfo.cidx)

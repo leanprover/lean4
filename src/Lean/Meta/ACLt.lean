@@ -175,6 +175,7 @@ where
     return !(← allChildrenLt a b)
 
   lpo (a b : Expr) : MetaM Bool := do
+    checkSystem "Lean.Meta.acLt"
     -- Case 1: `a < b` if for some child `b_i` of `b`, we have `b_i >= a`
     if (← someChildGe b a) then
       return true

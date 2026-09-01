@@ -46,17 +46,18 @@ def mkFunextFor (xs : Array Expr) (β : Expr) : MetaM Expr := do
   return result
 
 public def simpLambda' (simpBody : Simproc) (e : Expr) : SimpM Result := do
-  lambdaTelescope e fun xs b => withoutModifyingCacheIfNotWellBehaved do
+  lambdaTelescope e fun xs b => withFreshTransientCache do
     main xs (← shareCommon b)
 where
   main (xs : Array Expr) (b : Expr) : SimpM Result := do
+    -- Propagate `cd` from the body: in another context the body might simplify differently.
     match (← simpBody b) with
-    | .rfl _ => return .rfl
-    | .step b' h _ =>
+    | .rfl _ cd => return mkRflResultCD cd
+    | .step b' h _ cd =>
       let h ← mkLambdaFVars xs h
       let e' ← shareCommon (← mkLambdaFVars xs b')
       let funext ← getFunext xs b
-      return .step e' (mkApp3 funext e e' h)
+      return .step e' (mkApp3 funext e e' h) (contextDependent := cd)
 
   getFunext (xs : Array Expr) (b : Expr) : SimpM Expr := do
     let key ← inferType e

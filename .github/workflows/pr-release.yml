@@ -25,8 +25,10 @@ jobs:
     if: github.event.workflow_run.event == 'pull_request' && github.repository == 'leanprover/lean4'
     steps:
       - name: Retrieve information about the original workflow
-        uses: potiuk/get-workflow-origin@v1_1 # https://github.com/marketplace/actions/get-workflow-origin
-        # This action is deprecated and archived, but it seems hard to find a better solution for getting the PR number
+        uses: potiuk/get-workflow-origin@e2dae063368361e4cd1f510e8785cd73bca9352e # v1_5
+        # This action is deprecated and archived, but it seems hard to find a
+        # better solution for getting the PR number. Also, it must not be
+        # updated to v1_6 because that release is broken!
         # see https://github.com/orgs/community/discussions/25220 for some discussion
         id: workflow-info
         with:
@@ -36,7 +38,7 @@ jobs:
       - name: Download artifact from the previous workflow.
         if: ${{ steps.workflow-info.outputs.pullRequestNumber != '' }}
         id: download-artifact
-        uses: dawidd6/action-download-artifact@v11 # https://github.com/marketplace/actions/download-workflow-artifact
+        uses: dawidd6/action-download-artifact@b6e2e70617bc3265edd6dab6c906732b2f1ae151 # v21
         with:
           run_id: ${{ github.event.workflow_run.id }}
           path: artifacts
@@ -75,8 +77,13 @@ jobs:
           git -C lean4.git tag -f pr-release-${{ steps.workflow-info.outputs.pullRequestNumber }}-"${SHORT_SHA}" "${{ steps.workflow-info.outputs.sourceHeadSha }}"
 
           git -C lean4.git remote add pr-releases https://foo:'${{ secrets.PR_RELEASES_TOKEN }}'@github.com/${{ github.repository_owner }}/lean4-pr-releases.git
-          git -C lean4.git push -f pr-releases pr-release-${{ steps.workflow-info.outputs.pullRequestNumber }}
-          git -C lean4.git push -f pr-releases pr-release-${{ steps.workflow-info.outputs.pullRequestNumber }}-"${SHORT_SHA}"
+          # `lean4-pr-releases` is not a fork of `lean4`, so without negotiation `git push` cannot
+          # tell which objects it already has (this repo only fetched `master` and the PR commit)
+          # and sends the entire history, exceeding GitHub's 2 GiB pack limit. `push.negotiate`
+          # discovers a recent common commit from the remote's tags, shrinking the pack to the PR delta.
+          # TODO: Should we even push sources here at all?
+          git -C lean4.git -c push.negotiate=true push -f pr-releases pr-release-${{ steps.workflow-info.outputs.pullRequestNumber }}
+          git -C lean4.git -c push.negotiate=true push -f pr-releases pr-release-${{ steps.workflow-info.outputs.pullRequestNumber }}-"${SHORT_SHA}"
       - name: Delete existing releases if present
         if: ${{ steps.workflow-info.outputs.pullRequestNumber != '' }}
         run: |
@@ -118,7 +125,7 @@ jobs:
 
       - name: Report release status (short format)
         if: ${{ steps.workflow-info.outputs.pullRequestNumber != '' }}
-        uses: actions/github-script@v8
+        uses: actions/github-script@v9
         with:
           script: |
             await github.rest.repos.createCommitStatus({
@@ -132,7 +139,7 @@ jobs:
 
       - name: Report release status (SHA-suffixed format)
         if: ${{ steps.workflow-info.outputs.pullRequestNumber != '' }}
-        uses: actions/github-script@v8
+        uses: actions/github-script@v9
         with:
           script: |
             await github.rest.repos.createCommitStatus({
@@ -146,7 +153,7 @@ jobs:
 
       - name: Add toolchain-available label
         if: ${{ steps.workflow-info.outputs.pullRequestNumber != '' }}
-        uses: actions/github-script@v8
+        uses: actions/github-script@v9
         with:
           script: |
             await github.rest.issues.addLabels({
@@ -166,16 +173,16 @@ jobs:
           git -C lean4.git tag --merged "${{ steps.workflow-info.outputs.sourceHeadSha }}" --list "nightly-*" \
             | sort -rV | head -n 1 | sed "s/^nightly-*/MOST_RECENT_NIGHTLY=/" | tee -a "$GITHUB_ENV"
 
-      - name: 'Setup jq'
+      - name: "Setup jq"
         if: ${{ steps.workflow-info.outputs.pullRequestNumber != '' }}
-        uses: dcarbone/install-jq-action@v3.2.0
+        uses: dcarbone/install-jq-action@b7ef57d46ece78760b4019dbc4080a1ba2a40b45 # v3.2.0
 
       # Generate a token for posting comments to Lean PRs about mathlib compatibility.
       # This app is in the leanprover org and installed on leanprover/lean4.
       - name: Generate GitHub App token for Lean PR comments
         if: ${{ steps.workflow-info.outputs.pullRequestNumber != '' }}
         id: mathlib-comment-token
-        uses: actions/create-github-app-token@3ff1caaa28b64c9cc276ce0a02e2ff584f3900c5 # v2.0.2
+        uses: actions/create-github-app-token@v3
         with:
           app-id: ${{ secrets.MATHLIB_LEAN_PR_TESTING_APP_ID }}
           private-key: ${{ secrets.MATHLIB_LEAN_PR_TESTING_PRIVATE_KEY }}
@@ -387,10 +394,9 @@ jobs:
             echo "manual_ready=true" >> "$GITHUB_OUTPUT"
           fi
 
-
       - name: Report mathlib base
         if: ${{ steps.workflow-info.outputs.pullRequestNumber != '' && steps.ready.outputs.mathlib_ready == 'true' }}
-        uses: actions/github-script@v8
+        uses: actions/github-script@v9
         with:
           script: |
             const description =
@@ -414,7 +420,7 @@ jobs:
       - name: Generate GitHub App token for leanprover-community repos
         if: steps.workflow-info.outputs.pullRequestNumber != '' && steps.ready.outputs.mathlib_ready == 'true'
         id: mathlib-app-token
-        uses: actions/create-github-app-token@3ff1caaa28b64c9cc276ce0a02e2ff584f3900c5 # v2.0.2
+        uses: actions/create-github-app-token@v3
         with:
           app-id: ${{ secrets.MATHLIB_NIGHTLY_TESTING_APP_ID }}
           private-key: ${{ secrets.MATHLIB_NIGHTLY_TESTING_PRIVATE_KEY }}
@@ -476,7 +482,6 @@ jobs:
         if: steps.workflow-info.outputs.pullRequestNumber != '' && steps.ready.outputs.mathlib_ready == 'true'
         run: |
           git push origin lean-pr-testing-${{ steps.workflow-info.outputs.pullRequestNumber }}
-
 
       # We next automatically create a Mathlib branch using this toolchain.
       # Mathlib CI will be responsible for reporting back success or failure
@@ -551,7 +556,7 @@ jobs:
 
       - name: Add mathlib4-nightly-available label
         if: steps.workflow-info.outputs.pullRequestNumber != '' && steps.ready.outputs.mathlib_ready == 'true'
-        uses: actions/github-script@v8
+        uses: actions/github-script@v9
         with:
           script: |
             await github.rest.issues.addLabels({
@@ -621,3 +626,54 @@ jobs:
         if: steps.workflow-info.outputs.pullRequestNumber != '' && steps.reference-manual-ready.outputs.manual_ready == 'true'
         run: |
           git push origin lean-pr-testing-${{ steps.workflow-info.outputs.pullRequestNumber }}
+
+      # Finally, create/update the adaptation PR in the downstream repo. This is
+      # the second entry point into the adaptation-pr-create action; the other
+      # lives in `adaptation-pr.yml`. Unlike there, the toolchain release was
+      # just created above, so it is known to exist and there is no need to look
+      # it up first.
+      - name: Create GitHub App token
+        if: ${{ steps.workflow-info.outputs.pullRequestNumber != '' }}
+        uses: actions/create-github-app-token@v3
+        id: app-token
+        with:
+          client-id: ${{ vars.DOWNSTREAM_LEAN4_APP_CLIENT_ID }}
+          private-key: ${{ secrets.DOWNSTREAM_LEAN4_APP_PRIVATE_KEY }}
+          repositories: lean4,downstream-lean4
+
+      - name: Configure git
+        if: ${{ steps.workflow-info.outputs.pullRequestNumber != '' }}
+        uses: leanprover/downstream-lean4/.downstream/actions/configure-git@master
+        with:
+          name: ${{ steps.app-token.outputs.app-slug }}[bot]
+
+      - name: Checkout downstream repo
+        if: ${{ steps.workflow-info.outputs.pullRequestNumber != '' }}
+        uses: actions/checkout@v6
+        with:
+          repository: leanprover/downstream-lean4
+          ref: green
+          token: ${{ steps.app-token.outputs.token }}
+          path: downstream
+          filter: tree:0
+          fetch-depth: 0
+
+      - name: Create adaptation PR
+        id: create-adaptation-pr
+        if: ${{ steps.workflow-info.outputs.pullRequestNumber != '' }}
+        uses: leanprover/downstream-lean4/.downstream/actions/adaptation-pr-create@master
+        with:
+          app-token: ${{ steps.app-token.outputs.token }}
+          app-slug: ${{ steps.app-token.outputs.app-slug }}
+          upstream-pr: ${{ steps.workflow-info.outputs.pullRequestNumber }}
+          upstream-ci-green: true # We just created the toolchain release
+          downstream-repo: leanprover/downstream-lean4
+          downstream-clone: downstream
+          override-toolchain: leanprover/lean4-pr-releases:pr-release-${{ steps.workflow-info.outputs.pullRequestNumber }}-${{ env.SHORT_SHA }}
+
+      - name: Add toolchain-available label to adaptation PR
+        if: ${{ steps.workflow-info.outputs.pullRequestNumber != '' && steps.create-adaptation-pr.outputs.number != '' }}
+        env:
+          GH_TOKEN: ${{ steps.app-token.outputs.token }}
+          ADAPTATION_PR: ${{ steps.create-adaptation-pr.outputs.number }}
+        run: gh pr edit "$ADAPTATION_PR" --repo leanprover/downstream-lean4 --add-label toolchain-available

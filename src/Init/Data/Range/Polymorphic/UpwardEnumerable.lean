@@ -265,12 +265,6 @@ theorem UpwardEnumerable.succ?_inj {α : Type u} [UpwardEnumerable α] [Linearly
     succ? a = succ? b ↔ a = b :=
   ⟨LinearlyUpwardEnumerable.eq_of_succ?_eq a b, congrArg succ?⟩
 
-@[deprecated succ?_inj (since := "2025-09-03")]
-theorem UpwardEnumerable.eq_of_succ?_eq {α : Type u} [UpwardEnumerable α] [LinearlyUpwardEnumerable α]
-    {a b : α} (h : succ? a = succ? b) :
-    a = b :=
-  succ?_inj.mp h
-
 /--
 Maps elements of `α` to their immediate successor.
 -/
@@ -293,12 +287,6 @@ theorem UpwardEnumerable.succ_inj {α : Type u} [UpwardEnumerable α]
     [InfinitelyUpwardEnumerable α] [LinearlyUpwardEnumerable α] {a b : α} :
     succ a = succ b ↔ a = b := by
   simp [succ, Option.get_inj, succ?_inj]
-
-@[deprecated succ_inj (since := "2025-09-03")]
-theorem UpwardEnumerable.eq_of_succ_eq {α : Type u} [UpwardEnumerable α]
-    [InfinitelyUpwardEnumerable α] [LinearlyUpwardEnumerable α] {a b : α}
-    (h : succ a = succ b) : a = b :=
-  succ_inj.mp h
 
 theorem UpwardEnumerable.succ_eq_succ_iff {α : Type u} [UpwardEnumerable α]
     [InfinitelyUpwardEnumerable α] [LinearlyUpwardEnumerable α] {a b : α} :
@@ -438,6 +426,7 @@ protected theorem UpwardEnumerable.le_iff {α : Type u} [LE α] [UpwardEnumerabl
     [LawfulUpwardEnumerableLE α] {a b : α} : a ≤ b ↔ UpwardEnumerable.LE a b :=
   LawfulUpwardEnumerableLE.le_iff a b
 
+@[expose, instance_reducible]
 def UpwardEnumerable.instLETransOfLawfulUpwardEnumerableLE {α : Type u} [LE α]
     [UpwardEnumerable α] [LawfulUpwardEnumerable α] [LawfulUpwardEnumerableLE α] :
     Trans (α := α) (· ≤ ·) (· ≤ ·) (· ≤ ·) where
@@ -502,12 +491,13 @@ protected theorem UpwardEnumerable.lt_succ_iff {α : Type u} [UpwardEnumerable �
       ← succMany?_eq_some_iff_succMany] at hn
     exact ⟨n, hn⟩
 
+@[expose, instance_reducible]
 def UpwardEnumerable.instLTTransOfLawfulUpwardEnumerableLT {α : Type u} [LT α]
     [UpwardEnumerable α] [LawfulUpwardEnumerable α] [LawfulUpwardEnumerableLT α] :
     Trans (α := α) (· < ·) (· < ·) (· < ·) where
   trans := by simpa [UpwardEnumerable.lt_iff] using @UpwardEnumerable.lt_trans
 
-def UpwardEnumerable.instLawfulOrderLTOfLawfulUpwardEnumerableLT {α : Type u} [LT α] [LE α]
+theorem UpwardEnumerable.instLawfulOrderLTOfLawfulUpwardEnumerableLT {α : Type u} [LT α] [LE α]
     [UpwardEnumerable α] [LawfulUpwardEnumerable α] [LawfulUpwardEnumerableLT α]
     [LawfulUpwardEnumerableLE α] :
     LawfulOrderLT α where

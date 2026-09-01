@@ -1,6 +1,6 @@
 // Lean compiler output
 // Module: Std.Tactic.BVDecide
-// Imports: public import Std.Tactic.BVDecide.Bitblast public import Std.Tactic.BVDecide.LRAT public import Std.Tactic.BVDecide.Normalize public import Std.Tactic.BVDecide.Reflect public import Std.Tactic.BVDecide.Syntax
+// Imports: public import Std.Tactic.BVDecide.Bitblast public import Std.Tactic.BVDecide.LRAT public import Std.Tactic.BVDecide.Normalize public import Std.Tactic.BVDecide.Reflect public import Std.Tactic.BVDecide.Syntax public import Init.Sym.Lemmas
 #include <lean/lean.h>
 #if defined(__clang__)
 #pragma clang diagnostic ignored "-Wunused-parameter"
@@ -13,11 +13,52 @@
 #ifdef __cplusplus
 extern "C" {
 #endif
+lean_object* runtime_initialize_Std_Tactic_BVDecide_Bitblast(uint8_t builtin);
+lean_object* runtime_initialize_Std_Tactic_BVDecide_LRAT(uint8_t builtin);
+lean_object* runtime_initialize_Std_Tactic_BVDecide_Normalize(uint8_t builtin);
+lean_object* runtime_initialize_Std_Tactic_BVDecide_Reflect(uint8_t builtin);
+lean_object* runtime_initialize_Std_Tactic_BVDecide_Syntax(uint8_t builtin);
+lean_object* runtime_initialize_Init_Sym_Lemmas(uint8_t builtin);
+void lean_initialize_runtime_module();
+static bool _G_runtime_initialized = false;
+LEAN_EXPORT lean_object* runtime_initialize_Std_Tactic_BVDecide(uint8_t builtin) {
+lean_object * res;
+if (_G_runtime_initialized) return lean_io_result_mk_ok(lean_box(0));
+_G_runtime_initialized = true;
+lean_initialize_runtime_module();
+res = runtime_initialize_Std_Tactic_BVDecide_Bitblast(builtin);
+if (lean_io_result_is_error(res)) return res;
+lean_dec_ref(res);
+res = runtime_initialize_Std_Tactic_BVDecide_LRAT(builtin);
+if (lean_io_result_is_error(res)) return res;
+lean_dec_ref(res);
+res = runtime_initialize_Std_Tactic_BVDecide_Normalize(builtin);
+if (lean_io_result_is_error(res)) return res;
+lean_dec_ref(res);
+res = runtime_initialize_Std_Tactic_BVDecide_Reflect(builtin);
+if (lean_io_result_is_error(res)) return res;
+lean_dec_ref(res);
+res = runtime_initialize_Std_Tactic_BVDecide_Syntax(builtin);
+if (lean_io_result_is_error(res)) return res;
+lean_dec_ref(res);
+res = runtime_initialize_Init_Sym_Lemmas(builtin);
+if (lean_io_result_is_error(res)) return res;
+lean_dec_ref(res);
+return lean_io_result_mk_ok(lean_box(0));
+}
+static bool _G_meta_initialized = false;
+LEAN_EXPORT lean_object* meta_initialize_Std_Tactic_BVDecide(uint8_t builtin) {
+lean_object * res;
+if (_G_meta_initialized) return lean_io_result_mk_ok(lean_box(0));
+_G_meta_initialized = true;
+return lean_io_result_mk_ok(lean_box(0));
+}
 lean_object* initialize_Std_Tactic_BVDecide_Bitblast(uint8_t builtin);
 lean_object* initialize_Std_Tactic_BVDecide_LRAT(uint8_t builtin);
 lean_object* initialize_Std_Tactic_BVDecide_Normalize(uint8_t builtin);
 lean_object* initialize_Std_Tactic_BVDecide_Reflect(uint8_t builtin);
 lean_object* initialize_Std_Tactic_BVDecide_Syntax(uint8_t builtin);
+lean_object* initialize_Init_Sym_Lemmas(uint8_t builtin);
 static bool _G_initialized = false;
 LEAN_EXPORT lean_object* initialize_Std_Tactic_BVDecide(uint8_t builtin) {
 lean_object * res;
@@ -38,7 +79,16 @@ lean_dec_ref(res);
 res = initialize_Std_Tactic_BVDecide_Syntax(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
-return lean_io_result_mk_ok(lean_box(0));
+res = initialize_Init_Sym_Lemmas(builtin);
+if (lean_io_result_is_error(res)) return res;
+lean_dec_ref(res);
+res = runtime_initialize_Std_Tactic_BVDecide(builtin);
+if (lean_io_result_is_error(res)) return res;
+lean_dec_ref(res);
+res = meta_initialize_Std_Tactic_BVDecide(builtin);
+if (lean_io_result_is_error(res)) return res;
+lean_dec_ref(res);
+return initialize_Std_Tactic_BVDecide(builtin);
 }
 #ifdef __cplusplus
 }

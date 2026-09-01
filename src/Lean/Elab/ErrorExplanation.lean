@@ -7,6 +7,7 @@ module
 
 prelude
 public import Lean.Widget.UserWidget
+meta import Lean.Widget.UserWidget
 
 public section
 

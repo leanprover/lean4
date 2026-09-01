@@ -36,7 +36,7 @@ private def assertNatCastNonneg (a : Expr) : LinearM Unit := do
   let s ← getStruct
   let h := mkApp8 (mkConst ``Grind.OrderedRing.natCast_nonneg [s.u]) s.type s.ringInst?.get!
     s.leInst?.get! s.ltInst?.get! s.lawfulOrderLTInst?.get! s.isPreorderInst?.get! s.orderedRingInst?.get! a
-  addNewRawFact h (← inferType h) (← getGeneration a) (.ematch (.decl ``Grind.OrderedRing.natCast_nonneg))
+  addNewRawFact h (← inferType h) (← getGeneration a) (.ematch (.decl ``Grind.OrderedRing.natCast_nonneg)) .other
 
 /--
 Converts a Lean `IntModule` expression `e` into a `LinExpr`

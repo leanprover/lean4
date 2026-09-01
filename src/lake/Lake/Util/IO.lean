@@ -25,6 +25,26 @@ public def removeFileIfExists (path : FilePath) : IO Unit := do
     | e => throw e
 
 /--
+Write the UTF-8 encoded string {lean}`content` to {lean}`path`.
+If the file already exists, does nothing.
+-/
+public def writeFileIfNew (path : FilePath) (content : String) : IO Unit := do
+  let h ← try IO.FS.Handle.mk path IO.FS.Mode.writeNew catch
+    | .alreadyExists .. => return
+    | e => throw e
+  h.putStr content
+
+/--
+Write the bytes of {lean}`content` to {lean}`path`.
+If the file already exists, does nothing.
+-/
+public def writeBinFileIfNew (path : FilePath) (content : ByteArray) : IO Unit := do
+  let h ← try IO.FS.Handle.mk path IO.FS.Mode.writeNew catch
+    | .alreadyExists .. => return
+    | e => throw e
+  h.write content
+
+/--
 Remove a directory and all its contents.
 Like {lean}`IO.FS.removeDirAll`, but does not fail if {lean}`path` does not exist
 or if a file is first deleted by a racing process.

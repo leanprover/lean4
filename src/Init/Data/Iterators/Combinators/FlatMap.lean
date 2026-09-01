@@ -44,7 +44,7 @@ public def Iter.flatMapAfter {α : Type w} {β : Type w} {α₂ : Type w}
     (f : β → Iter (α := α₂) γ) (it₁ : Iter (α := α) β) (it₂ : Option (Iter (α := α₂) γ)) :=
   ((it₁.toIterM.flatMapAfter (fun b => (f b).toIterM) (Iter.toIterM <$> it₂)).toIter : Iter γ)
 
-@[always_inline, expose, inherit_doc IterM.flatMap]
+@[cbv_opaque, always_inline, expose, inherit_doc IterM.flatMap]
 public def Iter.flatMap {α : Type w} {β : Type w} {α₂ : Type w}
     {γ : Type w} [Iterator α Id β] [Iterator α₂ Id γ]
     (f : β → Iter (α := α₂) γ) (it : Iter (α := α) β) :=

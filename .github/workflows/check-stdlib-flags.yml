@@ -1,15 +1,18 @@
 name: Check stdlib_flags.h modifications
 
 on:
-  pull_request:
+  pull_request_target:
     types: [opened, synchronize, reopened, labeled, unlabeled]
+
+permissions:
+  pull-requests: read
 
 jobs:
   check-stdlib-flags:
     runs-on: ubuntu-latest
     steps:
       - name: Check if stdlib_flags.h was modified
-        uses: actions/github-script@v8
+        uses: actions/github-script@v9
         with:
           script: |
             // Get the list of files changed in this PR

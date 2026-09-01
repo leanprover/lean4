@@ -121,7 +121,7 @@ def mkPerDeclaration (name : Name) (phase : Phase)
   occurrence := occurrence
   phase := phase
   name := name
-  run := fun xs => xs.mapM run
+  run := fun xs => xs.mapM fun decl => do checkSystem "LCNF compiler"; run decl
 
 end Pass
 

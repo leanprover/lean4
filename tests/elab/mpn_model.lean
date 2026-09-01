@@ -140,6 +140,7 @@ end Digits
 
 section DigitProofs
 
+
 /-!
 The definitions above spell the macros out as `mpn.h` writes them; the
 arithmetic below wants their values, and `omega` needs a literal rather than a
@@ -487,17 +488,6 @@ private def addStep (a b : Array Digit) (s : Array Digit × Digit) (j : Nat) : A
   let c2 := cj < r
   (c.push cj, if c1 || c2 then 1 else 0)
 
-/-- The loop as the fold its proof inducts over. -/
-theorem addLoop_eq (a b : Array Digit) (len : Nat) :
-    addLoop a b len = (List.range len).foldl (fun s j => addStep a b s j) (#[], 0) := by
-  simp [addLoop, addStep, Id.run]
-  rfl
-
-/-- `mpn_add` is its digit loop, the carry pushed on top, trimmed. -/
-theorem add_eq (a b : Array Digit) :
-    add a b = trim ((addLoop a b (max a.size b.size)).1.push (addLoop a b (max a.size b.size)).2) :=
-  rfl
-
 /-! ## `mpn_sub` -/
 
 /--
@@ -550,9 +540,6 @@ private def subLoop (a b : Array Digit) (len : Nat) : Array Digit × Digit := Id
     k := if c1 || c2 then 1 else 0
   return (c, k)
 
-/-- `mpn_sub` is its loop at the length the C++ computes. -/
-theorem sub_eq (a b : Array Digit) : sub a b = subLoop a b (max a.size b.size) := rfl
-
 /-- One iteration of the loop, for `subLoop_eq` to fold over. -/
 private def subStep (a b : Array Digit) (s : Array Digit × Digit) (j : Nat) : Array Digit × Digit :=
   let (c, k) := s
@@ -563,13 +550,6 @@ private def subStep (a b : Array Digit) (s : Array Digit × Digit) (j : Nat) : A
   let cj := r - k
   let c2 := cj > r
   (c.push cj, if c1 || c2 then 1 else 0)
-
-/-- The loop as the fold its proof inducts over. -/
-theorem subLoop_eq (a b : Array Digit) (len : Nat) :
-    subLoop a b len = (List.range len).foldl (fun s j => subStep a b s j) (#[], 0) := by
-  simp [subLoop, subStep, Id.run]
-  rfl
-
 
 /--
 `mpn_sub`'s digit loop, writing its result back over its first operand, which is
@@ -606,19 +586,6 @@ private def subInPlaceStep (b : Array Digit) (off : Nat) (s : Array Digit × Dig
   let ci := r - k
   let c2 := ci > r
   (u.set! (off + i) ci, if c1 || c2 then 1 else 0)
-
-/-- The loop as the fold its proof inducts over. -/
-theorem subInPlace_foldl (u b : Array Digit) (off len : Nat) :
-    subInPlace u b off len
-      = (List.range len).foldl (fun s i => subInPlaceStep b off s i) (u, 0) := by
-  simp [subInPlace, subInPlaceStep, Id.run]
-  rfl
-
-private theorem subInPlace_succ (u b : Array Digit) (off len : Nat) :
-    subInPlace u b off (len+1) = subInPlaceStep b off (subInPlace u b off len) len := by
-  rw [subInPlace_foldl, subInPlace_foldl]
-  simp [List.range_succ]
-
 
 /-! ## `mpn_mul` -/
 
@@ -658,13 +625,6 @@ private def mulInnerStep (a : Array Digit) (v_j : Digit) (j : Nat)
   let t : DoubleDigit :=
     u_i.toUInt64 * v_j.toUInt64 + (c.getD (i + j) 0).toUInt64 + k.toUInt64
   (c.set! (i + j) (lo t), hi t)
-
-/-- The loop as the fold its proof inducts over. -/
-theorem mulInner_eq (a : Array Digit) (v_j : Digit) (j : Nat) (c : Array Digit) (lnga : Nat) :
-    mulInner a v_j j c lnga
-      = (List.range lnga).foldl (fun s i => mulInnerStep a v_j j s i) (c, 0) := by
-  simp [mulInner, mulInnerStep, Id.run]
-  rfl
 
 /--
 One iteration of `mpn_mul`'s outer loop:
@@ -718,14 +678,6 @@ private def mulLoop (a b : Array Digit) (m : Nat) : Array Digit := Id.run do
   for j in List.range m do
     c := mulOuterStep a b c j
   return c
-
-/-- The loop as the fold its proof inducts over. -/
-theorem mulLoop_eq (a b : Array Digit) (m : Nat) :
-    mulLoop a b m
-      = (List.range m).foldl (fun c j => mulOuterStep a b c j)
-          (Array.replicate (a.size + b.size) 0) := by
-  simp [mulLoop, Id.run]
-  rfl
 
 /-! ## division -/
 
@@ -1024,24 +976,6 @@ def shiftRightDigits (a : Array Digit) (d len : Nat) (hd : d < digitBits) : Arra
                 (sub_digitBits_lt (by omega)))
   return out
 
-/-- The loop as the map its proofs read digitwise. -/
-theorem shiftRightDigits_eq (a : Array Digit) (d len : Nat) (hd : d < digitBits) :
-    shiftRightDigits a d len hd = (Array.range len).map (fun i =>
-      if h : d = 0 then a.getD i 0
-      else CPP.shr (a.getD i 0) d hd |||
-        (if i + 1 == len then 0
-         else CPP.shl (lastBits (a.getD (i+1) 0) d (by omega)) (digitBits - d)
-                (sub_digitBits_lt (by omega)))) := by
-  rw [show shiftRightDigits a d len hd
-        = (List.range len).foldl (fun out j => out.set! j
-            (if h : d = 0 then a.getD j 0
-             else CPP.shr (a.getD j 0) d hd |||
-               (if j + 1 == len then 0
-                else CPP.shl (lastBits (a.getD (j+1) 0) d (by omega)) (digitBits - d)
-                       (sub_digitBits_lt (by omega)))))
-            (Array.replicate len 0) from by simp [shiftRightDigits, Id.run]; rfl]
-  exact foldl_set!_eq_map _ _
-
 /--
 `div_unnormalize`. Produces `lden` remainder digits; the `d == 0` branch is
 `shiftRightDigits` at `d = 0`:
@@ -1121,23 +1055,6 @@ private def div1Loop (denom : Digit) (hden : denom.toUInt64 ≠ 0) (u quot : Arr
     s := div1Step denom hden s (j+1)
   return s
 
-/-- The loop as the descending recursion its proof inducts over. -/
-theorem div1Loop_eq (denom : Digit) (hden : denom.toUInt64 ≠ 0) (u quot : Array Digit)
-    (m : Nat) :
-    div1Loop denom hden u quot m
-      = (List.range m).reverse.foldl (fun s j => div1Step denom hden s (j+1)) (u, quot) := by
-  simp [div1Loop, Id.run]
-  rfl
-
-/-- One step of it, peeled off the top as `div_1` counts down. -/
-theorem div1Loop_succ (denom : Digit) (hden : denom.toUInt64 ≠ 0) (u quot : Array Digit)
-    (m : Nat) :
-    div1Loop denom hden u quot (m+1)
-      = div1Loop denom hden (div1Step denom hden (u, quot) (m+1)).1
-          (div1Step denom hden (u, quot) (m+1)).2 m := by
-  rw [div1Loop_eq, div1Loop_eq, List.range_succ, List.reverse_append]
-  simp
-
 /--
 The `recheck:` correction loop of `div_n`, i.e. step D3 of Knuth's Algorithm D:
 ```
@@ -1182,12 +1099,6 @@ def copyInto (dst src : Array Digit) (j : Nat) (len : Nat) : Array Digit := Id.r
   for i in List.range len do
     dst := dst.set! (j + i) (src.getD i 0)
   return dst
-
-/-- One iteration of it, peeled off the end. -/
-theorem copyInto_succ (dst src : Array Digit) (j len : Nat) :
-    copyInto dst src j (len+1) = (copyInto dst src j len).set! (j + len) (src.getD len 0) := by
-  simp [copyInto, Id.run, List.range_succ]
-  rfl
 
 /--
 The trial quotient digit `div_n` forms for the window at `j`, after step D3:
@@ -1278,29 +1189,6 @@ private def divNLoop (denom : Array Digit) (hv : (denom.getD (denom.size - 1) 0)
     s := divNStep denom hv s j
   return s
 
-/-- `div_n` is its outer loop over a zeroed quotient buffer. -/
-theorem divN_eq (numer denom : Array Digit) (hv : (denom.getD (denom.size - 1) 0).toUInt64 ≠ 0) :
-    divN numer denom hv
-      = divNLoop denom hv numer (Array.replicate (numer.size - denom.size) 0)
-          (numer.size - denom.size) := rfl
-
-/-- The loop as the descending recursion its proof inducts over. -/
-theorem divNLoop_eq (denom : Array Digit) (hv : (denom.getD (denom.size - 1) 0).toUInt64 ≠ 0)
-    (u quot : Array Digit) (m : Nat) :
-    divNLoop denom hv u quot m
-      = (List.range m).reverse.foldl (fun s j => divNStep denom hv s j) (u, quot) := by
-  simp [divNLoop, Id.run]
-  rfl
-
-/-- One step of it, peeled off the top as `div_n` counts down. -/
-theorem divNLoop_succ (denom : Array Digit) (hv : (denom.getD (denom.size - 1) 0).toUInt64 ≠ 0)
-    (u quot : Array Digit) (m : Nat) :
-    divNLoop denom hv u quot (m+1)
-      = divNLoop denom hv (divNStep denom hv (u, quot) m).1
-          (divNStep denom hv (u, quot) m).2 m := by
-  rw [divNLoop_eq, divNLoop_eq, List.range_succ, List.reverse_append]
-  simp
-
 /--
 `mpn_div`. Returns `lnum - lden + 1` quotient digits and `lden` remainder digits:
 ```
@@ -1369,6 +1257,118 @@ zero, and it has been removed.
 end MpnModel
 
 section MpnProofs
+
+/-- The loop as the fold its proof inducts over. -/
+theorem addLoop_eq (a b : Array Digit) (len : Nat) :
+    addLoop a b len = (List.range len).foldl (fun s j => addStep a b s j) (#[], 0) := by
+  simp [addLoop, addStep, Id.run]
+  rfl
+
+/-- `mpn_add` is its digit loop, the carry pushed on top, trimmed. -/
+theorem add_eq (a b : Array Digit) :
+    add a b = trim ((addLoop a b (max a.size b.size)).1.push (addLoop a b (max a.size b.size)).2) :=
+  rfl
+
+/-- `mpn_sub` is its loop at the length the C++ computes. -/
+theorem sub_eq (a b : Array Digit) : sub a b = subLoop a b (max a.size b.size) := rfl
+
+/-- The loop as the fold its proof inducts over. -/
+theorem subLoop_eq (a b : Array Digit) (len : Nat) :
+    subLoop a b len = (List.range len).foldl (fun s j => subStep a b s j) (#[], 0) := by
+  simp [subLoop, subStep, Id.run]
+  rfl
+
+/-- The loop as the fold its proof inducts over. -/
+theorem subInPlace_foldl (u b : Array Digit) (off len : Nat) :
+    subInPlace u b off len
+      = (List.range len).foldl (fun s i => subInPlaceStep b off s i) (u, 0) := by
+  simp [subInPlace, subInPlaceStep, Id.run]
+  rfl
+
+private theorem subInPlace_succ (u b : Array Digit) (off len : Nat) :
+    subInPlace u b off (len+1) = subInPlaceStep b off (subInPlace u b off len) len := by
+  rw [subInPlace_foldl, subInPlace_foldl]
+  simp [List.range_succ]
+
+/-- The loop as the fold its proof inducts over. -/
+theorem mulInner_eq (a : Array Digit) (v_j : Digit) (j : Nat) (c : Array Digit) (lnga : Nat) :
+    mulInner a v_j j c lnga
+      = (List.range lnga).foldl (fun s i => mulInnerStep a v_j j s i) (c, 0) := by
+  simp [mulInner, mulInnerStep, Id.run]
+  rfl
+
+/-- The loop as the fold its proof inducts over. -/
+theorem mulLoop_eq (a b : Array Digit) (m : Nat) :
+    mulLoop a b m
+      = (List.range m).foldl (fun c j => mulOuterStep a b c j)
+          (Array.replicate (a.size + b.size) 0) := by
+  simp [mulLoop, Id.run]
+  rfl
+
+/-- The loop as the map its proofs read digitwise. -/
+theorem shiftRightDigits_eq (a : Array Digit) (d len : Nat) (hd : d < digitBits) :
+    shiftRightDigits a d len hd = (Array.range len).map (fun i =>
+      if h : d = 0 then a.getD i 0
+      else CPP.shr (a.getD i 0) d hd |||
+        (if i + 1 == len then 0
+         else CPP.shl (lastBits (a.getD (i+1) 0) d (by omega)) (digitBits - d)
+                (sub_digitBits_lt (by omega)))) := by
+  rw [show shiftRightDigits a d len hd
+        = (List.range len).foldl (fun out j => out.set! j
+            (if h : d = 0 then a.getD j 0
+             else CPP.shr (a.getD j 0) d hd |||
+               (if j + 1 == len then 0
+                else CPP.shl (lastBits (a.getD (j+1) 0) d (by omega)) (digitBits - d)
+                       (sub_digitBits_lt (by omega)))))
+            (Array.replicate len 0) from by simp [shiftRightDigits, Id.run]; rfl]
+  exact foldl_set!_eq_map _ _
+
+/-- The loop as the descending recursion its proof inducts over. -/
+theorem div1Loop_eq (denom : Digit) (hden : denom.toUInt64 ≠ 0) (u quot : Array Digit)
+    (m : Nat) :
+    div1Loop denom hden u quot m
+      = (List.range m).reverse.foldl (fun s j => div1Step denom hden s (j+1)) (u, quot) := by
+  simp [div1Loop, Id.run]
+  rfl
+
+/-- One step of it, peeled off the top as `div_1` counts down. -/
+theorem div1Loop_succ (denom : Digit) (hden : denom.toUInt64 ≠ 0) (u quot : Array Digit)
+    (m : Nat) :
+    div1Loop denom hden u quot (m+1)
+      = div1Loop denom hden (div1Step denom hden (u, quot) (m+1)).1
+          (div1Step denom hden (u, quot) (m+1)).2 m := by
+  rw [div1Loop_eq, div1Loop_eq, List.range_succ, List.reverse_append]
+  simp
+
+/-- One iteration of it, peeled off the end. -/
+theorem copyInto_succ (dst src : Array Digit) (j len : Nat) :
+    copyInto dst src j (len+1) = (copyInto dst src j len).set! (j + len) (src.getD len 0) := by
+  simp [copyInto, Id.run, List.range_succ]
+  rfl
+
+/-- `div_n` is its outer loop over a zeroed quotient buffer. -/
+theorem divN_eq (numer denom : Array Digit) (hv : (denom.getD (denom.size - 1) 0).toUInt64 ≠ 0) :
+    divN numer denom hv
+      = divNLoop denom hv numer (Array.replicate (numer.size - denom.size) 0)
+          (numer.size - denom.size) := rfl
+
+/-- The loop as the descending recursion its proof inducts over. -/
+theorem divNLoop_eq (denom : Array Digit) (hv : (denom.getD (denom.size - 1) 0).toUInt64 ≠ 0)
+    (u quot : Array Digit) (m : Nat) :
+    divNLoop denom hv u quot m
+      = (List.range m).reverse.foldl (fun s j => divNStep denom hv s j) (u, quot) := by
+  simp [divNLoop, Id.run]
+  rfl
+
+/-- One step of it, peeled off the top as `div_n` counts down. -/
+theorem divNLoop_succ (denom : Array Digit) (hv : (denom.getD (denom.size - 1) 0).toUInt64 ≠ 0)
+    (u quot : Array Digit) (m : Nat) :
+    divNLoop denom hv u quot (m+1)
+      = divNLoop denom hv (divNStep denom hv (u, quot) m).1
+          (divNStep denom hv (u, quot) m).2 m := by
+  rw [divNLoop_eq, divNLoop_eq, List.range_succ, List.reverse_append]
+  simp
+
 
 /-! ## Correctness of `mpn_add` -/
 
@@ -3521,9 +3521,6 @@ def Num.compare (a b : Num) : Int := Mpn.compare a.digits b.digits
 -/
 def Num.add (a b : Num) : Num := Num.ofArray (Mpn.add a.digits b.digits) (size_add_pos ..)
 
-@[simp] theorem Num.val_add (a b : Num) : (a.add b).val = a.val + b.val := by
-  rw [Num.add, Num.val_ofArray, denote_add, Num.val, Num.val]
-
 /--
 `mpz::mul` on non-negative values:
 ```
@@ -3724,12 +3721,6 @@ def Num.shiftRight (a : Num) (k : Nat) : Num :=
 def Num.ofArray! (a : Array Digit) : Num :=
   if h : 0 < a.size then Num.ofArray a h else ⟨#[0], by simp, by simp⟩
 
-@[simp] theorem Num.val_ofArray! (a : Array Digit) (h : 0 < a.size) :
-    (Num.ofArray! a).val = denote a := by
-  unfold Num.ofArray!
-  split <;> rename_i h2
-  · exact Num.val_ofArray a h2
-  · exact absurd h h2
 /-! ### Bitwise operations, as `mpz` implements them -/
 
 /--
@@ -3824,8 +3815,6 @@ def Num.gcd (a b : Num) : Num :=
 /-- `mpz(1)`. -/
 def Num.one : Num := ⟨#[1], by simp, by simp⟩
 
-@[simp] theorem Num.val_one : Num.one.val = 1 := denote_singleton 1
-
 private theorem toNat_shiftRight_one (p : Digit) : (p >>> 1).toNat = p.toNat / 2 := rfl
 
 /-- `if (p & 1) result *= power;`, the conditional multiply in `mpz::pow`. -/
@@ -3875,6 +3864,19 @@ def Num.pow (a : Num) (p : Digit) : Num := Num.powLoop a Num.one p
 end MpzModel
 
 section MpzProofs
+
+@[simp] theorem Num.val_add (a b : Num) : (a.add b).val = a.val + b.val := by
+  rw [Num.add, Num.val_ofArray, denote_add, Num.val, Num.val]
+
+@[simp] theorem Num.val_ofArray! (a : Array Digit) (h : 0 < a.size) :
+    (Num.ofArray! a).val = denote a := by
+  unfold Num.ofArray!
+  split <;> rename_i h2
+  · exact Num.val_ofArray a h2
+  · exact absurd h h2
+
+@[simp] theorem Num.val_one : Num.one.val = 1 := denote_singleton 1
+
 
 /-!
 ## Proofs for the `mpz` layer
@@ -4743,6 +4745,7 @@ def natPow (a p : NatObj) : NatObj :=
 end ObjectModel
 
 section ObjectProofs
+
 
 /-!
 ## Proofs for the `lean_object` layer

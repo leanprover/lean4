@@ -11841,8 +11841,8 @@ goto v___jp_3801_;
 else
 {
 lean_object* v___x_3842_; uint8_t v___x_3843_; 
-lean_inc_ref(v_str_3838_);
 lean_inc(v_pre_3837_);
+lean_inc_ref(v_str_3838_);
 lean_dec_ref_known(v_fn_3767_, 2);
 v___x_3842_ = ((lean_object*)(l___private_Lean_Compiler_LCNF_InferBorrow_0__Lean_Compiler_LCNF_infer_collectLetValue___closed__1));
 v___x_3843_ = lean_string_dec_eq(v_str_3838_, v___x_3842_);

@@ -5,7 +5,7 @@ import Std.Data.HashMap
 definition plus an `@[spec]`-tagged `f.spec` Hoare triple that `vcgen` proves automatically; a
 `for … invariant` clause inside the body supplies the loop invariant it needs. New cases go here. -/
 
-set_option mvcgen.warning false
+set_option experimental.vcgen true
 set_option experimental.intrinsic true
 
 /-! ## Contracts elaborate with nothing opened

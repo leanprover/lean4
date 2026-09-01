@@ -8,6 +8,7 @@ module
 prelude
 public import Std.Tactic.BVDecide.LRAT.Actions
 public import Std.Tactic.BVDecide.LRAT.Checker
+public import Std.Tactic.BVDecide.LRAT.Internal
 public import Std.Tactic.BVDecide.LRAT.Parser
 
 @[expose] public section

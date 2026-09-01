@@ -8,7 +8,7 @@ public meta import Lean.Elab.Tactic.VCGen.FrameProc
 public meta import Lean.Elab.Tactic.VCGen.FrameProcAttr
 public meta import Lean.Elab.Tactic.VCGen.RuleConstruction
 
-set_option mvcgen.warning false
+set_option experimental.vcgen true
 
 open Lean.Order
 

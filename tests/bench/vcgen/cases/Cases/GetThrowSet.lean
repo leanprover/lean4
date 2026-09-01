@@ -11,7 +11,7 @@ open Lean Meta Order Std.WP
 
 namespace GetThrowSet
 
-set_option mvcgen.warning false
+set_option experimental.vcgen true
 
 abbrev M := ExceptT String <| StateM Nat
 

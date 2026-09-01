@@ -10,7 +10,7 @@ open Lean Meta Order Std.WP
 
 namespace LetBinding
 
-set_option mvcgen.warning false
+set_option experimental.vcgen true
 
 -- Partially evaluated specs for best performance.
 

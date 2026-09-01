@@ -18,8 +18,7 @@ open Lean.Order Std.WP
 /-!
 # WPMonad Instances
 
-The weakest precondition interpretation of the base monads and of the monad transformers, together
-with the `PredTrans` helpers that push a result type into an exception postcondition layer.
+The weakest precondition interpretation of the base monads and of the monad transformers.
 
 A monad that throws carries the exception postcondition itself. A transformer stacks a product
 layer on the exception postcondition of the monad below it, and `EStack⟨⟩` closes the stack.
@@ -41,52 +40,19 @@ namespace Std.WP
 variable {m : Type u → Type z}
 
 /-- `Id`'s `WP` interpretation: `Prop` assertions and no exceptions. -/
-@[instance_reducible] def Id.wpInst {α : Type u} : WP (Id α) α Prop EStack⟨⟩ where
+instance Id.wpInst {α : Type u} : WP (Id α) α Prop EStack⟨⟩ where
   wpTrans x := ⟨fun post _epost => post x⟩
   wp_trans_monotone x := fun _ _ _ _ _ hpost => hpost x
 
 /-- `Id` is a WPMonad with `Prop` assertions and no exceptions. -/
 instance Id.instWPMonad : WPMonad Id.{u} Prop EStack⟨⟩ where
-  toWP _ := Id.wpInst
+  toWP _ := inferInstance
   pure_le_wp_pure _ _ _ := PartialOrder.rel_refl
   bind_le_wp_bind _ _ _ _ := PartialOrder.rel_refl
 
-/-- `MonadExceptOf` instance for the outermost exception layer:
-`throw` invokes the head exception postcondition, `tryCatch` intercepts it. -/
-instance {ε : Type u} {Pred : Type v} {EPred : Type w} :
-    MonadExceptOf ε (PredTrans Pred ((ε → Pred) × EPred)) where
-  throw e := ⟨fun _post epost => epost.fst e⟩
-  tryCatch x handle := ⟨fun post epost => x.apply post ((fun e => (handle e).apply post epost), epost.snd)⟩
-
-/-- Unfolding `throw` through `apply`: the head exception postcondition at the thrown value. -/
-@[simp, grind =] theorem PredTrans.apply_throw {ε : Type u} {α : Type u} {Pred : Type u}
-    {EPred : Type w} (e : ε) (post : α → Pred) (epost : (ε → Pred) × EPred) :
-    (MonadExceptOf.throw e : PredTrans Pred ((ε → Pred) × EPred) α).apply post epost
-      = epost.fst e := rfl
-
-/-- Unfolding `tryCatch` through `apply`: the handler replaces the head exception postcondition. -/
-@[simp, grind =] theorem PredTrans.apply_tryCatch {ε : Type u} {α : Type u} {Pred : Type u}
-    {EPred : Type w} (x : PredTrans Pred ((ε → Pred) × EPred) α)
-    (handle : ε → PredTrans Pred ((ε → Pred) × EPred) α)
-    (post : α → Pred) (epost : (ε → Pred) × EPred) :
-    (MonadExceptOf.tryCatch x handle).apply post epost
-      = x.apply post ((fun e => (handle e).apply post epost), epost.snd) := rfl
-
-/-- `MonadExceptOf` instance lifted through an unrelated exception layer:
-delegates to the inner instance, threading the extra exception postcondition. -/
-instance {ε : Type u} {Pred : Type v} {EPred : Type w} {ε' : Type u}
-    [MonadExceptOf ε (PredTrans Pred EPred)] :
-    MonadExceptOf ε (PredTrans Pred ((ε' → Pred) × EPred)) where
-  throw x := ⟨fun post epost => (throw (m := PredTrans Pred EPred) x).apply post epost.snd⟩
-  tryCatch x handle := ⟨fun post epost =>
-    (tryCatch (m := PredTrans Pred EPred)
-      (⟨fun post' epost' => x.apply post' (epost.fst, epost')⟩)
-      (fun e => ⟨fun post' epost' => (handle e).apply post' (epost.fst, epost')⟩)).apply
-      post epost.snd⟩
-
 /-- `ExceptT`'s `WP` interpretation: lift the base interpretation by adding an exception
 postcondition layer. -/
-@[instance_reducible] def ExceptT.wpInst {Pred : Type v}
+instance ExceptT.wpInst {Pred : Type v}
   [Assertion Pred] [Assertion EPred] [WP (m (Except ε α)) (Except ε α) Pred EPred] :
     WP (ExceptT ε m α) α Pred ((ε → Pred) × EPred) where
   wpTrans x := PredTrans.pushExceptT (WP.wpTrans x.run)
@@ -103,7 +69,7 @@ postcondition layer. -/
 instance ExceptT.instWPMonad {Pred : Type v}
   [Monad m] [Assertion Pred] [Assertion EPred] [WPMonad m Pred EPred] :
     WPMonad (ExceptT ε m) Pred ((ε → Pred) × EPred) where
-  toWP _ := ExceptT.wpInst
+  toWP _ := inferInstance
   pure_le_wp_pure x := fun post epost =>
     WPMonad.pure_le_wp_pure (m := m) (Except.ok x) (pushExcept post epost.fst) epost.snd
   bind_le_wp_bind x f := fun post epost => by
@@ -124,7 +90,7 @@ theorem ExceptT.wp_apply_eq {α ε Pred EPred}
 
 /-- `OptionT`'s `WP` interpretation: lift the base interpretation by adding a `Unit` exception
 postcondition layer. -/
-@[instance_reducible] def OptionT.wpInst {Pred : Type u}
+instance OptionT.wpInst {Pred : Type u}
   [Assertion Pred] [Assertion EPred] [WP (m (Option α)) (Option α) Pred EPred] :
     WP (OptionT m α) α Pred ((Unit → Pred) × EPred) where
   wpTrans x := PredTrans.pushOptionT (WP.wpTrans x.run)
@@ -140,7 +106,7 @@ postcondition layer. -/
 instance OptionT.instWPMonad {Pred : Type u}
   [Monad m] [Assertion Pred] [Assertion EPred] [WPMonad m Pred EPred] :
     WPMonad (OptionT m) Pred ((Unit → Pred) × EPred) where
-  toWP _ := OptionT.wpInst
+  toWP _ := inferInstance
   pure_le_wp_pure x := fun post epost =>
     WPMonad.pure_le_wp_pure (m := m) (some x) (pushOption post epost.fst) epost.snd
   bind_le_wp_bind x f := fun post epost => by
@@ -160,10 +126,10 @@ theorem OptionT.wp_apply_eq {α : Type u} {Pred : Type u} {EPred}
     wp x post epost = wp x.run (pushOption post epost.fst) epost.snd := rfl
 
 /-- `StateT`'s `WP` interpretation: lift the base interpretation by adding a state argument. -/
-@[instance_reducible] def StateT.wpInst {EPred : Type v} {σ : Type u} {Pred : Type w}
+instance StateT.wpInst {EPred : Type v} {σ : Type u} {Pred : Type w}
   [Assertion Pred] [Assertion EPred] [WP (m (α × σ)) (α × σ) Pred EPred] :
     WP (StateT σ m α) α (σ → Pred) EPred where
-  wpTrans x := pushArg (WP.wpTrans <| x.run ·)
+  wpTrans x := PredTrans.pushArg (WP.wpTrans <| x.run ·)
   wp_trans_monotone x := fun post post' epost epost' hepost hpost s => by
     apply WP.wp_consequence_econs (x := x.run s)
     · intro ⟨a, s'⟩
@@ -174,7 +140,7 @@ theorem OptionT.wp_apply_eq {α : Type u} {Pred : Type u} {EPred}
 instance (priority := low) StateT.instWPMonad {EPred : Type v} {σ : Type u} {Pred : Type w}
   [Monad m] [Assertion Pred] [Assertion EPred] [WPMonad m Pred EPred] :
     WPMonad (StateT σ m) (σ → Pred) EPred where
-  toWP _ := StateT.wpInst
+  toWP _ := inferInstance
   pure_le_wp_pure x := fun post epost s =>
     WPMonad.pure_le_wp_pure (m := m) (x, s) (fun p => post p.1 p.2) epost
   bind_le_wp_bind x f := fun post epost s => by
@@ -187,7 +153,7 @@ theorem StateT.wp_apply_eq {σ : Type u}
     wp x post epost s = wp (x.run s) (fun (a, s) => post a s) epost := rfl
 
 /-- `ReaderT`'s `WP` interpretation: lift the base interpretation by adding a reader argument. -/
-@[instance_reducible] def ReaderT.wpInst {Pred : Type v}
+instance ReaderT.wpInst {Pred : Type v}
   [Assertion Pred] [Assertion EPred] [WP (m α) α Pred EPred] :
     WP (ReaderT ρ m α) α (ρ → Pred) EPred where
   wpTrans x := ⟨fun post epost r => wp (x.run r) (fun a => post a r) epost⟩
@@ -201,7 +167,7 @@ theorem StateT.wp_apply_eq {σ : Type u}
 instance ReaderT.instWPMonad {Pred : Type v}
   [Monad m] [Assertion Pred] [Assertion EPred] [WPMonad m Pred EPred] :
     WPMonad (ReaderT ρ m) (ρ → Pred) EPred where
-  toWP _ := ReaderT.wpInst
+  toWP _ := inferInstance
   pure_le_wp_pure x := fun post epost r =>
     WPMonad.pure_le_wp_pure (m := m) x (fun a => post a r) epost
   bind_le_wp_bind x f := fun post epost r => by
@@ -224,7 +190,7 @@ theorem ReaderT.wp_apply_eq {ρ : Type u}
 
 /-- `Option`'s `WP` interpretation: `Prop` assertions and a `Unit`-indexed exception
 postcondition. -/
-@[instance_reducible] def Option.wpInst {α : Type u} : WP (Option α) α Prop (Unit → Prop) where
+instance Option.wpInst {α : Type u} : WP (Option α) α Prop (Unit → Prop) where
   wpTrans x := ⟨fun post epost => pushOption post epost x⟩
   wp_trans_monotone x := fun post post' epost epost' hepost hpost => by
     cases x with
@@ -233,13 +199,13 @@ postcondition. -/
 
 /-- `Option` is a WPMonad with `Prop` assertions and a `Unit`-indexed exception postcondition. -/
 instance Option.instWPMonad : WPMonad Option.{u} Prop (Unit → Prop) where
-  toWP _ := Option.wpInst
+  toWP _ := inferInstance
   pure_le_wp_pure _ _ _ := PartialOrder.rel_refl
   bind_le_wp_bind x f := fun post epost => by cases x <;> exact id
 
 /-- `Except ε`'s `WP` interpretation: `Prop` assertions and an `ε`-indexed exception
 postcondition. -/
-@[instance_reducible] def Except.wpInst {α : Type u} : WP (Except ε α) α Prop (ε → Prop) where
+instance Except.wpInst {α : Type u} : WP (Except ε α) α Prop (ε → Prop) where
   wpTrans x := ⟨fun post epost => pushExcept post epost x⟩
   wp_trans_monotone x := fun post post' epost epost' hepost hpost => by
     cases x with
@@ -248,12 +214,12 @@ postcondition. -/
 
 /-- `Except ε` is a WPMonad with `Prop` assertions and an `ε`-indexed exception postcondition. -/
 instance Except.instWPMonad : WPMonad (Except ε) Prop (ε → Prop) where
-  toWP _ := Except.wpInst
+  toWP _ := inferInstance
   pure_le_wp_pure _ _ _ := PartialOrder.rel_refl
   bind_le_wp_bind x f := fun post epost => by cases x <;> exact id
 
 /-- `EStateM ε σ`'s `WP` interpretation combining state and exceptions. -/
-@[instance_reducible] def EStateM.wpInst {α : Type} : WP (EStateM ε σ α) α (σ → Prop) (ε → σ → Prop) where
+instance EStateM.wpInst {α : Type} : WP (EStateM ε σ α) α (σ → Prop) (ε → σ → Prop) where
   wpTrans x := ⟨fun post epost s => match x s with
     | .ok a s' => post a s'
     | .error el s' => epost el s'⟩
@@ -266,7 +232,7 @@ instance Except.instWPMonad : WPMonad (Except ε) Prop (ε → Prop) where
 
 /-- `EStateM ε σ` is a WPMonad combining state and exceptions. -/
 instance EStateM.instWPMonad : WPMonad (EStateM ε σ) (σ → Prop) (ε → σ → Prop) where
-  toWP _ := EStateM.wpInst
+  toWP _ := inferInstance
   pure_le_wp_pure x := fun post epost s => PartialOrder.rel_refl
   bind_le_wp_bind x f := fun post epost s => by
     simp only [WP.wp, WP.wpTrans, bind, EStateM.bind]

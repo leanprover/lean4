@@ -23,7 +23,7 @@ concrete function gets a registered contract, proven once from its body and used
 open Std.WP
 open Lean.Order
 
-set_option mvcgen.warning false
+set_option experimental.vcgen true
 
 /-! ## IMP syntax and state -/
 

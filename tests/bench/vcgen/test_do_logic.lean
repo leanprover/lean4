@@ -7,7 +7,7 @@ import Lean
 import Std.WP
 import Std.Tactic.Do
 
-set_option mvcgen.warning false
+set_option experimental.vcgen true
 
 /-!
 # Do-logic tests for `vcgen`

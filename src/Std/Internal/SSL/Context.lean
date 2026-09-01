@@ -137,17 +137,29 @@ structure Config where
   Whether the platform default trust anchors are trusted.
 
   With `true`, connections to public HTTPS servers work out of the box. Which anchors those are is
-  platform-specific: the Keychain on macOS, the `ROOT` store on Windows, OpenSSL's configured paths
+  platform-specific: the Keychain on macOS, the `ROOT` store on Windows, the system bundle
   elsewhere. `SSL_CERT_FILE` and `SSL_CERT_DIR` are honoured on every platform, and are consulted
-  afresh for every context. On macOS the Keychain is read once per process, since doing so costs
-  around a tenth of a second, so a root added to it after the first context is built is not picked
-  up until the process restarts. The per-certificate trust settings decide, so a root added locally
-  (as `mkcert` and `security add-trusted-cert` do) is trusted and one explicitly denied is not; a
-  setting that applies only to a named host, key usage, or application grants no trust, since an
-  anchor cannot carry that restriction. OpenSSL's own bundle is not merged on top of the Keychain,
-  as it would reinstate the roots those settings turned away; it is read only when the Keychain
-  yields no anchor at all. `SSL_CERT_FILE` and `SSL_CERT_DIR` name locations of their own, which are
-  read in addition to the Keychain and do not drag OpenSSL's bundle in with them.
+  afresh for every context.
+
+  Where the platform has a store of its own, OpenSSL's compiled-in paths are not merged on top of
+  it. Doing so would reinstate anchors the platform store had turned away, and nothing can take an
+  anchor out again; a build that carries the paths of the machine it was built on would also be
+  reaching for directories that belong to nobody on the machine it runs on. Those paths are read
+  only when the platform store yields no anchor at all, where there is no verdict left to
+  contradict. Elsewhere they are the primary source, and if they name nothing — as they do for a
+  binary built against a relocated OpenSSL — the usual system bundle locations are read instead,
+  so a context is refused only when the machine really has no anchors to offer.
+
+  An unreadable `SSL_CERT_FILE` is reported only when nothing else supplied an anchor. The variable
+  adds to the platform anchors rather than replacing them, so a stale one left behind by a removed
+  toolchain leaves the store narrower than asked for, never broader.
+
+  On macOS the Keychain is read once per process, since doing so costs around a tenth of a second,
+  so a root added to it after the first context is built is not picked up until the process
+  restarts. The per-certificate trust settings decide, so a root added locally (as `mkcert` and
+  `security add-trusted-cert` do) is trusted and one explicitly denied is not; a setting that
+  applies only to a named host, key usage, or application grants no trust, since an anchor cannot
+  carry that restriction.
 
   With `false` none of that is consulted, environment variables included, and only `ca` is trusted.
   -/

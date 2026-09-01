@@ -10,4 +10,6 @@ rm -rf A-B-C-D
 rm -rf meta
 rm -rf qed-lax
 rm -rf qed
+rm -rf cs-lean
+rm -rf cs-toml
 rm -rf mathlib_standards

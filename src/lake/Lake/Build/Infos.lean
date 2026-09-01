@@ -120,6 +120,9 @@ builtin_facet deps : Package => Array Package
 /-- The package's complete array of transitive dependencies. -/
 builtin_facet transDeps : Package => Array Package
 
+/-- The Lean modules of the package's default targets. -/
+builtin_facet modules : Package => Array Module
+
 /-!
 ### Facet Build Info Helper Constructors
 
@@ -299,6 +302,10 @@ public abbrev extraDep (self : Package) : BuildInfo :=
 @[inherit_doc depsFacet]
 public abbrev deps (self : Package) : BuildInfo :=
   self.facetCore depsFacet
+
+@[inherit_doc modulesFacet]
+public abbrev modules (self : Package) : BuildInfo :=
+  self.facetCore modulesFacet
 
 @[inherit_doc transDepsFacet]
 public abbrev transDeps (self : Package) : BuildInfo :=

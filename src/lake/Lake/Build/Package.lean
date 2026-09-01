@@ -38,6 +38,33 @@ def Package.recComputeTransDeps (self : Package) : FetchM (Job (Array Package)) 
     let depDeps ← (← fetch <| dep.transDeps).await
     return depDeps.foldl (·.insert ·) deps |>.insert dep
 
+/--
+Collects the Lean modules of the package's default targets: the modules of each default library,
+and the root of each default executable together with its local transitive imports. A default
+target that builds no Lean modules, such as a custom target, contributes nothing.
+-/
+def Package.recCollectDefaultModules (self : Package) : FetchM (Job (Array Module)) := ensureJob do
+  let mut mods := #[]
+  let mut seen : ModuleSet := ∅
+  for target in self.defaultTargets do
+    let targetMods ←
+      if let some lib := self.findLeanLib? target then
+        (← lib.modules.fetch).await
+      else if let some exe := self.findLeanExe? target then
+        let imports ← (← exe.root.transImports.fetch).await
+        pure <| imports.push exe.root
+      else
+        pure #[]
+    for mod in targetMods do
+      unless seen.contains mod do
+        seen := seen.insert mod
+        mods := mods.push mod
+  return Job.pure mods
+
+/-- The `PackageFacetConfig` for the builtin `modulesFacet`. -/
+public def Package.modulesFacetConfig : PackageFacetConfig modulesFacet :=
+  mkFacetJobConfig Package.recCollectDefaultModules (buildable := false)
+
 /-- The `PackageFacetConfig` for the builtin `transDepsFacet`. -/
 public def Package.transDepsFacetConfig : PackageFacetConfig transDepsFacet :=
   mkFacetJobConfig recComputeTransDeps (buildable := false)
@@ -228,6 +255,7 @@ public def Package.initFacetConfigs : DNameMap PackageFacetConfig :=
   DNameMap.empty
   |>.insert depsFacet depsFacetConfig
   |>.insert transDepsFacet transDepsFacetConfig
+  |>.insert modulesFacet modulesFacetConfig
   |>.insert extraDepFacet extraDepFacetConfig
   |>.insert optBuildCacheFacet optBuildCacheFacetConfig
   |>.insert buildCacheFacet buildCacheFacetConfig

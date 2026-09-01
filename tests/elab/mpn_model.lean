@@ -34,8 +34,9 @@ resting on it is proved here instead, by the specification that covers it: the `
 
 Each definition quotes the code it stands for, so the two can be read side by side without opening
 the source. Deviations are marked `NOTE:`. Each routine is transliterated whole; where a proof
-needs the loop's length or buffers free, the loop is repeated as a `private` helper that an `rfl`
-lemma ties back to it, so a divergence between the two is a compile error.
+needs the loop's length or buffers free, the loop is repeated as a `private` helper. Its invariant
+is proved about the helper and consumed at the routine, which typechecks only while the two agree,
+so a divergence between them is a compile error.
 
 A transliteration is only worth as much as its fidelity to the original, and nothing here checks
 that mechanically: it rests on reading the two side by side, which is what the quotations are for.
@@ -731,9 +732,6 @@ private def mulLoop (a b : Array Digit) (m : Nat) : Array Digit := Id.run do
     c := mulOuterStep a b c j
   return c
 
-/-- `mpn_mul` is its outer loop run over every digit of `b`. -/
-theorem mul_eq (a b : Array Digit) : mul a b = mulLoop a b b.size := rfl
-
 /-- The loop as the fold its proof inducts over. -/
 theorem mulLoop_eq (a b : Array Digit) (m : Nat) :
     mulLoop a b m
@@ -1135,11 +1133,6 @@ private def div1Loop (denom : Digit) (hden : denom.toUInt64 ≠ 0) (u quot : Arr
   for j in (List.range m).reverse do
     s := div1Step denom hden s (j+1)
   return s
-
-/-- `div_1` is its loop over a zeroed quotient buffer. -/
-theorem div1_eq (numer : Array Digit) (denom : Digit) (hden : denom.toUInt64 ≠ 0) :
-    div1 numer denom hden
-      = div1Loop denom hden numer (Array.replicate (numer.size - 1) 0) (numer.size - 1) := rfl
 
 /-- The loop as the descending recursion its proof inducts over. -/
 theorem div1Loop_eq (denom : Digit) (hden : denom.toUInt64 ≠ 0) (u quot : Array Digit)

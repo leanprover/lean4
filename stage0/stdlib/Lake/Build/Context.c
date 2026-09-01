@@ -117,7 +117,7 @@ _start:
 {
 uint8_t v_noBuild_6_; uint8_t v_verbosity_7_; lean_object* v___x_8_; uint8_t v___y_10_; 
 v_noBuild_6_ = lean_ctor_get_uint8(v_cfg_5_, sizeof(void*)*4 + 2);
-v_verbosity_7_ = lean_ctor_get_uint8(v_cfg_5_, sizeof(void*)*4 + 3);
+v_verbosity_7_ = lean_ctor_get_uint8(v_cfg_5_, sizeof(void*)*4 + 4);
 v___x_8_ = l_Lake_Verbosity_ctorIdx(v_verbosity_7_);
 if (v_noBuild_6_ == 0)
 {
@@ -473,7 +473,7 @@ LEAN_EXPORT uint8_t l_Lake_getVerbosity___redArg___lam__0(lean_object* v_x_141_)
 _start:
 {
 uint8_t v_verbosity_142_; 
-v_verbosity_142_ = lean_ctor_get_uint8(v_x_141_, sizeof(void*)*4 + 3);
+v_verbosity_142_ = lean_ctor_get_uint8(v_x_141_, sizeof(void*)*4 + 4);
 return v_verbosity_142_;
 }
 }

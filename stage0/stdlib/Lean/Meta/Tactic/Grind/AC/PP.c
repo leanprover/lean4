@@ -3842,7 +3842,7 @@ goto v_resetjp_1189_;
 v_resetjp_1189_:
 {
 lean_object* v_ref_1192_; lean_object* v___x_1193_; lean_object* v___x_1194_; lean_object* v___x_1195_; lean_object* v___x_1196_; lean_object* v___x_1198_; 
-v_ref_1192_ = lean_ctor_get(v_a_1143_, 5);
+v_ref_1192_ = lean_ctor_get(v_a_1143_, 4);
 v___x_1193_ = lean_io_error_to_string(v_a_1188_);
 v___x_1194_ = lean_alloc_ctor(3, 1, 0);
 lean_ctor_set(v___x_1194_, 0, v___x_1193_);

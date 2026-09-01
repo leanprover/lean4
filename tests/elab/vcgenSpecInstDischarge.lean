@@ -7,7 +7,7 @@ first one whose backward rule applies. A spec guarded by an instance the call si
 is passed over for the next candidate.
 -/
 
-set_option mvcgen.warning false
+set_option experimental.vcgen true
 set_option warn.sorry false
 
 open Std.WP Lean.Order

@@ -434,7 +434,7 @@ v___x_48_ = lean_st_ref_get(v___y_46_);
 v_env_49_ = lean_ctor_get(v___x_48_, 0);
 lean_inc_ref(v_env_49_);
 lean_dec(v___x_48_);
-v_options_50_ = lean_ctor_get(v___y_45_, 2);
+v_options_50_ = lean_ctor_get(v___y_45_, 1);
 v___x_51_ = lean_obj_once(&l_Lean_addMessageContextPartial___at___00Lean_throwError___at___00Lean_IR_Checker_throwCheckerError_spec__0_spec__0___closed__2, &l_Lean_addMessageContextPartial___at___00Lean_throwError___at___00Lean_IR_Checker_throwCheckerError_spec__0_spec__0___closed__2_once, _init_l_Lean_addMessageContextPartial___at___00Lean_throwError___at___00Lean_IR_Checker_throwCheckerError_spec__0_spec__0___closed__2);
 v___x_52_ = lean_obj_once(&l_Lean_addMessageContextPartial___at___00Lean_throwError___at___00Lean_IR_Checker_throwCheckerError_spec__0_spec__0___closed__5, &l_Lean_addMessageContextPartial___at___00Lean_throwError___at___00Lean_IR_Checker_throwCheckerError_spec__0_spec__0___closed__5_once, _init_l_Lean_addMessageContextPartial___at___00Lean_throwError___at___00Lean_IR_Checker_throwCheckerError_spec__0_spec__0___closed__5);
 lean_inc_ref(v_options_50_);
@@ -465,7 +465,7 @@ LEAN_EXPORT lean_object* l_Lean_throwError___at___00Lean_IR_Checker_throwChecker
 _start:
 {
 lean_object* v_ref_65_; lean_object* v___x_66_; lean_object* v_a_67_; lean_object* v___x_69_; uint8_t v_isShared_70_; uint8_t v_isSharedCheck_75_; 
-v_ref_65_ = lean_ctor_get(v___y_62_, 5);
+v_ref_65_ = lean_ctor_get(v___y_62_, 4);
 v___x_66_ = l_Lean_addMessageContextPartial___at___00Lean_throwError___at___00Lean_IR_Checker_throwCheckerError_spec__0_spec__0(v_msg_61_, v___y_62_, v___y_63_);
 v_a_67_ = lean_ctor_get(v___x_66_, 0);
 v_isSharedCheck_75_ = !lean_is_exclusive(v___x_66_);

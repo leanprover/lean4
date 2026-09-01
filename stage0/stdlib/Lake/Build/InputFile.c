@@ -212,7 +212,7 @@ goto v_resetjp_52_;
 v_resetjp_52_:
 {
 lean_object* v_registeredJobs_55_; lean_object* v___x_56_; uint8_t v___x_57_; lean_object* v___x_58_; uint8_t v___x_59_; lean_object* v_job_61_; 
-v_registeredJobs_55_ = lean_ctor_get(v_a_31_, 3);
+v_registeredJobs_55_ = lean_ctor_get(v_a_31_, 4);
 v___x_56_ = lean_st_ref_take(v_registeredJobs_55_);
 v___x_57_ = 1;
 v___x_58_ = l_Lean_Name_toStringWithToken___at___00Lean_Name_toString_spec__0(v_name_36_, v___x_57_);
@@ -1840,7 +1840,7 @@ goto v_resetjp_466_;
 v_resetjp_466_:
 {
 lean_object* v_registeredJobs_469_; lean_object* v___x_470_; uint8_t v___x_471_; lean_object* v___x_472_; uint8_t v___x_473_; lean_object* v_job_475_; 
-v_registeredJobs_469_ = lean_ctor_get(v_a_443_, 3);
+v_registeredJobs_469_ = lean_ctor_get(v_a_443_, 4);
 v___x_470_ = lean_st_ref_take(v_registeredJobs_469_);
 v___x_471_ = 1;
 v___x_472_ = l_Lean_Name_toStringWithToken___at___00Lean_Name_toString_spec__0(v_name_448_, v___x_471_);

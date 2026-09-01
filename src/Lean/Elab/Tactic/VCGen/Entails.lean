@@ -7,10 +7,11 @@ module
 
 prelude
 public import Lean.Elab.Tactic.VCGen.Context
-public import Lean.Elab.Tactic.VCGen.EPost
 public import Lean.Elab.Tactic.VCGen.RuleCache
 public import Lean.Elab.Tactic.VCGen.Util
 public import Lean.Meta.Sym.Util
+public import Lean.Meta.Tactic.Replace
+public import Std.WP
 import Lean.Meta.Sym.InferType
 import Lean.Meta.Sym.InstantiateMVarsS
 
@@ -45,24 +46,19 @@ public def introPre (rule : BackwardRule) (goal : MVarId) : VCGenM (MVarId × FV
   return (goal, decl.fvarId)
 
 /--
-Reduce an `EPost.Cons.head` projection on the RHS of `pre ⊑ rhs` to the underlying component:
-concrete `epost⟨…⟩` values project to the selected component, and `⊥.head x₁ … xₙ` rewrites to
-`⊥` via `replaceEPostHeadBot?`. Returns `none` if the RHS is not such a projection.
+Reduce a `Prod.fst` projection of a concrete tuple on the RHS of `pre ⊑ rhs` to the component it
+selects. An exception postcondition is a tuple with one component per exception layer, so the head
+layer of `pre ⊑ epost.fst` is a `Prod.fst` projection. `reduceHead?` performs the reduction, so a
+`.snd` chain below the projection and excess state arguments reduce in the same pass. Returns
+`none` if the RHS head is not `Prod.fst` or does not reduce; a `⊥`/`⊤` tuple falls through to the
+`Prod.fst` lattice split in `splitLatticeOp?`.
 -/
-public def reduceEPostHead? (goal : MVarId) (target α inst pre rhs : Expr) :
-    VCGenM (Option MVarId) :=
-  rhs.withApp fun head args => do
-    unless head.isConstOf ``EPost.Cons.head do return none
-    let some epostArg := args[2]? | return none
-    -- `⊥.head x₁ … xₙ` is propositionally `⊥`; reduce it to a clean `pre ⊑ ⊥` VC.
-    if epostArg.isAppOf ``Lean.Order.bot then
-      return (← replaceEPostHeadBot? goal target head args)
-    let (epostTarget, index) := peelEPostTailChain epostArg
-    let some epost ← mkEPostAtIndex epostTarget index | return none
-    let excessArgs := args.drop 3
-    let rhs ← betaS epost excessArgs
-    let newTarget ← mkAppNS target.getAppFn #[α, inst, pre, rhs]
-    return some (← goal.replaceTargetDefEqFast newTarget)
+public def headReduceFstRhs? (goal : MVarId) (target α inst pre rhs : Expr) :
+    VCGenM (Option MVarId) := do
+  unless rhs.isAppOf ``Prod.fst do return none
+  let some rhs' ← reduceHead? rhs | return none
+  let newTarget ← mkAppNS target.getAppFn #[α, inst, pre, rhs']
+  return some (← goal.replaceTargetDefEqFast newTarget)
 
 /-- Refold a meet upper adjoint `upperAdjoint (meet F) Q s⃗` on the RHS of `pre ⊑ rhs` to the Heyting
 implication `(F ⇨ Q) s⃗`, rewriting `goal` and returning it with its new RHS, so it decomposes through
@@ -81,10 +77,11 @@ private def refoldHimpUpperAdjoint? (goal : MVarId) (rhs : Expr) :
     return some (← goal.replaceTargetDefEqFast newTarget, rhs')
 
 /--
-Decompose a supported lattice connective (`⊓`, `⇨`, `⌜p⌝`, `⊤`, `iInf`) or a registered frame operator on the
-RHS of `pre ⊑ rhs` by saturating it with the built-in and `@[frameproc]` rewrites, closing it with a
-terminal, and point-framing any excess state arguments. Returns `none` if the head is neither a
-built-in connective nor a frame operator, or its rule does not apply.
+Decompose a supported lattice connective (`⊓`, `⇨`, `⌜p⌝`, `⊤`, `iInf`, a `⊥`/`⊤` tuple projection)
+or a registered frame operator on the RHS of `pre ⊑ rhs` by saturating it with the built-in and
+`@[frameproc]` rewrites, closing it with a terminal, and point-framing any excess state arguments.
+Returns `none` if the head is neither a built-in connective nor a frame operator, or its rule does
+not apply.
 
 An embedded proposition `⌜p⌝` is decomposed only when the precondition is `⊤`: its `⊤`-fixed terminal
 `top_le_ofProp` fails to apply otherwise, since turning `pre ⊑ ⌜p⌝` into the subgoal `p` drops `pre`.
@@ -95,6 +92,7 @@ public def splitLatticeOp? (goal : MVarId) (rhs : Expr) :
   let (goal, rhs) := (← refoldHimpUpperAdjoint? goal rhs).getD (goal, rhs)
   let some headName := rhs.getAppFn.constName? | return none
   let some op := latticeOps[headName]? | return none
+  unless op.applies? rhs do return none
   let rule ← mkLatticeOpRuleCached rhs op
   match ← rule.applyChecked goal with
   | .goals goals => return some goals
@@ -112,8 +110,7 @@ public def splitForallLe? (goal : MVarId) (rhs : Expr) :
 Reduce a precondition that is the bare top applied to the state arguments introduced by
 `le_of_forall_le`, `(⊤ : σ₁ → … → σₙ → Prop) s₁ … sₙ`, to the bare `(⊤ : Prop)`, rewriting `goal`'s
 target `pre ⊑ rhs` to `⊤ ⊑ rhs`. The equation `pre = ⊤` is built on demand by folding
-`Lean.Order.top_apply` over the excess arguments (mirroring `replaceEPostHeadBot?`'s `bot_apply`
-fold) and applied with `replaceTargetEq`.
+`Lean.Order.top_apply` over the excess arguments and applied with `replaceTargetEq`.
 
 The proof term is built directly with `mkApp`/`mkConst` and instances extracted from `pre`, avoiding
 `mkAppM`/instance synthesis (both expensive and unable to unify `max`-of-universe-variable instance

@@ -36,6 +36,7 @@ lean_object* l_Lean_addMacroScope(lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Syntax_node2(lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* lean_nat_div(lean_object*, lean_object*);
 uint8_t lean_nat_dec_le(lean_object*, lean_object*);
+uint8_t lean_nat_dec_le(lean_object*, lean_object*);
 lean_object* lean_nat_to_int(lean_object*);
 lean_object* lean_int_sub(lean_object*, lean_object*);
 uint8_t lean_int_dec_lt(lean_object*, lean_object*);
@@ -430,6 +431,18 @@ LEAN_EXPORT lean_object* l_BitVec_cpopNatRec(lean_object*, lean_object*, lean_ob
 LEAN_EXPORT lean_object* l_BitVec_cpopNatRec___boxed(lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_BitVec_cpop(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_BitVec_cpop___boxed(lean_object*, lean_object*);
+LEAN_EXPORT lean_object* l_BitVec_instMin___lam__0(lean_object*, lean_object*);
+LEAN_EXPORT lean_object* l_BitVec_instMin___lam__0___boxed(lean_object*, lean_object*);
+static const lean_closure_object l_BitVec_instMin___closed__0_value = {.m_header = {.m_rc = 0, .m_cs_sz = sizeof(lean_closure_object) + sizeof(void*)*0, .m_other = 0, .m_tag = 245}, .m_fun = (void*)l_BitVec_instMin___lam__0___boxed, .m_arity = 2, .m_num_fixed = 0, .m_objs = {} };
+static const lean_object* l_BitVec_instMin___closed__0 = (const lean_object*)&l_BitVec_instMin___closed__0_value;
+LEAN_EXPORT lean_object* l_BitVec_instMin(lean_object*);
+LEAN_EXPORT lean_object* l_BitVec_instMin___boxed(lean_object*);
+LEAN_EXPORT lean_object* l_BitVec_instMax___lam__0(lean_object*, lean_object*);
+LEAN_EXPORT lean_object* l_BitVec_instMax___lam__0___boxed(lean_object*, lean_object*);
+static const lean_closure_object l_BitVec_instMax___closed__0_value = {.m_header = {.m_rc = 0, .m_cs_sz = sizeof(lean_closure_object) + sizeof(void*)*0, .m_other = 0, .m_tag = 245}, .m_fun = (void*)l_BitVec_instMax___lam__0___boxed, .m_arity = 2, .m_num_fixed = 0, .m_objs = {} };
+static const lean_object* l_BitVec_instMax___closed__0 = (const lean_object*)&l_BitVec_instMax___closed__0_value;
+LEAN_EXPORT lean_object* l_BitVec_instMax(lean_object*);
+LEAN_EXPORT lean_object* l_BitVec_instMax___boxed(lean_object*);
 LEAN_EXPORT lean_object* l_BitVec_instNatCast___lam__0(lean_object* v_w_1_, lean_object* v_x_2_){
 _start:
 {
@@ -3878,6 +3891,94 @@ lean_object* v_res_1390_;
 v_res_1390_ = l_BitVec_cpop(v_w_1388_, v_x_1389_);
 lean_dec(v_x_1389_);
 return v_res_1390_;
+}
+}
+LEAN_EXPORT lean_object* l_BitVec_instMin___lam__0(lean_object* v_x_1391_, lean_object* v_y_1392_){
+_start:
+{
+uint8_t v___x_1393_; 
+v___x_1393_ = lean_nat_dec_le(v_x_1391_, v_y_1392_);
+if (v___x_1393_ == 0)
+{
+lean_inc(v_y_1392_);
+return v_y_1392_;
+}
+else
+{
+lean_inc(v_x_1391_);
+return v_x_1391_;
+}
+}
+}
+LEAN_EXPORT lean_object* l_BitVec_instMin___lam__0___boxed(lean_object* v_x_1394_, lean_object* v_y_1395_){
+_start:
+{
+lean_object* v_res_1396_; 
+v_res_1396_ = l_BitVec_instMin___lam__0(v_x_1394_, v_y_1395_);
+lean_dec(v_y_1395_);
+lean_dec(v_x_1394_);
+return v_res_1396_;
+}
+}
+LEAN_EXPORT lean_object* l_BitVec_instMin(lean_object* v_w_1398_){
+_start:
+{
+lean_object* v___f_1399_; 
+v___f_1399_ = ((lean_object*)(l_BitVec_instMin___closed__0));
+return v___f_1399_;
+}
+}
+LEAN_EXPORT lean_object* l_BitVec_instMin___boxed(lean_object* v_w_1400_){
+_start:
+{
+lean_object* v_res_1401_; 
+v_res_1401_ = l_BitVec_instMin(v_w_1400_);
+lean_dec(v_w_1400_);
+return v_res_1401_;
+}
+}
+LEAN_EXPORT lean_object* l_BitVec_instMax___lam__0(lean_object* v_x_1402_, lean_object* v_y_1403_){
+_start:
+{
+uint8_t v___x_1404_; 
+v___x_1404_ = lean_nat_dec_le(v_x_1402_, v_y_1403_);
+if (v___x_1404_ == 0)
+{
+lean_inc(v_x_1402_);
+return v_x_1402_;
+}
+else
+{
+lean_inc(v_y_1403_);
+return v_y_1403_;
+}
+}
+}
+LEAN_EXPORT lean_object* l_BitVec_instMax___lam__0___boxed(lean_object* v_x_1405_, lean_object* v_y_1406_){
+_start:
+{
+lean_object* v_res_1407_; 
+v_res_1407_ = l_BitVec_instMax___lam__0(v_x_1405_, v_y_1406_);
+lean_dec(v_y_1406_);
+lean_dec(v_x_1405_);
+return v_res_1407_;
+}
+}
+LEAN_EXPORT lean_object* l_BitVec_instMax(lean_object* v_w_1409_){
+_start:
+{
+lean_object* v___f_1410_; 
+v___f_1410_ = ((lean_object*)(l_BitVec_instMax___closed__0));
+return v___f_1410_;
+}
+}
+LEAN_EXPORT lean_object* l_BitVec_instMax___boxed(lean_object* v_w_1411_){
+_start:
+{
+lean_object* v_res_1412_; 
+v_res_1412_ = l_BitVec_instMax(v_w_1411_);
+lean_dec(v_w_1411_);
+return v_res_1412_;
 }
 }
 lean_object* runtime_initialize_Init_Data_Int_Bitwise_Basic(uint8_t builtin);

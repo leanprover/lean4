@@ -942,7 +942,7 @@ goto v_resetjp_29_;
 v_resetjp_29_:
 {
 lean_object* v_registeredJobs_32_; lean_object* v___x_33_; lean_object* v___x_34_; lean_object* v___x_35_; uint8_t v___x_36_; lean_object* v_job_38_; 
-v_registeredJobs_32_ = lean_ctor_get(v___y_9_, 3);
+v_registeredJobs_32_ = lean_ctor_get(v___y_9_, 4);
 v___x_33_ = lean_st_ref_take(v_registeredJobs_32_);
 v___x_34_ = l_Lake_BuildInfo_key(v___x_19_);
 v___x_35_ = l_Lake_BuildKey_toSimpleString(v___x_34_);
@@ -2257,7 +2257,7 @@ goto v_resetjp_637_;
 v_resetjp_637_:
 {
 lean_object* v_registeredJobs_640_; lean_object* v___x_641_; lean_object* v___x_642_; lean_object* v___x_643_; uint8_t v___x_644_; lean_object* v_job_646_; 
-v_registeredJobs_640_ = lean_ctor_get(v___y_620_, 3);
+v_registeredJobs_640_ = lean_ctor_get(v___y_620_, 4);
 v___x_641_ = lean_st_ref_take(v_registeredJobs_640_);
 v___x_642_ = l_Lake_BuildInfo_key(v___x_627_);
 v___x_643_ = l_Lake_BuildKey_toSimpleString(v___x_642_);
@@ -3559,7 +3559,7 @@ goto v_resetjp_1149_;
 v_resetjp_1149_:
 {
 lean_object* v_registeredJobs_1152_; lean_object* v___x_1153_; lean_object* v___x_1154_; lean_object* v___x_1155_; uint8_t v___x_1156_; lean_object* v_job_1158_; 
-v_registeredJobs_1152_ = lean_ctor_get(v___y_1130_, 3);
+v_registeredJobs_1152_ = lean_ctor_get(v___y_1130_, 4);
 v___x_1153_ = lean_st_ref_take(v_registeredJobs_1152_);
 v___x_1154_ = l_Lake_BuildInfo_key(v___x_1139_);
 v___x_1155_ = l_Lake_BuildKey_toSimpleString(v___x_1154_);
@@ -4881,7 +4881,7 @@ goto v_resetjp_1675_;
 v_resetjp_1675_:
 {
 lean_object* v_registeredJobs_1678_; lean_object* v___x_1679_; lean_object* v___x_1680_; lean_object* v___x_1681_; lean_object* v___x_1682_; uint8_t v___x_1683_; lean_object* v_job_1685_; 
-v_registeredJobs_1678_ = lean_ctor_get(v___y_1663_, 3);
+v_registeredJobs_1678_ = lean_ctor_get(v___y_1663_, 4);
 v___x_1679_ = lean_st_ref_take(v_registeredJobs_1678_);
 v___x_1680_ = lean_alloc_ctor(0, 2, 0);
 lean_ctor_set(v___x_1680_, 0, v_pkg_1658_);

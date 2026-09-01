@@ -757,7 +757,7 @@ LEAN_EXPORT lean_object* l_Lean_Elab_Term_elabDo(lean_object* v_stx_391_, lean_o
 _start:
 {
 lean_object* v_options_400_; lean_object* v___x_401_; uint8_t v___x_402_; 
-v_options_400_ = lean_ctor_get(v_a_397_, 2);
+v_options_400_ = lean_ctor_get(v_a_397_, 1);
 v___x_401_ = l_Lean_Elab_Term_backward_do_legacy;
 v___x_402_ = l_Lean_Option_get___at___00Lean_Elab_Term_elabDo_spec__0(v_options_400_, v___x_401_);
 if (v___x_402_ == 0)
@@ -812,7 +812,7 @@ LEAN_EXPORT lean_object* l_Lean_Elab_Term_elabTermNestedAction___redArg(lean_obj
 _start:
 {
 lean_object* v_options_437_; lean_object* v___x_438_; uint8_t v___x_439_; 
-v_options_437_ = lean_ctor_get(v_a_434_, 2);
+v_options_437_ = lean_ctor_get(v_a_434_, 1);
 v___x_438_ = l_Lean_Elab_Term_backward_do_legacy;
 v___x_439_ = l_Lean_Option_get___at___00Lean_Elab_Term_elabDo_spec__0(v_options_437_, v___x_438_);
 if (v___x_439_ == 0)

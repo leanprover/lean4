@@ -345,7 +345,7 @@ goto v_resetjp_54_;
 v_resetjp_54_:
 {
 lean_object* v_registeredJobs_57_; lean_object* v___x_58_; lean_object* v___x_59_; lean_object* v___x_60_; uint8_t v___x_61_; lean_object* v_job_63_; 
-v_registeredJobs_57_ = lean_ctor_get(v_a_38_, 3);
+v_registeredJobs_57_ = lean_ctor_get(v_a_38_, 4);
 v___x_58_ = lean_st_ref_take(v_registeredJobs_57_);
 v___x_59_ = l_Lake_BuildInfo_key(v_info_41_);
 v___x_60_ = l_Lake_BuildKey_toSimpleString(v___x_59_);
@@ -480,7 +480,7 @@ goto v_resetjp_108_;
 v_resetjp_108_:
 {
 lean_object* v_registeredJobs_111_; lean_object* v___x_112_; lean_object* v___x_113_; lean_object* v___x_114_; uint8_t v___x_115_; lean_object* v_job_117_; 
-v_registeredJobs_111_ = lean_ctor_get(v_a_90_, 3);
+v_registeredJobs_111_ = lean_ctor_get(v_a_90_, 4);
 v___x_112_ = lean_st_ref_take(v_registeredJobs_111_);
 v___x_113_ = l_Lake_BuildInfo_key(v_info_98_);
 v___x_114_ = l_Lake_BuildKey_toSimpleString(v___x_113_);
@@ -775,7 +775,7 @@ else
 {
 lean_object* v_registeredJobs_202_; lean_object* v___x_203_; lean_object* v___x_204_; lean_object* v_job_206_; 
 lean_dec_ref(v_caption_183_);
-v_registeredJobs_202_ = lean_ctor_get(v_a_170_, 3);
+v_registeredJobs_202_ = lean_ctor_get(v_a_170_, 4);
 v___x_203_ = lean_st_ref_take(v_registeredJobs_202_);
 v___x_204_ = l_Lake_BuildKey_toSimpleString(v___x_175_);
 if (v_isShared_187_ == 0)
@@ -967,7 +967,7 @@ goto v_resetjp_270_;
 v_resetjp_270_:
 {
 lean_object* v_registeredJobs_273_; lean_object* v___x_274_; lean_object* v___x_275_; lean_object* v___x_276_; uint8_t v___x_277_; lean_object* v_job_279_; 
-v_registeredJobs_273_ = lean_ctor_get(v___y_245_, 3);
+v_registeredJobs_273_ = lean_ctor_get(v___y_245_, 4);
 v___x_274_ = lean_st_ref_take(v_registeredJobs_273_);
 v___x_275_ = l_Lake_BuildInfo_key(v_info_251_);
 v___x_276_ = l_Lake_BuildKey_toSimpleString(v___x_275_);
@@ -1407,7 +1407,7 @@ else
 {
 lean_object* v_registeredJobs_425_; lean_object* v___x_426_; lean_object* v___x_427_; lean_object* v_job_429_; 
 lean_dec_ref(v_caption_401_);
-v_registeredJobs_425_ = lean_ctor_get(v___y_388_, 3);
+v_registeredJobs_425_ = lean_ctor_get(v___y_388_, 4);
 v___x_426_ = lean_st_ref_take(v_registeredJobs_425_);
 v___x_427_ = l_Lake_BuildKey_toSimpleString(v___x_396_);
 if (v_isShared_405_ == 0)

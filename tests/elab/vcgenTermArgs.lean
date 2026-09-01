@@ -7,7 +7,7 @@ A term proving a Hoare triple / `⊑ wp` spec is registered as a spec; any other
 handled as a simp lemma (equation), exactly as `simp` would.
 -/
 
-set_option mvcgen.warning false
+set_option experimental.vcgen true
 
 open Lean.Order Std.WP
 

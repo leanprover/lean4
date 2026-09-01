@@ -1384,6 +1384,15 @@ theorem sign_tdiv (a b : Int) : sign (a.tdiv b) = if natAbs a < natAbs b then 0 
   | _, _, ⟨_, .inr rfl⟩, ⟨_, .inl rfl⟩ => by rw [Int.neg_tdiv, natAbs_neg, natAbs_neg]; rfl
   | _, _, ⟨_, .inr rfl⟩, ⟨_, .inr rfl⟩ => by rw [Int.neg_tdiv_neg, natAbs_neg, natAbs_neg]; rfl
 
+/-- T-division equals zero iff the absolute value of the numerator is less
+than the absolute value of the denominator, or the denominator is zero.
+-/
+@[simp] theorem tdiv_eq_zero_iff_natAbs_lt_or_eq_zero {a : Int} {b : Int} :
+    a.tdiv b = 0 ↔ (a.natAbs < b.natAbs ∨ b = 0) := by
+  rw [← Int.natAbs_eq_zero, natAbs_tdiv]
+  change a.natAbs / b.natAbs = 0 ↔ _
+  simp [or_comm]
+
 /-! ### tmod -/
 
 -- `tmod` analogues of `emod` lemmas from `Bootstrap.lean`

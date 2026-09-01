@@ -2764,8 +2764,8 @@ LEAN_EXPORT lean_object* l_Lean_throwError___at___00__private_Lean_Compiler_LCNF
 _start:
 {
 lean_object* v_options_864_; lean_object* v_ref_865_; lean_object* v___x_866_; lean_object* v___x_867_; lean_object* v___x_868_; 
-v_options_864_ = lean_ctor_get(v___y_861_, 2);
-v_ref_865_ = lean_ctor_get(v___y_861_, 5);
+v_options_864_ = lean_ctor_get(v___y_861_, 1);
+v_ref_865_ = lean_ctor_get(v___y_861_, 4);
 v___x_866_ = lean_st_ref_get(v___y_862_);
 v___x_867_ = lean_st_ref_get(v___y_860_);
 v___x_868_ = l_Lean_Compiler_LCNF_getPurity___redArg(v___y_859_);

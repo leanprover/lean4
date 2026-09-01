@@ -46,6 +46,8 @@ set_option mvcgen.warning false
 
 namespace Mpn
 
+section Digits
+
 /-- `mpn_digit`, which `mpn.h` fixes at `uint32_t`. -/
 abbrev Digit := UInt32
 
@@ -63,19 +65,6 @@ def base : Nat := 1 <<< digitBits
 
 /-- `#define MASK_FIRST (~((mpn_digit)(-1) >> 1))` -/
 def maskFirst : Digit := ~~~((-1 : Digit) >>> 1)
-
-/-!
-The definitions above spell the macros out as `mpn.h` writes them; the
-arithmetic below wants their values, and `omega` needs a literal rather than a
-shift.
--/
-
-@[simp] theorem digitBits_eq : digitBits = 32 := rfl
-
-@[simp] theorem base_eq : base = 4294967296 := rfl
-
-@[simp] theorem maskFirst_eq : maskFirst = 0x80000000 := rfl
-
 
 /-!
 ## The operations C++ leaves undefined
@@ -135,6 +124,32 @@ private def lo (t : DoubleDigit) : Digit :=
 /-- `k = t >> DIGIT_BITS`, the high word, narrowed the same way. -/
 private def hi (t : DoubleDigit) : Digit :=
   (CPP.shrD t digitBits (by decide)).toUInt32
+
+/-! ## Denotation -/
+
+/-- The first `j` digits of `a`, little-endian, read as a natural. -/
+def denoteN (a : Array Digit) : Nat → Nat
+  | 0 => 0
+  | j+1 => denoteN a j + (a.getD j 0).toNat * base ^ j
+
+/-- `a` read as a little-endian base-`2^32` natural. -/
+def denote (a : Array Digit) : Nat := denoteN a a.size
+
+end Digits
+
+section DigitProofs
+
+/-!
+The definitions above spell the macros out as `mpn.h` writes them; the
+arithmetic below wants their values, and `omega` needs a literal rather than a
+shift.
+-/
+
+@[simp] theorem digitBits_eq : digitBits = 32 := rfl
+
+@[simp] theorem base_eq : base = 4294967296 := rfl
+
+@[simp] theorem maskFirst_eq : maskFirst = 0x80000000 := rfl
 
 /-! ## Digit-level bit facts
 
@@ -211,15 +226,12 @@ theorem toNat_shl_or_shr (x y : Digit) {d : Nat} (hd0 : 0 < d) (hd : d < digitBi
   rw [UInt32.toNat_or, toNat_shl x (by simp [digitBits_eq]; omega),
     toNat_shr y (by simp [digitBits_eq]; omega), hsplit, Nat.shiftLeft_add_eq_or_of_lt hlt]
 
-/-! ## Denotation -/
+/-!
+## Facts about the denotation
 
-/-- The first `j` digits of `a`, little-endian, read as a natural. -/
-def denoteN (a : Array Digit) : Nat → Nat
-  | 0 => 0
-  | j+1 => denoteN a j + (a.getD j 0).toNat * base ^ j
-
-/-- `a` read as a little-endian base-`2^32` natural. -/
-def denote (a : Array Digit) : Nat := denoteN a a.size
+These are about `denoteN` and the arrays it reads, so they sit ahead of every
+routine that denotes one.
+-/
 
 theorem size_set! (a : Array Digit) (i : Nat) (d : Digit) : (a.set! i d).size = a.size :=
   Array.size_setIfInBounds
@@ -347,6 +359,8 @@ theorem denoteN_of_high_zero (c : Array Digit) {n m : Nat} (hnm : n ≤ m)
 theorem denote_of_high_zero (c : Array Digit) {n : Nat} (hn : n ≤ c.size)
     (h : ∀ idx, n ≤ idx → c.getD idx 0 = 0) : denote c = denoteN c n :=
   denoteN_of_high_zero c hn h
+
+end DigitProofs
 
 section MpnModel
 

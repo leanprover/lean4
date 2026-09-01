@@ -18,17 +18,23 @@ public section
 
 namespace Lean
 
-/-! # HTML trees -/
-
 /-- A forest of HTML trees.
 
-Analogous to React's [Fragment](https://react.dev/reference/react/Fragment). -/
+This type is optimized for convenient authoring of HTML documents.
+It is not formally related to
+the [HTML DOM representation](https://html.spec.whatwg.org/dev/dom.html).
+It is analogous to React's [Fragment](https://react.dev/reference/react/Fragment). -/
 inductive Html where
-  /-- An element with the given tag, attributes, and children. -/
+  /-- An element with the given tag name, attributes, and children. -/
   | element (tag : String) (attrs : Array (String × String)) (children : Html)
-  /-- Textual content. -/
+  /-- Textual content.
+
+  The characters `&`, `<`, and `>` are always escaped to HTML entities during rendering.
+  Use {name (full := Html.raw)}`raw`
+  in [raw text elements](https://html.spec.whatwg.org/dev/syntax.html#raw-text-elements)
+  ({lit}`script` and {lit}`style`) instead. -/
   | text : String → Html
-  /-- Unescaped, raw HTML content. -/
+  /-- Bytes to be copied verbatim (and not escaped) during rendering. -/
   | raw : String → Html
   /-- A sequence of HTML values. -/
   | seq : Array Html → Html
@@ -40,9 +46,26 @@ namespace Html
 @[suggest_for Lean.Html.nil Lean.Html.none]
 def empty : Html := .seq #[]
 
+/-- Whether this is the {name}`seq` constructor. -/
+def isSeq : Html → Bool
+  | .seq _ => true
+  | _      => false
+
+/-- Specifies when an {name}`Html` value is in normal form.
+
+The {name}`Html` type has a degree of redundancy;
+for instance, {lean}`seq #[]` and {lean}`seq #[seq #[]]`
+both render to the empty string.
+To avoid having to handle every possible representation,
+library functions assume normal {name}`Html` inputs and produce normal outputs. -/
+def isNormal : Html → Bool
+  | .seq a           => a.attach.all fun ⟨h, _⟩ => !h.isSeq && h.isNormal
+  | .element _ _ c   => c.isNormal
+  | .text s | .raw s => !s.isEmpty
+
 /-- If {name}`escape` is {lean}`true`,
-then characters such as {lean}`'&'` are escaped
-to entities such as {lean}`"&amp;"` during rendering.-/
+then characters such as `&` are escaped
+to entities such as `&amp;` during rendering.-/
 def ofString (escape : Bool) : String → Html :=
   if escape then text else raw
 
@@ -61,7 +84,7 @@ instance : Append Html := ⟨.append⟩
 
 /-- Merges a collection of HTML values by appending them.
 
-Equivalent to {name}`Html.seq`, but may produce a more compact representation. -/
+Equivalent to {name}`seq`, but may produce a more compact representation. -/
 @[suggest_for Lean.Html.ofArray Lean.Html.ofList]
 def ofCollection {ρ : Type w} [ForIn Id ρ Html] (hs : ρ) : Html := Id.run do
   let mut out := .empty

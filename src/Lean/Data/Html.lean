@@ -7,3 +7,4 @@ module
 
 prelude
 public import Lean.Data.Html.Basic
+public import Lean.Data.Html.Printer

@@ -85,6 +85,7 @@ set(
   uv/signal.cpp
   openssl.cpp
   openssl/context.cpp
+  openssl/ssl_error.cpp
   openssl/trust_store.cpp
 )
 

@@ -97,6 +97,7 @@ set(
   openssl/trust_store.cpp
   cadical.cpp
   openssl/context.cpp
+  openssl/ssl_error.cpp
   openssl/trust_store.cpp
 )
 

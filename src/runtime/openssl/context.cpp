@@ -16,11 +16,8 @@ Author: Sofia Rodrigues
 #include <openssl/x509v3.h>
 #include <cerrno>
 #include <climits>
-#include <cstdio>
-#include <cstring>
 #include <memory>
 #include <string>
-#include <sys/stat.h>
 
 #endif
 
@@ -30,53 +27,7 @@ lean_external_class * g_ssl_context_external_class = nullptr;
 
 #ifndef LEAN_EMSCRIPTEN
 
-static lean_obj_res reject_embedded_nul(b_obj_arg path) {
-    return strlen(lean_string_cstr(path)) == lean_string_size(path) - 1
-        ? nullptr
-        : mk_embedded_nul_error(path);
-}
-
-// PEM material the caller named: a path when `is_file`, otherwise the bytes themselves.
-struct pem_source {
-    b_obj_arg obj;
-    bool is_file;
-
-    char const * data() const { return lean_string_cstr(obj); }
-    size_t size() const { return lean_string_size(obj) - 1; }
-};
-
-// Reports a failure against a path. `errnum` is the `errno` the open failed with, or 0 for a
-// failure with no OS error behind it (unparsable PEM, a key that does not match its certificate).
-static lean_obj_res mk_ssl_file_error(b_obj_arg file, char const * msg, int errnum = 0) {
-    ERR_clear_error();
-
-    struct stat st;
-
-    if (stat(lean_string_cstr(file), &st) == 0 && !S_ISREG(st.st_mode)) {
-        lean_inc(file);
-        return lean_io_result_mk_error(lean_mk_io_error_invalid_argument_file(
-            file, EINVAL, mk_string(std::string(msg) + " (the path is not a regular file)")));
-    }
-
-    if (errnum != 0) return lean_io_result_mk_error(decode_io_error(errnum, file));
-
-    lean_inc(file);
-    return lean_io_result_mk_error(lean_mk_io_error_invalid_argument_file(
-        file, EINVAL, mk_string(msg)));
-}
-
 static int reject_encrypted_pem(char *, int, int, void *) { return -1; }
-
-// Reports a failure with no errno behind it, discarding the queue so it cannot taint a later one.
-static lean_obj_res mk_ssl_invalid_argument(char const * msg) {
-    ERR_clear_error();
-    return lean_io_result_mk_error(lean_mk_io_error_invalid_argument(EINVAL, mk_string(msg)));
-}
-
-// Reports a failure against PEM material, naming the path when there is one to name.
-static lean_obj_res mk_pem_error(pem_source src, char const * msg, int errnum = 0) {
-    return src.is_file ? mk_ssl_file_error(src.obj, msg, errnum) : mk_ssl_invalid_argument(msg);
-}
 
 // Opens `src` for reading. On failure returns nullptr and stores an IO error in `*err`.
 static BIO * open_pem_bio(pem_source src, char const * unreadable, lean_obj_res * err) {
@@ -97,39 +48,6 @@ static BIO * open_pem_bio(pem_source src, char const * unreadable, lean_obj_res 
     BIO * bio = BIO_new_mem_buf(src.data(), (int)src.size());
     if (bio == nullptr) *err = mk_ssl_invalid_argument(unreadable);
     return bio;
-}
-
-// Whether a certificate was turned away on policy grounds rather than being unreadable as PEM.
-static bool rejected_by_security_level() {
-    unsigned long err = ERR_peek_last_error();
-
-    if (ERR_GET_LIB(err) != ERR_LIB_SSL) return false;
-
-    int reason = ERR_GET_REASON(err);
-    return reason == SSL_R_EE_KEY_TOO_SMALL || reason == SSL_R_CA_KEY_TOO_SMALL ||
-           reason == SSL_R_CA_MD_TOO_WEAK;
-}
-
-lean_object * mk_openssl_error(char const * where) {
-    std::string msg(where);
-
-    for (int i = 0; i < 10; i++) {
-        unsigned long err = ERR_get_error();
-        if (err == 0) break;
-
-        char err_buf[256];
-        ERR_error_string_n(err, err_buf, sizeof(err_buf));
-
-        msg += i == 0 ? ": " : "; ";
-        msg += err_buf;
-    }
-
-    if (ERR_peek_error() != 0) {
-        msg += "; ... (truncated)";
-        ERR_clear_error();
-    }
-
-    return lean_mk_io_user_error(mk_string(msg));
 }
 
 struct ssl_ctx_deleter { void operator()(SSL_CTX * ctx) const { SSL_CTX_free(ctx); } };

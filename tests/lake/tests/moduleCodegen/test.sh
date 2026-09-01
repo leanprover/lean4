@@ -63,6 +63,17 @@ test_err "unexpected use of noncomputable declaration" build Plain.BadImport
 test_run build Plain.UsesTest
 test_exp -f .lake/build/ir/Plain/UsesTest.c
 
+# That restriction is on generating code during elaboration, not on the language server, which
+# imports at the `.server` level, where every import's IR is loaded
+echo "# TEST: mixed postponement in server mode"
+echo '$' lake setup-file Plain/BadImport.lean
+"$LAKE" setup-file Plain/BadImport.lean > badimport.setup.json
+test_cmd lean --setup badimport.setup.json -DElab.inServer=true Plain/BadImport.lean
+# and so `#eval` works across the boundary without `import all`
+echo '$' lake setup-file Plain/ServerEval.lean
+"$LAKE" setup-file Plain/ServerEval.lean > servereval.setup.json
+test_cmd_eq 42 lean --setup servereval.setup.json -DElab.inServer=true Plain/ServerEval.lean
+
 # The mixture links and runs
 test_eq 1123 exe mixed
 

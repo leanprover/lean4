@@ -13,35 +13,56 @@ Author: Sofia Rodrigues
 #include <openssl/x509_vfy.h>
 #include <openssl/x509v3.h>
 #include <algorithm>
-#include <cstdint>
+#include <cctype>
 #include <cstdlib>
-#include <iterator>
-#include <mutex>
+#include <dirent.h>
 #include <string>
-#include <sys/stat.h>
 
 #if defined(__APPLE__)
 #include <Security/Security.h>
 #include <CoreFoundation/CoreFoundation.h>
+#include <cstdint>
+#include <iterator>
+#include <mutex>
 #endif
 
 namespace lean {
 
-// A variable set to the empty string names no path, so it is reported as unset. OpenSSL's own check is
-// a bare non-NULL test, which takes the empty string for a path, finds nothing, and quietly leaves the
-// store without those anchors.
+// A variable set to the empty string names no path, so it is reported as unset.
 static char const * getenv_or_null_if_empty(char const * name) {
     char const * value = getenv(name);
     return value != nullptr && value[0] != '\0' ? value : nullptr;
 }
 
-static bool is_dir(char const * path) {
-    struct stat st;
-    return stat(path, &st) == 0 && S_ISDIR(st.st_mode);
+// Whether a hash directory holds a certificate.
+static bool dir_has_hashed_certs(char const * path) {
+    DIR * dir = opendir(path);
+    if (dir == nullptr) return false;
+
+    bool found = false;
+
+    while (dirent * entry = readdir(dir)) {
+        char const * name = entry->d_name;
+        size_t i = 0;
+
+        while (i < 8 && isxdigit((unsigned char)name[i])) i++;
+        if (i != 8 || name[i] != '.') continue;
+
+        size_t digits = ++i;
+        while (isdigit((unsigned char)name[i])) i++;
+
+        if (i > digits && name[i] == '\0') {
+            found = true;
+            break;
+        }
+    }
+
+    closedir(dir);
+    return found;
 }
 
-// Whether any entry of a `SSL_CERT_DIR`-style list names a directory that exists.
-static bool any_existing_dir(char const * list_str) {
+// Whether any entry of a `SSL_CERT_DIR`-style list names a directory holding a certificate.
+static bool any_dir_with_certs(char const * list_str) {
 #if defined(LEAN_WINDOWS)
     char const sep = ';';
 #else
@@ -53,20 +74,40 @@ static bool any_existing_dir(char const * list_str) {
         size_t end = std::min(list.find(sep, p), list.size());
         std::string entry = list.substr(p, end - p);
 
-        if (!entry.empty() && is_dir(entry.c_str())) return true;
+        if (!entry.empty() && dir_has_hashed_certs(entry.c_str())) return true;
         p = end + 1;
     }
 
     return false;
 }
 
-// Whether the store demonstrably holds no trust anchor. A hash directory is consulted lazily, once per
-// subject name at verification time, so its certificates are never in the count and its mere existence
-// has to stand in for them.
-static bool trust_store_has_no_certs(X509_STORE * store) {
-    char const * env_dir = getenv_or_null_if_empty(X509_get_default_cert_dir_env());
+// The hash directories named by the environment, or null where it names none.
+static char const * env_cert_dirs() {
+    return getenv_or_null_if_empty(X509_get_default_cert_dir_env());
+}
 
-    if (any_existing_dir(env_dir != nullptr ? env_dir : X509_get_default_cert_dir())) return false;
+// The hash directories `SSL_CTX_set_default_verify_paths` would consult: the environment's, or the
+// compiled-in location it falls back to.
+static char const * default_verify_dirs() {
+    char const * env_dir = env_cert_dirs();
+    return env_dir != nullptr ? env_dir : X509_get_default_cert_dir();
+}
+
+// Adds the compiled-in locations, which the environment overrides where it names one of its own —
+// `load_env_anchors` has already loaded those. `SSL_CTX_set_default_verify_paths` would do both, but
+// it reads the variables with a bare non-NULL test, so one set to the empty string names the path ""
+// and displaces the compiled-in default with a location that can hold nothing.
+static void load_default_paths(X509_STORE * store) {
+    if (getenv_or_null_if_empty(X509_get_default_cert_file_env()) == nullptr) {
+        X509_STORE_load_file(store, X509_get_default_cert_file());
+    }
+
+    if (env_cert_dirs() == nullptr) X509_STORE_load_path(store, X509_get_default_cert_dir());
+}
+
+// Whether the store demonstrably holds no trust anchor.
+static bool trust_store_has_no_certs(X509_STORE * store, char const * dirs) {
+    if (dirs != nullptr && any_dir_with_certs(dirs)) return false;
 
     STACK_OF(X509) * certs = X509_STORE_get1_all_certs(store);
     if (certs == nullptr) return true;
@@ -78,12 +119,10 @@ static bool trust_store_has_no_certs(X509_STORE * store) {
 }
 
 // Loads the anchors named by `SSL_CERT_FILE` and `SSL_CERT_DIR`, and reports whether the named bundle
-// could be read. It is the only one of these loads whose failure can be diagnosed: a hash directory
-// resolves lazily, and `SSL_CTX_set_default_verify_paths` discards its result. Left unreported it
-// resurfaces much later, as a verification failure against the anchor that never loaded.
+// could be read.
 static bool load_env_anchors(X509_STORE * store, std::string * detail) {
     char const * env_file = getenv_or_null_if_empty(X509_get_default_cert_file_env());
-    char const * env_dir = getenv_or_null_if_empty(X509_get_default_cert_dir_env());
+    char const * env_dir = env_cert_dirs();
 
     if (env_dir != nullptr) X509_STORE_load_path(store, env_dir);
 
@@ -98,14 +137,12 @@ static bool load_env_anchors(X509_STORE * store, std::string * detail) {
 
 #if !defined(__APPLE__) && !defined(LEAN_WINDOWS)
 
-// Where the mainstream distributions keep their anchors. A statically linked OpenSSL carries the
-// certificate paths of the machine it was built on, which for a release toolchain is a build directory
-// present nowhere else, so its compiled-in locations cannot be relied on to name anything.
+// Where the mainstream distributions keep their anchors.
 static char const * const g_fallback_cert_files[] = {
-    "/etc/ssl/certs/ca-certificates.crt",  // Debian, Ubuntu, Arch, Alpine
-    "/etc/pki/tls/certs/ca-bundle.crt",    // Fedora, RHEL, CentOS
-    "/etc/ssl/ca-bundle.pem",              // openSUSE
-    "/etc/ssl/cert.pem",                   // Alpine, FreeBSD
+    "/etc/ssl/certs/ca-certificates.crt", // Debian, Ubuntu, Arch, Alpine
+    "/etc/pki/tls/certs/ca-bundle.crt", // Fedora, RHEL, CentOS
+    "/etc/ssl/ca-bundle.pem", // openSUSE
+    "/etc/ssl/cert.pem", // Alpine, FreeBSD
 };
 
 static char const * const g_fallback_cert_dirs[] = {
@@ -124,8 +161,10 @@ static bool load_fallback_anchors(X509_STORE * store) {
         }
     }
 
+    // `X509_STORE_load_path` only records the path — the lookup itself is lazy — so it reports
+    // success for a directory that does not exist, and the directory has to be examined directly.
     for (char const * dir : g_fallback_cert_dirs) {
-        if (is_dir(dir) && X509_STORE_load_path(store, dir) == 1) any = true;
+        if (dir_has_hashed_certs(dir) && X509_STORE_load_path(store, dir) == 1) any = true;
     }
 
     // A load that failed leaves its own reason behind, and the caller either succeeds or reports a
@@ -250,8 +289,7 @@ static const SecTrustSettingsDomain g_trust_domains[] = {
 static constexpr size_t g_trust_domain_count = std::size(g_trust_domains);
 
 // The highest-ranked domain with an opinion about `cert` is the one that decides.
-static bool trusted_as_tls_anchor(SecCertificateRef cert, CFArrayRef const * listed,
-                                  bool const * unknown, size_t found_in) {
+static bool trusted_as_tls_anchor(SecCertificateRef cert, CFArrayRef const * listed, bool const * unknown, size_t found_in) {
     for (size_t d = 0; d < g_trust_domain_count; d++) {
         if (d != found_in && !unknown[d] && !cf_array_contains(listed[d], cert)) continue;
 
@@ -279,10 +317,6 @@ static void collect_keychain_anchors() {
             if (listed[d] != nullptr) CFRelease(listed[d]);
             listed[d] = nullptr;
 
-            // `errSecNoTrustSettings` is the domain reporting that it holds none, which is the
-            // ordinary state of the user and administrator domains. Any other failure leaves its
-            // contents unknown, and a domain that could not be listed still has to be asked about
-            // every certificate, or a verdict it holds — a deny above all — is skipped unseen.
             unknown[d] = status != errSecNoTrustSettings;
         }
     }
@@ -305,12 +339,7 @@ static void collect_keychain_anchors() {
             CFRelease(der);
             if (x509 == nullptr) continue;
 
-            // These certificates are shared by every context, so they are read concurrently. OpenSSL
-            // fills a certificate's extension cache on its first use in a verification, under the
-            // certificate's own lock; filling it here instead keeps that write on this thread, and so
-            // does not rest on how the linked OpenSSL orders it.
-            X509_check_purpose(x509, -1, -1);
-
+            // These certificates are shared by every context, so they are read concurrently.
             if (sk_X509_push(g_keychain_anchors, x509) == 0) X509_free(x509);
         }
     }
@@ -329,25 +358,21 @@ bool load_system_trust_store(SSL_CTX * ctx, std::string * detail) {
     int anchor_count = g_keychain_anchors != nullptr ? sk_X509_num(g_keychain_anchors) : 0;
     bool any_anchor = false;
 
-    // The store takes a reference to each anchor. A certificate listed by more than one domain is
-    // deduplicated and reported as success.
     for (int i = 0; i < anchor_count; i++) {
         if (X509_STORE_add_cert(store, sk_X509_value(g_keychain_anchors, i)) == 1) any_anchor = true;
     }
 
-    // The env-named locations are loaded on their own because `SSL_CTX_set_default_verify_paths` would
-    // also arm the compiled-in sibling of whichever variable is unset, and OpenSSL's bundle is read
-    // whole: merging it would put back every anchor the trust settings above turned away, and nothing
-    // can take an anchor out of the store again. It is left to the fallback below, where there is no
-    // verdict left to contradict.
     std::string env_detail;
     bool env_ok = load_env_anchors(store, &env_detail);
 
-    // An unreadable `SSL_CERT_FILE` is only worth failing over when nothing else answered. The
-    // variable adds anchors here rather than replacing them, so ignoring a stale one leaves the store
-    // narrower than the caller asked for, never broader — where refusing to build the context at all
-    // would strand every process that inherited the variable from a toolchain since removed.
-    if (any_anchor || !trust_store_has_no_certs(store)) {
+    if (any_anchor || !trust_store_has_no_certs(store, env_cert_dirs())) {
+        ERR_clear_error();
+        return true;
+    }
+
+    load_default_paths(store);
+
+    if (!trust_store_has_no_certs(store, default_verify_dirs())) {
         ERR_clear_error();
         return true;
     }
@@ -357,43 +382,25 @@ bool load_system_trust_store(SSL_CTX * ctx, std::string * detail) {
         return false;
     }
 
-    SSL_CTX_set_default_verify_paths(ctx);
-
-    if (trust_store_has_no_certs(store)) {
-        *detail = "the Keychain yielded no anchor trusted for TLS and OpenSSL's default paths "
-                  "hold no certificate either";
-        return false;
-    }
-
-    // Entries left by a certificate the loop skipped, or by a configured path that does not exist,
-    // would otherwise be picked up by a later, unrelated diagnosis as its own.
-    ERR_clear_error();
-    return true;
+    *detail = "the Keychain yielded no anchor trusted for TLS and OpenSSL's default paths "
+              "hold no certificate either";
+    return false;
 #elif defined(LEAN_WINDOWS)
     X509_STORE * store = SSL_CTX_get_cert_store(ctx);
 
-    // The Windows ROOT store is reachable only through OpenSSL's winstore loader (added in OpenSSL
-    // 3.2), which `SSL_CTX_set_default_verify_paths` does not consult, so it has to be named explicitly.
     int winstore = SSL_CTX_load_verify_store(ctx, "org.openssl.winstore://");
 
     std::string env_detail;
     bool env_ok = load_env_anchors(store, &env_detail);
 
-    // A successful load ends the search, for the same reason the Keychain's does: OpenSSL's
-    // compiled-in paths are not merged on top of a platform store. A standalone build carries the
-    // paths of the machine it was built on, which on an end-user system names a directory that
-    // belongs to nobody and that any unprivileged process may create and fill. They are read only
-    // below, as the fallback for a build lacking the loader, where there is no anchor to contradict.
-    // The load also resolves lazily and never shows up in the count, so the count is only meaningful
-    // once winstore is out of the picture.
     if (winstore == 1) {
         ERR_clear_error();
         return true;
     }
 
-    SSL_CTX_set_default_verify_paths(ctx);
+    load_default_paths(store);
 
-    if (!trust_store_has_no_certs(store)) {
+    if (!trust_store_has_no_certs(store, default_verify_dirs())) {
         ERR_clear_error();
         return true;
     }
@@ -411,15 +418,9 @@ bool load_system_trust_store(SSL_CTX * ctx, std::string * detail) {
     std::string env_detail;
     bool env_ok = load_env_anchors(store, &env_detail);
 
-    // Reports only whether the lookups could be registered, never whether they resolved to a
-    // certificate, so the store itself has to be examined afterwards. Here these paths are the
-    // primary source rather than a fallback, so they are armed before that examination.
-    if (SSL_CTX_set_default_verify_paths(ctx) != 1) {
-        *detail = "OpenSSL's default certificate paths could not be registered";
-        return false;
-    }
+    load_default_paths(store);
 
-    if (!trust_store_has_no_certs(store)) {
+    if (!trust_store_has_no_certs(store, default_verify_dirs())) {
         ERR_clear_error();
         return true;
     }

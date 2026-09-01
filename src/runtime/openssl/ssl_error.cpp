@@ -52,6 +52,12 @@ lean_obj_res mk_ssl_protocol_error(const char* msg) {
     return lean_io_result_mk_error(lean_mk_io_error_protocol_error(EPROTO, mk_string(msg)));
 }
 
+lean_obj_res reject_embedded_nul(b_obj_arg path) {
+    return strlen(lean_string_cstr(path)) == lean_string_size(path) - 1
+        ? nullptr
+        : mk_embedded_nul_error(path);
+}
+
 lean_obj_res mk_ssl_invalid_argument(const char* msg) {
     ERR_clear_error();
     return lean_io_result_mk_error(lean_mk_io_error_invalid_argument(EINVAL, mk_string(msg)));
@@ -61,36 +67,26 @@ lean_obj_res mk_ssl_eof_error() {
     return lean_io_result_mk_error(lean_mk_io_error_eof(lean_box(0)));
 }
 
-lean_obj_res mk_ssl_file_error(b_obj_arg file, const char* msg) {
+lean_obj_res mk_ssl_file_error(b_obj_arg file, char const * msg, int errnum) {
     ERR_clear_error();
 
-    const char* path = lean_string_cstr(file);
-    int errnum = 0;
-    std::string detail(msg);
     struct stat st;
 
-    if (stat(path, &st) != 0) {
-        errnum = errno;
-    } else if (S_ISREG(st.st_mode)) {
-        FILE* probe = fopen(path, "rb");
-        if (probe == nullptr) {
-            errnum = errno;
-        } else {
-            fclose(probe);
-        }
-    } else {
-        detail += " (the path is not a regular file)";
+    if (stat(lean_string_cstr(file), &st) == 0 && !S_ISREG(st.st_mode)) {
+        lean_inc(file);
+        return lean_io_result_mk_error(lean_mk_io_error_invalid_argument_file(
+            file, EINVAL, mk_string(std::string(msg) + " (the path is not a regular file)")));
     }
 
-    if (errnum == ENOENT || errnum == EACCES || errnum == EPERM || errnum == ENOTDIR ||
-        errnum == ELOOP || errnum == ENAMETOOLONG || errnum == EMFILE || errnum == ENFILE ||
-        errnum == ENOMEM) {
-        return lean_io_result_mk_error(decode_io_error(errnum, file));
-    }
+    if (errnum != 0) return lean_io_result_mk_error(decode_io_error(errnum, file));
 
     lean_inc(file);
     return lean_io_result_mk_error(lean_mk_io_error_invalid_argument_file(
-        file, errnum != 0 ? errnum : EINVAL, mk_string(detail)));
+        file, EINVAL, mk_string(msg)));
+}
+
+lean_obj_res mk_pem_error(pem_source src, char const * msg, int errnum) {
+    return src.is_file ? mk_ssl_file_error(src.obj, msg, errnum) : mk_ssl_invalid_argument(msg);
 }
 
 bool rejected_by_security_level() {

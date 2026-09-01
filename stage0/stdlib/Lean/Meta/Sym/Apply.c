@@ -2449,7 +2449,7 @@ v_mctx_894_ = lean_ctor_get(v___x_893_, 0);
 lean_inc_ref(v_mctx_894_);
 lean_dec(v___x_893_);
 v_lctx_895_ = lean_ctor_get(v___y_886_, 2);
-v_options_896_ = lean_ctor_get(v___y_888_, 2);
+v_options_896_ = lean_ctor_get(v___y_888_, 1);
 lean_inc_ref(v_options_896_);
 lean_inc_ref(v_lctx_895_);
 v___x_897_ = lean_alloc_ctor(0, 4, 0);
@@ -2481,7 +2481,7 @@ LEAN_EXPORT lean_object* l_Lean_throwError___at___00Lean_Meta_Sym_BackwardRule_a
 _start:
 {
 lean_object* v_ref_913_; lean_object* v___x_914_; lean_object* v_a_915_; lean_object* v___x_917_; uint8_t v_isShared_918_; uint8_t v_isSharedCheck_923_; 
-v_ref_913_ = lean_ctor_get(v___y_910_, 5);
+v_ref_913_ = lean_ctor_get(v___y_910_, 4);
 v___x_914_ = l_Lean_addMessageContextFull___at___00Lean_throwError___at___00Lean_Meta_Sym_BackwardRule_apply_x27_spec__0_spec__0(v_msg_907_, v___y_908_, v___y_909_, v___y_910_, v___y_911_);
 v_a_915_ = lean_ctor_get(v___x_914_, 0);
 v_isSharedCheck_923_ = !lean_is_exclusive(v___x_914_);

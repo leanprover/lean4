@@ -3074,7 +3074,7 @@ v_mctx_529_ = lean_ctor_get(v___x_528_, 0);
 lean_inc_ref(v_mctx_529_);
 lean_dec(v___x_528_);
 v_lctx_530_ = lean_ctor_get(v___y_521_, 2);
-v_options_531_ = lean_ctor_get(v___y_523_, 2);
+v_options_531_ = lean_ctor_get(v___y_523_, 1);
 lean_inc_ref(v_options_531_);
 lean_inc_ref(v_lctx_530_);
 v___x_532_ = lean_alloc_ctor(0, 4, 0);
@@ -3106,7 +3106,7 @@ LEAN_EXPORT lean_object* l_Lean_throwError___at___00__private_Lean_Meta_Tactic_G
 _start:
 {
 lean_object* v_ref_548_; lean_object* v___x_549_; lean_object* v_a_550_; lean_object* v___x_552_; uint8_t v_isShared_553_; uint8_t v_isSharedCheck_558_; 
-v_ref_548_ = lean_ctor_get(v___y_545_, 5);
+v_ref_548_ = lean_ctor_get(v___y_545_, 4);
 v___x_549_ = l_Lean_addMessageContextFull___at___00Lean_throwError___at___00__private_Lean_Meta_Tactic_Grind_Arith_CommRing_Proof_0__Lean_Meta_Grind_Arith_CommRing_throwNoNatZeroDivisors_spec__0_spec__0(v_msg_542_, v___y_543_, v___y_544_, v___y_545_, v___y_546_);
 v_a_550_ = lean_ctor_get(v___x_549_, 0);
 v_isSharedCheck_558_ = !lean_is_exclusive(v___x_549_);
@@ -12097,7 +12097,7 @@ LEAN_EXPORT lean_object* l_Lean_throwError___at___00__private_Lean_Meta_Tactic_G
 _start:
 {
 lean_object* v_ref_4317_; lean_object* v___x_4318_; lean_object* v_a_4319_; lean_object* v___x_4321_; uint8_t v_isShared_4322_; uint8_t v_isSharedCheck_4327_; 
-v_ref_4317_ = lean_ctor_get(v___y_4314_, 5);
+v_ref_4317_ = lean_ctor_get(v___y_4314_, 4);
 v___x_4318_ = l_Lean_addMessageContextFull___at___00Lean_throwError___at___00__private_Lean_Meta_Tactic_Grind_Arith_CommRing_Proof_0__Lean_Meta_Grind_Arith_CommRing_throwNoNatZeroDivisors_spec__0_spec__0(v_msg_4311_, v___y_4312_, v___y_4313_, v___y_4314_, v___y_4315_);
 v_a_4319_ = lean_ctor_get(v___x_4318_, 0);
 v_isSharedCheck_4327_ = !lean_is_exclusive(v___x_4318_);
@@ -31720,7 +31720,7 @@ LEAN_EXPORT lean_object* l_Lean_throwError___at___00Lean_Meta_Sym_Arith_MonadCan
 _start:
 {
 lean_object* v_ref_11311_; lean_object* v___x_11312_; lean_object* v_a_11313_; lean_object* v___x_11315_; uint8_t v_isShared_11316_; uint8_t v_isSharedCheck_11321_; 
-v_ref_11311_ = lean_ctor_get(v___y_11308_, 5);
+v_ref_11311_ = lean_ctor_get(v___y_11308_, 4);
 v___x_11312_ = l_Lean_addMessageContextFull___at___00Lean_throwError___at___00__private_Lean_Meta_Tactic_Grind_Arith_CommRing_Proof_0__Lean_Meta_Grind_Arith_CommRing_throwNoNatZeroDivisors_spec__0_spec__0(v_msg_11305_, v___y_11306_, v___y_11307_, v___y_11308_, v___y_11309_);
 v_a_11313_ = lean_ctor_get(v___x_11312_, 0);
 v_isSharedCheck_11321_ = !lean_is_exclusive(v___x_11312_);

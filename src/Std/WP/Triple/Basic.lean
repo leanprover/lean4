@@ -7,7 +7,7 @@ module
 
 prelude
 public import Std.WP.Basic
-public import Std.WP.ExceptPost
+public import Std.WP.EStack
 @[expose] public section
 
 set_option linter.missingDocs true
@@ -71,27 +71,15 @@ attribute [scoped instance] Lean.Order.instCCPOOfCompleteLattice
 after the precondition ascribes the program to monad `…`. -/
 scoped syntax:60 (name := tripleNotation)
   "⦃ " term " ⦄ " (atomic("(" ident " := ") term ")")? term " ⦃ " term " ⦄" : term
-/-- Hoare triple notation with a binder for the return value. -/
-scoped syntax:60 (name := tripleBinderNotation)
-  "⦃ " term " ⦄ " (atomic("(" ident " := ") term ")")? term " ⦃ " ident ", " term " ⦄" : term
 /-- Hoare triple notation with an exception postcondition:
 `⦃ P ⦄ x ⦃ Q; E ⦄ := Triple x P Q E`. -/
-scoped syntax:60 (name := tripleEPost)
+scoped syntax:60 (name := tripleExceptPost)
   "⦃ " term " ⦄ " (atomic("(" ident " := ") term ")")? term " ⦃ " term "; " term " ⦄" : term
-/-- Hoare triple notation with a binder for the return value and an exception postcondition. -/
-scoped syntax:60 (name := tripleBinderEPost)
-  "⦃ " term " ⦄ " (atomic("(" ident " := ") term ")")? term " ⦃ " ident ", " term "; " term " ⦄" : term
 
 macro_rules (kind := tripleNotation)
   | `(⦃ $P ⦄ $[(m := $m)]? $c ⦃ $Q ⦄) => do `(Triple $(← hintProgram c m) $P $Q Lean.Order.bot)
-macro_rules (kind := tripleBinderNotation)
-  | `(⦃ $P ⦄ $[(m := $m)]? $c ⦃ $v, $Q ⦄) => do
-      `(Triple $(← hintProgram c m) $P (fun $v => $Q) Lean.Order.bot)
-macro_rules (kind := tripleEPost)
+macro_rules (kind := tripleExceptPost)
   | `(⦃ $P ⦄ $[(m := $m)]? $c ⦃ $Q; $E ⦄) => do `(Triple $(← hintProgram c m) $P $Q $E)
-macro_rules (kind := tripleBinderEPost)
-  | `(⦃ $P ⦄ $[(m := $m)]? $c ⦃ $v, $Q; $E ⦄) => do
-      `(Triple $(← hintProgram c m) $P (fun $v => $Q) $E)
 
 /-- Pretty-print `Triple` applications back as `⦃ … ⦄` notation. -/
 @[app_unexpander Triple]

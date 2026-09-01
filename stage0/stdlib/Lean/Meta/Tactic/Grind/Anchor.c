@@ -2544,7 +2544,7 @@ LEAN_EXPORT lean_object* l_Lean_Meta_Grind_mkAnchorSyntaxFromPrefix___redArg(lea
 _start:
 {
 lean_object* v_ref_890_; lean_object* v___x_891_; lean_object* v___x_892_; lean_object* v___x_893_; lean_object* v___x_894_; lean_object* v___x_895_; lean_object* v___x_896_; lean_object* v___x_897_; lean_object* v___x_898_; uint8_t v___x_899_; lean_object* v___x_900_; lean_object* v___x_901_; lean_object* v___x_902_; lean_object* v___x_903_; lean_object* v___x_904_; lean_object* v___x_905_; 
-v_ref_890_ = lean_ctor_get(v_a_888_, 5);
+v_ref_890_ = lean_ctor_get(v_a_888_, 4);
 v___x_891_ = ((lean_object*)(l_Lean_Meta_Grind_mkAnchorSyntaxFromPrefix___redArg___closed__1));
 v___x_892_ = l_Lean_Meta_Grind_anchorPrefixToString(v_numDigits_886_, v_anchorPrefix_887_);
 v___x_893_ = l_Lean_mkAtom(v___x_892_);

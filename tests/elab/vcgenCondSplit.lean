@@ -9,7 +9,7 @@ per monad, so repeated `cond` programs reuse it.
 
 open Std.WP
 
-set_option mvcgen.warning false
+set_option experimental.vcgen true
 
 def condEffects (f : Nat → Bool) : StateM Nat Nat := do
   bif f 0 then set 1 else set 2

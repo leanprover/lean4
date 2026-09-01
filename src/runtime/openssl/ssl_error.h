@@ -17,6 +17,15 @@ namespace lean {
 
 #ifndef LEAN_EMSCRIPTEN
 
+// PEM material the caller named: a path when `is_file`, otherwise the bytes themselves.
+struct pem_source {
+    b_obj_arg obj;
+    bool is_file;
+
+    char const * data() const { return lean_string_cstr(obj); }
+    size_t size() const { return lean_string_size(obj) - 1; }
+};
+
 // The verdict a session records the first time it fails. Every later call reports it rather than
 // driving a session that can no longer make progress: OpenSSL degrades a diagnosed failure to a
 // bare `SSL_ERROR_SYSCALL` afterwards, which a later call could only report as a generic error.
@@ -47,14 +56,22 @@ inline lean_obj_res mk_openssl_io_error(const char* where) { return lean_io_resu
 
 lean_obj_res mk_ssl_protocol_error(const char* msg);
 
+// Rejects a path whose bytes cannot reach the OS, which takes it as a NUL-terminated string and so
+// would silently act on a prefix. Returns `nullptr` when the path is fine to pass on.
+lean_obj_res reject_embedded_nul(b_obj_arg path);
+
 // Reports a failure that has no errno behind it. The OpenSSL error queue is discarded rather than
 // appended, so its entries cannot leak into a later, unrelated diagnosis.
 lean_obj_res mk_ssl_invalid_argument(const char* msg);
 
 lean_obj_res mk_ssl_eof_error();
 
-// Reports a failure against a path, as an errno-derived IO error where the errno is meaningful.
-lean_obj_res mk_ssl_file_error(b_obj_arg file, const char* msg);
+// Reports a failure against a path. `errnum` is the `errno` the open failed with, or 0 for a
+// failure with no OS error behind it (unparsable PEM, a key that does not match its certificate).
+lean_obj_res mk_ssl_file_error(b_obj_arg file, char const * msg, int errnum = 0);
+
+// Reports a failure against PEM material, naming the path when there is one to name.
+lean_obj_res mk_pem_error(pem_source src, char const * msg, int errnum = 0);
 
 // Whether a certificate was turned away on policy grounds rather than being unreadable as PEM.
 bool rejected_by_security_level();

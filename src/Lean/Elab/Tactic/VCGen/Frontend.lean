@@ -6,7 +6,6 @@ Authors: Sebastian Graf, Vladimir Gladshtein
 module
 
 prelude
-public import Lean.Elab.Tactic.Do.VCGen.SuggestInvariant
 public import Lean.Elab.Tactic.Do.VCGen
 public import Lean.Elab.Tactic.VCGen.Context
 public import Lean.Elab.Tactic.VCGen.Driver
@@ -23,6 +22,12 @@ import Lean.Meta.Sym.ProofInstInfo
 
 open Lean Parser Meta Elab Tactic Sym
 open Lean.Elab.Tactic.Do Lean.Elab.Tactic.VCGen.SpecAttr
+
+register_builtin_option experimental.vcgen : Bool := {
+  defValue := false
+  descr := "acknowledge that the `vcgen` tactic is experimental and subject to change; `true` \
+silences the warning that each `vcgen` call reports"
+}
 
 namespace Lean.Elab.Tactic.VCGen
 
@@ -243,17 +248,19 @@ to alt syntax. Bullet form `· $rhs` is positional (1-based: bullet at index `i`
 maps to key `i+1`); labelled form `| inv<n> $args* => $rhs` is keyed by the
 parsed `n`, so out-of-order labels are supported.
 
-Returns `none` for the `invariants?` form (delegated to upstream `elabInvariants`)
-and `none` when no `invariants` clause is provided. Errors on mixed bullet/labelled
-forms (one or the other is enforced by the `dotOrCase` flag in the upstream
+The `invariants?` form warns that suggestions are not available in `vcgen` and parses its
+alternatives like `invariants`. Returns `none` when no `invariants` clause is provided. Errors on
+mixed bullet/labelled forms (one or the other is enforced by the `dotOrCase` flag in the upstream
 elaborator; we replicate that check here).
 -/
 private def parseInvariantMap (stx : Syntax) :
     TermElabM (Option (Std.HashMap Nat Syntax)) := do
   let some altsStx := stx.getOptional? | return none
-  -- The `invariants?` (suggest) form is handled separately by upstream's `elabInvariants`.
   match altsStx with
-  | `(invariantAlts| invariants? $_*) => return none
+  | `(invariantAlts| invariants? $_*) =>
+    logWarningAt altsStx[0] "Invariant suggestions have not been ported from `mvcgen` and the \
+      feature is slated for removal. If you found the old feature useful, send Sebastian Graf a \
+      message."
   | _ => pure ()
   let stx' : TSyntax ``invariantAlts := ⟨altsStx⟩
   match stx' with
@@ -385,9 +392,10 @@ private def elabFrameDB (progTy : Expr) (alts : Array Syntax) : TermElabM FrameD
 
 /-- Parse `vcgen` arguments. -/
 private def parseArgs (stx : Syntax) (goal : MVarId) : TermElabM ParsedArgs := goal.withContext do
-  if mvcgen.warning.get (← getOptions) then
+  unless experimental.vcgen.get (← getOptions) do
     logWarningAt stx "The `vcgen` tactic is an experimental drop-in replacement for `mvcgen` \
-      that will eventually replace it. Avoid using it in production projects."
+      that will eventually replace it; `set_option experimental.vcgen true` acknowledges its \
+      experimental status and silences this warning."
   let config ← runTacticM <| elabConfig stx[1]
   warnIgnoredConfig config
   -- `elimLets` defaults to `false` in `vcgen` (vs. `true` in upstream `mvcgen`):
@@ -430,9 +438,6 @@ def evalSymVCGen : Lean.Elab.Tactic.Grind.GrindTactic := fun stx => do
     return result
   if let some frameStx := result.unmatchedFrames[0]? then
     throwErrorAt frameStx "`frames` alternative matched no program in the goal"
-  if args.invariantAlts?.isNone then
-    runTacticM (goals := result.invariants.toList) <|
-      elabInvariants stx[5] result.invariants (suggestInvariant (result.vcs.map (·.mvarId)))
   let invariants ← result.invariants.filterM (not <$> ·.isAssigned)
   let newGoals ← Lean.Elab.Tactic.Grind.liftGrindM do
     let invGoals ← invariants.toList.mapM Grind.mkGoalCore

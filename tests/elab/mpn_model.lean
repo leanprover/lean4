@@ -14,7 +14,7 @@ down through the three layers they pass through.
 `lean_object` is the outermost: a `Nat` is a tagged scalar or a pointer to an `mpz`. `NatObj`
 carries that choice with the invariant `mpz_to_nat` maintains, and `natAdd_val` and its siblings
 prove each operation computes what `Nat` does. The three that can panic assume the condition under
-which the C++ does not, rather than discharging it; nothing above this layer is modelled, so those
+which they do not, rather than discharging it; nothing above this layer is modelled, so those
 are the only assumptions the file rests on.
 
 `mpz` is the signed wrapper, whose non-negative part is `Num`. `Num.val_add` and its siblings prove
@@ -26,21 +26,17 @@ that layer. The `Num` type carries the normalization `mpz::set` establishes, so 
 `mpn_to_string` is not modelled, since `reduce_nat` never reaches it.
 
 Preconditions are arguments of the definitions rather than hypotheses of the specifications, so a
-use site cannot be written without discharging them, and the operations the C++ leaves undefined
-outside a range go through `CPP`, which takes the hypothesis that pins each one down. Where the C++
+use site cannot be written without discharging them, and the operations C++ leaves undefined
+outside a range go through `CPP`, which takes the hypothesis that pins each one down. Where a routine
 asserts a fact that a release build then drops, since `lean_assert` is `DEBUG_CODE`, the branch
 resting on it is proved here instead, by the specification that covers it: the `small`/`big` arm of
 `natDiv` and the arms of `natSub`, `natMod`, `natBle` and `natBeq` that answer without computing.
 
-Each definition quotes the C++ it stands for, so the two can be read side by side without opening
-the source. Deviations are marked `NOTE:`. A loop that runs over a range is an `Id.run do` loop
-with `let mut`, paired with a bridge lemma reducing it to the fold or map its proof reads, so what
-the proofs work on and what the C++ writes stay separate. A loop that instead stops on a condition
-about the digits - `trim`, `leadingZerosGo`, `recheck` - is a recursion with `termination_by`,
-which is what carries the argument that it stops at all.
+Each definition quotes the code it stands for, so the two can be read side by side without opening
+the source. Deviations are marked `NOTE:`.
 
 A transliteration is only worth as much as its fidelity to the original, and nothing here checks
-that mechanically: it rests on reading the two side by side, which is what the quoted C++ is for.
+that mechanically: it rests on reading the two side by side, which is what the quotations are for.
 -/
 open Std Do
 set_option mvcgen.warning false
@@ -66,8 +62,9 @@ def base : Nat := 1 <<< digitBits
 def maskFirst : Digit := ~~~((-1 : Digit) >>> 1)
 
 /-!
-The three constants above are what the C++ writes; the arithmetic below wants
-their values, and `omega` needs a literal rather than a shift.
+The definitions above spell the macros out as `mpn.h` writes them; the
+arithmetic below wants their values, and `omega` needs a literal rather than a
+shift.
 -/
 
 @[simp] theorem digitBits_eq : digitBits = 32 := rfl
@@ -78,9 +75,9 @@ their values, and `omega` needs a literal rather than a shift.
 
 
 /-!
-## The C++ operations that can be undefined
+## The operations C++ leaves undefined
 
-Lean's operations are total where the C++'s are not: `x <<< d` masks the shift
+Lean's operations are total where C++'s are not: `x <<< d` masks the shift
 amount to `d % 32`, where the standard leaves a shift by at least the width of
 the promoted left operand undefined, and division by zero is zero, where the
 standard leaves it undefined. That makes a direct transliteration *defined*
@@ -428,8 +425,8 @@ theorem compare_eq (a b : Array Digit) :
     }
     c[len] = k;
 ```
-NOTE: `c` is a caller-supplied buffer that the C++ writes by index; the model
-pushes onto an empty array. The digits are the same sequence, and `c.size`
+NOTE: `mpn_add` writes into `c`, a buffer its caller allocates, by index; the
+model pushes onto an empty array. The digits are the same sequence, and `c.size`
 becomes the loop counter, so `denote_push` carries a whole iteration and
 `addLoop_spec` can induct on `len` without also tracking that the digits above
 it are untouched. The trailing `c[len] = k` is the `push` in `add`.
@@ -476,9 +473,21 @@ termination_by c.size
 decreasing_by simp_all; omega
 
 /--
-`mpn_add`, Knuth's Algorithm A. The C++ writes `len+1` digits into a
-caller-supplied buffer and returns the trimmed length in `*plngc`; here the
-trimmed prefix is the result.
+`mpn_add`, Knuth's Algorithm A, whose digit loop is `addLoop` and whose trimming
+is `trim`:
+```
+void  mpn_add(mpn_digit const * a, size_t const lnga,
+              mpn_digit const * b, size_t const lngb,
+              mpn_digit * c, size_t const lngc_alloc,
+              size_t * plngc) {
+    size_t len = max(lnga, lngb);
+    lean_assert(lngc_alloc == len+1 && len > 0);
+    ...
+    lean_assert(os > 0 && os <= len+1);
+}
+```
+The caller allocates `c` with `lngc_alloc` digits and reads the trimmed length
+back out of `*plngc`. Here the trimmed prefix is the result, so neither appears.
 -/
 def add (a b : Array Digit) : Array Digit :=
   let len := max a.size b.size
@@ -510,10 +519,8 @@ def subLoop (a b : Array Digit) (len : Nat) : Array Digit × Digit := Id.run do
   for j in List.range len do
     let u_j := a.getD j 0
     let v_j := b.getD j 0
-    let r := u_j - v_j
-    let c1 := r > u_j
-    let cj := r - k
-    let c2 := cj > r
+    let r := u_j - v_j; let c1 := r > u_j
+    let cj := r - k; let c2 := cj > r
     c := c.push cj
     k := if c1 || c2 then 1 else 0
   return (c, k)
@@ -536,8 +543,16 @@ theorem subLoop_eq (a b : Array Digit) (len : Nat) :
   rfl
 
 /--
-`mpn_sub`, Knuth's Algorithm S. Returns the `max lnga lngb` result digits and
-the final borrow, which the C++ writes through `pborrow`.
+`mpn_sub`, Knuth's Algorithm S, whose digit loop is `subLoop`:
+```
+void mpn_sub(mpn_digit const * a, size_t const lnga,
+             mpn_digit const * b, size_t const lngb,
+             mpn_digit * c, mpn_digit * pborrow) {
+    ...
+}
+```
+The caller allocates `c` with `max(lnga, lngb)` digits and reads the borrow back
+out of `*pborrow`. Here the two are the two results.
 -/
 def sub (a b : Array Digit) : Array Digit × Digit :=
   subLoop a b (max a.size b.size)
@@ -671,7 +686,7 @@ def mulOuterStep (a b : Array Digit) (c : Array Digit) (j : Nat) : Array Digit :
 
     for (size_t j = 0; j < lngb; j++) { ... }
 ```
-NOTE: the C++ zeroes only `c[0..lnga)` and relies on the outer loop to write
+NOTE: `mpn_mul` zeroes only `c[0..lnga)` and relies on the outer loop to write
 every digit from `lnga` up; zeroing the whole buffer here computes the same
 result and states the invariant more simply.
 -/
@@ -820,8 +835,8 @@ private theorem foldl_set!_eq_map (g : Nat → Digit) (n : Nat) :
         n_numer[0] = numer[0] << d;
 ```
 Each output digit reads only the input, so the loop is written here as the map
-it is. The `d == 0` case is separate because the C++ needs it to be: shifting a
-digit by 32 is undefined there.
+it is. The `d == 0` case is separate because C++ needs it to be: shifting a digit by
+32 is undefined.
 -/
 def shiftLeftDigits (a : Array Digit) (d len : Nat) (hd : d < digitBits) : Array Digit :=
     Id.run do
@@ -904,11 +919,11 @@ private theorem le_getD_shiftLeftDigits (a : Array Digit) {d len j : Nat} (hd : 
     }
     return d;
 ```
-The C++ branches three ways, but its `d == 0` copy is exactly `shiftLeftDigits`
-at `d = 0`, so only the degenerate case needs its own branch.
+`div_normalize` branches three ways, but its `d == 0` copy is exactly
+`shiftLeftDigits` at `d = 0`, so only the degenerate case needs its own branch.
 
-NOTE: with a nonzero shift and an empty numerator the C++ leaves both buffers
-zeroed and reports `d = 0`. No caller reaches it: `mpn_div` and `mpn_to_string`
+NOTE: with a nonzero shift and an empty numerator `div_normalize` leaves both
+buffers zeroed and reports `d = 0`. No caller reaches it: `mpn_div` and `mpn_to_string`
 both pass `lnum ≥ 1`.
 -/
 def divNormalize (numer denom : Array Digit) :
@@ -974,8 +989,8 @@ nonzero-shift branch:
             rem[i] = numer[i] >> d | (LAST_BITS(d, numer[i+1]) << (DIGIT_BITS-d));
         rem[denom.size()-1] = numer[denom.size()-1] >> d;
 ```
-The top digit takes nothing from above, as the C++ does, and `d == 0` is
-separate for the same reason as in `shiftLeftDigits`.
+The top digit takes nothing from above, as `div_unnormalize` does, and `d == 0`
+is separate for the same reason as in `shiftLeftDigits`.
 -/
 def shiftRightDigits (a : Array Digit) (d len : Nat) (hd : d < digitBits) : Array Digit :=
     Id.run do
@@ -1077,7 +1092,7 @@ theorem div1Loop_eq (denom : Digit) (hden : denom.toUInt64 ≠ 0) (u quot : Arra
   simp [div1Loop, Id.run]
   rfl
 
-/-- One step of it, peeled off the top as the C++ counts down. -/
+/-- One step of it, peeled off the top as `div_1` counts down. -/
 theorem div1Loop_succ (denom : Digit) (hden : denom.toUInt64 ≠ 0) (u quot : Array Digit)
     (m : Nat) :
     div1Loop denom hden u quot (m+1)
@@ -1153,7 +1168,7 @@ The trial quotient digit `div_n` forms for the window at `j`, after step D3:
         r_hat = temp % (mpn_double_digit) denom[n-1];
 ```
 NOTE: `n-2` is truncated subtraction here, so a denominator shorter than two
-digits reads `denom[0]` twice, where the C++ underflows `n-2` in `size_t` and
+digits reads `denom[0]` twice, where `div_n` underflows `n-2` in `size_t` and
 reads out of bounds. Neither is reached: `mpn_div` sends `lden == 1` to `div_1`,
 `div_n` asserts `denom.size() > 1`, and `divN_spec` assumes `denom.size = k+2`.
 -/
@@ -1223,7 +1238,7 @@ theorem divNLoop_eq (denom : Array Digit) (hv : (denom.getD (denom.size - 1) 0).
   simp [divNLoop, Id.run]
   rfl
 
-/-- One step of it, peeled off the top as the C++ counts down. -/
+/-- One step of it, peeled off the top as `div_n` counts down. -/
 theorem divNLoop_succ (denom : Array Digit) (hv : (denom.getD (denom.size - 1) 0).toUInt64 ≠ 0)
     (u quot : Array Digit) (m : Nat) :
     divNLoop denom hv u quot (m+1)
@@ -3937,7 +3952,7 @@ def Num.powMul (power result : Num) (p : Digit) : Num :=
 ```
 The exponent's bits are consumed from the bottom, `power` multiplied into
 `result` where a bit is set and squared for the next bit. The final squaring is
-skipped once the remaining exponent is zero, as in the C++.
+skipped once the remaining exponent is zero, as in `mpz::pow`.
 -/
 def Num.powLoop (power result : Num) (p : Digit) : Num :=
   if p = 0 then result
@@ -4129,7 +4144,7 @@ inductive NatObj where
   | big (m : Num) (h : maxSmallNat < m.val)
 
 /-- The natural number an object denotes; a reading of the representation, with
-no counterpart in the C++. -/
+no counterpart in the runtime. -/
 def NatObj.val : NatObj → Nat
   | .small n _ => n
   | .big m _ => m.val
@@ -4182,7 +4197,7 @@ void mpz::init_uint64(uint64 v) {
     }
 }
 ```
-NOTE: the C++ branches on whether one digit is enough; this always writes two
+NOTE: `mpz::init_uint64` branches on whether one digit is enough; this always writes two
 and lets `mpz::set`'s trimming drop the second, which leaves the same value in
 the same normalized shape.
 -/
@@ -4254,7 +4269,7 @@ def natDiv : NatObj → NatObj → NatObj
 division by zero is a branch rather than an assumption, and the branch that
 returns zero without dividing is sound because a `big` object never holds a
 value a scalar could have held, which is what the type records and what the
-`lean_assert` in the C++ only checks in a debug build.
+`lean_assert` in `lean_nat_big_div` only checks in a debug build.
 -/
 theorem natDiv_val (a b : NatObj) : (natDiv a b).val = a.val / b.val := by
   cases a with

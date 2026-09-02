@@ -4191,8 +4191,11 @@ where the transliteration stops: what is modelled is the choice between the two
 representations, on a 64-bit target.
 -/
 
-/-- `#define LEAN_MAX_SMALL_NAT (SIZE_MAX >> 1)` -/
-def maxSmallNat : Nat := 2 ^ 63 - 1
+/-- `#define LEAN_MAX_SMALL_NAT (SIZE_MAX >> 1)`, with `SIZE_MAX` the `2 ^ 64 - 1`
+of a 64-bit `size_t`. -/
+def maxSmallNat : Nat := (2 ^ 64 - 1) >>> 1
+
+@[simp] theorem maxSmallNat_eq : maxSmallNat = 2 ^ 63 - 1 := rfl
 
 /-- `lean_box(n) = (lean_object*)(((size_t)(n) << 1) | 1)` -/
 def box (n : Nat) : UInt64 := (UInt64.ofNat n <<< 1) ||| 1
@@ -4238,8 +4241,8 @@ private theorem two_mul_add_one_or (m n : Nat) :
 
 /-- The number a box holds, before the tag is stripped. -/
 theorem toNat_box (n : Nat) (h : n ≤ maxSmallNat) : (box n).toNat = 2 * n + 1 := by
-  have hn : n < 2 ^ 64 := by simp only [maxSmallNat] at h; omega
-  have hlt : 2 * n < 2 ^ 64 := by simp only [maxSmallNat] at h; omega
+  have hn : n < 2 ^ 64 := by simp only [maxSmallNat_eq] at h; omega
+  have hlt : 2 * n < 2 ^ 64 := by simp only [maxSmallNat_eq] at h; omega
   have hofNat : (UInt64.ofNat n).toNat = n := UInt64.toNat_ofNat_of_lt' hn
   have hshift : (UInt64.ofNat n <<< 1).toNat = 2 * n := by
     rw [UInt64.toNat_shiftLeft, hofNat,
@@ -4277,7 +4280,7 @@ theorem box_and (m n : Nat) (hm : m ≤ maxSmallNat) (hn : n ≤ maxSmallNat) :
 theorem box_or (m n : Nat) (hm : m ≤ maxSmallNat) (hn : n ≤ maxSmallNat) :
     box m ||| box n = box (m ||| n) := by
   have hmn : m ||| n ≤ maxSmallNat := by
-    simp only [maxSmallNat] at *
+    simp only [maxSmallNat_eq] at *
     exact Nat.lt_succ_iff.mp (Nat.or_lt_two_pow (n := 63) (by omega) (by omega))
   refine UInt64.toNat_inj.mp ?_
   rw [UInt64.toNat_or, toNat_box m hm, toNat_box n hn, toNat_box _ hmn]
@@ -4413,7 +4416,7 @@ def natDiv : NatObj → NatObj → NatObj
   | .big m₁ _, .small n₂ h₂ =>
     if h : n₂ = 0 then .small 0 (Nat.zero_le _)
     else mpzToNat (m₁.div (Num.ofSizeT n₂) (by
-      rw [Num.val_ofSizeT n₂ (by simp only [maxSmallNat, base_eq] at *; omega)]; exact h))
+      rw [Num.val_ofSizeT n₂ (by simp only [maxSmallNat_eq, base_eq] at *; omega)]; exact h))
   | .big m₁ _, .big m₂ h₂ => mpzToNat (m₁.div m₂ (by omega))
 
 /-- The `mpz` an object denotes, which is what `lean_nat_big_*` reads. -/
@@ -4452,7 +4455,7 @@ reason this path needs no check.
 -/
 def natAdd : NatObj → NatObj → NatObj
   | .small n₁ h₁, .small n₂ h₂ =>
-    usizeToNat (n₁ + n₂) (by simp only [maxSmallNat, base_eq] at *; omega)
+    usizeToNat (n₁ + n₂) (by simp only [maxSmallNat_eq, base_eq] at *; omega)
   | .small n₁ _, .big m₂ h₂ =>
     mpzToNatCore ((Num.ofSizeT n₁).add m₂) (by rw [Num.val_add]; omega)
   | .big m₁ h₁, .small n₂ _ =>
@@ -4538,7 +4541,7 @@ def natMod : NatObj → NatObj → NatObj
   | .big m₁ h₁, .small n₂ h₂ =>
     if h : n₂ = 0 then .big m₁ h₁
     else mpzToNat (m₁.mod (Num.ofSizeT n₂) (by
-      rw [Num.val_ofSizeT n₂ (by simp only [maxSmallNat, base_eq] at *; omega)]; exact h))
+      rw [Num.val_ofSizeT n₂ (by simp only [maxSmallNat_eq, base_eq] at *; omega)]; exact h))
   | .big m₁ _, .big m₂ h₂ => mpzToNat (m₁.mod m₂ (by omega))
 
 /--
@@ -4578,7 +4581,7 @@ def natLor : NatObj → NatObj → NatObj
   | .small n₁ h₁, .small n₂ h₂ =>
     .small (unbox (box n₁ ||| box n₂)) (by
       have hb : n₁ ||| n₂ ≤ maxSmallNat := by
-        simp only [maxSmallNat] at *
+        simp only [maxSmallNat_eq] at *
         exact Nat.lt_succ_iff.mp (Nat.or_lt_two_pow (n := 63) (by omega) (by omega))
       rw [box_or n₁ n₂ h₁ h₂, unbox_box _ hb]; exact hb)
   | a, b => mpzToNat (a.toNum.lor b.toNum)
@@ -4637,7 +4640,7 @@ static inline lean_obj_res lean_nat_succ(b_lean_obj_arg a) {
 ```
 -/
 def natSucc : NatObj → NatObj
-  | .small n h => usizeToNat (n + 1) (by simp only [maxSmallNat, base_eq] at *; omega)
+  | .small n h => usizeToNat (n + 1) (by simp only [maxSmallNat_eq, base_eq] at *; omega)
   | .big m h => mpzToNatCore (m.add Num.one) (by rw [Num.val_add, Num.val_one]; omega)
 
 /--
@@ -4744,7 +4747,7 @@ would clear the tag rather than keep it.
 def natXor : NatObj → NatObj → NatObj
   | .small n₁ h₁, .small n₂ h₂ =>
     .small (n₁ ^^^ n₂) (by
-      simp only [maxSmallNat] at *
+      simp only [maxSmallNat_eq] at *
       exact Nat.lt_succ_iff.mp (Nat.xor_lt_two_pow (n := 63) (by omega) (by omega)))
   | a, b => mpzToNat (a.toNum.xor b.toNum)
 
@@ -4852,13 +4855,13 @@ theorem natDiv_val (a b : NatObj) : (natDiv a b).val = a.val / b.val := by
       split <;> rename_i h
       · subst h; simp [NatObj.val]
       · rw [mpzToNat_val, Num.val_div, NatObj.val, NatObj.val,
-          Num.val_ofSizeT n₂ (by simp only [maxSmallNat, base_eq] at *; omega)]
+          Num.val_ofSizeT n₂ (by simp only [maxSmallNat_eq, base_eq] at *; omega)]
     | big m₂ h₂ =>
       simp only [natDiv]
       rw [mpzToNat_val, Num.val_div, NatObj.val, NatObj.val]
 
 private theorem small_lt_base_sq {n : Nat} (h : n ≤ maxSmallNat) : n < base ^ 2 := by
-  simp only [maxSmallNat, base_eq] at *; omega
+  simp only [maxSmallNat_eq, base_eq] at *; omega
 
 @[simp] theorem NatObj.val_toNum (a : NatObj) : a.toNum.val = a.val := by
   cases a with
@@ -4966,7 +4969,7 @@ private theorem small_lt_base_sq {n : Nat} (h : n ≤ maxSmallNat) : n < base ^ 
     cases b with
     | small n₂ h₂ =>
       have hb : n₁ ||| n₂ ≤ maxSmallNat := by
-        simp only [maxSmallNat] at *
+        simp only [maxSmallNat_eq] at *
         exact Nat.lt_succ_iff.mp (Nat.or_lt_two_pow (n := 63) (by omega) (by omega))
       show unbox (box n₁ ||| box n₂) = _
       rw [box_or n₁ n₂ h₁ h₂, unbox_box _ hb]
@@ -5041,12 +5044,12 @@ theorem box_inj (m n : Nat) (hm : m ≤ maxSmallNat) (hn : n ≤ maxSmallNat) :
       · rfl
       · refine hzero n₁ n₂ ?_
         have hp : (2:Nat) ^ 64 ≤ 2 ^ n₂ := Nat.pow_le_pow_right (by omega) (by omega)
-        simp only [maxSmallNat] at h₁
+        simp only [maxSmallNat_eq] at h₁
         omega
     | big m₂ h₂ =>
       refine hzero n₁ m₂.val (hb ?_)
       show base ≤ m₂.val
-      simp only [maxSmallNat] at h₂
+      simp only [maxSmallNat_eq] at h₂
       simp only [base_eq]
       omega
   | big m₁ h₁ =>
@@ -5062,7 +5065,7 @@ theorem box_inj (m n : Nat) (hm : m ≤ maxSmallNat) (hn : n ≤ maxSmallNat) :
     | big m₂ h₂ =>
       refine hzero m₁.val m₂.val (hb ?_)
       show base ≤ m₂.val
-      simp only [maxSmallNat] at h₂
+      simp only [maxSmallNat_eq] at h₂
       simp only [base_eq]
       omega
 

@@ -126,6 +126,13 @@ The reference counter `m_rc` field also encodes whether the object is single thr
 reference counting is not needed (== 0). We don't use reference counting for objects stored in compact regions, or
 marked as persistent.
 
+To stay memory-safe when a count would exceed the 32-bit range, we reserve a band of deeply negative
+values as "sticky": a single-threaded count that overflows past INT_MAX wraps directly into it, and
+a multi-threaded count descending toward INT_MIN is caught in it before it can wrap. Once in the
+sticky range the object is frozen: it is never freed and its count is no longer adjusted. See
+`LEAN_RC_STICKY` / `LEAN_RC_STICKY_DROP` for the exact thresholds. This trades an unbounded but
+practically exceedingly unlikely memory leak for memory safety under reference-count over/underflow.
+
 For "small" objects stored in compact regions, the field `m_cs_sz` contains the object size. For "small" objects not
 stored in compact regions, we use the page information to retrieve its size so that we can reuse
 `m_cs_sz` to store the deletion list inline. Using the page information is not an option with
@@ -374,7 +381,11 @@ static inline void lean_internal_add_rc(lean_object* o, int add) {
     atomic_fetch_add_explicit((_Atomic(int)*)(&(o)->m_rc), add, memory_order_seq_cst);
 #endif
 #else
-    o->m_rc += add;
+    // Use unsigned arithmetic so that overflowing the single-threaded reference count wraps
+    // deterministically into the negative "sticky" range instead of being undefined behavior.
+    // The wrapped value is detected and frozen in `lean_inc_ref_n`, which keeps `add` small enough
+    // for the wrap to land inside the sticky range (see `LEAN_RC_INC_MAX`).
+    o->m_rc = (int)((unsigned)o->m_rc + (unsigned)add);
 #endif
 }
 
@@ -595,10 +606,49 @@ static inline _Atomic(int) * lean_get_rc_mt_addr(lean_object* o) {
     return (_Atomic(int)*)(&(o->m_rc));
 }
 
+/* Reference counts that over- or underflow the 32-bit counter land in a deeply negative "sticky" range, and
+   the object is then frozen: it is never freed and its count is no longer adjusted. Reaching this range is
+   astronomically rare in either direction (a single-threaded count overflowing past INT_MAX, or a multi-threaded
+   count descending toward INT_MIN). Because relaxed reads of the count can be slightly stale across threads, we
+   use a wide band with two thresholds:
+   - once `rc <= LEAN_RC_STICKY_DROP`, drops (decrements) stop adjusting the count;
+   - once `rc <= LEAN_RC_STICKY`, increments stop as well.
+   A thread whose read predates the count entering the band still commits its adjustment, so the width of
+   the band, and the room between `LEAN_RC_STICKY` and INT_MIN, are what bound how far such adjustments can
+   move a frozen count: it takes more of them in flight at once than the band is wide to lift the count back
+   out or to wrap it past INT_MIN. `LEAN_RC_INC_MAX` bounds what a single one of them contributes. */
+// sync with tests/elab/rc_sticky_thresholds.lean (`LEAN_RC_STICKY`, `LEAN_RC_STICKY_DROP`)
+#define LEAN_RC_STICKY      (INT_MIN + 0x10000000)
+#define LEAN_RC_STICKY_DROP (INT_MIN + 0x20000000)
+
+/* Largest `n` that `lean_inc_ref_n` adjusts the count by inline; above this it defers to
+   `lean_inc_ref_huge_n`, which either applies the whole `n` or leaves the object frozen. Overflow
+   in either direction still lands inside the sticky range for any `n` up to
+   `LEAN_RC_STICKY - INT_MIN`, so this is far below what soundness alone requires: it caps how much
+   of the room below `LEAN_RC_STICKY` one increment can consume, leaving the rest as margin against
+   adjustments in flight on other threads. Code generation only ever emits `n` in the low thousands,
+   so a constant `n` folds this test away and never reaches the bound. */
+// sync with tests/elab/rc_sticky_thresholds.lean (`LEAN_RC_INC_MAX`)
+#define LEAN_RC_INC_MAX ((size_t)0x10000)
+
+/* Cold path of `lean_inc_ref_n` for increments above `LEAN_RC_INC_MAX`. */
+LEAN_EXPORT void lean_inc_ref_huge_n(lean_object * o, size_t n);
+
+// sync with tests/elab/rc_sticky_thresholds.lean (`incRefN`)
 static inline void lean_inc_ref_n(lean_object * o, size_t n) {
+    // A count above this could wrap clean past the sticky range, on either the single-threaded or
+    // the thread-shared path, so both are handed to the cold helper. The test is on `n` alone, so a
+    // constant count folds it away in either direction; only a non-constant count keeps a runtime
+    // compare, and `lean_mk_array` is the sole caller passing one.
+    if (LEAN_UNLIKELY(n > LEAN_RC_INC_MAX)) {
+        lean_inc_ref_huge_n(o, n);
+        return;
+    }
     if (LEAN_LIKELY(lean_is_st(o))) {
         lean_internal_add_rc(o, n);
-    } else if (lean_internal_get_rc(o) != 0) {
+    } else if ((unsigned)lean_internal_get_rc(o) > (unsigned)LEAN_RC_STICKY) {
+        // Read as unsigned, a persistent count (0) and a sticky count both fall below every live
+        // thread-shared count, so one comparison rejects both.
 #ifdef __cplusplus
         std::atomic_fetch_sub_explicit(lean_get_rc_mt_addr(o), n, std::memory_order_relaxed);
 #else
@@ -613,6 +663,7 @@ static inline void lean_inc_ref(lean_object * o) {
 
 LEAN_EXPORT void lean_dec_ref_cold(lean_object * o);
 
+// sync with tests/elab/rc_sticky_thresholds.lean (`decRef`)
 static inline LEAN_ALWAYS_INLINE void lean_dec_ref(lean_object * o) {
     if (LEAN_LIKELY(lean_internal_get_rc(o) > 1)) {
         lean_internal_sub_rc(o, 1);
@@ -1750,6 +1801,8 @@ LEAN_EXPORT lean_obj_res lean_nat_big_shiftr(b_lean_obj_arg a1, b_lean_obj_arg a
 LEAN_EXPORT lean_obj_res lean_nat_pow(b_lean_obj_arg a1, b_lean_obj_arg a2);
 LEAN_EXPORT lean_obj_res lean_nat_gcd(b_lean_obj_arg a1, b_lean_obj_arg a2);
 LEAN_EXPORT lean_obj_res lean_nat_log2(b_lean_obj_arg a);
+/* Upper bound on the size in bytes of the representation of `a` (one word for scalars). Returns a raw `size_t`, not a boxed `Nat`. */
+LEAN_EXPORT size_t lean_nat_size_in_bytes(b_lean_obj_arg a);
 
 static inline lean_obj_res lean_nat_shiftr(b_lean_obj_arg a1, b_lean_obj_arg a2) {
     if (LEAN_LIKELY(lean_is_scalar(a1) && lean_is_scalar(a2))) {
@@ -3169,8 +3222,8 @@ LEAN_EXPORT lean_obj_res lean_mk_io_user_error(lean_obj_arg str);
 /* ST Ref primitives */
 LEAN_EXPORT lean_obj_res lean_st_mk_ref(lean_obj_arg);
 LEAN_EXPORT lean_obj_res lean_st_ref_get(b_lean_obj_arg);
-LEAN_EXPORT lean_obj_res lean_st_ref_set(b_lean_obj_arg, lean_obj_arg);
-LEAN_EXPORT lean_obj_res lean_st_ref_reset(b_lean_obj_arg);
+LEAN_EXPORT lean_obj_res lean_st_ref_put(b_lean_obj_arg, lean_obj_arg);
+LEAN_EXPORT lean_obj_res lean_st_ref_take(b_lean_obj_arg);
 LEAN_EXPORT lean_obj_res lean_st_ref_swap(b_lean_obj_arg, lean_obj_arg);
 
 /* pointer address unsafe primitive  */

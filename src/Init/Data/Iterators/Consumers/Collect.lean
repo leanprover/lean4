@@ -40,16 +40,6 @@ def Iter.toArray {α : Type w} {β : Type w}
 /--
 Traverses the given iterator and stores the emitted values in an array.
 
-This function is deprecated. Instead of `it.allowNontermination.toArray`, use `it.toArray`.
--/
-@[always_inline, inline, deprecated Iter.toArray (since := "2025-12-04")]
-def Iter.Partial.toArray {α : Type w} {β : Type w}
-    [Iterator α Id β] (it : Iter.Partial (α := α) β) : Array β :=
-  it.it.toArray
-
-/--
-Traverses the given iterator and stores the emitted values in an array.
-
 This variant terminates after finitely many steps and requires a proof that the iterator is
 finite. If such a proof is not available, consider using `Iter.toArray`.
 -/
@@ -75,17 +65,6 @@ def Iter.toListRev {α : Type w} {β : Type w}
 Traverses the given iterator and stores the emitted values in reverse order in a list. Because
 lists are prepend-only, this `toListRev` is usually more efficient that `toList`.
 
-This function is deprecated. Instead of `it.allowNontermination.toListRev`, use `it.toListRev`.
--/
-@[always_inline, inline, deprecated Iter.toListRev (since := "2025-12-04")]
-def Iter.Partial.toListRev {α : Type w} {β : Type w}
-    [Iterator α Id β] (it : Iter.Partial (α := α) β) : List β :=
-  it.it.toListRev
-
-/--
-Traverses the given iterator and stores the emitted values in reverse order in a list. Because
-lists are prepend-only, this `toListRev` is usually more efficient that `toList`.
-
 This variant terminates after finitely many steps and requires a proof that the iterator is
 finite. If such a proof is not available, consider using `Iter.toListRev`.
 -/
@@ -105,17 +84,6 @@ If the iterator is not finite, this function might run forever. The variant
 def Iter.toList {α : Type w} {β : Type w}
     [Iterator α Id β] (it : Iter (α := α) β) : List β :=
   it.toIterM.toList.run
-
-/--
-Traverses the given iterator and stores the emitted values in a list. Because
-lists are prepend-only, `toListRev` is usually more efficient that `toList`.
-
-This function is deprecated. Instead of `it.allowNontermination.toList`, use `it.toList`.
--/
-@[always_inline, deprecated Iter.toList (since := "2025-12-04")]
-def Iter.Partial.toList {α : Type w} {β : Type w}
-    [Iterator α Id β] (it : Iter.Partial (α := α) β) : List β :=
-  it.it.toList
 
 /--
 Traverses the given iterator and stores the emitted values in a list. Because

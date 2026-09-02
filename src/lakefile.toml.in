@@ -8,7 +8,7 @@
 name = "lean4"
 bootstrap = true
 
-defaultTargets = ["Init", "Std", "Lean", "Lake", "LakeMain", "LeanIR", "Leanc", "LeanChecker"]
+defaultTargets = ["Init", "Std", "Lean", "LeanExport", "Lake", "LakeMain", "LeanIR", "Leanc", "LeanChecker"]
 
 # Have Lake use CMake's build type (e.g., `Release`, `Debug`) where possible
 buildType = "${CMAKE_BUILD_TYPE_TOML}"
@@ -49,7 +49,11 @@ leanOptions.linter.coreInternal = true
 # Uncomment to limit number of reported errors further in case of overwhelming cmdline output
 #weakLeanArgs = ["-DmaxErrors=1"]
 
+# CMake's `LEANC_EXTRA_CC_FLAGS`
 moreLeancArgs = [${LEAN_MORE_LEANC_ARGS_TOML}]
+
+# CMake's `LEANC_INTERNAL_FLAGS`
+weakLeancArgs = [${LEAN_WEAK_LEANC_ARGS_TOML}]
 
 ${LEAN_EXTRA_LAKEFILE_TOML}
 
@@ -72,6 +76,12 @@ globs = [
   # New compiler orphan file used in tests
   "Lean.Compiler.LCNF.Probing",
 ]
+
+[[lean_lib]]
+name = "LeanExport"
+globs = ["LeanExport.*"]
+# `Lake` links the parser into `libLake_shared`, so the export facet is required as well
+defaultFacets = ["static", "static.export"]
 
 [[lean_lib]]
 name = "Lake"

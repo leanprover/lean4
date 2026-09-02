@@ -14,6 +14,22 @@ def fmt (stx : CoreM Syntax) : CoreM Format := do PrettyPrinter.ppTerm ⟨← st
 #eval fmt `(do let mut acc := 0; for x in xs do acc := acc + x; return acc)
 #eval fmt `(do while c do pure ())
 #eval fmt `(do unless c do pure ())
+-- intrinsic-verification clauses: each on its own line under the loop or the `def`
+#eval fmt `(do assert 0 ≤ acc)
+#eval fmt `(do assert s => s ≤ acc)
+#eval fmt `(do for x in xs invariant pref suff => 0 ≤ acc do pure ())
+#eval fmt `(do for x in xs invariant pref suff s => s ≤ acc do pure ())
+#eval fmt `(do while i < n invariant _ => i ≤ n decreasing n - i do pure ())
+#eval fmt `(do repeat decreasing n - i do pure ())
+#eval fmt `(do repeat invariant exit => if exit then i = n else i ≤ n decreasing n - i do pure ())
+#eval fmt `(do repeat invariant _ => i ≤ n decreasing n - i do pure () until i = n)
+#eval fmt `(command| def clampLow (n lo : Nat) : Id Nat requires lo ≤ n ensures r => r = n := pure n)
+#eval fmt `(command| def k (x : Nat) requires s => s > x ensures r => r ≥ x := pure x)
+#eval fmt `(command| def g (x : Nat) requires x > 0 ensures r => r ≥ x := pure x)
+#eval fmt `(command| def m (x : Nat) requires x > 0 ensures (lo, hi) => lo ≤ hi := pure (x, x))
+#eval fmt `(command| def h (x : Nat) : Id Nat ensures r => r = x := pure x
+where finally
+  | spec => skip)
 
 #eval fmt `(def foo := by
   · skip; skip

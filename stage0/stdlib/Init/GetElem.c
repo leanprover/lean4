@@ -892,9 +892,9 @@ return v___x_262_;
 LEAN_EXPORT lean_object* l_decidableGetElem_x3f___redArg___boxed(lean_object* v_inst_263_, lean_object* v_xs_264_, lean_object* v_i_265_, lean_object* v_inst_266_){
 _start:
 {
-uint8_t v_inst_16__boxed_267_; lean_object* v_res_268_; 
-v_inst_16__boxed_267_ = lean_unbox(v_inst_266_);
-v_res_268_ = l_decidableGetElem_x3f___redArg(v_inst_263_, v_xs_264_, v_i_265_, v_inst_16__boxed_267_);
+uint8_t v_inst_17__boxed_267_; lean_object* v_res_268_; 
+v_inst_17__boxed_267_ = lean_unbox(v_inst_266_);
+v_res_268_ = l_decidableGetElem_x3f___redArg(v_inst_263_, v_xs_264_, v_i_265_, v_inst_17__boxed_267_);
 return v_res_268_;
 }
 }
@@ -923,9 +923,9 @@ return v___x_279_;
 LEAN_EXPORT lean_object* l_decidableGetElem_x3f___boxed(lean_object* v_coll_280_, lean_object* v_idx_281_, lean_object* v_elem_282_, lean_object* v_valid_283_, lean_object* v_inst_284_, lean_object* v_xs_285_, lean_object* v_i_286_, lean_object* v_inst_287_){
 _start:
 {
-uint8_t v_inst_28__boxed_288_; lean_object* v_res_289_; 
-v_inst_28__boxed_288_ = lean_unbox(v_inst_287_);
-v_res_289_ = l_decidableGetElem_x3f(v_coll_280_, v_idx_281_, v_elem_282_, v_valid_283_, v_inst_284_, v_xs_285_, v_i_286_, v_inst_28__boxed_288_);
+uint8_t v_inst_29__boxed_288_; lean_object* v_res_289_; 
+v_inst_29__boxed_288_ = lean_unbox(v_inst_287_);
+v_res_289_ = l_decidableGetElem_x3f(v_coll_280_, v_idx_281_, v_elem_282_, v_valid_283_, v_inst_284_, v_xs_285_, v_i_286_, v_inst_29__boxed_288_);
 return v_res_289_;
 }
 }
@@ -2712,11 +2712,13 @@ return v_res_1099_;
 }
 lean_object* runtime_initialize_Init_Util(uint8_t builtin);
 lean_object* runtime_initialize_Init_Data_Option_Basic(uint8_t builtin);
+void lean_initialize_runtime_module();
 static bool _G_runtime_initialized = false;
 LEAN_EXPORT lean_object* runtime_initialize_Init_GetElem(uint8_t builtin) {
 lean_object * res;
 if (_G_runtime_initialized) return lean_io_result_mk_ok(lean_box(0));
 _G_runtime_initialized = true;
+lean_initialize_runtime_module();
 res = runtime_initialize_Init_Util(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);

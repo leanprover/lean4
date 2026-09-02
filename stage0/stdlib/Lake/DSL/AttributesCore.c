@@ -620,7 +620,7 @@ _start:
 lean_object* v___x_144_; lean_object* v___x_145_; lean_object* v___x_146_; 
 v___x_144_ = lean_obj_once(&l_Lean_addMessageContextPartial___at___00Lean_throwError___at___00__private_Lake_DSL_AttributesCore_0__Lake_initFn_00___x40_Lake_DSL_AttributesCore_2501670873____hygCtx___hyg_2__spec__1_spec__1___closed__1, &l_Lean_addMessageContextPartial___at___00Lean_throwError___at___00__private_Lake_DSL_AttributesCore_0__Lake_initFn_00___x40_Lake_DSL_AttributesCore_2501670873____hygCtx___hyg_2__spec__1_spec__1___closed__1_once, _init_l_Lean_addMessageContextPartial___at___00Lean_throwError___at___00__private_Lake_DSL_AttributesCore_0__Lake_initFn_00___x40_Lake_DSL_AttributesCore_2501670873____hygCtx___hyg_2__spec__1_spec__1___closed__1);
 v___x_145_ = lean_unsigned_to_nat(0u);
-v___x_146_ = lean_alloc_ctor(0, 10, 0);
+v___x_146_ = lean_alloc_ctor(0, 11, 0);
 lean_ctor_set(v___x_146_, 0, v___x_145_);
 lean_ctor_set(v___x_146_, 1, v___x_145_);
 lean_ctor_set(v___x_146_, 2, v___x_145_);
@@ -631,6 +631,7 @@ lean_ctor_set(v___x_146_, 6, v___x_144_);
 lean_ctor_set(v___x_146_, 7, v___x_144_);
 lean_ctor_set(v___x_146_, 8, v___x_144_);
 lean_ctor_set(v___x_146_, 9, v___x_144_);
+lean_ctor_set(v___x_146_, 10, v___x_144_);
 return v___x_146_;
 }
 }
@@ -685,7 +686,7 @@ v___x_164_ = lean_st_ref_get(v___y_162_);
 v_env_165_ = lean_ctor_get(v___x_164_, 0);
 lean_inc_ref(v_env_165_);
 lean_dec(v___x_164_);
-v_options_166_ = lean_ctor_get(v___y_161_, 2);
+v_options_166_ = lean_ctor_get(v___y_161_, 1);
 v___x_167_ = lean_obj_once(&l_Lean_addMessageContextPartial___at___00Lean_throwError___at___00__private_Lake_DSL_AttributesCore_0__Lake_initFn_00___x40_Lake_DSL_AttributesCore_2501670873____hygCtx___hyg_2__spec__1_spec__1___closed__2, &l_Lean_addMessageContextPartial___at___00Lean_throwError___at___00__private_Lake_DSL_AttributesCore_0__Lake_initFn_00___x40_Lake_DSL_AttributesCore_2501670873____hygCtx___hyg_2__spec__1_spec__1___closed__2_once, _init_l_Lean_addMessageContextPartial___at___00Lean_throwError___at___00__private_Lake_DSL_AttributesCore_0__Lake_initFn_00___x40_Lake_DSL_AttributesCore_2501670873____hygCtx___hyg_2__spec__1_spec__1___closed__2);
 v___x_168_ = lean_obj_once(&l_Lean_addMessageContextPartial___at___00Lean_throwError___at___00__private_Lake_DSL_AttributesCore_0__Lake_initFn_00___x40_Lake_DSL_AttributesCore_2501670873____hygCtx___hyg_2__spec__1_spec__1___closed__5, &l_Lean_addMessageContextPartial___at___00Lean_throwError___at___00__private_Lake_DSL_AttributesCore_0__Lake_initFn_00___x40_Lake_DSL_AttributesCore_2501670873____hygCtx___hyg_2__spec__1_spec__1___closed__5_once, _init_l_Lean_addMessageContextPartial___at___00Lean_throwError___at___00__private_Lake_DSL_AttributesCore_0__Lake_initFn_00___x40_Lake_DSL_AttributesCore_2501670873____hygCtx___hyg_2__spec__1_spec__1___closed__5);
 lean_inc_ref(v_options_166_);
@@ -716,7 +717,7 @@ LEAN_EXPORT lean_object* l_Lean_throwError___at___00__private_Lake_DSL_Attribute
 _start:
 {
 lean_object* v_ref_181_; lean_object* v___x_182_; lean_object* v_a_183_; lean_object* v___x_185_; uint8_t v_isShared_186_; uint8_t v_isSharedCheck_191_; 
-v_ref_181_ = lean_ctor_get(v___y_178_, 5);
+v_ref_181_ = lean_ctor_get(v___y_178_, 4);
 v___x_182_ = l_Lean_addMessageContextPartial___at___00Lean_throwError___at___00__private_Lake_DSL_AttributesCore_0__Lake_initFn_00___x40_Lake_DSL_AttributesCore_2501670873____hygCtx___hyg_2__spec__1_spec__1(v_msg_177_, v___y_178_, v___y_179_);
 v_a_183_ = lean_ctor_get(v___x_182_, 0);
 v_isSharedCheck_191_ = !lean_is_exclusive(v___x_182_);
@@ -1654,11 +1655,13 @@ return v_res_601_;
 }
 }
 lean_object* runtime_initialize_Lake_Util_OrderedTagAttribute(uint8_t builtin);
+void lean_initialize();
 static bool _G_runtime_initialized = false;
 LEAN_EXPORT lean_object* runtime_initialize_Lake_DSL_AttributesCore(uint8_t builtin) {
 lean_object * res;
 if (_G_runtime_initialized) return lean_io_result_mk_ok(lean_box(0));
 _G_runtime_initialized = true;
+lean_initialize();
 res = runtime_initialize_Lake_Util_OrderedTagAttribute(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);

@@ -7,6 +7,7 @@ module
 
 prelude
 public import Init.PropLemmas
+import Init.LawfulBEqTactics
 
 public section
 
@@ -46,7 +47,9 @@ universe signature in consequence. The `Prop` version is `Or`.
 
 namespace Sum
 
-deriving instance BEq for Sum
+@[expose] section
+deriving instance BEq, ReflBEq, LawfulBEq for Sum
+end
 
 section get
 

@@ -11,6 +11,8 @@ public import Lean.Meta.Tactic.Replace
 public import Lean.Meta.Tactic.Rename
 public import Lean.Elab.Tactic.Basic
 public import Lean.Elab.SyntheticMVars
+import Lean.Elab.ConfigEval
+import Lean.Meta.Hint
 
 public section
 
@@ -90,7 +92,7 @@ def closeMainGoalUsing (tacName : Name) (x : Expr → Name → TacticM Expr) (ch
         let mvars ← filterOldMVars (← getMVars val) mvarCounterSaved
         logUnassignedAndAbort mvars
       unless (← mvarId.checkedAssign val) do
-        throwTacticEx tacName mvarId m!"attempting to close the goal using{indentExpr val}\nthis is often due occurs-check failure")
+        throwTacticEx tacName mvarId m!"attempting to close the goal using{indentExpr val}\nthis is often due to an occurs-check failure")
     (fun ex => do
       pushGoal mvarId
       throw ex)
@@ -302,11 +304,27 @@ def evalApplyLikeTactic (tac : MVarId → Expr → MetaM (List MVarId)) (e : Syn
   | `(tactic| apply $t) => evalApplyLikeTactic (fun g e => g.apply e (term? := some m!"`{e}`")) t
   | _ => throwUnsupportedSyntax
 
-@[builtin_tactic Lean.Parser.Tactic.constructor] def evalConstructor : Tactic := fun _ =>
+declare_config_elab elabConstructorConfig Parser.Tactic.ConstructorConfig
+
+private def evalConstructorCore (stx : Syntax) (cfg : Parser.Tactic.ConstructorConfig) : TacticM Unit :=
   withMainContext do
-    let mvarIds' ← (← getMainGoal).constructor
+    let (mvarIds', ctors) ← (← getMainGoal).constructorCore (findAll := !cfg.first)
+    if ctors.size > 1 then
+      let others := ctors.toList.drop 1
+      let othersMsg := MessageData.andList (others.map fun c => m!"`{MessageData.ofConstName c}`")
+      let suggestion : Meta.Hint.Suggestion :=
+        { suggestion := "constructor!", span? := stx[0], diffGranularity := .none }
+      let hint ← MessageData.hint
+        m!"Use `constructor!` to apply the first matching constructor without this warning:"
+        #[suggestion]
+      logWarning <| m!"Tactic `constructor` applied constructor \
+        `{MessageData.ofConstName ctors[0]!}`, but {othersMsg} also \
+        {if others.length == 1 then "matches" else "match"} the goal." ++ hint
     Term.synthesizeSyntheticMVarsNoPostponing
     replaceMainGoal mvarIds'
+
+@[builtin_tactic Lean.Parser.Tactic.constructor] def evalConstructor : Tactic := fun stx => do
+  evalConstructorCore stx (← elabConstructorConfig stx[1])
 
 @[builtin_tactic Lean.Parser.Tactic.withReducible] def evalWithReducible : Tactic := fun stx =>
   withReducible <| evalTactic stx[1]

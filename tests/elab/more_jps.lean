@@ -28,7 +28,7 @@ trace: [Compiler.saveBase] size: 9
       let _x.7 := @List.cons _ _x.1 _x.6;
       let _x.8 := List.foldrNonTR._at_._example.spec_0 _x.7 x;
       return _x.8
-[Compiler.saveBase] size: 25
+[Compiler.saveBase] size: 27
     def List.foldrNonTR._at_._example.spec_0 x.1 _y.2 : Nat :=
       jp _jp.3 x : Nat :=
         let _x.4 := 13;
@@ -46,18 +46,20 @@ trace: [Compiler.saveBase] size: 9
       | List.cons head.5 tail.6 =>
         let _x.7 := 0;
         let _x.8 := instDecidableEqNat _y.2 _x.7;
-        cases _x.8 : Nat
-        | Decidable.isFalse x.9 =>
+        let _x.9 := _x.8 # 0;
+        cases _x.9 : Nat
+        | Bool.false =>
           let _x.10 := 10;
           let _x.11 := Nat.decLt _x.10 _y.2;
-          cases _x.11 : Nat
-          | Decidable.isFalse x.12 =>
+          let _x.12 := _x.11 # 0;
+          cases _x.12 : Nat
+          | Bool.false =>
             let _x.13 := Nat.add _y.2 head.5;
             let _x.14 := List.foldrNonTR._at_._example.spec_0 tail.6 _x.13;
             return _x.14
-          | Decidable.isTrue x.15 =>
+          | Bool.true =>
             goto _jp.3 _y.2
-        | Decidable.isTrue x.16 =>
+        | Bool.true =>
           return _y.2
 -/
 #guard_msgs in

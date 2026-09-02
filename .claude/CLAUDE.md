@@ -7,6 +7,26 @@ To build Lean you should use `make -j$(nproc) -C build/release`.
 The build uses `ccache`, and in a sandbox `ccache` may complain about read-only file systems.
 Use `CCACHE_READONLY` and `CCACHE_TEMPDIR` instead of disabling ccache completely.
 
+### Garbage-collected Nix store paths
+
+On NixOS the CMake caches pin absolute `/nix/store/...` paths for `gmp`, `libuv` and `openssl`.
+A `nix-collect-garbage` run deletes those store paths while the caches keep pointing at them, so
+the next configure-triggering change (e.g. checking out a revision with a different `stage0/`)
+fails with `fatal error: 'gmp.h' file not found` or `clang: error: no such file or directory:
+'/nix/store/...-gmp-with-cxx-6.3.0/lib/libgmp.so'`.
+
+Only the caches are stale; the environment's `CMAKE_PREFIX_PATH` still lists live paths. Drop the
+pinned entries so the next configure re-detects them, then build as usual:
+
+```bash
+script/refresh-cmake-deps.sh stage0/src build/release/stage0
+script/refresh-cmake-deps.sh src        build/release/stage1
+script/refresh-cmake-deps.sh src        build/release/stage2  # only if stage2 is configured
+```
+
+Note the differing source directory: stage0 configures from `stage0/src`, the later stages from
+`src`. This only rewrites cache entries; it does not delete build outputs.
+
 ## Running Tests
 
 See `tests/README.md` for full documentation. Quick reference:
@@ -92,6 +112,8 @@ Follow the commit convention in `doc/dev/commit_convention.md`.
 Subject should use imperative present tense ("add" not "added"), no capitalization, no trailing period.
 
 **Body format:** The first paragraph must start with "This PR". This paragraph is automatically incorporated into release notes, so keep it short, focus on user-side impact, and avoid implementation-specific wording. Save the implementation details for a follow-up paragraph. Use imperative present tense. Do NOT use markdown headings (`## Summary`, `## Test plan`, etc.) in PR bodies.
+
+**No process narrative:** Describe the change as it stands. Do not narrate how it was developed or verified ("validated locally against nightly X", "relying on CI for the full build", what earlier drafts did).
 
 **Line wrapping:** Do NOT hard-wrap lines in commit messages or PR descriptions. Write each paragraph as a single line and let display tools (GitHub, `git log`, terminals) soft-wrap. Bullet lists are still fine; just keep each `* item` body on one line.
 

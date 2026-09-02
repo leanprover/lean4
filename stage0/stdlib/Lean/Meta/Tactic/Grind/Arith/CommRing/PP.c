@@ -843,7 +843,7 @@ v_mctx_193_ = lean_ctor_get(v___x_192_, 0);
 lean_inc_ref(v_mctx_193_);
 lean_dec(v___x_192_);
 v_lctx_194_ = lean_ctor_get(v___y_185_, 2);
-v_options_195_ = lean_ctor_get(v___y_187_, 2);
+v_options_195_ = lean_ctor_get(v___y_187_, 1);
 lean_inc_ref(v_options_195_);
 lean_inc_ref(v_lctx_194_);
 v___x_196_ = lean_alloc_ctor(0, 4, 0);
@@ -875,7 +875,7 @@ LEAN_EXPORT lean_object* l_Lean_throwError___at___00Lean_Meta_Sym_Arith_MonadCan
 _start:
 {
 lean_object* v_ref_212_; lean_object* v___x_213_; lean_object* v_a_214_; lean_object* v___x_216_; uint8_t v_isShared_217_; uint8_t v_isSharedCheck_222_; 
-v_ref_212_ = lean_ctor_get(v___y_209_, 5);
+v_ref_212_ = lean_ctor_get(v___y_209_, 4);
 v___x_213_ = l_Lean_addMessageContextFull___at___00Lean_throwError___at___00Lean_Meta_Sym_Arith_MonadCanon_synthInstance___at___00Lean_Meta_Grind_Arith_CommRing_mkUnaryFn___at___00Lean_Meta_Grind_Arith_CommRing_getNegFn___at___00Lean_Meta_Grind_Arith_CommRing_denoteNum___at___00Lean_Meta_Grind_Arith_CommRing_EqCnstr_denoteExpr___at___00__private_Lean_Meta_Tactic_Grind_Arith_CommRing_PP_0__Lean_Meta_Grind_Arith_CommRing_ppBasis_x3f_spec__0_spec__1_spec__5_spec__11_spec__15_spec__17_spec__19(v_msg_206_, v___y_207_, v___y_208_, v___y_209_, v___y_210_);
 v_a_214_ = lean_ctor_get(v___x_213_, 0);
 v_isSharedCheck_222_ = !lean_is_exclusive(v___x_213_);
@@ -7000,7 +7000,7 @@ goto v_resetjp_2225_;
 v_resetjp_2225_:
 {
 lean_object* v_ref_2228_; lean_object* v___x_2229_; lean_object* v___x_2230_; lean_object* v___x_2231_; lean_object* v___x_2232_; lean_object* v___x_2234_; 
-v_ref_2228_ = lean_ctor_get(v_a_2179_, 5);
+v_ref_2228_ = lean_ctor_get(v_a_2179_, 4);
 v___x_2229_ = lean_io_error_to_string(v_a_2224_);
 v___x_2230_ = lean_alloc_ctor(3, 1, 0);
 lean_ctor_set(v___x_2230_, 0, v___x_2229_);
@@ -7231,11 +7231,13 @@ return v_res_2300_;
 lean_object* runtime_initialize_Lean_Meta_Tactic_Grind_Types(uint8_t builtin);
 lean_object* runtime_initialize_Lean_Meta_Tactic_Grind_Arith_CommRing_DenoteExpr(uint8_t builtin);
 lean_object* runtime_initialize_Init_Omega(uint8_t builtin);
+void lean_initialize_runtime_module();
 static bool _G_runtime_initialized = false;
 LEAN_EXPORT lean_object* runtime_initialize_Lean_Meta_Tactic_Grind_Arith_CommRing_PP(uint8_t builtin) {
 lean_object * res;
 if (_G_runtime_initialized) return lean_io_result_mk_ok(lean_box(0));
 _G_runtime_initialized = true;
+lean_initialize_runtime_module();
 res = runtime_initialize_Lean_Meta_Tactic_Grind_Types(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);

@@ -195,6 +195,18 @@ def findModuleOf? [Monad m] [MonadEnv m] [MonadError m] (declName : Name) : m (O
   | none        => return none
   | some modIdx => return some ((← getEnv).allImportedModuleNames[modIdx.toNat]!)
 
+/--
+Returns `true` if the recursor of the inductive type `declName` eliminates into an arbitrary `Sort`,
+which is the case exactly when it takes an extra universe parameter for the motive.
+
+Constructions that turn a value of the type into data (`T.ctorIdx`, `T._sizeOf_1`, `T.noConfusion`,
+…) are only possible for such types.
+-/
+def isLargeEliminating [Monad m] [MonadEnv m] [MonadError m] (declName : Name) : m Bool := do
+  let .inductInfo indVal ← getConstInfo declName | return false
+  let recInfo ← getConstInfo (mkRecName declName)
+  return recInfo.levelParams.length > indVal.levelParams.length
+
 def isEnumType  [Monad m] [MonadEnv m] [MonadError m] (declName : Name) : m Bool := do
   if let ConstantInfo.inductInfo info ← getConstInfo declName then
     if !info.type.isProp && info.numTypeFormers == 1 && info.numIndices == 0 && info.numParams == 0

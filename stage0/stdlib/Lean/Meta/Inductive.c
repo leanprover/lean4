@@ -86,7 +86,7 @@ v_mctx_10_ = lean_ctor_get(v___x_9_, 0);
 lean_inc_ref(v_mctx_10_);
 lean_dec(v___x_9_);
 v_lctx_11_ = lean_ctor_get(v___y_2_, 2);
-v_options_12_ = lean_ctor_get(v___y_4_, 2);
+v_options_12_ = lean_ctor_get(v___y_4_, 1);
 lean_inc_ref(v_options_12_);
 lean_inc_ref(v_lctx_11_);
 v___x_13_ = lean_alloc_ctor(0, 4, 0);
@@ -118,7 +118,7 @@ LEAN_EXPORT lean_object* l_Lean_throwError___at___00Lean_getConstInfoCtor___at__
 _start:
 {
 lean_object* v_ref_29_; lean_object* v___x_30_; lean_object* v_a_31_; lean_object* v___x_33_; uint8_t v_isShared_34_; uint8_t v_isSharedCheck_39_; 
-v_ref_29_ = lean_ctor_get(v___y_26_, 5);
+v_ref_29_ = lean_ctor_get(v___y_26_, 4);
 v___x_30_ = l_Lean_addMessageContextFull___at___00Lean_throwError___at___00Lean_getConstInfoCtor___at___00Lean_Meta_compatibleCtors_spec__0_spec__0_spec__1(v_msg_23_, v___y_24_, v___y_25_, v___y_26_, v___y_27_);
 v_a_31_ = lean_ctor_get(v___x_30_, 0);
 v_isSharedCheck_39_ = !lean_is_exclusive(v___x_30_);
@@ -411,16 +411,16 @@ goto v_reusejp_105_;
 }
 v_reusejp_105_:
 {
-lean_object* v___x_107_; lean_object* v___x_108_; lean_object* v___x_1849__overap_109_; lean_object* v___x_110_; 
+lean_object* v___x_107_; lean_object* v___x_108_; lean_object* v___x_1765__overap_109_; lean_object* v___x_110_; 
 v___x_107_ = lean_box(0);
 v___x_108_ = l_instInhabitedOfMonad___redArg(v___x_106_, v___x_107_);
-v___x_1849__overap_109_ = lean_panic_fn_borrowed(v___x_108_, v_msg_52_);
+v___x_1765__overap_109_ = lean_panic_fn_borrowed(v___x_108_, v_msg_52_);
 lean_dec(v___x_108_);
 lean_inc(v___y_56_);
 lean_inc_ref(v___y_55_);
 lean_inc(v___y_54_);
 lean_inc_ref(v___y_53_);
-v___x_110_ = lean_apply_5(v___x_1849__overap_109_, v___y_53_, v___y_54_, v___y_55_, v___y_56_, lean_box(0));
+v___x_110_ = lean_apply_5(v___x_1765__overap_109_, v___y_53_, v___y_54_, v___y_55_, v___y_56_, lean_box(0));
 return v___x_110_;
 }
 }
@@ -1005,11 +1005,13 @@ return v_res_291_;
 }
 }
 lean_object* runtime_initialize_Lean_Meta_Basic(uint8_t builtin);
+void lean_initialize_runtime_module();
 static bool _G_runtime_initialized = false;
 LEAN_EXPORT lean_object* runtime_initialize_Lean_Meta_Inductive(uint8_t builtin) {
 lean_object * res;
 if (_G_runtime_initialized) return lean_io_result_mk_ok(lean_box(0));
 _G_runtime_initialized = true;
+lean_initialize_runtime_module();
 res = runtime_initialize_Lean_Meta_Basic(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);

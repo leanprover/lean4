@@ -255,7 +255,7 @@ goto v_resetjp_52_;
 v_resetjp_52_:
 {
 lean_object* v_ref_55_; lean_object* v___x_56_; lean_object* v___x_57_; lean_object* v___x_58_; lean_object* v___x_59_; lean_object* v___x_61_; 
-v_ref_55_ = lean_ctor_get(v_a_9_, 5);
+v_ref_55_ = lean_ctor_get(v_a_9_, 4);
 v___x_56_ = lean_io_error_to_string(v_a_51_);
 v___x_57_ = lean_alloc_ctor(3, 1, 0);
 lean_ctor_set(v___x_57_, 0, v___x_56_);
@@ -305,11 +305,13 @@ return v_res_75_;
 }
 lean_object* runtime_initialize_Lean_Meta_Tactic_Grind_Types(uint8_t builtin);
 lean_object* runtime_initialize_Lean_Meta_Tactic_Grind_Finish(uint8_t builtin);
+void lean_initialize_runtime_module();
 static bool _G_runtime_initialized = false;
 LEAN_EXPORT lean_object* runtime_initialize_Lean_Meta_Tactic_Grind_Solve(uint8_t builtin) {
 lean_object * res;
 if (_G_runtime_initialized) return lean_io_result_mk_ok(lean_box(0));
 _G_runtime_initialized = true;
+lean_initialize_runtime_module();
 res = runtime_initialize_Lean_Meta_Tactic_Grind_Types(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);

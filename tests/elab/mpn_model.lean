@@ -596,14 +596,6 @@ private theorem toUInt64_ne_zero {x : Digit} (h : 0 < x.toNat) : x.toUInt64 ≠ 
 theorem sub_digitBits_lt {d : Nat} (h : 0 < d) : digitBits - d < digitBits := by
   simp only [digitBits_eq]; omega
 
-/-- `d++` in `div_normalize`'s `while` loop, from `d` up. -/
-def leadingZerosGo (x : Digit) (d : Nat) (hd : d < digitBits) : Fin digitBits :=
-  if h : d + 1 < digitBits then
-    if CPP.shl x d hd &&& maskFirst == 0 then leadingZerosGo x (d + 1) h else ⟨d, hd⟩
-  else ⟨d, hd⟩
-termination_by digitBits - d
-decreasing_by simp only [digitBits_eq] at *; omega
-
 /--
 The leading-zero count of `x`, as `div_normalize`'s `while` loop computes it:
 ```
@@ -618,7 +610,15 @@ shift it feeds is well defined without a side condition. Callers reach
 nonzero unless the denominator is zero, which `lean_nat_div` rejects first.
 -/
 def leadingZeros (x : Digit) : Fin digitBits :=
-  leadingZerosGo x 0 (by simp [digitBits_eq])
+  go 0 (by simp [digitBits_eq])
+where
+  /-- `d++` in the `while` loop, from `d` up. -/
+  go (d : Nat) (hd : d < digitBits) : Fin digitBits :=
+    if h : d + 1 < digitBits then
+      if CPP.shl x d hd &&& maskFirst == 0 then go (d + 1) h else ⟨d, hd⟩
+    else ⟨d, hd⟩
+  termination_by digitBits - d
+  decreasing_by simp only [digitBits_eq] at *; omega
 
 /-- The predicate `leadingZeros` counts, in arithmetic terms. -/
 private theorem leadingZeros_pred (x : Digit) {i : Nat} (hi : i < digitBits) :
@@ -633,10 +633,10 @@ normalization means and what Knuth's Algorithm D assumes of its divisor.
 -/
 theorem leadingZerosGo_spec (x : Digit) (hx : 0 < x.toNat) (d : Nat) (hd : d < digitBits)
     (hfit : x.toNat * 2 ^ d < base) :
-    2147483648 ≤ x.toNat * 2 ^ (leadingZerosGo x d hd).val ∧
-      x.toNat * 2 ^ (leadingZerosGo x d hd).val < base := by
+    2147483648 ≤ x.toNat * 2 ^ (leadingZeros.go x d hd).val ∧
+      x.toNat * 2 ^ (leadingZeros.go x d hd).val < base := by
   have hmod : x.toNat * 2 ^ d % base = x.toNat * 2 ^ d := Nat.mod_eq_of_lt hfit
-  rw [leadingZerosGo]
+  rw [leadingZeros.go]
   split <;> rename_i h
   · split <;> rename_i hp
     · -- the top bit is still clear, so the value can double and stay in range

@@ -27,8 +27,8 @@ is a challenge to compare against, that it proves the challenge's statements usi
 a whitelist. This backs `lake challenge` and `lake check`.
 
 The code being judged is adversarial input: it is built and exported inside a `landrun` sandbox,
-and no `.olean` produced from it is ever mapped into this process. Only the resulting NDJSON export
-crosses the boundary.
+and no `.olean` produced from it is ever mapped into the process that reports the verdict. Only the
+resulting NDJSON export crosses the boundary.
 -/
 
 namespace Lake.Check
@@ -184,28 +184,47 @@ def safeResolveWorkspace : M (String × String) := do
   return (leanPath, binPath)
 
 /--
-Asks the project which modules its default targets contain, inside the sandbox.
+Materializes the project's dependencies into `.lake`.
 
-Resolving targets means evaluating the project's configuration, which is code, so it happens where
-every other evaluation of it happens. `lake query :modules` reports the modules of the package's
-default targets, one per line.
+Resolution elaborates the project's configuration, which is code, so it runs in the sandbox; it is
+also the only step permitted to reach the network. Nothing has to come back: the process that
+exports loads the workspace itself and so already knows the search path.
 -/
-def safeQueryModules : M (Array Lean.Name) := do
-  IO.println "Resolving targets"
+def safeResolveDeps : M Unit := do
+  IO.println "Resolving dependencies"
   let projectDir ← getProjectDir
-  let whichLake := (← read).whichLake
-  let out ← runSandBoxedWithStdout {
-    cmd := whichLake.toString,
-    args := #["query", ":modules"],
+  let dotLakeDir := projectDir / ".lake"
+  if !(← System.FilePath.pathExists dotLakeDir) then
+    IO.FS.createDir dotLakeDir
+  runSandBoxed {
+    cmd := (← read).whichLake.toString,
+    args := #["resolve-deps"],
     envPass := #["PATH", "HOME", "LEAN_ABORT_ON_PANIC"]
     envOverride := #[("LEAN_ABORT_ON_PANIC", some "1")]
     readablePaths := #[projectDir]
+    writablePaths := #[dotLakeDir]
+    -- `https` and `ssh`, the transports Lake's git dependencies use.
+    connectPorts := #["443", "22"]
+  }
+
+/--
+Builds and exports the project in one sandboxed `lake` process, and returns the export.
+
+`LAKE_CHECK_EXPORT` puts that process into the half of `lake check` that runs inside the sandbox,
+so the modules to check never cross a process boundary: it resolves them, builds them and dumps the
+export itself, writing the export to stdout and everything else to stderr.
+-/
+def safeBuildAndExport : M String := do
+  IO.println "Building and exporting"
+  let projectDir ← getProjectDir
+  runSandBoxedWithStdout {
+    cmd := (← read).whichLake.toString,
+    args := #["check"],
+    envPass := #["PATH", "HOME", "LEAN_ABORT_ON_PANIC"]
+    envOverride := #[("LEAN_ABORT_ON_PANIC", some "1"), ("LAKE_CHECK_EXPORT", some "1")]
+    readablePaths := #[projectDir]
     writablePaths := #[projectDir / ".lake"]
   }
-  let mods := out.split '\n' |>.toStringList |>.filterMap fun line =>
-    let line := line.trimAscii.toString
-    if line.isEmpty then none else some line.toName
-  return mods.toArray
 
 def safeLakeBuild (targets : Array Lean.Name) : M Unit := do
   let targetArgs := targets.map (·.toString)
@@ -482,12 +501,6 @@ def resolveExternalKernels (cfg : Config) : IO (Except ExitCode (Std.TreeMap Str
       return .error (← cannotRun s!"`{kernelName}` kernel `{kernelCommand[0]!}` was not found")
   return .ok externalKernels
 
-/-- Exports everything in scope in `modules`. -/
-def exportModules (modules : Array Lean.Name) : M String := do
-  let moduleArgs := modules.map (·.toString)
-  IO.println s!"Exporting the declarations of {" ".intercalate moduleArgs.toList}"
-  runExporter moduleArgs
-
 def standardAxioms : Array Lean.Name :=
   #[``propext, ``Classical.choice, ``Quot.sound]
 
@@ -504,9 +517,9 @@ def checkUsedAxioms (exported : LeanExport.ExportedEnv) : M Unit := do
       s!"Axiom '{ax}' is not permitted; it is used by '{ref}'"
 
 /-- Checks a set of module roots at once against the kernel with no challenge to compare it to. -/
-def checkModules (modules : Array Lean.Name) : M Unit := do
-  safeLakeBuild modules
-  let exported ← LeanExport.parseStream (← stringStream (← exportModules modules))
+def checkProject : M Unit := do
+  safeResolveDeps
+  let exported ← LeanExport.parseStream (← stringStream (← safeBuildAndExport))
   if let some error ← runBuiltinKernel exported then
     throw <| .userError error
   checkUsedAxioms exported
@@ -573,12 +586,7 @@ public def runCheck (lean : LeanInstall) (lake : LakeInstall)
   if let some rc ← checkManifest "check" base.projectDir then
     return rc
   try
-    let (leanPath, binPath) ← ReaderT.run safeResolveWorkspace base
-    let ctx := { base with leanPath, binPath }
-    let targets ← ReaderT.run safeQueryModules ctx
-    if targets.isEmpty then
-      return ← cannotRun "nothing to check: this project has no default build targets"
-    ReaderT.run (checkModules targets) ctx
+    checkProject.run base
     return 0
   catch e =>
     IO.eprintln s!"error: {e}"

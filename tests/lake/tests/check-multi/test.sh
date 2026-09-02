@@ -16,11 +16,12 @@ export COMPARATOR_LANDRUN="$PWD/../fake-landrun.sh"
 # this just skips the build.
 "$LAKE" resolve-deps
 
-# Several roots are built, exported and replayed together: the export covers each root's whole
-# import closure, so a pass per root would re-check what they share.
+# Both roots are built, exported and replayed together, in one sandboxed process: the export
+# covers each root's whole import closure, so a pass per root would re-check what they share.
 test_status_out 0 'Lean default kernel accepts the solution' check
-test_exp "`grep -c 'Building A B' produced.out`" = 1
-test_exp "`grep -c 'Exporting the declarations of A B' produced.out`" = 1
+test_exp "`grep -c 'Building and exporting' produced.out`" = 1
 test_exp "`grep -c 'Running Lean default kernel' produced.out`" = 1
+match_text 'Built A' produced.out
+match_text 'Built B' produced.out
 
 rm -f produced.out

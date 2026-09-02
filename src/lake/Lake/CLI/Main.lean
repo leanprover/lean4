@@ -13,6 +13,7 @@ public import Lake.CLI.Shake
 public import Lake.CLI.Check
 import Lake.Version
 import Lake.Build.Run
+import Lake.Build.Infos
 import Lake.Build.Targets
 import Lake.Build.Target.Fetch
 import Lake.Load.Package
@@ -25,6 +26,7 @@ import Lake.Util.Cli
 import Lake.CLI.Init
 import Lake.CLI.Help
 import Lake.CLI.Build
+import LeanExport.Basic
 import Lake.CLI.Actions
 import Lake.CLI.Translate
 import Lake.CLI.Serve
@@ -1176,16 +1178,36 @@ protected def challenge : CliM PUnit := do
   let cfg ← mkLoadConfig opts
   exit <| ← Check.runChallenge opts.challengeConfig? leanInstall lakeInstall cfg.wsDir
 
+/--
+The half of `lake check` that runs inside the sandbox, selected by `LAKE_CHECK_EXPORT`.
+
+Resolves the default targets to modules, builds them, and dumps the export of everything in scope.
+The export goes to standard out and everything else to standard error, so the outer half can read
+one from the other.
+-/
+protected def checkExport : CliM PUnit := do
+  let opts ← getThe LakeOptions
+  let ws ← loadWorkspace (← mkLoadConfig opts)
+  let buildConfig := mkBuildConfig opts
+  ws.runBuild (buildSpecs (← parseTargetSpecs ws [])) buildConfig
+  let mods ← ws.runBuild ws.root.modules.fetch buildConfig
+  Lean.initSearchPath ws.lakeEnv.lean.sysroot ws.augmentedLeanPath
+  let env ← Lean.importModules (mods.map fun mod => {module := mod.name}) {}
+  LeanExport.dumpEnv env
+
 /-- The `lake check` command: check this project against the kernel. -/
 protected def check : CliM PUnit := do
   processOptions lakeOption
   let opts ← getThe LakeOptions
-  noArgsRem do
-  let (leanInstall, lakeInstall) ← opts.getInstall
-  -- The workspace is deliberately not loaded here: evaluating the project's configuration is code
-  -- execution, and containing it is what the sandbox is for.
-  let cfg ← mkLoadConfig opts
-  exit <| ← Check.runCheck leanInstall lakeInstall cfg.wsDir
+  if (← IO.getEnv "LAKE_CHECK_EXPORT").isSome then
+    lake.checkExport
+  else
+    noArgsRem do
+    let (leanInstall, lakeInstall) ← opts.getInstall
+    -- The workspace is deliberately not loaded here: evaluating the project's configuration is code
+    -- execution, and containing it is what the sandbox is for.
+    let cfg ← mkLoadConfig opts
+    exit <| ← Check.runCheck leanInstall lakeInstall cfg.wsDir
 
 protected def script : CliM PUnit := do
   if let some cmd ← takeArg? then

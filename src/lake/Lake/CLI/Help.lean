@@ -483,11 +483,12 @@ Builds the default build targets, exports them, and replays the result through
 the kernel, erroring on any use of non-standard axioms.
 
 The project is untrusted input: its configuration is evaluated, and its code
-built and exported, inside a `landrun` sandbox, and none of its `.olean` files
-is ever loaded into Lake's own address space. Both the dependencies and the
-targets to check are resolved there, since resolving either evaluates the
-configuration and that is code. `landrun` is required; there is no unsandboxed
-mode, so this command is available on Linux only.
+built, exported and resolved, inside a `landrun` sandbox. Only the export
+crosses back, so none of its `.olean` files is ever loaded outside it. Two
+sandboxed processes do the work: one resolves dependencies, the only step
+allowed to reach the network, and one builds and exports. `landrun` is
+required; there is no unsandboxed mode, so this command is available on Linux
+only.
 
 The project has to carry a `lake-manifest.json`, because dependencies are
 resolved inside the sandbox and it cannot write to the project directory.

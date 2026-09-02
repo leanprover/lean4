@@ -175,17 +175,22 @@ validation is default-independent and covers set↔unset transitions exactly. Se
 -/
 structure RecordedOptionAccess where
   name  : Name
+  /--
+  Duplicates `RecordedDeps.base` at `name` while the query runs, but outlives it: entries drop
+  `base` on insert, and their values are what tells them apart and what `RecordedDeps.mergeInto`
+  weighs against an enclosing query's `base`.
+  -/
   value : Option DataValue
   deriving BEq
 
 /--
-What a recording computation observed, accumulated in `Core.State.recordedDeps` while it runs; replaying the observations decides whether a
-result cached by that computation is still valid. Type class resolution is currently the only
+The observations a recording computation made, accumulated in `Core.State.recordedDeps` while it
+runs. Replaying them decides whether a result it cached is still valid. Type class resolution is currently the only
 client, see `Lean.Meta.SynthInstance`.
 -/
 structure RecordedDeps where
   /--
-  The option lookups performed, deduplicated by name; a cached result may only be reused when
+  The performed option lookups, deduplicated by name; a cached result may only be reused when
   these lookups give the same answers in the current context.
   -/
   options : Array RecordedOptionAccess := #[]
@@ -193,7 +198,7 @@ structure RecordedDeps where
   The options in effect when recording started, which is also what a cached entry is validated
   against. A lookup that answers differently from this was served by a write inside the recording
   computation (`Lean.withSetOption`), so it does not depend on the ambient options and is not a
-  dependency; compare the `constBirthGen` watermark used for declarations.
+  dependency; compare with `constBirthGen` watermark used for declarations.
   -/
   base : Options := {}
   deriving Inhabited
@@ -232,7 +237,7 @@ structure State where
   cache           : Cache          := {}
   /--
   Dependencies observed by the computation currently recording, if any
-  (`Core.Context.recordingDeps`), becomes the dependency log of the entry it caches; see
+  (`Core.Context.isRecordingDeps`), becomes the dependency log of the entry it caches; see
   `Lean.Meta.SynthInstanceCache` for the only current use. Deliberately *not* backtracked by
   `SavedState.restore`, so dependencies observed on a path that is later rolled back are kept.
   -/
@@ -294,7 +299,7 @@ structure Context extends Context.Cold where
   True while this computation is recording its dependencies into `Core.State.recordedDeps`;
   accessing state not (yet) recorded may panic, see e.g. instance `MonadOptions CoreM`.
   -/
-  recordingDeps : Bool := false
+  isRecordingDeps : Bool := false
   deriving Nonempty
 
 /-- CoreM is a monad for manipulating the Lean environment.
@@ -327,7 +332,7 @@ instance : MonadOptions CoreM where
   getOptions := do
     let ctx ← read
     let options := ctx.options
-    if ctx.recordingDeps then
+    if ctx.isRecordingDeps then
       return reportViolation options
     return options
   getOptionsUnrestricted := return (← read).options
@@ -341,7 +346,7 @@ where
   -/
   @[noinline] reportViolation (options : Options) : Options :=
     have : Inhabited Options := ⟨options⟩
-    panic! "options acquired inside a computation recording its dependencies; \
+    panic! "`getOptions` called inside a computation recording its dependencies; \
       result-relevant reads must go through `Lean.getRecordedOption`, all others through \
       `getOptionsUnrestricted`"
 
@@ -367,19 +372,22 @@ depend on the ambient options; `Lean.withSetOption` satisfies that by constructi
 
 instance : MonadWithOptions CoreM where
   withOptions f x := do
-    let f := if (← read).recordingDeps then reportViolation f else f
+    let f := if (← read).isRecordingDeps then reportViolation else f
     withOptionsUnrestricted f x
 where
   /--
-  Reports a violation and returns `f` unchanged, so that it is reported once instead of cascading
-  through the computation the transformed options are in scope of.
+  Reports a violation and leaves the options unchanged, so that it is reported once instead of
+  cascading through the computation the transformed options are in scope of.
+
+  Takes no argument so that `f` stays linear at the use site above: passing it through here would
+  leave it a variable rather than a known function, costing an indirect call on the ordinary path.
 
   Kept out of line for the same reason as the one in `getOptions`: `panic!` is `@[inline]`, and
   each inlined copy carries its own message constants.
   -/
-  @[noinline] reportViolation (f : Options → Options) : Options → Options :=
-    have : Inhabited (Options → Options) := ⟨f⟩
-    panic! "options transformed inside a computation recording its dependencies; a transformer \
+  @[noinline] reportViolation : Options → Options :=
+    have : Inhabited (Options → Options) := ⟨id⟩
+    panic! "`withOptions` called inside a computation recording its dependencies; a transformer \
       may derive a recorded option's value from the ambient options, which the dependency log \
       does not capture. Use `Lean.withSetOption` for a value independent of the ambient options"
 
@@ -494,7 +502,7 @@ itself after calling `act` as well as by reuse-handling code such as the one sup
   if let some (val, state) := reusableResult? then
     -- Restoring a full state rolls back `State.recordedDeps`, would need to be thought through if
     -- recording is ever extended to include calls of this function.
-    assert! !(← read).recordingDeps
+    assert! !(← read).isRecordingDeps
     set state.toState
     IO.addHeartbeats state.passedHeartbeats
     return (val, state)
@@ -671,7 +679,7 @@ def wrapAsync {α : Type} (act : α → CoreM β) (cancelTk? : Option IO.CancelT
   let st ← get
   -- The forked action's final state is discarded below, so anything it records into
   -- `State.recordedDeps` would be lost. To be revisited when it becomes necessary.
-  assert! !(← read).recordingDeps
+  assert! !(← read).isRecordingDeps
   let st := { st with auxDeclNGen := childDeclNGen, ngen := childNGen }
   let ctx ← read
   let ctx := { ctx with cancelTk? }
@@ -757,9 +765,8 @@ export Core (CoreM mkFreshUserName checkSystem withCurrHeartbeats)
 /--
 Runs the given computation with the option `name` set to `v`.
 
-Unlike `withOptions`, this is permitted inside a computation recording its dependencies: `v` does
-not come from the ambient options, so a recorded read of `name` in this scope observes `v` in every
-context, and an entry the computation caches stays valid wherever it validates.
+Unlike `withOptions`, this is permitted while `Core.Context.isRecordingDeps` is set, as it does
+not give access to the ambient options.
 -/
 @[inline] def withSetOptionByName [MonadFunctorT CoreM m] [KVMap.Value β]
     (name : Name) (v : β) : m α → m α :=
@@ -890,7 +897,7 @@ def compileDecl (decl : Declaration) (logErrors := true) : CoreM Unit := do
   compileDecls (Compiler.getDeclNamesForCodeGen decl) logErrors
 
 private def recordOptionAccess (access : RecordedOptionAccess) : CoreM Unit := do
-  if (← read).recordingDeps then
+  if (← read).isRecordingDeps then
     -- The membership test comes first because repeated lookups of the same option dominate (e.g.
     -- per `isDefEq` step), so the common path neither consults `base` nor updates the state.
     -- Only a lookup answering as `base` does is a dependency, which makes the log independent of
@@ -902,11 +909,11 @@ private def recordOptionAccess (access : RecordedOptionAccess) : CoreM Unit := d
         Core.modifyRecordedDeps fun deps => { deps with options := deps.options.push access }
 
 /--
-Reads an option inside a recording computation, recording the lookup as an option dependency
-of the entry being computed (`Core.State.recordedDeps`); see `Lean.Meta.SynthInstanceCache` for
-the only current client. The read bypasses the options restriction, which exists to divert
-result-relevant by-name reads to this function; outside a recording computation it behaves like
-`Lean.Option.get`.
+Reads an option while `Core.Context.isRecordingDeps` is set, recording the lookup as an option
+dependency of the entry being computed (`Core.State.recordedDeps`); see
+`Lean.Meta.SynthInstanceCache` for the only current client. The read bypasses the options
+restriction, which exists to divert result-relevant by-name reads to this function; otherwise it
+behaves like `Lean.Option.get`.
 -/
 def getRecordedOption [KVMap.Value α] (opt : Lean.Option α) : CoreM α := do
   let raw := (← getOptionsUnrestricted).find? opt.name

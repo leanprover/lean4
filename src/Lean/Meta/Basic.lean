@@ -402,13 +402,13 @@ def ofFlags (respectTransparency respectTransparencyTypes respectTransparencyIns
     flag throwOnStuckAfterApp 0x100
 
 /--
-Marks a flag word as present in `Meta.Context.synthDefEqFlags`, so that "no flag set" stays
-distinguishable from "outside a query". The topmost bit, so the accessors ignore it.
+The bit marking a flag word as present in `Meta.Context.synthDefEqFlags`, so that "no flag set"
+stays distinguishable from "outside a query". It is the topmost bit, so the accessors ignore it.
 -/
 def armedBit : UInt16 := 0x8000
 
 /--
-The `Meta.Context.synthDefEqFlags` word for `f`.
+Returns the `Meta.Context.synthDefEqFlags` word for `f`.
 
 The result is not interchangeable with `f`: the derived `BEq` and `Hashable` compare raw `bits`,
 so the armed word and `f` itself are distinct values denoting the same flags. Only the un-armed
@@ -472,7 +472,7 @@ Type class resolution cache. Each key holds one entry per observed combination o
 the search records every result-relevant option lookup (`Lean.getRecordedOption`) into the
 entry's `RecordedDeps`, and a lookup may only use an entry whose recorded lookups give the same
 answers in the current context. Options the search never read do not partition the cache. The
-search reads no other options, as it runs with `Core.Context.recordingDeps` set, which diverts
+search reads no other options, as it runs with `Core.Context.isRecordingDeps` set, which diverts
 option acquisitions to the recording accessors.
 -/
 abbrev SynthInstanceCache :=

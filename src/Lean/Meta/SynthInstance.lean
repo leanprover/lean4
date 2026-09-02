@@ -927,7 +927,7 @@ private def applyAbstractResult? (type : Expr) (abstResult? : Option AbstractMVa
   check result
   return some result
 
-/-- Returns whether every recorded lookup in `log` gives the same answer in `opts`. -/
+/-- True if every recorded lookup in `log` gives the same answer in `opts`. -/
 private def validOptionAccesses (opts : Options) (log : SynthOptionAccessLog) : Bool :=
   log.all fun a => opts.find? a.name == a.value
 
@@ -945,9 +945,9 @@ private def _root_.Lean.RecordedDeps.mergeInto (child parent : RecordedDeps) : R
   { parent with options }
 
 /--
-Identity of two dependency logs for entry replacement in `insertCachedResult`: the same option
-lookups with the same answers. Both operands are stored logs, whose accesses `insertCachedResult`
-puts in a canonical order, so comparing the arrays compares the sets.
+True if two dependency logs record the same option lookups with the same answers, which is when
+`insertCachedResult` replaces one entry with the other. Both operands are stored logs, whose
+accesses `insertCachedResult` puts in a canonical order, so comparing the arrays compares the sets.
 -/
 private def sameDepIdentity (a b : RecordedDeps) : Bool :=
   a.options == b.options
@@ -1044,7 +1044,7 @@ def synthInstanceCore? (type : Expr) (maxResultSize? : Option Nat := none) : Met
   -- nested query's effective dependencies are merged into it on exit (`finally` below): the
   -- enclosing query observed the result.
   let parentDeps := (← getThe Core.State).recordedDeps
-  let parentRecording := (← readThe Core.Context).recordingDeps
+  let parentRecording := (← readThe Core.Context).isRecordingDeps
   -- The watermark the query's lookups are judged against, read at the point `findCachedResult?`
   -- later validates against, so recorded and validated values agree by construction.
   let base ← getOptionsUnrestricted
@@ -1052,7 +1052,7 @@ def synthInstanceCore? (type : Expr) (maxResultSize? : Option Nat := none) : Met
   try
   -- Mark the query as recording; the marker is scoped to the search, so only the accumulator
   -- has to be restored below.
-  withTheReader Core.Context (fun ctx => { ctx with recordingDeps := true }) do
+  withTheReader Core.Context (fun ctx => { ctx with isRecordingDeps := true }) do
   -- Resolve the per-step definitional-equality flags once; they are part of the cache key
   -- rather than recorded dependencies, so the raw reads are not logged. See `SynthDefEqFlags`.
   -- Unrestricted acquisition: everything read below is part of the key.

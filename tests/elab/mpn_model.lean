@@ -420,10 +420,11 @@ def compare (a b : Array Digit) : Int := Id.run do
     for (os = len+1; os > 1 && c[os-1] == 0; ) os--;
 ```
 -/
-def trim (c : Array Digit) : Array Digit :=
-  if 1 < c.size && c.getD (c.size - 1) 0 == 0 then trim c.pop else c
-termination_by c.size
-decreasing_by simp_all; omega
+def trim (c : Array Digit) : Array Digit := Id.run do
+  let mut c := c
+  while 1 < c.size && c.getD (c.size - 1) 0 == 0 do
+    c := c.pop
+  return c
 
 /--
 `mpn_add`, Knuth's Algorithm A:
@@ -1438,13 +1439,14 @@ theorem addLoop_spec (a b : Array Digit) (len : Nat) :
     exact add_combine hval hd
 
 theorem denote_trim (c : Array Digit) : denote (trim c) = denote c := by
-  unfold trim
-  split <;> rename_i h
-  · simp only [Bool.and_eq_true, decide_eq_true_eq, beq_iff_eq] at h
-    rw [denote_trim c.pop, denote_pop_of_back_zero c (by omega) h.2]
-  · rfl
-termination_by c.size
-decreasing_by simp_all; omega
+  generalize h : trim c = r
+  apply Id.of_wp_run_eq h
+  mvcgen invariants
+  | inv1 => fun c' => ULift.up c'.size
+  | inv2 => ⇓ r => match r with
+    | .inl c' => spred(⌜denote c' = denote c⌝)
+    | .inr c' => spred(⌜denote c' = denote c⌝)
+  all_goals (try (rw [denote_pop_of_back_zero])) <;> simp_all [Array.size_pop] <;> omega
 
 /-- `mpn_add` computes the sum. -/
 theorem denote_add (a b : Array Digit) : denote (add a b) = denote a + denote b := by
@@ -3453,25 +3455,27 @@ structure Num where
 def Num.val (a : Num) : Nat := denote a.digits
 
 theorem size_trim_pos (c : Array Digit) (h : 0 < c.size) : 0 < (trim c).size := by
-  unfold trim
-  split <;> rename_i hc
-  · simp only [Bool.and_eq_true, decide_eq_true_eq] at hc
-    exact size_trim_pos c.pop (by simp; omega)
-  · exact h
-termination_by c.size
-decreasing_by simp_all; omega
+  generalize hh : trim c = r
+  apply Id.of_wp_run_eq hh
+  mvcgen invariants
+  | inv1 => fun c' => ULift.up c'.size
+  | inv2 => ⇓ r => match r with
+    | .inl c' => spred(⌜0 < c'.size⌝)
+    | .inr c' => spred(⌜0 < c'.size⌝)
+  all_goals simp_all [Array.size_pop] <;> omega
 
 theorem trim_top_ne_zero (c : Array Digit) :
     1 < (trim c).size → ((trim c).getD ((trim c).size - 1) 0).toNat ≠ 0 := by
-  unfold trim
-  split <;> rename_i hc
-  · simp only [Bool.and_eq_true] at hc
-    exact trim_top_ne_zero c.pop
-  · intro hgt he
-    simp only [Bool.and_eq_true, decide_eq_true_eq, beq_iff_eq, not_and] at hc
-    exact hc hgt (UInt32.toNat_inj.mp (by rw [he]; rfl))
-termination_by c.size
-decreasing_by simp_all; omega
+  generalize hh : trim c = r
+  apply Id.of_wp_run_eq hh
+  mvcgen invariants
+  | inv1 => fun c' => ULift.up c'.size
+  | inv2 => ⇓ r => match r with
+    | .inl c' => spred(⌜True⌝)
+    | .inr c' => spred(⌜1 < c'.size → (c'.getD (c'.size - 1) 0).toNat ≠ 0⌝)
+  all_goals first
+    | grind
+    | (simp_all [Array.size_pop] <;> omega)
 
 /--
 `mpz::set`, which drops leading zero digits, keeping at least one:

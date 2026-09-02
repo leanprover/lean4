@@ -85,12 +85,15 @@ A handle to a registered stateful linter, returned by `registerStatefulLinter`.
 -/
 structure StatefulLinter (σ τ : Type) where private mk ::
   private idx : Nat
+  -- /-- The indices of prior `StatefulLinters` whose intermediate states are read by this linter. -/
+  -- private deps : List Nat
 deriving Inhabited
 
 /-- The type-erased registry entry for a stateful linter. -/
 structure StatefulLinterEntry where
   init : LinterState
-  pre  : Syntax → (prev : Array LinterState) → CommandElabM (Option LinterState)
+  pre  : Syntax → (prev : Array LinterState) → (preSt : Array (Option LinterState)) →
+    CommandElabM (Option LinterState)
   post : Syntax → (prev : Array LinterState) → (preSt : Array (Option LinterState)) → CommandElabM LinterState
 
 namespace StatefulLinter
@@ -164,6 +167,57 @@ def addModuleLinter (l : ModuleLinter) : IO Unit := do
   let ls ← moduleLintersRef.get
   moduleLintersRef.set (ls.push l)
 
+abbrev PreStatesOf : ((List (Σ σ τ, StatefulLinter σ τ))) → Type → Type
+  | [], α => α
+  | ⟨_, τ, _⟩ :: rest, α => Option τ → PreStatesOf rest α
+
+def PreStatesOf.const (a : α) : PreStatesOf ls α :=
+  match ls with
+  | [] => a
+  | _ :: ls => fun _ => PreStatesOf.const (ls := ls) a
+
+def PreStatesOf.apply {ls α} (preSt : Array (Option LinterState)) (p : PreStatesOf ls α) : α :=
+  match ls with
+  | [] => p
+  | ⟨_, _, s⟩ :: _ => p (s.preState preSt) |>.apply preSt
+
+abbrev PreStateOf (_ : StatefulLinter σ τ) := Option τ
+
+abbrev PreStatesOfT : (h : (List (Σ σ τ, StatefulLinter σ τ)) := by exact []) → (m : Type → Type) → Type → Type
+  | [], m => m
+  | ⟨_, _, s⟩ :: rest, m => ReaderT (PreStateOf s) (PreStatesOfT rest m)
+
+protected def PreStatesOfT.pure {α rest} [Monad m] (a : α) : PreStatesOfT rest m α :=
+  match rest with
+  | [] => Pure.pure a
+  | _ :: _ => fun _ => PreStatesOfT.pure a
+
+protected def PreStatesOfT.bind [Monad m] {α β : Type}
+    (x : PreStatesOfT ls m α) (f : α → PreStatesOfT ls m β) : PreStatesOfT ls m β :=
+  match ls with
+  | [] => x >>= f
+  | _ :: _ => fun r => (x r).bind fun a => f a r
+
+def PreStatesOfT.apply {ls α} (preSt : Array (Option LinterState))
+    (p : PreStatesOfT ls m α) : m α :=
+  match ls with
+  | [] => p
+  | ⟨_, _, s⟩ :: _ => p (s.preState preSt) |>.apply preSt
+
+instance (priority := low) [Monad m] : Monad (PreStatesOfT ls m) where
+  pure := PreStatesOfT.pure
+  bind := PreStatesOfT.bind
+
+unif_hint (deps : List (Σ σ τ, StatefulLinter σ τ)) (m : Type → Type) (m' : Type → Type) where
+  deps ≟ []
+  ⊢ PreStatesOfT deps m ≟ m'
+
+unif_hint (deps deps' : List (Σ σ τ, StatefulLinter σ τ)) (m : Type → Type) (α : Type) (s : StatefulLinter σ τ) where
+  deps' ≟ ⟨σ, τ, s⟩ :: deps
+  ⊢ (PreStateOf s → PreStatesOfT deps m α) ≟ PreStatesOfT deps' m α
+
+instance : CoeHead (StatefulLinter σ τ) (Σ σ τ, StatefulLinter σ τ) := ⟨fun s => ⟨σ, τ, s⟩⟩
+
 /--
 Registers a stateful linter and returns its handle (used by other linters to read its state).
 Must be called during initialization.
@@ -181,11 +235,15 @@ for the next command.
 * **Others**: Access other linters' states only via the `readPrevPostState` and
 `readCurrentPreState` closures that take typed handles of other linters.
 -/
-unsafe def registerStatefulLinterImpl (init : σ)
-    (pre  : Syntax → (selfPrevPostState : σ) → (readPrevPostState : PrevStateFn) → CommandElabM (Option τ) :=
+unsafe def registerStatefulLinterImpl (init : σ) {deps : List (Σ σ τ, StatefulLinter σ τ)}
+    (pre  : Syntax → (selfPrevPostState : σ) → (readPrevPostState : PrevStateFn) →
+      PreStatesOfT deps CommandElabM (Option τ) :=
        fun _ _ _ => pure none)
     (post : Syntax → (selfPrevPostState : σ) → (selfCurrentPreState : Option τ) →
-       (readPrevPostState : PrevStateFn) → (readCurrentPreState : PreStateFn) → CommandElabM σ) :
+       (readPrevPostState : PrevStateFn) → (readCurrentPreState : PreStateFn) → CommandElabM σ)
+    (_ : deps = deps := by first | exact Eq.refl [] | rfl)
+    -- (_ : deps = deps := by first | exact Eq.refl [] | rfl)
+    :
     IO (StatefulLinter σ τ) := do
   unless (← initializing) do
     throw <| .userError "stateful linters can only be registered during initialization"
@@ -193,20 +251,59 @@ unsafe def registerStatefulLinterImpl (init : σ)
   let idx := ls.size
   statefulLintersRef.set <| ls.push
     { init := unsafeCast init
-      pre  := fun stx prev =>
-        (·.map unsafeCast) <$> pre stx (unsafeCast prev[idx]!) (fun l => l.prevState prev)
+      pre  := fun stx prev deps =>
+        (·.map unsafeCast) <$>
+          (pre stx (unsafeCast prev[idx]!) (fun l => l.prevState prev)).apply deps
       post := fun stx prev preSt =>
         unsafeCast <$> post stx (unsafeCast prev[idx]!) ((preSt[idx]!).map unsafeCast)
           (fun l => l.prevState prev) (fun l => l.preState preSt) }
   return ⟨idx⟩
 
 @[inherit_doc registerStatefulLinterImpl, implemented_by registerStatefulLinterImpl]
-opaque registerStatefulLinter (init : σ)
-    (pre  : Syntax → (selfPrevPostState : σ) → (readPrevPostState : PrevStateFn) → CommandElabM (Option τ) :=
+opaque registerStatefulLinter (init : σ) ⦃deps : List (Σ σ τ, StatefulLinter σ τ)⦄
+    (pre  : Syntax → (selfPrevPostState : σ) → (readPrevPostState : PrevStateFn) →
+      PreStatesOfT deps CommandElabM (Option τ) :=
        fun _ _ _ => pure none)
     (post : Syntax → (selfPrevPostState : σ) → (selfCurrentPreState : Option τ) →
-       (readPrevPostState : PrevStateFn) → (readCurrentPreState : PreStateFn) → CommandElabM σ) :
+       (readPrevPostState : PrevStateFn) → (readCurrentPreState : PreStateFn) → CommandElabM σ)
+    -- (_ : autoParam (WithDefault deps) registerStatefulLinterImpl._auto_1)
+    (_ : autoParam (deps = deps) registerStatefulLinterImpl._auto_1)
+    :
     IO (StatefulLinter σ τ)
+
+/-- Persistent (`σ`) state of `emitter`: the running command count. -/
+structure Counter where
+  count : Nat
+
+/-- Pre-phase handoff (`τ`) of `emitter`: the count computed for the current command. -/
+structure Payload where
+  current : Nat
+
+-- /-- Registers a post-only linter that reports the count `emitter` staged this command, reading it
+-- through `emitter`'s handle. Its own handoff type is irrelevant, so `τ := Unit` and the handle is
+-- discarded (nobody reads this linter). -/
+-- def registerReader (emitter : StatefulLinter Counter Payload) (label : String) :
+--     IO Unit := do
+--   let _ ← registerStatefulLinter (τ := Unit) (Counter.mk 0)
+--     (post := fun _ self _ _ readPre => do
+--       if let some p := readPre emitter then
+--         pure ()
+--       pure self)
+
+-- initialize emitter' : StatefulLinter Counter Payload ←
+--   registerStatefulLinter (Counter.mk 0)
+--     (pre := fun stx self _ =>
+--       pure <| if Parser.isTerminalCommand stx then none else some { current := self.count + 1 })
+--     (post := fun _ self preState _ _ =>
+--       pure { count := (preState.map Payload.current).getD self.count })
+
+-- initialize emitter : StatefulLinter Counter Payload ←
+--   registerStatefulLinter (Counter.mk 0) -- (deps := [emitter'])
+--     (pre := fun stx self _ (s : PreStateOf emitter') =>
+--       pure <| if Parser.isTerminalCommand stx then none else some { current := self.count + 1 })
+--     (post := fun _ self preState _ _ =>
+--       pure { count := (preState.map Payload.current).getD self.count })
+
 
 instance : MonadInfoTree CommandElabM where
   getInfoState      := return (← get).infoState
@@ -441,7 +538,7 @@ def runStatefulLinters (stx : Syntax) (prev : Array LinterState)
       let mut preSt : Array (Option LinterState) := .emptyWithCapacity linters.size
       let mut i := 0
       for l in linters do
-        preSt := preSt.push (← run "pre" i (pure none) (l.pre stx prev))
+        preSt := preSt.push (← run "pre" i (pure none) (l.pre stx prev preSt))
         i := i + 1
       let mut postSt : Array LinterState := .emptyWithCapacity linters.size
       i := 0

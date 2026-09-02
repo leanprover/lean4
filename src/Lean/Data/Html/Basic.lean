@@ -164,7 +164,7 @@ partial def rewritePostM [Monad m] (fn : Html → m Html) : Html → m Html
 /-- Rewrites the forest by using {name}`fn` to transform every node.
 Traversal proceeds in post-order:
 {name}`fn` receives {name}`element` and {name}`seq` nodes with already-rewritten children. -/
-partial def rewritePost [Monad m] (fn : Html → Html) (h : Html) : Html :=
+partial def rewritePost (fn : Html → Html) (h : Html) : Html :=
   rewritePostM (m := Id) fn h |>.run
 
 end Lean.Html

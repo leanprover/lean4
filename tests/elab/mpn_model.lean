@@ -3783,16 +3783,29 @@ def bitwiseDigits (f : Digit → Digit → Digit) (a b : Array Digit) : Array Di
     r := r.push (f u_i v_i)
   return r
 
-/-- The loop as the map its proofs read digitwise. -/
-theorem bitwiseDigits_eq (f : Digit → Digit → Digit) (a b : Array Digit) :
-    bitwiseDigits f a b
-      = (List.map (fun i => f (a.getD i 0) (b.getD i 0))
-          (List.range (max a.size b.size))).toArray := by
-  simp [bitwiseDigits, Id.run]
-  rfl
+/-- The loop fills `max a.size b.size` digits, each `f (a[i]) (b[i])`. -/
+theorem bitwiseDigits_spec (f : Digit → Digit → Digit) (a b : Array Digit) :
+    (bitwiseDigits f a b).size = max a.size b.size ∧
+    ∀ i, i < max a.size b.size → (bitwiseDigits f a b).getD i 0 = f (a.getD i 0) (b.getD i 0) := by
+  generalize h : bitwiseDigits f a b = r
+  apply Id.of_wp_run_eq h
+  mvcgen invariants
+  | inv1 => ⇓ (xs, r) => spred(⌜r.size = xs.prefix.length ∧
+      ∀ i, i < xs.prefix.length → r.getD i 0 = f (a.getD i 0) (b.getD i 0)⌝)
+  case vc1.step =>
+    obtain ⟨hsz, hval⟩ := ‹_ ∧ _›
+    have hc := range_split_index ‹List.range _ = _ ++ _ :: _›
+    subst hc
+    refine ⟨by grind, ?_⟩
+    intro i hi
+    rw [List.length_append, List.length_cons, List.length_nil, Nat.add_zero] at hi
+    rcases Nat.lt_succ_iff_lt_or_eq.mp hi with h | h
+    · rw [getD_push_lt _ _ (by omega), hval i h]
+    · subst h; rw [← hsz, getD_push_eq]
+  all_goals (intros; first | grind | simp_all)
 
 @[simp] theorem size_bitwiseDigits (f : Digit → Digit → Digit) (a b : Array Digit) :
-    (bitwiseDigits f a b).size = max a.size b.size := by simp [bitwiseDigits_eq]
+    (bitwiseDigits f a b).size = max a.size b.size := (bitwiseDigits_spec f a b).1
 
 /-- `mpz::operator&=`. -/
 def Num.land (a b : Num) : Num :=
@@ -4053,7 +4066,7 @@ private theorem getD_bitwiseDigits (f : Digit → Digit → Digit) (hf : f 0 0 =
     (a b : Array Digit) (i : Nat) :
     (bitwiseDigits f a b).getD i 0 = f (a.getD i 0) (b.getD i 0) := by
   rcases Nat.lt_or_ge i (max a.size b.size) with h | h
-  · simp [bitwiseDigits_eq, h]
+  · exact (bitwiseDigits_spec f a b).2 i h
   · rw [getD_of_ge _ (by rw [size_bitwiseDigits]; omega), getD_of_ge a (by omega),
       getD_of_ge b (by omega), hf]
 

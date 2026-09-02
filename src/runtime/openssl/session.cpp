@@ -266,7 +266,8 @@ extern "C" LEAN_EXPORT lean_obj_res lean_ssl_mk_client(b_obj_arg ctx_obj) {
     });
 }
 
-// Whether `name` is an IP address in textual form.
+// Whether `name` is an IP address in textual form, writing it to `out` without the brackets a URI
+// authority spells IPv6 with.
 static bool ssl_ip_literal(const char* name, char (&out)[46]) {
     size_t len = strlen(name);
 
@@ -329,7 +330,7 @@ extern "C" LEAN_EXPORT lean_obj_res lean_ssl_set_server_name(b_obj_arg ssl, b_ob
         }
 
         if (is_ip) {
-            // Sets the host name to null, because we cannot put host name as an IP.
+            // No SNI for a literal address: RFC 6066 §3 forbids one there.
             SSL_set_tlsext_host_name(ssl_obj->ssl, nullptr);
         } else if (SSL_set_tlsext_host_name(ssl_obj->ssl, server_name) != 1) {
             return mk_ssl_invalid_argument("the server name is not a valid SNI hostname");

@@ -37,14 +37,13 @@ struct lean_ssl_session_object {
     // Set once `lean_ssl_feed_eof` has reported that no further encrypted input will arrive.
     bool input_eof = false;
 
-    // Latched once the handshake has completed, by `ssl_session_info_callback`. Sampling
-    // `SSL_is_init_finished` around the calls that drive the session cannot replace that: one
-    // `SSL_read` can both finish the handshake and land back in init on a post-handshake message
-    // the peer fragmented across records, reading false on the way in and on the way out alike.
+    // Latched by `ssl_session_info_callback` once the handshake has completed. Sampling
+    // `SSL_is_init_finished` instead would miss it: one `SSL_read` can both finish the handshake and
+    // land back in init on a post-handshake message split across records, reading false either side.
     bool negotiated = false;
 
     // The verdict recorded once the session is finished; see `ssl_error_state`. Every later
-    // `handshake`, `write`, `read?`, `feedEncrypted` and `setServerName` then raises instead of
+    // `handshake`, `write`, `read`, `feedEncrypted` and `setServerName` then raises instead of
     // driving a session that can no longer make progress.
     ssl_error_state err{};
 };

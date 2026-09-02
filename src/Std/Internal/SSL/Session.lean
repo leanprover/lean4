@@ -179,15 +179,16 @@ point at which a session exists and the name can still take effect.
 
 A textual IP address is accepted, bare or in the bracketed form a URI authority spells IPv6 with
 (`[::1]`), and is verified against the certificate's `iPAddress` SANs; no SNI is sent for one, since
-RFC 6066 §3 forbids a literal address there. A single trailing dot is stripped for the same reason,
-so the peer sees — and the certificate is verified against — the name without it.
+RFC 6066 §3 forbids a literal address there. A single trailing dot is stripped, since neither SNI nor
+a certificate SAN carries one, so the peer sees — and the certificate is verified against — the name
+without it.
 
 `none` binds no identity at all: the chain is still validated on a verifying context, but nothing
 ties the certificate to the peer being talked to, so any certificate a trusted CA ever issued is
 accepted. Pass it only where the peer is pinned some other way, and read `verifyResult` accordingly.
 
 Raises `IO.Error.invalidArgument` for a host that cannot be used: one containing NUL bytes, one that
-is empty, or one too long for SNI.
+is empty, one bracketed that is not a valid IP address, or one too long for SNI.
 -/
 def mk (ctx : @& Context.Client) (host : Option String) : IO Session.Client := do
   let session : Session.Client := ⟨← mkClientImpl ctx⟩
@@ -343,9 +344,10 @@ alert behind it, and this reports `none` without waiting for what it cannot reac
 still works, since the peer may have sent records before it saw the alert, and only `write` raises.
 
 A session with nothing left to tear down returns `none` rather than raising, so teardown paths can
-call this unconditionally — but on one that never negotiated it also *finishes* the session, and
-every later call then raises. It raises only on a fatal shutdown failure, or when plaintext accepted
-by `write` can no longer be delivered — reported once, so a second call gets the clean `none`.
+call this unconditionally — but on one that never negotiated it also *finishes* the session, so every
+call that drives it raises from then on, `drainEncrypted` still working so the alert can be sent. It
+raises only on a fatal shutdown failure, or when plaintext accepted by `write` can no longer be
+delivered — reported once, so a second call gets the clean `none`.
 -/
 def closeNotify (s : @& Session role) : IO (Option IOWant) := closeNotifyImpl s.core
 

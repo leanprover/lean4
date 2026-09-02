@@ -46,22 +46,11 @@ namespace Html
 @[suggest_for Lean.Html.nil Lean.Html.none]
 def empty : Html := .seq #[]
 
-/-- Whether this is the {name}`seq` constructor. -/
-def isSeq : Html → Bool
-  | .seq _ => true
-  | _      => false
-
-/-- Specifies when an {name}`Html` value is in normal form.
-
-The {name}`Html` type has a degree of redundancy;
-for instance, {lean}`seq #[]` and {lean}`seq #[seq #[]]`
-both render to the empty string.
-To avoid having to handle every possible representation,
-library functions assume normal {name}`Html` inputs and produce normal outputs. -/
-def isNormal : Html → Bool
-  | .seq a           => a.attach.all fun ⟨h, _⟩ => !h.isSeq && h.isNormal
-  | .element _ _ c   => c.isNormal
-  | .text s | .raw s => !s.isEmpty
+/-- Whether this HTML is rendered as the empty string. -/
+def isEmpty : Html → Bool
+  | .seq a => a.attach.all fun ⟨h, _⟩ => h.isEmpty
+  | .text s | .raw s => s.isEmpty
+  | .element .. => false
 
 /-- If {name}`escape` is {lean}`true`,
 then characters such as `&` are escaped
@@ -73,12 +62,13 @@ instance : Coe String Html := ⟨.text⟩
 
 /-- Appends two HTML forests. -/
 def append : Html → Html → Html
-  | .seq #[], h        => h
-  | h,        .seq #[] => h
-  | .seq xs,  .seq ys  => .seq (xs ++ ys)
-  | .seq xs,  other    => .seq (xs.push other)
-  | other,    .seq ys  => .seq (#[other] ++ ys)
-  | x,        y        => .seq #[x, y]
+  | .seq xs, .seq ys =>
+    if xs.isEmpty then .seq ys
+    else if ys.isEmpty then .seq xs
+    else .seq (xs ++ ys)
+  | .seq xs, y => if xs.isEmpty then y else .seq (xs.push y)
+  | x, .seq ys => if ys.isEmpty then x else .seq (#[x] ++ ys)
+  | x, y => .seq #[x, y]
 
 instance : Append Html := ⟨.append⟩
 

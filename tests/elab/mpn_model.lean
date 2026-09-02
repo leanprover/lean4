@@ -3532,7 +3532,7 @@ theorem size_div_rem (numer denom : Array Digit) (hden : 0 < denom.size)
 /-! ### The operations `mpz` builds on `mpn` -/
 
 /--
-`cmp`, on the non-negative values a `Num` holds:
+`cmp` compares two `mpz` by sign; on the non-negative values a `Num` holds it reduces to `mpn_compare`:
 ```
 int cmp(mpz const & a, mpz const & b) {
     if (a.m_sign) {
@@ -3556,7 +3556,7 @@ orders its operands and how `lean_nat_big_le` compares two `mpz`.
 def Num.compare (a b : Num) : Int := Mpn.compare a.digits b.digits
 
 /--
-`mpz::operator+=` on non-negative values, its `m_sign == sign` arm:
+`mpz::operator+=` adds two `mpz`; on non-negative values it takes the `m_sign == sign` arm:
 ```
         size_t new_sz = std::max(m_size, sz)+1;
         size_t real_sz;
@@ -3568,7 +3568,7 @@ def Num.compare (a b : Num) : Int := Mpn.compare a.digits b.digits
 def Num.add (a b : Num) : Num := Num.ofArray (Mpn.add a.digits b.digits) (size_add_pos ..)
 
 /--
-`mpz::mul` on non-negative values:
+`mpz::mul` multiplies two `mpz`; a `Num` exercises only its non-negative case:
 ```
     size_t new_sz = m_size + sz;
     tmp.ensure_capacity(new_sz);
@@ -3580,8 +3580,8 @@ def Num.mul (a b : Num) : Num :=
   Num.ofArray (Mpn.mul a.digits b.digits) (by rw [size_mul]; have := a.size_pos; omega)
 
 /--
-`Nat.sub` at the `mpz` layer. `mpz::operator-=` is `add` with the operand's sign
-flipped:
+At the `mpz` layer, `Nat.sub` goes through `mpz::operator-=`, which is `add`
+with the operand's sign flipped:
 ```
 mpz & mpz::operator-=(mpz const & o) {
     return add(!o.m_sign, o.m_size, o.m_digits);
@@ -3618,7 +3618,7 @@ def Num.sub (a b : Num) : Num :=
     rw [size_sub]; have := a.size_pos; omega)
 
 /--
-`mpz::div` on non-negative values:
+`mpz::div` divides two `mpz`; a `Num` exercises only its non-negative case:
 ```
     if (sz > m_size) {
         operator=(0);
@@ -3636,8 +3636,8 @@ def Num.div (a b : Num) (hb : b.val ≠ 0) : Num :=
     rw [size_div_quot _ _ b.size_pos (by omega) (Num.top_pos b hb)]; omega)
 
 /--
-`mpz::rem` on non-negative values, which differs from `mpz::div` only in
-returning the dividend unchanged for a longer divisor and keeping `r1`:
+`mpz::rem` takes the remainder; on non-negative values it differs from `mpz::div`
+only in returning the dividend unchanged for a longer divisor and keeping `r1`:
 ```
     if (sz > m_size) {
         return *this;

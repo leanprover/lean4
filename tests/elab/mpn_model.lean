@@ -522,6 +522,10 @@ Each iteration reads `u[off+i]` and then writes it, and no later iteration reads
 it again, so the aliasing is safe. `subInPlace_spec` below is that statement:
 the result agrees digit for digit with running `mpn_sub` into a separate buffer.
 -/
+-- NOTE: `set!` writes `u[off+i]` for `i < len`; these land in range under
+-- `off + len ≤ u.size`, which `subInPlace_spec` takes as `hfits` and the caller
+-- (`div_n`, through `divNLoop_spec`) establishes. The out-of-range no-op is
+-- unreachable, so it stands for nothing the C++ does.
 def subInPlace (u b : Array Digit) (off len : Nat) : Array Digit × Digit := Id.run do
   let mut u := u
   let mut k : Digit := 0
@@ -914,6 +918,10 @@ One iteration of `div_1`'s loop, dividing the two-digit window at `j` by `denom`
             numer[j] = numer[j-1] + denom;
         }
 ```
+The three `set!` write `numer[j-1]`, `numer[j]` and `quot[j-1]`. They are in
+range for the buffer sizes `div1Loop_spec` maintains, so the out-of-range no-op
+`set!` would fall to is never reached; that bound lives in the specification, as
+the module docstring describes, not in the type here.
 -/
 def div1Step (denom : Digit) (hden : denom.toUInt64 ≠ 0)
     (s : Array Digit × Array Digit) (j : Nat) : Array Digit × Array Digit :=
@@ -991,6 +999,9 @@ decreasing_by
             for (size_t i = 0; i < n+1; i++)
                 numer[j+i] = ab[i];
 ```
+The `set!` writes `dst[j+i]` for `i < len`, in range whenever `j + len ≤
+dst.size`; `size_copyInto` and `getD_copyInto_*` characterize the result on that
+assumption, which `div_n` meets. The out-of-range no-op is never reached.
 -/
 def copyInto (dst src : Array Digit) (j : Nat) (len : Nat) : Array Digit := Id.run do
   let mut dst := dst
@@ -1039,6 +1050,11 @@ One iteration of `div_n`'s outer loop, producing quotient digit `j`:
 The `mpn_sub` writes its result back over `&numer[j]`, its own first operand,
 so `subInPlace` is used here rather than `sub`; `subInPlace_eq` is what makes
 that aliasing sound.
+
+The `quot.set! j` and the writes inside `subInPlace` and `copyInto` all index
+`u` and `quot` within the sizes `divNLoop_spec` maintains, so their bound is
+established there rather than here, and no `set!` falls to its out-of-range
+no-op.
 -/
 def divNStep (denom : Array Digit) (hv : (denom.getD (denom.size - 1) 0).toUInt64 ≠ 0)
     (s : Array Digit × Array Digit) (j : Nat) : Array Digit × Array Digit :=

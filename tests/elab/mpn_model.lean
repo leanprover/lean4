@@ -47,7 +47,7 @@ A transliteration is only worth as much as its fidelity to the original, and not
 that mechanically: it rests on reading the two side by side, which is what the quotations are for.
 -/
 open Std Do
-set_option mvcgen.warning false
+set_option linter.deprecated.syntax false
 
 namespace Mpn
 

@@ -8,12 +8,10 @@ Author: Sofia Rodrigues
 
 #ifndef LEAN_EMSCRIPTEN
 
-#include <uv.h>
 #include <openssl/err.h>
 #include <openssl/x509.h>
 #include <openssl/x509_vfy.h>
 #include <cerrno>
-#include <cstdio>
 #include <cstring>
 #include <string>
 #include <sys/stat.h>
@@ -63,7 +61,7 @@ lean_obj_res mk_ssl_invalid_argument(const char* msg) {
     return lean_io_result_mk_error(lean_mk_io_error_invalid_argument(EINVAL, mk_string(msg)));
 }
 
-lean_obj_res mk_ssl_eof_error() {
+static lean_obj_res mk_ssl_eof_error() {
     return lean_io_result_mk_error(lean_mk_io_error_eof(lean_box(0)));
 }
 
@@ -192,32 +190,16 @@ bool ssl_input_truncated(ssl_error_state* st, int reason) {
 
 // Reports a syscall failure raised under the BIO, which already carries an errno.
 //
-// Not `decode_io_error`: it asserts the filename is absent for the errnos a transport failure
-// raises and dereferences it for others (`EINTR`, `ENOENT`), and there is no file to name here.
-//
 // The reason is read as a CRT `errno`, which is what OpenSSL stores on POSIX; on Windows it stores a
 // Win32 or Winsock code there instead, which this would misname. Both BIOs are memory-backed, so no
 // syscall runs under them and only a stray `ERR_LIB_SYS` entry reaches this at all.
 static lean_obj_res mk_ssl_errno_error(int sys_errno) {
-    char errbuf[128];
-    lean_object* details = mk_string(uv_strerror_r(lean_crt_to_uv_err(sys_errno), errbuf, sizeof(errbuf)));
-
-    switch (sys_errno) {
-    case EPIPE: case ECONNRESET: case ENETDOWN:
-        return lean_io_result_mk_error(lean_mk_io_error_resource_vanished(sys_errno, details));
-    case EPROTO: case EPROTOTYPE: case EPROTONOSUPPORT:
-        return lean_io_result_mk_error(lean_mk_io_error_protocol_error(sys_errno, details));
-    case ETIMEDOUT:
-        return lean_io_result_mk_error(lean_mk_io_error_time_expired(sys_errno, details));
-    case ENOMEM: case ENOBUFS:
-        return lean_io_result_mk_error(lean_mk_io_error_resource_exhausted(sys_errno, details));
-    case EACCES: case EPERM:
-        return lean_io_result_mk_error(lean_mk_io_error_permission_denied(sys_errno, details));
-    case EINVAL:
-        return lean_io_result_mk_error(lean_mk_io_error_invalid_argument(sys_errno, details));
-    default:
-        return lean_io_result_mk_error(lean_mk_io_error_other_error(sys_errno, details));
+    // `decode_io_error` dereferences the filename for these two, and there is no file to name.
+    if (sys_errno == EINTR || sys_errno == ENOENT) {
+        return mk_ssl_protocol_error("the TLS transport failed");
     }
+
+    return lean_io_result_mk_error(lean_decode_io_error(sys_errno, nullptr));
 }
 
 lean_obj_res mk_ssl_error_of(SSL* ssl, ssl_error_state* st, int ssl_err, int sys_errno, int reason,
@@ -284,6 +266,12 @@ lean_obj_res mk_ssl_write_queue_full() {
     ERR_clear_error();
     return lean_io_result_mk_error(lean_mk_io_error_resource_exhausted(ENOBUFS,
         mk_string("the TLS session already holds the maximum amount of unsent plaintext")));
+}
+
+lean_obj_res mk_ssl_output_backlog_full() {
+    ERR_clear_error();
+    return lean_io_result_mk_error(lean_mk_io_error_resource_exhausted(ENOBUFS,
+        mk_string("the TLS session already holds the maximum amount of undrained encrypted output")));
 }
 
 lean_obj_res mk_ssl_enqueue_rejected() {

@@ -8,9 +8,12 @@ Author: Sofia Rodrigues
 #include <lean/lean.h>
 #include "runtime/io.h"
 #include "runtime/object.h"
+#include "runtime/openssl.h"
 
 #ifndef LEAN_EMSCRIPTEN
+#include <openssl/err.h>
 #include <openssl/ssl.h>
+#include <exception>
 #endif
 
 namespace lean {
@@ -33,7 +36,7 @@ struct pem_source {
 // Each qualifier below is only ever set alongside `failed`, and the two can be set together: a
 // shutdown that finds an unnegotiated session on a stream already ended by `feedEof` sets both.
 // `mk_ssl_session_dead` reports the truncation first, which is what keeps that session's verdict
-// the same whether `read?` or `closeNotify` reached it first.
+// the same whether `read` or `closeNotify` reached it first.
 struct ssl_error_state {
     // Set once a fatal error tore the session down, a shutdown found a session that had never
     // negotiated or tore one down as it peeked or as it made its last attempt to flush, the peer
@@ -63,8 +66,6 @@ lean_obj_res reject_embedded_nul(b_obj_arg path);
 // Reports a failure that has no errno behind it. The OpenSSL error queue is discarded rather than
 // appended, so its entries cannot leak into a later, unrelated diagnosis.
 lean_obj_res mk_ssl_invalid_argument(const char* msg);
-
-lean_obj_res mk_ssl_eof_error();
 
 // Reports a failure against a path. `errnum` is the `errno` the open failed with, or 0 for a
 // failure with no OS error behind it (unparsable PEM, a key that does not match its certificate).
@@ -110,9 +111,30 @@ lean_obj_res mk_ssl_session_dead(const ssl_error_state* st);
 
 lean_obj_res mk_ssl_write_queue_full();
 
+// The caller has not drained the encrypted output, which is the buffer that actually grows.
+lean_obj_res mk_ssl_output_backlog_full();
+
 // The queue could not take plaintext the caller has just submitted. `SSL_write` never saw it, so
 // nothing is owed to OpenSSL and the session stays usable: the payload is simply refused.
 lean_obj_res mk_ssl_enqueue_rejected();
+
+// Runs an entry point behind the three guards every one of them needs: OpenSSL initialized before
+// any `ERR_*` call can register `atexit(OPENSSL_cleanup)` behind `OPENSSL_INIT_NO_ATEXIT`'s back,
+// an empty error queue so a stale entry cannot be read as this call's diagnosis, and no C++
+// exception escaping into Lean-generated code, which has no landing pad and would `std::terminate`.
+template<typename F>
+static inline lean_obj_res ssl_entry_point(F && run) {
+    try {
+        if (!ensure_openssl_initialized()) {
+            return lean_io_result_mk_error(lean_mk_io_user_error(mk_string("OPENSSL_init_ssl failed")));
+        }
+
+        ERR_clear_error();
+        return run();
+    } catch (std::exception & ex) {
+        return lean_io_result_mk_error(lean_mk_io_user_error(mk_string(ex.what())));
+    }
+}
 
 #endif
 

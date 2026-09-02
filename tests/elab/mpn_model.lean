@@ -3696,9 +3696,10 @@ def Num.isZero (a : Num) : Bool := a.digits.size = 1 && a.digits.getD 0 0 == 0
     }
     a.set(new_sz, ds.begin());
 ```
-NOTE: that loop carries the bits it displaces forward in `prev`, where
-`div_normalize` reads them back out of `a[i-1]`. The two write the same digits,
-so `shiftLeftDigits` serves both, but only one of the two shapes appears here.
+NOTE: the quoted loop carries the bits it displaces forward in a running `prev`,
+while `div_normalize` re-reads them from the neighbor `a[i-1]`. `shiftLeftDigits`
+uses the neighbor-read shape, as `div_normalize` does, not the `prev`-carry shape
+quoted here; the two write the same digits, so that one function serves both.
 -/
 def Num.shiftLeft (a : Num) (k : Nat) : Num :=
   if k = 0 || a.isZero then a

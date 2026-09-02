@@ -81,6 +81,7 @@ jobs:
           app-slug: ${{ steps.app-token.outputs.app-slug }}
           upstream-pr: ${{ github.event.pull_request.number }}
           upstream-ci-green: ${{ steps.toolchain.outputs.exists }}
+          upstream-ci-green-msg: The adaptation PR will be created or updated once the toolchain is available.
           downstream-repo: leanprover/downstream-lean4
           downstream-clone: downstream
           override-toolchain: ${{ steps.toolchain.outputs.toolchain }}

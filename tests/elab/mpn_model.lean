@@ -1120,11 +1120,6 @@ def divN (numer denom : Array Digit) (hv : (denom.getD (denom.size - 1) 0).toUIn
 ```
 The preconditions are the ones `mpn_div` asserts, and they make its `lnum < lden`
 branch dead, which is why it is `absurd` here.
-
-That branch used to zero `quot[0 .. lnum-lden+1)`, a bound computed in `size_t`
-that wraps whenever `lden > lnum + 1` and then overruns the buffer. The loop
-never legitimately iterates, since `lnum < lden` puts the bound at or below
-zero, and it has been removed.
 -/
 @[simp] def div (numer denom : Array Digit) (hden : 0 < denom.size)
     (hsz : denom.size ≤ numer.size)
@@ -4157,8 +4152,7 @@ decreasing_by
   have : p.toNat ≠ 0 := fun h0 => hne (UInt32.toNat_inj.mp (by rw [h0]; rfl))
   omega
 
-/-- `pow` raises to a power. It terminates for every exponent, including `2^31`
-and above, where the `mpz.cpp` loop this replaces used to spin forever. -/
+/-- `pow` raises to a power. -/
 theorem Num.val_pow (a : Num) (p : Digit) : (a.pow p).val = a.val ^ p.toNat := by
   rw [Num.pow, Num.val_powLoop, Num.val_one, Nat.one_mul]
 

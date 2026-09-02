@@ -65,8 +65,9 @@ def testCRLPEM : String := include_cert% "async_ssl_certs/crl.pem"
 def testBundlePEM : String := testCertPEM ++ testWildcardCertPEM ++ testMultiSANCertPEM
 
 /-!
-Every file the `PEM.file` cases need, written once into one temporary directory. The in-memory
-constants above are the same material; a fixture exists only where a test needs a *path*.
+Every file the `PEM.file` cases need, written into a temporary directory that is removed once the
+block using it finishes. The in-memory constants above are the same material; a fixture exists only
+where a test needs a *path*.
 -/
 
 structure Fixtures where
@@ -92,9 +93,7 @@ structure Fixtures where
   /-- A path that treats a regular file as if it were a directory, which the OS refuses. -/
   nonDirParent : String
 
-def mkFixtures : IO Fixtures := do
-  let root ← IO.FS.createTempDir
-
+def mkFixturesIn (root : System.FilePath) : IO Fixtures := do
   let write (name contents : String) : IO String := do
     let path := toString (root / name)
     IO.FS.writeFile path contents
@@ -124,6 +123,13 @@ def mkFixtures : IO Fixtures := do
   return { cert, key, unrelatedKey, ecKey, encKey, emptyPwKey, encCert, expired, weak,
            intermediate, junk, corrupt, chain, empty, dir, unreadable,
            nonDirParent := toString (System.FilePath.mk cert / "ca.pem") }
+
+/--
+Runs `k` against a fresh fixture directory, removed afterwards even when `k` throws. `secret.pem` is
+unreadable by design, but removing it only needs write permission on the directory holding it.
+-/
+def withFixtures (k : Fixtures → IO α) : IO α :=
+  IO.FS.withTempDir fun root => do k (← mkFixturesIn root)
 
 -- Asserts that an IO action fails with exactly `expected` as its message.
 def assertErrorMessage (label expected : String) (act : IO Unit) : IO Unit := do
@@ -634,9 +640,7 @@ def testMkRejectsNonDirectoryParent (f : Fixtures) : IO Unit := do
       missingFileError f.nonDirParent ]
     (discard <| Context.Client.mk { ca := some (.file f.nonDirParent) })
 
-#eval do
-  let f ← mkFixtures
-
+#eval withFixtures fun f => do
   testContextCreation f
   testMkFromPEMEmptyFallsBack
   testMkServerFromMemory f
@@ -648,14 +652,11 @@ def testMkRejectsNonDirectoryParent (f : Fixtures) : IO Unit := do
 
 -- Encrypted PEM, in every constructor. A regression here does not fail loudly: it blocks on a
 -- passphrase prompt, so keep these ahead of anything that would mask a hang.
-#eval do
-  let f ← mkFixtures
+#eval withFixtures fun f => do
   testRejectsEncryptedMaterial f
 
 -- Pinning: `trustSystemRoots := false` narrows the store to the supplied CA.
-#eval do
-  let f ← mkFixtures
-
+#eval withFixtures fun f => do
   testPinnedToSuppliedCA f
   testPinningRejectsEmptyCA
   testPinningRejectsEmptyCAMaterial
@@ -664,9 +665,7 @@ def testMkRejectsNonDirectoryParent (f : Fixtures) : IO Unit := do
   testPinningRejectsNulInCAFile
 
 -- A trust anchor must be one a chain can terminate at.
-#eval do
-  let f ← mkFixtures
-
+#eval withFixtures fun f => do
   testPinningRejectsIntermediateOnly f
   testPinningToIntermediateWithPartialChain f
   testPinningAcceptsRootWithIntermediate
@@ -674,9 +673,7 @@ def testMkRejectsNonDirectoryParent (f : Fixtures) : IO Unit := do
   testIntermediateIgnoredWithoutVerification
 
 -- CA material that cannot be used as a trust anchor.
-#eval do
-  let f ← mkFixtures
-
+#eval withFixtures fun f => do
   testMkRejectsMissingCAFile
   testMkRejectsMalformedCAFile f
   testMkRejectsCorruptCAFile f
@@ -687,9 +684,7 @@ def testMkRejectsNonDirectoryParent (f : Fixtures) : IO Unit := do
   testMkFromPEMSkipsNonCertificates
 
 -- Server credentials that do not load.
-#eval do
-  let f ← mkFixtures
-
+#eval withFixtures fun f => do
   testMkServerRejectsMissingFiles f
   testMkServerRejectsMalformedCert f
   testMkServerRejectsMalformedKey f
@@ -708,17 +703,13 @@ def testMkRejectsNonDirectoryParent (f : Fixtures) : IO Unit := do
   testMkFromPEMRejectsNulInsideCert
 
 -- Accepted here, rejected later: the clock and the security level.
-#eval do
-  let f ← mkFixtures
-
+#eval withFixtures fun f => do
   testAcceptsExpiredCert f
   testMkServerRejectsWeakCert f
   testAcceptsWeakCertAsCA f
 
 -- OS-level failures keep the path and the real errno.
-#eval do
-  let f ← mkFixtures
-
+#eval withFixtures fun f => do
   testMkRejectsUnreadableCAFile f
   testMkRejectsNonDirectoryParent f
   testMkServerRejectsEmptyPaths f

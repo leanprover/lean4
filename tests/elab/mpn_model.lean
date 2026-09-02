@@ -528,36 +528,15 @@ def subInPlace (u b : Array Digit) (off len : Nat) : Array Digit × Digit := Id.
 /-! ## `mpn_mul` -/
 
 /--
-`mpn_mul`'s inner loop over `lnga` digits of `a`, leaving a carry:
+`mpn_mul`, Knuth's Algorithm M, returning `lnga + lngb` digits:
 ```
-            k = 0;
-            for (i = 0; i < lnga; i++) {
-                mpn_digit const & u_i = a[i];
-                mpn_double_digit t;
-                t = ((mpn_double_digit)u_i * (mpn_double_digit)v_j) +
-                    (mpn_double_digit) c[i+j] +
-                    (mpn_double_digit) k;
+void mpn_mul(mpn_digit const * a, size_t const lnga,
+             mpn_digit const * b, size_t const lngb,
+             mpn_digit * c) {
+    for (unsigned i = 0; i < lnga; i++)
+        c[i] = 0;
 
-                c[i+j] = (t << DIGIT_BITS) >> DIGIT_BITS;
-                k = t >> DIGIT_BITS;
-            }
-```
--/
-def mulInner (a : Array Digit) (v_j : Digit) (j : Nat) (c : Array Digit) (lnga : Nat) :
-    Array Digit × Digit := Id.run do
-  let mut c := c
-  let mut k : Digit := 0
-  for i in List.range lnga do
-    let u_i := a.getD i 0
-    let t : DoubleDigit :=
-      u_i.toUInt64 * v_j.toUInt64 + (c.getD (i + j) 0).toUInt64 + k.toUInt64
-    c := c.set! (i + j) (lo t)
-    k := hi t
-  return (c, k)
-
-/--
-One iteration of `mpn_mul`'s outer loop:
-```
+    for (size_t j = 0; j < lngb; j++) {
         mpn_digit const & v_j = b[j];
         if (v_j == 0) { // This branch may be omitted according to Knuth.
             c[j+lnga] = 0;
@@ -567,28 +546,7 @@ One iteration of `mpn_mul`'s outer loop:
             for (i = 0; i < lnga; i++) { ... }
             c[j+lnga] = k;
         }
-```
-The `v_j == 0` branch is Knuth's optional shortcut: with a zero multiplier the
-inner loop would leave `c` untouched and its carry at zero anyway.
--/
-def mulOuterStep (a b : Array Digit) (c : Array Digit) (j : Nat) : Array Digit :=
-  let v_j := b.getD j 0
-  if v_j == 0 then
-    c.set! (j + a.size) 0
-  else
-    let (c, k) := mulInner a v_j j c a.size
-    c.set! (j + a.size) k
-
-/--
-`mpn_mul`, Knuth's Algorithm M, returning `lnga + lngb` digits:
-```
-void mpn_mul(mpn_digit const * a, size_t const lnga,
-             mpn_digit const * b, size_t const lngb,
-             mpn_digit * c) {
-    for (unsigned i = 0; i < lnga; i++)
-        c[i] = 0;
-
-    for (size_t j = 0; j < lngb; j++) { ... }
+    }
 }
 ```
 NOTE: `mpn_mul` zeroes only `c[0..lnga)` and relies on the outer loop to write
@@ -598,7 +556,18 @@ result and states the invariant more simply.
 def mul (a b : Array Digit) : Array Digit := Id.run do
   let mut c := Array.replicate (a.size + b.size) 0
   for j in List.range b.size do
-    c := mulOuterStep a b c j
+    let v_j := b.getD j 0
+    if v_j == 0 then
+      c := c.set! (j + a.size) 0
+    else
+      let mut k : Digit := 0
+      for i in List.range a.size do
+        let u_i := a.getD i 0
+        let t : DoubleDigit :=
+          u_i.toUInt64 * v_j.toUInt64 + (c.getD (i + j) 0).toUInt64 + k.toUInt64
+        c := c.set! (i + j) (lo t)
+        k := hi t
+      c := c.set! (j + a.size) k
   return c
 
 /-! ## division -/
@@ -1233,6 +1202,28 @@ private def mulInnerStep (a : Array Digit) (v_j : Digit) (j : Nat)
     u_i.toUInt64 * v_j.toUInt64 + (c.getD (i + j) 0).toUInt64 + k.toUInt64
   (c.set! (i + j) (lo t), hi t)
 
+/-- `mul`'s inner loop with its length free, so that `mulInner_spec` can induct on it. -/
+private def mulInner (a : Array Digit) (v_j : Digit) (j : Nat) (c : Array Digit) (lnga : Nat) :
+    Array Digit × Digit := Id.run do
+  let mut c := c
+  let mut k : Digit := 0
+  for i in List.range lnga do
+    let u_i := a.getD i 0
+    let t : DoubleDigit :=
+      u_i.toUInt64 * v_j.toUInt64 + (c.getD (i + j) 0).toUInt64 + k.toUInt64
+    c := c.set! (i + j) (lo t)
+    k := hi t
+  return (c, k)
+
+/-- One iteration of `mul`'s outer loop, for `mulLoop_eq` to fold over. -/
+private def mulOuterStep (a b : Array Digit) (c : Array Digit) (j : Nat) : Array Digit :=
+  let v_j := b.getD j 0
+  if v_j == 0 then
+    c.set! (j + a.size) 0
+  else
+    let (c, k) := mulInner a v_j j c a.size
+    c.set! (j + a.size) k
+
 /-- The loop above with its length free, so that `mulLoop_spec` can induct on it. -/
 private def mulLoop (a b : Array Digit) (m : Nat) : Array Digit := Id.run do
   let mut c := Array.replicate (a.size + b.size) 0
@@ -1659,13 +1650,18 @@ theorem mulLoop_spec (a b : Array Digit) (m : Nat) (hm : m ≤ b.size) :
             = denote a * (denoteN b m + (b.getD m 0).toNat * base ^ m)
         rw [Nat.mul_add, Nat.mul_assoc]
 
+theorem mul_eq (a b : Array Digit) : mul a b = mulLoop a b b.size := by
+  unfold mul mulLoop mulOuterStep
+  simp only [apply_ite]
+  rfl
+
 /-- `mpn_mul` computes the product. -/
-theorem denote_mul (a b : Array Digit) : denote (mul a b) = denote a * denote b :=
-  (mulLoop_spec a b b.size (Nat.le_refl _)).2.2
+theorem denote_mul (a b : Array Digit) : denote (mul a b) = denote a * denote b := by
+  rw [mul_eq]; exact (mulLoop_spec a b b.size (Nat.le_refl _)).2.2
 
 /-- `mpn_mul` writes exactly `lnga + lngb` digits, as its callers assume. -/
-theorem size_mul (a b : Array Digit) : (mul a b).size = a.size + b.size :=
-  (mulLoop_spec a b b.size (Nat.le_refl _)).1
+theorem size_mul (a b : Array Digit) : (mul a b).size = a.size + b.size := by
+  rw [mul_eq]; exact (mulLoop_spec a b b.size (Nat.le_refl _)).1
 
 /-!
 ## Towards `mpn_div`: Knuth's quotient-digit estimate

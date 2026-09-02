@@ -2374,7 +2374,7 @@ private def isDefEqLateSpecialCases (t s : Expr) : MetaM LBool := do
   match (← isDefEqProjInst t s) with
   | .undef =>
     match (← isDefEqStringLit t s) with
-    | .undef => return if (← isDefEqUnitLike t s) then .true else .undef
+    | .undef => return /- if (← isDefEqUnitLike t s) then .true else -/ .undef
     | r      => return r
   | r => return r
 

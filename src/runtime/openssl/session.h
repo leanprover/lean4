@@ -30,8 +30,10 @@ struct lean_ssl_session_object {
     // Plaintext OpenSSL would not take yet, replayed once the socket I/O it is waiting on completes.
     std::deque<std::vector<uint8_t>> pending_writes;
 
-    // Total bytes held in `pending_writes`, kept in step with the queue so `lean_ssl_write` can
-    // bound it without walking the deque.
+    // Total bytes `pending_writes` was given, so `lean_ssl_write` can bound the queue without
+    // walking the deque. It tracks the queue only while the session is alive: `release_pending_writes`
+    // frees the buffers of a finished session and deliberately leaves this standing, which is what
+    // lets the teardown still report the plaintext that was accepted but never delivered.
     size_t pending_bytes = 0;
 
     // Set once `lean_ssl_feed_eof` has reported that no further encrypted input will arrive.
@@ -43,8 +45,10 @@ struct lean_ssl_session_object {
     bool negotiated = false;
 
     // The verdict recorded once the session is finished; see `ssl_error_state`. Every later
-    // `handshake`, `write`, `read`, `feedEncrypted` and `setServerName` then raises instead of
-    // driving a session that can no longer make progress.
+    // `handshake`, `write`, `read`, `peek`, `feedEncrypted`, `setServerName` and `peerName` then
+    // raises instead of driving a session that can no longer make progress. A zero-length
+    // `feedEncrypted` is the one exemption: it asks the session to take nothing, so no state it
+    // could be in makes that an error.
     ssl_error_state err{};
 };
 
@@ -57,13 +61,16 @@ extern "C" LEAN_EXPORT lean_obj_res lean_ssl_mk_client(b_obj_arg ctx);
 extern "C" LEAN_EXPORT lean_obj_res lean_ssl_set_server_name(b_obj_arg ssl, b_obj_arg host);
 extern "C" LEAN_EXPORT lean_obj_res lean_ssl_verify_result(b_obj_arg ssl);
 extern "C" LEAN_EXPORT lean_obj_res lean_ssl_verify_result_string(b_obj_arg ssl);
+extern "C" LEAN_EXPORT lean_obj_res lean_ssl_peer_name(b_obj_arg ssl);
 extern "C" LEAN_EXPORT lean_obj_res lean_ssl_handshake(b_obj_arg ssl);
 extern "C" LEAN_EXPORT lean_obj_res lean_ssl_write(b_obj_arg ssl, b_obj_arg data);
 extern "C" LEAN_EXPORT lean_obj_res lean_ssl_read(b_obj_arg ssl, uint64_t max_bytes);
+extern "C" LEAN_EXPORT lean_obj_res lean_ssl_peek(b_obj_arg ssl);
 extern "C" LEAN_EXPORT lean_obj_res lean_ssl_feed_encrypted(b_obj_arg ssl, b_obj_arg data);
 extern "C" LEAN_EXPORT lean_obj_res lean_ssl_feed_eof(b_obj_arg ssl);
 extern "C" LEAN_EXPORT lean_obj_res lean_ssl_drain_encrypted(b_obj_arg ssl);
 extern "C" LEAN_EXPORT lean_obj_res lean_ssl_pending_encrypted(b_obj_arg ssl);
+extern "C" LEAN_EXPORT lean_obj_res lean_ssl_pending_encrypted_input(b_obj_arg ssl);
 extern "C" LEAN_EXPORT lean_obj_res lean_ssl_pending_plaintext(b_obj_arg ssl);
 extern "C" LEAN_EXPORT lean_obj_res lean_ssl_close_notify(b_obj_arg ssl);
 extern "C" LEAN_EXPORT lean_obj_res lean_ssl_negotiated_version(b_obj_arg ssl);

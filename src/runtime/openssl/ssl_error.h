@@ -40,8 +40,9 @@ struct pem_source {
 struct ssl_error_state {
     // Set once a fatal error tore the session down, a shutdown found a session that had never
     // negotiated or tore one down as it peeked or as it made its last attempt to flush, the peer
-    // identity could not be bound and so left nothing for the handshake to verify against, or
-    // plaintext OpenSSL asked to have replayed could not be buffered.
+    // identity could not be bound and so left nothing for the handshake to verify against,
+    // plaintext OpenSSL asked to have replayed could not be buffered, or a memory BIO asked to
+    // flush, which only an allocation failure inside it can mean.
     bool failed;
     // Set when a shutdown finished a session that had never negotiated, so it is not reported as
     // having hit a fatal error it never hit.
@@ -58,6 +59,11 @@ lean_object* mk_openssl_error(const char* where);
 inline lean_obj_res mk_openssl_io_error(const char* where) { return lean_io_result_mk_error(mk_openssl_error(where)); }
 
 lean_obj_res mk_ssl_protocol_error(const char* msg);
+
+// Reports a failure of the session's own plumbing — an allocation, or a memory BIO behaving in a way
+// it cannot. The OpenSSL error queue is discarded rather than rendered into the message: its text
+// names library internals, which is the same reason `mk_ssl_error` maps reason codes to prose.
+lean_obj_res mk_ssl_internal_error(const char* msg);
 
 // Rejects a path whose bytes cannot reach the OS, which takes it as a NUL-terminated string and so
 // would silently act on a prefix. Returns `nullptr` when the path is fine to pass on.
@@ -113,6 +119,10 @@ lean_obj_res mk_ssl_write_queue_full();
 
 // The caller has not drained the encrypted output, which is the buffer that actually grows.
 lean_obj_res mk_ssl_output_backlog_full();
+
+// The caller has not read the encrypted input it fed, so a peer streaming at line rate would grow
+// the input BIO without bound. Draining it with `read` is the way back.
+lean_obj_res mk_ssl_input_backlog_full();
 
 // The queue could not take plaintext the caller has just submitted. `SSL_write` never saw it, so
 // nothing is owed to OpenSSL and the session stays usable: the payload is simply refused.

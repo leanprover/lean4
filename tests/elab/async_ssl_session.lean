@@ -62,6 +62,20 @@ def assertOk (label : String) (act : IO α) : IO Unit := do
   | none => pure ()
   | some msg => throw <| IO.userError s!"{label} raised: {msg}"
 
+/--
+Asserts that a shutdown step reports nothing left to do. `closeNotify` returning `none` rather than
+`true` is what makes a teardown loop terminate, so the value has to be checked, not just the absence
+of a raise.
+-/
+def assertDone (label : String) (act : IO Bool) : IO Unit := do
+  unless ← act do
+    throw <| IO.userError s!"{label}: expected true, got false"
+
+/-- Asserts that a shutdown step is still waiting on encrypted input from the peer. -/
+def assertWantRead (label : String) (act : IO Bool) : IO Unit := do
+  if ← act then
+    throw <| IO.userError s!"{label}: expected false, got true"
+
 -- ---------------------------------------------------------------------------
 -- Fixtures
 -- ---------------------------------------------------------------------------
@@ -97,7 +111,7 @@ def handshakeStep (c : Session cr) (s : Session sr) : IO (Bool × Bool) := do
   let sOut ← s.drainEncrypted
   if sOut.size > 0 then
     discard <| c.feedEncrypted sOut
-  return (cd.isNone, sd.isNone)
+  return (cd, sd)
 
 /-- `fuel` bounds the loop so a regression that stops the handshake converging fails rather than hangs. -/
 def runHandshake (c : Session cr) (s : Session sr) (fuel : Nat := 32) : IO Unit := do
@@ -182,10 +196,10 @@ def testDataTransfer : IO Unit := do
   -- After draining, pendingEncrypted drops to 0.
   assertEqN (← c.pendingEncrypted) 0 "pendingEncrypted after drain"
 
-  -- read returns wantIO when no data is available.
+  -- read reports wantRead when no data is available.
   match ← c.read 1024 with
-  | .wantIO _ => return ()
-  | _ => throw <| IO.userError "expected wantIO when no data available"
+  | .wantRead => return ()
+  | _ => throw <| IO.userError "expected wantRead when no data available"
 
 -- ---------------------------------------------------------------------------
 -- Test: pendingPlaintext — write 100 bytes, read 10, rest stays buffered.
@@ -208,21 +222,21 @@ def testPendingPlaintext : IO Unit := do
 
 def testEmptyWrite : IO Unit := do
   let (c, _) ← mkHandshakenPair
-  unless (← c.write ByteArray.empty).isNone do
+  unless ← c.write ByteArray.empty do
     throw <| IO.userError "empty write should return none"
 
 -- ---------------------------------------------------------------------------
--- Test: read 0 returns wantIO (not .data empty) when no data is buffered.
+-- Test: peek returns wantRead (not .data empty) when no data is buffered.
 -- ---------------------------------------------------------------------------
 
 def testReadZero : IO Unit := do
   let (_, s) ← mkHandshakenPair
 
-  -- No data has been sent; read 0 must signal wantIO, not return .data empty.
-  match ← s.read 0 with
-  | .wantIO _ => return ()
-  | .data b   => throw <| IO.userError s!"read 0 returned .data (size={b.size}) instead of wantIO"
-  | .closed   => throw <| IO.userError "read 0 returned .closed unexpectedly"
+  -- No data has been sent; peek must signal wantRead, not return .data empty.
+  match ← s.peek with
+  | .wantRead => return ()
+  | .data b   => throw <| IO.userError s!"peek returned .data (size={b.size}) instead of wantRead"
+  | .closed   => throw <| IO.userError "peek returned .closed unexpectedly"
 
 -- ---------------------------------------------------------------------------
 -- Test: queued writes reach the peer in the order they were made.
@@ -237,14 +251,13 @@ def testPendingWriteOrder : IO Unit := do
   let msgs := #["first", "second", "third"]
   for m in msgs do
     match ← c.write m.toUTF8 with
-    | some .read => pure ()
-    | some .write => throw <| IO.userError s!"queueing '{m}' should block on read, not write"
-    | none => throw <| IO.userError s!"'{m}' was taken immediately, so the queue is left untested"
+    | false => pure ()
+    | true => throw <| IO.userError s!"'{m}' was taken immediately, so the queue is left untested"
 
   runHandshake c s
 
   -- The empty write flushes the whole queue; the peer must see one stream in the original order.
-  unless (← c.write ByteArray.empty).isNone do
+  unless ← c.write ByteArray.empty do
     throw <| IO.userError "the queued plaintext did not flush after the handshake"
   pipeEncrypted c s
 
@@ -280,6 +293,29 @@ def testVerifyResultString : IO Unit := do
   assertEqStr (← unverified.verifyResultString) "self-signed certificate"
 
 -- ---------------------------------------------------------------------------
+-- Test: peerName answers the question verifyResult cannot.
+-- ---------------------------------------------------------------------------
+
+def testPeerName : IO Unit := do
+  -- Bound to a name the certificate carries: authenticated, and the matched name says which.
+  let (c, s) ← mkVerifyingPair (some testHost)
+  runHandshake c s
+  assertEqN (← c.verifyResult) 0 "a verifying handshake reports ok"
+  match ← c.peerName with
+  | some name => assertEqStr name testHost
+  | none => throw <| IO.userError "peerName reported no matched identity for a verified peer"
+
+  -- Bound to nothing: the chain is still validated and `verifyResult` still answers `0`, but no
+  -- certificate was ever tied to this peer. That difference is only visible through `peerName`.
+  let (anon, anonPeer) ← mkVerifyingPair
+  runHandshake anon anonPeer
+  assertEqN (← anon.verifyResult) 0 "an identity-less handshake still reports ok"
+  match ← anon.peerName with
+  | none => pure ()
+  | some name =>
+    throw <| IO.userError s!"peerName named '{name}' for a session bound to no identity"
+
+-- ---------------------------------------------------------------------------
 -- Test: negotiatedVersion reports a modern TLS version after handshake.
 -- ---------------------------------------------------------------------------
 
@@ -306,23 +342,22 @@ partial def runShutdown (fuel : Nat) (a : Session ar) (b : Session br) : IO Unit
   pipeEncrypted a b
   let rb ← b.closeNotify
   pipeEncrypted b a
-  unless ra.isNone && rb.isNone do runShutdown (fuel - 1) a b
+  unless ra && rb do runShutdown (fuel - 1) a b
 
 def testCloseNotify : IO Unit := do
   let (c, s) ← mkHandshakenPair
 
   -- A fresh client shutdown sends its close_notify but still awaits the peer's.
   match ← c.closeNotify with
-  | some .read => pure ()
-  | some .write => throw <| IO.userError "initial closeNotify should await peer read, not write"
-  | none => throw <| IO.userError "initial closeNotify completed before the peer responded"
+  | false => pure ()
+  | true => throw <| IO.userError "initial closeNotify completed before the peer responded"
 
   -- Pipe the alert across and run both sides to a clean bidirectional shutdown.
   pipeEncrypted c s
   runShutdown 16 s c
 
   -- After a clean shutdown, both report completion.
-  unless (← c.closeNotify).isNone && (← s.closeNotify).isNone do
+  unless (← c.closeNotify) && (← s.closeNotify) do
     throw <| IO.userError "closeNotify did not report a completed shutdown"
 
 -- ---------------------------------------------------------------------------
@@ -344,34 +379,31 @@ def testCloseNotifyWithPendingData : IO Unit := do
   -- Deliver a final application record and the server's close_notify together.
   discard <| s.write "final".toUTF8
   match ← s.closeNotify with
-  | some .read => pure ()
-  | some .write => throw <| IO.userError "server closeNotify should await peer input"
-  | none => throw <| IO.userError "server closeNotify completed before the peer responded"
+  | false => pure ()
+  | true => throw <| IO.userError "server closeNotify completed before the peer responded"
   pipeEncrypted s c
 
   -- Initiating our side of the shutdown must not consume or reject the unread application record
   -- that precedes the peer's close_notify. The alert is already buffered behind that record, so no
   -- socket input is outstanding and asking for some would strand a caller that loops on this alone.
-  match ← c.closeNotify with
-  | none => pure ()
-  | r => throw <| IO.userError s!"client closeNotify asked for input that had already arrived, got {repr r}"
+  assertDone "client closeNotify asked for input that had already arrived" c.closeNotify
 
   match ← c.read 1024 with
   | .data bytes => assertEqStr (String.fromUTF8! bytes) "final"
-  | .wantIO _ => throw <| IO.userError "expected final application data before close_notify"
+  | .wantRead => throw <| IO.userError "expected final application data before close_notify"
   | .closed => throw <| IO.userError "close_notify was reported before final application data"
 
   match ← c.read 1024 with
   | .closed => pure ()
   | .data _ => throw <| IO.userError "unexpected application data after final record"
-  | .wantIO _ => throw <| IO.userError "expected buffered close_notify after final record"
+  | .wantRead => throw <| IO.userError "expected buffered close_notify after final record"
 
   -- Nothing is left undelivered, so the client's shutdown now completes.
-  unless (← c.closeNotify).isNone do
+  unless ← c.closeNotify do
     throw <| IO.userError "client shutdown did not complete after the peer's close_notify was read"
 
   pipeEncrypted c s
-  unless (← s.closeNotify).isNone do
+  unless ← s.closeNotify do
     throw <| IO.userError "server shutdown did not complete after receiving close_notify"
 
 -- ---------------------------------------------------------------------------
@@ -381,7 +413,7 @@ def testCloseNotifyWithPendingData : IO Unit := do
 -- The same shutdown-before-drain race, but the peer has only sent data so far: there is no buffered
 -- `close_notify` to finish on. `closeNotify` must send our alert and keep the plaintext intact for
 -- as many calls as it takes — a session with undelivered data must survive an early shutdown rather
--- than fail, and must never report an `IOWant` for input that cannot advance it.
+-- than fail, and must never ask for input that cannot advance it.
 def testCloseNotifyBeforeDrainingData : IO Unit := do
   let (c, s) ← mkHandshakenPair
 
@@ -389,22 +421,20 @@ def testCloseNotifyBeforeDrainingData : IO Unit := do
   pipeEncrypted s c
 
   for attempt in [1, 2] do
-    match ← c.closeNotify with
-    | none => pure ()
-    | r => throw <| IO.userError s!"closeNotify {attempt} asked for input it could not use, got {repr r}"
+    assertDone s!"closeNotify {attempt} asked for input it could not use" c.closeNotify
 
   match ← c.read 1024 with
   | .data bytes => assertEqStr (String.fromUTF8! bytes) "final"
-  | .wantIO _ => throw <| IO.userError "unread plaintext was consumed by closeNotify"
+  | .wantRead => throw <| IO.userError "unread plaintext was consumed by closeNotify"
   | .closed => throw <| IO.userError "session reported closed with plaintext still unread"
 
   -- The peer answers our alert; both ends then reach a clean shutdown.
   pipeEncrypted c s
-  unless (← s.closeNotify).isNone do
+  unless ← s.closeNotify do
     throw <| IO.userError "server shutdown did not complete after receiving close_notify"
 
   pipeEncrypted s c
-  unless (← c.closeNotify).isNone do
+  unless ← c.closeNotify do
     throw <| IO.userError "client shutdown did not complete after receiving close_notify"
 
 -- ---------------------------------------------------------------------------
@@ -420,15 +450,14 @@ def testWriteBeforeHandshake : IO Unit := do
 
   -- Write before handshaking: the data is queued, and OpenSSL asks for socket input.
   match ← c.write "early".toUTF8 with
-  | some .read => pure ()
-  | some .write => throw <| IO.userError "write before handshake should block on read, not write"
-  | none => throw <| IO.userError "write before handshake should not complete immediately"
+  | false => pure ()
+  | true => throw <| IO.userError "write before handshake should not complete immediately"
 
   -- Complete the handshake; the queued plaintext stays pending throughout.
   runHandshake c s
 
   -- An empty write now flushes the queued plaintext into encrypted output.
-  unless (← c.write ByteArray.empty).isNone do
+  unless ← c.write ByteArray.empty do
     throw <| IO.userError "queued plaintext should flush cleanly after the handshake"
 
   pipeEncrypted c s
@@ -437,35 +466,33 @@ def testWriteBeforeHandshake : IO Unit := do
   | _ => throw <| IO.userError "queued plaintext was not delivered after the handshake"
 
 -- ---------------------------------------------------------------------------
--- Test: `read` reports which socket I/O it is actually waiting on.
+-- Test: `read` reports that it is waiting on the peer, in both the read and peek paths.
 -- ---------------------------------------------------------------------------
 
--- `ReadResult.wantIO` stores its `IOWant` unboxed, unlike the `Option IOWant` the other primitives
--- return, so the two are built differently on the C side. A session with an empty input BIO must
--- report `.read` — reporting `.write` would send an event loop to wait for writability that is
--- always immediately true, spinning instead of waiting for the peer.
-def testReadWantIO : IO Unit := do
+-- A session with an empty input BIO is waiting on the peer, and both the sized read and the peek
+-- have to say so. `ReadResult.wantRead` and `.closed` are both nullary, so they are boxed
+-- constructor indices on the C side rather than allocations -- easy to get one off by one.
+def testReadWantRead : IO Unit := do
   let (c, s) ← mkPair
 
   let expectWantRead (r : ReadResult) (label : String) : IO Unit :=
     match r with
-    | .wantIO .read => pure ()
-    | .wantIO .write => throw <| IO.userError s!"{label}: expected wantIO .read, got .write"
-    | .data b => throw <| IO.userError s!"{label}: expected wantIO .read, got data ({b.size} bytes)"
-    | .closed => throw <| IO.userError s!"{label}: expected wantIO .read, got closed"
+    | .wantRead => pure ()
+    | .data b => throw <| IO.userError s!"{label}: expected wantRead, got data ({b.size} bytes)"
+    | .closed => throw <| IO.userError s!"{label}: expected wantRead, got closed"
 
   -- Before the handshake, and again after the ClientHello has been drained, the session is waiting
   -- on encrypted input in both the peek and the sized-read paths.
-  expectWantRead (← c.read 0) "peek before handshake"
+  expectWantRead (← c.peek) "peek before handshake"
   expectWantRead (← c.read 1024) "read before handshake"
   let hello ← c.drainEncrypted
-  expectWantRead (← c.read 0) "peek after draining ClientHello"
+  expectWantRead (← c.peek) "peek after draining ClientHello"
   expectWantRead (← c.read 1024) "read after draining ClientHello"
 
   -- Once the handshake is done and no plaintext is buffered, it is still input we are waiting for.
   discard <| s.feedEncrypted hello
   runHandshake c s
-  expectWantRead (← c.read 0) "peek after handshake"
+  expectWantRead (← c.peek) "peek after handshake"
   expectWantRead (← c.read 1024) "read after handshake"
   expectWantRead (← s.read 1024) "server read after handshake"
 
@@ -475,7 +502,7 @@ def testReadWantIO : IO Unit := do
 
 #eval do
   testVerifyingHandshake
-  testReadWantIO
+  testReadWantRead
   testInProcessHandshake
   testDataTransfer
   testPendingPlaintext
@@ -483,6 +510,7 @@ def testReadWantIO : IO Unit := do
   testReadZero
   testPendingWriteOrder
   testVerifyResultString
+  testPeerName
   testNegotiatedVersion
   testCloseNotify
   testCloseNotifyWithPendingData
@@ -514,9 +542,9 @@ def corruptRecord : ByteArray := ByteArray.mk (List.replicate 64 (0x17 : UInt8))
     discard <| s.feedEncrypted corruptRecord
     return s
 
-  -- The normal read and the peek path (`read 0`) must both raise, not silently return `.wantIO`.
+  -- The sized read and the peek must both raise, not silently return `.wantRead`.
   assertRaises "unrecognized version" "read 1 on a corrupt record" ((← corrupted).read 1)
-  assertRaises "unrecognized version" "read 0 on a corrupt record" ((← corrupted).read 0)
+  assertRaises "unrecognized version" "peek on a corrupt record" (← corrupted).peek
 
 -- A `read` larger than one TLS record returns at most one record (16 KiB) per call, and successive
 -- calls return the rest with no data loss (regression for the `read` allocation cap).
@@ -554,6 +582,47 @@ def corruptRecord : ByteArray := ByteArray.mk (List.replicate 64 (0x17 : UInt8))
   let rest ← s.read 1000000
   assertEqN (match rest with | .data b => b.size.toUInt64 | _ => 0) 3 "oversized read returns buffered remainder"
 
+-- `peek` reports that plaintext is available *without consuming any of it*. Every other peek in this
+-- file is a want-or-raise case, so nothing there would notice `SSL_peek` silently becoming
+-- `SSL_read` -- which is the whole of what `peek` promises.
+#eval do
+  let (c, s) ← mkHandshakenPair
+
+  discard <| c.write "peekable".toUTF8
+  pipeEncrypted c s
+
+  match ← s.peek with
+  | .data b => assertEqN b.size.toUInt64 0 "a peek reports availability as an empty ByteArray"
+  | .wantRead => throw <| IO.userError "peek reported wantRead with plaintext already buffered"
+  | .closed => throw <| IO.userError "peek reported closed with plaintext already buffered"
+
+  -- Nothing was consumed, so the record is still whole and a real read returns every byte of it.
+  assertEqN (← s.pendingPlaintext) 8 "a peek leaves pendingPlaintext untouched"
+
+  match ← s.read 1024 with
+  | .data b => assertEqStr (String.fromUTF8! b) "peekable"
+  | _ => throw <| IO.userError "the peeked plaintext was consumed by the peek"
+
+-- `feedEncrypted` takes all of `data` or raises, so a caller never has a partial feed to resume
+-- from. What is observable is that nothing is dropped: every fed byte turns up as plaintext, and an
+-- empty feed is a no-op rather than an error.
+#eval do
+  let (c, s) ← mkHandshakenPair
+
+  discard <| c.write "counted".toUTF8
+  let encrypted ← c.drainEncrypted
+  assertGt encrypted.size.toUInt64 0 "the write produced ciphertext to feed"
+
+  assertOk "an empty feed is a no-op" (s.feedEncrypted ByteArray.empty)
+  s.feedEncrypted encrypted
+  assertEqN (← s.pendingEncryptedInput) encrypted.size.toUInt64 "feedEncrypted took all of data"
+
+  match ← s.read 1024 with
+  | .data b => assertEqStr (String.fromUTF8! b) "counted"
+  | _ => throw <| IO.userError "the fed ciphertext did not turn up as plaintext"
+
+  assertEqN (← s.pendingEncryptedInput) 0 "the whole record was consumed"
+
 -- `closeNotify` owns the pending-write queue: plaintext `write` accepted must reach the peer before
 -- the alert that ends the session, with no explicit flush from the caller. A write issued before the
 -- handshake blocks on WANT_READ, which is the only way to get plaintext queued behind memory BIOs.
@@ -570,7 +639,7 @@ def corruptRecord : ByteArray := ByteArray.mk (List.replicate 64 (0x17 : UInt8))
   match ← s.read 1024 with
   | .data b => assertEqStr (String.fromUTF8! b) "queued-payload"
   | .closed => throw <| IO.userError "closeNotify dropped the plaintext queued by write"
-  | .wantIO _ => throw <| IO.userError "expected the queued plaintext, got wantIO"
+  | .wantRead => throw <| IO.userError "expected the queued plaintext, got wantRead"
 
 -- Once a record has been rejected as fatally malformed, OpenSSL answers every further operation with
 -- a bare `SSL_ERROR_SYSCALL` — no alert is involved, the session is torn down locally. Both BIOs are
@@ -612,7 +681,7 @@ def corruptRecord : ByteArray := ByteArray.mk (List.replicate 64 (0x17 : UInt8))
   match ← c.read 1024 with
   | .closed => pure ()
   | .data b => throw <| IO.userError s!"expected the peer's close_notify, got data ({b.size} bytes)"
-  | .wantIO _ => throw <| IO.userError "expected the peer's close_notify, got wantIO"
+  | .wantRead => throw <| IO.userError "expected the peer's close_notify, got wantRead"
 
   let chunk := ByteArray.mk (List.replicate 1024 (0x58 : UInt8)).toArray
   for i in [0, 1, 2] do
@@ -640,7 +709,7 @@ def corruptRecord : ByteArray := ByteArray.mk (List.replicate 64 (0x17 : UInt8))
 #eval do
   let c ← mkClient
   for i in [0, 1, 2] do
-    assertOk s!"closeNotify #{i} on a fresh session" c.closeNotify
+    assertDone s!"closeNotify #{i} on a fresh session" c.closeNotify
 
 -- Reporting a clean close has to end the session: a fatal error also puts one back in init, so the
 -- branch that reports "nothing to tear down" cannot leave it looking ready to negotiate.
@@ -663,7 +732,7 @@ def corruptRecord : ByteArray := ByteArray.mk (List.replicate 64 (0x17 : UInt8))
 
   discard <| s.feedEncrypted corruptRecord
   discard <| errorOf (s.read 128)
-  assertOk "closeNotify on an aborted session" s.closeNotify
+  assertDone "closeNotify on an aborted session" s.closeNotify
 
 -- A session that never negotiated cannot carry plaintext `write` accepted, and flushing it would run
 -- the handshake rather than complete a teardown. The data is lost either way, so the shutdown says
@@ -697,7 +766,7 @@ def corruptRecord : ByteArray := ByteArray.mk (List.replicate 64 (0x17 : UInt8))
   let c ← mkClient
   discard <| c.handshake
   discard <| c.drainEncrypted
-  assertOk "closeNotify mid-handshake" c.closeNotify
+  assertDone "closeNotify mid-handshake" c.closeNotify
 
 -- `read` reports the socket I/O the *queue* is waiting on, never one it invented: a blocked flush
 -- supersedes the read's own want. Plaintext written before the handshake is the only way to hold a
@@ -707,8 +776,7 @@ def corruptRecord : ByteArray := ByteArray.mk (List.replicate 64 (0x17 : UInt8))
   discard <| c.write "queued".toUTF8
   for (label, r) in [("peek", ← c.read 0), ("read", ← c.read 1024)] do
     match r with
-    | .wantIO .read => pure ()
-    | .wantIO .write => throw <| IO.userError s!"{label} with a blocked queue reported .write"
+    | .wantRead => pure ()
     | .data b => throw <| IO.userError s!"{label} returned data ({b.size} bytes) before the handshake"
     | .closed => throw <| IO.userError s!"{label} reported closed before the handshake"
 
@@ -742,9 +810,8 @@ def corruptRecord : ByteArray := ByteArray.mk (List.replicate 64 (0x17 : UInt8))
   let (c, s) ← mkPair
   let queued : ByteArray := ⟨Array.replicate (512 * 1024) (0x41 : UInt8)⟩
 
-  match ← c.write queued with
-  | some .read => pure ()
-  | r => throw <| IO.userError s!"a pre-handshake write should queue, got {repr r}"
+  if ← c.write queued then
+    throw <| IO.userError "a pre-handshake write should queue, not complete"
 
   runHandshake c s
 
@@ -785,6 +852,92 @@ def corruptRecord : ByteArray := ByteArray.mk (List.replicate 64 (0x17 : UInt8))
   assertEqN (← c.pendingEncrypted) 0 "pendingEncrypted after draining"
   assertOk "a write after draining the encrypted backlog" (c.write chunk)
 
+-- The bound is judged against what a write would *leave* behind, not against what is already there,
+-- or one payload could carry the backlog past it by its own size. The exemption is a fully drained
+-- session, which has nothing to pile onto -- otherwise a message larger than the bound could never
+-- be sent at all.
+#eval do
+  let (c, _) ← mkHandshakenPair
+
+  -- Nothing undrained, so an oversized payload is still accepted.
+  assertOk "an oversized write against a drained session"
+    (c.write ⟨Array.replicate (6 * 1024 * 1024) (0x41 : UInt8)⟩)
+
+  -- With that sitting undrained, even a small write is refused rather than piled on top.
+  assertRaises "undrained encrypted output" "a small write onto an over-full backlog"
+    (c.write "one more".toUTF8)
+
+  discard <| c.drainEncrypted
+  assertOk "the same small write once the backlog is gone" (c.write "one more".toUTF8)
+
+-- The case that separates the two readings of the bound: a backlog still *under* it, and a payload
+-- that carries it over. Judged against what is already there, this write is admitted and leaves the
+-- session holding more than the bound allows; judged against what it would leave behind, it is
+-- refused. The test above passes either way, so this is the one that pins the rule.
+#eval do
+  let (c, _) ← mkHandshakenPair
+  discard <| c.drainEncrypted
+
+  -- Comfortably under the 4 MiB bound, so nothing refuses this on either reading.
+  assertOk "a write that stays under the bound"
+    (c.write ⟨Array.replicate (3 * 1024 * 1024) (0x41 : UInt8)⟩)
+
+  let unsent ← c.pendingEncrypted
+  unless unsent > 2 * 1024 * 1024 && unsent < 4 * 1024 * 1024 do
+    throw <| IO.userError
+      s!"the backlog has to sit under the bound for this case to bite, but is {unsent}"
+
+  assertRaises "undrained encrypted output" "a write that would carry the backlog past the bound"
+    (c.write ⟨Array.replicate (2 * 1024 * 1024) (0x41 : UInt8)⟩)
+
+-- An empty feed asks the session to take nothing, so no state it could be in makes that an error.
+-- A transport pump that reports a zero-length socket read has not done anything wrong.
+#eval do
+  let (c, s) ← mkHandshakenPair
+
+  s.feedEof
+  assertOk "an empty feed after feedEof" (s.feedEncrypted ByteArray.empty)
+  assertRaises "already ended" "a real feed after feedEof" (s.feedEncrypted "late".toUTF8)
+
+  discard <| s.closeNotify
+  pipeEncrypted s c
+  discard <| c.read 1024
+  assertOk "an empty feed after the peer's close_notify" (c.feedEncrypted ByteArray.empty)
+
+-- The input BIO is the buffer a hostile *peer* grows: a pump that keeps feeding a socket while the
+-- application is slow to read would otherwise hold unbounded ciphertext, with nothing reporting how
+-- much of it there is. `feedEncrypted` bounds it and `pendingEncryptedInput` measures it.
+#eval do
+  let (c, s) ← mkHandshakenPair
+
+  -- Fresh records every round: a TLS record carries a sequence number, so re-feeding one the peer
+  -- already sent fails to authenticate rather than testing the bound.
+  let mut refused := none
+  let mut turnedAway := ByteArray.empty
+  for _ in [0:24] do
+    if refused.isNone then
+      discard <| c.write ⟨Array.replicate (512 * 1024) (0x41 : UInt8)⟩
+      let ciphertext ← c.drainEncrypted
+      match ← errorOf (s.feedEncrypted ciphertext) with
+      | none => pure ()
+      | some msg =>
+        refused := some msg
+        turnedAway := ciphertext
+
+  match refused with
+  | none => throw <| IO.userError "the session buffered 12 MiB of unread ciphertext without a bound"
+  | some msg =>
+    unless (msg.splitOn "unread encrypted input").length > 1 do
+      throw <| IO.userError s!"unexpected input-backlog error: {msg}"
+
+  -- The accessor reports what is held, and reading is the way back under the bound. The refused
+  -- bytes were never taken, so the stream resumes exactly where it stopped.
+  assertGt (← s.pendingEncryptedInput) 0 "pendingEncryptedInput before reading"
+  discard <| drainPlaintext s
+  assertEqN (← s.pendingEncryptedInput) 0 "pendingEncryptedInput after reading"
+  assertOk "feedEncrypted after draining the input backlog" (s.feedEncrypted turnedAway)
+  assertEqN (← drainPlaintext s).size.toUInt64 (512 * 1024) "the refused chunk arrives intact on retry"
+
 -- Until the transport reports EOF, an empty input BIO is indistinguishable from "the next bytes
 -- have not arrived yet", so a peer that vanishes without `close_notify` would leave `read` asking
 -- for input forever. `feedEof` turns that into the truncation error it actually is.
@@ -792,7 +945,7 @@ def corruptRecord : ByteArray := ByteArray.mk (List.replicate 64 (0x17 : UInt8))
   let (c, _) ← mkHandshakenPair
 
   match ← c.read 128 with
-  | .wantIO .read => pure ()
+  | .wantRead => pure ()
   | _ => throw <| IO.userError "expected the client to be waiting on input before feedEof"
 
   c.feedEof
@@ -815,12 +968,12 @@ def corruptRecord : ByteArray := ByteArray.mk (List.replicate 64 (0x17 : UInt8))
   match ← c.read 1024 with
   | .data b => assertEqStr (String.fromUTF8! b) "last"
   | .closed => throw <| IO.userError "feedEof discarded plaintext that had already been fed"
-  | .wantIO _ => throw <| IO.userError "expected the buffered record after feedEof"
+  | .wantRead => throw <| IO.userError "expected the buffered record after feedEof"
 
   match ← c.read 1024 with
   | .closed => pure ()
   | .data b => throw <| IO.userError s!"unexpected data ({b.size} bytes) after the peer's close_notify"
-  | .wantIO _ => throw <| IO.userError "expected .closed for a close_notify received before feedEof"
+  | .wantRead => throw <| IO.userError "expected .closed for a close_notify received before feedEof"
 
 -- A single `write` larger than the queue bound is admitted, since `SSL_write` has already taken the
 -- payload by then. The bound still has to hold for everything written afterwards, even though the
@@ -864,22 +1017,20 @@ def corruptRecord : ByteArray := ByteArray.mk (List.replicate 64 (0x17 : UInt8))
   c.feedEof
   assertRaises "end of file" "read after feedEof" (c.read 1024)
   assertRaises "end of file" "repeated read after feedEof" (c.read 1024)
-  assertRaises "end of file" "peek after feedEof" (c.read 0)
+  assertRaises "end of file" "peek after feedEof" c.peek
 
 -- Teardown runs on exactly the connections whose peer vanishes without answering our alert, so a
 -- transport that ends there is the expected outcome rather than an error to catch.
 #eval do
   let (c, _) ← mkHandshakenPair
 
-  match ← c.closeNotify with
-  | some .read => pure ()
-  | r => throw <| IO.userError s!"expected to be waiting for the peer's close_notify, got {repr r}"
+  assertWantRead "the first closeNotify awaits the peer's alert" c.closeNotify
 
   discard <| c.drainEncrypted
   c.feedEof
 
   for i in [0:3] do
-    assertOk s!"closeNotify #{i} after a half-close" c.closeNotify
+    assertDone s!"closeNotify #{i} after a half-close" c.closeNotify
 
 -- A peer's `close_notify` sent behind a final record is buffered the moment that flight arrives, but
 -- OpenSSL cannot report it without consuming the record first — and a shutdown must not consume
@@ -894,24 +1045,20 @@ def corruptRecord : ByteArray := ByteArray.mk (List.replicate 64 (0x17 : UInt8))
   discard <| c.feedEncrypted (← s.drainEncrypted)
 
   for i in [0:3] do
-    match ← c.closeNotify with
-    | none => pure ()
-    | r => throw <| IO.userError s!"closeNotify #{i} asked for input that had already arrived: {repr r}"
+    assertDone s!"closeNotify #{i} asked for input that had already arrived" c.closeNotify
 
   -- The shutdown reported done, but the plaintext behind which the alert sat is still there.
   match ← c.read 1024 with
   | .data b => assertEqStr (String.fromUTF8! b) "final-record"
   | .closed => throw <| IO.userError "closeNotify discarded the plaintext it stopped short of"
-  | .wantIO _ => throw <| IO.userError "expected the buffered plaintext after the shutdown"
+  | .wantRead => throw <| IO.userError "expected the buffered plaintext after the shutdown"
 
   -- Draining the rest reaches the peer's alert, completing the bidirectional shutdown.
   match ← c.read 1024 with
   | .closed => pure ()
   | _ => throw <| IO.userError "expected the peer's close_notify behind the record"
 
-  match ← c.closeNotify with
-  | none => pure ()
-  | r => throw <| IO.userError s!"shutdown did not complete after the alert was read, got {repr r}"
+  assertDone "shutdown did not complete after the alert was read" c.closeNotify
 
 -- A fatal error is diagnosed by OpenSSL exactly once; afterwards `SSL_in_init`, `SSL_get_shutdown`
 -- and `SSL_want` read the same as on a session that is merely waiting for input, so an undefended
@@ -935,6 +1082,11 @@ def corruptRecord : ByteArray := ByteArray.mk (List.replicate 64 (0x17 : UInt8))
     assertRaises aborted s!"handshake #{i} on a dead session" c.handshake
     assertRaises aborted s!"write #{i} on a dead session" (c.write "x".toUTF8)
     assertRaises aborted s!"read #{i} on a dead session" (c.read 1024)
+    assertRaises aborted s!"peek #{i} on a dead session" c.peek
+    -- `SSL_get0_peername` keeps answering after a verification that failed, since the name is
+    -- recorded before the checks that reject the certificate. Reporting it would name a peer this
+    -- session never authenticated.
+    assertRaises aborted s!"peerName #{i} on a dead session" c.peerName
 
 -- A truncated stream keeps its own classification: `failed` alone would turn the end of the stream
 -- into a protocol error, which a caller cannot distinguish from a peer that spoke garbage.
@@ -958,16 +1110,16 @@ def corruptRecord : ByteArray := ByteArray.mk (List.replicate 64 (0x17 : UInt8))
   -- Route A: a read diagnoses the corrupt record, then teardown runs.
   let a ← mk
   discard <| errorOf (a.read 1024)
-  assertOk "closeNotify after the failure was diagnosed" a.closeNotify
+  assertDone "closeNotify after the failure was diagnosed" a.closeNotify
 
   -- Route B: teardown is the first call to see the corrupt record.
   let b ← mk
-  assertOk "closeNotify on an undiagnosed failure" b.closeNotify
+  assertDone "closeNotify on an undiagnosed failure" b.closeNotify
 
   -- Both sessions stay torn down, and repeated teardown stays a no-op.
   for (label, sess) in [("A", a), ("B", b)] do
     for i in [0:2] do
-      assertOk s!"closeNotify {label} #{i}" sess.closeNotify
+      assertDone s!"closeNotify {label} #{i}" sess.closeNotify
 
 -- The one loss a caller has to hear about on teardown is plaintext `write` accepted but never
 -- delivered, and a session killed before it could be flushed is exactly that case.
@@ -975,9 +1127,8 @@ def corruptRecord : ByteArray := ByteArray.mk (List.replicate 64 (0x17 : UInt8))
   let (c, s) ← mkPair
 
   -- Queued before the handshake, so it is still waiting when the session dies.
-  match ← c.write "never-sent".toUTF8 with
-  | some _ => pure ()
-  | none => throw <| IO.userError "a pre-handshake write should be queued, not accepted outright"
+  if ← c.write "never-sent".toUTF8 then
+    throw <| IO.userError "a pre-handshake write should be queued, not accepted outright"
 
   discard <| s.feedEncrypted (← c.drainEncrypted)
   discard <| c.feedEncrypted (ByteArray.mk (List.replicate 64 (0x16 : UInt8)).toArray)
@@ -996,7 +1147,7 @@ def corruptRecord : ByteArray := ByteArray.mk (List.replicate 64 (0x17 : UInt8))
   assertRaises "before buffered data could be sent" "the first closeNotify" c.closeNotify
 
   for i in [0:3] do
-    assertOk s!"closeNotify #{i} repeating a reported loss" c.closeNotify
+    assertDone s!"closeNotify #{i} repeating a reported loss" c.closeNotify
 
 -- `setServerName` drives nothing, so `SSL_in_before` still reads true on a session teardown already
 -- finished — it has to consult the session's own verdict instead. Accepting a name there would tell
@@ -1065,7 +1216,7 @@ def corruptRecord : ByteArray := ByteArray.mk (List.replicate 64 (0x17 : UInt8))
   discard <| c.closeNotify
 
   assertRaises "already shut down" "a write after our own close_notify" (c.write "refused".toUTF8)
-  assertOk "closeNotify after a refused write" c.closeNotify
+  assertWantRead "closeNotify after a refused write" c.closeNotify
 
 -- `feedEof` fixes the diagnosis of a session that never negotiated, so `closeNotify` and `read` have
 -- to agree on it whichever runs first. `SSL_shutdown` refuses to run in init and never reads, so the

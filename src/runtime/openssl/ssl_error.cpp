@@ -50,6 +50,11 @@ lean_obj_res mk_ssl_protocol_error(const char* msg) {
     return lean_io_result_mk_error(lean_mk_io_error_protocol_error(EPROTO, mk_string(msg)));
 }
 
+lean_obj_res mk_ssl_internal_error(const char* msg) {
+    ERR_clear_error();
+    return lean_io_result_mk_error(lean_mk_io_user_error(mk_string(msg)));
+}
+
 lean_obj_res reject_embedded_nul(b_obj_arg path) {
     return strlen(lean_string_cstr(path)) == lean_string_size(path) - 1
         ? nullptr
@@ -272,6 +277,12 @@ lean_obj_res mk_ssl_output_backlog_full() {
     ERR_clear_error();
     return lean_io_result_mk_error(lean_mk_io_error_resource_exhausted(ENOBUFS,
         mk_string("the TLS session already holds the maximum amount of undrained encrypted output")));
+}
+
+lean_obj_res mk_ssl_input_backlog_full() {
+    ERR_clear_error();
+    return lean_io_result_mk_error(lean_mk_io_error_resource_exhausted(ENOBUFS,
+        mk_string("the TLS session already holds the maximum amount of unread encrypted input")));
 }
 
 lean_obj_res mk_ssl_enqueue_rejected() {

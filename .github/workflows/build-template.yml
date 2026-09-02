@@ -212,8 +212,9 @@ jobs:
       - id: upload-lake-cache
         name: Upload Lake Cache
         # Caching on cancellation created some mysterious issues perhaps related to improper build
-        # shutdown. Also, since this needs access to secrets, it cannot be run on forks.
-        if: matrix.lake-cache && !cancelled() && (github.event_name != 'pull_request' || github.event.pull_request.head.repo.full_name == github.repository)
+        # shutdown. Also, since this needs access to secrets, it can only run where Actions
+        # secrets are available: not on forks, and not on Dependabot pull requests.
+        if: matrix.lake-cache && !cancelled() && (github.event_name != 'pull_request' || (github.event.pull_request.head.repo.full_name == github.repository && github.event.pull_request.user.login != 'dependabot[bot]'))
         run: |
           curl --version
           cd src

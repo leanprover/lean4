@@ -462,30 +462,6 @@ def add (a b : Array Digit) : Array Digit := Id.run do
   c := c.push k
   return trim c
 
-/-- The digit loop above with its length free, so that `addLoop_spec` can induct on it. -/
-private def addLoop (a b : Array Digit) (len : Nat) : Array Digit × Digit := Id.run do
-  let mut c : Array Digit := #[]
-  let mut k : Digit := 0
-  for j in List.range len do
-    let u_j := a.getD j 0
-    let v_j := b.getD j 0
-    let r := u_j + v_j; let c1 := r < u_j
-    let cj := r + k; let c2 := cj < r
-    c := c.push cj
-    k := if c1 || c2 then 1 else 0
-  return (c, k)
-
-/-- One iteration of the loop, for `addLoop_eq` to fold over. -/
-private def addStep (a b : Array Digit) (s : Array Digit × Digit) (j : Nat) : Array Digit × Digit :=
-  let (c, k) := s
-  let u_j := a.getD j 0
-  let v_j := b.getD j 0
-  let r := u_j + v_j
-  let c1 := r < u_j
-  let cj := r + k
-  let c2 := cj < r
-  (c.push cj, if c1 || c2 then 1 else 0)
-
 /-! ## `mpn_sub` -/
 
 /--
@@ -509,7 +485,7 @@ void mpn_sub(mpn_digit const * a, size_t const lnga,
 }
 ```
 NOTE: `c` is written by index into a buffer the caller allocates with `len`
-digits and pushed here, for the reason given at `addLoop`. The borrow leaves
+digits and pushed here, for the reason given at `add`. The borrow leaves
 through `*pborrow`, which is the second result.
 -/
 def sub (a b : Array Digit) : Array Digit × Digit := Id.run do
@@ -524,30 +500,6 @@ def sub (a b : Array Digit) : Array Digit × Digit := Id.run do
     c := c.push cj
     k := if c1 || c2 then 1 else 0
   return (c, k)
-
-/-- The loop above with its length free, so that `subLoop_spec` can induct on it. -/
-private def subLoop (a b : Array Digit) (len : Nat) : Array Digit × Digit := Id.run do
-  let mut c : Array Digit := #[]
-  let mut k : Digit := 0
-  for j in List.range len do
-    let u_j := a.getD j 0
-    let v_j := b.getD j 0
-    let r := u_j - v_j; let c1 := r > u_j
-    let cj := r - k; let c2 := cj > r
-    c := c.push cj
-    k := if c1 || c2 then 1 else 0
-  return (c, k)
-
-/-- One iteration of the loop, for `subLoop_eq` to fold over. -/
-private def subStep (a b : Array Digit) (s : Array Digit × Digit) (j : Nat) : Array Digit × Digit :=
-  let (c, k) := s
-  let u_j := a.getD j 0
-  let v_j := b.getD j 0
-  let r := u_j - v_j
-  let c1 := r > u_j
-  let cj := r - k
-  let c2 := cj > r
-  (c.push cj, if c1 || c2 then 1 else 0)
 
 /--
 `mpn_sub`'s digit loop, writing its result back over its first operand, which is
@@ -572,18 +524,6 @@ def subInPlace (u b : Array Digit) (off len : Nat) : Array Digit × Digit := Id.
     u := u.set! (off + i) ci
     k := if c1 || c2 then 1 else 0
   return (u, k)
-
-/-- One iteration of the loop below, for `subInPlace_foldl` to fold over. -/
-private def subInPlaceStep (b : Array Digit) (off : Nat) (s : Array Digit × Digit) (i : Nat) :
-    Array Digit × Digit :=
-  let (u, k) := s
-  let u_i := u.getD (off + i) 0
-  let v_i := b.getD i 0
-  let r := u_i - v_i
-  let c1 := r > u_i
-  let ci := r - k
-  let c2 := ci > r
-  (u.set! (off + i) ci, if c1 || c2 then 1 else 0)
 
 /-! ## `mpn_mul` -/
 
@@ -614,15 +554,6 @@ def mulInner (a : Array Digit) (v_j : Digit) (j : Nat) (c : Array Digit) (lnga :
     c := c.set! (i + j) (lo t)
     k := hi t
   return (c, k)
-
-/-- One iteration of the loop below, for `mulInner_eq` to fold over. -/
-private def mulInnerStep (a : Array Digit) (v_j : Digit) (j : Nat)
-    (s : Array Digit × Digit) (i : Nat) : Array Digit × Digit :=
-  let (c, k) := s
-  let u_i := a.getD i 0
-  let t : DoubleDigit :=
-    u_i.toUInt64 * v_j.toUInt64 + (c.getD (i + j) 0).toUInt64 + k.toUInt64
-  (c.set! (i + j) (lo t), hi t)
 
 /--
 One iteration of `mpn_mul`'s outer loop:
@@ -667,13 +598,6 @@ result and states the invariant more simply.
 def mul (a b : Array Digit) : Array Digit := Id.run do
   let mut c := Array.replicate (a.size + b.size) 0
   for j in List.range b.size do
-    c := mulOuterStep a b c j
-  return c
-
-/-- The loop above with its length free, so that `mulLoop_spec` can induct on it. -/
-private def mulLoop (a b : Array Digit) (m : Nat) : Array Digit := Id.run do
-  let mut c := Array.replicate (a.size + b.size) 0
-  for j in List.range m do
     c := mulOuterStep a b c j
   return c
 
@@ -1045,14 +969,6 @@ def div1 (numer : Array Digit) (denom : Digit) (hden : denom.toUInt64 ≠ 0) :
     s := div1Step denom hden s (j+1)
   return s
 
-/-- The loop above with its buffers and length free, so that `div1_spec` can induct on it. -/
-private def div1Loop (denom : Digit) (hden : denom.toUInt64 ≠ 0) (u quot : Array Digit)
-    (m : Nat) : Array Digit × Array Digit := Id.run do
-  let mut s := (u, quot)
-  for j in (List.range m).reverse do
-    s := div1Step denom hden s (j+1)
-  return s
-
 /--
 The `recheck:` correction loop of `div_n`, i.e. step D3 of Knuth's Algorithm D:
 ```
@@ -1179,14 +1095,6 @@ def divN (numer denom : Array Digit) (hv : (denom.getD (denom.size - 1) 0).toUIn
     s := divNStep denom hv s j
   return s
 
-/-- The loop above with its buffers and length free, so that `divN_spec` can induct on it. -/
-private def divNLoop (denom : Array Digit) (hv : (denom.getD (denom.size - 1) 0).toUInt64 ≠ 0)
-    (u quot : Array Digit) (m : Nat) : Array Digit × Array Digit := Id.run do
-  let mut s := (u, quot)
-  for j in (List.range m).reverse do
-    s := divNStep denom hv s j
-  return s
-
 /--
 `mpn_div`. Returns `lnum - lden + 1` quotient digits and `lden` remainder digits:
 ```
@@ -1255,6 +1163,99 @@ zero, and it has been removed.
 end MpnModel
 
 section MpnProofs
+
+/-- The digit loop above with its length free, so that `addLoop_spec` can induct on it. -/
+private def addLoop (a b : Array Digit) (len : Nat) : Array Digit × Digit := Id.run do
+  let mut c : Array Digit := #[]
+  let mut k : Digit := 0
+  for j in List.range len do
+    let u_j := a.getD j 0
+    let v_j := b.getD j 0
+    let r := u_j + v_j; let c1 := r < u_j
+    let cj := r + k; let c2 := cj < r
+    c := c.push cj
+    k := if c1 || c2 then 1 else 0
+  return (c, k)
+
+/-- One iteration of the loop, for `addLoop_eq` to fold over. -/
+private def addStep (a b : Array Digit) (s : Array Digit × Digit) (j : Nat) : Array Digit × Digit :=
+  let (c, k) := s
+  let u_j := a.getD j 0
+  let v_j := b.getD j 0
+  let r := u_j + v_j
+  let c1 := r < u_j
+  let cj := r + k
+  let c2 := cj < r
+  (c.push cj, if c1 || c2 then 1 else 0)
+
+/-- The loop above with its length free, so that `subLoop_spec` can induct on it. -/
+private def subLoop (a b : Array Digit) (len : Nat) : Array Digit × Digit := Id.run do
+  let mut c : Array Digit := #[]
+  let mut k : Digit := 0
+  for j in List.range len do
+    let u_j := a.getD j 0
+    let v_j := b.getD j 0
+    let r := u_j - v_j; let c1 := r > u_j
+    let cj := r - k; let c2 := cj > r
+    c := c.push cj
+    k := if c1 || c2 then 1 else 0
+  return (c, k)
+
+/-- One iteration of the loop, for `subLoop_eq` to fold over. -/
+private def subStep (a b : Array Digit) (s : Array Digit × Digit) (j : Nat) : Array Digit × Digit :=
+  let (c, k) := s
+  let u_j := a.getD j 0
+  let v_j := b.getD j 0
+  let r := u_j - v_j
+  let c1 := r > u_j
+  let cj := r - k
+  let c2 := cj > r
+  (c.push cj, if c1 || c2 then 1 else 0)
+
+/-- One iteration of the loop below, for `subInPlace_foldl` to fold over. -/
+private def subInPlaceStep (b : Array Digit) (off : Nat) (s : Array Digit × Digit) (i : Nat) :
+    Array Digit × Digit :=
+  let (u, k) := s
+  let u_i := u.getD (off + i) 0
+  let v_i := b.getD i 0
+  let r := u_i - v_i
+  let c1 := r > u_i
+  let ci := r - k
+  let c2 := ci > r
+  (u.set! (off + i) ci, if c1 || c2 then 1 else 0)
+
+/-- One iteration of the loop below, for `mulInner_eq` to fold over. -/
+private def mulInnerStep (a : Array Digit) (v_j : Digit) (j : Nat)
+    (s : Array Digit × Digit) (i : Nat) : Array Digit × Digit :=
+  let (c, k) := s
+  let u_i := a.getD i 0
+  let t : DoubleDigit :=
+    u_i.toUInt64 * v_j.toUInt64 + (c.getD (i + j) 0).toUInt64 + k.toUInt64
+  (c.set! (i + j) (lo t), hi t)
+
+/-- The loop above with its length free, so that `mulLoop_spec` can induct on it. -/
+private def mulLoop (a b : Array Digit) (m : Nat) : Array Digit := Id.run do
+  let mut c := Array.replicate (a.size + b.size) 0
+  for j in List.range m do
+    c := mulOuterStep a b c j
+  return c
+
+/-- The loop above with its buffers and length free, so that `div1_spec` can induct on it. -/
+private def div1Loop (denom : Digit) (hden : denom.toUInt64 ≠ 0) (u quot : Array Digit)
+    (m : Nat) : Array Digit × Array Digit := Id.run do
+  let mut s := (u, quot)
+  for j in (List.range m).reverse do
+    s := div1Step denom hden s (j+1)
+  return s
+
+/-- The loop above with its buffers and length free, so that `divN_spec` can induct on it. -/
+private def divNLoop (denom : Array Digit) (hv : (denom.getD (denom.size - 1) 0).toUInt64 ≠ 0)
+    (u quot : Array Digit) (m : Nat) : Array Digit × Array Digit := Id.run do
+  let mut s := (u, quot)
+  for j in (List.range m).reverse do
+    s := divNStep denom hv s j
+  return s
+
 
 /-- The loop as the fold its proof inducts over. -/
 theorem addLoop_eq (a b : Array Digit) (len : Nat) :

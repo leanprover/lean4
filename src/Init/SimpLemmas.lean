@@ -377,6 +377,30 @@ instance : Std.LawfulIdentity (· && ·) true where
 instance : Std.IdempotentOp (· && ·) := ⟨Bool.and_self⟩
 @[simp] theorem Bool.and_eq_true (a b : Bool) : ((a && b) = true) = (a = true ∧ b = true) := by
   cases a <;> cases b <;> decide
+theorem Bool.and_eq_true_of_eq_true {x y : Bool} (hx : x = true) (hy : y = true) :
+    (x && y) = true := and_eq_true x y ▸ ⟨hx, hy⟩
+theorem Bool.left_eq_true_of_and_eq_true {x y : Bool} (h : (x && y) = true) :
+    x = true := (and_eq_true x y ▸ h).1
+theorem Bool.right_eq_true_of_and_eq_true {x y : Bool} (h : (x && y) = true) :
+    y = true := (and_eq_true x y ▸ h).2
+
+@[congr] theorem Bool.dand_congr {x x' : Bool} {y : x = true → Bool} {y' : x' = true → Bool}
+    (hx : x = x') (hy : ∀ h, y (hx ▸ h) = y' h) :
+    x.dand y = x'.dand y' := by cases hx; cases funext hy; rfl
+@[simp] theorem Bool.false_dand {y : false = true → Bool} : false.dand y = false := rfl
+@[simp] theorem Bool.true_dand {y : true = true → Bool} : true.dand y = y rfl := rfl
+@[simp] theorem Bool.dand_eq_and {x y : Bool} : x.dand (fun _ => y) = (x && y) := by cases x <;> rfl
+@[simp] theorem Bool.dand_eq_true_iff {x : Bool} {y : x = true → Bool} :
+    x.dand y = true ↔ Exists fun h : x = true => y h = true :=
+  match x with
+  | false => iff_of_false nofun nofun
+  | true => ⟨fun hy => ⟨rfl, hy⟩, fun ⟨_, hy⟩ => hy⟩
+theorem Bool.dand_eq_true_of_eq_true {x : Bool} {y : x = true → Bool}
+    (hx : x = true) (hy : y hx = true) : x.dand y = true := dand_eq_true_iff.mpr ⟨hx, hy⟩
+theorem Bool.left_eq_true_of_dand_eq_true {x : Bool} {y : x = true → Bool} (h : x.dand y = true) :
+    x = true := (dand_eq_true_iff.mp h).1
+theorem Bool.right_eq_true_of_dand_eq_true {x : Bool} {y : x = true → Bool} (h : x.dand y = true) :
+    y (left_eq_true_of_dand_eq_true h) = true := (dand_eq_true_iff.mp h).2
 
 theorem Bool.and_assoc (a b c : Bool) : (a && b && c) = (a && (b && c)) := by
   cases a <;> cases b <;> cases c <;> decide

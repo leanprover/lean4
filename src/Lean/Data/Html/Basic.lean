@@ -75,15 +75,24 @@ instance : Append Html := ⟨.append⟩
 /-- Merges a collection of HTML values by appending them.
 
 Equivalent to {name}`seq`, but may produce a more compact representation. -/
-@[suggest_for Lean.Html.ofArray Lean.Html.ofList]
 def ofCollection {ρ : Type w} [ForIn Id ρ Html] (hs : ρ) : Html := Id.run do
   let mut out := .empty
   for h in hs do
     out := out ++ h
   return out
 
-instance : Coe (Array Html) Html := ⟨ofCollection⟩
-instance : Coe (List Html) Html := ⟨ofCollection⟩
+/-- Merges an array of HTML values by appending them.
+
+Like {name}`seq`, but may produce a more compact representation. -/
+def ofArray (hs : Array Html) : Html := ofCollection hs
+
+/-- Merges a list of HTML values by appending them.
+
+Like {lean}`seq hs.toArray`, but may produce a more compact representation. -/
+def ofList (hs : List Html) : Html := ofCollection hs
+
+instance : Coe (Array Html) Html := ⟨ofArray⟩
+instance : Coe (List Html) Html := ⟨ofList⟩
 
 /-- A compact JSON encoding of {name}`Html`. -/
 instance : ToJson Html where

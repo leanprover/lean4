@@ -751,7 +751,7 @@ Applies the monadic action `f` to every element in the array, left-to-right, and
 of results.
 -/
 -- Reference implementation for `mapM`
-@[implemented_by mapMUnsafe]
+@[implemented_by mapMUnsafe, expose]
 def mapM {α : Type u} {β : Type v} {m : Type v → Type w} [Monad m] (f : α → m β) (as : Array α) : m (Array β) :=
   -- Note: we cannot use `foldlM` here for the reference implementation because this calls
   -- `bind` and `pure` too many times. (We are not assuming `m` is a `LawfulMonad`)

@@ -448,21 +448,19 @@ and `c.size` becomes the loop counter, so `denote_push` carries a whole iteratio
 and `addLoop_spec` can induct on `len` without also tracking that the digits
 above it are untouched.
 -/
-def add (a b : Array Digit) : Array Digit :=
-  let (c, k) := Id.run do
-    let len := max a.size b.size
-    let mut c : Array Digit := #[]
-    let mut k : Digit := 0
-    for j in List.range len do
-      let u_j := a.getD j 0
-      let v_j := b.getD j 0
-      let r := u_j + v_j; let c1 := r < u_j
-      let cj := r + k; let c2 := cj < r
-      c := c.push cj
-      k := if c1 || c2 then 1 else 0
-    return (c, k)
-  -- `c[len] = k`, then the trimming loop
-  trim (c.push k)
+def add (a b : Array Digit) : Array Digit := Id.run do
+  let len := max a.size b.size
+  let mut c : Array Digit := #[]
+  let mut k : Digit := 0
+  for j in List.range len do
+    let u_j := a.getD j 0
+    let v_j := b.getD j 0
+    let r := u_j + v_j; let c1 := r < u_j
+    let cj := r + k; let c2 := cj < r
+    c := c.push cj
+    k := if c1 || c2 then 1 else 0
+  c := c.push k
+  return trim c
 
 /-- The digit loop above with its length free, so that `addLoop_spec` can induct on it. -/
 private def addLoop (a b : Array Digit) (len : Nat) : Array Digit × Digit := Id.run do

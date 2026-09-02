@@ -928,8 +928,8 @@ private def applyAbstractResult? (type : Expr) (abstResult? : Option AbstractMVa
   return some result
 
 /-- True if every recorded lookup in `log` gives the same answer in `opts`. -/
-private def validOptionAccesses (opts : Options) (log : SynthOptionAccessLog) : Bool :=
-  log.all fun a => opts.find? a.name == a.value
+private def validOptionAccesses (opts : Options) (log : RecordedDeps) : Bool :=
+  log.options.all fun n => opts.find? n == log.base.find? n
 
 /--
 Merges the dependencies observed by a nested query (or served from a used cache entry) into the
@@ -937,11 +937,11 @@ enclosing query's accumulator: the enclosing query observed the nested result, s
 whatever the nested one did.
 -/
 private def _root_.Lean.RecordedDeps.mergeInto (child parent : RecordedDeps) : RecordedDeps :=
-  let options := child.options.foldl (init := parent.options) fun l a =>
-    -- Judged against the parent's watermark, as in `recordOptionAccess`: an access answering
+  let options := child.options.foldl (init := parent.options) fun l n =>
+    -- Judged against the parent's watermark, as in `recordOptionAccess`: a lookup answering
     -- differently from it was served by a write the parent itself opened, so it is a dependency
     -- of the nested query but not of this one.
-    if l.any (·.name == a.name) || parent.base.find? a.name != a.value then l else l.push a
+    if l.contains n || parent.base.find? n != child.base.find? n then l else l.push n
   { parent with options }
 
 /--
@@ -950,7 +950,7 @@ True if two dependency logs record the same option lookups with the same answers
 accesses `insertCachedResult` puts in a canonical order, so comparing the arrays compares the sets.
 -/
 private def sameDepIdentity (a b : RecordedDeps) : Bool :=
-  a.options == b.options
+  a.options == b.options && a.options.all fun n => a.base.find? n == b.base.find? n
 
 /--
 Inserts a result into the type class resolution cache (`Meta.Cache.synthInstance`), which has
@@ -968,9 +968,8 @@ private def insertCachedResult (key : SynthInstanceCacheKey) (log : RecordedDeps
   -- The watermark is scratch for the recording phase; a stored entry is validated against the
   -- ambient options of whatever query reads it, so retaining it would only pin an `Options` per
   -- entry.
-  let log := { log with
-    options := log.options.qsort (fun a b => Name.quickLt a.name b.name)
-    base := {} }
+  -- `base` is retained: validation and `sameDepIdentity` read the recorded answers from it.
+  let log := { log with options := log.options.qsort Name.quickLt }
   let upsert (c : SynthInstanceCache) : SynthInstanceCache :=
     c.insert key <| (log, result?) :: (c.find? key |>.getD [] |>.filter fun e => !sameDepIdentity e.1 log)
   modifyCache fun c => { c with synthInstance := upsert c.synthInstance }
@@ -985,7 +984,7 @@ private def findCachedResult? (key : SynthInstanceCacheKey) :
   -- unrestricted acquisition: only compared against recorded lookups (`validOptionAccesses`)
   let opts ← getOptionsUnrestricted
   let some entries := (← get).cache.synthInstance.find? key | return none
-  return entries.find? fun (log, _) => validOptionAccesses opts log.options
+  return entries.find? fun (log, _) => validOptionAccesses opts log
 
 /--
 Auxiliary function for converting a cached `AbstractMVarsResult` returned by `SynthInstance.main` into an `Expr`.

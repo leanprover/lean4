@@ -351,15 +351,8 @@ instance : Hashable InfoCacheKey where
   hash := private fun { configKey, expr, nargs? } => mixHash (hash configKey) <| mixHash (hash expr) (hash nargs?)
 
 /--
-The option lookups a type class resolution cache entry was computed under, deduplicated by name;
-a lookup may only use an entry whose recorded accesses give the same answers in the current
-context. See `SynthInstanceCache`.
--/
-abbrev SynthOptionAccessLog := Array RecordedOptionAccess
-
-/--
-The definitional-equality and unfolding compatibility flags a type class resolution query runs
-under, resolved once per query (`synthInstanceCore?`) so that their per-step reads inside the
+The definitional-equality and unfolding compatibility flags under which a type class resolution
+query runs, resolved once per query (`synthInstanceCore?`) so that their per-step reads inside the
 search avoid the recording accessors; see `getSynthDefEqFlag`.
 
 Packed into a single scalar rather than one field per flag: these are part of the cache key

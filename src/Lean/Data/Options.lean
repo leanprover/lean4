@@ -151,7 +151,7 @@ class MonadOptions (m : Type → Type) where
   Acquires the options without the recording check of `getOptions`, for readers whose result
   provably cannot influence a computation that records its dependencies (trace and profiler
   collection, message rendering, diagnostics counters, limits whose excess throws and is never
-  cached). Each use carries a one-line argument; see `Lean.getRecordedOption`.
+  cached). Each use should document a brief argument on why it's safe; see `Lean.getRecordedOption`.
   -/
   getOptionsUnrestricted : m Options := getOptions
 

@@ -169,31 +169,16 @@ def withDeclNameForAuxNaming [Monad m] [MonadFinally m] [MonadDeclNameGenerator 
     x
 
 /--
-Option lookup observed by a recording computation. We store the raw `Options.find?` result so that
-validation is default-independent and covers set↔unset transitions exactly. See
-`Lean.getRecordedOption`.
--/
-structure RecordedOptionAccess where
-  name  : Name
-  /--
-  Duplicates `RecordedDeps.base` at `name` while the query runs, but outlives it: entries drop
-  `base` on insert, and their values are what tells them apart and what `RecordedDeps.mergeInto`
-  weighs against an enclosing query's `base`.
-  -/
-  value : Option DataValue
-  deriving BEq
-
-/--
 The observations a recording computation made, accumulated in `Core.State.recordedDeps` while it
 runs. Replaying them decides whether a result it cached is still valid. Type class resolution is currently the only
 client, see `Lean.Meta.SynthInstance`.
 -/
 structure RecordedDeps where
   /--
-  The performed option lookups, deduplicated by name; a cached result may only be reused when
+  Names of the option lookups performed, deduplicated; a cached result may only be reused when
   these lookups give the same answers in the current context.
   -/
-  options : Array RecordedOptionAccess := #[]
+  options : Array Name := #[]
   /--
   The options in effect when recording started, which is also what a cached entry is validated
   against. A lookup that answers differently from this was served by a write inside the recording
@@ -896,7 +881,7 @@ where doCompile := do
 def compileDecl (decl : Declaration) (logErrors := true) : CoreM Unit := do
   compileDecls (Compiler.getDeclNamesForCodeGen decl) logErrors
 
-private def recordOptionAccess (access : RecordedOptionAccess) : CoreM Unit := do
+private def recordOptionAccess (name : Name) (value : Option DataValue) : CoreM Unit := do
   if (← read).isRecordingDeps then
     -- The membership test comes first because repeated lookups of the same option dominate (e.g.
     -- per `isDefEq` step), so the common path neither consults `base` nor updates the state.
@@ -904,9 +889,9 @@ private def recordOptionAccess (access : RecordedOptionAccess) : CoreM Unit := d
     -- the order the lookups happen in: a write-scoped lookup can neither be logged nor take the
     -- slot of the ambient one.
     let d := (← get).recordedDeps
-    unless d.options.any (·.name == access.name) do
-      if d.base.find? access.name == access.value then
-        Core.modifyRecordedDeps fun deps => { deps with options := deps.options.push access }
+    unless d.options.contains name do
+      if d.base.find? name == value then
+        Core.modifyRecordedDeps fun deps => { deps with options := deps.options.push name }
 
 /--
 Reads an option while `Core.Context.isRecordingDeps` is set, recording the lookup as an option
@@ -917,7 +902,7 @@ behaves like `Lean.Option.get`.
 -/
 def getRecordedOption [KVMap.Value α] (opt : Lean.Option α) : CoreM α := do
   let raw := (← getOptionsUnrestricted).find? opt.name
-  recordOptionAccess { name := opt.name, value := raw }
+  recordOptionAccess opt.name raw
   return (raw.bind KVMap.Value.ofDataValue?).getD opt.defValue
 
 

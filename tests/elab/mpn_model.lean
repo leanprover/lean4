@@ -649,43 +649,49 @@ theorem leadingZeros_spec (x : Digit) (hx : 0 < x.toNat) :
 
 
 /-!
-`div_normalize` resizes its buffers and then writes them by index, so the two
-shifting loops below write into a buffer of the right size. These reduce such a
-loop to the map its proofs read digitwise.
+`div_normalize` resizes its buffers and then writes them by index. The buffers
+below are `Vector`s, so their length is in the type and each write carries the
+bound it needs. These reduce such a loop to the map its proofs read digitwise.
 -/
 
-private theorem size_foldl_set! (g : Nat → Digit) (n k : Nat) :
-    ((List.range k).foldl (fun out j => out.set! j (g j)) (Array.replicate n 0)).size = n := by
-  induction k with
-  | zero => simp
-  | succ k ih => rw [List.range_succ, List.foldl_append]; simpa using ih
+/--
+Each write puts `g i` at index `i`, so once `i` is in the list the fold holds `g i`
+there whatever came before.
+-/
+private theorem getElem_foldl_vset (g : Nat → Digit) (n : Nat) :
+    ∀ (l : List (Fin n)) (v : Vector Digit n) (i : Nat) (hi : i < n),
+      (l.foldl (fun (b : Vector Digit n) (j : Fin n) => b.set j.val (g j.val) j.isLt) v)[i]
+        = if (⟨i, hi⟩ : Fin n) ∈ l then g i else v[i] := by
+  intro l
+  induction l with
+  | nil => intro v i hi; simp
+  | cons j l ih =>
+    intro v i hi
+    rw [List.foldl_cons, ih]
+    simp only [List.mem_cons, Vector.getElem_set, Fin.ext_iff]
+    split <;> split <;> simp_all <;> omega
 
-private theorem getD_foldl_set! (g : Nat → Digit) (n : Nat) : ∀ k i, k ≤ n →
-    ((List.range k).foldl (fun out j => out.set! j (g j)) (Array.replicate n 0)).getD i 0
-      = if i < k then g i else 0 := by
-  intro k
-  induction k with
-  | zero => intro i _; simpa using getD_replicate_zero n i
-  | succ k ih =>
-    intro i hk
-    rw [List.range_succ, List.foldl_append]
-    simp only [List.foldl_cons, List.foldl_nil]
-    by_cases h : i = k
-    · subst h
-      rw [getD_set!_eq _ _ _ (by rw [size_foldl_set!]; omega)]
-      simp
-    · rw [getD_set!_ne _ _ _ _ h, ih i (by omega)]
-      simp only [show (i < k + 1) ↔ (i < k) from by omega]
-
-private theorem foldl_set!_eq_map (g : Nat → Digit) (n : Nat) :
-    (List.range n).foldl (fun out j => out.set! j (g j)) (Array.replicate n 0)
+/-- Filling a zeroed buffer index by index is the map the shift proofs read. -/
+private theorem toArray_foldl_vset (g : Nat → Digit) (n : Nat) :
+    ((List.finRange n).foldl
+        (fun (b : Vector Digit n) (i : Fin n) => b.set i.val (g i.val) i.isLt)
+        (Vector.replicate n 0)).toArray
       = (Array.range n).map g := by
-  refine array_ext_getD (by rw [size_foldl_set!]; simp) (fun i => ?_)
-  rw [getD_foldl_set! g n n i (Nat.le_refl _)]
-  rcases Nat.lt_or_ge i n with h | h
-  · simp [h]
-  · rw [getD_of_ge _ (by simp; omega)]
-    simp [Nat.not_lt.mpr h]
+  apply Array.ext
+  · simp
+  · intro i h1 h2
+    simp only [Vector.getElem_toArray, getElem_foldl_vset, List.mem_finRange, ite_true,
+      Array.getElem_map, Array.getElem_range]
+
+/-- The shift loops' shared shape: filling a zeroed buffer index by index is the map. -/
+private theorem shiftLoop_eq (g : Nat → Digit) (n : Nat) :
+    (Id.run do
+      let mut out : Vector Digit n := Vector.replicate n 0
+      for i in List.finRange n do
+        out := out.set i.val (g i.val) i.isLt
+      return out.toArray) = (Array.range n).map g := by
+  simp [Id.run]
+  exact toArray_foldl_vset g n
 
 /--
 `len` digits of `a` shifted left by `d` bits, which is what both of
@@ -703,14 +709,14 @@ it is. The `d == 0` case is separate because C++ needs it to be: shifting a digi
 -/
 def shiftLeftDigits (a : Array Digit) (d len : Nat) (hd : d < digitBits) : Array Digit :=
     Id.run do
-  let mut out := Array.replicate len 0
-  for i in List.range len do
-    out := out.set! i <|
-      if h : d = 0 then a.getD i 0
-      else CPP.shl (a.getD i 0) d hd |||
-        (if i == 0 then 0
-         else CPP.shr (a.getD (i-1) 0) (digitBits - d) (sub_digitBits_lt (by omega)))
-  return out
+  let mut out : Vector Digit len := Vector.replicate len 0
+  for i in List.finRange len do
+    out := out.set i.val (
+      if h : d = 0 then a.getD i.val 0
+      else CPP.shl (a.getD i.val 0) d hd |||
+        (if i.val == 0 then 0
+         else CPP.shr (a.getD (i.val-1) 0) (digitBits - d) (sub_digitBits_lt (by omega)))) i.isLt
+  return out.toArray
 
 /-- The loop as the map its proofs read digitwise. -/
 theorem shiftLeftDigits_eq (a : Array Digit) (d len : Nat) (hd : d < digitBits) :
@@ -719,14 +725,12 @@ theorem shiftLeftDigits_eq (a : Array Digit) (d len : Nat) (hd : d < digitBits) 
       else CPP.shl (a.getD i 0) d hd |||
         (if i == 0 then 0
          else CPP.shr (a.getD (i-1) 0) (digitBits - d) (sub_digitBits_lt (by omega)))) := by
-  rw [show shiftLeftDigits a d len hd
-        = (List.range len).foldl (fun out j => out.set! j
-            (if h : d = 0 then a.getD j 0
-             else CPP.shl (a.getD j 0) d hd |||
-               (if j == 0 then 0
-                else CPP.shr (a.getD (j-1) 0) (digitBits - d) (sub_digitBits_lt (by omega)))))
-            (Array.replicate len 0) from by simp [shiftLeftDigits, Id.run]; rfl]
-  exact foldl_set!_eq_map _ _
+  unfold shiftLeftDigits
+  exact shiftLoop_eq (fun i =>
+    if h : d = 0 then a.getD i 0
+    else CPP.shl (a.getD i 0) d hd |||
+      (if i == 0 then 0
+       else CPP.shr (a.getD (i-1) 0) (digitBits - d) (sub_digitBits_lt (by omega)))) len
 
 theorem size_shiftLeftDigits (a : Array Digit) (d len : Nat) (hd : d < digitBits) :
     (shiftLeftDigits a d len hd).size = len := by simp [shiftLeftDigits_eq]
@@ -857,15 +861,15 @@ is separate for the same reason as in `shiftLeftDigits`.
 -/
 def shiftRightDigits (a : Array Digit) (d len : Nat) (hd : d < digitBits) : Array Digit :=
     Id.run do
-  let mut out := Array.replicate len 0
-  for i in List.range len do
-    out := out.set! i <|
-      if h : d = 0 then a.getD i 0
-      else CPP.shr (a.getD i 0) d hd |||
-        (if i + 1 == len then 0
-         else CPP.shl (lastBits (a.getD (i+1) 0) d (by omega)) (digitBits - d)
-                (sub_digitBits_lt (by omega)))
-  return out
+  let mut out : Vector Digit len := Vector.replicate len 0
+  for i in List.finRange len do
+    out := out.set i.val (
+      if h : d = 0 then a.getD i.val 0
+      else CPP.shr (a.getD i.val 0) d hd |||
+        (if i.val + 1 == len then 0
+         else CPP.shl (lastBits (a.getD (i.val+1) 0) d (by omega)) (digitBits - d)
+                (sub_digitBits_lt (by omega)))) i.isLt
+  return out.toArray
 
 /--
 `div_unnormalize`. Produces `lden` remainder digits; the `d == 0` branch is
@@ -1303,15 +1307,13 @@ theorem shiftRightDigits_eq (a : Array Digit) (d len : Nat) (hd : d < digitBits)
         (if i + 1 == len then 0
          else CPP.shl (lastBits (a.getD (i+1) 0) d (by omega)) (digitBits - d)
                 (sub_digitBits_lt (by omega)))) := by
-  rw [show shiftRightDigits a d len hd
-        = (List.range len).foldl (fun out j => out.set! j
-            (if h : d = 0 then a.getD j 0
-             else CPP.shr (a.getD j 0) d hd |||
-               (if j + 1 == len then 0
-                else CPP.shl (lastBits (a.getD (j+1) 0) d (by omega)) (digitBits - d)
-                       (sub_digitBits_lt (by omega)))))
-            (Array.replicate len 0) from by simp [shiftRightDigits, Id.run]; rfl]
-  exact foldl_set!_eq_map _ _
+  unfold shiftRightDigits
+  exact shiftLoop_eq (fun i =>
+    if h : d = 0 then a.getD i 0
+    else CPP.shr (a.getD i 0) d hd |||
+      (if i + 1 == len then 0
+       else CPP.shl (lastBits (a.getD (i+1) 0) d (by omega)) (digitBits - d)
+              (sub_digitBits_lt (by omega)))) len
 
 /-- The loop as the descending recursion its proof inducts over. -/
 theorem div1Loop_eq (denom : Digit) (hden : denom.toUInt64 ≠ 0) (u quot : Array Digit)

@@ -3442,11 +3442,22 @@ theorem trim_top_ne_zero (c : Array Digit) :
     | (simp_all [Array.size_pop] <;> omega)
 
 /--
-`mpz::set`, which drops leading zero digits, keeping at least one:
+`mpz::set`, which normalizes a magnitude by dropping leading zero digits, keeping
+at least one:
 ```
+void mpz::set(size_t sz, mpn_digit const * digits) {
     while (sz > 1 && digits[sz - 1] == 0)
         sz--;
+    if (sz != m_size) {
+        mpz_dealloc(m_digits, sizeof(mpn_digit)*m_size);
+        allocate(sz);
+    }
+    memcpy(m_digits, digits, sizeof(mpn_digit)*sz);
+}
 ```
+The reallocation and `memcpy` are memory management for the buffer `mpz` owns; a
+value model has no owned buffer, so `trim` produces the normalized array
+directly, the same reason `mpn`'s caller-supplied buffers are not modelled.
 -/
 def Num.ofArray (a : Array Digit) (h : 0 < a.size) : Num :=
   ⟨trim a, size_trim_pos a h, trim_top_ne_zero a⟩

@@ -25,12 +25,17 @@ that layer. The `Num` type carries the normalization `mpz::set` establishes, so 
 `mpn_add`, `mpn_sub`, `mpn_mul`, `mpn_div` (by way of Knuth's Algorithm D) and `mpn_compare`.
 `mpn_to_string` is not modelled, since `reduce_nat` never reaches it.
 
-Preconditions are arguments of the definitions rather than hypotheses of the specifications, so a
-use site cannot be written without discharging them, and the operations C++ leaves undefined
-outside a range go through `CPP`, which takes the hypothesis that pins each one down. Where a routine
-asserts a fact that a release build then drops, since `lean_assert` is `DEBUG_CODE`, the branch
-resting on it is proved here instead, by the specification that covers it: the `small`/`big` arm of
-`natDiv` and the arms of `natSub`, `natMod`, `natBle` and `natBeq` that answer without computing.
+C++ leaves an operation undefined outside a range, and this file carries the bound that rules that
+out wherever the bound is actually known. A local bound is an argument of the operation, so a use
+site cannot be written without discharging it: the shifts and divisions of `CPP` take the hypothesis
+that pins each down, and a buffer a routine fills itself is a `Vector` whose length bounds every
+write by construction. A bound that is instead a fact about the whole computation cannot be an
+argument, since it is not known where the write happens: a buffer a caller owns is written with
+`set!` and read with `getD`, both total, and the index staying in range is proved in the
+specification rather than the type, as `div_1` and `div_n` do. Where a routine asserts a fact that a
+release build then drops, since `lean_assert` is `DEBUG_CODE`, the branch resting on it is proved
+here instead, by the specification that covers it: the `small`/`big` arm of `natDiv` and the arms of
+`natSub`, `natMod`, `natBle` and `natBeq` that answer without computing.
 
 Each definition quotes the code it stands for, so the two can be read side by side without opening
 the source. Deviations are marked `NOTE:`. Each routine is transliterated whole; where a proof
@@ -65,6 +70,12 @@ specification.
 `size_t` underflow is deliberately absent: unsigned arithmetic is defined to
 wrap modulo 2^64, and `mpn.cpp` leans on that, using counters that wrap to
 `(size_t)-1` as the termination sentinel of a downward loop.
+
+Out-of-range indexing is undefined too, but it is not here: its bound is a fact
+about the algorithm rather than about the operation, so a buffer a caller owns
+is indexed totally, with `getD` and `set!`, and kept in range by the
+specification. Only the buffers a routine fills itself carry their bound, as the
+`Vector` length that makes each write intrinsic.
 -/
 namespace CPP
 
@@ -553,21 +564,21 @@ NOTE: `mpn_mul` zeroes only `c[0..lnga)` and relies on the outer loop to write
 every digit from `lnga` up; zeroing the whole buffer here computes the same
 result and states the invariant more simply.
 -/
-def mul (a b : Array Digit) : Array Digit := Id.run do
-  let mut c := Array.replicate (a.size + b.size) 0
-  for j in List.range b.size do
-    let v_j := b.getD j 0
+def mul (a b : Array Digit) : Array Digit := Vector.toArray <| Id.run do
+  let mut c : Vector Digit (a.size + b.size) := Vector.replicate (a.size + b.size) 0
+  for j in List.finRange b.size do
+    let v_j := b.getD j.val 0
     if v_j == 0 then
-      c := c.set! (j + a.size) 0
+      c := c.set (j.val + a.size) 0 (by omega)
     else
       let mut k : Digit := 0
-      for i in List.range a.size do
-        let u_i := a.getD i 0
+      for i in List.finRange a.size do
+        let u_i := a.getD i.val 0
         let t : DoubleDigit :=
-          u_i.toUInt64 * v_j.toUInt64 + (c.getD (i + j) 0).toUInt64 + k.toUInt64
-        c := c.set! (i + j) (lo t)
+          u_i.toUInt64 * v_j.toUInt64 + (c.getD (i.val + j.val) 0).toUInt64 + k.toUInt64
+        c := c.set (i.val + j.val) (lo t) (by omega)
         k := hi t
-      c := c.set! (j + a.size) k
+      c := c.set (j.val + a.size) k (by omega)
   return c
 
 /-! ## division -/
@@ -1652,10 +1663,53 @@ theorem mulLoop_spec (a b : Array Digit) (m : Nat) (hm : m ≤ b.size) :
             = denote a * (denoteN b m + (b.getD m 0).toNat * base ^ m)
         rw [Nat.mul_add, Nat.mul_assoc]
 
+/-- `List.finRange m` is `List.range m` once the bounds are forgotten. -/
+private theorem map_val_finRange (m : Nat) : (List.finRange m).map Fin.val = List.range m := by
+  apply List.ext_getElem <;> simp
+
+/--
+A fold over `Fin m` and a fold over `Nat` agree under any reading `r` of the state whose
+steps agree. Used to read a `Vector` loop as the `Array` loop the specifications are about.
+-/
+private theorem foldl_hom {α β : Type} {m : Nat} (r : α → β)
+    (f : α → Fin m → α) (g : β → Nat → β)
+    (hfg : ∀ x i, r (f x i) = g (r x) i.val) (x : α) :
+    r ((List.finRange m).foldl f x) = (List.range m).foldl g (r x) := by
+  have h : ∀ (l : List (Fin m)) (x : α),
+      r (l.foldl f x) = l.foldl (fun y i => g y i.val) (r x) := by
+    intro l
+    induction l with
+    | nil => intro x; rfl
+    | cons i l ih => intro x; simp [List.foldl_cons, ih, hfg]
+  rw [h, ← map_val_finRange, List.foldl_map]
+
 theorem mul_eq (a b : Array Digit) : mul a b = mulLoop a b b.size := by
-  unfold mul mulLoop mulOuterStep
-  simp only [apply_ite]
-  rfl
+  rw [mulLoop_eq]
+  simp [mul, Id.run, ←apply_ite]
+  refine foldl_hom Vector.toArray _ _ ?_ _
+  intro v i
+  -- The outer step: on `v_j == 0` both sides just write the carry at `j + a.size`; otherwise
+  -- both run the inner loop. `mulInner_eq` keeps the right side's inner loop named as a
+  -- `mulInnerStep` fold, so `foldl_hom` can bridge it to the `Vector` loop on the left.
+  simp only [mulOuterStep, mulInner_eq]
+  have key := foldl_hom (fun (s : Vector Digit (a.size + b.size) × Digit) => (s.1.toArray, s.2))
+      (fun s (x : Fin a.size) =>
+        (s.1.set (x.val + i.val)
+            (lo (UInt32.toUInt64 a[x.val] * UInt32.toUInt64 b[i.val] +
+                 UInt32.toUInt64 (s.1.getD (x.val + i.val) 0) + UInt32.toUInt64 s.2)) (by omega),
+         hi (UInt32.toUInt64 a[x.val] * UInt32.toUInt64 b[i.val] +
+             UInt32.toUInt64 (s.1.getD (x.val + i.val) 0) + UInt32.toUInt64 s.2)))
+      (fun s i_1 => mulInnerStep a (b.getD i.val 0) i.val s i_1)
+      (by intro x k; have := k.isLt; have := i.isLt
+          simp [mulInnerStep, Vector.toArray_set, Array.setIfInBounds_def, Vector.getD]; omega) (v, 0)
+  have hi2 := i.isLt
+  have k1 : _ = _ := congrArg Prod.fst key
+  have k2 : _ = _ := congrArg Prod.snd key
+  dsimp only [Prod.fst, Prod.snd] at k1 k2
+  rw [← k1, ← k2]
+  simp only [apply_ite Vector.toArray, Vector.toArray_set, Array.set!_eq_setIfInBounds,
+    Array.setIfInBounds_def, Vector.size_toArray]
+  split <;> simp_all <;> omega
 
 /-- `mpn_mul` computes the product. -/
 theorem denote_mul (a b : Array Digit) : denote (mul a b) = denote a * denote b := by

@@ -11,6 +11,8 @@ import Init.Data.String.Modify
 import Init.Data.String.Search
 import Init.Data.Array.BinSearch
 
+set_option doc.verso true
+
 public section
 
 namespace Lean.Html
@@ -84,12 +86,17 @@ end RenderWorkItemStack
 /-- Renders into a string to be consumed by browsers.
 The input's structure is respected as much as possible; no whitespace is added or removed.
 
-The output complies with [HTML5 syntax](https://html.spec.whatwg.org/dev/syntax.html),
-and is compatible with [XML syntax for HTML](https://html.spec.whatwg.org/dev/xhtml.html)
-in the following ways:
-- Child-free void elements are rendered as self-closing tags.
-  - (Spec-violating) void elements with children are rendered like normal elements.
-- Attribute values are always quoted. -/
+The output uses [HTML5 syntax](https://html.spec.whatwg.org/dev/syntax.html).
+Compatibility with [XML syntax for HTML](https://html.spec.whatwg.org/dev/xhtml.html)
+is not ensured,
+but we make the following compatible choices:
+- Void elements with {name}`isEmpty` children are rendered as self-closing tags.
+  - (Spec-violating) void elements with non-{name}`isEmpty` children
+    are rendered like normal elements.
+- Attribute values are always quoted.
+
+and the following incompatible choices:
+- Attributes with empty values are [minimized](https://www.w3.org/TR/xhtml1/#h-4.5). -/
 partial def render (h : Html) : String :=
   go "" {
     kinds := #[.html]
@@ -108,7 +115,7 @@ where
         match h with
         | .element tag attrs children =>
           let q :=
-            if let .seq #[] := children then
+            if children.isEmpty then
               if voidElements.binSearchContains tag.toLower (· < ·) then
                 q.pushKind .endVoidElement
               else
@@ -130,7 +137,10 @@ where
       | .attr =>
         let (k, q) := q.popStr!
         let (v, q) := q.popStr!
-        go (acc ++ s!" {k}=\"{escapeAttr v}\"") q
+        if v.isEmpty then
+          go (acc ++ s!" {k}") q
+        else
+          go (acc ++ s!" {k}=\"{escapeAttrVal v}\"") q
       | .endAttrs =>
         go (acc.push '>') q
       | .endElement =>
@@ -138,7 +148,7 @@ where
         go (acc ++ s!"</{tag}>") q
       | .endVoidElement =>
         go (acc ++ "/>") q
-  escapeAttr v := v.replace "&" "&amp;" |>.replace "\"" "&quot;"
+  escapeAttrVal v := v.replace "&" "&amp;" |>.replace "\"" "&quot;"
   escapeText s := s.replace "&" "&amp;" |>.replace "<" "&lt;" |>.replace ">" "&gt;"
 
 end render_impl

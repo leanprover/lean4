@@ -1165,30 +1165,6 @@ end MpnModel
 
 section MpnProofs
 
-/-- The digit loop above with its length free, so that `addLoop_spec` can induct on it. -/
-private def addLoop (a b : Array Digit) (len : Nat) : Array Digit × Digit := Id.run do
-  let mut c : Array Digit := #[]
-  let mut k : Digit := 0
-  for j in List.range len do
-    let u_j := a.getD j 0
-    let v_j := b.getD j 0
-    let r := u_j + v_j; let c1 := r < u_j
-    let cj := r + k; let c2 := cj < r
-    c := c.push cj
-    k := if c1 || c2 then 1 else 0
-  return (c, k)
-
-/-- One iteration of the loop, for `addLoop_eq` to fold over. -/
-private def addStep (a b : Array Digit) (s : Array Digit × Digit) (j : Nat) : Array Digit × Digit :=
-  let (c, k) := s
-  let u_j := a.getD j 0
-  let v_j := b.getD j 0
-  let r := u_j + v_j
-  let c1 := r < u_j
-  let cj := r + k
-  let c2 := cj < r
-  (c.push cj, if c1 || c2 then 1 else 0)
-
 /-- The loop above with its length free, so that `subLoop_spec` can induct on it. -/
 private def subLoop (a b : Array Digit) (len : Nat) : Array Digit × Digit := Id.run do
   let mut c : Array Digit := #[]
@@ -1279,17 +1255,6 @@ private def divNLoop (denom : Array Digit) (hv : (denom.getD (denom.size - 1) 0)
     s := divNStep denom hv s j
   return s
 
-
-/-- The loop as the fold its proof inducts over. -/
-theorem addLoop_eq (a b : Array Digit) (len : Nat) :
-    addLoop a b len = (List.range len).foldl (fun s j => addStep a b s j) (#[], 0) := by
-  simp [addLoop, addStep, Id.run]
-  rfl
-
-/-- `mpn_add` is its digit loop, the carry pushed on top, trimmed. -/
-theorem add_eq (a b : Array Digit) :
-    add a b = trim ((addLoop a b (max a.size b.size)).1.push (addLoop a b (max a.size b.size)).2) :=
-  rfl
 
 /-- `mpn_sub` is its loop at the length the C++ computes. -/
 theorem sub_eq (a b : Array Digit) : sub a b = subLoop a b (max a.size b.size) := rfl
@@ -1405,38 +1370,11 @@ theorem addStep_digit (u v k : Digit) (hk : k.toNat ≤ 1) :
   split <;> rename_i h <;>
     simp only [Bool.or_eq_true, decide_eq_true_eq, UInt32.toNat_ofNat] at * <;> omega
 
-theorem addStep_carry_le (a b : Array Digit) (s : Array Digit × Digit) (j : Nat) :
-    (addStep a b s j).2.toNat ≤ 1 := by
-  simp only [addStep]; split <;> simp
-
 private theorem add_combine {dc k p ua ub cj carry dna dnb B : Nat}
     (hval : dc + k * p = dna + dnb)
     (hstep : cj + carry * B = ua + ub + k) :
     dc + cj * p + carry * (p * B) = (dna + ua * p) + (dnb + ub * p) := by
   grind
-
-/--
-The loop invariant of `mpn_add`: after `len` iterations the digits written so
-far plus the outstanding carry denote the sum of the first `len` digits of the
-two inputs.
--/
-theorem addLoop_spec (a b : Array Digit) (len : Nat) :
-    (addLoop a b len).1.size = len ∧ (addLoop a b len).2.toNat ≤ 1 ∧
-      denote (addLoop a b len).1 + (addLoop a b len).2.toNat * base ^ len
-        = denoteN a len + denoteN b len := by
-  induction len with
-  | zero => exact ⟨rfl, Nat.zero_le _, rfl⟩
-  | succ len ih =>
-    obtain ⟨hsz, hk, hval⟩ := ih
-    have hstep : addLoop a b (len+1) = addStep a b (addLoop a b len) len := by
-      rw [addLoop_eq, addLoop_eq]
-      simp [List.range_succ]
-    rw [hstep]
-    refine ⟨by simp [addStep, hsz], addStep_carry_le .., ?_⟩
-    have hd := addStep_digit (a.getD len 0) (b.getD len 0) (addLoop a b len).2 hk
-    show denote ((addLoop a b len).1.push _) + _ * base ^ (len+1) = _
-    rw [denote_push, hsz]
-    exact add_combine hval hd
 
 theorem denote_trim (c : Array Digit) : denote (trim c) = denote c := by
   generalize h : trim c = r
@@ -1448,11 +1386,37 @@ theorem denote_trim (c : Array Digit) : denote (trim c) = denote c := by
     | .inr c' => spred(⌜denote c' = denote c⌝)
   all_goals (try (rw [denote_pop_of_back_zero])) <;> simp_all [Array.size_pop] <;> omega
 
+/-- For a range loop split `range n = pref ++ cur :: suff`, the current index is the count so far. -/
+private theorem range_split_index {n : Nat} {pref suff : List Nat} {cur : Nat}
+    (h : List.range n = pref ++ cur :: suff) : cur = pref.length := by
+  have hlen := congrArg List.length h
+  simp only [List.length_range, List.length_append, List.length_cons] at hlen
+  have h2 := congrArg (fun l => l[pref.length]?) h
+  rw [List.getElem?_range (by omega), List.getElem?_append_right (Nat.le_refl _),
+    Nat.sub_self, List.getElem?_cons_zero] at h2
+  exact (Option.some_inj.mp h2).symm
+
 /-- `mpn_add` computes the sum. -/
 theorem denote_add (a b : Array Digit) : denote (add a b) = denote a + denote b := by
-  obtain ⟨hsz, _, hval⟩ := addLoop_spec a b (max a.size b.size)
-  simp only [add_eq, denote_trim, denote_push, hsz]
-  rw [hval, denoteN_of_ge a (Nat.le_max_left ..), denoteN_of_ge b (Nat.le_max_right ..)]
+  generalize h : add a b = r
+  apply Id.of_wp_run_eq h
+  mvcgen invariants
+  | inv1 => ⇓ (xs, c, k) => spred(⌜c.size = xs.prefix.length ∧ k.toNat ≤ 1 ∧
+      denote c + k.toNat * base ^ xs.prefix.length
+        = denoteN a xs.prefix.length + denoteN b xs.prefix.length⌝)
+  case vc1.step =>
+    obtain ⟨hsz, hk, hval⟩ := ‹_ ∧ _ ∧ _›
+    have hc := range_split_index ‹List.range _ = _ ++ _ :: _›
+    subst hc
+    refine ⟨by grind, by grind, ?_⟩
+    rw [denote_push, hsz]
+    simp only [List.length_append, List.length_cons, List.length_nil, denoteN, Nat.pow_succ]
+    exact add_combine hval (addStep_digit _ _ _ hk)
+  case vc3.post.success =>
+    obtain ⟨hsz, hk, hval⟩ := ‹_ ∧ _ ∧ _›
+    rw [denote_trim, denote_push, hsz, hval,
+      denoteN_of_ge a (by simp; omega), denoteN_of_ge b (by simp; omega)]
+  all_goals (first | rfl | (intros; simp_all))
 
 /-! ## Correctness of `mpn_sub` -/
 

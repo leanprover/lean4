@@ -316,21 +316,23 @@ instance : MonadEnv CoreM where
 instance : MonadOptions CoreM where
   getOptions := do
     let ctx ← read
-    let options := ctx.options
     if ctx.isRecordingDeps then
-      return reportViolation options
-    return options
+      reportViolation
+    return ctx.options
   getOptionsUnrestricted := return (← read).options
 where
   /--
-  Reports a violation and returns the options unchanged, so that it is reported once instead of
-  cascading through code that would otherwise see every option unset.
+  Reports a violation without producing the options, so that the caller reads them along a single
+  path. Returning them from the reporting branch instead would make the two branches yield
+  different values, and wherever the continuation is too large to duplicate the compiler joins them
+  in an owned join-point parameter, costing a reference count pair at each such call site.
 
   Kept out of line because `getOptions` is inlined at every call site in the codebase, and each
-  inlined copy of `panic!` carries its own message constants.
+  inlined copy of `panic!` carries its own message constants. Monadic rather than pure because a
+  pure call whose result is unused is dead code: `never_extract` guards only common subexpression
+  elimination and closed-term extraction, not `ElimDead`.
   -/
-  @[noinline] reportViolation (options : Options) : Options :=
-    have : Inhabited Options := ⟨options⟩
+  @[noinline] reportViolation : CoreM Unit :=
     panic! "`getOptions` called inside a computation recording its dependencies; \
       result-relevant reads must go through `Lean.getRecordedOption`, all others through \
       `getOptionsUnrestricted`"

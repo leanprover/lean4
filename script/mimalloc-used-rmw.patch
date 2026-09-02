@@ -1,21 +1,21 @@
 --- a/src/alloc.c
 +++ b/src/alloc.c
-@@ -39,10 +39,12 @@
+@@ -66,10 +66,12 @@
  
    // check the free list
    mi_block_t* const block = page->free;
 +  #if MI_ARCH_ARM64
    const mi_used_t used = page->used;
    #if defined(__GNUC__) 
-   __asm("" : : : "memory");  // alway load used before the test
+   __asm("" : : : "memory");  // always load the `used` field before the test
    #endif  
 +  #endif
    if (block == NULL) {
      return _mi_malloc_generic(theap, size, (zero ? 1 : 0), ppage);
    }
-@@ -54,7 +56,11 @@
-   mi_track_mem_undefined(block,sizeof(*block));
-   block->next = 0;  // don't leak internal data
+@@ -83,7 +85,11 @@
+   if (!zero) block->next = 0;  // don't leak internal data
+   #endif
    page->free = next;
 +  #if MI_ARCH_ARM64
    page->used = used+1;

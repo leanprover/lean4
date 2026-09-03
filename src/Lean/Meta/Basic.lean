@@ -433,22 +433,26 @@ structure SynthInstanceCacheKey where
   (`RecordedDeps`).
   -/
   defEqFlags        : SynthDefEqFlags
-  /--
-  The resource limits in effect for the query (`maxHeartbeats`, `synthInstance.maxHeartbeats`,
-  `maxRecDepth`, `exponentiation.threshold`). Exceeding one throws, and results are only cached on
-  the success path, so a limit cannot influence a stored result; keying by them nevertheless makes
-  that a structural property rather than an argument about exception paths, and lets their
-  (frequent, mostly out-of-query) reads be plain unrestricted reads. Limits are effectively
-  constant per module, so this does not partition the cache in practice.
-
-  Stored as unboxed words for the same reason as `defEqFlags`. `Nat.toUInt64` wraps, so two absurd
-  settings could share a key; that is harmless here, as a limit cannot influence a stored result.
-  -/
-  maxHeartbeats           : UInt64
-  synthInstanceHeartbeats : UInt64
-  maxRecDepth             : UInt64
-  exponentiationThreshold : UInt64
   deriving Hashable, BEq
+
+/-!
+The resource limits (`maxHeartbeats`, `synthInstance.maxHeartbeats`, `maxRecDepth`) are
+deliberately not part of the key: exceeding one throws, and an entry is stored only on the success
+path, so a limit cannot influence a stored result. Their reads are therefore unrestricted.
+
+`exponentiation.threshold` is not such a limit: `Lean.checkExponent` returns `false` instead of
+throwing, and `reducePow` then skips the reduction rather than aborting the search. The argument
+above therefore does not apply to it, and it is a recorded dependency (`Lean.getRecordedOption`)
+instead of a key component.
+
+NOTE: caching an aborted search (storing an entry for a query that hit a limit, so that the failure
+need not be rediscovered) invalidates the argument above, because the stored result would then be
+exactly the one the limit produced. Each throwing limit would have to become a key
+component again, or a recorded dependency; the latter only works for limits whose value is read
+during the search rather than compared against an accumulating count, which rules out the
+heartbeat limits. `Core.Context` holds `maxHeartbeats` and `maxRecDepth`, so those are not read
+from the options during a search at all and would need plumbing to observe.
+-/
 
 /-- Resulting type for `abstractMVars` -/
 structure AbstractMVarsResult where

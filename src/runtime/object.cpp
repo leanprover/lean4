@@ -449,13 +449,17 @@ static object * lean_del_core(object * o, object * todo) {
     while (cur != NULL) {
         uint8 tag = lean_ptr_tag(cur);
         if (LEAN_LIKELY(tag <= LeanMaxCtorTag)) {
-            object ** it  = lean_ctor_obj_cptr(cur);
-            if (lean_ctor_num_objs(cur) == 0) {
+            object ** it = lean_ctor_obj_cptr(cur);
+            unsigned n = lean_ctor_num_objs(cur);
+            if (n >= 2) {
+                object ** end = it + n - 1;
+                do { dec(*it, todo); ++it; } while (it != end);
+            } else if (n == 0) {
                 lean_free_small_object(cur);
                 return todo;
             }
-            object ** end = it + (lean_ctor_num_objs(cur) - 1);
-            for (; it != end; ++it) dec(*it, todo);
+            /* `it` points at the last object field. When it dies it is freed directly by the next
+               iteration instead of taking a round trip through `todo`. */
             object * next = dec_or_return(*it);
             lean_free_small_object(cur);
             cur = next;

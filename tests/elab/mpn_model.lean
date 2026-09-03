@@ -47,6 +47,14 @@ A transliteration is only worth as much as its fidelity to the original, and not
 that mechanically: it rests on reading the two side by side, which is what the quotations are for.
 -/
 open Std Do
+
+-- The loop proofs use `mvcgen`, which is deprecated in favour of `vcgen`. `vcgen` is not
+-- usable here yet: it is still gated behind `experimental.vcgen`, and it recognizes only a
+-- bare `wp` application, a `PartialOrder.rel` whose right side is one, or a `Std.WP.Triple`.
+-- These proofs reach their goal through `Id.of_wp_run_eq`, which leaves an `SPred.entails`,
+-- so `vcgen` reports no program type. Getting to a `Triple` would mean splitting every
+-- routine into a monadic program and a `run` of it, putting a second definition beside each
+-- transliteration. `while_extrinsic` and `doLogicTests` suppress the same warning.
 set_option linter.deprecated.syntax false
 
 namespace Mpn
@@ -5173,7 +5181,7 @@ theorem box_inj (m n : Nat) (hm : m ≤ maxSmallNat) (hn : n ≤ maxSmallNat) :
       simp only [natShiftRight]
       split <;> rename_i h
       · have hlt : m₁.val < 2 ^ n₂ := hb (by show base ≤ n₂; omega)
-        rw [if_neg (by omega), Option.map_some]; congr 1
+        rw [ite_eq_right (by omega), Option.map_some]; congr 1
         exact hzero m₁.val n₂ hlt
       · rw [Option.map_some]; congr 1
         show (mpzToNat (m₁.shiftRight n₂)).val = m₁.val >>> n₂
@@ -5193,7 +5201,7 @@ theorem box_inj (m n : Nat) (hm : m ≤ maxSmallNat) (hn : n ≤ maxSmallNat) :
   · rw [Option.map_some]; congr 1
     show (0 : Nat) = _
     rw [h, Nat.shiftLeft_eq, Nat.zero_mul]
-  · rw [if_neg (by omega), Option.map_some]; congr 1
+  · rw [ite_eq_right (by omega), Option.map_some]; congr 1
     rw [mpzToNat_val, Num.val_shiftLeft, NatObj.val_toNum, Nat.shiftLeft_eq]
 
 @[simp] theorem natXor_val (a b : NatObj) : (natXor a b).val = a.val ^^^ b.val := by
@@ -5213,7 +5221,7 @@ theorem box_inj (m n : Nat) (hm : m ≤ maxSmallNat) (hn : n ≤ maxSmallNat) :
 @[simp] theorem natPow_val (a p : NatObj) (hp : p.val < base) :
     (natPow a p).map NatObj.val = some (a.val ^ p.val) := by
   unfold natPow
-  rw [if_neg (by omega), Option.map_some]
+  rw [ite_eq_right (by omega), Option.map_some]
   congr 1
   cases a with
   | small n hn =>

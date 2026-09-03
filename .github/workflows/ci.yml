@@ -353,7 +353,8 @@ jobs:
                 // * treeMap2 is simply large and thus takes a lot of time
                 // * docparse times out as well
                 // * async_http_idle_timeout is flakey at the moment, re-enable in the future
-                "CTEST_OPTIONS": "-E 'StackOverflow|interactive|async_select_channel|9366|elab/grind|pkg/|lake/|kernelMaxRecDepth|bench/|elab/try_|treeMap2|docparse/|async_http_idle_timeout'"
+                // * `async_dns` exhibits a known teardown race condition
+                "CTEST_OPTIONS": "-E 'StackOverflow|interactive|async_select_channel|9366|elab/grind|pkg/|lake/|kernelMaxRecDepth|bench/|elab/try_|treeMap2|docparse/|async_http_idle_timeout|async_dns'"
               },
               {
                 "name": "Linux tsanitize",

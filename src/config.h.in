@@ -8,5 +8,4 @@ Author: Leonardo de Moura
 #include <lean/version.h>
 
 @LEAN_MIMALLOC@
-@LEAN_LAZY_RC@
 @LEAN_IS_STAGE0@

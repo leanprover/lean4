@@ -42,7 +42,9 @@ PERF_METRICS = {
     "task-clock": PerfMetric("task-clock", factor=1e-9, unit="s"),
     "wall-clock": PerfMetric("duration_time", factor=1e-9, unit="s"),
     "instructions": PerfMetric("instructions"),
+    "instructions:u": PerfMetric("instructions:u"),
     "cycles": PerfMetric("cycles"),
+    "cycles:u": PerfMetric("cycles:u"),
 }
 
 PERF_UNITS = {

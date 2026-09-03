@@ -4,6 +4,7 @@ Released under Apache 2.0 license as described in the file LICENSE.
 
 Author: Julia M. Himmel
 */
+
 /*
 Compiles all of mimalloc (`static.c`) together with the runtime's small-object allocation entry
 point in a single translation unit so that mimalloc's allocation fast path inlines into it:
@@ -12,8 +13,10 @@ compiled Lean code reaches the allocator, including the heartbeat update, with a
 `MI_*` flags (see `add_mimalloc_variant` in `CMakeLists.txt`) before `lean/mimalloc.h` is seen.
 */
 #include <static.c>
+
 // mimalloc's `atomic.h` already defined `_Atomic` for C++; `lean.h` redefines it identically
 #undef _Atomic
+
 #include <lean/lean.h>
 #include "runtime/alloc.h"
 #include "runtime/debug.h"

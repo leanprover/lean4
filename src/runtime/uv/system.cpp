@@ -634,7 +634,8 @@ extern "C" LEAN_EXPORT lean_obj_res lean_uv_os_get_passwd() {
 }
 
 // Std.Internal.UV.System.osGetGroup : IO (Option GroupInfo)
-extern "C" LEAN_EXPORT lean_obj_res lean_uv_os_get_group() {
+extern "C" LEAN_EXPORT lean_obj_res lean_uv_os_get_group(uint64_t gid) {
+    (void)gid;
     lean_always_assert(
         false && ("Please build a version of Lean4 with libuv to invoke this.")
     );

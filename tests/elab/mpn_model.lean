@@ -4445,6 +4445,14 @@ static inline LEAN_ALWAYS_INLINE lean_obj_res lean_nat_add(b_lean_obj_arg a1, b_
     else
         return lean_nat_big_add(a1, a2);
 }
+extern "C" LEAN_EXPORT object * lean_nat_big_add(object * a1, object * a2) {
+    if (lean_is_scalar(a1))
+        return mpz_to_nat_core(mpz::of_size_t(lean_unbox(a1)) + mpz_value(a2));
+    else if (lean_is_scalar(a2))
+        return mpz_to_nat_core(mpz_value(a1) + mpz::of_size_t(lean_unbox(a2)));
+    else
+        return mpz_to_nat_core(mpz_value(a1) + mpz_value(a2));
+}
 ```
 The scalar sum cannot overflow `size_t`: two scalars are at most `2^63 - 1`, so
 their sum is below `2^64`. That is the headroom the tag bit leaves, and the

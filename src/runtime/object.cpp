@@ -345,6 +345,22 @@ static inline void dec(lean_object * o, lean_object* & todo) {
     }
 }
 
+static inline object * dec_or_return(lean_object * o) {
+    if (lean_is_scalar(o))
+        return NULL;
+    if (LEAN_LIKELY(lean_internal_get_rc(o) > 1)) {
+        lean_internal_sub_rc(o, 1);
+        return NULL;
+    } else if (lean_internal_get_rc(o) == 1) {
+        return o;
+    } else if (lean_internal_get_rc(o) == 0) {
+        return NULL;
+    } else if (std::atomic_fetch_add_explicit(lean_get_rc_mt_addr(o), 1, std::memory_order_acq_rel) == -1) {
+        return o;
+    }
+    return NULL;
+}
+
 #ifdef LEAN_LAZY_RC
 LEAN_THREAD_PTR(object, g_to_free);
 #endif
@@ -377,7 +393,7 @@ static void deactivate_promise(lean_promise_object * t);
 
 /* The deletion worklist is passed by value and returned rather than by reference so that it can
    live in a register across the constructor loop, which is by far the hottest deletion path. */
-static object * lean_del_core_other(object * o, uint8 tag, object * todo) {
+static __attribute__((noinline)) object * lean_del_core_other(object * o, uint8 tag, object * todo) {
     switch (tag) {
     case LeanClosure: {
         object ** it  = lean_closure_arg_cptr(o);
@@ -429,16 +445,29 @@ static object * lean_del_core_other(object * o, uint8 tag, object * todo) {
 }
 
 static object * lean_del_core(object * o, object * todo) {
-    uint8 tag = lean_ptr_tag(o);
-    if (LEAN_LIKELY(tag <= LeanMaxCtorTag)) {
-        object ** it  = lean_ctor_obj_cptr(o);
-        object ** end = it + lean_ctor_num_objs(o);
-        for (; it != end; ++it) dec(*it, todo);
-        lean_free_small_object(o);
-        return todo;
-    } else {
-        return lean_del_core_other(o, tag, todo);
+    object * cur = o;
+    while (cur != NULL) {
+        uint8 tag = lean_ptr_tag(cur);
+        if (LEAN_LIKELY(tag <= LeanMaxCtorTag)) {
+            object ** it = lean_ctor_obj_cptr(cur);
+            unsigned n = lean_ctor_num_objs(cur);
+            if (n >= 2) {
+                object ** end = it + n - 1;
+                do { dec(*it, todo); ++it; } while (it != end);
+            } else if (n == 0) {
+                lean_free_small_object(cur);
+                return todo;
+            }
+            /* `it` points at the last object field. When it dies it is freed directly by the next
+               iteration instead of taking a round trip through `todo`. */
+            object * next = dec_or_return(*it);
+            lean_free_small_object(cur);
+            cur = next;
+        } else {
+            return lean_del_core_other(cur, tag, todo);
+        }
     }
+    return todo;
 }
 
 // sync with tests/elab/rc_sticky_thresholds.lean (`incRefHugeN`)

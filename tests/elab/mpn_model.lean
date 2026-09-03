@@ -4300,7 +4300,8 @@ def NatObj.val : NatObj → Nat
   | .small n _ => n
   | .big m _ => m.val
 
-/-- What `panic!` falls back to; `lean_internal_panic` does not return at all. -/
+/-- `panic!` returns this default; the `lean_internal_panic` it stands for does not
+return at all. -/
 instance : Inhabited NatObj := ⟨.small 0 (Nat.zero_le _)⟩
 
 /--

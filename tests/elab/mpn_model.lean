@@ -4300,10 +4300,11 @@ def NatObj.val : NatObj → Nat
   | .small n _ => n
   | .big m _ => m.val
 
-/-- `panic!`'s default. Lean's `panic!` models `lean_internal_panic` faithfully;
-being total it returns this value where the C++ aborts, and no specification
-observes it, since every panic branch is guarded by the condition its spec
-assumes away. -/
+/-- `panic!`'s default. Here the model diverges from the C++: `panic!` returns this
+value and execution continues, where `lean_internal_panic` aborts. Nothing makes
+that faithful; it is harmless only because no specification reaches a panic branch,
+each being guarded by the condition its spec assumes, so the value is never
+observed. -/
 instance : Inhabited NatObj := ⟨.small 0 (Nat.zero_le _)⟩
 
 /--

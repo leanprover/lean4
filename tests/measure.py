@@ -9,7 +9,6 @@ import sys
 import tempfile
 from dataclasses import dataclass
 from pathlib import Path
-from typing import Tuple
 
 
 @dataclass
@@ -59,7 +58,7 @@ ALL_METRICS = {**PERF_METRICS, **RUSAGE_METRICS}
 DEFAULT_METRICS = set(ALL_METRICS.keys())
 
 
-def resolve_metrics(metrics: set[str]) -> Tuple[set[str], set[str]]:
+def resolve_metrics(metrics: set[str]) -> tuple[set[str], set[str]]:
     perf = set()
     rusage = set()
     unknown = set()
@@ -94,7 +93,9 @@ class MeasureResult:
     stderr: str
 
 
-def measure_perf(cmd: list[str], events: set[str], capture: bool) -> MeasureResult:
+def measure_perf(
+    cmd: list[str], events: set[str], capture: bool, allow_failure: bool = False
+) -> MeasureResult:
     with tempfile.NamedTemporaryFile() as tmp:
         env = os.environ.copy()
         env["LC_ALL"] = "C"  # or perf may output syntactically invalid JSON
@@ -111,8 +112,10 @@ def measure_perf(cmd: list[str], events: set[str], capture: bool) -> MeasureResu
         ]
 
         # Execute command
-        result = subprocess.run(cmd, env=env, capture_output=capture, encoding="utf-8")
-        if result.returncode != 0:
+        result = subprocess.run(
+            cmd, env=env, capture_output=capture, encoding="utf-8", check=False
+        )
+        if result.returncode != 0 and not allow_failure:
             if capture:
                 print(result.stdout, end="", file=sys.stdout)
                 print(result.stderr, end="", file=sys.stderr)
@@ -161,11 +164,14 @@ def main(
     metrics: set[str],
     append: bool = True,
     capture: bool = False,
+    allow_failure: bool = False,
 ) -> tuple[str, str]:
     perf_metrics, rusage_metrics = resolve_metrics(metrics)
     perf_events = {PERF_METRICS[metric].event for metric in perf_metrics}
 
-    measured = measure_perf(cmd, perf_events, capture=capture)
+    measured = measure_perf(
+        cmd, perf_events, capture=capture, allow_failure=allow_failure
+    )
     perf = measured.perf
     rusage = resource.getrusage(resource.RUSAGE_CHILDREN)
 
@@ -177,8 +183,7 @@ def main(
 
     with open(output, "a" if append else "w") as f:
         for result in results:
-            for topic in topics:
-                f.write(f"{result.fmt(topic)}\n")
+            f.writelines(f"{result.fmt(topic)}\n" for topic in topics)
 
     return measured.stdout, measured.stderr
 
@@ -189,6 +194,7 @@ class Args:
     default_metrics: bool
     output: Path
     append: bool
+    allow_failure: bool
     cmd: str
     args: list[str]
 
@@ -232,6 +238,12 @@ if __name__ == "__main__":
         help="append to the output file instead of overwriting it",
     )
     parser.add_argument(
+        "--allow-failure",
+        "-F",
+        action="store_true",
+        help="record measurements even if the measured command exits with a non-zero status",
+    )
+    parser.add_argument(
         "cmd",
         help="command to measure the resource usage of",
     )
@@ -253,4 +265,5 @@ if __name__ == "__main__":
         topics=args.topic,
         metrics=metrics,
         append=args.append,
+        allow_failure=args.allow_failure,
     )

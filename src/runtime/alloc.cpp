@@ -28,9 +28,6 @@ void initialize_alloc() {
 }
 
 void finalize_alloc() {
-#ifdef LEAN_MIMALLOC
-    lean_mi_theap_cache_reset();
-#endif
 }
 
 void set_heartbeats(uint64_t count) {

@@ -62,9 +62,6 @@ extern "C" LEAN_EXPORT void lean_initialize_thread() {
 extern "C" LEAN_EXPORT void lean_finalize_thread() {
     run_thread_finalizers();
     run_post_thread_finalizers();
-#ifdef LEAN_MIMALLOC
-    lean_mi_theap_cache_reset();
-#endif
 }
 
 static void thread_main(void * p) {

@@ -16,14 +16,15 @@ Author: Julia M. Himmel
 
    With mimalloc, `mi_theap_default` caches the current thread's default mimalloc theap for
    `lean_alloc_small_object_core`, following the embedding pattern of the Koka runtime. It always
-   points to a valid theap, so the fast path needs no initialization check: it holds the real
-   theap between `lean_mi_theap_cache_init` (called from `initialize_alloc` on the main thread and
-   from `lean_initialize_thread` on every other thread the runtime starts or is told about) and
-   `lean_mi_theap_cache_reset`, and mimalloc's read-only empty theap otherwise, which routes every
-   allocation through mimalloc's generic path — correct, but slow, so foreign threads running Lean
-   code should call `lean_initialize_thread`. mimalloc frees the real theap during its own
-   thread-local teardown at thread exit, so Lean code must not allocate after that point;
-   allocating between `lean_finalize_thread` and thread exit is safe but slow. Unused in
+   points to a valid theap, so the fast path needs no initialization check: mimalloc's read-only
+   empty theap until `lean_mi_theap_cache_init` (called from `initialize_alloc` on the main thread
+   and from `lean_initialize_thread` on every other thread the runtime starts or is told about),
+   and the real theap from then on. The empty theap routes every allocation through mimalloc's
+   generic path — correct, but slow, so foreign threads running Lean code should call
+   `lean_initialize_thread`. The cache is never reset: the real theap stays valid until mimalloc
+   frees it during its own thread-local teardown at thread exit, which runs only after
+   `thread_main` has returned (the main thread's theap is static and never freed). Lean code must
+   therefore not allocate from thread-local destructors that run after mimalloc's. Unused in
    non-mimalloc builds.
 
    Defined in `runtime/mimalloc.cpp` when built with mimalloc (the initial value is mimalloc's
@@ -41,5 +42,4 @@ extern __thread lean_runtime_tls lean_g_tls;
 #endif
 /* Defined in `runtime/mimalloc.cpp`; only available (and only needed) with mimalloc. */
 void lean_mi_theap_cache_init(void);
-void lean_mi_theap_cache_reset(void);
 }

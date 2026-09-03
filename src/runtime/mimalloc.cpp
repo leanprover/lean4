@@ -32,10 +32,6 @@ extern "C" void lean_mi_theap_cache_init(void) {
     lean_g_tls.mi_theap_default = mi_theap_get_default();
 }
 
-extern "C" void lean_mi_theap_cache_reset(void) {
-    lean_g_tls.mi_theap_default = (mi_theap_t*)&_mi_theap_empty;
-}
-
 extern "C" LEAN_EXPORT LEAN_ATTR_MALLOC lean_object * lean_alloc_small_object_core(unsigned sz) {
     lean_runtime_tls * tls = &lean_g_tls;
     tls->heartbeat++;

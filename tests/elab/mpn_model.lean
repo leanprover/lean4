@@ -4446,6 +4446,7 @@ static inline LEAN_ALWAYS_INLINE lean_obj_res lean_nat_add(b_lean_obj_arg a1, b_
         return lean_nat_big_add(a1, a2);
 }
 extern "C" LEAN_EXPORT object * lean_nat_big_add(object * a1, object * a2) {
+    lean_assert(!lean_is_scalar(a1) || !lean_is_scalar(a2));
     if (lean_is_scalar(a1))
         return mpz_to_nat_core(mpz::of_size_t(lean_unbox(a1)) + mpz_value(a2));
     else if (lean_is_scalar(a2))
@@ -4482,6 +4483,21 @@ static inline LEAN_ALWAYS_INLINE lean_obj_res lean_nat_sub(b_lean_obj_arg a1, b_
         return lean_nat_big_sub(a1, a2);
     }
 }
+extern "C" LEAN_EXPORT object * lean_nat_big_sub(object * a1, object * a2) {
+    lean_assert(!lean_is_scalar(a1) || !lean_is_scalar(a2));
+    if (lean_is_scalar(a1)) {
+        lean_assert(mpz::of_size_t(lean_unbox(a1)) < mpz_value(a2));
+        return lean_box(0);
+    } else if (lean_is_scalar(a2)) {
+        lean_assert(mpz_value(a1) > mpz::of_size_t(lean_unbox(a2)));
+        return mpz_to_nat(mpz_value(a1) - mpz::of_size_t(lean_unbox(a2)));
+    } else {
+        if (mpz_value(a1) < mpz_value(a2))
+            return lean_box(0);
+        else
+            return mpz_to_nat(mpz_value(a1) - mpz_value(a2));
+    }
+}
 ```
 -/
 def natSub : NatObj → NatObj → NatObj
@@ -4510,6 +4526,15 @@ static inline LEAN_ALWAYS_INLINE lean_obj_res lean_nat_mul(b_lean_obj_arg a1, b_
         return lean_nat_big_mul(a1, a2);
     }
 }
+extern "C" LEAN_EXPORT object * lean_nat_big_mul(object * a1, object * a2) {
+    lean_assert(!lean_is_scalar(a1) || !lean_is_scalar(a2));
+    if (lean_is_scalar(a1))
+        return mpz_to_nat(mpz::of_size_t(lean_unbox(a1)) * mpz_value(a2));
+    else if (lean_is_scalar(a2))
+        return mpz_to_nat(mpz_value(a1) * mpz::of_size_t(lean_unbox(a2)));
+    else
+        return mpz_to_nat_core(mpz_value(a1) * mpz_value(a2));
+}
 ```
 NOTE: `r / n1 == n2` is there to catch the `size_t` wraparound in `n1*n2`.
 `Nat` does not wrap, so the size test alone decides the same branch here.
@@ -4536,6 +4561,24 @@ static inline lean_obj_res lean_nat_mod(b_lean_obj_arg a1, b_lean_obj_arg a2) {
         return lean_nat_big_mod(a1, a2);
     }
 }
+extern "C" LEAN_EXPORT object * lean_nat_big_mod(object * a1, object * a2) {
+    lean_assert(!lean_is_scalar(a1) || !lean_is_scalar(a2));
+    if (lean_is_scalar(a1)) {
+        lean_assert(mpz_value(a2) != 0);
+        return a1;
+    } else if (lean_is_scalar(a2)) {
+        usize n2 = lean_unbox(a2);
+        if (n2 == 0) {
+            lean_inc(a1);
+            return a1;
+        } else {
+            return mpz_to_nat(mpz_value(a1) % mpz::of_size_t(n2));
+        }
+    } else {
+        lean_assert(mpz_value(a2) != 0);
+        return mpz_to_nat(mpz_value(a1) % mpz_value(a2));
+    }
+}
 ```
 -/
 def natMod : NatObj → NatObj → NatObj
@@ -4559,6 +4602,15 @@ static inline lean_obj_res lean_nat_land(b_lean_obj_arg a1, b_lean_obj_arg a2) {
         return lean_nat_big_land(a1, a2);
     }
 }
+extern "C" LEAN_EXPORT object * lean_nat_big_land(object * a1, object * a2) {
+    lean_assert(!lean_is_scalar(a1) || !lean_is_scalar(a2));
+    if (lean_is_scalar(a1))
+        return mpz_to_nat(mpz::of_size_t(lean_unbox(a1)) & mpz_value(a2));
+    else if (lean_is_scalar(a2))
+        return mpz_to_nat(mpz_value(a1) & mpz::of_size_t(lean_unbox(a2)));
+    else
+        return mpz_to_nat(mpz_value(a1) & mpz_value(a2));
+}
 ```
 It can do that because the tag bit is set in both operands, so `&` leaves it set
 and the payload bits combine on their own.
@@ -4579,6 +4631,15 @@ static inline lean_obj_res lean_nat_lor(b_lean_obj_arg a1, b_lean_obj_arg a2) {
     } else {
         return lean_nat_big_lor(a1, a2);
     }
+}
+extern "C" LEAN_EXPORT object * lean_nat_big_lor(object * a1, object * a2) {
+    lean_assert(!lean_is_scalar(a1) || !lean_is_scalar(a2));
+    if (lean_is_scalar(a1))
+        return mpz_to_nat(mpz::of_size_t(lean_unbox(a1)) | mpz_value(a2));
+    else if (lean_is_scalar(a2))
+        return mpz_to_nat(mpz_value(a1) | mpz::of_size_t(lean_unbox(a2)));
+    else
+        return mpz_to_nat(mpz_value(a1) | mpz_value(a2));
 }
 ```
 -/

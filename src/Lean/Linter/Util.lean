@@ -10,6 +10,7 @@ public import Lean.Server.InfoUtils
 public import Lean.Linter.Init
 public import Lean.Elab.Term
 public import Lean.Linter.CodeQuality.Basic
+
 public section
 
 namespace Lean.Linter
@@ -75,7 +76,13 @@ def getNewDecls (t : InfoTree) : List Name :=
         acc
     | _ => acc
 
-open Elab in
+/-- Find the declaration in the current file that `stx` belongs to.
+
+Searches the info trees of the current command for declarations (see `getNewDecls`) whose
+declaration range contains the range of `stx`, and returns the one whose range starts earliest.
+Returns `none` if `stx` has no position or no declaration's range contains it (e.g. for commands
+such as `#check` or `open`).
+-/
 def findMatchingDecl? [Monad m] [MonadInfoTree m] [MonadEnv m] [MonadFileMap m]
     (stx : Syntax) : m (Option Name) := do
   let some stxRange ← getDeclarationRange? stx | return none
@@ -89,12 +96,15 @@ def findMatchingDecl? [Monad m] [MonadInfoTree m] [MonadEnv m] [MonadFileMap m]
         best? := some (declName, r)
   return best?.map (·.1)
 
-
+/-- Build a code-quality `Source` attributing `stx` to the declaration it belongs to
+(see `findMatchingDecl?`), or `none` if no declaration matches. -/
 def findCodeQualitySource? [Monad m] [MonadInfoTree m] [MonadEnv m] [MonadFileMap m]
     (stx : Syntax) : m (Option Source) := do
   let some name ← findMatchingDecl? stx | return none
   return some (.declaration (← getEnv).mainModule name)
 
+/-- Build a code-quality `Source` attributing `stx` to the declaration it belongs to
+(see `findMatchingDecl?`), falling back to the current module if no declaration matches. -/
 def findCodeQualitySource [Monad m] [MonadInfoTree m] [MonadEnv m] [MonadFileMap m]
     (stx : Syntax) : m Source := do
   match ← findMatchingDecl? stx with

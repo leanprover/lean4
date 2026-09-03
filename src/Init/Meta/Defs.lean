@@ -742,7 +742,7 @@ def mkCIdentFrom (src : Syntax) (c : Name) (canonical := false) : Ident :=
 Creates an identifier referring to a constant `c`. The identifier's position is copied from the
 syntax returned by `getRef`.
 
-This variant of `mkIdentFrom` makes sure that the identifier cannot accidentally be captured.
+This variant of `mkIdentFromRef` makes sure that the identifier cannot accidentally be captured.
 -/
 def mkCIdentFromRef [Monad m] [MonadRef m] (c : Name) (canonical := false) : m Syntax := do
   return mkCIdentFrom (← getRef) c canonical
@@ -807,7 +807,7 @@ def mkSep (a : Array Syntax) (sep : Syntax) : Syntax :=
   mkNullNode <| mkSepArray a sep
 
 /--
-Constructs a typed separated array from elements by adding suitable separators.
+Constructs an untyped separated array from elements by adding suitable separators.
 The provided array should not include the separators.
 
 Like `Syntax.TSepArray.ofElems` but for untyped syntax.
@@ -816,7 +816,7 @@ def SepArray.ofElems {sep} (elems : Array Syntax) : SepArray sep :=
 ⟨mkSepArray elems (if String.Internal.isEmpty sep then mkNullNode else mkAtom sep)⟩
 
 /--
-Constructs a typed separated array from elements by adding suitable separators.
+Constructs an untyped separated array from elements by adding suitable separators.
 The provided array should not include the separators.
 The generated separators' source location is that of the syntax returned by `getRef`.
 -/
@@ -914,7 +914,7 @@ def mkNameLit (val : String) (info := SourceInfo.none) : NameLit :=
   mkLit nameLitKind val info
 
 /-! Recall that we don't have special Syntax constructors for storing numeric and string atoms.
-   The idea is to have an extensible approach where embedded DSLs may have new kind of atoms and/or
+   The idea is to have an extensible approach where embedded DSLs may have new kinds of atoms and/or
    different ways of representing them. So, our atoms contain just the parsed string.
    The main Lean parser uses the kind `numLitKind` for storing natural numbers that can be encoded
    in binary, octal, decimal and hexadecimal format. `isNatLit` implements a "decoder"

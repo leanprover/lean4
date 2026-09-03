@@ -392,7 +392,7 @@ private partial def mkAppOptMAux (f : Expr) (xs : Array (Option Expr)) : Nat →
   ```
   mkAppOptM `Pure.pure #[m, none, none, a]
   ```
-  returns a `Pure.pure` application if the instance `Pure m` can be synthesized, and the universe match.
+  returns a `Pure.pure` application if the instance `Pure m` can be synthesized and the universes match.
   Note that,
   ```
   mkAppM `Pure.pure #[a]

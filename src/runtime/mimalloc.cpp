@@ -16,6 +16,7 @@ compiled Lean code reaches the allocator, including the heartbeat update, with a
 #undef _Atomic
 #include <lean/lean.h>
 #include "runtime/alloc.h"
+#include "runtime/debug.h"
 
 /* The initial cache value is mimalloc's read-only empty theap — the same sentinel mimalloc uses
    for its own default-theap thread-local: its free-page lookup always misses, routing allocations
@@ -35,7 +36,7 @@ extern "C" void lean_mi_theap_cache_init(void) {
 extern "C" LEAN_EXPORT LEAN_ATTR_MALLOC lean_object * lean_alloc_small_object_core(unsigned sz) {
     lean_runtime_tls * tls = &lean_g_tls;
     tls->heartbeat++;
-    // the callers guarantee `sz > 0 && sz % LEAN_OBJECT_SIZE_DELTA == 0 && sz <= MI_SMALL_SIZE_MAX`
+    lean_assert(sz > 0 && sz % LEAN_OBJECT_SIZE_DELTA == 0 && sz <= MI_SMALL_SIZE_MAX);
     /* Feeding the cached theap into mimalloc saves the load of mimalloc's own thread-local: the
        heartbeat update and the theap read share one TLS address computation. */
     void * mem = mi_theap_malloc_small(tls->mi_theap_default, sz);

@@ -4664,6 +4664,17 @@ static inline LEAN_ALWAYS_INLINE bool lean_nat_le(b_lean_obj_arg a1, b_lean_obj_
         return lean_nat_big_le(a1, a2);
     }
 }
+extern "C" LEAN_EXPORT bool lean_nat_big_le(object * a1, object * a2) {
+    if (lean_is_scalar(a1)) {
+        lean_assert(mpz::of_size_t(lean_unbox(a1)) < mpz_value(a2))
+        return true;
+    } else if (lean_is_scalar(a2)) {
+        lean_assert(mpz_value(a1) > mpz::of_size_t(lean_unbox(a2)));
+        return false;
+    } else {
+        return mpz_value(a1) <= mpz_value(a2);
+    }
+}
 ```
 Boxing is monotone, so the comparison on the tagged values is the comparison on
 the numbers; only the pointer comparison itself is outside the standard.
@@ -4686,6 +4697,17 @@ static inline LEAN_ALWAYS_INLINE bool lean_nat_eq(b_lean_obj_arg a1, b_lean_obj_
         return lean_nat_big_eq(a1, a2);
     }
 }
+extern "C" LEAN_EXPORT bool lean_nat_big_eq(object * a1, object * a2) {
+    if (lean_is_scalar(a1)) {
+        lean_assert(mpz::of_size_t(lean_unbox(a1)) != mpz_value(a2));
+        return false;
+    } else if (lean_is_scalar(a2)) {
+        lean_assert(mpz_value(a1) != mpz::of_size_t(lean_unbox(a2)));
+        return false;
+    } else {
+        return mpz_value(a1) == mpz_value(a2);
+    }
+}
 ```
 -/
 def natBeq : NatObj → NatObj → Bool
@@ -4702,6 +4724,9 @@ static inline lean_obj_res lean_nat_succ(b_lean_obj_arg a) {
         return lean_usize_to_nat(lean_unbox(a) + 1);
     else
         return lean_nat_big_succ(a);
+}
+extern "C" LEAN_EXPORT object * lean_nat_big_succ(object * a) {
+    return mpz_to_nat_core(mpz_value(a) + 1);
 }
 ```
 -/
@@ -4805,6 +4830,15 @@ static inline lean_obj_res lean_nat_lxor(b_lean_obj_arg a1, b_lean_obj_arg a2) {
     } else {
         return lean_nat_big_xor(a1, a2);
     }
+}
+extern "C" LEAN_EXPORT object * lean_nat_big_xor(object * a1, object * a2) {
+    lean_assert(!lean_is_scalar(a1) || !lean_is_scalar(a2));
+    if (lean_is_scalar(a1))
+        return mpz_to_nat(mpz::of_size_t(lean_unbox(a1)) ^ mpz_value(a2));
+    else if (lean_is_scalar(a2))
+        return mpz_to_nat(mpz_value(a1) ^ mpz::of_size_t(lean_unbox(a2)));
+    else
+        return mpz_to_nat(mpz_value(a1) ^ mpz_value(a2));
 }
 ```
 Unlike `land` and `lor` this unboxes first, because `^` on two tagged values

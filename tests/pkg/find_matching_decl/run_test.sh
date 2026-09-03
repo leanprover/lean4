@@ -13,3 +13,12 @@ check_out_contains "FindMatchingDecl.lean:14:0: best match is: hello2"
 check_out_contains "FindMatchingDecl.lean:22:0: best match is: Magma"
 # An anonymous instance resolves to its generated name.
 check_out_contains "FindMatchingDecl.lean:25:0: best match is: instMagmaNat"
+
+# Commands inside a declaration yield a declaration source, in both variants.
+check_out_contains 'FindMatchingDecl.lean:7:0: source: {"declaration":{"module":"FindMatchingDecl","name":"a"}}; source?: {"declaration":{"module":"FindMatchingDecl","name":"a"}}'
+check_out_contains 'FindMatchingDecl.lean:14:0: source: {"declaration":{"module":"FindMatchingDecl","name":"hello2"}}'
+check_out_contains 'FindMatchingDecl.lean:25:0: source: {"declaration":{"module":"FindMatchingDecl","name":"instMagmaNat"}}'
+# The module docstring and `#check` match no declaration: the total variant falls back to the
+# module source while the optional variant returns `none`.
+check_out_contains 'FindMatchingDecl.lean:3:0: source: {"module":{"name":"FindMatchingDecl"}}; source?: null'
+check_out_contains 'FindMatchingDecl.lean:30:0: source: {"module":{"name":"FindMatchingDecl"}}; source?: null'

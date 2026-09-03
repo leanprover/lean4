@@ -24,3 +24,6 @@ class Magma (carrier : Type u) where
 
 instance : Magma Nat where
   op := (· + ·)
+
+-- A command with no matching declaration: `findCodeQualitySource` falls back to the module.
+#check Nat

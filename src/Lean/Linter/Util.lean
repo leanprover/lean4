@@ -9,12 +9,12 @@ prelude
 public import Lean.Server.InfoUtils
 public import Lean.Linter.Init
 public import Lean.Elab.Term
-
+public import Lean.Linter.CodeQuality.Basic
 public section
 
 namespace Lean.Linter
 
-open Lean.Elab
+open Lean.Elab CodeQuality
 
 /-- Go upwards through the given `tree` starting from the smallest node that
 contains the given `range` and collect all `MacroExpansionInfo`s on the way up.
@@ -88,3 +88,15 @@ def findMatchingDecl? [Monad m] [MonadInfoTree m] [MonadEnv m] [MonadFileMap m]
       if best?.all fun (_, b) => r.pos.lt b.pos then
         best? := some (declName, r)
   return best?.map (·.1)
+
+
+def findCodeQualitySource? [Monad m] [MonadInfoTree m] [MonadEnv m] [MonadFileMap m]
+    (stx : Syntax) : m (Option Source) := do
+  let some name ← findMatchingDecl? stx | return none
+  return some (.declaration (← getEnv).mainModule name)
+
+def findCodeQualitySource [Monad m] [MonadInfoTree m] [MonadEnv m] [MonadFileMap m]
+    (stx : Syntax) : m Source := do
+  match ← findMatchingDecl? stx with
+  | some name => return .declaration (← getEnv).mainModule name
+  | none      => return .module (← getEnv).mainModule

@@ -358,6 +358,19 @@ def channelStreamHelper : Async Unit := do
 
 #eval channelStreamHelper.block
 
+-- Test Body.stream initializes known-size metadata before starting the producer
+
+def channelStreamInitialKnownSize : Async Unit := do
+  let stream ← Body.stream fun s => do
+    assert! (← s.getKnownSize) == some .chunked
+    s.setKnownSize (some (.fixed 42))
+
+  let eof ← stream.recv
+  assert! eof.isNone
+  assert! (← stream.getKnownSize) == some (.fixed 42)
+
+#eval channelStreamInitialKnownSize.block
+
 -- Test Body.empty creates an already-closed Stream
 
 def channelEmptyHelper : Async Unit := do
@@ -819,6 +832,19 @@ def responseBuilderStreamKnownSize : Async Unit := do
   assert! size == some .chunked
 
 #eval responseBuilderStreamKnownSize.block
+
+-- Test Response.Builder.stream does not overwrite known-size metadata set by the producer
+
+def responseBuilderStreamProducerKnownSize : Async Unit := do
+  let res ← Response.ok
+    |>.stream fun s => do
+      s.setKnownSize (some (.fixed 42))
+
+  let eof ← res.body.recv
+  assert! eof.isNone
+  assert! (← res.body.getKnownSize) == some (.fixed 42)
+
+#eval responseBuilderStreamProducerKnownSize.block
 
 -- Test Response.Builder.noBody body is always closed and returns none
 

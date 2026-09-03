@@ -8,6 +8,7 @@ Author: Leonardo de Moura
 #include <stddef.h>
 #include <stdint.h>
 #include <lean/lean.h>
+#include "runtime/alloc_tls.h"
 
 namespace lean {
 LEAN_EXPORT void * alloc(size_t sz);

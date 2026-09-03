@@ -1,8 +1,8 @@
 if(USE_MIMALLOC)
-  set(MIMALLOC_SRC ${LEAN_BINARY_DIR}/../mimalloc/src/mimalloc/src/static.c)
-  # (C flags are incomplete, compile as C++ instead like everything else). A source property rather
-  # than a target one, but it is the same for every variant below.
-  set_source_files_properties(${MIMALLOC_SRC} PROPERTIES LANGUAGE CXX)
+  # `mimalloc.cpp` #includes all of mimalloc (`static.c`, compiled as C++ like everything else)
+  # together with the runtime's fused allocation entry point so mimalloc's fast path inlines into
+  # it.
+  set(MIMALLOC_SRC ${CMAKE_CURRENT_SOURCE_DIR}/mimalloc.cpp)
   # Make all symbols visible, always build with optimizations as otherwise Lean becomes too slow.
   # `MI_MAX_ALIGN_SIZE=8` means that an object with two fields will take 24 bytes instead of 32 bytes.
   # The default value 16 is only necessary for mimalloc to be compatible with the system allocator, which
@@ -11,15 +11,24 @@ if(USE_MIMALLOC)
   if(CMAKE_CXX_COMPILER_ID MATCHES "AppleClang|Clang")
     list(APPEND MIMALLOC_OPTS -Wno-deprecated)
   endif()
+  if(CMAKE_CXX_COMPILER_ID STREQUAL "GNU")
+    # GCC refuses to inline mimalloc's exported allocation functions into the entry point when
+    # compiling with -fPIC unless told that no symbol will be interposed (clang's default)
+    list(APPEND MIMALLOC_OPTS -fno-semantic-interposition)
+  endif()
 
   # One target per (mitigation level, TLS model) the build needs, each carrying its own
-  # `target_compile_options`. The flags cannot live on the shared source instead: source properties
-  # are directory-scoped and CMake emits them *after* target options, so a target trying to override
-  # the mitigation level would silently lose to whatever the source property set.
+  # `target_compile_options`.
   function(add_mimalloc_variant name type secure)
     add_library(${name} ${type} ${MIMALLOC_SRC})
-    # Lean code includes it as `lean/mimalloc.h`, but `static.c` itself wants the original directory
-    target_include_directories(${name} PRIVATE ${LEAN_BINARY_DIR}/../mimalloc/src/mimalloc/include)
+    # Lean code includes it as `lean/mimalloc.h`, but `static.c` itself wants the original include
+    # directory, and `mimalloc.cpp` includes `static.c` from the source directory
+    target_include_directories(
+      ${name}
+      PRIVATE
+        ${LEAN_BINARY_DIR}/../mimalloc/src/mimalloc/include
+        ${LEAN_BINARY_DIR}/../mimalloc/src/mimalloc/src
+    )
     target_compile_options(${name} PRIVATE ${MIMALLOC_OPTS} -DMI_SECURE=${secure} ${ARGN})
   endfunction()
 

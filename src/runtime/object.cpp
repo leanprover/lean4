@@ -393,7 +393,7 @@ static void deactivate_promise(lean_promise_object * t);
 
 /* The deletion worklist is passed by value and returned rather than by reference so that it can
    live in a register across the constructor loop, which is by far the hottest deletion path. */
-static object * lean_del_core_other(object * o, uint8 tag, object * todo) {
+static __attribute__((noinline)) object * lean_del_core_other(object * o, uint8 tag, object * todo) {
     switch (tag) {
     case LeanClosure: {
         object ** it  = lean_closure_arg_cptr(o);

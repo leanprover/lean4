@@ -4289,6 +4289,19 @@ theorem box_or (m n : Nat) (hm : m ≤ maxSmallNat) (hn : n ≤ maxSmallNat) :
 /--
 A `Nat` object: a boxed scalar, or an `mpz`. The `big` case is never small
 enough to be boxed, which is the invariant `mpz_to_nat` maintains.
+
+The scalar payload is a `Nat` bounded by `maxSmallNat` rather than a machine
+word, because the bound is what a tagged scalar can hold and would be needed
+either way: a `USize` reaches `2 ^ 64 - 1`, where the tag bit leaves only
+`2 ^ 63 - 1`, so the machine-word form would carry the same bound plus a
+`toNat` in every specification. Keeping it a `Nat` is what makes `NatObj.val`
+the identity on this case.
+
+The cost is that the arithmetic below is `Nat`'s, which does not wrap where
+`size_t` does, so every scalar path the C++ computes with a machine word is
+either proved not to wrap, as in `natAdd`, or carries a note saying why the
+wraparound test it drops changes no branch, as in `natMul`. Nothing here
+models a wrapped `size_t`, so outside those bounds the file says nothing.
 -/
 inductive NatObj where
   | small (n : Nat) (h : n ≤ maxSmallNat)

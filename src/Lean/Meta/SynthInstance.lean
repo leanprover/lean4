@@ -1042,12 +1042,14 @@ def synthInstanceCore? (type : Expr) (maxResultSize? : Option Nat := none) : Met
   -- `SynthInstanceCache`. The enclosing query's accumulator (if any) is saved here and the
   -- nested query's effective dependencies are merged into it on exit (`finally` below): the
   -- enclosing query observed the result.
-  let parentDeps := (← getThe Core.State).recordedDeps
   let parentRecording := (← readThe Core.Context).isRecordingDeps
   -- The watermark the query's lookups are judged against, read at the point `findCachedResult?`
   -- later validates against, so recorded and validated values agree by construction.
   let base ← getOptionsUnrestricted
-  modifyThe Core.State fun s => { s with recordedDeps := { base } }
+  -- Read the enclosing accumulator out of the same update that replaces it: a separate read keeps
+  -- the whole state live across the write, so its reconstruction cannot reuse the old object.
+  let parentDeps ← modifyGetThe Core.State fun s =>
+    (s.recordedDeps, { s with recordedDeps := { base } })
   try
   -- Mark the query as recording; the marker is scoped to the search, so only the accumulator
   -- has to be restored below.
@@ -1121,9 +1123,8 @@ def synthInstanceCore? (type : Expr) (maxResultSize? : Option Nat := none) : Met
       return result?
   finally
     -- Restore the enclosing accumulator, merging this query's effective dependencies into it.
-    let childDeps := (← getThe Core.State).recordedDeps
     modifyThe Core.State fun s => { s with recordedDeps :=
-      if parentRecording then childDeps.mergeInto parentDeps else parentDeps }
+      if parentRecording then s.recordedDeps.mergeInto parentDeps else parentDeps }
 
 def synthInstance? (type : Expr) (maxResultSize? : Option Nat := none) : MetaM (Option Expr) := do
   -- unrestricted acquisition: profiler collection cannot influence a cached resolution result

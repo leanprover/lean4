@@ -70,7 +70,11 @@ static void configure_ctx_options(SSL_CTX * ctx) {
 
         // Disables RFC 5077 session tickets in TLS 1.2. In TLS 1.3 it only downgrades them to the
         // stateful form; the call below is what stops those being sent.
-        SSL_OP_NO_TICKET
+        SSL_OP_NO_TICKET |
+
+        // TLS 1.2 and below only; TLS 1.3 has no compression. A libssl built against zlib and
+        // running at security level 1 would otherwise negotiate it, which is CRIME.
+        SSL_OP_NO_COMPRESSION
     );
 
     // Without this a TLS 1.3 server still puts two NewSessionTickets on the wire per connection.
@@ -353,23 +357,6 @@ static lean_obj_res mk_client_ctx_checked(b_obj_arg ca, uint8_t ca_is_file, uint
     }
 
     return mk_client_ctx(verify_peer, trust_system_roots, allow_partial_chain, has_ca != 0, ca_src);
-}
-
-// Runs a constructor behind the two guards every entry point needs: OpenSSL initialized before any
-// `ERR_*` call can register `atexit(OPENSSL_cleanup)` behind `OPENSSL_INIT_NO_ATEXIT`'s back, and no
-// C++ exception escaping into Lean-generated code.
-template<typename F>
-static lean_obj_res ssl_entry_point(F && build) {
-    try {
-        if (!ensure_openssl_initialized()) {
-            return lean_io_result_mk_error(lean_mk_io_user_error(
-                mk_string("OPENSSL_init_ssl failed")));
-        }
-
-        return build();
-    } catch (std::exception & ex) {
-        return lean_io_result_mk_error(lean_mk_io_user_error(mk_string(ex.what())));
-    }
 }
 
 /* Std.Internal.SSL.Context.Server.mkImpl (cert : @& String) (certIsFile : Bool) (key : @& String) (keyIsFile : Bool) : IO Context.Server */

@@ -244,29 +244,34 @@ extern "C" LEAN_EXPORT lean_obj_res lean_uv_signal_next(b_obj_arg obj) {
 extern "C" LEAN_EXPORT lean_obj_res lean_uv_signal_stop(b_obj_arg obj) {
     lean_uv_signal_object * signal = lean_to_uv_signal(obj);
 
-    if (signal->m_state == SIGNAL_STATE_RUNNING) {
-        event_loop_lock(&global_ev);
-        int result = uv_signal_stop(signal->m_uv_signal);
+    event_loop_lock(&global_ev);
+
+    if (signal->m_state != SIGNAL_STATE_RUNNING) {
         event_loop_unlock(&global_ev);
-
-        if  (signal->m_promise != NULL) {
-            lean_dec(signal->m_promise);
-            signal->m_promise = NULL;
-        }
-
-        signal->m_state = SIGNAL_STATE_FINISHED;
-
-        // The loop does not need to keep the signal alive anymore.
-        lean_dec(obj);
-
-        if (result != 0) {
-            return lean_io_result_mk_error(lean_decode_uv_error(result, NULL));
-        } else {
-            return lean_io_result_mk_ok(lean_box(0));
-        }
-    } else {
         return lean_io_result_mk_ok(lean_box(0));
     }
+
+    int result = uv_signal_stop(signal->m_uv_signal);
+
+    lean_object * promise = signal->m_promise;
+    signal->m_promise = NULL;
+    signal->m_state = SIGNAL_STATE_FINISHED;
+
+    event_loop_unlock(&global_ev);
+
+    // Avoid problems with (sync := true) before the event_loop_unlock
+    if (promise != NULL) {
+        lean_dec(promise);
+    }
+
+    // The loop does not need to keep the signal alive anymore.
+    lean_dec(obj);
+
+    if (result != 0) {
+        return lean_io_result_mk_error(lean_decode_uv_error(result, NULL));
+    }
+
+    return lean_io_result_mk_ok(lean_box(0));
 }
 
 /* Std.Internal.UV.Signal.cancel (signal : @& Signal) : IO Unit */

@@ -393,15 +393,12 @@ extern "C" LEAN_EXPORT lean_obj_res lean_uv_tcp_wait_readable(b_obj_arg socket) 
 
         tcp_socket->m_promise_read = nullptr;
 
-        if (nread == UV_ENOBUFS) {
-            lean_promise_resolve(mk_except_ok(lean_box(1)), promise);
-        } else if (nread == UV_EOF) {
+        if (nread == UV_EOF) {
             lean_promise_resolve(mk_except_ok(lean_box(0)), promise);
-        } else if (nread < 0) {
+        } else if (nread < 0 && nread != UV_ENOBUFS) {
             lean_promise_resolve(mk_except_err(lean_decode_uv_error(nread, nullptr)), promise);
         } else {
-            // This branch should be dead, we cannot receive a value >= 0 according to docs.
-            lean_always_assert(false);
+            lean_promise_resolve(mk_except_ok(lean_box(1)), promise);
         }
 
         lean_dec(promise);
@@ -535,13 +532,21 @@ extern "C" LEAN_EXPORT lean_obj_res lean_uv_tcp_accept(b_obj_arg socket) {
     event_loop_lock(&global_ev);
 
     if (tcp_socket->m_promise_accept != nullptr) {
-        return lean_io_result_mk_error(lean_decode_uv_error(UV_EALREADY, mk_string("parallel accept is not allowed! consider binding multiple sockets to the same address and accepting on them instead")));
+        event_loop_unlock(&global_ev);
+        return lean_io_result_mk_error(lean_mk_io_error_other_error(-UV_EALREADY, mk_string("parallel accept is not allowed! consider binding multiple sockets to the same address and accepting on them instead")));
     }
+
+    lean_object* client_res = lean_uv_tcp_new();
+
+    if (lean_io_result_is_error(client_res)) {
+        event_loop_unlock(&global_ev);
+        return client_res;
+    }
+
+    lean_object* client = lean_io_result_take_value(client_res);
 
     lean_object* promise = lean_promise_new();
     mark_mt(promise);
-
-    lean_object* client = lean_io_result_take_value(lean_uv_tcp_new());
 
     lean_uv_tcp_socket_object* client_socket = lean_to_uv_tcp_socket(client);
 
@@ -577,10 +582,17 @@ extern "C" LEAN_EXPORT lean_obj_res lean_uv_tcp_try_accept(b_obj_arg socket) {
 
     if (tcp_socket->m_promise_accept != nullptr) {
         event_loop_unlock(&global_ev);
-        return lean_io_result_mk_error(lean_decode_uv_error(UV_EALREADY, mk_string("parallel accept is not allowed! consider binding multiple sockets to the same address and accepting on them instead")));
+        return lean_io_result_mk_error(lean_mk_io_error_other_error(-UV_EALREADY, mk_string("parallel accept is not allowed! consider binding multiple sockets to the same address and accepting on them instead")));
     }
 
-    lean_object* client = lean_io_result_take_value(lean_uv_tcp_new());
+    lean_object* client_res = lean_uv_tcp_new();
+
+    if (lean_io_result_is_error(client_res)) {
+        event_loop_unlock(&global_ev);
+        return client_res;
+    }
+
+    lean_object* client = lean_io_result_take_value(client_res);
     lean_uv_tcp_socket_object* client_socket = lean_to_uv_tcp_socket(client);
 
     int result = uv_accept((uv_stream_t*)tcp_socket->m_uv_tcp, (uv_stream_t*)client_socket->m_uv_tcp);

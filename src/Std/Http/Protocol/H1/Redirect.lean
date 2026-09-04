@@ -285,6 +285,18 @@ private def requestTargetQuery? : RequestTarget → Option URI.Query
   | _ => none
 
 /--
+The wire form of a resolved reference path.
+
+RFC 3986 §5.2.2 applies `remove_dot_segments` in every branch of reference resolution — when the
+reference carries a scheme, when it carries an authority, and when it is a bare path — so the
+normalization belongs here rather than in one branch of `rewriteTarget`. RFC 9112 §3.2.1 then
+requires a client to send `/` when the resolved path is empty, which is what an absolute path with
+no segments renders as.
+-/
+private def resolvedPath (path : URI.Path) : URI.Path :=
+  { path.normalize with absolute := true }
+
+/--
 Rewrites the target actually placed on the wire.
 -/
 private def rewriteTarget (ref : URIReference) (isCrossOrigin : Bool)
@@ -296,6 +308,7 @@ private def rewriteTarget (ref : URIReference) (isCrossOrigin : Bool)
     -- alongside any `userinfo` in the authority.
     let stripped :=
       { af with
+        path := resolvedPath af.path,
         authority := af.authority.map (fun auth => { auth with userInfo := none }),
         fragment := none }
     if isCrossOrigin then
@@ -305,12 +318,13 @@ private def rewriteTarget (ref : URIReference) (isCrossOrigin : Bool)
   | .relative { authority := some auth, path, query, .. } =>
 
     -- Protocol-relative: authority present, scheme inherited from current.
+    let path := resolvedPath path
     let stripped := { auth with userInfo := none }
     let af := { scheme := currentScheme, authority := some stripped, path, query, fragment := none }
     if isCrossOrigin then
       .absoluteForm af
     else
-      .originForm path.normalize query
+      .originForm path query
   | .relative { authority := none, path := refPath, query, .. } =>
 
     -- RFC 3986 §5.2.2: merge base path with reference path, then normalize.
@@ -326,7 +340,7 @@ private def rewriteTarget (ref : URIReference) (isCrossOrigin : Bool)
         baseQuery
       else
         query
-    .originForm merged.normalize rewrittenQuery
+    .originForm (resolvedPath merged) rewrittenQuery
 
 end RedirectPlan
 

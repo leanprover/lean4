@@ -462,6 +462,24 @@ Note that the value of `ctx.initHeartbeats` is ignored and replaced with `IO.get
   (·.1) <$> x.toIO ctx s
 
 /--
+Record a check-in for the `LEAN_CHECK_SYSTEM_INTERVAL_MS` monitoring.
+When that env var is set, warns on stderr if too much CPU time has elapsed since
+the last check-in from either the C++ `check_system` or this function.
+-/
+@[extern "lean_check_system_interval"]
+private opaque checkSystemIntervalImpl (componentName : @& String) : BaseIO Unit
+
+@[extern "lean_check_system_interval_is_enabled"]
+private opaque checkSystemIntervalIsEnabled : Unit → Bool
+
+private builtin_initialize checkSystemIntervalEnabled : Bool ←
+  pure (checkSystemIntervalIsEnabled ())
+
+@[inline] def checkSystemInterval (componentName : @& String) : BaseIO Unit := do
+  if checkSystemIntervalEnabled then
+    checkSystemIntervalImpl componentName
+
+/--
 Throws an internal interrupt exception if cancellation has been requested. The exception is not
 caught by `try catch` but is intended to be caught by `Command.withLoggingExceptions` at the top
 level of elaboration. In particular, we want to skip producing further incremental snapshots after
@@ -471,6 +489,7 @@ Like `checkSystem` but without the global heartbeat check, for callers that have
 heartbeat tracking (e.g. `SynthInstance`).
  -/
 @[inline] def checkInterrupted : CoreM Unit := do
+  checkSystemInterval "Lean elaborator"
   if let some tk := (← read).cancelTk? then
     if (← tk.isSet) then
       throwInterruptException

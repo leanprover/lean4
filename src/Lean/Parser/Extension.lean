@@ -33,6 +33,9 @@ builtin_initialize
   registerBuiltinNodeKind scientificLitKind
   registerBuiltinNodeKind charLitKind
   registerBuiltinNodeKind nameLitKind
+  registerBuiltinNodeKind fieldIdxKind
+  registerBuiltinNodeKind hexnumKind
+  registerBuiltinNodeKind interpolatedStrKind
 
 builtin_initialize builtinParserCategoriesRef : IO.Ref ParserCategories ← IO.mkRef {}
 

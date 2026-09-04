@@ -2667,7 +2667,10 @@ def realizeValue [BEq α] [Hashable α] [TypeName α] [TypeName β] (forConst : 
 where
   -- similar to `wrapAsyncAsSnapshot` but not sufficiently so to share code
   realizeAndReport (realize : MetaM Dynamic) (coreCtx : Core.Context) env opts := do
-    let coreCtx := { coreCtx with options := opts }
+    let coreCtx := { coreCtx with
+      options := opts
+      optionFlags := .ofOptions opts, optionFlags_eq := rfl
+    }
     let act :=
       IO.FS.withIsolatedStreams (isolateStderr := Core.stderrAsMessages.get opts) (do
         -- catch all exceptions
@@ -2768,6 +2771,7 @@ where
   realizeAndReport (coreCtx : Core.Context) env opts := do
     let coreCtx := { coreCtx with
       options := opts
+      optionFlags := .ofOptions opts, optionFlags_eq := rfl
       maxHeartbeats := Core.getMaxHeartbeats opts
     }
     let act :=
@@ -2817,8 +2821,7 @@ namespace PPContext
 def runCoreM {α : Type} (ppCtx : PPContext) (x : CoreM α) : IO α :=
   Prod.fst <$> x.toIO { options := ppCtx.opts, currNamespace := ppCtx.currNamespace
                         openDecls := ppCtx.openDecls
-                        fileName := "<PrettyPrinter>", fileMap := default
-                        diag     := getDiag ppCtx.opts }
+                        fileName := "<PrettyPrinter>", fileMap := default }
                       { env := ppCtx.env, ngen := { namePrefix := `_pp_uniq } }
 
 def runMetaM {α : Type} (ppCtx : PPContext) (x : MetaM α) : IO α :=

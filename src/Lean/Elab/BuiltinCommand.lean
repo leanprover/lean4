@@ -472,7 +472,7 @@ where
         -- Users might be testing out buggy elaborators. Let's typecheck before proceeding:
         withRef tk <| Meta.check e
       let e ← Term.levelMVarToParam (← instantiateMVars e)
-      withTheReader Core.Context (fun ctx => { ctx with options := ctx.options.set `smartUnfolding cfg.smartUnfolding }) do
+      withTheReader Core.Context (fun ctx => ctx.setOptions (ctx.options.set `smartUnfolding cfg.smartUnfolding)) do
         let e ← withTransparency (mode := cfg.transparency) <| reduce e (explicitOnly := !cfg.implicits) (skipProofs := !cfg.proofs) (skipTypes := !cfg.types)
         logInfoAt tk e
 

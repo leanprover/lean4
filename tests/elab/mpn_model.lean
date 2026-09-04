@@ -444,9 +444,6 @@ def compare (a b : Array Digit) : Int := Id.run do
     size_t &os = *plngc;
     for (os = len+1; os > 1 && c[os-1] == 0; ) os--;
 ```
-`&&` short-circuits, so `c[os-1]` is read only under `os > 1`; the dependent
-`if` in the loop condition is that short circuit, and `h` is what it makes
-available to the read.
 -/
 def trim (c : Array Digit) : Array Digit := Id.run do
   let mut c := c

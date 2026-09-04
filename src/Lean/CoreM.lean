@@ -214,10 +214,10 @@ structure State where
   deriving Nonempty
 
 /--
-The pointer-valued fields of `Core.Context` that are not updated on a recursion or `withRef` step.
+The pointer-valued fields of `Core.Context` that are not updated on a recursion step.
 
-`withReader` can never reuse the `Context` record, so every `withIncRecDepth` and `withRef` pays one
-reference count increment per pointer field. Grouping the remaining fields into a subobject makes
+`withReader` can never reuse the `Context` record, so every `withIncRecDepth` pays one reference
+count increment per pointer field. Grouping the remaining fields into a subobject makes
 them cost a single increment together.
 
 Membership follows measured update frequency, not the number of update sites: on a representative
@@ -237,6 +237,7 @@ structure Context.Cold where
   openDecls      : List OpenDecl := []
   initHeartbeats : Nat := 0
   maxHeartbeats  : Nat := getMaxHeartbeats options
+  ref            : Syntax := Syntax.missing
   quotContext    : Name := .anonymous
   currMacroScope : MacroScope := firstFrontendMacroScope
   /-- If set, used to cancel elaboration from outside when results are not needed anymore. -/
@@ -248,7 +249,6 @@ structure Context.Cold where
 /-- Context for the CoreM monad. -/
 structure Context extends Context.Cold where
   currRecDepth   : Nat := 0
-  ref            : Syntax := Syntax.missing
   /--
   If `diag := true`, different parts of the system collect diagnostics.
   Use the `set_option diag true` to set it to true.

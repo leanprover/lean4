@@ -27,7 +27,11 @@ reports a warning and returns `false`.
 This method ensures there is at most one warning message of this kind in the message log.
 -/
 def checkExponent (n : Nat) (warning := true) : CoreM Bool := do
-  let threshold := exponentiation.threshold.get (← getOptions)
+  -- Recorded acquisition: unlike the resource limits, exceeding this threshold does not throw, it
+  -- only skips a reduction (see `Lean.Meta.reducePow`). Whether the remaining reduction routes
+  -- always reach the same decision is not established, so a type class resolution result that
+  -- consulted the threshold is treated as depending on it.
+  let threshold ← getRecordedOption exponentiation.threshold
   if n > threshold then
     if (← pure warning <&&> logMessageKind `unsafe.exponentiation) then
       logWarning s!"exponent {n} exceeds the threshold {threshold}, exponentiation operation was not evaluated, use `set_option {exponentiation.threshold.name} <num>` to set a new threshold"

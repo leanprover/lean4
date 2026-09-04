@@ -350,6 +350,68 @@ structure InfoCacheKey where
 instance : Hashable InfoCacheKey where
   hash := private fun { configKey, expr, nargs? } => mixHash (hash configKey) <| mixHash (hash expr) (hash nargs?)
 
+/--
+The definitional-equality and unfolding compatibility flags under which a type class resolution
+query runs, resolved once per query (`synthInstanceCore?`) so that their per-step reads inside the
+search avoid the recording accessors; see `getSynthDefEqFlag`.
+
+Packed into a single scalar rather than one field per flag: these are part of the cache key
+(`SynthInstanceCacheKey.defEqFlags`), which is hashed and compared on every cache probe, and a
+one-field structure is erased to its field, so the key stores an unboxed word instead of a pointer
+to a nine-field record.
+-/
+structure SynthDefEqFlags where
+  /--
+  Packed flag bits; read them through the accessors below. Bits 0 to 8 are the flags, bits 9 to 14
+  are free for further ones, and bit 15 is `armedBit` in a `Meta.Context.synthDefEqFlags` word.
+  -/
+  bits : UInt16
+  deriving Inhabited, BEq, Hashable
+
+namespace SynthDefEqFlags
+
+@[inline] private def flag (b : Bool) (mask : UInt16) : UInt16 := if b then mask else 0
+
+@[inline] def respectTransparency (f : SynthDefEqFlags) : Bool := f.bits &&& 0x001 != 0
+@[inline] def respectTransparencyTypes (f : SynthDefEqFlags) : Bool := f.bits &&& 0x002 != 0
+@[inline] def respectTransparencyInstanceSearchTypes (f : SynthDefEqFlags) : Bool :=
+  f.bits &&& 0x004 != 0
+@[inline] def implicitBump (f : SynthDefEqFlags) : Bool := f.bits &&& 0x008 != 0
+@[inline] def reducibleClassField (f : SynthDefEqFlags) : Bool := f.bits &&& 0x010 != 0
+@[inline] def lazyProjDelta (f : SynthDefEqFlags) : Bool := f.bits &&& 0x020 != 0
+@[inline] def lazyWhnfCore (f : SynthDefEqFlags) : Bool := f.bits &&& 0x040 != 0
+@[inline] def smartUnfolding (f : SynthDefEqFlags) : Bool := f.bits &&& 0x080 != 0
+@[inline] def throwOnStuckAfterApp (f : SynthDefEqFlags) : Bool := f.bits &&& 0x100 != 0
+
+/-- Packs the flags in the order the accessors above read them. -/
+def ofFlags (respectTransparency respectTransparencyTypes respectTransparencyInstanceSearchTypes
+    implicitBump reducibleClassField lazyProjDelta lazyWhnfCore smartUnfolding
+    throwOnStuckAfterApp : Bool) : SynthDefEqFlags where
+  bits :=
+    flag respectTransparency 0x001 ||| flag respectTransparencyTypes 0x002 |||
+    flag respectTransparencyInstanceSearchTypes 0x004 ||| flag implicitBump 0x008 |||
+    flag reducibleClassField 0x010 ||| flag lazyProjDelta 0x020 |||
+    flag lazyWhnfCore 0x040 ||| flag smartUnfolding 0x080 |||
+    flag throwOnStuckAfterApp 0x100
+
+/--
+The bit marking a flag word as present in `Meta.Context.synthDefEqFlags`, so that "no flag set"
+stays distinguishable from "outside a query". It is the topmost bit, so the accessors ignore it.
+-/
+def armedBit : UInt16 := 0x8000
+
+/--
+Returns the `Meta.Context.synthDefEqFlags` word for `f`.
+
+The result is not interchangeable with `f`: the derived `BEq` and `Hashable` compare raw `bits`,
+so the armed word and `f` itself are distinct values denoting the same flags. Only the un-armed
+form may be stored in `SynthInstanceCacheKey.defEqFlags`; the armed one exists to be read back
+through the accessors, which mask `armedBit` out.
+-/
+@[inline] def toContextWord (f : SynthDefEqFlags) : UInt16 := f.bits ||| armedBit
+
+end SynthDefEqFlags
+
 -- Remark: we don't need to store `Config.toKey` because typeclass resolution uses a fixed configuration.
 structure SynthInstanceCacheKey where
   localInsts        : LocalInstances
@@ -359,7 +421,38 @@ structure SynthInstanceCacheKey where
   See issue #2522.
   -/
   synthPendingDepth : Nat
+  /--
+  Effective maximum result size (`synthInstance.maxSize` unless overridden by the caller).
+  The cache persists across commands, so results (in particular failures) obtained under a
+  different size limit must not be reused.
+  -/
+  maxResultSize     : Nat
+  /--
+  The definitional-equality flags the query runs under, resolved up front; see
+  `SynthDefEqFlags`. Options read lazily during the search are recorded per entry instead
+  (`RecordedDeps`).
+  -/
+  defEqFlags        : SynthDefEqFlags
   deriving Hashable, BEq
+
+/-!
+The resource limits (`maxHeartbeats`, `synthInstance.maxHeartbeats`, `maxRecDepth`) are
+deliberately not part of the key: exceeding one throws, and an entry is stored only on the success
+path, so a limit cannot influence a stored result. Their reads are therefore unrestricted.
+
+`exponentiation.threshold` is not such a limit: `Lean.checkExponent` returns `false` instead of
+throwing, and `reducePow` then skips the reduction rather than aborting the search. The argument
+above therefore does not apply to it, and it is a recorded dependency (`Lean.getRecordedOption`)
+instead of a key component.
+
+NOTE: caching an aborted search (storing an entry for a query that hit a limit, so that the failure
+need not be rediscovered) invalidates the argument above, because the stored result would then be
+exactly the one the limit produced. Each throwing limit would have to become a key
+component again, or a recorded dependency; the latter only works for limits whose value is read
+during the search rather than compared against an accumulating count, which rules out the
+heartbeat limits. `Core.Context` holds `maxHeartbeats` and `maxRecDepth`, so those are not read
+from the options during a search at all and would need plumbing to observe.
+-/
 
 /-- Resulting type for `abstractMVars` -/
 structure AbstractMVarsResult where
@@ -371,7 +464,16 @@ structure AbstractMVarsResult where
 def AbstractMVarsResult.numMVars (r : AbstractMVarsResult) : Nat :=
   r.mvars.size
 
-abbrev SynthInstanceCache := PersistentHashMap SynthInstanceCacheKey (Option AbstractMVarsResult)
+/--
+Type class resolution cache. Each key holds one entry per observed combination of dependencies:
+the search records every result-relevant option lookup (`Lean.getRecordedOption`) into the
+entry's `RecordedDeps`, and a lookup may only use an entry whose recorded lookups give the same
+answers in the current context. Options the search never read do not partition the cache. The
+search reads no other options, as it runs with `Core.Context.isRecordingDeps` set, which diverts
+option acquisitions to the recording accessors.
+-/
+abbrev SynthInstanceCache :=
+  PersistentHashMap SynthInstanceCacheKey (List (RecordedDeps × Option AbstractMVarsResult))
 
 -- Key for `InferType` and `WHNF` caches
 structure ExprConfigCacheKey where
@@ -409,9 +511,7 @@ We should also investigate the impact on memory consumption.
 -/
 abbrev DefEqCache := PersistentHashMap DefEqCacheKey Bool
 
-/--
-Cache datastructures for type inference, type class resolution, whnf, and definitional equality.
--/
+/-- Cache datastructures for type inference, type class resolution, whnf, and definitional equality. -/
 structure Cache where
   inferType      : InferTypeCache := {}
   funInfo        : FunInfoCache := {}
@@ -526,6 +626,13 @@ structure Context where
   Remark: `synthPending` fails if `synthPendingDepth > maxSynthPendingDepth`.
   -/
   synthPendingDepth : Nat                  := 0
+  /--
+  The resolved definitional-equality flags, set per type class resolution query; `0` outside a
+  query. Stored as a bare word rather than an `Option` because this context is reconstructed by
+  every `withConfig`/`withTransparency`-style scope, where a pointer field costs a reference
+  count operation each time. See `SynthDefEqFlags.toContextWord`.
+  -/
+  synthDefEqFlags   : UInt16 := 0
   /--
   A predicate to control whether a constant can be unfolded or not at `whnf`.
   If set, overrides `Config.canUnfoldPredicateConfig`.
@@ -1211,6 +1318,21 @@ def elimMVarDeps (xs : Array Expr) (e : Expr) (preserveOrder : Bool := false) : 
 
 @[inline] def withIncSynthPending : n α → n α :=
   mapMetaM <| withReader (fun ctx => { ctx with synthPendingDepth := ctx.synthPendingDepth + 1 })
+
+/--
+Reads a definitional-equality compatibility flag: from the per-query resolved flags inside a
+type class resolution query, and via `fallback` from the ambient options otherwise. Inside a
+query the flags are always armed and already recorded (`SynthDefEqFlags`), so the read costs a
+context projection; per-step read sites in `isDefEq`/`whnf` use this instead of the recording
+accessors.
+-/
+@[inline] def getSynthDefEqFlag (proj : SynthDefEqFlags → Bool) (fallback : Options → Bool) :
+    MetaM Bool := do
+  let w := (← read).synthDefEqFlags
+  if w == 0 then
+    return fallback (← getOptions)
+  else
+    return proj ⟨w⟩
 
 @[inline] def withInTypeClassResolution : n α → n α :=
   mapMetaM <| withReader (fun ctx => { ctx with inTypeClassResolution := true })
@@ -2271,7 +2393,8 @@ def instantiateLambdaWithParamInfos (e : Expr) (args : Array Expr) (cleanupAnnot
   return (res, e)
 
 def getPPContext : MetaM PPContext := do
-  return { env := (← getEnv), mctx := (← getMCtx), lctx := (← getLCtx), opts := (← getOptions),
+  -- unrestricted acquisition: a message context is a display context, see `addMessageContextFull`
+  return { env := (← getEnv), mctx := (← getMCtx), lctx := (← getLCtx), opts := (← getOptionsUnrestricted),
            currNamespace := (← getCurrNamespace), openDecls := (← getOpenDecls) }
 
 /-- Pretty-print the given expression. -/
@@ -2592,7 +2715,8 @@ def instantiateMVarsIfMVarApp (e : Expr) : MetaM Expr := do
     return e
 
 def instantiateMVarsProfiling (e : Expr) : MetaM Expr := do
-  profileitM Exception s!"instantiate metavars" (← getOptions) do
+  -- unrestricted acquisition: profiler collection cannot influence a cached resolution result
+  profileitM Exception s!"instantiate metavars" (← getOptionsUnrestricted) do
   withTraceNode `Meta.instantiateMVars (fun _ => pure e) do
     instantiateMVars e
 
@@ -2746,7 +2870,8 @@ def realizeConst (forConst : Name) (constName : Name) (realize : MetaM Unit) :
     let exAct ← Core.wrapAsyncAsSnapshot (cancelTk? := none) fun
       | none => return
       | some ex => do
-        logError <| ex.toMessageData (← getOptions)
+        -- unrestricted acquisition: rendering an exception, which is never cached
+        logError <| ex.toMessageData (← getOptionsUnrestricted)
     Core.logSnapshotTask {
       stx? := none
       task := (← BaseIO.mapTask (t := exTask) exAct)

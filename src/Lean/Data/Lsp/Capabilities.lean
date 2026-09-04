@@ -76,6 +76,11 @@ structure LeanClientCapabilities where
   -/
   silentDiagnosticSupport? : Option Bool := none
   /--
+  Whether the client supports `DiagnosticWith.heartbeats?`.
+  If `none` or `false`, the machine-dependent field is cleared before diagnostics are served.
+  -/
+  heartbeatSupport? : Option Bool := none
+  /--
   The latest RPC wire format supported by the client.
   Defaults to `v0` when `none`.
   -/
@@ -103,6 +108,13 @@ def ClientCapabilities.silentDiagnosticSupport (c : ClientCapabilities) : Bool :
   let some silentDiagnosticSupport := lean.silentDiagnosticSupport?
     | return false
   return silentDiagnosticSupport
+
+def ClientCapabilities.heartbeatSupport (c : ClientCapabilities) : Bool := Id.run do
+  let some lean := c.lean?
+    | return false
+  let some heartbeatSupport := lean.heartbeatSupport?
+    | return false
+  return heartbeatSupport
 
 def ClientCapabilities.rpcWireFormat (c : ClientCapabilities) : RpcWireFormat := Id.run do
   let some lean := c.lean?

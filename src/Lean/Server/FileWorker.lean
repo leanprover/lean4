@@ -304,8 +304,10 @@ This option can only be set on the command line, not in the lakefile or via `set
             let mut msgs := node.element.diagnostics.msgLog.toArray
             if ! ctx.initParams.capabilities.silentDiagnosticSupport then
               msgs := msgs.filter (! ·.isSilent)
-            let diags ← msgs.mapM
+            let mut diags ← msgs.mapM
               (Widget.msgToInteractiveDiagnostic doc.meta.text · ctx.clientHasWidgets)
+            unless ctx.initParams.capabilities.heartbeatSupport do
+              diags := diags.map fun d => { d with heartbeats? := none }
             if let some cacheRef := node.element.diagnostics.interactiveDiagsRef? then
               cacheRef.set <| some <| .mk { diags : MemorizedInteractiveDiagnostics }
             pure diags

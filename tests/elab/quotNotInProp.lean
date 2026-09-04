@@ -1,3 +1,5 @@
+/-! This test ensures quotients of propositions are types rather than propositions.-/
+
 /-- info: Quot.{u} {α : Sort u} (r : α → α → Prop) : Sort (max 1 u) -/
 #guard_msgs in
 #check Quot

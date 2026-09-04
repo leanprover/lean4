@@ -1383,6 +1383,13 @@ extern "C" LEAN_EXPORT void lean_extract_mpz_value(lean_object * o, mpz_t v) {
 }
 #endif
 
+/*
+  NOTE: `tests/elab/mpn_model.lean` transliterates the `Nat` operations below, together with
+  `mpn.cpp` and the GMP-free part of `mpz.cpp`, and proves that the fifteen operations
+  `type_checker::reduce_nat` reduces compute what `Nat` does. It quotes each one beside the
+  definition standing for it, so a change here should be mirrored there.
+*/
+
 object * mpz_to_nat_core(mpz const & m) {
     lean_assert(!m.is_size_t() || m.get_size_t() > LEAN_MAX_SMALL_NAT);
     return alloc_mpz(m);

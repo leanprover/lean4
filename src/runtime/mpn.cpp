@@ -23,6 +23,13 @@ Revision History:
 
 #define max(a,b)    (((a) > (b)) ? (a) : (b))
 
+/*
+  NOTE: `tests/elab/mpn_model.lean` transliterates the routines in this file and proves them
+  correct against `Nat`. It quotes each one beside the definition standing for it, and discharges
+  the preconditions they assert, so a change here should be mirrored there; otherwise the
+  quotation no longer matches the code it claims to model.
+*/
+
 namespace lean {
 
 typedef uint64_t mpn_double_digit;

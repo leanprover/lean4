@@ -322,6 +322,12 @@ std::ostream & operator<<(std::ostream & out, mpz const & v) {
 #else
 /***** NON GMP VERSION ******/
 
+/*
+  NOTE: `tests/elab/mpn_model.lean` transliterates the non-negative part of the routines below,
+  which is what `Nat` reaches, and proves them correct. It quotes each one beside the definition
+  standing for it, so a change here should be mirrored there.
+*/
+
 static void *mpz_alloc(size_t size) {
 #ifdef LEAN_MIMALLOC
     void * r = mi_malloc(size);

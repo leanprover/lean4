@@ -349,7 +349,9 @@ jobs:
                 //   failures?
                 // * `kernelMaxRecDepth` stack-overflows in the interpreter.
                 // * `*bench` is too expensive to run with fsanitize (also can e.g. stack overflow).
-                "CTEST_OPTIONS": "-E 'StackOverflow|interactive|async_select_channel|9366|elab/grind|pkg/|lake/|kernelMaxRecDepth|bench/'"
+                // * `elab/*_model` is the longest-running test once `bench/`, `lake/` and `pkg/`
+                //   are excluded, and the whole point of it is elaboration, not the runtime.
+                "CTEST_OPTIONS": "-E 'StackOverflow|interactive|async_select_channel|9366|elab/grind|pkg/|lake/|kernelMaxRecDepth|bench/|elab/.*_model'"
               },
               {
                 "name": "Linux tsanitize",

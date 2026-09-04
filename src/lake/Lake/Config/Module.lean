@@ -217,7 +217,16 @@ public def leanIncludeDir? (self : Module) : Option FilePath :=
 @[inline] public def platformIndependent (self : Module) : Option Bool :=
   self.lib.platformIndependent
 
-@[inline] public def shouldPrecompile (self : Module) : Bool :=
+/-- Whether the module is compiled into a shared library loaded by its importers. -/
+@[inline] public def shouldPrecompileSelf (self : Module) : Bool :=
+  self.lib.precompileModules
+
+/-- Whether the module is built with the native code of its imports loaded. -/
+@[inline] public def shouldPrecompileImports (self : Module) : Bool :=
+  self.lib.precompileModules
+
+@[inline, deprecated "Use `shouldPrecompileImports` or `shouldPrecompileSelf` instead." (since := "2026-09-04")]
+public def shouldPrecompile (self : Module) : Bool :=
   self.lib.precompileModules
 
 @[inline] public def nativeFacets (self : Module) (shouldExport : Bool) : Array (ModuleFacet FilePath) :=

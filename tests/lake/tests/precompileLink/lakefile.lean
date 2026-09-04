@@ -17,5 +17,12 @@ lean_lib Downstream
 
 lean_lib LakeTest
 
+lean_lib Lib where
+  precompileLibrary := true
+
+lean_lib LibDep
+
+lean_lib LibDownstream
+
 lean_lib PlatformIndependent where
   platformIndependent := if get_config? platformIndependent |>.isSome then true else none

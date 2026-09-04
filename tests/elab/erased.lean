@@ -27,15 +27,15 @@ trace: [Compiler.saveMono] size: 1
 ---
 trace: [Compiler.saveMono] size: 5
     def _private.elab.erased.0._eval._lam_0 (_x.1 : Array
-       Lean.Name) (_x.2 : PUnit) (_y.3 : Lean.Elab.Term.Context) (_y.4 : @&lcAny) (_y.5 : @&Lean.Meta.Context) (_y.6 : @&lcAny) (_y.7 : @&Lean.Core.Context) (_y.8 : @&lcAny) (_y.9 : lcVoid) : EST.Out
+       Lean.Name) (_x.2 : PUnit) (_y.3 : Lean.Elab.Term.Context) (_y.4 : @&lcAny) (_y.5 : @&Lean.Meta.Context) (_y.6 : @&lcAny) (_y.7 : @&Lean.Core.Context) (_y.8 : @&Nat) (_y.9 : @&lcAny) (_y.10 : lcVoid) : EST.Out
       Lean.Exception lcAny PUnit :=
-      let _x.10 : EST.Out Lean.Exception lcAny PUnit := compile _x.1 _y.7 _y.8 _y.9;
-      cases _x.10 : EST.Out Lean.Exception lcAny PUnit
-      | EST.Out.ok (a.11 : PUnit) (a.12 : lcVoid) =>
-        let _x.13 : EST.Out Lean.Exception lcAny PUnit := @EST.Out.ok ◾ ◾ ◾ _x.2 a.12;
-        return _x.13
-      | EST.Out.error (a.14 : Lean.Exception) (a.15 : lcVoid) =>
-        return _x.10
+      let _x.11 : EST.Out Lean.Exception lcAny PUnit := compile _x.1 _y.7 _y.8 _y.9 _y.10;
+      cases _x.11 : EST.Out Lean.Exception lcAny PUnit
+      | EST.Out.ok (a.12 : PUnit) (a.13 : lcVoid) =>
+        let _x.14 : EST.Out Lean.Exception lcAny PUnit := @EST.Out.ok ◾ ◾ ◾ _x.2 a.13;
+        return _x.14
+      | EST.Out.error (a.15 : Lean.Exception) (a.16 : lcVoid) =>
+        return _x.11
 [Compiler.saveMono] size: 9
     def _private.elab.erased.0._eval (a : @&Lean.Elab.Command.Context) (a : @&lcAny) (a.1 : lcVoid) : EST.Out
       Lean.Exception lcAny PUnit :=
@@ -49,7 +49,8 @@ trace: [Compiler.saveMono] size: 5
       let _f.9 : Lean.Elab.Term.Context →
         lcAny →
           Lean.Meta.Context →
-            lcAny → Lean.Core.Context → lcAny → lcVoid → EST.Out Lean.Exception lcAny PUnit := _eval._lam_0 _x.7 _x.8;
+            lcAny →
+              Lean.Core.Context → Nat → lcAny → lcVoid → EST.Out Lean.Exception lcAny PUnit := _eval._lam_0 _x.7 _x.8;
       let _x.10 : EST.Out Lean.Exception lcAny PUnit := Lean.Elab.Command.liftTermElabM._redArg _f.9 a a a.1;
       return _x.10
 -/

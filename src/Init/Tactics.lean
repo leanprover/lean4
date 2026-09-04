@@ -1584,35 +1584,23 @@ syntax (name := acNf0) "ac_nf0" (location)? : tactic
 /-- Implementation of `norm_cast` (the full `norm_cast` calls `trivial` afterwards). -/
 syntax (name := normCast0) "norm_cast0" optConfig (location)? : tactic
 
-/-- `assumption_mod_cast` is a variant of `assumption` that solves the goal
-using a hypothesis. Unlike `assumption`, it first pre-processes the goal and
-each hypothesis to move casts as far outwards as possible, so it can be used
-in more situations.
+/-- `assumption_mod_cast` solves the goal using a hypothesis of suitable type.
+Unlike `assumption`, it first pre-processes the goal and each hypothesis using `norm_cast` to
+move casts as far outwards as possible, so the tactic can be used in more situations.
 
 Concretely, it runs `norm_cast` on the goal. For each local hypothesis `h`, it also
-normalizes `h` with `norm_cast` and tries to use that to close the goal. -/
+normalizes `h` with `norm_cast` and tries to use that to close the goal.
+
+* `assumption_mod_cast (config := cfg)` uses `cfg` as configuration for `norm_cast`
+  (see there for more information).
+-/
 macro "assumption_mod_cast" cfg:optConfig : tactic => `(tactic| norm_cast0 $cfg at * <;> assumption)
 
 /--
-The `norm_cast` family of tactics is used to normalize certain coercions (*casts*) in expressions.
-- `norm_cast` normalizes casts in the target.
-- `norm_cast at h` normalizes casts in hypothesis `h`.
-
-The tactic is basically a version of `simp` with a specific set of lemmas to move casts
-upwards in the expression.
-Therefore even in situations where non-terminal `simp` calls are discouraged (because of fragility),
-`norm_cast` is considered to be safe.
-It also has special handling of numerals.
-
-For instance, given an assumption
-```lean
-a b : ℤ
-h : ↑a + ↑b < (10 : ℚ)
-```
-writing `norm_cast at h` will turn `h` into
-```lean
-h : a + b < 10
-```
+`norm_cast` normalizes coercions ("casts") in the goal by pulling them upwards, towards the head
+of the term. For example, `↑a + ↑b` will be rewritten to `↑(a + b)`. After rewriting, `norm_cast`
+tries closing the goal using the `trivial` tactic. `push_cast` is the opposite tactic, moving casts
+downwards.
 
 There are also variants of basic tactics that use `norm_cast` to normalize expressions during
 their operation, to make them more flexible about the expressions they accept
@@ -1622,23 +1610,42 @@ their operation, to make them more flexible about the expressions they accept
   in the goal and `h` before using `exact h` or `apply h`.
 - `rw_mod_cast` for `rw`. It applies `norm_cast` between rewrites.
 - `assumption_mod_cast` for `assumption`.
-  This is effectively `norm_cast at *; assumption`, but more efficient.
+  This is effectively `norm_cast at *; assumption`.
   It normalizes casts in the goal and, for every hypothesis `h` in the context,
   it will try to normalize casts in `h` and use `exact h`.
+- `mod_cast` is a term elaborator giving a compacter equivalent of `by exact_mod_cast`.
 
-See also `push_cast`, which moves casts inwards rather than lifting them outwards.
+The tactic is based on `simp` with a specific set of lemmas to move casts upwards in the expression.
+Therefore even in situations where non-terminal `simp` calls are discouraged (because of fragility),
+`norm_cast` is considered to be safe. It also has special handling of numerals.
+
+* `norm_cast at loc` normalizes at the location(s) `loc`.
+* `norm_cast (config := cfg)` uses `cfg : NormCastConfig` to control how rewrites happen.
+
+Example:
+```lean
+example (a b : ℤ) (h : ↑a + ↑b < (10 : ℚ)) :
+    a + b < (10 : ℤ) := by
+  norm_cast at h
+  exact h
+```
 -/
 macro "norm_cast" cfg:optConfig loc:(location)? : tactic =>
   `(tactic| norm_cast0 $cfg $[$loc]? <;> try trivial)
 
 
 /--
-`push_cast` rewrites the goal to move certain coercions (*casts*) inward, toward the leaf nodes.
-This uses `norm_cast` lemmas in the forward direction.
-For example, `↑(a + b)` will be written to `↑a + ↑b`.
-- `push_cast` moves casts inward in the goal.
-- `push_cast at h` moves casts inward in the hypothesis `h`.
-It can be used with extra simp lemmas with, for example, `push_cast [Int.add_zero]`.
+`push_cast` normalizes coercions ("casts") in the goal by pushing them downwards, towards the leaves
+of the term. For example, `↑(a + b)` will be rewritten to `↑a + ↑b`. `norm_cast` is the opposite
+tactic, moving casts upwards.
+
+The tactic is based on `simp` with a specific set of lemmas to move casts downwards in the expression.
+Therefore even in situations where non-terminal `simp` calls are discouraged (because of fragility),
+`push_cast` is considered to be safe. It also has special handling of numerals.
+
+* `push_cast at loc` normalizes at the location(s) `loc`.
+* `push_cast [e₁, ← e₂, ...]` uses `e₁`, `e₂`, ... as additional `simp` lemmas.
+* `push_cast (config := cfg)` uses `cfg : NormCastConfig` to control how rewrites happen.
 
 Example:
 ```lean
@@ -1662,8 +1669,6 @@ example (a b : Nat)
   -/
   exact h1
 ```
-
-See also `norm_cast`.
 -/
 syntax (name := pushCast) "push_cast" optConfig (discharger)? (&" only")?
   (" [" (simpStar <|> simpErase <|> simpLemma),* "]")? (location)? : tactic

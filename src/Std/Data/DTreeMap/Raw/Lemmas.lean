@@ -3165,6 +3165,10 @@ theorem isEmpty_inter_iff [TransCmp cmp] (h₁ : t₁.WF) (h₂ : t₂.WF) :
     rw [← contains_eq_false_iff_not_mem]
   exact Impl.isEmpty_inter!_iff h₁ h₂
 
+theorem isEmpty_inter_comm [TransCmp cmp] (h₁ : t₁.WF) (h₂ : t₂.WF) :
+    (t₁ ∩ t₂).isEmpty = (t₂ ∩ t₁).isEmpty :=
+  Impl.isEmpty_inter!_comm h₁ h₂
+
 end Inter
 
 namespace Const
@@ -5990,6 +5994,12 @@ private theorem equiv_iff : t₁ ~m t₂ ↔ t₁.1.Equiv t₂.1 :=
 
 theorem equiv_empty_iff_isEmpty : t ~m empty ↔ t.isEmpty :=
   equiv_iff.trans Impl.equiv_empty_iff_isEmpty
+
+theorem inter_equiv_empty_comm [TransCmp cmp] (h₁ : t₁.WF) (h₂ : t₂.WF) :
+    (t₁ ∩ t₂) ~m ∅ ↔ (t₂ ∩ t₁) ~m ∅ := by
+  change (t₁ ∩ t₂) ~m empty ↔ (t₂ ∩ t₁) ~m empty
+  rw [equiv_empty_iff_isEmpty, equiv_empty_iff_isEmpty, ← Bool.eq_iff_iff]
+  exact isEmpty_inter_comm h₁ h₂
 
 theorem empty_equiv_iff_isEmpty : empty ~m t ↔ t.isEmpty :=
   equiv_iff.trans Impl.empty_equiv_iff_isEmpty

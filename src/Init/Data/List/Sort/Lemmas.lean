@@ -277,6 +277,39 @@ theorem Perm.merge (s₁ s₂ : α → α → Bool) (hl : l₁ ~ l₂) (hr : r�
 
 @[simp] theorem mergeSort_singleton (a : α) : [a].mergeSort r = [a] := by rw [List.mergeSort]
 
+/-- Merging the sorted halves of any balanced split of a list gives `mergeSort` of the
+list. A split into contiguous halves is balanced when the first half has the same length
+as the second, or is one element longer. -/
+theorem mergeSort_append (l₁ l₂ : List α)
+    (h₁ : l₂.length ≤ l₁.length) (h₂ : l₁.length ≤ l₂.length + 1) :
+    (l₁ ++ l₂).mergeSort le = merge (l₁.mergeSort le) (l₂.mergeSort le) le := by
+  match l₁, l₂ with
+  | [], l₂ =>
+    obtain rfl : l₂ = [] := by simp_all
+    simp
+  | [a], [] => simp
+  | [a], [b] =>
+    simp only [mergeSort_singleton, singleton_append]
+    rw [List.mergeSort]
+    simp [splitInTwo_fst, splitInTwo_snd]
+  | [a], b :: c :: l₂ =>
+    simp only [length_cons, length_nil] at h₁
+    omega
+  | a :: b :: l₁, l₂ =>
+    rw [cons_append, cons_append, List.mergeSort]
+    have hlen : (l₁.length + l₂.length + 1 + 1 + 1) / 2 = l₁.length + 2 := by
+      simp only [length_cons] at h₁ h₂
+      omega
+    simp only [splitInTwo_fst, splitInTwo_snd, length_cons, length_append, hlen]
+    congr 2 <;> simp
+
+@[simp] theorem mergeSort_pair (a b : α) :
+    [a, b].mergeSort le = if le a b then [a, b] else [b, a] := by
+  rw [show [a, b] = [a] ++ [b] from rfl, mergeSort_append _ _ (by simp) (by simp)]
+  simp only [mergeSort_singleton]
+  rw [List.merge]
+  split <;> simp
+
 theorem mergeSort_perm : ∀ (l : List α) (le), mergeSort l le ~ l
   | [], _ => by simp
   | [a], _ => by simp

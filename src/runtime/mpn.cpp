@@ -272,8 +272,7 @@ void mpn_div(mpn_digit const * numer, size_t const lnum,
     lean_assert(lden > 0 && lden <= lnum);
 
     if (lnum < lden) {
-        // No quotient digit exists here: `lnum - lden + 1` is not positive, and
-        // computing it in `size_t` would wrap and overrun `quot`.
+        // NOTE: nothing to set in `quot` as its output length, `lnum - lden + 1`, is not positive
         for (size_t i = 0; i < lden; i++)
             rem[i] = (i < lnum) ? numer[i] : 0;
         return;

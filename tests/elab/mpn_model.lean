@@ -26,13 +26,14 @@ that layer. The `Num` type carries the normalization `mpz::set` establishes, so 
 `mpn_to_string` is not modelled, since `reduce_nat` never reaches it.
 
 C++ leaves an operation undefined outside a range, and this file carries the bound that rules that
-out wherever the bound is actually known. A local bound is an argument of the operation, so a use
-site cannot be written without discharging it: the shifts and divisions of `CPP` take the hypothesis
-that pins each down, and a buffer a routine fills itself is a `Vector` whose length bounds every
-write by construction. A bound that is instead a fact about the whole computation cannot be an
-argument, since it is not known where the write happens: a buffer a caller owns is written with
-`set!` and read with `getD`, both total, and the index staying in range is proved in the
-specification rather than the type, as `div_1` and `div_n` do. Where a routine asserts a fact that a
+out wherever the bound is actually known. A bound still in scope where the write happens is an
+argument of the operation, so a use site cannot be written without discharging it: the shifts and
+divisions of `CPP` take the hypothesis that pins each down, and a buffer filled in the definition
+that allocates it is a `Vector` whose length bounds every write by construction, as in the shifts
+and `mpn_mul`. A bound that does not reach the write cannot be an argument: `div_1` and `div_n`
+hand their buffers to a step function that takes them as a plain pair of arrays, carrying no
+length, so those are written with `set!` and read with `getD`, both total, and the index staying in
+range is proved in the specification rather than the type. Where a routine asserts a fact that a
 release build then drops, since `lean_assert` is `DEBUG_CODE`, the branch resting on it is proved
 here instead, by the specification that covers it: the `small`/`big` arm of `natDiv` and the arms of
 `natSub`, `natMod`, `natBle` and `natBeq` that answer without computing.

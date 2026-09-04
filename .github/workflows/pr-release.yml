@@ -667,6 +667,8 @@ jobs:
           app-slug: ${{ steps.app-token.outputs.app-slug }}
           upstream-pr: ${{ steps.workflow-info.outputs.pullRequestNumber }}
           upstream-ci-green: true # We just created the toolchain release
+          upstream-label: downstream
+          upstream-label-force: downstream-force
           downstream-repo: leanprover/downstream-lean4
           downstream-clone: downstream
           override-toolchain: leanprover/lean4-pr-releases:pr-release-${{ steps.workflow-info.outputs.pullRequestNumber }}-${{ env.SHORT_SHA }}

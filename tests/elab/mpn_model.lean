@@ -558,7 +558,7 @@ def subInPlace (u b : Array Digit) (off len : Nat) : Array Digit × Digit := Id.
 void mpn_mul(mpn_digit const * a, size_t const lnga,
              mpn_digit const * b, size_t const lngb,
              mpn_digit * c) {
-    for (unsigned i = 0; i < lnga; i++)
+    for (size_t i = 0; i < lnga; i++)
         c[i] = 0;
 
     for (size_t j = 0; j < lngb; j++) {
@@ -568,7 +568,7 @@ void mpn_mul(mpn_digit const * a, size_t const lnga,
         }
         else {
             k = 0;
-            for (i = 0; i < lnga; i++) { ... }
+            for (size_t i = 0; i < lnga; i++) { ... }
             c[j+lnga] = k;
         }
     }

@@ -113,9 +113,10 @@ def reportJob (job : OpaqueJob) : MonitorM PUnit := do
   let {jobNo, totalJobs, ..} ← get
   let {failLv, outLv, showOptional, out, useAnsi, showProgress, minAction, showTime, ..} ← read
   let {task, caption, optional, ..} := job
-  let {log, action, wantsRebuild, buildTime, ..} := task.get.state
+  let {log, action, wantsRebuild, canceled, buildTime, ..} := task.get.state
   let maxLv := log.maxLv
   let failed := strictAnd log.hasEntries (maxLv ≥ failLv)
+  let canceled := canceled && !failed
   if wantsRebuild then
     modify fun s => if s.wantsRebuild then s else {s with wantsRebuild := true}
   if failed && !optional then
@@ -123,16 +124,16 @@ def reportJob (job : OpaqueJob) : MonitorM PUnit := do
   let hasOutput := failed || (log.hasEntries && maxLv ≥ outLv)
   let showJob :=
     (!optional || showOptional) &&
-    (hasOutput || (showProgress && !useAnsi && action ≥ minAction))
+    (hasOutput || canceled || (showProgress && !useAnsi && action ≥ minAction))
   if showJob then
-    let verb := action.verb failed
-    let icon := if hasOutput then maxLv.icon else '✔'
+    let verb := if canceled then "Canceled" else action.verb failed
+    let icon := if hasOutput then maxLv.icon else if canceled then '⊘' else '✔'
     let opt := if optional then " (Optional)" else ""
     let time := if showTime && buildTime > 0 then s!" ({formatTime buildTime})" else ""
     let caption := s!"{icon} [{jobNo}/{totalJobs}]{opt} {verb} {caption}{time}"
     let caption :=
       if useAnsi then
-        let color := if hasOutput then maxLv.ansiColor else "32"
+        let color := if hasOutput then maxLv.ansiColor else if canceled then "33" else "32"
         Ansi.chalk color caption
       else
         caption

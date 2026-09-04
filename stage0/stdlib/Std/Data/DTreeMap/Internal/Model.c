@@ -6209,9 +6209,9 @@ return v___x_2594_;
 LEAN_EXPORT lean_object* l___private_Std_Data_DTreeMap_Internal_Model_0__Std_DTreeMap_Internal_Impl_getEntryGT_x3f_go_match__1_splitter___redArg___boxed(lean_object* v_x_2595_, lean_object* v_h__1_2596_, lean_object* v_h__2_2597_){
 _start:
 {
-uint8_t v_x_17__boxed_2598_; lean_object* v_res_2599_; 
-v_x_17__boxed_2598_ = lean_unbox(v_x_2595_);
-v_res_2599_ = l___private_Std_Data_DTreeMap_Internal_Model_0__Std_DTreeMap_Internal_Impl_getEntryGT_x3f_go_match__1_splitter___redArg(v_x_17__boxed_2598_, v_h__1_2596_, v_h__2_2597_);
+uint8_t v_x_13__boxed_2598_; lean_object* v_res_2599_; 
+v_x_13__boxed_2598_ = lean_unbox(v_x_2595_);
+v_res_2599_ = l___private_Std_Data_DTreeMap_Internal_Model_0__Std_DTreeMap_Internal_Impl_getEntryGT_x3f_go_match__1_splitter___redArg(v_x_13__boxed_2598_, v_h__1_2596_, v_h__2_2597_);
 return v_res_2599_;
 }
 }
@@ -6239,9 +6239,9 @@ return v___x_2607_;
 LEAN_EXPORT lean_object* l___private_Std_Data_DTreeMap_Internal_Model_0__Std_DTreeMap_Internal_Impl_getEntryGT_x3f_go_match__1_splitter___boxed(lean_object* v_motive_2608_, lean_object* v_x_2609_, lean_object* v_h__1_2610_, lean_object* v_h__2_2611_){
 _start:
 {
-uint8_t v_x_28__boxed_2612_; lean_object* v_res_2613_; 
-v_x_28__boxed_2612_ = lean_unbox(v_x_2609_);
-v_res_2613_ = l___private_Std_Data_DTreeMap_Internal_Model_0__Std_DTreeMap_Internal_Impl_getEntryGT_x3f_go_match__1_splitter(v_motive_2608_, v_x_28__boxed_2612_, v_h__1_2610_, v_h__2_2611_);
+uint8_t v_x_24__boxed_2612_; lean_object* v_res_2613_; 
+v_x_24__boxed_2612_ = lean_unbox(v_x_2609_);
+v_res_2613_ = l___private_Std_Data_DTreeMap_Internal_Model_0__Std_DTreeMap_Internal_Impl_getEntryGT_x3f_go_match__1_splitter(v_motive_2608_, v_x_24__boxed_2612_, v_h__1_2610_, v_h__2_2611_);
 return v_res_2613_;
 }
 }
@@ -6385,9 +6385,9 @@ return v___x_2670_;
 LEAN_EXPORT lean_object* l___private_Std_Data_DTreeMap_Internal_Model_0__Std_DTreeMap_Internal_Impl_getEntryLT_x3f_go_match__1_splitter___redArg___boxed(lean_object* v_x_2671_, lean_object* v_h__1_2672_, lean_object* v_h__2_2673_){
 _start:
 {
-uint8_t v_x_17__boxed_2674_; lean_object* v_res_2675_; 
-v_x_17__boxed_2674_ = lean_unbox(v_x_2671_);
-v_res_2675_ = l___private_Std_Data_DTreeMap_Internal_Model_0__Std_DTreeMap_Internal_Impl_getEntryLT_x3f_go_match__1_splitter___redArg(v_x_17__boxed_2674_, v_h__1_2672_, v_h__2_2673_);
+uint8_t v_x_13__boxed_2674_; lean_object* v_res_2675_; 
+v_x_13__boxed_2674_ = lean_unbox(v_x_2671_);
+v_res_2675_ = l___private_Std_Data_DTreeMap_Internal_Model_0__Std_DTreeMap_Internal_Impl_getEntryLT_x3f_go_match__1_splitter___redArg(v_x_13__boxed_2674_, v_h__1_2672_, v_h__2_2673_);
 return v_res_2675_;
 }
 }
@@ -6415,9 +6415,9 @@ return v___x_2683_;
 LEAN_EXPORT lean_object* l___private_Std_Data_DTreeMap_Internal_Model_0__Std_DTreeMap_Internal_Impl_getEntryLT_x3f_go_match__1_splitter___boxed(lean_object* v_motive_2684_, lean_object* v_x_2685_, lean_object* v_h__1_2686_, lean_object* v_h__2_2687_){
 _start:
 {
-uint8_t v_x_28__boxed_2688_; lean_object* v_res_2689_; 
-v_x_28__boxed_2688_ = lean_unbox(v_x_2685_);
-v_res_2689_ = l___private_Std_Data_DTreeMap_Internal_Model_0__Std_DTreeMap_Internal_Impl_getEntryLT_x3f_go_match__1_splitter(v_motive_2684_, v_x_28__boxed_2688_, v_h__1_2686_, v_h__2_2687_);
+uint8_t v_x_24__boxed_2688_; lean_object* v_res_2689_; 
+v_x_24__boxed_2688_ = lean_unbox(v_x_2685_);
+v_res_2689_ = l___private_Std_Data_DTreeMap_Internal_Model_0__Std_DTreeMap_Internal_Impl_getEntryLT_x3f_go_match__1_splitter(v_motive_2684_, v_x_24__boxed_2688_, v_h__1_2686_, v_h__2_2687_);
 return v_res_2689_;
 }
 }
@@ -7313,11 +7313,13 @@ lean_object* runtime_initialize_Std_Data_DTreeMap_Internal_WF_Defs(uint8_t built
 lean_object* runtime_initialize_Std_Data_DTreeMap_Internal_Cell(uint8_t builtin);
 lean_object* runtime_initialize_Init_Data_Nat_Internal_Linear(uint8_t builtin);
 lean_object* runtime_initialize_Init_Omega(uint8_t builtin);
+void lean_initialize_runtime_module();
 static bool _G_runtime_initialized = false;
 LEAN_EXPORT lean_object* runtime_initialize_Std_Data_DTreeMap_Internal_Model(uint8_t builtin) {
 lean_object * res;
 if (_G_runtime_initialized) return lean_io_result_mk_ok(lean_box(0));
 _G_runtime_initialized = true;
+lean_initialize_runtime_module();
 res = runtime_initialize_Std_Data_DTreeMap_Internal_WF_Defs(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);

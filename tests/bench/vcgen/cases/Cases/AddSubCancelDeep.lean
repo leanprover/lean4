@@ -5,11 +5,11 @@ import Std.Tactic.Do
 Same loop as `AddSubCancel` but threaded through a deep monad transformer stack.
 -/
 
-open Lean Parser Meta Elab Tactic Sym Lean.Order Std.Internal.Do
+open Lean Parser Meta Elab Tactic Sym Lean.Order Std.WP
 
 namespace AddSubCancelDeep
 
-set_option mvcgen.warning false
+set_option experimental.vcgen true
 
 abbrev M := ExceptT String <| ReaderT String <| ExceptT Nat <| StateT Nat <| ExceptT Unit <| StateM Unit
 

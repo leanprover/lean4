@@ -1,5 +1,5 @@
 import Std.Tactic.Do
-import Std.Internal.Do
+import Std.WP
 
 /-!
 Regression test for `vcgen`'s spec backward-rule cache. The rule built from an equality spec must
@@ -9,7 +9,7 @@ whose unfolding produces the recursive call `recf 2` handled by the same equatio
 next one.
 -/
 
-set_option mvcgen.warning false
+set_option experimental.vcgen true
 
 def recf (n : Nat) : Id Nat :=
   match n with | 0 => pure 1 | n + 1 => recf n
@@ -21,7 +21,7 @@ def myid2 (a : α) : Id α :=
   pure a
 
 section
-open Lean.Order Std.Internal.Do
+open Lean.Order Std.WP
 
 -- The same equation `recf.eq_2` matches both `recf 3` and the recursive call `recf 2`.
 example : ⦃ True ⦄ recf 3 ⦃ fun r => r > 0 ⦄ := by

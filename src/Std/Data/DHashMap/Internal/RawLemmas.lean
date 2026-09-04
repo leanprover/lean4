@@ -3308,6 +3308,11 @@ theorem isEmpty_inter_iff [EquivBEq α] [LawfulHashable α] (h₁ : m₁.val.WF)
     (m₁.inter m₂).1.isEmpty ↔ ∀ k, m₁.contains k → m₂.contains k = false := by
   simp_to_model [inter, contains, isEmpty] using List.isEmpty_filter_containsKey_iff
 
+theorem isEmpty_inter_comm [EquivBEq α] [LawfulHashable α]
+    (h₁ : m₁.val.WF) (h₂ : m₂.val.WF) :
+    (m₁.inter m₂).1.isEmpty = (m₂.inter m₁).1.isEmpty := by
+  simp_to_model [inter, contains, isEmpty] using List.isEmpty_filter_containsKey_comm
+
 end Inter
 namespace Const
 

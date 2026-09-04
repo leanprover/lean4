@@ -563,7 +563,7 @@ v_mctx_162_ = lean_ctor_get(v___x_161_, 0);
 lean_inc_ref(v_mctx_162_);
 lean_dec(v___x_161_);
 v_lctx_163_ = lean_ctor_get(v___y_154_, 2);
-v_options_164_ = lean_ctor_get(v___y_156_, 2);
+v_options_164_ = lean_ctor_get(v___y_156_, 1);
 lean_inc_ref(v_options_164_);
 lean_inc_ref(v_lctx_163_);
 v___x_165_ = lean_alloc_ctor(0, 4, 0);
@@ -595,7 +595,7 @@ LEAN_EXPORT lean_object* l_Lean_throwError___at___00Lean_Elab_Do_elabDoBreak_spe
 _start:
 {
 lean_object* v_ref_181_; lean_object* v___x_182_; lean_object* v_a_183_; lean_object* v___x_185_; uint8_t v_isShared_186_; uint8_t v_isSharedCheck_191_; 
-v_ref_181_ = lean_ctor_get(v___y_178_, 5);
+v_ref_181_ = lean_ctor_get(v___y_178_, 4);
 v___x_182_ = l_Lean_addMessageContextFull___at___00Lean_throwError___at___00Lean_Elab_Do_elabDoBreak_spec__0_spec__0(v_msg_175_, v___y_176_, v___y_177_, v___y_178_, v___y_179_);
 v_a_183_ = lean_ctor_get(v___x_182_, 0);
 v_isSharedCheck_191_ = !lean_is_exclusive(v___x_182_);
@@ -1072,11 +1072,13 @@ return v_res_394_;
 }
 }
 lean_object* runtime_initialize_Lean_Elab_Do_Basic(uint8_t builtin);
+void lean_initialize_runtime_module();
 static bool _G_runtime_initialized = false;
 LEAN_EXPORT lean_object* runtime_initialize_Lean_Elab_BuiltinDo_Jump(uint8_t builtin) {
 lean_object * res;
 if (_G_runtime_initialized) return lean_io_result_mk_ok(lean_box(0));
 _G_runtime_initialized = true;
+lean_initialize_runtime_module();
 res = runtime_initialize_Lean_Elab_Do_Basic(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);

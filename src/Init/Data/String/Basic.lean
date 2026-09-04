@@ -783,7 +783,7 @@ If `b`'s offset is greater than or equal to that of `e`, then the resulting stri
 
 If possible, prefer `String.slice`, which avoids the allocation.
 -/
-@[extern "lean_string_utf8_extract"]
+@[extern "lean_string_utf8_extract_fast"]
 def extract {s : @& String} (b e : @& s.Pos) : String where
   toByteArray := s.toByteArray.extract b.offset.byteIdx e.offset.byteIdx
   isValidUTF8 := b.isValidUTF8_extract e
@@ -1902,7 +1902,7 @@ def Pos.Raw.utf8GetAux? : List Char → Pos.Raw → Pos.Raw → Option Char
   | [],    _, _ => none
   | c::cs, i, p => if i = p then some c else utf8GetAux? cs (i + c) p
 
-@[deprecated Pos.Raw.utf8GetAux (since := "2025-10-09")]
+@[deprecated Pos.Raw.utf8GetAux +typeChanged (since := "2025-10-09")]
 abbrev utf8GetAux? : List Char → Pos.Raw → Pos.Raw → Option Char :=
   Pos.Raw.utf8GetAux?
 
@@ -2997,17 +2997,17 @@ The result is `""` if the start position is greater than or equal to the end pos
 start position is at the end of the string. If either position is invalid (that is, if either points
 at the middle of a multi-byte UTF-8 character) then the result is unspecified.
 
-This is a legacy function. The recommended alternative is `String.Pos.extract`, but usually
+This is a legacy function. The recommended alternative is `String.extract`, but usually
 it is even better to operate on `String.Slice` instead and call `String.Slice.copy` (only) if
 required.
 
 Examples:
-* `"red green blue".extract ⟨0⟩ ⟨3⟩ = "red"`
-* `"red green blue".extract ⟨3⟩ ⟨0⟩ = ""`
-* `"red green blue".extract ⟨0⟩ ⟨100⟩ = "red green blue"`
-* `"red green blue".extract ⟨4⟩ ⟨100⟩ = "green blue"`
-* `"L∃∀N".extract ⟨1⟩ ⟨2⟩ = "∃∀N"`
-* `"L∃∀N".extract ⟨2⟩ ⟨100⟩ = ""`
+* `String.Pos.Raw.extract "red green blue" ⟨0⟩ ⟨3⟩ = "red"`
+* `String.Pos.Raw.extract "red green blue" ⟨3⟩ ⟨0⟩ = ""`
+* `String.Pos.Raw.extract "red green blue" ⟨0⟩ ⟨100⟩ = "red green blue"`
+* `String.Pos.Raw.extract "red green blue" ⟨4⟩ ⟨100⟩ = "green blue"`
+* `String.Pos.Raw.extract "L∃∀N" ⟨1⟩ ⟨2⟩ = "∃∀N"`
+* `String.Pos.Raw.extract "L∃∀N" ⟨2⟩ ⟨100⟩ = ""`
 -/
 @[extern "lean_string_utf8_extract", expose]
 def Pos.Raw.extract : (@& String) → (@& Pos.Raw) → (@& Pos.Raw) → String

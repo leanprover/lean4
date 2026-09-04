@@ -365,7 +365,7 @@ v_mctx_104_ = lean_ctor_get(v___x_103_, 0);
 lean_inc_ref(v_mctx_104_);
 lean_dec(v___x_103_);
 v_lctx_105_ = lean_ctor_get(v___y_96_, 2);
-v_options_106_ = lean_ctor_get(v___y_98_, 2);
+v_options_106_ = lean_ctor_get(v___y_98_, 1);
 lean_inc_ref(v_options_106_);
 lean_inc_ref(v_lctx_105_);
 v___x_107_ = lean_alloc_ctor(0, 4, 0);
@@ -397,7 +397,7 @@ LEAN_EXPORT lean_object* l_Lean_throwError___at___00Lean_Elab_Tactic_evalSymm_sp
 _start:
 {
 lean_object* v_ref_123_; lean_object* v___x_124_; lean_object* v_a_125_; lean_object* v___x_127_; uint8_t v_isShared_128_; uint8_t v_isSharedCheck_133_; 
-v_ref_123_ = lean_ctor_get(v___y_120_, 5);
+v_ref_123_ = lean_ctor_get(v___y_120_, 4);
 v___x_124_ = l_Lean_addMessageContextFull___at___00Lean_throwError___at___00Lean_Elab_Tactic_evalSymm_spec__0_spec__0(v_msg_117_, v___y_118_, v___y_119_, v___y_120_, v___y_121_);
 v_a_125_ = lean_ctor_get(v___x_124_, 0);
 v_isSharedCheck_133_ = !lean_is_exclusive(v___x_124_);
@@ -976,11 +976,13 @@ return v_res_475_;
 }
 lean_object* runtime_initialize_Lean_Meta_Tactic_Symm(uint8_t builtin);
 lean_object* runtime_initialize_Lean_Elab_Tactic_Location(uint8_t builtin);
+void lean_initialize_runtime_module();
 static bool _G_runtime_initialized = false;
 LEAN_EXPORT lean_object* runtime_initialize_Lean_Elab_Tactic_Symm(uint8_t builtin) {
 lean_object * res;
 if (_G_runtime_initialized) return lean_io_result_mk_ok(lean_box(0));
 _G_runtime_initialized = true;
+lean_initialize_runtime_module();
 res = runtime_initialize_Lean_Meta_Tactic_Symm(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);

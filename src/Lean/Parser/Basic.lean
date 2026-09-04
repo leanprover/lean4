@@ -1595,6 +1595,30 @@ This parser has the same arity as `p` - it just forwards the results of `p`. -/
     (fun c => if c.forbiddenTks.contains tk then c
               else { c with forbiddenTks := c.forbiddenTks.push tk }) p
 
+/-- Appends the tokens from `tks` missing from `init`; the tokens in `tks` must be distinct. -/
+private def mergeForbiddenTks (init tks : Array Token) : Array Token := Id.run do
+  -- Membership is tested on the prefix seeded from `init`, so the loop does not hold a second
+  -- reference to the original array while pushing.
+  let size := init.size
+  let mut ts := init
+  for tk in tks do
+    unless ts.any (· == tk) (stop := size) do
+      ts := ts.push tk
+  return ts
+
+/-- `withForbiddens(tks, p)` runs `p` with every token in `tks` treated as forbidden, i.e. the
+combined effect of nesting `withForbidden` for each token (see `withForbidden`). The tokens in
+`tks` must be distinct.
+
+This parser has the same arity as `p` - it just forwards the results of `p`. -/
+@[builtin_doc] def withForbiddens (tks : Array Token) (p : Parser)
+    (_h : tks.toList.Nodup := by decide) : Parser :=
+  adaptCacheableContext (fun c =>
+    if c.forbiddenTks.isEmpty then
+      { c with forbiddenTks := tks }
+    else
+      { c with forbiddenTks := mergeForbiddenTks c.forbiddenTks tks }) p
+
 /-- `withoutForbidden(p)` runs `p` disabling the "forbidden token" (see `withForbidden`), if any.
 This is usually used by bracketing constructs like `(...)` because there is no parsing ambiguity
 inside these nested constructs.

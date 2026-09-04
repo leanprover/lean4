@@ -283,8 +283,8 @@ LEAN_EXPORT lean_object* l_Lean_Elab_WF_applyCleanWfTactic(lean_object* v_a_103_
 _start:
 {
 lean_object* v_options_112_; lean_object* v_ref_113_; lean_object* v___x_114_; uint8_t v___x_115_; 
-v_options_112_ = lean_ctor_get(v_a_109_, 2);
-v_ref_113_ = lean_ctor_get(v_a_109_, 5);
+v_options_112_ = lean_ctor_get(v_a_109_, 1);
+v_ref_113_ = lean_ctor_get(v_a_109_, 4);
 v___x_114_ = l_Lean_Elab_WF_debug_rawDecreasingByGoal;
 v___x_115_ = l_Lean_Option_get___at___00Lean_Elab_WF_applyCleanWfTactic_spec__0(v_options_112_, v___x_114_);
 if (v___x_115_ == 0)
@@ -340,11 +340,13 @@ return v_res_143_;
 }
 }
 lean_object* runtime_initialize_Lean_Elab_Tactic_Basic(uint8_t builtin);
+void lean_initialize_runtime_module();
 static bool _G_runtime_initialized = false;
 LEAN_EXPORT lean_object* runtime_initialize_Lean_Elab_PreDefinition_WF_Basic(uint8_t builtin) {
 lean_object * res;
 if (_G_runtime_initialized) return lean_io_result_mk_ok(lean_box(0));
 _G_runtime_initialized = true;
+lean_initialize_runtime_module();
 res = runtime_initialize_Lean_Elab_Tactic_Basic(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);

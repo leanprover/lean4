@@ -76,9 +76,18 @@ a use site cannot be written without discharging it, so the preconditions
 propagate to the callers that establish them instead of being restated at each
 specification.
 
-`size_t` underflow is deliberately absent: unsigned arithmetic is defined to
-wrap modulo 2^64, and `mpn.cpp` leans on that, using counters that wrap to
-`(size_t)-1` as the termination sentinel of a downward loop.
+`size_t` is `Nat` here, on the assumption that no digit count reaches `2^64`;
+the sums that could pass it, such as `lnum + 1`, are not modelled as wrapping.
+Subtraction is where the wrap below zero matters, and `mpn.cpp` meets it in two
+ways. A downward loop that runs its counter to `(size_t)-1`, the sentinel that
+stops it, is written over `List.range` reversed, which visits the same indices.
+Everywhere else the wrap would send the next read out of bounds, and the C++
+guards the subtraction, by a branch or by a precondition it asserts; `sub` takes
+that guard as its hypothesis, so the truncation `Nat` would perform instead
+cannot go unnoticed. No `size_t` is narrowed to `unsigned` inside `mpn.cpp`.
+Where the object layer narrows one, in the shift amount and exponent it hands
+to `mpz`, the `mpz` operation takes a `UInt32`, so the narrowing is a
+`UInt32.ofNat` at the call site that its specification has to show lossless.
 
 Out-of-range indexing is undefined too, but it is not here: its bound is a fact
 about the algorithm rather than about the operation, so a buffer a caller owns
@@ -111,6 +120,13 @@ namespace CPP
 
 /-- `a % b` on `unsigned int`. -/
 @[simp] def mod (a b : UInt32) (_h : b ≠ 0) : UInt32 := a % b
+
+/--
+`a - b` on `size_t`, which wraps below zero; the hypothesis is the guard that
+rules it out. Reducible because it reaches the `Decidable` instances of the
+comparisons it feeds, which unification only sees through at that transparency.
+-/
+@[simp, reducible] def sub (a b : Nat) (_h : b ≤ a) : Nat := a - b
 
 end CPP
 
@@ -428,11 +444,14 @@ def compare (a b : Array Digit) : Int := Id.run do
     size_t &os = *plngc;
     for (os = len+1; os > 1 && c[os-1] == 0; ) os--;
 ```
+`&&` short-circuits, so `c[os-1]` is read only under `os > 1`. The loop is
+written with that guard as its condition, so that `h` reaches the read, and the
+second conjunct as the `break` it amounts to.
 -/
 def trim (c : Array Digit) : Array Digit := Id.run do
   let mut c := c
-  while 1 < c.size && c.getD (c.size - 1) 0 == 0 do
-    c := c.pop
+  while h : 1 < c.size do
+    if c.getD (CPP.sub c.size 1 (by omega)) 0 == 0 then c := c.pop else break
   return c
 
 /--
@@ -739,8 +758,9 @@ def shiftLeftDigits (a : Array Digit) (d len : Nat) (hd : d < digitBits) : Array
     out := out.set i.val (
       if h : d = 0 then a.getD i.val 0
       else CPP.shl (a.getD i.val 0) d hd |||
-        (if i.val == 0 then 0
-         else CPP.shr (a.getD (i.val-1) 0) (digitBits - d) (sub_digitBits_lt (by omega)))) i.isLt
+        (if h0 : i.val = 0 then 0
+         else CPP.shr (a.getD (CPP.sub i.val 1 (Nat.pos_of_ne_zero h0)) 0)
+           (CPP.sub digitBits d (Nat.le_of_lt hd)) (sub_digitBits_lt (by omega)))) i.isLt
   return out.toArray
 
 /-- The loop as the map its proofs read digitwise. -/
@@ -748,14 +768,16 @@ theorem shiftLeftDigits_eq (a : Array Digit) (d len : Nat) (hd : d < digitBits) 
     shiftLeftDigits a d len hd = (Array.range len).map (fun i =>
       if h : d = 0 then a.getD i 0
       else CPP.shl (a.getD i 0) d hd |||
-        (if i == 0 then 0
-         else CPP.shr (a.getD (i-1) 0) (digitBits - d) (sub_digitBits_lt (by omega)))) := by
+        (if h0 : i = 0 then 0
+         else CPP.shr (a.getD (CPP.sub i 1 (Nat.pos_of_ne_zero h0)) 0)
+           (CPP.sub digitBits d (Nat.le_of_lt hd)) (sub_digitBits_lt (by omega)))) := by
   unfold shiftLeftDigits
   exact shiftLoop_eq (fun i =>
     if h : d = 0 then a.getD i 0
     else CPP.shl (a.getD i 0) d hd |||
-      (if i == 0 then 0
-       else CPP.shr (a.getD (i-1) 0) (digitBits - d) (sub_digitBits_lt (by omega)))) len
+      (if h0 : i = 0 then 0
+       else CPP.shr (a.getD (CPP.sub i 1 (Nat.pos_of_ne_zero h0)) 0)
+         (CPP.sub digitBits d (Nat.le_of_lt hd)) (sub_digitBits_lt (by omega)))) len
 
 theorem size_shiftLeftDigits (a : Array Digit) (d len : Nat) (hd : d < digitBits) :
     (shiftLeftDigits a d len hd).size = len := by simp [shiftLeftDigits_eq]
@@ -823,7 +845,8 @@ def divNormalize (numer denom : Array Digit) :
   let lnum := numer.size
   let lden := denom.size
   let d : Fin digitBits :=
-    if lden = 0 then ⟨0, by simp [digitBits_eq]⟩ else leadingZeros (denom.getD (lden - 1) 0)
+    if h : lden = 0 then ⟨0, by simp [digitBits_eq]⟩
+    else leadingZeros (denom.getD (CPP.sub lden 1 (Nat.pos_of_ne_zero h)) 0)
   if lnum = 0 && d.val ≠ 0 then
     (⟨0, by simp [digitBits_eq]⟩, Array.replicate (lnum + 1) 0, Array.replicate lden 0)
   else
@@ -840,6 +863,12 @@ private theorem divNormalize_eq (numer denom : Array Digit) (hnum : 0 < numer.si
          (leadingZeros (denom.getD (denom.size - 1) 0)).isLt) := by
   simp [divNormalize, Nat.ne_of_gt hden, Nat.ne_of_gt hnum]
 
+
+/-- Normalization gives the numerator one more digit. -/
+theorem divNormalize_size_numer (numer denom : Array Digit) (hnum : 0 < numer.size)
+    (hden : 0 < denom.size) : (divNormalize numer denom).2.1.size = numer.size + 1 := by
+  rw [divNormalize_eq numer denom hnum hden]
+  exact size_shiftLeftDigits ..
 
 /-- Normalization does not change the denominator's length. -/
 theorem divNormalize_size_denom (numer denom : Array Digit) (hnum : 0 < numer.size)
@@ -870,8 +899,9 @@ theorem divNormalize_top_pos (numer denom : Array Digit) (hnum : 0 < numer.size)
 Undefined for `N == 0`, where both shifts are by the operand width, so the
 positivity of `d` is taken here rather than assumed by the callers.
 -/
-def lastBits (x : Digit) (d : Nat) (hd : 0 < d) : Digit :=
-  CPP.shr (CPP.shl x (digitBits - d) (sub_digitBits_lt hd)) (digitBits - d) (sub_digitBits_lt hd)
+def lastBits (x : Digit) (d : Nat) (hd0 : 0 < d) (hd : d < digitBits) : Digit :=
+  CPP.shr (CPP.shl x (CPP.sub digitBits d (Nat.le_of_lt hd)) (sub_digitBits_lt hd0))
+    (CPP.sub digitBits d (Nat.le_of_lt hd)) (sub_digitBits_lt hd0)
 
 /--
 `len` digits of `a` shifted right by `d` bits, which is `div_unnormalize`'s
@@ -892,8 +922,8 @@ def shiftRightDigits (a : Array Digit) (d len : Nat) (hd : d < digitBits) : Arra
       if h : d = 0 then a.getD i.val 0
       else CPP.shr (a.getD i.val 0) d hd |||
         (if i.val + 1 == len then 0
-         else CPP.shl (lastBits (a.getD (i.val+1) 0) d (by omega)) (digitBits - d)
-                (sub_digitBits_lt (by omega)))) i.isLt
+         else CPP.shl (lastBits (a.getD (i.val+1) 0) d (by omega) hd)
+                (CPP.sub digitBits d (Nat.le_of_lt hd)) (sub_digitBits_lt (by omega)))) i.isLt
   return out.toArray
 
 /--
@@ -931,22 +961,24 @@ One iteration of `div_1`'s loop, dividing the two-digit window at `j` by `denom`
 The three `set!` write `numer[j-1]`, `numer[j]` and `quot[j-1]`. They are in
 range for the buffer sizes `div1Loop_spec` maintains, so the out-of-range no-op
 `set!` would fall to is never reached; that bound lives in the specification, as
-the module docstring describes, not in the type here.
+the module docstring describes, not in the type here. `j > 0` is the loop's
+condition, which `hj` carries into the step for its `j-1`.
 -/
 def div1Step (denom : Digit) (hden : denom.toUInt64 ≠ 0)
-    (s : Array Digit × Array Digit) (j : Nat) : Array Digit × Array Digit :=
+    (s : Array Digit × Array Digit) (j : Nat) (hj : 0 < j) : Array Digit × Array Digit :=
   let (u, quot) := s
-  let temp : DoubleDigit := ((u.getD j 0).toUInt64 <<< 32) ||| (u.getD (j-1) 0).toUInt64
+  let temp : DoubleDigit := ((u.getD j 0).toUInt64 <<< 32) ||| (u.getD (CPP.sub j 1 hj) 0).toUInt64
   let q_hat := CPP.divD temp denom.toUInt64 hden
   let ms := temp - q_hat * denom.toUInt64
   let borrow := ms > temp
-  let u := u.set! (j-1) (lo ms)
+  let u := u.set! (CPP.sub j 1 hj) (lo ms)
   let u := u.set! j (hi ms)
-  let quot := quot.set! (j-1) (lo q_hat)
+  let quot := quot.set! (CPP.sub j 1 hj) (lo q_hat)
   if borrow then
     -- NOTE: dead. `ms` is `temp % denom`, which cannot exceed `temp`, and
     -- `q_hat * denom` cannot overflow because `q_hat` is `temp / denom`.
-    (u.set! j ((u.getD (j-1) 0) + denom), quot.set! (j-1) ((quot.getD (j-1) 0) - 1))
+    (u.set! j ((u.getD (CPP.sub j 1 hj) 0) + denom),
+     quot.set! (CPP.sub j 1 hj) ((quot.getD (CPP.sub j 1 hj) 0) - 1))
   else (u, quot)
 
 /--
@@ -962,13 +994,14 @@ static void div_1(mpn_buffer & numer, mpn_digit const denom,
 }
 ```
 `quot` is a caller-supplied buffer of `numer.size() - 1` digits, allocated here
-as the second component of the state.
+as the second component of the state. That length needs a nonempty numerator,
+which `hn` records; `mpn_div` passes `lnum + 1` digits.
 -/
-def div1 (numer : Array Digit) (denom : Digit) (hden : denom.toUInt64 ≠ 0) :
-    Array Digit × Array Digit := Id.run do
-  let mut s := (numer, Array.replicate (numer.size - 1) 0)
-  for j in (List.range (numer.size - 1)).reverse do
-    s := div1Step denom hden s (j+1)
+def div1 (numer : Array Digit) (denom : Digit) (hden : denom.toUInt64 ≠ 0)
+    (hn : 0 < numer.size) : Array Digit × Array Digit := Id.run do
+  let mut s := (numer, Array.replicate (CPP.sub numer.size 1 hn) 0)
+  for j in (List.range (CPP.sub numer.size 1 hn)).reverse do
+    s := div1Step denom hden s (j+1) (Nat.succ_pos j)
   return s
 
 /--
@@ -1026,20 +1059,19 @@ The trial quotient digit `div_n` forms for the window at `j`, after step D3:
         q_hat = temp / (mpn_double_digit) denom[n-1];
         r_hat = temp % (mpn_double_digit) denom[n-1];
 ```
-NOTE: `n-2` is truncated subtraction here, so a denominator shorter than two
-digits reads `denom[0]` twice, where `div_n` underflows `n-2` in `size_t` and
-reads out of bounds. Neither is reached: `mpn_div` sends `lden == 1` to `div_1`,
-`div_n` asserts `denom.size() > 1`, and `divN_spec` assumes `denom.size = k+2`.
+`div_n` asserts `denom.size() > 1`, which is what keeps `n-2` from wrapping;
+`h2` carries it, and `mpn_div` establishes it by sending `lden == 1` to `div_1`.
 -/
 def divNTrial (denom u : Array Digit) (hv : (denom.getD (denom.size - 1) 0).toUInt64 ≠ 0)
-    (j : Nat) : Digit :=
+    (h2 : 2 ≤ denom.size) (j : Nat) : Digit :=
   let n := denom.size
   let temp : DoubleDigit :=
-    ((u.getD (j+n) 0).toUInt64 <<< 32) ||| (u.getD (j+n-1) 0).toUInt64
-  let dn1 := (denom.getD (n-1) 0).toUInt64
+    ((u.getD (j+n) 0).toUInt64 <<< 32) ||| (u.getD (CPP.sub (j+n) 1 (by omega)) 0).toUInt64
+  let dn1 := (denom.getD (CPP.sub n 1 (by omega)) 0).toUInt64
   let q_hat := CPP.divD temp dn1 hv
   let r_hat := CPP.modD temp dn1 hv
-  lo (recheck (denom.getD (n-1) 0) (denom.getD (n-2) 0) (u.getD (j+n-2) 0) q_hat r_hat).1
+  lo (recheck (denom.getD (CPP.sub n 1 (by omega)) 0) (denom.getD (CPP.sub n 2 h2) 0)
+    (u.getD (CPP.sub (j+n) 2 (by omega)) 0) q_hat r_hat).1
 
 /--
 One iteration of `div_n`'s outer loop, producing quotient digit `j`:
@@ -1067,10 +1099,11 @@ established there rather than here, and no `set!` falls to its out-of-range
 no-op.
 -/
 def divNStep (denom : Array Digit) (hv : (denom.getD (denom.size - 1) 0).toUInt64 ≠ 0)
-    (s : Array Digit × Array Digit) (j : Nat) : Array Digit × Array Digit :=
+    (h2 : 2 ≤ denom.size) (s : Array Digit × Array Digit) (j : Nat) :
+    Array Digit × Array Digit :=
   let (u, quot) := s
   let n := denom.size
-  let q_hat_small := divNTrial denom u hv j
+  let q_hat_small := divNTrial denom u hv h2 j
   let ms := mul #[q_hat_small] denom
   let (u, borrow) := subInPlace u ms j (n+1)
   if borrow != 0 then
@@ -1096,13 +1129,16 @@ static void div_n(mpn_buffer & numer, mpn_buffer const & denom,
 ```
 `quot` is a caller-supplied buffer of `m` digits, allocated here as the second
 component of the state. `ms` and `ab` are scratch buffers that `divNStep`
-produces as values instead.
+produces as values instead. `m` is a `size_t` difference: `hsz` is the
+precondition `mpn_div` asserts that keeps it from wrapping, and `h2` is the
+assertion quoted above, which `divNTrial` needs for `denom[n-2]`.
 -/
-def divN (numer denom : Array Digit) (hv : (denom.getD (denom.size - 1) 0).toUInt64 ≠ 0) :
+def divN (numer denom : Array Digit) (hv : (denom.getD (denom.size - 1) 0).toUInt64 ≠ 0)
+    (h2 : 2 ≤ denom.size) (hsz : denom.size ≤ numer.size) :
     Array Digit × Array Digit := Id.run do
-  let mut s := (numer, Array.replicate (numer.size - denom.size) 0)
-  for j in (List.range (numer.size - denom.size)).reverse do
-    s := divNStep denom hv s j
+  let mut s := (numer, Array.replicate (CPP.sub numer.size denom.size hsz) 0)
+  for j in (List.range (CPP.sub numer.size denom.size hsz)).reverse do
+    s := divNStep denom hv h2 s j
   return s
 
 /--
@@ -1147,10 +1183,14 @@ branch dead, which is why it is `absurd` here.
       simp at htop
     (#[CPP.div (numer.getD 0 0) (denom.getD 0 0) h1],
      #[CPP.mod (numer.getD 0 0) (denom.getD 0 0) h1])
-  else if lnum = lden && numer.getD (lnum-1) 0 < denom.getD (lden-1) 0 then
-    (Array.replicate (lnum - lden + 1) 0, (Array.range lden).map fun i => numer.getD i 0)
+  else if lnum = lden && numer.getD (CPP.sub lnum 1 (by show 1 ≤ numer.size; omega)) 0
+      < denom.getD (CPP.sub lden 1 hden) 0 then
+    (Array.replicate (CPP.sub lnum lden hsz + 1) 0,
+     (Array.range lden).map fun i => numer.getD i 0)
   else
     have hnum : 0 < numer.size := by omega
+    have husz : (divNormalize numer denom).2.1.size = numer.size + 1 :=
+      divNormalize_size_numer numer denom hnum hden
     have hvsz : (divNormalize numer denom).2.2.size = denom.size :=
       divNormalize_size_denom numer denom hnum hden
     -- one obligation serves both arms: with `lden = 1` the top digit is digit 0
@@ -1161,8 +1201,15 @@ branch dead, which is why it is `absurd` here.
     let d := (divNormalize numer denom).1
     let u := (divNormalize numer denom).2.1
     let v := (divNormalize numer denom).2.2
-    let (u, q) := if lden = 1 then div1 u (v.getD (v.size - 1) 0) hnz else divN u v hnz
-    let quot := copyInto (Array.replicate (lnum - lden + 1) 0) q 0 (min q.size (lnum - lden + 1))
+    let (u, q) :=
+      if h1 : lden = 1 then
+        div1 u (v.getD (v.size - 1) 0) hnz (by show 0 < (divNormalize numer denom).2.1.size; omega)
+      else
+        divN u v hnz
+          (by have h1' : denom.size ≠ 1 := h1; show 2 ≤ (divNormalize numer denom).2.2.size; omega)
+          (by show (divNormalize numer denom).2.2.size ≤ (divNormalize numer denom).2.1.size; omega)
+    let quot := copyInto (Array.replicate (CPP.sub lnum lden hsz + 1) 0) q 0
+      (min q.size (CPP.sub lnum lden hsz + 1))
     (quot, divUnnormalize u lden d.val d.isLt)
 
 end MpnModel
@@ -1248,15 +1295,16 @@ private def div1Loop (denom : Digit) (hden : denom.toUInt64 ≠ 0) (u quot : Arr
     (m : Nat) : Array Digit × Array Digit := Id.run do
   let mut s := (u, quot)
   for j in (List.range m).reverse do
-    s := div1Step denom hden s (j+1)
+    s := div1Step denom hden s (j+1) (Nat.succ_pos j)
   return s
 
 /-- The loop above with its buffers and length free, so that `divN_spec` can induct on it. -/
 private def divNLoop (denom : Array Digit) (hv : (denom.getD (denom.size - 1) 0).toUInt64 ≠ 0)
-    (u quot : Array Digit) (m : Nat) : Array Digit × Array Digit := Id.run do
+    (h2 : 2 ≤ denom.size) (u quot : Array Digit) (m : Nat) : Array Digit × Array Digit :=
+    Id.run do
   let mut s := (u, quot)
   for j in (List.range m).reverse do
-    s := divNStep denom hv s j
+    s := divNStep denom hv h2 s j
   return s
 
 
@@ -1302,21 +1350,22 @@ theorem shiftRightDigits_eq (a : Array Digit) (d len : Nat) (hd : d < digitBits)
       if h : d = 0 then a.getD i 0
       else CPP.shr (a.getD i 0) d hd |||
         (if i + 1 == len then 0
-         else CPP.shl (lastBits (a.getD (i+1) 0) d (by omega)) (digitBits - d)
-                (sub_digitBits_lt (by omega)))) := by
+         else CPP.shl (lastBits (a.getD (i+1) 0) d (by omega) hd)
+                (CPP.sub digitBits d (Nat.le_of_lt hd)) (sub_digitBits_lt (by omega)))) := by
   unfold shiftRightDigits
   exact shiftLoop_eq (fun i =>
     if h : d = 0 then a.getD i 0
     else CPP.shr (a.getD i 0) d hd |||
       (if i + 1 == len then 0
-       else CPP.shl (lastBits (a.getD (i+1) 0) d (by omega)) (digitBits - d)
-              (sub_digitBits_lt (by omega)))) len
+       else CPP.shl (lastBits (a.getD (i+1) 0) d (by omega) hd)
+              (CPP.sub digitBits d (Nat.le_of_lt hd)) (sub_digitBits_lt (by omega)))) len
 
 /-- The loop as the descending recursion its proof inducts over. -/
 theorem div1Loop_eq (denom : Digit) (hden : denom.toUInt64 ≠ 0) (u quot : Array Digit)
     (m : Nat) :
     div1Loop denom hden u quot m
-      = (List.range m).reverse.foldl (fun s j => div1Step denom hden s (j+1)) (u, quot) := by
+      = (List.range m).reverse.foldl (fun s j => div1Step denom hden s (j+1) (Nat.succ_pos j))
+          (u, quot) := by
   simp [div1Loop, Id.run]
   rfl
 
@@ -1324,8 +1373,8 @@ theorem div1Loop_eq (denom : Digit) (hden : denom.toUInt64 ≠ 0) (u quot : Arra
 theorem div1Loop_succ (denom : Digit) (hden : denom.toUInt64 ≠ 0) (u quot : Array Digit)
     (m : Nat) :
     div1Loop denom hden u quot (m+1)
-      = div1Loop denom hden (div1Step denom hden (u, quot) (m+1)).1
-          (div1Step denom hden (u, quot) (m+1)).2 m := by
+      = div1Loop denom hden (div1Step denom hden (u, quot) (m+1) (Nat.succ_pos m)).1
+          (div1Step denom hden (u, quot) (m+1) (Nat.succ_pos m)).2 m := by
   rw [div1Loop_eq, div1Loop_eq, List.range_succ, List.reverse_append]
   simp
 
@@ -1336,25 +1385,26 @@ theorem copyInto_succ (dst src : Array Digit) (j len : Nat) :
   rfl
 
 /-- `div_n` is its outer loop over a zeroed quotient buffer. -/
-theorem divN_eq (numer denom : Array Digit) (hv : (denom.getD (denom.size - 1) 0).toUInt64 ≠ 0) :
-    divN numer denom hv
-      = divNLoop denom hv numer (Array.replicate (numer.size - denom.size) 0)
+theorem divN_eq (numer denom : Array Digit) (hv : (denom.getD (denom.size - 1) 0).toUInt64 ≠ 0)
+    (h2 : 2 ≤ denom.size) (hsz : denom.size ≤ numer.size) :
+    divN numer denom hv h2 hsz
+      = divNLoop denom hv h2 numer (Array.replicate (numer.size - denom.size) 0)
           (numer.size - denom.size) := rfl
 
 /-- The loop as the descending recursion its proof inducts over. -/
 theorem divNLoop_eq (denom : Array Digit) (hv : (denom.getD (denom.size - 1) 0).toUInt64 ≠ 0)
-    (u quot : Array Digit) (m : Nat) :
-    divNLoop denom hv u quot m
-      = (List.range m).reverse.foldl (fun s j => divNStep denom hv s j) (u, quot) := by
+    (h2 : 2 ≤ denom.size) (u quot : Array Digit) (m : Nat) :
+    divNLoop denom hv h2 u quot m
+      = (List.range m).reverse.foldl (fun s j => divNStep denom hv h2 s j) (u, quot) := by
   simp [divNLoop, Id.run]
   rfl
 
 /-- One step of it, peeled off the top as `div_n` counts down. -/
 theorem divNLoop_succ (denom : Array Digit) (hv : (denom.getD (denom.size - 1) 0).toUInt64 ≠ 0)
-    (u quot : Array Digit) (m : Nat) :
-    divNLoop denom hv u quot (m+1)
-      = divNLoop denom hv (divNStep denom hv (u, quot) m).1
-          (divNStep denom hv (u, quot) m).2 m := by
+    (h2 : 2 ≤ denom.size) (u quot : Array Digit) (m : Nat) :
+    divNLoop denom hv h2 u quot (m+1)
+      = divNLoop denom hv h2 (divNStep denom hv h2 (u, quot) m).1
+          (divNStep denom hv h2 (u, quot) m).2 m := by
   rw [divNLoop_eq, divNLoop_eq, List.range_succ, List.reverse_append]
   simp
 
@@ -1971,9 +2021,9 @@ theorem divNormalize_spec (numer denom : Array Digit) (hnum : 0 < numer.size)
 /-! ## Correctness of `div_unnormalize` -/
 
 theorem toNat_lastBits (x : Digit) {d : Nat} (hd0 : 0 < d) (hd : d < digitBits) :
-    (lastBits x d hd0).toNat = x.toNat % 2 ^ d := by
+    (lastBits x d hd0 hd).toNat = x.toNat % 2 ^ d := by
   have hd' : d < 32 := by simpa [digitBits_eq] using hd
-  simp only [lastBits, CPP.shr, CPP.shl]
+  simp only [lastBits, CPP.shr, CPP.shl, CPP.sub]
   rw [toNat_shr _ (by simp [digitBits_eq]; omega), toNat_shl _ (by simp [digitBits_eq]; omega)]
   simp only [digitBits_eq]
   have hb : base = 2 ^ d * 2 ^ (32 - d) := by
@@ -1986,7 +2036,7 @@ shift, the `|` cannot carry, since `a[i] >> d` is below `2^(32-d)` and the bits
 arriving from above are a multiple of it.
 -/
 theorem toNat_shr_or_shl (x y : Digit) {d : Nat} (hd0 : 0 < d) (hd : d < digitBits) :
-    ((x >>> (UInt32.ofNat d)) ||| (lastBits y d hd0 <<< (UInt32.ofNat (digitBits - d)))).toNat
+    ((x >>> (UInt32.ofNat d)) ||| (lastBits y d hd0 hd <<< (UInt32.ofNat (digitBits - d)))).toNat
       = x.toNat / 2 ^ d + y.toNat % 2 ^ d * 2 ^ (digitBits - d) := by
   have hx : x.toNat < 2 ^ 32 := x.toNat_lt_size
   have hlow : x.toNat / 2 ^ d < 2 ^ (digitBits - d) := by
@@ -1994,7 +2044,7 @@ theorem toNat_shr_or_shl (x y : Digit) {d : Nat} (hd0 : 0 < d) (hd : d < digitBi
     apply Nat.div_lt_of_lt_mul
     rw [← Nat.pow_add, show d + (32 - d) = 32 by omega]
     exact hx
-  have hhigh : (lastBits y d hd0 <<< (UInt32.ofNat (digitBits - d))).toNat
+  have hhigh : (lastBits y d hd0 hd <<< (UInt32.ofNat (digitBits - d))).toNat
       = (y.toNat % 2 ^ d) <<< (digitBits - d) := by
     rw [toNat_shl _ (by simp only [digitBits_eq] at hd0 ⊢; omega), toNat_lastBits y hd0 hd,
       Nat.shiftLeft_eq]
@@ -2020,7 +2070,7 @@ private theorem getD_shiftRightDigits_mid (a : Array Digit) {d len j : Nat} (hd0
     (hd : d < digitBits) (hj : j < len) (hj' : j + 1 ≠ len) :
     (shiftRightDigits a d len hd).getD j 0
       = (a.getD j 0 >>> UInt32.ofNat d) |||
-        (lastBits (a.getD (j+1) 0) d hd0 <<< UInt32.ofNat (digitBits - d)) := by
+        (lastBits (a.getD (j+1) 0) d hd0 hd <<< UInt32.ofNat (digitBits - d)) := by
   simp [shiftRightDigits_eq, Nat.ne_of_gt hd0, hj, hj']
 
 private theorem shiftRight_combine {Rj rj xj xj1 P T U B Nj lo0 : Nat}
@@ -2156,7 +2206,8 @@ private theorem div1Step_eq (denom : Digit) (u quot : Array Digit) (j : Nat)
     ∃ q r : Digit,
       q.toNat = ((u.getD (j+1) 0).toNat * base + (u.getD j 0).toNat) / denom.toNat ∧
       r.toNat = ((u.getD (j+1) 0).toNat * base + (u.getD j 0).toNat) % denom.toNat ∧
-      div1Step denom (toUInt64_ne_zero hd) (u, quot) (j+1) = ((u.set! j r).set! (j+1) 0, quot.set! j q) := by
+      div1Step denom (toUInt64_ne_zero hd) (u, quot) (j+1) (Nat.succ_pos j)
+        = ((u.set! j r).set! (j+1) 0, quot.set! j q) := by
   obtain ⟨W, hW⟩ : ∃ W : DoubleDigit,
       W = ((u.getD (j+1) 0).toUInt64 <<< 32) ||| (u.getD j 0).toUInt64 := ⟨_, rfl⟩
   have hlow : (u.getD j 0).toNat < base := (u.getD j 0).toNat_lt_size
@@ -2176,7 +2227,7 @@ private theorem div1Step_eq (denom : Digit) (u quot : Array Digit) (j : Nat)
   · rw [hq, hWn]
   · rw [hr, hWn]
   · have hnz : denom.toUInt64 ≠ 0 := toUInt64_ne_zero hd
-    simp only [div1Step, Nat.add_sub_cancel, ← hW]
+    simp only [div1Step, CPP.sub, Nat.add_sub_cancel, ← hW]
     simp [hhi, hnb]
 
 private theorem denoteN_set!_of_zero (c : Array Digit) (idx : Nat) (d : Digit)
@@ -2277,9 +2328,9 @@ same reason.
 theorem div1_spec (numer : Array Digit) (denom : Digit) (hd : 0 < denom.toNat)
     (hn : 0 < numer.size)
     (htop : (numer.getD (numer.size - 1) 0).toNat < denom.toNat) :
-    ((div1 numer denom (toUInt64_ne_zero hd)).1.getD 0 0).toNat < denom.toNat ∧
-    (div1 numer denom (toUInt64_ne_zero hd)).2.size = numer.size - 1 ∧
-    denote (div1 numer denom (toUInt64_ne_zero hd)).2 * denom.toNat + ((div1 numer denom (toUInt64_ne_zero hd)).1.getD 0 0).toNat
+    ((div1 numer denom (toUInt64_ne_zero hd) hn).1.getD 0 0).toNat < denom.toNat ∧
+    (div1 numer denom (toUInt64_ne_zero hd) hn).2.size = numer.size - 1 ∧
+    denote (div1 numer denom (toUInt64_ne_zero hd) hn).2 * denom.toNat + ((div1 numer denom (toUInt64_ne_zero hd) hn).1.getD 0 0).toNat
       = denoteN numer numer.size := by
   refine div1Loop_spec denom numer hd (numer.size - 1) numer _ rfl (by simp) (by omega)
     (fun _ _ => rfl) (fun i _ => getD_replicate_zero _ _) htop ?_
@@ -2653,8 +2704,8 @@ theorem divNTrial_spec (denom u : Array Digit) (j k : Nat)
     (hnorm : base ≤ 2 * (denom.getD (k+1) 0).toNat)
     (hsz : j + k + 3 ≤ u.size)
     (hW : denote (u.extract j (j+k+3)) < denote denom * base) :
-    denote (u.extract j (j+k+3)) / denote denom ≤ (divNTrial denom u (norm_top_ne_zero hk hnorm) j).toNat ∧
-    (divNTrial denom u (norm_top_ne_zero hk hnorm) j).toNat ≤ denote (u.extract j (j+k+3)) / denote denom + 1 := by
+    denote (u.extract j (j+k+3)) / denote denom ≤ (divNTrial denom u (norm_top_ne_zero hk hnorm) (by omega) j).toNat ∧
+    (divNTrial denom u (norm_top_ne_zero hk hnorm) (by omega) j).toNat ≤ denote (u.extract j (j+k+3)) / denote denom + 1 := by
   have hvtop1 : 1 ≤ (denom.getD (k+1) 0).toNat := by grind
   have hpk1 : 0 < base ^ (k+1) := Nat.pow_pos (by simp [base_eq])
   -- the divisor, split at its top two digits
@@ -2764,7 +2815,7 @@ theorem divNTrial_spec (denom u : Array Digit) (j k : Nat)
     ((u.getD (j+k+2) 0).toNat * base + (u.getD (j+k+1) 0).toNat)
     (denote denom) (denote (u.extract j (j+k+3)))
     hV hU hnorm hvrest hulow hu2bound hW _ _ hinv0 hrlt (by rw [hq0]; exact hle0)
-  have hdt : divNTrial denom u (norm_top_ne_zero hk hnorm) j
+  have hdt : divNTrial denom u (norm_top_ne_zero hk hnorm) (by omega) j
       = lo (recheck (denom.getD (k+1) 0) (denom.getD k 0) (u.getD (j+k) 0)
           ((((u.getD (j+k+2) 0).toUInt64 <<< 32) ||| (u.getD (j+k+1) 0).toUInt64)
             / (denom.getD (k+1) 0).toUInt64)
@@ -2821,13 +2872,13 @@ theorem divNStep_spec (denom u quot : Array Digit) (j k m : Nat)
     (hqj : quot.getD j 0 = 0)
     (hhigh : ∀ i, j + 1 + denom.size ≤ i → u.getD i 0 = 0)
     (hbound : denote u < denote denom * base ^ (j+1)) :
-    (divNStep denom (norm_top_ne_zero hk hnorm) (u, quot) j).1.size = u.size ∧
-    (divNStep denom (norm_top_ne_zero hk hnorm) (u, quot) j).2.size = m ∧
-    (∀ i, j + denom.size ≤ i → (divNStep denom (norm_top_ne_zero hk hnorm) (u, quot) j).1.getD i 0 = 0) ∧
-    (∀ i, i ≠ j → (divNStep denom (norm_top_ne_zero hk hnorm) (u, quot) j).2.getD i 0 = quot.getD i 0) ∧
-    denote (divNStep denom (norm_top_ne_zero hk hnorm) (u, quot) j).1 < denote denom * base ^ j ∧
-    denote (divNStep denom (norm_top_ne_zero hk hnorm) (u, quot) j).2 * denote denom
-        + denote (divNStep denom (norm_top_ne_zero hk hnorm) (u, quot) j).1
+    (divNStep denom (norm_top_ne_zero hk hnorm) (by omega) (u, quot) j).1.size = u.size ∧
+    (divNStep denom (norm_top_ne_zero hk hnorm) (by omega) (u, quot) j).2.size = m ∧
+    (∀ i, j + denom.size ≤ i → (divNStep denom (norm_top_ne_zero hk hnorm) (by omega) (u, quot) j).1.getD i 0 = 0) ∧
+    (∀ i, i ≠ j → (divNStep denom (norm_top_ne_zero hk hnorm) (by omega) (u, quot) j).2.getD i 0 = quot.getD i 0) ∧
+    denote (divNStep denom (norm_top_ne_zero hk hnorm) (by omega) (u, quot) j).1 < denote denom * base ^ j ∧
+    denote (divNStep denom (norm_top_ne_zero hk hnorm) (by omega) (u, quot) j).2 * denote denom
+        + denote (divNStep denom (norm_top_ne_zero hk hnorm) (by omega) (u, quot) j).1
       = denote quot * denote denom + denote u := by
   have hjs : j + denom.size + 1 = j + k + 3 := by omega
   have hsz3 : j + k + 3 ≤ u.size := by omega
@@ -2847,7 +2898,7 @@ theorem divNStep_spec (denom u quot : Array Digit) (j k m : Nat)
     exact Nat.lt_of_mul_lt_mul_right (Nat.lt_of_le_of_lt h1 (h2 ▸ hbound))
   obtain ⟨hq1, hq2⟩ := divNTrial_spec denom u j k hk hnorm hsz3 hW
   -- name the pieces of the step
-  obtain ⟨q, hq⟩ : ∃ x, x = divNTrial denom u (norm_top_ne_zero hk hnorm) j := ⟨_, rfl⟩
+  obtain ⟨q, hq⟩ : ∃ x, x = divNTrial denom u (norm_top_ne_zero hk hnorm) (by omega) j := ⟨_, rfl⟩
   obtain ⟨ms, hms⟩ : ∃ x, x = mul #[q] denom := ⟨_, rfl⟩
   obtain ⟨dw, hdw⟩ : ∃ x, x = sub (u.extract j (j + denom.size + 1)) ms := ⟨_, rfl⟩
   obtain ⟨u1, hu1⟩ : ∃ x, x = copyInto u dw.1 j (denom.size + 1) := ⟨_, rfl⟩
@@ -2858,7 +2909,7 @@ theorem divNStep_spec (denom u quot : Array Digit) (j k m : Nat)
       rw [hdw, show j + denom.size + 1 = j + (denom.size + 1) from by omega]
       exact sub_eq_subLoop _ _ _ (by simp; omega) (by rw [hms, size_mul]; exact Nat.add_comm _ _)
     rw [subInPlace_eq u ms j (denom.size + 1) (by omega), hu1, hdwl]
-  have hstep : divNStep denom (norm_top_ne_zero hk hnorm) (u, quot) j =
+  have hstep : divNStep denom (norm_top_ne_zero hk hnorm) (by omega) (u, quot) j =
       if dw.2 != 0 then
         (copyInto u1 (add denom (u1.extract j (j + denom.size + 1))) j (denom.size + 1),
          quot.set! j (q - 1))
@@ -3014,10 +3065,10 @@ theorem divNLoop_spec (denom : Array Digit) (k m : Nat)
       (∀ i, p + denom.size ≤ i → u.getD i 0 = 0) →
       (∀ i, i < p → quot.getD i 0 = 0) →
       denote u < denote denom * base ^ p →
-      (divNLoop denom (norm_top_ne_zero hk hnorm) u quot p).1.size = m + denom.size ∧
-      (divNLoop denom (norm_top_ne_zero hk hnorm) u quot p).2.size = m ∧
-      denote (divNLoop denom (norm_top_ne_zero hk hnorm) u quot p).1 < denote denom ∧
-      denote (divNLoop denom (norm_top_ne_zero hk hnorm) u quot p).2 * denote denom + denote (divNLoop denom (norm_top_ne_zero hk hnorm) u quot p).1
+      (divNLoop denom (norm_top_ne_zero hk hnorm) (by omega) u quot p).1.size = m + denom.size ∧
+      (divNLoop denom (norm_top_ne_zero hk hnorm) (by omega) u quot p).2.size = m ∧
+      denote (divNLoop denom (norm_top_ne_zero hk hnorm) (by omega) u quot p).1 < denote denom ∧
+      denote (divNLoop denom (norm_top_ne_zero hk hnorm) (by omega) u quot p).2 * denote denom + denote (divNLoop denom (norm_top_ne_zero hk hnorm) (by omega) u quot p).1
         = denote quot * denote denom + denote u := by
   intro p
   induction p with
@@ -3030,7 +3081,7 @@ theorem divNLoop_spec (denom : Array Digit) (k m : Nat)
     obtain ⟨h1, h2, h3, h4, h5, h6⟩ := divNStep_spec denom u quot p k m hk hnorm husz hqsz
       (by omega) (hqz p (by omega)) hhigh hbound
     rw [divNLoop_succ]
-    obtain ⟨g1, g2, g3, g4⟩ := ih (divNStep denom (norm_top_ne_zero hk hnorm) (u, quot) p).1 (divNStep denom (norm_top_ne_zero hk hnorm) (u, quot) p).2
+    obtain ⟨g1, g2, g3, g4⟩ := ih (divNStep denom (norm_top_ne_zero hk hnorm) (by omega) (u, quot) p).1 (divNStep denom (norm_top_ne_zero hk hnorm) (by omega) (u, quot) p).2
       (by omega) (by rw [h1, husz]) h2 h3
       (fun i hi => by rw [h4 i (by omega)]; exact hqz i (by omega)) h5
     exact ⟨g1, g2, g3, by rw [g4, h6]⟩
@@ -3041,10 +3092,10 @@ theorem divN_spec (numer denom : Array Digit) (k : Nat)
     (hnorm : base ≤ 2 * (denom.getD (k+1) 0).toNat)
     (hsz : denom.size ≤ numer.size)
     (hbound : denote numer < denote denom * base ^ (numer.size - denom.size)) :
-    (divN numer denom (norm_top_ne_zero hk hnorm)).1.size = numer.size ∧
-    (divN numer denom (norm_top_ne_zero hk hnorm)).2.size = numer.size - denom.size ∧
-    denote (divN numer denom (norm_top_ne_zero hk hnorm)).1 < denote denom ∧
-    denote (divN numer denom (norm_top_ne_zero hk hnorm)).2 * denote denom + denote (divN numer denom (norm_top_ne_zero hk hnorm)).1 = denote numer := by
+    (divN numer denom (norm_top_ne_zero hk hnorm) (by omega) hsz).1.size = numer.size ∧
+    (divN numer denom (norm_top_ne_zero hk hnorm) (by omega) hsz).2.size = numer.size - denom.size ∧
+    denote (divN numer denom (norm_top_ne_zero hk hnorm) (by omega) hsz).1 < denote denom ∧
+    denote (divN numer denom (norm_top_ne_zero hk hnorm) (by omega) hsz).2 * denote denom + denote (divN numer denom (norm_top_ne_zero hk hnorm) (by omega) hsz).1 = denote numer := by
   obtain ⟨g1, g2, g3, g4⟩ := divNLoop_spec denom k (numer.size - denom.size) hk hnorm
     (numer.size - denom.size) numer (Array.replicate (numer.size - denom.size) 0)
     (Nat.le_refl _) (by omega) (by simp) (fun i hi => getD_of_ge numer (by omega))
@@ -3116,7 +3167,7 @@ theorem div_spec (numer denom : Array Digit)
     have hp : 0 < base ^ t := Nat.pow_pos (by simp [base_eq])
     omega
   rw [div]
-  simp only [show ¬ (numer.size < denom.size) from by omega, dite_false]
+  simp only [show ¬ (numer.size < denom.size) from by omega, dite_false, CPP.sub]
   by_cases hB : (numer.size = 1 && denom.size = 1) = true
   · -- both single digit: the hardware divide
     simp only [hB, dite_true]
@@ -3169,14 +3220,17 @@ theorem div_spec (numer denom : Array Digit)
           exact (Nat.mul_lt_mul_left h2d).mpr hNlt
         exact Nat.lt_of_mul_lt_mul_right (a := base ^ numer.size) (by omega)
       -- run the inner division
+      have hu0 : 0 < u.size := by omega
       obtain ⟨u', q, hres⟩ : ∃ u' q,
-          (if denom.size = 1 then div1 u (v.getD (v.size - 1) 0) hnzv else divN u v hnzv) = (u', q) := ⟨_, _, rfl⟩
+          (if h1 : denom.size = 1 then div1 u (v.getD (v.size - 1) 0) hnzv hu0
+           else divN u v hnzv (by omega) (by omega)) = (u', q) := ⟨_, _, rfl⟩
       have hmain : q.size = numer.size - denom.size + 1 ∧
           denote q = denote u / denote v ∧
           denoteN u' denom.size = denote u % denote v := by
         by_cases h1 : denom.size = 1
-        · rw [show (if denom.size = 1 then div1 u (v.getD (v.size - 1) 0) hnzv else divN u v hnzv)
-              = div1 u (v.getD (v.size - 1) 0) hnzv from by simp [h1]] at hres
+        · rw [show (if h1 : denom.size = 1 then div1 u (v.getD (v.size - 1) 0) hnzv hu0
+              else divN u v hnzv (by omega) (by omega))
+              = div1 u (v.getD (v.size - 1) 0) hnzv hu0 from by simp [h1]] at hres
           have hvi : v.size - 1 = 0 := by omega
           have hv0 : 2147483648 ≤ (v.getD (v.size - 1) 0).toNat := by
             rw [hvi, show (0 : Nat) = denom.size - 1 from by omega]; exact hvnorm
@@ -3193,8 +3247,9 @@ theorem div_spec (numer denom : Array Digit)
           rw [← hvdD] at e1 e2
           refine ⟨by rw [g2, husz, h1]; omega, e1, ?_⟩
           simp [h1, denoteN, denoteN, ← e2]
-        · rw [show (if denom.size = 1 then div1 u (v.getD (v.size - 1) 0) hnzv else divN u v hnzv)
-              = divN u v hnzv from by simp [h1]] at hres
+        · rw [show (if h1 : denom.size = 1 then div1 u (v.getD (v.size - 1) 0) hnzv hu0
+              else divN u v hnzv (by omega) (by omega))
+              = divN u v hnzv (by omega) (by omega) from by simp [h1]] at hres
           have hvk : v.size = (denom.size - 2) + 2 := by rw [hvsz]; omega
           have hidx : denom.size - 2 + 1 = denom.size - 1 := by omega
           have hnorm2 : base ≤ 2 * (v.getD (denom.size - 2 + 1) 0).toNat := by
@@ -3704,13 +3759,18 @@ NOTE: the quoted loop carries the bits it displaces forward in a running `prev`,
 while `div_normalize` re-reads them from the neighbor `a[i-1]`. `shiftLeftDigits`
 uses the neighbor-read shape, as `div_normalize` does, not the `prev`-carry shape
 quoted here; the two write the same digits, so that one function serves both.
+
+`k` is `unsigned`, so it is a `UInt32`, and the caller that narrows a `size_t`
+to it has to show the narrowing lossless. `word_shift` and `bit_shift` are its
+quotient and remainder by 32, taken here on `k.toNat`, which `unsigned` division
+agrees with.
 -/
-def Num.shiftLeft (a : Num) (k : Nat) : Num :=
+def Num.shiftLeft (a : Num) (k : UInt32) : Num :=
   if k = 0 || a.isZero then a
   else
     Num.ofArray
-      (shiftLeftDigits ((Array.replicate (k / digitBits) 0) ++ a.digits)
-        (k % digitBits) (a.digits.size + k / digitBits + 1)
+      (shiftLeftDigits ((Array.replicate (k.toNat / digitBits) 0) ++ a.digits)
+        (k.toNat % digitBits) (a.digits.size + k.toNat / digitBits + 1)
         (Nat.mod_lt _ (by simp [digitBits_eq])))
       (by rw [size_shiftLeftDigits]; exact Nat.succ_pos _)
 
@@ -3757,16 +3817,19 @@ def Num.shiftLeft (a : Num) (k : Nat) : Num :=
 ```
 NOTE: the two arms differ only in whether the digits are moved down by
 `digit_shift` as they are shifted; both write what `shiftRightDigits` writes,
-applied to the digits from `digit_shift` up.
+applied to the digits from `digit_shift` up. `k` is `unsigned`, as in `mul2k`,
+and `new_sz` is the `size_t` difference the `digit_shift >= b.m_size` test
+guards.
 -/
-def Num.shiftRight (a : Num) (k : Nat) : Num :=
+def Num.shiftRight (a : Num) (k : UInt32) : Num :=
   if k = 0 || a.isZero then a
-  else if h : a.digits.size ≤ k / digitBits then ⟨#[0], by simp, by simp⟩
+  else if h : a.digits.size ≤ k.toNat / digitBits then ⟨#[0], by simp, by simp⟩
   else
     Num.ofArray
-      (shiftRightDigits (a.digits.extract (k / digitBits) a.digits.size)
-        (k % digitBits) (a.digits.size - k / digitBits) (Nat.mod_lt _ (by simp [digitBits_eq])))
-      (by rw [size_shiftRightDigits]; omega)
+      (shiftRightDigits (a.digits.extract (k.toNat / digitBits) a.digits.size)
+        (k.toNat % digitBits) (CPP.sub a.digits.size (k.toNat / digitBits) (by omega))
+        (Nat.mod_lt _ (by simp [digitBits_eq])))
+      (by simp only [size_shiftRightDigits, CPP.sub]; omega)
 
 /-- Any digit array as a `Num`, for building test values. -/
 def Num.ofArray! (a : Array Digit) : Num :=
@@ -4003,7 +4066,7 @@ theorem Num.val_isZero (a : Num) (h : a.isZero) : a.val = 0 := by
   simp [Num.val, denote, h.1, denoteN, h.2]
 
 /-- `mul2k` shifts left: it multiplies by `2^k`. -/
-theorem Num.val_shiftLeft (a : Num) (k : Nat) : (a.shiftLeft k).val = a.val * 2 ^ k := by
+theorem Num.val_shiftLeft (a : Num) (k : UInt32) : (a.shiftLeft k).val = a.val * 2 ^ k.toNat := by
   rw [Num.shiftLeft]
   split <;> rename_i h
   · simp only [Bool.or_eq_true, decide_eq_true_eq] at h
@@ -4011,25 +4074,25 @@ theorem Num.val_shiftLeft (a : Num) (k : Nat) : (a.shiftLeft k).val = a.val * 2 
     · simp [h]
     · simp [Num.val_isZero a h]
   · simp only [Bool.or_eq_true, decide_eq_true_eq] at h
-    have hbit : k % digitBits < digitBits := Nat.mod_lt _ (by simp [digitBits_eq])
-    have hpad : denote ((Array.replicate (k / digitBits) (0 : Digit)) ++ a.digits)
-        = a.val * base ^ (k / digitBits) := denote_zeros_append a.digits _
-    have hfit : denote ((Array.replicate (k / digitBits) (0 : Digit)) ++ a.digits)
-        * 2 ^ (k % digitBits) < base ^ (a.digits.size + k / digitBits + 1) := by
+    have hbit : k.toNat % digitBits < digitBits := Nat.mod_lt _ (by simp [digitBits_eq])
+    have hpad : denote ((Array.replicate (k.toNat / digitBits) (0 : Digit)) ++ a.digits)
+        = a.val * base ^ (k.toNat / digitBits) := denote_zeros_append a.digits _
+    have hfit : denote ((Array.replicate (k.toNat / digitBits) (0 : Digit)) ++ a.digits)
+        * 2 ^ (k.toNat % digitBits) < base ^ (a.digits.size + k.toNat / digitBits + 1) := by
       have h1 : a.val < base ^ a.digits.size := a.val_lt
-      have h2 : (2:Nat) ^ (k % digitBits) ≤ base := by
-        calc (2:Nat) ^ (k % digitBits) ≤ 2 ^ 32 :=
+      have h2 : (2:Nat) ^ (k.toNat % digitBits) ≤ base := by
+        calc (2:Nat) ^ (k.toNat % digitBits) ≤ 2 ^ 32 :=
               Nat.pow_le_pow_right (by omega) (by simp only [digitBits_eq] at hbit ⊢; omega)
           _ = base := rfl
-      calc denote ((Array.replicate (k / digitBits) (0 : Digit)) ++ a.digits)
-            * 2 ^ (k % digitBits)
-          = a.val * base ^ (k / digitBits) * 2 ^ (k % digitBits) := by grind
-        _ < base ^ a.digits.size * base ^ (k / digitBits) * 2 ^ (k % digitBits) := by
+      calc denote ((Array.replicate (k.toNat / digitBits) (0 : Digit)) ++ a.digits)
+            * 2 ^ (k.toNat % digitBits)
+          = a.val * base ^ (k.toNat / digitBits) * 2 ^ (k.toNat % digitBits) := by grind
+        _ < base ^ a.digits.size * base ^ (k.toNat / digitBits) * 2 ^ (k.toNat % digitBits) := by
             refine (Nat.mul_lt_mul_right (Nat.two_pow_pos _)).mpr ?_
             exact (Nat.mul_lt_mul_right (Nat.pow_pos (by simp [base_eq]))).mpr h1
-        _ ≤ base ^ a.digits.size * base ^ (k / digitBits) * base :=
+        _ ≤ base ^ a.digits.size * base ^ (k.toNat / digitBits) * base :=
             Nat.mul_le_mul_left _ h2
-        _ = base ^ (a.digits.size + k / digitBits + 1) := by
+        _ = base ^ (a.digits.size + k.toNat / digitBits + 1) := by
             rw [← Nat.pow_add, ← Nat.pow_succ]
     rw [Num.val_ofArray,
       denote_shiftLeftDigits _ hbit (by simp; omega) hfit, hpad, Nat.mul_assoc,
@@ -4039,9 +4102,9 @@ theorem Num.val_shiftLeft (a : Num) (k : Nat) : (a.shiftLeft k).val = a.val * 2 
     omega
 
 /-- `div2k` shifts right: it divides by `2^k`. -/
-theorem Num.val_shiftRight (a : Num) (k : Nat) : (a.shiftRight k).val = a.val / 2 ^ k := by
-  have hbit : k % digitBits < digitBits := Nat.mod_lt _ (by simp [digitBits_eq])
-  have hk : 32 * (k / digitBits) + k % digitBits = k := by
+theorem Num.val_shiftRight (a : Num) (k : UInt32) : (a.shiftRight k).val = a.val / 2 ^ k.toNat := by
+  have hbit : k.toNat % digitBits < digitBits := Nat.mod_lt _ (by simp [digitBits_eq])
+  have hk : 32 * (k.toNat / digitBits) + k.toNat % digitBits = k.toNat := by
     simp only [digitBits_eq]; omega
   rw [Num.shiftRight]
   split <;> rename_i h
@@ -4053,28 +4116,29 @@ theorem Num.val_shiftRight (a : Num) (k : Nat) : (a.shiftRight k).val = a.val / 
     · -- the shift clears every digit
       refine (Nat.div_eq_of_lt ?_).symm
       have h1 : a.val < base ^ a.digits.size := a.val_lt
-      have h3 : base ^ a.digits.size ≤ 2 ^ k := by
+      have h3 : base ^ a.digits.size ≤ 2 ^ k.toNat := by
         rw [base_pow]
         exact Nat.pow_le_pow_right (by omega) (by simp only [digitBits_eq] at h2 ⊢; omega)
       omega
     · -- the general case: drop `k / 32` digits, then shift the rest
-      have hw : k / digitBits ≤ a.digits.size := by omega
-      have hext : (a.digits.extract (k / digitBits) a.digits.size).size
-          = a.digits.size - k / digitBits := by simp
-      have hsplit : a.val = denoteN a.digits (k / digitBits)
-          + denote (a.digits.extract (k / digitBits) a.digits.size) * base ^ (k / digitBits) := by
-        exact denoteN_extract (j := k / digitBits) a.digits a.digits.size hw (Nat.le_refl _)
-      have hlow : denoteN a.digits (k / digitBits) < base ^ (k / digitBits) :=
+      have hw : k.toNat / digitBits ≤ a.digits.size := by omega
+      have hext : (a.digits.extract (k.toNat / digitBits) a.digits.size).size
+          = a.digits.size - k.toNat / digitBits := by simp
+      have hsplit : a.val = denoteN a.digits (k.toNat / digitBits)
+          + denote (a.digits.extract (k.toNat / digitBits) a.digits.size) * base ^ (k.toNat / digitBits) := by
+        exact denoteN_extract (j := k.toNat / digitBits) a.digits a.digits.size hw (Nat.le_refl _)
+      have hlow : denoteN a.digits (k.toNat / digitBits) < base ^ (k.toNat / digitBits) :=
         denoteN_lt a.digits _
-      have hdiv : a.val / base ^ (k / digitBits)
-          = denote (a.digits.extract (k / digitBits) a.digits.size) := by
+      have hdiv : a.val / base ^ (k.toNat / digitBits)
+          = denote (a.digits.extract (k.toNat / digitBits) a.digits.size) := by
         rw [hsplit, Nat.add_mul_div_right _ _ (Nat.pow_pos (by simp [base_eq])),
           Nat.div_eq_of_lt hlow, Nat.zero_add]
-      rw [Num.val_ofArray,
-        denote_shiftRightDigits _ hbit (by omega),
-        show denoteN (a.digits.extract (k / digitBits) a.digits.size)
-            (a.digits.size - k / digitBits)
-          = denote (a.digits.extract (k / digitBits) a.digits.size) from by
+      rw [Num.val_ofArray]
+      simp only [CPP.sub]
+      rw [denote_shiftRightDigits _ hbit (by omega),
+        show denoteN (a.digits.extract (k.toNat / digitBits) a.digits.size)
+            (a.digits.size - k.toNat / digitBits)
+          = denote (a.digits.extract (k.toNat / digitBits) a.digits.size) from by
             rw [denote, hext],
         ← hdiv, Nat.div_div_eq_div_mul, base_pow, ← Nat.pow_add, hk]
 
@@ -4800,6 +4864,9 @@ into.
 
 NOTE: `a.log2() >= s` is `2 ^ s ≤ a` for a nonzero `a`, which a `big` object
 always is, so that is how the guard on the `none` case is written here.
+
+The `unsigned k` of `div2k` receives the `size_t s`: that narrowing is the
+`UInt32.ofNat`, which the `s > UINT_MAX` test ahead of it makes lossless.
 -/
 def natShiftRight (a b : NatObj) : Option NatObj :=
   match a, b with
@@ -4813,7 +4880,7 @@ def natShiftRight (a b : NatObj) : Option NatObj :=
     if base ≤ n₂ then
       if 2 ^ n₂ ≤ m₁.val then none
       else some (.small 0 (Nat.zero_le _))
-    else some (mpzToNat (m₁.shiftRight n₂))
+    else some (mpzToNat (m₁.shiftRight (UInt32.ofNat n₂)))
 
 /--
 `lean_nat_shiftl`:
@@ -4836,12 +4903,14 @@ extern "C" LEAN_EXPORT lean_obj_res lean_nat_shiftl(b_lean_obj_arg a1, b_lean_ob
 ```
 An exponent past `UINT_MAX` has no answer, so the model returns `none`, and the
 specification's `hb` assumes it away. A `big` object is never zero, so testing
-the scalar for zero is testing the value.
+the scalar for zero is testing the value. The `unsigned k` of `mul2k` receives
+`lean_unbox(a2)`, a `size_t`: that narrowing is the `UInt32.ofNat`, which the
+`UINT_MAX` test ahead of it makes lossless.
 -/
 def natShiftLeft (a b : NatObj) : Option NatObj :=
   if a.val = 0 then some (.small 0 (Nat.zero_le _))
   else if base ≤ b.val then none
-  else some (mpzToNat (a.toNum.shiftLeft b.val))
+  else some (mpzToNat (a.toNum.shiftLeft (UInt32.ofNat b.val)))
 
 /--
 `lean_nat_lxor`:
@@ -5185,8 +5254,9 @@ theorem box_inj (m n : Nat) (hm : m ≤ maxSmallNat) (hn : n ≤ maxSmallNat) :
         rw [ite_eq_right (by omega), Option.map_some]; congr 1
         exact hzero m₁.val n₂ hlt
       · rw [Option.map_some]; congr 1
-        show (mpzToNat (m₁.shiftRight n₂)).val = m₁.val >>> n₂
-        rw [mpzToNat_val, Num.val_shiftRight, Nat.shiftRight_eq_div_pow]
+        show (mpzToNat (m₁.shiftRight (UInt32.ofNat n₂))).val = m₁.val >>> n₂
+        rw [mpzToNat_val, Num.val_shiftRight, UInt32.toNat_ofNat_of_lt' (Nat.lt_of_not_le h),
+          Nat.shiftRight_eq_div_pow]
     | big m₂ h₂ =>
       simp only [natShiftRight, Option.map_some]; congr 1
       refine hzero m₁.val m₂.val (hb ?_)
@@ -5203,7 +5273,8 @@ theorem box_inj (m n : Nat) (hm : m ≤ maxSmallNat) (hn : n ≤ maxSmallNat) :
     show (0 : Nat) = _
     rw [h, Nat.shiftLeft_eq, Nat.zero_mul]
   · rw [ite_eq_right (by omega), Option.map_some]; congr 1
-    rw [mpzToNat_val, Num.val_shiftLeft, NatObj.val_toNum, Nat.shiftLeft_eq]
+    rw [mpzToNat_val, Num.val_shiftLeft, UInt32.toNat_ofNat_of_lt' hb, NatObj.val_toNum,
+      Nat.shiftLeft_eq]
 
 @[simp] theorem natXor_val (a b : NatObj) : (natXor a b).val = a.val ^^^ b.val := by
   cases a with

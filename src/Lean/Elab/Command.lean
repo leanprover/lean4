@@ -167,64 +167,30 @@ def addModuleLinter (l : ModuleLinter) : IO Unit := do
   let ls ← moduleLintersRef.get
   moduleLintersRef.set (ls.push l)
 
-abbrev PreStatesOf : ((List (Σ σ τ, StatefulLinter σ τ))) → Type → Type
-  | [], α => α
-  | ⟨_, τ, _⟩ :: rest, α => Option τ → PreStatesOf rest α
+class IntermediateStateReader where
+  protected readIntermediate : PreStateFn
 
-def PreStatesOf.const (a : α) : PreStatesOf ls α :=
-  match ls with
-  | [] => a
-  | _ :: ls => fun _ => PreStatesOf.const (ls := ls) a
+class PrevStateReader where
+  protected readPrev : PrevStateFn
 
-def PreStatesOf.apply {ls α} (preSt : Array (Option LinterState)) (p : PreStatesOf ls α) : α :=
-  match ls with
-  | [] => p
-  | ⟨_, _, s⟩ :: _ => p (s.preState preSt) |>.apply preSt
+class StateReader extends IntermediateStateReader, PrevStateReader
 
-abbrev PreStateOf (_ : StatefulLinter σ τ) := Option τ
+@[macro_inline, expose]
+def StatefulLinter.readIntermediate (s : StatefulLinter σ τ) [IntermediateStateReader] :=
+  IntermediateStateReader.readIntermediate s
 
-abbrev PreStatesOfT : (h : (List (Σ σ τ, StatefulLinter σ τ)) := by exact []) → (m : Type → Type) → Type → Type
-  | [], m => m
-  | ⟨_, _, s⟩ :: rest, m => ReaderT (PreStateOf s) (PreStatesOfT rest m)
-
-protected def PreStatesOfT.pure {α rest} [Monad m] (a : α) : PreStatesOfT rest m α :=
-  match rest with
-  | [] => Pure.pure a
-  | _ :: _ => fun _ => PreStatesOfT.pure a
-
-protected def PreStatesOfT.bind [Monad m] {α β : Type}
-    (x : PreStatesOfT ls m α) (f : α → PreStatesOfT ls m β) : PreStatesOfT ls m β :=
-  match ls with
-  | [] => x >>= f
-  | _ :: _ => fun r => (x r).bind fun a => f a r
-
-def PreStatesOfT.apply {ls α} (preSt : Array (Option LinterState))
-    (p : PreStatesOfT ls m α) : m α :=
-  match ls with
-  | [] => p
-  | ⟨_, _, s⟩ :: _ => p (s.preState preSt) |>.apply preSt
-
-instance (priority := low) [Monad m] : Monad (PreStatesOfT ls m) where
-  pure := PreStatesOfT.pure
-  bind := PreStatesOfT.bind
-
-unif_hint (deps : List (Σ σ τ, StatefulLinter σ τ)) (m : Type → Type) (m' : Type → Type) where
-  deps ≟ []
-  ⊢ PreStatesOfT deps m ≟ m'
-
-unif_hint (deps deps' : List (Σ σ τ, StatefulLinter σ τ)) (m : Type → Type) (α : Type) (s : StatefulLinter σ τ) where
-  deps' ≟ ⟨σ, τ, s⟩ :: deps
-  ⊢ (PreStateOf s → PreStatesOfT deps m α) ≟ PreStatesOfT deps' m α
-
-instance : CoeHead (StatefulLinter σ τ) (Σ σ τ, StatefulLinter σ τ) := ⟨fun s => ⟨σ, τ, s⟩⟩
+@[macro_inline, expose]
+def StatefulLinter.readPrev (s : StatefulLinter σ τ) [PrevStateReader] [Inhabited σ] :=
+  PrevStateReader.readPrev s
 
 /--
 Registers a stateful linter and returns its handle (used by other linters to read its state).
 Must be called during initialization.
 
 ### Lifecycle Phases
-* **`pre`**: Reads the previous command's persistant state (via `readPrevPostState`)
-and optionally outputs a pre-phase state (type `Option τ`).
+* **`pre`**: Reads the previous command's persistant state (via `readPrevPostState`) and the
+intermediate pre-phase state of any other stateful linter (via `readCurrentPreState`) and
+optionally outputs its own intermediate pre-phase state (type `Option τ`).
 * **`post`**: Reads the previous command's state and all current pre-phase outputs
 (via `readPrevPostState` and `readCurrentPreState`), then produces the new state (type `σ`)
 for the next command.
@@ -235,13 +201,12 @@ for the next command.
 * **Others**: Access other linters' states only via the `readPrevPostState` and
 `readCurrentPreState` closures that take typed handles of other linters.
 -/
-unsafe def registerStatefulLinterImpl (init : σ) {deps : List (Σ σ τ, StatefulLinter σ τ)}
+unsafe def registerStatefulLinterImpl (init : σ)
     (pre  : Syntax → (selfPrevPostState : σ) → (readPrevPostState : PrevStateFn) →
-      PreStatesOfT deps CommandElabM (Option τ) :=
-       fun _ _ _ => pure none)
+      (readCurrentPreState : PreStateFn) → CommandElabM (Option τ) :=
+        fun _ _ _ _ => pure none)
     (post : Syntax → (selfPrevPostState : σ) → (selfCurrentPreState : Option τ) →
        (readPrevPostState : PrevStateFn) → (readCurrentPreState : PreStateFn) → CommandElabM σ)
-    (_ : deps = deps := by first | exact Eq.refl [] | rfl)
     -- (_ : deps = deps := by first | exact Eq.refl [] | rfl)
     :
     IO (StatefulLinter σ τ) := do
@@ -251,25 +216,35 @@ unsafe def registerStatefulLinterImpl (init : σ) {deps : List (Σ σ τ, Statef
   let idx := ls.size
   statefulLintersRef.set <| ls.push
     { init := unsafeCast init
-      pre  := fun stx prev deps =>
+      pre  := fun stx prev preSt =>
         (·.map unsafeCast) <$>
-          (pre stx (unsafeCast prev[idx]!) (fun l => l.prevState prev)).apply deps
+          (pre stx (unsafeCast prev[idx]!) (fun l => l.prevState prev) (fun l => l.preState preSt))
       post := fun stx prev preSt =>
         unsafeCast <$> post stx (unsafeCast prev[idx]!) ((preSt[idx]!).map unsafeCast)
           (fun l => l.prevState prev) (fun l => l.preState preSt) }
   return ⟨idx⟩
 
 @[inherit_doc registerStatefulLinterImpl, implemented_by registerStatefulLinterImpl]
-opaque registerStatefulLinter (init : σ) ⦃deps : List (Σ σ τ, StatefulLinter σ τ)⦄
+opaque registerStatefulLinter (init : σ)
     (pre  : Syntax → (selfPrevPostState : σ) → (readPrevPostState : PrevStateFn) →
-      PreStatesOfT deps CommandElabM (Option τ) :=
-       fun _ _ _ => pure none)
+      (readCurrentPreState : PreStateFn) → CommandElabM (Option τ) :=
+        fun _ _ _ _ => pure none)
     (post : Syntax → (selfPrevPostState : σ) → (selfCurrentPreState : Option τ) →
-       (readPrevPostState : PrevStateFn) → (readCurrentPreState : PreStateFn) → CommandElabM σ)
-    -- (_ : autoParam (WithDefault deps) registerStatefulLinterImpl._auto_1)
-    (_ : autoParam (deps = deps) registerStatefulLinterImpl._auto_1)
-    :
+       (readPrevPostState : PrevStateFn) → (readCurrentPreState : PreStateFn) → CommandElabM σ) :
     IO (StatefulLinter σ τ)
+
+@[inline] def registerStatefulLinterErgo (init : σ)
+    (pre  : Syntax → (selfPrevPostState : σ) → [StateReader] → CommandElabM (Option τ) :=
+        fun _ _ => pure none)
+    (post : Syntax → (selfPrevPostState : σ) → (selfCurrentPreState : Option τ) →
+       [StateReader] → CommandElabM σ) :
+    IO (StatefulLinter σ τ) := registerStatefulLinter init
+      (pre := fun stx s readPrev readIntermediate =>
+        letI : StateReader := { readPrev, readIntermediate }
+        pre stx s)
+      (post := fun stx s t readPrev readIntermediate =>
+        letI : StateReader := { readPrev, readIntermediate }
+        post stx s t)
 
 /-- Persistent (`σ`) state of `emitter`: the running command count. -/
 structure Counter where

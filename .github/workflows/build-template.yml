@@ -106,7 +106,10 @@ jobs:
         with:
           # NOTE: must be in sync with `save` below and with "Restore CCache" in `update-stage0.yml`
           path: .ccache
-          key: ${{ matrix.name }}-build-v5-${{ github.sha }}
+          # Key on the stage0 contents rather than the commit: they determine the bulk of the
+          # compiled objects, so an unchanged stage0 is an exact hit (and skips the save below)
+          # and a new cache is only saved once per stage0 update.
+          key: ${{ matrix.name }}-build-v5-${{ hashFiles('stage0/**') }}
           # fall back to (latest) previous cache
           restore-keys: |
             ${{ matrix.name }}-build-v5

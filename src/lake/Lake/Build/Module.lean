@@ -111,11 +111,8 @@ def computePrecompileImportsAux
   (fileName : String) (imports : Array Module)
 : FetchM (Job (Array Module)) := do
   collectImportsAux fileName imports fun imp =>
-    (imp.lib.shouldPrecompile, ·) <$>
-      if imp.shouldPrecompileImports then
-        imp.transImports.fetch
-      else
-        imp.precompileImports.fetch
+    -- `imp.shouldPrecompile` implies `imp.lib.shouldPrecompile`
+    (imp.lib.shouldPrecompile, ·) <$> imp.precompileImports.fetch
 
 /-- Recursively compute a module's precompiled imports. -/
 def Module.recComputePrecompileImports (mod : Module) : FetchM (Job (Array Module)) := ensureJob do

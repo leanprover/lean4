@@ -27,8 +27,18 @@ test_exp ! -f .lake/build/lib/${LIB_PREFIX}${PKG}_LibDep.$SHARED_LIB_EXT
 test_out '"plugins":[]' -v setup-file Lib.lean
 test_out '"dynlibs":[]' -v setup-file Lib.lean
 test_run -v build LibDownstream
+test_exp ! -f .lake/build/lib/lean/${PKG}_Lib_Base.$SHARED_LIB_EXT
 test_exp -f .lake/build/lib/${LIB_PREFIX}${PKG}_Lib.$SHARED_LIB_EXT
+test_exp -f .lake/build/lib/${LIB_PREFIX}${PKG}_LibDep.$SHARED_LIB_EXT
 test_not_out '"plugins":[]' -v setup-file LibDownstream.lean
+
+# Test that a library with `precompileImports` loads the libraries it imports,
+# but is not itself precompiled
+test_run -v build LibImports
+test_exp -f .lake/build/lib/${LIB_PREFIX}${PKG}_LibImportsDep.$SHARED_LIB_EXT
+test_exp ! -f .lake/build/lib/${LIB_PREFIX}${PKG}_LibImports.$SHARED_LIB_EXT
+test_exp ! -f .lake/build/lib/lean/${PKG}_LibImports.$SHARED_LIB_EXT
+test_not_out '"plugins":[]' -v setup-file LibImports.lean
 
 # Test that `moreLinkArgs` are included when linking precompiled modules
 ./clean.sh

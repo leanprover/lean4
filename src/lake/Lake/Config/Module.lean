@@ -223,7 +223,7 @@ public def leanIncludeDir? (self : Module) : Option FilePath :=
 
 /-- Whether the module is built with the native code of its imports loaded. -/
 @[inline] public def shouldPrecompileImports (self : Module) : Bool :=
-  self.lib.precompileModules
+  self.lib.precompileImports
 
 @[inline, deprecated "Use `shouldPrecompileImports` or `shouldPrecompileSelf` instead." (since := "2026-09-04")]
 public def shouldPrecompile (self : Module) : Bool :=

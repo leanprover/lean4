@@ -73,28 +73,25 @@ public configuration LeanLibConfig (name : Name) extends LeanConfig where
   extraDepTargets : Array Name := #[]
 
   /--
-  Whether to compile each of the library's modules into a native shared library
-  that is loaded whenever the module is imported. This speeds up evaluation of
-  metaprograms and enables the interpreter to run functions marked `@[extern]`.
-
-  Defaults to `false`.
-  -/
-  precompileModules : Bool := false
-
-  /--
   Whether to compile the library into a native shared library that is loaded
   whenever one of its modules is imported by a module outside the library.
   This speeds up evaluation of metaprograms and enables the interpreter to run
   functions marked `@[extern]`.
 
-  Unlike `precompileModules`, the library's own modules are not compiled into
-  shared libraries loaded within the library itself, nor are the shared libraries
-  of the library's imports loaded when building it. Thus, `precompileModules`
-  implies `precompileLibrary`, but not vice versa.
-
   Defaults to `false`.
   -/
   precompileLibrary : Bool := false
+
+  /--
+  Whether to compile each of the library's modules into a native shared library
+  that is loaded whenever the module is imported. This speeds up evaluation of
+  metaprograms and enables the interpreter to run functions marked `@[extern]`.
+
+  This implies `precompileImports` and `precompileLibrary`.
+
+  Defaults to `false`.
+  -/
+  precompileModules : Bool := false
 
   /--
   An `Array` of library facets to build on a bare `lake build` of the library.

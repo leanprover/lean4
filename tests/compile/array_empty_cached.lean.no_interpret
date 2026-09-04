@@ -1,0 +1,1 @@
+The interpreter does not model native reference-count exclusivity.

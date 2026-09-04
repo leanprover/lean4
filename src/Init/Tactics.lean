@@ -244,31 +244,50 @@ Changes the goal to `False`, retaining as much information as possible:
 syntax (name := falseOrByContra) "false_or_by_contra" : tactic
 
 /--
-`apply e` tries to match the current goal against the conclusion of `e`'s type.
-If it succeeds, then the tactic returns as many subgoals as the number of premises that
-have not been fixed by type inference or type class resolution.
-Non-dependent premises are added before dependent ones.
+`apply e` solves the main goal using a function application of the term `e` to new metavariables.
+In other words, if for some number of holes, the type of `@e _ ... _` matches the conclusion
+of the main goal, `apply e` closes the goal, and creates side goals for any argument that could not
+be inferred by unification or instance synthesis.
+If `@e _ ... _` is not a function type and its type still does not match the goal, `apply e` fails.
 
-The `apply` tactic uses higher-order pattern matching, type class resolution,
-and first-order unification with dependent types.
+Non-dependent side goals are added before dependent ones.
+
+The `apply` tactic looks through types at default transparency, so for example with the goal
+`⊢ x ∈ T`, `apply (h : S ⊆ T)` will replace the goal with `⊢ x ∈ S`. `apply e` does not
+take into account `CoeFun` instances to determine if `e` is a function type.
 -/
 syntax (name := apply) "apply " term : tactic
 
 /--
-`exact e` closes the main goal if its target type matches that of `e`.
+`exact e` closes the main goal if its conclusion matches the type of the term `e`
+at default transparency.
+
+If `e` contains holes (`?x`, `?_` or `_`) or implicit parameters that are not solved by unification
+or instance synthesis, `exact e` fails. Use the `refine` tactic to introduce side goals for
+unsolved holes.
 -/
 syntax (name := exact) "exact " term : tactic
 
 /--
-`refine e` behaves like `exact e`, except that named (`?x`) or unnamed (`?_`)
-holes in `e` that are not solved by unification with the main goal's target type
-are converted into new goals, using the hole's name, if any, as the goal case name.
+`refine e` closes the main goal if its conclusion matches the type of the term `e`
+at default transparency.
+If `e` contains synthetic holes (`?x` or `?_`) that are not solved by unification or
+instance synthesis, `refine e` converts each of these into a new side goal,
+using the hole's name, if any, as the goal case name.
+If `e` contains non-synthetic holes (`_`) or implicit parameters that are not solved by unification
+or instance synthesis, `refine e` fails.
 -/
 syntax (name := refine) "refine " term : tactic
 
 /--
-`refine' e` behaves like `refine e`, except that unsolved placeholders (`_`)
-and implicit parameters are also converted into new goals.
+`refine' e` closes the main goal if its conclusion matches the type of the term `e`
+at default transparency.
+If `e` contains holes (`?x`, `?_` or `_`) or implicit parameters that are not solved by unification
+or instance synthesis, `refine' e` converts each of these into a new side goal,
+using the hole's name, if any, as the goal case name.
+
+It is considered better style to explicitly indicate which holes become new goals,
+using the `refine` tactic.
 -/
 syntax (name := refine') "refine' " term : tactic
 

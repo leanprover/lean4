@@ -111,6 +111,12 @@ def sqrt (a : Float32.Model) : Float32.Model :=
   pack (UnpackedFloat.sqrt Format.binary32 a.unpack)
 
 /--
+Compute the fused multiply-add `a * b + c` of three `Float32.Model`, with a single rounding.
+-/
+def fma (a b c : Float32.Model) : Float32.Model :=
+  pack (UnpackedFloat.fma Format.binary32 a.unpack b.unpack c.unpack)
+
+/--
 Negate a `Float32.Model`.
 -/
 def neg (a : Float32.Model) : Float32.Model :=

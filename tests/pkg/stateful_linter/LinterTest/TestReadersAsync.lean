@@ -50,17 +50,6 @@ def a1 := 1
 /--
 info: reader A(i) sees
 i := 2
-@[inclusion ⊢ id]
-@[inclusion ⊣ id] (or @[inclusion id ⊢])
-
-@[inclusion → id]
-@[inclusion ← id]
-
-@[inclusion ↑ id]
-@[inclusion ↓ id]
-
-@[inclusion id]
-@[inclusion_hyp id]
 ---
 info: reader A(ii) sees
 ii := 20

@@ -492,6 +492,8 @@ inlined into it.
 
 Requires `sz` to be a positive multiple of `LEAN_OBJECT_SIZE_DELTA` of at most
 `MI_SMALL_SIZE_MAX`. Initializes `m_cs_sz`.
+
+Panics on exhaustion rather than returning `NULL`, so callers need no OOM check.
 */
 LEAN_EXPORT LEAN_ATTR_MALLOC lean_object * lean_alloc_small_object_core(unsigned sz);
 #endif

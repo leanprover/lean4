@@ -444,14 +444,14 @@ def compare (a b : Array Digit) : Int := Id.run do
     size_t &os = *plngc;
     for (os = len+1; os > 1 && c[os-1] == 0; ) os--;
 ```
-`&&` short-circuits, so `c[os-1]` is read only under `os > 1`. The loop is
-written with that guard as its condition, so that `h` reaches the read, and the
-second conjunct as the `break` it amounts to.
+`&&` short-circuits, so `c[os-1]` is read only under `os > 1`; the dependent
+`if` in the loop condition is that short circuit, and `h` is what it makes
+available to the read.
 -/
 def trim (c : Array Digit) : Array Digit := Id.run do
   let mut c := c
-  while h : 1 < c.size do
-    if c.getD (CPP.sub c.size 1 (by omega)) 0 == 0 then c := c.pop else break
+  while (if h : 1 < c.size then c.getD (CPP.sub c.size 1 (by omega)) 0 == 0 else false) do
+    c := c.pop
   return c
 
 /--

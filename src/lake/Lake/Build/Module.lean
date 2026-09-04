@@ -111,7 +111,7 @@ def computePrecompileImportsAux
   (fileName : String) (imports : Array Module)
 : FetchM (Job (Array Module)) := do
   collectImportsAux fileName imports fun imp =>
-    (imp.lib.shouldPrecompileSelf, ·) <$>
+    (imp.lib.shouldPrecompile, ·) <$>
       if imp.shouldPrecompileImports then
         imp.transImports.fetch
       else
@@ -132,19 +132,19 @@ from other libraries are loaded as part of the whole library.
 -/
 def Module.fetchImportLibs
   (self : Module) (imps : Array Module)
-  (precompileSelf : Bool) (precompileImports : Bool)
+  (precompileModules : Bool) (precompileImports : Bool)
 : FetchM (Array (Job Dynlib)) := do
   let (_, jobs) ← imps.foldlM (init := (({} : NameSet), #[])) fun (libs, jobs) imp => do
     if libs.contains imp.lib.name then
       return (libs, jobs)
     else if self.lib.name = imp.lib.name then
       -- The library as a whole cannot be loaded here, as it includes the module itself.
-      if precompileSelf then
+      if precompileModules then
         let job ← imp.dynlib.fetch
         return (libs, jobs.push job)
       else
         return (libs, jobs)
-    else if precompileImports || imp.lib.shouldPrecompileSelf then
+    else if precompileImports || imp.lib.shouldPrecompile then
       let jobs ← jobs.push <$> imp.lib.shared.fetch
       return (libs.insert imp.lib.name, jobs)
     else
@@ -161,7 +161,7 @@ def fetchImportLibs
   let (_, jobs) ← mods.foldlM (init := (({} : NameSet), #[])) fun (libs, jobs) imp => do
     if libs.contains imp.lib.name then
       return (libs, jobs)
-    else if imp.lib.shouldPrecompileSelf then
+    else if imp.lib.shouldPrecompile then
       let jobs ← jobs.push <$> imp.lib.shared.fetch
       return (libs.insert imp.lib.name, jobs)
     else
@@ -587,7 +587,7 @@ def Module.recFetchPreSetup (mod : Module) : FetchM (Job ModulePreSetup) := ensu
     mod.transImports.fetch else mod.precompileImports.fetch
   let precompileImports ← precompileImports.await
   let impLibsJob ← Job.collectArray (traceCaption := "import dynlibs") <$>
-    mod.fetchImportLibs precompileImports mod.shouldPrecompileSelf mod.shouldPrecompileImports
+    mod.fetchImportLibs precompileImports mod.shouldPrecompile mod.shouldPrecompileImports
 
   let externLibsJob ← Job.collectArray (traceCaption := "package external libraries") <$>
     if mod.shouldPrecompileImports then mod.pkg.externLibs.mapM (·.dynlib.fetch) else pure #[]
@@ -1450,7 +1450,7 @@ def setupEditedModule
     else
       (← computePrecompileImportsAux fileName localImports).await
   let impLibsJob ← Job.collectArray (traceCaption := "import dynlibs") <$>
-    mod.fetchImportLibs precompileImports mod.shouldPrecompileSelf mod.shouldPrecompileImports
+    mod.fetchImportLibs precompileImports mod.shouldPrecompile mod.shouldPrecompileImports
   let externLibsJob ← Job.collectArray (traceCaption := "package external libraries") <$>
     if mod.shouldPrecompileImports then mod.pkg.externLibs.mapM (·.dynlib.fetch) else pure #[]
   let dynlibsJob ← mod.dynlibs.fetchIn mod.pkg "module dynlibs"

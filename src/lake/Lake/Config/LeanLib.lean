@@ -116,7 +116,7 @@ or if the library's modules are precompiled.
 Whether to precompile the library for importers.
 Is true if the library has `precompileLibrary` set or its modules are precompiled.
 -/
-@[inline] public def shouldPrecompileSelf (self : LeanLib) : Bool :=
+@[inline] public def shouldPrecompile (self : LeanLib) : Bool :=
   self.precompileModules || self.config.precompileLibrary
 
 /--

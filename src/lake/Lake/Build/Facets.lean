@@ -147,6 +147,9 @@ Its trace just includes its dependencies.
 -/
 builtin_facet leanArts : Module => ModuleOutputArtifacts
 
+/-- The artifacts of a Lean module's elaboration (e.g., `.olean`, `.ilean`). -/
+builtin_facet elabArts : Module => ModuleOutputArtifacts
+
 /-- The artifacts of a Lean module's code generation (e.g., `.ir.sig`, `.ir`, `.c`). -/
 builtin_facet irArts : Module => ModuleOutputArtifacts
 
@@ -264,7 +267,13 @@ builtin_facet extraDep : Package => Unit
 /-- The library's default facets (as specified by its `defaultFacets` configuration). . -/
 builtin_facet default : LeanLib => Unit
 
-/-- A Lean library's Lean artifacts (e.g., `olean`, `ilean`, `c`). -/
+/-- A Lean library's Lean artifacts (e.g., `olean`, `ilean`). -/
+builtin_facet elabArts : LeanLib => Unit
+
+/-- A Lean library's Lean artifacts (e.g., `ir`, `ir.sig`, `c`). -/
+builtin_facet irArts : LeanLib => Unit
+
+/-- A Lean library's Lean artifacts. -/
 builtin_facet leanArts : LeanLib => Unit
 
 /-- A Lean library's static artifact. -/

@@ -1,7 +1,7 @@
 /-
 Copyright (c) 2019 Microsoft Corporation. All rights reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
-Authors: Leonardo de Moura
+Authors: Elias Jungmann and Johan Henkel
 -/
 module
 
@@ -13,80 +13,187 @@ import Init.Omega
 public section
 
 set_option linter.listVariables true -- Enforce naming conventions for `List`/`Array`/`Vector` variables.
--- We do not enable `linter.indexVariables` because it is helpful to name index variables `lo`, `mid`, `hi`, etc.
+-- We do not enable `linter.indexVariables` because it is helpful to name index variables `sllo`, `slhi`, etc.
 
 
-namespace Array
+/-
+  Simple implementation of insertion sort as a cutoff for small slices
+-/
+def insertionSort [Ord α]
+  (xs : Vector α size) (sllo slhi i : Nat)
+  (hslloslhi : sllo < slhi) (hslhi : slhi ≤ size)
+  (hslloi : sllo ≤ i) (hslhii : i ≤ slhi)
+  : Vector α size :=
 
-/--
-Internal implementation of `Array.qsort`.
+  if hfin : i = slhi then xs else
 
-`qpartition as lt lo hi hlo hhi` returns a pair `(⟨m, h₁, h₂⟩, as')` where
-`as'` is a permutation of `as` and `m` is a number such that:
-- `lo ≤ m`
-- `m < n`
-- `∀ i, lo ≤ i → i < m → lt as[i] as[m]`
-- `∀ j, m < j → j < hi → !lt as[j] as[m]`
+  let rec movedown [Ord α] (xs : Vector α size) (j : Nat) (hjsllo : sllo ≤ j) (hjslhi : j < slhi) : Vector α size :=
 
-It does so by first swapping the elements at indices `lo`, `mid := (lo + hi) / 2`, and `hi`
-if necessary so that the middle (pivot) element is at index `hi`.
-We then iterate from `k = lo` to `k = hi`, with a pointer `i` starting at `lo`, and
-swapping each element which is less than the pivot to position `i`, and then incrementing `i`.
+    if hfin : j = sllo then xs else
+
+    if compare (xs[j]) (xs[j - 1]) = .lt then
+      movedown (xs.swap j (j - 1)) (j - 1) (by omega) (by omega)
+    else xs
+
+  insertionSort (movedown xs i (by omega) (by omega)) sllo slhi (i + 1) (by omega) (by omega) (by omega) (by omega)
+
+/-
+  Selects the median of three in the given slice [sllo...slhi)
+-/
+def pivotselect [Ord α]
+  (xs : Vector α size) (sllo slhi : Nat)
+  (hslhi : slhi ≤ size) (hslloslhi : sllo < slhi)
+  : {idx : Nat // sllo ≤ idx ∧ idx < slhi} :=
+
+  let p1 := xs[sllo]
+  let p2 := xs[sllo + (slhi - sllo)/2]
+  let p3 := xs[slhi - 1]
+
+  let le := fun a b => compare a b != .gt
+
+  if le p1 p2 then
+    if le p2 p3 then ⟨sllo + (slhi - sllo)/2, (by omega)⟩
+    else if le p1 p3 then ⟨slhi - 1, (by omega)⟩
+    else ⟨sllo, (by omega)⟩
+
+  else
+    if le p1 p3 then ⟨sllo, (by omega)⟩
+    else if le p2 p3 then ⟨slhi - 1, (by omega)⟩
+    else ⟨sllo + (slhi - sllo)/2, (by omega)⟩
+
+/-
+  Second stage of dnf algorithm
+    pivot is in the eq-partition, therefore the other two slices that will need further sorting must be smaller than the original one
+-/
+def dnfstage2 [Ord α]
+  (xs : Vector α size) (pvt eq unproc fin_unproc sllo slhi : Nat)
+  (heq_unproc : eq < unproc) (hunproc_fin_unproc : unproc ≤ fin_unproc) (hfin_unproc : fin_unproc < size)
+  (hsllo : sllo ≤ eq) (hfin_unproc_slhi : fin_unproc < slhi) (hlohi : slhi - sllo > 1) (hslhi : slhi ≤ size)
+  (hpvt_sllo : sllo ≤ pvt) (hpvt_slhi : pvt < slhi) (hpvt_eq : eq ≤ pvt) (hpvt_fin_unproc : pvt ≤ fin_unproc)
+  : {r : (Vector α size × Nat × Nat) // r.snd.snd ≤ slhi ∧ sllo ≤ r.snd.fst ∧ r.snd.fst ≤ size ∧ r.snd.fst < r.snd.snd} :=
+
+  match compare xs[unproc] xs[pvt] with
+  | .lt =>
+    if hfin : unproc ≥ fin_unproc then ⟨((xs.swap unproc eq), eq + 1, fin_unproc + 1), by simp; omega⟩ else
+    if hpvt : eq = pvt then dnfstage2 (xs.swap unproc eq) unproc (eq + 1) (unproc + 1) fin_unproc sllo slhi (by omega) (by omega) (by omega) (by omega) (by omega) (by omega) (by omega) (by omega) (by omega) (by omega) (by omega) else
+    if compare xs[eq] xs[unproc] = .lt then dnfstage2 xs pvt (eq + 1) (unproc + 1) fin_unproc sllo slhi (by omega) (by omega) (by omega) (by omega) (by omega) (by omega) (by omega) (by omega) (by omega) (by omega) (by omega) else
+    dnfstage2 (xs.swap unproc eq) pvt (eq + 1) (unproc + 1) fin_unproc sllo slhi (by omega) (by omega) (by omega) (by omega) (by omega) (by omega) (by omega) (by omega) (by omega) (by omega) (by omega)
+
+  | .gt =>
+    if hfin : unproc ≥ fin_unproc then ⟨(xs, eq, fin_unproc), by simp; omega⟩ else
+    if hpvt : fin_unproc = pvt then dnfstage2 (xs.swap unproc fin_unproc) unproc eq unproc (fin_unproc - 1) sllo slhi (by omega) (by omega) (by omega) (by omega) (by omega) (by omega) (by omega) (by omega) (by omega) (by omega) (by omega) else
+    if compare xs[fin_unproc] xs[unproc] = .gt then dnfstage2 xs pvt eq unproc (fin_unproc - 1) sllo slhi (by omega) (by omega) (by omega) (by omega) (by omega) (by omega) (by omega) (by omega) (by omega) (by omega) (by omega)
+    else dnfstage2 (xs.swap unproc fin_unproc) pvt eq unproc (fin_unproc - 1) sllo slhi (by omega) (by omega) (by omega) (by omega) (by omega) (by omega) (by omega) (by omega) (by omega) (by omega) (by omega)
+
+  | .eq =>
+    if hfin : unproc ≥ fin_unproc then ⟨(xs, eq, fin_unproc + 1), by simp; omega⟩ else
+    dnfstage2 xs pvt eq (unproc + 1) fin_unproc sllo slhi (by omega) (by omega) (by omega) (by omega) (by omega) (by omega) (by omega) (by omega) (by omega) (by omega) (by omega)
+
+/-
+  First stage of dnf algorithm: partitions until the pivot is in the eq-partition
+    During both stages, the following partitioning scheme applies:
+      [sllo...eq) - elements smaller than the pivot
+      [eq...unproc) - elements that are equal to the pivot
+      [unproc...fin_unproc] - elements that have not been processed yet
+      [fin_unproc + 1...slhi) - elements that are greater than the pivot
+-/
+def dnfstage1 [Ord α]
+  (xs : Vector α size) (pvt eq unproc fin_unproc sllo slhi : Nat)
+  (heq_unproc : eq ≤ unproc) (hunproc_fin_unproc : unproc ≤ fin_unproc) (hfin_unproc : fin_unproc < size)
+  (hsllo : sllo ≤ eq) (hfin_unproc_slhi : fin_unproc < slhi) (hlohi : slhi - sllo > 1) (hslhi : slhi ≤ size)
+  (hpvt_sllo : sllo ≤ pvt) (hpvt_slhi : pvt < slhi) (hpvt_unproc : unproc ≤ pvt) (hpvt_fin_unproc : pvt ≤ fin_unproc)
+  : {r : (Vector α size × Nat × Nat) // r.snd.snd ≤ slhi ∧ sllo ≤ r.snd.fst ∧ r.snd.fst ≤ size ∧ r.snd.fst < r.snd.snd} :=
+
+  if hpvt : unproc = pvt then
+    if hfin : fin_unproc = unproc then ⟨(xs, eq, fin_unproc + 1), by simp; omega⟩
+    else dnfstage2 xs pvt eq (unproc + 1) fin_unproc sllo slhi (by omega) (by omega) (by omega) (by omega) (by omega) (by omega) (by omega) (by omega) (by omega) (by omega) (by omega)
+
+  else match compare xs[unproc] xs[pvt] with
+  | .lt =>
+    dnfstage1 (xs.swap eq unproc) pvt (eq+1) (unproc + 1) fin_unproc sllo slhi (by omega) (by omega) (by omega) (by omega) (by omega) (by omega) (by omega) (by omega) (by omega) (by omega) (by omega)
+
+  | .gt =>
+    if hfin : fin_unproc = unproc then ⟨(xs, eq, fin_unproc), by simp; omega⟩ else
+    if hfin2 : fin_unproc - unproc = 1 then ⟨(xs.swap unproc fin_unproc, eq, fin_unproc), by simp; omega⟩ else
+    if hpvt2 : pvt = fin_unproc then dnfstage2 (xs.swap unproc pvt) unproc eq (unproc + 1) (fin_unproc - 1) sllo slhi (by omega) (by omega) (by omega) (by omega) (by omega) (by omega) (by omega) (by omega) (by omega) (by omega) (by omega) else
+    dnfstage1 (xs.swap unproc fin_unproc) pvt eq unproc (fin_unproc - 1) sllo slhi (by omega) (by omega) (by omega) (by omega) (by omega) (by omega) (by omega) (by omega) (by omega) (by omega) (by omega)
+
+  | .eq =>
+    dnfstage2 xs pvt eq (unproc + 1) fin_unproc sllo slhi (by omega) (by omega) (by omega) (by omega) (by omega) (by omega) (by omega) (by omega) (by omega) (by omega) (by omega)
+
+/-
+  Wrapper for the two-staged Dutch National Flag algorithm
+    returns (xs, mid, hi) and some proofs so that xs is partitioned as follows:
+      [sllo...mid) --- elements smaller than the pivot
+      [mid...hi) -- elements equal to the pivot
+      [hi...slhi) - elemts that are greater than the pivot
 -/
 @[inline]
-def qpartition {n} (as : Vector α n) (lt : α → α → Bool) (lo hi : Nat) (w : lo ≤ hi := by omega)
-    (hlo : lo < n := by omega) (hhi : hi < n := by omega) : {m : Nat // lo ≤ m ∧ m ≤ hi} × Vector α n :=
-  let mid := (lo + hi) / 2
-  let as  := if lt as[mid] as[lo] then as.swap lo mid else as
-  let as  := if lt as[hi]  as[lo] then as.swap lo hi  else as
-  let as  := if lt as[mid] as[hi] then as.swap mid hi else as
-  let pivot := as[hi]
-  -- During this loop, elements below in `[lo, i)` are less than `pivot`,
-  -- elements in `[i, k)` are greater than or equal to `pivot`,
-  -- elements in `[k, hi)` are unexamined,
-  -- while `as[hi]` is (by definition) the pivot.
-  let rec @[specialize] loop (as : Vector α n) (i k : Nat)
-      (ilo : lo ≤ i := by omega) (ik : i ≤ k := by omega) (w : k ≤ hi := by omega) :=
-    if h : k < hi then
-      if lt as[k] pivot then
-        loop (as.swap i k) (i+1) (k+1)
-      else
-        loop as i (k+1)
-    else
-      (⟨i, ilo, by omega⟩, as.swap i hi)
-  loop as lo lo
+def dnfstaged [Ord α]
+  (xs : Vector α size) (pvt : Nat) (sllo slhi : Nat)
+  (hlohi : slhi - sllo > 1) (hhi : slhi ≤ size)
+  (hpvt : sllo ≤ pvt ∧ pvt < slhi)
+  : {r : (Vector α size × Nat × Nat) // r.snd.snd ≤ slhi ∧ sllo ≤ r.snd.fst ∧ r.snd.fst ≤ size ∧ r.snd.fst < r.snd.snd} :=
 
-/--
-In-place quicksort.
+  dnfstage1 xs pvt sllo sllo (slhi - 1) sllo slhi (by omega) (by omega) (by omega) (by omega) (by omega) (by omega) (by omega) (by omega) (by omega) (by omega) (by omega)
 
-`qsort as lt lo hi` sorts the subarray `as[lo...=hi]` in-place using `lt` to compare elements.
+/-
+  Main algorithm
 -/
-@[inline] def qsort (as : Array α) (lt : α → α → Bool := by exact (· < ·))
-    (lo := 0) (hi := as.size - 1) : Array α :=
-  let rec @[specialize] sort {n} (as : Vector α n) (lo hi : Nat) (w : lo ≤ hi := by omega)
-      (hlo : lo < n := by omega) (hhi : hi < n := by omega) :=
-    if h₁ : lo < hi then
-      let ⟨⟨mid, hmid⟩, as⟩ := qpartition as lt lo hi
-      if h₂ : mid ≥ hi then
-        -- This only occurs when `hi ≤ lo`,
-        -- and thus `as[lo...(hi+1)]` is trivially already sorted.
-        as
-      else
-        -- Otherwise, we recursively sort the two subarrays.
-        sort (sort as lo mid) (mid+1) hi
-    else as
-  if h : as.size = 0 then
-    as
-  else
-    let lo := min lo (as.size - 1)
-    let hi := max lo (min hi (as.size - 1))
-    sort as.toVector lo hi |>.toArray
+def quicksorthelper [Ord α]
+  (xs : Vector α  size) (sllo slhi : Nat)
+  (hslloslhi : sllo ≤ slhi) (hslhi : slhi ≤ size)
+  : Vector α size :=
 
-set_option linter.unusedVariables.funArgs false in
-/--
-Sort an array using `compare` to compare elements.
+  if hfin : slhi - sllo ≤ 1 then xs else
+
+  if slhi - sllo ≤ 16 then insertionSort xs sllo slhi (sllo + 1) (by omega) (by omega) (by omega) (by omega) else
+
+  let pvt := pivotselect xs sllo slhi (by omega) (by omega)
+  let ⟨(ys, mid, hi), ⟨h1, h2, h3⟩⟩ := (dnfstaged xs pvt sllo slhi (by omega) (by omega) (by omega))
+
+
+  have hterm : slhi - hi < slhi - sllo := by simp only [] at h1 h2 h3; omega
+  let ys' := quicksorthelper ys hi slhi (by omega) (by omega)
+
+  have hterm2 : mid - sllo < slhi - sllo := by simp only [] at h1 h2 h3; omega
+  quicksorthelper ys' sllo mid (by omega) (by omega)
+
+termination_by slhi - sllo
+
+
+/-
+  Uses a lt function to create a Ord instance for the actual algorithm
+    Necessary for compatibility reasons
 -/
-def qsortOrd [ord : Ord α] (xs : Array α) : Array α :=
-  xs.qsort fun x y => compare x y |>.isLT
+@[inline, reducible]
+def ordOfLt (lt : α → α → Bool) : Ord α where
+  compare a b :=
+    if lt a b then .lt
+    else if lt b a then .gt
+    else .eq
 
-end Array
+/-
+  Wrappers for qsort to ensure compatibility to previous code
+-/
+def Array.qsort (xs : Array α) (lt : α → α → Bool := by exact (· < ·)) (sllo := 0) (slhi := xs.size) : Array α :=
+  letI : Ord α := ordOfLt lt
+  let slhi := min slhi xs.size
+  let sllo := min sllo slhi
+  (quicksorthelper xs.toVector sllo slhi (by omega) (by omega)).toArray
+
+def Vector.qsort {size} (xs : Vector α size) (lt : α → α → Bool := by exact (· < ·)) (sllo := 0) (slhi := size) : Vector α size :=
+  letI : Ord α := ordOfLt lt
+  let slhi := min slhi size
+  let sllo := min sllo slhi
+  quicksorthelper xs sllo slhi (by omega) (by omega)
+
+def Array.qsortOrd [Ord α] (xs : Array α) (sllo := 0) (slhi := xs.size) : Array α :=
+  let slhi := min slhi xs.size
+  let sllo := min sllo slhi
+  (quicksorthelper xs.toVector sllo slhi (by omega) (by omega)).toArray
+
+def Vector.qsortOrd [Ord α] {size} (xs : Vector α size) (sllo := 0) (slhi := size) : Vector α size :=
+  let slhi := min slhi size
+  let sllo := min sllo slhi
+  quicksorthelper xs sllo slhi (by omega) (by omega)

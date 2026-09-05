@@ -79,33 +79,6 @@ def isValidMainType (type : Expr) : Bool :=
     isValidResultName resultName
   | _ => false
 
-/-- A postponed call of `compileDecls`. -/
-structure PostponedCompileDecls where
-  /-- Declaration names of this mutual group. -/
-  declNames : Array Name
-  /-- Options at time of original call, to be restored for tracing etc. -/
-  options : Options
-deriving BEq
-
-/--
-Saves postponed `compileDecls` calls.
-
-We use this state both in `lean` when doing post-hoc compilation of non-meta declarations on `#eval`
-etc. as well as in `leanir` to do separate compilation of all defs.
--/
-builtin_initialize postponedCompileDeclsExt : SimplePersistentEnvExtension PostponedCompileDecls (NameMap PostponedCompileDecls) ←
-  registerSimplePersistentEnvExtension {
-    addImportedFn := fun _ => {}
-    addEntryFn    := fun s e => e.declNames.foldl (·.insert · e) s
-    toArrayFn     := fun es => es.toArray
-    asyncMode     := .sync
-    replay?       := some <| SimplePersistentEnvExtension.replayOfFilter
-      (fun s e => !e.declNames.any s.contains) (fun s e => e.declNames.foldl (·.insert · e) s)
-    exportEntriesFnEx? := some fun _ _ es =>
-      -- `leanir` imports the target module privately
-      { exported := #[], server := #[], «private» := es.toArray }
-  }
-
 def resumeCompilation (declName : Name) (baseOpts : Options) : CoreM Unit := do
   let some decls := postponedCompileDeclsExt.getState (← getEnv) |>.find? declName | return
   let opts := baseOpts.mergeBy (fun _ base _ => base) decls.options
@@ -161,22 +134,34 @@ partial def run (declNames : Array Name) (baseOpts : Options) : CompilerM Unit :
         if !(isValidMainType info.type) then
           throwError "`main` function must have type `(List String →)? IO (UInt32 | Unit | PUnit)`"
 
-  let decls ← declNames.mapM toDecl
-  for decl in decls do
-    checkMeta decl
-
-  -- Now that we have done all input checks, check for postponement
+  -- Check for postponement before `toDecl`/`checkMeta`: `leanir` re-runs the conversion anyway
+  -- and now also performs the phase distinction check. TODO: in language-server mode, keep running
+  -- `toDecl`/`checkMeta` eagerly for immediate diagnostics.
   if (← getEnv).header.isModule && (← compiler.postponeCompile.getM) then
-    modifyEnv (postponedCompileDeclsExt.addEntry · { declNames := decls.map (·.name), options := ← getOptions })
+    -- `toDecl` compiles `_unsafe_rec` values under the safe name, so postpone bookkeeping must
+    -- use the same names — in particular the `meta` tag lives on the safe name.
+    let declNames := declNames.map fun n => (Compiler.isUnsafeRecName? n).getD n
+    modifyEnv (postponedCompileDeclsExt.addEntry · { declNames, options := ← getOptions })
     -- meta defs are compiled locally so they are available for execution/compilation without
     -- importing `.ir` but still marked for `leanir` compilation so that we do not have to persist
     -- module-local compilation information between the two processes
-    if decls.any (isMarkedMeta (← getEnv) ·.name) then
+    if declNames.any (isMarkedMeta (← getEnv) ·) then
       -- avoid re-compiling the meta defs in this process; the entry for `leanir` is not affected
-      modifyEnv (postponedCompileDeclsExt.modifyState · fun s => decls.foldl (·.erase ·.name) s)
+      modifyEnv (postponedCompileDeclsExt.modifyState · fun s => declNames.foldl (·.erase) s)
     else
-      trace[Compiler] "postponing compilation of {decls.map (·.name)}"
+      if (← compiler.eagerToDecl.getM) then
+        -- The caller interprets compilation failures (e.g. `noncomputable section` marking), so
+        -- run the conversion and its checks now; a failure rolls back the postpone entry via the
+        -- caller's state restore, and on success `leanir` re-runs the conversion anyway.
+        let decls ← declNames.mapM toDecl
+        for decl in decls do
+          checkMeta decl
+      trace[Compiler] "postponing compilation of {declNames}"
       return
+
+  let decls ← declNames.mapM toDecl
+  for decl in decls do
+    checkMeta decl
 
   -- Compile any postponed dependencies first.
   -- In leanir, we visit declarations in the original order, but this can still be necessary for

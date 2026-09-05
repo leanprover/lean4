@@ -250,12 +250,11 @@ instance [BEq α] [Hashable α] : Inter (Raw α β) := ⟨inter⟩
 
 instance [BEq α] [Hashable α] : SDiff (Raw α β) := ⟨diff⟩
 
+
 @[inherit_doc DHashMap.Raw.beq] def beq {β : Type v} [BEq α] [Hashable α] [BEq β] (m₁ m₂ : Raw α β) : Bool :=
   DHashMap.Raw.Const.beq m₁.inner m₂.inner
 
 instance [BEq α] [Hashable α] [BEq β] : BEq (Raw α β) := ⟨beq⟩
-
-section Unverified
 
 @[inline, inherit_doc DHashMap.Raw.filterMap] def filterMap {γ : Type w} (f : α → β → Option γ)
     (m : Raw α β) : Raw α γ :=
@@ -273,6 +272,13 @@ section Unverified
 
 @[inline, inherit_doc DHashMap.Raw.keysArray] def keysArray (m : Raw α β) : Array α :=
   m.inner.keysArray
+
+@[inline, inherit_doc DHashMap.Raw.partition] def partition [BEq α] [Hashable α] (f : α → β → Bool)
+    (m : Raw α β) : Raw α β × Raw α β :=
+  let ⟨l, r⟩ := m.inner.partition f
+  ⟨⟨l⟩, ⟨r⟩⟩
+
+section Unverified
 
 /-! We currently do not provide lemmas for the functions below. -/
 

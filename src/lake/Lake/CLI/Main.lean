@@ -29,6 +29,7 @@ import Lake.CLI.Actions
 import Lake.CLI.Translate
 import Lake.CLI.Serve
 public import Lake.CLI.BuiltinLint
+import Lake.CLI.Samply
 import Init.Data.String.Modify
 
 -- # CLI
@@ -84,6 +85,8 @@ public structure LakeOptions where
   runBuiltinLint : Bool := false
   /-- Whether `lake lint` should skip the lint driver (via `--builtin-only`). -/
   builtinOnly : Bool := false
+  samplyRaw : Bool := false
+  samplyNoServe : Bool := false
 
 def LakeOptions.outLv (opts : LakeOptions) : LogLevel :=
   opts.outLv?.getD opts.verbosity.minLogLv
@@ -384,6 +387,9 @@ def lakeLongOption : (opt : String) → CliM PUnit
                 builtinLint.checks := opts.builtinLint.checks ++ checks,
                 builtinLint.mode := .codeQuality }
 
+-- Samply options
+| "--raw" => modifyThe LakeOptions ({· with samplyRaw := true})
+| "--no-serve" => modifyThe LakeOptions ({· with samplyNoServe := true})
 -- Shared options
 | "--force" => modifyThe LakeOptions ({· with shake.force := true})
 -- Shake options
@@ -1218,6 +1224,17 @@ protected def exe : CliM PUnit := do
   let exeFile ← ws.runBuild exe.fetch (mkBuildConfig opts)
   exit <| ← (Lake.env exeFile.toString args.toArray).run <| mkLakeContext ws
 
+protected def samply : CliM PUnit := do
+  processOptions lakeOption
+  let opts ← getThe LakeOptions
+  let exeSpec ← takeArg "executable target"
+  let config ← mkLoadConfig opts
+  let ws ← loadWorkspace config
+  let exe ← parseExeTargetSpec ws exeSpec
+  let exeFile ← ws.runBuild exe.fetch (mkBuildConfig opts)
+  discard <| Samply.run exeFile.toString opts.subArgs.toArray (opts.outputsFile?.map (·.toString))
+    (raw := opts.samplyRaw) (serve := !opts.samplyNoServe)
+
 protected def lean : CliM PUnit := do
   processOptions lakeOption
   let leanFile ← takeArg "Lean file"
@@ -1338,6 +1355,7 @@ def lakeCli : (cmd : String) → CliM PUnit
 | "serve"               => lake.serve
 | "env"                 => lake.env
 | "exe" | "exec"        => lake.exe
+| "samply"              => lake.samply
 | "lean"                => lake.lean
 | "translate-config"    => lake.translateConfig
 | "reservoir-config"    => lake.reservoirConfig

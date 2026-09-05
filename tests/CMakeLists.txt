@@ -288,6 +288,8 @@ option(LAKE_CI "Enable full Lake test suite (use `lake-ci` label on PRs)" OFF)
 set(LAKE_TEST_GLOBS
   "${LEAN_SOURCE_DIR}/../tests/lake/examples/test.sh"
   "${LEAN_SOURCE_DIR}/../tests/lake/tests/test.sh"
+  "${LEAN_SOURCE_DIR}/../tests/lake/tests/builtin-lint/test.sh"
+  "${LEAN_SOURCE_DIR}/../tests/lake/tests/samply/test.sh"
 )
 # Witth `lake-ci`, add extra tests that otherwise rarely need exercising
 if(LAKE_CI)

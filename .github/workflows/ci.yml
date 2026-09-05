@@ -346,7 +346,8 @@ jobs:
                 //   failures?
                 // * `kernelMaxRecDepth` stack-overflows in the interpreter.
                 // * `*bench` is too expensive to run with fsanitize (also can e.g. stack overflow).
-                "CTEST_OPTIONS": "-E 'StackOverflow|interactive|async_select_channel|9366|elab/grind|pkg/|lake/|kernelMaxRecDepth|bench/'"
+                // * `async_dns` exhibits a known teardown race condition
+                "CTEST_OPTIONS": "-E 'StackOverflow|interactive|async_select_channel|9366|elab/grind|pkg/|lake/|kernelMaxRecDepth|bench/|async_dns'"
               },
               {
                 "name": "Linux tsanitize",

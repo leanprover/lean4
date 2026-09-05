@@ -131,6 +131,16 @@ def isEmpty (s : ByteArray) : Bool :=
 Copies the slice at `[srcOff, srcOff + len)` in {name}`src` to `[destOff, destOff + len)` in
 {name}`dest`, growing {name}`dest` if necessary. If {name}`exact` is {name}`false`, the capacity
 will be doubled when grown.
+
+Out-of-bounds indices are clamped: if {name}`srcOff` is at or past the end of {name}`src`, then
+{name}`dest` is returned unchanged; {name}`len` is reduced so that the source slice ends at the
+end of {name}`src`; and if {name}`destOff` is at or past the end of {name}`dest`, the slice is
+appended at the end of {name}`dest`.
+
+When {name}`dest` is not shared, the copy is performed within its existing buffer if the capacity
+suffices, and with a single reallocation otherwise; the argument {name}`dest` is owned rather than
+borrowed to make this possible. To copy a slice of an array to a different position within the
+same array, use {lit}`ByteArray.copyWithin`.
 -/
 @[extern "lean_byte_array_copy_slice"]
 def copySlice (src : @& ByteArray) (srcOff : Nat) (dest : ByteArray) (destOff len : Nat) (exact : Bool := true) : ByteArray :=
@@ -174,6 +184,26 @@ theorem append_eq {a b : ByteArray} : a.append b = a ++ b := rfl
 @[simp]
 theorem fastAppend_eq {a b : ByteArray} : a.fastAppend b = a ++ b := by
   simp [← append_eq_fastAppend]
+
+/--
+Copies the slice at `[srcOff, srcOff + len)` in {name}`a` to `[destOff, destOff + len)` in
+{name}`a`, growing {name}`a` if necessary. If {name}`exact` is {name}`false`, the capacity will be
+doubled when grown.
+
+This is equivalent to {lean}`a.copySlice srcOff a destOff len exact`, but when {name}`a` is not
+shared the copy is performed within the existing buffer if its capacity suffices, and with a
+single reallocation otherwise, even when the source and destination ranges overlap; the source
+range is read as it was before the copy. The argument {name}`a` is owned rather than borrowed to
+make this possible, whereas passing the same array as both source and destination of
+{name}`ByteArray.copySlice` always copies the whole array.
+
+With {lean}`destOff ≥ a.size` this appends the slice at `[srcOff, srcOff + len)` to the end of
+{name}`a`, the analogue of Rust's {lit}`Vec::extend_from_within`; as with
+{name}`ByteArray.copySlice`, pass {lit}`exact := false` when growing the array repeatedly.
+-/
+@[extern "lean_byte_array_copy_within"]
+def copyWithin (a : ByteArray) (srcOff destOff len : Nat) (exact : Bool := true) : ByteArray :=
+  a.copySlice srcOff a destOff len exact
 
 /--
 Converts a packed array of bytes to a linked list.

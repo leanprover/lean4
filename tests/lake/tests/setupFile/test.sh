@@ -33,6 +33,12 @@ test_out '"options":{}' setup-file ImportFoo.lean
 # Lake can identify the module corresponding to the path.
 test_out '"options":{"weak.foo":"bar"}' setup-file Test.lean
 
+# Test that `moreServerOptions` applies to external modules.
+test_out '"options":{"weak.foo":"baz"}' -f moreServerOptions.toml setup-file ImportTest.lean
+
+# Test that `moreServerOptions` applies to internal modules.
+test_out '"options":{"weak.foo":"baz"}' -f moreServerOptions.toml setup-file Test.lean
+
 # Test that `setup-file` on an invalid Lean configuration file succeeds.
 test_run -f invalid.lean setup-file invalid.lean
 

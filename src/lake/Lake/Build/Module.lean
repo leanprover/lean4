@@ -1465,7 +1465,7 @@ def setupEditedModule
       importArts := transImpArts
       dynlibs := dynlibs.map (·.path)
       plugins := plugins.map (·.path)
-      options := mod.leanOptions
+      options := mod.serverOptions
     }
 
 /--

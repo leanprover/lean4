@@ -5316,7 +5316,7 @@ private theorem mem_toList_fst_partition [EquivBEq α] [LawfulHashable α] (h : 
 theorem fst_partition_equiv_filter [EquivBEq α] [LawfulHashable α]
     {p : (a : α) → β a → Bool} (h : m.1.WF)  :
     (m.partition p).1.1.Equiv (m.filter p).1 := by
-  simp_to_model [partition, Equiv, filter] using List.Perm.refl
+  simp
 
 theorem snd_partition_equiv_filter_not [EquivBEq α] [LawfulHashable α]
     {p : (a : α) → β a → Bool} (h : m.1.WF)  :

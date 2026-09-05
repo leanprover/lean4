@@ -494,6 +494,11 @@ Requires `sz` to be a positive multiple of `LEAN_OBJECT_SIZE_DELTA` of at most
 `MI_SMALL_SIZE_MAX`. Initializes `m_cs_sz`.
 */
 LEAN_EXPORT LEAN_ATTR_MALLOC lean_object * lean_alloc_small_object_core(unsigned sz);
+/*
+As above, but leaving the entire header to the caller, so that a caller writing all four header
+fields can do so with a single store.
+*/
+LEAN_EXPORT LEAN_ATTR_MALLOC lean_object * lean_alloc_small_object_raw(unsigned sz);
 #endif
 
 #ifndef __cplusplus
@@ -796,9 +801,37 @@ static inline uint8_t * lean_ctor_scalar_cptr(lean_object * o) {
 
 static inline lean_object * lean_alloc_ctor(unsigned tag, unsigned num_objs, unsigned scalar_sz) {
     assert(tag <= LeanMaxCtorTag && num_objs < LEAN_MAX_CTOR_FIELDS && scalar_sz < LEAN_MAX_CTOR_SCALARS_SIZE);
-    lean_object * o = lean_alloc_ctor_memory(lean_usize_add_checked(lean_usize_add_checked(sizeof(lean_ctor_object), lean_usize_mul_checked(sizeof(void*), num_objs)), scalar_sz));
+    size_t sz = lean_usize_add_checked(lean_usize_add_checked(sizeof(lean_ctor_object), lean_usize_mul_checked(sizeof(void*), num_objs)), scalar_sz);
+#ifdef LEAN_MIMALLOC
+    // NOTE: `sz` is known at compile time for most callers, folding the branches below
+    size_t sz1 = lean_align(sz, LEAN_OBJECT_SIZE_DELTA);
+    lean_object * o;
+    if (LEAN_LIKELY(sz1 <= MI_SMALL_SIZE_MAX)) {
+        o = lean_alloc_small_object_raw((unsigned)sz1);
+    } else {
+        lean_inc_heartbeat();
+        void * mem = mi_malloc(sz1);
+        if (mem == 0) lean_internal_panic_out_of_memory();
+        o = (lean_object*)mem;
+    }
+    if (sz1 > sz) {
+        /* Zero the last word so that the (sz1 - sz) uninitialized trailing bytes do not make the
+           structural comparisons in `maxsharing.cpp` and `compact.cpp` miss sharing. */
+        ((size_t*)((char*)o + sz1))[-1] = 0;
+    }
+    /* Write the full header with adjacent stores; for the constant arguments of compiled code they
+       merge into one. `lean_set_st_header` cannot merge, as it must preserve the `m_cs_sz` that
+       `lean_alloc_small_object_core` has already written. */
+    lean_internal_set_rc(o, 1);
+    o->m_cs_sz = (unsigned)sz1;
+    o->m_other = num_objs;
+    o->m_tag   = tag;
+    return o;
+#else
+    lean_object * o = lean_alloc_ctor_memory((unsigned)sz);
     lean_set_st_header(o, tag, num_objs);
     return o;
+#endif
 }
 
 static inline b_lean_obj_res lean_ctor_get(b_lean_obj_arg o, unsigned i) {

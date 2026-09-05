@@ -13,7 +13,7 @@ public import Std.Time.Time.Unit.Nanosecond
 namespace Std
 namespace Time
 namespace Second
-open Internal
+open Time.Internal
 
 set_option linter.all true
 

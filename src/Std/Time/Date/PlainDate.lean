@@ -15,7 +15,7 @@ public section
 namespace Std
 namespace Time
 open Std.Time
-open Internal
+open Time.Internal
 open Lean
 
 set_option linter.all true

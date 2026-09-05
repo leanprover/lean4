@@ -30,7 +30,7 @@ scoped macro "order" : tactic => `(tactic| {
 
 end Internal
 
-open Internal
+open String.Internal
 
 namespace Pos.Raw
 

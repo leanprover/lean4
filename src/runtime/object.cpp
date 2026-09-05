@@ -1898,8 +1898,10 @@ extern "C" LEAN_EXPORT lean_obj_res lean_float_to_string(double a) {
 extern "C" LEAN_EXPORT double lean_float_scaleb(double a, b_lean_obj_arg b) {
    if (lean_is_scalar(b)) {
      return scalbn(a, lean_scalar_to_int(b));
-   } else if (a == 0 || mpz_value(b).is_neg()) {
-     return 0;
+   } else if (!isfinite(a) || a == 0) {
+     return a;
+   } else if (mpz_value(b).is_neg()) {
+     return a * 0.0;
    } else {
      return a * (1.0 / 0.0);
    }
@@ -1950,8 +1952,10 @@ extern "C" LEAN_EXPORT lean_obj_res lean_float32_to_string(float a) {
 extern "C" LEAN_EXPORT float lean_float32_scaleb(float a, b_lean_obj_arg b) {
    if (lean_is_scalar(b)) {
      return scalbn(a, lean_scalar_to_int(b));
-   } else if (a == 0 || mpz_value(b).is_neg()) {
-     return 0;
+   } else if (!isfinite(a) || a == 0) {
+     return a;
+   } else if (mpz_value(b).is_neg()) {
+     return a * 0.0f;
    } else {
      return a * (1.0 / 0.0);
    }

@@ -108,8 +108,9 @@ macro_rules
       | apply Raw₀.wf_insertMany₀ | apply Raw₀.Const.wf_insertMany₀
       | apply Raw₀.Const.wf_insertManyIfNewUnit₀ | apply Raw₀.wf_union₀
       | apply Raw.WF.filter₀ | apply Raw₀.wf_map₀ | apply Raw₀.wf_filterMap₀
-      | apply Raw.WF.emptyWithCapacity₀ | apply Raw.WF.inter₀ | apply Raw₀.wf_diff₀ | apply Raw.WF.inter₀
-      | apply Raw.WF.fst_partition₀ | apply Raw.WF.snd_partition₀) <;> wf_trivial)
+      | apply Raw.WF.emptyWithCapacity₀ | apply Raw.WF.inter₀ | apply Raw₀.wf_diff₀
+      | apply Raw.WF.fst_partition₀ | apply Raw.WF.snd_partition₀ ) <;> wf_trivial)
+
 
 /-- Internal implementation detail of the hash map -/
 scoped macro "empty" : tactic => `(tactic| { intros; simp_all [List.isEmpty_iff] } )
@@ -5225,6 +5226,7 @@ end Const
 end map
 
 section partition
+
 theorem fst_partition_not_eq_snd_partition [EquivBEq α] [LawfulHashable α]
     {p : (a : α) → β a → Bool} :
     (m.partition (fun a b => ! p a b)).fst = (m.partition p).snd := by
@@ -5314,13 +5316,7 @@ private theorem mem_toList_fst_partition [EquivBEq α] [LawfulHashable α] (h : 
 theorem fst_partition_equiv_filter [EquivBEq α] [LawfulHashable α]
     {p : (a : α) → β a → Bool} (h : m.1.WF)  :
     (m.partition p).1.1.Equiv (m.filter p).1 := by
-  -- simp_to_model [partition, Equiv, filter]
-  simp (discharger := wf_trivial) only [
-    Raw.equiv_iff_toListModel_perm,
-    -- Not generated
-    List.Perm.congr_left (toListModel_fst_partition _),
-    List.Perm.congr_right toListModel_filter,
-    List.Perm.refl]
+  simp_to_model [partition, Equiv, filter] using List.Perm.refl
 
 theorem snd_partition_equiv_filter_not [EquivBEq α] [LawfulHashable α]
     {p : (a : α) → β a → Bool} (h : m.1.WF)  :

@@ -67,24 +67,36 @@ where
       return { pattern := p, constraints := cs.toList }
 
 private partial def validateHint (hint : UnificationHint) : MetaM Unit := do
-  hint.constraints.forM fun c => do
-    unless (← isDefEq c.lhs c.rhs) do
-      throwError "invalid unification hint, failed to unify constraint left-hand-side{indentExpr c.lhs}\nwith right-hand-side{indentExpr c.rhs}"
-  unless (← isDefEq hint.pattern.lhs hint.pattern.rhs) do
-    throwError "invalid unification hint, failed to unify pattern left-hand-side{indentExpr hint.pattern.lhs}\nwith right-hand-side{indentExpr hint.pattern.rhs}"
+  let (vars, vals) ← hint.constraints.foldlM (init := (#[], #[])) fun (vars, vals) constraint => do
+    let lhs := constraint.lhs.replaceFVars vars vals
+    let rhs := constraint.rhs.replaceFVars vars vals
+    if lhs.isFVar then
+      if rhs.hasAnyFVar (· == lhs.fvarId!) then
+        throwError "invalid unification hint, cyclic constraint{indentD m!"{lhs} =?= {rhs}"}"
+      return (vars.push lhs, vals.map (·.replaceFVar lhs rhs) |>.push rhs)
+    else if rhs.isFVar then
+      if lhs.hasAnyFVar (· == rhs.fvarId!) then
+        throwError "invalid unification hint, cyclic constraint{indentD m!"{lhs} =?= {rhs}"}"
+      return (vars.push rhs, vals.map (·.replaceFVar rhs lhs) |>.push lhs)
+    else
+      throwError "invalid unification hint, constraint{indentD m!"{lhs} =?= {rhs}"}\ndoes not contain a variable on either side"
+  let lhs := hint.pattern.lhs.replaceFVars vars vals
+  let rhs := hint.pattern.rhs.replaceFVars vars vals
+  unless ← isDefEq lhs rhs do
+    throwError "invalid unification hint, failed to unify pattern left-hand-side{indentExpr lhs}\nwith right-hand-side{indentExpr rhs}"
 
-def addUnificationHint (declName : Name) (kind : AttributeKind) : MetaM Unit :=
-  withNewMCtxDepth do
-    let info ← getConstInfo declName
-    match info.value? with
-    | none => throwError "invalid unification hint, it must be a definition"
-    | some val =>
-      let (_, _, body) ← lambdaMetaTelescope val
+def addUnificationHint (declName : Name) (kind : AttributeKind) : MetaM Unit := do
+  let info ← getConstInfo declName
+  match info.value? with
+  | none => throwError "invalid unification hint, it must be a definition"
+  | some val =>
+    lambdaTelescope val fun vars body => do
       match decodeUnificationHint body with
       | Except.error msg => throwError msg
       | Except.ok hint =>
-        let keys ← withConfigWithKey config <| DiscrTree.mkPath hint.pattern.lhs
         validateHint hint
+        let vars' := vars.map DiscrTree.mkNoindexAnnotation
+        let keys ← withConfigWithKey config <| DiscrTree.mkPath (hint.pattern.lhs.replaceFVars vars vars')
         unificationHintExtension.add { keys := keys, val := declName } kind
 
 builtin_initialize

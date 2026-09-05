@@ -12,7 +12,7 @@ source ../common.sh
 copy_to_work lakefile.toml Main.lean Mixed.lean Test.lean Test Plain.lean Plain Eval.lean dep
 
 # Elaboration alone does not generate code
-test_run build Test.A
+test_run build Test.A:elabArts
 test_exp ! -f .lake/build/ir/Test/A.c
 
 # Each module's code generation is a job of its own

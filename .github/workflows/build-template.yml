@@ -68,7 +68,7 @@ jobs:
           brew install ccache tree zstd coreutils gmp libuv openssl
         if: runner.os == 'macOS'
       - name: Checkout
-        uses: actions/checkout@v6
+        uses: actions/checkout@v7
         with:
           # the default is to use a virtual merge commit between the PR and master: just use the PR
           ref: ${{ github.event.pull_request.head.sha }}

@@ -50,3 +50,5 @@ public import Lean.Shell
 public import Lean.ExtraModUses
 public import Lean.OriginalConstKind
 public import Lean.PostprocessTraces
+public import Lean.SimpLC
+public import Lean.SimpLC.Exceptions

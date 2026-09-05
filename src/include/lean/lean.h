@@ -1498,6 +1498,16 @@ static inline lean_object * lean_set_external_data(lean_object * o, void * data)
 
 /* Natural numbers */
 
+/*
+  NOTE: `tests/elab/mpn_model.lean` transliterates the `Nat` operations below, together with
+  `mpn.cpp`, the GMP-free part of `mpz.cpp` and the `lean_nat_big_*` of `object.cpp`, and proves
+  that the fifteen operations `type_checker::reduce_nat` reduces compute what `Nat` does. It quotes
+  each one beside the definition standing for it, so a change here should be mirrored there. The
+  scalar fast paths carry the weight: the model reproduces `lean_nat_mul`'s `r / n1 == n2`
+  wraparound test and `lean_nat_shiftr`'s `s2 < 64` guard, and proves `lean_nat_add`'s sum cannot
+  overflow, all of which a change to `LEAN_MAX_SMALL_NAT` or to these bodies would invalidate.
+*/
+
 #define LEAN_MAX_SMALL_NAT (SIZE_MAX >> 1)
 
 LEAN_EXPORT lean_object * lean_nat_big_succ(lean_object * a);

@@ -31,6 +31,7 @@ COMMANDS:
   clean                 remove build outputs
   shake                 minimize imports in source files
   challenge             judge a solution against a challenge
+  check                 check this project against external checker(s)
   env <cmd> <args>...   execute a command in Lake's environment
   lean <file>           elaborate a Lean file in Lake's context
   update                update dependencies and save them to the manifest
@@ -472,6 +473,49 @@ HARDENING:
     systemd-run --user --pty --property=RestrictAddressFamilies=~AF_UNIX \\
       lake challenge --config challenge.json"
 
+def helpCheck :=
+"Check this project against external checker(s)
+
+USAGE:
+  lake check
+
+Builds the default build targets, exports them, and replays the result through
+the kernel, erroring on any use of non-standard axioms.
+
+The project is untrusted input: its configuration is evaluated, and its code
+built, exported and resolved, inside a `landrun` sandbox. Only the export
+crosses back, so none of its `.olean` files is ever loaded outside it. Two
+sandboxed processes do the work: one resolves dependencies, the only step
+allowed to reach the network, and one builds and exports. `landrun` is
+required; there is no unsandboxed mode, so this command is available on Linux
+only.
+
+The project has to carry a `lake-manifest.json`, because dependencies are
+resolved inside the sandbox and it cannot write to the project directory.
+Building the project once is enough to write one.
+
+EXIT CODES:
+  0                     the kernel accepts the project and it rests only on the
+                        permitted axioms
+  1                     the kernel rejects it, an axiom is not permitted, or a
+                        build did not succeed
+  2                     could not start: `landrun` is missing, the project has
+                        no `lake-manifest.json`, or it has no default targets
+
+ENVIRONMENT:
+  COMPARATOR_LANDRUN    sandbox executable (default: `landrun` on PATH)
+
+  The exporter is always the `leanexport` of this toolchain, and deliberately
+  not configurable: the export format has to match the compiler that produced
+  the `.olean` files being exported.
+
+HARDENING:
+  The sandbox bounds writes and TCP connections exactly as `lake challenge`'s
+  does, and its limits and the `AF_UNIX` caveat apply here too. See the
+  HARDENING section of `lake help challenge`.
+
+See `lake help challenge` to judge a solution against a challenge instead."
+
 def helpCacheCli :=
 "Manage the Lake cache
 
@@ -857,6 +901,7 @@ public def help : (cmd : String) → String
 | "clean"               => helpClean
 | "shake"               => helpShake
 | "challenge"           => helpChallenge
+| "check"               => helpCheck
 | "script"              => helpScriptCli
 | "scripts"             => helpScriptList
 | "run"                 => helpScriptRun

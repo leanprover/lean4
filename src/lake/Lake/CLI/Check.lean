@@ -27,8 +27,8 @@ is a challenge to compare against, that it proves the challenge's statements usi
 a whitelist. This backs `lake challenge` and `lake check`.
 
 The code being judged is adversarial input: it is built and exported inside a `landrun` sandbox,
-and no `.olean` produced from it is ever mapped into this process. Only the resulting NDJSON export
-crosses the boundary.
+and no `.olean` produced from it is ever mapped into the process that reports the verdict. Only the
+resulting NDJSON export crosses the boundary.
 -/
 
 namespace Lake.Check
@@ -117,29 +117,29 @@ def buildLandrunArgs (spawnArgs : LandrunArgs) : Array String :=
   let args := spawnArgs.connectPorts.foldl (init := args) (fun acc port => acc ++ #["--connect-tcp", port])
   args ++ #["--", spawnArgs.cmd] ++ spawnArgs.args
 
-def runSandBoxedWithStdout (spawnArgs : LandrunArgs) : M String := do
-  let args := buildLandrunArgs spawnArgs
-  let { stdout, stderr, exitCode } ← IO.Process.output {
-    cmd := (← read).whichLandrun,
-    args,
+/-- The `landrun` invocation that puts `spawnArgs` under the sandbox. -/
+def landrunSpawnArgs (spawnArgs : LandrunArgs) : M IO.Process.SpawnArgs := do
+  return {
+    cmd := (← read).whichLandrun
+    args := buildLandrunArgs spawnArgs
     env := spawnArgs.envOverride
-    cwd := (← getProjectDir)
+    cwd := ← getProjectDir
   }
+
+def runSandBoxedWithStdout (spawnArgs : LandrunArgs) : M String := do
+  let { stdout, stderr, exitCode } ← IO.Process.output (← landrunSpawnArgs spawnArgs)
   IO.eprint stderr
   if exitCode != 0 then
     throw <| .userError s!"Child exited with {exitCode}"
   return stdout
 
+/-- Runs `spawnArgs` sandboxed, letting its output through, and returns its exit code. -/
+def runSandBoxedExitCode (spawnArgs : LandrunArgs) : M UInt32 := do
+  let proc ← IO.Process.spawn (← landrunSpawnArgs spawnArgs)
+  proc.wait
 
 def runSandBoxed (spawnArgs : LandrunArgs) : M Unit := do
-  let args := buildLandrunArgs spawnArgs
-  let proc ← IO.Process.spawn {
-    cmd := (← read).whichLandrun,
-    args,
-    env := spawnArgs.envOverride
-    cwd := (← getProjectDir)
-  }
-  let ret ← proc.wait
+  let ret ← runSandBoxedExitCode spawnArgs
   if ret != 0 then
     throw <| .userError s!"Child exited with {ret}"
 
@@ -183,8 +183,53 @@ def safeResolveWorkspace : M (String × String) := do
     throw <| .userError "`lake env` did not report the project's search path"
   return (leanPath, binPath)
 
-def safeLakeBuild (target : Lean.Name) : M Unit := do
-  IO.println s!"Building {target}"
+/--
+Materializes the project's dependencies into `.lake`.
+
+Resolution elaborates the project's configuration, which is code, so it runs in the sandbox; it is
+also the only step permitted to reach the network. Nothing has to come back: the process that
+exports loads the workspace itself and so already knows the search path.
+-/
+def safeResolveDeps : M Unit := do
+  IO.println "Resolving dependencies"
+  let projectDir ← getProjectDir
+  let dotLakeDir := projectDir / ".lake"
+  if !(← System.FilePath.pathExists dotLakeDir) then
+    IO.FS.createDir dotLakeDir
+  runSandBoxed {
+    cmd := (← read).whichLake.toString,
+    args := #["resolve-deps"],
+    envPass := #["PATH", "HOME", "LEAN_ABORT_ON_PANIC"]
+    envOverride := #[("LEAN_ABORT_ON_PANIC", some "1")]
+    readablePaths := #[projectDir]
+    writablePaths := #[dotLakeDir]
+    -- `https` and `ssh`, the transports Lake's git dependencies use.
+    connectPorts := #["443", "22"]
+  }
+
+/--
+Builds and exports the project in one sandboxed `lake` process, and returns the export.
+
+`LAKE_CHECK_EXPORT` puts that process into the half of `lake check` that runs inside the sandbox,
+so the modules to check never cross a process boundary: it resolves them, builds them and dumps the
+export itself, writing the export to stdout and everything else to stderr.
+-/
+def safeBuildAndExport : M String := do
+  IO.println "Building and exporting"
+  let projectDir ← getProjectDir
+  runSandBoxedWithStdout {
+    cmd := (← read).whichLake.toString,
+    args := #["check"],
+    envPass := #["PATH", "HOME", "LEAN_ABORT_ON_PANIC"]
+    envOverride := #[("LEAN_ABORT_ON_PANIC", some "1"), ("LAKE_CHECK_EXPORT", some "1")]
+    readablePaths := #[projectDir]
+    writablePaths := #[projectDir / ".lake"]
+  }
+
+def safeLakeBuild (targets : Array Lean.Name) : M Unit := do
+  let targetArgs := targets.map (·.toString)
+  let targetList := " ".intercalate targetArgs.toList
+  IO.println s!"Building {targetList}"
   let projectDir ← getProjectDir
   let dotLakeDir := projectDir / ".lake"
 
@@ -194,30 +239,30 @@ def safeLakeBuild (target : Lean.Name) : M Unit := do
   let whichLake := (← read).whichLake
   runSandBoxed {
     cmd := whichLake.toString,
-    args := #["build", target.toString],
+    args := #["build"] ++ targetArgs,
     envPass := #["PATH", "HOME", "LEAN_ABORT_ON_PANIC"]
     envOverride := #[("LEAN_ABORT_ON_PANIC", some "1")]
     readablePaths := #[projectDir]
     writablePaths := #[dotLakeDir]
   }
 
-def safeExport (module : Lean.Name) (decls : Array Lean.Name) : M String := do
-  IO.println s!"Exporting {decls} from {module}"
-  let baseArgs := #[module.toString, "--"]
-  let args := decls.foldl (·.push <| ·.toString) baseArgs
-
+/-- Runs the bundled exporter in the sandbox, with the grants every export needs. -/
+def runExporter (args : Array String) : M String := do
   let projectDir ← getProjectDir
-  let dotLakeDir := projectDir / ".lake"
   let whichLean4Export := (← read).whichLean4Export
   runSandBoxedWithStdout {
     cmd := whichLean4Export.toString
-    args := args,
+    args
     envPass := #["PATH", "HOME", "LEAN_PATH", "LEAN_ABORT_ON_PANIC"]
     envOverride := #[("LEAN_ABORT_ON_PANIC", some "1"), ("LEAN_PATH", some (← read).leanPath),
       ("PATH", some (← read).binPath)]
-    readablePaths := #[projectDir, dotLakeDir]
+    readablePaths := #[projectDir, projectDir / ".lake"]
     writablePaths := #[]
   }
+
+def safeExport (module : Lean.Name) (decls : Array Lean.Name) : M String := do
+  IO.println s!"Exporting {decls} from {module}"
+  runExporter <| #[module.toString, "--"] ++ decls.map (·.toString)
 
 def runExternalKernel (kernelName : String) (kernelCommand : Array String)
     (solutionExport : String) : M (Option String) := do
@@ -253,17 +298,8 @@ def runExternalKernel (kernelName : String) (kernelCommand : Array String)
       readablePaths := #[configPath.toString, solutionPath.toString]
       writablePaths := #[]
     }
-    let args := buildLandrunArgs spawnArgs
-
     try
-      let proc ← IO.Process.spawn {
-        cmd := (← read).whichLandrun,
-        args,
-        env := spawnArgs.envOverride
-        cwd := (← getProjectDir)
-      }
-
-      let ret ← proc.wait
+      let ret ← runSandBoxedExitCode spawnArgs
       if ret != 0 then
         IO.println s!"{kernelName} kernel rejected the solution"
         return some s!"{kernelName} exited with {ret}"
@@ -375,11 +411,11 @@ public def compareIt : M Unit := do
     ++ (← primitiveTargets) ++ (← getDefinitionNames)
 
   let challengeModule ← getChallengeModule
-  safeLakeBuild challengeModule
+  safeLakeBuild #[challengeModule]
   let challengeExport ← safeExport challengeModule exportTargets
 
   let solutionModule ← getSolutionModule
-  safeLakeBuild solutionModule
+  safeLakeBuild #[solutionModule]
   let solutionExport ← safeExport solutionModule exportTargets
 
   verifyMatch challengeExport solutionExport
@@ -465,6 +501,29 @@ def resolveExternalKernels (cfg : Config) : IO (Except ExitCode (Std.TreeMap Str
       return .error (← cannotRun s!"`{kernelName}` kernel `{kernelCommand[0]!}` was not found")
   return .ok externalKernels
 
+def standardAxioms : Array Lean.Name :=
+  #[``propext, ``Classical.choice, ``Quot.sound]
+
+/-- Reports the axioms the checked modules rest on, and rejects any beyond `standardAxioms`. -/
+def checkUsedAxioms (exported : LeanExport.ExportedEnv) : M Unit := do
+  let used := usedAxioms exported
+  if used.isEmpty then
+    IO.println "Uses no axioms"
+  else
+    IO.println s!"Uses axioms: {", ".intercalate (used.toList.map (·.1.toString))}"
+  let illegal := used.filter fun (ax, _) => !standardAxioms.contains ax
+  unless illegal.isEmpty do
+    throw <| .userError <| "\n".intercalate <| illegal.toList.map fun (ax, ref) =>
+      s!"Axiom '{ax}' is not permitted; it is used by '{ref}'"
+
+/-- Checks a set of module roots at once against the kernel with no challenge to compare it to. -/
+def checkProject : M Unit := do
+  safeResolveDeps
+  let exported ← LeanExport.parseStream (← stringStream (← safeBuildAndExport))
+  if let some error ← runBuiltinKernel exported then
+    throw <| .userError error
+  checkUsedAxioms exported
+
 /--
 Runs `lake challenge`: builds and exports the challenge and the solution in a sandbox, then judges
 the solution against the challenge.
@@ -509,6 +568,25 @@ public def runChallenge (configFile? : Option System.FilePath) (lean : LeanInsta
     }
     let (leanPath, binPath) ← ReaderT.run safeResolveWorkspace ctx
     ReaderT.run compareIt { ctx with leanPath, binPath }
+    return 0
+  catch e =>
+    IO.eprintln s!"error: {e}"
+    return 1
+
+/--
+Runs `lake check`: builds and exports the project's default targets in the sandbox and checks them
+with the kernel, with no challenge to compare them against.
+-/
+public def runCheck (lean : LeanInstall) (lake : LakeInstall)
+    (projectDir : System.FilePath) : IO ExitCode := do
+  let base ←
+    match ← mkContext "check" lean lake projectDir with
+    | .error rc => return rc
+    | .ok ctx => pure ctx
+  if let some rc ← checkManifest "check" base.projectDir then
+    return rc
+  try
+    checkProject.run base
     return 0
   catch e =>
     IO.eprintln s!"error: {e}"

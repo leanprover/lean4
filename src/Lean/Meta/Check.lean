@@ -78,7 +78,10 @@ partial def addPPExplicitToExposeDiff (a b : Expr) : MetaM (Expr × Expr) := do
     -- but we don't want these assignments to leak out of the function.
     -- Note: we shouldn't instantiate mvars in `visit` to prevent leakage.
     withoutModifyingState do
-      visit (← instantiateMVars a) (← instantiateMVars b)
+      let traceState ← getTraceState
+      let r ← visit (← instantiateMVars a) (← instantiateMVars b)
+      setTraceState traceState
+      return r
 where
   visit (a b : Expr) : MetaM (Expr × Expr) := do
     try
@@ -224,7 +227,9 @@ function. Any expressions appearing in the trailing message should be included i
 def mkHasTypeButIsExpectedMsg (givenType expectedType : Expr)
     (trailing? : Option MessageData := none) (trailingExprs : Array Expr := #[])
     : MetaM MessageData := do
-  return MessageData.ofLazyM (es := #[givenType, expectedType] ++ trailingExprs) do
+  let config ← getConfig
+  return MessageData.ofLazyM (es := #[givenType, expectedType] ++ trailingExprs) <|
+      withConfig (fun _ => config) do
     let mut msg ← (try
       let givenTypeType ← inferType givenType
       let expectedTypeType ← inferType expectedType

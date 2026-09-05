@@ -10,23 +10,23 @@ opaque h : Nat → Nat → Nat
 
 /--
 info: 1 | [([f, 1], 1)]
-$(f => (node (1 => (node #[1]))))
+$(f => (chain 1 => (node #[1])))
 ---
 info: 2 | [([f, 1], 1), ([f, 1], 2)]
-$(f => (node (1 => (node #[1, 2]))))
+$(f => (chain 1 => (node #[1, 2])))
 ---
 info: 3 | [([f, 1], 1), ([f, 1], 2), ([f, 2], 3)]
 $(f => (node (1 => (node #[1, 2])) (2 => (node #[3]))))
 ---
 info: 4 | [([f, 1], 1), ([f, 1], 2), ([f, 2], 3), ([f, g, "a"], 4)]
-$(f => (node (1 => (node #[1, 2])) (2 => (node #[3])) (g => (node ("a" => (node #[4]))))))
+$(f => (node (1 => (node #[1, 2])) (2 => (node #[3])) (g => (chain "a" => (node #[4])))))
 ---
 info: 5 | [([f, 1], 1), ([f, 1], 2), ([f, 2], 3), ([f, g, "a"], 4), ([f, h, 1, 2], 5)]
 $(f => (node
   (1 => (node #[1, 2]))
   (2 => (node #[3]))
-  (g => (node ("a" => (node #[4]))))
-  (h => (node (1 => (node (2 => (node #[5]))))))))
+  (g => (chain "a" => (node #[4])))
+  (h => (chain 1 => (chain 2 => (node #[5]))))))
 -/
 #guard_msgs in
 #eval do
@@ -43,11 +43,11 @@ $(f => (node
   logInfo m!"{t.size} | {t.toArray}\n${t}"
 
 /--
-info: (f => (node (10 => (node #[1, 2]))))
+info: (f => (chain 10 => (node #[1, 2])))
 [([f, 10], 1), ([f, 10], 2)]
 [1, 2] true true false
 ---
-info: (f => (node (10 => (node #[2, 1]))))
+info: (f => (chain 10 => (node #[2, 1])))
 [([f, 10], 2), ([f, 10], 1)]
 [2, 1] true true false
 -/
@@ -67,10 +67,9 @@ info: (f => (node (10 => (node #[2, 1]))))
 
 
 /--
-info: (f => (node
-  (h => (node
-    (0 => (node (0 => (node #[11])) (1 => (node #[12]))))
-    (1 => (node (0 => (node #[13])) (1 => (node #[14]))))))))
+info: (f => (chain h => (node
+   (0 => (node (0 => (node #[11])) (1 => (node #[12]))))
+   (1 => (node (0 => (node #[13])) (1 => (node #[14])))))))
 -/
 #guard_msgs in
 #eval do
@@ -82,36 +81,31 @@ info: (f => (node
   logInfo m!"{t.mapArrays (·.map (· + 10))}"
 
 /--
-info:
-("A" => (node #[10, 11]))
+info: ("A" => (node #[10, 11]))
 ("B" => (node #[12]))
-(g => (node (0 => (node #[13, 14, 15]))))
+(g => (chain 0 => (node #[13, 14, 15])))
 (f => (node
   (0 => (node #[16]))
   (1 => (node #[17, 18]))
   (2 => (node #[19]))
   (f => (node (1 => (node #[20])) (2 => (node #[21]))))))
 ---
-info:
-("A" => (node #[0, 1]))
+info: ("A" => (node #[0, 1]))
 ("B" => (node #[2]))
-(g => (node (0 => (node #[3, 4, 5]))))
-(f => (node (0 => (node #[6])) (1 => (node #[7, 8])) (2 => (node #[9])) (f => (node (1 => (node #[10]))))))
+(g => (chain 0 => (node #[3, 4, 5])))
+(f => (node (0 => (node #[6])) (1 => (node #[7, 8])) (2 => (node #[9])) (f => (chain 1 => (node #[10])))))
 ---
-info:
-("A" => (node #[0]))
+info: ("A" => (node #[0]))
 ("B" => (node #[2]))
-(g => (node (0 => (node #[4]))))
-(f => (node (0 => (node #[6])) (1 => (node #[8])) (f => (node (1 => (node #[10]))))))
+(g => (chain 0 => (node #[4])))
+(f => (node (0 => (node #[6])) (1 => (node #[8])) (f => (chain 1 => (node #[10])))))
 ---
-info:
-(g => (node (0 => (node #[3, 4, 5]))))
+info: (g => (chain 0 => (node #[3, 4, 5])))
 ---
-info:
-("B" => (node #[2]))
+info: ("B" => (node #[2]))
 (f => (node (0 => (node #[6])) (2 => (node #[9])) (f => (node (1 => (node #[10])) (2 => (node #[11]))))))
 ---
-info: ("A" => (node #[0, 1])) (g => (node (0 => (node #[3, 4, 5])))) (f => (node (1 => (node #[7, 8]))))
+info: ("A" => (node #[0, 1])) (g => (chain 0 => (node #[3, 4, 5]))) (f => (chain 1 => (node #[7, 8])))
 ---
 info:
 -/

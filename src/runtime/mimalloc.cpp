@@ -50,3 +50,13 @@ extern "C" LEAN_EXPORT LEAN_ATTR_MALLOC lean_object * lean_alloc_small_object_co
     o->m_cs_sz = sz;
     return o;
 }
+
+extern "C" LEAN_EXPORT LEAN_ATTR_MALLOC lean_object * lean_alloc_small_object_raw(unsigned sz) {
+    lean_runtime_tls * tls = &lean_g_tls;
+    tls->heartbeat++;
+    lean_assert(sz > 0 && sz % LEAN_OBJECT_SIZE_DELTA == 0 && sz <= MI_SMALL_SIZE_MAX);
+    void * mem = mi_theap_malloc_small(tls->mi_theap_default, sz);
+    if (LEAN_UNLIKELY(mem == NULL)) lean_internal_panic_out_of_memory();
+    /* Unlike `lean_alloc_small_object_core`, `m_cs_sz` is left to the caller. */
+    return (lean_object *)mem;
+}

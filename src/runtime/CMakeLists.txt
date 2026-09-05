@@ -94,6 +94,10 @@ set(
   uv/signal.cpp
   openssl.cpp
 )
+if(NOT USE_MIMALLOC)
+  # with mimalloc, `object_rc.cpp` is #included into `mimalloc.cpp` instead (see there)
+  list(APPEND RUNTIME_OBJS object_rc.cpp)
+endif()
 
 add_library(leanrt_initial-exec STATIC ${RUNTIME_OBJS})
 set_target_properties(leanrt_initial-exec PROPERTIES ARCHIVE_OUTPUT_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR})

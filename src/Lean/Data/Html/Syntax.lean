@@ -77,7 +77,7 @@ inductive AttrView where
 
 def Attr.view [Monad m] [MonadError m] : Attr → m AttrView
   | `(lean_html_syntax_attr| $n:attrName = $v) => return .val n v
-  | `(lean_html_syntax_attr| $n:attrName ) => return .bool n
+  | `(lean_html_syntax_attr| $n:attrName) => return .bool n
   | `(lean_html_syntax_attr| { $t }) => return .interp t
   | `(lean_html_syntax_attr| {... $t }) => return .interpMany t
   | _ => Elab.throwUnsupportedSyntax

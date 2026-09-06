@@ -18,19 +18,19 @@ namespace Lean.Html.Syntax
 
 open Parser Doc.Parser PrettyPrinter
 
-/-! # Special code points -/
+/-! # Code points -/
 
-/-- https://infra.spec.whatwg.org/#control -/
+/-- Whether {name}`c` is a [control](https://infra.spec.whatwg.org/#control) code point. -/
 def isControl (c : Char) : Bool :=
   let n := c.toNat
-  n <= 0x001F || (n ≥ 0x007F && n ≤ 0x009F)
+  n ≤ 0x001F || (n ≥ 0x007F && n ≤ 0x009F)
 
-/-- https://infra.spec.whatwg.org/#ascii-whitespace -/
+/-- Whether {name}`c` is [ASCII whitespace](https://infra.spec.whatwg.org/#ascii-whitespace). -/
 def isAsciiWhitespace (c : Char) : Bool :=
   let n := c.toNat
   n ∈ [0x0009, 0x000A, 0x000C, 0x000D, 0x0020]
 
-/-- https://infra.spec.whatwg.org/#noncharacter -/
+/-- Whether {name}`c` is a [noncharacter](https://infra.spec.whatwg.org/#noncharacter). -/
 def isNonCharacter (c : Char) : Bool :=
   let n := c.toNat
   (n ≥ 0xFDD0 && n ≤ 0xFDEF) ||

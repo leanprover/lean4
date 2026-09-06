@@ -55,9 +55,10 @@ private def attrNameFn : ParserFn :=
       asStringFn <| andthenFn (satisfyFn isAttrNameFirstChar) (manyFn attrNameCharFn)
 where
   attrNameCharFn := satisfyFn isAttrNameChar "attribute name"
-  /-- A slight divergence from the spec: attribute names can't start with `{`, `}`, or `<`.
-  The spec allows these characters, but they are obscure and make parser errors much worse. -/
-  isAttrNameFirstChar (c : Char) : Bool := isAttrNameChar c && c ∉ ['{', '}', '<']
+  /-- Divergence from the spec: attribute names can't start with `{`, `}`, `<`, or `$`.
+  The spec allows these characters, but they make parser errors worse
+  (and `$` conflicts with antiquotations). -/
+  isAttrNameFirstChar (c : Char) : Bool := isAttrNameChar c && c ∉ ['{', '}', '<', '$']
   /-- https://html.spec.whatwg.org/dev/syntax.html#attributes-2 -/
   isAttrNameChar (c : Char) : Bool :=
     !isControl c && c ∉ [' ', '"', '\'', '>', '/', '='] && !isNonCharacter c
@@ -65,8 +66,8 @@ where
 private def attrNameNoAntiquot : Parser where
   fn := andthenFn attrNameFn (takeWhileFn Char.isWhitespace)
 
-/-- Parses an HTML [attribute name](https://html.spec.whatwg.org/dev/syntax.html#attributes-2)
-that (to improve parser errors) does not start with any of `{`, `}`, `<`. -/
+/-- Parses an [HTML attribute name](https://html.spec.whatwg.org/dev/syntax.html#attributes-2)
+that does not start with any of `{`, `}`, `<`, `$`. -/
 def attrName : Parser :=
   withAntiquot (mkAntiquot "attrName" attrNameKind) attrNameNoAntiquot
 

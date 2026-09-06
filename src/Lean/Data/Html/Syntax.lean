@@ -61,7 +61,7 @@ def AttrVal.view [Monad m] [MonadError m] : AttrVal → m AttrValView
 /-! # Attributes -/
 
 declare_syntax_cat lean_html_syntax_attr
-syntax attrName " = " lean_html_syntax_attr_val : lean_html_syntax_attr
+syntax attrName "=" lean_html_syntax_attr_val : lean_html_syntax_attr
 syntax attrName : lean_html_syntax_attr
 syntax group("{" term "}") : lean_html_syntax_attr
 syntax group("{..." term "}") : lean_html_syntax_attr

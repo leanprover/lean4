@@ -39,22 +39,31 @@ def isNonCharacter (c : Char) : Bool :=
     0x9FFFE, 0x9FFFF, 0xAFFFE, 0xAFFFF, 0xBFFFE, 0xBFFFF, 0xCFFFE, 0xCFFFF, 0xDFFFE,
     0xDFFFF, 0xEFFFE, 0xEFFFF, 0xFFFFE, 0xFFFFF, 0x10FFFE, 0x10FFFF]
 
+
+/-! # Helpers -/
+
+/-- Atomically parses one character matching {name}`firstP` followed by many matching {name}`manyP`.
+The result is stored in an atom wrapped in a node of the given {name}`kind`. -/
+private def parseFirstMany (kind : Name) (firstP manyP : Char → Bool) : ParserFn :=
+  atomicFn <|
+    nodeFn kind <|
+      asStringFn <| andthenFn (satisfyFn firstP) (manyFn (satisfyFn manyP))
+
+private def viewNodeAtom [Monad m] [MonadError m] : TSyntax k → m String
+  | ⟨.node _ _ #[.atom _ s]⟩ => return s
+  | _ => Elab.throwUnsupportedSyntax
+
 /-! # Attribute names -/
 
 abbrev attrNameKind := `Lean.Html.Syntax.attrName
-
 abbrev AttrName := TSyntax attrNameKind
 
-def AttrName.view [Monad m] [MonadError m] : AttrName → m String
-  | ⟨.node _ _ #[.atom _ name]⟩ => return name
-  | _ => Elab.throwUnsupportedSyntax
+def AttrName.view [Monad m] [MonadError m] : AttrName → m String :=
+  viewNodeAtom
 
 private def attrNameFn : ParserFn :=
-  atomicFn <|
-    nodeFn attrNameKind <|
-      asStringFn <| andthenFn (satisfyFn isAttrNameFirstChar) (manyFn attrNameCharFn)
+  parseFirstMany attrNameKind isAttrNameFirstChar isAttrNameChar
 where
-  attrNameCharFn := satisfyFn isAttrNameChar "attribute name"
   /-- Divergence from the spec: attribute names can't start with `{`, `}`, `<`, or `$`.
   The spec allows these characters, but they make parser errors worse
   (and `$` conflicts with antiquotations). -/
@@ -80,16 +89,12 @@ def attrName.formatter := Formatter.visitAtom attrNameKind
 /-! # Text content -/
 
 abbrev textKind := `Lean.Html.Syntax.text
-
 abbrev Text := TSyntax textKind
 
-/-- Processes HTML text content into a string.
-
-Character references like `&amp;` are kept in that form. -/
--- TODO: decode character references in here, and highlight errors
-def Text.view [Monad m] [MonadError m] : Text → m String
-  | ⟨.node _ _ #[.atom _ s]⟩ => return s
-  | _ => Elab.throwUnsupportedSyntax
+/-- Returns the source text of an HTML text node,
+including any trailing whitespace and with character references not yet decoded. -/
+def Text.view [Monad m] [MonadError m] : Text → m String :=
+  viewNodeAtom
 
 private def textNoAntiquot : Parser where
   fn c s :=

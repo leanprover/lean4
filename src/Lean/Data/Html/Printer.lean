@@ -7,24 +7,13 @@ module
 
 prelude
 public import Lean.Data.Html.Basic
-import Init.Data.String.Modify
 import Init.Data.String.Search
-import Init.Data.Array.BinSearch
 
 set_option doc.verso true
 
 public section
 
 namespace Lean.Html
-
-/-- Array of void element names, sorted lexicographically.
-
-Void elements are those that cannot have any child nodes.
-These only have a start tag; end tags must not be specified.
-See https://html.spec.whatwg.org/dev/syntax.html#void-elements -/
-def voidElements : Array String :=
-  #["area", "base", "br", "col", "embed", "hr", "img", "input", "link", "meta", "param", "source",
-    "track", "wbr"]
 
 section render_impl
 
@@ -120,7 +109,7 @@ where
         | .element tag attrs children =>
           let q :=
             if children.isEmpty then
-              if voidElements.binSearchContains tag.toLower (· < ·) then
+              if isVoidElement tag then
                 q.pushKind .endVoidElement
               else
                 let q := q.pushKind .endElement |>.pushStr tag

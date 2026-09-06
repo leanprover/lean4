@@ -550,7 +550,11 @@ extern "C" LEAN_EXPORT b_obj_res lean_thunk_get_core(b_obj_arg t) {
         object * r = lean_apply_1(c, lean_box(0));
         lean_assert(r != nullptr); /* Closure must return a valid lean object */
         lean_assert(lean_to_thunk(t)->m_value == nullptr);
-        mark_mt(r);
+        /* `r` must be marked as multi-threaded if `t` is: another thread may be waiting
+           for `m_value` below. A single-threaded thunk is reachable from its owner thread
+           only, and `lean_mark_mt` descends into `m_value` should it be published later. */
+        if (lean_is_mt(t) || lean_is_persistent(t))
+            mark_mt(r);
         lean_to_thunk(t)->m_value = r;
         return r;
     } else {

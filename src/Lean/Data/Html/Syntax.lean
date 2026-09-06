@@ -29,17 +29,6 @@ namespace Lean.Html.Syntax
 -- Verbose names avoid conflicts with user-defined categories.
 declare_syntax_cat lean_html_syntax
 
-/-! # Tag names -/
-
-declare_syntax_cat lean_html_syntax_tag_name
-syntax rawIdent : lean_html_syntax_tag_name
-
-abbrev TagName := TSyntax `lean_html_syntax_tag_name
-
-def TagName.view [Monad m] [MonadError m] : TagName → m String
-  | `(lean_html_syntax_tag_name| $n:ident) => return n.getId.toString
-  | _ => Elab.throwUnsupportedSyntax
-
 /-! # Attribute values -/
 
 declare_syntax_cat lean_html_syntax_attr_val

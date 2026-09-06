@@ -25,10 +25,10 @@ def isControl (c : Char) : Bool :=
   let n := c.toNat
   n ≤ 0x001F || (n ≥ 0x007F && n ≤ 0x009F)
 
-/-- Whether {name}`c` is [ASCII whitespace](https://infra.spec.whatwg.org/#ascii-whitespace). -/
+/-- Whether {name}`c` is [ASCII whitespace](https://infra.spec.whatwg.org/#ascii-whitespace).
+Differs from {name}`Char.isWhitespace` by also including FF U+000C. -/
 def isAsciiWhitespace (c : Char) : Bool :=
-  let n := c.toNat
-  n ∈ [0x0009, 0x000A, 0x000C, 0x000D, 0x0020]
+  c.toNat ∈ [0x0009, 0x000A, 0x000C, 0x000D, 0x0020]
 
 /-- Whether {name}`c` is a [noncharacter](https://infra.spec.whatwg.org/#noncharacter). -/
 def isNonCharacter (c : Char) : Bool :=
@@ -42,16 +42,46 @@ def isNonCharacter (c : Char) : Bool :=
 
 /-! # Helpers -/
 
-/-- Atomically parses one character matching {name}`firstP` followed by many matching {name}`manyP`.
+/-- Parses one character matching {name}`firstP` followed by many matching {name}`manyP`,
+followed by whitespace (which is not stored).
 The result is stored in an atom wrapped in a node of the given {name}`kind`. -/
-private def parseFirstMany (kind : Name) (firstP manyP : Char → Bool) : ParserFn :=
-  atomicFn <|
-    nodeFn kind <|
-      asStringFn <| andthenFn (satisfyFn firstP) (manyFn (satisfyFn manyP))
+private def parseFirstMany (kind : Name) (firstP manyP : Char → Bool) : Parser where
+  fn := andthenFn parse (takeWhileFn Char.isWhitespace)
+where
+  parse :=
+    atomicFn <|
+      nodeFn kind <|
+        asStringFn <| andthenFn (satisfyFn firstP) (manyFn (satisfyFn manyP))
 
 private def viewNodeAtom [Monad m] [MonadError m] : TSyntax k → m String
   | ⟨.node _ _ #[.atom _ s]⟩ => return s
   | _ => Elab.throwUnsupportedSyntax
+
+/-! # Tag names -/
+
+abbrev tagNameKind := `Lean.Html.Syntax.tagName
+abbrev TagName := TSyntax tagNameKind
+
+def TagName.view [Monad m] [MonadError m] : TagName → m String :=
+  viewNodeAtom
+
+private def tagNameNoAntiquot : Parser :=
+  parseFirstMany tagNameKind Char.isAlpha isTagNameChar
+where
+  isTagNameChar (c : Char) : Bool :=
+    !isAsciiWhitespace c && c.toNat != 0x0000 && c ∉ ['/', '>']
+
+/-- Parses an [HTML tag name](https://html.spec.whatwg.org/dev/syntax.html#syntax-tag-name):
+an ASCII letter followed by characters other than ASCII whitespace, U+0000 NULL, `/`, `>`.
+This includes [custom element names](https://html.spec.whatwg.org/dev/custom-elements.html#valid-custom-element-name). -/
+def tagName : Parser :=
+  withAntiquot (mkAntiquot "tagName" tagNameKind) tagNameNoAntiquot
+
+@[combinator_parenthesizer tagName]
+def tagName.parenthesizer := Parenthesizer.visitToken
+
+@[combinator_formatter tagName]
+def tagName.formatter := Formatter.visitAtom tagNameKind
 
 /-! # Attribute names -/
 
@@ -61,7 +91,7 @@ abbrev AttrName := TSyntax attrNameKind
 def AttrName.view [Monad m] [MonadError m] : AttrName → m String :=
   viewNodeAtom
 
-private def attrNameFn : ParserFn :=
+private def attrNameNoAntiquot : Parser :=
   parseFirstMany attrNameKind isAttrNameFirstChar isAttrNameChar
 where
   /-- Divergence from the spec: attribute names can't start with `{`, `}`, `<`, or `$`.
@@ -71,9 +101,6 @@ where
   /-- https://html.spec.whatwg.org/dev/syntax.html#attributes-2 -/
   isAttrNameChar (c : Char) : Bool :=
     !isControl c && c ∉ [' ', '"', '\'', '>', '/', '='] && !isNonCharacter c
-
-private def attrNameNoAntiquot : Parser where
-  fn := andthenFn attrNameFn (takeWhileFn Char.isWhitespace)
 
 /-- Parses an [HTML attribute name](https://html.spec.whatwg.org/dev/syntax.html#attributes-2)
 that does not start with any of `{`, `}`, `<`, `$`. -/
@@ -105,10 +132,8 @@ where
   isTextChar (c : Char) :=
     (!isControl c || isAsciiWhitespace c) && !isNonCharacter c && c ∉ ['{', '}', '<', '>']
 
-/-- Parses [HTML text content](https://html.spec.whatwg.org/dev/dom.html#text-content).
-
-Departure from the spec: to reduce confusing parser errors,
-text cannot contain interpolation markers (`{`, `}`) or angle brackets (`<`, `>`). -/
+/-- Parses [HTML text content](https://html.spec.whatwg.org/dev/dom.html#text-content)
+that does not contain interpolation markers (`{`, `}`) or angle brackets (`<`, `>`). -/
 def text : Parser :=
   /- This is almost `withAntiquot (mkAntiquot "text" textKind) textNoAntiquot`,
   but `acceptLhs` is used to ensure that `$t:text` is parsed as the antiquotation

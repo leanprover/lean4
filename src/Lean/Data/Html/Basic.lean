@@ -178,16 +178,17 @@ Traversal proceeds in post-order:
 partial def rewritePost (fn : Html → Html) (h : Html) : Html :=
   rewritePostM (m := Id) fn h |>.run
 
-/-- Array of void element names, sorted lexicographically.
-
-Void elements are those that cannot have any child nodes.
-These only have a start tag; end tags must not be specified.
-See https://html.spec.whatwg.org/dev/syntax.html#void-elements -/
-def voidElements : Array String :=
+/-- Array of void element names, sorted lexicographically. -/
+private def voidElements : Array String :=
   #["area", "base", "br", "col", "embed", "hr", "img", "input", "link", "meta", "param", "source",
     "track", "wbr"]
 
-def isVoidElement (s : String) : Bool :=
-  voidElements.binSearchContains s.toLower (· < ·)
+/-- Whether {name}`tagName` (compared case-insensitively) names a void element.
+
+Void elements are those that cannot have any child nodes.
+These only have a start tag; end tags must not be specified.
+See https://html.spec.whatwg.org/dev/syntax.html#void-elements. -/
+def isVoidElement (tagName : String) : Bool :=
+  voidElements.binSearchContains tagName.toLower (· < ·)
 
 end Lean.Html

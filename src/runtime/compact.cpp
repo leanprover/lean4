@@ -272,6 +272,7 @@ object_offset object_compactor::insert_sarray(object * o) {
     lean_set_non_heap_header_for_big((lean_object*)new_o, LeanScalarArray, elem_sz);
     new_o->m_size     = sz;
     new_o->m_capacity = sz;
+    if (lean_sarray_is_marked_linear(o)) lean_sarray_mark_linear_core((lean_object*)new_o);
     memcpy(new_o->m_data, lean_to_sarray(o)->m_data, elem_sz*sz);
     return save_max_sharing(o, (lean_object*)new_o, obj_sz);
 }

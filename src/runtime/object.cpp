@@ -2549,11 +2549,20 @@ size_t lean_nat_to_size_t(obj_arg n) {
     }
 }
 
+static bool should_abort_on_nonlinearity() {
+#ifdef LEAN_EMSCRIPTEN
+    return false;
+#else
+    return std::getenv("LEAN_ABORT_ON_NONLINEAR");
+#endif
+}
+
 extern "C" LEAN_EXPORT obj_res lean_copy_sarray(obj_arg a, size_t cap) {
     unsigned esz   = lean_sarray_elem_size(a);
     size_t sz      = lean_sarray_size(a);
     lean_assert(cap >= sz);
     object * r     = lean_alloc_sarray(esz, sz, cap);
+    if (lean_sarray_is_marked_linear(a)) lean_sarray_mark_linear_core(r);
     uint8 * it     = lean_sarray_cptr(a);
     uint8 * dest   = lean_sarray_cptr(r);
     memcpy(dest, it, esz*sz);
@@ -2561,12 +2570,12 @@ extern "C" LEAN_EXPORT obj_res lean_copy_sarray(obj_arg a, size_t cap) {
     return r;
 }
 
-obj_res lean_sarray_ensure_exclusive(obj_arg a) {
-    if (lean_is_exclusive(a)) {
-        return a;
-    } else {
-        return lean_copy_sarray(a, lean_sarray_capacity(a));
+__attribute__((noinline))
+extern "C" LEAN_EXPORT obj_res lean_copy_sarray_nonlinear(obj_arg a, size_t cap) {
+    if (lean_sarray_is_marked_linear(a) && should_abort_on_nonlinearity()) {
+        lean_internal_panic("scalar array marked by `markLinear` was used non-linearly");
     }
+    return lean_copy_sarray(a, cap);
 }
 
 /* Ensure that `a` has capacity at least `min_cap`, copying `a` otherwise.
@@ -2732,14 +2741,6 @@ extern "C" LEAN_EXPORT obj_res lean_copy_expand_array(obj_arg a, bool expand) {
         lean_dec(a);
     }
     return r;
-}
-
-static bool should_abort_on_nonlinearity() {
-#ifdef LEAN_EMSCRIPTEN
-    return false;
-#else
-    return std::getenv("LEAN_ABORT_ON_NONLINEAR");
-#endif
 }
 
 __attribute__((noinline))

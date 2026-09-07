@@ -214,9 +214,14 @@ typedef struct {
 typedef struct {
     lean_object   m_header;
     size_t        m_size;
+    /* The uppermost bit holds the linearity marker, see `ByteArray.markLinear`; read the capacity
+       itself with `lean_sarray_capacity`. */
     size_t        m_capacity;
     uint8_t       m_data[];
 } lean_sarray_object;
+
+/* Marker bit stored in the `m_capacity` field of `lean_array_object` and `lean_sarray_object`. */
+#define LEAN_LINEAR_MARK_MASK (((size_t)1) << (8*sizeof(size_t) - 1))
 
 typedef struct {
     lean_object m_header;
@@ -966,8 +971,6 @@ LEAN_EXPORT lean_object* lean_apply_m(lean_object* f, unsigned n, lean_object** 
 
 /* Arrays of objects (low level API) */
 
-#define LEAN_ARRAY_LINEAR_MARK_MASK (((size_t)1) << (8*sizeof(size_t) - 1))
-
 static inline lean_obj_res lean_alloc_array(size_t size, size_t capacity) {
     lean_array_object * o = (lean_array_object*)lean_alloc_object(lean_usize_add_checked(sizeof(lean_array_object), lean_usize_mul_checked(sizeof(void*), capacity)));
     lean_set_st_header((lean_object*)o, LeanArray, 0);
@@ -977,7 +980,7 @@ static inline lean_obj_res lean_alloc_array(size_t size, size_t capacity) {
 }
 static inline size_t lean_array_size(b_lean_obj_arg o) { return lean_to_array(o)->m_size; }
 static inline size_t lean_array_capacity(b_lean_obj_arg o) {
-    return lean_to_array(o)->m_capacity & ~LEAN_ARRAY_LINEAR_MARK_MASK;
+    return lean_to_array(o)->m_capacity & ~LEAN_LINEAR_MARK_MASK;
 }
 static inline size_t lean_array_byte_size(lean_object * o) {
     return sizeof(lean_array_object) + sizeof(void*)*lean_array_capacity(o);
@@ -1005,12 +1008,12 @@ static inline void lean_array_set_core(u_lean_obj_arg o, size_t i, lean_obj_arg 
 }
 static inline bool lean_array_is_marked_linear(b_lean_obj_arg o) {
     assert(lean_is_array(o));
-    return (lean_to_array(o)->m_capacity & LEAN_ARRAY_LINEAR_MARK_MASK) != 0;
+    return (lean_to_array(o)->m_capacity & LEAN_LINEAR_MARK_MASK) != 0;
 }
 static inline void lean_array_mark_linear_core(u_lean_obj_arg o) {
     assert(lean_is_array(o));
     assert(!lean_has_rc(o) || lean_is_exclusive(o));
-    lean_to_array(o)->m_capacity |= LEAN_ARRAY_LINEAR_MARK_MASK;
+    lean_to_array(o)->m_capacity |= LEAN_LINEAR_MARK_MASK;
 }
 
 LEAN_EXPORT lean_object * lean_array_mk(lean_obj_arg l);
@@ -1192,7 +1195,9 @@ static inline unsigned lean_sarray_elem_size(lean_object * o) {
     assert(lean_is_sarray(o));
     return lean_ptr_other(o);
 }
-static inline size_t lean_sarray_capacity(lean_object * o) { return lean_to_sarray(o)->m_capacity; }
+static inline size_t lean_sarray_capacity(lean_object * o) {
+    return lean_to_sarray(o)->m_capacity & ~LEAN_LINEAR_MARK_MASK;
+}
 static inline size_t lean_sarray_byte_size(lean_object * o) {
     return sizeof(lean_sarray_object) + lean_sarray_elem_size(o)*lean_sarray_capacity(o);
 }
@@ -1206,6 +1211,38 @@ static inline void lean_sarray_set_size(u_lean_obj_arg o, size_t sz) {
     lean_to_sarray(o)->m_size = sz;
 }
 static inline uint8_t* lean_sarray_cptr(lean_object * o) { return lean_to_sarray(o)->m_data; }
+static inline bool lean_sarray_is_marked_linear(b_lean_obj_arg o) {
+    assert(lean_is_sarray(o));
+    return (lean_to_sarray(o)->m_capacity & LEAN_LINEAR_MARK_MASK) != 0;
+}
+static inline void lean_sarray_mark_linear_core(u_lean_obj_arg o) {
+    assert(lean_is_sarray(o));
+    assert(!lean_has_rc(o) || lean_is_exclusive(o));
+    lean_to_sarray(o)->m_capacity |= LEAN_LINEAR_MARK_MASK;
+}
+
+LEAN_EXPORT lean_obj_res lean_copy_sarray(lean_obj_arg a, size_t cap);
+// Equivalent to `lean_copy_sarray` but used as a gadget to spot scalar array non-linearities in
+// profiles. Panics if `a` is marked linear.
+LEAN_EXPORT lean_obj_res lean_copy_sarray_nonlinear(lean_obj_arg a, size_t cap);
+
+static inline lean_obj_res lean_sarray_ensure_exclusive(lean_obj_arg a) {
+    if (lean_is_exclusive(a)) return a;
+    return lean_copy_sarray_nonlinear(a, lean_sarray_capacity(a));
+}
+
+static inline lean_obj_res lean_sarray_mark_linear(lean_obj_arg a) {
+    lean_object * r = lean_sarray_ensure_exclusive(a);
+    lean_sarray_mark_linear_core(r);
+    return r;
+}
+
+static inline lean_obj_res lean_sarray_propagate_mark(b_lean_obj_arg src, lean_obj_arg dst) {
+    if (!lean_sarray_is_marked_linear(src)) return dst;
+    lean_object * r = lean_sarray_ensure_exclusive(dst);
+    lean_sarray_mark_linear_core(r);
+    return r;
+}
 
 LEAN_EXPORT bool lean_sarray_eq_cold(b_lean_obj_arg a1, b_lean_obj_arg a2);
 static inline bool lean_sarray_eq(b_lean_obj_arg a1, b_lean_obj_arg a2) {
@@ -1251,9 +1288,7 @@ static inline uint8_t lean_byte_array_fget(b_lean_obj_arg a, b_lean_obj_arg i) {
 LEAN_EXPORT lean_obj_res lean_byte_array_push(lean_obj_arg a, uint8_t b);
 
 static inline lean_object * lean_byte_array_uset(lean_obj_arg a, size_t i, uint8_t v) {
-    lean_obj_res r;
-    if (lean_is_exclusive(a)) r = a;
-    else r = lean_copy_byte_array(a);
+    lean_obj_res r = lean_sarray_ensure_exclusive(a);
     uint8_t * it = lean_sarray_cptr(r) + i;
     *it = v;
     return r;
@@ -1316,9 +1351,7 @@ static inline double lean_float_array_get(b_lean_obj_arg a, b_lean_obj_arg i) {
 LEAN_EXPORT lean_obj_res lean_float_array_push(lean_obj_arg a, double d);
 
 static inline lean_obj_res lean_float_array_uset(lean_obj_arg a, size_t i, double d) {
-    lean_obj_res r;
-    if (lean_is_exclusive(a)) r = a;
-    else r = lean_copy_float_array(a);
+    lean_obj_res r = lean_sarray_ensure_exclusive(a);
     double * it = lean_float_array_cptr(r) + i;
     *it = d;
     return r;

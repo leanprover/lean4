@@ -1011,13 +1011,13 @@ static inline lean_object * lean_array_get_size(b_lean_obj_arg a) {
     return lean_box(lean_array_size(a));
 }
 
-static inline lean_object * lean_mk_empty_array() {
-    return lean_alloc_array(0, 0);
-}
+LEAN_EXPORT lean_object * lean_mk_empty_array(void);
 
 static inline lean_object * lean_mk_empty_array_with_capacity(b_lean_obj_arg capacity) {
     if (!lean_is_scalar(capacity)) lean_internal_panic_out_of_memory();
-    return lean_alloc_array(0, lean_unbox(capacity));
+    size_t c = lean_unbox(capacity);
+    if (c == 0) return lean_mk_empty_array();
+    return lean_alloc_array(0, c);
 }
 
 static inline lean_object * lean_array_uget(b_lean_obj_arg a, size_t i) {

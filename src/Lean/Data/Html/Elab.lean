@@ -67,7 +67,7 @@ meta partial def elabContent (stx : Content) : TermElabM (Option Expr) := withRe
           let src := (← getFileMap).source
           let noChildren := start.extract src (stop.prev src)
           MessageData.hint m!"Remove children" #[noChildren ++ "/>"]
-        throwErrorAt children[0] m!"Void tag `<{tagName}>` cannot have children{hint}"
+        throwErrorAt children[0] m!"Void element `{tagName}` cannot have children{hint}"
     let attrs ← elabAttrs attrs
     let children ←
       if h : children.size = 1 then

@@ -973,7 +973,6 @@ LEAN_EXPORT lean_object* lean_apply_n(lean_object* f, unsigned n, lean_object** 
 LEAN_EXPORT lean_object* lean_apply_m(lean_object* f, unsigned n, lean_object** args);
 
 /* Arrays of objects (low level API) */
-
 static inline lean_obj_res lean_alloc_array(size_t size, size_t capacity) {
     lean_array_object * o = (lean_array_object*)lean_alloc_object(lean_usize_add_checked(sizeof(lean_array_object), lean_usize_mul_checked(sizeof(void*), capacity)));
     lean_set_st_header((lean_object*)o, LeanArray, 0);
@@ -1110,9 +1109,7 @@ static inline lean_obj_res lean_array_mark_linear(lean_obj_arg a) {
 
 static inline lean_obj_res lean_array_propagate_mark(b_lean_obj_arg src, lean_obj_arg dst) {
     if (!lean_array_is_marked_linear(src)) return dst;
-    lean_object * r = lean_ensure_exclusive_array(dst);
-    lean_array_mark_linear_core(r);
-    return r;
+    return lean_array_mark_linear(dst);
 }
 
 static inline lean_object * lean_array_uset(lean_obj_arg a, size_t i, lean_obj_arg v) {
@@ -1188,6 +1185,8 @@ static inline bool lean_alloc_sarray_would_overflow(unsigned elem_size, size_t c
 }
 
 static inline lean_obj_res lean_alloc_sarray(unsigned elem_size, size_t size, size_t capacity) {
+    if (LEAN_UNLIKELY((capacity & LEAN_LINEAR_MARK_MASK) != 0))
+        lean_internal_panic("scalar array capacity collides with the linearity marker bit");
     lean_sarray_object * o = (lean_sarray_object*)lean_alloc_object(lean_usize_add_checked(sizeof(lean_sarray_object), lean_usize_mul_checked(elem_size, capacity)));
     lean_set_st_header((lean_object*)o, LeanScalarArray, elem_size);
     o->m_size = size;
@@ -1242,9 +1241,7 @@ static inline lean_obj_res lean_sarray_mark_linear(lean_obj_arg a) {
 
 static inline lean_obj_res lean_sarray_propagate_mark(b_lean_obj_arg src, lean_obj_arg dst) {
     if (!lean_sarray_is_marked_linear(src)) return dst;
-    lean_object * r = lean_sarray_ensure_exclusive(dst);
-    lean_sarray_mark_linear_core(r);
-    return r;
+    return lean_sarray_mark_linear(dst);
 }
 
 LEAN_EXPORT bool lean_sarray_eq_cold(b_lean_obj_arg a1, b_lean_obj_arg a2);
@@ -1260,7 +1257,6 @@ static inline uint8_t lean_sarray_dec_eq(b_lean_obj_arg a1, b_lean_obj_arg a2) {
 
 LEAN_EXPORT lean_obj_res lean_byte_array_mk(lean_obj_arg a);
 LEAN_EXPORT lean_obj_res lean_byte_array_data(lean_obj_arg a);
-LEAN_EXPORT lean_obj_res lean_copy_byte_array(lean_obj_arg a);
 LEAN_EXPORT uint64_t lean_byte_array_hash(b_lean_obj_arg a);
 
 static inline lean_obj_res lean_mk_empty_byte_array(b_lean_obj_arg capacity) {
@@ -1318,7 +1314,6 @@ static inline lean_obj_res lean_byte_array_fset(lean_obj_arg a, b_lean_obj_arg i
 
 LEAN_EXPORT lean_obj_res lean_float_array_mk(lean_obj_arg a);
 LEAN_EXPORT lean_obj_res lean_float_array_data(lean_obj_arg a);
-LEAN_EXPORT lean_obj_res lean_copy_float_array(lean_obj_arg a);
 
 static inline lean_obj_res lean_mk_empty_float_array(b_lean_obj_arg capacity) {
     if (!lean_is_scalar(capacity)) lean_internal_panic_out_of_memory();
@@ -1380,6 +1375,8 @@ static inline lean_obj_res lean_float_array_set(lean_obj_arg a, b_lean_obj_arg i
 /* Strings */
 
 static inline lean_obj_res lean_alloc_string(size_t size, size_t capacity, size_t len) {
+    if (LEAN_UNLIKELY((capacity & LEAN_LINEAR_MARK_MASK) != 0))
+        lean_internal_panic("string capacity collides with the linearity marker bit");
     lean_string_object * o = (lean_string_object*)lean_alloc_object(lean_usize_add_checked(sizeof(lean_string_object), capacity));
     lean_set_st_header((lean_object*)o, LeanString, 0);
     o->m_size = size;
@@ -1435,9 +1432,7 @@ static inline lean_obj_res lean_string_mark_linear(lean_obj_arg s) {
 
 static inline lean_obj_res lean_string_propagate_mark(b_lean_obj_arg src, lean_obj_arg dst) {
     if (!lean_string_is_marked_linear(src)) return dst;
-    lean_object * r = lean_string_ensure_exclusive(dst);
-    lean_string_mark_linear_core(r);
-    return r;
+    return lean_string_mark_linear(dst);
 }
 
 LEAN_EXPORT lean_obj_res lean_string_push(lean_obj_arg s, uint32_t c);

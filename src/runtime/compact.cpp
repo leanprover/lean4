@@ -272,7 +272,6 @@ object_offset object_compactor::insert_sarray(object * o) {
     lean_set_non_heap_header_for_big((lean_object*)new_o, LeanScalarArray, elem_sz);
     new_o->m_size     = sz;
     new_o->m_capacity = sz;
-    if (lean_sarray_is_marked_linear(o)) lean_sarray_mark_linear_core((lean_object*)new_o);
     memcpy(new_o->m_data, lean_to_sarray(o)->m_data, elem_sz*sz);
     return save_max_sharing(o, (lean_object*)new_o, obj_sz);
 }
@@ -286,7 +285,6 @@ object_offset object_compactor::insert_string(object * o) {
     new_o->m_size     = sz;
     new_o->m_capacity = sz;
     new_o->m_length   = len;
-    if (lean_string_is_marked_linear(o)) lean_string_mark_linear_core((lean_object*)new_o);
     memcpy(new_o->m_data, lean_to_string(o)->m_data, sz);
     return save_max_sharing(o, (lean_object*)new_o, obj_sz);
 }
@@ -324,7 +322,6 @@ object_offset object_compactor::insert_array(object * o) {
     lean_set_non_heap_header_for_big((lean_object*)new_o, LeanArray, 0);
     new_o->m_size     = sz;
     new_o->m_capacity = sz;
-    if (lean_array_is_marked_linear(o)) lean_array_mark_linear_core((lean_object*)new_o);
     for (size_t i = 0; i < sz; i++)
         lean_array_set_core((lean_object*)new_o, i, m_tmp[base + i]);
     m_tmp.resize(base);

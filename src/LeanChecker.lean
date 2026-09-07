@@ -144,7 +144,7 @@ unsafe def main (args : List String) : IO UInt32 := do
   -- so if you want to make a change here please either make a sibling PR to
   -- https://github.com/digama0/lean4lean or ping @digama0 (Mario Carneiro) to go fix it.
   let (flags, args) := args.partition fun s => s.startsWith "-"
-  let loadExport := "--export" ∈ flags
+  let loadExport := "--from-export" ∈ flags
   if loadExport then
     checkExport args
   else

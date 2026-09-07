@@ -31,7 +31,7 @@ for f in LeanCheckerTests/*.lean; do
         fi
 
         capture_only "$f.export" \
-          lake env leanchecker --export "$export_file"
+          lake env leanchecker --from-export "$export_file"
         check_out_file
         if grep -q "accepts the solution" "$f.export.out.produced"; then
             check_exit_is_success

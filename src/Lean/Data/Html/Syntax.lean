@@ -71,14 +71,13 @@ def Attr.view [Monad m] [MonadError m] : Attr → m AttrView
   | `(lean_html_syntax_attr| {... $t }) => return .interpMany t
   | _ => Elab.throwUnsupportedSyntax
 
-/-! # Top-level content -/
+/-! # Content -/
 
 syntax (name := contentText) text : lean_html_syntax
-syntax "<" lean_html_syntax_tag_name lean_html_syntax_attr* ">" lean_html_syntax* "</" lean_html_syntax_tag_name ">" : lean_html_syntax
-syntax "<" lean_html_syntax_tag_name lean_html_syntax_attr* "/" ">" : lean_html_syntax
+syntax (name := contentComment) comment : lean_html_syntax
+syntax "<" tagName lean_html_syntax_attr* ">" lean_html_syntax* "</" tagName ">" : lean_html_syntax
+syntax "<" tagName lean_html_syntax_attr* "/" ">" : lean_html_syntax
 syntax group("{" term "}") : lean_html_syntax
--- TODO comment parser
--- syntax (name := htmlComment) "<!--" htmlCommentContents : lean_html_syntax
 
 abbrev Content := TSyntax `lean_html_syntax
 
@@ -86,9 +85,12 @@ inductive ContentView where
   | element (tagName : String) (attrs : Array Attr) (children : Array Content)
   | text (t : Text)
   | interp (val : Term)
-  -- | comment (c : CommentContents)
+  | comment (c : Comment)
 
-def Content.view : Content → CoreM ContentView
+def Content.view (c : Content) : CoreM ContentView := do
+  if c.raw.getKind == ``contentComment then
+    return .comment ⟨c.raw[0]⟩
+  match c with
   | `(lean_html_syntax| $t:text) =>
     return .text t
   | `(lean_html_syntax| < $startTag $attrs* > $children* </ $endTag >) => do

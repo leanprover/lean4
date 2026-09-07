@@ -152,4 +152,57 @@ def text.formatter : Formatter := Formatter.visitAtom textKind
 @[combinator_parenthesizer text]
 def text.parenthesizer : Parenthesizer := Parenthesizer.visitToken
 
+/-! # Comments -/
+
+abbrev commentKind := `Lean.Html.Syntax.comment
+abbrev Comment := TSyntax commentKind
+
+/-- Text contents of an HTML comment, excluding start and end markers. -/
+def Comment.view [Monad m] [MonadError m] : Comment → m String
+  | ⟨.node _ _ #[.atom _ s]⟩ => return s.drop 4 |>.dropEnd 3 |>.toString
+  | _ => Elab.throwUnsupportedSyntax
+
+private partial def commentContentsFn : ParserFn := fun c s =>
+  let i := s.pos
+  if h : c.atEnd i then
+    s.mkEOIError ["'-->' (end of HTML comment)"]
+  else if c.get' i h == '-' && c.get ⟨i.byteIdx + 1⟩ == '-' then
+    if c.get ⟨i.byteIdx + 2⟩ == '>' then
+      s.setPos ⟨i.byteIdx + 3⟩
+    else if c.get ⟨i.byteIdx + 2⟩ == '!' && c.get ⟨i.byteIdx + 3⟩ == '>' then
+      s.mkUnexpectedError "HTML comment may not contain '--!>'"
+    else
+      commentContentsFn c (s.setPos (c.next' i h))
+  else if c.get' i h == '<'
+      && c.get ⟨i.byteIdx + 1⟩ == '!'
+      && c.get ⟨i.byteIdx + 2⟩ == '-'
+      && c.get ⟨i.byteIdx + 3⟩ == '-' then
+    s.mkUnexpectedError "HTML comment may not contain '<!--'"
+  else
+    commentContentsFn c (s.setPos (c.next' i h))
+
+/-- Consumes the start `<!--` of an HTML comment,
+then continues with {name}`commentContentsFn`. -/
+private partial def commentFn : ParserFn := fun c s =>
+  let i := s.pos
+  if c.get i != '<'
+      || c.get ⟨i.byteIdx + 1⟩ != '!'
+      || c.get ⟨i.byteIdx + 2⟩ != '-'
+      || c.get ⟨i.byteIdx + 3⟩ != '-' then
+    s.mkError "<!--"
+  else
+    -- Departure from spec: allow contents to begin with `>` or `->`.
+    commentContentsFn c (s.setPos ⟨i.byteIdx + 4⟩)
+
+/-- Parses an [HTML comment](https://html.spec.whatwg.org/dev/syntax.html#comments).
+This parser cannot be antiquoted. -/
+def comment : Parser where
+  fn := atomicFn <| nodeFn commentKind <| rawFn commentFn (trailingWs := true)
+
+@[combinator_parenthesizer comment]
+def comment.parenthesizer := Parenthesizer.visitToken
+
+@[combinator_formatter comment]
+def comment.formatter := Formatter.visitAtom .anonymous
+
 end Lean.Html.Syntax

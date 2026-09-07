@@ -1987,6 +1987,14 @@ extern "C" LEAN_EXPORT uint32_t lean_float32_to_bits(float d)
     return std::bit_cast<uint32_t>(d);
 }
 
+static bool should_abort_on_nonlinearity() {
+#ifdef LEAN_EMSCRIPTEN
+    return false;
+#else
+    return std::getenv("LEAN_ABORT_ON_NONLINEAR");
+#endif
+}
+
 // =======================================
 // Strings
 
@@ -1999,6 +2007,7 @@ static object * string_ensure_capacity(object * o, size_t extra) {
     if (sz + extra > cap) {
         object * new_o = alloc_string(sz, cap + sz + extra, string_len(o));
         lean_assert(string_capacity(new_o) >= sz + extra);
+        if (lean_string_is_marked_linear(o)) lean_string_mark_linear_core(new_o);
         memcpy(w_string_cstr(new_o), string_cstr(o), sz);
         lean_dealloc(o, lean_string_byte_size(o));
         return new_o;
@@ -2092,14 +2101,33 @@ static size_t mk_capacity(size_t sz) {
     return sz*2;
 }
 
+static void check_string_linearity(b_obj_arg s) {
+    if (lean_string_is_marked_linear(s) && should_abort_on_nonlinearity()) {
+        lean_internal_panic("string marked by `String.markLinear` was used non-linearly");
+    }
+}
+
+extern "C" LEAN_EXPORT obj_res lean_copy_string(obj_arg s, size_t cap) {
+    size_t sz  = lean_string_size(s);
+    lean_assert(cap >= sz);
+    object * r = lean_alloc_string(sz, cap, lean_string_len(s));
+    if (lean_string_is_marked_linear(s)) lean_string_mark_linear_core(r);
+    memcpy(w_string_cstr(r), lean_string_cstr(s), sz);
+    lean_dec_ref(s);
+    return r;
+}
+
+__attribute__((noinline))
+extern "C" LEAN_EXPORT obj_res lean_copy_string_nonlinear(obj_arg s, size_t cap) {
+    check_string_linearity(s);
+    return lean_copy_string(s, cap);
+}
+
 extern "C" LEAN_EXPORT object * lean_string_push(object * s, unsigned c) {
     size_t sz  = lean_string_size(s);
-    size_t len = lean_string_len(s);
     object * r;
     if (!lean_is_exclusive(s)) {
-        r = lean_alloc_string(sz, mk_capacity(sz+5), len);
-        memcpy(w_string_cstr(r), lean_string_cstr(s), sz - 1);
-        lean_dec_ref(s);
+        r = lean_copy_string_nonlinear(s, mk_capacity(sz+5));
     } else {
         r = string_ensure_capacity(s, 5);
     }
@@ -2119,9 +2147,7 @@ extern "C" LEAN_EXPORT object * lean_string_append(object * s1, object * s2) {
     size_t new_sz   = sz1 + sz2 - 1;
     object * r;
     if (!lean_is_exclusive(s1)) {
-        r = lean_alloc_string(new_sz, mk_capacity(new_sz), new_len);
-        memcpy(w_string_cstr(r), lean_string_cstr(s1), sz1 - 1);
-        dec_ref(s1);
+        r = lean_copy_string_nonlinear(s1, mk_capacity(new_sz));
     } else {
         lean_assert(s1 != s2);
         r = string_ensure_capacity(s1, sz2-1);
@@ -2467,22 +2493,25 @@ extern "C" LEAN_EXPORT obj_res lean_string_utf8_set(obj_arg s, b_obj_arg i0, uin
     usize sz = lean_string_size(s) - 1;
     if (i >= sz) return s;
     char * str = w_string_cstr(s);
-    if (lean_is_exclusive(s)) {
-        if (static_cast<unsigned char>(str[i]) < 128 && c < 128) {
-            str[i] = c;
-            return s;
-        }
+    if (static_cast<unsigned char>(str[i]) < 128 && c < 128) {
+        object * r = lean_string_ensure_exclusive(s);
+        w_string_cstr(r)[i] = c;
+        return r;
     }
     if (!is_utf8_first_byte(str[i])) return s;
     /* TODO(Leo): improve performance of other special cases.
        Example: is_exclusive(s) and new and old characters have the same size; etc. */
+    if (!lean_is_exclusive(s)) check_string_linearity(s);
     std::string tmp;
     push_unicode_scalar(tmp, c);
     std::string new_s = string_to_std(s);
     usize len = lean_string_len(s);
+    bool marked = lean_string_is_marked_linear(s);
     dec(s);
     new_s.replace(i, get_utf8_char_size_at(new_s, i), tmp);
-    return lean_mk_string_unchecked(new_s.data(), new_s.size(), len);
+    object * r = lean_mk_string_unchecked(new_s.data(), new_s.size(), len);
+    if (marked) lean_string_mark_linear_core(r);
+    return r;
 }
 
 extern "C" LEAN_EXPORT uint64 lean_string_hash(b_obj_arg s) {
@@ -2547,14 +2576,6 @@ size_t lean_nat_to_size_t(obj_arg n) {
         lean_dec(n);
         return sz;
     }
-}
-
-static bool should_abort_on_nonlinearity() {
-#ifdef LEAN_EMSCRIPTEN
-    return false;
-#else
-    return std::getenv("LEAN_ABORT_ON_NONLINEAR");
-#endif
 }
 
 extern "C" LEAN_EXPORT obj_res lean_copy_sarray(obj_arg a, size_t cap) {

@@ -220,16 +220,19 @@ typedef struct {
     uint8_t       m_data[];
 } lean_sarray_object;
 
-/* Marker bit stored in the `m_capacity` field of `lean_array_object` and `lean_sarray_object`. */
-#define LEAN_LINEAR_MARK_MASK (((size_t)1) << (8*sizeof(size_t) - 1))
-
 typedef struct {
     lean_object m_header;
     size_t      m_size;     /* byte length including '\0' terminator */
+    /* The uppermost bit holds the linearity marker, see `String.markLinear`; read the capacity
+       itself with `lean_string_capacity`. */
     size_t      m_capacity;
     size_t      m_length;   /* UTF8 length */
     char        m_data[];
 } lean_string_object;
+
+/* Marker bit stored in the `m_capacity` field of `lean_array_object`, `lean_sarray_object` and
+   `lean_string_object`. */
+#define LEAN_LINEAR_MARK_MASK (((size_t)1) << (8*sizeof(size_t) - 1))
 
 typedef struct {
     lean_object   m_header;
@@ -1386,7 +1389,9 @@ static inline lean_obj_res lean_alloc_string(size_t size, size_t capacity, size_
 }
 LEAN_EXPORT size_t lean_utf8_strlen(char const * str);
 LEAN_EXPORT size_t lean_utf8_n_strlen(char const * str, size_t n);
-static inline size_t lean_string_capacity(lean_object * o) { return lean_to_string(o)->m_capacity; }
+static inline size_t lean_string_capacity(lean_object * o) {
+    return lean_to_string(o)->m_capacity & ~LEAN_LINEAR_MARK_MASK;
+}
 static inline size_t lean_string_byte_size(lean_object * o) { return sizeof(lean_string_object) + lean_string_capacity(o); }
 /* instance : inhabited char := ⟨'A'⟩ */
 static inline uint32_t lean_char_default_value() { return 'A'; }
@@ -1402,6 +1407,39 @@ static inline char const * lean_string_cstr(b_lean_obj_arg o) {
 static inline size_t lean_string_size(b_lean_obj_arg o) { return lean_to_string(o)->m_size; }
 static inline size_t lean_string_len(b_lean_obj_arg o) { return lean_to_string(o)->m_length; }
 static inline size_t lean_string_data_byte_size(lean_object * o) { return sizeof(lean_string_object) + lean_string_size(o); }
+static inline bool lean_string_is_marked_linear(b_lean_obj_arg o) {
+    assert(lean_is_string(o));
+    return (lean_to_string(o)->m_capacity & LEAN_LINEAR_MARK_MASK) != 0;
+}
+static inline void lean_string_mark_linear_core(u_lean_obj_arg o) {
+    assert(lean_is_string(o));
+    assert(!lean_has_rc(o) || lean_is_exclusive(o));
+    lean_to_string(o)->m_capacity |= LEAN_LINEAR_MARK_MASK;
+}
+
+LEAN_EXPORT lean_obj_res lean_copy_string(lean_obj_arg s, size_t cap);
+// Equivalent to `lean_copy_string` but used as a gadget to spot string non-linearities in profiles.
+// Panics if `s` is marked linear.
+LEAN_EXPORT lean_obj_res lean_copy_string_nonlinear(lean_obj_arg s, size_t cap);
+
+static inline lean_obj_res lean_string_ensure_exclusive(lean_obj_arg s) {
+    if (lean_is_exclusive(s)) return s;
+    return lean_copy_string_nonlinear(s, lean_string_capacity(s));
+}
+
+static inline lean_obj_res lean_string_mark_linear(lean_obj_arg s) {
+    lean_object * r = lean_string_ensure_exclusive(s);
+    lean_string_mark_linear_core(r);
+    return r;
+}
+
+static inline lean_obj_res lean_string_propagate_mark(b_lean_obj_arg src, lean_obj_arg dst) {
+    if (!lean_string_is_marked_linear(src)) return dst;
+    lean_object * r = lean_string_ensure_exclusive(dst);
+    lean_string_mark_linear_core(r);
+    return r;
+}
+
 LEAN_EXPORT lean_obj_res lean_string_push(lean_obj_arg s, uint32_t c);
 LEAN_EXPORT lean_obj_res lean_string_append(lean_obj_arg s1, b_lean_obj_arg s2);
 static inline lean_obj_res lean_string_length(b_lean_obj_arg s) { return lean_box(lean_string_len(s)); }

@@ -286,6 +286,7 @@ object_offset object_compactor::insert_string(object * o) {
     new_o->m_size     = sz;
     new_o->m_capacity = sz;
     new_o->m_length   = len;
+    if (lean_string_is_marked_linear(o)) lean_string_mark_linear_core((lean_object*)new_o);
     memcpy(new_o->m_data, lean_to_string(o)->m_data, sz);
     return save_max_sharing(o, (lean_object*)new_o, obj_sz);
 }

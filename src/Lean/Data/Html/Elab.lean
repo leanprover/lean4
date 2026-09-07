@@ -56,7 +56,7 @@ meta def elabAttrs (stxs : Array Attr) : TermElabM Expr := do
       attrs := mkApp3 (.const ``Array.append [0]) pairType attrs pairs
   return attrs
 
-meta partial def elabContent (stx : Content) : TermElabM Expr := withRef stx do
+meta partial def elabContent (stx : Content) : TermElabM (Option Expr) := withRef stx do
   match ← stx.view with
   | .element tagName attrs children =>
     if isVoidElement tagName then
@@ -71,9 +71,10 @@ meta partial def elabContent (stx : Content) : TermElabM Expr := withRef stx do
     let attrs ← elabAttrs attrs
     let children ←
       if h : children.size = 1 then
-        elabContent children[0]
+        let c ← elabContent children[0]
+        pure <| c.getD (.const ``Html.empty [])
       else
-        let children ← children.mapM elabContent
+        let children ← children.filterMapM elabContent
         let children ← mkArrayLit (.const ``Html []) children.toList
         pure <| .app (.const ``Html.ofArray []) children
     return mkApp3 (.const ``Html.element []) (toExpr tagName) attrs children
@@ -82,14 +83,16 @@ meta partial def elabContent (stx : Content) : TermElabM Expr := withRef stx do
     return mkApp (.const ``Html.text []) (toExpr t)
   | .interp val =>
     elabTermEnsuringType val (Expr.const ``Html [])
+  | .comment .. => return none
 
 /-! # html% -/
 
 syntax "html%{" lean_html_syntax* "}" : term
 
 elab_rules : term
-  | `(term| html%{ $h:lean_html_syntax }) =>
-    withRef h <| elabContent h
+  | `(term| html%{ $h:lean_html_syntax }) => withRef h do
+    return (← elabContent h).getD (.const ``Html.empty [])
   | `(term| html%{ $hs:lean_html_syntax* }) => do
-    let hs ← hs.mapM fun (h : Content) => withRef h <| elabContent h
-    return hs.foldl (init := (.const ``Html.empty [])) (mkApp2 (.const ``Html.append []))
+    let hs ← hs.filterMapM fun (h : Content) => withRef h <| elabContent h
+    let hs ← mkArrayLit (.const ``Html []) hs.toList
+    return .app (.const ``Html.ofArray []) hs

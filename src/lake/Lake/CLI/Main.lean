@@ -1190,7 +1190,7 @@ protected def checkExport : CliM PUnit := do
   let ws ← loadWorkspace (← mkLoadConfig opts)
   let buildConfig := mkBuildConfig opts
   ws.runBuild (buildSpecs (← parseTargetSpecs ws [])) buildConfig
-  let mods ← ws.runBuild ws.root.modules.fetch buildConfig
+  let mods ← ws.runBuild ws.root.defaultModules.fetch buildConfig
   Lean.initSearchPath ws.lakeEnv.lean.sysroot ws.augmentedLeanPath
   let env ← Lean.importModules (mods.map fun mod => {module := mod.name}) {}
   LeanExport.dumpEnv env

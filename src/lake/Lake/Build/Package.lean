@@ -61,8 +61,8 @@ def Package.recCollectDefaultModules (self : Package) : FetchM (Job (Array Modul
         mods := mods.push mod
   return Job.pure mods
 
-/-- The `PackageFacetConfig` for the builtin `modulesFacet`. -/
-public def Package.modulesFacetConfig : PackageFacetConfig modulesFacet :=
+/-- The `PackageFacetConfig` for the builtin `defaultModulesFacet`. -/
+public def Package.defaultModulesFacetConfig : PackageFacetConfig defaultModulesFacet :=
   mkFacetJobConfig Package.recCollectDefaultModules (buildable := false)
 
 /-- The `PackageFacetConfig` for the builtin `transDepsFacet`. -/
@@ -255,7 +255,7 @@ public def Package.initFacetConfigs : DNameMap PackageFacetConfig :=
   DNameMap.empty
   |>.insert depsFacet depsFacetConfig
   |>.insert transDepsFacet transDepsFacetConfig
-  |>.insert modulesFacet modulesFacetConfig
+  |>.insert defaultModulesFacet defaultModulesFacetConfig
   |>.insert extraDepFacet extraDepFacetConfig
   |>.insert optBuildCacheFacet optBuildCacheFacetConfig
   |>.insert buildCacheFacet buildCacheFacetConfig

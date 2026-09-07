@@ -121,7 +121,7 @@ builtin_facet deps : Package => Array Package
 builtin_facet transDeps : Package => Array Package
 
 /-- The Lean modules of the package's default targets. -/
-builtin_facet modules : Package => Array Module
+builtin_facet defaultModules : Package => Array Module
 
 /-!
 ### Facet Build Info Helper Constructors
@@ -303,9 +303,9 @@ public abbrev extraDep (self : Package) : BuildInfo :=
 public abbrev deps (self : Package) : BuildInfo :=
   self.facetCore depsFacet
 
-@[inherit_doc modulesFacet]
-public abbrev modules (self : Package) : BuildInfo :=
-  self.facetCore modulesFacet
+@[inherit_doc defaultModulesFacet]
+public abbrev defaultModules (self : Package) : BuildInfo :=
+  self.facetCore defaultModulesFacet
 
 @[inherit_doc transDepsFacet]
 public abbrev transDeps (self : Package) : BuildInfo :=

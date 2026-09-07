@@ -77,15 +77,20 @@ structure Instances where
   discrTree     : InstanceTree := DiscrTree.empty
   instanceNames : PHashMap Name InstanceEntry := {}
   erased        : PHashSet Name := {}
+  /--
+  Counter of the changes of the table. A consumer compares two revisions to detect that the
+  table is unchanged.
+  -/
+  revision      : Nat := 0
   deriving Inhabited
 
 def addInstanceEntry (d : Instances) (e : InstanceEntry) : Instances :=
   match e.globalName? with
-  | some n => { d with discrTree := d.discrTree.insertKeyValue e.keys e, instanceNames := d.instanceNames.insert n e, erased := d.erased.erase n }
-  | none   => { d with discrTree := d.discrTree.insertKeyValue e.keys e }
+  | some n => { d with discrTree := d.discrTree.insertKeyValue e.keys e, instanceNames := d.instanceNames.insert n e, erased := d.erased.erase n, revision := d.revision + 1 }
+  | none   => { d with discrTree := d.discrTree.insertKeyValue e.keys e, revision := d.revision + 1 }
 
 def Instances.eraseCore (d : Instances) (declName : Name) : Instances :=
-  { d with erased := d.erased.insert declName, instanceNames := d.instanceNames.erase declName }
+  { d with erased := d.erased.insert declName, instanceNames := d.instanceNames.erase declName, revision := d.revision + 1 }
 
 def Instances.erase [Monad m] [MonadError m] (d : Instances) (declName : Name) : m Instances := do
   unless d.instanceNames.contains declName do
@@ -385,10 +390,15 @@ abbrev PrioritySet := Std.TreeSet Nat (fun x y => compare y x)
 structure DefaultInstances where
   defaultInstances : NameMap (List (Name × Nat)) := {}
   priorities       : PrioritySet := {}
+  /--
+  Counter of the changes of the table. A consumer compares two revisions to detect that the
+  table is unchanged.
+  -/
+  revision         : Nat := 0
   deriving Inhabited
 
 def addDefaultInstanceEntry (d : DefaultInstances) (e : DefaultInstanceEntry) : DefaultInstances :=
-  let d := { d with priorities := d.priorities.insert e.priority }
+  let d := { d with priorities := d.priorities.insert e.priority, revision := d.revision + 1 }
   match d.defaultInstances.find? e.className with
   | some insts => { d with defaultInstances := d.defaultInstances.insert e.className <| (e.instanceName, e.priority) :: insts }
   | none       => { d with defaultInstances := d.defaultInstances.insert e.className [(e.instanceName, e.priority)] }

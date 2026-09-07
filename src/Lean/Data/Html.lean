@@ -7,6 +7,6 @@ module
 
 prelude
 public import Lean.Data.Html.Basic
+public import Lean.Data.Html.Elab
 public import Lean.Data.Html.Printer
-public import Lean.Data.Html.Syntax.AttributeName
-public import Lean.Data.Html.Syntax.Text
+public import Lean.Data.Html.Syntax

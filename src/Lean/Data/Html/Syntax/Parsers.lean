@@ -49,9 +49,8 @@ private def parseFirstMany (kind : Name) (firstP manyP : Char → Bool) : Parser
   fn := andthenFn parse (takeWhileFn Char.isWhitespace)
 where
   parse :=
-    atomicFn <|
-      nodeFn kind <|
-        asStringFn <| andthenFn (satisfyFn firstP) (manyFn (satisfyFn manyP))
+    nodeFn kind <|
+      asStringFn <| andthenFn (satisfyFn firstP) (manyFn (satisfyFn manyP))
 
 private def viewNodeAtom [Monad m] [MonadError m] : TSyntax k → m String
   | ⟨.node _ _ #[.atom _ s]⟩ => return s
@@ -197,7 +196,7 @@ private partial def commentFn : ParserFn := fun c s =>
 /-- Parses an [HTML comment](https://html.spec.whatwg.org/dev/syntax.html#comments).
 This parser cannot be antiquoted. -/
 def comment : Parser where
-  fn := atomicFn <| nodeFn commentKind <| rawFn commentFn (trailingWs := true)
+  fn := nodeFn commentKind <| rawFn commentFn (trailingWs := true)
 
 @[combinator_parenthesizer comment]
 def comment.parenthesizer := Parenthesizer.visitToken

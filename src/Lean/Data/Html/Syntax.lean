@@ -7,7 +7,7 @@ module
 
 prelude
 public import Init.Data.String.Modify
-meta import Lean.Data.Html.Syntax.Parsers
+public meta import Lean.Data.Html.Syntax.Parsers
 public import Lean.Data.Html.Syntax.Parsers
 import Lean.Meta.Hint
 
@@ -98,7 +98,7 @@ def Content.view (c : Content) : CoreM ContentView := do
     let endTagName ← TagName.view endTag
     if endTagName.toLower != startTagName.toLower then
       let hint ← MessageData.hint m!"Replace with start tag" #[startTagName] (ref? := endTag)
-      throwErrorAt endTag m!"Mismatched end tag, expected `{startTagName}` but got `{endTag}`{hint}"
+      throwErrorAt endTag m!"Mismatched end tag, expected `{startTagName}` but got `{endTagName}`{hint}"
     return .element startTagName attrs children
   | `(lean_html_syntax| <$startTagName $attrs*/>) =>
     return .element (← TagName.view startTagName) attrs #[]

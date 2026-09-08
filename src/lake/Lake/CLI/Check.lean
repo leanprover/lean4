@@ -50,6 +50,7 @@ public structure Context where
   whichLandrun : String
   whichLake : System.FilePath
   whichLean4Export : System.FilePath
+  whichLeanChecker : System.FilePath
   externalKernels : (Std.TreeMap String (Array String))
 
 public abbrev M := ReaderT Context IO
@@ -294,7 +295,8 @@ def runExternalKernel (kernelName : String) (kernelCommand : Array String)
     let spawnArgs := {
       cmd := kernelCommand[0]!,
       args := kernelArgs,
-      envPass := #[]
+      envPass := #["LEAN_ABORT_ON_PANIC"],
+      envOverride := #[("LEAN_ABORT_ON_PANIC", some "1")]
       readablePaths := #[configPath.toString, solutionPath.toString]
       writablePaths := #[]
     }
@@ -314,34 +316,8 @@ where
     -- TODO: get rid of this heuristic
     kernelName.contains "noda"
 
-def runBuiltinKernel (solution : LeanExport.ExportedEnv) : M (Option String) := do
-  IO.println "Running Lean default kernel on solution."
-  let env ← Lean.mkEmptyEnvironment
-  let mut kernelEnv := env.toKernelEnv
-  let origConstMap := solution.constMap
-  -- Lean's kernel interprets just the addition of `Quot as adding all of these so adding them
-  -- multiple times leads to errors.
-  let quotTargets := [`Quot.mk, `Quot.lift, `Quot.ind]
-  let kernelConstMap := quotTargets.foldl (init := origConstMap) (·.erase ·)
-  try
-    kernelEnv ← kernelEnv.replay kernelConstMap
-    IO.println "Lean default kernel accepts the solution"
-  catch e =>
-    IO.println "Lean default kernel rejects the solution"
-    return some e.toString
-
-  try
-    let verifyTargets := `Quot :: quotTargets
-    for quotTarget in verifyTargets do
-      if let some info := origConstMap[quotTarget]? then
-        let some info' := kernelEnv.find? quotTarget |
-          throw <| .userError s!"Could not find quotient constant in final kernel env: {quotTarget}"
-        if info != info' then
-          throw <| .userError s!"Quotient constant mismatch on: {quotTarget}"
-    return none
-  catch e =>
-    IO.println "Quotient post-check rejects the solution"
-    return some e.toString
+def runBuiltinKernel (solutionExport : String) : M (Option String) := do
+  runExternalKernel "Lean default" #[(← read).whichLeanChecker.toString, "--from-export"] solutionExport
 
 def primitiveTargets : M (Array Lean.Name) := do
   -- The challenge needs to have all the built-in constants of the kernel, as the
@@ -402,7 +378,7 @@ def verifyMatch (challengeExport : String) (solutionExport : String) :
   let mut result := none
   for (kernelName, kernelCommand) in ← getExternalKernels do
     result := result <|> (← runExternalKernel kernelName kernelCommand solutionExport)
-  result := result <|> (← runBuiltinKernel solution)
+  result := result <|> (← runBuiltinKernel solutionExport)
   if let some error := result then
     throw <| IO.userError error
 
@@ -467,6 +443,7 @@ def mkContext (cmd : String) (lean : LeanInstall) (lake : LakeInstall)
   -- Always the bundled exporter: the export format has to match the compiler that produced the
   -- oleans, so letting this be pointed elsewhere would reintroduce the toolchain-pinning problem.
   let whichLean4Export := lean.binDir / "leanexport" |>.addExtension System.FilePath.exeExtension
+  let whichLeanChecker := lean.binDir / "leanchecker" |>.addExtension System.FilePath.exeExtension
   let some _ ← whichExe "git"
     | return .error (← cannotRun s!"`lake {cmd}` needs `git` on PATH to build inside the sandbox")
 
@@ -482,6 +459,7 @@ def mkContext (cmd : String) (lean : LeanInstall) (lake : LakeInstall)
     whichLandrun := landrunPath.toString
     whichLake := lake.lake
     whichLean4Export
+    whichLeanChecker
     externalKernels := {}
   }
 
@@ -519,9 +497,10 @@ def checkUsedAxioms (exported : LeanExport.ExportedEnv) : M Unit := do
 /-- Checks a set of module roots at once against the kernel with no challenge to compare it to. -/
 def checkProject : M Unit := do
   safeResolveDeps
-  let exported ← LeanExport.parseStream (← stringStream (← safeBuildAndExport))
-  if let some error ← runBuiltinKernel exported then
+  let exportedString ← safeBuildAndExport
+  if let some error ← runBuiltinKernel exportedString then
     throw <| .userError error
+  let exported ← LeanExport.parseStream (← stringStream exportedString)
   checkUsedAxioms exported
 
 /--

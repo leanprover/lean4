@@ -40,9 +40,10 @@ leanLibDir = "lib/lean"
 # Destination for static libraries
 nativeLibDir = "lib/lean"
 
-# Additional options and arguments derived from the CMake configuration. Unlike `moreLeanArgs`,
-# `leanOptions` also apply to the language server.
-${LEAN_SET_OPTIONS_TOML}moreLeanArgs = [${LEAN_EXTRA_ARGS_TOML}]
+# Additional options derived from the CMake configuration
+moreLeanArgs = [${LEAN_EXTRA_OPTS_TOML}]
+# `lake serve` does not forward `moreLeanArgs` to the language server, so pass them explicitly
+moreGlobalServerArgs = [${LEAN_EXTRA_OPTS_TOML}]
 
 # Enable core-only linters
 leanOptions.linter.coreInternal = true

@@ -205,6 +205,25 @@ where
         return false
 
 /--
+Virtual analog of `isDefEqEtaStruct`, for types declared by the `type_def` command
+(`VirtualStructureInfo`). Recognizes `b := ctorName arg`, where `ctorName` is a `type_def`-generated
+constructor, and — provided `a` is not itself such a constructor application, in which case
+`isDefEqArgs` handles the comparison more directly — reduces `a =?= b` to `projName a =?= arg`.
+Combined with `reduceVirtualProj?`, this gives `type_def`-declared types the same iota/eta behavior
+as a real one-field structure, even though `N`, `N.mk` and `N.toNat` never unfold.
+-/
+private def isDefEqVirtualEtaStruct (a b : Expr) : MetaM Bool := do
+  let .const ctorName us := b.getAppFn | return false
+  let some info ← getVirtualCtorInfo? ctorName | return false
+  unless b.getAppNumArgs == 1 do return false
+  if let .const ctorName' _ := a.getAppFn then
+    if ctorName' == info.ctorName then return false
+  if (← isDefEq (← inferType a) (← inferType b)) then
+    checkpointDefEq <| isDefEq (mkApp (mkConst info.projName us) a) b.appArg!
+  else
+    return false
+
+/--
   Try to solve `a := (fun x => t) =?= b` by eta-expanding `b`,
   resulting in `t =?= b x` (with a fresh free variable `x`).
 
@@ -2424,6 +2443,8 @@ private def isExprDefEqExpensive (t : Expr) (s : Expr) : MetaM Bool := do
     -- as soon as one of the sides is a constructor application,
     -- which is very costly because it requires us to unify the fields.
     if (← (isDefEqEtaStruct t s <||> isDefEqEtaStruct s t)) then
+      return true
+    if (← (isDefEqVirtualEtaStruct t s <||> isDefEqVirtualEtaStruct s t)) then
       return true
     if t.isConst && s.isConst then
       if t.constName! == s.constName! then isListLevelDefEqAux t.constLevels! s.constLevels! else return false

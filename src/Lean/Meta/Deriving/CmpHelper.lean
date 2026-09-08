@@ -166,16 +166,16 @@ def Kind.lawfulEqField : Kind → Level → Expr → (inst : Expr) → Expr
 Given all variables for a minor, returns `(fields, idxOfField, ihs)`.
 -/
 def decodeMinorVars (vars : Array Expr) (idxOfMotive : FVarIdMap Nat) :
-    MetaM (Array Expr × FVarIdMap Nat × Array (Option Expr)) := do
+    MetaM (Array Expr × FVarIdMap Nat × Array (Option (Expr × Nat))) := do
   let mut fields := #[]
   let mut idxOfField := {}
   let mut ihs := #[]
   for var in vars do
     let ty ← inferType var
     if let .fvar f := ty.getForallBody.getAppFn then
-      if idxOfMotive.contains f then
+      if let some idx := idxOfMotive.get? f then
         let thing := ty.getForallBody.appArg!.getAppFn.fvarId!
-        ihs := ihs.set! (idxOfField.get! thing) (some var)
+        ihs := ihs.set! (idxOfField.get! thing) (some (var, idx))
         continue
     idxOfField := idxOfField.insert var.fvarId! fields.size
     fields := fields.push var
@@ -206,8 +206,8 @@ inductive CmpHelperStrategy where
   | withCtorIdx
 
 def makePreDefinitionWithStructuralHint (levelParams : List Name) (declName : Name)
-    (type value : Expr) (majorIdx : Nat) (isUnsafe : Bool) (isMeta : Bool)
-    (makePartial : Bool) : MetaM Elab.PreDefinition := do
+    (type value : Expr) (majorIdx : Nat) (isUnsafe : Bool) (isMeta : Bool) :
+    MetaM Elab.PreDefinition := do
   if isMeta then
     modifyEnv (markMeta · declName)
   let numArgs := value.getNumHeadLambdas
@@ -217,7 +217,7 @@ def makePreDefinitionWithStructuralHint (levelParams : List Name) (declName : Na
     kind := .def
     modifiers := {
       computeKind := if isMeta then .meta else .regular
-      recKind := if makePartial && !isUnsafe then .partial else .default
+      recKind := .default
       attrs := #[{
         name := `specialize
         stx := Unhygienic.run `(attr| specialize)
@@ -225,7 +225,7 @@ def makePreDefinitionWithStructuralHint (levelParams : List Name) (declName : Na
       isUnsafe
     }
     binders := .missing
-    termination := if makePartial || isUnsafe then .none else {
+    termination := if isUnsafe then .none else {
       ref
       terminationBy?? := none
       terminationBy? := some {
@@ -243,7 +243,7 @@ def makePreDefinitionWithStructuralHint (levelParams : List Name) (declName : Na
 
 def makeCmpHelperDoubleMatch (kind : Kind) (levelParams : List Name) (lparams : List Level)
     (params : Array Expr) (moreVars : Array Expr) (indName : Name) (ctorCases : Array Expr)
-    (makePartial : Bool) : MetaM Elab.PreDefinition := do
+    (isUnsafe : Bool) : MetaM Elab.PreDefinition := do
   let info ← getConstInfoInduct indName
   let casesOnAppBase := mkAppN (.const (mkCasesOnName indName) (1 :: lparams)) params
   let casesOnType ← inferType casesOnAppBase
@@ -282,11 +282,11 @@ def makeCmpHelperDoubleMatch (kind : Kind) (levelParams : List Name) (lparams : 
   let value ← mkLambdaFVars (params ++ moreVars ++ lvars ++ rvars) outerApp (binderInfoForMVars := .default)
   makePreDefinitionWithStructuralHint levelParams (kind.mkHelperName indName) type value
     (params.size + moreVars.size + lvars.size - 1)
-    info.isUnsafe (isMarkedMeta (← getEnv) info.name) makePartial
+    isUnsafe (isMarkedMeta (← getEnv) info.name)
 
 def makeCmpHelperCtorIdx (kind : Kind) (levelParams : List Name) (lparams : List Level)
     (params : Array Expr) (moreVars : Array Expr) (indName : Name) (ctorCases : Array Expr)
-    (makePartial : Bool) : MetaM Elab.PreDefinition := do
+    (isUnsafe : Bool) : MetaM Elab.PreDefinition := do
   let info ← getConstInfoInduct indName
   let casesOnApp := mkAppN (.const (mkCasesOnName indName) (1 :: lparams)) params
   let casesOnType ← inferType casesOnApp
@@ -327,7 +327,7 @@ def makeCmpHelperCtorIdx (kind : Kind) (levelParams : List Name) (lparams : List
   let value ← mkLambdaFVars (params ++ moreVars ++ lvars ++ rvars) boolCases (binderInfoForMVars := .default)
   makePreDefinitionWithStructuralHint levelParams (kind.mkHelperName indName) type value
     (params.size + moreVars.size + lvars.size - 1)
-    info.isUnsafe (isMarkedMeta (← getEnv) info.name) makePartial
+    isUnsafe (isMarkedMeta (← getEnv) info.name)
 
 def makeCmpHelperEquation (kind : Kind) (levelParams : List Name) (lparams : List Level)
     (params : Array Expr) (moreVars : Array Expr) (indName ctorName : Name) (eqn : Expr) :
@@ -458,14 +458,14 @@ def makeCmpHelperCtorIdxLaw (kind : Kind) (levelParams : List Name)
 
 def makeCmpHelpersFromEquations (kind : Kind) (levelParams : List Name) (lparams : List Level)
     (params : Array Expr) (moreVars : Array Expr) (cases : Array (Name × Array Expr))
-    (makePartial : Bool) : MetaM Unit := do
+    (isUnsafe : Bool) : MetaM Unit := do
   let mut predefs : Array Elab.PreDefinition := #[]
   for (indName, ctorCases) in cases do
     if ctorCases.size ≤ 5 then
-      let predef ← makeCmpHelperDoubleMatch kind levelParams lparams params moreVars indName ctorCases makePartial
+      let predef ← makeCmpHelperDoubleMatch kind levelParams lparams params moreVars indName ctorCases isUnsafe
       predefs := predefs.push predef
     else
-      let predef ← makeCmpHelperCtorIdx kind levelParams lparams params moreVars indName ctorCases makePartial
+      let predef ← makeCmpHelperCtorIdx kind levelParams lparams params moreVars indName ctorCases isUnsafe
       predefs := predefs.push predef
   let env ← getEnv
   let doExpose := cases.all fun (indName, _) =>
@@ -473,7 +473,7 @@ def makeCmpHelpersFromEquations (kind : Kind) (levelParams : List Name) (lparams
   withLCtx {} {} do
     withExporting (isExporting := doExpose) do
       Elab.Term.TermElabM.run' <| Elab.addPreDefinitions ({}, {}) predefs
-  if makePartial then return
+  if isUnsafe then return
   for (indName, cases) in cases do
     let info ← getConstInfoInduct indName
     let ctors := info.ctors
@@ -611,11 +611,13 @@ def recursorAltToEquation (kind : Kind) (alt : Expr) (idxOfMotive : FVarIdMap Na
         let rhsField := rhsFields[i]!
         let fwdDeps := allFwdDeps[i]!
         let fieldType ← inferType lhsField
-        if let some ih := lhsIHs[i]! then
+        -- We only want to consider non-nested recursive occurrences
+        -- Nested occurrences are handled later and not in `_beqHelper` / `_ordHelper` directly
+        if let some (ih, motiveIdx) := lhsIHs[i]!.filter (fun (_, i) => i < cmpFnsByMotiveIdx.size) then
           unless fwdDeps.isEmpty do
             throwError "Unexpected forward dependencies at recursive occurrence {lhsField}"
           /-
-          Support for reflexive inductive like
+          Support for simple reflexive inductives like
 
           inductive Test where
             | base
@@ -634,7 +636,6 @@ def recursorAltToEquation (kind : Kind) (alt : Expr) (idxOfMotive : FVarIdMap Na
             throwError "Unexpected induction hypothesis{indentExpr ih}\nExpected {fieldArgs.size} arguments"
           let lhsField := mkAppN lhsField fieldArgs
           let rhsField := mkAppN rhsField fieldArgs
-          let motiveIdx := idxOfMotive.get! leftMotiveApp.getAppFn.fvarId!
           let indices := leftMotiveApp.getAppArgs
           let cmpFn := cmpFnsByMotiveIdx[motiveIdx]!
           let cmp := (mkAppN ((mkAppN cmpFn indices).app lhsField) indices).app rhsField
@@ -688,7 +689,6 @@ meaningful laws.
 -/
 partial def makeCmpHelpers (indName : Name) (kind : Kind) : MetaM Unit := do
   let info ← getConstInfoInduct indName
-  let usePartial := info.isNested
   let recInfo ← getConstInfoRec (mkRecName indName)
   let levelParams := info.levelParams
   let lparams := levelParams.map Level.param
@@ -701,20 +701,22 @@ partial def makeCmpHelpers (indName : Name) (kind : Kind) : MetaM Unit := do
       let motives := vars[0...recInfo.numMotives]
       let mut idxOfMotive := {}
       let mut cmpVars := #[]
+      let allCount := recInfo.all.length
       for i in *...recInfo.numMotives do
         idxOfMotive := idxOfMotive.insert motives[i]!.fvarId! i
-        let motiveType ← inferType motives[i]!
-        let cmpVarType ← forallTelescope motiveType fun vars _ => do
-          mkForallFVars vars (← mkForallFVars vars kind.indicatorType)
-        let cmpVar ← mkFreshExprSyntheticOpaqueMVar cmpVarType <| (`cmp).appendIndexAfter (i + 1)
-        cmpVars := cmpVars.push cmpVar
+        if i < allCount then
+          let motiveType ← inferType motives[i]!
+          let cmpVarType ← forallTelescope motiveType fun vars _ => do
+            mkForallFVars vars (← mkForallFVars vars kind.indicatorType)
+          let cmpVar ← mkFreshExprSyntheticOpaqueMVar cmpVarType <| (`cmp).appendIndexAfter (i + 1)
+          cmpVars := cmpVars.push cmpVar
       let alts := vars[recInfo.numMotives...(recInfo.numMotives + recInfo.numMinors)]
       let mut acc := acc
       let mut eqns : Array (Name × Array Expr) := info.all.toArray.map (·, #[])
       for alt in alts do
         let ty ← inferType alt
         let motiveIdx := idxOfMotive.get! ty.getForallBody.getAppFn.fvarId!
-        unless motiveIdx < eqns.size do continue
+        unless motiveIdx < allCount do continue
         let (eqn, newAcc) ← (recursorAltToEquation kind ty idxOfMotive cmpVars).run acc
         eqns := eqns.modify motiveIdx fun (nm, xs) => (nm, xs.push eqn)
         acc := newAcc
@@ -723,41 +725,7 @@ partial def makeCmpHelpers (indName : Name) (kind : Kind) : MetaM Unit := do
         let cmpMVar := cmpVars[i]!.mvarId!
         let indName := eqns[i]!.1
         cmpMVar.assign (mkAppN (mkAppN (.const (kind.mkHelperName indName) lparams) params) moreVars)
-      if info.isNested then
-        let mut recVarInfos := #[]
-        let mut recVarValues := #[]
-        for i in *...eqns.size do
-          let motiveType ← inferType motives[i]!
-          let arity := motiveType.getForallArity
-          let res ← forallBoundedTelescope motiveType (some (arity - 1)) fun indices body => do
-            let .forallE _ ty _ _ := body | unreachable!
-            let some lvl ← getDecLevel? ty | pure none
-            withLocalDeclD `a ty fun a => do
-            withLocalDeclD `b ty fun b => do
-              let cmpApp := (mkAppN ((mkAppN cmpVars[i]! indices).app a) indices).app b
-              let type ← mkForallFVars indices (.app (.const kind.className [lvl]) ty)
-              let value ← mkLambdaFVars indices
-                (.app (kind.classCtor lvl ty) (← mkLambdaFVars #[a, b] cmpApp))
-              pure (some (type, value))
-          if let some (instType, instVal) := res then
-            recVarInfos := recVarInfos.push ((`recinst).appendIndexAfter (i + 1), instType)
-            recVarValues := recVarValues.push instVal
-        withLocalDeclsDND recVarInfos fun recVars => do
-          assert! recInfo.numMotives == eqns.size + info.numNested
-          for i in *...info.numNested do
-            let cmpMVar := cmpVars[i + eqns.size]!.mvarId!
-            let motiveType ← inferType motives[i + eqns.size]!
-            if motiveType.getForallArity != 1 then
-              forallTelescope motiveType fun vars _ => do
-                throwError "Unsupported nested type with indices while deriving \
-                  `{.ofConstName kind.className}`{indentExpr (← inferType vars.back!)}"
-            let .forallE _ ty _ _ := motiveType | unreachable!
-            let lvl ← getDecLevel ty
-            let inst ← prependError m!"Failed to synthesize instance for nested type{indentExpr ty}" do
-              synthInstance (.app (.const kind.className [lvl]) ty)
-            let val := .app (kind.cmpField lvl ty) (inst.replaceFVars recVars recVarValues)
-            cmpMVar.assign val
-      makeCmpHelpersFromEquations kind levelParams lparams params moreVars eqns (usePartial || info.isUnsafe)
+      makeCmpHelpersFromEquations kind levelParams lparams params moreVars eqns info.isUnsafe
 
 structure CtorInfo where
   /--
@@ -841,7 +809,7 @@ def Context.mkLemmas (ctx : Context) (motiveVars motives minors newHyps : Array 
 /-- Proves `e = kind.eqIndicator`. -/
 @[inline]
 private partial def proveRefl (ctx : Context) (kind : Kind) (reflHyps : Array Expr)
-    (idxOfField : FVarIdMap Nat) (ihs : Array (Option Expr)) (e : Expr) : MetaM Expr :=
+    (idxOfField : FVarIdMap Nat) (ihs : Array (Option (Expr × Nat))) (e : Expr) : MetaM Expr :=
   go e
 where
   go (e : Expr) : MetaM Expr := do
@@ -857,7 +825,7 @@ where
         -- The hypothesis we need here is `ihᵢ fieldArgs...`
         e.appArg!.withApp fun fn args => do
           let varIdx := idxOfField.get! fn.fvarId!
-          let ih := ihs[varIdx]!.get!
+          let ih := ihs[varIdx]!.get!.1
           return mkAppN ih args
     else if fn == kind.eqIndicator then
       return mkApp2 (.const ``rfl [1]) kind.indicatorType fn
@@ -899,21 +867,26 @@ partial def makeRefl (ctx : Context) : MetaM Unit := do
     let mut motives : Array Expr := .emptyWithCapacity recInfo.numMotives
     let mut idxOfMotive : FVarIdMap Nat := {}
     for i in 0...recInfo.numMotives do
-      let some cmpVar := ctx.cmpVars[i]? |
-        throwError "Comparison variable unavailable for motive at index {i}"
       let motiveVar := recVars[i]!
       let motive ← forallTelescope (← inferType motiveVar) fun vars _ => do
-        let cmpApp := mkAppN (mkAppN cmpVar vars) vars
-        mkLambdaFVars vars (kind.mkEq cmpApp)
+        if let some cmpVar := ctx.cmpVars[i]? then
+          let cmpApp := mkAppN (mkAppN cmpVar vars) vars
+          mkLambdaFVars vars (kind.mkEq cmpApp)
+        else
+          -- we just use `True` for the nested motives
+          mkLambdaFVars vars (mkConst ``True)
       motives := motives.push motive
       idxOfMotive := idxOfMotive.insert motiveVar.fvarId! i
     let mut minors : Array Expr := .emptyWithCapacity recInfo.numMinors
     for i in 0...recInfo.numMinors do
       let minorVar := recVars[recInfo.numMotives + i]!
-      let info := ctx.ctorInfos[i]!
       let minor ← forallTelescope (← inferType minorVar) fun vars body => do
-        let (fields, idxOfField, ihs) ← decodeMinorVars vars idxOfMotive
         let motiveIdx := idxOfMotive.get! body.getAppFn.fvarId!
+        if motiveIdx ≥ ctx.cmpVars.size then
+          -- nested motive
+          return ← mkLambdaFVars vars (mkConst ``True.intro)
+        let (fields, idxOfField, ihs) ← decodeMinorVars vars idxOfMotive
+        let info := ctx.ctorInfos[i]!
         let cmpFn := ctx.cmpVars[motiveIdx]!
         let motiveArgs := body.getAppArgs
         let comparison := mkAppN (mkAppN cmpFn motiveArgs) motiveArgs
@@ -924,20 +897,6 @@ partial def makeRefl (ctx : Context) : MetaM Unit := do
           comparison unfolded kind.eqIndicator unfoldLemma proof
         mkLambdaFVars vars proof
       minors := minors.push (minor.replaceFVars motiveVars motives)
-    /-let recLParams := 0 :: recInfo.levelParams.tail.map Level.param
-    let recArgs := ctx.params ++ motives ++ minors
-    for motiveVar in motiveVars, name in ctx.associatedNames, cmpVar in ctx.cmpVars do
-      let some name := name | continue
-      let some cmpValue ← cmpVar.fvarId!.getValue? | throwError "{cmpVar} does not have a value"
-      forallTelescope (← inferType motiveVar) fun motiveArgs _ => do
-      let resType := kind.mkEq <| mkAppN (mkAppN cmpValue motiveArgs) motiveArgs
-      let type ← mkForallFVars (ctx.allParams ++ reflHyps ++ motiveArgs) resType
-      let recApp := mkAppN (.const (mkRecName name) recLParams) recArgs
-      let value ← mkLambdaFVars (ctx.allParams ++ reflHyps) <| ← mkLetFVars ctx.cmpVars recApp
-      addDecl <| .thmDecl {
-        name := kind.mkReflName name
-        levelParams, type, value
-      }-/
     ctx.mkLemmas motiveVars motives minors reflHyps Kind.mkReflName
 
 /--
@@ -975,7 +934,7 @@ Given `h : cmp = kind.eqIndicator`, try to prove `goal`, which must be a `HEq` a
 -/
 @[inline]
 private partial def proveLawfulHEq (ctx : Context) (kind : Kind) (lawfulHyps : Array Expr)
-    (idxOfField : FVarIdMap Nat) (ihs : Array (Option Expr)) (cmp hyp goal : Expr) : MetaM Expr :=
+    (idxOfField : FVarIdMap Nat) (ihs : Array (Option (Expr × Nat))) (cmp hyp goal : Expr) : MetaM Expr :=
   go cmp hyp goal fun newGoal => do
     let mkApp4 (.const ``HEq [u]) α l _ r := newGoal |
       throwError "Unexpected goal after proveLawfulEq{indentExpr newGoal}"
@@ -1004,7 +963,7 @@ where
         let rhs := cmp.appArg! -- fieldᵢ' ⋯'
         lhs.withApp fun fn args => do
           let varIdx := idxOfField.get! fn.fvarId!
-          let ih := ihs[varIdx]!.get!
+          let ih := ihs[varIdx]!.get!.1
           -- That gives us `heq : lhs ≍ rhs`. However, at this point, we should be able to convert
           -- that into an equality; we need to be careful here though, `heq` doesn't typecheck until
           -- we substitute in its value later; currently it just uses a `motive` variable
@@ -1119,25 +1078,28 @@ partial def makeLawfulEq (ctx : Context) : MetaM Unit := do
     let mut motives : Array Expr := .emptyWithCapacity recInfo.numMotives
     let mut idxOfMotive : FVarIdMap Nat := {}
     for i in 0...recInfo.numMotives do
-      let some cmpVar := ctx.cmpVars[i]? |
-        throwError "Comparison variable unavailable for motive at index {i}"
       let motiveVar := recVars[i]!
       let motiveType ← inferType motiveVar
       let motive ← forallTelescope motiveType fun lvars _ => do
         forallTelescope motiveType fun rvars _ => do
-          let cmpApp := mkAppN (mkAppN cmpVar lvars) rvars
-          let heq ← mkHEq lvars.back! rvars.back!
-          mkLambdaFVars lvars (← mkForallFVars rvars <| .forallE `heq (kind.mkEq cmpApp) heq .default)
+          if let some cmpVar := ctx.cmpVars[i]? then
+            let cmpApp := mkAppN (mkAppN cmpVar lvars) rvars
+            let heq ← mkHEq lvars.back! rvars.back!
+            mkLambdaFVars lvars (← mkForallFVars rvars <| .forallE `heq (kind.mkEq cmpApp) heq .default)
+          else
+            mkLambdaFVars lvars (mkConst ``True)
       motives := motives.push motive
       idxOfMotive := idxOfMotive.insert motiveVar.fvarId! i
     let mut minors : Array Expr := .emptyWithCapacity recInfo.numMinors
     for i in 0...recInfo.numMinors do
       let minorVar := recVars[recInfo.numMotives + i]!
       let minorType ← inferType minorVar
-      let ctorInfo := ctx.ctorInfos[i]!
       let minor ← forallTelescope minorType fun vars body => do
-        let (fields, idxOfField, ihs) ← decodeMinorVars vars idxOfMotive
         let motiveIdx := idxOfMotive.get! body.getAppFn.fvarId!
+        if motiveIdx ≥ ctx.cmpVars.size then
+          return ← mkLambdaFVars vars (mkConst ``True.intro)
+        let (fields, idxOfField, ihs) ← decodeMinorVars vars idxOfMotive
+        let ctorInfo := ctx.ctorInfos[i]!
         let motiveValue := motives[motiveIdx]!
         let ctorApp := body.appArg!
         let motiveRevArgs := body.getAppRevArgs
@@ -1176,10 +1138,8 @@ partial def makeLawfulEq (ctx : Context) : MetaM Unit := do
       minors := minors.push (minor.replaceFVars motiveVars motives)
     ctx.mkLemmas motiveVars motives minors newLawfulHyps Kind.mkLawfulName
 
-def withNonNestedContext (indName : Name) (kind : Kind) (k : Context → MetaM α) : MetaM α := withoutExporting do
+def withHelperContext (indName : Name) (kind : Kind) (k : Context → MetaM α) : MetaM α := withoutExporting do
   let indInfo ← getConstInfoInduct indName
-  if indInfo.isNested then
-    throwError "Invalid input to `withNonNestedContext`, expected non-nested inductive"
   let recInfo ← getConstInfoRec (mkRecName indName)
   let helper ← getConstVal <| kind.mkHelperName indName
   let associatedNames := indInfo.all.toArray.map some
@@ -1327,7 +1287,7 @@ def deriveReflCmpClass (k : Kind) : Elab.DerivingHandler :=
   unless lvars == rvars do
     throwError "Expected left-hand and right-hand side variables to be equal:{indentExpr cmp}"
   unless (← getEnv).contains (k.mkReflName name) do
-    withNonNestedContext name k makeRefl
+    withHelperContext name k makeRefl
   let proof := head.replaceFn (k.mkReflName name)
   let proofType ← inferType proof
   let arity := proofType.getForallArity
@@ -1368,9 +1328,9 @@ def deriveLawfulEqClass (k : Kind) : Elab.DerivingHandler :=
   let lrvars := cmp.getAppArgsN (nvars * 2)
   let head := cmp.getBoundedAppFn (nvars * 2)
   unless (← getEnv).contains (k.mkReflName name) do
-    withNonNestedContext name k makeRefl
+    withHelperContext name k makeRefl
   unless (← getEnv).contains (k.mkLawfulName name) do
-    withNonNestedContext name k makeLawfulEq
+    withHelperContext name k makeLawfulEq
   let proof := head.replaceFn (k.mkLawfulName name)
   let proofType ← inferType proof
   let arity := proofType.getForallArity
@@ -1405,9 +1365,9 @@ def deriveDecidableEq : Elab.DerivingHandler := mkInductiveDerivingHandler (need
   unless (← getEnv).contains (k.mkHelperName indInfo.name) do
     makeCmpHelpers indInfo.name k
   unless (← getEnv).contains (k.mkReflName indInfo.name) do
-    withNonNestedContext indInfo.name k makeRefl
+    withHelperContext indInfo.name k makeRefl
   unless (← getEnv).contains (k.mkLawfulName indInfo.name) do
-    withNonNestedContext indInfo.name k makeLawfulEq
+    withHelperContext indInfo.name k makeLawfulEq
   -- Construct the helper arguments
   let helperApp := mkAppN (.const (k.mkHelperName indInfo.name) (← read).lparams) (← read).indParams
   let makeCmp (ty : Expr) : DerivingM (Expr × Expr) := do

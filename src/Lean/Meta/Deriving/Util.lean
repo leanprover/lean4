@@ -67,14 +67,14 @@ reverted variables.
 
 Note: This function assumes that the `lctx` is a subprefix of the current local context.
 -/
-def Lean.Meta.mkFreshRevertedMVarAt (ty : Expr) (lctx : LocalContext) (linsts : LocalInstances) :
-    MetaM Expr := do
+def Lean.Meta.mkFreshRevertedMVarAt (ty : Expr) (lctx : LocalContext) (linsts : LocalInstances)
+    (kind : MetavarKind := .syntheticOpaque) : MetaM Expr := do
   let ty ← instantiateMVars ty
   let state ← (collectFVars {} ty).addDependencies
   let toRevert := (← getLCtx).getFVarIds.filter (fun f => state.fvarSet.contains f && !lctx.contains f)
   let toRevert := toRevert.map Expr.fvar
   let ty' ← mkForallFVars toRevert ty
-  let mvar ← mkFreshExprMVarAt lctx linsts ty' .syntheticOpaque
+  let mvar ← mkFreshExprMVarAt lctx linsts ty' kind (numScopeArgs := toRevert.size)
   return mkAppN mvar toRevert
 
 namespace Lean.Meta.Deriving
@@ -100,90 +100,70 @@ private def goodOutputKeys (keys : Array DiscrTree.Key) : Bool := Id.run do
   return keys.all (start := 1) (· matches .star | .const ``Eq _)
 
 /--
-Given a list of metavariables corresponding to instance obligations, returns a suitable list of
-instance assumptions to be used in `mkLambdaFVars (binderInfoForMVars := .instImplicit)`.
+Given an instance type `instType` and a local context `lctx` with associated local instances
+`linsts`, try to apply a canonical instance, producing new instance hypotheses as synthetic opaque
+metavariables in the provided local context.
 
-Precondition: The current local context must be a prefix of the local contexts of
-all metavariables.
+The result of this function is a pair of the instance application and the list of new instance
+hypotheses together with an indication of whether to run this function again on the resulting
+instance obligation. We use a heuristic here to (try to) make sure we don't run into an infinite
+loop.
+
+Canonical instances are currently defined as instances with exactly two constant fragments in the
+discrimination tree keys (except `Eq` because of `DecidableEq`). Furthermore, we only try an
+instance if it is the only one with "good keys".
 -/
-def filterInstanceObligations (mvars : Array MVarId) : MetaM (Array MVarId) := do
-  let mut newMVars : Array MVarId := #[]
-  let mut stack : Array (MVarId × Bool) := mvars.reverse.map (·, true)
-  let origLInsts ← getLocalInstances
-  let mut lctx ← getLCtx
-  let mut linsts ← getLocalInstances
-  let mut timeout := 100
-  while h : !stack.isEmpty do
-    let (back, allowCanonicalInstanceReduction) := stack.back (by simp_all [Array.size_pos_iff])
-    stack := stack.pop
-    let type ← back.getType
-    let some className ← isClass? type |
-      -- if this wasn't reported before, report now
-      throwError "type class instance expected{indentExpr type}"
-    if let .some res ← withLCtx lctx linsts (trySynthInstance type) then
-      back.assign res
-      continue
-    unless allowCanonicalInstanceReduction do
-      -- avoid loops
-      newMVars := newMVars.push back
-      -- we simply add the new metavariables as local instances for instance synthesis to pick up
-      -- that way we can detect redundant instances more effectively
-      linsts := linsts.push { className, fvar := .mvar back }
-      continue
-    -- This step tries to reduce e.g. `BEq (List α)` to `BEq α`
-    let mctx ← getMCtx
-    let res ← forallTelescopeReducing (whnfType := true) type fun vars body => do
-      -- try to apply instance
-      trace[Elab.Deriving] "Trying to reduce {body}"
-      let instances ← getGlobalInstancesIndex
-      let matching ← instances.getUnify body
-      trace[Elab.Deriving] "Instances: {matching}"
-      let matching := matching.filter fun inst => goodKeys inst.keys
-      trace[Elab.Deriving] "Good instances: {matching}"
-      let #[instEntry] := matching | return none
-      let some name := instEntry.globalName? | return none
-      let c ← mkConstWithFreshMVarLevels name
-      let (args, bis, instBody) ← forallMetaTelescopeReducing (← inferType c)
-      let mut outVars := #[]
-      for arg in args, bi in bis do
-        if bi.isInstImplicit then
-          if instBody.containsMVar arg.mvarId! then
-            continue
-          let keys ← DiscrTree.mkPath (← inferType arg)
-          let newMVar ← mkFreshRevertedMVarAt (← inferType arg) lctx origLInsts
-          arg.mvarId!.assign newMVar
-          outVars := outVars.push (newMVar.getAppFn.mvarId!, goodOutputKeys keys)
-      unless ← isDefEqI instBody body do
-        trace[Elab.Deriving] "Failed to unify"
+def tryApplyCanonicalInstance (instType : Expr) (lctx : LocalContext) (linsts : LocalInstances) :
+    MetaM (Option (Expr × Array (MVarId × Bool))) := do
+  forallTelescopeReducing (whnfType := true) instType fun vars body => do
+    -- try to apply instance
+    trace[Elab.Deriving] "Trying to reduce {body}"
+    let instances ← getGlobalInstancesIndex
+    let matching ← instances.getUnify body
+    trace[Elab.Deriving] "Instances: {matching}"
+    let matching := matching.filter fun inst => goodKeys inst.keys
+    trace[Elab.Deriving] "Good instances: {matching}"
+    let #[instEntry] := matching | return none
+    let some name := instEntry.globalName? | return none
+    let c ← mkConstWithFreshMVarLevels name
+    let (args, bis, instBody) ← forallMetaTelescopeReducing (← inferType c)
+    let mut outVars := #[]
+    for arg in args, bi in bis do
+      if bi.isInstImplicit then
+        if instBody.containsMVar arg.mvarId! then
+          continue
+        let keys ← DiscrTree.mkPath (← inferType arg)
+        let newMVar ← mkFreshRevertedMVarAt (← inferType arg) lctx linsts
+        arg.mvarId!.assign newMVar
+        outVars := outVars.push (newMVar.getAppFn.mvarId!, goodOutputKeys keys)
+    unless ← isDefEqI instBody body do
+      trace[Elab.Deriving] "Failed to unify"
+      return none
+    let c ← instantiateMVars c
+    if c.hasLevelMVar then
+      trace[Elab.Deriving] "Remaining level metavariables in {c}"
+      return none
+    let mctx' ← getMCtx
+    let mut res := c
+    for arg in args do
+      let arg ← instantiateMVars arg
+      -- all metavariables that were there before should be synthetic opaque
+      if arg.hasLevelMVar then
+        trace[Elab.Deriving] "Remaining level metavariables in {arg}"
         return none
-      let c ← instantiateMVars c
-      if c.hasLevelMVar then
-        trace[Elab.Deriving] "Remaining level metavariables in {c}"
+      if arg.hasAnyMVar (fun m => !(mctx'.getDecl m).kind.isSyntheticOpaque) then
+        trace[Elab.Deriving] "Remaining metavariables in {arg}"
         return none
-      let mctx' ← getMCtx
-      let mut res := c
-      for arg in args, bi in bis do
-        let arg ← instantiateMVars arg
-        -- all metavariables that were there before should be synthetic opaque
-        if arg.hasLevelMVar then
-          trace[Elab.Deriving] "Remaining level metavariables in {arg}"
-          return none
-        if arg.hasAnyMVar (fun m => !(mctx'.getDecl m).kind.isSyntheticOpaque) then
-          trace[Elab.Deriving] "Remaining metavariables in {arg}"
-          return none
-        res := res.app arg
-      back.assign (← mkLambdaFVars vars res)
-      return some outVars
-    if let some outVars := res then
-      stack := outVars.foldr (fun x as => as.push x) stack
-    else
-      setMCtx mctx
-      newMVars := newMVars.push back
-      linsts := linsts.push { className, fvar := .mvar back }
-  return newMVars
+      res := res.app arg
+    return some (← mkLambdaFVars vars res, outVars)
 
 structure Deriving.State where
   instanceMVars : Array MVarId := #[]
+  newLInsts : LocalInstances
+  -- for documentation purposes
+  invariant1 : instanceMVars.size ≤ newLInsts.size := by exact Nat.zero_le _
+  invariant2 (i : Nat) (hi : i < instanceMVars.size) :
+    newLInsts[i + newLInsts.size - instanceMVars.size].fvar = .mvar instanceMVars[i] := by nofun
 
 structure Deriving.Context where
   /-- Level parameters for the instances -/
@@ -221,22 +201,113 @@ structure Deriving.Context where
 
 abbrev DerivingM := ReaderT Deriving.Context <| StateRefT Deriving.State TermElabM
 
+nonrec def DerivingM.run (x : DerivingM α) (ctx : Deriving.Context) : TermElabM α :=
+  (x.run ctx).run' { newLInsts := ctx.paramLInsts }
+
+private def pushInstanceHypothesis (goal : MVarId) (className : Name) : DerivingM Unit := do
+  -- We simply add the new metavariables as local instances for instance synthesis to pick up
+  -- That way we can detect redundant instances more easily
+  modify fun state => {
+    state with
+    instanceMVars := state.instanceMVars.push goal
+    newLInsts := state.newLInsts.push { className, fvar := .mvar goal }
+    invariant1 := by simpa using state.invariant1
+    invariant2 i hi := by
+      have := state.invariant1
+      rw [Array.size_push] at hi
+      simp only [Array.size_push, ← Nat.add_assoc, Nat.add_sub_add_right]
+      rcases Nat.lt_add_one_iff_lt_or_eq.mp hi with hlt | rfl
+      · rw [Array.getElem_push_lt (by omega), state.invariant2 i hlt, Array.getElem_push_lt hlt]
+      · rw [Array.getElem_push_eq, Array.getElem_push, dite_eq_right (by omega)]
+  }
+
+private partial def processInstanceHypothesis (mvar : MVarId)
+    (allowCanonicalInstanceReduction : Bool := true) : DerivingM Unit := withIncRecDepth do
+  let type ← mvar.getType
+  let some className ← isClass? type |
+    -- if this wasn't reported before, report now
+    throwError "type class instance expected{indentExpr type}"
+  if let .some res ← withLCtx (← read).paramLCtx (← get).newLInsts (trySynthInstance type) then
+    mvar.assign res
+    return
+  unless allowCanonicalInstanceReduction do
+    -- avoid loops
+    return ← pushInstanceHypothesis mvar className
+  let mctx ← getMCtx
+  -- try reducing e.g. `BEq (List α)` to `BEq α`
+  let res ← tryApplyCanonicalInstance type (← getLCtx) (← getLocalInstances)
+  if let some (assignment, outVars) := res then
+    mvar.assign assignment
+    for (var, allow) in outVars do
+      processInstanceHypothesis var allow
+  else
+    setMCtx mctx
+    pushInstanceHypothesis mvar className
+
 def synthInstanceDeriving (e : Expr) : DerivingM Expr := do
-  if let .some res ← trySynthInstance e then
+  if let .some res ← withLCtx (← getLCtx) (← get).newLInsts (trySynthInstance e) then
     return res
-  let state ← (collectFVars {} e).addDependencies
-  let paramLCtx := (← read).paramLCtx
-  let deps := (← getLCtx).getFVarIds.filter fun f => !paramLCtx.contains f && state.fvarSet.contains f
-  let deps := deps.map Expr.fvar
-  let mvar ← mkFreshExprMVarAt (← read).paramLCtx (← read).paramLInsts
-    (← mkForallFVars deps e) .syntheticOpaque
-  modify fun state => { state with instanceMVars := state.instanceMVars.push mvar.mvarId! }
-  return mkAppN mvar deps
+  let mvarApp ← mkFreshRevertedMVarAt e (← read).paramLCtx (← read).paramLInsts
+  withLCtx (← read).paramLCtx (← read).paramLInsts do
+    processInstanceHypothesis mvarApp.getAppFn.mvarId!
+  instantiateMVars mvarApp
+
+private def blankLInst : LocalInstance where
+  className := .anonymous
+  fvar := .sort .zero
+
+/--
+Given a list of metavariables corresponding to instance obligations, eliminate redundant instances,
+returning a suitable list of instance assumptions to be used in
+`mkLambdaFVars (binderInfoForMVars := .instImplicit)`.
+
+Precondition: The current local context must also be the local contexts of all metavariables.
+-/
+private def filterInstanceObligations (state : Deriving.State) : MetaM (Array MVarId) := do
+  let n := state.instanceMVars.size
+  let mut idxOfMVar : MVarIdMap (Fin n) := {}
+  for h : i in 0...n do
+    idxOfMVar := idxOfMVar.insert state.instanceMVars[i] ⟨i, h.2⟩
+  -- j ∈ fwdDeps[i] ↔ j = i or j depends on i
+  let mut fwdDeps : Array (Array (Fin n)) := Array.ofFn fun i : Fin n => #[i]
+  for h : i in 0...n do
+    let deps ← state.instanceMVars[i].getMVarDependencies
+    for dep in deps do
+      let some j := idxOfMVar.get? dep | continue
+      fwdDeps := fwdDeps.modify j (·.push ⟨i, h.2⟩)
+  let m := state.newLInsts.size
+  let lctx ← getLCtx
+  let mut oldLInsts : Vector LocalInstance m := ⟨state.newLInsts, rfl⟩
+  let mut newLInsts : Vector LocalInstance m := ⟨state.newLInsts, rfl⟩
+  have := state.invariant1
+  for h : i in 0...n do
+    have h : i < n := h.2
+    -- disable local instance for itself and mvars that depend on it
+    for dep in fwdDeps[i]! do
+      newLInsts := newLInsts.set (dep + m - n) blankLInst
+    let mvar := state.instanceMVars[i]
+    let mvarType ← mvar.getType
+    if let .some res ← withLCtx lctx newLInsts.toArray (trySynthInstance mvarType) then
+      -- add new dependencies
+      mvar.assign res
+      let deps ← res.getMVarDependencies
+      for dep in deps do
+        let some j := idxOfMVar.get? dep | continue
+        fwdDeps := fwdDeps.modify j (·.push ⟨i, h⟩)
+    -- restore the local instances
+    for dep in fwdDeps[i]! do
+      newLInsts := newLInsts.set (dep + m - n) oldLInsts[dep + m - n]
+  let mut newMVars := #[]
+  for mvar in state.instanceMVars do
+    if ← mvar.isAssigned then
+      continue
+    mvar.setType (← instantiateMVars (← mvar.getType))
+    newMVars := newMVars.push mvar
+  return newMVars
 
 def produceInstanceHyps : DerivingM (Array Expr) := do
-  let instMVars := (← get).instanceMVars
   let filtered ← withLCtx (← read).paramLCtx (← read).paramLInsts do
-    filterInstanceObligations instMVars
+    filterInstanceObligations (← get)
   return filtered.map Expr.mvar
 
 def mkInstanceForDeriving (instanceHyps : Array Expr) (type value : Expr) : DerivingM Unit := do
@@ -339,13 +410,10 @@ def deriveTransformationInstPerConstructor (className : Name)
       let inst : Expr := mkApp2 (.const ctor [paramLevel]) (mkAppN typeApp indices) recApp
       mkLambdaFVars indices inst
   -- Step 5: Create pre-definitions
-  logInfo instanceHyps
   let predefs : Array PreDefinition ← typesAndValues.mapIdxM fun idx (ty, val) => do
     let val := (← instantiateMVars val).replaceFVars recVars recVarValues
     let ty ← mkForallFVars instanceHyps ty (binderInfoForMVars := .instImplicit)
     let val ← mkLambdaFVars instanceHyps val (binderInfoForMVars := .instImplicit)
-    logInfo ty
-    logInfo val
     let instName := instNames[idx]!
     return {
       ref := ← getRef
@@ -436,7 +504,7 @@ def mkInductiveDerivingHandler (perMutualBlock : DerivingM Bool) (needSucc : Boo
           names := names
           isMeta := names.all (isMarkedMeta (← getEnv))
         }
-        (perMutualBlock.run ctx).run' {}
+        perMutualBlock.run ctx
     unless res do
       -- backtrack
       set state
@@ -485,7 +553,7 @@ def deriveSimpleLawTypeClass (derivedFrom : Name)
           names := #[name]
           isMeta := isMarkedMeta (← getEnv) name
         }
-        (perInstance instApp instValue ctx).run' {}
+        (perInstance instApp instValue).run ctx
     unless res do
       return false
   return true

@@ -1,4 +1,5 @@
 *.lean text eol=lf
+*.lean.export text eol=lf
 *.expected.out -text
 RELEASES.md merge=union
 stage0/** binary linguist-generated

@@ -14,7 +14,7 @@ public section
 namespace Lean.Elab.Command
 
 /--
-`type_def N := ty with proj` declares a type `N` definitionally equal to `ty`, together with a
+`newtype N := ty with proj` declares a type `N` definitionally equal to `ty`, together with a
 constructor `N.mk : ty → N` and a projector `N.proj : N → ty`, and marks all three
 `@[irreducible]`:
 ```
@@ -24,15 +24,15 @@ constructor `N.mk : ty → N` and a projector `N.proj : N → ty`, and marks all
 ```
 This is the "irreducible type alias" pattern used to avoid defeq abuse while keeping a
 zero-overhead representation identical to `ty` (e.g. to cast `List ty` to `List N`). Unlike a
-hand-written version of this pattern, `type_def` also registers `N.mk`/`N.proj` as a virtual
+hand-written version of this pattern, `newtype` also registers `N.mk`/`N.proj` as a virtual
 constructor/projector pair, so that `N.proj (N.mk a)` reduces to `a` (see
 `Lean.Meta.reduceVirtualProj?`) even though both stay irreducible otherwise.
 -/
-syntax (name := typeDef) "type_def " ident " := " term " with " ident : command
+syntax (name := newtypeCmd) "newtype " ident " := " term " with " ident : command
 
-@[builtin_command_elab typeDef]
-def elabTypeDef : CommandElab
-  | `(type_def $id:ident := $ty:term with $projId:ident) => do
+@[builtin_command_elab newtypeCmd]
+def elabNewtype : CommandElab
+  | `(newtype $id:ident := $ty:term with $projId:ident) => do
     let ctorId := mkIdentFrom id (id.getId ++ `mk) (canonical := true)
     let typeProjId := mkIdentFrom id (id.getId ++ projId.getId) (canonical := true)
     elabCommand <| ← `(def $id := $ty)

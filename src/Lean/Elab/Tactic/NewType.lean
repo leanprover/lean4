@@ -14,10 +14,10 @@ public section
 namespace Lean.Parser.Tactic
 
 /--
-`with_reducible_type N => tacs` runs `tacs` with the `type_def`-declared type `N` -- together with
+`with_reducible_type N => tacs` runs `tacs` with the `newtype`-declared type `N` -- together with
 its auto-generated constructor and projector -- temporarily relaxed from `[irreducible]` to
 `[reducible]`, restoring the original status afterward even if `tacs` fails. This is the escape
-hatch for a `type_def` type: within the block, `N`, `N.mk` and its projector unfold like ordinary
+hatch for a `newtype`: within the block, `N`, `N.mk` and its projector unfold like ordinary
 reducible definitions, enabling the `rfl`-style defeq abuse that is disallowed everywhere else.
 -/
 syntax (name := withReducibleType) "with_reducible_type " ident " => " tacticSeq : tactic
@@ -32,7 +32,7 @@ def withReducibleType [Monad m] [MonadEnv m] [MonadFinally m] [MonadResolveName 
     (typeStx : Syntax) (t : m α) : m α := do
   let typeName ← resolveGlobalConstNoOverload typeStx
   let some info ← getVirtualStructureInfo? typeName
-    | throwErrorAt typeStx "'{typeName}' is not a `type_def`-declared type"
+    | throwErrorAt typeStx "'{typeName}' is not a `newtype`-declared type"
   let names := #[info.typeName, info.ctorName, info.projName]
   let origStatuses ← names.mapM getReducibilityStatus
   for n in names do

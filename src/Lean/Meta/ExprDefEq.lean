@@ -205,11 +205,11 @@ where
         return false
 
 /--
-Virtual analog of `isDefEqEtaStruct`, for types declared by the `type_def` command
-(`VirtualStructureInfo`). Recognizes `b := ctorName arg`, where `ctorName` is a `type_def`-generated
+Virtual analog of `isDefEqEtaStruct`, for types declared by the `newtype` command
+(`VirtualStructureInfo`). Recognizes `b := ctorName arg`, where `ctorName` is a `newtype`-generated
 constructor, and — provided `a` is not itself such a constructor application, in which case
 `isDefEqArgs` handles the comparison more directly — reduces `a =?= b` to `projName a =?= arg`.
-Combined with `reduceVirtualProj?`, this gives `type_def`-declared types the same iota/eta behavior
+Combined with `reduceVirtualProj?`, this gives `newtype`-declared types the same iota/eta behavior
 as a real one-field structure, even though `N`, `N.mk` and `N.toNat` never unfold.
 -/
 private def isDefEqVirtualEtaStruct (a b : Expr) : MetaM Bool := do

@@ -1,13 +1,13 @@
 import Lean
 
 /-!
-Tests the `with_reducible_type` tactic combinator: it is the escape hatch for a `type_def`-declared
+Tests the `with_reducible_type` tactic combinator: it is the escape hatch for a `newtype`-declared
 type, temporarily relaxing `N`/`N.mk`/`N.toNat` from `[irreducible]` to `[reducible]` for the
 duration of the tactic block (e.g. to prove `N = Nat`, which requires unfolding `N`'s definition),
 and restores the original `[irreducible]` status afterward.
 -/
 
-type_def N := Nat with toNat
+newtype N := Nat with toNat
 
 -- Inside the block, `N` unfolds to `Nat`.
 example : N = Nat := by with_reducible_type N => rfl

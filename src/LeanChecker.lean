@@ -6,6 +6,7 @@ Authors: Kim Morrison, Sebastian Ullrich
 import Lean.CoreM
 import Lean.Replay
 import Lake.Load.Manifest
+import LeanExport.Parse
 
 open Lean
 
@@ -52,29 +53,40 @@ def getCurrentModule : IO Name := do
     -- `← getRootPackage` from `Lake`, but I can't make that work with the monads involved.
     return manifest.name.capitalize
 
+def checkExport (args : List String) : IO UInt32 := do
+  let [exportFile] := args |
+    throw <| IO.userError s!"Exactly one export file expected but got: {args}"
+  IO.FS.withFile exportFile .read fun handle => do
+    let exportEnv ← LeanExport.parseStream (.ofHandle handle)
+    let env ← Lean.mkEmptyEnvironment
+    let mut kernelEnv := env.toKernelEnv
+    let origConstMap := exportEnv.constMap
+    -- Lean's kernel interprets just the addition of `Quot as adding all of these so adding them
+    -- multiple times leads to errors.
+    let quotTargets := [`Quot.mk, `Quot.lift, `Quot.ind]
+    let kernelConstMap := quotTargets.foldl (init := origConstMap) (·.erase ·)
+    try
+      kernelEnv ← kernelEnv.replay kernelConstMap
+      IO.println "Lean default kernel accepts the solution"
+    catch e =>
+      IO.println s!"Lean default kernel rejects the solution: {e}"
+      return 1
 
-/--
-Run as e.g. `leanchecker` to check everything in the current project.
-or e.g. `leanchecker Mathlib.Data.Nat` to check everything with module name
-starting with `Mathlib.Data.Nat`.
+    try
+      let verifyTargets := `Quot :: quotTargets
+      for quotTarget in verifyTargets do
+        if let some info := origConstMap[quotTarget]? then
+          let some info' := kernelEnv.find? quotTarget |
+            throw <| .userError s!"Could not find quotient constant in final kernel env: {quotTarget}"
+          if info != info' then
+            throw <| IO.userError s!"Quotient constant mismatch on: {quotTarget}"
+      return 0
+    catch e =>
+      IO.println s!"Quotient post-check rejects the solution: {e}"
+      return 1
 
-This will replay all the new declarations from the target file into the `Environment`
-as it was at the beginning of the file, using the kernel to check them.
-
-You can also use `leanchecker --fresh Mathlib.Data.Nat.Prime.Basic`
-to replay all the constants (both imported and defined in that file) into a fresh environment.
-This can only be used on a single file.
-
-This is not an external verifier, simply a tool to detect "environment hacking".
--/
-unsafe def main (args : List String) : IO UInt32 := do
-  -- Contributor's note: lean4lean is intended to have a CLI interface matching leanchecker,
-  -- so if you want to make a change here please either make a sibling PR to
-  -- https://github.com/digama0/lean4lean or ping @digama0 (Mario Carneiro) to go fix it.
+unsafe def checkOlean (args : List String) (fresh verbose : Bool) : IO UInt32 := do
   initSearchPath (← findSysroot)
-  let (flags, args) := args.partition fun s => s.startsWith "-"
-  let verbose := "-v" ∈ flags || "--verbose" ∈ flags
-  let fresh := "--fresh" ∈ flags
   let targets ← do
     match args with
     | [] => pure [← getCurrentModule]
@@ -112,3 +124,30 @@ unsafe def main (args : List String) : IO UInt32 := do
         IO.eprintln s!"leanchecker found a problem in {m}"
         throw e
   return 0
+
+/--
+Run as e.g. `leanchecker` to check everything in the current project.
+or e.g. `leanchecker Mathlib.Data.Nat` to check everything with module name
+starting with `Mathlib.Data.Nat`.
+
+This will replay all the new declarations from the target file into the `Environment`
+as it was at the beginning of the file, using the kernel to check them.
+
+You can also use `leanchecker --fresh Mathlib.Data.Nat.Prime.Basic`
+to replay all the constants (both imported and defined in that file) into a fresh environment.
+This can only be used on a single file.
+
+This is not an external verifier, simply a tool to detect "environment hacking".
+-/
+unsafe def main (args : List String) : IO UInt32 := do
+  -- Contributor's note: lean4lean is intended to have a CLI interface matching leanchecker,
+  -- so if you want to make a change here please either make a sibling PR to
+  -- https://github.com/digama0/lean4lean or ping @digama0 (Mario Carneiro) to go fix it.
+  let (flags, args) := args.partition fun s => s.startsWith "-"
+  let loadExport := "--from-export" ∈ flags
+  if loadExport then
+    checkExport args
+  else
+    let verbose := "-v" ∈ flags || "--verbose" ∈ flags
+    let fresh := "--fresh" ∈ flags
+    checkOlean args fresh verbose

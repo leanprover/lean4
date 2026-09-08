@@ -393,27 +393,6 @@ private def dontCare := mkConst (Name.mkSimple "[grind_dontcare]")
 def mkGroundPattern (e : Expr) : Expr :=
   mkAnnotation `grind.ground_pat e
 
-/--
-Puts a parametric numeric literal in `grind` normal form.
-
-`grind` represents `BitVec` and `Fin` literals using `OfNat.ofNat` (see
-`isOfNatFinBitVecLiteral`), but a term may spell one as `BitVec.ofNat` (e.g., `1#2`) or
-`Fin.mk`. Ground patterns are internalized without full normalization, and a non-canonical
-literal reaching the E-graph breaks the invariant that distinct interpreted nodes denote
-distinct values, which `addEqStep` relies on to detect `valueInconsistency`.
-
-**TODO**: delete this function. The normalizer should do this, instead of enumerating literal
-kinds here. Waiting on the port of `Sym.dsimp` to `grind`. The same hardcoding is in
-`AC.mkStruct` for identity elements, and should be deleted with it.
--/
-private def canonLit (e : Expr) : MetaM Expr := do
-  if e.isAppOf ``OfNat.ofNat then return e
-  if let some ⟨w, v⟩ ← getBitVecValue? e then
-    return (← mkNumeral (mkApp (mkConst ``BitVec) (mkNatLit w)) v.toNat)
-  if let some ⟨n, v⟩ ← getFinValue? e then
-    return (← mkNumeral (mkApp (mkConst ``Fin) (mkNatLit n)) v.val)
-  return e
-
 def groundPattern? (e : Expr) : Option Expr :=
   annotation? `grind.ground_pat e
 
@@ -703,7 +682,8 @@ where
           ```
           -/
           saveSymbolsAt arg
-        return mkGroundPattern (← canonLit arg)
+        -- Ground patterns are canonicalized at internalization time (see `internalizePattern`).
+        return mkGroundPattern arg
     else match arg with
       | .bvar idx =>
         -- **Note** See comment at `ParentKind.genPattern`.

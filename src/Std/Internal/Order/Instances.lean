@@ -32,15 +32,9 @@ instance [CompleteLattice l] : Std.Associative (α := l) (· ⊓ ·) := ⟨fun _
 instance [CompleteLattice l] : Std.Associative (α := l) (· ⊔ ·) := ⟨fun _ _ _ => join_assoc⟩
 instance [CompleteLattice l] : Std.IdempotentOp (α := l) (· ⊓ ·) := ⟨fun _ => meet_self⟩
 instance [CompleteLattice l] : Std.IdempotentOp (α := l) (· ⊔ ·) := ⟨fun _ => join_self⟩
-instance [CompleteLattice l] : Std.LeftIdentity (· ⊓ ·) (⊤ : l) where
-instance [CompleteLattice l] : Std.RightIdentity (· ⊓ ·) (⊤ : l) where
-instance [CompleteLattice l] : Std.LeftIdentity (· ⊔ ·) (⊥ : l) where
-instance [CompleteLattice l] : Std.RightIdentity (· ⊔ ·) (⊥ : l) where
-instance [CompleteLattice l] : Std.LawfulIdentity (· ⊓ ·) (⊤ : l) where
-  left_id _ := top_meet
+instance [CompleteLattice l] : Std.LawfulCommIdentity (α := l) (· ⊓ ·) ⊤ where
   right_id _ := meet_top
-instance [CompleteLattice l] : Std.LawfulIdentity (· ⊔ ·) (⊥ : l) where
-  left_id _ := bot_join
+instance [CompleteLattice l] : Std.LawfulCommIdentity (α := l) (· ⊔ ·) ⊥ where
   right_id _ := join_bot
 
 end Lean.Order

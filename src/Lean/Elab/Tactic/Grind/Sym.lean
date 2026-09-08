@@ -159,7 +159,7 @@ def resolveExtraTheorems (ids? :  Option (Array (TSyntax `ident))) : GrindTactic
     else
       let declName ← realizeGlobalConstNoOverload id
       extras := extras.push <| .const declName
-      thms := thms.push (← mkTheoremFromDecl declName)
+      thms := thms ++ (← mkTheoremsFromDecl declName)
   return (extras, thms)
 
 def addExtraTheorems (post : Simproc) (extraThms : Array Theorem) : GrindTacticM Simproc := do

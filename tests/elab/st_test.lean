@@ -45,7 +45,7 @@ info: 0
 unsafe def takeRegister : IO Unit := do
   let ref1 ← IO.mkRef 0
   IO.println (← ref1.take)
-  ref1.set 5
+  ref1.put 5
   IO.println (← ref1.get)
 
 /--

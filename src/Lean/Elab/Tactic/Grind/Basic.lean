@@ -446,10 +446,15 @@ def GrindTacticM.runAtGoal (mvarId : MVarId) (params : Params) (k : GrindTacticM
   let (methods, ctx, sctx, state) ← liftMetaM <| GrindM.runAtGoal mvarId params' (evalTactic? := some evalTactic) fun goal => do
       let goals ←
         if sym then
-          /- In sym mode, skip eager intros + by-contradiction. The user controls intro/internalize.
-             Preprocess for maximal term sharing, required by Sym operations (introN, BackwardRule.apply, etc.). -/
-          let mvarId ← Sym.preprocessMVar goal.mvarId
-          pure [{ goal with mvarId }]
+          if goal.inconsistent then
+            /- The goal was already closed while preprocessing the hypotheses, and `goal.mvarId`
+               has been assigned. `Sym.preprocessMVar` would clobber that assignment. -/
+            pure []
+          else
+            /- In sym mode, skip eager intros + by-contradiction. The user controls intro/internalize.
+               Preprocess for maximal term sharing, required by Sym operations (introN, BackwardRule.apply, etc.). -/
+            let mvarId ← Sym.preprocessMVar goal.mvarId
+            pure [{ goal with mvarId }]
         else
           let a : Action := Action.intros 0 >> Action.assertAll
           match (← a.run goal) with

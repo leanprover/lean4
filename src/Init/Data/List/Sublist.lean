@@ -359,7 +359,6 @@ theorem sublist_filterMap_iff {l₁ : List β} {f : α → Option β} :
       · rintro ⟨l', h, rfl⟩
         replace h := h.filterMap f
         rwa [filterMap_cons_some] at h
-        assumption
 
 @[grind =]
 theorem sublist_map_iff {l₁ : List β} {f : α → β} :

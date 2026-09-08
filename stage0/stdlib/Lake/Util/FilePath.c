@@ -239,10 +239,10 @@ return v_res_49_;
 LEAN_EXPORT lean_object* l_String_mapAux___at___00Lake_mkRelPathString_spec__0(lean_object* v_s_50_, lean_object* v_p_51_){
 _start:
 {
-uint32_t v___y_53_; lean_object* v___x_58_; uint8_t v___x_59_; 
+uint32_t v___y_53_; lean_object* v___x_58_; uint8_t v_decide_59_; 
 v___x_58_ = lean_string_utf8_byte_size(v_s_50_);
-v___x_59_ = lean_nat_dec_eq(v_p_51_, v___x_58_);
-if (v___x_59_ == 0)
+v_decide_59_ = lean_nat_dec_eq(v_p_51_, v___x_58_);
+if (v_decide_59_ == 0)
 {
 uint32_t v___x_60_; uint32_t v___x_61_; uint8_t v___x_62_; 
 v___x_60_ = lean_string_utf8_get_fast(v_s_50_, v_p_51_);
@@ -341,10 +341,10 @@ return v_a_74_;
 LEAN_EXPORT lean_object* l___private_Lake_Util_FilePath_0__Lake_modOfFilePath_removeExts(lean_object* v_s_83_, lean_object* v_i_84_, lean_object* v_e_85_){
 _start:
 {
-lean_object* v___x_86_; uint8_t v___x_87_; 
+lean_object* v___x_86_; uint8_t v_decide_87_; 
 v___x_86_ = lean_unsigned_to_nat(0u);
-v___x_87_ = lean_nat_dec_eq(v_i_84_, v___x_86_);
-if (v___x_87_ == 0)
+v_decide_87_ = lean_nat_dec_eq(v_i_84_, v___x_86_);
+if (v_decide_87_ == 0)
 {
 lean_object* v_i_x27_88_; uint32_t v_c_89_; uint32_t v___x_90_; uint8_t v___x_91_; 
 v_i_x27_88_ = lean_string_utf8_prev(v_s_83_, v_i_84_);

@@ -12,6 +12,8 @@ import Lean.Meta.Sym.SynthInstance
 import Lean.Meta.Sym.Arith.EvalNum
 import Lean.Meta.IntInstTesters
 import Lean.Meta.NatInstTesters
+import Lean.Meta.LitValues
+import Lean.Meta.AppBuilder
 import Lean.Meta.Sym.Eta
 import Lean.Meta.WHNF
 import Init.Grind.Util
@@ -135,6 +137,40 @@ private def normOfNatArgs? (args : Array Expr) : MetaM (Option (Array Expr)) := 
     else if modified then
       return some args.toArray
   return none
+
+/--
+Normalizes numeric literals of wrapping types during canonicalization. Two kinds of
+non-canonical spellings are handled:
+- `BitVec.ofNat`/`BitVec.ofNatLT`/`Fin.ofNat` applications with literal arguments (e.g.,
+  `1#2`, `Fin.ofNat 3 2`) are converted into the `OfNat.ofNat` representation.
+- `OfNat.ofNat` literals of `Fin` and the fixed-width types (see `getLitValueModulus?`) whose numeral
+  is out of range (e.g., `(300 : UInt8)`) are reduced modulo the type's cardinality.
+
+Different representations of the same literal may reach the canonicalizer (e.g., the proposition
+of a `dite` `Decidable` instance keeps the spelling used in the source), and `grind`
+assumes distinct interpreted nodes denote distinct values (see `valueInconsistency` at
+`Grind.addEqStep`), so all representations of the same literal must canonicalize to the same
+term. The result is definitionally equal to the input.
+-/
+public def normNumLit? (e : Expr) : MetaM (Option Expr) := do
+  match_expr e with
+  | BitVec.ofNat _ _ => bitVecOfNatForm e
+  | BitVec.ofNatLT _ _ _ => bitVecOfNatForm e
+  | Fin.ofNat n _ a =>
+    let some n ← getNatValue? n | return none
+    let some a ← getNatValue? a | return none
+    if n == 0 then return none
+    return some (← mkNumeral (mkApp (mkConst ``Fin) (mkNatLit n)) (a % n))
+  | OfNat.ofNat α n _ =>
+    let some m ← getLitValueModulus? α | return none
+    let some v ← getNatValue? n | return none
+    if m == 0 || v < m then return none
+    return some (← mkNumeral α (v % m))
+  | _ => return none
+where
+  bitVecOfNatForm (e : Expr) : MetaM (Option Expr) := do
+    let some ⟨w, v⟩ ← Meta.getBitVecValue? e | return none
+    return some (← mkNumeral (mkApp (mkConst ``BitVec) (mkNatLit w)) v.toNat)
 
 abbrev withCaching (e : Expr) (k : CanonM Expr) : CanonM Expr := do
   if (← read).insideType then
@@ -478,6 +514,12 @@ where
     else
       let f := e.getAppFn
       let .const declName _ := f | return e
+      if declName == ``BitVec.ofNat || declName == ``BitVec.ofNatLT || declName == ``Fin.ofNat
+          || declName == ``OfNat.ofNat then
+        if let some e' ← normNumLit? e then
+          return (← canon e')
+        else
+          return e
       if let some info ← getProjectionFnInfo? declName then
         return (← reduceProjFn? info e).getD e
       else

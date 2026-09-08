@@ -108,9 +108,9 @@ LEAN_EXPORT lean_object* l___private_Lean_Meta_Tactic_Simp_BuiltinSimprocs_Metho
 LEAN_EXPORT lean_object* l_panic___at___00__private_Lean_Meta_Tactic_Simp_BuiltinSimprocs_MethodSpecs_0__reduceMethod_spec__0(lean_object* v_msg_2_, lean_object* v___y_3_, lean_object* v___y_4_, lean_object* v___y_5_, lean_object* v___y_6_, lean_object* v___y_7_, lean_object* v___y_8_, lean_object* v___y_9_){
 _start:
 {
-lean_object* v___f_11_; lean_object* v___x_8504__overap_12_; lean_object* v___x_13_; 
+lean_object* v___f_11_; lean_object* v___x_7645__overap_12_; lean_object* v___x_13_; 
 v___f_11_ = ((lean_object*)(l_panic___at___00__private_Lean_Meta_Tactic_Simp_BuiltinSimprocs_MethodSpecs_0__reduceMethod_spec__0___closed__0));
-v___x_8504__overap_12_ = lean_panic_fn_borrowed(v___f_11_, v_msg_2_);
+v___x_7645__overap_12_ = lean_panic_fn_borrowed(v___f_11_, v_msg_2_);
 lean_inc(v___y_9_);
 lean_inc_ref(v___y_8_);
 lean_inc(v___y_7_);
@@ -118,7 +118,7 @@ lean_inc_ref(v___y_6_);
 lean_inc(v___y_5_);
 lean_inc_ref(v___y_4_);
 lean_inc(v___y_3_);
-v___x_13_ = lean_apply_8(v___x_8504__overap_12_, v___y_3_, v___y_4_, v___y_5_, v___y_6_, v___y_7_, v___y_8_, v___y_9_, lean_box(0));
+v___x_13_ = lean_apply_8(v___x_7645__overap_12_, v___y_3_, v___y_4_, v___y_5_, v___y_6_, v___y_7_, v___y_8_, v___y_9_, lean_box(0));
 return v___x_13_;
 }
 }
@@ -292,9 +292,9 @@ return v___x_82_;
 else
 {
 lean_object* v___x_85_; lean_object* v___x_86_; lean_object* v___x_87_; lean_object* v___x_88_; 
-v___x_85_ = lean_unsigned_to_nat(0u);
-v___x_86_ = l_Lean_Meta_instInhabitedSimpTheorem_default;
-v___x_87_ = lean_array_get(v___x_86_, v_a_61_, v___x_85_);
+v___x_85_ = l_Lean_Meta_instInhabitedSimpTheorem_default;
+v___x_86_ = lean_unsigned_to_nat(0u);
+v___x_87_ = lean_array_get(v___x_85_, v_a_61_, v___x_86_);
 lean_dec(v_a_61_);
 lean_inc_ref(v_e_37_);
 v___x_88_ = l_Lean_Meta_Simp_tryTheorem_x3f(v_e_37_, v___x_87_, v___y_42_, v___y_43_, v___y_44_, v___y_45_, v___y_46_, v___y_47_, v___y_48_);
@@ -499,13 +499,13 @@ goto _start;
 LEAN_EXPORT lean_object* l___private_Init_Data_Array_Basic_0__Array_forIn_x27Unsafe_loop___at___00__private_Lean_Meta_Tactic_Simp_BuiltinSimprocs_MethodSpecs_0__reduceMethod_spec__1___boxed(lean_object* v___x_125_, lean_object* v_e_126_, lean_object* v_as_127_, lean_object* v_sz_128_, lean_object* v_i_129_, lean_object* v_b_130_, lean_object* v___y_131_, lean_object* v___y_132_, lean_object* v___y_133_, lean_object* v___y_134_, lean_object* v___y_135_, lean_object* v___y_136_, lean_object* v___y_137_, lean_object* v___y_138_){
 _start:
 {
-uint8_t v___x_9322__boxed_139_; size_t v_sz_boxed_140_; size_t v_i_boxed_141_; lean_object* v_res_142_; 
-v___x_9322__boxed_139_ = lean_unbox(v___x_125_);
+uint8_t v___x_8463__boxed_139_; size_t v_sz_boxed_140_; size_t v_i_boxed_141_; lean_object* v_res_142_; 
+v___x_8463__boxed_139_ = lean_unbox(v___x_125_);
 v_sz_boxed_140_ = lean_unbox_usize(v_sz_128_);
 lean_dec(v_sz_128_);
 v_i_boxed_141_ = lean_unbox_usize(v_i_129_);
 lean_dec(v_i_129_);
-v_res_142_ = l___private_Init_Data_Array_Basic_0__Array_forIn_x27Unsafe_loop___at___00__private_Lean_Meta_Tactic_Simp_BuiltinSimprocs_MethodSpecs_0__reduceMethod_spec__1(v___x_9322__boxed_139_, v_e_126_, v_as_127_, v_sz_boxed_140_, v_i_boxed_141_, v_b_130_, v___y_131_, v___y_132_, v___y_133_, v___y_134_, v___y_135_, v___y_136_, v___y_137_);
+v_res_142_ = l___private_Init_Data_Array_Basic_0__Array_forIn_x27Unsafe_loop___at___00__private_Lean_Meta_Tactic_Simp_BuiltinSimprocs_MethodSpecs_0__reduceMethod_spec__1(v___x_8463__boxed_139_, v_e_126_, v_as_127_, v_sz_boxed_140_, v_i_boxed_141_, v_b_130_, v___y_131_, v___y_132_, v___y_133_, v___y_134_, v___y_135_, v___y_136_, v___y_137_);
 lean_dec(v___y_137_);
 lean_dec_ref(v___y_136_);
 lean_dec(v___y_135_);

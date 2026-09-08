@@ -946,6 +946,9 @@ private:
                     // originally borrowed parameters because the wrapper will decrement these after the call.
                     // Basically the wrapper is more homogeneous (removing both unboxed and borrowed parameters) than we
                     // would need in this instance.
+                    // A scalar parameter would break this: `box_t` allocates a box that this call alone owns and the
+                    // wrapper's decrement frees. `Lean.IR.ToIR.lowerParam` establishes that such a parameter is owned.
+                    lean_assert(!type_is_scalar(t));
                     inc(args2[i]);
                 }
             }
@@ -1160,15 +1163,6 @@ object * run_boxed(elab_environment const & env, options const & opts, name cons
             << "' uses 'sorry' and/or contains errors");
     }
     return interpreter::with_interpreter<object *>(env, opts, fn, [&](interpreter & interp) { return interp.call_boxed(fn, n, args); });
-}
-
-extern "C" obj_res lean_elab_environment_of_kernel_env(obj_arg);
-elab_environment elab_environment_of_kernel_env(environment const & env) {
-    return elab_environment(lean_elab_environment_of_kernel_env(env.to_obj_arg()));
-}
-
-object * run_boxed_kernel(environment const & env, options const & opts, name const & fn, unsigned n, object **args) {
-    return run_boxed(elab_environment_of_kernel_env(env), opts, fn, n, args);
 }
 
 uint32 run_main(elab_environment const & env, options const & opts, list_ref<string_ref> const & args) {

@@ -10,8 +10,10 @@ public import Lake.Util.Exit
 public import Lake.Load.Config
 public import Lake.CLI.Error
 public import Lake.CLI.Shake
+public import Lake.CLI.Check
 import Lake.Version
 import Lake.Build.Run
+import Lake.Build.Infos
 import Lake.Build.Targets
 import Lake.Build.Target.Fetch
 import Lake.Load.Package
@@ -24,6 +26,7 @@ import Lake.Util.Cli
 import Lake.CLI.Init
 import Lake.CLI.Help
 import Lake.CLI.Build
+import LeanExport.Basic
 import Lake.CLI.Actions
 import Lake.CLI.Translate
 import Lake.CLI.Serve
@@ -58,6 +61,7 @@ public structure LakeOptions where
   trustHash : Bool := true
   allowEmpty : Bool := false
   noBuild : Bool := false
+  failFast : Bool := false
   noCache : Option Bool := none
   failLv : LogLevel := .error
   outLv? : Option LogLevel := .none
@@ -76,6 +80,7 @@ public structure LakeOptions where
   rev? : Option GitRev := none
   maxRevs : Nat := 100
   shake : Shake.Args := {}
+  challengeConfig? : Option FilePath := none
   builtinLint : BuiltinLint.Args := {}
   /-- Whether `lake lint` should also run builtin lints (via `--builtin-lint`). -/
   runBuiltinLint : Bool := false
@@ -136,6 +141,7 @@ def LakeOptions.mkBuildConfig
   oldMode := opts.oldMode
   trustHash := opts.trustHash
   noBuild := opts.noBuild
+  failFast := opts.failFast
   verbosity := opts.verbosity
   failLv := opts.failLv
   outLv := opts.outLv
@@ -281,6 +287,7 @@ def lakeLongOption : (opt : String) → CliM PUnit
 | "--json"        => modifyThe LakeOptions ({· with outFormat := .json})
 | "--allow-empty" => modifyThe LakeOptions ({· with allowEmpty := true})
 | "--no-build"    => modifyThe LakeOptions ({· with noBuild := true})
+| "--fail-fast"   => modifyThe LakeOptions ({· with failFast := true})
 | "--no-cache"    => modifyThe LakeOptions ({· with noCache := true})
 | "--try-cache"   => modifyThe LakeOptions ({· with noCache := false})
 | "--rehash"      => modifyThe LakeOptions ({· with trustHash := false})
@@ -367,6 +374,17 @@ def lakeLongOption : (opt : String) → CliM PUnit
     modifyLintOnlyFlag true
   let spec ← takeOptArg "--lint-only" "comma-separated linter spec"
   parseLintersSpec spec
+| "--checks" => do
+  let spec ← takeOptArg "--checks" "comma-separated module names"
+  let mut checks : Array Lean.Name := #[]
+  for raw in spec.split (· == ',') do
+    let s := raw.trimAscii
+    unless s.isEmpty do
+      checks := checks.push s.toName
+  modifyThe LakeOptions fun opts =>
+    { opts with runBuiltinLint := true, builtinOnly := true,
+                builtinLint.checks := opts.builtinLint.checks ++ checks,
+                builtinLint.mode := .codeQuality }
 
 -- Shared options
 | "--force" => modifyThe LakeOptions ({· with shake.force := true})
@@ -383,6 +401,10 @@ def lakeLongOption : (opt : String) → CliM PUnit
   let mod ← takeOptArg "--only" "minimize only this module"
   modifyThe LakeOptions fun opts =>
     {opts with shake.onlyMods := opts.shake.onlyMods.push mod.toName}
+-- Challenge options
+| "--config" => do
+  let file ← takeOptArg "--config" "path"
+  modifyThe LakeOptions ({· with challengeConfig? := some file})
 | opt             =>  throw <| CliError.unknownLongOption opt
 
 def lakeOption :=
@@ -1053,8 +1075,15 @@ private def runBuiltinLint
   if mods.isEmpty then
     error "no modules specified and there are no applicable default targets"
   let args := opts.builtinLint
-  let args := {args with mods, srcSearchPath := ws.augmentedLeanSrcPath}
-  let specs ← parseTargetSpecs ws (mods.map (s!"+{·}") |>.toList)
+  let checks := (ws.root.config.checks ++ args.checks).foldl (init := #[])
+    fun acc c => if acc.contains c then acc else acc.push c
+  for c in checks do
+    unless (ws.findTargetModule? c).isSome do
+      error s!"unknown checks module `{c}`; it must be a module of a package in the workspace"
+  let args := { args with mods, checks, srcSearchPath := ws.augmentedLeanSrcPath }
+  -- Checks modules are imported alongside each lint target, so they must be built as well.
+  let buildMods := mods ++ checks.filter (!mods.contains ·)
+  let specs ← parseTargetSpecs ws (buildMods.map (s!"+{·}") |>.toList)
   let lintOpts := BuiltinLint.leanOptOverrides args
   let overrides : Lean.NameMap Lean.LeanOptions :=
     if lintOpts.values.isEmpty then
@@ -1137,6 +1166,48 @@ protected def shake : CliM PUnit := do
   let exitCode ← Shake.run args ws.augmentedLeanSrcPath
   if exitCode != 0 then
     exit exitCode
+
+/-- The `lake challenge` command: judge a solution against a challenge. -/
+protected def challenge : CliM PUnit := do
+  processOptions lakeOption
+  let opts ← getThe LakeOptions
+  noArgsRem do
+  let (leanInstall, lakeInstall) ← opts.getInstall
+  -- The workspace is deliberately not loaded here: evaluating the project's configuration is code
+  -- execution, and containing it is what the sandbox is for.
+  let cfg ← mkLoadConfig opts
+  exit <| ← Check.runChallenge opts.challengeConfig? leanInstall lakeInstall cfg.wsDir
+
+/--
+The half of `lake check` that runs inside the sandbox, selected by `LAKE_CHECK_EXPORT`.
+
+Resolves the default targets to modules, builds them, and dumps the export of everything in scope.
+The export goes to standard out and everything else to standard error, so the outer half can read
+one from the other.
+-/
+protected def checkExport : CliM PUnit := do
+  let opts ← getThe LakeOptions
+  let ws ← loadWorkspace (← mkLoadConfig opts)
+  let buildConfig := mkBuildConfig opts
+  ws.runBuild (buildSpecs (← parseTargetSpecs ws [])) buildConfig
+  let mods ← ws.runBuild ws.root.defaultModules.fetch buildConfig
+  Lean.initSearchPath ws.lakeEnv.lean.sysroot ws.augmentedLeanPath
+  let env ← Lean.importModules (mods.map fun mod => {module := mod.name}) {}
+  LeanExport.dumpEnv env
+
+/-- The `lake check` command: check this project against the kernel. -/
+protected def check : CliM PUnit := do
+  processOptions lakeOption
+  let opts ← getThe LakeOptions
+  if (← IO.getEnv "LAKE_CHECK_EXPORT").isSome then
+    lake.checkExport
+  else
+    noArgsRem do
+    let (leanInstall, lakeInstall) ← opts.getInstall
+    -- The workspace is deliberately not loaded here: evaluating the project's configuration is code
+    -- execution, and containing it is what the sandbox is for.
+    let cfg ← mkLoadConfig opts
+    exit <| ← Check.runCheck leanInstall lakeInstall cfg.wsDir
 
 protected def script : CliM PUnit := do
   if let some cmd ← takeArg? then
@@ -1293,6 +1364,8 @@ def lakeCli : (cmd : String) → CliM PUnit
 | "check-lint"          => lake.checkLint
 | "clean"               => lake.clean
 | "shake"               => lake.shake
+| "challenge"           => lake.challenge
+| "check"               => lake.check
 | "script"              => lake.script
 | "scripts"             => lake.script.list
 | "run"                 => lake.script.run

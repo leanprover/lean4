@@ -42,11 +42,11 @@ return v_r_12_;
 LEAN_EXPORT uint8_t l_Std_TreeMap_Raw_instDecidableEquiv___redArg(lean_object* v_cmp_13_, lean_object* v_inst_14_, lean_object* v_t_u2081_15_, lean_object* v_t_u2082_16_){
 _start:
 {
-lean_object* v___f_17_; uint8_t v_this_18_; 
+lean_object* v___f_17_; uint8_t v___x_18_; 
 v___f_17_ = lean_alloc_closure((void*)(l_Std_TreeMap_Raw_instDecidableEquiv___redArg___lam__0___boxed), 4, 1);
 lean_closure_set(v___f_17_, 0, v_inst_14_);
-v_this_18_ = l_Std_DTreeMap_Internal_Impl_beq___redArg(v_cmp_13_, v___f_17_, v_t_u2081_15_, v_t_u2082_16_);
-return v_this_18_;
+v___x_18_ = l_Std_DTreeMap_Internal_Impl_beq___redArg(v_cmp_13_, v___f_17_, v_t_u2081_15_, v_t_u2082_16_);
+return v___x_18_;
 }
 }
 LEAN_EXPORT lean_object* l_Std_TreeMap_Raw_instDecidableEquiv___redArg___boxed(lean_object* v_cmp_19_, lean_object* v_inst_20_, lean_object* v_t_u2081_21_, lean_object* v_t_u2082_22_){

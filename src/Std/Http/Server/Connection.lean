@@ -124,6 +124,8 @@ private def pollNextEvent
         selectables := selectables.push (.case (← Selector.sleep (timeout - (← Timestamp.now)).toMilliseconds) (fun _ => pure .timeout))
       else
         selectables := selectables.push (.case (← Selector.sleep sources.timeout) (fun _ => pure .timeout))
+    else
+      selectables := selectables.push (.case (← Selector.sleep sources.timeout) (fun _ => pure .close))
 
   if let some responseBody := sources.responseBody then
     selectables := selectables.push (.case (Body.recvSelector responseBody) (Recv.responseBody · |> pure))

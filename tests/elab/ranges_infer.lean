@@ -136,7 +136,7 @@ info: -2
 -/
 #guard_msgs in
 #eval do
-  for (i : Int) in -2...=0 do IO.println i
+  for (i : Int) in (-2)...=0 do IO.println i
 
 /--
 info: 2

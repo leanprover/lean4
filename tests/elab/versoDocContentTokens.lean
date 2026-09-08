@@ -3,27 +3,14 @@ import Lean
 /-!
 Checks that a literal content token built for a quotation's document reads back exactly the value it
 was built from.
-
-A quotation represents document content as a string literal, so the `of` function has to re-encode
-the decoded string as a literal content token. Every value a string literal can contain
-has to survive that. Those values include the ones that the encodings give a meaning to:
-backslashes, boundary spaces, and newlines.
 -/
 
 open Lean Doc Parser Elab Command
-open scoped Lean.Doc.Syntax
 
 /-- Values that interact with the escaping mechanism's encodings. -/
 def awkward : List String :=
   ["", "x", "\\", "a\\b", "\\\\", "a\\\\b", "\\n", "]", "\"", "\n", "a\nb", " ", "  ", "   ",
    " x ", " x", "x ", "  x  ", "`", "``", "` `", "\t"]
-
-/-- Replaces the placeholder literal `"@"` in `stx` with a literal whose contents are `v`. -/
-partial def fill (v : String) (stx : Syntax) : Syntax :=
-  if stx.isStrLit? == some "@" then Syntax.mkStrLit v
-  else match stx with
-    | .node info kind args => .node info kind (args.map (fill v))
-    | leaf => leaf
 
 /-- Reports every value that did not survive a round trip through `f`. -/
 def report (what : String) (f : String → CommandElabM String) : CommandElabM Unit := do
@@ -45,6 +32,7 @@ Everywhere a quotation can write content, the value written is the value read ba
 info: text: all 22 values preserved
 inline code: all 22 values preserved
 inline math: all 22 values preserved
+display math: all 22 values preserved
 image alt: all 22 values preserved
 footnote name: all 22 values preserved
 link URL: all 22 values preserved
@@ -57,47 +45,65 @@ code block with a language: all 22 values preserved
 #guard_msgs in
 #eval show CommandElabM Unit from do
   report "text" fun v => do
-    let some (.text view) := InlineView.of (⟨fill v (← `(inline|"@")).raw⟩ : TSyntax `inline)
+    let some (.text view) :=
+        InlineView.of (← `(Parser.inline| $(← mkVersoTextFromRef v):versoText))
       | throwError "expected text"
     return view.getVersoText
   report "inline code" fun v => do
-    let some (.code view) := InlineView.of (⟨fill v (← `(inline|code("@"))).raw⟩ : TSyntax `inline)
+    let some (.code view) := InlineView.of (← `(Parser.inline| `$(← mkVersoCodeFromRef v)`))
       | throwError "expected code"
     return view.getVersoCode
   report "inline math" fun v => do
-    let some (.math view) := InlineView.of (⟨fill v (← `(inline|\math code("@"))).raw⟩ : TSyntax `inline)
+    let some (.math view) := InlineView.of (← `(Parser.inline| $`$(← mkVersoCodeFromRef v)`))
+      | throwError "expected math"
+    return view.getVersoCode
+  report "display math" fun v => do
+    let some (.math view) := InlineView.of (← `(Parser.inline| $$`$(← mkVersoCodeFromRef v)`))
       | throwError "expected math"
     return view.getVersoCode
   report "image alt" fun v => do
-    let some (.image view) := InlineView.of (⟨fill v (← `(inline|image("@") ("u"))).raw⟩ : TSyntax `inline)
+    let some (.image view) :=
+        InlineView.of
+          (← `(Parser.inline| ![$(← mkVersoImageAltFromRef v)]($(← mkVersoLinkUrlFromRef "u"))))
       | throwError "expected image"
     return view.getAlt
   report "footnote name" fun v => do
-    let some (.footnote view) := InlineView.of (⟨fill v (← `(inline|footnote("@"))).raw⟩ : TSyntax `inline)
+    let some (.footnote view) :=
+        InlineView.of (← `(Parser.inline| [^$(← mkVersoRefNameFromRef v)]))
       | throwError "expected footnote"
     return view.getName
   report "link URL" fun v => do
-    let some (.link { target := .url _ _ url _, .. }) := InlineView.of (⟨fill v (← `(inline|link[] ("@"))).raw⟩ : TSyntax `inline)
+    let some (.link { target := .url _ _ url _, .. }) :=
+        InlineView.of (← `(Parser.inline| []($(← mkVersoLinkUrlFromRef v))))
       | throwError "expected link"
     return url.getVersoLinkUrl
   report "link reference name" fun v => do
-    let some (.linkRef view) := BlockView.of (⟨fill v (← `(block|["@"]: "u")).raw⟩ : TSyntax `block)
+    let some (.linkRef view) :=
+        BlockView.of
+          (← `(Parser.block| [$(← mkVersoRefNameFromRef v)]: $(← mkVersoLinkRefUrlFromRef "u")))
       | throwError "expected link reference"
     return view.getName
   report "link reference URL" fun v => do
-    let some (.linkRef view) := BlockView.of (⟨fill v (← `(block|["n"]: "@")).raw⟩ : TSyntax `block)
+    let some (.linkRef view) :=
+        BlockView.of
+          (← `(Parser.block| [$(← mkVersoRefNameFromRef "n")]: $(← mkVersoLinkRefUrlFromRef v)))
       | throwError "expected link reference"
     return view.getUrl
   report "footnote name in a reference" fun v => do
-    let some (.footnoteRef view) := BlockView.of (⟨fill v (← `(block|[^"@"]: "t")).raw⟩ : TSyntax `block)
+    let text : TSyntaxArray ``Parser.inline :=
+      #[← `(Parser.inline| $(← mkVersoTextFromRef "t"):versoText)]
+    let some (.footnoteRef view) :=
+        BlockView.of (← `(Parser.block| [^$(← mkVersoRefNameFromRef v)]: $[$text]*))
       | throwError "expected footnote reference"
     return view.getName
   report "code block" fun v => do
-    let some (.codeblock view) := BlockView.of (⟨fill v (← `(block|``` | "@" ```)).raw⟩ : TSyntax `block)
+    let some (.codeblock view) :=
+        BlockView.of (← `(Parser.block| ```$(← mkVersoCodeBlockFromRef v):versoCodeBlock```))
       | throwError "expected code block"
     return view.getVersoCodeBlock
   report "code block with a language" fun v => do
-    let some (.codeblock view) := BlockView.of (⟨fill v (← `(block|```lean | "@" ```)).raw⟩ : TSyntax `block)
+    let some (.codeblock view) :=
+        BlockView.of (← `(Parser.block| ```lean $(← mkVersoCodeBlockFromRef v):versoCodeBlock```))
       | throwError "expected code block"
     return view.getVersoCodeBlock
 
@@ -125,7 +131,7 @@ def parsedCode (input : String) : CommandElabM String := do
 
 /-- Reads the code of a quotation with a single inline code element. -/
 def quotedCode (value : String) : CommandElabM String := do
-  let some (.code view) := InlineView.of (⟨fill value (← `(inline|code("@"))).raw⟩ : TSyntax `inline)
+  let some (.code view) := InlineView.of (← `(Parser.inline| `$(← mkVersoCodeFromRef value)`))
     | throwError "expected code"
   return view.getVersoCode
 
@@ -181,7 +187,10 @@ quotation-built link with a parser-built target: url("http://x")
 #guard_msgs in
 #eval show CommandElabM Unit from do
   let parserLink ← oneInline "[a](http://x)"
-  let quotedLink := (↑(← `(inline|link["a"] ("http://x"))) : TSyntax ``Parser.inline).raw
+  let quotedText : TSyntaxArray ``Parser.inline :=
+    #[← `(Parser.inline| $(← mkVersoTextFromRef "a"):versoText)]
+  let quotedLink :=
+    (← `(Parser.inline| [$[$quotedText]*]($(← mkVersoLinkUrlFromRef "http://x")))).raw
   let some (.link { target := parserTarget, .. }) := InlineView.of ⟨parserLink⟩
     | throwError "expected a link"
   let some (.link { target := quotedTarget, .. }) := InlineView.of ⟨quotedLink⟩

@@ -354,7 +354,6 @@ Examples:
 -/
 def somethingElseAgain := ()
 
-/- Commented out for bootstrapping
 /--
 error: Unknown option `pp.alll`
 ---
@@ -373,14 +372,12 @@ Examples:
  * {option}`set_option pp.all "true"` to set it
 -/
 def somethingElseAgain' := ()
--/
 
 /--
 {kw (cat := term)}`Type` {kw (of := termIfLet)}`if`
 -/
 def somethingElseAgain'' := ()
 
-/- Commented out for bootstrapping
 /--
 info:
 
@@ -392,7 +389,6 @@ Hint: Specify the syntax kind:
 {kw?}`Type`
 -/
 def somethingElseAgain''' := ()
--/
 
 /--
 {syntaxCat}`term`

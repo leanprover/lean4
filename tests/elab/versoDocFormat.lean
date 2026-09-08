@@ -8,7 +8,6 @@ leave the meaning of the document unchanged.
 -/
 
 open Lean Doc Parser Elab Command
-open scoped Lean.Doc.Syntax
 
 /-- Parses `input` as a document and returns its blocks. -/
 def blocksOf (input : String) : IO (TSyntaxArray ``Parser.block) := do
@@ -371,9 +370,9 @@ codeblock([anonymous], "two\nlines")
 -/
 #guard_msgs in
 #eval show CommandElabM Unit from do
-  roundTripBlock (← `(block| ``` | "plain" ```))
-  roundTripBlock (← `(block| ``` | "" ```))
-  roundTripBlock (← `(block| ``` | "two\nlines" ```))
+  roundTripBlock (← `(Parser.block| ```$(← mkVersoCodeBlockFromRef "plain"):versoCodeBlock```))
+  roundTripBlock (← `(Parser.block| ```$(← mkVersoCodeBlockFromRef ""):versoCodeBlock```))
+  roundTripBlock (← `(Parser.block| ```$(← mkVersoCodeBlockFromRef "two\nlines"):versoCodeBlock```))
 
 /-!
 A metadata block describes the document or a section of it, so the parser recognizes it only at the
@@ -412,8 +411,13 @@ para[text("a") code("") text("b")]
 -/
 #guard_msgs in
 #eval show CommandElabM Unit from do
-  roundTripBlock (← `(block| para[code("")]))
-  roundTripBlock (← `(block| para["a" code("") "b"]))
+  let empty : TSyntaxArray ``Parser.inline := #[← `(Parser.inline| `$(← mkVersoCodeFromRef "")`)]
+  roundTripBlock (← `(Parser.block| $[$empty]*))
+  let around : TSyntaxArray ``Parser.inline :=
+    #[← `(Parser.inline| $(← mkVersoTextFromRef "a"):versoText),
+      ← `(Parser.inline| `$(← mkVersoCodeFromRef "")`),
+      ← `(Parser.inline| $(← mkVersoTextFromRef "b"):versoText)]
+  roundTripBlock (← `(Parser.block| $[$around]*))
 
 /-!
 The document formatter renders a metadata block as Verso, so a document that contains one reads
@@ -464,8 +468,8 @@ metadata
 -/
 #guard_msgs in
 #eval show CommandElabM Unit from do
-  roundTripBlock (← `(block| %%% foo := 1 %%%))
-  roundTripBlock (← `(block| %%% %%%))
+  roundTripBlock (← `(Parser.block| %%%foo := 1%%%))
+  roundTripBlock (← `(Parser.block| %%%%%%))
 
 /-- Formats `input` and reports the text exactly. -/
 def showFormatted (input : String) : CommandElabM Unit := do

@@ -9,7 +9,6 @@ names that come from quotation are checked while the document is elaborated.
 set_option doc.verso true
 
 open Lean Doc Elab Term
-open scoped Lean.Doc.Syntax
 
 def target := ()
 
@@ -55,27 +54,38 @@ def backslashInLinkRefName := 0
 /-- error: A reference name may not contain ']' -/
 #guard_msgs in
 #eval show TermElabM Unit from do
-  runBlocks #[↑(← `(block| [^"a]b"]: "note"))]
+  let note : TSyntaxArray ``Parser.inline :=
+    #[← `(Parser.inline| $(← mkVersoTextFromRef "note"):versoText)]
+  runBlocks #[← `(Parser.block| [^$(← mkVersoRefNameFromRef "a]b")]: $[$note]*)]
 
 /-- error: A reference name may not contain '\\' -/
 #guard_msgs in
 #eval show TermElabM Unit from do
-  runBlocks #[↑(← `(block| ["a\\b"]: "http://example.com"))]
+  runBlocks #[← `(Parser.block|
+    [$(← mkVersoRefNameFromRef "a\\b")]: $(← mkVersoLinkRefUrlFromRef "http://example.com"))]
 
 /-- error: A reference name may not be empty -/
 #guard_msgs in
 #eval show TermElabM Unit from do
-  runBlocks #[↑(← `(block| [^""]: "note"))]
+  let note : TSyntaxArray ``Parser.inline :=
+    #[← `(Parser.inline| $(← mkVersoTextFromRef "note"):versoText)]
+  runBlocks #[← `(Parser.block| [^$(← mkVersoRefNameFromRef "")]: $[$note]*)]
 
 /-- error: A reference name may not contain '\n' -/
 #guard_msgs in
 #eval show TermElabM Unit from do
-  runBlocks #[↑(← `(block| para[footnote("a\nb")]))]
+  let use : TSyntaxArray ``Parser.inline :=
+    #[← `(Parser.inline| [^$(← mkVersoRefNameFromRef "a\nb")])]
+  runBlocks #[← `(Parser.block| $[$use]*)]
 
 -- A name of ordinary characters elaborates.
 
 /-- info: ok -/
 #guard_msgs in
 #eval show TermElabM Unit from do
-  runBlocks #[↑(← `(block| para[footnote("a b")])), ↑(← `(block| [^"a b"]: "note"))]
+  let name ← mkVersoRefNameFromRef "a b"
+  let use : TSyntaxArray ``Parser.inline := #[← `(Parser.inline| [^$name])]
+  let note : TSyntaxArray ``Parser.inline :=
+    #[← `(Parser.inline| $(← mkVersoTextFromRef "note"):versoText)]
+  runBlocks #[← `(Parser.block| $[$use]*), ← `(Parser.block| [^$name]: $[$note]*)]
   logInfo "ok"

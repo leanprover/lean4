@@ -118,18 +118,18 @@ option(CHECK_OLEAN_VERSION "Only load .olean files compiled with the current ver
 option(USE_LAKE "Use Lake instead of lean.mk for building core libs from language server" ON)
 option(USE_LAKE_CACHE "Use the Lake artifact cache for stage 1 builds (requires USE_LAKE)" OFF)
 
-set(LEAN_EXTRA_OPTS "" CACHE STRING "extra options to lean (via lake or make)")
+set(LEAN_EXTRA_OPTS "" CACHE STRING "extra arguments to lean (via lake or make)")
+set(LEAN_EXTRA_OPTIONS "" CACHE STRING "extra Lean options as a list of `name=value` pairs, set for both lake/make builds and the language server")
 set(LEAN_EXTRA_LAKE_OPTS "" CACHE STRING "extra options to lake")
 set(LEAN_EXTRA_MAKE_OPTS "" CACHE STRING "extra options to leanmake")
 set(LEANC_CC ${CMAKE_C_COMPILER} CACHE STRING "C compiler to use in `leanc`")
 
-# Core-only flags.
+# Core-only options, prepended so that options given on the CMake command line take precedence.
 # We want to ship `prefer_native=true` but disable it in all stage builds for consistent behavior.
-# `-D` options are forwarded to the language server via `leanOptions` in the generated lakefile;
-# with `USE_LAKE=OFF` (not used anymore, should likely be deleted) the server does not see them.
-string(APPEND LEAN_EXTRA_OPTS " -Dinterpreter.prefer_native=false")
-# More useful for devs than users
-string(APPEND LEAN_EXTRA_OPTS " -Dpp.rawOnError=true")
+# `pp.rawOnError` is more useful for devs than users.
+# With `USE_LAKE=OFF` (not used anymore, should likely be deleted) the language server does not
+# see these options.
+list(PREPEND LEAN_EXTRA_OPTIONS "interpreter.prefer_native=false" "pp.rawOnError=true")
 
 # option used by the CI to fail on warnings
 option(WFAIL "Fail build if warnings are emitted by Lean" ON)
@@ -755,6 +755,9 @@ endif()
 
 # inherit genral options for lean.mk.in and stdlib.make.in
 string(APPEND LEAN_EXTRA_MAKE_OPTS " ${LEAN_EXTRA_OPTS}")
+foreach(OPT IN LISTS LEAN_EXTRA_OPTIONS)
+  string(APPEND LEAN_EXTRA_MAKE_OPTS " -D${OPT}")
+endforeach()
 
 # Version
 configure_file("${LEAN_SOURCE_DIR}/version.h.in" "${LEAN_BINARY_DIR}/include/lean/version.h")
@@ -1192,53 +1195,38 @@ function(toml_escape IN OUTVAR)
   endif()
 endfunction()
 
-# Splits a string of `lean` arguments into TOML `leanOptions` entries for `-D<name>=<value>`
-# arguments and a TOML array of the remaining arguments. Unlike `moreLeanArgs`, `leanOptions` are
-# also passed to the language server. Later occurrences of an option name win, as on the command
-# line. Values are typed by shape: `true`/`false` and numerals are emitted bare, everything else as
-# a string.
-function(lean_opts_to_toml IN OPTS_OUTVAR ARGS_OUTVAR)
-  separate_arguments(ARGS UNIX_COMMAND "${IN}")
+# Converts a list of `name=value` pairs into TOML `leanOptions` entries. Later entries win. Values
+# are typed by shape: `true`/`false` and numerals are emitted bare, everything else as a string.
+function(lean_options_to_toml IN OUTVAR)
   set(NAMES "")
-  set(REST "")
-  foreach(ARG IN LISTS ARGS)
-    if("${ARG}" MATCHES "^-D([^=]+)=(.*)$")
-      set(NAME "${CMAKE_MATCH_1}")
-      set(VALUE "${CMAKE_MATCH_2}")
-      # Only dotted bare keys: quoting a segment would change the option name Lake reads.
-      if(NOT "${NAME}" MATCHES "^[A-Za-z0-9_.-]+$")
-        message(FATAL_ERROR "cannot express Lean option name '${NAME}' as a TOML key")
-      endif()
-      if(NOT "${VALUE}" MATCHES "^(true|false|[0-9]+)$")
-        toml_escape_string("${VALUE}" VALUE)
-      endif()
-      if(NOT "${NAME}" IN_LIST NAMES)
-        list(APPEND NAMES "${NAME}")
-      endif()
-      set("VALUE_OF_${NAME}" "${VALUE}")
-    else()
-      toml_escape_string("${ARG}" ARG)
-      list(APPEND REST "${ARG}")
+  foreach(OPT IN LISTS IN)
+    # Only dotted bare keys: quoting a key segment would change the option name Lake reads.
+    if(NOT "${OPT}" MATCHES "^([A-Za-z0-9_.-]+)=(.*)$")
+      message(FATAL_ERROR "invalid Lean option '${OPT}', expected `name=value`")
     endif()
+    set(NAME "${CMAKE_MATCH_1}")
+    set(VALUE "${CMAKE_MATCH_2}")
+    if(NOT "${VALUE}" MATCHES "^(true|false|[0-9]+)$")
+      string(REPLACE "\\" "\\\\" VALUE "${VALUE}")
+      string(REPLACE "\"" "\\\"" VALUE "${VALUE}")
+      set(VALUE "\"${VALUE}\"")
+    endif()
+    if(NOT "${NAME}" IN_LIST NAMES)
+      list(APPEND NAMES "${NAME}")
+    endif()
+    set("VALUE_OF_${NAME}" "${VALUE}")
   endforeach()
-  set(OPTS "")
+  set(OUT "")
   foreach(NAME IN LISTS NAMES)
-    string(APPEND OPTS "leanOptions.${NAME} = ${VALUE_OF_${NAME}}\n")
+    string(APPEND OUT "leanOptions.${NAME} = ${VALUE_OF_${NAME}}\n")
   endforeach()
-  list(JOIN REST ", " REST)
-  set(${OPTS_OUTVAR} "${OPTS}" PARENT_SCOPE)
-  set(${ARGS_OUTVAR} "${REST}" PARENT_SCOPE)
-endfunction()
-
-function(toml_escape_string IN OUTVAR)
-  string(REPLACE "\\" "\\\\" OUT "${IN}")
-  string(REPLACE "\"" "\\\"" OUT "${OUT}")
-  set(${OUTVAR} "\"${OUT}\"" PARENT_SCOPE)
+  set(${OUTVAR} "${OUT}" PARENT_SCOPE)
 endfunction()
 string(REPLACE "ROOT" "${CMAKE_BINARY_DIR}" LEANC_CC "${LEANC_CC}")
 string(REPLACE "ROOT" "${CMAKE_BINARY_DIR}" LEANC_INTERNAL_FLAGS "${LEANC_INTERNAL_FLAGS}")
 
-lean_opts_to_toml("${LEAN_EXTRA_OPTS}" LEAN_EXTRA_LEAN_OPTIONS_TOML LEAN_EXTRA_ARGS_TOML)
+lean_options_to_toml("${LEAN_EXTRA_OPTIONS}" LEAN_EXTRA_OPTIONS_TOML)
+toml_escape("${LEAN_EXTRA_OPTS}" LEAN_EXTRA_OPTS_TOML)
 toml_escape("${LEANC_EXTRA_CC_FLAGS}" LEAN_MORE_LEANC_ARGS_TOML)
 # These are passed as untraced arguments because they include the sysroot path.
 # However, as they are untraced, Lake will not invalidate build artifacts if the sysroot changes.

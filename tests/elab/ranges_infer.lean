@@ -1,10 +1,11 @@
 module
 
 /-!
-Tests that a `for` loop over the full range `*...*` determines the range's element type from the
-loop variable, e.g. from an ascription on it or from how it is used in the body. The element type
-is an `outParam` of `ForIn`, so this relies on the default instances on `instForInOfForIn'` and on
-the `ForIn'` instance of `Std.Rii`.
+Tests that a `for` loop over a range whose element type is not fixed by its bounds, such as the full
+range `*...*` or a range with literal bounds like `1...3`, determines the element type from the loop
+variable, e.g. from an ascription on it or from how it is used in the body. The element type is an
+`outParam` of `ForIn`, so this relies on the default instances on `instForInOfForIn'` and on the
+`ForIn'` instances of the range types.
 -/
 
 open Std
@@ -85,3 +86,106 @@ Hint: Adding type annotations and supplying implicit arguments to functions can 
 #guard_msgs in
 def infiniteRange : IO Unit := do
   for (i : Nat) in *...* do IO.println i
+
+/-! Ranges with literal bounds take the element type of the loop before the literals default to
+`Nat`. -/
+
+/--
+info: 1
+2
+-/
+#guard_msgs in
+#eval do
+  for (i : Int) in 1...3 do IO.println i
+
+/--
+info: -9
+-8
+-/
+#guard_msgs in
+#eval do
+  for i in 1...3 do IO.println (i + (-10 : Int))
+
+/-- info: #[1, 2] -/
+#guard_msgs in
+#eval do
+  let mut acc : Array Int := #[]
+  for i in 1...3 do acc := acc.push i
+  IO.println acc
+
+/--
+info: 1
+2
+-/
+#guard_msgs in
+#eval do
+  for (i : Fin 5) in 1...3 do IO.println i
+
+/--
+info: 1
+2
+-/
+#guard_msgs in
+#eval do
+  for _h : (i : Int) in 1...3 do IO.println i
+
+/--
+info: -2
+-1
+0
+-/
+#guard_msgs in
+#eval do
+  for (i : Int) in -2...=0 do IO.println i
+
+/--
+info: 2
+3
+-/
+#guard_msgs in
+#eval do
+  for (i : Int) in 1<...=3 do IO.println i
+
+/--
+info: 0
+1
+2
+-/
+#guard_msgs in
+#eval do
+  for (i : UInt8) in *...3 do IO.println i
+
+/--
+info: -8
+-6
+-/
+#guard_msgs in
+#eval do
+  for i in 1...3 do IO.println (i * 2 + (-10 : Int))
+
+/-! Without information about the element type, literal bounds still default to `Nat`. -/
+
+/--
+info: 0
+0
+-/
+#guard_msgs in
+#eval do
+  for i in 1...3 do IO.println (i - 5)
+
+/-! The default instance does not apply when the range would have no `ForIn` instance at the
+loop's element type: `1...*` over `Int` is infinite, so the literals default to `Nat` as before. -/
+
+/--
+error: failed to synthesize instance of type class
+  ForIn IO (Rci Nat) Int
+
+Hint: Type class instance resolution failures can be inspected with the `set_option trace.Meta.synthInstance true` command.
+---
+error: Aborting evaluation since the expression depends on the 'sorry' axiom, which can lead to runtime instability and crashes.
+
+To attempt to evaluate anyway despite the risks, use the '#eval!' command.
+-/
+#guard_msgs in
+#eval do
+  for (i : Int) in 1...* do IO.println i

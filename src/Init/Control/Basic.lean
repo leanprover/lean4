@@ -23,7 +23,8 @@ instances are provided for the same type.
 -- We set the priority to 500 so it is below the default,
 -- but still above the low priority instance from `Stream`.
 -- As a default instance, a stuck `ForIn` problem is solved through a default `ForIn'` instance.
--- This is how `for (i : Fin 3) in *...*` determines the element type of the full range.
+-- This is how `for (i : Int) in 1...3` determines the element type of a range whose bounds are
+-- literals, before those literals would default to `Nat`.
 @[default_instance]
 instance (priority := 500) instForInOfForIn' [ForIn' m ρ α d] : ForIn m ρ α where
   forIn x b f := forIn' x b fun a _ => f a

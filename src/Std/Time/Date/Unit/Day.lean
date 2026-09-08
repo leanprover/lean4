@@ -13,7 +13,7 @@ public section
 namespace Std
 namespace Time
 namespace Day
-open Lean Internal
+open Lean Time.Internal
 
 set_option linter.all true
 

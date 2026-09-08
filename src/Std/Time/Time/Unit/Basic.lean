@@ -21,7 +21,7 @@ to facilitate conversions and manipulations between them.
 
 namespace Std
 namespace Time
-open Internal
+open Time.Internal
 
 set_option linter.all true
 

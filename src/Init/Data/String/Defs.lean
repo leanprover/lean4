@@ -7,7 +7,7 @@ module
 
 prelude
 public import Init.Data.String.PosRaw
-import Init.Data.ByteArray.Lemmas
+import Init.Data.ByteArray.BootstrapLemmas
 import Init.Omega
 
 /-!

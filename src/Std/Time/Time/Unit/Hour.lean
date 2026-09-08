@@ -13,7 +13,7 @@ public section
 namespace Std
 namespace Time
 namespace Hour
-open Internal
+open Time.Internal
 
 set_option linter.all true
 

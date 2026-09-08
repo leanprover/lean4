@@ -10,6 +10,7 @@ on:
       - converted_to_draft
       - ready_for_review
       - synchronize
+      - edited
 
 jobs:
   create-adaptation-pr:

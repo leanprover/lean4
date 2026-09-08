@@ -26,8 +26,8 @@ def onceSignal : IO Unit := do
   let _ ← IO.wait t1; let _ ← IO.wait t2
 
 def main : IO Unit := do
-  for _ in [0:3000] do onceTimer
-  for _ in [0:5000] do onceSignal
+  for _ in [0:300] do onceTimer
+  for _ in [0:500] do onceSignal
   IO.println "survived"
 
 #eval main

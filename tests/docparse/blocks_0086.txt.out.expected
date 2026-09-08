@@ -1,0 +1,14 @@
+Input: "# \n"
+Failure: unexpected newline; expected header text
+ --> 1:2
+  |
+1 | # 
+  |   ^
+  = consumed input prefix: 2 bytes
+Final stack:
+  [(Lean.Doc.Parser.Block.header
+    (Lean.Doc.Parser.headerMarker "#")
+    <missing>)]
+Remaining:
+"\n"
+Round-trip not reproduced, as the parse reported errors: leaf without original source info: <missing>

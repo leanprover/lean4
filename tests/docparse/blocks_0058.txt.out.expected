@@ -1,0 +1,24 @@
+Input: ": term\n\n  a description\n"
+Success! Final stack:
+  [(Lean.Doc.Parser.Block.dl
+    [(Lean.Doc.Parser.DescItem.item
+      ":"
+      [(Lean.Doc.Parser.Inline.text
+        (Lean.Doc.Parser.versoText " term"))]
+      [(Lean.Doc.Parser.Block.para
+        [(Lean.Doc.Parser.Inline.text
+          (Lean.Doc.Parser.versoText
+           "a description"))
+         (Lean.Doc.Parser.Inline.linebreak
+          "\n")])])])]
+All input consumed.
+Round-trip OK
+Decoded views:
+  dl
+    item (marker := ":")
+      term
+        text (content := " term")
+      desc
+        para
+          text (content := "a description")
+          linebreak (newline := "\n")

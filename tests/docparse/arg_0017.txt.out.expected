@@ -1,9 +1,17 @@
-Failure @8 (⟨1, 8⟩): expected ')'
+Input: "(x := 42\n)"
+Failure: expected ')'
+ --> 1:8
+  |
+1 | (x := 42
+  |         ^
+  = consumed input prefix: 8 bytes
 Final stack:
-  (Lean.Doc.Syntax.named
+  (Lean.Doc.Parser.Arg.named
    "("
    `x
    ":="
-   (Lean.Doc.Syntax.arg_num (num "42"))
+   (Lean.Doc.Parser.ArgVal.num (num "42"))
    <missing>)
-Remaining: "\n)"
+Remaining:
+"\n)"
+Round-trip not reproduced, as the parse reported errors: leaf without original source info: <missing>

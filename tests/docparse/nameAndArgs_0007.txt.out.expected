@@ -1,6 +1,10 @@
+Input: "leanExample context"
 Success! Final stack:
  • `leanExample
- • [(Lean.Doc.Syntax.anon
-      (Lean.Doc.Syntax.arg_ident `context))]
+ • [(Lean.Doc.Parser.Arg.anon
+      (Lean.Doc.Parser.ArgVal.ident `context))]
 
 All input consumed.
+Round-trip OK
+Decoded views:
+  anon (val := name (x := context))

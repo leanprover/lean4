@@ -1,8 +1,14 @@
+Input: " ``` \n (define x 4)\n x\n ```\n"
 Success! Final stack:
-  (Lean.Doc.Syntax.codeblock
-   "```"
+  (Lean.Doc.Parser.Block.codeblock
+   (Lean.Doc.Parser.codeBlockFence "```")
    []
-   "\n"
-   (str "\"(define x 4)\\nx\\n\"")
-   "```")
+   (Lean.Doc.Parser.versoCodeBlock
+    [(Lean.Doc.Parser.versoCodeBlockLine
+      "(define x 4)\n")
+     (Lean.Doc.Parser.versoCodeBlockLine "x\n")])
+   (Lean.Doc.Parser.codeBlockFence "```"))
 All input consumed.
+Round-trip OK
+Decoded views:
+  codeblock (openFence := "```") (name? := none) (args := []) (content := "(define x 4)\nx\n") (closeFence := "```")

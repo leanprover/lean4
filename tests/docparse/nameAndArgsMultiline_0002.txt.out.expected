@@ -1,0 +1,12 @@
+Input: "\nfoo a1"
+Failure: expected column at least 1
+ --> 2:0-2:1
+  |
+2 | foo a1
+  | ^
+  = consumed input prefix: 1 bytes
+Final stack:
+  <missing>
+Remaining:
+"foo a1"
+Round-trip not reproduced, as the parse reported errors: leaf without original source info: <missing>

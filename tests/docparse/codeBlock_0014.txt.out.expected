@@ -1,16 +1,25 @@
-Failure @30 (⟨1, 30⟩): expected ')'
+Input: "``` scheme (dialect:=\"chicken\"\n(define x 4)\nx\n```"
+Failure: expected ')'
+ --> 1:30
+  |
+1 | ``` scheme (dialect:="chicken"
+  |                               ^
+  = consumed input prefix: 30 bytes
 Final stack:
-  (Lean.Doc.Syntax.codeblock
-   "```"
+  (Lean.Doc.Parser.Block.codeblock
+   (Lean.Doc.Parser.codeBlockFence "```")
    [`scheme
-    [(Lean.Doc.Syntax.named
+    [(Lean.Doc.Parser.Arg.named
       "("
       `dialect
       ":="
-      (Lean.Doc.Syntax.arg_str
+      (Lean.Doc.Parser.ArgVal.str
        (str "\"chicken\""))
       <missing>)]]
-   "\n"
-   (str "\"(define x 4)\\nx\\n\"")
-   "```")
-Remaining: "\n(define x 4)\nx\n```"
+   (Lean.Doc.Parser.versoCodeBlock
+    [(Lean.Doc.Parser.versoCodeBlockLine
+      "(define x 4)\n")
+     (Lean.Doc.Parser.versoCodeBlockLine "x\n")])
+   (Lean.Doc.Parser.codeBlockFence "```"))
+All input consumed.
+Round-trip not reproduced, as the parse reported errors: leaf without original source info: <missing>

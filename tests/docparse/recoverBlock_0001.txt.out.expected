@@ -1,46 +1,53 @@
-Failure @55 (⟨3, 0⟩): '['; expected '![', '$$', '$', '*', '[', '[^', '_', '`' or '{'
+Input: "{tactic}`rw`{lit}`  [t]  `{kw}`at`{lit} h` applies th\n\ntest"
+Failure: unexpected ' '; expected '![', '$$', '$', '*', '[', '[^', '_', '`' or '{'
+ --> 3:0-3:1
+  |
+3 | test
+  | ^
+  = consumed input prefix: 55 bytes
 Final stack:
-  (Lean.Doc.Syntax.para
-   "para{"
-   [(Lean.Doc.Syntax.role
+  (Lean.Doc.Parser.Block.para
+   [(Lean.Doc.Parser.Inline.role
      "{"
      `tactic
      []
      "}"
-     "["
-     [(Lean.Doc.Syntax.code
-       "`"
-       (str "\"rw\"")
-       "`")]
-     "]")
-    (Lean.Doc.Syntax.role
+     []
+     [(Lean.Doc.Parser.Inline.code
+       (Lean.Doc.Parser.codeDelimiter "`")
+       (Lean.Doc.Parser.versoCode "rw")
+       (Lean.Doc.Parser.codeDelimiter "`"))]
+     [])
+    (Lean.Doc.Parser.Inline.role
      "{"
      `lit
      []
      "}"
-     "["
-     [(Lean.Doc.Syntax.code
-       "`"
-       (str "\" [t] \"")
-       "`")]
-     "]")
-    (Lean.Doc.Syntax.role
+     []
+     [(Lean.Doc.Parser.Inline.code
+       (Lean.Doc.Parser.codeDelimiter "`")
+       (Lean.Doc.Parser.versoCode "  [t]  ")
+       (Lean.Doc.Parser.codeDelimiter "`"))]
+     [])
+    (Lean.Doc.Parser.Inline.role
      "{"
      `kw
      []
      "}"
-     "["
-     [(Lean.Doc.Syntax.code
-       "`"
-       (str "\"at\"")
-       "`")]
-     "]")
-    (Lean.Doc.Syntax.role
+     []
+     [(Lean.Doc.Parser.Inline.code
+       (Lean.Doc.Parser.codeDelimiter "`")
+       (Lean.Doc.Parser.versoCode "at")
+       (Lean.Doc.Parser.codeDelimiter "`"))]
+     [])
+    (Lean.Doc.Parser.Inline.role
      "{"
      `lit
      []
      "}"
-     "["
-     [(Lean.Doc.Syntax.footnote <missing>)]
-     "]")])
-Remaining: "test"
+     []
+     [(Lean.Doc.Parser.Inline.footnote <missing>)]
+     [])])
+Remaining:
+"test"
+Round-trip not reproduced, as the parse reported errors: leaf without original source info: <missing>

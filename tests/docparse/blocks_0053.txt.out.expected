@@ -1,16 +1,24 @@
+Input: "Blah blah[^1]\n\n[^1]: More can be said"
 Success! Final stack:
-  [(Lean.Doc.Syntax.para
-    "para{"
-    [(Lean.Doc.Syntax.text (str "\"Blah blah\""))
-     (Lean.Doc.Syntax.footnote
+  [(Lean.Doc.Parser.Block.para
+    [(Lean.Doc.Parser.Inline.text
+      (Lean.Doc.Parser.versoText "Blah blah"))
+     (Lean.Doc.Parser.Inline.footnote
       "[^"
-      (str "\"1\"")
-      "]")]
-    "}")
-   (Lean.Doc.Syntax.footnote_ref
+      (Lean.Doc.Parser.versoRef "1")
+      "]")])
+   (Lean.Doc.Parser.Block.footnote_ref
     "[^"
-    (str "\"1\"")
+    (Lean.Doc.Parser.versoRef "1")
     "]:"
-    [(Lean.Doc.Syntax.text
-      (str "\"More can be said\""))])]
+    [(Lean.Doc.Parser.Inline.text
+      (Lean.Doc.Parser.versoText
+       "More can be said"))])]
 All input consumed.
+Round-trip OK
+Decoded views:
+  para
+    text (content := "Blah blah")
+    footnote (opener := "[^") (name := "1") (closer := "]")
+  footnoteRef (opener := "[^") (name := "1") (closer := "]:")
+    text (content := "More can be said")

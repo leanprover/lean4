@@ -35,8 +35,9 @@ elab "#render_doc " name:ident : command => do
 /-- Reads a single code inline and resolves it to a global constant. -/
 meta def codeTargetName (xs : TSyntaxArray `inline) : DocM Name :=
   match xs with
-  | #[stx] => match stx with
-    | `(inline|code($s)) => realizeGlobalConstNoOverloadWithInfo (mkIdentFrom s s.getString.toName)
+  | #[stx] => match InlineView.of stx with
+    | some (.code { content, .. }) =>
+      realizeGlobalConstNoOverloadWithInfo (mkIdentFrom content content.getVersoCode.toName)
     | _ => throwErrorAt stx "expected a code argument"
   | _ => throwError "expected one code argument"
 

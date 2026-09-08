@@ -1,47 +1,58 @@
+Input: "* * A1\n  * A2\n* B\n * B1\n * B2"
 Success! Final stack:
-  [(Lean.Doc.Syntax.ul
-    "ul{"
-    [(Lean.Doc.Syntax.li
-      "*"
-      [(Lean.Doc.Syntax.ul
-        "ul{"
-        [(Lean.Doc.Syntax.li
-          "*"
-          [(Lean.Doc.Syntax.para
-            "para{"
-            [(Lean.Doc.Syntax.text
-              (str "\"A1\""))]
-            "}")])
-         (Lean.Doc.Syntax.li
-          "*"
-          [(Lean.Doc.Syntax.para
-            "para{"
-            [(Lean.Doc.Syntax.text
-              (str "\"A2\""))]
-            "}")])]
-        "}")])
-     (Lean.Doc.Syntax.li
-      "*"
-      [(Lean.Doc.Syntax.para
-        "para{"
-        [(Lean.Doc.Syntax.text (str "\"B\""))]
-        "}")
-       (Lean.Doc.Syntax.ul
-        "ul{"
-        [(Lean.Doc.Syntax.li
-          "*"
-          [(Lean.Doc.Syntax.para
-            "para{"
-            [(Lean.Doc.Syntax.text
-              (str "\"B1\""))]
-            "}")])
-         (Lean.Doc.Syntax.li
-          "*"
-          [(Lean.Doc.Syntax.para
-            "para{"
-            [(Lean.Doc.Syntax.text
-              (str "\"B2\""))]
-            "}")])]
-        "}")])]
-    "}")]
+  [(Lean.Doc.Parser.Block.ul
+    [(Lean.Doc.Parser.ListItem.item
+      (Lean.Doc.Parser.listMarker "*")
+      [(Lean.Doc.Parser.Block.ul
+        [(Lean.Doc.Parser.ListItem.item
+          (Lean.Doc.Parser.listMarker "*")
+          [(Lean.Doc.Parser.Block.para
+            [(Lean.Doc.Parser.Inline.text
+              (Lean.Doc.Parser.versoText
+               "A1"))])])
+         (Lean.Doc.Parser.ListItem.item
+          (Lean.Doc.Parser.listMarker "*")
+          [(Lean.Doc.Parser.Block.para
+            [(Lean.Doc.Parser.Inline.text
+              (Lean.Doc.Parser.versoText
+               "A2"))])])])])
+     (Lean.Doc.Parser.ListItem.item
+      (Lean.Doc.Parser.listMarker "*")
+      [(Lean.Doc.Parser.Block.para
+        [(Lean.Doc.Parser.Inline.text
+          (Lean.Doc.Parser.versoText "B"))])
+       (Lean.Doc.Parser.Block.ul
+        [(Lean.Doc.Parser.ListItem.item
+          (Lean.Doc.Parser.listMarker "*")
+          [(Lean.Doc.Parser.Block.para
+            [(Lean.Doc.Parser.Inline.text
+              (Lean.Doc.Parser.versoText
+               "B1"))])])
+         (Lean.Doc.Parser.ListItem.item
+          (Lean.Doc.Parser.listMarker "*")
+          [(Lean.Doc.Parser.Block.para
+            [(Lean.Doc.Parser.Inline.text
+              (Lean.Doc.Parser.versoText
+               "B2"))])])])])])]
 All input consumed.
+Round-trip OK
+Decoded views:
+  ul
+    item (marker := "*")
+      ul
+        item (marker := "*")
+          para
+            text (content := "A1")
+        item (marker := "*")
+          para
+            text (content := "A2")
+    item (marker := "*")
+      para
+        text (content := "B")
+      ul
+        item (marker := "*")
+          para
+            text (content := "B1")
+        item (marker := "*")
+          para
+            text (content := "B2")

@@ -1,22 +1,30 @@
+Input: "{ref other}[{leanKw}`cmd` is great]"
 Success! Final stack:
-  (Lean.Doc.Syntax.role
+  (Lean.Doc.Parser.Inline.role
    "{"
    `ref
-   [(Lean.Doc.Syntax.anon
-     (Lean.Doc.Syntax.arg_ident `other))]
+   [(Lean.Doc.Parser.Arg.anon
+     (Lean.Doc.Parser.ArgVal.ident `other))]
    "}"
-   "["
-   [(Lean.Doc.Syntax.role
+   ["["]
+   [(Lean.Doc.Parser.Inline.role
      "{"
      `leanKw
      []
      "}"
-     "["
-     [(Lean.Doc.Syntax.code
-       "`"
-       (str "\"cmd\"")
-       "`")]
-     "]")
-    (Lean.Doc.Syntax.text (str "\" is great\""))]
-   "]")
+     []
+     [(Lean.Doc.Parser.Inline.code
+       (Lean.Doc.Parser.codeDelimiter "`")
+       (Lean.Doc.Parser.versoCode "cmd")
+       (Lean.Doc.Parser.codeDelimiter "`"))]
+     [])
+    (Lean.Doc.Parser.Inline.text
+     (Lean.Doc.Parser.versoText " is great"))]
+   ["]"])
 All input consumed.
+Round-trip OK
+Decoded views:
+  role (braceOpen := "{") (name := ref) (args := [anon (val := name (x := other))]) (braceClose := "}") (brackets := some ("[", "]"))
+    role (braceOpen := "{") (name := leanKw) (args := []) (braceClose := "}") (brackets := none)
+      code (opener := "`") (content := "cmd") (closer := "`")
+    text (content := " is great")

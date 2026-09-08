@@ -8,7 +8,9 @@ prelude
 public import Lean.Elab.Term.TermElabM
 public import Lean.Elab.Command.Scope
 public import Lean.DocString.Markdown
+public import Lean.DocString.View
 import Lean.DocString.Syntax
+import Lean.DocString.Parser
 import Lean.BuiltinDocAttr
 import Init.Omega
 
@@ -24,25 +26,25 @@ open scoped Lean.Doc.Syntax
 public section
 
 private structure ElabLink where
-  name : StrLit
+  name : VersoRefName
 deriving TypeName
 
-private def delayLink (name : StrLit) : ElabInline :=
+private def delayLink (name : VersoRefName) : ElabInline :=
   .custom (.mk (ElabLink.mk name))
 
 private structure ElabImage where
   alt : String
-  name : StrLit
+  name : VersoRefName
 deriving TypeName
 
-private def delayImage (alt : String) (name : StrLit) : ElabInline :=
+private def delayImage (alt : String) (name : VersoRefName) : ElabInline :=
   .custom (.mk (ElabImage.mk alt name))
 
 private structure ElabFootnote where
-  name : StrLit
+  name : VersoRefName
 deriving TypeName
 
-private def delayFootnote (name : StrLit) : ElabInline :=
+private def delayFootnote (name : VersoRefName) : ElabInline :=
   .custom (.mk (ElabFootnote.mk name))
 
 private structure Ref (α) where
@@ -389,11 +391,12 @@ def DocArg.syntax : DocArg → Syntax
 /--
 Converts the syntax of a documentation argument into a suitable value.
 -/
-def DocArg.ofSyntax : TSyntax `arg_val → TermElabM DocArg
-  | `(arg_val| $x:ident ) => pure <| .ident x
-  | `(arg_val| $x:num ) => pure <| .num x
-  | `(arg_val| $x:str ) => pure <| .str x
-  | other => throwErrorAt other "Failed to parse argument value"
+def DocArg.ofSyntax (stx : TSyntax ``Parser.argVal) : TermElabM DocArg :=
+  match ArgValView.of stx with
+  | some (.name x) => pure <| .ident x
+  | some (.num n _) => pure <| .num n
+  | some (.str s _) => pure <| .str s
+  | none => throwErrorAt stx "Failed to parse argument value"
 
 /--
 A value paired with the syntax it is derived from.
@@ -508,15 +511,16 @@ protected def getPositional [FromDocArg α] (name : Name) :
     StateT (Array (TSyntax `doc_arg)) DocM α := do
   let args ← get
   for h : i in [0:args.size] do
-    if let `(doc_arg|$v:arg_val) := args[i] then
+    if let some (.anon _ v) := ArgView.of args[i] then
       set (σ := Array (TSyntax `doc_arg)) (args[:i] ++ args[i+1:])
       let v ← DocArg.ofSyntax v
       return (← FromDocArg.fromDocArg v)
   throwError "Missing positional argument `{name}`"
 
-private def asNamed : Syntax → Option (Ident × TSyntax `arg_val)
-  | `(doc_arg|$x:ident := $v:arg_val) => some (x, v)
-  | `(doc_arg|($x:ident := $v:arg_val)) => some (x, v)
+private def asNamed (stx : TSyntax `doc_arg) :
+    Option (Ident × TSyntax ``Parser.argVal) :=
+  match ArgView.of stx with
+  | some (.named _ _ x _ v) => some (x, v)
   | _ => none
 
 /--
@@ -568,9 +572,9 @@ protected def getFlag (name : Name) (default : Bool) : StateT (Array (TSyntax `d
         return v
   return default
 where
-  asFlag
-    | `(doc_arg|+$x:ident) => some (x, true)
-    | `(doc_arg|-$x:ident) => some (x, false)
+  asFlag (stx : TSyntax `doc_arg) : Option (Ident × Bool) :=
+    match ArgView.of stx with
+    | some (.flag _ _ x isOn) => some (x, isOn)
     | _ => none
 
 /--
@@ -578,15 +582,14 @@ Asserts that there are no further arguments to a documentation language extensio
 -/
 protected def done : StateT (Array (TSyntax `doc_arg)) DocM Unit := do
   for arg in (← get) do
-    match arg with
-    | `(doc_arg|+$x:ident)
-    | `(doc_arg|-$x:ident) =>
+    match ArgView.of arg with
+    | some (.flag _ _ x _) =>
       logErrorAt arg m!"Unexpected flag `{x.getId}`"
-    | `(doc_arg| ($x := $_)) | `(doc_arg| $x:ident := $_) =>
+    | some (.named _ _ x _ _) =>
       logErrorAt arg m!"Unexpected named argument `{x.getId}`"
-    | `(doc_arg| $_:arg_val) =>
+    | some (.anon ..) =>
       logErrorAt arg m!"Unexpected positional argument"
-    | _ =>
+    | none =>
       logErrorAt arg m!"Unexpected argument"
   return
 
@@ -595,10 +598,96 @@ private inductive ArgSpec where
   | named (name : Name) (type : Expr) (default : Expr)
   | many (name : Name) (type : Expr)
   | flag (name : Name) (default : Bool)
+  | view (name : Name) (type : Expr) (get : Name)
 deriving Repr
 
+/-- The singleton list of syntax node kinds that contains only `kind`. -/
+private def oneKind (kind : Name) : Expr :=
+  mkApp3 (.const ``List.cons [0]) (.const ``SyntaxNodeKind []) (toExpr kind)
+    (.app (.const ``List.nil [0]) (.const ``SyntaxNodeKind []))
+
+/-- The type of syntax that has only the kind `kind`. -/
+private def tSyntaxOfCat (kind : Name) : Expr :=
+  .app (.const ``TSyntax []) (oneKind kind)
+
+/-- The type of an array of syntax that has only the kind `kind`. -/
+private def tSyntaxArrayOfCat (kind : Name) : Expr :=
+  .app (.const ``TSyntaxArray []) (oneKind kind)
+
+section Migration
+/-
+The function in this section is a temporary bootstrapping adaptation. A wrapper receives inline and
+block content in the `Lean.Doc.Syntax` encoding and literal content as a string literal, while the
+declaration it wraps may have a parameter of the parser's kinds or of a content token. After a
+stage0 update a wrapper can receive those directly, and this section can be deleted along with
+`alsoAccept`.
+-/
+
 open Meta in
-private def genWrapper (declName : Name) (argType : Option Expr) (retType : Expr) : TermElabM Name := do
+/--
+Converts `e` from type `source` to type `target`.
+-/
+private def convertContent (e source target : Expr) : MetaM Expr := do
+  if ← isDefEq source target then return e
+  -- Inline and block content may be written in either encoding.
+  let encodings : Array (Name × Name × Name) := #[
+    (`inline, ``Parser.inline, ``Lean.Doc.migrateInlines),
+    (`block, ``Parser.block, ``Lean.Doc.migrateBlocks)]
+  for (cat, parserCat, conversion) in encodings do
+    if (← isDefEq source (tSyntaxArrayOfCat cat)) &&
+        (← isDefEq target (tSyntaxArrayOfCat parserCat)) then
+      return mkApp (.const conversion []) e
+  -- A wrapper receives literal content as a string literal.
+  let conversions : Array (Name × Name × Name) := #[
+    (``StrLit, ``Lean.Doc.VersoCode, ``Lean.Doc.versoCodeOfStrLit),
+    (``StrLit, ``Lean.Doc.VersoCodeBlock, ``Lean.Doc.versoCodeBlockOfStrLit)]
+  for (from', to, conversion) in conversions do
+    if (← isDefEq source (.const from' [])) && (← isDefEq target (.const to [])) then
+      return mkApp (.const conversion []) e
+  throwError "Cannot convert `{.ofExpr source}` to `{.ofExpr target}`"
+
+end Migration
+
+open Meta in
+/--
+The type of the content parameter of `declName`, which is its last parameter. Fails unless the type
+is one of `accepted`.
+-/
+private def contentParamType (declName : Name) (accepted : Array Expr) : MetaM Expr := do
+  let some c := (← getEnv).constants.find? declName
+    | throwError m!"`{MessageData.ofConstName declName}` not found"
+  forallTelescope c.type fun args _ => do
+    let some final := args[args.size - 1]?
+      | throwError "Expected a content parameter on `{.ofConstName declName}`"
+    let ty := (← final.fvarId!.getDecl).type
+    unless ← accepted.anyM (fun t => isDefEq ty t) do
+      let names := ", ".intercalate (accepted.toList.map (s!"`{·}`"))
+      throwError "Expected type of last parameter to `{.ofConstName declName}` to be one of \
+        {names} but got `{.ofExpr ty}`"
+    pure ty
+
+/-- The view of each kind of document element, with a description of the element. -/
+private def elementViews : Array (Name × String) := #[
+  (``RoleView, "role"),
+  (``DirectiveView, "directive"),
+  (``CodeBlockView, "code block"),
+  (``CommandView, "block-level command")]
+
+open Meta in
+/--
+Generates the wrapper that presents `declName` to the document elaborator. The wrapper reads the
+declaration's named arguments from a document's argument syntax.
+
+The wrapper receives the content as `argType` and converts it to the type of `declName`'s last
+parameter, which may be `argType` or any type in `alsoAccept`. The compiler that builds `declName`
+provides the attribute, so that compiler decides which types are allowed.
+
+`view?` gives the type of the view of the element being elaborated, together with the function that
+reads it. A parameter of that type is filled from the reference rather than from the arguments.
+-/
+private def genWrapper (declName : Name) (argType : Option Expr) (retType : Expr)
+    (alsoAccept : Array Expr := #[])
+    (view? : Option (Expr × Name) := none) : TermElabM Name := do
   if let some c := (← getEnv).constants.find? declName then
     let argSpec ← forallTelescope c.type fun args ret => do
       let mut argSpec : Array ArgSpec := #[]
@@ -607,7 +696,37 @@ private def genWrapper (declName : Name) (argType : Option Expr) (retType : Expr
         let localDecl ← arg.fvarId!.getDecl
         let name := localDecl.userName
         let argType := localDecl.type
-        if argType.isAppOfArity' ``optParam 2 then
+        let asView? ←
+          match view? with
+          | some (viewTy, get) =>
+            if ← isDefEq argType viewTy then pure (some (viewTy, get)) else pure none
+          | none => pure none
+        -- The parameters are the arguments, then the view, then the content.
+        if let some (.view prev ..) := argSpec.find? (· matches .view ..) then
+          if asView?.isSome then
+            throwError "`{.ofConstName declName}` takes the view of the element twice, as \
+              `{prev}` and as `{name}`, but there can be at most one view."
+          else
+            throwError "`{.ofConstName declName}` takes the argument `{name}` after the view \
+              `{prev}`. Arguments must precede a view."
+        -- A parameter whose type is another element's view is a mistake worth naming, because it
+        -- would otherwise be read as an argument and fail to find a `FromDocArg` instance.
+        let mut otherView? : Option (Name × String) := none
+        if asView?.isNone then
+          for (viewName, kind) in elementViews do
+            if ← isDefEq argType (.const viewName []) then
+              otherView? := some (viewName, kind)
+        if let some (viewName, kind) := otherView? then
+          match view? with
+          | some (expected, _) =>
+            throwError "`{.ofConstName declName}` takes `{name} : {.ofConstName viewName}`, which \
+              is the view of a {kind}. Use `{.ofExpr expected}` instead."
+          | none =>
+            throwError "`{.ofConstName declName}` takes `{name} : {.ofConstName viewName}`, which \
+              is the view of a {kind}. This extension has no view."
+        if let some (viewTy, get) := asView? then
+          argSpec := argSpec.push (.view name viewTy get)
+        else if argType.isAppOfArity' ``optParam 2 then
           argSpec := argSpec.push (.named name (argType.getArg! 0) (argType.getArg! 1))
         else if argType.isAppOfArity' ``many 1 then
           argSpec := argSpec.push (.many name (argType.getArg!' 0))
@@ -619,38 +738,41 @@ private def genWrapper (declName : Name) (argType : Option Expr) (retType : Expr
           | _ => throwError m!"Couldn't determine default flag value from {e}"
         else
           argSpec := argSpec.push (.positional name argType)
-      if h : args.size < 1 then
-        throwError "Expected at least one parameter to `{.ofConstName declName}`"
-      else
-        if let some expected := argType then
-          let final := args[args.size-1]
-          let localDecl ← final.fvarId!.getDecl
-          unless ← isDefEq localDecl.type expected do
-            throwError "Expected type of last parameter to `{.ofConstName declName}` to be `{.ofExpr expected}` but got `{.ofExpr localDecl.type}`"
-
-        let expected ← mkAppM ``DocM #[retType]
-        unless ← isDefEq ret expected do
-          throwError "Expected return type of `{.ofConstName declName}` to be `{.ofExpr expected}` but got `{.ofExpr ret}`"
+      let expected ← mkAppM ``DocM #[retType]
+      unless ← isDefEq ret expected do
+        throwError "Expected return type of `{.ofConstName declName}` to be `{.ofExpr expected}` but got `{.ofExpr ret}`"
 
       pure argSpec
-    let inls ← mkAppM ``TSyntaxArray #[← mkListLit (.const ``SyntaxNodeKind []) [toExpr `inline]]
     let parser ←
       if let some argType := argType then
+        -- The wrapper takes the content as `argType`, whatever the declaration's parameter is.
+        let declared ← contentParamType declName (#[argType] ++ alsoAccept)
         withLocalDecl (← mkFreshBinderName) .default argType fun i => do
-          mkLambdaFVars #[i] (← build 0 argSpec #[] (some i))
+          let content ← convertContent i argType declared
+          mkLambdaFVars #[i] (← build 0 argSpec #[] (some content))
       else build 0 argSpec #[] none
     let parserTy ← inferType parser
-    let name ← mkFreshUserName (declName ++ `getArgs)
     let name := declName ++ `getArgs
-    let isMeta := isMarkedMeta (← getEnv) declName
-    addAndCompile (markMeta := isMeta) <| .defnDecl {
-      name
-      levelParams := []
-      type := parserTy
-      value := parser
-      hints := .regular 0
-      safety := .safe
-    }
+    -- Re-use an existing wrapper instead of generating a new one with a conflicting name. This can
+    -- happen when the same implementation is used for multiple roles/directives/code
+    -- blocks/commands.
+    if let some existing := (← getEnv).find? name then
+      unless (← isDefEq existing.type parserTy) &&
+          (← existing.value?.mapM (isDefEq · parser)).getD false do
+        throwError "`{.ofConstName name}` is not the wrapper for `{.ofConstName declName}`"
+    else
+      let isMeta := isMarkedMeta (← getEnv) declName
+      addAndCompile (markMeta := isMeta) <| .defnDecl {
+        name
+        levelParams := []
+        type := parserTy
+        value := parser
+        hints := .regular 0
+        safety := .safe
+      }
+      -- The wrapper shows the declaration's documentation.
+      if (← findInternalDocString? (← getEnv) declName).isSome then
+        addInheritedDocString name declName
     return name
   else
     throwError m!"`{MessageData.ofConstName declName}` not found"
@@ -678,13 +800,58 @@ where
         let k ← withLocalDecl name .default (.const ``Bool []) fun v => do
             mkLambdaFVars #[v] (← build (i + 1) argSpec (args.push v) body)
         mkAppM ``Bind.bind #[arg, k]
+      | .view name type get =>
+        let arg := .const get []
+        let k ← withLocalDecl name .default type fun v => do
+            mkLambdaFVars #[v] (← build (i + 1) argSpec (args.push v) body)
+        mkAppM ``Bind.bind #[arg, k]
     else
       let last ← mkAppM ``Lean.Doc.done #[]
-      let m ← mkAppM ``StateT #[← mkAppM ``Array #[← mkAppM ``TSyntax #[← mkListLit (.const ``SyntaxNodeKind []) [toExpr `doc_arg]]], ← mkAppM ``DocM #[]]
+      let m ← mkAppM ``StateT #[← mkAppM ``Array #[tSyntaxOfCat `doc_arg], ← mkAppM ``DocM #[]]
       let k ← withLocalDecl (← mkFreshBinderName) .default (.const ``Unit []) fun u => do
         let args := body.map (args.push ·) |>.getD args
         mkLambdaFVars #[u] (← mkAppOptM ``liftM #[none, some m, none, none, (← mkAppM declName args)])
       mkAppM ``Bind.bind #[last, k]
+
+open Meta in
+/--
+The name to register for a suggestion provider.
+
+A provider whose content parameter is already `contentType` is registered under its own name. Any
+other provider is registered as a generated adapter that converts the content.
+-/
+private def genSuggesterAdapter (declName : Name) (contentType suggestionType : Expr)
+    (alsoAccept : Array Expr := #[]) : TermElabM Name := do
+  let retType ← mkAppM ``DocM #[← mkAppM ``Array #[suggestionType]]
+  let some c := (← getEnv).constants.find? declName
+    | throwError m!"`{MessageData.ofConstName declName}` not found"
+  forallTelescope c.type fun args ret => do
+    unless args.size == 1 do
+      throwError "Expected exactly one parameter to `{.ofConstName declName}`"
+    unless ← isDefEq ret retType do
+      throwError "Expected return type of `{.ofConstName declName}` to be `{.ofExpr retType}` \
+        but got `{.ofExpr ret}`"
+  let declared ← contentParamType declName (#[contentType] ++ alsoAccept)
+  if ← isDefEq declared contentType then return declName
+  let value ← withLocalDecl (← mkFreshBinderName) .default contentType fun content => do
+    mkLambdaFVars #[content] (mkApp (.const declName []) (← convertContent content contentType declared))
+  let name := declName ++ `adapt
+  let adapterTy ← inferType value
+  -- Re-use the adapter if it already exists
+  if let some existing := (← getEnv).find? name then
+    unless ← isDefEq existing.type adapterTy do
+      throwError "`{.ofConstName name}` has type `{.ofExpr existing.type}`, but the adapter for \
+        `{.ofConstName declName}` has type `{.ofExpr adapterTy}`"
+  else
+    addAndCompile (markMeta := isMarkedMeta (← getEnv) declName) <| .defnDecl {
+      name
+      levelParams := []
+      type := adapterTy
+      value
+      hints := .regular 0
+      safety := .safe
+    }
+  return name
 
 /-- Environment extension for code suggestions -/
 builtin_initialize codeSuggestionExt : SimpleScopedEnvExtension Name NameSet ←
@@ -733,10 +900,66 @@ An expander for code blocks in docstrings.
 abbrev DocCodeBlockExpander :=
   StrLit → StateT (Array (TSyntax `doc_arg)) DocM (Block ElabInline ElabBlock)
 
+section Migration
+/-
+The functions in this section are temporary bootstrapping adaptations. The elaborator receives
+syntax in the parser's encoding, while `DocRoleExpander` and its siblings use the `Lean.Doc.Syntax`
+categories, so the elaborator retags the syntax at each call to an expander. After a stage0 update
+the expander types can use the parser's syntax kinds, and this section can be deleted.
+-/
+
+/-- Retags inline elements for an expander. -/
+private def asInlineCat (inls : TSyntaxArray ``Parser.inline) :
+    TSyntaxArray `inline :=
+  TSyntaxArray.mk inls.raw
+
+/-- Retags blocks for an expander. -/
+private def asBlockCat (blks : TSyntaxArray ``Parser.block) :
+    TSyntaxArray `block :=
+  TSyntaxArray.mk blks.raw
+
+/-- Retags arguments for an expander. -/
+private def asArgCat (args : TSyntaxArray ``Parser.arg) :
+    Array (TSyntax `doc_arg) :=
+  TSyntaxArray.mk args.raw
+
+end Migration
+
+/-!
+An expander may declare a parameter whose type is the view of the element it expands. The wrapper
+fills such a parameter from the reference that the elaborator establishes around the call, rather
+than from the element's arguments.
+-/
+
+/-- The view of the role that is being elaborated. -/
+protected def getRoleView : StateT (Array (TSyntax `doc_arg)) DocM RoleView := do
+  let some v := RoleView.of ⟨← getRef⟩
+    | throwError "Expected a role"
+  return v
+
+/-- The view of the directive that is being elaborated. -/
+protected def getDirectiveView : StateT (Array (TSyntax `doc_arg)) DocM DirectiveView := do
+  let some v := DirectiveView.of ⟨← getRef⟩
+    | throwError "Expected a directive"
+  return v
+
+/-- The view of the code block that is being elaborated. -/
+protected def getCodeBlockView : StateT (Array (TSyntax `doc_arg)) DocM CodeBlockView := do
+  let some v := CodeBlockView.of ⟨← getRef⟩
+    | throwError "Expected a code block"
+  return v
+
+/-- The view of the block-level command that is being elaborated. -/
+protected def getCommandView : StateT (Array (TSyntax `doc_arg)) DocM CommandView := do
+  let some v := CommandView.of ⟨← getRef⟩
+    | throwError "Expected a block-level command"
+  return v
+
 /--
 Built-in docstring roles, for bootstrapping.
 -/
 builtin_initialize builtinDocRoles : IO.Ref (NameMap (Array (Name × DocRoleExpander))) ← IO.mkRef {}
+
 
 /-- Environment extension for docstring roles -/
 builtin_initialize docCodeBlockExt : SimpleScopedEnvExtension (Name × Name) (NameMap (Array Name)) ←
@@ -795,15 +1018,11 @@ builtin_initialize registerBuiltinAttribute {
   descr := "docstring code element suggestion provider"
   applicationTime := .afterCompilation
   add := fun decl stx kind => do
-    if let some d := (← getEnv).find? decl then
-      if d.type matches (.forallE _ (.const ``StrLit _)
-          (.app (.const ``DocM _) (.app (.const ``Array _) (.const ``CodeSuggestion _)))
-          .default) then
-        codeSuggestionExt.add decl
-      else
-        throwError "Wrong type for {.ofConstName decl}: {indentD <| repr d.type}"
-    else
-      throwError "{.ofConstName decl} is not defined"
+    let ((name, _), _) ←
+      genSuggesterAdapter decl (.const ``StrLit []) (.const ``CodeSuggestion [])
+          (alsoAccept := #[.const ``Lean.Doc.VersoCode []])
+        |>.run {} {} |>.run {} {}
+    codeSuggestionExt.add name
 }
 
 /--
@@ -830,17 +1049,40 @@ builtin_initialize registerBuiltinAttribute {
   descr := "docstring code element suggestion provider"
   applicationTime := .afterCompilation
   add := fun decl stx kind => do
-    if let some d := (← getEnv).find? decl then
-      if d.type matches (.forallE _ (.const ``StrLit _)
-          (.app (.const ``DocM _) (.app (.const ``Array _) (.const ``CodeSuggestion _)))
-          .default) then
-        declareBuiltin decl <|
-          mkApp2 (.const ``addBuiltinCodeSuggestion []) (toExpr decl) (.const decl [])
-      else
-        throwError "Wrong type for {.ofConstName decl}: {indentD <| repr d.type}"
-    else
-      throwError "{.ofConstName decl} is not defined"
+    let ((name, _), _) ←
+      genSuggesterAdapter decl (.const ``StrLit []) (.const ``CodeSuggestion [])
+          (alsoAccept := #[.const ``Lean.Doc.VersoCode []])
+        |>.run {} {} |>.run {} {}
+    declareBuiltin decl <|
+      mkApp2 (.const ``addBuiltinCodeSuggestion []) (toExpr decl) (.const name [])
 }
+
+/--
+The view type accepted by role expanders along with the function that reads it from the parameters.
+-/
+private def roleViewSpec : Option (Expr × Name) :=
+  some (.const ``RoleView [], ``Lean.Doc.getRoleView)
+
+/--
+The view type accepted by directive expanders along with the function that reads it from the
+parameters.
+-/
+private def directiveViewSpec : Option (Expr × Name) :=
+  some (.const ``DirectiveView [], ``Lean.Doc.getDirectiveView)
+
+/--
+The view type accepted by code block expanders along with the function that reads it from the
+parameters.
+-/
+private def codeBlockViewSpec : Option (Expr × Name) :=
+  some (.const ``CodeBlockView [], ``Lean.Doc.getCodeBlockView)
+
+/--
+The view type accepted by command expanders along with the function that reads it from the
+parameters.
+-/
+private def commandViewSpec : Option (Expr × Name) :=
+  some (.const ``CommandView [], ``Lean.Doc.getCommandView)
 
 /--
 In module mode, docstring extensions are invoked at elaboration time, so the underlying definition
@@ -861,14 +1103,13 @@ builtin_initialize registerBuiltinAttribute {
         realizeGlobalConstNoOverloadWithInfo x
       else
         pure decl
-    let argTy : Expr :=
-      .app (.const ``TSyntaxArray [])
-        (mkApp3 (.const ``List.cons [0]) (.const ``SyntaxNodeKind []) (toExpr `inline) (.app (.const ``List.nil [0]) (.const ``SyntaxNodeKind [])))
+    let argTy := tSyntaxArrayOfCat `inline
     let ret := .app (.const ``Inline [0]) (.const ``ElabInline [])
-    let ((wrapper, _), _) ← genWrapper decl (some argTy) ret |>.run {} {} |>.run {} {}
+    let ((wrapper, _), _) ←
+      genWrapper decl (some argTy) ret (alsoAccept := #[tSyntaxArrayOfCat ``Parser.inline])
+          (view? := roleViewSpec)
+        |>.run {} {} |>.run {} {}
     docRoleExt.add (roleName, wrapper)
-    if (← findInternalDocString? (← getEnv) decl).isSome then
-      addInheritedDocString wrapper decl
 }
 
 /--
@@ -889,16 +1130,15 @@ builtin_initialize registerBuiltinAttribute {
         realizeGlobalConstNoOverloadWithInfo x
       else
         pure decl
-    let argTy : Expr :=
-      .app (.const ``TSyntaxArray [])
-        (mkApp3 (.const ``List.cons [0]) (.const ``SyntaxNodeKind []) (toExpr `inline) (.app (.const ``List.nil [0]) (.const ``SyntaxNodeKind [])))
+    let argTy := tSyntaxArrayOfCat `inline
     let ret := .app (.const ``Inline [0]) (.const ``ElabInline [])
-    let ((wrapper, _), _) ← genWrapper decl (some argTy) ret |>.run {} {} |>.run {} {}
+    let ((wrapper, _), _) ←
+      genWrapper decl (some argTy) ret (alsoAccept := #[tSyntaxArrayOfCat ``Parser.inline])
+          (view? := roleViewSpec)
+        |>.run {} {} |>.run {} {}
     addDeclarationRangesFromSyntax wrapper stx
     declareBuiltin roleName <|
       mkApp3 (.const ``addBuiltinDocRole []) (toExpr roleName) (toExpr wrapper) (.const wrapper [])
-    if (← findInternalDocString? (← getEnv) decl).isSome then
-      addInheritedDocString wrapper decl
     declareBuiltinDocStringAndRanges wrapper
 }
 
@@ -914,10 +1154,11 @@ builtin_initialize registerBuiltinAttribute {
       else
         pure decl
     let ret := mkApp2 (.const ``Block [0, 0]) (.const ``ElabInline []) (.const ``ElabBlock [])
-    let ((wrapper, _), _) ← genWrapper decl (some (.const ``StrLit [])) ret |>.run {} {} |>.run {} {}
+    let ((wrapper, _), _) ←
+      genWrapper decl (some (.const ``StrLit [])) ret
+          (alsoAccept := #[.const ``Lean.Doc.VersoCodeBlock []]) (view? := codeBlockViewSpec)
+        |>.run {} {} |>.run {} {}
     docCodeBlockExt.add (blockName, wrapper)
-    if (← findInternalDocString? (← getEnv) decl).isSome then
-      addInheritedDocString wrapper decl
 }
 
 /--
@@ -939,13 +1180,14 @@ builtin_initialize registerBuiltinAttribute {
       else
         pure decl
     let ret := mkApp2 (.const ``Block [0, 0]) (.const ``ElabInline []) (.const ``ElabBlock [])
-    let ((wrapper, _), _) ← genWrapper decl (some (.const ``StrLit [])) ret |>.run {} {} |>.run {} {}
+    let ((wrapper, _), _) ←
+      genWrapper decl (some (.const ``StrLit [])) ret
+          (alsoAccept := #[.const ``Lean.Doc.VersoCodeBlock []]) (view? := codeBlockViewSpec)
+        |>.run {} {} |>.run {} {}
     addDeclarationRangesFromSyntax wrapper stx
     declareBuiltin blockName <|
       mkApp3 (.const ``addBuiltinDocCodeBlock [])
         (toExpr blockName) (toExpr wrapper) (.const wrapper [])
-    if (← findInternalDocString? (← getEnv) decl).isSome then
-      addInheritedDocString wrapper decl
     declareBuiltinDocStringAndRanges wrapper
 }
 
@@ -964,15 +1206,11 @@ builtin_initialize registerBuiltinAttribute {
   descr := "docstring code block suggestion provider"
   applicationTime := .afterCompilation
   add := fun decl stx kind => do
-    if let some d := (← getEnv).find? decl then
-      if d.type matches (.forallE _ (.const ``StrLit _)
-          (.app (.const ``DocM _) (.app (.const ``Array _) (.const ``CodeBlockSuggestion _)))
-          .default) then
-        codeBlockSuggestionExt.add decl
-      else
-        throwError "Wrong type for {.ofConstName decl}: {indentD <| repr d.type}"
-    else
-      throwError "{.ofConstName decl} is not defined"
+    let ((name, _), _) ←
+      genSuggesterAdapter decl (.const ``StrLit []) (.const ``CodeBlockSuggestion [])
+          (alsoAccept := #[.const ``Lean.Doc.VersoCodeBlock []])
+        |>.run {} {} |>.run {} {}
+    codeBlockSuggestionExt.add name
 }
 
 /--
@@ -1000,16 +1238,12 @@ builtin_initialize registerBuiltinAttribute {
   descr := "builtin docstring code block suggestion provider"
   applicationTime := .afterCompilation
   add := fun decl stx kind => do
-    if let some d := (← getEnv).find? decl then
-      if d.type matches (.forallE _ (.const ``StrLit _)
-          (.app (.const ``DocM _) (.app (.const ``Array _) (.const ``CodeBlockSuggestion _)))
-          .default) then
-        declareBuiltin decl <|
-          mkApp2 (.const ``addBuiltinCodeBlockSuggestion []) (toExpr decl) (.const decl [])
-      else
-        throwError "Wrong type for {.ofConstName decl}: {indentD <| repr d.type}"
-    else
-      throwError "{.ofConstName decl} is not defined"
+    let ((name, _), _) ←
+      genSuggesterAdapter decl (.const ``StrLit []) (.const ``CodeBlockSuggestion [])
+          (alsoAccept := #[.const ``Lean.Doc.VersoCodeBlock []])
+        |>.run {} {} |>.run {} {}
+    declareBuiltin decl <|
+      mkApp2 (.const ``addBuiltinCodeBlockSuggestion []) (toExpr decl) (.const name [])
 }
 
 builtin_initialize registerBuiltinAttribute {
@@ -1023,14 +1257,13 @@ builtin_initialize registerBuiltinAttribute {
         realizeGlobalConstNoOverloadWithInfo x
       else
         pure decl
-    let argTy : Expr :=
-      .app (.const ``TSyntaxArray [])
-        (mkApp3 (.const ``List.cons [0]) (.const ``SyntaxNodeKind []) (toExpr `block) (.app (.const ``List.nil [0]) (.const ``SyntaxNodeKind [])))
+    let argTy := tSyntaxArrayOfCat `block
     let ret := mkApp2 (.const ``Block [0, 0]) (.const ``ElabInline []) (.const ``ElabBlock [])
-    let ((wrapper, _), _) ← genWrapper decl (some argTy) ret |>.run {} {} |>.run {} {}
+    let ((wrapper, _), _) ←
+      genWrapper decl (some argTy) ret (alsoAccept := #[tSyntaxArrayOfCat ``Parser.block])
+          (view? := directiveViewSpec)
+        |>.run {} {} |>.run {} {}
     docDirectiveExt.add (directiveName, wrapper)
-    if (← findInternalDocString? (← getEnv) decl).isSome then
-      addInheritedDocString wrapper decl
 
 }
 
@@ -1052,17 +1285,16 @@ builtin_initialize registerBuiltinAttribute {
         realizeGlobalConstNoOverloadWithInfo x
       else
         pure decl
-    let argTy : Expr :=
-      .app (.const ``TSyntaxArray [])
-        (mkApp3 (.const ``List.cons [0]) (.const ``SyntaxNodeKind []) (toExpr `block) (.app (.const ``List.nil [0]) (.const ``SyntaxNodeKind [])))
+    let argTy := tSyntaxArrayOfCat `block
     let ret := mkApp2 (.const ``Block [0, 0]) (.const ``ElabInline []) (.const ``ElabBlock [])
-    let ((wrapper, _), _) ← genWrapper decl (some argTy) ret |>.run {} {} |>.run {} {}
+    let ((wrapper, _), _) ←
+      genWrapper decl (some argTy) ret (alsoAccept := #[tSyntaxArrayOfCat ``Parser.block])
+          (view? := directiveViewSpec)
+        |>.run {} {} |>.run {} {}
     addDeclarationRangesFromSyntax wrapper stx
     declareBuiltin directiveName <|
       mkApp3 (.const ``addBuiltinDocDirective [])
         (toExpr directiveName) (toExpr wrapper) (.const wrapper [])
-    if (← findInternalDocString? (← getEnv) decl).isSome then
-      addInheritedDocString wrapper decl
     declareBuiltinDocStringAndRanges wrapper
 }
 
@@ -1079,10 +1311,9 @@ builtin_initialize registerBuiltinAttribute {
         pure decl
 
     let ret := mkApp2 (.const ``Block [0, 0]) (.const ``ElabInline []) (.const ``ElabBlock [])
-    let ((wrapper, _), _) ← genWrapper decl none ret |>.run {} {} |>.run {} {}
+    let ((wrapper, _), _) ←
+      genWrapper decl none ret (view? := commandViewSpec) |>.run {} {} |>.run {} {}
     docCommandExt.add (commandName, wrapper)
-    if (← findInternalDocString? (← getEnv) decl).isSome then
-      addInheritedDocString wrapper decl
 }
 
 /--
@@ -1105,13 +1336,12 @@ builtin_initialize registerBuiltinAttribute {
         pure decl
 
     let ret := mkApp2 (.const ``Block [0, 0]) (.const ``ElabInline []) (.const ``ElabBlock [])
-    let ((wrapper, _), _) ← genWrapper decl none ret |>.run {} {} |>.run {} {}
+    let ((wrapper, _), _) ←
+      genWrapper decl none ret (view? := commandViewSpec) |>.run {} {} |>.run {} {}
     addDeclarationRangesFromSyntax wrapper stx
     declareBuiltin commandName <|
       mkApp3 (.const ``addBuiltinDocCommand [])
         (toExpr commandName) (toExpr wrapper) (.const wrapper [])
-    if (← findInternalDocString? (← getEnv) decl).isSome then
-      addInheritedDocString wrapper decl
     declareBuiltinDocStringAndRanges wrapper
 }
 
@@ -1188,19 +1418,19 @@ builtin_initialize registerBuiltinAttribute {
 }
 end
 
-unsafe def codeSuggestionsUnsafe : TermElabM (Array (StrLit → DocM (Array CodeSuggestion))) := do
+unsafe def codeSuggestionsUnsafe : TermElabM (Array CodeSuggester) := do
   let names := (codeSuggestionExt.getState (← getEnv)) |>.toArray
   return (← names.mapM (evalConst _)) ++ (← builtinCodeSuggestions.get).map (·.2)
 
 @[implemented_by codeSuggestionsUnsafe]
-opaque codeSuggestions : TermElabM (Array (StrLit → DocM (Array CodeSuggestion)))
+opaque codeSuggestions : TermElabM (Array CodeSuggester)
 
-unsafe def codeBlockSuggestionsUnsafe : TermElabM (Array (StrLit → DocM (Array CodeBlockSuggestion))) := do
+unsafe def codeBlockSuggestionsUnsafe : TermElabM (Array CodeBlockSuggester) := do
   let names := (codeBlockSuggestionExt.getState (← getEnv)) |>.toArray
   return (← names.mapM (evalConst _)) ++ (← builtinCodeBlockSuggestions.get).map (·.2)
 
 @[implemented_by codeBlockSuggestionsUnsafe]
-opaque codeBlockSuggestions : TermElabM (Array (StrLit → DocM (Array CodeBlockSuggestion)))
+opaque codeBlockSuggestions : TermElabM (Array CodeBlockSuggester)
 
 /--
 Resolves a name against `NameMap` that contains a list of builtin expanders, taking into account
@@ -1240,7 +1470,7 @@ def resolveBuiltinDocName {α : Type} (builtins : NameMap α) (x : Name) : TermE
   return none
 
 unsafe def roleExpandersForUnsafe (roleName : Ident) :
-    TermElabM (Array (Name × (TSyntaxArray `inline → StateT (Array (TSyntax `doc_arg)) DocM (Inline ElabInline)))) := do
+    TermElabM (Array (Name × DocRoleExpander)) := do
   let x? ←
     try some <$> realizeGlobalConstNoOverload roleName
     catch | _ => pure none
@@ -1260,10 +1490,10 @@ unsafe def roleExpandersForUnsafe (roleName : Ident) :
 
 @[implemented_by roleExpandersForUnsafe]
 opaque roleExpandersFor (roleName : Ident) :
-  TermElabM (Array (Name × (TSyntaxArray `inline → StateT (Array (TSyntax `doc_arg)) DocM (Inline ElabInline))))
+  TermElabM (Array (Name × DocRoleExpander))
 
 unsafe def codeBlockExpandersForUnsafe (codeBlockName : Ident) :
-    TermElabM (Array (Name × (StrLit → StateT (Array (TSyntax `doc_arg)) DocM (Block ElabInline ElabBlock)))) := do
+    TermElabM (Array (Name × DocCodeBlockExpander)) := do
   let x? ←
     try some <$> realizeGlobalConstNoOverload codeBlockName
     catch | _ => pure none
@@ -1279,7 +1509,7 @@ unsafe def codeBlockExpandersForUnsafe (codeBlockName : Ident) :
 
 @[implemented_by codeBlockExpandersForUnsafe]
 opaque codeBlockExpandersFor (codeBlockName : Ident) :
-  TermElabM (Array (Name × (StrLit → StateT (Array (TSyntax `doc_arg)) DocM (Block ElabInline ElabBlock))))
+  TermElabM (Array (Name × DocCodeBlockExpander))
 
 unsafe def directiveExpandersForUnsafe (directiveName : Ident) :
     TermElabM (Array (Name × (TSyntaxArray `block → StateT (Array (TSyntax `doc_arg)) DocM (Block ElabInline ElabBlock)))) := do
@@ -1319,30 +1549,30 @@ opaque commandExpandersFor (commandName : Ident) :
   TermElabM (Array (Name × StateT (Array (TSyntax `doc_arg)) DocM (Block ElabInline ElabBlock)))
 
 
-def mkArgVal (arg : TSyntax `arg_val) : DocM Term :=
-  match arg with
-  | `(arg_val|$n:ident) => pure n
-  | `(arg_val|$n:num) => pure n
-  | `(arg_val|$s:str) => pure s
-  | _ => throwErrorAt arg "Didn't understand as argument value"
+def mkArgVal (arg : TSyntax ``Parser.argVal) : DocM Term :=
+  match ArgValView.of arg with
+  | some (.name n) => pure n
+  | some (.num n _) => pure n
+  | some (.str s _) => pure s
+  | none => throwErrorAt arg "Didn't understand as argument value"
 
 def mkArg (arg : TSyntax `doc_arg) : DocM (TSyntax ``Parser.Term.argument) := do
-  match arg with
-  | `(doc_arg|$x:arg_val) =>
-    let x ← mkArgVal x
+  match ArgView.of arg with
+  | some (.anon _ v) =>
+    let x ← mkArgVal v
     `(Parser.Term.argument| $x:term)
-  | `(doc_arg|+$x) =>
+  | some (.flag _ _ x true) =>
     `(Parser.Term.argument| ($x := true))
-  | `(doc_arg|-$x) =>
+  | some (.flag _ _ x false) =>
     `(Parser.Term.argument| ($x := false))
-  | `(doc_arg|($x := $v)) =>
+  | some (.named _ (some _) x _ v) =>
     let v ← mkArgVal v
     `(Parser.Term.argument| ($x := $v))
-  | `(doc_arg|$x:ident := $v) =>
+  | some (.named _ none x _ v) =>
     logWarningAt arg "Obsolete syntax" -- TODO suggestion
     let v ← mkArgVal v
     `(Parser.Term.argument| ($x := $v))
-  | _ => throwErrorAt arg "Didn't understand as argument"
+  | none => throwErrorAt arg "Didn't understand as argument"
 
 def mkAppStx (name : Ident) (args : TSyntaxArray `doc_arg) : DocM Term := do
   return ⟨mkNode ``Parser.Term.app #[name, mkNullNode (← args.mapM mkArg)]⟩
@@ -1482,34 +1712,54 @@ def throwUnknownDocElem {α β : Type}
     throwErrorAt name m!"Unknown {kind} `{name}`{hint}"
 
 /--
+Returns the name of a footnote or link reference.
+-/
+private def refName (name : VersoRefName) : DocM String := do
+  -- The parser reads a name with `refNameFn`, which allows the same set of characters as these. If
+  -- this exception is thrown, it's due to metaprograms behaving badly.
+  let str := name.getVersoRefName
+  if str.isEmpty then
+    throwErrorAt name "A reference name may not be empty"
+  if let some c := (str.find? (!Doc.Parser.isRefNameChar ·)).map (·.get!) then
+    throwErrorAt name m!"A reference name may not contain {repr c}"
+  return str
+
+/--
 Elaborates the syntax of an inline document element to an actual inline document element.
 -/
-public partial def elabInline (stx : TSyntax `inline) : DocM (Inline ElabInline) :=
+public partial def elabInline (stx : TSyntax ``Parser.inline) :
+    DocM (Inline ElabInline) :=
   withRef stx <|
   withInfoContext (mkInfo := pure <| .ofDocInfo {elaborator := decl_name%, stx := stx}) do
-  match stx with
-  | `(inline|$s:str) =>
-    return .text s.getString
-  | `(inline|_[$inl*]) =>
-    return .emph (← inl.mapM elabInline)
-  | `(inline|*[$inl*]) =>
-    return .bold (← inl.mapM elabInline)
-  | `(inline|link[$inl*]($url)) =>
-    return .link (← inl.mapM elabInline) url.getString
-  | `(inline|link[$inl*][$name]) =>
-    return .other (delayLink name) (← inl.mapM elabInline)
-  | `(inline|image($alt)($url)) =>
+  let some v := InlineView.of stx
+    | logErrorAt stx m!"Unsupported syntax {stx}"
+      return .empty
+  match v with
+  | .text v =>
+    return .text v.getVersoText
+  | .emph { content, .. } =>
+    return .emph (← content.mapM elabInline)
+  | .bold { content, ..} =>
+    return .bold (← content.mapM elabInline)
+  | .link { content, target := .url _ _ url _, .. } =>
+    return .link (← content.mapM elabInline) url.getVersoLinkUrl
+  | .link { content, target := .ref _ _ name _, .. } =>
+    return .other (delayLink name) (← content.mapM elabInline)
+  | .image { alt, target := .url _ _ url _, .. } =>
     -- TODO forward ref to URL
-    return .image alt.getString url.getString
-  | `(inline|image($alt)[$name]) =>
-    return .other (delayImage alt.getString name) #[]
-  | `(inline|footnote($ref)) =>
-    return .other (delayFootnote ref) #[]
-  | `(inline|line!$s) =>
-    return .linebreak s.getString
-  | `(inline|code($s)) =>
+    return .image alt.getVersoImageAlt url.getVersoLinkUrl
+  | .image { alt, target := .ref _ _ name _, .. } =>
+    return .other (delayImage alt.getVersoImageAlt name) #[]
+  | .footnote { name, .. } =>
+    return .other (delayFootnote name) #[]
+  | .linebreak v =>
+    return .linebreak v.newline.getAtomVal
+  | .code v =>
+    let content := v.content
+    let code := v.getVersoCode
     if doc.verso.suggestions.get (← getOptions) then
       if let some ⟨b, e⟩ := stx.raw.getRange? then
+        let s := strLitOfContent code content
         let suggesters ← codeSuggestions
         let mut suggestions := #[]
         for suggest in suggesters do
@@ -1536,16 +1786,14 @@ public partial def elabInline (stx : TSyntax `inline) : DocM (Inline ElabInline)
           let ss := ss.push litSuggestion
           let hint ← mkSuggestion stx m!"Insert a role to document it:" ss
           logWarning m!"Code element could be more specific.{hint}"
-    return .code s.getString
-  | `(inline|\math code($s)) =>
-    return .math .inline s.getString
-  | `(inline|\displaymath code($s)) =>
-    return .math .display s.getString
-  | `(inline|role{$name $args*}[$inl*]) =>
+    return .code code
+  | .math v =>
+    return .math v.mode v.getVersoCode
+  | .role { name, args, content, .. } =>
     let expanders ← roleExpandersFor name
     for (exName, ex) in expanders do
       try
-        let res ← ex inl args <&> (·.1)
+        let res ← ex (asInlineCat content) (asArgCat args) <&> (·.1)
         pushInfoLeaf <| .ofDocElabInfo {
           elaborator := exName,
           stx := name,
@@ -1560,8 +1808,6 @@ public partial def elabInline (stx : TSyntax `inline) : DocM (Inline ElabInline)
           else throw e
         | e => throw e
     throwUnknownDocElem (docRoleExt.getState (← getEnv)) (← builtinDocRoles.get) name "role"
-  | other =>
-    throwErrorAt other "Unsupported syntax {other}"
 where
   withSpace (s : String) : String :=
     if s.startsWith " " then s else " " ++ s
@@ -1569,51 +1815,53 @@ where
 /--
 Elaborates the syntax of an block-level document element to an actual block-level document element.
 -/
-public partial def elabBlock (stx : TSyntax `block) : DocM (Block ElabInline ElabBlock) :=
+public partial def elabBlock (stx : TSyntax ``Parser.block) :
+    DocM (Block ElabInline ElabBlock) :=
   withRef stx <|
   withInfoContext (mkInfo := pure <| .ofDocInfo {elaborator := decl_name%, stx := stx}) do
-  match stx with
-  | `(block|para[$inls*]) =>
-    .para <$> inls.mapM elabInline
-  | `(block| > $blocks*) =>
-    .blockquote <$> blocks.mapM elabBlock
-  | `(block|ul{$[* $itemss*]*}) =>
-    .ul <$> itemss.mapM fun items =>
-      .mk <$> items.mapM elabBlock
-  | `(block|ol($n){$[* $itemss*]*}) =>
-    .ol n.getNat <$> itemss.mapM fun items =>
-      .mk <$> items.mapM elabBlock
-  | `(block|dl{$items*}) =>
-    .dl <$> items.mapM fun itemStx =>
-      withRef itemStx do
-      match itemStx with
-      | `(desc_item|: $term* => $desc*) =>
-        return .mk (← term.mapM elabInline) (← desc.mapM elabBlock)
-      | _ => throwUnsupportedSyntax
-  | `(block|[^$ref]: $content*) =>
-    let refStr := ref.getString
+  let some v := BlockView.of stx
+    | logErrorAt stx m!"Unsupported syntax: {stx}"
+      return .empty
+  match v with
+  | .para { content, .. } =>
+    .para <$> content.mapM elabInline
+  | .blockquote { content, .. } =>
+    .blockquote <$> content.mapM elabBlock
+  | .ul { items, .. } =>
+    .ul <$> items.mapM fun item =>
+      .mk <$> item.contents.mapM elabBlock
+  | .ol { start, items, .. } =>
+    .ol start <$> items.mapM fun item =>
+      .mk <$> item.contents.mapM elabBlock
+  | .dl { items, .. } =>
+    .dl <$> items.mapM fun item =>
+      withRef item.stx do
+        return .mk (← item.term.mapM elabInline) (← item.desc.mapM elabBlock)
+  | .footnoteRef v =>
+    let refStr ← refName v.name
     if (← getThe InternalState).footnotes.contains refStr then
-      throwErrorAt ref m!"Reference already found"
+      throwErrorAt v.name m!"Reference already found"
     else
-      let content ← content.mapM elabInline
+      let content ← v.content.mapM elabInline
       modifyThe InternalState fun st =>
         { st with
-          footnotes := st.footnotes.insert refStr { content := .concat content, location := ref } }
+          footnotes :=
+            st.footnotes.insert refStr { content := .concat content, location := v.name } }
     return .empty
-  | `(block|[$ref]: $url) =>
-    let refStr := ref.getString
+  | .linkRef v =>
+    let refStr ← refName v.name
     if (← getThe InternalState).urls.contains refStr then
-      throwErrorAt ref m!"Reference already found"
+      throwErrorAt v.name m!"Reference already found"
     else
       modifyThe InternalState fun st =>
         { st with
-          urls := st.urls.insert refStr { content := url.getString, location := ref } }
+          urls := st.urls.insert refStr { content := v.getUrl, location := v.name } }
     return .empty
-  | `(block| ::: $name $args* { $content*}) =>
+  | .directive { name, args, content, .. } =>
     let expanders ← directiveExpandersFor name
     for (exName, ex) in expanders do
       try
-        let res ← ex content args <&> (·.1)
+        let res ← ex (asBlockCat content) (asArgCat args) <&> (·.1)
         pushInfoLeaf <| .ofDocElabInfo {
           elaborator := exName,
           stx := name,
@@ -1628,9 +1876,10 @@ public partial def elabBlock (stx : TSyntax `block) : DocM (Block ElabInline Ela
           else throw e
         | e => throw e
     throwUnknownDocElem (docDirectiveExt.getState (← getEnv)) (← builtinDocDirectives.get) name "directive"
-  | `(block| ```%$opener | $s ```) =>
+  | .codeblock { name? := none, openFence := opener,  content, .. } =>
+    let s := strLitOfContent content.getVersoCodeBlock content
     if doc.verso.suggestions.get (← getOptions) then
-      if let some ⟨b, e⟩ := opener.getRange? then
+      if let some ⟨b, e⟩ := opener.raw.getRange? then
         let suggesters ← codeBlockSuggestions
         let mut suggestions := #[]
         for suggest in suggesters do
@@ -1652,11 +1901,12 @@ public partial def elabBlock (stx : TSyntax `block) : DocM (Block ElabInline Ela
           let hint ← mkSuggestion opener m!"Insert a specific kind of code block:" ss
           logWarning m!"Code block could be more specific.{hint}"
     return .code s.getString
-  | `(block| ```$name $args* | $s ```) =>
+  | .codeblock { name? := some name, args, content, .. } =>
+    let s := strLitOfContent content.getVersoCodeBlock content
     let expanders ← codeBlockExpandersFor name
     for (exName, ex) in expanders do
       try
-        let res ← ex s args <&> (·.1)
+        let res ← ex s (asArgCat args) <&> (·.1)
         pushInfoLeaf <| .ofDocElabInfo {
           elaborator := exName,
           stx := name,
@@ -1671,11 +1921,11 @@ public partial def elabBlock (stx : TSyntax `block) : DocM (Block ElabInline Ela
           else throw e
         | e => throw e
     throwUnknownDocElem (docCodeBlockExt.getState (← getEnv)) (← builtinDocCodeBlocks.get) name "code block"
-  | `(block| command{$name $args*}) =>
+  | .command { name, args, .. } =>
     let expanders ← commandExpandersFor name
     for (exName, ex) in expanders do
       try
-        let res ← ex args <&> (·.1)
+        let res ← ex (asArgCat args) <&> (·.1)
         pushInfoLeaf <| .ofDocElabInfo {
           elaborator := exName,
           stx := name,
@@ -1690,13 +1940,13 @@ public partial def elabBlock (stx : TSyntax `block) : DocM (Block ElabInline Ela
           else throw e
         | e => throw e
     throwUnknownDocElem (docCommandExt.getState (← getEnv)) (← builtinDocCommands.get) name "document command"
-  | `(block|%%%$_*%%%) =>
+  | .metadata .. =>
     let h ←
       if stx.raw.getRange?.isSome then m!"Remove it".hint #[""] (ref? := stx)
       else pure m!""
     logError m!"Part metadata is not supported in docstrings.{h}"
     return .empty
-  | other => throwErrorAt other "Unsupported syntax: {other}"
+  | .header .. => throwErrorAt stx "Unsupported syntax: {stx}"
 where
   withSpace (s : String) : String :=
     if s.endsWith " " then s else s ++ " "
@@ -1707,20 +1957,21 @@ def takeFirst? (xs : Array α) : Option (α × Array α) :=
   else none
 
 partial def elabBlocks' (level : Nat) :
-    StateT (TSyntaxArray `block) DocM (Array (Block ElabInline ElabBlock) × Array (Part ElabInline ElabBlock Empty)) := do
+    StateT (TSyntaxArray ``Parser.block) DocM
+      (Array (Block ElabInline ElabBlock) × Array (Part ElabInline ElabBlock Empty)) := do
   let mut pre := #[]
   let mut sub := #[]
   repeat
-    if let some (x, xs) := takeFirst? (← getThe (TSyntaxArray `block)) then
-      if let `(block|header($n){$name*}) := x then
-        let n := n.getNat
+    let blocks ← getThe (TSyntaxArray ``Parser.block)
+    if let some (x, xs) := takeFirst? blocks then
+      if let some (.header { level := n, content := headerName, .. }) := BlockView.of x then
         if n < level then return (pre, sub)
         else if n = level then
           set xs
           let (content, subParts) ← elabBlocks' (level + 1)
           let title ←
             liftM <| withInfoContext (mkInfo := pure <| .ofDocInfo {elaborator := `no_elab, stx := x}) <|
-              name.mapM elabInline
+              headerName.mapM elabInline
           let mdTitle ← MarkdownM.run' (ToMarkdown.toMarkdown (Inline.concat title))
           sub := sub.push {
             title,
@@ -1743,15 +1994,15 @@ partial def elabBlocks' (level : Nat) :
   return (pre, sub)
 
 def elabModSnippet'
-    (range : DeclarationRange) (level : Nat) (blocks : TSyntaxArray `block) :
+    (range : DeclarationRange) (level : Nat)
+    (blocks : TSyntaxArray ``Parser.block) :
     DocM VersoModuleDocs.Snippet := do
   let mut snippet : VersoModuleDocs.Snippet := {
     declarationRange := range
   }
   let mut maxLevel := level
   for b in blocks do
-    if let `(block|header($n){$name*}) := b then
-        let n := n.getNat
+    if let some (.header { level := n, content, .. }) := BlockView.of b then
         if n > maxLevel then
           logErrorAt b m!"Incorrect header nesting: expected at most `{"#".pushn '#' maxLevel}` \
             but got `{"#".pushn '#' n}`"
@@ -1759,7 +2010,7 @@ def elabModSnippet'
           maxLevel := n + 1
           let title ←
             liftM <| withInfoContext (mkInfo := pure <| .ofDocInfo {elaborator := `no_elab, stx := b}) <|
-              name.mapM elabInline
+              content.mapM elabInline
           let some headerRange ← getDeclarationRange? b
             | throwErrorAt b "Can't find header source position"
           let mdTitle ← MarkdownM.run' (ToMarkdown.toMarkdown (Inline.concat title))
@@ -1788,7 +2039,7 @@ partial def fixupInline (inl : Inline ElabInline) : DocM (Inline ElabInline) := 
     let some val := getCustom i
       | .other i <$> xs.mapM fixupInline
     if let some { name } := val.get? ElabLink then
-      let nameStr := name.getString
+      let nameStr ← refName name
       if let some r@{content := url, seen, .. } := (← getThe InternalState).urls[nameStr]? then
         unless seen do modifyThe InternalState fun st => { st with urls := st.urls.insert nameStr { r with seen := true } }
         return .link (← xs.mapM fixupInline) url
@@ -1796,7 +2047,7 @@ partial def fixupInline (inl : Inline ElabInline) : DocM (Inline ElabInline) := 
         logErrorAt name "Reference not found"
         return .concat (← xs.mapM fixupInline)
     else if let some { alt, name } := val.get? ElabImage then
-      let nameStr := name.getString
+      let nameStr ← refName name
       if let some r@{content := url, seen, ..} := (← getThe InternalState).urls[nameStr]? then
         unless seen do modifyThe InternalState fun st => { st with urls := st.urls.insert nameStr { r with seen := true } }
         return .image alt url
@@ -1804,7 +2055,7 @@ partial def fixupInline (inl : Inline ElabInline) : DocM (Inline ElabInline) := 
         logErrorAt name "Reference not found"
         return .empty
     else if let some { name } := val.get? ElabFootnote then
-      let nameStr := name.getString
+      let nameStr ← refName name
       if let some r@{ content, seen, .. } := (← getThe InternalState).footnotes[nameStr]? then
         unless seen do modifyThe InternalState fun st =>
           { st with footnotes := st.footnotes.insert nameStr { r with seen := true } }
@@ -1865,7 +2116,7 @@ def warnUnusedRefs : DocM Unit := do
       logWarningAt location "Unused footnote"
 
 /-- Elaborates a sequence of blocks into a document. -/
-public def elabBlocks (blocks : TSyntaxArray `block) :
+public def elabBlocks (blocks : TSyntaxArray ``Parser.block) :
     DocM (Array (Block ElabInline ElabBlock) × Array (Part ElabInline ElabBlock Empty)) := do
   -- Users should not need to make import needed for embedded terms public
   withoutExporting do
@@ -1876,7 +2127,8 @@ public def elabBlocks (blocks : TSyntaxArray `block) :
 
 /-- Elaborates a sequence of blocks into a module doc snippet. -/
 public def elabModSnippet
-    (range : DeclarationRange) (blocks : TSyntaxArray `block) (nestingLevel : Nat) :
+    (range : DeclarationRange) (blocks : TSyntaxArray ``Parser.block)
+    (nestingLevel : Nat) :
     DocM (VersoModuleDocs.Snippet) := do
   let s ← elabModSnippet' range nestingLevel blocks
   let s ← fixupSnippet s

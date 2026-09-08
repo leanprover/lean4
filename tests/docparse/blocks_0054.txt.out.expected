@@ -1,180 +1,223 @@
+Input: "\nError recovery tests:\n\n* [busted link\n\n* [busted\n   link\n\n* [busted\n   _italics\n   link\n\n\n* [busted destination](hey\n\n* ![busted image alt text\n\n* ![busted image link](image.png\n\n* a *bold choice\n\n* very _italic *and bold, onto many\n   lines is OK* but don't forget...\n\na paragraph with [a bad link syntax](http://example.com\nis OK. The rest *works*.\n"
 10 failures:
-  @38 (⟨4, 14⟩): expected ']'
-    "\n\n* [busted\n   link\n\n* [busted\n   _italics\n   link\n\n\n* [busted destination](hey\n\n* ![busted image alt text\n\n* ![busted image link](image.png\n\n* a *bold choice\n\n* very _italic *and bold, onto many\n   lines is OK* but don't forget...\n\na paragraph with [a bad link syntax](http://example.com\nis OK. The rest *works*.\n"
-  @57 (⟨7, 7⟩): expected ']'
-    "\n\n* [busted\n   _italics\n   link\n\n\n* [busted destination](hey\n\n* ![busted image alt text\n\n* ![busted image link](image.png\n\n* a *bold choice\n\n* very _italic *and bold, onto many\n   lines is OK* but don't forget...\n\na paragraph with [a bad link syntax](http://example.com\nis OK. The rest *works*.\n"
-  @88 (⟨11, 7⟩): '_'
-    "\n\n\n* [busted destination](hey\n\n* ![busted image alt text\n\n* ![busted image link](image.png\n\n* a *bold choice\n\n* very _italic *and bold, onto many\n   lines is OK* but don't forget...\n\na paragraph with [a bad link syntax](http://example.com\nis OK. The rest *works*.\n"
-  @88 (⟨11, 7⟩): expected ']'
-    "\n\n\n* [busted destination](hey\n\n* ![busted image alt text\n\n* ![busted image link](image.png\n\n* a *bold choice\n\n* very _italic *and bold, onto many\n   lines is OK* but don't forget...\n\na paragraph with [a bad link syntax](http://example.com\nis OK. The rest *works*.\n"
-  @117 (⟨14, 26⟩): expected ')'
-    "\n\n* ![busted image alt text\n\n* ![busted image link](image.png\n\n* a *bold choice\n\n* very _italic *and bold, onto many\n   lines is OK* but don't forget...\n\na paragraph with [a bad link syntax](http://example.com\nis OK. The rest *works*.\n"
-  @144 (⟨16, 25⟩): expected ']'
-    "\n\n* ![busted image link](image.png\n\n* a *bold choice\n\n* very _italic *and bold, onto many\n   lines is OK* but don't forget...\n\na paragraph with [a bad link syntax](http://example.com\nis OK. The rest *works*.\n"
-  @178 (⟨18, 32⟩): expected ')'
-    "\n\n* a *bold choice\n\n* very _italic *and bold, onto many\n   lines is OK* but don't forget...\n\na paragraph with [a bad link syntax](http://example.com\nis OK. The rest *works*.\n"
-  @196 (⟨20, 16⟩): '*'
-    "\n\n* very _italic *and bold, onto many\n   lines is OK* but don't forget...\n\na paragraph with [a bad link syntax](http://example.com\nis OK. The rest *works*.\n"
-  @269 (⟨23, 35⟩): '_'
-    "\n\na paragraph with [a bad link syntax](http://example.com\nis OK. The rest *works*.\n"
-  @326 (⟨25, 55⟩): expected ')'
-    "\nis OK. The rest *works*.\n"
+Failure: expected ']'
+ --> 4:14
+  |
+4 | * [busted link
+  |               ^
+  = consumed input prefix: 38 bytes
+
+Failure: expected ']'
+ --> 7:7
+  |
+7 |    link
+  |        ^
+  = consumed input prefix: 57 bytes
+
+Failure: expected ']'
+  --> 11:7
+   |
+11 |    link
+   |        ^
+   = consumed input prefix: 88 bytes
+
+Failure: unexpected newline; expected '_' to close emphasis
+  --> 11:7
+   |
+11 |    link
+   |        ^
+   = consumed input prefix: 88 bytes
+
+Failure: expected ')'
+  --> 14:26
+   |
+14 | * [busted destination](hey
+   |                           ^
+   = consumed input prefix: 117 bytes
+
+Failure: expected ']'
+  --> 16:25
+   |
+16 | * ![busted image alt text
+   |                          ^
+   = consumed input prefix: 144 bytes
+
+Failure: expected ')'
+  --> 18:32
+   |
+18 | * ![busted image link](image.png
+   |                                 ^
+   = consumed input prefix: 178 bytes
+
+Failure: unexpected newline; expected '*' to close bold text
+  --> 20:16
+   |
+20 | * a *bold choice
+   |                 ^
+   = consumed input prefix: 196 bytes
+
+Failure: unexpected newline; expected '_' to close emphasis
+  --> 23:35
+   |
+23 |    lines is OK* but don't forget...
+   |                                    ^
+   = consumed input prefix: 269 bytes
+
+Failure: expected ')'
+  --> 25:55
+   |
+25 | a paragraph with [a bad link syntax](http://example.com
+   |                                                        ^
+   = consumed input prefix: 326 bytes
 
 Final stack:
-  [(Lean.Doc.Syntax.para
-    "para{"
-    [(Lean.Doc.Syntax.linebreak
-      "line!"
-      (str "\"\\n\""))
-     (Lean.Doc.Syntax.text
-      (str "\"Error recovery tests:\""))]
-    "}")
-   (Lean.Doc.Syntax.ul
-    "ul{"
-    [(Lean.Doc.Syntax.li
-      "*"
-      [(Lean.Doc.Syntax.para
-        "para{"
-        [(Lean.Doc.Syntax.link
+  [(Lean.Doc.Parser.Block.para
+    [(Lean.Doc.Parser.Inline.linebreak "\n")
+     (Lean.Doc.Parser.Inline.text
+      (Lean.Doc.Parser.versoText
+       "Error recovery tests:"))])
+   (Lean.Doc.Parser.Block.ul
+    [(Lean.Doc.Parser.ListItem.item
+      (Lean.Doc.Parser.listMarker "*")
+      [(Lean.Doc.Parser.Block.para
+        [(Lean.Doc.Parser.Inline.link
           "["
-          [(Lean.Doc.Syntax.text
-            (str "\"busted link\""))]
-          <missing>)]
-        "}")])
-     (Lean.Doc.Syntax.li
-      "*"
-      [(Lean.Doc.Syntax.para
-        "para{"
-        [(Lean.Doc.Syntax.link
+          [(Lean.Doc.Parser.Inline.text
+            (Lean.Doc.Parser.versoText
+             "busted link"))]
+          <missing>)])])
+     (Lean.Doc.Parser.ListItem.item
+      (Lean.Doc.Parser.listMarker "*")
+      [(Lean.Doc.Parser.Block.para
+        [(Lean.Doc.Parser.Inline.link
           "["
-          [(Lean.Doc.Syntax.text
-            (str "\"busted\""))
-           (Lean.Doc.Syntax.linebreak
-            "line!"
-            (str "\"\\n\""))
-           (Lean.Doc.Syntax.text
-            (str "\"   link\""))]
-          <missing>)]
-        "}")])
-     (Lean.Doc.Syntax.li
-      "*"
-      [(Lean.Doc.Syntax.para
-        "para{"
-        [(Lean.Doc.Syntax.link
+          [(Lean.Doc.Parser.Inline.text
+            (Lean.Doc.Parser.versoText "busted"))
+           (Lean.Doc.Parser.Inline.linebreak "\n")
+           (Lean.Doc.Parser.Inline.text
+            (Lean.Doc.Parser.versoText
+             "   link"))]
+          <missing>)])])
+     (Lean.Doc.Parser.ListItem.item
+      (Lean.Doc.Parser.listMarker "*")
+      [(Lean.Doc.Parser.Block.para
+        [(Lean.Doc.Parser.Inline.link
           "["
-          [(Lean.Doc.Syntax.text
-            (str "\"busted\""))
-           (Lean.Doc.Syntax.linebreak
-            "line!"
-            (str "\"\\n\""))
-           (Lean.Doc.Syntax.text (str "\"   \""))
-           (Lean.Doc.Syntax.emph
-            "_"
-            [(Lean.Doc.Syntax.text
-              (str "\"italics\""))
-             (Lean.Doc.Syntax.linebreak
-              "line!"
-              (str "\"\\n\""))
-             (Lean.Doc.Syntax.text
-              (str "\"   link\""))]
-            <missing>)]
-          <missing>)]
-        "}")])
-     (Lean.Doc.Syntax.li
-      "*"
-      [(Lean.Doc.Syntax.para
-        "para{"
-        [(Lean.Doc.Syntax.link
+          [(Lean.Doc.Parser.Inline.text
+            (Lean.Doc.Parser.versoText "busted"))
+           (Lean.Doc.Parser.Inline.linebreak "\n")
+           (Lean.Doc.Parser.Inline.text
+            (Lean.Doc.Parser.versoText "   "))
+           (Lean.Doc.Parser.Inline.emph
+            (Lean.Doc.Parser.emphDelimiter "_")
+            [(Lean.Doc.Parser.Inline.text
+              (Lean.Doc.Parser.versoText
+               "italics"))
+             (Lean.Doc.Parser.Inline.linebreak
+              "\n")
+             (Lean.Doc.Parser.Inline.text
+              (Lean.Doc.Parser.versoText
+               "   link"))]
+            (Lean.Doc.Parser.emphDelimiter
+             <missing>))]
+          <missing>)])])
+     (Lean.Doc.Parser.ListItem.item
+      (Lean.Doc.Parser.listMarker "*")
+      [(Lean.Doc.Parser.Block.para
+        [(Lean.Doc.Parser.Inline.link
           "["
-          [(Lean.Doc.Syntax.text
-            (str "\"busted destination\""))]
+          [(Lean.Doc.Parser.Inline.text
+            (Lean.Doc.Parser.versoText
+             "busted destination"))]
           "]"
-          (Lean.Doc.Syntax.url
+          (Lean.Doc.Parser.LinkTarget.url
            "("
-           (str "\"hey\"")
-           <missing>))]
-        "}")])
-     (Lean.Doc.Syntax.li
-      "*"
-      [(Lean.Doc.Syntax.para
-        "para{"
-        [(Lean.Doc.Syntax.image
+           (Lean.Doc.Parser.versoLinkUrl "hey")
+           <missing>))])])
+     (Lean.Doc.Parser.ListItem.item
+      (Lean.Doc.Parser.listMarker "*")
+      [(Lean.Doc.Parser.Block.para
+        [(Lean.Doc.Parser.Inline.image
           "!["
-          (str "\"busted image alt text\"")
-          <missing>)]
-        "}")])
-     (Lean.Doc.Syntax.li
-      "*"
-      [(Lean.Doc.Syntax.para
-        "para{"
-        [(Lean.Doc.Syntax.image
+          (Lean.Doc.Parser.versoImageAlt
+           "busted image alt text")
+          <missing>)])])
+     (Lean.Doc.Parser.ListItem.item
+      (Lean.Doc.Parser.listMarker "*")
+      [(Lean.Doc.Parser.Block.para
+        [(Lean.Doc.Parser.Inline.image
           "!["
-          (str "\"busted image link\"")
+          (Lean.Doc.Parser.versoImageAlt
+           "busted image link")
           "]"
-          (Lean.Doc.Syntax.url
+          (Lean.Doc.Parser.LinkTarget.url
            "("
-           (str "\"image.png\"")
-           <missing>))]
-        "}")])
-     (Lean.Doc.Syntax.li
-      "*"
-      [(Lean.Doc.Syntax.para
-        "para{"
-        [(Lean.Doc.Syntax.text (str "\"a \""))
-         (Lean.Doc.Syntax.bold
-          "*"
-          [(Lean.Doc.Syntax.text
-            (str "\"bold choice\""))]
-          <missing>)]
-        "}")])
-     (Lean.Doc.Syntax.li
-      "*"
-      [(Lean.Doc.Syntax.para
-        "para{"
-        [(Lean.Doc.Syntax.text (str "\"very \""))
-         (Lean.Doc.Syntax.emph
-          "_"
-          [(Lean.Doc.Syntax.text
-            (str "\"italic \""))
-           (Lean.Doc.Syntax.bold
-            "*"
-            [(Lean.Doc.Syntax.text
-              (str "\"and bold, onto many\""))
-             (Lean.Doc.Syntax.linebreak
-              "line!"
-              (str "\"\\n\""))
-             (Lean.Doc.Syntax.text
-              (str "\"   lines is OK\""))]
-            "*")
-           (Lean.Doc.Syntax.text
-            (str "\" but don't forget...\""))]
-          <missing>)]
-        "}")])]
-    "}")
-   (Lean.Doc.Syntax.para
-    "para{"
-    [(Lean.Doc.Syntax.text
-      (str "\"a paragraph with \""))
-     (Lean.Doc.Syntax.link
+           (Lean.Doc.Parser.versoLinkUrl
+            "image.png")
+           <missing>))])])
+     (Lean.Doc.Parser.ListItem.item
+      (Lean.Doc.Parser.listMarker "*")
+      [(Lean.Doc.Parser.Block.para
+        [(Lean.Doc.Parser.Inline.text
+          (Lean.Doc.Parser.versoText "a "))
+         (Lean.Doc.Parser.Inline.bold
+          (Lean.Doc.Parser.boldDelimiter "*")
+          [(Lean.Doc.Parser.Inline.text
+            (Lean.Doc.Parser.versoText
+             "bold choice"))]
+          (Lean.Doc.Parser.boldDelimiter
+           <missing>))])])
+     (Lean.Doc.Parser.ListItem.item
+      (Lean.Doc.Parser.listMarker "*")
+      [(Lean.Doc.Parser.Block.para
+        [(Lean.Doc.Parser.Inline.text
+          (Lean.Doc.Parser.versoText "very "))
+         (Lean.Doc.Parser.Inline.emph
+          (Lean.Doc.Parser.emphDelimiter "_")
+          [(Lean.Doc.Parser.Inline.text
+            (Lean.Doc.Parser.versoText "italic "))
+           (Lean.Doc.Parser.Inline.bold
+            (Lean.Doc.Parser.boldDelimiter "*")
+            [(Lean.Doc.Parser.Inline.text
+              (Lean.Doc.Parser.versoText
+               "and bold, onto many"))
+             (Lean.Doc.Parser.Inline.linebreak
+              "\n")
+             (Lean.Doc.Parser.Inline.text
+              (Lean.Doc.Parser.versoText
+               "   lines is OK"))]
+            (Lean.Doc.Parser.boldDelimiter "*"))
+           (Lean.Doc.Parser.Inline.text
+            (Lean.Doc.Parser.versoText
+             " but don't forget..."))]
+          (Lean.Doc.Parser.emphDelimiter
+           <missing>))])])])
+   (Lean.Doc.Parser.Block.para
+    [(Lean.Doc.Parser.Inline.text
+      (Lean.Doc.Parser.versoText
+       "a paragraph with "))
+     (Lean.Doc.Parser.Inline.link
       "["
-      [(Lean.Doc.Syntax.text
-        (str "\"a bad link syntax\""))]
+      [(Lean.Doc.Parser.Inline.text
+        (Lean.Doc.Parser.versoText
+         "a bad link syntax"))]
       "]"
-      (Lean.Doc.Syntax.url
+      (Lean.Doc.Parser.LinkTarget.url
        "("
-       (str "\"http://example.com\"")
+       (Lean.Doc.Parser.versoLinkUrl
+        "http://example.com")
        <missing>))
-     (Lean.Doc.Syntax.linebreak
-      "line!"
-      (str "\"\\n\""))
-     (Lean.Doc.Syntax.text
-      (str "\"is OK. The rest \""))
-     (Lean.Doc.Syntax.bold
-      "*"
-      [(Lean.Doc.Syntax.text (str "\"works\""))]
-      "*")
-     (Lean.Doc.Syntax.text (str "\".\""))
-     (Lean.Doc.Syntax.linebreak
-      "line!"
-      (str "\"\\n\""))]
-    "}")]
+     (Lean.Doc.Parser.Inline.linebreak "\n")
+     (Lean.Doc.Parser.Inline.text
+      (Lean.Doc.Parser.versoText
+       "is OK. The rest "))
+     (Lean.Doc.Parser.Inline.bold
+      (Lean.Doc.Parser.boldDelimiter "*")
+      [(Lean.Doc.Parser.Inline.text
+        (Lean.Doc.Parser.versoText "works"))]
+      (Lean.Doc.Parser.boldDelimiter "*"))
+     (Lean.Doc.Parser.Inline.text
+      (Lean.Doc.Parser.versoText "."))
+     (Lean.Doc.Parser.Inline.linebreak "\n")])]
+All input consumed.
+Round-trip not reproduced, as the parse reported errors: leaf without original source info: <missing>

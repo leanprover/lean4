@@ -1,36 +1,48 @@
+Input: " * Here's a bullet\n * and another with some code in it\n    ````lean\n    hey\n\n    there\n    ````\n * and another one\n"
 Success! Final stack:
-  (Lean.Doc.Syntax.ul
-   "ul{"
-   [(Lean.Doc.Syntax.li
-     "*"
-     [(Lean.Doc.Syntax.para
-       "para{"
-       [(Lean.Doc.Syntax.text
-         (str "\"Here's a bullet\""))]
-       "}")])
-    (Lean.Doc.Syntax.li
-     "*"
-     [(Lean.Doc.Syntax.para
-       "para{"
-       [(Lean.Doc.Syntax.text
-         (str
-          "\"and another with some code in it\""))]
-       "}")
-      (Lean.Doc.Syntax.codeblock
-       "````"
+  (Lean.Doc.Parser.Block.ul
+   [(Lean.Doc.Parser.ListItem.item
+     (Lean.Doc.Parser.listMarker "*")
+     [(Lean.Doc.Parser.Block.para
+       [(Lean.Doc.Parser.Inline.text
+         (Lean.Doc.Parser.versoText
+          "Here's a bullet"))])])
+    (Lean.Doc.Parser.ListItem.item
+     (Lean.Doc.Parser.listMarker "*")
+     [(Lean.Doc.Parser.Block.para
+       [(Lean.Doc.Parser.Inline.text
+         (Lean.Doc.Parser.versoText
+          "and another with some code in it"))])
+      (Lean.Doc.Parser.Block.codeblock
+       (Lean.Doc.Parser.codeBlockFence "````")
        [`lean []]
-       "\n"
-       (str "\"hey\\n\\nthere\\n\"")
-       "````")])
-    (Lean.Doc.Syntax.li
-     "*"
-     [(Lean.Doc.Syntax.para
-       "para{"
-       [(Lean.Doc.Syntax.text
-         (str "\"and another one\""))
-        (Lean.Doc.Syntax.linebreak
-         "line!"
-         (str "\"\\n\""))]
-       "}")])]
-   "}")
+       (Lean.Doc.Parser.versoCodeBlock
+        [(Lean.Doc.Parser.versoCodeBlockLine
+          "hey\n")
+         (Lean.Doc.Parser.versoCodeBlockLine "\n")
+         (Lean.Doc.Parser.versoCodeBlockLine
+          "there\n")])
+       (Lean.Doc.Parser.codeBlockFence "````"))])
+    (Lean.Doc.Parser.ListItem.item
+     (Lean.Doc.Parser.listMarker "*")
+     [(Lean.Doc.Parser.Block.para
+       [(Lean.Doc.Parser.Inline.text
+         (Lean.Doc.Parser.versoText
+          "and another one"))
+        (Lean.Doc.Parser.Inline.linebreak
+         "\n")])])])
 All input consumed.
+Round-trip OK
+Decoded views:
+  ul
+    item (marker := "*")
+      para
+        text (content := "Here's a bullet")
+    item (marker := "*")
+      para
+        text (content := "and another with some code in it")
+      codeblock (openFence := "````") (name? := some lean) (args := []) (content := "hey\n\nthere\n") (closeFence := "````")
+    item (marker := "*")
+      para
+        text (content := "and another one")
+        linebreak (newline := "\n")

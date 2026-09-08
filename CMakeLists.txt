@@ -131,12 +131,15 @@ if(USE_MIMALLOC)
     mimalloc
     GIT_REPOSITORY https://github.com/microsoft/mimalloc
     GIT_BRANCH dev3
-    GIT_TAG v3.4.4
+    GIT_TAG v3.5.1
     # Unnecessarily deep directory structure, but it saves us from a complicated
     # stage0 update for now. If we ever update the other dependencies like
     # cadical, it might be worth reorganizing the directory structure.
     SOURCE_DIR
     "${CMAKE_BINARY_DIR}/mimalloc/src/mimalloc"
+    # `git checkout` first so re-configuring an already-patched checkout is a no-op
+    PATCH_COMMAND git checkout -- src/alloc.c src/free.c
+    COMMAND git apply "${LEAN_SOURCE_DIR}/script/mimalloc-used-rmw.patch"
     EXCLUDE_FROM_ALL
   )
   FetchContent_MakeAvailable(mimalloc)

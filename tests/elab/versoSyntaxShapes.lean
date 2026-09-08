@@ -69,46 +69,37 @@ role (bare): agree
 -/
 #guard_msgs in
 #eval show CommandElabM Unit from do
-  let hi : TSyntax `Lean.Doc.Parser.inline :=
-    ⟨← `(Lean.Doc.Parser.Inline.text| $(⟨Syntax.mkLit Lean.Doc.versoTextKind "hi"⟩))⟩
-  let his : TSyntaxArray `Lean.Doc.Parser.inline := #[hi]
-  let code := Syntax.mkLit Lean.Doc.versoCodeKind "x"
-  -- A quotation cannot write a backtick, so the delimiters are spliced too.
-  let fence : TSyntax ``Parser.codeDelimiter :=
-    ⟨Syntax.mkLit ``Parser.codeDelimiter "`"⟩
-  let inlineMath : TSyntax ``Parser.inlineMathMarker :=
-    ⟨Syntax.mkLit ``Parser.inlineMathMarker "$"⟩
-  let displayMath : TSyntax ``Parser.displayMathMarker :=
-    ⟨Syntax.mkLit ``Parser.displayMathMarker "$$"⟩
-  let url := Syntax.mkLit Lean.Doc.versoLinkUrlKind "u"
-  let refName := Syntax.mkLit Lean.Doc.versoRefKind "r"
-  let alt := Syntax.mkLit Lean.Doc.versoImageAltKind "a"
-  let fn := Syntax.mkLit Lean.Doc.versoRefKind "f"
+  let hi ← `(Parser.inline| $(← mkVersoTextFromRef "hi"):versoText)
+  let his : TSyntaxArray ``Parser.inline := #[hi]
+  let code ← mkVersoCodeFromRef "x"
+  let url ← mkVersoLinkUrlFromRef "u"
+  let refName ← mkVersoRefNameFromRef "r"
+  let alt ← mkVersoImageAltFromRef "a"
+  let fn ← mkVersoRefNameFromRef "f"
 
   sameShape "text" "hi" (← parseInline "hi") hi.raw
   sameShape "emph" "_hi_" (← parseInline "_hi_")
-    (← `(Lean.Doc.Parser.Inline.emph| _ $his* _)).raw
+    (← `(Parser.inline| _$his*_)).raw
   sameShape "bold" "*hi*" (← parseInline "*hi*")
-    (← `(Lean.Doc.Parser.Inline.bold| * $his* *)).raw
+    (← `(Parser.inline| *$his**)).raw
   sameShape "code" "`x`" (← parseInline "`x`")
-    (← `(Lean.Doc.Parser.Inline.code| $fence:codeDelimiter $(⟨code⟩) $fence:codeDelimiter)).raw
-  -- `$` begins an antiquotation, so the math indicators are spliced in.
+    (← `(Parser.inline| `$code`)).raw
   sameShape "inline math" "$`x`" (← parseInline "$`x`")
-    (← `(Lean.Doc.Parser.Inline.inline_math| $inlineMath:inlineMathMarker $fence:codeDelimiter $(⟨code⟩) $fence:codeDelimiter)).raw
+    (← `(Parser.inline| $`$code`)).raw
   sameShape "display math" "$$`x`" (← parseInline "$$`x`")
-    (← `(Lean.Doc.Parser.Inline.display_math| $displayMath:displayMathMarker $fence:codeDelimiter $(⟨code⟩) $fence:codeDelimiter)).raw
+    (← `(Parser.inline| $$`$code`)).raw
   sameShape "footnote" "[^f]" (← parseInline "[^f]")
-    (← `(Lean.Doc.Parser.Inline.footnote| [^ $(⟨fn⟩) ])).raw
+    (← `(Parser.inline| [^$fn])).raw
   sameShape "link (url)" "[hi](u)" (← parseInline "[hi](u)")
-    (← `(Lean.Doc.Parser.Inline.link| [ $his* ] ( $(⟨url⟩) ))).raw
+    (← `(Parser.inline| [$his*]($url))).raw
   sameShape "link (ref)" "[hi][r]" (← parseInline "[hi][r]")
-    (← `(Lean.Doc.Parser.Inline.link| [ $his* ] [ $(⟨refName⟩) ])).raw
+    (← `(Parser.inline| [$his*][$refName])).raw
   sameShape "image" "![a](u)" (← parseInline "![a](u)")
-    (← `(Lean.Doc.Parser.Inline.image| ![ $(⟨alt⟩) ] ( $(⟨url⟩) ))).raw
+    (← `(Parser.inline| ![$alt]($url))).raw
   sameShape "role (bracketed)" "{r}[hi]" (← parseInline "{r}[hi]")
-    (← `(Lean.Doc.Parser.Inline.role| { r } [ $his* ])).raw
+    (← `(Parser.inline| {r}[$his*])).raw
   sameShape "role (bare)" "{r}`x`" (← parseInline "{r}`x`")
-    (← `(Lean.Doc.Parser.Inline.role| { r } $fence:codeDelimiter $(⟨code⟩) $fence:codeDelimiter)).raw
+    (← `(Parser.inline| {r}`$code`)).raw
 
 /--
 info: para: agree
@@ -122,29 +113,30 @@ footnote reference: agree
 -/
 #guard_msgs in
 #eval show CommandElabM Unit from do
-  let hi : TSyntax `Lean.Doc.Parser.inline :=
-    ⟨← `(Lean.Doc.Parser.Inline.text| $(⟨Syntax.mkLit Lean.Doc.versoTextKind "hi"⟩))⟩
-  let his : TSyntaxArray `Lean.Doc.Parser.inline := #[hi]
-  let para ← `(Lean.Doc.Parser.Block.para| $his*)
-  let paras : TSyntaxArray `Lean.Doc.Parser.block := #[⟨para.raw⟩]
-  let nm := Syntax.mkLit Lean.Doc.versoRefKind "n"
-  let u := Syntax.mkLit Lean.Doc.versoLinkRefUrlKind "u"
+  let hi ← `(Parser.inline| $(← mkVersoTextFromRef "hi"):versoText)
+  let his : TSyntaxArray ``Parser.inline := #[hi]
+  -- At the category, a leading `$` opens an antiquotation for the whole block, so a paragraph's
+  -- content is spliced with the bracketed form.
+  let para ← `(Parser.block| $[$his]*)
+  let paras : TSyntaxArray ``Parser.block := #[para]
+  let nm ← mkVersoRefNameFromRef "n"
+  let u ← mkVersoLinkRefUrlFromRef "u"
 
   sameShape "para" "hi" (← parseBlock "hi") para.raw
   sameShape "header" "# hi" (← parseBlock "# hi")
-    (← `(Lean.Doc.Parser.Block.header| # $his*)).raw
+    (← `(Parser.block| # $his*)).raw
   sameShape "blockquote" "> hi" (← parseBlock "> hi")
-    (← `(Lean.Doc.Parser.Block.blockquote| > $paras*)).raw
+    (← `(Parser.block| > $paras*)).raw
   sameShape "unordered list" "* hi" (← parseBlock "* hi")
-    (← `(Lean.Doc.Parser.Block.ul| * $paras*)).raw
+    (← `(Parser.block| * $paras*)).raw
   sameShape "ordered list" "1. hi" (← parseBlock "1. hi")
-    (← `(Lean.Doc.Parser.Block.ol| 1. $paras*)).raw
+    (← `(Parser.block| 1. $paras*)).raw
   sameShape "command" "{c}" (← parseBlock "{c}")
-    (← `(Lean.Doc.Parser.Block.command| { c })).raw
+    (← `(Parser.block| {c})).raw
   sameShape "link reference" "[n]: u" (← parseBlock "[n]: u")
-    (← `(Lean.Doc.Parser.Block.link_ref| [ $(⟨nm⟩) ]: $(⟨u⟩))).raw
+    (← `(Parser.block| [$nm]: $u)).raw
   sameShape "footnote reference" "[^n]: hi" (← parseBlock "[^n]: hi")
-    (← `(Lean.Doc.Parser.Block.footnote_ref| [^ $(⟨nm⟩) ]: $his*)).raw
+    (← `(Parser.block| [^$nm]: $his*)).raw
 
 end Shapes
 
@@ -332,7 +324,7 @@ quotation. A view reads the atom it needs that way.
 /--
 info: link brackets: "[" "]"
 blockquote marker: ">"
-metadata fences: "%%%" "%%%"
+metadata delimiters: "%%%" "%%%"
 -/
 #guard_msgs in
 #eval show CommandElabM Unit from do
@@ -346,7 +338,7 @@ metadata fences: "%%%" "%%%"
   | _ => IO.println "blockquote: no match"
   match (⟨← parseBlock "%%%\n%%%"⟩ : TSyntax ``Parser.block) with
   | `(Lean.Doc.Parser.Block.metadata_block| %%%%$o $_:metadataContents %%%%$c) =>
-    IO.println s!"metadata fences: {o.getAtomVal.quote} {c.getAtomVal.quote}"
+    IO.println s!"metadata delimiters: {o.getAtomVal.quote} {c.getAtomVal.quote}"
   | _ => IO.println "metadata: no match"
 
 end Encodings

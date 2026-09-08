@@ -181,50 +181,101 @@ private def escapeVersoText (value : String) : String :=
 
 
 /--
-Builds a text content token for `value`, positioned at `tok`. The token presents content written as
-a string literal through the same accessors as content that the parser read from the source.
+Builds a text content token containing `value`, with its position taken from `src`.
 -/
-private def asVersoText (value : String) (tok : Syntax) : VersoText :=
-  ⟨Syntax.mkLit versoTextKind (escapeVersoText value) (info := decodedInfo tok)⟩
+def mkVersoTextFrom (src : Syntax) (value : String) (canonical := false) : VersoText :=
+  ⟨Syntax.mkLit versoTextKind (escapeVersoText value) (info := SourceInfo.fromRef src canonical)⟩
 
 /--
-Builds a verbatim content token for `value`, positioned at `tok`. A document uses the content as
-written, so the token records `value` unchanged.
+Builds the name of a footnote or link reference containing `value`, with its position taken from
+`src`.
 -/
-private def asVersoRefName (value : String) (tok : Syntax) : VersoRefName :=
-  ⟨Syntax.mkLit versoRefKind value (info := decodedInfo tok)⟩
+def mkVersoRefNameFrom (src : Syntax) (value : String) (canonical := false) : VersoRefName :=
+  ⟨Syntax.mkLit versoRefKind value (info := SourceInfo.fromRef src canonical)⟩
 
-/-- Builds a link URL token for `value`, positioned at `tok`. -/
-private def asVersoLinkUrl (value : String) (tok : Syntax) : VersoLinkUrl :=
-  ⟨Syntax.mkLit versoLinkUrlKind (escapeVersoLinkUrl value) (info := decodedInfo tok)⟩
+/-- Builds a link URL token containing `value`, with its position taken from `src`. -/
+def mkVersoLinkUrlFrom (src : Syntax) (value : String) (canonical := false) : VersoLinkUrl :=
+  ⟨Syntax.mkLit versoLinkUrlKind (escapeVersoLinkUrl value)
+    (info := SourceInfo.fromRef src canonical)⟩
 
-/-- Builds an image alternate text token for `value`, positioned at `tok`. -/
-private def asVersoImageAlt (value : String) (tok : Syntax) : VersoImageAlt :=
-  ⟨Syntax.mkLit versoImageAltKind (escapeVersoImageAlt value) (info := decodedInfo tok)⟩
+/-- Builds an image's alternate text containing `value`, with its position taken from `src`. -/
+def mkVersoImageAltFrom (src : Syntax) (value : String) (canonical := false) : VersoImageAlt :=
+  ⟨Syntax.mkLit versoImageAltKind (escapeVersoImageAlt value)
+    (info := SourceInfo.fromRef src canonical)⟩
 
 /--
-Builds a link reference URL token for `value`, positioned at `tok`. Such a URL has no escapes, so
-the token records `value` unchanged.
+Builds the URL of a link reference definition containing `value`, with its position taken from
+`src`.
 -/
-private def asVersoLinkRefUrl (value : String) (tok : Syntax) : VersoLinkRefUrl :=
-  ⟨Syntax.mkLit versoLinkRefUrlKind value (info := decodedInfo tok)⟩
+def mkVersoLinkRefUrlFrom (src : Syntax) (value : String) (canonical := false) : VersoLinkRefUrl :=
+  ⟨Syntax.mkLit versoLinkRefUrlKind value (info := SourceInfo.fromRef src canonical)⟩
 
 /--
-Builds an inline code content token for `value`, positioned at `tok`. Decoding strips one space
-from each end of content that begins and ends with a space, so the token stores such content with an
-extra space at each end.
+Builds an inline code content token containing `value`, with its position taken from `src`.
 -/
-private def asVersoCode (value : String) (tok : Syntax) : VersoCode :=
+def mkVersoCodeFrom (src : Syntax) (value : String) (canonical := false) : VersoCode :=
   let padded :=
     if versoCodeBoundarySpaces value then " " ++ value ++ " " else value
-  ⟨Syntax.mkLit versoCodeKind padded (info := decodedInfo tok)⟩
+  ⟨Syntax.mkLit versoCodeKind padded (info := SourceInfo.fromRef src canonical)⟩
 
 /--
-Builds a code block content token for `value`, positioned at `tok`.
+Builds a code block's content containing `value`, with its position taken from `src`.
 -/
-private def asVersoCodeBlock (value : String) (tok : Syntax) : VersoCodeBlock :=
-  let line := Syntax.mkLit versoCodeBlockLineKind value (info := decodedInfo tok)
-  ⟨Syntax.node (decodedInfo tok) versoCodeBlockKind #[mkNullNode #[line]]⟩
+def mkVersoCodeBlockFrom (src : Syntax) (value : String) (canonical := false) : VersoCodeBlock :=
+  let info := SourceInfo.fromRef src canonical
+  let line := Syntax.mkLit versoCodeBlockLineKind value (info := info)
+  ⟨Syntax.node info versoCodeBlockKind #[mkNullNode #[line]]⟩
+
+/--
+Builds a line break, with its position taken from `src`.
+-/
+def mkVersoLinebreakFrom (src : Syntax) (canonical := false) :
+    TSyntax ``Parser.Inline.linebreak :=
+  let info := SourceInfo.fromRef src canonical
+  ⟨Syntax.node info ``Parser.Inline.linebreak #[.atom info "\n"]⟩
+
+/-- Builds a line break, positioned at the current reference. -/
+def mkVersoLinebreakFromRef [Monad m] [MonadRef m] (canonical := false) :
+    m (TSyntax ``Parser.Inline.linebreak) := do
+  return mkVersoLinebreakFrom (← getRef) canonical
+
+/-- Builds a text content token containing `value`, positioned at the current reference. -/
+def mkVersoTextFromRef [Monad m] [MonadRef m] (value : String) (canonical := false) :
+    m VersoText := do
+  return mkVersoTextFrom (← getRef) value canonical
+
+/-- Builds a reference name containing `value`, positioned at the current reference. -/
+def mkVersoRefNameFromRef [Monad m] [MonadRef m] (value : String) (canonical := false) :
+    m VersoRefName := do
+  return mkVersoRefNameFrom (← getRef) value canonical
+
+/-- Builds a link URL containing `value`, positioned at the current reference. -/
+def mkVersoLinkUrlFromRef [Monad m] [MonadRef m] (value : String) (canonical := false) :
+    m VersoLinkUrl := do
+  return mkVersoLinkUrlFrom (← getRef) value canonical
+
+/-- Builds an image's alternate text containing `value`, positioned at the current reference. -/
+def mkVersoImageAltFromRef [Monad m] [MonadRef m] (value : String) (canonical := false) :
+    m VersoImageAlt := do
+  return mkVersoImageAltFrom (← getRef) value canonical
+
+/--
+Builds the URL of a link reference definition containing `value`, positioned at the syntax `getRef`
+returns.
+-/
+def mkVersoLinkRefUrlFromRef [Monad m] [MonadRef m] (value : String) (canonical := false) :
+    m VersoLinkRefUrl := do
+  return mkVersoLinkRefUrlFrom (← getRef) value canonical
+
+/-- Builds inline code content containing `value`, positioned at the current reference. -/
+def mkVersoCodeFromRef [Monad m] [MonadRef m] (value : String) (canonical := false) :
+    m VersoCode := do
+  return mkVersoCodeFrom (← getRef) value canonical
+
+/-- Builds a code block's content containing `value`, positioned at the current reference. -/
+def mkVersoCodeBlockFromRef [Monad m] [MonadRef m] (value : String) (canonical := false) :
+    m VersoCodeBlock := do
+  return mkVersoCodeBlockFrom (← getRef) value canonical
 
 /-- An atom containing `text`, at the position of `tok`. -/
 private def asAtom (text : String) (tok : Syntax) : Syntax :=
@@ -269,15 +320,15 @@ mutual
   partial def linkTargetToParser (stx : Syntax) : Syntax :=
     match stx with
     | `(link_target|(%$o $url )%$c) =>
-      asNode ``Parser.LinkTarget.url #[o, asVersoLinkUrl url.getString url, c]
+      asNode ``Parser.LinkTarget.url #[o, mkVersoLinkUrlFrom url url.getString, c]
     | `(link_target|[%$o $name ]%$c) =>
-      asNode ``Parser.LinkTarget.ref #[o, asVersoRefName name.getString name, c]
+      asNode ``Parser.LinkTarget.ref #[o, mkVersoRefNameFrom name name.getString, c]
     | _ => stx
 
   /-- Rewrites an inline element. -/
   partial def inlineToParser (stx : Syntax) : Syntax :=
     match stx with
-    | `(inline|$s:str) => asNode ``Parser.Inline.text #[asVersoText s.getString s]
+    | `(inline|$s:str) => asNode ``Parser.Inline.text #[mkVersoTextFrom s s.getString]
     | `(inline|_[%$o $inl* ]%$c) =>
       asNode ``Parser.Inline.emph
         #[asDelimiter ``Parser.emphDelimiter "_" o, inlines inl,
@@ -298,11 +349,11 @@ mutual
         #[asAtom "[" o, inlines inl, asAtom "]" c, linkTargetToParser tgt]
     | `(inline|image(%$o $alt )%$c $tgt:link_target) =>
       asNode ``Parser.Inline.image
-        #[asAtom "![" o, asVersoImageAlt alt.getString alt, asAtom "]" c,
+        #[asAtom "![" o, mkVersoImageAltFrom alt alt.getString, asAtom "]" c,
           linkTargetToParser tgt]
     | `(inline|footnote(%$o $name )%$c) =>
       asNode ``Parser.Inline.footnote
-        #[asAtom "[^" o, asVersoRefName name.getString name, asAtom "]" c]
+        #[asAtom "[^" o, mkVersoRefNameFrom name name.getString, asAtom "]" c]
     | `(inline|line!$s) =>
       asNode ``Parser.Inline.linebreak #[.atom (decodedInfo s.raw) s.getString]
     | `(inline|role{%$bo $name $args* }%$bc [%$so $inl* ]%$sc) =>
@@ -315,7 +366,7 @@ mutual
     inlines (inl : Array Syntax) : Syntax := mkNullNode (inl.map inlineToParser)
     code (o : Syntax) (s : StrLit) (c : Syntax) : Syntax :=
       asNode ``Parser.Inline.code
-        #[asCodeDelimiter s.getString o, asVersoCode s.getString s,
+        #[asCodeDelimiter s.getString o, mkVersoCodeFrom s s.getString,
           asCodeDelimiter s.getString c]
 
   /-- Rewrites an item of an ordered or unordered list, giving it the marker `marker`. -/
@@ -352,11 +403,11 @@ mutual
       asNode ``Parser.Block.dl #[mkNullNode (items.map (descItemToParser ·))]
     | `(block| ```%$o | $s ```%$c) =>
       asNode ``Parser.Block.codeblock
-        #[asFence o, mkNullNode #[], asVersoCodeBlock s.getString s, asFence c]
+        #[asFence o, mkNullNode #[], mkVersoCodeBlockFrom s s.getString, asFence c]
     | `(block| ```%$o $name $args* | $s ```%$c) =>
       asNode ``Parser.Block.codeblock
         #[asFence o, mkNullNode #[name, mkNullNode (args.map (docArgToParser ·))],
-          asVersoCodeBlock s.getString s, asFence c]
+          mkVersoCodeBlockFrom s s.getString, asFence c]
     | `(block| :::%$o $name $args* {$bs*}%$c) =>
       asNode ``Parser.Block.directive
         #[asDirectiveDelimiter o, name, mkNullNode (args.map (docArgToParser ·)), blocks bs,
@@ -370,10 +421,10 @@ mutual
           mkNullNode (inls.map (inlineToParser ·))]
     | `(block|[%$o $name ]:%$closer $url) =>
       asNode ``Parser.Block.link_ref
-        #[o, asVersoRefName name.getString name, closer, asVersoLinkRefUrl url.getString url]
+        #[o, mkVersoRefNameFrom name name.getString, closer, mkVersoLinkRefUrlFrom url url.getString]
     | `(block|[^%$o $name ]:%$closer $inls*) =>
       asNode ``Parser.Block.footnote_ref
-        #[o, asVersoRefName name.getString name, closer,
+        #[o, mkVersoRefNameFrom name name.getString, closer,
           mkNullNode (inls.map (inlineToParser ·))]
     -- Both encodings store the metadata in one `structInstFields` node, which wraps the fields and
     -- the separators between them.
@@ -435,10 +486,10 @@ def migrateInlines (xs : TSyntaxArray `inline) : TSyntaxArray ``Parser.inline :=
 def migrateBlocks (xs : TSyntaxArray `block) : TSyntaxArray ``Parser.block := ↑xs
 
 /-- Presents a string literal's contents as an inline code content token. -/
-def versoCodeOfStrLit (s : StrLit) : VersoCode := asVersoCode s.getString s
+def versoCodeOfStrLit (s : StrLit) : VersoCode := mkVersoCodeFrom s s.getString
 
 /-- Presents a string literal's contents as a code block content token. -/
-def versoCodeBlockOfStrLit (s : StrLit) : VersoCodeBlock := asVersoCodeBlock s.getString s
+def versoCodeBlockOfStrLit (s : StrLit) : VersoCodeBlock := mkVersoCodeBlockFrom s s.getString
 
 end Migration
 /--

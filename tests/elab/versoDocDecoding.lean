@@ -245,7 +245,6 @@ whole: "a\nb\n\nc\n"
   IO.println s!"lines: {lines.toList.map (·.quote)}"
   IO.println s!"whole: {codeblock.getVersoCodeBlock.quote}"
 
-open scoped Lean.Doc.Syntax
 
 /-!
 An extension reparses the value in a literal content token, so content with no position of its own
@@ -266,10 +265,12 @@ code block: (num "42")
 -/
 #guard_msgs in
 #eval show CommandElabM Unit from do
-  let some (.code { content, .. }) := InlineView.of (⟨unpositioned (← `(inline|code("42"))).raw⟩ : TSyntax `inline)
+  let code ← `(Parser.inline| `$(← mkVersoCodeFromRef "42")`)
+  let some (.code { content, .. }) := InlineView.of ⟨unpositioned code.raw⟩
     | throwError "expected inline code"
   IO.println s!"inline code: {← parseVersoCode (categoryParserFn `term) content}"
-  let some (.codeblock { content, .. }) := BlockView.of (⟨unpositioned (← `(block| ``` | "42" ```)).raw⟩ : TSyntax `block)
+  let block ← `(Parser.block| ```$(← mkVersoCodeBlockFromRef "42"):versoCodeBlock```)
+  let some (.codeblock { content, .. }) := BlockView.of ⟨unpositioned block.raw⟩
     | throwError "expected a code block"
   IO.println s!"code block: {← parseVersoCodeBlock (categoryParserFn `term) content}"
 

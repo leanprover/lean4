@@ -175,15 +175,25 @@ metadata(n=1)[%%%|%%%]
 
 section Quotations
 
-open scoped Lean.Doc.Syntax
 open Elab Command
+
+/-- A text element containing `value`. -/
+def text (value : String) : CommandElabM (TSyntax ``Parser.inline) := do
+  `(Parser.inline| $(← mkVersoTextFromRef value):versoText)
+
+/-- A paragraph whose only content is the text `value`. -/
+def para (value : String) : CommandElabM (TSyntax ``Parser.block) := do
+  let content : TSyntaxArray ``Parser.inline := #[← text value]
+  `(Parser.block| $[$content]*)
 
 /--
 info: role(lit)(named(k:=name(v), parens) flag(+on, true) anon(num(3)))[{}[]|code[`|"quoted"|`] text("txt")]
 -/
 #guard_msgs in
 #eval show CommandElabM Unit from do
-  let stx ← `(inline| role{lit (k := v) +on 3}[code("quoted") "txt"])
+  let content : TSyntaxArray ``Parser.inline :=
+    #[← `(Parser.inline| `$(← mkVersoCodeFromRef "quoted")`), ← text "txt"]
+  let stx ← `(Parser.inline| {lit (k := v) +on 3}[$[$content]*])
   IO.println (describeInline stx)
 
 /--
@@ -195,12 +205,17 @@ footnote("q")[[^|]]
 -/
 #guard_msgs in
 #eval show CommandElabM Unit from do
-  for i in [
-      ← `(inline| _["i" line! "\n"]),
-      ← `(inline| *[link["x"]["r"]]),
-      ← `(inline| \displaymath code("m")),
-      ← `(inline| image("alt")("u")),
-      ← `(inline| footnote("q"))] do
+  let emphasized : TSyntaxArray ``Parser.inline := #[← text "i", ← mkVersoLinebreakFromRef]
+  let linked : TSyntaxArray ``Parser.inline := #[← text "x"]
+  let bolded : TSyntaxArray ``Parser.inline :=
+    #[← `(Parser.inline| [$[$linked]*][$(← mkVersoRefNameFromRef "r")])]
+  let inlines : List (TSyntax ``Parser.inline) := [
+      ← `(Parser.inline| _$[$emphasized]*_),
+      ← `(Parser.inline| *$[$bolded]**),
+      ← `(Parser.inline| $$`$(← mkVersoCodeFromRef "m")`),
+      ← `(Parser.inline| ![$(← mkVersoImageAltFromRef "alt")]($(← mkVersoLinkUrlFromRef "u"))),
+      ← `(Parser.inline| [^$(← mkVersoRefNameFromRef "q")])]
+  for i in inlines do
     IO.println (describeInline i)
 
 /--
@@ -219,24 +234,36 @@ footnoteRef("n")[[^|]:|text("fn")]
 -/
 #guard_msgs in
 #eval show CommandElabM Unit from do
-  for b in [
-      ← `(block| para["hi"]),
-      ← `(block| header(2){"t"}),
-      ← `(block| ul{* para["a"] * para["b"]}),
-      ← `(block| ol(3){* para["x"]}),
-      ← `(block| dl{: "t" => para["d"]}),
-      ← `(block| > para["q"]),
-      ← `(block| ```lean "arg" | "code\n" ```),
-      ← `(block| ``` | "plain" ```),
-      ← `(block| :::dir -f { para["inner"] }),
-      ← `(block| command{go}),
-      ← `(block| ["n"]: "u"),
-      ← `(block| [^"n"]: "fn")] do
+  let heading : TSyntaxArray ``Parser.inline := #[← text "t"]
+  -- A list item's contents swallow a marker that follows them, so sibling items are spliced in.
+  let unordered : TSyntaxArray ``Parser.ListItem.item :=
+    #[← `(Parser.ListItem.item| * $[$(#[← para "a"])]*),
+      ← `(Parser.ListItem.item| * $[$(#[← para "b"])]*)]
+  let ordered : TSyntaxArray ``Parser.ListItem.item :=
+    #[← `(Parser.ListItem.item| 3. $[$(#[← para "x"])]*)]
+  let term : TSyntaxArray ``Parser.inline := #[← text "t"]
+  let description : TSyntaxArray ``Parser.block := #[← para "d"]
+  let quoted : TSyntaxArray ``Parser.block := #[← para "q"]
+  let inner : TSyntaxArray ``Parser.block := #[← para "inner"]
+  let note : TSyntaxArray ``Parser.inline := #[← text "fn"]
+  let blocks : List (TSyntax ``Parser.block) := [
+      ← para "hi",
+      ← `(Parser.block| ### $[$heading]*),
+      ← `(Parser.Block.ul| $[$unordered:ListItem.item]*),
+      ← `(Parser.Block.ol| $[$ordered:ListItem.item]*),
+      ← `(Parser.Block.dl| : $[$term]* $[$description:block]*),
+      ← `(Parser.block| > $[$quoted]*),
+      ← `(Parser.block| ```lean "arg" $(← mkVersoCodeBlockFromRef "code\n"):versoCodeBlock```),
+      ← `(Parser.block| ```$(← mkVersoCodeBlockFromRef "plain"):versoCodeBlock```),
+      ← `(Parser.block| :::dir -f $[$inner:block]* :::),
+      ← `(Parser.block| {go}),
+      ← `(Parser.block| [$(← mkVersoRefNameFromRef "n")]: $(← mkVersoLinkRefUrlFromRef "u")),
+      ← `(Parser.block| [^$(← mkVersoRefNameFromRef "n")]: $[$note]*)]
+  for b in blocks do
     IO.println (describeBlock b)
 
 end Quotations
 
-open scoped Lean.Doc.Syntax
 open Elab Command
 
 /-!
@@ -258,7 +285,7 @@ doc[]
   let env ← getEnv
   let s := documentFn.run ictx {env, options := {}} (getTokenTable env) (mkParserState ictx.input)
   IO.println (describeDoc ⟨s.stxStack.back⟩)
-  let hi : TSyntax ``Parser.block := ↑(← `(block| para["hi"]))
-  let there : TSyntax ``Parser.block := ↑(← `(block| para["there"]))
+  let hi ← para "hi"
+  let there ← para "there"
   IO.println (describeDoc (← `(Lean.Doc.Parser.document| $hi $there)))
   IO.println (describeDoc (← `(Lean.Doc.Parser.document| )))

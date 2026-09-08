@@ -155,6 +155,8 @@ which use extra pointer bits which do not fit (https://github.com/leanprover/lea
 
 
 The field `m_other` is used to store the number of fields in a constructor object and the element size in a scalar array.
+For arrays, scalar arrays and strings its uppermost bit (`LEAN_LINEAR_MARK_MASK`) holds the linearity marker set by
+`markLinear`; read the element size of a scalar array with `lean_sarray_elem_size`, which masks it out.
 */
 typedef struct {
     int      m_rc;
@@ -204,8 +206,6 @@ typedef struct {
 typedef struct {
     lean_object   m_header;
     size_t        m_size;
-    /* The uppermost bit holds the linearity marker, see `Array.markLinear`; read the capacity
-       itself with `lean_array_capacity`. */
     size_t        m_capacity;
     lean_object * m_data[];
 } lean_array_object;
@@ -214,8 +214,6 @@ typedef struct {
 typedef struct {
     lean_object   m_header;
     size_t        m_size;
-    /* The uppermost bit holds the linearity marker, see `ByteArray.markLinear`; read the capacity
-       itself with `lean_sarray_capacity`. */
     size_t        m_capacity;
     uint8_t       m_data[];
 } lean_sarray_object;
@@ -223,16 +221,14 @@ typedef struct {
 typedef struct {
     lean_object m_header;
     size_t      m_size;     /* byte length including '\0' terminator */
-    /* The uppermost bit holds the linearity marker, see `String.markLinear`; read the capacity
-       itself with `lean_string_capacity`. */
     size_t      m_capacity;
     size_t      m_length;   /* UTF8 length */
     char        m_data[];
 } lean_string_object;
 
-/* Marker bit stored in the `m_capacity` field of `lean_array_object`, `lean_sarray_object` and
-   `lean_string_object`. */
-#define LEAN_LINEAR_MARK_MASK (((size_t)1) << (8*sizeof(size_t) - 1))
+/* Linearity marker bit (see `Array.markLinear`) in the `m_other` header field of arrays, scalar
+   arrays and strings. */
+#define LEAN_LINEAR_MARK_MASK 0x80u
 
 typedef struct {
     lean_object   m_header;
@@ -605,7 +601,6 @@ static inline uint8_t lean_ptr_tag(lean_object * o) {
 static inline unsigned lean_ptr_other(lean_object * o) {
     return o->m_other;
 }
-
 /* The object size may be slightly bigger for constructor objects.
    The runtime does not track the size of the scalar size area.
    All constructor objects are "small", and allocated into pages.
@@ -755,6 +750,16 @@ static inline bool lean_is_shared(lean_object * o) {
     } else {
         return false;
     }
+}
+
+static inline bool lean_is_marked_linear_core(b_lean_obj_arg o) {
+    return (o->m_other & LEAN_LINEAR_MARK_MASK) != 0;
+}
+
+// Precondition: All objects being marked as linear must be unique at the time of marking.
+static inline void lean_mark_linear_core(u_lean_obj_arg o) {
+    assert(lean_is_exclusive(o));
+    o->m_other |= LEAN_LINEAR_MARK_MASK;
 }
 
 LEAN_EXPORT void lean_mark_mt(lean_object * o);
@@ -981,9 +986,7 @@ static inline lean_obj_res lean_alloc_array(size_t size, size_t capacity) {
     return (lean_object*)o;
 }
 static inline size_t lean_array_size(b_lean_obj_arg o) { return lean_to_array(o)->m_size; }
-static inline size_t lean_array_capacity(b_lean_obj_arg o) {
-    return lean_to_array(o)->m_capacity & ~LEAN_LINEAR_MARK_MASK;
-}
+static inline size_t lean_array_capacity(b_lean_obj_arg o) { return lean_to_array(o)->m_capacity; }
 static inline size_t lean_array_byte_size(lean_object * o) {
     return sizeof(lean_array_object) + sizeof(void*)*lean_array_capacity(o);
 }
@@ -1010,12 +1013,11 @@ static inline void lean_array_set_core(u_lean_obj_arg o, size_t i, lean_obj_arg 
 }
 static inline bool lean_array_is_marked_linear(b_lean_obj_arg o) {
     assert(lean_is_array(o));
-    return (lean_to_array(o)->m_capacity & LEAN_LINEAR_MARK_MASK) != 0;
+    return lean_is_marked_linear_core(o);
 }
 static inline void lean_array_mark_linear_core(u_lean_obj_arg o) {
     assert(lean_is_array(o));
-    assert(!lean_has_rc(o) || lean_is_exclusive(o));
-    lean_to_array(o)->m_capacity |= LEAN_LINEAR_MARK_MASK;
+    lean_mark_linear_core(o);
 }
 
 LEAN_EXPORT lean_object * lean_array_mk(lean_obj_arg l);
@@ -1185,8 +1187,8 @@ static inline bool lean_alloc_sarray_would_overflow(unsigned elem_size, size_t c
 }
 
 static inline lean_obj_res lean_alloc_sarray(unsigned elem_size, size_t size, size_t capacity) {
-    if (LEAN_UNLIKELY((capacity & LEAN_LINEAR_MARK_MASK) != 0))
-        lean_internal_panic("scalar array capacity collides with the linearity marker bit");
+    if (LEAN_UNLIKELY(elem_size >= LEAN_LINEAR_MARK_MASK))
+        lean_internal_panic("scalar array element size is larger than 2^7");
     lean_sarray_object * o = (lean_sarray_object*)lean_alloc_object(lean_usize_add_checked(sizeof(lean_sarray_object), lean_usize_mul_checked(elem_size, capacity)));
     lean_set_st_header((lean_object*)o, LeanScalarArray, elem_size);
     o->m_size = size;
@@ -1195,11 +1197,9 @@ static inline lean_obj_res lean_alloc_sarray(unsigned elem_size, size_t size, si
 }
 static inline unsigned lean_sarray_elem_size(lean_object * o) {
     assert(lean_is_sarray(o));
-    return lean_ptr_other(o);
+    return lean_ptr_other(o) & ~LEAN_LINEAR_MARK_MASK;
 }
-static inline size_t lean_sarray_capacity(lean_object * o) {
-    return lean_to_sarray(o)->m_capacity & ~LEAN_LINEAR_MARK_MASK;
-}
+static inline size_t lean_sarray_capacity(lean_object * o) { return lean_to_sarray(o)->m_capacity; }
 static inline size_t lean_sarray_byte_size(lean_object * o) {
     return sizeof(lean_sarray_object) + lean_sarray_elem_size(o)*lean_sarray_capacity(o);
 }
@@ -1215,12 +1215,11 @@ static inline void lean_sarray_set_size(u_lean_obj_arg o, size_t sz) {
 static inline uint8_t* lean_sarray_cptr(lean_object * o) { return lean_to_sarray(o)->m_data; }
 static inline bool lean_sarray_is_marked_linear(b_lean_obj_arg o) {
     assert(lean_is_sarray(o));
-    return (lean_to_sarray(o)->m_capacity & LEAN_LINEAR_MARK_MASK) != 0;
+    return lean_is_marked_linear_core(o);
 }
 static inline void lean_sarray_mark_linear_core(u_lean_obj_arg o) {
     assert(lean_is_sarray(o));
-    assert(!lean_has_rc(o) || lean_is_exclusive(o));
-    lean_to_sarray(o)->m_capacity |= LEAN_LINEAR_MARK_MASK;
+    lean_mark_linear_core(o);
 }
 
 LEAN_EXPORT lean_obj_res lean_copy_sarray(lean_obj_arg a, size_t cap);
@@ -1375,8 +1374,6 @@ static inline lean_obj_res lean_float_array_set(lean_obj_arg a, b_lean_obj_arg i
 /* Strings */
 
 static inline lean_obj_res lean_alloc_string(size_t size, size_t capacity, size_t len) {
-    if (LEAN_UNLIKELY((capacity & LEAN_LINEAR_MARK_MASK) != 0))
-        lean_internal_panic("string capacity collides with the linearity marker bit");
     lean_string_object * o = (lean_string_object*)lean_alloc_object(lean_usize_add_checked(sizeof(lean_string_object), capacity));
     lean_set_st_header((lean_object*)o, LeanString, 0);
     o->m_size = size;
@@ -1386,9 +1383,7 @@ static inline lean_obj_res lean_alloc_string(size_t size, size_t capacity, size_
 }
 LEAN_EXPORT size_t lean_utf8_strlen(char const * str);
 LEAN_EXPORT size_t lean_utf8_n_strlen(char const * str, size_t n);
-static inline size_t lean_string_capacity(lean_object * o) {
-    return lean_to_string(o)->m_capacity & ~LEAN_LINEAR_MARK_MASK;
-}
+static inline size_t lean_string_capacity(lean_object * o) { return lean_to_string(o)->m_capacity; }
 static inline size_t lean_string_byte_size(lean_object * o) { return sizeof(lean_string_object) + lean_string_capacity(o); }
 /* instance : inhabited char := ⟨'A'⟩ */
 static inline uint32_t lean_char_default_value() { return 'A'; }
@@ -1406,12 +1401,11 @@ static inline size_t lean_string_len(b_lean_obj_arg o) { return lean_to_string(o
 static inline size_t lean_string_data_byte_size(lean_object * o) { return sizeof(lean_string_object) + lean_string_size(o); }
 static inline bool lean_string_is_marked_linear(b_lean_obj_arg o) {
     assert(lean_is_string(o));
-    return (lean_to_string(o)->m_capacity & LEAN_LINEAR_MARK_MASK) != 0;
+    return lean_is_marked_linear_core(o);
 }
 static inline void lean_string_mark_linear_core(u_lean_obj_arg o) {
     assert(lean_is_string(o));
-    assert(!lean_has_rc(o) || lean_is_exclusive(o));
-    lean_to_string(o)->m_capacity |= LEAN_LINEAR_MARK_MASK;
+    lean_mark_linear_core(o);
 }
 
 LEAN_EXPORT lean_obj_res lean_copy_string(lean_obj_arg s, size_t cap);

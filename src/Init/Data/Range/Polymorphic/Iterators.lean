@@ -714,7 +714,9 @@ theorem Internal.isPlausibleIndirectOutput_iter_iff
   · obtain ⟨init, hi, hia⟩ := LawfulUpwardEnumerableLeast?.least?_le a
     simpa [Membership.mem, iter, hi] using! hia
 
-@[no_expose]
+-- `*...*` fixes no element type, so `for (i : Fin 3) in *...*` relies on this default instance to
+-- determine `α` from the loop variable.
+@[no_expose, default_instance]
 instance {m} [UpwardEnumerable α] [Least? α]
     [LawfulUpwardEnumerable α] [LawfulUpwardEnumerableLeast? α]
     [Monad m] [Finite (Rxi.Iterator α) Id] :

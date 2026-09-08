@@ -606,28 +606,62 @@ syntax rwRule    := unicode("← ", "<- ")? term
 syntax rwRuleSeq := " [" withoutPosition(rwRule,*,?) "]"
 
 /--
-`rewrite [e]` applies identity `e` as a rewrite rule to the target of the main goal.
-If `e` is preceded by left arrow (`←` or `<-`), the rewrite is applied in the reverse direction.
-If `e` is a defined constant, then the equational theorems associated with `e` are used.
-This provides a convenient way to unfold `e`.
-- `rewrite [e₁, ..., eₙ]` applies the given rules sequentially.
-- `rewrite [e] at l` rewrites `e` at location(s) `l`, where `l` is either `*` or a
-  list of hypotheses in the local context. In the latter case, a turnstile `⊢` or `|-`
-  can also be used, to signify the target of the goal.
+`rewrite [e]` uses the expression `e` as a rewrite rule on the main goal.
 
-Using `rw (occs := .pos L) [e]`,
-where `L : List Nat`, you can control which "occurrences" are rewritten.
-(This option applies to each rule, so usually this will only be used with a single rule.)
-Occurrences count from `1`.
-At each allowed occurrence, arguments of the rewrite rule `e` may be instantiated,
-restricting which later rewrites can be found.
-(Disallowed occurrences do not result in instantiation.)
-`(occs := .neg L)` allows skipping specified occurrences.
+If `e` is a defined constant, then the equational theorems associated with `e`
+are used. This provides a convenient way to unfold `e`. If `e` has parameters,
+the tactic will try to fill these in by unification with the matching part of
+the target. Parameters are only filled in once per rule, restricting which
+later rewrites can be found. Parameters that are not filled in after
+unification will create side goals. `rw` is like `rewrite` but tries to close
+the goal afterwards by "cheap" (reducible) `rfl`.
+
+* `rewrite [e₁, ... eₙ]` applies the given rules sequentially.
+* `rewrite [← e]` or `rewrite [<- e]` applies the rewrite in the reverse direction.
+* `rewrite [e] at l` rewrites with `e` at location(s) `l`.
+* `rewrite (occs := .pos L) [e]`, where `L` is a literal list of natural numbers,
+  only rewrites the given occurrences in the target. Occurrences count from 1.
+* `rewrite (occs := .neg L) [e]`, where `L` is a literal list of natural numbers,
+  skips rewriting the given occurrences in the target. Occurrences count from 1.
 -/
 syntax (name := rewriteSeq) "rewrite" optConfig rwRuleSeq (location)? : tactic
 
 /--
-`rw` is like `rewrite`, but also tries to close the goal by "cheap" (reducible) `rfl` afterwards.
+`rw [e]` uses the expression `e` as a rewrite rule on the main goal,
+then tries to close the goal by "cheap" (reducible) `rfl`.
+
+If `e` is a defined constant, then the equational theorems associated with `e`
+are used. This provides a convenient way to unfold `e`. If `e` has parameters,
+the tactic will try to fill these in by unification with the matching part of
+the target. Parameters are only filled in once per rule, restricting which
+later rewrites can be found. Parameters that are not filled in after
+unification will create side goals. If the `rfl` fails to close the main goal,
+no error is raised. `rewrite` is like `rw` but does not try to apply `rfl` afterwards.
+
+`rw` may fail to rewrite terms "under binders", such as `∀ x, ...` or `∃ x,
+...`. `rw` can also fail with a "motive is type incorrect" error in the context
+of dependent types. In these cases, consider using `simp only`.
+
+* `rw [e₁, ... eₙ]` applies the given rules sequentially.
+* `rw [← e]` or `rw [<- e]` applies the rewrite in the reverse direction.
+* `rw [e] at l` rewrites with `e` at location(s) `l`.
+* `rw (occs := .pos L) [e]`, where `L` is a literal list of natural numbers,
+  only rewrites the given occurrences in the target. Occurrences count from 1.
+* `rw (occs := .neg L) [e]`, where `L` is a literal list of natural numbers,
+  skips rewriting the given occurrences in the target. Occurrences count from 1.
+
+Examples:
+
+```lean
+example {a b : Nat} (h : a + a = b) : (a + a) + (a + a) = b + b := by rw [h]
+```
+
+```lean
+example {f : Nat -> Nat} (h : ∀ x, f x = 1) (a b : Nat) : f a = f b := by
+  rw [h] -- `rw` instantiates `h` only once, so this is equivalent to: `rw [h a]`
+  -- goal: ⊢ 1 = f b
+  rw [h] -- equivalent to: `rw [h b]`
+```
 -/
 macro (name := rwSeq) "rw " c:optConfig s:rwRuleSeq l:(location)? : tactic =>
   match s with
@@ -636,20 +670,23 @@ macro (name := rwSeq) "rw " c:optConfig s:rwRuleSeq l:(location)? : tactic =>
     `(tactic| (rewrite $c [$rs,*] $(l)?; with_annotate_state $rbrak (try (with_reducible rfl))))
   | _ => Macro.throwUnsupported
 
-/--
-`rwa [rules]` rewrites the target of the first goal using `rules`, then tries to close that goal
-using `assumption`. `rwa [rules] at h` instead rewrites the type of `h` and tries to close the main
-goal using `h`.
+/-- `rwa [e]` uses the expression `e` as a rewrite rule on the main goal,
+then tries to close the rewritten goal by "cheap" (reducible) reflexivity.
+Finally it closes the main goal by filling it in with a hypothesis of compatible type.
+`rwa` is shorthand for `rw; assumption`.
 
-As with `rw`, `rwa` first tries to close rewritten goals using reducible reflexivity. If this closes
-the main goal and rewriting generated no side goals, `rwa` emits a warning suggesting `rw`. It tries
-to close side goals generated by rewriting using `assumption`, leaving any that cannot be closed.
+If reflexivity closes the main goal and rewriting generated no side goals,
+`rwa` emits a warning suggesting `rw`. It tries to close side goals
+generated by rewriting using `assumption`, leaving any that cannot be closed.
 Goals other than the initial first goal are not affected.
 
-The legacy syntax with any location other than a single hypothesis, such as
-`rwa [rules] at h₁ h₂` or `rwa [rules] at *`, is deprecated. Use
-`rw [rules] at ... <;> assumption` instead.
--/
+* `rwa [e₁, ... eₙ]` applies the given rules sequentially.
+* `rwa [← e]` or `rwa [<- e]` applies the rewrite in the reverse direction.
+* `rwa [e] at h` rewrites with `e` at hypothesis `h`, then closes the goal
+  using `h`.
+* The deprecated syntax `rwa [e] at l` rewrites with `e` at location(s) `l`.
+  Note that in this case the assumption that closes the goal can be different from `l`.
+ -/
 syntax (name := rwa) "rwa " rwRuleSeq : tactic
 
 @[inherit_doc rwa, tactic_alt rwa]

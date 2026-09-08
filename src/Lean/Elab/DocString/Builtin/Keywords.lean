@@ -10,6 +10,7 @@ public import Lean.Elab.DocString.Builtin.Scopes
 public import Lean.Elab.DocString.Builtin.Postponed
 public meta import Lean.Elab.DocString.Builtin.Postponed
 public import Lean.DocString.Syntax
+public import Lean.DocString.View
 public import Lean.Elab.InfoTree
 public import Lean.Parser
 import Init.Omega
@@ -31,11 +32,12 @@ public structure Data.Atom where
 deriving TypeName
 
 
-def onlyCode [Monad m] [MonadError m] (xs : TSyntaxArray `inline) : m StrLit := do
+def onlyCode [Monad m] [MonadError m] (xs : TSyntaxArray ``Parser.inline) :
+    m VersoCode := do
   if h : xs.size = 1 then
-    match xs[0] with
-    | `(inline|code($s)) => return s
-    | other => throwErrorAt other "Expected code"
+    match InlineView.of xs[0] with
+    | some (.code v) => return v.content
+    | _ => throwErrorAt xs[0] "Expected code"
   else
     throwError "Expected precisely 1 code argument"
 
@@ -325,8 +327,8 @@ def withAtoms (cat : Name) (atoms : List String) : TermElabM (Array Name) := do
 
 def kwImpl (cat : Ident := mkIdent .anonymous) (of : Ident := mkIdent .anonymous)
     (suggest : Bool)
-    (s : StrLit) : TermElabM (Inline ElabInline) := do
-  let atoms := s.getString |>.split Char.isWhitespace |>.toStringList
+    (s : VersoCode) : TermElabM (Inline ElabInline) := do
+  let atoms := s.getVersoCode |>.split Char.isWhitespace |>.toStringList
   let env ← getEnv
   let parsers := Lean.Parser.parserExtension.getState env
   let cat' := cat.getId
@@ -367,15 +369,15 @@ def kwImpl (cat : Ident := mkIdent .anonymous) (of : Ident := mkIdent .anonymous
         else m!"Specify the category or syntax kind:"
 
     let range? :=
-      match ← getRef with
-      | `(inline|role{$name $args*}[$_]) =>
+      match InlineView.of ⟨← getRef⟩ with
+      | some (.role { name, args, content := #[_], .. }) =>
         (mkNullNode (#[name] ++ args)).getRange?
       | _ => none
 
     let hint ← makeHint hintText (ofSuggs ++ catSuggs)
 
     logErrorAt s m!"Multiple syntax entries found with atoms `{" ".intercalate atoms}`: {choices}{hint.getD m!""}"
-    return .code s.getString
+    return .code s.getVersoCode
   else
     let (catName, k) := candidates[0]
     addConstInfo s k
@@ -384,7 +386,7 @@ def kwImpl (cat : Ident := mkIdent .anonymous) (of : Ident := mkIdent .anonymous
       if let some h ← makeHint m!"Specify the syntax kind:" #[s!" (of := {k'})"] then
         logInfo h
 
-    return .custom (Data.Atom.mk k catName) #[.code s.getString]
+    return .custom (Data.Atom.mk k catName) #[.code s.getVersoCode]
 where
   categorySuggestions (c candidates) := Id.run do
     if c.isAnonymous then
@@ -404,8 +406,8 @@ where
     else return #[]
   makeHint (hintText) (suggestions : Array String) : TermElabM (Option MessageData) := do
     let range? :=
-      match ← getRef with
-      | `(inline|role{$name $args*}[$_]) =>
+      match InlineView.of ⟨← getRef⟩ with
+      | some (.role { name, args, content := #[_], .. }) =>
         (mkNullNode (#[name] ++ args)).getRange?
       | _ => none
     if let some ⟨b, e⟩ := range? then
@@ -464,20 +466,20 @@ public def kw! (of : Option Ident := none) (scope : DocScope := .local)
   let s ← onlyCode xs
   let some of' := of
     | let h ←
-        if let `(inline|role{$n $_*}[$_*]) ← getRef then
+        if let some (.role { name, .. }) := InlineView.of ⟨← getRef⟩ then
           let kwName ← unresolveNameGlobalAvoidingLocals ``kw
-          let kw?Name ← unresolveNameGlobalAvoidingLocals ``kw?
+          let kwSuggestionsName ← unresolveNameGlobalAvoidingLocals ``kw?
           let ss := #[
             { suggestion := s!"{kwName}",
               postInfo? := some "for automatic resolution" },
-            { suggestion := s!"{kw?Name}",
+            { suggestion := s!"{kwSuggestionsName}",
               postInfo? := some "for automatic resolution with suggestions" }
           ]
-          m!"Use one of the other keyword roles.".hint ss (ref? := n)
+          m!"Use one of the other keyword roles.".hint ss (ref? := name)
         else pure m!""
       logErrorAt s m!"No syntax kind specified. The named argument `of` is required for \
         `{.ofConstName `Lean.Doc.kw!}`.{h}"
-      return .code s.getString
+      return .code s.getVersoCode
   match scope with
   | .local =>
     let k ← realizeGlobalConstNoOverloadWithInfo of'
@@ -486,9 +488,9 @@ public def kw! (of : Option Ident := none) (scope : DocScope := .local)
     unless parsers.kinds.contains k do
       logErrorAt s m!"Not a syntax kind: `{.ofConstName k}`"
   | .import xs =>
-    return .deferred (← addDeferredCheck (.mk (PostponedKind.mk of'.getId)) xs (← getRef)) #[.code s.getString]
+    return .deferred (← addDeferredCheck (.mk (PostponedKind.mk of'.getId)) xs (← getRef)) #[.code s.getVersoCode]
 
-  pure <| .code s.getString
+  pure <| .code s.getVersoCode
 
 /--
 Suggests the `kw` role, if applicable.

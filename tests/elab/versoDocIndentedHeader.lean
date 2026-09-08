@@ -200,7 +200,7 @@ info: #[]
 
 -- Test 8: Over-indented # is a syntax error (extra spaces beyond base column)
 /--
-@ +5:4...*
+@ +5:4...5
 error: expected '#' (header) to start at column 2
 -/
 #guard_msgs (positions := true) in

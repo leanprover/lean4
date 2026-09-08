@@ -18,9 +18,10 @@ deriving TypeName
 /-- Reads a single code inline and resolves it to a global constant. -/
 meta def codeTargetName (xs : TSyntaxArray `inline) : DocM Name :=
   match xs with
-  | #[stx] => match stx with
-    | `(inline|code($s)) => realizeGlobalConstNoOverloadWithInfo (mkIdentFrom s s.getString.toName)
-    | _ => throwErrorAt stx "expected a code argument"
+  | #[stx] => match CodeView.of stx with
+    | some { content, .. } =>
+      realizeGlobalConstNoOverloadWithInfo (mkIdentFrom content content.getVersoCode.toName)
+    | none => throwErrorAt stx "expected a code argument"
   | _ => throwError "expected one code argument"
 
 /-- Includes another declaration's docstring. The target is looked up when rendering to Markdown. -/

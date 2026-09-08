@@ -1,29 +1,30 @@
-Failure @65 (⟨4, 0⟩): expected '`' to close inline code
+Input: "Attention:\n\nHere is a paragraph with an unterminated `code block\nthat would be super annoying without error recovery in the\nparser.\n\nYep."
+Failure: unterminated inline code; expected '`'
+ --> 3:41-3:42
+  |
+3 | Here is a paragraph with an unterminated `code block
+  |                                          ^
+  = consumed input prefix: 65 bytes
 Final stack:
-  [(Lean.Doc.Syntax.para
-    "para{"
-    [(Lean.Doc.Syntax.text
-      (str "\"Attention:\""))]
-    "}")
-   (Lean.Doc.Syntax.para
-    "para{"
-    [(Lean.Doc.Syntax.text
-      (str
-       "\"Here is a paragraph with an unterminated \""))
-     (Lean.Doc.Syntax.code
-      "`"
-      (str "\"code block\"")
+  [(Lean.Doc.Parser.Block.para
+    [(Lean.Doc.Parser.Inline.text
+      (Lean.Doc.Parser.versoText "Attention:"))])
+   (Lean.Doc.Parser.Block.para
+    [(Lean.Doc.Parser.Inline.text
+      (Lean.Doc.Parser.versoText
+       "Here is a paragraph with an unterminated "))
+     (Lean.Doc.Parser.Inline.code
+      (Lean.Doc.Parser.codeDelimiter "`")
+      (Lean.Doc.Parser.versoCode "code block")
       <missing>)
-     (Lean.Doc.Syntax.text
-      (str
-       "\"that would be super annoying without error recovery in the\""))
-     (Lean.Doc.Syntax.linebreak
-      "line!"
-      (str "\"\\n\""))
-     (Lean.Doc.Syntax.text (str "\"parser.\""))]
-    "}")
-   (Lean.Doc.Syntax.para
-    "para{"
-    [(Lean.Doc.Syntax.text (str "\"Yep.\""))]
-    "}")]
-Remaining: "that would be super annoying without error recovery in the\nparser.\n\nYep."
+     (Lean.Doc.Parser.Inline.text
+      (Lean.Doc.Parser.versoText
+       "that would be super annoying without error recovery in the"))
+     (Lean.Doc.Parser.Inline.linebreak "\n")
+     (Lean.Doc.Parser.Inline.text
+      (Lean.Doc.Parser.versoText "parser."))])
+   (Lean.Doc.Parser.Block.para
+    [(Lean.Doc.Parser.Inline.text
+      (Lean.Doc.Parser.versoText "Yep."))])]
+All input consumed.
+Round-trip not reproduced, as the parse reported errors: leaf without original source info: <missing>

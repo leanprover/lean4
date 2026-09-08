@@ -1,23 +1,36 @@
+Input: ": an excellent idea\n\n Let's say more!\n\n: more\n\n stuff"
 Success! Final stack:
-  [(Lean.Doc.Syntax.dl
-    "dl{"
-    [(Lean.Doc.Syntax.desc
+  [(Lean.Doc.Parser.Block.dl
+    [(Lean.Doc.Parser.DescItem.item
       ":"
-      [(Lean.Doc.Syntax.text
-        (str "\" an excellent idea\""))]
-      "=>"
-      [(Lean.Doc.Syntax.para
-        "para{"
-        [(Lean.Doc.Syntax.text
-          (str "\"Let's say more!\""))]
-        "}")])
-     (Lean.Doc.Syntax.desc
+      [(Lean.Doc.Parser.Inline.text
+        (Lean.Doc.Parser.versoText
+         " an excellent idea"))]
+      [(Lean.Doc.Parser.Block.para
+        [(Lean.Doc.Parser.Inline.text
+          (Lean.Doc.Parser.versoText
+           "Let's say more!"))])])
+     (Lean.Doc.Parser.DescItem.item
       ":"
-      [(Lean.Doc.Syntax.text (str "\" more\""))]
-      "=>"
-      [(Lean.Doc.Syntax.para
-        "para{"
-        [(Lean.Doc.Syntax.text (str "\"stuff\""))]
-        "}")])]
-    "}")]
+      [(Lean.Doc.Parser.Inline.text
+        (Lean.Doc.Parser.versoText " more"))]
+      [(Lean.Doc.Parser.Block.para
+        [(Lean.Doc.Parser.Inline.text
+          (Lean.Doc.Parser.versoText
+           "stuff"))])])])]
 All input consumed.
+Round-trip OK
+Decoded views:
+  dl
+    item (marker := ":")
+      term
+        text (content := " an excellent idea")
+      desc
+        para
+          text (content := "Let's say more!")
+    item (marker := ":")
+      term
+        text (content := " more")
+      desc
+        para
+          text (content := "stuff")

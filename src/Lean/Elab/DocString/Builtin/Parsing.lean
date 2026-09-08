@@ -6,6 +6,7 @@ Author: David Thrane Christiansen
 module
 prelude
 public import Lean.Parser.Extension
+public import Lean.DocString.Syntax
 public import Init.While
 import Init.Data.Array.Attach
 import Init.Data.Array.Mem
@@ -38,12 +39,12 @@ private def parseFromContents (p : ParserFn) (contents : String) : m Syntax := d
   else
     throwError ((s.mkError "end of input").toErrorMsg ictx)
 
-def parseStrLit (p : ParserFn) (s : StrLit) : m Syntax := do
-  if (s.raw.getPos? (canonicalOnly := true)).isNone then
-    return ← parseFromContents p s.getString
+def parseContent (p : ParserFn) (tok : Syntax) (contents : String) : m Syntax := do
+  if (tok.getPos? (canonicalOnly := true)).isNone then
+    return ← parseFromContents p contents
   let text ← getFileMap
   let env ← getEnv
-  let ⟨pos, endPos⟩ ← strLitRange s
+  let ⟨pos, endPos⟩ ← strLitRange ⟨tok⟩
   let endPos := if endPos ≤ text.source.rawEndPos then endPos else text.source.rawEndPos
   let ictx :=
     mkInputContext text.source (← getFileName)
@@ -118,9 +119,9 @@ where
       n := n + 1
     return n
 
-def parseStrLit' (p : ParserFn) (s : StrLit) : m (Syntax × Bool) := do
-  if (s.raw.getPos? (canonicalOnly := true)).isNone then
-    let contents := s.getString
+def parseContent' (p : ParserFn) (tok : Syntax) (contents : String) : m (Syntax × Bool) := do
+  let s : StrLit := ⟨tok⟩
+  if (tok.getPos? (canonicalOnly := true)).isNone then
     let env ← getEnv
     let ictx := mkInputContext contents (← getFileName)
     let st := p.run ictx { env, options := ← getOptions } (getTokenTable env) (mkParserState contents)
@@ -151,3 +152,23 @@ def parseStrLit' (p : ParserFn) (s : StrLit) : m (Syntax × Bool) := do
       pure true
     else pure false
   pure (s.stxStack.back, err)
+
+/-- Parses the contents of an inline code element. -/
+def parseVersoCode (p : ParserFn) (c : VersoCode) : m Syntax :=
+  parseContent p c c.getVersoCode
+
+/-- Parses the contents of a code block. -/
+def parseVersoCodeBlock (p : ParserFn) (c : VersoCodeBlock) : m Syntax :=
+  parseContent p c c.getVersoCodeBlock
+
+/-- Parses the contents of an inline code element, reporting errors rather than throwing. -/
+def parseVersoCode' (p : ParserFn) (c : VersoCode) : m (Syntax × Bool) :=
+  parseContent' p c c.getVersoCode
+
+/-- Parses the contents of a string literal argument. -/
+def parseStrLit (p : ParserFn) (s : StrLit) : m Syntax :=
+  parseContent p s s.getString
+
+/-- Parses the contents of a string literal argument, reporting errors rather than throwing. -/
+def parseStrLit' (p : ParserFn) (s : StrLit) : m (Syntax × Bool) :=
+  parseContent' p s s.getString

@@ -400,6 +400,11 @@ def somethingElseAgain''' := ()
 def stxDoc := ()
 
 /--
+The source still locates content whose boundary spaces were stripped: {syntaxCat}` term `
+-/
+def stxDocPadded := ()
+
+/--
 {syntaxCat}`thing`
 -/
 declare_syntax_cat thing

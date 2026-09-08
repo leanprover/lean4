@@ -1,7 +1,14 @@
-Failure @4 (⟨1, 4⟩): expected '`' to close inline code
+Input: "`foo"
+Failure: unterminated inline code; expected '`'
+ --> 1:0-1:1
+  |
+1 | `foo
+  | ^
+  = consumed input prefix: 4 bytes
 Final stack:
-  (Lean.Doc.Syntax.code
-   "`"
-   (str "\"foo\"")
+  (Lean.Doc.Parser.Inline.code
+   (Lean.Doc.Parser.codeDelimiter "`")
+   (Lean.Doc.Parser.versoCode "foo")
    <missing>)
-Remaining: ""
+All input consumed.
+Round-trip not reproduced, as the parse reported errors: leaf without original source info: <missing>

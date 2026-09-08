@@ -1,6 +1,10 @@
+Input: "``foo `stuff` bar``"
 Success! Final stack:
-  (Lean.Doc.Syntax.code
-   "``"
-   (str "\"foo `stuff` bar\"")
-   "``")
+  (Lean.Doc.Parser.Inline.code
+   (Lean.Doc.Parser.codeDelimiter "``")
+   (Lean.Doc.Parser.versoCode "foo `stuff` bar")
+   (Lean.Doc.Parser.codeDelimiter "``"))
 All input consumed.
+Round-trip OK
+Decoded views:
+  code (opener := "``") (content := "foo `stuff` bar") (closer := "``")

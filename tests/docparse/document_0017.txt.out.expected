@@ -1,0 +1,16 @@
+Input: "a\n  "
+Success! Final stack:
+  (Lean.Doc.Parser.document
+   [(Lean.Doc.Parser.Block.para
+     [(Lean.Doc.Parser.Inline.text
+       (Lean.Doc.Parser.versoText "a"))
+      (Lean.Doc.Parser.Inline.linebreak "\n")
+      (Lean.Doc.Parser.Inline.text
+       (Lean.Doc.Parser.versoText "  "))])])
+All input consumed.
+Round-trip OK
+Decoded views:
+  para
+    text (content := "a")
+    linebreak (newline := "\n")
+    text (content := "  ")

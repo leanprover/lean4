@@ -1,13 +1,20 @@
-Failure @28 (⟨1, 28⟩): expected no space before
+Input: "scheme dialect:=\"chicken\" + x 99"
+Failure: expected no space before
+ --> 1:28-1:29
+  |
+1 | scheme dialect:="chicken" + x 99
+  |                             ^
+  = consumed input prefix: 28 bytes
 Final stack:
  • `scheme
- • [(Lean.Doc.Syntax.named_no_paren
+ • [(Lean.Doc.Parser.Arg.named_no_paren
       `dialect
       ":="
-      (Lean.Doc.Syntax.arg_str
+      (Lean.Doc.Parser.ArgVal.str
        (str "\"chicken\"")))
-     (Lean.Doc.Syntax.flag_on "+" `x)
-     (Lean.Doc.Syntax.anon
-      (Lean.Doc.Syntax.arg_num (num "99")))]
+     (Lean.Doc.Parser.Arg.flag_on "+" `x)
+     (Lean.Doc.Parser.Arg.anon
+      (Lean.Doc.Parser.ArgVal.num (num "99")))]
 
-Remaining: "x 99"
+All input consumed.
+Round-trip not reproduced, as the parse reported errors: whitespace at 27 not covered by the source info of `x

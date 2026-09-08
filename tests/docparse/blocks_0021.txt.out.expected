@@ -1,36 +1,45 @@
+Input: "* foo\n  stuff\n\n > more \n\n abc\n\n\n* bar\n"
 Success! Final stack:
-  [(Lean.Doc.Syntax.ul
-    "ul{"
-    [(Lean.Doc.Syntax.li
-      "*"
-      [(Lean.Doc.Syntax.para
-        "para{"
-        [(Lean.Doc.Syntax.text (str "\"foo\""))
-         (Lean.Doc.Syntax.linebreak
-          "line!"
-          (str "\"\\n\""))
-         (Lean.Doc.Syntax.text
-          (str "\"  stuff\""))]
-        "}")
-       (Lean.Doc.Syntax.blockquote
+  [(Lean.Doc.Parser.Block.ul
+    [(Lean.Doc.Parser.ListItem.item
+      (Lean.Doc.Parser.listMarker "*")
+      [(Lean.Doc.Parser.Block.para
+        [(Lean.Doc.Parser.Inline.text
+          (Lean.Doc.Parser.versoText "foo"))
+         (Lean.Doc.Parser.Inline.linebreak "\n")
+         (Lean.Doc.Parser.Inline.text
+          (Lean.Doc.Parser.versoText "  stuff"))])
+       (Lean.Doc.Parser.Block.blockquote
         ">"
-        [(Lean.Doc.Syntax.para
-          "para{"
-          [(Lean.Doc.Syntax.text
-            (str "\"more \""))]
-          "}")])
-       (Lean.Doc.Syntax.para
-        "para{"
-        [(Lean.Doc.Syntax.text (str "\"abc\""))]
-        "}")])
-     (Lean.Doc.Syntax.li
-      "*"
-      [(Lean.Doc.Syntax.para
-        "para{"
-        [(Lean.Doc.Syntax.text (str "\"bar\""))
-         (Lean.Doc.Syntax.linebreak
-          "line!"
-          (str "\"\\n\""))]
-        "}")])]
-    "}")]
+        [(Lean.Doc.Parser.Block.para
+          [(Lean.Doc.Parser.Inline.text
+            (Lean.Doc.Parser.versoText
+             "more "))])])
+       (Lean.Doc.Parser.Block.para
+        [(Lean.Doc.Parser.Inline.text
+          (Lean.Doc.Parser.versoText "abc"))])])
+     (Lean.Doc.Parser.ListItem.item
+      (Lean.Doc.Parser.listMarker "*")
+      [(Lean.Doc.Parser.Block.para
+        [(Lean.Doc.Parser.Inline.text
+          (Lean.Doc.Parser.versoText "bar"))
+         (Lean.Doc.Parser.Inline.linebreak
+          "\n")])])])]
 All input consumed.
+Round-trip OK
+Decoded views:
+  ul
+    item (marker := "*")
+      para
+        text (content := "foo")
+        linebreak (newline := "\n")
+        text (content := "  stuff")
+      blockquote (marker := ">")
+        para
+          text (content := "more ")
+      para
+        text (content := "abc")
+    item (marker := "*")
+      para
+        text (content := "bar")
+        linebreak (newline := "\n")

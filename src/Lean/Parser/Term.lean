@@ -29,7 +29,7 @@ def versoCommentBodyFn : ParserFn := fun c s =>
     let endPos := if endPos ≤ c.inputString.rawEndPos then endPos else c.inputString.rawEndPos
     let c' := c.setEndPos endPos (by unfold endPos; split <;> simp [*])
     let blockCtxt := Doc.Parser.BlockCtxt.forDocString c.fileMap startPos endPos
-    let s := Doc.Parser.document blockCtxt c' (s.setPos startPos)
+    let s := Doc.Parser.documentFn blockCtxt c' (s.setPos startPos)
     let s :=
       if !s.allErrors.isEmpty || !c'.atEnd s.pos then
         -- Docstring parsing must always succeed, or else later error messages are atrocious! Syntax
@@ -64,7 +64,11 @@ def versoCommentBody.formatter : PrettyPrinter.Formatter := do
   visitArgs $ do
     visitAtom `«-/»
     goLeft
-    Lean.Doc.Parser.document.formatter
+    -- Markup that did not parse is kept as the text that was written.
+    if (← getCur).isOfKind `Lean.Doc.Syntax.parseFailure then
+      visitArgs (visitAtom .anonymous)
+    else
+      formatterForKind (← getCur).getKind
 
 def commentBody : Parser :=
 { fn := rawFn (finishCommentBlock (pushMissingOnError := true) 1) (trailingWs := true) }

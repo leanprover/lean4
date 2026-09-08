@@ -1,16 +1,20 @@
+Input: " ::: multiPara greatness:=\"amazing!\"\n foo\n :::\n"
 Success! Final stack:
-  (Lean.Doc.Syntax.directive
-   ":::"
+  (Lean.Doc.Parser.Block.directive
+   (Lean.Doc.Parser.directiveDelimiter ":::")
    `multiPara
-   [(Lean.Doc.Syntax.named_no_paren
+   [(Lean.Doc.Parser.Arg.named_no_paren
      `greatness
      ":="
-     (Lean.Doc.Syntax.arg_str
+     (Lean.Doc.Parser.ArgVal.str
       (str "\"amazing!\"")))]
-   "\n"
-   [(Lean.Doc.Syntax.para
-     "para{"
-     [(Lean.Doc.Syntax.text (str "\"foo\""))]
-     "}")]
-   ":::")
+   [(Lean.Doc.Parser.Block.para
+     [(Lean.Doc.Parser.Inline.text
+       (Lean.Doc.Parser.versoText "foo"))])]
+   (Lean.Doc.Parser.directiveDelimiter ":::"))
 All input consumed.
+Round-trip OK
+Decoded views:
+  directive (opener := ":::") (name := multiPara) (args := [named (parens := none) (name := greatness) (assign := ":=") (val := str (lit := "amazing!") (value := "amazing!"))]) (closer := ":::")
+    para
+      text (content := "foo")

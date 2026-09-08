@@ -1,0 +1,16 @@
+Input: "```\n  indented\n\nafter blank\n```\n"
+Success! Final stack:
+  (Lean.Doc.Parser.Block.codeblock
+   (Lean.Doc.Parser.codeBlockFence "```")
+   []
+   (Lean.Doc.Parser.versoCodeBlock
+    [(Lean.Doc.Parser.versoCodeBlockLine
+      "  indented\n")
+     (Lean.Doc.Parser.versoCodeBlockLine "\n")
+     (Lean.Doc.Parser.versoCodeBlockLine
+      "after blank\n")])
+   (Lean.Doc.Parser.codeBlockFence "```"))
+All input consumed.
+Round-trip OK
+Decoded views:
+  codeblock (openFence := "```") (name? := none) (args := []) (content := "  indented\n\nafter blank\n") (closeFence := "```")

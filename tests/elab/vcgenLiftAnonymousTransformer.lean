@@ -1,5 +1,5 @@
 import Std.Tactic.Do
-import Std.Internal.Do
+import Std.WP
 
 /-!
 `liftMach` coerces the anonymous state transformer `fun s => match c s.machine with …` into
@@ -11,9 +11,8 @@ gives for a constant head with no registered spec, rather than a hard "This shou
 failure.
 -/
 
-open Std.Internal.Do
-
-set_option mvcgen.warning false
+set_option experimental.vcgen true
+open Std.WP
 
 structure Sys where
   machine : Nat

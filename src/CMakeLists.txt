@@ -118,8 +118,8 @@ option(CHECK_OLEAN_VERSION "Only load .olean files compiled with the current ver
 option(USE_LAKE "Use Lake instead of lean.mk for building core libs from language server" ON)
 option(USE_LAKE_CACHE "Use the Lake artifact cache for stage 1 builds (requires USE_LAKE)" OFF)
 
-set(LEAN_EXTRA_OPTS "" CACHE STRING "extra arguments to lean (via lake or make)")
-set(LEAN_EXTRA_OPTIONS "" CACHE STRING "extra Lean options as a list of `name=value` pairs, set for both lake/make builds and the language server")
+set(LEAN_EXTRA_ARGS "" CACHE STRING "extra command-line arguments to lean (via lake or make)")
+set(LEAN_SET_OPTIONS "" CACHE STRING "Lean options to set, as a list of `name=value` pairs, for both lake/make builds and the language server")
 set(LEAN_EXTRA_LAKE_OPTS "" CACHE STRING "extra options to lake")
 set(LEAN_EXTRA_MAKE_OPTS "" CACHE STRING "extra options to leanmake")
 set(LEANC_CC ${CMAKE_C_COMPILER} CACHE STRING "C compiler to use in `leanc`")
@@ -129,7 +129,7 @@ set(LEANC_CC ${CMAKE_C_COMPILER} CACHE STRING "C compiler to use in `leanc`")
 # `pp.rawOnError` is more useful for devs than users.
 # With `USE_LAKE=OFF` (not used anymore, should likely be deleted) the language server does not
 # see these options.
-list(PREPEND LEAN_EXTRA_OPTIONS "interpreter.prefer_native=false" "pp.rawOnError=true")
+list(PREPEND LEAN_SET_OPTIONS "interpreter.prefer_native=false" "pp.rawOnError=true")
 
 # option used by the CI to fail on warnings
 option(WFAIL "Fail build if warnings are emitted by Lean" ON)
@@ -205,7 +205,7 @@ set(CMAKE_ARCHIVE_OUTPUT_DIRECTORY "${CMAKE_BINARY_DIR}/lib/lean")
 
 # OSX default thread stack size is very small. Moreover, in Debug mode, each new stack frame consumes a lot of extra memory.
 if((MULTI_THREAD MATCHES "ON") AND (CMAKE_SYSTEM_NAME MATCHES "Darwin"))
-  string(APPEND LEAN_EXTRA_OPTS " -s40000")
+  string(APPEND LEAN_EXTRA_ARGS " -s40000")
 endif()
 
 # We want explicit stack probes in huge Lean stack frames for robust stack overflow detection
@@ -754,8 +754,8 @@ else()
 endif()
 
 # inherit genral options for lean.mk.in and stdlib.make.in
-string(APPEND LEAN_EXTRA_MAKE_OPTS " ${LEAN_EXTRA_OPTS}")
-foreach(OPT IN LISTS LEAN_EXTRA_OPTIONS)
+string(APPEND LEAN_EXTRA_MAKE_OPTS " ${LEAN_EXTRA_ARGS}")
+foreach(OPT IN LISTS LEAN_SET_OPTIONS)
   string(APPEND LEAN_EXTRA_MAKE_OPTS " -D${OPT}")
 endforeach()
 
@@ -1225,8 +1225,8 @@ endfunction()
 string(REPLACE "ROOT" "${CMAKE_BINARY_DIR}" LEANC_CC "${LEANC_CC}")
 string(REPLACE "ROOT" "${CMAKE_BINARY_DIR}" LEANC_INTERNAL_FLAGS "${LEANC_INTERNAL_FLAGS}")
 
-lean_options_to_toml("${LEAN_EXTRA_OPTIONS}" LEAN_EXTRA_OPTIONS_TOML)
-toml_escape("${LEAN_EXTRA_OPTS}" LEAN_EXTRA_OPTS_TOML)
+lean_options_to_toml("${LEAN_SET_OPTIONS}" LEAN_SET_OPTIONS_TOML)
+toml_escape("${LEAN_EXTRA_ARGS}" LEAN_EXTRA_ARGS_TOML)
 toml_escape("${LEANC_EXTRA_CC_FLAGS}" LEAN_MORE_LEANC_ARGS_TOML)
 # These are passed as untraced arguments because they include the sysroot path.
 # However, as they are untraced, Lake will not invalidate build artifacts if the sysroot changes.

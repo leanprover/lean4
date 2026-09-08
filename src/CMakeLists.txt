@@ -125,8 +125,8 @@ set(LEANC_CC ${CMAKE_C_COMPILER} CACHE STRING "C compiler to use in `leanc`")
 
 # Core-only flags.
 # We want to ship `prefer_native=true` but disable it in all stage builds for consistent behavior.
-# Note that currently this could lead to inconsistent behavior in server mode with `USE_LAKE=OFF`
-# but that option is not used anymore and should likely be deleted.
+# `-D` options are forwarded to the language server via `leanOptions` in the generated lakefile;
+# with `USE_LAKE=OFF` (not used anymore, should likely be deleted) the server does not see them.
 string(APPEND LEAN_EXTRA_OPTS " -Dinterpreter.prefer_native=false")
 # More useful for devs than users
 string(APPEND LEAN_EXTRA_OPTS " -Dpp.rawOnError=true")
@@ -1191,10 +1191,54 @@ function(toml_escape IN OUTVAR)
     set(${OUTVAR} "\"${OUT}\"" PARENT_SCOPE)
   endif()
 endfunction()
+
+# Splits a string of `lean` arguments into TOML `leanOptions` entries for `-D<name>=<value>`
+# arguments and a TOML array of the remaining arguments. Unlike `moreLeanArgs`, `leanOptions` are
+# also passed to the language server. Later occurrences of an option name win, as on the command
+# line. Values are typed by shape: `true`/`false` and numerals are emitted bare, everything else as
+# a string.
+function(lean_opts_to_toml IN OPTS_OUTVAR ARGS_OUTVAR)
+  separate_arguments(ARGS UNIX_COMMAND "${IN}")
+  set(NAMES "")
+  set(REST "")
+  foreach(ARG IN LISTS ARGS)
+    if("${ARG}" MATCHES "^-D([^=]+)=(.*)$")
+      set(NAME "${CMAKE_MATCH_1}")
+      set(VALUE "${CMAKE_MATCH_2}")
+      # Only dotted bare keys: quoting a segment would change the option name Lake reads.
+      if(NOT "${NAME}" MATCHES "^[A-Za-z0-9_.-]+$")
+        message(FATAL_ERROR "cannot express Lean option name '${NAME}' as a TOML key")
+      endif()
+      if(NOT "${VALUE}" MATCHES "^(true|false|[0-9]+)$")
+        toml_escape_string("${VALUE}" VALUE)
+      endif()
+      if(NOT "${NAME}" IN_LIST NAMES)
+        list(APPEND NAMES "${NAME}")
+      endif()
+      set("VALUE_OF_${NAME}" "${VALUE}")
+    else()
+      toml_escape_string("${ARG}" ARG)
+      list(APPEND REST "${ARG}")
+    endif()
+  endforeach()
+  set(OPTS "")
+  foreach(NAME IN LISTS NAMES)
+    string(APPEND OPTS "leanOptions.${NAME} = ${VALUE_OF_${NAME}}\n")
+  endforeach()
+  list(JOIN REST ", " REST)
+  set(${OPTS_OUTVAR} "${OPTS}" PARENT_SCOPE)
+  set(${ARGS_OUTVAR} "${REST}" PARENT_SCOPE)
+endfunction()
+
+function(toml_escape_string IN OUTVAR)
+  string(REPLACE "\\" "\\\\" OUT "${IN}")
+  string(REPLACE "\"" "\\\"" OUT "${OUT}")
+  set(${OUTVAR} "\"${OUT}\"" PARENT_SCOPE)
+endfunction()
 string(REPLACE "ROOT" "${CMAKE_BINARY_DIR}" LEANC_CC "${LEANC_CC}")
 string(REPLACE "ROOT" "${CMAKE_BINARY_DIR}" LEANC_INTERNAL_FLAGS "${LEANC_INTERNAL_FLAGS}")
 
-toml_escape("${LEAN_EXTRA_OPTS}" LEAN_EXTRA_OPTS_TOML)
+lean_opts_to_toml("${LEAN_EXTRA_OPTS}" LEAN_EXTRA_LEAN_OPTIONS_TOML LEAN_EXTRA_ARGS_TOML)
 toml_escape("${LEANC_EXTRA_CC_FLAGS}" LEAN_MORE_LEANC_ARGS_TOML)
 # These are passed as untraced arguments because they include the sysroot path.
 # However, as they are untraced, Lake will not invalidate build artifacts if the sysroot changes.

@@ -40,8 +40,9 @@ leanLibDir = "lib/lean"
 # Destination for static libraries
 nativeLibDir = "lib/lean"
 
-# Additional options derived from the CMake configuration
-moreLeanArgs = [${LEAN_EXTRA_OPTS_TOML}]
+# Additional options derived from the CMake configuration. `-D` options are passed as
+# `leanOptions` so that they also apply to the language server, everything else as `moreLeanArgs`.
+${LEAN_EXTRA_LEAN_OPTIONS_TOML}moreLeanArgs = [${LEAN_EXTRA_ARGS_TOML}]
 
 # Enable core-only linters
 leanOptions.linter.coreInternal = true

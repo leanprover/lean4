@@ -34,9 +34,10 @@ variable {Prog : Type u} {Value : Type v} {Pred : Type w} {EPred : Type z}
 
 /-- The framed spec `vcgen` applies for `x`: framing `x` by `F` makes the wp at the two weakest
 footprints, `upperAdjoint (op F) ∘ Q` and `upperAdjoint (opE F) E`, a precondition for `wp x Q E`
-under `op F`. The companion `opE` and its supremum preservation come from the `EFrame` instance. -/
+under `op F`. `vcgen` derives the companion `opE` from the structure of `EPred`, composing the
+`Lean.Order.EFrame` combinators. -/
 theorem WP.op_wp_upperAdjoint_le_wp {R : Type t} (op : R → Pred → Pred)
-    [∀ r, PreservesSup (op r)] {opE : R → EPred → EPred} [EFrame op EPred opE]
+    [∀ r, PreservesSup (op r)] {opE : R → EPred → EPred} [∀ r, PreservesSup (opE r)]
     {x : Prog} {F : R}
     (hframes : (WP.wpTrans x).Frames op opE F) :
     ∀ Q E, op F (wp x (fun a => PreservesSup.upperAdjoint (op F) (Q a))

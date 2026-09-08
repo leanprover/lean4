@@ -53,7 +53,7 @@ theorem mkFreshNat_spec_lossy [Monad m] [Assertion Pred] [Assertion EPred] [WPMo
 theorem frames_mkFreshNat [Monad m] [Assertion Pred] [Assertion EPred]
     [WPMonad m Pred EPred] [∀ β (y : m β), WPConjunctive y] {P : AppState → Pred}
     (h : ∀ s a, P { s with fst := a } = P s) :
-    PredTrans.Frames (· ⊓ ·) (fun _ E => E) (WP.wpTrans (mkFreshNat : StateT AppState m Nat)) P := by
+    PredTrans.Frames (· ⊓ ·) EFrame.ignore (WP.wpTrans (mkFreshNat : StateT AppState m Nat)) P := by
   refine WP.frames_of_conjunctive ?_ (fun _ => meet_le_right _ _)
   vcgen [mkFreshNat] with finish
 
@@ -63,7 +63,7 @@ usable pattern, so registering it lets `finish` discharge the preservation VC. -
 theorem frames_mkFreshNat_Id [Assertion Pred] [Assertion EPred]
     [WPMonad Id Pred EPred] [∀ β (y : Id β), WPConjunctive y] {P : AppState → Pred}
     (h : ∀ s a, P { s with fst := a } = P s) :
-    PredTrans.Frames (· ⊓ ·) (fun _ E => E) (WP.wpTrans (mkFreshNat : StateT AppState Id Nat)) P :=
+    PredTrans.Frames (· ⊓ ·) EFrame.ignore (WP.wpTrans (mkFreshNat : StateT AppState Id Nat)) P :=
   frames_mkFreshNat h
 
 /-- The frame recovers `s.2`, which the lossy spec dropped. The `fail_if_success` confirms the frame
@@ -104,7 +104,7 @@ theorem mkFreshSnd_spec_lossy [Monad m] [Assertion Pred] [Assertion EPred] [WPMo
 theorem frames_mkFreshSnd [Monad m] [Assertion Pred] [Assertion EPred]
     [WPMonad m Pred EPred] [∀ β (y : m β), WPConjunctive y] {P : AppState → Pred}
     (h : ∀ s a, P { s with snd := a } = P s) :
-    PredTrans.Frames (· ⊓ ·) (fun _ E => E) (WP.wpTrans (mkFreshSnd : StateT AppState m Nat)) P := by
+    PredTrans.Frames (· ⊓ ·) EFrame.ignore (WP.wpTrans (mkFreshSnd : StateT AppState m Nat)) P := by
   refine WP.frames_of_conjunctive ?_ (fun _ => meet_le_right _ _)
   vcgen [mkFreshSnd] with finish
 
@@ -113,7 +113,7 @@ theorem frames_mkFreshSnd [Monad m] [Assertion Pred] [Assertion EPred]
 theorem frames_mkFreshSnd_Id [Assertion Pred] [Assertion EPred]
     [WPMonad Id Pred EPred] [∀ β (y : Id β), WPConjunctive y] {P : AppState → Pred}
     (h : ∀ s a, P { s with snd := a } = P s) :
-    PredTrans.Frames (· ⊓ ·) (fun _ E => E) (WP.wpTrans (mkFreshSnd : StateT AppState Id Nat)) P :=
+    PredTrans.Frames (· ⊓ ·) EFrame.ignore (WP.wpTrans (mkFreshSnd : StateT AppState Id Nat)) P :=
   frames_mkFreshSnd h
 
 /-- Mirror of `recovers_snd`: frame the complementary (`fst`) footprint. -/
@@ -162,7 +162,7 @@ theorem addFst_spec_lossy [Monad m] [Assertion Pred] [Assertion EPred] [WPMonad 
 theorem frames_addFst [Monad m] [Assertion Pred] [Assertion EPred]
     [WPMonad m Pred EPred] [∀ β (y : m β), WPConjunctive y] {P : AppState → Pred} {k : Nat}
     (h : ∀ s a, P { s with fst := a } = P s) :
-    PredTrans.Frames (· ⊓ ·) (fun _ E => E) (WP.wpTrans (addFst k : StateT AppState m Nat)) P := by
+    PredTrans.Frames (· ⊓ ·) EFrame.ignore (WP.wpTrans (addFst k : StateT AppState m Nat)) P := by
   refine WP.frames_of_conjunctive ?_ (fun _ => meet_le_right _ _)
   vcgen [addFst] with finish
 
@@ -171,7 +171,7 @@ theorem frames_addFst [Monad m] [Assertion Pred] [Assertion EPred]
 theorem frames_addFst_Id [Assertion Pred] [Assertion EPred]
     [WPMonad Id Pred EPred] [∀ β (y : Id β), WPConjunctive y] {P : AppState → Pred} {k : Nat}
     (h : ∀ s a, P { s with fst := a } = P s) :
-    PredTrans.Frames (· ⊓ ·) (fun _ E => E) (WP.wpTrans (addFst k : StateT AppState Id Nat)) P :=
+    PredTrans.Frames (· ⊓ ·) EFrame.ignore (WP.wpTrans (addFst k : StateT AppState Id Nat)) P :=
   frames_addFst h
 
 /-- The frame `fun s => ⌜s.2 = j⌝` references the matched argument `j`, so `elabFrame` introduces
@@ -204,7 +204,7 @@ theorem bumpSnd_spec_lossy {σ : Type} [Monad m] [Assertion Pred] [Assertion EPr
 theorem frames_bumpSnd {σ : Type} [Monad m] [Assertion Pred] [Assertion EPred]
     [WPMonad m Pred EPred] [∀ β (y : m β), WPConjunctive y] {P : σ × Nat → Pred}
     (h : ∀ s a, P { s with snd := a } = P s) :
-    PredTrans.Frames (· ⊓ ·) (fun _ E => E) (WP.wpTrans (bumpSnd : StateT (σ × Nat) m Nat)) P := by
+    PredTrans.Frames (· ⊓ ·) EFrame.ignore (WP.wpTrans (bumpSnd : StateT (σ × Nat) m Nat)) P := by
   refine WP.frames_of_conjunctive ?_ (fun _ => meet_le_right _ _)
   vcgen [bumpSnd] with finish
 
@@ -214,7 +214,7 @@ discharges the preservation VC. -/
 theorem frames_bumpSnd_Id {σ : Type} [Assertion Pred] [Assertion EPred]
     [WPMonad Id Pred EPred] [∀ β (y : Id β), WPConjunctive y] {P : σ × Nat → Pred}
     (h : ∀ s a, P { s with snd := a } = P s) :
-    PredTrans.Frames (· ⊓ ·) (fun _ E => E) (WP.wpTrans (bumpSnd : StateT (σ × Nat) Id Nat)) P :=
+    PredTrans.Frames (· ⊓ ·) EFrame.ignore (WP.wpTrans (bumpSnd : StateT (σ × Nat) Id Nat)) P :=
   frames_bumpSnd h
 
 /-- The frame recovers `s.1 = a` for an abstract `a : σ`, which the lossy spec dropped. -/
@@ -308,3 +308,52 @@ theorem recovers_snd_second_candidate [Assertion Pred] [Assertion EPred] [WPMona
     ⦃ fun s => ⌜s.1 = 0 ∧ s.2 = 7⌝ ⦄ (mkFreshNat : StateT AppState Id Nat)
     ⦃ fun r s => ⌜r = 0 ∧ s.2 = 7⌝ ⦄ := by
   vcgen frames | mkFreshNat => fun s => ⌜s.2 = 7⌝ with finish
+
+/-! ## Meet framing through a `throw`
+
+`ExceptT ε (StateM σ)` keeps the state on `throw`, so its exception layer `Unit → σ → Prop`
+carries the assertion type `σ → Prop` and the derived `EFrame` companion frames it pointwise. A
+`frames` clause recovers a state fact on the normal exit and through the `throw` alike. -/
+
+abbrev MEx := ExceptT Unit (StateM AppState)
+
+/-- Bump `fst`, or throw when it is spent. The state survives the throw. -/
+@[irreducible] def bumpOrThrow : MEx Nat := do
+  let s ← get
+  if s.1 > 9 then throw ()
+  set ((s.1 + 1 : Nat), s.2)
+  pure s.1
+
+/-- Lossy spec: says nothing about `s.2` on either exit. -/
+@[spec] theorem bumpOrThrow_spec :
+    ⦃ fun s => ⌜s.1 = n⌝ ⦄ (bumpOrThrow : MEx Nat)
+    ⦃ fun r s => ⌜r = n ∧ s.1 = n + 1⌝; estack⟨fun _ s => ⌜s.1 = n⌝⟩ ⦄ := by
+  unfold bumpOrThrow
+  vcgen <;> simp_all
+
+/-- `bumpOrThrow` frames any `P` outside its `fst` footprint, on both channels: the derived
+companion is the pointwise meet on the exception layer and the ignoring companion on the empty
+tail. -/
+@[grind .]
+theorem frames_bumpOrThrow {P : AppState → Prop}
+    (h : ∀ s a, P { s with fst := a } = P s) :
+    PredTrans.Frames (· ⊓ ·) (EFrame.prod (EFrame.pointwise meet) EFrame.ignore)
+      (WP.wpTrans (bumpOrThrow : MEx Nat)) P := by
+  refine WP.frames_of_conjunctive ?_ ?_
+  · vcgen [bumpOrThrow] with finish
+  · intro E
+    refine PartialOrder.rel_trans (PartialOrder.rel_of_eq (Prod.mk_meet _ _).symm) ?_
+    refine Prod.mk_le _ _ _ ?_ ?_
+    · intro e s hs
+      simp only [EFrame.prod_fst, EFrame.pointwise_apply, meet_apply, meet_prop_eq_and] at hs ⊢
+      exact ⟨hs.1.1, hs.2⟩
+    · simp only [EFrame.prod_snd, EFrame.ignore_apply]
+      exact meet_le_right _ _
+
+/-- The frame recovers `s.2 = 7`, which the lossy spec dropped, on the normal exit and through
+the `throw`. -/
+theorem recovers_through_throw :
+    ⦃ fun s => ⌜s.1 = 0 ∧ s.2 = 7⌝ ⦄ (bumpOrThrow : MEx Nat)
+    ⦃ fun r s => ⌜r = 0 ∧ s.2 = 7⌝; estack⟨fun _ s => ⌜s.2 = 7⌝⟩ ⦄ := by
+  fail_if_success (vcgen <;> grind)
+  vcgen frames | bumpOrThrow => fun s => ⌜s.2 = 7⌝ with finish

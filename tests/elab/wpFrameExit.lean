@@ -10,8 +10,8 @@ this file shows:
    `WP.of_frameClosure_le_wp_iff` reduces it to `∀ F, F ∗ (l ↦ v) ⊑ (l ↦ v)`, and a two-cell heap
    refutes that: the identity `opE` only supports frame-absorbing exit assertions.
 
-2. `exit_spec`: with `opE := sepConj`, the diagonal `EFrame` instance at `EPred = Pred`, the same
-   specification holds. The framed obligation is `∀ F, F ∗ P ⊑ F ∗ P`.
+2. `exit_spec`: with `opE := sepConj`, the companion at `EPred = Pred`, the same specification
+   holds. The framed obligation is `∀ F, F ∗ P ⊑ F ∗ P`.
 -/
 
 open Lean.Order Std.WP Std.Internal.Order
@@ -88,7 +88,7 @@ postcondition. -/
 
 /-- The identity-`opE` interpretation: only the value channel is framed. -/
 @[instance_reducible] noncomputable def framedWP : WP Prog Unit HProp HProp :=
-  WP.of_frameClosure sepConj (fun _ E => E) baseWP
+  WP.of_frameClosure sepConj EFrame.ignore baseWP
 
 /-- A frame does not vanish: `F ∗ P` at a two-cell heap refutes `P`. -/
 theorem sepConj_not_absorbed :
@@ -109,7 +109,7 @@ being absorbed. -/
 theorem exit_spec_iff_absorbed :
     (((0 ↦ 1) : HProp) ⊑ framedWP.wp .exit (fun _ => ⊥) (0 ↦ 1))
       ↔ (∀ F : HProp, (F ∗ (0 ↦ 1)) ⊑ (0 ↦ 1)) := by
-  rw [show framedWP = WP.of_frameClosure sepConj (fun _ E => E) baseWP from rfl]
+  rw [show framedWP = WP.of_frameClosure sepConj EFrame.ignore baseWP from rfl]
   rw [WP.of_frameClosure_le_wp_iff]
   constructor <;> intro h F <;> exact h F
 
@@ -118,9 +118,6 @@ theorem exit_spec_fails :
   fun h => sepConj_not_absorbed (exit_spec_iff_absorbed.mp h)
 
 /-! ## 2. Framing the exception channel by `sepConj` -/
-
-/-- At `EPred = Pred`, the diagonal instance derives `opE := sepConj` from `op := sepConj`. -/
-example : EFrame sepConj HProp sepConj := inferInstance
 
 /-- The interpretation that frames both channels by `sepConj`. -/
 @[instance_reducible] noncomputable def framedWPE : WP Prog Unit HProp HProp :=

@@ -20,8 +20,8 @@ set_option linter.missingDocs true
 
 The frame closure is an endomap on predicate transformers over a family of supremum-preserving
 operators `op r`, one per resource `r`. It internalizes the frame rule into the transformer it is
-applied to. The companion family `opE r` frames the exception postcondition; `EFrame` derives it
-from `op` by the structure of the exception postcondition type.
+applied to. The companion family `opE r` frames the exception postcondition; the `EFrame`
+combinators compose it from `op` by the structure of the exception postcondition type.
 -/
 
 namespace Lean.Order
@@ -56,7 +56,7 @@ theorem PredTrans.Frames.op_apply_upperAdjoint_le_apply (op : R → Pred → Pre
 
 /-- If `t` is conjunctive, then `t` frames `(F ⊓ ·)` when `F` holds before and after `t`, with
 exceptional exits paying the frame's image `opE F ⊤`. The premise `hE` says `opE F` is itself a
-Hoare frame, the meet with `opE F ⊤`; it holds for every meet-derived `EFrame` instance. -/
+Hoare frame, the meet with `opE F ⊤`; it holds for every companion derived from the meet. -/
 theorem PredTrans.Frames.of_conjunctive [CompleteLattice EPred] {t : PredTrans Pred EPred β}
     {opE : Pred → EPred → EPred} {F : Pred}
     (hmono : t.Monotone) (hconj : t.Conjunctive)
@@ -168,85 +168,85 @@ theorem PredTrans.frameClosure_le (op : R → Pred → Pred) [∀ r, PreservesSu
 end
 
 /-!
-## Deriving the exception-channel companion
+## Exception-channel companion combinators
 
-`EFrame op EPred opE` derives the companion `opE` from `op` by the structure of `EPred`, mirroring
-how the `WPMonad` instances build the exception postcondition stack: the frame acts on a channel
-exactly when the channel carries the assertion type the frame acts on.
+An exception-channel companion `opE : R → EPred → EPred` composes from the structure of `EPred`:
+the frame operator itself where the channel carries the assertion type, `EFrame.pointwise` under a
+function layer, `EFrame.prod` on a product layer, and `EFrame.ignore` where the frame cannot act.
+`vcgen` derives the companion for a goal by this recursion. The combinators stay applied in terms,
+with `apply`/projection and `upperAdjoint` equations characterizing them.
 -/
-
-/-- `opE` is the exception-channel companion of the frame operator `op` at the exception
-postcondition type `EPred`. Instances derive `opE` structurally: the same `op` when `EPred` is the
-assertion type itself, pointwise under a function or product layer, and the identity when the frame
-cannot act. Each instance carries the supremum preservation of its `opE`. -/
-class EFrame {Pred : Type u} [CompleteLattice Pred] {R : Type x} (op : R → Pred → Pred)
-    (EPred : Type v) [CompleteLattice EPred] (opE : outParam (R → EPred → EPred)) : Prop where
-  /-- Each `opE r` preserves suprema, so it has an upper adjoint. -/
-  [preservesSup : ∀ r, PreservesSup (opE r)]
-
-attribute [instance] EFrame.preservesSup
 
 namespace EFrame
 
 open Std.Internal.Order
 
-variable {Pred : Type u} [CompleteLattice Pred] {R : Type x} {op : R → Pred → Pred}
-
-/-- When the exception channel carries the assertion type itself, the frame acts on it as on the
-value channel. -/
-instance (priority := high) instDiag [∀ r, PreservesSup (op r)] : EFrame op Pred op where
-
 /-- The frame acts pointwise under a function layer. -/
-instance instFun {ε : Type v} {EPred' : Type v'} [CompleteLattice EPred']
-    {opE' : R → EPred' → EPred'} [EFrame op EPred' opE'] :
-    EFrame op (ε → EPred') (fun r E e => opE' r (E e)) where
-  preservesSup r := {
-    map_sup s := by
-      funext e
-      show opE' r (CompleteLattice.sup s e) = _
-      rw [sup_apply, sup_apply, PreservesSup.map_sup (f := opE' r)]
-      congr 1
-      funext v
-      apply propext
-      constructor
-      · rintro ⟨w, ⟨f, hf, rfl⟩, rfl⟩
-        exact ⟨fun e' => opE' r (f e'), ⟨f, hf, rfl⟩, rfl⟩
-      · rintro ⟨g, ⟨f, hf, rfl⟩, rfl⟩
-        exact ⟨f e, ⟨f, hf, rfl⟩, rfl⟩ }
+def pointwise {A : Type v} {R : Type x} {ε : Type w} (opE : R → A → A) (r : R) : (ε → A) → ε → A :=
+  Function.comp (opE r)
 
 /-- The frame acts componentwise on a product layer. -/
-instance instProd {A : Type v} {B : Type v'} [CompleteLattice A] [CompleteLattice B]
-    {opA : R → A → A} {opB : R → B → B} [EFrame op A opA] [EFrame op B opB] :
-    EFrame op (A × B) (fun r p => (opA r p.1, opB r p.2)) where
-  preservesSup r := {
-    map_sup s := by
-      show (opA r (CompleteLattice.sup s).1, opB r (CompleteLattice.sup s).2) = _
-      refine Eq.trans ?_ (Prod.mk_sup _)
-      congr 1
-      · rw [Prod.fst_sup, PreservesSup.map_sup (f := opA r)]
-        congr 1
-        funext y
-        apply propext
-        constructor
-        · rintro ⟨w, ⟨b, hs⟩, rfl⟩
-          exact ⟨opB r b, (w, b), hs, rfl⟩
-        · rintro ⟨b, x, hx, heq⟩
-          obtain ⟨h1, h2⟩ := Prod.mk.inj heq
-          exact ⟨x.1, ⟨x.2, hx⟩, h1⟩
-      · rw [Prod.snd_sup, PreservesSup.map_sup (f := opB r)]
-        congr 1
-        funext y
-        apply propext
-        constructor
-        · rintro ⟨w, ⟨a, hs⟩, rfl⟩
-          exact ⟨opA r a, (a, w), hs, rfl⟩
-        · rintro ⟨a, x, hx, heq⟩
-          obtain ⟨h1, h2⟩ := Prod.mk.inj heq
-          exact ⟨x.2, ⟨x.1, hx⟩, h2⟩ }
+def prod {A : Type v} {B : Type v'} {R : Type x} (opA : R → A → A) (opB : R → B → B) (r : R) :
+    A × B → A × B :=
+  Prod.map (opA r) (opB r)
 
-/-- When the frame cannot act on the exception channel, its companion ignores it. -/
-instance (priority := low) instIgnore {EPred : Type v} [CompleteLattice EPred] :
-    EFrame op EPred (fun _ E => E) where
+/-- The frame cannot act on the channel, so its companion ignores it. -/
+def ignore {A : Type v} {R : Type x} : R → A → A := fun _ => id
+
+variable {A : Type u} {B : Type v} {R : Type x} {ε : Type w}
+
+@[simp, grind =] theorem pointwise_apply (opE : R → A → A) (r : R) (E : ε → A) (e : ε) :
+    pointwise opE r E e = opE r (E e) := rfl
+
+@[simp, grind =] theorem prod_fst (opA : R → A → A) (opB : R → B → B) (r : R) (p : A × B) :
+    (prod opA opB r p).fst = opA r p.fst := rfl
+
+@[simp, grind =] theorem prod_snd (opA : R → A → A) (opB : R → B → B) (r : R) (p : A × B) :
+    (prod opA opB r p).snd = opB r p.snd := rfl
+
+@[simp, grind =] theorem ignore_apply (r : R) (a : A) : ignore r a = a := rfl
+
+section
+
+variable [CompleteLattice A] [CompleteLattice B]
+
+instance (opE : R → A → A) [∀ r, PreservesSup (opE r)] (r : R) :
+    PreservesSup (pointwise (ε := ε) opE r) :=
+  instPreservesSupComp (opE r)
+
+instance (opA : R → A → A) (opB : R → B → B)
+    [∀ r, PreservesSup (opA r)] [∀ r, PreservesSup (opB r)] (r : R) :
+    PreservesSup (prod opA opB r) :=
+  instPreservesSupProdMap (opA r) (opB r)
+
+instance (r : R) : PreservesSup (ignore (A := A) r) := preservesSup_id
+
+/-- The wand of a pointwise-lifted companion is the pointwise wand. -/
+theorem upperAdjoint_pointwise (opE : R → A → A) [∀ r, PreservesSup (opE r)] (r : R) (X : ε → A)
+    (e : ε) :
+    PreservesSup.upperAdjoint (pointwise opE r) X e = PreservesSup.upperAdjoint (opE r) (X e) :=
+  PreservesSup.upperAdjoint_comp (opE r) X e
+
+/-- The first component of a componentwise companion's wand is the component's wand. -/
+theorem upperAdjoint_prod_fst (opA : R → A → A) (opB : R → B → B)
+    [∀ r, PreservesSup (opA r)] [∀ r, PreservesSup (opB r)] (r : R) (E : A × B) :
+    (PreservesSup.upperAdjoint (prod opA opB r) E).fst =
+      PreservesSup.upperAdjoint (opA r) E.fst :=
+  PreservesSup.upperAdjoint_prodMap_fst (opA r) (opB r) E
+
+/-- The second component of a componentwise companion's wand is the component's wand. -/
+theorem upperAdjoint_prod_snd (opA : R → A → A) (opB : R → B → B)
+    [∀ r, PreservesSup (opA r)] [∀ r, PreservesSup (opB r)] (r : R) (E : A × B) :
+    (PreservesSup.upperAdjoint (prod opA opB r) E).snd =
+      PreservesSup.upperAdjoint (opB r) E.snd :=
+  PreservesSup.upperAdjoint_prodMap_snd (opA r) (opB r) E
+
+/-- The wand of the ignoring companion is the postcondition itself. -/
+theorem upperAdjoint_ignore (r : R) (X : A) :
+    PreservesSup.upperAdjoint (ignore (R := R) r) X = X :=
+  PreservesSup.upperAdjoint_id X
+
+end
 
 end EFrame
 

@@ -12,6 +12,7 @@ public import Lean.Elab.Tactic.VCGen.Reduce
 public import Lean.Elab.Tactic.VCGen.SpecDB
 public import Lean.Meta.Sym.Apply
 public import Lean.Meta.Sym.Util
+import Std.Internal.Order.FrameClosure
 meta import Std.WP.Frame
 
 open Lean Meta Elab Tactic Sym
@@ -434,22 +435,42 @@ private def analyzeFrameRule (rule : BackwardRule) (opHead : Name) (numExcess : 
     let frameIdx := resultPos.idxOf (xs.idxOf opApp.appFn!.appArg!)
     return { rule, splitVCIdx, frameIdx }
 
+/-- Derive the exception-channel companion `opE : R → EPred → EPred` of the frame operator `op` by
+the structure of `EPred`: `op` itself where the channel carries the assertion type, `EFrame.pointwise`
+under a function layer, `EFrame.prod` on a product layer, and `EFrame.ignore` where the frame
+cannot act. -/
+private partial def mkOpEAppM (R Pred op : Expr) (EPred : Expr) : MetaM Expr := do
+  if ← withReducible <| isDefEq EPred Pred then
+    return op
+  let E ← whnfR EPred
+  if let .forallE _ dom body _ := E then
+    if !body.hasLooseBVars then
+      let inner ← mkOpEAppM R Pred op body
+      return ← mkAppOptM ``Lean.Order.EFrame.pointwise #[none, none, some dom, some inner]
+  if E.isAppOfArity ``Prod 2 then
+    let opA ← mkOpEAppM R Pred op E.appFn!.appArg!
+    let opB ← mkOpEAppM R Pred op E.appArg!
+    return ← mkAppOptM ``Lean.Order.EFrame.prod #[none, none, none, some opA, some opB]
+  mkAppOptM ``Lean.Order.EFrame.ignore #[some EPred, some R]
+
 /--
 The frame backward rule for a frame operator `op : R → Pred → Pred`, built from the frame rule
-`WP.op_wp_upperAdjoint_le_wp`.
+`WP.op_wp_upperAdjoint_le_wp` at the companion `mkOpEAppM` derives.
 
 The rule concludes `pre ⊑ wp prog Q E s⃗` from the split VC `pre ⊑ (op F W) s⃗` and the frame
-condition `PredTrans.Frames op (wpTrans prog) F`, with the frame `F` left schematic and the weakest footprint
-`W = wp prog (fun a => upperAdjoint (op F) (Q a)) E` baked in, so a single rule serves every inferred
-frame. `analyzeFrameRule` records the positions of the schematic slots.
+condition `PredTrans.Frames op opE (wpTrans prog) F`, with the frame `F` left schematic and the
+weakest footprint `W = wp prog (fun a => upperAdjoint (op F) (Q a)) (upperAdjoint (opE F) E)` baked
+in, so a single rule serves every inferred frame. `analyzeFrameRule` records the positions of the
+schematic slots.
 -/
 public def mkFrameBackwardRule (fp : FrameProc) (info : WPApp) :
     MetaM FrameBackwardRule := do
-  -- Pin the program and the operator, leaving everything else schematic;
+  -- Pin the program, the operator, and the derived companion, leaving everything else schematic;
   -- `tryMkBackwardRuleFromSpec` turns the unassigned metavariables into rule parameters.
   let op ← fp.mkOpAppM info
+  let opE ← mkOpEAppM (← fp.mkResourceTy info) info.Pred op info.EPred
   let specProof ← mkAppOptM ``Std.WP.WP.op_wp_upperAdjoint_le_wp
-    ((info.args.take 7).map some ++ #[none, some op, none, none, none])
+    ((info.args.take 7).map some ++ #[none, some op, none, some opE, none])
   let some specThm ← mkSpecTheoremFromStx (← getRef) specProof
     | throwError "frame: could not build the frame spec for operator{indentExpr op}"
   let some rule ← (tryMkBackwardRuleFromSpec specThm info).run

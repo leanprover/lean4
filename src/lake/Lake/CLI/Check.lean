@@ -199,6 +199,30 @@ def sandboxSpawnArgs (spawnArgs : SandboxArgs) : M IO.Process.SpawnArgs := do
     cwd := ← getProjectDir
   }
 
+open IO.Process in
+partial def runSandBoxedWithStdoutTo (handle : IO.FS.Handle) (spawnArgs : SandboxArgs) : M Unit := do
+  let (stderr, exitCode) ← pipedOutput (← sandboxSpawnArgs spawnArgs)
+  IO.eprint stderr
+  if exitCode != 0 then
+    throw <| .userError s!"Child exited with {exitCode}"
+where
+  pipedOutput (args : SpawnArgs) : IO (String × UInt32) := do
+    let child ← spawn { args with stdout := .piped, stderr := .piped, stdin := .null }
+    let stdout ← IO.asTask (prio := .dedicated) do
+      let rec loop : IO Unit := do
+        let buf ← child.stdout.read 4096
+        if buf.isEmpty then
+          handle.flush
+          return ()
+        else
+          handle.write buf
+          loop
+      loop
+    let stderr ← child.stderr.readToEnd
+    let exitCode ← child.wait
+    discard <| IO.ofExcept stdout.get
+    return (stderr, exitCode)
+
 def runSandBoxedWithStdout (spawnArgs : SandboxArgs) : M String := do
   let { stdout, stderr, exitCode } ← IO.Process.output (← sandboxSpawnArgs spawnArgs)
   IO.eprint stderr
@@ -291,18 +315,20 @@ Builds and exports the project in one sandboxed `lake` process, and returns the 
 so the modules to check never cross a process boundary: it resolves them, builds them and dumps the
 export itself, writing the export to stdout and everything else to stderr.
 -/
-def safeBuildAndExport : M String := do
+def withSafeBuildAndExport (f : System.FilePath → M α) : M α := do
   IO.println "Building and exporting"
   let projectDir ← getProjectDir
-  runSandBoxedWithStdout {
-    cmd := (← read).whichLake.toString,
-    args := #["check"],
-    envPass := #["PATH", "HOME", "LEAN_ABORT_ON_PANIC"]
-    envOverride := #[("LEAN_ABORT_ON_PANIC", some "1"), ("LAKE_CHECK_EXPORT", some "1")]
-    readablePaths := #[projectDir, ← getLeanPrefix, ← getLakeHome]
-    writablePaths := #[projectDir / ".lake"]
-    tmpfsPaths := forbiddenPaths
-  }
+  IO.FS.withTempFile fun handle path => do
+    runSandBoxedWithStdoutTo handle {
+      cmd := (← read).whichLake.toString,
+      args := #["check"],
+      envPass := #["PATH", "HOME", "LEAN_ABORT_ON_PANIC"]
+      envOverride := #[("LEAN_ABORT_ON_PANIC", some "1"), ("LAKE_CHECK_EXPORT", some "1")]
+      readablePaths := #[projectDir, ← getLeanPrefix, ← getLakeHome]
+      writablePaths := #[projectDir / ".lake"]
+      tmpfsPaths := forbiddenPaths
+    }
+    f path
 
 def safeLakeBuild (targets : Array Lean.Name) : M Unit := do
   let targetArgs := targets.map (·.toString)
@@ -326,30 +352,32 @@ def safeLakeBuild (targets : Array Lean.Name) : M Unit := do
   }
 
 /-- Runs the bundled exporter in the sandbox, with the grants every export needs. -/
-def runExporter (args : Array String) : M String := do
+def withRunExporter (args : Array String) (f : System.FilePath → M α) : M α := do
   let projectDir ← getProjectDir
   let whichLean4Export := (← read).whichLean4Export
-  runSandBoxedWithStdout {
-    cmd := whichLean4Export.toString
-    args
-    envPass := #["PATH", "LEAN_PATH", "LEAN_ABORT_ON_PANIC"]
-    envOverride := #[("LEAN_ABORT_ON_PANIC", some "1"), ("LEAN_PATH", some (← read).leanPath),
-      ("PATH", some (← read).binPath)]
-    readablePaths := #[projectDir, projectDir / ".lake", ← getLeanPrefix, whichLean4Export]
-    writablePaths := #[]
-    tmpfsPaths := forbiddenPaths
-  }
+  IO.FS.withTempFile fun exportHandle exportPath => do
+    runSandBoxedWithStdoutTo exportHandle {
+      cmd := whichLean4Export.toString
+      args
+      envPass := #["PATH", "LEAN_PATH", "LEAN_ABORT_ON_PANIC"]
+      envOverride := #[("LEAN_ABORT_ON_PANIC", some "1"), ("LEAN_PATH", some (← read).leanPath),
+        ("PATH", some (← read).binPath)]
+      readablePaths := #[projectDir, projectDir / ".lake", ← getLeanPrefix, whichLean4Export]
+      writablePaths := #[]
+      tmpfsPaths := forbiddenPaths
+    }
+    f exportPath
 
-def safeExport (module : Lean.Name) (decls : Array Lean.Name) : M String := do
+def withSafeExport (module : Lean.Name) (decls : Array Lean.Name) (f : System.FilePath → M α) :
+    M α := do
   IO.println s!"Exporting {decls} from {module}"
-  runExporter <| #[module.toString, "--"] ++ decls.map (·.toString)
+  withRunExporter (#[module.toString, "--"] ++ decls.map (·.toString)) f
 
 def runExternalKernel (kernelName : String) (kernelCommand : Array String)
-    (solutionExport : String) : M (Option String) := do
+    (solutionPath : System.FilePath) : M (Option String) := do
   IO.println s!"Running {kernelName} kernel on solution"
   -- just always put out a nanoda-like config file for now
   IO.FS.withTempFile fun configHandle configPath => do
-  IO.FS.withTempFile fun solutionHandle solutionPath => do
     let legalAxioms ← getLegalAxioms
     configHandle.putStr <| Lean.Json.compress <| Lean.Json.mkObj [
       ("use_stdin", false),
@@ -361,9 +389,6 @@ def runExternalKernel (kernelName : String) (kernelCommand : Array String)
       ("string_extension", true),
     ]
     configHandle.flush
-
-    solutionHandle.putStr solutionExport
-    solutionHandle.flush
 
     let mut kernelArgs := kernelCommand[1...*].toArray
     if isNanodaKernel kernelName then
@@ -400,9 +425,9 @@ where
     -- TODO: get rid of this heuristic
     kernelName.contains "noda"
 
-def runBuiltinKernel (solutionExport : String) : M (Option String) := do
+def runBuiltinKernel (solutionPath : System.FilePath) : M (Option String) := do
   let cmd := #[(← read).whichLeanChecker.toString, "--silent", "--from-export"]
-  runExternalKernel "Lean default" cmd solutionExport
+  runExternalKernel "Lean default" cmd solutionPath
 
 def primitiveTargets : M (Array Lean.Name) := do
   -- The challenge needs to have all the built-in constants of the kernel, as the
@@ -445,27 +470,27 @@ def builtinTargets : M (Array Lean.Name) := do
     additional := additional ++ #[``Quot, ``Quot.mk, ``Quot.lift, ``Quot.ind]
   return additional
 
-def stringStream (s : String) : BaseIO IO.FS.Stream := do
-  let ref ← IO.mkRef {
-    data := s.toByteArray
-  }
-  return IO.FS.Stream.ofBuffer ref
-
-def verifyMatch (challengeExport : String) (solutionExport : String) :
+def verifyMatch (challengeExportPath : System.FilePath) (solutionExportPath : System.FilePath) :
     M Unit := do
-  let challenge ← LeanExport.parseStream (← stringStream challengeExport)
-  let solution ← LeanExport.parseStream (← stringStream solutionExport)
-  let theoremNames ← getTheoremNames
-  let definitionNames ← getDefinitionNames
-  let targets := (← getTheoremNames) ++ (← getLegalAxioms)
-  IO.ofExcept <| compareAt challenge solution targets definitionNames (← primitiveTargets)
-  IO.ofExcept <| checkAxioms solution theoremNames definitionNames (← getLegalAxioms)
-  let mut result := none
-  for (kernelName, kernelCommand) in ← getExternalKernels do
-    result := result <|> (← runExternalKernel kernelName kernelCommand solutionExport)
-  result := result <|> (← runBuiltinKernel solutionExport)
-  if let some error := result then
-    throw <| IO.userError error
+  verifyCompare
+  verifyKernels
+where
+  verifyCompare : M Unit := do
+    let challenge ← LeanExport.parseStream <| .ofHandle (← IO.FS.Handle.mk challengeExportPath .read)
+    let solution ← LeanExport.parseStream <| .ofHandle (← IO.FS.Handle.mk solutionExportPath .read)
+    let theoremNames ← getTheoremNames
+    let definitionNames ← getDefinitionNames
+    let targets := (← getTheoremNames) ++ (← getLegalAxioms)
+    IO.ofExcept <| compareAt challenge solution targets definitionNames (← primitiveTargets)
+    IO.ofExcept <| checkAxioms solution theoremNames definitionNames (← getLegalAxioms)
+
+  verifyKernels : M Unit := do
+    let mut result := none
+    for (kernelName, kernelCommand) in ← getExternalKernels do
+      result := result <|> (← runExternalKernel kernelName kernelCommand solutionExportPath)
+    result := result <|> (← runBuiltinKernel solutionExportPath)
+    if let some error := result then
+      throw <| IO.userError error
 
 public def compareIt : M Unit := do
   let exportTargets := (← builtinTargets) ++ (← getTheoremNames) ++ (← getLegalAxioms)
@@ -473,15 +498,12 @@ public def compareIt : M Unit := do
 
   let challengeModule ← getChallengeModule
   safeLakeBuild #[challengeModule]
-  let challengeExport ← safeExport challengeModule exportTargets
-
-  let solutionModule ← getSolutionModule
-  safeLakeBuild #[solutionModule]
-  let solutionExport ← safeExport solutionModule exportTargets
-
-  verifyMatch challengeExport solutionExport
-
-  IO.println "Your solution is okay!"
+  withSafeExport challengeModule exportTargets fun challengeExportPath => do
+    let solutionModule ← getSolutionModule
+    safeLakeBuild #[solutionModule]
+    withSafeExport solutionModule exportTargets fun solutionExportPath => do
+      verifyMatch challengeExportPath solutionExportPath
+      IO.println "Your solution is okay!"
 
 public structure Config where
   challenge_module : String
@@ -587,11 +609,11 @@ def checkUsedAxioms (exported : LeanExport.ExportedEnv) : M Unit := do
 /-- Checks a set of module roots at once against the kernel with no challenge to compare it to. -/
 def checkProject : M Unit := do
   safeResolveDeps
-  let exportedString ← safeBuildAndExport
-  if let some error ← runBuiltinKernel exportedString then
-    throw <| .userError error
-  let exported ← LeanExport.parseStream (← stringStream exportedString)
-  checkUsedAxioms exported
+  withSafeBuildAndExport fun exportPath => do
+    if let some error ← runBuiltinKernel exportPath then
+      throw <| .userError error
+    let exported ← LeanExport.parseStream <| .ofHandle (← IO.FS.Handle.mk exportPath .read)
+    checkUsedAxioms exported
 
 /--
 Runs `lake challenge`: builds and exports the challenge and the solution in a sandbox, then judges

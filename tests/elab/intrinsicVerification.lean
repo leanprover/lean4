@@ -11,8 +11,8 @@ set_option experimental.intrinsic true
 /-! ## Contracts elaborate with nothing opened
 
 The cases up to the `open` below see neither namespace, so they pin what the spec theorem must
-activate by itself. A clause left out defaults to `⊤`, which prints as the constant it denotes
-while its notation is out of scope. -/
+activate by itself. An omitted `requires` defaults to `⊤`, which prints as the constant it
+denotes while its notation is out of scope. -/
 
 def clampLow (n lo : Nat) : Id Nat
     requires lo ≤ n
@@ -31,13 +31,16 @@ def onlyEnsures (n : Nat) : Id Nat
 #guard_msgs in
 #check @onlyEnsures.spec
 
+/-! A contract needs an `ensures` or `throws` clause: an omitted clause claims the
+corresponding exit does not happen, so a contract with neither claims nothing ever happens. -/
+
+/--
+error: a `def` contract needs an `ensures` or `throws` clause; an omitted clause claims the corresponding exit does not happen
+-/
+#guard_msgs in
 def onlyRequire (n : Nat) : Id Nat
     requires 0 ≤ n
   := pure n
-
-/-- info: onlyRequire.spec : ∀ (n : Nat), ⦃ 0 ≤ n ⦄ onlyRequire n ⦃ fun x => Lean.Order.top ⦄ -/
-#guard_msgs in
-#check @onlyRequire.spec
 
 /-! Loop annotations and `assert` also elaborate with nothing opened: the `do` elaborator
 activates the scoped instances of `Std.WP` for the annotation terms. -/
@@ -878,6 +881,7 @@ def peek : StateM Nat Nat
 
 def bumpUnconstrained (k : Nat) : StateM Nat Unit
     given (n : Nat)
+    ensures _ => ⊤
   := modify (· + k)
 
 /-- info: bumpUnconstrained.spec : ∀ (k n : Nat), ⦃ ⊤ ⦄ bumpUnconstrained k ⦃ fun x => ⊤ ⦄ -/
@@ -906,15 +910,17 @@ def checkPos (n : Int) : Except String Int
 #guard_msgs in
 #check @checkPos.spec
 
-/-! A `throws` clause with no `ensures`: the normal postcondition defaults to `⊤`. -/
+/-! A `throws` clause with no `ensures`: the normal postcondition defaults to `⊥`, so the
+contract claims the normal exit is unreachable. -/
 
 def onlyThrows (n : Nat) : Except String Nat
+    requires n = 0
     throws e => e = "zero"
   := do
     if n = 0 then throw "zero"
     return n
 
-/-- info: onlyThrows.spec : ∀ (n : Nat), ⦃ ⊤ ⦄ onlyThrows n ⦃ fun x => ⊤; fun e => e = "zero" ⦄ -/
+/-- info: onlyThrows.spec : ∀ (n : Nat), ⦃ n = 0 ⦄ onlyThrows n ⦃ fun x => ⊥; fun e => e = "zero" ⦄ -/
 #guard_msgs in
 #check @onlyThrows.spec
 
@@ -960,6 +966,11 @@ error: failed to synthesize instance of type class
   EPostSlot ?m.16 Prop EStack⟨⟩
 
 Hint: Type class instance resolution failures can be inspected with the `set_option trace.Meta.synthInstance true` command.
+---
+error: unproved verification conditions for the contract of `noSlot`; discharge them in a `where finally | spec => ...` section of the definition
+case vc1
+n : Nat
+⊢ ⊥
 -/
 #guard_msgs in
 def noSlot (n : Nat) : Id Nat

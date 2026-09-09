@@ -608,13 +608,14 @@ def registerMutVarAlias (x : Name) : DoElabM Unit := do
 /-- Bind `x` to `carried.out` at the underlying type while `k` runs, and zeta-substitute the
 binding away, so the source name reaches proofs and never compiled code. The newest binding of
 `x` must be the carried `Erased` binding. -/
-def withErasedProj (x : Ident) (k : DoElabM Expr) : DoElabM Expr := do
+def withErasedProj (x : Ident) (k : DoElabM Expr) (info : Bool := true) : DoElabM Expr := do
   let carried ← getLocalDeclFromUserName x.getId
   let_expr c@Erased t ← carried.type
     | throwError "the carried binding of ghost variable `{x.getId}` has type{indentExpr carried.type}\ninstead of an `Erased` type"
   let outVal := mkApp2 (mkConst ``Erased.out c.constLevels!) t carried.toExpr
   withLetDecl x.getId t outVal (nondep := true) fun xv => do
-    Term.addLocalVarInfo x xv
+    if info then
+      Term.addLocalVarInfo x xv
     -- Uses of `x` resolve to the projection, so alias it to the variable's base binding for
     -- find-references and rename.
     let baseId := ((← findMutVar? x.getId).map (·.baseId)).getD carried.fvarId
@@ -623,8 +624,8 @@ def withErasedProj (x : Ident) (k : DoElabM Expr) : DoElabM Expr := do
     return (← body.abstractM #[xv]).instantiate1 outVal
 
 /-- Bind the `.out` projection of each ghost variable among `mutVars` around `k`. -/
-def withErasedProjs (mutVars : Array MutVar) (k : DoElabM Expr) : DoElabM Expr :=
-  (mutVars.filter (·.ghost)).foldr (init := k) fun mv k => withErasedProj mv.ident k
+def withErasedProjs (mutVars : Array MutVar) (k : DoElabM Expr) (info : Bool := true) : DoElabM Expr :=
+  (mutVars.filter (·.ghost)).foldr (init := k) fun mv k => withErasedProj mv.ident k info
 
 /-- `Erased t` for the type `t` of runtime-erased data. -/
 def mkErasedApp (t : Expr) : MetaM Expr :=
@@ -641,7 +642,8 @@ fields of the tuple and call `k` in the resulting local context.
 -/
 def bindMutVarsFromTuple (vars : List Name) (tupleVar : FVarId) (k : DoElabM Expr) : DoElabM Expr := do
   let ghosts := (← read).mutVars.filter fun mv => mv.ghost && vars.contains mv.getId
-  let k := withErasedProjs ghosts k
+  -- Like the rebindings themselves, the projections contribute only aliases here.
+  let k := withErasedProjs ghosts k (info := false)
   go vars tupleVar (← tupleVar.getType) #[] k
 where
   go vars tupleVar tupleTy letFVars k := do

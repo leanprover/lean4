@@ -41,14 +41,14 @@ class PreservesSup {α : Type u} [CompleteLattice α] (f : α → α) : Prop whe
   map_sup (s : α → Prop) :
     f (CompleteLattice.sup s) = CompleteLattice.sup (fun y => ∃ x, s x ∧ y = f x)
 
-instance preservesSup_id : PreservesSup (id : α → α) where
+instance : PreservesSup (id : α → α) where
   map_sup s := by
     show CompleteLattice.sup s = _
     congr 1
     funext y
     exact propext ⟨fun hy => ⟨y, hy, rfl⟩, fun ⟨x, hx, hxy⟩ => hxy ▸ hx⟩
 
-instance instPreservesSupComp {ε : Type v} (f : α → α) [PreservesSup f] :
+instance {ε : Type v} (f : α → α) [PreservesSup f] :
     PreservesSup (Function.comp f : (ε → α) → ε → α) where
   map_sup s := by
     funext e
@@ -210,7 +210,7 @@ theorem Prod.snd_sup (c : α × β → Prop) :
     (CompleteLattice.sup c).snd = CompleteLattice.sup fun b => ∃ a, c (a, b) := by
   rw [← Prod.mk_sup]
 
-instance instPreservesSupProdMap (f : α → α) (g : β → β) [PreservesSup f] [PreservesSup g] :
+instance (f : α → α) (g : β → β) [PreservesSup f] [PreservesSup g] :
     PreservesSup (Prod.map f g) where
   map_sup s := by
     show (f (CompleteLattice.sup s).1, g (CompleteLattice.sup s).2) = _

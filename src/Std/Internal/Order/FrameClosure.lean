@@ -28,6 +28,20 @@ namespace Lean.Order
 
 open Std.Internal.Order
 
+/-- A resource action on the two postcondition channels of a `PredTrans Pred EPred`: `op` acts on
+the value channel and its companion `opE` on the exception channel, both preserving suprema.
+Instances derive `opE` from `op` by the structure of `EPred`: `op` itself where the channel carries
+the assertion type, pointwise under a function layer, componentwise on a product layer, and the
+ignoring companion where the frame cannot act. -/
+class FrameOp {Pred : Type u} [CompleteLattice Pred] {R : Type x} (op : R → Pred → Pred)
+    (EPred : Type v) [CompleteLattice EPred] (opE : outParam (R → EPred → EPred)) : Prop where
+  /-- Each `op r` preserves suprema, so it has an upper adjoint. -/
+  [preservesSup : ∀ r, PreservesSup (op r)]
+  /-- Each `opE r` preserves suprema, so it has an upper adjoint. -/
+  [preservesSupE : ∀ r, PreservesSup (opE r)]
+
+attribute [instance] FrameOp.preservesSup FrameOp.preservesSupE
+
 /-!
 ## Exception-channel companion combinators
 
@@ -52,6 +66,41 @@ def prod {A : Type v} {B : Type v'} {R : Type x} (opA : R → A → A) (opB : R 
 /-- The frame cannot act on the channel, so its companion ignores it. -/
 def ignore {A : Type v} {R : Type x} : R → A → A := fun _ => id
 
+end FrameOp
+
+section
+
+variable {Pred : Type u} [CompleteLattice Pred] {R : Type x} {op : R → Pred → Pred}
+  {EPred : Type v} [CompleteLattice EPred]
+
+instance (opE : R → EPred → EPred) [∀ r, PreservesSup (opE r)] (r : R) {ε : Type w} :
+    PreservesSup (FrameOp.pointwise (ε := ε) opE r) :=
+  inferInstanceAs (PreservesSup (Function.comp (opE r)))
+
+instance {B : Type v'} [CompleteLattice B] (opA : R → EPred → EPred) (opB : R → B → B)
+    [∀ r, PreservesSup (opA r)] [∀ r, PreservesSup (opB r)] (r : R) :
+    PreservesSup (FrameOp.prod opA opB r) :=
+  inferInstanceAs (PreservesSup (Prod.map (opA r) (opB r)))
+
+instance (r : R) : PreservesSup (FrameOp.ignore (A := EPred) r) :=
+  inferInstanceAs (PreservesSup (id : EPred → EPred))
+
+instance (priority := high) FrameOp.instDiag [∀ r, PreservesSup (op r)] : FrameOp op Pred op where
+
+instance FrameOp.instPointwise {ε : Type w} {opE : R → EPred → EPred} [FrameOp op EPred opE] :
+    FrameOp op (ε → EPred) (FrameOp.pointwise opE) where
+
+instance FrameOp.instProd {B : Type v'} [CompleteLattice B]
+    {opA : R → EPred → EPred} {opB : R → B → B} [FrameOp op EPred opA] [FrameOp op B opB] :
+    FrameOp op (EPred × B) (FrameOp.prod opA opB) where
+
+instance (priority := low) FrameOp.instIgnore [∀ r, PreservesSup (op r)] :
+    FrameOp op EPred FrameOp.ignore where
+
+end
+
+namespace FrameOp
+
 variable {A : Type u} {B : Type v} {R : Type x} {ε : Type w}
 
 @[simp, grind =] theorem pointwise_apply (opE : R → A → A) (r : R) (E : ε → A) (e : ε) :
@@ -68,17 +117,6 @@ variable {A : Type u} {B : Type v} {R : Type x} {ε : Type w}
 section
 
 variable [CompleteLattice A] [CompleteLattice B]
-
-instance (opE : R → A → A) [∀ r, PreservesSup (opE r)] (r : R) :
-    PreservesSup (pointwise (ε := ε) opE r) :=
-  instPreservesSupComp (opE r)
-
-instance (opA : R → A → A) (opB : R → B → B)
-    [∀ r, PreservesSup (opA r)] [∀ r, PreservesSup (opB r)] (r : R) :
-    PreservesSup (prod opA opB r) :=
-  instPreservesSupProdMap (opA r) (opB r)
-
-instance (r : R) : PreservesSup (ignore (A := A) r) := preservesSup_id
 
 theorem upperAdjoint_pointwise (opE : R → A → A) [∀ r, PreservesSup (opE r)] (r : R) (X : ε → A)
     (e : ε) :
@@ -104,39 +142,6 @@ theorem upperAdjoint_ignore (r : R) (X : A) :
 end
 
 end FrameOp
-
-/-- A resource action on the two postcondition channels of a `PredTrans Pred EPred`: `op` acts on
-the value channel and its companion `opE` on the exception channel, both preserving suprema.
-Instances derive `opE` from `op` by the structure of `EPred`: `op` itself where the channel carries
-the assertion type, pointwise under a function layer, componentwise on a product layer, and the
-ignoring companion where the frame cannot act. -/
-class FrameOp {Pred : Type u} [CompleteLattice Pred] {R : Type x} (op : R → Pred → Pred)
-    (EPred : Type v) [CompleteLattice EPred] (opE : outParam (R → EPred → EPred)) : Prop where
-  /-- Each `op r` preserves suprema, so it has an upper adjoint. -/
-  [preservesSup : ∀ r, PreservesSup (op r)]
-  /-- Each `opE r` preserves suprema, so it has an upper adjoint. -/
-  [preservesSupE : ∀ r, PreservesSup (opE r)]
-
-attribute [instance] FrameOp.preservesSup FrameOp.preservesSupE
-
-section
-
-variable {Pred : Type u} [CompleteLattice Pred] {R : Type x} {op : R → Pred → Pred}
-
-instance (priority := high) FrameOp.instDiag [∀ r, PreservesSup (op r)] : FrameOp op Pred op where
-
-instance FrameOp.instPointwise {ε : Type v} {EPred' : Type v'} [CompleteLattice EPred']
-    {opE' : R → EPred' → EPred'} [FrameOp op EPred' opE'] :
-    FrameOp op (ε → EPred') (FrameOp.pointwise opE') where
-
-instance FrameOp.instProd {A : Type v} {B : Type v'} [CompleteLattice A] [CompleteLattice B]
-    {opA : R → A → A} {opB : R → B → B} [FrameOp op A opA] [FrameOp op B opB] :
-    FrameOp op (A × B) (FrameOp.prod opA opB) where
-
-instance (priority := low) FrameOp.instIgnore {EPred : Type v} [CompleteLattice EPred]
-    [∀ r, PreservesSup (op r)] : FrameOp op EPred FrameOp.ignore where
-
-end
 
 section
 

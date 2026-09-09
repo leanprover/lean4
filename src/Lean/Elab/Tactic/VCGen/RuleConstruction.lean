@@ -437,8 +437,7 @@ private def analyzeFrameRule (rule : BackwardRule) (opHead : Name) (numExcess : 
 
 /--
 The frame backward rule for a frame operator `op : R → Pred → Pred`, built from the frame rule
-`WP.op_wp_upperAdjoint_le_wp` at the companion the `FrameOp` instance at the goal's exception
-postcondition type derives.
+`WP.op_wp_upperAdjoint_le_wp`.
 
 The rule concludes `pre ⊑ wp prog Q E s⃗` from the split VC `pre ⊑ (op F W) s⃗` and the frame
 condition `PredTrans.Frames op (wpTrans prog) F`, with the frame `F` left schematic and the

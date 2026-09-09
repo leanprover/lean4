@@ -42,7 +42,7 @@ int main() {
 }
 EOF
 
-read -ra CC_ARGS <<< "$LEAN_CC"
+read -ra CC_ARGS <<< "${LEAN_CC:-${CC:-cc}}"
 read -ra LEANC_ARGS <<< "$LEANC_OPTS"
 run "${CC_ARGS[@]}" -I"$SRC_DIR/include" "${LEANC_ARGS[@]}" -std=c11 \
   "$TMP_DIR/test.c" -o "$TMP_DIR/test"

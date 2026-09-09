@@ -3,7 +3,7 @@ cat > "$TMP_DIR/test.c" <<'EOF'
 #define LEAN_TEST_HAS_UINT128
 #undef __SIZEOF_INT128__
 #endif
-#include <lean/lean.h>
+#include LEAN_TEST_HEADER
 
 #include <stdint.h>
 
@@ -36,8 +36,8 @@ int main() {
 }
 EOF
 
-read -ra CC_ARGS <<< "${LEAN_CC:-${CC:-cc}}"
 read -ra LEANC_ARGS <<< "$LEANC_OPTS"
-run "${CC_ARGS[@]}" -I"$SRC_DIR/include" "${LEANC_ARGS[@]}" -std=c11 \
+run leanc "-DLEAN_TEST_HEADER=\"$SRC_DIR/include/lean/lean.h\"" \
+  "${LEANC_ARGS[@]}" -std=c11 \
   "$TMP_DIR/test.c" -o "$TMP_DIR/test"
 run "$TMP_DIR/test"

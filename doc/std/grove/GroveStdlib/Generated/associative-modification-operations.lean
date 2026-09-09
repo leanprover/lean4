@@ -10,12 +10,14 @@ open Grove.Framework Widget
 namespace GroveStdlib.Generated.«associative-modification-operations»
 
 
-def table : AssociationTable.Data .subexpression where
-  widgetId := "associative-modification-operations"
-  rows := #[
-  ]
-  facts := #[
-  ]
+def table : RestoreStateM (AssociationTable.Data .subexpression) := do
+  return {
+    widgetId := "associative-modification-operations"
+    rows := #[
+    ]
+    facts := #[
+    ]
+  }
 
 def restoreState : RestoreStateM Unit := do
-  addAssociationTable table
+  addAssociationTable (← table)

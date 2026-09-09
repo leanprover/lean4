@@ -192,18 +192,28 @@ public protected def await (self : Job α) : LogIO α := do
   | .error n {log, ..} => log.replay; throw n
   | .ok a {log, ..} => log.replay; pure a
 
+/-- Fail the current job as canceled (no log entry; see `JobState.canceled`). -/
+public def cancelJob : JobM α := do
+  modify ({· with canceled := true})
+  failure
+
+/--
+Like `wait?`, but a canceled job cancels the current job as well (via
+`cancelJob`), so `none` only ever means a genuine failure.
+-/
+public def waitUnlessCanceled? (self : Job α) : JobM (Option α) := do
+  match (← self.wait) with
+  | .ok a _ => return some a
+  | r@(.error ..) => if r.isCanceled then cancelJob else return none
+
 /--
 The result of a job continuation canceled by the build's cancellation token
-(see `BuildConfig.failFast`). The trace-level log entry keeps the job out of the
-failure summary while still explaining via the verbose output.
-
-Note two conventions we follow here:  
-- the monitor counts a job as failed when `log.maxLv ≥ failLv`, so entries on this path must stay
-below `failLv`
-- the result is an "ordinary" error. We provide `JobResult.isCanceled` to identify cancellations using the log.
+(see `BuildConfig.failFast`). The trace-level entry only gives `Job.await` a
+message to replay; classification uses `JobState.canceled`.
 -/
 @[inline] def canceledResult (s : JobState) : JobResult α :=
-  .error s.log.endPos (s.logEntry (.trace cancelMessage))
+  .error s.log.endPos
+    {s.logEntry (.trace "canceled after earlier build failure") with canceled := true}
 
 /--
 Apply `f` asynchronously to the job's output.

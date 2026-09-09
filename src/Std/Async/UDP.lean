@@ -79,6 +79,8 @@ Receives data from an UDP socket. `size` is for the maximum bytes to receive.
 The promise resolves when some data is available or an error occurs. If the socket
 has not been previously bound with `bind`, it is automatically bound to `0.0.0.0`
 (all interfaces) with a random port.
+If a datagram larger than `size` arrives, it is discarded in its entirety and an `EMSGSIZE` error
+is thrown.
 Furthermore calling this function in parallel with `recvSelector` is not supported.
 -/
 @[inline]

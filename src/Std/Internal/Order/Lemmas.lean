@@ -194,7 +194,7 @@ theorem sup_apply
   PartialOrder.rel_antisymm (le_top _) ((le_top (fun _ : σ => (⊤ : β))) s)
 
 /-- Pointwise characterization of `⊥` on a function lattice. -/
-@[simp] theorem bot_apply {σ : Type vₗ} {β : Type wₗ} [CompleteLattice β] (s : σ) :
+@[simp] theorem bot_apply {σ : Type vₗ} {β : Type wₗ} [CCPO β] (s : σ) :
     (⊥ : σ → β) s = (⊥ : β) :=
   PartialOrder.rel_antisymm ((bot_le (fun _ : σ => (⊥ : β))) s) (bot_le _)
 

@@ -13,6 +13,7 @@ import Lean.Server.FileWorker
 import Lean.Compiler.LCNF.EmitC
 import Init.System.Platform
 import Lean.Compiler.Options
+import Std.Async.Process
 
 /-  Lean companion to  `shell.cpp` -/
 
@@ -559,13 +560,11 @@ def shellMain (args : List String) (opts : ShellOptions) : IO UInt32 := do
     if opts.run then
       return ← runMain env opts.leanOpts args
     if let some c := opts.cFileName? then
-      let .ok out ← IO.FS.Handle.mk c .write |>.toBaseIO
-        | IO.eprintln s!"failed to create '{c}'"
-          return 1
-      profileitIO "C code generation" opts.leanOpts do
-        let data ← Compiler.LCNF.emitC mainModuleName
-          |>.toIO' { fileName, fileMap := default } { env }
-        out.write data.toUTF8
+      writeFileAtomically c fun out => do
+        profileitIO "C code generation" opts.leanOpts do
+          let data ← Compiler.LCNF.emitC mainModuleName
+            |>.toIO' { fileName, fileMap := default } { env }
+          out.write data.toUTF8
     if let some bc := opts.bcFileName? then
       initLLVM
       profileitIO "LLVM code generation" opts.leanOpts do
@@ -577,3 +576,16 @@ def shellMain (args : List String) (opts : ShellOptions) : IO UInt32 := do
     -- When not using the address/leak sanitizer, we interrupt execution without garbage collecting.
     -- This is useful when profiling improvements to Lean startup time.
     IO.Process.exit <| if env?.isSome then 0 else 1
+where
+  writeFileAtomically (name : FilePath) (f : IO.FS.Handle → IO Unit) : IO Unit := do
+    let pid ← Std.IO.Process.getId
+    let tempName := name.addExtension s!"tmp{pid.toUInt64}"
+    try
+      IO.FS.withFile tempName .write fun h => do
+        f h
+        h.flush
+      IO.FS.rename tempName name
+    catch e =>
+      if ← tempName.pathExists then
+        IO.FS.removeFile tempName
+      throw e

@@ -808,7 +808,7 @@ _start:
 lean_object* v___x_215_; lean_object* v___x_216_; lean_object* v___x_217_; 
 v___x_215_ = lean_obj_once(&l_Lean_Elab_instInhabitedTacticInfo_default___closed__1, &l_Lean_Elab_instInhabitedTacticInfo_default___closed__1_once, _init_l_Lean_Elab_instInhabitedTacticInfo_default___closed__1);
 v___x_216_ = lean_unsigned_to_nat(0u);
-v___x_217_ = lean_alloc_ctor(0, 10, 0);
+v___x_217_ = lean_alloc_ctor(0, 11, 0);
 lean_ctor_set(v___x_217_, 0, v___x_216_);
 lean_ctor_set(v___x_217_, 1, v___x_216_);
 lean_ctor_set(v___x_217_, 2, v___x_216_);
@@ -819,6 +819,7 @@ lean_ctor_set(v___x_217_, 6, v___x_215_);
 lean_ctor_set(v___x_217_, 7, v___x_215_);
 lean_ctor_set(v___x_217_, 8, v___x_215_);
 lean_ctor_set(v___x_217_, 9, v___x_215_);
+lean_ctor_set(v___x_217_, 10, v___x_215_);
 return v___x_217_;
 }
 }
@@ -1260,9 +1261,9 @@ return v___x_349_;
 LEAN_EXPORT lean_object* l_Lean_Elab_instReprDocElabKind_repr___boxed(lean_object* v_x_366_, lean_object* v_prec_367_){
 _start:
 {
-uint8_t v_x_233__boxed_368_; lean_object* v_res_369_; 
-v_x_233__boxed_368_ = lean_unbox(v_x_366_);
-v_res_369_ = l_Lean_Elab_instReprDocElabKind_repr(v_x_233__boxed_368_, v_prec_367_);
+uint8_t v_x_225__boxed_368_; lean_object* v_res_369_; 
+v_x_225__boxed_368_ = lean_unbox(v_x_366_);
+v_res_369_ = l_Lean_Elab_instReprDocElabKind_repr(v_x_225__boxed_368_, v_prec_367_);
 lean_dec(v_prec_367_);
 return v_res_369_;
 }

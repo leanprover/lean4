@@ -464,10 +464,10 @@ return v_res_163_;
 LEAN_EXPORT lean_object* l_String_Slice_Pos_prev_x3f(lean_object* v_s_164_, lean_object* v_pos_165_){
 _start:
 {
-lean_object* v___x_166_; uint8_t v___x_167_; 
+lean_object* v___x_166_; uint8_t v_decide_167_; 
 v___x_166_ = lean_unsigned_to_nat(0u);
-v___x_167_ = lean_nat_dec_eq(v_pos_165_, v___x_166_);
-if (v___x_167_ == 0)
+v_decide_167_ = lean_nat_dec_eq(v_pos_165_, v___x_166_);
+if (v_decide_167_ == 0)
 {
 lean_object* v___x_168_; lean_object* v___x_169_; lean_object* v___x_170_; lean_object* v___x_171_; 
 v___x_168_ = lean_unsigned_to_nat(1u);
@@ -537,10 +537,10 @@ return v___x_193_;
 LEAN_EXPORT lean_object* l_String_Slice_Pos_prev_x21(lean_object* v_s_194_, lean_object* v_pos_195_){
 _start:
 {
-lean_object* v___x_196_; uint8_t v___x_197_; 
+lean_object* v___x_196_; uint8_t v_decide_197_; 
 v___x_196_ = lean_unsigned_to_nat(0u);
-v___x_197_ = lean_nat_dec_eq(v_pos_195_, v___x_196_);
-if (v___x_197_ == 0)
+v_decide_197_ = lean_nat_dec_eq(v_pos_195_, v___x_196_);
+if (v_decide_197_ == 0)
 {
 lean_object* v___x_198_; lean_object* v___x_199_; lean_object* v___x_200_; 
 v___x_198_ = lean_unsigned_to_nat(1u);
@@ -726,12 +726,12 @@ return v_p_258_;
 }
 else
 {
-lean_object* v_one_262_; lean_object* v_n_263_; uint8_t v___x_268_; 
+lean_object* v_one_262_; lean_object* v_n_263_; uint8_t v_decide_268_; 
 v_one_262_ = lean_unsigned_to_nat(1u);
 v_n_263_ = lean_nat_sub(v_n_259_, v_one_262_);
 lean_dec(v_n_259_);
-v___x_268_ = lean_nat_dec_eq(v_p_258_, v_zero_260_);
-if (v___x_268_ == 0)
+v_decide_268_ = lean_nat_dec_eq(v_p_258_, v_zero_260_);
+if (v_decide_268_ == 0)
 {
 goto v___jp_264_;
 }

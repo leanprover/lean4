@@ -1,0 +1,16 @@
+name = "lint-package-check"
+defaultTargets = ["Pkg"]
+checks = ["Extra"]
+
+[[lean_lib]]
+name = "Checks"
+
+[[lean_lib]]
+name = "Pkg"
+globs = "Pkg.*"
+
+[[lean_lib]]
+name = "Extra"
+
+[[lean_lib]]
+name = "Failing"

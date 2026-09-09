@@ -262,7 +262,7 @@ def OrderedListType.all : List OrderedListType :=
   [.numDot, .parenAfter]
 
 theorem OrderedListType.all_complete : ∀ x : OrderedListType, x ∈ all := by
-  unfold all; intro x; cases x <;> repeat constructor
+  unfold all; intro x; cases x <;> repeat constructor!
 
 /--
 Unordered lists may have three indicators: asterisks, dashes, or pluses.
@@ -290,7 +290,7 @@ def UnorderedListType.all : List UnorderedListType :=
   [.asterisk, .dash, .plus]
 
 theorem UnorderedListType.all_complete : ∀ x : UnorderedListType, x ∈ all := by
-  unfold all; intro x; cases x <;> repeat constructor
+  unfold all; intro x; cases x <;> repeat constructor!
 
 def unorderedListIndicator (type : UnorderedListType) : ParserFn :=
   asStringFn <|

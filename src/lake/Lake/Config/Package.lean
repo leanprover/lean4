@@ -276,6 +276,10 @@ public def id? (self : Package) : Option PkgId :=
 @[inline] public def precompileModules (self : Package) : Bool :=
   self.config.precompileModules
 
+/-- The package's `precompileImports` configuration. -/
+@[inline] public def precompileImports (self : Package) : Bool :=
+  self.config.precompileImports
+
 /-- The package's `moreGlobalServerArgs` configuration. -/
 @[inline] public def moreGlobalServerArgs (self : Package) : Array String :=
   self.config.moreGlobalServerArgs
@@ -359,6 +363,10 @@ public def id? (self : Package) : Option PkgId :=
 /-- The package's `buildDir` joined with its `leanLibDir` configuration. -/
 @[inline] public def leanLibDir (self : Package) : FilePath :=
   self.buildDir / self.config.leanLibDir.normalize
+
+/-- **For internal use only.** The directory containing Lean header files in a bootstrap package. -/
+@[inline] public def bootstrapIncludeDir (self : Package) : FilePath :=
+  self.buildDir / "include"
 
 /--
 Where static libraries for the package are located.

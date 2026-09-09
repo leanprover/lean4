@@ -1,6 +1,6 @@
 // Lean compiler output
 // Module: Lean.Elab.Tactic.Do
-// Imports: public import Lean.Elab.Tactic.Do.ProofMode public import Lean.Elab.Tactic.Do.Syntax public import Lean.Elab.Tactic.Do.Attr public import Lean.Elab.Tactic.Do.Contract public import Lean.Elab.Tactic.Do.LetElim public import Lean.Elab.Tactic.Do.Spec public import Lean.Elab.Tactic.Do.VCGen public import Lean.Elab.Tactic.Do.Internal
+// Imports: public import Lean.Elab.Tactic.Do.ProofMode public import Lean.Elab.Tactic.Do.Syntax public import Lean.Elab.Tactic.Do.Attr public import Lean.Elab.Tactic.Do.Contract public import Lean.Elab.Tactic.Do.LetElim public import Lean.Elab.Tactic.Do.Spec public import Lean.Elab.Tactic.Do.VCGen
 #include <lean/lean.h>
 #if defined(__clang__)
 #pragma clang diagnostic ignored "-Wunused-parameter"
@@ -20,7 +20,6 @@ lean_object* runtime_initialize_Lean_Elab_Tactic_Do_Contract(uint8_t builtin);
 lean_object* runtime_initialize_Lean_Elab_Tactic_Do_LetElim(uint8_t builtin);
 lean_object* runtime_initialize_Lean_Elab_Tactic_Do_Spec(uint8_t builtin);
 lean_object* runtime_initialize_Lean_Elab_Tactic_Do_VCGen(uint8_t builtin);
-lean_object* runtime_initialize_Lean_Elab_Tactic_Do_Internal(uint8_t builtin);
 void lean_initialize_runtime_module();
 static bool _G_runtime_initialized = false;
 LEAN_EXPORT lean_object* runtime_initialize_Lean_Elab_Tactic_Do(uint8_t builtin) {
@@ -49,9 +48,6 @@ lean_dec_ref(res);
 res = runtime_initialize_Lean_Elab_Tactic_Do_VCGen(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
-res = runtime_initialize_Lean_Elab_Tactic_Do_Internal(builtin);
-if (lean_io_result_is_error(res)) return res;
-lean_dec_ref(res);
 return lean_io_result_mk_ok(lean_box(0));
 }
 static bool _G_meta_initialized = false;
@@ -68,7 +64,6 @@ lean_object* initialize_Lean_Elab_Tactic_Do_Contract(uint8_t builtin);
 lean_object* initialize_Lean_Elab_Tactic_Do_LetElim(uint8_t builtin);
 lean_object* initialize_Lean_Elab_Tactic_Do_Spec(uint8_t builtin);
 lean_object* initialize_Lean_Elab_Tactic_Do_VCGen(uint8_t builtin);
-lean_object* initialize_Lean_Elab_Tactic_Do_Internal(uint8_t builtin);
 static bool _G_initialized = false;
 LEAN_EXPORT lean_object* initialize_Lean_Elab_Tactic_Do(uint8_t builtin) {
 lean_object * res;
@@ -93,9 +88,6 @@ res = initialize_Lean_Elab_Tactic_Do_Spec(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
 res = initialize_Lean_Elab_Tactic_Do_VCGen(builtin);
-if (lean_io_result_is_error(res)) return res;
-lean_dec_ref(res);
-res = initialize_Lean_Elab_Tactic_Do_Internal(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
 res = runtime_initialize_Lean_Elab_Tactic_Do(builtin);

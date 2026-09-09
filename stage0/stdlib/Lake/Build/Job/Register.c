@@ -41,7 +41,7 @@ lean_object* l_mkPanicMessageWithDecl(lean_object*, lean_object*, lean_object*, 
 lean_object* lean_panic_fn_borrowed(lean_object*, lean_object*);
 lean_object* lean_string_from_utf8_unchecked(lean_object*);
 lean_object* lean_st_ref_take(lean_object*);
-lean_object* lean_st_ref_set(lean_object*, lean_object*);
+lean_object* lean_st_ref_put(lean_object*, lean_object*);
 static const lean_array_object l_Lake_JobState_renew___closed__0_value = {.m_header = {.m_rc = 0, .m_cs_sz = sizeof(lean_array_object) + sizeof(void*)*0, .m_other = 0, .m_tag = 246}, .m_size = 0, .m_capacity = 0, .m_data = {}};
 static const lean_object* l_Lake_JobState_renew___closed__0 = (const lean_object*)&l_Lake_JobState_renew___closed__0_value;
 LEAN_EXPORT lean_object* l_Lake_JobState_renew(lean_object*);
@@ -585,7 +585,7 @@ LEAN_EXPORT lean_object* l_Lake_registerJob___redArg___lam__2(lean_object* v___f
 _start:
 {
 lean_object* v_registeredJobs_133_; lean_object* v___x_134_; lean_object* v___x_135_; lean_object* v___x_136_; 
-v_registeredJobs_133_ = lean_ctor_get(v_____do__lift_132_, 3);
+v_registeredJobs_133_ = lean_ctor_get(v_____do__lift_132_, 4);
 lean_inc(v_registeredJobs_133_);
 lean_dec_ref(v_____do__lift_132_);
 v___x_134_ = lean_alloc_closure((void*)(l_ST_Prim_Ref_modifyUnsafe___boxed), 5, 4);
@@ -1223,7 +1223,7 @@ goto v_resetjp_405_;
 v_resetjp_405_:
 {
 lean_object* v_registeredJobs_408_; lean_object* v___x_409_; lean_object* v_job_411_; 
-v_registeredJobs_408_ = lean_ctor_get(v_a_394_, 3);
+v_registeredJobs_408_ = lean_ctor_get(v_a_394_, 4);
 v___x_409_ = lean_st_ref_take(v_registeredJobs_408_);
 if (v_isShared_407_ == 0)
 {
@@ -1248,7 +1248,7 @@ lean_ctor_set_uint8(v_job_411_, sizeof(void*)*3, v_optional_389_);
 lean_inc_ref(v_job_411_);
 v___x_412_ = l_Lake_Job_toOpaque___redArg(v_job_411_);
 v___x_413_ = lean_array_push(v___x_409_, v___x_412_);
-v___x_414_ = lean_st_ref_set(v_registeredJobs_408_, v___x_413_);
+v___x_414_ = lean_st_ref_put(v_registeredJobs_408_, v___x_413_);
 v___x_415_ = l_Lake_Job_renew___redArg(v_job_411_);
 if (v_isShared_402_ == 0)
 {
@@ -1337,7 +1337,7 @@ goto v_resetjp_456_;
 v_resetjp_456_:
 {
 lean_object* v_registeredJobs_459_; lean_object* v___x_460_; lean_object* v_job_462_; 
-v_registeredJobs_459_ = lean_ctor_get(v_a_445_, 3);
+v_registeredJobs_459_ = lean_ctor_get(v_a_445_, 4);
 v___x_460_ = lean_st_ref_take(v_registeredJobs_459_);
 if (v_isShared_458_ == 0)
 {
@@ -1362,7 +1362,7 @@ lean_ctor_set_uint8(v_job_462_, sizeof(void*)*3, v_optional_440_);
 lean_inc_ref(v_job_462_);
 v___x_463_ = l_Lake_Job_toOpaque___redArg(v_job_462_);
 v___x_464_ = lean_array_push(v___x_460_, v___x_463_);
-v___x_465_ = lean_st_ref_set(v_registeredJobs_459_, v___x_464_);
+v___x_465_ = lean_st_ref_put(v_registeredJobs_459_, v___x_464_);
 v___x_466_ = l_Lake_Job_renew___redArg(v_job_462_);
 if (v_isShared_453_ == 0)
 {
@@ -1449,7 +1449,7 @@ goto v_resetjp_500_;
 v_resetjp_500_:
 {
 lean_object* v_registeredJobs_503_; lean_object* v___x_504_; uint8_t v___x_505_; lean_object* v_job_507_; 
-v_registeredJobs_503_ = lean_ctor_get(v_a_490_, 3);
+v_registeredJobs_503_ = lean_ctor_get(v_a_490_, 4);
 v___x_504_ = lean_st_ref_take(v_registeredJobs_503_);
 v___x_505_ = 0;
 if (v_isShared_502_ == 0)
@@ -1475,7 +1475,7 @@ lean_ctor_set_uint8(v_job_507_, sizeof(void*)*3, v___x_505_);
 lean_inc_ref(v_job_507_);
 v___x_508_ = l_Lake_Job_toOpaque___redArg(v_job_507_);
 v___x_509_ = lean_array_push(v___x_504_, v___x_508_);
-v___x_510_ = lean_st_ref_set(v_registeredJobs_503_, v___x_509_);
+v___x_510_ = lean_st_ref_put(v_registeredJobs_503_, v___x_509_);
 v___x_511_ = l_Lake_Job_renew___redArg(v_job_507_);
 v___x_512_ = lean_alloc_ctor(0, 2, 0);
 lean_ctor_set(v___x_512_, 0, v___x_511_);
@@ -1543,7 +1543,7 @@ goto v_resetjp_541_;
 v_resetjp_541_:
 {
 lean_object* v_registeredJobs_544_; lean_object* v___x_545_; uint8_t v___x_546_; lean_object* v_job_548_; 
-v_registeredJobs_544_ = lean_ctor_get(v_a_531_, 3);
+v_registeredJobs_544_ = lean_ctor_get(v_a_531_, 4);
 v___x_545_ = lean_st_ref_take(v_registeredJobs_544_);
 v___x_546_ = 0;
 if (v_isShared_543_ == 0)
@@ -1569,7 +1569,7 @@ lean_ctor_set_uint8(v_job_548_, sizeof(void*)*3, v___x_546_);
 lean_inc_ref(v_job_548_);
 v___x_549_ = l_Lake_Job_toOpaque___redArg(v_job_548_);
 v___x_550_ = lean_array_push(v___x_545_, v___x_549_);
-v___x_551_ = lean_st_ref_set(v_registeredJobs_544_, v___x_550_);
+v___x_551_ = lean_st_ref_put(v_registeredJobs_544_, v___x_550_);
 v___x_552_ = l_Lake_Job_renew___redArg(v_job_548_);
 v___x_553_ = lean_alloc_ctor(0, 2, 0);
 lean_ctor_set(v___x_553_, 0, v___x_552_);

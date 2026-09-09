@@ -77,6 +77,11 @@ instance [BEq α] [Hashable α] : EmptyCollection (HashMap α β) where
 instance [BEq α] [Hashable α] : Inhabited (HashMap α β) where
   default := ∅
 
+@[never_extract, inline, inherit_doc DHashMap.markLinear] def markLinear (m : HashMap α β) : HashMap α β :=
+  ⟨m.inner.markLinear⟩
+
+@[simp, grind =] theorem markLinear_eq {m : HashMap α β} : m.markLinear = m := rfl
+
 @[inherit_doc DHashMap.Equiv]
 structure Equiv (m₁ m₂ : HashMap α β) where
   /-- Internal implementation detail of the hash map -/

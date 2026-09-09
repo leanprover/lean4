@@ -3,7 +3,7 @@ import Std.Tactic.Do
 open Std.Do
 
 set_option grind.warning false
-set_option mvcgen.warning false
+set_option linter.deprecated.syntax false
 
 def ifs_pure (n : Nat) : Id Nat := do
   let mut x := 0

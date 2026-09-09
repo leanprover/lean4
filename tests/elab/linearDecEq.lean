@@ -19,8 +19,8 @@ deriving DecidableEq
 
 /--
 error: Dependent elimination failed: Failed to solve equation
-  Decidable.rec (fun h => (fun x => 1) h) (fun h => (fun x => 0) h) (instDecidableEqBool b✝ true) =
-    Decidable.rec (fun h => (fun x => 1) h) (fun h => (fun x => 0) h) (instDecidableEqBool b true)
+  Bool.rec (motive := fun x => x.Reflects (b✝ = true) → Nat) (fun x => 1) (fun x => 0) (decide (b✝ = true)) ⋯ =
+    Bool.rec (motive := fun x => x.Reflects (b = true) → Nat) (fun x => 1) (fun x => 0) (decide (b = true)) ⋯
 -/
 #guard_msgs in
 inductive DependentStruct2 : Nat → Type where

@@ -40,9 +40,10 @@ h_2 : ¬f x = g x x
   [limits] Thresholds reached
     [limit] maximum term generation has been reached, threshold: `(gen := 3)`
 [grind] Diagnostics
-  [thm] E-Matching instances
-    [thm] feq ↦ 3
-    [thm] geq ↦ 1
+  [ematch] E-matching Diagnostics
+    [thm] Theorem Instance Count
+      [thm] feq ↦ 3
+      [thm] geq ↦ 1
 -/
 #guard_msgs (error) in
 example [Inhabited α] [Add α] [One α] (x z y : α) : g y z = z → g z y = g y x → f x = g x x := by
@@ -99,9 +100,10 @@ h_2 : ¬f (f x) = g x x
   [limits] Thresholds reached
     [limit] maximum term generation has been reached, threshold: `(gen := 2)`
 [grind] Diagnostics
-  [thm] E-Matching instances
-    [thm] feq ↦ 3
-    [thm] geq ↦ 1
+  [ematch] E-matching Diagnostics
+    [thm] Theorem Instance Count
+      [thm] feq ↦ 3
+      [thm] geq ↦ 1
 -/
 #guard_msgs (error) in
 example (x z y : Int) : g y z = z → g z y = g y x → f (f x) = g x x := by

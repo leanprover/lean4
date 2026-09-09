@@ -1,5 +1,5 @@
 import Std.Tactic.Do
-import Std.Internal.Do
+import Std.WP
 
 /-!
 Regression test for `vcgen` splitting a `match h : d with` whose alternatives bind an equality
@@ -9,7 +9,8 @@ Includes the example from issue #12275, where the alternative's body is only wel
 the let-bound discriminant unfolds to its value.
 -/
 
-set_option mvcgen.warning false
+set_option linter.deprecated.syntax false
+set_option experimental.vcgen true
 
 def dep (n : Option Nat) : Id Nat :=
   match _h : n with | some y => pure (y + 1) | none => pure 2
@@ -27,7 +28,7 @@ def both (n m : Option Nat) : Id Nat :=
   | _, _ => pure 1
 
 section
-open Lean.Order Std.Internal.Do
+open Lean.Order Std.WP
 
 example (n : Option Nat) : ⦃ True ⦄ dep n ⦃ fun r => r > 0 ⦄ := by
   vcgen [dep.eq_def] with finish
@@ -55,7 +56,7 @@ def minPathProg : Id Nat := do
   | false => return 0
 
 section
-open Lean.Order Std.Internal.Do
+open Lean.Order Std.WP
 
 example : ⦃ True ⦄ minPathProg ⦃ fun r => r ≤ 1 ⦄ := by
   vcgen [minPathProg] with finish [foo]

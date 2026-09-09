@@ -11,6 +11,7 @@ public import Lean.Compiler.ExternAttr
 public import Lean.Compiler.Specialize
 public import Lean.Compiler.LCNF.Types
 import Init.Omega
+import Lean.Runtime
 
 public section
 
@@ -157,6 +158,14 @@ def CtorInfo.isScalar (info : CtorInfo) : Bool :=
 
 def CtorInfo.type (info : CtorInfo) : Expr :=
   if info.isRef then ImpureType.object else ImpureType.tagged
+
+def CtorInfo.checkValid (info : CtorInfo) : CoreM Unit := do
+  if info.cidx > maxCtorTag && info.isRef then
+    throwError s!"tag for constructor '{info.name}' is too big, this is a limitation of the current runtime"
+  if !info.size < maxCtorFields then
+    throwError s!"constructor '{info.name}' has too many fields"
+  if !info.ssize + info.usize * usizeSize < maxCtorScalarsSize then
+    throwError s!"constructor '{info.name}' has too many scalar fields"
 
 inductive LetValue (pu : Purity) where
   /--

@@ -599,11 +599,11 @@ case 1:
 if (lean_obj_tag(v_x_85_) == 1)
 {
 uint8_t v_v_90_; 
-v_v_90_ = lean_ctor_get_uint8(v_x_84_, 0);
+v_v_90_ = lean_ctor_get_uint8(v_x_85_, 0);
 if (v_v_90_ == 0)
 {
 uint8_t v_v_91_; 
-v_v_91_ = lean_ctor_get_uint8(v_x_85_, 0);
+v_v_91_ = lean_ctor_get_uint8(v_x_84_, 0);
 if (v_v_91_ == 0)
 {
 uint8_t v___x_92_; 
@@ -618,7 +618,7 @@ return v_v_90_;
 else
 {
 uint8_t v_v_93_; 
-v_v_93_ = lean_ctor_get_uint8(v_x_85_, 0);
+v_v_93_ = lean_ctor_get_uint8(v_x_84_, 0);
 return v_v_93_;
 }
 }
@@ -1049,8 +1049,8 @@ goto v_reusejp_251_;
 }
 v_reusejp_251_:
 {
-v___y_162_ = v___y_246_;
-v___y_163_ = v___x_247_;
+v___y_162_ = v___x_247_;
+v___y_163_ = v___y_246_;
 v___y_164_ = v___x_252_;
 goto v___jp_161_;
 }
@@ -1080,8 +1080,8 @@ v_reusejp_256_:
 {
 lean_object* v___x_258_; 
 v___x_258_ = l_Repr_addAppParen(v___x_257_, v___x_254_);
-v___y_162_ = v___y_246_;
-v___y_163_ = v___x_247_;
+v___y_162_ = v___x_247_;
+v___y_163_ = v___y_246_;
 v___y_164_ = v___x_258_;
 goto v___jp_161_;
 }
@@ -1136,13 +1136,13 @@ return v___x_275_;
 v___jp_161_:
 {
 lean_object* v___x_165_; lean_object* v___x_166_; uint8_t v___x_167_; lean_object* v___x_168_; lean_object* v___x_169_; 
-lean_inc(v___y_163_);
-v___x_165_ = lean_alloc_ctor(5, 2, 0);
-lean_ctor_set(v___x_165_, 0, v___y_163_);
-lean_ctor_set(v___x_165_, 1, v___y_164_);
 lean_inc(v___y_162_);
+v___x_165_ = lean_alloc_ctor(5, 2, 0);
+lean_ctor_set(v___x_165_, 0, v___y_162_);
+lean_ctor_set(v___x_165_, 1, v___y_164_);
+lean_inc(v___y_163_);
 v___x_166_ = lean_alloc_ctor(4, 2, 0);
-lean_ctor_set(v___x_166_, 0, v___y_162_);
+lean_ctor_set(v___x_166_, 0, v___y_163_);
 lean_ctor_set(v___x_166_, 1, v___x_165_);
 v___x_167_ = 0;
 v___x_168_ = lean_alloc_ctor(6, 1, 1);

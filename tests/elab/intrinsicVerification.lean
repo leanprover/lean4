@@ -889,3 +889,79 @@ def onOneLine (k : Nat) : Id Nat given (n : Nat) requires k = n ensures r => r =
 /-- info: onOneLine.spec : ∀ (k n : Nat), ⦃ k = n ⦄ onOneLine k ⦃ fun r => r = n ⦄ -/
 #guard_msgs in
 #check @onOneLine.spec
+
+/-! ## The `throws` clause states the exception postcondition
+
+A `throws e => R` clause fills the exception slot of `e`'s type; every other slot stays `⊥`.
+The spec theorem states the assertions as a tuple. -/
+
+def checkPos (n : Int) : Except String Int
+    ensures r => r = n
+    throws e => n ≤ 0 ∧ e = "not positive"
+  := do
+    if n ≤ 0 then throw "not positive"
+    return n
+
+/-- info: checkPos.spec : ∀ (n : Int), ⦃ ⊤ ⦄ checkPos n ⦃ fun r => r = n; fun e => n ≤ 0 ∧ e = "not positive" ⦄ -/
+#guard_msgs in
+#check @checkPos.spec
+
+/-! A `throws` clause with no `ensures`: the normal postcondition defaults to `⊤`. -/
+
+def onlyThrows (n : Nat) : Except String Nat
+    throws e => e = "zero"
+  := do
+    if n = 0 then throw "zero"
+    return n
+
+/-- info: onlyThrows.spec : ∀ (n : Nat), ⦃ ⊤ ⦄ onlyThrows n ⦃ fun x => ⊤; fun e => e = "zero" ⦄ -/
+#guard_msgs in
+#check @onlyThrows.spec
+
+/-! In a state monad the clause binds the state after the exception, like `ensures`. -/
+
+def bumpOrBoom (n : Nat) : EStateM String Nat Unit
+    requires s => s = n
+    ensures _ s => s = n + 1
+    throws e s => e = "boom" ∧ s = n
+  := do
+    if n > 100 then throw "boom"
+    modify (· + 1)
+
+/-- info: bumpOrBoom.spec : ∀ (n : Nat), ⦃ fun s => s = n ⦄ bumpOrBoom n ⦃ fun x s => s = n + 1; fun e s => e = "boom" ∧ s = n ⦄ -/
+#guard_msgs in
+#check @bumpOrBoom.spec
+
+/-! ## Several `throws` clauses fill several slots
+
+An unascribed binder lands in the outermost slot. An ascription `throws (e : ε) => R` selects
+the layer of type `ε`. The unmentioned tail of the stack stays `⊥`. -/
+
+def twoLayer (n : Nat) : ExceptT String (ExceptT Nat (StateM Nat)) Unit
+    requires s => s = n
+    ensures _ s => s = n + 1
+    throws e s => e = "zero" ∧ s = n
+    throws (e : Nat) s => False
+  := do
+    if n = 0 then throw "zero"
+    modify (· + 1)
+
+/--
+info: twoLayer.spec : ∀ (n : Nat),
+  ⦃ fun s => s = n ⦄ twoLayer n ⦃ fun x s => s = n + 1; estack⟨fun e s => e = "zero" ∧ s = n, fun e s => False⟩ ⦄
+-/
+#guard_msgs in
+#check @twoLayer.spec
+
+/-! A monad with no exception layer has no slot to fill. -/
+
+/--
+error: failed to synthesize instance of type class
+  EPostSlot ?m.16 Prop EStack⟨⟩
+
+Hint: Type class instance resolution failures can be inspected with the `set_option trace.Meta.synthInstance true` command.
+-/
+#guard_msgs in
+def noSlot (n : Nat) : Id Nat
+    throws e => True
+  := pure n

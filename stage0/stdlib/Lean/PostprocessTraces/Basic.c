@@ -3590,10 +3590,10 @@ return v___x_1025_;
 LEAN_EXPORT lean_object* l___private_Lean_PostprocessTraces_Basic_0__Lean_Elab_PostprocessTraces_evalPostprocessor___lam__0___boxed(lean_object* v___x_1028_, lean_object* v___x_1029_, lean_object* v___x_1030_, lean_object* v___x_1031_, lean_object* v___x_1032_, lean_object* v___x_1033_, lean_object* v___y_1034_, lean_object* v___y_1035_, lean_object* v___y_1036_, lean_object* v___y_1037_, lean_object* v___y_1038_, lean_object* v___y_1039_, lean_object* v___y_1040_){
 _start:
 {
-uint8_t v___x_5845__boxed_1041_; uint8_t v___x_5847__boxed_1042_; lean_object* v_res_1043_; 
-v___x_5845__boxed_1041_ = lean_unbox(v___x_1030_);
-v___x_5847__boxed_1042_ = lean_unbox(v___x_1032_);
-v_res_1043_ = l___private_Lean_PostprocessTraces_Basic_0__Lean_Elab_PostprocessTraces_evalPostprocessor___lam__0(v___x_1028_, v___x_1029_, v___x_5845__boxed_1041_, v___x_1031_, v___x_5847__boxed_1042_, v___x_1033_, v___y_1034_, v___y_1035_, v___y_1036_, v___y_1037_, v___y_1038_, v___y_1039_);
+uint8_t v___x_5842__boxed_1041_; uint8_t v___x_5844__boxed_1042_; lean_object* v_res_1043_; 
+v___x_5842__boxed_1041_ = lean_unbox(v___x_1030_);
+v___x_5844__boxed_1042_ = lean_unbox(v___x_1032_);
+v_res_1043_ = l___private_Lean_PostprocessTraces_Basic_0__Lean_Elab_PostprocessTraces_evalPostprocessor___lam__0(v___x_1028_, v___x_1029_, v___x_5842__boxed_1041_, v___x_1031_, v___x_5844__boxed_1042_, v___x_1033_, v___y_1034_, v___y_1035_, v___y_1036_, v___y_1037_, v___y_1038_, v___y_1039_);
 lean_dec(v___y_1039_);
 lean_dec_ref(v___y_1038_);
 lean_dec(v___y_1037_);
@@ -3972,11 +3972,11 @@ return v___x_1232_;
 LEAN_EXPORT lean_object* l___private_Lean_PostprocessTraces_Basic_0__Lean_Elab_PostprocessTraces_evalPostprocessor(lean_object* v_post_1233_, lean_object* v_a_1234_, lean_object* v_a_1235_, lean_object* v_a_1236_, lean_object* v_a_1237_, lean_object* v_a_1238_, lean_object* v_a_1239_){
 _start:
 {
-lean_object* v_toCold_1241_; lean_object* v_ref_1242_; lean_object* v_currMacroScope_1243_; lean_object* v_quotContext_1244_; uint8_t v___x_1245_; lean_object* v___x_1246_; lean_object* v___x_1247_; lean_object* v___x_1248_; lean_object* v___x_1249_; lean_object* v___x_1250_; lean_object* v___x_1251_; lean_object* v___x_1252_; lean_object* v___x_1253_; lean_object* v___x_1254_; lean_object* v___x_1255_; lean_object* v___x_1256_; lean_object* v___x_1257_; lean_object* v___x_1258_; lean_object* v___x_1259_; lean_object* v___x_1260_; lean_object* v___x_1261_; lean_object* v___x_1262_; lean_object* v___x_1263_; lean_object* v___x_1264_; lean_object* v___x_1265_; lean_object* v___x_1266_; lean_object* v___x_1267_; lean_object* v___x_1268_; lean_object* v___x_1269_; lean_object* v___x_1270_; lean_object* v___x_1271_; lean_object* v___x_1272_; lean_object* v___x_1273_; lean_object* v___x_1274_; lean_object* v___x_1275_; lean_object* v___x_1276_; lean_object* v___x_1277_; lean_object* v___x_1278_; lean_object* v___x_1279_; lean_object* v___x_1280_; lean_object* v___x_1281_; lean_object* v___x_1282_; lean_object* v___x_1283_; lean_object* v_env_1284_; lean_object* v___x_1285_; lean_object* v___x_1286_; lean_object* v___x_1287_; lean_object* v___x_1288_; uint8_t v___x_1289_; lean_object* v___x_1290_; lean_object* v___x_1291_; lean_object* v___x_1292_; lean_object* v___f_1293_; lean_object* v___x_1294_; lean_object* v___x_1295_; 
+lean_object* v_toCold_1241_; lean_object* v_ref_1242_; lean_object* v_quotContext_1243_; lean_object* v_currMacroScope_1244_; uint8_t v___x_1245_; lean_object* v___x_1246_; lean_object* v___x_1247_; lean_object* v___x_1248_; lean_object* v___x_1249_; lean_object* v___x_1250_; lean_object* v___x_1251_; lean_object* v___x_1252_; lean_object* v___x_1253_; lean_object* v___x_1254_; lean_object* v___x_1255_; lean_object* v___x_1256_; lean_object* v___x_1257_; lean_object* v___x_1258_; lean_object* v___x_1259_; lean_object* v___x_1260_; lean_object* v___x_1261_; lean_object* v___x_1262_; lean_object* v___x_1263_; lean_object* v___x_1264_; lean_object* v___x_1265_; lean_object* v___x_1266_; lean_object* v___x_1267_; lean_object* v___x_1268_; lean_object* v___x_1269_; lean_object* v___x_1270_; lean_object* v___x_1271_; lean_object* v___x_1272_; lean_object* v___x_1273_; lean_object* v___x_1274_; lean_object* v___x_1275_; lean_object* v___x_1276_; lean_object* v___x_1277_; lean_object* v___x_1278_; lean_object* v___x_1279_; lean_object* v___x_1280_; lean_object* v___x_1281_; lean_object* v___x_1282_; lean_object* v___x_1283_; lean_object* v_env_1284_; lean_object* v___x_1285_; lean_object* v___x_1286_; lean_object* v___x_1287_; lean_object* v___x_1288_; uint8_t v___x_1289_; lean_object* v___x_1290_; lean_object* v___x_1291_; lean_object* v___x_1292_; lean_object* v___f_1293_; lean_object* v___x_1294_; lean_object* v___x_1295_; 
 v_toCold_1241_ = lean_ctor_get(v_a_1238_, 0);
-v_ref_1242_ = lean_ctor_get(v_a_1238_, 4);
-v_currMacroScope_1243_ = lean_ctor_get(v_a_1238_, 9);
-v_quotContext_1244_ = lean_ctor_get(v_toCold_1241_, 2);
+v_ref_1242_ = lean_ctor_get(v_a_1238_, 2);
+v_quotContext_1243_ = lean_ctor_get(v_toCold_1241_, 8);
+v_currMacroScope_1244_ = lean_ctor_get(v_toCold_1241_, 9);
 v___x_1245_ = 0;
 v___x_1246_ = l_Lean_SourceInfo_fromRef(v_ref_1242_, v___x_1245_);
 v___x_1247_ = ((lean_object*)(l___private_Lean_PostprocessTraces_Basic_0__Lean_Elab_PostprocessTraces_evalPostprocessor___closed__3));
@@ -3989,9 +3989,9 @@ v___x_1250_ = ((lean_object*)(l___private_Lean_PostprocessTraces_Basic_0__Lean_E
 v___x_1251_ = ((lean_object*)(l___private_Lean_PostprocessTraces_Basic_0__Lean_Elab_PostprocessTraces_evalPostprocessor___closed__9));
 v___x_1252_ = lean_obj_once(&l___private_Lean_PostprocessTraces_Basic_0__Lean_Elab_PostprocessTraces_evalPostprocessor___closed__11, &l___private_Lean_PostprocessTraces_Basic_0__Lean_Elab_PostprocessTraces_evalPostprocessor___closed__11_once, _init_l___private_Lean_PostprocessTraces_Basic_0__Lean_Elab_PostprocessTraces_evalPostprocessor___closed__11);
 v___x_1253_ = ((lean_object*)(l___private_Lean_PostprocessTraces_Basic_0__Lean_Elab_PostprocessTraces_evalPostprocessor___closed__13));
-lean_inc_n(v_currMacroScope_1243_, 3);
-lean_inc_n(v_quotContext_1244_, 3);
-v___x_1254_ = l_Lean_addMacroScope(v_quotContext_1244_, v___x_1253_, v_currMacroScope_1243_);
+lean_inc_n(v_currMacroScope_1244_, 3);
+lean_inc_n(v_quotContext_1243_, 3);
+v___x_1254_ = l_Lean_addMacroScope(v_quotContext_1243_, v___x_1253_, v_currMacroScope_1244_);
 v___x_1255_ = ((lean_object*)(l___private_Lean_PostprocessTraces_Basic_0__Lean_Elab_PostprocessTraces_evalPostprocessor___closed__15));
 v___x_1256_ = lean_alloc_ctor(3, 4, 0);
 lean_ctor_set(v___x_1256_, 0, v___x_1246_);
@@ -4013,7 +4013,7 @@ lean_ctor_set(v___x_1264_, 1, v___x_1263_);
 v___x_1265_ = ((lean_object*)(l___private_Lean_PostprocessTraces_Basic_0__Lean_Elab_PostprocessTraces_evalPostprocessor___closed__23));
 v___x_1266_ = lean_obj_once(&l___private_Lean_PostprocessTraces_Basic_0__Lean_Elab_PostprocessTraces_evalPostprocessor___closed__25, &l___private_Lean_PostprocessTraces_Basic_0__Lean_Elab_PostprocessTraces_evalPostprocessor___closed__25_once, _init_l___private_Lean_PostprocessTraces_Basic_0__Lean_Elab_PostprocessTraces_evalPostprocessor___closed__25);
 v___x_1267_ = lean_box(0);
-v___x_1268_ = l_Lean_addMacroScope(v_quotContext_1244_, v___x_1267_, v_currMacroScope_1243_);
+v___x_1268_ = l_Lean_addMacroScope(v_quotContext_1243_, v___x_1267_, v_currMacroScope_1244_);
 v___x_1269_ = ((lean_object*)(l___private_Lean_PostprocessTraces_Basic_0__Lean_Elab_PostprocessTraces_evalPostprocessor___closed__32));
 v___x_1270_ = lean_alloc_ctor(3, 4, 0);
 lean_ctor_set(v___x_1270_, 0, v___x_1246_);
@@ -4028,7 +4028,7 @@ lean_ctor_set(v___x_1274_, 0, v___x_1246_);
 lean_ctor_set(v___x_1274_, 1, v___x_1273_);
 v___x_1275_ = lean_obj_once(&l___private_Lean_PostprocessTraces_Basic_0__Lean_Elab_PostprocessTraces_evalPostprocessor___closed__35, &l___private_Lean_PostprocessTraces_Basic_0__Lean_Elab_PostprocessTraces_evalPostprocessor___closed__35_once, _init_l___private_Lean_PostprocessTraces_Basic_0__Lean_Elab_PostprocessTraces_evalPostprocessor___closed__35);
 v___x_1276_ = ((lean_object*)(l___private_Lean_PostprocessTraces_Basic_0__Lean_Elab_PostprocessTraces_evalPostprocessor___closed__36));
-v___x_1277_ = l_Lean_addMacroScope(v_quotContext_1244_, v___x_1276_, v_currMacroScope_1243_);
+v___x_1277_ = l_Lean_addMacroScope(v_quotContext_1243_, v___x_1276_, v_currMacroScope_1244_);
 v___x_1278_ = ((lean_object*)(l___private_Lean_PostprocessTraces_Basic_0__Lean_Elab_PostprocessTraces_evalPostprocessor___closed__39));
 v___x_1279_ = lean_alloc_ctor(3, 4, 0);
 lean_ctor_set(v___x_1279_, 0, v___x_1246_);

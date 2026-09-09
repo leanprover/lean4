@@ -4,12 +4,12 @@ source ../common.sh
 ./clean.sh
 
 if [ "`uname`" != Linux ]; then
-  echo "Skipping test: lake challenge needs Linux Landlock"
+  echo "Skipping test: lake challenge needs Linux namespaces"
   exit 0
 fi
 
-# Landlock cannot be assumed available in CI containers; see `../fake-landrun.sh`.
-export COMPARATOR_LANDRUN="$PWD/../fake-landrun.sh"
+# User namespaces cannot be assumed available in CI containers; see `../fake-bwrap.sh`.
+export COMPARATOR_BWRAP="$PWD/../fake-bwrap.sh"
 
 # Without a manifest the command refuses up front, rather than failing inside the sandbox with a
 # bare `permission denied` on the manifest it cannot write.

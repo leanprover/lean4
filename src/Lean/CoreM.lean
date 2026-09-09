@@ -214,18 +214,29 @@ structure State where
   deriving Nonempty
 
 /--
-The pointer-valued fields of `Core.Context` that are updated at most a handful of times per command.
+The pointer-typed fields of `Core.Context` that are not updated on a recursion or `withRef` step.
 
-`withReader` can never reuse the `Context` record, so every `withRef`, `withOptions` or
-`withIncRecDepth` pays one reference count increment per pointer field. Grouping these fields into a
-subobject makes them cost a single increment together.
+`withReader` can never reuse the `Context` record, so every `withIncRecDepth` and `withRef` pays one
+reference count increment per pointer field. Grouping the remaining fields into a subobject makes
+them cost a single increment together.
+
+Rarely-updated fields in particular tend to be MT during async elaboration, which makes RC traffic
+elisions on them even more valueable, explaining an outsized task-clock vs instrs impact of this
+optimization.
 -/
 structure Context.Cold where
   /-- Name of the file being compiled. -/
   fileName       : String
   /-- Auxiliary datastructure for converting `String.Pos` into Line/Column number. -/
   fileMap        : FileMap
+  options        : Options := {}
+  maxRecDepth    : Nat := 1000
+  currNamespace  : Name := Name.anonymous
+  openDecls      : List OpenDecl := []
+  initHeartbeats : Nat := 0
+  maxHeartbeats  : Nat := getMaxHeartbeats options
   quotContext    : Name := .anonymous
+  currMacroScope : MacroScope := firstFrontendMacroScope
   /-- If set, used to cancel elaboration from outside when results are not needed anymore. -/
   cancelTk?      : Option IO.CancelToken := none
   /-- Cache of `Lean.inheritedTraceOptions`. -/
@@ -234,15 +245,8 @@ structure Context.Cold where
 
 /-- Context for the CoreM monad. -/
 structure Context extends Context.Cold where
-  options        : Options := {}
   currRecDepth   : Nat := 0
-  maxRecDepth    : Nat := 1000
   ref            : Syntax := Syntax.missing
-  currNamespace  : Name := Name.anonymous
-  openDecls      : List OpenDecl := []
-  initHeartbeats : Nat := 0
-  maxHeartbeats  : Nat := getMaxHeartbeats options
-  currMacroScope : MacroScope := firstFrontendMacroScope
   /--
   If `diag := true`, different parts of the system collect diagnostics.
   Use the `set_option diag true` to set it to true.

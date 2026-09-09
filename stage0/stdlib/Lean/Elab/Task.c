@@ -431,7 +431,7 @@ lean_closure_set(v___f_97_, 1, v___x_96_);
 v___x_98_ = lean_unsigned_to_nat(0u);
 v___x_99_ = lean_io_as_task(v___f_97_, v___x_98_);
 v_toCold_100_ = lean_ctor_get(v_a_85_, 0);
-v_cancelTk_x3f_101_ = lean_ctor_get(v_toCold_100_, 3);
+v_cancelTk_x3f_101_ = lean_ctor_get(v_toCold_100_, 10);
 v___f_102_ = ((lean_object*)(l_Lean_Core_CoreM_asTask___redArg___closed__0));
 if (lean_obj_tag(v_cancelTk_x3f_101_) == 1)
 {

@@ -95,13 +95,6 @@ on the `leanprover-community/mathlib4-nightly-testing` fork of Mathlib.
 This branch uses the toolchain for your PR, and will report back to the Lean PR with results from Mathlib CI.
 See https://leanprover-community.github.io/contribute/tags_and_branches.html for more details.
 
-### Testing against the Lean Language Reference
-You can test a Lean PR against the reference manual by rebasing your PR
-on to `nightly-with-manual` branch. (It is fine to force push after rebasing.)
-CI will generate a branch of the reference manual called `lean-pr-testing-NNNN`
-in `leanprover/reference-manual`. This branch uses the toolchain for your PR,
-and will report back to the Lean PR with results from Mathlib CI.
-
 ### Avoiding rebuilds for downstream projects
 
 If you want to test changes to Lean on downstream projects and would like to avoid rebuilding modules you have already built/fetched using the project's configured Lean toolchain, you can often do so as long as your build of Lean is close enough to that Lean toolchain (compatible .olean format including structure of all relevant environment extensions).

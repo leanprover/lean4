@@ -6024,7 +6024,7 @@ lean_ctor_set(v___x_1846_, 0, v___x_1843_);
 lean_ctor_set(v___x_1846_, 1, v_a_1831_);
 v___x_1847_ = ((lean_object*)(l_Lean_IR_reshapeAux___closed__0));
 v___x_1848_ = ((lean_object*)(l_Lean_IR_reshapeAux___closed__1));
-v___x_1849_ = lean_unsigned_to_nat(438u);
+v___x_1849_ = lean_unsigned_to_nat(463u);
 v___x_1850_ = lean_unsigned_to_nat(4u);
 v___x_1851_ = ((lean_object*)(l_Lean_IR_reshapeAux___closed__2));
 lean_inc(v_i_1837_);

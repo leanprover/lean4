@@ -4,7 +4,8 @@ import Std.Async.Basic
 import Std.Internal.UV.TCP
 
 /-!
-Tests the error reported when a TCP shutdown is requested while one is already pending.
+Tests the error reported when a TCP shutdown is requested on a socket that already had one
+requested, both while the first request is still pending and after it has finished.
 -/
 
 open Std Async Net Internal.UV
@@ -19,7 +20,7 @@ partial def recvBytes (socket : TCP.Socket) (remaining : Nat) : IO Unit := do
     | throw <| IO.userError "unexpected end of stream"
   recvBytes socket (remaining - chunk.size)
 
-def test : IO String := do
+def connectPair : IO (TCP.Socket × TCP.Socket) := do
   let server ← TCP.Socket.new
   server.bind <| SocketAddressV4.mk (.ofParts 127 0 0 1) 0
   server.listen 1
@@ -27,26 +28,40 @@ def test : IO String := do
 
   let acceptPromise ← server.accept
   let client ← TCP.Socket.new
-  let connectPromise ← client.connect addr
-  blockPromise connectPromise
-  let accepted ← blockPromise acceptPromise
+  blockPromise (← client.connect addr)
+  return (client, ← blockPromise acceptPromise)
+
+def shutdownError (socket : TCP.Socket) : IO String := do
+  try
+    discard socket.shutdown
+    pure "no error"
+  catch
+    | .otherError _ message => pure message
+    | error => pure s!"unexpected error: {error}"
+
+def testPending : IO String := do
+  let (client, accepted) ← connectPair
 
   let size := 8 * 1024 * 1024
   let payload := ByteArray.mk <| Array.replicate size 0
   let sendPromise ← client.send #[payload]
   let shutdownPromise ← client.shutdown
-  let message ← try
-    discard client.shutdown
-    pure "no error"
-  catch
-    | .otherError _ message => pure message
-    | error => pure s!"unexpected error: {error}"
+  let message ← shutdownError client
 
   recvBytes accepted size
   blockPromise sendPromise
   blockPromise shutdownPromise
   return message
 
-/-- info: "shutdown already in progress" -/
+def testFinished : IO String := do
+  let (client, _accepted) ← connectPair
+  blockPromise (← client.shutdown)
+  shutdownError client
+
+/-- info: "shutdown already requested" -/
 #guard_msgs in
-#eval test
+#eval testPending
+
+/-- info: "shutdown already requested" -/
+#guard_msgs in
+#eval testFinished

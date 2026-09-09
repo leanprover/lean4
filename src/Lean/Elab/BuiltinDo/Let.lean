@@ -93,13 +93,14 @@ private def checkLetConfigInDo (config : Term.LetConfig) : DoElabM Unit := do
   if config.generalize then
     throwError "`+generalize` is not supported in `do` blocks"
 
-/-- Rewrite a ghost variable binding to bind the wrapped value: a declaration `x : t := e`
-becomes `x : Erased t := Erased.mk e`, and a reassignment pins `t` from the current binding of
-`x`, so reassignments cannot change the type. -/
+/--
+Wrap a ghost decl `ghost x : t := e` as `let x : Erased t := Erased.mk e`, similarly for
+reassigments.
+-/
 private def wrapGhostDecl (letOrReassign : LetOrReassign) (decl : TSyntax ``letDecl) :
     DoElabM (TSyntax ``letDecl) := do
   let `(letDecl| $x:ident $[: $t?]? := $e) := decl
-    | throwErrorAt decl "`ghost` takes a variable or a pattern"
+    | throwErrorAt decl "`ghost` takes a variable"
   match letOrReassign with
   | .reassign _ =>
     let t ← Term.exprToSyntax (← getLocalDeclFromUserName x.getId).type

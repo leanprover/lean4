@@ -615,6 +615,10 @@ def withErasedProj (x : Ident) (k : DoElabM Expr) : DoElabM Expr := do
   let outVal := mkApp2 (mkConst ``Erased.out c.constLevels!) t carried.toExpr
   withLetDecl x.getId t outVal (nondep := true) fun xv => do
     Term.addLocalVarInfo x xv
+    -- Uses of `x` resolve to the projection, so alias it to the variable's base binding for
+    -- find-references and rename.
+    let baseId := ((← findMutVar? x.getId).map (·.baseId)).getD carried.fvarId
+    pushInfoLeaf <| .ofFVarAliasInfo { userName := x.getId, id := xv.fvarId!, baseId }
     let body ← k
     return (← body.abstractM #[xv]).instantiate1 outVal
 

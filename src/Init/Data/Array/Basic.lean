@@ -547,7 +547,7 @@ It was 3
 #[1, 2, 3, 4]
 ```
 -/
-@[implemented_by modifyMUnsafe]
+@[implemented_by modifyMUnsafe, expose]
 def modifyM [Monad m] (xs : Array α) (i : Nat) (f : α → m α) : m (Array α) := do
   if h : i < xs.size then
     let v   := xs[i]
@@ -565,7 +565,7 @@ Examples:
  * `#[1, 2, 3].modify 2 (· * 10) = #[1, 2, 30]`
  * `#[1, 2, 3].modify 3 (· * 10) = #[1, 2, 3]`
 -/
-@[inline]
+@[inline, expose]
 def modify (xs : Array α) (i : Nat) (f : α → α) : Array α :=
   Id.run <| modifyM xs i (pure <| f ·)
 

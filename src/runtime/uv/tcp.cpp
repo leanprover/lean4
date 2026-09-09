@@ -316,6 +316,8 @@ extern "C" LEAN_EXPORT lean_obj_res lean_uv_tcp_recv(b_obj_arg socket, uint64_t 
         buf->base = (char*)lean_sarray_cptr(tcp_socket->m_byte_array);
         buf->len = lean_sarray_capacity(tcp_socket->m_byte_array);
     }, [](uv_stream_t* stream, ssize_t nread, const uv_buf_t* buf) {
+        if (nread == 0) return;
+
         uv_read_stop(stream);
 
         lean_uv_tcp_socket_object* tcp_socket = lean_to_uv_tcp_socket((lean_object*)stream->data);
@@ -387,6 +389,10 @@ extern "C" LEAN_EXPORT lean_obj_res lean_uv_tcp_wait_readable(b_obj_arg socket) 
         buf->base = NULL;
         buf->len = 0;
     }, [](uv_stream_t* stream, ssize_t nread, const uv_buf_t* buf) {
+        // `nread == 0` is libuv's equivalent of `EAGAIN`: the socket is not actually readable, so
+        // keep waiting rather than resolving the promise.
+        if (nread == 0) return;
+
         uv_read_stop(stream);
 
         lean_uv_tcp_socket_object* tcp_socket = lean_to_uv_tcp_socket((lean_object*)stream->data);

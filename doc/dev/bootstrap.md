@@ -114,7 +114,7 @@ affect later stages. This is an issue in two specific cases.
 * For the special case of *quotations*, it is desirable to have changes in builtin parsers affect them immediately: when the changes in the parser become active in the next stage, builtin macros implemented via quotations should generate syntax trees compatible with the new parser, and quotation patterns in builtin macros and elaborators should be able to match syntax created by the new parser and macros.
   Since quotations capture the syntax tree structure during execution of the current stage and turn it into code for the next stage, we need to run the current stage's builtin parsers in quotations via the interpreter for this to work.
   Caveats:
-  * We activate this behavior by default when building stage 1 by setting `-Dinternal.parseQuotWithCurrentStage=true`.
+  * We activate this behavior by default when building Lean itself (any stage) by setting `-Dinternal.parseQuotWithCurrentStage=true`.
     We force-disable it inside `macro/macro_rules/elab/elab_rules` via `suppressInsideQuot` as they are guaranteed not to run in the next stage and may need to be run in the current one, so the stage 0 parser is the correct one to use for them.
     It may be necessary to extend this disabling to functions that contain quotations and are (exclusively) used by one of the mentioned commands. A function using quotations should never be used by both builtin and non-builtin macros/elaborators. Example: https://github.com/leanprover/lean4/blob/f70b7e5722da6101572869d87832494e2f8534b7/src/Lean/Elab/Tactic/Config.lean#L118-L122
   * The parser needs to be reachable via an `import` statement, otherwise the version of the previous stage will silently be used.
@@ -125,7 +125,7 @@ affect later stages. This is an issue in two specific cases.
 * For *non-builtin* meta code such as `notation`s or `macro`s in
   `Notation.lean`, we expect changes to affect the current file and all later
   files of the same stage immediately, just like outside the stdlib. To ensure
-  this, we build stage 1 using `-Dinterpreter.prefer_native=false` -
+  this, we build Lean using `-Dinterpreter.prefer_native=false` -
   otherwise, when executing a macro, the interpreter would notice that there is
   already a native symbol available for this function and run it instead of the
   new IR, but the symbol is from the previous stage!

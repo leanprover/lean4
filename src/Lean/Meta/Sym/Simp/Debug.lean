@@ -10,7 +10,7 @@ import Lean.Meta.Sym.Simp.Rewrite
 import Lean.Meta.Sym.Simp.Goal
 import Lean.Meta.Sym.Util
 namespace Lean.Meta.Sym
-open Simp
+open Lean.Meta.Sym.Simp
 /-!
 Helper functions for debugging purposes and creating tests.
 -/

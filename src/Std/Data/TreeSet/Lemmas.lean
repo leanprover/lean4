@@ -10,6 +10,7 @@ import Std.Data.TreeMap.Lemmas
 import Std.Data.DTreeMap.Lemmas
 public import Init.Data.Array.Perm
 public import Std.Data.TreeSet.AdditionalOperations
+public import Std.Internal.ForIn.Basic
 
 @[expose] public section
 
@@ -811,6 +812,10 @@ theorem isEmpty_inter_iff [TransCmp cmp] :
     (t₁ ∩ t₂).isEmpty ↔ ∀ k, k ∈ t₁ → k ∉ t₂ :=
   TreeMap.isEmpty_inter_iff
 
+theorem isEmpty_inter_comm [TransCmp cmp] :
+    (t₁ ∩ t₂).isEmpty = (t₂ ∩ t₁).isEmpty :=
+  TreeMap.isEmpty_inter_comm
+
 end Inter
 
 section
@@ -1030,6 +1035,14 @@ theorem forIn_eq_forIn [Monad m] [LawfulMonad m] {f : α → δ → m (ForInStep
 theorem forIn_eq_forIn_toList [Monad m] [LawfulMonad m] {f : α → δ → m (ForInStep δ)} {init : δ} :
     ForIn.forIn t init f = ForIn.forIn t.toList init f :=
   TreeMap.forIn_eq_forIn_keys
+
+@[simp, grind =]
+theorem forIn_toList (c : TreeSet α cmp) : ForIn.toList c = c.toList :=
+  Std.Internal.ForIn.toList_eq_of_forIn_eq fun _ _ => forIn_eq_forIn_toList
+
+instance [Monad m] [LawfulMonad m] :
+    Std.Internal.PureForIn m (TreeSet α cmp) α where
+  forIn_eq _ _ _ := by rw [forIn_toList]; exact forIn_eq_forIn_toList
 
 theorem forIn_eq_forIn_toArray [Monad m] [LawfulMonad m] {f : α → δ → m (ForInStep δ)} {init : δ} :
     ForIn.forIn t init f = ForIn.forIn t.toArray init f := by
@@ -2384,6 +2397,12 @@ private theorem equiv_iff_equiv : t₁ ~m t₂ ↔ t₁.1.Equiv t₂.1 :=
 
 theorem equiv_empty_iff_isEmpty : t ~m empty ↔ t.isEmpty :=
   equiv_iff_equiv.trans TreeMap.equiv_empty_iff_isEmpty
+
+theorem inter_equiv_empty_comm [TransCmp cmp] :
+    (t₁ ∩ t₂) ~m ∅ ↔ (t₂ ∩ t₁) ~m ∅ := by
+  change (t₁ ∩ t₂) ~m empty ↔ (t₂ ∩ t₁) ~m empty
+  rw [equiv_empty_iff_isEmpty, equiv_empty_iff_isEmpty, ← Bool.eq_iff_iff]
+  exact isEmpty_inter_comm
 
 theorem empty_equiv_iff_isEmpty : empty ~m t ↔ t.isEmpty :=
   Equiv.comm.trans equiv_empty_iff_isEmpty

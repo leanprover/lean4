@@ -89,8 +89,7 @@ theorem fold_decl_eq {aig : AIG α} (vec : RefVec aig len)
         =
       aig.decls[idx]'h1 := by
   intros
-  unfold fold
-  dsimp only
+  simp only [fold]
   rw [fold.go_decl_eq]
 
 theorem fold_lt_size_of_lt_aig_size (aig : AIG α) (vec : RefVec aig len)

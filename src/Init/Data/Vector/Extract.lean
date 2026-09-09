@@ -94,9 +94,9 @@ theorem getElem?_extract_of_succ {xs : Vector α n} {j : Nat} :
   simp only [Nat.sub_zero]
   erw [getElem?_extract] -- Why does this not fire by `simp` or `rw`?
   by_cases h : j < n
-  · rw [if_pos (by omega)]
+  · rw [ite_eq_left (by omega)]
     simp
-  · rw [if_neg (by omega)]
+  · rw [ite_eq_right (by omega)]
     simp_all
 
 @[simp, grind =] theorem extract_extract {xs : Vector α n} {i j k l : Nat} :

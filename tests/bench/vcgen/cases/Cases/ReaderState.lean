@@ -7,7 +7,7 @@ state and then subtracts it again, so the loop preserves both the reader and the
 Exercises partially-evaluated `read`/`get`/`set` specs for the reader+state stack.
 -/
 
-open Lean Meta Order Std.Internal.Do
+open Lean Meta Order Std.WP
 
 namespace ReaderState
 

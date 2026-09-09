@@ -605,11 +605,11 @@ goto v___jp_282_;
 }
 v___jp_282_:
 {
-lean_object* v___x_284_; lean_object* v___x_285_; lean_object* v___x_358__overap_286_; lean_object* v___x_287_; lean_object* v___x_288_; lean_object* v___x_289_; uint8_t v___x_290_; lean_object* v___x_291_; lean_object* v___x_292_; 
+lean_object* v___x_284_; lean_object* v___x_285_; lean_object* v___x_351__overap_286_; lean_object* v___x_287_; lean_object* v___x_288_; lean_object* v___x_289_; uint8_t v___x_290_; lean_object* v___x_291_; lean_object* v___x_292_; 
 v___x_284_ = ((lean_object*)(l_Std_Http_Protocol_H1_instReprEvent_repr___closed__12));
 v___x_285_ = lean_unsigned_to_nat(1024u);
-v___x_358__overap_286_ = l_Std_Http_Protocol_H1_instReprHead(v_dir_243_);
-v___x_287_ = lean_apply_2(v___x_358__overap_286_, v_head_281_, v___x_285_);
+v___x_351__overap_286_ = l_Std_Http_Protocol_H1_instReprHead(v_dir_243_);
+v___x_287_ = lean_apply_2(v___x_351__overap_286_, v_head_281_, v___x_285_);
 v___x_288_ = lean_alloc_ctor(5, 2, 0);
 lean_ctor_set(v___x_288_, 0, v___x_284_);
 lean_ctor_set(v___x_288_, 1, v___x_287_);
@@ -892,9 +892,9 @@ return v___x_280_;
 LEAN_EXPORT lean_object* l_Std_Http_Protocol_H1_instReprEvent_repr___boxed(lean_object* v_dir_347_, lean_object* v_x_348_, lean_object* v_prec_349_){
 _start:
 {
-uint8_t v_dir_701__boxed_350_; lean_object* v_res_351_; 
-v_dir_701__boxed_350_ = lean_unbox(v_dir_347_);
-v_res_351_ = l_Std_Http_Protocol_H1_instReprEvent_repr(v_dir_701__boxed_350_, v_x_348_, v_prec_349_);
+uint8_t v_dir_685__boxed_350_; lean_object* v_res_351_; 
+v_dir_685__boxed_350_ = lean_unbox(v_dir_347_);
+v_res_351_ = l_Std_Http_Protocol_H1_instReprEvent_repr(v_dir_685__boxed_350_, v_x_348_, v_prec_349_);
 lean_dec(v_prec_349_);
 return v_res_351_;
 }
@@ -925,11 +925,13 @@ lean_object* runtime_initialize_Std_Http_Protocol_H1_Parser(uint8_t builtin);
 lean_object* runtime_initialize_Std_Http_Protocol_H1_Config(uint8_t builtin);
 lean_object* runtime_initialize_Std_Http_Protocol_H1_Message(uint8_t builtin);
 lean_object* runtime_initialize_Std_Http_Protocol_H1_Error(uint8_t builtin);
+void lean_initialize_runtime_module();
 static bool _G_runtime_initialized = false;
 LEAN_EXPORT lean_object* runtime_initialize_Std_Http_Protocol_H1_Event(uint8_t builtin) {
 lean_object * res;
 if (_G_runtime_initialized) return lean_io_result_mk_ok(lean_box(0));
 _G_runtime_initialized = true;
+lean_initialize_runtime_module();
 res = runtime_initialize_Std_Time(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);

@@ -23,16 +23,6 @@ open Lean Meta
 
 namespace Lean.Linter.EnvLinter
 
-/-- Verbosity for the linter output. -/
-inductive LintVerbosity
-  /-- `low`: only print failing checks, print nothing on success. -/
-  | low
-  /-- `medium`: only print failing checks, print confirmation on success. -/
-  | medium
-  /-- `high`: print output of every check. -/
-  | high
-  deriving Inhabited, DecidableEq, Repr
-
 /--
 Getter for the registered environment linters. The result is sorted by the linter option name.
 -/
@@ -138,7 +128,7 @@ def formatLinterResults
     (decls : Array Name)
     (groupByFilename : Bool)
     (whereDesc : String)
-    (verbose : LintVerbosity) (numLinters : Nat) (useErrorFormat : Bool := false) :
+    (numLinters : Nat) (useErrorFormat : Bool := false) :
     CoreM MessageData := do
   let formattedResults ← results.filterMapM fun (linter, results) => do
     if !results.isEmpty then
@@ -148,15 +138,12 @@ def formatLinterResults
         else
           printWarnings results
       pure $ some m!"/- The `{linter.optName}` linter reports:\n{linter.errorsFound} -/\n{warnings}\n"
-    else if verbose = LintVerbosity.high then
-      pure $ some m!"/- OK: {linter.noErrorsFound} -/"
     else
       pure none
   let mut s := MessageData.joinSep formattedResults.toList Format.line
   let numAutoDecls := (← decls.filterM isAutoDeclOrPrivate_Internal).size
   let failed := results.map (·.2.size) |>.foldl (·+·) 0
-  unless verbose matches LintVerbosity.low do
-    s := m!"-- Found {failed} error{if failed == 1 then "" else "s"
+  s := m!"-- Found {failed} error{if failed == 1 then "" else "s"
       } in {decls.size - numAutoDecls} declarations (plus {
       numAutoDecls} automatically generated ones) {whereDesc
       } with {numLinters} linters\n\n{s}"

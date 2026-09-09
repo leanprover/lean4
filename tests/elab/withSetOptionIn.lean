@@ -132,3 +132,24 @@ set_option linter.all 3 in
 example := trivial
 
 end malformedOption
+
+section resultType
+
+/-!
+This test checks that `withSetOptionIn` can wrap functions with an arbitrary result type,
+such as the phases of a stateful linter. It also checks that the option values are visible
+inside the wrapped function only.
+-/
+
+run_cmd do
+  let stx ← `(command| set_option pp.raw true in set_option pp.explicit true in #check True)
+  let (raw, explicit, inner) ← withSetOptionIn
+    (fun inner => return (pp.raw.get (← getOptions), pp.explicit.get (← getOptions), inner))
+    stx
+  unless raw do throwError "pp.raw was not applied"
+  unless explicit do throwError "pp.explicit was not applied"
+  unless inner.isOfKind ``Lean.Parser.Command.check do
+    throwError "unexpected inner syntax kind: {inner.getKind}"
+  if pp.raw.get (← getOptions) then throwError "options leaked out of `withSetOptionIn`"
+
+end resultType

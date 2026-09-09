@@ -8,10 +8,12 @@ prelude
 public import Lean.Meta.Tactic.Grind.Types
 public import Lean.Meta.Sym.Simp.SimpM
 public import Lean.Meta.Sym.Apply
+public import Lean.Meta.Sym.Simp.Discharger
 import Lean.Meta.Tactic.Grind.Main
 import Lean.Meta.Sym.Simp.Goal
 import Lean.Meta.Sym.Intro
 import Lean.Meta.Sym.Util
+import Lean.Meta.Sym.InstantiateMVarsS
 import Lean.Meta.Tactic.Grind.Solve
 import Lean.Meta.Tactic.Assumption
 namespace Lean.Meta.Grind
@@ -39,6 +41,10 @@ let .closed ← goal.grind | failure
 
 Operations like `introN`, `apply`, and `simp` run in `SymM` for performance.
 `internalize` and `grind` run in `GrindM` to access the E-graph.
+
+`Goal.mkSymSimpDischarger` creates a `Sym.simp` discharger that proves side conditions of
+conditional rewrite rules using `grind`, sharing the goal's internalized local context
+across discharge attempts.
 -/
 
 
@@ -125,5 +131,56 @@ Returns `true` on success.
 public def Goal.assumption (goal : Goal) : MetaM Bool := do
   -- **TODO**: add indexing
   goal.mvarId.assumptionCore
+
+/--
+Attempts to discharge the side condition `e` using `grind`, starting from `goal`'s state.
+
+`goal`'s local context must be a prefix of the current local context, and its hypotheses
+must have already been internalized (e.g., using `Goal.internalizeAll`). Only the remaining
+local declarations (e.g., hypotheses introduced by `Sym.simp` when entering binders) are
+internalized before invoking `grind`.
+
+Results are marked as context-dependent since `grind` uses the local context.
+Issues reported during the attempt are discarded because discharge attempts are speculative.
+-/
+def Goal.dischargeSymSimp (goal : Goal) (e : Expr) : GrindM Sym.Simp.DischargeResult := do
+  -- `e` may contain metavariables assigned while processing the same rewrite step
+  -- (e.g., hypotheses whose types mention previously discharged hypotheses).
+  let e ← Sym.instantiateMVarsS e
+  -- Issues live in the shared `Sym.State` (the base monad), not in the `Grind.State`
+  -- copy discarded by `mkSymSimpDischarger`. Restore them since attempts are speculative.
+  let savedIssues ← Sym.getIssues
+  try
+    let mvar ← mkFreshExprSyntheticOpaqueMVar e
+    let goal := { goal with mvarId := mvar.mvarId! }
+    let goal ← processHypotheses goal
+    if (← solve goal).isSome then
+      return .failed (contextDependent := true)
+    else
+      return .solved (← instantiateMVars mvar) (contextDependent := true)
+  finally
+    modifyThe Sym.State fun s => { s with issues := savedIssues }
+
+/--
+Creates a `Sym.simp` discharger that attempts to prove side conditions using `grind`.
+
+The discharger is parametrized by the `grind` methods, context, and state `s`. Each discharge
+attempt is terminal: it either produces a proof or fails. Thus, it runs `grind` on a copy of
+`s` on top of the ambient `SymM` state, and the resulting `grind` state is discarded.
+
+`goal` provides the initial `GoalState`. Internalizing the local context once (e.g., using
+`Goal.internalizeAll`) and sharing the resulting `GoalState` across discharge attempts avoids
+re-internalizing the common local context prefix for every side condition; only local
+declarations introduced after `goal` was created are internalized per attempt.
+-/
+def mkSymSimpDischarger (goal : Goal) (methods : MethodsRef) (ctx : Context) (s : State) : Sym.Simp.Discharger := fun e => do
+  goal.dischargeSymSimp e methods ctx |>.run' s
+
+/--
+Creates a `Sym.simp` discharger that attempts to prove side conditions using `grind`,
+capturing the current `grind` methods, context, and state. See `mkSymSimpDischarger`.
+-/
+public def Goal.mkSymSimpDischarger (goal : Goal) : GrindM Sym.Simp.Discharger := do
+  return Grind.mkSymSimpDischarger goal (← getMethodsRef) (← readThe Context) (← get)
 
 end Lean.Meta.Grind

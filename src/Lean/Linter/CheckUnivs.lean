@@ -36,19 +36,24 @@ register_builtin_option linter.checkUnivs : Bool := {
 namespace CheckUnivs
 
 /--
-`univParamsGrouped e nm₀` computes for each `Level` occurring in `e` the set of level parameters
-that appear in it, returning the collection of such parameter sets.
+`univParamsGrouped e selfNames` computes for each `Level` occurring in `e` the set of level
+parameters that appear in it, returning the collection of such parameter sets.
 In pseudo-mathematical form, this returns `{{p : parameter | p ∈ u} | (u : level) ∈ e}`.
-Ignores `nm₀.proof_*` sub-constants.
+
+Applications of a constant whose head is in `selfNames` are ignored, as are their `.proof_*`
+sub-constants. `selfNames` holds the declaration being checked and, for an inductive, the other
+types of its mutual block: the universe arguments of a self-reference like `T.{u, v}` are an
+artifact of referring to `T` and must not count as `u` and `v` occurring on their own.
 -/
-private def univParamsGrouped (e : Expr) (nm₀ : Name) : Std.HashSet (Array Name) :=
+private def univParamsGrouped (e : Expr) (selfNames : NameSet) : Std.HashSet (Array Name) :=
   runST fun _ =>
     let go : StateRefT (Std.HashSet (Array Name)) (ST _) Unit := e.forEach fun
       | .sort u =>
         modify (·.insert (CollectLevelParams.visitLevel u {}).params)
       | .const n us => do
-        if let .str n s := n then
-          if n == nm₀ && s.startsWith "proof_" then return
+        if selfNames.contains n then return
+        if let .str p s := n then
+          if selfNames.contains p && s.startsWith "proof_" then return
         modify (us.foldl (·.insert <| CollectLevelParams.visitLevel · {} |>.params))
       | _ => pure ()
     Prod.snd <$> go.run {}
@@ -74,11 +79,22 @@ def checkUnivsLinter : Linter where run := withSetOptionIn fun _ => do
   let env ← getEnv
   let mut seen : NameSet := {}
   for t in ← getInfoTrees do
-    for declName in getNewDecls t do
+    let decls := getNewDecls t
+    for declName in decls do
       if seen.contains declName then continue
       seen := seen.insert declName
       let some info := env.find? declName | continue
-      let bad := badParams (univParamsGrouped info.type declName).toArray
+      -- For an inductive, take constructors into account as well
+      let self : NameSet :=
+        match info with
+        | .inductInfo iv => (.ofList iv.all : NameSet).union (.ofList decls : NameSet)
+        | _              => (.ofList decls)
+      let mut grouped := univParamsGrouped info.type self
+      if let .inductInfo iv := info then
+        for ctor in iv.ctors do
+          if let some cv := env.find? ctor then
+            grouped := (univParamsGrouped cv.type self).toArray.foldl (·.insert ·) grouped
+      let bad := badParams grouped.toArray
       unless bad.isEmpty do
         let univs := MessageData.joinSep (bad.toList.map fun u => m!"`{u}`") ", "
         logLintIf linter.checkUnivs (← getRef)

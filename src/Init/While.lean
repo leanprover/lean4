@@ -12,10 +12,7 @@ public import Init.Classical
 /-!
 # `repeatM`
 
-`repeatM f a` iterates `f : α → m (α ⊕ β)`, recursing on `.inl` and terminating on
-`.inr`. The public unfolding lemma `repeatM_eq_of_monadTail`, which requires a
-`Lean.Order.MonadTail m` instance, lives in `Init.Internal.Order.While` to keep this
-module's import closure small.
+`repeatM f a` iterates `f : α → m (α ⊕ β)`, recursing on `.inl` and terminating on `.inr`.
 -/
 
 variable {α : Type u} {m : Type u → Type v} [Monad m]
@@ -44,9 +41,9 @@ private instance [Nonempty β] {f : α → m (α ⊕ β)} {a : α} :
     Nonempty (Subtype (repeatM.Pred f a)) :=
   open scoped Classical in
   if h : ∃ g, repeatM.body f g = g then
-    ⟨⟨h.choose a, by simp only [repeatM.Pred, dif_pos h]⟩⟩
+    ⟨⟨h.choose a, by simp only [repeatM.Pred, dite_eq_left h]⟩⟩
   else
-    ⟨⟨pure (Classical.choice inferInstance), by simp only [repeatM.Pred, dif_neg h]⟩⟩
+    ⟨⟨pure (Classical.choice inferInstance), by simp only [repeatM.Pred, dite_eq_right h]⟩⟩
 
 /-- Computational core of `repeatM`: returns the loop value paired with its
 `repeatM.Pred` proof. -/
@@ -57,7 +54,7 @@ private partial def repeatM.impl [Nonempty β]
     simp only [repeatM.Pred]
     split <;> rename_i h
     · have key : (fun x => (repeatM.impl f x).val) = h.choose := funext fun x => by
-        simpa only [repeatM.Pred, dif_pos h] using (repeatM.impl f x).property
+        simpa only [repeatM.Pred, dite_eq_left h] using (repeatM.impl f x).property
       rw [key]; exact congrFun h.choose_spec a
     · trivial⟩
 
@@ -68,22 +65,18 @@ Can be removed once `repeatM.impl` optimizes to the same code.
 @[specialize] private partial def repeatM.erased [Nonempty β] (f : α → m (α ⊕ β)) (a : α) : m β :=
   repeatM.body f (repeatM.erased f ·) a
 
-/--
-`repeatM f a` iterates `f` at `a`, recursing on `.inl` and terminating on `.inr`.
-
-Its unfolding lemma is `repeatM_eq_of_monadTail`.
--/
+/-- `repeatM f a` iterates `f` at `a`, recursing on `.inl` and terminating on `.inr`. -/
 @[implemented_by repeatM.erased] -- See comment above `repeatM.erased`.
 public def repeatM [Nonempty β] (f : α → m (α ⊕ β)) (a : α) : m β :=
   (repeatM.impl f a).val
 
--- This lemma is intentionally private. Users are expected to unfold using
--- `repeatM_eq_of_monadTail` instead.
+-- Intentionally private: unfolding `repeatM` needs a `MonadTail m` instance and is done
+-- in `Init.Internal.Order.While`.
 private theorem repeatM_eq [Nonempty β] {f : α → m (α ⊕ β)} (a : α)
     (h : ∃ g, repeatM.body f g = g) :
     repeatM f a = repeatM.body f (repeatM f) a := by
   have key : (fun x => (repeatM.impl f x).val) = h.choose := funext fun x => by
-    simpa only [repeatM.Pred, dif_pos h] using (repeatM.impl f x).property
+    simpa only [repeatM.Pred, dite_eq_left h] using (repeatM.impl f x).property
   show (repeatM.impl f a).val = repeatM.body f (fun x => (repeatM.impl f x).val) a
   rw [key, congrFun key a]; exact (congrFun h.choose_spec a).symm
 

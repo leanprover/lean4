@@ -35,12 +35,12 @@ def blastSub (aig : AIG α) (input : AIG.BinaryRefVec aig w) : AIG.RefVecEntry �
 instance : AIG.LawfulVecOperator α AIG.BinaryRefVec blastSub where
   le_size := by
     intros
-    unfold blastSub
+    simp only [blastSub]
     apply AIG.LawfulVecOperator.le_size_of_le_aig_size (f := blastAdd)
     apply AIG.LawfulVecOperator.le_size (f := blastNeg)
   decl_eq := by
     intros
-    unfold blastSub
+    simp only [blastSub]
     rw [AIG.LawfulVecOperator.decl_eq (f := blastAdd)]
     rw [AIG.LawfulVecOperator.decl_eq (f := blastNeg)]
     apply AIG.LawfulVecOperator.lt_size_of_lt_aig_size (f := blastNeg)

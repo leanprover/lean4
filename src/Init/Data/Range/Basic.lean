@@ -30,7 +30,7 @@ namespace Range
 universe u v
 
 /-- The number of elements in the range. -/
-@[simp, expose] def size (r : Range) : Nat := (r.stop - r.start + r.step - 1) / r.step
+@[simp, grind =, expose] def size (r : Range) : Nat := (r.stop - r.start + r.step - 1) / r.step
 
 @[inline] protected def forIn' [Monad m] (range : Range) (init : β)
     (f : (i : Nat) → i ∈ range → β → m (ForInStep β)) : m β :=

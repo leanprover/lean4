@@ -28,6 +28,9 @@ end Foo
 warning: `Foo.foo` has been deprecated: Use `Foo.bar` instead
 
 Note: `Foo.bar` is protected. References to this constant must include its prefix `Foo` even when inside its namespace.
+
+Hint: Replace the deprecated name:
+  f̵o̵o̵F̲o̲o̲.̲b̲a̲r̲
 -/
 #guard_msgs in
 open Foo in
@@ -35,6 +38,15 @@ example := foo
 
 abbrev Bar := Nat
 
+/--
+warning: `Foo.foo` is itself deprecated in favor of `Foo.bar`; consider deprecating `Bar.bar` in favor of `Foo.bar` instead
+
+Note: This warning can be disabled with `set_option linter.deprecated.deprecatedTarget false`
+
+Hint: Deprecate in favor of `Foo.bar` instead:
+  Foo.f̵o̵o̵b̲a̲r̲
+-/
+#guard_msgs in
 @[deprecated Foo.foo (since := "2025-01-01")]
 def Bar.bar : Bar → Bar := id
 
@@ -85,6 +97,9 @@ end A.B
 warning: `A.B.D` has been deprecated: Use `A.B.C` instead
 
 Note: `A.B.C` is protected. References to this constant must include at least the last component `B` of its prefix `A.B` even when inside its namespace.
+
+Hint: Replace the deprecated name:
+  D̵B̲.̲C̲
 -/
 #guard_msgs in
 open A B in

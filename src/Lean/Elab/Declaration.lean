@@ -359,8 +359,10 @@ def elabMutual : CommandElab := fun stx => do
         @[no_expose] private $[meta%$meta?]? $[unsafe%$unsafe?]? def initFn : IO $type := with_decl_name% $(mkIdent fullId) do $doSeq
         $defStx:command))
     else
-      let `(Parser.Command.declModifiersT| $[$doc?:docComment]? $[@[$attrs?,*]]? $(_)? $[meta%$meta?]? $[unsafe%$unsafe?]?) := declModifiers
+      let `(Parser.Command.declModifiersT| $[$doc?:docComment]? $[@[$attrs?,*]]? $(vis?)? $[meta%$meta?]? $[unsafe%$unsafe?]?) := declModifiers
         | throwErrorAt declModifiers "invalid initialization command, unexpected modifiers"
+      if let some vis := vis? then
+        logWarningAt vis "visibility modifiers have no effect on unnamed initialize blocks"
       let attrs := (attrs?.map (·.getElems)).getD #[]
       let attrs := attrs.push (← `(Lean.Parser.Term.attrInstance| $attrId:ident))
       elabCommand (← `($[$doc?:docComment]? @[no_expose, $[$attrs],*] private $[meta%$meta?]? $[unsafe%$unsafe?]? def initFn : IO Unit := do $doSeq))

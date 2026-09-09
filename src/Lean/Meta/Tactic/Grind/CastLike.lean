@@ -14,9 +14,9 @@ namespace Lean.Meta.Grind
 public def isCastLikeDeclName (declName : Name) : Bool :=
   declName == ``Grind.Ring.OfSemiring.toQ ||
   declName == ``Grind.IntModule.OfNatModule.toQ ||
-  declName == ``Grind.ToInt.toInt ||
   declName == ``NatCast.natCast ||
   declName == ``IntCast.intCast
+  -- TODO: add support for new `toInt` and `toNat`
 
 /-- Returns `true` if `f` is a cast-like operation. -/
 public def isCastLikeFn (f : Expr) : Bool := Id.run do

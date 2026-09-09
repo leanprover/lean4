@@ -58,6 +58,17 @@ LEAN4_NIGHTLY = ReleaseRepo(github=("leanprover", "lean4-nightly"))
 # Don't register this repo!
 
 
+# After the doc-gen4 bump PR has been merged, a workflow in this repo needs to
+# be manually triggered.
+LEAN4_API_DOCS = ReleaseRepo(github=("leanprover", "lean4-api-docs"))
+# Don't register this repo!
+
+
+# Some rc1 bump PRs are created with changes from this repo.
+DOWNSTREAM_LEAN4 = ReleaseRepo(github=("leanprover", "downstream-lean4"))
+# Don't register this repo!
+
+
 # To create a new release, open a PR into `main`. In it, bump the toolchain.
 #
 # For `v4.X.0-rc1` releases, use the existing `bump/v4.X.0` branch. To get the
@@ -71,7 +82,7 @@ LEAN4_NIGHTLY = ReleaseRepo(github=("leanprover", "lean4-nightly"))
 # Then, update the `stable` branch to point to the same commit.
 BATTERIES = ReleaseRepo(
     github=("leanprover-community", "batteries"),
-    bump_branch=True,
+    rc1_pr_base="bump",
     release_tag="lean",
     stable_branch="stable",
 )
@@ -86,6 +97,7 @@ _register(BATTERIES)
 # Then, update the `stable` branch to point to the same commit.
 AESOP = ReleaseRepo(
     github=("leanprover-community", "aesop"),
+    rc1_pr_base="downstream",
     release_tag="lean",
     stable_branch="stable",
     strong_deps=[BATTERIES],
@@ -100,6 +112,7 @@ _register(AESOP)
 # Once the release PR is merged, tag the resulting commit with the lean version.
 LEAN4_CLI = ReleaseRepo(
     github=("leanprover", "lean4-cli"),
+    rc1_pr_base="downstream",
     release_tag="lean",
 )
 _register(LEAN4_CLI)
@@ -112,6 +125,7 @@ _register(LEAN4_CLI)
 # Once the release PR is merged, tag the resulting commit with the lean version.
 IMPORT_GRAPH = ReleaseRepo(
     github=("leanprover-community", "import-graph"),
+    rc1_pr_base="downstream",
     release_tag="lean",
     strong_deps=[LEAN4_CLI],
 )
@@ -124,6 +138,7 @@ _register(IMPORT_GRAPH)
 # Once the release PR is merged, tag the resulting commit with the lean version.
 PLAUSIBLE = ReleaseRepo(
     github=("leanprover-community", "plausible"),
+    rc1_pr_base="downstream",
     release_tag="lean",
 )
 _register(PLAUSIBLE)
@@ -137,6 +152,7 @@ _register(PLAUSIBLE)
 # is merged, tag the resulting commit with the new version number.
 PROOFWIDGETS4 = ReleaseRepo(
     github=("leanprover-community", "ProofWidgets4"),
+    rc1_pr_base="downstream",
     release_tag="proofwidgets",
 )
 _register(PROOFWIDGETS4)
@@ -149,10 +165,23 @@ _register(PROOFWIDGETS4)
 # Then, update the `stable` branch to point to the same commit.
 QUOTE4 = ReleaseRepo(
     github=("leanprover-community", "quote4"),
+    rc1_pr_base="downstream",
     release_tag="lean",
     stable_branch="stable",
 )
 _register(QUOTE4)
+
+
+# To create a new release, open a PR into `main`. In it, bump the toolchain. For
+# `v4.X.0-rc1` releases, you may need to merge `nightly-testing` into the PR.
+#
+# Once the release PR is merged, tag the resulting commit with the lean version.
+LEAN_SEARCH_CLIENT = ReleaseRepo(
+    github=("leanprover-community", "LeanSearchClient"),
+    rc1_pr_base="downstream",
+    release_tag="lean",
+)
+_register(LEAN_SEARCH_CLIENT)
 
 
 # To create a new release, open a PR into `master`. In it, bump the toolchain
@@ -170,9 +199,12 @@ _register(QUOTE4)
 MATHLIB4 = ReleaseRepo(
     github=("leanprover-community", "mathlib4"),
     nightly=ReleaseRepo(github=("leanprover-community", "mathlib4-nightly-testing")),
-    bump_branch=True,
+    rc1_pr_base="bump",
     release_tag="lean",
     stable_branch="stable",
+    # There needs to be a tagged release for patch releases so that the mathlib
+    # cache is available for the new toolchain.
+    patch_release=True,
     strong_deps=[BATTERIES, QUOTE4, AESOP, PROOFWIDGETS4, IMPORT_GRAPH, PLAUSIBLE],
 )
 _register(MATHLIB4)
@@ -192,9 +224,13 @@ _register(MATHLIB4)
 # Then, update the `stable` branch to point to the same commit.
 CSLIB = ReleaseRepo(
     github=("leanprover", "cslib"),
-    bump_branch=True,
+    rc1_pr_base="bump",
     release_tag="lean",
     stable_branch="stable",
+    # If there's a tagged mathlib patch release, there should be an equivalent
+    # tagged cslib release with bumped mathlib. All the other deps should stay
+    # the same.
+    patch_release=True,
     strong_deps=[MATHLIB4],
 )
 _register(CSLIB)
@@ -209,6 +245,7 @@ _register(CSLIB)
 # Then, update the `stable` branch to point to the same commit.
 REPL = ReleaseRepo(
     github=("leanprover-community", "repl"),
+    rc1_pr_base="downstream",
     release_tag="lean",
     stable_branch="stable",
     strong_deps=[MATHLIB4],  # For tests in CI
@@ -222,6 +259,7 @@ _register(REPL)
 # Once the release PR is merged, tag the resulting commit with the lean version.
 ILLUMINATE = ReleaseRepo(
     github=("leanprover", "illuminate"),
+    rc1_pr_base="downstream",
     release_tag="lean",
 )
 _register(ILLUMINATE)
@@ -234,9 +272,10 @@ _register(ILLUMINATE)
 # Once the release PR is merged, tag the resulting commit with the lean version.
 VERSO = ReleaseRepo(
     github=("leanprover", "verso"),
+    rc1_pr_base="downstream",
     release_tag="lean",
     strong_deps=[PLAUSIBLE, ILLUMINATE],
-    weak_deps=[MATHLIB4],  # For benchmarks
+    ignored_deps=[MATHLIB4],  # For benchmarks
 )
 _register(VERSO)
 
@@ -248,6 +287,7 @@ _register(VERSO)
 # Once the release PR is merged, tag the resulting commit with the lean version.
 VERSO_WEB_COMPONENTS = ReleaseRepo(
     github=("leanprover", "verso-web-components"),
+    rc1_pr_base="downstream",
     release_tag="lean",
     strong_deps=[VERSO],
 )
@@ -260,6 +300,7 @@ _register(VERSO_WEB_COMPONENTS)
 # Once the release PR is merged, tag the resulting commit with the lean version.
 VERSO_SLIDES = ReleaseRepo(
     github=("leanprover", "verso-slides"),
+    rc1_pr_base="downstream",
     release_tag="lean",
     strong_deps=[VERSO, ILLUMINATE],
 )
@@ -273,6 +314,7 @@ _register(VERSO_SLIDES)
 VERSO_TEMPLATES = ReleaseRepo(
     github=("leanprover", "verso-templates"),
     toolchain_file="basic-book/lean-toolchain",
+    rc1_pr_base="default",
     release_tag="lean",
     strong_deps=[VERSO, VERSO_SLIDES],
 )
@@ -295,6 +337,7 @@ _register(VERSO_TEMPLATES)
 # commented on by the other developers.
 REFERENCE_MANUAL = ReleaseRepo(
     github=("leanprover", "reference-manual"),
+    rc1_pr_base="downstream",
     release_tag="lean",
     strong_deps=[VERSO_WEB_COMPONENTS, VERSO],
 )
@@ -307,6 +350,7 @@ _register(REFERENCE_MANUAL)
 # merge `nightly-testing` into the PR.
 LEAN_FRO_ORG = ReleaseRepo(
     github=("leanprover", "lean-fro.org"),
+    rc1_pr_base="default",
     strong_deps=[VERSO, VERSO_WEB_COMPONENTS],
 )
 _register(LEAN_FRO_ORG)
@@ -317,6 +361,7 @@ _register(LEAN_FRO_ORG)
 # wait for the maintainer to release a new version.
 LEAN4_UNICODE_BASIC = ReleaseRepo(
     github=("fgdorais", "lean4-unicode-basic"),
+    rc1_pr_base="downstream",
 )
 _register(LEAN4_UNICODE_BASIC)
 
@@ -326,6 +371,7 @@ _register(LEAN4_UNICODE_BASIC)
 # `nightly-testing` into the PR.
 BIBTEX_QUERY = ReleaseRepo(
     github=("dupuisf", "BibtexQuery"),
+    rc1_pr_base="downstream",
     release_tag="lean",
     strong_deps=[LEAN4_UNICODE_BASIC],
 )
@@ -338,6 +384,7 @@ _register(BIBTEX_QUERY)
 # Once the release PR is merged, tag the resulting commit with the lean version.
 LEANSQLITE = ReleaseRepo(
     github=("leanprover", "leansqlite"),
+    rc1_pr_base="downstream",
     release_tag="lean",
     strong_deps=[PLAUSIBLE],
 )
@@ -351,7 +398,12 @@ _register(LEANSQLITE)
 # Once the release PR is merged, tag the resulting commit with the lean version.
 DOC_GEN4 = ReleaseRepo(
     github=("leanprover", "doc-gen4"),
+    rc1_pr_base="downstream",
     release_tag="lean",
+    # https://github.com/leanprover-community/docgen-action/ uses the toolchain
+    # version to determine the doc-gen4 version to use, so there needs to be a
+    # tagged release for patch releases as well.
+    patch_release=True,
     strong_deps=[BIBTEX_QUERY, LEAN4_UNICODE_BASIC, LEAN4_CLI, LEANSQLITE],
     # Doc-gen4 shouldn't lag behind mathlib if possible because of downstream
     # users, and doc-gen4 benchmarks failing for a short while is an acceptable
@@ -369,6 +421,7 @@ BATTERIES.ignored_deps.append(DOC_GEN4)
 # Once the release PR is merged, tag the resulting commit with the lean version.
 LEAN4EXPORT = ReleaseRepo(
     github=("leanprover", "lean4export"),
+    rc1_pr_base="downstream",
     release_tag="lean",
 )
 _register(LEAN4EXPORT)
@@ -379,7 +432,10 @@ _register(LEAN4EXPORT)
 #
 # Once the release PR is merged, tag the resulting commit with the lean version.
 COMPARATOR = ReleaseRepo(
-    github=("leanprover", "comparator"), release_tag="lean", strong_deps=[LEAN4EXPORT]
+    github=("leanprover", "comparator"),
+    rc1_pr_base="downstream",
+    release_tag="lean",
+    strong_deps=[LEAN4EXPORT],
 )
 _register(COMPARATOR)
 

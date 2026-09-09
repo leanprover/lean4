@@ -38,7 +38,7 @@ structure CommandResultSnapshot extends Language.Snapshot where
   cmdState : Command.State
 deriving Nonempty
 instance : ToSnapshotTree CommandResultSnapshot where
-  toSnapshotTree s := ⟨s.toSnapshot, #[]⟩
+  toSnapshotTreeM s := return ⟨← Snapshot.transform s.toSnapshot, #[]⟩
 
 /--
 State before a command is elaborated. This is separate from `CommandParsedSnapshot` so that all
@@ -60,12 +60,11 @@ structure CommandElaboratingSnapshot extends Snapshot where
   reportSnap : SnapshotTask SnapshotTree
 deriving Nonempty
 instance : ToSnapshotTree CommandElaboratingSnapshot where
-  toSnapshotTree := go where
-    go s := ⟨s.toSnapshot,
-      #[s.elabSnap.map (sync := true) toSnapshotTree,
-        s.resultSnap.map (sync := true) toSnapshotTree,
-        s.infoTreeSnap.map (sync := true) toSnapshotTree,
-        s.reportSnap]⟩
+  toSnapshotTreeM s := return ⟨← Snapshot.transform s.toSnapshot,
+    #[← s.elabSnap.transform,
+      ← s.resultSnap.transform,
+      ← s.infoTreeSnap.transform,
+      ← s.reportSnap.transform]⟩
 
 /-- State after a command has been parsed. -/
 structure CommandParsedSnapshot extends Snapshot where
@@ -79,10 +78,11 @@ structure CommandParsedSnapshot extends Snapshot where
   nextCmdSnap? : Option (SnapshotTask CommandParsedSnapshot)
 deriving Nonempty
 partial instance : ToSnapshotTree CommandParsedSnapshot where
-  toSnapshotTree := go where
-    go s := ⟨s.toSnapshot,
-      #[.finished s.stx (toSnapshotTree s.elabSnap)] |>
-        pushOpt (s.nextCmdSnap?.map (·.map (sync := true) go))⟩
+  toSnapshotTreeM := go where
+    go s := do
+      return ⟨← Snapshot.transform s.toSnapshot,
+        #[.finished s.stx (← toSnapshotTreeM s.elabSnap)] |>
+          pushOpt (← s.nextCmdSnap?.mapM (·.transformWith go))⟩
 
 /-- State after successful importing. -/
 structure HeaderProcessedState where
@@ -102,8 +102,9 @@ structure HeaderProcessedSnapshot extends Snapshot where
   result? : Option HeaderProcessedState
   isFatal := result?.isNone
 instance : ToSnapshotTree HeaderProcessedSnapshot where
-  toSnapshotTree s := ⟨s.toSnapshot, #[s.metaSnap.map (sync := true) toSnapshotTree] |>
-    pushOpt (s.result?.map (·.firstCmdSnap.map (sync := true) toSnapshotTree))⟩
+  toSnapshotTreeM s := return ⟨← Snapshot.transform s.toSnapshot,
+    #[← s.metaSnap.transform] |>
+      pushOpt (← s.result?.mapM (·.firstCmdSnap.transform))⟩
 
 /-- State after successfully parsing the module header. -/
 structure HeaderParsedState where
@@ -128,8 +129,9 @@ structure HeaderParsedSnapshot extends Snapshot where
   isFatal := result?.isNone
 
 instance : ToSnapshotTree HeaderParsedSnapshot where
-  toSnapshotTree s := ⟨s.toSnapshot, #[s.metaSnap.map (sync := true) toSnapshotTree] |>
-    pushOpt (s.result?.map (·.processedSnap.map (sync := true) toSnapshotTree))⟩
+  toSnapshotTreeM s := return ⟨← Snapshot.transform s.toSnapshot,
+    #[← s.metaSnap.transform] |>
+      pushOpt (← s.result?.mapM (·.processedSnap.transform))⟩
 
 /-- Shortcut accessor to the final header state, if successful. -/
 def HeaderParsedSnapshot.processedResult (snap : HeaderParsedSnapshot) :

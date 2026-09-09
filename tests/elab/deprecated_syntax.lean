@@ -4,8 +4,8 @@ set_option linter.deprecated.syntax true
 -- Test 1: Direct usage of deprecated term syntax → warning
 deprecated_syntax Lean.Parser.Term.let_fun "use `have` instead" (since := "2026-03-24")
 
--- Note: the paren macro expands to the inner expression, so the warning
--- is attributed to the paren macro call site
+-- Note: the paren macro expands to the inner expression, but the warning
+-- is attributed to the inner expression written by the user.
 #check (let_fun x := 1; x)
 
 /--
@@ -82,3 +82,14 @@ myDepCmd
 
 -- Test 10: missing since emits a warning
 deprecated_syntax Lean.Parser.Term.show
+
+-- Test 11: deprecated syntax inside a `@[deprecated]` definition → no warning,
+-- matching the suppression rule for deprecated constants (RFC #8942)
+@[deprecated "use something else" (since := "2026-07-24")]
+def deprecatedUsesOldTerm : Nat := oldThing
+
+@[deprecated "use something else" (since := "2026-07-24")]
+theorem deprecatedUsesOldTac : True := by myDepTac
+
+-- Test 11b: the same syntax outside a deprecated definition still warns
+def freshUsesOldTerm : Nat := oldThing

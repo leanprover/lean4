@@ -126,6 +126,7 @@ _start:
 {
 lean_object* v_res_28_; 
 v_res_28_ = lean_dbg_trace_if_shared(v_s_26_, v_a_27_);
+lean_dec_ref(v_s_26_);
 return v_res_28_;
 }
 }
@@ -652,11 +653,13 @@ return v_r_312_;
 }
 }
 lean_object* runtime_initialize_Init_Data_ToString_Basic(uint8_t builtin);
+void lean_initialize_runtime_module();
 static bool _G_runtime_initialized = false;
 LEAN_EXPORT lean_object* runtime_initialize_Init_Util(uint8_t builtin) {
 lean_object * res;
 if (_G_runtime_initialized) return lean_io_result_mk_ok(lean_box(0));
 _G_runtime_initialized = true;
+lean_initialize_runtime_module();
 res = runtime_initialize_Init_Data_ToString_Basic(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);

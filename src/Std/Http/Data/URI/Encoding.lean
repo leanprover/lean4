@@ -31,7 +31,7 @@ namespace Std.Http.URI
 
 set_option linter.all true
 
-open Internal Char
+open Http.Internal Char
 
 /--
 Checks if a byte is a valid character in a percent-encoded URI component. Valid characters are

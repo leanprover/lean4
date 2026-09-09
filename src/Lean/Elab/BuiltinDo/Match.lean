@@ -33,7 +33,7 @@ private def elabDoSeqWithRefinedType (type : Expr) (doSeq : DoSeq) (dec : DoElem
   trace[Elab.do.match] "newDoBlockResultType: {newDoBlockResultType}"
   -- The `doBlockResultType` *is* the continuation's return type, since it is duplicable.
   let dec := { dec with resultType := newDoBlockResultType }
-  withDoBlockResultType newDoBlockResultType (elabDoSeq doSeq dec)
+  withRefinedResultType newDoBlockResultType (elabDoSeq doSeq dec)
 
 /--
 Expand a `doMatch` into a term-level `match`. We do this for `match_syntax` and

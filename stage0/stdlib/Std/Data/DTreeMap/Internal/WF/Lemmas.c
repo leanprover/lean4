@@ -1,6 +1,6 @@
 // Lean compiler output
 // Module: Std.Data.DTreeMap.Internal.WF.Lemmas
-// Imports: public import Std.Data.DTreeMap.Internal.Model import all Std.Data.Internal.List.Associative import Init.Data.List.Impl import Init.Data.Nat.Linear import Init.Data.Option.List import Init.Data.Subtype.Basic
+// Imports: public import Std.Data.DTreeMap.Internal.Model import all Std.Data.Internal.List.Associative import Init.Data.List.Impl import Init.Data.Nat.Internal.Linear import Init.Data.Option.List import Init.Data.Subtype.Basic
 #include <lean/lean.h>
 #if defined(__clang__)
 #pragma clang diagnostic ignored "-Wunused-parameter"
@@ -2487,14 +2487,16 @@ return v_res_995_;
 lean_object* runtime_initialize_Std_Data_DTreeMap_Internal_Model(uint8_t builtin);
 lean_object* runtime_initialize_Std_Data_Internal_List_Associative(uint8_t builtin);
 lean_object* runtime_initialize_Init_Data_List_Impl(uint8_t builtin);
-lean_object* runtime_initialize_Init_Data_Nat_Linear(uint8_t builtin);
+lean_object* runtime_initialize_Init_Data_Nat_Internal_Linear(uint8_t builtin);
 lean_object* runtime_initialize_Init_Data_Option_List(uint8_t builtin);
 lean_object* runtime_initialize_Init_Data_Subtype_Basic(uint8_t builtin);
+void lean_initialize_runtime_module();
 static bool _G_runtime_initialized = false;
 LEAN_EXPORT lean_object* runtime_initialize_Std_Data_DTreeMap_Internal_WF_Lemmas(uint8_t builtin) {
 lean_object * res;
 if (_G_runtime_initialized) return lean_io_result_mk_ok(lean_box(0));
 _G_runtime_initialized = true;
+lean_initialize_runtime_module();
 res = runtime_initialize_Std_Data_DTreeMap_Internal_Model(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
@@ -2504,7 +2506,7 @@ lean_dec_ref(res);
 res = runtime_initialize_Init_Data_List_Impl(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
-res = runtime_initialize_Init_Data_Nat_Linear(builtin);
+res = runtime_initialize_Init_Data_Nat_Internal_Linear(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
 res = runtime_initialize_Init_Data_Option_List(builtin);
@@ -2525,7 +2527,7 @@ return lean_io_result_mk_ok(lean_box(0));
 lean_object* initialize_Std_Data_DTreeMap_Internal_Model(uint8_t builtin);
 lean_object* initialize_Std_Data_Internal_List_Associative(uint8_t builtin);
 lean_object* initialize_Init_Data_List_Impl(uint8_t builtin);
-lean_object* initialize_Init_Data_Nat_Linear(uint8_t builtin);
+lean_object* initialize_Init_Data_Nat_Internal_Linear(uint8_t builtin);
 lean_object* initialize_Init_Data_Option_List(uint8_t builtin);
 lean_object* initialize_Init_Data_Subtype_Basic(uint8_t builtin);
 static bool _G_initialized = false;
@@ -2542,7 +2544,7 @@ lean_dec_ref(res);
 res = initialize_Init_Data_List_Impl(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
-res = initialize_Init_Data_Nat_Linear(builtin);
+res = initialize_Init_Data_Nat_Internal_Linear(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
 res = initialize_Init_Data_Option_List(builtin);

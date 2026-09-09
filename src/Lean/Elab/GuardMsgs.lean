@@ -22,11 +22,14 @@ See the docstrings on the individual commands.
 
 open Lean Parser.Tactic Elab Command
 
+namespace Lean
+
 register_builtin_option guard_msgs.diff : Bool := {
   defValue := true
   descr := "When true, show a diff between expected and actual messages if they don't match. "
 }
 
+end Lean
 
 namespace Lean.Elab.Tactic.GuardMsgs
 

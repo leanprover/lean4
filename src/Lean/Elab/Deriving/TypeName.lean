@@ -12,7 +12,7 @@ public import Lean.Elab.Deriving.Basic
 public section
 
 namespace Lean.Elab
-open Command Std Parser Term
+open Command Parser Term
 
 private def deriveTypeNameInstance (declNames : Array Name) : CommandElabM Bool := do
   for declName in declNames do

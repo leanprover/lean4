@@ -10,7 +10,7 @@ section
 #guard_msgs in #check @id
 -- '#print' was unaffected, but throw in a test anyway.
 /--
-info: def id.{u} : {α : Sort u} → α → α :=
+info: @[implicit_reducible] def id.{u} : {α : Sort u} → α → α :=
 fun {α} a => a
 -/
 #guard_msgs in #print id
@@ -23,7 +23,7 @@ set_option pp.raw true
 #guard_msgs in #check @id
 -- '#print' was unaffected, but throw in a test anyway.
 /--
-info: def id.{u} : forall {α : Sort.{u}}, α -> α :=
+info: @[implicit_reducible] def id.{u} : forall {α : Sort.{u}}, α -> α :=
 fun {α : Sort.{u}} (a : α) => a
 -/
 #guard_msgs in #print id

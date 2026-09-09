@@ -35,5 +35,5 @@ info: disc tree lookup match count: 1
   guard dom.isLambda
   guard <| !(Lean.Expr.eta dom).isLambda
 
-  let nMatches := (tree.getMatchWithExtra lhs).size
+  let nMatches := (tree.getMatchWithExtra (← getMCtx) lhs).size
   logInfo m!"disc tree lookup match count: {nMatches}"

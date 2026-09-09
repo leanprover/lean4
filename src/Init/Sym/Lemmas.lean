@@ -42,6 +42,18 @@ theorem ite_false {α : Sort u} (c : Prop) {inst : Decidable c} (a b : α) {ht :
 theorem ite_false_congr {α : Sort u} (c : Prop) {inst : Decidable c} (a b : α) (c' : Prop) (h : c = c') {ht : ¬ c'} : @ite α c inst a b = b := by
   simp [*]
 
+theorem ite_of_decide_eq_true {α : Sort u} (c : Prop) {inst : Decidable c} (a b : α) {ht : decide c = true} : @ite α c inst a b = a := by
+  simp_all
+
+theorem ite_of_decide_eq_false {α : Sort u} (c : Prop) {inst : Decidable c} (a b : α) {ht : decide c = false} : @ite α c inst a b = b := by
+  simp_all
+
+theorem ite_of_decide_eq_true_congr {α : Sort u} (c : Prop) {inst : Decidable c} (a b : α) (c' : Prop) (h : c = c') {_ : Decidable c'} {ht : decide c' = true} : @ite α c inst a b = a := by
+  simp_all
+
+theorem ite_of_decide_eq_false_congr {α : Sort u} (c : Prop) {inst : Decidable c} (a b : α) (c' : Prop) (h : c = c') {_ : Decidable c'} {ht : decide c' = false} : @ite α c inst a b = b := by
+  simp_all
+
 theorem dite_true {α : Sort u} (c : Prop) {inst : Decidable c} (a : c → α) (b : ¬ c → α) {ht : c} : @dite α c inst a b = a ht := by
   simp [*]
 
@@ -132,6 +144,7 @@ theorem BitVec.le_eq_false (a b : BitVec n) (h : decide (a ≤ b) = false) : (a 
 theorem String.le_eq_false (a b : String) (h : decide (a ≤ b) = false) : (a ≤ b) = False := by simp_all
 theorem Char.le_eq_false (a b : Char) (h : decide (a ≤ b) = false) : (a ≤ b) = False := by simp_all
 
+theorem Bool.eq_eq_true (a b : Bool) (h : decide (a = b) = true) : (a = b) = True := by simp_all
 theorem Nat.eq_eq_true (a b : Nat) (h : decide (a = b) = true) : (a = b) = True := by simp_all
 theorem Int.eq_eq_true (a b : Int) (h : decide (a = b) = true) : (a = b) = True := by simp_all
 theorem Rat.eq_eq_true (a b : Rat) (h : decide (a = b) = true) : (a = b) = True := by simp_all
@@ -148,6 +161,7 @@ theorem BitVec.eq_eq_true (a b : BitVec n) (h : decide (a = b) = true) : (a = b)
 theorem String.eq_eq_true (a b : String) (h : decide (a = b) = true) : (a = b) = True := by simp_all
 theorem Char.eq_eq_true (a b : Char) (h : decide (a = b) = true) : (a = b) = True := by simp_all
 
+theorem Bool.eq_eq_false (a b : Bool) (h : decide (a = b) = false) : (a = b) = False := by simp_all
 theorem Nat.eq_eq_false (a b : Nat) (h : decide (a = b) = false) : (a = b) = False := by simp_all
 theorem Int.eq_eq_false (a b : Int) (h : decide (a = b) = false) : (a = b) = False := by simp_all
 theorem Rat.eq_eq_false (a b : Rat) (h : decide (a = b) = false) : (a = b) = False := by simp_all
@@ -175,6 +189,10 @@ theorem decide_isTrue_congr (p p' : Prop) (heq : p = p') {inst : Decidable p} {h
 
 theorem decide_isFalse (p : Prop) {inst : Decidable p} {h : ¬p} : decide p = false := by simp [*]
 theorem decide_isFalse_congr (p p' : Prop) (heq : p = p') {inst : Decidable p} {hnp : ¬p'} : decide p = false := by simp [*]
+
+theorem decide_eq_congr (p p' : Prop) (heq : p = p') {inst : Decidable p} {inst' : Decidable p'}
+    {b : Bool} {h : inst'.decide = b} : inst.decide = b := by
+  subst heq; cases Subsingleton.allEq inst inst'; assumption
 
 theorem decide_prop_eq_true (p : Prop) {inst : Decidable p} (h : p = True) : decide p = true := by simp [*]
 theorem decide_prop_eq_false (p : Prop) {inst : Decidable p} (h : p = False) : decide p = false := by simp [*]

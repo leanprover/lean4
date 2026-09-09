@@ -83,4 +83,10 @@ def getStringValue? (e : Expr) : Option String :=
   | .lit (.strVal s) => some s
   | _ => none
 
+def getBoolValue? (e : Expr) : OptionT Id Bool := do
+  match e with
+  | .const ``Bool.true [] => return Bool.true
+  | .const ``Bool.false [] => return Bool.false
+  | _ => failure
+
 end Lean.Meta.Sym

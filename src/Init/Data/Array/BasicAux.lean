@@ -9,7 +9,7 @@ prelude
 import all Init.Data.Array.Basic
 public import Init.Data.Array.Set
 public import Init.Util
-import Init.Data.Nat.Linear
+import Init.Data.Nat.Internal.Linear
 
 public section
 

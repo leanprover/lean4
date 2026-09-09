@@ -2272,7 +2272,7 @@ theorem Spec.repeatM
   induction n using Nat.strongRecOn with
   | _ n ih =>
     intro a
-    rw [repeatM_eq_of_monadTail (f := f) a]
+    rw [_root_.repeatM.Internal.eq_of_monadTail (f := f) a]
     refine Triple.bind (f := fun x => match x with
       | .inl a' => _root_.repeatM f a' | .inr a' => Pure.pure a')
       (f a) (step a n) ?_

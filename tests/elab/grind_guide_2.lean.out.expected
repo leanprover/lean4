@@ -1,4 +1,3 @@
-Lean.Grind.ToInt.{u} (α : Type u) (range : outParam IntInterval) : Type u
 [grind.debug.proof] fun h h_1 h_2 h_3 h_4 h_5 h_6 h_7 h_8 =>
       id
         (let ctx := RArray.branch 1 (RArray.leaf One.one) (RArray.leaf (f 2));

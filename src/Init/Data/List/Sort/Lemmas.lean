@@ -15,7 +15,7 @@ import Init.Data.List.Pairwise
 import Init.Data.List.Perm
 import Init.Data.List.Range
 import Init.Data.List.Sublist
-import Init.Data.Nat.Linear
+import Init.Data.Nat.Internal.Linear
 import Init.Data.Prod
 
 public section
@@ -152,11 +152,11 @@ theorem cons_merge_cons (s : α → α → Bool) (a b l r) :
 
 @[simp] theorem cons_merge_cons_pos (s : α → α → Bool) (l r) (h : s a b) :
     merge (a::l) (b::r) s = a :: merge l (b::r) s := by
-  rw [cons_merge_cons, if_pos h]
+  rw [cons_merge_cons, ite_eq_left h]
 
 @[simp] theorem cons_merge_cons_neg (s : α → α → Bool) (l r) (h : ¬ s a b) :
     merge (a::l) (b::r) s = b :: merge (a::l) r s := by
-  rw [cons_merge_cons, if_neg h]
+  rw [cons_merge_cons, ite_eq_right h]
 
 @[simp] theorem length_merge (s : α → α → Bool) (l r) :
     (merge l r s).length = l.length + r.length := by
@@ -200,7 +200,7 @@ theorem merge_stable : ∀ (xs ys) (_ : ∀ x y, x ∈ xs → y ∈ ys → x.2 �
   | (i, x) :: xs, (j, y) :: ys, h => by
     simp only [merge, zipIdxLE, map_cons]
     split <;> rename_i w
-    · rw [if_pos (by simp [h _ _ (mem_cons_self ..) (mem_cons_self ..)])]
+    · rw [ite_eq_left (by simp [h _ _ (mem_cons_self ..) (mem_cons_self ..)])]
       simp only [map_cons, cons.injEq, true_and]
       rw [merge_stable, map_cons]
       exact fun x' y' mx my => h x' y' (mem_cons_of_mem (i, x) mx) my
@@ -251,7 +251,7 @@ theorem merge_of_le : ∀ {xs ys : List α} (_ : ∀ a b, a ∈ xs → b ∈ ys 
   | xs, [], _ => by simp
   | x :: xs, y :: ys, h => by
     simp only [merge, cons_append]
-    rw [if_pos, merge_of_le]
+    rw [ite_eq_left, merge_of_le]
     · intro a b ma mb
       exact h a b (mem_cons_of_mem _ ma) mb
     · exact h x y mem_cons_self mem_cons_self
@@ -276,6 +276,39 @@ theorem Perm.merge (s₁ s₂ : α → α → Bool) (hl : l₁ ~ l₂) (hr : r�
 @[simp] theorem mergeSort_nil : [].mergeSort r = [] := by rw [List.mergeSort]
 
 @[simp] theorem mergeSort_singleton (a : α) : [a].mergeSort r = [a] := by rw [List.mergeSort]
+
+/-- Merging the sorted halves of any balanced split of a list gives `mergeSort` of the
+list. A split into contiguous halves is balanced when the first half has the same length
+as the second, or is one element longer. -/
+theorem mergeSort_append (l₁ l₂ : List α)
+    (h₁ : l₂.length ≤ l₁.length) (h₂ : l₁.length ≤ l₂.length + 1) :
+    (l₁ ++ l₂).mergeSort le = merge (l₁.mergeSort le) (l₂.mergeSort le) le := by
+  match l₁, l₂ with
+  | [], l₂ =>
+    obtain rfl : l₂ = [] := by simp_all
+    simp
+  | [a], [] => simp
+  | [a], [b] =>
+    simp only [mergeSort_singleton, singleton_append]
+    rw [List.mergeSort]
+    simp [splitInTwo_fst, splitInTwo_snd]
+  | [a], b :: c :: l₂ =>
+    simp only [length_cons, length_nil] at h₁
+    omega
+  | a :: b :: l₁, l₂ =>
+    rw [cons_append, cons_append, List.mergeSort]
+    have hlen : (l₁.length + l₂.length + 1 + 1 + 1) / 2 = l₁.length + 2 := by
+      simp only [length_cons] at h₁ h₂
+      omega
+    simp only [splitInTwo_fst, splitInTwo_snd, length_cons, length_append, hlen]
+    congr 2 <;> simp
+
+@[simp] theorem mergeSort_pair (a b : α) :
+    [a, b].mergeSort le = if le a b then [a, b] else [b, a] := by
+  rw [show [a, b] = [a] ++ [b] from rfl, mergeSort_append _ _ (by simp) (by simp)]
+  simp only [mergeSort_singleton]
+  rw [List.merge]
+  split <;> simp
 
 theorem mergeSort_perm : ∀ (l : List α) (le), mergeSort l le ~ l
   | [], _ => by simp
@@ -394,7 +427,7 @@ theorem mergeSort_cons {le : α → α → Bool}
       simp only [mem_mergeSort] at ha
       simp only [← q.mem_iff, mem_mergeSort] at hb
       simp only [zipIdxLE]
-      simp only [Bool.if_false_right, Bool.and_eq_true, Prod.mk.injEq, and_imp]
+      simp only [Bool.ite_false_right, Bool.and_eq_true, Prod.mk.injEq, and_imp]
       intro ab h ba h'
       simp only [Bool.decide_eq_true] at ba
       replace h : i ≤ j := by simpa [ab, ba] using h

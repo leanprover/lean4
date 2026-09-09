@@ -322,7 +322,7 @@ If this function is encountered in a proof state, the right approach is usually 
 
 It is a synonym for `Option.map Subtype.val`.
 -/
-@[expose]
+@[expose, implicit_reducible]
 def unattach {α : Type _} {p : α → Prop} (o : Option { x // p x }) := o.map (·.val)
 
 @[simp] theorem unattach_none {p : α → Prop} : (none : Option { x // p x }).unattach = none := rfl

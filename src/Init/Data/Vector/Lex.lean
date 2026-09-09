@@ -115,29 +115,9 @@ protected theorem lt_of_le_of_lt [LT α] [LE α] [LawfulOrderLT α] [IsLinearOrd
     {xs ys zs : Vector α n} (h₁ : xs ≤ ys) (h₂ : ys < zs) : xs < zs :=
   Array.lt_of_le_of_lt h₁ h₂
 
-@[deprecated Vector.lt_of_le_of_lt (since := "2025-08-01")]
-protected theorem lt_of_le_of_lt' [LT α]
-    [Std.Asymm (· < · : α → α → Prop)]
-    [Std.Trichotomous (· < · : α → α → Prop)]
-    [Trans (¬ · < · : α → α → Prop) (¬ · < ·) (¬ · < ·)]
-    {xs ys zs : Vector α n} (h₁ : xs ≤ ys) (h₂ : ys < zs) : xs < zs :=
-  letI := LE.ofLT α
-  haveI : IsLinearOrder α := IsLinearOrder.of_lt
-  Array.lt_of_le_of_lt h₁ h₂
-
 protected theorem le_trans [LT α] [LE α] [LawfulOrderLT α] [IsLinearOrder α]
     {xs ys zs : Vector α n} (h₁ : xs ≤ ys) (h₂ : ys ≤ zs) : xs ≤ zs :=
   fun h₃ => h₁ (Vector.lt_of_le_of_lt h₂ h₃)
-
-@[deprecated Vector.le_trans (since := "2025-08-01")]
-protected theorem le_trans' [LT α]
-    [Std.Asymm (· < · : α → α → Prop)]
-    [Std.Trichotomous (· < · : α → α → Prop)]
-    [Trans (¬ · < · : α → α → Prop) (¬ · < ·) (¬ · < ·)]
-    {xs ys zs : Vector α n} (h₁ : xs ≤ ys) (h₂ : ys ≤ zs) : xs ≤ zs :=
-  letI := LE.ofLT α
-  haveI : IsLinearOrder α := IsLinearOrder.of_lt
-  Array.le_trans h₁ h₂
 
 instance [LT α] [LE α] [LawfulOrderLT α] [IsLinearOrder α] :
     Trans (· ≤ · : Vector α n → Vector α n → Prop) (· ≤ ·) (· ≤ ·) where

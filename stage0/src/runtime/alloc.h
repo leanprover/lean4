@@ -8,9 +8,9 @@ Author: Leonardo de Moura
 #include <stddef.h>
 #include <stdint.h>
 #include <lean/lean.h>
+#include "runtime/alloc_tls.h"
 
 namespace lean {
-void init_thread_heap();
 LEAN_EXPORT void * alloc(size_t sz);
 LEAN_EXPORT void dealloc(void * o, size_t sz);
 LEAN_EXPORT void set_heartbeats(uint64_t count);

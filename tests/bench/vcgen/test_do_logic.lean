@@ -4,10 +4,10 @@ Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Vladimir Gladshtein, Sebastian Graf
 -/
 import Lean
-import Std.Internal
+import Std.WP
 import Std.Tactic.Do
 
-set_option mvcgen.warning false
+set_option experimental.vcgen true
 
 /-!
 # Do-logic tests for `vcgen`
@@ -22,7 +22,7 @@ Tests whose proofs do not mention `mvcgen`/`vcgen` (manual `mspec`/`mintro` proo
 are intentionally not ported.
 -/
 
-open Lean Order Meta Elab Tactic Sym Std Internal.Do
+open Lean Order Meta Elab Tactic Sym Std WP
 
 set_option grind.warning false
 set_option warn.sorry false
@@ -97,20 +97,20 @@ open Code
 theorem fib_triple : ⦃ True ⦄ fib_impl n ⦃ fun r => r = fib_spec n ⦄ := by
   unfold fib_impl
   vcgen
-  case inv1 => exact fun xs ⟨a, b⟩ =>
-    a = fib_spec xs.pos ∧ b = fib_spec (xs.pos + 1)
+  case inv1 => exact fun pref _ ⟨a, b⟩ =>
+    a = fib_spec pref.length ∧ b = fib_spec (pref.length + 1)
   all_goals grind
 
 theorem fib_triple_finish : ⦃ True ⦄ fib_impl n ⦃ fun r => r = fib_spec n ⦄ := by
   vcgen [fib_impl] invariants
-  | inv1 => fun xs ⟨a, b⟩ => a = fib_spec xs.pos ∧ b = fib_spec (xs.pos + 1)
+  | inv1 => fun pref _ ⟨a, b⟩ => a = fib_spec pref.length ∧ b = fib_spec (pref.length + 1)
   with finish
 
 theorem fib_triple_step : ⦃ True ⦄ fib_impl n ⦃ fun r => r = fib_spec n ⦄ := by
   unfold fib_impl
   vcgen (stepLimit := some 14)
-  case inv1 => exact fun xs ⟨a, b⟩ =>
-    a = fib_spec xs.pos ∧ b = fib_spec (xs.pos + 1)
+  case inv1 => exact fun pref _ ⟨a, b⟩ =>
+    a = fib_spec pref.length ∧ b = fib_spec (pref.length + 1)
   all_goals grind
 
 attribute [local spec] fib_triple in
@@ -125,21 +125,26 @@ theorem fib_triple_erase : ⦃ True ⦄ fib_impl n ⦃fun r => r = fib_spec n⦄
 
 theorem fib_impl_vcs
     (Q : Nat → Nat → Prop)
-    (E : EPost.Nil)
+    (E : EStack⟨⟩)
     (I : (n : Nat) → (_ : ¬n = 0) →
-      Invariant [1:n].toList (Prod Nat Nat) Prop)
+      Invariant Nat (Prod Nat Nat) Prop)
     (ret : Q 0 0)
-    (loop_pre : ∀ n (hn : ¬n = 0), (I n hn) ⟨[], [1:n].toList, rfl⟩ (0, 1))
-    (loop_post : ∀ n (hn : ¬n = 0) r, (I n hn) ⟨[1:n].toList, [], by simp⟩ r ⊑ Q n r.2)
-    (loop_step : ∀ n (hn : ¬n = 0) r pref cur suff (h : [1:n].toList = pref ++ cur :: suff),
-                  (I n hn) ⟨pref, cur::suff, by simp[h]⟩ r ⊑ (I n hn) ⟨pref ++ [cur], suff, by simp[h]⟩ (r.2, r.1+r.2))
+    (loop_pre : ∀ n (hn : ¬n = 0), (I n hn) [] (ForIn.toList [1:n]) (0, 1))
+    (loop_post : ∀ n (hn : ¬n = 0) r, (I n hn) (ForIn.toList [1:n]) [] r ⊑ Q n r.2)
+    (loop_step : ∀ n (hn : ¬n = 0) r pref cur suff
+                    (_h : ForIn.toList [1:n] = pref ++ cur :: suff),
+                  (I n hn) pref (cur::suff) r ⊑ (I n hn) (pref ++ [cur]) suff (r.2, r.1+r.2))
     : wp (fib_impl n) (Q n) E := by
   vcgen [fib_impl]
   case inv1 h => exact I n h
   case vc1 h => subst h; apply_rules [ret]
   case vc2 h => apply_rules [loop_pre]
   case vc3 => apply_rules [loop_step]
-  case vc4 => apply_rules [loop_post]
+  case vc4 h pref cur suff _hsplit a b _hinv =>
+    -- `cleanupVC` reduced the `ForInStep.yield` that the step's postcondition matches on, and the
+    -- loop's two mutable variables reach the verification condition as separate binders.
+    guard_target =ₛ I n h (pref ++ [cur]) suff ((a, b).snd, (a, b).fst + (a, b).snd)
+    apply_rules [loop_post]
 
 @[spec]
 theorem mkFreshNat_spec [Monad m] [Assertion Pred] [Assertion EPred] [WPMonad m Pred EPred] :
@@ -170,28 +175,28 @@ theorem mkFreshPair_triple :
 
 theorem sum_loop_spec : ⦃ True ⦄ sum_loop ⦃ fun r => r < 30 ⦄ := by
   vcgen [sum_loop]
-  case inv1 => exact fun c x => x = c.«prefix».sum
+  case inv1 => exact fun pref _ x => x = pref.sum
   all_goals grind
 
 theorem throwing_loop_spec :
   ⦃fun s => s = 4⦄
   throwing_loop
   ⦃fun _ _ => False;
-  epost⟨fun e s => e = 42 ∧ s = 4⟩⦄ := by
+  estack⟨fun e s => e = 42 ∧ s = 4⟩⦄ := by
   vcgen [throwing_loop]
-  case inv1 => exact fun xs r s => r ≤ 4 ∧ s = 4 ∧ r + xs.suffix.sum > 4
+  case inv1 => exact fun _ suff r s => r ≤ 4 ∧ s = 4 ∧ r + suff.sum > 4
   all_goals (simp_all; try grind)
 
 theorem test_loop_break :
     ⦃ fun s => s = 42 ⦄ breaking_loop ⦃ fun r s => r > 4 ∧ s = 1 ⦄ := by
   vcgen [breaking_loop]
-  case inv1 => exact fun xs r s => (r ≤ 4 ∧ r = xs.prefix.sum ∨ r > 4) ∧ s = 42
+  case inv1 => exact fun pref _ r s => (r ≤ 4 ∧ r = pref.sum ∨ r > 4) ∧ s = 42
   all_goals grind
 
 theorem test_loop_early_return :
     ⦃ fun s => s = 4 ⦄ returning_loop ⦃ fun r s => r = 42 ∧ s = 4 ⦄ := by
   vcgen [returning_loop]
-  case inv1 => exact fun xs r s => (r.1 = none ∧ r.2 = xs.prefix.sum ∧ r.2 ≤ 4 ∨ r.1 = some 42 ∧ r.2 > 4) ∧ s = 4
+  case inv1 => exact fun pref _ r s => (r.1 = none ∧ r.2 = pref.sum ∧ r.2 ≤ 4 ∨ r.1 = some 42 ∧ r.2 > 4) ∧ s = 4
   all_goals grind
 
 theorem unfold_to_expose_match_spec :
@@ -217,7 +222,7 @@ theorem test_sum :
       pure x : Id _)
     ⦃ fun r => r < 30 ⦄ := by
   vcgen
-  case inv1 => exact fun c x => x = c.«prefix».sum
+  case inv1 => exact fun pref _ x => x = pref.sum
   all_goals grind
 
 theorem mspec_forwards_mvars {n : Nat} :
@@ -240,19 +245,19 @@ def check_all (p : Nat → Prop) [DecidablePred p] (n : Nat) : Bool := Id.run do
 example (p : Nat → Prop) [DecidablePred p] (n : Nat) :
     (∀ i, i < n → p i) ↔ check_all p n := by
   generalize h : check_all p n = x
-  apply Id.of_wp_run_eq h
+  apply Id.of_run_eq_wp h
   vcgen
   case inv1 =>
     exact Invariant.withEarlyReturnNewDo
       (onReturn := fun ret _ => ⌜ret = false ∧ ¬ ∀ i < n, p i⌝)
-      (onContinue := fun xs _ => ⌜∀ i, i ∈ xs.prefix → p i⌝)
+      (onContinue := fun pref _ _ => ⌜∀ i, i ∈ pref → p i⌝)
   all_goals simp_all [-Classical.not_forall]; try grind
 
 end Automated
 
 namespace HimpSplit
 
--- A `⇨` (Heyting implication) in the postcondition exercises the `himp_complete` split, whose
+-- A `⇨` (Heyting implication) in the postcondition exercises the `PreservesSup.le_upperAdjoint` split, whose
 -- subgoal carries a `⊓ ⊤` precondition that `meet_top_le_of_le` cancels. The abstract `Pred` keeps
 -- `⇨` from collapsing to `→`.
 theorem himp_post {m} [Monad m] [Assertion Pred] [Assertion EPred] [WPMonad m Pred EPred] :
@@ -279,7 +284,7 @@ theorem max_and_sum_spec (xs : Array Nat) :
     ⦃ ∀ i, (h : i < xs.size) → xs[i] ≥ 0 ⦄
     max_and_sum xs ⦃ fun (m, s) => s ≤ m * xs.size ⦄ := by
   vcgen [max_and_sum]
-  case inv1 => exact fun c ⟨mx, s⟩ => s ≤ mx * c.pos
+  case inv1 => exact fun pref _ ⟨mx, s⟩ => s ≤ mx * pref.length
   all_goals simp_all +zetaDelta
   case vc3 =>
     rename_i hle hlt
@@ -351,18 +356,16 @@ def mergeWithAll (m₁ m₂ : ExtTreeMap α β cmp) (f : α → Option β → Op
           r := r.insert a b
     return r
 
--- Originally a demo that `Id.of_wp_run_eq` applies despite universe polymorphism.
--- Neither `mvcgen` nor `vcgen` can find a triple spec for `forIn` on the
--- universe-polymorphic `ExtTreeMap`; both fall back to simp, which simplifies
--- the body but doesn't fully discharge. With `(errorOnMissingSpec := false)`,
--- `vcgen` matches legacy `mvcgen`'s behaviour of leaving an unsolved VC.
+-- A demo that `Id.of_run_eq_wp` applies despite universe polymorphism. The `ExtTreeMap`
+-- loops are decomposed by the `PureForIn` specification; the invariants relating the merge
+-- to its two arguments are left open.
 theorem mem_mergeWithAll [LawfulEqCmp cmp] {m₁ m₂ : ExtTreeMap α β cmp}
     {f : α → Option β → Option β → Option β} {a : α} :
     a ∈ mergeWithAll m₁ m₂ f ↔ (a ∈ m₁ ∨ a ∈ m₂) ∧ (f a m₁[a]? m₂[a]?).isSome := by
   generalize h : mergeWithAll m₁ m₂ f = x
-  apply Id.of_wp_run_eq h
-  vcgen (errorOnMissingSpec := false) [mergeWithAll]
-  admit
+  apply Id.of_run_eq_wp h
+  vcgen [mergeWithAll]
+  all_goals admit
 
 end KimsUnivPolyUseCase
 
@@ -376,9 +379,9 @@ def subarraySum (xs : Subarray Nat) : Nat := Id.run do
 
 theorem subarraySum_correct {xs : Subarray Nat} : subarraySum xs = xs.toList.sum := by
   generalize h : subarraySum xs = r
-  apply Id.of_wp_run_eq h
+  apply Id.of_run_eq_wp h
   vcgen
-  case inv1 => exact fun c s => s = c.«prefix».sum
+  case inv1 => exact fun pref _ s => s = pref.sum
   all_goals simp_all +zetaDelta
 
 end Slices
@@ -410,16 +413,16 @@ def fast_expo (x n : Nat) : Nat := Id.run do
 
 theorem naive_expo_correct (x n : Nat) : naive_expo x n = x ^ n := by
   generalize h : naive_expo x n = r
-  apply Id.of_wp_run_eq h
+  apply Id.of_run_eq_wp h
   vcgen
-  case inv1 => exact fun c y => y = x ^ c.pos
+  case inv1 => exact fun pref _ y => y = x ^ pref.length
   all_goals simp_all +zetaDelta [Nat.pow_add_one]
 
 theorem fast_expo_correct (x n : Nat) : fast_expo x n = x ^ n := by
   generalize h : fast_expo x n = r
-  apply Id.of_wp_run_eq h
+  apply Id.of_run_eq_wp h
   vcgen
-  case inv1 => exact fun xs ⟨x', y, e⟩ => x' ^ e * y = x ^ n ∧ e ≤ n - xs.pos
+  case inv1 => exact fun pref _ ⟨x', y, e⟩ => x' ^ e * y = x ^ n ∧ e ≤ n - pref.length
   all_goals simp_all +zetaDelta
   case vc2 ih =>
     rw [← ih.1, ih.2, Nat.pow_zero, Nat.one_mul]
@@ -454,7 +457,7 @@ theorem forIn_eq_sum (xs : Array Nat) {m} [Monad m] [Assertion Pred] [Assertion 
       return sum : m _)
     ⦃ fun r => ⌜r = xs.sum⌝ ⦄ := by
   vcgen
-  case inv1 => exact fun cur n => ⌜n = cur.prefix.sum⌝
+  case inv1 => exact fun pref _ n => ⌜n = pref.sum⌝
   all_goals grind
 
 theorem forIn_map_eq_sum_add_size' (xs : Array Nat) {m} [Monad m] [Assertion Pred] [Assertion EPred]
@@ -465,7 +468,7 @@ theorem forIn_map_eq_sum_add_size' (xs : Array Nat) {m} [Monad m] [Assertion Pre
         sum := sum + n
       return sum) ⦃ fun r => ⌜r = xs.sum + xs.size⌝ ⦄ := by
   vcgen
-  case inv1 => exact fun cur n => ⌜n = cur.prefix.sum + cur.prefix.length⌝
+  case inv1 => exact fun pref _ n => ⌜n = pref.sum + pref.length⌝
   all_goals grind
 
 theorem forIn_map_eq_sum_add_size (xs : Array Nat) {m} [Monad m] [Assertion Pred] [Assertion EPred]
@@ -476,7 +479,7 @@ theorem forIn_map_eq_sum_add_size (xs : Array Nat) {m} [Monad m] [Assertion Pred
         sum := sum + n
       return sum) ⦃ fun r => ⌜r = xs.sum + xs.size⌝ ⦄ := by
   vcgen
-  case inv1 => exact fun cur n => ⌜n = cur.prefix.sum + cur.prefix.length⌝
+  case inv1 => exact fun pref _ n => ⌜n = pref.sum + pref.length⌝
   all_goals grind
 
 
@@ -488,7 +491,7 @@ theorem forIn_mapM_eq_sum_add_size (xs : Array Nat) {m} [Monad m] [MonadAttach m
         sum := sum + n
       return sum) ⦃ fun r => ⌜r = xs.sum + xs.size⌝ ⦄ := by
   vcgen
-  case inv1 => exact fun cur n => ⌜n = cur.prefix.sum + cur.prefix.length⌝
+  case inv1 => exact fun pref _ n => ⌜n = pref.sum + pref.length⌝
   all_goals grind
 
 theorem forIn_filterMapM_eq_sum_add_size (xs : Array Nat) {m}
@@ -499,14 +502,14 @@ theorem forIn_filterMapM_eq_sum_add_size (xs : Array Nat) {m}
         sum := sum + n
       return sum) ⦃ fun r => ⌜r = xs.sum + xs.size⌝ ⦄ := by
   vcgen
-  case inv1 => exact fun cur n => ⌜n = cur.prefix.sum + cur.prefix.length⌝
+  case inv1 => exact fun pref _ n => ⌜n = pref.sum + pref.length⌝
   all_goals grind
 
 theorem foldM_eq_sum (xs : Array Nat) {m} [Monad m] [LawfulMonad m]
     [Assertion Pred] [Assertion EPred] [WPMonad m Pred EPred] :
     ⦃ ⊤ ⦄ (xs.iter.foldM (m := m) (init := 0) (pure <| · + ·)) ⦃ fun r => ⌜r = xs.sum⌝ ⦄ := by
   vcgen
-  case inv1 => exact fun cur n => ⌜n = cur.prefix.sum⌝
+  case inv1 => exact fun pref _ n => ⌜n = pref.sum⌝
   all_goals grind
 
 end IteratorTests
@@ -514,7 +517,7 @@ end IteratorTests
 namespace ConfigSyntaxTests
 
 /-! Tests for the ported `(config := …)` syntax. Implemented options change behavior
-silently; `leave` and `jp` are accepted by the parser but warn that they are
+silently; `leave`, `trivial` and `jp` are accepted by the parser but warn that they are
 currently ignored. -/
 
 def trivial_test (n : Nat) : Id Nat := pure n
@@ -523,10 +526,10 @@ def trivial_test (n : Nat) : Id Nat := pure n
 example : ⦃ True ⦄ trivial_test 0 ⦃fun r => r = 0⦄ := by
   vcgen (config := {}) [trivial_test]
 
--- `trivial := false` skips `repeatAndRfl`, leaving a residual entailment.
+/-- warning: vcgen: the `trivial` config option is currently ignored. -/
+#guard_msgs in
 example : ⦃ True ⦄ trivial_test 0 ⦃fun r => r = 0⦄ := by
   vcgen (trivial := false) [trivial_test]
-  trivial
 
 -- `elimLets := false` skips the let-elimination pre-pass (now honored by `vcgen`).
 example : ⦃ True ⦄ trivial_test 0 ⦃fun r => r = 0⦄ := by
@@ -567,22 +570,22 @@ def check_all (p : Nat → Prop) [DecidablePred p] (n : Nat) : Bool := Id.run do
 example (p : Nat → Prop) [DecidablePred p] (n : Nat) :
     (∀ i, i < n → p i) ↔ check_all p n := by
   generalize h : check_all p n = x
-  apply Id.of_wp_run_eq h
+  apply Id.of_run_eq_wp h
   vcgen invariants
     · Invariant.withEarlyReturnNewDo
       (onReturn := fun ret _ => ⌜ret = false ∧ ¬ ∀ i < n, p i⌝)
-      (onContinue := fun xs _ => ⌜∀ i, i ∈ xs.prefix → p i⌝)
+      (onContinue := fun pref _ _ => ⌜∀ i, i ∈ pref → p i⌝)
   all_goals simp_all [-Classical.not_forall]; try grind
 
 -- Labelled form: `| inv1 => …`.
 example (p : Nat → Prop) [DecidablePred p] (n : Nat) :
     (∀ i, i < n → p i) ↔ check_all p n := by
   generalize h : check_all p n = x
-  apply Id.of_wp_run_eq h
+  apply Id.of_run_eq_wp h
   vcgen invariants
     | inv1 => Invariant.withEarlyReturnNewDo
       (onReturn := fun ret _ => ⌜ret = false ∧ ¬ ∀ i < n, p i⌝)
-      (onContinue := fun xs _ => ⌜∀ i, i ∈ xs.prefix → p i⌝)
+      (onContinue := fun pref _ _ => ⌜∀ i, i ∈ pref → p i⌝)
   all_goals simp_all [-Classical.not_forall]; try grind
 
 end InvariantSyntaxTests
@@ -708,7 +711,8 @@ theorem incr_id (amounts : List Nat) :
 error: unsolved goals
 case vc1
 m : Type → Type u
-Pred EPred : Type
+Pred : Type u_1
+EPred : Type u_2
 inst✝³ : Monad m
 inst✝² : Assertion Pred
 inst✝¹ : Assertion EPred
@@ -727,14 +731,15 @@ theorem incr_poly (amounts : List Nat) :
 
 end TopBetaReduction
 
-namespace RepeatInvariantOfInvariantAndBreak
+namespace WhileInvariantOfInvariantAndBreak
 
 /-! Verifies a `while` loop whose `vcgen` invariant is supplied via
-`RepeatInvariant.ofInvariantAndBreak`: a loop invariant `inv` that holds after every iteration plus
+`WhileInvariant.ofInvariantAndBreak`: a loop invariant `inv` that holds after every iteration plus
 an `onBreak` condition (here the negated loop condition) that additionally holds once the loop
 exits. -/
 
-/-- Counts `i` down from `n`, incrementing the state on each iteration, so the final state is `n`. -/
+/-- Counts `i` down from `n`, incrementing the state on each iteration, so the final state is `n`.
+The measure reads the loop's own variable, which `NondetFun` interprets as that value. -/
 def countdown (n : Nat) : StateT Nat Id Unit := do
   let mut i := n
   while i > 0 do
@@ -744,13 +749,51 @@ def countdown (n : Nat) : StateT Nat Id Unit := do
 
 theorem countdown_spec (n : Nat) :
     ⦃ fun s => s = 0 ⦄ countdown n ⦃ fun _ s => s = n ⦄ := by
-  vcgen [countdown]
-  case inv1 => exact RepeatInvariant.ofInvariantAndBreak (fun i s => s + i = n) (fun i _ => i = 0)
-  case inv2 => exact fun i => i
-  any_goals simp at *
-  all_goals grind
+  vcgen [countdown] invariants
+  | inv1 => WhileInvariant.ofInvariantAndBreak (fun i s => s + i = n) (fun i _ => i = 0)
+  | inv2 => .ofMeasure fun i => i
+  with finish
 
-end RepeatInvariantOfInvariantAndBreak
+/-- Like `countdown`, but termination is measured from the monadic state rather than the loop cursor. -/
+def countdownStateful (n : Nat) : StateT Nat Id Unit := do
+  set 0
+  while (← get) ≠ n do
+    modify (· + 1)
+  return
+
+theorem countdownStateful_spec (n : Nat) :
+    ⦃ fun _ => True ⦄ countdownStateful n ⦃ fun _ s => s = n ⦄ := by
+  vcgen [countdownStateful] invariants
+  | inv1 => WhileInvariant.ofInvariantAndBreak
+      (fun _ s => s ≤ n)
+      (fun _ s => s = n)
+  | inv2 => .ofMeasure fun _ s => n - s
+  with finish
+
+/-- Nested countdown driven by a single `while` loop: `i` counts down and resets `j`, so the
+decrease is lexicographic in `(i, j)`. -/
+def countdownLex (n : Nat) : StateT Nat Id Unit := do
+  let mut i := n
+  let mut j := 0
+  while 0 < i ∨ 0 < j do
+    if 0 < j then
+      j := j - 1
+      modify (· + 1)
+    else
+      i := i - 1
+      j := n
+  return
+
+theorem countdownLex_spec (n : Nat) :
+    ⦃ fun _ => True ⦄ countdownLex n ⦃ fun _ _ => True ⦄ := by
+  vcgen [countdownLex] invariants
+  | inv1 => WhileInvariant.ofInvariantAndBreak (fun _ _ => True) (fun _ _ => True)
+  | inv2 => .ofMeasure fun (i, j) => (i, j)
+  all_goals simp_all [Variant.evalsBelow_ofMeasure]
+  all_goals subst_vars
+  all_goals decreasing_tactic
+
+end WhileInvariantOfInvariantAndBreak
 namespace WithGrindError
 
 /-! The `with` clause of `vcgen` only accepts a `grind`-mode step (e.g. `finish`, `intro`). A

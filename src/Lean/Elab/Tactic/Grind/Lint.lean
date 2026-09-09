@@ -29,7 +29,7 @@ builtin_initialize muteExt : SimplePersistentEnvExtension Name NameSet ←
     addImportedFn := mkStateFromImportedEntries (·.insert) {}
   }
 
-open Command Meta Grind
+open Command Meta Lean.Meta.Grind
 
 def checkEMatchTheorem (declName : Name) : CoreM Unit := do
   unless (← Grind.grindExt.isEMatchTheorem declName) do

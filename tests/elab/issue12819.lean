@@ -11,4 +11,4 @@ run_meta show MetaM Unit from do
     consts.insert n info
   let some importEnv := env.importEnv?
     | unreachable!
-  let _ ← importEnv.replay consts
+  let _ ← importEnv.toKernelEnv.replay consts

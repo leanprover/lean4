@@ -78,12 +78,12 @@ public theorem extrinsicFix_eq_fix [∀ a, Nonempty (C a)] {R : α → α → Pr
     {F : ∀ a, (∀ a', R a' a → C a') → C a}
     (wf : WellFounded R) {a : α} :
     extrinsicFix R F a = wf.fix F a := by
-  simp only [extrinsicFix, dif_pos wf]
+  simp only [extrinsicFix, dite_eq_left wf]
 
 public theorem extrinsicFix_eq_apply [∀ a, Nonempty (C a)] {R : α → α → Prop}
     {F : ∀ a, (∀ a', R a' a → C a') → C a} (h : WellFounded R) {a : α} :
     extrinsicFix R F a = F a (fun a _ => extrinsicFix R F a) := by
-  simp only [extrinsicFix, dif_pos h]
+  simp only [extrinsicFix, dite_eq_left h]
   rw [WellFounded.fix_eq]
 
 public theorem extrinsicFix_invImage {α' : Sort _} [∀ a, Nonempty (C a)] (R : α → α → Prop) (f : α' → α)

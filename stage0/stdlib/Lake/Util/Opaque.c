@@ -22,10 +22,10 @@ LEAN_EXPORT lean_object* l_Lake_POpaque_mk___redArg(lean_object*);
 LEAN_EXPORT lean_object* l_Lake_POpaque_mk___redArg___boxed(lean_object*);
 LEAN_EXPORT lean_object* l_Lake_POpaque_mk(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lake_POpaque_mk___boxed(lean_object*, lean_object*);
-LEAN_EXPORT lean_object* l_Opaque_mk___redArg(lean_object*);
-LEAN_EXPORT lean_object* l_Opaque_mk___redArg___boxed(lean_object*);
-LEAN_EXPORT lean_object* l_Opaque_mk(lean_object*, lean_object*);
-LEAN_EXPORT lean_object* l_Opaque_mk___boxed(lean_object*, lean_object*);
+LEAN_EXPORT lean_object* l_Lake_Opaque_mk___redArg(lean_object*);
+LEAN_EXPORT lean_object* l_Lake_Opaque_mk___redArg___boxed(lean_object*);
+LEAN_EXPORT lean_object* l_Lake_Opaque_mk(lean_object*, lean_object*);
+LEAN_EXPORT lean_object* l_Lake_Opaque_mk___boxed(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lake_POpaque_cast___redArg(lean_object*);
 LEAN_EXPORT lean_object* l_Lake_POpaque_cast___redArg___boxed(lean_object*);
 LEAN_EXPORT lean_object* l_Lake_POpaque_cast(lean_object*, lean_object*);
@@ -106,34 +106,34 @@ lean_dec(v_a_16_);
 return v_res_17_;
 }
 }
-LEAN_EXPORT lean_object* l_Opaque_mk___redArg(lean_object* v_a_18_){
+LEAN_EXPORT lean_object* l_Lake_Opaque_mk___redArg(lean_object* v_a_18_){
 _start:
 {
 lean_inc(v_a_18_);
 return v_a_18_;
 }
 }
-LEAN_EXPORT lean_object* l_Opaque_mk___redArg___boxed(lean_object* v_a_19_){
+LEAN_EXPORT lean_object* l_Lake_Opaque_mk___redArg___boxed(lean_object* v_a_19_){
 _start:
 {
 lean_object* v_res_20_; 
-v_res_20_ = l_Opaque_mk___redArg(v_a_19_);
+v_res_20_ = l_Lake_Opaque_mk___redArg(v_a_19_);
 lean_dec(v_a_19_);
 return v_res_20_;
 }
 }
-LEAN_EXPORT lean_object* l_Opaque_mk(lean_object* v_00_u03b1_21_, lean_object* v_a_22_){
+LEAN_EXPORT lean_object* l_Lake_Opaque_mk(lean_object* v_00_u03b1_21_, lean_object* v_a_22_){
 _start:
 {
 lean_inc(v_a_22_);
 return v_a_22_;
 }
 }
-LEAN_EXPORT lean_object* l_Opaque_mk___boxed(lean_object* v_00_u03b1_23_, lean_object* v_a_24_){
+LEAN_EXPORT lean_object* l_Lake_Opaque_mk___boxed(lean_object* v_00_u03b1_23_, lean_object* v_a_24_){
 _start:
 {
 lean_object* v_res_25_; 
-v_res_25_ = l_Opaque_mk(v_00_u03b1_23_, v_a_24_);
+v_res_25_ = l_Lake_Opaque_mk(v_00_u03b1_23_, v_a_24_);
 lean_dec(v_a_24_);
 return v_res_25_;
 }
@@ -204,11 +204,13 @@ return v_res_41_;
 }
 lean_object* runtime_initialize_Init_Prelude(uint8_t builtin);
 lean_object* runtime_initialize_Init_Tactics(uint8_t builtin);
+void lean_initialize_runtime_module();
 static bool _G_runtime_initialized = false;
 LEAN_EXPORT lean_object* runtime_initialize_Lake_Util_Opaque(uint8_t builtin) {
 lean_object * res;
 if (_G_runtime_initialized) return lean_io_result_mk_ok(lean_box(0));
 _G_runtime_initialized = true;
+lean_initialize_runtime_module();
 res = runtime_initialize_Init_Prelude(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);

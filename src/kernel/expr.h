@@ -384,7 +384,7 @@ inline bool is_constant(expr const & e, name const & n) { return is_const(e, n);
  * This should however be kept in mind if we start using `is_likely_unshared` in other contexts.
  */
 inline bool is_likely_unshared(expr const & e) {
-    return e.raw()->m_rc == 1 || e.raw()->m_rc == -1;
+    return lean_internal_get_rc(e.raw()) == 1 || lean_internal_get_rc(e.raw()) == -1;
 }
 
 }

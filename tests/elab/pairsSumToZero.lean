@@ -41,7 +41,7 @@ theorem existsPair_append {P : α → α → Prop} {xs ys : List α} :
 end List
 
 -- Tell Lean that it doesn't need to warn us that `mvcgen` is still a pre-release.
-set_option mvcgen.warning false
+set_option linter.deprecated.syntax false
 
 /-!
 # Imperative implementation

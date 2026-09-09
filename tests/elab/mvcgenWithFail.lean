@@ -7,7 +7,7 @@ import Std
 
 open Std.Do
 
-set_option mvcgen.warning false
+set_option linter.deprecated.syntax false
 set_option warn.sorry false
 
 variable {α : Type}

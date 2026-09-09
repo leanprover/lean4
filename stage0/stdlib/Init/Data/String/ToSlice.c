@@ -22,11 +22,13 @@ static const lean_closure_object l_String_instToSlice___closed__0_value = {.m_he
 static const lean_object* l_String_instToSlice___closed__0 = (const lean_object*)&l_String_instToSlice___closed__0_value;
 LEAN_EXPORT const lean_object* l_String_instToSlice = (const lean_object*)&l_String_instToSlice___closed__0_value;
 lean_object* runtime_initialize_Init_Data_String_Defs(uint8_t builtin);
+void lean_initialize_runtime_module();
 static bool _G_runtime_initialized = false;
 LEAN_EXPORT lean_object* runtime_initialize_Init_Data_String_ToSlice(uint8_t builtin) {
 lean_object * res;
 if (_G_runtime_initialized) return lean_io_result_mk_ok(lean_box(0));
 _G_runtime_initialized = true;
+lean_initialize_runtime_module();
 res = runtime_initialize_Init_Data_String_Defs(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);

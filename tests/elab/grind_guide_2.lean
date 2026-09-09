@@ -16,11 +16,11 @@ example (x y : Int) :
   grind
 
 /-!
-The linear integer arithmetic module is parametrized by the `ToInt` type classes.
+The linear integer arithmetic module has hardcoded embedding support for `Fin`,
+`BitVec`, and the fixed-width integer types.
 
 Optimized `Nat` encoding (this quarter).
 -/
-#check ToInt
 
 example (a b c : UInt64) : a ≤ 2 → b ≤ 3 → c - a - b = 0 → c ≤ 5 := by
   grind

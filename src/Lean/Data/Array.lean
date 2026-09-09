@@ -10,7 +10,7 @@ import Init.Data.Stream
 public import Init.Data.Range.Polymorphic.Nat
 public import Init.Data.Range.Polymorphic.Iterators
 
-namespace Array
+namespace Lean.Array
 
 /-!
 This module contains utility functions involving Arrays that are useful in a few places
@@ -91,4 +91,4 @@ public def zipMasked {α} (mask : Array Bool) (xs ys : Array α) : Array α := I
         panic! "zipMaskedArray: not enough elements in xs"
   return zs
 
-end Array
+end Lean.Array

@@ -41,6 +41,15 @@ extern "C" {
 #define LEAN_NORETURN __attribute__((noreturn))
 #endif
 
+/* Marks a function whose returned pointer does not alias any other live pointer, like `malloc`. */
+#if defined(__GNUC__) || defined(__clang__)
+#define LEAN_ATTR_MALLOC __attribute__((malloc))
+#elif defined(_MSC_VER)
+#define LEAN_ATTR_MALLOC __declspec(restrict)
+#else
+#define LEAN_ATTR_MALLOC
+#endif
+
 #if defined(__GNUC__) || defined(__clang__)
 #define LEAN_UNLIKELY(x) (__builtin_expect((x), 0))
 #define LEAN_LIKELY(x) (__builtin_expect((x), 1))
@@ -125,6 +134,13 @@ The reference counter `m_rc` field also encodes whether the object is single thr
 reference counting is not needed (== 0). We don't use reference counting for objects stored in compact regions, or
 marked as persistent.
 
+To stay memory-safe when a count would exceed the 32-bit range, we reserve a band of deeply negative
+values as "sticky": a single-threaded count that overflows past INT_MAX wraps directly into it, and
+a multi-threaded count descending toward INT_MIN is caught in it before it can wrap. Once in the
+sticky range the object is frozen: it is never freed and its count is no longer adjusted. See
+`LEAN_RC_STICKY` / `LEAN_RC_STICKY_DROP` for the exact thresholds. This trades an unbounded but
+practically exceedingly unlikely memory leak for memory safety under reference-count over/underflow.
+
 For "small" objects stored in compact regions, the field `m_cs_sz` contains the object size. For "small" objects not
 stored in compact regions, we use the page information to retrieve its size so that we can reuse
 `m_cs_sz` to store the deletion list inline. Using the page information is not an option with
@@ -139,6 +155,8 @@ which use extra pointer bits which do not fit (https://github.com/leanprover/lea
 
 
 The field `m_other` is used to store the number of fields in a constructor object and the element size in a scalar array.
+For arrays, scalar arrays and strings its uppermost bit (`LEAN_LINEAR_MARK_MASK`) holds the linearity marker set by
+`markLinear`; read the element size of a scalar array with `lean_sarray_elem_size`, which masks it out.
 */
 typedef struct {
     int      m_rc;
@@ -207,6 +225,10 @@ typedef struct {
     size_t      m_length;   /* UTF8 length */
     char        m_data[];
 } lean_string_object;
+
+/* Linearity marker bit (see `Array.markLinear`) in the `m_other` header field of arrays, scalar
+   arrays and strings. */
+#define LEAN_LINEAR_MARK_MASK 0x80u
 
 typedef struct {
     lean_object   m_header;
@@ -327,6 +349,72 @@ static inline LEAN_ALWAYS_INLINE uint8_t lean_is_scalar(lean_object * o) { retur
 static inline lean_object * lean_box(size_t n) { return (lean_object*)(((size_t)(n) << 1) | 1); }
 static inline size_t lean_unbox(lean_object * o) { return (size_t)(o) >> 1; }
 
+#if defined(__has_feature)
+#if __has_feature(thread_sanitizer)
+#define LEAN_TSAN
+#endif
+#endif
+#if defined(__SANITIZE_THREAD__)
+#define LEAN_TSAN
+#endif
+
+/*
+Under TSan we access `m_rc` through sequentially consistent atomics so that the otherwise
+non-atomic single-threaded fast paths are not flagged as data races.
+*/
+
+static inline int lean_internal_get_rc(lean_object* o) {
+#ifdef LEAN_TSAN
+#ifdef __cplusplus
+    return std::atomic_load_explicit((_Atomic(int)*)(&(o)->m_rc), std::memory_order_seq_cst);
+#else
+    return atomic_load_explicit((_Atomic(int)*)(&(o)->m_rc), memory_order_seq_cst);
+#endif
+#else
+    return o->m_rc;
+#endif
+}
+
+static inline void lean_internal_set_rc(lean_object* o, int rc) {
+#ifdef LEAN_TSAN
+#ifdef __cplusplus
+    std::atomic_store_explicit((_Atomic(int)*)(&(o)->m_rc), rc, std::memory_order_seq_cst);
+#else
+    atomic_store_explicit((_Atomic(int)*)(&(o)->m_rc), rc, memory_order_seq_cst);
+#endif
+#else
+    o->m_rc = rc;
+#endif
+}
+
+static inline void lean_internal_add_rc(lean_object* o, int add) {
+#ifdef LEAN_TSAN
+#ifdef __cplusplus
+    std::atomic_fetch_add_explicit((_Atomic(int)*)(&(o)->m_rc), add, std::memory_order_seq_cst);
+#else
+    atomic_fetch_add_explicit((_Atomic(int)*)(&(o)->m_rc), add, memory_order_seq_cst);
+#endif
+#else
+    // Use unsigned arithmetic so that overflowing the single-threaded reference count wraps
+    // deterministically into the negative "sticky" range instead of being undefined behavior.
+    // The wrapped value is detected and frozen in `lean_inc_ref_n`, which keeps `add` small enough
+    // for the wrap to land inside the sticky range (see `LEAN_RC_INC_MAX`).
+    o->m_rc = (int)((unsigned)o->m_rc + (unsigned)add);
+#endif
+}
+
+static inline void lean_internal_sub_rc(lean_object* o, int sub) {
+#ifdef LEAN_TSAN
+#ifdef __cplusplus
+    std::atomic_fetch_sub_explicit((_Atomic(int)*)(&(o)->m_rc), sub, std::memory_order_seq_cst);
+#else
+    atomic_fetch_sub_explicit((_Atomic(int)*)(&(o)->m_rc), sub, memory_order_seq_cst);
+#endif
+#else
+    o->m_rc -= sub;
+#endif
+}
+
 LEAN_EXPORT void lean_set_exit_on_panic(bool flag);
 /* Enable/disable panic messages */
 LEAN_EXPORT void lean_set_panic_messages(bool flag);
@@ -399,46 +487,52 @@ static inline unsigned lean_get_slot_idx(unsigned sz) {
     return sz / LEAN_OBJECT_SIZE_DELTA - 1;
 }
 
-LEAN_EXPORT void * lean_alloc_small(unsigned sz, unsigned slot_idx);
-LEAN_EXPORT void lean_free_small(void * p);
-LEAN_EXPORT unsigned lean_small_mem_size(void * p);
 LEAN_EXPORT void lean_inc_heartbeat(void);
+
+#ifdef LEAN_MIMALLOC
+/*
+Increments the heartbeat count and allocates an object via mimalloc.
+
+This lives in `mimalloc.cpp` so that the mimalloc fast path can be
+inlined into it.
+
+Requires `sz` to be a positive multiple of `LEAN_OBJECT_SIZE_DELTA` of at most
+`MI_SMALL_SIZE_MAX`. Initializes `m_cs_sz`.
+*/
+LEAN_EXPORT LEAN_ATTR_MALLOC lean_object * lean_alloc_small_object_core(unsigned sz);
+#endif
 
 #ifndef __cplusplus
 void * malloc(size_t);  // avoid including big `stdlib.h`
 #endif
 
 static inline lean_object * lean_alloc_small_object(unsigned sz) {
-#ifdef LEAN_SMALL_ALLOCATOR
-    sz = lean_align(sz, LEAN_OBJECT_SIZE_DELTA);
-    unsigned slot_idx = lean_get_slot_idx(sz);
-    assert(sz <= LEAN_MAX_SMALL_OBJECT_SIZE);
-    return (lean_object*)lean_alloc_small(sz, slot_idx);
-#else
-    lean_inc_heartbeat();
 #ifdef LEAN_MIMALLOC
-    // HACK: emulate behavior of small allocator to avoid `leangz` breakage for now
+    // NOTE: `sz` is known at compile time for most callers, folding the branch below
     sz = lean_align(sz, LEAN_OBJECT_SIZE_DELTA);
-    void * mem = mi_malloc_small(sz);
+    if (LEAN_LIKELY(sz <= MI_SMALL_SIZE_MAX)) {
+        return lean_alloc_small_object_core(sz);
+    }
+    lean_inc_heartbeat();
+    void * mem = mi_malloc(sz);
     if (mem == 0) lean_internal_panic_out_of_memory();
     lean_object * o = (lean_object*)mem;
+    // see the `m_cs_sz` comment at `lean_alloc_small_object_core`
     o->m_cs_sz = sz;
     return o;
 #else
+    lean_inc_heartbeat();
     void * mem = malloc(sizeof(size_t) + sz);
     if (mem == 0) lean_internal_panic_out_of_memory();
     *(size_t*)mem = sz;
     return (lean_object*)((size_t*)mem + 1);
 #endif
-#endif
 }
 
 static inline lean_object * lean_alloc_ctor_memory(unsigned sz) {
-#ifdef LEAN_SMALL_ALLOCATOR
+#ifdef LEAN_MIMALLOC
     unsigned sz1 = lean_align(sz, LEAN_OBJECT_SIZE_DELTA);
-    unsigned slot_idx = lean_get_slot_idx(sz1);
-    assert(sz1 <= LEAN_MAX_SMALL_OBJECT_SIZE);
-    lean_object* r = (lean_object*)lean_alloc_small(sz1, slot_idx);
+    lean_object* r = lean_alloc_small_object(sz);
     if (sz1 > sz) {
         /* Initialize last word.
            In our runtime `lean_object_byte_size` is always
@@ -453,23 +547,13 @@ static inline lean_object * lean_alloc_ctor_memory(unsigned sz) {
         end[-1] = 0;
     }
     return r;
-#elif defined(LEAN_MIMALLOC)
-    unsigned sz1 = lean_align(sz, LEAN_OBJECT_SIZE_DELTA);
-    lean_object* r = lean_alloc_small_object(sz);
-    if (sz1 > sz) {
-        size_t * end = (size_t*)(((char*)r) + sz1);
-        end[-1] = 0;
-    }
-    return r;
 #else
     return lean_alloc_small_object(sz);
 #endif
 }
 
 static inline unsigned lean_small_object_size(lean_object * o) {
-#ifdef LEAN_SMALL_ALLOCATOR
-    return lean_small_mem_size(o);
-#elif defined(LEAN_MIMALLOC)
+#ifdef LEAN_MIMALLOC
     return o->m_cs_sz;
 #else
     return *((size_t*)o - 1);
@@ -490,9 +574,7 @@ void free_sized(void* ptr, size_t);
 #endif
 
 static inline void lean_free_small_object(lean_object * o) {
-#ifdef LEAN_SMALL_ALLOCATOR
-    lean_free_small(o);
-#elif defined(LEAN_MIMALLOC)
+#ifdef LEAN_MIMALLOC
     // We must NOT use `m_cs_sz` here as it is repurposed for the deletion list; as `mi_free_size`
     // is no different from `mi_free` at the time of writing, we don't lose anything from that.
     mi_free((void *)o);
@@ -519,7 +601,6 @@ static inline uint8_t lean_ptr_tag(lean_object * o) {
 static inline unsigned lean_ptr_other(lean_object * o) {
     return o->m_other;
 }
-
 /* The object size may be slightly bigger for constructor objects.
    The runtime does not track the size of the scalar size area.
    All constructor objects are "small", and allocated into pages.
@@ -535,30 +616,69 @@ LEAN_EXPORT size_t lean_object_byte_size(lean_object * o);
 LEAN_EXPORT size_t lean_object_data_byte_size(lean_object * o);
 
 static inline bool lean_is_mt(lean_object * o) {
-    return o->m_rc < 0;
+    return lean_internal_get_rc(o) < 0;
 }
 
 static inline bool lean_is_st(lean_object * o) {
-    return o->m_rc > 0;
+    return lean_internal_get_rc(o) > 0;
 }
 
 /* We never update the reference counter of objects stored in compact regions and allocated at initialization time. */
 static inline bool lean_is_persistent(lean_object * o) {
-    return o->m_rc == 0;
+    return lean_internal_get_rc(o) == 0;
 }
 
 static inline bool lean_has_rc(lean_object * o) {
-    return o->m_rc != 0;
+    return lean_internal_get_rc(o) != 0;
 }
 
 static inline _Atomic(int) * lean_get_rc_mt_addr(lean_object* o) {
     return (_Atomic(int)*)(&(o->m_rc));
 }
 
+/* Reference counts that over- or underflow the 32-bit counter land in a deeply negative "sticky" range, and
+   the object is then frozen: it is never freed and its count is no longer adjusted. Reaching this range is
+   astronomically rare in either direction (a single-threaded count overflowing past INT_MAX, or a multi-threaded
+   count descending toward INT_MIN). Because relaxed reads of the count can be slightly stale across threads, we
+   use a wide band with two thresholds:
+   - once `rc <= LEAN_RC_STICKY_DROP`, drops (decrements) stop adjusting the count;
+   - once `rc <= LEAN_RC_STICKY`, increments stop as well.
+   A thread whose read predates the count entering the band still commits its adjustment, so the width of
+   the band, and the room between `LEAN_RC_STICKY` and INT_MIN, are what bound how far such adjustments can
+   move a frozen count: it takes more of them in flight at once than the band is wide to lift the count back
+   out or to wrap it past INT_MIN. `LEAN_RC_INC_MAX` bounds what a single one of them contributes. */
+// sync with tests/elab/rc_sticky_thresholds.lean (`LEAN_RC_STICKY`, `LEAN_RC_STICKY_DROP`)
+#define LEAN_RC_STICKY      (INT_MIN + 0x10000000)
+#define LEAN_RC_STICKY_DROP (INT_MIN + 0x20000000)
+
+/* Largest `n` that `lean_inc_ref_n` adjusts the count by inline; above this it defers to
+   `lean_inc_ref_huge_n`, which either applies the whole `n` or leaves the object frozen. Overflow
+   in either direction still lands inside the sticky range for any `n` up to
+   `LEAN_RC_STICKY - INT_MIN`, so this is far below what soundness alone requires: it caps how much
+   of the room below `LEAN_RC_STICKY` one increment can consume, leaving the rest as margin against
+   adjustments in flight on other threads. Code generation only ever emits `n` in the low thousands,
+   so a constant `n` folds this test away and never reaches the bound. */
+// sync with tests/elab/rc_sticky_thresholds.lean (`LEAN_RC_INC_MAX`)
+#define LEAN_RC_INC_MAX ((size_t)0x10000)
+
+/* Cold path of `lean_inc_ref_n` for increments above `LEAN_RC_INC_MAX`. */
+LEAN_EXPORT void lean_inc_ref_huge_n(lean_object * o, size_t n);
+
+// sync with tests/elab/rc_sticky_thresholds.lean (`incRefN`)
 static inline void lean_inc_ref_n(lean_object * o, size_t n) {
+    // A count above this could wrap clean past the sticky range, on either the single-threaded or
+    // the thread-shared path, so both are handed to the cold helper. The test is on `n` alone, so a
+    // constant count folds it away in either direction; only a non-constant count keeps a runtime
+    // compare, and `lean_mk_array` is the sole caller passing one.
+    if (LEAN_UNLIKELY(n > LEAN_RC_INC_MAX)) {
+        lean_inc_ref_huge_n(o, n);
+        return;
+    }
     if (LEAN_LIKELY(lean_is_st(o))) {
-        o->m_rc += n;
-    } else if (o->m_rc != 0) {
+        lean_internal_add_rc(o, n);
+    } else if ((unsigned)lean_internal_get_rc(o) > (unsigned)LEAN_RC_STICKY) {
+        // Read as unsigned, a persistent count (0) and a sticky count both fall below every live
+        // thread-shared count, so one comparison rejects both.
 #ifdef __cplusplus
         std::atomic_fetch_sub_explicit(lean_get_rc_mt_addr(o), n, std::memory_order_relaxed);
 #else
@@ -573,10 +693,11 @@ static inline void lean_inc_ref(lean_object * o) {
 
 LEAN_EXPORT void lean_dec_ref_cold(lean_object * o);
 
+// sync with tests/elab/rc_sticky_thresholds.lean (`decRef`)
 static inline LEAN_ALWAYS_INLINE void lean_dec_ref(lean_object * o) {
-    if (LEAN_LIKELY(o->m_rc > 1)) {
-        o->m_rc--;
-    } else if (o->m_rc != 0) {
+    if (LEAN_LIKELY(lean_internal_get_rc(o) > 1)) {
+        lean_internal_sub_rc(o, 1);
+    } else if (lean_internal_get_rc(o) != 0) {
         lean_dec_ref_cold(o);
     }
 }
@@ -613,7 +734,7 @@ static inline lean_external_object * lean_to_external(lean_object * o) { assert(
 
 static inline bool lean_is_exclusive(lean_object * o) {
     if (LEAN_LIKELY(lean_is_st(o))) {
-        return o->m_rc == 1;
+        return lean_internal_get_rc(o) == 1;
     } else {
         return false;
     }
@@ -625,17 +746,27 @@ static inline uint8_t lean_is_exclusive_obj(lean_object * o) {
 
 static inline bool lean_is_shared(lean_object * o) {
     if (LEAN_LIKELY(lean_is_st(o))) {
-        return o->m_rc > 1;
+        return lean_internal_get_rc(o) > 1;
     } else {
         return false;
     }
+}
+
+static inline bool lean_is_marked_linear_core(b_lean_obj_arg o) {
+    return (o->m_other & LEAN_LINEAR_MARK_MASK) != 0;
+}
+
+// Precondition: All objects being marked as linear must be unique at the time of marking.
+static inline void lean_mark_linear_core(u_lean_obj_arg o) {
+    assert(lean_is_exclusive(o));
+    o->m_other |= LEAN_LINEAR_MARK_MASK;
 }
 
 LEAN_EXPORT void lean_mark_mt(lean_object * o);
 LEAN_EXPORT void lean_mark_persistent(lean_object * o);
 
 static inline void lean_set_st_header(lean_object * o, unsigned tag, unsigned other) {
-    o->m_rc       = 1;
+    lean_internal_set_rc(o, 1);
     o->m_tag      = tag;
     o->m_other    = other;
 #ifndef LEAN_MIMALLOC
@@ -650,7 +781,7 @@ static inline void lean_set_non_heap_header(lean_object * o, size_t sz, unsigned
     assert(sz > 0);
     assert(sz < (1ull << 16));
     assert(sz == 1 || !lean_is_big_object_tag(tag));
-    o->m_rc       = 0;
+    lean_internal_set_rc(o, 0);
     o->m_tag      = tag;
     o->m_other    = other;
     o->m_cs_sz    = sz;
@@ -880,6 +1011,15 @@ static inline void lean_array_set_core(u_lean_obj_arg o, size_t i, lean_obj_arg 
     assert(i < lean_array_size(o));
     lean_to_array(o)->m_data[i] = v;
 }
+static inline bool lean_array_is_marked_linear(b_lean_obj_arg o) {
+    assert(lean_is_array(o));
+    return lean_is_marked_linear_core(o);
+}
+static inline void lean_array_mark_linear_core(u_lean_obj_arg o) {
+    assert(lean_is_array(o));
+    lean_mark_linear_core(o);
+}
+
 LEAN_EXPORT lean_object * lean_array_mk(lean_obj_arg l);
 LEAN_EXPORT lean_object * lean_array_to_list(lean_obj_arg a);
 
@@ -955,12 +1095,23 @@ static inline lean_object * lean_array_get_borrowed(b_lean_obj_arg def_val, b_le
 
 LEAN_EXPORT lean_obj_res lean_copy_expand_array(lean_obj_arg a, bool expand);
 // Equivalent to `lean_copy_expand_array` but used as a gadget to spot `Array` non-linearities in
-// profiles.
+// profiles. Panics if `a` is marked linear.
 LEAN_EXPORT lean_obj_res lean_copy_expand_array_nonlinear(lean_obj_arg a, bool expand);
 
 static inline lean_obj_res lean_ensure_exclusive_array(lean_obj_arg a) {
     if (lean_is_exclusive(a)) return a;
     return lean_copy_expand_array_nonlinear(a, false);
+}
+
+static inline lean_obj_res lean_array_mark_linear(lean_obj_arg a) {
+    lean_object * r = lean_ensure_exclusive_array(a);
+    lean_array_mark_linear_core(r);
+    return r;
+}
+
+static inline lean_obj_res lean_array_propagate_mark(b_lean_obj_arg src, lean_obj_arg dst) {
+    if (!lean_array_is_marked_linear(src)) return dst;
+    return lean_array_mark_linear(dst);
 }
 
 static inline lean_object * lean_array_uset(lean_obj_arg a, size_t i, lean_obj_arg v) {
@@ -1036,6 +1187,8 @@ static inline bool lean_alloc_sarray_would_overflow(unsigned elem_size, size_t c
 }
 
 static inline lean_obj_res lean_alloc_sarray(unsigned elem_size, size_t size, size_t capacity) {
+    if (LEAN_UNLIKELY(elem_size >= LEAN_LINEAR_MARK_MASK))
+        lean_internal_panic("scalar array element size is larger than 2^7");
     lean_sarray_object * o = (lean_sarray_object*)lean_alloc_object(lean_usize_add_checked(sizeof(lean_sarray_object), lean_usize_mul_checked(elem_size, capacity)));
     lean_set_st_header((lean_object*)o, LeanScalarArray, elem_size);
     o->m_size = size;
@@ -1044,7 +1197,7 @@ static inline lean_obj_res lean_alloc_sarray(unsigned elem_size, size_t size, si
 }
 static inline unsigned lean_sarray_elem_size(lean_object * o) {
     assert(lean_is_sarray(o));
-    return lean_ptr_other(o);
+    return lean_ptr_other(o) & ~LEAN_LINEAR_MARK_MASK;
 }
 static inline size_t lean_sarray_capacity(lean_object * o) { return lean_to_sarray(o)->m_capacity; }
 static inline size_t lean_sarray_byte_size(lean_object * o) {
@@ -1060,6 +1213,35 @@ static inline void lean_sarray_set_size(u_lean_obj_arg o, size_t sz) {
     lean_to_sarray(o)->m_size = sz;
 }
 static inline uint8_t* lean_sarray_cptr(lean_object * o) { return lean_to_sarray(o)->m_data; }
+static inline bool lean_sarray_is_marked_linear(b_lean_obj_arg o) {
+    assert(lean_is_sarray(o));
+    return lean_is_marked_linear_core(o);
+}
+static inline void lean_sarray_mark_linear_core(u_lean_obj_arg o) {
+    assert(lean_is_sarray(o));
+    lean_mark_linear_core(o);
+}
+
+LEAN_EXPORT lean_obj_res lean_copy_sarray(lean_obj_arg a, size_t cap);
+// Equivalent to `lean_copy_sarray` but used as a gadget to spot scalar array non-linearities in
+// profiles. Panics if `a` is marked linear.
+LEAN_EXPORT lean_obj_res lean_copy_sarray_nonlinear(lean_obj_arg a, size_t cap);
+
+static inline lean_obj_res lean_sarray_ensure_exclusive(lean_obj_arg a) {
+    if (lean_is_exclusive(a)) return a;
+    return lean_copy_sarray_nonlinear(a, lean_sarray_capacity(a));
+}
+
+static inline lean_obj_res lean_sarray_mark_linear(lean_obj_arg a) {
+    lean_object * r = lean_sarray_ensure_exclusive(a);
+    lean_sarray_mark_linear_core(r);
+    return r;
+}
+
+static inline lean_obj_res lean_sarray_propagate_mark(b_lean_obj_arg src, lean_obj_arg dst) {
+    if (!lean_sarray_is_marked_linear(src)) return dst;
+    return lean_sarray_mark_linear(dst);
+}
 
 LEAN_EXPORT bool lean_sarray_eq_cold(b_lean_obj_arg a1, b_lean_obj_arg a2);
 static inline bool lean_sarray_eq(b_lean_obj_arg a1, b_lean_obj_arg a2) {
@@ -1074,7 +1256,6 @@ static inline uint8_t lean_sarray_dec_eq(b_lean_obj_arg a1, b_lean_obj_arg a2) {
 
 LEAN_EXPORT lean_obj_res lean_byte_array_mk(lean_obj_arg a);
 LEAN_EXPORT lean_obj_res lean_byte_array_data(lean_obj_arg a);
-LEAN_EXPORT lean_obj_res lean_copy_byte_array(lean_obj_arg a);
 LEAN_EXPORT uint64_t lean_byte_array_hash(b_lean_obj_arg a);
 
 static inline lean_obj_res lean_mk_empty_byte_array(b_lean_obj_arg capacity) {
@@ -1105,9 +1286,7 @@ static inline uint8_t lean_byte_array_fget(b_lean_obj_arg a, b_lean_obj_arg i) {
 LEAN_EXPORT lean_obj_res lean_byte_array_push(lean_obj_arg a, uint8_t b);
 
 static inline lean_object * lean_byte_array_uset(lean_obj_arg a, size_t i, uint8_t v) {
-    lean_obj_res r;
-    if (lean_is_exclusive(a)) r = a;
-    else r = lean_copy_byte_array(a);
+    lean_obj_res r = lean_sarray_ensure_exclusive(a);
     uint8_t * it = lean_sarray_cptr(r) + i;
     *it = v;
     return r;
@@ -1134,7 +1313,6 @@ static inline lean_obj_res lean_byte_array_fset(lean_obj_arg a, b_lean_obj_arg i
 
 LEAN_EXPORT lean_obj_res lean_float_array_mk(lean_obj_arg a);
 LEAN_EXPORT lean_obj_res lean_float_array_data(lean_obj_arg a);
-LEAN_EXPORT lean_obj_res lean_copy_float_array(lean_obj_arg a);
 
 static inline lean_obj_res lean_mk_empty_float_array(b_lean_obj_arg capacity) {
     if (!lean_is_scalar(capacity)) lean_internal_panic_out_of_memory();
@@ -1170,9 +1348,7 @@ static inline double lean_float_array_get(b_lean_obj_arg a, b_lean_obj_arg i) {
 LEAN_EXPORT lean_obj_res lean_float_array_push(lean_obj_arg a, double d);
 
 static inline lean_obj_res lean_float_array_uset(lean_obj_arg a, size_t i, double d) {
-    lean_obj_res r;
-    if (lean_is_exclusive(a)) r = a;
-    else r = lean_copy_float_array(a);
+    lean_obj_res r = lean_sarray_ensure_exclusive(a);
     double * it = lean_float_array_cptr(r) + i;
     *it = d;
     return r;
@@ -1223,6 +1399,36 @@ static inline char const * lean_string_cstr(b_lean_obj_arg o) {
 static inline size_t lean_string_size(b_lean_obj_arg o) { return lean_to_string(o)->m_size; }
 static inline size_t lean_string_len(b_lean_obj_arg o) { return lean_to_string(o)->m_length; }
 static inline size_t lean_string_data_byte_size(lean_object * o) { return sizeof(lean_string_object) + lean_string_size(o); }
+static inline bool lean_string_is_marked_linear(b_lean_obj_arg o) {
+    assert(lean_is_string(o));
+    return lean_is_marked_linear_core(o);
+}
+static inline void lean_string_mark_linear_core(u_lean_obj_arg o) {
+    assert(lean_is_string(o));
+    lean_mark_linear_core(o);
+}
+
+LEAN_EXPORT lean_obj_res lean_copy_string(lean_obj_arg s, size_t cap);
+// Equivalent to `lean_copy_string` but used as a gadget to spot string non-linearities in profiles.
+// Panics if `s` is marked linear.
+LEAN_EXPORT lean_obj_res lean_copy_string_nonlinear(lean_obj_arg s, size_t cap);
+
+static inline lean_obj_res lean_string_ensure_exclusive(lean_obj_arg s) {
+    if (lean_is_exclusive(s)) return s;
+    return lean_copy_string_nonlinear(s, lean_string_capacity(s));
+}
+
+static inline lean_obj_res lean_string_mark_linear(lean_obj_arg s) {
+    lean_object * r = lean_string_ensure_exclusive(s);
+    lean_string_mark_linear_core(r);
+    return r;
+}
+
+static inline lean_obj_res lean_string_propagate_mark(b_lean_obj_arg src, lean_obj_arg dst) {
+    if (!lean_string_is_marked_linear(src)) return dst;
+    return lean_string_mark_linear(dst);
+}
+
 LEAN_EXPORT lean_obj_res lean_string_push(lean_obj_arg s, uint32_t c);
 LEAN_EXPORT lean_obj_res lean_string_append(lean_obj_arg s1, b_lean_obj_arg s2);
 static inline lean_obj_res lean_string_length(b_lean_obj_arg s) { return lean_box(lean_string_len(s)); }
@@ -1241,6 +1447,9 @@ static inline uint8_t lean_string_get_byte_fast(b_lean_obj_arg s, b_lean_obj_arg
   char const * str = lean_string_cstr(s);
   size_t idx = lean_unbox(i);
   return str[idx];
+}
+static inline uint8_t lean_string_uget_byte_fast(b_lean_obj_arg s, size_t i) {
+  return (uint8_t)lean_string_cstr(s)[i];
 }
 
 LEAN_EXPORT lean_obj_res lean_string_utf8_next(b_lean_obj_arg s, b_lean_obj_arg i);
@@ -1573,6 +1782,8 @@ LEAN_EXPORT lean_obj_res lean_nat_big_shiftr(b_lean_obj_arg a1, b_lean_obj_arg a
 LEAN_EXPORT lean_obj_res lean_nat_pow(b_lean_obj_arg a1, b_lean_obj_arg a2);
 LEAN_EXPORT lean_obj_res lean_nat_gcd(b_lean_obj_arg a1, b_lean_obj_arg a2);
 LEAN_EXPORT lean_obj_res lean_nat_log2(b_lean_obj_arg a);
+/* Upper bound on the size in bytes of the representation of `a` (one word for scalars). Returns a raw `size_t`, not a boxed `Nat`. */
+LEAN_EXPORT size_t lean_nat_size_in_bytes(b_lean_obj_arg a);
 
 static inline lean_obj_res lean_nat_shiftr(b_lean_obj_arg a1, b_lean_obj_arg a2) {
     if (LEAN_LIKELY(lean_is_scalar(a1) && lean_is_scalar(a2))) {
@@ -2922,7 +3133,7 @@ static inline float lean_unbox_float32(b_lean_obj_arg o) {
 
 LEAN_EXPORT lean_object * lean_dbg_trace(lean_obj_arg s, lean_obj_arg fn);
 LEAN_EXPORT lean_object * lean_dbg_sleep(uint32_t ms, lean_obj_arg fn);
-LEAN_EXPORT lean_object * lean_dbg_trace_if_shared(lean_obj_arg s, lean_obj_arg a);
+LEAN_EXPORT lean_object * lean_dbg_trace_if_shared(b_lean_obj_arg s, lean_obj_arg a);
 
 /* IO Helper functions */
 
@@ -2992,8 +3203,8 @@ LEAN_EXPORT lean_obj_res lean_mk_io_user_error(lean_obj_arg str);
 /* ST Ref primitives */
 LEAN_EXPORT lean_obj_res lean_st_mk_ref(lean_obj_arg);
 LEAN_EXPORT lean_obj_res lean_st_ref_get(b_lean_obj_arg);
-LEAN_EXPORT lean_obj_res lean_st_ref_set(b_lean_obj_arg, lean_obj_arg);
-LEAN_EXPORT lean_obj_res lean_st_ref_reset(b_lean_obj_arg);
+LEAN_EXPORT lean_obj_res lean_st_ref_put(b_lean_obj_arg, lean_obj_arg);
+LEAN_EXPORT lean_obj_res lean_st_ref_take(b_lean_obj_arg);
 LEAN_EXPORT lean_obj_res lean_st_ref_swap(b_lean_obj_arg, lean_obj_arg);
 
 /* pointer address unsafe primitive  */

@@ -5,10 +5,9 @@ Authors: Leonardo de Moura
 -/
 module
 prelude
-public import Lean.Meta.Tactic.Grind.Arith.Cutsat.Types
+public import Lean.Meta.Tactic.Grind.Arith.Cutsat.Util
 import Init.Data.Int.OfNat
 import Lean.Meta.Tactic.Grind.Simp
-import Lean.Meta.Tactic.Grind.Arith.Cutsat.ToInt
 import Lean.Meta.NatInstTesters
 public section
 namespace Lean.Meta.Grind.Arith.Cutsat
@@ -80,16 +79,13 @@ private partial def natToInt' (e : Expr) : GoalM (Expr × Expr) := do
     else
       mkNatVar e
   | Fin.val n a =>
-    let type ← shareCommon (mkApp (mkConst ``Fin) n)
-    if let some (a', h) ← toInt? a type then
-      let h := mkApp4 (mkConst ``Nat.ToInt.finVal) n a a' h
-      return (a' , h)
-    else
-      -- `n` is not a numeral, but we can still assert `e < n`
-      let alreadyProcessed := (← get').natToIntMap.contains { expr := e }
-      let r ← mkNatVar e
-      unless alreadyProcessed do pushNewFact <| mkApp2 (mkConst ``Fin.isLt) n a
-      return r
+    -- `Fin.val` is treated as an opaque `Nat` variable; the range fact `Fin.isLt` is
+    -- the one piece of `Fin`-specific information asserted here. Value-level reasoning
+    -- for `Fin` is provided by the `[grind hom]` rules.
+    let alreadyProcessed := (← get').natToIntMap.contains { expr := e }
+    let r ← mkNatVar e
+    unless alreadyProcessed do pushNewFact <| mkApp2 (mkConst ``Fin.isLt) n a
+    return r
   | _ => mkNatVar e
 
 /--

@@ -195,50 +195,6 @@ def revFind? (s : String) (pattern : ρ) [ToBackwardSearcher pattern σ] : Optio
 def Internal.posOfImpl (s : String) (c : Char) : Pos.Raw :=
   (s.find c).offset
 
-@[deprecated String.Pos.find (since := "2025-11-19")]
-def findAux (s : String) (p : Char → Bool) (stopPos : Pos.Raw) (pos : Pos.Raw) : Pos.Raw :=
-  if h : pos ≤ stopPos ∧ pos.IsValid s ∧ stopPos.IsValid s then
-    (String.Slice.mk s (s.pos pos h.2.1) (s.pos stopPos h.2.2)
-      (by simp [Pos.le_iff, h.1])).find p |>.str.offset
-  else stopPos
-
-@[deprecated String.Pos.find (since := "2025-11-19")]
-def posOfAux (s : String) (c : Char) (stopPos : Pos.Raw) (pos : Pos.Raw) : Pos.Raw :=
-  if h : pos ≤ stopPos ∧ pos.IsValid s ∧ stopPos.IsValid s then
-    (String.Slice.mk s (s.pos pos h.2.1) (s.pos stopPos h.2.2)
-      (by simp [Pos.le_iff, h.1])).find c |>.str.offset
-  else stopPos
-
-@[deprecated String.find (since := "2025-11-19")]
-def posOf (s : String) (c : Char) : Pos.Raw :=
-  (s.find c).offset
-
-@[deprecated String.Pos.revFind? (since := "2025-11-19")]
-def revPosOfAux (s : String) (c : Char) (pos : Pos.Raw) : Option Pos.Raw :=
-  s.pos? pos |>.bind (·.revFind? c) |>.map (·.offset)
-
-@[deprecated String.revFind? (since := "2025-11-19")]
-def revPosOf (s : String) (c : Char) : Option Pos.Raw :=
-  s.revFind? c |>.map (·.offset)
-
-@[deprecated String.Pos.revFind? (since := "2025-11-19")]
-def revFindAux (s : String) (p : Char → Bool) (pos : Pos.Raw) : Option Pos.Raw :=
-  s.pos? pos |>.bind (·.revFind? p) |>.map (·.offset)
-
-@[deprecated String.revFind? (since := "2025-11-19")]
-def revFind (s : String) (p : Char → Bool) : Option Pos.Raw :=
-  s.revFind? p |>.map (·.offset)
-
-/--
-Returns the position of the beginning of the line that contains the position {name}`pos`.
-
-Lines are ended by {lean}`'\n'`, and the returned position is either {lean}`0 : String.Pos.Raw` or
-immediately after a {lean}`'\n'` character.
--/
-@[deprecated String.Pos.revFind? (since := "2025-11-19")]
-def findLineStart (s : String) (pos : String.Pos.Raw) : String.Pos.Raw :=
-  s.pos? pos |>.bind (·.revFind? '\n') |>.map (·.offset) |>.getD s.startPos.offset
-
 /--
 Splits a string at each subslice that matches the pattern {name}`pat`.
 
@@ -273,18 +229,6 @@ Examples:
 @[inline]
 def splitInclusive (s : String) (pat : ρ) [ToForwardSearcher pat σ] :=
   (s.toSlice.splitInclusive pat : Std.Iter String.Slice)
-
-@[deprecated String.Slice.foldl (since := "2025-11-20")]
-def foldlAux {α : Type u} (f : α → Char → α) (s : String) (stopPos : Pos.Raw) (i : Pos.Raw) (a : α) : α :=
-  s.slice! (s.pos! i) (s.pos! stopPos) |>.foldl f a
-
-@[deprecated String.Slice.foldr (since := "2025-11-25")]
-def foldrAux {α : Type u} (f : Char → α → α) (a : α) (s : String) (i begPos : Pos.Raw) : α :=
-  s.slice! (s.pos! begPos) (s.pos! i) |>.foldr f a
-
-@[deprecated String.Slice.any (since := "2025-11-25")]
-def anyAux (s : String) (stopPos : Pos.Raw) (p : Char → Bool) (i : Pos.Raw) : Bool :=
-  s.slice! (s.pos! i) (s.pos! stopPos) |>.any p
 
 /--
 Checks whether a string has a match of the pattern {name}`pat` anywhere.

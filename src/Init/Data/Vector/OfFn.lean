@@ -99,7 +99,7 @@ private theorem ofFnM_go_succ {n} [Monad m] [LawfulMonad m] {f : Fin (n + 1) →
   case case1 acc h' h ih =>
     if h : acc.size = n then
       unfold ofFnM.go
-      rw [dif_neg (by omega)]
+      rw [dite_eq_right (by omega)]
       have h : ¬ acc.size + 1 < n + 1 := by omega
       have : Fin.last n = ⟨acc.size, by omega⟩ := by ext; simp; omega
       simp [*]
@@ -107,7 +107,7 @@ private theorem ofFnM_go_succ {n} [Monad m] [LawfulMonad m] {f : Fin (n + 1) →
       have : acc.size + 1 ≤ n := by omega
       simp only [ih, this]
       conv => rhs; unfold ofFnM.go
-      rw [dif_pos (by omega)]
+      rw [dite_eq_left (by omega)]
       simp
   case case2 =>
     omega

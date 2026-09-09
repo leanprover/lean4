@@ -10,6 +10,7 @@ public import Lake.Util.Log
 import Lake.Util.Proc
 import Lake.Util.FilePath
 import Lake.Util.IO
+import Lake.Util.Url
 import Init.Data.String.Search
 import Init.Data.String.TakeDrop
 import Init.System.Platform
@@ -62,6 +63,7 @@ public def compileLeanModule
       ("LEAN_PATH", leanPath.toString)
     ]
   }
+  let outLogPos ← getLogPos
   unless out.stdout.isEmpty do
     let txt ← out.stdout.split '\n' |>.foldM (init := "") fun (txt : String) ln => do
       let ln := ln.copy
@@ -79,7 +81,15 @@ public def compileLeanModule
       logInfo s!"stdout:\n{txt}"
   unless out.stderr.isEmpty do
     logInfo s!"stderr:\n{out.stderr.trimAscii}"
-  if out.exitCode ≠ 0 then
+  -- Elide the generic "Lean exited with code 1" when Lean already
+  -- reported errors (the usual compiler-failure case). Keep it for other
+  -- nonzero codes, for code 1 without diagnostics, and for the anomalous
+  -- case where Lean logs errors but exits successfully.
+  -- See https://github.com/leanprover/lean4/issues/10825
+  let hasErrors := (← getLog).takeFrom outLogPos |>.any (·.level matches .error)
+  if out.exitCode = 1 && hasErrors then
+    failure
+  else if out.exitCode ≠ 0 || hasErrors then
     error s!"Lean exited with code {out.exitCode}"
   if postponeCompile then
     if let (some irFile, some cFile) := (arts.ir?, arts.c?) then
@@ -136,35 +146,28 @@ public def compileStaticLib
   let args := args.push libFile.toString ++ (← mkArgs libFile <| oFiles.map toString)
   proc {cmd := ar.toString, args}
 
-def getMacOSXDeploymentEnv : BaseIO (Array (String × Option String)) := do
-  -- It is difficult to identify the correct minor version here, leading to linking warnings like:
-  -- `ld64.lld: warning: /usr/lib/system/libsystem_kernel.dylib has version 13.5.0, which is newer than target minimum of 13.0.0`
-  -- In order to suppress these we set the MACOSX_DEPLOYMENT_TARGET variable into the far future.
-  if System.Platform.isOSX then
-    match (← IO.getEnv "MACOSX_DEPLOYMENT_TARGET") with
-    | some _ => return #[]
-    | none => return #[("MACOSX_DEPLOYMENT_TARGET", some "99.0")]
-  else
-    return #[]
-
 public def compileSharedLib
-  (libFile : FilePath) (linkArgs : Array String) (linker : FilePath := "cc")
+  (libFile : FilePath) (linkArgs : Array String)
+  (linker : FilePath := "cc") (macosxDeploymentTarget? : Option String := none)
 : LogIO Unit := do
   createParentDirs libFile
   proc {
     cmd := linker.toString
     args := #["-shared", "-o", libFile.toString] ++ (← mkArgs libFile linkArgs)
-    env := ← getMacOSXDeploymentEnv
+    -- See `BuildConfig.macosxDeploymentTarget?` for details
+    env := macosxDeploymentTarget?.elim #[] fun ver => #[("MACOSX_DEPLOYMENT_TARGET", some ver)]
   }
 
 public def compileExe
-  (binFile : FilePath) (linkArgs : Array String) (linker : FilePath := "cc")
+  (binFile : FilePath) (linkArgs : Array String)
+  (linker : FilePath := "cc") (macosxDeploymentTarget? : Option String := none)
 : LogIO Unit := do
   createParentDirs binFile
   proc {
     cmd := linker.toString
     args := #["-o", binFile.toString] ++ (← mkArgs binFile linkArgs)
-    env := ← getMacOSXDeploymentEnv
+    -- See `BuildConfig.macosxDeploymentTarget?` for details
+    env :=  macosxDeploymentTarget?.elim #[] fun ver => #[("MACOSX_DEPLOYMENT_TARGET", some ver)]
   }
 
 /-- Download a file using `curl`, clobbering any existing file. -/
@@ -177,7 +180,7 @@ public def download
     createParentDirs file
   let args := #["-s", "-S", "-f", "-o", file.toString, "-L", url]
   let args := headers.foldl (init := args) (· ++ #["-H", ·])
-  proc (quiet := true) {cmd := "curl", args}
+  proc (quiet := true) {cmd := ← Internal.getCurl, args}
 
 /-- Unpack an archive `file` using `tar` into the directory `dir`. -/
 public def untar (file : FilePath) (dir : FilePath) (gzip := true) : LogIO PUnit := do

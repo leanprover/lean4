@@ -168,7 +168,7 @@ public def getLeanArgs : m (Array String) :=
 
 set_option linter.deprecated false in
 @[inline, inherit_doc Cache.getArtifact?,
-deprecated "Deprecated without replacelement." (since := "2025-03-04")]
+deprecated "Deprecated without replacement." (since := "2025-03-04")]
 public def getArtifact? [Bind m] [MonadLiftT BaseIO m] (descr : ArtifactDescr) : m (Option Artifact) :=
   getLakeCache >>= (·.getArtifact? descr)
 
@@ -363,5 +363,9 @@ Returns the path of the primary core shared library
 /-- Get the path of the {lit}`lake` binary in the detected Lake installation. -/
 @[inline] public def getLake : m FilePath :=
   (·.lake) <$> getLakeInstall
+
+/-- Get the Lake shared library (e.g., {lit}`libLake_shared`) in the detected Lake installation. -/
+@[inline] public def getLakeSharedDynlib : m Dynlib :=
+  (·.sharedDynlib) <$> getLakeInstall
 
 end

@@ -25,11 +25,15 @@ register_builtin_option linter.deprecated.module : Bool := {
 builtin_initialize deprecatedModuleExt : ModuleEnvExtension <| Option DeprecatedModuleEntry ←
   registerModuleEnvExtension <| pure none
 
-def Environment.getDeprecatedModuleByIdx? (env : Environment) (idx : ModuleIdx) : Option DeprecatedModuleEntry :=
+namespace Environment
+
+def getDeprecatedModuleByIdx? (env : Environment) (idx : ModuleIdx) : Option DeprecatedModuleEntry :=
   deprecatedModuleExt.getStateByIdx? env idx |>.join
 
-def Environment.setDeprecatedModule (entry : Option DeprecatedModuleEntry) (env : Environment) : Environment :=
+def setDeprecatedModule (entry : Option DeprecatedModuleEntry) (env : Environment) : Environment :=
   deprecatedModuleExt.setState env entry
+
+end Environment
 
 def formatDeprecatedModuleWarning (env : Environment) (idx : ModuleIdx) (modName : Name)
     (entry : DeprecatedModuleEntry) : String :=

@@ -1251,8 +1251,11 @@ where
             (← isClass? header.type).isSome /-TODO-/ &&
             !header.type.getForallBody.getAppFn.constName? matches ``Decidable | ``DecidableEq | ``Setoid then
           let status ← getReducibilityStatus header.declName
-          unless status matches .reducible | .instanceReducible | .implicitReducible | .irreducible do
-            logWarning m!"Definition `{header.declName}` of class type must be marked with `@[reducible]`, `@[instance_reducible]`, `@[implicit_reducible]` or `@[irreducible]`"
+          if status == .semireducible then do
+            logWarning m!"Definition `{header.declName}` of class type is semireducible. \
+Most type class instances should be instance-reducible, so consider marking this
+definition with `@[instance_reducible]`. If it is intentionally semireducible, \
+this warning can be disabled with `set_option warn.classDefReducibility false`."
     for view in views, declId in expandedDeclIds do
       -- NOTE: this should be the full `ref`, and thus needs to be done after any snapshotting
       -- that depends only on a part of the ref

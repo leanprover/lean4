@@ -99,6 +99,7 @@ Examples:
  * `Int.negOfNat 6 = -6`
  * `Int.negOfNat 0 = 0`
 -/
+@[implicit_reducible]
 def negOfNat : Nat → Int
   | 0      => 0
   | succ m => negSucc m
@@ -115,7 +116,7 @@ Examples:
  * `-(-6 : Int) = 6`
  * `(12 : Int).neg = -12`
 -/
-@[extern "lean_int_neg"]
+@[extern "lean_int_neg", implicit_reducible]
 protected def neg (n : @& Int) : Int :=
   match n with
   | ofNat n   => negOfNat n
@@ -141,6 +142,7 @@ Examples:
  * `Int.subNatNat 2 5 = -3`
  * `Int.subNatNat 0 13 = -13`
 -/
+@[implicit_reducible]
 def subNatNat (m n : Nat) : Int :=
   match (n - m : Nat) with
   | 0        => ofNat (m - n)  -- m ≥ n
@@ -157,7 +159,7 @@ Examples:
  * `(7 : Int) + (6 : Int) = 13`
  * `(6 : Int) + (-6 : Int) = 0`
 -/
-@[extern "lean_int_add"]
+@[extern "lean_int_add", implicit_reducible]
 protected def add (m n : @& Int) : Int :=
   match m, n with
   | ofNat m, ofNat n => ofNat (m + n)
@@ -180,7 +182,7 @@ Examples:
  * `(6 : Int) * (-6 : Int) = -36`
  * `(7 : Int) * (0 : Int) = 0`
 -/
-@[extern "lean_int_mul"]
+@[extern "lean_int_mul", implicit_reducible]
 protected def mul (m n : @& Int) : Int :=
   match m, n with
   | ofNat m, ofNat n => ofNat (m * n)
@@ -203,7 +205,7 @@ Examples:
 * `(7 : Int) - (0 : Int) = 7`
 * `(0 : Int) - (7 : Int) = -7`
 -/
-@[extern "lean_int_sub"]
+@[extern "lean_int_sub", implicit_reducible]
 protected def sub (m n : @& Int) : Int := m + (- n)
 
 instance : Sub Int where
@@ -250,7 +252,7 @@ Examples:
 * `if (6 : Int) = (3 : Int) * (2 : Int) then "yes" else "no" = "yes"`
 * `(¬ (6 : Int) = (3 : Int)) = true`
 -/
-@[extern "lean_int_dec_eq"]
+@[extern "lean_int_dec_eq", implicit_reducible]
 protected def decEq (a b : @& Int) : Decidable (a = b) :=
   match a, b with
   | ofNat a, ofNat b => match decEq a b with
@@ -275,7 +277,7 @@ set_option bootstrap.genMatcherCode false in
   ```
 
   Implemented by efficient native code. -/
-@[extern "lean_int_dec_nonneg"]
+@[extern "lean_int_dec_nonneg", implicit_reducible]
 def decNonneg (m : @& Int) : Decidable (NonNeg m) :=
   match m with
   | ofNat m => isTrue <| NonNeg.mk m
@@ -323,7 +325,7 @@ Examples:
  * `(0 : Int).natAbs = 0`
  * `(-11 : Int).natAbs = 11`
 -/
-@[extern "lean_nat_abs"]
+@[extern "lean_nat_abs", implicit_reducible]
 def natAbs (m : @& Int) : Nat :=
   match m with
   | ofNat m => m
@@ -361,6 +363,7 @@ Examples:
 * `(0 : Int).toNat = 0`
 * `(-7 : Int).toNat = 0`
 -/
+@[implicit_reducible]
 def toNat : Int → Nat
   | ofNat n   => n
   | negSucc _ => 0
@@ -397,6 +400,7 @@ Examples:
 * `(0 : Int) ^ 10 = 0`
 * `(-7 : Int) ^ 3 = -343`
 -/
+@[implicit_reducible]
 protected def pow : Int → Nat → Int
   | (m : Nat), n => Int.ofNat (m ^ n)
   | m@-[_+1], n => if n % 2 = 0 then Int.ofNat (m.natAbs ^ n) else - Int.ofNat (m.natAbs ^ n)

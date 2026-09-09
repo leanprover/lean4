@@ -81,7 +81,14 @@ public def tryElabForwardApp? (e : Term) (dec : DoElemCont) : DoElabM (Option Ex
   let bodyInfo ← InferControlInfo.ofSeq arg.body
   let forwarder ← EffectForwarder.ofCont bodyInfo dec
   let liftedBody ← controlAtTermElabM fun runInBase => do
-    Term.elabFunBinders (arg.binders.map (·.raw)) none fun bsExpr _ => runInBase do
+    -- The binders take their types from the wrapper's body slot.
+    let slotType ← instantiateMVars (← inferType forwarded)
+    let (binders, _, isPattern) ←
+      liftMacroM <| Term.expandFunBinders (arg.binders.map (·.raw)) (← `(_))
+    if isPattern then
+      throwError "\
+        A `do←` binder must be a variable. Bind a variable and `match` on it in the body."
+    Term.elabFunBinders binders (some slotType) fun bsExpr _ => runInBase do
       mkLambdaFVars bsExpr (← forwarder.lift (elabDoSeq arg.body))
   unless ← forwarded.mvarId!.checkedAssign liftedBody do
     throwError "the lifted body's type does not match the wrapper's body slot type"

@@ -57,6 +57,12 @@ structure Search.State where
   precise : Bool := true
   /-- Set of decision variables in `cases`. -/
   decVars : FVarIdSet := {}
+  /--
+  Number of steps performed by the current search.
+  Remark: we cannot use the `steps` counter in the cutsat state because it is rolled
+  back when backtracking case splits.
+  -/
+  steps : Nat := 0
 
 abbrev SearchM := ReaderT Search.Kind (StateRefT Search.State GoalM)
 
@@ -67,6 +73,23 @@ def isApprox : SearchM Bool :=
 /-- Sets `precise` to `false` to indicate that some constraint was not satisfied. -/
 def setImprecise : SearchM Unit := do
   modify fun s => { s with precise := false }
+
+/--
+Increments the search steps counter, and returns `true` if the cumulative number of
+steps reached the `liaSteps` configuration threshold.
+-/
+def checkMaxSteps : SearchM Bool := do
+  modify fun s => { s with steps := s.steps + 1 }
+  return (← get').steps + (← get).steps > (← getConfig).liaSteps
+
+/--
+Adds the number of steps performed by the current search to the cumulative counter
+in the cutsat state. It must be invoked after `resetDecisionStack` because backtracking
+rolls back the cutsat state.
+-/
+def saveSteps : SearchM Unit := do
+  let steps := (← get).steps
+  modify' fun s => { s with steps := s.steps + steps }
 
 def mkCase (kind : CaseKind) : SearchM FVarId := do
   let fvarId ← mkFreshFVarId

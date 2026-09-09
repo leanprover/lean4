@@ -21,7 +21,7 @@ profile is loaded with a single command (a la `samply`).
 
 namespace Lean.Firefox
 
-open Std Async Http
+open _root_.Std Async Http
 
 /-- Best-effort: spawn the platform-specific "open this URL in the default browser" command. -/
 def openInBrowser (url : String) : IO Unit := do

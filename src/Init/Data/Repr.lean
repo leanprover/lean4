@@ -228,7 +228,7 @@ Examples:
  * `USize.repr 307 = "307"`
 -/
 @[extern "lean_string_of_usize"]
-protected def _root_.USize.repr (n : @& USize) : String :=
+protected def _root_.USize.repr (n : USize) : String :=
   String.ofList (toDigits 10 n.toNat)
 
 /-- We statically allocate and memoize reprs for small natural numbers. -/
@@ -288,7 +288,7 @@ def toSuperDigits (n : Nat) : List Char :=
   toSuperDigitsAux n []
 
 /--
-Converts a natural number to a string that contains the its decimal representation as Unicode
+Converts a natural number to a string that contains its decimal representation as Unicode
 superscript digit characters.
 
 Examples:
@@ -339,7 +339,7 @@ def toSubDigits (n : Nat) : List Char :=
   toSubDigitsAux n []
 
 /--
-Converts a natural number to a string that contains the its decimal representation as Unicode
+Converts a natural number to a string that contains its decimal representation as Unicode
 subscript digit characters.
 
 Examples:

@@ -15,7 +15,7 @@ import Lean.Meta.Sym.Simp.Forall
 namespace Lean.Meta.Sym.Simp
 builtin_initialize registerTraceClass `sym.simp.debug.cache
 
-open Internal
+open Lean.Meta.Sym.Internal
 
 def simpStep : Simproc := fun e => do
   match e with

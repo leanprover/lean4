@@ -1,6 +1,6 @@
 // Lean compiler output
 // Module: Std.Data.DHashMap.Lemmas
-// Imports: public import Std.Data.DHashMap.Internal.RawLemmas import all Std.Data.DHashMap.Basic public import Std.Data.DHashMap.AdditionalOperations import all Std.Data.DHashMap.AdditionalOperations import Init.ByCases import Init.Data.List.Find import Init.Data.List.Impl import Init.Data.List.Pairwise import Init.Data.Prod
+// Imports: public import Std.Data.DHashMap.Internal.RawLemmas import all Std.Data.DHashMap.Basic public import Std.Data.DHashMap.AdditionalOperations public import Std.Internal.ForIn.Basic import all Std.Data.DHashMap.AdditionalOperations import Init.ByCases import Init.Data.List.Find import Init.Data.List.Impl import Init.Data.List.Pairwise import Init.Data.Prod
 #include <lean/lean.h>
 #if defined(__clang__)
 #pragma clang diagnostic ignored "-Wunused-parameter"
@@ -56,17 +56,20 @@ return v_res_20_;
 lean_object* runtime_initialize_Std_Data_DHashMap_Internal_RawLemmas(uint8_t builtin);
 lean_object* runtime_initialize_Std_Data_DHashMap_Basic(uint8_t builtin);
 lean_object* runtime_initialize_Std_Data_DHashMap_AdditionalOperations(uint8_t builtin);
+lean_object* runtime_initialize_Std_Internal_ForIn_Basic(uint8_t builtin);
 lean_object* runtime_initialize_Std_Data_DHashMap_AdditionalOperations(uint8_t builtin);
 lean_object* runtime_initialize_Init_ByCases(uint8_t builtin);
 lean_object* runtime_initialize_Init_Data_List_Find(uint8_t builtin);
 lean_object* runtime_initialize_Init_Data_List_Impl(uint8_t builtin);
 lean_object* runtime_initialize_Init_Data_List_Pairwise(uint8_t builtin);
 lean_object* runtime_initialize_Init_Data_Prod(uint8_t builtin);
+void lean_initialize_runtime_module();
 static bool _G_runtime_initialized = false;
 LEAN_EXPORT lean_object* runtime_initialize_Std_Data_DHashMap_Lemmas(uint8_t builtin) {
 lean_object * res;
 if (_G_runtime_initialized) return lean_io_result_mk_ok(lean_box(0));
 _G_runtime_initialized = true;
+lean_initialize_runtime_module();
 res = runtime_initialize_Std_Data_DHashMap_Internal_RawLemmas(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
@@ -74,6 +77,9 @@ res = runtime_initialize_Std_Data_DHashMap_Basic(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
 res = runtime_initialize_Std_Data_DHashMap_AdditionalOperations(builtin);
+if (lean_io_result_is_error(res)) return res;
+lean_dec_ref(res);
+res = runtime_initialize_Std_Internal_ForIn_Basic(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
 res = runtime_initialize_Std_Data_DHashMap_AdditionalOperations(builtin);
@@ -106,6 +112,7 @@ return lean_io_result_mk_ok(lean_box(0));
 lean_object* initialize_Std_Data_DHashMap_Internal_RawLemmas(uint8_t builtin);
 lean_object* initialize_Std_Data_DHashMap_Basic(uint8_t builtin);
 lean_object* initialize_Std_Data_DHashMap_AdditionalOperations(uint8_t builtin);
+lean_object* initialize_Std_Internal_ForIn_Basic(uint8_t builtin);
 lean_object* initialize_Std_Data_DHashMap_AdditionalOperations(uint8_t builtin);
 lean_object* initialize_Init_ByCases(uint8_t builtin);
 lean_object* initialize_Init_Data_List_Find(uint8_t builtin);
@@ -124,6 +131,9 @@ res = initialize_Std_Data_DHashMap_Basic(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
 res = initialize_Std_Data_DHashMap_AdditionalOperations(builtin);
+if (lean_io_result_is_error(res)) return res;
+lean_dec_ref(res);
+res = initialize_Std_Internal_ForIn_Basic(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
 res = initialize_Std_Data_DHashMap_AdditionalOperations(builtin);

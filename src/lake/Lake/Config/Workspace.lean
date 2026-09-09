@@ -134,7 +134,7 @@ public theorem wsIdx_root_lt {ws : Workspace} :
   ws.lakeEnv.enableArtifactCache? <|> ws.root.enableArtifactCache?
 
 /-- Whether the Lake artifact cache should be enabled by default for packages in the workspace. -/
-@[deprecated enableArtifactCache? (since := "2026-02-03")]
+@[deprecated enableArtifactCache? +typeChanged (since := "2026-02-03")]
 public def enableArtifactCache (ws : Workspace) : Bool :=
   ws.enableArtifactCache?.getD false
 

@@ -510,26 +510,17 @@ inductive PatternArgKind where
     already wildcarded, determines the `outParam` value) and harmful when the normalizer
     changes their syntactic form.
 
-    **Motivation.** Consider the `ToInt` class used by the `grind` linear arithmetic module:
+    **Example.** Consider
     ```
-    class ToInt (α : Type) (range : outParam IntInterval) where ...
-    instance : ToInt (Fin n) (.co 0 n) where ...
-    @[grind =] theorem toInt_fin (x : Fin n) : ToInt.toInt x = x.val
+    class LeftIdentity (op : α → β → β) (o : outParam α) : Prop
+    @[grind =] theorem left_id (op : α → β → β) (o : α) [LeftIdentity op o] (b : β) :
+        op o b = b
     ```
-    The elaborated pattern for `toInt_fin` is:
-    ```
-    @ToInt.toInt (Fin #1) (IntInterval.co 0 (NatCast.natCast #1)) _ #0
-    ```
-    The `range` argument `IntInterval.co 0 (NatCast.natCast #1)` is included in the pattern
-    because the pattern generator treats it as relevant. However, the `grind` normalizer pushes
-    `NatCast.natCast` inside arithmetic operations, rewriting `↑(n + 1)` to `↑n + 1`. So when
-    `grind` processes `Fin (n + 1)`, the e-graph contains:
-    ```
-    @ToInt.toInt (Fin (n + 1)) (IntInterval.co 0 (↑n + 1)) inst x
-    ```
-    The pattern expects `NatCast.natCast #1` at the second position of `IntInterval.co`, but
-    the e-graph has `HAdd.hAdd (NatCast.natCast n) 1` — a different head symbol. The pattern
-    cannot match, and `toInt_fin` never fires.
+    The value of `o` is uniquely determined by `op` via instance resolution. Including it
+    as a relevant pattern position is redundant, and fixes one syntactic spelling of the
+    identity element in the pattern: when the normalizer rewrites that spelling in goal
+    terms, the pattern silently stops matching. See issue #12245 for a concrete instance
+    of this failure; the regression test is `tests/lean/run/grind_fin_bug.lean`.
 
     Since `outParam` arguments are determined by type class resolution (just like instance
     arguments, which are already wildcarded), they can be safely ignored in patterns. This is
@@ -691,6 +682,7 @@ where
           ```
           -/
           saveSymbolsAt arg
+        -- Ground patterns are canonicalized at internalization time (see `internalizePattern`).
         return mkGroundPattern arg
     else match arg with
       | .bvar idx =>
@@ -1576,7 +1568,7 @@ def mkEMatchTheoremAndSuggest (ref : Syntax) (declName : Name) (prios : SymbolPr
         Tactic.TryThis.addSuggestions ref s.suggestions
     return s.thms[0]
   else
-    throwError "invalid `grind` theorem, failed to find an usable pattern using different modifiers"
+    throwError "invalid `grind` theorem, failed to find a usable pattern using different modifiers"
 
 /--
 Tries different modifiers, logs info messages with modifiers that worked, but stores just the first one that worked.

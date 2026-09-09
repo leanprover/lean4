@@ -1,6 +1,6 @@
 module
 set_option grind.debug true
-open Int.Linear
+open Int.Internal.Linear
 
 set_option trace.grind.lia.assert true
 

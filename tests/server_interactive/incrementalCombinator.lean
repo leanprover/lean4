@@ -99,3 +99,22 @@ example (n : Nat) : n = n := by
   --^ sync
   --^ insert: "succ => sorry"
   --^ collectDiagnostics
+
+/-! `set_option ... in` should support incremental reuse in its body. -/
+-- RESET
+def setOption : True := by
+  set_option maxRecDepth 100 in
+  dbg_trace "so 0"
+  dbg_trace "so 1"
+  dbg_trace "so 2"
+               --^ sync
+               --^ insert: ".5"
+
+/-! Changing the option value should disable reuse in the body. -/
+-- RESET
+def setOptionValueChange : True := by
+  set_option maxRecDepth 100 in
+                          --^ sync
+                          --^ insert: "0"
+  dbg_trace "sov 0"
+  dbg_trace "sov 1"

@@ -30,7 +30,7 @@ end BitVec
 
 /-- Construct a literal of type `BitVec w`, with value `n`. -/
 def mkBitVecLit (w : Expr) (n : Nat) : Expr :=
-  mkApp2 (mkConst ``BitVec.ofNat []) w (mkNatLit n)
+  mkApp2 (mkConst ``BitVec.ofNat []) w (toExpr n)
 
 end Expr
 
@@ -116,9 +116,9 @@ abbrev CoefficientsMap := Std.HashMap VarIndex Nat
 
 /-! ### VarState monadic boilerplate  -/
 
-abbrev VarStateM  := StateT VarState MetaM
+abbrev VarStateM  := StateT VarState Sym.SymM
 
-def VarStateM.run' (x : VarStateM α) (s : VarState) : MetaM α :=
+def VarStateM.run' (x : VarStateM α) (s : VarState) : Sym.SymM α :=
   StateT.run' x s
 
 /-! ### Implementation -/
@@ -257,16 +257,16 @@ both sides.
 See `Op.fromExpr?` to see which operations are recognized.
 Other operations are ignored, even if they are associative and commutative.
 -/
-def canonicalizeWithSharing (P : Expr) (lhs rhs : Expr) : SimpM Simp.Step := do
+def canonicalizeWithSharing (P : Expr) (lhs rhs : Expr) : Sym.Simp.SimpM Sym.Simp.Result := do
   withTraceNode (collapsed := false) `Meta.Tactic.bv (fun _ => pure m!"canonicalizeWithSharing") <| do
   trace[Meta.Tactic.bv] "Canonicalizing: {indentExpr <| mkApp2 P lhs rhs}"
 
   let some op := Op.ofApp2? lhs |
     trace[Meta.Tactic.bv] "Failed to recognize operation: {indentExpr lhs}"
-    return .continue
+    return .rfl
   let some op' := Op.ofApp2? rhs |
     trace[Meta.Tactic.bv] "Failed to recognize operation: {indentExpr rhs}"
-    return .continue
+    return .rfl
 
   -- Ignore cases where LHS and RHS ops are different.
   if op != op' then
@@ -275,7 +275,7 @@ def canonicalizeWithSharing (P : Expr) (lhs rhs : Expr) : SimpM Simp.Step := do
         {indentExpr lhs}
       but the right-hand-side has operation {op'}
         {indentExpr rhs}"
-    return .continue
+    return .rfl
 
   trace[Meta.Tactic.bv] "Canonicalizing with respect to operation: '{op}'."
 
@@ -296,12 +296,13 @@ def canonicalizeWithSharing (P : Expr) (lhs rhs : Expr) : SimpM Simp.Step := do
     let rNew := Option.merge (mkApp2 op.toExpr) commonExpr? rNew? |>.getD op.neutralElement
 
     let oldExpr := mkApp2 P lhs rhs
-    let expr := mkApp2 P lNew rNew
-    let proof ← proveEqualityByAC oldExpr expr
+    let newExpr := mkApp2 P lNew rNew
+    if oldExpr == newExpr then return .rfl
+    let proof ← proveEqualityByAC oldExpr newExpr
 
-    return .continue <| some { expr := expr, proof? := some proof }
+    return .step (← Sym.share newExpr) proof
 
-def bvAcNfpost : Simp.Simproc := fun e => do
+def bvAcNfpost : Sym.Simp.Simproc := fun e => withDoneResult do
   match_expr e with
   | BEq.beq ty inst lhs rhs =>
       trace[Meta.Tactic.bv] "bv_ac_nf {checkEmoji} found `BEq.beq`."
@@ -316,46 +317,26 @@ def bvAcNfpost : Simp.Simproc := fun e => do
       let out ← canonicalizeWithSharing P lhs rhs
       return out
   | _ =>
-    return .continue
+    return .rfl
 
 /-! ## Tactic Boilerplate -/
 
 open Tactic
 
-def bvAcNfTarget (mvarId : MVarId)
-    (maxSteps : Nat := Lean.Meta.Simp.defaultMaxSteps) : MetaM MVarId := do
-  let simpCtx ← Simp.mkContext
-      (simpTheorems  := {})
-      (congrTheorems := (← getSimpCongrTheorems))
-      (config        := { Simp.neutralConfig with maxSteps, instances := true })
-  let tgt ← instantiateMVars (← mvarId.getType)
-  let (res, _) ← Simp.main tgt simpCtx (methods := { post := bvAcNfpost })
-  applySimpResultToTarget mvarId tgt res
-
-
-def bvAcNfHypMeta (goal : MVarId) (fvarId : FVarId)
-    (maxSteps : Nat := Lean.Meta.Simp.defaultMaxSteps) : MetaM (Option MVarId) := do
-  goal.withContext do
-    let simpCtx ← Simp.mkContext
-      (simpTheorems  := {})
-      (congrTheorems := (← getSimpCongrTheorems))
-      (config        := { Simp.neutralConfig with maxSteps, instances := true })
-    let tgt ← instantiateMVars (← fvarId.getType)
-    let (res, _) ← Simp.main tgt simpCtx (methods := { post := bvAcNfpost })
-    return (← applySimpResultToLocalDecl goal fvarId res false).map (·.snd)
-
 public def bvAcNormalizePass : Pass where
   name := `bv_ac_nf
-  run' goal := goal.withContext do
-    let hyps ← (← getPropHyps) |>.filterM fun hyp => do
-      return !(← PreProcessM.checkAcNf hyp)
-    let mut newGoal := goal
-    for hyp in hyps do
-      if let .some nextGoal ← bvAcNfHypMeta newGoal hyp (← read).maxSteps then
-        newGoal := nextGoal
-    newGoal.withContext do
-      (← getPropHyps).forM PreProcessM.acNfFinished
-    return newGoal
+  run' := do
+    let cfg ← PreProcessM.getConfig
+    let config := {
+      maxSteps := cfg.maxSteps
+    }
+    let methods := {
+      post := bvAcNfpost
+    }
+
+    let goal ← PreProcessM.getTargetMVarId
+    goal.withContext do
+      PreProcessM.simpHyps .ac methods config
 
 end Normalize
 end Lean.Meta.Tactic.BVDecide

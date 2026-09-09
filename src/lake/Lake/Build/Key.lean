@@ -129,7 +129,7 @@ namespace BuildKey
 @[match_pattern] public abbrev packageModuleFacet (package module facet : Name) : BuildKey :=
   .facet (.packageModule package module) facet
 
-attribute [deprecated packageModuleFacet (since := "2025-11-13")] moduleFacet
+attribute [deprecated packageModuleFacet +typeChanged (since := "2025-11-13")] moduleFacet
 
 @[match_pattern] public abbrev targetFacet (package target facet : Name) : BuildKey :=
   .facet (.packageTarget package target) facet

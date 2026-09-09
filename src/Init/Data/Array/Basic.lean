@@ -90,7 +90,7 @@ theorem ext' {xs ys : Array α} (h : xs.toList = ys.toList) : xs = ys := by
 
 @[simp, grind =] theorem toArray_toList {xs : Array α} : xs.toList.toArray = xs := rfl
 
-@[simp, grind =] theorem getElem_toList {xs : Array α} {i : Nat} (h : i < xs.size) : xs.toList[i] = xs[i] := rfl
+@[simp, grind =] theorem getElem_toList {xs : Array α} {i : Nat} (h : i < xs.toList.length) : xs.toList[i] = xs[i] := rfl
 
 @[simp, grind =] theorem getElem?_toList {xs : Array α} {i : Nat} : xs.toList[i]? = xs[i]? := by
   simp only [getElem?_def, getElem_toList]
@@ -170,7 +170,7 @@ Low-level indexing operator which is as fast as a C array read.
 
 This avoids overhead due to unboxing a `Nat` used as an index.
 -/
-@[extern "lean_array_uget", simp, expose]
+@[extern "lean_array_uget", simp, expose, implicit_reducible]
 def uget (xs : @& Array α) (i : USize) (h : i.toNat < xs.size) : α :=
   xs[i.toNat]
 
@@ -189,7 +189,7 @@ in-place when the reference to the array is unique.
 
 This avoids overhead due to unboxing a `Nat` used as an index.
 -/
-@[extern "lean_array_uset", expose]
+@[extern "lean_array_uset", expose, implicit_reducible]
 def uset (xs : Array α) (i : USize) (v : α) (h : i.toNat < xs.size) : Array α :=
   xs.set i.toNat v h
 
@@ -210,6 +210,31 @@ def pop (xs : Array α) : Array α where
   match xs with
   | ⟨[]⟩ => rfl
   | ⟨a::as⟩ => simp [pop, Nat.succ_sub_succ_eq_sub, size]
+
+/--
+Marks an array as linear, which is a no-op logically.
+
+At runtime the array is first made unique, copying it if the reference is not already unique, and
+then marked. If the environment variable `LEAN_ABORT_ON_NONLINEAR` is set, every non-linear use
+from that point on causes a panic instead of a silent copy.
+
+To debug where the non-linearity is coming from you can set a breakpoint on `lean_internal_panic`.
+-/
+@[never_extract, extern "lean_array_mark_linear", expose]
+def markLinear (xs : Array α) : Array α := xs
+
+@[simp, grind =] theorem markLinear_eq {xs : Array α} : xs.markLinear = xs := rfl
+
+/--
+Returns `ys`, propagating the linearity marker of `xs` onto it. This is a no-op logically.
+
+See also `Array.markLinear`.
+-/
+@[never_extract, extern "lean_array_propagate_mark", expose]
+def propagateMark {α : Type u} {β : Type v} (xs : @& Array α) (ys : Array β) : Array β := ys
+
+@[simp, grind =] theorem propagateMark_eq {α : Type u} {β : Type v} {xs : Array α} {ys : Array β} :
+    xs.propagateMark ys = ys := rfl
 
 /--
 Creates an array that contains `n` repetitions of `v`.

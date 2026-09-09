@@ -22,6 +22,13 @@ to return the simplified expression.
 structure Config where
   /-- Maximum number of steps that can be performed by the simplifier. -/
   maxSteps : Nat := 100_000
+  /--
+  If `instances` is `true`, `dsimp` will visit instance arguments.
+  This is set to `false` by default as simplifying in instances is usually not meaningful and we
+  want to avoid producing non-standard instances. However, in certain situations simplifying in
+  instances can aid with making more terms syntactically equal.
+  -/
+  instances : Bool := false
   deriving Inhabited
 
 /--

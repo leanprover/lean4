@@ -132,21 +132,40 @@ abbrev findKey? (cs : Array (Key × Trie α)) (k : Key) : Option (Key × Trie α
   cs.binSearch (k, default) (fun a b => a.1 < b.1)
 
 def getKey (e : Expr) : Key :=
-  match e.getAppFn with
+  match e.getAppFn' with
   | .lit v            => .lit v
-  | .const declName _ => .const declName e.getAppNumArgs
-  | .fvar fvarId      => .fvar fvarId e.getAppNumArgs
+  | .const declName _ => .const declName e.getAppNumArgs'
+  | .fvar fvarId      => .fvar fvarId e.getAppNumArgs'
   | .forallE ..       => .arrow
   | _ => .other
+
+/--
+If its head is an assigned metavariable, replaces it with its value,
+beta-reducing any applied arguments. Goal types may mention metavariables assigned after the
+goal was created (e.g. by `Pattern.unify?` or by solving a sibling subgoal), so retrieval must
+see through assignments; unassigned metavariables remain opaque atoms (`Key.other`). The result
+is used only for key computation and need not be maximally shared.
+-/
+partial def resolveAssignedMVars (mctx : MetavarContext) (e : Expr) : Expr :=
+  if e.hasExprMVar then
+    match e.getAppFn with
+    | .mvar mvarId =>
+      match mctx.getExprAssignmentCore? mvarId with
+      | some v => resolveAssignedMVars mctx (v.betaRev e.getAppRevArgs)
+      | none => e
+    | _ => e
+  else
+    e
 
 /-- Push `e` arguments/children into the `todo` stack.  -/
 def pushArgsTodo (todo : Array Expr) (e : Expr) : Array Expr :=
   match e with
   | .app f a => pushArgsTodo (todo.push a) f
   | .forallE _ d b _ => todo.push b |>.push d
+  | .mdata _ e => pushArgsTodo todo e
   | _ => todo
 
-partial def getMatchLoop (todo : Array Expr) (c : Trie α) (result : Array α) : Array α :=
+partial def getMatchLoop (mctx : MetavarContext) (todo : Array Expr) (c : Trie α) (result : Array α) : Array α :=
   match c with
   | .node vs cs =>
     let csize := cs.size
@@ -155,15 +174,15 @@ partial def getMatchLoop (todo : Array Expr) (c : Trie α) (result : Array α) :
     else if h : csize = 0 then
       result
     else
-      let e     := etaReduce todo.back!
+      let e     := resolveAssignedMVars mctx <| etaReduce todo.back!
       let todo  := todo.pop
       let first := cs[0] /- Recall that `Key.star` is the minimal key -/
       if csize = 1 then
         /- Special case: only one child node -/
         if first.1 == .star then
-          getMatchLoop todo first.2 result
+          getMatchLoop mctx todo first.2 result
         else if first.1 == getKey e then
-          getMatchLoop (pushArgsTodo todo e) first.2 result
+          getMatchLoop mctx (pushArgsTodo todo e) first.2 result
         else
           result
       else
@@ -171,24 +190,25 @@ partial def getMatchLoop (todo : Array Expr) (c : Trie α) (result : Array α) :
           Thus, `todo` is not used linearly when there is `Key.star` edge
           and there is an edge for `k` and `k != Key.star`. -/
         let result := if first.1 == .star then
-          getMatchLoop todo first.2 result
+          getMatchLoop mctx todo first.2 result
         else
           result
         match findKey? cs (getKey e) with
         | none   => result
-        | some c => getMatchLoop (pushArgsTodo todo e) c.2 result
+        | some c => getMatchLoop mctx (pushArgsTodo todo e) c.2 result
 
 /--
 Retrieves all values whose patterns match the expression `e`.
+`mctx` is used to resolve assigned metavariables during retrieval; see `resolveAssignedMVars`.
 -/
-public def getMatch (d : DiscrTree α) (e : Expr) : Array α :=
+public def getMatch (mctx : MetavarContext) (d : DiscrTree α) (e : Expr) : Array α :=
   let result := match d.root.find? .star with
   | none              => .mkEmpty initCapacity
   | some (.node vs _) => vs
-  let e := etaReduce e
+  let e := resolveAssignedMVars mctx <| etaReduce e
   match d.root.find? (getKey e) with
   | none   => result
-  | some c => getMatchLoop (pushArgsTodo #[] e) c result
+  | some c => getMatchLoop mctx (pushArgsTodo #[] e) c result
 
 /--
 Retrieves all values whose patterns match a prefix of `e`, along with the number of
@@ -197,9 +217,10 @@ extra (ignored) arguments.
 This is useful for rewriting: if a pattern matches `f x` but `e` is `f x y z`, we can
 still apply the rewrite and return `(value, 2)` indicating 2 extra arguments.
 -/
-public partial def getMatchWithExtra (d : DiscrTree α) (e : Expr) : Array (α × Nat) :=
-  let e := etaReduce e
-  let result := getMatch d e
+public partial def getMatchWithExtra (mctx : MetavarContext) (d : DiscrTree α) (e : Expr) : Array (α × Nat) :=
+  let e := resolveAssignedMVars mctx <| etaReduce e
+  let e := e.consumeMData
+  let result := getMatch mctx d e
   let result := result.map (·, 0)
   if !e.isApp then
     result
@@ -220,7 +241,8 @@ where
     | _               => false
 
   go (e : Expr) (numExtra : Nat) (result : Array (α × Nat)) : Array (α × Nat) :=
-    let result := result ++ (getMatch d e).map (., numExtra)
+    let result := result ++ (getMatch mctx d e).map (., numExtra)
+    let e := e.consumeMData
     if e.isApp then
       go e.appFn! (numExtra + 1) result
     else

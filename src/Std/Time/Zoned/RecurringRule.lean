@@ -19,7 +19,7 @@ Types for recurring DST transition rules, used by `ZoneRules` and produced by PO
 public section
 
 namespace Std.Time.TimeZone
-open Internal
+open Time.Internal
 
 /--
 Specifies how a DST transition date is expressed.

@@ -11,6 +11,9 @@ public import Lean.Parser.Module
 public section
 
 namespace Lean
+
+open Lean
+
 namespace ParseImports
 
 structure State where

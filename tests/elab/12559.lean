@@ -12,7 +12,7 @@ warning: This simp argument is unused:
   False
 
 Hint: Omit it from the simp argument list.
-  simp ̵[̵F̵a̵l̵s̵e̵]̵
+  [apply] simp
 
 Note: This linter can be disabled with `set_option linter.unusedSimpArgs false`
 -/
@@ -30,7 +30,7 @@ warning: This simp argument is unused:
   False
 
 Hint: Omit it from the simp argument list.
-  simp ̵[̵F̵a̵l̵s̵e̵]̵
+  [apply] simp
 
 Note: This linter can be disabled with `set_option linter.unusedSimpArgs false`
 -/

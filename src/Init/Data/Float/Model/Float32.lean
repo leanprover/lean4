@@ -57,6 +57,18 @@ def pack (f : UnpackedFloat) : Float32.Model where
   valid := by simp
 
 /--
+The special `NaN` value.
+-/
+def nan : Float32.Model :=
+  pack .notANumber
+
+/--
+The special `Inf` value.
+-/
+def inf : Float32.Model :=
+  pack (.infinity .positive)
+
+/--
 Compute the sum of two `Float32.Model`.
 -/
 def add (a b : Float32.Model) : Float32.Model :=

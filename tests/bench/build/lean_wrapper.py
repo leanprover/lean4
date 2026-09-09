@@ -35,15 +35,6 @@ def run(*command: str) -> None:
         sys.exit(result.returncode)
 
 
-def run_capture(*command: str) -> tuple[str, str]:
-    result = subprocess.run(command, capture_output=True, encoding="utf-8")
-    if result.returncode != 0:
-        print(result.stdout, end="", file=sys.stdout)
-        print(result.stderr, end="", file=sys.stderr)
-        sys.exit(result.returncode)
-    return result.stdout, result.stderr
-
-
 def get_module(setup: Path) -> str:
     with open(setup) as f:
         return json.load(f)["name"]

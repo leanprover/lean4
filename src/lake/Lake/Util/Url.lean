@@ -101,6 +101,14 @@ public def uriEncodeChar (c : Char) (s := "") : String :=
 public def uriEncode (s : String) (init := "") : String :=
   s.foldl (init := init) fun s c => uriEncodeChar c s
 
+/-- **For internal use only.** -/
+-- Currently only for test use.
+-- TODO: Move tracking to `Lake.Env` when feasible
+@[inline] public def Internal.getCurl : BaseIO String := do
+  -- Need to use a different `curl` on Windows where the system will
+  -- otherwise always prefer the OS-provided version over that in `PATH`.
+  return (← IO.getEnv "CURL").getD "curl"
+
 /--
 Performs a HTTP `GET` request of a URL (using `curl` with JSON output) and, if successful,
 return the body.  Otherwise, returns `none` on a 404 and errors on anything else.
@@ -113,7 +121,7 @@ public def getUrl?
       "--retry", "3" -- intermittent network errors can occur
   ]
   let args := headers.foldl (init := args) (· ++ #["-H", ·])
-  let out ← captureProc' {cmd := "curl", args := args.push url}
+  let out ← captureProc' {cmd := ← Internal.getCurl, args := args.push url}
   match Json.parse out.stderr >>= JsonObject.fromJson? with
   | .ok data =>
     let code ← id do
@@ -137,4 +145,4 @@ public def getUrl (url : String) (headers : Array String := #[]) : LogIO String 
       "--retry", "3" -- intermittent network errors can occur
   ]
   let args := headers.foldl (init := args) (· ++ #["-H", ·])
-  captureProc {cmd := "curl", args := args.push url}
+  captureProc {cmd := ← Internal.getCurl, args := args.push url}

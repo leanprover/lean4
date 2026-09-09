@@ -2,11 +2,36 @@ deprecated.lean:5:2-5:14: warning: `[deprecated]` attribute should specify the d
 deprecated.lean:8:2-8:12: warning: `[deprecated]` attribute should specify either a new name or a deprecation message
 deprecated.lean:8:2-8:12: warning: `[deprecated]` attribute should specify the date or library version at which the deprecation was introduced, using `(since := "...")`
 deprecated.lean:11:6-11:7: warning: `f` has been deprecated: Use `g` instead
+
+Hint: Replace the deprecated name:
+  f̵g̲
 2
 deprecated.lean:13:6-13:7: warning: `h` has been deprecated
 1
 deprecated.lean:15:13-15:15: error(lean.unknownIdentifier): Unknown constant `g1`
+deprecated.lean:20:2-20:43: warning: The updated constant has a different type:
+  Nat
+instead of
+  Nat → Nat
+
+This suggests that addressing the deprecation might be more involved than simply replacing the old name with the new name. This is often expected, but sometimes it indicates that the deprecation is in favor of the wrong declaration, or that there is a mistake in one of the statements.
+
+If the type difference is intentional, use `+typeChanged` to silence this warning.
+
+Hint: Add `+typeChanged`:
+  [apply] +typeChanged
 deprecated.lean:23:13-23:15: error(lean.unknownIdentifier): Unknown constant `g1`
+deprecated.lean:27:2-27:55: warning: The updated constant has a different type:
+  Nat
+instead of
+  Nat → Nat
+
+This suggests that addressing the deprecation might be more involved than simply replacing the old name with the new name. This is often expected, but sometimes it indicates that the deprecation is in favor of the wrong declaration, or that there is a mistake in one of the statements.
+
+If the type difference is intentional, use `+typeChanged` to silence this warning.
+
+Hint: Add `+typeChanged`:
+  [apply] +typeChanged
 deprecated.lean:27:2-27:55: warning: `[deprecated]` attribute should specify the date or library version at which the deprecation was introduced, using `(since := "...")`
 deprecated.lean:30:6-30:8: warning: `f2` has been deprecated: Use `Foo.g1` instead
 

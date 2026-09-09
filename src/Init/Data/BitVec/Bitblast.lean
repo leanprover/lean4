@@ -505,11 +505,11 @@ theorem msb_neg {w : Nat} {x : BitVec w} :
   apply BitVec.eq_of_getElem_eq
   intro i hi
   simp only [getElem_signExtend, getElem_neg]
-  rw [dif_pos (by omega), dif_pos (by omega)]
+  rw [dite_eq_left (by omega), dite_eq_left (by omega)]
   simp only [getLsbD_signExtend, Bool.and_eq_true, decide_eq_true_eq, Bool.ite_eq_true_distrib,
     Bool.bne_right_inj, decide_eq_decide]
-  exact ⟨fun ⟨j, hj₁, hj₂⟩ => ⟨j, ⟨hj₁, ⟨by omega, by rwa [if_pos (by omega)]⟩⟩⟩,
-    fun ⟨j, hj₁, hj₂, hj₃⟩ => ⟨j, hj₁, by rwa [if_pos (by omega)] at hj₃⟩⟩
+  exact ⟨fun ⟨j, hj₁, hj₂⟩ => ⟨j, ⟨hj₁, ⟨by omega, by rwa [ite_eq_left (by omega)]⟩⟩⟩,
+    fun ⟨j, hj₁, hj₂, hj₃⟩ => ⟨j, hj₁, by rwa [ite_eq_left (by omega)] at hj₃⟩⟩
 
 /-- This is false if `v < w` and `b = intMin`. See also `signExtend_neg_of_le`. -/
 @[simp] theorem signExtend_neg_of_ne_intMin {v w : Nat} (b : BitVec v) (hb : b ≠ intMin v) :
@@ -1414,7 +1414,7 @@ theorem eq_iff_eq_of_inv (f : α → BitVec w) (g : BitVec w → α) (h : ∀ x,
     have := congrArg g h'
     simpa [h] using this
 
-@[deprecated BitVec.ne_intMin_of_msb_eq_false (since := "2025-10-26")]
+@[deprecated BitVec.ne_intMin_of_msb_eq_false +typeChanged (since := "2025-10-26")]
 theorem ne_intMin_of_lt_of_msb_false {x : BitVec w} (hw : 0 < w) (hx : x.msb = false) :
     x ≠ intMin w := by
   have := toNat_lt_of_msb_false hx
@@ -1641,8 +1641,8 @@ theorem toInt_sdiv_of_ne_or_ne (a b : BitVec w) (h : a ≠ intMin w ∨ b ≠ -1
         rw [toInt_eq_neg_toNat_neg_of_msb_true hb, Int.tdiv_neg, Int.tdiv_eq_ediv_of_nonneg (by omega)]
       · apply sdiv_ne_intMin_of_ne_intMin
         apply ne_intMin_of_msb_eq_false (by omega) ha
-    · rw [sdiv, Int.tdiv_cases, udiv_eq, neg_eq, if_pos (toInt_nonneg_of_msb_false ha),
-        if_pos (toInt_nonneg_of_msb_false hb), ha, hb, toInt_udiv_of_msb ha,
+    · rw [sdiv, Int.tdiv_cases, udiv_eq, neg_eq, ite_eq_left (toInt_nonneg_of_msb_false ha),
+        ite_eq_left (toInt_nonneg_of_msb_false hb), ha, hb, toInt_udiv_of_msb ha,
         toInt_eq_toNat_of_msb ha, toInt_eq_toNat_of_msb hb]
 
 theorem intMin_sdiv_neg_one : (intMin w).sdiv (-1#w) = intMin w := by
@@ -1659,7 +1659,7 @@ theorem toInt_sdiv (a b : BitVec w) : (a.sdiv b).toInt = (a.toInt.tdiv b.toInt).
   · rcases h with ⟨rfl, rfl⟩
     rw [BitVec.intMin_sdiv_neg_one]
     refine (Nat.eq_zero_or_pos w).elim (by rintro rfl; simp [toInt_of_zero_length]) (fun hw => ?_)
-    rw [toInt_intMin_of_pos hw, neg_one_eq_allOnes, toInt_allOnes, if_pos hw, Int.tdiv_neg,
+    rw [toInt_intMin_of_pos hw, neg_one_eq_allOnes, toInt_allOnes, ite_eq_left hw, Int.tdiv_neg,
       Int.tdiv_one, Int.neg_neg, Int.bmod_eq_neg (Int.pow_nonneg (by omega))]
     conv => lhs; rw [(by omega: w = (w - 1) + 1)]
     simp [Nat.pow_succ, Int.natCast_pow, Int.mul_comm]
@@ -2012,8 +2012,7 @@ theorem getElem_smod {x y : BitVec w} (h : i < w) :
       | true, false => (if -x % y = 0#w then (-x % y) else (y - -x % y))[i]
       | true, true => (-(-x % -y))[i] := by
   simp only [smod, umod_eq, neg_eq, zero_eq, add_eq, sub_eq]
-  by_cases hx : x.msb <;> by_cases hy : y.msb
-  <;> simp [hx, hy]
+  by_cases hx : x.msb <;> by_cases hy : y.msb <;> simp [hx, hy]
 
 theorem getLsbD_smod {x y : BitVec w} :
     (x.smod y).getLsbD i =
@@ -2037,8 +2036,7 @@ theorem getMsbD_smod {x y : BitVec w} :
       | true, false => (if -x % y = 0#w then (-x % y) else (y - -x % y)).getMsbD i
       | true, true => (-(-x % -y)).getMsbD i := by
   simp only [smod, umod_eq, neg_eq, zero_eq, add_eq, sub_eq]
-  by_cases hx : x.msb <;> by_cases hy : y.msb
-  <;> simp [hx, hy]
+  by_cases hx : x.msb <;> by_cases hy : y.msb <;> simp [hx, hy]
 
 theorem msb_smod {x y : BitVec w} :
     (x.smod y).msb = (x.msb && y = 0) || (y.msb && (x.smod y) ≠ 0) := by

@@ -7,7 +7,7 @@ module
 
 prelude
 public import Init.Grind.Ring.Field
-public import Init.Data.OfScientific
+public import Init.Data.OfScientific.Basic
 
 public section
 

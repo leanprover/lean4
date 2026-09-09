@@ -8,8 +8,8 @@ IO.FS.withFile path IO.FS.Mode.read $ λ (h : IO.FS.Handle) => do
   IO.println str'.length;
   IO.print str';
   unless (str'.length == str.length + 1) do
-    throw (IO.userError ("unexpected length: " ++ toString str'.trim.length));
-  unless (str'.trim == str) do
+    throw (IO.userError ("unexpected length: " ++ toString str'.trimAscii.copy.length));
+  unless (str'.trimAscii == str) do
     throw (IO.userError ("unexpected result: " ++ str'))
 
 def tstGetLine2 (str1 str2 : String) : IO Unit := do
@@ -21,12 +21,12 @@ IO.FS.withFile path IO.FS.Mode.read $ λ (h : IO.FS.Handle) => do
   let str1' ← h.getLine;
   let str2' ← h.getLine;
   unless (str1'.length == str1.length + 1) do
-    throw (IO.userError ("unexpected length: " ++ toString str1'.trim.length));
-  unless (str1'.trim == str1) do
+    throw (IO.userError ("unexpected length: " ++ toString str1'.trimAscii.copy.length));
+  unless (str1'.trimAscii == str1) do
     throw (IO.userError ("unexpected result: " ++ str1'));
   unless (str2'.length == str2.length) do
-    throw (IO.userError ("unexpected length: " ++ toString str2'.trim.length));
-  unless (str2'.trim == str2) do
+    throw (IO.userError ("unexpected length: " ++ toString str2'.trimAscii.copy.length));
+  unless (str2'.trimAscii == str2) do
     throw (IO.userError ("unexpected result: " ++ str2'))
 
 def tstGetLine3 (str : String) : IO Unit := do

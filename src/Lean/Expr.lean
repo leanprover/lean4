@@ -608,7 +608,6 @@ Export functions.
 @[export lean_expr_has_fvar] def hasFVarEx : Expr → Bool := hasFVar
 @[export lean_expr_has_expr_mvar] def hasExprMVarEx : Expr → Bool := hasExprMVar
 @[export lean_expr_has_level_mvar] def hasLevelMVarEx : Expr → Bool := hasLevelMVar
-@[export lean_expr_has_mvar] def hasMVarEx : Expr → Bool := hasMVar
 @[export lean_expr_has_level_param] def hasLevelParamEx : Expr → Bool := hasLevelParam
 @[export lean_expr_loose_bvar_range] def looseBVarRangeEx (e : Expr) : UInt32 := e.data.looseBVarRange
 @[export lean_expr_binder_info] def binderInfoEx : Expr → BinderInfo := binderInfo
@@ -1707,7 +1706,6 @@ def getAutoParamTactic? (e : Expr) : Option Expr :=
     none
 
 /-- Return `true` if `e` is of the form `outParam _` -/
-@[export lean_is_out_param]
 def isOutParam (e : Expr) : Bool :=
   e.isAppOfArity ``outParam 1
 

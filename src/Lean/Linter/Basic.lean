@@ -23,9 +23,11 @@ namespace Lean
 open Elab Command
 
 /--
-Given a command elaborator `cmd`, returns a new command elaborator that
+Given a function `cmd` on command syntax, returns a new function that
 first peels off and evaluates `set_option ... in ...` syntax recursively, updating the options
-accordingly, and then invokes `cmd` on the inner syntax.
+accordingly, and then invokes `cmd` on the inner syntax. The result type is arbitrary, so that
+besides `CommandElab`s this can also wrap functions that return values, such as the phases of a
+stateful linter.
 
 This is expected to be used in linters, after elaboration is complete. It is not appropriate for
 ordinary elaboration of outer `set_option`s, since it
@@ -34,7 +36,8 @@ ordinary elaboration of outer `set_option`s, since it
   unknown or the wrong type of value is provided), as these should have been reported during
   original elaboration.
 -/
-partial def withSetOptionIn (cmd : CommandElab) : CommandElab := fun stx => do
+partial def withSetOptionIn (cmd : Syntax → CommandElabM α) : Syntax → CommandElabM α :=
+  fun stx => do
   if stx.getKind == ``Lean.Parser.Command.in &&
      stx[0].getKind == ``Lean.Parser.Command.set_option then
       -- Do not modify the infotrees when elaborating, and silently ignore errors.

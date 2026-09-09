@@ -8,11 +8,11 @@ prelude
 public import Lean.Meta.Sym.AlphaShareBuilder
 import Init.Omega
 namespace Lean.Meta.Sym
-open Internal
+open Lean.Meta.Sym.Internal
 /-!
 A version of `replace_fn.h` that ensures the resulting expression is maximally shared.
 -/
-open Grind
+open Lean.Meta.Grind
 abbrev M := StateT (Std.HashMap (ExprPtr × Nat) Expr) AlphaShareBuilderM
 
 def save (key : ExprPtr × Nat) (r : Expr) : M Expr := do

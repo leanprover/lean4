@@ -199,11 +199,11 @@ theorem modifyHead_eq_modify_zero (f : α → α) (l : List α) :
 
 @[simp] theorem getElem?_modify_eq (f : α → α) (i) (l : List α) :
     (l.modify i f)[i]? = f <$> l[i]? := by
-  simp only [getElem?_modify, if_pos]
+  simp only [getElem?_modify, ite_eq_left]
 
 @[simp] theorem getElem?_modify_ne (f : α → α) {i j} (l : List α) (h : i ≠ j) :
     (l.modify i f)[j]? = l[j]? := by
-  simp only [getElem?_modify, if_neg h, id_map']
+  simp only [getElem?_modify, ite_eq_right h, id_map']
 
 @[grind =] theorem getElem_modify (f : α → α) (i) (l : List α) (j) (h : j < (l.modify i f).length) :
     (l.modify i f)[j] =

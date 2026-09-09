@@ -8,6 +8,9 @@ prelude
 public import Lean.Meta.Tactic.BVDecide.Reflect.Basic
 public import Std.Tactic.BVDecide.Reflect
 import Lean.Meta.LitValues
+import Lean.Meta.Sym.LitValues
+import Lean.Meta.Sym.InferType
+import Lean.Meta.Sym.InstantiateMVarsS
 
 /-!
 Provides the logic for reifying `BitVec` expressions.
@@ -16,7 +19,6 @@ Provides the logic for reifying `BitVec` expressions.
 namespace Lean.Meta.Tactic.BVDecide
 
 open Std.Tactic.BVDecide
-open Lean.Meta
 
 namespace ReifiedBVExpr
 
@@ -24,20 +26,17 @@ namespace ReifiedBVExpr
 Build `BVExpr.eval atoms expr` where `atoms` is the assignment stored in the monad.
 -/
 public def mkEvalExpr (w : Nat) (expr : Expr) : M Expr := do
-  return mkApp3 (mkConst ``BVExpr.eval) (toExpr w) (← M.atomsAssignment) expr
+  Sym.share <| mkApp3 (mkConst ``BVExpr.eval) (toExpr w) (← M.atomsAssignment) expr
 
 public def mkBVRefl (w : Nat) (expr : Expr) : Expr :=
-  mkApp2
-   (mkConst ``Eq.refl [1])
-   (mkApp (mkConst ``BitVec) (toExpr w))
-   expr
+  mkApp2 (mkConst ``Eq.refl [1]) (mkApp (mkConst ``BitVec) (toExpr w)) expr
 
 /--
 Register `e` as an atom of `width` that might potentially be `synthetic`.
 -/
 public def mkAtom (e : Expr) (width : Nat) (synthetic : Bool) : M ReifiedBVExpr := do
   let ident ← M.lookup e width synthetic
-  let expr := mkApp2 (mkConst ``BVExpr.var) (toExpr width) (toExpr ident)
+  let expr ← Sym.share <| mkApp2 (mkConst ``BVExpr.var) (toExpr width) (toExpr ident)
   -- This is safe because this proof always holds definitionally.
   let proof := pure none
   return ⟨width, .var ident, expr, proof, expr⟩
@@ -48,9 +47,9 @@ Parse `expr` as a `Nat` or `BitVec` constant depending on `ty`.
 public def getNatOrBvValue? (ty : Expr) (expr : Expr) : M (Option Nat) := do
   match_expr ty with
   | Nat =>
-    getNatValue? expr
+    Sym.getNatValue? expr |>.run
   | BitVec _ =>
-    let some ⟨_, distance⟩ ← getBitVecValue? expr | return none
+    let some ⟨_, distance⟩ := Sym.getBitVecValue? expr | return none
     return some distance.toNat
   | _ => return none
 
@@ -58,9 +57,9 @@ public def getNatOrBvValue? (ty : Expr) (expr : Expr) : M (Option Nat) := do
 Construct an uninterpreted `BitVec` atom from `x`, potentially `synthetic`.
 -/
 public def bitVecAtom (x : Expr) (synthetic : Bool) : M (Option ReifiedBVExpr) := do
-  let t ← instantiateMVars (← whnfR (← inferType x))
+  let t ← Sym.instantiateMVarsS (← Sym.inferType x)
   let_expr BitVec widthExpr := t | return none
-  let some width ← getNatValue? widthExpr | return none
+  let some width := Sym.getNatValue? widthExpr | return none
   let atom ← mkAtom x width synthetic
   return some atom
 
@@ -69,10 +68,11 @@ Build a reified version of the constant `val`.
 -/
 public def mkBVConst (val : BitVec w) : M ReifiedBVExpr := do
   let bvExpr : BVExpr w := .const val
-  let expr := mkApp2 (mkConst ``BVExpr.const) (toExpr w) (toExpr val)
+  let expr ← Sym.share <| mkApp2 (mkConst ``BVExpr.const) (toExpr w) (toExpr val)
+  let syntheticOrigExpr ← Sym.share <| toExpr val
   -- This is safe because this proof always holds definitionally.
   let proof := pure none
-  return ⟨w, bvExpr, toExpr val, proof, expr⟩
+  return ⟨w, bvExpr, syntheticOrigExpr, proof, expr⟩
 
 end ReifiedBVExpr
 

@@ -149,7 +149,6 @@ def getRoot : Name → Name
   | str n _             => getRoot n
   | num n _             => getRoot n
 
-@[export lean_is_inaccessible_user_name]
 def isInaccessibleUserName : Name → Bool
   | Name.str _ s   => (String.Internal.contains s '✝') || s == "_inaccessible"
   | Name.num p _   => isInaccessibleUserName p
@@ -513,8 +512,12 @@ namespace Syntax
 
 deriving instance BEq for Syntax.Preresolved
 
+/-
+The annotations are necessary because this calls the bootstrapping helper for Substring which does
+not have borrowing annotations.
+-/
 /-- Compare syntax structures modulo source info. -/
-partial def structEq : Syntax → Syntax → Bool
+partial def structEq : @&Syntax → @&Syntax → Bool
   | Syntax.missing, Syntax.missing => true
   | Syntax.node _ k args, Syntax.node _ k' args' => k == k' && args.isEqv args' structEq
   | Syntax.atom _ val, Syntax.atom _ val' => val == val'
@@ -755,7 +758,6 @@ def mkCIdent (c : Name) : Ident :=
 /--
 Creates an identifier from a name. The resulting identifier has no source position.
 -/
-@[export lean_mk_syntax_ident]
 def mkIdent (val : Name) : Ident :=
   ⟨Syntax.ident SourceInfo.none (Name.Internal.Meta.toString val).toRawSubstring val []⟩
 

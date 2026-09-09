@@ -51,7 +51,7 @@ theorem PartialMap.get_put {A B : Type} [DecidableEq A] (m : PartialMap A B) (k 
 
 theorem PartialMap.get_put_diff {A B : Type} [DecidableEq A] (m : PartialMap A B) (k k' : A) (v : B)
     (h : k ≠ k') : (m.put k' v).get k = m.get k :=
-  if_neg h
+  ite_eq_right h
 
 theorem PartialMap.put_put {A B : Type} [DecidableEq A] (m : PartialMap A B) (k : A) (v1 v2 : B)
     : (m.put k v1).put k v2 = m.put k v2 := by

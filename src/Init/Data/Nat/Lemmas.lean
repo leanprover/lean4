@@ -14,7 +14,7 @@ public import Init.Data.Nat.Div.Basic
 public import Init.PropLemmas
 import Init.ByCases
 import Init.Data.Nat.Dvd
-import Init.Data.Nat.Linear
+import Init.Data.Nat.Internal.Linear
 import Init.Data.Nat.MinMax
 import Init.Data.Nat.Mod
 import Init.Omega
@@ -287,7 +287,7 @@ theorem le_or_le_of_add_eq_add_pred (h : a + c = b + d - 1) : b ≤ a ∨ d ≤ 
 
 protected theorem one_sub : ∀ n, 1 - n = if n = 0 then 1 else 0
   | 0 => rfl
-  | _+1 => by rw [if_neg (Nat.succ_ne_zero _), Nat.succ_sub_succ, Nat.zero_sub]
+  | _+1 => by rw [ite_eq_right (Nat.succ_ne_zero _), Nat.succ_sub_succ, Nat.zero_sub]
 
 theorem succ_sub_sub_succ (n m k) : succ n - m - succ k = n - m - k := by
   rw [Nat.sub_sub, Nat.sub_sub, add_succ, succ_sub_succ]
@@ -1037,8 +1037,8 @@ theorem div_le_iff_le_mul_of_dvd (hb : b ≠ 0) (hba : b ∣ a) : a / b ≤ c �
   rw [Nat.mul_div_right _ (zero_lt_of_ne_zero hb), Nat.mul_comm]
   exact ⟨mul_le_mul_right b, fun h ↦ Nat.le_of_mul_le_mul_right h (zero_lt_of_ne_zero hb)⟩
 
-protected theorem div_lt_div_right (ha : a ≠ 0) : a ∣ b → a ∣ c → (b / a < c / a ↔ b < c) := by
-  rintro ⟨d, rfl⟩ ⟨e, rfl⟩; simp [Nat.pos_iff_ne_zero.2 ha]
+protected theorem div_lt_div_right (ha : a ≠ 0) (hc : a ∣ c) : b / a < c / a ↔ b < c := by
+  rw [div_lt_iff_lt_mul (Nat.pos_of_ne_zero ha), Nat.div_mul_cancel hc]
 
 protected theorem div_lt_div_left (ha : a ≠ 0) (hba : b ∣ a) (hca : c ∣ a) :
     a / b < a / c ↔ c < b := by
@@ -1049,7 +1049,7 @@ protected theorem div_lt_div_left (ha : a ≠ 0) (hba : b ∣ a) (hca : c ∣ a)
     rw [Nat.pos_iff_ne_zero] <;> rintro rfl <;> simp at * <;> contradiction
 
 theorem lt_div_iff_mul_lt_of_dvd (hc : c ≠ 0) (hcb : c ∣ b) : a < b / c ↔ a * c < b := by
-  simp [← Nat.div_lt_div_right _ _ hcb, hc, Nat.pos_iff_ne_zero, Nat.dvd_mul_left]
+  simp [← Nat.div_lt_div_right _ hcb, hc, Nat.pos_iff_ne_zero]
 
 protected theorem div_mul_div_le (a b c d : Nat) :
     (a / b) * (c / d) ≤ (a * c) / (b * d) := by
@@ -1529,10 +1529,10 @@ theorem add_mod_eq_ite {m n : Nat} :
   | succ k =>
     rw [Nat.add_mod]
     by_cases h : k + 1 ≤ m % (k + 1) + n % (k + 1)
-    · rw [if_pos h, Nat.mod_eq_sub_mod h, Nat.mod_eq_of_lt]
+    · rw [ite_eq_left h, Nat.mod_eq_sub_mod h, Nat.mod_eq_of_lt]
       exact (Nat.sub_lt_iff_lt_add h).mpr (Nat.add_lt_add (m.mod_lt (zero_lt_succ _))
         (n.mod_lt (zero_lt_succ _)))
-    · rw [if_neg h]
+    · rw [ite_eq_right h]
       exact Nat.mod_eq_of_lt (Nat.lt_of_not_ge h)
 
 -- TODO: Replace `Nat.dvd_add_iff_left`
@@ -1564,7 +1564,7 @@ theorem mul_add_div {m : Nat} (m_pos : m > 0) (x y : Nat) : (m * x + y) / m = x 
   match x with
   | 0 => simp
   | x + 1 =>
-    rw [Nat.mul_succ, Nat.add_assoc _ m, mul_add_div m_pos x (m+y), div_eq]
+    rw [Nat.mul_succ, Nat.add_assoc _ m, mul_add_div m_pos x (m+y), div_eq_ite]
     simp +arith [m_pos]
 
 theorem mul_add_mod (m x y : Nat) : (m * x + y) % m = y % m := by
@@ -1740,12 +1740,6 @@ theorem shiftRight_succ_inside : ∀m n, m >>> (n+1) = (m/2) >>> n
 theorem shiftLeft_add (m n : Nat) : ∀ k, m <<< (n + k) = (m <<< n) <<< k
   | 0 => rfl
   | k + 1 => by simp [← Nat.add_assoc, shiftLeft_add _ _ k, shiftLeft_succ]
-
-grind_pattern shiftLeft_add => m <<< (n + k) where
-  m =/= 0
-
-grind_pattern shiftLeft_add => (m <<< n) <<< k where
-  m =/= 0
 
 @[simp] theorem shiftLeft_shiftRight (x n : Nat) : x <<< n >>> n = x := by
   rw [Nat.shiftLeft_eq, Nat.shiftRight_eq_div_pow, Nat.mul_div_cancel _ (Nat.two_pow_pos _)]

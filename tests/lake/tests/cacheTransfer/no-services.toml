@@ -1,0 +1,2 @@
+# A system configuration with no cache service, as in a default installation.
+# Used to test the errors Lake reports when a service is required but not configured.

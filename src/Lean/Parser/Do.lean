@@ -175,7 +175,29 @@ def doIfCond    :=
 @[builtin_doElem_parser] def doUnless := leading_parser
   "unless " >> withForbidden "do" termParser >> " do " >> doSeq
 def doForDecl := leading_parser
-  optional (atomic (ident >> " : ")) >> termParser >> " in " >> withForbidden "do" termParser
+  optional (atomic (ident >> " : ")) >> termParser >> " in " >>
+    withForbiddens #["do", "invariant", "decreasing"] termParser
+/--
+The optional `invariant` clause of a loop, written like a `fun`: the invariant annotates the loop so
+`vcgen` reads it from the program, and mutable variables are referenced by name.
+
+On a `for` loop the clause is `invariant pref suff a b c => e`, with `pref` bound to the elements
+consumed so far and `suff` to the elements remaining. On a `repeat` or `while` loop it is
+`invariant exit a b c => e`, with `exit` bound to whether the loop has left. Any further binders,
+here `a b c`, bind the arguments of the assertion itself, such as the state of a state monad.
+-/
+def doLoopInvariant := leading_parser
+  ppIndent (ppLine >> nonReservedSymbol "invariant" >>
+    withForbiddens #["do", "decreasing"] basicFun)
+/--
+A `decreasing` clause gives a `repeat` or `while` loop its termination measure, which every
+iteration must lower. The measure is a term over the loop's mutable variables; the form
+`decreasing a b c => e` binds the arguments of the measure itself, such as the state of a state
+monad.
+-/
+def doLoopDecreasing := leading_parser
+  ppIndent (ppLine >> nonReservedSymbol "decreasing" >>
+    withForbidden "do" (atomic basicFun <|> (ppSpace >> termParser)))
 /--
 `for x in e do s` iterates over `e` assuming `e`'s type has an instance of the `ForIn` typeclass.
 `break` and `continue` are supported inside `for` loops.
@@ -184,7 +206,8 @@ until at least one of them is exhausted.
 The types of `e2` etc. must implement the `Std.ToStream` typeclass.
 -/
 @[builtin_doElem_parser] def doFor    := leading_parser
-  "for " >> sepBy1 doForDecl ", " >> "do " >> doSeq
+  "for " >> sepBy1 doForDecl ", " >> optional doLoopInvariant >> optional doLoopDecreasing >>
+    " do " >> doSeq
 
 def dependentParam := leading_parser
   atomic ("(" >> nonReservedSymbol "dependent") >> " := " >>
@@ -291,13 +314,23 @@ with debug assertions enabled (see the `debugAssertions` option).
 -/
 @[builtin_doElem_parser] def doDebugAssert := leading_parser:leadPrec
   "debug_assert! " >> termParser
+/--
+`assert P` states that `P` holds at this point in the program. The form `assert s => P s` binds the
+arguments of the assertion itself, such as the state of a state monad. `vcgen` reads the assertion
+from the program and proves it; at runtime the element does nothing.
+-/
+@[builtin_doElem_parser default+10] def doAssertion := leading_parser:leadPrec
+  nonReservedSymbol "assert" (includeIdent := true) >>
+    (atomic basicFun <|> (ppSpace >> termParser))
 
 @[builtin_doElem_parser] def doRepeat      := leading_parser
-  "repeat " >> doSeq
+  "repeat " >> optional doLoopInvariant >> optional doLoopDecreasing >> doSeq
 @[builtin_doElem_parser] def doWhile       := leading_parser
-  "while " >> withForbidden "do" doIfCond >> " do " >> doSeq
+  "while " >> withForbiddens #["do", "invariant", "decreasing"] doIfCond >>
+    optional doLoopInvariant >> optional doLoopDecreasing >> " do " >> doSeq
 @[builtin_doElem_parser] def doRepeatUntil := leading_parser
-  "repeat " >> doSeq >> ppDedent ppLine >> "until " >> termParser
+  "repeat " >> optional doLoopInvariant >> optional doLoopDecreasing >> doSeq >>
+    ppDedent ppLine >> "until " >> termParser
 
 /-
 We use `notFollowedBy` to avoid counterintuitive behavior.
@@ -334,7 +367,8 @@ They expand into `do unless ...`, `do for ...`, `do try ...`, and `do return ...
 @[builtin_term_parser] def termUnless := leading_parser
   "unless " >> withForbidden "do" termParser >> " do " >> doSeq
 @[builtin_term_parser] def termFor := leading_parser
-  "for " >> sepBy1 doForDecl ", " >> " do " >> doSeq
+  "for " >> sepBy1 doForDecl ", " >> optional doLoopInvariant >> optional doLoopDecreasing >>
+    " do " >> doSeq
 @[builtin_term_parser] def termTry    := leading_parser
   "try " >> doSeq >> many (doCatch <|> doCatchMatch) >> optional doFinally
 /--

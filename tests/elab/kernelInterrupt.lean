@@ -20,7 +20,7 @@ open Lean
       type := mkConst `Nat
       isUnsafe := false
     }
-    env.addDeclCore 1000 decl tk
+    env.addDeclCore 1000 0 decl tk
   tk.set
   envPromise.resolve env
   assert! t.get matches .error .interrupted

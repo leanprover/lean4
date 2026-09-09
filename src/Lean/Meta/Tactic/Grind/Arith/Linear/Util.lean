@@ -11,6 +11,8 @@ import Init.Data.Int.Gcd
 public section
 namespace Lean.Meta.Grind.Arith.Linear
 
+open Lean
+
 def getZero : LinearM Expr :=
   return (← getStruct).zero
 

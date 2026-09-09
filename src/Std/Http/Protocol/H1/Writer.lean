@@ -28,7 +28,7 @@ namespace Std.Http.Protocol.H1
 
 set_option linter.all true
 
-open Internal
+open Std.Http.Internal
 
 /--
 The state of the `Writer` state machine.

@@ -58,12 +58,12 @@ partial def falseOrByContra (g : MVarId) (useClassical : Option Bool := none) : 
     match gs with
     | some [] => return none
     | some [g] => return some (← g.intro1).2
-    | some _ => panic! "expected at most one sugoal"
+    | some _ => panic! "expected at most one subgoal"
     | none =>
       match (← g.applyConst ``False.elim) with
       | [] => return none
       | [g] => return some g
-      | _ => panic! "expected at most one sugoal"
+      | _ => panic! "expected at most one subgoal"
 
 @[builtin_tactic Lean.Parser.Tactic.falseOrByContra]
 def elabFalseOrByContra : Tactic

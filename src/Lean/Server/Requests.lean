@@ -19,6 +19,8 @@ public import Std.Sync.Mutex
 
 public section
 
+open Lean
+
 /-- Checks whether `r` contains `hoverPos`, taking into account EOF according to `text`. -/
 def Lean.FileMap.rangeContainsHoverPos (text : Lean.FileMap) (r : Lean.Syntax.Range)
     (hoverPos : String.Pos.Raw) (includeStop := false) : Bool :=

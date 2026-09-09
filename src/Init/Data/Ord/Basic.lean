@@ -91,7 +91,7 @@ Ordering.gt
 Ordering.lt
 ```
 -/
-@[macro_inline, expose] def «then» (a b : Ordering) : Ordering :=
+@[macro_inline, expose, implicit_reducible] def «then» (a b : Ordering) : Ordering :=
   match a with
   | .eq => b
   | a => a

@@ -492,7 +492,7 @@ theorem Std.TransOrd.compareOfLessAndEq_of_lt_trans_of_lt_iff
   isLE_trans {x y z} h₁ h₂ := by
     simp only [compareOfLessAndEq, apply_ite Ordering.isLE,
       Ordering.isLE_lt, Ordering.isLE_eq, Ordering.isLE_gt] at h₁ h₂ ⊢
-    simp only [Bool.if_true_left, Bool.or_false, Bool.or_eq_true, decide_eq_true_eq] at h₁ h₂ ⊢
+    simp only [Bool.ite_true_left, Bool.or_false, Bool.or_eq_true, decide_eq_true_eq] at h₁ h₂ ⊢
     rcases h₁ with (h₁ | rfl)
     · rcases h₂ with (h₂ | rfl)
       · exact .inl (lt_trans h₁ h₂)

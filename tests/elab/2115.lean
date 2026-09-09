@@ -12,6 +12,7 @@ class D (α : Type) extends B α, C α
 attribute [instance 10] C.toA
 
 set_option pp.all true
+set_option warn.classDefReducibility false
 
 def foo [D α] : A α := inferInstance -- should use `B.toA` since it has higher priority
 #print foo

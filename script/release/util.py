@@ -3,11 +3,12 @@ import re
 import shlex
 import subprocess
 import urllib.parse
+from collections.abc import Callable
 from dataclasses import dataclass, field
 from os import PathLike
 from pathlib import Path
 from re import Match, Pattern
-from typing import Callable, Literal, NoReturn, Self
+from typing import Literal, NoReturn, Self
 
 from github import Auth, Github
 from github.GithubException import UnknownObjectException
@@ -91,21 +92,21 @@ class Version:
         return f"v{self.raw}"
 
     @property
-    def base(self) -> Self:
+    def base(self) -> "Version":
         return Version(major=self.major, minor=self.minor, patch=0, rc=None)
 
     @property
-    def next_minor(self) -> Self:
+    def next_minor(self) -> "Version":
         return Version(major=self.major, minor=self.minor + 1, patch=0, rc=None)
 
     @property
-    def prev(self) -> Self:
+    def prev(self) -> "Version":
         if self.patch > 0:
             return Version(major=self.major, minor=self.minor, patch=self.patch - 1)
         return Version(major=self.major, minor=self.minor - 1, patch=0)
 
     @property
-    def stable(self) -> Self:
+    def stable(self) -> "Version":
         return Version(major=self.major, minor=self.minor, patch=self.patch, rc=None)
 
     @property
@@ -127,8 +128,11 @@ class ReleaseRepo:
     # repo instead of the main repo.
     nightly: Self | None = None
 
-    # Use "bump/v4.X.0" branches for rc1 releases. Respect `nightly` if set.
-    bump_branch: bool = False
+    # What to base the rc1 bump PR on.
+    # - "default": Use the repo's default branch, usually master/main.
+    # - "bump": Use the bump/v4.X.0 branch.
+    # - "downstream": Extract the bump branch from the downstream-lean4 repo.
+    rc1_pr_base: Literal["default", "bump", "downstream"] = "default"
 
     # When set, the version bump commit should be tagged. When set to "lean",
     # use the lean version tag as release tag. When set to "proofwidgets", use
@@ -137,6 +141,10 @@ class ReleaseRepo:
 
     # When set, this branch should be updated to point to the version bump commit.
     stable_branch: str | None = None
+
+    # When set, this repo should be updated in patch releases (which are
+    # releases of the form v4.X.Y with Y > 0).
+    patch_release: bool = False
 
     # Strong deps are dependencies that *must* be updated before a new version
     # of the repo can be released. Strong deps include all dependencies
@@ -249,14 +257,23 @@ class LocalRepo:
         self.git("add", ".")
         try:
             self.git("diff", "--cached", "--quiet")
-        except Exception:
+        except Exception:  # noqa: BLE001
             self.git("commit", "-m", message)
 
-    def push(self, branch: str, remote: str = "origin", upstream: bool = True) -> None:
-        if upstream:
-            self.git("push", "-u", remote, branch, silent=True)
-        else:
-            self.git("push", remote, branch, silent=True)
+    def push(
+        self,
+        branch: str,
+        remote: str = "origin",
+        upstream: bool = True,
+        force: bool = False,
+    ) -> None:
+        self.git(
+            "push",
+            *(["-u"] if upstream else []),
+            *(["--force-with-lease"] if force else []),
+            *(remote, branch),
+            silent=True,
+        )
 
 
 class Checklist:
@@ -303,7 +320,7 @@ def get_github_instance() -> Github:
         token = run_stdout("gh", "auth", "token").strip()
         print("Using GitHub token from `gh auth token`")
         return Github(auth=Auth.Token(token))
-    except Exception:
+    except Exception:  # noqa: BLE001
         Checklist().fatal("Failed to get GitHub token from `gh auth token`")
 
 
@@ -353,6 +370,12 @@ def edit(
     text = path.read_text()
     text = re.sub(pattern, repl, text, count=count)
     path.write_text(text)
+
+
+def join_and(items: list[str]) -> str:
+    if len(items) < 2:
+        return "".join(items)
+    return f"{', '.join(items[:-1])} and {items[-1]}"
 
 
 #########
@@ -462,7 +485,7 @@ def get_release_notes_index_path() -> str:
 
 
 def get_release_notes_title_for(version: Version, release: GitRelease) -> str:
-    date = release.created_at.astimezone(datetime.timezone.utc).strftime("%Y-%m-%d")
+    date = release.published_at.astimezone(datetime.timezone.utc).strftime("%Y-%m-%d")
     return f"Lean {version.raw} ({date})"
 
 

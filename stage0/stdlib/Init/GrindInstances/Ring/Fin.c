@@ -1,6 +1,6 @@
 // Lean compiler output
 // Module: Init.GrindInstances.Ring.Fin
-// Imports: import all Init.Data.Zero public import Init.GrindInstances.ToInt import all Init.GrindInstances.ToInt public import Init.Data.Fin.Lemmas public import Init.Grind.Ring.Basic import Init.Data.Nat.Lemmas import Init.Data.Nat.MinMax
+// Imports: import all Init.Data.Zero public import Init.Data.Fin.Lemmas public import Init.Grind.Ring.Basic import Init.Omega import Init.Data.Nat.Div.Lemmas import Init.Data.Int.Order import Init.Data.Nat.Lemmas import Init.Data.Nat.MinMax
 #include <lean/lean.h>
 #if defined(__clang__)
 #pragma clang diagnostic ignored "-Wunused-parameter"
@@ -231,30 +231,36 @@ return v___x_71_;
 }
 }
 lean_object* runtime_initialize_Init_Data_Zero(uint8_t builtin);
-lean_object* runtime_initialize_Init_GrindInstances_ToInt(uint8_t builtin);
-lean_object* runtime_initialize_Init_GrindInstances_ToInt(uint8_t builtin);
 lean_object* runtime_initialize_Init_Data_Fin_Lemmas(uint8_t builtin);
 lean_object* runtime_initialize_Init_Grind_Ring_Basic(uint8_t builtin);
+lean_object* runtime_initialize_Init_Omega(uint8_t builtin);
+lean_object* runtime_initialize_Init_Data_Nat_Div_Lemmas(uint8_t builtin);
+lean_object* runtime_initialize_Init_Data_Int_Order(uint8_t builtin);
 lean_object* runtime_initialize_Init_Data_Nat_Lemmas(uint8_t builtin);
 lean_object* runtime_initialize_Init_Data_Nat_MinMax(uint8_t builtin);
+void lean_initialize_runtime_module();
 static bool _G_runtime_initialized = false;
 LEAN_EXPORT lean_object* runtime_initialize_Init_GrindInstances_Ring_Fin(uint8_t builtin) {
 lean_object * res;
 if (_G_runtime_initialized) return lean_io_result_mk_ok(lean_box(0));
 _G_runtime_initialized = true;
+lean_initialize_runtime_module();
 res = runtime_initialize_Init_Data_Zero(builtin);
-if (lean_io_result_is_error(res)) return res;
-lean_dec_ref(res);
-res = runtime_initialize_Init_GrindInstances_ToInt(builtin);
-if (lean_io_result_is_error(res)) return res;
-lean_dec_ref(res);
-res = runtime_initialize_Init_GrindInstances_ToInt(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
 res = runtime_initialize_Init_Data_Fin_Lemmas(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
 res = runtime_initialize_Init_Grind_Ring_Basic(builtin);
+if (lean_io_result_is_error(res)) return res;
+lean_dec_ref(res);
+res = runtime_initialize_Init_Omega(builtin);
+if (lean_io_result_is_error(res)) return res;
+lean_dec_ref(res);
+res = runtime_initialize_Init_Data_Nat_Div_Lemmas(builtin);
+if (lean_io_result_is_error(res)) return res;
+lean_dec_ref(res);
+res = runtime_initialize_Init_Data_Int_Order(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
 res = runtime_initialize_Init_Data_Nat_Lemmas(builtin);
@@ -273,10 +279,11 @@ _G_meta_initialized = true;
 return lean_io_result_mk_ok(lean_box(0));
 }
 lean_object* initialize_Init_Data_Zero(uint8_t builtin);
-lean_object* initialize_Init_GrindInstances_ToInt(uint8_t builtin);
-lean_object* initialize_Init_GrindInstances_ToInt(uint8_t builtin);
 lean_object* initialize_Init_Data_Fin_Lemmas(uint8_t builtin);
 lean_object* initialize_Init_Grind_Ring_Basic(uint8_t builtin);
+lean_object* initialize_Init_Omega(uint8_t builtin);
+lean_object* initialize_Init_Data_Nat_Div_Lemmas(uint8_t builtin);
+lean_object* initialize_Init_Data_Int_Order(uint8_t builtin);
 lean_object* initialize_Init_Data_Nat_Lemmas(uint8_t builtin);
 lean_object* initialize_Init_Data_Nat_MinMax(uint8_t builtin);
 static bool _G_initialized = false;
@@ -287,16 +294,19 @@ _G_initialized = true;
 res = initialize_Init_Data_Zero(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
-res = initialize_Init_GrindInstances_ToInt(builtin);
-if (lean_io_result_is_error(res)) return res;
-lean_dec_ref(res);
-res = initialize_Init_GrindInstances_ToInt(builtin);
-if (lean_io_result_is_error(res)) return res;
-lean_dec_ref(res);
 res = initialize_Init_Data_Fin_Lemmas(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
 res = initialize_Init_Grind_Ring_Basic(builtin);
+if (lean_io_result_is_error(res)) return res;
+lean_dec_ref(res);
+res = initialize_Init_Omega(builtin);
+if (lean_io_result_is_error(res)) return res;
+lean_dec_ref(res);
+res = initialize_Init_Data_Nat_Div_Lemmas(builtin);
+if (lean_io_result_is_error(res)) return res;
+lean_dec_ref(res);
+res = initialize_Init_Data_Int_Order(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
 res = initialize_Init_Data_Nat_Lemmas(builtin);

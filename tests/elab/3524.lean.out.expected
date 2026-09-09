@@ -1,1 +1,1 @@
-3524.lean:1:0-1:7: warning: declaration uses `sorry`
+3524.lean:2:0-2:7: warning: declaration uses `sorry`

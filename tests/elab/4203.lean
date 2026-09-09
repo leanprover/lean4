@@ -11,13 +11,12 @@ variable {dIn dOut dOut₂ : Type} [Fintype dIn] [Fintype dOut] [Fintype dOut₂
 def IsGood [DecidableEq dOut] [DecidableEq dOut₂] (Λ : Mappish dIn dOut) (Λ₂ : Mappish dIn dOut₂) : Prop :=
   ∃ (D : Mappish dOut (dOut₂)), D.k = Λ.k + Λ₂.k
 
+set_option warn.classDefReducibility false in
 /--
 error: failed to synthesize instance of type class
   Fintype v
 
 Hint: Type class instance resolution failures can be inspected with the `set_option trace.Meta.synthInstance true` command.
----
-warning: Definition `MappishOrder` of class type must be marked with `@[reducible]`, `@[instance_reducible]`, `@[implicit_reducible]` or `@[irreducible]`
 -/
 #guard_msgs in
 def MappishOrder [DecidableEq dIn] : Preorder

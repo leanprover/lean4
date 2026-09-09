@@ -33,7 +33,7 @@ protected class Database (α : Type) where
   getLocalZoneRules : α → IO TimeZone.ZoneRules
 
 namespace TimeZone
-open Internal
+open Std.Time.Internal
 
 /--
 Converts a Boolean value to a corresponding `StdWall` type.

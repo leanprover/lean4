@@ -62,7 +62,7 @@ information.
 
 public section
 
-namespace Std.Iterators.Types
+namespace Std.Iterators.Types.Internal
 
 /--
 Internal state for an iterator over tasks.
@@ -87,11 +87,11 @@ private instance {α : Type} : Iterator (TaskIterator α) BaseIO α where
           .yield ⟨{ tasks := remaining }⟩ result,
           trivial⟩
 
-end Std.Iterators.Types
+end Std.Iterators.Types.Internal
 
 namespace IO
 
-open Std Std.Iterators.Types
+open Std Std.Iterators.Types.Internal
 
 /--
 Creates an iterator over a list of tasks that yields results in completion order.

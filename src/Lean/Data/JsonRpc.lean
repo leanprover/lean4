@@ -420,8 +420,9 @@ def MessageKind.ofMessage : Message → MessageKind
 
 end Lean.JsonRpc
 
-namespace IO.FS.Stream
+namespace Lean.IO.FS.Stream
 
+open _root_.IO
 open Lean
 open Lean.JsonRpc
 
@@ -493,4 +494,4 @@ section
     h.writeMessage e
 end
 
-end IO.FS.Stream
+end Lean.IO.FS.Stream

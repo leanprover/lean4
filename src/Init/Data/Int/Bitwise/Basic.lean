@@ -43,7 +43,7 @@ Examples:
 * `(-0b1000 : Int) >>> 1 = -0b0100`
 * `(-0b0111 : Int) >>> 1 = -0b0100`
 -/
-@[expose]
+@[expose, implicit_reducible]
 protected def shiftRight : Int → Nat → Int
   | Int.ofNat n, s => Int.ofNat (n >>> s)
   | Int.negSucc n, s => Int.negSucc (n >>> s)

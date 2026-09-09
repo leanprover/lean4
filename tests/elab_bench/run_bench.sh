@@ -3,10 +3,11 @@ run_before "$1"
 
 TOPIC="elab/$(basename "$1" .lean)"
 
+rm -f "$1.measurements.jsonl"
+
 # `--root` to infer same private names as in the server
 # Elab.inServer to allow for arbitrary `#eval`
-capture_only "$1" \
-  "$TEST_DIR/measure.py" -t "$TOPIC" -o "$1.measurements.jsonl" -d -- \
+capture_and_measure "$1" "$TOPIC" \
   lean --root=.. -DprintMessageEndPos=true -Dlinter.all=false -DElab.inServer=true "${TEST_LEAN_ARGS[@]}" "$1"
 normalize_mvar_suffixes
 normalize_reference_urls

@@ -925,7 +925,7 @@ theorem LawfulToForwardSearcherModel.defaultImplementation {pat : ρ} [ForwardPa
   intro pos
   induction pos using WellFounded.induction Slice.Pos.wellFounded_gt with | h pos ih
   rw [Std.Iter.toList_eq_match_step, Std.Iter.step_eq]
-  simp only [Std.Iter.toIterM, ne_eq]
+  simp only [Std.Iter.toIterM_mk, Std.IterM.internalState_mk, ne_eq]
   by_cases h : pos = s.endPos
   · simpa [h] using IsValidSearchFrom.endPos
   · simp only [h, ↓reduceDIte]
@@ -1036,7 +1036,7 @@ theorem LawfulToBackwardSearcherModel.defaultImplementation {pat : ρ} [Backward
   intro pos
   induction pos using WellFounded.induction Slice.Pos.wellFounded_lt with | h pos ih
   rw [Std.Iter.toList_eq_match_step, Std.Iter.step_eq]
-  simp only [Std.Iter.toIterM, ne_eq]
+  simp only [Std.Iter.toIterM_mk, Std.IterM.internalState_mk, ne_eq]
   by_cases h : pos = s.startPos
   · simpa [h] using IsValidRevSearchFrom.startPos
   · simp only [h, ↓reduceDIte]

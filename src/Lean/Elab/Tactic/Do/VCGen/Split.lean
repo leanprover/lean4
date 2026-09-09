@@ -22,6 +22,7 @@ open Lean Elab Tactic Meta
 inductive SplitInfo where
   | ite (e : Expr)
   | dite (e : Expr)
+  | cond (e : Expr)
   | matcher (matcherApp : MatcherApp)
   deriving Inhabited
 
@@ -30,6 +31,7 @@ namespace SplitInfo
 def resTy (info : SplitInfo) : Option Expr := match info with
   | ite e => e.getArg! 0
   | dite e => e.getArg! 0
+  | cond e => e.getArg! 0
   -- For a matcher, the motive has type `(discr1 : α) → ... → (discrN : α) → Type`.
   -- We want to return `Type` component and fail if it depends on any of the discriminant values.
   | matcher matcherApp => do
@@ -48,6 +50,7 @@ number of parameters of the alternative and `alt` is the alternative.
 def altInfos (info : SplitInfo) : Array (Nat × Expr) := match info with
   | ite e => #[(0, e.getArg! 3), (0, e.getArg! 4)]
   | dite e => #[(1, e.getArg! 3), (1, e.getArg! 4)]
+  | cond e => #[(0, e.getArg! 2), (0, e.getArg! 3)]
   | matcher matcherApp => matcherApp.altNumParams.mapIdx fun idx numParams =>
       (numParams, matcherApp.alts[idx]!)
 
@@ -55,6 +58,7 @@ def altInfos (info : SplitInfo) : Array (Nat × Expr) := match info with
 def expr : SplitInfo → Expr
   | .ite e => e
   | .dite e => e
+  | .cond e => e
   | .matcher matcherApp => matcherApp.toExpr
 
 /--
@@ -63,6 +67,7 @@ Introduces fvars for all varying parts of a `SplitInfo` and provides the abstrac
 
 For `ite`/`dite`, introduces `c : Prop`, `dec : Decidable c`, `t : mα` (or `t : c → mα`),
 `e : mα` (or `e : ¬c → mα`).
+For `cond`, introduces `c : Bool`, `t : mα`, `e : mα`.
 For `matcher`, introduces discriminant fvars and alternative fvars, builds a non-dependent
 motive `fun _ ... _ => mα`, and adjusts matcher universe levels.
 
@@ -94,6 +99,12 @@ def withAbstract {n} {α} [MonadLiftT MetaM n] [MonadControlT MetaM n] [Monad n]
     withLocalDeclD `e eTy fun e => do
     let u ← liftMetaM <| getLevel resTy
     k (.dite <| mkApp5 (mkConst ``_root_.dite [u]) resTy c dec t e) #[c, dec, t, e]
+  | .cond _ =>
+    withLocalDeclD `c (mkConst ``Bool) fun c =>
+    withLocalDeclD `t resTy fun t =>
+    withLocalDeclD `e resTy fun e => do
+    let u ← liftMetaM <| getLevel resTy
+    k (.cond <| mkApp4 (mkConst ``_root_.cond [u]) resTy c t e) #[c, t, e]
   | .matcher matcherApp => do
     -- Abstract the discriminants as a dependent telescope: a later discriminant's type may mention an earlier one.
     let discrDecls := matcherApp.discrs.mapIdx fun i discr =>
@@ -158,8 +169,26 @@ def splitWith
     let t ← withLocalDecl n .default c fun h => do mkLambdaFVars #[h] (← onAlt `isTrue resTy 0 { args := #[h], fields := #[h] })
     let e ← withLocalDecl n .default (mkNot c) fun h => do mkLambdaFVars #[h] (← onAlt `isFalse resTy 1 { args := #[h], fields := #[h] })
     return mkApp5 (mkConst ``_root_.dite [u]) resTy c h t e
+  | cond e => do
+    let u ← getLevel resTy
+    let c := e.getArg! 1
+    if useSplitter then -- Bool.dcond is the "splitter" for cond
+      let n ← liftMetaM <| mkFreshUserName `h
+      let hTrue ← liftMetaM <| mkEq c (mkConst ``Bool.true)
+      let hFalse ← liftMetaM <| mkEq c (mkConst ``Bool.false)
+      let t ← withLocalDecl n .default hTrue fun h => do mkLambdaFVars #[h] (← onAlt `isTrue resTy 0 { fields := #[h] })
+      let e ← withLocalDecl n .default hFalse fun h => do mkLambdaFVars #[h] (← onAlt `isFalse resTy 1 { fields := #[h] })
+      return mkApp4 (mkConst ``Bool.dcond [u]) resTy c t e
+    else
+      let t ← onAlt `isTrue resTy 0 { fields := #[] }
+      let e ← onAlt `isFalse resTy 1 { fields := #[] }
+      return mkApp4 (mkConst ``_root_.cond [u]) resTy c t e
   | matcher matcherApp => do
-    let mask := matcherApp.discrs.map (·.isFVar)
+    -- Do not abstract `match h :` discriminants: the alternatives' equality binders
+    -- `h : discr = pattern` mention the discriminant, so substituting it in the motive would be
+    -- ill-typed. These equalities let `rwMatcher` discharge the congruence hypotheses instead.
+    let mask := matcherApp.discrs.mapIdx fun i d =>
+      d.isFVar && matcherApp.discrInfos[i]?.all (·.hName?.isNone)
     let maskedDiscrs := Array.mask mask matcherApp.discrs
     let absMotiveBody ← resTy.abstractM maskedDiscrs
     (·.toExpr) <$> matcherApp.transform
@@ -170,6 +199,7 @@ def splitWith
 
 def simpDiscrs? (info : SplitInfo) (e : Expr) : SimpM (Option Simp.Result) := match info with
   | dite _ | ite _ => return none -- Tricky because we need to simultaneously rewrite  `[Decidable c]`
+  | cond _ => return none
   | matcher matcherApp => Simp.simpMatchDiscrs? matcherApp.toMatcherInfo e
 
 end SplitInfo
@@ -179,6 +209,8 @@ def getSplitInfo? (e : Expr) : MetaM (Option SplitInfo) := do
     return some (SplitInfo.ite e)
   if e.isAppOf ``dite then
     return some (SplitInfo.dite e)
+  if e.isAppOf ``cond then
+    return some (SplitInfo.cond e)
   if let .some matcherApp ← matchMatcherApp? (alsoCasesOn := true) e then
     return some (SplitInfo.matcher matcherApp)
   else
@@ -190,6 +222,12 @@ def rwIfOrMatcher (idx : Nat) (e : Expr) : MetaM Simp.Result := do
     let c := if idx = 0 then c else mkNot c
     let .some fv ← findLocalDeclWithType? c
       | throwError "Failed to find proof for if condition {c}"
+    rwIfWith (mkFVar fv) e
+  else if e.isAppOf ``cond then
+    let c := e.getArg! 1
+    let h ← mkEq c (mkConst (if idx = 0 then ``Bool.true else ``Bool.false))
+    let .some fv ← findLocalDeclWithType? h
+      | throwError "Failed to find proof for cond condition {h}"
     rwIfWith (mkFVar fv) e
   else
     rwMatcher idx e

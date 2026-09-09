@@ -8,7 +8,7 @@ prelude
 public import Lean.Meta.Sym.ReplaceS
 public section
 namespace Lean.Meta.Sym
-open Internal
+open Lean.Meta.Sym.Internal
 /--
 Lowers the loose bound variables `>= s` in `e` by `d`.
 That is, a loose bound variable `bvar i` with `i >= s` is mapped to `bvar (i-d)`.

@@ -18,4 +18,14 @@ public def instantiateMVarsS (e : Expr) : SymM Expr := do
   else
     return e
 
+/--
+Head-only variant of `instantiateMVarsS`: instantiates and reshares only when the head of `e` is a
+metavariable, otherwise returns `e` unchanged.
+-/
+public def instantiateMVarsIfMVarAppS (e : Expr) : SymM Expr := do
+  if e.getAppFn.isMVar then
+    instantiateMVarsS e
+  else
+    return e
+
 end Lean.Meta.Sym

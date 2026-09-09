@@ -12,7 +12,33 @@ import Lean.Meta.Tactic.Grind.Arith.Cutsat.Model
 public section
 namespace Lean.Meta.Grind.Arith.Cutsat
 
-private def getAssignmentExt? (e : Expr) : GoalM (Option Rat) := do
+private def isSignedType (α : Expr) : Bool :=
+  α.isConstOf ``Int8 || α.isConstOf ``Int16 || α.isConstOf ``Int32 || α.isConstOf ``Int64
+
+/--
+Returns the embedded (`Fin.val`/`toNat`/`toInt`) value of a numeral of an embedded type
+(e.g., `(2 : Fin 3) ↦ 2`, `(-1 : Fin 4) ↦ 3`, `(200 : Int8) ↦ -56`). Numerals have no
+embedding-accessor application in the E-graph, so their value is computed directly.
+-/
+private def getEmbeddedLitValue? (e : Expr) : GoalM (Option Rat) := do
+  let value? (α k : Expr) (neg : Bool) : GoalM (Option Rat) := do
+    let some k ← getNatValue? k | return none
+    let some m ← getLitValueModulus? α | return none
+    let m : Int := m
+    let k : Int := if neg then -(k : Int) else (k : Int)
+    let v := k % m
+    let v := if isSignedType α && v ≥ m / 2 then v - m else v
+    return some (v : Rat)
+  match_expr e with
+  | OfNat.ofNat α k _ => value? α k false
+  | Neg.neg α _ a =>
+    let_expr OfNat.ofNat _ k _ := a | return none
+    value? α k true
+  | _ => return none
+
+private partial def getAssignmentExt? (e : Expr) : GoalM (Option Rat) := do
+  if let some val ← getEmbeddedLitValue? e then
+    return some val
   if let some val ← getAssignment? (← get) e then
     -- Easy case when `e : Int`
     return some val
@@ -31,21 +57,30 @@ private def getAssignmentExt? (e : Expr) : GoalM (Option Rat) := do
       let_expr instNatCastInt := inst | pure ()
       return (← getAssignment? (← get) parent)
   else
-    -- It may be a `ToInt` term.
-    if let some x := (← get').toIntVarMap.find? { expr := e } then
-      -- If there is an int variable `x` for `toInt e`, use its assignment.
-      if let some val ← getAssignment? (← get) x then
-        return some val
-    if let some info := (← get').toIntTermMap.find? { expr := e } then
-      -- If `toInt e` is an integer value, return it.
-      if let some val ← getIntValue? info.eToInt then
-        return some val
-      -- If `toInt e` is a composite int term that has been internalized
-      -- and has an assignment, return it.
-      if (← alreadyInternalized info.eToInt) then
-        if let some val ← getAssignment? (← get) info.eToInt then
-          return some val
+    -- `e` is a term of an embedded type (e.g., `Fin`, `BitVec`, `UInt8`): use the value of an
+    -- embedding application of `e` among its parents. Chains such as `a.toBitVec.toNat` are
+    -- resolved one step at a time; only the last step is a cutsat (`Nat`/`Int`) term.
+    for parent in (← getParents (← getRoot e)).elems do
+      if let some a := embeddingArg? parent then
+        if (← isEqv a e) then
+          if let some v ← getAssignmentExt? (← getRoot parent) then
+            return some v
   return none
+
+/--
+Returns the value of `e` in cutsat's current *candidate* assignment if that value is an
+integer. `e` may be an `Int` term, or a `Nat` term whose cast to `Int` has been
+internalized by cutsat. The result is a heuristic, not a guarantee: the assignment may
+contain rational or default values (e.g. from eliminated or skipped variables), in which
+case it is not a model of the integer constraints; such values are filtered per term.
+This is sufficient for model-based theory combination, which only uses the values to
+propose case splits. The homomorphism engine is the intended client: all homomorphism
+target domains are handled by cutsat, so the result type is `Int`.
+-/
+def getModelValue? (e : Expr) : GoalM (Option Int) := do
+  let some v ← getAssignmentExt? e | return none
+  unless v.den == 1 do return none
+  return some v.num
 
 private def hasTheoryVar (e : Expr) : GoalM Bool := do
   cutsatExt.hasTermAtRoot e

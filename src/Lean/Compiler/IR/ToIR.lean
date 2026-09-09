@@ -73,7 +73,7 @@ def lowerArg (a : LCNF.Arg .impure) : M Arg := do
 def lowerParam (p : LCNF.Param .impure) : M Param := do
   let x ← bindVar p.fvarId
   let ty := toIRType p.type
-  return { x, borrow := p.borrow, ty }
+  return { x, borrow := p.borrow && !ty.isScalar, ty }
 
 @[inline]
 def lowerCtorInfo (i : LCNF.CtorInfo) : CtorInfo :=

@@ -24,7 +24,7 @@ namespace Std.Http
 
 set_option linter.all true
 
-open Std Internal
+open Std Std.Internal Http.Internal
 
 /--
 A structure for managing HTTP headers as key-value pairs.
@@ -162,6 +162,16 @@ Removes a header with the given name.
 @[inline]
 def erase (headers : Headers) (name : Header.Name) : Headers :=
   { map := headers.map.erase name }
+
+/--
+Removes all headers whose names appear in `names`.
+Names not present are ignored. Cheaper than chaining `erase` calls because
+`IndexMultiMap.eraseMany` rebuilds the index once in total rather than once
+per `erase` call.
+-/
+@[inline]
+def eraseMany (headers : Headers) (names : Array Header.Name) : Headers :=
+  { map := headers.map.eraseMany names }
 
 /--
 Gets the number of headers.

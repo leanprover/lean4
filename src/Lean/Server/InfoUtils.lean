@@ -168,25 +168,6 @@ def InfoTree.getCompletionInfos (infoTree : InfoTree) : Array (ContextInfo × Co
     | Info.ofCompletionInfo info => result.push (ctx, info)
     | _ => result
 
-def Info.stx : Info → Syntax
-  | ofTacticInfo i         => i.stx
-  | ofTermInfo i           => i.stx
-  | ofPartialTermInfo i    => i.stx
-  | ofCommandInfo i        => i.stx
-  | ofMacroExpansionInfo i => i.stx
-  | ofOptionInfo i         => i.stx
-  | ofErrorNameInfo i      => i.stx
-  | ofFieldInfo i          => i.stx
-  | ofCompletionInfo i     => i.stx
-  | ofCustomInfo i         => i.stx
-  | ofUserWidgetInfo i     => i.stx
-  | ofFVarAliasInfo _      => .missing
-  | ofFieldRedeclInfo i    => i.stx
-  | ofDelabTermInfo i      => i.stx
-  | ofChoiceInfo i         => i.stx
-  | ofDocInfo i            => i.stx
-  | ofDocElabInfo i        => i.stx
-
 def Info.lctx : Info → LocalContext
   | .ofTermInfo i           => i.lctx
   | .ofFieldInfo i          => i.lctx
@@ -427,6 +408,12 @@ structure GoalsAtResult where
   useAfter   : Bool
   /-- Whether the tactic info is further indented than the hover position. -/
   indented   : Bool
+  /--
+  Whether the tactic info is a `by` block or its `by` token. Whether such a node counts as
+  `indented` is decided by the enclosing tactic, if any, since the column of the `by` token says
+  nothing about where the block's tactics are placed.
+  -/
+  hangingBy  : Bool := false
   -- for overlapping goals, only keep those of the highest reported priority
   priority   : Nat
 
@@ -441,17 +428,30 @@ structure GoalsAtResult where
   |
   ```
   we show the (final, see below) state of `have`, not `exact`.
+  A `by` block whose tactics are all indented relative to the hover position (in particular an
+  empty one) is itself considered indented iff the hover position is not indented past the
+  enclosing tactic, i.e. iff a tactic typed there would extend the outer block instead:
+  ```lean
+  have := by
+    |  -- goal of `have`
+  |    -- state after `have`
+  ```
 
   Moreover, we instruct the LSP server to use the state after tactic execution if
   - the hover position is after the info's start position *and*
   - there is no nested tactic info after the hover position (tactic combinators should decide for themselves
     where to show intermediate states by calling `withTacticInfoContext`) -/
 partial def InfoTree.goalsAt? (text : FileMap) (t : InfoTree) (hoverPos : String.Pos.Raw) : List GoalsAtResult :=
+  let hoverCol := (text.toPosition hoverPos).column
   let gs := t.collectNodesBottomUp fun ctx i cs gs => Id.run do
     let Info.ofTacticInfo ti := i
       | return gs
     let (some pos, some tailPos) := (i.pos?, i.tailPos?)
       | return gs
+    let col := (text.toPosition pos).column
+    -- decide indentation of hanging `by` results relative to this enclosing tactic
+    let gs := gs.map fun g =>
+      if g.hangingBy then { g with hangingBy := false, indented := hoverCol ≤ col } else g
     let trailSize := i.stx.getTrailingSize
     -- show info at EOF even if strictly outside token + trail
     let atEOF := tailPos.byteIdx + trailSize == text.source.rawEndPos.byteIdx
@@ -463,7 +463,8 @@ partial def InfoTree.goalsAt? (text : FileMap) (t : InfoTree) (hoverPos : String
           ctxInfo := ctx
           tacticInfo := ti
           useAfter := hoverPos > pos && !cs.any (hasNestedTactic pos tailPos)
-          indented := (text.toPosition pos).column > (text.toPosition hoverPos).column
+          indented := col > hoverCol
+          hangingBy := isByBlock i.stx
           -- use goals just before cursor as fall-back only
           -- thus for `(by foo)`, placing the cursor after `foo` shows its state as long
           -- as there is no state on `)`
@@ -486,6 +487,9 @@ where
     | InfoTree.node (Info.ofMacroExpansionInfo _) cs =>
       cs.any (hasNestedTactic pos tailPos)
     | _ => false
+  isByBlock (stx : Syntax) : Bool :=
+    -- there are multiple `by` kinds with the same structure
+    stx.isToken "by" || stx.getNumArgs == 2 && stx[0].isToken "by"
 
 
 partial def InfoTree.termGoalAt? (t : InfoTree) (hoverPos : String.Pos.Raw) : Option InfoWithCtx :=

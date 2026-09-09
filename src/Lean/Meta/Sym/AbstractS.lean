@@ -9,7 +9,7 @@ public import Lean.Meta.Sym.SymM
 import Lean.Meta.Sym.ReplaceS
 import Init.Omega
 namespace Lean.Meta.Sym
-open Internal
+open Lean.Meta.Sym.Internal
 
 /--
 Helper function for implementing `abstractFVars` (and possible variants in the future).

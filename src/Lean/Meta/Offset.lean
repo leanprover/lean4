@@ -12,6 +12,8 @@ import Lean.Util.SafeExponentiation
 public section
 namespace Lean.Meta
 
+open Lean
+
 private abbrev withInstantiatedMVars (e : Expr) (k : Expr → OptionT MetaM α) : OptionT MetaM α := do
   let eNew ← instantiateMVars e
   if eNew.getAppFn.isMVar then

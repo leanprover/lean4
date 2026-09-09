@@ -24,7 +24,7 @@ def dbgTraceVal {α : Type u} [ToString α] (a : α) : α :=
 set_option linter.unusedVariables.funArgs false in
 /-- Display the given message if `a` is shared, that is, RC(a) > 1 -/
 @[never_extract, extern "lean_dbg_trace_if_shared"]
-def dbgTraceIfShared {α : Type u} (s : String) (a : α) : α := a
+def dbgTraceIfShared {α : Type u} (s : @& String) (a : α) : α := a
 
 /-- Print stack trace to stderr before evaluating given closure. Currently supported on Linux only. -/
 @[never_extract, extern "lean_dbg_stack_trace"]

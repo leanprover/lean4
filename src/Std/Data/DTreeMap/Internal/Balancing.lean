@@ -543,7 +543,7 @@ theorem balance!_eq_balanceₘ {k v} {l r : Impl α β} (hlb : l.Balanced) (hrb 
   · split <;> simp_all [Std.Internal.tree_tac]
   · split <;> simp_all only [Std.Internal.tree_tac]
     · omega
-    · rw [dif_pos (by omega)]
+    · rw [dite_eq_left (by omega)]
       simp only [rotateL, Std.Internal.tree_tac, ite_self]
       omega
   next l r =>
@@ -554,39 +554,39 @@ theorem balance!_eq_balanceₘ {k v} {l r : Impl α β} (hlb : l.Balanced) (hrb 
     omega
   · simp only [size_leaf, size_inner]
     simp_all [Std.Internal.tree_tac]
-    rw [if_neg (by omega)]
-    rw [if_pos (by omega), rotateL, if_pos]
+    rw [ite_eq_right (by omega)]
+    rw [ite_eq_left (by omega), rotateL, ite_eq_left]
     all_goals
       simp only [Std.Internal.tree_tac] at *
       omega
   · simp_all [Std.Internal.tree_tac]
   next l r =>
     simp_all only [Std.Internal.tree_tac]
-    rw [if_neg (by omega)]
-    rw [dif_neg (by omega), dif_pos (by omega), rotateR]
+    rw [ite_eq_right (by omega)]
+    rw [dite_eq_right (by omega), dite_eq_left (by omega), rotateR]
     suffices h : l.size = 0 ∧ r.size = 0 by
       simp only [h.1, h.2]
       cases l <;> cases r <;> simp_all [Std.Internal.tree_tac]
     omega
   · simp_all only [rotateR, Std.Internal.tree_tac]
-    rw [if_neg (by omega), dif_neg (by omega), dif_pos (by omega), if_pos (by omega)]
+    rw [ite_eq_right (by omega), dite_eq_right (by omega), dite_eq_left (by omega), ite_eq_left (by omega)]
     simp only [inner.injEq, heq_eq_eq, and_true]
     omega
   · simp_all only [Std.Internal.tree_tac]
-    rw [if_neg (by omega)]
+    rw [ite_eq_right (by omega)]
     simp only [Std.Internal.tree_tac, rotateR]
-    rw [if_pos (by omega), dif_neg (by omega), dif_pos (by omega)]
+    rw [ite_eq_left (by omega), dite_eq_right (by omega), dite_eq_left (by omega)]
     simp only [inner.injEq, heq_eq_eq, and_self, and_true, true_and]
     omega
   · simp_all only [Std.Internal.tree_tac]
-    rw [if_neg]
-    · repeat simp_all only [rotateL, dite_true, Std.Internal.tree_tac, if_true]
+    rw [ite_eq_right]
+    · repeat simp_all only [rotateL, dite_true, Std.Internal.tree_tac, ite_true]
       omega
     · simp only [Nat.not_le] at *
       omega
   · rw [rotateL]
     repeat simp_all only [Std.Internal.tree_tac, dite_true, Nat.not_lt]
-    rw [if_neg (by omega), if_neg (by omega)]
+    rw [ite_eq_right (by omega), ite_eq_right (by omega)]
     simp only [Std.Internal.tree_tac, Nat.add_right_cancel_iff] at *
     omega
   · exfalso
@@ -600,11 +600,11 @@ theorem balance!_eq_balanceₘ {k v} {l r : Impl α β} (hlb : l.Balanced) (hrb 
     have := hlb.one_le
     omega
   · repeat simp_all only [Std.Internal.tree_tac, rotateR, dite_true, ite_true, dite_false]
-    rw [if_neg (by omega)]
+    rw [ite_eq_right (by omega)]
     simp only [inner.injEq, heq_eq_eq, and_true, true_and]
     omega
   · repeat simp_all only [balanced_inner_iff, ratio, size_inner, dite_true, dite_false]
-    rw [if_neg (by omega), rotateR, ratio, size_inner, size_inner, if_neg (by omega)]
+    rw [ite_eq_right (by omega), rotateR, ratio, size_inner, size_inner, ite_eq_right (by omega)]
     simp only [Std.Internal.tree_tac, Nat.reduceMul] at *
     omega
   · exfalso
@@ -618,7 +618,7 @@ theorem balance!_eq_balanceₘ {k v} {l r : Impl α β} (hlb : l.Balanced) (hrb 
     have := hrb.one_le
     omega
   · repeat simp only [Std.Internal.tree_tac, dite_false, *] at *
-    rw [if_neg (by omega)]
+    rw [ite_eq_right (by omega)]
     ac_rfl
 
 theorem Balanced.map {t₁ t₂ : Impl α β} : t₁.Balanced → t₁ = t₂ → t₂.Balanced
@@ -739,19 +739,19 @@ theorem balance!_desc {k : α} {v : β k} {l r : Impl α β} (hlb : l.Balanced) 
     (balance! k v l r).size = l.size + 1 + r.size ∧ (balance! k v l r).Balanced := by
   rw [balance!_eq_balanceₘ hlb hrb hlr, balanceₘ]
   fun_cases balanceₘ k v l r
-  · rw [if_pos ‹_›, bin, balanced_inner_iff]
+  · rw [ite_eq_left ‹_›, bin, balanced_inner_iff]
     exact ⟨rfl, hlb, hrb, Or.inl ‹_›, rfl⟩
-  · rw [if_neg ‹_›, dif_pos ‹_›]
+  · rw [ite_eq_right ‹_›, dite_eq_left ‹_›]
     simp only [size_rotateL (.left ‹_›), size_bin, size_inner]
     rw [← Balanced.eq ‹_›]
     refine ⟨rfl, ?_⟩
     apply balanced_rotateL <;> assumption
-  · rw [if_neg ‹_›, dif_neg ‹_›, dif_pos ‹_›]
+  · rw [ite_eq_right ‹_›, dite_eq_right ‹_›, dite_eq_left ‹_›]
     simp only [size_rotateR (.right ‹_›), size_bin, size_inner]
     rw [← Balanced.eq ‹_›]
     refine ⟨rfl, ?_⟩
     apply balanced_rotateR <;> assumption
-  · rw [if_neg ‹_›, dif_neg ‹_›, dif_neg ‹_›]
+  · rw [ite_eq_right ‹_›, dite_eq_right ‹_›, dite_eq_right ‹_›]
     exact ⟨rfl, ✓⟩
 
 @[Std.Internal.tree_tac]

@@ -172,6 +172,7 @@ theorem mk_eq_divInt {num den nz c} : ⟨num, den, nz, c⟩ = num /. (den : Nat)
   simp [mk_eq_mkRat]
 
 theorem num_divInt_den (a : Rat) : a.num /. a.den = a := by rw [divInt_ofNat, mkRat_self]
+
 @[simp] theorem zero_divInt (n) : 0 /. n = 0 := by cases n <;> simp [divInt]
 
 @[simp] theorem divInt_zero (n) : n /. 0 = 0 := mkRat_zero n
@@ -233,7 +234,7 @@ theorem den_divInt (a b : Int) : (a /. b).den = if b = 0 then 1 else b.natAbs / 
   · simp only [den_mkRat, Int.ofNat_eq_natCast, Int.natAbs_natCast]
     split <;> rename_i h
     · simp_all
-    · simp [if_neg (by omega), Int.gcd]
+    · simp [ite_eq_right (by omega), Int.gcd]
   · simp [Int.gcd, Nat.gcd_comm]
 
 /-- Define a (dependent) function or prove `∀ r : Rat, p r` by dealing with rational
@@ -1108,12 +1109,17 @@ theorem ofScientific_def' :
   · push_cast
     rfl
 
-theorem ofScientific_def_eq_if :
+theorem ofScientific_def_eq_ite :
     (OfScientific.ofScientific m s e : Rat) = if s then (m : Rat) / (10 : Rat) ^ e else (m : Rat) * (10 : Rat) ^ e := by
   simp [ofScientific_def']
   split
   next => rw [Rat.zpow_neg, ← Rat.div_def, Rat.zpow_natCast]
   next => rw [Rat.zpow_natCast]
+
+@[deprecated ofScientific_def_eq_ite (since := "2026-07-21")]
+theorem ofScientific_def_eq_if {m : Nat} {s : Bool} {e : Nat} :
+    (OfScientific.ofScientific m s e : Rat) = if s then (m : Rat) / (10 : Rat) ^ e else (m : Rat) * (10 : Rat) ^ e :=
+  ofScientific_def_eq_ite
 
 /-!
 # min and max
@@ -1227,7 +1233,7 @@ theorem ceil_eq_neg_floor_neg (a : Rat) : a.ceil = -((-a).floor) := by
   simp only [neg_den, neg_num]
   split
   · simp
-  · rw [Int.neg_ediv, if_neg, Int.sign_eq_one_of_pos, Int.neg_sub, Int.sub_neg, Int.add_comm]
+  · rw [Int.neg_ediv, ite_eq_right, Int.sign_eq_one_of_pos, Int.neg_sub, Int.sub_neg, Int.add_comm]
     · have := a.den_nz; omega
     · intro h
       rw [Int.ofNat_dvd_left] at h
@@ -1292,7 +1298,7 @@ protected theorem abs_nonneg {x : Rat} :
 
 protected theorem abs_of_nonneg {x : Rat} (h : 0 ≤ x) :
     x.abs = x := by
-  rw [Rat.abs, if_pos h]
+  rw [Rat.abs, ite_eq_left h]
 
 protected theorem abs_of_nonpos {x : Rat} (h : x ≤ 0) :
     x.abs = -x := by

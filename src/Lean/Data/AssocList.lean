@@ -115,6 +115,6 @@ instance [Monad m] : ForIn m (AssocList α β) (α × β) where
 
 end Lean.AssocList
 
-def List.toAssocList' {α : Type u} {β : Type v} : List (α × β) → Lean.AssocList α β
+def Lean.List.toAssocList' {α : Type u} {β : Type v} : List (α × β) → Lean.AssocList α β
   | []          => Lean.AssocList.nil
   | (a,b) :: es => Lean.AssocList.cons a b (toAssocList' es)

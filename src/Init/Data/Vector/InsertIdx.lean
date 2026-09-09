@@ -113,7 +113,7 @@ theorem getElem_insertIdx_of_gt {xs : Vector α n} {x : α} {i k : Nat} (w : k �
     (xs.insertIdx i x)[k] = xs[k - 1] := by
   rcases xs with ⟨xs, rfl⟩
   simp [Array.getElem_insertIdx]
-  rw [dif_neg (by omega), dif_neg (by omega)]
+  rw [dite_eq_right (by omega), dite_eq_right (by omega)]
 
 @[grind =]
 theorem getElem?_insertIdx {xs : Vector α n} {x : α} {i k : Nat} (h : i ≤ n) :
@@ -131,17 +131,17 @@ theorem getElem?_insertIdx {xs : Vector α n} {x : α} {i k : Nat} (h : i ≤ n)
 theorem getElem?_insertIdx_of_lt {xs : Vector α n} {x : α} {i k : Nat} (w : i ≤ n) (h : k < i) :
     (xs.insertIdx i x)[k]? = xs[k]? := by
   rcases xs with ⟨xs, rfl⟩
-  rw [getElem?_insertIdx, if_pos h]
+  rw [getElem?_insertIdx, ite_eq_left h]
 
 theorem getElem?_insertIdx_self {xs : Vector α n} {x : α} {i : Nat} (w : i ≤ n) :
     (xs.insertIdx i x)[i]? = some x := by
   rcases xs with ⟨xs, rfl⟩
-  rw [getElem?_insertIdx, if_neg (by omega), if_pos rfl, if_pos w]
+  rw [getElem?_insertIdx, ite_eq_right (by omega), ite_eq_left rfl, ite_eq_left w]
 
 theorem getElem?_insertIdx_of_ge {xs : Vector α n} {x : α} {i k : Nat} (w : i < k) (h : k ≤ n) :
     (xs.insertIdx i x)[k]? = xs[k - 1]? := by
   rcases xs with ⟨xs, rfl⟩
-  rw [getElem?_insertIdx, if_neg (by omega), if_neg (by omega)]
+  rw [getElem?_insertIdx, ite_eq_right (by omega), ite_eq_right (by omega)]
 
 end InsertIdx
 

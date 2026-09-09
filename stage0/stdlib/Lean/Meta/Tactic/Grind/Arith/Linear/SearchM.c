@@ -17,7 +17,7 @@ lean_object* lean_st_ref_get(lean_object*);
 lean_object* lean_st_ref_take(lean_object*);
 lean_object* l_Lean_Name_num___override(lean_object*, lean_object*);
 lean_object* lean_nat_add(lean_object*, lean_object*);
-lean_object* lean_st_ref_set(lean_object*, lean_object*);
+lean_object* lean_st_ref_put(lean_object*, lean_object*);
 lean_object* l_Lean_Name_mkStr1(lean_object*);
 lean_object* l_Lean_Expr_const___override(lean_object*, lean_object*);
 extern lean_object* l_Lean_Meta_Grind_Arith_Linear_instInhabitedStruct_default;
@@ -501,7 +501,7 @@ goto v_reusejp_128_;
 v_reusejp_128_:
 {
 lean_object* v___x_130_; lean_object* v___x_131_; 
-v___x_130_ = lean_st_ref_set(v___y_102_, v___x_129_);
+v___x_130_ = lean_st_ref_put(v___y_102_, v___x_129_);
 v___x_131_ = lean_alloc_ctor(0, 1, 0);
 lean_ctor_set(v___x_131_, 0, v_r_123_);
 return v___x_131_;
@@ -650,7 +650,7 @@ goto v_reusejp_203_;
 v_reusejp_203_:
 {
 lean_object* v___x_205_; lean_object* v___f_206_; lean_object* v___x_207_; lean_object* v___x_208_; 
-v___x_205_ = lean_st_ref_set(v_a_177_, v___x_204_);
+v___x_205_ = lean_st_ref_put(v_a_177_, v___x_204_);
 lean_inc(v_a_178_);
 v___f_206_ = lean_alloc_closure((void*)(l_Lean_Meta_Grind_Arith_Linear_mkCase___lam__0___boxed), 2, 1);
 lean_closure_set(v___f_206_, 0, v_a_178_);
@@ -844,11 +844,13 @@ return v_res_277_;
 }
 }
 lean_object* runtime_initialize_Lean_Meta_Tactic_Grind_Arith_Linear_LinearM(uint8_t builtin);
+void lean_initialize_runtime_module();
 static bool _G_runtime_initialized = false;
 LEAN_EXPORT lean_object* runtime_initialize_Lean_Meta_Tactic_Grind_Arith_Linear_SearchM(uint8_t builtin) {
 lean_object * res;
 if (_G_runtime_initialized) return lean_io_result_mk_ok(lean_box(0));
 _G_runtime_initialized = true;
+lean_initialize_runtime_module();
 res = runtime_initialize_Lean_Meta_Tactic_Grind_Arith_Linear_LinearM(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);

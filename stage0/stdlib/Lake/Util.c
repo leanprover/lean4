@@ -46,11 +46,13 @@ lean_object* runtime_initialize_Lake_Util_String(uint8_t builtin);
 lean_object* runtime_initialize_Lake_Util_Task(uint8_t builtin);
 lean_object* runtime_initialize_Lake_Util_Url(uint8_t builtin);
 lean_object* runtime_initialize_Lake_Util_Version(uint8_t builtin);
+void lean_initialize();
 static bool _G_runtime_initialized = false;
 LEAN_EXPORT lean_object* runtime_initialize_Lake_Util(uint8_t builtin) {
 lean_object * res;
 if (_G_runtime_initialized) return lean_io_result_mk_ok(lean_box(0));
 _G_runtime_initialized = true;
+lean_initialize();
 res = runtime_initialize_Lake_Util_Binder(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);

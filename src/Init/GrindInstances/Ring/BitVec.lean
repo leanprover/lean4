@@ -6,13 +6,10 @@ Authors: Kim Morrison
 module
 
 prelude
-public import Init.GrindInstances.ToInt
 import all Init.Data.BitVec.Basic
-import all Init.Grind.ToInt
 public import Init.Data.BitVec.Lemmas
 public import Init.Grind.Ring.Basic
 import Init.Data.BitVec.Bootstrap
-import Init.Grind.Ring.ToInt
 
 public section
 
@@ -48,12 +45,6 @@ instance : CommRing (BitVec w) where
 instance : IsCharP (BitVec w) (2 ^ w) := IsCharP.mk' _ _
   (ofNat_eq_zero_iff := fun x => by simp [BitVec.toNat_eq])
 
--- Verify we can derive the instances showing how `toInt` interacts with operations:
-example : ToInt.Add (BitVec w) (.uint w) := inferInstance
-example : ToInt.Neg (BitVec w) (.uint w) := inferInstance
-example : ToInt.Sub (BitVec w) (.uint w) := inferInstance
 
-instance : ToInt.Pow (BitVec w) (.uint w) :=
-  ToInt.pow_of_semiring (by simp)
 
 end Lean.Grind

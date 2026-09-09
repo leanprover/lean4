@@ -11,7 +11,7 @@ import Lean.Meta.Sym.InstantiateS
 import Lean.Meta.Sym.IsClass
 import Lean.Meta.Sym.AlphaShareBuilder
 namespace Lean.Meta.Sym
-open Internal
+open Lean.Meta.Sym.Internal
 /--
 Efficient `intro` for symbolic simulation.
 

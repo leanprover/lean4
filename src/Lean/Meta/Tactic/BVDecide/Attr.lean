@@ -9,7 +9,9 @@ prelude
 public import Lean.Elab.Tactic.Basic
 public import Lean.Meta.Tactic.Simp
 public import Std.Tactic.BVDecide.Syntax
+public import Lean.Meta.Sym.Simp.Theorems
 import Lean.Elab.ConfigEval
+import Lean.Meta.Sym.Simp.Attr
 
 public section
 
@@ -38,42 +40,58 @@ register_builtin_option sat.solver : String := {
 
 declare_config_elab elabBVDecideConfig Lean.Elab.Tactic.BVDecide.BVDecideConfig
 
-builtin_initialize bvNormalizeExt : Meta.SimpExtension ←
-  Meta.registerSimpAttr `bv_normalize "simp theorems used by bv_normalize"
+open Elab.Tactic.BVDecide in
+public def isPotentialTypeAnalysisType (cfg : BVDecideConfig) (declName : Name) : CoreM Bool := do
+  if ← pure cfg.enums <&&> isEnumType declName then
+    return true
+  let env ← getEnv
+  if !cfg.structures || !isStructure env declName then
+    return false
+  let .inductInfo info ← getConstInfo declName | return false
+  return !info.isRec
 
-builtin_initialize intToBitVecExt : Meta.SimpExtension ←
-  Meta.registerSimpAttr `int_toBitVec "simp theorems used to convert UIntX/IntX statements into BitVec ones"
+open Elab.Tactic.BVDecide in
+/--
+Elaborate the optional `types [T₁, ..., Tₙ]` clause of the `bv_decide` family of tactics. Returns
+`none` if the clause is absent, in which case the structure and enum analysis runs unrestricted.
+-/
+def elabBVDecideTypes (stx : Option (TSyntax ``Lean.Parser.Tactic.bvTypes))
+    (cfg : BVDecideConfig) : CoreM (Option (Array Name)) := do
+  let some stx := stx | return none
+  let `(Lean.Parser.Tactic.bvTypes| types [$ids,*]) := stx
+    | throwErrorAt stx "unexpected `types` clause"
+  let mut types := #[]
+  for id in ids.getElems do
+    let declName ← Elab.realizeGlobalConstNoOverloadWithInfo id
+    unless (← isPotentialTypeAnalysisType cfg declName) do
+      throwErrorAt id m!"`{declName}` cannot be used in a `types` clause, only non-recursive \
+        structures and enum inductives are supported"
+    unless types.contains declName do
+      types := types.push declName
+  return some types
 
-/-- Builtin `bv_normalize` simprocs. -/
-builtin_initialize builtinBVNormalizeSimprocsRef : IO.Ref Meta.Simp.Simprocs ← IO.mkRef {}
+builtin_initialize bvNormalizeExt : Sym.Simp.SymSimpExtension ←
+  Sym.Simp.registerSymSimpAttr `bv_normalize "simp theorems used by bv_normalize"
 
-builtin_initialize bvNormalizeSimprocExt : Meta.Simp.SimprocExtension ←
-  Meta.Simp.registerSimprocAttr `bv_normalize_proc "simprocs used by bv_normalize" (some builtinBVNormalizeSimprocsRef)
+def symIntToBitVecName : Name := `int_toBitVec_sym
+def metaIntToBitVecName : Name := `int_toBitVec_meta
 
-private def addBuiltin (declName : Name) (stx : Syntax) (addDeclName : Name) : AttrM Unit := do
-  let post := if stx[1].isNone then true else stx[1][0].getKind == ``Lean.Parser.Tactic.simpPost
-  let procExpr ← match (← getConstInfo declName).type with
-    | .const ``Simproc _  => pure <| mkApp3 (mkConst ``Sum.inl [0, 0]) (mkConst ``Simproc) (mkConst ``DSimproc) (mkConst declName)
-    | _ => throwError "unexpected type at bv_normalize simproc"
-  let val := mkAppN (mkConst addDeclName) #[toExpr declName, toExpr post, procExpr]
-  let initDeclName ← mkFreshUserName (declName ++ `declare)
-  declareBuiltin initDeclName val
+builtin_initialize symIntToBitVecExt : Sym.Simp.SymSimpExtension ←
+  Sym.Simp.registerSymSimpAttr symIntToBitVecName "sym simp theorems used to convert UIntX/IntX statements into BitVec ones"
 
-def _root_.Lean.Elab.Tactic.BVDecide.Frontend.addBVNormalizeProcBuiltinAttr (declName : Name)
-    (post : Bool) (proc : Sum Simproc DSimproc) : IO Unit :=
-  addSimprocBuiltinAttrCore builtinBVNormalizeSimprocsRef declName post proc
-
-
+builtin_initialize metaIntToBitVecExt : Meta.SimpExtension ←
+  Meta.registerSimpAttr metaIntToBitVecName "meta simp theorems used to convert UIntX/IntX statements into BitVec ones"
 
 builtin_initialize
   registerBuiltinAttribute {
-    ref             := by exact decl_name%
-    name            := `bvNormalizeProcBuiltinAttr
-    descr           := "Builtin bv_normalize simproc"
-    applicationTime := AttributeApplicationTime.afterCompilation
-    erase           := fun _ => throwError "Not implemented yet, [-builtin_bv_normalize_proc]"
-    add             := fun declName stx _ =>
-      addBuiltin declName stx ``Lean.Elab.Tactic.BVDecide.Frontend.addBVNormalizeProcBuiltinAttr
+    name := `int_toBitVec
+    descr := "simp theorems used to convert UIntX/IntX statements into BitVec ones"
+    add := fun declName stx attrKind => do
+      let env ← getEnv
+      let metaImpl ← IO.ofExcept <| getAttributeImpl env metaIntToBitVecName
+      metaImpl.add declName stx attrKind
+      let symImpl ← IO.ofExcept <| getAttributeImpl env symIntToBitVecName
+      symImpl.add declName stx attrKind
   }
 
 end Lean.Meta.Tactic.BVDecide

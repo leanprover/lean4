@@ -17,7 +17,7 @@ set_option linter.missingDocs true
 namespace Lean.Doc
 
 open Lean Elab Term
-open Std
+open _root_.Std
 open scoped Lean.Doc.Syntax
 
 

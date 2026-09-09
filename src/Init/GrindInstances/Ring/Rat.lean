@@ -59,6 +59,6 @@ instance : NoNatZeroDivisors Rat where
     simpa [← Rat.mul_assoc, Rat.inv_mul_cancel, h₁] using congrArg ((k : Rat)⁻¹ * ·) h₂
 
 instance : LawfulOfScientific Rat where
-  ofScientific_def {m s e} := by rw [Rat.ofScientific_def_eq_if]
+  ofScientific_def {m s e} := by rw [Rat.ofScientific_def_eq_ite]
 
 end Lean.Grind

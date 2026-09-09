@@ -22,8 +22,7 @@ namespace Std.Http.Protocol.H1
 
 set_option linter.all true
 
-open Std Internal Parsec ByteArray
-open Internal
+open Std Std.Internal Parsec ByteArray
 
 /--
 Connection limits and parser bounds configuration.

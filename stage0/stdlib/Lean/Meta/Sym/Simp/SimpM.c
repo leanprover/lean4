@@ -21,7 +21,7 @@ lean_object* l_Lean_PersistentHashMap_mkEmptyEntriesArray(lean_object*, lean_obj
 lean_object* lean_st_mk_ref(lean_object*);
 lean_object* lean_st_ref_get(lean_object*);
 lean_object* lean_st_ref_take(lean_object*);
-lean_object* lean_st_ref_set(lean_object*, lean_object*);
+lean_object* lean_st_ref_put(lean_object*, lean_object*);
 extern lean_object* l_Lean_instMonadExceptOfExceptionCoreM;
 lean_object* l_StateRefT_x27_instMonadExceptOf___redArg___lam__2(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_StateRefT_x27_instMonadExceptOf___redArg___lam__0___boxed(lean_object*, lean_object*, lean_object*, lean_object*);
@@ -1722,7 +1722,7 @@ goto v_reusejp_600_;
 v_reusejp_600_:
 {
 lean_object* v___x_602_; lean_object* v___x_603_; lean_object* v___x_604_; 
-v___x_602_ = lean_st_ref_set(v_a_589_, v___x_601_);
+v___x_602_ = lean_st_ref_put(v_a_589_, v___x_601_);
 v___x_603_ = lean_box(0);
 v___x_604_ = lean_alloc_ctor(0, 1, 0);
 lean_ctor_set(v___x_604_, 0, v___x_603_);
@@ -2149,7 +2149,7 @@ goto v_reusejp_746_;
 v_reusejp_746_:
 {
 lean_object* v___x_748_; lean_object* v___x_749_; lean_object* v___x_750_; 
-v___x_748_ = lean_st_ref_set(v_a_735_, v___x_747_);
+v___x_748_ = lean_st_ref_put(v_a_735_, v___x_747_);
 v___x_749_ = lean_box(0);
 v___x_750_ = lean_alloc_ctor(0, 1, 0);
 lean_ctor_set(v___x_750_, 0, v___x_749_);
@@ -2541,11 +2541,13 @@ return v_res_897_;
 }
 }
 lean_object* runtime_initialize_Lean_Meta_Sym_Pattern(uint8_t builtin);
+void lean_initialize_runtime_module();
 static bool _G_runtime_initialized = false;
 LEAN_EXPORT lean_object* runtime_initialize_Lean_Meta_Sym_Simp_SimpM(uint8_t builtin) {
 lean_object * res;
 if (_G_runtime_initialized) return lean_io_result_mk_ok(lean_box(0));
 _G_runtime_initialized = true;
+lean_initialize_runtime_module();
 res = runtime_initialize_Lean_Meta_Sym_Pattern(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);

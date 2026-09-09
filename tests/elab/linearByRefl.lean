@@ -1,6 +1,6 @@
 import Lean
 
-open Nat.Linear
+open Nat.Internal.Linear
 
 -- Convenient RArray literals
 elab tk:"#R[" ts:term,* "]" : term => do

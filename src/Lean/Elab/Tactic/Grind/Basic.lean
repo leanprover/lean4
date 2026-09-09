@@ -324,7 +324,7 @@ def tryTactic (tac : GrindTacticM α) : GrindTacticM Bool := do
   catch _ =>
     pure false
 
-open Grind
+open Lean.Meta.Grind
 
 /-
 **Note**: Recall that `grind` uses the reducibility specified at `Config.reducible`
@@ -335,6 +335,16 @@ def liftGrindM (k : GrindM α) : GrindTacticM α := do
   let ((a, grindState), symState) ← liftMetaM <| StateRefT'.run (((Grind.withGTransparency k) ctx.methods.toMethodsRef ctx.ctx |>.run s.grindState) ctx.sctx) s.symState
   modify fun s => { s with grindState, symState }
   return a
+
+/-- Lifts a `SymM` computation into `GrindTacticM`. -/
+def liftSymM (k : Sym.SymM α) : GrindTacticM α := do
+  -- GrindM := ... Sym.SymM, so SymM auto-lifts to GrindM
+  liftGrindM k
+
+/-- Throws an error unless the tactic is being executed in `sym =>` mode. -/
+def ensureSym : GrindTacticM Unit := do
+  unless (← read).sym do
+    throwError "tactic is only available in `sym =>` mode"
 
 def replaceMainGoal (goals : List Goal) : GrindTacticM Unit := do
   let goals := goals.filter fun goal => !goal.inconsistent
@@ -436,10 +446,15 @@ def GrindTacticM.runAtGoal (mvarId : MVarId) (params : Params) (k : GrindTacticM
   let (methods, ctx, sctx, state) ← liftMetaM <| GrindM.runAtGoal mvarId params' (evalTactic? := some evalTactic) fun goal => do
       let goals ←
         if sym then
-          /- In sym mode, skip eager intros + by-contradiction. The user controls intro/internalize.
-             Preprocess for maximal term sharing, required by Sym operations (introN, BackwardRule.apply, etc.). -/
-          let mvarId ← Sym.preprocessMVar goal.mvarId
-          pure [{ goal with mvarId }]
+          if goal.inconsistent then
+            /- The goal was already closed while preprocessing the hypotheses, and `goal.mvarId`
+               has been assigned. `Sym.preprocessMVar` would clobber that assignment. -/
+            pure []
+          else
+            /- In sym mode, skip eager intros + by-contradiction. The user controls intro/internalize.
+               Preprocess for maximal term sharing, required by Sym operations (introN, BackwardRule.apply, etc.). -/
+            let mvarId ← Sym.preprocessMVar goal.mvarId
+            pure [{ goal with mvarId }]
         else
           let a : Action := Action.intros 0 >> Action.assertAll
           match (← a.run goal) with

@@ -480,6 +480,15 @@ def Folder.ofNat (f : Nat → LitValue) (args : Array (Arg .pure)) : FolderM (Op
   let some value ← getNatLit fvarId | return none
   return some (.lit (f value))
 
+/--
+Folder for `ofNatLT` operations on fixed-sized integer types. The bound is a proof and carries no
+runtime content, so only the numeral matters.
+-/
+def Folder.ofNatLT (f : Nat → LitValue) (args : Array (Arg .pure)) : FolderM (Option (LetValue .pure)) := do
+  let #[.fvar fvarId, _] := args | return none
+  let some value ← getNatLit fvarId | return none
+  return some (.lit (f value))
+
 def Folder.toNat (args : Array (Arg .pure)) : FolderM (Option (LetValue .pure)) := do
   let #[.fvar fvarId] := args | return none
   let some (.lit lit) ← findLetValue? (pu := .pure) fvarId | return none
@@ -590,6 +599,10 @@ def conversionFolders : List (Name × Folder) := [
   (``UInt64.ofNat, Folder.ofNat (fun v => .uint64 (UInt64.ofNat v))),
   (``USize.ofNat, Folder.ofNat (fun v => .usize (UInt64.ofNat v))),
   (``Char.ofNat, Folder.ofNat (fun v => .uint32 (Char.ofNat v).val)),
+  (``UInt8.ofNatLT, Folder.ofNatLT (fun v => .uint8 (UInt8.ofNat v))),
+  (``UInt16.ofNatLT, Folder.ofNatLT (fun v => .uint16 (UInt16.ofNat v))),
+  (``UInt32.ofNatLT, Folder.ofNatLT (fun v => .uint32 (UInt32.ofNat v))),
+  (``UInt64.ofNatLT, Folder.ofNatLT (fun v => .uint64 (UInt64.ofNat v))),
   (``UInt8.toNat, Folder.toNat),
   (``UInt16.toNat, Folder.toNat),
   (``UInt32.toNat, Folder.toNat),

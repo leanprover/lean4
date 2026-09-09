@@ -117,6 +117,27 @@ function capture_exit {
   check_exit_is "$EXPECTED"
 }
 
+# Run a command wrapped with `capture_only` and `measure.py`.
+# Additionally wrap with `repeatedly.py` if `TEST_REPEAT` is set,
+# respecting `TEST_REPEAT_DROP_HIGHEST` and `TEST_REPEAT_DROP_LOWEST`.
+# The first argument specifies the output file path.
+# The second argument specifies the topic for the measurements.
+# The remaining arguments are the command to run.
+# Sets $EXIT to the exit code and $CAPTURED to the output file path.
+function capture_and_measure {
+  local file="$1" topic="$2"; shift 2
+  if [[ -n "${TEST_REPEAT:-}" ]]; then
+    capture_only "$file" \
+      "$TEST_DIR/repeatedly.py" -n "$TEST_REPEAT" \
+      -H "${TEST_REPEAT_DROP_HIGHEST:-0}" -L "${TEST_REPEAT_DROP_LOWEST:-0}" \
+      -o "$file.measurements.jsonl" -- \
+      "$TEST_DIR/measure.py" -t "$topic" -o "$file.measurements.jsonl" -d -- "$@"
+  else
+    capture_only "$file" \
+      "$TEST_DIR/measure.py" -t "$topic" -o "$file.measurements.jsonl" -a -d -- "$@"
+  fi
+}
+
 function source_init {
   if [[ -f "$1.init.sh" ]]; then
     source "$1.init.sh"

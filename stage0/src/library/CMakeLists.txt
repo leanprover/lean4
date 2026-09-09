@@ -4,14 +4,11 @@ add_library(
   expr_lt.cpp
   bin_app.cpp
   constants.cpp
-  max_sharing.cpp
   module.cpp
   dynlib.cpp
-  replace_visitor.cpp
   num.cpp
   util.cpp
   print.cpp
-  annotation.cpp
   init_module.cpp
   profiling.cpp
   time_task.cpp

@@ -12,6 +12,7 @@ import Lean.Meta.Sym.Simp.Telescope
 import Lean.Meta.Sym.Simp.ControlFlow
 import Lean.Meta.Sym.Simp.Forall
 import Lean.Meta.Sym.Simp.Rewrite
+import Lean.Meta.Sym.Grind
 namespace Lean.Elab.Tactic.Grind
 open Meta Sym.Simp
 
@@ -59,7 +60,8 @@ def elabSimprocRewriteInline : SymSimprocElab := fun stx => do
   let mut thms : Theorems := {}
   for name in names do
     let declName ← realizeGlobalConstNoOverload name
-    thms := thms.insert (← mkTheoremFromDecl declName)
+    for thm in (← mkTheoremsFromDecl declName) do
+      thms := thms.insert thm
   return thms.rewrite (← elabOptDischarger d?)
 
 @[builtin_sym_simproc andThen]
@@ -95,5 +97,11 @@ def elabDischNone : SymDischargerElab := fun _ =>
 def elabDischParen : SymDischargerElab := fun stx => do
   let `(sym_discharger| ( $d ) ) := stx | throwUnsupportedSyntax
   elabSymDischarger d
+
+@[builtin_sym_discharger dischGrind]
+def elabDischGrind : SymDischargerElab := fun _ => do
+  if (← getGoals).isEmpty then return dischargeNone
+  let goal ← getMainGoal
+  liftGrindM <| goal.mkSymSimpDischarger
 
 end Lean.Elab.Tactic.Grind

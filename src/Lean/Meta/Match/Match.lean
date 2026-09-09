@@ -146,7 +146,12 @@ where
 private def withAlts {α} (motive : Expr) (discrs : Array Expr) (discrInfos : Array DiscrInfo)
     (lhss : List AltLHS) (isSplitter : Option Overlaps)
     (k : List Alt → Array Expr → Array AltParamInfo → MetaM α) : MetaM α :=
-  loop lhss [] #[] #[] #[]
+  let overlappingAlts : Std.HashSet Nat :=
+    match isSplitter with
+    | none => {}
+    | some overlaps =>
+      overlaps.map.fold (fun set _ overlapping => set.insertMany overlapping) {}
+  loop lhss [] #[] #[] #[] overlappingAlts
 where
   mkSplitterHyps (idx : Nat) (lhs : AltLHS) (notAlts : Array Expr) : MetaM (Array Expr × Array Nat) := do
     withExistingLocalDecls lhs.fvarDecls do
@@ -179,15 +184,17 @@ where
       notAlt ← mkForallFVars (discrs ++ xs) notAlt
       return notAlt
 
-  loop (lhss : List AltLHS) (alts : List Alt) (minors : Array Expr) (altInfos : Array AltParamInfo) (notAlts : Array Expr) : MetaM α := do
+  loop (lhss : List AltLHS) (alts : List Alt) (minors : Array Expr) (altInfos : Array AltParamInfo) (notAlts : Array Expr) (overlappingAlts : Std.HashSet Nat) : MetaM α := do
     match lhss with
     | [] => k alts.reverse minors altInfos
     | lhs::lhss =>
-      let idx       := alts.length
+      let idx := notAlts.size
       let xs := lhs.fvarDecls.toArray.map LocalDecl.toExpr
       let (notAltHs, notAltIdxs) ← if isSplitter.isSome then mkSplitterHyps idx lhs notAlts else pure (#[], #[])
       let minorType ← mkMinorType xs lhs notAltHs
-      let notAlt ← mkNotAlt xs lhs
+      -- We only compute a `notAlt` if the index of the current alternative is part of the overlaps,
+      -- that is `idx ∈ isSplitter.get!.overlapping idx'` for some alternative index `idx'`.
+      let notAlt ← if overlappingAlts.contains idx then mkNotAlt xs lhs else pure default
       let hasParams := !xs.isEmpty || !notAltHs.isEmpty || discrInfos.any fun info => info.hName?.isSome
       let minorType := if hasParams then minorType else mkSimpleThunkType minorType
       let minorName := (`h).appendIndexAfter (idx+1)
@@ -199,7 +206,7 @@ where
         let fvarDecls ← lhs.fvarDecls.mapM instantiateLocalDeclMVars
         let alt    := { ref := lhs.ref, idx := idx, rhs := rhs, fvarDecls := fvarDecls, patterns := lhs.patterns, cnstrs := [], notAltIdxs := notAltIdxs }
         let alts   := alt :: alts
-        loop lhss alts minors altInfos (notAlts.push notAlt)
+        loop lhss alts minors altInfos (notAlts.push notAlt) overlappingAlts
 
 structure State where
   /-- Used alternatives -/

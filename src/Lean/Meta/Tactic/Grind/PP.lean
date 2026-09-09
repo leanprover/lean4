@@ -200,6 +200,9 @@ def Arith.Cutsat.pp? (goal : Goal) : MetaM (Option MessageData) := do
   let s ← Arith.Cutsat.cutsatExt.getStateCore goal
   let nodes := s.varMap
   if nodes.isEmpty then return none
+  -- The assignment is partial (and does not satisfy the constraints) if the search
+  -- was interrupted because the `liaSteps` threshold was reached.
+  if s.assignment.size < s.vars.size then return none
   let model ← Arith.Cutsat.mkModel goal
   if model.isEmpty then return none
   let mut ms := #[]
@@ -240,6 +243,9 @@ private def ppThresholds (c : Grind.Config) : M Unit := do
   if maxGen ≥ c.gen then
     msgs := msgs.push <| .trace { cls := `limit } m!"maximum term generation has been reached, threshold: `(gen := {c.gen})`" #[]
   msgs ← Arith.CommRing.addThresholdMessage goal c msgs
+  let cutsat ← Arith.Cutsat.cutsatExt.getStateCore goal
+  if cutsat.steps ≥ c.liaSteps then
+    msgs := msgs.push <| .trace { cls := `limit } m!"maximum number of steps performed by the `lia` solver has been reached, threshold: `(liaSteps := {c.liaSteps})`" #[]
   unless msgs.isEmpty do
     pushMsg <| .trace { cls := `limits } "Thresholds reached" msgs
 

@@ -175,6 +175,7 @@ This *model-based* search is **complete for LIA**.
 
 * `grind -lia` disable the solver (useful for debugging)
 * `grind +qlia` accept rational models (shrinks the search space but is incomplete for ℤ)
+* `grind (liaSteps := n)` cap the number of steps performed by the model search (the solver becomes incomplete when the threshold is reached)
 
 #### Examples:
 

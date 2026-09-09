@@ -279,8 +279,8 @@ return v___x_34_;
 default: 
 {
 lean_object* v___x_38_; 
-lean_dec_ref_known(v_k_3_, 2);
 lean_dec_ref(v_target_5_);
+lean_dec_ref_known(v_k_3_, 2);
 lean_dec_ref(v_v_4_);
 v___x_38_ = lean_box(0);
 return v___x_38_;
@@ -582,8 +582,8 @@ return v___x_155_;
 else
 {
 lean_object* v___x_159_; 
-lean_dec_ref_known(v_k_145_, 2);
 lean_dec_ref(v_target_147_);
+lean_dec_ref_known(v_k_145_, 2);
 lean_dec_ref(v_v_146_);
 v___x_159_ = lean_box(0);
 return v___x_159_;
@@ -897,11 +897,13 @@ return v___x_278_;
 }
 lean_object* runtime_initialize_Lake_Util_Store(uint8_t builtin);
 lean_object* runtime_initialize_Lake_Build_Job_Basic(uint8_t builtin);
+void lean_initialize();
 static bool _G_runtime_initialized = false;
 LEAN_EXPORT lean_object* runtime_initialize_Lake_Build_Store(uint8_t builtin) {
 lean_object * res;
 if (_G_runtime_initialized) return lean_io_result_mk_ok(lean_box(0));
 _G_runtime_initialized = true;
+lean_initialize();
 res = runtime_initialize_Lake_Util_Store(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);

@@ -29,9 +29,14 @@ structure TacticContext where
   solver : System.FilePath
   lratPath : System.FilePath
   config : BVDecideConfig
+  /--
+  The types that the structure and enum analysis is restricted to, as provided by the `types`
+  clause. If this is `none` the analysis discovers the relevant types on its own.
+  -/
+  restrictedTypes : Option (Array Name) := none
 
-def TacticContext.new (lratPath : System.FilePath) (config : BVDecideConfig) :
-    TermElabM TacticContext := do
+def TacticContext.new (lratPath : System.FilePath) (config : BVDecideConfig)
+    (restrictedTypes : Option (Array Name) := none) : TermElabM TacticContext := do
   let exprDef ← Lean.Elab.Term.mkAuxName `_expr_def
   let certDef ← Lean.Elab.Term.mkAuxName `_cert_def
   let reflectionDef ← Lean.Elab.Term.mkAuxName `_reflection_def
@@ -43,7 +48,8 @@ def TacticContext.new (lratPath : System.FilePath) (config : BVDecideConfig) :
     reflectionDef,
     solver,
     lratPath,
-    config
+    config,
+    restrictedTypes
   }
 where
   determineSolver : CoreM System.FilePath := do

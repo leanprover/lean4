@@ -8,6 +8,12 @@ module
 prelude
 public import Lean.Meta.Tactic.BVDecide.Normalize.Structures
 import Lean.Meta.Tactic.BVDecide.Normalize.ApplyControlFlow
+import Lean.Meta.Sym.Simp.Theorems
+import Lean.Meta.Sym.Simp.Rewrite
+import Lean.Meta.Sym.Util
+import Lean.Meta.Tactic.BVDecide.Normalize.IntToBitVec
+import Init.Data.Nat.Power2.Bitwise
+
 
 /-!
 This module contains the implementation of the pre processing pass for handling enum inductive
@@ -378,97 +384,113 @@ This simproc should be set up to trigger on expressions of the form `EnumInducti
 It will check if `x` is a constructor and if that is the case constant fold it to the corresponding
 `BitVec` value.
 -/
-def enumToBitVecCtor : Simp.Simproc := fun e => do
-  let .app (.const fn ..) (.const arg ..) := e | return .continue
-  let .str p s := fn | return .continue
-  if s != enumToBitVecSuffix then return .continue
-  if !(← isEnumType p) then return .continue
+def enumToBitVecCtor : Sym.Simp.Simproc := fun e => do
+  let .app (.const fn ..) (.const arg ..) := e | return .rfl
+  let .str p s := fn | return .rfl
+  if s != enumToBitVecSuffix then return .rfl
+  if !(← isEnumType p) then return .rfl
   let .inductInfo inductiveInfo ← getConstInfo p | unreachable!
   let ctors := inductiveInfo.ctors
-  let some ctorIdx := ctors.findIdx? (· == arg) | return .continue
+  let some ctorIdx := ctors.findIdx? (· == arg) | return .rfl
   let bvSize := getBitVecSize ctors.length
-  return .done { expr := toExpr <| BitVec.ofNat bvSize ctorIdx }
+  let groundExpr ← Sym.share <| toExpr <| BitVec.ofNat bvSize ctorIdx
+  let proof ← mkEqRefl groundExpr
+  return .step groundExpr proof (done := true)
+
+structure EnumInfo where
+  toBitVec : Name
+  toBitVecLemma : Name
+
+def enumEqToBitVecEq (index : Std.HashMap Name EnumInfo) : Sym.Simp.Simproc := fun e => do
+  let_expr Eq α lhs rhs := e | return .rfl
+  let .const type _ := α.getAppFn' | return .rfl
+  let some info := index[type]? | return .rfl
+  let lhsBv ← mkAppM info.toBitVec #[lhs]
+  let rhsBv ← mkAppM info.toBitVec #[rhs]
+  let expr' ← mkEq lhsBv rhsBv
+  let proof ← mkPropExt (← mkAppM info.toBitVecLemma #[lhs, rhs])
+  return .step (← Sym.share expr') proof
 
 /--
 The state used for the post processing part of `enumsPass`.
 -/
 private structure PostProcessState where
   /--
-  Hypotheses that bound results of `enumToBitVec` applications as appropriate.
-  -/
-  hyps : Array Hypothesis := #[]
-  /--
   A cache of terms we have already collected bounds for such that they don't get duplicated.
   -/
-  seen : Std.HashSet Expr := {}
+  seen : Std.HashSet Sym.ExprPtr := {}
 
 public partial def enumsPass : Pass where
   name := `enums
-  run' goal :=
+  run' := do
+    let goal ← PreProcessM.getTargetMVarId
     goal.withContext do
       let analysis ← PreProcessM.getTypeAnalysis
       let interestingEnums := analysis.interestingEnums
       -- invariant: if there is no interesting enums there also can't be interesting matchers
-      if interestingEnums.isEmpty then return goal
+      if interestingEnums.isEmpty then return false
 
-      let mut simprocs : Simprocs := {}
-      let mut relevantLemmas : SimpTheoremsArray := #[]
+      let mut methods := {}
+      let mut relevantLemmas : Sym.Simp.Theorems := {}
+      let mut toBitVecFns := {}
+      let mut enumIndex := {}
       for type in interestingEnums do
         let lemma ← getEqIffEnumToBitVecEqFor type
-        relevantLemmas ← relevantLemmas.addTheorem (.decl lemma) (mkConst lemma)
-
         let enumToBitVec ← getEnumToBitVecFor type
-        let path := #[.const enumToBitVec 1, .star]
-        simprocs := simprocs.addCore path ``enumToBitVecCtor true (.inl enumToBitVecCtor)
-
-        let path := mkApplyUnaryControlDiscrPath type 0 enumToBitVec ``ite 5
-        simprocs := simprocs.addCore path ``applyIteSimproc false (.inl applyIteSimproc)
-        let path := mkApplyUnaryControlDiscrPath type 0 enumToBitVec ``cond 4
-        simprocs := simprocs.addCore path ``applyCondSimproc false (.inl applyCondSimproc)
+        enumIndex := enumIndex.insert type { toBitVec := enumToBitVec, toBitVecLemma := lemma }
+        toBitVecFns := toBitVecFns.insert enumToBitVec
 
       let interestingMatchers := analysis.interestingMatchers
       for (matcher, kind) in interestingMatchers do
         let lemma ← getMatchEqCondForAux matcher kind
-        relevantLemmas ← relevantLemmas.addTheorem (.decl lemma) (mkConst lemma)
+        relevantLemmas := relevantLemmas.insert (← Sym.Simp.mkTheoremFromDecl lemma)
+
+      methods := { methods with
+        pre := methods.pre
+          >> applyIteSimproc toBitVecFns
+          >> applyCondSimproc toBitVecFns
+        post := methods.post
+          >> relevantLemmas.rewrite
+          >> enumEqToBitVecEq enumIndex
+          >> enumToBitVecCtor
+      }
 
       -- Desugaring matches could have potentially revealed new opportunities to do stuff with
       -- structures. Thus we must also re run lemmas that handle structure projections in the
       -- presence of control flow.
       let cfg ← PreProcessM.getConfig
-      relevantLemmas ← addDefaultTypeAnalysisLemmas relevantLemmas
+      methods ← addDefaultTypeAnalysisLemmas methods
       if cfg.structures then
-        (simprocs, relevantLemmas) ← addStructureSimpLemmas simprocs relevantLemmas
+        methods ← addStructureSimpLemmas methods
 
       -- same for fixed integers
       if cfg.fixedInt then
-        relevantLemmas := relevantLemmas.push (← intToBitVecExt.getTheorems)
+        methods ← addIntToBitVecLemmas goal methods
 
-      let simpCtx ← Simp.mkContext
-        (config := {
-          failIfUnchanged := false,
-          implicitDefEqProofs := false, -- leanprover/lean4/pull/7509
-          maxSteps := cfg.maxSteps,
-          instances := true
-        })
-        (simpTheorems := relevantLemmas)
-        (congrTheorems := ← getSimpCongrTheorems)
+      let cfg ← PreProcessM.getConfig
+      let config := {
+        maxSteps := cfg.maxSteps
+      }
 
-      let ⟨result?, _⟩ ←
-        simpGoal
-          goal
-          (ctx := simpCtx)
-          (simprocs := #[simprocs])
-          (fvarIdsToSimp := ← getPropHyps)
-      let some (_, newGoal) := result? | return none
-      postprocess newGoal |>.run' {}
+      let solved ← PreProcessM.mapSimpHyps methods config
+      if solved then return true
+      discard <| postprocess goal |>.run' {}
+      return false
 where
-  postprocess (goal : MVarId) : StateRefT PostProcessState MetaM MVarId :=
+  postprocess (goal : MVarId) : StateRefT PostProcessState PreProcessM Unit :=
     goal.withContext do
       let filter e :=
         if let .app (.const (.str _ s) ..) _ := e then
           s == enumToBitVecSuffix && !e.hasLooseBVars
         else
           false
+
+      let analysis ← PreProcessM.getTypeAnalysis
+      let mut relevantIndex : Std.HashSet Name := {}
+      for enum in analysis.interestingEnums do
+        let domainSize := (← getConstInfoInduct enum).ctors.length
+        if domainSize.isPowerOfTwo then continue
+        relevantIndex := relevantIndex.insert enum
 
       let processor e := do
         /-
@@ -477,22 +499,17 @@ where
         hypotheses could contain the same term but we still do not want to duplicate bounds
         hypotheses for it.
         -/
-        if (← get).seen.contains e then return ()
+        if (← get).seen.contains ⟨e⟩ then return ()
         let .app (.const (.str enumType _) ..) val := e | unreachable!
-        let value ← mkAppM (← getEnumToBitVecLeFor enumType) #[val]
-        let type ← inferType value
-        let hyp := { userName := .anonymous, type, value }
-        modify fun s => { s with hyps := s.hyps.push hyp, seen := s.seen.insert e }
+        unless relevantIndex.contains enumType do return ()
+        let value ← Sym.share <| ← mkAppM (← getEnumToBitVecLeFor enumType) #[val]
+        let type ← Sym.inferType value
+        let hyp := { name := .anonymous, type, value, source := .enumDomain enumType }
+        PreProcessM.pushHyp hyp
+        modify fun s => { s with seen := s.seen.insert ⟨e⟩ }
 
-      for hyp in ← getPropHyps do
-        (← instantiateMVars (← hyp.getType)).forEachWhere (stopWhenVisited := true) filter processor
-
-      let newHyps := (← get).hyps
-      if newHyps.isEmpty then
-        return goal
-      else
-        let (_, goal) ← goal.assertHypotheses newHyps
-        return goal
+      PreProcessM.forHyps fun hyp =>
+        hyp.type.forEachWhere (stopWhenVisited := true) filter processor
 
 end Normalize
 end Lean.Meta.Tactic.BVDecide

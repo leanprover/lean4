@@ -26,7 +26,7 @@ namespace Std.Http
 
 set_option linter.all true
 
-open Internal
+open Std.Http.Internal
 
 /--
 Typeclass for typed HTTP headers that can be parsed from and serialized to header values.

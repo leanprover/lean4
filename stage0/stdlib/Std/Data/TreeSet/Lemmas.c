@@ -1,6 +1,6 @@
 // Lean compiler output
 // Module: Std.Data.TreeSet.Lemmas
-// Imports: import Std.Data.TreeMap.Lemmas import Std.Data.DTreeMap.Lemmas public import Init.Data.Array.Perm public import Std.Data.TreeSet.AdditionalOperations
+// Imports: import Std.Data.TreeMap.Lemmas import Std.Data.DTreeMap.Lemmas public import Init.Data.Array.Perm public import Std.Data.TreeSet.AdditionalOperations public import Std.Internal.ForIn.Basic
 #include <lean/lean.h>
 #if defined(__clang__)
 #pragma clang diagnostic ignored "-Wunused-parameter"
@@ -36,11 +36,14 @@ lean_object* runtime_initialize_Std_Data_TreeMap_Lemmas(uint8_t builtin);
 lean_object* runtime_initialize_Std_Data_DTreeMap_Lemmas(uint8_t builtin);
 lean_object* runtime_initialize_Init_Data_Array_Perm(uint8_t builtin);
 lean_object* runtime_initialize_Std_Data_TreeSet_AdditionalOperations(uint8_t builtin);
+lean_object* runtime_initialize_Std_Internal_ForIn_Basic(uint8_t builtin);
+void lean_initialize_runtime_module();
 static bool _G_runtime_initialized = false;
 LEAN_EXPORT lean_object* runtime_initialize_Std_Data_TreeSet_Lemmas(uint8_t builtin) {
 lean_object * res;
 if (_G_runtime_initialized) return lean_io_result_mk_ok(lean_box(0));
 _G_runtime_initialized = true;
+lean_initialize_runtime_module();
 res = runtime_initialize_Std_Data_TreeMap_Lemmas(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
@@ -51,6 +54,9 @@ res = runtime_initialize_Init_Data_Array_Perm(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
 res = runtime_initialize_Std_Data_TreeSet_AdditionalOperations(builtin);
+if (lean_io_result_is_error(res)) return res;
+lean_dec_ref(res);
+res = runtime_initialize_Std_Internal_ForIn_Basic(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
 return lean_io_result_mk_ok(lean_box(0));
@@ -66,6 +72,7 @@ lean_object* initialize_Std_Data_TreeMap_Lemmas(uint8_t builtin);
 lean_object* initialize_Std_Data_DTreeMap_Lemmas(uint8_t builtin);
 lean_object* initialize_Init_Data_Array_Perm(uint8_t builtin);
 lean_object* initialize_Std_Data_TreeSet_AdditionalOperations(uint8_t builtin);
+lean_object* initialize_Std_Internal_ForIn_Basic(uint8_t builtin);
 static bool _G_initialized = false;
 LEAN_EXPORT lean_object* initialize_Std_Data_TreeSet_Lemmas(uint8_t builtin) {
 lean_object * res;
@@ -81,6 +88,9 @@ res = initialize_Init_Data_Array_Perm(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
 res = initialize_Std_Data_TreeSet_AdditionalOperations(builtin);
+if (lean_io_result_is_error(res)) return res;
+lean_dec_ref(res);
+res = initialize_Std_Internal_ForIn_Basic(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
 res = runtime_initialize_Std_Data_TreeSet_Lemmas(builtin);

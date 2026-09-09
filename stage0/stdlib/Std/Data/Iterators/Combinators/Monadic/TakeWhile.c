@@ -171,9 +171,9 @@ return v___x_56_;
 LEAN_EXPORT lean_object* l_Std_Iterators_Types_TakeWhile_instIterator___redArg___lam__0___boxed(lean_object* v_toPure_57_, lean_object* v_it_58_, lean_object* v_out_59_, lean_object* v_____do__lift_60_){
 _start:
 {
-uint8_t v_____do__lift_267__boxed_61_; lean_object* v_res_62_; 
-v_____do__lift_267__boxed_61_ = lean_unbox(v_____do__lift_60_);
-v_res_62_ = l_Std_Iterators_Types_TakeWhile_instIterator___redArg___lam__0(v_toPure_57_, v_it_58_, v_out_59_, v_____do__lift_267__boxed_61_);
+uint8_t v_____do__lift_189__boxed_61_; lean_object* v_res_62_; 
+v_____do__lift_189__boxed_61_ = lean_unbox(v_____do__lift_60_);
+v_res_62_ = l_Std_Iterators_Types_TakeWhile_instIterator___redArg___lam__0(v_toPure_57_, v_it_58_, v_out_59_, v_____do__lift_189__boxed_61_);
 return v_res_62_;
 }
 }
@@ -508,11 +508,13 @@ lean_object* runtime_initialize_Init_Data_Nat_Lemmas(uint8_t builtin);
 lean_object* runtime_initialize_Init_Data_Iterators_Consumers_Monadic_Collect(uint8_t builtin);
 lean_object* runtime_initialize_Init_Data_Iterators_Consumers_Monadic_Loop(uint8_t builtin);
 lean_object* runtime_initialize_Init_Data_Iterators_PostconditionMonad(uint8_t builtin);
+void lean_initialize_runtime_module();
 static bool _G_runtime_initialized = false;
 LEAN_EXPORT lean_object* runtime_initialize_Std_Data_Iterators_Combinators_Monadic_TakeWhile(uint8_t builtin) {
 lean_object * res;
 if (_G_runtime_initialized) return lean_io_result_mk_ok(lean_box(0));
 _G_runtime_initialized = true;
+lean_initialize_runtime_module();
 res = runtime_initialize_Init_Data_Nat_Lemmas(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);

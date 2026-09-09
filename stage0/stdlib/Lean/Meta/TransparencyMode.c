@@ -347,21 +347,23 @@ return v___x_60_;
 LEAN_EXPORT lean_object* l_Lean_Meta_TransparencyMode_lt___boxed(lean_object* v_x_61_, lean_object* v_x_62_){
 _start:
 {
-uint8_t v_x_137__boxed_63_; uint8_t v_x_138__boxed_64_; uint8_t v_res_65_; lean_object* v_r_66_; 
-v_x_137__boxed_63_ = lean_unbox(v_x_61_);
-v_x_138__boxed_64_ = lean_unbox(v_x_62_);
-v_res_65_ = l_Lean_Meta_TransparencyMode_lt(v_x_137__boxed_63_, v_x_138__boxed_64_);
+uint8_t v_x_105__boxed_63_; uint8_t v_x_106__boxed_64_; uint8_t v_res_65_; lean_object* v_r_66_; 
+v_x_105__boxed_63_ = lean_unbox(v_x_61_);
+v_x_106__boxed_64_ = lean_unbox(v_x_62_);
+v_res_65_ = l_Lean_Meta_TransparencyMode_lt(v_x_105__boxed_63_, v_x_106__boxed_64_);
 v_r_66_ = lean_box(v_res_65_);
 return v_r_66_;
 }
 }
 lean_object* runtime_initialize_Init_Data_UInt_Basic(uint8_t builtin);
 lean_object* runtime_initialize_Init_MetaTypes(uint8_t builtin);
+void lean_initialize_runtime_module();
 static bool _G_runtime_initialized = false;
 LEAN_EXPORT lean_object* runtime_initialize_Lean_Meta_TransparencyMode(uint8_t builtin) {
 lean_object * res;
 if (_G_runtime_initialized) return lean_io_result_mk_ok(lean_box(0));
 _G_runtime_initialized = true;
+lean_initialize_runtime_module();
 res = runtime_initialize_Init_Data_UInt_Basic(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);

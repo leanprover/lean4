@@ -880,11 +880,11 @@ goto v___jp_202_;
 v___jp_192_:
 {
 lean_object* v___x_197_; lean_object* v___x_198_; lean_object* v_a_199_; lean_object* v___x_200_; lean_object* v___x_201_; 
-v___x_197_ = l___private_Init_WFExtrinsicFix_0__WellFounded_opaqueFix_u2082___redArg(v___f_188_, v___y_196_, v___y_194_);
+v___x_197_ = l___private_Init_WFExtrinsicFix_0__WellFounded_opaqueFix_u2082___redArg(v___f_188_, v___y_196_, v___y_193_);
 v___x_198_ = lean_array_to_list(v___x_197_);
 v_a_199_ = l_List_appendTR___redArg(v___y_195_, v___x_198_);
 v___x_200_ = l_List_lengthTR___redArg(v_a_199_);
-v___x_201_ = l_List_toSlice___redArg(v_a_199_, v___y_193_, v___x_200_);
+v___x_201_ = l_List_toSlice___redArg(v_a_199_, v___y_194_, v___x_200_);
 lean_dec(v___x_200_);
 lean_dec(v_a_199_);
 return v___x_201_;
@@ -938,8 +938,8 @@ goto v_reusejp_213_;
 }
 v_reusejp_213_:
 {
-v___y_193_ = v___x_209_;
-v___y_194_ = v___x_210_;
+v___y_193_ = v___x_210_;
+v___y_194_ = v___x_209_;
 v___y_195_ = v___x_212_;
 v___y_196_ = v___x_214_;
 goto v___jp_192_;
@@ -972,8 +972,8 @@ goto v_reusejp_219_;
 }
 v_reusejp_219_:
 {
-v___y_193_ = v___x_209_;
-v___y_194_ = v___x_210_;
+v___y_193_ = v___x_210_;
+v___y_194_ = v___x_209_;
 v___y_195_ = v___x_212_;
 v___y_196_ = v___x_220_;
 goto v___jp_192_;
@@ -1276,11 +1276,13 @@ lean_object* runtime_initialize_Init_Data_Iterators_Combinators_Take(uint8_t bui
 lean_object* runtime_initialize_Init_Data_Range_Polymorphic_Basic(uint8_t builtin);
 lean_object* runtime_initialize_Init_Data_Slice_Operations(uint8_t builtin);
 lean_object* runtime_initialize_Init_Data_ToString_Extra(uint8_t builtin);
+void lean_initialize_runtime_module();
 static bool _G_runtime_initialized = false;
 LEAN_EXPORT lean_object* runtime_initialize_Init_Data_Slice_List_Iterator(uint8_t builtin) {
 lean_object * res;
 if (_G_runtime_initialized) return lean_io_result_mk_ok(lean_box(0));
 _G_runtime_initialized = true;
+lean_initialize_runtime_module();
 res = runtime_initialize_Init_Data_Slice_List_Basic(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);

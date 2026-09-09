@@ -8,22 +8,22 @@ prelude
 public import Lean.Meta.Tactic.Grind.Arith.Cutsat.Types
 import Lean.Meta.Tactic.Grind.Arith.Cutsat.Util
 public section
-namespace Int.Linear
+namespace Int.Internal.Linear
 /-- Returns `true` if all coefficients are not `0`. -/
 def Poly.checkCoeffs : Poly → Bool
   | .num _ => true
   | .add k _ p => k != 0 && checkCoeffs p
 
-end Int.Linear
+end Int.Internal.Linear
 
 namespace Lean.Meta.Grind.Arith.Cutsat
 
-def _root_.Int.Linear.Poly.checkNoElimVars (p : Poly) : GoalM Unit := do
+def _root_.Int.Internal.Linear.Poly.checkNoElimVars (p : Poly) : GoalM Unit := do
   let .add _ x p := p | return ()
   assert! !(← eliminated x)
   checkNoElimVars p
 
-def _root_.Int.Linear.Poly.checkOccs (p : Poly) : GoalM Unit := do
+def _root_.Int.Internal.Linear.Poly.checkOccs (p : Poly) : GoalM Unit := do
   let .add _ y p := p | return ()
   let rec go (p : Poly) : GoalM Unit := do
     let .add _ x p := p | return ()
@@ -31,7 +31,7 @@ def _root_.Int.Linear.Poly.checkOccs (p : Poly) : GoalM Unit := do
     go p
   go p
 
-def _root_.Int.Linear.Poly.checkCnstrOf (p : Poly) (x : Var) : GoalM Unit := do
+def _root_.Int.Internal.Linear.Poly.checkCnstrOf (p : Poly) (x : Var) : GoalM Unit := do
   assert! p.isSorted
   assert! p.checkCoeffs
   unless (← inconsistent) do

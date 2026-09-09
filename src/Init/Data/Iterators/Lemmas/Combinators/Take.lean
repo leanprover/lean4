@@ -109,6 +109,7 @@ theorem Iter.step_toTake {α β} [Iterator α Id β] [Finite α Id]
         | .yield it' out h => .yield it'.toTake out (.yield h Nat.zero_ne_one)
         | .skip it' h => .skip it'.toTake (.skip h Nat.zero_ne_one)
         | .done h => .done (.done h)) := by
+  apply Subtype.ext
   simp only [toTake_eq_toIter_toTake_toIterM, Iter.step, toIterM_toIter, IterM.step_toTake,
     Id.run_bind]
   cases it.toIterM.step.run.inflate using PlausibleIterStep.casesOn <;> simp

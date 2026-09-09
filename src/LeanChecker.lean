@@ -10,6 +10,10 @@ import LeanExport.Parse
 
 open Lean
 
+def println (msg : String) (silent : Bool) : IO Unit :=
+  unless silent do
+    IO.println msg
+
 unsafe def replayFromImports (module : Name) : IO Unit := do
   let mFile ← findOLean module
   unless (← mFile.pathExists) do
@@ -53,7 +57,7 @@ def getCurrentModule : IO Name := do
     -- `← getRootPackage` from `Lake`, but I can't make that work with the monads involved.
     return manifest.name.capitalize
 
-def checkExport (args : List String) : IO UInt32 := do
+def checkExport (args : List String) (silent : Bool) : IO UInt32 := do
   let [exportFile] := args |
     throw <| IO.userError s!"Exactly one export file expected but got: {args}"
   IO.FS.withFile exportFile .read fun handle => do
@@ -67,9 +71,9 @@ def checkExport (args : List String) : IO UInt32 := do
     let kernelConstMap := quotTargets.foldl (init := origConstMap) (·.erase ·)
     try
       kernelEnv ← kernelEnv.replay kernelConstMap
-      IO.println "Lean default kernel accepts the solution"
+      println "Lean default kernel accepts the solution" silent
     catch e =>
-      IO.println s!"Lean default kernel rejects the solution: {e}"
+      println s!"Lean default kernel rejects the solution: {e}" silent
       return 1
 
     try
@@ -82,10 +86,10 @@ def checkExport (args : List String) : IO UInt32 := do
             throw <| IO.userError s!"Quotient constant mismatch on: {quotTarget}"
       return 0
     catch e =>
-      IO.println s!"Quotient post-check rejects the solution: {e}"
+      println s!"Quotient post-check rejects the solution: {e}" silent
       return 1
 
-unsafe def checkOlean (args : List String) (fresh verbose : Bool) : IO UInt32 := do
+unsafe def checkOlean (args : List String) (fresh verbose silent : Bool) : IO UInt32 := do
   initSearchPath (← findSysroot)
   let targets ← do
     match args with
@@ -112,14 +116,14 @@ unsafe def checkOlean (args : List String) (fresh verbose : Bool) : IO UInt32 :=
       throw <| IO.userError s!"--fresh flag is only valid when specifying a single module:\n\
         {targetModules}"
     for m in targetModules do
-      if verbose then IO.println s!"replaying {m} with --fresh"
+      if verbose then println s!"replaying {m} with --fresh" silent
       replayFromFresh m
   else
     let mut tasks := #[]
     for m in targetModules do
       tasks := tasks.push (m, ← IO.asTask (replayFromImports m))
     for (m, t) in tasks do
-      if verbose then IO.println s!"replaying {m}"
+      if verbose then println s!"replaying {m}" silent
       if let .error e := t.get then
         IO.eprintln s!"leanchecker found a problem in {m}"
         throw e
@@ -145,9 +149,10 @@ unsafe def main (args : List String) : IO UInt32 := do
   -- https://github.com/digama0/lean4lean or ping @digama0 (Mario Carneiro) to go fix it.
   let (flags, args) := args.partition fun s => s.startsWith "-"
   let loadExport := "--from-export" ∈ flags
+  let silent := "--silent" ∈ flags
   if loadExport then
-    checkExport args
+    checkExport args silent
   else
     let verbose := "-v" ∈ flags || "--verbose" ∈ flags
     let fresh := "--fresh" ∈ flags
-    checkOlean args fresh verbose
+    checkOlean args fresh verbose silent

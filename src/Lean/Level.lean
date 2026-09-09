@@ -542,7 +542,7 @@ def simpLevelMax' (u v : Level) (d : Level) : Level :=
 @[inline] private def mkLevelIMaxCore (u v : Level) (elseK : Unit → Level) : Level :=
   if v.isNeverZero then mkLevelMax' u v
   else if v.isZero then v
-  else if u.isZero then v
+  else if u.isZero || u == .succ .zero then v -- imax 0 u = imax 1 u = u
   else if u == v then u
   else elseK ()
 

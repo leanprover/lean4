@@ -91,6 +91,10 @@ level mk_max(level const & l1, level const & l2)  {
         return l2;  // if l2 == (max l1 l'), then max l1 l2 == l2
     } else if (is_max(l1) && (max_lhs(l1) == l2 || max_rhs(l1) == l2)) {
         return l1;  // if l1 == (max l2 l'), then max l1 l2 == l1
+    } else if (is_explicit(l2) && to_offset(l1).second >= to_explicit(l2)) {
+        return l1;  // if l2 = k explicit and l1 has offset >= k, then max l1 l2 == l1
+    } else if (is_explicit(l1) && to_offset(l2).second >= to_explicit(l1)) {
+        return l2;  // if l1 = k explicit and l2 has offset >= k, then max l1 l2 == l2
     } else {
         auto p1 = to_offset(l1);
         auto p2 = to_offset(l2);

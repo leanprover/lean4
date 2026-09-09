@@ -106,28 +106,6 @@ inductive LinkTargetView where
       (name : VersoRefName) (closer : Syntax)
 
 /--
-Source info for a literal content token that stands in for a string literal written in a quotation.
-The token the content came from supplies the positions and the canonicality. In macro-generated
-syntax the positions do not point at the content, and code that reparses content relies on that
-difference.
--/
-private def decodedInfo (tok : Syntax) : SourceInfo :=
-  match tok.getHeadInfo, tok.getPos?, tok.getTailPos? with
-  | .original leading _ trailing _, some b, some e =>
-    .original { leading with startPos := b, stopPos := b } b
-      { trailing with startPos := e, stopPos := e } e
-  | .synthetic _ _ canonical, some b, some e => .synthetic b e (canonical := canonical)
-  | _, _, _ => .none
-
-/--
-Builds a string literal whose contents are `value`, positioned at the literal content token `tok` it
-was decoded from. Reparsing content goes through a string literal, which carries the positions
-that the parse reports against.
--/
-def strLitOfContent (value : String) (tok : Syntax) : StrLit :=
-  Syntax.mkStrLit value (info := decodedInfo tok)
-
-/--
 Creates source info for the content of empty code blocks.
 
 A code block contains a sequence of lines. When that sequence is empty, the code block denotes the
@@ -1011,29 +989,5 @@ Returns a view of a block-level element of a Verso document.
 Returns `default` if the syntax is malformed.
 -/
 def VersoBlock.view (stx : VersoBlock) : BlockView := (BlockView.of stx).getD default
-
-section Migration
-/-
-The wrappers that documentation extensions are given carry their content under the tags that the
-stage0 which generated them uses, and the functions below present it under the types a declaration
-names. Inline and block content is already the parser's syntax, so those two are retaggings. After
-a stage0 update a wrapper receives the content directly, and this section can be deleted.
--/
-
-/-- Retags inline content that a wrapper received. -/
-def migrateInlines (xs : TSyntaxArray `inline) : TSyntaxArray ``Parser.inline :=
-  TSyntaxArray.mk xs.raw
-
-/-- Retags block content that a wrapper received. -/
-def migrateBlocks (xs : TSyntaxArray `block) : TSyntaxArray ``Parser.block :=
-  TSyntaxArray.mk xs.raw
-
-/-- Presents a string literal's contents as an inline code content token. -/
-def versoCodeOfStrLit (s : StrLit) : VersoCode := mkVersoCodeFrom s s.getString
-
-/-- Presents a string literal's contents as a code block content token. -/
-def versoCodeBlockOfStrLit (s : StrLit) : VersoCodeBlock := mkVersoCodeBlockFrom s s.getString
-
-end Migration
 
 end

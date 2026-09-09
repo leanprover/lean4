@@ -46,7 +46,7 @@ def ControlStack.stateT (baseMonadInfo : MonadInfo) (muts : Array MutVar) (σ : 
     -- See also `StateT.monadControl.liftWith`.
     let mutExprs ← muts.mapM fun x => do
       let defn ← getLocalDeclFromUserName x.getId
-      Term.addTermInfo' x.ident defn.toExpr
+      Term.addTermInfo' x.userIdent defn.toExpr
       pure defn.toExpr
     let (tuple, tupleTy) ← mkProdMkN mutExprs baseMonadInfo.u
     unless ← isDefEq tupleTy σ do -- just for sanity; maybe delete in the future
@@ -208,7 +208,7 @@ structure EffectForwarder where
 /-- Build the lifter plan for a body whose effects are summarised by `info`. -/
 def EffectForwarder.ofCont (info : ControlInfo) (dec : DoElemCont) : DoElabM EffectForwarder := do
   let mi := (← read).monadInfo
-  let reassignedMutVars := (← read).mutVars |>.filter (info.reassigns.contains ·.getId)
+  let reassignedMutVars := (← read).mutVars |>.filter (info.reassigns.contains ·.userName)
   let reassignedMutVarNames := reassignedMutVars.map (·.getId)
   let ρ := (← getReturnCont).resultType
   let σ ← mkProdN (← reassignedMutVarNames.mapM (LocalDecl.type <$> getLocalDeclFromUserName ·)) mi.u

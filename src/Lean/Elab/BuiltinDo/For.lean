@@ -6,6 +6,7 @@ Authors: Sebastian Graf
 module
 
 prelude
+import Init.Data.Erased  -- referenced by the ghost shadow quotations
 public import Lean.Elab.BuiltinDo.Basic
 meta import Lean.Parser.Do
 meta import Std.WP.Gadget.ForIn
@@ -169,10 +170,21 @@ structure ForInApp where
   σ : Expr
   /-- The pattern naming the loop's mutable variables in the state tuple. -/
   statePat : Term
+  /-- The ghost variables among the loop's mutable variables; annotations bind their `.out`
+  shadows over the state tuple. -/
+  ghostMutVars : Array MutVar := #[]
+
+/-- Bind the `.out` shadow of each ghost variable over `e`, so that an annotation names ghost
+variables at their underlying type. The bindings sit in erased positions, so they compile. -/
+private def ForInApp.wrapGhostShadows (g : ForInApp) (e : Term) : DoElabM Term := do
+  let mut e := e
+  for mv in g.ghostMutVars do
+    e ← `(let $(mv.userIdent):ident := Erased.out $(⟨mv.ident.raw⟩); $e)
+  return e
 
 /-- Abstract `e` over the loop's state tuple, so that `e` may name the loop's mutable variables. -/
-private def ForInApp.mkStateFun (g : ForInApp) (e : Term) : DoElabM Term :=
-  `(fun $(g.statePat) => $e)
+private def ForInApp.mkStateFun (g : ForInApp) (e : Term) : DoElabM Term := do
+  `(fun $(g.statePat) => $(← g.wrapGhostShadows e))
 
 /-- Elaborate the gadget application that replaces the loop. The gadgets live downstream of this
 module, so `gadget` is an unresolved name that resolves in the user's context. -/
@@ -242,7 +254,7 @@ private def mkForInLoopGadget (g : ForInApp)
     -- unfolded type, and a specification's instance arguments are synthesized before the check that
     -- would unfold it.
     return ((invClause : Syntax), ← `($(mkIdent ``Std.WP.WhileInvariant.mk)
-      fun $exitVar:ident $(g.statePat) => $invBody))
+      fun $exitVar:ident $(g.statePat) => $(← g.wrapGhostShadows invBody)))
   let varArg? ← dec?.mapM fun decClause => do
     let (binders, body) ← match decClause with
       | `(doLoopDecreasing| decreasing $binders* => $body) => pure (binders, body)
@@ -279,7 +291,7 @@ private def mkForInLoopGadget (g : ForInApp)
   let info ← inferControlInfoSeq body
   let oldReturnCont ← getReturnCont
   let returnVarName ← mkFreshUserName `__r
-  let loopMutVars := mutVars.filter fun x => info.reassigns.contains x.getId
+  let loopMutVars := mutVars.filter fun x => info.reassigns.contains x.userName
   let loopMutVarNames :=
     if info.returnsEarly then
       returnVarName :: (loopMutVars.map (·.getId)).toList
@@ -297,7 +309,7 @@ private def mkForInLoopGadget (g : ForInApp)
       defs := defs.push returnVar
     for x in loopMutVars do
       let defn ← getLocalDeclFromUserName x.getId
-      Term.addTermInfo' x.ident defn.toExpr
+      Term.addTermInfo' x.userIdent defn.toExpr
       -- ForIn forces the mut tuple into the universe mi.u: that of the do block result type.
       -- If we don't do this, then we are stuck on solving constraints such as
       --   `max ?u.46 ?u.47 =?= max (max ?u.22 ?u.46) ?u.47`
@@ -367,7 +379,8 @@ private def mkForInLoopGadget (g : ForInApp)
   let mut forIn := mkApp app body
   unless inv?.isNone && dec?.isNone do
     let g : ForInApp :=
-      { xs, init := preS, body, σ, statePat := ← mkStatePat loopMutVars info.returnsEarly }
+      { xs, init := preS, body, σ, statePat := ← mkStatePat loopMutVars info.returnsEarly,
+        ghostMutVars := loopMutVars.filter (·.ghost) }
     if (← instantiateMVars ρ).isConstOf ``Lean.Loop then
       if let some e ← mkForInLoopGadget g inv? dec? then forIn := e
     else if let some decClause := dec? then

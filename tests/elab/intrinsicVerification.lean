@@ -892,16 +892,17 @@ def onOneLine (k : Nat) : Id Nat given (n : Nat) requires k = n ensures r => r =
 
 /-! ## Ghost state
 
-`ghost` declares verification-only state. The variable holds an `Erased` value, an
-`invariant` clause reads it with `.out`, and its slot in compiled code holds a dummy. -/
+`ghost` declares verification-only state. The variable reads at its underlying type everywhere,
+its carried `Erased` binding erases in compiled code, and its slot in a loop's state tuple holds
+a dummy. -/
 
 def ghostSumEvens (xs : List Nat) : Id Nat
     ensures r => r % 2 = 0 := do
   let mut acc := 0
   ghost mut seen : List Nat := []
-  for x in xs invariant _pre _suff => acc = 2 * seen.out.length do
+  for x in xs invariant _pre _suff => acc = 2 * seen.length do
     acc := acc + 2
-    seen := x :: seen.out
+    seen := x :: seen
   return acc
 
 /-- info: 6 -/
@@ -915,9 +916,9 @@ def ghostDoubleSum (xs : List Nat) : Id Nat
     ensures r => ∃ n, r = 2 * n := do
   let mut acc := 0
   ghost mut half : Nat := 0
-  for x in xs invariant _pre _suff => acc = 2 * half.out do
+  for x in xs invariant _pre _suff => acc = 2 * half do
     acc := acc + x + x
-    half := half.out + x
+    half := half + x
   return acc
 
 /-- info: 12 -/
@@ -930,19 +931,35 @@ monadic binds (the action runs, its result erases), and patterns. -/
 def ghostForms : Id Nat := do
   ghost y := 5
   ghost mut x := 1
-  x := x.out + y.out
+  x := x + y
   x : Nat := 2
   ghost z ← pure 3
   ghost mut m ← pure 4
-  m := m.out + z.out
+  m := m + z
   ghost (a, b) := (1, 2)
   ghost mut (c, d) ← pure (3, 4)
-  c := a.out + b.out + d.out
+  c := a + b + d
   pure 0
 
 /-- info: 0 -/
 #guard_msgs in
 #eval ghostForms
+
+/-! A ghost variable reassigned in a branch flows through the join point. -/
+
+def ghostBranch (b : Bool) : Id Nat
+    ensures r => r = 0 := do
+  ghost mut n : Nat := 0
+  if b then
+    n := n + 1
+  else
+    n := n + 2
+  assert n > 0
+  return 0
+
+/-- info: 0 -/
+#guard_msgs in
+#eval ghostBranch true
 
 /-! A ghost value reaching compiled code is rejected through the noncomputability of
 `Erased.out`. -/
@@ -954,8 +971,8 @@ error: failed to compile definition, consider marking it as 'noncomputable' beca
 def ghostLeak (xs : List Nat) : Id Nat := do
   ghost mut seen : List Nat := []
   for x in xs do
-    seen := x :: seen.out
-  return seen.out.length
+    seen := x :: seen
+  return seen.length
 
 /-! Erased data cannot decide control flow, so `ghost` takes no `|` alternative. -/
 
@@ -972,5 +989,5 @@ def ghostArrowElse (o : Option Nat) : Id Nat := do
 def ghostPatReassign : Id Nat := do
   let mut a := 1
   ghost mut g := 2
-  (a, g) := (3, Erased.mk 4)
+  (a, g) := (3, 4)
   pure a

@@ -4,18 +4,18 @@ source ../common.sh
 ./clean.sh
 
 if [ "`uname`" != Linux ]; then
-  echo "Skipping test: lake challenge needs Linux Landlock"
+  echo "Skipping test: lake challenge needs Linux namespaces"
   exit 0
 fi
 
-# Landlock cannot be assumed available in CI containers; see `../fake-landrun.sh`.
-export COMPARATOR_LANDRUN="$PWD/../fake-landrun.sh"
+# User namespaces cannot be assumed available in CI containers; see `../fake-bwrap.sh`.
+export COMPARATOR_BWRAP="$PWD/../fake-bwrap.sh"
 
 # `lake challenge` resolves dependencies inside the sandbox, which cannot write to the project
 # directory, so the manifest has to be in place first. Building the project once does the same;
 # this just skips the build.
 "$LAKE" resolve-deps
 
-test_status_out 1 "while replaying declaration 'boom'" challenge --config config.json
+test_status_out 1 "Lean default kernel rejected the solution" challenge --config config.json
 
 rm -f produced.out

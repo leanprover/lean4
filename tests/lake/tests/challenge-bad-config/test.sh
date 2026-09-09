@@ -4,12 +4,12 @@ source ../common.sh
 ./clean.sh
 
 if [ "`uname`" != Linux ]; then
-  echo "Skipping test: lake challenge needs Linux Landlock"
+  echo "Skipping test: lake challenge needs Linux namespaces"
   exit 0
 fi
 
-# Landlock cannot be assumed available in CI containers; see `../fake-landrun.sh`.
-export COMPARATOR_LANDRUN="$PWD/../fake-landrun.sh"
+# User namespaces cannot be assumed available in CI containers; see `../fake-bwrap.sh`.
+export COMPARATOR_BWRAP="$PWD/../fake-bwrap.sh"
 
 # A configuration that is not JSON at all.
 test_status_out 2 'malformed configuration' challenge --config malformed.json

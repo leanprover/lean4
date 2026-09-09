@@ -266,7 +266,8 @@ jobs:
           elan --version  # fails step if not found
           make -C build/$TARGET_STAGE lean4lean
       - name: Build nanoda
-        if: matrix.release && !matrix.wasm && inputs.RELEASE_TAG != '' && github.repository == 'leanprover/lean4'
+        # TEMPORARY: gating removed so PR CI exercises this. Restore before merging.
+        if: "!matrix.wasm"
         run: |
           # install inline instead of via an action, which would choose a different HOME on Windows
           if ! command -v cargo > /dev/null; then

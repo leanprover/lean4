@@ -20,7 +20,6 @@ namespace Lean.Doc
 
 open Lean Elab Term
 open _root_.Std
-open scoped Lean.Doc.Syntax
 
 
 public section
@@ -504,6 +503,15 @@ instance : FromDocArg MessageSeverity where
       throwErrorAt other.syntax "Expected a message severity{← severityHint other.syntax}"
 
 /--
+Retags an argument that a wrapper's state carries.
+
+A wrapper's state type is fixed by the stage0 that generates it, so it names a tag of its own for
+the parser's argument syntax that the elaborator supplies. This can be deleted after a stage0
+update.
+-/
+private def asArg (arg : TSyntax `doc_arg) : TSyntax ``Parser.arg := ⟨arg.raw⟩
+
+/--
 Retrieves the next positional argument from the arguments to a documentation extension. Throws
 an error if no positional arguments remain.
 -/
@@ -511,7 +519,7 @@ protected def getPositional [FromDocArg α] (name : Name) :
     StateT (Array (TSyntax `doc_arg)) DocM α := do
   let args ← get
   for h : i in [0:args.size] do
-    if let some (.anon _ v) := ArgView.of args[i] then
+    if let some (.anon _ v) := ArgView.of (asArg args[i]) then
       set (σ := Array (TSyntax `doc_arg)) (args[:i] ++ args[i+1:])
       let v ← DocArg.ofSyntax v
       return (← FromDocArg.fromDocArg v)
@@ -519,7 +527,7 @@ protected def getPositional [FromDocArg α] (name : Name) :
 
 private def asNamed (stx : TSyntax `doc_arg) :
     Option (Ident × TSyntax ``Parser.argVal) :=
-  match ArgView.of stx with
+  match ArgView.of (asArg stx) with
   | some (.named _ _ x _ v) => some (x, v)
   | _ => none
 
@@ -573,7 +581,7 @@ protected def getFlag (name : Name) (default : Bool) : StateT (Array (TSyntax `d
   return default
 where
   asFlag (stx : TSyntax `doc_arg) : Option (Ident × Bool) :=
-    match ArgView.of stx with
+    match ArgView.of (asArg stx) with
     | some (.flag _ _ x isOn) => some (x, isOn)
     | _ => none
 
@@ -582,7 +590,7 @@ Asserts that there are no further arguments to a documentation language extensio
 -/
 protected def done : StateT (Array (TSyntax `doc_arg)) DocM Unit := do
   for arg in (← get) do
-    match ArgView.of arg with
+    match ArgView.of (asArg arg) with
     | some (.flag _ _ x _) =>
       logErrorAt arg m!"Unexpected flag `{x.getId}`"
     | some (.named _ _ x _ _) =>
@@ -617,8 +625,8 @@ private def tSyntaxArrayOfCat (kind : Name) : Expr :=
 section Migration
 /-
 The function in this section is a temporary bootstrapping adaptation. A wrapper receives inline and
-block content in the `Lean.Doc.Syntax` encoding and literal content as a string literal, while the
-declaration it wraps may have a parameter of the parser's kinds or of a content token. After a
+block content under the tags that the stage0 which generated it uses, and literal content as a
+string literal, while the declaration it wraps names the parser's kinds or a content token. After a
 stage0 update a wrapper can receive those directly, and this section can be deleted along with
 `alsoAccept`.
 -/
@@ -902,10 +910,10 @@ abbrev DocCodeBlockExpander :=
 
 section Migration
 /-
-The functions in this section are temporary bootstrapping adaptations. The elaborator receives
-syntax in the parser's encoding, while `DocRoleExpander` and its siblings use the `Lean.Doc.Syntax`
-categories, so the elaborator retags the syntax at each call to an expander. After a stage0 update
-the expander types can use the parser's syntax kinds, and this section can be deleted.
+A wrapper's type is fixed by the stage0 that generates it, so `DocRoleExpander` and its siblings
+name the tags that stage0 uses. The elaborator retags the parser's syntax at each call to an
+expander. After a stage0 update the expander types can name the parser's kinds, and this section
+can be deleted.
 -/
 
 /-- Retags inline elements for an expander. -/
@@ -1557,7 +1565,7 @@ def mkArgVal (arg : TSyntax ``Parser.argVal) : DocM Term :=
   | none => throwErrorAt arg "Didn't understand as argument value"
 
 def mkArg (arg : TSyntax `doc_arg) : DocM (TSyntax ``Parser.Term.argument) := do
-  match ArgView.of arg with
+  match ArgView.of (asArg arg) with
   | some (.anon _ v) =>
     let x ← mkArgVal v
     `(Parser.Term.argument| $x:term)

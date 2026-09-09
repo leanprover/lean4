@@ -9,7 +9,6 @@ than 5.
 -/
 
 open Lean Lean.Doc Elab Term
-open scoped Lean.Doc.Syntax
 
 /-- A deferred check that its number exceeds 5. -/
 structure GreaterThanFive where
@@ -25,7 +24,7 @@ def checkGreaterThanFive : DeferredCheckHandler := fun d => do
 
 /-- Defers a check that the referenced number is greater than 5. -/
 @[doc_role]
-def gtFive (xs : TSyntaxArray `inline) : DocM (Inline ElabInline) := do
+def gtFive (xs : TSyntaxArray ``Parser.inline) : DocM (Inline ElabInline) := do
   if h : xs.size = 1 then
     match InlineView.of xs[0] with
     | some (.code { content, .. }) =>

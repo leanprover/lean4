@@ -13,7 +13,7 @@ open Lean Doc Elab Term
 def c (s : StrLit) : DocM (Block ElabInline ElabBlock) := pure (Block.code (s.getString.toList.reverse |> String.mk))
 
 @[doc_directive]
-def d (s : TSyntaxArray `block) : DocM (Block ElabInline ElabBlock) := do
+def d (s : TSyntaxArray ``Parser.block) : DocM (Block ElabInline ElabBlock) := do
   .concat <$> s.reverse.mapM elabBlock
 
  /--
@@ -588,7 +588,7 @@ end ShadowedBuiltin
 
 open Lean in
 @[doc_role]
-def r (_ : TSyntaxArray `inline) : DocM (Inline ElabInline) := do
+def r (_ : TSyntaxArray ``Parser.inline) : DocM (Inline ElabInline) := do
   return .empty
 
 /-! {r}`foo` -/
@@ -610,7 +610,7 @@ end ShadowedNonBuiltin
 namespace DoubleShadowed
 
 @[doc_role]
-def lit (_ : TSyntaxArray `inline) : DocM (Inline ElabInline) := do
+def lit (_ : TSyntaxArray ``Parser.inline) : DocM (Inline ElabInline) := do
   return .empty
 
 namespace Inner

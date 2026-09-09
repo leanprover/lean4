@@ -4,14 +4,13 @@ set_option doc.verso true
 
 /-!
 Checks that a docstring extension may name the content it receives either as a string literal or as
-the literal content token that the parser produces, and that inline and block content may be named
-in either the `Lean.Doc.Syntax` encoding or the parser's. Each form receives the same content.
+the literal content token that the parser produces. Each form receives the same content.
 
 An extension may also take a parameter of the view's type, which is filled from the element being
 elaborated rather than from the arguments.
 
 The attribute checks the type a declaration names when it is applied, which happens in the compiler
-that builds the declaration. Accepting both forms lets the interfaces move to the content types
+that builds the declaration. Accepting both forms lets the interfaces move to the content tokens
 after a stage0 update, in a separate step.
 -/
 
@@ -34,7 +33,7 @@ def reportBoth (label : String) (content : VersoCodeBlock) : DocM (Block ElabInl
 
 /-- Reports its content, taking it as an inline code token. -/
 @[doc_role]
-def roleBlock (content : TSyntaxArray `inline) : DocM (Inline ElabInline) :=
+def roleBlock (content : TSyntaxArray ``Parser.inline) : DocM (Inline ElabInline) :=
   return .concat (← content.mapM elabInline)
 
 /--
@@ -157,7 +156,7 @@ error: `roleTwoViews` takes the view of the element twice, as `here` and as `als
 -/
 #guard_msgs in
 @[doc_role]
-def roleTwoViews (here : RoleView) (also : RoleView) (content : TSyntaxArray `inline) :
+def roleTwoViews (here : RoleView) (also : RoleView) (content : TSyntaxArray ``Parser.inline) :
     DocM (Inline ElabInline) :=
   return .concat (← content.mapM elabInline)
 
@@ -166,7 +165,7 @@ error: `roleArgAfterView` takes the argument `label` after the view `role`. Argu
 -/
 #guard_msgs in
 @[doc_role]
-def roleArgAfterView (role : RoleView) (label : String) (content : TSyntaxArray `inline) :
+def roleArgAfterView (role : RoleView) (label : String) (content : TSyntaxArray ``Parser.inline) :
     DocM (Inline ElabInline) :=
   return .concat (← content.mapM elabInline)
 
@@ -175,7 +174,7 @@ error: `roleWrongView` takes `cmd : CommandView`, which is the view of a block-l
 -/
 #guard_msgs in
 @[doc_role]
-def roleWrongView (cmd : CommandView) (content : TSyntaxArray `inline) :
+def roleWrongView (cmd : CommandView) (content : TSyntaxArray ``Parser.inline) :
     DocM (Inline ElabInline) :=
   return .concat (← content.mapM elabInline)
 

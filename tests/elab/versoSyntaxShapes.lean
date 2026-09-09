@@ -229,93 +229,6 @@ codeblock "  indented\n": round-trips
 
 end Values
 
-section Encodings
-
-/-!
-A view rewrites the `Lean.Doc.Syntax` encoding, which a quotation produced before the parser had
-productions of its own, into the encoding the parser produces. The rewritten tree must equal the
-tree that the parser reads from the equivalent source.
--/
-
-open scoped Lean.Doc.Syntax
-
-/-- Reports whether the view of `old` produces the tree that the parser reads from `input`. -/
-def sameInline (what input : String) (old : TSyntax `inline) : IO Unit := do
-  let parsed ← parseInline input
-  match InlineView.of old with
-  | none => IO.println s!"{what}: NOT A VIEW"
-  | some v =>
-    if bare v.stx.raw == bare parsed then IO.println s!"{what}: agree"
-    else
-      IO.println s!"{what}: DIFFER\n  from source {input.quote}:\n    {parsed}\n  \
-        rewritten:\n    {v.stx.raw}"
-
-/-- Reports whether the view of `old` produces the tree that the parser reads from `input`. -/
-def sameBlock (what input : String) (old : TSyntax `block) : IO Unit := do
-  let parsed ← parseBlock input
-  match BlockView.of old with
-  | none => IO.println s!"{what}: NOT A VIEW"
-  | some v =>
-    if bare v.stx.raw == bare parsed then IO.println s!"{what}: agree"
-    else
-      IO.println s!"{what}: DIFFER\n  from source {input.quote}:\n    {parsed}\n  \
-        rewritten:\n    {v.stx.raw}"
-
-/--
-info: text: agree
-emph: agree
-bold: agree
-code: agree
-inline math: agree
-display math: agree
-link (url): agree
-link (ref): agree
-image: agree
-footnote: agree
-role (bracketed): agree
--/
-#guard_msgs in
-#eval show CommandElabM Unit from do
-  sameInline "text" "hi" (← `(inline| "hi"))
-  sameInline "emph" "_hi_" (← `(inline| _["hi"]))
-  sameInline "bold" "*hi*" (← `(inline| *["hi"]))
-  sameInline "code" "`x`" (← `(inline| code("x")))
-  sameInline "inline math" "$`m`" (← `(inline| \math code("m")))
-  sameInline "display math" "$$`m`" (← `(inline| \displaymath code("m")))
-  sameInline "link (url)" "[hi](u)" (← `(inline| link["hi"]("u")))
-  sameInline "link (ref)" "[hi][u]" (← `(inline| link["hi"]["u"]))
-  sameInline "image" "![a](u)" (← `(inline| image("a")("u")))
-  sameInline "footnote" "[^q]" (← `(inline| footnote("q")))
-  sameInline "role (bracketed)" "{r}[hi]" (← `(inline| role{r}["hi"]))
-
-/--
-info: para: agree
-header: agree
-blockquote: agree
-unordered list: agree
-ordered list: agree
-description list: agree
-code block: agree
-directive: agree
-command: agree
-link reference: agree
-footnote reference: agree
--/
-#guard_msgs in
-#eval show CommandElabM Unit from do
-  let hi ← `(block| para["hi"])
-  sameBlock "para" "hi" hi
-  sameBlock "header" "## hi" (← `(block| header(1){"hi"}))
-  sameBlock "blockquote" "> hi" (← `(block| > $hi))
-  sameBlock "unordered list" "* hi" (← `(block| ul{* $hi}))
-  sameBlock "ordered list" "3. hi" (← `(block| ol(3){* $hi}))
-  sameBlock "description list" ": t\n\n  d" (← `(block| dl{: "t" => $(← `(block| para["d"]))}))
-  sameBlock "code block" "```\nx\n```" (← `(block| ``` | "x\n" ```))
-  sameBlock "directive" "::: d\nhi\n:::" (← `(block| ::: d {$hi}))
-  sameBlock "command" "{c}" (← `(block| command{c}))
-  sameBlock "link reference" "[n]: u" (← `(block| ["n"]: "u"))
-  sameBlock "footnote reference" "[^n]: hi" (← `(block| [^"n"]: "hi"))
-
 /-!
 The atoms that the parser writes out, rather than storing in a node, take a position binder in a
 quotation. A view reads the atom it needs that way.
@@ -340,5 +253,3 @@ metadata delimiters: "%%%" "%%%"
   | `(Lean.Doc.Parser.Block.metadata_block| %%%%$o $_:metadataContents %%%%$c) =>
     IO.println s!"metadata delimiters: {o.getAtomVal.quote} {c.getAtomVal.quote}"
   | _ => IO.println "metadata: no match"
-
-end Encodings

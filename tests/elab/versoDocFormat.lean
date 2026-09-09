@@ -582,8 +582,6 @@ line, so content built with one takes an escape to keep it. The parser never rea
 a quotation can build it.
 -/
 
-open scoped Lean.Doc.Syntax
-
 /--
 info: dl[desc[text(" t") | para[text("d")]]]
   formatted: ": \\ t\n\n  d\n"
@@ -597,6 +595,12 @@ footnote(n)[text(" t")]
 -/
 #guard_msgs in
 #eval show CommandElabM Unit from do
-  roundTripBlock (← `(block| dl{: " t" => $(← `(block| para["d"]))}))
-  roundTripBlock (← `(block| header(1){" t"}))
-  roundTripBlock (← `(block| [^"n"]: " t"))
+  let spaced ← mkVersoTextFromRef " t"
+  let content : TSyntaxArray ``Parser.inline := #[← `(Parser.inline| $spaced:versoText)]
+  let body ← mkVersoTextFromRef "d"
+  let bodyContent : TSyntaxArray ``Parser.inline := #[← `(Parser.inline| $body:versoText)]
+  let para : TSyntaxArray ``Parser.block := #[← `(Parser.block| $[$bodyContent]*)]
+  let name ← mkVersoRefNameFromRef "n"
+  roundTripBlock (← `(Parser.block| : $[$content]* $[$para:block]*))
+  roundTripBlock (← `(Parser.block| ## $[$content]*))
+  roundTripBlock (← `(Parser.block| [^$name]: $[$content]*))

@@ -16,7 +16,6 @@ set_option linter.missingDocs true
 
 namespace Lean.Doc
 
-open scoped Lean.Doc.Syntax
 
 public section
 
@@ -107,36 +106,6 @@ inductive LinkTargetView where
       (name : VersoRefName) (closer : Syntax)
 
 /--
-Builds a delimiter node of kind `kind` that contains `text`, at the position of `tok`.
-
-A delimiter node contains one atom, whose characters are the delimiter that the element denotes. The
-`Lean.Doc.Syntax` encoding writes those characters as part of a longer atom, so the node built here
-records the delimiter alone and keeps the position of the atom the source wrote.
--/
-private def asDelimiter (kind : SyntaxNodeKind) (text : String) (tok : Syntax) : Syntax :=
-  let info := tok.getHeadInfo
-  .node info kind #[.atom info text]
-
-/--
-Builds the backtick delimiter of an inline code element whose content is `value`. A delimiter is
-one backtick longer than the longest run of backticks in the content.
--/
-private def asCodeDelimiter (value : String) (tok : Syntax) : Syntax :=
-  asDelimiter ``Parser.codeDelimiter
-    ("".pushn '`' (longestBacktickRun value + 1)) tok
-
-/-- Builds the backtick fence of a code block. -/
-private def asFence (tok : Syntax) : Syntax :=
-  asDelimiter ``Parser.codeBlockFence "```" tok
-
-/--
-Builds a directive's colon delimiter. The `Lean.Doc.Syntax` encoding closes a directive with a
-brace, and both delimiters of a directive are the same run of colons.
--/
-private def asDirectiveDelimiter (tok : Syntax) : Syntax :=
-  asDelimiter ``Parser.directiveDelimiter ":::" tok
-
-/--
 Source info for a literal content token that stands in for a string literal written in a quotation.
 The token the content came from supplies the positions and the canonicality. In macro-generated
 syntax the positions do not point at the content, and code that reparses content relies on that
@@ -152,8 +121,8 @@ private def decodedInfo (tok : Syntax) : SourceInfo :=
 
 /--
 Builds a string literal whose contents are `value`, positioned at the literal content token `tok` it
-was decoded from. Extensions that reparse content take a `StrLit`, so each caller builds one where
-it needs one.
+was decoded from. Reparsing content goes through a string literal, which carries the positions
+that the parse reports against.
 -/
 def strLitOfContent (value : String) (tok : Syntax) : StrLit :=
   Syntax.mkStrLit value (info := decodedInfo tok)
@@ -293,221 +262,6 @@ def mkVersoCodeBlockFromRef [Monad m] [MonadRef m] (value : String) (canonical :
     m VersoCodeBlock := do
   return mkVersoCodeBlockFrom (← getRef) value canonical
 
-/-- An atom containing `text`, at the position of `tok`. -/
-private def asAtom (text : String) (tok : Syntax) : Syntax :=
-  .atom tok.getHeadInfo text
-
-/-- A node of kind `kind` whose children are `args`. -/
-private def asNode (kind : SyntaxNodeKind) (args : Array Syntax) : Syntax :=
-  .node .none kind args
-
-/-!
-The functions below rewrite the `Lean.Doc.Syntax` encoding, which quotations produce, into the
-encoding that the Verso parser produces. Both encodings describe the same documents. They differ in
-which characters the atoms contain, in where the delimiters sit, and in how literal content is
-stored.
-
-Syntax that is already in the parser's encoding passes through unchanged, so a caller rewrites a
-tree once and then reads only parser syntax.
--/
-
-mutual
-  /-- Rewrites an argument value. -/
-  partial def argValToParser (stx : Syntax) : Syntax :=
-    match stx with
-    | `(arg_val|$x:ident) => asNode ``Parser.ArgVal.ident #[x]
-    | `(arg_val|$n:num) => asNode ``Parser.ArgVal.num #[n]
-    | `(arg_val|$s:str) => asNode ``Parser.ArgVal.str #[s]
-    | _ => stx
-
-  /-- Rewrites an argument. -/
-  partial def docArgToParser (stx : Syntax) : Syntax :=
-    match stx with
-    | `(doc_arg|$v:arg_val) => asNode ``Parser.Arg.anon #[argValToParser v]
-    | `(doc_arg|(%$po $x:ident :=%$eq $v:arg_val )%$pc) =>
-      asNode ``Parser.Arg.named #[po, x, eq, argValToParser v, pc]
-    | `(doc_arg|$x:ident :=%$eq $v:arg_val) =>
-      asNode ``Parser.Arg.named_no_paren #[x, eq, argValToParser v]
-    | `(doc_arg|+%$tk$x:ident) => asNode ``Parser.Arg.flag_on #[tk, x]
-    | `(doc_arg|-%$tk$x:ident) => asNode ``Parser.Arg.flag_off #[tk, x]
-    | _ => stx
-
-  /-- Rewrites the target of a link or an image. -/
-  partial def linkTargetToParser (stx : Syntax) : Syntax :=
-    match stx with
-    | `(link_target|(%$o $url )%$c) =>
-      asNode ``Parser.LinkTarget.url #[o, mkVersoLinkUrlFrom url url.getString, c]
-    | `(link_target|[%$o $name ]%$c) =>
-      asNode ``Parser.LinkTarget.ref #[o, mkVersoRefNameFrom name name.getString, c]
-    | _ => stx
-
-  /-- Rewrites an inline element. -/
-  partial def inlineToParser (stx : Syntax) : Syntax :=
-    match stx with
-    | `(inline|$s:str) => asNode ``Parser.Inline.text #[mkVersoTextFrom s s.getString]
-    | `(inline|_[%$o $inl* ]%$c) =>
-      asNode ``Parser.Inline.emph
-        #[asDelimiter ``Parser.emphDelimiter "_" o, inlines inl,
-          asDelimiter ``Parser.emphDelimiter "_" c]
-    | `(inline|*[%$o $inl* ]%$c) =>
-      asNode ``Parser.Inline.bold
-        #[asDelimiter ``Parser.boldDelimiter "*" o, inlines inl,
-          asDelimiter ``Parser.boldDelimiter "*" c]
-    | `(inline|code(%$o $s )%$c) => code o s c
-    | `(inline|\math%$m code(%$o $s )%$c) =>
-      asNode ``Parser.Inline.inline_math
-        #[asDelimiter ``Parser.inlineMathMarker "$" m, code o s c]
-    | `(inline|\displaymath%$m code(%$o $s )%$c) =>
-      asNode ``Parser.Inline.display_math
-        #[asDelimiter ``Parser.displayMathMarker "$$" m, code o s c]
-    | `(inline|link[%$o $inl* ]%$c $tgt:link_target) =>
-      asNode ``Parser.Inline.link
-        #[asAtom "[" o, inlines inl, asAtom "]" c, linkTargetToParser tgt]
-    | `(inline|image(%$o $alt )%$c $tgt:link_target) =>
-      asNode ``Parser.Inline.image
-        #[asAtom "![" o, mkVersoImageAltFrom alt alt.getString, asAtom "]" c,
-          linkTargetToParser tgt]
-    | `(inline|footnote(%$o $name )%$c) =>
-      asNode ``Parser.Inline.footnote
-        #[asAtom "[^" o, mkVersoRefNameFrom name name.getString, asAtom "]" c]
-    | `(inline|line!$s) =>
-      asNode ``Parser.Inline.linebreak #[.atom (decodedInfo s.raw) s.getString]
-    | `(inline|role{%$bo $name $args* }%$bc [%$so $inl* ]%$sc) =>
-      -- Each bracket sits in a group of its own, which is empty where the source omitted it.
-      asNode ``Parser.Inline.role
-        #[asAtom "{" bo, name, mkNullNode (args.map (docArgToParser ·)), asAtom "}" bc,
-          mkNullNode #[asAtom "[" so], inlines inl, mkNullNode #[asAtom "]" sc]]
-    | _ => stx
-  where
-    inlines (inl : Array Syntax) : Syntax := mkNullNode (inl.map inlineToParser)
-    code (o : Syntax) (s : StrLit) (c : Syntax) : Syntax :=
-      asNode ``Parser.Inline.code
-        #[asCodeDelimiter s.getString o, mkVersoCodeFrom s s.getString,
-          asCodeDelimiter s.getString c]
-
-  /-- Rewrites an item of an ordered or unordered list, giving it the marker `marker`. -/
-  partial def listItemToParser (marker : String) (stx : Syntax) : Syntax :=
-    match stx with
-    | `(list_item|*%$m $bs*) =>
-      asNode ``Parser.ListItem.item
-        #[asDelimiter ``Parser.listMarker marker m, mkNullNode (bs.map (blockToParser ·))]
-    | _ => stx
-
-  /-- Rewrites an item of a description list. -/
-  partial def descItemToParser (stx : Syntax) : Syntax :=
-    match stx with
-    | `(desc_item|:%$marker $term* => $desc*) =>
-      asNode ``Parser.DescItem.item
-        #[marker, mkNullNode (term.map (inlineToParser ·)),
-          mkNullNode (desc.map (blockToParser ·))]
-    | _ => stx
-
-  /-- Rewrites a block-level element. -/
-  partial def blockToParser (stx : Syntax) : Syntax :=
-    match stx with
-    | `(block|para[$inls*]) =>
-      asNode ``Parser.Block.para #[mkNullNode (inls.map (inlineToParser ·))]
-    | `(block| >%$gt $bs*) =>
-      asNode ``Parser.Block.blockquote #[gt, blocks bs]
-    | `(block|ul{$items*}) =>
-      asNode ``Parser.Block.ul #[mkNullNode (items.map (listItemToParser "*" ·))]
-    | `(block|ol($n){$items*}) =>
-      -- The parser reads an ordered list's first number from the marker of its first item.
-      let numbered := items.mapIdx fun i item => listItemToParser s!"{n.getNat + i}." item
-      asNode ``Parser.Block.ol #[mkNullNode numbered]
-    | `(block|dl{$items*}) =>
-      asNode ``Parser.Block.dl #[mkNullNode (items.map (descItemToParser ·))]
-    | `(block| ```%$o | $s ```%$c) =>
-      asNode ``Parser.Block.codeblock
-        #[asFence o, mkNullNode #[], mkVersoCodeBlockFrom s s.getString, asFence c]
-    | `(block| ```%$o $name $args* | $s ```%$c) =>
-      asNode ``Parser.Block.codeblock
-        #[asFence o, mkNullNode #[name, mkNullNode (args.map (docArgToParser ·))],
-          mkVersoCodeBlockFrom s s.getString, asFence c]
-    | `(block| :::%$o $name $args* {$bs*}%$c) =>
-      asNode ``Parser.Block.directive
-        #[asDirectiveDelimiter o, name, mkNullNode (args.map (docArgToParser ·)), blocks bs,
-          asDirectiveDelimiter c]
-    | `(block|command{%$bo $name $args* }%$bc) =>
-      asNode ``Parser.Block.command
-        #[asAtom "{" bo, name, mkNullNode (args.map (docArgToParser ·)), asAtom "}" bc]
-    | `(block|header(%$tok $n ){$inls*}) =>
-      asNode ``Parser.Block.header
-        #[asDelimiter ``Parser.headerMarker ("".pushn '#' (n.getNat + 1)) tok,
-          mkNullNode (inls.map (inlineToParser ·))]
-    | `(block|[%$o $name ]:%$closer $url) =>
-      asNode ``Parser.Block.link_ref
-        #[o, mkVersoRefNameFrom name name.getString, closer, mkVersoLinkRefUrlFrom url url.getString]
-    | `(block|[^%$o $name ]:%$closer $inls*) =>
-      asNode ``Parser.Block.footnote_ref
-        #[o, mkVersoRefNameFrom name name.getString, closer,
-          mkNullNode (inls.map (inlineToParser ·))]
-    -- Both encodings store the metadata in one `structInstFields` node, which wraps the fields and
-    -- the separators between them.
-    | `(block|%%%%$o $contents* %%%%$c) =>
-      asNode ``Parser.Block.metadata_block
-        #[o, asNode ``Lean.Parser.Term.structInstFields #[mkNullNode contents], c]
-    | _ => stx
-  where
-    blocks (bs : Array Syntax) : Syntax := mkNullNode (bs.map blockToParser)
-end
-
-/-!
-Document syntax in the `Lean.Doc.Syntax` encoding converts to the encoding that the Verso parser
-produces, so that code that reads documents names only the parser's kinds.
--/
-
-instance : Coe (TSyntax `arg_val) (TSyntax ``Parser.argVal) where
-  coe s := ⟨argValToParser s.raw⟩
-
-instance : Coe (TSyntax `doc_arg) (TSyntax ``Parser.arg) where
-  coe s := ⟨docArgToParser s.raw⟩
-
-instance : Coe (TSyntax `link_target) (TSyntax ``Parser.linkTarget) where
-  coe s := ⟨linkTargetToParser s.raw⟩
-
-instance : Coe (TSyntax `inline) (TSyntax ``Parser.inline) where
-  coe s := ⟨inlineToParser s.raw⟩
-
-instance : Coe (TSyntax `list_item) (TSyntax ``Parser.ListItem.item) where
-  coe s := ⟨listItemToParser "*" s.raw⟩
-
-instance : Coe (TSyntax `desc_item) (TSyntax ``Parser.DescItem.item) where
-  coe s := ⟨descItemToParser s.raw⟩
-
-instance : Coe (TSyntax `block) (TSyntax ``Parser.block) where
-  coe s := ⟨blockToParser s.raw⟩
-
-instance : Coe (TSyntaxArray `doc_arg) (TSyntaxArray ``Parser.arg) where
-  coe xs := xs.map (↑·)
-
-instance : Coe (TSyntaxArray `inline) (TSyntaxArray ``Parser.inline) where
-  coe xs := xs.map (↑·)
-
-instance : Coe (TSyntaxArray `block) (TSyntaxArray ``Parser.block) where
-  coe xs := xs.map (↑·)
-
-section Migration
-/-
-The definitions in this section are temporary bootstrapping adaptation functions. After a stage0
-update, a wrapper can receive the parser's kinds and the content tokens directly, and these can be
-deleted: the first pair along with the contents of Lean.Doc.Syntax, the second pair once no wrapper
-receives literal content as a string literal.
--/
-
-/-- Migrates inline elements to the encoding that the Verso parser produces. -/
-def migrateInlines (xs : TSyntaxArray `inline) : TSyntaxArray ``Parser.inline := ↑xs
-
-/-- Migrates block-level elements to the encoding that the Verso parser produces. -/
-def migrateBlocks (xs : TSyntaxArray `block) : TSyntaxArray ``Parser.block := ↑xs
-
-/-- Presents a string literal's contents as an inline code content token. -/
-def versoCodeOfStrLit (s : StrLit) : VersoCode := mkVersoCodeFrom s s.getString
-
-/-- Presents a string literal's contents as a code block content token. -/
-def versoCodeBlockOfStrLit (s : StrLit) : VersoCodeBlock := mkVersoCodeBlockFrom s s.getString
-
-end Migration
 /--
 A view of `stx`, if it is a link target.
 -/
@@ -1257,5 +1011,29 @@ Returns a view of a block-level element of a Verso document.
 Returns `default` if the syntax is malformed.
 -/
 def VersoBlock.view (stx : VersoBlock) : BlockView := (BlockView.of stx).getD default
+
+section Migration
+/-
+The wrappers that documentation extensions are given carry their content under the tags that the
+stage0 which generated them uses, and the functions below present it under the types a declaration
+names. Inline and block content is already the parser's syntax, so those two are retaggings. After
+a stage0 update a wrapper receives the content directly, and this section can be deleted.
+-/
+
+/-- Retags inline content that a wrapper received. -/
+def migrateInlines (xs : TSyntaxArray `inline) : TSyntaxArray ``Parser.inline :=
+  TSyntaxArray.mk xs.raw
+
+/-- Retags block content that a wrapper received. -/
+def migrateBlocks (xs : TSyntaxArray `block) : TSyntaxArray ``Parser.block :=
+  TSyntaxArray.mk xs.raw
+
+/-- Presents a string literal's contents as an inline code content token. -/
+def versoCodeOfStrLit (s : StrLit) : VersoCode := mkVersoCodeFrom s s.getString
+
+/-- Presents a string literal's contents as a code block content token. -/
+def versoCodeBlockOfStrLit (s : StrLit) : VersoCodeBlock := mkVersoCodeBlockFrom s s.getString
+
+end Migration
 
 end

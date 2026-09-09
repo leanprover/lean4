@@ -212,6 +212,31 @@ def pop (xs : Array α) : Array α where
   | ⟨a::as⟩ => simp [pop, Nat.succ_sub_succ_eq_sub, size]
 
 /--
+Marks an array as linear, which is a no-op logically.
+
+At runtime the array is first made unique, copying it if the reference is not already unique, and
+then marked. If the environment variable `LEAN_ABORT_ON_NONLINEAR` is set, every non-linear use
+from that point on causes a panic instead of a silent copy.
+
+To debug where the non-linearity is coming from you can set a breakpoint on `lean_internal_panic`.
+-/
+@[never_extract, extern "lean_array_mark_linear", expose]
+def markLinear (xs : Array α) : Array α := xs
+
+@[simp, grind =] theorem markLinear_eq {xs : Array α} : xs.markLinear = xs := rfl
+
+/--
+Returns `ys`, propagating the linearity marker of `xs` onto it. This is a no-op logically.
+
+See also `Array.markLinear`.
+-/
+@[never_extract, extern "lean_array_propagate_mark", expose]
+def propagateMark {α : Type u} {β : Type v} (xs : @& Array α) (ys : Array β) : Array β := ys
+
+@[simp, grind =] theorem propagateMark_eq {α : Type u} {β : Type v} {xs : Array α} {ys : Array β} :
+    xs.propagateMark ys = ys := rfl
+
+/--
 Creates an array that contains `n` repetitions of `v`.
 
 The corresponding `List` function is `List.replicate`.

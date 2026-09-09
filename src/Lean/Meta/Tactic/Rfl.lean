@@ -120,6 +120,7 @@ def _root_.Lean.MVarId.applyRfl (goal : MVarId) : MetaM Unit := goal.withContext
         ++ MessageData.hint' m!"Add the `[refl]` attribute to reflexivity lemmas for{inlineExpr rel}to use this tactic"
 
 /-- Helper theorem for `Lean.MVarId.liftReflToEq`. -/
+@[deprecated "`rel_of_eq_and_refl` is unused in core; copy it downstream if you need it." (since := "2026-09-09")]
 theorem rel_of_eq_and_refl {α : Sort _} {R : α → α → Prop}
     {x y : α} (hxy : x = y) (h : R x x) : R x y :=
   hxy ▸ h
@@ -129,6 +130,7 @@ Convert a goal of the form `x ~ y` into the form `x = y`, where `~` is a reflexi
 relation, that is, a relation which has a reflexive lemma tagged with the attribute `@[refl]`.
 If this can't be done, returns the original `MVarId`.
 -/
+@[deprecated "`Lean.MVarId.liftReflToEq` is unused in core; copy it downstream if you need it." (since := "2026-09-09")]
 def _root_.Lean.MVarId.liftReflToEq (mvarId : MVarId) : MetaM MVarId := do
   mvarId.checkNotAssigned `liftReflToEq
   let .app (.app rel _) _ ← withReducible mvarId.getType' | return mvarId

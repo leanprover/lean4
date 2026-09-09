@@ -326,7 +326,8 @@ jobs:
                 // * `elab_bench/big_do` crashes with exit code 134
                 // * `compile_bench/channel` randomly segfaults
                 // * `challenge-olean-issue` intentionally breaks memsafety
-                "CTEST_OPTIONS": "-E 'elab_bench/big_do|compile_bench/channel|challenge-olean-issue'",
+                // * `builtin-lint` OOMs
+                "CTEST_OPTIONS": "-E 'elab_bench/big_do|compile_bench/channel|challenge-olean-issue|builtin-lint'",
               },
               {
                 "name": "Linux fsanitize",

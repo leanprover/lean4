@@ -4067,7 +4067,7 @@ goto v_resetjp_1126_;
 v_resetjp_1126_:
 {
 lean_object* v_ref_1129_; lean_object* v___x_1130_; lean_object* v___x_1131_; lean_object* v___x_1132_; lean_object* v___x_1133_; lean_object* v___x_1135_; 
-v_ref_1129_ = lean_ctor_get(v_a_1114_, 4);
+v_ref_1129_ = lean_ctor_get(v_a_1114_, 2);
 v___x_1130_ = lean_io_error_to_string(v_a_1125_);
 v___x_1131_ = lean_alloc_ctor(3, 1, 0);
 lean_ctor_set(v___x_1131_, 0, v___x_1130_);
@@ -7694,7 +7694,7 @@ goto v_resetjp_2175_;
 v_resetjp_2175_:
 {
 lean_object* v_ref_2178_; lean_object* v___x_2179_; lean_object* v___x_2180_; lean_object* v___x_2181_; lean_object* v___x_2182_; lean_object* v___x_2184_; 
-v_ref_2178_ = lean_ctor_get(v_a_2110_, 4);
+v_ref_2178_ = lean_ctor_get(v_a_2110_, 2);
 v___x_2179_ = lean_io_error_to_string(v_a_2174_);
 v___x_2180_ = lean_alloc_ctor(3, 1, 0);
 lean_ctor_set(v___x_2180_, 0, v___x_2179_);

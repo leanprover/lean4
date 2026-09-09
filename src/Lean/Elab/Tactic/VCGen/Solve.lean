@@ -654,7 +654,7 @@ public def solve (scope : Scope) (goal : MVarId) : VCGenM SolveResult := goal.wi
     if f.isConst || f.isFVar then
       burnOne
       return ← applySpecs scope goal info
-    throwError "Failed to decompose weakest precondition for {info.prog}. This should not happen."
+    return ← stopOrErrorOnMissingSpec info.prog info.M #[]
 
   return .stop (.noProgress pre rhs)
 

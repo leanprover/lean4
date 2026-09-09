@@ -454,4 +454,21 @@ def exportMetadata : Json :=
 public def dumpMetadata : M Unit := do
   IO.println exportMetadata.compress
 
+
+/--
+Exports `constants?` from `env`, or every non-internal constant in scope if none are given.
+
+Each constant is dumped with its dependencies, so the export is closed under them either way.
+-/
+public def dumpEnv
+    (env : Environment) (constants? : Option (List Name) := none) (cliOptions : List String := [])
+: IO Unit :=
+  let constants := constants?.getD (env.constants.toList.map Prod.fst |>.filter (!·.isInternal))
+  M.run env do
+    let _ ← initState env cliOptions
+    dumpMetadata
+    for c in constants do
+      modify fun st => { st with noMDataExprs := {} }
+      dumpConstant c
+
 end LeanExport

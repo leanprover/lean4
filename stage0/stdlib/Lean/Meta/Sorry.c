@@ -1054,7 +1054,7 @@ v___jp_324_:
 {
 lean_object* v_toCold_329_; lean_object* v_ref_330_; uint8_t v___x_331_; lean_object* v___x_332_; 
 v_toCold_329_ = lean_ctor_get(v___y_327_, 0);
-v_ref_330_ = lean_ctor_get(v___y_327_, 4);
+v_ref_330_ = lean_ctor_get(v___y_327_, 2);
 v___x_331_ = 0;
 v___x_332_ = l_Lean_Syntax_getPos_x3f(v_ref_330_, v___x_331_);
 if (lean_obj_tag(v___x_332_) == 1)

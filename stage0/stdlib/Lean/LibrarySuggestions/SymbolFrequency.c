@@ -13,9 +13,9 @@
 #ifdef __cplusplus
 extern "C" {
 #endif
+lean_object* lean_mk_array(lean_object*, lean_object*);
 extern lean_object* l_Lean_firstFrontendMacroScope;
 extern lean_object* l_Lean_Options_empty;
-lean_object* lean_mk_array(lean_object*, lean_object*);
 extern lean_object* l_Lean_instInhabitedFileMap_default;
 lean_object* lean_mk_empty_array_with_capacity(lean_object*);
 lean_object* lean_st_mk_ref(lean_object*);
@@ -1589,47 +1589,47 @@ return v___x_535_;
 static lean_object* _init_l___private_Lean_LibrarySuggestions_SymbolFrequency_0__Lean_Environment_unsafeRunMetaM___redArg___closed__26(void){
 _start:
 {
-lean_object* v___x_537_; lean_object* v___x_538_; lean_object* v___x_539_; lean_object* v___x_540_; lean_object* v___x_541_; lean_object* v___x_542_; 
+lean_object* v___x_537_; lean_object* v___x_538_; lean_object* v___x_539_; lean_object* v___x_540_; lean_object* v___x_541_; lean_object* v___x_542_; lean_object* v___x_543_; lean_object* v___x_544_; lean_object* v___x_545_; lean_object* v___x_546_; lean_object* v___x_547_; 
 v___x_537_ = lean_obj_once(&l_Lean_LibrarySuggestions_localSymbolFrequencyMap___lam__1___closed__2, &l_Lean_LibrarySuggestions_localSymbolFrequencyMap___lam__1___closed__2_once, _init_l_Lean_LibrarySuggestions_localSymbolFrequencyMap___lam__1___closed__2);
 v___x_538_ = lean_box(0);
-v___x_539_ = lean_box(0);
-v___x_540_ = l_Lean_instInhabitedFileMap_default;
-v___x_541_ = ((lean_object*)(l___private_Lean_LibrarySuggestions_SymbolFrequency_0__Lean_Environment_unsafeRunMetaM___redArg___closed__25));
-v___x_542_ = lean_alloc_ctor(0, 5, 0);
-lean_ctor_set(v___x_542_, 0, v___x_541_);
-lean_ctor_set(v___x_542_, 1, v___x_540_);
-lean_ctor_set(v___x_542_, 2, v___x_539_);
-lean_ctor_set(v___x_542_, 3, v___x_538_);
-lean_ctor_set(v___x_542_, 4, v___x_537_);
-return v___x_542_;
+v___x_539_ = l_Lean_firstFrontendMacroScope;
+v___x_540_ = lean_unsigned_to_nat(0u);
+v___x_541_ = lean_box(0);
+v___x_542_ = lean_box(0);
+v___x_543_ = lean_unsigned_to_nat(1000u);
+v___x_544_ = l_Lean_Options_empty;
+v___x_545_ = l_Lean_instInhabitedFileMap_default;
+v___x_546_ = ((lean_object*)(l___private_Lean_LibrarySuggestions_SymbolFrequency_0__Lean_Environment_unsafeRunMetaM___redArg___closed__25));
+v___x_547_ = lean_alloc_ctor(0, 12, 0);
+lean_ctor_set(v___x_547_, 0, v___x_546_);
+lean_ctor_set(v___x_547_, 1, v___x_545_);
+lean_ctor_set(v___x_547_, 2, v___x_544_);
+lean_ctor_set(v___x_547_, 3, v___x_543_);
+lean_ctor_set(v___x_547_, 4, v___x_542_);
+lean_ctor_set(v___x_547_, 5, v___x_541_);
+lean_ctor_set(v___x_547_, 6, v___x_540_);
+lean_ctor_set(v___x_547_, 7, v___x_540_);
+lean_ctor_set(v___x_547_, 8, v___x_542_);
+lean_ctor_set(v___x_547_, 9, v___x_539_);
+lean_ctor_set(v___x_547_, 10, v___x_538_);
+lean_ctor_set(v___x_547_, 11, v___x_537_);
+return v___x_547_;
 }
 }
 static lean_object* _init_l___private_Lean_LibrarySuggestions_SymbolFrequency_0__Lean_Environment_unsafeRunMetaM___redArg___closed__27(void){
 _start:
 {
-uint8_t v___x_543_; lean_object* v___x_544_; lean_object* v___x_545_; lean_object* v___x_546_; lean_object* v___x_547_; lean_object* v___x_548_; lean_object* v___x_549_; lean_object* v___x_550_; lean_object* v___x_551_; lean_object* v___x_552_; 
-v___x_543_ = 0;
-v___x_544_ = l_Lean_firstFrontendMacroScope;
-v___x_545_ = lean_box(0);
-v___x_546_ = lean_box(0);
-v___x_547_ = lean_box(0);
-v___x_548_ = lean_unsigned_to_nat(1000u);
-v___x_549_ = lean_unsigned_to_nat(0u);
-v___x_550_ = l_Lean_Options_empty;
+uint8_t v___x_548_; lean_object* v___x_549_; lean_object* v___x_550_; lean_object* v___x_551_; lean_object* v___x_552_; 
+v___x_548_ = 0;
+v___x_549_ = lean_box(0);
+v___x_550_ = lean_unsigned_to_nat(0u);
 v___x_551_ = lean_obj_once(&l___private_Lean_LibrarySuggestions_SymbolFrequency_0__Lean_Environment_unsafeRunMetaM___redArg___closed__26, &l___private_Lean_LibrarySuggestions_SymbolFrequency_0__Lean_Environment_unsafeRunMetaM___redArg___closed__26_once, _init_l___private_Lean_LibrarySuggestions_SymbolFrequency_0__Lean_Environment_unsafeRunMetaM___redArg___closed__26);
-v___x_552_ = lean_alloc_ctor(0, 10, 2);
+v___x_552_ = lean_alloc_ctor(0, 3, 2);
 lean_ctor_set(v___x_552_, 0, v___x_551_);
 lean_ctor_set(v___x_552_, 1, v___x_550_);
 lean_ctor_set(v___x_552_, 2, v___x_549_);
-lean_ctor_set(v___x_552_, 3, v___x_548_);
-lean_ctor_set(v___x_552_, 4, v___x_547_);
-lean_ctor_set(v___x_552_, 5, v___x_546_);
-lean_ctor_set(v___x_552_, 6, v___x_545_);
-lean_ctor_set(v___x_552_, 7, v___x_549_);
-lean_ctor_set(v___x_552_, 8, v___x_549_);
-lean_ctor_set(v___x_552_, 9, v___x_544_);
-lean_ctor_set_uint8(v___x_552_, sizeof(void*)*10, v___x_543_);
-lean_ctor_set_uint8(v___x_552_, sizeof(void*)*10 + 1, v___x_543_);
+lean_ctor_set_uint8(v___x_552_, sizeof(void*)*3, v___x_548_);
+lean_ctor_set_uint8(v___x_552_, sizeof(void*)*3 + 1, v___x_548_);
 return v___x_552_;
 }
 }

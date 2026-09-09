@@ -25,38 +25,39 @@ open Lean.Meta
 inductive LetOrReassign
   | let (mutTk? : Option Syntax) (ghost : Bool)
   | have
-  | reassign (ghost : Bool)
+  | reassign
 
 def LetOrReassign.getLetMutTk? (letOrReassign : LetOrReassign) : Option Syntax :=
   match letOrReassign with
   | .let mutTk? _ => mutTk?
   | _             => none
 
-/-- Whether the binding is a `ghost` declaration or the reassignment of a ghost variable. -/
-def LetOrReassign.isGhost (letOrReassign : LetOrReassign) : Bool :=
+/-- Whether the binding is a `ghost` declaration. A reassignment's ghostness follows from its
+variable's `MutVar` record instead. -/
+def LetOrReassign.isGhostDecl (letOrReassign : LetOrReassign) : Bool :=
   match letOrReassign with
-  | .let _ ghost    => ghost
-  | .reassign ghost => ghost
-  | .have           => false
+  | .let _ ghost => ghost
+  | _            => false
 
 def LetOrReassign.checkMutVars (letOrReassign : LetOrReassign) (vars : Array Ident) : DoElabM Unit :=
   match letOrReassign with
-  | .reassign _ => do
+  | .reassign => do
     throwUnlessMutVarsDeclared vars
-  | _           => checkMutVarsForShadowing vars
+  | _         => checkMutVarsForShadowing vars
 
 def LetOrReassign.registerReassignAliasInfo (letOrReassign : LetOrReassign) (vars : Array Ident) : DoElabM Unit := do
-  if letOrReassign matches .reassign _ then
+  if letOrReassign matches .reassign then
     for var in vars do
       registerMutVarAlias var.getId
 
 def elabWithReassignments (letOrReassign : LetOrReassign) (vars : Array Ident) (k : DoElabM Expr) : DoElabM Expr := do
-  declareMutVars? letOrReassign.getLetMutTk? vars letOrReassign.isGhost do
+  declareMutVars? letOrReassign.getLetMutTk? vars letOrReassign.isGhostDecl do
     letOrReassign.registerReassignAliasInfo vars
-    if letOrReassign.isGhost then
-      vars.foldr (init := k) withErasedProj
-    else
-      k
+    let ghostVars ← match letOrReassign with
+      | .let _ true => pure vars
+      | .reassign   => vars.filterM fun v => return ((← findMutVar? v.getId).map (·.ghost)).getD false
+      | _           => pure #[]
+    ghostVars.foldr (init := k) withErasedProj
 
 def elabDoLetOrReassignWith (hint : MessageData) (letOrReassign : LetOrReassign) (vars : Array Ident)
     (k : DoElabM Expr) (elabBody : (body : Term) → TermElabM Expr) : DoElabM Expr := do
@@ -64,7 +65,7 @@ def elabDoLetOrReassignWith (hint : MessageData) (letOrReassign : LetOrReassign)
   doElabToSyntax hint (elabWithReassignments letOrReassign vars k) fun body => elabBody body
 
 private def pushTypeIntoReassignment (letOrReassign : LetOrReassign) (decl : TSyntax ``letDecl) : TermElabM (TSyntax ``letDecl) := do
-  if letOrReassign matches .reassign false then
+  if letOrReassign matches .reassign then
     match decl with
     | `(letDecl| $x:ident $[: $xType?]? := $rhs) =>
       -- We use `Term.elabTermEnsuringType` instead of `Term.ensureHasType` to turn type
@@ -102,7 +103,7 @@ private def wrapGhostDecl (letOrReassign : LetOrReassign) (decl : TSyntax ``letD
   let `(letDecl| $x:ident $[: $t?]? := $e) := decl
     | throwErrorAt decl "`ghost` takes a variable"
   match letOrReassign with
-  | .reassign _ =>
+  | .reassign =>
     let t ← Term.exprToSyntax (← getLocalDeclFromUserName x.getId).type
     let e ← match t? with
       | some tAsc => `(Erased.mk ($e : $tAsc))
@@ -119,22 +120,19 @@ partial def elabDoLetOrReassign (config : Term.LetConfig) (letOrReassign : LetOr
   let vars ← getLetDeclVars decl
   letOrReassign.checkMutVars vars
   let dec ← dec.ensureUnitAt tk
-  -- A reassignment is a ghost reassignment iff its variable is ghost.
-  let letOrReassign ← do
-    if letOrReassign matches .reassign false then
-      match decl with
-      | `(letDecl| $x:ident $[: $_]? := $_) =>
-        pure (LetOrReassign.reassign (((← findMutVar? x.getId).map (·.ghost)).getD false))
-      | _ =>
-        for var in vars do
-          if ((← findMutVar? var.getId).map (·.ghost)).getD false then
-            throwErrorAt var "a ghost variable takes a plain reassignment, as in `{var.getId} := e`"
-        pure letOrReassign
+  -- Reassigning a ghost variable wraps its value, which only the single-variable form can do.
+  let isGhost ← do
+    if letOrReassign matches .reassign then
+      let some v ← vars.findM? fun v => return ((← findMutVar? v.getId).map (·.ghost)).getD false
+        | pure false
+      unless decl matches `(letDecl| $_:ident $[: $_]? := $_) do
+        throwErrorAt v "a ghost variable takes a plain reassignment, as in `{v.getId} := e`"
+      pure true
     else
-      pure letOrReassign
+      pure letOrReassign.isGhostDecl
   -- Some decl preprocessing on the patterns and expected types:
-  let decl ← if letOrReassign.isGhost then wrapGhostDecl letOrReassign decl else pure decl
-  let decl ← pushTypeIntoReassignment letOrReassign decl
+  let decl ← if isGhost then wrapGhostDecl letOrReassign decl
+             else pushTypeIntoReassignment letOrReassign decl
   let mγ ← mkMonadApp (← read).doBlockResultType
   match decl with
   | `(letDecl| $decl:letEqnsDecl) =>
@@ -209,7 +207,7 @@ def elabDoArrow (letOrReassign : LetOrReassign) (stx : TSyntax [``doIdDecl, ``do
   | `(doIdDecl| $x:ident $[: $xType?]? ← $rhs) =>
     letOrReassign.checkMutVars #[x]
     let dec ← dec.ensureUnitAt tk
-    if letOrReassign matches .reassign _ then
+    if letOrReassign matches .reassign then
       if ((← findMutVar? x.getId).map (·.ghost)).getD false then
         let y := mkIdentFrom x (← mkFreshUserName `__y)
         return ← elabDoIdDecl y xType? rhs
@@ -217,11 +215,11 @@ def elabDoArrow (letOrReassign : LetOrReassign) (stx : TSyntax [``doIdDecl, ``do
     -- For plain variable reassignment, we know the expected type of the reassigned variable and
     -- propagate it eagerly via type ascription if the user hasn't provided one themselves:
     let xType? ← match letOrReassign, xType? with
-      | .reassign _, none =>
+      | .reassign, none =>
         let decl ← getLocalDeclFromUserName x.getId
         some <$> Term.exprToSyntax decl.type
       | _, _ => pure xType?
-    elabDoIdDecl x xType? rhs (declareMutVar? letOrReassign.getLetMutTk? x letOrReassign.isGhost <| dec.continueWithUnit)
+    elabDoIdDecl x xType? rhs (declareMutVar? letOrReassign.getLetMutTk? x letOrReassign.isGhostDecl <| dec.continueWithUnit)
       (kind := dec.kind)
   | `(doPatDecl| _%$pattern $[: $patType?]? ← $rhs) =>
     let x := mkIdentFrom pattern (← mkFreshUserName `__x)
@@ -240,7 +238,7 @@ def elabDoArrow (letOrReassign : LetOrReassign) (stx : TSyntax [``doIdDecl, ``do
         throwUnsupportedSyntax
       | .have, _ =>
         elabDoElem (← `(doElem| have $pattern:term := $x)) dec
-      | .reassign _, _ =>
+      | .reassign, _ =>
         -- otherwise? is always `none`, because there is no `doReassignElse`
         unless rest?.isNone do
           throwError "reassignment with `|` (i.e., \"else clause\") is not supported"
@@ -294,10 +292,10 @@ private def getLetConfigAndCheckMut (letConfigStx : TSyntax ``Parser.Term.letCon
   | `(doReassign| $x:ident $[: $xType?]? :=%$tk $rhs) =>
     let decl : TSyntax ``letIdDecl ← `(letIdDecl| $x:ident $[: $xType?]? := $rhs)
     let decl : TSyntax ``letDecl := ⟨mkNode ``letDecl #[decl]⟩
-    elabDoLetOrReassign {} (.reassign false) decl tk dec
+    elabDoLetOrReassign {} .reassign decl tk dec
   | `(doReassign| $decl:letPatDecl) =>
     let decl : TSyntax ``letDecl := ⟨mkNode ``letDecl #[decl]⟩
-    elabDoLetOrReassign {} (.reassign false) decl decl dec
+    elabDoLetOrReassign {} .reassign decl decl dec
   | _ => throwUnsupportedSyntax
 
 @[builtin_doElem_elab Lean.Parser.Term.doLetElse] def elabDoLetElse : DoElab := fun stx dec => do
@@ -329,7 +327,7 @@ private def getLetConfigAndCheckMut (letConfigStx : TSyntax ``Parser.Term.letCon
 @[builtin_doElem_elab Lean.Parser.Term.doReassignArrow] def elabDoReassignArrow : DoElab := fun stx dec => do
   match stx with
   | `(doReassignArrow| $decl:doIdDecl) =>
-    elabDoArrow (.reassign false) decl decl dec
+    elabDoArrow .reassign decl decl dec
   | `(doReassignArrow| $decl:doPatDecl) =>
-    elabDoArrow (.reassign false) decl decl dec
+    elabDoArrow .reassign decl decl dec
   | _ => throwUnsupportedSyntax

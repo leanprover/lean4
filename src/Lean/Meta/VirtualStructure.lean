@@ -30,6 +30,9 @@ structure VirtualStructureInfo where
   ctorName : Name
   /-- The auto-generated projector, unwrapping a `typeName` value back to the underlying type. -/
   projName : Name
+  /-- The number of parameters of `typeName`. The constructor and projector take them as their
+  leading arguments, followed by the wrapped value resp. the `typeName` value. -/
+  numParams : Nat
   deriving Inhabited, Repr
 
 builtin_initialize virtualStructureTypeExt : MapDeclarationExtension VirtualStructureInfo ←

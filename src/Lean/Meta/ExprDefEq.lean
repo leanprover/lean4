@@ -215,11 +215,12 @@ as a real one-field structure, even though `N`, `N.mk` and `N.toNat` never unfol
 private def isDefEqVirtualEtaStruct (a b : Expr) : MetaM Bool := do
   let .const ctorName us := b.getAppFn | return false
   let some info ← getVirtualCtorInfo? ctorName | return false
-  unless b.getAppNumArgs == 1 do return false
+  unless b.getAppNumArgs == info.numParams + 1 do return false
   if let .const ctorName' _ := a.getAppFn then
     if ctorName' == info.ctorName then return false
   if (← isDefEq (← inferType a) (← inferType b)) then
-    checkpointDefEq <| isDefEq (mkApp (mkConst info.projName us) a) b.appArg!
+    let params := b.getAppArgs.extract 0 info.numParams
+    checkpointDefEq <| isDefEq (mkApp (mkAppN (mkConst info.projName us) params) a) b.appArg!
   else
     return false
 
@@ -2426,10 +2427,28 @@ private def isDefEqAppFallback (t : Expr) (s : Expr) : MetaM Bool := do
       Meta.throwIsDefEqStuck
     return false
 
+/--
+Virtual analog of `isDefEqProj.isDefEqSingleton` for `newtype`-generated projectors: solves
+`projName params (?m ...) =?= v` as `?m ... =?= ctorName params v`.
+-/
+private def isDefEqVirtualProj (t v : Expr) : MetaM Bool := do
+  let .const projName us := t.getAppFn | return false
+  let some info ← getVirtualProjInfo? projName | return false
+  unless t.getAppNumArgs == info.numParams + 1 do return false
+  let s ← whnf (t.getArg! info.numParams)
+  let sFn := s.getAppFn
+  unless sFn.isMVar do return false
+  if (← isAssignable sFn) then
+    let params := t.getAppArgs.extract 0 info.numParams
+    processAssignment' s (mkApp (mkAppN (mkConst info.ctorName us) params) v)
+  else
+    return false
+
 private def isExprDefEqExpensive (t : Expr) (s : Expr) : MetaM Bool := do
   whenUndefDo (isDefEqEta t s) do
   whenUndefDo (isDefEqEta s t) do
   if (← isDefEqProj t s) then return true
+  if (← (isDefEqVirtualProj t s <||> isDefEqVirtualProj s t)) then return true
   let t' ← whnfCore t
   let s' ← whnfCore s
   if t != t' || s != s' then

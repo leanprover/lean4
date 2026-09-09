@@ -371,6 +371,12 @@ mutual
               if let some mvarId ← getStuckMVar? (← whnf major) then
                 return mvarId
             return none
+          -- `newtype` projectors behave like `.proj` nodes, which are stuck iff their major is.
+          else if let some projInfo ← getVirtualProjInfo? fName then
+            if let some major := args[projInfo.numParams]? then
+              getStuckMVar? (← whnf major)
+            else
+              return none
           else
             return none
       | .proj _ _ e => getStuckMVar? (← whnf e)
@@ -565,12 +571,15 @@ independent of `ctorName`/`projName`'s reducibility status, even though `newtype
 -/
 def reduceVirtualProj? (e : Expr) : MetaM (Option Expr) := do
   let .const projName _ := e.getAppFn | return none
-  unless e.getAppNumArgs == 1 do return none
   let some projInfo ← getVirtualProjInfo? projName | return none
-  let arg ← whnf e.appArg!
-  let .const ctorName _ := arg.getAppFn | return none
-  unless ctorName == projInfo.ctorName && arg.getAppNumArgs == 1 do return none
-  return some arg.appArg!
+  let args := e.getAppArgs
+  let some majorArg := args[projInfo.numParams]? | return none
+  let major ← whnf majorArg
+  let .const ctorName _ := major.getAppFn | return none
+  unless ctorName == projInfo.ctorName && major.getAppNumArgs == projInfo.numParams + 1 do
+    return none
+  -- The projector may be over-applied if the wrapped value is a function.
+  return some (mkAppN major.appArg! (args.extract (projInfo.numParams + 1)))
 
 /--
   Auxiliary method for reducing terms of the form `?m t_1 ... t_n` where `?m` is delayed assigned.

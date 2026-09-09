@@ -8,45 +8,45 @@ module
 prelude
 public import Lean.Elab.Tactic.Basic
 public import Lean.Meta.VirtualStructure
+import Lean.Elab.Tactic.Config
 
 public section
-
-namespace Lean.Parser.Tactic
-
-/--
-`unsealing_newtype N => tacs` runs `tacs` with the `newtype`-declared type `N` -- together with
-its auto-generated constructor and projector -- treated as `[semireducible]` instead of
-`[irreducible]`. This is the escape hatch for a `newtype`: within the block, `N`, `N.mk` and its
-projector unfold like ordinary definitions, e.g. `N = Nat` can be proved by `rfl`.
--/
-syntax (name := unsealingNewtype) "unsealing_newtype " ident " => " tacticSeq : tactic
-
-end Lean.Parser.Tactic
 
 namespace Lean.Elab.Tactic
 open Meta
 
 /--
-Runs `t` with the declarations `names` treated as `[semireducible]`. The combinator underlying
-the `unsealing_newtype` tactic; see its docstring.
+Runs `t` with the declarations `names` treated as having reducibility status `status`. The
+combinator underlying the `unsealing_newtype` tactic; see its docstring.
 -/
-def unsealingNewtype [Monad m] [MonadEnv m] [MonadFinally m] (names : Array Name) (t : m α) :
-    m α := do
+def unsealingNewtype [Monad m] [MonadEnv m] [MonadFinally m] (names : Array Name)
+    (status : ReducibilityStatus := .semireducible) (t : m α) : m α := do
   modifyEnv reducibilityExtraExt.pushScope
   for n in names do
-    setLocalReducibilityStatus n .semireducible
+    setLocalReducibilityStatus n status
   try
     t
   finally
     modifyEnv reducibilityExtraExt.popScope
 
+declare_config_elab elabUnsealingNewtypeConfig Parser.Tactic.UnsealingNewtypeConfig
+
+def _root_.Lean.Parser.Tactic.UnsealingNewtypeReducibility.toReducibilityStatus :
+    Parser.Tactic.UnsealingNewtypeReducibility → ReducibilityStatus
+  | .reducible => .reducible
+  | .instanceReducible => .instanceReducible
+  | .implicitReducible => .implicitReducible
+  | .semireducible => .semireducible
+
 @[builtin_tactic Lean.Parser.Tactic.unsealingNewtype] def evalUnsealingNewtype : Tactic :=
   fun stx => do
-    let typeStx := stx[1]
+    let cfg ← elabUnsealingNewtypeConfig stx[1]
+    let typeStx := stx[2]
     let typeName ← resolveGlobalConstNoOverload typeStx
     let some info ← getVirtualStructureInfo? typeName
       | throwErrorAt typeStx "'{typeName}' is not a `newtype`-declared type"
     addConstInfo typeStx typeName
-    unsealingNewtype #[info.typeName, info.ctorName, info.projName] (evalTactic stx[3])
+    unsealingNewtype #[info.typeName, info.ctorName, info.projName]
+      cfg.reducibility.toReducibilityStatus (evalTactic stx[4])
 
 end Lean.Elab.Tactic

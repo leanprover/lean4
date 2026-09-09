@@ -1,5 +1,3 @@
-import Lean
-
 /-!
 Tests the `newtype` command. It generates an irreducible type alias together with a
 constructor/projector pair (`N`, `N.mk`, `N.toNat`), and registers the pair as a "virtual

@@ -1811,6 +1811,39 @@ syntax (name := applyRules) "apply_rules" optConfig (&" only")? (args)? (using_)
 end SolveByElim
 
 /--
+The reducibility status that `unsealing_newtype` temporarily assigns to a `newtype`-declared
+type, its constructor and its projector. Mirrors `Lean.ReducibilityStatus` without `irreducible`.
+-/
+inductive UnsealingNewtypeReducibility where
+  /-- Unfolded at reducible transparency and above. -/
+  | reducible
+  /-- Unfolded at instances transparency and above. -/
+  | instanceReducible
+  /-- Unfolded at implicit transparency and above. -/
+  | implicitReducible
+  /-- Unfolded at default transparency and above, like an ordinary definition. -/
+  | semireducible
+
+/--
+Configuration for the `unsealing_newtype` tactic.
+-/
+structure UnsealingNewtypeConfig where
+  /-- The reducibility status to use within the tactic block (default: `.semireducible`). -/
+  reducibility : UnsealingNewtypeReducibility := .semireducible
+
+/--
+`unsealing_newtype N => tacs` runs `tacs` with the `newtype`-declared type `N` -- together with
+its auto-generated constructor and projector -- treated as `[semireducible]` instead of
+`[irreducible]`. This is the escape hatch for a `newtype`: within the block, `N`, `N.mk` and its
+projector unfold like ordinary definitions, e.g. `N = Nat` can be proved by `rfl`.
+
+`unsealing_newtype (reducibility := .instanceReducible) N => tacs` uses the given reducibility
+status instead; see `UnsealingNewtypeReducibility`.
+-/
+syntax (name := unsealingNewtype)
+  "unsealing_newtype " optConfig ident " => " tacticSeq : tactic
+
+/--
 Configuration for the `exact?` and `apply?` tactics.
 -/
 structure LibrarySearchConfig where

@@ -1,5 +1,3 @@
-import Lean
-
 /-!
 Tests the `unsealing_newtype` tactic combinator: it is the escape hatch for a `newtype`-declared
 type, temporarily relaxing `N`/`N.mk`/`N.toNat` from `[irreducible]` to `[semireducible]` for the
@@ -19,6 +17,22 @@ theorem foo : N = Nat := by unsealing_newtype N => rfl
 -- `N` is only `[semireducible]`, so it does not unfold at reducible transparency.
 theorem foo' : N = Nat := by
   unsealing_newtype N =>
+    fail_if_success with_reducible rfl
+    rfl
+
+-- The reducibility status can be chosen via the `reducibility` option.
+example : N = Nat := by
+  unsealing_newtype (reducibility := .reducible) N => with_reducible rfl
+example : N = Nat := by
+  unsealing_newtype (reducibility := .instanceReducible) N =>
+    fail_if_success with_reducible rfl
+    with_reducible_and_instances rfl
+example : N = Nat := by
+  unsealing_newtype (reducibility := .implicitReducible) N =>
+    fail_if_success with_reducible_and_instances rfl
+    with_implicit rfl
+example : N = Nat := by
+  unsealing_newtype (reducibility := .semireducible) N =>
     fail_if_success with_reducible rfl
     rfl
 

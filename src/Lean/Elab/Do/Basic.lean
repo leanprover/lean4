@@ -6,7 +6,7 @@ Authors: Sebastian Graf
 module
 
 prelude
-import Init.Data.Erased
+meta import Init.Data.Erased
 public import Lean.Elab.Do.InferControlInfo
 public import Lean.Elab.Binders
 import Lean.Meta.ProdN
@@ -104,9 +104,8 @@ structure MutVar where
   ident : Ident
   /-- The `FVarId` of the initial binding produced by the declaration. -/
   baseId : FVarId
-  /-- Whether the variable comes from `ghost mut`. Its bindings alternate under one name: a
-  carried `Erased` binding, shadowed by the `.out` shadow that the source reads. -/
-  ghost : Bool := false
+  /-- Whether the variable comes from `ghost mut`. -/
+  ghost : Bool
   deriving Inhabited
 
 /-- The raw `Name` of a `mut` variable, as found in the local context. -/
@@ -609,20 +608,19 @@ def registerMutVarAlias (x : Name) : DoElabM Unit := do
 /-- Bind `x` to `carried.out` at the underlying type while `k` runs, and zeta-substitute the
 binding away, so the source name reaches proofs and never compiled code. The newest binding of
 `x` must be the carried `Erased` binding. -/
-def withGhostShadow (x : Ident) (k : DoElabM Expr) : DoElabM Expr := do
+def withErasedProj (x : Ident) (k : DoElabM Expr) : DoElabM Expr := do
   let carried ← getLocalDeclFromUserName x.getId
-  let ty ← instantiateMVars carried.type
-  let .app (.const ``Erased [u]) t := ty
-    | throwError "the carried binding of ghost variable `{x.getId}` has type{indentExpr ty}\ninstead of an `Erased` type"
-  let outVal := mkApp2 (mkConst ``Erased.out [u]) t carried.toExpr
+  let_expr c@Erased t ← carried.type
+    | throwError "the carried binding of ghost variable `{x.getId}` has type{indentExpr carried.type}\ninstead of an `Erased` type"
+  let outVal := mkApp2 (mkConst ``Erased.out c.constLevels!) t carried.toExpr
   withLetDecl x.getId t outVal (nondep := true) fun xv => do
     Term.addLocalVarInfo x xv
     let body ← k
     return (← body.abstractM #[xv]).instantiate1 outVal
 
-/-- Bind the `.out` shadow of each ghost variable among `mutVars` around `k`. -/
-def withGhostShadows (mutVars : Array MutVar) (k : DoElabM Expr) : DoElabM Expr :=
-  (mutVars.filter (·.ghost)).foldr (init := k) fun mv k => withGhostShadow mv.ident k
+/-- Bind the `.out` projection of each ghost variable among `mutVars` around `k`. -/
+def withErasedProjs (mutVars : Array MutVar) (k : DoElabM Expr) : DoElabM Expr :=
+  (mutVars.filter (·.ghost)).foldr (init := k) fun mv k => withErasedProj mv.ident k
 
 /-- `Erased t` for the type `t` of runtime-erased data. -/
 def mkErasedApp (t : Expr) : MetaM Expr :=
@@ -639,7 +637,7 @@ fields of the tuple and call `k` in the resulting local context.
 -/
 def bindMutVarsFromTuple (vars : List Name) (tupleVar : FVarId) (k : DoElabM Expr) : DoElabM Expr := do
   let ghosts := (← read).mutVars.filter fun mv => mv.ghost && vars.contains mv.getId
-  let k := withGhostShadows ghosts k
+  let k := withErasedProjs ghosts k
   go vars tupleVar (← tupleVar.getType) #[] k
 where
   go vars tupleVar tupleTy letFVars k := do
@@ -721,7 +719,7 @@ def DoElemCont.withDuplicableCont (nondupDec : DoElemCont) (callerInfo : Control
   -- σ is the tuple type of the mut vars, or mγ if jumpCount = 0. Hence it is either level mi.u or mi.v.
   -- let σ ← mkFreshTypeMVar (userName := `σ)
   let mutDecls ← mutVarNames.mapM (getLocalDeclFromUserName ·)
-  -- A ghost variable's join parameter carries the `Erased` value; the shadow rebinds below.
+  -- A ghost variable's join parameter carries the `Erased` value; its projection rebinds below.
   let mutTypes ← (mutVars.zip mutDecls).mapM fun (mv, d) =>
     if mv.ghost then mkErasedApp d.type else pure d.type
   let joinTy ← mkArrow nondupDec.resultType (← mkArrowN mutTypes mγ)
@@ -748,7 +746,7 @@ def DoElemCont.withDuplicableCont (nondupDec : DoElemCont) (callerInfo : Control
     withLocalDeclD nondupDec.resultName nondupDec.resultType fun r => do
     withLocalDeclsDND ((mutDecls.zip mutTypes).map fun (d, t) => (d.userName, t)) fun muts => do
     for (x, newX) in mutVars.zip muts do Term.addTermInfo' x.ident newX
-    let e ← withGhostShadows mutVars (nondupDec.withDeadCodeFromInfo callerInfo).k
+    let e ← withErasedProjs mutVars (nondupDec.withDeadCodeFromInfo callerInfo).k
     mkLambdaFVars (#[r] ++ muts) e
   unless ← joinRhsMVar.mvarId!.checkedAssign joinRhs do
     joinRhsMVar.mvarId!.withContext do

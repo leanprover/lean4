@@ -64,7 +64,7 @@ def notFollowedByRedefinedTermToken :=
   -- If we don't add `do`, then users would have to indent `do` blocks or use `{ ... }`.
   notFollowedBy ("set_option" <|> "open" <|> "if" <|> "match" <|> "match_expr" <|> "let" <|> "let_expr" <|> "have" <|>
       "do" <|> "dbg_trace" <|> "idbg" <|> "assert!" <|> "debug_assert!" <|> "for" <|> "unless" <|> "return" <|> symbol "try" <|>
-      nonReservedSymbol "ghost ")
+      nonReservedSymbol "ghost")
     "token at 'do' element"
 
 namespace InternalSyntax

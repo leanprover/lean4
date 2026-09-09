@@ -6,7 +6,7 @@ Authors: Sebastian Graf
 module
 
 prelude
-import Init.Data.Erased  -- referenced by the ghost shadow quotations
+meta import Init.Data.Erased
 public import Lean.Elab.BuiltinDo.Basic
 meta import Lean.Parser.Do
 meta import Std.WP.Gadget.ForIn
@@ -171,12 +171,12 @@ structure ForInApp where
   /-- The pattern naming the loop's mutable variables in the state tuple. -/
   statePat : Term
   /-- The ghost variables among the loop's mutable variables; annotations bind their `.out`
-  shadows over the state tuple. -/
+  projections over the state tuple. -/
   ghostMutVars : Array MutVar := #[]
 
-/-- Bind the `.out` shadow of each ghost variable over `e`, so that an annotation names ghost
+/-- Bind the `.out` projection of each ghost variable over `e`, so that an annotation names ghost
 variables at their underlying type. The bindings sit in erased positions, so they compile. -/
-private def ForInApp.wrapGhostShadows (g : ForInApp) (e : Term) : DoElabM Term := do
+private def ForInApp.wrapErasedProjs (g : ForInApp) (e : Term) : DoElabM Term := do
   let mut e := e
   for mv in g.ghostMutVars do
     e ← `(let $(mv.ident):ident := Erased.out $(⟨mv.ident.raw⟩); $e)
@@ -184,7 +184,7 @@ private def ForInApp.wrapGhostShadows (g : ForInApp) (e : Term) : DoElabM Term :
 
 /-- Abstract `e` over the loop's state tuple, so that `e` may name the loop's mutable variables. -/
 private def ForInApp.mkStateFun (g : ForInApp) (e : Term) : DoElabM Term := do
-  `(fun $(g.statePat) => $(← g.wrapGhostShadows e))
+  `(fun $(g.statePat) => $(← g.wrapErasedProjs e))
 
 /-- Elaborate the gadget application that replaces the loop. The gadgets live downstream of this
 module, so `gadget` is an unresolved name that resolves in the user's context. -/
@@ -254,7 +254,7 @@ private def mkForInLoopGadget (g : ForInApp)
     -- unfolded type, and a specification's instance arguments are synthesized before the check that
     -- would unfold it.
     return ((invClause : Syntax), ← `($(mkIdent ``Std.WP.WhileInvariant.mk)
-      fun $exitVar:ident $(g.statePat) => $(← g.wrapGhostShadows invBody)))
+      fun $exitVar:ident $(g.statePat) => $(← g.wrapErasedProjs invBody)))
   let varArg? ← dec?.mapM fun decClause => do
     let (binders, body) ← match decClause with
       | `(doLoopDecreasing| decreasing $binders* => $body) => pure (binders, body)
@@ -310,7 +310,7 @@ private def mkForInLoopGadget (g : ForInApp)
     for x in loopMutVars do
       let defn ← getLocalDeclFromUserName x.getId
       Term.addTermInfo' x.ident defn.toExpr
-      -- A ghost variable's state slot carries the `Erased` value; the shadow rebinds at unpacking.
+      -- A ghost variable's state slot carries the `Erased` value; its projection rebinds at unpacking.
       let v ← if x.ghost then mkErasedMkApp defn.toExpr else pure defn.toExpr
       -- ForIn forces the mut tuple into the universe mi.u: that of the do block result type.
       -- If we don't do this, then we are stuck on solving constraints such as

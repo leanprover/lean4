@@ -904,7 +904,7 @@ LEAN_EXPORT lean_object* l_Lean_Elab_addMacroStack___at___00Lean_throwError___at
 _start:
 {
 lean_object* v_options_179_; lean_object* v___x_180_; uint8_t v___x_181_; 
-v_options_179_ = lean_ctor_get(v___y_177_, 2);
+v_options_179_ = lean_ctor_get(v___y_177_, 1);
 v___x_180_ = l_Lean_Elab_pp_macroStack;
 v___x_181_ = l_Lean_Option_get___at___00Lean_Elab_addMacroStack___at___00Lean_throwError___at___00__private_Lean_Elab_Do_PatternVar_0__Lean_Elab_Do_getLetIdVars_spec__0_spec__1_spec__2(v_options_179_, v___x_180_);
 if (v___x_181_ == 0)
@@ -1013,7 +1013,7 @@ v_mctx_216_ = lean_ctor_get(v___x_215_, 0);
 lean_inc_ref(v_mctx_216_);
 lean_dec(v___x_215_);
 v_lctx_217_ = lean_ctor_get(v___y_208_, 2);
-v_options_218_ = lean_ctor_get(v___y_210_, 2);
+v_options_218_ = lean_ctor_get(v___y_210_, 1);
 lean_inc_ref(v_options_218_);
 lean_inc_ref(v_lctx_217_);
 v___x_219_ = lean_alloc_ctor(0, 4, 0);
@@ -1045,7 +1045,7 @@ LEAN_EXPORT lean_object* l_Lean_throwError___at___00__private_Lean_Elab_Do_Patte
 _start:
 {
 lean_object* v_ref_237_; lean_object* v___x_238_; lean_object* v_a_239_; lean_object* v_macroStack_240_; lean_object* v___x_241_; lean_object* v___x_242_; lean_object* v_a_243_; lean_object* v___x_245_; uint8_t v_isShared_246_; uint8_t v_isSharedCheck_251_; 
-v_ref_237_ = lean_ctor_get(v___y_234_, 5);
+v_ref_237_ = lean_ctor_get(v___y_234_, 4);
 v___x_238_ = l_Lean_addMessageContextFull___at___00Lean_throwError___at___00__private_Lean_Elab_Do_PatternVar_0__Lean_Elab_Do_getLetIdVars_spec__0_spec__0(v_msg_229_, v___y_232_, v___y_233_, v___y_234_, v___y_235_);
 v_a_239_ = lean_ctor_get(v___x_238_, 0);
 lean_inc(v_a_239_);

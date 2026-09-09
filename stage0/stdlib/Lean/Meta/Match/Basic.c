@@ -4225,7 +4225,7 @@ v_mctx_1101_ = lean_ctor_get(v___x_1100_, 0);
 lean_inc_ref(v_mctx_1101_);
 lean_dec(v___x_1100_);
 v_lctx_1102_ = lean_ctor_get(v___y_1093_, 2);
-v_options_1103_ = lean_ctor_get(v___y_1095_, 2);
+v_options_1103_ = lean_ctor_get(v___y_1095_, 1);
 lean_inc_ref(v_options_1103_);
 lean_inc_ref(v_lctx_1102_);
 v___x_1104_ = lean_alloc_ctor(0, 4, 0);
@@ -7429,7 +7429,7 @@ LEAN_EXPORT lean_object* l_Lean_throwError___at___00Lean_Meta_Match_toPattern_sp
 _start:
 {
 lean_object* v_ref_2126_; lean_object* v___x_2127_; lean_object* v_a_2128_; lean_object* v___x_2130_; uint8_t v_isShared_2131_; uint8_t v_isSharedCheck_2136_; 
-v_ref_2126_ = lean_ctor_get(v___y_2123_, 5);
+v_ref_2126_ = lean_ctor_get(v___y_2123_, 4);
 v___x_2127_ = l_Lean_addMessageContextFull___at___00Lean_Meta_Match_Alt_toMessageData_spec__2(v_msg_2120_, v___y_2121_, v___y_2122_, v___y_2123_, v___y_2124_);
 v_a_2128_ = lean_ctor_get(v___x_2127_, 0);
 v_isSharedCheck_2136_ = !lean_is_exclusive(v___x_2127_);

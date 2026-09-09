@@ -74,10 +74,11 @@ structure TerminationHints where
   -/
   extraParams : Nat
   /--
-  Don't warn for redundant termination hints. This is useful when constructing a `PreDefinition`
-  automatically, e.g. inside of deriving handlers.
+  In cases where pre-definitions are generated programmatically, we may want to provide termination
+  hints but don't want warnings if they turn out to be redundant. For these cases, you can set
+  `warnIfRedundant := false`.
   -/
-  noWarnOnRedundant : Bool := false
+  warnIfRedundant : Bool := true
   deriving Inhabited
 
 def isInductiveFixpoint : PartialFixpointType → Bool
@@ -95,11 +96,11 @@ def isPartialFixpoint : PartialFixpointType → Bool
 def isLatticeTheoretic (p : PartialFixpointType) : Bool :=
   isInductiveFixpoint p ∨ isCoinductiveFixpoint p
 
-def TerminationHints.none : TerminationHints := ⟨.missing, .none, .none, .none, .none, 0, false⟩
+def TerminationHints.none : TerminationHints := ⟨.missing, .none, .none, .none, .none, 0, true⟩
 
 /-- Logs warnings when the `TerminationHints` are unexpectedly present.  -/
 def TerminationHints.ensureNone (hints : TerminationHints) (reason : String) : CoreM Unit := do
-  if hints.noWarnOnRedundant then
+  unless hints.warnIfRedundant do
     return
   match hints.terminationBy??, hints.terminationBy?, hints.decreasingBy?, hints.partialFixpoint? with
   | .none, .none, .none, .none => pure ()

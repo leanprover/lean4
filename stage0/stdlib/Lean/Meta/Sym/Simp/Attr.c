@@ -290,7 +290,7 @@ LEAN_EXPORT lean_object* l_Lean_ScopedEnvExtension_add___at___00Lean_Meta_Sym_Si
 _start:
 {
 lean_object* v_currNamespace_15_; lean_object* v___x_16_; lean_object* v_env_17_; lean_object* v_nextMacroScope_18_; lean_object* v_ngen_19_; lean_object* v_auxDeclNGen_20_; lean_object* v_traceState_21_; lean_object* v_messages_22_; lean_object* v_infoState_23_; lean_object* v_snapshotTasks_24_; lean_object* v___x_26_; uint8_t v_isShared_27_; uint8_t v_isSharedCheck_51_; 
-v_currNamespace_15_ = lean_ctor_get(v___y_12_, 6);
+v_currNamespace_15_ = lean_ctor_get(v___y_12_, 5);
 v___x_16_ = lean_st_ref_take(v___y_13_);
 v_env_17_ = lean_ctor_get(v___x_16_, 0);
 v_nextMacroScope_18_ = lean_ctor_get(v___x_16_, 1);
@@ -969,7 +969,7 @@ v___x_295_ = lean_st_ref_get(v___y_293_);
 v_env_296_ = lean_ctor_get(v___x_295_, 0);
 lean_inc_ref(v_env_296_);
 lean_dec(v___x_295_);
-v_options_297_ = lean_ctor_get(v___y_292_, 2);
+v_options_297_ = lean_ctor_get(v___y_292_, 1);
 v___x_298_ = lean_obj_once(&l_Lean_addMessageContextPartial___at___00Lean_throwError___at___00Lean_Meta_Sym_Simp_mkSymSimpAttr_spec__0_spec__0___closed__2, &l_Lean_addMessageContextPartial___at___00Lean_throwError___at___00Lean_Meta_Sym_Simp_mkSymSimpAttr_spec__0_spec__0___closed__2_once, _init_l_Lean_addMessageContextPartial___at___00Lean_throwError___at___00Lean_Meta_Sym_Simp_mkSymSimpAttr_spec__0_spec__0___closed__2);
 v___x_299_ = lean_obj_once(&l_Lean_addMessageContextPartial___at___00Lean_throwError___at___00Lean_Meta_Sym_Simp_mkSymSimpAttr_spec__0_spec__0___closed__5, &l_Lean_addMessageContextPartial___at___00Lean_throwError___at___00Lean_Meta_Sym_Simp_mkSymSimpAttr_spec__0_spec__0___closed__5_once, _init_l_Lean_addMessageContextPartial___at___00Lean_throwError___at___00Lean_Meta_Sym_Simp_mkSymSimpAttr_spec__0_spec__0___closed__5);
 lean_inc_ref(v_options_297_);
@@ -1000,7 +1000,7 @@ LEAN_EXPORT lean_object* l_Lean_throwError___at___00Lean_Meta_Sym_Simp_mkSymSimp
 _start:
 {
 lean_object* v_ref_312_; lean_object* v___x_313_; lean_object* v_a_314_; lean_object* v___x_316_; uint8_t v_isShared_317_; uint8_t v_isSharedCheck_322_; 
-v_ref_312_ = lean_ctor_get(v___y_309_, 5);
+v_ref_312_ = lean_ctor_get(v___y_309_, 4);
 v___x_313_ = l_Lean_addMessageContextPartial___at___00Lean_throwError___at___00Lean_Meta_Sym_Simp_mkSymSimpAttr_spec__0_spec__0(v_msg_308_, v___y_309_, v___y_310_);
 v_a_314_ = lean_ctor_get(v___x_313_, 0);
 v_isSharedCheck_322_ = !lean_is_exclusive(v___x_313_);

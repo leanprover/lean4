@@ -345,19 +345,7 @@ static inline void dec(lean_object * o, lean_object* & todo) {
     }
 }
 
-#ifdef LEAN_LAZY_RC
-LEAN_THREAD_PTR(object, g_to_free);
-#endif
-
-static object * lean_del_core(object * o, object * todo);
-
 extern "C" LEAN_EXPORT lean_object * lean_alloc_object(size_t sz) {
-#ifdef LEAN_LAZY_RC
-     if (g_to_free) {
-         object * o = pop_back(g_to_free);
-         g_to_free = lean_del_core(o, g_to_free);
-     }
-#endif
 #ifdef LEAN_MIMALLOC
     void * r = mi_malloc(sz);
     if (r == nullptr) lean_internal_panic_out_of_memory();
@@ -473,9 +461,6 @@ extern "C" LEAN_EXPORT void lean_dec_ref_cold(lean_object * o) {
         if (std::atomic_fetch_add_explicit(lean_get_rc_mt_addr(o), 1, std::memory_order_acq_rel) != -1)
             return;
     }
-#ifdef LEAN_LAZY_RC
-    push_back(g_to_free, o);
-#else
     object * todo = nullptr;
     while (true) {
         todo = lean_del_core(o, todo);
@@ -483,7 +468,6 @@ extern "C" LEAN_EXPORT void lean_dec_ref_cold(lean_object * o) {
             return;
         o = pop_back(todo);
     }
-#endif
 }
 
 

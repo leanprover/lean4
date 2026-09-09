@@ -2258,7 +2258,7 @@ v___x_616_ = lean_st_ref_get(v___y_614_);
 v_env_617_ = lean_ctor_get(v___x_616_, 0);
 lean_inc_ref(v_env_617_);
 lean_dec(v___x_616_);
-v_options_618_ = lean_ctor_get(v___y_613_, 2);
+v_options_618_ = lean_ctor_get(v___y_613_, 1);
 v___x_619_ = lean_obj_once(&l_Lean_addMessageContextPartial___at___00Lean_throwError___at___00Lean_Core_CoreM_parFirst_spec__1_spec__1___closed__2, &l_Lean_addMessageContextPartial___at___00Lean_throwError___at___00Lean_Core_CoreM_parFirst_spec__1_spec__1___closed__2_once, _init_l_Lean_addMessageContextPartial___at___00Lean_throwError___at___00Lean_Core_CoreM_parFirst_spec__1_spec__1___closed__2);
 v___x_620_ = lean_obj_once(&l_Lean_addMessageContextPartial___at___00Lean_throwError___at___00Lean_Core_CoreM_parFirst_spec__1_spec__1___closed__5, &l_Lean_addMessageContextPartial___at___00Lean_throwError___at___00Lean_Core_CoreM_parFirst_spec__1_spec__1___closed__5_once, _init_l_Lean_addMessageContextPartial___at___00Lean_throwError___at___00Lean_Core_CoreM_parFirst_spec__1_spec__1___closed__5);
 lean_inc_ref(v_options_618_);
@@ -2289,7 +2289,7 @@ LEAN_EXPORT lean_object* l_Lean_throwError___at___00Lean_Core_CoreM_parFirst_spe
 _start:
 {
 lean_object* v_ref_633_; lean_object* v___x_634_; lean_object* v_a_635_; lean_object* v___x_637_; uint8_t v_isShared_638_; uint8_t v_isSharedCheck_643_; 
-v_ref_633_ = lean_ctor_get(v___y_630_, 5);
+v_ref_633_ = lean_ctor_get(v___y_630_, 4);
 v___x_634_ = l_Lean_addMessageContextPartial___at___00Lean_throwError___at___00Lean_Core_CoreM_parFirst_spec__1_spec__1(v_msg_629_, v___y_630_, v___y_631_);
 v_a_635_ = lean_ctor_get(v___x_634_, 0);
 v_isSharedCheck_643_ = !lean_is_exclusive(v___x_634_);
@@ -4366,7 +4366,7 @@ v_mctx_1399_ = lean_ctor_get(v___x_1398_, 0);
 lean_inc_ref(v_mctx_1399_);
 lean_dec(v___x_1398_);
 v_lctx_1400_ = lean_ctor_get(v___y_1391_, 2);
-v_options_1401_ = lean_ctor_get(v___y_1393_, 2);
+v_options_1401_ = lean_ctor_get(v___y_1393_, 1);
 lean_inc_ref(v_options_1401_);
 lean_inc_ref(v_lctx_1400_);
 v___x_1402_ = lean_alloc_ctor(0, 4, 0);
@@ -4398,7 +4398,7 @@ LEAN_EXPORT lean_object* l_Lean_throwError___at___00Lean_Meta_MetaM_parFirst_spe
 _start:
 {
 lean_object* v_ref_1418_; lean_object* v___x_1419_; lean_object* v_a_1420_; lean_object* v___x_1422_; uint8_t v_isShared_1423_; uint8_t v_isSharedCheck_1428_; 
-v_ref_1418_ = lean_ctor_get(v___y_1415_, 5);
+v_ref_1418_ = lean_ctor_get(v___y_1415_, 4);
 v___x_1419_ = l_Lean_addMessageContextFull___at___00Lean_throwError___at___00Lean_Meta_MetaM_parFirst_spec__1_spec__1(v_msg_1412_, v___y_1413_, v___y_1414_, v___y_1415_, v___y_1416_);
 v_a_1420_ = lean_ctor_get(v___x_1419_, 0);
 v_isSharedCheck_1428_ = !lean_is_exclusive(v___x_1419_);
@@ -6419,7 +6419,7 @@ LEAN_EXPORT lean_object* l_Lean_Elab_addMacroStack___at___00Lean_throwError___at
 _start:
 {
 lean_object* v_options_2239_; lean_object* v___x_2240_; uint8_t v___x_2241_; 
-v_options_2239_ = lean_ctor_get(v___y_2237_, 2);
+v_options_2239_ = lean_ctor_get(v___y_2237_, 1);
 v___x_2240_ = l_Lean_Elab_pp_macroStack;
 v___x_2241_ = l_Lean_Option_get___at___00Lean_Elab_addMacroStack___at___00Lean_throwError___at___00Lean_Elab_Term_TermElabM_parFirst_spec__1_spec__1_spec__2(v_options_2239_, v___x_2240_);
 if (v___x_2241_ == 0)
@@ -6519,7 +6519,7 @@ LEAN_EXPORT lean_object* l_Lean_throwError___at___00Lean_Elab_Term_TermElabM_par
 _start:
 {
 lean_object* v_ref_2275_; lean_object* v___x_2276_; lean_object* v_a_2277_; lean_object* v_macroStack_2278_; lean_object* v___x_2279_; lean_object* v___x_2280_; lean_object* v_a_2281_; lean_object* v___x_2283_; uint8_t v_isShared_2284_; uint8_t v_isSharedCheck_2289_; 
-v_ref_2275_ = lean_ctor_get(v___y_2272_, 5);
+v_ref_2275_ = lean_ctor_get(v___y_2272_, 4);
 v___x_2276_ = l_Lean_addMessageContextFull___at___00Lean_throwError___at___00Lean_Meta_MetaM_parFirst_spec__1_spec__1(v_msg_2267_, v___y_2270_, v___y_2271_, v___y_2272_, v___y_2273_);
 v_a_2277_ = lean_ctor_get(v___x_2276_, 0);
 lean_inc(v_a_2277_);
@@ -9347,7 +9347,7 @@ LEAN_EXPORT lean_object* l_Lean_throwError___at___00Lean_Elab_Tactic_TacticM_par
 _start:
 {
 lean_object* v_ref_3429_; lean_object* v___x_3430_; lean_object* v_a_3431_; lean_object* v___x_3433_; uint8_t v_isShared_3434_; uint8_t v_isSharedCheck_3439_; 
-v_ref_3429_ = lean_ctor_get(v___y_3426_, 5);
+v_ref_3429_ = lean_ctor_get(v___y_3426_, 4);
 v___x_3430_ = l_Lean_addMessageContextFull___at___00Lean_throwError___at___00Lean_Meta_MetaM_parFirst_spec__1_spec__1(v_msg_3423_, v___y_3424_, v___y_3425_, v___y_3426_, v___y_3427_);
 v_a_3431_ = lean_ctor_get(v___x_3430_, 0);
 v_isSharedCheck_3439_ = !lean_is_exclusive(v___x_3430_);

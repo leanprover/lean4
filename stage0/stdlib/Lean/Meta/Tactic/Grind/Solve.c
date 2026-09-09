@@ -255,7 +255,7 @@ goto v_resetjp_52_;
 v_resetjp_52_:
 {
 lean_object* v_ref_55_; lean_object* v___x_56_; lean_object* v___x_57_; lean_object* v___x_58_; lean_object* v___x_59_; lean_object* v___x_61_; 
-v_ref_55_ = lean_ctor_get(v_a_9_, 5);
+v_ref_55_ = lean_ctor_get(v_a_9_, 4);
 v___x_56_ = lean_io_error_to_string(v_a_51_);
 v___x_57_ = lean_alloc_ctor(3, 1, 0);
 lean_ctor_set(v___x_57_, 0, v___x_56_);

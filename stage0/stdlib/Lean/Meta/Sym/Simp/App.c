@@ -1351,7 +1351,7 @@ v_mctx_309_ = lean_ctor_get(v___x_308_, 0);
 lean_inc_ref(v_mctx_309_);
 lean_dec(v___x_308_);
 v_lctx_310_ = lean_ctor_get(v___y_301_, 2);
-v_options_311_ = lean_ctor_get(v___y_303_, 2);
+v_options_311_ = lean_ctor_get(v___y_303_, 1);
 lean_inc_ref(v_options_311_);
 lean_inc_ref(v_lctx_310_);
 v___x_312_ = lean_alloc_ctor(0, 4, 0);
@@ -1383,7 +1383,7 @@ LEAN_EXPORT lean_object* l_Lean_throwError___at___00__private_Lean_Meta_Sym_Simp
 _start:
 {
 lean_object* v_ref_328_; lean_object* v___x_329_; lean_object* v_a_330_; lean_object* v___x_332_; uint8_t v_isShared_333_; uint8_t v_isSharedCheck_338_; 
-v_ref_328_ = lean_ctor_get(v___y_325_, 5);
+v_ref_328_ = lean_ctor_get(v___y_325_, 4);
 v___x_329_ = l_Lean_addMessageContextFull___at___00Lean_throwError___at___00__private_Lean_Meta_Sym_Simp_App_0__Lean_Meta_Sym_Simp_mkCongrFun_spec__0_spec__0(v_msg_322_, v___y_323_, v___y_324_, v___y_325_, v___y_326_);
 v_a_330_ = lean_ctor_get(v___x_329_, 0);
 v_isSharedCheck_338_ = !lean_is_exclusive(v___x_329_);

@@ -1558,7 +1558,7 @@ v_mctx_409_ = lean_ctor_get(v___x_408_, 0);
 lean_inc_ref(v_mctx_409_);
 lean_dec(v___x_408_);
 v_lctx_410_ = lean_ctor_get(v___y_401_, 2);
-v_options_411_ = lean_ctor_get(v___y_403_, 2);
+v_options_411_ = lean_ctor_get(v___y_403_, 1);
 lean_inc_ref(v_options_411_);
 lean_inc_ref(v_lctx_410_);
 v___x_412_ = lean_alloc_ctor(0, 4, 0);
@@ -2867,7 +2867,7 @@ LEAN_EXPORT lean_object* l___private_Lean_Meta_Tactic_Grind_EMatchDiagnostics_0_
 _start:
 {
 lean_object* v_options_945_; lean_object* v_buckets_946_; lean_object* v___f_947_; lean_object* v___x_948_; lean_object* v___x_949_; lean_object* v___y_951_; lean_object* v___x_980_; lean_object* v___x_981_; lean_object* v___x_982_; uint8_t v___x_983_; 
-v_options_945_ = lean_ctor_get(v_a_942_, 2);
+v_options_945_ = lean_ctor_get(v_a_942_, 1);
 v_buckets_946_ = lean_ctor_get(v_a_939_, 1);
 v___f_947_ = lean_alloc_closure((void*)(l___private_Lean_Meta_Tactic_Grind_EMatchDiagnostics_0__Lean_Meta_Grind_mkBranchingMessages___lam__0___boxed), 3, 1);
 lean_closure_set(v___f_947_, 0, v_cost_938_);
@@ -3998,7 +3998,7 @@ return v___x_1393_;
 v___jp_1396_:
 {
 lean_object* v_options_1400_; lean_object* v___f_1401_; lean_object* v___x_1402_; lean_object* v___x_1403_; double v___x_1404_; lean_object* v___x_1405_; lean_object* v___x_1406_; uint8_t v___x_1407_; 
-v_options_1400_ = lean_ctor_get(v_a_1350_, 2);
+v_options_1400_ = lean_ctor_get(v_a_1350_, 1);
 lean_inc_ref(v___y_1399_);
 v___f_1401_ = lean_alloc_closure((void*)(l___private_Lean_Meta_Tactic_Grind_EMatchDiagnostics_0__Lean_Meta_Grind_mkCostMessages___lam__0___boxed), 3, 1);
 lean_closure_set(v___f_1401_, 0, v___y_1399_);

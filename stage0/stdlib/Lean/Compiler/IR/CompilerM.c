@@ -906,7 +906,7 @@ v___x_176_ = lean_st_ref_get(v___y_174_);
 v_env_177_ = lean_ctor_get(v___x_176_, 0);
 lean_inc_ref(v_env_177_);
 lean_dec(v___x_176_);
-v_options_178_ = lean_ctor_get(v___y_173_, 2);
+v_options_178_ = lean_ctor_get(v___y_173_, 1);
 v___x_179_ = lean_obj_once(&l_Lean_addMessageContextPartial___at___00Lean_addTrace___at___00Lean_IR_log_spec__0_spec__0___closed__2, &l_Lean_addMessageContextPartial___at___00Lean_addTrace___at___00Lean_IR_log_spec__0_spec__0___closed__2_once, _init_l_Lean_addMessageContextPartial___at___00Lean_addTrace___at___00Lean_IR_log_spec__0_spec__0___closed__2);
 v___x_180_ = lean_obj_once(&l_Lean_addMessageContextPartial___at___00Lean_addTrace___at___00Lean_IR_log_spec__0_spec__0___closed__5, &l_Lean_addMessageContextPartial___at___00Lean_addTrace___at___00Lean_IR_log_spec__0_spec__0___closed__5_once, _init_l_Lean_addMessageContextPartial___at___00Lean_addTrace___at___00Lean_IR_log_spec__0_spec__0___closed__5);
 lean_inc_ref(v_options_178_);
@@ -946,7 +946,7 @@ LEAN_EXPORT lean_object* l_Lean_addTrace___at___00Lean_IR_log_spec__0(lean_objec
 _start:
 {
 lean_object* v_ref_199_; lean_object* v___x_200_; lean_object* v_a_201_; lean_object* v___x_203_; uint8_t v_isShared_204_; uint8_t v_isSharedCheck_245_; 
-v_ref_199_ = lean_ctor_get(v___y_196_, 5);
+v_ref_199_ = lean_ctor_get(v___y_196_, 4);
 v___x_200_ = l_Lean_addMessageContextPartial___at___00Lean_addTrace___at___00Lean_IR_log_spec__0_spec__0(v_msg_195_, v___y_196_, v___y_197_);
 v_a_201_ = lean_ctor_get(v___x_200_, 0);
 v_isSharedCheck_245_ = !lean_is_exclusive(v___x_200_);
@@ -1222,7 +1222,7 @@ LEAN_EXPORT lean_object* l___private_Lean_Compiler_IR_CompilerM_0__Lean_IR_logDe
 _start:
 {
 lean_object* v_options_300_; uint8_t v___x_301_; 
-v_options_300_ = lean_ctor_get(v_a_297_, 2);
+v_options_300_ = lean_ctor_get(v_a_297_, 1);
 v___x_301_ = l___private_Lean_Compiler_IR_CompilerM_0__Lean_IR_isLogEnabledFor(v_options_300_, v_optName_294_);
 if (v___x_301_ == 0)
 {
@@ -1282,7 +1282,7 @@ LEAN_EXPORT lean_object* l___private_Lean_Compiler_IR_CompilerM_0__Lean_IR_logMe
 _start:
 {
 lean_object* v_options_333_; uint8_t v___x_334_; 
-v_options_333_ = lean_ctor_get(v_a_330_, 2);
+v_options_333_ = lean_ctor_get(v_a_330_, 1);
 v___x_334_ = l___private_Lean_Compiler_IR_CompilerM_0__Lean_IR_isLogEnabledFor(v_options_333_, v_optName_328_);
 if (v___x_334_ == 0)
 {
@@ -4196,7 +4196,7 @@ LEAN_EXPORT lean_object* l_Lean_throwError___at___00Lean_IR_getDecl_spec__0___re
 _start:
 {
 lean_object* v_ref_1456_; lean_object* v___x_1457_; lean_object* v_a_1458_; lean_object* v___x_1460_; uint8_t v_isShared_1461_; uint8_t v_isSharedCheck_1466_; 
-v_ref_1456_ = lean_ctor_get(v___y_1453_, 5);
+v_ref_1456_ = lean_ctor_get(v___y_1453_, 4);
 v___x_1457_ = l_Lean_addMessageContextPartial___at___00Lean_addTrace___at___00Lean_IR_log_spec__0_spec__0(v_msg_1452_, v___y_1453_, v___y_1454_);
 v_a_1458_ = lean_ctor_get(v___x_1457_, 0);
 v_isSharedCheck_1466_ = !lean_is_exclusive(v___x_1457_);

@@ -125,13 +125,12 @@ The reference counter `m_rc` field also encodes whether the object is single thr
 reference counting is not needed (== 0). We don't use reference counting for objects stored in compact regions, or
 marked as persistent.
 
-Single-threaded counts grow upward (0, 1, 2, ...); multi-threaded counts grow downward (a count of N is stored as
--N and adjusted atomically). To stay memory-safe when a count would exceed the 32-bit range, we reserve a band of
-deeply negative values as "sticky": a single-threaded count that overflows past INT_MAX wraps directly into it, and
-a multi-threaded count descending toward INT_MIN is caught in it before it can wrap. Once in the sticky range the
-object is frozen: it is never freed and its count is no longer adjusted. See `LEAN_RC_STICKY` / `LEAN_RC_STICKY_DROP`
-for the exact thresholds. This trades an unbounded but astronomically rare memory leak for memory safety under
-reference-count over/underflow.
+To stay memory-safe when a count would exceed the 32-bit range, we reserve a band of deeply negative
+values as "sticky": a single-threaded count that overflows past INT_MAX wraps directly into it, and
+a multi-threaded count descending toward INT_MIN is caught in it before it can wrap. Once in the
+sticky range the object is frozen: it is never freed and its count is no longer adjusted. See
+`LEAN_RC_STICKY` / `LEAN_RC_STICKY_DROP` for the exact thresholds. This trades an unbounded but
+practically exceedingly unlikely memory leak for memory safety under reference-count over/underflow.
 
 For "small" objects stored in compact regions, the field `m_cs_sz` contains the object size. For "small" objects not
 stored in compact regions, we use the page information to retrieve its size so that we can reuse

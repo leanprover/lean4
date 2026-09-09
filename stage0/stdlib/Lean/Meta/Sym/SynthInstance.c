@@ -1847,7 +1847,7 @@ LEAN_EXPORT lean_object* l_Lean_Meta_Sym_synthInstanceMeta_x3f(lean_object* v_ty
 _start:
 {
 lean_object* v_options_539_; lean_object* v___x_540_; lean_object* v___x_541_; lean_object* v___y_542_; lean_object* v___x_543_; lean_object* v___x_544_; 
-v_options_539_ = lean_ctor_get(v_a_536_, 2);
+v_options_539_ = lean_ctor_get(v_a_536_, 1);
 v___x_540_ = ((lean_object*)(l_Lean_Meta_Sym_synthInstanceMeta_x3f___closed__0));
 v___x_541_ = l_Lean_Meta_Sym_getBuiltinInstance_x3f(v_type_533_);
 lean_inc_ref(v_type_533_);
@@ -2828,7 +2828,7 @@ v_mctx_942_ = lean_ctor_get(v___x_941_, 0);
 lean_inc_ref(v_mctx_942_);
 lean_dec(v___x_941_);
 v_lctx_943_ = lean_ctor_get(v___y_934_, 2);
-v_options_944_ = lean_ctor_get(v___y_936_, 2);
+v_options_944_ = lean_ctor_get(v___y_936_, 1);
 lean_inc_ref(v_options_944_);
 lean_inc_ref(v_lctx_943_);
 v___x_945_ = lean_alloc_ctor(0, 4, 0);
@@ -2860,7 +2860,7 @@ LEAN_EXPORT lean_object* l_Lean_throwError___at___00Lean_Meta_Sym_synthInstance_
 _start:
 {
 lean_object* v_ref_961_; lean_object* v___x_962_; lean_object* v_a_963_; lean_object* v___x_965_; uint8_t v_isShared_966_; uint8_t v_isSharedCheck_971_; 
-v_ref_961_ = lean_ctor_get(v___y_958_, 5);
+v_ref_961_ = lean_ctor_get(v___y_958_, 4);
 v___x_962_ = l_Lean_addMessageContextFull___at___00Lean_throwError___at___00Lean_Meta_Sym_synthInstance_spec__0_spec__0(v_msg_955_, v___y_956_, v___y_957_, v___y_958_, v___y_959_);
 v_a_963_ = lean_ctor_get(v___x_962_, 0);
 v_isSharedCheck_971_ = !lean_is_exclusive(v___x_962_);

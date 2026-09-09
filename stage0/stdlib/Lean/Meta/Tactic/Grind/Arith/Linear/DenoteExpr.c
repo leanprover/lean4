@@ -1378,7 +1378,7 @@ v_mctx_554_ = lean_ctor_get(v___x_553_, 0);
 lean_inc_ref(v_mctx_554_);
 lean_dec(v___x_553_);
 v_lctx_555_ = lean_ctor_get(v___y_546_, 2);
-v_options_556_ = lean_ctor_get(v___y_548_, 2);
+v_options_556_ = lean_ctor_get(v___y_548_, 1);
 lean_inc_ref(v_options_556_);
 lean_inc_ref(v_lctx_555_);
 v___x_557_ = lean_alloc_ctor(0, 4, 0);
@@ -1410,7 +1410,7 @@ LEAN_EXPORT lean_object* l_Lean_throwError___at___00Lean_Meta_Sym_Arith_MonadCan
 _start:
 {
 lean_object* v_ref_573_; lean_object* v___x_574_; lean_object* v_a_575_; lean_object* v___x_577_; uint8_t v_isShared_578_; uint8_t v_isSharedCheck_583_; 
-v_ref_573_ = lean_ctor_get(v___y_570_, 5);
+v_ref_573_ = lean_ctor_get(v___y_570_, 4);
 v___x_574_ = l_Lean_addMessageContextFull___at___00Lean_throwError___at___00Lean_Meta_Sym_Arith_MonadCanon_synthInstance___at___00Lean_Meta_Grind_Arith_CommRing_mkUnaryFn___at___00Lean_Meta_Grind_Arith_CommRing_getNegFn___at___00Lean_Meta_Grind_Arith_CommRing_denoteNum___at___00Lean_Grind_CommRing_Mon_denoteExpr___at___00Lean_Grind_CommRing_Poly_denoteAsIntModuleExpr_spec__0_spec__0_spec__1_spec__2_spec__5_spec__8_spec__11(v_msg_567_, v___y_568_, v___y_569_, v___y_570_, v___y_571_);
 v_a_575_ = lean_ctor_get(v___x_574_, 0);
 v_isSharedCheck_583_ = !lean_is_exclusive(v___x_574_);

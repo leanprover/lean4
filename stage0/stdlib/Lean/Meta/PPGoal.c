@@ -723,7 +723,7 @@ v___x_246_ = 1;
 if (v___x_245_ == 0)
 {
 lean_object* v_options_247_; lean_object* v___x_248_; uint8_t v___x_249_; 
-v_options_247_ = lean_ctor_get(v_a_232_, 2);
+v_options_247_ = lean_ctor_get(v_a_232_, 1);
 v___x_248_ = l_Lean_Meta_pp_showLetValues;
 v___x_249_ = l_Lean_Option_get___at___00Lean_Meta_ppGoal_shouldShowLetValue_spec__0(v_options_247_, v___x_248_);
 if (v___x_249_ == 0)
@@ -3169,7 +3169,7 @@ lean_object* v_val_1111_; lean_object* v_options_1112_; lean_object* v_userName_
 v_val_1111_ = lean_ctor_get(v___x_1108_, 0);
 lean_inc(v_val_1111_);
 lean_dec_ref_known(v___x_1108_, 1);
-v_options_1112_ = lean_ctor_get(v_a_1103_, 2);
+v_options_1112_ = lean_ctor_get(v_a_1103_, 1);
 v_userName_1113_ = lean_ctor_get(v_val_1111_, 0);
 lean_inc(v_userName_1113_);
 v_lctx_1114_ = lean_ctor_get(v_val_1111_, 1);

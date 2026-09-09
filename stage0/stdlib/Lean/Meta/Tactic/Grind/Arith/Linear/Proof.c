@@ -15988,7 +15988,7 @@ v_mctx_6085_ = lean_ctor_get(v___x_6084_, 0);
 lean_inc_ref(v_mctx_6085_);
 lean_dec(v___x_6084_);
 v_lctx_6086_ = lean_ctor_get(v___y_6077_, 2);
-v_options_6087_ = lean_ctor_get(v___y_6079_, 2);
+v_options_6087_ = lean_ctor_get(v___y_6079_, 1);
 lean_inc_ref(v_options_6087_);
 lean_inc_ref(v_lctx_6086_);
 v___x_6088_ = lean_alloc_ctor(0, 4, 0);
@@ -16020,7 +16020,7 @@ LEAN_EXPORT lean_object* l_Lean_throwError___at___00Lean_Meta_Grind_Arith_Linear
 _start:
 {
 lean_object* v_ref_6104_; lean_object* v___x_6105_; lean_object* v_a_6106_; lean_object* v___x_6108_; uint8_t v_isShared_6109_; uint8_t v_isSharedCheck_6114_; 
-v_ref_6104_ = lean_ctor_get(v___y_6101_, 5);
+v_ref_6104_ = lean_ctor_get(v___y_6101_, 4);
 v___x_6105_ = l_Lean_addMessageContextFull___at___00Lean_throwError___at___00Lean_Meta_Grind_Arith_Linear_EqCnstr_toExprProof_spec__2_spec__6(v_msg_6098_, v___y_6099_, v___y_6100_, v___y_6101_, v___y_6102_);
 v_a_6106_ = lean_ctor_get(v___x_6105_, 0);
 v_isSharedCheck_6114_ = !lean_is_exclusive(v___x_6105_);

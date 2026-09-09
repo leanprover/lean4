@@ -2751,7 +2751,7 @@ v_mctx_767_ = lean_ctor_get(v___x_766_, 0);
 lean_inc_ref(v_mctx_767_);
 lean_dec(v___x_766_);
 v_lctx_768_ = lean_ctor_get(v___y_759_, 2);
-v_options_769_ = lean_ctor_get(v___y_761_, 2);
+v_options_769_ = lean_ctor_get(v___y_761_, 1);
 lean_inc_ref(v_options_769_);
 lean_inc_ref(v_lctx_768_);
 v___x_770_ = lean_alloc_ctor(0, 4, 0);
@@ -2783,7 +2783,7 @@ LEAN_EXPORT lean_object* l_Lean_throwError___at___00__private_Lean_Widget_Diff_0
 _start:
 {
 lean_object* v_ref_786_; lean_object* v___x_787_; lean_object* v_a_788_; lean_object* v___x_790_; uint8_t v_isShared_791_; uint8_t v_isSharedCheck_796_; 
-v_ref_786_ = lean_ctor_get(v___y_783_, 5);
+v_ref_786_ = lean_ctor_get(v___y_783_, 4);
 v___x_787_ = l_Lean_addMessageContextFull___at___00Lean_throwError___at___00__private_Lean_Widget_Diff_0__Lean_Widget_exprDiffCore_piDiff_spec__3_spec__4(v_msg_780_, v___y_781_, v___y_782_, v___y_783_, v___y_784_);
 v_a_788_ = lean_ctor_get(v___x_787_, 0);
 v_isSharedCheck_796_ = !lean_is_exclusive(v___x_787_);
@@ -7292,7 +7292,7 @@ lean_object* v_val_2253_; lean_object* v_options_2254_; lean_object* v_lctx_2255
 v_val_2253_ = lean_ctor_get(v___x_2252_, 0);
 lean_inc(v_val_2253_);
 lean_dec_ref_known(v___x_2252_, 1);
-v_options_2254_ = lean_ctor_get(v_a_2247_, 2);
+v_options_2254_ = lean_ctor_get(v_a_2247_, 1);
 v_lctx_2255_ = lean_ctor_get(v_val_2253_, 1);
 lean_inc_ref(v_lctx_2255_);
 lean_dec(v_val_2253_);
@@ -8104,7 +8104,7 @@ lean_dec(v_goal_2458_);
 v_val_2468_ = lean_ctor_get(v___x_2467_, 0);
 lean_inc(v_val_2468_);
 lean_dec_ref_known(v___x_2467_, 1);
-v_options_2469_ = lean_ctor_get(v___y_2462_, 2);
+v_options_2469_ = lean_ctor_get(v___y_2462_, 1);
 v_lctx_2470_ = lean_ctor_get(v_val_2468_, 1);
 v_localInstances_2471_ = lean_ctor_get(v_val_2468_, 4);
 lean_inc_ref(v_localInstances_2471_);
@@ -8762,7 +8762,7 @@ LEAN_EXPORT lean_object* l_Lean_Widget_diffInteractiveGoals(uint8_t v_useAfter_2
 _start:
 {
 lean_object* v_options_2739_; lean_object* v___x_2740_; uint8_t v___x_2741_; lean_object* v___y_2743_; 
-v_options_2739_ = lean_ctor_get(v_a_2736_, 2);
+v_options_2739_ = lean_ctor_get(v_a_2736_, 1);
 v___x_2740_ = l___private_Lean_Widget_Diff_0__Lean_Widget_showTacticDiff;
 v___x_2741_ = l_Lean_Option_get___at___00Lean_Widget_diffInteractiveGoals_spec__0(v_options_2739_, v___x_2740_);
 if (v___x_2741_ == 0)

@@ -6094,7 +6094,7 @@ v___x_2183_ = lean_st_ref_get(v___y_2181_);
 v_env_2184_ = lean_ctor_get(v___x_2183_, 0);
 lean_inc_ref(v_env_2184_);
 lean_dec(v___x_2183_);
-v_options_2185_ = lean_ctor_get(v___y_2180_, 2);
+v_options_2185_ = lean_ctor_get(v___y_2180_, 1);
 v___x_2186_ = lean_obj_once(&l_Lean_addMessageContextPartial___at___00Lean_throwError___at___00Lean_Compiler_LCNF_getDeclAt_x3f_spec__0_spec__0___closed__2, &l_Lean_addMessageContextPartial___at___00Lean_throwError___at___00Lean_Compiler_LCNF_getDeclAt_x3f_spec__0_spec__0___closed__2_once, _init_l_Lean_addMessageContextPartial___at___00Lean_throwError___at___00Lean_Compiler_LCNF_getDeclAt_x3f_spec__0_spec__0___closed__2);
 v___x_2187_ = lean_obj_once(&l_Lean_addMessageContextPartial___at___00Lean_throwError___at___00Lean_Compiler_LCNF_getDeclAt_x3f_spec__0_spec__0___closed__5, &l_Lean_addMessageContextPartial___at___00Lean_throwError___at___00Lean_Compiler_LCNF_getDeclAt_x3f_spec__0_spec__0___closed__5_once, _init_l_Lean_addMessageContextPartial___at___00Lean_throwError___at___00Lean_Compiler_LCNF_getDeclAt_x3f_spec__0_spec__0___closed__5);
 lean_inc_ref(v_options_2185_);
@@ -6125,7 +6125,7 @@ LEAN_EXPORT lean_object* l_Lean_throwError___at___00Lean_Compiler_LCNF_getDeclAt
 _start:
 {
 lean_object* v_ref_2200_; lean_object* v___x_2201_; lean_object* v_a_2202_; lean_object* v___x_2204_; uint8_t v_isShared_2205_; uint8_t v_isSharedCheck_2210_; 
-v_ref_2200_ = lean_ctor_get(v___y_2197_, 5);
+v_ref_2200_ = lean_ctor_get(v___y_2197_, 4);
 v___x_2201_ = l_Lean_addMessageContextPartial___at___00Lean_throwError___at___00Lean_Compiler_LCNF_getDeclAt_x3f_spec__0_spec__0(v_msg_2196_, v___y_2197_, v___y_2198_);
 v_a_2202_ = lean_ctor_get(v___x_2201_, 0);
 v_isSharedCheck_2210_ = !lean_is_exclusive(v___x_2201_);

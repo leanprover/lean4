@@ -76,9 +76,16 @@ builtin_initialize deprecatedAttr : ParametricAttribute DeprecationEntry ←
                   of a deprecated declaration" ++ disableNote
               | some next =>
                 if next != newName then
-                  logWarning <| m!"`{.ofConstName newName true}` is itself deprecated in favor of \
-                  `{.ofConstName next true}`; consider deprecating `{.ofConstName declName true}` \
-                  in favor of `{.ofConstName next true}` instead" ++ disableNote
+                  let mut msg := m!"`{.ofConstName newName true}` is itself deprecated in favor of \
+                    `{.ofConstName next true}`; consider deprecating `{.ofConstName declName true}` \
+                    in favor of `{.ofConstName next true}` instead" ++ disableNote
+                  if let some id := id? then
+                    if (id.raw.getRange? (canonicalOnly := true)).isSome then
+                      if let some replacement ← MetaM.run' <| unresolveNameGlobalAvoidingLocals? next then
+                        msg := msg ++ (← MessageData.hint
+                          m!"Deprecate in favor of `{.ofConstName next true}` instead:"
+                          #[replacement.toString] (ref? := some id.raw))
+                  logWarning msg
           if let some oldDecl := env.find? declName then
             if let some newDecl := env.find? newName then
               if ← MetaM.run' <| areTypesReduciblyDefEq oldDecl newDecl then

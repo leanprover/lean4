@@ -1315,7 +1315,7 @@ v_mctx_550_ = lean_ctor_get(v___x_549_, 0);
 lean_inc_ref(v_mctx_550_);
 lean_dec(v___x_549_);
 v_lctx_551_ = lean_ctor_get(v___y_542_, 2);
-v_options_552_ = lean_ctor_get(v___y_544_, 2);
+v_options_552_ = lean_ctor_get(v___y_544_, 1);
 lean_inc_ref(v_options_552_);
 lean_inc_ref(v_lctx_551_);
 v___x_553_ = lean_alloc_ctor(0, 4, 0);
@@ -1347,7 +1347,7 @@ LEAN_EXPORT lean_object* l_Lean_throwError___at___00__private_Lean_Elab_Tactic_V
 _start:
 {
 lean_object* v_ref_569_; lean_object* v___x_570_; lean_object* v_a_571_; lean_object* v___x_573_; uint8_t v_isShared_574_; uint8_t v_isSharedCheck_579_; 
-v_ref_569_ = lean_ctor_get(v___y_566_, 5);
+v_ref_569_ = lean_ctor_get(v___y_566_, 4);
 v___x_570_ = l_Lean_addMessageContextFull___at___00Lean_throwError___at___00__private_Lean_Elab_Tactic_VCGen_LatticeOp_0__Lean_Elab_Tactic_VCGen_mkLatticeTerminals_spec__1_spec__1(v_msg_563_, v___y_564_, v___y_565_, v___y_566_, v___y_567_);
 v_a_571_ = lean_ctor_get(v___x_570_, 0);
 v_isSharedCheck_579_ = !lean_is_exclusive(v___x_570_);
@@ -2025,7 +2025,7 @@ LEAN_EXPORT lean_object* l_Lean_throwError___at___00__private_Lean_Elab_Tactic_V
 _start:
 {
 lean_object* v_ref_797_; lean_object* v___x_798_; lean_object* v_a_799_; lean_object* v___x_801_; uint8_t v_isShared_802_; uint8_t v_isSharedCheck_807_; 
-v_ref_797_ = lean_ctor_get(v___y_794_, 5);
+v_ref_797_ = lean_ctor_get(v___y_794_, 4);
 v___x_798_ = l_Lean_addMessageContextFull___at___00Lean_throwError___at___00__private_Lean_Elab_Tactic_VCGen_LatticeOp_0__Lean_Elab_Tactic_VCGen_mkLatticeTerminals_spec__1_spec__1(v_msg_791_, v___y_792_, v___y_793_, v___y_794_, v___y_795_);
 v_a_799_ = lean_ctor_get(v___x_798_, 0);
 v_isSharedCheck_807_ = !lean_is_exclusive(v___x_798_);

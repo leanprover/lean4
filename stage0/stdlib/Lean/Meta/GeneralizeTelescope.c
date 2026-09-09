@@ -266,7 +266,7 @@ v_mctx_62_ = lean_ctor_get(v___x_61_, 0);
 lean_inc_ref(v_mctx_62_);
 lean_dec(v___x_61_);
 v_lctx_63_ = lean_ctor_get(v___y_54_, 2);
-v_options_64_ = lean_ctor_get(v___y_56_, 2);
+v_options_64_ = lean_ctor_get(v___y_56_, 1);
 lean_inc_ref(v_options_64_);
 lean_inc_ref(v_lctx_63_);
 v___x_65_ = lean_alloc_ctor(0, 4, 0);
@@ -298,7 +298,7 @@ LEAN_EXPORT lean_object* l_Lean_throwError___at___00Lean_Meta_GeneralizeTelescop
 _start:
 {
 lean_object* v_ref_81_; lean_object* v___x_82_; lean_object* v_a_83_; lean_object* v___x_85_; uint8_t v_isShared_86_; uint8_t v_isSharedCheck_91_; 
-v_ref_81_ = lean_ctor_get(v___y_78_, 5);
+v_ref_81_ = lean_ctor_get(v___y_78_, 4);
 v___x_82_ = l_Lean_addMessageContextFull___at___00Lean_throwError___at___00Lean_Meta_GeneralizeTelescope_generalizeTelescopeAux_spec__3_spec__4(v_msg_75_, v___y_76_, v___y_77_, v___y_78_, v___y_79_);
 v_a_83_ = lean_ctor_get(v___x_82_, 0);
 v_isSharedCheck_91_ = !lean_is_exclusive(v___x_82_);

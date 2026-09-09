@@ -4797,7 +4797,7 @@ v_mctx_1725_ = lean_ctor_get(v___x_1724_, 0);
 lean_inc_ref(v_mctx_1725_);
 lean_dec(v___x_1724_);
 v_lctx_1726_ = lean_ctor_get(v___y_1717_, 2);
-v_options_1727_ = lean_ctor_get(v___y_1719_, 2);
+v_options_1727_ = lean_ctor_get(v___y_1719_, 1);
 lean_inc_ref(v_options_1727_);
 lean_inc_ref(v_lctx_1726_);
 v___x_1728_ = lean_alloc_ctor(0, 4, 0);
@@ -4829,7 +4829,7 @@ LEAN_EXPORT lean_object* l_Lean_throwError___at___00__private_Lean_Meta_Tactic_G
 _start:
 {
 lean_object* v_ref_1744_; lean_object* v___x_1745_; lean_object* v_a_1746_; lean_object* v___x_1748_; uint8_t v_isShared_1749_; uint8_t v_isSharedCheck_1754_; 
-v_ref_1744_ = lean_ctor_get(v___y_1741_, 5);
+v_ref_1744_ = lean_ctor_get(v___y_1741_, 4);
 v___x_1745_ = l_Lean_addMessageContextFull___at___00Lean_throwError___at___00__private_Lean_Meta_Tactic_Grind_AC_Proof_0__Lean_Meta_Grind_AC_getCommInst_spec__0_spec__0(v_msg_1738_, v___y_1739_, v___y_1740_, v___y_1741_, v___y_1742_);
 v_a_1746_ = lean_ctor_get(v___x_1745_, 0);
 v_isSharedCheck_1754_ = !lean_is_exclusive(v___x_1745_);

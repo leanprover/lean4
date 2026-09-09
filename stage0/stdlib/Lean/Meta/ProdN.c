@@ -1162,7 +1162,7 @@ v_mctx_364_ = lean_ctor_get(v___x_363_, 0);
 lean_inc_ref(v_mctx_364_);
 lean_dec(v___x_363_);
 v_lctx_365_ = lean_ctor_get(v___y_356_, 2);
-v_options_366_ = lean_ctor_get(v___y_358_, 2);
+v_options_366_ = lean_ctor_get(v___y_358_, 1);
 lean_inc_ref(v_options_366_);
 lean_inc_ref(v_lctx_365_);
 v___x_367_ = lean_alloc_ctor(0, 4, 0);
@@ -1194,7 +1194,7 @@ LEAN_EXPORT lean_object* l_Lean_throwError___at___00Lean_Meta_getProdFields_spec
 _start:
 {
 lean_object* v_ref_383_; lean_object* v___x_384_; lean_object* v_a_385_; lean_object* v___x_387_; uint8_t v_isShared_388_; uint8_t v_isSharedCheck_393_; 
-v_ref_383_ = lean_ctor_get(v___y_380_, 5);
+v_ref_383_ = lean_ctor_get(v___y_380_, 4);
 v___x_384_ = l_Lean_addMessageContextFull___at___00Lean_throwError___at___00Lean_Meta_getProdFields_spec__0_spec__0(v_msg_377_, v___y_378_, v___y_379_, v___y_380_, v___y_381_);
 v_a_385_ = lean_ctor_get(v___x_384_, 0);
 v_isSharedCheck_393_ = !lean_is_exclusive(v___x_384_);

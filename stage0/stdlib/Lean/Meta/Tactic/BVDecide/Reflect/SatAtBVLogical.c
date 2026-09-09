@@ -1085,7 +1085,7 @@ v_mctx_347_ = lean_ctor_get(v___x_346_, 0);
 lean_inc_ref(v_mctx_347_);
 lean_dec(v___x_346_);
 v_lctx_348_ = lean_ctor_get(v___y_339_, 2);
-v_options_349_ = lean_ctor_get(v___y_341_, 2);
+v_options_349_ = lean_ctor_get(v___y_341_, 1);
 lean_inc_ref(v_options_349_);
 lean_inc_ref(v_lctx_348_);
 v___x_350_ = lean_alloc_ctor(0, 4, 0);
@@ -1117,7 +1117,7 @@ LEAN_EXPORT lean_object* l_Lean_throwError___at___00Lean_Meta_Tactic_BVDecide_Sa
 _start:
 {
 lean_object* v_ref_366_; lean_object* v___x_367_; lean_object* v_a_368_; lean_object* v___x_370_; uint8_t v_isShared_371_; uint8_t v_isSharedCheck_376_; 
-v_ref_366_ = lean_ctor_get(v___y_363_, 5);
+v_ref_366_ = lean_ctor_get(v___y_363_, 4);
 v___x_367_ = l_Lean_addMessageContextFull___at___00Lean_throwError___at___00Lean_Meta_Tactic_BVDecide_SatAtBVLogical_proveFalse_spec__0_spec__0(v_msg_360_, v___y_361_, v___y_362_, v___y_363_, v___y_364_);
 v_a_368_ = lean_ctor_get(v___x_367_, 0);
 v_isSharedCheck_376_ = !lean_is_exclusive(v___x_367_);

@@ -237,7 +237,7 @@ def makePreDefinitionWithStructuralHint (levelParams : List Name) (declName : Na
       partialFixpoint? := none
       decreasingBy? := none
       extraParams := numArgs - majorIdx
-      noWarnOnRedundant := true
+      warnIfRedundant := false
     }
   }
 

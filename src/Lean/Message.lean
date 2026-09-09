@@ -11,7 +11,6 @@ prelude
 public import Init.Data.Slice.Array
 public import Lean.Util.PPExt
 public import Lean.Util.Sorry
-public import Lean.Linter.CodeQuality.Basic
 import Init.Data.String.Search
 import Init.Data.Format.Macro
 import Init.Data.Iterators.Consumers.Collect
@@ -20,8 +19,6 @@ import Init.Data.String.Length
 public section
 
 namespace Lean
-
-open Linter
 
 /--
 Creates a string describing an error message `msg` produced at `pos`, optionally ending at `endPos`,
@@ -156,10 +153,6 @@ inductive MessageData where
   Preserves the originating syntax of the message.
   -/
   | ofOriginatingSyntax : Syntax → MessageData → MessageData
-  /-
-  Contains a code quality entry to be recorded
-  -/
-  | ofCodeQualityEntry : CodeQuality.Entry →  MessageData → MessageData
   deriving Inhabited, TypeName
 
 namespace MessageData
@@ -198,7 +191,6 @@ partial def hasTag : MessageData → Bool
   | tagged n msg                => p n || hasTag msg
   | trace data msg msgs         => p data.cls || hasTag msg || msgs.any hasTag
   | ofOriginatingSyntax _ msg   => hasTag msg
-  | ofCodeQualityEntry _ msg    => hasTag msg
   | _                           => false
 
 /--
@@ -214,24 +206,11 @@ def kind : MessageData → Name
   | tagged n _                => n
   | trace data _ _            => data.cls
   | ofOriginatingSyntax _ msg => kind msg
-  | ofCodeQualityEntry _ msg  => kind msg
   | _                         => .anonymous
 
 def originatingSyntax? : MessageData → Option Syntax × MessageData
   | ofOriginatingSyntax stx msg => (some stx, msg)
   | msg => (none, msg)
-
-/--
-Extracts the code quality entry from a message produced by `Lean.Linter.logCodeQualityEntry`,
-looking through the context wrappers added by `logAt`/`addMessageContext`.
--/
-partial def codeQualityEntry? : MessageData → Option CodeQuality.Entry
-  | ofCodeQualityEntry entry _    => some entry
-  | withContext _ msg             => codeQualityEntry? msg
-  | withNamingContext _ msg       => codeQualityEntry? msg
-  | tagged _ msg                  => codeQualityEntry? msg
-  | ofOriginatingSyntax _ msg     => codeQualityEntry? msg
-  | _                             => none
 
 def isTrace : MessageData → Bool
   | withContext _ msg         => msg.isTrace
@@ -239,7 +218,6 @@ def isTrace : MessageData → Bool
   | tagged _ msg              => msg.isTrace
   | .trace _ _ _              => true
   | ofOriginatingSyntax _ msg => msg.isTrace
-  | ofCodeQualityEntry _ msg  => msg.isTrace
   | _                         => false
 
 /--
@@ -251,7 +229,6 @@ def composePreservingKind : MessageData → MessageData → MessageData
   | withNamingContext nc msg      , msg' => withNamingContext nc (composePreservingKind msg msg')
   | tagged t msg                  , msg' => tagged t (compose msg msg')
   | ofOriginatingSyntax stx msg   , msg' => ofOriginatingSyntax stx (composePreservingKind msg msg')
-  | ofCodeQualityEntry entry msg  , msg' => ofCodeQualityEntry entry (composePreservingKind msg msg')
   | msg                           , msg' => compose msg msg'
 
 /-- An empty message. -/
@@ -382,7 +359,6 @@ where
   | compose msg₁ msg₂         => visit mctx? msg₁ || visit mctx? msg₂
   | tagged _ msg              => visit mctx? msg
   | ofOriginatingSyntax _ msg => visit mctx? msg
-  | ofCodeQualityEntry _ msg  => visit mctx? msg
   | trace _ msg msgs          => visit mctx? msg || msgs.any (visit mctx?)
   | _                         => false
 
@@ -404,7 +380,6 @@ partial def formatAux : NamingContext → Option MessageDataContext → MessageD
   | _,    ctx,       withNamingContext nCtx d => formatAux nCtx ctx d
   | nCtx, ctx,       tagged _ d               => formatAux nCtx ctx d
   | nCtx, ctx,       ofOriginatingSyntax _ d              => formatAux nCtx ctx d
-  | nCtx, ctx,       ofCodeQualityEntry _ d              => formatAux nCtx ctx d
   | nCtx, ctx,       nest n d                 => Format.nest n <$> formatAux nCtx ctx d
   | nCtx, ctx,       compose d₁ d₂            => return (← formatAux nCtx ctx d₁) ++ (← formatAux nCtx ctx d₂)
   | nCtx, ctx,       group d                  => Format.group <$> formatAux nCtx ctx d
@@ -589,7 +564,6 @@ def MessageData.stripNestedTags : MessageData → MessageData
   | .withNamingContext ctx msg => .withNamingContext ctx msg.stripNestedTags
   | .tagged n msg => .tagged (stripNestedNamePrefix n) msg
   | .ofOriginatingSyntax stx msg => ofOriginatingSyntax stx msg.stripNestedTags
-  | .ofCodeQualityEntry entry msg => ofCodeQualityEntry entry msg.stripNestedTags
   | msg => msg
 where
   stripNestedNamePrefix : Name → Name

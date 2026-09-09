@@ -769,7 +769,7 @@ v___x_197_ = lean_st_ref_get(v___y_195_);
 v_env_198_ = lean_ctor_get(v___x_197_, 0);
 lean_inc_ref(v_env_198_);
 lean_dec(v___x_197_);
-v_options_199_ = lean_ctor_get(v___y_194_, 2);
+v_options_199_ = lean_ctor_get(v___y_194_, 1);
 v___x_200_ = lean_obj_once(&l_Lean_addMessageContextPartial___at___00Lean_throwError___at___00Lake_registerOrderedTagAttribute_spec__0_spec__0___closed__2, &l_Lean_addMessageContextPartial___at___00Lean_throwError___at___00Lake_registerOrderedTagAttribute_spec__0_spec__0___closed__2_once, _init_l_Lean_addMessageContextPartial___at___00Lean_throwError___at___00Lake_registerOrderedTagAttribute_spec__0_spec__0___closed__2);
 v___x_201_ = lean_obj_once(&l_Lean_addMessageContextPartial___at___00Lean_throwError___at___00Lake_registerOrderedTagAttribute_spec__0_spec__0___closed__5, &l_Lean_addMessageContextPartial___at___00Lean_throwError___at___00Lake_registerOrderedTagAttribute_spec__0_spec__0___closed__5_once, _init_l_Lean_addMessageContextPartial___at___00Lean_throwError___at___00Lake_registerOrderedTagAttribute_spec__0_spec__0___closed__5);
 lean_inc_ref(v_options_199_);
@@ -800,7 +800,7 @@ LEAN_EXPORT lean_object* l_Lean_throwError___at___00Lake_registerOrderedTagAttri
 _start:
 {
 lean_object* v_ref_214_; lean_object* v___x_215_; lean_object* v_a_216_; lean_object* v___x_218_; uint8_t v_isShared_219_; uint8_t v_isSharedCheck_224_; 
-v_ref_214_ = lean_ctor_get(v___y_211_, 5);
+v_ref_214_ = lean_ctor_get(v___y_211_, 4);
 v___x_215_ = l_Lean_addMessageContextPartial___at___00Lean_throwError___at___00Lake_registerOrderedTagAttribute_spec__0_spec__0(v_msg_210_, v___y_211_, v___y_212_);
 v_a_216_ = lean_ctor_get(v___x_215_, 0);
 v_isSharedCheck_224_ = !lean_is_exclusive(v___x_215_);

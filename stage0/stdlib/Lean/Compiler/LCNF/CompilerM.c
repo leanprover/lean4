@@ -1599,7 +1599,7 @@ goto v_resetjp_354_;
 v_resetjp_354_:
 {
 lean_object* v_options_357_; uint8_t v___x_358_; lean_object* v___x_359_; lean_object* v___x_360_; lean_object* v___x_361_; lean_object* v___x_363_; 
-v_options_357_ = lean_ctor_get(v___y_342_, 2);
+v_options_357_ = lean_ctor_get(v___y_342_, 1);
 v___x_358_ = lean_unbox(v_a_348_);
 lean_dec(v_a_348_);
 v___x_359_ = l_Lean_Compiler_LCNF_LCtx_toLocalContext(v_lctx_353_, v___x_358_);
@@ -1715,8 +1715,8 @@ LEAN_EXPORT lean_object* l_Lean_throwError___at___00Lean_Compiler_LCNF_getType_s
 _start:
 {
 lean_object* v_options_394_; lean_object* v_ref_395_; lean_object* v___x_396_; lean_object* v___x_397_; lean_object* v___x_398_; 
-v_options_394_ = lean_ctor_get(v___y_391_, 2);
-v_ref_395_ = lean_ctor_get(v___y_391_, 5);
+v_options_394_ = lean_ctor_get(v___y_391_, 1);
+v_ref_395_ = lean_ctor_get(v___y_391_, 4);
 v___x_396_ = lean_st_ref_get(v___y_392_);
 v___x_397_ = lean_st_ref_get(v___y_390_);
 v___x_398_ = l_Lean_Compiler_LCNF_getPurity___redArg(v___y_389_);
@@ -13646,7 +13646,7 @@ _start:
 {
 lean_object* v___x_4688_; lean_object* v_options_4689_; lean_object* v___x_4690_; lean_object* v___x_4691_; lean_object* v___x_4692_; 
 v___x_4688_ = lean_st_mk_ref(v_s_4683_);
-v_options_4689_ = lean_ctor_get(v_a_4685_, 2);
+v_options_4689_ = lean_ctor_get(v_a_4685_, 1);
 v___x_4690_ = l_Lean_Compiler_LCNF_toConfigOptions(v_options_4689_);
 v___x_4691_ = lean_alloc_ctor(0, 1, 1);
 lean_ctor_set(v___x_4691_, 0, v___x_4690_);

@@ -2444,7 +2444,7 @@ _start:
 {
 lean_object* v_lctx_763_; lean_object* v_options_764_; lean_object* v___x_765_; uint8_t v___x_766_; lean_object* v___x_767_; 
 v_lctx_763_ = lean_ctor_get(v_a_759_, 2);
-v_options_764_ = lean_ctor_get(v_a_760_, 2);
+v_options_764_ = lean_ctor_get(v_a_760_, 1);
 v___x_765_ = l_Lean_Meta_tactic_hygienic;
 v___x_766_ = l_Lean_Option_get___at___00Lean_Meta_mkFreshBinderNameForTactic_spec__0(v_options_764_, v___x_765_);
 v___x_767_ = l_Lean_Meta_mkFreshBinderNameForTacticCore___redArg(v_lctx_763_, v_binderName_758_, v___x_766_, v_a_760_, v_a_761_);
@@ -5265,7 +5265,7 @@ v___x_1759_ = lean_nat_dec_eq(v_n_1749_, v___x_1758_);
 if (v___x_1759_ == 0)
 {
 lean_object* v_options_1760_; lean_object* v___x_1761_; uint8_t v___x_1762_; lean_object* v___x_1763_; lean_object* v___x_1764_; lean_object* v___x_1765_; lean_object* v___x_1766_; lean_object* v___f_1767_; lean_object* v___x_1768_; 
-v_options_1760_ = lean_ctor_get(v_a_1755_, 2);
+v_options_1760_ = lean_ctor_get(v_a_1755_, 1);
 v___x_1761_ = l_Lean_Meta_tactic_hygienic;
 v___x_1762_ = l_Lean_Option_get___at___00Lean_Meta_mkFreshBinderNameForTactic_spec__0(v_options_1760_, v___x_1761_);
 v___x_1763_ = ((lean_object*)(l___private_Lean_Meta_Tactic_Intro_0__Lean_Meta_introNImp_loop___redArg___lam__1___closed__1));
@@ -5882,7 +5882,7 @@ v_mctx_2090_ = lean_ctor_get(v___x_2089_, 0);
 lean_inc_ref(v_mctx_2090_);
 lean_dec(v___x_2089_);
 v_lctx_2091_ = lean_ctor_get(v___y_2082_, 2);
-v_options_2092_ = lean_ctor_get(v___y_2084_, 2);
+v_options_2092_ = lean_ctor_get(v___y_2084_, 1);
 lean_inc_ref(v_options_2092_);
 lean_inc_ref(v_lctx_2091_);
 v___x_2093_ = lean_alloc_ctor(0, 4, 0);
@@ -5914,7 +5914,7 @@ LEAN_EXPORT lean_object* l_Lean_throwError___at___00Lean_MVarId_intro1___00spec_
 _start:
 {
 lean_object* v_ref_2109_; lean_object* v___x_2110_; lean_object* v_a_2111_; lean_object* v___x_2113_; uint8_t v_isShared_2114_; uint8_t v_isSharedCheck_2119_; 
-v_ref_2109_ = lean_ctor_get(v___y_2106_, 5);
+v_ref_2109_ = lean_ctor_get(v___y_2106_, 4);
 v___x_2110_ = l_Lean_addMessageContextFull___at___00Lean_throwError___at___00Lean_MVarId_intro1___00spec__0_spec__0(v_msg_2103_, v___y_2104_, v___y_2105_, v___y_2106_, v___y_2107_);
 v_a_2111_ = lean_ctor_get(v___x_2110_, 0);
 v_isSharedCheck_2119_ = !lean_is_exclusive(v___x_2110_);

@@ -609,7 +609,7 @@ v_mctx_24_ = lean_ctor_get(v___x_23_, 0);
 lean_inc_ref(v_mctx_24_);
 lean_dec(v___x_23_);
 v_lctx_25_ = lean_ctor_get(v___y_16_, 2);
-v_options_26_ = lean_ctor_get(v___y_18_, 2);
+v_options_26_ = lean_ctor_get(v___y_18_, 1);
 lean_inc_ref(v_options_26_);
 lean_inc_ref(v_lctx_25_);
 v___x_27_ = lean_alloc_ctor(0, 4, 0);
@@ -641,7 +641,7 @@ LEAN_EXPORT lean_object* l_Lean_throwError___at___00__private_Lean_Elab_Tactic_G
 _start:
 {
 lean_object* v_ref_43_; lean_object* v___x_44_; lean_object* v_a_45_; lean_object* v___x_47_; uint8_t v_isShared_48_; uint8_t v_isSharedCheck_53_; 
-v_ref_43_ = lean_ctor_get(v___y_40_, 5);
+v_ref_43_ = lean_ctor_get(v___y_40_, 4);
 v___x_44_ = l_Lean_addMessageContextFull___at___00Lean_throwError___at___00__private_Lean_Elab_Tactic_Grind_Sym_0__Lean_Elab_Tactic_Grind_evalIntroCore_spec__2_spec__2(v_msg_37_, v___y_38_, v___y_39_, v___y_40_, v___y_41_);
 v_a_45_ = lean_ctor_get(v___x_44_, 0);
 v_isSharedCheck_53_ = !lean_is_exclusive(v___x_44_);
@@ -872,7 +872,7 @@ lean_object* v_a_169_; lean_object* v_options_170_; lean_object* v___x_171_; uin
 v_a_169_ = lean_ctor_get(v___x_168_, 0);
 lean_inc(v_a_169_);
 lean_dec_ref_known(v___x_168_, 1);
-v_options_170_ = lean_ctor_get(v_a_135_, 2);
+v_options_170_ = lean_ctor_get(v_a_135_, 1);
 v___x_171_ = l_Lean_Meta_tactic_hygienic;
 v___x_172_ = l_Lean_Option_get___at___00__private_Lean_Elab_Tactic_Grind_Sym_0__Lean_Elab_Tactic_Grind_evalIntroCore_spec__0(v_options_170_, v___x_171_);
 v___x_173_ = lean_array_get_size(v_ids_128_);
@@ -1581,7 +1581,7 @@ lean_object* v_a_479_; lean_object* v_options_480_; lean_object* v___x_481_; uin
 v_a_479_ = lean_ctor_get(v___x_478_, 0);
 lean_inc(v_a_479_);
 lean_dec_ref_known(v___x_478_, 1);
-v_options_480_ = lean_ctor_get(v_a_464_, 2);
+v_options_480_ = lean_ctor_get(v_a_464_, 1);
 v___x_481_ = l_Lean_Meta_tactic_hygienic;
 v___x_482_ = l_Lean_Option_get___at___00__private_Lean_Elab_Tactic_Grind_Sym_0__Lean_Elab_Tactic_Grind_evalIntroCore_spec__0(v_options_480_, v___x_481_);
 v___x_483_ = ((lean_object*)(l___private_Lean_Elab_Tactic_Grind_Sym_0__Lean_Elab_Tactic_Grind_evalIntrosCore___redArg___closed__0));

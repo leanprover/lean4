@@ -16175,7 +16175,7 @@ goto v_resetjp_5752_;
 v_resetjp_5752_:
 {
 lean_object* v_options_5755_; lean_object* v___f_5756_; lean_object* v___x_5757_; lean_object* v___x_5758_; lean_object* v___x_5759_; lean_object* v___x_5761_; 
-v_options_5755_ = lean_ctor_get(v___y_5747_, 2);
+v_options_5755_ = lean_ctor_get(v___y_5747_, 1);
 lean_inc_ref(v_options_5755_);
 lean_dec_ref(v___y_5747_);
 v___f_5756_ = lean_alloc_closure((void*)(l_Lean_Server_Completion_optionCompletion___lam__0___boxed), 7, 4);
@@ -16233,7 +16233,7 @@ goto v_resetjp_5765_;
 v_resetjp_5765_:
 {
 lean_object* v_ref_5768_; lean_object* v___x_5769_; lean_object* v___x_5770_; lean_object* v___x_5771_; lean_object* v___x_5772_; lean_object* v___x_5774_; 
-v_ref_5768_ = lean_ctor_get(v___y_5747_, 5);
+v_ref_5768_ = lean_ctor_get(v___y_5747_, 4);
 lean_inc(v_ref_5768_);
 lean_dec_ref(v___y_5747_);
 v___x_5769_ = lean_io_error_to_string(v_a_5764_);

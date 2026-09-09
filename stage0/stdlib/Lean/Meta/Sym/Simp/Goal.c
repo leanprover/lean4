@@ -346,7 +346,7 @@ v___x_70_ = lean_st_ref_get(v___y_68_);
 v_env_71_ = lean_ctor_get(v___x_70_, 0);
 lean_inc_ref(v_env_71_);
 lean_dec(v___x_70_);
-v_options_72_ = lean_ctor_get(v___y_67_, 2);
+v_options_72_ = lean_ctor_get(v___y_67_, 1);
 v___x_73_ = lean_obj_once(&l_Lean_addMessageContextPartial___at___00Lean_throwError___at___00Lean_Meta_Sym_SimpGoalResult_toOption_spec__0_spec__0___closed__2, &l_Lean_addMessageContextPartial___at___00Lean_throwError___at___00Lean_Meta_Sym_SimpGoalResult_toOption_spec__0_spec__0___closed__2_once, _init_l_Lean_addMessageContextPartial___at___00Lean_throwError___at___00Lean_Meta_Sym_SimpGoalResult_toOption_spec__0_spec__0___closed__2);
 v___x_74_ = lean_obj_once(&l_Lean_addMessageContextPartial___at___00Lean_throwError___at___00Lean_Meta_Sym_SimpGoalResult_toOption_spec__0_spec__0___closed__5, &l_Lean_addMessageContextPartial___at___00Lean_throwError___at___00Lean_Meta_Sym_SimpGoalResult_toOption_spec__0_spec__0___closed__5_once, _init_l_Lean_addMessageContextPartial___at___00Lean_throwError___at___00Lean_Meta_Sym_SimpGoalResult_toOption_spec__0_spec__0___closed__5);
 lean_inc_ref(v_options_72_);
@@ -377,7 +377,7 @@ LEAN_EXPORT lean_object* l_Lean_throwError___at___00Lean_Meta_Sym_SimpGoalResult
 _start:
 {
 lean_object* v_ref_87_; lean_object* v___x_88_; lean_object* v_a_89_; lean_object* v___x_91_; uint8_t v_isShared_92_; uint8_t v_isSharedCheck_97_; 
-v_ref_87_ = lean_ctor_get(v___y_84_, 5);
+v_ref_87_ = lean_ctor_get(v___y_84_, 4);
 v___x_88_ = l_Lean_addMessageContextPartial___at___00Lean_throwError___at___00Lean_Meta_Sym_SimpGoalResult_toOption_spec__0_spec__0(v_msg_83_, v___y_84_, v___y_85_);
 v_a_89_ = lean_ctor_get(v___x_88_, 0);
 v_isSharedCheck_97_ = !lean_is_exclusive(v___x_88_);

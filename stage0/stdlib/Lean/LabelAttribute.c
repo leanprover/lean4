@@ -860,7 +860,7 @@ LEAN_EXPORT lean_object* l_Lean_ScopedEnvExtension_add___at___00Lean_mkLabelAttr
 _start:
 {
 lean_object* v_currNamespace_163_; lean_object* v___x_164_; lean_object* v_env_165_; lean_object* v_nextMacroScope_166_; lean_object* v_ngen_167_; lean_object* v_auxDeclNGen_168_; lean_object* v_traceState_169_; lean_object* v_messages_170_; lean_object* v_infoState_171_; lean_object* v_snapshotTasks_172_; lean_object* v___x_174_; uint8_t v_isShared_175_; uint8_t v_isSharedCheck_184_; 
-v_currNamespace_163_ = lean_ctor_get(v___y_160_, 6);
+v_currNamespace_163_ = lean_ctor_get(v___y_160_, 5);
 v___x_164_ = lean_st_ref_take(v___y_161_);
 v_env_165_ = lean_ctor_get(v___x_164_, 0);
 v_nextMacroScope_166_ = lean_ctor_get(v___x_164_, 1);
@@ -2502,7 +2502,7 @@ v___x_948_ = lean_st_ref_get(v___y_946_);
 v_env_949_ = lean_ctor_get(v___x_948_, 0);
 lean_inc_ref(v_env_949_);
 lean_dec(v___x_948_);
-v_options_950_ = lean_ctor_get(v___y_945_, 2);
+v_options_950_ = lean_ctor_get(v___y_945_, 1);
 v___x_951_ = lean_obj_once(&l_Lean_addMessageContextPartial___at___00Lean_throwError___at___00Lean_labelled_spec__1_spec__2___closed__2, &l_Lean_addMessageContextPartial___at___00Lean_throwError___at___00Lean_labelled_spec__1_spec__2___closed__2_once, _init_l_Lean_addMessageContextPartial___at___00Lean_throwError___at___00Lean_labelled_spec__1_spec__2___closed__2);
 v___x_952_ = lean_obj_once(&l_Lean_addMessageContextPartial___at___00Lean_throwError___at___00Lean_labelled_spec__1_spec__2___closed__5, &l_Lean_addMessageContextPartial___at___00Lean_throwError___at___00Lean_labelled_spec__1_spec__2___closed__5_once, _init_l_Lean_addMessageContextPartial___at___00Lean_throwError___at___00Lean_labelled_spec__1_spec__2___closed__5);
 lean_inc_ref(v_options_950_);
@@ -2533,7 +2533,7 @@ LEAN_EXPORT lean_object* l_Lean_throwError___at___00Lean_labelled_spec__1___redA
 _start:
 {
 lean_object* v_ref_965_; lean_object* v___x_966_; lean_object* v_a_967_; lean_object* v___x_969_; uint8_t v_isShared_970_; uint8_t v_isSharedCheck_975_; 
-v_ref_965_ = lean_ctor_get(v___y_962_, 5);
+v_ref_965_ = lean_ctor_get(v___y_962_, 4);
 v___x_966_ = l_Lean_addMessageContextPartial___at___00Lean_throwError___at___00Lean_labelled_spec__1_spec__2(v_msg_961_, v___y_962_, v___y_963_);
 v_a_967_ = lean_ctor_get(v___x_966_, 0);
 v_isSharedCheck_975_ = !lean_is_exclusive(v___x_966_);

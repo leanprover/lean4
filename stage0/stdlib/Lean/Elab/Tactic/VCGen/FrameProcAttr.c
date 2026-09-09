@@ -818,7 +818,7 @@ LEAN_EXPORT lean_object* l_Lean_ScopedEnvExtension_add___at___00Lean_Elab_Tactic
 _start:
 {
 lean_object* v_currNamespace_214_; lean_object* v___x_215_; lean_object* v_env_216_; lean_object* v_nextMacroScope_217_; lean_object* v_ngen_218_; lean_object* v_auxDeclNGen_219_; lean_object* v_traceState_220_; lean_object* v_messages_221_; lean_object* v_infoState_222_; lean_object* v_snapshotTasks_223_; lean_object* v___x_225_; uint8_t v_isShared_226_; uint8_t v_isSharedCheck_235_; 
-v_currNamespace_214_ = lean_ctor_get(v___y_211_, 6);
+v_currNamespace_214_ = lean_ctor_get(v___y_211_, 5);
 v___x_215_ = lean_st_ref_take(v___y_212_);
 v_env_216_ = lean_ctor_get(v___x_215_, 0);
 v_nextMacroScope_217_ = lean_ctor_get(v___x_215_, 1);
@@ -958,8 +958,8 @@ v___x_279_ = lean_st_ref_get(v_a_272_);
 v_env_280_ = lean_ctor_get(v___x_279_, 0);
 lean_inc_ref(v_env_280_);
 lean_dec(v___x_279_);
-v_options_281_ = lean_ctor_get(v_a_271_, 2);
-v_ref_282_ = lean_ctor_get(v_a_271_, 5);
+v_options_281_ = lean_ctor_get(v_a_271_, 1);
+v_ref_282_ = lean_ctor_get(v_a_271_, 4);
 lean_inc_ref(v_options_281_);
 v___x_283_ = lean_alloc_ctor(0, 2, 0);
 lean_ctor_set(v___x_283_, 0, v_env_280_);
@@ -1179,7 +1179,7 @@ v___x_350_ = lean_st_ref_get(v___y_348_);
 v_env_351_ = lean_ctor_get(v___x_350_, 0);
 lean_inc_ref(v_env_351_);
 lean_dec(v___x_350_);
-v_options_352_ = lean_ctor_get(v___y_347_, 2);
+v_options_352_ = lean_ctor_get(v___y_347_, 1);
 v___x_353_ = lean_obj_once(&l_Lean_addMessageContextPartial___at___00Lean_throwError___at___00__private_Lean_Elab_Tactic_VCGen_FrameProcAttr_0__Lean_Elab_Tactic_VCGen_initFn_00___x40_Lean_Elab_Tactic_VCGen_FrameProcAttr_1192303900____hygCtx___hyg_2__spec__0_spec__0___closed__2, &l_Lean_addMessageContextPartial___at___00Lean_throwError___at___00__private_Lean_Elab_Tactic_VCGen_FrameProcAttr_0__Lean_Elab_Tactic_VCGen_initFn_00___x40_Lean_Elab_Tactic_VCGen_FrameProcAttr_1192303900____hygCtx___hyg_2__spec__0_spec__0___closed__2_once, _init_l_Lean_addMessageContextPartial___at___00Lean_throwError___at___00__private_Lean_Elab_Tactic_VCGen_FrameProcAttr_0__Lean_Elab_Tactic_VCGen_initFn_00___x40_Lean_Elab_Tactic_VCGen_FrameProcAttr_1192303900____hygCtx___hyg_2__spec__0_spec__0___closed__2);
 v___x_354_ = lean_obj_once(&l_Lean_addMessageContextPartial___at___00Lean_throwError___at___00__private_Lean_Elab_Tactic_VCGen_FrameProcAttr_0__Lean_Elab_Tactic_VCGen_initFn_00___x40_Lean_Elab_Tactic_VCGen_FrameProcAttr_1192303900____hygCtx___hyg_2__spec__0_spec__0___closed__5, &l_Lean_addMessageContextPartial___at___00Lean_throwError___at___00__private_Lean_Elab_Tactic_VCGen_FrameProcAttr_0__Lean_Elab_Tactic_VCGen_initFn_00___x40_Lean_Elab_Tactic_VCGen_FrameProcAttr_1192303900____hygCtx___hyg_2__spec__0_spec__0___closed__5_once, _init_l_Lean_addMessageContextPartial___at___00Lean_throwError___at___00__private_Lean_Elab_Tactic_VCGen_FrameProcAttr_0__Lean_Elab_Tactic_VCGen_initFn_00___x40_Lean_Elab_Tactic_VCGen_FrameProcAttr_1192303900____hygCtx___hyg_2__spec__0_spec__0___closed__5);
 lean_inc_ref(v_options_352_);
@@ -1210,7 +1210,7 @@ LEAN_EXPORT lean_object* l_Lean_throwError___at___00__private_Lean_Elab_Tactic_V
 _start:
 {
 lean_object* v_ref_367_; lean_object* v___x_368_; lean_object* v_a_369_; lean_object* v___x_371_; uint8_t v_isShared_372_; uint8_t v_isSharedCheck_377_; 
-v_ref_367_ = lean_ctor_get(v___y_364_, 5);
+v_ref_367_ = lean_ctor_get(v___y_364_, 4);
 v___x_368_ = l_Lean_addMessageContextPartial___at___00Lean_throwError___at___00__private_Lean_Elab_Tactic_VCGen_FrameProcAttr_0__Lean_Elab_Tactic_VCGen_initFn_00___x40_Lean_Elab_Tactic_VCGen_FrameProcAttr_1192303900____hygCtx___hyg_2__spec__0_spec__0(v_msg_363_, v___y_364_, v___y_365_);
 v_a_369_ = lean_ctor_get(v___x_368_, 0);
 v_isSharedCheck_377_ = !lean_is_exclusive(v___x_368_);

@@ -113,6 +113,12 @@ def expandDefContract : Macro := fun stx => do
        else if !ensuresStx.isNone then ensuresStx else throwsStx)
       "`given`/`requires`/`ensures`/`throws` contracts elaborate to a `vcgen`-proved \
 specification theorem; add `import Std.WP` to use them."
+  -- An omitted `ensures` or `throws` claims the corresponding exit does not happen, so a
+  -- contract without either claims nothing ever happens; reject it.
+  if ensuresStx.isNone && throwsStx.getNumArgs == 0 then
+    Macro.throwErrorAt (if !requiresStx.isNone then requiresStx else givenStx)
+      "a `def` contract needs an `ensures` or `throws` clause; an omitted clause claims the \
+corresponding exit does not happen"
   let sig := decl[2]
   let fId : Ident := ⟨decl[1][0]⟩
   let specId := mkIdentFrom fId (fId.getId ++ `spec)
@@ -127,7 +133,7 @@ specification theorem; add `import Std.WP` to use them."
     | `(requiresClause| requires $f:basicFun) => `(fun $f:basicFun)
     | `(requiresClause| requires $p:term) => pure p
     | _ => Macro.throwUnsupported
-  let post : Term ← if ensuresStx.isNone then `(fun _ => ⊤) else
+  let post : Term ← if ensuresStx.isNone then `(fun _ => ⊥) else
     match ensuresStx[0] with
     | `(ensuresClause| ensures $f:basicFun) => `(fun $f:basicFun)
     | _ => Macro.throwUnsupported

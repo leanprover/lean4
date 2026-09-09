@@ -63,7 +63,7 @@ def Lean.mkInstance (name : Name) (levelParams : List Name) (type value : Expr)
 /--
 Creates a new metavariable in the local context `lctx`, reverting any free variables in `ty` that
 do not occur in `lctx`. The return value will be an application of the metavariable with the
-reverted variables.
+reverted variables, i.e. a metavariable application of type `ty`.
 
 Note: This function assumes that the `lctx` is a subprefix of the current local context.
 -/
@@ -78,6 +78,56 @@ def Lean.Meta.mkFreshRevertedMVarAt (ty : Expr) (lctx : LocalContext) (linsts : 
   return mkAppN mvar toRevert
 
 namespace Lean.Meta.Deriving
+
+/--
+If true, use instance requirements verbatim as instance binders instead of trying to synthesize
+them while deriving instances. Example:
+```
+set_option deriving.bindersVerbatim true in
+structure Test where
+  value : Nat
+deriving BEq
+
+/-- info: instBEqTest [BEq Nat] : BEq Test -/
+#guard_msgs in #check instBEqTest
+```
+
+Note: This option only works for deriving handlers that support it, i.e. deriving handlers that use
+the `Lean.Meta.Deriving` framework.
+-/
+register_option deriving.bindersVerbatim : Bool := {
+  defValue := false
+  descr := "if true, use instance requirements verbatim as instance binders instead of trying to \
+    synthesize them in deriving handlers that support this option"
+}
+
+/--
+If true, reduce instance requirements in deriving handlers by applying instances. Example:
+```
+set_option deriving.reduceInstances false in
+structure TestWithout (α : Type) where
+  value : List α
+deriving BEq
+
+set_option deriving.reduceInstances true in -- default
+structure TestWith (α : Type) where
+  value : List α
+deriving BEq
+
+/-- info: instBEqTestWithout [BEq (List α)] : BEq TestWithout -/
+#guard_msgs in #check instBEqTestWithout
+
+/-- info: instBEqTestWith [BEq α] : BEq TestWithout -/
+#guard_msgs in #check instBEqTestWith
+```
+
+Note: This option only works for deriving handlers that support it, i.e. deriving handlers that use
+the `Lean.Meta.Deriving` framework.
+-/
+register_option deriving.reduceInstances : Bool := {
+  defValue := true
+  descr := "if true, reduce instance hypotheses like `BEq (List α)` to `BEq α` in deriving handlers"
+}
 
 private def goodKeys (keys : Array DiscrTree.Key) : Bool := Id.run do
   let some (.const _ _) := keys[0]? | return false
@@ -230,6 +280,8 @@ private partial def processInstanceHypothesis (mvar : MVarId)
   if let .some res ← withLCtx (← read).paramLCtx (← get).newLInsts (trySynthInstance type) then
     mvar.assign res
     return
+  unless deriving.reduceInstances.get (← getOptions) do
+    return ← pushInstanceHypothesis mvar className
   unless allowCanonicalInstanceReduction do
     -- avoid loops
     return ← pushInstanceHypothesis mvar className
@@ -245,6 +297,17 @@ private partial def processInstanceHypothesis (mvar : MVarId)
     pushInstanceHypothesis mvar className
 
 def synthInstanceDeriving (e : Expr) : DerivingM Expr := do
+  if deriving.bindersVerbatim.get (← getOptions) then
+    -- only check for equality under instances transparency
+    let some className ← isClass? e |
+      throwError "type class instance expected{indentExpr e}"
+    for inst in (← getLocalInstances) do
+      if inst.className == className then
+        if ← isDefEqI (← inferType inst.fvar) e then
+          return inst.fvar
+    let mvarApp ← mkFreshRevertedMVarAt e (← read).paramLCtx (← read).paramLInsts
+    pushInstanceHypothesis mvarApp.getAppFn.mvarId! className
+    return mvarApp
   if let .some res ← withLCtx (← getLCtx) (← get).newLInsts (trySynthInstance e) then
     return res
   let mvarApp ← mkFreshRevertedMVarAt e (← read).paramLCtx (← read).paramLInsts
@@ -264,6 +327,8 @@ returning a suitable list of instance assumptions to be used in
 Precondition: The current local context must also be the local contexts of all metavariables.
 -/
 private def filterInstanceObligations (state : Deriving.State) : MetaM (Array MVarId) := do
+  if deriving.bindersVerbatim.get (← getOptions) then
+    return state.instanceMVars
   let n := state.instanceMVars.size
   let mut idxOfMVar : MVarIdMap (Fin n) := {}
   for h : i in 0...n do

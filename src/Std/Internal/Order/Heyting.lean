@@ -50,7 +50,6 @@ theorem le_himp {a b x : α} (h : a ⊓ x ⊑ b) : x ⊑ a ⇨ b := by
 theorem meet_himp_le {a b : α} [PreservesSup (meet a)] : a ⊓ (a ⇨ b) ⊑ b := by
   unfold himp; exact PreservesSup.upperAdjoint_le (meet a) b
 
-/-- The upper adjoint of a meet, folded to its Heyting implication. -/
 theorem upperAdjoint_meet (a b : α) : PreservesSup.upperAdjoint (meet a) b = a ⇨ b := rfl
 
 @[simp] theorem himp_prop_eq_imp (a b : Prop) : ((a ⇨ b : Prop) = (a → b)) := by

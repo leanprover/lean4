@@ -80,27 +80,23 @@ instance (opA : R → A → A) (opB : R → B → B)
 
 instance (r : R) : PreservesSup (ignore (A := A) r) := preservesSup_id
 
-/-- The wand of a pointwise-lifted companion is the pointwise wand. -/
 theorem upperAdjoint_pointwise (opE : R → A → A) [∀ r, PreservesSup (opE r)] (r : R) (X : ε → A)
     (e : ε) :
     PreservesSup.upperAdjoint (pointwise opE r) X e = PreservesSup.upperAdjoint (opE r) (X e) :=
   PreservesSup.upperAdjoint_comp (opE r) X e
 
-/-- The first component of a componentwise companion's wand is the component's wand. -/
 theorem upperAdjoint_prod_fst (opA : R → A → A) (opB : R → B → B)
     [∀ r, PreservesSup (opA r)] [∀ r, PreservesSup (opB r)] (r : R) (E : A × B) :
     (PreservesSup.upperAdjoint (prod opA opB r) E).fst =
       PreservesSup.upperAdjoint (opA r) E.fst :=
   PreservesSup.upperAdjoint_prodMap_fst (opA r) (opB r) E
 
-/-- The second component of a componentwise companion's wand is the component's wand. -/
 theorem upperAdjoint_prod_snd (opA : R → A → A) (opB : R → B → B)
     [∀ r, PreservesSup (opA r)] [∀ r, PreservesSup (opB r)] (r : R) (E : A × B) :
     (PreservesSup.upperAdjoint (prod opA opB r) E).snd =
       PreservesSup.upperAdjoint (opB r) E.snd :=
   PreservesSup.upperAdjoint_prodMap_snd (opA r) (opB r) E
 
-/-- The wand of the ignoring companion is the postcondition itself. -/
 theorem upperAdjoint_ignore (r : R) (X : A) :
     PreservesSup.upperAdjoint (ignore (R := R) r) X = X :=
   PreservesSup.upperAdjoint_id X
@@ -127,20 +123,16 @@ section
 
 variable {Pred : Type u} [CompleteLattice Pred] {R : Type x} {op : R → Pred → Pred}
 
-/-- The exception channel carries the assertion type, so the frame acts on it directly. -/
 instance (priority := high) FrameOp.instDiag [∀ r, PreservesSup (op r)] : FrameOp op Pred op where
 
-/-- The frame acts pointwise under a function layer. -/
 instance FrameOp.instPointwise {ε : Type v} {EPred' : Type v'} [CompleteLattice EPred']
     {opE' : R → EPred' → EPred'} [FrameOp op EPred' opE'] :
     FrameOp op (ε → EPred') (FrameOp.pointwise opE') where
 
-/-- The frame acts componentwise on a product layer. -/
 instance FrameOp.instProd {A : Type v} {B : Type v'} [CompleteLattice A] [CompleteLattice B]
     {opA : R → A → A} {opB : R → B → B} [FrameOp op A opA] [FrameOp op B opB] :
     FrameOp op (A × B) (FrameOp.prod opA opB) where
 
-/-- The frame cannot act on the exception channel, so its companion ignores it. -/
 instance (priority := low) FrameOp.instIgnore {EPred : Type v} [CompleteLattice EPred]
     [∀ r, PreservesSup (op r)] : FrameOp op EPred FrameOp.ignore where
 
@@ -159,9 +151,6 @@ def PredTrans.Frames (op : R → Pred → Pred) [FrameOp op EPred opE]
   ∀ (Q : β → Pred) (E : EPred),
     op F (t.apply Q E) ⊑ t.apply (fun a => op F (Q a)) (opE F E)
 
-/-- The framed spec `vcgen` applies for `t`: framing `t` by `F` makes the wp at the two weakest
-footprints, `upperAdjoint (op F) ∘ Q` and `upperAdjoint (opE F) E`, a precondition for
-`t.apply Q E` under `op F`. -/
 theorem PredTrans.Frames.op_apply_upperAdjoint_le_apply (op : R → Pred → Pred)
     [FrameOp op EPred opE] {t : PredTrans Pred EPred β} {F : R}
     (hmono : t.Monotone) (hframes : t.Frames op F) (Q : β → Pred) (E : EPred) :
@@ -172,10 +161,6 @@ theorem PredTrans.Frames.op_apply_upperAdjoint_le_apply (op : R → Pred → Pre
   intro a
   exact PreservesSup.upperAdjoint_le (op F) (Q a)
 
-/-- If `t` is conjunctive, then `t` frames `(F ⊓ ·)` when `F` holds before and after `t`, with
-exceptional exits paying the frame's image `opE F ⊤`. The premise `hE` says `opE F` acts by meet:
-conjoining `opE F ⊤` onto `E` establishes `opE F E`. Every companion derived from the meet
-satisfies it. -/
 theorem PredTrans.Frames.of_conjunctive {opE : Pred → EPred → EPred} [FrameOp meet EPred opE]
     {t : PredTrans Pred EPred β} {F : Pred}
     (hmono : t.Monotone) (hconj : t.Conjunctive)
@@ -199,13 +184,11 @@ noncomputable def PredTrans.frameClosure (op : R → Pred → Pred) [FrameOp op 
     (t : PredTrans Pred EPred β) : PredTrans Pred EPred β :=
   ⟨fun Q E => ⨅ r, PreservesSup.upperAdjoint (op r) (t.apply (fun a => op r (Q a)) (opE r E))⟩
 
-/-- Unfolding `frameClosure` through `apply`. -/
 theorem PredTrans.apply_frameClosure (op : R → Pred → Pred) [FrameOp op EPred opE]
     (t : PredTrans Pred EPred β) (Q : β → Pred) (E : EPred) :
     (t.frameClosure op).apply Q E =
       ⨅ r, PreservesSup.upperAdjoint (op r) (t.apply (fun a => op r (Q a)) (opE r E)) := rfl
 
-/-- The frame closure carries monotonicity: if `t` is monotone, so is `t.frameClosure op`. -/
 theorem PredTrans.monotone_frameClosure (op : R → Pred → Pred) [FrameOp op EPred opE]
     {t : PredTrans Pred EPred β} (h : t.Monotone) :
     (t.frameClosure op).Monotone := by
@@ -215,9 +198,6 @@ theorem PredTrans.monotone_frameClosure (op : R → Pred → Pred) [FrameOp op E
   exact h _ _ _ _ (PreservesSup.map_mono (opE r) hE)
     (fun a => PreservesSup.map_mono (op r) (hP a))
 
-/-- The frame rule, internalized: for a frame operator whose resources compose by `comp` with the
-action laws `op (comp r r') = op r ∘ op r'` and `opE (comp r r') = opE r ∘ opE r'`, and any
-predicate transformer `t`, the closure `t.frameClosure op` frames every resource `F`. -/
 theorem PredTrans.frameClosure_frames (op : R → Pred → Pred) [FrameOp op EPred opE]
     (comp : R → R → R) (hact : ∀ r r' a, op (comp r r') a = op r (op r' a))
     (hactE : ∀ r r' E, opE (comp r r') E = opE r (opE r' E))
@@ -237,11 +217,6 @@ theorem PredTrans.frameClosure_frames (op : R → Pred → Pred) [FrameOp op EPr
   funext a
   rw [hact F' F (Q a)]
 
-/-- Landing below the frame closure, transposed across the Galois connection:
-`pre ⊑ (t.frameClosure op).apply Q E` holds exactly when
-`op r pre ⊑ t.apply (fun a => op r (Q a)) (opE r E)` for every resource `r`. At a unit resource
-(`op e = id`, `opE e = id`) the `r = e` conjunct is `pre ⊑ t.apply Q E`; the remaining conjuncts are
-the frame conditions on `pre`, so a `pre` that cannot frame is forced down to the trivial `⊥`. -/
 theorem PredTrans.le_frameClosure_iff (op : R → Pred → Pred) [FrameOp op EPred opE]
     (t : PredTrans Pred EPred β) {Q : β → Pred} {E : EPred} {pre : Pred} :
     pre ⊑ (t.frameClosure op).apply Q E ↔
@@ -256,9 +231,6 @@ theorem PredTrans.le_frameClosure_iff (op : R → Pred → Pred) [FrameOp op EPr
     intro r
     exact PreservesSup.le_upperAdjoint (op r) (h r)
 
-/-- Landing below the frame closure reduces to landing below the base transformer together with
-framing: if `pre ⊑ t.apply Q E` and `t` frames every `op r`, then
-`pre ⊑ (t.frameClosure op).apply Q E`. -/
 theorem PredTrans.le_frameClosure (op : R → Pred → Pred) [FrameOp op EPred opE]
     (t : PredTrans Pred EPred β) {Q : β → Pred} {E : EPred} {pre : Pred}
     (hframe : ∀ r : R, t.Frames op r)
@@ -267,8 +239,6 @@ theorem PredTrans.le_frameClosure (op : R → Pred → Pred) [FrameOp op EPred o
   (le_frameClosure_iff op t).mpr fun r =>
     PartialOrder.rel_trans (PreservesSup.map_mono (op r) hpre) (hframe r Q E)
 
-/-- The frame closure lies below the base transformer, witnessed at a unit resource `e` with
-`op e = id` and `opE e = id`. -/
 theorem PredTrans.frameClosure_le (op : R → Pred → Pred) [FrameOp op EPred opE]
     (e : R) (hunit : ∀ a, op e a = a) (hunitE : ∀ E, opE e E = E)
     (t : PredTrans Pred EPred β) (Q : β → Pred) (E : EPred) :

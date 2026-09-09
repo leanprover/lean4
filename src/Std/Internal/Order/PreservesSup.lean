@@ -41,7 +41,6 @@ class PreservesSup {α : Type u} [CompleteLattice α] (f : α → α) : Prop whe
   map_sup (s : α → Prop) :
     f (CompleteLattice.sup s) = CompleteLattice.sup (fun y => ∃ x, s x ∧ y = f x)
 
-/-- The identity preserves suprema. -/
 instance preservesSup_id : PreservesSup (id : α → α) where
   map_sup s := by
     show CompleteLattice.sup s = _
@@ -49,7 +48,6 @@ instance preservesSup_id : PreservesSup (id : α → α) where
     funext y
     exact propext ⟨fun hy => ⟨y, hy, rfl⟩, fun ⟨x, hx, hxy⟩ => hxy ▸ hx⟩
 
-/-- Post-composition with a supremum-preserving map preserves suprema pointwise. -/
 instance instPreservesSupComp {ε : Type v} (f : α → α) [PreservesSup f] :
     PreservesSup (Function.comp f : (ε → α) → ε → α) where
   map_sup s := by
@@ -199,23 +197,19 @@ theorem Prod.mk_meet (p q : α × β) : ((p.fst ⊓ q.fst, p.snd ⊓ q.snd) : α
 @[simp] theorem Prod.snd_meet (p q : α × β) : (p ⊓ q).snd = p.snd ⊓ q.snd := by
   rw [← Prod.mk_meet]
 
-/-- `mk` of the componentwise least upper bounds is the least upper bound on a product. -/
 theorem Prod.mk_sup (c : α × β → Prop) :
     ((CompleteLattice.sup fun a => ∃ b, c (a, b),
       CompleteLattice.sup fun b => ∃ a, c (a, b)) : α × β) = CompleteLattice.sup c :=
   prod_eq_of_pprod_eq <| by rw [prod_sup_toPProd, ← PProd.mk_sup]
 
-/-- The first component of a least upper bound is the least upper bound of the first components. -/
 theorem Prod.fst_sup (c : α × β → Prop) :
     (CompleteLattice.sup c).fst = CompleteLattice.sup fun a => ∃ b, c (a, b) := by
   rw [← Prod.mk_sup]
 
-/-- The second component of a least upper bound is the least upper bound of the second components. -/
 theorem Prod.snd_sup (c : α × β → Prop) :
     (CompleteLattice.sup c).snd = CompleteLattice.sup fun b => ∃ a, c (a, b) := by
   rw [← Prod.mk_sup]
 
-/-- The componentwise map of supremum-preserving maps preserves suprema. -/
 instance instPreservesSupProdMap (f : α → α) (g : β → β) [PreservesSup f] [PreservesSup g] :
     PreservesSup (Prod.map f g) where
   map_sup s := by
@@ -322,14 +316,12 @@ theorem upperAdjoint_mono (f : α → α) [PreservesSup f] {b b' : α} (h : b �
     upperAdjoint f b ⊑ upperAdjoint f b' :=
   le_upperAdjoint f (PartialOrder.rel_trans (upperAdjoint_le f b) h)
 
-/-- The upper adjoint of the identity is the identity. -/
 theorem upperAdjoint_id (b : α) : upperAdjoint (id : α → α) b = b := by
   apply PartialOrder.rel_antisymm
   · unfold upperAdjoint
     exact sup_le _ fun x hx => hx
   · exact le_upperAdjoint _ PartialOrder.rel_refl
 
-/-- The upper adjoint of a pointwise lift is the pointwise upper adjoint. -/
 theorem upperAdjoint_comp {ε : Type v} (f : α → α) [PreservesSup f] (X : ε → α) (e : ε) :
     upperAdjoint (Function.comp f) X e = upperAdjoint f (X e) := by
   apply PartialOrder.rel_antisymm
@@ -343,8 +335,6 @@ theorem upperAdjoint_comp {ε : Type v} (f : α → α) [PreservesSup f] (X : ε
       le_upperAdjoint _ fun e' => upperAdjoint_le f (X e')
     exact h e
 
-/-- The first component of the upper adjoint of a componentwise map is the upper adjoint at the
-first component. -/
 theorem upperAdjoint_prodMap_fst {β : Type v} [CompleteLattice β]
     (f : α → α) (g : β → β) [PreservesSup f] [PreservesSup g] (E : α × β) :
     (upperAdjoint (Prod.map f g) E).fst = upperAdjoint f E.fst := by
@@ -361,8 +351,6 @@ theorem upperAdjoint_prodMap_fst {β : Type v} [CompleteLattice β]
         (Prod.mk_le _ _ _ (upperAdjoint_le f E.fst) (upperAdjoint_le g E.snd))
     exact h.left
 
-/-- The second component of the upper adjoint of a componentwise map is the upper adjoint at the
-second component. -/
 theorem upperAdjoint_prodMap_snd {β : Type v} [CompleteLattice β]
     (f : α → α) (g : β → β) [PreservesSup f] [PreservesSup g] (E : α × β) :
     (upperAdjoint (Prod.map f g) E).snd = upperAdjoint g E.snd := by

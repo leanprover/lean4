@@ -1,21 +1,23 @@
-cat > "$TMP_DIR/test.cpp" <<'EOF'
+cat > "$TMP_DIR/test.c" <<'EOF'
 #if defined(__SIZEOF_INT128__)
 #define LEAN_TEST_HAS_UINT128
 #undef __SIZEOF_INT128__
 #endif
 #include <lean/lean.h>
 
-#include <cstdint>
+#include <stdint.h>
+
+#if defined(LEAN_TEST_HAS_UINT128)
+static int check(uint64_t a, uint64_t b, uint64_t modulus) {
+    uint64_t expected = modulus == 0
+        ? a * b
+        : (uint64_t)((unsigned __int128)a * (unsigned __int128)b % modulus);
+    return lean_uint64_mul_mod(a, b, modulus) == expected;
+}
+#endif
 
 int main() {
 #if defined(LEAN_TEST_HAS_UINT128)
-    auto check = [](uint64_t a, uint64_t b, uint64_t modulus) {
-        uint64_t expected = modulus == 0
-            ? a * b
-            : static_cast<uint64_t>(static_cast<__uint128_t>(a) * b % modulus);
-        return lean_uint64_mul_mod(a, b, modulus) == expected;
-    };
-
     if (!check(UINT64_MAX, UINT64_MAX, 0)) return 1;
     if (!check(UINT64_MAX, UINT64_MAX, 1)) return 1;
     if (!check(UINT64_MAX, UINT64_MAX, UINT64_C(18446744073709551557))) return 1;
@@ -40,7 +42,8 @@ int main() {
 }
 EOF
 
-read -ra CXX_ARGS <<< "$CXX"
-run "${CXX_ARGS[0]}" -I"$SRC_DIR/include" "${CXX_ARGS[@]:1}" -std=c++17 \
-  "$TMP_DIR/test.cpp" -o "$TMP_DIR/test"
+read -ra CC_ARGS <<< "$LEAN_CC"
+read -ra LEANC_ARGS <<< "$LEANC_OPTS"
+run "${CC_ARGS[@]}" -I"$SRC_DIR/include" "${LEANC_ARGS[@]}" -std=c11 \
+  "$TMP_DIR/test.c" -o "$TMP_DIR/test"
 run "$TMP_DIR/test"

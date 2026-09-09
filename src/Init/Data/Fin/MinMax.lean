@@ -19,7 +19,7 @@ public instance : Min (Fin n) where
 public instance : Max (Fin n) where
   max a b := ⟨max a b, by simpa [Std.max_lt_iff] using ⟨a.isLt, b.isLt⟩⟩
 
-@[simp] public theorem val_min {a b : Fin n} : (min a b).val = min a.val b.val := rfl
-@[simp] public theorem val_max {a b : Fin n} : (max a b).val = max a.val b.val := rfl
+@[simp] public theorem val_min (a b : Fin n) : (min a b).val = min a.val b.val := rfl
+@[simp] public theorem val_max (a b : Fin n) : (max a b).val = max a.val b.val := rfl
 
 end Fin

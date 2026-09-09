@@ -19,7 +19,7 @@ open Std
 namespace Fin
 
 @[simp]
-public theorem compare_val {n : Nat} {a b : Fin n} : compare (a : Nat) (b : Nat) = compare a b := rfl
+public theorem compare_val {n : Nat} (a b : Fin n) : compare (a : Nat) (b : Nat) = compare a b := rfl
 
 public instance {n : Nat} : LinearOrderPackage (Fin n) := .ofLE _ {
   beq_iff_le_and_ge a b := by simpa using Fin.le_antisymm_iff

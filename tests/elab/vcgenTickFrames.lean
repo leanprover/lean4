@@ -144,7 +144,7 @@ def tick [Monad m] : TickT m Unit := show StateT Nat m Unit from modify (· + 1)
 `StateT` wp over `costConj`. -/
 noncomputable def TickT.wp [Monad m] [Assertion Pred] [Assertion EPred] [WPMonad m Pred EPred]
     {α : Type} (x : TickT m α) (Q : α → Nat → Pred) (E : EPred) : Nat → Pred :=
-  ((WP.wpTrans x.run).frameClosure costConj EFrame.ignore).apply Q E
+  ((WP.wpTrans x.run).frameClosure costConj).apply Q E
 
 /-- The simp normal form for `TickT.wp`: the meet over all shifts `r` of the base wp under the
 shifted postcondition `⌜r ≤ m⌝ ⊓ Q a (m - r)`, offset by `r`. -/
@@ -183,14 +183,14 @@ variable {m : Type → Type} [Monad m]
 `costConj`-frame rule holds by construction. -/
 noncomputable instance TickT.instWPMonad [Assertion Pred] [Assertion EPred] [WPMonad m Pred EPred] :
     WPMonad (TickT m) (Nat → Pred) EPred :=
-  WPMonad.of_frameClosure (m := StateT Nat m) costConj EFrame.ignore
+  WPMonad.of_frameClosure (m := StateT Nat m) costConj
     costConj_add (fun _ _ _ => rfl) costConj_zero (fun _ => rfl) StateT.instWPMonad
 
 /-- The internalized frame rule: every program frames every shift `F` with respect to `costConj`. -/
 @[grind .]
 theorem frames_costConj [Assertion Pred] [Assertion EPred] [WPMonad m Pred EPred]
     {α : Type} (x : TickT m α) (F : Nat) :
-    PredTrans.Frames costConj EFrame.ignore (WP.wpTrans x) F :=
+    PredTrans.Frames costConj (WP.wpTrans x) F :=
   WP.frames_of_frameClosure costConj (· + ·) costConj_add (fun _ _ _ => rfl)
     ⟨fun y => WP.wpTrans y.run, fun _ => rfl⟩
 

@@ -88,7 +88,7 @@ postcondition. -/
 
 /-- The identity-`opE` interpretation: only the value channel is framed. -/
 @[instance_reducible] noncomputable def framedWP : WP Prog Unit HProp HProp :=
-  WP.of_frameClosure sepConj EFrame.ignore baseWP
+  WP.of_frameClosure sepConj (opE := FrameOp.ignore) baseWP
 
 /-- A frame does not vanish: `F ∗ P` at a two-cell heap refutes `P`. -/
 theorem sepConj_not_absorbed :
@@ -109,7 +109,7 @@ being absorbed. -/
 theorem exit_spec_iff_absorbed :
     (((0 ↦ 1) : HProp) ⊑ framedWP.wp .exit (fun _ => ⊥) (0 ↦ 1))
       ↔ (∀ F : HProp, (F ∗ (0 ↦ 1)) ⊑ (0 ↦ 1)) := by
-  rw [show framedWP = WP.of_frameClosure sepConj EFrame.ignore baseWP from rfl]
+  rw [show framedWP = WP.of_frameClosure sepConj (opE := FrameOp.ignore) baseWP from rfl]
   rw [WP.of_frameClosure_le_wp_iff]
   constructor <;> intro h F <;> exact h F
 
@@ -121,13 +121,13 @@ theorem exit_spec_fails :
 
 /-- The interpretation that frames both channels by `sepConj`. -/
 @[instance_reducible] noncomputable def framedWPE : WP Prog Unit HProp HProp :=
-  WP.of_frameClosure sepConj sepConj baseWP
+  WP.of_frameClosure sepConj baseWP
 
 /-- Landing below the closure at the transformer level: the framed obligation is
 `∀ F, F ∗ P ⊑ F ∗ P`. -/
 theorem exit_spec_frameClosure :
     ((0 ↦ 1) : HProp) ⊑
-      ((baseWP.wpTrans .exit).frameClosure sepConj sepConj).apply (fun _ => ⊥) (0 ↦ 1) := by
+      ((baseWP.wpTrans .exit).frameClosure sepConj).apply (fun _ => ⊥) (0 ↦ 1) := by
   rw [PredTrans.le_frameClosure_iff]
   intro F
   exact PartialOrder.rel_refl

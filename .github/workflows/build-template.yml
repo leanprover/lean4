@@ -265,6 +265,15 @@ jobs:
           fi
           elan --version  # fails step if not found
           make -C build/$TARGET_STAGE lean4lean
+      - name: Build nanoda
+        if: matrix.release && !matrix.wasm && inputs.RELEASE_TAG != '' && github.repository == 'leanprover/lean4'
+        run: |
+          # install inline instead of via an action, which would choose a different HOME on Windows
+          if ! command -v cargo > /dev/null; then
+            curl https://sh.rustup.rs -sSf | sh -s -- -y --profile minimal
+            export PATH="$HOME/.cargo/bin:$PATH"
+          fi
+          make -C build/$TARGET_STAGE nanoda
       - name: Install
         run: |
           make -C build/$TARGET_STAGE install

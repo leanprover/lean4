@@ -15,8 +15,9 @@ open Std
 
 namespace Nat
 
-public instance : LinearOrderPackage Nat := .ofLE _ {
+-- This should really be a `LinearOrderPackage Nat` instance. However, this would trigger
+-- #15082 in a grind test, so we just provide `LawfulOrderBEq` for now.
+public instance : LawfulOrderBEq Nat where
   beq_iff_le_and_ge a b := by simpa using Nat.le_antisymm_iff
-}
 
 end Nat

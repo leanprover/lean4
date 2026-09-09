@@ -1998,7 +1998,7 @@ def isPrefixOf [BEq α] (as bs : Array α) : Bool :=
   else
     false
 
-@[specialize]
+@[specialize, expose]
 def zipWithMAux {m : Type v → Type w} [Monad m] (as : Array α) (bs : Array β) (f : α → β → m γ) (i : Nat) (cs : Array γ) : m (Array γ) := do
   if h : i < as.size then
     let a := as[i]
@@ -2021,7 +2021,7 @@ Examples:
 * `#[].zipWith (· + ·) #[5, 6] = #[]`
 * `#[x₁, x₂, x₃].zipWith f #[y₁, y₂, y₃, y₄] = #[f x₁ y₁, f x₂ y₂, f x₃ y₃]`
 -/
-@[inline] def zipWith (f : α → β → γ) (as : Array α) (bs : Array β) : Array γ :=
+@[inline, expose] def zipWith (f : α → β → γ) (as : Array α) (bs : Array β) : Array γ :=
   Id.run (zipWithMAux as bs (pure <| f · ·) 0 #[])
 
 /--

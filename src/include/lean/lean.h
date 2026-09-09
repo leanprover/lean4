@@ -2245,6 +2245,20 @@ static inline uint64_t lean_uint64_of_nat_mk(lean_obj_arg a) { uint64_t r = lean
 static inline uint64_t lean_uint64_add(uint64_t a1, uint64_t a2) { return a1+a2; }
 static inline uint64_t lean_uint64_sub(uint64_t a1, uint64_t a2) { return a1-a2; }
 static inline uint64_t lean_uint64_mul(uint64_t a1, uint64_t a2) { return 1U*a1*a2; }
+static inline uint64_t lean_uint64_mul_hi(uint64_t a, uint64_t b) {
+#if defined(__SIZEOF_INT128__)
+    return (uint64_t)(((__uint128_t)a * (__uint128_t)b) >> 64);
+#else
+    uint64_t a_lo = (uint32_t)a;
+    uint64_t a_hi = a >> 32;
+    uint64_t b_lo = (uint32_t)b;
+    uint64_t b_hi = b >> 32;
+    uint64_t lo = a_lo * b_lo;
+    uint64_t middle = a_hi * b_lo + (lo >> 32);
+    uint64_t middle_lo = (uint32_t)middle + a_lo * b_hi;
+    return a_hi * b_hi + (middle >> 32) + (middle_lo >> 32);
+#endif
+}
 static inline uint64_t lean_uint64_div(uint64_t a1, uint64_t a2) { return a2 == 0 ? 0  : a1/a2; }
 static inline uint64_t lean_uint64_mod(uint64_t a1, uint64_t a2) { return a2 == 0 ? a1 : a1%a2; }
 static inline uint64_t lean_uint64_land(uint64_t a, uint64_t b) { return a & b; }
@@ -3097,6 +3111,31 @@ static inline lean_obj_res lean_box_uint64(uint64_t v) {
 
 static inline uint64_t lean_unbox_uint64(b_lean_obj_arg o) {
     return lean_ctor_get_uint64(o, 0);
+}
+
+static inline lean_obj_res lean_uint64_mul_full(uint64_t a, uint64_t b) {
+    lean_object * result = lean_alloc_ctor(0, 2, 0);
+    lean_ctor_set(result, 0, lean_box_uint64(lean_uint64_mul_hi(a, b)));
+    lean_ctor_set(result, 1, lean_box_uint64(a * b));
+    return result;
+}
+
+static inline lean_obj_res lean_uint64_add_carry(uint64_t a, uint64_t b, uint8_t carry) {
+    uint64_t sum = a + b;
+    uint64_t result = sum + (uint64_t)carry;
+    lean_object * pair = lean_alloc_ctor(0, 2, 0);
+    lean_ctor_set(pair, 0, lean_box_uint64(result));
+    lean_ctor_set(pair, 1, lean_box(sum < a || result < sum));
+    return pair;
+}
+
+static inline lean_obj_res lean_uint64_sub_borrow(uint64_t a, uint64_t b, uint8_t borrow) {
+    uint64_t difference = a - b;
+    uint64_t result = difference - (uint64_t)borrow;
+    lean_object * pair = lean_alloc_ctor(0, 2, 0);
+    lean_ctor_set(pair, 0, lean_box_uint64(result));
+    lean_ctor_set(pair, 1, lean_box(a < b || difference < (uint64_t)borrow));
+    return pair;
 }
 
 static inline lean_obj_res lean_box_usize(size_t v) {

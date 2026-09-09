@@ -594,6 +594,50 @@ This function is overridden at runtime with an efficient implementation.
 -/
 @[extern "lean_uint64_mul", implicit_reducible]
 protected def UInt64.mul (a b : UInt64) : UInt64 := ⟨a.toBitVec * b.toBitVec⟩
+
+/--
+Returns the high 64 bits of the 128-bit product of two 64-bit unsigned integers.
+
+This function is overridden at runtime with an efficient implementation.
+-/
+@[extern "lean_uint64_mul_hi", implicit_reducible]
+def UInt64.mulHi (a b : UInt64) : UInt64 :=
+  UInt64.ofNat (a.toNat * b.toNat / UInt64.size)
+
+/--
+Returns the 128-bit product of two 64-bit unsigned integers as its high and low 64-bit words.
+
+This function is overridden at runtime with an efficient implementation.
+-/
+@[extern "lean_uint64_mul_full", implicit_reducible]
+def UInt64.mulFull (a b : UInt64) : UInt64 × UInt64 :=
+  let product := a.toNat * b.toNat
+  (UInt64.ofNat (product / UInt64.size), UInt64.ofNat product)
+
+/--
+Adds two 64-bit unsigned integers and an incoming carry, returning the wrapped sum and outgoing
+carry.
+
+This function is overridden at runtime with an efficient implementation.
+-/
+@[extern "lean_uint64_add_carry", implicit_reducible]
+def UInt64.addCarry (a b : UInt64) (carry : Bool) : UInt64 × Bool :=
+  let sum := a.toNat + b.toNat + carry.toNat
+  (UInt64.ofNat sum, decide (UInt64.size ≤ sum))
+
+/--
+Subtracts a 64-bit unsigned integer and an incoming borrow from another, returning the wrapped
+difference and outgoing borrow.
+
+This function is overridden at runtime with an efficient implementation.
+-/
+@[extern "lean_uint64_sub_borrow", implicit_reducible]
+def UInt64.subBorrow (a b : UInt64) (borrow : Bool) : UInt64 × Bool :=
+  let subtrahend := b.toNat + borrow.toNat
+  if subtrahend ≤ a.toNat then
+    (UInt64.ofNat (a.toNat - subtrahend), false)
+  else
+    (UInt64.ofNat (UInt64.size + a.toNat - subtrahend), true)
 /--
 Unsigned division for 64-bit unsigned integers, discarding the remainder. Usually accessed
 via the `/` operator.

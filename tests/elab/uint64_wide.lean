@@ -8,6 +8,8 @@ Tests that the native wide `UInt64` operations agree with their Lean reference i
 
 test_extern UInt64.mulHi 0 0
 test_extern UInt64.mulHi 1 18446744073709551615
+test_extern UInt64.mulHi 4294967296 4294967296
+test_extern UInt64.mulHi 9223372036854775808 2
 test_extern UInt64.mulHi 18446744073709551615 18446744073709551615
 test_extern UInt64.mulHi 1311768467463790320 1147797409030816545
 

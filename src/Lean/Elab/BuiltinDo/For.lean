@@ -179,7 +179,7 @@ variables at their underlying type. The bindings sit in erased positions, so the
 private def ForInApp.wrapGhostShadows (g : ForInApp) (e : Term) : DoElabM Term := do
   let mut e := e
   for mv in g.ghostMutVars do
-    e ← `(let $(mv.userIdent):ident := Erased.out $(⟨mv.ident.raw⟩); $e)
+    e ← `(let $(mv.ident):ident := Erased.out $(⟨mv.ident.raw⟩); $e)
   return e
 
 /-- Abstract `e` over the loop's state tuple, so that `e` may name the loop's mutable variables. -/
@@ -291,7 +291,7 @@ private def mkForInLoopGadget (g : ForInApp)
   let info ← inferControlInfoSeq body
   let oldReturnCont ← getReturnCont
   let returnVarName ← mkFreshUserName `__r
-  let loopMutVars := mutVars.filter fun x => info.reassigns.contains x.userName
+  let loopMutVars := mutVars.filter fun x => info.reassigns.contains x.getId
   let loopMutVarNames :=
     if info.returnsEarly then
       returnVarName :: (loopMutVars.map (·.getId)).toList
@@ -309,16 +309,18 @@ private def mkForInLoopGadget (g : ForInApp)
       defs := defs.push returnVar
     for x in loopMutVars do
       let defn ← getLocalDeclFromUserName x.getId
-      Term.addTermInfo' x.userIdent defn.toExpr
+      Term.addTermInfo' x.ident defn.toExpr
+      -- A ghost variable's state slot carries the `Erased` value; the shadow rebinds at unpacking.
+      let v ← if x.ghost then mkErasedMkApp defn.toExpr else pure defn.toExpr
       -- ForIn forces the mut tuple into the universe mi.u: that of the do block result type.
       -- If we don't do this, then we are stuck on solving constraints such as
       --   `max ?u.46 ?u.47 =?= max (max ?u.22 ?u.46) ?u.47`
       -- It's important we do this as a separate isLevelDefEq check on the decremented level because
       -- otherwise (`ensureHasType (mkSort mi.u.succ)`) we are stuck on constraints like
       --   `max (?u+1) (?v+1) =?= ?u+1`
-      let u ← getDecLevel defn.type
+      let u ← getDecLevel (← inferType v)
       discard <| isLevelDefEq u mi.u
-      defs := defs.push defn.toExpr
+      defs := defs.push v
     if info.returnsEarly && loopMutVars.isEmpty then
       defs := defs.push (mkConst ``Unit.unit)
     return defs

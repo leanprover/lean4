@@ -23,48 +23,48 @@ open Lean.Parser.Term
 open Lean.Meta
 
 inductive LetOrReassign
-  | let (mutTk? : Option Syntax) (ghostUser? : Option Ident)
+  | let (mutTk? : Option Syntax) (ghost : Bool)
   | have
-  | reassign
+  | reassign (ghost : Bool)
 
 def LetOrReassign.getLetMutTk? (letOrReassign : LetOrReassign) : Option Syntax :=
   match letOrReassign with
   | .let mutTk? _ => mutTk?
   | _             => none
 
-/-- The source identifier of a `ghost` declaration. -/
-def LetOrReassign.ghostUserIdent? (letOrReassign : LetOrReassign) : Option Ident :=
+/-- Whether the binding is a `ghost` declaration or the reassignment of a ghost variable. -/
+def LetOrReassign.isGhost (letOrReassign : LetOrReassign) : Bool :=
   match letOrReassign with
-  | .let _ ghostUser? => ghostUser?
-  | _                 => none
+  | .let _ ghost    => ghost
+  | .reassign ghost => ghost
+  | .have           => false
 
 def LetOrReassign.checkMutVars (letOrReassign : LetOrReassign) (vars : Array Ident) : DoElabM Unit :=
   match letOrReassign with
-  | .reassign => do
+  | .reassign _ => do
     throwUnlessMutVarsDeclared vars
-  | _         => checkMutVarsForShadowing vars
+  | _           => checkMutVarsForShadowing vars
 
 def LetOrReassign.registerReassignAliasInfo (letOrReassign : LetOrReassign) (vars : Array Ident) : DoElabM Unit := do
-  if letOrReassign matches .reassign then
+  if letOrReassign matches .reassign _ then
     for var in vars do
       registerMutVarAlias var.getId
+
+def elabWithReassignments (letOrReassign : LetOrReassign) (vars : Array Ident) (k : DoElabM Expr) : DoElabM Expr := do
+  declareMutVars? letOrReassign.getLetMutTk? vars letOrReassign.isGhost do
+    letOrReassign.registerReassignAliasInfo vars
+    if letOrReassign.isGhost then
+      vars.foldr (init := k) withGhostShadow
+    else
+      k
 
 def elabDoLetOrReassignWith (hint : MessageData) (letOrReassign : LetOrReassign) (vars : Array Ident)
     (k : DoElabM Expr) (elabBody : (body : Term) → TermElabM Expr) : DoElabM Expr := do
   -- letOrReassign.checkMutVars vars -- Should be done by the caller!
-  let elabCont : DoElabM Expr := do
-    declareMutVars? letOrReassign.getLetMutTk? vars letOrReassign.ghostUserIdent? do
-      letOrReassign.registerReassignAliasInfo vars
-      k
-  doElabToSyntax hint elabCont fun body => elabBody body
-
-def elabWithReassignments (letOrReassign : LetOrReassign) (vars : Array Ident) (k : DoElabM Expr) : DoElabM Expr := do
-  declareMutVars? letOrReassign.getLetMutTk? vars letOrReassign.ghostUserIdent? do
-    letOrReassign.registerReassignAliasInfo vars
-    k
+  doElabToSyntax hint (elabWithReassignments letOrReassign vars k) fun body => elabBody body
 
 private def pushTypeIntoReassignment (letOrReassign : LetOrReassign) (decl : TSyntax ``letDecl) : TermElabM (TSyntax ``letDecl) := do
-  if letOrReassign matches .reassign then
+  if letOrReassign matches .reassign false then
     match decl with
     | `(letDecl| $x:ident $[: $xType?]? := $rhs) =>
       -- We use `Term.elabTermEnsuringType` instead of `Term.ensureHasType` to turn type
@@ -147,10 +147,11 @@ partial def elabDoLetOrReassign (config : Term.LetConfig) (letOrReassign : LetOr
     trace[Elab.let.decl] "{id.getId} : {type} := {val}"
     withLetDecl id.getId (kind := kind) type val (nondep := nondep) fun x => do
       Term.addLocalVarInfo id x
-      elabWithReassignments letOrReassign vars do
+      -- The ghost `.out` shadow of `elabWithReassignments` must close before `mkLetFVars` binds
+      -- the carried variable, so it wraps only the continuation.
       match config.eq? with
       | none =>
-        let body ← dec.continueWithUnit
+        let body ← elabWithReassignments letOrReassign vars dec.continueWithUnit
         if config.zeta then
           pure <| (← body.abstractM #[x]).instantiate1 val
         else
@@ -159,7 +160,7 @@ partial def elabDoLetOrReassign (config : Term.LetConfig) (letOrReassign : LetOr
         let hTy ← mkEq x val
         withLetDecl h.getId hTy (← mkEqRefl x) (nondep := true) fun h' => do
           Term.addLocalVarInfo h h'
-          let body ← dec.continueWithUnit
+          let body ← elabWithReassignments letOrReassign vars dec.continueWithUnit
           if config.zeta then
             pure <| (← body.abstractM #[x, h']).instantiateRev #[val, ← mkEqRefl val]
           else if nondep then
@@ -174,7 +175,7 @@ def elabDoArrow (letOrReassign : LetOrReassign) (stx : TSyntax [``doIdDecl, ``do
   | `(doIdDecl| $x:ident $[: $xType?]? ← $rhs) =>
     letOrReassign.checkMutVars #[x]
     let dec ← dec.ensureUnitAt tk
-    if letOrReassign matches .reassign then
+    if letOrReassign matches .reassign _ then
       if ((← findMutVar? x.getId).map (·.ghost)).getD false then
         let y := mkIdentFrom x (← mkFreshUserName `__y)
         return ← elabDoIdDecl y xType? rhs
@@ -182,11 +183,11 @@ def elabDoArrow (letOrReassign : LetOrReassign) (stx : TSyntax [``doIdDecl, ``do
     -- For plain variable reassignment, we know the expected type of the reassigned variable and
     -- propagate it eagerly via type ascription if the user hasn't provided one themselves:
     let xType? ← match letOrReassign, xType? with
-      | .reassign, none =>
+      | .reassign _, none =>
         let decl ← getLocalDeclFromUserName x.getId
         some <$> Term.exprToSyntax decl.type
       | _, _ => pure xType?
-    elabDoIdDecl x xType? rhs (declareMutVar? letOrReassign.getLetMutTk? x letOrReassign.ghostUserIdent? <| dec.continueWithUnit)
+    elabDoIdDecl x xType? rhs (declareMutVar? letOrReassign.getLetMutTk? x letOrReassign.isGhost <| dec.continueWithUnit)
       (kind := dec.kind)
   | `(doPatDecl| _%$pattern $[: $patType?]? ← $rhs) =>
     let x := mkIdentFrom pattern (← mkFreshUserName `__x)
@@ -205,7 +206,7 @@ def elabDoArrow (letOrReassign : LetOrReassign) (stx : TSyntax [``doIdDecl, ``do
         throwUnsupportedSyntax
       | .have, _ =>
         elabDoElem (← `(doElem| have $pattern:term := $x)) dec
-      | .reassign, _ =>
+      | .reassign _, _ =>
         -- otherwise? is always `none`, because there is no `doReassignElse`
         unless rest?.isNone do
           throwError "reassignment with `|` (i.e., \"else clause\") is not supported"
@@ -221,21 +222,18 @@ private def getLetConfigAndCheckMut (letConfigStx : TSyntax ``Parser.Term.letCon
 @[builtin_doElem_elab Lean.Parser.Term.doLet] def elabDoLet : DoElab := fun stx dec => do
   let `(doLet| let%$tk $[mut%$mutTk?]? $config:letConfig $decl:letDecl) := stx | throwUnsupportedSyntax
   let config ← getLetConfigAndCheckMut config mutTk?
-  elabDoLetOrReassign config (.let mutTk? none) decl tk dec
+  elabDoLetOrReassign config (.let mutTk? false) decl tk dec
 
-/-- Elaborate `ghost $[mut]? $decl`. A single variable `x : t := e` binds a carried
-`Erased t := Erased.mk e` under an inaccessible name, and the source name binds the `.out`
-shadow that proofs read. A pattern binds its variables plainly and then shadows each one with
-its ghost redeclaration. -/
+/-- Elaborate `ghost $[mut]? $decl`. A single variable `x : t := e` binds the carried
+`x : Erased t := Erased.mk e`, immediately shadowed by the `.out` shadow that the source reads.
+A pattern binds its variables plainly and then shadows each one with its ghost redeclaration. -/
 @[builtin_doElem_elab Lean.Parser.Term.doGhost] def elabDoGhost : DoElab := fun stx dec => do
   match stx with
   | `(doGhost| ghost%$tk $[mut%$mutTk?]? $x:ident $[: $t?]? := $e) =>
-    let xc := mkIdentFrom x (← mkFreshUserName x.getId) (canonical := true)
     let declNew ← match t? with
-      | some t => `(letDecl| $xc:ident : Erased $t := Erased.mk $e)
-      | none   => `(letDecl| $xc:ident := Erased.mk $e)
-    let dec := { dec with k := withGhostShadow x xc.getId dec.k }
-    elabDoLetOrReassign { nondep := true } (.let mutTk? (some x)) declNew tk dec
+      | some t => `(letDecl| $x:ident : Erased $t := Erased.mk $e)
+      | none   => `(letDecl| $x:ident := Erased.mk $e)
+    elabDoLetOrReassign {} (.let mutTk? true) declNew tk dec
   | `(doGhost| ghost%$tk $[mut%$mutTk?]? $decl:letPatDecl) =>
     let declNew : TSyntax ``letDecl := ⟨mkNode ``letDecl #[decl]⟩
     let vars ← getLetDeclVars declNew
@@ -244,7 +242,7 @@ its ghost redeclaration. -/
     let dec ← dec.ensureUnitAt tk
     let dec ← if redecls.isEmpty then pure dec else
       pure <| DoElemCont.mk (← mkFreshUserName `__r) (← mkPUnit) (elabDoElems1 redecls dec) dec.kind
-    elabDoLetOrReassign {} (.let none none) declNew tk dec
+    elabDoLetOrReassign {} (.let none false) declNew tk dec
   | _ => throwUnsupportedSyntax
 
 /-- Elaborate `ghost $[mut]? x ← act`: bind the action's result plainly to a fresh variable and
@@ -290,26 +288,25 @@ behaves like `_ ← act`. -/
   match stx with
   | `(doReassign| $x:ident $[: $xType?]? :=%$tk $rhs) =>
     -- A ghost variable's reassignment rebinds the carried variable with the wrapped value, so
-    -- `x := e` stores `Erased.mk e` and an ascription moves inside: `x : t := e` stores
-    -- `Erased.mk (e : t)`. The source name then rebinds the fresh `.out` shadow.
-    if let some mv := (← findMutVar? x.getId).filter (·.ghost) then
-      let xc := mkIdentFrom x mv.getId
+    -- `x := e` stores `Erased.mk e`, at the declared type pinned from the current shadow. The
+    -- source name then rebinds the fresh `.out` shadow.
+    if ((← findMutVar? x.getId).map (·.ghost)).getD false then
+      let t ← Term.exprToSyntax (← getLocalDeclFromUserName x.getId).type
       let rhs ← match xType? with
-        | some t => `(Erased.mk ($rhs : $t))
-        | none   => `(Erased.mk $rhs)
-      let decl : TSyntax ``letIdDecl ← `(letIdDecl| $xc:ident := $rhs)
+        | some tAsc => `(Erased.mk ($rhs : $tAsc))
+        | none      => `(Erased.mk ($rhs : $t))
+      let decl : TSyntax ``letIdDecl ← `(letIdDecl| $x:ident : Erased $t := $rhs)
       let decl : TSyntax ``letDecl := ⟨mkNode ``letDecl #[decl]⟩
-      let dec := { dec with k := withGhostShadow mv.userIdent mv.getId dec.k }
-      return ← elabDoLetOrReassign {} .reassign decl tk dec
+      return ← elabDoLetOrReassign {} (.reassign true) decl tk dec
     let decl : TSyntax ``letIdDecl ← `(letIdDecl| $x:ident $[: $xType?]? := $rhs)
     let decl : TSyntax ``letDecl := ⟨mkNode ``letDecl #[decl]⟩
-    elabDoLetOrReassign {} .reassign decl tk dec
+    elabDoLetOrReassign {} (.reassign false) decl tk dec
   | `(doReassign| $decl:letPatDecl) =>
     let decl : TSyntax ``letDecl := ⟨mkNode ``letDecl #[decl]⟩
     for var in (← getLetDeclVars decl) do
       if ((← findMutVar? var.getId).map (·.ghost)).getD false then
         throwErrorAt var "a ghost variable takes a plain reassignment, as in `{var.getId} := e`"
-    elabDoLetOrReassign {} .reassign decl decl dec
+    elabDoLetOrReassign {} (.reassign false) decl decl dec
   | _ => throwUnsupportedSyntax
 
 @[builtin_doElem_elab Lean.Parser.Term.doLetElse] def elabDoLetElse : DoElab := fun stx dec => do
@@ -317,7 +314,7 @@ behaves like `_ ← act`. -/
     | throwUnsupportedSyntax
   let config ← getLetConfigAndCheckMut cfg mutTk?
   checkLetConfigInDo config
-  let letOrReassign := LetOrReassign.let mutTk? none
+  let letOrReassign := LetOrReassign.let mutTk? false
   let vars ← getPatternVarsEx pattern
   letOrReassign.checkMutVars vars
   let mut body ← body?.getDM `(doSeqIndent|pure PUnit.unit)
@@ -336,12 +333,12 @@ behaves like `_ ← act`. -/
   checkLetConfigInDo config
   if config.nondep || config.usedOnly || config.zeta || config.eq?.isSome then
     throwErrorAt cfg "configuration options are not supported with `←`"
-  elabDoArrow (.let mutTk? none) decl tk dec
+  elabDoArrow (.let mutTk? false) decl tk dec
 
 @[builtin_doElem_elab Lean.Parser.Term.doReassignArrow] def elabDoReassignArrow : DoElab := fun stx dec => do
   match stx with
   | `(doReassignArrow| $decl:doIdDecl) =>
-    elabDoArrow .reassign decl decl dec
+    elabDoArrow (.reassign false) decl decl dec
   | `(doReassignArrow| $decl:doPatDecl) =>
-    elabDoArrow .reassign decl decl dec
+    elabDoArrow (.reassign false) decl decl dec
   | _ => throwUnsupportedSyntax

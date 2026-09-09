@@ -100,29 +100,24 @@ def CodeLiveness.lub (a b : CodeLiveness) : CodeLiveness :=
 
 /-- A mutable variable declared by `let mut` in a `do` block. -/
 structure MutVar where
-  /-- The binder identifier of the carried binding. For a ghost variable this is an inaccessible
-  name; the source name binds the `.out` shadow instead. -/
+  /-- The identifier of the `let mut` or `ghost mut` declaration. -/
   ident : Ident
-  /-- The source identifier of the variable. Equals `ident` except for ghost variables. -/
-  userIdent : Ident
   /-- The `FVarId` of the initial binding produced by the declaration. -/
   baseId : FVarId
-  /-- Whether the variable comes from `ghost mut`, so reassignments wrap in `Erased.mk`. -/
+  /-- Whether the variable comes from `ghost mut`. Its bindings alternate under one name: a
+  carried `Erased` binding, shadowed by the `.out` shadow that the source reads. -/
   ghost : Bool := false
   deriving Inhabited
 
-/-- The raw `Name` of a `mut` variable's carried binding, as found in the local context. -/
+/-- The raw `Name` of a `mut` variable, as found in the local context. -/
 def MutVar.getId (mutVar : MutVar) : Name := mutVar.ident.getId
-
-/-- The source name of a `mut` variable. -/
-def MutVar.userName (mutVar : MutVar) : Name := mutVar.userIdent.getId
 
 /--
 Build an `FVarAliasInfo` recording that the reassignment binding `id` aliases the original
 `let mut` binding represented by `mutVar`.
 -/
 def MutVar.mkAliasInfo (mutVar : MutVar) (id : FVarId) : FVarAliasInfo :=
-  { userName := mutVar.userName, id, baseId := mutVar.baseId }
+  { userName := mutVar.getId, id, baseId := mutVar.baseId }
 
 instance : ToMessageData MutVar where
   toMessageData mutVar :=
@@ -344,35 +339,31 @@ def DoOps.default : DoOps where
   mkMonadApp α := do
     return mkApp (← read).monadInfo.m α
 
-/-- Register the given name as that of a `mut` variable. A ghost variable passes its source
-identifier as `ghostUser?`, while `x` names the carried binding. -/
-def declareMutVar (x : Ident) (ghostUser? : Option Ident) (k : DoElabM α) : DoElabM α := do
+/-- Register the given name as that of a `mut` variable. -/
+def declareMutVar (x : Ident) (ghost : Bool) (k : DoElabM α) : DoElabM α := do
   let fvar ← getFVarFromUserName x.getId
-  let mutVar : MutVar :=
-    { ident := x, userIdent := ghostUser?.getD x, baseId := fvar.fvarId!, ghost := ghostUser?.isSome }
+  let mutVar : MutVar := { ident := x, baseId := fvar.fvarId!, ghost }
   withReader (fun ctx => { ctx with
     mutVars := ctx.mutVars.push mutVar,
-    mutVarDefs := ctx.mutVarDefs.insert x.getId mutVar |>.insert mutVar.userName mutVar,
+    mutVarDefs := ctx.mutVarDefs.insert x.getId mutVar,
   }) k
 
 /-- Register the given names as that of `mut` variables. -/
-def declareMutVars (xs : Array Ident) (ghostUser? : Option Ident) (k : DoElabM α) : DoElabM α := do
+def declareMutVars (xs : Array Ident) (ghost : Bool) (k : DoElabM α) : DoElabM α := do
   let fvars ← xs.mapM (getFVarFromUserName ·.getId)
-  let newMutVars : Array MutVar := xs.zipWith (fun x fvar =>
-    { ident := x, userIdent := ghostUser?.getD x, baseId := fvar.fvarId!, ghost := ghostUser?.isSome }) fvars
+  let newMutVars : Array MutVar := xs.zipWith (fun x fvar => { ident := x, baseId := fvar.fvarId!, ghost }) fvars
   withReader (fun ctx => { ctx with
     mutVars := ctx.mutVars ++ newMutVars,
-    mutVarDefs := newMutVars.foldl (init := ctx.mutVarDefs) fun defs mutVar =>
-      defs.insert mutVar.getId mutVar |>.insert mutVar.userName mutVar,
+    mutVarDefs := ctx.mutVarDefs.insertMany (newMutVars.map fun mutVar => (mutVar.getId, mutVar)),
   }) k
 
 /-- Register the given name as that of a `mut` variable if the syntax token `mut` is present. -/
-def declareMutVar? (mutTk? : Option Syntax) (x : Ident) (ghostUser? : Option Ident) (k : DoElabM α) : DoElabM α :=
-  if mutTk?.isSome then declareMutVar x ghostUser? k else k
+def declareMutVar? (mutTk? : Option Syntax) (x : Ident) (ghost : Bool) (k : DoElabM α) : DoElabM α :=
+  if mutTk?.isSome then declareMutVar x ghost k else k
 
 /-- Register the given names as that of `mut` variables if the syntax token `mut` is present. -/
-def declareMutVars? (mutTk? : Option Syntax) (xs : Array Ident) (ghostUser? : Option Ident) (k : DoElabM α) : DoElabM α :=
-  if mutTk?.isSome then declareMutVars xs ghostUser? k else k
+def declareMutVars? (mutTk? : Option Syntax) (xs : Array Ident) (ghost : Bool) (k : DoElabM α) : DoElabM α :=
+  if mutTk?.isSome then declareMutVars xs ghost k else k
 
 /-- Look up a declared `mut` variable by its raw `Name`. -/
 def findMutVar? (n : Name) : DoElabM (Option MutVar) := do
@@ -484,10 +475,7 @@ mut var definition of `y`.
 def withLCtxKeepingMutVarDefs (oldLCtx : LocalContext) (oldCtx : Context) (resultName : Name) (k : DoElabM α) : DoElabM α := do
   let oldMutVars := oldCtx.mutVars
   let oldMutVarDefs := oldCtx.mutVarDefs
-  -- tunneledDefs is used as a set, so the value doesn't matter. Only carried bindings tunnel;
-  -- ghost `.out` shadows are zeta-substituted at their own scope.
-  let tunneledDefs := oldMutVars.foldl (init := ({} : Std.HashMap Name MutVar))
-    (fun defs mv => defs.insert mv.getId mv) |>.insert resultName default
+  let tunneledDefs := oldMutVarDefs.insert resultName default  -- tunneledDefs is used as a set, so the value doesn't matter
   let newCtx ← addReachingDefsAsNonDep oldLCtx (← getLCtx) tunneledDefs
   withLCtx' newCtx <| withReader (fun ctx => { ctx with
     mutVars := oldMutVars,
@@ -618,22 +606,32 @@ def registerMutVarAlias (x : Name) : DoElabM Unit := do
     if id != baseMutVar.baseId then
       pushInfoLeaf <| .ofFVarAliasInfo (baseMutVar.mkAliasInfo id)
 
-/-- Bind `userIdent` to `carried.out` at the underlying type while `k` runs, and zeta-substitute
-the binding away, so the source name reaches proofs and never compiled code. -/
-def withGhostShadow (userIdent : Ident) (carriedName : Name) (k : DoElabM Expr) : DoElabM Expr := do
-  let carried ← getLocalDeclFromUserName carriedName
+/-- Bind `x` to `carried.out` at the underlying type while `k` runs, and zeta-substitute the
+binding away, so the source name reaches proofs and never compiled code. The newest binding of
+`x` must be the carried `Erased` binding. -/
+def withGhostShadow (x : Ident) (k : DoElabM Expr) : DoElabM Expr := do
+  let carried ← getLocalDeclFromUserName x.getId
   let ty ← instantiateMVars carried.type
   let .app (.const ``Erased [u]) t := ty
-    | throwError "the carried binding of ghost variable `{userIdent.getId}` has type{indentExpr ty}\ninstead of an `Erased` type"
+    | throwError "the carried binding of ghost variable `{x.getId}` has type{indentExpr ty}\ninstead of an `Erased` type"
   let outVal := mkApp2 (mkConst ``Erased.out [u]) t carried.toExpr
-  withLetDecl userIdent.getId t outVal (nondep := true) fun xv => do
-    Term.addLocalVarInfo userIdent xv
+  withLetDecl x.getId t outVal (nondep := true) fun xv => do
+    Term.addLocalVarInfo x xv
     let body ← k
     return (← body.abstractM #[xv]).instantiate1 outVal
 
 /-- Bind the `.out` shadow of each ghost variable among `mutVars` around `k`. -/
 def withGhostShadows (mutVars : Array MutVar) (k : DoElabM Expr) : DoElabM Expr :=
-  (mutVars.filter (·.ghost)).foldr (init := k) fun mv k => withGhostShadow mv.userIdent mv.getId k
+  (mutVars.filter (·.ghost)).foldr (init := k) fun mv k => withGhostShadow mv.ident k
+
+/-- `Erased t` for the type `t` of runtime-erased data. -/
+def mkErasedApp (t : Expr) : MetaM Expr :=
+  return mkApp (mkConst ``Erased [← getLevel t]) t
+
+/-- `Erased.mk e`, which erases `e` in compiled code. -/
+def mkErasedMkApp (e : Expr) : MetaM Expr := do
+  let t ← inferType e
+  return mkApp2 (mkConst ``Erased.mk [← getLevel t]) t e
 
 /--
 Given a list of mut vars `vars` and an FVar `tupleVar` binding a tuple, bind the mut vars to the
@@ -717,13 +715,15 @@ def DoElemCont.withDuplicableCont (nondupDec : DoElemCont) (callerInfo : Control
     return ← caller nondupDec
   let γ := (← read).doBlockResultType
   let mγ ← mkMonadApp γ
-  let mutVars := (← read).mutVars |>.filter (callerInfo.reassigns.contains ·.userName)
+  let mutVars := (← read).mutVars |>.filter (callerInfo.reassigns.contains ·.getId)
   let mutVarNames := mutVars.map (·.getId)
   let joinName ← mkFreshUserName `__do_jp
   -- σ is the tuple type of the mut vars, or mγ if jumpCount = 0. Hence it is either level mi.u or mi.v.
   -- let σ ← mkFreshTypeMVar (userName := `σ)
   let mutDecls ← mutVarNames.mapM (getLocalDeclFromUserName ·)
-  let mutTypes := mutDecls.map (·.type)
+  -- A ghost variable's join parameter carries the `Erased` value; the shadow rebinds below.
+  let mutTypes ← (mutVars.zip mutDecls).mapM fun (mv, d) =>
+    if mv.ghost then mkErasedApp d.type else pure d.type
   let joinTy ← mkArrow nondupDec.resultType (← mkArrowN mutTypes mγ)
   let joinRhsMVar ← mkFreshExprSyntheticOpaqueMVar joinTy
   withLetDecl joinName joinTy joinRhsMVar (kind := .implDetail) (nondep := true) fun jp => do
@@ -733,8 +733,9 @@ def DoElemCont.withDuplicableCont (nondupDec : DoElemCont) (callerInfo : Control
     let mut e := mkApp jp' result
     for x in mutVars do
       let newX ← getFVarFromUserName x.getId
-      Term.addTermInfo' x.userIdent newX
-      e := mkApp e (← getFVarFromUserName x.getId)
+      Term.addTermInfo' x.ident newX
+      let arg ← if x.ghost then mkErasedMkApp newX else pure newX
+      e := mkApp e arg
     return e
 
   let elabBody :=
@@ -745,8 +746,8 @@ def DoElemCont.withDuplicableCont (nondupDec : DoElemCont) (callerInfo : Control
 
   let joinRhs ← joinRhsMVar.mvarId!.withContext do
     withLocalDeclD nondupDec.resultName nondupDec.resultType fun r => do
-    withLocalDeclsDND (mutDecls.map fun (d : LocalDecl) => (d.userName, d.type)) fun muts => do
-    for (x, newX) in mutVars.zip muts do Term.addTermInfo' x.userIdent newX
+    withLocalDeclsDND ((mutDecls.zip mutTypes).map fun (d, t) => (d.userName, t)) fun muts => do
+    for (x, newX) in mutVars.zip muts do Term.addTermInfo' x.ident newX
     let e ← withGhostShadows mutVars (nondupDec.withDeadCodeFromInfo callerInfo).k
     mkLambdaFVars (#[r] ++ muts) e
   unless ← joinRhsMVar.mvarId!.checkedAssign joinRhs do

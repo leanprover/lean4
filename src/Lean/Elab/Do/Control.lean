@@ -46,8 +46,8 @@ def ControlStack.stateT (baseMonadInfo : MonadInfo) (muts : Array MutVar) (σ : 
     -- See also `StateT.monadControl.liftWith`.
     let mutExprs ← muts.mapM fun x => do
       let defn ← getLocalDeclFromUserName x.getId
-      Term.addTermInfo' x.userIdent defn.toExpr
-      pure defn.toExpr
+      Term.addTermInfo' x.ident defn.toExpr
+      if x.ghost then mkErasedMkApp defn.toExpr else pure defn.toExpr
     let (tuple, tupleTy) ← mkProdMkN mutExprs baseMonadInfo.u
     unless ← isDefEq tupleTy σ do -- just for sanity; maybe delete in the future
       throwError "State tuple type mismatch: expected {σ}, got {tupleTy}. This is a bug in the `do` elaborator."
@@ -64,7 +64,11 @@ def ControlStack.stateT (baseMonadInfo : MonadInfo) (muts : Array MutVar) (σ : 
     base.restoreCont { resultName, resultType, k }
 where
   mutVarNames := muts.map (·.getId)
-  getσ := do mkProdN (← mutVarNames.mapM (LocalDecl.type <$> getLocalDeclFromUserName ·)) baseMonadInfo.u
+  getσ := do
+    let tys ← muts.mapM fun mv => do
+      let t := (← getLocalDeclFromUserName mv.getId).type
+      if mv.ghost then mkErasedApp t else pure t
+    mkProdN tys baseMonadInfo.u
   stM α := return mkApp2 (mkConst ``Prod [baseMonadInfo.u, baseMonadInfo.u]) α (← getσ) -- NB: muts `σ` might have been refined by dependent pattern matches
 
 def ControlStack.optionT (baseMonadInfo : MonadInfo) (optionTWrapper casesOnWrapper : Name)
@@ -208,10 +212,11 @@ structure EffectForwarder where
 /-- Build the lifter plan for a body whose effects are summarised by `info`. -/
 def EffectForwarder.ofCont (info : ControlInfo) (dec : DoElemCont) : DoElabM EffectForwarder := do
   let mi := (← read).monadInfo
-  let reassignedMutVars := (← read).mutVars |>.filter (info.reassigns.contains ·.userName)
-  let reassignedMutVarNames := reassignedMutVars.map (·.getId)
+  let reassignedMutVars := (← read).mutVars |>.filter (info.reassigns.contains ·.getId)
   let ρ := (← getReturnCont).resultType
-  let σ ← mkProdN (← reassignedMutVarNames.mapM (LocalDecl.type <$> getLocalDeclFromUserName ·)) mi.u
+  let σ ← mkProdN (← reassignedMutVars.mapM fun mv => do
+    let t := (← getLocalDeclFromUserName mv.getId).type
+    if mv.ghost then mkErasedApp t else pure t) mi.u
 
   let needEarlyReturn := if info.returnsEarly then some ρ else none
   let needBreak := info.breaks && (← getBreakCont).isSome

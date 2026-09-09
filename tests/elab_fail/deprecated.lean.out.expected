@@ -2,6 +2,9 @@ deprecated.lean:5:2-5:14: warning: `[deprecated]` attribute should specify the d
 deprecated.lean:8:2-8:12: warning: `[deprecated]` attribute should specify either a new name or a deprecation message
 deprecated.lean:8:2-8:12: warning: `[deprecated]` attribute should specify the date or library version at which the deprecation was introduced, using `(since := "...")`
 deprecated.lean:11:6-11:7: warning: `f` has been deprecated: Use `g` instead
+
+Hint: Replace the deprecated name:
+  f̵g̲
 2
 deprecated.lean:13:6-13:7: warning: `h` has been deprecated
 1

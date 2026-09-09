@@ -53,12 +53,27 @@
             buildPhase = "make -j$NIX_BUILD_CORES";
             installPhase = "make install_sw";
           };
+          # nixpkgs-older ships GMP 6.1.2, but Lean requires 6.3.0: earlier versions
+          # contain bugs that can make Lean produce unsound results. Reuse pkgsDist's
+          # own packaging (fat build on x86, PIC, static), built from the same source
+          # as `pkgs.gmp` so releases and development use one GMP version.
+          gmpForDist = (pkgsDist.gmp.override { cxx = false; withStatic = true; }).overrideAttrs (attrs: {
+            name = "gmp-${pkgs.gmp.version}";
+            inherit (pkgs.gmp) src;
+            configureFlags = attrs.configureFlags ++ [
+              "--disable-shared"
+              # nixpkgs 18.03 pins the build triple only on ARM, but GMP's config.guess
+              # runtime-probes the CPU via /proc/cpuinfo on x86 too, which is broken on
+              # the multicore CI runners.
+              "--build=${pkgsDist.stdenv.buildPlatform.config}"
+            ];
+            doCheck = false;
+          } // pkgs.lib.optionalAttrs (pkgs.stdenv.system == "aarch64-linux") {
+            # would need additional linking setup on Linux aarch64, we don't use it anywhere else either
+            hardeningDisable = [ "stackprotector" ];
+          });
         in {
-          GMP = (pkgsDist.gmp.override { withStatic = true; }).overrideAttrs (attrs:
-            pkgs.lib.optionalAttrs (pkgs.stdenv.system == "aarch64-linux") {
-              # would need additional linking setup on Linux aarch64, we don't use it anywhere else either
-              hardeningDisable = [ "stackprotector" ];
-            });
+          GMP = gmpForDist;
           LIBUV = pkgsDist.libuv.overrideAttrs (attrs: {
             configureFlags = ["--enable-static"];
             hardeningDisable = [ "stackprotector" ];

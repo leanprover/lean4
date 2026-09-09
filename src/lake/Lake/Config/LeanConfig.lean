@@ -254,6 +254,14 @@ public configuration LeanConfig where
   and Lake will not catch it. Defaults to `none`.
   -/
   platformIndependent : Option Bool := none
+  /--
+  Whether to compile the imports of modules into native shared libraries that
+  are loaded when the module is built. This speeds up evaluation of metaprograms
+  and enables the interpreter to run functions marked `@[extern]`.
+
+  Defaults to `false`.
+  -/
+  precompileImports : Bool := false
   /-
   An array of dynamic library targets to load during the elaboration
   of a module (via `lean --load-dynlib`).

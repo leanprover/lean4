@@ -1,5 +1,5 @@
 import Lean.Meta.Sym
-import Std.Internal.Do
+import Std.WP
 
 /-!
 `Sym` discrimination-tree retrieval resolves assigned metavariables lazily.

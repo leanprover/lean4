@@ -86,7 +86,7 @@ public structure BackwardRules where
 /-- Build the backward rules used by `solve` from their underlying lemmas. -/
 public def mkBackwardRules : MetaM BackwardRules := do
   return {
-    tripleIntro := ← mkBackwardRuleFromDecl ``Std.Internal.Do.Triple.intro
+    tripleIntro := ← mkBackwardRuleFromDecl ``Std.WP.Triple.intro
     stateArgIntro := ← mkBackwardRuleFromDecl ``Lean.Order.le_of_forall_le
     propPreIntro := ← mkBackwardRuleFromDecl ``Lean.Order.le_of_imp_top_le
     ofPropPreIntro := ← mkBackwardRuleFromDecl ``Lean.Order.ofProp_le
@@ -108,10 +108,6 @@ public structure Context where
   frameProcs : FrameProcs := {}
   /-- User-customizable simp methods used to pre-simplify hypotheses. -/
   hypSimpMethods : Option Sym.Simp.Methods := none
-  /-- The `trivial` config option: when `true` (default), `Driver.emitVC` runs
-  `solveTrivialConjuncts` to collapse trivial `And.intro` chains; when `false`, the goal is
-  emitted as-is. -/
-  trivial : Bool := true
   /-- The `jp` config option: when `true`, `tryLetIntro` recognises `__do_jp` lets
   whose body is a splitter and sets up shared-continuation handling instead of
   zeta-unfolding. When `false` (default, matching original `mvcgen`), every call

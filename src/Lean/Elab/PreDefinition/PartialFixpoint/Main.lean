@@ -159,7 +159,9 @@ def partialFixpoint (docCtx : LocalContext × LocalInstances) (preDefs : Array P
           -- replaceRecApps needs the constants in the env to typecheck things
           preDefs.forM (addAsAxiom ·)
           replaceRecApps declNames fixedParamPerms f body
-        mkLambdaFVars #[f] body'
+        -- Values coming from `elabCoinductive` are a redex over the `.existential` lambda;
+        -- beta-reduce so monotonicity goals and errors are stated in terms of its body.
+        mkLambdaFVars #[f] body'.headBeta
 
     -- Construct and solve monotonicity goals for each function separately
     -- This way we preserve the user's parameter names as much as possible

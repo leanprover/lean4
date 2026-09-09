@@ -16,7 +16,7 @@ open Lean Meta Elab Tactic Sym
 
 /-!
 Spec-theorem database used by `vcgen`. The `@[spec]` attribute already stores
-`Std.Internal.Do` specs as pattern-keyed `SpecTheorem`s (see `Lean.Elab.Tactic.Do.Attr`);
+`Std.WP` specs as pattern-keyed `SpecTheorem`s (see `Lean.Elab.Tactic.Do.Attr`);
 this module adds the operations the VC generator needs on top: instantiating a spec to
 `pre ⊑ wp …` form, folding a `vcgen [...]` call's simp-style arguments into the same
 database, and looking up the specs matching a program.

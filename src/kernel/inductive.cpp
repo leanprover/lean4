@@ -818,6 +818,53 @@ public:
         }
     }
 
+    /** \brief Defensively type-check the generated recursors.
+
+        `add_core` installs a recursor and its computation rules without re-checking them. We verify
+        here that (1) each recursor's type is well typed, and (2) each computation rule is
+        type-preserving: reducing the recursor applied to a constructor yields a term whose type is
+        the recursor's declared result type. This catches a recursor whose minor-premise type and
+        reduction rule disagree; checking only that a rule's right-hand side has *some* type is
+        insufficient, because an under-applied minor premise is still a well-typed (function) term. */
+    void check_recursors() {
+        buffer<expr> Cs; collect_Cs(Cs);
+        buffer<expr> minors; collect_minor_premises(minors);
+        for (unsigned d_idx = 0; d_idx < m_ind_types.size(); d_idx++) {
+            name rec_name        = mk_rec_name(m_ind_types[d_idx].get_name());
+            constant_info rec_ci = m_env.get(rec_name);
+            /* (1) The recursor type must be well typed. */
+            tc().check(rec_ci.get_type(), get_rec_lparams());
+            expr rec_pre = mk_app(mk_app(mk_app(mk_constant(rec_name, get_rec_levels()), m_params), Cs), minors);
+            /* (2) Each computation rule must preserve types. */
+            for (constructor const & cnstr : m_ind_types[d_idx].get_cnstrs()) {
+                buffer<expr> b_u;
+                expr t     = constructor_type(cnstr);
+                unsigned i = 0;
+                while (is_pi(t)) {
+                    if (i < m_nparams) {
+                        t = instantiate(binding_body(t), m_params[i]);
+                    } else {
+                        expr l = mk_local_decl_for(t);
+                        b_u.push_back(l);
+                        t = instantiate(binding_body(t), l);
+                    }
+                    i++;
+                }
+                buffer<expr> it_indices;
+                get_I_indices(t, it_indices);
+                expr intro_app      = mk_app(mk_app(mk_constant(constructor_name(cnstr), m_levels), m_params), b_u);
+                expr lhs            = mk_app(mk_app(rec_pre, it_indices), intro_app);
+                type_checker tcheck = tc();
+                expr expected       = tcheck.infer(lhs);
+                expr reduct         = tcheck.whnf(lhs);
+                expr actual         = tcheck.infer(reduct);
+                if (!tcheck.is_def_eq(actual, expected))
+                    throw kernel_exception(m_env, sstream() << "generated recursor computation rule for '"
+                                           << constructor_name(cnstr) << "' is not type-preserving");
+            }
+        }
+    }
+
     environment operator()() {
         m_env.check_duplicated_univ_params(m_lparams);
         check_inductive_types();
@@ -828,6 +875,7 @@ public:
         init_K_target();
         mk_rec_infos();
         declare_recursors();
+        check_recursors();
         return m_env;
     }
 };

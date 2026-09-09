@@ -16,7 +16,7 @@ extern "C" {
 lean_object* lean_st_ref_get(lean_object*);
 lean_object* lean_st_ref_take(lean_object*);
 lean_object* lean_nat_add(lean_object*, lean_object*);
-lean_object* lean_st_ref_set(lean_object*, lean_object*);
+lean_object* lean_st_ref_put(lean_object*, lean_object*);
 uint8_t lean_nat_dec_lt(lean_object*, lean_object*);
 lean_object* lean_io_condvar_notify_all(lean_object*);
 uint8_t lean_nat_dec_eq(lean_object*, lean_object*);
@@ -132,9 +132,9 @@ return v___x_43_;
 LEAN_EXPORT lean_object* l_Std_Barrier_wait___lam__0___boxed(lean_object* v_generationId_44_, lean_object* v___x_45_, lean_object* v___y_46_, lean_object* v___y_47_){
 _start:
 {
-uint8_t v___x_2442__boxed_48_; uint8_t v_res_49_; lean_object* v_r_50_; 
-v___x_2442__boxed_48_ = lean_unbox(v___x_45_);
-v_res_49_ = l_Std_Barrier_wait___lam__0(v_generationId_44_, v___x_2442__boxed_48_, v___y_46_);
+uint8_t v___x_2417__boxed_48_; uint8_t v_res_49_; lean_object* v_r_50_; 
+v___x_2417__boxed_48_ = lean_unbox(v___x_45_);
+v_res_49_ = l_Std_Barrier_wait___lam__0(v_generationId_44_, v___x_2417__boxed_48_, v___y_46_);
 lean_dec(v___y_46_);
 lean_dec(v_generationId_44_);
 v_r_50_ = lean_box(v_res_49_);
@@ -243,7 +243,7 @@ goto v_reusejp_94_;
 v_reusejp_94_:
 {
 lean_object* v___x_96_; lean_object* v___x_97_; lean_object* v_count_98_; uint8_t v___x_99_; 
-v___x_96_ = lean_st_ref_set(v___y_83_, v___x_95_);
+v___x_96_ = lean_st_ref_put(v___y_83_, v___x_95_);
 v___x_97_ = lean_st_ref_get(v___y_83_);
 v_count_98_ = lean_ctor_get(v___x_97_, 0);
 lean_inc(v_count_98_);
@@ -299,7 +299,7 @@ goto v_reusejp_107_;
 v_reusejp_107_:
 {
 lean_object* v___x_109_; lean_object* v___x_110_; uint8_t v___x_111_; 
-v___x_109_ = lean_st_ref_set(v___y_83_, v___x_108_);
+v___x_109_ = lean_st_ref_put(v___y_83_, v___x_108_);
 v___x_110_ = lean_io_condvar_notify_all(v_cvar_81_);
 v___x_111_ = 1;
 return v___x_111_;

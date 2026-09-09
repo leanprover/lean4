@@ -476,9 +476,9 @@ return v_res_235_;
 LEAN_EXPORT lean_object* l___private_Init_Data_Nat_Control_0__Nat_allM_loop___redArg___lam__0___boxed(lean_object* v_toPure_236_, lean_object* v_inst_237_, lean_object* v_n_238_, lean_object* v_p_239_, lean_object* v_n_240_, lean_object* v_____do__lift_241_){
 _start:
 {
-uint8_t v_____do__lift_114__boxed_242_; lean_object* v_res_243_; 
-v_____do__lift_114__boxed_242_ = lean_unbox(v_____do__lift_241_);
-v_res_243_ = l___private_Init_Data_Nat_Control_0__Nat_allM_loop___redArg___lam__0(v_toPure_236_, v_inst_237_, v_n_238_, v_p_239_, v_n_240_, v_____do__lift_114__boxed_242_);
+uint8_t v_____do__lift_95__boxed_242_; lean_object* v_res_243_; 
+v_____do__lift_95__boxed_242_ = lean_unbox(v_____do__lift_241_);
+v_res_243_ = l___private_Init_Data_Nat_Control_0__Nat_allM_loop___redArg___lam__0(v_toPure_236_, v_inst_237_, v_n_238_, v_p_239_, v_n_240_, v_____do__lift_95__boxed_242_);
 lean_dec(v_n_240_);
 return v_res_243_;
 }
@@ -601,9 +601,9 @@ return v___x_298_;
 LEAN_EXPORT lean_object* l___private_Init_Data_Nat_Control_0__Nat_anyM_loop___redArg___lam__0___boxed(lean_object* v_inst_299_, lean_object* v_n_300_, lean_object* v_p_301_, lean_object* v_n_302_, lean_object* v_toPure_303_, lean_object* v_____do__lift_304_){
 _start:
 {
-uint8_t v_____do__lift_114__boxed_305_; lean_object* v_res_306_; 
-v_____do__lift_114__boxed_305_ = lean_unbox(v_____do__lift_304_);
-v_res_306_ = l___private_Init_Data_Nat_Control_0__Nat_anyM_loop___redArg___lam__0(v_inst_299_, v_n_300_, v_p_301_, v_n_302_, v_toPure_303_, v_____do__lift_114__boxed_305_);
+uint8_t v_____do__lift_95__boxed_305_; lean_object* v_res_306_; 
+v_____do__lift_95__boxed_305_ = lean_unbox(v_____do__lift_304_);
+v_res_306_ = l___private_Init_Data_Nat_Control_0__Nat_anyM_loop___redArg___lam__0(v_inst_299_, v_n_300_, v_p_301_, v_n_302_, v_toPure_303_, v_____do__lift_95__boxed_305_);
 lean_dec(v_n_302_);
 return v_res_306_;
 }

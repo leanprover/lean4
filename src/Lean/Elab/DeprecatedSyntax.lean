@@ -42,8 +42,11 @@ builtin_initialize deprecatedSyntaxExt :
 /--
 Check whether `stx` is a deprecated syntax kind, and if so, emit a warning.
 
-If `macroStack` is non-empty, the warning is attributed to the macro call site rather than the
-syntax itself.
+If `stx` was written by the user (its head token has `.original` source info), the warning is
+attributed to the syntax itself even inside a macro expansion: enclosing macros (e.g. the internal
+`namespace` expansion of `def Foo.bar ...`) merely passed the user's syntax through. Only
+macro-generated syntax (synthetic source info, as produced by syntax quotations) is attributed to
+the macro call site via `macroStack`.
 -/
 def checkDeprecatedSyntax [Monad m] [MonadEnv m] [MonadLog m] [MonadOptions m]
     [AddMessageContext m] [MonadRef m] (stx : Syntax) (macroStack : MacroStack) : m Unit := do
@@ -53,6 +56,10 @@ def checkDeprecatedSyntax [Monad m] [MonadEnv m] [MonadLog m] [MonadOptions m]
     let extraMsg := match entry.text? with
       | some text => m!": {text}"
       | none => m!""
+    if stx.getHeadInfo matches .original .. then
+      Linter.logLintIf Linter.linter.deprecated.syntax stx
+        m!"syntax '{kind}' has been deprecated{extraMsg}"
+      return
     match macroStack with
     | { before := macroStx, .. } :: { before := callerStx, .. } :: _ =>
       let expandedFrom :=

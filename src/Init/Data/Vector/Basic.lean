@@ -28,13 +28,15 @@ public section
 set_option linter.listVariables true -- Enforce naming conventions for `List`/`Array`/`Vector` variables.
 set_option linter.indexVariables true -- Enforce naming conventions for index variables.
 
+-- Disable linter for the `toArray` field
+set_option linter.listVariables false in
 /-- `Vector α n` is an `Array α` with size `n`. -/
 structure Vector (α : Type u) (n : Nat) where
   /-- The underlying array. -/
   toArray : Array α
   /-- Array size. -/
   size_toArray : toArray.size = n
-deriving Repr, DecidableEq
+deriving DecidableEq
 
 attribute [simp, grind =] Vector.size_toArray
 
@@ -62,6 +64,16 @@ meta def unexpandMk : Lean.PrettyPrinter.Unexpander
 
 recommended_spelling "empty" for "#v[]" in [Vector.mk, «term#v[_,]»]
 recommended_spelling "singleton" for "#v[x]" in [Vector.mk, «term#v[_,]»]
+
+protected def Vector.repr {α : Type u} [Repr α] {n : Nat} (xs : Vector α n) : Std.Format :=
+  let _ : Std.ToFormat α := ⟨repr⟩
+  if xs.size == 0 then
+    "#v[]"
+  else
+    Std.Format.bracketFill "#v[" (Std.Format.joinSep (xs.toArray.toList) ("," ++ Std.Format.line)) "]"
+
+instance Vector.instRepr {α : Type u} [Repr α] {n : Nat} : Repr (Vector α n) where
+  reprPrec xs _ := Vector.repr xs
 
 /-- Convert a vector to a list. -/
 @[expose, implicit_reducible]
@@ -144,6 +156,32 @@ of bounds.
 /-- Remove the last element of a vector. -/
 @[inline, expose] def pop (xs : Vector α n) : Vector α (n - 1) :=
   ⟨Array.pop xs.toArray, by simp⟩
+
+/--
+Marks a vector as linear, which is a no-op logically.
+
+At runtime the vector is first made unique, copying it if the reference is not already unique, and
+then marked. If the environment variable `LEAN_ABORT_ON_NONLINEAR` is set, every non-linear use
+from that point on causes a panic instead of a silent copy.
+
+To debug where the non-linearity is coming from you can set a breakpoint on `lean_internal_panic`.
+-/
+@[inline, expose]
+def markLinear (xs : Vector α n) : Vector α n := ⟨xs.toArray.markLinear, by simp⟩
+
+@[simp, grind =] theorem markLinear_eq {xs : Vector α n} : xs.markLinear = xs := rfl
+
+/--
+Returns `ys`, propagating the linearity marker of `xs` onto it. This is a no-op logically.
+
+See also `Vector.markLinear`.
+-/
+@[inline, expose]
+def propagateMark {α : Type u} {β : Type v} (xs : Vector α n) (ys : Vector β m) : Vector β m :=
+  ⟨xs.toArray.propagateMark ys.toArray, by simp⟩
+
+@[simp, grind =] theorem propagateMark_eq {α : Type u} {β : Type v} {xs : Vector α n}
+    {ys : Vector β n} : xs.propagateMark ys = ys := rfl
 
 /--
 Set an element in a vector using a `Nat` index, with a tactic provided proof that the index is in

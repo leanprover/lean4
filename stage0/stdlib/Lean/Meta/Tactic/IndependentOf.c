@@ -19,7 +19,7 @@ uint8_t l_Lean_Expr_hasMVar(lean_object*);
 lean_object* lean_st_ref_get(lean_object*);
 lean_object* l_Lean_instantiateMVarsCore(lean_object*, lean_object*);
 lean_object* lean_st_ref_take(lean_object*);
-lean_object* lean_st_ref_set(lean_object*, lean_object*);
+lean_object* lean_st_ref_put(lean_object*, lean_object*);
 lean_object* l_Lean_MVarId_getType(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 uint8_t l_Lean_Expr_hasExprMVar(lean_object*);
 lean_object* lean_infer_type(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
@@ -132,7 +132,7 @@ goto v_reusejp_19_;
 v_reusejp_19_:
 {
 lean_object* v___x_21_; lean_object* v___x_22_; 
-v___x_21_ = lean_st_ref_set(v___y_2_, v___x_20_);
+v___x_21_ = lean_st_ref_put(v___y_2_, v___x_20_);
 v___x_22_ = lean_alloc_ctor(0, 1, 0);
 lean_ctor_set(v___x_22_, 0, v_fst_9_);
 return v___x_22_;
@@ -497,9 +497,9 @@ return v___x_158_;
 LEAN_EXPORT lean_object* l_List_allM___at___00Lean_MVarId_isIndependentOf_spec__2___boxed(lean_object* v_a_161_, lean_object* v_g_162_, lean_object* v_x_163_, lean_object* v___y_164_, lean_object* v___y_165_, lean_object* v___y_166_, lean_object* v___y_167_, lean_object* v___y_168_){
 _start:
 {
-uint8_t v_a_2521__boxed_169_; lean_object* v_res_170_; 
-v_a_2521__boxed_169_ = lean_unbox(v_a_161_);
-v_res_170_ = l_List_allM___at___00Lean_MVarId_isIndependentOf_spec__2(v_a_2521__boxed_169_, v_g_162_, v_x_163_, v___y_164_, v___y_165_, v___y_166_, v___y_167_);
+uint8_t v_a_2199__boxed_169_; lean_object* v_res_170_; 
+v_a_2199__boxed_169_ = lean_unbox(v_a_161_);
+v_res_170_ = l_List_allM___at___00Lean_MVarId_isIndependentOf_spec__2(v_a_2199__boxed_169_, v_g_162_, v_x_163_, v___y_164_, v___y_165_, v___y_166_, v___y_167_);
 lean_dec(v___y_167_);
 lean_dec_ref(v___y_166_);
 lean_dec(v___y_165_);

@@ -105,28 +105,27 @@ return v_res_7_;
 LEAN_EXPORT lean_object* l___private_Init_Data_Vector_OfFn_0__Vector_ofFnM_go___redArg(lean_object* v_n_8_, lean_object* v_inst_9_, lean_object* v_f_10_, lean_object* v_i_11_, lean_object* v_acc_12_){
 _start:
 {
-uint8_t v___x_13_; 
-v___x_13_ = lean_nat_dec_lt(v_i_11_, v_n_8_);
-if (v___x_13_ == 0)
+lean_object* v_toApplicative_13_; lean_object* v_toBind_14_; lean_object* v_toPure_15_; uint8_t v___x_16_; 
+v_toApplicative_13_ = lean_ctor_get(v_inst_9_, 0);
+v_toBind_14_ = lean_ctor_get(v_inst_9_, 1);
+lean_inc(v_toBind_14_);
+v_toPure_15_ = lean_ctor_get(v_toApplicative_13_, 1);
+v___x_16_ = lean_nat_dec_lt(v_i_11_, v_n_8_);
+if (v___x_16_ == 0)
 {
-lean_object* v_toApplicative_14_; lean_object* v_toPure_15_; lean_object* v___x_16_; 
+lean_object* v___x_17_; 
+lean_inc(v_toPure_15_);
+lean_dec(v_toBind_14_);
 lean_dec(v_i_11_);
 lean_dec(v_f_10_);
-lean_dec(v_n_8_);
-v_toApplicative_14_ = lean_ctor_get(v_inst_9_, 0);
-lean_inc_ref(v_toApplicative_14_);
 lean_dec_ref(v_inst_9_);
-v_toPure_15_ = lean_ctor_get(v_toApplicative_14_, 1);
-lean_inc(v_toPure_15_);
-lean_dec_ref(v_toApplicative_14_);
-v___x_16_ = lean_apply_2(v_toPure_15_, lean_box(0), v_acc_12_);
-return v___x_16_;
+lean_dec(v_n_8_);
+v___x_17_ = lean_apply_2(v_toPure_15_, lean_box(0), v_acc_12_);
+return v___x_17_;
 }
 else
 {
-lean_object* v_toBind_17_; lean_object* v___f_18_; lean_object* v___x_19_; lean_object* v___x_20_; 
-v_toBind_17_ = lean_ctor_get(v_inst_9_, 1);
-lean_inc(v_toBind_17_);
+lean_object* v___f_18_; lean_object* v___x_19_; lean_object* v___x_20_; 
 lean_inc(v_f_10_);
 lean_inc(v_i_11_);
 v___f_18_ = lean_alloc_closure((void*)(l___private_Init_Data_Vector_OfFn_0__Vector_ofFnM_go___redArg___lam__0___boxed), 6, 5);
@@ -136,7 +135,7 @@ lean_closure_set(v___f_18_, 2, v_n_8_);
 lean_closure_set(v___f_18_, 3, v_inst_9_);
 lean_closure_set(v___f_18_, 4, v_f_10_);
 v___x_19_ = lean_apply_1(v_f_10_, v_i_11_);
-v___x_20_ = lean_apply_4(v_toBind_17_, lean_box(0), lean_box(0), v___x_19_, v___f_18_);
+v___x_20_ = lean_apply_4(v_toBind_14_, lean_box(0), lean_box(0), v___x_19_, v___f_18_);
 return v___x_20_;
 }
 }

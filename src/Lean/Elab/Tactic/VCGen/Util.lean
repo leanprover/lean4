@@ -19,22 +19,21 @@ open Lean Meta Sym Lean.Order
 
 /-!
 Generic `VCGenM` helpers: checked backward-rule application, telescope-aware `simp` driver,
-hygienic binder introduction, hypothesis-internalization for grind, and the trivial-conjunct
-collapser `solveTrivialConjuncts`. None of these know anything about the entailment shapes `solve`
-decomposes.
+hygienic binder introduction, hypothesis-internalization for grind, and the emission-time cleanup
+`cleanupVC`. None of these know anything about the entailment shapes `solve` decomposes.
 -/
 
 namespace Lean.Elab.Tactic.VCGen
 
-/-- Change `goal`'s `Prop`-typed target to the definitionally-equal `targetNew`, mirroring the goal
-update in `Sym.Simp`: a fresh synthetic-opaque goal cast back through `@id`. Unlike
-`MVarId.replaceTargetDefEq` it skips the `instantiateMVars`/`Expr.equal` round-trip, so it neither
-detects a no-op change nor supports a non-`Prop` target; the caller must pass a genuinely different
-`targetNew` definitionally equal to the current target. -/
+/-- Change `goal`'s `Prop`-typed target to the definitionally-equal `targetNew`, assigning `goal` a
+fresh synthetic-opaque goal for `targetNew`, so the kernel checks the two types against each other.
+Unlike `MVarId.replaceTargetDefEq` it skips the `instantiateMVars`/`Expr.equal` round-trip, so it
+neither detects a no-op change nor supports a non-`Prop` target; the caller must pass a genuinely
+different `targetNew` definitionally equal to the current target. -/
 public def _root_.Lean.MVarId.replaceTargetDefEqFast (goal : MVarId) (targetNew : Expr) :
     MetaM MVarId := goal.withContext do
   let mvarNew ← mkFreshExprSyntheticOpaqueMVar targetNew (← goal.getTag)
-  goal.assign (mkApp2 (mkConst ``id [.zero]) (← goal.getType) mvarNew)
+  goal.assign mvarNew
   return mvarNew.mvarId!
 
 /-- Internalize a backward rule's pattern into the current `SymM` share table. See
@@ -91,27 +90,38 @@ open Lean.Elab.Tactic.VCGen
 public def processHypotheses (goal : Grind.Goal) : VCGenM Grind.Goal := do
   if (← read).internalize then Grind.processHypotheses goal else return goal
 
-/--
-Introduce all leading binders of `goal` in one pass, naming the `i`-th binder `overrides[i]` when
-given and the binder's own name otherwise. Accessibility is decided by `tactic.hygienic` via
-`mkFreshBinderNameForTactic`. The introduction itself is a single `Sym.intros` call (which keeps
-the memoized, sharing-correct intro); only the names are chosen here. Returns the goal unchanged
-when there are no leading binders.
--/
-public def introsHygienic (goal : MVarId) (overrides : Array Name := #[]) : VCGenM MVarId :=
+/-- Whether `n` is a program variable's own name: no macro scopes and no implementation-detail
+`__` prefix. Such a name stays accessible in a verification condition. -/
+public def isProgramName (n : Name) : Bool :=
+  !n.hasMacroScopes && !n.isImplementationDetail
+
+/-- The leading binders of `type`, stopping at a binder over a product: `∀ (n : Nat) (p : α × β)`
+counts one, because `solve` splits `p` into one binder per component first. -/
+public def numBindersToIntro : Expr → Nat
+  | .forallE _ d b _ => if d.isAppOf ``Prod then 0 else numBindersToIntro b + 1
+  | .letE _ _ _ b _ => numBindersToIntro b + 1
+  | _ => 0
+
+/-- Introduce the first `n` binders of `goal`, named by `mkFreshBinderNameForTactic`, which
+`tactic.hygienic` makes inaccessible: `∀ acc, acc % 2 = 0` introduces `acc✝`. -/
+public def introsHygienicN (goal : MVarId) (n : Nat) : VCGenM MVarId :=
   goal.withContext do
-    let rec collectBinders (type : Expr) (acc : Array Name) : Array Name :=
-      match type with
-      | .forallE n _ b _ => collectBinders b (acc.push n)
-      | .letE n _ _ b _ => collectBinders b (acc.push n)
-      | _ => acc
-    let binderNames := collectBinders (← goal.getType) #[]
+    let rec collectBinders : Nat → Expr → Array Name → Array Name
+      | 0, _, acc => acc
+      | n+1, .forallE nm _ b _, acc => collectBinders n b (acc.push nm)
+      | n+1, .letE nm _ _ b _, acc => collectBinders n b (acc.push nm)
+      | _, _, acc => acc
+    let binderNames := collectBinders n (← goal.getType) #[]
     if binderNames.isEmpty then return goal
     let mut names := #[]
-    for h : i in *...binderNames.size do
-      names := names.push (← Meta.mkFreshBinderNameForTactic (overrides[i]?.getD binderNames[i]))
+    for nm in binderNames do
+      names := names.push (← Meta.mkFreshBinderNameForTactic nm)
     let .goal _ goal ← Sym.intros goal names | return goal
     return goal
+
+/-- `introsHygienicN` for every non-`Prod` binder the goal leads with. -/
+public def introsHygienic (goal : MVarId) : VCGenM MVarId := do
+  introsHygienicN goal (numBindersToIntro (← goal.getType))
 
 /--
 Simplify the goal's target with the configured hypothesis simp methods (a no-op without
@@ -147,20 +157,25 @@ public partial def introsExcessArgs (goal : MVarId) :
 /--
 Solves conjunctions whose leaves are `True` or `e₁ = e₂`, and returns a residual goal containing
 exactly the conjuncts that could not be solved.
+The goal is head-reduced first, so a conjunction that a `match` on a constructor or a projection
+of a tuple leaves behind a redex is still recognized.
 This procedure may assign metavariables in `e₁`/`e₂`, for example for `e = ?m` it will assign
 `?m := e`.
 -/
-public partial def solveTrivialConjuncts (goal : MVarId) : VCGenM (Option MVarId) :=
+public partial def cleanupVC (goal : MVarId) : VCGenM (Option MVarId) :=
     goal.withContext do
   let ctx ← read
   let ty ← instantiateMVars (← goal.getType)
+  let (goal, ty) ← match ← reduceHead? ty with
+    | some ty' => pure (← goal.replaceTargetDefEqFast ty', ty')
+    | none => pure (goal, ty)
   if ty.isAppOf ``True then
     goal.assign (mkConst ``True.intro)
     return none
   else if ty.isAppOf ``And then
     let .goals [g₁, g₂] ← ctx.backwardRules.andIntro.applyChecked goal
-      | throwError "solveTrivialConjuncts: failed to apply {.ofConstName ``And.intro} to{indentExpr ty}"
-    match ← solveTrivialConjuncts g₁, ← solveTrivialConjuncts g₂ with
+      | throwError "cleanupVC: failed to apply {.ofConstName ``And.intro} to{indentExpr ty}"
+    match ← cleanupVC g₁, ← cleanupVC g₂ with
     | none,    none    => return none
     | some g,  none    => return some g
     | none,    some g  => return some g

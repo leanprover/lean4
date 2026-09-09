@@ -10,5 +10,5 @@ partialSyntaxTraces.lean:6:0: error: unexpected end of input; expected ':=', 'wh
       "def"
       (Command.declId `f [])
       (Command.optDeclSig [] [])
-      (Command.contractDeclVal [] [] (Command.whereStructInst <missing>))))
+      (Command.contractDeclVal [] [] [] (Command.whereStructInst <missing>))))
 [Elab.command] ✅️ 

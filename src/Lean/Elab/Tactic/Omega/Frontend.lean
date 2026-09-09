@@ -704,7 +704,11 @@ def omegaDefault : TacticM Unit := omegaTactic {}
 def evalOmega : Tactic
   | `(tactic| omega%$tk $cfg:optConfig) => do
     -- Call `assumption` first, to avoid constructing unnecessary proofs.
-    Meta.withReducibleAndInstances (evalAssumption tk) <|> do
+    tryCatchRuntimeEx
+      (Meta.withReducibleAndInstances (evalAssumption tk))
+      (fun ex => do
+        -- Unfolding arithmetic in an unrelated hypothesis can exhaust recursion.
+        if ex.isMaxRecDepth then failure else throw ex) <|> do
     let cfg ← elabOmegaConfig cfg
     omegaTactic cfg
   | _ => throwUnsupportedSyntax

@@ -889,3 +889,88 @@ def onOneLine (k : Nat) : Id Nat given (n : Nat) requires k = n ensures r => r =
 /-- info: onOneLine.spec : ∀ (k n : Nat), ⦃ k = n ⦄ onOneLine k ⦃ fun r => r = n ⦄ -/
 #guard_msgs in
 #check @onOneLine.spec
+
+/-! ## Ghost state
+
+`ghost` declares verification-only state. The variable holds an `Erased` value, an
+`invariant` clause reads it with `.out`, and its slot in compiled code holds a dummy. -/
+
+def ghostSumEvens (xs : List Nat) : Id Nat
+    ensures r => r % 2 = 0 := do
+  let mut acc := 0
+  ghost mut seen : List Nat := []
+  for x in xs invariant _pre _suff => acc = 2 * seen.out.length do
+    acc := acc + 2
+    seen := x :: seen.out
+  return acc
+
+/-- info: 6 -/
+#guard_msgs in
+#eval ghostSumEvens [1, 2, 3]
+
+/-! An existential `ensures` takes its witness from a ghost variable: the invariant carries the
+witness, and the exit condition instantiates the existential from it. -/
+
+def ghostDoubleSum (xs : List Nat) : Id Nat
+    ensures r => ∃ n, r = 2 * n := do
+  let mut acc := 0
+  ghost mut half : Nat := 0
+  for x in xs invariant _pre _suff => acc = 2 * half.out do
+    acc := acc + x + x
+    half := half.out + x
+  return acc
+
+/-- info: 12 -/
+#guard_msgs in
+#eval ghostDoubleSum [1, 2, 3]
+
+/-! The declaration forms: `ghost` with and without `mut`, reassignment with an ascription,
+monadic binds (the action runs, its result erases), and patterns. -/
+
+def ghostForms : Id Nat := do
+  ghost y := 5
+  ghost mut x := 1
+  x := x.out + y.out
+  x : Nat := 2
+  ghost z ← pure 3
+  ghost mut m ← pure 4
+  m := m.out + z.out
+  ghost (a, b) := (1, 2)
+  ghost mut (c, d) ← pure (3, 4)
+  c := a.out + b.out + d.out
+  pure 0
+
+/-- info: 0 -/
+#guard_msgs in
+#eval ghostForms
+
+/-! A ghost value reaching compiled code is rejected through the noncomputability of
+`Erased.out`. -/
+
+/--
+error: failed to compile definition, consider marking it as 'noncomputable' because it depends on 'Erased.out', which is 'noncomputable'
+-/
+#guard_msgs in
+def ghostLeak (xs : List Nat) : Id Nat := do
+  ghost mut seen : List Nat := []
+  for x in xs do
+    seen := x :: seen.out
+  return seen.out.length
+
+/-! Erased data cannot decide control flow, so `ghost` takes no `|` alternative. -/
+
+/-- error: `ghost` takes no `|` alternative -/
+#guard_msgs in
+def ghostArrowElse (o : Option Nat) : Id Nat := do
+  ghost some x ← pure o | return 1
+  return 2
+
+/-! A ghost variable stays out of pattern reassignments. -/
+
+/-- error: a ghost variable takes a plain reassignment, as in `g := e` -/
+#guard_msgs in
+def ghostPatReassign : Id Nat := do
+  let mut a := 1
+  ghost mut g := 2
+  (a, g) := (3, Erased.mk 4)
+  pure a

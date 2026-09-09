@@ -85,3 +85,8 @@ def foo : a b c d e f g a b c d e f g h where
   1 = 1 := rfl)
 
 #eval fmt `(by rw [] at h)
+
+-- `ghost` is its own declaration form beside `let` and `have`
+#eval fmt `(do ghost trace := 0; pure ())
+#eval fmt `(do ghost mut trace : List Nat := []; trace := x :: trace.out)
+#eval fmt `(do ghost mut n ← counter)

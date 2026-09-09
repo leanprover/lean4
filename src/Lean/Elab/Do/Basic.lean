@@ -103,6 +103,8 @@ structure MutVar where
   ident : Ident
   /-- The `FVarId` of the initial binding produced by `let mut`. -/
   baseId : FVarId
+  /-- Whether the variable comes from `let ghost mut`, so reassignments wrap in `Erased.mk`. -/
+  ghost : Bool := false
   deriving Inhabited
 
 /-- The raw `Name` of a `mut` variable, as found in the local context. -/
@@ -336,30 +338,30 @@ def DoOps.default : DoOps where
     return mkApp (← read).monadInfo.m α
 
 /-- Register the given name as that of a `mut` variable. -/
-def declareMutVar (x : Ident) (k : DoElabM α) : DoElabM α := do
+def declareMutVar (x : Ident) (ghost : Bool) (k : DoElabM α) : DoElabM α := do
   let fvar ← getFVarFromUserName x.getId
-  let mutVar : MutVar := { ident := x, baseId := fvar.fvarId! }
+  let mutVar : MutVar := { ident := x, baseId := fvar.fvarId!, ghost }
   withReader (fun ctx => { ctx with
     mutVars := ctx.mutVars.push mutVar,
     mutVarDefs := ctx.mutVarDefs.insert x.getId mutVar,
   }) k
 
 /-- Register the given names as that of `mut` variables. -/
-def declareMutVars (xs : Array Ident) (k : DoElabM α) : DoElabM α := do
+def declareMutVars (xs : Array Ident) (ghost : Bool) (k : DoElabM α) : DoElabM α := do
   let fvars ← xs.mapM (getFVarFromUserName ·.getId)
-  let newMutVars : Array MutVar := xs.zipWith (fun x fvar => { ident := x, baseId := fvar.fvarId! }) fvars
+  let newMutVars : Array MutVar := xs.zipWith (fun x fvar => { ident := x, baseId := fvar.fvarId!, ghost }) fvars
   withReader (fun ctx => { ctx with
     mutVars := ctx.mutVars ++ newMutVars,
     mutVarDefs := ctx.mutVarDefs.insertMany (newMutVars.map fun mutVar => (mutVar.getId, mutVar)),
   }) k
 
 /-- Register the given name as that of a `mut` variable if the syntax token `mut` is present. -/
-def declareMutVar? (mutTk? : Option Syntax) (x : Ident) (k : DoElabM α) : DoElabM α :=
-  if mutTk?.isSome then declareMutVar x k else k
+def declareMutVar? (mutTk? : Option Syntax) (x : Ident) (ghost : Bool) (k : DoElabM α) : DoElabM α :=
+  if mutTk?.isSome then declareMutVar x ghost k else k
 
 /-- Register the given names as that of `mut` variables if the syntax token `mut` is present. -/
-def declareMutVars? (mutTk? : Option Syntax) (xs : Array Ident) (k : DoElabM α) : DoElabM α :=
-  if mutTk?.isSome then declareMutVars xs k else k
+def declareMutVars? (mutTk? : Option Syntax) (xs : Array Ident) (ghost : Bool) (k : DoElabM α) : DoElabM α :=
+  if mutTk?.isSome then declareMutVars xs ghost k else k
 
 /-- Look up a declared `mut` variable by its raw `Name`. -/
 def findMutVar? (n : Name) : DoElabM (Option MutVar) := do

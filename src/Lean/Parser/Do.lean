@@ -63,7 +63,8 @@ def notFollowedByRedefinedTermToken :=
   -- an "open" command follows the `do`-block.
   -- If we don't add `do`, then users would have to indent `do` blocks or use `{ ... }`.
   notFollowedBy ("set_option" <|> "open" <|> "if" <|> "match" <|> "match_expr" <|> "let" <|> "let_expr" <|> "have" <|>
-      "do" <|> "dbg_trace" <|> "idbg" <|> "assert!" <|> "debug_assert!" <|> "for" <|> "unless" <|> "return" <|> symbol "try")
+      "do" <|> "dbg_trace" <|> "idbg" <|> "assert!" <|> "debug_assert!" <|> "for" <|> "unless" <|> "return" <|> symbol "try" <|>
+      nonReservedSymbol "ghost ")
     "token at 'do' element"
 
 namespace InternalSyntax
@@ -108,6 +109,13 @@ Motivations:
 -/
 def letIdDeclNoBinders := leading_parser
   atomic (node ``letId ident >> pushNone >> optType >> " := ") >> termParser
+
+/-- `ghost x := e` declares a verification-only variable; `mut` allows reassignment. -/
+@[builtin_doElem_parser] def doGhost := leading_parser
+  nonReservedSymbol "ghost " (includeIdent := true) >> optional "mut " >> (letIdDeclNoBinders <|> letPatDecl)
+/-- `ghost x ← act` runs `act` and hides its result in a verification-only variable. -/
+@[builtin_doElem_parser] def doGhostArrow := leading_parser
+  nonReservedSymbol "ghost " (includeIdent := true) >> optional "mut " >> (doIdDecl <|> doPatDecl)
 
 @[builtin_doElem_parser] def doReassign      := leading_parser
   notFollowedByRedefinedTermToken >> (letIdDeclNoBinders <|> letPatDecl)

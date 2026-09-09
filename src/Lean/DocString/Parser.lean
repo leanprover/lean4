@@ -1218,7 +1218,7 @@ end
 Parses a line of text (that is, one or more inline elements). When `recordTrailing` is set, each
 top-level inline's final token consumes the whitespace that follows it as its trailing whitespace.
 -/
-def textLineFn (allowNewlines := true) (recordTrailing := false) : ParserFn :=
+public def textLineFn (allowNewlines := true) (recordTrailing := false) : ParserFn :=
   if !recordTrailing then
     many1Fn (inlineFn { allowNewlines })
   else fun c s => Id.run do

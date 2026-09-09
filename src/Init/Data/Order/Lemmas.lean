@@ -314,6 +314,11 @@ public theorem le_min_iff {α : Type u} [Min α] [LE α]
     a ≤ min b c ↔ a ≤ b ∧ a ≤ c :=
   LawfulOrderInf.le_min_iff a b c
 
+public theorem min_lt_iff {α : Type u} [Min α] [LE α] [LT α] [Total (α := α) (· ≤ ·)]
+    [LawfulOrderInf α] [LawfulOrderLT α] {a b c : α} : min a b < c ↔ a < c ∨ b < c := by
+  classical
+  rw [← Decidable.not_iff_not, not_lt, not_or, le_min_iff, not_lt, not_lt]
+
 public theorem min_le_left {α : Type u} [Min α] [LE α] [Refl (α := α) (· ≤ ·)] [LawfulOrderInf α]
     {a b : α} : min a b ≤ a :=
   le_min_iff.mp (le_refl _) |>.1
@@ -327,6 +332,11 @@ public theorem min_le {α : Type u} [Min α] [LE α] [IsPreorder α] [LawfulOrde
   cases MinEqOr.min_eq_or a b <;> rename_i h
   · simpa [h] using le_trans (h ▸ min_le_right (a := a) (b := b))
   · simpa [h] using le_trans (h ▸ min_le_left (a := a) (b := b))
+
+public theorem lt_min_iff {α : Type u} [Min α] [LE α] [LT α] [IsLinearPreorder α] [LawfulOrderMin α]
+    [LawfulOrderLT α] {a b c : α} : a < min b c ↔ a < b ∧ a < c := by
+  classical
+  rw [← Decidable.not_iff_not, not_lt, Classical.not_and_iff_not_or_not, not_lt, not_lt, min_le]
 
 public theorem min_eq_or {α : Type u} [Min α] [MinEqOr α] {a b : α} :
     min a b = a ∨ min a b = b :=
@@ -464,6 +474,11 @@ public theorem max_le_iff {α : Type u} [Max α] [LE α] [LawfulOrderSup α] {a 
     max a b ≤ c ↔ a ≤ c ∧ b ≤ c :=
   LawfulOrderSup.max_le_iff a b c
 
+public theorem lt_max_iff {α : Type u} [Max α] [LE α] [LT α] [Total (α := α) (· ≤ ·)]
+    [LawfulOrderSup α] [LawfulOrderLT α] {a b c : α} : a < max b c ↔ a < b ∨ a < c := by
+  classical
+  rw [← Decidable.not_iff_not, not_lt, not_or, max_le_iff, not_lt, not_lt]
+
 public theorem left_le_max {α : Type u} [Max α] [LE α] [Refl (α := α) (· ≤ ·)] [LawfulOrderSup α]
     {a b : α} : a ≤ max a b :=
   max_le_iff.mp (le_refl _) |>.1
@@ -477,6 +492,11 @@ public theorem le_max {α : Type u} [Max α] [LE α] [IsPreorder α] [LawfulOrde
   cases MaxEqOr.max_eq_or b c <;> rename_i h
   · simpa [h] using (le_trans · (h ▸ right_le_max))
   · simpa [h] using (le_trans · (h ▸ left_le_max))
+
+public theorem max_lt_iff {α : Type u} [Max α] [LE α] [LT α] [IsLinearPreorder α] [LawfulOrderMax α]
+    [LawfulOrderLT α] {a b c : α} : max a b < c ↔ a < c ∧ b < c := by
+  classical
+  rw [← Decidable.not_iff_not, not_lt, Classical.not_and_iff_not_or_not, not_lt, not_lt, le_max]
 
 public theorem max_eq_or {α : Type u} [Max α] [MaxEqOr α] {a b : α} :
     max a b = a ∨ max a b = b :=

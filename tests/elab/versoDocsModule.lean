@@ -20,8 +20,8 @@ meta def r (_ : TSyntaxArray ``Parser.inline) : DocM (Inline ElabInline) := do
   return .empty
 
 @[doc_code_block]
-meta def c (s : StrLit) : DocM (Block ElabInline ElabBlock) :=
-  pure (Block.code (s.getString.toList.reverse |> String.ofList))
+meta def c (s : VersoCodeBlock) : DocM (Block ElabInline ElabBlock) :=
+  pure (Block.code (s.getVersoCodeBlock.toList.reverse |> String.ofList))
 
 @[doc_directive]
 meta def d (s : TSyntaxArray ``Parser.block) : DocM (Block ElabInline ElabBlock) := do
@@ -106,8 +106,8 @@ def notMetaRole (_ : TSyntaxArray ``Parser.inline) : DocM (Inline ElabInline) :=
 #guard_msgs in
 attribute [doc_role] notMetaRole
 
-def notMetaCodeBlock (s : StrLit) : DocM (Block ElabInline ElabBlock) :=
-  pure (Block.code s.getString)
+def notMetaCodeBlock (s : VersoCodeBlock) : DocM (Block ElabInline ElabBlock) :=
+  pure (Block.code s.getVersoCodeBlock)
 
 /-- error: `notMetaCodeBlock` must be marked `meta` to be used as a docstring code block -/
 #guard_msgs in

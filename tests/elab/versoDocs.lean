@@ -10,7 +10,8 @@ open Lean Doc Elab Term
 
 
 @[doc_code_block]
-def c (s : StrLit) : DocM (Block ElabInline ElabBlock) := pure (Block.code (s.getString.toList.reverse |> String.mk))
+def c (s : VersoCodeBlock) : DocM (Block ElabInline ElabBlock) :=
+  pure (Block.code (s.getVersoCodeBlock.toList.reverse |> String.mk))
 
 @[doc_directive]
 def d (s : TSyntaxArray ``Parser.block) : DocM (Block ElabInline ElabBlock) := do

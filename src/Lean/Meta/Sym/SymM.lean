@@ -164,10 +164,14 @@ structure Context where
   config      : Config := {}
 
 structure Canon.State where
-  /-- Cache for value-level canonicalization (no type reductions applied). -/
+  /-- Cache for ordinary-term canonicalization in value contexts. -/
   cache       : Std.HashMap Expr Expr := {}
-  /-- Cache for type-level canonicalization (reductions applied). -/
+  /-- Cache for ordinary-term canonicalization in type contexts. -/
   cacheInType : Std.HashMap Expr Expr := {}
+  /-- Cache for instance-argument canonicalization in value contexts. -/
+  instCache       : Std.HashMap Expr Expr := {}
+  /-- Cache for instance-argument canonicalization in type contexts. -/
+  instCacheInType : Std.HashMap Expr Expr := {}
 
 /-- Mutable state for the symbolic computation framework. -/
 structure State where

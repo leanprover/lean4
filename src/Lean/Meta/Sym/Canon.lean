@@ -75,11 +75,12 @@ agreement matters most), but in practice users provide non-synthesizable instanc
 and these instances propagate into types through forward dependencies. Reporting failures
 for such instances produces noise that obscures real issues.
 
-## Two caches
+## Caches
 
-The canonicalizer maintains separate caches for type-level and value-level contexts.
-The same expression may canonicalize differently depending on whether it appears in a
-type position (where reductions are applied) or a value position (where it is only traversed).
+The canonicalizer maintains separate caches for type and value contexts, and for ordinary
+terms and instance arguments. The context controls type-specific reductions and whether
+an instance is re-synthesized. In particular, visiting a standalone instance in a ground
+E-matching pattern must not prevent re-synthesis of the same expression in an instance argument.
 Caches are keyed by `Expr` (structural equality), not pointer equality, because
 the canonicalizer runs before `shareCommon` and enters binders using locally nameless
 representation.
@@ -172,21 +173,28 @@ where
     let some ⟨w, v⟩ ← Meta.getBitVecValue? e | return none
     return some (← mkNumeral (mkApp (mkConst ``BitVec) (mkNatLit w)) v.toNat)
 
-abbrev withCaching (e : Expr) (k : CanonM Expr) : CanonM Expr := do
-  if (← read).insideType then
-    if let some r := (← get).canon.cacheInType.get? e then
-      return r
-    else
-      let r ← k
-      modify fun s => { s with canon.cacheInType := s.canon.cacheInType.insert e r }
-      return r
+abbrev withCaching (e : Expr) (k : CanonM Expr) (isInstance := false) : CanonM Expr := do
+  let insideType := (← read).insideType
+  let s := (← get).canon
+  let cache := if isInstance then
+    if insideType then s.instCacheInType else s.instCache
   else
-    if let some r := (← get).canon.cache.get? e then
-      return r
+    if insideType then s.cacheInType else s.cache
+  if let some r := cache.get? e then
+    return r
+  let r ← k
+  modify fun s =>
+    if isInstance then
+      if insideType then
+        { s with canon.instCacheInType := s.canon.instCacheInType.insert e r }
+      else
+        { s with canon.instCache := s.canon.instCache.insert e r }
     else
-      let r ← k
-      modify fun s => { s with canon.cache := s.canon.cache.insert e r }
-      return r
+      if insideType then
+        { s with canon.cacheInType := s.canon.cacheInType.insert e r }
+      else
+        { s with canon.cache := s.canon.cache.insert e r }
+  return r
 
 def isTrueCond (e : Expr) : Bool :=
   match_expr e with
@@ -354,7 +362,7 @@ where
     canonInstCore e type' report
 
   /-- `withCaching` + `canonInst'` -/
-  canonInst (e : Expr) (report := true) : CanonM Expr := withCaching e do
+  canonInst (e : Expr) (report := true) : CanonM Expr := withCaching e (isInstance := true) do
     canonInst' e report
 
   /--
@@ -365,7 +373,7 @@ where
   2- Try to resynthesize the instance, but keep the original one in case of failure since users often
   provide them using `haveI`.
   -/
-  canonInstProp (g : Expr) (prop : Expr) (h : Expr) (e : Expr) : CanonM Expr := withCaching e do
+  canonInstProp (g : Expr) (prop : Expr) (h : Expr) (e : Expr) : CanonM Expr := withCaching e (isInstance := true) do
     let prop' ← canon prop
     if (← read).insideType then
       /- We suppress reporting here because `haveI`-provided instances propagate into types
@@ -406,7 +414,7 @@ where
       return if isSameExpr prop prop' && isSameExpr inst inst' then e else mkApp2 g prop' inst'
 
   /-- `withCaching` + `canonInstDec'` -/
-  canonInstDec (g : Expr) (prop : Expr) (h : Expr) (e : Expr) : CanonM Expr := withCaching e do
+  canonInstDec (g : Expr) (prop : Expr) (h : Expr) (e : Expr) : CanonM Expr := withCaching e (isInstance := true) do
     canonInstDec' g prop h e
 
   /-- `canonInstDec` variant for normalizing `if-then-else` expressions. -/

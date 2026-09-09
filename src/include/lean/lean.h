@@ -2245,6 +2245,9 @@ static inline uint64_t lean_uint64_of_nat_mk(lean_obj_arg a) { uint64_t r = lean
 static inline uint64_t lean_uint64_add(uint64_t a1, uint64_t a2) { return a1+a2; }
 static inline uint64_t lean_uint64_sub(uint64_t a1, uint64_t a2) { return a1-a2; }
 static inline uint64_t lean_uint64_mul(uint64_t a1, uint64_t a2) { return 1U*a1*a2; }
+LEAN_EXPORT uint64_t lean_uint64_mul_mod(uint64_t a, uint64_t b, uint64_t modulus);
+LEAN_EXPORT uint64_t lean_uint64_pow_mod(uint64_t base, b_lean_obj_arg exponent, uint64_t modulus);
+LEAN_EXPORT lean_obj_res lean_uint64_inv_mod(uint64_t a, uint64_t modulus);
 static inline uint64_t lean_uint64_div(uint64_t a1, uint64_t a2) { return a2 == 0 ? 0  : a1/a2; }
 static inline uint64_t lean_uint64_mod(uint64_t a1, uint64_t a2) { return a2 == 0 ? a1 : a1%a2; }
 static inline uint64_t lean_uint64_land(uint64_t a, uint64_t b) { return a & b; }

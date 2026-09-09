@@ -112,10 +112,10 @@ def letIdDeclNoBinders := leading_parser
 
 /-- `ghost x := e` declares a verification-only variable; `mut` allows reassignment. -/
 @[builtin_doElem_parser] def doGhost := leading_parser
-  nonReservedSymbol "ghost " (includeIdent := true) >> optional "mut " >> (letIdDeclNoBinders <|> letPatDecl)
+  nonReservedSymbol "ghost " (includeIdent := true) >> optional "mut " >> letIdDeclNoBinders
 /-- `ghost x ← act` runs `act` and hides its result in a verification-only variable. -/
 @[builtin_doElem_parser] def doGhostArrow := leading_parser
-  nonReservedSymbol "ghost " (includeIdent := true) >> optional "mut " >> (doIdDecl <|> doPatDecl)
+  nonReservedSymbol "ghost " (includeIdent := true) >> optional "mut " >> doIdDecl
 
 @[builtin_doElem_parser] def doReassign      := leading_parser
   notFollowedByRedefinedTermToken >> (letIdDeclNoBinders <|> letPatDecl)

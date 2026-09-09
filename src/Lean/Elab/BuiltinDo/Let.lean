@@ -132,8 +132,7 @@ partial def elabDoLetOrReassign (config : Term.LetConfig) (letOrReassign : LetOr
     else
       pure letOrReassign
   -- Some decl preprocessing on the patterns and expected types:
-  let decl ← if letOrReassign.isGhost && !(decl.raw[0].isOfKind ``letPatDecl) then
-    wrapGhostDecl letOrReassign decl else pure decl
+  let decl ← if letOrReassign.isGhost then wrapGhostDecl letOrReassign decl else pure decl
   let decl ← pushTypeIntoReassignment letOrReassign decl
   let mγ ← mkMonadApp (← read).doBlockResultType
   match decl with
@@ -141,17 +140,6 @@ partial def elabDoLetOrReassign (config : Term.LetConfig) (letOrReassign : LetOr
     let declNew ← `(letDecl| $(⟨← liftMacroM <| Term.expandLetEqnsDecl decl⟩):letIdDecl)
     return ← Term.withMacroExpansion decl declNew <| elabDoLetOrReassign config letOrReassign declNew tk dec
   | `(letDecl| $pattern:term $[: $xType?]? := $rhs) =>
-    if letOrReassign.isGhost then
-      -- `ghost (a, b) := e` never computes `e`: it binds `e` whole as one ghost variable, and
-      -- each pattern variable by matching that variable in erased positions.
-      let mutTk? := letOrReassign.getLetMutTk?
-      let tmp := mkIdentFrom pattern (← mkFreshUserName `__tmp)
-      let rhs ← match xType? with | some t => `(($rhs : $t)) | none => pure rhs
-      let mut elems : Array DoElem := #[⟨(← `(doGhost| ghost $tmp:ident := $rhs)).raw⟩]
-      for v in vars do
-        elems := elems.push
-          ⟨(← `(doGhost| ghost $[mut%$mutTk?]? $v:ident := (match $tmp:ident with | $pattern:term => $v))).raw⟩
-      return ← elabDoElems1 elems dec
     let rhs ← match xType? with | some xType => `(($rhs : $xType)) | none => pure rhs
     let contElab : DoElabM Expr := elabWithReassignments letOrReassign vars dec.continueWithUnit
     doElabToSyntax m!"let body of {pattern}" contElab fun body => do
@@ -270,31 +258,18 @@ private def getLetConfigAndCheckMut (letConfigStx : TSyntax ``Parser.Term.letCon
   elabDoLetOrReassign config (.let mutTk? false) decl tk dec
 
 @[builtin_doElem_elab Lean.Parser.Term.doGhost] def elabDoGhost : DoElab := fun stx dec => do
-  match stx with
-  | `(doGhost| ghost%$tk $[mut%$mutTk?]? $x:ident $[: $t?]? := $e) =>
-    elabDoLetOrReassign {} (.let mutTk? true) (← `(letDecl| $x:ident $[: $t?]? := $e)) tk dec
-  | `(doGhost| ghost%$tk $[mut%$mutTk?]? $decl:letPatDecl) =>
-    elabDoLetOrReassign {} (.let mutTk? true) ⟨mkNode ``letDecl #[decl]⟩ tk dec
-  | _ => throwUnsupportedSyntax
+  let `(doGhost| ghost%$tk $[mut%$mutTk?]? $x:ident $[: $t?]? := $e) := stx | throwUnsupportedSyntax
+  elabDoLetOrReassign {} (.let mutTk? true) (← `(letDecl| $x:ident $[: $t?]? := $e)) tk dec
 
 @[builtin_doElem_elab Lean.Parser.Term.doGhostArrow] def elabDoGhostArrow : DoElab := fun stx dec => do
-  match stx with
-  | `(doGhostArrow| ghost%$tk $[mut%$mutTk?]? $x:ident $[: $t?]? ← $rhs) =>
-    checkMutVarsForShadowing #[x]
-    let dec ← dec.ensureUnitAt tk
-    let y := mkIdentFrom x (← mkFreshUserName `__y)
-    elabDoIdDecl y t? rhs
-      (elabDoElem ⟨(← `(doGhost| ghost%$tk $[mut%$mutTk?]? $x:ident := $y)).raw⟩ dec)
-      (kind := dec.kind)
-  | `(doGhostArrow| ghost%$tk $[mut%$mutTk?]? $pat:term $[: $t?]? ← $rhs $[| $otherwise? $(rest?)?]?) =>
-    if otherwise?.isSome then
-      throwErrorAt tk "`ghost` takes no `|` alternative"
-    let dec ← dec.ensureUnitAt tk
-    let y := mkIdentFrom pat (← mkFreshUserName `__y)
-    elabDoIdDecl y t? rhs
-      (elabDoElem ⟨(← `(doGhost| ghost%$tk $[mut%$mutTk?]? $pat:term := $y)).raw⟩ dec)
-      (kind := dec.kind)
-  | _ => throwUnsupportedSyntax
+  let `(doGhostArrow| ghost%$tk $[mut%$mutTk?]? $x:ident $[: $t?]? ← $rhs) := stx
+    | throwUnsupportedSyntax
+  checkMutVarsForShadowing #[x]
+  let dec ← dec.ensureUnitAt tk
+  let y := mkIdentFrom x (← mkFreshUserName `__y)
+  elabDoIdDecl y t? rhs
+    (elabDoElem ⟨(← `(doGhost| ghost%$tk $[mut%$mutTk?]? $x:ident := $y)).raw⟩ dec)
+    (kind := dec.kind)
 
 @[builtin_doElem_elab Lean.Parser.Term.doHave] def elabDoHave : DoElab := fun stx dec => do
   let `(doHave| have%$tk $config:letConfig $decl:letDecl) := stx | throwUnsupportedSyntax

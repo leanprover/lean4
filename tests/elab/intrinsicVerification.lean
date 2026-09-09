@@ -925,8 +925,8 @@ def ghostDoubleSum (xs : List Nat) : Id Nat
 #guard_msgs in
 #eval ghostDoubleSum [1, 2, 3]
 
-/-! The declaration forms: `ghost` with and without `mut`, reassignment with an ascription,
-monadic binds (the action runs, its result erases), and patterns. -/
+/-! The declaration forms: `ghost` with and without `mut`, reassignment with an ascription, and
+monadic binds (the action runs, its result erases). -/
 
 def ghostForms : Id Nat := do
   ghost y := 5
@@ -936,9 +936,6 @@ def ghostForms : Id Nat := do
   ghost z ← pure 3
   ghost mut m ← pure 4
   m := m + z
-  ghost (a, b) := (1, 2)
-  ghost mut (c, d) ← pure (3, 4)
-  c := a + b + d
   pure 0
 
 /-- info: 0 -/
@@ -973,14 +970,6 @@ def ghostLeak (xs : List Nat) : Id Nat := do
   for x in xs do
     seen := x :: seen
   return seen.length
-
-/-! Erased data cannot decide control flow, so `ghost` takes no `|` alternative. -/
-
-/-- error: `ghost` takes no `|` alternative -/
-#guard_msgs in
-def ghostArrowElse (o : Option Nat) : Id Nat := do
-  ghost some x ← pure o | return 1
-  return 2
 
 /-! A ghost variable stays out of pattern reassignments. -/
 

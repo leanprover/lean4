@@ -39,10 +39,24 @@ def LetOrReassign.isGhostDecl (letOrReassign : LetOrReassign) : Bool :=
   | .let _ ghost => ghost
   | _            => false
 
+def isGhost (letOrReassign : LetOrReassign) (vars : Array Ident) : DoElabM Bool := do
+  match letOrReassign with
+  | .let _ ghost => return ghost
+  | .reassign    =>
+    let some v := vars[0]? | return false
+    let some mv ← findMutVar? v.getId | return false
+    return mv.ghost
+  | _            => return false
+
 def LetOrReassign.checkMutVars (letOrReassign : LetOrReassign) (vars : Array Ident) : DoElabM Unit :=
   match letOrReassign with
   | .reassign => do
     throwUnlessMutVarsDeclared vars
+    -- Reassigning a ghost variable wraps its value, which only the single-variable form can do.
+    unless vars.size == 1 do
+      for v in vars do
+        if ((← findMutVar? v.getId).map (·.ghost)).getD false then
+          throwErrorAt v "a ghost variable takes a plain reassignment, as in `{v.getId} := e`"
   | _         => checkMutVarsForShadowing vars
 
 def LetOrReassign.registerReassignAliasInfo (letOrReassign : LetOrReassign) (vars : Array Ident) : DoElabM Unit := do
@@ -53,11 +67,10 @@ def LetOrReassign.registerReassignAliasInfo (letOrReassign : LetOrReassign) (var
 def elabWithReassignments (letOrReassign : LetOrReassign) (vars : Array Ident) (k : DoElabM Expr) : DoElabM Expr := do
   declareMutVars? letOrReassign.getLetMutTk? vars letOrReassign.isGhostDecl do
     letOrReassign.registerReassignAliasInfo vars
-    let ghostVars ← match letOrReassign with
-      | .let _ true => pure vars
-      | .reassign   => vars.filterM fun v => return ((← findMutVar? v.getId).map (·.ghost)).getD false
-      | _           => pure #[]
-    ghostVars.foldr (init := k) withErasedProj
+    if ← isGhost letOrReassign vars then
+      vars.foldr (init := k) withErasedProj
+    else
+      k
 
 def elabDoLetOrReassignWith (hint : MessageData) (letOrReassign : LetOrReassign) (vars : Array Ident)
     (k : DoElabM Expr) (elabBody : (body : Term) → TermElabM Expr) : DoElabM Expr := do
@@ -120,16 +133,7 @@ partial def elabDoLetOrReassign (config : Term.LetConfig) (letOrReassign : LetOr
   let vars ← getLetDeclVars decl
   letOrReassign.checkMutVars vars
   let dec ← dec.ensureUnitAt tk
-  -- Reassigning a ghost variable wraps its value, which only the single-variable form can do.
-  let isGhost ← do
-    if letOrReassign matches .reassign then
-      let some v ← vars.findM? fun v => return ((← findMutVar? v.getId).map (·.ghost)).getD false
-        | pure false
-      unless decl matches `(letDecl| $_:ident $[: $_]? := $_) do
-        throwErrorAt v "a ghost variable takes a plain reassignment, as in `{v.getId} := e`"
-      pure true
-    else
-      pure letOrReassign.isGhostDecl
+  let isGhost ← isGhost letOrReassign vars
   -- Some decl preprocessing on the patterns and expected types:
   let decl ← if isGhost then wrapGhostDecl letOrReassign decl
              else pushTypeIntoReassignment letOrReassign decl

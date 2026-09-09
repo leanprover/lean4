@@ -1847,35 +1847,8 @@ extern "C" LEAN_EXPORT uint64 lean_uint64_of_big_nat(b_obj_arg a) {
     return mpz_value(a).mod64();
 }
 
-#if !defined(__SIZEOF_INT128__)
-static uint64 lean_uint64_add_mod(uint64 a, uint64 b, uint64 modulus) {
-    // `a` and `b` are reduced, so this computes their sum modulo `modulus` without overflow.
-    return a >= modulus - b ? a - (modulus - b) : a + b;
-}
-#endif
-
-extern "C" LEAN_EXPORT uint64 lean_uint64_mul_mod(uint64 a, uint64 b, uint64 modulus) {
-    if (modulus == 0) return a * b;
-    if (modulus == 1) return 0;
-#if defined(__SIZEOF_INT128__)
-    __uint128_t product = static_cast<__uint128_t>(a) * b;
-    if (product <= UINT64_MAX) return static_cast<uint64>(product) % modulus;
-    return static_cast<uint64>(product % modulus);
-#else
-    // Double and add keeps every intermediate below `modulus` on platforms without 128-bit words.
-    a %= modulus;
-    uint64 result = 0;
-    while (b != 0) {
-        if (b & 1) result = lean_uint64_add_mod(result, a, modulus);
-        b >>= 1;
-        if (b != 0) a = lean_uint64_add_mod(a, a, modulus);
-    }
-    return result;
-#endif
-}
-
 static uint64 lean_uint64_pow_mod_core(uint64 base, uint64 exponent, uint64 modulus) {
-    uint64 result = modulus == 1 ? 0 : 1;
+    uint64 result = 1;
     while (exponent != 0) {
         if (exponent & 1) result = lean_uint64_mul_mod(result, base, modulus);
         exponent >>= 1;

@@ -42,7 +42,8 @@ decreasing_by omega
 
 /--
 Returns the multiplicative inverse of `a` modulo `modulus`, or `none` if the inverse does not
-exist. For a nonzero modulus, an inverse exists exactly when `a` and `modulus` are coprime.
+exist. When `modulus` is `0`, the result is `none`. For a nonzero modulus, an inverse exists exactly
+when `a` and `modulus` are coprime.
 
 This function is overridden at runtime with an efficient implementation.
 -/

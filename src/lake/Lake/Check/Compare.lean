@@ -27,11 +27,6 @@ structure State where
 
 abbrev CompareM := ReaderT Context <| StateT State <| Except String
 
-deriving instance BEq for Lean.QuotKind
-deriving instance BEq for Lean.QuotVal
-deriving instance BEq for Lean.InductiveVal
-deriving instance BEq for Lean.ConstantInfo
-
 def addWorklist (n : Lean.Name) : CompareM Unit := do
   if !(← get).checked.contains n then
     modify fun s => { s with worklist := s.worklist.push n }

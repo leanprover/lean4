@@ -49,12 +49,12 @@ program. A caller of a spec picks a frame and applies the frame rule for that fr
           (fun a => (((base.toWP _).wpTrans (f a)).frameClosure op).apply post E') E'
         ⊑ (((base.toWP _).wpTrans (x >>= f)).frameClosure op).apply post E'
     refine (PredTrans.le_frameClosure_iff op _).mpr fun r => ?_
-    refine PartialOrder.rel_trans (PredTrans.frameClosure_frames op comp hact hactE _ r _ _) ?_
+    refine PartialOrder.rel_trans ((PredTrans.frameClosure_frames op comp hact hactE _ r).op_apply_le_apply_op _ _) ?_
     refine PartialOrder.rel_trans (PredTrans.frameClosure_le op e hunit hunitE _ _ _) ?_
     refine PartialOrder.rel_trans ?_
       (base.bind_le_wp_bind x f (fun a => op r (post a)) (opE r E'))
     refine WP.wp_consequence x _ _ (opE r E') fun a => ?_
-    exact PartialOrder.rel_trans (PredTrans.frameClosure_frames op comp hact hactE _ r _ _)
+    exact PartialOrder.rel_trans ((PredTrans.frameClosure_frames op comp hact hactE _ r).op_apply_le_apply_op _ _)
       (PredTrans.frameClosure_le op e hunit hunitE _ _ _)
 
 end Std.WP

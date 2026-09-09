@@ -42,16 +42,6 @@ class FrameOp {Pred : Type u} [CompleteLattice Pred] {R : Type x} (op : R → Pr
 
 attribute [instance] FrameOp.preservesSup FrameOp.preservesSupE
 
-/-!
-## Exception-channel companion combinators
-
-An exception-channel companion `opE : R → EPred → EPred` composes from the structure of `EPred`:
-the frame operator itself where the channel carries the assertion type, `FrameOp.pointwise` under a
-function layer, `FrameOp.prod` on a product layer, and `FrameOp.ignore` where the frame cannot act.
-The combinators stay applied in terms, with `apply`/projection and `upperAdjoint` equations
-characterizing them.
--/
-
 namespace FrameOp
 
 /-- The frame acts pointwise under a function layer. -/
@@ -85,16 +75,16 @@ instance {B : Type v'} [CompleteLattice B] (opA : R → EPred → EPred) (opB : 
 instance (r : R) : PreservesSup (FrameOp.ignore (A := EPred) r) :=
   inferInstanceAs (PreservesSup (id : EPred → EPred))
 
-instance (priority := high) FrameOp.instDiag [∀ r, PreservesSup (op r)] : FrameOp op Pred op where
+instance (priority := high) [∀ r, PreservesSup (op r)] : FrameOp op Pred op where
 
-instance FrameOp.instPointwise {ε : Type w} {opE : R → EPred → EPred} [FrameOp op EPred opE] :
+instance {ε : Type w} {opE : R → EPred → EPred} [FrameOp op EPred opE] :
     FrameOp op (ε → EPred) (FrameOp.pointwise opE) where
 
-instance FrameOp.instProd {B : Type v'} [CompleteLattice B]
+instance {B : Type v'} [CompleteLattice B]
     {opA : R → EPred → EPred} {opB : R → B → B} [FrameOp op EPred opA] [FrameOp op B opB] :
     FrameOp op (EPred × B) (FrameOp.prod opA opB) where
 
-instance (priority := low) FrameOp.instIgnore [∀ r, PreservesSup (op r)] :
+instance (priority := low) [∀ r, PreservesSup (op r)] :
     FrameOp op EPred FrameOp.ignore where
 
 end
@@ -151,9 +141,10 @@ variable {Pred : Type u} [CompleteLattice Pred] {EPred : Type v} [CompleteLattic
 /-- `t` frames the resource `F` with respect to the operator `op : R → Pred → Pred` and its
 exception-channel companion: `op F ·` commutes into the value postcondition of `t` while
 `opE F ·` commutes into the exception postcondition. -/
-def PredTrans.Frames (op : R → Pred → Pred) [FrameOp op EPred opE]
-    (t : PredTrans Pred EPred β) (F : R) : Prop :=
-  ∀ (Q : β → Pred) (E : EPred),
+structure PredTrans.Frames (op : R → Pred → Pred) [FrameOp op EPred opE]
+    (t : PredTrans Pred EPred β) (F : R) : Prop where
+  /-- `op F` and its companion commute into the postcondition pair of `t`. -/
+  op_apply_le_apply_op : ∀ (Q : β → Pred) (E : EPred),
     op F (t.apply Q E) ⊑ t.apply (fun a => op F (Q a)) (opE F E)
 
 theorem PredTrans.Frames.op_apply_upperAdjoint_le_apply (op : R → Pred → Pred)
@@ -161,7 +152,7 @@ theorem PredTrans.Frames.op_apply_upperAdjoint_le_apply (op : R → Pred → Pre
     (hmono : t.Monotone) (hframes : t.Frames op F) (Q : β → Pred) (E : EPred) :
     op F (t.apply (fun a => PreservesSup.upperAdjoint (op F) (Q a))
         (PreservesSup.upperAdjoint (opE F) E)) ⊑ t.apply Q E := by
-  refine PartialOrder.rel_trans (hframes _ _) ?_
+  refine PartialOrder.rel_trans (hframes.op_apply_le_apply_op _ _) ?_
   refine hmono _ _ _ _ (PreservesSup.upperAdjoint_le (opE F) E) ?_
   intro a
   exact PreservesSup.upperAdjoint_le (op F) (Q a)
@@ -172,6 +163,7 @@ theorem PredTrans.Frames.of_conjunctive {opE : Pred → EPred → EPred} [FrameO
     (hF : F ⊑ t.apply (fun _ => F) (opE F ⊤))
     (hE : ∀ E, opE F ⊤ ⊓ E ⊑ opE F E) :
     t.Frames meet F := by
+  constructor
   intro Q E
   refine PartialOrder.rel_trans (y := t.apply (fun _ => F) (opE F ⊤) ⊓ t.apply Q E) ?_ ?_
   · exact le_meet _ _ _ (PartialOrder.rel_trans (meet_le_left _ _) hF) (meet_le_right _ _)
@@ -208,6 +200,7 @@ theorem PredTrans.frameClosure_frames (op : R → Pred → Pred) [FrameOp op EPr
     (hactE : ∀ r r' E, opE (comp r r') E = opE r (opE r' E))
     (t : PredTrans Pred EPred β) (F : R) :
     (t.frameClosure op).Frames op F := by
+  constructor
   intro Q E
   apply le_iInf
   intro F'
@@ -242,7 +235,7 @@ theorem PredTrans.le_frameClosure (op : R → Pred → Pred) [FrameOp op EPred o
     (hpre : pre ⊑ t.apply Q E) :
     pre ⊑ (t.frameClosure op).apply Q E :=
   (le_frameClosure_iff op t).mpr fun r =>
-    PartialOrder.rel_trans (PreservesSup.map_mono (op r) hpre) (hframe r Q E)
+    PartialOrder.rel_trans (PreservesSup.map_mono (op r) hpre) ((hframe r).op_apply_le_apply_op Q E)
 
 theorem PredTrans.frameClosure_le (op : R → Pred → Pred) [FrameOp op EPred opE]
     (e : R) (hunit : ∀ a, op e a = a) (hunitE : ∀ E, opE e E = E)

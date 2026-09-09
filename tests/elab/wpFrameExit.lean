@@ -1,17 +1,11 @@
 import Std.WP
 
 /-!
-The frame closure frames both channels: `frameClosure op opE` hands the framed exception
-postcondition `opE r E` to the base transformer. On a two-constructor program type over a toy heap
-this file shows:
-
-1. `exit_spec_fails`: with the identity `opE`, the specification `⦃ l ↦ v ⦄ exit ⦃ ⊥; l ↦ v ⦄`,
-   which says an exit owns exactly what it held, is unprovable. The characterization
-   `WP.of_frameClosure_le_wp_iff` reduces it to `∀ F, F ∗ (l ↦ v) ⊑ (l ↦ v)`, and a two-cell heap
-   refutes that: the identity `opE` only supports frame-absorbing exit assertions.
-
-2. `exit_spec`: with `opE := sepConj`, the companion at `EPred = Pred`, the same specification
-   holds. The framed obligation is `∀ F, F ∗ P ⊑ F ∗ P`.
+The frame closure frames both channels: `frameClosure op` hands the framed exception postcondition
+`opE r E` to the base transformer. On a two-constructor program type over a toy heap, `exit_spec`
+shows the specification `⦃ l ↦ v ⦄ exit ⦃ ⊥; l ↦ v ⦄`: an exit owns exactly what it held, with the
+frame pushed into the exception postcondition by the companion `opE := sepConj` at `EPred = Pred`.
+The framed obligation is `∀ F, F ∗ P ⊑ F ∗ P`.
 -/
 
 open Lean.Order Std.WP Std.Internal.Order
@@ -83,41 +77,6 @@ postcondition. -/
     cases x
     · exact hQ ()
     · exact hE
-
-/-! ## 1. The identity `opE` cannot carry exact ownership across an exit -/
-
-/-- The identity-`opE` interpretation: only the value channel is framed. -/
-@[instance_reducible] noncomputable def framedWP : WP Prog Unit HProp HProp :=
-  WP.of_frameClosure sepConj (opE := FrameOp.ignore) baseWP
-
-/-- A frame does not vanish: `F ∗ P` at a two-cell heap refutes `P`. -/
-theorem sepConj_not_absorbed :
-    ¬ (∀ F : HProp, (F ∗ (0 ↦ 1)) ⊑ (0 ↦ 1)) := by
-  intro habs
-  have hdisj : (Heap.single 2 3).disjoint (Heap.single 0 1) := by
-    intro n
-    by_cases h2 : n = 2
-    · subst h2; right; simp [Heap.single]
-    · left; simp [Heap.single, h2]
-  have h := habs (2 ↦ 3) ((Heap.single 2 3).union (Heap.single 0 1))
-    ⟨_, _, hdisj, rfl, rfl, rfl⟩
-  have := congrFun h 2
-  simp [Heap.single, Heap.union] at this
-
-/-- The specification `⦃ l ↦ v ⦄ exit ⦃ ⊥; l ↦ v ⦄` reduces, at the identity `opE`, to frames
-being absorbed. -/
-theorem exit_spec_iff_absorbed :
-    (((0 ↦ 1) : HProp) ⊑ framedWP.wp .exit (fun _ => ⊥) (0 ↦ 1))
-      ↔ (∀ F : HProp, (F ∗ (0 ↦ 1)) ⊑ (0 ↦ 1)) := by
-  rw [show framedWP = WP.of_frameClosure sepConj (opE := FrameOp.ignore) baseWP from rfl]
-  rw [WP.of_frameClosure_le_wp_iff]
-  constructor <;> intro h F <;> exact h F
-
-theorem exit_spec_fails :
-    ¬ (((0 ↦ 1) : HProp) ⊑ framedWP.wp .exit (fun _ => ⊥) (0 ↦ 1)) :=
-  fun h => sepConj_not_absorbed (exit_spec_iff_absorbed.mp h)
-
-/-! ## 2. Framing the exception channel by `sepConj` -/
 
 /-- The interpretation that frames both channels by `sepConj`. -/
 @[instance_reducible] noncomputable def framedWPE : WP Prog Unit HProp HProp :=

@@ -198,7 +198,7 @@ theorem frames_costConj [Assertion Pred] [Assertion EPred] [WPMonad m Pred EPred
 theorem tickFrames [Assertion Pred] [Assertion EPred] [WPMonad m Pred EPred]
     {α : Type} (x : TickT m α) (F : Nat) (Q : α → Nat → Pred) (E : EPred) :
     F ⋆ TickT.wp x Q E ⊑ TickT.wp x (fun a => F ⋆ Q a) E :=
-  frames_costConj (Pred := Pred) (EPred := EPred) x F Q E
+  (frames_costConj (Pred := Pred) (EPred := EPred) x F).op_apply_le_apply_op Q E
 
 /-- The sharp cost spec for `tick`: it costs exactly one unit. Threads the shift `r` through the
 base `tick` spec. -/

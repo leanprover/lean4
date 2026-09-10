@@ -28,11 +28,11 @@ namespace Lean.Order
 
 open Std.Internal.Order
 
-/-- A resource action on the two postcondition channels of a `PredTrans Pred EPred`: `op` acts on
-the value channel and its companion `opE` on the exception channel, both preserving suprema.
-Instances derive `opE` from `op` by the structure of `EPred`: `op` itself where the channel carries
-the assertion type, pointwise under a function layer, componentwise on a product layer, and the
-ignoring companion where the frame cannot act. -/
+/-- Relates a frame operator `op` on the value channel of a `PredTrans Pred EPred` to a companion
+`opE` on the exception channel. Both preserve suprema. Instances derive `opE` from the structure
+of `EPred`: `op` itself on the assertion type, a pointwise lift under a function layer, and a
+componentwise lift on a product layer. A low-priority default instance ignores the frame. An
+instance for a custom exception layer takes precedence. -/
 class FrameOp {Pred : Type u} [CompleteLattice Pred] {R : Type x} (op : R → Pred → Pred)
     (EPred : Type v) [CompleteLattice EPred] (opE : outParam (R → EPred → EPred)) : Prop where
   /-- Each `op r` preserves suprema, so it has an upper adjoint. -/

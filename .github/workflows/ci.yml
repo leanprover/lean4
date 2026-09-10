@@ -443,6 +443,11 @@ jobs:
               }
             }
             console.log(`matrix:\n${JSON.stringify(matrix, null, 2)}`);
+            // TEMPORARY: probe branch, do not merge. Isolates the Windows job on the runner
+            // nightlies use, so that a PR run tests this commit against it.
+            matrix = matrix
+              .filter((job) => job["name"] == "Windows")
+              .map((job) => ({ ...job, enabled: true, os: "namespace-profile-windows-amd64-4x16" }));
             matrix = matrix.filter((job) => job["enabled"]);
             core.setOutput('matrix', matrix.filter((job) => !job["secondary"]));
             core.setOutput('matrix-secondary', matrix.filter((job) => job["secondary"]));

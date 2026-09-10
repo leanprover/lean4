@@ -266,7 +266,7 @@ jobs:
           elan --version  # fails step if not found
           make -C build/$TARGET_STAGE lean4lean
       - name: Build nanoda
-        if: matrix.release && !matrix.wasm && inputs.RELEASE_TAG != '' && github.repository == 'leanprover/lean4'
+        if: matrix.release && !matrix.wasm
         run: |
           # msys2 hides the runner's preinstalled cargo by trimming the Windows `PATH`
           if command -v cygpath > /dev/null && [ -n "${USERPROFILE:-}" ]; then

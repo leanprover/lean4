@@ -132,4 +132,24 @@ theorem NondetFun.le_of_total_le {Pred : Type u} {Fun : Type v} {α : Type w}
 
 end Assertion
 
+/-!
+## Order-reflecting conversions
+
+An exception postcondition for a program that can throw at several layers carries one assertion per
+layer, and reasoning about it proceeds layer by layer. `AssertionHom E T hom` converts such an `E`
+into an assertion `T` that exposes the layers as a stack, and `le_of_hom_le` reflects an entailment
+between the stacks back to an entailment between the originals. For a program in
+`ExceptT Nat (ExceptT String (StateM σ))`, `T` is `EStack⟨Nat → σ → Prop, String → σ → Prop⟩`, and
+each factor is the assertion of one layer.
+-/
+
+/-- `hom` converts the assertion `E` into the assertion `T`, reflecting the order and preserving
+the least element. -/
+class AssertionHom (E : Type u) (T : outParam (Type u)) (hom : outParam (E → T))
+    [Assertion E] [Assertion T] where
+  /-- An entailment between the images is an entailment between the arguments. -/
+  le_of_hom_le {x y : E} : hom x ⊑ hom y → x ⊑ y
+  /-- The image of the least assertion is the least assertion. -/
+  hom_bot : hom (⊥ : E) = ⊥
+
 end Std.WP

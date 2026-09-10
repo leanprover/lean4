@@ -97,3 +97,32 @@ private def fermat : Bool :=
 #guard UInt64.invMod? 3 11 == some 4
 #guard UInt64.invMod? 6 15 == none
 #guard UInt64.invMod? 1 0 == none
+
+/-! The characterization lemmas are usable in proofs, not merely present. -/
+
+example (a b m : UInt64) (h : m ≠ 0) : UInt64.mulMod a b m < m :=
+  UInt64.mulMod_lt h
+
+example (a b m : UInt64) (h : m ≠ 0) :
+    (UInt64.mulMod a b m).toNat = a.toNat * b.toNat % m.toNat :=
+  UInt64.toNat_mulMod h
+
+example (base : UInt64) (e : Nat) (m : UInt64) (h : m ≠ 0) :
+    (UInt64.powMod base e m).toNat = base.toNat ^ e % m.toNat :=
+  UInt64.toNat_powMod h
+
+example (a : UInt64) : UInt64.invMod? a 0 = none := by simp
+
+/-- An inverse exists exactly when the inputs are coprime. -/
+example (a m : UInt64) (h : m ≠ 0) (hc : Nat.gcd a.toNat m.toNat = 1) :
+    (UInt64.invMod? a m).isSome :=
+  (UInt64.isSome_invMod? h).mpr hc
+
+/-- A returned inverse really inverts, and is reduced. -/
+example (a m x : UInt64) (h : UInt64.invMod? a m = some x) :
+    UInt64.mulMod a x m = 1 % m ∧ x < m :=
+  ⟨UInt64.mulMod_of_invMod?_eq_some h, UInt64.lt_of_invMod?_eq_some h⟩
+
+/-- Chaining the lemmas: modulo a prime, every nonzero residue has an inverse. -/
+example (a : UInt64) (h : UInt64.invMod? a 11 = some 4) : UInt64.mulMod a 4 11 = 1 :=
+  UInt64.mulMod_of_invMod?_eq_some h

@@ -451,7 +451,6 @@ def testConfigs : List (String × ParserFn × Bool × Bool) := [
   ("arg", argFn, true, false),
   ("args", argsFn, true, false),
   ("nameAndArgs", nameAndArgsFn, true, false),
-  ("nameAndArgsMultiline", nameAndArgsFn (multiline := some 1), true, false),
   ("inlineTextChar", inlineTextCharFn, false, false),
   ("manyInlineTextChar", (asTokenFn (many1Fn inlineTextCharFn)), true, false),
   ("text", textFn, true, false),

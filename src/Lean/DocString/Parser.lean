@@ -889,21 +889,10 @@ def recoverHereWith (stxs : Array Syntax) (p : ParserFn) : ParserFn :=
       fun _ s => stxs.foldl (init := s.restore rctx.initialSize rctx.initialPos) (·.pushSyntax ·)
 
 /--
-The whitespace after an argument, recorded on the argument's last token as its trailing whitespace.
-
-Without `multiline` this is the spaces that follow. With `multiline` it also takes the line ending
-and any blank lines, up to and including the last newline, but only when the next line is indented
-to at least the given column, which is what continues the argument list. The next argument's first
-token records that indentation as its leading whitespace. A line indented less ends the list, and
-this consumes nothing.
+The whitespace after an argument, recorded on the argument's last token as its trailing whitespace:
+the spaces that follow it.
 -/
-public def argEndWs : (multiline : Option Nat) → ParserFn
-  | none => eatSpaces
-  | some n => fun c s =>
-    let s1 := lineTailWs c s
-    if s1.pos == s.pos then s
-    else if c.currentColumn (eatSpaces c s1) ≥ n then s1
-    else s
+public def argEndWs : ParserFn := eatSpaces
 
 /--
 Parses an argument to a role, directive, command, or code block, which may be named or positional or
@@ -963,51 +952,28 @@ def guardSameLine : ParserFn := fun c s =>
   if afterLineEnd c s then s.mkError "argument on the same line" else s
 
 /--
-Skips whitespace between a name and its arguments. When the argument is `none`, the context is a
-single line and the whitespace may only be the space character. When it is `some N`, newlines are
-allowed and `N` is the minimum indentation column. The tokens themselves consume this whitespace as
+Skips the spaces between a name and its arguments. The tokens themselves consume this whitespace as
 they are parsed, so on ordinary parses this parser consumes nothing. Call sites wrap it in
 `wsFallback`, so that it still records input consumed during error recovery.
 -/
-def nameArgWhitespace : (multiline : Option Nat) → ParserFn
+def nameArgWhitespace : ParserFn := fun c s =>
   -- After a line end, the construct that resumes on the next line records its indentation, not
   -- this argument list.
-  | none => fun c s => if afterLineEnd c s then s else eatSpaces c s
-  | some n => fun c s =>
-    let s1 := lineTailWs c s
-    let s' := eatSpaces c s1
-    if c.currentColumn s' ≥ n then s1
-    else s'.mkErrorAt s!"column at least {n}" s'.pos
-
-/--
-Runs `p` and records the indentation before it as the leading whitespace of `p`'s first token. A
-multiline argument's indentation belongs there.
--/
-def withArgIndent : (multiline : Option Nat) → ParserFn → ParserFn
-  | none, p => p
-  | some _, p => withLeadingHere (eatSpaces >> p)
+  if afterLineEnd c s then s else eatSpaces c s
 
 /--
 Parses zero or more arguments to a role, directive, command, or code block. Each argument's final
-token records the input `tail` consumes as its trailing whitespace. A single-line argument list must
-stand on the line the parser starts on. A starting position at the beginning of a line means the
-list has already ended, so the list is empty.
+token records the input `tail` consumes as its trailing whitespace. The argument list must be on
+the line the parser starts on. A starting position at the beginning of a line means the list has
+already ended, so the list is empty.
 
 Error recovery stops at characters that satisfy `closes`, which should delimit the current argument
 list (e.g. via a role's `}`).
 -/
-public def argsFn (multiline : Option Nat := none) (tail : ParserFn := argEndWs multiline)
-    (closes : Char → Bool := fun _ => false) : ParserFn := fun c s =>
+public def argsFn (tail : ParserFn := argEndWs) (closes : Char → Bool := fun _ => false) :
+    ParserFn := fun c s =>
   let base := s.stxStack.size
-  match multiline with
-  | none =>
-    sepByFn true (guardSameLine >> argFn tail closes) (guardSameLine >> wsFallback eatSpaces base)
-      c s
-  | some n =>
-    -- After an argument's tail consumed the line end, the argument parser already validated the
-    -- next line's indentation, so the separator has nothing to check or consume.
-    sepByFn true (withArgIndent (some n) (argFn tail closes))
-      (unlessLineEndConsumed (wsFallback (nameArgWhitespace (some n)) base)) c s
+  sepByFn true (guardSameLine >> argFn tail closes) (guardSameLine >> wsFallback eatSpaces base) c s
 
 /--
 Replaces any error from `p` at the initial position with `expected msg`. This ensures that
@@ -1032,8 +998,8 @@ def refNameFn (description : String) : ParserFn :=
 /--
 Parses a name and zero or more arguments to a role, directive, command, or code block. The final
 token of the name and of each argument records the input that `tail` consumes as its trailing
-whitespace. In a single-line context, the name and arguments must stand on the line the parser
-starts on. A starting position at the beginning of a line fails to parse a name.
+whitespace. The name and arguments must be on the line the parser starts on. A starting position
+at the beginning of a line fails to parse a name.
 
 The caller's own tokens record the whitespace before the name. If a caller lets this parser consume
 that whitespace instead, no token records it.
@@ -1041,14 +1007,13 @@ that whitespace instead, no token records it.
 Error recovery stops at characters that satisfy `closes`, which should delimit the current argument
 list (e.g. via a role's `}`).
 -/
-public def nameAndArgsFn (multiline : Option Nat := none) (tail : ParserFn := argEndWs multiline)
-    (closes : Char → Bool := fun _ => false) : ParserFn := fun c s =>
+public def nameAndArgsFn (tail : ParserFn := argEndWs) (closes : Char → Bool := fun _ => false) :
+    ParserFn := fun c s =>
   let base := s.stxStack.size
-  (nameArgWhitespace multiline >>
-   (if multiline.isNone then guardSameLine else skipFn) >>
-   withArgIndent multiline (expectedFn "identifier" (rawIdentFn (includeWhitespace := false))) >>
-   withTrailing tail >> wsFallback (nameArgWhitespace multiline) base >>
-   argsFn (multiline := multiline) (tail := tail) (closes := closes)) c s
+  (nameArgWhitespace >> guardSameLine >>
+   expectedFn "identifier" (rawIdentFn (includeWhitespace := false)) >>
+   withTrailing tail >> wsFallback nameArgWhitespace base >>
+   argsFn (tail := tail) (closes := closes)) c s
 
 /--
 The context within which a newline element is parsed.
@@ -1278,7 +1243,7 @@ mutual
   where
     intro (base : Nat) :=
       atomicFn' (chFn '{') >> recoverRoleAtErrPos (withTrailing eatSpaces >>
-      nameAndArgsFn (tail := argEndWs none) (closes := (· == '}')) >>
+      nameAndArgsFn (tail := argEndWs) (closes := (· == '}')) >>
       wsFallback eatSpaces base >>
       rawFn (fun c s =>
         let i := s.pos
@@ -1767,7 +1732,7 @@ mutual
           recoverUnindent c <|
             withColumnAfterToken fun c' =>
               let fenceWidth := c' - c
-              optionalFn (nameAndArgsFn (tail := argEndWs none >> optNlWs)) >>
+              optionalFn (nameAndArgsFn (tail := argEndWs >> optNlWs)) >>
               unlessLineEndConsumed (wsFallback (ignoreFn (recoverEolAtErrPos
                 (newlineOrUnexpected "positional argument, named argument, flag, or newline")))
                 base) >>
@@ -1821,7 +1786,7 @@ mutual
          guardOpenerSize >>
          withTrailing eatSpaces >>
          recoverEolWithAtErrPos #[.missing, .node .none nullKind #[]]
-           (nameAndArgsFn (tail := argEndWs none >> optNlWs lineTailWs) >>
+           (nameAndArgsFn (tail := argEndWs >> optNlWs lineTailWs) >>
             unlessLineEndConsumed (wsFallback
               (ignoreFn (newlineOrUnexpected "positional argument, named argument, flag, or newline"))
               base))) >>
@@ -1906,8 +1871,8 @@ mutual
     eatSpaces := takeWhileFn (· == ' ')
     intro :=
       guardMinColumn (ctxt.minIndent) >> atomicFn' (chFn '{') >> withTrailing eatSpaces >>
-      nameAndArgsFn (tail := argEndWs none) (closes := (· == '}')) >>
-      nameArgWhitespace none >> chFn '}' >>
+      nameAndArgsFn (tail := argEndWs) (closes := (· == '}')) >>
+      nameArgWhitespace >> chFn '}' >>
       withTrailing (eatSpaces >> ignoreFn lineEnd >>
         blockTrailingWs ctxt)
 
@@ -1950,7 +1915,7 @@ mutual
     /--
     Succeeds where a bracketed name is followed by a colon. A `^` after the bracket opens a footnote
     definition instead. The characters between the brackets are read once this succeeds, so one that
-    a name may not contain is reported where it stands.
+    a name may not contain is reported at its own position.
     -/
     bracketedName : ParserFn := fun c s =>
       let ok : Bool := Id.run do

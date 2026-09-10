@@ -104,7 +104,7 @@ private def checkLetConfigInDo (config : Term.LetConfig) : DoElabM Unit := do
 `pushTypeIntoReassignment` has already checked the ascription and pinned `t`. -/
 private def wrapGhostDecl (decl : TSyntax ``letDecl) : DoElabM (TSyntax ``letDecl) := do
   let `(letDecl| $x:ident $[: $t?]? := $e) := decl
-    | throwErrorAt decl "`ghost` takes a variable"
+    | throwUnsupportedSyntax
   match t? with
   | some t => `(letDecl| $x:ident : Erased $t := Erased.mk ($e : $t))
   | none   => `(letDecl| $x:ident := Erased.mk $e)

@@ -727,7 +727,9 @@ public def valFn (trailing : ParserFn := skipFn) : ParserFn := fun c s =>
     let finish (s : ParserState) : ParserState :=
       if s.hasError then s else withTrailing trailing c s
     if ch == '\"' then
-      let s := finish (strLitFnAux s.pos false c (s.next' c s.pos h))
+      let startPos := s.pos
+      let s := strLitFnAux startPos false c (s.next' c startPos h)
+      let s := finish (if s.hasError then s else onOneLine startPos c s)
       s.mkNode ``ArgVal.str i
     else if isIdFirst ch || isIdBeginEscape ch then
       let s := finish (rawIdentFn (includeWhitespace := false) c s)
@@ -737,6 +739,15 @@ public def valFn (trailing : ParserFn := skipFn) : ParserFn := fun c s =>
       s.mkNode ``ArgVal.num i
     else
       s.mkError "identifier, string, or number"
+where
+  onOneLine (startPos : String.Pos.Raw) : ParserFn := fun c s => Id.run do
+    let mut i := startPos
+    while i < s.pos do
+      if c.get i == '\n' then
+        -- The position stays after the literal, so the argument list resumes behind it.
+        return s.mkUnexpectedTokenError "a string argument on one line" (iniPos := s.pos)
+      i := c.next i
+    return s
 
 def withCurrentStackSize (p : Nat → ParserFn) : ParserFn := fun c s =>
   p s.stxStack.size c s

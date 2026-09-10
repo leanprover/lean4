@@ -23,8 +23,7 @@ void lean_uv_udp_socket_finalizer(void* ptr) {
     lean_uv_udp_socket_object* udp_socket = (lean_uv_udp_socket_object*)ptr;
 
     // The loop holds a reference on the socket for as long as either of these is set, so reaching
-    // the finalizer with one is a bug in the accounting. Leaked rather than aborted on in release
-    // builds: an abort during process teardown is worse than a promise nothing can await any more.
+    // the finalizer with one is a bug in the accounting.
     lean_assert(udp_socket->m_promise_read == nullptr);
     lean_assert(udp_socket->m_byte_array == nullptr);
 
@@ -61,13 +60,13 @@ void initialize_libuv_udp_socket() {
     });
 }
 
-void lean_uv_udp_socket_shutdown(lean_object * obj, uv_deferred_teardown & deferred) {
+void lean_uv_udp_socket_teardown(lean_object * obj, uv_deferred_teardown & deferred) {
     lean_uv_udp_socket_object * udp_socket = lean_to_uv_udp_socket(obj);
 
     if (udp_socket->m_promise_read != nullptr) {
         uv_udp_recv_stop(udp_socket->m_uv_udp);
 
-        deferred.release(udp_socket->m_promise_read);
+        deferred.release_promise(udp_socket->m_promise_read);
         udp_socket->m_promise_read = nullptr;
 
         if (udp_socket->m_byte_array != nullptr) {
@@ -274,9 +273,14 @@ extern "C" LEAN_EXPORT lean_obj_res lean_uv_udp_send(b_obj_arg socket, obj_arg d
         // Rule 1: the socket is fully settled and the loop's reference handed back first.
         lean_dec(tup->socket);
 
-        lean_promise_resolve_with_code(status, tup->promise);
+        if (global_ev.state == EVENT_LOOP_RUNNING) {
+            lean_promise_resolve_with_code(status, tup->promise);
+            lean_dec(tup->promise);
+        } else {
+            // Rule 3: teardown closed the socket.
+            uv_deferred_teardown::keep(tup->promise);
+        }
 
-        lean_dec(tup->promise);
         lean_dec(tup->data);
 
         free(tup->bufs);

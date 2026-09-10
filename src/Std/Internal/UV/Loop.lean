@@ -33,14 +33,14 @@ structure Options where
 /--
 Configures the event loop with the specified options.
 
-Fails with `UV_ECANCELED` if the event loop has already been torn down at process exit.
+Fails with `UV_ECANCELED` once the event loop has been torn down at exit.
 -/
 @[extern "lean_uv_event_loop_configure"]
 opaque configure (options : @& Options) : IO Unit
 
 /--
 Checks if the event loop is still active and processing events. Returns `false` once the event loop
-has been torn down at process exit.
+has been torn down at exit.
 -/
 @[extern "lean_uv_event_loop_alive"]
 opaque alive : BaseIO Bool

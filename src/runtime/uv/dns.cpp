@@ -55,19 +55,6 @@ extern "C" LEAN_EXPORT lean_obj_res lean_uv_dns_get_info(b_obj_arg name, b_obj_a
         return lean_io_result_mk_error(lean_mk_io_error_invalid_argument(EINVAL, mk_string("service is not ASCII")));
     }
 
-    dns_addrinfo_req* owner = (dns_addrinfo_req*)malloc(sizeof(dns_addrinfo_req));
-
-    if (owner == nullptr) {
-        return lean_io_result_mk_error(decode_io_error(ENOMEM, nullptr));
-    }
-
-    uv_getaddrinfo_t* resolver = &owner->req;
-    resolver->data = owner;
-
-    lean_object* promise = lean_promise_new();
-    mark_mt(promise);
-
-
     struct addrinfo hints;
     memset(&hints, 0, sizeof(hints));
 
@@ -80,11 +67,23 @@ extern "C" LEAN_EXPORT lean_obj_res lean_uv_dns_get_info(b_obj_arg name, b_obj_a
         default: hints.ai_family = PF_UNSPEC; break;
     }
 
+    // Taken before anything is allocated, so the loop-unavailable path has nothing to unwind.
     if (!event_loop_lock(&global_ev)) {
-        lean_dec(promise);
-        free(owner);
         return lean_uv_loop_unavailable_error();
     }
+
+    dns_addrinfo_req* owner = (dns_addrinfo_req*)malloc(sizeof(dns_addrinfo_req));
+
+    if (owner == nullptr) {
+        event_loop_unlock(&global_ev);
+        return lean_io_result_mk_error(decode_io_error(ENOMEM, nullptr));
+    }
+
+    uv_getaddrinfo_t* resolver = &owner->req;
+    resolver->data = owner;
+
+    lean_object* promise = lean_promise_new();
+    mark_mt(promise);
 
     lean_inc(promise);
 
@@ -95,6 +94,14 @@ extern "C" LEAN_EXPORT lean_obj_res lean_uv_dns_get_info(b_obj_arg name, b_obj_a
         event_loop_unregister_request(&global_ev, &owner->pending);
 
         if (promise == nullptr) {
+            uv_freeaddrinfo(res);
+            free(owner);
+            return;
+        }
+
+        if (global_ev.state != EVENT_LOOP_RUNNING) {
+            // Rule 3: cancelled, or completed, during teardown's drain.
+            uv_deferred_teardown::keep(promise);
             uv_freeaddrinfo(res);
             free(owner);
             return;
@@ -157,8 +164,17 @@ extern "C" LEAN_EXPORT lean_obj_res lean_uv_dns_get_info(b_obj_arg name, b_obj_a
 
 // Std.Internal.IO.Async.DNS.getNameInfo (host : @& SocketAddress) : IO (IO.Promise (Except IO.Error (String × String)))
 extern "C" LEAN_EXPORT lean_obj_res lean_uv_dns_get_name(b_obj_arg addr) {
+    sockaddr_storage addr_ptr;
+    lean_socket_address_to_sockaddr_storage(addr, &addr_ptr);
+
+    // Taken before anything is allocated, so the loop-unavailable path has nothing to unwind.
+    if (!event_loop_lock(&global_ev)) {
+        return lean_uv_loop_unavailable_error();
+    }
+
     dns_nameinfo_req* owner = (dns_nameinfo_req*)malloc(sizeof(dns_nameinfo_req));
     if (owner == nullptr) {
+        event_loop_unlock(&global_ev);
         return lean_io_result_mk_error(decode_io_error(ENOMEM, nullptr));
     }
     uv_getnameinfo_t* req = &owner->req;
@@ -167,14 +183,6 @@ extern "C" LEAN_EXPORT lean_obj_res lean_uv_dns_get_name(b_obj_arg addr) {
     lean_object* promise = lean_promise_new();
     mark_mt(promise);
 
-    sockaddr_storage addr_ptr;
-    lean_socket_address_to_sockaddr_storage(addr, &addr_ptr);
-
-    if (!event_loop_lock(&global_ev)) {
-        lean_dec(promise);
-        free(owner);
-        return lean_uv_loop_unavailable_error();
-    }
     lean_inc(promise);
 
     int result = uv_getnameinfo(global_ev.loop, req, [](uv_getnameinfo_t* req, int status, const char* hostname, const char* service) {
@@ -184,8 +192,15 @@ extern "C" LEAN_EXPORT lean_obj_res lean_uv_dns_get_name(b_obj_arg addr) {
         event_loop_unregister_request(&global_ev, &owner->pending);
 
         if (promise == nullptr) {
-            // Teardown abandoned this request and already released the promise. The worker is done
+            // Teardown abandoned this request and already took the promise. The worker is done
             // with `owner` by the time it calls back, so freeing it here is safe.
+            free(owner);
+            return;
+        }
+
+        if (global_ev.state != EVENT_LOOP_RUNNING) {
+            // Rule 3: cancelled, or completed, during teardown's drain.
+            uv_deferred_teardown::keep(promise);
             free(owner);
             return;
         }

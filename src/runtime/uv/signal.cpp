@@ -101,7 +101,7 @@ void handle_signal_event(uv_signal_t* handle, int signum) {
     }
 }
 
-void lean_uv_signal_shutdown(lean_object * obj, uv_deferred_teardown & deferred) {
+void lean_uv_signal_teardown(lean_object * obj, uv_deferred_teardown & deferred) {
     lean_uv_signal_object * signal = lean_to_uv_signal(obj);
 
     if (signal->m_state == SIGNAL_STATE_RUNNING) {
@@ -116,7 +116,7 @@ void lean_uv_signal_shutdown(lean_object * obj, uv_deferred_teardown & deferred)
     }
 
     if (signal->m_promise != NULL) {
-        deferred.release(signal->m_promise);
+        deferred.release_promise(signal->m_promise);
         signal->m_promise = NULL;
     }
 

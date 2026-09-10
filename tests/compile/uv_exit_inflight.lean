@@ -2,13 +2,13 @@ import Std.Internal.UV
 import Std.Net.Addr
 
 /-!
-Exercises libuv event-loop teardown (`finalize_libuv`) while operations are still in flight: timers,
-signals, connects, accepts, receives and a half-close all reach `finalize_libuv` unresolved, so the
-teardown walk has to stop every handle, hand the loop's references back and drop every promise.
+A program that exits with libuv operations still in flight: timers, signals, connects, accepts,
+receives and a half-close are all pending when the event loop stops, and must stay pending without
+crashing the exit.
 
 Nothing here is expected to fail, so setup errors are deliberately *not* caught: a swallowed
-`Socket.new` or `bind` would silently reduce this to a test of nothing. The two exceptions are
-guarded narrowly and explained where they occur.
+`Socket.new` or `bind` would silently reduce this to a test of nothing. The one exception is guarded
+narrowly and explained where it occurs.
 -/
 
 open Std.Internal.UV
@@ -20,7 +20,7 @@ def lo (port : UInt16) : SocketAddress :=
 /--
 TEST-NET-1 (RFC 5737), which is never routed. Whether a connect to it fails immediately or stays
 pending depends on whether the host has a default route, so both outcomes have to be accepted; each
-one still leaves the socket itself alive until teardown.
+one still leaves the socket itself alive at exit.
 -/
 def blackhole : SocketAddress :=
   .v4 (SocketAddressV4.mk (.ofParts 192 0 2 1) 80)
@@ -35,15 +35,10 @@ def startInflight : IO Unit := do
     let t ← Timer.mk 3600000 false
     discard <| t.next
 
-  -- SIGWINCH. libuv only accepts a handful of signums on Windows, so a failure there is expected;
-  -- everywhere else it has to work.
+  -- SIGWINCH, which libuv accepts on every platform.
   for _ in [0:8] do
-    try
-      let s ← Signal.mk 28 true
-      discard <| s.next
-    catch e =>
-      unless System.Platform.isWindows do
-        throw e
+    let s ← Signal.mk 28 true
+    discard <| s.next
 
   for _ in [0:30] do
     let s ← TCP.Socket.new
@@ -64,7 +59,7 @@ def startInflight : IO Unit := do
     s.bind (lo 0)
     discard <| s.recv 1024
 
-  -- A connected pair, so that teardown also has to flush an in-flight `recv?` and a `uv_shutdown_t`.
+  -- A connected pair, so that the exit also leaves an in-flight `recv?` and a `uv_shutdown_t`.
   -- The `accept` wait is bounded in practice: the connect is to loopback and the backlog is larger
   -- than the number of outstanding connects.
   for _ in [0:8] do
@@ -81,4 +76,6 @@ def startInflight : IO Unit := do
     | some (.error e) => throw e
     | none => throw <| IO.userError "accept promise was dropped"
 
-#eval startInflight
+def main : IO Unit := do
+  startInflight
+  IO.println "exiting"

@@ -45,15 +45,16 @@ typedef struct {
 //     the loop holds exactly one reference on the signal object
 //     iff `m_state == SIGNAL_STATE_RUNNING && m_promise != NULL`
 //
-// which is what every `loop_owns_signal` test and `deferred.release(obj)` below is checking.
-// Dropping one of those NULL checks over-releases the handle and frees it while it is still armed.
+// which is what the `m_promise != NULL` checks gating the releases in `stop`, `cancel`,
+// `handle_signal_event` and `lean_uv_signal_teardown` rely on. Dropping one of them over-releases
+// the handle and frees it while it is still armed.
 
 // =======================================
 // Signal object manipulation functions.
 static inline lean_object* lean_uv_signal_new(lean_uv_signal_object * s) { return lean_alloc_external(g_uv_signal_external_class, s); }
 static inline lean_uv_signal_object* lean_to_uv_signal(lean_object * o) { return (lean_uv_signal_object*)(lean_get_external_data(o)); }
 
-void lean_uv_signal_shutdown(lean_object * obj, uv_deferred_teardown & deferred);
+void lean_uv_signal_teardown(lean_object * obj, uv_deferred_teardown & deferred);
 
 #endif
 

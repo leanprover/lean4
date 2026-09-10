@@ -15,7 +15,7 @@ void lean_uv_timer_finalizer(void* ptr) {
     lean_uv_timer_object* timer = (lean_uv_timer_object*) ptr;
 
     // `m_promise` must only be released once the loop state is known: if the loop is gone,
-    // `lean_uv_timer_shutdown` has already released it during the teardown walk.
+    // `lean_uv_timer_teardown` has already taken it during the teardown walk.
     if (!event_loop_lock(&global_ev)) {
         // Teardown already detached and closed the handle; only the wrapper is left to free.
         event_loop_wait_finalized(&global_ev);
@@ -110,7 +110,7 @@ void handle_timer_event(uv_timer_t* handle) {
     }
 }
 
-void lean_uv_timer_shutdown(lean_object * obj, uv_deferred_teardown & deferred) {
+void lean_uv_timer_teardown(lean_object * obj, uv_deferred_teardown & deferred) {
     lean_uv_timer_object * timer = lean_to_uv_timer(obj);
 
     if (timer->m_state == TIMER_STATE_RUNNING) {
@@ -125,7 +125,7 @@ void lean_uv_timer_shutdown(lean_object * obj, uv_deferred_teardown & deferred) 
     }
 
     if (timer->m_promise != NULL) {
-        deferred.release(timer->m_promise);
+        deferred.release_promise(timer->m_promise);
         timer->m_promise = NULL;
     }
 

@@ -29,10 +29,9 @@ A `Signal` can be in one of 3 states:
 This together with whether it was set up as `repeating` with `Signal.mk` determines the behavior
 of all functions on `Signal`s.
 
-The event loop is torn down at process exit. Any promise still pending at that point is dropped, so
-a computation waiting on it fails instead of producing a value, and every operation below then fails
-with `UV_ECANCELED` instead of starting new work. The exceptions are `stop` and `cancel`, which
-succeed as no-ops: teardown itself stops the signal handler and drops its promise.
+The event loop is torn down when the program exits, after the tasks that are still running have
+finished. A promise still pending at that point is never resolved. From then on `stop` and `cancel`
+succeed as no-ops and every other operation fails with `UV_ECANCELED`.
 -/
 def Signal : Type := SignalImpl.type
 
@@ -45,8 +44,10 @@ This creates a `Signal` in the initial state and doesn't start listening yet.
 - If `repeating` is `false` this constructs a signal handler that resolves once when the specified
   signal `signum` is received, then automatically stops listening.
 - If `repeating` is `true` this constructs a signal handler that resolves each time the specified
-  signal `signum` is received and continues listening. A repeating signal handler will only be
-  freed after `Signal.stop` is called.
+  signal `signum` is received and continues listening.
+
+The event loop keeps a running signal handler alive only while a promise from `next` is outstanding,
+so a repeating one can be freed without calling `Signal.stop`.
 -/
 @[extern "lean_uv_signal_mk"]
 opaque mk (signum : Int32) (repeating : Bool) : IO Signal
@@ -67,9 +68,8 @@ This function has different behavior depending on the state and configuration of
   - if it is finished, return the last `IO.Promise` created by `next`. Notably this could be one
     that never resolves if the signal handler was stopped before fulfilling the last one.
 
-The resolved `IO.Promise` contains the signal number that was received. If the event loop is torn
-down (at process exit) while the promise is still pending, it is dropped. Once the loop is gone this
-function itself fails with `UV_ECANCELED` rather than returning a promise.
+The resolved `IO.Promise` contains the signal number that was received. Once the event loop has
+been torn down at exit, this function fails with `UV_ECANCELED` rather than returning a promise.
 -/
 @[extern "lean_uv_signal_next"]
 opaque next (signal : @& Signal) : IO (IO.Promise Int)

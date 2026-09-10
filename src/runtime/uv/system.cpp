@@ -428,8 +428,14 @@ extern "C" LEAN_EXPORT lean_obj_res lean_uv_random(uint64_t size) {
         return lean_io_result_mk_error(decode_io_error(ENOMEM, nullptr));
     }
 
+    // Taken before anything is allocated, so the loop-unavailable path has nothing to unwind.
+    if (!event_loop_lock(&global_ev)) {
+        return lean_uv_loop_unavailable_error();
+    }
+
     random_req_t* req = (random_req_t*)malloc(sizeof(random_req_t) + size);
     if (req == nullptr) {
+        event_loop_unlock(&global_ev);
         return lean_io_result_mk_error(decode_io_error(ENOMEM, nullptr));
     }
 
@@ -441,14 +447,6 @@ extern "C" LEAN_EXPORT lean_obj_res lean_uv_random(uint64_t size) {
     req->req.data = req;
 
     lean_inc(promise);
-
-    if (!event_loop_lock(&global_ev)) {
-        lean_dec(byte_array);
-        lean_dec(promise);
-        lean_dec(promise);
-        free(req);
-        return lean_uv_loop_unavailable_error();
-    }
 
     int result = uv_random(
         global_ev.loop,
@@ -464,8 +462,16 @@ extern "C" LEAN_EXPORT lean_obj_res lean_uv_random(uint64_t size) {
             event_loop_unregister_request(&global_ev, &req->pending);
 
             if (promise == nullptr) {
-                // Teardown abandoned this request, releasing both the promise and the array.
+                // Teardown abandoned this request, keeping the promise and releasing the array.
                 // The worker wrote into `req` itself, so freeing it here is safe now that it ran.
+                free(req);
+                return;
+            }
+
+            if (global_ev.state != EVENT_LOOP_RUNNING) {
+                // Rule 3: cancelled, or completed, during teardown's drain.
+                uv_deferred_teardown::keep(promise);
+                lean_dec(byte_array);
                 free(req);
                 return;
             }

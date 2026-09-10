@@ -27,10 +27,9 @@ A `Timer` can be in one of 3 states:
 This together with whether it was set up as `repeating` with `Timer.new` determines the behavior
 of all functions on `Timer`s.
 
-The event loop is torn down at process exit. Any promise still pending at that point is dropped, so
-a computation waiting on it fails instead of producing a value, and every operation below then fails
-with `UV_ECANCELED` instead of starting new work. The exceptions are `stop` and `cancel`, which
-succeed as no-ops: teardown itself stops the timer and drops its promise.
+The event loop is torn down when the program exits, after the tasks that are still running have
+finished. A promise still pending at that point is never resolved. From then on `stop` and `cancel`
+succeed as no-ops and every other operation fails with `UV_ECANCELED`.
 -/
 def Timer : Type := TimerImpl.type
 
@@ -44,7 +43,10 @@ This creates a `Timer` in the initial state and doesn't run it yet.
   milliseconds, counting from when it's run.
 - If `repeating` is `true` this constructs a timer that resolves after multiples of `timeout`
   milliseconds, counting from when it's run. Note that this includes the 0th multiple right after
-  starting the timer. Furthermore a repeating timer will only be freed after `Timer.stop` is called.
+  starting the timer.
+
+The event loop keeps a running timer alive only while a promise from `next` is outstanding, so a
+repeating timer can be freed without calling `Timer.stop`.
 -/
 @[extern "lean_uv_timer_mk"]
 opaque mk (timeout : UInt64) (repeating : Bool) : IO Timer
@@ -65,8 +67,8 @@ This function has different behavior depending on the state and configuration of
   - if it is finished, return the last `IO.Promise` created by `next`. Notably this could be one
     that never resolves if the timer was stopped before fulfilling the last one.
 
-If the event loop is torn down (at process exit) while the promise is still pending, it is dropped.
-Once the loop is gone this function itself fails with `UV_ECANCELED` rather than returning a promise.
+Once the event loop has been torn down at exit, this function fails with `UV_ECANCELED` rather
+than returning a promise.
 -/
 @[extern "lean_uv_timer_next"]
 opaque next (timer : @& Timer) : IO (IO.Promise Unit)

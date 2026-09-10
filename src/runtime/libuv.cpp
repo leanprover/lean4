@@ -22,6 +22,8 @@ static std::unique_ptr<lthread> g_libuv_thread;
 
 // How long `finalize_libuv` waits for outstanding threadpool requests before abandoning them. Only
 // reached when a request is stuck in an uninterruptible syscall; the common case exits immediately.
+// This bounds `finalize_libuv`, not the exit: libuv's own exit-time `uv_library_shutdown` still joins
+// a stuck worker.
 static constexpr uint64_t LEAN_UV_TEARDOWN_DRAIN_NS = 100ull * 1000ull * 1000ull;
 
 extern "C" void initialize_libuv() {
@@ -34,10 +36,14 @@ extern "C" void initialize_libuv() {
     g_libuv_thread.reset(new lthread([]() { event_loop_run_loop(&global_ev); }));
 }
 
-// Tears the event loop down. This is terminal: `initialize_libuv` is only ever called from
-// `initialize_runtime_module`, so the loop is not restarted afterwards and every subsequent uv
-// operation fails with `UV_ECANCELED`. Embedders that construct more than one `scoped_task_manager`
-// in a process therefore get a working loop only for the first one.
+// Tears the event loop down, freeing everything libuv owns. `lean_finalize_task_manager` calls this
+// once the workers have finished, so no task is using the loop any more. A promise still pending is
+// kept unresolved rather than released (rule 3 at `uv_deferred_teardown`), so no Lean code runs here.
+//
+// This is terminal: `initialize_libuv` is only ever called from `initialize_runtime_module`, so the
+// loop is not restarted afterwards and every subsequent uv operation fails with `UV_ECANCELED`.
+// Embedders that construct more than one `scoped_task_manager` in a process therefore get a working
+// loop only for the first one.
 extern "C" void finalize_libuv() {
     if (g_libuv_thread == nullptr) {
         return;
@@ -69,22 +75,25 @@ extern "C" void finalize_libuv() {
 
         // Every constructor attaches the wrapper before releasing the loop lock this walk holds, so
         // a live handle without one cannot be observed here. Checked unconditionally because the
-        // shutdown below is what detaches `m_uv_*`, and skipping it would leave the handle's owner
-        // free to `free` the same pointer that the `uv_close` below hands to `free`.
-        lean_always_assert(obj != nullptr);
+        // teardown below is what detaches `m_uv_*`, and skipping it would leave the handle's owner
+        // free to `free` the same pointer that the `uv_close` below hands to `free`. A panic rather
+        // than an assertion, which would throw through libuv's frames with the loop lock held.
+        if (obj == nullptr) {
+            lean_internal_panic("libuv teardown reached a handle without a Lean wrapper");
+        }
 
         switch (uv_handle_get_type(handle)) {
             case UV_TIMER:
-                lean_uv_timer_shutdown(obj, *deferred);
+                lean_uv_timer_teardown(obj, *deferred);
                 break;
             case UV_TCP:
-                lean_uv_tcp_socket_shutdown(obj, *deferred);
+                lean_uv_tcp_socket_teardown(obj, *deferred);
                 break;
             case UV_UDP:
-                lean_uv_udp_socket_shutdown(obj, *deferred);
+                lean_uv_udp_socket_teardown(obj, *deferred);
                 break;
             case UV_SIGNAL:
-                lean_uv_signal_shutdown(obj, *deferred);
+                lean_uv_signal_teardown(obj, *deferred);
                 break;
             default: {
                 // The loop belongs to the runtime alone (see `global_ev`), so this only fires once
@@ -104,11 +113,10 @@ extern "C" void finalize_libuv() {
     event_loop_mark_finalized(&global_ev);
     event_loop_cancel_requests(&global_ev);
 
-    // The drain runs Lean code (see rule 2 at `uv_deferred_teardown`), so it must not hold the loop
-    // lock: closing a stream errors out the `uv_write_t`/`uv_connect_t`/`uv_shutdown_t` it still had
-    // queued, and those callbacks resolve their promise.
+    // Closing a stream completes the `uv_write_t`/`uv_connect_t`/`uv_shutdown_t` it still had queued
+    // with `UV_ECANCELED`, and the drain below runs those callbacks; they keep their promise (rule 3).
     //
-    // Dropping it is safe because `event_loop_mark_finalized` above already turns every requester
+    // The lock can be dropped because `event_loop_mark_finalized` above already turns every requester
     // away before it reaches the mutex, and the loop thread has been joined, so this thread is the
     // only one that touches `loop`.
     event_loop_unlock(&global_ev);
@@ -135,9 +143,9 @@ extern "C" void finalize_libuv() {
     // either would need the loop to run once more so the completion callback could reap it, and the
     // only ways to get there are worse than the retention: a drainer thread would outlive the
     // runtime that just declared itself finalized and race `exit`, and `uv_library_shutdown` queues
-    // its stop messages behind the pending work, so it blocks for as long as the stuck request takes
-    // -- which is what the drain deadline exists to bound. Both stay reachable from `global_ev`, so
-    // this costs address space at exit rather than a reported leak.
+    // its stop messages behind the pending work, so it blocks for as long as the stuck request takes.
+    // Both stay reachable from `global_ev`, so this costs address space at exit rather than a
+    // reported leak.
     if (!abandoned) {
         int close_result = uv_loop_close(global_ev.loop);
 

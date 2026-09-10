@@ -23,10 +23,9 @@ private opaque SocketImpl : NonemptyType.{0}
 /--
 Represents a UDP socket.
 
-The event loop is torn down at process exit. Any promise still pending at that point is dropped, so
-a computation waiting on it fails instead of producing a value, and every operation below then fails
-with `UV_ECANCELED` instead of starting new work. The exception is `cancelRecv`, which succeeds as a
-no-op: teardown has already dropped every pending promise, so there is nothing left for it to cancel.
+The event loop is torn down when the program exits, after the tasks that are still running have
+finished. A promise still pending at that point is never resolved. From then on `cancelRecv`
+succeeds as a no-op and every other operation fails with `UV_ECANCELED`.
 -/
 def Socket : Type := SocketImpl.type
 

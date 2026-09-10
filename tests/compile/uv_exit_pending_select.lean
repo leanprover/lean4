@@ -2,13 +2,13 @@ import Std.Async
 import Std.Sync.Channel
 
 /-!
-Exercises libuv event-loop teardown (`finalize_libuv`) with a `Selectable.one` still pending in a
-detached task at process exit.
+A `Selectable.one` still pending in a detached task when the program exits. Its waiters reference
+each other through the pending sleep promise, so teardown has to keep that promise rather than drop
+it; dropping it leaves the whole cycle unreachable, which leak checkers report.
 
 The select is only pending once the sleep arm has registered, which is what arms the underlying
-timer. Detaching the task and exiting immediately would leave that unsynchronized, so the sleep
-selector is wrapped to resolve `registered` right after its `registerFn` returns, and the main
-computation blocks on that before finishing.
+timer, so the sleep selector is wrapped to resolve `registered` right after its `registerFn`
+returns, and `main` blocks on that before returning.
 -/
 
 open Std.Async Std
@@ -31,7 +31,9 @@ def pendingSelect (registered : IO.Promise Unit) : Async Unit := do
     .case (afterRegister sleeping registered) (fun _ => pure ())
   ]
 
-#eval Async.block do
-  let registered ← IO.Promise.new
-  discard <| (pendingSelect registered).asTask
-  Async.ofPurePromise (pure registered)
+def main : IO Unit := do
+  Async.block do
+    let registered ← IO.Promise.new
+    discard <| (pendingSelect registered).asTask
+    Async.ofPurePromise (pure registered)
+  IO.println "exiting"

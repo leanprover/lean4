@@ -40,10 +40,13 @@ enum event_loop_state {
 
    2. Releases must happen outside the loop lock. A continuation reached from `lean_dec` can block on
       a `Std.Mutex` held by a thread parked in `event_loop_lock`, which would then be waiting on the
-      lock we hold.
+      lock we hold. Callbacks cannot follow this rule: they run inside `uv_run`, which holds the lock.
 
-   3. Teardown cannot release anything at all while it walks the loop, so it collects into a
-      `uv_deferred_teardown` and drains that once the walk is done and the lock is dropped.
+   3. Teardown runs no Lean code. A promise still pending then is kept unresolved
+      (`uv_deferred_teardown::keep`) rather than released or settled, either of which would run its
+      continuations on the exiting thread. Everything else it releases is collected into a
+      `uv_deferred_teardown` while it walks the loop, and dropped once the walk is done and the lock
+      is dropped.
 
    4. `handle->data` points at the wrapper and is what the teardown walk reads to find it. libuv
       leaves `data` untouched by `uv_*_init`, so it has to be set before the handle reaches the loop,
@@ -52,10 +55,22 @@ class uv_deferred_teardown {
     std::vector<lean_object *> m_objects;
 
 public:
-    // Pending promises are released rather than settled: dropping the last reference to an
-    // unresolved promise resolves its task to `none`, which `Async.ofPromise` and friends already
-    // report as a failure. This is the same path `stop` and `cancel` take.
+    // For objects whose release runs no Lean code: wrappers, buffers and resolved promises.
     void release(lean_object * obj) { m_objects.push_back(obj); }
+
+    // Keeps a promise that is still pending at teardown reachable for the rest of the process.
+    // Dropping it would resolve it to `none` and run its continuations at exit, where a
+    // `Promise.result!` waiter panics and then blocks the exit forever.
+    static void keep(lean_object * promise);
+
+    // Releases a promise field, or `keep`s it if it is still pending.
+    void release_promise(lean_object * promise) {
+        if (promise_is_resolved(promise)) {
+            release(promise);
+        } else {
+            keep(promise);
+        }
+    }
 
     void run();
 };

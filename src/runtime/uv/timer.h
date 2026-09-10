@@ -36,12 +36,18 @@ typedef struct {
     uv_timer_state  m_state;       // The state of the timer.
 } lean_uv_timer_object;
 
+// `m_promise` may be NULL in any state: `stop` leaves a FINISHED timer without one, and `cancel` on a
+// repeating timer leaves it RUNNING without one. The reference counting relies on:
+//
+//     the loop holds exactly one reference on the timer object
+//     iff `m_state == TIMER_STATE_RUNNING && m_promise != NULL`
+
 // =======================================
 // Timer object manipulation functions.
 static inline lean_object* lean_uv_timer_new(lean_uv_timer_object * s) { return lean_alloc_external(g_uv_timer_external_class, s); }
 static inline lean_uv_timer_object* lean_to_uv_timer(lean_object * o) { return (lean_uv_timer_object*)(lean_get_external_data(o)); }
 
-void lean_uv_timer_shutdown(lean_object * obj, uv_deferred_teardown & deferred);
+void lean_uv_timer_teardown(lean_object * obj, uv_deferred_teardown & deferred);
 
 #else
 

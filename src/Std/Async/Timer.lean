@@ -20,9 +20,9 @@ namespace Async
 `Sleep` can be used to sleep for some duration once.
 The underlying timer has millisecond resolution.
 
-The event loop is torn down at process exit. A `wait` that is still pending at that point fails the
-same way `stop` makes it fail, and every operation below then fails with `UV_ECANCELED` instead of
-starting new work.
+The event loop is torn down when the program exits, after the tasks that are still running have
+finished. A `wait` still pending at that point never completes, and starting a new one fails with
+`UV_ECANCELED`.
 -/
 structure Sleep where
   private ofNative ::
@@ -84,12 +84,14 @@ def selector (s : Sleep) : Selector Unit :=
         return none
 
     registerFn waiter := do
-      let sleepWaiter : AsyncTask Unit := .ofPurePromise (← s.native.next)
-
-      BaseIO.chainTask (t := sleepWaiter) fun res => do
-        let lose := return ()
-        let win promise := promise.resolve res
-        waiter.race lose win
+      let sleepWaiter ← s.native.next
+      BaseIO.chainTask sleepWaiter.result? fun
+        | none => do
+          return ()
+        | some _ =>
+          let lose := return ()
+          let win promise := promise.resolve (.ok ())
+          waiter.race lose win
 
     unregisterFn := s.native.cancel
   }
@@ -114,9 +116,9 @@ def Selector.sleep (duration : Std.Time.Millisecond.Offset) : Async (Selector Un
 `Interval` can be used to repeatedly wait for some duration like a clock.
 The underlying timer has millisecond resolution.
 
-The event loop is torn down at process exit. A `tick` that is still pending at that point fails the
-same way `stop` makes it fail, and every operation below then fails with `UV_ECANCELED` instead of
-starting new work.
+The event loop is torn down when the program exits, after the tasks that are still running have
+finished. A `tick` still pending at that point never completes, and starting a new one fails with
+`UV_ECANCELED`.
 -/
 structure Interval where
   private ofNative ::
@@ -142,7 +144,8 @@ If:
     call
   - the tick from the last call of `i` has finished return a new `Async` computation that waits for the
     closest next tick from the time of calling this function.
-- `i` is not running anymore this is a no-op.
+- `i` is not running anymore, the returned `Async` computation fails, as `stop` dropped the promise
+  it would have completed.
 -/
 @[inline]
 def tick (i : Interval) : Async Unit := do

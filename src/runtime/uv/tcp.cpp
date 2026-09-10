@@ -32,8 +32,7 @@ void lean_uv_tcp_socket_finalizer(void* ptr) {
     lean_uv_tcp_socket_object* tcp_socket = (lean_uv_tcp_socket_object*)ptr;
 
     // The loop holds a reference on the socket for as long as any of these is set, so reaching the
-    // finalizer with one is a bug in the accounting. Leaked rather than aborted on in release
-    // builds: an abort during process teardown is worse than a promise nothing can await any more.
+    // finalizer with one is a bug in the accounting.
     lean_assert(tcp_socket->m_promise_shutdown == nullptr);
     lean_assert(tcp_socket->m_promise_accept == nullptr);
     lean_assert(tcp_socket->m_promise_read == nullptr);
@@ -91,13 +90,13 @@ void initialize_libuv_tcp_socket() {
     });
 }
 
-void lean_uv_tcp_socket_shutdown(lean_object * obj, uv_deferred_teardown & deferred) {
+void lean_uv_tcp_socket_teardown(lean_object * obj, uv_deferred_teardown & deferred) {
     lean_uv_tcp_socket_object * tcp_socket = lean_to_uv_tcp_socket(obj);
 
     if (tcp_socket->m_promise_read != nullptr) {
         uv_read_stop((uv_stream_t*)tcp_socket->m_uv_tcp);
 
-        deferred.release(tcp_socket->m_promise_read);
+        deferred.release_promise(tcp_socket->m_promise_read);
         tcp_socket->m_promise_read = nullptr;
 
         if (tcp_socket->m_byte_array != nullptr) {
@@ -109,7 +108,7 @@ void lean_uv_tcp_socket_shutdown(lean_object * obj, uv_deferred_teardown & defer
     }
 
     if (tcp_socket->m_promise_accept != nullptr) {
-        deferred.release(tcp_socket->m_promise_accept);
+        deferred.release_promise(tcp_socket->m_promise_accept);
         tcp_socket->m_promise_accept = nullptr;
 
         if (tcp_socket->m_client != nullptr) {
@@ -121,7 +120,7 @@ void lean_uv_tcp_socket_shutdown(lean_object * obj, uv_deferred_teardown & defer
     }
 
     if (tcp_socket->m_promise_shutdown != nullptr) {
-        deferred.release(tcp_socket->m_promise_shutdown);
+        deferred.release_promise(tcp_socket->m_promise_shutdown);
         tcp_socket->m_promise_shutdown = nullptr;
     }
 
@@ -188,12 +187,19 @@ extern "C" LEAN_EXPORT lean_obj_res lean_uv_tcp_connect(b_obj_arg socket, b_obj_
     sockaddr_storage addr_struct;
     lean_socket_address_to_sockaddr_storage(addr, &addr_struct);
 
+    // Taken before anything is allocated, so the loop-unavailable path has nothing to unwind.
+    if (!event_loop_lock(&global_ev)) {
+        return lean_uv_loop_unavailable_error();
+    }
+
     uv_connect_t* uv_connect = (uv_connect_t*)malloc(sizeof(uv_connect_t));
     if (uv_connect == nullptr) {
+        event_loop_unlock(&global_ev);
         return lean_io_result_mk_error(decode_io_error(ENOMEM, nullptr));
     }
     tcp_connect_data* connect_data = (tcp_connect_data*)malloc(sizeof(tcp_connect_data));
     if (connect_data == nullptr) {
+        event_loop_unlock(&global_ev);
         free(uv_connect);
         return lean_io_result_mk_error(decode_io_error(ENOMEM, nullptr));
     }
@@ -210,23 +216,19 @@ extern "C" LEAN_EXPORT lean_obj_res lean_uv_tcp_connect(b_obj_arg socket, b_obj_
     lean_inc(socket);
     lean_inc(promise);
 
-    if (!event_loop_lock(&global_ev)) {
-        lean_dec(promise);
-        lean_dec(promise);
-        lean_dec(socket);
-        free(uv_connect->data);
-        free(uv_connect);
-        return lean_uv_loop_unavailable_error();
-    }
-
     int result = uv_tcp_connect(uv_connect, tcp_socket->m_uv_tcp, (sockaddr*)&addr_struct, [](uv_connect_t* req, int status) {
         tcp_connect_data* tup = (tcp_connect_data*) req->data;
 
         // Rule 1: the socket is fully settled and the loop's reference handed back first.
         lean_dec(tup->socket);
 
-        lean_promise_resolve_with_code(status, tup->promise);
-        lean_dec(tup->promise);
+        if (global_ev.state == EVENT_LOOP_RUNNING) {
+            lean_promise_resolve_with_code(status, tup->promise);
+            lean_dec(tup->promise);
+        } else {
+            // Rule 3: teardown closed the stream.
+            uv_deferred_teardown::keep(tup->promise);
+        }
 
         free(req->data);
         free(req);
@@ -330,9 +332,14 @@ extern "C" LEAN_EXPORT lean_obj_res lean_uv_tcp_send(b_obj_arg socket, obj_arg d
         // Rule 1: the socket is fully settled and the loop's reference handed back first.
         lean_dec(tup->socket);
 
-        lean_promise_resolve_with_code(status, tup->promise);
+        if (global_ev.state == EVENT_LOOP_RUNNING) {
+            lean_promise_resolve_with_code(status, tup->promise);
+            lean_dec(tup->promise);
+        } else {
+            // Rule 3: teardown closed the stream.
+            uv_deferred_teardown::keep(tup->promise);
+        }
 
-        lean_dec(tup->promise);
         lean_dec(tup->data);
 
         free(tup->bufs);
@@ -883,13 +890,14 @@ extern "C" LEAN_EXPORT lean_obj_res lean_uv_tcp_nodelay(b_obj_arg socket) {
 }
 
 /* Std.Internal.UV.TCP.Socket.keepAlive (socket : @& Socket) (enable : Int8) (delay : UInt32) : IO Unit */
-extern "C" LEAN_EXPORT lean_obj_res lean_uv_tcp_keepalive(b_obj_arg socket, int32_t enable, uint32_t delay) {
+extern "C" LEAN_EXPORT lean_obj_res lean_uv_tcp_keepalive(b_obj_arg socket, uint8_t enable, uint32_t delay) {
     lean_uv_tcp_socket_object* tcp_socket = lean_to_uv_tcp_socket(socket);
 
     if (!event_loop_lock(&global_ev)) {
         return lean_uv_loop_unavailable_error();
     }
-    int result = uv_tcp_keepalive(tcp_socket->m_uv_tcp, enable, delay);
+    // Lean passes `Int8` as `uint8_t`.
+    int result = uv_tcp_keepalive(tcp_socket->m_uv_tcp, (int8_t)enable, delay);
     event_loop_unlock(&global_ev);
 
     if (result < 0) {
@@ -979,7 +987,7 @@ extern "C" LEAN_EXPORT lean_obj_res lean_uv_tcp_nodelay(b_obj_arg socket) {
     );
 }
 
-extern "C" LEAN_EXPORT lean_obj_res lean_uv_tcp_keepalive(b_obj_arg socket, int32_t enable, uint32_t delay) {
+extern "C" LEAN_EXPORT lean_obj_res lean_uv_tcp_keepalive(b_obj_arg socket, uint8_t enable, uint32_t delay) {
     lean_always_assert(
         false && ("Please build a version of Lean4 with libuv to invoke this.")
     );

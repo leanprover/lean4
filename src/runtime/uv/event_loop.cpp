@@ -35,19 +35,19 @@ void lean_promise_resolve_with_code(int status, b_obj_arg promise) {
     lean_promise_resolve(res, promise);
 }
 
-void uv_deferred_teardown::run() {
-    // Dropping the last reference to an unresolved promise goes through the task manager.
-    // `lean_finalize_task_manager` is what orders `finalize_libuv` before the task manager is
-    // destroyed; a runtime that tore the loop down without one has nothing left that could settle
-    // these, so they are retained rather than dereferenced through a null task manager. Aborting
-    // here instead would turn a shutdown nobody can act on into a crash.
-    if (!m_objects.empty() && !task_manager_is_running()) {
-        fprintf(stderr, "warning: libuv teardown ran without a task manager; retaining %zu pending object(s)\n",
-                m_objects.size());
-        m_objects.clear();
-        return;
+// Never destroyed, so the promises `keep` collects stay reachable from a root even after static
+// destructors have run.
+static std::vector<lean_object *> * g_kept_promises = nullptr;
+
+void uv_deferred_teardown::keep(lean_object * promise) {
+    if (g_kept_promises == nullptr) {
+        g_kept_promises = new std::vector<lean_object *>();
     }
 
+    g_kept_promises->push_back(promise);
+}
+
+void uv_deferred_teardown::run() {
     for (lean_object * obj : m_objects) {
         lean_dec(obj);
     }
@@ -210,7 +210,8 @@ void event_loop_unregister_request(event_loop_t * event_loop, uv_pending_req * p
 }
 
 // Asks libuv to cancel every tracked request. This only succeeds for requests still queued in the
-// threadpool; those complete promptly with `UV_ECANCELED` through their normal callback.
+// threadpool; those complete promptly with `UV_ECANCELED` through their normal callback, which keeps
+// the promise (rule 3).
 void event_loop_cancel_requests(event_loop_t * event_loop) {
     for (uv_pending_req * pending = event_loop->requests; pending != nullptr; pending = pending->next) {
         uv_cancel(pending->req);
@@ -233,14 +234,13 @@ void event_loop_cancel_requests(event_loop_t * event_loop) {
 // may never hand a worker memory that `owned` keeps alive; `lean_uv_random` allocates its scratch
 // buffer inside the request for exactly this reason.
 //
-// Releasing runs Lean code (rule 2), so it is deferred alongside the walk's rather than done under
-// the loop lock.
+// The promise is kept (rule 3); `owned` is released with the walk's deferred releases.
 bool event_loop_abandon_requests(event_loop_t * event_loop, uv_deferred_teardown & deferred) {
     bool abandoned = false;
 
     for (uv_pending_req * pending = event_loop->requests; pending != nullptr; pending = pending->next) {
         if (pending->promise != nullptr) {
-            deferred.release(pending->promise);
+            uv_deferred_teardown::keep(pending->promise);
             pending->promise = nullptr;
         }
 

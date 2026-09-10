@@ -197,29 +197,6 @@ partial def elabDoLetOrReassign (config : Term.LetConfig) (letOrReassign : LetOr
             mkLetFVars #[x, h'] body (usedLetOnly := config.usedOnly) (generalizeNondepLet := false)
   | _ => throwUnsupportedSyntax
 
-def elabDoArrow (mutTk? : Option Syntax) (ghost : Bool) (stx : TSyntax [``doIdDecl, ``doPatDecl])
-    (tk : Syntax) (dec : DoElemCont) : DoElabM Expr := do
-  match stx with
-  | `(doIdDecl| $x:ident $[: $xType?]? ← $rhs) =>
-    checkMutVarsForShadowing #[x]
-    let dec ← dec.ensureUnitAt tk
-    elabDoIdDecl x xType? rhs (declareMutVar? mutTk? x ghost <| dec.continueWithUnit)
-      (kind := dec.kind)
-  | `(doPatDecl| _%$pattern $[: $patType?]? ← $rhs) =>
-    let x := mkIdentFrom pattern (← mkFreshUserName `__x)
-    let dec ← dec.ensureUnitAt tk
-    elabDoIdDecl x patType? rhs dec.continueWithUnit (kind := dec.kind)
-  | `(doPatDecl| $pattern:term $[: $patType?]? ← $rhs $[| $otherwise? $(rest?)?]?) =>
-    let rest? := rest?.join
-    let x := mkIdentFrom pattern (← mkFreshUserName `__x)
-    elabDoIdDecl x patType? rhs do
-      match otherwise? with
-      | some otherwise =>
-        elabDoElem (← `(doElem| let $[mut%$mutTk?]? $pattern:term := $x | $otherwise $(rest?)?)) dec
-      | none =>
-        elabDoElem (← `(doElem| let $[mut%$mutTk?]? $pattern:term := $x)) dec
-  | _ => throwUnsupportedSyntax
-
 private def getLetConfigAndCheckMut (letConfigStx : TSyntax ``Parser.Term.letConfig)
     (mutTk? : Option Syntax) (initConfig : Term.LetConfig := {}) : DoElabM Term.LetConfig := do
   if mutTk?.isSome && !letConfigStx.raw[0].getArgs.isEmpty then
@@ -296,7 +273,26 @@ private def getLetConfigAndCheckMut (letConfigStx : TSyntax ``Parser.Term.letCon
   checkLetConfigInDo config
   if config.nondep || config.usedOnly || config.zeta || config.eq?.isSome then
     throwErrorAt cfg "configuration options are not supported with `←`"
-  elabDoArrow mutTk? false decl tk dec
+  match decl with
+  | `(doIdDecl| $x:ident $[: $xType?]? ← $rhs) =>
+    checkMutVarsForShadowing #[x]
+    let dec ← dec.ensureUnitAt tk
+    elabDoIdDecl x xType? rhs (declareMutVar? mutTk? x false <| dec.continueWithUnit)
+      (kind := dec.kind)
+  | `(doPatDecl| _%$pattern $[: $patType?]? ← $rhs) =>
+    let x := mkIdentFrom pattern (← mkFreshUserName `__x)
+    let dec ← dec.ensureUnitAt tk
+    elabDoIdDecl x patType? rhs dec.continueWithUnit (kind := dec.kind)
+  | `(doPatDecl| $pattern:term $[: $patType?]? ← $rhs $[| $otherwise? $(rest?)?]?) =>
+    let rest? := rest?.join
+    let x := mkIdentFrom pattern (← mkFreshUserName `__x)
+    elabDoIdDecl x patType? rhs do
+      match otherwise? with
+      | some otherwise =>
+        elabDoElem (← `(doElem| let $[mut%$mutTk?]? $pattern:term := $x | $otherwise $(rest?)?)) dec
+      | none =>
+        elabDoElem (← `(doElem| let $[mut%$mutTk?]? $pattern:term := $x)) dec
+  | _ => throwUnsupportedSyntax
 
 @[builtin_macro Lean.Parser.Term.doReassignArrow] def expandDoReassignArrow : Macro := fun stx => do
   match stx with

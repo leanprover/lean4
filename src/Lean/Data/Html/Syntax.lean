@@ -105,23 +105,24 @@ def rawSymbol.formatter (sym : String) : Formatter := do
 
 /-! ## Interpolations -/
 
-/-- Parses an interpolation: a Lean term between {name}`openSym` and {lit}`}`. -/
+/-- Parses an interpolation: a Lean term between {name}`openSym` and {lit}`}`.
+Also consumes leading and trailing whitespace if {name}`ws` is set. -/
 @[run_parser_attribute_hooks]
-def interpWith (kind : SyntaxNodeKind) (openSym : String) : Parser :=
-  /- The opening must be parsed as `symbol` rather than `rawSymbol`
-  since `term` cannot handle leading whitespace. -/
-  node kind (symbol openSym >> termParser >> rawSymbol "}")
+def interpWith (kind : SyntaxNodeKind) (openSym : String) (ws : Bool := false) : Parser :=
+  node kind (sym openSym >> termParser >> sym "}")
+where
+  sym (s : String) := if ws then symbol s else rawSymbol s
 
 abbrev interpKind := `Lean.Html.Syntax.interp
 abbrev interpManyKind := `Lean.Html.Syntax.interpMany
 
 /-- Parses {lit}`{ term }`. -/
 @[run_parser_attribute_hooks]
-def interp : Parser := interpWith interpKind "{"
+def interp (ws : Bool := false) : Parser := interpWith interpKind "{" ws
 
 /-- Parses {lit}`{... term }`. -/
 @[run_parser_attribute_hooks]
-def interpMany : Parser := interpWith interpManyKind "{..."
+def interpMany (ws : Bool := false) : Parser := interpWith interpManyKind "{..." ws
 
 /-! ## Text content -/
 
@@ -247,7 +248,7 @@ abbrev AttrVal := TSyntax attrValKind
 
 @[run_parser_attribute_hooks]
 def attrVal : Parser :=
-  node attrValKind (strLit <|> interp)
+  node attrValKind (strLit <|> interp (ws := true))
 
 inductive AttrValView where
   | str (val : TSyntax `str)
@@ -276,7 +277,8 @@ and interpolations of a sequence of attributes {lit}`<tag {... term }/>`. -/
 @[run_parser_attribute_hooks]
 def attr : Parser :=
   node attrKind <|
-    (attrName >> optional (symbol "=" >> attrVal)) <|> interp <|> interpMany
+    (attrName >> optional (symbol "=" >> attrVal))
+    <|> interp (ws := true) <|> interpMany (ws := true)
 
 inductive AttrView where
   | val (name : AttrName) (val : AttrVal)

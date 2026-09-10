@@ -3113,31 +3113,6 @@ static inline uint64_t lean_unbox_uint64(b_lean_obj_arg o) {
     return lean_ctor_get_uint64(o, 0);
 }
 
-static inline lean_obj_res lean_uint64_mul_full(uint64_t a, uint64_t b) {
-    lean_object * result = lean_alloc_ctor(0, 2, 0);
-    lean_ctor_set(result, 0, lean_box_uint64(lean_uint64_mul_hi(a, b)));
-    lean_ctor_set(result, 1, lean_box_uint64(a * b));
-    return result;
-}
-
-static inline lean_obj_res lean_uint64_add_carry(uint64_t a, uint64_t b, uint8_t carry) {
-    uint64_t sum = a + b;
-    uint64_t result = sum + (uint64_t)carry;
-    lean_object * pair = lean_alloc_ctor(0, 2, 0);
-    lean_ctor_set(pair, 0, lean_box_uint64(result));
-    lean_ctor_set(pair, 1, lean_box(sum < a || result < sum));
-    return pair;
-}
-
-static inline lean_obj_res lean_uint64_sub_borrow(uint64_t a, uint64_t b, uint8_t borrow) {
-    uint64_t difference = a - b;
-    uint64_t result = difference - (uint64_t)borrow;
-    lean_object * pair = lean_alloc_ctor(0, 2, 0);
-    lean_ctor_set(pair, 0, lean_box_uint64(result));
-    lean_ctor_set(pair, 1, lean_box(a < b || difference < (uint64_t)borrow));
-    return pair;
-}
-
 static inline lean_obj_res lean_box_usize(size_t v) {
     lean_obj_res r = lean_alloc_ctor(0, 0, sizeof(size_t));
     lean_ctor_set_usize(r, 0, v);

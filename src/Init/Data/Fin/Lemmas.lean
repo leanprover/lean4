@@ -1219,8 +1219,8 @@ protected theorem zero_mul [NeZero n] (k : Fin n) : (0 : Fin n) * k = 0 := by
   simp [Fin.ext_iff, mul_def]
 
 /--
-Exponentiation on `Fin n` by repeated squaring, backed by the fast `Nat.powMod`
-extern. `npow x y` computes `x ^ y` with the result reduced modulo `n`.
+Exponentiation on `Fin n`, computed by modular exponentiation so that the full
+power `x.val ^ y` is never formed.
 -/
 def npow (x : Fin n) (y : Nat) : Fin n :=
   ⟨Nat.powMod x.val y n, by rw [Nat.powMod_def]; exact Nat.mod_lt _ x.pos⟩

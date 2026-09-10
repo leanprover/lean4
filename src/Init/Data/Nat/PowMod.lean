@@ -17,16 +17,17 @@ namespace Nat
 
 /--
 Computes `b ^ e % m` by square-and-multiply, reducing modulo `m` at each step so
-that no intermediate value exceeds `m * m`.
+that no intermediate value exceeds the square of the larger of `b` and `m`.
 
 Because `Nat.mod` satisfies `n % 0 = n`, `powMod b e 0` is `b ^ e`. That case is
 the exception to the bound above: there the intermediates are as large as the
 result.
 
 `powMod` is not definitionally equal to `b ^ e % m`. Concrete exponents reduce in
-`O(log e)` steps under `decide`, which `b ^ e % m` could not. For symbolic
-reasoning, rewrite with `powMod_def`, which is deliberately not `@[simp]`: it
-would turn a cheap `powMod` goal into an intractable `b ^ e % m` one.
+`O(log e)` steps under `decide`, which `b ^ e % m` could not, and `simp` evaluates
+closed terms with the `Nat.reducePowMod` simproc. For symbolic reasoning, rewrite
+with `powMod_def`, which is deliberately not `@[simp]`: it would turn a cheap
+`powMod` goal into an intractable `b ^ e % m` one.
 
 Examples:
 * `powMod 3 4 5 = 1`
@@ -55,11 +56,9 @@ theorem powMod_def (b e m : Nat) : powMod b e m = b ^ e % m := by
     have hev : 2 * (e / 2) = e := by omega
     rw [ih, ← Nat.pow_mod, ← Nat.pow_two, ← Nat.pow_mul, hev]
 
-/-- `powMod b 0 m = 1 % m`. Base case of the recurrence. -/
 theorem powMod_zero (b m : Nat) : powMod b 0 m = 1 % m := by simp [powMod_def]
 
-/-- `powMod b (e + 1) m = (powMod b e m * b) % m`. Step of the recurrence; not
-`@[simp]`, since it would expand a numeric exponent into repeated multiplication. -/
+/-- Not `@[simp]`: it would expand a numeric exponent into repeated multiplication. -/
 theorem powMod_succ (b e m : Nat) : powMod b (e + 1) m = (powMod b e m * b) % m := by
   simp [powMod_def, Nat.pow_succ, Nat.mul_mod, Nat.mod_mod]
 

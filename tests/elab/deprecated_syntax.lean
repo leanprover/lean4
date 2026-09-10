@@ -4,8 +4,8 @@ set_option linter.deprecated.syntax true
 -- Test 1: Direct usage of deprecated term syntax → warning
 deprecated_syntax Lean.Parser.Term.let_fun "use `have` instead" (since := "2026-03-24")
 
--- Note: the paren macro expands to the inner expression, so the warning
--- is attributed to the paren macro call site
+-- Note: the paren macro expands to the inner expression, but the warning
+-- is attributed to the inner expression written by the user.
 #check (let_fun x := 1; x)
 
 /--

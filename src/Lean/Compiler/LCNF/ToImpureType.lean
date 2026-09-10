@@ -189,87 +189,92 @@ builtin_initialize ctorLayoutExt : MapDeclarationExtension CtorLayout ←
 /-- Eagerly computes and persists the layout of constructor `ctorName`; see `compileDecls`. -/
 public def setCtorLayout (ctorName : Name) : CoreM Unit := do
   unless (ctorLayoutExt.find? (← getEnv) ctorName).isSome do
-    modifyEnv (ctorLayoutExt.insert · ctorName (← fillCache))
-where fillCache := do
-  let .some (.ctorInfo ctorInfo) := (← getEnv).find? ctorName | unreachable!
-  Meta.MetaM.run' <| Meta.forallTelescopeReducing ctorInfo.type fun params _ => do
-    let mut fields : Array CtorFieldInfo := .emptyWithCapacity ctorInfo.numFields
-    let mut nextIdx := 0
-    let mut has1BScalar := false
-    let mut has2BScalar := false
-    let mut has4BScalar := false
-    let mut has8BScalar := false
-    for field in params[ctorInfo.numParams...(ctorInfo.numParams + ctorInfo.numFields)] do
-      let fieldType ← field.fvarId!.getType
-      let lcnfFieldType ← LCNF.toLCNFType fieldType
-      let monoFieldType ← LCNF.toMonoType lcnfFieldType
-      let irFieldType ← toImpureType monoFieldType
-      let ctorField ← match irFieldType with
-      | ImpureType.object | ImpureType.tagged | ImpureType.tobject => do
-        let i := nextIdx
-        nextIdx := nextIdx + 1
-        pure <| .object i irFieldType
-      | ImpureType.usize => pure <| .usize 0
-      | ImpureType.erased => .pure <| .erased
-      | ImpureType.void => .pure <| .void
-      | ImpureType.uint8 =>
-        has1BScalar := true
-        .pure <| .scalar 1 0 ImpureType.uint8
-      | ImpureType.uint16 =>
-        has2BScalar := true
-        .pure <| .scalar 2 0 ImpureType.uint16
-      | ImpureType.uint32 =>
-        has4BScalar := true
-        .pure <| .scalar 4 0 ImpureType.uint32
-      | ImpureType.uint64 =>
-        has8BScalar := true
-        .pure <| .scalar 8 0 ImpureType.uint64
-      | ImpureType.float32 =>
-        has4BScalar := true
-        .pure <| .scalar 4 0 ImpureType.float32
-      | ImpureType.float =>
-        has8BScalar := true
-        .pure <| .scalar 8 0 ImpureType.float
-      | _ => unreachable!
-      fields := fields.push ctorField
-    let numObjs := nextIdx
-    ⟨fields, nextIdx⟩ := Id.run <| StateT.run (s := nextIdx) <| fields.mapM fun field => do
-      match field with
-      | .usize _ => do
-        let i ← modifyGet fun nextIdx => (nextIdx, nextIdx + 1)
-        return .usize i
-      | .object .. | .scalar .. | .erased | .void => return field
-    let numUSize := nextIdx - numObjs
-    let adjustScalarsForSize (fields : Array CtorFieldInfo) (size : Nat) (nextOffset : Nat)
-        : Array CtorFieldInfo × Nat :=
-      Id.run <| StateT.run (s := nextOffset) <| fields.mapM fun field => do
+    let layout ← fillCache
+    checkCtorLayout layout
+    modifyEnv (ctorLayoutExt.insert · ctorName layout)
+where
+  checkCtorLayout (layout : CtorLayout) : CoreM Unit := do
+    layout.ctorInfo.checkValid
+  fillCache : CoreM CtorLayout := do
+    let .some (.ctorInfo ctorInfo) := (← getEnv).find? ctorName | unreachable!
+    Meta.MetaM.run' <| Meta.forallTelescopeReducing ctorInfo.type fun params _ => do
+      let mut fields : Array CtorFieldInfo := .emptyWithCapacity ctorInfo.numFields
+      let mut nextIdx := 0
+      let mut has1BScalar := false
+      let mut has2BScalar := false
+      let mut has4BScalar := false
+      let mut has8BScalar := false
+      for field in params[ctorInfo.numParams...(ctorInfo.numParams + ctorInfo.numFields)] do
+        let fieldType ← field.fvarId!.getType
+        let lcnfFieldType ← LCNF.toLCNFType fieldType
+        let monoFieldType ← LCNF.toMonoType lcnfFieldType
+        let irFieldType ← toImpureType monoFieldType
+        let ctorField ← match irFieldType with
+        | ImpureType.object | ImpureType.tagged | ImpureType.tobject => do
+          let i := nextIdx
+          nextIdx := nextIdx + 1
+          pure <| .object i irFieldType
+        | ImpureType.usize => pure <| .usize 0
+        | ImpureType.erased => .pure <| .erased
+        | ImpureType.void => .pure <| .void
+        | ImpureType.uint8 =>
+          has1BScalar := true
+          .pure <| .scalar 1 0 ImpureType.uint8
+        | ImpureType.uint16 =>
+          has2BScalar := true
+          .pure <| .scalar 2 0 ImpureType.uint16
+        | ImpureType.uint32 =>
+          has4BScalar := true
+          .pure <| .scalar 4 0 ImpureType.uint32
+        | ImpureType.uint64 =>
+          has8BScalar := true
+          .pure <| .scalar 8 0 ImpureType.uint64
+        | ImpureType.float32 =>
+          has4BScalar := true
+          .pure <| .scalar 4 0 ImpureType.float32
+        | ImpureType.float =>
+          has8BScalar := true
+          .pure <| .scalar 8 0 ImpureType.float
+        | _ => unreachable!
+        fields := fields.push ctorField
+      let numObjs := nextIdx
+      ⟨fields, nextIdx⟩ := Id.run <| StateT.run (s := nextIdx) <| fields.mapM fun field => do
         match field with
-        | .scalar sz _ type => do
-          if sz == size then
-            let offset ← modifyGet fun nextOffset => (nextOffset, nextOffset + sz)
-            return .scalar sz offset type
-          else
-            return field
-        | .object .. | .usize _ | .erased | .void => return field
-    let mut nextOffset := 0
-    if has8BScalar then
-      ⟨fields, nextOffset⟩ := adjustScalarsForSize fields 8 nextOffset
-    if has4BScalar then
-      ⟨fields, nextOffset⟩ := adjustScalarsForSize fields 4 nextOffset
-    if has2BScalar then
-      ⟨fields, nextOffset⟩ := adjustScalarsForSize fields 2 nextOffset
-    if has1BScalar then
-      ⟨fields, nextOffset⟩ := adjustScalarsForSize fields 1 nextOffset
-    return {
-      ctorInfo := {
-        name := ctorName
-        cidx := ctorInfo.cidx
-        size := numObjs
-        usize := numUSize
-        ssize := nextOffset
+        | .usize _ => do
+          let i ← modifyGet fun nextIdx => (nextIdx, nextIdx + 1)
+          return .usize i
+        | .object .. | .scalar .. | .erased | .void => return field
+      let numUSize := nextIdx - numObjs
+      let adjustScalarsForSize (fields : Array CtorFieldInfo) (size : Nat) (nextOffset : Nat)
+          : Array CtorFieldInfo × Nat :=
+        Id.run <| StateT.run (s := nextOffset) <| fields.mapM fun field => do
+          match field with
+          | .scalar sz _ type => do
+            if sz == size then
+              let offset ← modifyGet fun nextOffset => (nextOffset, nextOffset + sz)
+              return .scalar sz offset type
+            else
+              return field
+          | .object .. | .usize _ | .erased | .void => return field
+      let mut nextOffset := 0
+      if has8BScalar then
+        ⟨fields, nextOffset⟩ := adjustScalarsForSize fields 8 nextOffset
+      if has4BScalar then
+        ⟨fields, nextOffset⟩ := adjustScalarsForSize fields 4 nextOffset
+      if has2BScalar then
+        ⟨fields, nextOffset⟩ := adjustScalarsForSize fields 2 nextOffset
+      if has1BScalar then
+        ⟨fields, nextOffset⟩ := adjustScalarsForSize fields 1 nextOffset
+      return {
+        ctorInfo := {
+          name := ctorName
+          cidx := ctorInfo.cidx
+          size := numObjs
+          usize := numUSize
+          ssize := nextOffset
+        }
+        fieldInfo := fields
       }
-      fieldInfo := fields
-    }
 
 /--
 Returns the runtime layout of constructor `ctorName`. Requires `compileDecls` to have been run for

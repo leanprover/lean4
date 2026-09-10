@@ -270,7 +270,7 @@ Compares lists lexicographically with respect to a comparison on their elements.
 
 The lexicographic order with respect to `lt` is:
 * `[].lex (b :: bs)` is `true`
-* `as.lex [] = false` is `false`
+* `as.lex []` is `false`
 * `(a :: as).lex (b :: bs)` is true if `lt a b` or `a == b` and `lex lt as bs` is true.
 -/
 @[specialize]

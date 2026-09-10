@@ -42,6 +42,9 @@ theorem BitVec.gt_ult (x y : BitVec w) : x > y ↔ (y.ult x = true) := by
 theorem BitVec.ge_ule (x y : BitVec w) : x ≥ y ↔ ((!x.ult y) = true) := by
   simp [BitVec.le_ult]
 
+attribute [bv_normalize] BitVec.min_def
+attribute [bv_normalize] BitVec.max_def
+
 attribute [bv_normalize] BitVec.zeroExtend_eq_setWidth
 attribute [bv_normalize] BitVec.truncate_eq_setWidth
 attribute [bv_normalize] BitVec.setWidth'_eq

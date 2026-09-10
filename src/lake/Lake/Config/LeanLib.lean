@@ -105,6 +105,21 @@ Is true if either the package or the library have `precompileModules` set.
   self.pkg.precompileModules || self.config.precompileModules
 
 /--
+Whether to precompile the imports of the library's modules.
+Is true if either the package or the library have `precompileImports` set,
+or if the library's modules are precompiled.
+-/
+@[inline] public def precompileImports (self : LeanLib) : Bool :=
+  self.precompileModules || self.pkg.precompileImports || self.config.precompileImports
+
+/--
+Whether to precompile the library for importers.
+Is true if the library has `precompileLibrary` set or its modules are precompiled.
+-/
+@[inline] public def shouldPrecompile (self : LeanLib) : Bool :=
+  self.precompileModules || self.config.precompileLibrary
+
+/--
 Whether to the library's Lean code is platform-independent.
 Returns the library's `platformIndependent` configuration if non-`none`.
 Otherwise, falls back to the package's.

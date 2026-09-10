@@ -697,12 +697,12 @@ theorem toRat_lt_toRat_iff {x y : Dyadic} : x.toRat < y.toRat ↔ x < y := blt_i
 theorem toRat_le_toRat_iff {x y : Dyadic} : x.toRat ≤ y.toRat ↔ x ≤ y := ble_iff_toRat.symm
 
 @[simp]
-protected theorem not_le {x y : Dyadic} : ¬x < y ↔ y ≤ x := by
+protected theorem not_lt {x y : Dyadic} : ¬x < y ↔ y ≤ x := by
   simp only [· ≤ ·, · < ·, Bool.not_eq_true, blt_eq_false_iff]
 
 @[simp]
-protected theorem not_lt {x y : Dyadic} : ¬x ≤ y ↔ y < x := by
-  rw [← Dyadic.not_le, Decidable.not_not]
+protected theorem not_le {x y : Dyadic} : ¬x ≤ y ↔ y < x := by
+  rw [← Dyadic.not_lt, Decidable.not_not]
 
 @[simp]
 protected theorem le_refl (x : Dyadic) : x ≤ x := by
@@ -723,7 +723,7 @@ protected theorem le_total (x y : Dyadic) : x ≤ y ∨ y ≤ x := by
   exact Rat.le_total
 
 instance : Std.LawfulOrderLT Dyadic where
-  lt_iff a b := by rw [← Dyadic.not_lt, iff_and_self]; exact (Dyadic.le_total _ _).resolve_left
+  lt_iff a b := by rw [← Dyadic.not_le, iff_and_self]; exact (Dyadic.le_total _ _).resolve_left
 
 instance : Std.IsPreorder Dyadic where
   le_refl := Dyadic.le_refl

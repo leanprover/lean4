@@ -322,7 +322,7 @@ theorem upperAdjoint_id (b : α) : upperAdjoint (id : α → α) b = b := by
     exact sup_le _ fun x hx => hx
   · exact le_upperAdjoint _ PartialOrder.rel_refl
 
-theorem upperAdjoint_comp {ε : Type v} (f : α → α) [PreservesSup f] (X : ε → α) (e : ε) :
+theorem upperAdjoint_comp_apply {ε : Type v} (f : α → α) [PreservesSup f] (X : ε → α) (e : ε) :
     upperAdjoint (Function.comp f) X e = upperAdjoint f (X e) := by
   apply PartialOrder.rel_antisymm
   · show upperAdjoint (Function.comp f) X e ⊑ _

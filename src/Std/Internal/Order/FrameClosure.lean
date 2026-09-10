@@ -117,10 +117,10 @@ section
 
 variable [CompleteLattice A] [CompleteLattice B]
 
-theorem upperAdjoint_pointwise (opE : R → A → A) [∀ r, PreservesSup (opE r)] (r : R) (X : ε → A)
+theorem upperAdjoint_pointwise_apply (opE : R → A → A) [∀ r, PreservesSup (opE r)] (r : R) (X : ε → A)
     (e : ε) :
     PreservesSup.upperAdjoint (pointwise opE r) X e = PreservesSup.upperAdjoint (opE r) (X e) :=
-  PreservesSup.upperAdjoint_comp (opE r) X e
+  PreservesSup.upperAdjoint_comp_apply (opE r) X e
 
 theorem upperAdjoint_prod_fst (opA : R → A → A) (opB : R → B → B)
     [∀ r, PreservesSup (opA r)] [∀ r, PreservesSup (opB r)] (r : R) (E : A × B) :
@@ -180,7 +180,7 @@ noncomputable def PredTrans.frameClosure (op : R → Pred → Pred) [FrameOp op 
     (t : PredTrans Pred EPred β) : PredTrans Pred EPred β :=
   ⟨fun Q E => ⨅ r, PreservesSup.upperAdjoint (op r) (t.apply (fun a => op r (Q a)) (opE r E))⟩
 
-theorem PredTrans.apply_frameClosure (op : R → Pred → Pred) [FrameOp op EPred opE]
+@[simp] theorem PredTrans.apply_frameClosure (op : R → Pred → Pred) [FrameOp op EPred opE]
     (t : PredTrans Pred EPred β) (Q : β → Pred) (E : EPred) :
     (t.frameClosure op).apply Q E =
       ⨅ r, PreservesSup.upperAdjoint (op r) (t.apply (fun a => op r (Q a)) (opE r E)) := rfl

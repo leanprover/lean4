@@ -68,7 +68,7 @@ public def LatticeOp.top : LatticeOp :=
 /-- The magic-wand residual `upperAdjoint f b`: point-framed, closes with `le_upperAdjoint`. -/
 public def LatticeOp.upperAdjoint : LatticeOp :=
   { head := ``Lean.Order.PreservesSup.upperAdjoint,
-    rewrites := #[``Lean.Order.FrameOp.upperAdjoint_pointwise, ``Lean.Order.FrameOp.upperAdjoint_ignore,
+    rewrites := #[``Lean.Order.FrameOp.upperAdjoint_pointwise_apply, ``Lean.Order.FrameOp.upperAdjoint_ignore,
       ``Lean.Order.upperAdjoint_meet],
     terminal? := ``Lean.Order.PreservesSup.le_upperAdjoint }
 /-- Indexed infimum `iInf`/`⨅`: distributes via `iInf_apply`, closes with `le_iInf`. -/

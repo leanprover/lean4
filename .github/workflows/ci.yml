@@ -294,7 +294,9 @@ jobs:
               {
                 // portable release build: use channel with older glibc (2.26)
                 "name": "Linux release",
-                "os": large ? chonk : "ubuntu-latest",
+                // The self-hosted runner carries a different toolset than the hosted ones, so what
+                // we ship is built on a hosted runner even when it is free.
+                "os": large ? (stamped ? "nscloud-ubuntu-24.04-amd64-8x16" : chonk) : "ubuntu-latest",
                 "release": stamped,
                 // Unstamped builds are published too (`pr-release.yml`, `grove.yml`), so always pack
                 // and upload the artifact.

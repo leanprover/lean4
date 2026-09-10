@@ -114,7 +114,7 @@ def catBehavior := optional (" (" >> nonReservedSymbol "behavior" >> " := " >> (
   optional docComment >> "declare_syntax_cat " >> ident >> catBehavior
 def macroArg  := leading_parser
   optional (atomic (ident >> checkNoWsBefore "no space before ':'" >> ":")) >> syntaxParser argPrec
-def macroRhs : Parser := leading_parser withPosition termParser
+def macroRhs : Parser := leading_parser termParser
 def macroTail := leading_parser atomic (" : " >> ident) >> darrow >> macroRhs
 @[builtin_command_parser] def «macro»       := leading_parser suppressInsideQuot <|
   optional docComment >> optional Term.«attributes» >> Term.attrKind >>
@@ -123,7 +123,7 @@ def macroTail := leading_parser atomic (" : " >> ident) >> darrow >> macroRhs
   optional docComment >> optional Term.«attributes» >> Term.attrKind >>
   "elab_rules" >> optKind >> optional (" : " >> ident) >> optional (" <= " >> ident) >> Term.matchAlts
 def elabArg  := macroArg
-def elabTail := leading_parser atomic (" : " >> ident >> optional (" <= " >> ident)) >> darrow >> withPosition termParser
+def elabTail := leading_parser atomic (" : " >> ident >> optional (" <= " >> ident)) >> darrow >> termParser
 @[builtin_command_parser] def «elab»       := leading_parser suppressInsideQuot <|
   optional docComment >> optional Term.«attributes» >> Term.attrKind >>
   "elab" >> optPrecedence >> optNamedName >> optNamedPrio >> many1 (ppSpace >> elabArg) >> elabTail

@@ -248,6 +248,11 @@ jobs:
           mv build/stage1.bak build/stage1
           cd src
           ../build/stage0/bin/lake cache clean
+      # Not part of the default targets because it is big
+      - name: Build leanchecker-paranoid
+        if: matrix.release && !matrix.wasm
+        run: |
+          make -C build/$TARGET_STAGE leanchecker-paranoid -j$NPROC
       - name: Install
         run: |
           make -C build/$TARGET_STAGE install

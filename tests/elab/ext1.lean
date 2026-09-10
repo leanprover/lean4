@@ -72,6 +72,23 @@ example (f : ℕ × (ℕ → ℕ)) : f = f := by
 example (f : Empty → Empty) : f = f := by
   ext ⟨⟩
 
+example (a b : ULift α) : a = b := by
+  ext
+  guard_target = a.down = b.down; exact mySorry
+
+example (a b : PULift α) : a = b := by
+  ext
+  guard_target = a.down = b.down; exact mySorry
+
+example (a b : PLift α) : a = b := by
+  ext
+  guard_target = a.down = b.down; exact mySorry
+
+example (a b : MProd Nat Bool) : a = b := by
+  ext
+  guard_target = a.fst = b.fst; exact mySorry
+  guard_target = a.snd = b.snd; exact mySorry
+
 @[ext (iff := false)] theorem ext_intros {n m : Nat} (w : ∀ n m : Nat, n = m) : n = m := by apply w
 
 example : 3 = 7 := by

@@ -36,8 +36,18 @@ def getAllLints (env : Environment) : Array (Name × Array LintEntry) :=
   env.header.moduleNames.mapIdx fun i mod =>
     (mod, lintLogExt.getModuleEntries env i (level := .server))
 
+/--
+A code quality entry recorded into `codeQualityLogExt`, together with the option name of the
+linter that produced it. Entries logged via `logCodeQualityEntryIf` carry their linter's option
+name, which consumers use to filter by linter selection (e.g. `lake lint --lint-only`); entries
+logged via `logCodeQualityEntry` carry `none` and are exempt from such filtering.
+-/
+structure CodeQualityLogEntry where
+  linter? : Option Name
+  entry   : CodeQuality.Entry
+
 builtin_initialize codeQualityLogExt :
-    PersistentEnvExtension CodeQuality.Entry CodeQuality.Entry (Array CodeQuality.Entry) ←
+    PersistentEnvExtension CodeQualityLogEntry CodeQualityLogEntry (Array CodeQualityLogEntry) ←
   registerPersistentEnvExtension {
     mkInitial     := pure #[]
     addImportedFn := fun _ => pure #[]
@@ -46,7 +56,7 @@ builtin_initialize codeQualityLogExt :
       { exported := #[], server := entries, «private» := entries }
   }
 
-def getAllCodeQualityEntries (env : Environment) : Array (Name × Array CodeQuality.Entry) :=
+def getAllCodeQualityEntries (env : Environment) : Array (Name × Array CodeQualityLogEntry) :=
   env.header.moduleNames.mapIdx fun i mod =>
     (mod, codeQualityLogExt.getModuleEntries env i (level := .server))
 
@@ -55,8 +65,6 @@ instance : MonadFileMap (ReaderT FileMap BaseIO) := ⟨read⟩
 /--
 Records linter warnings and looks up positions of their associated commands from a build
 into `lintLogExt` so that consumers (e.g. `lake lint`) can recover them from the `.olean`.
-Messages carrying code quality entries (see `Lean.Linter.logCodeQualityEntry`) are recorded
-into `codeQualityLogExt` instead, without any position information.
 -/
 def recordLints (fileMap : FileMap) (env : Environment)
     (commandLints : Array (Option Syntax × MessageLog)) : BaseIO Environment := do
@@ -66,8 +74,6 @@ def recordLints (fileMap : FileMap) (env : Environment)
       | none     => pure none
     let position? : Option Position := declRange?.map (·.pos)
     messages.reportedPlusUnreported.foldlM (init := env) fun env m => do
-      if let some entry := m.data.codeQualityEntry? then
-        return codeQualityLogExt.addEntry env entry
       unless m.data.isLinterMessage do
         return env
       let kind := m.data.kind
@@ -75,5 +81,34 @@ def recordLints (fileMap : FileMap) (env : Environment)
         return env
       let sm ← m.serialize
       return lintLogExt.addEntry env { linter := kind, message := sm, position?, file := m.fileName }
+
+/--
+Records the code quality entry `e` into `codeQualityLogExt` so that it is persisted into the
+`.olean` and can be recovered by consumers via `getAllCodeQualityEntries`.
+
+This can be safely used in Linters. While regular `Lean.Linter`s, module linters, and stateful
+linters all have their environment changes discarded after running, entries they log are
+captured per command (see `Command.State.codeQualityEntryTasks`) and merged into the final
+environment in `runFrontend`.
+
+The entry is recorded without a linter attribution, so it is recorded unconditionally and no
+linter selection flag (e.g. `lake lint --lint-only`) can suppress it. Inside a linter guarded by
+an option, use `logCodeQualityEntryIf` instead; this variant is meant for unconditional metrics
+not tied to any linter option.
+-/
+def logCodeQualityEntry [Monad m] [MonadEnv m]
+    (e : CodeQuality.Entry) : m Unit :=
+  modifyEnv (codeQualityLogExt.addEntry · { linter? := none, entry := e })
+
+/--
+Similar to `logLintIf`, but for `logCodeQualityEntry` - i.e. it logs an entry only if the
+provided linter option is enabled, taking `linter.all` and linter sets into account. The entry
+is recorded with `linterOption.name` as its attribution, so consumers can filter it by linter
+selection (e.g. `lake lint --lint-only`).
+-/
+def logCodeQualityEntryIf [Monad m] [MonadOptions m] [MonadEnv m]
+    (linterOption : Lean.Option Bool) (e : CodeQuality.Entry) : m Unit := do
+  if getLinterValue linterOption (← getLinterOptions) then
+    modifyEnv (codeQualityLogExt.addEntry · { linter? := some linterOption.name, entry := e })
 
 end Lean.Linter

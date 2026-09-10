@@ -143,10 +143,10 @@ calc
   1 = 1 := rfl✝
 by rw [] at h✝
 do
-  ghost trace✝ := 0;
+  erased trace✝ := 0;
   pure✝ ()
 do
-  ghost mut trace✝ : List✝ Nat✝ := [];
+  erased mut trace✝ : List✝ Nat✝ := [];
   trace✝ := x✝ :: trace.out✝
 do
-  ghost mut n✝ ← counter✝
+  erased mut n✝ ← counter✝

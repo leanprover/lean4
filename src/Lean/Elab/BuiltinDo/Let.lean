@@ -14,7 +14,7 @@ import Lean.Elab.Do.PatternVar
 
 public section
 
--- The `ghost` doElem quotations below need the current stage's parser until stage0 catches up.
+-- The `erased` doElem quotations below need the current stage's parser until stage0 catches up.
 set_option internal.parseQuotWithCurrentStage true
 
 namespace Lean.Elab.Do
@@ -23,7 +23,7 @@ open Lean.Parser.Term
 open Lean.Meta
 
 inductive LetOrReassign
-  | let (mutTk? : Option Syntax) (ghost : Bool)
+  | let (mutTk? : Option Syntax) (erased : Bool)
   | have
   | reassign
 
@@ -32,29 +32,29 @@ def LetOrReassign.getLetMutTk? (letOrReassign : LetOrReassign) : Option Syntax :
   | .let mutTk? _ => mutTk?
   | _             => none
 
-def LetOrReassign.isGhostDecl (letOrReassign : LetOrReassign) : Bool :=
+def LetOrReassign.isErasedDecl (letOrReassign : LetOrReassign) : Bool :=
   match letOrReassign with
-  | .let _ ghost => ghost
+  | .let _ erased => erased
   | _            => false
 
-def isGhost (letOrReassign : LetOrReassign) (vars : Array Ident) : DoElabM Bool := do
+def isErased (letOrReassign : LetOrReassign) (vars : Array Ident) : DoElabM Bool := do
   match letOrReassign with
-  | .let _ ghost => return ghost
+  | .let _ erased => return erased
   | .reassign    =>
     let some v := vars[0]? | return false
     let some mv ← findMutVar? v.getId | return false
-    return mv.ghost
+    return mv.erased
   | _            => return false
 
 def LetOrReassign.checkMutVars (letOrReassign : LetOrReassign) (vars : Array Ident) : DoElabM Unit :=
   match letOrReassign with
   | .reassign => do
     throwUnlessMutVarsDeclared vars
-    -- Reassigning a ghost variable wraps its value, which only the single-variable form can do.
+    -- Reassigning an erased variable wraps its value, which only the single-variable form can do.
     unless vars.size == 1 do
       for v in vars do
-        if ((← findMutVar? v.getId).map (·.ghost)).getD false then
-          throwErrorAt v "a ghost variable takes a plain reassignment, as in `{v.getId} := e`"
+        if ((← findMutVar? v.getId).map (·.erased)).getD false then
+          throwErrorAt v "an erased variable takes a plain reassignment, as in `{v.getId} := e`"
   | _         => checkMutVarsForShadowing vars
 
 def LetOrReassign.registerReassignAliasInfo (letOrReassign : LetOrReassign) (vars : Array Ident) : DoElabM Unit := do
@@ -63,9 +63,9 @@ def LetOrReassign.registerReassignAliasInfo (letOrReassign : LetOrReassign) (var
       registerMutVarAlias var.getId
 
 def elabWithReassignments (letOrReassign : LetOrReassign) (vars : Array Ident) (k : DoElabM Expr) : DoElabM Expr := do
-  declareMutVars? letOrReassign.getLetMutTk? vars letOrReassign.isGhostDecl do
+  declareMutVars? letOrReassign.getLetMutTk? vars letOrReassign.isErasedDecl do
     letOrReassign.registerReassignAliasInfo vars
-    if ← isGhost letOrReassign vars then
+    if ← isErased letOrReassign vars then
       vars.foldr (init := k) withErasedProj
     else
       k
@@ -100,9 +100,9 @@ private def checkLetConfigInDo (config : Term.LetConfig) : DoElabM Unit := do
   if config.generalize then
     throwError "`+generalize` is not supported in `do` blocks"
 
-/-- Wrap a ghost binding `x : t := e` as `x : Erased t := Erased.mk e`. For a reassignment,
+/-- Wrap an erased binding `x : t := e` as `x : Erased t := Erased.mk e`. For a reassignment,
 `pushTypeIntoReassignment` has already checked the ascription and pinned `t`. -/
-private def wrapGhostDecl (decl : TSyntax ``letDecl) : DoElabM (TSyntax ``letDecl) := do
+private def wrapErasedDecl (decl : TSyntax ``letDecl) : DoElabM (TSyntax ``letDecl) := do
   let `(letDecl| $x:ident $[: $t?]? := $e) := decl
     | throwUnsupportedSyntax
   match t? with
@@ -115,10 +115,10 @@ partial def elabDoLetOrReassign (config : Term.LetConfig) (letOrReassign : LetOr
   let vars ← getLetDeclVars decl
   letOrReassign.checkMutVars vars
   let dec ← dec.ensureUnitAt tk
-  let isGhost ← isGhost letOrReassign vars
+  let isErased ← isErased letOrReassign vars
   -- Some decl preprocessing on the patterns and expected types:
   let decl ← pushTypeIntoReassignment letOrReassign decl
-  let decl ← if isGhost then wrapGhostDecl decl else pure decl
+  let decl ← if isErased then wrapErasedDecl decl else pure decl
   let mγ ← mkMonadApp (← read).doBlockResultType
   match decl with
   | `(letDecl| $decl:letEqnsDecl) =>
@@ -197,17 +197,17 @@ private def getLetConfigAndCheckMut (letConfigStx : TSyntax ``Parser.Term.letCon
   let config ← getLetConfigAndCheckMut config mutTk?
   elabDoLetOrReassign config (.let mutTk? false) decl tk dec
 
-@[builtin_doElem_elab Lean.Parser.Term.doGhost] def elabDoGhost : DoElab := fun stx dec => do
-  let `(doGhost| ghost%$tk $[mut%$mutTk?]? $x:ident $[: $t?]? := $e) := stx | throwUnsupportedSyntax
+@[builtin_doElem_elab Lean.Parser.Term.doErased] def elabDoErased : DoElab := fun stx dec => do
+  let `(doErased| erased%$tk $[mut%$mutTk?]? $x:ident $[: $t?]? := $e) := stx | throwUnsupportedSyntax
   elabDoLetOrReassign {} (.let mutTk? true) (← `(letDecl| $x:ident $[: $t?]? := $e)) tk dec
 
-@[builtin_macro Lean.Parser.Term.doGhostArrow] def expandDoGhostArrow : Macro := fun stx => do
+@[builtin_macro Lean.Parser.Term.doErasedArrow] def expandDoErasedArrow : Macro := fun stx => do
   match stx with
-  | `(doGhostArrow| ghost%$tk $[mut%$mutTk?]? $x:ident $[: $t?]? ← $rhs) =>
+  | `(doErasedArrow| erased%$tk $[mut%$mutTk?]? $x:ident $[: $t?]? ← $rhs) =>
     let y := mkIdentFrom x (← MonadQuotation.addMacroScope `__x)
     let letElem ← `(doElem| let $y:ident $[: $t?]? ← $rhs)
-    let ghostElem : TSyntax `doElem := ⟨(← `(doGhost| ghost%$tk $[mut%$mutTk?]? $x:ident := $y)).raw⟩
-    `(doElem| do $letElem:doElem; $ghostElem:doElem)
+    let erasedElem : TSyntax `doElem := ⟨(← `(doErased| erased%$tk $[mut%$mutTk?]? $x:ident := $y)).raw⟩
+    `(doElem| do $letElem:doElem; $erasedElem:doElem)
   | _ => Macro.throwUnsupported
 
 @[builtin_doElem_elab Lean.Parser.Term.doHave] def elabDoHave : DoElab := fun stx dec => do

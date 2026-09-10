@@ -51,7 +51,7 @@ def test10 : Foo where
   data := 0
 
 /--
-error: failed to compile definition: it depends on 'Erased.out', which recovers the value of a ghost variable. A ghost variable's value is available in specifications such as `invariant` clauses and `assert`s, but not in compiled code. Consider marking the definition as 'noncomputable'.
+error: failed to compile definition: it depends on 'Erased.out', which recovers the value of an erased variable. An erased variable's value is available in specifications such as `invariant` clauses and `assert`s, but not in compiled code. Consider marking the definition as 'noncomputable'.
 -/
 #guard_msgs in
 def test11 : Foo where

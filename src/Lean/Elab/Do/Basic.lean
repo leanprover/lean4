@@ -100,12 +100,12 @@ def CodeLiveness.lub (a b : CodeLiveness) : CodeLiveness :=
 
 /-- A mutable variable declared by `let mut` in a `do` block. -/
 structure MutVar where
-  /-- The identifier of the `let mut` or `ghost mut` declaration. -/
+  /-- The identifier of the `let mut` or `erased mut` declaration. -/
   ident : Ident
   /-- The `FVarId` of the initial binding produced by the declaration. -/
   baseId : FVarId
-  /-- Whether the variable comes from `ghost mut`. -/
-  ghost : Bool
+  /-- Whether the variable comes from `erased mut`. -/
+  erased : Bool
   deriving Inhabited
 
 /-- The raw `Name` of a `mut` variable, as found in the local context. -/
@@ -339,30 +339,30 @@ def DoOps.default : DoOps where
     return mkApp (← read).monadInfo.m α
 
 /-- Register the given name as that of a `mut` variable. -/
-def declareMutVar (x : Ident) (ghost : Bool) (k : DoElabM α) : DoElabM α := do
+def declareMutVar (x : Ident) (erased : Bool) (k : DoElabM α) : DoElabM α := do
   let fvar ← getFVarFromUserName x.getId
-  let mutVar : MutVar := { ident := x, baseId := fvar.fvarId!, ghost }
+  let mutVar : MutVar := { ident := x, baseId := fvar.fvarId!, erased }
   withReader (fun ctx => { ctx with
     mutVars := ctx.mutVars.push mutVar,
     mutVarDefs := ctx.mutVarDefs.insert x.getId mutVar,
   }) k
 
 /-- Register the given names as that of `mut` variables. -/
-def declareMutVars (xs : Array Ident) (ghost : Bool) (k : DoElabM α) : DoElabM α := do
+def declareMutVars (xs : Array Ident) (erased : Bool) (k : DoElabM α) : DoElabM α := do
   let fvars ← xs.mapM (getFVarFromUserName ·.getId)
-  let newMutVars : Array MutVar := xs.zipWith (fun x fvar => { ident := x, baseId := fvar.fvarId!, ghost }) fvars
+  let newMutVars : Array MutVar := xs.zipWith (fun x fvar => { ident := x, baseId := fvar.fvarId!, erased }) fvars
   withReader (fun ctx => { ctx with
     mutVars := ctx.mutVars ++ newMutVars,
     mutVarDefs := ctx.mutVarDefs.insertMany (newMutVars.map fun mutVar => (mutVar.getId, mutVar)),
   }) k
 
 /-- Register the given name as that of a `mut` variable if the syntax token `mut` is present. -/
-def declareMutVar? (mutTk? : Option Syntax) (x : Ident) (ghost : Bool) (k : DoElabM α) : DoElabM α :=
-  if mutTk?.isSome then declareMutVar x ghost k else k
+def declareMutVar? (mutTk? : Option Syntax) (x : Ident) (erased : Bool) (k : DoElabM α) : DoElabM α :=
+  if mutTk?.isSome then declareMutVar x erased k else k
 
 /-- Register the given names as that of `mut` variables if the syntax token `mut` is present. -/
-def declareMutVars? (mutTk? : Option Syntax) (xs : Array Ident) (ghost : Bool) (k : DoElabM α) : DoElabM α :=
-  if mutTk?.isSome then declareMutVars xs ghost k else k
+def declareMutVars? (mutTk? : Option Syntax) (xs : Array Ident) (erased : Bool) (k : DoElabM α) : DoElabM α :=
+  if mutTk?.isSome then declareMutVars xs erased k else k
 
 /-- Look up a declared `mut` variable by its raw `Name`. -/
 def findMutVar? (n : Name) : DoElabM (Option MutVar) := do
@@ -611,7 +611,7 @@ binding away, so the source name reaches proofs and never compiled code. The new
 def withErasedProj (x : Ident) (k : DoElabM Expr) (info : Bool := true) : DoElabM Expr := do
   let carried ← getLocalDeclFromUserName x.getId
   let_expr c@Erased t ← carried.type
-    | throwError "the carried binding of ghost variable `{x.getId}` has type{indentExpr carried.type}\ninstead of an `Erased` type"
+    | throwError "the carried binding of erased variable `{x.getId}` has type{indentExpr carried.type}\ninstead of an `Erased` type"
   let outVal := mkApp2 (mkConst ``Erased.out c.constLevels!) t carried.toExpr
   withLetDecl x.getId t outVal (nondep := true) fun xv => do
     if info then
@@ -623,34 +623,34 @@ def withErasedProj (x : Ident) (k : DoElabM Expr) (info : Bool := true) : DoElab
     let body ← k
     return (← body.abstractM #[xv]).instantiate1 outVal
 
-/-- Bind the `.out` projection of each ghost variable among `mutVars` around `k`. -/
+/-- Bind the `.out` projection of each erased variable among `mutVars` around `k`. -/
 def withErasedProjs (mutVars : Array MutVar) (k : DoElabM Expr) (info : Bool := true) : DoElabM Expr :=
-  (mutVars.filter (·.ghost)).foldr (init := k) fun mv k => withErasedProj mv.ident k info
+  (mutVars.filter (·.erased)).foldr (init := k) fun mv k => withErasedProj mv.ident k info
 
 /-- `Erased.mk e`, which erases `e` in compiled code. -/
 def mkErasedMkApp (e : Expr) : MetaM Expr := do
   let t ← inferType e
   return mkApp2 (mkConst ``Erased.mk [← getLevel t]) t e
 
-/-- The type of `mv`'s slot in runtime state (tuples, join parameters): a ghost variable's slot
+/-- The type of `mv`'s slot in runtime state (tuples, join parameters): an erased variable's slot
 carries the `Erased` value. -/
 def MutVar.stateType (mv : MutVar) : MetaM Expr := do
   let t := (← getLocalDeclFromUserName mv.getId).type
-  if mv.ghost then return mkApp (mkConst ``Erased [← getLevel t]) t else return t
+  if mv.erased then return mkApp (mkConst ``Erased [← getLevel t]) t else return t
 
 /-- The current value of `mv` as packed into runtime state. -/
 def MutVar.stateValue (mv : MutVar) : MetaM Expr := do
   let v := (← getLocalDeclFromUserName mv.getId).toExpr
-  if mv.ghost then mkErasedMkApp v else return v
+  if mv.erased then mkErasedMkApp v else return v
 
 /--
 Given a list of mut vars `vars` and an FVar `tupleVar` binding a tuple, bind the mut vars to the
 fields of the tuple and call `k` in the resulting local context.
 -/
 def bindMutVarsFromTuple (vars : List Name) (tupleVar : FVarId) (k : DoElabM Expr) : DoElabM Expr := do
-  let ghosts := (← read).mutVars.filter fun mv => mv.ghost && vars.contains mv.getId
-  -- Like the ghost rebindings themselves, the projections contribute only aliases here.
-  let k := withErasedProjs ghosts k (info := false)
+  let erasedVars := (← read).mutVars.filter fun mv => mv.erased && vars.contains mv.getId
+  -- Like the erased rebindings themselves, the projections contribute only aliases here.
+  let k := withErasedProjs erasedVars k (info := false)
   go vars tupleVar (← tupleVar.getType) #[] k
 where
   go vars tupleVar tupleTy letFVars k := do
@@ -730,7 +730,7 @@ def DoElemCont.withDuplicableCont (nondupDec : DoElemCont) (callerInfo : Control
   let joinName ← mkFreshUserName `__do_jp
   -- σ is the tuple type of the mut vars, or mγ if jumpCount = 0. Hence it is either level mi.u or mi.v.
   -- let σ ← mkFreshTypeMVar (userName := `σ)
-  -- A ghost variable's join parameter carries the `Erased` value; its projection rebinds below.
+  -- An erased variable's join parameter carries the `Erased` value; its projection rebinds below.
   let mutTypes ← mutVars.mapM (·.stateType)
   let joinTy ← mkArrow nondupDec.resultType (← mkArrowN mutTypes mγ)
   let joinRhsMVar ← mkFreshExprSyntheticOpaqueMVar joinTy

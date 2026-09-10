@@ -170,16 +170,16 @@ structure ForInApp where
   σ : Expr
   /-- The pattern naming the loop's mutable variables in the state tuple. -/
   statePat : Term
-  /-- The ghost variables among the loop's mutable variables; annotations bind their `.out`
+  /-- The erased variables among the loop's mutable variables; annotations bind their `.out`
   projections over the state tuple. -/
-  ghostMutVars : Array MutVar := #[]
+  erasedMutVars : Array MutVar := #[]
 
-/-- Bind the `.out` projection of each ghost variable over `e`, so that an annotation names ghost
+/-- Bind the `.out` projection of each erased variable over `e`, so that an annotation names erased
 variables at their underlying type. The `+zeta` substitutes the binding away at elaboration, so
 annotation goals carry the projection inline like the compiled body does. -/
 private def ForInApp.wrapErasedProjs (g : ForInApp) (e : Term) : DoElabM Term := do
   let mut e := e
-  for mv in g.ghostMutVars do
+  for mv in g.erasedMutVars do
     e ← `(let +zeta $(mv.ident):ident := Erased.out $(⟨mv.ident.raw⟩); $e)
   return e
 
@@ -381,7 +381,7 @@ private def mkForInLoopGadget (g : ForInApp)
   unless inv?.isNone && dec?.isNone do
     let g : ForInApp :=
       { xs, init := preS, body, σ, statePat := ← mkStatePat loopMutVars info.returnsEarly,
-        ghostMutVars := loopMutVars.filter (·.ghost) }
+        erasedMutVars := loopMutVars.filter (·.erased) }
     if (← instantiateMVars ρ).isConstOf ``Lean.Loop then
       if let some e ← mkForInLoopGadget g inv? dec? then forIn := e
     else if let some decClause := dec? then

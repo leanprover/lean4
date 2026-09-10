@@ -890,16 +890,16 @@ def onOneLine (k : Nat) : Id Nat given (n : Nat) requires k = n ensures r => r =
 #guard_msgs in
 #check @onOneLine.spec
 
-/-! ## Ghost state
+/-! ## Erased state
 
-`ghost` declares verification-only state. The variable reads at its underlying type everywhere,
+`erased` declares verification-only state. The variable reads at its underlying type everywhere,
 its carried `Erased` binding erases in compiled code, and its slot in a loop's state tuple holds
 a dummy. -/
 
-def ghostSumEvens (xs : List Nat) : Id Nat
+def erasedSumEvens (xs : List Nat) : Id Nat
     ensures r => r % 2 = 0 := do
   let mut acc := 0
-  ghost mut seen : List Nat := []
+  erased mut seen : List Nat := []
   for x in xs invariant _pre _suff => acc = 2 * seen.length do
     acc := acc + 2
     seen := x :: seen
@@ -907,15 +907,15 @@ def ghostSumEvens (xs : List Nat) : Id Nat
 
 /-- info: 6 -/
 #guard_msgs in
-#eval ghostSumEvens [1, 2, 3]
+#eval erasedSumEvens [1, 2, 3]
 
-/-! An existential `ensures` takes its witness from a ghost variable: the invariant carries the
+/-! An existential `ensures` takes its witness from an erased variable: the invariant carries the
 witness, and the exit condition instantiates the existential from it. -/
 
-def ghostDoubleSum (xs : List Nat) : Id Nat
+def erasedDoubleSum (xs : List Nat) : Id Nat
     ensures r => ∃ n, r = 2 * n := do
   let mut acc := 0
-  ghost mut half : Nat := 0
+  erased mut half : Nat := 0
   for x in xs invariant _pre _suff => acc = 2 * half do
     acc := acc + x + x
     half := half + x
@@ -923,30 +923,30 @@ def ghostDoubleSum (xs : List Nat) : Id Nat
 
 /-- info: 12 -/
 #guard_msgs in
-#eval ghostDoubleSum [1, 2, 3]
+#eval erasedDoubleSum [1, 2, 3]
 
-/-! The declaration forms: `ghost` with and without `mut`, reassignment with an ascription, and
+/-! The declaration forms: `erased` with and without `mut`, reassignment with an ascription, and
 monadic binds (the action runs, its result erases). -/
 
-def ghostForms : Id Nat := do
-  ghost y := 5
-  ghost mut x := 1
+def erasedForms : Id Nat := do
+  erased y := 5
+  erased mut x := 1
   x := x + y
   x : Nat := 2
-  ghost z ← pure 3
-  ghost mut m ← pure 4
+  erased z ← pure 3
+  erased mut m ← pure 4
   m := m + z
   pure 0
 
 /-- info: 0 -/
 #guard_msgs in
-#eval ghostForms
+#eval erasedForms
 
-/-! A ghost variable reassigned in a branch flows through the join point. -/
+/-! An erased variable reassigned in a branch flows through the join point. -/
 
-def ghostBranch (b : Bool) : Id Nat
+def erasedBranch (b : Bool) : Id Nat
     ensures r => r = 0 := do
-  ghost mut n : Nat := 0
+  erased mut n : Nat := 0
   if b then
     n := n + 1
   else
@@ -956,22 +956,22 @@ def ghostBranch (b : Bool) : Id Nat
 
 /-- info: 0 -/
 #guard_msgs in
-#eval ghostBranch true
+#eval erasedBranch true
 
-/-! A ghost value reaching compiled code is rejected through the noncomputability of
+/-! An erased value reaching compiled code is rejected through the noncomputability of
 `Erased.out`. -/
 
 /--
-error: failed to compile definition: it depends on 'Erased.out', which recovers the value of a ghost variable. A ghost variable's value is available in specifications such as `invariant` clauses and `assert`s, but not in compiled code. Consider marking the definition as 'noncomputable'.
+error: failed to compile definition: it depends on 'Erased.out', which recovers the value of an erased variable. An erased variable's value is available in specifications such as `invariant` clauses and `assert`s, but not in compiled code. Consider marking the definition as 'noncomputable'.
 -/
 #guard_msgs in
-def ghostLeak (xs : List Nat) : Id Nat := do
-  ghost mut seen : List Nat := []
+def erasedLeak (xs : List Nat) : Id Nat := do
+  erased mut seen : List Nat := []
   for x in xs do
     seen := x :: seen
   return seen.length
 
-/-! A ghost reassignment checks a contradicting type ascription like a plain one. -/
+/-! An erased reassignment checks a contradicting type ascription like a plain one. -/
 
 /--
 error: Type mismatch
@@ -982,30 +982,30 @@ but is expected to have type
   Nat
 -/
 #guard_msgs in
-def ghostAscriptionMismatch : Id Nat := do
-  ghost mut g : Int := 0
+def erasedAscriptionMismatch : Id Nat := do
+  erased mut g : Int := 0
   g : Nat := 1
   pure 0
 
-/-! `ghost` stays a regular identifier at a doElem head when no ghost shape parses. -/
+/-! `erased` stays a regular identifier at a doElem head when no erased shape parses. -/
 
-def ghostAsIdent (ghost : Nat → Id Unit) : Id Nat := do
-  ghost 5
-  let mut ghost := 1
-  ghost := ghost + 1
-  ghost ← pure 3
-  pure ghost
+def erasedAsIdent (erased : Nat → Id Unit) : Id Nat := do
+  erased 5
+  let mut erased := 1
+  erased := erased + 1
+  erased ← pure 3
+  pure erased
 
 /-- info: 3 -/
 #guard_msgs in
-#eval ghostAsIdent fun _ => pure ()
+#eval erasedAsIdent fun _ => pure ()
 
-/-! A ghost variable stays out of pattern reassignments. -/
+/-! An erased variable stays out of pattern reassignments. -/
 
-/-- error: a ghost variable takes a plain reassignment, as in `g := e` -/
+/-- error: an erased variable takes a plain reassignment, as in `g := e` -/
 #guard_msgs in
-def ghostPatReassign : Id Nat := do
+def erasedPatReassign : Id Nat := do
   let mut a := 1
-  ghost mut g := 2
+  erased mut g := 2
   (a, g) := (3, 4)
   pure a

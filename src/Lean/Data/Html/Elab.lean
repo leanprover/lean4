@@ -6,18 +6,17 @@ Author: Wojciech Nawrocki
 module
 
 prelude
-meta import Lean.Data.Html.Syntax
-public import Lean.Data.Html.Syntax
-meta import Lean.Elab.Term
-public import Lean.Elab.Term
-meta import Lean.Data.Html.Basic
-public import Lean.Data.Html.Basic
+public meta import Lean.Data.Html.Syntax
+public meta import Lean.Elab.Term
+import Lean.Data.Html.Basic
+public import Lean.Data.Html.Spec
 
 set_option doc.verso true
 
-namespace Lean.Html.Syntax
+namespace Lean.Elab.Html
 
 open Lean Elab Term Meta
+open Html Syntax
 
 meta def elabAttrVal (stx : AttrVal) : TermElabM Expr := withRef stx do
   match ← stx.view with
@@ -56,43 +55,44 @@ meta def elabAttrs (stxs : Array Attr) : TermElabM Expr := do
       attrs := mkApp3 (.const ``Array.append [0]) pairType attrs pairs
   return attrs
 
-meta partial def elabContent (stx : Content) : TermElabM (Option Expr) := withRef stx do
-  match ← stx.view with
-  | .element tagName attrs children =>
-    if isVoidElement tagName then
-      if h : 0 < children.size then
-        let hint ←
-          let some ⟨start, _⟩ := stx.raw.getRange? | pure m!""
-          let some ⟨stop, _⟩ := children[0].raw.getRange? | pure m!""
-          let src := (← getFileMap).source
-          let noChildren := start.extract src (stop.prev src)
-          MessageData.hint m!"Remove children" #[noChildren ++ "/>"]
-        throwErrorAt children[0] m!"Void element `{tagName}` cannot have children{hint}"
-    let attrs ← elabAttrs attrs
-    let children ←
-      if h : children.size = 1 then
-        let c ← elabContent children[0]
-        pure <| c.getD (.const ``Html.empty [])
-      else
-        let children ← children.filterMapM elabContent
-        let children ← mkArrayLit (.const ``Html []) children.toList
-        pure <| .app (.const ``Html.ofArray []) children
-    return mkApp3 (.const ``Html.element []) (toExpr tagName) attrs children
-  | .text t =>
-    let t ← t.view
-    return mkApp (.const ``Html.text []) (toExpr t)
-  | .interp val =>
-    elabTermEnsuringType val (Expr.const ``Html [])
-  | .comment .. => return none
+meta partial def elabContent (stx : Content) : TermElabM Expr := withRef stx do
+  let mut es : Array Expr := #[]
+  for it in ← stx.view do
+    withRef it.getSyntax do←
+    match it with
+    | .element elemStx startTag attrs children? =>
+      let tagName ← startTag.view
+      if isVoidElement tagName then
+        if let some children := children? then
+          let hint ←
+            let some ⟨start, _⟩ := stx.raw.getRange? | pure m!""
+            let some ⟨stop, _⟩ := children.raw.getRange? | pure m!""
+            let src := (← getFileMap).source
+            let noChildren := start.extract src (stop.prev src)
+            MessageData.hint m!"Remove children" #[noChildren ++ "/>"]
+          throwErrorAt elemStx m!"Void element `{tagName}` cannot have children{hint}"
+      let attrs ← elabAttrs attrs
+      let children? ← children?.mapM elabContent
+      let e := mkApp3 (.const ``Html.element []) (toExpr tagName) attrs <|
+        children?.getD (.const ``Html.empty [])
+      es := es.push e
+    | .text t =>
+      let t ← t.view
+      let e := mkApp (.const ``Html.text []) (toExpr t)
+      es := es.push e
+    | .interp val =>
+      let e ← elabTermEnsuringType val (Expr.const ``Html [])
+      es := es.push e
+    | .comment .. => pure ()
+  match es with
+  | #[] => return .const ``Html.empty []
+  | _ =>
+    let children ← mkArrayLit (.const ``Html []) es.toList
+    return .app (.const ``Html.ofArray []) children
 
-/-! # html% -/
-
-syntax "html%{" lean_html_syntax* "}" : term
+syntax "html%{" content "}" : term
 
 elab_rules : term
-  | `(term| html%{ $h:lean_html_syntax }) => withRef h do
-    return (← elabContent h).getD (.const ``Html.empty [])
-  | `(term| html%{ $hs:lean_html_syntax* }) => do
-    let hs ← hs.filterMapM fun (h : Content) => withRef h <| elabContent h
-    let hs ← mkArrayLit (.const ``Html []) hs.toList
-    return .app (.const ``Html.ofArray []) hs
+  | `(term| html%{ $h:content }) => elabContent h
+
+end Lean.Elab.Html

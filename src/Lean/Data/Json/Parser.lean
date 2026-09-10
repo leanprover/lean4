@@ -72,24 +72,48 @@ def escapedChar : Parser Char := do
       return ⟨val.toUInt32, Or.inr ⟨Nat.not_lt.mp h', Nat.lt_trans val.toFin.isLt (by decide)⟩⟩
   | _ => fail "illegal \\u escape"
 
-partial def strCore (acc : String) : Parser String := do
-  let c ← peek!
-  if c == '"' then
-    skip
-    return acc
-  else
-    let c ← any
-    if c == '\\' then
-      strCore (acc.push (← escapedChar))
+/--
+Scans a maximal run of literal JSON string characters starting at `it`, i.e. characters other than
+`"`, `\`, or a control character below `U+0020`, and returns the position just past the run. This
+lets `str` copy unescaped substrings in a single allocation rather than character by character.
+-/
+def skipStrChars {s : String} (it : s.Pos) : s.Pos :=
+  if h : ¬it.IsAtEnd then
+    let c := it.get h
     -- as to whether c.val > 0xffff should be split up and encoded with multiple \u,
     -- the JSON standard is not definite: both directly printing the character
     -- and encoding it with multiple \u is allowed. we choose the former.
-    else if 0x0020 <= c.val && c.val <= 0x10ffff then
-      strCore (acc.push c)
+    if c != '"' && c != '\\' && 0x0020 <= c.val && c.val <= 0x10ffff then
+      skipStrChars (it.next h)
+    else
+      it
+  else
+    it
+termination_by it
+
+/--
+Copies the next maximal run of unescaped string characters in a single allocation, leaving the
+position at the terminating character (or end of input).
+-/
+@[inline] def strRun : Parser String := fun it =>
+  let stop := skipStrChars it.2
+  .success ⟨it.1, stop⟩ (String.extract it.2 stop)
+
+@[inline] partial def str : Parser String :=
+  go ""
+where
+  go (acc : String) : Parser String := do
+    -- Scan and copy the next run of unescaped characters in one allocation, only accumulating into
+    -- `acc` across the boundaries that escape sequences force.
+    let run ← strRun
+    let acc := if acc.isEmpty then run else acc ++ run
+    let c ← any
+    if c == '"' then
+      return acc
+    else if c == '\\' then
+      go (acc.push (← escapedChar))
     else
       fail "unexpected character in string"
-
-@[inline] def str : Parser String := strCore ""
 
 partial def natCore (acc : Nat) : Parser Nat := do
   if ← isEof then

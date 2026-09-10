@@ -962,7 +962,7 @@ def ghostBranch (b : Bool) : Id Nat
 `Erased.out`. -/
 
 /--
-error: failed to compile definition: it uses the value of a ghost (`Erased`) variable in compiled code. Ghost values exist for verification only: use them in specifications, `invariant` clauses and `assert`s, or mark the definition 'noncomputable'
+error: failed to compile definition: it depends on 'Erased.out', which recovers the value of a ghost variable. A ghost variable's value is available in specifications such as `invariant` clauses and `assert`s, but not in compiled code. Consider marking the definition as 'noncomputable'.
 -/
 #guard_msgs in
 def ghostLeak (xs : List Nat) : Id Nat := do

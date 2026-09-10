@@ -290,6 +290,64 @@ theorem mulMod_of_invMod?_eq_some {a modulus x : UInt64} (h : invMod? a modulus 
     rw [← UInt64.toNat_inj, toNat_mulMod hm, hx, UInt64.toNat_mod,
       show (1 : UInt64).toNat = 1 from rfl, Nat.mul_comm, hinv, ← hg, hgcd]
 
+private theorem gcd_eq_one_of_mul_mod {A x m : Nat} (hm : 0 < m) (h : A * x % m = 1 % m) :
+    Nat.gcd A m = 1 := by
+  have hd : Nat.gcd A m ∣ 1 % m := by
+    have hsplit : m * (A * x / m) + A * x % m = A * x := Nat.div_add_mod _ _
+    have h1 : Nat.gcd A m ∣ A * x := Nat.dvd_trans (Nat.gcd_dvd_left A m) (Nat.dvd_mul_right A x)
+    have h2 : Nat.gcd A m ∣ m * (A * x / m) :=
+      Nat.dvd_trans (Nat.gcd_dvd_right A m) (Nat.dvd_mul_right m _)
+    have := Nat.dvd_sub h1 h2
+    rwa [show A * x - m * (A * x / m) = 1 % m by omega] at this
+  rcases Nat.lt_or_ge m 2 with hm2 | hm2
+  · have : m = 1 := by omega
+    subst this
+    simp
+  · rw [Nat.mod_eq_of_lt (by omega)] at hd
+    exact Nat.dvd_one.mp hd
+
+/-- Two inverses of the same value that are both reduced modulo `m` are equal. -/
+private theorem inv_unique {A x y m : Nat} (hx : x < m) (hy : y < m)
+    (hax : A * x % m = 1 % m) (hay : A * y % m = 1 % m) : x = y := by
+  have key : x % m = y % m := by
+    calc x % m
+        = x * 1 % m := by rw [Nat.mul_one]
+      _ = x * (1 % m) % m := by rw [Nat.mul_mod_mod]
+      _ = x * (A * y % m) % m := by rw [hay]
+      _ = x * (A * y) % m := by rw [Nat.mul_mod_mod]
+      _ = A * x * y % m := by rw [← Nat.mul_assoc, Nat.mul_comm x A]
+      _ = A * x % m * y % m := by rw [Nat.mod_mul_mod]
+      _ = 1 % m * y % m := by rw [hax]
+      _ = 1 * y % m := by rw [Nat.mod_mul_mod]
+      _ = y % m := by rw [Nat.one_mul]
+  rwa [Nat.mod_eq_of_lt hx, Nat.mod_eq_of_lt hy] at key
+
+/--
+`invMod?` returns exactly the reduced multiplicative inverse. The bound `x < modulus` is needed:
+without it the equation alone would also admit representatives shifted by `modulus`.
+-/
+theorem invMod?_eq_some_iff {a modulus x : UInt64} :
+    invMod? a modulus = some x ↔ x < modulus ∧ mulMod a x modulus = 1 % modulus := by
+  refine ⟨fun h => ⟨lt_of_invMod?_eq_some h, mulMod_of_invMod?_eq_some h⟩, fun ⟨hx, heq⟩ => ?_⟩
+  have hm : modulus ≠ 0 := by
+    rintro rfl
+    exact absurd hx (by simp)
+  have hm0 : 0 < modulus.toNat := Nat.zero_lt_of_ne_zero (toNat_ne_zero hm)
+  have hxm : x.toNat < modulus.toNat := UInt64.lt_iff_toNat_lt.mp hx
+  have heq' : a.toNat * x.toNat % modulus.toNat = 1 % modulus.toNat := by
+    rw [← toNat_mulMod hm, heq, UInt64.toNat_mod, show (1 : UInt64).toNat = 1 from rfl]
+  have hsome := (isSome_invMod? hm).mpr (gcd_eq_one_of_mul_mod hm0 heq')
+  obtain ⟨y, hy⟩ : ∃ y, invMod? a modulus = some y := by
+    cases hi : invMod? a modulus with
+    | none => rw [hi] at hsome; simp at hsome
+    | some y => exact ⟨y, rfl⟩
+  have hyx : y.toNat = x.toNat := by
+    refine inv_unique (UInt64.lt_iff_toNat_lt.mp (lt_of_invMod?_eq_some hy)) hxm ?_ heq'
+    rw [← toNat_mulMod hm, mulMod_of_invMod?_eq_some hy, UInt64.toNat_mod,
+      show (1 : UInt64).toNat = 1 from rfl]
+  rwa [UInt64.toNat_inj.mp hyx] at hy
+
+
 /-! ### Runtime implementations
 
 `powMod` and `invMod?` are defined above using natural-number arithmetic, which allocates for every

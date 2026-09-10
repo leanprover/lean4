@@ -16,7 +16,28 @@ static int check(uint64_t a, uint64_t b, uint64_t modulus) {
 }
 #endif
 
+/* Fixed vectors with precomputed answers. These run on every compiler, so the fallback is still
+   checked on a platform that has no 128-bit type and therefore no oracle to compare against. */
+static int check_fixed(void) {
+    if (lean_uint64_mul_mod(UINT64_C(0), UINT64_C(0), UINT64_C(0)) != UINT64_C(0)) return 0;
+    if (lean_uint64_mul_mod(UINT64_MAX, UINT64_MAX, UINT64_C(0)) != UINT64_C(1)) return 0;
+    if (lean_uint64_mul_mod(UINT64_MAX, UINT64_MAX, UINT64_C(1)) != UINT64_C(0)) return 0;
+    if (lean_uint64_mul_mod(UINT64_MAX, UINT64_MAX,
+            UINT64_C(18446744073709551557)) != UINT64_C(3364)) return 0;
+    if (lean_uint64_mul_mod(UINT64_C(1311768467463790320), UINT64_C(1147797409030816545),
+            UINT64_C(18446744073709551557)) != UINT64_C(7281043754683738406)) return 0;
+    if (lean_uint64_mul_mod(UINT64_C(9223372036854775808), UINT64_C(9223372036854775808),
+            UINT64_MAX) != UINT64_C(4611686018427387904)) return 0;
+    if (lean_uint64_mul_mod(UINT64_C(4294967296), UINT64_C(4294967296),
+            UINT64_C(4294967311)) != UINT64_C(225)) return 0;
+    if (lean_uint64_mul_mod(UINT64_C(3), UINT64_C(5), UINT64_C(7)) != UINT64_C(1)) return 0;
+    if (lean_uint64_mul_mod(UINT64_MAX, UINT64_C(2),
+            UINT64_C(9223372036854775808)) != UINT64_C(9223372036854775806)) return 0;
+    return 1;
+}
+
 int main() {
+    if (!check_fixed()) return 1;
 #if defined(LEAN_TEST_HAS_UINT128)
     if (!check(UINT64_MAX, UINT64_MAX, 0)) return 1;
     if (!check(UINT64_MAX, UINT64_MAX, 1)) return 1;

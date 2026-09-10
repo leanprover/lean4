@@ -126,3 +126,13 @@ example (a m x : UInt64) (h : UInt64.invMod? a m = some x) :
 /-- Chaining the lemmas: modulo a prime, every nonzero residue has an inverse. -/
 example (a : UInt64) (h : UInt64.invMod? a 11 = some 4) : UInt64.mulMod a 4 11 = 1 :=
   UInt64.mulMod_of_invMod?_eq_some h
+
+/-- The converse: the reduced inverse is uniquely determined by its defining equation. -/
+example (a m x : UInt64) (hx : x < m) (heq : UInt64.mulMod a x m = 1 % m) :
+    UInt64.invMod? a m = some x :=
+  UInt64.invMod?_eq_some_iff.mpr ⟨hx, heq⟩
+
+#guard values.all fun a => values.all fun m =>
+  match UInt64.invMod? a m with
+  | none => true
+  | some x => decide (UInt64.invMod? a m = some x)

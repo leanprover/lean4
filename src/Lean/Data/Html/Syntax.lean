@@ -259,7 +259,7 @@ def AttrVal.view [Monad m] [MonadError m] (stx : AttrVal) : m AttrValView :=
   if c.getKind == `str then
     return .str ⟨c⟩
   else if c.getKind == interpKind then
-    return .interp ⟨c⟩
+    return .interp ⟨c[1]⟩
   else
     Elab.throwUnsupportedSyntax
 
@@ -276,7 +276,7 @@ and interpolations of a sequence of attributes {lit}`<tag {... term }/>`. -/
 @[run_parser_attribute_hooks]
 def attr : Parser :=
   node attrKind <|
-    (attrName >> symbol "=" >> attrVal) <|> attrName <|> interp <|> interpMany
+    (attrName >> optional (symbol "=" >> attrVal)) <|> interp <|> interpMany
 
 inductive AttrView where
   | val (name : AttrName) (val : AttrVal)
@@ -286,19 +286,19 @@ inductive AttrView where
   deriving Inhabited
 
 def Attr.view [Monad m] [MonadError m] (stx : Attr) : m AttrView :=
-  let a := stx.raw
-  if a[0].getKind == attrNameKind && a[2].getKind == attrValKind then
-    return .val ⟨a[0]⟩ ⟨a[2]⟩
-  else
-    let c := a[0]
-    if c.getKind == attrNameKind then
+  let c := stx.raw[0]
+  if c.getKind == attrNameKind then
+    let val? := stx.raw[1]
+    if val?.getNumArgs == 0 then
       return .bool ⟨c⟩
-    else if c.getKind == interpKind then
-      return .interp ⟨c⟩
-    else if c.getKind == interpManyKind then
-      return .interpMany ⟨c⟩
     else
-      Elab.throwUnsupportedSyntax
+      return .val ⟨c⟩ ⟨val?[1]⟩
+  else if c.getKind == interpKind then
+    return .interp ⟨c[1]⟩
+  else if c.getKind == interpManyKind then
+    return .interpMany ⟨c[1]⟩
+  else
+    Elab.throwUnsupportedSyntax
 
 /-! ## Elements -/
 
@@ -362,7 +362,7 @@ partial def contentItem.parenthesizer : Parenthesizer := do
   let k := (← Syntax.MonadTraverser.getCur).getKind
   if k == textKind then text.parenthesizer
   else if k == commentKind then comment.parenthesizer
-  else if k == interpKind then interpWith.parenthesizer interpKind "{"
+  else if k == interpKind then interp.parenthesizer
   else if k == elementKind then elementWith.parenthesizer content.parenthesizer
   else throwError "Unexpected syntax node kind `{k}` in HTML content"
 end
@@ -378,7 +378,7 @@ partial def contentItem.formatter : Formatter := do
   let k := (← Syntax.MonadTraverser.getCur).getKind
   if k == textKind then text.formatter
   else if k == commentKind then comment.formatter
-  else if k == interpKind then interpWith.formatter interpKind "{"
+  else if k == interpKind then interp.formatter
   else if k == elementKind then elementWith.formatter content.formatter
   else throwError "Unexpected syntax node kind `{k}` in HTML content"
 end

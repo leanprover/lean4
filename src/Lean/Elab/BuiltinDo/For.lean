@@ -175,20 +175,13 @@ structure ForInApp where
   ghostMutVars : Array MutVar := #[]
 
 /-- Bind the `.out` projection of each ghost variable over `e`, so that an annotation names ghost
-variables at their underlying type. The bindings sit in erased positions, so they compile. -/
+variables at their underlying type. The `+zeta` substitutes the binding away at elaboration, so
+annotation goals carry the projection inline like the compiled body does. -/
 private def ForInApp.wrapErasedProjs (g : ForInApp) (e : Term) : DoElabM Term := do
   let mut e := e
   for mv in g.ghostMutVars do
-    e ← `(let $(mv.ident):ident := Erased.out $(⟨mv.ident.raw⟩); $e)
+    e ← `(let +zeta $(mv.ident):ident := Erased.out $(⟨mv.ident.raw⟩); $e)
   return e
-
-/-- Zeta-substitute the `.out` projection lets of `wrapErasedProjs`, so annotations carry the
-projection inline like the compiled body does. -/
-private partial def zetaErasedProjs (e : Expr) : Expr :=
-  e.replace fun
-    | .letE _ _ v b _ =>
-      if v.isAppOfArity ``Erased.out 2 then some (zetaErasedProjs (b.instantiate1 v)) else none
-    | _ => none
 
 /-- Abstract `e` over the loop's state tuple, so that `e` may name the loop's mutable variables. -/
 private def ForInApp.mkStateFun (g : ForInApp) (e : Term) : DoElabM Term := do
@@ -206,8 +199,7 @@ private def ForInApp.mkCall (g : ForInApp) (ref : Syntax) (gadget : Name)
   let call ← `(open scoped Std.WP Lean.Order in
     $(mkIdent gadget) $(← Term.exprToSyntax g.xs) $(← Term.exprToSyntax g.init)
       $(← Term.exprToSyntax g.body) $annotations*)
-  let e ← Term.elabTermEnsuringType call (mkApp (← read).monadInfo.m g.σ)
-  return zetaErasedProjs (← instantiateMVars e)
+  Term.elabTermEnsuringType call (mkApp (← read).monadInfo.m g.σ)
 
 /-- The binders and body of an `invariant` clause. An ascription covering the binder list would
 cover the loop's binders and the assertion's alike, so it is reported here. -/

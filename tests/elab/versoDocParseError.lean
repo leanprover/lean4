@@ -728,3 +728,56 @@ error: unexpected '*' (use '\*' to escape); expected '![', '$$', '$', '*', '[', 
   discard <| versoDocStringFromString ``truncatedText "* foo\n  thing* bar\n"
 
 end TextWithoutPositions
+
+/-!
+A string argument may not span lines. The error covers the whole literal, and the rest of the
+element parses, in every position that takes arguments.
+-/
+
+/--
+@ +2:18...+3:2
+error: unexpected token; expected a string argument on one line
+-/
+#guard_msgs (positions := true) in
+/--
+A role {lit (x := "a
+b")}`c` here.
+-/
+def roleStringSpansLines := 0
+
+/--
+@ +2:14...+3:2
+error: unexpected token; expected a string argument on one line
+-/
+#guard_msgs (positions := true) in
+/--
+:::note (x := "a
+b")
+Body.
+:::
+-/
+def directiveStringSpansLines := 0
+
+/--
+@ +2:14...+3:2
+error: unexpected token; expected a string argument on one line
+-/
+#guard_msgs (positions := true) in
+/--
+```lean (x := "a
+b")
+def y := 1
+```
+-/
+def codeBlockStringSpansLines := 0
+
+/--
+@ +2:11...+3:2
+error: unexpected token; expected a string argument on one line
+-/
+#guard_msgs (positions := true) in
+/--
+{cmd (x := "a
+b")}
+-/
+def commandStringSpansLines := 0

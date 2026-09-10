@@ -299,41 +299,6 @@ info: recovered parse reprints its input: true
   IO.println s!"recovered parse reprints its input: {reprinted == input}"
 
 /-!
-Between multiline arguments, the run through the last newline belongs to the preceding token's
-trailing whitespace, and the indentation of the line where the next argument resumes belongs to
-that argument's first token as leading whitespace.
--/
-
-/-- The text, leading, and trailing of each token in `stx`, in order. -/
-partial def tokenWhitespace (stx : Syntax) : Array (String × String × String) :=
-  match stx with
-  | .node _ _ args => args.foldl (fun acc a => acc ++ tokenWhitespace a) #[]
-  | .atom (.original lead _ trail _) val =>
-    #[(val, String.Pos.Raw.extract lead.str lead.startPos lead.stopPos,
-       String.Pos.Raw.extract trail.str trail.startPos trail.stopPos)]
-  | .ident (.original lead _ trail _) raw _ _ =>
-    #[(raw.toString, String.Pos.Raw.extract lead.str lead.startPos lead.stopPos,
-       String.Pos.Raw.extract trail.str trail.startPos trail.stopPos)]
-  | _ => #[]
-
-/--
-info: "foo": leading " ", trailing ""
-"a1": leading " ", trailing "\n"
-"a2": leading " ", trailing ""
--/
-#guard_msgs in
-#eval show CommandElabM Unit from do
-  let input := " foo a1\n a2"
-  let ictx := mkInputContext input "<input>"
-  let env : Environment ← mkEmptyEnvironment
-  let s := (nameAndArgsFn (multiline := some 1)).run ictx {env, options := {}}
-    (getTokenTable env) (mkParserState input)
-  unless s.allErrors.isEmpty do throwError "parse errors in {input.quote}"
-  for i in [0:s.stxStack.size] do
-    for (t, l, tr) in tokenWhitespace (s.stxStack.get! i) do
-      IO.println s!"{t.quote}: leading {l.quote}, trailing {tr.quote}"
-
-/-!
 Each line of a code block is one token. The token's leading whitespace is the code block's
 indentation, and indentation past that is part of the token's content. A blank line that is shorter
 than the code block's indentation contributes all of its spaces as leading whitespace.

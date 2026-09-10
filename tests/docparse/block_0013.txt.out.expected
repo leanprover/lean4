@@ -1,0 +1,20 @@
+Input: "{cmd (x := \"a\nb\")}\n"
+Failure: unexpected token; expected a string argument on one line
+ --> 1:11-2:2
+  |
+1 | {cmd (x := "a
+  |            ^^
+  = consumed input prefix: 16 bytes
+Final stack:
+  (Lean.Doc.Parser.Block.command
+   "{"
+   `cmd
+   [(Lean.Doc.Parser.Arg.named
+     "("
+     `x
+     ":="
+     (Lean.Doc.Parser.ArgVal.str <missing>)
+     ")")]
+   "}")
+All input consumed.
+Round-trip not reproduced, as the parse reported errors: leaf without original source info: <missing>

@@ -133,6 +133,7 @@ partial def reduce (code : Code .pure) : ReduceM (Code .pure) := do
     let mask := (← read).paramMask
     if (← read).allUnused then
       argsNew := #[.erased]
+      -- keep over-application
       argsNew := argsNew ++ args.drop mask.size
     else
       for h : i in *...args.size do

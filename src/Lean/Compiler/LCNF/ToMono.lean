@@ -87,7 +87,6 @@ partial def LetValue.toMono (e : LetValue .pure) : ToMonoM (LetValue .pure) := d
       else
         ctorAppToMono ctorInfo args
     else
-      let env ← getEnv
       let args ←
         if let some monoDecl ← getMonoDecl? declName then
           argsToMonoWithFnType args monoDecl.type

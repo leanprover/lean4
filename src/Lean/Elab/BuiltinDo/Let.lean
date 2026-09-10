@@ -181,8 +181,6 @@ partial def elabDoLetOrReassign (config : Term.LetConfig) (letOrReassign : LetOr
     trace[Elab.let.decl] "{id.getId} : {type} := {val}"
     withLetDecl id.getId (kind := kind) type val (nondep := nondep) fun x => do
       Term.addLocalVarInfo id x
-      -- The ghost `.out` projection of `elabWithReassignments` must close before `mkLetFVars`
-      -- binds the carried variable, so it wraps only the continuation.
       match config.eq? with
       | none =>
         let body ← elabWithReassignments letOrReassign vars dec.continueWithUnit
@@ -248,15 +246,14 @@ private def getLetConfigAndCheckMut (letConfigStx : TSyntax ``Parser.Term.letCon
   let `(doGhost| ghost%$tk $[mut%$mutTk?]? $x:ident $[: $t?]? := $e) := stx | throwUnsupportedSyntax
   elabDoLetOrReassign {} (.let mutTk? true) (← `(letDecl| $x:ident $[: $t?]? := $e)) tk dec
 
-@[builtin_doElem_elab Lean.Parser.Term.doGhostArrow] def elabDoGhostArrow : DoElab := fun stx dec => do
-  let `(doGhostArrow| ghost%$tk $[mut%$mutTk?]? $x:ident $[: $t?]? ← $rhs) := stx
-    | throwUnsupportedSyntax
-  checkMutVarsForShadowing #[x]
-  let dec ← dec.ensureUnitAt tk
-  let y := mkIdentFrom x (← mkFreshUserName `__y)
-  elabDoIdDecl y t? rhs
-    (elabDoElem ⟨(← `(doGhost| ghost%$tk $[mut%$mutTk?]? $x:ident := $y)).raw⟩ dec)
-    (kind := dec.kind)
+@[builtin_macro Lean.Parser.Term.doGhostArrow] def expandDoGhostArrow : Macro := fun stx => do
+  match stx with
+  | `(doGhostArrow| ghost%$tk $[mut%$mutTk?]? $x:ident $[: $t?]? ← $rhs) =>
+    let y := mkIdentFrom x (← MonadQuotation.addMacroScope `__x)
+    let letElem ← `(doElem| let $y:ident $[: $t?]? ← $rhs)
+    let ghostElem : TSyntax `doElem := ⟨(← `(doGhost| ghost%$tk $[mut%$mutTk?]? $x:ident := $y)).raw⟩
+    `(doElem| do $letElem:doElem; $ghostElem:doElem)
+  | _ => Macro.throwUnsupported
 
 @[builtin_doElem_elab Lean.Parser.Term.doHave] def elabDoHave : DoElab := fun stx dec => do
   let `(doHave| have%$tk $config:letConfig $decl:letDecl) := stx | throwUnsupportedSyntax

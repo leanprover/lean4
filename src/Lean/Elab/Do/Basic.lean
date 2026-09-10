@@ -649,7 +649,7 @@ fields of the tuple and call `k` in the resulting local context.
 -/
 def bindMutVarsFromTuple (vars : List Name) (tupleVar : FVarId) (k : DoElabM Expr) : DoElabM Expr := do
   let ghosts := (← read).mutVars.filter fun mv => mv.ghost && vars.contains mv.getId
-  -- Like the rebindings themselves, the projections contribute only aliases here.
+  -- Like the ghost rebindings themselves, the projections contribute only aliases here.
   let k := withErasedProjs ghosts k (info := false)
   go vars tupleVar (← tupleVar.getType) #[] k
 where

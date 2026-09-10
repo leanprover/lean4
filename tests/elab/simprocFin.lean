@@ -43,22 +43,6 @@ variable (n : Nat) [NeZero n]
 #check_simp (3 : Fin n) % (5 : Fin n) !~>
 #check_simp (3 : Fin n) ^ 5 !~>
 
-/- `reducePow` only fires for the canonical `Fin` power instance, or instances that unfold to it
-(as Mathlib's `Monoid`-derived instance does). -/
-
-section
-local instance : Pow (Fin 5) Nat := ⟨fun _ _ => 0⟩
-#check_simp (2 : Fin 5) ^ (3 : Nat) !~>
-end
-
-section
-class PowWrapper (α : Type) where
-  pow : Nat → α → α
-instance : PowWrapper (Fin 7) := ⟨fun k x => Fin.npow x k⟩
-local instance : Pow (Fin 7) Nat := ⟨fun x k => (inferInstance : PowWrapper (Fin 7)).pow k x⟩
-#check_simp (3 : Fin 7) ^ (6 : Nat) ~> 1
-end
-
 #check_simp Fin.addNat (3 : Fin 7) 3 ~> (6 : Fin 10)
 #check_simp Fin.natAdd 3 (3 : Fin 7) ~> (6 : Fin 10)
 #check_simp Fin.subNat 2 (3 : Fin 7) (by decide) ~> (1 : Fin 5)

@@ -489,7 +489,7 @@ partial def versoSyntaxToString'
           versoSyntaxToString' arg.raw
       out "\n"
       let i ← read
-      -- The closing fence stands at the start of a line. The contents therefore print as whole
+      -- The closing fence is at the start of a line. The contents therefore print as whole
       -- lines, and the last element of the split is the fence's own indentation.
       let written := v.getVersoCodeBlock
       let contents := if written.isEmpty || written.endsWith "\n" then written else written ++ "\n"

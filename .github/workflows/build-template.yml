@@ -265,6 +265,15 @@ jobs:
           fi
           elan --version  # fails step if not found
           make -C build/$TARGET_STAGE lean4lean
+      - name: Build nanoda
+        if: matrix.release && !matrix.wasm
+        run: |
+          # msys2 hides the runner's preinstalled cargo by trimming the Windows `PATH`
+          if command -v cygpath > /dev/null && [ -n "${USERPROFILE:-}" ]; then
+            export PATH="$(cygpath -u "$USERPROFILE")/.cargo/bin:$PATH"
+          fi
+          cargo --version  # fails step if not found
+          make -C build/$TARGET_STAGE nanoda
       - name: Install
         run: |
           make -C build/$TARGET_STAGE install

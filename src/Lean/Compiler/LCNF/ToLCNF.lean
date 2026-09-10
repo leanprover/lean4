@@ -447,6 +447,8 @@ private def checkComputable (ref : Name) : M Unit := do
   -- `noncomputable section`, where the failure to compile the `_unsafe_rec` version is tolerated and
   -- only that auxiliary is marked `noncomputable`, leaving `ref` itself unmarked.
   if isNoncomputable (← getEnv) ref || isNoncomputable (← getEnv) (mkUnsafeRecName ref) then
+    if ref == `Erased.out then
+      throwNamedError lean.dependsOnNoncomputable m!"failed to compile definition: it uses the value of a ghost (`Erased`) variable in compiled code. Ghost values exist for verification only: use them in specifications, `invariant` clauses and `assert`s, or mark the definition 'noncomputable'"
     throwNamedError lean.dependsOnNoncomputable m!"failed to compile definition, consider marking it as 'noncomputable' because it depends on '{.ofConstName ref}', which is 'noncomputable'"
   else if getOriginalConstKind? (← getEnv) ref matches some .axiom | some .quot | some .induct | some .thm then
     throwNamedError lean.dependsOnNoncomputable f!"`{ref}` not supported by code generator; consider marking definition as `noncomputable`"

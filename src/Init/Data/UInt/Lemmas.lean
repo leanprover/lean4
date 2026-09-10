@@ -3623,3 +3623,56 @@ theorem UInt16.toNat_ofNat_le {n : Nat} : (UInt16.ofNat n).toNat ≤ n := toNat_
 theorem UInt32.toNat_ofNat_le {n : Nat} : (UInt32.ofNat n).toNat ≤ n := toNat_ofNat ▸ Nat.mod_le ..
 theorem UInt64.toNat_ofNat_le {n : Nat} : (UInt64.ofNat n).toNat ≤ n := toNat_ofNat ▸ Nat.mod_le ..
 theorem USize.toNat_ofNat_le {n : Nat} : (USize.ofNat n).toNat ≤ n := toNat_ofNat ▸ Nat.mod_le ..
+
+@[simp] theorem Bool.toNat_toUInt64 (b : Bool) : b.toUInt64.toNat = b.toNat := by
+  cases b <;> rfl
+
+namespace UInt64
+
+@[csimp] theorem mulFull_eq_mulFullImpl : @mulFull = @mulFullImpl := by
+  funext a b
+  simp only [mulFull, mulFullImpl, mulHi, Prod.mk.injEq, and_true]
+  apply UInt64.toNat.inj
+  simp
+
+@[csimp] theorem addCarry_eq_addCarryImpl : @addCarry = @addCarryImpl := by
+  funext a b c
+  have ha : a.toNat < 2 ^ 64 := a.toNat_lt_size
+  have hb : b.toNat < 2 ^ 64 := b.toNat_lt_size
+  have hc := c.toNat_le
+  simp only [addCarry, addCarryImpl, Prod.mk.injEq]
+  constructor
+  · apply UInt64.toNat.inj
+    simp only [UInt64.toNat_ofNat', UInt64.toNat_add, Bool.toNat_toUInt64]
+    omega
+  · rw [Bool.eq_iff_iff]
+    simp only [decide_eq_true_iff, Bool.or_eq_true, UInt64.lt_iff_toNat_lt, UInt64.toNat_add,
+      Bool.toNat_toUInt64, UInt64.size]
+    omega
+
+@[csimp] theorem subBorrow_eq_subBorrowImpl : @subBorrow = @subBorrowImpl := by
+  funext a b c
+  have ha : a.toNat < 2 ^ 64 := a.toNat_lt_size
+  have hb : b.toNat < 2 ^ 64 := b.toNat_lt_size
+  have hc := c.toNat_le
+  by_cases h : b.toNat + c.toNat ≤ a.toNat
+  · simp only [subBorrow, subBorrowImpl, h, ↓reduceIte, Prod.mk.injEq]
+    constructor
+    · apply UInt64.toNat.inj
+      simp only [UInt64.toNat_ofNat', UInt64.toNat_sub, Bool.toNat_toUInt64]
+      omega
+    · rw [Bool.eq_iff_iff]
+      simp only [Bool.false_eq_true, false_iff, Bool.or_eq_true, UInt64.lt_iff_toNat_lt,
+        UInt64.toNat_sub, Bool.toNat_toUInt64, decide_eq_true_iff]
+      omega
+  · simp only [subBorrow, subBorrowImpl, h, ↓reduceIte, Prod.mk.injEq]
+    constructor
+    · apply UInt64.toNat.inj
+      simp only [UInt64.toNat_ofNat', UInt64.toNat_sub, Bool.toNat_toUInt64, UInt64.size]
+      omega
+    · rw [Bool.eq_iff_iff]
+      simp only [true_iff, Bool.or_eq_true, UInt64.lt_iff_toNat_lt, UInt64.toNat_sub,
+        Bool.toNat_toUInt64, decide_eq_true_iff]
+      omega
+
+end UInt64

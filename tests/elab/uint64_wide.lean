@@ -4,7 +4,8 @@ import Lean.Util.TestExtern
 
 /-!
 Tests the wide `UInt64` operations: `mulHi` against its Lean reference implementation, and the
-pair-returning operations against the corresponding `Nat` arithmetic.
+pair-returning operations (compiled via `csimp` to their wrapping-arithmetic implementations)
+against the corresponding `Nat` arithmetic and against the reference definitions by `decide`.
 -/
 
 test_extern UInt64.mulHi 0 0
@@ -22,6 +23,7 @@ def checkMulFull (a b : UInt64) : Bool :=
 #guard checkMulFull 18446744073709551615 18446744073709551615
 #guard checkMulFull 1311768467463790320 1147797409030816545
 #guard UInt64.mulFull 4294967296 4294967296 == (0, 1)
+example : UInt64.mulFull 4294967296 4294967296 = (0, 1) := by decide
 
 def checkAddCarry (a b : UInt64) (carry : Bool) : Bool :=
   let (sum, c) := UInt64.addCarry a b carry
@@ -32,6 +34,7 @@ def checkAddCarry (a b : UInt64) (carry : Bool) : Bool :=
 #guard checkAddCarry 18446744073709551615 18446744073709551615 true
 #guard checkAddCarry 1311768467463790320 1147797409030816545 false
 #guard UInt64.addCarry 18446744073709551615 0 true == (0, true)
+example : UInt64.addCarry 18446744073709551615 0 true = (0, true) := by decide
 
 def checkSubBorrow (a b : UInt64) (borrow : Bool) : Bool :=
   let (diff, c) := UInt64.subBorrow a b borrow
@@ -42,3 +45,4 @@ def checkSubBorrow (a b : UInt64) (borrow : Bool) : Bool :=
 #guard checkSubBorrow 0 18446744073709551615 true
 #guard checkSubBorrow 1311768467463790320 1147797409030816545 false
 #guard UInt64.subBorrow 0 0 true == (18446744073709551615, true)
+example : UInt64.subBorrow 0 0 true = (18446744073709551615, true) := by decide

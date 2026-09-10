@@ -106,7 +106,7 @@ private def wrapGhostDecl (decl : TSyntax ``letDecl) : DoElabM (TSyntax ``letDec
   let `(letDecl| $x:ident $[: $t?]? := $e) := decl
     | throwErrorAt decl "`ghost` takes a variable"
   match t? with
-  | some t => `(letDecl| $x:ident : Erased $t := Erased.mk $e)
+  | some t => `(letDecl| $x:ident : Erased $t := Erased.mk ($e : $t))
   | none   => `(letDecl| $x:ident := Erased.mk $e)
 
 partial def elabDoLetOrReassign (config : Term.LetConfig) (letOrReassign : LetOrReassign) (decl : TSyntax ``letDecl)

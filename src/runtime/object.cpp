@@ -1847,57 +1847,6 @@ extern "C" LEAN_EXPORT uint64 lean_uint64_of_big_nat(b_obj_arg a) {
     return mpz_value(a).mod64();
 }
 
-static uint64 lean_uint64_pow_mod_core(uint64 base, uint64 exponent, uint64 modulus) {
-    uint64 result = 1;
-    while (exponent != 0) {
-        if (exponent & 1) result = lean_uint64_mul_mod(result, base, modulus);
-        exponent >>= 1;
-        if (exponent != 0) base = lean_uint64_mul_mod(base, base, modulus);
-    }
-    return result;
-}
-
-extern "C" LEAN_EXPORT uint64 lean_uint64_pow_mod(uint64 base, b_obj_arg exponent,
-        uint64 modulus) {
-    if (modulus == 1) return 0;
-    if (lean_is_scalar(exponent)) {
-        return lean_uint64_pow_mod_core(base, lean_unbox(exponent), modulus);
-    }
-
-    mpz remaining = mpz_value(exponent);
-    uint64 result = 1;
-    while (!remaining.is_zero()) {
-        if (remaining.mod8() & 1) result = lean_uint64_mul_mod(result, base, modulus);
-        remaining /= 2u;
-        if (!remaining.is_zero()) base = lean_uint64_mul_mod(base, base, modulus);
-    }
-    return result;
-}
-
-extern "C" LEAN_EXPORT obj_res lean_uint64_inv_mod(uint64 a, uint64 modulus) {
-    if (modulus == 0) return lean_box(0);
-
-    uint64 old_r = a % modulus;
-    uint64 r = modulus;
-    uint64 old_s = 1 % modulus;
-    uint64 s = 0;
-    while (r != 0) {
-        uint64 quotient = old_r / r;
-        uint64 next_r = old_r % r;
-        uint64 product = lean_uint64_mul_mod(quotient, s, modulus);
-        uint64 next_s = product <= old_s ? old_s - product : modulus - (product - old_s);
-        old_r = r;
-        r = next_r;
-        old_s = s;
-        s = next_s;
-    }
-    if (old_r != 1) return lean_box(0);
-
-    obj_res result = lean_alloc_ctor(1, 1, 0);
-    lean_ctor_set(result, 0, lean_box_uint64(old_s));
-    return result;
-}
-
 extern "C" LEAN_EXPORT uint64 lean_uint64_mix_hash(uint64 a1, uint64 a2) {
   return hash(a1, a2);
 }

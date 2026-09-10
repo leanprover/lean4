@@ -6,7 +6,9 @@ import Init.Omega
 import Init.WFTactics
 
 /-!
-Tests that the native modular `UInt64` operations agree with their Lean reference implementations.
+Tests the modular `UInt64` operations. `mulMod` is compared against its native implementation;
+`powMod` and `invMod?` are run by the compiler, which uses the `@[csimp]` implementations, and
+compared against reference definitions that the compiler leaves alone.
 -/
 
 private def mulModRef (a b modulus : UInt64) : UInt64 :=
@@ -21,9 +23,33 @@ private def powModRef (base : UInt64) (exponent : Nat) (modulus : UInt64) : UInt
 termination_by exponent
 decreasing_by omega
 
-@[implemented_by UInt64.powMod]
-private def powModExtern (base : UInt64) (exponent : @& Nat) (modulus : UInt64) : UInt64 :=
-  powModRef base exponent modulus
+private def invModRef (a modulus : UInt64) : Option UInt64 :=
+  if modulus = 0 then
+    none
+  else
+    let rec go (oldR r oldS s : Nat) : Nat × Nat :=
+      if _h : r = 0 then
+        (oldR, oldS)
+      else
+        let product := oldR / r * s % modulus.toNat
+        let nextS := if product ≤ oldS then oldS - product else modulus.toNat - (product - oldS)
+        go r (oldR % r) s nextS
+    termination_by r
+    decreasing_by exact Nat.mod_lt _ (Nat.zero_lt_of_ne_zero _h)
+    let (gcd, inverse) := go (a.toNat % modulus.toNat) modulus.toNat (1 % modulus.toNat) 0
+    if gcd = 1 then some (.ofNat inverse) else none
+
+private def values : List UInt64 :=
+  [0, 1, 2, 3, 97, 0xffffffff, 0x100000000, 0x7fffffffffffffff, 0x8000000000000000,
+    18446744073709551557, 0xfffffffffffffffe, 0xffffffffffffffff]
+
+/-- Exponents on both sides of the scalar/big-`Nat` boundary and of the 64-bit chunk boundaries,
+including exponents whose middle chunks are entirely zero. -/
+private def exponents : List Nat :=
+  [0, 1, 2, 31, 2 ^ 31, 2 ^ 63 - 1, 2 ^ 64 - 1, 2 ^ 64, 2 ^ 64 + 1, 2 ^ 128, 2 ^ 128 + 1,
+    2 ^ 192 + 3, 2 ^ 64 * (2 ^ 64 + 1), 2 ^ 256 - 1, 2 ^ 320 + 7]
+
+private def primes : List UInt64 := [97, 1000000007, 2147483647, 18446744073709551557]
 
 test_extern UInt64.mulMod 0 0 0
 test_extern UInt64.mulMod 18446744073709551615 18446744073709551615 0
@@ -31,27 +57,40 @@ test_extern UInt64.mulMod 18446744073709551615 18446744073709551615 1
 test_extern UInt64.mulMod 18446744073709551615 18446744073709551615 18446744073709551557
 test_extern UInt64.mulMod 1311768467463790320 1147797409030816545 18446744073709551557
 
-test_extern powModExtern 3 0 0
-test_extern powModExtern 3 0 5
-test_extern powModExtern 3 4 5
-test_extern powModExtern 18446744073709551615 18446744073709551616 1
-test_extern powModExtern 2 10 1000
-test_extern powModExtern 18446744073709551615 3 0
-test_extern powModExtern 1311768467463790320 123456789 18446744073709551557
-test_extern powModExtern 3 9223372036854775807 97
-test_extern powModExtern 3 9223372036854775808 97
-test_extern powModExtern 3 18446744073709551616 97
-test_extern powModExtern 3 18446744073709563961 18446744073709551557
+private def mulModAgrees : Bool :=
+  values.all fun a => values.all fun b => values.all fun m =>
+    UInt64.mulMod a b m == mulModRef a b m
 
-test_extern UInt64.invMod? 3 11
-test_extern UInt64.invMod? 1 0
-test_extern UInt64.invMod? 6 15
-test_extern UInt64.invMod? 0 1
-test_extern UInt64.invMod? 0 7
-test_extern UInt64.invMod? 18446744073709551614 18446744073709551615
-test_extern UInt64.invMod? 18446744073709551556 18446744073709551557
-test_extern UInt64.invMod? 2 18446744073709551615
-test_extern UInt64.invMod? 1311768467463790320 18446744073709551557
+private def powModAgrees : Bool :=
+  values.all fun base => values.all fun m => exponents.all fun e =>
+    UInt64.powMod base e m == powModRef base e m
+
+private def invModAgrees : Bool :=
+  values.all fun a => values.all fun m => UInt64.invMod? a m == invModRef a m
+
+/-- An inverse exists exactly when the arguments are coprime. -/
+private def invModExists : Bool :=
+  values.all fun a => values.all fun m =>
+    m == 0 || (UInt64.invMod? a m).isSome == (Nat.gcd a.toNat m.toNat == 1)
+
+/-- Every returned inverse is reduced and satisfies the defining equation. -/
+private def invModSound : Bool :=
+  values.all fun a => values.all fun m =>
+    match UInt64.invMod? a m with
+    | none => true
+    | some x => x < m && a.toNat * x.toNat % m.toNat == 1 % m.toNat
+
+/-- Fermat's little theorem, which does not depend on either implementation. -/
+private def fermat : Bool :=
+  primes.all fun p => values.all fun a =>
+    a % p == 0 || UInt64.powMod a (p.toNat - 1) p == 1
+
+#guard mulModAgrees
+#guard powModAgrees
+#guard invModAgrees
+#guard invModExists
+#guard invModSound
+#guard fermat
 
 #guard UInt64.mulMod 18446744073709551615 18446744073709551615 18446744073709551557 == 3364
 #guard UInt64.powMod 3 18446744073709551616 97 == 61

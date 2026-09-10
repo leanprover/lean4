@@ -26,7 +26,7 @@ Builds and exports Lean code, then establishes that it is accepted by the kernel
 is a challenge to compare against, that it proves the challenge's statements using no axiom outside
 a whitelist. This backs `lake challenge` and `lake check`.
 
-The code being judged is adversarial input: it is built and exported inside a `landrun` sandbox,
+The code being judged is adversarial input: it is built and exported inside a `bwrap` sandbox,
 and no `.olean` produced from it is ever mapped into the process that reports the verdict. Only the
 resulting NDJSON export crosses the boundary.
 -/
@@ -40,6 +40,8 @@ public structure Context where
   theoremNames : Array Lean.Name
   definitionNames : Array Lean.Name
   legalAxioms : Array Lean.Name
+  /-- Bound into the sandbox: an `elan` toolchain lives under the home directory it covers. -/
+  leanPrefix : System.FilePath
   /-- The workspace's `LEAN_PATH`. Empty until `safeResolveWorkspace` records it. -/
   leanPath : String
   /--
@@ -47,23 +49,40 @@ public structure Context where
   until `safeResolveWorkspace` records it.
   -/
   binPath : String
-  whichLandrun : String
+  whichSandbox : String
   whichLake : System.FilePath
+  /--
+  Bound into the sandbox. Redundant for a Lake co-located with the toolchain, but a Lake installed
+  on its own keeps its `.olean`s outside `leanPrefix`, and cannot detect its own configuration
+  without them.
+  -/
+  lakeHome : System.FilePath
   whichLean4Export : System.FilePath
   whichLeanChecker : System.FilePath
+  whichEnvBin : System.FilePath
   externalKernels : (Std.TreeMap String (Array String))
 
 public abbrev M := ReaderT Context IO
 
-structure LandrunArgs where
+structure SandboxArgs where
   cmd : String
   args : Array String
   envPass : Array String
   envOverride : Array (String × Option String) := #[]
+  /-- Bound back read-only over the covered home directories, so the run can still read these. -/
   readablePaths : Array System.FilePath
   writablePaths : Array System.FilePath
-  /-- TCP ports the child may connect to. Landrun denies all of them by default. -/
-  connectPorts : Array String := #[]
+  /--
+  Paths that get masked with a tmpfs so they exist but do not have the same content as the host
+  system.
+  -/
+  tmpfsPaths : Array System.FilePath
+  /-- Whether the child gets a network at all. `bwrap` cannot narrow one to particular ports. -/
+  network : Bool := false
+  /--
+  Different working directory for the sandboxed process to operate in.
+  -/
+  cwd : Option System.FilePath := none
 
 @[inline]
 def getExternalKernels : M (Std.TreeMap String (Array String)) := do return (← read).externalKernels
@@ -76,6 +95,12 @@ def getDefinitionNames : M (Array Lean.Name) := do return (← read).definitionN
 
 @[inline]
 def getProjectDir : M System.FilePath := do return (← read).projectDir
+
+@[inline]
+def getLeanPrefix : M System.FilePath := do return (← read).leanPrefix
+
+@[inline]
+def getLakeHome : M System.FilePath := do return (← read).lakeHome
 
 @[inline]
 def getChallengeModule : M Lean.Name := do return (← read).challengeModule
@@ -96,50 +121,121 @@ def whichExe (exe : String) : IO (Option System.FilePath) := do
   let path := out.stdout.trimAscii.toString
   return if path.isEmpty then none else some (path : System.FilePath)
 
-def missingLandrunError (cmd exe : String) : String :=
+def missingSandboxError (cmd exe : String) : String :=
 s!"`lake {cmd}` needs `{exe}` to sandbox the code it checks, and it was not found.
 
-  Install it from https://github.com/Zouuup/landrun (build from `main`)
-  and put it on PATH, or set COMPARATOR_LANDRUN to its full path.
+  Install `bubblewrap` from your distribution and put `bwrap` on PATH, or set
+  COMPARATOR_BWRAP to its full path. It needs either unprivileged user
+  namespaces or a `bwrap` installed setuid root, which is how distributions
+  that disable them ship it.
 
   There is no unsandboxed mode: the code being checked is untrusted, and it
   is built and exported inside the sandbox."
 
-def buildLandrunArgs (spawnArgs : LandrunArgs) : Array String :=
-  -- Landlock rules are additive, so `--rox /` is read plus execute everywhere, narrowed back only
-  -- by what is granted write access below. Naming executables individually would not confine them:
-  -- Landlock checks execute permission at `execve`, on the binary and the ELF interpreter, and the
-  -- loader will run any dynamically linked binary passed to it as an argument, mapping it with read
-  -- access alone. See `helpChallenge` for what the sandbox does and does not bound.
-  let args := #["--best-effort", "--rox", "/", "--rw", "/dev"]
-  let args := spawnArgs.envPass.foldl (init := args) (fun acc env => acc ++ #["--env", env])
-  let args := spawnArgs.readablePaths.foldl (init := args) (fun acc path => acc ++ #["--ro", path.toString])
-  let args := spawnArgs.writablePaths.foldl (init := args) (fun acc path => acc ++ #["--rwx", path.toString])
-  let args := spawnArgs.connectPorts.foldl (init := args) (fun acc port => acc ++ #["--connect-tcp", port])
+/-- The environment the sandboxed child runs with; `envOverride` wins over `envPass`. -/
+def sandboxEnv (spawnArgs : SandboxArgs) : IO (Array (String × String)) := do
+  let mut env := #[]
+  for name in spawnArgs.envPass do
+    if let some value ← IO.getEnv name then
+      env := env.push (name, value)
+  for (name, value?) in spawnArgs.envOverride do
+    env := env.filter (·.1 != name)
+    if let some value := value? then
+      env := env.push (name, value)
+  return env
+
+/--
+Builds the `bwrap` command line.
+
+`/` is bound read-only and the home directories are then covered with a `tmpfs`, so the code being
+judged is built against the system it expects while none of the invoking user's files are readable.
+Mounts apply in order, so `readablePaths` binds back what the run does need on top of those covers.
+Only the paths in `writablePaths` are writable, and the network is a namespace rather than a filter:
+a run either has one or has none at all.
+-/
+def buildSandboxArgs (spawnArgs : SandboxArgs) (env : Array (String × String))
+    (projectDir : System.FilePath) : Array String :=
+  let args := #[
+    "--ro-bind", "/", "/",
+    "--tmpfs", "/home",
+    "--tmpfs", "/root",
+    "--tmpfs", "/run/user",
+    "--tmpfs", "/tmp",
+    "--dir", "/tmp/home",
+    "--dev", "/dev",
+    "--proc", "/proc",
+    "--clearenv"
+  ]
+  let args := spawnArgs.tmpfsPaths.foldl (init := args)
+    (fun acc path => acc ++ #["--tmpfs", path.toString])
+  let args := spawnArgs.readablePaths.foldl (init := args)
+    (fun acc path => acc ++ #["--ro-bind", path.toString, path.toString])
+  let args := spawnArgs.writablePaths.foldl (init := args)
+    (fun acc path => acc ++ #["--bind", path.toString, path.toString])
+  let args := env.foldl (init := args) (fun acc (name, value) => acc ++ #["--setenv", name, value])
+  -- Set last, so it wins over an inherited one: the invoking user's `HOME` is no longer there to
+  -- point at, and `git` and Lake's caches want somewhere writable. This one goes with the run.
+  let args := args ++ #[
+    "--setenv", "HOME", "/tmp/home",
+    "--unshare-all",
+    "--die-with-parent",
+    "--new-session"
+  ]
+  let args := if spawnArgs.network then args ++ #["--share-net"] else args
+  let args :=
+    if let some cwd := spawnArgs.cwd then
+      args ++ #["--chdir", cwd.toString]
+    else
+      args ++ #["--chdir", projectDir.toString]
   args ++ #["--", spawnArgs.cmd] ++ spawnArgs.args
 
-/-- The `landrun` invocation that puts `spawnArgs` under the sandbox. -/
-def landrunSpawnArgs (spawnArgs : LandrunArgs) : M IO.Process.SpawnArgs := do
+/-- The `bwrap` invocation that puts `spawnArgs` under the sandbox. -/
+def sandboxSpawnArgs (spawnArgs : SandboxArgs) : M IO.Process.SpawnArgs := do
   return {
-    cmd := (← read).whichLandrun
-    args := buildLandrunArgs spawnArgs
-    env := spawnArgs.envOverride
+    cmd := (← read).whichEnvBin.toString
+    args :=
+      #["-i", (← read).whichSandbox]
+        ++ buildSandboxArgs spawnArgs (← sandboxEnv spawnArgs) (← getProjectDir)
     cwd := ← getProjectDir
   }
 
-def runSandBoxedWithStdout (spawnArgs : LandrunArgs) : M String := do
-  let { stdout, stderr, exitCode } ← IO.Process.output (← landrunSpawnArgs spawnArgs)
+open IO.Process in
+partial def runSandBoxedWithStdoutTo (handle : IO.FS.Handle) (spawnArgs : SandboxArgs) : M Unit := do
+  let (stderr, exitCode) ← pipedOutput (← sandboxSpawnArgs spawnArgs)
+  IO.eprint stderr
+  if exitCode != 0 then
+    throw <| .userError s!"Child exited with {exitCode}"
+where
+  pipedOutput (args : SpawnArgs) : IO (String × UInt32) := do
+    let child ← spawn { args with stdout := .piped, stderr := .piped, stdin := .null }
+    let stdout ← IO.asTask (prio := .dedicated) do
+      let rec loop : IO Unit := do
+        let buf ← child.stdout.read 4096
+        if buf.isEmpty then
+          handle.flush
+          return ()
+        else
+          handle.write buf
+          loop
+      loop
+    let stderr ← child.stderr.readToEnd
+    let exitCode ← child.wait
+    discard <| IO.ofExcept stdout.get
+    return (stderr, exitCode)
+
+def runSandBoxedWithStdout (spawnArgs : SandboxArgs) : M String := do
+  let { stdout, stderr, exitCode } ← IO.Process.output (← sandboxSpawnArgs spawnArgs)
   IO.eprint stderr
   if exitCode != 0 then
     throw <| .userError s!"Child exited with {exitCode}"
   return stdout
 
 /-- Runs `spawnArgs` sandboxed, letting its output through, and returns its exit code. -/
-def runSandBoxedExitCode (spawnArgs : LandrunArgs) : M UInt32 := do
-  let proc ← IO.Process.spawn (← landrunSpawnArgs spawnArgs)
+def runSandBoxedExitCode (spawnArgs : SandboxArgs) : M UInt32 := do
+  let proc ← IO.Process.spawn (← sandboxSpawnArgs spawnArgs)
   proc.wait
 
-def runSandBoxed (spawnArgs : LandrunArgs) : M Unit := do
+def runSandBoxed (spawnArgs : SandboxArgs) : M Unit := do
   let ret ← runSandBoxedExitCode spawnArgs
   if ret != 0 then
     throw <| .userError s!"Child exited with {ret}"
@@ -165,12 +261,13 @@ def safeResolveWorkspace : M (String × String) := do
   let out ← runSandBoxedWithStdout {
     cmd := whichLake.toString,
     args := #["env"],
-    envPass := #["PATH", "HOME", "LEAN_ABORT_ON_PANIC"]
+    envPass := #["PATH", "LEAN_ABORT_ON_PANIC"]
     envOverride := #[("LEAN_ABORT_ON_PANIC", some "1")]
-    readablePaths := #[projectDir]
+    readablePaths := #[projectDir, ← getLeanPrefix, ← getLakeHome]
     writablePaths := #[dotLakeDir]
-    -- `https` and `ssh`, the transports Lake's git dependencies use.
-    connectPorts := #["443", "22"]
+    tmpfsPaths := #[]
+    -- Fetching git dependencies is the one thing here that has to reach out.
+    network := true
   }
 
   let mut leanPath := ""
@@ -202,11 +299,14 @@ def safeResolveDeps : M Unit := do
     args := #["resolve-deps"],
     envPass := #["PATH", "HOME", "LEAN_ABORT_ON_PANIC"]
     envOverride := #[("LEAN_ABORT_ON_PANIC", some "1")]
-    readablePaths := #[projectDir]
+    readablePaths := #[projectDir, ← getLeanPrefix, ← getLakeHome]
     writablePaths := #[dotLakeDir]
-    -- `https` and `ssh`, the transports Lake's git dependencies use.
-    connectPorts := #["443", "22"]
+    tmpfsPaths := #[]
+    -- Fetching git dependencies is the one thing here that has to reach out.
+    network := true
   }
+
+def forbiddenPaths : Array System.FilePath := #["/run", "/var"]
 
 /--
 Builds and exports the project in one sandboxed `lake` process, and returns the export.
@@ -215,17 +315,20 @@ Builds and exports the project in one sandboxed `lake` process, and returns the 
 so the modules to check never cross a process boundary: it resolves them, builds them and dumps the
 export itself, writing the export to stdout and everything else to stderr.
 -/
-def safeBuildAndExport : M String := do
+def withSafeBuildAndExport (f : System.FilePath → M α) : M α := do
   IO.println "Building and exporting"
   let projectDir ← getProjectDir
-  runSandBoxedWithStdout {
-    cmd := (← read).whichLake.toString,
-    args := #["check"],
-    envPass := #["PATH", "HOME", "LEAN_ABORT_ON_PANIC"]
-    envOverride := #[("LEAN_ABORT_ON_PANIC", some "1"), ("LAKE_CHECK_EXPORT", some "1")]
-    readablePaths := #[projectDir]
-    writablePaths := #[projectDir / ".lake"]
-  }
+  IO.FS.withTempFile fun handle path => do
+    runSandBoxedWithStdoutTo handle {
+      cmd := (← read).whichLake.toString,
+      args := #["check"],
+      envPass := #["PATH", "HOME", "LEAN_ABORT_ON_PANIC"]
+      envOverride := #[("LEAN_ABORT_ON_PANIC", some "1"), ("LAKE_CHECK_EXPORT", some "1")]
+      readablePaths := #[projectDir, ← getLeanPrefix, ← getLakeHome]
+      writablePaths := #[projectDir / ".lake"]
+      tmpfsPaths := forbiddenPaths
+    }
+    f path
 
 def safeLakeBuild (targets : Array Lean.Name) : M Unit := do
   let targetArgs := targets.map (·.toString)
@@ -241,36 +344,40 @@ def safeLakeBuild (targets : Array Lean.Name) : M Unit := do
   runSandBoxed {
     cmd := whichLake.toString,
     args := #["build"] ++ targetArgs,
-    envPass := #["PATH", "HOME", "LEAN_ABORT_ON_PANIC"]
+    envPass := #["PATH", "LEAN_ABORT_ON_PANIC"]
     envOverride := #[("LEAN_ABORT_ON_PANIC", some "1")]
-    readablePaths := #[projectDir]
+    readablePaths := #[projectDir, ← getLeanPrefix, ← getLakeHome]
     writablePaths := #[dotLakeDir]
+    tmpfsPaths := forbiddenPaths
   }
 
 /-- Runs the bundled exporter in the sandbox, with the grants every export needs. -/
-def runExporter (args : Array String) : M String := do
+def withRunExporter (args : Array String) (f : System.FilePath → M α) : M α := do
   let projectDir ← getProjectDir
   let whichLean4Export := (← read).whichLean4Export
-  runSandBoxedWithStdout {
-    cmd := whichLean4Export.toString
-    args
-    envPass := #["PATH", "HOME", "LEAN_PATH", "LEAN_ABORT_ON_PANIC"]
-    envOverride := #[("LEAN_ABORT_ON_PANIC", some "1"), ("LEAN_PATH", some (← read).leanPath),
-      ("PATH", some (← read).binPath)]
-    readablePaths := #[projectDir, projectDir / ".lake"]
-    writablePaths := #[]
-  }
+  IO.FS.withTempFile fun exportHandle exportPath => do
+    runSandBoxedWithStdoutTo exportHandle {
+      cmd := whichLean4Export.toString
+      args
+      envPass := #["PATH", "LEAN_PATH", "LEAN_ABORT_ON_PANIC"]
+      envOverride := #[("LEAN_ABORT_ON_PANIC", some "1"), ("LEAN_PATH", some (← read).leanPath),
+        ("PATH", some (← read).binPath)]
+      readablePaths := #[projectDir, projectDir / ".lake", ← getLeanPrefix, whichLean4Export]
+      writablePaths := #[]
+      tmpfsPaths := forbiddenPaths
+    }
+    f exportPath
 
-def safeExport (module : Lean.Name) (decls : Array Lean.Name) : M String := do
+def withSafeExport (module : Lean.Name) (decls : Array Lean.Name) (f : System.FilePath → M α) :
+    M α := do
   IO.println s!"Exporting {decls} from {module}"
-  runExporter <| #[module.toString, "--"] ++ decls.map (·.toString)
+  withRunExporter (#[module.toString, "--"] ++ decls.map (·.toString)) f
 
 def runExternalKernel (kernelName : String) (kernelCommand : Array String)
-    (solutionExport : String) : M (Option String) := do
+    (solutionPath : System.FilePath) : M (Option String) := do
   IO.println s!"Running {kernelName} kernel on solution"
   -- just always put out a nanoda-like config file for now
   IO.FS.withTempFile fun configHandle configPath => do
-  IO.FS.withTempFile fun solutionHandle solutionPath => do
     let legalAxioms ← getLegalAxioms
     configHandle.putStr <| Lean.Json.compress <| Lean.Json.mkObj [
       ("use_stdin", false),
@@ -283,22 +390,24 @@ def runExternalKernel (kernelName : String) (kernelCommand : Array String)
     ]
     configHandle.flush
 
-    solutionHandle.putStr solutionExport
-    solutionHandle.flush
-
     let mut kernelArgs := kernelCommand[1...*].toArray
     if isNanodaKernel kernelName then
       kernelArgs := kernelArgs.push configPath.toString
     else
       kernelArgs := kernelArgs.push solutionPath.toString
 
+    -- Resolved rather than left to `PATH`: an external kernel installed under the home directory
+    -- the sandbox covers has to be bound back, which needs its path.
+    let kernelExe := (← whichExe kernelCommand[0]!).getD kernelCommand[0]!
     let spawnArgs := {
-      cmd := kernelCommand[0]!,
+      cmd := kernelExe.toString,
       args := kernelArgs,
       envPass := #["LEAN_ABORT_ON_PANIC"],
       envOverride := #[("LEAN_ABORT_ON_PANIC", some "1")]
-      readablePaths := #[configPath.toString, solutionPath.toString]
+      readablePaths := #[configPath.toString, solutionPath.toString, kernelExe, ← getLeanPrefix]
       writablePaths := #[]
+      tmpfsPaths := forbiddenPaths
+      cwd := some "/tmp"
     }
     try
       let ret ← runSandBoxedExitCode spawnArgs
@@ -316,8 +425,9 @@ where
     -- TODO: get rid of this heuristic
     kernelName.contains "noda"
 
-def runBuiltinKernel (solutionExport : String) : M (Option String) := do
-  runExternalKernel "Lean default" #[(← read).whichLeanChecker.toString, "--from-export"] solutionExport
+def runBuiltinKernel (solutionPath : System.FilePath) : M (Option String) := do
+  let cmd := #[(← read).whichLeanChecker.toString, "--silent", "--from-export"]
+  runExternalKernel "Lean default" cmd solutionPath
 
 def primitiveTargets : M (Array Lean.Name) := do
   -- The challenge needs to have all the built-in constants of the kernel, as the
@@ -360,27 +470,27 @@ def builtinTargets : M (Array Lean.Name) := do
     additional := additional ++ #[``Quot, ``Quot.mk, ``Quot.lift, ``Quot.ind]
   return additional
 
-def stringStream (s : String) : BaseIO IO.FS.Stream := do
-  let ref ← IO.mkRef {
-    data := s.toByteArray
-  }
-  return IO.FS.Stream.ofBuffer ref
-
-def verifyMatch (challengeExport : String) (solutionExport : String) :
+def verifyMatch (challengeExportPath : System.FilePath) (solutionExportPath : System.FilePath) :
     M Unit := do
-  let challenge ← LeanExport.parseStream (← stringStream challengeExport)
-  let solution ← LeanExport.parseStream (← stringStream solutionExport)
-  let theoremNames ← getTheoremNames
-  let definitionNames ← getDefinitionNames
-  let targets := (← getTheoremNames) ++ (← getLegalAxioms)
-  IO.ofExcept <| compareAt challenge solution targets definitionNames (← primitiveTargets)
-  IO.ofExcept <| checkAxioms solution theoremNames definitionNames (← getLegalAxioms)
-  let mut result := none
-  for (kernelName, kernelCommand) in ← getExternalKernels do
-    result := result <|> (← runExternalKernel kernelName kernelCommand solutionExport)
-  result := result <|> (← runBuiltinKernel solutionExport)
-  if let some error := result then
-    throw <| IO.userError error
+  verifyCompare
+  verifyKernels
+where
+  verifyCompare : M Unit := do
+    let challenge ← LeanExport.parseStream <| .ofHandle (← IO.FS.Handle.mk challengeExportPath .read)
+    let solution ← LeanExport.parseStream <| .ofHandle (← IO.FS.Handle.mk solutionExportPath .read)
+    let theoremNames ← getTheoremNames
+    let definitionNames ← getDefinitionNames
+    let targets := (← getTheoremNames) ++ (← getLegalAxioms)
+    IO.ofExcept <| compareAt challenge solution targets definitionNames (← primitiveTargets)
+    IO.ofExcept <| checkAxioms solution theoremNames definitionNames (← getLegalAxioms)
+
+  verifyKernels : M Unit := do
+    let mut result := none
+    for (kernelName, kernelCommand) in ← getExternalKernels do
+      result := result <|> (← runExternalKernel kernelName kernelCommand solutionExportPath)
+    result := result <|> (← runBuiltinKernel solutionExportPath)
+    if let some error := result then
+      throw <| IO.userError error
 
 public def compareIt : M Unit := do
   let exportTargets := (← builtinTargets) ++ (← getTheoremNames) ++ (← getLegalAxioms)
@@ -388,15 +498,12 @@ public def compareIt : M Unit := do
 
   let challengeModule ← getChallengeModule
   safeLakeBuild #[challengeModule]
-  let challengeExport ← safeExport challengeModule exportTargets
-
-  let solutionModule ← getSolutionModule
-  safeLakeBuild #[solutionModule]
-  let solutionExport ← safeExport solutionModule exportTargets
-
-  verifyMatch challengeExport solutionExport
-
-  IO.println "Your solution is okay!"
+  withSafeExport challengeModule exportTargets fun challengeExportPath => do
+    let solutionModule ← getSolutionModule
+    safeLakeBuild #[solutionModule]
+    withSafeExport solutionModule exportTargets fun solutionExportPath => do
+      verifyMatch challengeExportPath solutionExportPath
+      IO.println "Your solution is okay!"
 
 public structure Config where
   challenge_module : String
@@ -434,18 +541,20 @@ def mkContext (cmd : String) (lean : LeanInstall) (lake : LakeInstall)
     (projectDir : System.FilePath) : IO (Except ExitCode Context) := do
   if !System.Platform.isLinux then
     return .error (← cannotRun
-      s!"`lake {cmd}` sandboxes the code it checks with `landrun`, which needs Linux Landlock. \
+      s!"`lake {cmd}` sandboxes the code it checks with `bwrap`, which needs Linux namespaces. \
       There is no unsandboxed mode, so the command is unavailable on this platform.")
 
-  let whichLandrun := (← IO.getEnv "COMPARATOR_LANDRUN").getD "landrun"
-  let some landrunPath ← whichExe whichLandrun
-    | return .error (← cannotRun (missingLandrunError cmd whichLandrun))
+  let whichSandbox := (← IO.getEnv "COMPARATOR_BWRAP").getD "bwrap"
+  let some sandboxPath ← whichExe whichSandbox
+    | return .error (← cannotRun (missingSandboxError cmd whichSandbox))
   -- Always the bundled exporter: the export format has to match the compiler that produced the
   -- oleans, so letting this be pointed elsewhere would reintroduce the toolchain-pinning problem.
   let whichLean4Export := lean.binDir / "leanexport" |>.addExtension System.FilePath.exeExtension
   let whichLeanChecker := lean.binDir / "leanchecker" |>.addExtension System.FilePath.exeExtension
   let some _ ← whichExe "git"
     | return .error (← cannotRun s!"`lake {cmd}` needs `git` on PATH to build inside the sandbox")
+  let some envBinPath ← whichExe "env"
+    | return .error (← cannotRun s!"`lake {cmd}` needs `env` on PATH to build inside the sandbox")
 
   return .ok {
     projectDir := ← IO.FS.realPath projectDir
@@ -454,12 +563,15 @@ def mkContext (cmd : String) (lean : LeanInstall) (lake : LakeInstall)
     theoremNames := #[]
     definitionNames := #[]
     legalAxioms := #[]
+    leanPrefix := lean.sysroot
     leanPath := ""
     binPath := ""
-    whichLandrun := landrunPath.toString
+    whichSandbox := sandboxPath.toString
     whichLake := lake.lake
+    lakeHome := lake.home
     whichLean4Export
     whichLeanChecker
+    whichEnvBin := envBinPath
     externalKernels := {}
   }
 
@@ -497,11 +609,11 @@ def checkUsedAxioms (exported : LeanExport.ExportedEnv) : M Unit := do
 /-- Checks a set of module roots at once against the kernel with no challenge to compare it to. -/
 def checkProject : M Unit := do
   safeResolveDeps
-  let exportedString ← safeBuildAndExport
-  if let some error ← runBuiltinKernel exportedString then
-    throw <| .userError error
-  let exported ← LeanExport.parseStream (← stringStream exportedString)
-  checkUsedAxioms exported
+  withSafeBuildAndExport fun exportPath => do
+    if let some error ← runBuiltinKernel exportPath then
+      throw <| .userError error
+    let exported ← LeanExport.parseStream <| .ofHandle (← IO.FS.Handle.mk exportPath .read)
+    checkUsedAxioms exported
 
 /--
 Runs `lake challenge`: builds and exports the challenge and the solution in a sandbox, then judges

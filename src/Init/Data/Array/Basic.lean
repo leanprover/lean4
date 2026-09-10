@@ -315,7 +315,7 @@ Examples:
 def isEmpty (xs : Array α) : Bool :=
   xs.size = 0
 
-@[specialize]
+@[specialize, expose]
 def isEqvAux (xs ys : Array α) (hsz : xs.size = ys.size) (p : α → α → Bool) :
     ∀ (i : Nat) (_ : i ≤ xs.size), Bool
   | 0, _ => true
@@ -332,7 +332,7 @@ Examples:
 * `#[1, 2, 3].isEqv #[2, 2, 4] (· < ·) = false`
 * `#[1, 2, 3].isEqv #[2, 3] (· < ·) = false`
 -/
-@[inline] def isEqv (xs ys : Array α) (p : α → α → Bool) : Bool :=
+@[inline, expose] def isEqv (xs ys : Array α) (p : α → α → Bool) : Bool :=
   if h : xs.size = ys.size then
     isEqvAux xs ys h p xs.size (Nat.le_refl xs.size)
   else
@@ -353,7 +353,7 @@ Examples:
  * `Array.ofFn (n := 3) toString = #["0", "1", "2"]`
  * `Array.ofFn (fun i => #["red", "green", "blue"].get i.val i.isLt) = #["red", "green", "blue"]`
 -/
-def ofFn {n} (f : Fin n → α) : Array α := go (emptyWithCapacity n) n (Nat.le_refl n) where
+@[expose] def ofFn {n} (f : Fin n → α) : Array α := go (emptyWithCapacity n) n (Nat.le_refl n) where
   /-- Auxiliary for `ofFn`. `ofFn.go f acc i h = acc ++ #[f (n - i), ..., f(n - 1)]` -/
   go (acc : Array α) : (i : Nat) → i ≤ n → Array α
   | i + 1, h =>
@@ -547,7 +547,7 @@ It was 3
 #[1, 2, 3, 4]
 ```
 -/
-@[implemented_by modifyMUnsafe]
+@[implemented_by modifyMUnsafe, expose]
 def modifyM [Monad m] (xs : Array α) (i : Nat) (f : α → m α) : m (Array α) := do
   if h : i < xs.size then
     let v   := xs[i]
@@ -565,7 +565,7 @@ Examples:
  * `#[1, 2, 3].modify 2 (· * 10) = #[1, 2, 30]`
  * `#[1, 2, 3].modify 3 (· * 10) = #[1, 2, 3]`
 -/
-@[inline]
+@[inline, expose]
 def modify (xs : Array α) (i : Nat) (f : α → α) : Array α :=
   Id.run <| modifyM xs i (pure <| f ·)
 
@@ -776,7 +776,7 @@ Applies the monadic action `f` to every element in the array, left-to-right, and
 of results.
 -/
 -- Reference implementation for `mapM`
-@[implemented_by mapMUnsafe]
+@[implemented_by mapMUnsafe, expose]
 def mapM {α : Type u} {β : Type v} {m : Type v → Type w} [Monad m] (f : α → m β) (as : Array α) : m (Array β) :=
   -- Note: we cannot use `foldlM` here for the reference implementation because this calls
   -- `bind` and `pure` too many times. (We are not assuming `m` is a `LawfulMonad`)
@@ -1998,7 +1998,7 @@ def isPrefixOf [BEq α] (as bs : Array α) : Bool :=
   else
     false
 
-@[specialize]
+@[specialize, expose]
 def zipWithMAux {m : Type v → Type w} [Monad m] (as : Array α) (bs : Array β) (f : α → β → m γ) (i : Nat) (cs : Array γ) : m (Array γ) := do
   if h : i < as.size then
     let a := as[i]
@@ -2021,7 +2021,7 @@ Examples:
 * `#[].zipWith (· + ·) #[5, 6] = #[]`
 * `#[x₁, x₂, x₃].zipWith f #[y₁, y₂, y₃, y₄] = #[f x₁ y₁, f x₂ y₂, f x₃ y₃]`
 -/
-@[inline] def zipWith (f : α → β → γ) (as : Array α) (bs : Array β) : Array γ :=
+@[inline, expose] def zipWith (f : α → β → γ) (as : Array α) (bs : Array β) : Array γ :=
   Id.run (zipWithMAux as bs (pure <| f · ·) 0 #[])
 
 /--

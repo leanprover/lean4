@@ -39,7 +39,8 @@ meta def elabAttr (stx : Attr) : TermElabM (Expr ⊕ Expr) := withRef stx do
     let t ← elabTermEnsuringType t pairType
     return .inl t
   | .interpMany t =>
-    let t ← elabTermEnsuringType t arrayType
+    let q ← `(ForIn.toArray (α := String × String) $t)
+    let t ← elabTermEnsuringType q arrayType
     return .inr t
 
 meta def elabAttrs (stxs : Array Attr) : TermElabM Expr := do

@@ -32,8 +32,6 @@ def LetOrReassign.getLetMutTk? (letOrReassign : LetOrReassign) : Option Syntax :
   | .let mutTk? _ => mutTk?
   | _             => none
 
-/-- Whether the binding is a `ghost` declaration. A reassignment's ghostness follows from its
-variable's `MutVar` record instead. -/
 def LetOrReassign.isGhostDecl (letOrReassign : LetOrReassign) : Bool :=
   match letOrReassign with
   | .let _ ghost => ghost
@@ -207,22 +205,14 @@ partial def elabDoLetOrReassign (config : Term.LetConfig) (letOrReassign : LetOr
   | _ => throwUnsupportedSyntax
 
 def elabDoArrow (letOrReassign : LetOrReassign) (stx : TSyntax [``doIdDecl, ``doPatDecl]) (tk : Syntax) (dec : DoElemCont) : DoElabM Expr := do
+  if letOrReassign matches .reassign then
+    throwError "Reassigning `←` expands to `:=` before elaboration. This is an elaborator bug."
   match stx with
   | `(doIdDecl| $x:ident $[: $xType?]? ← $rhs) =>
     letOrReassign.checkMutVars #[x]
     let dec ← dec.ensureUnitAt tk
-    if letOrReassign matches .reassign then
-      -- Reduce to a `:=`-reassignment: the bind binder takes the action's result at the
-      -- variable's declared type, and the reassignment of `x`, with its type pinning, ghost
-      -- wrapping and alias registration, has its one home in `elabDoLetOrReassign`.
-      let xType? ← match xType? with
-        | none => some <$> Term.exprToSyntax (← getLocalDeclFromUserName x.getId).type
-        | some t => pure (some t)
-      let y := mkIdentFrom x (← mkFreshUserName `__y)
-      elabDoIdDecl y xType? rhs (elabDoElem (← `(doElem| $x:ident := $y)) dec) (kind := dec.kind)
-    else
-      elabDoIdDecl x xType? rhs (declareMutVar? letOrReassign.getLetMutTk? x letOrReassign.isGhostDecl <| dec.continueWithUnit)
-        (kind := dec.kind)
+    elabDoIdDecl x xType? rhs (declareMutVar? letOrReassign.getLetMutTk? x letOrReassign.isGhostDecl <| dec.continueWithUnit)
+      (kind := dec.kind)
   | `(doPatDecl| _%$pattern $[: $patType?]? ← $rhs) =>
     let x := mkIdentFrom pattern (← mkFreshUserName `__x)
     let dec ← dec.ensureUnitAt tk
@@ -240,11 +230,7 @@ def elabDoArrow (letOrReassign : LetOrReassign) (stx : TSyntax [``doIdDecl, ``do
         throwUnsupportedSyntax
       | .have, _ =>
         elabDoElem (← `(doElem| have $pattern:term := $x)) dec
-      | .reassign, _ =>
-        -- otherwise? is always `none`, because there is no `doReassignElse`
-        unless rest?.isNone do
-          throwError "reassignment with `|` (i.e., \"else clause\") is not supported"
-        elabDoElem (← `(doElem| $pattern:term := $x)) dec
+      | .reassign, _ => unreachable!
   | _ => throwUnsupportedSyntax
 
 private def getLetConfigAndCheckMut (letConfigStx : TSyntax ``Parser.Term.letConfig)
@@ -326,10 +312,15 @@ private def getLetConfigAndCheckMut (letConfigStx : TSyntax ``Parser.Term.letCon
     throwErrorAt cfg "configuration options are not supported with `←`"
   elabDoArrow (.let mutTk? false) decl tk dec
 
-@[builtin_doElem_elab Lean.Parser.Term.doReassignArrow] def elabDoReassignArrow : DoElab := fun stx dec => do
+@[builtin_macro Lean.Parser.Term.doReassignArrow] def expandDoReassignArrow : Macro := fun stx => do
   match stx with
-  | `(doReassignArrow| $decl:doIdDecl) =>
-    elabDoArrow .reassign decl decl dec
-  | `(doReassignArrow| $decl:doPatDecl) =>
-    elabDoArrow .reassign decl decl dec
-  | _ => throwUnsupportedSyntax
+  | `(doReassignArrow| $x:ident $[: $t?]? ← $rhs) =>
+    let y := mkIdentFrom x (← MonadQuotation.addMacroScope `__x)
+    `(doElem| do let $y:ident $[: $t?]? ← $rhs; $x:ident := $y)
+  | `(doReassignArrow| $pat:term $[: $t?]? ← $rhs $[| $otherwise? $(_rest?)?]?) =>
+    if otherwise?.isSome then
+      Macro.throwErrorAt stx "reassignment with `|` (i.e., \"else clause\") is not supported"
+    else
+      let y := mkIdentFrom pat (← MonadQuotation.addMacroScope `__x)
+      `(doElem| do let $y:ident $[: $t?]? ← $rhs; $pat:term := $y)
+  | _ => Macro.throwUnsupported

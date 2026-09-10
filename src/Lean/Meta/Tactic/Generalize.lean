@@ -155,4 +155,50 @@ def _root_.Lean.MVarId.generalizeHyp (mvarId : MVarId) (args : Array GeneralizeA
     pure subst
   return (fvarSubst, newVars, mvarId)
 
+structure ChangeVarsResult where
+  mvarId : MVarId
+  /-- The new variables `ys` in the context of `mvarId`. -/
+  ys     : Array FVarId
+  /-- Maps the replaced variables `xs` and all reverted dependents to their counterparts in `mvarId`. -/
+  subst  : FVarSubst
+
+/--
+Definitional change of variables: replaces the variables `xs` by the terms `xsVals` over the fresh
+variables `ys`, local declarations of the current context that do not depend on `xs`. The old goal
+is closed by instantiating `ys` with `ysVals`, so `xsVals[ys := ysVals]` must be definitionally
+equal to `xs`. Each pattern in `abstractions` is abstracted to its replacement first, e.g. `⟨xs⟩ ↦ y`.
+Returns `none` if the result is not type correct.
+-/
+def _root_.Lean.MVarId.changeVars (mvarId : MVarId) (xs : Array FVarId) (ys : Array Expr)
+    (xsVals : Array Expr) (ysVals : Array Expr) (abstractions : Array (Expr × Expr))
+    (transparency := TransparencyMode.instances) : MetaM (Option ChangeVarsResult) := do
+  mvarId.checkNotAssigned `changeVars
+  let mvarDecl ← mvarId.getDecl
+  let toRevert ← collectForwardDeps (xs.map mkFVar) (preserveOrder := false)
+  if ← toRevert.anyM fun z => return (← z.fvarId!.getDecl).isAuxDecl then
+    return none
+  let zs := toRevert.filter fun z => !xs.contains z.fvarId!
+  let mut body ← mkForallFVars zs (← instantiateMVars mvarDecl.type) (usedLetOnly := false)
+  for (p, r) in abstractions do
+    body := (← withTransparency transparency <| kabstract body p).instantiate1 r
+  body := body.replaceFVars (xs.map mkFVar) xsVals
+  let newType ← mkForallFVars ys body
+  unless ← isTypeCorrect newType do
+    return none
+  let lctx := toRevert.foldl (init := mvarDecl.lctx) fun lctx z => lctx.erase z.fvarId!
+  let localInsts := mvarDecl.localInstances.filter fun inst => toRevert.all (· != inst.fvar)
+  let newMVar ← mkFreshExprMVarAt lctx localInsts newType .syntheticOpaque (← mvarId.getTag)
+  let zsArgs ← zs.filterM fun z => return !(← z.fvarId!.getDecl).isLet
+  mvarId.assign (mkAppN (mkAppN newMVar ysVals) zsArgs)
+  let (fvarIds, mvarId) ← newMVar.mvarId!.introNP (ys.size + zs.size)
+  let ysNew := fvarIds.extract 0 ys.size
+  let zsNew := fvarIds.extract ys.size
+  let xsVals := xsVals.map (·.replaceFVars ys (ysNew.map mkFVar))
+  let mut subst : FVarSubst := {}
+  for x in xs, v in xsVals do
+    subst := subst.insert x v
+  for z in zs, z' in zsNew do
+    subst := subst.insert z.fvarId! (mkFVar z')
+  return some { mvarId, ys := ysNew, subst }
+
 end Lean.Meta

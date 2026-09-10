@@ -975,10 +975,8 @@ The code path shared between `induction` and `fun_induct`; when we already have 
 and the `targets` contains the implicit targets
 -/
 def evalInductionCore (stx : Syntax) (elimInfo : ElimInfo) (targets : Array Expr)
-    (toTag : Array (Ident × FVarId) := #[]) : TacticM Unit := do
+    (mkInitInfo : TacticM Info) (toTag : Array (Ident × FVarId) := #[]) : TacticM Unit := do
   let mvarId ← getMainGoal
-  -- save initial info before main goal is reassigned
-  let mkInitInfo ← mkInitialTacticInfoForInduction stx
   let tag ← mvarId.getTag
   mvarId.withContext do
     checkInductionTargets targets
@@ -1001,19 +999,115 @@ def evalInductionCore (stx : Syntax) (elimInfo : ElimInfo) (targets : Array Expr
           (generalized := generalized) (toClear := targetFVarIds) (toTag := toTag)
         appendGoals result.others.toList
 
+/-- Declares the `numFields` fields of the instantiated constructor type `ctorType`. -/
+private def withFieldDecls (ctorType : Expr) (numFields : Nat) (rename : Nat → Name → MetaM Name)
+    (k : Array Expr → MetaM α) : MetaM α :=
+  go ctorType #[]
+where
+  go (type : Expr) (ys : Array Expr) : MetaM α := do
+    if ys.size < numFields then
+      let .forallE n d b _ ← whnf type | throwError "unexpected constructor type{indentExpr ctorType}"
+      withLocalDeclD (← rename ys.size n) d fun y => go (b.instantiate1 y) (ys.push y)
+    else
+      k ys
+
+/--
+Turns the index subterm `e` into a variable by a definitional change of variables if `e` is a
+structure constructor application `⟨x₁, …, xₙ⟩` (`xᵢ ↦ y.fᵢ`) or a projection `x.f`
+(`x ↦ ⟨y₁, …, yₙ⟩`) of variables; otherwise recurses into the first non-variable argument.
+Variables that are targets themselves are left alone, replacing them would make another target
+non-atomic.
+-/
+private partial def changeStructIndexVars? (mvarId : MVarId) (targets : Array Expr) (e : Expr) :
+    MetaM (Option ChangeVarsResult) := do
+  let e := e.cleanupAnnotations
+  let env ← getEnv
+  match e with
+  | .proj structName i x =>
+    let some ctorVal := getNonRecStructureCtor? env structName | return none
+    let xType ← whnfD (← inferType x)
+    let .const _ us := xType.getAppFn | return none
+    projStep ctorVal us xType.getAppArgs i x
+  | .app .. | .const .. =>
+    let .const declName us := e.getAppFn | return none
+    let args := e.getAppArgs
+    if let some projInfo := env.getProjectionFnInfo? declName then
+      let ctorVal ← getConstInfoCtor projInfo.ctorName
+      unless args.size == projInfo.numParams + 1 && isNonRecStructure env ctorVal.induct do return none
+      projStep ctorVal us (args.extract 0 projInfo.numParams) projInfo.i args.back!
+    else
+      let some (.ctorInfo ctorVal) := env.find? declName | return none
+      unless args.size == ctorVal.numParams + ctorVal.numFields && isNonRecStructure env ctorVal.induct do
+        return none
+      let params := args.extract 0 ctorVal.numParams
+      let fields := args.extract ctorVal.numParams
+      for field in fields do
+        unless ← isCandidate field do return ← recurse field
+      unless fields.allDiff do return none
+      let yName ← if h : fields.size = 1 then fields[0].fvarId!.getUserName else mkFreshUserName `x
+      withLocalDeclD yName (mkAppN (mkConst ctorVal.induct us) params) fun y => do
+        let xsVals ← (Array.range fields.size).mapM (mkProjFn ctorVal us params · y)
+        mvarId.changeVars (fields.map (·.fvarId!)) #[y] xsVals #[e] #[(e, y)]
+  | _ => return none
+where
+  isCandidate (x : Expr) : MetaM Bool := do
+    unless x.isFVar do return false
+    if targets.contains x then return false
+    let decl ← x.fvarId!.getDecl
+    return !decl.isLet && !decl.isAuxDecl
+  recurse (x : Expr) : MetaM (Option ChangeVarsResult) :=
+    if x.isFVar then pure none else changeStructIndexVars? mvarId targets x
+  projStep (ctorVal : ConstructorVal) (us : List Level) (params : Array Expr) (i : Nat) (x : Expr) :
+      MetaM (Option ChangeVarsResult) := do
+    unless ← isCandidate x do return ← recurse x
+    let ctorType ← instantiateForall (ctorVal.type.instantiateLevelParams ctorVal.levelParams us) params
+    let rename j n := if j == i then x.fvarId!.getUserName else mkFreshUserName n
+    withFieldDecls ctorType ctorVal.numFields rename fun ys => do
+      let xVal := mkAppN (mkAppN (mkConst ctorVal.name us) params) ys
+      let ysVals ← (Array.range ys.size).mapM (mkProjFn ctorVal us params · x)
+      -- `x.f` may occur both as projection function application and as `Expr.proj`
+      let e' ← mkProjFn ctorVal us params i x
+      let abstractions := #[(e, ys[i]!)] ++ if e' == e then #[] else #[(e', ys[i]!)]
+      mvarId.changeVars #[x.fvarId!] ys #[xVal] ysVals abstractions
+
+/--
+Makes the implicit targets (the indices of the explicit `targets`) variables where a definitional
+change of variables suffices, see `changeStructIndexVars?`. Returns all targets and the updated
+`toTag` and `elimInfo`.
+-/
+private def changeStructIndexVars (elimInfo : ElimInfo) (targets : Array Expr)
+    (toTag : Array (Ident × FVarId)) :
+    TacticM (Array Expr × Array (Ident × FVarId) × ElimInfo) := do
+  let mut elimInfo := elimInfo
+  let mut targets := targets
+  let mut toTag := toTag
+  let mut allTargets ← withMainContext <| addImplicitTargets elimInfo targets
+  -- Fuel: a step on one index may re-complicate another index sharing its variables.
+  for _ in [:16] do
+    let some target := allTargets.find? (!·.isFVar) | break
+    let some result ← withMainContext do changeStructIndexVars? (← getMainGoal) allTargets target | break
+    replaceMainGoal [result.mvarId]
+    let subst := result.subst
+    targets := targets.map subst.apply
+    toTag := toTag.map fun (id, fvarId) => (id, (subst.get fvarId).fvarId!)
+    elimInfo := { elimInfo with elimExpr := subst.apply elimInfo.elimExpr, elimType := subst.apply elimInfo.elimType }
+    allTargets ← withMainContext <| addImplicitTargets elimInfo targets
+  return (allTargets, toTag, elimInfo)
+
 @[builtin_tactic Lean.Parser.Tactic.induction, builtin_incremental]
 def evalInduction : Tactic := fun stx =>
   match expandInduction? stx with
   | some stxNew => withMacroExpansion stx stxNew <| evalTactic stxNew
   | _ => focus do
+    -- save initial info before the goal is transformed while elaborating the targets
+    let mkInitInfo ← mkInitialTacticInfoForInduction stx
     -- Disable tactic incrementality during setup to prevent nested `by` blocks (e.g. in `using`)
     -- from consuming the snapshot meant for `evalAlts`.
     let (targets, toTag, elimInfo) ← Term.withoutTacticIncrementality true do
       let (targets, toTag) ← elabElimTargets stx[1].getSepArgs
       let elimInfo ← withMainContext <| getElimNameInfo stx[2] targets (induction := true)
-      let targets ← withMainContext <| addImplicitTargets elimInfo targets
-      return (targets, toTag, elimInfo)
-    evalInductionCore stx elimInfo targets toTag
+      changeStructIndexVars elimInfo targets toTag
+    evalInductionCore stx elimInfo targets mkInitInfo toTag
 
 
 register_builtin_option tactic.fun_induction.unfolding : Bool := {
@@ -1092,22 +1186,21 @@ def evalFunInduction : Tactic := fun stx =>
   match expandInduction? stx with
   | some stxNew => withMacroExpansion stx stxNew <| evalTactic stxNew
   | _ => focus do
+    let mkInitInfo ← mkInitialTacticInfoForInduction stx
     let (elimInfo, targets) ← Term.withoutTacticIncrementality true do
       let (elimInfo, targets) ← elabFunTarget (cases := false) stx[1]
       let targets ← generalizeTargets targets
       return (elimInfo, targets)
-    evalInductionCore stx elimInfo targets
+    evalInductionCore stx elimInfo targets mkInitInfo
 
 /--
 The code path shared between `cases` and `fun_cases`; when we already have an `elimInfo`
 and the `targets` contains the implicit targets
 -/
 def evalCasesCore (stx : Syntax) (elimInfo : ElimInfo) (targets : Array Expr)
-    (toTag : Array (Ident × FVarId) := #[]) : TacticM Unit := do
+    (mkInitInfo : TacticM Info) (toTag : Array (Ident × FVarId) := #[]) : TacticM Unit := do
   let targetRef := stx[1]
   let mvarId ← getMainGoal
-  -- save initial info before main goal is reassigned
-  let mkInitInfo ← mkInitialTacticInfoForInduction stx
   let tag ← mvarId.getTag
   mvarId.withContext do
     let result ← withRef targetRef <| ElimApp.mkElimApp elimInfo targets tag
@@ -1134,24 +1227,26 @@ def evalCases : Tactic := fun stx =>
   match expandInduction? stx with
   | some stxNew => withMacroExpansion stx stxNew <| evalTactic stxNew
   | _ => focus do
+    let mkInitInfo ← mkInitialTacticInfoForInduction stx
     -- syntax (name := cases) "cases " elimTarget,+ (" using " term)? (inductionAlts)? : tactic
     let (targets, toTag, elimInfo) ← Term.withoutTacticIncrementality true do
       let (targets, toTag) ← elabElimTargets stx[1].getSepArgs
       let elimInfo ← withMainContext <| getElimNameInfo stx[2] targets (induction := false)
       let targets ← withMainContext <| addImplicitTargets elimInfo targets
       return (targets, toTag, elimInfo)
-    evalCasesCore stx elimInfo targets toTag
+    evalCasesCore stx elimInfo targets mkInitInfo toTag
 
 @[builtin_tactic Lean.Parser.Tactic.funCases, builtin_incremental]
 def evalFunCases : Tactic := fun stx =>
   match expandInduction? stx with
   | some stxNew => withMacroExpansion stx stxNew <| evalTactic stxNew
   | _ => focus do
+    let mkInitInfo ← mkInitialTacticInfoForInduction stx
     let (elimInfo, targets) ← Term.withoutTacticIncrementality true do
       let (elimInfo, targets) ← elabFunTarget (cases := true) stx[1]
       let targets ← generalizeTargets targets
       return (elimInfo, targets)
-    evalCasesCore stx elimInfo targets
+    evalCasesCore stx elimInfo targets mkInitInfo
 
 builtin_initialize
   registerTraceClass `Elab.cases

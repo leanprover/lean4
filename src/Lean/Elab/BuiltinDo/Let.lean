@@ -212,19 +212,17 @@ def elabDoArrow (letOrReassign : LetOrReassign) (stx : TSyntax [``doIdDecl, ``do
     letOrReassign.checkMutVars #[x]
     let dec ← dec.ensureUnitAt tk
     if letOrReassign matches .reassign then
-      if ((← findMutVar? x.getId).map (·.ghost)).getD false then
-        let y := mkIdentFrom x (← mkFreshUserName `__y)
-        return ← elabDoIdDecl y xType? rhs
-          (elabDoElem (← `(doElem| $x:ident := $y)) dec) (kind := dec.kind)
-    -- For plain variable reassignment, we know the expected type of the reassigned variable and
-    -- propagate it eagerly via type ascription if the user hasn't provided one themselves:
-    let xType? ← match letOrReassign, xType? with
-      | .reassign, none =>
-        let decl ← getLocalDeclFromUserName x.getId
-        some <$> Term.exprToSyntax decl.type
-      | _, _ => pure xType?
-    elabDoIdDecl x xType? rhs (declareMutVar? letOrReassign.getLetMutTk? x letOrReassign.isGhostDecl <| dec.continueWithUnit)
-      (kind := dec.kind)
+      -- Reduce to a `:=`-reassignment: the bind binder takes the action's result at the
+      -- variable's declared type, and the reassignment of `x`, with its type pinning, ghost
+      -- wrapping and alias registration, has its one home in `elabDoLetOrReassign`.
+      let xType? ← match xType? with
+        | none => some <$> Term.exprToSyntax (← getLocalDeclFromUserName x.getId).type
+        | some t => pure (some t)
+      let y := mkIdentFrom x (← mkFreshUserName `__y)
+      elabDoIdDecl y xType? rhs (elabDoElem (← `(doElem| $x:ident := $y)) dec) (kind := dec.kind)
+    else
+      elabDoIdDecl x xType? rhs (declareMutVar? letOrReassign.getLetMutTk? x letOrReassign.isGhostDecl <| dec.continueWithUnit)
+        (kind := dec.kind)
   | `(doPatDecl| _%$pattern $[: $patType?]? ← $rhs) =>
     let x := mkIdentFrom pattern (← mkFreshUserName `__x)
     let dec ← dec.ensureUnitAt tk

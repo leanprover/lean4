@@ -627,14 +627,21 @@ def withErasedProj (x : Ident) (k : DoElabM Expr) (info : Bool := true) : DoElab
 def withErasedProjs (mutVars : Array MutVar) (k : DoElabM Expr) (info : Bool := true) : DoElabM Expr :=
   (mutVars.filter (·.ghost)).foldr (init := k) fun mv k => withErasedProj mv.ident k info
 
-/-- `Erased t` for the type `t` of runtime-erased data. -/
-def mkErasedApp (t : Expr) : MetaM Expr :=
-  return mkApp (mkConst ``Erased [← getLevel t]) t
-
 /-- `Erased.mk e`, which erases `e` in compiled code. -/
 def mkErasedMkApp (e : Expr) : MetaM Expr := do
   let t ← inferType e
   return mkApp2 (mkConst ``Erased.mk [← getLevel t]) t e
+
+/-- The type of `mv`'s slot in runtime state (tuples, join parameters): a ghost variable's slot
+carries the `Erased` value. -/
+def MutVar.stateType (mv : MutVar) : MetaM Expr := do
+  let t := (← getLocalDeclFromUserName mv.getId).type
+  if mv.ghost then return mkApp (mkConst ``Erased [← getLevel t]) t else return t
+
+/-- The current value of `mv` as packed into runtime state. -/
+def MutVar.stateValue (mv : MutVar) : MetaM Expr := do
+  let v := (← getLocalDeclFromUserName mv.getId).toExpr
+  if mv.ghost then mkErasedMkApp v else return v
 
 /--
 Given a list of mut vars `vars` and an FVar `tupleVar` binding a tuple, bind the mut vars to the
@@ -720,14 +727,11 @@ def DoElemCont.withDuplicableCont (nondupDec : DoElemCont) (callerInfo : Control
   let γ := (← read).doBlockResultType
   let mγ ← mkMonadApp γ
   let mutVars := (← read).mutVars |>.filter (callerInfo.reassigns.contains ·.getId)
-  let mutVarNames := mutVars.map (·.getId)
   let joinName ← mkFreshUserName `__do_jp
   -- σ is the tuple type of the mut vars, or mγ if jumpCount = 0. Hence it is either level mi.u or mi.v.
   -- let σ ← mkFreshTypeMVar (userName := `σ)
-  let mutDecls ← mutVarNames.mapM (getLocalDeclFromUserName ·)
   -- A ghost variable's join parameter carries the `Erased` value; its projection rebinds below.
-  let mutTypes ← (mutVars.zip mutDecls).mapM fun (mv, d) =>
-    if mv.ghost then mkErasedApp d.type else pure d.type
+  let mutTypes ← mutVars.mapM (·.stateType)
   let joinTy ← mkArrow nondupDec.resultType (← mkArrowN mutTypes mγ)
   let joinRhsMVar ← mkFreshExprSyntheticOpaqueMVar joinTy
   withLetDecl joinName joinTy joinRhsMVar (kind := .implDetail) (nondep := true) fun jp => do
@@ -736,10 +740,8 @@ def DoElemCont.withDuplicableCont (nondupDec : DoElemCont) (callerInfo : Control
     let result ← getFVarFromUserName nondupDec.resultName
     let mut e := mkApp jp' result
     for x in mutVars do
-      let newX ← getFVarFromUserName x.getId
-      Term.addTermInfo' x.ident newX
-      let arg ← if x.ghost then mkErasedMkApp newX else pure newX
-      e := mkApp e arg
+      Term.addTermInfo' x.ident (← getFVarFromUserName x.getId)
+      e := mkApp e (← x.stateValue)
     return e
 
   let elabBody :=
@@ -750,7 +752,7 @@ def DoElemCont.withDuplicableCont (nondupDec : DoElemCont) (callerInfo : Control
 
   let joinRhs ← joinRhsMVar.mvarId!.withContext do
     withLocalDeclD nondupDec.resultName nondupDec.resultType fun r => do
-    withLocalDeclsDND ((mutDecls.zip mutTypes).map fun (d, t) => (d.userName, t)) fun muts => do
+    withLocalDeclsDND ((mutVars.zip mutTypes).map fun (mv, t) => (mv.getId, t)) fun muts => do
     for (x, newX) in mutVars.zip muts do Term.addTermInfo' x.ident newX
     let e ← withErasedProjs mutVars (nondupDec.withDeadCodeFromInfo callerInfo).k
     mkLambdaFVars (#[r] ++ muts) e

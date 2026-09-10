@@ -308,10 +308,8 @@ private def mkForInLoopGadget (g : ForInApp)
         | some e => mkSome oldReturnCont.resultType e
       defs := defs.push returnVar
     for x in loopMutVars do
-      let defn ← getLocalDeclFromUserName x.getId
-      Term.addTermInfo' x.ident defn.toExpr
-      -- A ghost variable's state slot carries the `Erased` value; its projection rebinds at unpacking.
-      let v ← if x.ghost then mkErasedMkApp defn.toExpr else pure defn.toExpr
+      Term.addTermInfo' x.ident (← getFVarFromUserName x.getId)
+      let v ← x.stateValue
       -- ForIn forces the mut tuple into the universe mi.u: that of the do block result type.
       -- If we don't do this, then we are stuck on solving constraints such as
       --   `max ?u.46 ?u.47 =?= max (max ?u.22 ?u.46) ?u.47`

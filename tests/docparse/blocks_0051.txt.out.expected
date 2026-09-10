@@ -22,7 +22,6 @@ Final stack:
       [(Lean.Doc.Parser.Inline.text
         (Lean.Doc.Parser.versoText "lean"))]
       "]"
-      (Lean.Doc.Parser.LinkTarget.url
-       <missing>))])]
+      <missing>)])]
 All input consumed.
 Round-trip not reproduced, as the parse reported errors: leaf without original source info: <missing>

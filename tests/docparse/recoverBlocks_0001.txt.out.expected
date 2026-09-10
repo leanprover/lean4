@@ -35,20 +35,7 @@ Final stack:
         `ref
         [(Lean.Doc.Parser.Arg.anon
           (Lean.Doc.Parser.ArgVal.ident `large))]
-        "}"
-        []
-        [(Lean.Doc.Parser.Inline.role
-          "{"
-          `Sufficiently
-          [(Lean.Doc.Parser.Arg.anon
-            (Lean.Doc.Parser.ArgVal.ident
-             `large))]
-          "}"
-          []
-          [(Lean.Doc.Parser.Inline.footnote
-            <missing>)]
-          [])]
-        [])])])]
+        "}")])])]
 Remaining:
 "  More text\n\n: `foo`\n\n  Thing\n"
-Round-trip not reproduced, as the parse reported errors: leaf without original source info: <missing>
+Round-trip not reproduced, as the parse reported errors: input from position 70 on is not covered by any token's source info

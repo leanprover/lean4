@@ -10,7 +10,7 @@ Final stack:
    (Lean.Doc.Parser.emphDelimiter "_")
    [(Lean.Doc.Parser.Inline.text
      (Lean.Doc.Parser.versoText "aa "))]
-   (Lean.Doc.Parser.emphDelimiter <missing>))
+   <missing>)
 Remaining:
 "_"
 Round-trip not reproduced, as the parse reported errors: leaf without original source info: <missing>

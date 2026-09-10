@@ -118,8 +118,7 @@ Final stack:
              (Lean.Doc.Parser.Inline.text
               (Lean.Doc.Parser.versoText
                "   link"))]
-            (Lean.Doc.Parser.emphDelimiter
-             <missing>))]
+            <missing>)]
           <missing>)])])
      (Lean.Doc.Parser.ListItem.item
       (Lean.Doc.Parser.listMarker "*")
@@ -165,8 +164,7 @@ Final stack:
           [(Lean.Doc.Parser.Inline.text
             (Lean.Doc.Parser.versoText
              "bold choice"))]
-          (Lean.Doc.Parser.boldDelimiter
-           <missing>))])])
+          <missing>)])])
      (Lean.Doc.Parser.ListItem.item
       (Lean.Doc.Parser.listMarker "*")
       [(Lean.Doc.Parser.Block.para
@@ -190,8 +188,7 @@ Final stack:
            (Lean.Doc.Parser.Inline.text
             (Lean.Doc.Parser.versoText
              " but don't forget..."))]
-          (Lean.Doc.Parser.emphDelimiter
-           <missing>))])])])
+          <missing>)])])])
    (Lean.Doc.Parser.Block.para
     [(Lean.Doc.Parser.Inline.text
       (Lean.Doc.Parser.versoText

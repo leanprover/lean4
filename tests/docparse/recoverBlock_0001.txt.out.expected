@@ -44,10 +44,7 @@ Final stack:
      "{"
      `lit
      []
-     "}"
-     []
-     [(Lean.Doc.Parser.Inline.footnote <missing>)]
-     [])])
+     "}")])
 Remaining:
 "test"
-Round-trip not reproduced, as the parse reported errors: leaf without original source info: <missing>
+Round-trip not reproduced, as the parse reported errors: input from position 39 on is not covered by any token's source info

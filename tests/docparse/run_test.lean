@@ -16,6 +16,21 @@ Input files are expected to be snippets of code; their filename picks which pars
 
 open Lean Doc Parser
 
+/--
+The greatest source position that any original leaf of `stx` reaches.
+-/
+partial def maxTailPos (stx : Syntax) : Option String.Pos.Raw :=
+  match stx with
+  | .node _ _ args =>
+    args.foldl (init := none) fun acc a =>
+      match acc, maxTailPos a with
+      | none, x => x
+      | x, none => x
+      | some p, some q => some (if p < q then q else p)
+  | .atom info _ => info.getTailPos?
+  | .ident info .. => info.getTailPos?
+  | .missing => none
+
 def ppSyntax (stx : Syntax) : Std.Format := .nest 2 <| stx.formatStx (some 50) false
 
 /--
@@ -396,7 +411,15 @@ def test (p : ParserFn) (rawInput : String) (validate : Bool) (ownsLeading : Boo
       "\nRound-trip not tested: this parser classifies input rather than producing document syntax"
   let given := s!"Input: {repr input}\n"
   -- Every outcome reports the stack the parser built and how much of the input it consumed.
-  let result := s!"Final stack:\n{stk.pretty 50}\n{remaining}{verdict}"
+  -- Syntax that reaches past the consumed input describes text the parse rewound out of.
+  let overreach :=
+    match maxTailPos (mkNullNode (s'.stxStack.extract 0 s'.stxStack.size)) with
+    | some mp =>
+      if mp > s'.pos then
+        s!"\nSyntax covers unconsumed input: reaches {mp.byteIdx}, parse stopped at {s'.pos.byteIdx}"
+      else ""
+    | none => ""
+  let result := s!"Final stack:\n{stk.pretty 50}\n{remaining}{overreach}{verdict}"
   if s'.allErrors.isEmpty then
     let views := fmtViews (s'.stxStack.extract 0 s'.stxStack.size)
     let views := if views.isEmpty then "" else s!"\nDecoded views:\n{views.dropEnd 1}"

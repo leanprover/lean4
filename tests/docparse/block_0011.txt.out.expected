@@ -16,12 +16,7 @@ Failure: unexpected 'H'; expected '![', '$$', '$', '*', '[', '[^', '_', '`' or '
 
 Final stack:
   (Lean.Doc.Parser.Block.para
-   [(Lean.Doc.Parser.Inline.role
-     "{"
-     <missing>
-     []
-     [(Lean.Doc.Parser.Inline.footnote <missing>)]
-     [])])
+   [(Lean.Doc.Parser.Inline.role "{" <missing>)])
 Remaining:
 "Here's a paragraph."
 Round-trip not reproduced, as the parse reported errors: leaf without original source info: <missing>

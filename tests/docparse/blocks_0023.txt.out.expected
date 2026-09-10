@@ -16,9 +16,7 @@ Final stack:
        (Lean.Doc.Parser.Inline.text
         (Lean.Doc.Parser.versoText
          "Let's say more!"))]
-      [(Lean.Doc.Parser.Block.para
-        [(Lean.Doc.Parser.Inline.footnote
-          <missing>)])
+      [(Lean.Doc.Parser.Block.para [<missing>])
        <missing>])])]
 All input consumed.
 Round-trip not reproduced, as the parse reported errors: leaf without original source info: <missing>

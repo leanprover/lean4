@@ -11,7 +11,7 @@ Final stack:
    (Lean.Doc.Parser.versoImageAlt
     "alt text is good")
    "]"
-   (Lean.Doc.Parser.LinkTarget.url <missing>))
+   <missing>)
 Remaining:
 "](logo.png)"
 Round-trip not reproduced, as the parse reported errors: leaf without original source info: <missing>

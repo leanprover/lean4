@@ -5,12 +5,12 @@ import Std.Tactic.Do
 /-!
 Tests for framing the exception channel.
 
-The first part works on a two-constructor program type over a toy heap. `exit_spec` shows the
-specification `⦃ l ↦ v ⦄ exit ⦃ ⊥; l ↦ v ⦄`: an exit owns exactly what it held. The companion
-`opE := sepConj` at `EPred = Pred` pushes the frame into the exception postcondition. The framed
-obligation is `∀ F, F ∗ P ⊑ F ∗ P`. `exit_frames_via_vcgen` runs the same scenario through
-`vcgen`: a lossy spec drops a framed cell and a `frames` clause recovers it. The separation
-algebra facts are axioms. Only the framing theorems carry proofs.
+The first part works on a two-constructor program type over a toy heap. The `WP` instance is the
+`sepConj`-frame closure of the evident base wp, so the companion `opE := sepConj` at
+`EPred = Pred` pushes the frame into the exception postcondition. `exit_frames_via_vcgen` proves
+`⦃ 0 ↦ 1 ∗ 5 ↦ 7 ⦄ exit ⦃ ⊥; 0 ↦ 1 ∗ 5 ↦ 7 ⦄` with `vcgen`: the lossy spec owns only `0 ↦ 1`,
+and a `frames` clause carries `5 ↦ 7` into the exception postcondition. The separation algebra
+facts are axioms. Only the framing theorems carry proofs.
 
 The second part frames by `meet` through a `throw` in `ExceptT Unit (StateM σ)`.
 -/
@@ -85,24 +85,8 @@ postcondition. -/
     · exact hE
 
 /-- The interpretation that frames both channels by `sepConj`. -/
-@[instance_reducible] noncomputable def framedWPE : WP Prog Unit HProp HProp :=
+@[instance_reducible] noncomputable instance : WP Prog Unit HProp HProp :=
   WP.withFrameClosure sepConj baseWP
-
-noncomputable instance : WP Prog Unit HProp HProp := framedWPE
-
-/-- Landing below the closure at the transformer level: the framed obligation is
-`∀ F, F ∗ P ⊑ F ∗ P`. -/
-theorem exit_spec_frameClosure :
-    ((0 ↦ 1) : HProp) ⊑
-      ((baseWP.wpTrans .exit).frameClosure sepConj).apply (fun _ => ⊥) (0 ↦ 1) := by
-  rw [PredTrans.le_frameClosure_iff]
-  intro F
-  exact PartialOrder.rel_refl
-
-/-- The exit specification, at the `wp` layer. -/
-theorem exit_spec :
-    ((0 ↦ 1) : HProp) ⊑ framedWPE.wp .exit (fun _ => ⊥) (0 ↦ 1) :=
-  WP.le_wp_of_withFrameClosure_eq (base := baseWP) rfl fun _ => PartialOrder.rel_refl
 
 /-! ## `vcgen`: framing through the exit
 

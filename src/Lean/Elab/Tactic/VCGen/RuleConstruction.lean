@@ -12,7 +12,6 @@ public import Lean.Elab.Tactic.VCGen.Reduce
 public import Lean.Elab.Tactic.VCGen.SpecDB
 public import Lean.Meta.Sym.Apply
 public import Lean.Meta.Sym.Util
-import Std.Internal.Order.FrameClosure
 meta import Std.WP.Frame
 
 open Lean Meta Elab Tactic Sym
@@ -437,13 +436,13 @@ private def analyzeFrameRule (rule : BackwardRule) (opHead : Name) (numExcess : 
 
 /--
 The frame backward rule for a frame operator `op : R → Pred → Pred`, built from the frame rule
-`WP.op_wp_upperAdjoint_le_wp`.
+`op_wp_upperAdjoint_le_wp`.
 
 The rule concludes `pre ⊑ wp prog Q E s⃗` from the split VC `pre ⊑ (op F W) s⃗` and the frame
 condition `PredTrans.Frames op (wpTrans prog) F`, with the frame `F` left schematic and the
-weakest footprint `W = wp prog (fun a => upperAdjoint (op F) (Q a)) (upperAdjoint (opE F) E)` baked
-in, so a single rule serves every inferred frame. `analyzeFrameRule` records the positions of the
-schematic slots.
+weakest footprint `W = wp prog (fun a => upperAdjoint (op F) (Q a)) (upperAdjoint (opE F) E)`
+baked in, so a single rule serves every inferred frame. `analyzeFrameRule` records the positions
+of the schematic slots.
 -/
 public def mkFrameBackwardRule (fp : FrameProc) (info : WPApp) :
     MetaM FrameBackwardRule := do
@@ -451,7 +450,7 @@ public def mkFrameBackwardRule (fp : FrameProc) (info : WPApp) :
   -- commits the companion, and `tryMkBackwardRuleFromSpec` turns the unassigned metavariables
   -- into rule parameters.
   let op ← fp.mkOpAppM info
-  let specProof ← mkAppOptM ``Std.WP.WP.op_wp_upperAdjoint_le_wp
+  let specProof ← mkAppOptM ``Std.WP.op_wp_upperAdjoint_le_wp
     ((info.args.take 7).map some ++ #[none, some op, none, none])
   let some specThm ← mkSpecTheoremFromStx (← getRef) specProof
     | throwError "frame: could not build the frame spec for operator{indentExpr op}"

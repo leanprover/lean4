@@ -501,7 +501,7 @@ instance (F : HProp) : PreservesSup (sepConj F) where
 /-- The frame-internalizing weakest precondition: the `frameClosure` of the base `StateM Heap` wp
 over separating conjunction. -/
 noncomputable instance HeapM.instWPMonad : WPMonad HeapM HProp EStack⟨⟩ :=
-  WPMonad.of_frameClosure (m := StateM Heap) sepConj
+  WPMonad.withFrameClosure (m := StateM Heap) sepConj
     sepConj_assoc (fun _ _ _ => rfl) emp_sepConj (fun _ => rfl) StateT.instWPMonad
 
 /-- Every `HeapM` program frames every heap assertion `F`. -/
@@ -516,7 +516,7 @@ arbitrary frame `F` held on both sides. -/
 theorem HeapM.triple_of_triple_StateM_run {α : Type} {x : HeapM α} {pre : HProp} {Q : α → HProp}
     (h : ∀ F : HProp, ⦃ (F ∗ pre).get ⦄ x.run ⦃ fun a => (F ∗ Q a).get ⦄) :
     ⦃ pre ⦄ x ⦃ Q ⦄ :=
-  ⟨WP.le_wp_of_frameClosure_eq rfl fun F => (h F).1⟩
+  ⟨WP.le_wp_of_withFrameClosure_eq rfl fun F => (h F).1⟩
 
 /-- The unreachable-branch spec: any postcondition holds from a `⊥` precondition. Passed to `vcgen`
 for a call in a branch whose verification conditions are contradictory. -/

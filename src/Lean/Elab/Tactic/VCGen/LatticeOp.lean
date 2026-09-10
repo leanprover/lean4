@@ -75,23 +75,25 @@ public def LatticeOp.upperAdjoint : LatticeOp :=
 public def LatticeOp.iInf : LatticeOp :=
   { head := ``Lean.Order.iInf, numConst := 3,
     rewrites := #[``Lean.Order.iInf_apply], terminal? := ``Lean.Order.le_iInf }
-/-- Whether the projected operand reduces under the `fst`/`snd` rewrites: a `⊥`/`⊤`, a
+/-- Whether the `fst`/`snd` rewrites decompose the projected operand: a `⊥`/`⊤`, a
 companion application `FrameOp.prod`, or a wand `upperAdjoint (FrameOp.prod …)`, whose component
 wands the `upperAdjoint` rewrites decompose further. -/
-private def projectsReducibleOperand (rhs : Expr) : Bool :=
+private def projectsRewritableOperand (rhs : Expr) : Bool :=
   rhs.getAppArgs[2]?.any fun epost =>
-    epost.isAppOf ``Lean.Order.bot || epost.isAppOf ``Lean.Order.top ||
-    epost.isAppOf ``Lean.Order.FrameOp.prod ||
-    (epost.isAppOf ``Lean.Order.PreservesSup.upperAdjoint &&
-      epost.getAppArgs[2]?.any (·.isAppOf ``Lean.Order.FrameOp.prod))
+    match epost.getAppFn with
+    | .const ``Lean.Order.bot _ | .const ``Lean.Order.top _
+    | .const ``Lean.Order.FrameOp.prod _ => true
+    | .const ``Lean.Order.PreservesSup.upperAdjoint _ =>
+      epost.getAppArgs[2]?.any (·.isAppOf ``Lean.Order.FrameOp.prod)
+    | _ => false
 
 public def LatticeOp.fst : LatticeOp :=
-  { head := ``Prod.fst, numConst := 3, applies? := projectsReducibleOperand,
+  { head := ``Prod.fst, numConst := 3, applies? := projectsRewritableOperand,
     rewrites := #[``Prod.fst_bot, ``Prod.fst_top, ``Lean.Order.bot_apply, ``Lean.Order.top_apply,
       ``Lean.Order.FrameOp.prod_fst, ``Lean.Order.FrameOp.pointwise_apply, ``Lean.Order.FrameOp.ignore_apply,
       ``Lean.Order.FrameOp.upperAdjoint_prod_fst] }
 public def LatticeOp.snd : LatticeOp :=
-  { head := ``Prod.snd, numConst := 3, applies? := projectsReducibleOperand,
+  { head := ``Prod.snd, numConst := 3, applies? := projectsRewritableOperand,
     rewrites := #[``Prod.snd_bot, ``Prod.snd_top, ``Lean.Order.bot_apply, ``Lean.Order.top_apply,
       ``Lean.Order.FrameOp.prod_snd, ``Lean.Order.FrameOp.pointwise_apply, ``Lean.Order.FrameOp.ignore_apply,
       ``Lean.Order.FrameOp.upperAdjoint_prod_snd] }

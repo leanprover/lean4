@@ -33,13 +33,17 @@ namespace Std.WP
 variable {Prog : Type u} {Value : Type v} {Pred : Type w} {EPred : Type z}
   [Assertion Pred] [Assertion EPred] [WP Prog Value Pred EPred]
 
-theorem WP.op_wp_upperAdjoint_le_wp {R : Type t} (op : R → Pred → Pred)
-    {opE : R → EPred → EPred} [FrameOp op EPred opE] {x : Prog} {F : R}
+theorem op_wp_upperAdjoint_le_wp {R : Type t} {op : R → Pred → Pred}
+    {opE : R → EPred → EPred} [FrameOp op EPred opE]
+    {x : Prog} {F : R} {Q : Value → Pred} {E : EPred}
     (hframes : (WP.wpTrans x).Frames op F) :
-    ∀ Q E, op F (wp x (fun a => PreservesSup.upperAdjoint (op F) (Q a))
-        (PreservesSup.upperAdjoint (opE F) E)) ⊑ wp x Q E :=
-  fun Q E =>
-    PredTrans.Frames.op_apply_upperAdjoint_le_apply op (WP.wp_trans_monotone x) hframes Q E
+    op F (wp x (fun a => PreservesSup.upperAdjoint (op F) (Q a))
+        (PreservesSup.upperAdjoint (opE F) E)) ⊑ wp x Q E := by
+  refine PartialOrder.rel_trans (hframes.op_apply_le_apply_op _ _) ?_
+  apply WP.wp_trans_monotone
+  · exact (PreservesSup.upperAdjoint_le (opE F) E)
+  · intro a
+    exact PreservesSup.upperAdjoint_le (op F) (Q a)
 
 theorem WP.frames_of_frameClosure {R : Type t} (op : R → Pred → Pred)
     {opE : R → EPred → EPred} [FrameOp op EPred opE]
@@ -63,28 +67,28 @@ theorem WP.frames_of_conjunctive {x : Prog} [WPConjunctive x]
 /-- Reinterpret a `WP` so its weakest precondition is the `frameClosure` of the base
 wp over a family of supremum-preserving resource operators `op r` and the `FrameOp`-derived
 exception-channel companion. -/
-@[instance_reducible] noncomputable def WP.of_frameClosure {R : Type t} (op : R → Pred → Pred)
+@[instance_reducible] noncomputable def WP.withFrameClosure {R : Type t} (op : R → Pred → Pred)
     {opE : R → EPred → EPred} [FrameOp op EPred opE]
     (base : WP Prog Value Pred EPred) : WP Prog Value Pred EPred where
   wpTrans x := (base.wpTrans x).frameClosure op
   wp_trans_monotone x := PredTrans.monotone_frameClosure op (base.wp_trans_monotone x)
 
 omit [WP Prog Value Pred EPred] in
-theorem WP.of_frameClosure_le_wp_iff {R : Type t} (op : R → Pred → Pred)
+theorem WP.withFrameClosure_le_wp_iff {R : Type t} (op : R → Pred → Pred)
     {opE : R → EPred → EPred} [FrameOp op EPred opE]
     (base : WP Prog Value Pred EPred) (x : Prog) (Q : Value → Pred) (E : EPred) (pre : Pred) :
-    pre ⊑ (WP.of_frameClosure op base).wp x Q E ↔
+    pre ⊑ (WP.withFrameClosure op base).wp x Q E ↔
       ∀ r, op r pre ⊑ base.wp x (fun a => op r (Q a)) (opE r E) :=
   PredTrans.le_frameClosure_iff op (base.wpTrans x)
 
 omit [WP Prog Value Pred EPred] in
-theorem WP.le_wp_of_frameClosure_eq {R : Type t} {op : R → Pred → Pred}
+theorem WP.le_wp_of_withFrameClosure_eq {R : Type t} {op : R → Pred → Pred}
     {opE : R → EPred → EPred} [FrameOp op EPred opE]
-    {base I : WP Prog Value Pred EPred} (heq : I = WP.of_frameClosure op base)
+    {base I : WP Prog Value Pred EPred} (heq : I = WP.withFrameClosure op base)
     {x : Prog} {Q : Value → Pred} {E : EPred} {pre : Pred}
     (h : ∀ r, op r pre ⊑ base.wp x (fun a => op r (Q a)) (opE r E)) :
     pre ⊑ I.wp x Q E := by
   subst heq
-  exact (WP.of_frameClosure_le_wp_iff op base x Q E pre).mpr h
+  exact (WP.withFrameClosure_le_wp_iff op base x Q E pre).mpr h
 
 end Std.WP

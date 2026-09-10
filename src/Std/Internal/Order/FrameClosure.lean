@@ -84,6 +84,7 @@ instance {B : Type v'} [CompleteLattice B]
     {opA : R → EPred → EPred} {opB : R → B → B} [FrameOp op EPred opA] [FrameOp op B opB] :
     FrameOp op (EPred × B) (FrameOp.prod opA opB) where
 
+@[default_instance]
 instance (priority := low) [∀ r, PreservesSup (op r)] :
     FrameOp op EPred FrameOp.ignore where
 
@@ -146,16 +147,6 @@ structure PredTrans.Frames (op : R → Pred → Pred) [FrameOp op EPred opE]
   /-- `op F` and its companion commute into the postcondition pair of `t`. -/
   op_apply_le_apply_op : ∀ (Q : β → Pred) (E : EPred),
     op F (t.apply Q E) ⊑ t.apply (fun a => op F (Q a)) (opE F E)
-
-theorem PredTrans.Frames.op_apply_upperAdjoint_le_apply (op : R → Pred → Pred)
-    [FrameOp op EPred opE] {t : PredTrans Pred EPred β} {F : R}
-    (hmono : t.Monotone) (hframes : t.Frames op F) (Q : β → Pred) (E : EPred) :
-    op F (t.apply (fun a => PreservesSup.upperAdjoint (op F) (Q a))
-        (PreservesSup.upperAdjoint (opE F) E)) ⊑ t.apply Q E := by
-  refine PartialOrder.rel_trans (hframes.op_apply_le_apply_op _ _) ?_
-  refine hmono _ _ _ _ (PreservesSup.upperAdjoint_le (opE F) E) ?_
-  intro a
-  exact PreservesSup.upperAdjoint_le (op F) (Q a)
 
 theorem PredTrans.Frames.of_conjunctive {opE : Pred → EPred → EPred} [FrameOp meet EPred opE]
     {t : PredTrans Pred EPred β} {F : Pred}

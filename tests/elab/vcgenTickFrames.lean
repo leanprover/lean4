@@ -183,7 +183,7 @@ variable {m : Type → Type} [Monad m]
 `costConj`-frame rule holds by construction. -/
 noncomputable instance TickT.instWPMonad [Assertion Pred] [Assertion EPred] [WPMonad m Pred EPred] :
     WPMonad (TickT m) (Nat → Pred) EPred :=
-  WPMonad.of_frameClosure (m := StateT Nat m) costConj
+  WPMonad.withFrameClosure (m := StateT Nat m) costConj
     costConj_add (fun _ _ _ => rfl) costConj_zero (fun _ => rfl) StateT.instWPMonad
 
 /-- The internalized frame rule: every program frames every shift `F` with respect to `costConj`. -/

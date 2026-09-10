@@ -16,8 +16,9 @@ set_option linter.missingDocs true
 /-!
 # Framing for a monadic `wp`
 
-`WPMonad.of_frameClosure` reinterprets a `WPMonad` through the `Lean.Order.PredTrans.frameClosure`
-of its base weakest precondition, so that every program frames every resource.
+`WPMonad.withFrameClosure` reinterprets a `WPMonad` through the
+`Lean.Order.PredTrans.frameClosure` of its base weakest precondition, so that every program frames
+every resource.
 -/
 
 open Lean.Order Std.WP
@@ -31,7 +32,7 @@ The resource frame rule then holds by construction (`WP.frames_of_frameClosure`)
 
 A separation logic depends on this property: every frame `op r` passes through the `wp` of every
 program. A caller of a spec picks a frame and applies the frame rule for that frame. -/
-@[instance_reducible] noncomputable def WPMonad.of_frameClosure {m : Type → Type} [Monad m]
+@[instance_reducible] noncomputable def WPMonad.withFrameClosure {m : Type → Type} [Monad m]
     {P : Type u} {E : Type z} [Assertion P] [Assertion E]
     {R : Type} (op : R → P → P) {opE : R → E → E} [FrameOp op E opE] {comp : R → R → R} {e : R}
     (hact : ∀ r r' a, op (comp r r') a = op r (op r' a))
@@ -39,7 +40,7 @@ program. A caller of a spec picks a frame and applies the frame rule for that fr
     (hunit : ∀ a, op e a = a) (hunitE : ∀ E', opE e E' = E')
     (base : WPMonad m P E) : WPMonad m P E where
   toLawfulMonad := base.toLawfulMonad
-  toWP α := WP.of_frameClosure op (base.toWP α)
+  toWP α := WP.withFrameClosure op (base.toWP α)
   pure_le_wp_pure x post E' := by
     show post x ⊑ (((base.toWP _).wpTrans (pure x)).frameClosure op).apply post E'
     refine (PredTrans.le_frameClosure_iff op _).mpr fun r => ?_

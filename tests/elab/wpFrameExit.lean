@@ -80,7 +80,7 @@ postcondition. -/
 
 /-- The interpretation that frames both channels by `sepConj`. -/
 @[instance_reducible] noncomputable def framedWPE : WP Prog Unit HProp HProp :=
-  WP.of_frameClosure sepConj baseWP
+  WP.withFrameClosure sepConj baseWP
 
 /-- Landing below the closure at the transformer level: the framed obligation is
 `∀ F, F ∗ P ⊑ F ∗ P`. -/
@@ -94,4 +94,4 @@ theorem exit_spec_frameClosure :
 /-- The exit specification, at the `wp` layer. -/
 theorem exit_spec :
     ((0 ↦ 1) : HProp) ⊑ framedWPE.wp .exit (fun _ => ⊥) (0 ↦ 1) :=
-  WP.le_wp_of_frameClosure_eq (base := baseWP) rfl fun _ => PartialOrder.rel_refl
+  WP.le_wp_of_withFrameClosure_eq (base := baseWP) rfl fun _ => PartialOrder.rel_refl

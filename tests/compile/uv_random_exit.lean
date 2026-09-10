@@ -4,11 +4,10 @@ import Std.Internal.UV
 Covers `lean_uv_random`, the only loop-bound request that carries a Lean object (`owned`) into the
 loop's request list.
 
-The awaited call checks the completion path, including that the bytes libuv wrote into the request's
-scratch buffer reach the returned `ByteArray`. The unawaited calls are still registered when
-`finalize_libuv` runs, so they drive `event_loop_cancel_requests` and the teardown drain; a request
-whose worker is already inside `getrandom` cannot be cancelled and is abandoned instead, which is why
-that scratch buffer must not be the `ByteArray`'s payload.
+The awaited call checks the completion path, including that the bytes libuv wrote reach the returned
+`ByteArray`. The unawaited calls are still registered when `finalize_libuv` runs, so they drive
+`event_loop_cancel_requests` and the teardown drain. They are small enough to finish inside the
+drain; `uv_random_abandon_exit` covers requests that outlive it.
 -/
 
 open Std.Internal.UV

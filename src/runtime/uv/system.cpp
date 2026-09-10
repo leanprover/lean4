@@ -11,10 +11,7 @@ namespace lean {
 
 using namespace std;
 
-// Stores all the things needed to request a random sequence of bytes, followed by the `size` bytes
-// libuv fills. That scratch buffer trails the struct instead of being the Lean array's payload
-// because a threadpool worker writes it: teardown abandons workers it cannot cancel, leaking their
-// request, and only memory that is leaked with the request may still be written afterwards.
+// Stores all the things needed to request a random sequence of bytes.
 typedef struct {
     uv_random_t req;
     uv_pending_req pending;
@@ -424,8 +421,9 @@ extern "C" LEAN_EXPORT lean_obj_res lean_uv_hrtime() {
 
 // Std.Internal.UV.System.random : UInt64 → IO (IO.Promise (Except IO.Error (Array UInt8)))
 extern "C" LEAN_EXPORT lean_obj_res lean_uv_random(uint64_t size) {
-    if (size > SIZE_MAX - sizeof(random_req_t)) {
-        return lean_io_result_mk_error(decode_io_error(ENOMEM, nullptr));
+    // libuv rejects larger requests with `UV_E2BIG`; checking first avoids allocating the array.
+    if (size > 0x7FFFFFFF) {
+        return lean_io_result_mk_error(lean_decode_uv_error(UV_E2BIG, nullptr));
     }
 
     // Taken before anything is allocated, so the loop-unavailable path has nothing to unwind.
@@ -433,7 +431,7 @@ extern "C" LEAN_EXPORT lean_obj_res lean_uv_random(uint64_t size) {
         return lean_uv_loop_unavailable_error();
     }
 
-    random_req_t* req = (random_req_t*)malloc(sizeof(random_req_t) + size);
+    random_req_t* req = (random_req_t*)malloc(sizeof(random_req_t));
     if (req == nullptr) {
         event_loop_unlock(&global_ev);
         return lean_io_result_mk_error(decode_io_error(ENOMEM, nullptr));
@@ -442,6 +440,8 @@ extern "C" LEAN_EXPORT lean_obj_res lean_uv_random(uint64_t size) {
     lean_object* promise = lean_promise_new();
     mark_mt(promise);
 
+    // libuv writes into the payload directly. The array is registered as the request's `owned`, so it
+    // stays alive for as long as a worker may write it, including after teardown abandons it.
     lean_object* byte_array = lean_alloc_sarray(1, 0, size);
 
     req->req.data = req;
@@ -451,22 +451,18 @@ extern "C" LEAN_EXPORT lean_obj_res lean_uv_random(uint64_t size) {
     int result = uv_random(
         global_ev.loop,
         &req->req,
-        (uint8_t*)(req + 1),
+        lean_sarray_cptr(byte_array),
         size,
         0,
-        [](uv_random_t* uv_req, int status, void* buf, size_t buflen) {
+        [](uv_random_t* uv_req, int status, void*, size_t buflen) {
             random_req_t* req = (random_req_t*)uv_req->data;
             lean_object* promise = req->pending.promise;
             lean_object* byte_array = req->pending.owned;
 
             event_loop_unregister_request(&global_ev, &req->pending);
 
-            if (promise == nullptr) {
-                // Teardown abandoned this request, keeping the promise and releasing the array.
-                // The worker wrote into `req` itself, so freeing it here is safe now that it ran.
-                free(req);
-                return;
-            }
+            // See `event_loop_abandon_requests`: an abandoned request never calls back.
+            lean_assert(promise != nullptr);
 
             if (global_ev.state != EVENT_LOOP_RUNNING) {
                 // Rule 3: cancelled, or completed, during teardown's drain.
@@ -480,7 +476,6 @@ extern "C" LEAN_EXPORT lean_obj_res lean_uv_random(uint64_t size) {
                 lean_dec(byte_array);
                 lean_promise_resolve(mk_except_err(lean_decode_uv_error(status, nullptr)), promise);
             } else {
-                memcpy(lean_sarray_cptr(byte_array), buf, buflen);
                 lean_sarray_set_size(byte_array, buflen);
                 lean_promise_resolve(mk_except_ok(byte_array), promise);
             }

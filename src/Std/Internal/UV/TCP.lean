@@ -24,7 +24,7 @@ private opaque SocketImpl : NonemptyType.{0}
 /--
 Represents a TCP socket.
 
-The event loop is torn down when the program exits, after the tasks that are still running have
+The event loop is torn down when `main` returns, after the tasks that are still running have
 finished. A promise still pending at that point is never resolved. From then on `cancelRecv` and
 `cancelAccept` succeed as no-ops and every other operation fails with `UV_ECANCELED`.
 -/

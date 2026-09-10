@@ -23,7 +23,7 @@ private opaque SocketImpl : NonemptyType.{0}
 /--
 Represents a UDP socket.
 
-The event loop is torn down when the program exits, after the tasks that are still running have
+The event loop is torn down when `main` returns, after the tasks that are still running have
 finished. A promise still pending at that point is never resolved. From then on `cancelRecv`
 succeeds as a no-op and every other operation fails with `UV_ECANCELED`.
 -/
@@ -62,12 +62,12 @@ opaque send (socket : @& Socket) (data : Array ByteArray) (addr : @& Option Sock
 
 /--
 Receives data from an UDP socket. `size` is for the maximum bytes to receive. The promise
-resolves when some data is available or an error occurs. If a datagram larger than `size` arrives,
-it is discarded in its entirety and the promise resolves to an `EMSGSIZE` error.
+resolves when some data is available or an error occurs.
 Furthermore calling this function in parallel with `waitReadable` is not supported.
 
-Fails with `UV_EMSGSIZE` if the datagram is larger than `size`: the kernel discards the remainder, so
-the truncated prefix is dropped rather than reported as a complete read.
+A datagram larger than `size` is discarded in its entirety, and the promise resolves to an
+`EMSGSIZE` error (an `IO.Error.resourceExhausted`) instead of a truncated prefix. The socket stays
+usable, so a receive loop should handle the error per datagram.
 -/
 @[extern "lean_uv_udp_recv"]
 opaque recv (socket : @& Socket) (size : UInt64) : IO (IO.Promise (Except IO.Error (ByteArray × Option SocketAddress)))

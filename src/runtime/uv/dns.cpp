@@ -93,11 +93,8 @@ extern "C" LEAN_EXPORT lean_obj_res lean_uv_dns_get_info(b_obj_arg name, b_obj_a
 
         event_loop_unregister_request(&global_ev, &owner->pending);
 
-        if (promise == nullptr) {
-            uv_freeaddrinfo(res);
-            free(owner);
-            return;
-        }
+        // See `event_loop_abandon_requests`: an abandoned request never calls back.
+        lean_assert(promise != nullptr);
 
         if (global_ev.state != EVENT_LOOP_RUNNING) {
             // Rule 3: cancelled, or completed, during teardown's drain.
@@ -191,12 +188,8 @@ extern "C" LEAN_EXPORT lean_obj_res lean_uv_dns_get_name(b_obj_arg addr) {
 
         event_loop_unregister_request(&global_ev, &owner->pending);
 
-        if (promise == nullptr) {
-            // Teardown abandoned this request and already took the promise. The worker is done
-            // with `owner` by the time it calls back, so freeing it here is safe.
-            free(owner);
-            return;
-        }
+        // See `event_loop_abandon_requests`: an abandoned request never calls back.
+        lean_assert(promise != nullptr);
 
         if (global_ev.state != EVENT_LOOP_RUNNING) {
             // Rule 3: cancelled, or completed, during teardown's drain.

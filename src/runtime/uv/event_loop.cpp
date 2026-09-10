@@ -230,23 +230,16 @@ void event_loop_cancel_requests(event_loop_t * event_loop) {
 // classifies it as reachable rather than reporting it. Unlinking them here to "tidy up" would turn a
 // deliberate, bounded retention into a reported leak.
 //
-// `owned` is released here rather than retained with the request, which is why a registered request
-// may never hand a worker memory that `owned` keeps alive; `lean_uv_random` allocates its scratch
-// buffer inside the request for exactly this reason.
-//
-// The promise is kept (rule 3); `owned` is released with the walk's deferred releases.
-bool event_loop_abandon_requests(event_loop_t * event_loop, uv_deferred_teardown & deferred) {
+// `owned` stays on the node for the same reason, so a request may hand a worker memory that `owned`
+// keeps alive: `lean_uv_random` has libuv write straight into its `ByteArray`. The promise is kept
+// (rule 3).
+bool event_loop_abandon_requests(event_loop_t * event_loop) {
     bool abandoned = false;
 
     for (uv_pending_req * pending = event_loop->requests; pending != nullptr; pending = pending->next) {
         if (pending->promise != nullptr) {
             uv_deferred_teardown::keep(pending->promise);
             pending->promise = nullptr;
-        }
-
-        if (pending->owned != nullptr) {
-            deferred.release(pending->owned);
-            pending->owned = nullptr;
         }
 
         abandoned = true;

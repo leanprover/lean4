@@ -79,12 +79,11 @@ Receives data from an UDP socket. `size` is for the maximum bytes to receive.
 The promise resolves when some data is available or an error occurs. If the socket
 has not been previously bound with `bind`, it is automatically bound to `0.0.0.0`
 (all interfaces) with a random port.
-If a datagram larger than `size` arrives, it is discarded in its entirety and an `EMSGSIZE` error
-is thrown.
 Furthermore calling this function in parallel with `recvSelector` is not supported.
 
-Fails with `UV_EMSGSIZE` if the datagram is larger than `size`: the kernel discards the remainder, so
-the truncated prefix is dropped rather than reported as a complete read.
+A datagram larger than `size` is discarded in its entirety, and this throws `EMSGSIZE` (an
+`IO.Error.resourceExhausted`) instead of returning a truncated prefix. The socket stays usable, so a
+receive loop should catch the error per datagram.
 -/
 @[inline]
 def recv (s : Socket) (size : UInt64) : Async (ByteArray × Option SocketAddress) :=

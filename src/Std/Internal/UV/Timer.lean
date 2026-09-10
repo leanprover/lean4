@@ -27,7 +27,7 @@ A `Timer` can be in one of 3 states:
 This together with whether it was set up as `repeating` with `Timer.new` determines the behavior
 of all functions on `Timer`s.
 
-The event loop is torn down when the program exits, after the tasks that are still running have
+The event loop is torn down when `main` returns, after the tasks that are still running have
 finished. A promise still pending at that point is never resolved. From then on `stop` and `cancel`
 succeed as no-ops and every other operation fails with `UV_ECANCELED`.
 -/
@@ -43,9 +43,9 @@ This creates a `Timer` in the initial state and doesn't run it yet.
   milliseconds, counting from when it's run.
 - If `repeating` is `true` this constructs a timer that resolves after multiples of `timeout`
   milliseconds, counting from when it's run. Note that this includes the 0th multiple right after
-  starting the timer.
+  starting the timer. A `timeout` of 0 ticks every millisecond.
 
-The event loop keeps a running timer alive only while a promise from `next` is outstanding, so a
+The event loop keeps a running timer alive only while a promise from `next` is still pending, so a
 repeating timer can be freed without calling `Timer.stop`.
 -/
 @[extern "lean_uv_timer_mk"]

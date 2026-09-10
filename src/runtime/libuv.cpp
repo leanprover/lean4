@@ -39,6 +39,8 @@ extern "C" void initialize_libuv() {
 // Tears the event loop down, freeing everything libuv owns. `lean_finalize_task_manager` calls this
 // once the workers have finished, so no task is using the loop any more. A promise still pending is
 // kept unresolved rather than released (rule 3 at `uv_deferred_teardown`), so no Lean code runs here.
+// Joining the loop thread waits for a callback it is running, including a `(sync := true)`
+// continuation, so one that blocks delays the exit for as long as it blocks.
 //
 // This is terminal: `initialize_libuv` is only ever called from `initialize_runtime_module`, so the
 // loop is not restarted afterwards and every subsequent uv operation fails with `UV_ECANCELED`.
@@ -137,7 +139,7 @@ extern "C" void finalize_libuv() {
 
     event_loop_lock_internal(&global_ev);
 
-    bool abandoned = event_loop_abandon_requests(&global_ev, deferred_teardown);
+    bool abandoned = event_loop_abandon_requests(&global_ev);
 
     // A request that outlived the drain keeps its `uv_req_t` and the loop that owns it. Freeing
     // either would need the loop to run once more so the completion callback could reap it, and the

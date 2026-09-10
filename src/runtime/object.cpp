@@ -1141,9 +1141,11 @@ extern "C" LEAN_EXPORT void lean_init_task_manager() {
 
 extern "C" LEAN_EXPORT void lean_finalize_task_manager() {
     if (g_task_manager) {
-        // The workers finish with the event loop still running, so a task blocked on libuv I/O
-        // completes as it would otherwise. The loop is torn down before the task manager is freed,
-        // since the loop thread enqueues continuations on it until it stops.
+        // The workers finish with the event loop still running, so a task that waits directly on a
+        // libuv promise completes as it would otherwise. One that waits on a continuation of such a
+        // promise may not: `shutdown` spawns no new workers, so a continuation the loop enqueues
+        // after the last worker went idle never runs. The loop is torn down before the task manager
+        // is freed, since the loop thread enqueues continuations on it until it stops.
         g_task_manager->shutdown();
         finalize_libuv();
         delete g_task_manager;

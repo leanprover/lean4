@@ -3,8 +3,8 @@ import Std.Net.Addr
 
 /-!
 A program that exits with libuv operations still in flight: timers, signals, connects, accepts,
-receives and a half-close are all pending when the event loop stops, and must stay pending without
-crashing the exit.
+receives, a write and a half-close are all pending when the event loop stops, and must stay pending
+without crashing the exit.
 
 Nothing here is expected to fail, so setup errors are deliberately *not* caught: a swallowed
 `Socket.new` or `bind` would silently reduce this to a test of nothing. The one exception is guarded
@@ -29,6 +29,22 @@ def portOf (a : SocketAddress) : UInt16 :=
   match a with
   | .v4 a => a.port
   | .v6 a => a.port
+
+/--
+Keeps `sockets` open until the event loop is torn down. A socket referenced only from `main`'s
+locals is finalized when `main` returns, which closes it and settles its operations before teardown
+starts. Here they are captured by a continuation of a timer promise that is still pending at exit,
+which teardown keeps, continuations included, for the rest of the process. The continuation never
+runs; if it did, its output would fail the test.
+-/
+def keepOpenUntilTeardown (sockets : Array TCP.Socket) : IO Unit := do
+  let timer ← Timer.mk 3600000 false
+  let fired ← timer.next
+  discard <| IO.mapTask (fun _ => IO.println s!"kept {sockets.size} sockets") fired.result?
+
+def expectPending {α : Type} (what : String) (p : IO.Promise α) : IO Unit := do
+  if ← p.isResolved then
+    throw <| IO.userError s!"{what} completed before exit, so the test no longer covers it"
 
 def startInflight : IO Unit := do
   for _ in [0:30] do
@@ -59,22 +75,36 @@ def startInflight : IO Unit := do
     s.bind (lo 0)
     discard <| s.recv 1024
 
-  -- A connected pair, so that the exit also leaves an in-flight `recv?` and a `uv_shutdown_t`.
-  -- The `accept` wait is bounded in practice: the connect is to loopback and the backlog is larger
-  -- than the number of outstanding connects.
-  for _ in [0:8] do
+  -- Connected pairs that stay open until teardown, so the walk meets an in-flight `recv?`, a write
+  -- the peer never reads and a `uv_shutdown_t` queued behind it. 32 MiB is more than loopback
+  -- buffers absorb, so the write cannot complete; it repeats one 64 KiB chunk to stay cheap. The
+  -- `accept` wait is bounded in practice: the connect is to loopback and the backlog is larger than
+  -- the number of outstanding connects.
+  let chunk := ByteArray.mk (Array.replicate 65536 (0 : UInt8))
+  let payload := Array.replicate 512 chunk
+  for _ in [0:4] do
     let server ← TCP.Socket.new
     server.bind (lo 0)
     server.listen 16
     let port := portOf (← server.getSockName)
     let client ← TCP.Socket.new
-    discard <| client.connect (lo port)
-    match (← server.accept).result?.get with
-    | some (.ok accepted) =>
-        discard <| accepted.recv? 1024
-        discard <| client.shutdown
+    let connected ← client.connect (lo port)
+    let accepted ← match (← server.accept).result?.get with
+      | some (.ok accepted) => pure accepted
+      | some (.error e) => throw e
+      | none => throw <| IO.userError "accept promise was dropped"
+    match connected.result?.get with
+    | some (.ok ()) => pure ()
     | some (.error e) => throw e
-    | none => throw <| IO.userError "accept promise was dropped"
+    | none => throw <| IO.userError "connect promise was dropped"
+    keepOpenUntilTeardown #[server, client, accepted]
+    let recv ← client.recv? 1024
+    let send ← client.send payload
+    let shutdown ← client.shutdown
+    IO.sleep 20
+    expectPending "recv?" recv
+    expectPending "send" send
+    expectPending "shutdown" shutdown
 
 def main : IO Unit := do
   startInflight

@@ -221,9 +221,11 @@ opaque hrtime : IO UInt64
 /--
 Generates cryptographically secure random bytes.
 
-If the program exits while the request is still in flight, the promise is never resolved. Once the
-event loop has been torn down, this function fails with `UV_ECANCELED` rather than returning a
-promise.
+Fails with `UV_E2BIG` if more than 2^31 - 1 bytes are requested.
+
+If `main` returns while the request is still in flight, the promise is never resolved, and a request
+the OS has already started can delay the process exit until it returns. Once the event loop has been
+torn down, this function fails with `UV_ECANCELED` rather than returning a promise.
 -/
 @[extern "lean_uv_random"]
 opaque random : UInt64 → IO (IO.Promise (Except IO.Error ByteArray))

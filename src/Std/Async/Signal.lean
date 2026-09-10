@@ -189,7 +189,7 @@ private def toInt32 : Signal → Int32
 /--
 `Signal.Waiter` can be used to handle a specific signal once.
 
-The event loop is torn down when the program exits, after the tasks that are still running have
+The event loop is torn down when `main` returns, after the tasks that are still running have
 finished. A `wait` still pending at that point never completes, and starting a new one fails with
 `UV_ECANCELED`.
 -/

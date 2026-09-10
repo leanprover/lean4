@@ -29,7 +29,7 @@ A `Signal` can be in one of 3 states:
 This together with whether it was set up as `repeating` with `Signal.mk` determines the behavior
 of all functions on `Signal`s.
 
-The event loop is torn down when the program exits, after the tasks that are still running have
+The event loop is torn down when `main` returns, after the tasks that are still running have
 finished. A promise still pending at that point is never resolved. From then on `stop` and `cancel`
 succeed as no-ops and every other operation fails with `UV_ECANCELED`.
 -/
@@ -44,10 +44,11 @@ This creates a `Signal` in the initial state and doesn't start listening yet.
 - If `repeating` is `false` this constructs a signal handler that resolves once when the specified
   signal `signum` is received, then automatically stops listening.
 - If `repeating` is `true` this constructs a signal handler that resolves each time the specified
-  signal `signum` is received and continues listening.
+  signal `signum` is received and continues listening. While it listens, a signal that arrives with
+  no promise from `next` pending is consumed without being reported.
 
-The event loop keeps a running signal handler alive only while a promise from `next` is outstanding,
-so a repeating one can be freed without calling `Signal.stop`.
+The event loop keeps a running signal handler alive only while a promise from `next` is still
+pending, so a repeating one can be freed without calling `Signal.stop`.
 -/
 @[extern "lean_uv_signal_mk"]
 opaque mk (signum : Int32) (repeating : Bool) : IO Signal

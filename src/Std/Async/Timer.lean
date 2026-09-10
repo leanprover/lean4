@@ -20,7 +20,7 @@ namespace Async
 `Sleep` can be used to sleep for some duration once.
 The underlying timer has millisecond resolution.
 
-The event loop is torn down when the program exits, after the tasks that are still running have
+The event loop is torn down when `main` returns, after the tasks that are still running have
 finished. A `wait` still pending at that point never completes, and starting a new one fails with
 `UV_ECANCELED`.
 -/
@@ -43,7 +43,9 @@ def mk (duration : Std.Time.Millisecond.Offset) : Async Sleep := do
 If:
 - `s` is not yet running start it and return an `Async` computation that will complete once the previously
    configured `duration` has elapsed.
-- `s` is already or not anymore running return the same `Async` computation as the first call to `wait`.
+- `s` is already running, or finished after completing, return the same `Async` computation as the
+  first call to `wait`.
+- `s` was stopped with `stop` before completing, return an `Async` computation that fails.
 -/
 @[inline]
 def wait (s : Sleep) : Async Unit :=
@@ -116,7 +118,7 @@ def Selector.sleep (duration : Std.Time.Millisecond.Offset) : Async (Selector Un
 `Interval` can be used to repeatedly wait for some duration like a clock.
 The underlying timer has millisecond resolution.
 
-The event loop is torn down when the program exits, after the tasks that are still running have
+The event loop is torn down when `main` returns, after the tasks that are still running have
 finished. A `tick` still pending at that point never completes, and starting a new one fails with
 `UV_ECANCELED`.
 -/

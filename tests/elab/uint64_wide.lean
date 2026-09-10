@@ -34,6 +34,9 @@ def checkAddCarry (a b : UInt64) (carry : Bool) : Bool :=
 #guard checkAddCarry 18446744073709551615 18446744073709551615 true
 #guard checkAddCarry 1311768467463790320 1147797409030816545 false
 #guard UInt64.addCarry 18446744073709551615 0 true == (0, true)
+#guard UInt64.addCarry 0 0 true == (1, false)
+#guard UInt64.addCarry 18446744073709551615 1 false == (0, true)
+#guard UInt64.addCarry 18446744073709551615 18446744073709551615 true == (18446744073709551615, true)
 example : UInt64.addCarry 18446744073709551615 0 true = (0, true) := by decide
 
 def checkSubBorrow (a b : UInt64) (borrow : Bool) : Bool :=
@@ -45,4 +48,8 @@ def checkSubBorrow (a b : UInt64) (borrow : Bool) : Bool :=
 #guard checkSubBorrow 0 18446744073709551615 true
 #guard checkSubBorrow 1311768467463790320 1147797409030816545 false
 #guard UInt64.subBorrow 0 0 true == (18446744073709551615, true)
+#guard UInt64.subBorrow 1 0 true == (0, false)
+#guard UInt64.subBorrow 0 1 false == (18446744073709551615, true)
+#guard UInt64.subBorrow 1 1 false == (0, false)
+#guard UInt64.subBorrow 0 18446744073709551615 true == (0, true)
 example : UInt64.subBorrow 0 0 true = (18446744073709551615, true) := by decide

@@ -605,7 +605,9 @@ def UInt64.mulHi (a b : UInt64) : UInt64 :=
   UInt64.ofNat (a.toNat * b.toNat / UInt64.size)
 
 /--
-Returns the 128-bit product of two 64-bit unsigned integers as its low and high 64-bit words.
+Returns the 128-bit product of two 64-bit unsigned integers as the pair `(low, high)` of its low and
+high 64-bit words, so that `low.toNat + 2 ^ 64 * high.toNat = a.toNat * b.toNat`. The low word is
+`a * b` and the high word is `a.mulHi b`.
 
 This function is compiled using `UInt64.mulFullImpl`.
 -/
@@ -614,8 +616,10 @@ def UInt64.mulFull (a b : UInt64) : UInt64 × UInt64 :=
   (UInt64.ofNat product, UInt64.ofNat (product / UInt64.size))
 
 /--
-Adds two 64-bit unsigned integers and an incoming carry, returning the wrapped sum and outgoing
-carry.
+Adds two 64-bit unsigned integers and an incoming carry bit, returning the pair `(sum, carryOut)`
+where `sum = a + b + carry.toUInt64` wraps around on overflow and `carryOut` is `true` exactly when
+`2 ^ 64 ≤ a.toNat + b.toNat + carry.toNat`, so that
+`sum.toNat + 2 ^ 64 * carryOut.toNat = a.toNat + b.toNat + carry.toNat`.
 
 This function is compiled using `UInt64.addCarryImpl`.
 -/
@@ -624,8 +628,10 @@ def UInt64.addCarry (a b : UInt64) (carry : Bool) : UInt64 × Bool :=
   (UInt64.ofNat sum, decide (UInt64.size ≤ sum))
 
 /--
-Subtracts a 64-bit unsigned integer and an incoming borrow from another, returning the wrapped
-difference and outgoing borrow.
+Computes `a - b - borrow` for 64-bit unsigned integers and an incoming borrow bit, returning the pair
+`(difference, borrowOut)` where `difference = a - b - borrow.toUInt64` wraps around on underflow and
+`borrowOut` is `true` exactly when `a.toNat < b.toNat + borrow.toNat`, so that
+`difference.toNat + b.toNat + borrow.toNat = a.toNat + 2 ^ 64 * borrowOut.toNat`.
 
 This function is compiled using `UInt64.subBorrowImpl`.
 -/

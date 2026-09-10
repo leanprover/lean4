@@ -3,19 +3,22 @@ import Std.WP
 import Std.Tactic.Do
 
 /-!
-The frame closure frames both channels: `frameClosure op` hands the framed exception postcondition
-`opE r E` to the base transformer. On a two-constructor program type over a toy heap, `exit_spec`
-shows the specification `⦃ l ↦ v ⦄ exit ⦃ ⊥; l ↦ v ⦄`: an exit owns exactly what it held, with the
-frame pushed into the exception postcondition by the companion `opE := sepConj` at `EPred = Pred`.
-The framed obligation is `∀ F, F ∗ P ⊑ F ∗ P`. `exit_frames_via_vcgen` runs the same scenario
-through `vcgen`: a lossy spec drops a framed cell and a `frames` clause recovers it through the
-exception channel.
+Tests for framing the exception channel.
+
+The first part works on a two-constructor program type over a toy heap. `exit_spec` shows the
+specification `⦃ l ↦ v ⦄ exit ⦃ ⊥; l ↦ v ⦄`: an exit owns exactly what it held. The companion
+`opE := sepConj` at `EPred = Pred` pushes the frame into the exception postcondition. The framed
+obligation is `∀ F, F ∗ P ⊑ F ∗ P`. `exit_frames_via_vcgen` runs the same scenario through
+`vcgen`: a lossy spec drops a framed cell and a `frames` clause recovers it. The separation
+algebra facts are axioms. Only the framing theorems carry proofs.
+
+The second part frames by `meet` through a `throw` in `ExceptT Unit (StateM σ)`.
 -/
 
 set_option experimental.vcgen true
 set_option grind.warning false
 
-open Lean.Order Std.WP Std.Internal.Order
+open Lean Order Meta Elab Tactic Sym Std WP
 
 /-! ## A toy heap and its assertions -/
 
@@ -33,36 +36,7 @@ def Heap.union (h₁ h₂ : Heap) : Heap := fun n => (h₁ n).or (h₂ n)
 /-- The singleton heap holding `v` at `l`. -/
 def Heap.single (l : Addr) (v : Nat) : Heap := fun n => if n = l then some v else none
 
-@[simp] theorem Heap.union_none_iff (h₁ h₂ : Heap) (n : Addr) :
-    h₁.union h₂ n = none ↔ h₁ n = none ∧ h₂ n = none := by
-  simp only [Heap.union]; cases h₁ n <;> simp
-
-theorem Heap.disjoint_comm {h₁ h₂ : Heap} (h : h₁.disjoint h₂) : h₂.disjoint h₁ :=
-  fun n => (h n).symm
-
-theorem Heap.union_comm {h₁ h₂ : Heap} (h : h₁.disjoint h₂) : h₁.union h₂ = h₂.union h₁ := by
-  funext n; simp only [Heap.union]; rcases h n with hn | hn <;> simp [hn]
-
-theorem Heap.union_assoc (h₁ h₂ h₃ : Heap) :
-    (h₁.union h₂).union h₃ = h₁.union (h₂.union h₃) := by
-  funext n; simp only [Heap.union]; cases h₁ n <;> rfl
-
-theorem Heap.disjoint_union_left {h₁ h₂ h₃ : Heap} :
-    (h₁.union h₂).disjoint h₃ ↔ h₁.disjoint h₃ ∧ h₂.disjoint h₃ := by
-  simp only [Heap.disjoint, Heap.union_none_iff]
-  constructor
-  · intro h; exact ⟨fun n => (h n).imp_left (·.1), fun n => (h n).imp_left (·.2)⟩
-  · rintro ⟨ha, hb⟩ n; have := ha n; have := hb n; grind
-
-theorem Heap.disjoint_union_right {h₁ h₂ h₃ : Heap} :
-    h₁.disjoint (h₂.union h₃) ↔ h₁.disjoint h₂ ∧ h₁.disjoint h₃ := by
-  simp only [Heap.disjoint, Heap.union_none_iff]
-  constructor
-  · intro h; exact ⟨fun n => (h n).imp_right (·.1), fun n => (h n).imp_right (·.2)⟩
-  · rintro ⟨ha, hb⟩ n; have := ha n; have := hb n; grind
-
-/-- Heap assertions. A `def`, so the wp pipeline treats assertions as atoms instead of
-introducing the heap argument. -/
+/-- Heap assertions. A `def`, so the wp pipeline treats assertions as atoms. -/
 def HProp : Type := Heap → Prop
 
 instance : Lean.Order.CompleteLattice HProp :=
@@ -81,53 +55,21 @@ def sepConj (P Q : HProp) : HProp :=
 
 local infixr:65 " ∗ " => sepConj
 
-@[grind =] theorem sepConj_comm (a b : HProp) : (a ∗ b) = (b ∗ a) := by
-  funext h; apply propext
-  constructor <;>
-    · rintro ⟨h₁, h₂, hd, rfl, hp, hq⟩
-      exact ⟨h₂, h₁, Heap.disjoint_comm hd, Heap.union_comm hd, hq, hp⟩
+axiom sepConj_comm (a b : HProp) : (a ∗ b) = (b ∗ a)
 
-theorem sepConj_assoc (a b c : HProp) : ((a ∗ b) ∗ c) = (a ∗ (b ∗ c)) := by
-  funext h
-  apply propext
-  constructor
-  · rintro ⟨_, h₃, hd, rfl, ⟨h₁, h₂, hd12, rfl, ha, hb⟩, hc⟩
-    obtain ⟨hd13, hd23⟩ := Heap.disjoint_union_left.mp hd
-    exact ⟨h₁, h₂.union h₃, Heap.disjoint_union_right.mpr ⟨hd12, hd13⟩,
-      Heap.union_assoc h₁ h₂ h₃, ha, h₂, h₃, hd23, rfl, hb, hc⟩
-  · rintro ⟨h₁, _, hd, rfl, ha, ⟨h₂, h₃, hd23, rfl, hb, hc⟩⟩
-    obtain ⟨hd12, hd13⟩ := Heap.disjoint_union_right.mp hd
-    exact ⟨h₁.union h₂, h₃, Heap.disjoint_union_left.mpr ⟨hd13, hd23⟩,
-      (Heap.union_assoc h₁ h₂ h₃).symm, ⟨h₁, h₂, hd12, rfl, ha, hb⟩, hc⟩
-
-/-- The generic sup on `HProp`, pointwise (via the lattice axioms alone). -/
-theorem hprop_sup_apply (s : HProp → Prop) (h : Heap) :
-    (CompleteLattice.sup s : HProp) h ↔ ∃ f, s f ∧ f h := by
-  constructor
-  · exact fun hh => sup_le s (x := fun h => ∃ f, s f ∧ f h)
-      (fun f hf h' hfh' => ⟨f, hf, hfh'⟩) h hh
-  · rintro ⟨f, hf, hfh⟩; exact le_sup (c := s) hf h hfh
+axiom sepConj_assoc (a b c : HProp) : ((a ∗ b) ∗ c) = (a ∗ (b ∗ c))
 
 /-- `(F ∗ ·)` preserves suprema, so it has an upper adjoint (the magic wand). -/
-instance (F : HProp) : PreservesSup (sepConj F) where
-  map_sup s := by
-    funext h
-    apply propext
-    rw [hprop_sup_apply]
-    constructor
-    · rintro ⟨h₁, h₂, hd, rfl, hF, hsup⟩
-      obtain ⟨f, hf, hfh⟩ := (hprop_sup_apply s h₂).mp hsup
-      exact ⟨F ∗ f, ⟨f, hf, rfl⟩, h₁, h₂, hd, rfl, hF, hfh⟩
-    · rintro ⟨g, ⟨f, hf, rfl⟩, h₁, h₂, hd, rfl, hF, hfh⟩
-      exact ⟨h₁, h₂, hd, rfl, hF, (hprop_sup_apply s h₂).mpr ⟨f, hf, hfh⟩⟩
+axiom preservesSup_sepConj (F : HProp) : PreservesSup (sepConj F)
+
+instance (F : HProp) : PreservesSup (sepConj F) := preservesSup_sepConj F
 
 /-- Monotonicity of `∗` in its right argument. -/
-theorem sepConj_mono_right (a : HProp) {b b' : HProp} (h : b ⊑ b') : a ∗ b ⊑ a ∗ b' :=
-  PreservesSup.map_mono (sepConj a) h
+axiom sepConj_mono_right (a : HProp) {b b' : HProp} (h : b ⊑ b') : a ∗ b ⊑ a ∗ b'
 
 /-! ## A program type with an exit
 
-`skip` falls through; `exit` leaves through the exception channel, carrying the heap. The base wp
+`skip` falls through. `exit` leaves through the exception channel, carrying the heap. The base wp
 is the evident one. -/
 
 inductive Prog | skip | exit
@@ -164,7 +106,7 @@ theorem exit_spec :
 
 /-! ## `vcgen`: framing through the exit
 
-A lossy spec owns only `0 ↦ 1`; the `frames` clause pins `5 ↦ 7` and `vcgen` carries it into the
+A lossy spec owns only `0 ↦ 1`. The `frames` clause pins `5 ↦ 7`, and `vcgen` carries it into the
 exception postcondition through the frame rule. -/
 
 /-- Every `Prog` frames every heap assertion `F` on both channels. -/
@@ -180,10 +122,10 @@ theorem exit_spec_lossy :
     ⦃ ((0 : Addr) ↦ 1) ⦄ Prog.exit ⦃ fun _ => (⊥ : HProp); ((0 : Addr) ↦ 1) ⦄ :=
   ⟨WP.le_wp_of_withFrameClosure_eq (base := baseWP) rfl fun _ => PartialOrder.rel_refl⟩
 
-open Lean Meta Sym Lean.Elab.Tactic.VCGen
+open Lean.Elab.Tactic.VCGen
 
 /-- Pin-only frame inference for `Prog`: the goal precondition is `footprint ∗ frame` with the
-pinned frame on the right, so commuting it and framing the spec proof discharges the split VC. -/
+pinned frame on the right. Commuting it and framing the spec proof discharges the split VC. -/
 def exitFrameProc : FrameInferenceProc := fun i => do
   let some frame := i.providedFrame? | return .decline
   return .commit #[] fun goal => do
@@ -214,3 +156,53 @@ theorem exit_frames_via_vcgen :
   case vc3 =>
     rintro h ⟨_, h₂, _, _, _, hbot⟩
     exact bot_le (fun _ => (⊥ : HProp) h) h₂ hbot
+
+abbrev AppState := Nat × Nat
+
+/-! ## Meet framing through a `throw`
+
+`ExceptT ε (StateM σ)` keeps the state on `throw`, so its exception layer `Unit → σ → Prop`
+carries the assertion type `σ → Prop` and the derived `FrameOp` companion frames it pointwise. A
+`frames` clause recovers a state fact on the normal exit and through the `throw` alike. -/
+
+abbrev MEx := ExceptT Unit (StateM AppState)
+
+/-- Bump `fst`, or throw when it is spent. The state survives the throw. -/
+@[irreducible] def bumpOrThrow : MEx Nat := do
+  let s ← get
+  if s.1 > 9 then throw ()
+  set ((s.1 + 1 : Nat), s.2)
+  pure s.1
+
+/-- Lossy spec: says nothing about `s.2` on either exit. -/
+@[spec] theorem bumpOrThrow_spec :
+    ⦃ fun s => ⌜s.1 = n⌝ ⦄ (bumpOrThrow : MEx Nat)
+    ⦃ fun r s => ⌜r = n ∧ s.1 = n + 1⌝; estack⟨fun _ s => ⌜s.1 = n⌝⟩ ⦄ := by
+  unfold bumpOrThrow
+  vcgen <;> simp_all
+
+/-- `bumpOrThrow` frames any `P` outside its `fst` footprint, on both channels: the derived
+companion is the pointwise meet on the exception layer and the ignoring companion on the empty
+tail. -/
+@[grind .]
+theorem frames_bumpOrThrow {P : AppState → Prop}
+    (h : ∀ s a, P { s with fst := a } = P s) :
+    PredTrans.Frames meet (WP.wpTrans (bumpOrThrow : MEx Nat)) P := by
+  refine WP.frames_of_conjunctive ?_ ?_
+  · vcgen [bumpOrThrow] with finish
+  · intro E
+    refine PartialOrder.rel_trans (PartialOrder.rel_of_eq (Prod.mk_meet _ _).symm) ?_
+    refine Prod.mk_le _ _ _ ?_ ?_
+    · intro e s hs
+      simp only [FrameOp.prod_fst, FrameOp.pointwise_apply, meet_apply, meet_prop_eq_and] at hs ⊢
+      exact ⟨hs.1.1, hs.2⟩
+    · simp only [FrameOp.prod_snd, FrameOp.ignore_apply]
+      exact meet_le_right _ _
+
+/-- The frame recovers `s.2 = 7`, which the lossy spec dropped, on the normal exit and through
+the `throw`. -/
+theorem recovers_through_throw :
+    ⦃ fun s => ⌜s.1 = 0 ∧ s.2 = 7⌝ ⦄ (bumpOrThrow : MEx Nat)
+    ⦃ fun r s => ⌜r = 0 ∧ s.2 = 7⌝; estack⟨fun _ s => ⌜s.2 = 7⌝⟩ ⦄ := by
+  fail_if_success (vcgen <;> grind)
+  vcgen frames | bumpOrThrow => fun s => ⌜s.2 = 7⌝ with finish

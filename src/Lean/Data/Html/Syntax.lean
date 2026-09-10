@@ -6,16 +6,15 @@ Author: Wojciech Nawrocki
 module
 
 prelude
-import Init.Data.String.Modify
-public import Lean.PrettyPrinter.Parenthesizer
-public import Lean.PrettyPrinter.Formatter
-import Lean.DocString.Parser
-import Lean.Meta.Hint
-import Lean.Data.Html.Spec
+import Init.Prelude
+public meta import Init.Data.String.Modify
+public meta import Lean.DocString.Parser
+public meta import Lean.Meta.Hint
+public meta import Lean.Data.Html.Spec
 
 set_option doc.verso true
 
-public section
+public meta section
 
 namespace Lean.Html.Syntax
 
@@ -117,9 +116,11 @@ abbrev interpKind := `Lean.Html.Syntax.interp
 abbrev interpManyKind := `Lean.Html.Syntax.interpMany
 
 /-- Parses {lit}`{ term }`. -/
+@[run_parser_attribute_hooks]
 def interp : Parser := interpWith interpKind "{"
 
 /-- Parses {lit}`{... term }`. -/
+@[run_parser_attribute_hooks]
 def interpMany : Parser := interpWith interpManyKind "{..."
 
 /-! ## Text content -/
@@ -128,7 +129,8 @@ abbrev textKind := `Lean.Html.Syntax.text
 abbrev Text := TSyntax textKind
 
 /-- Parses [HTML text content](https://html.spec.whatwg.org/dev/dom.html#text-content),
-stopping at an interpolation `{`, a tag `<`, or a closing bracket `}` (for {lit}`html%{ text }`). -/
+stopping at an interpolation {lit}`{`, a tag `<`,
+or a closing bracket `}` (for {lit}`html%{ text }`). -/
 def text : Parser where
   fn c s :=
     let startPos := s.pos
@@ -138,10 +140,10 @@ where
   isTextChar (c : Char) :=
     (!isControl c || isAsciiWhitespace c) && !isNonCharacter c && c ∉ ['{', '}', '<']
 
-@[combinator_parenthesizer text]
+@[combinator_parenthesizer text, parenthesizer Lean.Html.Syntax.text]
 def text.parenthesizer : Parenthesizer := Parenthesizer.visitToken
 
-@[combinator_formatter text]
+@[combinator_formatter text, formatter Lean.Html.Syntax.text]
 def text.formatter : Formatter := Formatter.visitAtom textKind
 
 /-- Returns the raw source text of an HTML text node,
@@ -190,10 +192,10 @@ private partial def commentFn : ParserFn := fun c s =>
 def comment : Parser where
   fn := nodeFn commentKind <| rawFn commentFn (trailingWs := false)
 
-@[combinator_parenthesizer comment]
+@[combinator_parenthesizer comment, parenthesizer Lean.Html.Syntax.comment]
 def comment.parenthesizer := Parenthesizer.visitToken
 
-@[combinator_formatter comment]
+@[combinator_formatter comment, formatter Lean.Html.Syntax.comment]
 def comment.formatter := Formatter.visitAtom commentKind
 
 /-- Text contents of an HTML comment, excluding start and end markers. -/
@@ -225,7 +227,8 @@ abbrev attrNameKind := `Lean.Html.Syntax.attrName
 abbrev AttrName := TSyntax attrNameKind
 
 /-- Parses an [HTML attribute name](https://html.spec.whatwg.org/dev/syntax.html#attributes-2)
-that does not start with `{` (which would conflict with interpolation). -/
+that does not start with {lit}`{` (which would conflict with interpolation). -/
+@[run_parser_attribute_hooks]
 def attrName : Parser :=
   parseFirstMany attrNameKind "attribute name" isAttrNameFirstChar isAttrNameChar
 where
@@ -242,14 +245,9 @@ def AttrName.view [Monad m] [MonadError m] : AttrName → m String :=
 abbrev attrValKind := `Lean.Html.Syntax.attrVal
 abbrev AttrVal := TSyntax attrValKind
 
+@[run_parser_attribute_hooks]
 def attrVal : Parser :=
   node attrValKind (strLit <|> interp)
-
-@[combinator_parenthesizer attrVal]
-def attrVal.parenthesizer := Parenthesizer.visitToken
-
-@[combinator_formatter attrVal]
-def attrVal.formatter := Formatter.visitAtom attrValKind
 
 inductive AttrValView where
   | str (val : TSyntax `str)
@@ -275,15 +273,10 @@ We support double-quoted attribute values {lit}`<tag name="val">`,
 empty attributes {lit}`<tag name>`,
 interpolations of one value {lit}`<tag name={ term }>`,
 and interpolations of a sequence of attributes {lit}`<tag {... term }/>`. -/
+@[run_parser_attribute_hooks]
 def attr : Parser :=
   node attrKind <|
     (attrName >> symbol "=" >> attrVal) <|> attrName <|> interp <|> interpMany
-
-@[combinator_parenthesizer attr]
-def attr.parenthesizer := Parenthesizer.visitToken
-
-@[combinator_formatter attr]
-def attr.formatter := Formatter.visitAtom attrKind
 
 inductive AttrView where
   | val (name : AttrName) (val : AttrVal)
@@ -349,23 +342,13 @@ private partial def contentItemFn : ParserFn := fun c s =>
   | '{' => interp.fn c s
   | _ => text.fn c s
 
-/-- Parses an HTML element:
-{lit}`<tag attr*/>` or {lit}`<tag attr*>content</tag>`.
-Tags must be closed: void element syntax such as `<br>`,
-and implied end tags such as `<ul><li>item</ul>`,
-are not supported.
-
-Start and end tag names are not checked for equality in the parser. -/
-def element : Parser := elementWith (contentWith contentItemFn)
-
 /-- Parses a sequence of HTML content nodes:
-{name}`text` contents, {name}`comment`s, {name}`element`s, and {name}`interp`olations.
+{name}`text` contents, {name}`comment`s, {lit}`element`s, and {name}`interp`olations.
 
 This parser can be antiquoted. -/
 def content : Parser := contentWith contentItemFn
 
 mutual
-@[combinator_parenthesizer content]
 partial def content.parenthesizer : Parenthesizer :=
   Parenthesizer.withAntiquot.parenthesizer
       (Parenthesizer.mkAntiquot.parenthesizer' "content" contentKind) do
@@ -383,7 +366,6 @@ partial def contentItem.parenthesizer : Parenthesizer := do
 end
 
 mutual
-@[combinator_formatter content]
 partial def content.formatter : Formatter :=
   Formatter.withAntiquot.formatter (Formatter.mkAntiquot.formatter' "content" contentKind) do
   Formatter.checkKind contentKind
@@ -398,6 +380,20 @@ partial def contentItem.formatter : Formatter := do
   else if k == elementKind then elementWith.formatter content.formatter
   else throwError "Unexpected syntax node kind `{k}` in HTML content"
 end
+
+attribute [combinator_parenthesizer content, parenthesizer Lean.Html.Syntax.content]
+  content.parenthesizer
+attribute [combinator_formatter content, formatter Lean.Html.Syntax.content] content.formatter
+
+/-- Parses an HTML element:
+{lit}`<tag attr*/>` or {lit}`<tag attr*>content</tag>`.
+Tags must be closed: void element syntax such as `<br>`,
+and implied end tags such as `<ul><li>item</ul>`,
+are not supported.
+
+Start and end tag names are not checked for equality in the parser. -/
+@[run_parser_attribute_hooks]
+def element : Parser := elementWith (content)
 
 inductive ContentItemView where
   | element (stx : Element) (startTag : TagName) (attrs : Array Attr) (children? : Option Content)

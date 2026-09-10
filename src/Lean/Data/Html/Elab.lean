@@ -9,7 +9,6 @@ prelude
 public meta import Lean.Data.Html.Syntax
 public meta import Lean.Elab.Term
 import Lean.Data.Html.Basic
-public import Lean.Data.Html.Spec
 
 set_option doc.verso true
 

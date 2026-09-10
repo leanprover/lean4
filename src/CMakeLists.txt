@@ -1028,6 +1028,23 @@ if(NOT CMAKE_SYSTEM_NAME MATCHES "Emscripten")
     VERBATIM
   )
 
+  # NOTE: uses toolchain from contained `lean-toolchain` so bumps are necessary only on kernel
+  # interface changes. Not in `ALL` as it's expensive; release CI builds it explicitly.
+  ExternalProject_Add(
+    lean4lean
+    PREFIX lean4lean
+    EXCLUDE_FROM_ALL ON
+    GIT_REPOSITORY https://github.com/Kha/lean4lean
+    GIT_TAG lean4-bundle-4.35
+    PATCH_COMMAND bash ${LEAN_SOURCE_DIR}/../script/lean4lean-minimal-init.sh
+    CONFIGURE_COMMAND ""
+    BUILD_COMMAND lake build lean4lean
+    BUILD_IN_SOURCE ON
+    INSTALL_COMMAND
+      ${CMAKE_COMMAND} -E copy .lake/build/bin/lean4lean${CMAKE_EXECUTABLE_SUFFIX}
+      ${CMAKE_BINARY_DIR}/bin
+  )
+
   # Not `ALL` as it's big; release CI builds it explicitly.
   if(USE_MIMALLOC)
     add_custom_target(

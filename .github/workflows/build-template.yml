@@ -253,6 +253,18 @@ jobs:
         if: matrix.release && !matrix.wasm
         run: |
           make -C build/$TARGET_STAGE leanchecker-paranoid -j$NPROC
+      - name: Build lean4lean
+        if: matrix.release && !matrix.wasm
+        run: |
+          if ! command -v elan > /dev/null; then
+            # Use consistent `ELAN_HOME` across platforms
+            (cd build && export ELAN_HOME=elan &&
+              curl https://elan.lean-lang.org/elan-init.sh -sSf |
+                sh -s -- -y --default-toolchain none --no-modify-path)
+            export PATH="$PWD/build/elan/bin:$PATH"
+          fi
+          elan --version  # fails step if not found
+          make -C build/$TARGET_STAGE lean4lean
       - name: Install
         run: |
           make -C build/$TARGET_STAGE install

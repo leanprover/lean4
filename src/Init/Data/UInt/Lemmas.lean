@@ -3655,6 +3655,10 @@ theorem mulHi_comm (a b : UInt64) : a.mulHi b = b.mulHi a := by
   apply UInt64.toNat.inj
   simp
 
+theorem fst_mulFull (a b : UInt64) : (a.mulFull b).1 = a * b := by simp
+
+theorem snd_mulFull (a b : UInt64) : (a.mulFull b).2 = a.mulHi b := by simp
+
 theorem toNat_mulFull (a b : UInt64) :
     (a.mulFull b).1.toNat + 2 ^ 64 * (a.mulFull b).2.toNat = a.toNat * b.toNat := by
   simp only [mulFull_eq, UInt64.toNat_mul, toNat_mulHi]

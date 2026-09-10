@@ -40,7 +40,6 @@ class FrameOp {Pred : Type u} [CompleteLattice Pred] {R : Type x} (op : R → Pr
   /-- Each `opE r` preserves suprema, so it has an upper adjoint. -/
   [preservesSupE : ∀ r, PreservesSup (opE r)]
 
-attribute [instance] FrameOp.preservesSup FrameOp.preservesSupE
 
 namespace FrameOp
 
@@ -79,10 +78,19 @@ instance (priority := high) [∀ r, PreservesSup (op r)] : FrameOp op Pred op wh
 
 instance {ε : Type w} {opE : R → EPred → EPred} [FrameOp op EPred opE] :
     FrameOp op (ε → EPred) (FrameOp.pointwise opE) where
+  preservesSup := FrameOp.preservesSup (op := op) (EPred := EPred) (opE := opE)
+  preservesSupE :=
+    haveI := FrameOp.preservesSupE (op := op) (EPred := EPred) (opE := opE)
+    inferInstance
 
 instance {B : Type v'} [CompleteLattice B]
     {opA : R → EPred → EPred} {opB : R → B → B} [FrameOp op EPred opA] [FrameOp op B opB] :
     FrameOp op (EPred × B) (FrameOp.prod opA opB) where
+  preservesSup := FrameOp.preservesSup (op := op) (EPred := EPred) (opE := opA)
+  preservesSupE :=
+    haveI := FrameOp.preservesSupE (op := op) (EPred := EPred) (opE := opA)
+    haveI := FrameOp.preservesSupE (op := op) (EPred := B) (opE := opB)
+    inferInstance
 
 @[default_instance]
 instance (priority := low) [∀ r, PreservesSup (op r)] :
@@ -180,6 +188,8 @@ theorem PredTrans.apply_frameClosure (op : R → Pred → Pred) [FrameOp op EPre
 theorem PredTrans.monotone_frameClosure (op : R → Pred → Pred) [FrameOp op EPred opE]
     {t : PredTrans Pred EPred β} (h : t.Monotone) :
     (t.frameClosure op).Monotone := by
+  haveI := FrameOp.preservesSup (op := op) (EPred := EPred) (opE := opE)
+  haveI := FrameOp.preservesSupE (op := op) (EPred := EPred) (opE := opE)
   intro post post' epost epost' hE hP
   simp only [PredTrans.apply_frameClosure]
   refine iInf_mono fun r => PreservesSup.upperAdjoint_mono _ ?_
@@ -191,6 +201,7 @@ theorem PredTrans.frameClosure_frames (op : R → Pred → Pred) [FrameOp op EPr
     (hactE : ∀ r r' E, opE (comp r r') E = opE r (opE r' E))
     (t : PredTrans Pred EPred β) (F : R) :
     (t.frameClosure op).Frames op F := by
+  haveI := FrameOp.preservesSup (op := op) (EPred := EPred) (opE := opE)
   constructor
   intro Q E
   apply le_iInf
@@ -210,6 +221,7 @@ theorem PredTrans.le_frameClosure_iff (op : R → Pred → Pred) [FrameOp op EPr
     (t : PredTrans Pred EPred β) {Q : β → Pred} {E : EPred} {pre : Pred} :
     pre ⊑ (t.frameClosure op).apply Q E ↔
       ∀ r, op r pre ⊑ t.apply (fun a => op r (Q a)) (opE r E) := by
+  haveI := FrameOp.preservesSup (op := op) (EPred := EPred) (opE := opE)
   constructor
   · intro h r
     exact PartialOrder.rel_trans
@@ -225,6 +237,7 @@ theorem PredTrans.le_frameClosure (op : R → Pred → Pred) [FrameOp op EPred o
     (hframe : ∀ r : R, t.Frames op r)
     (hpre : pre ⊑ t.apply Q E) :
     pre ⊑ (t.frameClosure op).apply Q E :=
+  haveI := FrameOp.preservesSup (op := op) (EPred := EPred) (opE := opE)
   (le_frameClosure_iff op t).mpr fun r =>
     PartialOrder.rel_trans (PreservesSup.map_mono (op r) hpre) ((hframe r).op_apply_le_apply_op Q E)
 
@@ -232,6 +245,7 @@ theorem PredTrans.frameClosure_le (op : R → Pred → Pred) [FrameOp op EPred o
     (e : R) (hunit : ∀ a, op e a = a) (hunitE : ∀ E, opE e E = E)
     (t : PredTrans Pred EPred β) (Q : β → Pred) (E : EPred) :
     (t.frameClosure op).apply Q E ⊑ t.apply Q E := by
+  haveI := FrameOp.preservesSup (op := op) (EPred := EPred) (opE := opE)
   refine PartialOrder.rel_trans (iInf_le _ e) ?_
   rw [show (fun a => op e (Q a)) = Q from funext fun a => hunit (Q a), hunitE E]
   have h := PreservesSup.upperAdjoint_le (op e) (t.apply Q E)

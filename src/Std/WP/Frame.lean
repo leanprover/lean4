@@ -39,6 +39,8 @@ theorem op_wp_upperAdjoint_le_wp {R : Type t} {op : R → Pred → Pred}
     (hframes : (WP.wpTrans x).Frames op F) :
     op F (wp x (fun a => PreservesSup.upperAdjoint (op F) (Q a))
         (PreservesSup.upperAdjoint (opE F) E)) ⊑ wp x Q E := by
+  haveI := FrameOp.preservesSup (op := op) (EPred := EPred) (opE := opE)
+  haveI := FrameOp.preservesSupE (op := op) (EPred := EPred) (opE := opE)
   refine PartialOrder.rel_trans (hframes.op_apply_le_apply_op _ _) ?_
   apply WP.wp_trans_monotone
   · exact (PreservesSup.upperAdjoint_le (opE F) E)

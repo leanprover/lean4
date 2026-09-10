@@ -8,6 +8,12 @@ public meta import Lean.Elab.Tactic.VCGen.FrameProc
 public meta import Lean.Elab.Tactic.VCGen.FrameProcAttr
 public meta import Lean.Elab.Tactic.VCGen.RuleConstruction
 
+/-!
+Tests `vcgen` frame inference on a custom trace-semantics `WP` instance: a `@[frameproc]` for the
+`Always'` temporal predicate frames safety facts through `bind` chains of a DyLean-style
+interpreter.
+-/
+
 set_option experimental.vcgen true
 
 open Lean.Order

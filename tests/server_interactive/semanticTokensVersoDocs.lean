@@ -7,7 +7,10 @@ the {lit}`code` elements are assigned the string type, while variables etc are g
 tokens. A code block's lines are tokenized one at a time, so an indented block's indentation is not
 part of any token and an empty block contributes none. Inline code and math are tokenized one line
 at a time as well, and a continuation line's indentation up to the docstring's base column is not
-part of any token.
+part of any token. Empty content, such as an image without alternate text or a link reference
+without a URL, contributes no token. The final docstring exercises the remaining element kinds:
+roles with named arguments, flags, and brackets, inline link targets, footnotes, display math,
+description list terms, code blocks with arguments, and block commands.
 -/
 /-- {name}`foo1` {lean}`foo1 x` {assert}`foo1 4 = 5` -/
 def foo1 (x : Nat) := x.succ
@@ -54,6 +57,28 @@ a plain fence
 
 [url]: http://example.com/example.gif
 
+![](http://example.com/no-alt.gif) and [a link][empty]
+
+[empty]:
+
+{given (type := "Nat") -typeIsMeta +show}`k` and {lean}`k + 1` and {name}[`Nat.succ`] and
+[inline link](http://example.com/inline) with a footnote[^note].
+
+$$`E = mc^2`
+
+[^note]: The note.
+
+: Term {lit}`code`
+
+  Body
+
+```lean -error +show
+def fromDoc := 1
+```
+
+{open Nat}
+
+{set_option maxRecDepth 512}
 -/
 def x := ()
 

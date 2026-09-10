@@ -16,11 +16,6 @@ Failure: unexpected end of input; expected '![', '$$', '$', '*', '[', '[^', '_',
 
 Final stack:
   (Lean.Doc.Parser.Block.para
-   [(Lean.Doc.Parser.Inline.role
-     "{"
-     <missing>
-     []
-     [(Lean.Doc.Parser.Inline.footnote <missing>)]
-     [])])
+   [(Lean.Doc.Parser.Inline.role "{" <missing>)])
 All input consumed.
 Round-trip not reproduced, as the parse reported errors: leaf without original source info: <missing>

@@ -6,8 +6,7 @@ Failure: unexpected space or newline after opener
   | ^
   = consumed input prefix: 0 bytes
 Final stack:
-  (Lean.Doc.Parser.Inline.emph
-   (Lean.Doc.Parser.emphDelimiter "_" <missing>))
+  <missing>
 Remaining:
 "_ aa_"
 Round-trip not reproduced, as the parse reported errors: leaf without original source info: <missing>

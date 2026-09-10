@@ -15,8 +15,6 @@ Failure: unexpected end of input; expected '![', '$$', '$', '*', '[', '[^', '_',
   = consumed input prefix: 2 bytes
 
 Final stack:
-  [(Lean.Doc.Parser.Block.para
-    [(Lean.Doc.Parser.Inline.footnote
-      <missing>)])]
+  [(Lean.Doc.Parser.Block.para [<missing>])]
 All input consumed.
 Round-trip not reproduced, as the parse reported errors: leaf without original source info: <missing>

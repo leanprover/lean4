@@ -29,9 +29,12 @@ def versoCommentBodyFn : ParserFn := fun c s =>
     let endPos := if endPos ≤ c.inputString.rawEndPos then endPos else c.inputString.rawEndPos
     let c' := c.setEndPos endPos (by unfold endPos; split <;> simp [*])
     let blockCtxt := Doc.Parser.BlockCtxt.forDocString c.fileMap startPos endPos
-    let s := Doc.Parser.documentFn blockCtxt c' (s.setPos startPos)
+    -- The docstring parses with no recovered errors. This makes it easy to know that the recovered
+    -- errors in the end are due to the docstring.
+    let iniErrs := s.recoveredErrors
+    let s := Doc.Parser.documentFn blockCtxt c' ({ s with recoveredErrors := #[] }.setPos startPos)
     let s :=
-      if !s.allErrors.isEmpty || !c'.atEnd s.pos then
+      if s.errorMsg.isSome || !s.recoveredErrors.isEmpty || !c'.atEnd s.pos then
         -- Docstring parsing must always succeed, or else later error messages are atrocious! Syntax
         -- errors in the docs should not cause verso-docstring-expecting commands to be removed from
         -- consideration. So, at this stage, we push an indication of the failure, and then later,
@@ -44,9 +47,11 @@ def versoCommentBodyFn : ParserFn := fun c s =>
         let s :=
           s.pushSyntax <|
           .atom (.original leading startPos trailing endPos) (String.Pos.Raw.extract c.inputString startPos endPos)
-        let s := s.mkNode `Lean.Doc.Syntax.parseFailure iniSz
-        {s with recoveredErrors := #[]}
+        s.mkNode `Lean.Doc.Syntax.parseFailure iniSz
       else s
+    -- A docstring's own errors are reported when it is re-parsed, so we only restore the initial
+    -- errors.
+    let s := { s with recoveredErrors := iniErrs }
     rawFn (Doc.Parser.ignoreFn <| chFn '-' >> chFn '/') (trailingWs := true) c s
   else s
 

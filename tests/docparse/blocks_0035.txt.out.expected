@@ -15,8 +15,7 @@ Final stack:
         (Lean.Doc.Parser.emphDelimiter "_")
         [(Lean.Doc.Parser.Inline.text
           (Lean.Doc.Parser.versoText "strong"))]
-        (Lean.Doc.Parser.emphDelimiter
-         <missing>))]
+        <missing>)]
       (Lean.Doc.Parser.boldDelimiter "*"))
      (Lean.Doc.Parser.Inline.text
       (Lean.Doc.Parser.versoText

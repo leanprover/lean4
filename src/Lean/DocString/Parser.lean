@@ -18,6 +18,20 @@ open Lean.Doc.Syntax
 local instance : Coe Char ParserFn where
   coe := chFn
 
+/--
+An atomic parser that parses even more atomically than the default one. This can be needed when
+doing extensive error recovery. While `Lean.Parser.atomicFn` resets the position, this additionally
+rewinds `p`'s recovered errors and syntax stack.
+-/
+def atomicFn' (p : ParserFn) : ParserFn := fun c s =>
+  let iniPos := s.pos
+  let iniSz := s.stxStack.size
+  let iniErrs := s.recoveredErrors
+  match p c s with
+  | ⟨stack, lhsPrec, _, cache, some msg, _⟩ =>
+    ⟨stack.shrink iniSz, lhsPrec, iniPos, cache, some msg, iniErrs⟩
+  | other => other
+
 partial def atLeastAux (n : Nat) (p : ParserFn) : ParserFn := fun c s => Id.run do
   let iniSz  := s.stackSize
   let iniPos := s.pos
@@ -542,19 +556,19 @@ def orderedListMarker (type : OrderedListType) (trailing : ParserFn := skipFn) :
      | .parenAfter => chFn ')')
     trailing
 
-def unorderedMarkersFn := atomicFn (go UnorderedListType.all)
+def unorderedMarkersFn := atomicFn' (go UnorderedListType.all)
 where
   go
     | [] => fun _ s => s.mkError "no list type"
-    | [x] => atomicFn (unorderedListMarker x)
-    | x :: xs => atomicFn (unorderedListMarker x) <|> go xs
+    | [x] => atomicFn' (unorderedListMarker x)
+    | x :: xs => atomicFn' (unorderedListMarker x) <|> go xs
 
-def numberingFn := atomicFn (go OrderedListType.all)
+def numberingFn := atomicFn' (go OrderedListType.all)
 where
   go
     | [] => fun _ s => s.mkError "no list type"
-    | [x] => atomicFn (orderedListMarker x)
-    | x :: xs => atomicFn (orderedListMarker x) <|> go xs
+    | [x] => atomicFn' (orderedListMarker x)
+    | x :: xs => atomicFn' (orderedListMarker x) <|> go xs
 
 /--
 Parses a character that's allowed as part of inline text. This resolves escaped characters and
@@ -603,15 +617,15 @@ public def inlineTextCharFn : ParserFn := fun c s =>
 Parses block opener prefixes. If this parser succeeds at the beginning of a line, then a special
 block is beginning.
 -/
-public def blockOpenerFn := atomicFn <|
+public def blockOpenerFn := atomicFn' <|
   eatSpaces >>
-  (atomicFn ((unorderedMarkersFn >> chFn ' ')) <|> -- Unordered list
-   atomicFn ((numberingFn >> chFn ' ')) <|> -- Ordered list
-   atomicFn (strFn ": ") <|> -- Description list item
-   atomicFn (atLeastFn 3 (chFn ':')) <|> -- Directive
-   atomicFn (atLeastFn 3 (chFn '`')) <|> -- Code block
-   atomicFn (strFn "%%%") <|> -- Metadata
-   atomicFn (chFn '>')) -- Block quote
+  (atomicFn' ((unorderedMarkersFn >> chFn ' ')) <|> -- Unordered list
+   atomicFn' ((numberingFn >> chFn ' ')) <|> -- Ordered list
+   atomicFn' (strFn ": ") <|> -- Description list item
+   atomicFn' (atLeastFn 3 (chFn ':')) <|> -- Directive
+   atomicFn' (atLeastFn 3 (chFn '`')) <|> -- Code block
+   atomicFn' (strFn "%%%") <|> -- Metadata
+   atomicFn' (chFn '>')) -- Block quote
 
 /--
 Whether the line after the newline at the current position continues a paragraph. It continues when
@@ -690,7 +704,7 @@ def skipBlock : ParserFn :=
   skipToNewline >> manyFn nonEmptyLine >> takeWhileFn (· == '\n')
 where
   nonEmptyLine : ParserFn :=
-    atomicFn <|
+    atomicFn' <|
       chFn '\n' >>
       takeWhileFn (fun c => c.isWhitespace && c != '\n') >>
       satisfyFn (!·.isWhitespace) "non-whitespace" >> skipToNewline
@@ -732,7 +746,7 @@ has no brace, recovery skips the block.
 def recoverRoleAtErrPos (p : ParserFn) : ParserFn :=
   recoverAtErrPos p <|
     -- The brace is the role's closing delimiter, so recovery pushes it.
-    atomicFn (ignoreFn (takeUntilFn (fun c => c == '}' || c == '\n')) >> chFn '}') <|>
+    atomicFn' (ignoreFn (takeUntilFn (fun c => c == '}' || c == '\n')) >> chFn '}') <|>
     ignoreFn skipBlock
 
 def recoverLine (p : ParserFn) : ParserFn :=
@@ -861,8 +875,8 @@ where
         s.mkError "no space before"
       else s
   potentiallyNamed iniSz :=
-      atomicFn (rawIdentFn (includeWhitespace := false)) >> withTrailing eatSpaces >>
-       ((atomicFn (asTokenFn (strFn ":=") eatSpaces) >>
+      atomicFn' (rawIdentFn (includeWhitespace := false)) >> withTrailing eatSpaces >>
+       ((atomicFn' (asTokenFn (strFn ":=") eatSpaces) >>
          valFn (eatSpaces >> tail) >> mkNamedNoParen iniSz) <|>
         (mkIdent iniSz >> mkAnon iniSz >> withTrailing tail))
   -- A recoverable token step consumes and records its whitespace even when the token is lost.
@@ -873,7 +887,7 @@ where
   withParens iniSz :=
     -- Inside the parentheses, the `)` closes the argument as well.
     let inParens := fun c => c == ')' || closes c
-    atomicFn (asTokenFn (strFn "(") eatSpaces) >>
+    atomicFn' (asTokenFn (strFn "(") eatSpaces) >>
     recovering inParens iniSz (rawIdentFn (includeWhitespace := false)) >>
     recovering inParens iniSz (asTokenFn (strFn ":=")) >>
     recovering inParens iniSz valFn >>
@@ -1036,13 +1050,13 @@ mutual
     nodeFn name <|
     withStartPos fun openPos =>
     withCurrentColumn fun c =>
-      atomicFn (nodeFn delimKind <| asTokenFn (asTokenFn (opener ctxt) >> notFollowedByFn (chFn ' ' false <|> chFn '\n' false) "space or newline after opener")) >>
+      atomicFn' (nodeFn delimKind <| asTokenFn (asTokenFn (opener ctxt) >> notFollowedByFn (chFn ' ' false <|> chFn '\n' false) "space or newline after opener")) >>
       (recoverSkip <|
         withCurrentColumn fun c' =>
           let count := c' - c
           manyFn (inlineFn ((setter ctxt (some count)).inner)) >>
           unterminatedAtEnd openPos (openPos.offsetBy ⟨count⟩) noun >>
-          nodeFn delimKind (asTokenFn (atomicFn (noSpaceBefore >>
+          nodeFn delimKind (asTokenFn (atomicFn' (noSpaceBefore >>
             repFn count (expectFn (· == char) s!"'{tok count}' to close {noun}"))) ctxt.tail))
 
   where
@@ -1084,8 +1098,8 @@ mutual
     nodeFn ``Inline.code <|
     withStartPos fun openPos =>
     withCurrentColumn fun c =>
-      atomicFn opener >>
-      ( atomicFn <|
+      atomicFn' opener >>
+      ( atomicFn' <|
         withCurrentColumn fun c' =>
           let count := c' - c
           recoverCode <|
@@ -1099,26 +1113,26 @@ mutual
         asTokenFn (many1Fn (expectFn (· == '`') "backticks to open inline code"))
     closer (count : Nat) : ParserFn :=
       nodeFn ``codeDelimiter (asTokenFn
-        (atomicFn (repFn count
+        (atomicFn' (repFn count
           (expectFn (· == '`') s!"'{String.ofList (.replicate count '`')}' to close inline code")) >>
          notFollowedByFn (satisfyFn (· == '`') "`") "backtick")
         tail)
     recoverCode (p : ParserFn) : ParserFn :=
       recoverFn p fun rctx =>
         (show ParserFn from fun _ s => s.restore rctx.initialSize rctx.initialPos) >>
-        atomicFn (nodeFn versoCodeKind
+        atomicFn' (nodeFn versoCodeKind
           (asTokenFn (takeWhileFn (· ≠ '\n')) (ignoreFn (chFn '\n' <|> eoiFn))) >>
           pushMissing)
     codeContentsFn (maxCount : Nat) : ParserFn :=
-      atomicFn (asTokenFn (satisfyFn (maxCount > 0 && · == '`') >> atMostFn (maxCount - 1) (chFn '`') s!"at most {maxCount} backticks")) <|>
+      atomicFn' (asTokenFn (satisfyFn (maxCount > 0 && · == '`') >> atMostFn (maxCount - 1) (chFn '`') s!"at most {maxCount} backticks")) <|>
       expectFn (· != '`') "a character other than a backtick"
 
   /--
   Parses mathematics.
   -/
   public partial def mathFn (tail : ParserFn := skipFn) : ParserFn :=
-    atomicFn (nodeFn ``Inline.display_math <| nodeFn ``displayMathMarker (strFn "$$") >> codeFn tail) <|>
-    atomicFn (nodeFn ``Inline.inline_math <| nodeFn ``inlineMathMarker (strFn "$") >> codeFn tail)
+    atomicFn' (nodeFn ``Inline.display_math <| nodeFn ``displayMathMarker (strFn "$$") >> codeFn tail) <|>
+    atomicFn' (nodeFn ``Inline.inline_math <| nodeFn ``inlineMathMarker (strFn "$") >> codeFn tail)
 
   /-- Reads a prefix of a line of text, stopping at a text-mode special character. -/
   public partial def textFn (ctxt : InlineCtxt := {}) : ParserFn :=
@@ -1129,7 +1143,7 @@ mutual
   /-- Parses a link. -/
   public partial def linkFn (ctxt : InlineCtxt) :=
     nodeFn ``Inline.link <|
-      (atomicFn (notInLink ctxt >> strFn "[" >> notFollowedByFn (chFn '^') "'^'" )) >>
+      (atomicFn' (notInLink ctxt >> strFn "[" >> notFollowedByFn (chFn '^') "'^'" )) >>
       (recoverEol <|
         many1Fn (inlineFn {ctxt.inner with inLink := true}) >>
         strFn "]" >> linkTargetFn ctxt.tail)
@@ -1137,7 +1151,7 @@ mutual
   /-- Parses a footnote. -/
   public partial def footnoteFn (ctxt : InlineCtxt) :=
     nodeFn ``Inline.footnote <|
-      (atomicFn (notInLink ctxt >> strFn "[^" )) >>
+      (atomicFn' (notInLink ctxt >> strFn "[^" )) >>
       (recoverLineAtErrPos <|
         nodeFn versoRefKind (asTokenFn (refNameFn "a footnote name")) >>
         closeRefName >> withTrailing ctxt.tail)
@@ -1155,19 +1169,19 @@ mutual
     notRefEnd := refNameFn "a reference name"
     ref : ParserFn :=
       nodeFn ``LinkTarget.ref <|
-        (atomicFn <| strFn "[") >>
+        (atomicFn' <| strFn "[") >>
         recoverEolAtErrPos (nodeFn versoRefKind (asTokenFn notRefEnd) >> closeRefName >>
           withTrailing tail)
     url : ParserFn :=
       nodeFn ``LinkTarget.url <|
-        (atomicFn <| strFn "(") >>
+        (atomicFn' <| strFn "(") >>
         recoverEolAtErrPos
           (nodeFn versoLinkUrlKind (asTokenFn notUrlEnd) >> strFn ")" >> withTrailing tail)
 
   /-- Parses an image. -/
   public partial def imageFn (tail : ParserFn := skipFn) : ParserFn :=
     nodeFn ``Inline.image <|
-      atomicFn (strFn "![") >>
+      atomicFn' (strFn "![") >>
       (recoverSkip <|
         nodeFn versoImageAltKind (asTokenFn (takeUntilEscFn (· ∈ "]\n".toList))) >>
         strFn "]" >>
@@ -1176,10 +1190,10 @@ mutual
   /-- Parses a role. -/
   public partial def roleFn (ctxt : InlineCtxt) : ParserFn :=
     nodeFn ``Inline.role <| withCurrentStackSize fun base =>
-      intro base >> (bracketed <|> atomicFn nonBracketed)
+      intro base >> (bracketed <|> atomicFn' nonBracketed)
   where
     intro (base : Nat) :=
-      atomicFn (chFn '{') >> recoverRoleAtErrPos (withTrailing eatSpaces >>
+      atomicFn' (chFn '{') >> recoverRoleAtErrPos (withTrailing eatSpaces >>
       nameAndArgsFn (tail := argEndWs none) (closes := (· == '}')) >>
       wsFallback eatSpaces base >>
       rawFn (fun c s =>
@@ -1190,7 +1204,7 @@ mutual
           false)
     closeMsg := "positional argument, named argument, flag, or '}' (use '\\{' for a literal '{')"
     bracketed :=
-      atomicFn (nodeFn nullKind (expectChFn '[')) >>
+      atomicFn' (nodeFn nullKind (expectChFn '[')) >>
       recoverBlock (manyFn (inlineFn ctxt.inner) >>
         nodeFn nullKind (expectChFn ']' >> withTrailing ctxt.tail))
     nonBracketed : ParserFn := fun c s =>
@@ -1431,7 +1445,7 @@ where
   atLineStart : ParserFn := fun c s =>
     if atBol ctxt c s then s
     else
-      let s' := atomicFn (eatSpaces >> strFn "%%%") c s
+      let s' := atomicFn' (eatSpaces >> strFn "%%%") c s
       if s'.hasError then s'
       else s'.setError { unexpectedTk := s'.stxStack.back, unexpected := misplacedMsg }
   misplacedMsg := "unexpected metadata block opener '%%%' (must be at start of line)"
@@ -1442,12 +1456,12 @@ where
   atTopLevel : ParserFn := fun c s =>
     if ctxt.topLevel then s
     else if ctxt.maxDirective.isSome then
-      let s := atomicFn (bolThen ctxt (eatSpaces >> strFn "%%%") "%%% (at line beginning)") c s
+      let s := atomicFn' (bolThen ctxt (eatSpaces >> strFn "%%%") "%%% (at line beginning)") c s
       if s.hasError then s else s.mkUnexpectedError nestedMsg
     else s.mkUnexpectedError nestedMsg
   nestedMsg := "metadata blocks may only appear at the document's top level"
   opener :=
-    atomicFn (bolThen ctxt (eatSpaces >> strFn "%%%") "%%% (at line beginning)") >>
+    atomicFn' (bolThen ctxt (eatSpaces >> strFn "%%%") "%%% (at line beginning)") >>
     -- The opener records the indentation before the contents, so the Lean parser that reads them
     -- starts at their column and aligns the fields there. That column must be the base column.
     withTrailing (eatSpaces >> ignoreFn (chFn '\n') >> eatSpaces) >> atBaseColumn
@@ -1542,12 +1556,12 @@ mutual
       match ctxt.inLists.head? with
       | none => fun _ s => s.mkError "not in a list"
       | some ⟨col, .inr type⟩ =>
-        atomicFn <|
+        atomicFn' <|
           takeWhileFn (· == ' ') >>
           guardColumn (· == col) s!"indentation at {col}" >>
           unorderedListMarker type (trailing := markerTailWs)
       | some ⟨col, .inl type⟩ =>
-        atomicFn <|
+        atomicFn' <|
           takeWhileFn (· == ' ') >>
           guardColumn (· == col) s!"indentation at {col}" >>
           orderedListMarker type (trailing := markerTailWs)
@@ -1563,7 +1577,7 @@ mutual
           blocks1Fn { ctxt with minIndent := c}) >>
       wsFallback lineTailWs base
   where
-    colonFn := atomicFn <|
+    colonFn := atomicFn' <|
       takeWhileFn (· == ' ') >>
       guardColumn (· == ctxt.minIndent) s!"indentation at {ctxt.minIndent}" >>
       asTokenFn (chFn ':' false) >> ignoreFn (lookaheadFn (chFn ' '))
@@ -1572,7 +1586,7 @@ mutual
   Parses a block quote.
   -/
   public partial def blockquoteFn (ctxt : BlockCtxt) : ParserFn :=
-    atomicFn <| nodeFn ``Block.blockquote <| withCurrentStackSize fun base =>
+    atomicFn' <| nodeFn ``Block.blockquote <| withCurrentStackSize fun base =>
       takeWhileFn (· == ' ') >> guardMinColumn ctxt.minIndent >> chFn '>' >>
       withTrailing eatSpaces >>
       (withColumnAfterToken fun col => blocksFn { ctxt with minIndent := col, topLevel := false }) >>
@@ -1597,7 +1611,7 @@ mutual
   /-- Parses a definition list. -/
   public partial def definitionListFn (ctxt : BlockCtxt) : ParserFn :=
     nodeFn ``Block.dl <|
-      atomicFn (onlyBlockOpeners >> takeWhileFn (· == ' ') >> ignoreFn (lookaheadFn (chFn ':' >> chFn ' ')) >> guardMinColumn ctxt.minIndent) >>
+      atomicFn' (onlyBlockOpeners >> takeWhileFn (· == ' ') >> ignoreFn (lookaheadFn (chFn ':' >> chFn ' ')) >> guardMinColumn ctxt.minIndent) >>
       withCurrentColumn (fun c => many1Fn (descItemFn {ctxt with minIndent := c, topLevel := false}))
 
   /--
@@ -1611,7 +1625,7 @@ mutual
     let notBlockOpener :=
       if atBlockStart c s then notFollowedByFn blockOpenerFn "block opener" else skipFn
     (nodeFn ``Block.para <|
-      atomicFn (takeWhileFn (· == ' ') >> notBlockOpener >> guardMinColumn ctxt.minIndent s!"paragraph indented at least {ctxt.minIndent}") >>
+      atomicFn' (takeWhileFn (· == ' ') >> notBlockOpener >> guardMinColumn ctxt.minIndent s!"paragraph indented at least {ctxt.minIndent}") >>
       textLineFn (recordTrailing := ctxt.recordTrailing) >>
       guardContent base startPos) c s
   where
@@ -1638,7 +1652,7 @@ mutual
       guardMinColumn ctxt.minIndent >>
       -- Atomic: confirm this is a header by finding # at beginning of line.
       -- Consumes leading spaces so that errors after this point are not backtracked.
-      atomicFn (bol ctxt >> takeWhileFn (· == ' ') >>
+      atomicFn' (bol ctxt >> takeWhileFn (· == ' ') >>
         lookaheadFn (skipChFn '#')) >>
       -- Non-backtrackable: the # must be at the base column (or on the first line)
       checkNonIndented >>
@@ -1660,7 +1674,7 @@ mutual
       -- Opener - leaves indent info and open token on the stack. The fence consumes the spaces
       -- that follow it and, when nothing else is on its line, the line's newline.
       withStartPos fun openPos =>
-      atomicFn (takeWhileFn (· == ' ') >> guardMinColumn ctxt.minIndent >> pushColumn >>
+      atomicFn' (takeWhileFn (· == ' ') >> guardMinColumn ctxt.minIndent >> pushColumn >>
         nodeFn ``codeBlockFence
           (asTokenFn (atLeastFn 3 (skipChFn '`')) (takeWhileFn (· == ' ') >> optNlWs))) >>
         withIndentColumn fun c =>
@@ -1698,11 +1712,11 @@ mutual
       return s
 
     blankCodeLine (col : Nat) : ParserFn :=
-      atomicFn <| withLeadingHere (eatIndent col >>
+      atomicFn' <| withLeadingHere (eatIndent col >>
         nodeFn versoCodeBlockLineKind (asTokenFn (takeWhileFn (· == ' ') >> nl)))
 
     codeFrom (col width : Nat) :=
-      atomicFn (bol ctxt >>
+      atomicFn' (bol ctxt >>
         lookaheadFn (ignoreFn (takeWhileFn (· == ' ') >> guardMinColumn col >>
           notFollowedByFn (atLeastFn width (skipChFn '`')) "ending fence"))) >>
       withLeadingHere (eatIndent col >>
@@ -1716,7 +1730,7 @@ mutual
        withLeadingHere (takeWhileFn (· == ' ') >>
          guardColumn (· == col)
            s!"closing '{fence}' for the code block opened on line {line} at column {col}" >>
-         atomicFn (nodeFn ``codeBlockFence (asTokenFn (repFn width (skipChFn '`'))))) >>
+         atomicFn' (nodeFn ``codeBlockFence (asTokenFn (repFn width (skipChFn '`'))))) >>
        notFollowedByFn (skipChFn '`') "extra `" >>
        withTrailing (takeWhileFn (· == ' ') >> ignoreFn lineEnd >>
          blockTrailingWs ctxt)) c s
@@ -1726,7 +1740,7 @@ mutual
     nodeFn ``Block.directive <| withCurrentStackSize fun base =>
       -- Opener - leaves indent info and open token on the stack
       withStartPos fun openPos =>
-      atomicFn
+      atomicFn'
         (eatSpaces >> guardMinColumn ctxt.minIndent >>
           nodeFn ``directiveDelimiter (asTokenFn (atLeastFn 3 (skipChFn ':'))) >>
          guardOpenerSize >>
@@ -1816,7 +1830,7 @@ mutual
   where
     eatSpaces := takeWhileFn (· == ' ')
     intro :=
-      guardMinColumn (ctxt.minIndent) >> atomicFn (chFn '{') >> withTrailing eatSpaces >>
+      guardMinColumn (ctxt.minIndent) >> atomicFn' (chFn '{') >> withTrailing eatSpaces >>
       nameAndArgsFn (tail := argEndWs none) (closes := (· == '}')) >>
       nameArgWhitespace none >> chFn '}' >>
       withTrailing (eatSpaces >> ignoreFn lineEnd >>
@@ -1828,7 +1842,7 @@ mutual
   public partial def linkRefFn (c : BlockCtxt) : ParserFn :=
     nodeFn ``Block.link_ref <|
       atLineStart >>
-      atomicFn (ignoreFn definitionShape) >>
+      atomicFn' (ignoreFn definitionShape) >>
       chFn '[' >>
       (recoverLineAtErrPos <|
         nodeFn versoRefKind (asTokenFn (refNameFn "a reference name")) >> closeRefNameWith "]:" >>
@@ -1905,7 +1919,7 @@ mutual
   -/
   public partial def footnoteRefFn (c : BlockCtxt) : ParserFn :=
     nodeFn ``Block.footnote_ref <|
-      atomicFn (ignoreFn (bol c >> eatSpaces >> guardMinColumn c.minIndent) >> strFn "[^" >>
+      atomicFn' (ignoreFn (bol c >> eatSpaces >> guardMinColumn c.minIndent) >> strFn "[^" >>
         nodeFn versoRefKind (asTokenFn (refNameFn "a footnote name")) >>
         strFn "]:") >>
       withTrailing eatSpaces >>

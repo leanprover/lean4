@@ -182,6 +182,14 @@ private def ForInApp.wrapErasedProjs (g : ForInApp) (e : Term) : DoElabM Term :=
     e ← `(let $(mv.ident):ident := Erased.out $(⟨mv.ident.raw⟩); $e)
   return e
 
+/-- Zeta-substitute the `.out` projection lets of `wrapErasedProjs`, so annotations carry the
+projection inline like the compiled body does. -/
+private partial def zetaErasedProjs (e : Expr) : Expr :=
+  e.replace fun
+    | .letE _ _ v b _ =>
+      if v.isAppOfArity ``Erased.out 2 then some (zetaErasedProjs (b.instantiate1 v)) else none
+    | _ => none
+
 /-- Abstract `e` over the loop's state tuple, so that `e` may name the loop's mutable variables. -/
 private def ForInApp.mkStateFun (g : ForInApp) (e : Term) : DoElabM Term := do
   `(fun $(g.statePat) => $(← g.wrapErasedProjs e))
@@ -198,7 +206,8 @@ private def ForInApp.mkCall (g : ForInApp) (ref : Syntax) (gadget : Name)
   let call ← `(open scoped Std.WP Lean.Order in
     $(mkIdent gadget) $(← Term.exprToSyntax g.xs) $(← Term.exprToSyntax g.init)
       $(← Term.exprToSyntax g.body) $annotations*)
-  Term.elabTermEnsuringType call (mkApp (← read).monadInfo.m g.σ)
+  let e ← Term.elabTermEnsuringType call (mkApp (← read).monadInfo.m g.σ)
+  return zetaErasedProjs (← instantiateMVars e)
 
 /-- The binders and body of an `invariant` clause. An ascription covering the binder list would
 cover the loop's binders and the assertion's alike, so it is reported here. -/

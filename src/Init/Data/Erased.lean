@@ -37,7 +37,7 @@ noncomputable def out {α : Sort u} (e : Erased α) : α :=
 @[ext] theorem out_inj {α : Sort u} {a b : Erased α} (h : a.out = b.out) : a = b := by
   rw [← mk_out a, ← mk_out b, h]
 
-@[simp, grind] theorem mk_inj {α : Sort u} {a b : α} : mk a = mk b ↔ a = b :=
+@[simp, grind =] theorem mk_inj {α : Sort u} {a b : α} : mk a = mk b ↔ a = b :=
   ⟨fun h => by have := congrArg out h; rwa [out_mk, out_mk] at this, fun h => h ▸ rfl⟩
 
 end Erased

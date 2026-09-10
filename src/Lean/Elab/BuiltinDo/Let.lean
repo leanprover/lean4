@@ -285,22 +285,19 @@ private def getLetConfigAndCheckMut (letConfigStx : TSyntax ``Parser.Term.letCon
         elabDoElem (← `(doElem| let $[mut%$mutTk?]? $pattern:term := $x)) dec
   | _ => throwUnsupportedSyntax
 
-@[builtin_macro Lean.Parser.Term.doReassignArrow] def expandDoReassignArrow : Macro := fun stx => do
-  match stx with
-  | `(doReassignArrow| $pat:term $[: $t?]? ← $rhs $[| $otherwise? $(_rest?)?]?) =>
-    if otherwise?.isSome then
-      Macro.throwErrorAt stx "reassignment with `|` (i.e., \"else clause\") is not supported"
-    else
-      let y := mkIdentFrom pat (← MonadQuotation.addMacroScope `__x)
-      `(doElem| do let $y:ident $[: $t?]? ← $rhs; $pat:term := $y)
-  | _ => Macro.throwUnsupported
-
 @[builtin_doElem_elab Lean.Parser.Term.doReassignArrow] def elabDoReassignArrow : DoElab := fun stx dec => do
-  let `(doReassignArrow| $x:ident $[: $t?]? ← $rhs) := stx | throwUnsupportedSyntax
-  throwUnlessMutVarDeclared x
-  -- Pin the variable's declared type on the bind, so a type error blames the action.
-  let t ← match t? with
-    | some t => pure t
-    | none   => Term.exprToSyntax (← getLocalDeclFromUserName x.getId).type
-  let y := mkIdentFrom x (← mkFreshUserName `__x)
-  elabDoIdDecl y (some t) rhs (elabDoElem (← `(doElem| $x:ident := $y)) dec) (kind := dec.kind)
+  match stx with
+  | `(doReassignArrow| $x:ident $[: $t?]? ← $rhs) =>
+    throwUnlessMutVarDeclared x
+    -- Pin the variable's declared type on the bind, so a type error blames the action.
+    let t ← match t? with
+      | some t => pure t
+      | none   => Term.exprToSyntax (← getLocalDeclFromUserName x.getId).type
+    let y := mkIdentFrom x (← mkFreshUserName `__x)
+    elabDoIdDecl y (some t) rhs (elabDoElem (← `(doElem| $x:ident := $y)) dec) (kind := dec.kind)
+  | `(doReassignArrow| $pat:term $[: $t?]? ← $rhs $[| $otherwise? $(rest?)?]?) =>
+    unless otherwise?.isNone && rest?.join.isNone do
+      throwError "reassignment with `|` (i.e., \"else clause\") is not supported"
+    let y := mkIdentFrom pat (← mkFreshUserName `__x)
+    elabDoIdDecl y t? rhs (elabDoElem (← `(doElem| $pat:term := $y)) dec) (kind := dec.kind)
+  | _ => throwUnsupportedSyntax

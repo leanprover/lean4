@@ -75,6 +75,8 @@ def computeAbsoluteLspSemanticTokens
   tokens.filterMap fun tok => do
     let (pos, tailPos) := (← tok.stx.getPos?, ← tok.stx.getTailPos?)
     guard <| beginPos <= pos && endPos?.all (pos < ·)
+    -- Every token should be non-empty
+    guard <| pos < tailPos
     let (lspPos, lspTailPos) := (text.utf8PosToLspPos pos, text.utf8PosToLspPos tailPos)
     return { tok with pos := lspPos, tailPos := lspTailPos }
 
@@ -323,7 +325,6 @@ where
   codeLine (line : Syntax) (value : String) : Option Syntax := do
     let ⟨pos, tailPos⟩ ← line.getRange?
     let tailPos := if value.endsWith "\n" then tailPos.prev text.source else tailPos
-    guard <| pos < tailPos
     return .ofRange ⟨pos, tailPos⟩
 
   goVal (val : TSyntax ``Parser.argVal) :
@@ -472,10 +473,7 @@ where
       tok v.marker .keyword
       for b in v.content do go b.raw
   else
-    let k := stx.getKind
-    if k == nullKind || k == ``Parser.document ||
-        k == ``Lean.Parser.Command.versoCommentBody then
-      stx.getArgs.forM go
+    stx.getArgs.forM go
 
 /--
 Collects all semantic tokens that can be deduced purely from `Syntax`

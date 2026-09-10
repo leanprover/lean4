@@ -81,9 +81,7 @@ private theorem toNat_ne_zero {modulus : UInt64} (h : modulus ≠ 0) : modulus.t
   simpa [← UInt64.toNat_inj] using h
 
 private theorem wrapMod_pos (modulus : UInt64) : 0 < wrapMod modulus := by
-  unfold wrapMod; split
-  · exact Nat.two_pow_pos 64
-  · exact Nat.pos_of_ne_zero (toNat_ne_zero ‹_›)
+  unfold wrapMod; split <;> simp_all [← UInt64.toNat_inj, Nat.pos_iff_ne_zero]
 
 private theorem mod_wrapMod (x : Nat) (modulus : UInt64) :
     x % modulus.toNat % 2 ^ 64 = x % wrapMod modulus := by
@@ -159,25 +157,19 @@ private theorem nextS_mul_mod {m oldS product a X : Nat} (hp : product < m)
   rw [← Nat.mod_mul_mod, this, Nat.mod_mul_mod, Nat.add_mul, Nat.add_mod, h, ← Nat.add_mod,
     Nat.add_assoc, ← Nat.add_mul, Nat.add_sub_cancel' (Nat.le_of_lt hp), Nat.add_mul_mod_self_left]
 
-private theorem invMod?_go_spec (modulus : UInt64) (hm : modulus ≠ 0) (a : Nat) :
-    ∀ oldR r oldS s : Nat,
-      oldS < modulus.toNat → s < modulus.toNat →
-      oldS * a % modulus.toNat = oldR % modulus.toNat →
-      s * a % modulus.toNat = r % modulus.toNat →
-      (invMod?.go modulus oldR r oldS s).1 = Nat.gcd oldR r
-        ∧ (invMod?.go modulus oldR r oldS s).2 < modulus.toNat
-        ∧ (invMod?.go modulus oldR r oldS s).2 * a % modulus.toNat
-            = Nat.gcd oldR r % modulus.toNat := by
+private theorem invMod?_go_spec (modulus : UInt64) (hm : modulus ≠ 0) (a oldR r oldS s : Nat)
+    (holdS : oldS < modulus.toNat) (hs : s < modulus.toNat)
+    (h1 : oldS * a % modulus.toNat = oldR % modulus.toNat)
+    (h2 : s * a % modulus.toNat = r % modulus.toNat) :
+    let (gcd, inverse) := invMod?.go modulus oldR r oldS s
+    gcd = Nat.gcd oldR r ∧ inverse < modulus.toNat ∧
+      inverse * a % modulus.toNat = Nat.gcd oldR r % modulus.toNat := by
   have hm0 : 0 < modulus.toNat := Nat.pos_of_ne_zero (toNat_ne_zero hm)
-  intro oldR r oldS s
   induction oldR, r, oldS, s using invMod?.go.induct (modulus := modulus) with
   | case1 oldR oldS s =>
-    intro holdS _ h1 _
     rw [invMod?.go, dite_eq_left rfl, Nat.gcd_zero_right]
     exact ⟨rfl, holdS, h1⟩
   | case2 oldR r oldS s hr quotient product nextS ih =>
-    intro holdS hs h1 h2
-    simp only [quotient, product, nextS] at ih ⊢
     have hnext : nextS < modulus.toNat := by simp only [nextS]; split <;> omega
     have hkey : nextS * a % modulus.toNat = oldR % r % modulus.toNat := by
       refine nextS_mul_mod (Nat.mod_lt _ hm0) ?_
@@ -190,13 +182,10 @@ private theorem invMod?_go_spec (modulus : UInt64) (hm : modulus ≠ 0) (a : Nat
   simp [invMod?]
 
 private theorem invMod?_spec {a modulus : UInt64} (hm : modulus ≠ 0) :
-    (invMod?.go modulus (a.toNat % modulus.toNat) modulus.toNat (1 % modulus.toNat) 0).1
-        = Nat.gcd a.toNat modulus.toNat
-      ∧ (invMod?.go modulus (a.toNat % modulus.toNat) modulus.toNat (1 % modulus.toNat) 0).2
-        < modulus.toNat
-      ∧ (invMod?.go modulus (a.toNat % modulus.toNat) modulus.toNat (1 % modulus.toNat) 0).2
-          * a.toNat % modulus.toNat
-        = Nat.gcd a.toNat modulus.toNat % modulus.toNat := by
+    let (gcd, inverse) :=
+      invMod?.go modulus (a.toNat % modulus.toNat) modulus.toNat (1 % modulus.toNat) 0
+    gcd = Nat.gcd a.toNat modulus.toNat ∧ inverse < modulus.toNat ∧
+      inverse * a.toNat % modulus.toNat = Nat.gcd a.toNat modulus.toNat % modulus.toNat := by
   have hm0 : 0 < modulus.toNat := Nat.pos_of_ne_zero (toNat_ne_zero hm)
   have := invMod?_go_spec modulus hm a.toNat (a.toNat % modulus.toNat) modulus.toNat
     (1 % modulus.toNat) 0 (Nat.mod_lt _ hm0) hm0 (by simp) (by simp)
@@ -204,18 +193,15 @@ private theorem invMod?_spec {a modulus : UInt64} (hm : modulus ≠ 0) :
 
 theorem isSome_invMod? {a modulus : UInt64} (hm : modulus ≠ 0) :
     (invMod? a modulus).isSome ↔ Nat.gcd a.toNat modulus.toNat = 1 := by
-  obtain ⟨hg, -, -⟩ := invMod?_spec (a := a) hm
-  rw [invMod?]
-  simp only [hm, ↓reduceIte]
-  split <;> rename_i h <;> simp_all
+  simp only [invMod?, ite_eq_right hm, (invMod?_spec (a := a) hm).1]
+  split <;> simp_all
 
 /-- What `invMod? a modulus = some x` says about `x.toNat`, for a nonzero modulus. -/
 private theorem invMod?_eq_some_spec {a modulus x : UInt64} (hm : modulus ≠ 0)
     (h : invMod? a modulus = some x) :
     x.toNat < modulus.toNat ∧ a.toNat * x.toNat % modulus.toNat = 1 % modulus.toNat := by
   obtain ⟨hg, hlt, hinv⟩ := invMod?_spec (a := a) hm
-  rw [invMod?] at h
-  simp only [hm, ↓reduceIte] at h
+  simp only [invMod?, hm, ↓reduceIte] at h
   split at h <;> rename_i hgcd <;> simp only [Option.some.injEq, reduceCtorEq] at h
   subst h
   rw [UInt64.toNat_ofNat', Nat.mod_eq_of_lt (Nat.lt_trans hlt modulus.toNat_lt)]
@@ -240,11 +226,9 @@ theorem mulMod_of_invMod?_eq_some {a modulus x : UInt64} (h : invMod? a modulus 
 
 private theorem gcd_eq_one_of_mul_mod {A x m : Nat} (h : A * x % m = 1 % m) :
     Nat.gcd A m = 1 := by
-  have hd : Nat.gcd A m ∣ 1 % m := h ▸ (Nat.dvd_mod_iff (Nat.gcd_dvd_right A m)).mpr
-    (Nat.dvd_trans (Nat.gcd_dvd_left A m) (Nat.dvd_mul_right A x))
-  by_cases hm : m = 1
-  · simp [hm]
-  · rwa [Nat.one_mod_eq_one.mpr hm, Nat.dvd_one] at hd
+  have := Nat.gcd_dvd_gcd_mul_right_left A m x
+  rwa [Nat.gcd_comm (A * x), Nat.gcd_rec m, h, ← Nat.gcd_rec, Nat.gcd_one_right,
+    Nat.dvd_one] at this
 
 /-- Two inverses of the same value that are both reduced modulo `m` are equal. -/
 private theorem inv_unique {A x y m : Nat} (hx : x < m) (hy : y < m)
@@ -268,18 +252,17 @@ theorem invMod?_eq_some_iff {a modulus x : UInt64} :
   have heq' : a.toNat * x.toNat % modulus.toNat = 1 % modulus.toNat := by
     rw [← toNat_mulMod hm, heq, UInt64.toNat_mod, UInt64.toNat_one]
   have hsome := (isSome_invMod? hm).mpr (gcd_eq_one_of_mul_mod heq')
-  obtain ⟨y, hy⟩ : ∃ y, invMod? a modulus = some y := by
-    cases hi : invMod? a modulus <;> simp_all
+  have hy := (Option.some_get hsome).symm
   obtain ⟨hylt, hyinv⟩ := invMod?_eq_some_spec hm hy
   rwa [UInt64.toNat_inj.mp (inv_unique hylt hx hyinv heq')] at hy
 
 
 /-! ### Runtime implementations
 
-`powMod` and `invMod?` are defined above using natural-number arithmetic, which allocates for every
-intermediate product. The definitions below keep the modular arithmetic in machine words, so a
-`Nat` exponent costs one division per 64 bits rather than one per bit. They are installed with
-`@[csimp]`, so the compiled behaviour is proved equal to the definitions above.
+`powMod` processes a `Nat` exponent one bit at a time, while `invMod?` uses natural-number
+arithmetic for its Euclidean loop. The definitions below consume exponents 64 bits at a time
+and keep the modular arithmetic in machine words. They are installed with `@[csimp]`, so the
+compiled behaviour is proved equal to the definitions above.
 -/
 
 /--
@@ -378,12 +361,9 @@ private theorem toNat_powModWord (base e modulus result : UInt64)
     (powModWord base e modulus result).toNat
       = result.toNat * base.toNat ^ e.toNat % wrapMod modulus := by
   induction base, e, result using powModWord.induct (modulus := modulus) with
-  | case1 base result =>
-    rw [powModWord, dite_eq_left rfl]
-    simp [Nat.mod_eq_of_lt hres]
+  | case1 base result => simp [powModWord, Nat.mod_eq_of_lt hres]
   | case2 base e result he e' he' =>
-    simp only [e'] at he'
-    have hlt : e.toNat < 2 := by simpa [← UInt64.toNat_inj, Nat.div_eq_zero_iff] using he'
+    have hlt : e.toNat < 2 := by simpa [e', ← UInt64.toNat_inj, Nat.div_eq_zero_iff] using he'
     rw [powModWord, dite_eq_right he, ite_eq_left he', toNat_condMul hres, Nat.mod_eq_of_lt hlt]
   | case3 base e result he result' e' he' ih =>
     simp only [result', e', dite_eq_ite] at he' ih
@@ -434,10 +414,8 @@ private theorem toNat_powModImpl_go (modulus base : UInt64) (e : Nat) (result : 
   · subst hm
     simp [wrapMod, Nat.mod_one]
   · have hM : 1 < wrapMod modulus := by
-      have h1 : modulus.toNat ≠ 1 := by simpa [← UInt64.toNat_inj] using hm
-      unfold wrapMod; split
-      · omega
-      · have := toNat_ne_zero ‹_›; omega
+      simp only [wrapMod]
+      split <;> simp_all [← UInt64.toNat_inj] <;> omega
     rw [ite_eq_right hm, toNat_powModImpl_go _ _ _ _ (by simpa using hM), UInt64.toNat_one,
       Nat.one_mul]
 
@@ -445,13 +423,12 @@ private theorem toNat_condSub {a b modulus : UInt64} (hb : b < modulus) :
     (if b ≤ a then a - b else modulus - (b - a)).toNat
       = if b.toNat ≤ a.toNat then a.toNat - b.toNat
         else modulus.toNat - (b.toNat - a.toNat) := by
-  have hbm : b.toNat < modulus.toNat := hb
-  split <;> rename_i h <;> rw [UInt64.le_iff_toNat_le] at h
-  · rw [ite_eq_left h, UInt64.toNat_sub_of_le _ _ h]
+  simp only [UInt64.le_iff_toNat_le]
+  split <;> rename_i h
+  · exact UInt64.toNat_sub_of_le _ _ h
   · have hab : a ≤ b := Nat.le_of_lt (Nat.lt_of_not_le h)
-    have hsub : b - a ≤ modulus := by
-      rw [UInt64.le_iff_toNat_le, UInt64.toNat_sub_of_le _ _ hab]; omega
-    rw [ite_eq_right h, UInt64.toNat_sub_of_le _ _ hsub, UInt64.toNat_sub_of_le _ _ hab]
+    rw [UInt64.toNat_sub_of_le _ _ (UInt64.le_trans (UInt64.sub_le hab) (UInt64.le_of_lt hb)),
+      UInt64.toNat_sub_of_le _ _ hab]
 
 private theorem invModImpl_go_eq (modulus : UInt64) (hm : modulus ≠ 0) (oldR r oldS s : UInt64) :
     invModImpl.go modulus oldR r oldS s =
@@ -459,12 +436,9 @@ private theorem invModImpl_go_eq (modulus : UInt64) (hm : modulus ≠ 0) (oldR r
         some (UInt64.ofNat (invMod?.go modulus oldR.toNat r.toNat oldS.toNat s.toNat).2)
       else none) := by
   induction oldR, r, oldS, s using invModImpl.go.induct (modulus := modulus) with
-  | case1 oldS s =>
-    rw [invModImpl.go, invMod?.go]
-    simp
+  | case1 oldS s => simp [invModImpl.go, invMod?.go]
   | case2 oldR oldS s h =>
-    rw [invModImpl.go, invMod?.go]
-    simp [h, show oldR.toNat ≠ 1 by simpa [← UInt64.toNat_inj] using h]
+    simp_all [invModImpl.go, invMod?.go, ← UInt64.toNat_inj]
   | case3 oldR r oldS s hr product nextS ih =>
     have hr' : r.toNat ≠ 0 := by simpa [← UInt64.toNat_inj] using hr
     rw [invMod?.go, invModImpl.go]

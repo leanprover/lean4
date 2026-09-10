@@ -1145,7 +1145,7 @@ bool type_checker::is_def_eq_core(expr const & t, expr const & s) {
         }
     }
 
-    r = is_def_eq_proof_irrel(t_n, s_n);
+    r = is_def_eq_proof_irrel(t, s);
     if (r != l_undef) return r == l_true;
 
     /*

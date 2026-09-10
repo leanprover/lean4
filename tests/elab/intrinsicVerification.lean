@@ -971,6 +971,19 @@ def ghostLeak (xs : List Nat) : Id Nat := do
     seen := x :: seen
   return seen.length
 
+/-! `ghost` stays a regular identifier at a doElem head when no ghost shape parses. -/
+
+def ghostAsIdent (ghost : Nat → Id Unit) : Id Nat := do
+  ghost 5
+  let mut ghost := 1
+  ghost := ghost + 1
+  ghost ← pure 3
+  pure ghost
+
+/-- info: 3 -/
+#guard_msgs in
+#eval ghostAsIdent fun _ => pure ()
+
 /-! A ghost variable stays out of pattern reassignments. -/
 
 /-- error: a ghost variable takes a plain reassignment, as in `g := e` -/

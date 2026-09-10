@@ -299,9 +299,9 @@ jobs:
 
       - name: Lower perf_event_paranoid for samply
         # Best-effort: some runners lack sudo or won't allow this. The `lake samply`
-        # test self-skips if `samply record` fails.
+        # recording test skips if perf permissions are unavailable.
         run: command -v sudo && sudo -n sysctl -w kernel.perf_event_paranoid=1 || true
-        if: runner.os == 'Linux' && contains(matrix.name, 'Lake') && matrix.test
+        if: runner.os == 'Linux' && matrix.test
       - name: Test
         id: test
         run: |

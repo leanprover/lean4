@@ -1,4 +1,5 @@
 name = "test"
+defaultTargets = ["hello"]
 
 [[lean_exe]]
 name = "hello"

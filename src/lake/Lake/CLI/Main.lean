@@ -1264,9 +1264,9 @@ protected def samply : CliM PUnit := do
   let config ← mkLoadConfig opts
   let ws ← loadWorkspace config
   let exe ← parseExeTargetSpec ws exeSpec
-  let exeFile ← ws.runBuild exe.fetch (mkBuildConfig opts)
+  let exeFile ← ws.runBuild exe.fetch {mkBuildConfig opts with outputsFile? := none}
   discard <| Samply.run exeFile.toString opts.subArgs.toArray (opts.outputsFile?.map (·.toString))
-    (raw := opts.samplyRaw) (serve := !opts.samplyNoServe)
+    (raw := opts.samplyRaw) (serve := !opts.samplyNoServe) (env := ws.augmentedEnvVars)
 
 protected def lean : CliM PUnit := do
   processOptions lakeOption

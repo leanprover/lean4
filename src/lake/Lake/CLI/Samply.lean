@@ -6,19 +6,16 @@ Authors: Kim Morrison
 module
 
 prelude
+public import Init.System.IO
 import Lean.Data.Json
 import Lean.Compiler.NameDemangling
-public import Lake.Util.Proc
 import Lake.Util.IO
-import Lake.CLI.Error
+import Lake.Util.Url
 import Init.Data.String.Extra
 import Init.Data.String.Search
 import Init.Data.String.TakeDrop
 import Init.System.Uri
 import Init.While
-import Std.Net
-import Std.Async
-import Std.Http
 
 /-!
 # `lake samply`
@@ -29,8 +26,7 @@ and demangle Lean names for [Firefox Profiler](https://profiler.firefox.com).
 
 namespace Lake.Samply
 
-open Lean (Json JsonNumber)
-open Std.Http
+open Lean (Json toJson)
 
 /-- Check that a command is available on PATH. -/
 private def requireCmd (cmd : String) (installHint : String) : IO Unit := do
@@ -41,27 +37,6 @@ private def requireCmd (cmd : String) (installHint : String) : IO Unit := do
 /-- Escape a string for safe interpolation inside a POSIX single-quoted shell argument. -/
 private def shellQuote (s : String) : String :=
   "'" ++ s.replace "'" "'\\''" ++ "'"
-
-/-- Percent-encode a string for use as a URL path component (RFC 3986).
-    Only unreserved characters (A-Z, a-z, 0-9, `-`, `.`, `_`, `~`) are left unencoded.
-    We can't use `System.Uri.escapeUri` here because it doesn't encode `/`,
-    which must be encoded for the Firefox Profiler `from-url/` route
-    (it splits on `/` to extract the embedded URL as a single path segment). -/
-private def percentEncode (s : String) : String := Id.run do
-  let hexDigit (n : UInt8) : Char :=
-    if n < 10 then Char.ofNat (n.toNat + '0'.toNat)
-    else Char.ofNat (n.toNat - 10 + 'A'.toNat)
-  let mut acc : String := ""
-  for b in s.toUTF8 do
-    if (b >= 0x41 && b <= 0x5A)     -- A-Z
-      || (b >= 0x61 && b <= 0x7A)   -- a-z
-      || (b >= 0x30 && b <= 0x39)   -- 0-9
-      || b == 0x2D || b == 0x2E || b == 0x5F || b == 0x7E  -- - . _ ~
-    then
-      acc := acc.push (Char.ofNat b.toNat)
-    else
-      acc := (acc.push '%').push (hexDigit (b / 16)) |>.push (hexDigit (b % 16))
-  return acc
 
 /-- Extract the samply server token from its log output.
     Samply prints a URL like `http://127.0.0.1:{port}/{token}/...` (percent-encoded).
@@ -80,98 +55,83 @@ private def extractToken (output : String) (port : Nat) : Option String := do
 private def waitForServer (logFile : String) (proc : IO.Process.Child cfg)
     (port : Nat) (timeoutMs : Nat := 30000) : IO String := do
   let startTime ← IO.monoMsNow
-  let mut found := false
-  let mut contents := ""
-  while !found do
-    let now ← IO.monoMsNow
-    if now - startTime > timeoutMs then
+  repeat
+    if (← IO.monoMsNow) - startTime > timeoutMs then
       throw <| IO.userError "timeout waiting for samply server to start"
     if let some exitCode ← proc.tryWait then
-      contents ← IO.FS.readFile logFile
-      throw <| IO.userError s!"samply exited with code {exitCode}:\n{contents}"
+      throw <| IO.userError s!"samply exited with code {exitCode}:\n{← IO.FS.readFile logFile}"
+    if let some token := extractToken (← IO.FS.readFile logFile) port then
+      return token
     IO.sleep 200
-    contents ← IO.FS.readFile logFile
-    if contents.contains "profiler.firefox.com" then
-      found := true
-  match extractToken contents port with
-  | some token => return token
-  | none => throw <| IO.userError "could not extract samply server token"
 
-/-- Build the symbolication request JSON from a raw profile.
-    Returns (request JSON, function map for applying results).
-    The function map entries are (threadIdx, funcIdx, resultFrameIdx). -/
+/-- One stack per thread, with a parallel array mapping each requested frame to its function. -/
 private def buildSymbolicationRequest (profile : Json)
-    : IO (Json × Array (Nat × Nat × Nat)) := do
+    : IO (Json × Array (Array Nat)) := do
   let libs ← IO.ofExcept <| profile.getObjValAs? (Array Json) "libs"
   let memoryMap ← libs.mapM fun lib => do
     let debugName ← IO.ofExcept <| lib.getObjValAs? String "debugName"
     let breakpadId ← IO.ofExcept <| lib.getObjValAs? String "breakpadId"
-    return Json.arr #[Json.str debugName, Json.str breakpadId]
+    return toJson #[debugName, breakpadId]
   let threads ← IO.ofExcept <| profile.getObjValAs? (Array Json) "threads"
-  let mut frames : Array Json := #[]
-  let mut funcMap : Array (Nat × Nat × Nat) := #[]
-  for hi : threadIdx in [:threads.size] do
-    let thread := threads[threadIdx]
-    let some ft := (thread.getObjValAs? Json "frameTable").toOption | continue
-    let some funcT := (thread.getObjValAs? Json "funcTable").toOption | continue
-    let some rt := (thread.getObjValAs? Json "resourceTable").toOption | continue
-    let some ftFunc := (ft.getObjValAs? (Array Json) "func").toOption | continue
-    let some ftAddr := (ft.getObjValAs? (Array Json) "address").toOption | continue
-    let some ftLen := (ft.getObjValAs? Nat "length").toOption | continue
-    let some funcRes := (funcT.getObjValAs? (Array Json) "resource").toOption | continue
-    let some rtLib := (rt.getObjValAs? (Array Json) "lib").toOption | continue
+  let mut stacks := #[]
+  let mut funcMaps := #[]
+  for thread in threads do
+    let ft ← IO.ofExcept <| thread.getObjVal? "frameTable"
+    let funcT ← IO.ofExcept <| thread.getObjVal? "funcTable"
+    let rt ← IO.ofExcept <| thread.getObjVal? "resourceTable"
+    let funcs ← IO.ofExcept <| ft.getObjValAs? (Array Nat) "func"
+    let addresses ← IO.ofExcept <| ft.getObjValAs? (Array Json) "address"
+    let resources ← IO.ofExcept <| funcT.getObjValAs? (Array Json) "resource"
+    let libIndices ← IO.ofExcept <| rt.getObjValAs? (Array Json) "lib"
     let mut seen : Std.HashSet Nat := {}
-    for i in [:ftLen] do
-      if h1 : i < ftFunc.size then
-        if h2 : i < ftAddr.size then
-          if let some funcIdx := ftFunc[i].getNat?.toOption then
-            if !seen.contains funcIdx then
-              seen := seen.insert funcIdx
-              if hf : funcIdx < funcRes.size then
-                if let some resIdx := funcRes[funcIdx].getNat?.toOption then
-                  if hr : resIdx < rtLib.size then
-                    if let some libIdx := rtLib[resIdx].getNat?.toOption then
-                      frames := frames.push <|
-                        Json.arr #[Json.num (JsonNumber.fromNat libIdx), ftAddr[i]]
-                      funcMap := funcMap.push (threadIdx, funcIdx, frames.size - 1)
-  let req := Json.mkObj [
-    ("memoryMap", Json.arr memoryMap),
-    ("stacks", Json.arr #[Json.arr frames])
-  ]
-  return (req, funcMap)
+    let mut frames := #[]
+    let mut funcMap := #[]
+    for funcIdx in funcs, address in addresses do
+      if seen.contains funcIdx then continue
+      -- Negative indices and addresses denote labels or frames without native code.
+      let some (libIdx, address) := (do
+        let address ← address.getNat?.toOption
+        let resIdx ← resources[funcIdx]? >>= (·.getNat?.toOption)
+        let libIdx ← libIndices[resIdx]? >>= (·.getNat?.toOption)
+        guard (libIdx < libs.size)
+        return (libIdx, address) : Option (Nat × Nat)) | continue
+      seen := seen.insert funcIdx
+      frames := frames.push (toJson #[libIdx, address])
+      funcMap := funcMap.push funcIdx
+    stacks := stacks.push (Json.arr frames)
+    funcMaps := funcMaps.push funcMap
+  return (Json.mkObj [("memoryMap", Json.arr memoryMap), ("stacks", Json.arr stacks)], funcMaps)
 
-/-- Parse symbolication response and apply demangled names to the profile. -/
-private def applySymbols (profile : Json) (response : Json)
-    (funcMap : Array (Nat × Nat × Nat)) : IO Json := do
+/-- Update each thread's function names, leaving shared strings (e.g. marker labels) intact. -/
+private def applySymbols (profile response : Json)
+    (funcMaps : Array (Array Nat)) : IO Json := do
   let results ← IO.ofExcept <| response.getObjValAs? (Array Json) "results"
-  if h : 0 < results.size then
-    let stacks ← IO.ofExcept <| results[0].getObjValAs? (Array Json) "stacks"
-    if hs : 0 < stacks.size then
-      let frameResults ← IO.ofExcept <| stacks[0].getArr?
-      -- Extract symbol names from response
-      let symbols : Array (Option String) := frameResults.map fun entry =>
-        match entry with
-        | Json.str s => some s
-        | _ => (entry.getObjValAs? String "function").toOption
-      -- Apply demangled names to profile
-      let mut threads ← IO.ofExcept <| profile.getObjValAs? (Array Json) "threads"
-      for (threadIdx, funcIdx, resultIdx) in funcMap do
-        if hr : resultIdx < symbols.size then
-          if let some symbolName := symbols[resultIdx] then
-            let demangled := Lean.Name.Demangle.demangleSymbol symbolName |>.getD symbolName
-            if ht : threadIdx < threads.size then
-              let thread := threads[threadIdx]
-              if let some funcT := (thread.getObjValAs? Json "funcTable").toOption then
-                if let some nameArr := (funcT.getObjValAs? (Array Json) "name").toOption then
-                  if hf : funcIdx < nameArr.size then
-                    if let some nameIdx := nameArr[funcIdx].getNat?.toOption then
-                      if let some sa := (thread.getObjValAs? (Array Json) "stringArray").toOption then
-                        if hn : nameIdx < sa.size then
-                          let sa' := sa.set nameIdx (Json.str demangled)
-                          let thread' := thread.setObjVal! "stringArray" (Json.arr sa')
-                          threads := threads.set threadIdx thread'
-      return profile.setObjVal! "threads" (Json.arr threads)
-  return profile
+  let some result := results[0]? | throw <| IO.userError "symbolication returned no results"
+  let stacks ← IO.ofExcept <| result.getObjValAs? (Array (Array Json)) "stacks"
+  let threads ← IO.ofExcept <| profile.getObjValAs? (Array Json) "threads"
+  unless stacks.size == threads.size && funcMaps.size == threads.size do
+    throw <| IO.userError "symbolication returned the wrong number of stacks"
+  let threads ← threads.mapIdxM fun i thread => do
+    let frames := stacks[i]!
+    let funcMap := funcMaps[i]!
+    unless frames.size == funcMap.size do
+      throw <| IO.userError "symbolication returned the wrong number of frames"
+    let funcT ← IO.ofExcept <| thread.getObjVal? "funcTable"
+    let mut names ← IO.ofExcept <| funcT.getObjValAs? (Array Nat) "name"
+    let mut strings ← IO.ofExcept <| thread.getObjValAs? (Array String) "stringArray"
+    for funcIdx in funcMap, frame in frames do
+      let some name := (frame.getStr? <|> frame.getObjValAs? String "function").toOption
+        | continue
+      if h : funcIdx < names.size then
+        let name := Lean.Name.Demangle.demangleSymbol name |>.getD name
+        names := names.set funcIdx strings.size
+        strings := strings.push name
+    return thread.setObjVal! "funcTable" (funcT.setObjVal! "name" (toJson names))
+      |>.setObjVal! "stringArray" (toJson strings)
+  -- Firefox Profiler otherwise tries to symbolicate again, overwriting demangled names.
+  let metadata ← IO.ofExcept <| profile.getObjVal? "meta"
+  return profile.setObjVal! "threads" (Json.arr threads)
+    |>.setObjVal! "meta" (metadata.setObjVal! "symbolicated" (Json.bool true))
 
 /-- Kill a child process, ignoring errors (e.g. if it already exited). -/
 private def killSafe {cfg : IO.Process.StdioConfig} (proc : IO.Process.Child cfg) : IO Unit :=
@@ -191,46 +151,35 @@ private def splitOnDash (args : Array String) : Array String × Array String :=
 public def run (binary : String) (passthrough : Array String)
     (outputPath : Option String := none)
     (port : Nat := 3756) (raw : Bool := false)
-    (serve : Bool := true) : IO String := do
+    (serve : Bool := true)
+    (env : Array (String × Option String) := #[]) : IO String := do
   requireCmd "samply" "Install with: cargo install samply"
   requireCmd "gzip" "gzip is required for profile compression"
+  unless raw do requireCmd "curl" "curl is required for symbolication"
 
-  let tmpResult ← IO.Process.output {
-    cmd := "mktemp", args := #["-d", "/tmp/lake-samply-XXXXXX"]
-  }
-  if tmpResult.exitCode != 0 then throw <| IO.userError "failed to create temp directory"
-  let tmpDir := tmpResult.stdout.trimAscii.toString
-  let rawProfile := s!"{tmpDir}/profile.json.gz"
-  let defaultOut := "profile-demangled.json.gz"
-
-  let (samplyArgs, progArgs) := splitOnDash passthrough
-
-  try
-    -- Record
+  IO.FS.withTempDir fun tmpDir => do
+    let rawProfile := (tmpDir / "profile.json.gz").toString
+    let out := outputPath.getD (if raw then "profile-raw.json.gz" else "profile-demangled.json.gz")
+    let (samplyArgs, progArgs) := splitOnDash passthrough
     IO.eprintln "Recording profile..."
-    let recordResult ← IO.Process.output {
-      cmd := "samply"
+    let recorder ← IO.Process.spawn {
+      cmd := "samply", env
       args := #["record", "--save-only", "-o", rawProfile] ++ samplyArgs
               ++ #["--", binary] ++ progArgs
     }
-    if recordResult.exitCode != 0 then
-      IO.eprintln recordResult.stderr
-      throw <| IO.userError s!"samply record failed (exit {recordResult.exitCode})"
+    let exitCode ← recorder.wait
+    if exitCode != 0 then
+      throw <| IO.userError s!"samply record failed (exit {exitCode})"
 
     if raw then
-      let out := outputPath.getD "profile-raw.json.gz"
-      let cpResult ← IO.Process.output { cmd := "cp", args := #[rawProfile, out] }
-      if cpResult.exitCode != 0 then
-        throw <| IO.userError s!"failed to copy profile to {out}"
+      copyFile rawProfile out
       IO.eprintln s!"Raw profile: {out}"
       return out
 
-    -- Start symbolication server
-    -- Use `exec` so killing the shell process also kills samply.
     IO.eprintln "Starting symbolication server..."
-    let samplyLog := s!"{tmpDir}/samply.log"
+    let samplyLog := (tmpDir / "samply.log").toString
     IO.FS.writeFile samplyLog ""
-    let out := outputPath.getD defaultOut
+    -- `exec` ensures cleanup kills samply itself, rather than just its shell.
     let samplyProc ← IO.Process.spawn {
       cmd := "sh"
       args := #["-c",
@@ -243,95 +192,34 @@ public def run (binary : String) (passthrough : Array String)
     try
       let token ← waitForServer samplyLog samplyProc port
       let serverUrl := s!"http://127.0.0.1:{port}/{token}"
-
-      -- Read raw profile by decompressing to temp file.
-      -- We use `gzip -dc` rather than `zcat` because macOS's Apple `zcat`
-      -- expects `.Z` files (it appends `.Z` to the path), not `.gz`.
       IO.eprintln "Symbolicating and demangling..."
-      let rawJson := s!"{tmpDir}/raw.json"
-      let gunzip ← IO.Process.output {
-        cmd := "sh"
-        args := #["-c",
-          s!"gzip -dc {shellQuote rawProfile} > {shellQuote rawJson}"]
-      }
-      if gunzip.exitCode != 0 then
-        throw <| IO.userError s!"failed to decompress profile:\n{gunzip.stderr}"
-      let rawJsonStr ← IO.FS.readFile rawJson
-      let profile ← IO.ofExcept <| Json.parse rawJsonStr
-
-      -- Build and send symbolication request
-      let (symbReq, funcMap) ← buildSymbolicationRequest profile
-      let symbUrl := s!"{serverUrl}/symbolicate/v5"
-      let curl ← IO.Process.output {
+      let rawJson ← IO.Process.run { cmd := "gzip", args := #["-dc", rawProfile] }
+      let profile ← IO.ofExcept <| Json.parse rawJson
+      let (symbReq, funcMaps) ← buildSymbolicationRequest profile
+      let symbResp ← IO.Process.run {
         cmd := "curl"
-        args := #["-sS", "-X", "POST", symbUrl,
-                  "-H", "Content-Type: application/json",
-                  "-d", symbReq.compress]
-      }
-      if curl.exitCode != 0 then
-        throw <| IO.userError s!"symbolication request failed: {curl.stderr}"
-      if curl.stdout.isEmpty then
-        throw <| IO.userError "symbolication returned empty response"
-      let symbResp ← IO.ofExcept <| Json.parse curl.stdout
+        args := #["--fail", "-sS", "--noproxy", "*", s!"{serverUrl}/symbolicate/v5",
+                  "-H", "Content-Type: application/json", "--data-binary", "@-"]
+      } (some symbReq.compress)
+      let result ← applySymbols profile (← IO.ofExcept <| Json.parse symbResp) funcMaps
+      let tmpJson := tmpDir / "demangled.json"
+      IO.FS.writeFile tmpJson result.compress
+      discard <| IO.Process.run { cmd := "gzip", args := #[tmpJson.toString] }
+      -- Samply opens the file afresh for each request, so its existing server can serve the result.
+      IO.FS.rename (tmpDir / "demangled.json.gz") rawProfile
+      copyFile rawProfile out
+      IO.eprintln s!"Wrote demangled profile: {out}"
 
-      -- Apply demangled names and write compressed output
-      let result ← applySymbols profile symbResp funcMap
-      let jsonStr := result.compress
-      let tmpJson := s!"{tmpDir}/demangled.json"
-      IO.FS.writeFile tmpJson jsonStr
-      let gzResult ← IO.Process.output { cmd := "gzip", args := #[tmpJson] }
-      if gzResult.exitCode != 0 then throw <| IO.userError "gzip failed"
-      let mvResult ← IO.Process.output { cmd := "mv", args := #[s!"{tmpJson}.gz", out] }
-      if mvResult.exitCode != 0 then
-        throw <| IO.userError s!"failed to write output to {out}"
-
-      IO.eprintln s!"Demangled {funcMap.size} names, wrote {out}"
+      if serve then
+        IO.eprintln s!"Serving on {serverUrl}/"
+        IO.eprintln "\nOpen in Firefox Profiler:"
+        IO.eprintln s!"  https://profiler.firefox.com/from-url/{uriEncode s!"{serverUrl}/profile.json"}"
+        IO.eprintln "\nPress Ctrl+C to stop."
+        let exitCode ← samplyProc.wait
+        if exitCode != 0 then
+          throw <| IO.userError s!"samply server exited with code {exitCode}"
+      return out
     finally
       killSafe samplyProc
-
-    unless serve do return out
-
-    -- Serve the demangled profile to Firefox Profiler over a local HTTP server built on the
-    -- standard library's `Std.Http.Server`. profiler.firefox.com fetches the profile
-    -- cross-origin, so we send permissive CORS headers; binding 127.0.0.1 keeps the server
-    -- reachable only from this machine (and lets VSCode auto-forward the port). The profile is
-    -- already gzip-compressed on disk, so we advertise `Content-Encoding: gzip` and let the
-    -- browser decompress it. We construct the Firefox Profiler URL ourselves, omitting
-    -- `?symbolServer=` so it doesn't re-symbolicate with mangled names.
-    let servePort := port + 1
-    let profileBytes ← IO.FS.readBinFile out
-    let handler := Server.Handler.ofFn fun req => do
-      match req.line.method with
-      | .get =>
-        let resp ← (Response.ok
-            |>.header (Header.Name.ofString! "Content-Type") (Header.Value.ofString! "application/json")
-            |>.header (Header.Name.ofString! "Content-Encoding") (Header.Value.ofString! "gzip")
-            |>.header (Header.Name.ofString! "Access-Control-Allow-Origin") (Header.Value.ofString! "*")
-            |>.header (Header.Name.ofString! "Cache-Control") (Header.Value.ofString! "no-cache")
-          ).fromBytes profileBytes
-        return { resp with body := Body.Any.ofBody resp.body }
-      | .options =>
-        let resp ← (Response.withStatus .noContent
-            |>.header (Header.Name.ofString! "Access-Control-Allow-Origin") (Header.Value.ofString! "*")
-            |>.header (Header.Name.ofString! "Access-Control-Allow-Methods") (Header.Value.ofString! "GET, OPTIONS")
-            |>.header (Header.Name.ofString! "Access-Control-Allow-Headers") (Header.Value.ofString! "*")
-          ).empty
-        return { resp with body := Body.Any.ofBody resp.body }
-      | _ =>
-        let resp ← Response.notFound.empty
-        return { resp with body := Body.Any.ofBody resp.body }
-    let addr := Std.Net.SocketAddress.v4 ⟨Std.Net.IPv4Addr.ofParts 127 0 0 1, servePort.toUInt16⟩
-    let profileUrl := percentEncode s!"http://127.0.0.1:{servePort}/profile.json"
-    -- Print the server URL so VSCode detects and auto-forwards the port.
-    IO.eprintln s!"Serving on http://127.0.0.1:{servePort}/"
-    IO.eprintln s!"\nOpen in Firefox Profiler:"
-    IO.eprintln s!"  https://profiler.firefox.com/from-url/{profileUrl}"
-    IO.eprintln s!"\nPress Ctrl+C to stop."
-    Std.Async.Async.block do
-      let server ← Server.serve addr handler
-      server.waitShutdown
-    return out
-  finally
-    removeDirAllIfExists tmpDir
 
 end Lake.Samply

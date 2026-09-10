@@ -846,8 +846,8 @@ JSON file.
 
 OPTIONS:
   -o FILE               output path (default: ./profile-demangled.json.gz)
-  --raw                 skip symbolication and demangling
-  --no-serve            write output file and exit (don't start server)
+  --raw                 save the raw profile without serving (default: ./profile-raw.json.gz)
+  --no-serve            write output file and exit without serving it
 
 Anything after `--` is forwarded verbatim to `samply record`. An inner `--`
 separates samply's own flags from the profiled executable's arguments, e.g.:

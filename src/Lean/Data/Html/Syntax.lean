@@ -286,17 +286,19 @@ inductive AttrView where
   deriving Inhabited
 
 def Attr.view [Monad m] [MonadError m] (stx : Attr) : m AttrView :=
-  let c := stx.raw[0]
-  if c[0].getKind == attrNameKind && c[2].getKind == attrValKind then
-    return .val ⟨c[0]⟩ ⟨c[2]⟩
-  else if c.getKind == attrNameKind then
-    return .bool ⟨c⟩
-  else if c.getKind == interpKind then
-    return .interp ⟨c⟩
-  else if c.getKind == interpManyKind then
-    return .interpMany ⟨c⟩
+  let a := stx.raw
+  if a[0].getKind == attrNameKind && a[2].getKind == attrValKind then
+    return .val ⟨a[0]⟩ ⟨a[2]⟩
   else
-    Elab.throwUnsupportedSyntax
+    let c := a[0]
+    if c.getKind == attrNameKind then
+      return .bool ⟨c⟩
+    else if c.getKind == interpKind then
+      return .interp ⟨c⟩
+    else if c.getKind == interpManyKind then
+      return .interpMany ⟨c⟩
+    else
+      Elab.throwUnsupportedSyntax
 
 /-! ## Elements -/
 

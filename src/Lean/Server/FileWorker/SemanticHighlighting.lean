@@ -298,12 +298,8 @@ def computeDeltaLspSemanticTokens (tokens : Array AbsoluteLspSemanticToken) : Se
     lastPos := pos
   return { data }
 
-
-
-
 open Lean.Doc in
 private partial def collectVersoTokens
-    (text : FileMap)
     (stx : Syntax) (getTokens : (stx : Syntax) → Array LeanSemanticToken) :
     Array LeanSemanticToken :=
   go stx |>.run #[] |>.2
@@ -324,34 +320,22 @@ where
   -/
   codeLine (line : Syntax) (value : String) : Option Syntax := do
     let ⟨pos, tailPos⟩ ← line.getRange?
-    let tailPos := if value.endsWith "\n" then tailPos.prev text.source else tailPos
+    let tailPos := if value.endsWith "\n" then tailPos - '\n' else tailPos
     return .ofRange ⟨pos, tailPos⟩
-
-  goVal (val : TSyntax ``Parser.argVal) :
-      StateM (Array LeanSemanticToken) Unit := do
-    match ArgValView.of val with
-    | some (.name x) => tok x.raw .parameter
-    | some (.str s _) => tok s.raw .parameter
-    | some (.num n _) => tok n.raw .parameter
-    | none => pure ()
 
   goArg (arg : TSyntax ``Parser.arg) :
       StateM (Array LeanSemanticToken) Unit := do
     match ArgView.of arg with
-    | some (.named _ (some (tk1, tk3)) x tk2 v) =>
-      tok tk1 .keyword
-      tok x.raw .property
-      tok tk2 .keyword
-      goVal v
-      tok tk3 .keyword
-    | some (.named _ none x tk v) =>
+    | some (.named _ parens x tk v) =>
+      if let some (o, _) := parens then tok o .keyword
       tok x.raw .property
       tok tk .keyword
-      goVal v
+      tok v.raw .parameter
+      if let some (_, c) := parens then tok c .keyword
     | some (.flag _ tk x _) =>
       tok tk .keyword
       tok x.raw .property
-    | some (.anon _ v) => goVal v
+    | some (.anon _ v) => tok v.raw .parameter
     | none => pure ()
 
   goTarget (tgt : LinkTargetView) : StateM (Array LeanSemanticToken) Unit := do
@@ -371,13 +355,16 @@ where
       if let some region := codeLine line.raw line.getVersoCodeLine then tok region .string
     tok code.closer .keyword
 
-  goUnorderedItem (item : UnorderedListItemView) : StateM (Array LeanSemanticToken) Unit := do
-    tok item.marker .keyword
-    for b in item.contents do go b.raw
+  goItem (marker : Syntax) (contents : TSyntaxArray ``Parser.block) :
+      StateM (Array LeanSemanticToken) Unit := do
+    tok marker .keyword
+    for b in contents do go b.raw
 
-  goOrderedItem (item : OrderedListItemView) : StateM (Array LeanSemanticToken) Unit := do
-    tok item.marker .keyword
-    for b in item.contents do go b.raw
+  goDelimited (opener closer : Syntax) (content : TSyntaxArray ``Parser.inline) :
+      StateM (Array LeanSemanticToken) Unit := do
+    tok opener .keyword
+    for i in content do go i.raw
+    tok closer .keyword
 
   goDesc (item : DescItemView) : StateM (Array LeanSemanticToken) Unit := do
     tok item.marker .keyword
@@ -387,19 +374,11 @@ where
   go (stx : Syntax) : StateM (Array LeanSemanticToken) Unit := do
   if let some v := InlineView.of ⟨stx⟩ then
     match v with
-    | .text .. | .linebreak .. => pure () -- No tokens for plain text or line breaks
-    | .bold v =>
-      tok v.opener .keyword
-      for i in v.content do go i.raw
-      tok v.closer .keyword
-    | .emph v =>
-      tok v.opener .keyword
-      for i in v.content do go i.raw
-      tok v.closer .keyword
+    | .text .. | .linebreak .. => pure ()
+    | .bold v => goDelimited v.opener v.closer v.content
+    | .emph v => goDelimited v.opener v.closer v.content
     | .link v =>
-      tok v.opener .keyword
-      for i in v.content do go i.raw
-      tok v.closer .keyword
+      goDelimited v.opener v.closer v.content
       goTarget v.target
     | .image v =>
       tok v.opener .keyword
@@ -464,9 +443,9 @@ where
       tok v.marker .keyword
       for i in v.content do go i.raw
     | .ul v =>
-      for item in v.items do goUnorderedItem item
+      for item in v.items do goItem item.marker item.contents
     | .ol v =>
-      for item in v.items do goOrderedItem item
+      for item in v.items do goItem item.marker item.contents
     | .dl v =>
       for item in v.items do goDesc item
     | .blockquote v =>
@@ -494,7 +473,7 @@ partial def collectSyntaxBasedSemanticTokens (text : FileMap) : (stx : Syntax) �
       if stx[1].isAtom then
         return #[]
       else
-        return collectVersoTokens text stx[1] (collectSyntaxBasedSemanticTokens text)
+        return collectVersoTokens stx[1] (collectSyntaxBasedSemanticTokens text)
     let mut tokens :=
       if stx.isOfKind choiceKind then
         collectSyntaxBasedSemanticTokens text stx[0]

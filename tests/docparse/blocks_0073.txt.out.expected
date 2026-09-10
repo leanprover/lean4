@@ -22,7 +22,9 @@ Success! Final stack:
    (Lean.Doc.Parser.Block.para
     [(Lean.Doc.Parser.Inline.code
       (Lean.Doc.Parser.codeDelimiter "`")
-      (Lean.Doc.Parser.versoCode "code %$z")
+      (Lean.Doc.Parser.versoCode
+       [(Lean.Doc.Parser.versoCodeLine
+         "code %$z")])
       (Lean.Doc.Parser.codeDelimiter "`"))
      (Lean.Doc.Parser.Inline.linebreak "\n")])]
 All input consumed.

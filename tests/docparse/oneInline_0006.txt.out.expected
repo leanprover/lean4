@@ -2,7 +2,9 @@ Input: "` fo\no `"
 Success! Final stack:
   (Lean.Doc.Parser.Inline.code
    (Lean.Doc.Parser.codeDelimiter "`")
-   (Lean.Doc.Parser.versoCode " fo\no ")
+   (Lean.Doc.Parser.versoCode
+    [(Lean.Doc.Parser.versoCodeLine "fo\n")
+     (Lean.Doc.Parser.versoCodeLine "o")])
    (Lean.Doc.Parser.codeDelimiter "`"))
 All input consumed.
 Round-trip OK

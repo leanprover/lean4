@@ -15,7 +15,9 @@ Final stack:
        "Here is a paragraph with an unterminated "))
      (Lean.Doc.Parser.Inline.code
       (Lean.Doc.Parser.codeDelimiter "`")
-      (Lean.Doc.Parser.versoCode "code block")
+      (Lean.Doc.Parser.versoCode
+       [(Lean.Doc.Parser.versoCodeLine
+         "code block")])
       <missing>)
      (Lean.Doc.Parser.Inline.text
       (Lean.Doc.Parser.versoText

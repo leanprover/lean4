@@ -2,7 +2,8 @@ Input: "`` `x ``"
 Success! Final stack:
   (Lean.Doc.Parser.Inline.code
    (Lean.Doc.Parser.codeDelimiter "``")
-   (Lean.Doc.Parser.versoCode " `x ")
+   (Lean.Doc.Parser.versoCode
+    [(Lean.Doc.Parser.versoCodeLine "`x")])
    (Lean.Doc.Parser.codeDelimiter "``"))
 All input consumed.
 Round-trip OK

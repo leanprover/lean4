@@ -17,10 +17,9 @@ Success! Final stack:
        (Lean.Doc.Parser.codeBlockFence "````")
        [`lean []]
        (Lean.Doc.Parser.versoCodeBlock
-        [(Lean.Doc.Parser.versoCodeBlockLine
-          "hey\n")
-         (Lean.Doc.Parser.versoCodeBlockLine "\n")
-         (Lean.Doc.Parser.versoCodeBlockLine
+        [(Lean.Doc.Parser.versoCodeLine "hey\n")
+         (Lean.Doc.Parser.versoCodeLine "\n")
+         (Lean.Doc.Parser.versoCodeLine
           "there\n")])
        (Lean.Doc.Parser.codeBlockFence "````"))])
     (Lean.Doc.Parser.ListItem.item

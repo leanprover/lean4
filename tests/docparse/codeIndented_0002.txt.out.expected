@@ -1,12 +1,12 @@
-Input: "` fo\no `"
+Input: "`a\nb`"
 Success! Final stack:
   (Lean.Doc.Parser.Inline.code
    (Lean.Doc.Parser.codeDelimiter "`")
    (Lean.Doc.Parser.versoCode
-    [(Lean.Doc.Parser.versoCodeLine "fo\n")
-     (Lean.Doc.Parser.versoCodeLine "o")])
+    [(Lean.Doc.Parser.versoCodeLine "a\n")
+     (Lean.Doc.Parser.versoCodeLine "b")])
    (Lean.Doc.Parser.codeDelimiter "`"))
 All input consumed.
 Round-trip OK
 Decoded views:
-  code (opener := "`") (content := "fo\no") (closer := "`")
+  code (opener := "`") (content := "a\nb") (closer := "`")

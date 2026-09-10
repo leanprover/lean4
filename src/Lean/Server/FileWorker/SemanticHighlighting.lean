@@ -320,10 +320,9 @@ where
   The region of a code block line to highlight. The line's final newline is omitted because some LSP
   clients (including VS Code) ignore a token that spans a line break.
   -/
-  codeLine (line : VersoCodeBlockLine) : Option Syntax := do
-    let ⟨pos, tailPos⟩ ← line.raw.getRange?
-    let tailPos :=
-      if line.getVersoCodeBlockLine.endsWith "\n" then tailPos.prev text.source else tailPos
+  codeLine (line : Syntax) (value : String) : Option Syntax := do
+    let ⟨pos, tailPos⟩ ← line.getRange?
+    let tailPos := if value.endsWith "\n" then tailPos.prev text.source else tailPos
     guard <| pos < tailPos
     return .ofRange ⟨pos, tailPos⟩
 
@@ -367,7 +366,8 @@ where
 
   goCode (code : CodeView) : StateM (Array LeanSemanticToken) Unit := do
     tok code.opener .keyword
-    tok code.content.raw .string
+    for line in code.content.getVersoCodeLines do
+      if let some region := codeLine line.raw line.getVersoCodeLine then tok region .string
     tok code.closer .keyword
 
   goUnorderedItem (item : UnorderedListItemView) : StateM (Array LeanSemanticToken) Unit := do
@@ -432,7 +432,7 @@ where
         tok x.raw .function
         for a in v.args do goArg a
       for line in v.content.getVersoCodeBlockLines do
-        if let some region := codeLine line then tok region .string
+        if let some region := codeLine line.raw line.getVersoCodeLine then tok region .string
       tok v.closeFence .keyword
     | .directive v =>
       tok v.opener .keyword

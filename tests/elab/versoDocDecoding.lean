@@ -105,10 +105,12 @@ info: "`term`": value "term", range covers "term"
 "` term `": value "term", range covers "term"
 "`  term  `": value " term ", range covers " term "
 "` `": value " ", range covers " "
+"`a\n b`": value "a\n b", range covers "a\n b"
+"` a\n b `": value "a\n b", range covers "a\n b"
 -/
 #guard_msgs in
 #eval show CommandElabM Unit from do
-  for input in ["`term`", "` term `", "`  term  `", "` `"] do
+  for input in ["`term`", "` term `", "`  term  `", "` `", "`a\n b`", "` a\n b `"] do
     let some (.code { content, .. }) := InlineView.of ⟨← theInline input⟩
       | throwError "expected code"
     let some b := content.raw.getPos? | throwError "no position"
@@ -241,7 +243,7 @@ whole: "a\nb\n\nc\n"
 #eval show CommandElabM Unit from do
   let some (.codeblock codeblock) := BlockView.of ⟨← theBlock "```\na\nb\n\nc\n```\n"⟩
     | throwError "expected a code block"
-  let lines := codeblock.content.raw[0].getArgs.map fun l => TSyntax.getVersoCodeBlockLine ⟨l⟩
+  let lines := codeblock.content.raw[0].getArgs.map fun l => TSyntax.getVersoCodeLine ⟨l⟩
   IO.println s!"lines: {lines.toList.map (·.quote)}"
   IO.println s!"whole: {codeblock.getVersoCodeBlock.quote}"
 
@@ -339,8 +341,8 @@ than the code block's indentation contributes all of its spaces as leading white
 
 /-- The leading whitespace and the content of each code block line token in `stx`, in order. -/
 partial def codeBlockLines (stx : Syntax) : Array (String × String) :=
-  if stx.isOfKind versoCodeBlockLineKind then
-    match stx.getHeadInfo, Syntax.isLit? versoCodeBlockLineKind stx with
+  if stx.isOfKind versoCodeLineKind then
+    match stx.getHeadInfo, Syntax.isLit? versoCodeLineKind stx with
     | .original lead .., some content =>
       #[(String.Pos.Raw.extract lead.str lead.startPos lead.stopPos, content)]
     | _, _ => #[]

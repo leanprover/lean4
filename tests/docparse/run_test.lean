@@ -457,6 +457,7 @@ def testConfigs : List (String × ParserFn × Bool × Bool) := [
   ("text", textFn, true, false),
   ("emph", (emphFn {}), true, false),
   ("code", codeFn, true, false),
+  ("codeIndented", codeFn {baseColumn := 2}, true, false),
   ("role", (roleFn {}), true, false),
   ("oneInline", (inlineFn {}), true, false),
   ("codeBlock", (codeBlockFn {}), true, false),
@@ -472,6 +473,7 @@ def testConfigs : List (String × ParserFn × Bool × Bool) := [
     lookaheadOrderedListMarker {} (fun type i => fakeAtom s! "{toString (repr type)} {i}"), false, false),
   ("block", (blockFn {}), true, true),
   ("document", documentFn, true, true),
+  ("documentIndented", documentFn {baseColumn := 2}, true, true),
 ]
 
 /--
@@ -482,8 +484,8 @@ def parserProducedKinds : List Name := [
   -- literal content and the delimiter runs
   Lean.Doc.versoTextKind,
   Lean.Doc.versoCodeKind,
+  Lean.Doc.versoCodeLineKind,
   Lean.Doc.versoCodeBlockKind,
-  Lean.Doc.versoCodeBlockLineKind,
   ``Parser.headerMarker,
   ``Parser.listMarker,
   ``Parser.emphDelimiter,

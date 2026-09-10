@@ -8,7 +8,8 @@ Failure: unterminated inline code; expected '`'
 Final stack:
   (Lean.Doc.Parser.Inline.code
    (Lean.Doc.Parser.codeDelimiter "`")
-   (Lean.Doc.Parser.versoCode "foo")
+   (Lean.Doc.Parser.versoCode
+    [(Lean.Doc.Parser.versoCodeLine "foo")])
    <missing>)
 All input consumed.
 Round-trip not reproduced, as the parse reported errors: leaf without original source info: <missing>

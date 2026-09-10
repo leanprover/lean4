@@ -15,7 +15,8 @@ Final stack:
      []
      [(Lean.Doc.Parser.Inline.code
        (Lean.Doc.Parser.codeDelimiter "`")
-       (Lean.Doc.Parser.versoCode "rw")
+       (Lean.Doc.Parser.versoCode
+        [(Lean.Doc.Parser.versoCodeLine "rw")])
        (Lean.Doc.Parser.codeDelimiter "`"))]
      [])
     (Lean.Doc.Parser.Inline.role
@@ -26,7 +27,8 @@ Final stack:
      []
      [(Lean.Doc.Parser.Inline.code
        (Lean.Doc.Parser.codeDelimiter "`")
-       (Lean.Doc.Parser.versoCode "  [t]  ")
+       (Lean.Doc.Parser.versoCode
+        [(Lean.Doc.Parser.versoCodeLine " [t] ")])
        (Lean.Doc.Parser.codeDelimiter "`"))]
      [])
     (Lean.Doc.Parser.Inline.role
@@ -37,7 +39,8 @@ Final stack:
      []
      [(Lean.Doc.Parser.Inline.code
        (Lean.Doc.Parser.codeDelimiter "`")
-       (Lean.Doc.Parser.versoCode "at")
+       (Lean.Doc.Parser.versoCode
+        [(Lean.Doc.Parser.versoCodeLine "at")])
        (Lean.Doc.Parser.codeDelimiter "`"))]
      [])
     (Lean.Doc.Parser.Inline.role

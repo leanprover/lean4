@@ -4,9 +4,9 @@ Success! Final stack:
    (Lean.Doc.Parser.codeBlockFence "```")
    []
    (Lean.Doc.Parser.versoCodeBlock
-    [(Lean.Doc.Parser.versoCodeBlockLine
+    [(Lean.Doc.Parser.versoCodeLine
       "(define x 4)\n")
-     (Lean.Doc.Parser.versoCodeBlockLine "x\n")])
+     (Lean.Doc.Parser.versoCodeLine "x\n")])
    (Lean.Doc.Parser.codeBlockFence "```"))
 All input consumed.
 Round-trip OK

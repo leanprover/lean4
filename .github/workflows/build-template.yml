@@ -266,8 +266,7 @@ jobs:
           elan --version  # fails step if not found
           make -C build/$TARGET_STAGE lean4lean
       - name: Build nanoda
-        # TEMPORARY: gating removed so PR CI exercises this. Restore before merging.
-        if: "!matrix.wasm"
+        if: matrix.release && !matrix.wasm && inputs.RELEASE_TAG != '' && github.repository == 'leanprover/lean4'
         run: |
           # msys2 trims the Windows `PATH`, hiding the runner's cargo, and a native rustup installs
           # to `%USERPROFILE%` rather than to the msys2 `$HOME`

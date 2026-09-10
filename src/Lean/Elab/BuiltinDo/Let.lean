@@ -70,11 +70,6 @@ def elabWithReassignments (letOrReassign : LetOrReassign) (vars : Array Ident) (
     else
       k
 
-def elabDoLetOrReassignWith (hint : MessageData) (letOrReassign : LetOrReassign) (vars : Array Ident)
-    (k : DoElabM Expr) (elabBody : (body : Term) → TermElabM Expr) : DoElabM Expr := do
-  -- letOrReassign.checkMutVars vars -- Should be done by the caller!
-  doElabToSyntax hint (elabWithReassignments letOrReassign vars k) fun body => elabBody body
-
 private def pushTypeIntoReassignment (letOrReassign : LetOrReassign) (decl : TSyntax ``letDecl) : TermElabM (TSyntax ``letDecl) := do
   if letOrReassign matches .reassign then
     match decl with
@@ -202,14 +197,13 @@ partial def elabDoLetOrReassign (config : Term.LetConfig) (letOrReassign : LetOr
             mkLetFVars #[x, h'] body (usedLetOnly := config.usedOnly) (generalizeNondepLet := false)
   | _ => throwUnsupportedSyntax
 
-def elabDoArrow (letOrReassign : LetOrReassign) (stx : TSyntax [``doIdDecl, ``doPatDecl]) (tk : Syntax) (dec : DoElemCont) : DoElabM Expr := do
-  if letOrReassign matches .reassign then
-    throwError "Reassigning `←` expands to `:=` before elaboration. This is an elaborator bug."
+def elabDoArrow (mutTk? : Option Syntax) (ghost : Bool) (stx : TSyntax [``doIdDecl, ``doPatDecl])
+    (tk : Syntax) (dec : DoElemCont) : DoElabM Expr := do
   match stx with
   | `(doIdDecl| $x:ident $[: $xType?]? ← $rhs) =>
-    letOrReassign.checkMutVars #[x]
+    checkMutVarsForShadowing #[x]
     let dec ← dec.ensureUnitAt tk
-    elabDoIdDecl x xType? rhs (declareMutVar? letOrReassign.getLetMutTk? x letOrReassign.isGhostDecl <| dec.continueWithUnit)
+    elabDoIdDecl x xType? rhs (declareMutVar? mutTk? x ghost <| dec.continueWithUnit)
       (kind := dec.kind)
   | `(doPatDecl| _%$pattern $[: $patType?]? ← $rhs) =>
     let x := mkIdentFrom pattern (← mkFreshUserName `__x)
@@ -219,16 +213,11 @@ def elabDoArrow (letOrReassign : LetOrReassign) (stx : TSyntax [``doIdDecl, ``do
     let rest? := rest?.join
     let x := mkIdentFrom pattern (← mkFreshUserName `__x)
     elabDoIdDecl x patType? rhs do
-      match letOrReassign, otherwise? with
-      | .let mutTk? _, some otherwise =>
+      match otherwise? with
+      | some otherwise =>
         elabDoElem (← `(doElem| let $[mut%$mutTk?]? $pattern:term := $x | $otherwise $(rest?)?)) dec
-      | .let mutTk? _, _ =>
+      | none =>
         elabDoElem (← `(doElem| let $[mut%$mutTk?]? $pattern:term := $x)) dec
-      | .have, some _otherwise =>
-        throwUnsupportedSyntax
-      | .have, _ =>
-        elabDoElem (← `(doElem| have $pattern:term := $x)) dec
-      | .reassign, _ => unreachable!
   | _ => throwUnsupportedSyntax
 
 private def getLetConfigAndCheckMut (letConfigStx : TSyntax ``Parser.Term.letConfig)
@@ -307,7 +296,7 @@ private def getLetConfigAndCheckMut (letConfigStx : TSyntax ``Parser.Term.letCon
   checkLetConfigInDo config
   if config.nondep || config.usedOnly || config.zeta || config.eq?.isSome then
     throwErrorAt cfg "configuration options are not supported with `←`"
-  elabDoArrow (.let mutTk? false) decl tk dec
+  elabDoArrow mutTk? false decl tk dec
 
 @[builtin_macro Lean.Parser.Term.doReassignArrow] def expandDoReassignArrow : Macro := fun stx => do
   match stx with

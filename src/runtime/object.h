@@ -25,6 +25,14 @@ struct mpz_object {
     explicit mpz_object(mpz const & m):m_value(m) {}
 };
 
+static inline void lean_dealloc(lean_object * o, size_t sz) {
+#ifdef LEAN_MIMALLOC
+    mi_free_size(o, sz);
+#else
+    free_sized(o, sz);
+#endif
+}
+
 typedef lean_external_class         external_object_class;
 typedef lean_external_finalize_proc external_object_finalize_proc;
 typedef lean_external_foreach_proc  external_object_foreach_proc;

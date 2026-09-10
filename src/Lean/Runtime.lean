@@ -18,6 +18,23 @@ opaque closureMaxArgsFn : Unit → Nat
 @[extern "lean_max_small_nat"]
 opaque maxSmallNatFn : Unit → Nat
 
+@[extern "lean_get_max_ctor_fields"]
+opaque getMaxCtorFields : Unit → Nat
+def maxCtorFields := getMaxCtorFields ()
+
+@[extern "lean_get_max_ctor_scalars_size"]
+opaque getMaxCtorScalarsSize : Unit → Nat
+def maxCtorScalarsSize := getMaxCtorScalarsSize ()
+
+@[extern "lean_get_max_ctor_tag"]
+opaque getMaxCtorTag : Unit → Nat
+def maxCtorTag := getMaxCtorTag ()
+
+@[extern "lean_get_usize_size"]
+opaque getUSizeSize : Unit → Nat
+def usizeSize := getUSizeSize ()
+
+
 @[extern "lean_libuv_version"]
 opaque libUVVersionFn : Unit → Nat
 

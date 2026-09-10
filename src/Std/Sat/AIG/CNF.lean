@@ -28,15 +28,15 @@ namespace Decl
 Produce a Tseitin style CNF for a `Decl.false`, using `output` as the tree node variable.
 -/
 def falseToCNF (output : α) : CNF α :=
-  .empty |>.add [(output, .false)]
+  CNF.empty |>.add (CNF.Clause.empty |>.add output .false)
 
 /--
 Produce a Tseitin style CNF for a `Decl.atom`, using `output` as the tree node variable.
 -/
 def atomToCNF (output : α) (atom : α) : CNF α :=
   CNF.empty
-    |>.add [(output, true), (atom, .false)]
-    |>.add [(output, .false), (atom, true)]
+    |>.add (CNF.Clause.empty |>.add output .true |>.add atom .false)
+    |>.add (CNF.Clause.empty |>.add output .false |>.add atom .true)
 
 /--
 Produce a Tseitin style CNF for a `Decl.gate`, using `output` as the tree node variable.
@@ -47,9 +47,9 @@ def gateToCNF (output : α) (lhs rhs : α) (linv rinv : Bool) : CNF α :=
   -- a ↔ (¬b and c) as CNF: (¬a ∨ ¬b) ∧ (¬a ∨ c) ∧ (a ∨ b ∨ ¬c)
   -- a ↔ (¬b and ¬c) as CNF: (¬a ∨ ¬b) ∧ (¬a ∨ ¬c) ∧ (a ∨ b ∨ c)
   CNF.empty
-    |>.add [(output, .false), (lhs, !linv)]
-    |>.add [(output, .false), (rhs, !rinv)]
-    |>.add [(output, true),  (lhs, linv), (rhs, rinv)]
+    |>.add (CNF.Clause.empty |>.add output .false |>.add lhs !linv)
+    |>.add (CNF.Clause.empty |>.add output .false |>.add rhs !rinv)
+    |>.add (CNF.Clause.empty |>.add output .true |>.add lhs linv |>.add rhs rinv)
 
 /--
 Produce a Tseitin style CNF for an if-then-else gate, using `output` as the tree node variable.
@@ -58,10 +58,10 @@ def iteToCNF (output : α) (cond ifTrue ifFalse : α) (cinv tinv finv : Bool) : 
   -- o ↔ (c ? t : f) as implications: (c ∧ t → o) ∧ (c ∧ ¬t → ¬o) ∧ (¬c ∧ f → o) ∧ (¬c ∧ ¬f → ¬o)
   -- o ↔ (c ? t : f) as CNF: (¬c ∨ ¬t ∨ o) ∧ (¬c ∨ t ∨ ¬o) ∧ (c ∨ ¬f ∨ o) ∧ (c ∨ f ∨ ¬o)
   CNF.empty
-    |>.add [(cond, cinv), (ifTrue, tinv), (output, true)]
-    |>.add [(cond, cinv), (ifTrue, !tinv), (output, .false)]
-    |>.add [(cond, !cinv), (ifFalse, finv), (output, true)]
-    |>.add [(cond, !cinv), (ifFalse, !finv), (output, .false)]
+    |>.add (CNF.Clause.empty |>.add cond cinv |>.add ifTrue tinv |>.add output .true)
+    |>.add (CNF.Clause.empty |>.add cond cinv |>.add ifTrue !tinv |>.add output .false)
+    |>.add (CNF.Clause.empty |>.add cond !cinv |>.add ifFalse finv |>.add output .true)
+    |>.add (CNF.Clause.empty |>.add cond !cinv |>.add ifFalse !finv |>.add output .false)
 
 @[simp]
 theorem falseToCNF_eval :
@@ -75,8 +75,8 @@ theorem atomToCNF_eval :
     (atomToCNF output a).eval assign
       =
     (assign output == assign a) := by
-  simp only [atomToCNF, CNF.eval_add, CNF.Clause.eval_cons, beq_false, beq_true,
-    CNF.Clause.eval_nil, Bool.or_false, CNF.eval_empty, Bool.and_true]
+  simp only [atomToCNF, CNF.eval_add, CNF.Clause.eval_add, beq_true, beq_false,
+    CNF.Clause.eval_empty, Bool.or_false, CNF.eval_empty, Bool.and_true]
   cases assign output <;> cases assign a <;> decide
 
 @[simp]
@@ -84,7 +84,7 @@ theorem gateToCNF_eval :
     (gateToCNF output lhs rhs linv rinv).eval assign
       =
     (assign output == (((assign lhs) ^^ linv) && ((assign rhs) ^^ rinv))) := by
-  simp only [gateToCNF, CNF.eval_add, CNF.Clause.eval_cons, beq_true, CNF.Clause.eval_nil,
+  simp only [gateToCNF, CNF.eval_add, CNF.Clause.eval_add, beq_true, CNF.Clause.eval_empty,
     Bool.or_false, beq_false, CNF.eval_empty, Bool.and_true]
   cases assign output
     <;> cases assign lhs
@@ -98,7 +98,8 @@ theorem iteToCNF_eval {cond ifTrue ifFalse cinv tinv finv assign} :
     (iteToCNF output cond ifTrue ifFalse cinv tinv finv).eval assign
       =
     (assign output == ite ((assign cond) ^^ cinv) ((assign ifTrue) ^^ tinv) ((assign ifFalse) ^^ finv)) := by
-  simp only [iteToCNF, CNF.eval_add, CNF.Clause.eval_cons, CNF.Clause.eval_nil, CNF.eval_empty]
+  simp only [iteToCNF, CNF.eval_add, CNF.Clause.eval_add, beq_false, CNF.Clause.eval_empty,
+    Bool.or_false, beq_true, CNF.eval_empty, Bool.and_true, bne_iff_ne, ne_eq, ite_not]
   generalize assign output = o
   generalize assign cond = c
   generalize assign ifTrue = t
@@ -780,7 +781,7 @@ Convert an AIG into CNF, starting at some entry node.
 -/
 public def toCNF (entry : Entrypoint Nat) : CNF Nat :=
   let ⟨state, _⟩ := go entry.aig entry.ref.gate entry.ref.hgate (toCNF.State.empty entry.aig)
-  state.cnf.add [(entry.ref.gate, !entry.ref.invert)]
+  state.cnf.add (CNF.Clause.empty.add entry.ref.gate !entry.ref.invert)
 where
   go (aig : AIG Nat) (upper : Nat) (h : upper < aig.decls.size) (state : toCNF.State aig) :
       { out : toCNF.State aig // toCNF.State.IsExtensionBy state out upper h } :=
@@ -876,7 +877,7 @@ Connect SAT results about the AIG to SAT results about the CNF.
 theorem toCNF.denote_as_go {assign : Nat → Bool} :
     (⟦aig, ⟨start, inv, h1⟩, projectLeftAssign aig assign⟧ = false)
       →
-    CNF.eval assign (((go aig start h1 (.empty aig)).val.cnf.add [(start, !inv)])) = false := by
+    CNF.eval assign ((go aig start h1 (.empty aig)).val.cnf.add (CNF.Clause.empty.add start !inv)) = false := by
   intro h
   match heval1:(go aig start h1 (State.empty aig)).val.cnf.eval assign with
   | true =>

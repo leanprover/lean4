@@ -342,8 +342,12 @@ def runFrontend
 
   let some cmdState := Language.Lean.waitForFinalCmdState? snap
     | return none
-  let env := cmdState.env
+
+  let mut env := cmdState.env
   let finalOpts := cmdState.scopes[0]!.opts
+
+  for task in cmdState.codeQualityEntryTasks do
+    env := Lean.Linter.codeQualityLogExt.modifyState env fun entries => entries ++ task.get
 
   -- Saves `snapToSave` wrapped with the init-mod indices used by `runInitAttrsForModules` on load.
   -- Writes a `<incrFile>.deps` JSON helper alongside: the dep regions grouped per module (see

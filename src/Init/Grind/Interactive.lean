@@ -334,6 +334,9 @@ Only available in `sym =>` mode.
 - `simp myVariant` — uses a named variant registered via `register_sym_simp`
 - `simp [thm₁, thm₂, ...]` — default variant with extra rewrite theorems appended to `post`
 - `simp myVariant [thm₁, thm₂, ...]` — named variant with extra theorems
+
+The extra parameters may be theorems, local hypotheses, or definitions. For a definition `f`,
+its equational theorems are used, so `simp [f]` unfolds `f` applications.
 -/
 syntax (name := symSimp) "simp" (ppSpace colGt ident)? (" [" ident,* "]")? : grind
 
@@ -401,6 +404,17 @@ location syntax: in `sym =>` mode hypotheses are never modified.
 Only available in `sym =>` mode.
 -/
 syntax (name := symLiftLets) "lift_lets" : grind
+
+/--
+`let_to_have` converts the nondependent `let` declarations of the goal target into
+`have` declarations. The new goal is definitionally equal to the original one.
+
+Unlike the standalone `let_to_have` tactic, this variant does not support the `at`
+location syntax: in `sym =>` mode hypotheses are never modified.
+
+Only available in `sym =>` mode.
+-/
+syntax (name := symLetToHave) "let_to_have" : grind
 
 @[inherit_doc Lean.Parser.Tactic.bvNormalize]
 syntax (name := bvNormalize) "bv_normalize" optConfig (bvTypes)? : grind

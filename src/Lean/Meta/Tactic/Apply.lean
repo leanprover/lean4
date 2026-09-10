@@ -191,10 +191,10 @@ def _root_.Lean.MVarId.apply (mvarId : MVarId) (e : Expr) (cfg : ApplyConfig := 
     ```
     -/
     let rangeNumArgs ← if hasMVarHead then
-      pure numArgs...(numArgs+1)
+      pure (numArgs...(numArgs+1))
     else
       let targetTypeNumArgs ← getExpectedNumArgs targetType
-      pure (numArgs - targetTypeNumArgs)...(numArgs+1)
+      pure ((numArgs - targetTypeNumArgs)...(numArgs+1))
     /-
     Auxiliary function for trying to add `n` underscores where `n ∈ [i: rangeNumArgs.stop)`
     See comment above

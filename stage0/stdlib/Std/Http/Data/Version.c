@@ -503,9 +503,9 @@ return v___x_121_;
 LEAN_EXPORT lean_object* l_Std_Http_instReprVersion_repr___boxed(lean_object* v_x_138_, lean_object* v_prec_139_){
 _start:
 {
-uint8_t v_x_233__boxed_140_; lean_object* v_res_141_; 
-v_x_233__boxed_140_ = lean_unbox(v_x_138_);
-v_res_141_ = l_Std_Http_instReprVersion_repr(v_x_233__boxed_140_, v_prec_139_);
+uint8_t v_x_225__boxed_140_; lean_object* v_res_141_; 
+v_x_225__boxed_140_ = lean_unbox(v_x_138_);
+v_res_141_ = l_Std_Http_instReprVersion_repr(v_x_225__boxed_140_, v_prec_139_);
 lean_dec(v_prec_139_);
 return v_res_141_;
 }
@@ -541,10 +541,10 @@ return v___x_150_;
 LEAN_EXPORT lean_object* l_Std_Http_instBEqVersion_beq___boxed(lean_object* v_x_151_, lean_object* v_y_152_){
 _start:
 {
-uint8_t v_x_17__boxed_153_; uint8_t v_y_18__boxed_154_; uint8_t v_res_155_; lean_object* v_r_156_; 
-v_x_17__boxed_153_ = lean_unbox(v_x_151_);
-v_y_18__boxed_154_ = lean_unbox(v_y_152_);
-v_res_155_ = l_Std_Http_instBEqVersion_beq(v_x_17__boxed_153_, v_y_18__boxed_154_);
+uint8_t v_x_21__boxed_153_; uint8_t v_y_22__boxed_154_; uint8_t v_res_155_; lean_object* v_r_156_; 
+v_x_21__boxed_153_ = lean_unbox(v_x_151_);
+v_y_22__boxed_154_ = lean_unbox(v_y_152_);
+v_res_155_ = l_Std_Http_instBEqVersion_beq(v_x_21__boxed_153_, v_y_22__boxed_154_);
 v_r_156_ = lean_box(v_res_155_);
 return v_r_156_;
 }
@@ -618,10 +618,10 @@ return v___x_177_;
 LEAN_EXPORT lean_object* l_Std_Http_instDecidableEqVersion___boxed(lean_object* v_x_178_, lean_object* v_y_179_){
 _start:
 {
-uint8_t v_x_13__boxed_180_; uint8_t v_y_14__boxed_181_; uint8_t v_res_182_; lean_object* v_r_183_; 
-v_x_13__boxed_180_ = lean_unbox(v_x_178_);
-v_y_14__boxed_181_ = lean_unbox(v_y_179_);
-v_res_182_ = l_Std_Http_instDecidableEqVersion(v_x_13__boxed_180_, v_y_14__boxed_181_);
+uint8_t v_x_20__boxed_180_; uint8_t v_y_21__boxed_181_; uint8_t v_res_182_; lean_object* v_r_183_; 
+v_x_20__boxed_180_ = lean_unbox(v_x_178_);
+v_y_21__boxed_181_ = lean_unbox(v_y_179_);
+v_res_182_ = l_Std_Http_instDecidableEqVersion(v_x_20__boxed_180_, v_y_21__boxed_181_);
 v_r_183_ = lean_box(v_res_182_);
 return v_r_183_;
 }

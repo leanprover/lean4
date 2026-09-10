@@ -1,14 +1,14 @@
-import Std.Internal.Do
+import Std.WP
 import Lean
 import Std
 import Std.Tactic.Do
 
-set_option mvcgen.warning false
+set_option experimental.vcgen true
 
 /-! `vcgen` must classify a program wrapped in an `mdata` node, such as the
 `save_info` annotation left behind by spec elaboration. -/
 
-open Std.Internal.Do Lean.Order
+open Std.WP Lean.Order
 
 /-- Wrap a term in a `save_info` `mdata` node, exactly what spec elaboration leaves behind. -/
 syntax "mdata% " term : term

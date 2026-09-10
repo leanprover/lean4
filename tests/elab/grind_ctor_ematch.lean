@@ -48,9 +48,10 @@ h : ¬Even 16
   [limits] Thresholds reached
     [limit] maximum number of E-matching rounds has been reached, threshold: `(ematch := 5)`
 [grind] Diagnostics
-  [thm] E-Matching instances
-    [thm] Even.plus_two ↦ 5
-    [thm] Even.zero ↦ 1
+  [ematch] E-matching Diagnostics
+    [thm] Theorem Instance Count
+      [thm] Even.plus_two ↦ 5
+      [thm] Even.zero ↦ 1
 -/
 #guard_msgs (error) in
 example : Even 16 := by

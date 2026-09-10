@@ -59,9 +59,10 @@ h : ¬P 3
   [eqc] False propositions
     [prop] P 3
 [grind] Diagnostics
-  [thm] E-Matching instances
-    [thm] p1 ↦ 1
-    [thm] p2 ↦ 1
+  [ematch] E-matching Diagnostics
+    [thm] Theorem Instance Count
+      [thm] p1 ↦ 1
+      [thm] p2 ↦ 1
 -/
 #guard_msgs in
 example : P 3 := by grind +suggestions (maxSuggestions := some 2)

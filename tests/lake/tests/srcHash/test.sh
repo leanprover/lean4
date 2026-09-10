@@ -15,10 +15,7 @@ source ../common.sh
 
 # Copy test data to a working directory to avoid initializing a Git repository
 # inside the checked-in source tree
-WORK_DIR="$PWD/work"
-mkdir -p "$WORK_DIR"
-cp -r dep lakefile.toml "$WORK_DIR/"
-cd "$WORK_DIR"
+copy_to_work dep lakefile.toml
 
 # Initialize the dependency
 echo "# SETUP: Create v1"

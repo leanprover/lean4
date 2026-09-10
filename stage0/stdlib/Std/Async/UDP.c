@@ -29,7 +29,7 @@ lean_object* lean_task_pure(lean_object*);
 lean_object* lean_io_as_task(lean_object*, lean_object*);
 lean_object* lean_task_bind(lean_object*, lean_object*, lean_object*, uint8_t);
 lean_object* lean_task_get_own(lean_object*);
-lean_object* lean_st_ref_set(lean_object*, lean_object*);
+lean_object* lean_st_ref_put(lean_object*, lean_object*);
 lean_object* lean_io_error_to_string(lean_object*);
 lean_object* lean_io_map_task(lean_object*, lean_object*, lean_object*, uint8_t);
 uint8_t l_IO_Promise_isResolved___redArg(lean_object*);
@@ -1527,7 +1527,7 @@ v___jp_407_:
 uint8_t v___x_409_; lean_object* v___x_410_; lean_object* v___x_411_; 
 v___x_409_ = 1;
 v___x_410_ = lean_box(v___x_409_);
-v___x_411_ = lean_st_ref_set(v_finished_387_, v___x_410_);
+v___x_411_ = lean_st_ref_put(v_finished_387_, v___x_410_);
 if (v___y_408_ == 0)
 {
 lean_object* v___x_412_; 

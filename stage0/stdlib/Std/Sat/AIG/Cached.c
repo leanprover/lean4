@@ -560,9 +560,9 @@ lean_dec_ref(v___x_98_);
 lean_dec_ref(v_decl_97_);
 lean_dec_ref(v_cache_80_);
 lean_dec_ref(v_decls_79_);
-if (v_invert_85_ == 0)
-{
 if (v_invert_87_ == 0)
+{
+if (v_invert_85_ == 0)
 {
 v___y_109_ = v___x_133_;
 goto v___jp_108_;
@@ -570,13 +570,13 @@ goto v___jp_108_;
 else
 {
 lean_dec(v_gate_84_);
-v___y_104_ = v_invert_85_;
+v___y_104_ = v_invert_87_;
 goto v___jp_103_;
 }
 }
 else
 {
-v___y_109_ = v_invert_87_;
+v___y_109_ = v_invert_85_;
 goto v___jp_108_;
 }
 }

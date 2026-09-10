@@ -2115,9 +2115,9 @@ def isLetRecAuxMVar (mvarId : MVarId) : TermElabM Bool := do
   trace[Elab.letrec] "mvarId root: {mkMVar mvarId}"
   return (← get).letRecsToLift.any (·.mvarId == mvarId)
 
-public def checkDeprecatedCore (constName : Name) : TermElabM Unit := do
+public def checkDeprecatedCore (constName : Name) (allowSuggestion := true) : TermElabM Unit := do
   if (← read).checkDeprecated then
-    Linter.checkDeprecated constName
+    Linter.checkDeprecated constName allowSuggestion
 
 /--
   Create an `Expr.const` using the given name and explicit levels.
@@ -2127,7 +2127,7 @@ public def checkDeprecatedCore (constName : Name) : TermElabM Unit := do
   If `checkDeprecated := true`, then `Linter.checkDeprecated` is invoked.
 -/
 def mkConst (constName : Name) (explicitLevels : List Level := []) : TermElabM Expr := do
-  checkDeprecatedCore constName
+  checkDeprecatedCore constName (allowSuggestion := false)
   let cinfo ← getConstVal constName
   if explicitLevels.length > cinfo.levelParams.length then
     throwError "too many explicit universe levels for `{constName}`"

@@ -431,6 +431,10 @@ extern "C" LEAN_EXPORT lean_obj_res lean_uv_udp_wait_readable(b_obj_arg socket) 
         buf->base = NULL;
         buf->len = 0;
     }, [](uv_udp_t* handle, ssize_t nread, const uv_buf_t *buf, const struct sockaddr *addr, unsigned flags) {
+        // `nread == 0` without an address is libuv's equivalent of `EAGAIN`: the socket is not
+        // actually readable, so keep waiting rather than resolving the promise.
+        if (nread == 0 && addr == NULL) return;
+
         uv_udp_recv_stop(handle);
 
         lean_object* socket = (lean_object*)handle->data;
@@ -446,8 +450,8 @@ extern "C" LEAN_EXPORT lean_obj_res lean_uv_udp_wait_readable(b_obj_arg socket) 
             lean_promise_resolve(mk_except_err(lean_decode_uv_error(nread, nullptr)), promise);
         } else {
             // `UV_ENOBUFS` is the documented answer to the zero-length `alloc_cb` above. A
-            // non-negative `nread` would be a zero-length delivery, which equally means the socket
-            // woke up readable, so report that rather than aborting the process.
+            // non-negative `nread` is an empty datagram, which equally means the socket woke up
+            // readable, so report that rather than aborting the process.
             lean_promise_resolve(mk_except_ok(lean_box(0)), promise);
         }
 

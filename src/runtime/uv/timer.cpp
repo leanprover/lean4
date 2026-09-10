@@ -357,7 +357,11 @@ extern "C" LEAN_EXPORT lean_obj_res lean_uv_timer_stop(b_obj_arg obj) {
 
     event_loop_unlock(&global_ev);
 
-    // Released after the unlock to avoid problems with `(sync := true)` continuations.
+    // This dec can drop the last reference to the promise, which resolves its result task
+    // with `none` and runs any `(sync := true)` continuation inline on this thread.
+    // `Promise.result!` blocks forever on `none`, so this must happen after the unlock:
+    // otherwise a waiter on a stopped timer would freeze the whole event loop instead of
+    // just itself.
     if (promise != NULL) {
         lean_dec(promise);
         lean_dec(obj);

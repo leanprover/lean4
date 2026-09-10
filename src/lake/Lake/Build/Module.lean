@@ -111,10 +111,8 @@ def computePrecompileImportsAux
   (fileName : String) (imports : Array Module)
 : FetchM (Job (Array Module)) := do
   collectImportsAux fileName imports fun imp =>
-    if imp.shouldPrecompile then
-      (true, ·) <$> imp.transImports.fetch
-    else
-      (false, ·) <$> imp.precompileImports.fetch
+    -- `imp.shouldPrecompile` implies `imp.lib.shouldPrecompile`
+    (imp.lib.shouldPrecompile, ·) <$> imp.precompileImports.fetch
 
 /-- Recursively compute a module's precompiled imports. -/
 def Module.recComputePrecompileImports (mod : Module) : FetchM (Job (Array Module)) := ensureJob do
@@ -130,15 +128,20 @@ Modules from the same library are loaded individually, while modules
 from other libraries are loaded as part of the whole library.
 -/
 def Module.fetchImportLibs
-  (self : Module) (imps : Array Module) (compileSelf : Bool)
+  (self : Module) (imps : Array Module)
+  (precompileModules : Bool) (precompileImports : Bool)
 : FetchM (Array (Job Dynlib)) := do
   let (_, jobs) ← imps.foldlM (init := (({} : NameSet), #[])) fun (libs, jobs) imp => do
     if libs.contains imp.lib.name then
       return (libs, jobs)
-    else if compileSelf && self.lib.name = imp.lib.name then
-      let job ← imp.dynlib.fetch
-      return (libs, jobs.push job)
-    else if compileSelf || imp.shouldPrecompile then
+    else if self.lib.name = imp.lib.name then
+      -- The library as a whole cannot be loaded here, as it includes the module itself.
+      if precompileModules then
+        let job ← imp.dynlib.fetch
+        return (libs, jobs.push job)
+      else
+        return (libs, jobs)
+    else if precompileImports || imp.lib.shouldPrecompile then
       let jobs ← jobs.push <$> imp.lib.shared.fetch
       return (libs.insert imp.lib.name, jobs)
     else
@@ -155,7 +158,7 @@ def fetchImportLibs
   let (_, jobs) ← mods.foldlM (init := (({} : NameSet), #[])) fun (libs, jobs) imp => do
     if libs.contains imp.lib.name then
       return (libs, jobs)
-    else if imp.shouldPrecompile then
+    else if imp.lib.shouldPrecompile then
       let jobs ← jobs.push <$> imp.lib.shared.fetch
       return (libs.insert imp.lib.name, jobs)
     else
@@ -248,30 +251,39 @@ partial def fetchTransImportArts
     let input ← (← mod.input.fetch).await
     let importAll := strictOr nonModule imp.importAll
     return enqueue importAll imp.isMeta input q
-  walk directArts {} q
+  walk directArts {} {} q
 where
-  walk s (metaVisited : NameSet) (q : Array TransImportEntry) := do
+  walk s (allVisited metaVisited : NameSet) (q : Array TransImportEntry) := do
     if h : 0 < q.size then
       let {mod, importAll, needsMeta} := q.back
       let q := q.pop
-      if let some arts := s.find? mod.name then
-        /-
-        A module system `import` may need to be promoted to a
-        wider import (`meta import`, `import all`) on another branch.
-        -/
-        -- Only re-process a module sitting at the plain public-module level: `.server` present =>
-        -- module, no `.private` => not already `import all`. An entry already at `import all` (with
-        -- `.private`) or a non-module (no `.server`) must not be re-inserted, as that would demote it.
-        let needsMeta := needsMeta && !metaVisited.contains mod.name
-        unless (importAll || needsMeta) && arts.oleanServer?.isSome && arts.oleanPrivate?.isNone do
-          return ← walk s metaVisited q
+      /-
+      A module system `import` may need to be promoted to a
+      wider import (`meta import`, `import all`) on another branch.
+
+      Track the two import dimensions separately: `allVisited` = raised to `.private` by
+      `import all`; `metaVisited` = made meta-reachable by a `meta import`. An `import all` visit
+      must not mark a module meta-visited, otherwise a later `meta` visit is skipped and the
+      module's children never inherit the meta requirement.
+      -/
+      let doAll := importAll && !allVisited.contains mod.name
+      let doMeta := needsMeta && !metaVisited.contains mod.name
+      let existing? := s.find? mod.name
+      -- Re-process an existing entry only to widen a module-system entry (`.server` present) with a
+      -- newly-required dimension. Otherwise, leave it untouched (nothing new, or a non-module entry).
+      if let some arts := existing? then
+        unless arts.oleanServer?.isSome && (doAll || doMeta) do
+          return ← walk s allVisited metaVisited q
+      let allVisited := if importAll then allVisited.insert mod.name else allVisited
+      let metaVisited := if needsMeta then metaVisited.insert mod.name else metaVisited
+      -- Widest level seen so far, never below an existing entry's (no demotion).
+      let wantAll := allVisited.contains mod.name || existing?.any (·.oleanPrivate?.isSome)
       let info ← (← mod.exportInfo.fetch).await
-      let arts := if importAll then info.allArts else info.arts
-      let s := s.insert mod.name arts
-      let metaVisited := if importAll || needsMeta then metaVisited.insert mod.name else metaVisited
+      let s := s.insert mod.name (if wantAll then info.allArts else info.arts)
       let input ← (← mod.input.fetch).await
+      -- `import all`/`meta import` are transitive. Propagate both flags to children.
       let q := enqueue importAll needsMeta input q
-      walk s metaVisited q
+      walk s allVisited metaVisited q
     else
       return s
   enqueue importAll needsMeta input q :=
@@ -568,14 +580,14 @@ def Module.recFetchPreSetup (mod : Module) : FetchM (Job ModulePreSetup) := ensu
   Remark: It should be possible to avoid transitive imports here when the module
   itself is precompiled, but they are currently kept to preserve the "bad import" errors.
   -/
-  let precompileImports ← if mod.shouldPrecompile then
+  let precompileImports ← if mod.shouldPrecompileImports then
     mod.transImports.fetch else mod.precompileImports.fetch
   let precompileImports ← precompileImports.await
   let impLibsJob ← Job.collectArray (traceCaption := "import dynlibs") <$>
-    mod.fetchImportLibs precompileImports mod.shouldPrecompile
+    mod.fetchImportLibs precompileImports mod.shouldPrecompile mod.shouldPrecompileImports
 
   let externLibsJob ← Job.collectArray (traceCaption := "package external libraries") <$>
-    if mod.shouldPrecompile then mod.pkg.externLibs.mapM (·.dynlib.fetch) else pure #[]
+    if mod.shouldPrecompileImports then mod.pkg.externLibs.mapM (·.dynlib.fetch) else pure #[]
   let dynlibsJob ← mod.dynlibs.fetchIn mod.pkg "module dynlibs"
   let pluginsJob ← mod.plugins.fetchIn mod.pkg "module plugins"
 
@@ -1212,6 +1224,12 @@ public def Module.bcFacetConfig : ModuleFacetConfig bcFacet :=
       addTrace art.trace
       return art.path
 
+@[inline] def Package.getLeanIncludeDir? (pkg : Package) : JobM (Option (FilePath × BuildTrace)) := do
+  if pkg.bootstrap then
+    (← getBuildContext).leanIncludeDirs[pkg.wsIdx]?.join.getDM do
+        error "failed to fetch trace of the Lean include directory"
+  else return none
+
 /--
 Recursively build the module's object file from its C file produced by `lean`
 with `-DLEAN_EXPORTING` set, which exports Lean symbols defined within the C files.
@@ -1221,7 +1239,8 @@ def Module.recBuildLeanCToOExport (self : Module) : FetchM (Job FilePath) := do
   withRegisterJob s!"{self.name}:c.o{suffix}" <| withCurrPackage self.pkg do
   -- TODO: add option to pass a target triplet for cross compilation
   let leancArgs := self.leancArgs ++ #["-DLEAN_EXPORTING"]
-  buildLeanO self.coExportFile (← self.c.fetch) self.weakLeancArgs leancArgs self.leanIncludeDir?
+  let leanIncludeDir? ← self.pkg.getLeanIncludeDir?
+  Internal.buildLeanO self.coExportFile (← self.c.fetch) self.weakLeancArgs leancArgs leanIncludeDir?
 
 /-- The `ModuleFacetConfig` for the builtin `coExportFacet`. -/
 public def Module.coExportFacetConfig : ModuleFacetConfig coExportFacet :=
@@ -1235,7 +1254,8 @@ def Module.recBuildLeanCToONoExport (self : Module) : FetchM (Job FilePath) := d
   let suffix := if (← getIsVerbose) then " (without exports)" else ""
   withRegisterJob s!"{self.name}:c.o{suffix}" <| withCurrPackage self.pkg do
   -- TODO: add option to pass a target triplet for cross compilation
-  buildLeanO self.coNoExportFile (← self.c.fetch) self.weakLeancArgs self.leancArgs self.leanIncludeDir?
+  let leanIncludeDir? ← self.pkg.getLeanIncludeDir?
+  Internal.buildLeanO self.coNoExportFile (← self.c.fetch) self.weakLeancArgs self.leancArgs leanIncludeDir?
 
 /-- The `ModuleFacetConfig` for the builtin `coNoExportFacet`. -/
 public def Module.coNoExportFacetConfig : ModuleFacetConfig coNoExportFacet :=
@@ -1343,7 +1363,7 @@ def Module.recBuildDynlib (mod : Module) : FetchM (Job Dynlib) :=
   -- Fetch dependencies' dynlibs
   let libJobs ← id do
     let imps ← (← mod.imports.fetch).await
-    let libJobs ← mod.fetchImportLibs imps true
+    let libJobs ← mod.fetchImportLibs imps true true
     let libJobs ← mod.lib.moreLinkLibs.foldlM
       (·.push <$> ·.fetchIn mod.pkg) libJobs
     let libJobs ← mod.pkg.externLibs.foldlM
@@ -1422,14 +1442,14 @@ def setupEditedModule
   let impInfoJob ← fetchImportInfo fileName mod.pkg.keyName mod.name header
     (allowNonModules := mod.allowNonModules)
   let precompileImports ←
-    if mod.shouldPrecompile then
+    if mod.shouldPrecompileImports then
       (← computeTransImportsAux fileName localImports).await
     else
       (← computePrecompileImportsAux fileName localImports).await
   let impLibsJob ← Job.collectArray (traceCaption := "import dynlibs") <$>
-    mod.fetchImportLibs precompileImports mod.shouldPrecompile
+    mod.fetchImportLibs precompileImports mod.shouldPrecompile mod.shouldPrecompileImports
   let externLibsJob ← Job.collectArray (traceCaption := "package external libraries") <$>
-    if mod.shouldPrecompile then mod.pkg.externLibs.mapM (·.dynlib.fetch) else pure #[]
+    if mod.shouldPrecompileImports then mod.pkg.externLibs.mapM (·.dynlib.fetch) else pure #[]
   let dynlibsJob ← mod.dynlibs.fetchIn mod.pkg "module dynlibs"
   let pluginsJob ← mod.plugins.fetchIn mod.pkg "module plugins"
   extraDepJob.bindM (sync := true) fun _ => do
@@ -1448,7 +1468,7 @@ def setupEditedModule
       importArts := transImpArts
       dynlibs := dynlibs.map (·.path)
       plugins := plugins.map (·.path)
-      options := mod.leanOptions
+      options := mod.serverOptions
     }
 
 /--

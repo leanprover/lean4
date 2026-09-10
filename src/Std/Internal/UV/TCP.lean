@@ -116,6 +116,8 @@ opaque cancelAccept (socket : @& Socket) : IO Unit
 
 /--
 Shuts down an incoming connection on a listening TCP socket.
+
+Throws if a shutdown was already requested for this socket, whether or not it has finished.
 -/
 @[extern "lean_uv_tcp_shutdown"]
 opaque shutdown (socket : @& Socket) : IO (IO.Promise (Except IO.Error Unit))

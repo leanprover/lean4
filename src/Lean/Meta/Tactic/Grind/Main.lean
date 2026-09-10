@@ -26,6 +26,7 @@ import Lean.Meta.Tactic.Grind.LawfulEqCmp
 import Lean.Meta.Tactic.Grind.ReflCmp
 import Lean.Meta.Tactic.Grind.PP
 import Lean.Meta.Tactic.Grind.Core
+import Lean.Meta.Tactic.Grind.EMatchDiagnostics
 public section
 namespace Lean.Meta.Grind
 
@@ -194,14 +195,6 @@ private def countersToMessageData (header : String) (cls : Name) (data : Array (
     return .trace { cls } m!"{.ofConstName declName} ↦ {counter}" #[]
   return .trace { cls } header data
 
-private def countersWithOriginToMessageData (header : String) (cls : Name) (data : Array (Origin × Name × Nat)) : MetaM MessageData := do
-  let data := data.qsort fun (_, n₁, c₁) (_, n₂, c₂) => if c₁ == c₂ then Name.lt n₁ n₂ else c₁ > c₂
-  let data ← data.mapM fun (origin, name, counter) =>
-    match origin with
-    | .decl _ => return .trace { cls } m!"{.ofConstName name} ↦ {counter}" #[]
-    | _ => return .trace { cls } m!"{name} ↦ {counter}" #[]
-  return .trace { cls } header data
-
 private def splitDiagInfoToMessageData (ss : Array SplitDiagInfo) : MetaM MessageData := do
   let env  ← getEnv
   let mctx ← getMCtx
@@ -217,20 +210,13 @@ private def splitDiagInfoToMessageData (ss : Array SplitDiagInfo) : MetaM Messag
   return .trace { cls } "Case splits" data
 
 -- Diagnostics information for the whole search
-private def mkGlobalDiag (cs : Counters) (simp : Simp.Stats) (ss : PArray SplitDiagInfo) : MetaM (Option MessageData) := do
+private def mkGlobalDiag (cs : Counters) (simp : Simp.Stats) (ss : PArray SplitDiagInfo)
+    (ematchDiags : PArray EMatchDiagInfo) : MetaM (Option MessageData) := do
   -- We do not report `cases` applications on builtin types
   let cases := cs.case.toList.toArray.filter fun (declName, _) => !isBuiltinEagerCases declName
   let mut msgs := #[]
-  unless cs.thm.isEmpty do
-    let thms := cs.thm.toList.toArray.map fun (origin, c) => Id.run do
-      match origin with
-      | .fvar fvarId =>
-        let some userName := cs.fvarUserNames.find? fvarId | unreachable!
-        return (origin, userName, c)
-      | .decl n => return (origin, n, c)
-      | .local n => return (origin, n, c)
-      | .stx n _ => return (origin, n, c)
-    msgs := msgs.push <| (← countersWithOriginToMessageData "E-Matching instances" `thm thms)
+  if let some msg ← mkEMatchDiagMessages ematchDiags cs then
+    msgs := msgs.push <| msg
   let ss := ss.toArray.filter fun { numCases, .. } => numCases > 1
   unless ss.isEmpty do
     msgs := msgs.push <| (← splitDiagInfoToMessageData ss)
@@ -261,7 +247,7 @@ def Result.toMessageData (result : Result) : MetaM MessageData := do
     -/
     unless issues.isEmpty do
       msgs := msgs ++ [.trace { cls := `grind } "Issues" issues.reverse.toArray]
-    if let some msg ← mkGlobalDiag result.counters result.simp result.splitDiags then
+    if let some msg ← mkGlobalDiag result.counters result.simp result.splitDiags result.ematchDiags then
       msgs := msgs ++ [msg]
   return MessageData.joinSep msgs m!"\n"
 
@@ -382,7 +368,7 @@ def mkResult (params : Params) (failure? : Option Goal) : GrindM Result := do
   if failure?.isNone then
     -- If there are no failures and diagnostics are enabled, we still report the performance counters.
     if (← isDiagnosticsEnabled) then
-      if let some msg ← mkGlobalDiag counters simp splitDiags then
+      if let some msg ← mkGlobalDiag counters simp splitDiags ematchDiags then
         logInfo msg
   return { failure?, issues, config := params.config, counters, simp, splitDiags, ematchDiags }
 

@@ -109,7 +109,7 @@ Validates and registers a `[grind hom]` theorem, recording the source type of
 `=`-injection rules. See `validateHomoTheorem`.
 -/
 def addHomoAttr (declName : Name) (attrKind : AttributeKind) : MetaM Unit := do
-  Sym.Simp.addSymSimpDecl homoExt "grind hom" declName attrKind (validate := fun declName => do
+  Sym.Simp.addSymSimpDecl homoExt declName attrKind (validate := fun declName => do
     validateHomoTheorem declName
     if let some F ← checkEqInjection? declName then
       homoSourceTypesExt.add F attrKind)

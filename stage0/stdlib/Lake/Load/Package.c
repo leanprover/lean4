@@ -21,7 +21,7 @@ uint8_t lean_nat_dec_eq(lean_object*, lean_object*);
 lean_object* lean_mk_empty_array_with_capacity(lean_object*);
 extern lean_object* l_Lean_searchPathRef;
 lean_object* l_Lake_Env_leanSearchPath(lean_object*);
-lean_object* lean_st_ref_set(lean_object*, lean_object*);
+lean_object* lean_st_ref_swap(lean_object*, lean_object*);
 uint8_t lean_string_dec_eq(lean_object*, lean_object*);
 lean_object* lean_string_append(lean_object*, lean_object*);
 lean_object* lean_array_get_size(lean_object*);
@@ -892,8 +892,8 @@ lean_dec(v_pkgName_208_);
 lean_dec(v_pkgIdx_207_);
 lean_dec_ref(v_wsDir_206_);
 lean_dec(v_lakeArgs_x3f_205_);
-lean_dec_ref_known(v_configLang_x3f_95_, 1);
 lean_dec_ref(v_lakeEnv_204_);
+lean_dec_ref_known(v_configLang_x3f_95_, 1);
 v___x_233_ = ((lean_object*)(l_Lake_resolveConfigFile___closed__3));
 v___x_234_ = lean_string_append(v_name_91_, v___x_233_);
 v___x_235_ = lean_string_append(v___x_234_, v_configFile_212_);
@@ -973,7 +973,8 @@ lean_object* v_lakeEnv_274_; lean_object* v___x_275_; lean_object* v___x_276_; l
 v_lakeEnv_274_ = lean_ctor_get(v_cfg_271_, 0);
 v___x_275_ = l_Lean_searchPathRef;
 v___x_276_ = l_Lake_Env_leanSearchPath(v_lakeEnv_274_);
-v___x_277_ = lean_st_ref_set(v___x_275_, v___x_276_);
+v___x_277_ = lean_st_ref_swap(v___x_275_, v___x_276_);
+lean_dec(v___x_277_);
 v___x_278_ = ((lean_object*)(l_Lake_loadPackage___closed__0));
 v___x_279_ = l_Lake_resolveConfigFile(v___x_278_, v_cfg_271_, v_a_272_);
 if (lean_obj_tag(v___x_279_) == 0)

@@ -276,6 +276,14 @@ builtin_dsimproc [simp, seval] reduceOfInt (BitVec.ofInt _ _) := fun e => do
   return .done <| (← toExpr' (BitVec.ofInt n i))
 
 set_option linter.coreInternal.internalModule false in -- User-facing builtin simprocs are fine
+/-- Simplification procedure for `BitVec.ofNatClamp` on literals. -/
+builtin_dsimproc [simp, seval] reduceOfNatClamp (BitVec.ofNatClamp _ _) := fun e => do
+  let_expr BitVec.ofNatClamp w n ← e | return .continue
+  let some w ← Nat.fromExpr? w | return .continue
+  let some n ← Nat.fromExpr? n | return .continue
+  return .done <| (← toExpr' (BitVec.ofNatClamp w n))
+
+set_option linter.coreInternal.internalModule false in -- User-facing builtin simprocs are fine
 /-- Simplification procedure for ensuring `BitVec.ofNat` literals are normalized. -/
 builtin_dsimproc [simp, seval] reduceOfNat (BitVec.ofNat _ _) := fun e => do
   let_expr BitVec.ofNat n v ← e | return .continue

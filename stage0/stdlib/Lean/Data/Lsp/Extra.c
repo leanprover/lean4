@@ -3440,10 +3440,10 @@ return v___x_694_;
 LEAN_EXPORT lean_object* l_Lean_Lsp_instBEqLeanFileProgressKind_beq___boxed(lean_object* v_x_695_, lean_object* v_y_696_){
 _start:
 {
-uint8_t v_x_17__boxed_697_; uint8_t v_y_18__boxed_698_; uint8_t v_res_699_; lean_object* v_r_700_; 
-v_x_17__boxed_697_ = lean_unbox(v_x_695_);
-v_y_18__boxed_698_ = lean_unbox(v_y_696_);
-v_res_699_ = l_Lean_Lsp_instBEqLeanFileProgressKind_beq(v_x_17__boxed_697_, v_y_18__boxed_698_);
+uint8_t v_x_21__boxed_697_; uint8_t v_y_22__boxed_698_; uint8_t v_res_699_; lean_object* v_r_700_; 
+v_x_21__boxed_697_ = lean_unbox(v_x_695_);
+v_y_22__boxed_698_ = lean_unbox(v_y_696_);
+v_res_699_ = l_Lean_Lsp_instBEqLeanFileProgressKind_beq(v_x_21__boxed_697_, v_y_22__boxed_698_);
 v_r_700_ = lean_box(v_res_699_);
 return v_r_700_;
 }

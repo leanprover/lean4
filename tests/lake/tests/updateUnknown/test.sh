@@ -2,6 +2,9 @@
 source ../common.sh
 ./clean.sh
 
+# The manifest edit below rewrites `lakefile.toml`, so work on a copy
+copy_to_work lakefile.toml dep
+
 # Test that `lake update <pkg>` errors on unknown package names (typos and
 # case mismatches). Names that are current root requires or already in the
 # manifest are accepted (so selective update can still drop a removed require).
@@ -28,6 +31,3 @@ test_run update dep --keep-toolchain
 mv lakefile.toml.bak lakefile.toml
 
 test_run update --keep-toolchain
-
-# Cleanup
-./clean.sh

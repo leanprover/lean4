@@ -42,7 +42,7 @@ size_t lean_array_size(lean_object*);
 lean_object* l_Std_Sat_AIG_toCNF(lean_object*);
 lean_object* lean_string_to_utf8(lean_object*);
 lean_object* l_Std_Tactic_BVDecide_LRAT_parseLRATProof(lean_object*);
-uint8_t l_Std_Tactic_BVDecide_LRAT_check(lean_object*, lean_object*);
+uint8_t l_Std_Tactic_BVDecide_LRAT_Internal_check(lean_object*, lean_object*);
 LEAN_EXPORT uint8_t l_Std_Tactic_BVDecide_Reflect_verifyCert(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Std_Tactic_BVDecide_Reflect_verifyCert___boxed(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l___private_Std_Tactic_BVDecide_Reflect_0__Std_Tactic_BVDecide_Reflect_verifyCert_match__1_splitter___redArg(lean_object*, lean_object*, lean_object*);
@@ -126,7 +126,7 @@ lean_object* v_a_6_; uint8_t v___x_7_;
 v_a_6_ = lean_ctor_get(v___x_4_, 0);
 lean_inc(v_a_6_);
 lean_dec_ref_known(v___x_4_, 1);
-v___x_7_ = l_Std_Tactic_BVDecide_LRAT_check(v_a_6_, v_cnf_1_);
+v___x_7_ = l_Std_Tactic_BVDecide_LRAT_Internal_check(v_a_6_, v_cnf_1_);
 lean_dec(v_a_6_);
 return v___x_7_;
 }

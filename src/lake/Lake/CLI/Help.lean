@@ -30,6 +30,8 @@ COMMANDS:
   check-lint            check if there is a properly configured lint driver
   clean                 remove build outputs
   shake                 minimize imports in source files
+  challenge             judge a solution against a challenge
+  check                 check this project against external checker(s)
   env <cmd> <args>...   execute a command in Lake's environment
   lean <file>           elaborate a Lean file in Lake's context
   update                update dependencies and save them to the manifest
@@ -57,6 +59,7 @@ BASIC OPTIONS:
   --keep-toolchain      do not update toolchain on workspace update
   --allow-empty         accept bare builds with no default targets configured
   --no-build            exit immediately if a build target is not up-to-date
+  --fail-fast           stop scheduling new build jobs after the first required failure
   --no-cache            build packages locally; do not download build caches
   --try-cache           attempt to download build caches for supported packages
   --json, -J            output JSON-formatted results (in `lake query`)
@@ -290,6 +293,9 @@ OPTIONS:
   --code-quality        records each linter warning as a code quality check result
                         and runs the registered code quality checks.
                         Setting this flag will skip lint driver.
+  --checks <mods>       comma-separated list of workspace modules providing
+                        package code quality checks; they are imported
+                        alongside each linted module (implies --code-quality)
 
 A lint driver can be configured by either setting the `lintDriver` package
 configuration option or by tagging a script or executable `@[lint_driver]`.
@@ -391,6 +397,117 @@ ANNOTATIONS:
 
   * `import X -- shake: keep`
     Preserves this specific import"
+
+def helpChallenge :=
+"Judge a solution against a challenge
+
+USAGE:
+  lake challenge --config <FILE>
+
+Establishes that every named theorem in the solution proves the same statement
+as the challenge, uses no axiom outside the permitted list, and is accepted by
+the kernel.
+
+The project is untrusted input: its configuration is evaluated, and its code
+built and exported, inside a `bwrap` sandbox, and none of its `.olean` files
+is ever loaded into Lake's own address space. `bubblewrap` is required, and
+needs either unprivileged user namespaces or to be installed setuid root;
+there is no unsandboxed mode, so this command is available on Linux only.
+
+The project has to carry a `lake-manifest.json`, because dependencies are
+resolved inside the sandbox and it cannot write to the project directory.
+Building the project once, before distributing it, is enough to write one.
+
+OPTIONS:
+  --config=<file>       JSON file describing the challenge (see below)
+
+CONFIGURATION:
+  The challenge author writes the file and distributes it with the project, so
+  that a solver need only point `lake challenge` at it:
+
+  {
+    \"challenge_module\": \"Challenge\",
+    \"solution_module\": \"Solution\",
+    \"theorem_names\": [\"imo2024_p1\"],
+    \"definition_names\": [],
+    \"permitted_axioms\": [\"propext\", \"Quot.sound\", \"Classical.choice\"],
+    \"external_kernels\": {\"nanoda\": [\"nanoda_bin\"]}
+  }
+
+  `challenge_module`, `solution_module`, `theorem_names` and
+  `permitted_axioms` are required; the rest may be omitted.
+  `definition_names` lists the challenge's definition holes.
+  `permitted_axioms` is deliberately not defaulted: it is what the verdict
+  means, so the challenge author states it. The three above are the ones
+  `#print axioms` treats as a clean proof.
+
+  `external_kernels` names additional checkers to run over the export, each as
+  the command to execute; the solution must satisfy every one of them as well
+  as Lean's own kernel. `enable_nanoda: true` is still accepted and is
+  equivalent to a \"nanoda\" entry of [\"nanoda_bin\"]; name the command in
+  `external_kernels` instead to run it from elsewhere.
+
+EXIT CODES:
+  0                     accepted
+  1                     rejected: statement mismatch, forbidden axiom, kernel
+                        rejection, or a build that did not succeed
+  2                     could not start: `bwrap` or the manifest is missing,
+                        or the configuration is missing, unreadable or
+                        malformed
+
+ENVIRONMENT:
+  COMPARATOR_BWRAP      sandbox executable (default: `bwrap` on PATH)
+
+  The exporter is always the `leanexport` of this toolchain, and deliberately
+  not configurable: the export format has to match the compiler that produced
+  the `.olean` files being exported.
+
+HARDENING:
+  `challenge` uses `bwrap` for sandboxing. `/` is bound read-only and the home directories are then
+  covered, so the code being judged builds against the system it expects and reads none of the
+  invoking user's files. Only `.lake` is writable. Only dependency resolution has a network, because
+  it has to fetch git dependencies; the build, the export and any external kernels run in an empty
+  network namespace."
+
+def helpCheck :=
+"Check this project against external checker(s)
+
+USAGE:
+  lake check
+
+Builds the default build targets, exports them, and replays the result through
+the kernel, erroring on any use of non-standard axioms.
+
+The project is untrusted input: its configuration is evaluated, and its code
+built and exported, inside a `bwrap` sandbox, and none of its `.olean` files
+is ever loaded into Lake's own address space. `bwrap` is required; there is
+no unsandboxed mode, so this command is available on Linux only.
+
+The project has to carry a `lake-manifest.json`, because dependencies are
+resolved inside the sandbox and it cannot write to the project directory.
+Building the project once is enough to write one.
+
+EXIT CODES:
+  0                     the kernel accepts the project and it rests only on the
+                        permitted axioms
+  1                     the kernel rejects it, an axiom is not permitted, or a
+                        build did not succeed
+  2                     could not start: `bwrap` is missing, the project has
+                        no `lake-manifest.json`, or it has no default targets
+
+ENVIRONMENT:
+  COMPARATOR_BWRAP      sandbox executable (default: `bwrap` on PATH)
+
+  The exporter is always the `leanexport` of this toolchain, and deliberately
+  not configurable: the export format has to match the compiler that produced
+  the `.olean` files being exported.
+
+HARDENING:
+  The sandbox bounds writes and the network exactly as `lake challenge`'s
+  does, and its limits apply here too. See the HARDENING section of
+  `lake help challenge`.
+
+See `lake help challenge` to judge a solution against a challenge instead."
 
 def helpCacheCli :=
 "Manage the Lake cache
@@ -776,6 +893,8 @@ public def help : (cmd : String) → String
 | "check-lint"          => helpCheckLint
 | "clean"               => helpClean
 | "shake"               => helpShake
+| "challenge"           => helpChallenge
+| "check"               => helpCheck
 | "script"              => helpScriptCli
 | "scripts"             => helpScriptList
 | "run"                 => helpScriptRun

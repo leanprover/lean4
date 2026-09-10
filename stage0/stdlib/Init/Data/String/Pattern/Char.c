@@ -51,15 +51,15 @@ LEAN_EXPORT lean_object* l_String_Slice_Pattern_Char_instToBackwardSearcherCharD
 LEAN_EXPORT lean_object* l_String_Slice_Pattern_Char_instForwardPatternChar___lam__0(uint32_t v_c_1_, lean_object* v_s_2_){
 _start:
 {
-lean_object* v_str_3_; lean_object* v_startInclusive_4_; lean_object* v_endExclusive_5_; lean_object* v___x_6_; lean_object* v___x_7_; uint8_t v___x_8_; 
+lean_object* v_str_3_; lean_object* v_startInclusive_4_; lean_object* v_endExclusive_5_; lean_object* v___x_6_; lean_object* v___x_7_; uint8_t v_decide_8_; 
 v_str_3_ = lean_ctor_get(v_s_2_, 0);
 v_startInclusive_4_ = lean_ctor_get(v_s_2_, 1);
 v_endExclusive_5_ = lean_ctor_get(v_s_2_, 2);
 v___x_6_ = lean_unsigned_to_nat(0u);
 v___x_7_ = lean_nat_sub(v_endExclusive_5_, v_startInclusive_4_);
-v___x_8_ = lean_nat_dec_eq(v___x_6_, v___x_7_);
+v_decide_8_ = lean_nat_dec_eq(v___x_6_, v___x_7_);
 lean_dec(v___x_7_);
-if (v___x_8_ == 0)
+if (v_decide_8_ == 0)
 {
 uint32_t v___x_9_; uint8_t v___x_10_; 
 v___x_9_ = lean_string_utf8_get_fast(v_str_3_, v_startInclusive_4_);
@@ -138,15 +138,15 @@ return v_res_35_;
 LEAN_EXPORT uint8_t l_String_Slice_Pattern_Char_instForwardPatternChar___lam__2(uint32_t v_c_36_, lean_object* v_s_37_){
 _start:
 {
-lean_object* v_str_38_; lean_object* v_startInclusive_39_; lean_object* v_endExclusive_40_; lean_object* v___x_41_; lean_object* v___x_42_; uint8_t v___x_43_; 
+lean_object* v_str_38_; lean_object* v_startInclusive_39_; lean_object* v_endExclusive_40_; lean_object* v___x_41_; lean_object* v___x_42_; uint8_t v_decide_43_; 
 v_str_38_ = lean_ctor_get(v_s_37_, 0);
 v_startInclusive_39_ = lean_ctor_get(v_s_37_, 1);
 v_endExclusive_40_ = lean_ctor_get(v_s_37_, 2);
 v___x_41_ = lean_unsigned_to_nat(0u);
 v___x_42_ = lean_nat_sub(v_endExclusive_40_, v_startInclusive_39_);
-v___x_43_ = lean_nat_dec_eq(v___x_41_, v___x_42_);
+v_decide_43_ = lean_nat_dec_eq(v___x_41_, v___x_42_);
 lean_dec(v___x_42_);
-if (v___x_43_ == 0)
+if (v_decide_43_ == 0)
 {
 uint32_t v___x_44_; uint8_t v___x_45_; 
 v___x_44_ = lean_string_utf8_get_fast(v_str_38_, v_startInclusive_39_);
@@ -241,14 +241,14 @@ return v_res_72_;
 LEAN_EXPORT lean_object* l_String_Slice_Pattern_Char_instBackwardPatternChar___lam__0(uint32_t v_c_73_, lean_object* v_s_74_){
 _start:
 {
-lean_object* v_str_75_; lean_object* v_startInclusive_76_; lean_object* v_endExclusive_77_; lean_object* v___x_78_; lean_object* v___x_79_; uint8_t v___x_80_; 
+lean_object* v_str_75_; lean_object* v_startInclusive_76_; lean_object* v_endExclusive_77_; lean_object* v___x_78_; lean_object* v___x_79_; uint8_t v_decide_80_; 
 v_str_75_ = lean_ctor_get(v_s_74_, 0);
 v_startInclusive_76_ = lean_ctor_get(v_s_74_, 1);
 v_endExclusive_77_ = lean_ctor_get(v_s_74_, 2);
 v___x_78_ = lean_nat_sub(v_endExclusive_77_, v_startInclusive_76_);
 v___x_79_ = lean_unsigned_to_nat(0u);
-v___x_80_ = lean_nat_dec_eq(v___x_78_, v___x_79_);
-if (v___x_80_ == 0)
+v_decide_80_ = lean_nat_dec_eq(v___x_78_, v___x_79_);
+if (v_decide_80_ == 0)
 {
 lean_object* v___x_81_; lean_object* v___x_82_; lean_object* v___x_83_; lean_object* v___x_84_; uint32_t v___x_85_; uint8_t v___x_86_; 
 v___x_81_ = lean_unsigned_to_nat(1u);
@@ -340,14 +340,14 @@ return v_res_113_;
 LEAN_EXPORT uint8_t l_String_Slice_Pattern_Char_instBackwardPatternChar___lam__2(uint32_t v_c_114_, lean_object* v_s_115_){
 _start:
 {
-lean_object* v_str_116_; lean_object* v_startInclusive_117_; lean_object* v_endExclusive_118_; lean_object* v___x_119_; lean_object* v___x_120_; uint8_t v___x_121_; 
+lean_object* v_str_116_; lean_object* v_startInclusive_117_; lean_object* v_endExclusive_118_; lean_object* v___x_119_; lean_object* v___x_120_; uint8_t v_decide_121_; 
 v_str_116_ = lean_ctor_get(v_s_115_, 0);
 v_startInclusive_117_ = lean_ctor_get(v_s_115_, 1);
 v_endExclusive_118_ = lean_ctor_get(v_s_115_, 2);
 v___x_119_ = lean_nat_sub(v_endExclusive_118_, v_startInclusive_117_);
 v___x_120_ = lean_unsigned_to_nat(0u);
-v___x_121_ = lean_nat_dec_eq(v___x_119_, v___x_120_);
-if (v___x_121_ == 0)
+v_decide_121_ = lean_nat_dec_eq(v___x_119_, v___x_120_);
+if (v_decide_121_ == 0)
 {
 lean_object* v___x_122_; lean_object* v___x_123_; lean_object* v___x_124_; lean_object* v___x_125_; uint32_t v___x_126_; uint8_t v___x_127_; 
 v___x_122_ = lean_unsigned_to_nat(1u);

@@ -298,10 +298,10 @@ return v___x_137_;
 LEAN_EXPORT lean_object* l_Std_Iterators_Types_DropWhile_instIterator___redArg___lam__0___boxed(lean_object* v_it_138_, lean_object* v_out_139_, lean_object* v_toPure_140_, lean_object* v_dropping_141_, lean_object* v_____do__lift_142_){
 _start:
 {
-uint8_t v_dropping_boxed_143_; uint8_t v_____do__lift_387__boxed_144_; lean_object* v_res_145_; 
+uint8_t v_dropping_boxed_143_; uint8_t v_____do__lift_247__boxed_144_; lean_object* v_res_145_; 
 v_dropping_boxed_143_ = lean_unbox(v_dropping_141_);
-v_____do__lift_387__boxed_144_ = lean_unbox(v_____do__lift_142_);
-v_res_145_ = l_Std_Iterators_Types_DropWhile_instIterator___redArg___lam__0(v_it_138_, v_out_139_, v_toPure_140_, v_dropping_boxed_143_, v_____do__lift_387__boxed_144_);
+v_____do__lift_247__boxed_144_ = lean_unbox(v_____do__lift_142_);
+v_res_145_ = l_Std_Iterators_Types_DropWhile_instIterator___redArg___lam__0(v_it_138_, v_out_139_, v_toPure_140_, v_dropping_boxed_143_, v_____do__lift_247__boxed_144_);
 return v_res_145_;
 }
 }

@@ -143,6 +143,7 @@ extern "C" LEAN_EXPORT lean_obj_res lean_uv_tcp_new() {
     tcp_socket->m_promise_read = nullptr;
     tcp_socket->m_byte_array = nullptr;
     tcp_socket->m_client = nullptr;
+    tcp_socket->m_shutdown_requested = false;
 
     uv_tcp_t* uv_tcp = (uv_tcp_t*)malloc(sizeof(uv_tcp_t));
     if (uv_tcp == nullptr) {
@@ -469,6 +470,10 @@ extern "C" LEAN_EXPORT lean_obj_res lean_uv_tcp_wait_readable(b_obj_arg socket) 
         buf->base = NULL;
         buf->len = 0;
     }, [](uv_stream_t* stream, ssize_t nread, const uv_buf_t* buf) {
+        // `nread == 0` is libuv's equivalent of `EAGAIN`: the socket is not actually readable, so
+        // keep waiting rather than resolving the promise.
+        if (nread == 0) return;
+
         uv_read_stop(stream);
 
         lean_object* socket = (lean_object*)stream->data;
@@ -752,9 +757,11 @@ extern "C" LEAN_EXPORT lean_obj_res lean_uv_tcp_shutdown(b_obj_arg socket) {
         return lean_uv_loop_unavailable_error();
     }
 
-    if (tcp_socket->m_promise_shutdown != nullptr) {
+    // `uv_shutdown` clears the writable flag right away, so a second request fails with `ENOTCONN`
+    // no matter whether the first one is still pending; reject it here to report a meaningful error.
+    if (tcp_socket->m_shutdown_requested) {
         event_loop_unlock(&global_ev);
-        return lean_io_result_mk_error(lean_mk_io_error_other_error(-UV_EALREADY, mk_string("shutdown already in progress")));
+        return lean_io_result_mk_error(lean_mk_io_error_other_error(-UV_EALREADY, mk_string("shutdown already requested")));
     }
 
     uv_shutdown_t* shutdown_req = (uv_shutdown_t*)malloc(sizeof(uv_shutdown_t));
@@ -807,6 +814,8 @@ extern "C" LEAN_EXPORT lean_obj_res lean_uv_tcp_shutdown(b_obj_arg socket) {
 
         return lean_io_result_mk_error(lean_decode_uv_error(result, nullptr));
     }
+
+    tcp_socket->m_shutdown_requested = true;
 
     event_loop_unlock(&global_ev);
 

@@ -1,8 +1,9 @@
 /-!
 Tests for `Nat.powMod` (GMP-backed modular exponentiation from
 `Init.Data.Nat.PowMod`): the square-and-multiply kernel model (`decide`/`rfl`),
-the `lean_nat_powmod` extern (`#guard`/`native_decide`), edge cases, and the
-1024-bit ZMod case from Mathlib that motivated the feature.
+the `lean_nat_powmod` extern (`#guard`/`native_decide`), the `Nat.reducePowMod`
+simproc, edge cases, and the 1024-bit ZMod case from Mathlib that motivated the
+feature.
 -/
 
 /-! Basic values and edge cases. `powMod b e m = b ^ e % m`, and `n % 0 = n`. -/
@@ -49,6 +50,20 @@ example : Nat.powMod 3 (10 ^ 12) 1000003 = 81 := by decide
 set_option maxRecDepth 4096 in
 set_option maxHeartbeats 1000 in
 example : Nat.powMod 2 (2 ^ 200) 1000000007 = 988385428 := by decide
+
+/-! `simp` evaluates closed `Nat.powMod` terms with the `Nat.reducePowMod` simproc,
+but does not unfold `powMod_def` on its own: rewriting to `b ^ e % m` would
+replace a cheap goal with an intractable one. -/
+#check_simp Nat.powMod 3 4 5 ~> 1
+#check_simp Nat.powMod 3 (2 ^ 40) 1000003 ~> 378344
+#check_simp Nat.powMod 3 4 0 ~> 81
+-- With `m = 0` the result is `b ^ e`, so the exponent guard from `Nat.reducePow` applies.
+#check_simp Nat.powMod 2 (2 ^ 40) 0 !~>
+variable (b e m : Nat) in
+#check_simp Nat.powMod b e m !~>
+example (b e m : Nat) : Nat.powMod b e m = b ^ e % m := by
+  fail_if_success simp
+  exact Nat.powMod_def b e m
 
 /-! Large modular exponentiation (1024-bit prime), motivated by Mathlib's ZMod
 test. With the naive `b ^ e % m` model this exponent never terminates; the extern

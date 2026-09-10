@@ -28,3 +28,4 @@ public import Lean.Elab.Tactic.Grind.DSimprocDSL
 public import Lean.Elab.Tactic.Grind.DSimprocDSLBuiltin
 public import Lean.Elab.Tactic.Grind.RegisterSymDSimp
 public import Lean.Elab.Tactic.Grind.BVDecide
+public import Lean.Elab.Tactic.Grind.Graph

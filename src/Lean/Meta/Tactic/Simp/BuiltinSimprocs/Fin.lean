@@ -81,9 +81,14 @@ set_option linter.coreInternal.internalModule false in -- User-facing builtin si
 builtin_dsimproc [simp, seval] reduceMod ((_ % _ : Fin _)) := reduceBin ``HMod.hMod 6 (· % ·)
 set_option linter.coreInternal.internalModule false in -- User-facing builtin simprocs are fine
 builtin_dsimproc [simp, seval] reducePow ((_ ^ _ : Fin _)) := fun e => do
-  let_expr HPow.hPow _ _ _ _ a k := e | return .continue
+  let_expr HPow.hPow _ _ _ inst a k := e | return .continue
   let some v ← fromExpr? a | return .continue
   let some k ← getNatValue? k | return .continue
+  -- A different `Pow (Fin n) Nat` instance need not agree with `Fin.npow` definitionally.
+  let finTy := mkApp (mkConst ``Fin) (toExpr v.n)
+  let instFin := mkApp3 (mkConst ``instHPow [.zero, .zero]) finTy (mkConst ``Nat)
+    (mkApp2 (mkConst ``instPowNat [.zero]) finTy (mkApp (mkConst ``Fin.instNatPow) (toExpr v.n)))
+  unless ← matchesInstance inst instFin do return .continue
   return .done <| toExpr (v.value ^ k)
 
 set_option linter.coreInternal.internalModule false in -- User-facing builtin simprocs are fine

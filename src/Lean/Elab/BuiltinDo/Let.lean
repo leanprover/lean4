@@ -283,6 +283,8 @@ private def getLetConfigAndCheckMut (letConfigStx : TSyntax ``Parser.Term.letCon
     let x := mkIdentFrom pattern (← mkFreshUserName `__x)
     let dec ← dec.ensureUnitAt tk
     elabDoIdDecl x patType? rhs dec.continueWithUnit (kind := dec.kind)
+  -- No `ensureUnitAt` here: the else form swallows the rest of the block into `rest?`, so the
+  -- element keeps `dec`'s result type.
   | `(doPatDecl| $pattern:term $[: $patType?]? ← $rhs $[| $otherwise? $(rest?)?]?) =>
     let rest? := rest?.join
     let x := mkIdentFrom pattern (← mkFreshUserName `__x)

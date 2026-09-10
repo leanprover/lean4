@@ -114,10 +114,10 @@ structure TestWith (α : Type) where
   value : List α
 deriving BEq
 
-/-- info: instBEqTestWithout [BEq (List α)] : BEq TestWithout -/
+/-- info: instBEqTestWithout (α : Type) [BEq (List α)] : BEq (TestWithout α) -/
 #guard_msgs in #check instBEqTestWithout
 
-/-- info: instBEqTestWith [BEq α] : BEq TestWithout -/
+/-- info: instBEqTestWith (α : Type) [BEq α] : BEq (TestWith α) -/
 #guard_msgs in #check instBEqTestWith
 ```
 
@@ -129,25 +129,60 @@ register_option deriving.reduceInstances : Bool := {
   descr := "if true, reduce instance hypotheses like `BEq (List α)` to `BEq α` in deriving handlers"
 }
 
-private def goodKeys (keys : Array DiscrTree.Key) : Bool := Id.run do
+/--
+If true, raise an error in deriving handlers if it would generate an instance with
+instance hypotheses that are not simple.
+
+An instance hypothesis is deemed simple if its type contains no other constants except the
+class name, projections, instances, instance projections, proofs and `Eq`, and also doesn't contain
+other special expressions (foralls, universes, lambdas) after unfolding reducible declarations.
+
+For example, `BEq α`, `DecidableEq α`, `DecidableLE α` and `Repr params.1` are accepted by this
+check but `BEq MyType`, `DecidableEq Prop` or `Repr (Nat → Nat)` are not.
+
+The check is omitted even with `deriving.strict` enabled if `deriving.bindersVerbatim` is enabled
+or `deriving.reduceInstances` is disabled.
+
+Note: This option only works for deriving handlers that support it, i.e. deriving handlers that use
+the `Lean.Meta.Deriving` framework.
+-/
+register_option deriving.strict : Bool := {
+  defValue := true
+  descr := "if true, reject complex instance hypotheses in deriving handlers"
+}
+
+private def isIgnoredConstant (nm : Name) (env : Environment) : Bool :=
+  nm == ``Eq || (env.getProjectionFnInfo? nm).any (·.fromClass)
+
+private def goodKeys (keys : Array DiscrTree.Key) (env : Environment) : Bool := Id.run do
   let some (.const _ _) := keys[0]? | return false
-  let mut constFragment : Option Name := none
+  let mut specialFragment : Option DiscrTree.Key := none
   for h : i in 1...keys.size do
-    match keys[i] with
+    let key := keys[i]
+    match key with
     | .const nm _ =>
-      if nm == ``Eq then
-        -- hack for `DecidableEq`
+      if isIgnoredConstant nm env then
         continue
-      if constFragment.isSome then
+      if specialFragment.isSome then
         return false
-      constFragment := some nm
+      specialFragment := some key
+    | .arrow =>
+      if specialFragment.isSome then
+        return false
+      specialFragment := some key
     | .star => continue
     | _ => return false
-  return constFragment.isSome
+  return specialFragment.isSome
 
-private def goodOutputKeys (keys : Array DiscrTree.Key) : Bool := Id.run do
+private def goodHypothesisKeys (keys : Array DiscrTree.Key) (env : Environment) : Bool := Id.run do
   let some (.const _ _ : DiscrTree.Key) := keys[0]? | return false
-  return keys.all (start := 1) (· matches .star | .const ``Eq _)
+  return keys.all (start := 1) fun key =>
+    match key with
+    | .star => true
+    | .proj .. => true
+    | .fvar .. => true
+    | .const nm _ => isIgnoredConstant nm env
+    | _ => false
 
 /--
 Given an instance type `instType` and a local context `lctx` with associated local instances
@@ -159,9 +194,9 @@ hypotheses together with an indication of whether to run this function again on 
 instance obligation. We use a heuristic here to (try to) make sure we don't run into an infinite
 loop.
 
-Canonical instances are currently defined as instances with exactly two constant fragments in the
-discrimination tree keys (except `Eq` because of `DecidableEq`). Furthermore, we only try an
-instance if it is the only one with "good keys".
+Canonical instances are currently defined as instances with exactly two special fragments in the
+discrimination tree keys (forall and constants except `Eq` because of `DecidableEq`). Furthermore,
+we only try an instance if it is the only one with "good keys".
 -/
 def tryApplyCanonicalInstance (instType : Expr) (lctx : LocalContext) (linsts : LocalInstances) :
     MetaM (Option (Expr × Array (MVarId × Bool))) := do
@@ -171,7 +206,8 @@ def tryApplyCanonicalInstance (instType : Expr) (lctx : LocalContext) (linsts : 
     let instances ← getGlobalInstancesIndex
     let matching ← instances.getUnify body
     trace[Elab.Deriving] "Instances: {matching}"
-    let matching := matching.filter fun inst => goodKeys inst.keys
+    let env ← getEnv
+    let matching := matching.filter fun inst => goodKeys inst.keys env
     trace[Elab.Deriving] "Good instances: {matching}"
     let #[instEntry] := matching | return none
     let some name := instEntry.globalName? | return none
@@ -185,7 +221,7 @@ def tryApplyCanonicalInstance (instType : Expr) (lctx : LocalContext) (linsts : 
         let keys ← DiscrTree.mkPath (← inferType arg)
         let newMVar ← mkFreshRevertedMVarAt (← inferType arg) lctx linsts
         arg.mvarId!.assign newMVar
-        outVars := outVars.push (newMVar.getAppFn.mvarId!, goodOutputKeys keys)
+        outVars := outVars.push (newMVar.getAppFn.mvarId!, goodHypothesisKeys keys env)
     unless ← isDefEqI instBody body do
       trace[Elab.Deriving] "Failed to unify"
       return none
@@ -193,7 +229,7 @@ def tryApplyCanonicalInstance (instType : Expr) (lctx : LocalContext) (linsts : 
     if c.hasLevelMVar then
       trace[Elab.Deriving] "Remaining level metavariables in {c}"
       return none
-    let mctx' ← getMCtx
+    let mctx ← getMCtx
     let mut res := c
     for arg in args do
       let arg ← instantiateMVars arg
@@ -201,7 +237,7 @@ def tryApplyCanonicalInstance (instType : Expr) (lctx : LocalContext) (linsts : 
       if arg.hasLevelMVar then
         trace[Elab.Deriving] "Remaining level metavariables in {arg}"
         return none
-      if arg.hasAnyMVar (fun m => !(mctx'.getDecl m).kind.isSyntheticOpaque) then
+      if arg.hasAnyMVar (fun m => !(mctx.getDecl m).kind.isSyntheticOpaque) then
         trace[Elab.Deriving] "Remaining metavariables in {arg}"
         return none
       res := res.app arg
@@ -271,20 +307,45 @@ private def pushInstanceHypothesis (goal : MVarId) (className : Name) : Deriving
       · rw [Array.getElem_push_eq, Array.getElem_push, dite_eq_right (by omega)]
   }
 
+def containsRecursiveDecl (e : Expr) : DerivingM Bool := do
+  let ctx ← read
+  let all := ctx.indInfo.all
+  return (e.find? fun | .const nm _ => nm ∈ all | _ => false).isSome
+
+private def trySynthesize (type : Expr) : DerivingM (Option Expr) := do
+  unless deriving.bindersVerbatim.get (← getOptions) do
+    return (← trySynthInstance type).toOption
+  let some className ← isClass? type |
+    throwError "type class instance expected{indentExpr type}"
+  for inst in (← getLocalInstances) do
+    if inst.className == className then
+      if ← isDefEqI (← inferType inst.fvar) type then
+        return inst.fvar
+  return none
+
 private partial def processInstanceHypothesis (mvar : MVarId)
     (allowCanonicalInstanceReduction : Bool := true) : DerivingM Unit := withIncRecDepth do
   let type ← mvar.getType
   let some className ← isClass? type |
     -- if this wasn't reported before, report now
     throwError "type class instance expected{indentExpr type}"
-  if let .some res ← withLCtx (← read).paramLCtx (← get).newLInsts (trySynthInstance type) then
+  if let some res ← withLCtx (← read).paramLCtx (← get).newLInsts (trySynthesize type) then
     mvar.assign res
     return
-  unless deriving.reduceInstances.get (← getOptions) do
-    return ← pushInstanceHypothesis mvar className
-  unless allowCanonicalInstanceReduction do
-    -- avoid loops
-    return ← pushInstanceHypothesis mvar className
+  let mut shouldTry := allowCanonicalInstanceReduction -- avoid loops
+  if !deriving.reduceInstances.get (← getOptions) ||
+      deriving.bindersVerbatim.get (← getOptions) then
+    shouldTry := false
+  unless shouldTry do
+    -- if the instance requirement is nested (i.e. contains recursive occurrences),
+    -- we *have* to reduce it, otherwise we end up with a useless instance like
+    -- `instance [BEq (List Thing)] : BEq Thing`
+    unless ← containsRecursiveDecl type do
+      return ← pushInstanceHypothesis mvar className
+    -- also, try instance synthesis even if it was disabled through `deriving.bindersVerbatim`
+    if let some res ← withLCtx (← read).paramLCtx (← get).newLInsts (trySynthesize type) then
+      mvar.assign res
+      return
   let mctx ← getMCtx
   -- try reducing e.g. `BEq (List α)` to `BEq α`
   let res ← tryApplyCanonicalInstance type (← getLCtx) (← getLocalInstances)
@@ -293,22 +354,13 @@ private partial def processInstanceHypothesis (mvar : MVarId)
     for (var, allow) in outVars do
       processInstanceHypothesis var allow
   else
+    if ← containsRecursiveDecl type then
+      throwError "Got stuck at instance requirement for nested type:{indentExpr type}"
     setMCtx mctx
     pushInstanceHypothesis mvar className
 
 def synthInstanceDeriving (e : Expr) : DerivingM Expr := do
-  if deriving.bindersVerbatim.get (← getOptions) then
-    -- only check for equality under instances transparency
-    let some className ← isClass? e |
-      throwError "type class instance expected{indentExpr e}"
-    for inst in (← getLocalInstances) do
-      if inst.className == className then
-        if ← isDefEqI (← inferType inst.fvar) e then
-          return inst.fvar
-    let mvarApp ← mkFreshRevertedMVarAt e (← read).paramLCtx (← read).paramLInsts
-    pushInstanceHypothesis mvarApp.getAppFn.mvarId! className
-    return mvarApp
-  if let .some res ← withLCtx (← getLCtx) (← get).newLInsts (trySynthInstance e) then
+  if let some res ← withLCtx (← getLCtx) (← get).newLInsts (trySynthesize e) then
     return res
   let mvarApp ← mkFreshRevertedMVarAt e (← read).paramLCtx (← read).paramLInsts
   withLCtx (← read).paramLCtx (← read).paramLInsts do
@@ -370,9 +422,29 @@ private def filterInstanceObligations (state : Deriving.State) : MetaM (Array MV
     newMVars := newMVars.push mvar
   return newMVars
 
+private def checkInstanceHypotheses (instanceHyps : Array MVarId) : DerivingM Unit := do
+  let mut complexHyps := #[]
+  for mvar in instanceHyps do
+    let type ← mvar.getType
+    withReducible do←
+    forallTelescopeReducing type (whnfType := true) fun _ body => do←
+      let path ← DiscrTree.mkPath body
+      unless goodHypothesisKeys path (← getEnv) do
+        complexHyps := complexHyps.push type
+  unless complexHyps.isEmpty do
+    let note := .note m!"This usually indicates a missing instance that can be derived using \
+      `deriving instance ClassName for TypeName`. If this is however intentional, you can disable \
+      this error using `set_option deriving.strict false`"
+    throwError "While deriving an instance, the following complex instance requirements \
+      were encountered that could not be synthesized:\
+      {indentD (.andList (complexHyps.toList.map (m!"[{·}]")))}{note}"
+
 def produceInstanceHyps : DerivingM (Array Expr) := do
   let filtered ← withLCtx (← read).paramLCtx (← read).paramLInsts do
     filterInstanceObligations (← get)
+  if deriving.strict.get (← getOptions) && !deriving.bindersVerbatim.get (← getOptions) &&
+      deriving.reduceInstances.get (← getOptions) then
+    checkInstanceHypotheses filtered
   return filtered.map Expr.mvar
 
 def mkInstanceForDeriving (instanceHyps : Array Expr) (type value : Expr) : DerivingM Unit := do
@@ -382,7 +454,7 @@ def mkInstanceForDeriving (instanceHyps : Array Expr) (type value : Expr) : Deri
   let value ← instantiateMVars <| ← mkLambdaFVars allVars (← instantiateMVars value) (binderInfoForMVars := .instImplicit)
   let shouldExpose := (value.find? (·.constName?.any isPrivateName)).isNone
   withExporting (isExporting := shouldExpose) do
-    discard <| mkInstance instName (← read).levelParams type value (← read).isMeta
+    mkInstance instName (← read).levelParams type value (← read).isMeta
 
 def isRecursive : DerivingM Bool := do
   return (← read).indInfo.isRec
@@ -503,7 +575,7 @@ def deriveTransformationInstPerConstructor (className : Name)
     let value ← mkLambdaFVars allParams recVarValue (binderInfoForMVars := .instImplicit)
     withExporting do
       mkInstance instName (← read).levelParams (← mkForallFVars (← read).params ty) value
-        (isMeta := isMarkedMeta (← getEnv) name)
+        (← read).isMeta
   return true
 
 private def decLevels : Level → NameSet → Option NameSet

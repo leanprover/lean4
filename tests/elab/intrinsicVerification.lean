@@ -971,6 +971,22 @@ def ghostLeak (xs : List Nat) : Id Nat := do
     seen := x :: seen
   return seen.length
 
+/-! A ghost reassignment checks a contradicting type ascription like a plain one. -/
+
+/--
+error: Type mismatch
+  g
+has type
+  Int
+but is expected to have type
+  Nat
+-/
+#guard_msgs in
+def ghostAscriptionMismatch : Id Nat := do
+  ghost mut g : Int := 0
+  g : Nat := 1
+  pure 0
+
 /-! `ghost` stays a regular identifier at a doElem head when no ghost shape parses. -/
 
 def ghostAsIdent (ghost : Nat → Id Unit) : Id Nat := do

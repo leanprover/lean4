@@ -100,25 +100,14 @@ private def checkLetConfigInDo (config : Term.LetConfig) : DoElabM Unit := do
   if config.generalize then
     throwError "`+generalize` is not supported in `do` blocks"
 
-/--
-Wrap a ghost decl `ghost x : t := e` as `let x : Erased t := Erased.mk e`, similarly for
-reassigments.
--/
-private def wrapGhostDecl (letOrReassign : LetOrReassign) (decl : TSyntax ``letDecl) :
-    DoElabM (TSyntax ``letDecl) := do
+/-- Wrap a ghost binding `x : t := e` as `x : Erased t := Erased.mk e`. For a reassignment,
+`pushTypeIntoReassignment` has already checked the ascription and pinned `t`. -/
+private def wrapGhostDecl (decl : TSyntax ``letDecl) : DoElabM (TSyntax ``letDecl) := do
   let `(letDecl| $x:ident $[: $t?]? := $e) := decl
     | throwErrorAt decl "`ghost` takes a variable"
-  match letOrReassign with
-  | .reassign =>
-    let t ← Term.exprToSyntax (← getLocalDeclFromUserName x.getId).type
-    let e ← match t? with
-      | some tAsc => `(Erased.mk ($e : $tAsc))
-      | none      => `(Erased.mk ($e : $t))
-    `(letDecl| $x:ident : Erased $t := $e)
-  | _ =>
-    match t? with
-    | some t => `(letDecl| $x:ident : Erased $t := Erased.mk $e)
-    | none   => `(letDecl| $x:ident := Erased.mk $e)
+  match t? with
+  | some t => `(letDecl| $x:ident : Erased $t := Erased.mk $e)
+  | none   => `(letDecl| $x:ident := Erased.mk $e)
 
 partial def elabDoLetOrReassign (config : Term.LetConfig) (letOrReassign : LetOrReassign) (decl : TSyntax ``letDecl)
     (tk : Syntax) (dec : DoElemCont) : DoElabM Expr := do
@@ -128,8 +117,8 @@ partial def elabDoLetOrReassign (config : Term.LetConfig) (letOrReassign : LetOr
   let dec ← dec.ensureUnitAt tk
   let isGhost ← isGhost letOrReassign vars
   -- Some decl preprocessing on the patterns and expected types:
-  let decl ← if isGhost then wrapGhostDecl letOrReassign decl
-             else pushTypeIntoReassignment letOrReassign decl
+  let decl ← pushTypeIntoReassignment letOrReassign decl
+  let decl ← if isGhost then wrapGhostDecl decl else pure decl
   let mγ ← mkMonadApp (← read).doBlockResultType
   match decl with
   | `(letDecl| $decl:letEqnsDecl) =>
@@ -298,9 +287,6 @@ private def getLetConfigAndCheckMut (letConfigStx : TSyntax ``Parser.Term.letCon
 
 @[builtin_macro Lean.Parser.Term.doReassignArrow] def expandDoReassignArrow : Macro := fun stx => do
   match stx with
-  | `(doReassignArrow| $x:ident $[: $t?]? ← $rhs) =>
-    let y := mkIdentFrom x (← MonadQuotation.addMacroScope `__x)
-    `(doElem| do let $y:ident $[: $t?]? ← $rhs; $x:ident := $y)
   | `(doReassignArrow| $pat:term $[: $t?]? ← $rhs $[| $otherwise? $(_rest?)?]?) =>
     if otherwise?.isSome then
       Macro.throwErrorAt stx "reassignment with `|` (i.e., \"else clause\") is not supported"
@@ -308,3 +294,13 @@ private def getLetConfigAndCheckMut (letConfigStx : TSyntax ``Parser.Term.letCon
       let y := mkIdentFrom pat (← MonadQuotation.addMacroScope `__x)
       `(doElem| do let $y:ident $[: $t?]? ← $rhs; $pat:term := $y)
   | _ => Macro.throwUnsupported
+
+@[builtin_doElem_elab Lean.Parser.Term.doReassignArrow] def elabDoReassignArrow : DoElab := fun stx dec => do
+  let `(doReassignArrow| $x:ident $[: $t?]? ← $rhs) := stx | throwUnsupportedSyntax
+  throwUnlessMutVarDeclared x
+  -- Pin the variable's declared type on the bind, so a type error blames the action.
+  let t ← match t? with
+    | some t => pure t
+    | none   => Term.exprToSyntax (← getLocalDeclFromUserName x.getId).type
+  let y := mkIdentFrom x (← mkFreshUserName `__x)
+  elabDoIdDecl y (some t) rhs (elabDoElem (← `(doElem| $x:ident := $y)) dec) (kind := dec.kind)

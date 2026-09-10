@@ -4,8 +4,7 @@ Success! Final stack:
    (Lean.Doc.Parser.codeBlockFence "```")
    []
    (Lean.Doc.Parser.versoCodeBlock
-    [(Lean.Doc.Parser.versoCodeBlockLine
-      "content\n")])
+    [(Lean.Doc.Parser.versoCodeLine "content\n")])
    (Lean.Doc.Parser.codeBlockFence "```"))
 All input consumed.
 Round-trip OK

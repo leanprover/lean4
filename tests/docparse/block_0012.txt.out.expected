@@ -6,13 +6,17 @@ Success! Final stack:
      [(Lean.Doc.Parser.Block.para
        [(Lean.Doc.Parser.Inline.code
          (Lean.Doc.Parser.codeDelimiter "`")
-         (Lean.Doc.Parser.versoCode "structure")
+         (Lean.Doc.Parser.versoCode
+          [(Lean.Doc.Parser.versoCodeLine
+            "structure")])
          (Lean.Doc.Parser.codeDelimiter "`"))
         (Lean.Doc.Parser.Inline.text
          (Lean.Doc.Parser.versoText " and "))
         (Lean.Doc.Parser.Inline.code
          (Lean.Doc.Parser.codeDelimiter "`")
-         (Lean.Doc.Parser.versoCode "inductive")
+         (Lean.Doc.Parser.versoCode
+          [(Lean.Doc.Parser.versoCodeLine
+            "inductive")])
          (Lean.Doc.Parser.codeDelimiter "`"))
         (Lean.Doc.Parser.Inline.text
          (Lean.Doc.Parser.versoText
@@ -51,7 +55,8 @@ Success! Final stack:
             (Lean.Doc.Parser.Inline.code
              (Lean.Doc.Parser.codeDelimiter "`")
              (Lean.Doc.Parser.versoCode
-              "structure")
+              [(Lean.Doc.Parser.versoCodeLine
+                "structure")])
              (Lean.Doc.Parser.codeDelimiter "`"))
             (Lean.Doc.Parser.Inline.text
              (Lean.Doc.Parser.versoText
@@ -60,25 +65,24 @@ Success! Final stack:
            (Lean.Doc.Parser.codeBlockFence "```")
            [`lean []]
            (Lean.Doc.Parser.versoCodeBlock
-            [(Lean.Doc.Parser.versoCodeBlockLine
+            [(Lean.Doc.Parser.versoCodeLine
               "structure Tree where\n")
-             (Lean.Doc.Parser.versoCodeBlockLine
+             (Lean.Doc.Parser.versoCodeLine
               "  n : Nat\n")
-             (Lean.Doc.Parser.versoCodeBlockLine
+             (Lean.Doc.Parser.versoCodeLine
               "  children : Fin n → Tree\n")
-             (Lean.Doc.Parser.versoCodeBlockLine
-              "\n")
-             (Lean.Doc.Parser.versoCodeBlockLine
+             (Lean.Doc.Parser.versoCodeLine "\n")
+             (Lean.Doc.Parser.versoCodeLine
               "def Tree.size : Tree → Nat\n")
-             (Lean.Doc.Parser.versoCodeBlockLine
+             (Lean.Doc.Parser.versoCodeLine
               "  | {n, children} => Id.run do\n")
-             (Lean.Doc.Parser.versoCodeBlockLine
+             (Lean.Doc.Parser.versoCodeLine
               "    let mut s := 0\n")
-             (Lean.Doc.Parser.versoCodeBlockLine
+             (Lean.Doc.Parser.versoCodeLine
               "    for h : i in [0 : n] do\n")
-             (Lean.Doc.Parser.versoCodeBlockLine
+             (Lean.Doc.Parser.versoCodeLine
               "      s := s + (children ⟨i, h.2⟩).size\n")
-             (Lean.Doc.Parser.versoCodeBlockLine
+             (Lean.Doc.Parser.versoCodeLine
               "    pure s\n")])
            (Lean.Doc.Parser.codeBlockFence
             "```"))])

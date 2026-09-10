@@ -15,7 +15,8 @@ Success! Final stack:
      []
      [(Lean.Doc.Parser.Inline.code
        (Lean.Doc.Parser.codeDelimiter "`")
-       (Lean.Doc.Parser.versoCode "cmd")
+       (Lean.Doc.Parser.versoCode
+        [(Lean.Doc.Parser.versoCodeLine "cmd")])
        (Lean.Doc.Parser.codeDelimiter "`"))]
      [])
     (Lean.Doc.Parser.Inline.text

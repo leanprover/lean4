@@ -8,7 +8,8 @@ Failure: unterminated inline code; expected '``'
 Final stack:
   (Lean.Doc.Parser.Inline.code
    (Lean.Doc.Parser.codeDelimiter "``")
-   (Lean.Doc.Parser.versoCode " fo")
+   (Lean.Doc.Parser.versoCode
+    [(Lean.Doc.Parser.versoCodeLine " fo")])
    <missing>)
 Remaining:
 "o `"

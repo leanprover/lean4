@@ -211,20 +211,36 @@ def mkVersoLinkRefUrlFrom (src : Syntax) (value : String) (canonical := false) :
   ⟨Syntax.mkLit versoLinkRefUrlKind value (info := SourceInfo.fromRef src canonical)⟩
 
 /--
-Builds an inline code content token containing `value`, with its position taken from `src`.
+Builds one `versoCodeLine` token per line of `value`, each containing its line through its newline,
+all positioned by `info`. An empty value is one empty line.
 -/
-def mkVersoCodeFrom (src : Syntax) (value : String) (canonical := false) : VersoCode :=
-  let padded :=
-    if versoCodeBoundarySpaces value then " " ++ value ++ " " else value
-  ⟨Syntax.mkLit versoCodeKind padded (info := SourceInfo.fromRef src canonical)⟩
+private def codeLinesFrom (info : SourceInfo) (value : String) : Array Syntax := Id.run do
+  let mut lines := #[]
+  let mut line := ""
+  for c in value do
+    line := line.push c
+    if c == '\n' then
+      lines := lines.push (Syntax.mkLit versoCodeLineKind line (info := info))
+      line := ""
+  if !line.isEmpty || lines.isEmpty then
+    lines := lines.push (Syntax.mkLit versoCodeLineKind line (info := info))
+  return lines
 
 /--
-Builds a code block's content containing `value`, with its position taken from `src`.
+Builds inline code content containing `value`, with one line token per line and its position taken
+from `src`.
+-/
+def mkVersoCodeFrom (src : Syntax) (value : String) (canonical := false) : VersoCode :=
+  let info := SourceInfo.fromRef src canonical
+  ⟨Syntax.node info versoCodeKind #[mkNullNode (codeLinesFrom info value)]⟩
+
+/--
+Builds a code block's content containing `value`, with one line token per line and its position
+taken from `src`.
 -/
 def mkVersoCodeBlockFrom (src : Syntax) (value : String) (canonical := false) : VersoCodeBlock :=
   let info := SourceInfo.fromRef src canonical
-  let line := Syntax.mkLit versoCodeBlockLineKind value (info := info)
-  ⟨Syntax.node info versoCodeBlockKind #[mkNullNode #[line]]⟩
+  ⟨Syntax.node info versoCodeBlockKind #[mkNullNode (codeLinesFrom info value)]⟩
 
 /--
 Builds a line break, with its position taken from `src`.
@@ -502,29 +518,6 @@ def LinkTargetView.of (stx : TSyntax ``Parser.linkTarget) : Option LinkTargetVie
   | _ => none
 
 /--
-Narrows the recorded range of an inline code element's content token to the value it denotes. Where
-decoding strips boundary spaces, the range shrinks by one character on each side, so that it still
-delimits the region the value comes from.
--/
-private def narrowToValue (content : VersoCode) : VersoCode :=
-  let raw := (Syntax.isLit? versoCodeKind content.raw).getD ""
-  if raw.length == content.getVersoCode.length then content
-  else
-    match content.raw with
-    | .node info k #[.atom atomInfo val] =>
-      ⟨.node (shrink info) k #[.atom (shrink atomInfo) val]⟩
-    | _ => content
-where
-  shrink : SourceInfo → SourceInfo
-    | .original leading start trailing stop =>
-      .original
-        { leading with stopPos := leading.stopPos.offsetBy ⟨1⟩ } (start.offsetBy ⟨1⟩)
-        { trailing with startPos := trailing.startPos.unoffsetBy ⟨1⟩ } (stop.unoffsetBy ⟨1⟩)
-    | .synthetic start stop canonical =>
-      .synthetic (start.offsetBy ⟨1⟩) (stop.unoffsetBy ⟨1⟩) canonical
-    | .none => .none
-
-/--
 A view of ordinary text.
 -/
 structure TextView where
@@ -609,7 +602,7 @@ def CodeView.getVersoCode (v : CodeView) : String := v.content.getVersoCode
 def CodeView.of (stx : TSyntax ``Parser.inline) : Option CodeView :=
   match stx with
   | `(Parser.Inline.code| $o:codeDelimiter $s:versoCode $c:codeDelimiter) =>
-    some { stx, opener := o, content := narrowToValue s, closer := c }
+    some { stx, opener := o, content := s, closer := c }
   | _ => none
 
 /--

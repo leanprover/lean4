@@ -8,7 +8,9 @@ Success! Final stack:
    []
    [(Lean.Doc.Parser.Inline.code
      (Lean.Doc.Parser.codeDelimiter "`")
-     (Lean.Doc.Parser.versoCode "bracketless")
+     (Lean.Doc.Parser.versoCode
+      [(Lean.Doc.Parser.versoCodeLine
+        "bracketless")])
      (Lean.Doc.Parser.codeDelimiter "`"))]
    [])
 All input consumed.

@@ -7,6 +7,7 @@ module
 prelude
 public import Lean.DocString.Syntax
 import Init.While
+import Init.Data.Range.Polymorphic.Iterators
 
 set_option linter.missingDocs true
 
@@ -290,6 +291,56 @@ def withLeadingHere (p : ParserFn) : ParserFn := fun c s =>
     for a in node.getArgs do
       s := s.pushSyntax a
     return s
+
+/--
+Consumes up to `col` space characters without recording them, so that a line's indentation becomes
+part of the whitespace between tokens instead of line content.
+-/
+def eatIndent (col : Nat) : ParserFn := fun c s => Id.run do
+  let mut s := s
+  for _ in 0...col do
+    let i := s.pos
+    if h : c.atEnd i then return s
+    else if c.get' i h == ' ' then s := s.next' c i h
+    else return s
+  return s
+
+/--
+Records the boundary spaces of the inline code content on top of the syntax stack as whitespace.
+Where the content begins and ends with a space and contains another character, the first line's
+opening space becomes that token's leading whitespace and the last line's closing space becomes
+that token's trailing whitespace, so that the tokens' text is the code the element denotes.
+-/
+def codeBoundarySpacesToWs : ParserFn := fun _ s =>
+  match s.stxStack.back with
+  | .node info ``versoCode #[.node info' `null lines] =>
+    let text := lines.foldl (fun acc l => acc ++ (Syntax.isLit? versoCodeLineKind l).getD "") ""
+    -- The check guarantees a space at each end of the text. The line parser never produces an empty
+    -- token, so those spaces are the first token's first character and the last token's last one.
+    if !versoCodeBoundarySpaces text then s
+    else if !lines.all originalLine then
+      s.mkError "internal error: expected code lines with original source info"
+    else
+      -- A single line is both the first and the last line, and receives both edits in turn.
+      let lines := lines.modify 0 dropFirst |>.modify (lines.size - 1) dropLast
+      s.popSyntax.pushSyntax (.node info ``versoCode #[.node info' `null lines])
+  | other => s.mkError s!"internal error: expected inline code content on stack top, got {other}"
+where
+  originalLine : Syntax → Bool
+    | .node _ ``versoCodeLine #[.atom (.original ..) _] => true
+    | _ => false
+  dropFirst : Syntax → Syntax
+    | .node info k #[.atom (.original leading start trailing stop) val] =>
+      .node info k #[.atom
+        (.original { leading with stopPos := leading.stopPos + ' ' } (start + ' ') trailing stop)
+        (val.drop 1).copy]
+    | stx => stx
+  dropLast : Syntax → Syntax
+    | .node info k #[.atom (.original leading start trailing stop) val] =>
+      .node info k #[.atom
+        (.original leading start { trailing with startPos := trailing.startPos - ' ' } (stop - ' '))
+        (val.dropEnd 1).copy]
+    | stx => stx
 
 /--
 Whether the character before the current position is a newline. Any parser may have consumed that
@@ -1012,6 +1063,11 @@ public structure InlineCtxt where
   The trailing whitespace parser for the final token of a top-level inline element.
   -/
   tail : ParserFn := skipFn
+  /--
+  The docstring's base column, which allows inline code and math to be parsed relative
+  to the docstring's indentation.
+  -/
+  baseColumn : Nat := 0
 deriving Inhabited
 
 /- Parsing inlines:
@@ -1091,10 +1147,11 @@ mutual
     emphLike ``Inline.bold ``boldDelimiter '*' "bold" "asterisks" "bold text" (·.boldDepth) ({· with boldDepth := ·})
 
   /--
-  Parses inline code. The closing delimiter records the input `tail` consumes as its trailing
-  whitespace.
+  Parses inline code. The content is one `versoCodeLine` token per source line. Docstring indentation
+  is saved as leading whitespace, while other indentation is part of the code. A space written at
+  each end of the content to escape a backtick or a space is whitespace on the first and last tokens.
   -/
-  public partial def codeFn (tail : ParserFn := skipFn) : ParserFn :=
+  public partial def codeFn (ctxt : InlineCtxt := {}) : ParserFn :=
     nodeFn ``Inline.code <|
     withStartPos fun openPos =>
     withCurrentColumn fun c =>
@@ -1103,36 +1160,52 @@ mutual
         withCurrentColumn fun c' =>
           let count := c' - c
           recoverCode <|
-            nodeFn versoCodeKind
-              (asTokenFn (many1Fn <| codeContentsFn (count - 1))) >>
-            unterminatedAtEnd openPos (openPos.offsetBy ⟨count⟩) "inline code" >>
-            closer count)
+            nodeFn versoCodeKind (many1Fn (codeLine (count - 1))) >>
+            codeBoundarySpacesToWs >>
+            closer openPos count)
   where
     opener : ParserFn :=
       nodeFn ``codeDelimiter <|
         asTokenFn (many1Fn (expectFn (· == '`') "backticks to open inline code"))
-    closer (count : Nat) : ParserFn :=
-      nodeFn ``codeDelimiter (asTokenFn
-        (atomicFn' (repFn count
-          (expectFn (· == '`') s!"'{String.ofList (.replicate count '`')}' to close inline code")) >>
-         notFollowedByFn (satisfyFn (· == '`') "`") "backtick")
-        tail)
+    closer (openPos : String.Pos.Raw) (count : Nat) : ParserFn :=
+      withLeadingHere (eatIndent ctxt.baseColumn >>
+        unterminatedAtEnd openPos (openPos.offsetBy ⟨count⟩) "inline code" >>
+        nodeFn ``codeDelimiter (asTokenFn
+          (atomicFn' (repFn count
+            (expectFn (· == '`') s!"'{String.ofList (.replicate count '`')}' to close inline code")) >>
+           notFollowedByFn (satisfyFn (· == '`') "`") "backtick")
+          ctxt.tail))
     recoverCode (p : ParserFn) : ParserFn :=
       recoverFn p fun rctx =>
         (show ParserFn from fun _ s => s.restore rctx.initialSize rctx.initialPos) >>
-        atomicFn' (nodeFn versoCodeKind
-          (asTokenFn (takeWhileFn (· ≠ '\n')) (ignoreFn (chFn '\n' <|> eoiFn))) >>
-          pushMissing)
+        atomicFn' (nodeFn versoCodeKind (nodeFn nullKind (nodeFn versoCodeLineKind
+          (asTokenFn (takeWhileFn (· ≠ '\n')) (ignoreFn (chFn '\n' <|> eoiFn))))) >>
+          codeBoundarySpacesToWs >> pushMissing)
+    codeLine (maxCount : Nat) : ParserFn :=
+      atomicFn' <| withLeadingHere (eatIndent ctxt.baseColumn >>
+        nodeFn versoCodeLineKind (asTokenFn (fun c s =>
+          let startPos := s.pos
+          let s := manyFn (codeContentsFn maxCount) c s
+          if s.hasError then s
+          else
+            let i := s.pos
+            if h : c.atEnd i then
+              if i == startPos then codeContentsFn maxCount c s else s
+            else if c.get' i h == '\n' then s.next' c i h
+            else if i == startPos then codeContentsFn maxCount c s
+            else s)))
     codeContentsFn (maxCount : Nat) : ParserFn :=
       atomicFn' (asTokenFn (satisfyFn (maxCount > 0 && · == '`') >> atMostFn (maxCount - 1) (chFn '`') s!"at most {maxCount} backticks")) <|>
-      expectFn (· != '`') "a character other than a backtick"
+      expectFn (fun ch => ch != '`' && ch != '\n') "a character other than a backtick"
 
   /--
-  Parses mathematics.
+  Parses mathematics. The content is inline code, with its lines and indentation read the same way.
   -/
-  public partial def mathFn (tail : ParserFn := skipFn) : ParserFn :=
-    atomicFn' (nodeFn ``Inline.display_math <| nodeFn ``displayMathMarker (strFn "$$") >> codeFn tail) <|>
-    atomicFn' (nodeFn ``Inline.inline_math <| nodeFn ``inlineMathMarker (strFn "$") >> codeFn tail)
+  public partial def mathFn (ctxt : InlineCtxt := {}) : ParserFn :=
+    atomicFn' (nodeFn ``Inline.display_math <|
+      nodeFn ``displayMathMarker (strFn "$$") >> codeFn ctxt) <|>
+    atomicFn' (nodeFn ``Inline.inline_math <|
+      nodeFn ``inlineMathMarker (strFn "$") >> codeFn ctxt)
 
   /-- Reads a prefix of a line of text, stopping at a text-mode special character. -/
   public partial def textFn (ctxt : InlineCtxt := {}) : ParserFn :=
@@ -1217,7 +1290,7 @@ mutual
   -/
   public partial def delimitedInlineFn (ctxt : InlineCtxt) : ParserFn :=
     expectedFn "'_'" (emphFn ctxt) <|> expectedFn "'*'" (boldFn ctxt) <|>
-    expectedFn "'`'" (codeFn ctxt.tail) <|> mathFn ctxt.tail <|>
+    expectedFn "'`'" (codeFn ctxt) <|> mathFn ctxt <|>
     expectedFn "'{'" (roleFn ctxt) <|> imageFn ctxt.tail <|>
     linkFn ctxt <|> footnoteFn ctxt
 
@@ -1232,11 +1305,11 @@ end
 Parses a line of text (that is, one or more inline elements). When `recordTrailing` is set, each
 top-level inline's final token consumes the whitespace that follows it as its trailing whitespace.
 -/
-public def textLineFn (allowNewlines := true) (recordTrailing := false) : ParserFn :=
+public def textLineFn (ctxt : InlineCtxt := {}) (recordTrailing := false) : ParserFn :=
   if !recordTrailing then
-    many1Fn (inlineFn { allowNewlines })
+    many1Fn (inlineFn ctxt)
   else fun c s => Id.run do
-    let ctxt : InlineCtxt := { allowNewlines, tail := blockTailWs allowNewlines }
+    let ctxt := { ctxt with tail := blockTailWs ctxt.allowNewlines }
     let iniSz := s.stxStack.size
     let mut s := s
     let mut first := true
@@ -1261,7 +1334,7 @@ public def textLineFn (allowNewlines := true) (recordTrailing := false) : Parser
         if h : c.atEnd s.pos then
           break
         else if c.get' s.pos h == '\n' then
-          if allowNewlines then
+          if ctxt.allowNewlines then
             s := nodeFn ``Inline.linebreak (asTokenFn (skipChFn '\n')) c s
           else
             break
@@ -1570,7 +1643,8 @@ mutual
   public partial def descItemFn (ctxt : BlockCtxt) : ParserFn :=
     withLeadingHere <| nodeFn ``DescItem.item <| withCurrentStackSize fun base =>
       colonFn >>
-      withCurrentColumn fun c => textLineFn (recordTrailing := true) >>
+      withCurrentColumn fun c =>
+        textLineFn { baseColumn := ctxt.baseColumn } (recordTrailing := true) >>
       wsFallback lineTailWs base >>
       recoverSkip
         (guardColumnFromNextToken (· ≥ c) s!"description body with indentation at least {c}" >>
@@ -1626,7 +1700,7 @@ mutual
       if atBlockStart c s then notFollowedByFn blockOpenerFn "block opener" else skipFn
     (nodeFn ``Block.para <|
       atomicFn' (takeWhileFn (· == ' ') >> notBlockOpener >> guardMinColumn ctxt.minIndent s!"paragraph indented at least {ctxt.minIndent}") >>
-      textLineFn (recordTrailing := ctxt.recordTrailing) >>
+      textLineFn { baseColumn := ctxt.baseColumn } (recordTrailing := ctxt.recordTrailing) >>
       guardContent base startPos) c s
   where
     guardContent (base : Nat) (startPos : String.Pos.Raw) : ParserFn := fun _ s => Id.run do
@@ -1659,7 +1733,8 @@ mutual
       nodeFn ``headerMarker
         (asTokenFn (many1Fn (skipChFn '#')) (skipChFn ' ' >> takeWhileFn (· == ' '))) >>
       lookaheadFn (expectFn (· != '\n') "header text") >>
-      textLineFn (allowNewlines := false) (recordTrailing := ctxt.recordTrailing)
+      textLineFn { allowNewlines := false, baseColumn := ctxt.baseColumn }
+        (recordTrailing := ctxt.recordTrailing)
   where
     checkNonIndented : ParserFn := fun c s =>
       if atBol ctxt c s then s
@@ -1700,27 +1775,16 @@ mutual
           s.mkError s!"Internal error - not a Nat {col}"
       | other => s.mkError s!"Internal error - not a column node {other}"
 
-    -- Consumes up to `col` space characters without recording them, so that the fences'
-    -- indentation becomes part of the whitespace between tokens instead of line content.
-    eatIndent (col : Nat) : ParserFn := fun c s => Id.run do
-      let mut s := s
-      for _ in [0:col] do
-        let i := s.pos
-        if h : c.atEnd i then return s
-        else if c.get' i h == ' ' then s := s.next' c i h
-        else return s
-      return s
-
     blankCodeLine (col : Nat) : ParserFn :=
       atomicFn' <| withLeadingHere (eatIndent col >>
-        nodeFn versoCodeBlockLineKind (asTokenFn (takeWhileFn (· == ' ') >> nl)))
+        nodeFn versoCodeLineKind (asTokenFn (takeWhileFn (· == ' ') >> nl)))
 
     codeFrom (col width : Nat) :=
       atomicFn' (bol ctxt >>
         lookaheadFn (ignoreFn (takeWhileFn (· == ' ') >> guardMinColumn col >>
           notFollowedByFn (atLeastFn width (skipChFn '`')) "ending fence"))) >>
       withLeadingHere (eatIndent col >>
-        nodeFn versoCodeBlockLineKind
+        nodeFn versoCodeLineKind
           (asTokenFn (manyFn (satisfyFn (· != '\n') "non-newline") >> satisfyFn (· == '\n') "newline")))
 
     closeFence (openPos : String.Pos.Raw) (col width : Nat) : ParserFn := fun c s =>
@@ -1924,7 +1988,7 @@ mutual
         strFn "]:") >>
       withTrailing eatSpaces >>
       notFollowedByFn blockOpenerFn "block opener" >> guardMinColumn c.minIndent >>
-      textLineFn (recordTrailing := c.recordTrailing)
+      textLineFn { baseColumn := c.baseColumn } (recordTrailing := c.recordTrailing)
 
   /--
   Parses a block.

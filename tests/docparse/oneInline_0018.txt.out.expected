@@ -5,7 +5,11 @@ Success! Final stack:
    (Lean.Doc.Parser.Inline.code
     (Lean.Doc.Parser.codeDelimiter "`")
     (Lean.Doc.Parser.versoCode
-     "\\frac{\n  x\n}{\n  4\n}\n")
+     [(Lean.Doc.Parser.versoCodeLine "\\frac{\n")
+      (Lean.Doc.Parser.versoCodeLine "  x\n")
+      (Lean.Doc.Parser.versoCodeLine "}{\n")
+      (Lean.Doc.Parser.versoCodeLine "  4\n")
+      (Lean.Doc.Parser.versoCodeLine "}\n")])
     (Lean.Doc.Parser.codeDelimiter "`")))
 All input consumed.
 Round-trip OK

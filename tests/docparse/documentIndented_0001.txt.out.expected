@@ -1,0 +1,35 @@
+Input: "  Some `code\n  more` and $`x\n  y` here.\n"
+Success! Final stack:
+  (Lean.Doc.Parser.document
+   [(Lean.Doc.Parser.Block.para
+     [(Lean.Doc.Parser.Inline.text
+       (Lean.Doc.Parser.versoText "Some "))
+      (Lean.Doc.Parser.Inline.code
+       (Lean.Doc.Parser.codeDelimiter "`")
+       (Lean.Doc.Parser.versoCode
+        [(Lean.Doc.Parser.versoCodeLine "code\n")
+         (Lean.Doc.Parser.versoCodeLine "more")])
+       (Lean.Doc.Parser.codeDelimiter "`"))
+      (Lean.Doc.Parser.Inline.text
+       (Lean.Doc.Parser.versoText " and "))
+      (Lean.Doc.Parser.Inline.inline_math
+       (Lean.Doc.Parser.inlineMathMarker "$")
+       (Lean.Doc.Parser.Inline.code
+        (Lean.Doc.Parser.codeDelimiter "`")
+        (Lean.Doc.Parser.versoCode
+         [(Lean.Doc.Parser.versoCodeLine "x\n")
+          (Lean.Doc.Parser.versoCodeLine "y")])
+        (Lean.Doc.Parser.codeDelimiter "`")))
+      (Lean.Doc.Parser.Inline.text
+       (Lean.Doc.Parser.versoText " here."))
+      (Lean.Doc.Parser.Inline.linebreak "\n")])])
+All input consumed.
+Round-trip OK
+Decoded views:
+  para
+    text (content := "Some ")
+    code (opener := "`") (content := "code\nmore") (closer := "`")
+    text (content := " and ")
+    math (mode := inline) (marker := "$") (opener := "`") (content := "x\ny") (closer := "`")
+    text (content := " here.")
+    linebreak (newline := "\n")

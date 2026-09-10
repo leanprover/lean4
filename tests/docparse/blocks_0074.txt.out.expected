@@ -13,7 +13,7 @@ Final stack:
         (Lean.Doc.Parser.codeBlockFence "```")
         [`lean []]
         (Lean.Doc.Parser.versoCodeBlock
-         [(Lean.Doc.Parser.versoCodeBlockLine
+         [(Lean.Doc.Parser.versoCodeLine
            "body\n")])
         <missing>)])])]
 All input consumed.

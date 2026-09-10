@@ -5,12 +5,21 @@ This test checks that Verso docstring semantic tokens work as expected. In parti
 overlapping token handling does what we want, because the unannotated identifiers and the spaces in
 the {lit}`code` elements are assigned the string type, while variables etc are given info-based
 tokens. A code block's lines are tokenized one at a time, so an indented block's indentation is not
-part of any token and an empty block contributes none.
+part of any token and an empty block contributes none. Inline code and math are tokenized one line
+at a time as well, and a continuation line's indentation up to the docstring's base column is not
+part of any token.
 -/
 /-- {name}`foo1` {lean}`foo1 x` {assert}`foo1 4 = 5` -/
 def foo1 (x : Nat) := x.succ
 /-- {name}`foo1` {lean}`foo1 x` {assert}`foo2 = foo1` -/
 def foo2 (x : Nat) := x |>.succ
+def foo3 := helper where
+  /--
+  Indented {lit}`multi
+  line` code and $`x
+  y` math
+  -/
+  helper := 1
 /--
 *bold* _emph_ *_both_* {lit}`code` {syntax term}`x + 1`
 ```leanTerm

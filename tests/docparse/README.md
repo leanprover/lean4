@@ -47,8 +47,8 @@ prefixes that exercise it. These productions also exercise the generic combinato
 | `linebreakFn` | `block`, `blocks`, `oneInline`, `document` |
 | `emphFn` | `emph`, `blocks`, `role` |
 | `boldFn` | `blocks`, `oneInline`, `role` |
-| `codeFn` (incl. backtick runs, space stripping) | `code`, `oneInline`, `blocks`, `role` |
-| `mathFn` (`$` and `$$`) | `oneInline` |
+| `codeFn` (incl. backtick runs, space stripping, continuation lines) | `code`, `codeIndented`, `oneInline`, `blocks`, `role`, `documentIndented` |
+| `mathFn` (`$` and `$$`) | `oneInline`, `documentIndented` |
 | `linkFn`, `linkTargetFn` (URL and reference targets) | `block`, `blocks`, `oneInline` |
 | `imageFn` | `blocks`, `document`, `oneInline` |
 | `footnoteFn` | `block`, `blocks`, `oneInline` |
@@ -68,7 +68,7 @@ prefixes that exercise it. These productions also exercise the generic combinato
 | `footnoteRefFn` | `blocks` |
 | `metadataBlockFn`, `metadataContents` | `metadataBlock`, `blocks` |
 | `blockFn`, `blocksFn`, `blocks1Fn` | `block`, `blocks`, `recoverBlock`, `recoverBlocks` |
-| `documentFn` (incl. empty, whitespace-only, tabs, CRLF input) | `document` |
+| `documentFn` (incl. empty, whitespace-only, tabs, CRLF input) | `document`, `documentIndented` |
 | `blockTailWs`, `lineTailWs`, `wsFallback` | `blocks`, `document` |
 
 ## Writing doc syntax in quotations

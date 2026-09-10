@@ -350,12 +350,12 @@ open Lean.Parser in
 def versoCode : Parser := mkAntiquot "versoCode" decl_name%
 
 open Lean.Parser in
-/-- Literal code block content. -/
-def versoCodeBlock : Parser := mkAntiquot "versoCodeBlock" decl_name%
+/-- One source line of inline code or code block content. -/
+def versoCodeLine : Parser := mkAntiquot "versoCodeLine" decl_name%
 
 open Lean.Parser in
-/-- One source line of code block content. -/
-def versoCodeBlockLine : Parser := mkAntiquot "versoCodeBlockLine" decl_name%
+/-- Literal code block content. -/
+def versoCodeBlock : Parser := mkAntiquot "versoCodeBlock" decl_name%
 
 end
 
@@ -387,14 +387,14 @@ def versoLinkRefUrlKind : SyntaxNodeKind := ``versoLinkRefUrl
 /-- The alternate text of a Verso image. -/
 def versoImageAltKind : SyntaxNodeKind := ``versoImageAlt
 
-/-- Tokens that contain Verso inline code. -/
+/-- The contents of Verso inline code. -/
 def versoCodeKind : SyntaxNodeKind := ``versoCode
+
+/-- One source line inside Verso inline code or a Verso code block. -/
+def versoCodeLineKind : SyntaxNodeKind := ``versoCodeLine
 
 /-- The contents of a Verso code block. -/
 def versoCodeBlockKind : SyntaxNodeKind := ``versoCodeBlock
-
-/-- One source line inside a Verso code block. -/
-def versoCodeBlockLineKind : SyntaxNodeKind := ``versoCodeBlockLine
 
 /--
 Text content in a Verso document. The token contains the source text with escape sequences
@@ -427,22 +427,24 @@ It may contain `]` behind an escape character, and the escape remains part of th
 abbrev VersoImageAlt := TSyntax ``versoImageAlt
 
 /--
-Inline code content in a Verso document. The token contains the text between the backtick
-delimiters, including boundary spaces. Use `TSyntax.getVersoCode` to decode it.
+Inline code content in a Verso document, with one `versoCodeLine` token per source line. Use
+`TSyntax.getVersoCode` to read the code.
 -/
 abbrev VersoCode := TSyntax ``versoCode
 
 /--
-Code block content in a Verso document, with one `versoCodeBlockLine` token per source line. Use
-`TSyntax.getVersoCodeBlock` to decode it.
+A single source line of code content in a Verso document, inside inline code or a code block. The
+token's leading whitespace is the indentation of its element. Indentation past that is part of the
+token's content.
 -/
-abbrev VersoCodeBlock := TSyntax ``versoCodeBlock
+abbrev VersoCodeLine := TSyntax ``versoCodeLine
 
 /--
-A single source line of code block content in a Verso document. The token's leading whitespace is
-the indentation of the code block. Indentation past that is part of the token's content.
+Code block content in a Verso document, with one `versoCodeLine` token per source line. Each line's
+leading whitespace is the code block's indentation. Use `TSyntax.getVersoCodeBlock` to read the
+code.
 -/
-abbrev VersoCodeBlockLine := TSyntax ``versoCodeBlockLine
+abbrev VersoCodeBlock := TSyntax ``versoCodeBlock
 
 /--
 The length of the longest run of backticks in `str`. A delimiter of inline code, and the fence of a
@@ -461,9 +463,8 @@ def longestBacktickRun (str : String) : Nat := Id.run do
 /--
 Whether `str` begins and ends with a space and contains a character other than a space.
 
-In a code element, this sequence denotes the content with a space removed from each end. It can be
-escaped by adding spaces to each end, so this function can be used to determine whether decoding or
-encoding is necessary.
+In a code element, this sequence denotes the content with a space removed from each end. The parser
+records those two spaces as whitespace rather than content.
 -/
 def versoCodeBoundarySpaces (str : String) : Bool :=
   str.startsWith " " && str.endsWith " " && str.any (· != ' ')
@@ -549,23 +550,31 @@ def getVersoImageAlt (s : VersoImageAlt) : String :=
   unescapeVerso <| (Syntax.isLit? versoImageAltKind s.raw).getD ""
 
 /--
-Decodes and returns the code that a Verso inline code token denotes.
+Returns the text of one source line inside Verso inline code or a Verso code block.
 -/
-def getVersoCode (s : VersoCode) : String :=
-  let str := (Syntax.isLit? versoCodeKind s.raw).getD ""
-  if versoCodeBoundarySpaces str then str.drop 1 |>.dropEnd 1 |>.copy else str
+def getVersoCodeLine (s : VersoCodeLine) : String :=
+  (Syntax.isLit? versoCodeLineKind s.raw).getD ""
 
 /--
-Returns the text of one source line inside a Verso code block.
+Returns the source lines of Verso inline code, in order.
 -/
-def getVersoCodeBlockLine (s : VersoCodeBlockLine) : String :=
-  (Syntax.isLit? versoCodeBlockLineKind s.raw).getD ""
+def getVersoCodeLines (s : VersoCode) : TSyntaxArray ``Parser.versoCodeLine :=
+  -- The repetition that reads the lines groups them in a null node.
+  .mk s.raw[0].getArgs
+
+/--
+Returns the code that Verso inline code content denotes, which is the text of its lines in order.
+-/
+def getVersoCode (s : VersoCode) : String := Id.run do
+  let mut str := ""
+  for line in s.getVersoCodeLines do
+    str := str ++ line.getVersoCodeLine
+  str
 
 /--
 Returns the source lines of a Verso code block, in order.
 -/
-def getVersoCodeBlockLines (s : VersoCodeBlock) :
-    TSyntaxArray ``Parser.versoCodeBlockLine :=
+def getVersoCodeBlockLines (s : VersoCodeBlock) : TSyntaxArray ``Parser.versoCodeLine :=
   -- The repetition that reads the lines groups them in a null node.
   .mk s.raw[0].getArgs
 
@@ -575,7 +584,7 @@ Returns the contents of a Verso code block, which are the texts of its lines in 
 def getVersoCodeBlock (s : VersoCodeBlock) : String := Id.run do
   let mut out := ""
   for line in s.getVersoCodeBlockLines do
-    out := out ++ line.getVersoCodeBlockLine
+    out := out ++ line.getVersoCodeLine
   out
 
 end

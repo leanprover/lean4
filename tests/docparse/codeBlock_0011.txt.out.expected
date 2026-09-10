@@ -10,9 +10,9 @@ Final stack:
    (Lean.Doc.Parser.codeBlockFence "```")
    []
    (Lean.Doc.Parser.versoCodeBlock
-    [(Lean.Doc.Parser.versoCodeBlockLine
+    [(Lean.Doc.Parser.versoCodeLine
       "(define x 4)\n")
-     (Lean.Doc.Parser.versoCodeBlockLine "x\n")])
+     (Lean.Doc.Parser.versoCodeLine "x\n")])
    <missing>)
 All input consumed.
 Round-trip not reproduced, as the parse reported errors: leaf without original source info: <missing>

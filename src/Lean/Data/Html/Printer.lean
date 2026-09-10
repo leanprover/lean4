@@ -7,6 +7,7 @@ module
 
 prelude
 public import Lean.Data.Html.Basic
+import Lean.Data.Html.Spec
 import Init.Data.String.Search
 
 set_option doc.verso true

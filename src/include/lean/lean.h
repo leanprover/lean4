@@ -1522,11 +1522,6 @@ static inline lean_obj_res lean_thunk_get_own(b_lean_obj_arg t) {
 
 LEAN_EXPORT void lean_init_task_manager(void);
 LEAN_EXPORT void lean_init_task_manager_using(unsigned num_workers);
-/* Waits for the running and queued tasks to finish, then tears down the libuv event loop for the
-   rest of the process: libuv operations fail with `UV_ECANCELED` afterwards, even under a task
-   manager that is initialized again. A libuv callback that is running is waited for, and a task that
-   waits on a continuation of a libuv promise, rather than on the promise itself, can keep this from
-   returning. Does nothing if no task manager was initialized. */
 LEAN_EXPORT void lean_finalize_task_manager(void);
 
 LEAN_EXPORT lean_obj_res lean_task_spawn_core(lean_obj_arg c, unsigned prio, bool keep_alive);

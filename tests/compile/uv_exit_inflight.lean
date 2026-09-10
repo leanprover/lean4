@@ -76,10 +76,9 @@ def startInflight : IO Unit := do
     discard <| s.recv 1024
 
   -- Connected pairs that stay open until teardown, so the walk meets an in-flight `recv?`, a write
-  -- the peer never reads and a `uv_shutdown_t` queued behind it. 32 MiB is more than loopback
-  -- buffers absorb, so the write cannot complete; it repeats one 64 KiB chunk to stay cheap. The
-  -- `accept` wait is bounded in practice: the connect is to loopback and the backlog is larger than
-  -- the number of outstanding connects.
+  -- the peer never reads and a `uv_shutdown_t` queued behind it. Each write repeats one 64 KiB chunk
+  -- to stay cheap. The `accept` wait is bounded in practice: the connect is to loopback and the
+  -- backlog is larger than the number of outstanding connects.
   let chunk := ByteArray.mk (Array.replicate 65536 (0 : UInt8))
   let payload := Array.replicate 512 chunk
   for _ in [0:4] do
@@ -99,7 +98,13 @@ def startInflight : IO Unit := do
     | none => throw <| IO.userError "connect promise was dropped"
     keepOpenUntilTeardown #[server, client, accepted]
     let recv ← client.recv? 1024
-    let send ← client.send payload
+    -- How much loopback absorbs differs by platform (Windows completes a 32 MiB write), so writes
+    -- are added until one stays queued.
+    let mut send ← client.send payload
+    for _ in [0:16] do
+      IO.sleep 20
+      if !(← send.isResolved) then break
+      send ← client.send payload
     let shutdown ← client.shutdown
     IO.sleep 20
     expectPending "recv?" recv

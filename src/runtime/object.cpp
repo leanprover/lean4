@@ -740,7 +740,9 @@ struct scoped_current_task_object : flet<lean_task_object *> {
     scoped_current_task_object(lean_task_object * t):flet(g_current_task_object, t) {}
 };
 
-static std::vector<lean_task_object *> * g_unrun_tasks = nullptr;
+// Not `static`: the store in `~task_manager` is never read back, and it must survive optimization to
+// keep the tasks reachable.
+std::vector<lean_task_object *> * g_unrun_tasks = nullptr;
 
 class task_manager {
     mutex                                         m_mutex;

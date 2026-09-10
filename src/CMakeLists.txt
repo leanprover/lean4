@@ -1045,6 +1045,21 @@ if(NOT CMAKE_SYSTEM_NAME MATCHES "Emscripten")
       ${CMAKE_BINARY_DIR}/bin
   )
 
+  # Not in `ALL` as it's expensive; release CI builds it explicitly.
+  ExternalProject_Add(
+    nanoda
+    PREFIX nanoda
+    EXCLUDE_FROM_ALL ON
+    GIT_REPOSITORY https://github.com/ammkrn/nanoda_lib
+    GIT_TAG 4c544ed4099c8227f07d5de77ad1e69fb0740a27
+    CONFIGURE_COMMAND ""
+    BUILD_COMMAND cargo build --release --locked
+    BUILD_IN_SOURCE ON
+    INSTALL_COMMAND
+      ${CMAKE_COMMAND} -E copy target/release/nanoda_bin${CMAKE_EXECUTABLE_SUFFIX}
+      ${CMAKE_BINARY_DIR}/bin
+  )
+
   # Not `ALL` as it's big; release CI builds it explicitly.
   if(USE_MIMALLOC)
     add_custom_target(

@@ -72,8 +72,7 @@ Failure: expected ')'
 
 Final stack:
   [(Lean.Doc.Parser.Block.para
-    [(Lean.Doc.Parser.Inline.linebreak "\n")
-     (Lean.Doc.Parser.Inline.text
+    [(Lean.Doc.Parser.Inline.text
       (Lean.Doc.Parser.versoText
        "Error recovery tests:"))])
    (Lean.Doc.Parser.Block.ul
@@ -95,8 +94,7 @@ Final stack:
             (Lean.Doc.Parser.versoText "busted"))
            (Lean.Doc.Parser.Inline.linebreak "\n")
            (Lean.Doc.Parser.Inline.text
-            (Lean.Doc.Parser.versoText
-             "   link"))]
+            (Lean.Doc.Parser.versoText "link"))]
           <missing>)])])
      (Lean.Doc.Parser.ListItem.item
       (Lean.Doc.Parser.listMarker "*")
@@ -106,8 +104,6 @@ Final stack:
           [(Lean.Doc.Parser.Inline.text
             (Lean.Doc.Parser.versoText "busted"))
            (Lean.Doc.Parser.Inline.linebreak "\n")
-           (Lean.Doc.Parser.Inline.text
-            (Lean.Doc.Parser.versoText "   "))
            (Lean.Doc.Parser.Inline.emph
             (Lean.Doc.Parser.emphDelimiter "_")
             [(Lean.Doc.Parser.Inline.text
@@ -116,8 +112,7 @@ Final stack:
              (Lean.Doc.Parser.Inline.linebreak
               "\n")
              (Lean.Doc.Parser.Inline.text
-              (Lean.Doc.Parser.versoText
-               "   link"))]
+              (Lean.Doc.Parser.versoText "link"))]
             <missing>)]
           <missing>)])])
      (Lean.Doc.Parser.ListItem.item
@@ -183,7 +178,7 @@ Final stack:
               "\n")
              (Lean.Doc.Parser.Inline.text
               (Lean.Doc.Parser.versoText
-               "   lines is OK"))]
+               "lines is OK"))]
             (Lean.Doc.Parser.boldDelimiter "*"))
            (Lean.Doc.Parser.Inline.text
             (Lean.Doc.Parser.versoText

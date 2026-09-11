@@ -41,6 +41,8 @@ partial def shape (stx : TSyntax ``Parser.block) : String :=
   | some (.codeblock v) =>
     let name := v.name?.map (·.getId.eraseMacroScopes) |>.getD .anonymous
     s!"codeblock({name}, {v.getVersoCodeBlock.quote})"
+  | some (.footnoteRef v) =>
+    s!"footnote({v.getName})[" ++ " ".intercalate (v.content.map (inlineShape ·)).toList ++ "]"
   | some _ => "block"
   | none => s!"<not a block: {stx.raw.getKind}>"
 where
@@ -574,3 +576,28 @@ set_option doc.verso true in
 ppCmd
 /-- {unclosed -/
 def undocumented : Nat := 1
+
+/-!
+A marker that takes the space after it as whitespace swallows a space that begins the content on its
+line, so content built with one takes an escape to keep it. The parser never reads such content, but
+a quotation can build it.
+-/
+
+open scoped Lean.Doc.Syntax
+
+/--
+info: dl[desc[text(" t") | para[text("d")]]]
+  formatted: ": \\ t\n\n  d\n"
+  parses as: #[dl[desc[text(" t") | para[text("d")]]]]
+header(1)[text(" t")]
+  formatted: "## \\ t\n"
+  parses as: #[header(1)[text(" t")]]
+footnote(n)[text(" t")]
+  formatted: "[^n]: \\ t\n"
+  parses as: #[footnote(n)[text(" t") linebreak]]
+-/
+#guard_msgs in
+#eval show CommandElabM Unit from do
+  roundTripBlock (← `(block| dl{: " t" => $(← `(block| para["d"]))}))
+  roundTripBlock (← `(block| header(1){" t"}))
+  roundTripBlock (← `(block| [^"n"]: " t"))

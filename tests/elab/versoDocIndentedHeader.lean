@@ -26,8 +26,7 @@ info: #[]
 #[{ title := #[Lean.Doc.Inline.text "Header in where block"],
     titleString := "Header in where block",
     metadata := none,
-    content := #[Lean.Doc.Block.para
-                   #[Lean.Doc.Inline.text "Content here", Lean.Doc.Inline.linebreak "\n", Lean.Doc.Inline.text "  "]],
+    content := #[Lean.Doc.Block.para #[Lean.Doc.Inline.text "Content here", Lean.Doc.Inline.linebreak "\n"]],
     subParts := #[] }]
 -/
 #guard_msgs in
@@ -55,8 +54,7 @@ info: #[]
                     titleString := "Second header",
                     metadata := none,
                     content := #[Lean.Doc.Block.para
-                                   #[Lean.Doc.Inline.text "More text.", Lean.Doc.Inline.linebreak "\n",
-                                     Lean.Doc.Inline.text "  "]],
+                                   #[Lean.Doc.Inline.text "More text.", Lean.Doc.Inline.linebreak "\n"]],
                     subParts := #[] }] }]
 -/
 #guard_msgs in
@@ -143,9 +141,7 @@ info: #[]
 #[{ title := #[Lean.Doc.Inline.text "Deep header"],
     titleString := "Deep header",
     metadata := none,
-    content := #[Lean.Doc.Block.para
-                   #[Lean.Doc.Inline.text "Content at depth.", Lean.Doc.Inline.linebreak "\n",
-                     Lean.Doc.Inline.text "      "]],
+    content := #[Lean.Doc.Block.para #[Lean.Doc.Inline.text "Content at depth.", Lean.Doc.Inline.linebreak "\n"]],
     subParts := #[] }]
 -/
 #guard_msgs in
@@ -201,7 +197,7 @@ info: #[]
 -- Test 8: Over-indented # is a syntax error (extra spaces beyond base column)
 /--
 @ +5:4...5
-error: expected '#' (header) to start at column 2
+error: unexpected token '#'; expected '#' (header) to start at column 2
 -/
 #guard_msgs (positions := true) in
 def overIndented := bar where

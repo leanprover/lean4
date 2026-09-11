@@ -10,7 +10,7 @@ Final stack:
     [(Lean.Doc.Parser.DescItem.item
       ":"
       [(Lean.Doc.Parser.Inline.text
-        (Lean.Doc.Parser.versoText " term"))
+        (Lean.Doc.Parser.versoText "term"))
        (Lean.Doc.Parser.Inline.linebreak "\n")]
       <missing>)])]
 All input consumed.

@@ -1,11 +1,11 @@
 Input: "Here's some error recovery for directives.\n\n:::foo\n\nIndeed.\n\nIt is.\n :::\n"
 3 failures:
-Failure: expected closing ':::' for the directive opened on line 3 at column 0, but it's at column 1
- --> 8:0-8:1
+Failure: expected closing ':::' for the directive opened on line 3 at column 0
+ --> 8:1-8:4
   |
 8 |  :::
-  | ^
-  = consumed input prefix: 68 bytes
+  |  ^^^
+  = consumed input prefix: 69 bytes
 
 Failure: expected identifier
  --> 8:4

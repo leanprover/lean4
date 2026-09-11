@@ -299,39 +299,57 @@ info: recovered parse reprints its input: true
   IO.println s!"recovered parse reprints its input: {reprinted == input}"
 
 /-!
-Each line of a code block is one token. The token's leading whitespace is the code block's
-indentation, and indentation past that is part of the token's content. A blank line that is shorter
-than the code block's indentation contributes all of its spaces as leading whitespace.
+Each fence of a code block and each line between them is one token. A token's trailing whitespace
+is the indentation of the line after it, up to the code block's own indentation, and indentation
+past that column is part of the next line's content. A blank line shorter than the code block's
+indentation gives all of its spaces to the token before it.
 -/
 
-/-- The leading whitespace and the content of each code block line token in `stx`, in order. -/
-partial def codeBlockLines (stx : Syntax) : Array (String × String) :=
-  if stx.isOfKind versoCodeLineKind then
-    match stx.getHeadInfo, Syntax.isLit? versoCodeLineKind stx with
-    | .original lead .., some content =>
-      #[(String.Pos.Raw.extract lead.str lead.startPos lead.stopPos, content)]
-    | _, _ => #[]
-  else stx.getArgs.foldl (fun acc a => acc ++ codeBlockLines a) #[]
+/-- The content and the trailing whitespace of each token of the code block in `stx`, in order. -/
+partial def codeBlockTokens (stx : Syntax) : Array (String × String) :=
+  match stx with
+  | .node _ _ args => args.foldl (fun acc a => acc ++ codeBlockTokens a) #[]
+  | .atom (.original _ _ trail _) val =>
+    #[(val, String.Pos.Raw.extract trail.str trail.startPos trail.stopPos)]
+  | _ => #[]
 
 /--
 info: unindented:
-  leading "", content "a\n"
-  leading "", content "  b\n"
+  content "```", trailing "\n"
+  content "a\n", trailing ""
+  content "  b\n", trailing ""
+  content "```", trailing "\n"
 indented by two:
-  leading "  ", content "a\n"
-  leading "  ", content "  b\n"
+  content "*", trailing " "
+  content "x", trailing "\n\n  "
+  content "```", trailing "\n  "
+  content "a\n", trailing "  "
+  content "  b\n", trailing "  "
+  content "```", trailing "\n"
 blank line with no spaces:
-  leading "  ", content "a\n"
-  leading "", content "\n"
-  leading "  ", content "b\n"
+  content "*", trailing " "
+  content "x", trailing "\n\n  "
+  content "```", trailing "\n  "
+  content "a\n", trailing ""
+  content "\n", trailing "  "
+  content "b\n", trailing "  "
+  content "```", trailing "\n"
 blank line shorter than the indentation:
-  leading "  ", content "a\n"
-  leading " ", content "\n"
-  leading "  ", content "b\n"
+  content "*", trailing " "
+  content "x", trailing "\n\n  "
+  content "```", trailing "\n  "
+  content "a\n", trailing " "
+  content "\n", trailing "  "
+  content "b\n", trailing "  "
+  content "```", trailing "\n"
 blank line longer than the indentation:
-  leading "  ", content "a\n"
-  leading "  ", content "  \n"
-  leading "  ", content "b\n"
+  content "*", trailing " "
+  content "x", trailing "\n\n  "
+  content "```", trailing "\n  "
+  content "a\n", trailing "  "
+  content "  \n", trailing "  "
+  content "b\n", trailing "  "
+  content "```", trailing "\n"
 -/
 #guard_msgs in
 #eval show CommandElabM Unit from do
@@ -342,5 +360,5 @@ blank line longer than the indentation:
        ("blank line shorter than the indentation", "* x\n\n  ```\n  a\n \n  b\n  ```\n"),
        ("blank line longer than the indentation", "* x\n\n  ```\n  a\n    \n  b\n  ```\n")] do
     IO.println s!"{what}:"
-    for (lead, content) in codeBlockLines (← theBlock input) do
-      IO.println s!"  leading {lead.quote}, content {content.quote}"
+    for (content, trailing) in codeBlockTokens (← theBlock input) do
+      IO.println s!"  content {content.quote}, trailing {trailing.quote}"

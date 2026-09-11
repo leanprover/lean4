@@ -9,9 +9,7 @@ Final stack:
   [(Lean.Doc.Parser.Block.dl
     [(Lean.Doc.Parser.DescItem.item
       ":"
-      [(Lean.Doc.Parser.Inline.text
-        (Lean.Doc.Parser.versoText " "))
-       (Lean.Doc.Parser.Inline.role
+      [(Lean.Doc.Parser.Inline.role
         "{"
         `ref
         [(Lean.Doc.Parser.Arg.anon
@@ -28,9 +26,7 @@ Final stack:
            "The def is something"))])])
      (Lean.Doc.Parser.DescItem.item
       ":"
-      [(Lean.Doc.Parser.Inline.text
-        (Lean.Doc.Parser.versoText " "))
-       (Lean.Doc.Parser.Inline.role
+      [(Lean.Doc.Parser.Inline.role
         "{"
         `ref
         [(Lean.Doc.Parser.Arg.anon

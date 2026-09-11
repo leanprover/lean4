@@ -5,7 +5,7 @@ Success! Final stack:
       ":"
       [(Lean.Doc.Parser.Inline.text
         (Lean.Doc.Parser.versoText
-         " an excellent idea"))]
+         "an excellent idea"))]
       [(Lean.Doc.Parser.Block.para
         [(Lean.Doc.Parser.Inline.text
           (Lean.Doc.Parser.versoText
@@ -13,7 +13,7 @@ Success! Final stack:
      (Lean.Doc.Parser.DescItem.item
       ":"
       [(Lean.Doc.Parser.Inline.text
-        (Lean.Doc.Parser.versoText " more"))]
+        (Lean.Doc.Parser.versoText "more"))]
       [(Lean.Doc.Parser.Block.para
         [(Lean.Doc.Parser.Inline.text
           (Lean.Doc.Parser.versoText
@@ -24,13 +24,13 @@ Decoded views:
   dl
     item (marker := ":")
       term
-        text (content := " an excellent idea")
+        text (content := "an excellent idea")
       desc
         para
           text (content := "Let's say more!")
     item (marker := ":")
       term
-        text (content := " more")
+        text (content := "more")
       desc
         para
           text (content := "stuff")

@@ -4,7 +4,7 @@ Success! Final stack:
     [(Lean.Doc.Parser.DescItem.item
       ":"
       [(Lean.Doc.Parser.Inline.text
-        (Lean.Doc.Parser.versoText " term"))]
+        (Lean.Doc.Parser.versoText "term"))]
       [(Lean.Doc.Parser.Block.para
         [(Lean.Doc.Parser.Inline.text
           (Lean.Doc.Parser.versoText
@@ -17,7 +17,7 @@ Decoded views:
   dl
     item (marker := ":")
       term
-        text (content := " term")
+        text (content := "term")
       desc
         para
           text (content := "a description")

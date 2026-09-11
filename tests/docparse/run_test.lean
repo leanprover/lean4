@@ -57,7 +57,7 @@ def ppStack (elts : Array Syntax) (number : Bool := false) : Format := Id.run do
   pure stk
 
 /-- A way in which a parsed tree fails to reproduce the input it was parsed from. -/
-inductive RoundTripError where
+inductive SourceInfoError where
   /-- A leaf has source info that is not `.original`. -/
   | nonOriginalInfo (leaf : Syntax)
   /-- A leaf's text differs from the input at its recorded range. -/
@@ -72,8 +72,12 @@ inductive RoundTripError where
   | reprintMismatch (expected : String) (actual : Option String)
   /-- The syntax contains no tokens, so there is nowhere to record the input's whitespace. -/
   | noTokens
+  /-- A leaf other than the first has leading whitespace. -/
+  | lateLeading (leaf : Syntax)
+  /-- A node has source info of its own, which only atoms and identifiers carry. -/
+  | nodeInfo (kind : Name) (pos : Option String.Pos.Raw)
 
-def RoundTripError.describe : RoundTripError → String
+def SourceInfoError.describe : SourceInfoError → String
   | .nonOriginalInfo leaf => s!"leaf without original source info: {leaf}"
   | .textMismatch leaf expected actual =>
     s!"leaf text {toString (repr actual)} differs from input {toString (repr expected)} at {leaf.getPos?.map (·.byteIdx)}"
@@ -88,19 +92,32 @@ def RoundTripError.describe : RoundTripError → String
   | .reprintMismatch expected actual =>
     s!"reprint produced {toString (repr actual)}\n  but the input was {toString (repr expected)}"
   | .noTokens => "no tokens to record the input's whitespace"
+  | .lateLeading leaf =>
+    s!"leaf {leaf} at {leaf.getPos?.map (·.byteIdx)} has leading whitespace, which only the first \
+      leaf records"
+  | .nodeInfo kind pos =>
+    s!"node of kind {kind} at {pos.map (·.byteIdx)} has source info of its own, which only atoms \
+      and identifiers carry"
 
 /--
-Checks that `stx` reproduces the part of `input` between `startPos` and `endPos`. The check has
-four parts:
+Checks the source info of `stx` against the part of `input` between `startPos` and `endPos`. The
+check has six parts:
 
+* No node has source info of its own; only atoms and identifiers carry any.
 * Every leaf has `.original` source info whose text is exactly the input at its recorded range.
 * The leaves are in order, and no two of them overlap.
 * The leading and trailing whitespace recorded on the leaves exactly fills the gaps between
   tokens, and consists only of whitespace.
+* Only the first leaf has leading whitespace, because every other leaf's is on the leaf before it.
 * `Syntax.reprint` reproduces the input.
+
+`choice` nodes are expected to be nonempty, with all of their children covering the same range.
+Because Verso does not produce them, this test neither checks this invariant nor makes special
+allowance for them.
 -/
-def validateRoundTrip (input : String) (startPos endPos : String.Pos.Raw) (stx : Syntax) :
-    Except RoundTripError Unit := do
+def validateSourceInfo (input : String) (startPos endPos : String.Pos.Raw) (stx : Syntax) :
+    Except SourceInfoError Unit := do
+  if let some (kind, pos) := nodeWithInfo stx then throw (.nodeInfo kind pos)
   let leaves := collectLeaves stx #[]
   -- A tree with no tokens has nowhere to record whitespace. This only arises for fragments and for
   -- documents with no content. In a whitespace-only docstring, the doc comment's own tokens record
@@ -108,10 +125,14 @@ def validateRoundTrip (input : String) (startPos endPos : String.Pos.Raw) (stx :
   if leaves.isEmpty then
     if startPos == endPos then return () else throw .noTokens
   let mut pos := startPos
+  let mut first := true
   for leaf in leaves do
     let .original leading start trailing stop := leaf.getHeadInfo
       | throw (.nonOriginalInfo leaf)
     if start < pos then throw (.overlap leaf pos)
+    unless first || leading.isEmpty do
+      throw (.lateLeading leaf)
+    first := false
     unless leading.startPos == pos && leading.stopPos == start do
       throw (.gapNotCovered pos leaf)
     checkWhitespace input leading.startPos leading.stopPos
@@ -130,6 +151,13 @@ def validateRoundTrip (input : String) (startPos endPos : String.Pos.Raw) (stx :
   | some s => unless s == expected do throw (.reprintMismatch expected (some s))
   | none => throw (.reprintMismatch expected none)
 where
+  nodeWithInfo (stx : Syntax) : Option (Name × Option String.Pos.Raw) :=
+    match stx with
+    | .node info kind args =>
+      match info with
+      | .none => args.foldl (fun acc a => acc <|> nodeWithInfo a) none
+      | _ => some (kind, info.getPos?)
+    | _ => none
   collectLeaves (stx : Syntax) (leaves : Array Syntax) : Array Syntax :=
     match stx with
     | .node _ _ args => args.foldl (fun ls a => collectLeaves a ls) leaves
@@ -139,7 +167,7 @@ where
     | .ident _ rawVal _ _ => rawVal.toString
     | _ => ""
   checkWhitespace (input : String) (startPos stopPos : String.Pos.Raw) :
-      Except RoundTripError Unit := do
+      Except SourceInfoError Unit := do
     let s := String.Pos.Raw.extract input startPos stopPos
     for c in s.toList do
       unless c.isWhitespace do
@@ -366,7 +394,7 @@ def fmtError (ictx : InputContext) (pos : String.Pos.Raw) (err : Error) : String
     {blank} | {caret}\n\
     {blank} = consumed input prefix: {pos} bytes\n"
 
-def test (p : ParserFn) (rawInput : String) (validate : Bool) (ownsLeading : Bool) : IO String := do
+def test (p : ParserFn) (rawInput : String) (validate : Bool) : IO String := do
   let ictx := mkInputContext rawInput "<input>"
   -- Parsing normalizes line endings, so `input` is the text the parser saw. The round-trip
   -- check compares the tree against that text.
@@ -389,13 +417,10 @@ def test (p : ParserFn) (rawInput : String) (validate : Bool) (ownsLeading : Boo
   let verdict :=
     if validate then
       let stop := s'.pos
-      -- A parser whose first token comes from `blockFn` records the indentation before it. Its
-      -- output is therefore validated as produced, and a missing attachment fails at the first
-      -- token. For other fragments the enclosing context records the leading whitespace of the
-      -- first token. The harness plays that role here, as `documentFn` does for a document.
-      let stack := mkNullNode (s'.stxStack.extract 0 s'.stxStack.size)
-      let stack := if ownsLeading then stack else extendFirstLeading input 0 stack
-      match validateRoundTrip input 0 stop stack with
+      -- No token precedes the input, so its first token records the whitespace it starts with.
+      -- The harness plays the role that the doc comment's opening delimiter plays in a file.
+      let stack := setStartLeading 0 (mkNullNode (s'.stxStack.extract 0 s'.stxStack.size))
+      match validateSourceInfo input 0 stop stack with
       | .ok () => "\nRound-trip OK"
       -- The Lean parser invokes the Verso parser only through a doc comment, whose `/--` token
       -- takes the whitespace after it as its trailing whitespace. A document with no tokens
@@ -438,41 +463,48 @@ where
     p1 < p2 || p1 == p2 && toString e1 < toString e2
 
 /--
-The test case's filename determines which parser tests it. The first Boolean says whether
-`validateRoundTrip` checks a successful parse against the input. It is `false` for parsers that only
-classify input or discard their output. The second says that the parser parses its first token with
-`blockFn`, which records the indentation before it as that token's leading whitespace. The harness
-then validates the output without its own leading extension.
+Runs a block-level parser where a block starts. The token before a block records the whitespace
+that precedes it, this line's indentation included. A fragment has no such token, so the harness
+consumes that whitespace and `setStartLeading` records it on the fragment's first token.
 -/
-def testConfigs : List (String × ParserFn × Bool × Bool) := [
-  ("metadataBlock", metadataBlockFn, true, false),
-  ("metadataBlockNested", metadataBlockFn {topLevel := false}, true, false),
-  ("arg_val", valFn, true, false),
-  ("arg", argFn, true, false),
-  ("args", argsFn, true, false),
-  ("nameAndArgs", nameAndArgsFn, true, false),
-  ("inlineTextChar", inlineTextCharFn, false, false),
-  ("manyInlineTextChar", (asTokenFn (many1Fn inlineTextCharFn)), true, false),
-  ("text", textFn, true, false),
-  ("emph", (emphFn {}), true, false),
-  ("code", codeFn, true, false),
-  ("codeIndented", codeFn {baseColumn := 2}, true, false),
-  ("role", (roleFn {}), true, false),
-  ("oneInline", (inlineFn {}), true, false),
-  ("codeBlock", (codeBlockFn {}), true, false),
-  ("header", (headerFn {}), true, false),
-  ("blocks", (blocksFn {}), true, true),
-  ("recoverBlock", (recoverBlock (blockFn {})), true, true),
-  ("recoverBlocks", (recoverBlock (blocksFn {})), true, true),
-  ("directive", (directiveFn {}), true, false),
-  ("blockOpener", (ignoreFn blockOpenerFn), false, false),
+def blockStart (p : ParserFn) : ParserFn := ignoreFn lineTailWsFn >> p
+
+/--
+The test case's filename determines which parser tests it. The Boolean says whether
+`validateSourceInfo` checks a successful parse against the input. It is `false` for parsers that
+only classify input or discard their output.
+-/
+def testConfigs : List (String × ParserFn × Bool) := [
+  ("metadataBlock", blockStart metadataBlockFn, true),
+  ("metadataBlockNested", blockStart (metadataBlockFn {topLevel := false}), true),
+  ("arg_val", valFn, true),
+  ("arg", argFn, true),
+  ("args", argsFn, true),
+  ("nameAndArgs", nameAndArgsFn, true),
+  ("inlineTextChar", inlineTextCharFn, false),
+  ("manyInlineTextChar", (asTokenFn (many1Fn inlineTextCharFn)), true),
+  ("text", textFn, true),
+  ("emph", (emphFn {}), true),
+  ("code", codeFn, true),
+  ("codeIndented", codeFn {baseColumn := 2}, true),
+  ("role", (roleFn {}), true),
+  ("oneInline", (inlineFn {}), true),
+  ("codeBlock", blockStart (codeBlockFn {}), true),
+  ("header", blockStart (headerFn {}), true),
+  ("blocks", blockStart (blocksFn {}), true),
+  ("recoverBlock", blockStart (recoverBlock (blockFn {})), true),
+  ("recoverBlocks", blockStart (recoverBlock (blocksFn {})), true),
+  ("directive", blockStart (directiveFn {}), true),
+  ("blockOpener", (ignoreFn blockOpenerFn), false),
   ("lookaheadUnorderedListMarker",
-    lookaheadUnorderedListMarker {} (fun type => fakeAtom s! "{toString (repr type)}"), false, false),
+    blockStart (lookaheadUnorderedListMarker (fun type => fakeAtom s! "{toString (repr type)}")),
+    false),
   ("lookaheadOrderedListMarker",
-    lookaheadOrderedListMarker {} (fun type i => fakeAtom s! "{toString (repr type)} {i}"), false, false),
-  ("block", (blockFn {}), true, true),
-  ("document", documentFn, true, true),
-  ("documentIndented", documentFn {baseColumn := 2}, true, true),
+    blockStart <| lookaheadOrderedListMarker fun type i => fakeAtom s! "{toString (repr type)} {i}",
+    false),
+  ("block", blockStart (blockFn {}), true),
+  ("document", documentFn, true),
+  ("documentIndented", documentFn {baseColumn := 2}, true),
 ]
 
 /--
@@ -791,10 +823,10 @@ def main : List String → IO UInt32
       return (← nodeInfo)
     if kind == "blankPara" then
       return (← blankParagraphs)
-    let some (p, validate, ownsLeading) := testConfigs.lookup kind.copy
+    let some (p, validate) := testConfigs.lookup kind.copy
       | IO.eprintln s!"Not found in test configs: {kind}"
         return 5
-    IO.println <| ← test p (← IO.FS.readFile inputFile) validate ownsLeading
+    IO.println <| ← test p (← IO.FS.readFile inputFile) validate
     return 0
   | args => do
     IO.eprintln s!"Expected precisely one argument, got {args}"

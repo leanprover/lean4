@@ -433,16 +433,15 @@ Inline code content in a Verso document, with one `versoCodeLine` token per sour
 abbrev VersoCode := TSyntax ``versoCode
 
 /--
-A single source line of code content in a Verso document, inside inline code or a code block. The
-token's leading whitespace is the indentation of its element. Indentation past that is part of the
-token's content.
+A single source line of code content in a Verso document, inside inline code or a code block. Only
+indentation that is semantically part of the line of code is included in the atom, while
+indentation of a code block or docstring as a whole is part of the tokens' whitespace.
 -/
 abbrev VersoCodeLine := TSyntax ``versoCodeLine
 
 /--
-Code block content in a Verso document, with one `versoCodeLine` token per source line. Each line's
-leading whitespace is the code block's indentation. Use `TSyntax.getVersoCodeBlock` to read the
-code.
+Code block content in a Verso document, with one `versoCodeLine` token per source line. The code
+block's indentation is whitespace between tokens. Use `TSyntax.getVersoCodeBlock` to read the code.
 -/
 abbrev VersoCodeBlock := TSyntax ``versoCodeBlock
 

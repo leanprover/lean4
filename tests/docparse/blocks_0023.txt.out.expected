@@ -11,7 +11,7 @@ Final stack:
       ":"
       [(Lean.Doc.Parser.Inline.text
         (Lean.Doc.Parser.versoText
-         " an excellent idea"))
+         "an excellent idea"))
        (Lean.Doc.Parser.Inline.linebreak "\n")
        (Lean.Doc.Parser.Inline.text
         (Lean.Doc.Parser.versoText

@@ -11,7 +11,7 @@ Final stack:
       ":"
       [(Lean.Doc.Parser.Inline.text
         (Lean.Doc.Parser.versoText
-         " an excellent idea"))]
+         "an excellent idea"))]
       [(Lean.Doc.Parser.Block.para
         [(Lean.Doc.Parser.Inline.text
           (Lean.Doc.Parser.versoText
@@ -19,7 +19,7 @@ Final stack:
      (Lean.Doc.Parser.DescItem.item
       ":"
       [(Lean.Doc.Parser.Inline.text
-        (Lean.Doc.Parser.versoText " more"))]
+        (Lean.Doc.Parser.versoText "more"))]
       <missing>)])]
 All input consumed.
 Round-trip not reproduced, as the parse reported errors: leaf without original source info: <missing>

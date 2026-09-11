@@ -1,6 +1,6 @@
 Input: "Here's some error recovery for directives.\n\n::::foo 5\n\nIndeed.\n\nIt is.\n:::: a\n\nx\n"
 2 failures:
-Failure: expected closing '::::' for the directive opened on line 3
+Failure: expected closing '::::' for the directive opened on line 3 at column 0
  --> 8:0-8:4
   |
 8 | :::: a

@@ -3,14 +3,21 @@
 The part of each `.txt` filename before the first `_` selects the parser that reads it (see
 `testConfigs` in `run_test.lean`). The expected output records the resulting syntax tree, any parse
 errors, and, for parsers whose output reproduces their input exactly, a round-trip verdict from
-`validateRoundTrip`.
+`validateSourceInfo`.
 
-`validateRoundTrip` checks four properties:
+`validateSourceInfo` checks six properties:
 
+* No node has source info of its own; only atoms and identifiers carry any.
 * Every leaf has `.original` source info whose text is exactly the input at its recorded range.
 * The leaves are in order, and no two of them overlap.
 * The whitespace recorded on the leaves exactly fills the gaps between tokens.
+* Only the first leaf has leading whitespace, because the token before a leaf records the whitespace
+  that precedes it.
 * `Syntax.reprint` reproduces the input.
+
+The harness gives the first leaf the whitespace the input starts with, the role that a doc comment's
+opening delimiter plays in a file. Block-level configs run through `blockStart`, which consumes the
+whitespace before the fragment as the enclosing context does.
 
 Configs that only classify input or discard their output (`inlineTextChar`, `blockOpener`, and the
 lookahead marker configs) skip the check. The check also runs for parses that reported errors, so

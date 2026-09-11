@@ -329,8 +329,10 @@ syntax (name := cutsat) "cutsat" optConfig : tactic
 
 It is a implemented as a thin wrapper around the `grind` tactic, enabling only the `lia` solver.
 Please use `grind` instead if you need additional capabilities.
+
+Like `grind`, it accepts a list of extra facts and lemmas, e.g. `lia [foo n, = bar]`.
 -/
-syntax (name := lia) "lia" optConfig : tactic
+syntax (name := lia) "lia" optConfig (" [" withoutPosition(grindParam,*) "]")? : tactic
 
 /--
 `grind_order` solves simple goals about partial orders and linear orders.
@@ -354,8 +356,11 @@ over commutative (semi)rings, using the Grobner basis algorithm.
 
 It is a implemented as a thin wrapper around the `grind` tactic, enabling only the `grobner` solver.
 Please use `grind` instead if you need additional capabilities.
+
+Like `grind`, it accepts a list of extra facts, e.g. `grobner [foo x y]`. Since `grobner` does not
+run E-matching, quantified lemmas passed this way are only instantiated when `ematch` is enabled.
 -/
-syntax (name := grobner) "grobner" optConfig : tactic
+syntax (name := grobner) "grobner" optConfig (" [" withoutPosition(grindParam,*) "]")? : tactic
 
 /-!
 Sets symbol priorities for the E-matching pattern inference procedure used in `grind`

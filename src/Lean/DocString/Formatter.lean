@@ -356,7 +356,10 @@ def mergesInto (inl : TSyntax ``Parser.inline) (next? : Option Syntax) : Bool :=
   | some '`', some '`' => true
   | _, _ => false
 
-/-- Whether the text printed for `inls` begins with a space. -/
+/--
+Whether the text printed for `inls` begins with a space, which a marker before it would take as its
+trailing whitespace.
+-/
 def leadingSpace (inls : TSyntaxArray ``Parser.inline) : Bool :=
   if let some txt := inls[0]?.bind TextView.of then txt.getVersoText.startsWith " "
   else false
@@ -444,6 +447,9 @@ partial def versoSyntaxToString'
     | .header v =>
       startBlock
       out <| "#".pushn '#' v.level ++ " "
+      -- The marker takes the space after it as whitespace, so text that begins with a space needs
+      -- an escape to keep it.
+      if leadingSpace v.content then out "\\"
       seq (v.content.map (·.raw))
       endBlock
     | .para v =>
@@ -526,10 +532,10 @@ partial def versoSyntaxToString'
     | .dl v =>
       for item in v.items do
         startBlock
-        out ":"
-        -- The space after the colon is part of the term. The formatter writes a space only for a
-        -- term that does not begin with one.
-        unless leadingSpace item.term do out " "
+        out ": "
+        -- The colon takes the space after it as whitespace, so a term that begins with a space
+        -- needs an escape to keep it.
+        if leadingSpace item.term then out "\\"
         seq (item.term.map (·.raw))
         endBlock
         withReader (· + 2) (seq (item.desc.map (·.raw)))
@@ -549,6 +555,9 @@ partial def versoSyntaxToString'
       out v.getName
       out "]:"
       out " "
+      -- The name takes the space after it as whitespace, so text that begins with a space needs an
+      -- escape to keep it.
+      if leadingSpace v.content then out "\\"
       seq (v.content.map (·.raw))
       endBlock
     | .metadata v =>

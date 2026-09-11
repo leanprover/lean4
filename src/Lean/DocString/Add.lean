@@ -71,6 +71,107 @@ private def parseErrors
   else s.allErrors
 
 open Lean.Doc in
+/--
+The markup of a Verso doc comment.
+
+Parsing may have succeeded or failed, and the two cases are distinct.
+
+Lean's docstring parser records an error in Verso syntax as a parse failure node rather than
+emitting a failure so that syntax errors in docstrings don't break processing of their associated
+definitions.
+-/
+inductive VersoDocstringMarkup where
+  /-- Markup that parsed. -/
+  | document (doc : VersoDocument)
+  /--
+  Markup that did not parse. `text` is the content that was actually sent to the parser, excluding
+  opening and closing docstring delimiters.
+  -/
+  | parseFailure (text : Syntax)
+
+/-- The syntax that covers the markup, whether or not it parsed. -/
+def VersoDocstringMarkup.stx : VersoDocstringMarkup → Syntax
+  | .document doc => doc.raw
+  | .parseFailure text => text
+
+/--
+A view of a Verso doc comment: its delimiters and the markup between them.
+-/
+structure VersoDocstringView where
+  /-- The token that opens the comment. -/
+  opener : Syntax
+  /-- The markup between the delimiters. -/
+  markup : VersoDocstringMarkup
+  /-- The token that closes the comment. -/
+  closer : Syntax
+
+open Lean.Parser Command in
+/--
+Views a Verso documentation comment as its delimiters and the markup between them.
+
+The comment's body must have been parsed as Verso markup, which `isVersoDocComment` reports.
+-/
+def VersoDocstringView.of (docComment : TSyntax [``docComment, ``moduleDoc]) : VersoDocstringView :=
+  let body := docComment.raw[1]
+  { opener := docComment.raw[0]
+    markup :=
+      if body[0].isOfKind `Lean.Doc.Syntax.parseFailure then .parseFailure body[0][0]
+      else .document ⟨body[0]⟩
+    closer := body[1] }
+
+/--
+The report for a documentation comment that cannot be parsed because the part `what` names has no
+source position.
+-/
+private def noSourceLocation (what : String) : MessageData :=
+  m!"The {what} of this documentation comment has no source location, so it cannot be parsed."
+
+/--
+The source positions a Verso docstring is parsed from: its opening delimiter, the start of its
+markup, and its closing delimiter. If any are missing original or canonical source, an error
+is thrown.
+-/
+private def docCommentRange (view : VersoDocstringView) :
+    Except MessageData (String.Pos.Raw × String.Pos.Raw × String.Pos.Raw) := do
+  let some openPos := view.opener.getPos? (canonicalOnly := true)
+    | throw (noSourceLocation "opening delimiter")
+  let some startPos := view.markup.stx.getPos? (canonicalOnly := true)
+    | throw (noSourceLocation "content")
+  let some endPos := view.closer.getPos? (canonicalOnly := true)
+    | throw (noSourceLocation "closing delimiter")
+  return (openPos, startPos, endPos)
+
+open Lean.Parser Command in
+/--
+The source positions of a docstring whose body was parsed as Markdown: its opening delimiter, the
+start of its text, and its closing delimiter.
+
+Such a body is one token that runs through the closing delimiter, so that delimiter comes off the
+end of the token rather than from a token of its own.
+-/
+private def markdownCommentRange (source : String)
+    (docComment : TSyntax [``docComment, ``moduleDoc]) :
+    Except MessageData (String.Pos.Raw × String.Pos.Raw × String.Pos.Raw) := do
+  let some openPos := docComment.raw[0].getPos? (canonicalOnly := true)
+    | throw (noSourceLocation "opening delimiter")
+  let some startPos := docComment.raw[1].getPos? (canonicalOnly := true)
+    | throw (noSourceLocation "content")
+  let some contentEnd := docComment.raw[1].getTailPos? (canonicalOnly := true)
+    | throw (noSourceLocation "content")
+  return (openPos, startPos, String.Pos.Raw.prev source <| contentEnd.prev source)
+
+open Lean.Parser Command in
+/--
+The source positions a docstring is read from. Only the closing delimiter is found differently: a
+body parsed as Verso markup has it as a token of its own, while one parsed as Markdown includes the
+closing delimiter in the body token.
+-/
+private def docStringRange (source : String) (docComment : TSyntax [``docComment, ``moduleDoc]) :
+    Except MessageData (String.Pos.Raw × String.Pos.Raw × String.Pos.Raw) :=
+  if docComment.raw[1].isOfKind ``versoCommentBody then docCommentRange (.of docComment)
+  else markdownCommentRange source docComment
+
+open Lean.Doc in
 open Lean.Parser Command in
 /--
 Parses a docstring as Verso, returning the syntax if successful.
@@ -84,13 +185,11 @@ def parseVersoDocString
     m (Option VersoDocument) := do
   let text ← getFileMap
   -- TODO fallback to string version without nice interactivity
-  let some startPos := docComment.raw[1].getPos? (canonicalOnly := true)
-    | throwErrorAt docComment m!"Documentation comment has no source location, cannot parse"
-  let some endPos := docComment.raw[1].getTailPos? (canonicalOnly := true)
-    | throwErrorAt docComment m!"Documentation comment has no source location, cannot parse"
+  let (openPos, startPos, endPos) ←
+    match docStringRange text.source docComment with
+    | .ok range => pure range
+    | .error msg => throwError msg
 
-  -- Skip trailing `-/`
-  let endPos := String.Pos.Raw.prev text.source <| endPos.prev text.source
   let endPos := if endPos ≤ text.source.rawEndPos then endPos else text.source.rawEndPos
   have endPos_valid : endPos ≤ text.source.rawEndPos := by
     unfold endPos
@@ -106,7 +205,7 @@ def parseVersoDocString
     currNamespace := (← getCurrNamespace),
     openDecls := (← getOpenDecls)
   }
-  let blockCtxt := .forDocString text startPos endPos
+  let blockCtxt := .forDocString text openPos startPos endPos
   let s := mkParserState text.source |>.setPos startPos
   -- TODO parse one block at a time for error recovery purposes
   let s := (Doc.Parser.documentFn blockCtxt).run ictx pmctx (getTokenTable env) s
@@ -127,31 +226,6 @@ def parseVersoDocString
   return some ⟨s.stxStack.back⟩
 
 
-open Lean.Doc in
-/--
-A view of the body of a Verso doc comment.
-
-Parsing may have succeeded or failed. The view makes this status apparent.
--/
-inductive VersoDocstringView where
-  /-- Markup that parsed. -/
-  | document (doc : VersoDocument)
-  /--
-  Markup that did not parse. `text` is the content that was actually sent to the parser, excluding
-  opening and closing docstring delimiters.
-  -/
-  | parseFailure (text : Syntax)
-
-/--
-Views the body of a Verso documentation comment as either a successful or failed parse.
-
-Lean's docstring parser records an error in Verso syntax as a parse failure node rather than
-emitting a failure so that syntax errors in docstrings don't break processing of their associated
-definitions.
--/
-def VersoDocstringView.of (body : Syntax) : VersoDocstringView :=
-  if body[0].isOfKind `Lean.Doc.Syntax.parseFailure then .parseFailure body[0][0]
-  else .document ⟨body[0]⟩
 
 open Lean.Parser Command in
 /--
@@ -164,11 +238,11 @@ function reports the actual error messages with proper source positions.
 def reportVersoParseFailure
     [Monad m] [MonadFileMap m] [MonadError m] [MonadEnv m] [MonadOptions m] [MonadLog m]
     [MonadResolveName m]
-    (rawAtom : Syntax) : m Unit := do
-  let some startPos := rawAtom.getPos? (canonicalOnly := true)
-    | return
-  let some endPos := rawAtom.getTailPos? (canonicalOnly := true)
-    | return
+    (view : VersoDocstringView) : m Unit := do
+  let (openPos, startPos, endPos) ←
+    match docCommentRange view with
+    | .ok range => pure range
+    | .error msg => throwError msg
 
   let text ← getFileMap
   let endPos := if endPos ≤ text.source.rawEndPos then endPos else text.source.rawEndPos
@@ -185,7 +259,7 @@ def reportVersoParseFailure
     currNamespace := ← getCurrNamespace,
     openDecls := ← getOpenDecls
   }
-  let blockCtxt := Doc.Parser.BlockCtxt.forDocString text startPos endPos
+  let blockCtxt := Doc.Parser.BlockCtxt.forDocString text openPos startPos endPos
   let s := mkParserState text.source |>.setPos startPos
   let s := (Doc.Parser.documentFn blockCtxt).run ictx pmctx (getTokenTable env) s
 
@@ -296,7 +370,9 @@ def versoDocString
   -- A docstring already parsed as Verso, or one re-parsable from its source range, supports
   -- interactive features. A macro-generated docstring has neither, so fall back to its text.
   let body := docComment.raw[1]
-  if (body.getPos? (canonicalOnly := true)).isSome then
+  -- Re-parsing reads the comment from its delimiters and its content, so every one of those needs a
+  -- source position. A macro-generated docstring may lack any of them.
+  if (docStringRange (← getFileMap).source docComment).toOption.isSome then
     -- Source positions are available, so re-parse from source for interactive features.
     if let some stx ← parseVersoDocString docComment then
       let ((text, subsections), deferredChecks) ←
@@ -304,7 +380,7 @@ def versoDocString
       return { text, subsections, deferredChecks }
     else return { text := #[], subsections := #[], deferredChecks := #[] }
   else if body.isOfKind ``versoCommentBody then
-    match VersoDocstringView.of body with
+    match (VersoDocstringView.of docComment).markup with
     | .parseFailure text =>
       -- The markup failed to parse, so re-parse its text to report the error.
       versoDocStringOfText declName binders text.getAtomVal

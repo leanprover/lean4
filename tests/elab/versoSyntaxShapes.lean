@@ -309,7 +309,7 @@ footnote reference: agree
   sameBlock "blockquote" "> hi" (← `(block| > $hi))
   sameBlock "unordered list" "* hi" (← `(block| ul{* $hi}))
   sameBlock "ordered list" "3. hi" (← `(block| ol(3){* $hi}))
-  sameBlock "description list" ": t\n\n  d" (← `(block| dl{: " t" => $(← `(block| para["d"]))}))
+  sameBlock "description list" ": t\n\n  d" (← `(block| dl{: "t" => $(← `(block| para["d"]))}))
   sameBlock "code block" "```\nx\n```" (← `(block| ``` | "x\n" ```))
   sameBlock "directive" "::: d\nhi\n:::" (← `(block| ::: d {$hi}))
   sameBlock "command" "{c}" (← `(block| command{c}))

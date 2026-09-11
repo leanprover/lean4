@@ -73,3 +73,23 @@ def quoted := helper where
       if let .blockquote #[.para xs] := b then
         IO.println (repr (xs.flatMap codeContents))
   | _ => throwError "No Verso docstring"
+
+/-!
+Only the indentation of a continuation line is whitespace. Spaces on the line the code element
+opens on are content, and the boundary spaces that escape them come off as usual.
+-/
+
+/-- Code `  a  ` here. -/
+def spacedUnindented := 1
+
+def spacedIndented := helper where
+  /-- Code `  a  ` here. -/
+  helper := 1
+
+/-- info: #[" a "] -/
+#guard_msgs in
+#eval printCodeContents ``spacedUnindented
+
+/-- info: #[" a "] -/
+#guard_msgs in
+#eval printCodeContents ``spacedIndented.helper

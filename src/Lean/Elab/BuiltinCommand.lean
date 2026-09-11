@@ -32,11 +32,12 @@ namespace Lean.Elab.Command
       modifyEnv fun env => addMainModuleDoc env ⟨doc, range⟩
     else
       throwError m!"Can't add Markdown-format module docs because there is already Verso-format content present."
-  | body@(Syntax.node _ ``Lean.Parser.Command.versoCommentBody _) =>
-    match VersoDocstringView.of body with
-    | .parseFailure text =>
+  | Syntax.node _ ``Lean.Parser.Command.versoCommentBody _ =>
+    let view := VersoDocstringView.of ⟨stx⟩
+    match view.markup with
+    | .parseFailure _ =>
       -- Report parser errors without attempting elaboration
-      runTermElabM fun _ => reportVersoParseFailure text
+      runTermElabM fun _ => reportVersoParseFailure view
     | .document doc =>
       runTermElabM fun _ => addVersoModDocString range doc
   | _ => throwErrorAt stx "unexpected module doc string{indentD <| stx}"

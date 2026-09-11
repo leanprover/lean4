@@ -8,7 +8,7 @@ Success! Final stack:
           (Lean.Doc.Parser.versoText "foo"))
          (Lean.Doc.Parser.Inline.linebreak "\n")
          (Lean.Doc.Parser.Inline.text
-          (Lean.Doc.Parser.versoText "  stuff"))])
+          (Lean.Doc.Parser.versoText "stuff"))])
        (Lean.Doc.Parser.Block.blockquote
         ">"
         [(Lean.Doc.Parser.Block.para
@@ -33,7 +33,7 @@ Decoded views:
       para
         text (content := "foo")
         linebreak (newline := "\n")
-        text (content := "  stuff")
+        text (content := "stuff")
       blockquote (marker := ">")
         para
           text (content := "more ")

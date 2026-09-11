@@ -143,7 +143,7 @@ para[text("some text") linebreak("\n") text("next line")]
 info: ul[item(*)[para[text("one")]]]
 ul[item(-)[para[text("two")]]]
 ol(4)[item(4.)[para[text("first")]] item(5.)[para[text("second")]]]
-dl[desc(:)[text(" term")|para[text("description body")]]]
+dl[desc(:)[text("term")|para[text("description body")]]]
 -/
 #guard_msgs in
 #eval checkParsed "* one\n\n- two\n\n4. first\n5. second\n\n: term\n\n  description body"

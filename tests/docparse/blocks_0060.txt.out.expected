@@ -13,7 +13,7 @@ Final stack:
         [(Lean.Doc.Parser.DescItem.item
           ":"
           [(Lean.Doc.Parser.Inline.text
-            (Lean.Doc.Parser.versoText " hello"))]
+            (Lean.Doc.Parser.versoText "hello"))]
           <missing>)])
        (Lean.Doc.Parser.Block.para
         [(Lean.Doc.Parser.Inline.text

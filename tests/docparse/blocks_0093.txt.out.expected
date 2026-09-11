@@ -1,0 +1,28 @@
+Input: "1. a\n * b\n"
+Success! Final stack:
+  [(Lean.Doc.Parser.Block.ol
+    [(Lean.Doc.Parser.ListItem.item
+      (Lean.Doc.Parser.listMarker "1.")
+      [(Lean.Doc.Parser.Block.para
+        [(Lean.Doc.Parser.Inline.text
+          (Lean.Doc.Parser.versoText "a"))])])])
+   (Lean.Doc.Parser.Block.ul
+    [(Lean.Doc.Parser.ListItem.item
+      (Lean.Doc.Parser.listMarker "*")
+      [(Lean.Doc.Parser.Block.para
+        [(Lean.Doc.Parser.Inline.text
+          (Lean.Doc.Parser.versoText "b"))
+         (Lean.Doc.Parser.Inline.linebreak
+          "\n")])])])]
+All input consumed.
+Round-trip OK
+Decoded views:
+  ol (start := 1)
+    item (marker := "1.")
+      para
+        text (content := "a")
+  ul
+    item (marker := "*")
+      para
+        text (content := "b")
+        linebreak (newline := "\n")

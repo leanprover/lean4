@@ -1205,23 +1205,23 @@ return v___x_329_;
 }
 else
 {
-lean_object* v_a_330_; lean_object* v___x_331_; uint8_t v___x_332_; lean_object* v___x_333_; 
+lean_object* v___x_330_; lean_object* v___x_331_; lean_object* v_a_332_; lean_object* v___x_333_; uint8_t v___x_334_; 
 lean_dec_ref(v_b_326_);
-v_a_330_ = lean_array_uget_borrowed(v_as_323_, v_i_325_);
+v___x_330_ = lean_box(0);
+v___x_331_ = ((lean_object*)(l___private_Init_Data_Array_Basic_0__Array_forIn_x27Unsafe_loop___at___00Std_Time_Database_TZdb_findInPaths_spec__0___closed__0));
+v_a_332_ = lean_array_uget_borrowed(v_as_323_, v_i_325_);
 lean_inc_ref(v_rel_322_);
-lean_inc(v_a_330_);
-v___x_331_ = l_System_FilePath_join(v_a_330_, v_rel_322_);
-v___x_332_ = l_System_FilePath_pathExists(v___x_331_);
-v___x_333_ = lean_box(0);
-if (v___x_332_ == 0)
+lean_inc(v_a_332_);
+v___x_333_ = l_System_FilePath_join(v_a_332_, v_rel_322_);
+v___x_334_ = l_System_FilePath_pathExists(v___x_333_);
+if (v___x_334_ == 0)
 {
-lean_object* v___x_334_; size_t v___x_335_; size_t v___x_336_; 
-lean_dec_ref(v___x_331_);
-v___x_334_ = ((lean_object*)(l___private_Init_Data_Array_Basic_0__Array_forIn_x27Unsafe_loop___at___00Std_Time_Database_TZdb_findInPaths_spec__0___closed__0));
+size_t v___x_335_; size_t v___x_336_; 
+lean_dec_ref(v___x_333_);
 v___x_335_ = ((size_t)1ULL);
 v___x_336_ = lean_usize_add(v_i_325_, v___x_335_);
 v_i_325_ = v___x_336_;
-v_b_326_ = v___x_334_;
+v_b_326_ = v___x_331_;
 goto _start;
 }
 else
@@ -1229,12 +1229,12 @@ else
 lean_object* v___x_338_; lean_object* v___x_339_; lean_object* v___x_340_; lean_object* v___x_341_; 
 lean_dec_ref(v_rel_322_);
 v___x_338_ = lean_alloc_ctor(1, 1, 0);
-lean_ctor_set(v___x_338_, 0, v___x_331_);
+lean_ctor_set(v___x_338_, 0, v___x_333_);
 v___x_339_ = lean_alloc_ctor(1, 1, 0);
 lean_ctor_set(v___x_339_, 0, v___x_338_);
 v___x_340_ = lean_alloc_ctor(0, 2, 0);
 lean_ctor_set(v___x_340_, 0, v___x_339_);
-lean_ctor_set(v___x_340_, 1, v___x_333_);
+lean_ctor_set(v___x_340_, 1, v___x_330_);
 v___x_341_ = lean_alloc_ctor(0, 1, 0);
 lean_ctor_set(v___x_341_, 0, v___x_340_);
 return v___x_341_;
@@ -2028,30 +2028,30 @@ return v___x_557_;
 }
 else
 {
-lean_object* v_a_558_; lean_object* v___x_559_; uint8_t v___x_560_; lean_object* v___x_561_; 
+lean_object* v___x_558_; lean_object* v___x_559_; lean_object* v_a_560_; lean_object* v___x_561_; uint8_t v___x_562_; 
 lean_dec_ref(v_b_554_);
-v_a_558_ = lean_array_uget_borrowed(v_as_551_, v_i_553_);
+v___x_558_ = lean_box(0);
+v___x_559_ = ((lean_object*)(l___private_Init_Data_Array_Basic_0__Array_forIn_x27Unsafe_loop___at___00Std_Time_Database_TZdb_getZoneRules_spec__0___closed__0));
+v_a_560_ = lean_array_uget_borrowed(v_as_551_, v_i_553_);
 lean_inc_ref(v_id_550_);
-lean_inc(v_a_558_);
-v___x_559_ = l_System_FilePath_join(v_a_558_, v_id_550_);
-v___x_560_ = l_System_FilePath_pathExists(v___x_559_);
-lean_dec_ref(v___x_559_);
-v___x_561_ = lean_box(0);
-if (v___x_560_ == 0)
+lean_inc(v_a_560_);
+v___x_561_ = l_System_FilePath_join(v_a_560_, v_id_550_);
+v___x_562_ = l_System_FilePath_pathExists(v___x_561_);
+lean_dec_ref(v___x_561_);
+if (v___x_562_ == 0)
 {
-lean_object* v___x_562_; size_t v___x_563_; size_t v___x_564_; 
-v___x_562_ = ((lean_object*)(l___private_Init_Data_Array_Basic_0__Array_forIn_x27Unsafe_loop___at___00Std_Time_Database_TZdb_getZoneRules_spec__0___closed__0));
+size_t v___x_563_; size_t v___x_564_; 
 v___x_563_ = ((size_t)1ULL);
 v___x_564_ = lean_usize_add(v_i_553_, v___x_563_);
 v_i_553_ = v___x_564_;
-v_b_554_ = v___x_562_;
+v_b_554_ = v___x_559_;
 goto _start;
 }
 else
 {
 lean_object* v___x_566_; 
-lean_inc(v_a_558_);
-v___x_566_ = l_Std_Time_Database_TZdb_readRulesFromDisk(v_a_558_, v_id_550_);
+lean_inc(v_a_560_);
+v___x_566_ = l_Std_Time_Database_TZdb_readRulesFromDisk(v_a_560_, v_id_550_);
 if (lean_obj_tag(v___x_566_) == 0)
 {
 lean_object* v_a_567_; lean_object* v___x_569_; uint8_t v_isShared_570_; uint8_t v_isSharedCheck_576_; 
@@ -2078,7 +2078,7 @@ v___x_571_ = lean_alloc_ctor(1, 1, 0);
 lean_ctor_set(v___x_571_, 0, v_a_567_);
 v___x_572_ = lean_alloc_ctor(0, 2, 0);
 lean_ctor_set(v___x_572_, 0, v___x_571_);
-lean_ctor_set(v___x_572_, 1, v___x_561_);
+lean_ctor_set(v___x_572_, 1, v___x_558_);
 if (v_isShared_570_ == 0)
 {
 lean_ctor_set(v___x_569_, 0, v___x_572_);

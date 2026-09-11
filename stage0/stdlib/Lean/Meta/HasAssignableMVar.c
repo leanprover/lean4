@@ -1116,27 +1116,27 @@ return v___x_352_;
 }
 else
 {
-lean_object* v___x_353_; uint8_t v___x_354_; 
-v___x_353_ = lean_st_ref_get(v_a_344_);
-v___x_354_ = l_Std_DHashMap_Internal_Raw_u2080_contains___at___00__private_Lean_Meta_HasAssignableMVar_0__Lean_Meta_hasAssignableMVar_visit_spec__3___redArg(v___x_353_, v_e_343_);
-lean_dec(v___x_353_);
-if (v___x_354_ == 0)
+uint8_t v___x_353_; lean_object* v___x_354_; uint8_t v___x_355_; 
+v___x_353_ = 0;
+v___x_354_ = lean_st_ref_get(v_a_344_);
+v___x_355_ = l_Std_DHashMap_Internal_Raw_u2080_contains___at___00__private_Lean_Meta_HasAssignableMVar_0__Lean_Meta_hasAssignableMVar_visit_spec__3___redArg(v___x_354_, v_e_343_);
+lean_dec(v___x_354_);
+if (v___x_355_ == 0)
 {
-lean_object* v___x_355_; lean_object* v___x_356_; lean_object* v___x_357_; lean_object* v___x_358_; lean_object* v___x_359_; 
-v___x_355_ = lean_st_ref_take(v_a_344_);
-v___x_356_ = lean_box(0);
+lean_object* v___x_356_; lean_object* v___x_357_; lean_object* v___x_358_; lean_object* v___x_359_; lean_object* v___x_360_; 
+v___x_356_ = lean_st_ref_take(v_a_344_);
+v___x_357_ = lean_box(0);
 lean_inc_ref(v_e_343_);
-v___x_357_ = l_Std_DHashMap_Internal_Raw_u2080_insertIfNew___at___00__private_Lean_Meta_HasAssignableMVar_0__Lean_Meta_hasAssignableMVar_visit_spec__4___redArg(v___x_355_, v_e_343_, v___x_356_);
-v___x_358_ = lean_st_ref_put(v_a_344_, v___x_357_);
-v___x_359_ = l___private_Lean_Meta_HasAssignableMVar_0__Lean_Meta_hasAssignableMVar_go(v_e_343_, v_a_344_, v_a_345_, v_a_346_, v_a_347_, v_a_348_);
-return v___x_359_;
+v___x_358_ = l_Std_DHashMap_Internal_Raw_u2080_insertIfNew___at___00__private_Lean_Meta_HasAssignableMVar_0__Lean_Meta_hasAssignableMVar_visit_spec__4___redArg(v___x_356_, v_e_343_, v___x_357_);
+v___x_359_ = lean_st_ref_put(v_a_344_, v___x_358_);
+v___x_360_ = l___private_Lean_Meta_HasAssignableMVar_0__Lean_Meta_hasAssignableMVar_go(v_e_343_, v_a_344_, v_a_345_, v_a_346_, v_a_347_, v_a_348_);
+return v___x_360_;
 }
 else
 {
-uint8_t v___x_360_; lean_object* v___x_361_; lean_object* v___x_362_; 
+lean_object* v___x_361_; lean_object* v___x_362_; 
 lean_dec_ref(v_e_343_);
-v___x_360_ = 0;
-v___x_361_ = lean_box(v___x_360_);
+v___x_361_ = lean_box(v___x_353_);
 v___x_362_ = lean_alloc_ctor(0, 1, 0);
 lean_ctor_set(v___x_362_, 0, v___x_361_);
 return v___x_362_;

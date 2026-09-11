@@ -42,7 +42,7 @@ lean_object* l_Lean_PersistentArray_set___redArg(lean_object*, lean_object*, lea
 extern lean_object* l_Lean_LocalContext_empty;
 lean_object* lean_task_get_own(lean_object*);
 lean_object* l_Lean_Name_mkStr3(lean_object*, lean_object*, lean_object*);
-lean_object* l_Lean_PersistentHashMap_mkEmptyEntriesArray(lean_object*, lean_object*);
+lean_object* l_Lean_PersistentHashMap_mkEmptyEntriesArray___redArg();
 lean_object* l_Lean_PersistentArray_push___redArg(lean_object*, lean_object*);
 lean_object* l_List_reverse___redArg(lean_object*);
 lean_object* l_Task_mapList___redArg(lean_object*, lean_object*, lean_object*, uint8_t);
@@ -2216,7 +2216,7 @@ static lean_object* _init_l_Lean_Elab_InfoState_substituteLazy___lam__0___closed
 _start:
 {
 lean_object* v___x_621_; 
-v___x_621_ = l_Lean_PersistentHashMap_mkEmptyEntriesArray(lean_box(0), lean_box(0));
+v___x_621_ = l_Lean_PersistentHashMap_mkEmptyEntriesArray___redArg();
 return v___x_621_;
 }
 }

@@ -35,8 +35,12 @@ LEAN_EXPORT lean_object* l___private_Init_Data_Range_Polymorphic_Internal_Signed
 LEAN_EXPORT lean_object* l___private_Init_Data_Range_Polymorphic_Internal_SignedBitVec_0__BitVec_Signed_instUpwardEnumerable___lam__1(lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l___private_Init_Data_Range_Polymorphic_Internal_SignedBitVec_0__BitVec_Signed_instUpwardEnumerable___lam__1___boxed(lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l___private_Init_Data_Range_Polymorphic_Internal_SignedBitVec_0__BitVec_Signed_instUpwardEnumerable(lean_object*);
+LEAN_EXPORT lean_object* l___private_Init_Data_Range_Polymorphic_Internal_SignedBitVec_0__BitVec_Signed_instLE___redArg();
+LEAN_EXPORT lean_object* l___private_Init_Data_Range_Polymorphic_Internal_SignedBitVec_0__BitVec_Signed_instLE___redArg___boxed(lean_object*);
 LEAN_EXPORT lean_object* l___private_Init_Data_Range_Polymorphic_Internal_SignedBitVec_0__BitVec_Signed_instLE(lean_object*);
 LEAN_EXPORT lean_object* l___private_Init_Data_Range_Polymorphic_Internal_SignedBitVec_0__BitVec_Signed_instLE___boxed(lean_object*);
+LEAN_EXPORT lean_object* l___private_Init_Data_Range_Polymorphic_Internal_SignedBitVec_0__BitVec_Signed_instLT___redArg();
+LEAN_EXPORT lean_object* l___private_Init_Data_Range_Polymorphic_Internal_SignedBitVec_0__BitVec_Signed_instLT___redArg___boxed(lean_object*);
 LEAN_EXPORT lean_object* l___private_Init_Data_Range_Polymorphic_Internal_SignedBitVec_0__BitVec_Signed_instLT(lean_object*);
 LEAN_EXPORT lean_object* l___private_Init_Data_Range_Polymorphic_Internal_SignedBitVec_0__BitVec_Signed_instLT___boxed(lean_object*);
 LEAN_EXPORT uint8_t l___private_Init_Data_Range_Polymorphic_Internal_SignedBitVec_0__BitVec_Signed_instDecidableLE(lean_object*, lean_object*, lean_object*);
@@ -235,7 +239,7 @@ lean_ctor_set(v___x_64_, 1, v___f_63_);
 return v___x_64_;
 }
 }
-LEAN_EXPORT lean_object* l___private_Init_Data_Range_Polymorphic_Internal_SignedBitVec_0__BitVec_Signed_instLE(lean_object* v_n_65_){
+LEAN_EXPORT lean_object* l___private_Init_Data_Range_Polymorphic_Internal_SignedBitVec_0__BitVec_Signed_instLE___redArg(){
 _start:
 {
 lean_object* v___x_66_; 
@@ -243,16 +247,15 @@ v___x_66_ = lean_box(0);
 return v___x_66_;
 }
 }
-LEAN_EXPORT lean_object* l___private_Init_Data_Range_Polymorphic_Internal_SignedBitVec_0__BitVec_Signed_instLE___boxed(lean_object* v_n_67_){
+LEAN_EXPORT lean_object* l___private_Init_Data_Range_Polymorphic_Internal_SignedBitVec_0__BitVec_Signed_instLE___redArg___boxed(lean_object* v___dummy_67_){
 _start:
 {
 lean_object* v_res_68_; 
-v_res_68_ = l___private_Init_Data_Range_Polymorphic_Internal_SignedBitVec_0__BitVec_Signed_instLE(v_n_67_);
-lean_dec(v_n_67_);
+v_res_68_ = l___private_Init_Data_Range_Polymorphic_Internal_SignedBitVec_0__BitVec_Signed_instLE___redArg();
 return v_res_68_;
 }
 }
-LEAN_EXPORT lean_object* l___private_Init_Data_Range_Polymorphic_Internal_SignedBitVec_0__BitVec_Signed_instLT(lean_object* v_n_69_){
+LEAN_EXPORT lean_object* l___private_Init_Data_Range_Polymorphic_Internal_SignedBitVec_0__BitVec_Signed_instLE(lean_object* v_n_69_){
 _start:
 {
 lean_object* v___x_70_; 
@@ -260,153 +263,186 @@ v___x_70_ = lean_box(0);
 return v___x_70_;
 }
 }
-LEAN_EXPORT lean_object* l___private_Init_Data_Range_Polymorphic_Internal_SignedBitVec_0__BitVec_Signed_instLT___boxed(lean_object* v_n_71_){
+LEAN_EXPORT lean_object* l___private_Init_Data_Range_Polymorphic_Internal_SignedBitVec_0__BitVec_Signed_instLE___boxed(lean_object* v_n_71_){
 _start:
 {
 lean_object* v_res_72_; 
-v_res_72_ = l___private_Init_Data_Range_Polymorphic_Internal_SignedBitVec_0__BitVec_Signed_instLT(v_n_71_);
+v_res_72_ = l___private_Init_Data_Range_Polymorphic_Internal_SignedBitVec_0__BitVec_Signed_instLE(v_n_71_);
 lean_dec(v_n_71_);
 return v_res_72_;
 }
 }
-LEAN_EXPORT uint8_t l___private_Init_Data_Range_Polymorphic_Internal_SignedBitVec_0__BitVec_Signed_instDecidableLE(lean_object* v_n_73_, lean_object* v_x_74_, lean_object* v_y_75_){
+LEAN_EXPORT lean_object* l___private_Init_Data_Range_Polymorphic_Internal_SignedBitVec_0__BitVec_Signed_instLT___redArg(){
 _start:
 {
-uint8_t v___x_76_; 
-v___x_76_ = l_BitVec_sle(v_n_73_, v_x_74_, v_y_75_);
-return v___x_76_;
+lean_object* v___x_74_; 
+v___x_74_ = lean_box(0);
+return v___x_74_;
 }
 }
-LEAN_EXPORT lean_object* l___private_Init_Data_Range_Polymorphic_Internal_SignedBitVec_0__BitVec_Signed_instDecidableLE___boxed(lean_object* v_n_77_, lean_object* v_x_78_, lean_object* v_y_79_){
+LEAN_EXPORT lean_object* l___private_Init_Data_Range_Polymorphic_Internal_SignedBitVec_0__BitVec_Signed_instLT___redArg___boxed(lean_object* v___dummy_75_){
 _start:
 {
-uint8_t v_res_80_; lean_object* v_r_81_; 
-v_res_80_ = l___private_Init_Data_Range_Polymorphic_Internal_SignedBitVec_0__BitVec_Signed_instDecidableLE(v_n_77_, v_x_78_, v_y_79_);
-lean_dec(v_n_77_);
-v_r_81_ = lean_box(v_res_80_);
-return v_r_81_;
+lean_object* v_res_76_; 
+v_res_76_ = l___private_Init_Data_Range_Polymorphic_Internal_SignedBitVec_0__BitVec_Signed_instLT___redArg();
+return v_res_76_;
 }
 }
-LEAN_EXPORT uint8_t l___private_Init_Data_Range_Polymorphic_Internal_SignedBitVec_0__BitVec_Signed_instDecidableLT(lean_object* v_n_82_, lean_object* v_x_83_, lean_object* v_y_84_){
+LEAN_EXPORT lean_object* l___private_Init_Data_Range_Polymorphic_Internal_SignedBitVec_0__BitVec_Signed_instLT(lean_object* v_n_77_){
 _start:
 {
-uint8_t v___x_85_; 
-v___x_85_ = l_BitVec_slt(v_n_82_, v_x_83_, v_y_84_);
-return v___x_85_;
+lean_object* v___x_78_; 
+v___x_78_ = lean_box(0);
+return v___x_78_;
 }
 }
-LEAN_EXPORT lean_object* l___private_Init_Data_Range_Polymorphic_Internal_SignedBitVec_0__BitVec_Signed_instDecidableLT___boxed(lean_object* v_n_86_, lean_object* v_x_87_, lean_object* v_y_88_){
+LEAN_EXPORT lean_object* l___private_Init_Data_Range_Polymorphic_Internal_SignedBitVec_0__BitVec_Signed_instLT___boxed(lean_object* v_n_79_){
 _start:
 {
-uint8_t v_res_89_; lean_object* v_r_90_; 
-v_res_89_ = l___private_Init_Data_Range_Polymorphic_Internal_SignedBitVec_0__BitVec_Signed_instDecidableLT(v_n_86_, v_x_87_, v_y_88_);
-lean_dec(v_n_86_);
-v_r_90_ = lean_box(v_res_89_);
-return v_r_90_;
+lean_object* v_res_80_; 
+v_res_80_ = l___private_Init_Data_Range_Polymorphic_Internal_SignedBitVec_0__BitVec_Signed_instLT(v_n_79_);
+lean_dec(v_n_79_);
+return v_res_80_;
 }
 }
-LEAN_EXPORT lean_object* l___private_Init_Data_Range_Polymorphic_Internal_SignedBitVec_0__BitVec_Signed_instRxcHasSize___lam__0(lean_object* v_n_91_, lean_object* v_lo_92_, lean_object* v_hi_93_){
+LEAN_EXPORT uint8_t l___private_Init_Data_Range_Polymorphic_Internal_SignedBitVec_0__BitVec_Signed_instDecidableLE(lean_object* v_n_81_, lean_object* v_x_82_, lean_object* v_y_83_){
 _start:
 {
-lean_object* v___x_94_; lean_object* v___x_95_; lean_object* v___x_96_; lean_object* v___x_97_; lean_object* v___x_98_; 
-v___x_94_ = l___private_Init_Data_Range_Polymorphic_Internal_SignedBitVec_0__BitVec_Signed_rotate(v_n_91_, v_lo_92_);
-v___x_95_ = l___private_Init_Data_Range_Polymorphic_Internal_SignedBitVec_0__BitVec_Signed_rotate(v_n_91_, v_hi_93_);
-v___x_96_ = lean_unsigned_to_nat(1u);
-v___x_97_ = lean_nat_add(v___x_95_, v___x_96_);
-lean_dec(v___x_95_);
-v___x_98_ = lean_nat_sub(v___x_97_, v___x_94_);
-lean_dec(v___x_94_);
-lean_dec(v___x_97_);
-return v___x_98_;
+uint8_t v___x_84_; 
+v___x_84_ = l_BitVec_sle(v_n_81_, v_x_82_, v_y_83_);
+return v___x_84_;
 }
 }
-LEAN_EXPORT lean_object* l___private_Init_Data_Range_Polymorphic_Internal_SignedBitVec_0__BitVec_Signed_instRxcHasSize___lam__0___boxed(lean_object* v_n_99_, lean_object* v_lo_100_, lean_object* v_hi_101_){
+LEAN_EXPORT lean_object* l___private_Init_Data_Range_Polymorphic_Internal_SignedBitVec_0__BitVec_Signed_instDecidableLE___boxed(lean_object* v_n_85_, lean_object* v_x_86_, lean_object* v_y_87_){
 _start:
 {
-lean_object* v_res_102_; 
-v_res_102_ = l___private_Init_Data_Range_Polymorphic_Internal_SignedBitVec_0__BitVec_Signed_instRxcHasSize___lam__0(v_n_99_, v_lo_100_, v_hi_101_);
-lean_dec(v_hi_101_);
-lean_dec(v_lo_100_);
-lean_dec(v_n_99_);
-return v_res_102_;
+uint8_t v_res_88_; lean_object* v_r_89_; 
+v_res_88_ = l___private_Init_Data_Range_Polymorphic_Internal_SignedBitVec_0__BitVec_Signed_instDecidableLE(v_n_85_, v_x_86_, v_y_87_);
+lean_dec(v_n_85_);
+v_r_89_ = lean_box(v_res_88_);
+return v_r_89_;
 }
 }
-LEAN_EXPORT lean_object* l___private_Init_Data_Range_Polymorphic_Internal_SignedBitVec_0__BitVec_Signed_instRxcHasSize(lean_object* v_n_103_){
+LEAN_EXPORT uint8_t l___private_Init_Data_Range_Polymorphic_Internal_SignedBitVec_0__BitVec_Signed_instDecidableLT(lean_object* v_n_90_, lean_object* v_x_91_, lean_object* v_y_92_){
 _start:
 {
-lean_object* v___f_104_; 
-v___f_104_ = lean_alloc_closure((void*)(l___private_Init_Data_Range_Polymorphic_Internal_SignedBitVec_0__BitVec_Signed_instRxcHasSize___lam__0___boxed), 3, 1);
-lean_closure_set(v___f_104_, 0, v_n_103_);
-return v___f_104_;
+uint8_t v___x_93_; 
+v___x_93_ = l_BitVec_slt(v_n_90_, v_x_91_, v_y_92_);
+return v___x_93_;
 }
 }
-LEAN_EXPORT lean_object* l___private_Init_Data_Range_Polymorphic_Internal_SignedBitVec_0__BitVec_Signed_instRxoHasSize___lam__0(lean_object* v_n_105_, lean_object* v_lo_106_, lean_object* v_hi_107_){
+LEAN_EXPORT lean_object* l___private_Init_Data_Range_Polymorphic_Internal_SignedBitVec_0__BitVec_Signed_instDecidableLT___boxed(lean_object* v_n_94_, lean_object* v_x_95_, lean_object* v_y_96_){
 _start:
 {
-lean_object* v___x_108_; lean_object* v___x_109_; lean_object* v___x_110_; lean_object* v___x_111_; lean_object* v___x_112_; lean_object* v___x_113_; 
-v___x_108_ = l___private_Init_Data_Range_Polymorphic_Internal_SignedBitVec_0__BitVec_Signed_rotate(v_n_105_, v_lo_106_);
-v___x_109_ = l___private_Init_Data_Range_Polymorphic_Internal_SignedBitVec_0__BitVec_Signed_rotate(v_n_105_, v_hi_107_);
-v___x_110_ = lean_unsigned_to_nat(1u);
-v___x_111_ = lean_nat_add(v___x_109_, v___x_110_);
-lean_dec(v___x_109_);
-v___x_112_ = lean_nat_sub(v___x_111_, v___x_108_);
-lean_dec(v___x_108_);
-lean_dec(v___x_111_);
-v___x_113_ = lean_nat_sub(v___x_112_, v___x_110_);
-lean_dec(v___x_112_);
-return v___x_113_;
+uint8_t v_res_97_; lean_object* v_r_98_; 
+v_res_97_ = l___private_Init_Data_Range_Polymorphic_Internal_SignedBitVec_0__BitVec_Signed_instDecidableLT(v_n_94_, v_x_95_, v_y_96_);
+lean_dec(v_n_94_);
+v_r_98_ = lean_box(v_res_97_);
+return v_r_98_;
 }
 }
-LEAN_EXPORT lean_object* l___private_Init_Data_Range_Polymorphic_Internal_SignedBitVec_0__BitVec_Signed_instRxoHasSize___lam__0___boxed(lean_object* v_n_114_, lean_object* v_lo_115_, lean_object* v_hi_116_){
+LEAN_EXPORT lean_object* l___private_Init_Data_Range_Polymorphic_Internal_SignedBitVec_0__BitVec_Signed_instRxcHasSize___lam__0(lean_object* v_n_99_, lean_object* v_lo_100_, lean_object* v_hi_101_){
 _start:
 {
-lean_object* v_res_117_; 
-v_res_117_ = l___private_Init_Data_Range_Polymorphic_Internal_SignedBitVec_0__BitVec_Signed_instRxoHasSize___lam__0(v_n_114_, v_lo_115_, v_hi_116_);
-lean_dec(v_hi_116_);
-lean_dec(v_lo_115_);
-lean_dec(v_n_114_);
-return v_res_117_;
+lean_object* v___x_102_; lean_object* v___x_103_; lean_object* v___x_104_; lean_object* v___x_105_; lean_object* v___x_106_; 
+v___x_102_ = l___private_Init_Data_Range_Polymorphic_Internal_SignedBitVec_0__BitVec_Signed_rotate(v_n_99_, v_lo_100_);
+v___x_103_ = l___private_Init_Data_Range_Polymorphic_Internal_SignedBitVec_0__BitVec_Signed_rotate(v_n_99_, v_hi_101_);
+v___x_104_ = lean_unsigned_to_nat(1u);
+v___x_105_ = lean_nat_add(v___x_103_, v___x_104_);
+lean_dec(v___x_103_);
+v___x_106_ = lean_nat_sub(v___x_105_, v___x_102_);
+lean_dec(v___x_102_);
+lean_dec(v___x_105_);
+return v___x_106_;
 }
 }
-LEAN_EXPORT lean_object* l___private_Init_Data_Range_Polymorphic_Internal_SignedBitVec_0__BitVec_Signed_instRxoHasSize(lean_object* v_n_118_){
+LEAN_EXPORT lean_object* l___private_Init_Data_Range_Polymorphic_Internal_SignedBitVec_0__BitVec_Signed_instRxcHasSize___lam__0___boxed(lean_object* v_n_107_, lean_object* v_lo_108_, lean_object* v_hi_109_){
 _start:
 {
-lean_object* v___f_119_; 
-v___f_119_ = lean_alloc_closure((void*)(l___private_Init_Data_Range_Polymorphic_Internal_SignedBitVec_0__BitVec_Signed_instRxoHasSize___lam__0___boxed), 3, 1);
-lean_closure_set(v___f_119_, 0, v_n_118_);
-return v___f_119_;
+lean_object* v_res_110_; 
+v_res_110_ = l___private_Init_Data_Range_Polymorphic_Internal_SignedBitVec_0__BitVec_Signed_instRxcHasSize___lam__0(v_n_107_, v_lo_108_, v_hi_109_);
+lean_dec(v_hi_109_);
+lean_dec(v_lo_108_);
+lean_dec(v_n_107_);
+return v_res_110_;
 }
 }
-LEAN_EXPORT lean_object* l___private_Init_Data_Range_Polymorphic_Internal_SignedBitVec_0__BitVec_Signed_instRxiHasSize___lam__0(lean_object* v_n_120_, lean_object* v_lo_121_){
+LEAN_EXPORT lean_object* l___private_Init_Data_Range_Polymorphic_Internal_SignedBitVec_0__BitVec_Signed_instRxcHasSize(lean_object* v_n_111_){
 _start:
 {
-lean_object* v___x_122_; lean_object* v___x_123_; lean_object* v___x_124_; lean_object* v___x_125_; 
-v___x_122_ = lean_unsigned_to_nat(2u);
-v___x_123_ = lean_nat_pow(v___x_122_, v_n_120_);
-v___x_124_ = l___private_Init_Data_Range_Polymorphic_Internal_SignedBitVec_0__BitVec_Signed_rotate(v_n_120_, v_lo_121_);
-v___x_125_ = lean_nat_sub(v___x_123_, v___x_124_);
-lean_dec(v___x_124_);
-lean_dec(v___x_123_);
-return v___x_125_;
+lean_object* v___f_112_; 
+v___f_112_ = lean_alloc_closure((void*)(l___private_Init_Data_Range_Polymorphic_Internal_SignedBitVec_0__BitVec_Signed_instRxcHasSize___lam__0___boxed), 3, 1);
+lean_closure_set(v___f_112_, 0, v_n_111_);
+return v___f_112_;
 }
 }
-LEAN_EXPORT lean_object* l___private_Init_Data_Range_Polymorphic_Internal_SignedBitVec_0__BitVec_Signed_instRxiHasSize___lam__0___boxed(lean_object* v_n_126_, lean_object* v_lo_127_){
+LEAN_EXPORT lean_object* l___private_Init_Data_Range_Polymorphic_Internal_SignedBitVec_0__BitVec_Signed_instRxoHasSize___lam__0(lean_object* v_n_113_, lean_object* v_lo_114_, lean_object* v_hi_115_){
 _start:
 {
-lean_object* v_res_128_; 
-v_res_128_ = l___private_Init_Data_Range_Polymorphic_Internal_SignedBitVec_0__BitVec_Signed_instRxiHasSize___lam__0(v_n_126_, v_lo_127_);
-lean_dec(v_lo_127_);
-lean_dec(v_n_126_);
-return v_res_128_;
+lean_object* v___x_116_; lean_object* v___x_117_; lean_object* v___x_118_; lean_object* v___x_119_; lean_object* v___x_120_; lean_object* v___x_121_; 
+v___x_116_ = l___private_Init_Data_Range_Polymorphic_Internal_SignedBitVec_0__BitVec_Signed_rotate(v_n_113_, v_lo_114_);
+v___x_117_ = l___private_Init_Data_Range_Polymorphic_Internal_SignedBitVec_0__BitVec_Signed_rotate(v_n_113_, v_hi_115_);
+v___x_118_ = lean_unsigned_to_nat(1u);
+v___x_119_ = lean_nat_add(v___x_117_, v___x_118_);
+lean_dec(v___x_117_);
+v___x_120_ = lean_nat_sub(v___x_119_, v___x_116_);
+lean_dec(v___x_116_);
+lean_dec(v___x_119_);
+v___x_121_ = lean_nat_sub(v___x_120_, v___x_118_);
+lean_dec(v___x_120_);
+return v___x_121_;
 }
 }
-LEAN_EXPORT lean_object* l___private_Init_Data_Range_Polymorphic_Internal_SignedBitVec_0__BitVec_Signed_instRxiHasSize(lean_object* v_n_129_){
+LEAN_EXPORT lean_object* l___private_Init_Data_Range_Polymorphic_Internal_SignedBitVec_0__BitVec_Signed_instRxoHasSize___lam__0___boxed(lean_object* v_n_122_, lean_object* v_lo_123_, lean_object* v_hi_124_){
 _start:
 {
-lean_object* v___f_130_; 
-v___f_130_ = lean_alloc_closure((void*)(l___private_Init_Data_Range_Polymorphic_Internal_SignedBitVec_0__BitVec_Signed_instRxiHasSize___lam__0___boxed), 2, 1);
-lean_closure_set(v___f_130_, 0, v_n_129_);
-return v___f_130_;
+lean_object* v_res_125_; 
+v_res_125_ = l___private_Init_Data_Range_Polymorphic_Internal_SignedBitVec_0__BitVec_Signed_instRxoHasSize___lam__0(v_n_122_, v_lo_123_, v_hi_124_);
+lean_dec(v_hi_124_);
+lean_dec(v_lo_123_);
+lean_dec(v_n_122_);
+return v_res_125_;
+}
+}
+LEAN_EXPORT lean_object* l___private_Init_Data_Range_Polymorphic_Internal_SignedBitVec_0__BitVec_Signed_instRxoHasSize(lean_object* v_n_126_){
+_start:
+{
+lean_object* v___f_127_; 
+v___f_127_ = lean_alloc_closure((void*)(l___private_Init_Data_Range_Polymorphic_Internal_SignedBitVec_0__BitVec_Signed_instRxoHasSize___lam__0___boxed), 3, 1);
+lean_closure_set(v___f_127_, 0, v_n_126_);
+return v___f_127_;
+}
+}
+LEAN_EXPORT lean_object* l___private_Init_Data_Range_Polymorphic_Internal_SignedBitVec_0__BitVec_Signed_instRxiHasSize___lam__0(lean_object* v_n_128_, lean_object* v_lo_129_){
+_start:
+{
+lean_object* v___x_130_; lean_object* v___x_131_; lean_object* v___x_132_; lean_object* v___x_133_; 
+v___x_130_ = lean_unsigned_to_nat(2u);
+v___x_131_ = lean_nat_pow(v___x_130_, v_n_128_);
+v___x_132_ = l___private_Init_Data_Range_Polymorphic_Internal_SignedBitVec_0__BitVec_Signed_rotate(v_n_128_, v_lo_129_);
+v___x_133_ = lean_nat_sub(v___x_131_, v___x_132_);
+lean_dec(v___x_132_);
+lean_dec(v___x_131_);
+return v___x_133_;
+}
+}
+LEAN_EXPORT lean_object* l___private_Init_Data_Range_Polymorphic_Internal_SignedBitVec_0__BitVec_Signed_instRxiHasSize___lam__0___boxed(lean_object* v_n_134_, lean_object* v_lo_135_){
+_start:
+{
+lean_object* v_res_136_; 
+v_res_136_ = l___private_Init_Data_Range_Polymorphic_Internal_SignedBitVec_0__BitVec_Signed_instRxiHasSize___lam__0(v_n_134_, v_lo_135_);
+lean_dec(v_lo_135_);
+lean_dec(v_n_134_);
+return v_res_136_;
+}
+}
+LEAN_EXPORT lean_object* l___private_Init_Data_Range_Polymorphic_Internal_SignedBitVec_0__BitVec_Signed_instRxiHasSize(lean_object* v_n_137_){
+_start:
+{
+lean_object* v___f_138_; 
+v___f_138_ = lean_alloc_closure((void*)(l___private_Init_Data_Range_Polymorphic_Internal_SignedBitVec_0__BitVec_Signed_instRxiHasSize___lam__0___boxed), 2, 1);
+lean_closure_set(v___f_138_, 0, v_n_137_);
+return v___f_138_;
 }
 }
 lean_object* runtime_initialize_Init_Data_BitVec_Bootstrap(uint8_t builtin);

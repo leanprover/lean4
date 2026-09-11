@@ -13,18 +13,18 @@
 #ifdef __cplusplus
 extern "C" {
 #endif
-lean_object* l_Fin_instMin___lam__0___boxed(lean_object*, lean_object*);
+lean_object* l_Fin_instMin___redArg___lam__0___boxed(lean_object*, lean_object*);
 lean_object* l_Fin_decLe___boxed(lean_object*, lean_object*, lean_object*);
 lean_object* l_instDecidableEqFin___boxed(lean_object*, lean_object*, lean_object*);
 lean_object* l_instBEqOfDecidableEq___redArg___lam__0___boxed(lean_object*, lean_object*, lean_object*);
 lean_object* l_Fin_decLt___boxed(lean_object*, lean_object*, lean_object*);
 lean_object* l_instOrdNat___lam__0___boxed(lean_object*, lean_object*);
-lean_object* l_Fin_instMax___lam__0___boxed(lean_object*, lean_object*);
+lean_object* l_Fin_instMax___redArg___lam__0___boxed(lean_object*, lean_object*);
 static const lean_closure_object l_Fin_instLinearOrderPackage___closed__0_value = {.m_header = {.m_rc = 0, .m_cs_sz = sizeof(lean_closure_object) + sizeof(void*)*0, .m_other = 0, .m_tag = 245}, .m_fun = (void*)l_instOrdNat___lam__0___boxed, .m_arity = 2, .m_num_fixed = 0, .m_objs = {} };
 static const lean_object* l_Fin_instLinearOrderPackage___closed__0 = (const lean_object*)&l_Fin_instLinearOrderPackage___closed__0_value;
-static const lean_closure_object l_Fin_instLinearOrderPackage___closed__1_value = {.m_header = {.m_rc = 0, .m_cs_sz = sizeof(lean_closure_object) + sizeof(void*)*0, .m_other = 0, .m_tag = 245}, .m_fun = (void*)l_Fin_instMin___lam__0___boxed, .m_arity = 2, .m_num_fixed = 0, .m_objs = {} };
+static const lean_closure_object l_Fin_instLinearOrderPackage___closed__1_value = {.m_header = {.m_rc = 0, .m_cs_sz = sizeof(lean_closure_object) + sizeof(void*)*0, .m_other = 0, .m_tag = 245}, .m_fun = (void*)l_Fin_instMin___redArg___lam__0___boxed, .m_arity = 2, .m_num_fixed = 0, .m_objs = {} };
 static const lean_object* l_Fin_instLinearOrderPackage___closed__1 = (const lean_object*)&l_Fin_instLinearOrderPackage___closed__1_value;
-static const lean_closure_object l_Fin_instLinearOrderPackage___closed__2_value = {.m_header = {.m_rc = 0, .m_cs_sz = sizeof(lean_closure_object) + sizeof(void*)*0, .m_other = 0, .m_tag = 245}, .m_fun = (void*)l_Fin_instMax___lam__0___boxed, .m_arity = 2, .m_num_fixed = 0, .m_objs = {} };
+static const lean_closure_object l_Fin_instLinearOrderPackage___closed__2_value = {.m_header = {.m_rc = 0, .m_cs_sz = sizeof(lean_closure_object) + sizeof(void*)*0, .m_other = 0, .m_tag = 245}, .m_fun = (void*)l_Fin_instMax___redArg___lam__0___boxed, .m_arity = 2, .m_num_fixed = 0, .m_objs = {} };
 static const lean_object* l_Fin_instLinearOrderPackage___closed__2 = (const lean_object*)&l_Fin_instLinearOrderPackage___closed__2_value;
 LEAN_EXPORT lean_object* l_Fin_instLinearOrderPackage(lean_object*);
 LEAN_EXPORT lean_object* l_Fin_instLinearOrderPackage(lean_object* v_n_4_){

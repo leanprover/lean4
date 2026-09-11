@@ -819,13 +819,13 @@ return v___x_283_;
 LEAN_EXPORT lean_object* l___private_Init_Data_Array_Basic_0__Array_anyMUnsafe_any___at___00Std_Tactic_BVDecide_LRAT_Internal_State_checkRat_spec__0___boxed(lean_object* v_s_288_, lean_object* v___x_289_, lean_object* v_assign_290_, lean_object* v___y_291_, lean_object* v_pivot_292_, lean_object* v_clause_293_, lean_object* v_as_294_, lean_object* v_i_295_, lean_object* v_stop_296_){
 _start:
 {
-uint8_t v___x_1008__boxed_297_; size_t v_i_boxed_298_; size_t v_stop_boxed_299_; uint8_t v_res_300_; lean_object* v_r_301_; 
-v___x_1008__boxed_297_ = lean_unbox(v___x_289_);
+uint8_t v___x_1010__boxed_297_; size_t v_i_boxed_298_; size_t v_stop_boxed_299_; uint8_t v_res_300_; lean_object* v_r_301_; 
+v___x_1010__boxed_297_ = lean_unbox(v___x_289_);
 v_i_boxed_298_ = lean_unbox_usize(v_i_295_);
 lean_dec(v_i_295_);
 v_stop_boxed_299_ = lean_unbox_usize(v_stop_296_);
 lean_dec(v_stop_296_);
-v_res_300_ = l___private_Init_Data_Array_Basic_0__Array_anyMUnsafe_any___at___00Std_Tactic_BVDecide_LRAT_Internal_State_checkRat_spec__0(v_s_288_, v___x_1008__boxed_297_, v_assign_290_, v___y_291_, v_pivot_292_, v_clause_293_, v_as_294_, v_i_boxed_298_, v_stop_boxed_299_);
+v_res_300_ = l___private_Init_Data_Array_Basic_0__Array_anyMUnsafe_any___at___00Std_Tactic_BVDecide_LRAT_Internal_State_checkRat_spec__0(v_s_288_, v___x_1010__boxed_297_, v_assign_290_, v___y_291_, v_pivot_292_, v_clause_293_, v_as_294_, v_i_boxed_298_, v_stop_boxed_299_);
 lean_dec_ref(v_as_294_);
 lean_dec_ref(v_clause_293_);
 lean_dec_ref(v___y_291_);

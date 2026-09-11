@@ -17,10 +17,10 @@ lean_object* lean_st_mk_ref(lean_object*);
 lean_object* lean_st_ref_get(lean_object*);
 lean_object* lean_array_get_size(lean_object*);
 uint8_t lean_nat_dec_lt(lean_object*, lean_object*);
+lean_object* lean_array_fget(lean_object*, lean_object*);
 lean_object* lean_st_ref_take(lean_object*);
 lean_object* lean_nat_add(lean_object*, lean_object*);
 lean_object* lean_st_ref_put(lean_object*, lean_object*);
-lean_object* lean_array_fget(lean_object*, lean_object*);
 lean_object* lean_local_ctx_find(lean_object*, lean_object*);
 uint8_t l_Lean_Expr_hasMVar(lean_object*);
 lean_object* l_Lean_instantiateMVarsCore(lean_object*, lean_object*);
@@ -202,12 +202,12 @@ v_resetjp_55_:
 {
 lean_object* v___x_58_; lean_object* v___x_59_; lean_object* v___x_60_; lean_object* v___x_61_; lean_object* v___x_63_; 
 v___x_58_ = lean_st_ref_take(v_a_47_);
-v___x_59_ = l_Lean_collectFVars(v___x_58_, v_a_54_);
-v___x_60_ = lean_st_ref_put(v_a_47_, v___x_59_);
-v___x_61_ = lean_box(0);
+v___x_59_ = lean_box(0);
+v___x_60_ = l_Lean_collectFVars(v___x_58_, v_a_54_);
+v___x_61_ = lean_st_ref_put(v_a_47_, v___x_60_);
 if (v_isShared_57_ == 0)
 {
-lean_ctor_set(v___x_56_, 0, v___x_61_);
+lean_ctor_set(v___x_56_, 0, v___x_59_);
 v___x_63_ = v___x_56_;
 goto v_reusejp_62_;
 }
@@ -215,7 +215,7 @@ else
 {
 lean_object* v_reuseFailAlloc_64_; 
 v_reuseFailAlloc_64_ = lean_alloc_ctor(0, 1, 0);
-lean_ctor_set(v_reuseFailAlloc_64_, 0, v___x_61_);
+lean_ctor_set(v_reuseFailAlloc_64_, 0, v___x_59_);
 v___x_63_ = v_reuseFailAlloc_64_;
 goto v_reusejp_62_;
 }
@@ -312,16 +312,16 @@ return v___x_104_;
 else
 {
 lean_object* v___x_105_; lean_object* v___x_106_; lean_object* v___x_107_; lean_object* v___x_108_; lean_object* v___x_109_; lean_object* v___x_110_; lean_object* v___x_111_; 
-v___x_105_ = lean_st_ref_take(v_a_95_);
-v___x_106_ = lean_unsigned_to_nat(1u);
-v___x_107_ = lean_nat_add(v___x_105_, v___x_106_);
-lean_dec(v___x_105_);
-v___x_108_ = lean_st_ref_put(v_a_95_, v___x_107_);
-v___x_109_ = lean_array_fget(v_fvarIds_100_, v___x_99_);
+v___x_105_ = lean_array_fget(v_fvarIds_100_, v___x_99_);
 lean_dec(v___x_99_);
 lean_dec_ref(v_fvarIds_100_);
+v___x_106_ = lean_st_ref_take(v_a_95_);
+v___x_107_ = lean_unsigned_to_nat(1u);
+v___x_108_ = lean_nat_add(v___x_106_, v___x_107_);
+lean_dec(v___x_106_);
+v___x_109_ = lean_st_ref_put(v_a_95_, v___x_108_);
 v___x_110_ = lean_alloc_ctor(1, 1, 0);
-lean_ctor_set(v___x_110_, 0, v___x_109_);
+lean_ctor_set(v___x_110_, 0, v___x_105_);
 v___x_111_ = lean_alloc_ctor(0, 1, 0);
 lean_ctor_set(v___x_111_, 0, v___x_110_);
 return v___x_111_;
@@ -525,10 +525,10 @@ LEAN_EXPORT lean_object* l_Lean_CollectFVars_State_addDependencies(lean_object* 
 _start:
 {
 lean_object* v___x_181_; lean_object* v___x_182_; lean_object* v___x_183_; lean_object* v___x_184_; 
-v___x_181_ = lean_st_mk_ref(v_s_175_);
-v___x_182_ = lean_unsigned_to_nat(0u);
-v___x_183_ = lean_st_mk_ref(v___x_182_);
-v___x_184_ = l___private_Lean_Meta_CollectFVars_0__Lean_CollectFVars_State_addDependencies_go(v___x_183_, v___x_181_, v_a_176_, v_a_177_, v_a_178_, v_a_179_);
+v___x_181_ = lean_unsigned_to_nat(0u);
+v___x_182_ = lean_st_mk_ref(v_s_175_);
+v___x_183_ = lean_st_mk_ref(v___x_181_);
+v___x_184_ = l___private_Lean_Meta_CollectFVars_0__Lean_CollectFVars_State_addDependencies_go(v___x_183_, v___x_182_, v_a_176_, v_a_177_, v_a_178_, v_a_179_);
 if (lean_obj_tag(v___x_184_) == 0)
 {
 lean_object* v___x_186_; uint8_t v_isShared_187_; uint8_t v_isSharedCheck_193_; 
@@ -555,8 +555,8 @@ lean_object* v___x_188_; lean_object* v___x_189_; lean_object* v___x_191_;
 v___x_188_ = lean_st_ref_get(v___x_183_);
 lean_dec(v___x_183_);
 lean_dec(v___x_188_);
-v___x_189_ = lean_st_ref_get(v___x_181_);
-lean_dec(v___x_181_);
+v___x_189_ = lean_st_ref_get(v___x_182_);
+lean_dec(v___x_182_);
 if (v_isShared_187_ == 0)
 {
 lean_ctor_set(v___x_186_, 0, v___x_189_);
@@ -581,7 +581,7 @@ else
 {
 lean_object* v_a_195_; lean_object* v___x_197_; uint8_t v_isShared_198_; uint8_t v_isSharedCheck_202_; 
 lean_dec(v___x_183_);
-lean_dec(v___x_181_);
+lean_dec(v___x_182_);
 v_a_195_ = lean_ctor_get(v___x_184_, 0);
 v_isSharedCheck_202_ = !lean_is_exclusive(v___x_184_);
 if (v_isSharedCheck_202_ == 0)

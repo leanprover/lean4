@@ -100,11 +100,11 @@ LEAN_EXPORT lean_object* l_Lean_Compiler_LCNF_ScopeM_setScope___redArg(lean_obje
 _start:
 {
 lean_object* v___x_25_; lean_object* v___x_26_; lean_object* v___x_27_; 
-v___x_25_ = lean_st_ref_swap(v_a_23_, v_newScope_22_);
-lean_dec(v___x_25_);
-v___x_26_ = lean_box(0);
+v___x_25_ = lean_box(0);
+v___x_26_ = lean_st_ref_swap(v_a_23_, v_newScope_22_);
+lean_dec(v___x_26_);
 v___x_27_ = lean_alloc_ctor(0, 1, 0);
-lean_ctor_set(v___x_27_, 0, v___x_26_);
+lean_ctor_set(v___x_27_, 0, v___x_25_);
 return v___x_27_;
 }
 }
@@ -456,11 +456,11 @@ _start:
 {
 lean_object* v___x_192_; lean_object* v___x_193_; lean_object* v___x_194_; lean_object* v___x_195_; lean_object* v___x_196_; 
 v___x_192_ = lean_st_ref_take(v_a_190_);
-v___x_193_ = l_Lean_FVarIdSet_insert(v___x_192_, v_fvarId_189_);
-v___x_194_ = lean_st_ref_put(v_a_190_, v___x_193_);
-v___x_195_ = lean_box(0);
+v___x_193_ = lean_box(0);
+v___x_194_ = l_Lean_FVarIdSet_insert(v___x_192_, v_fvarId_189_);
+v___x_195_ = lean_st_ref_put(v_a_190_, v___x_194_);
 v___x_196_ = lean_alloc_ctor(0, 1, 0);
-lean_ctor_set(v___x_196_, 0, v___x_195_);
+lean_ctor_set(v___x_196_, 0, v___x_193_);
 return v___x_196_;
 }
 }

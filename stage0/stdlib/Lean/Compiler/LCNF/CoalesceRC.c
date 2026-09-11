@@ -1332,25 +1332,25 @@ return v___x_362_;
 }
 case 2:
 {
-lean_object* v_decl_386_; lean_object* v_k_387_; lean_object* v_params_388_; lean_object* v_type_389_; lean_object* v_value_390_; lean_object* v___x_391_; 
+lean_object* v_decl_386_; lean_object* v_k_387_; lean_object* v_params_388_; lean_object* v_type_389_; lean_object* v_value_390_; uint8_t v___x_391_; lean_object* v___x_392_; 
 v_decl_386_ = lean_ctor_get(v_code_353_, 0);
 v_k_387_ = lean_ctor_get(v_code_353_, 1);
 v_params_388_ = lean_ctor_get(v_decl_386_, 2);
 v_type_389_ = lean_ctor_get(v_decl_386_, 3);
 v_value_390_ = lean_ctor_get(v_decl_386_, 4);
+v___x_391_ = 1;
 lean_inc_ref(v_value_390_);
-v___x_391_ = l___private_Lean_Compiler_LCNF_CoalesceRC_0__Lean_Compiler_LCNF_Code_coalesceRC(v_value_390_, v_a_355_, v_a_356_, v_a_357_, v_a_358_);
-if (lean_obj_tag(v___x_391_) == 0)
+v___x_392_ = l___private_Lean_Compiler_LCNF_CoalesceRC_0__Lean_Compiler_LCNF_Code_coalesceRC(v_value_390_, v_a_355_, v_a_356_, v_a_357_, v_a_358_);
+if (lean_obj_tag(v___x_392_) == 0)
 {
-lean_object* v_a_392_; uint8_t v___x_393_; lean_object* v___x_394_; 
-v_a_392_ = lean_ctor_get(v___x_391_, 0);
-lean_inc(v_a_392_);
-lean_dec_ref_known(v___x_391_, 1);
-v___x_393_ = 1;
+lean_object* v_a_393_; lean_object* v___x_394_; 
+v_a_393_ = lean_ctor_get(v___x_392_, 0);
+lean_inc(v_a_393_);
+lean_dec_ref_known(v___x_392_, 1);
 lean_inc_ref(v_params_388_);
 lean_inc_ref(v_type_389_);
 lean_inc_ref(v_decl_386_);
-v___x_394_ = l___private_Lean_Compiler_LCNF_CompilerM_0__Lean_Compiler_LCNF_updateFunDeclImp___redArg(v___x_393_, v_decl_386_, v_type_389_, v_params_388_, v_a_392_, v_a_356_);
+v___x_394_ = l___private_Lean_Compiler_LCNF_CompilerM_0__Lean_Compiler_LCNF_updateFunDeclImp___redArg(v___x_391_, v_decl_386_, v_type_389_, v_params_388_, v_a_393_, v_a_356_);
 if (lean_obj_tag(v___x_394_) == 0)
 {
 lean_object* v_a_395_; lean_object* v___x_396_; 
@@ -1600,7 +1600,7 @@ return v___x_440_;
 else
 {
 lean_dec_ref_known(v_code_353_, 2);
-return v___x_391_;
+return v___x_392_;
 }
 }
 case 4:

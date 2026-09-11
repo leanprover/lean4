@@ -15,6 +15,8 @@ extern "C" {
 #endif
 LEAN_EXPORT lean_object* l___private_Std_Data_HashMap_Lemmas_0__GetElem_x3f_match__1_splitter___redArg(lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l___private_Std_Data_HashMap_Lemmas_0__GetElem_x3f_match__1_splitter(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
+LEAN_EXPORT lean_object* l_Std_HashMap_Equiv_instTrans___redArg();
+LEAN_EXPORT lean_object* l_Std_HashMap_Equiv_instTrans___redArg___boxed(lean_object*);
 LEAN_EXPORT lean_object* l_Std_HashMap_Equiv_instTrans(lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Std_HashMap_Equiv_instTrans___boxed(lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l___private_Std_Data_HashMap_Lemmas_0__GetElem_x3f_match__1_splitter___redArg(lean_object* v_x_1_, lean_object* v_h__1_2_, lean_object* v_h__2_3_){
@@ -63,22 +65,38 @@ return v___x_16_;
 }
 }
 }
-LEAN_EXPORT lean_object* l_Std_HashMap_Equiv_instTrans(lean_object* v_00_u03b1_17_, lean_object* v_00_u03b2_18_, lean_object* v_x_19_, lean_object* v_x_20_){
+LEAN_EXPORT lean_object* l_Std_HashMap_Equiv_instTrans___redArg(){
 _start:
 {
-lean_object* v___x_21_; 
-v___x_21_ = lean_box(0);
-return v___x_21_;
+lean_object* v___x_18_; 
+v___x_18_ = lean_box(0);
+return v___x_18_;
 }
 }
-LEAN_EXPORT lean_object* l_Std_HashMap_Equiv_instTrans___boxed(lean_object* v_00_u03b1_22_, lean_object* v_00_u03b2_23_, lean_object* v_x_24_, lean_object* v_x_25_){
+LEAN_EXPORT lean_object* l_Std_HashMap_Equiv_instTrans___redArg___boxed(lean_object* v___dummy_19_){
 _start:
 {
-lean_object* v_res_26_; 
-v_res_26_ = l_Std_HashMap_Equiv_instTrans(v_00_u03b1_22_, v_00_u03b2_23_, v_x_24_, v_x_25_);
-lean_dec_ref(v_x_25_);
-lean_dec_ref(v_x_24_);
-return v_res_26_;
+lean_object* v_res_20_; 
+v_res_20_ = l_Std_HashMap_Equiv_instTrans___redArg();
+return v_res_20_;
+}
+}
+LEAN_EXPORT lean_object* l_Std_HashMap_Equiv_instTrans(lean_object* v_00_u03b1_21_, lean_object* v_00_u03b2_22_, lean_object* v_x_23_, lean_object* v_x_24_){
+_start:
+{
+lean_object* v___x_25_; 
+v___x_25_ = lean_box(0);
+return v___x_25_;
+}
+}
+LEAN_EXPORT lean_object* l_Std_HashMap_Equiv_instTrans___boxed(lean_object* v_00_u03b1_26_, lean_object* v_00_u03b2_27_, lean_object* v_x_28_, lean_object* v_x_29_){
+_start:
+{
+lean_object* v_res_30_; 
+v_res_30_ = l_Std_HashMap_Equiv_instTrans(v_00_u03b1_26_, v_00_u03b2_27_, v_x_28_, v_x_29_);
+lean_dec_ref(v_x_29_);
+lean_dec_ref(v_x_28_);
+return v_res_30_;
 }
 }
 lean_object* runtime_initialize_Std_Data_DHashMap_Lemmas(uint8_t builtin);

@@ -1683,12 +1683,12 @@ v___x_566_ = lean_st_ref_take(v_a_555_);
 v_fvarId_567_ = lean_ctor_get(v_val_565_, 0);
 lean_inc(v_fvarId_567_);
 lean_dec(v_val_565_);
-v___x_568_ = l_Lean_Compiler_LCNF_Simp_FunDeclInfoMap_addHo(v___x_566_, v_fvarId_567_);
-v___x_569_ = lean_st_ref_put(v_a_555_, v___x_568_);
-v___x_570_ = lean_box(0);
+v___x_568_ = lean_box(0);
+v___x_569_ = l_Lean_Compiler_LCNF_Simp_FunDeclInfoMap_addHo(v___x_566_, v_fvarId_567_);
+v___x_570_ = lean_st_ref_put(v_a_555_, v___x_569_);
 if (v_isShared_564_ == 0)
 {
-lean_ctor_set(v___x_563_, 0, v___x_570_);
+lean_ctor_set(v___x_563_, 0, v___x_568_);
 v___x_572_ = v___x_563_;
 goto v_reusejp_571_;
 }
@@ -1696,7 +1696,7 @@ else
 {
 lean_object* v_reuseFailAlloc_573_; 
 v_reuseFailAlloc_573_ = lean_alloc_ctor(0, 1, 0);
-lean_ctor_set(v_reuseFailAlloc_573_, 0, v___x_570_);
+lean_ctor_set(v_reuseFailAlloc_573_, 0, v___x_568_);
 v___x_572_ = v_reuseFailAlloc_573_;
 goto v_reusejp_571_;
 }

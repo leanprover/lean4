@@ -34,7 +34,7 @@ lean_object* l_Lean_Syntax_node2(lean_object*, lean_object*, lean_object*, lean_
 lean_object* l_Lean_Syntax_node1(lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Syntax_node5(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Syntax_node3(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
-lean_object* l_Array_mkArray0(lean_object*);
+lean_object* l_Array_mkArray0___redArg();
 lean_object* l_Lean_Syntax_node4(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Syntax_node6(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_List_get_x3fInternal___redArg(lean_object*, lean_object*);
@@ -1179,7 +1179,7 @@ static lean_object* _init_l_List___aux__Init__Data__List__BasicAux______macroRul
 _start:
 {
 lean_object* v___x_466_; 
-v___x_466_ = l_Array_mkArray0(lean_box(0));
+v___x_466_ = l_Array_mkArray0___redArg();
 return v___x_466_;
 }
 }

@@ -1,6 +1,6 @@
 // Lean compiler output
 // Module: Init.Data.Order.PackageFactories
-// Imports: public import Init.Data.Order.LemmasExtra public import Init.Data.Order.FactoriesExtra public import Init.Data.Order.Factories import Init.Data.Bool import Init.Data.Order.Lemmas
+// Imports: public import Init.Data.Order.LemmasExtra public import Init.Data.Order.FactoriesExtra public import Init.Data.Order.Factories public import Init.Data.Order.Lemmas import Init.Data.Bool
 #include <lean/lean.h>
 #if defined(__clang__)
 #pragma clang diagnostic ignored "-Wunused-parameter"
@@ -19505,8 +19505,8 @@ return v___x_5131_;
 lean_object* runtime_initialize_Init_Data_Order_LemmasExtra(uint8_t builtin);
 lean_object* runtime_initialize_Init_Data_Order_FactoriesExtra(uint8_t builtin);
 lean_object* runtime_initialize_Init_Data_Order_Factories(uint8_t builtin);
-lean_object* runtime_initialize_Init_Data_Bool(uint8_t builtin);
 lean_object* runtime_initialize_Init_Data_Order_Lemmas(uint8_t builtin);
+lean_object* runtime_initialize_Init_Data_Bool(uint8_t builtin);
 void lean_initialize_runtime_module();
 static bool _G_runtime_initialized = false;
 LEAN_EXPORT lean_object* runtime_initialize_Init_Data_Order_PackageFactories(uint8_t builtin) {
@@ -19523,10 +19523,10 @@ lean_dec_ref(res);
 res = runtime_initialize_Init_Data_Order_Factories(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
-res = runtime_initialize_Init_Data_Bool(builtin);
+res = runtime_initialize_Init_Data_Order_Lemmas(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
-res = runtime_initialize_Init_Data_Order_Lemmas(builtin);
+res = runtime_initialize_Init_Data_Bool(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
 return lean_io_result_mk_ok(lean_box(0));
@@ -19619,8 +19619,8 @@ return lean_io_result_mk_ok(lean_box(0));
 lean_object* initialize_Init_Data_Order_LemmasExtra(uint8_t builtin);
 lean_object* initialize_Init_Data_Order_FactoriesExtra(uint8_t builtin);
 lean_object* initialize_Init_Data_Order_Factories(uint8_t builtin);
-lean_object* initialize_Init_Data_Bool(uint8_t builtin);
 lean_object* initialize_Init_Data_Order_Lemmas(uint8_t builtin);
+lean_object* initialize_Init_Data_Bool(uint8_t builtin);
 static bool _G_initialized = false;
 LEAN_EXPORT lean_object* initialize_Init_Data_Order_PackageFactories(uint8_t builtin) {
 lean_object * res;
@@ -19635,10 +19635,10 @@ lean_dec_ref(res);
 res = initialize_Init_Data_Order_Factories(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
-res = initialize_Init_Data_Bool(builtin);
+res = initialize_Init_Data_Order_Lemmas(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
-res = initialize_Init_Data_Order_Lemmas(builtin);
+res = initialize_Init_Data_Bool(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
 res = runtime_initialize_Init_Data_Order_PackageFactories(builtin);

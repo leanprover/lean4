@@ -156,45 +156,45 @@ lean_dec_ref_known(v___x_40_, 1);
 v___x_42_ = l_Lean_MVarId_applyRfl(v_a_41_, v___y_35_, v___y_36_, v___y_37_, v___y_38_);
 if (lean_obj_tag(v___x_42_) == 0)
 {
-lean_object* v___x_43_; lean_object* v___x_44_; 
+lean_object* v___x_43_; lean_object* v___x_44_; lean_object* v___x_45_; 
 lean_dec_ref_known(v___x_42_, 1);
 v___x_43_ = lean_box(0);
-v___x_44_ = l_Lean_Elab_Tactic_replaceMainGoal___redArg(v___x_43_, v___y_32_, v___y_35_, v___y_36_, v___y_37_, v___y_38_);
-if (lean_obj_tag(v___x_44_) == 0)
+v___x_44_ = lean_box(0);
+v___x_45_ = l_Lean_Elab_Tactic_replaceMainGoal___redArg(v___x_43_, v___y_32_, v___y_35_, v___y_36_, v___y_37_, v___y_38_);
+if (lean_obj_tag(v___x_45_) == 0)
 {
-lean_object* v___x_46_; uint8_t v_isShared_47_; uint8_t v_isSharedCheck_52_; 
-v_isSharedCheck_52_ = !lean_is_exclusive(v___x_44_);
+lean_object* v___x_47_; uint8_t v_isShared_48_; uint8_t v_isSharedCheck_52_; 
+v_isSharedCheck_52_ = !lean_is_exclusive(v___x_45_);
 if (v_isSharedCheck_52_ == 0)
 {
 lean_object* v_unused_53_; 
-v_unused_53_ = lean_ctor_get(v___x_44_, 0);
+v_unused_53_ = lean_ctor_get(v___x_45_, 0);
 lean_dec(v_unused_53_);
-v___x_46_ = v___x_44_;
-v_isShared_47_ = v_isSharedCheck_52_;
-goto v_resetjp_45_;
+v___x_47_ = v___x_45_;
+v_isShared_48_ = v_isSharedCheck_52_;
+goto v_resetjp_46_;
 }
 else
 {
-lean_dec(v___x_44_);
-v___x_46_ = lean_box(0);
-v_isShared_47_ = v_isSharedCheck_52_;
-goto v_resetjp_45_;
+lean_dec(v___x_45_);
+v___x_47_ = lean_box(0);
+v_isShared_48_ = v_isSharedCheck_52_;
+goto v_resetjp_46_;
 }
-v_resetjp_45_:
+v_resetjp_46_:
 {
-lean_object* v___x_48_; lean_object* v___x_50_; 
-v___x_48_ = lean_box(0);
-if (v_isShared_47_ == 0)
+lean_object* v___x_50_; 
+if (v_isShared_48_ == 0)
 {
-lean_ctor_set(v___x_46_, 0, v___x_48_);
-v___x_50_ = v___x_46_;
+lean_ctor_set(v___x_47_, 0, v___x_44_);
+v___x_50_ = v___x_47_;
 goto v_reusejp_49_;
 }
 else
 {
 lean_object* v_reuseFailAlloc_51_; 
 v_reuseFailAlloc_51_ = lean_alloc_ctor(0, 1, 0);
-lean_ctor_set(v_reuseFailAlloc_51_, 0, v___x_48_);
+lean_ctor_set(v_reuseFailAlloc_51_, 0, v___x_44_);
 v___x_50_ = v_reuseFailAlloc_51_;
 goto v_reusejp_49_;
 }
@@ -206,7 +206,7 @@ return v___x_50_;
 }
 else
 {
-return v___x_44_;
+return v___x_45_;
 }
 }
 else

@@ -58,7 +58,7 @@ lean_object* l_Array_append___redArg(lean_object*, lean_object*);
 size_t lean_array_size(lean_object*);
 lean_object* l_Lean_Syntax_node3(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 uint8_t l_Lean_Syntax_isOfKind(lean_object*, lean_object*);
-lean_object* l_Array_mkArray0(lean_object*);
+lean_object* l_Array_mkArray0___redArg();
 lean_object* l_Lean_Syntax_node5(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_mkAtom(lean_object*);
 lean_object* l_Lean_mkSepArray(lean_object*, lean_object*);
@@ -2705,7 +2705,7 @@ static lean_object* _init_l_Std_DHashMap_Internal_Raw_u2080___aux__Std__Data__DH
 _start:
 {
 lean_object* v___x_755_; 
-v___x_755_ = l_Array_mkArray0(lean_box(0));
+v___x_755_ = l_Array_mkArray0___redArg();
 return v___x_755_;
 }
 }
@@ -8212,8 +8212,8 @@ v___y_4111_ = v___x_4165_;
 v___y_4112_ = v___x_4194_;
 v___y_4113_ = v___x_4162_;
 v___y_4114_ = v___y_4155_;
-v___y_4115_ = v___x_4224_;
-v___y_4116_ = v___x_4185_;
+v___y_4115_ = v___x_4185_;
+v___y_4116_ = v___x_4224_;
 v___y_4117_ = v___x_4167_;
 v___y_4118_ = v___x_4163_;
 v___y_4119_ = v___x_4209_;
@@ -8241,8 +8241,8 @@ v___y_4111_ = v___x_4165_;
 v___y_4112_ = v___x_4194_;
 v___y_4113_ = v___x_4162_;
 v___y_4114_ = v___y_4155_;
-v___y_4115_ = v___x_4224_;
-v___y_4116_ = v___x_4185_;
+v___y_4115_ = v___x_4185_;
+v___y_4116_ = v___x_4224_;
 v___y_4117_ = v___x_4167_;
 v___y_4118_ = v___x_4163_;
 v___y_4119_ = v___x_4209_;
@@ -8676,7 +8676,7 @@ v___x_4123_ = l___private_Init_Data_Array_Basic_0__Array_mapMUnsafe_map___at___0
 v___x_4124_ = lean_obj_once(&l_Std_DHashMap_Internal_Raw_u2080___aux__Std__Data__DHashMap__Internal__RawLemmas______macroRules__Std__DHashMap__Internal__Raw_u2080__tacticSimp__to__model_x5b___x5dUsing____1___closed__0, &l_Std_DHashMap_Internal_Raw_u2080___aux__Std__Data__DHashMap__Internal__RawLemmas______macroRules__Std__DHashMap__Internal__Raw_u2080__tacticSimp__to__model_x5b___x5dUsing____1___closed__0_once, _init_l_Std_DHashMap_Internal_Raw_u2080___aux__Std__Data__DHashMap__Internal__RawLemmas______macroRules__Std__DHashMap__Internal__Raw_u2080__tacticSimp__to__model_x5b___x5dUsing____1___closed__0);
 v___x_4125_ = l_Lean_mkSepArray(v___x_4123_, v___x_4124_);
 lean_dec_ref(v___x_4123_);
-v___x_4126_ = l_Array_append___redArg(v___y_4115_, v___x_4125_);
+v___x_4126_ = l_Array_append___redArg(v___y_4116_, v___x_4125_);
 lean_dec_ref(v___x_4125_);
 lean_inc(v___y_4106_);
 v___x_4127_ = lean_alloc_ctor(1, 3, 0);
@@ -8706,7 +8706,7 @@ v___x_4137_ = l_Lean_Syntax_node2(v___y_4108_, v___x_4134_, v___x_4136_, v___y_4
 v___x_4138_ = l_Lean_Syntax_node1(v___y_4108_, v___y_4106_, v___x_4137_);
 v___x_4139_ = l_Lean_Syntax_node1(v___y_4108_, v___y_4117_, v___x_4138_);
 v___x_4140_ = l_Lean_Syntax_node1(v___y_4108_, v___y_4105_, v___x_4139_);
-v___x_4141_ = l_Lean_Syntax_node2(v___y_4108_, v___y_4116_, v___y_4107_, v___x_4140_);
+v___x_4141_ = l_Lean_Syntax_node2(v___y_4108_, v___y_4115_, v___y_4107_, v___x_4140_);
 lean_inc(v___y_4113_);
 v___x_4142_ = l_Lean_Syntax_node3(v___y_4108_, v___y_4113_, v___x_4130_, v___x_4132_, v___x_4141_);
 v___x_4143_ = lean_alloc_ctor(0, 2, 0);

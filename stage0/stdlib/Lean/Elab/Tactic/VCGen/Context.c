@@ -23,7 +23,7 @@ uint8_t l___private_Lean_Data_Name_0__Lean_Name_quickCmpImpl(lean_object*, lean_
 lean_object* l___private_Lean_Meta_Basic_0__Lean_Meta_withMVarContextImp(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 uint8_t lean_nat_dec_le(lean_object*, lean_object*);
 size_t lean_usize_of_nat(lean_object*);
-lean_object* l_Lean_instInhabitedPersistentArrayNode_default(lean_object*);
+lean_object* l_Lean_instInhabitedPersistentArrayNode_default___redArg();
 size_t lean_usize_shift_right(size_t, size_t);
 lean_object* lean_usize_to_nat(size_t);
 lean_object* lean_array_get_borrowed(lean_object*, lean_object*, lean_object*);
@@ -46,7 +46,7 @@ lean_object* l_Lean_Name_mkStr4(lean_object*, lean_object*, lean_object*, lean_o
 lean_object* l_Lean_Meta_Sym_mkBackwardRuleFromDecl(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Name_mkStr2(lean_object*, lean_object*);
 lean_object* lean_st_ref_get(lean_object*);
-lean_object* l_Lean_Meta_DiscrTree_empty(lean_object*);
+lean_object* l_Lean_Meta_DiscrTree_empty___redArg();
 extern lean_object* l_Lean_Elab_Tactic_VCGen_SpecAttr_instInhabitedSpecTheorems_default;
 lean_object* lean_mk_empty_array_with_capacity(lean_object*);
 extern lean_object* l_Lean_Meta_Sym_instInhabitedPattern_default;
@@ -235,7 +235,7 @@ static lean_object* _init_l_Lean_Elab_Tactic_VCGen_instInhabitedFrameDB___closed
 _start:
 {
 lean_object* v___x_11_; 
-v___x_11_ = l_Lean_Meta_DiscrTree_empty(lean_box(0));
+v___x_11_ = l_Lean_Meta_DiscrTree_empty___redArg();
 return v___x_11_;
 }
 }
@@ -1735,7 +1735,7 @@ static lean_object* _init_l___private_Lean_Data_PersistentArray_0__Lean_Persiste
 _start:
 {
 lean_object* v___x_550_; 
-v___x_550_ = l_Lean_instInhabitedPersistentArrayNode_default(lean_box(0));
+v___x_550_ = l_Lean_instInhabitedPersistentArrayNode_default___redArg();
 return v___x_550_;
 }
 }

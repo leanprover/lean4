@@ -27,7 +27,7 @@ lean_object* l_Lean_Name_mkStr1(lean_object*);
 uint8_t lean_name_eq(lean_object*, lean_object*);
 lean_object* l_System_FilePath_normalize(lean_object*);
 lean_object* l_Lake_joinRelative(lean_object*, lean_object*);
-lean_object* l_Lake_BuildType_leanArgs(uint8_t);
+lean_object* l_Lake_BuildType_leanArgs___redArg();
 uint8_t l_Lake_instOrdBuildType_ord(uint8_t, uint8_t);
 lean_object* l_Lake_BuildType_leanOptions(uint8_t);
 lean_object* l_Lean_LeanOptions_ofArray(lean_object*);
@@ -138,6 +138,8 @@ LEAN_EXPORT lean_object* l_Lake_LeanLib_dynlibs(lean_object*);
 LEAN_EXPORT lean_object* l_Lake_LeanLib_plugins(lean_object*);
 LEAN_EXPORT lean_object* l_Lake_LeanLib_leanOptions(lean_object*);
 LEAN_EXPORT lean_object* l_Lake_LeanLib_leanOptions___boxed(lean_object*);
+static lean_once_cell_t l_Lake_LeanLib_leanArgs___closed__0_once = LEAN_ONCE_CELL_INITIALIZER;
+static lean_object* l_Lake_LeanLib_leanArgs___closed__0;
 LEAN_EXPORT lean_object* l_Lake_LeanLib_leanArgs(lean_object*);
 LEAN_EXPORT lean_object* l_Lake_LeanLib_leanArgs___boxed(lean_object*);
 LEAN_EXPORT lean_object* l_Lake_LeanLib_weakLeanArgs(lean_object*);
@@ -1198,36 +1200,42 @@ lean_dec_ref(v_self_397_);
 return v_res_398_;
 }
 }
-LEAN_EXPORT lean_object* l_Lake_LeanLib_leanArgs(lean_object* v_self_399_){
+static lean_object* _init_l_Lake_LeanLib_leanArgs___closed__0(void){
 _start:
 {
-lean_object* v_pkg_400_; lean_object* v_config_401_; lean_object* v_toLeanConfig_402_; lean_object* v_config_403_; lean_object* v_toLeanConfig_404_; uint8_t v_buildType_405_; lean_object* v_moreLeanArgs_406_; uint8_t v_buildType_407_; lean_object* v_moreLeanArgs_408_; uint8_t v___y_410_; uint8_t v___x_414_; 
-v_pkg_400_ = lean_ctor_get(v_self_399_, 0);
-v_config_401_ = lean_ctor_get(v_pkg_400_, 6);
-v_toLeanConfig_402_ = lean_ctor_get(v_config_401_, 1);
-v_config_403_ = lean_ctor_get(v_self_399_, 2);
-v_toLeanConfig_404_ = lean_ctor_get(v_config_403_, 0);
-v_buildType_405_ = lean_ctor_get_uint8(v_toLeanConfig_402_, sizeof(void*)*13);
-v_moreLeanArgs_406_ = lean_ctor_get(v_toLeanConfig_402_, 1);
-v_buildType_407_ = lean_ctor_get_uint8(v_toLeanConfig_404_, sizeof(void*)*13);
-v_moreLeanArgs_408_ = lean_ctor_get(v_toLeanConfig_404_, 1);
-v___x_414_ = l_Lake_instOrdBuildType_ord(v_buildType_405_, v_buildType_407_);
+lean_object* v___x_399_; 
+v___x_399_ = l_Lake_BuildType_leanArgs___redArg();
+return v___x_399_;
+}
+}
+LEAN_EXPORT lean_object* l_Lake_LeanLib_leanArgs(lean_object* v_self_400_){
+_start:
+{
+lean_object* v_pkg_401_; lean_object* v_config_402_; lean_object* v_toLeanConfig_403_; lean_object* v_config_404_; lean_object* v_toLeanConfig_405_; uint8_t v_buildType_406_; lean_object* v_moreLeanArgs_407_; uint8_t v_buildType_408_; lean_object* v_moreLeanArgs_409_; uint8_t v___x_414_; 
+v_pkg_401_ = lean_ctor_get(v_self_400_, 0);
+v_config_402_ = lean_ctor_get(v_pkg_401_, 6);
+v_toLeanConfig_403_ = lean_ctor_get(v_config_402_, 1);
+v_config_404_ = lean_ctor_get(v_self_400_, 2);
+v_toLeanConfig_405_ = lean_ctor_get(v_config_404_, 0);
+v_buildType_406_ = lean_ctor_get_uint8(v_toLeanConfig_403_, sizeof(void*)*13);
+v_moreLeanArgs_407_ = lean_ctor_get(v_toLeanConfig_403_, 1);
+v_buildType_408_ = lean_ctor_get_uint8(v_toLeanConfig_405_, sizeof(void*)*13);
+v_moreLeanArgs_409_ = lean_ctor_get(v_toLeanConfig_405_, 1);
+v___x_414_ = l_Lake_instOrdBuildType_ord(v_buildType_406_, v_buildType_408_);
 if (v___x_414_ == 2)
 {
-v___y_410_ = v_buildType_407_;
-goto v___jp_409_;
+goto v___jp_410_;
 }
 else
 {
-v___y_410_ = v_buildType_405_;
-goto v___jp_409_;
+goto v___jp_410_;
 }
-v___jp_409_:
+v___jp_410_:
 {
 lean_object* v___x_411_; lean_object* v___x_412_; lean_object* v___x_413_; 
-v___x_411_ = l_Lake_BuildType_leanArgs(v___y_410_);
-v___x_412_ = l_Array_append___redArg(v___x_411_, v_moreLeanArgs_406_);
-v___x_413_ = l_Array_append___redArg(v___x_412_, v_moreLeanArgs_408_);
+v___x_411_ = lean_obj_once(&l_Lake_LeanLib_leanArgs___closed__0, &l_Lake_LeanLib_leanArgs___closed__0_once, _init_l_Lake_LeanLib_leanArgs___closed__0);
+v___x_412_ = l_Array_append___redArg(v___x_411_, v_moreLeanArgs_407_);
+v___x_413_ = l_Array_append___redArg(v___x_412_, v_moreLeanArgs_409_);
 return v___x_413_;
 }
 }

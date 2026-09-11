@@ -35,6 +35,7 @@ class WPConjunctive {Prog : Type u} {Value : outParam (Type v)} {Pred : outParam
     (x : Prog) : Prop where
   /-- The meet of the weakest preconditions `wp x Q₁ E₁` and `wp x Q₂ E₂` lies below the weakest
   precondition `wp x (Q₁ ⊓ Q₂) (E₁ ⊓ E₂)` of the componentwise meet of the postconditions. -/
-  wp_meet_wp_le : (WP.wpTrans x).Conjunctive
+  wp_meet_wp_le (Q₁ Q₂ : Value → Pred) (E₁ E₂ : EPred) :
+    wp x Q₁ E₁ ⊓ wp x Q₂ E₂ ⊑ wp x (Q₁ ⊓ Q₂) (E₁ ⊓ E₂)
 
 end Std.WP

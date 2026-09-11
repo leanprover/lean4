@@ -48,7 +48,7 @@ instance Stateful.instWP {α : Type} : WP (Stateful α) α StateProp EStack⟨�
       | none => True
       | some res => post res stOut h⟩
   wp_trans_monotone x := by
-    simp only [Lean.Order.PredTrans.Monotone, Lean.Order.PartialOrder.rel, Stateful.run]; grind
+    simp only [Lean.Order.PredTrans.monotone, Lean.Order.PartialOrder.rel, Stateful.run]; grind
 
 theorem Stateful.wpTrans_apply_eq {α : Type} (x : Stateful α)
     (post : α → StateProp) (epost : EStack⟨⟩) (st : State) (h : st.Invariant) :

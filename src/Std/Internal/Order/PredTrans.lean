@@ -71,14 +71,8 @@ instance [CCPO Pred] : CCPO (PredTrans Pred EPred α) where
 
 /-- Monotonicity property for a predicate transformer: if both `post` and `epost` grow,
 then the resulting precondition grows. -/
-def Monotone [PartialOrder Pred] [PartialOrder EPred] (pt : PredTrans Pred EPred α) :=
+def monotone [PartialOrder Pred] [PartialOrder EPred] (pt : PredTrans Pred EPred α) :=
   ∀ post post' epost epost', epost ⊑ epost' → post ⊑ post' → pt.apply post epost ⊑ pt.apply post' epost'
-
-/-- Conjunctivity property for a predicate transformer: the meet of two preconditions lies below
-the precondition of the componentwise meet of the postconditions. -/
-def Conjunctive [CompleteLattice Pred] [CompleteLattice EPred] (pt : PredTrans Pred EPred α) :=
-  ∀ post₁ post₂ epost₁ epost₂,
-    pt.apply post₁ epost₁ ⊓ pt.apply post₂ epost₂ ⊑ pt.apply (post₁ ⊓ post₂) (epost₁ ⊓ epost₂)
 
 /-!
 ## Monad Structure

@@ -147,31 +147,6 @@ section
 variable {Pred : Type u} [CompleteLattice Pred] {EPred : Type v} [CompleteLattice EPred]
   {β : Type w} {R : Type x} {opE : R → EPred → EPred}
 
-/-- `t` frames the resource `F` with respect to the operator `op : R → Pred → Pred` and its
-exception-channel companion: `op F ·` commutes into the value postcondition of `t` while
-`opE F ·` commutes into the exception postcondition. -/
-structure PredTrans.Frames (op : R → Pred → Pred) [FrameOp op EPred opE]
-    (t : PredTrans Pred EPred β) (F : R) : Prop where
-  /-- `op F` and its companion commute into the postcondition pair of `t`. -/
-  op_apply_le_apply_op : ∀ (Q : β → Pred) (E : EPred),
-    op F (t.apply Q E) ⊑ t.apply (fun a => op F (Q a)) (opE F E)
-
-theorem PredTrans.Frames.of_conjunctive {opE : Pred → EPred → EPred} [FrameOp meet EPred opE]
-    {t : PredTrans Pred EPred β} {F : Pred}
-    (hmono : t.Monotone) (hconj : t.Conjunctive)
-    (hF : F ⊑ t.apply (fun _ => F) (opE F ⊤))
-    (hE : ∀ E, opE F ⊤ ⊓ E ⊑ opE F E) :
-    t.Frames meet F := by
-  constructor
-  intro Q E
-  refine PartialOrder.rel_trans (y := t.apply (fun _ => F) (opE F ⊤) ⊓ t.apply Q E) ?_ ?_
-  · exact le_meet _ _ _ (PartialOrder.rel_trans (meet_le_left _ _) hF) (meet_le_right _ _)
-  · refine PartialOrder.rel_trans (hconj (fun _ => F) Q (opE F ⊤) E) ?_
-    refine hmono _ _ _ _ (hE E) ?_
-    intro a
-    simp only [meet_apply]
-    exact PartialOrder.rel_refl
-
 /-- The **frame closure** of a predicate transformer `t` with respect to a family of
 supremum-preserving operators `op r` and its exception-channel companion `opE r`: the meet over all
 resources `r` of the `r`-upper-adjoint of `t` framed by `r` on both channels. It internalizes the
@@ -180,14 +155,16 @@ noncomputable def PredTrans.frameClosure (op : R → Pred → Pred) [FrameOp op 
     (t : PredTrans Pred EPred β) : PredTrans Pred EPred β :=
   ⟨fun Q E => ⨅ r, PreservesSup.upperAdjoint (op r) (t.apply (fun a => op r (Q a)) (opE r E))⟩
 
+/-- Unfolding `frameClosure` through `apply`. -/
 @[simp] theorem PredTrans.apply_frameClosure (op : R → Pred → Pred) [FrameOp op EPred opE]
     (t : PredTrans Pred EPred β) (Q : β → Pred) (E : EPred) :
     (t.frameClosure op).apply Q E =
       ⨅ r, PreservesSup.upperAdjoint (op r) (t.apply (fun a => op r (Q a)) (opE r E)) := rfl
 
+/-- The frame closure carries monotonicity: if `t` is monotone, so is `t.frameClosure op`. -/
 theorem PredTrans.monotone_frameClosure (op : R → Pred → Pred) [FrameOp op EPred opE]
-    {t : PredTrans Pred EPred β} (h : t.Monotone) :
-    (t.frameClosure op).Monotone := by
+    {t : PredTrans Pred EPred β} (h : t.monotone) :
+    (t.frameClosure op).monotone := by
   haveI := FrameOp.preservesSup (op := op) (EPred := EPred) (opE := opE)
   haveI := FrameOp.preservesSupE (op := op) (EPred := EPred) (opE := opE)
   intro post post' epost epost' hE hP
@@ -196,14 +173,17 @@ theorem PredTrans.monotone_frameClosure (op : R → Pred → Pred) [FrameOp op E
   exact h _ _ _ _ (PreservesSup.map_mono (opE r) hE)
     (fun a => PreservesSup.map_mono (op r) (hP a))
 
+/-- The frame rule, internalized: for supremum-preserving `op r` whose resources compose by `comp`
+with the action law `op (comp r r') = op r ∘ op r'`, and the matching companion law `hactE`, `op F`
+commutes into the value postcondition of `t.frameClosure op` while `opE F` commutes into the
+exception postcondition. -/
 theorem PredTrans.frameClosure_frames (op : R → Pred → Pred) [FrameOp op EPred opE]
     (comp : R → R → R) (hact : ∀ r r' a, op (comp r r') a = op r (op r' a))
     (hactE : ∀ r r' E, opE (comp r r') E = opE r (opE r' E))
-    (t : PredTrans Pred EPred β) (F : R) :
-    (t.frameClosure op).Frames op F := by
+    (t : PredTrans Pred EPred β) (Q : β → Pred) (E : EPred) (F : R) :
+    op F ((t.frameClosure op).apply Q E) ⊑
+      (t.frameClosure op).apply (fun a => op F (Q a)) (opE F E) := by
   haveI := FrameOp.preservesSup (op := op) (EPred := EPred) (opE := opE)
-  constructor
-  intro Q E
   apply le_iInf
   intro F'
   apply PreservesSup.le_upperAdjoint (op F')
@@ -217,6 +197,9 @@ theorem PredTrans.frameClosure_frames (op : R → Pred → Pred) [FrameOp op EPr
   funext a
   rw [hact F' F (Q a)]
 
+/-- Landing below the frame closure, transposed across the Galois connection:
+`pre ⊑ (t.frameClosure op).apply Q E` holds exactly when
+`op r pre ⊑ t.apply (fun a => op r (Q a)) (opE r E)` for every resource `r`. -/
 theorem PredTrans.le_frameClosure_iff (op : R → Pred → Pred) [FrameOp op EPred opE]
     (t : PredTrans Pred EPred β) {Q : β → Pred} {E : EPred} {pre : Pred} :
     pre ⊑ (t.frameClosure op).apply Q E ↔
@@ -232,15 +215,21 @@ theorem PredTrans.le_frameClosure_iff (op : R → Pred → Pred) [FrameOp op EPr
     intro r
     exact PreservesSup.le_upperAdjoint (op r) (h r)
 
+/-- Landing below the frame closure reduces to landing below the base transformer together with
+framing: if `pre ⊑ t.apply Q E` and `t` frames every `op r` on both channels, then
+`pre ⊑ (t.frameClosure op).apply Q E`. -/
 theorem PredTrans.le_frameClosure (op : R → Pred → Pred) [FrameOp op EPred opE]
     (t : PredTrans Pred EPred β) {Q : β → Pred} {E : EPred} {pre : Pred}
-    (hframe : ∀ r : R, t.Frames op r)
+    (hframe : ∀ (r : R) (Q' : β → Pred),
+      op r (t.apply Q' E) ⊑ t.apply (fun a => op r (Q' a)) (opE r E))
     (hpre : pre ⊑ t.apply Q E) :
     pre ⊑ (t.frameClosure op).apply Q E :=
   haveI := FrameOp.preservesSup (op := op) (EPred := EPred) (opE := opE)
   (le_frameClosure_iff op t).mpr fun r =>
-    PartialOrder.rel_trans (PreservesSup.map_mono (op r) hpre) ((hframe r).op_apply_le_apply_op Q E)
+    PartialOrder.rel_trans (PreservesSup.map_mono (op r) hpre) (hframe r Q)
 
+/-- The frame closure lies below the base transformer, witnessed at a unit resource `e` with
+`op e = id` and `opE e = id`. -/
 theorem PredTrans.frameClosure_le (op : R → Pred → Pred) [FrameOp op EPred opE]
     (e : R) (hunit : ∀ a, op e a = a) (hunitE : ∀ E, opE e E = E)
     (t : PredTrans Pred EPred β) (Q : β → Pred) (E : EPred) :

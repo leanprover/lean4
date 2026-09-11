@@ -68,15 +68,22 @@ theorem WP.frames_of_frameClosure {R : Type t} (op : R → Pred → Pred)
   intro Q E
   show op F ((WP.wpTrans x).apply Q E) ⊑ (WP.wpTrans x).apply _ _
   rw [hf x]
-  exact (PredTrans.frameClosure_frames op comp hact hactE (f x) F).op_apply_le_apply_op Q E
+  exact PredTrans.frameClosure_frames op comp hact hactE (f x) Q E F
 
 theorem WP.frames_of_conjunctive {x : Prog} [WPConjunctive x]
     {opE : Pred → EPred → EPred} [FrameOp meet EPred opE] {F : Pred}
     (hF : F ⊑ wp x (fun _ => F) (opE F ⊤))
     (hE : ∀ E, opE F ⊤ ⊓ E ⊑ opE F E) :
-    WP.Frames meet x F :=
-  ⟨(PredTrans.Frames.of_conjunctive (WP.wp_trans_monotone x)
-    WPConjunctive.wp_meet_wp_le hF hE).op_apply_le_apply_op⟩
+    WP.Frames meet x F := by
+  constructor
+  intro Q E
+  refine PartialOrder.rel_trans (y := wp x (fun _ => F) (opE F ⊤) ⊓ wp x Q E) ?_ ?_
+  · exact le_meet _ _ _ (PartialOrder.rel_trans (meet_le_left _ _) hF) (meet_le_right _ _)
+  · refine PartialOrder.rel_trans (WPConjunctive.wp_meet_wp_le (fun _ => F) Q (opE F ⊤) E) ?_
+    refine WP.wp_consequence_econs _ _ _ _ _ ?_ (hE E)
+    intro a
+    simp only [meet_apply]
+    exact PartialOrder.rel_refl
 
 /-- Reinterpret a `WP` so its weakest precondition is the `frameClosure` of the base
 wp over a family of supremum-preserving resource operators `op r` and the `FrameOp`-derived

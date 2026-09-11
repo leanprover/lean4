@@ -64,7 +64,7 @@ class WP (Prog : Type u) (Value : outParam (Type v)) (Pred : outParam (Type w))
   /-- The weakest precondition transformer for a program. -/
   wpTrans : Prog → PredTrans Pred EPred Value
   /-- Monotonicity: weaker postconditions yield weaker preconditions. -/
-  wp_trans_monotone (x : Prog) : wpTrans x |>.Monotone
+  wp_trans_monotone (x : Prog) : wpTrans x |>.monotone
 
 /-- Weakest precondition of `x` for normal postcondition `post` and exception postcondition `epost`.
 The `WP` interpretation can be supplied explicitly via dot notation (`inst.wp x post epost`). -/

@@ -61,9 +61,18 @@ if (arity == fixed + {n}) \{
     let fs := mkFsArgs (j - n)
     let sep := if j = n then "" else ", "
     emit s!"    case {j}: \{ obj* r = FN{j}(f)({fs}{sep}{args}); lean_free_object(f); return r; }\n"
-  emit "    }
+  emit s!"    default:
+      lean_assert(arity > {max});
+      obj * as[{n}] = \{ {args} };
+      obj ** args = static_cast<obj**>(LEAN_ALLOCA(arity*sizeof(obj*))); // NOLINT
+      for (unsigned i = 0; i < fixed; i++) args[i] = fx(i);
+      for (unsigned i = 0; i < {n}; i++) args[fixed+i] = as[i];
+      obj * r = FNN(f)(args);
+      lean_free_object(f);
+      return r;
+    }
   }
-  switch (arity) {\n"
+  switch (arity) \{\n"
   for j in [n:max + 1] do
     let lean_incfs := mkIncFs (j - n)
     let fs := mkFsArgs (j - n)
@@ -83,10 +92,17 @@ if (arity == fixed + {n}) \{
   if n ≥ 2 then do
     emit  s!"  obj * as[{n}] = \{ {args} };
   obj ** args = static_cast<obj**>(LEAN_ALLOCA(arity*sizeof(obj*))); // NOLINT
-  for (unsigned i = 0; i < fixed; i++) \{ lean_inc(fx(i)); args[i] = fx(i); }
   for (unsigned i = 0; i < arity-fixed; i++) args[fixed+i] = as[i];
-  obj * new_f = curry(f, arity, args);
-  lean_dec_ref(f);
+  obj * new_f;
+  if (lean_is_exclusive(f)) \{
+    for (unsigned i = 0; i < fixed; i++) args[i] = fx(i);
+    new_f = curry(f, arity, args);
+    lean_free_object(f);
+  } else \{
+    for (unsigned i = 0; i < fixed; i++) \{ lean_inc(fx(i)); args[i] = fx(i); }
+    new_f = curry(f, arity, args);
+    lean_dec_ref(f);
+  }
   return lean_apply_n(new_f, {n}+fixed-arity, &as[arity-fixed]);\n"
   else emit s!"  lean_assert(fixed < arity);
   lean_unreachable();\n"
@@ -126,8 +142,14 @@ unsigned arity = lean_closure_arity(f);
 unsigned fixed = lean_closure_num_fixed(f);
 if (arity == fixed + n) \{
   obj ** args = static_cast<obj**>(LEAN_ALLOCA(arity*sizeof(obj*))); // NOLINT
-  for (unsigned i = 0; i < fixed; i++) \{ lean_inc(fx(i)); args[i] = fx(i); }
   for (unsigned i = 0; i < n; i++) args[fixed+i] = as[i];
+  if (lean_is_exclusive(f)) \{
+    for (unsigned i = 0; i < fixed; i++) args[i] = fx(i);
+    obj * r = FNN(f)(args);
+    lean_free_object(f);
+    return r;
+  }
+  for (unsigned i = 0; i < fixed; i++) \{ lean_inc(fx(i)); args[i] = fx(i); }
   obj * r = FNN(f)(args);
   lean_dec_ref(f);
   return r;
@@ -137,10 +159,16 @@ if (arity == fixed + n) \{
   if (arity > LEAN_CLOSURE_MAX_ARGS) \{
     // `f`'s code takes its arguments as an array
     obj ** args = static_cast<obj**>(LEAN_ALLOCA(arity*sizeof(obj*))); // NOLINT
-    for (unsigned i = 0; i < fixed; i++) \{ lean_inc(fx(i)); args[i] = fx(i); }
     for (unsigned i = 0; i < m; i++) args[fixed+i] = as[i];
-    new_f = FNN(f)(args);
-    lean_dec_ref(f);
+    if (lean_is_exclusive(f)) \{
+      for (unsigned i = 0; i < fixed; i++) args[i] = fx(i);
+      new_f = FNN(f)(args);
+      lean_free_object(f);
+    } else \{
+      for (unsigned i = 0; i < fixed; i++) \{ lean_inc(fx(i)); args[i] = fx(i); }
+      new_f = FNN(f)(args);
+      lean_dec_ref(f);
+    }
   } else \{
     // `f`'s code takes `arity` separate arguments, so it must not be invoked through `FNN`;
     // `lean_apply_n` dispatches on `m` and consumes `f`.

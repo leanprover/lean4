@@ -59,7 +59,15 @@ example (n : Int) : g n = n + 1 := by
   fail_if_success grobner [= sq_def]
   grobner [= g_def]
 
--- Local hypotheses are used automatically, so passing one is an error, as for `grind`.
+-- `@[grind inj]` theorems remain available with a parameter list.
+private opaque F : Int → Int
+@[grind inj] private axiom F_inj : Function.Injective F
+example (x y : Int) (h : F x = F y) : x = y := by
+  grobner
+example (x y : Int) (h : F x = F y) : x = y := by
+  grobner []
+
+-- Ordinary local facts are used automatically, so passing one is an error, as for `grind`.
 /-- error: redundant parameter `h`, `grind` uses local hypotheses automatically -/
 #guard_msgs in
 example (x y : Int) (h : x = y) : x * x = y * y := by

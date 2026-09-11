@@ -358,7 +358,8 @@ It is a implemented as a thin wrapper around the `grind` tactic, enabling only t
 Please use `grind` instead if you need additional capabilities.
 
 Like `grind`, it accepts a list of extra facts and lemmas, e.g. `grobner [foo x y, = bar]`.
-Lemmas given this way are instantiated via E-matching, while the `@[grind]` lemma set stays disabled.
+Lemmas given this way are instantiated via E-matching, while the `@[grind]` lemma set is not enabled
+implicitly.
 -/
 syntax (name := grobner) "grobner" optConfig (" [" withoutPosition(grindParam,*) "]")? : tactic
 

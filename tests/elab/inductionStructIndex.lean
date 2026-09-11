@@ -78,6 +78,31 @@ example {a : Nat} {x : Wrap2} (h : Relation.TransGen (fun a b : Nat => a = b) a 
   | single hr => grind
   | tail h hr ih => grind
 
+-- Projection of a multi-field structure: the other fields become inaccessible variables.
+/--
+trace: case single
+a p snd✝ : Nat
+hp : snd✝ = 3
+b✝ : Nat
+hr : a = b✝
+⊢ a = b✝
+---
+trace: case tail
+a p snd✝ : Nat
+hp : snd✝ = 3
+b✝ c✝ : Nat
+h : Relation.TransGen (fun a b => a = b) a b✝
+hr : b✝ = c✝
+ih : a = b✝
+⊢ a = c✝
+-/
+#guard_msgs in
+example {a : Nat} {p : Nat × Nat} (hp : p.2 = 3)
+    (h : Relation.TransGen (fun a b : Nat => a = b) a p.1) : a = p.1 := by
+  induction h with
+  | single hr => trace_state; grind
+  | tail h hr ih => trace_state; grind
+
 -- Multi-field and dependent structures.
 example {a b c d : Nat} (h : Relation.TransGen (fun a b : Nat × Nat => a = b) (a, b) (c, d)) :
     a + b = c + d := by

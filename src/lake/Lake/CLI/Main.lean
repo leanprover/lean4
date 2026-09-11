@@ -1181,9 +1181,9 @@ protected def challenge : CliM PUnit := do
 /--
 The half of `lake check` that runs inside the sandbox, selected by `LAKE_CHECK_EXPORT`.
 
-Resolves the default targets to modules, builds them, and dumps the export of everything in scope.
-The export goes to standard out and everything else to standard error, so the outer half can read
-one from the other.
+Resolves the default targets to modules, builds them, and dumps the export of everything in scope
+but the non-standard axioms, failing if anything uses one. The export goes to standard out and
+everything else to standard error, so the outer half can read one from the other.
 -/
 protected def checkExport : CliM PUnit := do
   let opts ← getThe LakeOptions
@@ -1193,7 +1193,7 @@ protected def checkExport : CliM PUnit := do
   let mods ← ws.runBuild ws.root.defaultModules.fetch buildConfig
   Lean.initSearchPath ws.lakeEnv.lean.sysroot ws.augmentedLeanPath
   let env ← Lean.importModules (mods.map fun mod => {module := mod.name}) {}
-  LeanExport.dumpEnv env
+  LeanExport.dumpEnv env (permittedAxioms? := some (.ofArray Check.standardAxioms))
 
 /-- The `lake check` command: check this project against the kernel. -/
 protected def check : CliM PUnit := do

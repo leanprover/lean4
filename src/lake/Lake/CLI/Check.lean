@@ -591,7 +591,8 @@ def resolveExternalKernels (cfg : Config) : IO (Except ExitCode (Std.TreeMap Str
       return .error (← cannotRun s!"`{kernelName}` kernel `{kernelCommand[0]!}` was not found")
   return .ok externalKernels
 
-def standardAxioms : Array Lean.Name :=
+/-- The only axioms `lake check` permits. -/
+public def standardAxioms : Array Lean.Name :=
   #[``propext, ``Classical.choice, ``Quot.sound]
 
 /-- Reports the axioms the checked modules rest on, and rejects any beyond `standardAxioms`. -/

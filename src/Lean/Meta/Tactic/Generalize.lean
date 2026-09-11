@@ -160,13 +160,16 @@ structure ChangeVarsResult where
   /-- The new variables `ys` in the context of `mvarId`. -/
   ys     : Array FVarId
   /-- Maps the replaced variables `xs` and all reverted dependents to their counterparts in `mvarId`. -/
-  subst  : FVarSubst
+  substitutions  : FVarSubst
 
 /--
-Definitional change of variables: replaces the variables `xs` by the terms `xsVals` over the fresh
-variables `ys`, local declarations of the current context that do not depend on `xs`. The old goal
-is closed by instantiating `ys` with `ysVals`, so `xsVals[ys := ysVals]` must be definitionally
-equal to `xs`. Each pattern in `abstractions` is abstracted to its replacement first, e.g. `⟨xs⟩ ↦ y`.
+Definitional change of variables: replaces the variables `xs` by the terms `xsVals`.
+The latter can use the fresh variables `ys`, local declarations of the current context that do not
+depend on `xs`.
+The old goal is closed by instantiating `ys` with `ysVals`, so `xsVals[ys := ysVals]` must be
+definitionally equal to `xs`.
+For each `(p, r)` in `abstractions`, `p` is replaced with `r` first, e.g. `⟨x⟩ ↦ y`.
+Only after that are the variables `xs` replaced.
 Returns `none` if the result is not type correct.
 -/
 def _root_.Lean.MVarId.changeVars (mvarId : MVarId) (xs : Array FVarId) (ys : Array Expr)
@@ -174,31 +177,54 @@ def _root_.Lean.MVarId.changeVars (mvarId : MVarId) (xs : Array FVarId) (ys : Ar
     (transparency := TransparencyMode.instances) : MetaM (Option ChangeVarsResult) := do
   mvarId.checkNotAssigned `changeVars
   let mvarDecl ← mvarId.getDecl
+  /- Revert all fvars in `xs` and their dependent local declarations. -/
   let toRevert ← collectForwardDeps (xs.map mkFVar) (preserveOrder := false)
   if ← toRevert.anyM fun z => return (← z.fvarId!.getDecl).isAuxDecl then
+    /-
+    Auxiliary declarations cannot be handled. `revert` would simply clear them,
+    but this function is used by the `induction` tactic, where we'd rather not do the variable
+    change than lose local declarations that might be relevant for the induction.
+    -/
     return none
-  let zs := toRevert.filter fun z => !xs.contains z.fvarId!
-  let mut body ← mkForallFVars zs (← instantiateMVars mvarDecl.type) (usedLetOnly := false)
+
+  /-
+  First, revert all dependent local declarations. The result is the forall term `body`.
+  We plan to reintroduce them later, hence `usedLetOnly := false`.
+  -/
+  let dependentLDecls := toRevert.filter fun z => !xs.contains z.fvarId!
+  let mut body ← mkForallFVars dependentLDecls (← instantiateMVars mvarDecl.type) (usedLetOnly := false)
   for (p, r) in abstractions do
+    /-
+    Replace `p` with `r`, at a transparency that is usually `.instances`, like in
+    `generalizeTargets`.
+    For example, we might replace `⟨x⟩` with `y`, wherere `x` is a free variable that is going
+    to be replaced by `y.field`.
+    -/
     body := (← withTransparency transparency <| kabstract body p).instantiate1 r
+
+  /- Replace the fvars with their substitutes, then generalize over the new fvars. -/
   body := body.replaceFVars (xs.map mkFVar) xsVals
   let newType ← mkForallFVars ys body
   unless ← isTypeCorrect newType do
     return none
   let lctx := toRevert.foldl (init := mvarDecl.lctx) fun lctx z => lctx.erase z.fvarId!
   let localInsts := mvarDecl.localInstances.filter fun inst => toRevert.all (· != inst.fvar)
-  let newMVar ← mkFreshExprMVarAt lctx localInsts newType .syntheticOpaque (← mvarId.getTag)
-  let zsArgs ← zs.filterM fun z => return !(← z.fvarId!.getDecl).isLet
-  mvarId.assign (mkAppN (mkAppN newMVar ysVals) zsArgs)
-  let (fvarIds, mvarId) ← newMVar.mvarId!.introNP (ys.size + zs.size)
+  let generalizedGoal ← mkFreshExprMVarAt lctx localInsts newType .syntheticOpaque (← mvarId.getTag)
+  let nonLetDependentDecls ← dependentLDecls.filterM fun z => return !(← z.fvarId!.getDecl).isLet
+  mvarId.assign (mkAppN (mkAppN generalizedGoal ysVals) nonLetDependentDecls)
+
+  /- Reintroduce the local declarations. -/
+  let (fvarIds, newGoalId) ← generalizedGoal.mvarId!.introNP (ys.size + dependentLDecls.size)
   let ysNew := fvarIds.extract 0 ys.size
-  let zsNew := fvarIds.extract ys.size
-  let xsVals := xsVals.map (·.replaceFVars ys (ysNew.map mkFVar))
-  let mut subst : FVarSubst := {}
-  for x in xs, v in xsVals do
-    subst := subst.insert x v
-  for z in zs, z' in zsNew do
-    subst := subst.insert z.fvarId! (mkFVar z')
-  return some { mvarId, ys := ysNew, subst }
+
+  /- Build the list of substitutions to be returned. -/
+  let newXsVals := xsVals.map (·.replaceFVars ys (ysNew.map mkFVar))
+  let newDependentLDeclIds := fvarIds.extract ys.size
+  let mut substitutions : FVarSubst := {}
+  for x in xs, v in newXsVals do
+    substitutions := substitutions.insert x v
+  for z in dependentLDecls, z' in newDependentLDeclIds do
+    substitutions := substitutions.insert z.fvarId! (mkFVar z')
+  return some { mvarId := newGoalId, ys := ysNew, substitutions }
 
 end Lean.Meta

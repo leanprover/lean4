@@ -999,17 +999,19 @@ def evalInductionCore (stx : Syntax) (elimInfo : ElimInfo) (targets : Array Expr
           (generalized := generalized) (toClear := targetFVarIds) (toTag := toTag)
         appendGoals result.others.toList
 
-/-- Declares the `numFields` fields of the instantiated constructor type `ctorType`. -/
+/-- Declares the fields of the instantiated constructor type `ctorType`. -/
 private def withFieldDecls (ctorType : Expr) (numFields : Nat) (rename : Nat → Name → MetaM Name)
     (k : Array Expr → MetaM α) : MetaM α :=
   go ctorType #[]
 where
   go (type : Expr) (ys : Array Expr) : MetaM α := do
     if ys.size < numFields then
-      let .forallE n d b _ ← whnf type | throwError "unexpected constructor type{indentExpr ctorType}"
+      -- The kernel counts fields syntactically, so the binders are visible without reduction.
+      let .forallE n d b _ := type | throwError "unexpected constructor type{indentExpr ctorType}"
       withLocalDeclD (← rename ys.size n) d fun y => go (b.instantiate1 y) (ys.push y)
     else
       k ys
+  termination_by numFields - ys.size
 
 /--
 Matches `⟨y.f₁, …, y.fₙ⟩`, given as the constructor `ctorVal` applied to `params` and the projections
@@ -1096,7 +1098,8 @@ where
   projStep (ctorVal : ConstructorVal) (us : List Level) (params : Array Expr) (i : Nat) (x : Expr) :
       MetaM (Option ChangeVarsResult) := do
     unless ← isCandidate x do return ← recurse x
-    let ctorType ← instantiateForall (ctorVal.type.instantiateLevelParams ctorVal.levelParams us) params
+    let ctorType := (ctorVal.type.instantiateLevelParams ctorVal.levelParams us)
+      |>.getForallBodyMaxDepth ctorVal.numParams |>.instantiateRev params
     let rename j n := if j == i then x.fvarId!.getUserName else mkFreshUserName n
     withFieldDecls ctorType ctorVal.numFields rename fun ys => do
       let xVal := mkAppN (mkAppN (mkConst ctorVal.name us) params) ys

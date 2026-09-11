@@ -161,6 +161,8 @@ structure ChangeVarsResult where
   ys     : Array FVarId
   /-- Maps the replaced variables `xs` and all reverted dependents to their counterparts in `mvarId`. -/
   substitutions  : FVarSubst
+  /-- The expressions `others`, transported to the context of `mvarId`. -/
+  others : Array Expr
 
 /--
 Definitional change of variables: replaces the variables `xs` by the terms `xsVals`.
@@ -168,13 +170,13 @@ The latter can use the fresh variables `ys`, local declarations of the current c
 depend on `xs`.
 The old goal is closed by instantiating `ys` with `ysVals`, so `xsVals[ys := ysVals]` must be
 definitionally equal to `xs`.
-For each `(p, r)` in `abstractions`, `p` is replaced with `r` first, e.g. `⟨x⟩ ↦ y`.
-Only after that are the variables `xs` replaced.
+After the substitution, subterms for which `fold` returns `some r` are replaced by `r`, e.g.
+`⟨y.f⟩ ↦ y`; the same substitution and folding is applied to `others`.
 Returns `none` if the result is not type correct.
 -/
 def _root_.Lean.MVarId.changeVars (mvarId : MVarId) (xs : Array FVarId) (ys : Array Expr)
-    (xsVals : Array Expr) (ysVals : Array Expr) (abstractions : Array (Expr × Expr))
-    (transparency := TransparencyMode.instances) : MetaM (Option ChangeVarsResult) := do
+    (xsVals : Array Expr) (ysVals : Array Expr) (fold : Expr → Option Expr := fun _ => none)
+    (others : Array Expr := #[]) : MetaM (Option ChangeVarsResult) := do
   mvarId.checkNotAssigned `changeVars
   let mvarDecl ← mvarId.getDecl
   /- Revert all fvars in `xs` and their dependent local declarations. -/
@@ -192,19 +194,11 @@ def _root_.Lean.MVarId.changeVars (mvarId : MVarId) (xs : Array FVarId) (ys : Ar
   We plan to reintroduce them later, hence `usedLetOnly := false`.
   -/
   let dependentLDecls := toRevert.filter fun z => !xs.contains z.fvarId!
-  let mut body ← mkForallFVars dependentLDecls (← instantiateMVars mvarDecl.type) (usedLetOnly := false)
-  for (p, r) in abstractions do
-    /-
-    Replace `p` with `r`, at a transparency that is usually `.instances`, like in
-    `generalizeTargets`.
-    For example, we might replace `⟨x⟩` with `y`, wherere `x` is a free variable that is going
-    to be replaced by `y.field`.
-    -/
-    body := (← withTransparency transparency <| kabstract body p).instantiate1 r
+  let body ← mkForallFVars dependentLDecls (← instantiateMVars mvarDecl.type) (usedLetOnly := false)
 
-  /- Replace the fvars with their substitutes, then generalize over the new fvars. -/
-  body := body.replaceFVars (xs.map mkFVar) xsVals
-  let newType ← mkForallFVars ys body
+  /- Replace the fvars with their substitutes, fold, then generalize over the new fvars. -/
+  let transport (e : Expr) : Expr := (e.replaceFVars (xs.map mkFVar) xsVals).replace fold
+  let newType ← mkForallFVars ys (transport body)
   unless ← isTypeCorrect newType do
     return none
   let lctx := toRevert.foldl (init := mvarDecl.lctx) fun lctx z => lctx.erase z.fvarId!
@@ -217,14 +211,13 @@ def _root_.Lean.MVarId.changeVars (mvarId : MVarId) (xs : Array FVarId) (ys : Ar
   let (fvarIds, newGoalId) ← generalizedGoal.mvarId!.introNP (ys.size + dependentLDecls.size)
   let ysNew := fvarIds.extract 0 ys.size
 
-  /- Build the list of substitutions to be returned. -/
-  let newXsVals := xsVals.map (·.replaceFVars ys (ysNew.map mkFVar))
-  let newDependentLDeclIds := fvarIds.extract ys.size
+  /- Rename `ys` and the reintroduced declarations to their new fvars. -/
+  let rename (e : Expr) : Expr := e.replaceFVars (ys ++ dependentLDecls) (fvarIds.map mkFVar)
   let mut substitutions : FVarSubst := {}
-  for x in xs, v in newXsVals do
-    substitutions := substitutions.insert x v
-  for z in dependentLDecls, z' in newDependentLDeclIds do
-    substitutions := substitutions.insert z.fvarId! (mkFVar z')
-  return some { mvarId := newGoalId, ys := ysNew, substitutions }
+  for x in xs, v in xsVals do
+    substitutions := substitutions.insert x (rename v)
+  for z in dependentLDecls do
+    substitutions := substitutions.insert z.fvarId! (rename z)
+  return some { mvarId := newGoalId, ys := ysNew, substitutions, others := others.map (rename ∘ transport) }
 
 end Lean.Meta

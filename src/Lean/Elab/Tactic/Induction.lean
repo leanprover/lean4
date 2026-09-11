@@ -1012,13 +1012,47 @@ where
       k ys
 
 /--
+Matches `⟨y.f₁, …, y.fₙ⟩`, given as the constructor `ctorVal` applied to `params` and the projections
+`projs`, and returns `y`. Proof fields are ignored (proof irrelevance), so `⟨y.val, h⟩` matches too.
+-/
+private def foldCtorOfProjs (ctorVal : ConstructorVal) (us : List Level) (params projs : Array Expr)
+    (isProof : Array Bool) (y : Expr) (e : Expr) : Option Expr := do
+  let e := e.cleanupAnnotations
+  guard <| e.isAppOfArity ctorVal.name (ctorVal.numParams + ctorVal.numFields)
+  let .const _ us' := e.getAppFn | none
+  guard <| us' == us
+  let args := e.getAppArgs
+  guard <| (Array.range ctorVal.numParams).all fun i => args[i]!.cleanupAnnotations == params[i]!
+  guard <| (Array.range ctorVal.numFields).all fun i =>
+    isProof[i]! || args[ctorVal.numParams + i]!.cleanupAnnotations == projs[i]!
+  return y
+
+/--
+Matches `⟨y₁, …, yₙ⟩.fᵢ`, where the constructor application is exactly `ctorApp`, given as `Expr.proj`
+or as an application of the projection function `projFns[i]`, and returns `yᵢ`.
+-/
+private def foldProjOfCtor (ctorVal : ConstructorVal) (projFns : Array (Option Name)) (ctorApp : Expr)
+    (ys : Array Expr) (e : Expr) : Option Expr := do
+  let e := e.cleanupAnnotations
+  match e with
+  | .proj structName i x =>
+    guard <| structName == ctorVal.induct && x.cleanupAnnotations == ctorApp
+    ys[i]?
+  | .app .. =>
+    let .const declName _ := e.getAppFn | none
+    let some i := projFns.findIdx? (· == some declName) | none
+    guard <| e.getAppNumArgs == ctorVal.numParams + 1 && e.appArg!.cleanupAnnotations == ctorApp
+    ys[i]?
+  | _ => none
+
+/--
 Turns the index subterm `e` into a variable by a definitional change of variables if `e` is a
 structure constructor application `⟨x₁, …, xₙ⟩` (`xᵢ ↦ y.fᵢ`) or a projection `x.f`
 (`x ↦ ⟨y₁, …, yₙ⟩`) of variables; otherwise recurses into the first non-variable argument.
 Variables that are targets themselves are left alone, replacing them would make another target
-non-atomic.
+non-atomic. The expressions `others` are transported to the new goal, see `MVarId.changeVars`.
 -/
-private partial def changeStructIndexVars? (mvarId : MVarId) (targets : Array Expr) (e : Expr) :
+private partial def changeStructIndexVars? (mvarId : MVarId) (targets others : Array Expr) (e : Expr) :
     MetaM (Option ChangeVarsResult) := do
   let e := e.cleanupAnnotations
   let env ← getEnv
@@ -1047,7 +1081,9 @@ private partial def changeStructIndexVars? (mvarId : MVarId) (targets : Array Ex
       let yName ← if h : fields.size = 1 then fields[0].fvarId!.getUserName else mkFreshUserName `x
       withLocalDeclD yName (mkAppN (mkConst ctorVal.induct us) params) fun y => do
         let xsVals ← (Array.range fields.size).mapM (mkProjFn ctorVal us params · y)
-        mvarId.changeVars (fields.map (·.fvarId!)) #[y] xsVals #[e] #[(e, y)]
+        let isProof ← fields.mapM (Meta.isProof ·)
+        let fold := foldCtorOfProjs ctorVal us params xsVals isProof y
+        mvarId.changeVars (fields.map (·.fvarId!)) #[y] xsVals #[e] fold others
   | _ => return none
 where
   isCandidate (x : Expr) : MetaM Bool := do
@@ -1056,7 +1092,7 @@ where
     let decl ← x.fvarId!.getDecl
     return !decl.isLet && !decl.isAuxDecl
   recurse (x : Expr) : MetaM (Option ChangeVarsResult) :=
-    if x.isFVar then pure none else changeStructIndexVars? mvarId targets x
+    if x.isFVar then pure none else changeStructIndexVars? mvarId targets others x
   projStep (ctorVal : ConstructorVal) (us : List Level) (params : Array Expr) (i : Nat) (x : Expr) :
       MetaM (Option ChangeVarsResult) := do
     unless ← isCandidate x do return ← recurse x
@@ -1065,35 +1101,10 @@ where
     withFieldDecls ctorType ctorVal.numFields rename fun ys => do
       let xVal := mkAppN (mkAppN (mkConst ctorVal.name us) params) ys
       let ysVals ← (Array.range ys.size).mapM (mkProjFn ctorVal us params · x)
-      -- `x.f` may occur both as projection function application and as `Expr.proj`
-      let e' ← mkProjFn ctorVal us params i x
-      let abstractions := #[(e, ys[i]!)] ++ if e' == e then #[] else #[(e', ys[i]!)]
-      mvarId.changeVars #[x.fvarId!] ys #[xVal] ysVals abstractions
-
-/--
-Reduces `⟨x₁, …, xₙ⟩.fᵢ` to `xᵢ`. Such indices arise from `changeStructIndexVars?` when the index
-is only visible after unfolding, e.g. `b.as` in `a ⟶ b` for a category structure on a wrapper type.
--/
-private partial def reduceProjOfCtor (e : Expr) : MetaM Expr := do
-  let e := e.cleanupAnnotations
-  let env ← getEnv
-  let field? (ctorVal : ConstructorVal) (i : Nat) (x : Expr) : Option Expr :=
-    let x := x.cleanupAnnotations
-    if x.isAppOfArity ctorVal.name (ctorVal.numParams + ctorVal.numFields) then
-      some (x.getArg! (ctorVal.numParams + i))
-    else none
-  match e with
-  | .proj structName i x =>
-    let some ctorVal := getNonRecStructureCtor? env structName | return e
-    let some r := field? ctorVal i x | return e
-    reduceProjOfCtor r
-  | .app .. =>
-    let .const declName _ := e.getAppFn | return e
-    let some projInfo := env.getProjectionFnInfo? declName | return e
-    unless e.getAppNumArgs == projInfo.numParams + 1 do return e
-    let some r := field? (← getConstInfoCtor projInfo.ctorName) projInfo.i e.appArg! | return e
-    reduceProjOfCtor r
-  | _ => return e
+      let structInfo? := getStructureInfo? (← getEnv) ctorVal.induct
+      let projFns := (Array.range ys.size).map fun j => structInfo?.bind (·.getProjFn? j)
+      let fold := foldProjOfCtor ctorVal projFns xVal ys
+      mvarId.changeVars #[x.fvarId!] ys #[xVal] ysVals fold others
 
 /--
 Makes the implicit targets (the indices of the explicit `targets`) variables where a definitional
@@ -1104,21 +1115,19 @@ private def changeStructIndexVars (elimInfo : ElimInfo) (targets : Array Expr)
     (toTag : Array (Ident × FVarId)) :
     TacticM (Array Expr × Array (Ident × FVarId) × ElimInfo) := do
   let mut elimInfo := elimInfo
-  let mut targets := targets
   let mut toTag := toTag
-  let getAllTargets (elimInfo : ElimInfo) (targets : Array Expr) : TacticM (Array Expr) :=
-    withMainContext do (← addImplicitTargets elimInfo targets).mapM (reduceProjOfCtor ·)
-  let mut allTargets ← getAllTargets elimInfo targets
+  let mut allTargets ← withMainContext <| addImplicitTargets elimInfo targets
   -- Fuel: a step on one index may re-complicate another index sharing its variables.
   for _ in [:16] do
     let some target := allTargets.find? (!·.isFVar) | break
-    let some result ← withMainContext do changeStructIndexVars? (← getMainGoal) allTargets target | break
+    let others := allTargets ++ #[elimInfo.elimExpr, elimInfo.elimType]
+    let some result ← withMainContext do
+      changeStructIndexVars? (← getMainGoal) allTargets others target | break
     replaceMainGoal [result.mvarId]
-    let subst := result.substitutions
-    targets := targets.map subst.apply
-    toTag := toTag.map fun (id, fvarId) => (id, (subst.get fvarId).fvarId!)
-    elimInfo := { elimInfo with elimExpr := subst.apply elimInfo.elimExpr, elimType := subst.apply elimInfo.elimType }
-    allTargets ← getAllTargets elimInfo targets
+    toTag := toTag.map fun (id, fvarId) => (id, (result.substitutions.get fvarId).fvarId!)
+    allTargets := result.others.extract 0 allTargets.size
+    elimInfo := { elimInfo with
+      elimExpr := result.others[allTargets.size]!, elimType := result.others[allTargets.size + 1]! }
   return (allTargets, toTag, elimInfo)
 
 @[builtin_tactic Lean.Parser.Tactic.induction, builtin_incremental]

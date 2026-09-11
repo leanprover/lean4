@@ -109,6 +109,10 @@ def Decl.pullInstances (decl : Decl .pure) : CompilerM (Decl .pure) :=
       if args.any (· == .erased) then return false
     if let .fvar _ args := letDecl.value then
       if args.any (· == .erased) then return false
+    -- A saturated `Decidable` is the outcome of running a decision procedure rather than a
+    -- dictionary, so pulling it out of a branch or lambda would run the procedure unconditionally.
+    if letDecl.type.isAppOf ``Decidable then
+      return false
     if (← isClass? letDecl.type).isSome then
       return true
     else if let .proj _ _ fvarId := letDecl.value then

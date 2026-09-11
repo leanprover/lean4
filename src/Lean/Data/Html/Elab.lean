@@ -76,14 +76,13 @@ meta partial def elabContent (stx : Content) : TermElabM Expr := withRef stx do
       let e := mkApp3 (.const ``Html.element []) (toExpr tagName) attrs <|
         children?.getD (.const ``Html.empty [])
       es := es.push e
-    | .text t =>
-      let t ← t.view
+    | .text _ t =>
+      if t.isEmpty then continue
       let e := mkApp (.const ``Html.text []) (toExpr t)
       es := es.push e
     | .interp val =>
       let e ← elabTermEnsuringType val (Expr.const ``Html [])
       es := es.push e
-    | .comment .. => pure ()
   match es with
   | #[] => return .const ``Html.empty []
   | _ =>

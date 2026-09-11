@@ -290,6 +290,8 @@ theorem isLE_then_iff_and : ∀ {o₁ o₂ : Ordering}, (o₁.then o₂).isLE �
 theorem isLE_left_of_isLE_then : ∀ {o₁ o₂ : Ordering}, (o₁.then o₂).isLE → o₁.isLE := by decide
 theorem isGE_left_of_isGE_then : ∀ {o₁ o₂ : Ordering}, (o₁.then o₂).isGE → o₁.isGE := by decide
 
+theorem isLE_and_isGE_eq : ∀ {o : Ordering}, (o.isLE && o.isGE) = o.isEq := by decide
+
 instance : Std.Associative Ordering.then := ⟨then_assoc⟩
 instance : Std.IdempotentOp Ordering.then := ⟨fun _ => then_self⟩
 

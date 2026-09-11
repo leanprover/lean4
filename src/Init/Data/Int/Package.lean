@@ -9,14 +9,11 @@ prelude
 public import Init.Data.Order.PackageFactories
 import Init.Data.Int.Order
 import Init.Data.Int.Compare
-import Init.Data.Order.Lemmas
 
 open Std
 
 namespace Int
 
-public instance : LinearOrderPackage Int := .ofLE _ {
-  beq_iff_le_and_ge a b := by simpa using Int.le_antisymm_iff
-}
+public instance : LinearOrderPackage Int := .ofLE _ { }
 
 end Int

@@ -180,12 +180,12 @@ structure LiveVars where
   /--
   The set of variables that are live *and* can potentially be killed.
   -/
-  vars : Std.HashSet FVarId := {}
+  vars : FVarIdSet := {}
   /--
   The set of variables that are live because they are borrows and can thus never be killed to begin
   with.
   -/
-  borrows : Std.HashSet FVarId := {}
+  borrows : FVarIdSet := {}
   deriving Inhabited
 
 @[inline]

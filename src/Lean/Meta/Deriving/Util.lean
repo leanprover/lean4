@@ -49,7 +49,8 @@ def Lean.mkInstance (name : Name) (levelParams : List Name) (type value : Expr)
       }
   withoutExporting (when := isProp || isPrivateName name) do
     addDecl decl
-  setReducibilityStatus name .instanceReducible
+  unless isProp do
+    setReducibilityStatus name .instanceReducible
   addInstance name (if isPrivateName name then .local else .global) prio
   if isMeta && !isProp then
     modifyEnv (markMeta · name)

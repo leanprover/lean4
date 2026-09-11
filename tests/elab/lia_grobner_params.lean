@@ -1,7 +1,7 @@
 /-!
 # `lia` and `grobner` accept a `[...]` parameter list
 
-Both tactics are thin wrappers around `grind`, and take the same `[...]` term list. Proof
+Both tactics are thin wrappers around `grind`, and take the same `[...]` parameter list. Proof
 terms are asserted as extra facts, and lemmas are added to the E-matching lemma set.
 -/
 
@@ -28,10 +28,19 @@ example (n : Nat) : 1 ≤ f n + f (n + 1) := by
 example (n : Int) : 0 ≤ clamp n := by
   lia -order [= clamp_def]
 
+-- Naming a `grind` attribute adds its whole lemma set, so `@[grind]`-only lemmas become visible.
+private def g (n : Int) : Int := n + 1
+@[grind =] private theorem g_def (n : Int) : g n = n + 1 := rfl
+example (n : Int) : g n = n + 1 := by
+  fail_if_success lia
+  lia [grind]
+
 -- `-` removes a lemma from the `@[lia]` set.
 example (a b : Nat) (h : a ≤ b) : max a b = b := by
   fail_if_success lia [- Nat.max_def]
   lia
+example (a b : Nat) (h : a ≤ b) : min a b = a := by
+  lia [- Nat.max_def]
 
 -- `grobner` accepts proof terms as extra facts.
 private def sq (x : Int) : Int := x * x
@@ -42,6 +51,11 @@ example (x y : Int) (h : x = y) : sq x = y * y := by
 
 example (x y : Int) (h : x + y = 0) : sq x = sq y := by
   grobner [sq_def x, sq_def y]
+
+-- `grobner` does not run E-matching by default, so a quantified lemma is inert unless enabled.
+example (x y : Int) (h : x = y) : sq x = y * y := by
+  fail_if_success grobner [= sq_def]
+  grobner (ematch := 1) [= sq_def]
 
 -- Local hypotheses are used automatically, so passing one is an error, as for `grind`.
 /-- error: redundant parameter `h`, `grind` uses local hypotheses automatically -/

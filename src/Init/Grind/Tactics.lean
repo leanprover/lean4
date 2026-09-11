@@ -358,7 +358,8 @@ It is a implemented as a thin wrapper around the `grind` tactic, enabling only t
 Please use `grind` instead if you need additional capabilities.
 
 Like `grind`, it accepts a list of extra facts, e.g. `grobner [foo x y]`. Since `grobner` does not
-run E-matching, quantified lemmas passed this way are only instantiated when `ematch` is enabled.
+run E-matching by default, quantified lemmas are only instantiated when it is enabled explicitly,
+e.g. `grobner (ematch := 1) [= foo]`.
 -/
 syntax (name := grobner) "grobner" optConfig (" [" withoutPosition(grindParam,*) "]")? : tactic
 

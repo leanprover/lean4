@@ -34,8 +34,7 @@ def _root_.Lean.Meta.Grind.Params.isInjectiveTheorem (params : Grind.Params) (de
   params.extensions.any fun ext => ext.inj.contains (.decl declName)
 
 def _root_.Lean.Meta.Grind.Params.eraseEMatchCore (params : Grind.Params) (declName : Name) : Grind.Params :=
-  -- Erase from every extension state, not just the first: `lia` keeps the `@[lia]` set in a separate slot.
-  { params with extensions := params.extensions.map fun ext => { ext with ematch := ext.ematch.erase (.decl declName) } }
+  { params with extensions := params.extensions.modify 0 fun ext => { ext with ematch := ext.ematch.erase (.decl declName) } }
 
 def _root_.Lean.Meta.Grind.Params.eraseEMatch (params : Grind.Params) (declName : Name) : MetaM Grind.Params := do
   if !wasOriginallyTheorem (← getEnv) declName then

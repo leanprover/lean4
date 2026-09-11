@@ -163,8 +163,8 @@ noncomputable def PredTrans.frameClosure (op : R → Pred → Pred) [FrameOp op 
 
 /-- The frame closure carries monotonicity: if `t` is monotone, so is `t.frameClosure op`. -/
 theorem PredTrans.monotone_frameClosure (op : R → Pred → Pred) [FrameOp op EPred opE]
-    {t : PredTrans Pred EPred β} (h : t.monotone) :
-    (t.frameClosure op).monotone := by
+    {t : PredTrans Pred EPred β} (h : t.Monotone) :
+    (t.frameClosure op).Monotone := by
   haveI := FrameOp.preservesSup (op := op) (EPred := EPred) (opE := opE)
   haveI := FrameOp.preservesSupE (op := op) (EPred := EPred) (opE := opE)
   intro post post' epost epost' hE hP

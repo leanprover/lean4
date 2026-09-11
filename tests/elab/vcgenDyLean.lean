@@ -284,7 +284,7 @@ instance: WPMonad Traceful TraceProp EStack⟨⟩ where
     ⟩⟩
 
     wp_trans_monotone x := by
-      simp only [Lean.Order.PredTrans.monotone, Lean.Order.PartialOrder.rel]
+      simp only [Lean.Order.PredTrans.Monotone, Lean.Order.PartialOrder.rel]
       grind
   }
 

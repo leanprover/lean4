@@ -95,10 +95,10 @@ deriving BEq
 Note: This option only works for deriving handlers that support it, i.e. deriving handlers that use
 the `Lean.Meta.Deriving` framework.
 -/
-register_option deriving.bindersVerbatim : Bool := {
+register_builtin_option deriving.bindersVerbatim : Bool := {
   defValue := false
   descr := "if true, use instance requirements verbatim as instance binders instead of trying to \
-    synthesize them in deriving handlers that support this option"
+    synthesize them in deriving handlers"
 }
 
 /--
@@ -124,7 +124,7 @@ deriving BEq
 Note: This option only works for deriving handlers that support it, i.e. deriving handlers that use
 the `Lean.Meta.Deriving` framework.
 -/
-register_option deriving.reduceInstances : Bool := {
+register_builtin_option deriving.reduceInstances : Bool := {
   defValue := true
   descr := "if true, reduce instance hypotheses like `BEq (List α)` to `BEq α` in deriving handlers"
 }
@@ -163,11 +163,11 @@ private def goodKeys (keys : Array DiscrTree.Key) (env : Environment) : Bool := 
     | .const nm _ =>
       if isIgnoredConstant nm env then
         continue
-      if specialFragment.isSome then
+      if specialFragment.isSome && !specialFragment.isEqSome key then
         return false
       specialFragment := some key
     | .arrow =>
-      if specialFragment.isSome then
+      if specialFragment.isSome && !specialFragment.isEqSome key then
         return false
       specialFragment := some key
     | .star => continue
@@ -185,9 +185,8 @@ private def goodHypothesisKeys (keys : Array DiscrTree.Key) (env : Environment) 
     | _ => false
 
 /--
-Given an instance type `instType` and a local context `lctx` with associated local instances
-`linsts`, try to apply a canonical instance, producing new instance hypotheses as synthetic opaque
-metavariables in the provided local context.
+Given an instance type `instType`, try to apply a canonical instance, producing new instance
+hypotheses as synthetic opaque metavariables.
 
 The result of this function is a pair of the instance application and the list of new instance
 hypotheses together with an indication of whether to run this function again on the resulting
@@ -198,8 +197,10 @@ Canonical instances are currently defined as instances with exactly two special 
 discrimination tree keys (forall and constants except `Eq` because of `DecidableEq`). Furthermore,
 we only try an instance if it is the only one with "good keys".
 -/
-def tryApplyCanonicalInstance (instType : Expr) (lctx : LocalContext) (linsts : LocalInstances) :
+def tryApplyCanonicalInstance (instType : Expr) :
     MetaM (Option (Expr × Array (MVarId × Bool))) := do
+  let lctx ← getLCtx
+  let linsts ← getLocalInstances
   forallTelescopeReducing (whnfType := true) instType fun vars body => do
     -- try to apply instance
     trace[Elab.Deriving] "Trying to reduce {body}"
@@ -218,10 +219,18 @@ def tryApplyCanonicalInstance (instType : Expr) (lctx : LocalContext) (linsts : 
       if bi.isInstImplicit then
         if instBody.containsMVar arg.mvarId! then
           continue
-        let keys ← DiscrTree.mkPath (← inferType arg)
-        let newMVar ← mkFreshRevertedMVarAt (← inferType arg) lctx linsts
-        arg.mvarId!.assign newMVar
-        outVars := outVars.push (newMVar.getAppFn.mvarId!, goodHypothesisKeys keys env)
+        let argType ← inferType arg
+        let keys ← DiscrTree.mkPath argType
+        let mut newMVar := arg.mvarId!
+        -- If we don't have additional variables from `forallTelescopeReducing` here, we can just
+        -- keep the metavariable as-is (but make it synthetic opaque), otherwise revert
+        if vars.isEmpty then
+          newMVar.setKind .syntheticOpaque
+        else
+          let mvarApp ← mkFreshRevertedMVarAt argType lctx linsts
+          arg.mvarId!.assign mvarApp
+          newMVar := mvarApp.getAppFn.mvarId!
+        outVars := outVars.push (newMVar, goodHypothesisKeys keys env)
     unless ← isDefEqI instBody body do
       trace[Elab.Deriving] "Failed to unify"
       return none
@@ -245,11 +254,11 @@ def tryApplyCanonicalInstance (instType : Expr) (lctx : LocalContext) (linsts : 
 
 structure Deriving.State where
   instanceMVars : Array MVarId := #[]
-  newLInsts : LocalInstances
+  newLInsts : LocalInstances := #[]
   -- for documentation purposes
-  invariant1 : instanceMVars.size ≤ newLInsts.size := by exact Nat.zero_le _
-  invariant2 (i : Nat) (hi : i < instanceMVars.size) :
-    newLInsts[i + newLInsts.size - instanceMVars.size].fvar = .mvar instanceMVars[i] := by nofun
+  invariant1 : instanceMVars.size = newLInsts.size := by rfl
+  invariant2 (i : Nat) (hi : i < newLInsts.size) :
+    newLInsts[i].fvar = .mvar instanceMVars[i] := by nofun
 
 structure Deriving.Context where
   /-- Level parameters for the instances -/
@@ -288,11 +297,13 @@ structure Deriving.Context where
 abbrev DerivingM := ReaderT Deriving.Context <| StateRefT Deriving.State TermElabM
 
 nonrec def DerivingM.run (x : DerivingM α) (ctx : Deriving.Context) : TermElabM α :=
-  (x.run ctx).run' { newLInsts := ctx.paramLInsts }
+  (x.run ctx).run' {}
 
-private def pushInstanceHypothesis (goal : MVarId) (className : Name) : DerivingM Unit := do
+private def pushInstanceHypothesis (type : Expr) (className : Name) : DerivingM Expr := do
   -- We simply add the new metavariables as local instances for instance synthesis to pick up
   -- That way we can detect redundant instances more easily
+  let mvarApp ← mkFreshRevertedMVarAt type (← read).paramLCtx (← read).paramLInsts
+  let goal := mvarApp.getAppFn.mvarId!
   modify fun state => {
     state with
     instanceMVars := state.instanceMVars.push goal
@@ -301,11 +312,11 @@ private def pushInstanceHypothesis (goal : MVarId) (className : Name) : Deriving
     invariant2 i hi := by
       have := state.invariant1
       rw [Array.size_push] at hi
-      simp only [Array.size_push, ← Nat.add_assoc, Nat.add_sub_add_right]
       rcases Nat.lt_add_one_iff_lt_or_eq.mp hi with hlt | rfl
-      · rw [Array.getElem_push_lt (by omega), state.invariant2 i hlt, Array.getElem_push_lt hlt]
+      · rw [Array.getElem_push_lt hlt, state.invariant2 i hlt, Array.getElem_push_lt (by omega)]
       · rw [Array.getElem_push_eq, Array.getElem_push, dite_eq_right (by omega)]
   }
+  return mvarApp
 
 def containsRecursiveDecl (e : Expr) : DerivingM Bool := do
   let ctx ← read
@@ -323,15 +334,12 @@ private def trySynthesize (type : Expr) : DerivingM (Option Expr) := do
         return inst.fvar
   return none
 
-private partial def processInstanceHypothesis (mvar : MVarId)
-    (allowCanonicalInstanceReduction : Bool := true) : DerivingM Unit := withIncRecDepth do
-  let type ← mvar.getType
+private partial def synthInstanceDerivingAux (type : Expr)
+    (allowCanonicalInstanceReduction : Bool := true) : DerivingM Expr := withIncRecDepth do
   let some className ← isClass? type |
-    -- if this wasn't reported before, report now
     throwError "type class instance expected{indentExpr type}"
-  if let some res ← withLCtx (← read).paramLCtx (← get).newLInsts (trySynthesize type) then
-    mvar.assign res
-    return
+  if let some res ← trySynthesize type then
+    return res
   let mut shouldTry := allowCanonicalInstanceReduction -- avoid loops
   if !deriving.reduceInstances.get (← getOptions) ||
       deriving.bindersVerbatim.get (← getOptions) then
@@ -341,31 +349,27 @@ private partial def processInstanceHypothesis (mvar : MVarId)
     -- we *have* to reduce it, otherwise we end up with a useless instance like
     -- `instance [BEq (List Thing)] : BEq Thing`
     unless ← containsRecursiveDecl type do
-      return ← pushInstanceHypothesis mvar className
+      return ← pushInstanceHypothesis type className
     -- also, try instance synthesis even if it was disabled through `deriving.bindersVerbatim`
-    if let some res ← withLCtx (← read).paramLCtx (← get).newLInsts (trySynthesize type) then
-      mvar.assign res
-      return
+    if let .some res ← trySynthInstance type then
+      return res
   let mctx ← getMCtx
   -- try reducing e.g. `BEq (List α)` to `BEq α`
-  let res ← tryApplyCanonicalInstance type (← getLCtx) (← getLocalInstances)
+  let res ← tryApplyCanonicalInstance type
   if let some (assignment, outVars) := res then
-    mvar.assign assignment
     for (var, allow) in outVars do
-      processInstanceHypothesis var allow
+      let res ← synthInstanceDerivingAux (← var.getType) allow
+      var.assign res
+    instantiateMVars assignment
   else
     if ← containsRecursiveDecl type then
       throwError "Got stuck at instance requirement for nested type:{indentExpr type}"
     setMCtx mctx
-    pushInstanceHypothesis mvar className
+    pushInstanceHypothesis type className
 
 def synthInstanceDeriving (e : Expr) : DerivingM Expr := do
-  if let some res ← withLCtx (← getLCtx) (← get).newLInsts (trySynthesize e) then
-    return res
-  let mvarApp ← mkFreshRevertedMVarAt e (← read).paramLCtx (← read).paramLInsts
-  withLCtx (← read).paramLCtx (← read).paramLInsts do
-    processInstanceHypothesis mvarApp.getAppFn.mvarId!
-  instantiateMVars mvarApp
+  withLCtx (← getLCtx) ((← getLocalInstances) ++ (← get).newLInsts) do
+    instantiateMVars <| ← synthInstanceDerivingAux e
 
 private def blankLInst : LocalInstance where
   className := .anonymous
@@ -447,9 +451,10 @@ def produceInstanceHyps : DerivingM (Array Expr) := do
     checkInstanceHypotheses filtered
   return filtered.map Expr.mvar
 
-def mkInstanceForDeriving (instanceHyps : Array Expr) (type value : Expr) : DerivingM Unit := do
+def mkInstanceForDeriving (instanceHyps : Array Expr) (type value : Expr)
+    (name : Option Name := none) : DerivingM Unit := do
   let allVars := (← read).params ++ instanceHyps
-  let instName ← mkInstanceNameOfType type
+  let instName ← name.getDM (mkInstanceNameOfType type)
   let type ← instantiateMVars <| ← mkForallFVars allVars (← instantiateMVars type) (binderInfoForMVars := .instImplicit)
   let value ← instantiateMVars <| ← mkLambdaFVars allVars (← instantiateMVars value) (binderInfoForMVars := .instImplicit)
   let shouldExpose := (value.find? (·.constName?.any isPrivateName)).isNone
@@ -466,10 +471,81 @@ def eliminatesToProp : DerivingM Bool := do
   let recInfo ← getConstInfoRec (mkRecName (← read).indInfo.name)
   return recInfo.levelParams.length == (← read).indInfo.levelParams.length
 
+structure HelperInfo where
+  suffix : Name
+  type : Expr
+  mkValue : (instances : Array Expr) → DerivingM Expr
+  postprocess : (instanceHyps : Array Expr) → PreDefinition → MetaM PreDefinition :=
+    fun _ p => pure p
+
+structure InstanceInfo where
+  induct : Name
+  type : Expr
+  helpers : Array HelperInfo
+  mkValue : (helpers : Array Expr) → DerivingM Expr
+
+def makeInstancesUsingMutualPartialBlock (infos : Array InstanceInfo) : DerivingM Unit := do
+  let helperMVars ← infos.mapM fun info => info.helpers.mapM fun helper => do
+    mkFreshExprSyntheticOpaqueMVar helper.type
+  let mut instanceValues := #[]
+  for info in infos, helperMVarsPerInst in helperMVars do
+    instanceValues := instanceValues.push <| ← info.mkValue helperMVarsPerInst
+  let instVarInfos := infos.mapIdx fun idx info =>
+    ((`recinst).appendIndexAfter (idx + 1), info.type)
+  withLocalDeclsDND instVarInfos fun recInsts => do
+    let helperValues ← infos.mapM fun info => info.helpers.mapM fun helper => do
+      let value ← helper.mkValue recInsts
+      return value.replaceFVars recInsts instanceValues
+    let instHyps ← produceInstanceHyps
+    -- setup common parameters
+    let ref ← getRef
+    let levelParams := (← read).levelParams
+    let computeKind := if (← read).isMeta then .meta else .regular
+    let env ← getEnv
+    let isUnsafe := instanceValues.any env.hasUnsafe || helperValues.any (·.any env.hasUnsafe) ||
+      infos.any (fun info => env.hasUnsafe info.type || info.helpers.any (env.hasUnsafe ·.type))
+    -- make sufficient instance infos to get the instance names
+    let allParams := (← read).params ++ instHyps
+    let fullInstTypes ← infos.mapM fun info =>
+      mkForallFVars allParams info.type (binderInfoForMVars := .instImplicit)
+    let fullInstNames ← fullInstTypes.mapM fun ty => mkInstanceNameOfType ty
+    -- now we can figure out the values for the `helperMVars`
+    for info in infos, helperMVarsForInst in helperMVars, instName in fullInstNames do
+      for helperInfo in info.helpers, helperMVar in helperMVarsForInst do
+        let declName := instName ++ helperInfo.suffix
+        helperMVar.mvarId!.assign (mkAppN (.const declName (levelParams.map Level.param)) allParams)
+    -- and finally create all the helper pre-definitions
+    let mut helperPredefs : Array PreDefinition := #[]
+    for info in infos, valuesPerInst in helperValues, instName in fullInstNames do
+      for helperInfo in info.helpers, value in valuesPerInst do
+        let declName := instName ++ helperInfo.suffix
+        let type ← instantiateMVars helperInfo.type
+        let type ← mkForallFVars allParams type (binderInfoForMVars := .instImplicit)
+        let value ← instantiateMVars value
+        let value ← mkLambdaFVars allParams value (binderInfoForMVars := .instImplicit)
+        let predef : PreDefinition := {
+          ref, levelParams, declName, type, value
+          kind := .def
+          modifiers := { computeKind, isUnsafe, recKind := .partial }
+          binders := .missing
+          termination := .none
+        }
+        helperPredefs := helperPredefs.push (← helperInfo.postprocess instHyps predef)
+    withoutExporting do
+      addPreDefinitions ({}, {}) helperPredefs
+    -- Now with all helpers available, we can create the instances
+    let nameSet : NameSet := .ofArray (← read).names
+    for info in infos, instName in fullInstNames, type in fullInstTypes, value in instanceValues do
+      unless nameSet.contains info.induct do continue
+      let value ← instantiateMVars value
+      let value ← mkLambdaFVars allParams value (binderInfoForMVars := .instImplicit)
+      withExporting do
+        mkInstance instName (← read).levelParams type value (← read).isMeta
+
 def deriveTransformationInstPerConstructor (className : Name)
     (perCtor : InductiveVal → ConstructorVal → Array Expr → DerivingM Expr) :
     DerivingM Bool := do
-  -- Step 1: Figure out the details for the class
+  -- First figure out the details for the class
   if ← eliminatesToProp then
     return false
   let classInfo ← getConstInfoInduct className
@@ -504,78 +580,44 @@ def deriveTransformationInstPerConstructor (className : Name)
   let mut paramLevel := (← read).indLevel
   if onlyType then
     paramLevel ← decLevel paramLevel
-  -- Step 2: Create `recVars`
+  -- Then create the instances using a mutual partial block
   let all := (← read).indInfo.all.toArray
-  let instanceTypes ← all.mapM fun name => do
-    let typeApp := mkAppN (.const name (← read).lparams) (← read).indParams
-    forallTelescopeReducing (← inferType typeApp) fun indices _ => do
-      mkForallFVars indices <| .app (.const className [paramLevel]) (mkAppN typeApp indices)
-  let infos := instanceTypes.mapIdx fun idx ty => ((`recinst).appendIndexAfter (idx + 1), ty)
-  withLocalDeclsDND infos fun recVars => do
-  -- Step 3: Compute types and values
-  let mut typesAndValues : Array (Expr × Expr) := #[]
-  for name in all do
-    let info ← getConstInfoInduct name
-    let casesOnApp := mkAppN (.const (mkCasesOnName name) (tgtSort :: (← read).lparams)) (← read).indParams
-    let casesOnType ← inferType casesOnApp
-    let .forallE _ motiveType body _ := casesOnType | unreachable!
-    typesAndValues := typesAndValues.push <| ← forallTelescope motiveType fun vars _ => do
-      let motive ← mkLambdaFVars vars tgt
-      let body := body.instantiate1 motive
-      let mut body ← instantiateForall body vars
-      let mut casesOnApp := mkAppN (casesOnApp.app motive) vars
-      for ctor in info.ctors do
-        let .forallE _ altType body' _ := body | unreachable!
-        let ctorInfo ← getConstInfoCtor ctor
-        let minor ← forallBoundedTelescope altType ctorInfo.numFields fun fields _ => do
-          mkLambdaFVars fields <| ← perCtor info ctorInfo fields
-        casesOnApp := casesOnApp.app minor
-        body := body'
-      return (← mkForallFVars vars tgt, ← mkLambdaFVars vars casesOnApp)
-  let instanceHyps ← produceInstanceHyps
-  let instanceTypes ← instanceTypes.mapM fun e => mkForallFVars instanceHyps e (binderInfoForMVars := .instImplicit)
-  let instNames ← instanceTypes.mapM fun ty => mkInstanceNameOfType ty
-  -- Step 4: Assign the `recVars`
-  let ourLParams := (← read).levelParams.map Level.param
-  let recVarValues ← all.mapIdxM fun idx name => do
-    let typeApp := mkAppN (.const name (← read).lparams) (← read).indParams
-    forallTelescopeReducing (← inferType typeApp) fun indices _ => do
-      let recApp := .const (instNames[idx]! ++ fieldName) ourLParams
-      let recApp := mkAppN recApp (← read).indParams
-      let recApp := mkAppN recApp instanceHyps
-      let recApp := mkAppN recApp indices
-      let inst : Expr := mkApp2 (.const ctor [paramLevel]) (mkAppN typeApp indices) recApp
-      mkLambdaFVars indices inst
-  -- Step 5: Create pre-definitions
-  let predefs : Array PreDefinition ← typesAndValues.mapIdxM fun idx (ty, val) => do
-    let val := (← instantiateMVars val).replaceFVars recVars recVarValues
-    let ty ← mkForallFVars instanceHyps ty (binderInfoForMVars := .instImplicit)
-    let val ← mkLambdaFVars instanceHyps val (binderInfoForMVars := .instImplicit)
-    let instName := instNames[idx]!
+  makeInstancesUsingMutualPartialBlock <| ← all.mapM fun induct => do
+    let indInfo ← getConstInfoInduct induct
+    let typeApp := mkAppN (.const induct (← read).lparams) (← read).indParams
+    let (type, helperType) ← forallBoundedTelescope (whnfType := true) (← inferType typeApp) indInfo.numIndices fun indices body => do
+      let .sort _ := body | throwError "Unexpected inductive type type{indentExpr (← inferType typeApp)}"
+      let type ← mkForallFVars indices <| .app (.const className [paramLevel]) (mkAppN typeApp indices)
+      let helperType ← mkForallFVars indices <| .forallE `t (mkAppN typeApp indices) tgt .default
+      return (type, helperType)
     return {
-      ref := ← getRef
-      kind := .def
-      levelParams := (← read).levelParams
-      modifiers := {
-        recKind := .partial
-      }
-      declName := instName ++ fieldName
-      binders := .missing
-      type := ← mkForallFVars (← read).params ty
-      value := ← mkLambdaFVars (← read).params val
-      termination := .none
+      induct, type
+      helpers := #[{
+        suffix := fieldName
+        type := helperType
+        mkValue _ := do
+          let casesOnApp := mkAppN (.const (mkCasesOnName induct) (tgtSort :: (← read).lparams)) (← read).indParams
+          let casesOnType ← inferType casesOnApp
+          let .forallE _ motiveType body _ := casesOnType | unreachable!
+          forallTelescope motiveType fun vars _ => do
+            let motive ← mkLambdaFVars vars tgt
+            let body := body.instantiate1 motive
+            let mut body ← instantiateForall body vars
+            let mut casesOnApp := mkAppN (casesOnApp.app motive) vars
+            for ctor in indInfo.ctors do
+              let .forallE _ altType body' _ := body | unreachable!
+              let ctorInfo ← getConstInfoCtor ctor
+              let minor ← forallBoundedTelescope altType ctorInfo.numFields fun fields _ => do
+                mkLambdaFVars fields <| ← perCtor indInfo ctorInfo fields
+              casesOnApp := casesOnApp.app minor
+              body := body'
+            mkLambdaFVars vars casesOnApp
+      }]
+      mkValue helpers := do
+        let #[helper] := helpers | unreachable!
+        forallBoundedTelescope type indInfo.numIndices fun indices _ => do
+          return mkApp2 (.const ctor [paramLevel]) (mkAppN typeApp indices) (mkAppN helper indices)
     }
-  withoutExporting do
-    addPreDefinitions ({}, {}) predefs
-  -- Step 6: Create instances
-  let nameSet : NameSet := .ofArray (← read).names
-  let allParams := (← read).params ++ instanceHyps
-  for name in all, instName in instNames, ty in instanceTypes, recVarValue in recVarValues do
-    unless nameSet.contains name do continue
-    let value ← mkLambdaFVars allParams recVarValue (binderInfoForMVars := .instImplicit)
-    withExporting do
-      mkInstance instName (← read).levelParams (← mkForallFVars (← read).params ty) value
-        (← read).isMeta
   return true
 
 private def decLevels : Level → NameSet → Option NameSet

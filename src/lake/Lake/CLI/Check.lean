@@ -61,6 +61,8 @@ public structure Context where
   whichLeanChecker : System.FilePath
   whichEnvBin : System.FilePath
   externalKernels : (Std.TreeMap String (Array String))
+  /-- The checkers `--paranoid` adds, each as a name and a command as for `externalKernels`. -/
+  bundledKernels : Array (String × Array String)
 
 public abbrev M := ReaderT Context IO
 
@@ -383,7 +385,9 @@ def runExternalKernel (kernelName : String) (kernelCommand : Array String)
       ("use_stdin", false),
       ("export_file_path", solutionPath.toString),
       ("permitted_axioms", .arr <| legalAxioms.map (.str ∘ Lean.Name.toString)),
-      ("unpermitted_axiom_hard_error", true),
+      -- Skipped rather than fatal, as a `lake check` export holds every axiom in scope: the checker
+      -- still fails on a use, and Lake polices axiom use itself.
+      ("unpermitted_axiom_hard_error", false),
       ("num_threads", 4),
       ("nat_extension", true),
       ("string_extension", true),
@@ -429,6 +433,17 @@ def runBuiltinKernel (solutionPath : System.FilePath) : M (Option String) := do
   let cmd := #[(← read).whichLeanChecker.toString, "--silent", "--from-export"]
   runExternalKernel "Lean default" cmd solutionPath
 
+/-- Runs every checker the context names over the export, Lean's own kernel last. -/
+def runKernels (exportPath : System.FilePath) : M Unit := do
+  let mut result := none
+  for (kernelName, kernelCommand) in ← getExternalKernels do
+    result := result <|> (← runExternalKernel kernelName kernelCommand exportPath)
+  for (kernelName, kernelCommand) in (← read).bundledKernels do
+    result := result <|> (← runExternalKernel kernelName kernelCommand exportPath)
+  result := result <|> (← runBuiltinKernel exportPath)
+  if let some error := result then
+    throw <| IO.userError error
+
 def primitiveTargets : M (Array Lean.Name) := do
   -- The challenge needs to have all the built-in constants of the kernel, as the
   -- kernel makes no guarantees when fed other definitions here.
@@ -473,7 +488,7 @@ def builtinTargets : M (Array Lean.Name) := do
 def verifyMatch (challengeExportPath : System.FilePath) (solutionExportPath : System.FilePath) :
     M Unit := do
   verifyCompare
-  verifyKernels
+  runKernels solutionExportPath
 where
   verifyCompare : M Unit := do
     let challenge ← LeanExport.parseStream <| .ofHandle (← IO.FS.Handle.mk challengeExportPath .read)
@@ -483,14 +498,6 @@ where
     let targets := (← getTheoremNames) ++ (← getLegalAxioms)
     IO.ofExcept <| compareAt challenge solution targets definitionNames (← primitiveTargets)
     IO.ofExcept <| checkAxioms solution theoremNames definitionNames (← getLegalAxioms)
-
-  verifyKernels : M Unit := do
-    let mut result := none
-    for (kernelName, kernelCommand) in ← getExternalKernels do
-      result := result <|> (← runExternalKernel kernelName kernelCommand solutionExportPath)
-    result := result <|> (← runBuiltinKernel solutionExportPath)
-    if let some error := result then
-      throw <| IO.userError error
 
 public def compareIt : M Unit := do
   let exportTargets := (← builtinTargets) ++ (← getTheoremNames) ++ (← getLegalAxioms)
@@ -534,10 +541,23 @@ def checkManifest (cmd : String) (projectDir : System.FilePath) : IO (Option Exi
     there first.")
 
 /--
+The checkers release toolchains bundle besides `leanchecker`, each as a name and a command as for
+`Context.externalKernels`.
+-/
+def bundledKernels (lean : LeanInstall) : Array (String × Array String) :=
+  let exe (name : String) := lean.binDir / name |>.addExtension System.FilePath.exeExtension
+  #[
+    ("Lean paranoid", #[(exe "leanchecker-paranoid").toString, "--silent", "--from-export"]),
+    ("lean4lean", #[(exe "lean4lean").toString, "--import"]),
+    ("nanoda", #[(exe "nanoda_bin").toString]),
+    ("con-leche", #[(exe "con-leche").toString])
+  ]
+
+/--
 Resolves the external tools the commands need and builds the context they share, or reports why
 that is not possible.
 -/
-def mkContext (cmd : String) (lean : LeanInstall) (lake : LakeInstall)
+def mkContext (cmd : String) (paranoid : Bool) (lean : LeanInstall) (lake : LakeInstall)
     (projectDir : System.FilePath) : IO (Except ExitCode Context) := do
   if !System.Platform.isLinux then
     return .error (← cannotRun
@@ -555,6 +575,7 @@ def mkContext (cmd : String) (lean : LeanInstall) (lake : LakeInstall)
     | return .error (← cannotRun s!"`lake {cmd}` needs `git` on PATH to build inside the sandbox")
   let some envBinPath ← whichExe "env"
     | return .error (← cannotRun s!"`lake {cmd}` needs `env` on PATH to build inside the sandbox")
+  let bundledKernels := if paranoid then Check.bundledKernels lean else #[]
 
   return .ok {
     projectDir := ← IO.FS.realPath projectDir
@@ -573,6 +594,7 @@ def mkContext (cmd : String) (lean : LeanInstall) (lake : LakeInstall)
     whichLeanChecker
     whichEnvBin := envBinPath
     externalKernels := {}
+    bundledKernels
   }
 
 /-- Resolves the external kernels a configuration asks for. -/
@@ -610,8 +632,7 @@ def checkUsedAxioms (exported : LeanExport.ExportedEnv) : M Unit := do
 def checkProject : M Unit := do
   safeResolveDeps
   withSafeBuildAndExport fun exportPath => do
-    if let some error ← runBuiltinKernel exportPath then
-      throw <| .userError error
+    runKernels exportPath
     let exported ← LeanExport.parseStream <| .ofHandle (← IO.FS.Handle.mk exportPath .read)
     checkUsedAxioms exported
 
@@ -619,10 +640,10 @@ def checkProject : M Unit := do
 Runs `lake comparator`: builds and exports the challenge and the solution in a sandbox, then judges
 the solution against the challenge.
 -/
-public def runComparator (configFile? : Option System.FilePath) (lean : LeanInstall)
-    (lake : LakeInstall) (projectDir : System.FilePath) : IO ExitCode := do
+public def runComparator (configFile? : Option System.FilePath) (paranoid : Bool)
+    (lean : LeanInstall) (lake : LakeInstall) (projectDir : System.FilePath) : IO ExitCode := do
   let base ←
-    match ← mkContext "comparator" lean lake projectDir with
+    match ← mkContext "comparator" paranoid lean lake projectDir with
     | .error rc => return rc
     | .ok ctx => pure ctx
 
@@ -667,16 +688,17 @@ public def runComparator (configFile? : Option System.FilePath) (lean : LeanInst
 Runs `lake check`: builds and exports the project's default targets in the sandbox and checks them
 with the kernel, with no challenge to compare them against.
 -/
-public def runCheck (lean : LeanInstall) (lake : LakeInstall)
+public def runCheck (paranoid : Bool) (lean : LeanInstall) (lake : LakeInstall)
     (projectDir : System.FilePath) : IO ExitCode := do
   let base ←
-    match ← mkContext "check" lean lake projectDir with
+    match ← mkContext "check" paranoid lean lake projectDir with
     | .error rc => return rc
     | .ok ctx => pure ctx
   if let some rc ← checkManifest "check" base.projectDir then
     return rc
   try
-    checkProject.run base
+    -- Checkers that police axioms themselves are held to the axioms `checkUsedAxioms` permits.
+    checkProject.run { base with legalAxioms := standardAxioms }
     return 0
   catch e =>
     IO.eprintln s!"error: {e}"

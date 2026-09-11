@@ -1062,6 +1062,21 @@ if(NOT CMAKE_SYSTEM_NAME MATCHES "Emscripten")
       ${CMAKE_BINARY_DIR}/bin
   )
 
+  # Not in `ALL` as it's expensive; release CI builds it explicitly.
+  ExternalProject_Add(
+    con-leche
+    PREFIX con-leche
+    EXCLUDE_FROM_ALL ON
+    GIT_REPOSITORY https://github.com/leanprover/con-leche
+    GIT_TAG b46cb0e6138d975e657857526839a3c7d8a1df20
+    CONFIGURE_COMMAND ""
+    BUILD_COMMAND lake build con-leche
+    BUILD_IN_SOURCE ON
+    INSTALL_COMMAND
+      ${CMAKE_COMMAND} -E copy .lake/build/bin/con-leche${CMAKE_EXECUTABLE_SUFFIX}
+      ${CMAKE_BINARY_DIR}/bin
+  )
+
   # Not `ALL` as it's big; release CI builds it explicitly.
   if(USE_MIMALLOC)
     add_custom_target(

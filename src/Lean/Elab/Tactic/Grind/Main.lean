@@ -484,7 +484,13 @@ def evalGrindTraceCore (stx : Syntax) (trace := true) (verbose := true) (useSorr
 
 @[builtin_tactic Lean.Parser.Tactic.grobner] def evalGrobner : Tactic := fun stx => do
   let `(tactic| grobner $config:optConfig $[ [$params:grindParam,*] ]?) := stx | throwUnsupportedSyntax
-  let config ← elabGrobnerConfig config
-  evalGrindCore stx { config with } none params none
+  if params.isSome then
+    -- With explicit lemmas, E-match over them alone: use the `only` extension state so the
+    -- `@[grind]` set stays off, and cap local instantiation as `lia` does.
+    let config ← elabGrobnerConfig config (init := { ematch := ({} : Grind.Config).ematch, genLocal := 0 })
+    evalGrindCore stx { config with } none params none (extensions? := some #[← Grind.getOnlyExtensionState])
+  else
+    let config ← elabGrobnerConfig config
+    evalGrindCore stx { config with } none params none
 
 end Lean.Elab.Tactic

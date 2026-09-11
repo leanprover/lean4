@@ -357,9 +357,8 @@ over commutative (semi)rings, using the Grobner basis algorithm.
 It is a implemented as a thin wrapper around the `grind` tactic, enabling only the `grobner` solver.
 Please use `grind` instead if you need additional capabilities.
 
-Like `grind`, it accepts a list of extra facts, e.g. `grobner [foo x y]`. Since `grobner` does not
-run E-matching by default, quantified lemmas are only instantiated when it is enabled explicitly,
-e.g. `grobner (ematch := 1) [= foo]`.
+Like `grind`, it accepts a list of extra facts and lemmas, e.g. `grobner [foo x y, = bar]`.
+Lemmas given this way are instantiated via E-matching, while the `@[grind]` lemma set stays disabled.
 -/
 syntax (name := grobner) "grobner" optConfig (" [" withoutPosition(grindParam,*) "]")? : tactic
 

@@ -52,10 +52,12 @@ example (x y : Int) (h : x = y) : sq x = y * y := by
 example (x y : Int) (h : x + y = 0) : sq x = sq y := by
   grobner [sq_def x, sq_def y]
 
--- `grobner` does not run E-matching by default, so a quantified lemma is inert unless enabled.
+-- Quantified lemmas are instantiated via E-matching, while the `@[grind]` set stays disabled.
 example (x y : Int) (h : x = y) : sq x = y * y := by
+  grobner [= sq_def]
+example (n : Int) : g n = n + 1 := by
   fail_if_success grobner [= sq_def]
-  grobner (ematch := 1) [= sq_def]
+  grobner [= g_def]
 
 -- Local hypotheses are used automatically, so passing one is an error, as for `grind`.
 /-- error: redundant parameter `h`, `grind` uses local hypotheses automatically -/

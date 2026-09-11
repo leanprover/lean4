@@ -7,6 +7,7 @@ module
 
 prelude
 import Init.Prelude
+public meta import Init.Data.Sum.Basic
 public meta import Init.Data.String.Modify
 public meta import Lean.Meta.Hint
 public meta import Lean.Data.Html.Spec
@@ -145,10 +146,80 @@ def text.parenthesizer : Parenthesizer := Parenthesizer.visitToken
 @[combinator_formatter text, formatter Lean.Html.Syntax.text]
 def text.formatter : Formatter := Formatter.visitAtom textKind
 
-/-- Returns the raw source text of an HTML text node,
-with whitespace not yet normalized and character references not yet decoded. -/
-def Text.view [Monad m] [MonadError m] : Text → m String :=
-  viewNodeAtom
+/-- Syntax spanning bytes {name}`b` to {name}`e` of {name}`t`, for reporting errors.
+Falls back to {name}`t` itself when its position in the source is not known exactly. -/
+private def Text.subsyntax (t : Text) (b e : String.Pos.Raw) : Syntax :=
+  match t.raw with
+  | .node _ _ #[.atom (.original _ pos _ _) s] =>
+    .atom (.synthetic ⟨pos.byteIdx + b.byteIdx⟩ ⟨pos.byteIdx + e.byteIdx⟩ (canonical := true))
+      (b.extract s e)
+  | _ => t.raw
+
+/-- Accumulator for normalizing the contents of a run of {name}`text` nodes. -/
+private structure TextAcc where
+  out : String := ""
+  /-- Whether whitespace occurred after the last append to {lit}`out`. -/
+  pendingWs : Bool := false
+
+namespace TextAcc
+
+/-- Appends a single space whenever whitespace is pending,
+except when {name}`trimStart` is set and we haven't seen any non-whitespace yet -
+then pending whitespace is discarded. -/
+private def flushWs (acc : TextAcc) (trimStart : Bool) : TextAcc :=
+  let keep := acc.pendingWs && !(trimStart && acc.out.isEmpty)
+  { acc with out := if keep then acc.out.push ' ' else acc.out, pendingWs := false }
+
+/-- Returns the accumulated text.
+Trailing whitespace is removed if {name}`trimEnd` is set. -/
+private def finish (acc : TextAcc) (trimStart trimEnd : Bool) : String :=
+  if trimEnd then acc.out else acc.flushWs trimStart |>.out
+
+/-- Appends the text of {name}`t` to the accumulator,
+normalizing as described in {lit}`Content.view`.
+Whitespace at the start is dropped when {name}`trimStart` is set.
+Throws if {name}`t` contains an invalid character reference. -/
+private partial def push [Monad m] [MonadError m]
+  (acc : TextAcc) (t : Text) (trimStart : Bool) : m TextAcc := do
+  go (← viewNodeAtom t) ⟨0⟩ acc
+where
+  go (s : String) (i : String.Pos.Raw) (acc : TextAcc) : m TextAcc := do
+    if i.atEnd s then
+      return acc
+    let c := i.get s
+    let j := i.next s
+    if isAsciiWhitespace c then
+      go s j { acc with pendingWs := true }
+    else
+      let acc := acc.flushWs trimStart
+      if c == '&' then
+        let bodyEnd ← parseCharRef s i
+        let refEnd := bodyEnd.next s
+        match characterReference? (j.extract s bodyEnd) with
+        | some val => go s refEnd { acc with out := acc.out ++ val }
+        | none =>
+          let kind := if j.get s == '#' then "numeric" else "named"
+          throwErrorAt (t.subsyntax i refEnd)
+            m!"Invalid HTML {kind} character reference `{i.extract s refEnd}`"
+      else
+        go s j { acc with out := acc.out.push c }
+  /-- If a character reference {lit}`&body;` starts at {name}`i`,
+  returns the position of its semicolon.
+  The body is an optional {lit}`#` followed by at least one ASCII alphanumeric. -/
+  parseCharRef (s : String) (i : String.Pos.Raw) : m String.Pos.Raw := do
+    let j := i.next s
+    let k := if j.get s == '#' then j.next s else j
+    let bodyEnd := skipAlphanum s k
+    if bodyEnd.get s != ';' then
+      throwErrorAt (t.subsyntax i bodyEnd)
+        m!"Unterminated HTML character reference '{i.extract s bodyEnd}'"
+    return bodyEnd
+  skipAlphanum (s : String) (i : String.Pos.Raw) : String.Pos.Raw :=
+    if h : i.atEnd s then i
+    else if (i.get' s h).isAlphanum then skipAlphanum s (i.next' s h)
+    else i
+
+end TextAcc
 
 /-! ## Comments -/
 
@@ -405,29 +476,56 @@ def element : Parser := elementWith (content)
 
 inductive ContentItemView where
   | element (stx : Element) (startTag : TagName) (attrs : Array Attr) (children? : Option Content)
-  | text (t : Text)
+  /-- A run of text nodes and comments, together with its normalized text content
+  (which may be empty). -/
+  | text (stxs : Array (Text ⊕ Comment)) (content : String)
   | interp (v : Term)
-  | comment (c : Comment)
 
 /-- The syntax of this content node. Useful for reporting elaboration errors. -/
 def ContentItemView.getSyntax : ContentItemView → Syntax
   | .element e .. => e.raw
-  | .text t => t.raw
+  | .text ts _ => mkNullNode (ts.map (Sum.elim TSyntax.raw TSyntax.raw))
   | .interp v => v.raw
-  | .comment c => c.raw
 
 /-- Returns the sequence of items in an HTML {name}`content` node.
-Throws if the end tag of any directly nested element does not match its start tag. -/
-def Content.view (c : Content) : CoreM (Array ContentItemView) :=
-  c.raw.getArgs.mapM viewItem
-where
-  viewItem (stx : Syntax) : CoreM ContentItemView := withRef stx do
+
+Runs of text interspersed with comments are merged and _normalized_:
+- Consecutive whitespace is collapsed into a single space (U+0020),
+  except at the start and end of {name}`c` — whitespace there is dropped.
+- HTML character references are decoded into the Unicode characters they represent.
+
+Throws if the end tag of any directly nested element does not match its start tag (up to casing),
+or if an invalid character reference is encountered in text. -/
+def Content.view (c : Content) : CoreM (Array ContentItemView) := do
+  let mut items : Array ContentItemView := #[]
+  -- Text/comment nodes since the last element or interpolation.
+  let mut tcs : Array (Text ⊕ Comment) := #[]
+  for stx in c.raw.getArgs do
     let k := stx.getKind
     if k == textKind then
-      return .text ⟨stx⟩
+      tcs := tcs.push <| .inl ⟨stx⟩
     else if k == commentKind then
-      return .comment ⟨stx⟩
-    else if k == interpKind then
+      tcs := tcs.push <| .inr ⟨stx⟩
+    else
+      items ← pushText items tcs (trimEnd := false)
+      tcs := #[]
+      items := items.push (← viewItem stx)
+  pushText items tcs (trimEnd := true)
+where
+  /-- Appends the normalized text of {name}`tcs` to {name}`items`. -/
+  pushText (items : Array ContentItemView) (tcs : Array (Text ⊕ Comment)) (trimEnd : Bool) :
+      CoreM (Array ContentItemView) := do
+    -- Discard whitespace in the text/comment run that precedes all items.
+    let trimStart := items.isEmpty
+    let mut acc : TextAcc := {}
+    for tc in tcs do
+      let .inl t := tc | continue
+      acc ← withRef t <| acc.push t (trimStart := trimStart)
+    let val := acc.finish trimStart trimEnd
+    return items.push (.text tcs val)
+  viewItem (stx : Syntax) : CoreM ContentItemView := withRef stx do
+    let k := stx.getKind
+    if k == interpKind then
       return .interp ⟨stx[1]⟩
     else if k == elementKind then
       let startTag : TagName := ⟨stx[1]⟩

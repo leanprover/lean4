@@ -41,17 +41,7 @@ error: failed to compile definition, consider marking it as 'noncomputable' beca
 #guard_msgs in
 def test9 (a : Nat) : V := ⟨a, badFun a⟩
 
-universe u
-
-def Erased (α : Sort u) : Sort max 1 u :=
-  { s : α → Prop // ∃ a, (a = ·) = s }
-
-@[macro_inline] def Erased.mk {α} (a : α) : Erased α :=
-  ⟨fun b => a = b, a, rfl⟩
-
-noncomputable def Erased.out {α} : Erased α → α
-  | ⟨_, h⟩ => Classical.choose h
-
+-- `Erased.mk` is `macro_inline`, so its argument erases and `.out` inside it compiles.
 structure Foo where
   spec : Erased Nat
   data : Nat
@@ -61,7 +51,7 @@ def test10 : Foo where
   data := 0
 
 /--
-error: failed to compile definition, consider marking it as 'noncomputable' because it depends on 'Erased.out', which is 'noncomputable'
+error: failed to compile definition: it depends on 'Erased.out', which recovers the value of an erased variable. An erased variable's value is available in specifications such as `invariant` clauses and `assert`s, but not in compiled code. Consider marking the definition as 'noncomputable'.
 -/
 #guard_msgs in
 def test11 : Foo where

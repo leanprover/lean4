@@ -121,6 +121,15 @@ if (arity == fixed + 1) {
     case 14: { obj* r = FN14(f)(fx(0), fx(1), fx(2), fx(3), fx(4), fx(5), fx(6), fx(7), fx(8), fx(9), fx(10), fx(11), fx(12), a1); lean_free_object(f); return r; }
     case 15: { obj* r = FN15(f)(fx(0), fx(1), fx(2), fx(3), fx(4), fx(5), fx(6), fx(7), fx(8), fx(9), fx(10), fx(11), fx(12), fx(13), a1); lean_free_object(f); return r; }
     case 16: { obj* r = FN16(f)(fx(0), fx(1), fx(2), fx(3), fx(4), fx(5), fx(6), fx(7), fx(8), fx(9), fx(10), fx(11), fx(12), fx(13), fx(14), a1); lean_free_object(f); return r; }
+    default:
+      lean_assert(arity > 16);
+      obj * as[1] = { a1 };
+      obj ** args = static_cast<obj**>(LEAN_ALLOCA(arity*sizeof(obj*))); // NOLINT
+      for (unsigned i = 0; i < fixed; i++) args[i] = fx(i);
+      for (unsigned i = 0; i < 1; i++) args[fixed+i] = as[i];
+      obj * r = FNN(f)(args);
+      lean_free_object(f);
+      return r;
     }
   }
   switch (arity) {
@@ -179,6 +188,15 @@ if (arity == fixed + 2) {
     case 14: { obj* r = FN14(f)(fx(0), fx(1), fx(2), fx(3), fx(4), fx(5), fx(6), fx(7), fx(8), fx(9), fx(10), fx(11), a1, a2); lean_free_object(f); return r; }
     case 15: { obj* r = FN15(f)(fx(0), fx(1), fx(2), fx(3), fx(4), fx(5), fx(6), fx(7), fx(8), fx(9), fx(10), fx(11), fx(12), a1, a2); lean_free_object(f); return r; }
     case 16: { obj* r = FN16(f)(fx(0), fx(1), fx(2), fx(3), fx(4), fx(5), fx(6), fx(7), fx(8), fx(9), fx(10), fx(11), fx(12), fx(13), a1, a2); lean_free_object(f); return r; }
+    default:
+      lean_assert(arity > 16);
+      obj * as[2] = { a1, a2 };
+      obj ** args = static_cast<obj**>(LEAN_ALLOCA(arity*sizeof(obj*))); // NOLINT
+      for (unsigned i = 0; i < fixed; i++) args[i] = fx(i);
+      for (unsigned i = 0; i < 2; i++) args[fixed+i] = as[i];
+      obj * r = FNN(f)(args);
+      lean_free_object(f);
+      return r;
     }
   }
   switch (arity) {
@@ -210,10 +228,17 @@ if (arity == fixed + 2) {
 } else if (arity < fixed + 2) {
   obj * as[2] = { a1, a2 };
   obj ** args = static_cast<obj**>(LEAN_ALLOCA(arity*sizeof(obj*))); // NOLINT
-  for (unsigned i = 0; i < fixed; i++) { lean_inc(fx(i)); args[i] = fx(i); }
   for (unsigned i = 0; i < arity-fixed; i++) args[fixed+i] = as[i];
-  obj * new_f = curry(f, arity, args);
-  lean_dec_ref(f);
+  obj * new_f;
+  if (lean_is_exclusive(f)) {
+    for (unsigned i = 0; i < fixed; i++) args[i] = fx(i);
+    new_f = curry(f, arity, args);
+    lean_free_object(f);
+  } else {
+    for (unsigned i = 0; i < fixed; i++) { lean_inc(fx(i)); args[i] = fx(i); }
+    new_f = curry(f, arity, args);
+    lean_dec_ref(f);
+  }
   return lean_apply_n(new_f, 2+fixed-arity, &as[arity-fixed]);
 } else {
   return fix_args(f, {a1, a2});
@@ -240,6 +265,15 @@ if (arity == fixed + 3) {
     case 14: { obj* r = FN14(f)(fx(0), fx(1), fx(2), fx(3), fx(4), fx(5), fx(6), fx(7), fx(8), fx(9), fx(10), a1, a2, a3); lean_free_object(f); return r; }
     case 15: { obj* r = FN15(f)(fx(0), fx(1), fx(2), fx(3), fx(4), fx(5), fx(6), fx(7), fx(8), fx(9), fx(10), fx(11), a1, a2, a3); lean_free_object(f); return r; }
     case 16: { obj* r = FN16(f)(fx(0), fx(1), fx(2), fx(3), fx(4), fx(5), fx(6), fx(7), fx(8), fx(9), fx(10), fx(11), fx(12), a1, a2, a3); lean_free_object(f); return r; }
+    default:
+      lean_assert(arity > 16);
+      obj * as[3] = { a1, a2, a3 };
+      obj ** args = static_cast<obj**>(LEAN_ALLOCA(arity*sizeof(obj*))); // NOLINT
+      for (unsigned i = 0; i < fixed; i++) args[i] = fx(i);
+      for (unsigned i = 0; i < 3; i++) args[fixed+i] = as[i];
+      obj * r = FNN(f)(args);
+      lean_free_object(f);
+      return r;
     }
   }
   switch (arity) {
@@ -270,10 +304,17 @@ if (arity == fixed + 3) {
 } else if (arity < fixed + 3) {
   obj * as[3] = { a1, a2, a3 };
   obj ** args = static_cast<obj**>(LEAN_ALLOCA(arity*sizeof(obj*))); // NOLINT
-  for (unsigned i = 0; i < fixed; i++) { lean_inc(fx(i)); args[i] = fx(i); }
   for (unsigned i = 0; i < arity-fixed; i++) args[fixed+i] = as[i];
-  obj * new_f = curry(f, arity, args);
-  lean_dec_ref(f);
+  obj * new_f;
+  if (lean_is_exclusive(f)) {
+    for (unsigned i = 0; i < fixed; i++) args[i] = fx(i);
+    new_f = curry(f, arity, args);
+    lean_free_object(f);
+  } else {
+    for (unsigned i = 0; i < fixed; i++) { lean_inc(fx(i)); args[i] = fx(i); }
+    new_f = curry(f, arity, args);
+    lean_dec_ref(f);
+  }
   return lean_apply_n(new_f, 3+fixed-arity, &as[arity-fixed]);
 } else {
   return fix_args(f, {a1, a2, a3});
@@ -299,6 +340,15 @@ if (arity == fixed + 4) {
     case 14: { obj* r = FN14(f)(fx(0), fx(1), fx(2), fx(3), fx(4), fx(5), fx(6), fx(7), fx(8), fx(9), a1, a2, a3, a4); lean_free_object(f); return r; }
     case 15: { obj* r = FN15(f)(fx(0), fx(1), fx(2), fx(3), fx(4), fx(5), fx(6), fx(7), fx(8), fx(9), fx(10), a1, a2, a3, a4); lean_free_object(f); return r; }
     case 16: { obj* r = FN16(f)(fx(0), fx(1), fx(2), fx(3), fx(4), fx(5), fx(6), fx(7), fx(8), fx(9), fx(10), fx(11), a1, a2, a3, a4); lean_free_object(f); return r; }
+    default:
+      lean_assert(arity > 16);
+      obj * as[4] = { a1, a2, a3, a4 };
+      obj ** args = static_cast<obj**>(LEAN_ALLOCA(arity*sizeof(obj*))); // NOLINT
+      for (unsigned i = 0; i < fixed; i++) args[i] = fx(i);
+      for (unsigned i = 0; i < 4; i++) args[fixed+i] = as[i];
+      obj * r = FNN(f)(args);
+      lean_free_object(f);
+      return r;
     }
   }
   switch (arity) {
@@ -328,10 +378,17 @@ if (arity == fixed + 4) {
 } else if (arity < fixed + 4) {
   obj * as[4] = { a1, a2, a3, a4 };
   obj ** args = static_cast<obj**>(LEAN_ALLOCA(arity*sizeof(obj*))); // NOLINT
-  for (unsigned i = 0; i < fixed; i++) { lean_inc(fx(i)); args[i] = fx(i); }
   for (unsigned i = 0; i < arity-fixed; i++) args[fixed+i] = as[i];
-  obj * new_f = curry(f, arity, args);
-  lean_dec_ref(f);
+  obj * new_f;
+  if (lean_is_exclusive(f)) {
+    for (unsigned i = 0; i < fixed; i++) args[i] = fx(i);
+    new_f = curry(f, arity, args);
+    lean_free_object(f);
+  } else {
+    for (unsigned i = 0; i < fixed; i++) { lean_inc(fx(i)); args[i] = fx(i); }
+    new_f = curry(f, arity, args);
+    lean_dec_ref(f);
+  }
   return lean_apply_n(new_f, 4+fixed-arity, &as[arity-fixed]);
 } else {
   return fix_args(f, {a1, a2, a3, a4});
@@ -356,6 +413,15 @@ if (arity == fixed + 5) {
     case 14: { obj* r = FN14(f)(fx(0), fx(1), fx(2), fx(3), fx(4), fx(5), fx(6), fx(7), fx(8), a1, a2, a3, a4, a5); lean_free_object(f); return r; }
     case 15: { obj* r = FN15(f)(fx(0), fx(1), fx(2), fx(3), fx(4), fx(5), fx(6), fx(7), fx(8), fx(9), a1, a2, a3, a4, a5); lean_free_object(f); return r; }
     case 16: { obj* r = FN16(f)(fx(0), fx(1), fx(2), fx(3), fx(4), fx(5), fx(6), fx(7), fx(8), fx(9), fx(10), a1, a2, a3, a4, a5); lean_free_object(f); return r; }
+    default:
+      lean_assert(arity > 16);
+      obj * as[5] = { a1, a2, a3, a4, a5 };
+      obj ** args = static_cast<obj**>(LEAN_ALLOCA(arity*sizeof(obj*))); // NOLINT
+      for (unsigned i = 0; i < fixed; i++) args[i] = fx(i);
+      for (unsigned i = 0; i < 5; i++) args[fixed+i] = as[i];
+      obj * r = FNN(f)(args);
+      lean_free_object(f);
+      return r;
     }
   }
   switch (arity) {
@@ -384,10 +450,17 @@ if (arity == fixed + 5) {
 } else if (arity < fixed + 5) {
   obj * as[5] = { a1, a2, a3, a4, a5 };
   obj ** args = static_cast<obj**>(LEAN_ALLOCA(arity*sizeof(obj*))); // NOLINT
-  for (unsigned i = 0; i < fixed; i++) { lean_inc(fx(i)); args[i] = fx(i); }
   for (unsigned i = 0; i < arity-fixed; i++) args[fixed+i] = as[i];
-  obj * new_f = curry(f, arity, args);
-  lean_dec_ref(f);
+  obj * new_f;
+  if (lean_is_exclusive(f)) {
+    for (unsigned i = 0; i < fixed; i++) args[i] = fx(i);
+    new_f = curry(f, arity, args);
+    lean_free_object(f);
+  } else {
+    for (unsigned i = 0; i < fixed; i++) { lean_inc(fx(i)); args[i] = fx(i); }
+    new_f = curry(f, arity, args);
+    lean_dec_ref(f);
+  }
   return lean_apply_n(new_f, 5+fixed-arity, &as[arity-fixed]);
 } else {
   return fix_args(f, {a1, a2, a3, a4, a5});
@@ -411,6 +484,15 @@ if (arity == fixed + 6) {
     case 14: { obj* r = FN14(f)(fx(0), fx(1), fx(2), fx(3), fx(4), fx(5), fx(6), fx(7), a1, a2, a3, a4, a5, a6); lean_free_object(f); return r; }
     case 15: { obj* r = FN15(f)(fx(0), fx(1), fx(2), fx(3), fx(4), fx(5), fx(6), fx(7), fx(8), a1, a2, a3, a4, a5, a6); lean_free_object(f); return r; }
     case 16: { obj* r = FN16(f)(fx(0), fx(1), fx(2), fx(3), fx(4), fx(5), fx(6), fx(7), fx(8), fx(9), a1, a2, a3, a4, a5, a6); lean_free_object(f); return r; }
+    default:
+      lean_assert(arity > 16);
+      obj * as[6] = { a1, a2, a3, a4, a5, a6 };
+      obj ** args = static_cast<obj**>(LEAN_ALLOCA(arity*sizeof(obj*))); // NOLINT
+      for (unsigned i = 0; i < fixed; i++) args[i] = fx(i);
+      for (unsigned i = 0; i < 6; i++) args[fixed+i] = as[i];
+      obj * r = FNN(f)(args);
+      lean_free_object(f);
+      return r;
     }
   }
   switch (arity) {
@@ -438,10 +520,17 @@ if (arity == fixed + 6) {
 } else if (arity < fixed + 6) {
   obj * as[6] = { a1, a2, a3, a4, a5, a6 };
   obj ** args = static_cast<obj**>(LEAN_ALLOCA(arity*sizeof(obj*))); // NOLINT
-  for (unsigned i = 0; i < fixed; i++) { lean_inc(fx(i)); args[i] = fx(i); }
   for (unsigned i = 0; i < arity-fixed; i++) args[fixed+i] = as[i];
-  obj * new_f = curry(f, arity, args);
-  lean_dec_ref(f);
+  obj * new_f;
+  if (lean_is_exclusive(f)) {
+    for (unsigned i = 0; i < fixed; i++) args[i] = fx(i);
+    new_f = curry(f, arity, args);
+    lean_free_object(f);
+  } else {
+    for (unsigned i = 0; i < fixed; i++) { lean_inc(fx(i)); args[i] = fx(i); }
+    new_f = curry(f, arity, args);
+    lean_dec_ref(f);
+  }
   return lean_apply_n(new_f, 6+fixed-arity, &as[arity-fixed]);
 } else {
   return fix_args(f, {a1, a2, a3, a4, a5, a6});
@@ -464,6 +553,15 @@ if (arity == fixed + 7) {
     case 14: { obj* r = FN14(f)(fx(0), fx(1), fx(2), fx(3), fx(4), fx(5), fx(6), a1, a2, a3, a4, a5, a6, a7); lean_free_object(f); return r; }
     case 15: { obj* r = FN15(f)(fx(0), fx(1), fx(2), fx(3), fx(4), fx(5), fx(6), fx(7), a1, a2, a3, a4, a5, a6, a7); lean_free_object(f); return r; }
     case 16: { obj* r = FN16(f)(fx(0), fx(1), fx(2), fx(3), fx(4), fx(5), fx(6), fx(7), fx(8), a1, a2, a3, a4, a5, a6, a7); lean_free_object(f); return r; }
+    default:
+      lean_assert(arity > 16);
+      obj * as[7] = { a1, a2, a3, a4, a5, a6, a7 };
+      obj ** args = static_cast<obj**>(LEAN_ALLOCA(arity*sizeof(obj*))); // NOLINT
+      for (unsigned i = 0; i < fixed; i++) args[i] = fx(i);
+      for (unsigned i = 0; i < 7; i++) args[fixed+i] = as[i];
+      obj * r = FNN(f)(args);
+      lean_free_object(f);
+      return r;
     }
   }
   switch (arity) {
@@ -490,10 +588,17 @@ if (arity == fixed + 7) {
 } else if (arity < fixed + 7) {
   obj * as[7] = { a1, a2, a3, a4, a5, a6, a7 };
   obj ** args = static_cast<obj**>(LEAN_ALLOCA(arity*sizeof(obj*))); // NOLINT
-  for (unsigned i = 0; i < fixed; i++) { lean_inc(fx(i)); args[i] = fx(i); }
   for (unsigned i = 0; i < arity-fixed; i++) args[fixed+i] = as[i];
-  obj * new_f = curry(f, arity, args);
-  lean_dec_ref(f);
+  obj * new_f;
+  if (lean_is_exclusive(f)) {
+    for (unsigned i = 0; i < fixed; i++) args[i] = fx(i);
+    new_f = curry(f, arity, args);
+    lean_free_object(f);
+  } else {
+    for (unsigned i = 0; i < fixed; i++) { lean_inc(fx(i)); args[i] = fx(i); }
+    new_f = curry(f, arity, args);
+    lean_dec_ref(f);
+  }
   return lean_apply_n(new_f, 7+fixed-arity, &as[arity-fixed]);
 } else {
   return fix_args(f, {a1, a2, a3, a4, a5, a6, a7});
@@ -515,6 +620,15 @@ if (arity == fixed + 8) {
     case 14: { obj* r = FN14(f)(fx(0), fx(1), fx(2), fx(3), fx(4), fx(5), a1, a2, a3, a4, a5, a6, a7, a8); lean_free_object(f); return r; }
     case 15: { obj* r = FN15(f)(fx(0), fx(1), fx(2), fx(3), fx(4), fx(5), fx(6), a1, a2, a3, a4, a5, a6, a7, a8); lean_free_object(f); return r; }
     case 16: { obj* r = FN16(f)(fx(0), fx(1), fx(2), fx(3), fx(4), fx(5), fx(6), fx(7), a1, a2, a3, a4, a5, a6, a7, a8); lean_free_object(f); return r; }
+    default:
+      lean_assert(arity > 16);
+      obj * as[8] = { a1, a2, a3, a4, a5, a6, a7, a8 };
+      obj ** args = static_cast<obj**>(LEAN_ALLOCA(arity*sizeof(obj*))); // NOLINT
+      for (unsigned i = 0; i < fixed; i++) args[i] = fx(i);
+      for (unsigned i = 0; i < 8; i++) args[fixed+i] = as[i];
+      obj * r = FNN(f)(args);
+      lean_free_object(f);
+      return r;
     }
   }
   switch (arity) {
@@ -540,10 +654,17 @@ if (arity == fixed + 8) {
 } else if (arity < fixed + 8) {
   obj * as[8] = { a1, a2, a3, a4, a5, a6, a7, a8 };
   obj ** args = static_cast<obj**>(LEAN_ALLOCA(arity*sizeof(obj*))); // NOLINT
-  for (unsigned i = 0; i < fixed; i++) { lean_inc(fx(i)); args[i] = fx(i); }
   for (unsigned i = 0; i < arity-fixed; i++) args[fixed+i] = as[i];
-  obj * new_f = curry(f, arity, args);
-  lean_dec_ref(f);
+  obj * new_f;
+  if (lean_is_exclusive(f)) {
+    for (unsigned i = 0; i < fixed; i++) args[i] = fx(i);
+    new_f = curry(f, arity, args);
+    lean_free_object(f);
+  } else {
+    for (unsigned i = 0; i < fixed; i++) { lean_inc(fx(i)); args[i] = fx(i); }
+    new_f = curry(f, arity, args);
+    lean_dec_ref(f);
+  }
   return lean_apply_n(new_f, 8+fixed-arity, &as[arity-fixed]);
 } else {
   return fix_args(f, {a1, a2, a3, a4, a5, a6, a7, a8});
@@ -564,6 +685,15 @@ if (arity == fixed + 9) {
     case 14: { obj* r = FN14(f)(fx(0), fx(1), fx(2), fx(3), fx(4), a1, a2, a3, a4, a5, a6, a7, a8, a9); lean_free_object(f); return r; }
     case 15: { obj* r = FN15(f)(fx(0), fx(1), fx(2), fx(3), fx(4), fx(5), a1, a2, a3, a4, a5, a6, a7, a8, a9); lean_free_object(f); return r; }
     case 16: { obj* r = FN16(f)(fx(0), fx(1), fx(2), fx(3), fx(4), fx(5), fx(6), a1, a2, a3, a4, a5, a6, a7, a8, a9); lean_free_object(f); return r; }
+    default:
+      lean_assert(arity > 16);
+      obj * as[9] = { a1, a2, a3, a4, a5, a6, a7, a8, a9 };
+      obj ** args = static_cast<obj**>(LEAN_ALLOCA(arity*sizeof(obj*))); // NOLINT
+      for (unsigned i = 0; i < fixed; i++) args[i] = fx(i);
+      for (unsigned i = 0; i < 9; i++) args[fixed+i] = as[i];
+      obj * r = FNN(f)(args);
+      lean_free_object(f);
+      return r;
     }
   }
   switch (arity) {
@@ -588,10 +718,17 @@ if (arity == fixed + 9) {
 } else if (arity < fixed + 9) {
   obj * as[9] = { a1, a2, a3, a4, a5, a6, a7, a8, a9 };
   obj ** args = static_cast<obj**>(LEAN_ALLOCA(arity*sizeof(obj*))); // NOLINT
-  for (unsigned i = 0; i < fixed; i++) { lean_inc(fx(i)); args[i] = fx(i); }
   for (unsigned i = 0; i < arity-fixed; i++) args[fixed+i] = as[i];
-  obj * new_f = curry(f, arity, args);
-  lean_dec_ref(f);
+  obj * new_f;
+  if (lean_is_exclusive(f)) {
+    for (unsigned i = 0; i < fixed; i++) args[i] = fx(i);
+    new_f = curry(f, arity, args);
+    lean_free_object(f);
+  } else {
+    for (unsigned i = 0; i < fixed; i++) { lean_inc(fx(i)); args[i] = fx(i); }
+    new_f = curry(f, arity, args);
+    lean_dec_ref(f);
+  }
   return lean_apply_n(new_f, 9+fixed-arity, &as[arity-fixed]);
 } else {
   return fix_args(f, {a1, a2, a3, a4, a5, a6, a7, a8, a9});
@@ -611,6 +748,15 @@ if (arity == fixed + 10) {
     case 14: { obj* r = FN14(f)(fx(0), fx(1), fx(2), fx(3), a1, a2, a3, a4, a5, a6, a7, a8, a9, a10); lean_free_object(f); return r; }
     case 15: { obj* r = FN15(f)(fx(0), fx(1), fx(2), fx(3), fx(4), a1, a2, a3, a4, a5, a6, a7, a8, a9, a10); lean_free_object(f); return r; }
     case 16: { obj* r = FN16(f)(fx(0), fx(1), fx(2), fx(3), fx(4), fx(5), a1, a2, a3, a4, a5, a6, a7, a8, a9, a10); lean_free_object(f); return r; }
+    default:
+      lean_assert(arity > 16);
+      obj * as[10] = { a1, a2, a3, a4, a5, a6, a7, a8, a9, a10 };
+      obj ** args = static_cast<obj**>(LEAN_ALLOCA(arity*sizeof(obj*))); // NOLINT
+      for (unsigned i = 0; i < fixed; i++) args[i] = fx(i);
+      for (unsigned i = 0; i < 10; i++) args[fixed+i] = as[i];
+      obj * r = FNN(f)(args);
+      lean_free_object(f);
+      return r;
     }
   }
   switch (arity) {
@@ -634,10 +780,17 @@ if (arity == fixed + 10) {
 } else if (arity < fixed + 10) {
   obj * as[10] = { a1, a2, a3, a4, a5, a6, a7, a8, a9, a10 };
   obj ** args = static_cast<obj**>(LEAN_ALLOCA(arity*sizeof(obj*))); // NOLINT
-  for (unsigned i = 0; i < fixed; i++) { lean_inc(fx(i)); args[i] = fx(i); }
   for (unsigned i = 0; i < arity-fixed; i++) args[fixed+i] = as[i];
-  obj * new_f = curry(f, arity, args);
-  lean_dec_ref(f);
+  obj * new_f;
+  if (lean_is_exclusive(f)) {
+    for (unsigned i = 0; i < fixed; i++) args[i] = fx(i);
+    new_f = curry(f, arity, args);
+    lean_free_object(f);
+  } else {
+    for (unsigned i = 0; i < fixed; i++) { lean_inc(fx(i)); args[i] = fx(i); }
+    new_f = curry(f, arity, args);
+    lean_dec_ref(f);
+  }
   return lean_apply_n(new_f, 10+fixed-arity, &as[arity-fixed]);
 } else {
   return fix_args(f, {a1, a2, a3, a4, a5, a6, a7, a8, a9, a10});
@@ -656,6 +809,15 @@ if (arity == fixed + 11) {
     case 14: { obj* r = FN14(f)(fx(0), fx(1), fx(2), a1, a2, a3, a4, a5, a6, a7, a8, a9, a10, a11); lean_free_object(f); return r; }
     case 15: { obj* r = FN15(f)(fx(0), fx(1), fx(2), fx(3), a1, a2, a3, a4, a5, a6, a7, a8, a9, a10, a11); lean_free_object(f); return r; }
     case 16: { obj* r = FN16(f)(fx(0), fx(1), fx(2), fx(3), fx(4), a1, a2, a3, a4, a5, a6, a7, a8, a9, a10, a11); lean_free_object(f); return r; }
+    default:
+      lean_assert(arity > 16);
+      obj * as[11] = { a1, a2, a3, a4, a5, a6, a7, a8, a9, a10, a11 };
+      obj ** args = static_cast<obj**>(LEAN_ALLOCA(arity*sizeof(obj*))); // NOLINT
+      for (unsigned i = 0; i < fixed; i++) args[i] = fx(i);
+      for (unsigned i = 0; i < 11; i++) args[fixed+i] = as[i];
+      obj * r = FNN(f)(args);
+      lean_free_object(f);
+      return r;
     }
   }
   switch (arity) {
@@ -678,10 +840,17 @@ if (arity == fixed + 11) {
 } else if (arity < fixed + 11) {
   obj * as[11] = { a1, a2, a3, a4, a5, a6, a7, a8, a9, a10, a11 };
   obj ** args = static_cast<obj**>(LEAN_ALLOCA(arity*sizeof(obj*))); // NOLINT
-  for (unsigned i = 0; i < fixed; i++) { lean_inc(fx(i)); args[i] = fx(i); }
   for (unsigned i = 0; i < arity-fixed; i++) args[fixed+i] = as[i];
-  obj * new_f = curry(f, arity, args);
-  lean_dec_ref(f);
+  obj * new_f;
+  if (lean_is_exclusive(f)) {
+    for (unsigned i = 0; i < fixed; i++) args[i] = fx(i);
+    new_f = curry(f, arity, args);
+    lean_free_object(f);
+  } else {
+    for (unsigned i = 0; i < fixed; i++) { lean_inc(fx(i)); args[i] = fx(i); }
+    new_f = curry(f, arity, args);
+    lean_dec_ref(f);
+  }
   return lean_apply_n(new_f, 11+fixed-arity, &as[arity-fixed]);
 } else {
   return fix_args(f, {a1, a2, a3, a4, a5, a6, a7, a8, a9, a10, a11});
@@ -699,6 +868,15 @@ if (arity == fixed + 12) {
     case 14: { obj* r = FN14(f)(fx(0), fx(1), a1, a2, a3, a4, a5, a6, a7, a8, a9, a10, a11, a12); lean_free_object(f); return r; }
     case 15: { obj* r = FN15(f)(fx(0), fx(1), fx(2), a1, a2, a3, a4, a5, a6, a7, a8, a9, a10, a11, a12); lean_free_object(f); return r; }
     case 16: { obj* r = FN16(f)(fx(0), fx(1), fx(2), fx(3), a1, a2, a3, a4, a5, a6, a7, a8, a9, a10, a11, a12); lean_free_object(f); return r; }
+    default:
+      lean_assert(arity > 16);
+      obj * as[12] = { a1, a2, a3, a4, a5, a6, a7, a8, a9, a10, a11, a12 };
+      obj ** args = static_cast<obj**>(LEAN_ALLOCA(arity*sizeof(obj*))); // NOLINT
+      for (unsigned i = 0; i < fixed; i++) args[i] = fx(i);
+      for (unsigned i = 0; i < 12; i++) args[fixed+i] = as[i];
+      obj * r = FNN(f)(args);
+      lean_free_object(f);
+      return r;
     }
   }
   switch (arity) {
@@ -720,10 +898,17 @@ if (arity == fixed + 12) {
 } else if (arity < fixed + 12) {
   obj * as[12] = { a1, a2, a3, a4, a5, a6, a7, a8, a9, a10, a11, a12 };
   obj ** args = static_cast<obj**>(LEAN_ALLOCA(arity*sizeof(obj*))); // NOLINT
-  for (unsigned i = 0; i < fixed; i++) { lean_inc(fx(i)); args[i] = fx(i); }
   for (unsigned i = 0; i < arity-fixed; i++) args[fixed+i] = as[i];
-  obj * new_f = curry(f, arity, args);
-  lean_dec_ref(f);
+  obj * new_f;
+  if (lean_is_exclusive(f)) {
+    for (unsigned i = 0; i < fixed; i++) args[i] = fx(i);
+    new_f = curry(f, arity, args);
+    lean_free_object(f);
+  } else {
+    for (unsigned i = 0; i < fixed; i++) { lean_inc(fx(i)); args[i] = fx(i); }
+    new_f = curry(f, arity, args);
+    lean_dec_ref(f);
+  }
   return lean_apply_n(new_f, 12+fixed-arity, &as[arity-fixed]);
 } else {
   return fix_args(f, {a1, a2, a3, a4, a5, a6, a7, a8, a9, a10, a11, a12});
@@ -740,6 +925,15 @@ if (arity == fixed + 13) {
     case 14: { obj* r = FN14(f)(fx(0), a1, a2, a3, a4, a5, a6, a7, a8, a9, a10, a11, a12, a13); lean_free_object(f); return r; }
     case 15: { obj* r = FN15(f)(fx(0), fx(1), a1, a2, a3, a4, a5, a6, a7, a8, a9, a10, a11, a12, a13); lean_free_object(f); return r; }
     case 16: { obj* r = FN16(f)(fx(0), fx(1), fx(2), a1, a2, a3, a4, a5, a6, a7, a8, a9, a10, a11, a12, a13); lean_free_object(f); return r; }
+    default:
+      lean_assert(arity > 16);
+      obj * as[13] = { a1, a2, a3, a4, a5, a6, a7, a8, a9, a10, a11, a12, a13 };
+      obj ** args = static_cast<obj**>(LEAN_ALLOCA(arity*sizeof(obj*))); // NOLINT
+      for (unsigned i = 0; i < fixed; i++) args[i] = fx(i);
+      for (unsigned i = 0; i < 13; i++) args[fixed+i] = as[i];
+      obj * r = FNN(f)(args);
+      lean_free_object(f);
+      return r;
     }
   }
   switch (arity) {
@@ -760,10 +954,17 @@ if (arity == fixed + 13) {
 } else if (arity < fixed + 13) {
   obj * as[13] = { a1, a2, a3, a4, a5, a6, a7, a8, a9, a10, a11, a12, a13 };
   obj ** args = static_cast<obj**>(LEAN_ALLOCA(arity*sizeof(obj*))); // NOLINT
-  for (unsigned i = 0; i < fixed; i++) { lean_inc(fx(i)); args[i] = fx(i); }
   for (unsigned i = 0; i < arity-fixed; i++) args[fixed+i] = as[i];
-  obj * new_f = curry(f, arity, args);
-  lean_dec_ref(f);
+  obj * new_f;
+  if (lean_is_exclusive(f)) {
+    for (unsigned i = 0; i < fixed; i++) args[i] = fx(i);
+    new_f = curry(f, arity, args);
+    lean_free_object(f);
+  } else {
+    for (unsigned i = 0; i < fixed; i++) { lean_inc(fx(i)); args[i] = fx(i); }
+    new_f = curry(f, arity, args);
+    lean_dec_ref(f);
+  }
   return lean_apply_n(new_f, 13+fixed-arity, &as[arity-fixed]);
 } else {
   return fix_args(f, {a1, a2, a3, a4, a5, a6, a7, a8, a9, a10, a11, a12, a13});
@@ -779,6 +980,15 @@ if (arity == fixed + 14) {
     case 14: { obj* r = FN14(f)(a1, a2, a3, a4, a5, a6, a7, a8, a9, a10, a11, a12, a13, a14); lean_free_object(f); return r; }
     case 15: { obj* r = FN15(f)(fx(0), a1, a2, a3, a4, a5, a6, a7, a8, a9, a10, a11, a12, a13, a14); lean_free_object(f); return r; }
     case 16: { obj* r = FN16(f)(fx(0), fx(1), a1, a2, a3, a4, a5, a6, a7, a8, a9, a10, a11, a12, a13, a14); lean_free_object(f); return r; }
+    default:
+      lean_assert(arity > 16);
+      obj * as[14] = { a1, a2, a3, a4, a5, a6, a7, a8, a9, a10, a11, a12, a13, a14 };
+      obj ** args = static_cast<obj**>(LEAN_ALLOCA(arity*sizeof(obj*))); // NOLINT
+      for (unsigned i = 0; i < fixed; i++) args[i] = fx(i);
+      for (unsigned i = 0; i < 14; i++) args[fixed+i] = as[i];
+      obj * r = FNN(f)(args);
+      lean_free_object(f);
+      return r;
     }
   }
   switch (arity) {
@@ -798,10 +1008,17 @@ if (arity == fixed + 14) {
 } else if (arity < fixed + 14) {
   obj * as[14] = { a1, a2, a3, a4, a5, a6, a7, a8, a9, a10, a11, a12, a13, a14 };
   obj ** args = static_cast<obj**>(LEAN_ALLOCA(arity*sizeof(obj*))); // NOLINT
-  for (unsigned i = 0; i < fixed; i++) { lean_inc(fx(i)); args[i] = fx(i); }
   for (unsigned i = 0; i < arity-fixed; i++) args[fixed+i] = as[i];
-  obj * new_f = curry(f, arity, args);
-  lean_dec_ref(f);
+  obj * new_f;
+  if (lean_is_exclusive(f)) {
+    for (unsigned i = 0; i < fixed; i++) args[i] = fx(i);
+    new_f = curry(f, arity, args);
+    lean_free_object(f);
+  } else {
+    for (unsigned i = 0; i < fixed; i++) { lean_inc(fx(i)); args[i] = fx(i); }
+    new_f = curry(f, arity, args);
+    lean_dec_ref(f);
+  }
   return lean_apply_n(new_f, 14+fixed-arity, &as[arity-fixed]);
 } else {
   return fix_args(f, {a1, a2, a3, a4, a5, a6, a7, a8, a9, a10, a11, a12, a13, a14});
@@ -816,6 +1033,15 @@ if (arity == fixed + 15) {
     switch (arity) {
     case 15: { obj* r = FN15(f)(a1, a2, a3, a4, a5, a6, a7, a8, a9, a10, a11, a12, a13, a14, a15); lean_free_object(f); return r; }
     case 16: { obj* r = FN16(f)(fx(0), a1, a2, a3, a4, a5, a6, a7, a8, a9, a10, a11, a12, a13, a14, a15); lean_free_object(f); return r; }
+    default:
+      lean_assert(arity > 16);
+      obj * as[15] = { a1, a2, a3, a4, a5, a6, a7, a8, a9, a10, a11, a12, a13, a14, a15 };
+      obj ** args = static_cast<obj**>(LEAN_ALLOCA(arity*sizeof(obj*))); // NOLINT
+      for (unsigned i = 0; i < fixed; i++) args[i] = fx(i);
+      for (unsigned i = 0; i < 15; i++) args[fixed+i] = as[i];
+      obj * r = FNN(f)(args);
+      lean_free_object(f);
+      return r;
     }
   }
   switch (arity) {
@@ -834,10 +1060,17 @@ if (arity == fixed + 15) {
 } else if (arity < fixed + 15) {
   obj * as[15] = { a1, a2, a3, a4, a5, a6, a7, a8, a9, a10, a11, a12, a13, a14, a15 };
   obj ** args = static_cast<obj**>(LEAN_ALLOCA(arity*sizeof(obj*))); // NOLINT
-  for (unsigned i = 0; i < fixed; i++) { lean_inc(fx(i)); args[i] = fx(i); }
   for (unsigned i = 0; i < arity-fixed; i++) args[fixed+i] = as[i];
-  obj * new_f = curry(f, arity, args);
-  lean_dec_ref(f);
+  obj * new_f;
+  if (lean_is_exclusive(f)) {
+    for (unsigned i = 0; i < fixed; i++) args[i] = fx(i);
+    new_f = curry(f, arity, args);
+    lean_free_object(f);
+  } else {
+    for (unsigned i = 0; i < fixed; i++) { lean_inc(fx(i)); args[i] = fx(i); }
+    new_f = curry(f, arity, args);
+    lean_dec_ref(f);
+  }
   return lean_apply_n(new_f, 15+fixed-arity, &as[arity-fixed]);
 } else {
   return fix_args(f, {a1, a2, a3, a4, a5, a6, a7, a8, a9, a10, a11, a12, a13, a14, a15});
@@ -851,6 +1084,15 @@ if (arity == fixed + 16) {
   if (lean_is_exclusive(f)) {
     switch (arity) {
     case 16: { obj* r = FN16(f)(a1, a2, a3, a4, a5, a6, a7, a8, a9, a10, a11, a12, a13, a14, a15, a16); lean_free_object(f); return r; }
+    default:
+      lean_assert(arity > 16);
+      obj * as[16] = { a1, a2, a3, a4, a5, a6, a7, a8, a9, a10, a11, a12, a13, a14, a15, a16 };
+      obj ** args = static_cast<obj**>(LEAN_ALLOCA(arity*sizeof(obj*))); // NOLINT
+      for (unsigned i = 0; i < fixed; i++) args[i] = fx(i);
+      for (unsigned i = 0; i < 16; i++) args[fixed+i] = as[i];
+      obj * r = FNN(f)(args);
+      lean_free_object(f);
+      return r;
     }
   }
   switch (arity) {
@@ -868,10 +1110,17 @@ if (arity == fixed + 16) {
 } else if (arity < fixed + 16) {
   obj * as[16] = { a1, a2, a3, a4, a5, a6, a7, a8, a9, a10, a11, a12, a13, a14, a15, a16 };
   obj ** args = static_cast<obj**>(LEAN_ALLOCA(arity*sizeof(obj*))); // NOLINT
-  for (unsigned i = 0; i < fixed; i++) { lean_inc(fx(i)); args[i] = fx(i); }
   for (unsigned i = 0; i < arity-fixed; i++) args[fixed+i] = as[i];
-  obj * new_f = curry(f, arity, args);
-  lean_dec_ref(f);
+  obj * new_f;
+  if (lean_is_exclusive(f)) {
+    for (unsigned i = 0; i < fixed; i++) args[i] = fx(i);
+    new_f = curry(f, arity, args);
+    lean_free_object(f);
+  } else {
+    for (unsigned i = 0; i < fixed; i++) { lean_inc(fx(i)); args[i] = fx(i); }
+    new_f = curry(f, arity, args);
+    lean_dec_ref(f);
+  }
   return lean_apply_n(new_f, 16+fixed-arity, &as[arity-fixed]);
 } else {
   return fix_args(f, {a1, a2, a3, a4, a5, a6, a7, a8, a9, a10, a11, a12, a13, a14, a15, a16});
@@ -884,8 +1133,14 @@ unsigned arity = lean_closure_arity(f);
 unsigned fixed = lean_closure_num_fixed(f);
 if (arity == fixed + n) {
   obj ** args = static_cast<obj**>(LEAN_ALLOCA(arity*sizeof(obj*))); // NOLINT
-  for (unsigned i = 0; i < fixed; i++) { lean_inc(fx(i)); args[i] = fx(i); }
   for (unsigned i = 0; i < n; i++) args[fixed+i] = as[i];
+  if (lean_is_exclusive(f)) {
+    for (unsigned i = 0; i < fixed; i++) args[i] = fx(i);
+    obj * r = FNN(f)(args);
+    lean_free_object(f);
+    return r;
+  }
+  for (unsigned i = 0; i < fixed; i++) { lean_inc(fx(i)); args[i] = fx(i); }
   obj * r = FNN(f)(args);
   lean_dec_ref(f);
   return r;
@@ -895,10 +1150,16 @@ if (arity == fixed + n) {
   if (arity > LEAN_CLOSURE_MAX_ARGS) {
     // `f`'s code takes its arguments as an array
     obj ** args = static_cast<obj**>(LEAN_ALLOCA(arity*sizeof(obj*))); // NOLINT
-    for (unsigned i = 0; i < fixed; i++) { lean_inc(fx(i)); args[i] = fx(i); }
     for (unsigned i = 0; i < m; i++) args[fixed+i] = as[i];
-    new_f = FNN(f)(args);
-    lean_dec_ref(f);
+    if (lean_is_exclusive(f)) {
+      for (unsigned i = 0; i < fixed; i++) args[i] = fx(i);
+      new_f = FNN(f)(args);
+      lean_free_object(f);
+    } else {
+      for (unsigned i = 0; i < fixed; i++) { lean_inc(fx(i)); args[i] = fx(i); }
+      new_f = FNN(f)(args);
+      lean_dec_ref(f);
+    }
   } else {
     // `f`'s code takes `arity` separate arguments, so it must not be invoked through `FNN`;
     // `lean_apply_n` dispatches on `m` and consumes `f`.

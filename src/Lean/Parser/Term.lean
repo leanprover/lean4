@@ -882,6 +882,11 @@ We use them to implement `macro_rules` and `elab_rules`
 @[builtin_term_parser] def noErrorIfUnused := leading_parser
   "no_error_if_unused% " >> termParser
 
+/-- `contract_epost% e` elaborates the exception postcondition `e` of a `def` contract and
+rewrites `EPostSlot.set` applications in it to a tuple of assertions. -/
+@[builtin_term_parser] def contractEPost := leading_parser
+  "contract_epost% " >> termParser
+
 def namedArgument  := leading_parser (withAnonymousAntiquot := false)
   atomic ("(" >> ident >> " := ") >> withoutPosition termParser >> ")"
 /-- In a function application, `..` notation inserts zero or more `_` placeholders. -/

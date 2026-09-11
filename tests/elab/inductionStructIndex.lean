@@ -137,3 +137,59 @@ example {a : Nat} (h : Relation.TransGen (fun a b : Wrap => a = b) (.mk a) (.mk 
   induction h with
   | single hr => grind
   | tail h hr ih => grind
+
+-- The index is only visible after unfolding the target's type: `H x y` unfolds to `P x.as y.as`.
+structure W where
+  as : Nat
+
+inductive P : Nat → Nat → Prop
+  | refl (a) : P a a
+  | step (a b) : P a b → P a (b + 1)
+
+def H (a b : W) : Prop := P a.as b.as
+
+/--
+trace: case refl
+x : W
+y : Nat
+⊢ x.as ≤ x.as
+---
+trace: case step
+x : W
+y b✝ : Nat
+a✝ : P x.as b✝
+ih : x.as ≤ b✝
+⊢ x.as ≤ b✝ + 1
+-/
+#guard_msgs in
+example {x y : W} (h : H x y) : x.as ≤ y.as := by
+  induction h with
+  | refl => trace_state; exact Nat.le_refl _
+  | step _ _ ih => trace_state; exact Nat.le_succ_of_le ih
+
+-- Proof fields are irrelevant when folding `⟨y.val, h⟩` back into `y`.
+inductive Pos : {n : Nat // 0 < n} → Prop
+  | one : Pos ⟨1, Nat.one_pos⟩
+  | succ (p) : Pos p → Pos ⟨p.val + 1, Nat.succ_pos _⟩
+
+/--
+trace: case one
+x✝ : { n // 0 < n }
+hq : 0 < ⟨1, Nat.one_pos⟩.val
+h' : ⟨1, Nat.one_pos⟩.val = ⟨1, Nat.one_pos⟩.val
+⊢ 1 ≤ ⟨1, Nat.one_pos⟩.val
+---
+trace: case succ
+x✝ p : { n // 0 < n }
+a✝ : Pos p
+ih : 0 < p.val → p.val = p.val → 1 ≤ p.val
+hq : 0 < ⟨p.val + 1, ⋯⟩.val
+h' : ⟨p.val + 1, ⋯⟩.val = ⟨p.val + 1, ⋯⟩.val
+⊢ 1 ≤ ⟨p.val + 1, ⋯⟩.val
+-/
+#guard_msgs in
+example {a : Nat} (hp hq : 0 < a) (h : Pos ⟨a, hp⟩) (h' : (⟨a, hq⟩ : {n // 0 < n}).val = a) :
+    1 ≤ a := by
+  induction h with
+  | one => trace_state; exact Nat.le_refl _
+  | succ p _ ih => trace_state; exact Nat.le_add_right_of_le (ih p.2 rfl)

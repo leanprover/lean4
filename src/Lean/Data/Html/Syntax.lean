@@ -8,7 +8,6 @@ module
 prelude
 import Init.Prelude
 public meta import Init.Data.String.Modify
-public meta import Lean.DocString.Parser
 public meta import Lean.Meta.Hint
 public meta import Lean.Data.Html.Spec
 
@@ -18,45 +17,48 @@ public meta section
 
 namespace Lean.Html.Syntax
 
-open Parser Doc.Parser PrettyPrinter
+open Parser PrettyPrinter
 
 /-! # Parsers for HTML syntax
 
 - Compliant with the [HTML living standard](https://html.spec.whatwg.org/dev/syntax.html#syntax)
   to the extent that it makes sense.
   Departures are documented on the appropriate parsers.
-- HTML text, tags, and comment contents may contain reserved tokens such as `'`,
-  and certain parsers (e.g. end tag `>` symbols) should not consume trailing whitespace,
-  so that this whitespace is instead included in text content following those parsers.
-  For these reasons we eschew Lean's standard mechanism of syntactic categories
-  and dispatching to parsers based on the leading token
-  in favor of hand-rolled parsers, formatters, etc.
-  - All whitespace is preserved initially, and then collapsed in {lit}`Content.view`.
+- We eschew Lean's standard mechanism of syntactic categories
+  in favor of hand-rolled parsers, formatters, and parenthesizers for two reasons:
+  - Lean parsers generally consume trailing whitespace,
+    whereas certain HTML parsers (e.g. end tag `>` symbols) should not do so,
+    so that this whitespace is instead included in text content following those parsers.
+  - Category parsing inspects the leading token and dispatches to the appropriate parser
+    whereas we allow text contents to begin with reserved symbols such as `'`.
+- In content, all whitespace is preserved by parsers, and then collapsed in {lit}`Content.view`.
 - To simplify away special handling of `$`, most parsers here cannot be antiquoted.
-  Parsers that *can* be antiquoted are documented to support this.
+  Parsers that *can* be antiquoted are documented as such.
 -/
 
 /-! ## Helpers -/
 
+/-- Consumes one character satisfying {name}`p`,
+otherwise fails and reports the unexpected character. -/
+private def satisfyCharFn (p : Char → Bool) (expected : List String) : ParserFn := fun c s =>
+  let i := s.pos
+  if h : c.atEnd i then
+    s.mkEOIError expected
+  else if p (c.get' i h) then
+    s.next' c i h
+  else
+    s.mkUnexpectedError s!"unexpected character '{c.get' i h}'" expected
+
 /-- Parses one character matching {name}`firstP` followed by many matching {name}`manyP`,
-followed by whitespace (which is not stored).
+followed by optional trailing whitespace (including Lean-language comments).
 The result is stored in an atom wrapped in a node of the given {name}`kind`.
 {name}`expected` describes the expected input in error messages. -/
 private def parseFirstMany (kind : Name) (expected : String) (firstP manyP : Char → Bool) :
     Parser where
-  fn := andthenFn parse (takeWhileFn Char.isWhitespace)
-where
-  parse :=
-    nodeFn kind <|
-      asStringFn <| andthenFn first (manyFn (satisfyFn manyP))
-  first : ParserFn := fun c s =>
-    let i := s.pos
-    if h : c.atEnd i then
-      s.mkEOIError [expected]
-    else if firstP (c.get' i h) then
-      s.next' c i h
-    else
-      s.mkUnexpectedError s!"unexpected character '{c.get' i h}'" [expected]
+  fn c s :=
+    let startPos := s.pos
+    let s := andthenFn (satisfyCharFn firstP [expected]) (takeWhileFn manyP) c s
+    mkNodeToken kind startPos (includeWhitespace := true) c s
 
 @[combinator_parenthesizer parseFirstMany]
 private def parseFirstMany.parenthesizer (_ : Name) (_ : String) (_ _ : Char → Bool) :=
@@ -72,33 +74,30 @@ private def viewNodeAtom [Monad m] [MonadError m] : TSyntax k → m String
 
 /-! ## Raw symbols -/
 
-private def rawSymbolFn (sym : String) : ParserFn :=
-  let expected := s!"'{sym}'"
-  rawFn fun c s =>
+/-- Parses {name}`sym` as an atom.
+Unlike {name}`symbol`, this parser does not consult the token table,
+and {name}`sym` is not registered as a token.
+
+Trailing whitespace (including Lean-style comments) is consumed and stored in the atom
+only if {name}`trailingWs` is set; otherwise it is left to the next parser. -/
+def rawSymbol (sym : String) (trailingWs := false) (expected : List String := [s!"'{sym}'"]) :
+    Parser where
+  fn := rawFn (trailingWs := trailingWs) fun c s =>
     let i := s.pos
     let j : String.Pos.Raw := ⟨i.byteIdx + sym.utf8ByteSize⟩
     if j.byteIdx ≤ c.endPos.byteIdx && c.extract i j == sym then
       s.setPos j
-    else if c.atEnd i then
-      s.mkEOIError [expected]
+    else if h : c.atEnd i then
+      s.mkEOIError expected
     else
-      let s := tokenFn [expected] c s
-      if s.hasError then s else s.mkUnexpectedTokenErrors [expected] i
-
-/-- Parses {name}`sym` as an atom.
-
-Unlike {name}`symbol`, this parser does not consume trailing whitespace.
-We rely on this to make whitespace in front of a symbol available to the next parser.
-
-This parser also does not consult the token table, and {name}`sym` is not registered as a token. -/
-def rawSymbol (sym : String) : Parser where
-  fn := rawSymbolFn sym
+      s.mkUnexpectedError s!"unexpected character '{c.get' i h}'" expected
 
 @[combinator_parenthesizer rawSymbol]
-def rawSymbol.parenthesizer (sym : String) := Parenthesizer.symbolNoAntiquot.parenthesizer sym
+def rawSymbol.parenthesizer (sym : String) (_ : Bool) (_ : List String) :=
+  Parenthesizer.symbolNoAntiquot.parenthesizer sym
 
 @[combinator_formatter rawSymbol]
-def rawSymbol.formatter (sym : String) : Formatter := do
+def rawSymbol.formatter (sym : String) (_ : Bool) (_ : List String) : Formatter := do
   -- No space is inserted after the symbol.
   Formatter.resetLeadWord
   Formatter.symbolNoAntiquot.formatter sym
@@ -106,23 +105,22 @@ def rawSymbol.formatter (sym : String) : Formatter := do
 /-! ## Interpolations -/
 
 /-- Parses an interpolation: a Lean term between {name}`openSym` and {lit}`}`.
-Also consumes leading and trailing whitespace if {name}`ws` is set. -/
+Trailing whitespace is consumed only if {name}`trailingWs` is set. -/
 @[run_parser_attribute_hooks]
-def interpWith (kind : SyntaxNodeKind) (openSym : String) (ws : Bool := false) : Parser :=
-  node kind (sym openSym >> termParser >> sym "}")
-where
-  sym (s : String) := if ws then symbol s else rawSymbol s
+def interpWith (kind : SyntaxNodeKind) (openSym : String) (trailingWs : Bool) : Parser :=
+  node kind <|
+    rawSymbol openSym (trailingWs := true) >> termParser >> rawSymbol "}" (trailingWs := trailingWs)
 
 abbrev interpKind := `Lean.Html.Syntax.interp
 abbrev interpManyKind := `Lean.Html.Syntax.interpMany
 
 /-- Parses {lit}`{ term }`. -/
 @[run_parser_attribute_hooks]
-def interp (ws : Bool := false) : Parser := interpWith interpKind "{" ws
+def interp (trailingWs : Bool := false) : Parser := interpWith interpKind "{" trailingWs
 
 /-- Parses {lit}`{... term }`. -/
 @[run_parser_attribute_hooks]
-def interpMany (ws : Bool := false) : Parser := interpWith interpManyKind "{..." ws
+def interpMany (trailingWs : Bool := false) : Parser := interpWith interpManyKind "{..." trailingWs
 
 /-! ## Text content -/
 
@@ -248,7 +246,7 @@ abbrev AttrVal := TSyntax attrValKind
 
 @[run_parser_attribute_hooks]
 def attrVal : Parser :=
-  node attrValKind (strLit <|> interp (ws := true))
+  node attrValKind (strLit <|> interp (trailingWs := true))
 
 inductive AttrValView where
   | str (val : TSyntax `str)
@@ -277,8 +275,9 @@ and interpolations of a sequence of attributes {lit}`<tag {... term }/>`. -/
 @[run_parser_attribute_hooks]
 def attr : Parser :=
   node attrKind <|
-    (attrName >> optional (symbol "=" >> attrVal))
-    <|> interp (ws := true) <|> interpMany (ws := true)
+    (attrName >> optional (rawSymbol "=" (trailingWs := true) >> attrVal))
+    -- `{...` should be tried before its prefix `{`.
+    <|> interpMany (trailingWs := true) <|> interp (trailingWs := true)
 
 inductive AttrView where
   | val (name : AttrName) (val : AttrVal)
@@ -311,7 +310,12 @@ abbrev Element := TSyntax elementKind
 def elementWith (content : Parser) : Parser :=
   node elementKind <|
     rawSymbol "<" >> tagName >> many (ppSpace >> attr) >>
-      (rawSymbol "/>" <|> (rawSymbol ">" >> content >> rawSymbol "</" >> tagName >> rawSymbol ">"))
+      (rawSymbol "/>" (expected := expected) <|>
+        (rawSymbol ">" (expected := expected) >> content >>
+          rawSymbol "</" >> tagName >> rawSymbol ">"))
+where
+  /-- Lists the possible contents of a tag. -/
+  expected := ["attribute", "'/>'", "'>'"]
 
 /-! ## Content
 

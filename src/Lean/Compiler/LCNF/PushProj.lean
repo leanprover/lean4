@@ -99,8 +99,8 @@ where
     else
       let b := decls.back!
       let bs := decls.pop
-      let done := return (bs.push b ++ ctx.reverse, alts)
-      let skip := go bs alts altsUsed (ctx.push b) (b.collectUsed ctxUsed)
+      let done := fun (_ : Unit) => return (bs.push b ++ ctx.reverse, alts)
+      let skip := fun (_ : Unit) => go bs alts altsUsed (ctx.push b) (b.collectUsed ctxUsed)
       let push (fvar : FVarId) : CompilerM (Array (CodeDecl .impure) × Array (Alt .impure)) := do
         if !ctxUsed.contains fvar then
           let alts ← alts.mapIdxM fun i alt => alt.mapCodeM fun k => do
@@ -115,14 +115,14 @@ where
               used
           go bs alts altsUsed ctx ctxUsed
         else
-          skip
+          skip ()
       match b with
       | .let decl =>
         match decl.value with
         | .uproj .. | .oproj .. | .sproj .. => push decl.fvarId
         -- TODO | .isShared .. => skip
-        | _ => done
-      | _ => done
+        | _ => done ()
+      | _ => done ()
 
 partial def Code.pushProj (code : Code .impure) : CompilerM (Code .impure) := do
   go code #[]

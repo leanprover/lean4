@@ -18,6 +18,37 @@ namespace Parser
 
 namespace Command
 
+/--
+Parses the opening delimiter `sym` of a documentation comment (`/-- ... -/` or `/-! ... -/`).
+
+Lean's `whitespace` parser considers comments to be whitespace, but the text of a documentation comment
+may begin with a comment marker, so the delimiter's trailing whitespace is only the substring that
+satisfies `Char.isWhitespace`.
+-/
+def docCommentOpen (sym : String) : Parser where
+  info := symbolInfo sym
+  fn c s :=
+    let startPos := s.pos
+    let s := symbolFn sym c s
+    if s.hasError then s
+    else
+      -- The whitespace here is a prefix of what the token's own scan accepted, so a tab or an
+      -- isolated carriage return has already been reported.
+      let stopPos := startPos + sym
+      let s := takeWhileFn (·.isWhitespace) c (s.setPos stopPos)
+      let info :=
+        SourceInfo.original
+          (c.mkEmptySubstringAt startPos) startPos
+          (c.substring (startPos := stopPos) (stopPos := s.pos)) stopPos
+      s.popSyntax.pushSyntax (.atom info sym)
+
+@[combinator_formatter docCommentOpen, expose]
+def docCommentOpen.formatter (sym : String) : PrettyPrinter.Formatter :=
+  PrettyPrinter.Formatter.symbolNoAntiquot.formatter sym
+@[combinator_parenthesizer docCommentOpen, expose]
+def docCommentOpen.parenthesizer (sym : String) : PrettyPrinter.Parenthesizer :=
+  PrettyPrinter.Parenthesizer.symbolNoAntiquot.parenthesizer sym
+
 open Lean.Parser in
 def versoCommentBodyFn : ParserFn := fun c s =>
   -- The opening `/--` or `/-!` is the token on the stack, and its trailing whitespace reaches the
@@ -104,7 +135,8 @@ A Verso comment node contains the `/--` atom, the document's syntax tree, and a 
 -- @[builtin_doc] -- FIXME: suppress the hover
 @[run_builtin_parser_attribute_hooks]
 def docComment := leading_parser
-  ppDedent $ "/--" >> ppSpace >> Doc.Parser.ifVerso versoCommentBody commentBody >> ppLine
+  ppDedent $ docCommentOpen "/--" >> ppSpace >> Doc.Parser.ifVerso versoCommentBody commentBody >>
+    ppLine
 
 @[inherit_doc docComment, run_builtin_parser_attribute_hooks]
 def plainDocComment : Parser := Doc.Parser.withoutVersoSyntax docComment

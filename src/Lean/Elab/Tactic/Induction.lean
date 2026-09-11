@@ -1071,6 +1071,31 @@ where
       mvarId.changeVars #[x.fvarId!] ys #[xVal] ysVals abstractions
 
 /--
+Reduces `⟨x₁, …, xₙ⟩.fᵢ` to `xᵢ`. Such indices arise from `changeStructIndexVars?` when the index
+is only visible after unfolding, e.g. `b.as` in `a ⟶ b` for a category structure on a wrapper type.
+-/
+private partial def reduceProjOfCtor (e : Expr) : MetaM Expr := do
+  let e := e.cleanupAnnotations
+  let env ← getEnv
+  let field? (ctorVal : ConstructorVal) (i : Nat) (x : Expr) : Option Expr :=
+    let x := x.cleanupAnnotations
+    if x.isAppOfArity ctorVal.name (ctorVal.numParams + ctorVal.numFields) then
+      some (x.getArg! (ctorVal.numParams + i))
+    else none
+  match e with
+  | .proj structName i x =>
+    let some ctorVal := getNonRecStructureCtor? env structName | return e
+    let some r := field? ctorVal i x | return e
+    reduceProjOfCtor r
+  | .app .. =>
+    let .const declName _ := e.getAppFn | return e
+    let some projInfo := env.getProjectionFnInfo? declName | return e
+    unless e.getAppNumArgs == projInfo.numParams + 1 do return e
+    let some r := field? (← getConstInfoCtor projInfo.ctorName) projInfo.i e.appArg! | return e
+    reduceProjOfCtor r
+  | _ => return e
+
+/--
 Makes the implicit targets (the indices of the explicit `targets`) variables where a definitional
 change of variables suffices, see `changeStructIndexVars?`. Returns all targets and the updated
 `toTag` and `elimInfo`.
@@ -1081,17 +1106,19 @@ private def changeStructIndexVars (elimInfo : ElimInfo) (targets : Array Expr)
   let mut elimInfo := elimInfo
   let mut targets := targets
   let mut toTag := toTag
-  let mut allTargets ← withMainContext <| addImplicitTargets elimInfo targets
+  let getAllTargets (elimInfo : ElimInfo) (targets : Array Expr) : TacticM (Array Expr) :=
+    withMainContext do (← addImplicitTargets elimInfo targets).mapM (reduceProjOfCtor ·)
+  let mut allTargets ← getAllTargets elimInfo targets
   -- Fuel: a step on one index may re-complicate another index sharing its variables.
   for _ in [:16] do
     let some target := allTargets.find? (!·.isFVar) | break
     let some result ← withMainContext do changeStructIndexVars? (← getMainGoal) allTargets target | break
     replaceMainGoal [result.mvarId]
-    let subst := result.subst
+    let subst := result.substitutions
     targets := targets.map subst.apply
     toTag := toTag.map fun (id, fvarId) => (id, (subst.get fvarId).fvarId!)
     elimInfo := { elimInfo with elimExpr := subst.apply elimInfo.elimExpr, elimType := subst.apply elimInfo.elimType }
-    allTargets ← withMainContext <| addImplicitTargets elimInfo targets
+    allTargets ← getAllTargets elimInfo targets
   return (allTargets, toTag, elimInfo)
 
 @[builtin_tactic Lean.Parser.Tactic.induction, builtin_incremental]

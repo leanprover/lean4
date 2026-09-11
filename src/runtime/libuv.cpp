@@ -67,8 +67,8 @@ extern "C" void finalize_libuv() {
             return;
         }
 
+        // Closed after the drain below, which needs it to keep the loop polling.
         if (handle == (uv_handle_t *)&global_ev.async) {
-            uv_close(handle, nullptr);
             return;
         }
 
@@ -125,17 +125,40 @@ extern "C" void finalize_libuv() {
 
     uint64_t const deadline = uv_hrtime() + LEAN_UV_TEARDOWN_DRAIN_NS;
 
-    // The first pass runs the close callbacks the walk queued, and the requests `uv_cancel` reached.
-    // Anything that survives it is a threadpool request whose worker has to finish on its own, so
-    // the poll below is only ever reached in that case and sleeping between passes costs nothing in
-    // the common one.
-    while (uv_run(global_ev.loop, UV_RUN_NOWAIT) != 0) {
-        if (uv_hrtime() >= deadline) {
+    // Whether `uv_loop_close` would still fail once `async` is closed: it rejects any active request
+    // and any handle still in the loop, closing or not.
+    auto const busy = []() {
+        bool other_handle = false;
+        uv_walk(global_ev.loop, [](uv_handle_t * handle, void * arg) {
+            if (handle != (uv_handle_t *)&global_ev.async) {
+                *(bool *)arg = true;
+            }
+        }, &other_handle);
+        return other_handle || global_ev.loop->active_reqs.count != 0;
+    };
+
+    // `async` stays open and active through this drain so that `uv_run` keeps polling while anything
+    // is left. On Windows a closed socket stays in the loop until IOCP delivers the aborted
+    // completions of the accept and read requests it had posted, and those do not count as active,
+    // so without `async` the loop would look idle and `uv_run` would stop polling before they arrive.
+    //
+    // The first pass normally finishes everything. What survives it is such a socket, whose
+    // completions are already on their way, or a threadpool request whose worker has to finish on
+    // its own, so sleeping between passes costs nothing in the common case.
+    for (;;) {
+        uv_run(global_ev.loop, UV_RUN_NOWAIT);
+
+        if (!busy() || uv_hrtime() >= deadline) {
             break;
         }
 
         uv_sleep(1);
     }
+
+    // No send is pending on `async` any more (requesters stop sending at `STOPPING`, and the passes
+    // above consumed any earlier one), so on Windows too its close completes in this single pass.
+    uv_close((uv_handle_t *)&global_ev.async, nullptr);
+    uv_run(global_ev.loop, UV_RUN_NOWAIT);
 
     event_loop_lock_internal(&global_ev);
 

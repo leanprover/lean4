@@ -67,7 +67,7 @@ static void check_uv(int result, const char * msg) {
 // Interrupts the event loop and stops it so it can receive future requests.
 //
 // The guard shares `interrupt_mutex` with the teardown store to `state`, which is what keeps a send
-// away from an `async` handle being closed: the teardown walk closes it strictly after that store.
+// away from an `async` handle being closed: `finalize_libuv` closes it strictly after that store.
 static void event_loop_interrupt(event_loop_t * event_loop) {
     uv_mutex_lock(&event_loop->interrupt_mutex);
 
@@ -149,8 +149,8 @@ void event_loop_request_stop(event_loop_t * event_loop) {
     event_loop->state = EVENT_LOOP_STOPPING;
     uv_mutex_unlock(&event_loop->interrupt_mutex);
 
-    // Sent directly rather than through `event_loop_interrupt`, which now declines: the teardown
-    // walk that closes `async` has not run yet, so the handle is still live.
+    // Sent directly rather than through `event_loop_interrupt`, which now declines: `finalize_libuv`
+    // has not closed `async` yet, so the handle is still live.
     int result = uv_async_send(&event_loop->async);
     (void)result;
     lean_assert(result == 0);

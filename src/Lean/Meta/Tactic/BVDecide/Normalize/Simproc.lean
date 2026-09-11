@@ -173,6 +173,27 @@ def mkNatShiftLeft (lhs rhs : Expr) (wExpr : Expr) : SimprocM Expr :=
     let inst := mkApp (mkConst ``BitVec.instHShiftLeftNat) wExpr
     Sym.share <| mkApp4 (mkConst ``HShiftLeft.hShiftLeft [0, 0, 0]) ty (mkConst ``Nat) ty inst
 
+def mkBvShiftRight (lhs rhs : Expr) (wExpr vExpr : Expr) : Sym.SymM Expr := do
+  let lty := mkBitVecTy wExpr
+  let rty := mkBitVecTy vExpr
+  let inst := mkApp2 (mkConst ``BitVec.instHShiftRight) wExpr vExpr
+  Sym.share <| mkApp6 (mkConst ``HShiftRight.hShiftRight [0, 0, 0]) lty rty lty inst lhs rhs
+
+def mkBvShiftLeft (lhs rhs : Expr) (wExpr vExpr : Expr) : Sym.SymM Expr := do
+  let lty := mkBitVecTy wExpr
+  let rty := mkBitVecTy vExpr
+  let inst := mkApp2 (mkConst ``BitVec.instHShiftLeft) wExpr vExpr
+  Sym.share <| mkApp6 (mkConst ``HShiftLeft.hShiftLeft [0, 0, 0]) lty rty lty inst lhs rhs
+
+def mkSshiftRight' (lhs rhs : Expr) (wExpr vExpr : Expr) : Sym.SymM Expr :=
+  Sym.share <| mkApp4 (mkConst ``BitVec.sshiftRight') wExpr vExpr lhs rhs
+
+def mkOfNatClamp (vExpr nExpr : Expr) : Sym.SymM Expr :=
+  Sym.share <| mkApp2 (mkConst ``BitVec.ofNatClamp) vExpr nExpr
+
+def mkSetWidth (oldWidthExpr newWidthExpr target : Expr) : Sym.SymM Expr :=
+  Sym.share <| mkApp3 (mkConst ``BitVec.setWidth) oldWidthExpr newWidthExpr target
+
 def mkBEq (lhs rhs : Expr) (wExpr : Expr) : SimprocM Expr :=
   withCachedBinOp wExpr ``instDecidableEqBitVec lhs rhs fun wExpr => do
     let ty := mkBitVecTy wExpr
@@ -416,10 +437,9 @@ def bvShiftRight (α lhs rhs : Expr) : SimprocM (Sym.Simp.Result) := do
   else
     let_expr BitVec.ofNat nExpr kExpr := rhs | return .rfl
     let some n := Sym.getNatValue? nExpr | return .rfl
-    if w != n then return .rfl
     let some k := Sym.getNatValue? kExpr | return .rfl
-    let expr ← BitVec.mkNatShiftRight lhs (← mkLit (k % 2 ^ w)) wExpr
-    let proof := mkApp3 (mkConst ``BitVec.ushiftRight_ofNat_eq) wExpr lhs kExpr
+    let expr ← BitVec.mkNatShiftRight lhs (← mkLit (k % 2 ^ n)) wExpr
+    let proof := mkApp4 (mkConst ``BitVec.ushiftRight_ofNat_eq) wExpr lhs nExpr kExpr
     countRule `bvShiftRight.ushiftRightOfNat
     return .step expr proof
 
@@ -436,6 +456,19 @@ def extractLsb' (wExpr startExpr lenExpr targetExpr : Expr) : SimprocM (Sym.Simp
 
   let res ← tryExtractFull
   if !res.isRfl then return res
+
+  -- For a symbolic start with known widths, we reduce to shift by the symbolic start + setWidth
+  -- by the known widths. This is sensible as we can perform a limited degree of reasoning on
+  -- symbolic shifts.
+  if (Sym.getNatValue? startExpr).isNone then
+    unless (Sym.getNatValue? wExpr).isSome && (Sym.getNatValue? lenExpr).isSome do return .rfl
+    let shifted ← BitVec.mkNatShiftRight targetExpr startExpr wExpr
+    let expr ← BitVec.mkSetWidth wExpr lenExpr shifted
+    let proof := mkApp4
+      (mkConst ``Std.Tactic.BVDecide.Normalize.BitVec.extractLsb'_eq_setWidth_ushiftRight)
+      wExpr targetExpr startExpr lenExpr
+    countRule `bvExtract.symbolicStart
+    return .step expr proof
 
   match_expr targetExpr with
   | HAnd.hAnd _ _ _ _ lhs rhs =>
@@ -565,26 +598,19 @@ where
 
 def bvShiftLeft (α lhs rhs : Expr) : SimprocM (Sym.Simp.Result) := do
   let_expr BitVec wExpr := α | return .rfl
-  let some w := Sym.getNatValue? wExpr | return .rfl
   let_expr BitVec.ofNat nExpr kExpr := rhs | return .rfl
   let some n := Sym.getNatValue? nExpr | return .rfl
-  if w != n then return .rfl
   let some k := Sym.getNatValue? kExpr | return .rfl
-  let expr ← BitVec.mkNatShiftLeft lhs (← mkLit (k % 2 ^ w)) wExpr
-  let proof := mkApp3 (mkConst ``BitVec.shiftLeft_ofNat_eq) wExpr lhs kExpr
+  let expr ← BitVec.mkNatShiftLeft lhs (← mkLit (k % 2 ^ n)) wExpr
+  let proof := mkApp4 (mkConst ``BitVec.shiftLeft_ofNat_eq) wExpr lhs nExpr kExpr
   countRule `bvShiftLeft
   return .step expr proof
 
-def bvSshiftRight' (nExpr mExpr lhs rhs : Expr) : SimprocM (Sym.Simp.Result) := do
-  let some n := Sym.getNatValue? nExpr | return .rfl
-  let some m := Sym.getNatValue? mExpr | return .rfl
-  if n != m then return .rfl
-  let_expr BitVec.ofNat wExpr kExpr := rhs | return .rfl
-  let some w := Sym.getNatValue? wExpr | return .rfl
-  if n != w then return .rfl
-  let some k := Sym.getNatValue? kExpr | return .rfl
-  let expr ← BitVec.mkSshiftRight lhs (← mkLit (k % 2 ^ w)) wExpr
-  let proof := mkApp3 (mkConst ``BitVec.sshiftRight'_ofNat_eq_sshiftRight) wExpr lhs kExpr
+def bvSshiftRight' (wExpr vExpr lhs rhs : Expr) : SimprocM (Sym.Simp.Result) := do
+  let some ⟨_, k⟩ := Sym.getBitVecValue? rhs | return .rfl
+  let kExpr ← mkLit k.toNat
+  let expr ← BitVec.mkSshiftRight lhs kExpr wExpr
+  let proof := mkApp4 (mkConst ``BitVec.sshiftRight'_ofNat_eq_sshiftRight) wExpr lhs vExpr kExpr
   countRule `bvSshiftRight'
   return .step expr proof
 
@@ -1229,47 +1255,98 @@ def bvMul (α lhs rhs : Expr) : SimprocM (Sym.Simp.Result) := do
   if let some step ← mulTwoPow then return step
   return .rfl
 
+/--
+For a shift of a `BitVec w` by a symbolic `Nat` amount `rhsExpr`, build the amount width
+`v := w.log2 + 1`, the clamped amount `BitVec.ofNatClamp v rhsExpr` and a proof of `w < 2 ^ v`.
+
+Rewriting the shift amount into a `BitVec` this way leaves only the clamped amount as an
+uninterpreted atom for `bv_decide` while the shift itself remains interpreted.
+-/
+def clampShiftAmount (wExpr rhsExpr : Expr) (w : Nat) : SimprocM (Expr × Expr × Expr) := do
+  let vExpr ← mkLit (w.log2 + 1)
+  let clamped ← BitVec.mkOfNatClamp vExpr rhsExpr
+  let h := Nat.mkDecideProofLt wExpr (← Nat.mkPow (← mkLit 2) vExpr)
+  return (vExpr, clamped, h)
+
+def isBitVecToNat (e : Expr) : Bool :=
+  e.isAppOf ``BitVec.toNat
+
 def bvShiftRightNat (α lhsExpr rhsExpr : Expr) : SimprocM (Sym.Simp.Result) := do
-  let some rhs := Sym.getNatValue? rhsExpr | return .rfl
   let_expr BitVec wExpr := α | return .rfl
   let some w := Sym.getNatValue? wExpr | return .rfl
-  if rhs < w then
-    let zero ← mkLit 0#rhs
-    let newLen := w - rhs
-    let newLenExpr ← mkLit newLen
-    let extract ← BitVec.mkExtractLsb' wExpr rhsExpr newLenExpr lhsExpr
-    let expr ← BitVec.mkAppend zero extract (← mkLit rhs) newLenExpr (← mkLit (newLen + rhs))
-    let h := Nat.mkDecideProofLt rhsExpr wExpr
-    let proof := mkApp4 (mkConst ``BitVec.ushiftRight_eq_extractLsb'_of_lt) wExpr lhsExpr rhsExpr h
-    countRule `bvShiftRightNat.extract
-    return .step (← Sym.share expr) proof
-  else
-    let expr ← mkLit 0#w
-    let h := Nat.mkDecideProofLe wExpr rhsExpr
-    let proof := mkApp4 (mkConst ``BitVec.ushiftRight_eq_zero) wExpr lhsExpr rhsExpr h
-    countRule `bvShiftRightNat.zero
-    return .step expr proof (done := true)
+  match Sym.getNatValue? rhsExpr with
+  | some rhs =>
+    if rhs < w then
+      let zero ← mkLit 0#rhs
+      let newLen := w - rhs
+      let newLenExpr ← mkLit newLen
+      let extract ← BitVec.mkExtractLsb' wExpr rhsExpr newLenExpr lhsExpr
+      let expr ← BitVec.mkAppend zero extract (← mkLit rhs) newLenExpr (← mkLit (newLen + rhs))
+      let h := Nat.mkDecideProofLt rhsExpr wExpr
+      let proof := mkApp4 (mkConst ``BitVec.ushiftRight_eq_extractLsb'_of_lt) wExpr lhsExpr rhsExpr h
+      countRule `bvShiftRightNat.extract
+      return .step (← Sym.share expr) proof
+    else
+      let expr ← mkLit 0#w
+      let h := Nat.mkDecideProofLe wExpr rhsExpr
+      let proof := mkApp4 (mkConst ``BitVec.ushiftRight_eq_zero) wExpr lhsExpr rhsExpr h
+      countRule `bvShiftRightNat.zero
+      return .step expr proof (done := true)
+  | none =>
+    -- Handled by other rewrite rules
+    if isBitVecToNat rhsExpr then return .rfl
+    let (vExpr, clamped, h) ← clampShiftAmount wExpr rhsExpr w
+    let expr ← BitVec.mkBvShiftRight lhsExpr clamped wExpr vExpr
+    let proof := mkApp5 (mkConst ``BitVec.ushiftRight_eq_ushiftRight_ofNatClamp)
+      wExpr rhsExpr vExpr lhsExpr h
+    countRule `bvShiftRightNat.clamp
+    return .step expr proof
 
 def bvShiftLeftNat (α lhsExpr rhsExpr : Expr) : SimprocM (Sym.Simp.Result) := do
-  let some rhs := Sym.getNatValue? rhsExpr | return .rfl
   let_expr BitVec wExpr := α | return .rfl
   let some w := Sym.getNatValue? wExpr | return .rfl
-  if rhs < w then
-    let zero ← mkLit 0#rhs
-    let newLen := w - rhs
-    let newLenExpr ← mkLit newLen
-    let extract ← BitVec.mkExtractLsb' wExpr (← mkLit 0) newLenExpr lhsExpr
-    let expr ← BitVec.mkAppend extract zero newLenExpr (← mkLit rhs) (← mkLit (newLen + rhs))
-    let h := Nat.mkDecideProofLt rhsExpr wExpr
-    let proof := mkApp4 (mkConst ``BitVec.shiftLeft_eq_concat_of_lt) wExpr lhsExpr rhsExpr h
-    countRule `bvShiftLeftNat.concat
-    return .step (← Sym.share expr) proof
-  else
-    let expr ← mkLit 0#w
-    let h := Nat.mkDecideProofLe wExpr rhsExpr
-    let proof := mkApp4 (mkConst ``BitVec.shiftLeft_eq_zero) wExpr lhsExpr rhsExpr h
-    countRule `bvShiftLeftNat.zero
-    return .step expr proof (done := true)
+
+  match Sym.getNatValue? rhsExpr with
+  | some rhs =>
+    if rhs < w then
+      let zero ← mkLit 0#rhs
+      let newLen := w - rhs
+      let newLenExpr ← mkLit newLen
+      let extract ← BitVec.mkExtractLsb' wExpr (← mkLit 0) newLenExpr lhsExpr
+      let expr ← BitVec.mkAppend extract zero newLenExpr (← mkLit rhs) (← mkLit (newLen + rhs))
+      let h := Nat.mkDecideProofLt rhsExpr wExpr
+      let proof := mkApp4 (mkConst ``BitVec.shiftLeft_eq_concat_of_lt) wExpr lhsExpr rhsExpr h
+      countRule `bvShiftLeftNat.concat
+      return .step (← Sym.share expr) proof
+    else
+      let expr ← mkLit 0#w
+      let h := Nat.mkDecideProofLe wExpr rhsExpr
+      let proof := mkApp4 (mkConst ``BitVec.shiftLeft_eq_zero) wExpr lhsExpr rhsExpr h
+      countRule `bvShiftLeftNat.zero
+      return .step expr proof (done := true)
+  | none =>
+    -- Handled by other rewrite rules
+    if isBitVecToNat rhsExpr then return .rfl
+    let (vExpr, clamped, h) ← clampShiftAmount wExpr rhsExpr w
+    let expr ← BitVec.mkBvShiftLeft lhsExpr clamped wExpr vExpr
+    let proof := mkApp5 (mkConst ``BitVec.shiftLeft_eq_shiftLeft_ofNatClamp)
+      wExpr rhsExpr vExpr lhsExpr h
+    countRule `bvShiftLeftNat.clamp
+    return .step expr proof
+
+def bvSshiftRightNat (wExpr lhsExpr rhsExpr : Expr) : SimprocM (Sym.Simp.Result) := do
+  -- Literal amounts are bitblasted directly via `BVUnOp.arithShiftRightConst`.
+  if (Sym.getNatValue? rhsExpr).isSome then return .rfl
+  -- Handled by other rewrite rules
+  if isBitVecToNat rhsExpr then return .rfl
+  let some w := Sym.getNatValue? wExpr | return .rfl
+  let (vExpr, clamped, h) ← clampShiftAmount wExpr rhsExpr w
+  let expr ← BitVec.mkSshiftRight' lhsExpr clamped wExpr vExpr
+  let proof := mkApp5 (mkConst ``BitVec.sshiftRight_eq_sshiftRight'_ofNatClamp)
+    wExpr rhsExpr vExpr lhsExpr h
+  countRule `bvSshiftRightNat.clamp
+  return .step expr proof
+
 
 def bvAppend (α β lhs rhs : Expr) : SimprocM (Sym.Simp.Result) := do
   let_expr BitVec wlhs := α | return .rfl
@@ -1480,7 +1557,8 @@ where
     | HMul.hMul α _ _ _ lhs rhs => bvMul α lhs rhs
     | HDiv.hDiv α _ _  _ lhs rhs => bvUdiv α lhs rhs
     | HAppend.hAppend α β _ _ lhs rhs => bvAppend α β lhs rhs
-    | BitVec.sshiftRight' nExpr mExpr lhs rhs => bvSshiftRight' nExpr mExpr lhs rhs
+    | BitVec.sshiftRight' wExpr vExpr lhs rhs => bvSshiftRight' wExpr vExpr lhs rhs
+    | BitVec.sshiftRight wExpr lhs rhs => bvSshiftRightNat wExpr lhs rhs
     | BitVec.extractLsb' wExpr startExpr lenExpr targetExpr =>
       extractLsb' wExpr startExpr lenExpr targetExpr
     | BitVec.cast nExpr mExpr hExpr targetExpr => bvCast nExpr mExpr hExpr targetExpr

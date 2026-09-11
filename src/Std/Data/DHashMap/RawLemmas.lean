@@ -2818,6 +2818,11 @@ theorem isEmpty_inter_iff [EquivBEq α] [LawfulHashable α] (h₁ : m₁.WF) (h�
   simp only [Inter.inter, Membership.mem]
   simp_to_raw using @Raw₀.isEmpty_inter_iff _ _ _ _ ⟨m₁, _⟩ ⟨m₂, _⟩ _ _
 
+theorem isEmpty_inter_comm [EquivBEq α] [LawfulHashable α] (h₁ : m₁.WF) (h₂ : m₂.WF) :
+    (m₁ ∩ m₂).isEmpty = (m₂ ∩ m₁).isEmpty := by
+  simp only [Inter.inter]
+  simp_to_raw using @Raw₀.isEmpty_inter_comm _ _ _ _ ⟨m₁, _⟩ ⟨m₂, _⟩ _ _
+
 end Inter
 
 namespace Const
@@ -5226,6 +5231,13 @@ theorem equiv_emptyWithCapacity_iff_isEmpty [EquivBEq α] [LawfulHashable α] {c
 theorem equiv_empty_iff_isEmpty [EquivBEq α] [LawfulHashable α] (h : m.WF) :
     m ~m ∅ ↔ m.isEmpty :=
   equiv_emptyWithCapacity_iff_isEmpty h
+
+theorem inter_equiv_empty_comm [EquivBEq α] [LawfulHashable α]
+    {m₁ m₂ : DHashMap.Raw α β} (h₁ : m₁.WF) (h₂ : m₂.WF) :
+    (m₁ ∩ m₂) ~m ∅ ↔ (m₂ ∩ m₁) ~m ∅ := by
+  rw [equiv_empty_iff_isEmpty (h₁.inter h₂), equiv_empty_iff_isEmpty (h₂.inter h₁),
+    ← Bool.eq_iff_iff]
+  exact isEmpty_inter_comm h₁ h₂
 
 theorem emptyWithCapacity_equiv_iff_isEmpty [EquivBEq α] [LawfulHashable α] {c : Nat} (h : m.WF) :
     emptyWithCapacity c ~m m ↔ m.isEmpty :=

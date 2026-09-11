@@ -116,10 +116,17 @@ up to this point, with respect to `cs`. The initial decisions are:
 - `dont` if we see the declaration being used in more than one cases arm
 - `arm` or `default` if we see the declaration only being used in exactly one cases arm
 - `unknown` otherwise
+
+If the `cases` operates on `ST.Out` or `EST.Out` we refuse any floating. This is because `ST.Ref`
+may be read from and written to at these points. See issue #15086 for how this can become
+problematic.
 -/
 def initialDecisions (cs : Cases .pure) : BaseFloatM (Std.HashMap FVarId Decision) := do
   let mut map := Std.HashMap.emptyWithCapacity (← read).decls.length
   let owned : Std.HashSet FVarId := ∅
+  let typeName := cs.typeName
+  if typeName == ``EST.Out || typeName == ``ST.Out then
+    return Std.HashMap.ofList <| (← read).decls.map fun decl => (decl.fvarId, .dont)
   (map, _) ← (← read).decls.foldlM (init := (map, owned)) fun (acc, owned) val => do
     if let .let decl := val then
       if (← ignore? decl) then

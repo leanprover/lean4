@@ -41,7 +41,7 @@ inductive_fixpoint
 
 /--
 info: star_ind.induct.{u_1} {α : Sort u_1} (tr : α → α → Prop) (q₂ : α) (pred : α → Prop)
-  (hyp : ∀ (q₁ : α), (∃ z, q₁ = q₂ ∨ tr q₁ z ∧ pred z) → pred q₁) (q₁ : α) : (fun q₁ => star_ind tr q₁ q₂) q₁ → pred q₁
+  (hyp : ∀ (q₁ : α), (∃ z, q₁ = q₂ ∨ tr q₁ z ∧ pred z) → pred q₁) (q₁ : α) : star_ind tr q₁ q₂ → pred q₁
 -/
 #guard_msgs in #check star_ind.induct
 

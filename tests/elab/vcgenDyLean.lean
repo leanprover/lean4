@@ -342,15 +342,15 @@ theorem always_frame
   {α: Type}
   (f: Traceful α)
   (p: ProofTrace → Prop)
-  : PredTrans.Frames Lean.Order.meet (WP.wpTrans f) (Always' p)
+  : WP.Frames Lean.Order.meet f (Always' p)
 where
-  op_apply_le_apply_op Q E := by
+  op_wp_le_wp_op Q E := by
     simp only [PartialOrder.rel, my_meet_apply, and_imp, Subtype.forall]
     dsimp only [wp, Always', WP.wpTrans]
     simp [my_meet_apply]
     grind [Trace.le_trans]
 
-grind_pattern always_frame => PredTrans.Frames Lean.Order.meet (WP.wpTrans f) (Always' p)
+grind_pattern always_frame => WP.Frames Lean.Order.meet f (Always' p)
 
 @[simp]
 theorem always_meet

@@ -21,6 +21,10 @@ set_option pp.letVarTypes true
 set_option trace.Compiler.saveMono true
 /--
 trace: [Compiler.saveMono] size: 1
+    def Erased.mk._redArg (_dummy : lcVoid) : PSigma lcErased lcAny :=
+      let _x.1 : PSigma lcErased lcAny := PSigma.mk ◾ ◾ ◾ ◾;
+      return _x.1
+[Compiler.saveMono] size: 1
     def Erased.mk (α : lcErased) (a : lcAny) : PSigma lcErased lcAny :=
       let _x.1 : PSigma lcErased lcAny := PSigma.mk ◾ ◾ ◾ ◾;
       return _x.1
@@ -50,7 +54,7 @@ trace: [Compiler.saveMono] size: 5
         lcAny →
           Lean.Meta.Context →
             lcAny → Lean.Core.Context → lcAny → lcVoid → EST.Out Lean.Exception lcAny PUnit := _eval._lam_0 _x.7 _x.8;
-      let _x.10 : EST.Out Lean.Exception lcAny PUnit := Lean.Elab.Command.liftTermElabM._redArg _f.9 a a a.1;
+      let _x.10 : EST.Out Lean.Exception lcAny lcAny := Lean.Elab.Command.liftTermElabM._redArg _f.9 a a a.1;
       return _x.10
 -/
 #guard_msgs in

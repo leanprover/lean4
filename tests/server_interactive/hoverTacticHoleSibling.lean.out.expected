@@ -1,0 +1,24 @@
+{"textDocument": {"uri": "file:///hoverTacticHoleSibling.lean"},
+ "position": {"line": 7, "character": 32}}
+{"range":
+ {"start": {"line": 7, "character": 31}, "end": {"line": 7, "character": 34}},
+ "contents":
+ {"value":
+  "```lean\nNat : Type\n```\n***\nThe natural numbers, starting at zero.\n\nThis type is special-cased by both the kernel and the compiler, and overridden with an efficient\nimplementation. Both use a fast arbitrary-precision arithmetic library (usually\n[GMP](https://gmplib.org/)); at runtime, `Nat` values that are sufficiently small are unboxed.\n\n***\n*import Init.Prelude*",
+  "kind": "markdown"}}
+{"textDocument": {"uri": "file:///hoverTacticHoleSibling.lean"},
+ "position": {"line": 10, "character": 33}}
+{"range":
+ {"start": {"line": 10, "character": 32}, "end": {"line": 10, "character": 35}},
+ "contents":
+ {"value":
+  "```lean\nNat : Type\n```\n***\nThe natural numbers, starting at zero.\n\nThis type is special-cased by both the kernel and the compiler, and overridden with an efficient\nimplementation. Both use a fast arbitrary-precision arithmetic library (usually\n[GMP](https://gmplib.org/)); at runtime, `Nat` values that are sufficiently small are unboxed.\n\n***\n*import Init.Prelude*",
+  "kind": "markdown"}}
+{"textDocument": {"uri": "file:///hoverTacticHoleSibling.lean"},
+ "position": {"line": 13, "character": 23}}
+{"range":
+ {"start": {"line": 13, "character": 22}, "end": {"line": 13, "character": 25}},
+ "contents":
+ {"value":
+  "```lean\nNat : Type\n```\n***\nThe natural numbers, starting at zero.\n\nThis type is special-cased by both the kernel and the compiler, and overridden with an efficient\nimplementation. Both use a fast arbitrary-precision arithmetic library (usually\n[GMP](https://gmplib.org/)); at runtime, `Nat` values that are sufficiently small are unboxed.\n\n***\n*import Init.Prelude*",
+  "kind": "markdown"}}

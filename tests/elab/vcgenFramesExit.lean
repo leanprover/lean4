@@ -96,7 +96,7 @@ exception postcondition through the frame rule. -/
 /-- Every `Prog` frames every heap assertion `F` on both channels. -/
 @[grind .]
 theorem frames_exit (x : Prog) (F : HProp) :
-    PredTrans.Frames sepConj (WP.wpTrans x) F :=
+    WP.Frames sepConj x F :=
   WP.frames_of_frameClosure sepConj sepConj sepConj_assoc sepConj_assoc
     ⟨fun y => baseWP.wpTrans y, fun _ => rfl⟩
 
@@ -171,7 +171,7 @@ tail. -/
 @[grind .]
 theorem frames_bumpOrThrow {P : AppState → Prop}
     (h : ∀ s a, P { s with fst := a } = P s) :
-    PredTrans.Frames meet (WP.wpTrans (bumpOrThrow : MEx Nat)) P := by
+    WP.Frames meet (bumpOrThrow : MEx Nat) P := by
   refine WP.frames_of_conjunctive ?_ ?_
   · vcgen [bumpOrThrow] with finish
   · intro E

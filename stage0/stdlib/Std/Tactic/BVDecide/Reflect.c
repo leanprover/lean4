@@ -36,13 +36,14 @@ lean_object* lean_array_uget_borrowed(lean_object*, size_t);
 lean_object* lean_nat_mul(lean_object*, lean_object*);
 lean_object* lean_nat_div(lean_object*, lean_object*);
 uint8_t lean_nat_dec_le(lean_object*, lean_object*);
+lean_object* lean_array_propagate_mark(lean_object*, lean_object*);
 lean_object* lean_array_fget(lean_object*, lean_object*);
 lean_object* lean_array_fset(lean_object*, lean_object*, lean_object*);
 size_t lean_array_size(lean_object*);
 lean_object* l_Std_Sat_AIG_toCNF(lean_object*);
 lean_object* lean_string_to_utf8(lean_object*);
 lean_object* l_Std_Tactic_BVDecide_LRAT_parseLRATProof(lean_object*);
-uint8_t l_Std_Tactic_BVDecide_LRAT_check(lean_object*, lean_object*);
+uint8_t l_Std_Tactic_BVDecide_LRAT_Internal_check(lean_object*, lean_object*);
 LEAN_EXPORT uint8_t l_Std_Tactic_BVDecide_Reflect_verifyCert(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Std_Tactic_BVDecide_Reflect_verifyCert___boxed(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l___private_Std_Tactic_BVDecide_Reflect_0__Std_Tactic_BVDecide_Reflect_verifyCert_match__1_splitter___redArg(lean_object*, lean_object*, lean_object*);
@@ -126,7 +127,7 @@ lean_object* v_a_6_; uint8_t v___x_7_;
 v_a_6_ = lean_ctor_get(v___x_4_, 0);
 lean_inc(v_a_6_);
 lean_dec_ref_known(v___x_4_, 1);
-v___x_7_ = l_Std_Tactic_BVDecide_LRAT_check(v_a_6_, v_cnf_1_);
+v___x_7_ = l_Std_Tactic_BVDecide_LRAT_Internal_check(v_a_6_, v_cnf_1_);
 lean_dec(v_a_6_);
 return v___x_7_;
 }
@@ -627,793 +628,794 @@ goto _start;
 LEAN_EXPORT lean_object* l_Std_DHashMap_Internal_Raw_u2080_expand___at___00Std_DHashMap_Internal_Raw_u2080_insert___at___00Std_Sat_AIG_RelabelNat_State_addAtom___at___00Std_Sat_AIG_RelabelNat_State_ofAIGAux_go___at___00Std_Sat_AIG_RelabelNat_State_ofAIGAux___at___00Std_Sat_AIG_RelabelNat_State_ofAIG___at___00Std_Sat_AIG_relabelNat_x27___at___00Std_Sat_AIG_relabelNat___at___00Std_Sat_AIG_Entrypoint_relabelNat___at___00Std_Tactic_BVDecide_Reflect_verifyBVExpr_spec__0_spec__0_spec__1_spec__2_spec__3_spec__5_spec__9_spec__12_spec__15___redArg(lean_object* v_data_169_){
 _start:
 {
-lean_object* v___x_170_; lean_object* v___x_171_; lean_object* v_nbuckets_172_; lean_object* v___x_173_; lean_object* v___x_174_; lean_object* v___x_175_; lean_object* v___x_176_; 
+lean_object* v___x_170_; lean_object* v___x_171_; lean_object* v_nbuckets_172_; lean_object* v___x_173_; lean_object* v___x_174_; lean_object* v___x_175_; lean_object* v___x_176_; lean_object* v___x_177_; 
 v___x_170_ = lean_array_get_size(v_data_169_);
 v___x_171_ = lean_unsigned_to_nat(2u);
 v_nbuckets_172_ = lean_nat_mul(v___x_170_, v___x_171_);
 v___x_173_ = lean_unsigned_to_nat(0u);
 v___x_174_ = lean_box(0);
 v___x_175_ = lean_mk_array(v_nbuckets_172_, v___x_174_);
-v___x_176_ = l___private_Std_Data_DHashMap_Internal_Defs_0__Std_DHashMap_Internal_Raw_u2080_expand_go___at___00Std_DHashMap_Internal_Raw_u2080_expand___at___00Std_DHashMap_Internal_Raw_u2080_insert___at___00Std_Sat_AIG_RelabelNat_State_addAtom___at___00Std_Sat_AIG_RelabelNat_State_ofAIGAux_go___at___00Std_Sat_AIG_RelabelNat_State_ofAIGAux___at___00Std_Sat_AIG_RelabelNat_State_ofAIG___at___00Std_Sat_AIG_relabelNat_x27___at___00Std_Sat_AIG_relabelNat___at___00Std_Sat_AIG_Entrypoint_relabelNat___at___00Std_Tactic_BVDecide_Reflect_verifyBVExpr_spec__0_spec__0_spec__1_spec__2_spec__3_spec__5_spec__9_spec__12_spec__15_spec__16___redArg(v___x_173_, v_data_169_, v___x_175_);
-return v___x_176_;
+v___x_176_ = lean_array_propagate_mark(v_data_169_, v___x_175_);
+v___x_177_ = l___private_Std_Data_DHashMap_Internal_Defs_0__Std_DHashMap_Internal_Raw_u2080_expand_go___at___00Std_DHashMap_Internal_Raw_u2080_expand___at___00Std_DHashMap_Internal_Raw_u2080_insert___at___00Std_Sat_AIG_RelabelNat_State_addAtom___at___00Std_Sat_AIG_RelabelNat_State_ofAIGAux_go___at___00Std_Sat_AIG_RelabelNat_State_ofAIGAux___at___00Std_Sat_AIG_RelabelNat_State_ofAIG___at___00Std_Sat_AIG_relabelNat_x27___at___00Std_Sat_AIG_relabelNat___at___00Std_Sat_AIG_Entrypoint_relabelNat___at___00Std_Tactic_BVDecide_Reflect_verifyBVExpr_spec__0_spec__0_spec__1_spec__2_spec__3_spec__5_spec__9_spec__12_spec__15_spec__16___redArg(v___x_173_, v_data_169_, v___x_176_);
+return v___x_177_;
 }
 }
-LEAN_EXPORT uint8_t l_Std_DHashMap_Internal_AssocList_contains___at___00Std_DHashMap_Internal_Raw_u2080_insert___at___00Std_Sat_AIG_RelabelNat_State_addAtom___at___00Std_Sat_AIG_RelabelNat_State_ofAIGAux_go___at___00Std_Sat_AIG_RelabelNat_State_ofAIGAux___at___00Std_Sat_AIG_RelabelNat_State_ofAIG___at___00Std_Sat_AIG_relabelNat_x27___at___00Std_Sat_AIG_relabelNat___at___00Std_Sat_AIG_Entrypoint_relabelNat___at___00Std_Tactic_BVDecide_Reflect_verifyBVExpr_spec__0_spec__0_spec__1_spec__2_spec__3_spec__5_spec__9_spec__12_spec__14___redArg(lean_object* v_a_177_, lean_object* v_x_178_){
+LEAN_EXPORT uint8_t l_Std_DHashMap_Internal_AssocList_contains___at___00Std_DHashMap_Internal_Raw_u2080_insert___at___00Std_Sat_AIG_RelabelNat_State_addAtom___at___00Std_Sat_AIG_RelabelNat_State_ofAIGAux_go___at___00Std_Sat_AIG_RelabelNat_State_ofAIGAux___at___00Std_Sat_AIG_RelabelNat_State_ofAIG___at___00Std_Sat_AIG_relabelNat_x27___at___00Std_Sat_AIG_relabelNat___at___00Std_Sat_AIG_Entrypoint_relabelNat___at___00Std_Tactic_BVDecide_Reflect_verifyBVExpr_spec__0_spec__0_spec__1_spec__2_spec__3_spec__5_spec__9_spec__12_spec__14___redArg(lean_object* v_a_178_, lean_object* v_x_179_){
 _start:
 {
-if (lean_obj_tag(v_x_178_) == 0)
+if (lean_obj_tag(v_x_179_) == 0)
 {
-uint8_t v___x_179_; 
-v___x_179_ = 0;
-return v___x_179_;
+uint8_t v___x_180_; 
+v___x_180_ = 0;
+return v___x_180_;
 }
 else
 {
-lean_object* v_key_180_; lean_object* v_tail_181_; uint8_t v___x_182_; 
-v_key_180_ = lean_ctor_get(v_x_178_, 0);
-v_tail_181_ = lean_ctor_get(v_x_178_, 2);
-v___x_182_ = l_Std_Tactic_BVDecide_instDecidableEqBVBit_decEq(v_key_180_, v_a_177_);
-if (v___x_182_ == 0)
+lean_object* v_key_181_; lean_object* v_tail_182_; uint8_t v___x_183_; 
+v_key_181_ = lean_ctor_get(v_x_179_, 0);
+v_tail_182_ = lean_ctor_get(v_x_179_, 2);
+v___x_183_ = l_Std_Tactic_BVDecide_instDecidableEqBVBit_decEq(v_key_181_, v_a_178_);
+if (v___x_183_ == 0)
 {
-v_x_178_ = v_tail_181_;
+v_x_179_ = v_tail_182_;
 goto _start;
 }
 else
 {
-return v___x_182_;
+return v___x_183_;
 }
 }
 }
 }
-LEAN_EXPORT lean_object* l_Std_DHashMap_Internal_AssocList_contains___at___00Std_DHashMap_Internal_Raw_u2080_insert___at___00Std_Sat_AIG_RelabelNat_State_addAtom___at___00Std_Sat_AIG_RelabelNat_State_ofAIGAux_go___at___00Std_Sat_AIG_RelabelNat_State_ofAIGAux___at___00Std_Sat_AIG_RelabelNat_State_ofAIG___at___00Std_Sat_AIG_relabelNat_x27___at___00Std_Sat_AIG_relabelNat___at___00Std_Sat_AIG_Entrypoint_relabelNat___at___00Std_Tactic_BVDecide_Reflect_verifyBVExpr_spec__0_spec__0_spec__1_spec__2_spec__3_spec__5_spec__9_spec__12_spec__14___redArg___boxed(lean_object* v_a_184_, lean_object* v_x_185_){
+LEAN_EXPORT lean_object* l_Std_DHashMap_Internal_AssocList_contains___at___00Std_DHashMap_Internal_Raw_u2080_insert___at___00Std_Sat_AIG_RelabelNat_State_addAtom___at___00Std_Sat_AIG_RelabelNat_State_ofAIGAux_go___at___00Std_Sat_AIG_RelabelNat_State_ofAIGAux___at___00Std_Sat_AIG_RelabelNat_State_ofAIG___at___00Std_Sat_AIG_relabelNat_x27___at___00Std_Sat_AIG_relabelNat___at___00Std_Sat_AIG_Entrypoint_relabelNat___at___00Std_Tactic_BVDecide_Reflect_verifyBVExpr_spec__0_spec__0_spec__1_spec__2_spec__3_spec__5_spec__9_spec__12_spec__14___redArg___boxed(lean_object* v_a_185_, lean_object* v_x_186_){
 _start:
 {
-uint8_t v_res_186_; lean_object* v_r_187_; 
-v_res_186_ = l_Std_DHashMap_Internal_AssocList_contains___at___00Std_DHashMap_Internal_Raw_u2080_insert___at___00Std_Sat_AIG_RelabelNat_State_addAtom___at___00Std_Sat_AIG_RelabelNat_State_ofAIGAux_go___at___00Std_Sat_AIG_RelabelNat_State_ofAIGAux___at___00Std_Sat_AIG_RelabelNat_State_ofAIG___at___00Std_Sat_AIG_relabelNat_x27___at___00Std_Sat_AIG_relabelNat___at___00Std_Sat_AIG_Entrypoint_relabelNat___at___00Std_Tactic_BVDecide_Reflect_verifyBVExpr_spec__0_spec__0_spec__1_spec__2_spec__3_spec__5_spec__9_spec__12_spec__14___redArg(v_a_184_, v_x_185_);
-lean_dec(v_x_185_);
-lean_dec_ref(v_a_184_);
-v_r_187_ = lean_box(v_res_186_);
-return v_r_187_;
+uint8_t v_res_187_; lean_object* v_r_188_; 
+v_res_187_ = l_Std_DHashMap_Internal_AssocList_contains___at___00Std_DHashMap_Internal_Raw_u2080_insert___at___00Std_Sat_AIG_RelabelNat_State_addAtom___at___00Std_Sat_AIG_RelabelNat_State_ofAIGAux_go___at___00Std_Sat_AIG_RelabelNat_State_ofAIGAux___at___00Std_Sat_AIG_RelabelNat_State_ofAIG___at___00Std_Sat_AIG_relabelNat_x27___at___00Std_Sat_AIG_relabelNat___at___00Std_Sat_AIG_Entrypoint_relabelNat___at___00Std_Tactic_BVDecide_Reflect_verifyBVExpr_spec__0_spec__0_spec__1_spec__2_spec__3_spec__5_spec__9_spec__12_spec__14___redArg(v_a_185_, v_x_186_);
+lean_dec(v_x_186_);
+lean_dec_ref(v_a_185_);
+v_r_188_ = lean_box(v_res_187_);
+return v_r_188_;
 }
 }
-LEAN_EXPORT lean_object* l_Std_DHashMap_Internal_Raw_u2080_insert___at___00Std_Sat_AIG_RelabelNat_State_addAtom___at___00Std_Sat_AIG_RelabelNat_State_ofAIGAux_go___at___00Std_Sat_AIG_RelabelNat_State_ofAIGAux___at___00Std_Sat_AIG_RelabelNat_State_ofAIG___at___00Std_Sat_AIG_relabelNat_x27___at___00Std_Sat_AIG_relabelNat___at___00Std_Sat_AIG_Entrypoint_relabelNat___at___00Std_Tactic_BVDecide_Reflect_verifyBVExpr_spec__0_spec__0_spec__1_spec__2_spec__3_spec__5_spec__9_spec__12___redArg(lean_object* v_m_188_, lean_object* v_a_189_, lean_object* v_b_190_){
+LEAN_EXPORT lean_object* l_Std_DHashMap_Internal_Raw_u2080_insert___at___00Std_Sat_AIG_RelabelNat_State_addAtom___at___00Std_Sat_AIG_RelabelNat_State_ofAIGAux_go___at___00Std_Sat_AIG_RelabelNat_State_ofAIGAux___at___00Std_Sat_AIG_RelabelNat_State_ofAIG___at___00Std_Sat_AIG_relabelNat_x27___at___00Std_Sat_AIG_relabelNat___at___00Std_Sat_AIG_Entrypoint_relabelNat___at___00Std_Tactic_BVDecide_Reflect_verifyBVExpr_spec__0_spec__0_spec__1_spec__2_spec__3_spec__5_spec__9_spec__12___redArg(lean_object* v_m_189_, lean_object* v_a_190_, lean_object* v_b_191_){
 _start:
 {
-lean_object* v_size_191_; lean_object* v_buckets_192_; lean_object* v___x_194_; uint8_t v_isShared_195_; uint8_t v_isSharedCheck_235_; 
-v_size_191_ = lean_ctor_get(v_m_188_, 0);
-v_buckets_192_ = lean_ctor_get(v_m_188_, 1);
-v_isSharedCheck_235_ = !lean_is_exclusive(v_m_188_);
-if (v_isSharedCheck_235_ == 0)
+lean_object* v_size_192_; lean_object* v_buckets_193_; lean_object* v___x_195_; uint8_t v_isShared_196_; uint8_t v_isSharedCheck_236_; 
+v_size_192_ = lean_ctor_get(v_m_189_, 0);
+v_buckets_193_ = lean_ctor_get(v_m_189_, 1);
+v_isSharedCheck_236_ = !lean_is_exclusive(v_m_189_);
+if (v_isSharedCheck_236_ == 0)
 {
-v___x_194_ = v_m_188_;
-v_isShared_195_ = v_isSharedCheck_235_;
-goto v_resetjp_193_;
+v___x_195_ = v_m_189_;
+v_isShared_196_ = v_isSharedCheck_236_;
+goto v_resetjp_194_;
 }
 else
 {
-lean_inc(v_buckets_192_);
-lean_inc(v_size_191_);
-lean_dec(v_m_188_);
-v___x_194_ = lean_box(0);
-v_isShared_195_ = v_isSharedCheck_235_;
-goto v_resetjp_193_;
+lean_inc(v_buckets_193_);
+lean_inc(v_size_192_);
+lean_dec(v_m_189_);
+v___x_195_ = lean_box(0);
+v_isShared_196_ = v_isSharedCheck_236_;
+goto v_resetjp_194_;
 }
-v_resetjp_193_:
+v_resetjp_194_:
 {
-lean_object* v___x_196_; uint64_t v___x_197_; uint64_t v___x_198_; uint64_t v___x_199_; uint64_t v_fold_200_; uint64_t v___x_201_; uint64_t v___x_202_; uint64_t v___x_203_; size_t v___x_204_; size_t v___x_205_; size_t v___x_206_; size_t v___x_207_; size_t v___x_208_; lean_object* v_bkt_209_; uint8_t v___x_210_; 
-v___x_196_ = lean_array_get_size(v_buckets_192_);
-v___x_197_ = l_Std_Tactic_BVDecide_instHashableBVBit_hash(v_a_189_);
-v___x_198_ = 32ULL;
-v___x_199_ = lean_uint64_shift_right(v___x_197_, v___x_198_);
-v_fold_200_ = lean_uint64_xor(v___x_197_, v___x_199_);
-v___x_201_ = 16ULL;
-v___x_202_ = lean_uint64_shift_right(v_fold_200_, v___x_201_);
-v___x_203_ = lean_uint64_xor(v_fold_200_, v___x_202_);
-v___x_204_ = lean_uint64_to_usize(v___x_203_);
-v___x_205_ = lean_usize_of_nat(v___x_196_);
-v___x_206_ = ((size_t)1ULL);
-v___x_207_ = lean_usize_sub(v___x_205_, v___x_206_);
-v___x_208_ = lean_usize_land(v___x_204_, v___x_207_);
-v_bkt_209_ = lean_array_uget_borrowed(v_buckets_192_, v___x_208_);
-v___x_210_ = l_Std_DHashMap_Internal_AssocList_contains___at___00Std_DHashMap_Internal_Raw_u2080_insert___at___00Std_Sat_AIG_RelabelNat_State_addAtom___at___00Std_Sat_AIG_RelabelNat_State_ofAIGAux_go___at___00Std_Sat_AIG_RelabelNat_State_ofAIGAux___at___00Std_Sat_AIG_RelabelNat_State_ofAIG___at___00Std_Sat_AIG_relabelNat_x27___at___00Std_Sat_AIG_relabelNat___at___00Std_Sat_AIG_Entrypoint_relabelNat___at___00Std_Tactic_BVDecide_Reflect_verifyBVExpr_spec__0_spec__0_spec__1_spec__2_spec__3_spec__5_spec__9_spec__12_spec__14___redArg(v_a_189_, v_bkt_209_);
-if (v___x_210_ == 0)
+lean_object* v___x_197_; uint64_t v___x_198_; uint64_t v___x_199_; uint64_t v___x_200_; uint64_t v_fold_201_; uint64_t v___x_202_; uint64_t v___x_203_; uint64_t v___x_204_; size_t v___x_205_; size_t v___x_206_; size_t v___x_207_; size_t v___x_208_; size_t v___x_209_; lean_object* v_bkt_210_; uint8_t v___x_211_; 
+v___x_197_ = lean_array_get_size(v_buckets_193_);
+v___x_198_ = l_Std_Tactic_BVDecide_instHashableBVBit_hash(v_a_190_);
+v___x_199_ = 32ULL;
+v___x_200_ = lean_uint64_shift_right(v___x_198_, v___x_199_);
+v_fold_201_ = lean_uint64_xor(v___x_198_, v___x_200_);
+v___x_202_ = 16ULL;
+v___x_203_ = lean_uint64_shift_right(v_fold_201_, v___x_202_);
+v___x_204_ = lean_uint64_xor(v_fold_201_, v___x_203_);
+v___x_205_ = lean_uint64_to_usize(v___x_204_);
+v___x_206_ = lean_usize_of_nat(v___x_197_);
+v___x_207_ = ((size_t)1ULL);
+v___x_208_ = lean_usize_sub(v___x_206_, v___x_207_);
+v___x_209_ = lean_usize_land(v___x_205_, v___x_208_);
+v_bkt_210_ = lean_array_uget_borrowed(v_buckets_193_, v___x_209_);
+v___x_211_ = l_Std_DHashMap_Internal_AssocList_contains___at___00Std_DHashMap_Internal_Raw_u2080_insert___at___00Std_Sat_AIG_RelabelNat_State_addAtom___at___00Std_Sat_AIG_RelabelNat_State_ofAIGAux_go___at___00Std_Sat_AIG_RelabelNat_State_ofAIGAux___at___00Std_Sat_AIG_RelabelNat_State_ofAIG___at___00Std_Sat_AIG_relabelNat_x27___at___00Std_Sat_AIG_relabelNat___at___00Std_Sat_AIG_Entrypoint_relabelNat___at___00Std_Tactic_BVDecide_Reflect_verifyBVExpr_spec__0_spec__0_spec__1_spec__2_spec__3_spec__5_spec__9_spec__12_spec__14___redArg(v_a_190_, v_bkt_210_);
+if (v___x_211_ == 0)
 {
-lean_object* v___x_211_; lean_object* v_size_x27_212_; lean_object* v___x_213_; lean_object* v_buckets_x27_214_; lean_object* v___x_215_; lean_object* v___x_216_; lean_object* v___x_217_; lean_object* v___x_218_; lean_object* v___x_219_; uint8_t v___x_220_; 
-v___x_211_ = lean_unsigned_to_nat(1u);
-v_size_x27_212_ = lean_nat_add(v_size_191_, v___x_211_);
-lean_dec(v_size_191_);
-lean_inc(v_bkt_209_);
-v___x_213_ = lean_alloc_ctor(1, 3, 0);
-lean_ctor_set(v___x_213_, 0, v_a_189_);
-lean_ctor_set(v___x_213_, 1, v_b_190_);
-lean_ctor_set(v___x_213_, 2, v_bkt_209_);
-v_buckets_x27_214_ = lean_array_uset(v_buckets_192_, v___x_208_, v___x_213_);
-v___x_215_ = lean_unsigned_to_nat(4u);
-v___x_216_ = lean_nat_mul(v_size_x27_212_, v___x_215_);
-v___x_217_ = lean_unsigned_to_nat(3u);
-v___x_218_ = lean_nat_div(v___x_216_, v___x_217_);
-lean_dec(v___x_216_);
-v___x_219_ = lean_array_get_size(v_buckets_x27_214_);
-v___x_220_ = lean_nat_dec_le(v___x_218_, v___x_219_);
-lean_dec(v___x_218_);
-if (v___x_220_ == 0)
+lean_object* v___x_212_; lean_object* v_size_x27_213_; lean_object* v___x_214_; lean_object* v_buckets_x27_215_; lean_object* v___x_216_; lean_object* v___x_217_; lean_object* v___x_218_; lean_object* v___x_219_; lean_object* v___x_220_; uint8_t v___x_221_; 
+v___x_212_ = lean_unsigned_to_nat(1u);
+v_size_x27_213_ = lean_nat_add(v_size_192_, v___x_212_);
+lean_dec(v_size_192_);
+lean_inc(v_bkt_210_);
+v___x_214_ = lean_alloc_ctor(1, 3, 0);
+lean_ctor_set(v___x_214_, 0, v_a_190_);
+lean_ctor_set(v___x_214_, 1, v_b_191_);
+lean_ctor_set(v___x_214_, 2, v_bkt_210_);
+v_buckets_x27_215_ = lean_array_uset(v_buckets_193_, v___x_209_, v___x_214_);
+v___x_216_ = lean_unsigned_to_nat(4u);
+v___x_217_ = lean_nat_mul(v_size_x27_213_, v___x_216_);
+v___x_218_ = lean_unsigned_to_nat(3u);
+v___x_219_ = lean_nat_div(v___x_217_, v___x_218_);
+lean_dec(v___x_217_);
+v___x_220_ = lean_array_get_size(v_buckets_x27_215_);
+v___x_221_ = lean_nat_dec_le(v___x_219_, v___x_220_);
+lean_dec(v___x_219_);
+if (v___x_221_ == 0)
 {
-lean_object* v_val_221_; lean_object* v___x_223_; 
-v_val_221_ = l_Std_DHashMap_Internal_Raw_u2080_expand___at___00Std_DHashMap_Internal_Raw_u2080_insert___at___00Std_Sat_AIG_RelabelNat_State_addAtom___at___00Std_Sat_AIG_RelabelNat_State_ofAIGAux_go___at___00Std_Sat_AIG_RelabelNat_State_ofAIGAux___at___00Std_Sat_AIG_RelabelNat_State_ofAIG___at___00Std_Sat_AIG_relabelNat_x27___at___00Std_Sat_AIG_relabelNat___at___00Std_Sat_AIG_Entrypoint_relabelNat___at___00Std_Tactic_BVDecide_Reflect_verifyBVExpr_spec__0_spec__0_spec__1_spec__2_spec__3_spec__5_spec__9_spec__12_spec__15___redArg(v_buckets_x27_214_);
-if (v_isShared_195_ == 0)
+lean_object* v_val_222_; lean_object* v___x_224_; 
+v_val_222_ = l_Std_DHashMap_Internal_Raw_u2080_expand___at___00Std_DHashMap_Internal_Raw_u2080_insert___at___00Std_Sat_AIG_RelabelNat_State_addAtom___at___00Std_Sat_AIG_RelabelNat_State_ofAIGAux_go___at___00Std_Sat_AIG_RelabelNat_State_ofAIGAux___at___00Std_Sat_AIG_RelabelNat_State_ofAIG___at___00Std_Sat_AIG_relabelNat_x27___at___00Std_Sat_AIG_relabelNat___at___00Std_Sat_AIG_Entrypoint_relabelNat___at___00Std_Tactic_BVDecide_Reflect_verifyBVExpr_spec__0_spec__0_spec__1_spec__2_spec__3_spec__5_spec__9_spec__12_spec__15___redArg(v_buckets_x27_215_);
+if (v_isShared_196_ == 0)
 {
-lean_ctor_set(v___x_194_, 1, v_val_221_);
-lean_ctor_set(v___x_194_, 0, v_size_x27_212_);
-v___x_223_ = v___x_194_;
-goto v_reusejp_222_;
-}
-else
-{
-lean_object* v_reuseFailAlloc_224_; 
-v_reuseFailAlloc_224_ = lean_alloc_ctor(0, 2, 0);
-lean_ctor_set(v_reuseFailAlloc_224_, 0, v_size_x27_212_);
-lean_ctor_set(v_reuseFailAlloc_224_, 1, v_val_221_);
-v___x_223_ = v_reuseFailAlloc_224_;
-goto v_reusejp_222_;
-}
-v_reusejp_222_:
-{
-return v___x_223_;
-}
+lean_ctor_set(v___x_195_, 1, v_val_222_);
+lean_ctor_set(v___x_195_, 0, v_size_x27_213_);
+v___x_224_ = v___x_195_;
+goto v_reusejp_223_;
 }
 else
 {
-lean_object* v___x_226_; 
-if (v_isShared_195_ == 0)
-{
-lean_ctor_set(v___x_194_, 1, v_buckets_x27_214_);
-lean_ctor_set(v___x_194_, 0, v_size_x27_212_);
-v___x_226_ = v___x_194_;
-goto v_reusejp_225_;
+lean_object* v_reuseFailAlloc_225_; 
+v_reuseFailAlloc_225_ = lean_alloc_ctor(0, 2, 0);
+lean_ctor_set(v_reuseFailAlloc_225_, 0, v_size_x27_213_);
+lean_ctor_set(v_reuseFailAlloc_225_, 1, v_val_222_);
+v___x_224_ = v_reuseFailAlloc_225_;
+goto v_reusejp_223_;
 }
-else
+v_reusejp_223_:
 {
-lean_object* v_reuseFailAlloc_227_; 
-v_reuseFailAlloc_227_ = lean_alloc_ctor(0, 2, 0);
-lean_ctor_set(v_reuseFailAlloc_227_, 0, v_size_x27_212_);
-lean_ctor_set(v_reuseFailAlloc_227_, 1, v_buckets_x27_214_);
-v___x_226_ = v_reuseFailAlloc_227_;
-goto v_reusejp_225_;
-}
-v_reusejp_225_:
-{
-return v___x_226_;
-}
+return v___x_224_;
 }
 }
 else
 {
-lean_object* v___x_228_; lean_object* v_buckets_x27_229_; lean_object* v___x_230_; lean_object* v___x_231_; lean_object* v___x_233_; 
-lean_inc(v_bkt_209_);
-v___x_228_ = lean_box(0);
-v_buckets_x27_229_ = lean_array_uset(v_buckets_192_, v___x_208_, v___x_228_);
-v___x_230_ = l_Std_DHashMap_Internal_AssocList_replace___at___00Std_DHashMap_Internal_Raw_u2080_insert___at___00Std_Sat_AIG_RelabelNat_State_addAtom___at___00Std_Sat_AIG_RelabelNat_State_ofAIGAux_go___at___00Std_Sat_AIG_RelabelNat_State_ofAIGAux___at___00Std_Sat_AIG_RelabelNat_State_ofAIG___at___00Std_Sat_AIG_relabelNat_x27___at___00Std_Sat_AIG_relabelNat___at___00Std_Sat_AIG_Entrypoint_relabelNat___at___00Std_Tactic_BVDecide_Reflect_verifyBVExpr_spec__0_spec__0_spec__1_spec__2_spec__3_spec__5_spec__9_spec__12_spec__16___redArg(v_a_189_, v_b_190_, v_bkt_209_);
-v___x_231_ = lean_array_uset(v_buckets_x27_229_, v___x_208_, v___x_230_);
-if (v_isShared_195_ == 0)
+lean_object* v___x_227_; 
+if (v_isShared_196_ == 0)
 {
-lean_ctor_set(v___x_194_, 1, v___x_231_);
-v___x_233_ = v___x_194_;
-goto v_reusejp_232_;
+lean_ctor_set(v___x_195_, 1, v_buckets_x27_215_);
+lean_ctor_set(v___x_195_, 0, v_size_x27_213_);
+v___x_227_ = v___x_195_;
+goto v_reusejp_226_;
 }
 else
 {
-lean_object* v_reuseFailAlloc_234_; 
-v_reuseFailAlloc_234_ = lean_alloc_ctor(0, 2, 0);
-lean_ctor_set(v_reuseFailAlloc_234_, 0, v_size_191_);
-lean_ctor_set(v_reuseFailAlloc_234_, 1, v___x_231_);
-v___x_233_ = v_reuseFailAlloc_234_;
-goto v_reusejp_232_;
+lean_object* v_reuseFailAlloc_228_; 
+v_reuseFailAlloc_228_ = lean_alloc_ctor(0, 2, 0);
+lean_ctor_set(v_reuseFailAlloc_228_, 0, v_size_x27_213_);
+lean_ctor_set(v_reuseFailAlloc_228_, 1, v_buckets_x27_215_);
+v___x_227_ = v_reuseFailAlloc_228_;
+goto v_reusejp_226_;
 }
-v_reusejp_232_:
+v_reusejp_226_:
 {
-return v___x_233_;
+return v___x_227_;
+}
+}
+}
+else
+{
+lean_object* v___x_229_; lean_object* v_buckets_x27_230_; lean_object* v___x_231_; lean_object* v___x_232_; lean_object* v___x_234_; 
+lean_inc(v_bkt_210_);
+v___x_229_ = lean_box(0);
+v_buckets_x27_230_ = lean_array_uset(v_buckets_193_, v___x_209_, v___x_229_);
+v___x_231_ = l_Std_DHashMap_Internal_AssocList_replace___at___00Std_DHashMap_Internal_Raw_u2080_insert___at___00Std_Sat_AIG_RelabelNat_State_addAtom___at___00Std_Sat_AIG_RelabelNat_State_ofAIGAux_go___at___00Std_Sat_AIG_RelabelNat_State_ofAIGAux___at___00Std_Sat_AIG_RelabelNat_State_ofAIG___at___00Std_Sat_AIG_relabelNat_x27___at___00Std_Sat_AIG_relabelNat___at___00Std_Sat_AIG_Entrypoint_relabelNat___at___00Std_Tactic_BVDecide_Reflect_verifyBVExpr_spec__0_spec__0_spec__1_spec__2_spec__3_spec__5_spec__9_spec__12_spec__16___redArg(v_a_190_, v_b_191_, v_bkt_210_);
+v___x_232_ = lean_array_uset(v_buckets_x27_230_, v___x_209_, v___x_231_);
+if (v_isShared_196_ == 0)
+{
+lean_ctor_set(v___x_195_, 1, v___x_232_);
+v___x_234_ = v___x_195_;
+goto v_reusejp_233_;
+}
+else
+{
+lean_object* v_reuseFailAlloc_235_; 
+v_reuseFailAlloc_235_ = lean_alloc_ctor(0, 2, 0);
+lean_ctor_set(v_reuseFailAlloc_235_, 0, v_size_192_);
+lean_ctor_set(v_reuseFailAlloc_235_, 1, v___x_232_);
+v___x_234_ = v_reuseFailAlloc_235_;
+goto v_reusejp_233_;
+}
+v_reusejp_233_:
+{
+return v___x_234_;
 }
 }
 }
 }
 }
-LEAN_EXPORT lean_object* l_Std_Sat_AIG_RelabelNat_State_addAtom___at___00Std_Sat_AIG_RelabelNat_State_ofAIGAux_go___at___00Std_Sat_AIG_RelabelNat_State_ofAIGAux___at___00Std_Sat_AIG_RelabelNat_State_ofAIG___at___00Std_Sat_AIG_relabelNat_x27___at___00Std_Sat_AIG_relabelNat___at___00Std_Sat_AIG_Entrypoint_relabelNat___at___00Std_Tactic_BVDecide_Reflect_verifyBVExpr_spec__0_spec__0_spec__1_spec__2_spec__3_spec__5_spec__9___redArg(lean_object* v_state_236_, lean_object* v_a_237_){
+LEAN_EXPORT lean_object* l_Std_Sat_AIG_RelabelNat_State_addAtom___at___00Std_Sat_AIG_RelabelNat_State_ofAIGAux_go___at___00Std_Sat_AIG_RelabelNat_State_ofAIGAux___at___00Std_Sat_AIG_RelabelNat_State_ofAIG___at___00Std_Sat_AIG_relabelNat_x27___at___00Std_Sat_AIG_relabelNat___at___00Std_Sat_AIG_Entrypoint_relabelNat___at___00Std_Tactic_BVDecide_Reflect_verifyBVExpr_spec__0_spec__0_spec__1_spec__2_spec__3_spec__5_spec__9___redArg(lean_object* v_state_237_, lean_object* v_a_238_){
 _start:
 {
-lean_object* v_max_238_; lean_object* v_map_239_; lean_object* v___x_241_; uint8_t v_isShared_242_; uint8_t v_isSharedCheck_253_; 
-v_max_238_ = lean_ctor_get(v_state_236_, 0);
-v_map_239_ = lean_ctor_get(v_state_236_, 1);
-v_isSharedCheck_253_ = !lean_is_exclusive(v_state_236_);
-if (v_isSharedCheck_253_ == 0)
+lean_object* v_max_239_; lean_object* v_map_240_; lean_object* v___x_242_; uint8_t v_isShared_243_; uint8_t v_isSharedCheck_254_; 
+v_max_239_ = lean_ctor_get(v_state_237_, 0);
+v_map_240_ = lean_ctor_get(v_state_237_, 1);
+v_isSharedCheck_254_ = !lean_is_exclusive(v_state_237_);
+if (v_isSharedCheck_254_ == 0)
 {
-v___x_241_ = v_state_236_;
-v_isShared_242_ = v_isSharedCheck_253_;
-goto v_resetjp_240_;
+v___x_242_ = v_state_237_;
+v_isShared_243_ = v_isSharedCheck_254_;
+goto v_resetjp_241_;
 }
 else
 {
-lean_inc(v_map_239_);
-lean_inc(v_max_238_);
-lean_dec(v_state_236_);
-v___x_241_ = lean_box(0);
-v_isShared_242_ = v_isSharedCheck_253_;
-goto v_resetjp_240_;
+lean_inc(v_map_240_);
+lean_inc(v_max_239_);
+lean_dec(v_state_237_);
+v___x_242_ = lean_box(0);
+v_isShared_243_ = v_isSharedCheck_254_;
+goto v_resetjp_241_;
 }
-v_resetjp_240_:
+v_resetjp_241_:
 {
-lean_object* v___x_243_; 
-v___x_243_ = l_Std_DHashMap_Internal_Raw_u2080_Const_get_x3f___at___00Std_Sat_AIG_relabelNat_x27___at___00Std_Sat_AIG_relabelNat___at___00Std_Sat_AIG_Entrypoint_relabelNat___at___00Std_Tactic_BVDecide_Reflect_verifyBVExpr_spec__0_spec__0_spec__1_spec__3___redArg(v_map_239_, v_a_237_);
-if (lean_obj_tag(v___x_243_) == 0)
+lean_object* v___x_244_; 
+v___x_244_ = l_Std_DHashMap_Internal_Raw_u2080_Const_get_x3f___at___00Std_Sat_AIG_relabelNat_x27___at___00Std_Sat_AIG_relabelNat___at___00Std_Sat_AIG_Entrypoint_relabelNat___at___00Std_Tactic_BVDecide_Reflect_verifyBVExpr_spec__0_spec__0_spec__1_spec__3___redArg(v_map_240_, v_a_238_);
+if (lean_obj_tag(v___x_244_) == 0)
 {
-lean_object* v___x_244_; lean_object* v___x_245_; lean_object* v___x_246_; lean_object* v___x_248_; 
-v___x_244_ = lean_unsigned_to_nat(1u);
-v___x_245_ = lean_nat_add(v_max_238_, v___x_244_);
-v___x_246_ = l_Std_DHashMap_Internal_Raw_u2080_insert___at___00Std_Sat_AIG_RelabelNat_State_addAtom___at___00Std_Sat_AIG_RelabelNat_State_ofAIGAux_go___at___00Std_Sat_AIG_RelabelNat_State_ofAIGAux___at___00Std_Sat_AIG_RelabelNat_State_ofAIG___at___00Std_Sat_AIG_relabelNat_x27___at___00Std_Sat_AIG_relabelNat___at___00Std_Sat_AIG_Entrypoint_relabelNat___at___00Std_Tactic_BVDecide_Reflect_verifyBVExpr_spec__0_spec__0_spec__1_spec__2_spec__3_spec__5_spec__9_spec__12___redArg(v_map_239_, v_a_237_, v_max_238_);
-if (v_isShared_242_ == 0)
+lean_object* v___x_245_; lean_object* v___x_246_; lean_object* v___x_247_; lean_object* v___x_249_; 
+v___x_245_ = lean_unsigned_to_nat(1u);
+v___x_246_ = lean_nat_add(v_max_239_, v___x_245_);
+v___x_247_ = l_Std_DHashMap_Internal_Raw_u2080_insert___at___00Std_Sat_AIG_RelabelNat_State_addAtom___at___00Std_Sat_AIG_RelabelNat_State_ofAIGAux_go___at___00Std_Sat_AIG_RelabelNat_State_ofAIGAux___at___00Std_Sat_AIG_RelabelNat_State_ofAIG___at___00Std_Sat_AIG_relabelNat_x27___at___00Std_Sat_AIG_relabelNat___at___00Std_Sat_AIG_Entrypoint_relabelNat___at___00Std_Tactic_BVDecide_Reflect_verifyBVExpr_spec__0_spec__0_spec__1_spec__2_spec__3_spec__5_spec__9_spec__12___redArg(v_map_240_, v_a_238_, v_max_239_);
+if (v_isShared_243_ == 0)
 {
-lean_ctor_set(v___x_241_, 1, v___x_246_);
-lean_ctor_set(v___x_241_, 0, v___x_245_);
-v___x_248_ = v___x_241_;
-goto v_reusejp_247_;
+lean_ctor_set(v___x_242_, 1, v___x_247_);
+lean_ctor_set(v___x_242_, 0, v___x_246_);
+v___x_249_ = v___x_242_;
+goto v_reusejp_248_;
 }
 else
 {
-lean_object* v_reuseFailAlloc_249_; 
-v_reuseFailAlloc_249_ = lean_alloc_ctor(0, 2, 0);
-lean_ctor_set(v_reuseFailAlloc_249_, 0, v___x_245_);
-lean_ctor_set(v_reuseFailAlloc_249_, 1, v___x_246_);
-v___x_248_ = v_reuseFailAlloc_249_;
-goto v_reusejp_247_;
+lean_object* v_reuseFailAlloc_250_; 
+v_reuseFailAlloc_250_ = lean_alloc_ctor(0, 2, 0);
+lean_ctor_set(v_reuseFailAlloc_250_, 0, v___x_246_);
+lean_ctor_set(v_reuseFailAlloc_250_, 1, v___x_247_);
+v___x_249_ = v_reuseFailAlloc_250_;
+goto v_reusejp_248_;
 }
-v_reusejp_247_:
+v_reusejp_248_:
 {
-return v___x_248_;
+return v___x_249_;
 }
 }
 else
 {
-lean_object* v___x_251_; 
-lean_dec_ref_known(v___x_243_, 1);
-lean_dec_ref(v_a_237_);
-if (v_isShared_242_ == 0)
+lean_object* v___x_252_; 
+lean_dec_ref_known(v___x_244_, 1);
+lean_dec_ref(v_a_238_);
+if (v_isShared_243_ == 0)
 {
-v___x_251_ = v___x_241_;
-goto v_reusejp_250_;
+v___x_252_ = v___x_242_;
+goto v_reusejp_251_;
 }
 else
 {
-lean_object* v_reuseFailAlloc_252_; 
-v_reuseFailAlloc_252_ = lean_alloc_ctor(0, 2, 0);
-lean_ctor_set(v_reuseFailAlloc_252_, 0, v_max_238_);
-lean_ctor_set(v_reuseFailAlloc_252_, 1, v_map_239_);
-v___x_251_ = v_reuseFailAlloc_252_;
-goto v_reusejp_250_;
+lean_object* v_reuseFailAlloc_253_; 
+v_reuseFailAlloc_253_ = lean_alloc_ctor(0, 2, 0);
+lean_ctor_set(v_reuseFailAlloc_253_, 0, v_max_239_);
+lean_ctor_set(v_reuseFailAlloc_253_, 1, v_map_240_);
+v___x_252_ = v_reuseFailAlloc_253_;
+goto v_reusejp_251_;
 }
-v_reusejp_250_:
+v_reusejp_251_:
 {
-return v___x_251_;
+return v___x_252_;
 }
 }
 }
 }
 }
-LEAN_EXPORT lean_object* l_Std_Sat_AIG_RelabelNat_State_addGate___at___00Std_Sat_AIG_RelabelNat_State_ofAIGAux_go___at___00Std_Sat_AIG_RelabelNat_State_ofAIGAux___at___00Std_Sat_AIG_RelabelNat_State_ofAIG___at___00Std_Sat_AIG_relabelNat_x27___at___00Std_Sat_AIG_relabelNat___at___00Std_Sat_AIG_Entrypoint_relabelNat___at___00Std_Tactic_BVDecide_Reflect_verifyBVExpr_spec__0_spec__0_spec__1_spec__2_spec__3_spec__5_spec__10___redArg(lean_object* v_state_254_){
+LEAN_EXPORT lean_object* l_Std_Sat_AIG_RelabelNat_State_addGate___at___00Std_Sat_AIG_RelabelNat_State_ofAIGAux_go___at___00Std_Sat_AIG_RelabelNat_State_ofAIGAux___at___00Std_Sat_AIG_RelabelNat_State_ofAIG___at___00Std_Sat_AIG_relabelNat_x27___at___00Std_Sat_AIG_relabelNat___at___00Std_Sat_AIG_Entrypoint_relabelNat___at___00Std_Tactic_BVDecide_Reflect_verifyBVExpr_spec__0_spec__0_spec__1_spec__2_spec__3_spec__5_spec__10___redArg(lean_object* v_state_255_){
 _start:
 {
-lean_object* v_max_255_; lean_object* v_map_256_; lean_object* v___x_258_; uint8_t v_isShared_259_; uint8_t v_isSharedCheck_263_; 
-v_max_255_ = lean_ctor_get(v_state_254_, 0);
-v_map_256_ = lean_ctor_get(v_state_254_, 1);
-v_isSharedCheck_263_ = !lean_is_exclusive(v_state_254_);
-if (v_isSharedCheck_263_ == 0)
+lean_object* v_max_256_; lean_object* v_map_257_; lean_object* v___x_259_; uint8_t v_isShared_260_; uint8_t v_isSharedCheck_264_; 
+v_max_256_ = lean_ctor_get(v_state_255_, 0);
+v_map_257_ = lean_ctor_get(v_state_255_, 1);
+v_isSharedCheck_264_ = !lean_is_exclusive(v_state_255_);
+if (v_isSharedCheck_264_ == 0)
 {
-v___x_258_ = v_state_254_;
-v_isShared_259_ = v_isSharedCheck_263_;
-goto v_resetjp_257_;
+v___x_259_ = v_state_255_;
+v_isShared_260_ = v_isSharedCheck_264_;
+goto v_resetjp_258_;
 }
 else
 {
-lean_inc(v_map_256_);
-lean_inc(v_max_255_);
-lean_dec(v_state_254_);
-v___x_258_ = lean_box(0);
-v_isShared_259_ = v_isSharedCheck_263_;
-goto v_resetjp_257_;
+lean_inc(v_map_257_);
+lean_inc(v_max_256_);
+lean_dec(v_state_255_);
+v___x_259_ = lean_box(0);
+v_isShared_260_ = v_isSharedCheck_264_;
+goto v_resetjp_258_;
 }
-v_resetjp_257_:
+v_resetjp_258_:
 {
-lean_object* v___x_261_; 
-if (v_isShared_259_ == 0)
+lean_object* v___x_262_; 
+if (v_isShared_260_ == 0)
 {
-v___x_261_ = v___x_258_;
-goto v_reusejp_260_;
+v___x_262_ = v___x_259_;
+goto v_reusejp_261_;
 }
 else
 {
-lean_object* v_reuseFailAlloc_262_; 
-v_reuseFailAlloc_262_ = lean_alloc_ctor(0, 2, 0);
-lean_ctor_set(v_reuseFailAlloc_262_, 0, v_max_255_);
-lean_ctor_set(v_reuseFailAlloc_262_, 1, v_map_256_);
-v___x_261_ = v_reuseFailAlloc_262_;
-goto v_reusejp_260_;
+lean_object* v_reuseFailAlloc_263_; 
+v_reuseFailAlloc_263_ = lean_alloc_ctor(0, 2, 0);
+lean_ctor_set(v_reuseFailAlloc_263_, 0, v_max_256_);
+lean_ctor_set(v_reuseFailAlloc_263_, 1, v_map_257_);
+v___x_262_ = v_reuseFailAlloc_263_;
+goto v_reusejp_261_;
 }
-v_reusejp_260_:
+v_reusejp_261_:
 {
-return v___x_261_;
+return v___x_262_;
 }
 }
 }
 }
-LEAN_EXPORT lean_object* l_Std_Sat_AIG_RelabelNat_State_ofAIGAux_go___at___00Std_Sat_AIG_RelabelNat_State_ofAIGAux___at___00Std_Sat_AIG_RelabelNat_State_ofAIG___at___00Std_Sat_AIG_relabelNat_x27___at___00Std_Sat_AIG_relabelNat___at___00Std_Sat_AIG_Entrypoint_relabelNat___at___00Std_Tactic_BVDecide_Reflect_verifyBVExpr_spec__0_spec__0_spec__1_spec__2_spec__3_spec__5(lean_object* v_decls_264_, lean_object* v_idx_265_, lean_object* v_state_266_){
+LEAN_EXPORT lean_object* l_Std_Sat_AIG_RelabelNat_State_ofAIGAux_go___at___00Std_Sat_AIG_RelabelNat_State_ofAIGAux___at___00Std_Sat_AIG_RelabelNat_State_ofAIG___at___00Std_Sat_AIG_relabelNat_x27___at___00Std_Sat_AIG_relabelNat___at___00Std_Sat_AIG_Entrypoint_relabelNat___at___00Std_Tactic_BVDecide_Reflect_verifyBVExpr_spec__0_spec__0_spec__1_spec__2_spec__3_spec__5(lean_object* v_decls_265_, lean_object* v_idx_266_, lean_object* v_state_267_){
 _start:
 {
-lean_object* v___x_267_; uint8_t v___x_268_; 
-v___x_267_ = lean_array_get_size(v_decls_264_);
-v___x_268_ = lean_nat_dec_lt(v_idx_265_, v___x_267_);
-if (v___x_268_ == 0)
+lean_object* v___x_268_; uint8_t v___x_269_; 
+v___x_268_ = lean_array_get_size(v_decls_265_);
+v___x_269_ = lean_nat_dec_lt(v_idx_266_, v___x_268_);
+if (v___x_269_ == 0)
 {
-lean_dec(v_idx_265_);
-return v_state_266_;
+lean_dec(v_idx_266_);
+return v_state_267_;
 }
 else
 {
-lean_object* v_decl_269_; 
-v_decl_269_ = lean_array_fget_borrowed(v_decls_264_, v_idx_265_);
-switch(lean_obj_tag(v_decl_269_))
+lean_object* v_decl_270_; 
+v_decl_270_ = lean_array_fget_borrowed(v_decls_265_, v_idx_266_);
+switch(lean_obj_tag(v_decl_270_))
 {
 case 0:
 {
-lean_object* v___x_270_; lean_object* v___x_271_; lean_object* v___x_272_; 
-v___x_270_ = lean_unsigned_to_nat(1u);
-v___x_271_ = lean_nat_add(v_idx_265_, v___x_270_);
-lean_dec(v_idx_265_);
-v___x_272_ = l_Std_Sat_AIG_RelabelNat_State_addFalse___at___00Std_Sat_AIG_RelabelNat_State_ofAIGAux_go___at___00Std_Sat_AIG_RelabelNat_State_ofAIGAux___at___00Std_Sat_AIG_RelabelNat_State_ofAIG___at___00Std_Sat_AIG_relabelNat_x27___at___00Std_Sat_AIG_relabelNat___at___00Std_Sat_AIG_Entrypoint_relabelNat___at___00Std_Tactic_BVDecide_Reflect_verifyBVExpr_spec__0_spec__0_spec__1_spec__2_spec__3_spec__5_spec__8___redArg(v_state_266_);
-v_idx_265_ = v___x_271_;
-v_state_266_ = v___x_272_;
+lean_object* v___x_271_; lean_object* v___x_272_; lean_object* v___x_273_; 
+v___x_271_ = lean_unsigned_to_nat(1u);
+v___x_272_ = lean_nat_add(v_idx_266_, v___x_271_);
+lean_dec(v_idx_266_);
+v___x_273_ = l_Std_Sat_AIG_RelabelNat_State_addFalse___at___00Std_Sat_AIG_RelabelNat_State_ofAIGAux_go___at___00Std_Sat_AIG_RelabelNat_State_ofAIGAux___at___00Std_Sat_AIG_RelabelNat_State_ofAIG___at___00Std_Sat_AIG_relabelNat_x27___at___00Std_Sat_AIG_relabelNat___at___00Std_Sat_AIG_Entrypoint_relabelNat___at___00Std_Tactic_BVDecide_Reflect_verifyBVExpr_spec__0_spec__0_spec__1_spec__2_spec__3_spec__5_spec__8___redArg(v_state_267_);
+v_idx_266_ = v___x_272_;
+v_state_267_ = v___x_273_;
 goto _start;
 }
 case 1:
 {
-lean_object* v_idx_274_; lean_object* v___x_275_; lean_object* v___x_276_; lean_object* v___x_277_; 
-v_idx_274_ = lean_ctor_get(v_decl_269_, 0);
-v___x_275_ = lean_unsigned_to_nat(1u);
-v___x_276_ = lean_nat_add(v_idx_265_, v___x_275_);
-lean_dec(v_idx_265_);
-lean_inc(v_idx_274_);
-v___x_277_ = l_Std_Sat_AIG_RelabelNat_State_addAtom___at___00Std_Sat_AIG_RelabelNat_State_ofAIGAux_go___at___00Std_Sat_AIG_RelabelNat_State_ofAIGAux___at___00Std_Sat_AIG_RelabelNat_State_ofAIG___at___00Std_Sat_AIG_relabelNat_x27___at___00Std_Sat_AIG_relabelNat___at___00Std_Sat_AIG_Entrypoint_relabelNat___at___00Std_Tactic_BVDecide_Reflect_verifyBVExpr_spec__0_spec__0_spec__1_spec__2_spec__3_spec__5_spec__9___redArg(v_state_266_, v_idx_274_);
-v_idx_265_ = v___x_276_;
-v_state_266_ = v___x_277_;
+lean_object* v_idx_275_; lean_object* v___x_276_; lean_object* v___x_277_; lean_object* v___x_278_; 
+v_idx_275_ = lean_ctor_get(v_decl_270_, 0);
+v___x_276_ = lean_unsigned_to_nat(1u);
+v___x_277_ = lean_nat_add(v_idx_266_, v___x_276_);
+lean_dec(v_idx_266_);
+lean_inc(v_idx_275_);
+v___x_278_ = l_Std_Sat_AIG_RelabelNat_State_addAtom___at___00Std_Sat_AIG_RelabelNat_State_ofAIGAux_go___at___00Std_Sat_AIG_RelabelNat_State_ofAIGAux___at___00Std_Sat_AIG_RelabelNat_State_ofAIG___at___00Std_Sat_AIG_relabelNat_x27___at___00Std_Sat_AIG_relabelNat___at___00Std_Sat_AIG_Entrypoint_relabelNat___at___00Std_Tactic_BVDecide_Reflect_verifyBVExpr_spec__0_spec__0_spec__1_spec__2_spec__3_spec__5_spec__9___redArg(v_state_267_, v_idx_275_);
+v_idx_266_ = v___x_277_;
+v_state_267_ = v___x_278_;
 goto _start;
 }
 default: 
 {
-lean_object* v___x_279_; lean_object* v___x_280_; lean_object* v___x_281_; 
-v___x_279_ = lean_unsigned_to_nat(1u);
-v___x_280_ = lean_nat_add(v_idx_265_, v___x_279_);
-lean_dec(v_idx_265_);
-v___x_281_ = l_Std_Sat_AIG_RelabelNat_State_addGate___at___00Std_Sat_AIG_RelabelNat_State_ofAIGAux_go___at___00Std_Sat_AIG_RelabelNat_State_ofAIGAux___at___00Std_Sat_AIG_RelabelNat_State_ofAIG___at___00Std_Sat_AIG_relabelNat_x27___at___00Std_Sat_AIG_relabelNat___at___00Std_Sat_AIG_Entrypoint_relabelNat___at___00Std_Tactic_BVDecide_Reflect_verifyBVExpr_spec__0_spec__0_spec__1_spec__2_spec__3_spec__5_spec__10___redArg(v_state_266_);
-v_idx_265_ = v___x_280_;
-v_state_266_ = v___x_281_;
+lean_object* v___x_280_; lean_object* v___x_281_; lean_object* v___x_282_; 
+v___x_280_ = lean_unsigned_to_nat(1u);
+v___x_281_ = lean_nat_add(v_idx_266_, v___x_280_);
+lean_dec(v_idx_266_);
+v___x_282_ = l_Std_Sat_AIG_RelabelNat_State_addGate___at___00Std_Sat_AIG_RelabelNat_State_ofAIGAux_go___at___00Std_Sat_AIG_RelabelNat_State_ofAIGAux___at___00Std_Sat_AIG_RelabelNat_State_ofAIG___at___00Std_Sat_AIG_relabelNat_x27___at___00Std_Sat_AIG_relabelNat___at___00Std_Sat_AIG_Entrypoint_relabelNat___at___00Std_Tactic_BVDecide_Reflect_verifyBVExpr_spec__0_spec__0_spec__1_spec__2_spec__3_spec__5_spec__10___redArg(v_state_267_);
+v_idx_266_ = v___x_281_;
+v_state_267_ = v___x_282_;
 goto _start;
 }
 }
 }
 }
 }
-LEAN_EXPORT lean_object* l_Std_Sat_AIG_RelabelNat_State_ofAIGAux_go___at___00Std_Sat_AIG_RelabelNat_State_ofAIGAux___at___00Std_Sat_AIG_RelabelNat_State_ofAIG___at___00Std_Sat_AIG_relabelNat_x27___at___00Std_Sat_AIG_relabelNat___at___00Std_Sat_AIG_Entrypoint_relabelNat___at___00Std_Tactic_BVDecide_Reflect_verifyBVExpr_spec__0_spec__0_spec__1_spec__2_spec__3_spec__5___boxed(lean_object* v_decls_283_, lean_object* v_idx_284_, lean_object* v_state_285_){
+LEAN_EXPORT lean_object* l_Std_Sat_AIG_RelabelNat_State_ofAIGAux_go___at___00Std_Sat_AIG_RelabelNat_State_ofAIGAux___at___00Std_Sat_AIG_RelabelNat_State_ofAIG___at___00Std_Sat_AIG_relabelNat_x27___at___00Std_Sat_AIG_relabelNat___at___00Std_Sat_AIG_Entrypoint_relabelNat___at___00Std_Tactic_BVDecide_Reflect_verifyBVExpr_spec__0_spec__0_spec__1_spec__2_spec__3_spec__5___boxed(lean_object* v_decls_284_, lean_object* v_idx_285_, lean_object* v_state_286_){
 _start:
 {
-lean_object* v_res_286_; 
-v_res_286_ = l_Std_Sat_AIG_RelabelNat_State_ofAIGAux_go___at___00Std_Sat_AIG_RelabelNat_State_ofAIGAux___at___00Std_Sat_AIG_RelabelNat_State_ofAIG___at___00Std_Sat_AIG_relabelNat_x27___at___00Std_Sat_AIG_relabelNat___at___00Std_Sat_AIG_Entrypoint_relabelNat___at___00Std_Tactic_BVDecide_Reflect_verifyBVExpr_spec__0_spec__0_spec__1_spec__2_spec__3_spec__5(v_decls_283_, v_idx_284_, v_state_285_);
-lean_dec_ref(v_decls_283_);
-return v_res_286_;
+lean_object* v_res_287_; 
+v_res_287_ = l_Std_Sat_AIG_RelabelNat_State_ofAIGAux_go___at___00Std_Sat_AIG_RelabelNat_State_ofAIGAux___at___00Std_Sat_AIG_RelabelNat_State_ofAIG___at___00Std_Sat_AIG_relabelNat_x27___at___00Std_Sat_AIG_relabelNat___at___00Std_Sat_AIG_Entrypoint_relabelNat___at___00Std_Tactic_BVDecide_Reflect_verifyBVExpr_spec__0_spec__0_spec__1_spec__2_spec__3_spec__5(v_decls_284_, v_idx_285_, v_state_286_);
+lean_dec_ref(v_decls_284_);
+return v_res_287_;
 }
 }
 static lean_object* _init_l_Std_Sat_AIG_RelabelNat_State_empty___at___00Std_Sat_AIG_RelabelNat_State_ofAIGAux___at___00Std_Sat_AIG_RelabelNat_State_ofAIG___at___00Std_Sat_AIG_relabelNat_x27___at___00Std_Sat_AIG_relabelNat___at___00Std_Sat_AIG_Entrypoint_relabelNat___at___00Std_Tactic_BVDecide_Reflect_verifyBVExpr_spec__0_spec__0_spec__1_spec__2_spec__3_spec__4___closed__0(void){
 _start:
 {
-lean_object* v___x_287_; lean_object* v___x_288_; lean_object* v___x_289_; 
-v___x_287_ = lean_box(0);
-v___x_288_ = lean_unsigned_to_nat(16u);
-v___x_289_ = lean_mk_array(v___x_288_, v___x_287_);
-return v___x_289_;
+lean_object* v___x_288_; lean_object* v___x_289_; lean_object* v___x_290_; 
+v___x_288_ = lean_box(0);
+v___x_289_ = lean_unsigned_to_nat(16u);
+v___x_290_ = lean_mk_array(v___x_289_, v___x_288_);
+return v___x_290_;
 }
 }
 static lean_object* _init_l_Std_Sat_AIG_RelabelNat_State_empty___at___00Std_Sat_AIG_RelabelNat_State_ofAIGAux___at___00Std_Sat_AIG_RelabelNat_State_ofAIG___at___00Std_Sat_AIG_relabelNat_x27___at___00Std_Sat_AIG_relabelNat___at___00Std_Sat_AIG_Entrypoint_relabelNat___at___00Std_Tactic_BVDecide_Reflect_verifyBVExpr_spec__0_spec__0_spec__1_spec__2_spec__3_spec__4___closed__1(void){
 _start:
 {
-lean_object* v___x_290_; lean_object* v___x_291_; lean_object* v___x_292_; 
-v___x_290_ = lean_obj_once(&l_Std_Sat_AIG_RelabelNat_State_empty___at___00Std_Sat_AIG_RelabelNat_State_ofAIGAux___at___00Std_Sat_AIG_RelabelNat_State_ofAIG___at___00Std_Sat_AIG_relabelNat_x27___at___00Std_Sat_AIG_relabelNat___at___00Std_Sat_AIG_Entrypoint_relabelNat___at___00Std_Tactic_BVDecide_Reflect_verifyBVExpr_spec__0_spec__0_spec__1_spec__2_spec__3_spec__4___closed__0, &l_Std_Sat_AIG_RelabelNat_State_empty___at___00Std_Sat_AIG_RelabelNat_State_ofAIGAux___at___00Std_Sat_AIG_RelabelNat_State_ofAIG___at___00Std_Sat_AIG_relabelNat_x27___at___00Std_Sat_AIG_relabelNat___at___00Std_Sat_AIG_Entrypoint_relabelNat___at___00Std_Tactic_BVDecide_Reflect_verifyBVExpr_spec__0_spec__0_spec__1_spec__2_spec__3_spec__4___closed__0_once, _init_l_Std_Sat_AIG_RelabelNat_State_empty___at___00Std_Sat_AIG_RelabelNat_State_ofAIGAux___at___00Std_Sat_AIG_RelabelNat_State_ofAIG___at___00Std_Sat_AIG_relabelNat_x27___at___00Std_Sat_AIG_relabelNat___at___00Std_Sat_AIG_Entrypoint_relabelNat___at___00Std_Tactic_BVDecide_Reflect_verifyBVExpr_spec__0_spec__0_spec__1_spec__2_spec__3_spec__4___closed__0);
-v___x_291_ = lean_unsigned_to_nat(0u);
-v___x_292_ = lean_alloc_ctor(0, 2, 0);
-lean_ctor_set(v___x_292_, 0, v___x_291_);
-lean_ctor_set(v___x_292_, 1, v___x_290_);
-return v___x_292_;
+lean_object* v___x_291_; lean_object* v___x_292_; lean_object* v___x_293_; 
+v___x_291_ = lean_obj_once(&l_Std_Sat_AIG_RelabelNat_State_empty___at___00Std_Sat_AIG_RelabelNat_State_ofAIGAux___at___00Std_Sat_AIG_RelabelNat_State_ofAIG___at___00Std_Sat_AIG_relabelNat_x27___at___00Std_Sat_AIG_relabelNat___at___00Std_Sat_AIG_Entrypoint_relabelNat___at___00Std_Tactic_BVDecide_Reflect_verifyBVExpr_spec__0_spec__0_spec__1_spec__2_spec__3_spec__4___closed__0, &l_Std_Sat_AIG_RelabelNat_State_empty___at___00Std_Sat_AIG_RelabelNat_State_ofAIGAux___at___00Std_Sat_AIG_RelabelNat_State_ofAIG___at___00Std_Sat_AIG_relabelNat_x27___at___00Std_Sat_AIG_relabelNat___at___00Std_Sat_AIG_Entrypoint_relabelNat___at___00Std_Tactic_BVDecide_Reflect_verifyBVExpr_spec__0_spec__0_spec__1_spec__2_spec__3_spec__4___closed__0_once, _init_l_Std_Sat_AIG_RelabelNat_State_empty___at___00Std_Sat_AIG_RelabelNat_State_ofAIGAux___at___00Std_Sat_AIG_RelabelNat_State_ofAIG___at___00Std_Sat_AIG_relabelNat_x27___at___00Std_Sat_AIG_relabelNat___at___00Std_Sat_AIG_Entrypoint_relabelNat___at___00Std_Tactic_BVDecide_Reflect_verifyBVExpr_spec__0_spec__0_spec__1_spec__2_spec__3_spec__4___closed__0);
+v___x_292_ = lean_unsigned_to_nat(0u);
+v___x_293_ = lean_alloc_ctor(0, 2, 0);
+lean_ctor_set(v___x_293_, 0, v___x_292_);
+lean_ctor_set(v___x_293_, 1, v___x_291_);
+return v___x_293_;
 }
 }
 static lean_object* _init_l_Std_Sat_AIG_RelabelNat_State_empty___at___00Std_Sat_AIG_RelabelNat_State_ofAIGAux___at___00Std_Sat_AIG_RelabelNat_State_ofAIG___at___00Std_Sat_AIG_relabelNat_x27___at___00Std_Sat_AIG_relabelNat___at___00Std_Sat_AIG_Entrypoint_relabelNat___at___00Std_Tactic_BVDecide_Reflect_verifyBVExpr_spec__0_spec__0_spec__1_spec__2_spec__3_spec__4___closed__2(void){
 _start:
 {
-lean_object* v___x_293_; lean_object* v___x_294_; lean_object* v___x_295_; 
-v___x_293_ = lean_obj_once(&l_Std_Sat_AIG_RelabelNat_State_empty___at___00Std_Sat_AIG_RelabelNat_State_ofAIGAux___at___00Std_Sat_AIG_RelabelNat_State_ofAIG___at___00Std_Sat_AIG_relabelNat_x27___at___00Std_Sat_AIG_relabelNat___at___00Std_Sat_AIG_Entrypoint_relabelNat___at___00Std_Tactic_BVDecide_Reflect_verifyBVExpr_spec__0_spec__0_spec__1_spec__2_spec__3_spec__4___closed__1, &l_Std_Sat_AIG_RelabelNat_State_empty___at___00Std_Sat_AIG_RelabelNat_State_ofAIGAux___at___00Std_Sat_AIG_RelabelNat_State_ofAIG___at___00Std_Sat_AIG_relabelNat_x27___at___00Std_Sat_AIG_relabelNat___at___00Std_Sat_AIG_Entrypoint_relabelNat___at___00Std_Tactic_BVDecide_Reflect_verifyBVExpr_spec__0_spec__0_spec__1_spec__2_spec__3_spec__4___closed__1_once, _init_l_Std_Sat_AIG_RelabelNat_State_empty___at___00Std_Sat_AIG_RelabelNat_State_ofAIGAux___at___00Std_Sat_AIG_RelabelNat_State_ofAIG___at___00Std_Sat_AIG_relabelNat_x27___at___00Std_Sat_AIG_relabelNat___at___00Std_Sat_AIG_Entrypoint_relabelNat___at___00Std_Tactic_BVDecide_Reflect_verifyBVExpr_spec__0_spec__0_spec__1_spec__2_spec__3_spec__4___closed__1);
-v___x_294_ = lean_unsigned_to_nat(0u);
-v___x_295_ = lean_alloc_ctor(0, 2, 0);
-lean_ctor_set(v___x_295_, 0, v___x_294_);
-lean_ctor_set(v___x_295_, 1, v___x_293_);
-return v___x_295_;
+lean_object* v___x_294_; lean_object* v___x_295_; lean_object* v___x_296_; 
+v___x_294_ = lean_obj_once(&l_Std_Sat_AIG_RelabelNat_State_empty___at___00Std_Sat_AIG_RelabelNat_State_ofAIGAux___at___00Std_Sat_AIG_RelabelNat_State_ofAIG___at___00Std_Sat_AIG_relabelNat_x27___at___00Std_Sat_AIG_relabelNat___at___00Std_Sat_AIG_Entrypoint_relabelNat___at___00Std_Tactic_BVDecide_Reflect_verifyBVExpr_spec__0_spec__0_spec__1_spec__2_spec__3_spec__4___closed__1, &l_Std_Sat_AIG_RelabelNat_State_empty___at___00Std_Sat_AIG_RelabelNat_State_ofAIGAux___at___00Std_Sat_AIG_RelabelNat_State_ofAIG___at___00Std_Sat_AIG_relabelNat_x27___at___00Std_Sat_AIG_relabelNat___at___00Std_Sat_AIG_Entrypoint_relabelNat___at___00Std_Tactic_BVDecide_Reflect_verifyBVExpr_spec__0_spec__0_spec__1_spec__2_spec__3_spec__4___closed__1_once, _init_l_Std_Sat_AIG_RelabelNat_State_empty___at___00Std_Sat_AIG_RelabelNat_State_ofAIGAux___at___00Std_Sat_AIG_RelabelNat_State_ofAIG___at___00Std_Sat_AIG_relabelNat_x27___at___00Std_Sat_AIG_relabelNat___at___00Std_Sat_AIG_Entrypoint_relabelNat___at___00Std_Tactic_BVDecide_Reflect_verifyBVExpr_spec__0_spec__0_spec__1_spec__2_spec__3_spec__4___closed__1);
+v___x_295_ = lean_unsigned_to_nat(0u);
+v___x_296_ = lean_alloc_ctor(0, 2, 0);
+lean_ctor_set(v___x_296_, 0, v___x_295_);
+lean_ctor_set(v___x_296_, 1, v___x_294_);
+return v___x_296_;
 }
 }
-LEAN_EXPORT lean_object* l_Std_Sat_AIG_RelabelNat_State_empty___at___00Std_Sat_AIG_RelabelNat_State_ofAIGAux___at___00Std_Sat_AIG_RelabelNat_State_ofAIG___at___00Std_Sat_AIG_relabelNat_x27___at___00Std_Sat_AIG_relabelNat___at___00Std_Sat_AIG_Entrypoint_relabelNat___at___00Std_Tactic_BVDecide_Reflect_verifyBVExpr_spec__0_spec__0_spec__1_spec__2_spec__3_spec__4(lean_object* v_decls_296_){
+LEAN_EXPORT lean_object* l_Std_Sat_AIG_RelabelNat_State_empty___at___00Std_Sat_AIG_RelabelNat_State_ofAIGAux___at___00Std_Sat_AIG_RelabelNat_State_ofAIG___at___00Std_Sat_AIG_relabelNat_x27___at___00Std_Sat_AIG_relabelNat___at___00Std_Sat_AIG_Entrypoint_relabelNat___at___00Std_Tactic_BVDecide_Reflect_verifyBVExpr_spec__0_spec__0_spec__1_spec__2_spec__3_spec__4(lean_object* v_decls_297_){
 _start:
 {
-lean_object* v___x_297_; 
-v___x_297_ = lean_obj_once(&l_Std_Sat_AIG_RelabelNat_State_empty___at___00Std_Sat_AIG_RelabelNat_State_ofAIGAux___at___00Std_Sat_AIG_RelabelNat_State_ofAIG___at___00Std_Sat_AIG_relabelNat_x27___at___00Std_Sat_AIG_relabelNat___at___00Std_Sat_AIG_Entrypoint_relabelNat___at___00Std_Tactic_BVDecide_Reflect_verifyBVExpr_spec__0_spec__0_spec__1_spec__2_spec__3_spec__4___closed__2, &l_Std_Sat_AIG_RelabelNat_State_empty___at___00Std_Sat_AIG_RelabelNat_State_ofAIGAux___at___00Std_Sat_AIG_RelabelNat_State_ofAIG___at___00Std_Sat_AIG_relabelNat_x27___at___00Std_Sat_AIG_relabelNat___at___00Std_Sat_AIG_Entrypoint_relabelNat___at___00Std_Tactic_BVDecide_Reflect_verifyBVExpr_spec__0_spec__0_spec__1_spec__2_spec__3_spec__4___closed__2_once, _init_l_Std_Sat_AIG_RelabelNat_State_empty___at___00Std_Sat_AIG_RelabelNat_State_ofAIGAux___at___00Std_Sat_AIG_RelabelNat_State_ofAIG___at___00Std_Sat_AIG_relabelNat_x27___at___00Std_Sat_AIG_relabelNat___at___00Std_Sat_AIG_Entrypoint_relabelNat___at___00Std_Tactic_BVDecide_Reflect_verifyBVExpr_spec__0_spec__0_spec__1_spec__2_spec__3_spec__4___closed__2);
-return v___x_297_;
+lean_object* v___x_298_; 
+v___x_298_ = lean_obj_once(&l_Std_Sat_AIG_RelabelNat_State_empty___at___00Std_Sat_AIG_RelabelNat_State_ofAIGAux___at___00Std_Sat_AIG_RelabelNat_State_ofAIG___at___00Std_Sat_AIG_relabelNat_x27___at___00Std_Sat_AIG_relabelNat___at___00Std_Sat_AIG_Entrypoint_relabelNat___at___00Std_Tactic_BVDecide_Reflect_verifyBVExpr_spec__0_spec__0_spec__1_spec__2_spec__3_spec__4___closed__2, &l_Std_Sat_AIG_RelabelNat_State_empty___at___00Std_Sat_AIG_RelabelNat_State_ofAIGAux___at___00Std_Sat_AIG_RelabelNat_State_ofAIG___at___00Std_Sat_AIG_relabelNat_x27___at___00Std_Sat_AIG_relabelNat___at___00Std_Sat_AIG_Entrypoint_relabelNat___at___00Std_Tactic_BVDecide_Reflect_verifyBVExpr_spec__0_spec__0_spec__1_spec__2_spec__3_spec__4___closed__2_once, _init_l_Std_Sat_AIG_RelabelNat_State_empty___at___00Std_Sat_AIG_RelabelNat_State_ofAIGAux___at___00Std_Sat_AIG_RelabelNat_State_ofAIG___at___00Std_Sat_AIG_relabelNat_x27___at___00Std_Sat_AIG_relabelNat___at___00Std_Sat_AIG_Entrypoint_relabelNat___at___00Std_Tactic_BVDecide_Reflect_verifyBVExpr_spec__0_spec__0_spec__1_spec__2_spec__3_spec__4___closed__2);
+return v___x_298_;
 }
 }
-LEAN_EXPORT lean_object* l_Std_Sat_AIG_RelabelNat_State_empty___at___00Std_Sat_AIG_RelabelNat_State_ofAIGAux___at___00Std_Sat_AIG_RelabelNat_State_ofAIG___at___00Std_Sat_AIG_relabelNat_x27___at___00Std_Sat_AIG_relabelNat___at___00Std_Sat_AIG_Entrypoint_relabelNat___at___00Std_Tactic_BVDecide_Reflect_verifyBVExpr_spec__0_spec__0_spec__1_spec__2_spec__3_spec__4___boxed(lean_object* v_decls_298_){
+LEAN_EXPORT lean_object* l_Std_Sat_AIG_RelabelNat_State_empty___at___00Std_Sat_AIG_RelabelNat_State_ofAIGAux___at___00Std_Sat_AIG_RelabelNat_State_ofAIG___at___00Std_Sat_AIG_relabelNat_x27___at___00Std_Sat_AIG_relabelNat___at___00Std_Sat_AIG_Entrypoint_relabelNat___at___00Std_Tactic_BVDecide_Reflect_verifyBVExpr_spec__0_spec__0_spec__1_spec__2_spec__3_spec__4___boxed(lean_object* v_decls_299_){
 _start:
 {
-lean_object* v_res_299_; 
-v_res_299_ = l_Std_Sat_AIG_RelabelNat_State_empty___at___00Std_Sat_AIG_RelabelNat_State_ofAIGAux___at___00Std_Sat_AIG_RelabelNat_State_ofAIG___at___00Std_Sat_AIG_relabelNat_x27___at___00Std_Sat_AIG_relabelNat___at___00Std_Sat_AIG_Entrypoint_relabelNat___at___00Std_Tactic_BVDecide_Reflect_verifyBVExpr_spec__0_spec__0_spec__1_spec__2_spec__3_spec__4(v_decls_298_);
-lean_dec_ref(v_decls_298_);
-return v_res_299_;
+lean_object* v_res_300_; 
+v_res_300_ = l_Std_Sat_AIG_RelabelNat_State_empty___at___00Std_Sat_AIG_RelabelNat_State_ofAIGAux___at___00Std_Sat_AIG_RelabelNat_State_ofAIG___at___00Std_Sat_AIG_relabelNat_x27___at___00Std_Sat_AIG_relabelNat___at___00Std_Sat_AIG_Entrypoint_relabelNat___at___00Std_Tactic_BVDecide_Reflect_verifyBVExpr_spec__0_spec__0_spec__1_spec__2_spec__3_spec__4(v_decls_299_);
+lean_dec_ref(v_decls_299_);
+return v_res_300_;
 }
 }
-LEAN_EXPORT lean_object* l_Std_Sat_AIG_RelabelNat_State_ofAIGAux___at___00Std_Sat_AIG_RelabelNat_State_ofAIG___at___00Std_Sat_AIG_relabelNat_x27___at___00Std_Sat_AIG_relabelNat___at___00Std_Sat_AIG_Entrypoint_relabelNat___at___00Std_Tactic_BVDecide_Reflect_verifyBVExpr_spec__0_spec__0_spec__1_spec__2_spec__3(lean_object* v_aig_300_){
+LEAN_EXPORT lean_object* l_Std_Sat_AIG_RelabelNat_State_ofAIGAux___at___00Std_Sat_AIG_RelabelNat_State_ofAIG___at___00Std_Sat_AIG_relabelNat_x27___at___00Std_Sat_AIG_relabelNat___at___00Std_Sat_AIG_Entrypoint_relabelNat___at___00Std_Tactic_BVDecide_Reflect_verifyBVExpr_spec__0_spec__0_spec__1_spec__2_spec__3(lean_object* v_aig_301_){
 _start:
 {
-lean_object* v_decls_301_; lean_object* v___x_302_; lean_object* v___x_303_; lean_object* v___x_304_; 
-v_decls_301_ = lean_ctor_get(v_aig_300_, 0);
-v___x_302_ = lean_unsigned_to_nat(0u);
-v___x_303_ = l_Std_Sat_AIG_RelabelNat_State_empty___at___00Std_Sat_AIG_RelabelNat_State_ofAIGAux___at___00Std_Sat_AIG_RelabelNat_State_ofAIG___at___00Std_Sat_AIG_relabelNat_x27___at___00Std_Sat_AIG_relabelNat___at___00Std_Sat_AIG_Entrypoint_relabelNat___at___00Std_Tactic_BVDecide_Reflect_verifyBVExpr_spec__0_spec__0_spec__1_spec__2_spec__3_spec__4(v_decls_301_);
-v___x_304_ = l_Std_Sat_AIG_RelabelNat_State_ofAIGAux_go___at___00Std_Sat_AIG_RelabelNat_State_ofAIGAux___at___00Std_Sat_AIG_RelabelNat_State_ofAIG___at___00Std_Sat_AIG_relabelNat_x27___at___00Std_Sat_AIG_relabelNat___at___00Std_Sat_AIG_Entrypoint_relabelNat___at___00Std_Tactic_BVDecide_Reflect_verifyBVExpr_spec__0_spec__0_spec__1_spec__2_spec__3_spec__5(v_decls_301_, v___x_302_, v___x_303_);
-return v___x_304_;
+lean_object* v_decls_302_; lean_object* v___x_303_; lean_object* v___x_304_; lean_object* v___x_305_; 
+v_decls_302_ = lean_ctor_get(v_aig_301_, 0);
+v___x_303_ = lean_unsigned_to_nat(0u);
+v___x_304_ = l_Std_Sat_AIG_RelabelNat_State_empty___at___00Std_Sat_AIG_RelabelNat_State_ofAIGAux___at___00Std_Sat_AIG_RelabelNat_State_ofAIG___at___00Std_Sat_AIG_relabelNat_x27___at___00Std_Sat_AIG_relabelNat___at___00Std_Sat_AIG_Entrypoint_relabelNat___at___00Std_Tactic_BVDecide_Reflect_verifyBVExpr_spec__0_spec__0_spec__1_spec__2_spec__3_spec__4(v_decls_302_);
+v___x_305_ = l_Std_Sat_AIG_RelabelNat_State_ofAIGAux_go___at___00Std_Sat_AIG_RelabelNat_State_ofAIGAux___at___00Std_Sat_AIG_RelabelNat_State_ofAIG___at___00Std_Sat_AIG_relabelNat_x27___at___00Std_Sat_AIG_relabelNat___at___00Std_Sat_AIG_Entrypoint_relabelNat___at___00Std_Tactic_BVDecide_Reflect_verifyBVExpr_spec__0_spec__0_spec__1_spec__2_spec__3_spec__5(v_decls_302_, v___x_303_, v___x_304_);
+return v___x_305_;
 }
 }
-LEAN_EXPORT lean_object* l_Std_Sat_AIG_RelabelNat_State_ofAIGAux___at___00Std_Sat_AIG_RelabelNat_State_ofAIG___at___00Std_Sat_AIG_relabelNat_x27___at___00Std_Sat_AIG_relabelNat___at___00Std_Sat_AIG_Entrypoint_relabelNat___at___00Std_Tactic_BVDecide_Reflect_verifyBVExpr_spec__0_spec__0_spec__1_spec__2_spec__3___boxed(lean_object* v_aig_305_){
+LEAN_EXPORT lean_object* l_Std_Sat_AIG_RelabelNat_State_ofAIGAux___at___00Std_Sat_AIG_RelabelNat_State_ofAIG___at___00Std_Sat_AIG_relabelNat_x27___at___00Std_Sat_AIG_relabelNat___at___00Std_Sat_AIG_Entrypoint_relabelNat___at___00Std_Tactic_BVDecide_Reflect_verifyBVExpr_spec__0_spec__0_spec__1_spec__2_spec__3___boxed(lean_object* v_aig_306_){
 _start:
 {
-lean_object* v_res_306_; 
-v_res_306_ = l_Std_Sat_AIG_RelabelNat_State_ofAIGAux___at___00Std_Sat_AIG_RelabelNat_State_ofAIG___at___00Std_Sat_AIG_relabelNat_x27___at___00Std_Sat_AIG_relabelNat___at___00Std_Sat_AIG_Entrypoint_relabelNat___at___00Std_Tactic_BVDecide_Reflect_verifyBVExpr_spec__0_spec__0_spec__1_spec__2_spec__3(v_aig_305_);
-lean_dec_ref(v_aig_305_);
-return v_res_306_;
+lean_object* v_res_307_; 
+v_res_307_ = l_Std_Sat_AIG_RelabelNat_State_ofAIGAux___at___00Std_Sat_AIG_RelabelNat_State_ofAIG___at___00Std_Sat_AIG_relabelNat_x27___at___00Std_Sat_AIG_relabelNat___at___00Std_Sat_AIG_Entrypoint_relabelNat___at___00Std_Tactic_BVDecide_Reflect_verifyBVExpr_spec__0_spec__0_spec__1_spec__2_spec__3(v_aig_306_);
+lean_dec_ref(v_aig_306_);
+return v_res_307_;
 }
 }
-LEAN_EXPORT lean_object* l_Std_Sat_AIG_RelabelNat_State_ofAIG___at___00Std_Sat_AIG_relabelNat_x27___at___00Std_Sat_AIG_relabelNat___at___00Std_Sat_AIG_Entrypoint_relabelNat___at___00Std_Tactic_BVDecide_Reflect_verifyBVExpr_spec__0_spec__0_spec__1_spec__2(lean_object* v_aig_307_){
+LEAN_EXPORT lean_object* l_Std_Sat_AIG_RelabelNat_State_ofAIG___at___00Std_Sat_AIG_relabelNat_x27___at___00Std_Sat_AIG_relabelNat___at___00Std_Sat_AIG_Entrypoint_relabelNat___at___00Std_Tactic_BVDecide_Reflect_verifyBVExpr_spec__0_spec__0_spec__1_spec__2(lean_object* v_aig_308_){
 _start:
 {
-lean_object* v___x_308_; lean_object* v_map_309_; 
-v___x_308_ = l_Std_Sat_AIG_RelabelNat_State_ofAIGAux___at___00Std_Sat_AIG_RelabelNat_State_ofAIG___at___00Std_Sat_AIG_relabelNat_x27___at___00Std_Sat_AIG_relabelNat___at___00Std_Sat_AIG_Entrypoint_relabelNat___at___00Std_Tactic_BVDecide_Reflect_verifyBVExpr_spec__0_spec__0_spec__1_spec__2_spec__3(v_aig_307_);
-v_map_309_ = lean_ctor_get(v___x_308_, 1);
-lean_inc_ref(v_map_309_);
-lean_dec_ref(v___x_308_);
-return v_map_309_;
+lean_object* v___x_309_; lean_object* v_map_310_; 
+v___x_309_ = l_Std_Sat_AIG_RelabelNat_State_ofAIGAux___at___00Std_Sat_AIG_RelabelNat_State_ofAIG___at___00Std_Sat_AIG_relabelNat_x27___at___00Std_Sat_AIG_relabelNat___at___00Std_Sat_AIG_Entrypoint_relabelNat___at___00Std_Tactic_BVDecide_Reflect_verifyBVExpr_spec__0_spec__0_spec__1_spec__2_spec__3(v_aig_308_);
+v_map_310_ = lean_ctor_get(v___x_309_, 1);
+lean_inc_ref(v_map_310_);
+lean_dec_ref(v___x_309_);
+return v_map_310_;
 }
 }
-LEAN_EXPORT lean_object* l_Std_Sat_AIG_RelabelNat_State_ofAIG___at___00Std_Sat_AIG_relabelNat_x27___at___00Std_Sat_AIG_relabelNat___at___00Std_Sat_AIG_Entrypoint_relabelNat___at___00Std_Tactic_BVDecide_Reflect_verifyBVExpr_spec__0_spec__0_spec__1_spec__2___boxed(lean_object* v_aig_310_){
+LEAN_EXPORT lean_object* l_Std_Sat_AIG_RelabelNat_State_ofAIG___at___00Std_Sat_AIG_relabelNat_x27___at___00Std_Sat_AIG_relabelNat___at___00Std_Sat_AIG_Entrypoint_relabelNat___at___00Std_Tactic_BVDecide_Reflect_verifyBVExpr_spec__0_spec__0_spec__1_spec__2___boxed(lean_object* v_aig_311_){
 _start:
 {
-lean_object* v_res_311_; 
-v_res_311_ = l_Std_Sat_AIG_RelabelNat_State_ofAIG___at___00Std_Sat_AIG_relabelNat_x27___at___00Std_Sat_AIG_relabelNat___at___00Std_Sat_AIG_Entrypoint_relabelNat___at___00Std_Tactic_BVDecide_Reflect_verifyBVExpr_spec__0_spec__0_spec__1_spec__2(v_aig_310_);
-lean_dec_ref(v_aig_310_);
-return v_res_311_;
+lean_object* v_res_312_; 
+v_res_312_ = l_Std_Sat_AIG_RelabelNat_State_ofAIG___at___00Std_Sat_AIG_relabelNat_x27___at___00Std_Sat_AIG_relabelNat___at___00Std_Sat_AIG_Entrypoint_relabelNat___at___00Std_Tactic_BVDecide_Reflect_verifyBVExpr_spec__0_spec__0_spec__1_spec__2(v_aig_311_);
+lean_dec_ref(v_aig_311_);
+return v_res_312_;
 }
 }
-LEAN_EXPORT lean_object* l_Std_Sat_AIG_relabelNat_x27___at___00Std_Sat_AIG_relabelNat___at___00Std_Sat_AIG_Entrypoint_relabelNat___at___00Std_Tactic_BVDecide_Reflect_verifyBVExpr_spec__0_spec__0_spec__1___lam__0(lean_object* v_map_312_, lean_object* v_x_313_){
+LEAN_EXPORT lean_object* l_Std_Sat_AIG_relabelNat_x27___at___00Std_Sat_AIG_relabelNat___at___00Std_Sat_AIG_Entrypoint_relabelNat___at___00Std_Tactic_BVDecide_Reflect_verifyBVExpr_spec__0_spec__0_spec__1___lam__0(lean_object* v_map_313_, lean_object* v_x_314_){
 _start:
-{
-lean_object* v___x_314_; 
-v___x_314_ = l_Std_DHashMap_Internal_Raw_u2080_Const_get_x3f___at___00Std_Sat_AIG_relabelNat_x27___at___00Std_Sat_AIG_relabelNat___at___00Std_Sat_AIG_Entrypoint_relabelNat___at___00Std_Tactic_BVDecide_Reflect_verifyBVExpr_spec__0_spec__0_spec__1_spec__3___redArg(v_map_312_, v_x_313_);
-if (lean_obj_tag(v___x_314_) == 0)
 {
 lean_object* v___x_315_; 
-v___x_315_ = lean_unsigned_to_nat(0u);
-return v___x_315_;
+v___x_315_ = l_Std_DHashMap_Internal_Raw_u2080_Const_get_x3f___at___00Std_Sat_AIG_relabelNat_x27___at___00Std_Sat_AIG_relabelNat___at___00Std_Sat_AIG_Entrypoint_relabelNat___at___00Std_Tactic_BVDecide_Reflect_verifyBVExpr_spec__0_spec__0_spec__1_spec__3___redArg(v_map_313_, v_x_314_);
+if (lean_obj_tag(v___x_315_) == 0)
+{
+lean_object* v___x_316_; 
+v___x_316_ = lean_unsigned_to_nat(0u);
+return v___x_316_;
 }
 else
 {
-lean_object* v_val_316_; 
-v_val_316_ = lean_ctor_get(v___x_314_, 0);
-lean_inc(v_val_316_);
-lean_dec_ref_known(v___x_314_, 1);
-return v_val_316_;
+lean_object* v_val_317_; 
+v_val_317_ = lean_ctor_get(v___x_315_, 0);
+lean_inc(v_val_317_);
+lean_dec_ref_known(v___x_315_, 1);
+return v_val_317_;
 }
 }
 }
-LEAN_EXPORT lean_object* l_Std_Sat_AIG_relabelNat_x27___at___00Std_Sat_AIG_relabelNat___at___00Std_Sat_AIG_Entrypoint_relabelNat___at___00Std_Tactic_BVDecide_Reflect_verifyBVExpr_spec__0_spec__0_spec__1___lam__0___boxed(lean_object* v_map_317_, lean_object* v_x_318_){
+LEAN_EXPORT lean_object* l_Std_Sat_AIG_relabelNat_x27___at___00Std_Sat_AIG_relabelNat___at___00Std_Sat_AIG_Entrypoint_relabelNat___at___00Std_Tactic_BVDecide_Reflect_verifyBVExpr_spec__0_spec__0_spec__1___lam__0___boxed(lean_object* v_map_318_, lean_object* v_x_319_){
 _start:
 {
-lean_object* v_res_319_; 
-v_res_319_ = l_Std_Sat_AIG_relabelNat_x27___at___00Std_Sat_AIG_relabelNat___at___00Std_Sat_AIG_Entrypoint_relabelNat___at___00Std_Tactic_BVDecide_Reflect_verifyBVExpr_spec__0_spec__0_spec__1___lam__0(v_map_317_, v_x_318_);
-lean_dec_ref(v_x_318_);
-lean_dec_ref(v_map_317_);
-return v_res_319_;
+lean_object* v_res_320_; 
+v_res_320_ = l_Std_Sat_AIG_relabelNat_x27___at___00Std_Sat_AIG_relabelNat___at___00Std_Sat_AIG_Entrypoint_relabelNat___at___00Std_Tactic_BVDecide_Reflect_verifyBVExpr_spec__0_spec__0_spec__1___lam__0(v_map_318_, v_x_319_);
+lean_dec_ref(v_x_319_);
+lean_dec_ref(v_map_318_);
+return v_res_320_;
 }
 }
-LEAN_EXPORT lean_object* l_Std_Sat_AIG_relabelNat_x27___at___00Std_Sat_AIG_relabelNat___at___00Std_Sat_AIG_Entrypoint_relabelNat___at___00Std_Tactic_BVDecide_Reflect_verifyBVExpr_spec__0_spec__0_spec__1(lean_object* v_aig_320_){
+LEAN_EXPORT lean_object* l_Std_Sat_AIG_relabelNat_x27___at___00Std_Sat_AIG_relabelNat___at___00Std_Sat_AIG_Entrypoint_relabelNat___at___00Std_Tactic_BVDecide_Reflect_verifyBVExpr_spec__0_spec__0_spec__1(lean_object* v_aig_321_){
 _start:
 {
-lean_object* v_map_321_; lean_object* v___f_322_; lean_object* v_aig_323_; lean_object* v___x_324_; 
-v_map_321_ = l_Std_Sat_AIG_RelabelNat_State_ofAIG___at___00Std_Sat_AIG_relabelNat_x27___at___00Std_Sat_AIG_relabelNat___at___00Std_Sat_AIG_Entrypoint_relabelNat___at___00Std_Tactic_BVDecide_Reflect_verifyBVExpr_spec__0_spec__0_spec__1_spec__2(v_aig_320_);
-lean_inc_ref(v_map_321_);
-v___f_322_ = lean_alloc_closure((void*)(l_Std_Sat_AIG_relabelNat_x27___at___00Std_Sat_AIG_relabelNat___at___00Std_Sat_AIG_Entrypoint_relabelNat___at___00Std_Tactic_BVDecide_Reflect_verifyBVExpr_spec__0_spec__0_spec__1___lam__0___boxed), 2, 1);
-lean_closure_set(v___f_322_, 0, v_map_321_);
-v_aig_323_ = l_Std_Sat_AIG_relabel___at___00Std_Sat_AIG_relabelNat_x27___at___00Std_Sat_AIG_relabelNat___at___00Std_Sat_AIG_Entrypoint_relabelNat___at___00Std_Tactic_BVDecide_Reflect_verifyBVExpr_spec__0_spec__0_spec__1_spec__4(v___f_322_, v_aig_320_);
-v___x_324_ = lean_alloc_ctor(0, 2, 0);
-lean_ctor_set(v___x_324_, 0, v_aig_323_);
-lean_ctor_set(v___x_324_, 1, v_map_321_);
-return v___x_324_;
+lean_object* v_map_322_; lean_object* v___f_323_; lean_object* v_aig_324_; lean_object* v___x_325_; 
+v_map_322_ = l_Std_Sat_AIG_RelabelNat_State_ofAIG___at___00Std_Sat_AIG_relabelNat_x27___at___00Std_Sat_AIG_relabelNat___at___00Std_Sat_AIG_Entrypoint_relabelNat___at___00Std_Tactic_BVDecide_Reflect_verifyBVExpr_spec__0_spec__0_spec__1_spec__2(v_aig_321_);
+lean_inc_ref(v_map_322_);
+v___f_323_ = lean_alloc_closure((void*)(l_Std_Sat_AIG_relabelNat_x27___at___00Std_Sat_AIG_relabelNat___at___00Std_Sat_AIG_Entrypoint_relabelNat___at___00Std_Tactic_BVDecide_Reflect_verifyBVExpr_spec__0_spec__0_spec__1___lam__0___boxed), 2, 1);
+lean_closure_set(v___f_323_, 0, v_map_322_);
+v_aig_324_ = l_Std_Sat_AIG_relabel___at___00Std_Sat_AIG_relabelNat_x27___at___00Std_Sat_AIG_relabelNat___at___00Std_Sat_AIG_Entrypoint_relabelNat___at___00Std_Tactic_BVDecide_Reflect_verifyBVExpr_spec__0_spec__0_spec__1_spec__4(v___f_323_, v_aig_321_);
+v___x_325_ = lean_alloc_ctor(0, 2, 0);
+lean_ctor_set(v___x_325_, 0, v_aig_324_);
+lean_ctor_set(v___x_325_, 1, v_map_322_);
+return v___x_325_;
 }
 }
-LEAN_EXPORT lean_object* l_Std_Sat_AIG_relabelNat___at___00Std_Sat_AIG_Entrypoint_relabelNat___at___00Std_Tactic_BVDecide_Reflect_verifyBVExpr_spec__0_spec__0(lean_object* v_aig_325_){
+LEAN_EXPORT lean_object* l_Std_Sat_AIG_relabelNat___at___00Std_Sat_AIG_Entrypoint_relabelNat___at___00Std_Tactic_BVDecide_Reflect_verifyBVExpr_spec__0_spec__0(lean_object* v_aig_326_){
 _start:
 {
-lean_object* v___x_326_; lean_object* v_fst_327_; 
-v___x_326_ = l_Std_Sat_AIG_relabelNat_x27___at___00Std_Sat_AIG_relabelNat___at___00Std_Sat_AIG_Entrypoint_relabelNat___at___00Std_Tactic_BVDecide_Reflect_verifyBVExpr_spec__0_spec__0_spec__1(v_aig_325_);
-v_fst_327_ = lean_ctor_get(v___x_326_, 0);
-lean_inc(v_fst_327_);
-lean_dec_ref(v___x_326_);
-return v_fst_327_;
+lean_object* v___x_327_; lean_object* v_fst_328_; 
+v___x_327_ = l_Std_Sat_AIG_relabelNat_x27___at___00Std_Sat_AIG_relabelNat___at___00Std_Sat_AIG_Entrypoint_relabelNat___at___00Std_Tactic_BVDecide_Reflect_verifyBVExpr_spec__0_spec__0_spec__1(v_aig_326_);
+v_fst_328_ = lean_ctor_get(v___x_327_, 0);
+lean_inc(v_fst_328_);
+lean_dec_ref(v___x_327_);
+return v_fst_328_;
 }
 }
-LEAN_EXPORT lean_object* l_Std_Sat_AIG_Entrypoint_relabelNat___at___00Std_Tactic_BVDecide_Reflect_verifyBVExpr_spec__0(lean_object* v_entry_328_){
+LEAN_EXPORT lean_object* l_Std_Sat_AIG_Entrypoint_relabelNat___at___00Std_Tactic_BVDecide_Reflect_verifyBVExpr_spec__0(lean_object* v_entry_329_){
 _start:
 {
-lean_object* v_ref_329_; lean_object* v_aig_330_; lean_object* v___x_332_; uint8_t v_isShared_333_; uint8_t v_isSharedCheck_347_; 
-v_ref_329_ = lean_ctor_get(v_entry_328_, 1);
-v_aig_330_ = lean_ctor_get(v_entry_328_, 0);
-v_isSharedCheck_347_ = !lean_is_exclusive(v_entry_328_);
+lean_object* v_ref_330_; lean_object* v_aig_331_; lean_object* v___x_333_; uint8_t v_isShared_334_; uint8_t v_isSharedCheck_348_; 
+v_ref_330_ = lean_ctor_get(v_entry_329_, 1);
+v_aig_331_ = lean_ctor_get(v_entry_329_, 0);
+v_isSharedCheck_348_ = !lean_is_exclusive(v_entry_329_);
+if (v_isSharedCheck_348_ == 0)
+{
+v___x_333_ = v_entry_329_;
+v_isShared_334_ = v_isSharedCheck_348_;
+goto v_resetjp_332_;
+}
+else
+{
+lean_inc(v_ref_330_);
+lean_inc(v_aig_331_);
+lean_dec(v_entry_329_);
+v___x_333_ = lean_box(0);
+v_isShared_334_ = v_isSharedCheck_348_;
+goto v_resetjp_332_;
+}
+v_resetjp_332_:
+{
+lean_object* v_gate_335_; uint8_t v_invert_336_; lean_object* v___x_338_; uint8_t v_isShared_339_; uint8_t v_isSharedCheck_347_; 
+v_gate_335_ = lean_ctor_get(v_ref_330_, 0);
+v_invert_336_ = lean_ctor_get_uint8(v_ref_330_, sizeof(void*)*1);
+v_isSharedCheck_347_ = !lean_is_exclusive(v_ref_330_);
 if (v_isSharedCheck_347_ == 0)
 {
-v___x_332_ = v_entry_328_;
-v_isShared_333_ = v_isSharedCheck_347_;
-goto v_resetjp_331_;
+v___x_338_ = v_ref_330_;
+v_isShared_339_ = v_isSharedCheck_347_;
+goto v_resetjp_337_;
 }
 else
 {
-lean_inc(v_ref_329_);
-lean_inc(v_aig_330_);
-lean_dec(v_entry_328_);
-v___x_332_ = lean_box(0);
-v_isShared_333_ = v_isSharedCheck_347_;
-goto v_resetjp_331_;
+lean_inc(v_gate_335_);
+lean_dec(v_ref_330_);
+v___x_338_ = lean_box(0);
+v_isShared_339_ = v_isSharedCheck_347_;
+goto v_resetjp_337_;
 }
-v_resetjp_331_:
+v_resetjp_337_:
 {
-lean_object* v_gate_334_; uint8_t v_invert_335_; lean_object* v___x_337_; uint8_t v_isShared_338_; uint8_t v_isSharedCheck_346_; 
-v_gate_334_ = lean_ctor_get(v_ref_329_, 0);
-v_invert_335_ = lean_ctor_get_uint8(v_ref_329_, sizeof(void*)*1);
-v_isSharedCheck_346_ = !lean_is_exclusive(v_ref_329_);
-if (v_isSharedCheck_346_ == 0)
+lean_object* v___x_340_; lean_object* v___x_342_; 
+v___x_340_ = l_Std_Sat_AIG_relabelNat___at___00Std_Sat_AIG_Entrypoint_relabelNat___at___00Std_Tactic_BVDecide_Reflect_verifyBVExpr_spec__0_spec__0(v_aig_331_);
+if (v_isShared_339_ == 0)
 {
-v___x_337_ = v_ref_329_;
-v_isShared_338_ = v_isSharedCheck_346_;
-goto v_resetjp_336_;
+v___x_342_ = v___x_338_;
+goto v_reusejp_341_;
 }
 else
 {
-lean_inc(v_gate_334_);
-lean_dec(v_ref_329_);
-v___x_337_ = lean_box(0);
-v_isShared_338_ = v_isSharedCheck_346_;
-goto v_resetjp_336_;
+lean_object* v_reuseFailAlloc_346_; 
+v_reuseFailAlloc_346_ = lean_alloc_ctor(0, 1, 1);
+lean_ctor_set(v_reuseFailAlloc_346_, 0, v_gate_335_);
+lean_ctor_set_uint8(v_reuseFailAlloc_346_, sizeof(void*)*1, v_invert_336_);
+v___x_342_ = v_reuseFailAlloc_346_;
+goto v_reusejp_341_;
 }
-v_resetjp_336_:
+v_reusejp_341_:
 {
-lean_object* v___x_339_; lean_object* v___x_341_; 
-v___x_339_ = l_Std_Sat_AIG_relabelNat___at___00Std_Sat_AIG_Entrypoint_relabelNat___at___00Std_Tactic_BVDecide_Reflect_verifyBVExpr_spec__0_spec__0(v_aig_330_);
-if (v_isShared_338_ == 0)
+lean_object* v___x_344_; 
+if (v_isShared_334_ == 0)
 {
-v___x_341_ = v___x_337_;
-goto v_reusejp_340_;
+lean_ctor_set(v___x_333_, 1, v___x_342_);
+lean_ctor_set(v___x_333_, 0, v___x_340_);
+v___x_344_ = v___x_333_;
+goto v_reusejp_343_;
 }
 else
 {
 lean_object* v_reuseFailAlloc_345_; 
-v_reuseFailAlloc_345_ = lean_alloc_ctor(0, 1, 1);
-lean_ctor_set(v_reuseFailAlloc_345_, 0, v_gate_334_);
-lean_ctor_set_uint8(v_reuseFailAlloc_345_, sizeof(void*)*1, v_invert_335_);
-v___x_341_ = v_reuseFailAlloc_345_;
-goto v_reusejp_340_;
+v_reuseFailAlloc_345_ = lean_alloc_ctor(0, 2, 0);
+lean_ctor_set(v_reuseFailAlloc_345_, 0, v___x_340_);
+lean_ctor_set(v_reuseFailAlloc_345_, 1, v___x_342_);
+v___x_344_ = v_reuseFailAlloc_345_;
+goto v_reusejp_343_;
 }
-v_reusejp_340_:
+v_reusejp_343_:
 {
-lean_object* v___x_343_; 
-if (v_isShared_333_ == 0)
-{
-lean_ctor_set(v___x_332_, 1, v___x_341_);
-lean_ctor_set(v___x_332_, 0, v___x_339_);
-v___x_343_ = v___x_332_;
-goto v_reusejp_342_;
-}
-else
-{
-lean_object* v_reuseFailAlloc_344_; 
-v_reuseFailAlloc_344_ = lean_alloc_ctor(0, 2, 0);
-lean_ctor_set(v_reuseFailAlloc_344_, 0, v___x_339_);
-lean_ctor_set(v_reuseFailAlloc_344_, 1, v___x_341_);
-v___x_343_ = v_reuseFailAlloc_344_;
-goto v_reusejp_342_;
-}
-v_reusejp_342_:
-{
-return v___x_343_;
+return v___x_344_;
 }
 }
 }
 }
 }
 }
-LEAN_EXPORT uint8_t l_Std_Tactic_BVDecide_Reflect_verifyBVExpr(lean_object* v_bv_348_, lean_object* v_cert_349_){
+LEAN_EXPORT uint8_t l_Std_Tactic_BVDecide_Reflect_verifyBVExpr(lean_object* v_bv_349_, lean_object* v_cert_350_){
 _start:
 {
-lean_object* v___x_350_; lean_object* v___x_351_; lean_object* v___x_352_; uint8_t v___x_353_; 
-v___x_350_ = l_Std_Tactic_BVDecide_BVLogicalExpr_bitblast(v_bv_348_);
-v___x_351_ = l_Std_Sat_AIG_Entrypoint_relabelNat___at___00Std_Tactic_BVDecide_Reflect_verifyBVExpr_spec__0(v___x_350_);
-v___x_352_ = l_Std_Sat_AIG_toCNF(v___x_351_);
-v___x_353_ = l_Std_Tactic_BVDecide_Reflect_verifyCert(v___x_352_, v_cert_349_);
-return v___x_353_;
+lean_object* v___x_351_; lean_object* v___x_352_; lean_object* v___x_353_; uint8_t v___x_354_; 
+v___x_351_ = l_Std_Tactic_BVDecide_BVLogicalExpr_bitblast(v_bv_349_);
+v___x_352_ = l_Std_Sat_AIG_Entrypoint_relabelNat___at___00Std_Tactic_BVDecide_Reflect_verifyBVExpr_spec__0(v___x_351_);
+v___x_353_ = l_Std_Sat_AIG_toCNF(v___x_352_);
+v___x_354_ = l_Std_Tactic_BVDecide_Reflect_verifyCert(v___x_353_, v_cert_350_);
+return v___x_354_;
 }
 }
-LEAN_EXPORT lean_object* l_Std_Tactic_BVDecide_Reflect_verifyBVExpr___boxed(lean_object* v_bv_354_, lean_object* v_cert_355_){
+LEAN_EXPORT lean_object* l_Std_Tactic_BVDecide_Reflect_verifyBVExpr___boxed(lean_object* v_bv_355_, lean_object* v_cert_356_){
 _start:
 {
-uint8_t v_res_356_; lean_object* v_r_357_; 
-v_res_356_ = l_Std_Tactic_BVDecide_Reflect_verifyBVExpr(v_bv_354_, v_cert_355_);
-lean_dec_ref(v_cert_355_);
-v_r_357_ = lean_box(v_res_356_);
-return v_r_357_;
+uint8_t v_res_357_; lean_object* v_r_358_; 
+v_res_357_ = l_Std_Tactic_BVDecide_Reflect_verifyBVExpr(v_bv_355_, v_cert_356_);
+lean_dec_ref(v_cert_356_);
+v_r_358_ = lean_box(v_res_357_);
+return v_r_358_;
 }
 }
-LEAN_EXPORT lean_object* l_Std_DHashMap_Internal_Raw_u2080_Const_get_x3f___at___00Std_Sat_AIG_relabelNat_x27___at___00Std_Sat_AIG_relabelNat___at___00Std_Sat_AIG_Entrypoint_relabelNat___at___00Std_Tactic_BVDecide_Reflect_verifyBVExpr_spec__0_spec__0_spec__1_spec__3(lean_object* v_00_u03b2_358_, lean_object* v_m_359_, lean_object* v_a_360_){
+LEAN_EXPORT lean_object* l_Std_DHashMap_Internal_Raw_u2080_Const_get_x3f___at___00Std_Sat_AIG_relabelNat_x27___at___00Std_Sat_AIG_relabelNat___at___00Std_Sat_AIG_Entrypoint_relabelNat___at___00Std_Tactic_BVDecide_Reflect_verifyBVExpr_spec__0_spec__0_spec__1_spec__3(lean_object* v_00_u03b2_359_, lean_object* v_m_360_, lean_object* v_a_361_){
 _start:
 {
-lean_object* v___x_361_; 
-v___x_361_ = l_Std_DHashMap_Internal_Raw_u2080_Const_get_x3f___at___00Std_Sat_AIG_relabelNat_x27___at___00Std_Sat_AIG_relabelNat___at___00Std_Sat_AIG_Entrypoint_relabelNat___at___00Std_Tactic_BVDecide_Reflect_verifyBVExpr_spec__0_spec__0_spec__1_spec__3___redArg(v_m_359_, v_a_360_);
-return v___x_361_;
+lean_object* v___x_362_; 
+v___x_362_ = l_Std_DHashMap_Internal_Raw_u2080_Const_get_x3f___at___00Std_Sat_AIG_relabelNat_x27___at___00Std_Sat_AIG_relabelNat___at___00Std_Sat_AIG_Entrypoint_relabelNat___at___00Std_Tactic_BVDecide_Reflect_verifyBVExpr_spec__0_spec__0_spec__1_spec__3___redArg(v_m_360_, v_a_361_);
+return v___x_362_;
 }
 }
-LEAN_EXPORT lean_object* l_Std_DHashMap_Internal_Raw_u2080_Const_get_x3f___at___00Std_Sat_AIG_relabelNat_x27___at___00Std_Sat_AIG_relabelNat___at___00Std_Sat_AIG_Entrypoint_relabelNat___at___00Std_Tactic_BVDecide_Reflect_verifyBVExpr_spec__0_spec__0_spec__1_spec__3___boxed(lean_object* v_00_u03b2_362_, lean_object* v_m_363_, lean_object* v_a_364_){
+LEAN_EXPORT lean_object* l_Std_DHashMap_Internal_Raw_u2080_Const_get_x3f___at___00Std_Sat_AIG_relabelNat_x27___at___00Std_Sat_AIG_relabelNat___at___00Std_Sat_AIG_Entrypoint_relabelNat___at___00Std_Tactic_BVDecide_Reflect_verifyBVExpr_spec__0_spec__0_spec__1_spec__3___boxed(lean_object* v_00_u03b2_363_, lean_object* v_m_364_, lean_object* v_a_365_){
 _start:
 {
-lean_object* v_res_365_; 
-v_res_365_ = l_Std_DHashMap_Internal_Raw_u2080_Const_get_x3f___at___00Std_Sat_AIG_relabelNat_x27___at___00Std_Sat_AIG_relabelNat___at___00Std_Sat_AIG_Entrypoint_relabelNat___at___00Std_Tactic_BVDecide_Reflect_verifyBVExpr_spec__0_spec__0_spec__1_spec__3(v_00_u03b2_362_, v_m_363_, v_a_364_);
-lean_dec_ref(v_a_364_);
-lean_dec_ref(v_m_363_);
-return v_res_365_;
+lean_object* v_res_366_; 
+v_res_366_ = l_Std_DHashMap_Internal_Raw_u2080_Const_get_x3f___at___00Std_Sat_AIG_relabelNat_x27___at___00Std_Sat_AIG_relabelNat___at___00Std_Sat_AIG_Entrypoint_relabelNat___at___00Std_Tactic_BVDecide_Reflect_verifyBVExpr_spec__0_spec__0_spec__1_spec__3(v_00_u03b2_363_, v_m_364_, v_a_365_);
+lean_dec_ref(v_a_365_);
+lean_dec_ref(v_m_364_);
+return v_res_366_;
 }
 }
-LEAN_EXPORT lean_object* l_Std_DHashMap_Internal_AssocList_get_x3f___at___00Std_DHashMap_Internal_Raw_u2080_Const_get_x3f___at___00Std_Sat_AIG_relabelNat_x27___at___00Std_Sat_AIG_relabelNat___at___00Std_Sat_AIG_Entrypoint_relabelNat___at___00Std_Tactic_BVDecide_Reflect_verifyBVExpr_spec__0_spec__0_spec__1_spec__3_spec__5(lean_object* v_00_u03b2_366_, lean_object* v_a_367_, lean_object* v_x_368_){
+LEAN_EXPORT lean_object* l_Std_DHashMap_Internal_AssocList_get_x3f___at___00Std_DHashMap_Internal_Raw_u2080_Const_get_x3f___at___00Std_Sat_AIG_relabelNat_x27___at___00Std_Sat_AIG_relabelNat___at___00Std_Sat_AIG_Entrypoint_relabelNat___at___00Std_Tactic_BVDecide_Reflect_verifyBVExpr_spec__0_spec__0_spec__1_spec__3_spec__5(lean_object* v_00_u03b2_367_, lean_object* v_a_368_, lean_object* v_x_369_){
 _start:
 {
-lean_object* v___x_369_; 
-v___x_369_ = l_Std_DHashMap_Internal_AssocList_get_x3f___at___00Std_DHashMap_Internal_Raw_u2080_Const_get_x3f___at___00Std_Sat_AIG_relabelNat_x27___at___00Std_Sat_AIG_relabelNat___at___00Std_Sat_AIG_Entrypoint_relabelNat___at___00Std_Tactic_BVDecide_Reflect_verifyBVExpr_spec__0_spec__0_spec__1_spec__3_spec__5___redArg(v_a_367_, v_x_368_);
-return v___x_369_;
+lean_object* v___x_370_; 
+v___x_370_ = l_Std_DHashMap_Internal_AssocList_get_x3f___at___00Std_DHashMap_Internal_Raw_u2080_Const_get_x3f___at___00Std_Sat_AIG_relabelNat_x27___at___00Std_Sat_AIG_relabelNat___at___00Std_Sat_AIG_Entrypoint_relabelNat___at___00Std_Tactic_BVDecide_Reflect_verifyBVExpr_spec__0_spec__0_spec__1_spec__3_spec__5___redArg(v_a_368_, v_x_369_);
+return v___x_370_;
 }
 }
-LEAN_EXPORT lean_object* l_Std_DHashMap_Internal_AssocList_get_x3f___at___00Std_DHashMap_Internal_Raw_u2080_Const_get_x3f___at___00Std_Sat_AIG_relabelNat_x27___at___00Std_Sat_AIG_relabelNat___at___00Std_Sat_AIG_Entrypoint_relabelNat___at___00Std_Tactic_BVDecide_Reflect_verifyBVExpr_spec__0_spec__0_spec__1_spec__3_spec__5___boxed(lean_object* v_00_u03b2_370_, lean_object* v_a_371_, lean_object* v_x_372_){
+LEAN_EXPORT lean_object* l_Std_DHashMap_Internal_AssocList_get_x3f___at___00Std_DHashMap_Internal_Raw_u2080_Const_get_x3f___at___00Std_Sat_AIG_relabelNat_x27___at___00Std_Sat_AIG_relabelNat___at___00Std_Sat_AIG_Entrypoint_relabelNat___at___00Std_Tactic_BVDecide_Reflect_verifyBVExpr_spec__0_spec__0_spec__1_spec__3_spec__5___boxed(lean_object* v_00_u03b2_371_, lean_object* v_a_372_, lean_object* v_x_373_){
 _start:
 {
-lean_object* v_res_373_; 
-v_res_373_ = l_Std_DHashMap_Internal_AssocList_get_x3f___at___00Std_DHashMap_Internal_Raw_u2080_Const_get_x3f___at___00Std_Sat_AIG_relabelNat_x27___at___00Std_Sat_AIG_relabelNat___at___00Std_Sat_AIG_Entrypoint_relabelNat___at___00Std_Tactic_BVDecide_Reflect_verifyBVExpr_spec__0_spec__0_spec__1_spec__3_spec__5(v_00_u03b2_370_, v_a_371_, v_x_372_);
-lean_dec(v_x_372_);
-lean_dec_ref(v_a_371_);
-return v_res_373_;
+lean_object* v_res_374_; 
+v_res_374_ = l_Std_DHashMap_Internal_AssocList_get_x3f___at___00Std_DHashMap_Internal_Raw_u2080_Const_get_x3f___at___00Std_Sat_AIG_relabelNat_x27___at___00Std_Sat_AIG_relabelNat___at___00Std_Sat_AIG_Entrypoint_relabelNat___at___00Std_Tactic_BVDecide_Reflect_verifyBVExpr_spec__0_spec__0_spec__1_spec__3_spec__5(v_00_u03b2_371_, v_a_372_, v_x_373_);
+lean_dec(v_x_373_);
+lean_dec_ref(v_a_372_);
+return v_res_374_;
 }
 }
-LEAN_EXPORT lean_object* l_Std_Sat_AIG_RelabelNat_State_addFalse___at___00Std_Sat_AIG_RelabelNat_State_ofAIGAux_go___at___00Std_Sat_AIG_RelabelNat_State_ofAIGAux___at___00Std_Sat_AIG_RelabelNat_State_ofAIG___at___00Std_Sat_AIG_relabelNat_x27___at___00Std_Sat_AIG_relabelNat___at___00Std_Sat_AIG_Entrypoint_relabelNat___at___00Std_Tactic_BVDecide_Reflect_verifyBVExpr_spec__0_spec__0_spec__1_spec__2_spec__3_spec__5_spec__8(lean_object* v_idx_374_, lean_object* v_decls_375_, lean_object* v_hidx_376_, lean_object* v_state_377_, lean_object* v_h_378_){
+LEAN_EXPORT lean_object* l_Std_Sat_AIG_RelabelNat_State_addFalse___at___00Std_Sat_AIG_RelabelNat_State_ofAIGAux_go___at___00Std_Sat_AIG_RelabelNat_State_ofAIGAux___at___00Std_Sat_AIG_RelabelNat_State_ofAIG___at___00Std_Sat_AIG_relabelNat_x27___at___00Std_Sat_AIG_relabelNat___at___00Std_Sat_AIG_Entrypoint_relabelNat___at___00Std_Tactic_BVDecide_Reflect_verifyBVExpr_spec__0_spec__0_spec__1_spec__2_spec__3_spec__5_spec__8(lean_object* v_idx_375_, lean_object* v_decls_376_, lean_object* v_hidx_377_, lean_object* v_state_378_, lean_object* v_h_379_){
 _start:
 {
-lean_object* v___x_379_; 
-v___x_379_ = l_Std_Sat_AIG_RelabelNat_State_addFalse___at___00Std_Sat_AIG_RelabelNat_State_ofAIGAux_go___at___00Std_Sat_AIG_RelabelNat_State_ofAIGAux___at___00Std_Sat_AIG_RelabelNat_State_ofAIG___at___00Std_Sat_AIG_relabelNat_x27___at___00Std_Sat_AIG_relabelNat___at___00Std_Sat_AIG_Entrypoint_relabelNat___at___00Std_Tactic_BVDecide_Reflect_verifyBVExpr_spec__0_spec__0_spec__1_spec__2_spec__3_spec__5_spec__8___redArg(v_state_377_);
-return v___x_379_;
+lean_object* v___x_380_; 
+v___x_380_ = l_Std_Sat_AIG_RelabelNat_State_addFalse___at___00Std_Sat_AIG_RelabelNat_State_ofAIGAux_go___at___00Std_Sat_AIG_RelabelNat_State_ofAIGAux___at___00Std_Sat_AIG_RelabelNat_State_ofAIG___at___00Std_Sat_AIG_relabelNat_x27___at___00Std_Sat_AIG_relabelNat___at___00Std_Sat_AIG_Entrypoint_relabelNat___at___00Std_Tactic_BVDecide_Reflect_verifyBVExpr_spec__0_spec__0_spec__1_spec__2_spec__3_spec__5_spec__8___redArg(v_state_378_);
+return v___x_380_;
 }
 }
-LEAN_EXPORT lean_object* l_Std_Sat_AIG_RelabelNat_State_addFalse___at___00Std_Sat_AIG_RelabelNat_State_ofAIGAux_go___at___00Std_Sat_AIG_RelabelNat_State_ofAIGAux___at___00Std_Sat_AIG_RelabelNat_State_ofAIG___at___00Std_Sat_AIG_relabelNat_x27___at___00Std_Sat_AIG_relabelNat___at___00Std_Sat_AIG_Entrypoint_relabelNat___at___00Std_Tactic_BVDecide_Reflect_verifyBVExpr_spec__0_spec__0_spec__1_spec__2_spec__3_spec__5_spec__8___boxed(lean_object* v_idx_380_, lean_object* v_decls_381_, lean_object* v_hidx_382_, lean_object* v_state_383_, lean_object* v_h_384_){
+LEAN_EXPORT lean_object* l_Std_Sat_AIG_RelabelNat_State_addFalse___at___00Std_Sat_AIG_RelabelNat_State_ofAIGAux_go___at___00Std_Sat_AIG_RelabelNat_State_ofAIGAux___at___00Std_Sat_AIG_RelabelNat_State_ofAIG___at___00Std_Sat_AIG_relabelNat_x27___at___00Std_Sat_AIG_relabelNat___at___00Std_Sat_AIG_Entrypoint_relabelNat___at___00Std_Tactic_BVDecide_Reflect_verifyBVExpr_spec__0_spec__0_spec__1_spec__2_spec__3_spec__5_spec__8___boxed(lean_object* v_idx_381_, lean_object* v_decls_382_, lean_object* v_hidx_383_, lean_object* v_state_384_, lean_object* v_h_385_){
 _start:
 {
-lean_object* v_res_385_; 
-v_res_385_ = l_Std_Sat_AIG_RelabelNat_State_addFalse___at___00Std_Sat_AIG_RelabelNat_State_ofAIGAux_go___at___00Std_Sat_AIG_RelabelNat_State_ofAIGAux___at___00Std_Sat_AIG_RelabelNat_State_ofAIG___at___00Std_Sat_AIG_relabelNat_x27___at___00Std_Sat_AIG_relabelNat___at___00Std_Sat_AIG_Entrypoint_relabelNat___at___00Std_Tactic_BVDecide_Reflect_verifyBVExpr_spec__0_spec__0_spec__1_spec__2_spec__3_spec__5_spec__8(v_idx_380_, v_decls_381_, v_hidx_382_, v_state_383_, v_h_384_);
-lean_dec_ref(v_decls_381_);
-lean_dec(v_idx_380_);
-return v_res_385_;
+lean_object* v_res_386_; 
+v_res_386_ = l_Std_Sat_AIG_RelabelNat_State_addFalse___at___00Std_Sat_AIG_RelabelNat_State_ofAIGAux_go___at___00Std_Sat_AIG_RelabelNat_State_ofAIGAux___at___00Std_Sat_AIG_RelabelNat_State_ofAIG___at___00Std_Sat_AIG_relabelNat_x27___at___00Std_Sat_AIG_relabelNat___at___00Std_Sat_AIG_Entrypoint_relabelNat___at___00Std_Tactic_BVDecide_Reflect_verifyBVExpr_spec__0_spec__0_spec__1_spec__2_spec__3_spec__5_spec__8(v_idx_381_, v_decls_382_, v_hidx_383_, v_state_384_, v_h_385_);
+lean_dec_ref(v_decls_382_);
+lean_dec(v_idx_381_);
+return v_res_386_;
 }
 }
-LEAN_EXPORT lean_object* l_Std_Sat_AIG_RelabelNat_State_addGate___at___00Std_Sat_AIG_RelabelNat_State_ofAIGAux_go___at___00Std_Sat_AIG_RelabelNat_State_ofAIGAux___at___00Std_Sat_AIG_RelabelNat_State_ofAIG___at___00Std_Sat_AIG_relabelNat_x27___at___00Std_Sat_AIG_relabelNat___at___00Std_Sat_AIG_Entrypoint_relabelNat___at___00Std_Tactic_BVDecide_Reflect_verifyBVExpr_spec__0_spec__0_spec__1_spec__2_spec__3_spec__5_spec__10(lean_object* v_idx_386_, lean_object* v_decls_387_, lean_object* v_hidx_388_, lean_object* v_state_389_, lean_object* v_lhs_390_, lean_object* v_rhs_391_, lean_object* v_h_392_){
+LEAN_EXPORT lean_object* l_Std_Sat_AIG_RelabelNat_State_addGate___at___00Std_Sat_AIG_RelabelNat_State_ofAIGAux_go___at___00Std_Sat_AIG_RelabelNat_State_ofAIGAux___at___00Std_Sat_AIG_RelabelNat_State_ofAIG___at___00Std_Sat_AIG_relabelNat_x27___at___00Std_Sat_AIG_relabelNat___at___00Std_Sat_AIG_Entrypoint_relabelNat___at___00Std_Tactic_BVDecide_Reflect_verifyBVExpr_spec__0_spec__0_spec__1_spec__2_spec__3_spec__5_spec__10(lean_object* v_idx_387_, lean_object* v_decls_388_, lean_object* v_hidx_389_, lean_object* v_state_390_, lean_object* v_lhs_391_, lean_object* v_rhs_392_, lean_object* v_h_393_){
 _start:
 {
-lean_object* v___x_393_; 
-v___x_393_ = l_Std_Sat_AIG_RelabelNat_State_addGate___at___00Std_Sat_AIG_RelabelNat_State_ofAIGAux_go___at___00Std_Sat_AIG_RelabelNat_State_ofAIGAux___at___00Std_Sat_AIG_RelabelNat_State_ofAIG___at___00Std_Sat_AIG_relabelNat_x27___at___00Std_Sat_AIG_relabelNat___at___00Std_Sat_AIG_Entrypoint_relabelNat___at___00Std_Tactic_BVDecide_Reflect_verifyBVExpr_spec__0_spec__0_spec__1_spec__2_spec__3_spec__5_spec__10___redArg(v_state_389_);
-return v___x_393_;
+lean_object* v___x_394_; 
+v___x_394_ = l_Std_Sat_AIG_RelabelNat_State_addGate___at___00Std_Sat_AIG_RelabelNat_State_ofAIGAux_go___at___00Std_Sat_AIG_RelabelNat_State_ofAIGAux___at___00Std_Sat_AIG_RelabelNat_State_ofAIG___at___00Std_Sat_AIG_relabelNat_x27___at___00Std_Sat_AIG_relabelNat___at___00Std_Sat_AIG_Entrypoint_relabelNat___at___00Std_Tactic_BVDecide_Reflect_verifyBVExpr_spec__0_spec__0_spec__1_spec__2_spec__3_spec__5_spec__10___redArg(v_state_390_);
+return v___x_394_;
 }
 }
-LEAN_EXPORT lean_object* l_Std_Sat_AIG_RelabelNat_State_addGate___at___00Std_Sat_AIG_RelabelNat_State_ofAIGAux_go___at___00Std_Sat_AIG_RelabelNat_State_ofAIGAux___at___00Std_Sat_AIG_RelabelNat_State_ofAIG___at___00Std_Sat_AIG_relabelNat_x27___at___00Std_Sat_AIG_relabelNat___at___00Std_Sat_AIG_Entrypoint_relabelNat___at___00Std_Tactic_BVDecide_Reflect_verifyBVExpr_spec__0_spec__0_spec__1_spec__2_spec__3_spec__5_spec__10___boxed(lean_object* v_idx_394_, lean_object* v_decls_395_, lean_object* v_hidx_396_, lean_object* v_state_397_, lean_object* v_lhs_398_, lean_object* v_rhs_399_, lean_object* v_h_400_){
+LEAN_EXPORT lean_object* l_Std_Sat_AIG_RelabelNat_State_addGate___at___00Std_Sat_AIG_RelabelNat_State_ofAIGAux_go___at___00Std_Sat_AIG_RelabelNat_State_ofAIGAux___at___00Std_Sat_AIG_RelabelNat_State_ofAIG___at___00Std_Sat_AIG_relabelNat_x27___at___00Std_Sat_AIG_relabelNat___at___00Std_Sat_AIG_Entrypoint_relabelNat___at___00Std_Tactic_BVDecide_Reflect_verifyBVExpr_spec__0_spec__0_spec__1_spec__2_spec__3_spec__5_spec__10___boxed(lean_object* v_idx_395_, lean_object* v_decls_396_, lean_object* v_hidx_397_, lean_object* v_state_398_, lean_object* v_lhs_399_, lean_object* v_rhs_400_, lean_object* v_h_401_){
 _start:
 {
-lean_object* v_res_401_; 
-v_res_401_ = l_Std_Sat_AIG_RelabelNat_State_addGate___at___00Std_Sat_AIG_RelabelNat_State_ofAIGAux_go___at___00Std_Sat_AIG_RelabelNat_State_ofAIGAux___at___00Std_Sat_AIG_RelabelNat_State_ofAIG___at___00Std_Sat_AIG_relabelNat_x27___at___00Std_Sat_AIG_relabelNat___at___00Std_Sat_AIG_Entrypoint_relabelNat___at___00Std_Tactic_BVDecide_Reflect_verifyBVExpr_spec__0_spec__0_spec__1_spec__2_spec__3_spec__5_spec__10(v_idx_394_, v_decls_395_, v_hidx_396_, v_state_397_, v_lhs_398_, v_rhs_399_, v_h_400_);
-lean_dec(v_rhs_399_);
-lean_dec(v_lhs_398_);
-lean_dec_ref(v_decls_395_);
-lean_dec(v_idx_394_);
-return v_res_401_;
+lean_object* v_res_402_; 
+v_res_402_ = l_Std_Sat_AIG_RelabelNat_State_addGate___at___00Std_Sat_AIG_RelabelNat_State_ofAIGAux_go___at___00Std_Sat_AIG_RelabelNat_State_ofAIGAux___at___00Std_Sat_AIG_RelabelNat_State_ofAIG___at___00Std_Sat_AIG_relabelNat_x27___at___00Std_Sat_AIG_relabelNat___at___00Std_Sat_AIG_Entrypoint_relabelNat___at___00Std_Tactic_BVDecide_Reflect_verifyBVExpr_spec__0_spec__0_spec__1_spec__2_spec__3_spec__5_spec__10(v_idx_395_, v_decls_396_, v_hidx_397_, v_state_398_, v_lhs_399_, v_rhs_400_, v_h_401_);
+lean_dec(v_rhs_400_);
+lean_dec(v_lhs_399_);
+lean_dec_ref(v_decls_396_);
+lean_dec(v_idx_395_);
+return v_res_402_;
 }
 }
-LEAN_EXPORT lean_object* l_Std_Sat_AIG_RelabelNat_State_addAtom___at___00Std_Sat_AIG_RelabelNat_State_ofAIGAux_go___at___00Std_Sat_AIG_RelabelNat_State_ofAIGAux___at___00Std_Sat_AIG_RelabelNat_State_ofAIG___at___00Std_Sat_AIG_relabelNat_x27___at___00Std_Sat_AIG_relabelNat___at___00Std_Sat_AIG_Entrypoint_relabelNat___at___00Std_Tactic_BVDecide_Reflect_verifyBVExpr_spec__0_spec__0_spec__1_spec__2_spec__3_spec__5_spec__9(lean_object* v_idx_402_, lean_object* v_decls_403_, lean_object* v_hidx_404_, lean_object* v_state_405_, lean_object* v_a_406_, lean_object* v_h_407_){
+LEAN_EXPORT lean_object* l_Std_Sat_AIG_RelabelNat_State_addAtom___at___00Std_Sat_AIG_RelabelNat_State_ofAIGAux_go___at___00Std_Sat_AIG_RelabelNat_State_ofAIGAux___at___00Std_Sat_AIG_RelabelNat_State_ofAIG___at___00Std_Sat_AIG_relabelNat_x27___at___00Std_Sat_AIG_relabelNat___at___00Std_Sat_AIG_Entrypoint_relabelNat___at___00Std_Tactic_BVDecide_Reflect_verifyBVExpr_spec__0_spec__0_spec__1_spec__2_spec__3_spec__5_spec__9(lean_object* v_idx_403_, lean_object* v_decls_404_, lean_object* v_hidx_405_, lean_object* v_state_406_, lean_object* v_a_407_, lean_object* v_h_408_){
 _start:
 {
-lean_object* v___x_408_; 
-v___x_408_ = l_Std_Sat_AIG_RelabelNat_State_addAtom___at___00Std_Sat_AIG_RelabelNat_State_ofAIGAux_go___at___00Std_Sat_AIG_RelabelNat_State_ofAIGAux___at___00Std_Sat_AIG_RelabelNat_State_ofAIG___at___00Std_Sat_AIG_relabelNat_x27___at___00Std_Sat_AIG_relabelNat___at___00Std_Sat_AIG_Entrypoint_relabelNat___at___00Std_Tactic_BVDecide_Reflect_verifyBVExpr_spec__0_spec__0_spec__1_spec__2_spec__3_spec__5_spec__9___redArg(v_state_405_, v_a_406_);
-return v___x_408_;
+lean_object* v___x_409_; 
+v___x_409_ = l_Std_Sat_AIG_RelabelNat_State_addAtom___at___00Std_Sat_AIG_RelabelNat_State_ofAIGAux_go___at___00Std_Sat_AIG_RelabelNat_State_ofAIGAux___at___00Std_Sat_AIG_RelabelNat_State_ofAIG___at___00Std_Sat_AIG_relabelNat_x27___at___00Std_Sat_AIG_relabelNat___at___00Std_Sat_AIG_Entrypoint_relabelNat___at___00Std_Tactic_BVDecide_Reflect_verifyBVExpr_spec__0_spec__0_spec__1_spec__2_spec__3_spec__5_spec__9___redArg(v_state_406_, v_a_407_);
+return v___x_409_;
 }
 }
-LEAN_EXPORT lean_object* l_Std_Sat_AIG_RelabelNat_State_addAtom___at___00Std_Sat_AIG_RelabelNat_State_ofAIGAux_go___at___00Std_Sat_AIG_RelabelNat_State_ofAIGAux___at___00Std_Sat_AIG_RelabelNat_State_ofAIG___at___00Std_Sat_AIG_relabelNat_x27___at___00Std_Sat_AIG_relabelNat___at___00Std_Sat_AIG_Entrypoint_relabelNat___at___00Std_Tactic_BVDecide_Reflect_verifyBVExpr_spec__0_spec__0_spec__1_spec__2_spec__3_spec__5_spec__9___boxed(lean_object* v_idx_409_, lean_object* v_decls_410_, lean_object* v_hidx_411_, lean_object* v_state_412_, lean_object* v_a_413_, lean_object* v_h_414_){
+LEAN_EXPORT lean_object* l_Std_Sat_AIG_RelabelNat_State_addAtom___at___00Std_Sat_AIG_RelabelNat_State_ofAIGAux_go___at___00Std_Sat_AIG_RelabelNat_State_ofAIGAux___at___00Std_Sat_AIG_RelabelNat_State_ofAIG___at___00Std_Sat_AIG_relabelNat_x27___at___00Std_Sat_AIG_relabelNat___at___00Std_Sat_AIG_Entrypoint_relabelNat___at___00Std_Tactic_BVDecide_Reflect_verifyBVExpr_spec__0_spec__0_spec__1_spec__2_spec__3_spec__5_spec__9___boxed(lean_object* v_idx_410_, lean_object* v_decls_411_, lean_object* v_hidx_412_, lean_object* v_state_413_, lean_object* v_a_414_, lean_object* v_h_415_){
 _start:
 {
-lean_object* v_res_415_; 
-v_res_415_ = l_Std_Sat_AIG_RelabelNat_State_addAtom___at___00Std_Sat_AIG_RelabelNat_State_ofAIGAux_go___at___00Std_Sat_AIG_RelabelNat_State_ofAIGAux___at___00Std_Sat_AIG_RelabelNat_State_ofAIG___at___00Std_Sat_AIG_relabelNat_x27___at___00Std_Sat_AIG_relabelNat___at___00Std_Sat_AIG_Entrypoint_relabelNat___at___00Std_Tactic_BVDecide_Reflect_verifyBVExpr_spec__0_spec__0_spec__1_spec__2_spec__3_spec__5_spec__9(v_idx_409_, v_decls_410_, v_hidx_411_, v_state_412_, v_a_413_, v_h_414_);
-lean_dec_ref(v_decls_410_);
-lean_dec(v_idx_409_);
-return v_res_415_;
+lean_object* v_res_416_; 
+v_res_416_ = l_Std_Sat_AIG_RelabelNat_State_addAtom___at___00Std_Sat_AIG_RelabelNat_State_ofAIGAux_go___at___00Std_Sat_AIG_RelabelNat_State_ofAIGAux___at___00Std_Sat_AIG_RelabelNat_State_ofAIG___at___00Std_Sat_AIG_relabelNat_x27___at___00Std_Sat_AIG_relabelNat___at___00Std_Sat_AIG_Entrypoint_relabelNat___at___00Std_Tactic_BVDecide_Reflect_verifyBVExpr_spec__0_spec__0_spec__1_spec__2_spec__3_spec__5_spec__9(v_idx_410_, v_decls_411_, v_hidx_412_, v_state_413_, v_a_414_, v_h_415_);
+lean_dec_ref(v_decls_411_);
+lean_dec(v_idx_410_);
+return v_res_416_;
 }
 }
-LEAN_EXPORT lean_object* l_Std_DHashMap_Internal_Raw_u2080_insert___at___00Std_Sat_AIG_RelabelNat_State_addAtom___at___00Std_Sat_AIG_RelabelNat_State_ofAIGAux_go___at___00Std_Sat_AIG_RelabelNat_State_ofAIGAux___at___00Std_Sat_AIG_RelabelNat_State_ofAIG___at___00Std_Sat_AIG_relabelNat_x27___at___00Std_Sat_AIG_relabelNat___at___00Std_Sat_AIG_Entrypoint_relabelNat___at___00Std_Tactic_BVDecide_Reflect_verifyBVExpr_spec__0_spec__0_spec__1_spec__2_spec__3_spec__5_spec__9_spec__12(lean_object* v_00_u03b2_416_, lean_object* v_m_417_, lean_object* v_a_418_, lean_object* v_b_419_){
+LEAN_EXPORT lean_object* l_Std_DHashMap_Internal_Raw_u2080_insert___at___00Std_Sat_AIG_RelabelNat_State_addAtom___at___00Std_Sat_AIG_RelabelNat_State_ofAIGAux_go___at___00Std_Sat_AIG_RelabelNat_State_ofAIGAux___at___00Std_Sat_AIG_RelabelNat_State_ofAIG___at___00Std_Sat_AIG_relabelNat_x27___at___00Std_Sat_AIG_relabelNat___at___00Std_Sat_AIG_Entrypoint_relabelNat___at___00Std_Tactic_BVDecide_Reflect_verifyBVExpr_spec__0_spec__0_spec__1_spec__2_spec__3_spec__5_spec__9_spec__12(lean_object* v_00_u03b2_417_, lean_object* v_m_418_, lean_object* v_a_419_, lean_object* v_b_420_){
 _start:
 {
-lean_object* v___x_420_; 
-v___x_420_ = l_Std_DHashMap_Internal_Raw_u2080_insert___at___00Std_Sat_AIG_RelabelNat_State_addAtom___at___00Std_Sat_AIG_RelabelNat_State_ofAIGAux_go___at___00Std_Sat_AIG_RelabelNat_State_ofAIGAux___at___00Std_Sat_AIG_RelabelNat_State_ofAIG___at___00Std_Sat_AIG_relabelNat_x27___at___00Std_Sat_AIG_relabelNat___at___00Std_Sat_AIG_Entrypoint_relabelNat___at___00Std_Tactic_BVDecide_Reflect_verifyBVExpr_spec__0_spec__0_spec__1_spec__2_spec__3_spec__5_spec__9_spec__12___redArg(v_m_417_, v_a_418_, v_b_419_);
-return v___x_420_;
+lean_object* v___x_421_; 
+v___x_421_ = l_Std_DHashMap_Internal_Raw_u2080_insert___at___00Std_Sat_AIG_RelabelNat_State_addAtom___at___00Std_Sat_AIG_RelabelNat_State_ofAIGAux_go___at___00Std_Sat_AIG_RelabelNat_State_ofAIGAux___at___00Std_Sat_AIG_RelabelNat_State_ofAIG___at___00Std_Sat_AIG_relabelNat_x27___at___00Std_Sat_AIG_relabelNat___at___00Std_Sat_AIG_Entrypoint_relabelNat___at___00Std_Tactic_BVDecide_Reflect_verifyBVExpr_spec__0_spec__0_spec__1_spec__2_spec__3_spec__5_spec__9_spec__12___redArg(v_m_418_, v_a_419_, v_b_420_);
+return v___x_421_;
 }
 }
-LEAN_EXPORT uint8_t l_Std_DHashMap_Internal_AssocList_contains___at___00Std_DHashMap_Internal_Raw_u2080_insert___at___00Std_Sat_AIG_RelabelNat_State_addAtom___at___00Std_Sat_AIG_RelabelNat_State_ofAIGAux_go___at___00Std_Sat_AIG_RelabelNat_State_ofAIGAux___at___00Std_Sat_AIG_RelabelNat_State_ofAIG___at___00Std_Sat_AIG_relabelNat_x27___at___00Std_Sat_AIG_relabelNat___at___00Std_Sat_AIG_Entrypoint_relabelNat___at___00Std_Tactic_BVDecide_Reflect_verifyBVExpr_spec__0_spec__0_spec__1_spec__2_spec__3_spec__5_spec__9_spec__12_spec__14(lean_object* v_00_u03b2_421_, lean_object* v_a_422_, lean_object* v_x_423_){
+LEAN_EXPORT uint8_t l_Std_DHashMap_Internal_AssocList_contains___at___00Std_DHashMap_Internal_Raw_u2080_insert___at___00Std_Sat_AIG_RelabelNat_State_addAtom___at___00Std_Sat_AIG_RelabelNat_State_ofAIGAux_go___at___00Std_Sat_AIG_RelabelNat_State_ofAIGAux___at___00Std_Sat_AIG_RelabelNat_State_ofAIG___at___00Std_Sat_AIG_relabelNat_x27___at___00Std_Sat_AIG_relabelNat___at___00Std_Sat_AIG_Entrypoint_relabelNat___at___00Std_Tactic_BVDecide_Reflect_verifyBVExpr_spec__0_spec__0_spec__1_spec__2_spec__3_spec__5_spec__9_spec__12_spec__14(lean_object* v_00_u03b2_422_, lean_object* v_a_423_, lean_object* v_x_424_){
 _start:
 {
-uint8_t v___x_424_; 
-v___x_424_ = l_Std_DHashMap_Internal_AssocList_contains___at___00Std_DHashMap_Internal_Raw_u2080_insert___at___00Std_Sat_AIG_RelabelNat_State_addAtom___at___00Std_Sat_AIG_RelabelNat_State_ofAIGAux_go___at___00Std_Sat_AIG_RelabelNat_State_ofAIGAux___at___00Std_Sat_AIG_RelabelNat_State_ofAIG___at___00Std_Sat_AIG_relabelNat_x27___at___00Std_Sat_AIG_relabelNat___at___00Std_Sat_AIG_Entrypoint_relabelNat___at___00Std_Tactic_BVDecide_Reflect_verifyBVExpr_spec__0_spec__0_spec__1_spec__2_spec__3_spec__5_spec__9_spec__12_spec__14___redArg(v_a_422_, v_x_423_);
-return v___x_424_;
+uint8_t v___x_425_; 
+v___x_425_ = l_Std_DHashMap_Internal_AssocList_contains___at___00Std_DHashMap_Internal_Raw_u2080_insert___at___00Std_Sat_AIG_RelabelNat_State_addAtom___at___00Std_Sat_AIG_RelabelNat_State_ofAIGAux_go___at___00Std_Sat_AIG_RelabelNat_State_ofAIGAux___at___00Std_Sat_AIG_RelabelNat_State_ofAIG___at___00Std_Sat_AIG_relabelNat_x27___at___00Std_Sat_AIG_relabelNat___at___00Std_Sat_AIG_Entrypoint_relabelNat___at___00Std_Tactic_BVDecide_Reflect_verifyBVExpr_spec__0_spec__0_spec__1_spec__2_spec__3_spec__5_spec__9_spec__12_spec__14___redArg(v_a_423_, v_x_424_);
+return v___x_425_;
 }
 }
-LEAN_EXPORT lean_object* l_Std_DHashMap_Internal_AssocList_contains___at___00Std_DHashMap_Internal_Raw_u2080_insert___at___00Std_Sat_AIG_RelabelNat_State_addAtom___at___00Std_Sat_AIG_RelabelNat_State_ofAIGAux_go___at___00Std_Sat_AIG_RelabelNat_State_ofAIGAux___at___00Std_Sat_AIG_RelabelNat_State_ofAIG___at___00Std_Sat_AIG_relabelNat_x27___at___00Std_Sat_AIG_relabelNat___at___00Std_Sat_AIG_Entrypoint_relabelNat___at___00Std_Tactic_BVDecide_Reflect_verifyBVExpr_spec__0_spec__0_spec__1_spec__2_spec__3_spec__5_spec__9_spec__12_spec__14___boxed(lean_object* v_00_u03b2_425_, lean_object* v_a_426_, lean_object* v_x_427_){
+LEAN_EXPORT lean_object* l_Std_DHashMap_Internal_AssocList_contains___at___00Std_DHashMap_Internal_Raw_u2080_insert___at___00Std_Sat_AIG_RelabelNat_State_addAtom___at___00Std_Sat_AIG_RelabelNat_State_ofAIGAux_go___at___00Std_Sat_AIG_RelabelNat_State_ofAIGAux___at___00Std_Sat_AIG_RelabelNat_State_ofAIG___at___00Std_Sat_AIG_relabelNat_x27___at___00Std_Sat_AIG_relabelNat___at___00Std_Sat_AIG_Entrypoint_relabelNat___at___00Std_Tactic_BVDecide_Reflect_verifyBVExpr_spec__0_spec__0_spec__1_spec__2_spec__3_spec__5_spec__9_spec__12_spec__14___boxed(lean_object* v_00_u03b2_426_, lean_object* v_a_427_, lean_object* v_x_428_){
 _start:
 {
-uint8_t v_res_428_; lean_object* v_r_429_; 
-v_res_428_ = l_Std_DHashMap_Internal_AssocList_contains___at___00Std_DHashMap_Internal_Raw_u2080_insert___at___00Std_Sat_AIG_RelabelNat_State_addAtom___at___00Std_Sat_AIG_RelabelNat_State_ofAIGAux_go___at___00Std_Sat_AIG_RelabelNat_State_ofAIGAux___at___00Std_Sat_AIG_RelabelNat_State_ofAIG___at___00Std_Sat_AIG_relabelNat_x27___at___00Std_Sat_AIG_relabelNat___at___00Std_Sat_AIG_Entrypoint_relabelNat___at___00Std_Tactic_BVDecide_Reflect_verifyBVExpr_spec__0_spec__0_spec__1_spec__2_spec__3_spec__5_spec__9_spec__12_spec__14(v_00_u03b2_425_, v_a_426_, v_x_427_);
-lean_dec(v_x_427_);
-lean_dec_ref(v_a_426_);
-v_r_429_ = lean_box(v_res_428_);
-return v_r_429_;
+uint8_t v_res_429_; lean_object* v_r_430_; 
+v_res_429_ = l_Std_DHashMap_Internal_AssocList_contains___at___00Std_DHashMap_Internal_Raw_u2080_insert___at___00Std_Sat_AIG_RelabelNat_State_addAtom___at___00Std_Sat_AIG_RelabelNat_State_ofAIGAux_go___at___00Std_Sat_AIG_RelabelNat_State_ofAIGAux___at___00Std_Sat_AIG_RelabelNat_State_ofAIG___at___00Std_Sat_AIG_relabelNat_x27___at___00Std_Sat_AIG_relabelNat___at___00Std_Sat_AIG_Entrypoint_relabelNat___at___00Std_Tactic_BVDecide_Reflect_verifyBVExpr_spec__0_spec__0_spec__1_spec__2_spec__3_spec__5_spec__9_spec__12_spec__14(v_00_u03b2_426_, v_a_427_, v_x_428_);
+lean_dec(v_x_428_);
+lean_dec_ref(v_a_427_);
+v_r_430_ = lean_box(v_res_429_);
+return v_r_430_;
 }
 }
-LEAN_EXPORT lean_object* l_Std_DHashMap_Internal_Raw_u2080_expand___at___00Std_DHashMap_Internal_Raw_u2080_insert___at___00Std_Sat_AIG_RelabelNat_State_addAtom___at___00Std_Sat_AIG_RelabelNat_State_ofAIGAux_go___at___00Std_Sat_AIG_RelabelNat_State_ofAIGAux___at___00Std_Sat_AIG_RelabelNat_State_ofAIG___at___00Std_Sat_AIG_relabelNat_x27___at___00Std_Sat_AIG_relabelNat___at___00Std_Sat_AIG_Entrypoint_relabelNat___at___00Std_Tactic_BVDecide_Reflect_verifyBVExpr_spec__0_spec__0_spec__1_spec__2_spec__3_spec__5_spec__9_spec__12_spec__15(lean_object* v_00_u03b2_430_, lean_object* v_data_431_){
+LEAN_EXPORT lean_object* l_Std_DHashMap_Internal_Raw_u2080_expand___at___00Std_DHashMap_Internal_Raw_u2080_insert___at___00Std_Sat_AIG_RelabelNat_State_addAtom___at___00Std_Sat_AIG_RelabelNat_State_ofAIGAux_go___at___00Std_Sat_AIG_RelabelNat_State_ofAIGAux___at___00Std_Sat_AIG_RelabelNat_State_ofAIG___at___00Std_Sat_AIG_relabelNat_x27___at___00Std_Sat_AIG_relabelNat___at___00Std_Sat_AIG_Entrypoint_relabelNat___at___00Std_Tactic_BVDecide_Reflect_verifyBVExpr_spec__0_spec__0_spec__1_spec__2_spec__3_spec__5_spec__9_spec__12_spec__15(lean_object* v_00_u03b2_431_, lean_object* v_data_432_){
 _start:
 {
-lean_object* v___x_432_; 
-v___x_432_ = l_Std_DHashMap_Internal_Raw_u2080_expand___at___00Std_DHashMap_Internal_Raw_u2080_insert___at___00Std_Sat_AIG_RelabelNat_State_addAtom___at___00Std_Sat_AIG_RelabelNat_State_ofAIGAux_go___at___00Std_Sat_AIG_RelabelNat_State_ofAIGAux___at___00Std_Sat_AIG_RelabelNat_State_ofAIG___at___00Std_Sat_AIG_relabelNat_x27___at___00Std_Sat_AIG_relabelNat___at___00Std_Sat_AIG_Entrypoint_relabelNat___at___00Std_Tactic_BVDecide_Reflect_verifyBVExpr_spec__0_spec__0_spec__1_spec__2_spec__3_spec__5_spec__9_spec__12_spec__15___redArg(v_data_431_);
-return v___x_432_;
+lean_object* v___x_433_; 
+v___x_433_ = l_Std_DHashMap_Internal_Raw_u2080_expand___at___00Std_DHashMap_Internal_Raw_u2080_insert___at___00Std_Sat_AIG_RelabelNat_State_addAtom___at___00Std_Sat_AIG_RelabelNat_State_ofAIGAux_go___at___00Std_Sat_AIG_RelabelNat_State_ofAIGAux___at___00Std_Sat_AIG_RelabelNat_State_ofAIG___at___00Std_Sat_AIG_relabelNat_x27___at___00Std_Sat_AIG_relabelNat___at___00Std_Sat_AIG_Entrypoint_relabelNat___at___00Std_Tactic_BVDecide_Reflect_verifyBVExpr_spec__0_spec__0_spec__1_spec__2_spec__3_spec__5_spec__9_spec__12_spec__15___redArg(v_data_432_);
+return v___x_433_;
 }
 }
-LEAN_EXPORT lean_object* l_Std_DHashMap_Internal_AssocList_replace___at___00Std_DHashMap_Internal_Raw_u2080_insert___at___00Std_Sat_AIG_RelabelNat_State_addAtom___at___00Std_Sat_AIG_RelabelNat_State_ofAIGAux_go___at___00Std_Sat_AIG_RelabelNat_State_ofAIGAux___at___00Std_Sat_AIG_RelabelNat_State_ofAIG___at___00Std_Sat_AIG_relabelNat_x27___at___00Std_Sat_AIG_relabelNat___at___00Std_Sat_AIG_Entrypoint_relabelNat___at___00Std_Tactic_BVDecide_Reflect_verifyBVExpr_spec__0_spec__0_spec__1_spec__2_spec__3_spec__5_spec__9_spec__12_spec__16(lean_object* v_00_u03b2_433_, lean_object* v_a_434_, lean_object* v_b_435_, lean_object* v_x_436_){
+LEAN_EXPORT lean_object* l_Std_DHashMap_Internal_AssocList_replace___at___00Std_DHashMap_Internal_Raw_u2080_insert___at___00Std_Sat_AIG_RelabelNat_State_addAtom___at___00Std_Sat_AIG_RelabelNat_State_ofAIGAux_go___at___00Std_Sat_AIG_RelabelNat_State_ofAIGAux___at___00Std_Sat_AIG_RelabelNat_State_ofAIG___at___00Std_Sat_AIG_relabelNat_x27___at___00Std_Sat_AIG_relabelNat___at___00Std_Sat_AIG_Entrypoint_relabelNat___at___00Std_Tactic_BVDecide_Reflect_verifyBVExpr_spec__0_spec__0_spec__1_spec__2_spec__3_spec__5_spec__9_spec__12_spec__16(lean_object* v_00_u03b2_434_, lean_object* v_a_435_, lean_object* v_b_436_, lean_object* v_x_437_){
 _start:
 {
-lean_object* v___x_437_; 
-v___x_437_ = l_Std_DHashMap_Internal_AssocList_replace___at___00Std_DHashMap_Internal_Raw_u2080_insert___at___00Std_Sat_AIG_RelabelNat_State_addAtom___at___00Std_Sat_AIG_RelabelNat_State_ofAIGAux_go___at___00Std_Sat_AIG_RelabelNat_State_ofAIGAux___at___00Std_Sat_AIG_RelabelNat_State_ofAIG___at___00Std_Sat_AIG_relabelNat_x27___at___00Std_Sat_AIG_relabelNat___at___00Std_Sat_AIG_Entrypoint_relabelNat___at___00Std_Tactic_BVDecide_Reflect_verifyBVExpr_spec__0_spec__0_spec__1_spec__2_spec__3_spec__5_spec__9_spec__12_spec__16___redArg(v_a_434_, v_b_435_, v_x_436_);
-return v___x_437_;
+lean_object* v___x_438_; 
+v___x_438_ = l_Std_DHashMap_Internal_AssocList_replace___at___00Std_DHashMap_Internal_Raw_u2080_insert___at___00Std_Sat_AIG_RelabelNat_State_addAtom___at___00Std_Sat_AIG_RelabelNat_State_ofAIGAux_go___at___00Std_Sat_AIG_RelabelNat_State_ofAIGAux___at___00Std_Sat_AIG_RelabelNat_State_ofAIG___at___00Std_Sat_AIG_relabelNat_x27___at___00Std_Sat_AIG_relabelNat___at___00Std_Sat_AIG_Entrypoint_relabelNat___at___00Std_Tactic_BVDecide_Reflect_verifyBVExpr_spec__0_spec__0_spec__1_spec__2_spec__3_spec__5_spec__9_spec__12_spec__16___redArg(v_a_435_, v_b_436_, v_x_437_);
+return v___x_438_;
 }
 }
-LEAN_EXPORT lean_object* l___private_Std_Data_DHashMap_Internal_Defs_0__Std_DHashMap_Internal_Raw_u2080_expand_go___at___00Std_DHashMap_Internal_Raw_u2080_expand___at___00Std_DHashMap_Internal_Raw_u2080_insert___at___00Std_Sat_AIG_RelabelNat_State_addAtom___at___00Std_Sat_AIG_RelabelNat_State_ofAIGAux_go___at___00Std_Sat_AIG_RelabelNat_State_ofAIGAux___at___00Std_Sat_AIG_RelabelNat_State_ofAIG___at___00Std_Sat_AIG_relabelNat_x27___at___00Std_Sat_AIG_relabelNat___at___00Std_Sat_AIG_Entrypoint_relabelNat___at___00Std_Tactic_BVDecide_Reflect_verifyBVExpr_spec__0_spec__0_spec__1_spec__2_spec__3_spec__5_spec__9_spec__12_spec__15_spec__16(lean_object* v_00_u03b2_438_, lean_object* v_i_439_, lean_object* v_source_440_, lean_object* v_target_441_){
+LEAN_EXPORT lean_object* l___private_Std_Data_DHashMap_Internal_Defs_0__Std_DHashMap_Internal_Raw_u2080_expand_go___at___00Std_DHashMap_Internal_Raw_u2080_expand___at___00Std_DHashMap_Internal_Raw_u2080_insert___at___00Std_Sat_AIG_RelabelNat_State_addAtom___at___00Std_Sat_AIG_RelabelNat_State_ofAIGAux_go___at___00Std_Sat_AIG_RelabelNat_State_ofAIGAux___at___00Std_Sat_AIG_RelabelNat_State_ofAIG___at___00Std_Sat_AIG_relabelNat_x27___at___00Std_Sat_AIG_relabelNat___at___00Std_Sat_AIG_Entrypoint_relabelNat___at___00Std_Tactic_BVDecide_Reflect_verifyBVExpr_spec__0_spec__0_spec__1_spec__2_spec__3_spec__5_spec__9_spec__12_spec__15_spec__16(lean_object* v_00_u03b2_439_, lean_object* v_i_440_, lean_object* v_source_441_, lean_object* v_target_442_){
 _start:
 {
-lean_object* v___x_442_; 
-v___x_442_ = l___private_Std_Data_DHashMap_Internal_Defs_0__Std_DHashMap_Internal_Raw_u2080_expand_go___at___00Std_DHashMap_Internal_Raw_u2080_expand___at___00Std_DHashMap_Internal_Raw_u2080_insert___at___00Std_Sat_AIG_RelabelNat_State_addAtom___at___00Std_Sat_AIG_RelabelNat_State_ofAIGAux_go___at___00Std_Sat_AIG_RelabelNat_State_ofAIGAux___at___00Std_Sat_AIG_RelabelNat_State_ofAIG___at___00Std_Sat_AIG_relabelNat_x27___at___00Std_Sat_AIG_relabelNat___at___00Std_Sat_AIG_Entrypoint_relabelNat___at___00Std_Tactic_BVDecide_Reflect_verifyBVExpr_spec__0_spec__0_spec__1_spec__2_spec__3_spec__5_spec__9_spec__12_spec__15_spec__16___redArg(v_i_439_, v_source_440_, v_target_441_);
-return v___x_442_;
+lean_object* v___x_443_; 
+v___x_443_ = l___private_Std_Data_DHashMap_Internal_Defs_0__Std_DHashMap_Internal_Raw_u2080_expand_go___at___00Std_DHashMap_Internal_Raw_u2080_expand___at___00Std_DHashMap_Internal_Raw_u2080_insert___at___00Std_Sat_AIG_RelabelNat_State_addAtom___at___00Std_Sat_AIG_RelabelNat_State_ofAIGAux_go___at___00Std_Sat_AIG_RelabelNat_State_ofAIGAux___at___00Std_Sat_AIG_RelabelNat_State_ofAIG___at___00Std_Sat_AIG_relabelNat_x27___at___00Std_Sat_AIG_relabelNat___at___00Std_Sat_AIG_Entrypoint_relabelNat___at___00Std_Tactic_BVDecide_Reflect_verifyBVExpr_spec__0_spec__0_spec__1_spec__2_spec__3_spec__5_spec__9_spec__12_spec__15_spec__16___redArg(v_i_440_, v_source_441_, v_target_442_);
+return v___x_443_;
 }
 }
-LEAN_EXPORT lean_object* l_Std_DHashMap_Internal_AssocList_foldlM___at___00__private_Std_Data_DHashMap_Internal_Defs_0__Std_DHashMap_Internal_Raw_u2080_expand_go___at___00Std_DHashMap_Internal_Raw_u2080_expand___at___00Std_DHashMap_Internal_Raw_u2080_insert___at___00Std_Sat_AIG_RelabelNat_State_addAtom___at___00Std_Sat_AIG_RelabelNat_State_ofAIGAux_go___at___00Std_Sat_AIG_RelabelNat_State_ofAIGAux___at___00Std_Sat_AIG_RelabelNat_State_ofAIG___at___00Std_Sat_AIG_relabelNat_x27___at___00Std_Sat_AIG_relabelNat___at___00Std_Sat_AIG_Entrypoint_relabelNat___at___00Std_Tactic_BVDecide_Reflect_verifyBVExpr_spec__0_spec__0_spec__1_spec__2_spec__3_spec__5_spec__9_spec__12_spec__15_spec__16_spec__17(lean_object* v_00_u03b2_443_, lean_object* v_x_444_, lean_object* v_x_445_){
+LEAN_EXPORT lean_object* l_Std_DHashMap_Internal_AssocList_foldlM___at___00__private_Std_Data_DHashMap_Internal_Defs_0__Std_DHashMap_Internal_Raw_u2080_expand_go___at___00Std_DHashMap_Internal_Raw_u2080_expand___at___00Std_DHashMap_Internal_Raw_u2080_insert___at___00Std_Sat_AIG_RelabelNat_State_addAtom___at___00Std_Sat_AIG_RelabelNat_State_ofAIGAux_go___at___00Std_Sat_AIG_RelabelNat_State_ofAIGAux___at___00Std_Sat_AIG_RelabelNat_State_ofAIG___at___00Std_Sat_AIG_relabelNat_x27___at___00Std_Sat_AIG_relabelNat___at___00Std_Sat_AIG_Entrypoint_relabelNat___at___00Std_Tactic_BVDecide_Reflect_verifyBVExpr_spec__0_spec__0_spec__1_spec__2_spec__3_spec__5_spec__9_spec__12_spec__15_spec__16_spec__17(lean_object* v_00_u03b2_444_, lean_object* v_x_445_, lean_object* v_x_446_){
 _start:
 {
-lean_object* v___x_446_; 
-v___x_446_ = l_Std_DHashMap_Internal_AssocList_foldlM___at___00__private_Std_Data_DHashMap_Internal_Defs_0__Std_DHashMap_Internal_Raw_u2080_expand_go___at___00Std_DHashMap_Internal_Raw_u2080_expand___at___00Std_DHashMap_Internal_Raw_u2080_insert___at___00Std_Sat_AIG_RelabelNat_State_addAtom___at___00Std_Sat_AIG_RelabelNat_State_ofAIGAux_go___at___00Std_Sat_AIG_RelabelNat_State_ofAIGAux___at___00Std_Sat_AIG_RelabelNat_State_ofAIG___at___00Std_Sat_AIG_relabelNat_x27___at___00Std_Sat_AIG_relabelNat___at___00Std_Sat_AIG_Entrypoint_relabelNat___at___00Std_Tactic_BVDecide_Reflect_verifyBVExpr_spec__0_spec__0_spec__1_spec__2_spec__3_spec__5_spec__9_spec__12_spec__15_spec__16_spec__17___redArg(v_x_444_, v_x_445_);
-return v___x_446_;
+lean_object* v___x_447_; 
+v___x_447_ = l_Std_DHashMap_Internal_AssocList_foldlM___at___00__private_Std_Data_DHashMap_Internal_Defs_0__Std_DHashMap_Internal_Raw_u2080_expand_go___at___00Std_DHashMap_Internal_Raw_u2080_expand___at___00Std_DHashMap_Internal_Raw_u2080_insert___at___00Std_Sat_AIG_RelabelNat_State_addAtom___at___00Std_Sat_AIG_RelabelNat_State_ofAIGAux_go___at___00Std_Sat_AIG_RelabelNat_State_ofAIGAux___at___00Std_Sat_AIG_RelabelNat_State_ofAIG___at___00Std_Sat_AIG_relabelNat_x27___at___00Std_Sat_AIG_relabelNat___at___00Std_Sat_AIG_Entrypoint_relabelNat___at___00Std_Tactic_BVDecide_Reflect_verifyBVExpr_spec__0_spec__0_spec__1_spec__2_spec__3_spec__5_spec__9_spec__12_spec__15_spec__16_spec__17___redArg(v_x_445_, v_x_446_);
+return v___x_447_;
 }
 }
 lean_object* runtime_initialize_Std_Tactic_BVDecide_LRAT_Checker(uint8_t builtin);

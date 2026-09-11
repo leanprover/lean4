@@ -151,7 +151,6 @@ where
   | ctx,      withNamingContext nCtx d => go nCtx ctx d
   | ctx,      tagged _ d               => go nCtx ctx d
   | ctx,      ofOriginatingSyntax _ d  => go nCtx ctx d
-  | ctx,      ofCodeQualityEntry _ d   => go nCtx ctx d
   | ctx,      nest n d                 => Format.nest n <$> go nCtx ctx d
   | ctx,      compose d₁ d₂            => do let d₁ ← go nCtx ctx d₁; let d₂ ← go nCtx ctx d₂; pure $ d₁ ++ d₂
   | ctx,      group d                  => Format.group <$> go nCtx ctx d

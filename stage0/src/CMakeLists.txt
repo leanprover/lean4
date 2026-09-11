@@ -104,7 +104,6 @@ option(CUSTOM_ALLOCATORS "CUSTOM_ALLOCATORS" ON)
 option(SAVE_SNAPSHOT "SAVE_SNAPSHOT" ON)
 option(SAVE_INFO "SAVE_INFO" ON)
 option(MMAP "MMAP" ON)
-option(LAZY_RC "LAZY_RC" OFF)
 option(RUNTIME_STATS "RUNTIME_STATS" OFF)
 option(BSYMBOLIC "Link with -Bsymbolic to reduce call overhead in shared libraries (Linux)" ON)
 option(USE_GMP "USE_GMP" ON)
@@ -137,10 +136,6 @@ option(WFAIL "Fail build if warnings are emitted by Lean" ON)
 if(WFAIL MATCHES "ON")
   string(APPEND LEAN_EXTRA_LAKE_OPTS " --wfail")
   string(APPEND LEAN_EXTRA_MAKE_OPTS " -DwarningAsError=true")
-endif()
-
-if(LAZY_RC MATCHES "ON")
-  set(LEAN_LAZY_RC "#define LEAN_LAZY_RC")
 endif()
 
 if(USE_MIMALLOC)
@@ -219,6 +214,12 @@ string(APPEND LEANC_EXTRA_CC_FLAGS " -fstack-clash-protection")
 # Disable contraction of floating-point operations to ensure predictable semantics
 string(APPEND LEANC_EXTRA_CC_FLAGS " -ffp-contract=off")
 string(APPEND LEAN_EXTRA_CXX_FLAGS " -ffp-contract=off")
+
+# On Windows we want to disable writing COFF object file time stamps.
+# LLVM 23 seems to have a regression in this regard.
+if(CMAKE_SYSTEM_NAME MATCHES "Windows")
+  string(APPEND LEANC_EXTRA_CC_FLAGS " -mno-incremental-linker-compatible")
+endif()
 
 if(NOT MULTI_THREAD)
   message(STATUS "Disabled multi-thread support, it will not be safe to run multiple threads in parallel")
@@ -544,8 +545,8 @@ if(NOT LEAN_STANDALONE)
   string(APPEND CMAKE_EXE_LINKER_FLAGS " ${LEAN_CXX_STDLIB}")
 endif()
 
-# flags for user binaries = flags for toolchain binaries + Lake
-set(LEANC_STATIC_LINKER_FLAGS " ${TOOLCHAIN_STATIC_LINKER_FLAGS} -lLake")
+# flags for user binaries = flags for toolchain binaries + Lake (and deps)
+set(LEANC_STATIC_LINKER_FLAGS " ${TOOLCHAIN_STATIC_LINKER_FLAGS} -lLake -lLeanExport")
 if(CMAKE_SYSTEM_NAME MATCHES "Linux")
   set(LEANC_SHARED_LINKER_FLAGS " ${TOOLCHAIN_SHARED_LINKER_FLAGS} -Wl,--as-needed -lLake_shared -Wl,--no-as-needed")
 else()
@@ -607,7 +608,7 @@ if(CMAKE_SYSTEM_NAME MATCHES "Linux")
   string(APPEND LEANSHARED_LINKER_FLAGS " -Wl,-soname=libleanshared.so")
   string(
     APPEND LAKESHARED_LINKER_FLAGS
-    " -Wl,--whole-archive ${CMAKE_BINARY_DIR}/lib/lean/libLake.a.export -Wl,--no-whole-archive -Wl,-soname=libLake_shared.so"
+    " -Wl,--whole-archive ${CMAKE_BINARY_DIR}/lib/lean/libLake.a.export -Wl,--no-whole-archive ${CMAKE_BINARY_DIR}/lib/lean/libLeanExport.a.export -Wl,-soname=libLake_shared.so"
   )
   string(APPEND CMAKE_EXE_LINKER_FLAGS " -Wl,-rpath=$ORIGIN/../lib:$ORIGIN/../lib/lean")
 elseif(CMAKE_SYSTEM_NAME MATCHES "Darwin")
@@ -618,7 +619,7 @@ elseif(CMAKE_SYSTEM_NAME MATCHES "Darwin")
   string(APPEND LEANSHARED_LINKER_FLAGS " -install_name @rpath/libleanshared.dylib")
   string(
     APPEND LAKESHARED_LINKER_FLAGS
-    " -Wl,-force_load,${CMAKE_BINARY_DIR}/lib/lean/libLake.a.export -install_name @rpath/libLake_shared.dylib"
+    " -Wl,-force_load,${CMAKE_BINARY_DIR}/lib/lean/libLake.a.export ${CMAKE_BINARY_DIR}/lib/lean/libLeanExport.a.export -install_name @rpath/libLake_shared.dylib"
   )
   string(APPEND CMAKE_EXE_LINKER_FLAGS " -Wl,-rpath,@executable_path/../lib -Wl,-rpath,@executable_path/../lib/lean")
 elseif(CMAKE_SYSTEM_NAME MATCHES "Emscripten")
@@ -627,7 +628,7 @@ elseif(CMAKE_SYSTEM_NAME MATCHES "Emscripten")
 elseif(CMAKE_SYSTEM_NAME MATCHES "Windows")
   string(
     APPEND LAKESHARED_LINKER_FLAGS
-    " -Wl,--out-implib,${CMAKE_BINARY_DIR}/lib/lean/libLake_shared.dll.a -Wl,--whole-archive ${CMAKE_BINARY_DIR}/lib/lean/libLake.a.export -Wl,--no-whole-archive"
+    " -Wl,--out-implib,${CMAKE_BINARY_DIR}/lib/lean/libLake_shared.dll.a -Wl,--whole-archive ${CMAKE_BINARY_DIR}/lib/lean/libLake.a.export -Wl,--no-whole-archive ${CMAKE_BINARY_DIR}/lib/lean/libLeanExport.a.export"
   )
 endif()
 
@@ -637,8 +638,7 @@ endif()
 
 if(NOT CMAKE_SYSTEM_NAME MATCHES "Windows" AND NOT CMAKE_SYSTEM_NAME MATCHES "Emscripten")
   # export symbols for the interpreter (done via `LEAN_EXPORT` for Windows)
-  string(APPEND LEAN_DYN_EXE_LINKER_FLAGS " -rdynamic")
-  string(APPEND CMAKE_EXE_LINKER_FLAGS " -rdynamic")
+  string(APPEND CMAKE_DYN_EXE_LINKER_FLAGS " -rdynamic")
   # hide all other symbols
   string(APPEND CMAKE_CXX_FLAGS " -fvisibility=hidden -fvisibility-inlines-hidden")
   string(APPEND LEANC_EXTRA_CC_FLAGS " -fvisibility=hidden")
@@ -813,6 +813,9 @@ if(CMAKE_SYSTEM_NAME MATCHES "Windows")
   string(APPEND CMAKE_EXE_LINKER_FLAGS " -Wl,--whole-archive -lleanmanifest -Wl,--no-whole-archive")
 endif()
 
+# for later stages, this defines only `mimalloc_paranoid`; the rest is imported below instead
+add_subdirectory(runtime)
+
 if(STAGE GREATER 1)
   # reuse C++ parts, which don't change
   add_library(leanrt_initial-exec STATIC IMPORTED)
@@ -829,12 +832,12 @@ if(STAGE GREATER 1)
   add_custom_target(
     copy-leancpp
     COMMAND
-      cmake -E copy_if_different "${PREV_STAGE}/runtime/libleanrt_initial-exec.a"
+      ${CMAKE_COMMAND} -E copy_if_different "${PREV_STAGE}/runtime/libleanrt_initial-exec.a"
       "${CMAKE_BINARY_DIR}/runtime/libleanrt_initial-exec.a"
-    COMMAND cmake -E copy_if_different "${PREV_STAGE}/lib/lean/libleanrt.a" "${CMAKE_BINARY_DIR}/lib/lean/libleanrt.a"
-    COMMAND cmake -E copy_if_different "${PREV_STAGE}/lib/lean/libleancpp.a" "${CMAKE_BINARY_DIR}/lib/lean/libleancpp.a"
+    COMMAND ${CMAKE_COMMAND} -E copy_if_different "${PREV_STAGE}/lib/lean/libleanrt.a" "${CMAKE_BINARY_DIR}/lib/lean/libleanrt.a"
+    COMMAND ${CMAKE_COMMAND} -E copy_if_different "${PREV_STAGE}/lib/lean/libleancpp.a" "${CMAKE_BINARY_DIR}/lib/lean/libleancpp.a"
     COMMAND
-      cmake -E copy_if_different "${PREV_STAGE}/lib/temp/libleancpp_1.a" "${CMAKE_BINARY_DIR}/lib/temp/libleancpp_1.a"
+      ${CMAKE_COMMAND} -E copy_if_different "${PREV_STAGE}/lib/temp/libleancpp_1.a" "${CMAKE_BINARY_DIR}/lib/temp/libleancpp_1.a"
   )
   add_dependencies(leanrt_initial-exec copy-leancpp)
   add_dependencies(leanrt copy-leancpp)
@@ -843,12 +846,11 @@ if(STAGE GREATER 1)
   if(LLVM)
     add_custom_target(
       copy-lean-h-bc
-      COMMAND cmake -E copy_if_different "${PREV_STAGE}/lib/lean/lean.h.bc" "${CMAKE_BINARY_DIR}/lib/lean/lean.h.bc"
+      COMMAND ${CMAKE_COMMAND} -E copy_if_different "${PREV_STAGE}/lib/lean/lean.h.bc" "${CMAKE_BINARY_DIR}/lib/lean/lean.h.bc"
     )
     add_dependencies(leancpp copy-lean-h-bc)
   endif()
 else()
-  add_subdirectory(runtime)
   if(CMAKE_SYSTEM_NAME MATCHES "Emscripten")
     add_dependencies(leanrt libuv)
     add_dependencies(leanrt_initial-exec libuv)
@@ -876,7 +878,7 @@ endif()
 if(STAGE GREATER 0 AND CADICAL AND INSTALL_CADICAL)
   add_custom_target(
     copy-cadical
-    COMMAND cmake -E copy_if_different "${CADICAL}" "${CMAKE_BINARY_DIR}/bin/cadical${CMAKE_EXECUTABLE_SUFFIX}"
+    COMMAND ${CMAKE_COMMAND} -E copy_if_different "${CADICAL}" "${CMAKE_BINARY_DIR}/bin/cadical${CMAKE_EXECUTABLE_SUFFIX}"
   )
   add_dependencies(leancpp copy-cadical)
 endif()
@@ -884,7 +886,7 @@ endif()
 if(LEANTAR AND INSTALL_LEANTAR)
   add_custom_target(
     copy-leantar
-    COMMAND cmake -E copy_if_different "${LEANTAR}" "${CMAKE_BINARY_DIR}/bin/leantar${CMAKE_EXECUTABLE_SUFFIX}"
+    COMMAND ${CMAKE_COMMAND} -E copy_if_different "${LEANTAR}" "${CMAKE_BINARY_DIR}/bin/leantar${CMAKE_EXECUTABLE_SUFFIX}"
   )
   add_dependencies(leancpp copy-leantar)
 endif()
@@ -921,6 +923,7 @@ set(
   Init
   Std
   Lean
+  LeanExport
   Leanc
   LeanIR
 )
@@ -989,7 +992,14 @@ else()
     VERBATIM
   )
 
-  string(APPEND CMAKE_EXE_LINKER_FLAGS " -lInit_shared -lleanshared_2 -lleanshared_1 -lleanshared")
+  string(APPEND CMAKE_DYN_EXE_LINKER_FLAGS " -lInit_shared -lleanshared_2 -lleanshared_1 -lleanshared")
+
+  # NOTE: `mimalloc_paranoid` in front of `leanrt` and no `leanshared` to replace default allocator
+  set(
+    LEANCHECKER_PARANOID_LINKER_FLAGS
+    "${CMAKE_EXE_LINKER_FLAGS} -lmimalloc_paranoid -linitialize_minimal ${LEANC_STATIC_LINKER_FLAGS}"
+  )
+
 endif()
 
 if(NOT CMAKE_SYSTEM_NAME MATCHES "Emscripten")
@@ -1017,6 +1027,49 @@ if(NOT CMAKE_SYSTEM_NAME MATCHES "Emscripten")
     COMMAND $(MAKE) -f ${CMAKE_BINARY_DIR}/stdlib.make leanchecker
     VERBATIM
   )
+
+  # NOTE: uses toolchain from contained `lean-toolchain` so bumps are necessary only on kernel
+  # interface changes. Not in `ALL` as it's expensive; release CI builds it explicitly.
+  ExternalProject_Add(
+    lean4lean
+    PREFIX lean4lean
+    EXCLUDE_FROM_ALL ON
+    GIT_REPOSITORY https://github.com/Kha/lean4lean
+    GIT_TAG lean4-bundle-4.35
+    PATCH_COMMAND bash ${LEAN_SOURCE_DIR}/../script/lean4lean-minimal-init.sh
+    CONFIGURE_COMMAND ""
+    BUILD_COMMAND lake build lean4lean
+    BUILD_IN_SOURCE ON
+    INSTALL_COMMAND
+      ${CMAKE_COMMAND} -E copy .lake/build/bin/lean4lean${CMAKE_EXECUTABLE_SUFFIX}
+      ${CMAKE_BINARY_DIR}/bin
+  )
+
+  # Not in `ALL` as it's expensive; release CI builds it explicitly.
+  ExternalProject_Add(
+    nanoda
+    PREFIX nanoda
+    EXCLUDE_FROM_ALL ON
+    GIT_REPOSITORY https://github.com/ammkrn/nanoda_lib
+    GIT_TAG 4c544ed4099c8227f07d5de77ad1e69fb0740a27
+    CONFIGURE_COMMAND ""
+    BUILD_COMMAND cargo build --release --locked
+    BUILD_IN_SOURCE ON
+    INSTALL_COMMAND
+      ${CMAKE_COMMAND} -E copy target/release/nanoda_bin${CMAKE_EXECUTABLE_SUFFIX}
+      ${CMAKE_BINARY_DIR}/bin
+  )
+
+  # Not `ALL` as it's big; release CI builds it explicitly.
+  if(USE_MIMALLOC)
+    add_custom_target(
+      leanchecker-paranoid
+      WORKING_DIRECTORY ${LEAN_SOURCE_DIR}
+      DEPENDS lake_shared mimalloc_paranoid initialize_minimal
+      COMMAND $(MAKE) -f ${CMAKE_BINARY_DIR}/stdlib.make leanchecker-paranoid
+      VERBATIM
+    )
+  endif()
 endif()
 
 if(PREV_STAGE)
@@ -1032,6 +1085,7 @@ endif()
 
 if(NOT CMAKE_SYSTEM_NAME MATCHES "Emscripten")
   add_custom_target(leanir ALL DEPENDS leanshared COMMAND $(MAKE) -f ${CMAKE_BINARY_DIR}/stdlib.make leanir VERBATIM)
+  add_custom_target(leanexport ALL DEPENDS leanshared COMMAND $(MAKE) -f ${CMAKE_BINARY_DIR}/stdlib.make leanexport VERBATIM)
 endif()
 
 # use Bash version for building, use Lean version in bin/ for tests & distribution
@@ -1151,6 +1205,14 @@ endif()
 
 # Escape for `make`. Yes, twice.
 string(REPLACE "$" "\\\$$" CMAKE_EXE_LINKER_FLAGS_MAKE "${CMAKE_EXE_LINKER_FLAGS}")
+string(REPLACE "$" "\\\$$" CMAKE_DYN_EXE_LINKER_FLAGS_MAKE "${CMAKE_DYN_EXE_LINKER_FLAGS}")
+string(
+  REPLACE
+  "$"
+  "\\\$$"
+  LEANCHECKER_PARANOID_LINKER_FLAGS_MAKE
+  "${LEANCHECKER_PARANOID_LINKER_FLAGS}"
+)
 configure_file(${LEAN_SOURCE_DIR}/stdlib.make.in ${CMAKE_BINARY_DIR}/stdlib.make)
 
 # hacky

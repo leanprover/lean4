@@ -1543,7 +1543,7 @@ def mkTermInfo (elaborator : Name) (stx : Syntax) (e : Expr) (expectedType? : Op
     hole, and that the `Info` for the hole is supplied later via `assignInfoHoleId`.
 
     If a nested elaboration already emitted the hole for `mvarId`, then the current elaboration
-    merely passes the hole through and returning another hole would discard all `Info` it produced,
+    merely passes the hole through as returning another hole would discard all `Info` it produced,
     e.g. the `Info` for `type` in `(e : type)` when `e` is a tactic block. In this case, we emit an
     ordinary term node that contains the nested hole.
 

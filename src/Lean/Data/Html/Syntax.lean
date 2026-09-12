@@ -63,6 +63,7 @@ where
     let mut i := i
     while h : ¬i.atEnd ref do
       let d ← digit? (i.get' ref h)
+      if d ≥ radix then none
       n := n * radix + d
       if n > 0x10FFFF then none -- exceeded Unicode range
       i := i.next' ref h

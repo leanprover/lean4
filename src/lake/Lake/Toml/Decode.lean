@@ -209,6 +209,10 @@ public def decodeValue (t : Table) (k : Name) (ref := Syntax.missing) : EDecodeM
   [dec : DecodeToml α] (t : Table) (k : Name)
 : EDecodeM (Option α) := t.find? k |>.mapM fun v => decodeKeyval (dec := dec) k v
 
+@[inline] public def decodeD
+  [dec : DecodeToml α] (t : Table) (k : Name) (default : α)
+: EDecodeM α := t.find? k |>.elim (pure default) (decodeKeyval (dec := dec) k)
+
 public def decodeNameMap [dec : DecodeToml α] (t : Toml.Table) : EDecodeM (NameMap α) := do
   t.items.foldl (init := pure {}) fun m (k,v) =>
     mergeErrors m (dec.decode v) fun m v => m.insert k v

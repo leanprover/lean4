@@ -30,8 +30,8 @@ def expandDepSpec (stx : TSyntax ``depSpec) (doc? : Option DocComment) : MacroM 
       let rev ← quoteOptTerm rev?
       let subDir ← quoteOptTerm subDir?
       ``(DependencySrc.git $url $rev $subDir)
-    | `(fromSource|$path:term) => withRef src do
-      ``(DependencySrc.path $path)
+    | `(fromSource|$[copy%$copyTk?]? $path:term) => withRef src do
+      ``(DependencySrc.path $path $(quote copyTk?.isSome))
     | _ => Macro.throwErrorAt src "ill-formed from syntax"
   let `(depName|$[$scope? /]? $nameStx) := fullNameStx
     | Macro.throwErrorAt fullNameStx "ill-formed name syntax"

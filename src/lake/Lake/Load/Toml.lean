@@ -289,8 +289,8 @@ public instance : DecodeField (LeanLibConfig n) `roots := ⟨decodeRoots⟩
 public protected def DependencySrc.decodeToml (t : Table) (ref := Syntax.missing) : EDecodeM DependencySrc := do
   let typeVal ← t.decodeValue `type
   match (← typeVal.decodeString) with
-  | "path" =>
-    return .path (← t.decode `dir)
+  | "path" => ensureDecode do
+    return .path (← t.tryDecode `dir) (← t.tryDecodeD `copy false)
   | "git" => ensureDecode do
     return .git (← t.tryDecode `url ref) (← t.tryDecode? `rev) (← t.tryDecode? `subDir)
   | _ =>
@@ -310,7 +310,7 @@ public protected def Dependency.decodeToml (t : Table) (ref := Syntax.missing) :
   let rev? ← t.tryDecode? `rev
   let src? : Option DependencySrc ← tryDecode do
     if let some dir ← t.decode? `path then
-      return some <| .path dir
+      return some <| .path dir (← t.decodeD `copy false)
     else if let some g := t.find? `git then
       match g with
       | .string _ url => ensureDecode do

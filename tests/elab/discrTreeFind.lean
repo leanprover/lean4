@@ -13,13 +13,13 @@ opaque h : Nat → Nat → Nat → Nat → Nat
 
 /--
 info: [0]
-$(f => (node (* => (node #[0])) (f => (node (* => (node #[1]))))))
+$(f => (node (* => (node #[0])) (f => (chain * => (node #[1])))))
 ---
 info: [0, 2]
-$(f => (node (* => (node #[0])) (f => (node (* => (node #[1])))) (a => (node #[2]))))
+$(f => (node (* => (node #[0])) (f => (chain * => (node #[1]))) (a => (node #[2]))))
 ---
 info: [0, 2]
-$(f => (node (* => (node #[0])) (f => (node (* => (node #[1])))) (a => (node #[2])) (b => (node #[3]))))
+$(f => (node (* => (node #[0])) (f => (chain * => (node #[1]))) (a => (node #[2])) (b => (node #[3]))))
 ---
 info: [0, 2]
 $(f => (node
@@ -46,13 +46,13 @@ info: [0, 1, 4]
 
 /--
 info: [0]
-$(f => (node (* => (node #[0])) (f => (node (* => (node #[1]))))))
+$(f => (node (* => (node #[0])) (f => (chain * => (node #[1])))))
 ---
 info: [0]
-$(f => (node (* => (node #[0])) (f => (node (* => (node #[1])))) (a => (node #[2]))))
+$(f => (node (* => (node #[0])) (f => (chain * => (node #[1]))) (a => (node #[2]))))
 ---
 info: [0]
-$(f => (node (* => (node #[0])) (f => (node (* => (node #[1])))) (a => (node #[2])) (b => (node #[3]))))
+$(f => (node (* => (node #[0])) (f => (chain * => (node #[1]))) (a => (node #[2])) (b => (node #[3]))))
 ---
 info: [0]
 $(f => (node
@@ -79,13 +79,13 @@ info: [0, 1]
 
 /--
 info: [0]
-$(f => (node (* => (node #[0])) (f => (node (* => (node #[1]))))))
+$(f => (node (* => (node #[0])) (f => (chain * => (node #[1])))))
 ---
 info: [0, 2]
-$(f => (node (* => (node #[0])) (f => (node (* => (node #[1])))) (a => (node #[2]))))
+$(f => (node (* => (node #[0])) (f => (chain * => (node #[1]))) (a => (node #[2]))))
 ---
 info: [0, 2]
-$(f => (node (* => (node #[0])) (f => (node (* => (node #[1])))) (a => (node #[2])) (b => (node #[3]))))
+$(f => (node (* => (node #[0])) (f => (chain * => (node #[1]))) (a => (node #[2])) (b => (node #[3]))))
 ---
 info: [0, 2]
 $(f => (node
@@ -112,13 +112,13 @@ info: [0, 1, 4]
 
 /--
 info: [0, 1]
-$(f => (node (* => (node #[0])) (f => (node (* => (node #[1]))))))
+$(f => (node (* => (node #[0])) (f => (chain * => (node #[1])))))
 ---
 info: [0, 1, 2]
-$(f => (node (* => (node #[0])) (f => (node (* => (node #[1])))) (a => (node #[2]))))
+$(f => (node (* => (node #[0])) (f => (chain * => (node #[1]))) (a => (node #[2]))))
 ---
 info: [0, 1, 2, 3]
-$(f => (node (* => (node #[0])) (f => (node (* => (node #[1])))) (a => (node #[2])) (b => (node #[3]))))
+$(f => (node (* => (node #[0])) (f => (chain * => (node #[1]))) (a => (node #[2])) (b => (node #[3]))))
 ---
 info: [0, 1, 4, 2, 3]
 $(f => (node
@@ -145,13 +145,13 @@ info: [0, 1, 4]
 
 /--
 info: ([0, 1], 1)
-$(f => (node (* => (node #[0])) (f => (node (* => (node #[1]))))))
+$(f => (node (* => (node #[0])) (f => (chain * => (node #[1])))))
 ---
 info: ([0, 1, 2], 1)
-$(f => (node (* => (node #[0])) (f => (node (* => (node #[1])))) (a => (node #[2]))))
+$(f => (node (* => (node #[0])) (f => (chain * => (node #[1]))) (a => (node #[2]))))
 ---
 info: ([0, 1, 2, 3], 1)
-$(f => (node (* => (node #[0])) (f => (node (* => (node #[1])))) (a => (node #[2])) (b => (node #[3]))))
+$(f => (node (* => (node #[0])) (f => (chain * => (node #[1]))) (a => (node #[2])) (b => (node #[3]))))
 ---
 info: ([0, 1, 4, 2, 3], 1)
 $(f => (node
@@ -178,13 +178,13 @@ info: ([0, 1, 4, 2, 3], 1)
 
 /--
 info: ([0, 1], 1)
-$(f => (node (* => (node #[0])) (f => (node (* => (node #[1]))))))
+$(f => (node (* => (node #[0])) (f => (chain * => (node #[1])))))
 ---
 info: ([0, 1, 2], 1)
-$(f => (node (* => (node #[0])) (f => (node (* => (node #[1])))) (a => (node #[2]))))
+$(f => (node (* => (node #[0])) (f => (chain * => (node #[1]))) (a => (node #[2]))))
 ---
 info: ([0, 1, 2, 3], 1)
-$(f => (node (* => (node #[0])) (f => (node (* => (node #[1])))) (a => (node #[2])) (b => (node #[3]))))
+$(f => (node (* => (node #[0])) (f => (chain * => (node #[1]))) (a => (node #[2])) (b => (node #[3]))))
 ---
 info: ([0, 1, 4, 2, 3], 1)
 $(f => (node

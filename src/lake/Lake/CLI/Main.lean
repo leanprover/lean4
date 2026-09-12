@@ -819,6 +819,8 @@ protected def putStaged : CliM PUnit := do
   processOptions lakeOption
   let opts ← getThe LakeOptions
   let stagingDir ← FilePath.mk <$> takeArg "staging directory"
+  let some rev := opts.rev?
+    | error "the `--rev` option must be set"
   let some scope := opts.scope?
     | error "the `--scope` or `--repo` option must be set"
   if opts.package?.isSome then
@@ -829,7 +831,6 @@ protected def putStaged : CliM PUnit := do
   let platform := opts.platform?.getD .none
   let toolchain := opts.toolchain?.getD .none
   let service ← computeUploadService opts.service? cfg.lakeEnv lakeCfg
-  let rev ← opts.rev?.getDM (computePackageRev cfg.wsDir)
   let outputsFile := stagingDir / stagingOutputsFile
   putCore rev outputsFile stagingDir service scope platform toolchain
 

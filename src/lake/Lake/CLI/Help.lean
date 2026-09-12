@@ -701,11 +701,8 @@ instead of the Lake cache.
 Does not configure the workspace and thus does not execute arbitrary user
 code. However, because of this, the package's platform and toolchain settings
 will not be automatically detected for `--repo` and must be specified manually
-via `--platform` and `--toolchain` (if needed).
-
-Lake will still, by default, detect the target revision from the workspace
-directory's current Git revision. To upload outputs for a different revision,
-specify it with `--rev`."
+via `--platform` and `--toolchain` (if needed). Similarly, the source revision
+the outputs correspond to must be manually specified via `--rev`."
 
 def helpCacheClean :=
 "Removes ALL files from the local Lake cache

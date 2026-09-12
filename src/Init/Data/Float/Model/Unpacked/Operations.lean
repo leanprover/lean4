@@ -11,6 +11,7 @@ public import Init.Data.Float.Model.Unpacked.Operations.Mul
 public import Init.Data.Float.Model.Unpacked.Operations.Sub
 public import Init.Data.Float.Model.Unpacked.Operations.Div
 public import Init.Data.Float.Model.Unpacked.Operations.Sqrt
+public import Init.Data.Float.Model.Unpacked.Operations.Fma
 public import Init.Data.Float.Model.Unpacked.Operations.Compare
 public import Init.Data.Float.Model.Unpacked.Operations.Sign
 public import Init.Data.Float.Model.Unpacked.Operations.Status

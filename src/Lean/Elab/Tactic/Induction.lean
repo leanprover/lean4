@@ -1001,9 +1001,7 @@ def evalInductionCore (stx : Syntax) (elimInfo : ElimInfo) (targets : Array Expr
 
 /-- Returns the change of variables together with the new variable `y` in the new goal. -/
 private def withNewVar (x : FVarId) (yType : Expr)
-    (k : Expr → MetaM (Option ChangeVarsResult)) : MetaM (Option (ChangeVarsResult × FVarId)) := do
-  -- The new variable would be ill-scoped once `x` is gone.
-  if yType.containsFVar x then return none
+    (k : Expr → MetaM (Option ReparametrizeResult)) : MetaM (Option (ReparametrizeResult × FVarId)) := do
   withLocalDeclD (← x.getUserName) yType fun y => do
     let some r ← k y | return none
     return some (r, (r.transport y).fvarId!)
@@ -1013,27 +1011,28 @@ Replaces `x : S params` by `⟨y⟩`, where `y` is a fresh variable named like `
 `⟨y⟩.f` created by the substitution fold back to `y`.
 -/
 private def replaceByCtor (mvarId : MVarId) (x : FVarId) (ctorVal : ConstructorVal) (us : List Level)
-    (params : Array Expr) : MetaM (Option (ChangeVarsResult × FVarId)) := do
-  let yVal ← mkProjFn ctorVal us params 0 (mkFVar x)
+    (params : Array Expr) : MetaM (Option (ReparametrizeResult × FVarId)) := do
+  let yInTermsOfX ← mkProjFn ctorVal us params 0 (mkFVar x)
   -- The field type of a one-field structure depends on the params only.
-  withNewVar x (← inferType yVal) fun y => do
-    let xVal := mkAppN (mkConst ctorVal.name us) (params.push y)
+  withNewVar x (← inferType yInTermsOfX) fun y => do
+    let xInTermsOfY := mkAppN (mkConst ctorVal.name us) (params.push y)
     -- `⟨y⟩.f` may be spelled with the projection function or as `Expr.proj`.
-    let projApp ← mkProjFn ctorVal us params 0 xVal
-    mvarId.changeVars #[x] #[y] #[xVal] #[yVal] fun e =>
-      if e == projApp || e == .proj ctorVal.induct 0 xVal then some y else none
+    let projApp ← mkProjFn ctorVal us params 0 xInTermsOfY
+    mvarId.reparametrize x y.fvarId! xInTermsOfY yInTermsOfX fun e =>
+      if e == projApp || e == .proj ctorVal.induct 0 xInTermsOfY then some y else none
 
 /--
 Replaces `x` by `y.f`, where `y : S params` is a fresh variable named like `x`. The constructor
 applications `⟨y.f⟩` created by the substitution fold back to `y`.
 -/
 private def replaceByProj (mvarId : MVarId) (x : FVarId) (ctorVal : ConstructorVal) (us : List Level)
-    (params : Array Expr) : MetaM (Option (ChangeVarsResult × FVarId)) := do
+    (params : Array Expr) : MetaM (Option (ReparametrizeResult × FVarId)) := do
   withNewVar x (mkAppN (mkConst ctorVal.induct us) params) fun y => do
-    let xVal ← mkProjFn ctorVal us params 0 y
-    let yVal := mkAppN (mkConst ctorVal.name us) (params.push (mkFVar x))
-    mvarId.changeVars #[x] #[y] #[xVal] #[yVal] fun e =>
-      if e.cleanupAnnotations == mkAppN (mkConst ctorVal.name us) (params.push xVal) then y else none
+    let xInTermsOfY ← mkProjFn ctorVal us params 0 y
+    let yInTermsOfX := mkAppN (mkConst ctorVal.name us) (params.push (mkFVar x))
+    mvarId.reparametrize x y.fvarId! xInTermsOfY yInTermsOfX fun e =>
+      if e.cleanupAnnotations == mkAppN (mkConst ctorVal.name us) (params.push xInTermsOfY) then y
+      else none
 
 /--
 The goal of `induction` together with the expressions that have to be kept in sync with it while
@@ -1046,7 +1045,7 @@ private structure IndexState where
   toTag    : Array (Ident × FVarId)
 
 /-- Transports `s` along a change of variables of `s.mvarId`. -/
-private def IndexState.apply (s : IndexState) (r : ChangeVarsResult) : IndexState where
+private def IndexState.apply (s : IndexState) (r : ReparametrizeResult) : IndexState where
   mvarId   := r.mvarId
   targets  := s.targets.map r.transport
   elimInfo := { s.elimInfo with
@@ -1071,7 +1070,7 @@ private def IndexBijection.proj (ctorVal : ConstructorVal) (us : List Level) (pa
 
 /-- Turns `b x` into a fresh variable by replacing the base `x`, see `replaceByProj`/`replaceByCtor`. -/
 private def IndexBijection.invertBijection (b : IndexBijection) (mvarId : MVarId) (x : FVarId) :
-    MetaM (Option (ChangeVarsResult × FVarId)) :=
+    MetaM (Option (ReparametrizeResult × FVarId)) :=
   if b.isCtor then
     replaceByProj mvarId x b.ctorVal b.us b.params
   else

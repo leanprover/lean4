@@ -155,69 +155,78 @@ def _root_.Lean.MVarId.generalizeHyp (mvarId : MVarId) (args : Array GeneralizeA
     pure subst
   return (fvarSubst, newVars, mvarId)
 
-structure ChangeVarsResult where
+structure ReparametrizeResult where
   mvarId : MVarId
   /--
   Transports an expression of the original goal's context to the context of `mvarId`: substitutes
-  `xs`, folds, and renames `ys` and the reintroduced declarations to their new fvars.
+  `x`, folds, and renames `y` and the reintroduced declarations to their new fvars.
   -/
   transport : Expr → Expr
 
 /--
-Definitional change of variables: replaces the variables `xs` by the terms `xsVals`.
-The latter can use the fresh variables `ys`, local declarations of the current context that do not
-depend on `xs`. Let-bound `xs` and `xs` that auxiliary declarations depend on are kept in the context;
-the auxiliary declarations themselves are left untouched, like `induction` does.
-The old goal is closed by instantiating `ys` with `ysVals`, so `xsVals[ys := ysVals]` must be
-definitionally equal to `xs`.
-After the substitution, subterms for which `fold` returns `some r` are replaced by `r`, e.g.
-`⟨y.f⟩ ↦ y`.
-Returns `none` if the result is not type correct.
+Definitional change of variables: replaces the variable `x` by the term `xInTermsOfY`.
+The latter can depend on the fresh variable `y` and local declarations of the current context that
+do not depend on `x`.
+A let-bound `x` or one that auxiliary declarations depend on is kept in the context.
+The old goal is closed by instantiating `y` with `yInTermsOfX`.
+For this to be type correct, the arguments must satisfy `xInTermsOfY[y := yInTermsOfX] =?= x`.
+
+The `fold` function can be used to simplify expressions after the substitution.
+For example, it could apply the replacement `yInTermsOfX[x := xInTermsOfY] ↦ y`,
+so that `yInTermsOfX` in the original expression will turn out as `y` in the end.
+
+Returns `none` if the result is not type correct or if the substitution fails in any other way.
 -/
-def _root_.Lean.MVarId.changeVars (mvarId : MVarId) (xs : Array FVarId) (ys : Array Expr)
-    (xsVals : Array Expr) (ysVals : Array Expr) (fold : Expr → Option Expr := fun _ => none) :
-    MetaM (Option ChangeVarsResult) := do
-  mvarId.checkNotAssigned `changeVars
+def _root_.Lean.MVarId.reparametrize (mvarId : MVarId) (x y : FVarId)
+    (xInTermsOfY yInTermsOfX : Expr) (fold : Expr → Option Expr := fun _ => none) :
+    MetaM (Option ReparametrizeResult) := do
+  mvarId.checkNotAssigned `reparametrize
   let mvarDecl ← mvarId.getDecl
   /-
-  Revert all fvars in `xs` and their dependent local declarations, except for auxiliary
-  declarations: like `induction`, we leave them alone and keep the `xs` they depend on.
+  Revert `x` and its dependent local declarations, except for auxiliary declarations: like
+  `induction`, we leave them alone and keep `x` if they depend on it.
   -/
-  let deps ← collectForwardDeps (xs.map mkFVar) (preserveOrder := false)
+  let deps ← collectForwardDeps #[mkFVar x] (preserveOrder := false)
   let (auxDecls, toRevert) := (← deps.mapM (·.fvarId!.getDecl)).partition (·.isAuxDecl)
-  -- An auxiliary declaration depending on a reverted declaration would become ill-scoped.
-  if auxDecls.any fun a => toRevert.any fun d => !xs.contains d.fvarId && a.type.containsFVar d.fvarId then
-    return none
+  let dependents := toRevert.filter (·.fvarId != x)
+  let keepX ← pure (← x.getDecl).isLet <||> auxDecls.anyM (localDeclDependsOn · x)
+  let toErase := if keepX then dependents else toRevert
+
+  let isErased (fvarId : FVarId) := toErase.any (·.fvarId == fvarId)
+  if ← auxDecls.anyM (localDeclDependsOnPred · isErased) then return none
+  if ← dependsOnPred xInTermsOfY isErased then return none
+  if ← dependsOnPred (← y.getType) isErased then return none
 
   /-
   First, revert all dependent local declarations. The result is the forall term `body`.
   We plan to reintroduce them later, hence `usedLetOnly := false`.
   -/
-  let dependentLDecls := toRevert.filterMap fun d => if xs.contains d.fvarId then none else some d.toExpr
+  let dependentLDecls := dependents.map (·.toExpr)
   let body ← mkForallFVars dependentLDecls (← instantiateMVars mvarDecl.type) (usedLetOnly := false)
+  -- Metavariables depending on `x` become functions of `x`, so that we can substitute.
+  let body ← elimMVarDeps #[mkFVar x] body
 
-  /- Replace the fvars with their substitutes, fold, then generalize over the new fvars. -/
-  let transport (e : Expr) : Expr := (e.replaceFVars (xs.map mkFVar) xsVals).replace fold
-  let newType ← mkForallFVars ys (transport body)
-  unless ← isTypeCorrect newType do
-    return none
-  /- Let-bound `xs` and `xs` that auxiliary declarations depend on stay in the context. -/
-  let toErase := toRevert.filter fun d =>
-    !(xs.contains d.fvarId && (d.isLet || auxDecls.any (·.type.containsFVar d.fvarId)))
+  /- Replace `x` with its substitute, fold, then generalize over `y`. -/
+  let transport (e : Expr) : Expr := (e.replaceFVar (mkFVar x) xInTermsOfY).replace fold
+  let newType ← mkForallFVars #[mkFVar y] (transport body)
   let lctx := toErase.foldl (init := mvarDecl.lctx) fun lctx d => lctx.erase d.fvarId
   let localInsts := mvarDecl.localInstances.filter fun inst => toErase.all (·.fvarId != inst.fvar.fvarId!)
+  -- Note that this type check doesn't cover auxiliary declarations and contexts of metavariables.
+  unless ← withLCtx lctx localInsts <| isTypeCorrect newType do
+    return none
   let generalizedGoal ← mkFreshExprMVarAt lctx localInsts newType .syntheticOpaque (← mvarId.getTag)
-  let nonLetDependentDecls := toRevert.filterMap fun d =>
-    if xs.contains d.fvarId || d.isLet then none else some d.toExpr
-  mvarId.assign (mkAppN (mkAppN generalizedGoal ysVals) nonLetDependentDecls)
+  let nonLetDependentDecls := dependents.filterMap fun d => if d.isLet then none else some d.toExpr
+  mvarId.assign (mkAppN (mkApp generalizedGoal yInTermsOfX) nonLetDependentDecls)
 
-  /- Reintroduce the local declarations. -/
-  -- TODO: `introNP` might reintroduce decls with `.isImplementationDetail = true`, as visible fvars.
-  -- Is this intended? This is the mechanism used by `revert + intro`.
-  let (fvarIds, newGoalId) ← generalizedGoal.mvarId!.introNP (ys.size + dependentLDecls.size)
+  /-
+  Reintroduce the local declarations.
+  Sadly, `introNP` might reintroduce decls with `.isImplementationDetail = true`, as visible fvars,
+  but we accept this here for lack of a better solution.
+  -/
+  let (fvarIds, newGoalId) ← generalizedGoal.mvarId!.introNP (1 + dependents.size)
 
-  /- Rename `ys` and the reintroduced declarations to their new fvars. -/
-  let rename (e : Expr) : Expr := e.replaceFVars (ys ++ dependentLDecls) (fvarIds.map mkFVar)
+  /- Rename `y` and the reintroduced declarations to their new fvars. -/
+  let rename (e : Expr) : Expr := e.replaceFVars (#[mkFVar y] ++ dependentLDecls) (fvarIds.map mkFVar)
   return some { mvarId := newGoalId, transport := rename ∘ transport }
 
 end Lean.Meta

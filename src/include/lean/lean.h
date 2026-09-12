@@ -2245,6 +2245,30 @@ static inline uint64_t lean_uint64_of_nat_mk(lean_obj_arg a) { uint64_t r = lean
 static inline uint64_t lean_uint64_add(uint64_t a1, uint64_t a2) { return a1+a2; }
 static inline uint64_t lean_uint64_sub(uint64_t a1, uint64_t a2) { return a1-a2; }
 static inline uint64_t lean_uint64_mul(uint64_t a1, uint64_t a2) { return 1U*a1*a2; }
+#if !defined(__SIZEOF_INT128__)
+static inline uint64_t lean_uint64_add_mod(uint64_t a, uint64_t b, uint64_t modulus) {
+    return a >= modulus - b ? a - (modulus - b) : a + b;
+}
+#endif
+static inline uint64_t lean_uint64_mul_mod(uint64_t a, uint64_t b, uint64_t modulus) {
+    if (modulus == 0) return a * b;
+    if (modulus == 1) return 0;
+#if defined(__SIZEOF_INT128__)
+    __uint128_t product = (__uint128_t)a * (__uint128_t)b;
+    if (product <= UINT64_MAX) return (uint64_t)product % modulus;
+    return (uint64_t)(product % modulus);
+#else
+    /* Double and add keeps every intermediate below modulus without requiring 128-bit words. */
+    a %= modulus;
+    uint64_t result = 0;
+    while (b != 0) {
+        if (b & 1) result = lean_uint64_add_mod(result, a, modulus);
+        b >>= 1;
+        if (b != 0) a = lean_uint64_add_mod(a, a, modulus);
+    }
+    return result;
+#endif
+}
 static inline uint64_t lean_uint64_div(uint64_t a1, uint64_t a2) { return a2 == 0 ? 0  : a1/a2; }
 static inline uint64_t lean_uint64_mod(uint64_t a1, uint64_t a2) { return a2 == 0 ? a1 : a1%a2; }
 static inline uint64_t lean_uint64_land(uint64_t a, uint64_t b) { return a & b; }

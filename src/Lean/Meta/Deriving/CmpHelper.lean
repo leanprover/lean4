@@ -135,6 +135,10 @@ def Kind.cmpFieldName : Kind → Name
   | .beq => ``BEq.beq
   | .ord => ``Ord.compare
 
+def Kind.cmpFieldSuffix : Kind → Name
+  | .beq => `beq
+  | .ord => `compare
+
 def Kind.cmpField : Kind → Level → Expr → Expr
   | k, u, α => .app (.const k.cmpFieldName [u]) α
 
@@ -1253,18 +1257,52 @@ def deriveCmpClass (k : Kind) : Elab.DerivingHandler := mkInductiveDerivingHandl
     let lvl ← getDecLevel ty
     let lawInst ← synthInstanceDeriving <| mkApp2 (.const k.lawfulEqClassName [lvl]) ty inst
     return .app (k.lawfulEqField lvl ty inst) lawInst
-  let values ← fillInHelperArgs indInfo helperApp makeCmp makeLawful
-  let hyps ← produceInstanceHyps
+  let preHelpers := fillInHelperArgs indInfo helperApp makeCmp makeLawful
   let lvl ← decLevel (← read).indLevel
+  let mkHelperApp (helperArgs : Array Expr) (induct : Name)
+      (indices : Array Expr) (a b : Expr) : DerivingM Expr := do
+    let helperApp := mkAppN (.const (k.mkHelperName induct) (← read).lparams) (← read).indParams
+    let helperApp := mkAppN helperApp helperArgs
+    let helperApp := (mkAppN ((mkAppN helperApp indices).app a) indices).app b
+    return helperApp
+  if ← isNested then
+    makeInstancesUsingMutualPartialBlock (preHelpers := preHelpers) <|
+        ← (← read).indInfo.all.toArray.mapM fun induct => do
+      let indApp := mkAppN (.const induct (← read).lparams) (← read).indParams
+      let (type, helperType) ← forallTelescopeReducing (← inferType indApp) fun indices _ => do
+        let indApp := mkAppN indApp indices
+        let type ← mkForallFVars indices <| .app (.const k.className [lvl]) indApp
+        let helperType ← mkForallFVars indices <|
+          .forallE `a indApp (.forallE `b indApp k.indicatorType .default) .default
+        return (type, helperType)
+      return {
+        induct, type
+        helpers := #[{
+          suffix := k.cmpFieldSuffix
+          type := helperType
+          mkValue _ helperArgs := do
+            forallTelescope helperType fun indicesAB _ => do
+              let a := indicesAB[indicesAB.size - 2]!
+              let b := indicesAB[indicesAB.size - 1]!
+              let indices := indicesAB.pop.pop
+              mkLambdaFVars indicesAB <| ← mkHelperApp helperArgs induct indices a b
+        }]
+        mkValue helpers := do
+          let #[helper] := helpers | unreachable!
+          forallTelescope type fun indices _ => do
+            let indApp := mkAppN indApp indices
+            return .app (k.classCtor lvl indApp) <| mkAppN helper indices
+      }
+    return true
+  let helperArgs ← preHelpers
+  let hyps ← produceInstanceHyps
   for name in (← read).names do
     let indApp := mkAppN (.const name (← read).lparams) (← read).indParams
     forallTelescopeReducing (← inferType indApp) fun indices _ => do
       let indApp := mkAppN indApp indices
       withLocalDeclD `a indApp fun a => do
       withLocalDeclD `b indApp fun b => do
-      let helperApp := mkAppN (.const (k.mkHelperName name) (← read).lparams) (← read).indParams
-      let helperApp := mkAppN helperApp values
-      let helperApp := (mkAppN ((mkAppN helperApp indices).app a) indices).app b
+      let helperApp ← mkHelperApp helperArgs name indices a b
       mkInstanceForDeriving hyps (← mkForallFVars indices <| .app (.const k.className [lvl]) indApp)
         (← mkLambdaFVars indices <| .app (k.classCtor lvl indApp) (← mkLambdaFVars #[a, b] helperApp))
   return true
@@ -1383,71 +1421,102 @@ def deriveDecidableEq : Elab.DerivingHandler := mkInductiveDerivingHandler (need
     withLocalDeclD `b ty fun b => do
     let eq := mkApp3 (.const ``Eq [lvl]) ty a b
     mkLambdaFVars #[a, b] <| mkApp2 (.const ``of_decide_eq_true []) eq (mkApp2 inst a b)
-  let values ← fillInHelperArgs indInfo helperApp makeCmp makeLawful
-  let helperApp := mkAppN helperApp values
-  -- Construct the reflexivity arguments
-  let reflProof := helperApp.replaceFn (k.mkReflName indInfo.name)
-  let reflProofType ← inferType reflProof
-  let arity := reflProofType.getForallArity
-  let nhyps := arity - (indInfo.numIndices + 1)
-  let reflHyps ← forallBoundedTelescope reflProofType nhyps fun hypVars _ => do
-    hypVars.mapM fun hypVar => do
-      let ty ← inferType hypVar
-      forallTelescope ty fun hypParams body => do
-        let mkApp3 (.const ``Eq _) _ decide _ := body |
-          throwError "Unexpected hypothesis{indentExpr body}"
-        let mkApp2 (.const ``decide []) p@(mkApp3 (.const ``Eq [u]) ty a b) inst := decide |
-          throwError "Unexpected hypothesis{indentExpr body}"
-        unless a == b do
-          throwError "Unexpected hypothesis{indentExpr body}"
-        mkLambdaFVars hypParams <| mkApp3 (.const ``decide_eq_true []) p inst
-          (mkApp2 (.const ``rfl [u]) ty a)
-  -- Construct the lawfulness arguments
-  let lawfulProof := helperApp.replaceFn (k.mkLawfulName indInfo.name)
-  let lawfulProofType ← inferType lawfulProof
-  let arity := lawfulProofType.getForallArity
-  let nhyps := arity - 2 * (indInfo.numIndices + 1) - 1
-  let lawfulHyps ← forallBoundedTelescope lawfulProofType nhyps fun hypVars _ => do
-    hypVars.mapM fun hypVar => do
-      let ty ← inferType hypVar
-      let arity := ty.getForallArity
-      forallBoundedTelescope ty (some (arity - 1)) fun hypParams body => do
-        let .forallE _ (mkApp3 (.const ``Eq _) _ decide _) _ _ := body |
-          throwError "Unexpected hypothesis{indentExpr body}"
-        let mkApp2 (.const ``decide []) p@(mkApp3 (.const ``Eq [_]) _ _ _) inst := decide |
-          throwError "Unexpected hypothesis{indentExpr body}"
-        mkLambdaFVars hypParams <| mkApp2 (.const ``of_decide_eq_true []) p inst
-  let hyps ← produceInstanceHyps
+  -- Common stuff required for all instances
+  let preHelpers := do
+    let values ← fillInHelperArgs indInfo helperApp makeCmp makeLawful
+    let helperApp := mkAppN helperApp values
+    -- Construct the reflexivity arguments
+    let reflProof := helperApp.replaceFn (k.mkReflName indInfo.name)
+    let reflProofType ← inferType reflProof
+    let arity := reflProofType.getForallArity
+    let nhyps := arity - (indInfo.numIndices + 1)
+    let reflHyps ← forallBoundedTelescope reflProofType nhyps fun hypVars _ => do
+      hypVars.mapM fun hypVar => do
+        let ty ← inferType hypVar
+        forallTelescope ty fun hypParams body => do
+          let mkApp3 (.const ``Eq _) _ decide _ := body |
+            throwError "Unexpected hypothesis{indentExpr body}"
+          let mkApp2 (.const ``decide []) p@(mkApp3 (.const ``Eq [u]) ty a b) inst := decide |
+            throwError "Unexpected hypothesis{indentExpr body}"
+          unless a == b do
+            throwError "Unexpected hypothesis{indentExpr body}"
+          mkLambdaFVars hypParams <| mkApp3 (.const ``decide_eq_true []) p inst
+            (mkApp2 (.const ``rfl [u]) ty a)
+    -- Construct the lawfulness arguments
+    let lawfulProof := helperApp.replaceFn (k.mkLawfulName indInfo.name)
+    let lawfulProofType ← inferType lawfulProof
+    let arity := lawfulProofType.getForallArity
+    let nhyps := arity - 2 * (indInfo.numIndices + 1) - 1
+    let lawfulHyps ← forallBoundedTelescope lawfulProofType nhyps fun hypVars _ => do
+      hypVars.mapM fun hypVar => do
+        let ty ← inferType hypVar
+        let arity := ty.getForallArity
+        forallBoundedTelescope ty (some (arity - 1)) fun hypParams body => do
+          let .forallE _ (mkApp3 (.const ``Eq _) _ decide _) _ _ := body |
+            throwError "Unexpected hypothesis{indentExpr body}"
+          let mkApp2 (.const ``decide []) p@(mkApp3 (.const ``Eq [_]) _ _ _) inst := decide |
+            throwError "Unexpected hypothesis{indentExpr body}"
+          mkLambdaFVars hypParams <| mkApp2 (.const ``of_decide_eq_true []) p inst
+    return (values, reflHyps, lawfulHyps)
   let lvl := (← read).indLevel
+  let mkDecEq (indApp : Expr) (induct : Name) (indices : Array Expr)
+      (helperArgs reflHyps lawfulHyps : Array Expr) : DerivingM Expr := do
+    withLocalDeclD `a indApp fun a => do
+    withLocalDeclD `b indApp fun b => do
+    let eq := mkApp3 (.const ``Eq [lvl]) indApp a b
+    let helperBase := mkAppN (.const (k.mkHelperName induct) (← read).lparams) (← read).indParams
+    let helperBase := mkAppN helperBase helperArgs
+    let helperBase := mkAppN ((mkAppN helperBase indices).app a) indices
+    let helperApp := helperBase.app b
+    -- helper ⋯ a ⋯ a = true
+    let reflApp := mkAppN (.const (k.mkReflName induct) (← read).lparams) (← read).indParams
+    let reflApp := mkAppN (mkAppN reflApp helperArgs) reflHyps
+    let reflApp := (mkAppN reflApp indices).app a
+    -- a = b → helper ⋯ a ⋯ b = true
+    let reflApp := mkApp5 (.const ``Eq.ndrec [0, lvl]) indApp a
+        (.lam `b indApp (k.mkEq (helperBase.app (.bvar 0))) .default) reflApp b
+    -- helper ⋯ a ⋯ b = true → a ≍ b
+    let lawfulApp := mkAppN (.const (k.mkLawfulName induct) (← read).lparams) (← read).indParams
+    let lawfulApp := mkAppN (mkAppN lawfulApp helperArgs) lawfulHyps
+    let lawfulApp := (mkAppN ((mkAppN lawfulApp indices).app a) indices).app b
+    -- helper ⋯ a ⋯ b = true → a = b
+    let lawfulApp : Expr := .lam `heq (k.mkEq helperApp)
+      (mkApp4 (.const ``eq_of_heq [lvl]) indApp a b (lawfulApp.app (.bvar 0))) .default
+    let reflects := mkApp4 (.const ``Bool.Reflects.of_imp []) helperApp eq lawfulApp reflApp
+    let decidable := mkApp3 (.const ``Decidable.intro []) eq helperApp reflects
+    mkLambdaFVars (indices.push a |>.push b) decidable
+  if ← isNested then
+    makeInstancesUsingMutualPartialBlock (preHelpers := preHelpers) <|
+        ← (← read).indInfo.all.toArray.mapM fun induct => do
+      let indApp := mkAppN (.const induct (← read).lparams) (← read).indParams
+      let type ← forallTelescopeReducing (← inferType indApp) fun indices _ => do
+        let indApp := mkAppN indApp indices
+        mkForallFVars indices <| .app (.const ``DecidableEq [lvl]) indApp
+      return {
+        induct, type
+        helpers := #[{
+          suffix := `decEq
+          type
+          mkValue _ stuff := do
+            let (helperArgs, reflHyps, lawfulHyps) := stuff
+            forallTelescope type fun indices _ => do
+              let indApp := mkAppN indApp indices
+              mkDecEq indApp induct indices helperArgs reflHyps lawfulHyps
+        }]
+        -- no conversion required, both the helper and the instance
+        -- just have `DecidableEq` as their type
+        mkValue helpers := pure helpers[0]!
+      }
+    return true
+  let (helperArgs, reflHyps, lawfulHyps) ← preHelpers
+  let hyps ← produceInstanceHyps
   for name in (← read).names do
     let indApp := mkAppN (.const name (← read).lparams) (← read).indParams
     forallTelescopeReducing (← inferType indApp) fun indices _ => do
       let indApp := mkAppN indApp indices
-      withLocalDeclD `a indApp fun a => do
-      withLocalDeclD `b indApp fun b => do
-      let eq := mkApp3 (.const ``Eq [lvl]) indApp a b
-      let helperBase := mkAppN (.const (k.mkHelperName name) (← read).lparams) (← read).indParams
-      let helperBase := mkAppN helperBase values
-      let helperBase := mkAppN ((mkAppN helperBase indices).app a) indices
-      let helperApp := helperBase.app b
-      -- helper ⋯ a ⋯ a = true
-      let reflApp := mkAppN (.const (k.mkReflName name) (← read).lparams) (← read).indParams
-      let reflApp := mkAppN (mkAppN reflApp values) reflHyps
-      let reflApp := (mkAppN reflApp indices).app a
-      -- a = b → helper ⋯ a ⋯ b = true
-      let reflApp := mkApp5 (.const ``Eq.ndrec [0, lvl]) indApp a
-          (.lam `b indApp (k.mkEq (helperBase.app (.bvar 0))) .default) reflApp b
-      -- helper ⋯ a ⋯ b = true → a ≍ b
-      let lawfulApp := mkAppN (.const (k.mkLawfulName name) (← read).lparams) (← read).indParams
-      let lawfulApp := mkAppN (mkAppN lawfulApp values) lawfulHyps
-      let lawfulApp := (mkAppN ((mkAppN lawfulApp indices).app a) indices).app b
-      -- helper ⋯ a ⋯ b = true → a = b
-      let lawfulApp : Expr := .lam `heq (k.mkEq helperApp)
-        (mkApp4 (.const ``eq_of_heq [lvl]) indApp a b (lawfulApp.app (.bvar 0))) .default
-      let reflects := mkApp4 (.const ``Bool.Reflects.of_imp []) helperApp eq lawfulApp reflApp
-      let decidable := mkApp3 (.const ``Decidable.intro []) eq helperApp reflects
-      mkInstanceForDeriving hyps (← mkForallFVars indices <| .app (.const ``DecidableEq [lvl]) indApp)
-        (← mkLambdaFVars (indices.push a |>.push b) decidable)
+      let type ← mkForallFVars indices <| .app (.const ``DecidableEq [lvl]) indApp
+      let value ← mkDecEq indApp name indices helperArgs reflHyps lawfulHyps
+      mkInstanceForDeriving hyps type value
   return true
 
 builtin_initialize

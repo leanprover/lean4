@@ -155,6 +155,7 @@ register_option deriving.strict : Bool := {
 private def isIgnoredConstant (nm : Name) (env : Environment) : Bool :=
   nm == ``Eq || (env.getProjectionFnInfo? nm).any (·.fromClass)
 
+-- TODO: better heuristics
 private def goodKeys (keys : Array DiscrTree.Key) (env : Environment) : Bool := Id.run do
   let some (.const _ _) := keys[0]? | return false
   let mut specialFragment : Option DiscrTree.Key := none
@@ -221,7 +222,9 @@ def tryApplyCanonicalInstance (instType : Expr) :
         if instBody.containsMVar arg.mvarId! then
           continue
         let argType ← inferType arg
-        let keys ← DiscrTree.mkPath argType
+        let keys ← withoutModifyingMCtx do
+          let (_, _, body) ← forallMetaTelescopeReducing argType
+          DiscrTree.mkPath body
         let mut newMVar := arg.mvarId!
         -- If we don't have additional variables from `forallTelescopeReducing` here, we can just
         -- keep the metavariable as-is (but make it synthetic opaque), otherwise revert
@@ -231,6 +234,7 @@ def tryApplyCanonicalInstance (instType : Expr) :
           let mvarApp ← mkFreshRevertedMVarAt argType lctx linsts
           arg.mvarId!.assign mvarApp
           newMVar := mvarApp.getAppFn.mvarId!
+        trace[Elab.Deriving] "Hypothesis keys {keys} for {arg}"
         outVars := outVars.push (newMVar, goodHypothesisKeys keys env)
     unless ← isDefEqI instBody body do
       trace[Elab.Deriving] "Failed to unify"
@@ -472,20 +476,21 @@ def eliminatesToProp : DerivingM Bool := do
   let recInfo ← getConstInfoRec (mkRecName (← read).indInfo.name)
   return recInfo.levelParams.length == (← read).indInfo.levelParams.length
 
-structure HelperInfo where
+structure HelperInfo (α : Type) where
   suffix : Name
   type : Expr
-  mkValue : (instances : Array Expr) → DerivingM Expr
+  mkValue : (instances : Array Expr) → α → DerivingM Expr
   postprocess : (instanceHyps : Array Expr) → PreDefinition → MetaM PreDefinition :=
     fun _ p => pure p
 
-structure InstanceInfo where
+structure InstanceInfo (α : Type) where
   induct : Name
   type : Expr
-  helpers : Array HelperInfo
+  helpers : Array (HelperInfo α)
   mkValue : (helpers : Array Expr) → DerivingM Expr
 
-def makeInstancesUsingMutualPartialBlock (infos : Array InstanceInfo) : DerivingM Unit := do
+def makeInstancesUsingMutualPartialBlock (infos : Array (InstanceInfo α))
+    (preHelpers : DerivingM α := by exact pure ()) : DerivingM Unit := do
   let helperMVars ← infos.mapM fun info => info.helpers.mapM fun helper => do
     mkFreshExprSyntheticOpaqueMVar helper.type
   let mut instanceValues := #[]
@@ -494,8 +499,9 @@ def makeInstancesUsingMutualPartialBlock (infos : Array InstanceInfo) : Deriving
   let instVarInfos := infos.mapIdx fun idx info =>
     ((`recinst).appendIndexAfter (idx + 1), info.type)
   withLocalDeclsDND instVarInfos fun recInsts => do
+    let globalCompute ← preHelpers
     let helperValues ← infos.mapM fun info => info.helpers.mapM fun helper => do
-      let value ← helper.mkValue recInsts
+      let value ← helper.mkValue recInsts globalCompute
       return value.replaceFVars recInsts instanceValues
     let instHyps ← produceInstanceHyps
     -- setup common parameters
@@ -596,7 +602,7 @@ def deriveTransformationInstPerConstructor (className : Name)
       helpers := #[{
         suffix := fieldName
         type := helperType
-        mkValue _ := do
+        mkValue _ _ := do
           let casesOnApp := mkAppN (.const (mkCasesOnName induct) (tgtSort :: (← read).lparams)) (← read).indParams
           let casesOnType ← inferType casesOnApp
           let .forallE _ motiveType body _ := casesOnType | unreachable!

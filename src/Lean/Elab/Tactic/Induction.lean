@@ -999,8 +999,11 @@ def evalInductionCore (stx : Syntax) (elimInfo : ElimInfo) (targets : Array Expr
           (generalized := generalized) (toClear := targetFVarIds) (toTag := toTag)
         appendGoals result.others.toList
 
-/-- Declares the fields of the instantiated constructor type `ctorType`. -/
-private def withFieldDecls (ctorType : Expr) (numFields : Nat) (rename : Nat → Name → MetaM Name)
+/--
+A variant of the forall telescope that preserves binder names.
+Declares the fields of the instantiated constructor type `ctorType`.
+-/
+private def withFieldDecls {α} (ctorType : Expr) (numFields : Nat) (rename : Nat → Name → MetaM Name)
     (k : Array Expr → MetaM α) : MetaM α :=
   go ctorType #[]
 where
@@ -1047,6 +1050,116 @@ private def foldProjOfCtor (ctorVal : ConstructorVal) (projFns : Array (Option N
     ys[i]?
   | _ => none
 
+/-- The type of the single field of the structure constructor `ctorVal` applied to `params`. -/
+private def oneFieldType (ctorVal : ConstructorVal) (us : List Level) (params : Array Expr) :
+    MetaM Expr := do
+  let ctorType := (ctorVal.type.instantiateLevelParams ctorVal.levelParams us)
+    |>.getForallBodyMaxDepth ctorVal.numParams |>.instantiateRev params
+  -- The kernel counts fields syntactically, so the binder is visible without reduction.
+  let .forallE _ fieldType _ _ := ctorType | throwError "unexpected constructor type{indentExpr ctorType}"
+  return fieldType
+
+/--
+Replaces `x : S params` by `⟨y⟩`, where `y` is a fresh variable named like `x`. The projections
+`⟨y⟩.f` created by the substitution fold back to `y`.
+-/
+private def replaceByCtor (mvarId : MVarId) (x : FVarId) (ctorVal : ConstructorVal) (us : List Level)
+    (params : Array Expr) : MetaM (Option ChangeVarsResult) := do
+  withLocalDeclD (← x.getUserName) (← oneFieldType ctorVal us params) fun y => do
+    let xVal := mkAppN (mkConst ctorVal.name us) (params.push y)
+    let yVal ← mkProjFn ctorVal us params 0 (mkFVar x)
+    let projFn := (getStructureInfo? (← getEnv) ctorVal.induct).bind (·.getProjFn? 0)
+    mvarId.changeVars #[x] #[y] #[xVal] #[yVal] (foldProjOfCtor ctorVal #[projFn] xVal #[y])
+
+/--
+Replaces `x` by `y.f`, where `y : S params` is a fresh variable named like `x`. The constructor
+applications `⟨y.f⟩` created by the substitution fold back to `y`.
+-/
+private def replaceByProj (mvarId : MVarId) (x : FVarId) (ctorVal : ConstructorVal) (us : List Level)
+    (params : Array Expr) : MetaM (Option ChangeVarsResult) := do
+  withLocalDeclD (← x.getUserName) (mkAppN (mkConst ctorVal.induct us) params) fun y => do
+    let xVal ← mkProjFn ctorVal us params 0 y
+    let yVal := mkAppN (mkConst ctorVal.name us) (params.push (mkFVar x))
+    let isProof ← Meta.isProof (mkFVar x)
+    mvarId.changeVars #[x] #[y] #[xVal] #[yVal] (foldCtorOfProjs ctorVal us params #[xVal] #[isProof] y)
+
+/--
+The goal of `induction` together with the expressions that have to be kept in sync with it while
+the indices of the targets are turned into variables.
+-/
+private structure IndexState where
+  mvarId   : MVarId
+  targets  : Array Expr
+  elimInfo : ElimInfo
+  toTag    : Array (Ident × FVarId)
+
+/-- Transports `s` along a change of variables of `s.mvarId`. -/
+private def IndexState.apply (s : IndexState) (r : ChangeVarsResult) : IndexState where
+  mvarId   := r.mvarId
+  targets  := s.targets.map r.transport
+  elimInfo := { s.elimInfo with
+    elimExpr := r.transport s.elimInfo.elimExpr, elimType := r.transport s.elimInfo.elimType }
+  toTag    := s.toTag.map fun (id, x) => (id, (r.transport (mkFVar x)).fvarId!)
+
+private structure IndexBijection where
+  isCtor : Bool
+  ctorVal : ConstructorVal
+  us : List Level
+  params : Array Expr
+
+@[match_pattern]
+private def IndexBijection.ctor (ctorVal : ConstructorVal) (us : List Level) (params : Array Expr) :
+    IndexBijection :=
+  { isCtor := true, ctorVal, us, params }
+
+@[match_pattern]
+private def IndexBijection.proj (ctorVal : ConstructorVal) (us : List Level) (params : Array Expr) :
+    IndexBijection :=
+  { isCtor := false, ctorVal, us, params }
+
+private structure BijectionTower where
+  fvarId : FVarId
+  bijectionsInsideOut : List IndexBijection
+
+private partial def bijectionTower? (e : Expr) (outerBijections : List IndexBijection := []) :
+    MetaM (Option BijectionTower) := do
+  let e := e.cleanupAnnotations
+  let env ← getEnv
+  match e with
+  | .fvar fvarId =>
+    -- Only a variable that is going to be replaced is restricted; a let-bound one stays in the
+    -- context as a definition, see `changeVars`.
+    if !outerBijections.isEmpty && (← fvarId.getDecl).isImplementationDetail then return none
+    return some { fvarId, bijectionsInsideOut := outerBijections }
+  | .proj structName i x =>
+    let some ctorVal := getNonRecStructureCtor? env structName | return none
+    if ctorVal.numFields ≠ 1 then return none
+    let xType ← whnfD (← inferType x) -- TODO: is this the right Transparency?
+    let .const _ us := xType.getAppFn | return none
+    let params := xType.getAppArgs
+    let outerBijections := .proj ctorVal us params :: outerBijections
+    bijectionTower? x outerBijections
+  | .app .. =>
+    let .const declName us := e.getAppFn | return none
+    let args := e.getAppArgs
+    if let some projInfo := env.getProjectionFnInfo? declName then
+      let some ctorVal ← isCtor? projInfo.ctorName | return none
+      if ctorVal.numFields ≠ 1 then return none
+      if args.size ≠ projInfo.numParams + 1 ∨ !isNonRecStructure env ctorVal.induct then return none
+      let params := args.extract 0 projInfo.numParams
+      let outerBijections := .proj ctorVal us params :: outerBijections
+      bijectionTower? args[projInfo.numParams]! outerBijections
+    else
+      let some ctorVal ← isCtor? declName | return none
+      if ctorVal.numFields ≠ 1 then return none
+      if args.size ≠ ctorVal.numParams + ctorVal.numFields ∨ !isNonRecStructure env ctorVal.induct then return none
+      let params := args.extract 0 ctorVal.numParams
+      let field := args[ctorVal.numParams]!
+      let outerBijections := .ctor ctorVal us params :: outerBijections
+      bijectionTower? field outerBijections
+  | _ =>
+    return none
+
 /--
 Turns the index subterm `e` into a variable by a definitional change of variables if `e` is a
 structure constructor application `⟨x₁, …, xₙ⟩` (`xᵢ ↦ y.fᵢ`) or a projection `x.f`
@@ -1054,16 +1167,11 @@ structure constructor application `⟨x₁, …, xₙ⟩` (`xᵢ ↦ y.fᵢ`) or
 Variables that are targets themselves are left alone, replacing them would make another target
 non-atomic. The expressions `others` are transported to the new goal, see `MVarId.changeVars`.
 -/
-private partial def changeStructIndexVars? (mvarId : MVarId) (targets others : Array Expr) (e : Expr) :
+private partial def changeStructIndexVars? (mvarId : MVarId) (targets others : Array Expr) (bijectionTower : BijectionTower) :
     MetaM (Option ChangeVarsResult) := do
-  let e := e.cleanupAnnotations
-  let env ← getEnv
-  match e with
-  | .proj structName i x =>
-    let some ctorVal := getNonRecStructureCtor? env structName | return none
-    let xType ← whnfD (← inferType x)
-    let .const _ us := xType.getAppFn | return none
-    projStep ctorVal us xType.getAppArgs i x
+  match bijectionTower with
+  | .proj structName us params innerTower =>
+    projStep structName us params innerTower -- TODO, UNDER CONSTRUCTION
   | .app .. | .const .. =>
     let .const declName us := e.getAppFn | return none
     let args := e.getAppArgs
@@ -1095,7 +1203,7 @@ where
     return !decl.isLet && !decl.isAuxDecl
   recurse (x : Expr) : MetaM (Option ChangeVarsResult) :=
     if x.isFVar then pure none else changeStructIndexVars? mvarId targets others x
-  projStep (ctorVal : ConstructorVal) (us : List Level) (params : Array Expr) (i : Nat) (x : Expr) :
+  projStep (ctorVal : ConstructorVal) (us : List Level) (params : Array Expr) (innerTower : BijectionTower) :
       MetaM (Option ChangeVarsResult) := do
     unless ← isCandidate x do return ← recurse x
     let ctorType := (ctorVal.type.instantiateLevelParams ctorVal.levelParams us)
@@ -1120,17 +1228,26 @@ private def changeStructIndexVars (elimInfo : ElimInfo) (targets : Array Expr)
   let mut elimInfo := elimInfo
   let mut toTag := toTag
   let mut allTargets ← withMainContext <| addImplicitTargets elimInfo targets
-  -- Fuel: a step on one index may re-complicate another index sharing its variables.
-  for _ in [:16] do
-    let some target := allTargets.find? (!·.isFVar) | break
-    let others := allTargets ++ #[elimInfo.elimExpr, elimInfo.elimType]
-    let some result ← withMainContext do
-      changeStructIndexVars? (← getMainGoal) allTargets others target | break
-    replaceMainGoal [result.mvarId]
-    toTag := toTag.map fun (id, fvarId) => (id, (result.substitutions.get fvarId).fvarId!)
-    allTargets := result.others.extract 0 allTargets.size
-    elimInfo := { elimInfo with
-      elimExpr := result.others[allTargets.size]!, elimType := result.others[allTargets.size + 1]! }
+  let n := allTargets.size
+  let mut bijectionTowers : Array BijectionTower := #[]
+  for h : i in *...n do
+    let target := allTargets[i]
+    let some bijectionTower ← bijectionTower? target | sorry -- error
+    -- Two targets over the same variable can never become independent variables.
+    if let some j := bijectionTowers.findIdx? (·.fvarId == bijectionTower.fvarId) then
+      throwError "Invalid target: The variable `{mkFVar bijectionTower.fvarId}` occurs in more than one \
+        target (or index), consider using the `cases` tactic instead{indentExpr allTargets[j]!}\n{indentExpr target}"
+    bijectionTowers := bijectionTowers.push bijectionTower
+  for bijectionTower in bijectionTowers do
+    if bijectionTower.bijectionsInsideOut.isEmpty then continue
+    for bijection in bijectionTower.bijectionsInsideOut do
+      -- TODO
+    let substitutionTargets := allTargets ++ #[elimInfo.elimExpr, elimInfo.elimType]
+    let some result ← withMainContext do -- TODO: move withMainContext out to the top?
+      changeStructIndexVars? (← getMainGoal) allTargets substitutionTargets target | break
+    toTag := toTag.map fun (id, fvarId) => (id, (result.substitutions.get fvarId).fvarId!) -- TODO: can there be multiple substitutions at once?
+    allTargets := result.others.extract 0 n
+    elimInfo := { elimInfo with elimExpr := result.others[n]!, elimType := result.others[n + 1]! }
   return (allTargets, toTag, elimInfo)
 
 @[builtin_tactic Lean.Parser.Tactic.induction, builtin_incremental]

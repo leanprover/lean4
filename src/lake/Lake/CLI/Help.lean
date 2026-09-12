@@ -118,7 +118,7 @@ def helpBuild :=
 "Build targets
 
 USAGE:
-  lake build [<targets>...] [-o <mappings>]
+  lake build [<targets>...] [-o <mappings>] [--package <name>]
 
 A target is specified with a string of the form:
 
@@ -163,11 +163,13 @@ TARGET EXAMPLES:        build the ...
 A bare `lake build` command will build the default target(s) of the root
 package. Package dependencies are not updated during a build.
 
-With the Lake cache enabled, the `-o` option will cause Lake to track the
-input-to-outputs mappings of targets in the root package touched during the
-build and write them to the specified file at the end of the build. These
-mappings can then be used to upload build artifacts to a remote cache with
-`lake cache put`."
+With the Lake cache enabled, Lake can track the targets the build covers
+(both those up-to-date and those newly built) and write the input-to-outputs
+mappings of each to a file specified by the `-o` option. By default, with `-o`,
+Lake will track the targets of the root package, use `--package` to select a
+different one. These mappings can then be used to upload the build artifacts
+to a remote cache with `lake cache put`. This will only include the artifacts
+from the covered targets. Other targets in the package will not be tracked."
 
 def helpQuery :=
 "Build targets and output results
@@ -592,6 +594,7 @@ USAGE:
   lake cache put <mappings>
 
 OPTIONS:
+  --package=<name>                upload for set package
   --service=<name>                upload to set cache service
   --scope=<remote-scope>          upload under set scope verbatim
   --repo=<github-repo>            scope w/ repository + toolchain & platform
@@ -698,11 +701,8 @@ instead of the Lake cache.
 Does not configure the workspace and thus does not execute arbitrary user
 code. However, because of this, the package's platform and toolchain settings
 will not be automatically detected for `--repo` and must be specified manually
-via `--platform` and `--toolchain` (if needed).
-
-Lake will still, by default, detect the target revision from the workspace
-directory's current Git revision. To upload outputs for a different revision,
-specify it with `--rev`."
+via `--platform` and `--toolchain` (if needed). Similarly, the source revision
+the outputs correspond to must be manually specified via `--rev`."
 
 def helpCacheClean :=
 "Removes ALL files from the local Lake cache

@@ -358,11 +358,8 @@ theorem getD_cons_succ : getD (x :: xs) (n + 1) d = getD xs n d := by simp
 theorem eq_or_mem_of_mem_cons {a b : α} {l : List α} :
     a ∈ b :: l → a = b ∨ a ∈ l := List.mem_cons.mp
 
--- This pattern may be excessively general:
--- it fires anytime we ae thinking about membership of lists,
--- and constructing a list via `cons`, even if the elements are unrelated.
--- Nevertheless in practice it is quite helpful!
-grind_pattern eq_or_mem_of_mem_cons => b :: l, a ∈ l
+grind_pattern List.eq_or_mem_of_mem_cons => b :: l, a ∈ l where
+  guard a ∈ b :: l
 
 theorem mem_cons_self {a : α} {l : List α} : a ∈ a :: l := .head ..
 

@@ -12,6 +12,7 @@ public import Lean.Meta.MkIffOfInductiveProp
 public import Lean.Elab.Coinductive
 public import Lean.Elab.Deriving.Basic
 import Lean.Elab.ComputedFields
+import Lean.Elab.MultiuniverseInductive
 import Lean.Meta.Constructions.CtorIdx
 import Lean.Meta.Constructions.CtorElim
 import Lean.Meta.IndPredBelow
@@ -290,7 +291,8 @@ def withExplicitToImplicit (xs : Array Expr) (k : TermElabM α) : TermElabM α :
 /--
 Auxiliary function for checking whether the types in mutually inductive declaration are compatible.
 -/
-private def checkParamsAndResultType (type firstType : Expr) (numParams : Nat) : TermElabM Unit := do
+private def checkParamsAndResultType (type firstType : Expr) (numParams : Nat)
+    (heterogeneousUniverses := false) : TermElabM Unit := do
   try
     forallTelescopeCompatible type firstType numParams fun _ type firstType =>
     forallTelescopeReducing type fun _ type =>
@@ -298,7 +300,7 @@ private def checkParamsAndResultType (type firstType : Expr) (numParams : Nat) :
       let type ← whnfD type
       match type with
       | .sort .. =>
-        unless (← isDefEq firstType type) do
+        unless heterogeneousUniverses || (← isDefEq firstType type) do
           throwError m!"The resulting type of this declaration{indentExpr type}\ndiffers from a preceding one{indentExpr firstType}"
             ++ .note "All inductive types declared in the same `mutual` block must belong to the same type universe"
       | _ =>
@@ -311,17 +313,18 @@ private def checkParamsAndResultType (type firstType : Expr) (numParams : Nat) :
 /--
 Auxiliary function for checking whether the types in mutually inductive declaration are compatible.
 -/
-private def checkHeaders (rs : Array PreElabHeaderResult) (numParams : Nat) (i : Nat) (firstType? : Option Expr) : TermElabM Unit := do
+private def checkHeaders (rs : Array PreElabHeaderResult) (numParams : Nat) (i : Nat)
+    (firstType? : Option Expr) (heterogeneousUniverses := false) : TermElabM Unit := do
   if h : i < rs.size then
     let type ← checkHeader rs[i] numParams firstType?
-    checkHeaders rs numParams (i+1) type
+    checkHeaders rs numParams (i+1) type heterogeneousUniverses
 where
   checkHeader (r : PreElabHeaderResult) (numParams : Nat) (firstType? : Option Expr) : TermElabM Expr := do
     let type := r.type
     match firstType? with
     | none           => return type
     | some firstType =>
-      withRef r.view.ref <| checkParamsAndResultType type firstType numParams
+      withRef r.view.ref <| checkParamsAndResultType type firstType numParams heterogeneousUniverses
       return firstType
 
 private def elabHeadersAux (views : Array InductiveView) (i : Nat) (acc : Array PreElabHeaderResult) : TermElabM (Array PreElabHeaderResult) :=
@@ -360,13 +363,14 @@ private def elabHeadersAux (views : Array InductiveView) (i : Nat) (acc : Array 
 /--
 Elaborates all the headers in the inductive views.
 -/
-private def elabHeaders (views : Array InductiveView) : TermElabM (Array PreElabHeaderResult) := do
+private def elabHeaders (views : Array InductiveView) (heterogeneousUniverses := false) :
+    TermElabM (Array PreElabHeaderResult) := do
   let rs ← elabHeadersAux views 0 #[]
   if rs.size > 1 then
     checkUnsafe rs
     checkClass rs
     let numParams ← checkNumParams rs
-    checkHeaders rs numParams 0 none
+    checkHeaders rs numParams 0 none heterogeneousUniverses
   return rs
 
 /--
@@ -413,13 +417,16 @@ private def ElabHeaderResult.checkLevelNames (rs : Array PreElabHeaderResult) : 
       unless r.levelNames == levelNames do
         throwLevelNameMismatch r.levelNames levelNames r.view.declName rs[0].view.shortDeclName
 
-private def getResultingUniverse : List InductiveType → TermElabM Level
-  | []           => throwError "Unexpected empty inductive declaration"
-  | indType :: _ => forallTelescopeReducing indType.type fun _ r => do
+private def getIndTypeUniverse (indType : InductiveType) : TermElabM Level :=
+  forallTelescopeReducing indType.type fun _ r => do
     let r ← whnfD r
     match r with
     | Expr.sort u => return u
     | _           => throwError "Unexpected inductive type resulting type{indentExpr r}"
+
+private def getResultingUniverse : List InductiveType → TermElabM Level
+  | []           => throwError "Unexpected empty inductive declaration"
+  | indType :: _ => getIndTypeUniverse indType
 
 private def instantiateMVarsAtInductive (indType : InductiveType) : TermElabM InductiveType := do
   let type ← instantiateMVars indType.type
@@ -1139,29 +1146,50 @@ private def checkResultingUniversePolymorphism (views : Array InductiveView) (u 
       -- TODO: heuristic for allowing `Sort` polymorphism?
       doErrFor views[0]!
 
+/-- Checks the universe constraints for the constructors of a single type of the block. -/
+private def checkCtorUniverses (views : Array InductiveView) (elabs' : Array InductiveElabStep2)
+    (numParams : Nat) (i : Nat) (indType : InductiveType) (u : Level) : TermElabM Unit := do
+  if u.isZero then return
+  -- See if there is a custom error. If so, this should throw an error first:
+  elabs'[i]!.checkUniverses numParams u
+  indType.ctors.forM fun ctor =>
+  forallTelescopeReducing ctor.type fun ctorArgs _ => do
+    for ctorArg in ctorArgs[numParams...*] do
+      let type ← inferType ctorArg
+      let v := (← instantiateLevelMVars (← getLevel type)).normalize
+      unless u.geq v do
+        let mut msg := m!"Invalid universe level in constructor `{ctor.name}`: Parameter"
+        unless (← ctorArg.fvarId!.getUserName).hasMacroScopes do
+          msg := msg ++ m!" `{ctorArg}`"
+        msg := msg ++ m!" has type{indentExpr type}\n\
+          at universe level{indentD v}\n\
+          which is not less than or equal to the inductive type's resulting universe level{indentD u}"
+        withCtorRef views ctor.name <| throwError msg
+
 /-- Checks the universe constraints for each constructor. -/
 private def checkResultingUniverses (views : Array InductiveView) (elabs' : Array InductiveElabStep2)
     (numParams : Nat) (indTypes : List InductiveType) : TermElabM Unit := do
   let u := (← instantiateLevelMVars (← getResultingUniverse indTypes)).normalize
   checkResultingUniversePolymorphism views u numParams indTypes
-  unless u.isZero do
-    for h : i in *...indTypes.length do
-      let indType := indTypes[i]
-      -- See if there is a custom error. If so, this should throw an error first:
-      elabs'[i]!.checkUniverses numParams u
-      indType.ctors.forM fun ctor =>
-      forallTelescopeReducing ctor.type fun ctorArgs _ => do
-        for ctorArg in ctorArgs[numParams...*] do
-          let type ← inferType ctorArg
-          let v := (← instantiateLevelMVars (← getLevel type)).normalize
-          unless u.geq v do
-            let mut msg := m!"Invalid universe level in constructor `{ctor.name}`: Parameter"
-            unless (← ctorArg.fvarId!.getUserName).hasMacroScopes do
-              msg := msg ++ m!" `{ctorArg}`"
-            msg := msg ++ m!" has type{indentExpr type}\n\
-              at universe level{indentD v}\n\
-              which is not less than or equal to the inductive type's resulting universe level{indentD u}"
-            withCtorRef views ctor.name <| throwError msg
+  for h : i in *...indTypes.length do
+    checkCtorUniverses views elabs' numParams i indTypes[i] u
+
+/--
+Like `checkResultingUniverses`, but checks each type's constructors against *that type's* own
+resulting universe rather than against the whole block's.
+
+This is what `mutual_multiuniverse` needs: its members are ultimately declared in separate
+inductive declarations, so a member's constructor fields only ever have to fit in that member's
+own universe.
+-/
+private def checkResultingUniversesPerType (views : Array InductiveView)
+    (elabs' : Array InductiveElabStep2) (numParams : Nat) (indTypes : List InductiveType) :
+    TermElabM Unit := do
+  for h : i in *...indTypes.length do
+    let indType := indTypes[i]
+    let u := (← instantiateLevelMVars (← getIndTypeUniverse indType)).normalize
+    checkResultingUniversePolymorphism #[views[i]!] u numParams indTypes
+    checkCtorUniverses views elabs' numParams i indType u
 
 private def collectUsed (indTypes : List InductiveType) : StateRefT CollectFVars.State MetaM Unit := do
   indTypes.forM fun indType => do
@@ -1443,9 +1471,18 @@ private def addTermInfoViews (views : Array InductiveView) : TermElabM Unit := -
           Term.addTermInfo' ctor.declId (← mkConstWithLevelParams ctor.declName) (isBinder := true)
           enableRealizationsForConst ctor.declName
 
+/--
+Elaborates the headers and constructors of a mutual inductive block, then hands the result to
+`callback`, which is responsible for actually adding declarations to the environment.
+
+If `heterogeneousUniverses` is true, each member's constructor fields are checked against that
+member's own resulting universe rather than the block's common one.  Only
+`mutual_multiuniverse` sets this; see `checkResultingUniversesPerType`.
+-/
 private def mkInductiveDeclCore
   (callback : AddAndFinalizeContext → TermElabM α) (vars : Array Expr)
-  (elabs : Array InductiveElabStep1) (rs : Array PreElabHeaderResult) (scopeLevelNames : List Name) : TermElabM α := do
+  (elabs : Array InductiveElabStep1) (rs : Array PreElabHeaderResult) (scopeLevelNames : List Name)
+  (heterogeneousUniverses := false) : TermElabM α := do
   let views := elabs.map (·.view)
   let view0 := views[0]!
   let isCoinductive := views.any (·.isCoinductive)
@@ -1503,7 +1540,10 @@ private def mkInductiveDeclCore
       withoutExporting do
         elabs'.forM fun elab' => elab'.finalizeTermElab
         ensureNoUnassignedLevelMVarsAtInductives views indTypes
-        checkResultingUniverses views elabs' numParams indTypes
+        if heterogeneousUniverses then
+          checkResultingUniversesPerType views elabs' numParams indTypes
+        else
+          checkResultingUniverses views elabs' numParams indTypes
       let usedLevelNames := collectLevelParamsInInductive indTypes
       match sortDeclLevelParams scopeLevelNames allUserLevelNames usedLevelNames with
       | .error msg      => throwErrorAt view0.declId msg
@@ -1524,7 +1564,8 @@ private def mkInductiveDeclCore
         }
 
 private def withElaboratedHeaders (vars : Array Expr) (elabs : Array InductiveElabStep1)
-  (k : Array Expr → Array InductiveElabStep1 → Array PreElabHeaderResult → List Name → TermElabM α ) : TermElabM α :=
+  (k : Array Expr → Array InductiveElabStep1 → Array PreElabHeaderResult → List Name → TermElabM α )
+  (heterogeneousUniverses := false) : TermElabM α :=
 Term.withoutSavingRecAppSyntax do
   let views := elabs.map (·.view)
   let view0 := views[0]!
@@ -1532,7 +1573,7 @@ Term.withoutSavingRecAppSyntax do
   InductiveElabStep1.checkLevelNames views
   let allUserLevelNames := view0.levelNames
   withRef view0.ref <| Term.withLevelNames allUserLevelNames do
-    let rs ← elabHeaders views
+    let rs ← elabHeaders views heterogeneousUniverses
     Term.synthesizeSyntheticMVarsNoPostponing
     ElabHeaderResult.checkLevelNames rs
     trace[Elab.inductive] "level names: {allUserLevelNames}"
@@ -1581,6 +1622,44 @@ private def elabInductiveViews (vars : Array Expr) (elabs : Array InductiveElabS
         IndPredBelow.mkBelow view0.declName
         for e in elabs do
           mkInjectiveTheorems e.view.declName
+    for e in elabs do
+      enableRealizationsForConst e.view.declName
+      for ctor in e.view.ctors do
+        enableRealizationsForConst ctor.declName
+    return res
+
+/--
+Like `elabInductiveViews`, but for a `mutual_multiuniverse` block: rather than adding the block as
+one mutual inductive declaration, which the kernel would reject unless all its members share a
+universe, the block is lowered to declarations the kernel does accept.
+
+`MultiuniverseInductive.lower` makes the auxiliary constructions itself, as it emits each of those
+declarations, so there is nothing left to do for them here.
+-/
+private def elabMultiuniverseInductiveViews (vars : Array Expr) (elabs : Array InductiveElabStep1) :
+    TermElabM FinalizeContext := do
+  let view0 := elabs[0]!.view
+  let ref := view0.ref
+  Term.withDeclName view0.declName do withRef ref do
+  withExporting (isExporting := !isPrivateName view0.declName) do
+    let res ← withElaboratedHeaders (heterogeneousUniverses := true) vars elabs
+      fun vars elabs rs scopeLevelNames =>
+      mkInductiveDeclCore (callback := fun context => do
+          let indTypes := context.indTypes.toArray
+          MultiuniverseInductive.lower {
+            levelParams := context.levelParams
+            numVars     := context.numVars
+            numParams   := context.numParams
+            memberFVars := context.indFVars
+            memberNames := indTypes.map (·.name)
+            memberTypes := indTypes.map (·.type)
+            ctorNames   := indTypes.map (·.ctors.toArray.map (·.name))
+            ctorTypes   := indTypes.map (·.ctors.toArray.map (·.type))
+            isClass     := view0.isClass
+          }
+          buildFinalizeContext context.elabs' context.levelParams context.vars context.params
+            context.views context.indFVars context.rs)
+        vars elabs rs scopeLevelNames (heterogeneousUniverses := true)
     for e in elabs do
       enableRealizationsForConst e.view.declName
       for ctor in e.view.ctors do
@@ -1746,5 +1825,40 @@ def elabMutualInductive (elems : Array Syntax) : CommandElabM Unit := do
   if inductives.any (·.1.isMeta) && inductives.any (!·.1.isMeta) then
     throwError "A mix of `meta` and non-`meta` declarations in the same `mutual` block is not supported"
   elabInductives inductives
+
+/--
+Elaborates a `mutual_multiuniverse` block (`Lean.Parser.Command.mutualMultiuniverse`), assuming the
+commands satisfy `Lean.Elab.Command.isMutualInductive`.
+
+The block is elaborated exactly as `mutual` elaborates one -- same headers, same constructors, same
+parameter and universe analysis, except that constructor fields are checked against their own
+member's universe -- and then lowered by `Lean.Elab.MultiuniverseInductive.lower`.
+-/
+def elabMultiuniverseInductive (elems : Array Syntax) : CommandElabM Unit := do
+  let inductives ← elems.mapM fun stx => do
+    let modifiers ← elabModifiers ⟨stx[0]⟩
+    unless stx[1].getKind == ``Parser.Command.inductive do
+      throwErrorAt stx[1] "invalid `mutual_multiuniverse` block: every element of the block must \
+        be an `inductive` declaration"
+    pure (modifiers, stx[1])
+  if inductives.any (·.1.isMeta) && inductives.any (!·.1.isMeta) then
+    throwError "A mix of `meta` and non-`meta` declarations in the same `mutual_multiuniverse` \
+      block is not supported"
+  let elabs ← runTermElabM fun _ => inductives.mapM fun (modifiers, stx) =>
+    mkInductiveView modifiers stx
+  for e in elabs do
+    if e.view.isCoinductive then
+      throwErrorAt e.view.declId "`coinductive` predicates are not supported in a \
+        `mutual_multiuniverse` block"
+    if let some proof := e.view.monotonicity? then
+      throwErrorAt proof "`monotonicity_by` is only allowed on `coinductive` predicates, or on \
+        `inductive` predicates in a `mutual` block together with a `coinductive` predicate"
+  checkNoInductiveNameConflicts elabs
+  elabs.forM fun e => checkValidInductiveModifier e.view.modifiers
+  liftTermElabM <| elabs.forM fun e => withRef e.view.ref do
+    Term.applyAttributesAt e.view.declName e.view.modifiers.attrs .beforeElaboration
+  let res ← runTermElabM fun vars => elabMultiuniverseInductiveViews vars elabs
+  elabInductiveViewsFinalize (elabs.map (·.view)) res
+  elabInductiveViewsPostprocessing (elabs.map (·.view))
 
 end Lean.Elab.Command

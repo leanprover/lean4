@@ -102,23 +102,24 @@ def pushInfoChild : InfoTree → InfoTree → InfoTree
   | t, _ => t
 
 def Info.toElabInfo? : Info → Option ElabInfo
-  | ofTacticInfo i         => some i.toElabInfo
-  | ofTermInfo i           => some i.toElabInfo
-  | ofPartialTermInfo i    => some i.toElabInfo
-  | ofCommandInfo i        => some i.toElabInfo
-  | ofMacroExpansionInfo _ => none
-  | ofOptionInfo _         => none
-  | ofErrorNameInfo _      => none
-  | ofFieldInfo _          => none
-  | ofCompletionInfo _     => none
-  | ofUserWidgetInfo _     => none
-  | ofCustomInfo _         => none
-  | ofFVarAliasInfo _      => none
-  | ofFieldRedeclInfo _    => none
-  | ofDelabTermInfo i      => some i.toElabInfo
-  | ofChoiceInfo i         => some i.toElabInfo
-  | ofDocInfo i            => some i.toElabInfo
-  | ofDocElabInfo i        => some i.toElabInfo
+  | ofTacticInfo i           => some i.toElabInfo
+  | ofTermInfo i             => some i.toElabInfo
+  | ofPartialTermInfo i      => some i.toElabInfo
+  | ofCommandInfo i          => some i.toElabInfo
+  | ofMacroExpansionInfo _   => none
+  | ofOptionInfo _           => none
+  | ofErrorNameInfo _        => none
+  | ofFieldInfo _            => none
+  | ofCompletionInfo _       => none
+  | ofUserWidgetInfo _       => none
+  | ofCustomInfo _           => none
+  | ofFVarAliasInfo _        => none
+  | ofFieldRedeclInfo _      => none
+  | ofDelabTermInfo i        => some i.toElabInfo
+  | ofChoiceInfo i           => some i.toElabInfo
+  | ofChoiceResolutionInfo _ => none
+  | ofDocInfo i              => some i.toElabInfo
+  | ofDocElabInfo i          => some i.toElabInfo
 
 /--
   Helper function for propagating the tactic metavariable context to its children nodes.
@@ -139,23 +140,24 @@ def Info.updateContext? : Option ContextInfo → Info → Option ContextInfo
   | ctx?, _ => ctx?
 
 def Info.stx : Info → Syntax
-  | ofTacticInfo i         => i.stx
-  | ofTermInfo i           => i.stx
-  | ofPartialTermInfo i    => i.stx
-  | ofCommandInfo i        => i.stx
-  | ofMacroExpansionInfo i => i.stx
-  | ofOptionInfo i         => i.stx
-  | ofErrorNameInfo i      => i.stx
-  | ofFieldInfo i          => i.stx
-  | ofCompletionInfo i     => i.stx
-  | ofCustomInfo i         => i.stx
-  | ofUserWidgetInfo i     => i.stx
-  | ofFVarAliasInfo _      => .missing
-  | ofFieldRedeclInfo i    => i.stx
-  | ofDelabTermInfo i      => i.stx
-  | ofChoiceInfo i         => i.stx
-  | ofDocInfo i            => i.stx
-  | ofDocElabInfo i        => i.stx
+  | ofTacticInfo i           => i.stx
+  | ofTermInfo i             => i.stx
+  | ofPartialTermInfo i      => i.stx
+  | ofCommandInfo i          => i.stx
+  | ofMacroExpansionInfo i   => i.stx
+  | ofOptionInfo i           => i.stx
+  | ofErrorNameInfo i        => i.stx
+  | ofFieldInfo i            => i.stx
+  | ofCompletionInfo i       => i.stx
+  | ofCustomInfo i           => i.stx
+  | ofUserWidgetInfo i       => i.stx
+  | ofFVarAliasInfo _        => .missing
+  | ofFieldRedeclInfo i      => i.stx
+  | ofDelabTermInfo i        => i.stx
+  | ofChoiceInfo i           => i.stx
+  | ofChoiceResolutionInfo i => i.stx
+  | ofDocInfo i              => i.stx
+  | ofDocElabInfo i          => i.stx
 
 private def CompletionInfo.setStx (stx : Syntax) : CompletionInfo → CompletionInfo
   | dot i e?              => .dot { i with stx } e?
@@ -169,23 +171,24 @@ private def CompletionInfo.setStx (stx : Syntax) : CompletionInfo → Completion
   | tactic _              => .tactic stx
 
 private def Info.setStx (stx : Syntax) : Info → Info
-  | ofTacticInfo i         => ofTacticInfo { i with stx }
-  | ofTermInfo i           => ofTermInfo { i with stx }
-  | ofPartialTermInfo i    => ofPartialTermInfo { i with stx }
-  | ofCommandInfo i        => ofCommandInfo { i with stx }
-  | ofMacroExpansionInfo i => ofMacroExpansionInfo { i with stx }
-  | ofOptionInfo i         => ofOptionInfo { i with stx }
-  | ofErrorNameInfo i      => ofErrorNameInfo { i with stx }
-  | ofFieldInfo i          => ofFieldInfo { i with stx }
-  | ofCompletionInfo i     => ofCompletionInfo (i.setStx stx)
-  | ofCustomInfo i         => ofCustomInfo { i with stx }
-  | ofUserWidgetInfo i     => ofUserWidgetInfo { i with stx }
-  | ofFVarAliasInfo i      => ofFVarAliasInfo i
-  | ofFieldRedeclInfo i    => ofFieldRedeclInfo { i with stx }
-  | ofDelabTermInfo i      => ofDelabTermInfo { i with stx }
-  | ofChoiceInfo i         => ofChoiceInfo { i with stx }
-  | ofDocInfo i            => ofDocInfo { i with stx }
-  | ofDocElabInfo i        => ofDocElabInfo { i with stx }
+  | ofTacticInfo i           => ofTacticInfo { i with stx }
+  | ofTermInfo i             => ofTermInfo { i with stx }
+  | ofPartialTermInfo i      => ofPartialTermInfo { i with stx }
+  | ofCommandInfo i          => ofCommandInfo { i with stx }
+  | ofMacroExpansionInfo i   => ofMacroExpansionInfo { i with stx }
+  | ofOptionInfo i           => ofOptionInfo { i with stx }
+  | ofErrorNameInfo i        => ofErrorNameInfo { i with stx }
+  | ofFieldInfo i            => ofFieldInfo { i with stx }
+  | ofCompletionInfo i       => ofCompletionInfo (i.setStx stx)
+  | ofCustomInfo i           => ofCustomInfo { i with stx }
+  | ofUserWidgetInfo i       => ofUserWidgetInfo { i with stx }
+  | ofFVarAliasInfo i        => ofFVarAliasInfo i
+  | ofFieldRedeclInfo i      => ofFieldRedeclInfo { i with stx }
+  | ofDelabTermInfo i        => ofDelabTermInfo { i with stx }
+  | ofChoiceInfo i           => ofChoiceInfo { i with stx }
+  | ofChoiceResolutionInfo i => ofChoiceResolutionInfo { i with stx }
+  | ofDocInfo i              => ofDocInfo { i with stx }
+  | ofDocElabInfo i          => ofDocElabInfo { i with stx }
 
 /--
 Adds the given trailing substring to all adjacent syntax in the info tree if any, otherwise returns

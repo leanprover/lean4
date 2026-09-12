@@ -87,6 +87,12 @@ inductive SyntheticMVarKind where
   expr metavariables.
   -/
   | tactic (tacticCode : Syntax) (ctx : SavedContext) (kind : TacticMVarKind) (delayOnMVars := false)
+  /--
+  Assign `defaultVal` to the metavariable if it is still unassigned once everything else has been
+  synthesized. Used for `optParam`s on implicit binders, where the default value is only a fallback
+  for a parameter unification failed to determine.
+  -/
+  | defaultValue (defaultVal : Expr) (argName : Name)
   /-- Metavariable represents a hole whose elaboration has been postponed. -/
   | postponed (ctx : SavedContext)
   deriving Inhabited
@@ -99,10 +105,11 @@ def extraMsgToMsg (extraErrorMsg? : Option MessageData) : MessageData :=
 
 instance : ToString SyntheticMVarKind where
   toString
-    | .typeClass .. => "typeclass"
-    | .coe ..       => "coe"
-    | .tactic ..    => "tactic"
-    | .postponed .. => "postponed"
+    | .typeClass ..    => "typeclass"
+    | .coe ..          => "coe"
+    | .tactic ..       => "tactic"
+    | .defaultValue .. => "default value"
+    | .postponed ..    => "postponed"
 
 structure SyntheticMVarDecl where
   stx : Syntax
@@ -1461,6 +1468,15 @@ register_builtin_option debug.byAsSorry : Bool := {
 }
 
 /--
+Schedules `tacticCode` to be run on `mvarId` if it is still unassigned when synthetic
+metavariables are synthesized.
+The `tacticCode` syntax is the full `by ..` syntax.
+-/
+def registerTacticMVar (mvarId : MVarId) (tacticCode : Syntax) (kind : TacticMVarKind)
+    (delayOnMVars := false) : TermElabM Unit := do
+  registerSyntheticMVar (← getRef) mvarId <| .tactic tacticCode (← saveContext) kind delayOnMVars
+
+/--
 Creates a new metavariable of type `type` that will be synthesized using the tactic code.
 The `tacticCode` syntax is the full `by ..` syntax.
 -/
@@ -1470,9 +1486,7 @@ def mkTacticMVar (type : Expr) (tacticCode : Syntax) (kind : TacticMVarKind)
     withRef tacticCode <| mkLabeledSorry type false (unique := true)
   else
     let mvar ← mkFreshExprMVar type MetavarKind.syntheticOpaque
-    let mvarId := mvar.mvarId!
-    let ref ← getRef
-    registerSyntheticMVar ref mvarId <| .tactic tacticCode (← saveContext) kind delayOnMVars
+    registerTacticMVar mvar.mvarId! tacticCode kind delayOnMVars
     return mvar
 
 /--

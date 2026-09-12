@@ -212,10 +212,15 @@ then a `_` placeholder is automatically inserted for this parameter.
 Implicit parameters should be able to be determined from the other arguments and the return type
 by unification.
 
+A fallback can be specified using `{x : A := v}` syntax, and tactics using `{x : A := by tac}`.
+Unlike for explicit binders, the fallback is used only if unification leaves the parameter
+unassigned.
+
 In `@` explicit mode, implicit binders behave like explicit binders.
 -/
 @[builtin_doc] def implicitBinder (requireType := false) := leading_parser ppGroup <|
-  "{" >> withoutPosition (many1 binderIdent >> binderType requireType) >> "}"
+  "{" >> withoutPosition (many1 binderIdent >> binderType requireType >>
+    optional (binderTactic <|> binderDefault)) >> "}"
 def strictImplicitLeftBracket := atomic (group (symbol "{" >> "{")) <|> "⦃"
 def strictImplicitRightBracket := atomic (group (symbol "}" >> "}")) <|> "⦄"
 /--

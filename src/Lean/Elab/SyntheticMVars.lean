@@ -418,6 +418,24 @@ private def markAsResolved (mvarId : MVarId) : TermElabM Unit :=
   modify fun s => { s with syntheticMVars := s.syntheticMVars.erase mvarId }
 
 /--
+Returns the metavariable a fallback (an `optParam` or `autoParam` on an implicit binder) applies to,
+or `none` if the parameter has already been determined.
+
+Unification may have solved the parameter outright, in which case the fallback goes unused, or it
+may merely have aliased it to another unassigned metavariable, in which case the fallback applies to
+that one instead. It does not apply if the alias is somebody else's to synthesize.
+-/
+private def fallbackMVar? (mvarId : MVarId) : TermElabM (Option MVarId) := do
+  if (← mvarId.isDelayedAssigned) then
+    return none
+  let .mvar mvarId' ← instantiateMVars (mkMVar mvarId) | return none
+  if mvarId' == mvarId then
+    return mvarId
+  if (← mvarId'.isReadOnlyOrSyntheticOpaque) || (← getSyntheticMVarDecl? mvarId').isSome then
+    return none
+  return mvarId'
+
+/--
 Auxiliary type for `synthesizeSyntheticMVars`. It specifies
 whether pending synthetic metavariables can be postponed or not.
 -/
@@ -561,12 +579,24 @@ mutual
     -- NOTE: actual processing at `synthesizeSyntheticMVarsAux`
     | .postponed savedContext => resumePostponed savedContext mvarSyntheticDecl.stx mvarId postponeOnError
     | .tactic tacticCode savedContext kind delayOnMVars =>
+      -- An `autoParam` on an implicit binder is assignable by unification; its tactic only applies
+      -- if unification left the parameter undetermined.
+      let some mvarId ← fallbackMVar? mvarId | return true
       withSavedContext savedContext do
         if runTactics && !(delayOnMVars && (← mvarId.getType >>= instantiateExprMVars).hasExprMVar) then
           runTactic mvarId tacticCode kind
           return true
         else
           return false
+    | .defaultValue defaultVal argName =>
+      let some mvarId ← fallbackMVar? mvarId | return true
+      unless runTactics do
+        return false
+      mvarId.withContext do
+        unless (← isDefEq (mkMVar mvarId) defaultVal) do
+          logError m!"failed to assign default value to parameter `{argName}`{indentExpr defaultVal}"
+          mvarId.admit
+        return true
   /--
     Try to synthesize the current list of pending synthetic metavariables.
     Return `true` if at least one of them was synthesized. -/

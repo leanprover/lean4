@@ -360,17 +360,21 @@ Removes dot segments from the path according to RFC 3986 Section 5.2.4. This han
 (current directory) and ".." (parent directory) segments.
 -/
 def normalize (p : Path) : Path :=
+  -- A "." or ".." segment is replaced by "/", not deleted, so a path ending in one still names a
+  -- collection: `/a/b/c` + `..` is `/a/`, not `/a`. The trailing "/" is an empty final segment here.
   let rec loop (input : List (EncodedSegment)) (output : List (EncodedSegment)) : List (EncodedSegment) :=
     match input with
     | [] =>
       output.reverse
     | segStr :: rest =>
+      let keepTrailingSlash (output : List EncodedSegment) : List EncodedSegment :=
+        if rest.isEmpty then EncodedSegment.encode "" :: output else output
       if toString segStr == "." then
-        loop rest output
+        loop rest (keepTrailingSlash output)
       else if toString segStr == ".." then
         match output with
-        | [] => loop rest []
-        | _ :: tail => loop rest tail
+        | [] => loop rest (keepTrailingSlash [])
+        | _ :: tail => loop rest (keepTrailingSlash tail)
       else
         loop rest (segStr :: output)
 
@@ -1022,7 +1026,11 @@ def authority? : RequestTarget → Option URI.Authority
 instance : ToString RequestTarget where
   toString
     | .originForm path query =>
+        -- RFC 9112 §3.2.1: origin-form is `absolute-path [ "?" query ]`, and a client MUST send `/`
+        -- when the target URI's path is empty. Projecting an absolute URI with no path (`Location:
+        -- http://example.com`, or a caller-supplied absolute request URI) reaches here with one.
         let pathStr := toString path
+        let pathStr := if pathStr.isEmpty then "/" else pathStr
         let queryStr := URI.Query.formatOption query
         s!"{pathStr}{queryStr}"
     | .absoluteForm uri => toString uri

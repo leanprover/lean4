@@ -71,3 +71,8 @@ name = "bar"
 git = "https://example.com"
 rev = "abc"
 subDir = "sub/dir"
+
+[[require]]
+name = "qux"
+path = "qux"
+copy = true

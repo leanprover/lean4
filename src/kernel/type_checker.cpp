@@ -1145,6 +1145,9 @@ bool type_checker::is_def_eq_core(expr const & t, expr const & s) {
         }
     }
 
+    r = is_def_eq_proof_irrel(t, s);
+    if (r != l_undef) return r == l_true;
+
     /*
       Apply whnf (without using delta-reduction or normalizer extensions), *and*
       without using `whnf` when reducing projections.
@@ -1159,9 +1162,6 @@ bool type_checker::is_def_eq_core(expr const & t, expr const & s) {
         r = quick_is_def_eq(t_n, s_n);
         if (r != l_undef) return r == l_true;
     }
-
-    r = is_def_eq_proof_irrel(t_n, s_n);
-    if (r != l_undef) return r == l_true;
 
     /* NB: `lazy_delta_reduction` updates `t_n` and `s_n` even when returning `l_undef`. */
     r = lazy_delta_reduction(t_n, s_n);

@@ -1001,6 +1001,19 @@ def evalInductionCore (stx : Syntax) (elimInfo : ElimInfo) (targets : Array Expr
 
 namespace Induction.Reparametrize
 
+/-!
+This section develops machinery to reparametrize a goal:
+If `x` is an fvar, we'd like to transform the goal such that the context contains
+an fvar `y` that stands for `⟨x⟩`, so `x` becomes `y.1`.
+
+Payoff: An index of an induction target or index that is built from an fvar by constructors and
+projections of one-field structures becomes a plain fvar, a form that is required for
+the application of induction.
+
+In contrast to `generalize`, the reparametrization is purely definitional and does not introduce
+propositional equalities.
+-/
+
 private structure Result where
   /-- The reparametrized goal. -/
   mvarId : MVarId
@@ -1025,7 +1038,7 @@ For example, it could apply the replacement `yInTermsOfX[x := xInTermsOfY] ↦ y
 so that `yInTermsOfX` in the original expression will turn out as `y` in the end.
 
 Returns `none` if the result is not type correct, or if a declaration that would be removed from the
-context (`x` itself or a local declaration depending on it) is still needed: by an auxiliary
+context, such as `x` itself or a local declaration depending on it, is still needed: by an auxiliary
 declaration, by `xInTermsOfY`, or by the type of `y`.
 -/
 private def reparametrize (mvarId : MVarId) (x y : FVarId) (xInTermsOfY yInTermsOfX : Expr)

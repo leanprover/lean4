@@ -157,26 +157,25 @@ def _root_.Lean.MVarId.generalizeHyp (mvarId : MVarId) (args : Array GeneralizeA
 
 structure ChangeVarsResult where
   mvarId : MVarId
-  /-- The new variables `ys` in the context of `mvarId`. -/
-  ys     : Array FVarId
-  /-- Maps the replaced variables `xs` and all reverted dependents to their counterparts in `mvarId`. -/
-  substitutions  : FVarSubst
-  /-- The expressions `others`, transported to the context of `mvarId`. -/
-  others : Array Expr
+  /--
+  Transports an expression of the original goal's context to the context of `mvarId`: substitutes
+  `xs`, folds, and renames `ys` and the reintroduced declarations to their new fvars.
+  -/
+  transport : Expr → Expr
 
 /--
 Definitional change of variables: replaces the variables `xs` by the terms `xsVals`.
 The latter can use the fresh variables `ys`, local declarations of the current context that do not
-depend on `xs`.
+depend on `xs`. Let-bound `xs` are kept in the context as definitions.
 The old goal is closed by instantiating `ys` with `ysVals`, so `xsVals[ys := ysVals]` must be
 definitionally equal to `xs`.
 After the substitution, subterms for which `fold` returns `some r` are replaced by `r`, e.g.
-`⟨y.f⟩ ↦ y`; the same substitution and folding is applied to `others`.
+`⟨y.f⟩ ↦ y`.
 Returns `none` if the result is not type correct.
 -/
 def _root_.Lean.MVarId.changeVars (mvarId : MVarId) (xs : Array FVarId) (ys : Array Expr)
-    (xsVals : Array Expr) (ysVals : Array Expr) (fold : Expr → Option Expr := fun _ => none)
-    (others : Array Expr := #[]) : MetaM (Option ChangeVarsResult) := do
+    (xsVals : Array Expr) (ysVals : Array Expr) (fold : Expr → Option Expr := fun _ => none) :
+    MetaM (Option ChangeVarsResult) := do
   mvarId.checkNotAssigned `changeVars
   let mvarDecl ← mvarId.getDecl
   /- Revert all fvars in `xs` and their dependent local declarations. -/
@@ -201,23 +200,21 @@ def _root_.Lean.MVarId.changeVars (mvarId : MVarId) (xs : Array FVarId) (ys : Ar
   let newType ← mkForallFVars ys (transport body)
   unless ← isTypeCorrect newType do
     return none
-  let lctx := toRevert.foldl (init := mvarDecl.lctx) fun lctx z => lctx.erase z.fvarId!
-  let localInsts := mvarDecl.localInstances.filter fun inst => toRevert.all (· != inst.fvar)
+  /- Let-bound `xs` stay in the context as definitions, like `induction` keeps let-bound targets. -/
+  let toErase ← toRevert.filterM fun z => return !(xs.contains z.fvarId! && (← z.fvarId!.getDecl).isLet)
+  let lctx := toErase.foldl (init := mvarDecl.lctx) fun lctx z => lctx.erase z.fvarId!
+  let localInsts := mvarDecl.localInstances.filter fun inst => toErase.all (· != inst.fvar)
   let generalizedGoal ← mkFreshExprMVarAt lctx localInsts newType .syntheticOpaque (← mvarId.getTag)
   let nonLetDependentDecls ← dependentLDecls.filterM fun z => return !(← z.fvarId!.getDecl).isLet
   mvarId.assign (mkAppN (mkAppN generalizedGoal ysVals) nonLetDependentDecls)
 
   /- Reintroduce the local declarations. -/
+  -- TODO: `introNP` might reintroduce decls with `.isImplementationDetail = true`, as visible fvars.
+  -- Is this intended? This is the mechanism used by `revert + intro`.
   let (fvarIds, newGoalId) ← generalizedGoal.mvarId!.introNP (ys.size + dependentLDecls.size)
-  let ysNew := fvarIds.extract 0 ys.size
 
   /- Rename `ys` and the reintroduced declarations to their new fvars. -/
   let rename (e : Expr) : Expr := e.replaceFVars (ys ++ dependentLDecls) (fvarIds.map mkFVar)
-  let mut substitutions : FVarSubst := {}
-  for x in xs, v in xsVals do
-    substitutions := substitutions.insert x (rename v)
-  for z in dependentLDecls do
-    substitutions := substitutions.insert z.fvarId! (rename z)
-  return some { mvarId := newGoalId, ys := ysNew, substitutions, others := others.map (rename ∘ transport) }
+  return some { mvarId := newGoalId, transport := rename ∘ transport }
 
 end Lean.Meta

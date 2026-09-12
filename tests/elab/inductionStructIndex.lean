@@ -218,3 +218,59 @@ example {a : Nat} (hp hq : 0 < a) (h : Pos ⟨a, hp⟩) (h' : (⟨a, hq⟩ : {n 
   induction h with
   | one => trace_state; exact Nat.le_refl _
   | succ p _ ih => trace_state; exact Nat.le_add_right_of_le (ih p.2 rfl)
+
+-- Inside a section, the auxiliary declaration for the recursive reference (`_example`, `sec`) mentions
+-- the section variables, so the change of variables has to deal with it.
+section
+variable {a b : Nat}
+
+example (h : Relation.TransGen (fun a b : Wrap => a = b) (.mk a) (.mk b)) : a = b := by
+  induction h with
+  | single hr => grind
+  | tail h hr ih => grind
+
+theorem sec (h : Relation.TransGen (fun a b : Wrap => a = b) (.mk a) (.mk b)) : a = b := by
+  induction h with
+  | single hr => grind
+  | tail h hr ih => grind
+end
+
+-- A let-bound base variable is kept in the context as a definition while its occurrences are
+-- replaced; the new variable takes its place as the index.
+/--
+trace: case single
+b : Nat := 3
+b✝ : Wrap
+hr : { inner := 3 } = b✝
+⊢ True
+-/
+#guard_msgs in
+example : True := by
+  let b := 3
+  have h : Relation.TransGen (fun a b : Wrap => a = b) (.mk 3) (.mk b) := .single rfl
+  induction h with
+  | single hr => trace_state; trivial
+  | tail _ _ _ => trivial
+
+-- The new variable is named like the let-bound base it replaces. Normally `induction` clears it in
+-- the alternatives, but an instance-implicit hypothesis depending on it is not generalized (as for
+-- any index variable), so the variable stays and shadows the definition.
+/--
+trace: case single
+b✝¹ : Nat := 3
+b : Nat
+inst : Decidable (b = 3)
+b✝ : Wrap
+hr : { inner := 3 } = b✝
+⊢ True
+-/
+#guard_msgs in
+example : True := by
+  let b := 3
+  have h : Relation.TransGen (fun a b : Wrap => a = b) (.mk 3) (.mk b) := .single rfl
+  have aux : ∀ [Decidable (b = 3)], True := by
+    intro inst
+    induction h with
+    | single hr => trace_state; trivial
+    | tail _ _ _ => trivial
+  exact aux

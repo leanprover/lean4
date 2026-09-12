@@ -78,41 +78,25 @@ example {a : Nat} {x : Wrap2} (h : Relation.TransGen (fun a b : Nat => a = b) a 
   | single hr => grind
   | tail h hr ih => grind
 
--- Projection of a multi-field structure: the other fields become inaccessible variables.
+-- Only one-field structures are supported.
 /--
-trace: case single
-a p snd✝ : Nat
-hp : snd✝ = 3
-b✝ : Nat
-hr : a = b✝
-⊢ a = b✝
----
-trace: case tail
-a p snd✝ : Nat
-hp : snd✝ = 3
-b✝ c✝ : Nat
-h : Relation.TransGen (fun a b => a = b) a b✝
-hr : b✝ = c✝
-ih : a = b✝
-⊢ a = c✝
+error: Invalid target: Index in target's type is not a variable (consider using the `cases` tactic instead)
+  (c, d)
 -/
 #guard_msgs in
-example {a : Nat} {p : Nat × Nat} (hp : p.2 = 3)
-    (h : Relation.TransGen (fun a b : Nat => a = b) a p.1) : a = p.1 := by
-  induction h with
-  | single hr => trace_state; grind
-  | tail h hr ih => trace_state; grind
-
--- Multi-field and dependent structures.
 example {a b c d : Nat} (h : Relation.TransGen (fun a b : Nat × Nat => a = b) (a, b) (c, d)) :
     a + b = c + d := by
   induction h with
   | single hr => grind
   | tail h hr ih => grind
 
-example {a : Nat} {b : Fin a} {c : Nat} {d : Fin c}
-    (h : Relation.TransGen (fun a b : (n : Nat) × Fin n => a = b) ⟨a, b⟩ ⟨c, d⟩) :
-    a = c := by
+/--
+error: Invalid target: Index in target's type is not a variable (consider using the `cases` tactic instead)
+  p.fst
+-/
+#guard_msgs in
+example {a : Nat} {p : Nat × Nat} (h : Relation.TransGen (fun a b : Nat => a = b) a p.1) :
+    a = p.1 := by
   induction h with
   | single hr => grind
   | tail h hr ih => grind
@@ -192,32 +176,20 @@ example {x y : W} (h : H x y) : x.as ≤ y.as := by
   | refl => trace_state; exact Nat.le_refl _
   | step _ _ ih => trace_state; exact Nat.le_succ_of_le ih
 
--- Proof fields are irrelevant when folding `⟨y.val, h⟩` back into `y`.
+-- A subtype has two fields, even though the second one is a proof.
 inductive Pos : {n : Nat // 0 < n} → Prop
   | one : Pos ⟨1, Nat.one_pos⟩
   | succ (p) : Pos p → Pos ⟨p.val + 1, Nat.succ_pos _⟩
 
 /--
-trace: case one
-x✝ : { n // 0 < n }
-hq : 0 < ⟨1, Nat.one_pos⟩.val
-h' : ⟨1, Nat.one_pos⟩.val = ⟨1, Nat.one_pos⟩.val
-⊢ 1 ≤ ⟨1, Nat.one_pos⟩.val
----
-trace: case succ
-x✝ p : { n // 0 < n }
-a✝ : Pos p
-ih : 0 < p.val → p.val = p.val → 1 ≤ p.val
-hq : 0 < ⟨p.val + 1, ⋯⟩.val
-h' : ⟨p.val + 1, ⋯⟩.val = ⟨p.val + 1, ⋯⟩.val
-⊢ 1 ≤ ⟨p.val + 1, ⋯⟩.val
+error: Invalid target: Index in target's type is not a variable (consider using the `cases` tactic instead)
+  ⟨a, hp⟩
 -/
 #guard_msgs in
-example {a : Nat} (hp hq : 0 < a) (h : Pos ⟨a, hp⟩) (h' : (⟨a, hq⟩ : {n // 0 < n}).val = a) :
-    1 ≤ a := by
+example {a : Nat} (hp : 0 < a) (h : Pos ⟨a, hp⟩) : 1 ≤ a := by
   induction h with
-  | one => trace_state; exact Nat.le_refl _
-  | succ p _ ih => trace_state; exact Nat.le_add_right_of_le (ih p.2 rfl)
+  | one => exact Nat.le_refl _
+  | succ p _ ih => exact Nat.le_add_right_of_le (ih p.2)
 
 -- Inside a section, the auxiliary declaration for the recursive reference (`_example`, `sec`) mentions
 -- the section variables, so the change of variables has to deal with it.
@@ -236,11 +208,12 @@ theorem sec (h : Relation.TransGen (fun a b : Wrap => a = b) (.mk a) (.mk b)) : 
 end
 
 -- A let-bound base variable is kept in the context as a definition while its occurrences are
--- replaced; the new variable takes its place as the index.
+-- replaced. The new variable is named like the base; as index variables are not cleared by
+-- `induction`, it shadows the definition in the alternatives.
 /--
 trace: case single
-b : Nat := 3
-b✝ : Wrap
+b✝¹ : Nat := 3
+b b✝ : Wrap
 hr : { inner := 3 } = b✝
 ⊢ True
 -/
@@ -252,14 +225,12 @@ example : True := by
   | single hr => trace_state; trivial
   | tail _ _ _ => trivial
 
--- The new variable is named like the let-bound base it replaces. Normally `induction` clears it in
--- the alternatives, but an instance-implicit hypothesis depending on it is not generalized (as for
--- any index variable), so the variable stays and shadows the definition.
+-- Instance-implicit hypotheses depending on the base are transported like any other hypothesis.
 /--
 trace: case single
 b✝¹ : Nat := 3
-b : Nat
-inst : Decidable (b = 3)
+b : Wrap
+inst : Decidable (b.inner = 3)
 b✝ : Wrap
 hr : { inner := 3 } = b✝
 ⊢ True

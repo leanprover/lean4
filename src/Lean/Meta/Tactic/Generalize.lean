@@ -166,7 +166,8 @@ structure ChangeVarsResult where
 /--
 Definitional change of variables: replaces the variables `xs` by the terms `xsVals`.
 The latter can use the fresh variables `ys`, local declarations of the current context that do not
-depend on `xs`. Let-bound `xs` are kept in the context as definitions.
+depend on `xs`. Let-bound `xs` and `xs` that auxiliary declarations depend on are kept in the context;
+the auxiliary declarations themselves are left untouched, like `induction` does.
 The old goal is closed by instantiating `ys` with `ysVals`, so `xsVals[ys := ysVals]` must be
 definitionally equal to `xs`.
 After the substitution, subterms for which `fold` returns `some r` are replaced by `r`, e.g.
@@ -178,21 +179,21 @@ def _root_.Lean.MVarId.changeVars (mvarId : MVarId) (xs : Array FVarId) (ys : Ar
     MetaM (Option ChangeVarsResult) := do
   mvarId.checkNotAssigned `changeVars
   let mvarDecl ← mvarId.getDecl
-  /- Revert all fvars in `xs` and their dependent local declarations. -/
-  let toRevert ← collectForwardDeps (xs.map mkFVar) (preserveOrder := false)
-  if ← toRevert.anyM fun z => return (← z.fvarId!.getDecl).isAuxDecl then
-    /-
-    Auxiliary declarations cannot be handled. `revert` would simply clear them,
-    but this function is used by the `induction` tactic, where we'd rather not do the variable
-    change than lose local declarations that might be relevant for the induction.
-    -/
+  /-
+  Revert all fvars in `xs` and their dependent local declarations, except for auxiliary
+  declarations: like `induction`, we leave them alone and keep the `xs` they depend on.
+  -/
+  let deps ← collectForwardDeps (xs.map mkFVar) (preserveOrder := false)
+  let (auxDecls, toRevert) := (← deps.mapM (·.fvarId!.getDecl)).partition (·.isAuxDecl)
+  -- An auxiliary declaration depending on a reverted declaration would become ill-scoped.
+  if auxDecls.any fun a => toRevert.any fun d => !xs.contains d.fvarId && a.type.containsFVar d.fvarId then
     return none
 
   /-
   First, revert all dependent local declarations. The result is the forall term `body`.
   We plan to reintroduce them later, hence `usedLetOnly := false`.
   -/
-  let dependentLDecls := toRevert.filter fun z => !xs.contains z.fvarId!
+  let dependentLDecls := toRevert.filterMap fun d => if xs.contains d.fvarId then none else some d.toExpr
   let body ← mkForallFVars dependentLDecls (← instantiateMVars mvarDecl.type) (usedLetOnly := false)
 
   /- Replace the fvars with their substitutes, fold, then generalize over the new fvars. -/
@@ -200,12 +201,14 @@ def _root_.Lean.MVarId.changeVars (mvarId : MVarId) (xs : Array FVarId) (ys : Ar
   let newType ← mkForallFVars ys (transport body)
   unless ← isTypeCorrect newType do
     return none
-  /- Let-bound `xs` stay in the context as definitions, like `induction` keeps let-bound targets. -/
-  let toErase ← toRevert.filterM fun z => return !(xs.contains z.fvarId! && (← z.fvarId!.getDecl).isLet)
-  let lctx := toErase.foldl (init := mvarDecl.lctx) fun lctx z => lctx.erase z.fvarId!
-  let localInsts := mvarDecl.localInstances.filter fun inst => toErase.all (· != inst.fvar)
+  /- Let-bound `xs` and `xs` that auxiliary declarations depend on stay in the context. -/
+  let toErase := toRevert.filter fun d =>
+    !(xs.contains d.fvarId && (d.isLet || auxDecls.any (·.type.containsFVar d.fvarId)))
+  let lctx := toErase.foldl (init := mvarDecl.lctx) fun lctx d => lctx.erase d.fvarId
+  let localInsts := mvarDecl.localInstances.filter fun inst => toErase.all (·.fvarId != inst.fvar.fvarId!)
   let generalizedGoal ← mkFreshExprMVarAt lctx localInsts newType .syntheticOpaque (← mvarId.getTag)
-  let nonLetDependentDecls ← dependentLDecls.filterM fun z => return !(← z.fvarId!.getDecl).isLet
+  let nonLetDependentDecls := toRevert.filterMap fun d =>
+    if xs.contains d.fvarId || d.isLet then none else some d.toExpr
   mvarId.assign (mkAppN (mkAppN generalizedGoal ysVals) nonLetDependentDecls)
 
   /- Reintroduce the local declarations. -/

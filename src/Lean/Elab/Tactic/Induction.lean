@@ -1000,23 +1000,6 @@ def evalInductionCore (stx : Syntax) (elimInfo : ElimInfo) (targets : Array Expr
         appendGoals result.others.toList
 
 /--
-A variant of the forall telescope that preserves binder names.
-Declares the fields of the instantiated constructor type `ctorType`.
--/
-private def withFieldDecls {α} (ctorType : Expr) (numFields : Nat) (rename : Nat → Name → MetaM Name)
-    (k : Array Expr → MetaM α) : MetaM α :=
-  go ctorType #[]
-where
-  go (type : Expr) (ys : Array Expr) : MetaM α := do
-    if ys.size < numFields then
-      -- The kernel counts fields syntactically, so the binders are visible without reduction.
-      let .forallE n d b _ := type | throwError "unexpected constructor type{indentExpr ctorType}"
-      withLocalDeclD (← rename ys.size n) d fun y => go (b.instantiate1 y) (ys.push y)
-    else
-      k ys
-  termination_by numFields - ys.size
-
-/--
 Matches `⟨y.f₁, …, y.fₙ⟩`, given as the constructor `ctorVal` applied to `params` and the projections
 `projs`, and returns `y`. Proof fields are ignored (proof irrelevance), so `⟨y.val, h⟩` matches too.
 -/
@@ -1059,13 +1042,22 @@ private def oneFieldType (ctorVal : ConstructorVal) (us : List Level) (params : 
   let .forallE _ fieldType _ _ := ctorType | throwError "unexpected constructor type{indentExpr ctorType}"
   return fieldType
 
+/-- Returns the change of variables together with the new variable `y` in the new goal. -/
+private def withNewVar (x : FVarId) (yType : Expr)
+    (k : Expr → MetaM (Option ChangeVarsResult)) : MetaM (Option (ChangeVarsResult × FVarId)) := do
+  -- The new variable would be ill-scoped once `x` is gone.
+  if yType.containsFVar x then return none
+  withLocalDeclD (← x.getUserName) yType fun y => do
+    let some r ← k y | return none
+    return some (r, (r.transport y).fvarId!)
+
 /--
 Replaces `x : S params` by `⟨y⟩`, where `y` is a fresh variable named like `x`. The projections
 `⟨y⟩.f` created by the substitution fold back to `y`.
 -/
 private def replaceByCtor (mvarId : MVarId) (x : FVarId) (ctorVal : ConstructorVal) (us : List Level)
-    (params : Array Expr) : MetaM (Option ChangeVarsResult) := do
-  withLocalDeclD (← x.getUserName) (← oneFieldType ctorVal us params) fun y => do
+    (params : Array Expr) : MetaM (Option (ChangeVarsResult × FVarId)) := do
+  withNewVar x (← oneFieldType ctorVal us params) fun y => do
     let xVal := mkAppN (mkConst ctorVal.name us) (params.push y)
     let yVal ← mkProjFn ctorVal us params 0 (mkFVar x)
     let projFn := (getStructureInfo? (← getEnv) ctorVal.induct).bind (·.getProjFn? 0)
@@ -1076,8 +1068,8 @@ Replaces `x` by `y.f`, where `y : S params` is a fresh variable named like `x`. 
 applications `⟨y.f⟩` created by the substitution fold back to `y`.
 -/
 private def replaceByProj (mvarId : MVarId) (x : FVarId) (ctorVal : ConstructorVal) (us : List Level)
-    (params : Array Expr) : MetaM (Option ChangeVarsResult) := do
-  withLocalDeclD (← x.getUserName) (mkAppN (mkConst ctorVal.induct us) params) fun y => do
+    (params : Array Expr) : MetaM (Option (ChangeVarsResult × FVarId)) := do
+  withNewVar x (mkAppN (mkConst ctorVal.induct us) params) fun y => do
     let xVal ← mkProjFn ctorVal us params 0 y
     let yVal := mkAppN (mkConst ctorVal.name us) (params.push (mkFVar x))
     let isProof ← Meta.isProof (mkFVar x)
@@ -1117,9 +1109,21 @@ private def IndexBijection.proj (ctorVal : ConstructorVal) (us : List Level) (pa
     IndexBijection :=
   { isCtor := false, ctorVal, us, params }
 
+/-- Turns `b x` into a fresh variable by replacing the base `x`, see `replaceByProj`/`replaceByCtor`. -/
+private def IndexBijection.makeVar (b : IndexBijection) (mvarId : MVarId) (x : FVarId) :
+    MetaM (Option (ChangeVarsResult × FVarId)) :=
+  if b.isCtor then
+    replaceByProj mvarId x b.ctorVal b.us b.params
+  else
+    replaceByCtor mvarId x b.ctorVal b.us b.params
+
 private structure BijectionTower where
   fvarId : FVarId
   bijectionsInsideOut : List IndexBijection
+
+/-- The `params` may mention variables replaced by a change of variables, see `IndexState.apply`. -/
+private def BijectionTower.transport (t : BijectionTower) (f : Expr → Expr) : BijectionTower :=
+  { t with bijectionsInsideOut := t.bijectionsInsideOut.map fun b => { b with params := b.params.map f } }
 
 private partial def bijectionTower? (e : Expr) (outerBijections : List IndexBijection := []) :
     MetaM (Option BijectionTower) := do
@@ -1131,7 +1135,7 @@ private partial def bijectionTower? (e : Expr) (outerBijections : List IndexBije
     -- context as a definition, see `changeVars`.
     if !outerBijections.isEmpty && (← fvarId.getDecl).isImplementationDetail then return none
     return some { fvarId, bijectionsInsideOut := outerBijections }
-  | .proj structName i x =>
+  | .proj structName _ x =>
     let some ctorVal := getNonRecStructureCtor? env structName | return none
     if ctorVal.numFields ≠ 1 then return none
     let xType ← whnfD (← inferType x) -- TODO: is this the right Transparency?
@@ -1161,94 +1165,39 @@ private partial def bijectionTower? (e : Expr) (outerBijections : List IndexBije
     return none
 
 /--
-Turns the index subterm `e` into a variable by a definitional change of variables if `e` is a
-structure constructor application `⟨x₁, …, xₙ⟩` (`xᵢ ↦ y.fᵢ`) or a projection `x.f`
-(`x ↦ ⟨y₁, …, yₙ⟩`) of variables; otherwise recurses into the first non-variable argument.
-Variables that are targets themselves are left alone, replacing them would make another target
-non-atomic. The expressions `others` are transported to the new goal, see `MVarId.changeVars`.
--/
-private partial def changeStructIndexVars? (mvarId : MVarId) (targets others : Array Expr) (bijectionTower : BijectionTower) :
-    MetaM (Option ChangeVarsResult) := do
-  match bijectionTower with
-  | .proj structName us params innerTower =>
-    projStep structName us params innerTower -- TODO, UNDER CONSTRUCTION
-  | .app .. | .const .. =>
-    let .const declName us := e.getAppFn | return none
-    let args := e.getAppArgs
-    if let some projInfo := env.getProjectionFnInfo? declName then
-      let ctorVal ← getConstInfoCtor projInfo.ctorName
-      unless args.size == projInfo.numParams + 1 && isNonRecStructure env ctorVal.induct do return none
-      projStep ctorVal us (args.extract 0 projInfo.numParams) projInfo.i args.back!
-    else
-      let some (.ctorInfo ctorVal) := env.find? declName | return none
-      unless args.size == ctorVal.numParams + ctorVal.numFields && isNonRecStructure env ctorVal.induct do
-        return none
-      let params := args.extract 0 ctorVal.numParams
-      let fields := args.extract ctorVal.numParams
-      for field in fields do
-        unless ← isCandidate field do return ← recurse field
-      unless fields.allDiff do return none
-      let yName ← if h : fields.size = 1 then fields[0].fvarId!.getUserName else mkFreshUserName `x
-      withLocalDeclD yName (mkAppN (mkConst ctorVal.induct us) params) fun y => do
-        let xsVals ← (Array.range fields.size).mapM (mkProjFn ctorVal us params · y)
-        let isProof ← fields.mapM (Meta.isProof ·)
-        let fold := foldCtorOfProjs ctorVal us params xsVals isProof y
-        mvarId.changeVars (fields.map (·.fvarId!)) #[y] xsVals #[e] fold others
-  | _ => return none
-where
-  isCandidate (x : Expr) : MetaM Bool := do
-    unless x.isFVar do return false
-    if targets.contains x then return false
-    let decl ← x.fvarId!.getDecl
-    return !decl.isLet && !decl.isAuxDecl
-  recurse (x : Expr) : MetaM (Option ChangeVarsResult) :=
-    if x.isFVar then pure none else changeStructIndexVars? mvarId targets others x
-  projStep (ctorVal : ConstructorVal) (us : List Level) (params : Array Expr) (innerTower : BijectionTower) :
-      MetaM (Option ChangeVarsResult) := do
-    unless ← isCandidate x do return ← recurse x
-    let ctorType := (ctorVal.type.instantiateLevelParams ctorVal.levelParams us)
-      |>.getForallBodyMaxDepth ctorVal.numParams |>.instantiateRev params
-    let rename j n := if j == i then x.fvarId!.getUserName else mkFreshUserName n
-    withFieldDecls ctorType ctorVal.numFields rename fun ys => do
-      let xVal := mkAppN (mkAppN (mkConst ctorVal.name us) params) ys
-      let ysVals ← (Array.range ys.size).mapM (mkProjFn ctorVal us params · x)
-      let structInfo? := getStructureInfo? (← getEnv) ctorVal.induct
-      let projFns := (Array.range ys.size).map fun j => structInfo?.bind (·.getProjFn? j)
-      let fold := foldProjOfCtor ctorVal projFns xVal ys
-      mvarId.changeVars #[x.fvarId!] ys #[xVal] ysVals fold others
-
-/--
 Makes the implicit targets (the indices of the explicit `targets`) variables where a definitional
-change of variables suffices, see `changeStructIndexVars?`. Returns all targets and the updated
-`toTag` and `elimInfo`.
+change of variables suffices: a target `⟨x⟩` resp. `x.f` over a one-field structure becomes a fresh
+variable `y` by `x ↦ y.f` resp. `x ↦ ⟨y⟩`, from the innermost operation outwards. Targets of any
+other shape are left to `checkInductionTargets`. Returns all targets and the updated `toTag` and
+`elimInfo`.
 -/
 private def changeStructIndexVars (elimInfo : ElimInfo) (targets : Array Expr)
     (toTag : Array (Ident × FVarId)) :
     TacticM (Array Expr × Array (Ident × FVarId) × ElimInfo) := do
-  let mut elimInfo := elimInfo
-  let mut toTag := toTag
-  let mut allTargets ← withMainContext <| addImplicitTargets elimInfo targets
-  let n := allTargets.size
-  let mut bijectionTowers : Array BijectionTower := #[]
-  for h : i in *...n do
+  let mvarId ← getMainGoal
+  let mut s : IndexState := { mvarId, targets := ← withMainContext (addImplicitTargets elimInfo targets), elimInfo, toTag }
+  let allTargets := s.targets
+  let mut towers : Array (Option BijectionTower) := #[]
+  for h : i in *...allTargets.size do
     let target := allTargets[i]
-    let some bijectionTower ← bijectionTower? target | sorry -- error
+    let some tower ← mvarId.withContext (bijectionTower? target) | towers := towers.push none; continue
     -- Two targets over the same variable can never become independent variables.
-    if let some j := bijectionTowers.findIdx? (·.fvarId == bijectionTower.fvarId) then
-      throwError "Invalid target: The variable `{mkFVar bijectionTower.fvarId}` occurs in more than one \
-        target (or index), consider using the `cases` tactic instead{indentExpr allTargets[j]!}\n{indentExpr target}"
-    bijectionTowers := bijectionTowers.push bijectionTower
-  for bijectionTower in bijectionTowers do
-    if bijectionTower.bijectionsInsideOut.isEmpty then continue
-    for bijection in bijectionTower.bijectionsInsideOut do
-      -- TODO
-    let substitutionTargets := allTargets ++ #[elimInfo.elimExpr, elimInfo.elimType]
-    let some result ← withMainContext do -- TODO: move withMainContext out to the top?
-      changeStructIndexVars? (← getMainGoal) allTargets substitutionTargets target | break
-    toTag := toTag.map fun (id, fvarId) => (id, (result.substitutions.get fvarId).fvarId!) -- TODO: can there be multiple substitutions at once?
-    allTargets := result.others.extract 0 n
-    elimInfo := { elimInfo with elimExpr := result.others[n]!, elimType := result.others[n + 1]! }
-  return (allTargets, toTag, elimInfo)
+    if let some j := towers.findIdx? (·.any (·.fvarId == tower.fvarId)) then
+      throwError "Invalid target: The variable `{mkFVar tower.fvarId}` occurs in more than one \
+        target (or index), consider using the `cases` tactic instead{indentExpr allTargets[j]!}{indentExpr target}"
+    towers := towers.push (some tower)
+  for i in *...towers.size do
+    let some tower := towers[i]! | continue
+    let mut x := tower.fvarId
+    for k in *...tower.bijectionsInsideOut.length do
+      -- `towers` is transported after every step, so the current one has to be re-read.
+      let some bijection := towers[i]!.bind (·.bijectionsInsideOut[k]?) | break
+      let some (r, y) ← s.mvarId.withContext (bijection.makeVar s.mvarId x) | break
+      s := s.apply r
+      towers := towers.map (·.map (·.transport r.transport))
+      x := y
+  replaceMainGoal [s.mvarId]
+  return (s.targets, s.toTag, s.elimInfo)
 
 @[builtin_tactic Lean.Parser.Tactic.induction, builtin_incremental]
 def evalInduction : Tactic := fun stx =>

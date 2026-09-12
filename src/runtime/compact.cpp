@@ -165,7 +165,8 @@ void * object_compactor::alloc(size_t sz) {
     if (rem != 0)
         sz = sz + sizeof(void*) - rem;
     while (static_cast<char*>(m_end) + sz > m_capacity) {
-        size_t new_capacity = capacity()*2;
+        // Doubling can overflow `size_t` on 32-bit systems; grow exactly in that case.
+        size_t new_capacity = capacity() <= SIZE_MAX / 2 ? capacity() * 2 : size() + sz;
         void * new_begin = malloc(new_capacity);
         memcpy(new_begin, m_begin, size());
         m_end      = static_cast<char*>(new_begin) + size();

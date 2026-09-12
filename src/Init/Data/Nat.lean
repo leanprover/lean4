@@ -19,6 +19,7 @@ public import Init.Data.Nat.Log2
 public import Init.Data.Nat.Power2
 public import Init.Data.Nat.Internal
 public import Init.Data.Nat.Internal
+public import Init.Data.Nat.PowMod
 public import Init.Data.Nat.Lemmas
 public import Init.Data.Nat.Mod
 public import Init.Data.Nat.Lcm

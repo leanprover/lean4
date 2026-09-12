@@ -1,0 +1,8 @@
+name = "test"
+testDrivers = ["Lib1", "Lib2"]
+
+[[lean_lib]]
+name = "Lib1"
+
+[[lean_lib]]
+name = "Lib2"

@@ -153,4 +153,27 @@ public def collectAxioms [Monad m] [MonadEnv m] (constName : Name) : m (Array Na
   return CollectAxioms.runM privateEnv do
     CollectAxioms.collectAndGet s.find? constName
 
+/--
+Collect the axioms transitively used by each constant in `decls`, sharing a single traversal
+across all of them: one `runM` (so the per-call environment setup is done once) and one `seen`
+cache (so the common dependency closure is walked once in total, not once per constant). This is
+far faster than mapping `collectAxioms` over many declarations, which rebuilds the cache and
+redoes the setup on every call.
+
+The result is positional: entry `i` holds the axioms used by `decls[i]`, with any axiom in
+`except` removed. The shared cache stores full (unfiltered) axiom sets, so `except` affects only
+the returned arrays; passing an allowlist therefore leaves just the "unexpected" axioms (often
+none) per declaration. This is the same shared-state collection the olean exporter performs
+internally (see `exportEntriesFnEx`).
+-/
+public def collectAxiomsMany [Monad m] [MonadEnv m]
+    (decls : Array Name) (except : NameSet := {}) : m (Array (Array Name)) := do
+  let env ← getEnv
+  let privateEnv := env.setExporting false
+  let s := exportedAxiomsExt.getState (asyncMode := .mainOnly) env
+  return CollectAxioms.runM privateEnv do
+    decls.mapM fun name => do
+      let axs ← CollectAxioms.collectAndGet s.find? name
+      return axs.filter (!except.contains ·)
+
 end Lean

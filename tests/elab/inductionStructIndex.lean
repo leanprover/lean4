@@ -2,7 +2,6 @@
 Tests that `induction` accepts indices built from variables by constructors and projections
 of one-field structures. The tactic replaces an index `⟨x⟩` with a fresh variable `y` by
 substituting `y.f` for `x`. For an index `x.f`, it substitutes `⟨y⟩` for `x`.
-These changes are definitional, so they introduce no equations into the induction hypotheses.
 -/
 
 structure Wrap where
@@ -183,14 +182,12 @@ example (n : Nat) (i : Fin (n + 1)) (h : IsZero ⟨n⟩ ⟨i⟩) : i.val = 0 := 
   | zero => rfl
   | succ _ ih => exact ih
 
--- A constructor/projection chain can reintroduce the dependent base more than once.
 example (n : Wrap) (i : Fin (n.inner + 1)) (h : IsZero ⟨n.inner⟩ ⟨i⟩) : i.val = 0 := by
   induction h with
   | zero => rfl
   | succ _ ih => exact ih
 
 -- Generalizing the explicit targets creates a fresh variable that also becomes an implicit index.
--- The duplicate-target diagnostic must use its display name from the updated goal's context.
 theorem Le.ind {motive : (a b : Wrap) → Le a b → Prop}
     (all : ∀ a b h, motive a b h) (a : Wrap) {b : Wrap} (h : Le a b) : motive a b h :=
   all a b h
@@ -278,8 +275,8 @@ example {a : Nat} (hp : 0 < a) (h : Pos ⟨a, hp⟩) : 1 ≤ a := by
   | one => exact Nat.le_refl _
   | succ p _ ih => exact Nat.le_add_right_of_le (ih p.2)
 
--- The type of the new variable must not depend on the base, neither directly nor through a
--- let-bound definition. Then the outer step is skipped and the index is rejected as usual.
+-- The type of the index must not depend on its fvar, neither directly nor through a
+-- let-bound definition. Otherwise the outer step is skipped and the index is rejected as usual.
 structure Outer (p : Prop) (h : p) where
   inner : Wrap
 
@@ -315,8 +312,8 @@ example {a : Nat} (ha : 0 < a) : True := by
     | tail _ _ _ => trivial
   trivial
 
--- A metavariable in the goal whose context contains the base becomes a function of the new variable,
--- like `revert` does. Here `?n` is created before the target exists…
+-- A metavariable in the goal whose context contains the base becomes a function of the new variable.
+-- Here `?n` is created before the target exists...
 /--
 trace: case single
 o a b✝ : Wrap
@@ -336,7 +333,7 @@ example {a : Nat} {o : Wrap} : ∃ n, n = a := by
     | tail _ _ _ => sorry
   exact a
 
--- … and here after, so that the reverted target is in its context as well.
+-- ...and here after, so that the reverted target is in its context as well.
 /--
 trace: case single
 o a b✝ : Wrap

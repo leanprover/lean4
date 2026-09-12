@@ -999,49 +999,6 @@ def evalInductionCore (stx : Syntax) (elimInfo : ElimInfo) (targets : Array Expr
           (generalized := generalized) (toClear := targetFVarIds) (toTag := toTag)
         appendGoals result.others.toList
 
-/--
-Matches `⟨y.f₁, …, y.fₙ⟩`, given as the constructor `ctorVal` applied to `params` and the projections
-`projs`, and returns `y`. Proof fields are ignored (proof irrelevance), so `⟨y.val, h⟩` matches too.
--/
-private def foldCtorOfProjs (ctorVal : ConstructorVal) (us : List Level) (params projs : Array Expr)
-    (isProof : Array Bool) (y : Expr) (e : Expr) : Option Expr := do
-  let e := e.cleanupAnnotations
-  guard <| e.isAppOfArity ctorVal.name (ctorVal.numParams + ctorVal.numFields)
-  let .const _ us' := e.getAppFn | none
-  guard <| us' == us
-  let args := e.getAppArgs
-  guard <| (Array.range ctorVal.numParams).all fun i => args[i]!.cleanupAnnotations == params[i]!
-  guard <| (Array.range ctorVal.numFields).all fun i =>
-    isProof[i]! || args[ctorVal.numParams + i]!.cleanupAnnotations == projs[i]!
-  return y
-
-/--
-Matches `⟨y₁, …, yₙ⟩.fᵢ`, where the constructor application is exactly `ctorApp`, given as `Expr.proj`
-or as an application of the projection function `projFns[i]`, and returns `yᵢ`.
--/
-private def foldProjOfCtor (ctorVal : ConstructorVal) (projFns : Array (Option Name)) (ctorApp : Expr)
-    (ys : Array Expr) (e : Expr) : Option Expr := do
-  let e := e.cleanupAnnotations
-  match e with
-  | .proj structName i x =>
-    guard <| structName == ctorVal.induct && x.cleanupAnnotations == ctorApp
-    ys[i]?
-  | .app .. =>
-    let .const declName _ := e.getAppFn | none
-    let some i := projFns.findIdx? (· == some declName) | none
-    guard <| e.getAppNumArgs == ctorVal.numParams + 1 && e.appArg!.cleanupAnnotations == ctorApp
-    ys[i]?
-  | _ => none
-
-/-- The type of the single field of the structure constructor `ctorVal` applied to `params`. -/
-private def oneFieldType (ctorVal : ConstructorVal) (us : List Level) (params : Array Expr) :
-    MetaM Expr := do
-  let ctorType := (ctorVal.type.instantiateLevelParams ctorVal.levelParams us)
-    |>.getForallBodyMaxDepth ctorVal.numParams |>.instantiateRev params
-  -- The kernel counts fields syntactically, so the binder is visible without reduction.
-  let .forallE _ fieldType _ _ := ctorType | throwError "unexpected constructor type{indentExpr ctorType}"
-  return fieldType
-
 /-- Returns the change of variables together with the new variable `y` in the new goal. -/
 private def withNewVar (x : FVarId) (yType : Expr)
     (k : Expr → MetaM (Option ChangeVarsResult)) : MetaM (Option (ChangeVarsResult × FVarId)) := do
@@ -1057,11 +1014,14 @@ Replaces `x : S params` by `⟨y⟩`, where `y` is a fresh variable named like `
 -/
 private def replaceByCtor (mvarId : MVarId) (x : FVarId) (ctorVal : ConstructorVal) (us : List Level)
     (params : Array Expr) : MetaM (Option (ChangeVarsResult × FVarId)) := do
-  withNewVar x (← oneFieldType ctorVal us params) fun y => do
+  let yVal ← mkProjFn ctorVal us params 0 (mkFVar x)
+  -- The field type of a one-field structure depends on the params only.
+  withNewVar x (← inferType yVal) fun y => do
     let xVal := mkAppN (mkConst ctorVal.name us) (params.push y)
-    let yVal ← mkProjFn ctorVal us params 0 (mkFVar x)
-    let projFn := (getStructureInfo? (← getEnv) ctorVal.induct).bind (·.getProjFn? 0)
-    mvarId.changeVars #[x] #[y] #[xVal] #[yVal] (foldProjOfCtor ctorVal #[projFn] xVal #[y])
+    -- `⟨y⟩.f` may be spelled with the projection function or as `Expr.proj`.
+    let projApp ← mkProjFn ctorVal us params 0 xVal
+    mvarId.changeVars #[x] #[y] #[xVal] #[yVal] fun e =>
+      if e == projApp || e == .proj ctorVal.induct 0 xVal then some y else none
 
 /--
 Replaces `x` by `y.f`, where `y : S params` is a fresh variable named like `x`. The constructor
@@ -1072,8 +1032,8 @@ private def replaceByProj (mvarId : MVarId) (x : FVarId) (ctorVal : ConstructorV
   withNewVar x (mkAppN (mkConst ctorVal.induct us) params) fun y => do
     let xVal ← mkProjFn ctorVal us params 0 y
     let yVal := mkAppN (mkConst ctorVal.name us) (params.push (mkFVar x))
-    let isProof ← Meta.isProof (mkFVar x)
-    mvarId.changeVars #[x] #[y] #[xVal] #[yVal] (foldCtorOfProjs ctorVal us params #[xVal] #[isProof] y)
+    mvarId.changeVars #[x] #[y] #[xVal] #[yVal] fun e =>
+      if e.cleanupAnnotations == mkAppN (mkConst ctorVal.name us) (params.push xVal) then y else none
 
 /--
 The goal of `induction` together with the expressions that have to be kept in sync with it while
@@ -1110,7 +1070,7 @@ private def IndexBijection.proj (ctorVal : ConstructorVal) (us : List Level) (pa
   { isCtor := false, ctorVal, us, params }
 
 /-- Turns `b x` into a fresh variable by replacing the base `x`, see `replaceByProj`/`replaceByCtor`. -/
-private def IndexBijection.makeVar (b : IndexBijection) (mvarId : MVarId) (x : FVarId) :
+private def IndexBijection.invertBijection (b : IndexBijection) (mvarId : MVarId) (x : FVarId) :
     MetaM (Option (ChangeVarsResult × FVarId)) :=
   if b.isCtor then
     replaceByProj mvarId x b.ctorVal b.us b.params
@@ -1131,14 +1091,14 @@ private partial def bijectionTower? (e : Expr) (outerBijections : List IndexBije
   let env ← getEnv
   match e with
   | .fvar fvarId =>
-    -- Only a variable that is going to be replaced is restricted; a let-bound one stays in the
-    -- context as a definition, see `changeVars`.
-    if !outerBijections.isEmpty && (← fvarId.getDecl).isImplementationDetail then return none
-    return some { fvarId, bijectionsInsideOut := outerBijections }
+    if outerBijections.isEmpty ∨ !(← fvarId.getDecl).isImplementationDetail then
+      return some { fvarId, bijectionsInsideOut := outerBijections }
+    else
+      return none
   | .proj structName _ x =>
     let some ctorVal := getNonRecStructureCtor? env structName | return none
     if ctorVal.numFields ≠ 1 then return none
-    let xType ← whnfD (← inferType x) -- TODO: is this the right Transparency?
+    let xType ← whnfD (← inferType x)
     let .const _ us := xType.getAppFn | return none
     let params := xType.getAppArgs
     let outerBijections := .proj ctorVal us params :: outerBijections
@@ -1171,7 +1131,7 @@ variable `y` by `x ↦ y.f` resp. `x ↦ ⟨y⟩`, from the innermost operation 
 other shape are left to `checkInductionTargets`. Returns all targets and the updated `toTag` and
 `elimInfo`.
 -/
-private def changeStructIndexVars (elimInfo : ElimInfo) (targets : Array Expr)
+private def makeTargetsFVars (elimInfo : ElimInfo) (targets : Array Expr)
     (toTag : Array (Ident × FVarId)) :
     TacticM (Array Expr × Array (Ident × FVarId) × ElimInfo) := do
   let mvarId ← getMainGoal
@@ -1192,7 +1152,7 @@ private def changeStructIndexVars (elimInfo : ElimInfo) (targets : Array Expr)
     for k in *...tower.bijectionsInsideOut.length do
       -- `towers` is transported after every step, so the current one has to be re-read.
       let some bijection := towers[i]!.bind (·.bijectionsInsideOut[k]?) | break
-      let some (r, y) ← s.mvarId.withContext (bijection.makeVar s.mvarId x) | break
+      let some (r, y) ← s.mvarId.withContext (bijection.invertBijection s.mvarId x) | break
       s := s.apply r
       towers := towers.map (·.map (·.transport r.transport))
       x := y
@@ -1211,7 +1171,7 @@ def evalInduction : Tactic := fun stx =>
     let (targets, toTag, elimInfo) ← Term.withoutTacticIncrementality true do
       let (targets, toTag) ← elabElimTargets stx[1].getSepArgs
       let elimInfo ← withMainContext <| getElimNameInfo stx[2] targets (induction := true)
-      changeStructIndexVars elimInfo targets toTag
+      makeTargetsFVars elimInfo targets toTag
     evalInductionCore stx elimInfo targets mkInitInfo toTag
 
 

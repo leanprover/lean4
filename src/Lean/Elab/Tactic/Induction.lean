@@ -999,26 +999,99 @@ def evalInductionCore (stx : Syntax) (elimInfo : ElimInfo) (targets : Array Expr
           (generalized := generalized) (toClear := targetFVarIds) (toTag := toTag)
         appendGoals result.others.toList
 
-/-- Returns the change of variables together with the new variable `y` in the new goal. -/
-private def withNewVar (x : FVarId) (yType : Expr)
-    (k : Expr → MetaM (Option ReparametrizeResult)) : MetaM (Option (ReparametrizeResult × FVarId)) := do
-  withLocalDeclD (← x.getUserName) yType fun y => do
-    let some r ← k y | return none
-    return some (r, (r.transport y).fvarId!)
+namespace Induction.Reparametrize
+
+public structure Result where
+  /-- The reparametrized goal. -/
+  mvarId : MVarId
+  /-- The `y` variable in the context of the reparametrized goal. -/
+  newFVarId : FVarId
+  /--
+  Transports an expression of the original goal's context to the context of `mvarId`: substitutes
+  `x`, folds, and renames `y` and the reintroduced declarations to their new fvars.
+  -/
+  transport : Expr → Expr
+
+/--
+Definitional change of variables: replaces the variable `x` by the term `xInTermsOfY`.
+The latter can depend on the fresh variable `y` and local declarations of the current context that
+do not depend on `x`.
+A let-bound `x` or one that auxiliary declarations depend on is kept in the context.
+The old goal is closed by instantiating `y` with `yInTermsOfX`.
+For this to be type correct, the arguments must satisfy `xInTermsOfY[y := yInTermsOfX] =?= x`.
+
+The `fold` function can be used to simplify expressions after the substitution.
+For example, it could apply the replacement `yInTermsOfX[x := xInTermsOfY] ↦ y`,
+so that `yInTermsOfX` in the original expression will turn out as `y` in the end.
+
+Returns `none` if the result is not type correct, or if a declaration that would be removed from the
+context (`x` itself or a local declaration depending on it) is still needed: by an auxiliary
+declaration, by `xInTermsOfY`, or by the type of `y`.
+-/
+public def reparametrize (mvarId : MVarId) (x y : FVarId) (xInTermsOfY yInTermsOfX : Expr)
+    (fold : Expr → Option Expr := fun _ => none) : MetaM (Option Result) := do
+  mvarId.checkNotAssigned `reparametrize
+  let mvarDecl ← mvarId.getDecl
+  /-
+  Revert `x` and its dependent local declarations, except for auxiliary declarations: like
+  `induction`, we leave them alone and keep `x` if they depend on it.
+  -/
+  let deps ← collectForwardDeps #[mkFVar x] (preserveOrder := false)
+  let (auxDecls, toRevert) := (← deps.mapM (·.fvarId!.getDecl)).partition (·.isAuxDecl)
+  let dependents := toRevert.filter (·.fvarId != x)
+  let keepX ← pure (← x.getDecl).isLet <||> auxDecls.anyM (localDeclDependsOn · x)
+  let toErase := if keepX then dependents else toRevert
+
+  let isErased (fvarId : FVarId) := toErase.any (·.fvarId == fvarId)
+  if ← auxDecls.anyM (localDeclDependsOnPred · isErased) then return none
+  if ← dependsOnPred xInTermsOfY isErased then return none
+  if ← dependsOnPred (← y.getType) isErased then return none
+
+  /-
+  First, revert all dependent local declarations. The result is the forall term `body`.
+  We plan to reintroduce them later, hence `usedLetOnly := false`.
+  -/
+  let dependentLDecls := dependents.map (·.toExpr)
+  let body ← mkForallFVars dependentLDecls (← instantiateMVars mvarDecl.type) (usedLetOnly := false)
+  -- Metavariables depending on `x` become functions of `x`, so that we can substitute.
+  let body ← elimMVarDeps #[mkFVar x] body
+
+  /- Replace `x` with its substitute, fold, then generalize over `y`. -/
+  let transport (e : Expr) : Expr := (e.replaceFVar (mkFVar x) xInTermsOfY).replace fold
+  let newType ← mkForallFVars #[mkFVar y] (transport body)
+  let lctx := toErase.foldl (init := mvarDecl.lctx) fun lctx d => lctx.erase d.fvarId
+  let localInsts := mvarDecl.localInstances.filter fun inst => toErase.all (·.fvarId != inst.fvar.fvarId!)
+  -- Note that this type check doesn't cover auxiliary declarations and contexts of metavariables.
+  unless ← withLCtx lctx localInsts <| isTypeCorrect newType do
+    return none
+  let generalizedGoal ← mkFreshExprMVarAt lctx localInsts newType .syntheticOpaque (← mvarId.getTag)
+  let nonLetDependentDecls := dependents.filterMap fun d => if d.isLet then none else some d.toExpr
+  mvarId.assign (mkAppN (mkApp generalizedGoal yInTermsOfX) nonLetDependentDecls)
+
+  /-
+  Reintroduce the local declarations.
+  Like `revert` + `intro` and `induction` itself, implementation-detail fvars will become visible
+  from this. Restoring their kinds here would be undone by `induction` anyway.
+  -/
+  let (fvarIds, newGoalId) ← generalizedGoal.mvarId!.introNP (1 + dependents.size)
+
+  /- Rename `y` and the reintroduced declarations to their new fvars. -/
+  let rename (e : Expr) : Expr := e.replaceFVars (#[mkFVar y] ++ dependentLDecls) (fvarIds.map mkFVar)
+  return some { mvarId := newGoalId, newFVarId := fvarIds[0]!, transport := rename ∘ transport }
 
 /--
 Replaces `x : S params` by `⟨y⟩`, where `y` is a fresh variable named like `x`. The projections
 `⟨y⟩.f` created by the substitution fold back to `y`.
 -/
 private def replaceByCtor (mvarId : MVarId) (x : FVarId) (ctorVal : ConstructorVal) (us : List Level)
-    (params : Array Expr) : MetaM (Option (ReparametrizeResult × FVarId)) := do
+    (params : Array Expr) : MetaM (Option Result) := do
   let yInTermsOfX ← mkProjFn ctorVal us params 0 (mkFVar x)
   -- The field type of a one-field structure depends on the params only.
-  withNewVar x (← inferType yInTermsOfX) fun y => do
+  withLocalDeclD (← x.getUserName) (← inferType yInTermsOfX) fun y => do
     let xInTermsOfY := mkAppN (mkConst ctorVal.name us) (params.push y)
     -- `⟨y⟩.f` may be spelled with the projection function or as `Expr.proj`.
     let projApp ← mkProjFn ctorVal us params 0 xInTermsOfY
-    mvarId.reparametrize x y.fvarId! xInTermsOfY yInTermsOfX fun e =>
+    reparametrize mvarId x y.fvarId! xInTermsOfY yInTermsOfX fun e =>
       if e == projApp || e == .proj ctorVal.induct 0 xInTermsOfY then some y else none
 
 /--
@@ -1026,11 +1099,11 @@ Replaces `x` by `y.f`, where `y : S params` is a fresh variable named like `x`. 
 applications `⟨y.f⟩` created by the substitution fold back to `y`.
 -/
 private def replaceByProj (mvarId : MVarId) (x : FVarId) (ctorVal : ConstructorVal) (us : List Level)
-    (params : Array Expr) : MetaM (Option (ReparametrizeResult × FVarId)) := do
-  withNewVar x (mkAppN (mkConst ctorVal.induct us) params) fun y => do
+    (params : Array Expr) : MetaM (Option Result) := do
+  withLocalDeclD (← x.getUserName) (mkAppN (mkConst ctorVal.induct us) params) fun y => do
     let xInTermsOfY ← mkProjFn ctorVal us params 0 y
     let yInTermsOfX := mkAppN (mkConst ctorVal.name us) (params.push (mkFVar x))
-    mvarId.reparametrize x y.fvarId! xInTermsOfY yInTermsOfX fun e =>
+    reparametrize mvarId x y.fvarId! xInTermsOfY yInTermsOfX fun e =>
       if e.cleanupAnnotations == mkAppN (mkConst ctorVal.name us) (params.push xInTermsOfY) then y
       else none
 
@@ -1045,7 +1118,7 @@ private structure IndexState where
   toTag    : Array (Ident × FVarId)
 
 /-- Transports `s` along a change of variables of `s.mvarId`. -/
-private def IndexState.apply (s : IndexState) (r : ReparametrizeResult) : IndexState where
+private def IndexState.apply (s : IndexState) (r : Result) : IndexState where
   mvarId   := r.mvarId
   targets  := s.targets.map r.transport
   elimInfo := { s.elimInfo with
@@ -1070,7 +1143,7 @@ private def IndexBijection.proj (ctorVal : ConstructorVal) (us : List Level) (pa
 
 /-- Turns `b x` into a fresh variable by replacing the base `x`, see `replaceByProj`/`replaceByCtor`. -/
 private def IndexBijection.invertBijection (b : IndexBijection) (mvarId : MVarId) (x : FVarId) :
-    MetaM (Option (ReparametrizeResult × FVarId)) :=
+    MetaM (Option Result) :=
   if b.isCtor then
     replaceByProj mvarId x b.ctorVal b.us b.params
   else
@@ -1151,12 +1224,14 @@ private def makeTargetsFVars (elimInfo : ElimInfo) (targets : Array Expr)
     for k in *...tower.bijectionsInsideOut.length do
       -- `towers` is transported after every step, so the current one has to be re-read.
       let some bijection := towers[i]!.bind (·.bijectionsInsideOut[k]?) | break
-      let some (r, y) ← s.mvarId.withContext (bijection.invertBijection s.mvarId x) | break
+      let some r ← s.mvarId.withContext (bijection.invertBijection s.mvarId x) | break
       s := s.apply r
       towers := towers.map (·.map (·.transport r.transport))
-      x := y
+      x := r.newFVarId
   replaceMainGoal [s.mvarId]
   return (s.targets, s.toTag, s.elimInfo)
+
+end Induction.Reparametrize
 
 @[builtin_tactic Lean.Parser.Tactic.induction, builtin_incremental]
 def evalInduction : Tactic := fun stx =>
@@ -1170,7 +1245,7 @@ def evalInduction : Tactic := fun stx =>
     let (targets, toTag, elimInfo) ← Term.withoutTacticIncrementality true do
       let (targets, toTag) ← elabElimTargets stx[1].getSepArgs
       let elimInfo ← withMainContext <| getElimNameInfo stx[2] targets (induction := true)
-      makeTargetsFVars elimInfo targets toTag
+      Induction.Reparametrize.makeTargetsFVars elimInfo targets toTag
     evalInductionCore stx elimInfo targets mkInitInfo toTag
 
 

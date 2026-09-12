@@ -17,7 +17,8 @@ elab "bad_fold" : tactic => withMainContext do
   let r? ← withLocalDeclD `y (mkConst ``Wrap) fun y => do
     let yInner := mkApp (mkConst ``Wrap.inner) y
     let fold e := if e == mkApp P.toExpr yInner then some (mkApp P.toExpr a.toExpr) else none
-    (← getMainGoal).reparametrize a.fvarId y.fvarId! yInner (mkApp (mkConst ``Wrap.mk) a.toExpr) fold
+    Reparametrize.reparametrize (← getMainGoal) a.fvarId y.fvarId! yInner
+      (mkApp (mkConst ``Wrap.mk) a.toExpr) fold
   match r? with
   | none => logInfo "rejected"
   | some r => replaceMainGoal [r.mvarId]

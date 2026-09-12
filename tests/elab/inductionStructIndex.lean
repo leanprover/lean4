@@ -104,6 +104,32 @@ example {a : Nat} {x : Wrap2}
       (no_index (no_index (no_index x).w).inner)) : a = x.w.inner := by
   induction h <;> grind
 
+-- Reparametrization preserves default arguments in dependent declarations.
+structure WrapType where
+  inner : Type
+
+example {a b : Type} (d : b)
+    (h : Relation.TransGen (fun a b : WrapType => a = b) ⟨a⟩ ⟨b⟩)
+    (f : (x : b := d) → Nat) : True := by
+  induction h with
+  | single hr =>
+    have n : Nat := f
+    trivial
+  | tail h hr ih =>
+    have n : Nat := f
+    trivial
+
+example {a : Type} {b : WrapType} (d : b.inner)
+    (h : Relation.TransGen (fun a b : Type => a = b) a b.inner)
+    (f : (x : b.inner := d) → Nat) : True := by
+  induction h with
+  | single hr =>
+    have n : Nat := f
+    trivial
+  | tail h hr ih =>
+    have n : Nat := f
+    trivial
+
 -- Only one-field structures are supported.
 /--
 error: Invalid target: Index in target's type is not a variable (consider using the `cases` tactic instead)

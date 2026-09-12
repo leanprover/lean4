@@ -138,8 +138,6 @@ LAKE_CACHE_REVISION_ENDPOINT=bogus test_err 'both environment variables must be 
 
 # Verify `cache put` rejects bad configurations
 with_endpoints test_err 'the `--scope` or `--repo` option must be set' cache put bogus.jsonl
-test_err 'the `--package` option is not supported for `cache put`' \
-  cache put bogus.jsonl --scope='bogus' --package='bogus'
 test_err 'the `--rev` option is not supported for `cache put`' \
   cache put bogus.jsonl --scope='bogus' --rev=bogus
 test_err 'the `--service` option must be set' \

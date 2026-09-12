@@ -665,6 +665,10 @@ public def restoreArtifact (file : FilePath) (art : Artifact) (exe := false) : L
     writeFileHash file art.hash
   return art.useLocalFile file
 
+/-- **For internal use only.** -/
+@[inline] public def Internal.getOutputsRef? [Functor m] [MonadBuild m] (pkg : Package) : m (Option CacheRef) :=
+  readThe BuildContext <&> fun ctx => if pkg.wsIdx = ctx.outputsIdx then ctx.outputsRef? else none
+
 /--
 Uses the current job's trace to search Lake's local artifact cache for an artifact
 with a matching extension (`ext`) and content hash. If one is found, use it.
@@ -724,9 +728,8 @@ public def buildArtifactUnlessUpToDate
           if let some art ← fetchArt? (restore := true) then
             return art
         doBuild depTrace traceFile
-    if pkg.isRoot then
-      if let some outputsRef := (← getBuildContext).outputsRef? then
-        outputsRef.insert inputHash art.descr platformIndependent
+    if let some ref ← Internal.getOutputsRef? pkg then
+      ref.insert inputHash art.descr platformIndependent
     setTrace art.trace
     setMTime art traceFile
   else

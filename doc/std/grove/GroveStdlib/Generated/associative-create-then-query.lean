@@ -299,59 +299,61 @@ def «5ceaa26a-d2cb-4df3-9ac8-b5c11db2ae9d:::01f88623-fa5f-4380-9772-b30f2fec5c9
     comment := "Missing for `ExtDHashMap`"
   }
 
-def table : Table.Data .subexpression .subexpression .declaration where
-  widgetId := "associative-create-then-query"
-  selectedRowAssociations := #["2cb3c441-9663-4ce7-9527-0f40fc29925a", "7743a485-024d-43b6-bd5f-ebd3182eb94d", "5ceaa26a-d2cb-4df3-9ac8-b5c11db2ae9d", ]
-  selectedColumnAssociations := #["01f88623-fa5f-4380-9772-b30f2fec5c94", "f084f852-af71-45b6-8ab3-d251a8144f72", ]
-  selectedLayers := #["Std.DHashMap", "Std.DHashMap.Raw", "Std.ExtDHashMap", "Std.DTreeMap", "Std.DTreeMap.Raw", "Std.ExtDTreeMap", ]
-  selectedCellOptions := #[
-    {
-      layerIdentifier := "Std.DHashMap"
-      rowValue := "2cb3c441-9663-4ce7-9527-0f40fc29925a"
-      columnValue := "01f88623-fa5f-4380-9772-b30f2fec5c94"
-      selectedCellOptions := #["Std.DHashMap.isEmpty_emptyWithCapacity", ]
-    },
-    {
-      layerIdentifier := "Std.DHashMap.Raw"
-      rowValue := "2cb3c441-9663-4ce7-9527-0f40fc29925a"
-      columnValue := "01f88623-fa5f-4380-9772-b30f2fec5c94"
-      selectedCellOptions := #["Std.DHashMap.Raw.isEmpty_emptyWithCapacity", ]
-    },
-    {
-      layerIdentifier := "Std.DHashMap"
-      rowValue := "5ceaa26a-d2cb-4df3-9ac8-b5c11db2ae9d"
-      columnValue := "01f88623-fa5f-4380-9772-b30f2fec5c94"
-      selectedCellOptions := #["Std.DHashMap.isEmpty_empty", ]
-    },
-    {
-      layerIdentifier := "Std.DHashMap.Raw"
-      rowValue := "5ceaa26a-d2cb-4df3-9ac8-b5c11db2ae9d"
-      columnValue := "01f88623-fa5f-4380-9772-b30f2fec5c94"
-      selectedCellOptions := #["Std.DHashMap.Raw.isEmpty_emptyc", ]
-    },
-    {
-      layerIdentifier := "Std.DTreeMap"
-      rowValue := "5ceaa26a-d2cb-4df3-9ac8-b5c11db2ae9d"
-      columnValue := "01f88623-fa5f-4380-9772-b30f2fec5c94"
-      selectedCellOptions := #["Std.DTreeMap.isEmpty_emptyc", ]
-    },
-    {
-      layerIdentifier := "Std.DTreeMap.Raw"
-      rowValue := "5ceaa26a-d2cb-4df3-9ac8-b5c11db2ae9d"
-      columnValue := "01f88623-fa5f-4380-9772-b30f2fec5c94"
-      selectedCellOptions := #["Std.DTreeMap.Raw.isEmpty_emptyc", ]
-    },
-    {
-      layerIdentifier := "Std.ExtDTreeMap"
-      rowValue := "5ceaa26a-d2cb-4df3-9ac8-b5c11db2ae9d"
-      columnValue := "01f88623-fa5f-4380-9772-b30f2fec5c94"
-      selectedCellOptions := #["Std.ExtDTreeMap.isEmpty_empty", ]
-    },
-  ]
-  facts := #[
-    «2cb3c441-9663-4ce7-9527-0f40fc29925a:::01f88623-fa5f-4380-9772-b30f2fec5c94:::Std.DHashMap::Std.DHashMap.Raw::Std.ExtDHashMap::Std.DTreeMap::Std.DTreeMap.Raw::Std.ExtDTreeMap»,
-    «5ceaa26a-d2cb-4df3-9ac8-b5c11db2ae9d:::01f88623-fa5f-4380-9772-b30f2fec5c94:::Std.DHashMap::Std.DHashMap.Raw::Std.ExtDHashMap::Std.DTreeMap::Std.DTreeMap.Raw::Std.ExtDTreeMap»,
-  ]
+def table : RestoreStateM (Table.Data .subexpression .subexpression .declaration) := do
+  return {
+    widgetId := "associative-create-then-query"
+    selectedRowAssociations := #["2cb3c441-9663-4ce7-9527-0f40fc29925a", "7743a485-024d-43b6-bd5f-ebd3182eb94d", "5ceaa26a-d2cb-4df3-9ac8-b5c11db2ae9d", ]
+    selectedColumnAssociations := #["01f88623-fa5f-4380-9772-b30f2fec5c94", "f084f852-af71-45b6-8ab3-d251a8144f72", ]
+    selectedLayers := #["Std.DHashMap", "Std.DHashMap.Raw", "Std.ExtDHashMap", "Std.DTreeMap", "Std.DTreeMap.Raw", "Std.ExtDTreeMap", ]
+    selectedCellOptions := #[
+      {
+        layerIdentifier := "Std.DHashMap"
+        rowValue := "2cb3c441-9663-4ce7-9527-0f40fc29925a"
+        columnValue := "01f88623-fa5f-4380-9772-b30f2fec5c94"
+        selectedCellOptions := ← #["Std.DHashMap.isEmpty_emptyWithCapacity", ].mapM migrateName
+      },
+      {
+        layerIdentifier := "Std.DHashMap.Raw"
+        rowValue := "2cb3c441-9663-4ce7-9527-0f40fc29925a"
+        columnValue := "01f88623-fa5f-4380-9772-b30f2fec5c94"
+        selectedCellOptions := ← #["Std.DHashMap.Raw.isEmpty_emptyWithCapacity", ].mapM migrateName
+      },
+      {
+        layerIdentifier := "Std.DHashMap"
+        rowValue := "5ceaa26a-d2cb-4df3-9ac8-b5c11db2ae9d"
+        columnValue := "01f88623-fa5f-4380-9772-b30f2fec5c94"
+        selectedCellOptions := ← #["Std.DHashMap.isEmpty_empty", ].mapM migrateName
+      },
+      {
+        layerIdentifier := "Std.DHashMap.Raw"
+        rowValue := "5ceaa26a-d2cb-4df3-9ac8-b5c11db2ae9d"
+        columnValue := "01f88623-fa5f-4380-9772-b30f2fec5c94"
+        selectedCellOptions := ← #["Std.DHashMap.Raw.isEmpty_emptyc", ].mapM migrateName
+      },
+      {
+        layerIdentifier := "Std.DTreeMap"
+        rowValue := "5ceaa26a-d2cb-4df3-9ac8-b5c11db2ae9d"
+        columnValue := "01f88623-fa5f-4380-9772-b30f2fec5c94"
+        selectedCellOptions := ← #["Std.DTreeMap.isEmpty_emptyc", ].mapM migrateName
+      },
+      {
+        layerIdentifier := "Std.DTreeMap.Raw"
+        rowValue := "5ceaa26a-d2cb-4df3-9ac8-b5c11db2ae9d"
+        columnValue := "01f88623-fa5f-4380-9772-b30f2fec5c94"
+        selectedCellOptions := ← #["Std.DTreeMap.Raw.isEmpty_emptyc", ].mapM migrateName
+      },
+      {
+        layerIdentifier := "Std.ExtDTreeMap"
+        rowValue := "5ceaa26a-d2cb-4df3-9ac8-b5c11db2ae9d"
+        columnValue := "01f88623-fa5f-4380-9772-b30f2fec5c94"
+        selectedCellOptions := ← #["Std.ExtDTreeMap.isEmpty_empty", ].mapM migrateName
+      },
+    ]
+    facts := #[
+      «2cb3c441-9663-4ce7-9527-0f40fc29925a:::01f88623-fa5f-4380-9772-b30f2fec5c94:::Std.DHashMap::Std.DHashMap.Raw::Std.ExtDHashMap::Std.DTreeMap::Std.DTreeMap.Raw::Std.ExtDTreeMap»,
+      «5ceaa26a-d2cb-4df3-9ac8-b5c11db2ae9d:::01f88623-fa5f-4380-9772-b30f2fec5c94:::Std.DHashMap::Std.DHashMap.Raw::Std.ExtDHashMap::Std.DTreeMap::Std.DTreeMap.Raw::Std.ExtDTreeMap»,
+    ]
+  }
 
 def restoreState : RestoreStateM Unit := do
-  addTable table
+  addTable (← table)

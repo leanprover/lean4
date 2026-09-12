@@ -1263,7 +1263,6 @@ def evalInduction : Tactic := fun stx =>
   match expandInduction? stx with
   | some stxNew => withMacroExpansion stx stxNew <| evalTactic stxNew
   | _ => focus do
-    -- save initial info before the goal is transformed while elaborating the targets
     let mkInitInfo ← mkInitialTacticInfoForInduction stx
     -- Disable tactic incrementality during setup to prevent nested `by` blocks (e.g. in `using`)
     -- from consuming the snapshot meant for `evalAlts`.

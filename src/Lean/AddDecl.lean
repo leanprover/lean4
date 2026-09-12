@@ -193,11 +193,18 @@ where
           addAsAxiom
           throw ex
   addAsAxiom := do
+    let isUnsafe := match decl with
+      | .axiomDecl d => d.isUnsafe
+      | .defnDecl d => d.safety != .safe
+      | .opaqueDecl d => d.isUnsafe
+      | .mutualDefnDecl ds => ds.any fun d => d.safety != .safe
+      | .inductDecl _ _ _ isUnsafe => isUnsafe
+      | _ => false
     -- try to add as axiom with given type for def/theorem
     match decl with
     | .defnDecl d | .thmDecl d =>
       let fallbackDecl := .axiomDecl {
-        name := d.name, levelParams := d.levelParams, type := d.type, isUnsafe := false
+        name := d.name, levelParams := d.levelParams, type := d.type, isUnsafe
       }
       try
         let env ← (← getEnv).addDeclAux (← getOptions) fallbackDecl (← read).cancelTk?
@@ -211,7 +218,7 @@ where
     for n in decl.getNames do
       let fallbackDecl := .axiomDecl {
         name := n, levelParams := []
-        type := mkApp2 (mkConst ``sorryAx [1]) (mkSort 0) (mkConst ``true), isUnsafe := false
+        type := mkApp2 (mkConst ``sorryAx [1]) (mkSort 0) (mkConst ``true), isUnsafe
       }
       try
         let env ← (← getEnv).addDeclAux (← getOptions) fallbackDecl (← read).cancelTk?

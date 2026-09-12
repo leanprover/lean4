@@ -594,6 +594,54 @@ This function is overridden at runtime with an efficient implementation.
 -/
 @[extern "lean_uint64_mul", implicit_reducible]
 protected def UInt64.mul (a b : UInt64) : UInt64 := ⟨a.toBitVec * b.toBitVec⟩
+
+/--
+Returns the high 64 bits of the 128-bit product of two 64-bit unsigned integers.
+
+This function is overridden at runtime with an efficient implementation.
+-/
+@[extern "lean_uint64_mul_hi"]
+def UInt64.mulHi (a b : UInt64) : UInt64 :=
+  UInt64.ofNat (a.toNat * b.toNat / UInt64.size)
+
+/--
+Returns the 128-bit product of two 64-bit unsigned integers as the pair `(low, high)` of its low and
+high 64-bit words, so that `low.toNat + 2 ^ 64 * high.toNat = a.toNat * b.toNat`. The low word is
+`a * b` and the high word is `a.mulHi b`.
+
+This function is compiled using `UInt64.mulFullImpl`.
+-/
+def UInt64.mulFull (a b : UInt64) : UInt64 × UInt64 :=
+  let product := a.toNat * b.toNat
+  (UInt64.ofNat product, UInt64.ofNat (product / UInt64.size))
+
+/--
+Adds two 64-bit unsigned integers and an incoming carry bit, returning the pair `(sum, carryOut)`
+where `sum = a + b + carry.toUInt64` wraps around on overflow and `carryOut` is `true` exactly when
+`2 ^ 64 ≤ a.toNat + b.toNat + carry.toNat`, so that
+`sum.toNat + 2 ^ 64 * carryOut.toNat = a.toNat + b.toNat + carry.toNat`.
+
+This function is compiled using `UInt64.addCarryImpl`.
+-/
+def UInt64.addCarry (a b : UInt64) (carry : Bool) : UInt64 × Bool :=
+  let sum := a.toNat + b.toNat + carry.toNat
+  (UInt64.ofNat sum, decide (UInt64.size ≤ sum))
+
+/--
+Computes `a - b - borrow` for 64-bit unsigned integers and an incoming borrow bit, returning the pair
+`(difference, borrowOut)` where `difference = a - b - borrow.toUInt64` wraps around on underflow and
+`borrowOut` is `true` exactly when `a.toNat < b.toNat + borrow.toNat`, so that
+`difference.toNat + b.toNat + borrow.toNat = a.toNat + 2 ^ 64 * borrowOut.toNat`.
+
+This function is compiled using `UInt64.subBorrowImpl`.
+-/
+def UInt64.subBorrow (a b : UInt64) (borrow : Bool) : UInt64 × Bool :=
+  let subtrahend := b.toNat + borrow.toNat
+  if subtrahend ≤ a.toNat then
+    (UInt64.ofNat (a.toNat - subtrahend), false)
+  else
+    (UInt64.ofNat (UInt64.size + a.toNat - subtrahend), true)
+
 /--
 Unsigned division for 64-bit unsigned integers, discarding the remainder. Usually accessed
 via the `/` operator.
@@ -771,6 +819,22 @@ attribute [instance] UInt64.decLt UInt64.decLe
 
 instance : Max UInt64 := maxOfLe
 instance : Min UInt64 := minOfLe
+
+/-- Implementation of `UInt64.mulFull` using wrapping arithmetic, see `UInt64.mulFull_eq_mulFullImpl`. -/
+@[inline] def UInt64.mulFullImpl (a b : UInt64) : UInt64 × UInt64 :=
+  (a * b, a.mulHi b)
+
+/-- Implementation of `UInt64.addCarry` using wrapping arithmetic, see `UInt64.addCarry_eq_addCarryImpl`. -/
+@[inline] def UInt64.addCarryImpl (a b : UInt64) (carry : Bool) : UInt64 × Bool :=
+  let sum := a + b
+  let result := sum + carry.toUInt64
+  (result, sum < a || result < sum)
+
+/-- Implementation of `UInt64.subBorrow` using wrapping arithmetic, see `UInt64.subBorrow_eq_subBorrowImpl`. -/
+@[inline] def UInt64.subBorrowImpl (a b : UInt64) (borrow : Bool) : UInt64 × Bool :=
+  let difference := a - b
+  let result := difference - borrow.toUInt64
+  (result, a < b || difference < borrow.toUInt64)
 
 /-- Converts a `Fin USize.size` into the corresponding `USize`. -/
 @[inline] def USize.ofFin (a : Fin USize.size) : USize := ⟨⟨a⟩⟩

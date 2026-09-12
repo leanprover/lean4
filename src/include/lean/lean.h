@@ -2245,6 +2245,20 @@ static inline uint64_t lean_uint64_of_nat_mk(lean_obj_arg a) { uint64_t r = lean
 static inline uint64_t lean_uint64_add(uint64_t a1, uint64_t a2) { return a1+a2; }
 static inline uint64_t lean_uint64_sub(uint64_t a1, uint64_t a2) { return a1-a2; }
 static inline uint64_t lean_uint64_mul(uint64_t a1, uint64_t a2) { return 1U*a1*a2; }
+static inline uint64_t lean_uint64_mul_hi(uint64_t a, uint64_t b) {
+#if defined(__SIZEOF_INT128__)
+    return (uint64_t)(((__uint128_t)a * (__uint128_t)b) >> 64);
+#else
+    uint64_t a_lo = (uint32_t)a;
+    uint64_t a_hi = a >> 32;
+    uint64_t b_lo = (uint32_t)b;
+    uint64_t b_hi = b >> 32;
+    uint64_t lo = a_lo * b_lo;
+    uint64_t middle = a_hi * b_lo + (lo >> 32);
+    uint64_t middle_lo = (uint32_t)middle + a_lo * b_hi;
+    return a_hi * b_hi + (middle >> 32) + (middle_lo >> 32);
+#endif
+}
 static inline uint64_t lean_uint64_div(uint64_t a1, uint64_t a2) { return a2 == 0 ? 0  : a1/a2; }
 static inline uint64_t lean_uint64_mod(uint64_t a1, uint64_t a2) { return a2 == 0 ? a1 : a1%a2; }
 static inline uint64_t lean_uint64_land(uint64_t a, uint64_t b) { return a & b; }

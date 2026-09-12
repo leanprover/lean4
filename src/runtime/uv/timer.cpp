@@ -241,27 +241,33 @@ extern "C" LEAN_EXPORT lean_obj_res lean_uv_timer_reset(b_obj_arg obj) {
 extern "C" LEAN_EXPORT lean_obj_res lean_uv_timer_stop(b_obj_arg obj) {
     lean_uv_timer_object * timer = lean_to_uv_timer(obj);
 
-    // Locking to access the state in order to avoid data-race
     event_loop_lock(&global_ev);
 
-    if (timer->m_promise != NULL) {
-        lean_dec(timer->m_promise);
-        timer->m_promise = NULL;
-    }
-
-    if (timer->m_state == TIMER_STATE_RUNNING) {
-        uv_timer_stop(timer->m_uv_timer);
+    if (timer->m_state != TIMER_STATE_RUNNING) {
         event_loop_unlock(&global_ev);
-
-        timer->m_state = TIMER_STATE_FINISHED;
-
-        // The loop does not need to keep the timer alive anymore.
-        lean_dec(obj);
-
         return lean_io_result_mk_ok(lean_box(0));
     }
 
+    uv_timer_stop(timer->m_uv_timer);
+
+    lean_object * promise = timer->m_promise;
+    timer->m_promise = NULL;
+    timer->m_state = TIMER_STATE_FINISHED;
+
     event_loop_unlock(&global_ev);
+
+    // This dec can drop the last reference to the promise, which resolves its result task
+    // with `none` and runs any `(sync := true)` continuation inline on this thread.
+    // `Promise.result!` blocks forever on `none`, so this must happen after the unlock:
+    // otherwise a waiter on a stopped timer would freeze the whole event loop instead of
+    // just itself.
+    if (promise != NULL) {
+        lean_dec(promise);
+    }
+
+    // The loop does not need to keep the timer alive anymore.
+    lean_dec(obj);
+
     return lean_io_result_mk_ok(lean_box(0));
 }
 

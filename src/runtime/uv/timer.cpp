@@ -33,9 +33,12 @@ void lean_uv_timer_finalizer(void* ptr) {
 
 void initialize_libuv_timer() {
     g_uv_timer_external_class = lean_register_external_class(lean_uv_timer_finalizer, [](void* obj, lean_object* f) {
-        if (((lean_uv_timer_object*)obj)->m_promise != NULL) {
+        lean_object* promise = ((lean_uv_timer_object*)obj)->m_promise;
+
+        if (promise != NULL) {
             lean_inc(f);
-            lean_apply_1(f, ((lean_uv_timer_object*)obj)->m_promise);
+            lean_inc(promise);
+            lean_dec(lean_apply_1(f, promise));
         }
     });
 }
@@ -138,6 +141,7 @@ extern "C" LEAN_EXPORT lean_obj_res lean_uv_timer_next(b_obj_arg obj) {
 
         if (result != 0) {
             lean_dec(obj);
+
             event_loop_unlock(&global_ev);
             return lean_io_result_mk_error(lean_decode_uv_error(result, NULL));
         }

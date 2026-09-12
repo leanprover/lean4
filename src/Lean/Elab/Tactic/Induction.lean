@@ -1072,7 +1072,7 @@ private def reparametrize (mvarId : MVarId) (x y : FVarId) (xInTermsOfY yInTerms
   /- Replace `x` with its substitute, fold, then generalize over `y`. -/
   let transport (e : Expr) : Expr :=
     let e := e.replace fun e =>
-      if e.cleanupAnnotations == mkFVar x then some xInTermsOfY else none
+      if e.consumeMData == mkFVar x then some xInTermsOfY else none
     e.replace fold
   let newType ← mkForallFVars #[mkFVar y] (transport body)
   let lctx := toErase.foldl (init := mvarDecl.lctx) fun lctx d => lctx.erase d.fvarId
@@ -1108,7 +1108,7 @@ private def replaceByCtor (mvarId : MVarId) (x : FVarId) (ctorVal : ConstructorV
     -- `⟨y⟩.f` may be spelled with the projection function or as `Expr.proj`.
     let projApp ← mkProjFn ctorVal us params 0 xInTermsOfY
     reparametrize mvarId x y.fvarId! xInTermsOfY yInTermsOfX fun e =>
-      let e := e.cleanupAnnotations
+      let e := e.consumeMData
       if e == projApp || e == .proj ctorVal.induct 0 xInTermsOfY then some y else none
 
 /--
@@ -1121,7 +1121,7 @@ private def replaceByProj (mvarId : MVarId) (x : FVarId) (ctorVal : ConstructorV
     let xInTermsOfY ← mkProjFn ctorVal us params 0 y
     let yInTermsOfX := mkAppN (mkConst ctorVal.name us) (params.push (mkFVar x))
     reparametrize mvarId x y.fvarId! xInTermsOfY yInTermsOfX fun e =>
-      if e.cleanupAnnotations == mkAppN (mkConst ctorVal.name us) (params.push xInTermsOfY) then y
+      if e.consumeMData == mkAppN (mkConst ctorVal.name us) (params.push xInTermsOfY) then y
       else none
 
 /--
@@ -1183,7 +1183,7 @@ private def BijectionTower.transport (t : BijectionTower) (x : FVarId) (r : Resu
 
 private partial def bijectionTower? (e : Expr) (outerBijections : List IndexBijection := []) :
     MetaM (Option BijectionTower) := do
-  let e := e.cleanupAnnotations
+  let e := e.consumeMData
   let env ← getEnv
   match e with
   | .fvar fvarId =>

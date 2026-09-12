@@ -2652,6 +2652,8 @@ extern "C" LEAN_EXPORT obj_res lean_byte_array_copy_slice(b_obj_arg src, obj_arg
     size_t dsz = lean_sarray_size(dest);
     size_t src_off = lean_nat_to_size_t(o_src_off);
     if (src_off > ssz) {
+        lean_dec(o_dest_off);
+        lean_dec(o_len);
         return dest;
     }
     size_t len = std::min(lean_nat_to_size_t(o_len), ssz - src_off);

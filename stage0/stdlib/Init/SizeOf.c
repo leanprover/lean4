@@ -13,10 +13,14 @@
 #ifdef __cplusplus
 extern "C" {
 #endif
+LEAN_EXPORT lean_object* l_default_sizeOf___redArg();
+LEAN_EXPORT lean_object* l_default_sizeOf___redArg___boxed(lean_object*);
 LEAN_EXPORT lean_object* l_default_sizeOf(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_default_sizeOf___boxed(lean_object*, lean_object*);
-static const lean_closure_object l_instSizeOfDefault___closed__0_value = {.m_header = {.m_rc = 0, .m_cs_sz = sizeof(lean_closure_object) + sizeof(void*)*1, .m_other = 0, .m_tag = 245}, .m_fun = (void*)l_default_sizeOf___boxed, .m_arity = 2, .m_num_fixed = 1, .m_objs = {((lean_object*)(((size_t)(0) << 1) | 1))} };
-static const lean_object* l_instSizeOfDefault___closed__0 = (const lean_object*)&l_instSizeOfDefault___closed__0_value;
+static const lean_closure_object l_instSizeOfDefault___redArg___closed__0_value = {.m_header = {.m_rc = 0, .m_cs_sz = sizeof(lean_closure_object) + sizeof(void*)*1, .m_other = 0, .m_tag = 245}, .m_fun = (void*)l_default_sizeOf___boxed, .m_arity = 2, .m_num_fixed = 1, .m_objs = {((lean_object*)(((size_t)(0) << 1) | 1))} };
+static const lean_object* l_instSizeOfDefault___redArg___closed__0 = (const lean_object*)&l_instSizeOfDefault___redArg___closed__0_value;
+LEAN_EXPORT lean_object* l_instSizeOfDefault___redArg();
+LEAN_EXPORT lean_object* l_instSizeOfDefault___redArg___boxed(lean_object*);
 LEAN_EXPORT lean_object* l_instSizeOfDefault(lean_object*);
 LEAN_EXPORT lean_object* l_instSizeOfNat___lam__0(lean_object*);
 LEAN_EXPORT lean_object* l_instSizeOfNat___lam__0___boxed(lean_object*);
@@ -26,73 +30,105 @@ LEAN_EXPORT const lean_object* l_instSizeOfNat = (const lean_object*)&l_instSize
 LEAN_EXPORT lean_object* l_instSizeOfForallUnit___redArg___lam__0(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_instSizeOfForallUnit___redArg(lean_object*);
 LEAN_EXPORT lean_object* l_instSizeOfForallUnit(lean_object*, lean_object*);
-LEAN_EXPORT lean_object* l_default_sizeOf(lean_object* v_00_u03b1_1_, lean_object* v_x_2_){
+LEAN_EXPORT lean_object* l_default_sizeOf___redArg(){
 _start:
 {
-lean_object* v___x_3_; 
-v___x_3_ = lean_unsigned_to_nat(0u);
-return v___x_3_;
+lean_object* v___x_2_; 
+v___x_2_ = lean_unsigned_to_nat(0u);
+return v___x_2_;
 }
 }
-LEAN_EXPORT lean_object* l_default_sizeOf___boxed(lean_object* v_00_u03b1_4_, lean_object* v_x_5_){
+LEAN_EXPORT lean_object* l_default_sizeOf___redArg___boxed(lean_object* v___dummy_3_){
 _start:
 {
-lean_object* v_res_6_; 
-v_res_6_ = l_default_sizeOf(v_00_u03b1_4_, v_x_5_);
-lean_dec(v_x_5_);
-return v_res_6_;
+lean_object* v_res_4_; 
+v_res_4_ = l_default_sizeOf___redArg();
+return v_res_4_;
 }
 }
-LEAN_EXPORT lean_object* l_instSizeOfDefault(lean_object* v_00_u03b1_8_){
+LEAN_EXPORT lean_object* l_default_sizeOf(lean_object* v_00_u03b1_5_, lean_object* v_x_6_){
 _start:
 {
-lean_object* v___x_9_; 
-v___x_9_ = ((lean_object*)(l_instSizeOfDefault___closed__0));
-return v___x_9_;
+lean_object* v___x_7_; 
+v___x_7_ = lean_unsigned_to_nat(0u);
+return v___x_7_;
 }
 }
-LEAN_EXPORT lean_object* l_instSizeOfNat___lam__0(lean_object* v_n_10_){
+LEAN_EXPORT lean_object* l_default_sizeOf___boxed(lean_object* v_00_u03b1_8_, lean_object* v_x_9_){
 _start:
 {
-lean_inc(v_n_10_);
-return v_n_10_;
+lean_object* v_res_10_; 
+v_res_10_ = l_default_sizeOf(v_00_u03b1_8_, v_x_9_);
+lean_dec(v_x_9_);
+return v_res_10_;
 }
 }
-LEAN_EXPORT lean_object* l_instSizeOfNat___lam__0___boxed(lean_object* v_n_11_){
+LEAN_EXPORT lean_object* l_instSizeOfDefault___redArg(){
 _start:
 {
-lean_object* v_res_12_; 
-v_res_12_ = l_instSizeOfNat___lam__0(v_n_11_);
-lean_dec(v_n_11_);
-return v_res_12_;
+lean_object* v___x_13_; 
+v___x_13_ = ((lean_object*)(l_instSizeOfDefault___redArg___closed__0));
+return v___x_13_;
 }
 }
-LEAN_EXPORT lean_object* l_instSizeOfForallUnit___redArg___lam__0(lean_object* v_inst_15_, lean_object* v_f_16_){
+LEAN_EXPORT lean_object* l_instSizeOfDefault___redArg___boxed(lean_object* v___dummy_14_){
 _start:
 {
-lean_object* v___x_17_; lean_object* v___x_18_; lean_object* v___x_19_; 
-v___x_17_ = lean_box(0);
-v___x_18_ = lean_apply_1(v_f_16_, v___x_17_);
-v___x_19_ = lean_apply_1(v_inst_15_, v___x_18_);
-return v___x_19_;
+lean_object* v_res_15_; 
+v_res_15_ = l_instSizeOfDefault___redArg();
+return v_res_15_;
 }
 }
-LEAN_EXPORT lean_object* l_instSizeOfForallUnit___redArg(lean_object* v_inst_20_){
+LEAN_EXPORT lean_object* l_instSizeOfDefault(lean_object* v_00_u03b1_16_){
 _start:
 {
-lean_object* v___f_21_; 
-v___f_21_ = lean_alloc_closure((void*)(l_instSizeOfForallUnit___redArg___lam__0), 2, 1);
-lean_closure_set(v___f_21_, 0, v_inst_20_);
-return v___f_21_;
+lean_object* v___x_17_; 
+v___x_17_ = ((lean_object*)(l_instSizeOfDefault___redArg___closed__0));
+return v___x_17_;
 }
 }
-LEAN_EXPORT lean_object* l_instSizeOfForallUnit(lean_object* v_00_u03b1_22_, lean_object* v_inst_23_){
+LEAN_EXPORT lean_object* l_instSizeOfNat___lam__0(lean_object* v_n_18_){
 _start:
 {
-lean_object* v___f_24_; 
-v___f_24_ = lean_alloc_closure((void*)(l_instSizeOfForallUnit___redArg___lam__0), 2, 1);
-lean_closure_set(v___f_24_, 0, v_inst_23_);
-return v___f_24_;
+lean_inc(v_n_18_);
+return v_n_18_;
+}
+}
+LEAN_EXPORT lean_object* l_instSizeOfNat___lam__0___boxed(lean_object* v_n_19_){
+_start:
+{
+lean_object* v_res_20_; 
+v_res_20_ = l_instSizeOfNat___lam__0(v_n_19_);
+lean_dec(v_n_19_);
+return v_res_20_;
+}
+}
+LEAN_EXPORT lean_object* l_instSizeOfForallUnit___redArg___lam__0(lean_object* v_inst_23_, lean_object* v_f_24_){
+_start:
+{
+lean_object* v___x_25_; lean_object* v___x_26_; lean_object* v___x_27_; 
+v___x_25_ = lean_box(0);
+v___x_26_ = lean_apply_1(v_f_24_, v___x_25_);
+v___x_27_ = lean_apply_1(v_inst_23_, v___x_26_);
+return v___x_27_;
+}
+}
+LEAN_EXPORT lean_object* l_instSizeOfForallUnit___redArg(lean_object* v_inst_28_){
+_start:
+{
+lean_object* v___f_29_; 
+v___f_29_ = lean_alloc_closure((void*)(l_instSizeOfForallUnit___redArg___lam__0), 2, 1);
+lean_closure_set(v___f_29_, 0, v_inst_28_);
+return v___f_29_;
+}
+}
+LEAN_EXPORT lean_object* l_instSizeOfForallUnit(lean_object* v_00_u03b1_30_, lean_object* v_inst_31_){
+_start:
+{
+lean_object* v___f_32_; 
+v___f_32_ = lean_alloc_closure((void*)(l_instSizeOfForallUnit___redArg___lam__0), 2, 1);
+lean_closure_set(v___f_32_, 0, v_inst_31_);
+return v___f_32_;
 }
 }
 lean_object* runtime_initialize_Init_Notation(uint8_t builtin);

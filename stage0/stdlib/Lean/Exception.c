@@ -16,7 +16,7 @@ extern "C" {
 uint8_t l_Lean_Name_isAnonymous(lean_object*);
 lean_object* l_Lean_Environment_setExporting(lean_object*, uint8_t);
 uint8_t l_Lean_Environment_contains(lean_object*, lean_object*, uint8_t);
-lean_object* l_Lean_PersistentHashMap_mkEmptyEntriesArray(lean_object*, lean_object*);
+lean_object* l_Lean_PersistentHashMap_mkEmptyEntriesArray___redArg();
 lean_object* lean_mk_empty_array_with_capacity(lean_object*);
 extern lean_object* l_Lean_Options_empty;
 lean_object* l_Lean_MessageData_ofConstName(lean_object*, uint8_t);
@@ -909,7 +909,7 @@ static lean_object* _init_l_Lean_mkUnknownIdentifierMessageCore___redArg___lam__
 _start:
 {
 lean_object* v___x_213_; 
-v___x_213_ = l_Lean_PersistentHashMap_mkEmptyEntriesArray(lean_box(0), lean_box(0));
+v___x_213_ = l_Lean_PersistentHashMap_mkEmptyEntriesArray___redArg();
 return v___x_213_;
 }
 }

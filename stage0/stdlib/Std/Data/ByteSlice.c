@@ -610,9 +610,9 @@ return v___x_197_;
 LEAN_EXPORT lean_object* l_ByteSlice_foldr___redArg___lam__0___boxed(lean_object* v_f_198_, lean_object* v_x1_199_, lean_object* v_x2_200_){
 _start:
 {
-uint8_t v_x1_85__boxed_201_; lean_object* v_res_202_; 
-v_x1_85__boxed_201_ = lean_unbox(v_x1_199_);
-v_res_202_ = l_ByteSlice_foldr___redArg___lam__0(v_f_198_, v_x1_85__boxed_201_, v_x2_200_);
+uint8_t v_x1_86__boxed_201_; lean_object* v_res_202_; 
+v_x1_86__boxed_201_ = lean_unbox(v_x1_199_);
+v_res_202_ = l_ByteSlice_foldr___redArg___lam__0(v_f_198_, v_x1_86__boxed_201_, v_x2_200_);
 return v_res_202_;
 }
 }

@@ -484,9 +484,9 @@ goto v___jp_163_;
 LEAN_EXPORT lean_object* l_Lean_findDeclarationRanges_x3f___redArg___lam__5___boxed(lean_object* v_declName_173_, lean_object* v_inst_174_, lean_object* v_inst_175_, lean_object* v_toBind_176_, lean_object* v___f_177_, lean_object* v___f_178_, lean_object* v_env_179_, lean_object* v_____do__lift_180_){
 _start:
 {
-uint8_t v_____do__lift_248__boxed_181_; lean_object* v_res_182_; 
-v_____do__lift_248__boxed_181_ = lean_unbox(v_____do__lift_180_);
-v_res_182_ = l_Lean_findDeclarationRanges_x3f___redArg___lam__5(v_declName_173_, v_inst_174_, v_inst_175_, v_toBind_176_, v___f_177_, v___f_178_, v_env_179_, v_____do__lift_248__boxed_181_);
+uint8_t v_____do__lift_251__boxed_181_; lean_object* v_res_182_; 
+v_____do__lift_251__boxed_181_ = lean_unbox(v_____do__lift_180_);
+v_res_182_ = l_Lean_findDeclarationRanges_x3f___redArg___lam__5(v_declName_173_, v_inst_174_, v_inst_175_, v_toBind_176_, v___f_177_, v___f_178_, v_env_179_, v_____do__lift_251__boxed_181_);
 return v_res_182_;
 }
 }

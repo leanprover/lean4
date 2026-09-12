@@ -18,7 +18,7 @@ lean_object* l_Lean_Name_mkStr1(lean_object*);
 lean_object* l_Lean_Name_mkStr4(lean_object*, lean_object*, lean_object*, lean_object*);
 uint8_t l_Lean_Syntax_isOfKind(lean_object*, lean_object*);
 lean_object* l_Lean_SourceInfo_fromRef(lean_object*, uint8_t);
-lean_object* l_Array_mkArray0(lean_object*);
+lean_object* l_Array_mkArray0___redArg();
 lean_object* l_Lean_Syntax_node1(lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Syntax_node2(lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Name_mkStr2(lean_object*, lean_object*);
@@ -460,7 +460,7 @@ static lean_object* _init_l___aux__Init__Try______macroRules__tactic_u220e__1___
 _start:
 {
 lean_object* v___x_292_; 
-v___x_292_ = l_Array_mkArray0(lean_box(0));
+v___x_292_ = l_Array_mkArray0___redArg();
 return v___x_292_;
 }
 }

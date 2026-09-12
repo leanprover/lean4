@@ -46,8 +46,12 @@ LEAN_EXPORT lean_object* l_Lean_Grind_IntModule_OfNatModule_ofNatModule___redArg
 LEAN_EXPORT lean_object* l_Lean_Grind_IntModule_OfNatModule_ofNatModule(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Grind_IntModule_OfNatModule_toQ___redArg(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Grind_IntModule_OfNatModule_toQ(lean_object*, lean_object*, lean_object*);
+LEAN_EXPORT lean_object* l_Lean_Grind_IntModule_OfNatModule_instLEQOfOrderedAdd___redArg();
+LEAN_EXPORT lean_object* l_Lean_Grind_IntModule_OfNatModule_instLEQOfOrderedAdd___redArg___boxed(lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Grind_IntModule_OfNatModule_instLEQOfOrderedAdd(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Grind_IntModule_OfNatModule_instLEQOfOrderedAdd___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
+LEAN_EXPORT lean_object* l_Lean_Grind_IntModule_OfNatModule_instLTQOfOrderedAdd___redArg();
+LEAN_EXPORT lean_object* l_Lean_Grind_IntModule_OfNatModule_instLTQOfOrderedAdd___redArg___boxed(lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Grind_IntModule_OfNatModule_instLTQOfOrderedAdd(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Grind_IntModule_OfNatModule_instLTQOfOrderedAdd___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l___private_Init_Grind_Module_Envelope_0__Lean_Grind_IntModule_OfNatModule_r_match__1_splitter___redArg(lean_object* v_x_1_, lean_object* v_x_2_, lean_object* v_h__1_3_){
@@ -701,24 +705,40 @@ v___x_215_ = l_Lean_Grind_IntModule_OfNatModule_toQ___redArg(v_inst_213_, v_a_21
 return v___x_215_;
 }
 }
-LEAN_EXPORT lean_object* l_Lean_Grind_IntModule_OfNatModule_instLEQOfOrderedAdd(lean_object* v_00_u03b1_216_, lean_object* v_inst_217_, lean_object* v_inst_218_, lean_object* v_inst_219_, lean_object* v_inst_220_){
+LEAN_EXPORT lean_object* l_Lean_Grind_IntModule_OfNatModule_instLEQOfOrderedAdd___redArg(){
 _start:
 {
-lean_object* v___x_221_; 
-v___x_221_ = lean_box(0);
-return v___x_221_;
+lean_object* v___x_217_; 
+v___x_217_ = lean_box(0);
+return v___x_217_;
 }
 }
-LEAN_EXPORT lean_object* l_Lean_Grind_IntModule_OfNatModule_instLEQOfOrderedAdd___boxed(lean_object* v_00_u03b1_222_, lean_object* v_inst_223_, lean_object* v_inst_224_, lean_object* v_inst_225_, lean_object* v_inst_226_){
+LEAN_EXPORT lean_object* l_Lean_Grind_IntModule_OfNatModule_instLEQOfOrderedAdd___redArg___boxed(lean_object* v___dummy_218_){
 _start:
 {
-lean_object* v_res_227_; 
-v_res_227_ = l_Lean_Grind_IntModule_OfNatModule_instLEQOfOrderedAdd(v_00_u03b1_222_, v_inst_223_, v_inst_224_, v_inst_225_, v_inst_226_);
-lean_dec_ref(v_inst_223_);
-return v_res_227_;
+lean_object* v_res_219_; 
+v_res_219_ = l_Lean_Grind_IntModule_OfNatModule_instLEQOfOrderedAdd___redArg();
+return v_res_219_;
 }
 }
-LEAN_EXPORT lean_object* l_Lean_Grind_IntModule_OfNatModule_instLTQOfOrderedAdd(lean_object* v_00_u03b1_228_, lean_object* v_inst_229_, lean_object* v_inst_230_, lean_object* v_inst_231_, lean_object* v_inst_232_){
+LEAN_EXPORT lean_object* l_Lean_Grind_IntModule_OfNatModule_instLEQOfOrderedAdd(lean_object* v_00_u03b1_220_, lean_object* v_inst_221_, lean_object* v_inst_222_, lean_object* v_inst_223_, lean_object* v_inst_224_){
+_start:
+{
+lean_object* v___x_225_; 
+v___x_225_ = lean_box(0);
+return v___x_225_;
+}
+}
+LEAN_EXPORT lean_object* l_Lean_Grind_IntModule_OfNatModule_instLEQOfOrderedAdd___boxed(lean_object* v_00_u03b1_226_, lean_object* v_inst_227_, lean_object* v_inst_228_, lean_object* v_inst_229_, lean_object* v_inst_230_){
+_start:
+{
+lean_object* v_res_231_; 
+v_res_231_ = l_Lean_Grind_IntModule_OfNatModule_instLEQOfOrderedAdd(v_00_u03b1_226_, v_inst_227_, v_inst_228_, v_inst_229_, v_inst_230_);
+lean_dec_ref(v_inst_227_);
+return v_res_231_;
+}
+}
+LEAN_EXPORT lean_object* l_Lean_Grind_IntModule_OfNatModule_instLTQOfOrderedAdd___redArg(){
 _start:
 {
 lean_object* v___x_233_; 
@@ -726,13 +746,29 @@ v___x_233_ = lean_box(0);
 return v___x_233_;
 }
 }
-LEAN_EXPORT lean_object* l_Lean_Grind_IntModule_OfNatModule_instLTQOfOrderedAdd___boxed(lean_object* v_00_u03b1_234_, lean_object* v_inst_235_, lean_object* v_inst_236_, lean_object* v_inst_237_, lean_object* v_inst_238_){
+LEAN_EXPORT lean_object* l_Lean_Grind_IntModule_OfNatModule_instLTQOfOrderedAdd___redArg___boxed(lean_object* v___dummy_234_){
 _start:
 {
-lean_object* v_res_239_; 
-v_res_239_ = l_Lean_Grind_IntModule_OfNatModule_instLTQOfOrderedAdd(v_00_u03b1_234_, v_inst_235_, v_inst_236_, v_inst_237_, v_inst_238_);
-lean_dec_ref(v_inst_235_);
-return v_res_239_;
+lean_object* v_res_235_; 
+v_res_235_ = l_Lean_Grind_IntModule_OfNatModule_instLTQOfOrderedAdd___redArg();
+return v_res_235_;
+}
+}
+LEAN_EXPORT lean_object* l_Lean_Grind_IntModule_OfNatModule_instLTQOfOrderedAdd(lean_object* v_00_u03b1_236_, lean_object* v_inst_237_, lean_object* v_inst_238_, lean_object* v_inst_239_, lean_object* v_inst_240_){
+_start:
+{
+lean_object* v___x_241_; 
+v___x_241_ = lean_box(0);
+return v___x_241_;
+}
+}
+LEAN_EXPORT lean_object* l_Lean_Grind_IntModule_OfNatModule_instLTQOfOrderedAdd___boxed(lean_object* v_00_u03b1_242_, lean_object* v_inst_243_, lean_object* v_inst_244_, lean_object* v_inst_245_, lean_object* v_inst_246_){
+_start:
+{
+lean_object* v_res_247_; 
+v_res_247_ = l_Lean_Grind_IntModule_OfNatModule_instLTQOfOrderedAdd(v_00_u03b1_242_, v_inst_243_, v_inst_244_, v_inst_245_, v_inst_246_);
+lean_dec_ref(v_inst_243_);
+return v_res_247_;
 }
 }
 lean_object* runtime_initialize_Init_Grind_Ordered_Module(uint8_t builtin);

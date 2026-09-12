@@ -13439,9 +13439,9 @@ return v___x_17_;
 LEAN_EXPORT lean_object* l_Lean_Parser_Command_versoCommentBodyFn___lam__0___boxed(lean_object* v___x_18_, lean_object* v___y_19_, lean_object* v___y_20_){
 _start:
 {
-uint8_t v___x_529__boxed_21_; lean_object* v_res_22_; 
-v___x_529__boxed_21_ = lean_unbox(v___x_18_);
-v_res_22_ = l_Lean_Parser_Command_versoCommentBodyFn___lam__0(v___x_529__boxed_21_, v___y_19_, v___y_20_);
+uint8_t v___x_530__boxed_21_; lean_object* v_res_22_; 
+v___x_530__boxed_21_ = lean_unbox(v___x_18_);
+v_res_22_ = l_Lean_Parser_Command_versoCommentBodyFn___lam__0(v___x_530__boxed_21_, v___y_19_, v___y_20_);
 return v_res_22_;
 }
 }
@@ -13870,34 +13870,34 @@ goto v_resetjp_183_;
 }
 v_resetjp_183_:
 {
-lean_object* v___x_186_; lean_object* v___x_188_; 
-v___x_186_ = l_Lean_Syntax_Traverser_left(v_stxTrav_177_);
+lean_object* v___x_186_; lean_object* v___x_187_; lean_object* v___x_189_; 
+v___x_186_ = lean_box(0);
+v___x_187_ = l_Lean_Syntax_Traverser_left(v_stxTrav_177_);
 if (v_isShared_185_ == 0)
 {
-lean_ctor_set(v___x_184_, 0, v___x_186_);
-v___x_188_ = v___x_184_;
-goto v_reusejp_187_;
+lean_ctor_set(v___x_184_, 0, v___x_187_);
+v___x_189_ = v___x_184_;
+goto v_reusejp_188_;
 }
 else
 {
 lean_object* v_reuseFailAlloc_192_; 
 v_reuseFailAlloc_192_ = lean_alloc_ctor(0, 3, 3);
-lean_ctor_set(v_reuseFailAlloc_192_, 0, v___x_186_);
+lean_ctor_set(v_reuseFailAlloc_192_, 0, v___x_187_);
 lean_ctor_set(v_reuseFailAlloc_192_, 1, v_leadWord_178_);
 lean_ctor_set(v_reuseFailAlloc_192_, 2, v_stack_182_);
 lean_ctor_set_uint8(v_reuseFailAlloc_192_, sizeof(void*)*3, v_leadWordIdent_179_);
 lean_ctor_set_uint8(v_reuseFailAlloc_192_, sizeof(void*)*3 + 1, v_isUngrouped_180_);
 lean_ctor_set_uint8(v_reuseFailAlloc_192_, sizeof(void*)*3 + 2, v_mustBeGrouped_181_);
-v___x_188_ = v_reuseFailAlloc_192_;
-goto v_reusejp_187_;
+v___x_189_ = v_reuseFailAlloc_192_;
+goto v_reusejp_188_;
 }
-v_reusejp_187_:
+v_reusejp_188_:
 {
-lean_object* v___x_189_; lean_object* v___x_190_; lean_object* v___x_191_; 
-v___x_189_ = lean_st_ref_put(v___y_174_, v___x_188_);
-v___x_190_ = lean_box(0);
+lean_object* v___x_190_; lean_object* v___x_191_; 
+v___x_190_ = lean_st_ref_put(v___y_174_, v___x_189_);
 v___x_191_ = lean_alloc_ctor(0, 1, 0);
-lean_ctor_set(v___x_191_, 0, v___x_190_);
+lean_ctor_set(v___x_191_, 0, v___x_186_);
 return v___x_191_;
 }
 }

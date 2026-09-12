@@ -9,7 +9,6 @@ prelude
 public import Init.Data.Order.PackageFactories
 import Init.Data.Nat.Order
 import Init.Data.Nat.Compare
-import Init.Data.Order.Lemmas
 
 open Std
 

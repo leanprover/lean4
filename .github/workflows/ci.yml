@@ -294,7 +294,9 @@ jobs:
               {
                 // portable release build: use channel with older glibc (2.26)
                 "name": "Linux release",
-                "os": large ? chonk : "ubuntu-latest",
+                // The self-hosted runner carries a different toolset than the hosted ones, so what
+                // we ship is built on a hosted runner even when it is free.
+                "os": large ? (stamped ? "nscloud-ubuntu-24.04-amd64-8x16" : chonk) : "ubuntu-latest",
                 "release": stamped,
                 // Unstamped builds are published too (`pr-release.yml`, `grove.yml`), so always pack
                 // and upload the artifact.
@@ -375,7 +377,9 @@ jobs:
               },
               {
                 "name": "macOS aarch64",
-                "enabled": level >= 1 || macos_arm,
+                // Kept out of the merge queue, where it would be the slowest job; breakage surfaces
+                // on master instead.
+                "enabled": isPushToMaster || level >= 2 || macos_arm,
                 "test": level >= 2,
                 // standard GH runner only comes with 7GB so use large runner if possible when running tests
                 "os": large && (fast || level >= 2) ? "nscloud-macos-sequoia-arm64-6x14" : "macos-15",

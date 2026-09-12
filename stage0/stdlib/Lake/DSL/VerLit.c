@@ -17,8 +17,8 @@ lean_object* l_Lean_Name_mkStr3(lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_mkConst(lean_object*, lean_object*);
 lean_object* l_Lean_Name_mkStr2(lean_object*, lean_object*);
 lean_object* l_Lean_stringToMessageData(lean_object*);
-lean_object* lean_st_ref_get(lean_object*);
 lean_object* l_Lean_Elab_getBetterRef(lean_object*, lean_object*);
+lean_object* lean_st_ref_get(lean_object*);
 extern lean_object* l_Lean_Elab_pp_macroStack;
 lean_object* l_Std_DTreeMap_Internal_Impl_Const_get_x3f___at___00Lean_NameMap_find_x3f_spec__0___redArg(lean_object*, lean_object*);
 lean_object* l_Lean_MessageData_ofFormat(lean_object*);
@@ -1572,16 +1572,16 @@ return v_res_475_;
 LEAN_EXPORT lean_object* l_Lean_throwError___at___00__private_Lake_DSL_VerLit_0__Lake_DSL_evalDecodeVersion_spec__0___redArg(lean_object* v_msg_476_, lean_object* v___y_477_, lean_object* v___y_478_, lean_object* v___y_479_, lean_object* v___y_480_, lean_object* v___y_481_, lean_object* v___y_482_){
 _start:
 {
-lean_object* v_ref_484_; lean_object* v___x_485_; lean_object* v_a_486_; lean_object* v_macroStack_487_; lean_object* v___x_488_; lean_object* v___x_489_; lean_object* v_a_490_; lean_object* v___x_492_; uint8_t v_isShared_493_; uint8_t v_isSharedCheck_498_; 
+lean_object* v_ref_484_; lean_object* v_macroStack_485_; lean_object* v___x_486_; lean_object* v___x_487_; lean_object* v_a_488_; lean_object* v___x_489_; lean_object* v_a_490_; lean_object* v___x_492_; uint8_t v_isShared_493_; uint8_t v_isSharedCheck_498_; 
 v_ref_484_ = lean_ctor_get(v___y_481_, 2);
-v___x_485_ = l_Lean_addMessageContextFull___at___00Lean_throwError___at___00__private_Lake_DSL_VerLit_0__Lake_DSL_evalDecodeVersion_spec__0_spec__0(v_msg_476_, v___y_479_, v___y_480_, v___y_481_, v___y_482_);
-v_a_486_ = lean_ctor_get(v___x_485_, 0);
-lean_inc(v_a_486_);
-lean_dec_ref(v___x_485_);
-v_macroStack_487_ = lean_ctor_get(v___y_477_, 1);
-v___x_488_ = l_Lean_Elab_getBetterRef(v_ref_484_, v_macroStack_487_);
-lean_inc(v_macroStack_487_);
-v___x_489_ = l_Lean_Elab_addMacroStack___at___00Lean_throwError___at___00__private_Lake_DSL_VerLit_0__Lake_DSL_evalDecodeVersion_spec__0_spec__1___redArg(v_a_486_, v_macroStack_487_, v___y_481_);
+v_macroStack_485_ = lean_ctor_get(v___y_477_, 1);
+v___x_486_ = l_Lean_Elab_getBetterRef(v_ref_484_, v_macroStack_485_);
+v___x_487_ = l_Lean_addMessageContextFull___at___00Lean_throwError___at___00__private_Lake_DSL_VerLit_0__Lake_DSL_evalDecodeVersion_spec__0_spec__0(v_msg_476_, v___y_479_, v___y_480_, v___y_481_, v___y_482_);
+v_a_488_ = lean_ctor_get(v___x_487_, 0);
+lean_inc(v_a_488_);
+lean_dec_ref(v___x_487_);
+lean_inc(v_macroStack_485_);
+v___x_489_ = l_Lean_Elab_addMacroStack___at___00Lean_throwError___at___00__private_Lake_DSL_VerLit_0__Lake_DSL_evalDecodeVersion_spec__0_spec__1___redArg(v_a_488_, v_macroStack_485_, v___y_481_);
 v_a_490_ = lean_ctor_get(v___x_489_, 0);
 v_isSharedCheck_498_ = !lean_is_exclusive(v___x_489_);
 if (v_isSharedCheck_498_ == 0)
@@ -1602,7 +1602,7 @@ v_resetjp_491_:
 {
 lean_object* v___x_494_; lean_object* v___x_496_; 
 v___x_494_ = lean_alloc_ctor(0, 2, 0);
-lean_ctor_set(v___x_494_, 0, v___x_488_);
+lean_ctor_set(v___x_494_, 0, v___x_486_);
 lean_ctor_set(v___x_494_, 1, v_a_490_);
 if (v_isShared_493_ == 0)
 {
@@ -2045,29 +2045,29 @@ return v___x_716_;
 }
 else
 {
-lean_object* v___x_717_; 
+lean_object* v___x_717_; lean_object* v_v_718_; lean_object* v___x_719_; 
+v___x_717_ = lean_unsigned_to_nat(1u);
+v_v_718_ = l_Lean_Syntax_getArg(v_stx_704_, v___x_717_);
+lean_dec(v_stx_704_);
 lean_inc(v_expectedType_x3f_705_);
-v___x_717_ = l_Lean_Elab_Term_tryPostponeIfNoneOrMVar(v_expectedType_x3f_705_, v_a_706_, v_a_707_, v_a_708_, v_a_709_, v_a_710_, v_a_711_);
-if (lean_obj_tag(v___x_717_) == 0)
+v___x_719_ = l_Lean_Elab_Term_tryPostponeIfNoneOrMVar(v_expectedType_x3f_705_, v_a_706_, v_a_707_, v_a_708_, v_a_709_, v_a_710_, v_a_711_);
+if (lean_obj_tag(v___x_719_) == 0)
 {
-lean_dec_ref_known(v___x_717_, 1);
+lean_dec_ref_known(v___x_719_, 1);
 if (lean_obj_tag(v_expectedType_x3f_705_) == 1)
 {
-lean_object* v_val_718_; lean_object* v___x_719_; lean_object* v_v_720_; lean_object* v___x_721_; 
-v_val_718_ = lean_ctor_get(v_expectedType_x3f_705_, 0);
-lean_inc(v_val_718_);
+lean_object* v_val_720_; lean_object* v___x_721_; 
+v_val_720_ = lean_ctor_get(v_expectedType_x3f_705_, 0);
+lean_inc(v_val_720_);
 lean_dec_ref_known(v_expectedType_x3f_705_, 1);
-v___x_719_ = lean_unsigned_to_nat(1u);
-v_v_720_ = l_Lean_Syntax_getArg(v_stx_704_, v___x_719_);
-lean_dec(v_stx_704_);
-v___x_721_ = l___private_Lake_DSL_VerLit_0__Lake_DSL_evalDecodeVersion(v_v_720_, v_val_718_, v_a_706_, v_a_707_, v_a_708_, v_a_709_, v_a_710_, v_a_711_);
+v___x_721_ = l___private_Lake_DSL_VerLit_0__Lake_DSL_evalDecodeVersion(v_v_718_, v_val_720_, v_a_706_, v_a_707_, v_a_708_, v_a_709_, v_a_710_, v_a_711_);
 return v___x_721_;
 }
 else
 {
 lean_object* v___x_722_; lean_object* v___x_723_; 
+lean_dec(v_v_718_);
 lean_dec(v_expectedType_x3f_705_);
-lean_dec(v_stx_704_);
 v___x_722_ = lean_obj_once(&l___private_Lake_DSL_VerLit_0__Lake_DSL_elabEvalVersion___closed__5, &l___private_Lake_DSL_VerLit_0__Lake_DSL_elabEvalVersion___closed__5_once, _init_l___private_Lake_DSL_VerLit_0__Lake_DSL_elabEvalVersion___closed__5);
 v___x_723_ = l_Lean_throwError___at___00__private_Lake_DSL_VerLit_0__Lake_DSL_evalDecodeVersion_spec__0___redArg(v___x_722_, v_a_706_, v_a_707_, v_a_708_, v_a_709_, v_a_710_, v_a_711_);
 return v___x_723_;
@@ -2076,20 +2076,20 @@ return v___x_723_;
 else
 {
 lean_object* v_a_724_; lean_object* v___x_726_; uint8_t v_isShared_727_; uint8_t v_isSharedCheck_731_; 
+lean_dec(v_v_718_);
 lean_dec(v_expectedType_x3f_705_);
-lean_dec(v_stx_704_);
-v_a_724_ = lean_ctor_get(v___x_717_, 0);
-v_isSharedCheck_731_ = !lean_is_exclusive(v___x_717_);
+v_a_724_ = lean_ctor_get(v___x_719_, 0);
+v_isSharedCheck_731_ = !lean_is_exclusive(v___x_719_);
 if (v_isSharedCheck_731_ == 0)
 {
-v___x_726_ = v___x_717_;
+v___x_726_ = v___x_719_;
 v_isShared_727_ = v_isSharedCheck_731_;
 goto v_resetjp_725_;
 }
 else
 {
 lean_inc(v_a_724_);
-lean_dec(v___x_717_);
+lean_dec(v___x_719_);
 v___x_726_ = lean_box(0);
 v_isShared_727_ = v_isSharedCheck_731_;
 goto v_resetjp_725_;

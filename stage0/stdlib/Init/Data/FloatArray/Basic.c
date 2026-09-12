@@ -1401,10 +1401,10 @@ return v___x_611_;
 LEAN_EXPORT lean_object* l_FloatArray_foldl___redArg___lam__0___boxed(lean_object* v_f_612_, lean_object* v_x1_613_, lean_object* v_x2_614_){
 _start:
 {
-double v_x2_185__boxed_615_; lean_object* v_res_616_; 
-v_x2_185__boxed_615_ = lean_unbox_float(v_x2_614_);
+double v_x2_187__boxed_615_; lean_object* v_res_616_; 
+v_x2_187__boxed_615_ = lean_unbox_float(v_x2_614_);
 lean_dec_ref(v_x2_614_);
-v_res_616_ = l_FloatArray_foldl___redArg___lam__0(v_f_612_, v_x1_613_, v_x2_185__boxed_615_);
+v_res_616_ = l_FloatArray_foldl___redArg___lam__0(v_f_612_, v_x1_613_, v_x2_187__boxed_615_);
 return v_res_616_;
 }
 }

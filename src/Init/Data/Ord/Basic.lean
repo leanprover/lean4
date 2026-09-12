@@ -261,6 +261,7 @@ theorem isGE_eq_isGT_or_isEq : ∀ {o : Ordering}, o.isGE = (o.isGT || o.isEq) :
 theorem isEq_eq_beq_eq : ∀ {o : Ordering}, o.isEq = (o == .eq) := by decide
 theorem isNe_eq_not_beq_eq : ∀ {o : Ordering}, o.isNe = (!o == .eq) := by decide
 theorem isNe_eq_isLT_or_isGT : ∀ {o : Ordering}, o.isNe = (o.isLT || o.isGT) := by decide
+theorem isLE_and_isGE_eq : ∀ {o : Ordering}, (o.isLE && o.isGE) = o.isEq := by decide
 
 @[simp] theorem not_isLT_eq_isGE : ∀ {o : Ordering}, (!o.isLT) = o.isGE := by decide
 @[simp] theorem not_isLE_eq_isGT : ∀ {o : Ordering}, (!o.isLE) = o.isGT := by decide

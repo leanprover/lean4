@@ -2541,9 +2541,9 @@ return v___x_1059_;
 LEAN_EXPORT lean_object* l_Std_DHashMap_Internal_Raw_u2080_diff_u2098___redArg___lam__0___boxed(lean_object* v_inst_1060_, lean_object* v_inst_1061_, lean_object* v_m_u2082_1062_, lean_object* v___x_1063_, lean_object* v_k_1064_, lean_object* v_x_1065_){
 _start:
 {
-uint8_t v___x_51__boxed_1066_; uint8_t v_res_1067_; lean_object* v_r_1068_; 
-v___x_51__boxed_1066_ = lean_unbox(v___x_1063_);
-v_res_1067_ = l_Std_DHashMap_Internal_Raw_u2080_diff_u2098___redArg___lam__0(v_inst_1060_, v_inst_1061_, v_m_u2082_1062_, v___x_51__boxed_1066_, v_k_1064_, v_x_1065_);
+uint8_t v___x_55__boxed_1066_; uint8_t v_res_1067_; lean_object* v_r_1068_; 
+v___x_55__boxed_1066_ = lean_unbox(v___x_1063_);
+v_res_1067_ = l_Std_DHashMap_Internal_Raw_u2080_diff_u2098___redArg___lam__0(v_inst_1060_, v_inst_1061_, v_m_u2082_1062_, v___x_55__boxed_1066_, v_k_1064_, v_x_1065_);
 lean_dec(v_x_1065_);
 lean_dec_ref(v_m_u2082_1062_);
 v_r_1068_ = lean_box(v_res_1067_);

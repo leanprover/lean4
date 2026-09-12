@@ -170,6 +170,13 @@ theorem min_le_min [LE α] [Min α] [Std.LawfulOrderLeftLeaningMin α] [IsLinear
 public instance [LE α] [Min α] [Std.LawfulOrderLeftLeaningMin α] [IsLinearOrder α] : Commutative (min : α → α → α) where
   comm a b := by apply le_antisymm <;> simp [min_le_min]
 
+public instance [BEq α] [Ord α] [LE α] [Std.LawfulBEqOrd α] [Std.LawfulOrderOrd α] :
+    Std.LawfulOrderBEq α where
+  beq_iff_le_and_ge a b := by
+    rw [← Std.LawfulBEqOrd.compare_eq_iff_beq, ← Ordering.isEq_iff_eq_eq,
+      ← Ordering.isLE_and_isGE_eq, Bool.and_eq_true, Std.LawfulOrderOrd.isGE_compare,
+      Std.LawfulOrderOrd.isLE_compare]
+
 end Std
 
 namespace Classical.Order

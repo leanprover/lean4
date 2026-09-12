@@ -682,12 +682,14 @@ execute_process(
 # Fallback for jj workspaces where git cannot find .git directly.
 # Use `jj git root` to find the backing git repo, then `jj log` to
 # resolve the current workspace's commit (git HEAD points to the root
-# workspace, not the current one).
+# workspace, not the current one). Both pass `--ignore-working-copy`, as a
+# snapshot writes a jj operation that races any jj command run during
+# configure; `@` is then as of the last jj command.
 if("${LAKE_LEAN_GITHASH}" STREQUAL "")
   find_program(JJ_EXECUTABLE jj)
   if(JJ_EXECUTABLE)
     execute_process(
-      COMMAND "${JJ_EXECUTABLE}" git root
+      COMMAND "${JJ_EXECUTABLE}" --ignore-working-copy git root
       WORKING_DIRECTORY "${CMAKE_CURRENT_SOURCE_DIR}"
       OUTPUT_VARIABLE _jj_git_dir
       OUTPUT_STRIP_TRAILING_WHITESPACE
@@ -695,7 +697,7 @@ if("${LAKE_LEAN_GITHASH}" STREQUAL "")
       RESULT_VARIABLE _jj_git_root_result
     )
     execute_process(
-      COMMAND "${JJ_EXECUTABLE}" log -r @ --no-graph -T "commit_id"
+      COMMAND "${JJ_EXECUTABLE}" --ignore-working-copy log -r @ --no-graph -T "commit_id"
       WORKING_DIRECTORY "${CMAKE_CURRENT_SOURCE_DIR}"
       OUTPUT_VARIABLE _jj_commit
       OUTPUT_STRIP_TRAILING_WHITESPACE
@@ -1026,6 +1028,53 @@ if(NOT CMAKE_SYSTEM_NAME MATCHES "Emscripten")
     DEPENDS lake_shared
     COMMAND $(MAKE) -f ${CMAKE_BINARY_DIR}/stdlib.make leanchecker
     VERBATIM
+  )
+
+  # NOTE: uses toolchain from contained `lean-toolchain` so bumps are necessary only on kernel
+  # interface changes. Not in `ALL` as it's expensive; release CI builds it explicitly.
+  ExternalProject_Add(
+    lean4lean
+    PREFIX lean4lean
+    EXCLUDE_FROM_ALL ON
+    GIT_REPOSITORY https://github.com/Kha/lean4lean
+    GIT_TAG lean4-bundle-4.35
+    PATCH_COMMAND bash ${LEAN_SOURCE_DIR}/../script/lean4lean-minimal-init.sh
+    CONFIGURE_COMMAND ""
+    BUILD_COMMAND lake build lean4lean
+    BUILD_IN_SOURCE ON
+    INSTALL_COMMAND
+      ${CMAKE_COMMAND} -E copy .lake/build/bin/lean4lean${CMAKE_EXECUTABLE_SUFFIX}
+      ${CMAKE_BINARY_DIR}/bin
+  )
+
+  # Not in `ALL` as it's expensive; release CI builds it explicitly.
+  ExternalProject_Add(
+    nanoda
+    PREFIX nanoda
+    EXCLUDE_FROM_ALL ON
+    GIT_REPOSITORY https://github.com/ammkrn/nanoda_lib
+    GIT_TAG 4c544ed4099c8227f07d5de77ad1e69fb0740a27
+    CONFIGURE_COMMAND ""
+    BUILD_COMMAND cargo build --release --locked
+    BUILD_IN_SOURCE ON
+    INSTALL_COMMAND
+      ${CMAKE_COMMAND} -E copy target/release/nanoda_bin${CMAKE_EXECUTABLE_SUFFIX}
+      ${CMAKE_BINARY_DIR}/bin
+  )
+
+  # Not in `ALL` as it's expensive; release CI builds it explicitly.
+  ExternalProject_Add(
+    con-leche
+    PREFIX con-leche
+    EXCLUDE_FROM_ALL ON
+    GIT_REPOSITORY https://github.com/leanprover/con-leche
+    GIT_TAG b46cb0e6138d975e657857526839a3c7d8a1df20
+    CONFIGURE_COMMAND ""
+    BUILD_COMMAND lake build con-leche
+    BUILD_IN_SOURCE ON
+    INSTALL_COMMAND
+      ${CMAKE_COMMAND} -E copy .lake/build/bin/con-leche${CMAKE_EXECUTABLE_SUFFIX}
+      ${CMAKE_BINARY_DIR}/bin
   )
 
   # Not `ALL` as it's big; release CI builds it explicitly.

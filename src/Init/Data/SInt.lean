@@ -12,6 +12,7 @@ public import Init.Data.SInt.Float32
 public import Init.Data.SInt.Lemmas
 public import Init.Data.SInt.Bitwise
 public import Init.Data.SInt.IntToBitVec
+public import Init.Data.SInt.Package
 
 public section
 

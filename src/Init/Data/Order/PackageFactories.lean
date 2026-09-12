@@ -9,8 +9,8 @@ prelude
 public import Init.Data.Order.LemmasExtra  -- shake: keep (instance inlined by `haveI`)
 public import Init.Data.Order.FactoriesExtra
 public import Init.Data.Order.Factories -- shake: keep (autoparam filling `Min.leftLeaningOfLE`)
+public import Init.Data.Order.Lemmas -- shake: keep (everyone applying these factories needs this)
 import Init.Data.Bool
-import Init.Data.Order.Lemmas
 
 namespace Std
 

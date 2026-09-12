@@ -212,13 +212,13 @@ v___x_57_ = l_Array_contains___at___00Lean_registerInternalExceptionId_spec__0(v
 if (v___x_57_ == 0)
 {
 lean_object* v___x_58_; lean_object* v___x_59_; lean_object* v___x_60_; lean_object* v___x_61_; lean_object* v___x_62_; 
-v___x_58_ = lean_st_ref_take(v___x_55_);
-v___x_59_ = lean_array_push(v___x_58_, v_name_53_);
-v___x_60_ = lean_st_ref_put(v___x_55_, v___x_59_);
-v___x_61_ = lean_array_get_size(v___x_56_);
+v___x_58_ = lean_array_get_size(v___x_56_);
 lean_dec(v___x_56_);
+v___x_59_ = lean_st_ref_take(v___x_55_);
+v___x_60_ = lean_array_push(v___x_59_, v_name_53_);
+v___x_61_ = lean_st_ref_put(v___x_55_, v___x_60_);
 v___x_62_ = lean_alloc_ctor(0, 1, 0);
-lean_ctor_set(v___x_62_, 0, v___x_61_);
+lean_ctor_set(v___x_62_, 0, v___x_58_);
 return v___x_62_;
 }
 else

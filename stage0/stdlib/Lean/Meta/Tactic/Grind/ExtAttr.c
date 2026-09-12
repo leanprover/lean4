@@ -13,7 +13,7 @@
 #ifdef __cplusplus
 extern "C" {
 #endif
-lean_object* l_Lean_PersistentHashMap_mkEmptyEntriesArray(lean_object*, lean_object*);
+lean_object* l_Lean_PersistentHashMap_mkEmptyEntriesArray___redArg();
 lean_object* lean_array_get_size(lean_object*);
 uint8_t lean_nat_dec_lt(lean_object*, lean_object*);
 lean_object* lean_array_fget_borrowed(lean_object*, lean_object*);
@@ -100,7 +100,7 @@ static lean_object* _init_l_Lean_addMessageContextPartial___at___00Lean_throwErr
 _start:
 {
 lean_object* v___x_1_; 
-v___x_1_ = l_Lean_PersistentHashMap_mkEmptyEntriesArray(lean_box(0), lean_box(0));
+v___x_1_ = l_Lean_PersistentHashMap_mkEmptyEntriesArray___redArg();
 return v___x_1_;
 }
 }
@@ -568,10 +568,10 @@ return v___x_150_;
 LEAN_EXPORT lean_object* l_Lean_PersistentHashMap_containsAux___at___00Lean_PersistentHashMap_contains___at___00Lean_Meta_Grind_ExtTheorems_eraseDecl_spec__0_spec__0___redArg___boxed(lean_object* v_x_151_, lean_object* v_x_152_, lean_object* v_x_153_){
 _start:
 {
-size_t v_x_442__boxed_154_; uint8_t v_res_155_; lean_object* v_r_156_; 
-v_x_442__boxed_154_ = lean_unbox_usize(v_x_152_);
+size_t v_x_446__boxed_154_; uint8_t v_res_155_; lean_object* v_r_156_; 
+v_x_446__boxed_154_ = lean_unbox_usize(v_x_152_);
 lean_dec(v_x_152_);
-v_res_155_ = l_Lean_PersistentHashMap_containsAux___at___00Lean_PersistentHashMap_contains___at___00Lean_Meta_Grind_ExtTheorems_eraseDecl_spec__0_spec__0___redArg(v_x_151_, v_x_442__boxed_154_, v_x_153_);
+v_res_155_ = l_Lean_PersistentHashMap_containsAux___at___00Lean_PersistentHashMap_contains___at___00Lean_Meta_Grind_ExtTheorems_eraseDecl_spec__0_spec__0___redArg(v_x_151_, v_x_446__boxed_154_, v_x_153_);
 lean_dec(v_x_153_);
 lean_dec_ref(v_x_151_);
 v_r_156_ = lean_box(v_res_155_);
@@ -1009,10 +1009,10 @@ return v___x_261_;
 LEAN_EXPORT lean_object* l_Lean_PersistentHashMap_eraseAux___at___00Lean_PersistentHashMap_erase___at___00Lean_Meta_Grind_ExtTheorems_eraseDecl_spec__1_spec__2___redArg___boxed(lean_object* v_x_264_, lean_object* v_x_265_, lean_object* v_x_266_){
 _start:
 {
-size_t v_x_521__boxed_267_; lean_object* v_res_268_; 
-v_x_521__boxed_267_ = lean_unbox_usize(v_x_265_);
+size_t v_x_525__boxed_267_; lean_object* v_res_268_; 
+v_x_525__boxed_267_ = lean_unbox_usize(v_x_265_);
 lean_dec(v_x_265_);
-v_res_268_ = l_Lean_PersistentHashMap_eraseAux___at___00Lean_PersistentHashMap_erase___at___00Lean_Meta_Grind_ExtTheorems_eraseDecl_spec__1_spec__2___redArg(v_x_264_, v_x_521__boxed_267_, v_x_266_);
+v_res_268_ = l_Lean_PersistentHashMap_eraseAux___at___00Lean_PersistentHashMap_erase___at___00Lean_Meta_Grind_ExtTheorems_eraseDecl_spec__1_spec__2___redArg(v_x_264_, v_x_525__boxed_267_, v_x_266_);
 lean_dec(v_x_266_);
 return v_res_268_;
 }
@@ -1160,10 +1160,10 @@ return v___x_327_;
 LEAN_EXPORT lean_object* l_Lean_PersistentHashMap_containsAux___at___00Lean_PersistentHashMap_contains___at___00Lean_Meta_Grind_ExtTheorems_eraseDecl_spec__0_spec__0___boxed(lean_object* v_00_u03b2_328_, lean_object* v_x_329_, lean_object* v_x_330_, lean_object* v_x_331_){
 _start:
 {
-size_t v_x_726__boxed_332_; uint8_t v_res_333_; lean_object* v_r_334_; 
-v_x_726__boxed_332_ = lean_unbox_usize(v_x_330_);
+size_t v_x_730__boxed_332_; uint8_t v_res_333_; lean_object* v_r_334_; 
+v_x_730__boxed_332_ = lean_unbox_usize(v_x_330_);
 lean_dec(v_x_330_);
-v_res_333_ = l_Lean_PersistentHashMap_containsAux___at___00Lean_PersistentHashMap_contains___at___00Lean_Meta_Grind_ExtTheorems_eraseDecl_spec__0_spec__0(v_00_u03b2_328_, v_x_329_, v_x_726__boxed_332_, v_x_331_);
+v_res_333_ = l_Lean_PersistentHashMap_containsAux___at___00Lean_PersistentHashMap_contains___at___00Lean_Meta_Grind_ExtTheorems_eraseDecl_spec__0_spec__0(v_00_u03b2_328_, v_x_329_, v_x_730__boxed_332_, v_x_331_);
 lean_dec(v_x_331_);
 lean_dec_ref(v_x_329_);
 v_r_334_ = lean_box(v_res_333_);
@@ -1181,10 +1181,10 @@ return v___x_339_;
 LEAN_EXPORT lean_object* l_Lean_PersistentHashMap_eraseAux___at___00Lean_PersistentHashMap_erase___at___00Lean_Meta_Grind_ExtTheorems_eraseDecl_spec__1_spec__2___boxed(lean_object* v_00_u03b2_340_, lean_object* v_x_341_, lean_object* v_x_342_, lean_object* v_x_343_){
 _start:
 {
-size_t v_x_737__boxed_344_; lean_object* v_res_345_; 
-v_x_737__boxed_344_ = lean_unbox_usize(v_x_342_);
+size_t v_x_741__boxed_344_; lean_object* v_res_345_; 
+v_x_741__boxed_344_ = lean_unbox_usize(v_x_342_);
 lean_dec(v_x_342_);
-v_res_345_ = l_Lean_PersistentHashMap_eraseAux___at___00Lean_PersistentHashMap_erase___at___00Lean_Meta_Grind_ExtTheorems_eraseDecl_spec__1_spec__2(v_00_u03b2_340_, v_x_341_, v_x_737__boxed_344_, v_x_343_);
+v_res_345_ = l_Lean_PersistentHashMap_eraseAux___at___00Lean_PersistentHashMap_erase___at___00Lean_Meta_Grind_ExtTheorems_eraseDecl_spec__1_spec__2(v_00_u03b2_340_, v_x_341_, v_x_741__boxed_344_, v_x_343_);
 lean_dec(v_x_343_);
 return v_res_345_;
 }

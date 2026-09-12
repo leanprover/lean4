@@ -13,44 +13,80 @@
 #ifdef __cplusplus
 extern "C" {
 #endif
+LEAN_EXPORT lean_object* l_Std_DHashMap_Equiv_instTrans___redArg();
+LEAN_EXPORT lean_object* l_Std_DHashMap_Equiv_instTrans___redArg___boxed(lean_object*);
 LEAN_EXPORT lean_object* l_Std_DHashMap_Equiv_instTrans(lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Std_DHashMap_Equiv_instTrans___boxed(lean_object*, lean_object*, lean_object*, lean_object*);
+LEAN_EXPORT lean_object* l_Std_DHashMap_isSetoid___redArg();
+LEAN_EXPORT lean_object* l_Std_DHashMap_isSetoid___redArg___boxed(lean_object*);
 LEAN_EXPORT lean_object* l_Std_DHashMap_isSetoid(lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Std_DHashMap_isSetoid___boxed(lean_object*, lean_object*, lean_object*, lean_object*);
-LEAN_EXPORT lean_object* l_Std_DHashMap_Equiv_instTrans(lean_object* v_00_u03b1_1_, lean_object* v_00_u03b2_2_, lean_object* v_x_3_, lean_object* v_x_4_){
+LEAN_EXPORT lean_object* l_Std_DHashMap_Equiv_instTrans___redArg(){
 _start:
 {
-lean_object* v___x_5_; 
-v___x_5_ = lean_box(0);
-return v___x_5_;
+lean_object* v___x_2_; 
+v___x_2_ = lean_box(0);
+return v___x_2_;
 }
 }
-LEAN_EXPORT lean_object* l_Std_DHashMap_Equiv_instTrans___boxed(lean_object* v_00_u03b1_6_, lean_object* v_00_u03b2_7_, lean_object* v_x_8_, lean_object* v_x_9_){
+LEAN_EXPORT lean_object* l_Std_DHashMap_Equiv_instTrans___redArg___boxed(lean_object* v___dummy_3_){
 _start:
 {
-lean_object* v_res_10_; 
-v_res_10_ = l_Std_DHashMap_Equiv_instTrans(v_00_u03b1_6_, v_00_u03b2_7_, v_x_8_, v_x_9_);
-lean_dec_ref(v_x_9_);
-lean_dec_ref(v_x_8_);
-return v_res_10_;
+lean_object* v_res_4_; 
+v_res_4_ = l_Std_DHashMap_Equiv_instTrans___redArg();
+return v_res_4_;
 }
 }
-LEAN_EXPORT lean_object* l_Std_DHashMap_isSetoid(lean_object* v_00_u03b1_11_, lean_object* v_00_u03b2_12_, lean_object* v_inst_13_, lean_object* v_inst_14_){
+LEAN_EXPORT lean_object* l_Std_DHashMap_Equiv_instTrans(lean_object* v_00_u03b1_5_, lean_object* v_00_u03b2_6_, lean_object* v_x_7_, lean_object* v_x_8_){
 _start:
 {
-lean_object* v___x_15_; 
-v___x_15_ = lean_box(0);
-return v___x_15_;
+lean_object* v___x_9_; 
+v___x_9_ = lean_box(0);
+return v___x_9_;
 }
 }
-LEAN_EXPORT lean_object* l_Std_DHashMap_isSetoid___boxed(lean_object* v_00_u03b1_16_, lean_object* v_00_u03b2_17_, lean_object* v_inst_18_, lean_object* v_inst_19_){
+LEAN_EXPORT lean_object* l_Std_DHashMap_Equiv_instTrans___boxed(lean_object* v_00_u03b1_10_, lean_object* v_00_u03b2_11_, lean_object* v_x_12_, lean_object* v_x_13_){
 _start:
 {
-lean_object* v_res_20_; 
-v_res_20_ = l_Std_DHashMap_isSetoid(v_00_u03b1_16_, v_00_u03b2_17_, v_inst_18_, v_inst_19_);
-lean_dec_ref(v_inst_19_);
-lean_dec_ref(v_inst_18_);
-return v_res_20_;
+lean_object* v_res_14_; 
+v_res_14_ = l_Std_DHashMap_Equiv_instTrans(v_00_u03b1_10_, v_00_u03b2_11_, v_x_12_, v_x_13_);
+lean_dec_ref(v_x_13_);
+lean_dec_ref(v_x_12_);
+return v_res_14_;
+}
+}
+LEAN_EXPORT lean_object* l_Std_DHashMap_isSetoid___redArg(){
+_start:
+{
+lean_object* v___x_16_; 
+v___x_16_ = lean_box(0);
+return v___x_16_;
+}
+}
+LEAN_EXPORT lean_object* l_Std_DHashMap_isSetoid___redArg___boxed(lean_object* v___dummy_17_){
+_start:
+{
+lean_object* v_res_18_; 
+v_res_18_ = l_Std_DHashMap_isSetoid___redArg();
+return v_res_18_;
+}
+}
+LEAN_EXPORT lean_object* l_Std_DHashMap_isSetoid(lean_object* v_00_u03b1_19_, lean_object* v_00_u03b2_20_, lean_object* v_inst_21_, lean_object* v_inst_22_){
+_start:
+{
+lean_object* v___x_23_; 
+v___x_23_ = lean_box(0);
+return v___x_23_;
+}
+}
+LEAN_EXPORT lean_object* l_Std_DHashMap_isSetoid___boxed(lean_object* v_00_u03b1_24_, lean_object* v_00_u03b2_25_, lean_object* v_inst_26_, lean_object* v_inst_27_){
+_start:
+{
+lean_object* v_res_28_; 
+v_res_28_ = l_Std_DHashMap_isSetoid(v_00_u03b1_24_, v_00_u03b2_25_, v_inst_26_, v_inst_27_);
+lean_dec_ref(v_inst_27_);
+lean_dec_ref(v_inst_26_);
+return v_res_28_;
 }
 }
 lean_object* runtime_initialize_Std_Data_DHashMap_Internal_RawLemmas(uint8_t builtin);

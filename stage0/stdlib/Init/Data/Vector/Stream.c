@@ -15,12 +15,14 @@ extern "C" {
 #endif
 lean_object* lean_array_get_size(lean_object*);
 lean_object* l_Array_toSubarray___redArg(lean_object*, lean_object*, lean_object*);
-LEAN_EXPORT lean_object* l_Vector_instToStreamSubarray___lam__0(lean_object*);
-static const lean_closure_object l_Vector_instToStreamSubarray___closed__0_value = {.m_header = {.m_rc = 0, .m_cs_sz = sizeof(lean_closure_object) + sizeof(void*)*0, .m_other = 0, .m_tag = 245}, .m_fun = (void*)l_Vector_instToStreamSubarray___lam__0, .m_arity = 1, .m_num_fixed = 0, .m_objs = {} };
-static const lean_object* l_Vector_instToStreamSubarray___closed__0 = (const lean_object*)&l_Vector_instToStreamSubarray___closed__0_value;
+LEAN_EXPORT lean_object* l_Vector_instToStreamSubarray___redArg___lam__0(lean_object*);
+static const lean_closure_object l_Vector_instToStreamSubarray___redArg___closed__0_value = {.m_header = {.m_rc = 0, .m_cs_sz = sizeof(lean_closure_object) + sizeof(void*)*0, .m_other = 0, .m_tag = 245}, .m_fun = (void*)l_Vector_instToStreamSubarray___redArg___lam__0, .m_arity = 1, .m_num_fixed = 0, .m_objs = {} };
+static const lean_object* l_Vector_instToStreamSubarray___redArg___closed__0 = (const lean_object*)&l_Vector_instToStreamSubarray___redArg___closed__0_value;
+LEAN_EXPORT lean_object* l_Vector_instToStreamSubarray___redArg();
+LEAN_EXPORT lean_object* l_Vector_instToStreamSubarray___redArg___boxed(lean_object*);
 LEAN_EXPORT lean_object* l_Vector_instToStreamSubarray(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Vector_instToStreamSubarray___boxed(lean_object*, lean_object*);
-LEAN_EXPORT lean_object* l_Vector_instToStreamSubarray___lam__0(lean_object* v_xs_1_){
+LEAN_EXPORT lean_object* l_Vector_instToStreamSubarray___redArg___lam__0(lean_object* v_xs_1_){
 _start:
 {
 lean_object* v___x_2_; lean_object* v___x_3_; lean_object* v___x_4_; 
@@ -30,21 +32,37 @@ v___x_4_ = l_Array_toSubarray___redArg(v_xs_1_, v___x_2_, v___x_3_);
 return v___x_4_;
 }
 }
-LEAN_EXPORT lean_object* l_Vector_instToStreamSubarray(lean_object* v_00_u03b1_6_, lean_object* v_n_7_){
+LEAN_EXPORT lean_object* l_Vector_instToStreamSubarray___redArg(){
 _start:
 {
-lean_object* v___f_8_; 
-v___f_8_ = ((lean_object*)(l_Vector_instToStreamSubarray___closed__0));
-return v___f_8_;
+lean_object* v___f_7_; 
+v___f_7_ = ((lean_object*)(l_Vector_instToStreamSubarray___redArg___closed__0));
+return v___f_7_;
 }
 }
-LEAN_EXPORT lean_object* l_Vector_instToStreamSubarray___boxed(lean_object* v_00_u03b1_9_, lean_object* v_n_10_){
+LEAN_EXPORT lean_object* l_Vector_instToStreamSubarray___redArg___boxed(lean_object* v___dummy_8_){
 _start:
 {
-lean_object* v_res_11_; 
-v_res_11_ = l_Vector_instToStreamSubarray(v_00_u03b1_9_, v_n_10_);
-lean_dec(v_n_10_);
-return v_res_11_;
+lean_object* v_res_9_; 
+v_res_9_ = l_Vector_instToStreamSubarray___redArg();
+return v_res_9_;
+}
+}
+LEAN_EXPORT lean_object* l_Vector_instToStreamSubarray(lean_object* v_00_u03b1_10_, lean_object* v_n_11_){
+_start:
+{
+lean_object* v___f_12_; 
+v___f_12_ = ((lean_object*)(l_Vector_instToStreamSubarray___redArg___closed__0));
+return v___f_12_;
+}
+}
+LEAN_EXPORT lean_object* l_Vector_instToStreamSubarray___boxed(lean_object* v_00_u03b1_13_, lean_object* v_n_14_){
+_start:
+{
+lean_object* v_res_15_; 
+v_res_15_ = l_Vector_instToStreamSubarray(v_00_u03b1_13_, v_n_14_);
+lean_dec(v_n_14_);
+return v_res_15_;
 }
 }
 lean_object* runtime_initialize_Init_Data_Stream(uint8_t builtin);

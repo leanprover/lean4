@@ -29,7 +29,7 @@ lean_object* l_Lean_Syntax_node2(lean_object*, lean_object*, lean_object*, lean_
 lean_object* lean_nat_sub(lean_object*, lean_object*);
 lean_object* l_Lean_Name_mkStr6(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Name_mkStr3(lean_object*, lean_object*, lean_object*);
-lean_object* l_Array_mkArray0(lean_object*);
+lean_object* l_Array_mkArray0___redArg();
 lean_object* l_Lean_Syntax_node3(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Syntax_node4(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 uint8_t l_Lean_Syntax_isOfKind(lean_object*, lean_object*);
@@ -7032,7 +7032,7 @@ static lean_object* _init_l___private_Std_Time_Notation_0__Std_Time_syntaxBounde
 _start:
 {
 lean_object* v___x_3334_; 
-v___x_3334_ = l_Array_mkArray0(lean_box(0));
+v___x_3334_ = l_Array_mkArray0___redArg();
 return v___x_3334_;
 }
 }

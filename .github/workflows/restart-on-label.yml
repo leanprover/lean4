@@ -21,12 +21,21 @@ jobs:
         echo "Trying to find a run with branch $head_ref and commit $head_sha"
         run_id="$(gh run list -e pull_request -b "$head_ref" -c "$head_sha" \
           --workflow 'CI' --limit 1 --json databaseId --jq '.[0].databaseId')"
+        if [[ -z "$run_id" ]]; then
+          echo "No CI run found for $head_sha, nothing to restart"
+          exit 0
+        fi
         echo "Run id: ${run_id}"
         gh run view "$run_id"
         echo "Cancelling (just in case)"
         gh run cancel "$run_id" || echo "(failed)"
-        echo "Waiting for 30s"
-        sleep 30
+        # `gh run rerun` fails with "This workflow is already running" while the run is still live,
+        # so wait for the cancellation to land instead of guessing how long it takes
+        echo "Waiting for the run to finish"
+        for _ in $(seq 60); do
+          [[ "$(gh run view "$run_id" --json status --jq '.status')" == completed ]] && break
+          sleep 10
+        done
         gh run view "$run_id"
         echo "Rerunning"
         gh run rerun "$run_id"

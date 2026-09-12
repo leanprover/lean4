@@ -1070,7 +1070,10 @@ private def reparametrize (mvarId : MVarId) (x y : FVarId) (xInTermsOfY yInTerms
   let body ← elimMVarDeps #[mkFVar x] body
 
   /- Replace `x` with its substitute, fold, then generalize over `y`. -/
-  let transport (e : Expr) : Expr := (e.replaceFVar (mkFVar x) xInTermsOfY).replace fold
+  let transport (e : Expr) : Expr :=
+    let e := e.replace fun e =>
+      if e.cleanupAnnotations == mkFVar x then some xInTermsOfY else none
+    e.replace fold
   let newType ← mkForallFVars #[mkFVar y] (transport body)
   let lctx := toErase.foldl (init := mvarDecl.lctx) fun lctx d => lctx.erase d.fvarId
   let localInsts := mvarDecl.localInstances.filter fun inst => toErase.all (·.fvarId != inst.fvar.fvarId!)
@@ -1105,6 +1108,7 @@ private def replaceByCtor (mvarId : MVarId) (x : FVarId) (ctorVal : ConstructorV
     -- `⟨y⟩.f` may be spelled with the projection function or as `Expr.proj`.
     let projApp ← mkProjFn ctorVal us params 0 xInTermsOfY
     reparametrize mvarId x y.fvarId! xInTermsOfY yInTermsOfX fun e =>
+      let e := e.cleanupAnnotations
       if e == projApp || e == .proj ctorVal.induct 0 xInTermsOfY then some y else none
 
 /--
@@ -1144,12 +1148,10 @@ private structure IndexBijection where
   us : List Level
   params : Array Expr
 
-@[match_pattern]
 private def IndexBijection.ctor (ctorVal : ConstructorVal) (us : List Level) (params : Array Expr) :
     IndexBijection :=
   { isCtor := true, ctorVal, us, params }
 
-@[match_pattern]
 private def IndexBijection.proj (ctorVal : ConstructorVal) (us : List Level) (params : Array Expr) :
     IndexBijection :=
   { isCtor := false, ctorVal, us, params }
@@ -1166,9 +1168,18 @@ private structure BijectionTower where
   fvarId : FVarId
   bijectionsInsideOut : List IndexBijection
 
-/-- The `params` may mention variables replaced by a change of variables, see `IndexState.apply`. -/
-private def BijectionTower.transport (t : BijectionTower) (f : Expr → Expr) : BijectionTower :=
-  { t with bijectionsInsideOut := t.bijectionsInsideOut.map fun b => { b with params := b.params.map f } }
+/--
+Updates a tower to use the variables in the goal that `reparametrize` returns.
+If `x` is the tower's fvar, the new base is `r.newFVarId`.
+The substitution `r.transport` replaces `x` with a constructor or projection expression,
+which cannot serve as the base variable.
+
+`r` must have been obtained by `reparametrize` so that in all other cases the tower's fvar remains
+an fvar under `r.transport`.
+-/
+private def BijectionTower.transport (t : BijectionTower) (x : FVarId) (r : Result) : BijectionTower :=
+  { fvarId := if t.fvarId == x then r.newFVarId else (r.transport (mkFVar t.fvarId)).fvarId!
+    bijectionsInsideOut := t.bijectionsInsideOut.map fun b => { b with params := b.params.map r.transport } }
 
 private partial def bijectionTower? (e : Expr) (outerBijections : List IndexBijection := []) :
     MetaM (Option BijectionTower) := do
@@ -1228,8 +1239,9 @@ private def makeTargetsFVars (elimInfo : ElimInfo) (targets : Array Expr)
     let some tower ← mvarId.withContext (bijectionTower? target) | towers := towers.push none; continue
     -- Two targets over the same variable can never become independent variables.
     if let some j := towers.findIdx? (·.any (·.fvarId == tower.fvarId)) then
-      throwError "Invalid target: The variable `{mkFVar tower.fvarId}` occurs in more than one \
-        target (or index), consider using the `cases` tactic instead{indentExpr allTargets[j]!}{indentExpr target}"
+      mvarId.withContext do
+        throwError "Invalid target: The variable `{mkFVar tower.fvarId}` occurs in more than one \
+          target (or index), consider using the `cases` tactic instead{indentExpr allTargets[j]!}{indentExpr target}"
     towers := towers.push (some tower)
   for i in *...towers.size do
     let some tower := towers[i]! | continue
@@ -1239,7 +1251,7 @@ private def makeTargetsFVars (elimInfo : ElimInfo) (targets : Array Expr)
       let some bijection := towers[i]!.bind (·.bijectionsInsideOut[k]?) | break
       let some r ← s.mvarId.withContext (bijection.invertBijection s.mvarId x) | break
       s := s.apply r
-      towers := towers.map (·.map (·.transport r.transport))
+      towers := towers.map (·.map (·.transport x r))
       x := r.newFVarId
   replaceMainGoal [s.mvarId]
   return (s.targets, s.toTag, s.elimInfo)

@@ -1,8 +1,8 @@
 /-!
-Tests that `induction` accepts targets whose indices are structure constructor applications
-`⟨x₁, …, xₙ⟩` or projections `x.f` of variables. Such an index is turned into a fresh variable by
-the definitional change of variables `xᵢ ↦ y.fᵢ` resp. `x ↦ ⟨y₁, …, yₙ⟩`, so no equations are
-introduced and the inductive hypotheses stay clean.
+Tests that `induction` accepts indices built from variables by constructors and projections
+of one-field structures. The tactic replaces an index `⟨x⟩` with a fresh variable `y` by
+substituting `y.f` for `x`. For an index `x.f`, it substitutes `⟨y⟩` for `x`.
+These changes are definitional, so they introduce no equations into the induction hypotheses.
 -/
 
 structure Wrap where
@@ -78,6 +78,32 @@ example {a : Nat} {x : Wrap2} (h : Relation.TransGen (fun a b : Nat => a = b) a 
   | single hr => grind
   | tail h hr ih => grind
 
+-- Annotations around an index, its base variable, or an intermediate projection must not prevent folding.
+example {a b : Nat}
+    (h : Relation.TransGen (fun a b : Wrap => a = b) ⟨a⟩ (no_index (Wrap.mk b))) : a = b := by
+  induction h <;> grind
+
+example {a b : Nat}
+    (h : Relation.TransGen (fun a b : Wrap => a = b) ⟨a⟩ ⟨no_index b⟩) : a = b := by
+  induction h <;> grind
+
+example {a : Nat} {x : Wrap}
+    (h : Relation.TransGen (fun a b : Wrap => a = b) ⟨a⟩ ⟨no_index x.inner⟩) : a = x.inner := by
+  induction h <;> grind
+
+example {a : Nat} {x : Wrap}
+    (h : Relation.TransGen (fun a b : Nat => a = b) a (no_index x.inner)) : a = x.inner := by
+  induction h <;> grind
+
+example {a : Nat} {x : Wrap}
+    (h : Relation.TransGen (fun a b : Nat => a = b) a (no_index x).inner) : a = x.inner := by
+  induction h <;> grind
+
+example {a : Nat} {x : Wrap2}
+    (h : Relation.TransGen (fun a b : Nat => a = b) a
+      (no_index (no_index (no_index x).w).inner)) : a = x.w.inner := by
+  induction h <;> grind
+
 -- Only one-field structures are supported.
 /--
 error: Invalid target: Index in target's type is not a variable (consider using the `cases` tactic instead)
@@ -116,6 +142,41 @@ example {a b c : Nat} (h : Le ⟨a⟩ ⟨b⟩) (hc : c ≤ a) : c ≤ b := by
   induction h generalizing c with
   | zero => exact Nat.le_trans hc (Nat.zero_le _)
   | succ _ _ _ ih => exact Nat.le_trans hc (Nat.succ_le_succ (ih (Nat.le_refl _)))
+
+-- Dependent indices: reparametrizing `n` reintroduces `i` with a new type and free variable ID.
+-- The second reparametrization must use the reintroduced `i`.
+structure FinWrap (n : Nat) where
+  inner : Fin (n + 1)
+
+inductive IsZero : (n : Wrap) → FinWrap n.inner → Prop
+  | zero (n) : IsZero n ⟨0⟩
+  | succ {n i} : IsZero n i → IsZero ⟨n.inner + 1⟩ ⟨i.inner.castSucc⟩
+
+example (n : Nat) (i : Fin (n + 1)) (h : IsZero ⟨n⟩ ⟨i⟩) : i.val = 0 := by
+  induction h with
+  | zero => rfl
+  | succ _ ih => exact ih
+
+-- A constructor/projection chain can reintroduce the dependent base more than once.
+example (n : Wrap) (i : Fin (n.inner + 1)) (h : IsZero ⟨n.inner⟩ ⟨i⟩) : i.val = 0 := by
+  induction h with
+  | zero => rfl
+  | succ _ ih => exact ih
+
+-- Generalizing the explicit targets creates a fresh variable that also becomes an implicit index.
+-- The duplicate-target diagnostic must use its display name from the updated goal's context.
+theorem Le.ind {motive : (a b : Wrap) → Le a b → Prop}
+    (all : ∀ a b h, motive a b h) (a : Wrap) {b : Wrap} (h : Le a b) : motive a b h :=
+  all a b h
+
+/--
+error: Invalid target: The variable `x✝¹` occurs in more than one target (or index), consider using the `cases` tactic instead
+  x✝¹
+  x✝¹
+-/
+#guard_msgs in
+example (a : Nat) (h : Le ⟨a⟩ ⟨a⟩) : True := by
+  induction Wrap.mk a, (id h) using Le.ind
 
 -- Let-bound hypotheses depending on the replaced variable are reverted and reintroduced.
 example {a b} (h : Relation.TransGen (fun a b : Wrap => a = b) (.mk a) (.mk b)) : a ≤ b := by

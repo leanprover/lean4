@@ -47,6 +47,10 @@ jobs:
       # squelch error message about missing nixpkgs channel
       NIX_BUILD_SHELL: bash
       LSAN_OPTIONS: max_leaks=10
+      # Secrets cannot be referenced in a step `if`, so derive availability here.
+      # The key is absent on fork pull requests and on Dependabot runs, which do
+      # not receive Actions secrets.
+      HAS_LAKE_CACHE_KEY: ${{ secrets.LAKE_CACHE_KEY != '' }}
       # somehow MinGW clang64 (or cmake?) defaults to `g++` even though it doesn't exist
       CXX: c++
       MACOSX_DEPLOYMENT_TARGET: 11.0
@@ -212,8 +216,10 @@ jobs:
       - id: upload-lake-cache
         name: Upload Lake Cache
         # Caching on cancellation created some mysterious issues perhaps related to improper build
-        # shutdown. Also, since this needs access to secrets, it cannot be run on forks.
-        if: matrix.lake-cache && !cancelled() && (github.event_name != 'pull_request' || github.event.pull_request.head.repo.full_name == github.repository)
+        # shutdown. The upload also needs `LAKE_CACHE_KEY`, so require the key rather than
+        # inferring its presence, and keep the same-repository check so that a configuration
+        # which did expose secrets to forks would not turn this into an upload path for them.
+        if: matrix.lake-cache && !cancelled() && env.HAS_LAKE_CACHE_KEY == 'true' && (github.event.pull_request == null || github.event.pull_request.head.repo.full_name == github.repository)
         run: |
           curl --version
           cd src

@@ -283,6 +283,8 @@ extern "C" LEAN_EXPORT lean_obj_res lean_uv_udp_recv(b_obj_arg socket, uint64_t 
         buf->base = (char*)lean_sarray_cptr(udp_socket->m_byte_array);
         buf->len = lean_sarray_capacity(udp_socket->m_byte_array);
     }, [](uv_udp_t *handle, ssize_t nread, const uv_buf_t *buf, const struct sockaddr *addr, unsigned flags) {
+        if (nread == 0 && addr == NULL) return;
+
         uv_udp_recv_stop(handle);
 
         lean_uv_udp_socket_object *udp_socket = lean_to_uv_udp_socket((lean_object*)handle->data);
@@ -292,7 +294,10 @@ extern "C" LEAN_EXPORT lean_obj_res lean_uv_udp_recv(b_obj_arg socket, uint64_t 
         udp_socket->m_promise_read = nullptr;
         udp_socket->m_byte_array = nullptr;
 
-        if (nread >= 0) {
+        if (nread >= 0 && (flags & UV_UDP_PARTIAL) != 0) {
+            lean_dec(byte_array);
+            lean_promise_resolve(mk_except_err(lean_decode_uv_error(UV_EMSGSIZE, nullptr)), promise);
+        } else if (nread >= 0) {
             lean_sarray_set_size(byte_array, nread);
 
             lean_object* addr_obj;
@@ -365,6 +370,10 @@ extern "C" LEAN_EXPORT lean_obj_res lean_uv_udp_wait_readable(b_obj_arg socket) 
         buf->base = NULL;
         buf->len = 0;
     }, [](uv_udp_t* handle, ssize_t nread, const uv_buf_t *buf, const struct sockaddr *addr, unsigned flags) {
+        // `nread == 0` without an address is libuv's equivalent of `EAGAIN`: the socket is not
+        // actually readable, so keep waiting rather than resolving the promise.
+        if (nread == 0 && addr == NULL) return;
+
         uv_udp_recv_stop(handle);
 
         lean_uv_udp_socket_object *udp_socket = lean_to_uv_udp_socket((lean_object*)handle->data);
@@ -372,13 +381,13 @@ extern "C" LEAN_EXPORT lean_obj_res lean_uv_udp_wait_readable(b_obj_arg socket) 
 
         udp_socket->m_promise_read = nullptr;
 
-        if (nread == UV_ENOBUFS) {
-            lean_promise_resolve(mk_except_ok(lean_box(0)), promise);
-        } else if (nread < 0) {
+        if (nread < 0 && nread != UV_ENOBUFS) {
             lean_promise_resolve(mk_except_err(lean_decode_uv_error(nread, nullptr)), promise);
         } else {
-            // This branch should be dead, we cannot receive a value >= 0 according to docs.
-            lean_always_assert(false);
+            // `UV_ENOBUFS` is the documented answer to the zero-length `alloc_cb` above. A
+            // non-negative `nread` is an empty datagram, which equally means the socket woke up
+            // readable, so report that rather than aborting the process.
+            lean_promise_resolve(mk_except_ok(lean_box(0)), promise);
         }
 
         lean_dec(promise);

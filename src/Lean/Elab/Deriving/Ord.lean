@@ -200,7 +200,7 @@ def mkOrdInstanceHandler (declNames : Array Name) : CommandElabM Bool := do
     return false
 
 builtin_initialize
-  registerDerivingHandler `Ord mkOrdInstanceHandler
+  --registerDerivingHandler `Ord mkOrdInstanceHandler
   registerTraceClass `Elab.Deriving.ord
 
 end Lean.Elab.Deriving.Ord

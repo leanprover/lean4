@@ -1835,6 +1835,23 @@ def int? (e : Expr) : Option Int :=
 def containsFVar (e : Expr) (fvarId : FVarId) : Bool :=
   e.hasAnyFVar (· == fvarId)
 
+@[inline] def hasAnyMVar (e : Expr) (p : MVarId → Bool) : Bool :=
+  let rec @[specialize] visit (e : Expr) := if !e.hasExprMVar then false else
+    match e with
+    | Expr.forallE _ d b _   => visit d || visit b
+    | Expr.lam _ d b _       => visit d || visit b
+    | Expr.mdata _ e         => visit e
+    | Expr.letE _ t v b _    => visit t || visit v || visit b
+    | Expr.app f a           => visit f || visit a
+    | Expr.proj _ _ e        => visit e
+    | Expr.mvar mvarId       => p mvarId
+    | _                      => false
+  visit e
+
+/-- Return `true` if `e` contains the given free variable. -/
+def containsMVar (e : Expr) (mvarId : MVarId) : Bool :=
+  e.hasAnyMVar (· == mvarId)
+
 /-!
 The update functions try to avoid allocating new values using pointer equality.
 Note that if the `update*!` functions are used under a match-expression,

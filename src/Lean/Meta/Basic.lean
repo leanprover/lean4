@@ -1975,7 +1975,7 @@ def withLocalInstancesImp (decls : List LocalDecl) (k : MetaM α) : MetaM α := 
     unless decl.isImplementationDetail do
       if let some className ← isClass? decl.type then
         -- Ensure we don't add the same local instance multiple times.
-        unless localInsts.any fun localInst => localInst.fvar.fvarId! == decl.fvarId do
+        unless localInsts.any fun localInst => localInst.fvar.isFVarOf decl.fvarId do
           localInsts := localInsts.push { className, fvar := decl.toExpr }
   if localInsts.size == size then
     k
@@ -2059,7 +2059,7 @@ def withErasedFVars [MonadLCtx n] [MonadLiftT MetaM n] (fvarIds : Array FVarId) 
   let lctx ← getLCtx
   let localInsts ← getLocalInstances
   let lctx' := fvarIds.foldl (·.erase ·) lctx
-  let localInsts' := localInsts.filter (!fvarIds.contains ·.fvar.fvarId!)
+  let localInsts' := localInsts.eraseAll fvarIds.contains
   withLCtx lctx' localInsts' k
 
 /--

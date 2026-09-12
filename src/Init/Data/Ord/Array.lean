@@ -16,10 +16,10 @@ public section
 
 namespace Array
 
-@[specialize]
+@[inline]
 protected def compareLex {α} (cmp : α → α → Ordering) (a₁ a₂ : Array α) : Ordering :=
   go 0
-where go i :=
+where @[specialize] go i :=
   if h₁ : a₁.size <= i then
     if a₂.size <= i then .eq else .lt
   else

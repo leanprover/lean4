@@ -14,7 +14,7 @@ import Init.Data.String.Search
 public import Init.Data.Ord.Basic
 public import Init.Data.String.Basic
 import Init.Data.List.MapIdx
-import Init.Data.Ord.UInt
+public import Init.Data.Ord.UInt
 import Init.Data.ToString.Macro
 import Init.Data.List.Impl
 import Init.Data.Int.Repr

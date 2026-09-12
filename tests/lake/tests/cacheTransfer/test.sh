@@ -140,6 +140,8 @@ LAKE_CACHE_REVISION_ENDPOINT=bogus test_err 'both environment variables must be 
 with_endpoints test_err 'the `--scope` or `--repo` option must be set' cache put bogus.jsonl
 test_err 'the `--rev` option is not supported for `cache put`' \
   cache put bogus.jsonl --scope='bogus' --rev=bogus
+test_err 'unknown package `bogus`' \
+  cache put bogus.jsonl --scope='bogus' --package='bogus'
 test_err 'the `--service` option must be set' \
   cache put bogus.jsonl --scope='bogus'
 LAKE_CACHE_KEY= test_err 'the `--service` option must be set' \
@@ -366,12 +368,19 @@ match_text "POST /ok/api/v1/repositories/leanprover/test/artifacts" "$SERVER_LOG
 test_artifacts "$NUM_ARTS"
 test_run build Test --no-build
 
-# Verify `--package` fetches a single dependency through Reservoir,
-# using that dependency's scope and revision
+# Verify `-o` with `--package` tracks the outputs of the selected dependency
+# from the root workspace, matching those of a build of the dependency alone
 test_cmd rm -rf .lake/build "$CACHE_DIR"
 test_run -f dep.toml update
-test_run -d dep build Dep -o dep-outputs.jsonl
-test_run -d dep cache put dep-outputs.jsonl --repo=leanprover/dep
+test_run -f dep.toml build @dep/Dep -o dep-outputs.jsonl --package=dep
+test_run -d dep build Dep -o dep-only-outputs.jsonl
+test_cmd cmp -s dep-outputs.jsonl dep-only-outputs.jsonl
+
+# Verify `cache put` with `--package` uploads the outputs for the dependency
+# and `cache get` with `--package` fetches them back through Reservoir,
+# using that dependency's scope and revision
+test_run -f dep.toml cache put dep-outputs.jsonl --package=dep --repo=leanprover/dep
+test_exp -d "$STORE_DIR/r0/leanprover/dep"
 test_cmd rm -rf dep/.lake/build .lake/build "$CACHE_DIR"
 : > "$SERVER_LOG"
 # The other dependencies are left alone, so none is reported as skipped
@@ -393,7 +402,9 @@ test_run -f dep.toml build @dep/Dep --no-build
 
 # Verify `--package` also selects the dependency for a custom endpoint scope,
 # where `--rev` resolves within that dependency's repository
-test_run -d dep cache put dep-outputs.jsonl --scope=dep
+test_run -f dep.toml cache put dep-outputs.jsonl --package=dep --scope=dep
+test_exp -f "$STORE_DIR/r0/dep/$REV.jsonl"
+test_cmd cmp -s dep-outputs.jsonl "$STORE_DIR/r0/dep/$REV.jsonl"
 test_cmd rm -rf dep/.lake/build .lake/build "$CACHE_DIR"
 test_run -f dep.toml cache get --package=dep --scope=dep --service=ok --rev=HEAD
 test_exp -d "$CACHE_DIR/revisions/dep"

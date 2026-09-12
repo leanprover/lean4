@@ -1001,7 +1001,7 @@ def evalInductionCore (stx : Syntax) (elimInfo : ElimInfo) (targets : Array Expr
 
 namespace Induction.Reparametrize
 
-public structure Result where
+private structure Result where
   /-- The reparametrized goal. -/
   mvarId : MVarId
   /-- The `y` variable in the context of the reparametrized goal. -/
@@ -1028,7 +1028,7 @@ Returns `none` if the result is not type correct, or if a declaration that would
 context (`x` itself or a local declaration depending on it) is still needed: by an auxiliary
 declaration, by `xInTermsOfY`, or by the type of `y`.
 -/
-public def reparametrize (mvarId : MVarId) (x y : FVarId) (xInTermsOfY yInTermsOfX : Expr)
+private def reparametrize (mvarId : MVarId) (x y : FVarId) (xInTermsOfY yInTermsOfX : Expr)
     (fold : Expr → Option Expr := fun _ => none) : MetaM (Option Result) := do
   mvarId.checkNotAssigned `reparametrize
   let mvarDecl ← mvarId.getDecl

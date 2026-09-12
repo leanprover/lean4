@@ -1,6 +1,8 @@
-import Lean
+module
+public meta import Lean
+import all Lean.Elab.Tactic.Induction
 /-!
-Tests that `MVarId.reparametrize` rejects a result that refers to erased declarations. Only `fold` can
+Tests that `Induction.Reparametrize.reparametrize` rejects a result that refers to erased declarations. Only `fold` can
 smuggle such a reference past the dependency guards, so the test uses a fold that reintroduces the
 replaced variable itself. The result is type correct in the old context but not in the new one.
 -/
@@ -17,7 +19,7 @@ elab "bad_fold" : tactic => withMainContext do
   let r? ← withLocalDeclD `y (mkConst ``Wrap) fun y => do
     let yInner := mkApp (mkConst ``Wrap.inner) y
     let fold e := if e == mkApp P.toExpr yInner then some (mkApp P.toExpr a.toExpr) else none
-    Reparametrize.reparametrize (← getMainGoal) a.fvarId y.fvarId! yInner
+    Induction.Reparametrize.reparametrize (← getMainGoal) a.fvarId y.fvarId! yInner
       (mkApp (mkConst ``Wrap.mk) a.toExpr) fold
   match r? with
   | none => logInfo "rejected"

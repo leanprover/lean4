@@ -977,7 +977,7 @@ See the Chapter "Quantifiers and Equality" in the manual
 "Theorem Proving in Lean" for additional information.
 -/
 @[builtin_term_parser] def subst := trailing_parser:75
-  " ▸ " >> sepBy1 (termParser 75) " ▸ "
+  " ▸ " >> termParser 75
 
 def bracketedBinderF := bracketedBinder  -- no default arg
 instance : Coe (TSyntax ``bracketedBinderF) (TSyntax ``bracketedBinder) where coe s := ⟨s⟩

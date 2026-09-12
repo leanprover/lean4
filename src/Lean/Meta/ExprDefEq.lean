@@ -205,6 +205,26 @@ where
         return false
 
 /--
+Virtual analog of `isDefEqEtaStruct`, for types declared by the `newtype` command
+(`VirtualStructureInfo`). Recognizes `b := ctorName arg`, where `ctorName` is a `newtype`-generated
+constructor, and — provided `a` is not itself such a constructor application, in which case
+`isDefEqArgs` handles the comparison more directly — reduces `a =?= b` to `projName a =?= arg`.
+Combined with `reduceVirtualProj?`, this gives `newtype`-declared types the same iota/eta behavior
+as a real one-field structure, even though `N`, `N.mk` and `N.toNat` never unfold.
+-/
+private def isDefEqVirtualEtaStruct (a b : Expr) : MetaM Bool := do
+  let .const ctorName us := b.getAppFn | return false
+  let some info ← getVirtualCtorInfo? ctorName | return false
+  unless b.getAppNumArgs == info.numParams + 1 do return false
+  if let .const ctorName' _ := a.getAppFn then
+    if ctorName' == info.ctorName then return false
+  if (← isDefEq (← inferType a) (← inferType b)) then
+    let params := b.getAppArgs.extract 0 info.numParams
+    checkpointDefEq <| isDefEq (mkApp (mkAppN (mkConst info.projName us) params) a) b.appArg!
+  else
+    return false
+
+/--
   Try to solve `a := (fun x => t) =?= b` by eta-expanding `b`,
   resulting in `t =?= b x` (with a fresh free variable `x`).
 
@@ -2407,10 +2427,28 @@ private def isDefEqAppFallback (t : Expr) (s : Expr) : MetaM Bool := do
       Meta.throwIsDefEqStuck
     return false
 
+/--
+Virtual analog of `isDefEqProj.isDefEqSingleton` for `newtype`-generated projectors: solves
+`projName params (?m ...) =?= v` as `?m ... =?= ctorName params v`.
+-/
+private def isDefEqVirtualProj (t v : Expr) : MetaM Bool := do
+  let .const projName us := t.getAppFn | return false
+  let some info ← getVirtualProjInfo? projName | return false
+  unless t.getAppNumArgs == info.numParams + 1 do return false
+  let s ← whnf (t.getArg! info.numParams)
+  let sFn := s.getAppFn
+  unless sFn.isMVar do return false
+  if (← isAssignable sFn) then
+    let params := t.getAppArgs.extract 0 info.numParams
+    processAssignment' s (mkApp (mkAppN (mkConst info.ctorName us) params) v)
+  else
+    return false
+
 private def isExprDefEqExpensive (t : Expr) (s : Expr) : MetaM Bool := do
   whenUndefDo (isDefEqEta t s) do
   whenUndefDo (isDefEqEta s t) do
   if (← isDefEqProj t s) then return true
+  if (← (isDefEqVirtualProj t s <||> isDefEqVirtualProj s t)) then return true
   let t' ← whnfCore t
   let s' ← whnfCore s
   if t != t' || s != s' then
@@ -2424,6 +2462,8 @@ private def isExprDefEqExpensive (t : Expr) (s : Expr) : MetaM Bool := do
     -- as soon as one of the sides is a constructor application,
     -- which is very costly because it requires us to unify the fields.
     if (← (isDefEqEtaStruct t s <||> isDefEqEtaStruct s t)) then
+      return true
+    if (← (isDefEqVirtualEtaStruct t s <||> isDefEqVirtualEtaStruct s t)) then
       return true
     if t.isConst && s.isConst then
       if t.constName! == s.constName! then isListLevelDefEqAux t.constLevels! s.constLevels! else return false

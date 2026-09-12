@@ -316,6 +316,32 @@ macro_rules
     `($mods:declModifiers class $id $params* $[: $ty:term]? extends $[$parents:term],*
       attribute [instance] $ctor)
 
+/--
+`newtype N params := ty with proj` declares a type `N` definitionally equal to `ty`, together with a
+constructor `N.mk` and a projector `N.proj`, and marks all three `@[irreducible]`. For example,
+```
+newtype OrderDual (α : Type u) := α with ofDual
+```
+produces
+```
+@[irreducible] def OrderDual (α : Type u) := α
+@[irreducible] def OrderDual.mk {α : Type u} (ofDual : α) : OrderDual α := ofDual
+@[irreducible] def OrderDual.ofDual {α : Type u} (self : OrderDual α) : α := self
+```
+Modifiers, parameters, universe parameters, section variables and auto-bound implicits are handled
+exactly as for `def`; as for `structure`, explicit parameters become implicit in the constructor
+and projector.
+
+This is the "irreducible type alias" pattern used to avoid defeq abuse while keeping a
+zero-overhead representation identical to `ty` (e.g. to cast `List ty` to `List N`). Unlike a
+hand-written version of this pattern, `newtype` also registers `N.mk`/`N.proj` as a virtual
+constructor/projector pair, so that `N.proj (N.mk a)` reduces to `a` and `N.mk (N.proj x)` is
+definitionally `x` (see `Lean.Meta.reduceVirtualProj?`), even though `N`, `N.mk` and `N.proj` stay
+irreducible otherwise. Use `unsealing_newtype N => ...` to locally lift the irreducibility.
+-/
+syntax (name := Lean.Parser.Command.newtypeCmd)
+  declModifiers "newtype " declId bracketedBinder* " := " term " with " ident : command
+
 namespace Lean
 syntax cdotTk := unicode("· ", ". ")
 /-- `· tac` focuses on the main goal and tries to solve it using `tac`, or else fails. -/

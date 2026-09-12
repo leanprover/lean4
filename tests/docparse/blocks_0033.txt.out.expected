@@ -1,11 +1,16 @@
+Input: "> hey\n"
 Success! Final stack:
-  [(Lean.Doc.Syntax.blockquote
+  [(Lean.Doc.Parser.Block.blockquote
     ">"
-    [(Lean.Doc.Syntax.para
-      "para{"
-      [(Lean.Doc.Syntax.text (str "\"hey\""))
-       (Lean.Doc.Syntax.linebreak
-        "line!"
-        (str "\"\\n\""))]
-      "}")])]
+    [(Lean.Doc.Parser.Block.para
+      [(Lean.Doc.Parser.Inline.text
+        (Lean.Doc.Parser.versoText "hey"))
+       (Lean.Doc.Parser.Inline.linebreak
+        "\n")])])]
 All input consumed.
+Round-trip OK
+Decoded views:
+  blockquote (marker := ">")
+    para
+      text (content := "hey")
+      linebreak (newline := "\n")

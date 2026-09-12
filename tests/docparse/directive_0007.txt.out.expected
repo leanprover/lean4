@@ -1,0 +1,27 @@
+Input: "::::outer\nA\n\n:::inner\nB\n:::\n::::\n"
+Success! Final stack:
+  (Lean.Doc.Parser.Block.directive
+   (Lean.Doc.Parser.directiveDelimiter "::::")
+   `outer
+   []
+   [(Lean.Doc.Parser.Block.para
+     [(Lean.Doc.Parser.Inline.text
+       (Lean.Doc.Parser.versoText "A"))])
+    (Lean.Doc.Parser.Block.directive
+     (Lean.Doc.Parser.directiveDelimiter ":::")
+     `inner
+     []
+     [(Lean.Doc.Parser.Block.para
+       [(Lean.Doc.Parser.Inline.text
+         (Lean.Doc.Parser.versoText "B"))])]
+     (Lean.Doc.Parser.directiveDelimiter ":::"))]
+   (Lean.Doc.Parser.directiveDelimiter "::::"))
+All input consumed.
+Round-trip OK
+Decoded views:
+  directive (opener := "::::") (name := outer) (args := []) (closer := "::::")
+    para
+      text (content := "A")
+    directive (opener := ":::") (name := inner) (args := []) (closer := ":::")
+      para
+        text (content := "B")

@@ -1,0 +1,23 @@
+Input: "- :::foo\n  body\n"
+Failure: unterminated directive opened on line 1; expected ':::'
+ --> 1:2-1:5
+  |
+1 | - :::foo
+  |   ^^^
+  = consumed input prefix: 16 bytes
+Final stack:
+  [(Lean.Doc.Parser.Block.ul
+    [(Lean.Doc.Parser.ListItem.item
+      (Lean.Doc.Parser.listMarker "-")
+      [(Lean.Doc.Parser.Block.directive
+        (Lean.Doc.Parser.directiveDelimiter ":::")
+        `foo
+        []
+        [(Lean.Doc.Parser.Block.para
+          [(Lean.Doc.Parser.Inline.text
+            (Lean.Doc.Parser.versoText "body"))
+           (Lean.Doc.Parser.Inline.linebreak
+            "\n")])]
+        <missing>)])])]
+All input consumed.
+Round-trip not reproduced, as the parse reported errors: leaf without original source info: <missing>

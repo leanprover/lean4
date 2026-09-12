@@ -1,0 +1,16 @@
+Input: "```\ncode\n```x\n"
+Failure: unexpected 'x'; expected newline
+ --> 4:0
+  |
+4 | 
+  | ^
+  = consumed input prefix: 14 bytes
+Final stack:
+  [(Lean.Doc.Parser.Block.codeblock
+    (Lean.Doc.Parser.codeBlockFence "```")
+    []
+    (Lean.Doc.Parser.versoCodeBlock
+     [(Lean.Doc.Parser.versoCodeLine "code\n")])
+    (Lean.Doc.Parser.codeBlockFence "```"))]
+All input consumed.
+Round-trip not reproduced, as the parse reported errors: input from position 12 on is not covered by any token's source info

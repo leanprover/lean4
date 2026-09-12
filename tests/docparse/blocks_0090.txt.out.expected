@@ -1,0 +1,46 @@
+Input: "1. x\n2. y\n3) z\n4. a\n"
+Success! Final stack:
+  [(Lean.Doc.Parser.Block.ol
+    [(Lean.Doc.Parser.ListItem.item
+      (Lean.Doc.Parser.listMarker "1.")
+      [(Lean.Doc.Parser.Block.para
+        [(Lean.Doc.Parser.Inline.text
+          (Lean.Doc.Parser.versoText "x"))])])
+     (Lean.Doc.Parser.ListItem.item
+      (Lean.Doc.Parser.listMarker "2.")
+      [(Lean.Doc.Parser.Block.para
+        [(Lean.Doc.Parser.Inline.text
+          (Lean.Doc.Parser.versoText "y"))])])])
+   (Lean.Doc.Parser.Block.ol
+    [(Lean.Doc.Parser.ListItem.item
+      (Lean.Doc.Parser.listMarker "3)")
+      [(Lean.Doc.Parser.Block.para
+        [(Lean.Doc.Parser.Inline.text
+          (Lean.Doc.Parser.versoText "z"))])])])
+   (Lean.Doc.Parser.Block.ol
+    [(Lean.Doc.Parser.ListItem.item
+      (Lean.Doc.Parser.listMarker "4.")
+      [(Lean.Doc.Parser.Block.para
+        [(Lean.Doc.Parser.Inline.text
+          (Lean.Doc.Parser.versoText "a"))
+         (Lean.Doc.Parser.Inline.linebreak
+          "\n")])])])]
+All input consumed.
+Round-trip OK
+Decoded views:
+  ol (start := 1)
+    item (marker := "1.")
+      para
+        text (content := "x")
+    item (marker := "2.")
+      para
+        text (content := "y")
+  ol (start := 3)
+    item (marker := "3)")
+      para
+        text (content := "z")
+  ol (start := 4)
+    item (marker := "4.")
+      para
+        text (content := "a")
+        linebreak (newline := "\n")

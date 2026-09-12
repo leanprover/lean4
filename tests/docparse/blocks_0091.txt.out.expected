@@ -1,0 +1,38 @@
+Input: "* x\n1. y\n* z\n"
+Success! Final stack:
+  [(Lean.Doc.Parser.Block.ul
+    [(Lean.Doc.Parser.ListItem.item
+      (Lean.Doc.Parser.listMarker "*")
+      [(Lean.Doc.Parser.Block.para
+        [(Lean.Doc.Parser.Inline.text
+          (Lean.Doc.Parser.versoText "x"))])])])
+   (Lean.Doc.Parser.Block.ol
+    [(Lean.Doc.Parser.ListItem.item
+      (Lean.Doc.Parser.listMarker "1.")
+      [(Lean.Doc.Parser.Block.para
+        [(Lean.Doc.Parser.Inline.text
+          (Lean.Doc.Parser.versoText "y"))])])])
+   (Lean.Doc.Parser.Block.ul
+    [(Lean.Doc.Parser.ListItem.item
+      (Lean.Doc.Parser.listMarker "*")
+      [(Lean.Doc.Parser.Block.para
+        [(Lean.Doc.Parser.Inline.text
+          (Lean.Doc.Parser.versoText "z"))
+         (Lean.Doc.Parser.Inline.linebreak
+          "\n")])])])]
+All input consumed.
+Round-trip OK
+Decoded views:
+  ul
+    item (marker := "*")
+      para
+        text (content := "x")
+  ol (start := 1)
+    item (marker := "1.")
+      para
+        text (content := "y")
+  ul
+    item (marker := "*")
+      para
+        text (content := "z")
+        linebreak (newline := "\n")

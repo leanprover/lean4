@@ -1,15 +1,20 @@
+Input: "*\n abc\n\ndef"
 Success! Final stack:
-  [(Lean.Doc.Syntax.ul
-    "ul{"
-    [(Lean.Doc.Syntax.li
-      "*"
-      [(Lean.Doc.Syntax.para
-        "para{"
-        [(Lean.Doc.Syntax.text (str "\"abc\""))]
-        "}")])]
-    "}")
-   (Lean.Doc.Syntax.para
-    "para{"
-    [(Lean.Doc.Syntax.text (str "\"def\""))]
-    "}")]
+  [(Lean.Doc.Parser.Block.ul
+    [(Lean.Doc.Parser.ListItem.item
+      (Lean.Doc.Parser.listMarker "*")
+      [(Lean.Doc.Parser.Block.para
+        [(Lean.Doc.Parser.Inline.text
+          (Lean.Doc.Parser.versoText "abc"))])])])
+   (Lean.Doc.Parser.Block.para
+    [(Lean.Doc.Parser.Inline.text
+      (Lean.Doc.Parser.versoText "def"))])]
 All input consumed.
+Round-trip OK
+Decoded views:
+  ul
+    item (marker := "*")
+      para
+        text (content := "abc")
+  para
+    text (content := "def")

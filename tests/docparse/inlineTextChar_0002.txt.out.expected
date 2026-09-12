@@ -1,3 +1,5 @@
+Input: "a"
 Success! Final stack:
  empty
 All input consumed.
+Round-trip not tested: this parser classifies input rather than producing document syntax

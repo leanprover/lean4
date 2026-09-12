@@ -18,37 +18,79 @@ namespace Parser
 
 namespace Command
 
+/--
+Parses the opening delimiter `sym` of a documentation comment (`/-- ... -/` or `/-! ... -/`).
+
+Lean's `whitespace` parser considers comments to be whitespace, but the text of a documentation comment
+may begin with a comment marker, so the delimiter's trailing whitespace is only the substring that
+satisfies `Char.isWhitespace`.
+-/
+def docCommentOpen (sym : String) : Parser where
+  info := symbolInfo sym
+  fn c s :=
+    let startPos := s.pos
+    let s := symbolFn sym c s
+    if s.hasError then s
+    else
+      -- The whitespace here is a prefix of what the token's own scan accepted, so a tab or an
+      -- isolated carriage return has already been reported.
+      let stopPos := startPos + sym
+      let s := takeWhileFn (·.isWhitespace) c (s.setPos stopPos)
+      let info :=
+        SourceInfo.original
+          (c.mkEmptySubstringAt startPos) startPos
+          (c.substring (startPos := stopPos) (stopPos := s.pos)) stopPos
+      s.popSyntax.pushSyntax (.atom info sym)
+
+@[combinator_formatter docCommentOpen, expose]
+def docCommentOpen.formatter (sym : String) : PrettyPrinter.Formatter :=
+  PrettyPrinter.Formatter.symbolNoAntiquot.formatter sym
+@[combinator_parenthesizer docCommentOpen, expose]
+def docCommentOpen.parenthesizer (sym : String) : PrettyPrinter.Parenthesizer :=
+  PrettyPrinter.Parenthesizer.symbolNoAntiquot.parenthesizer sym
+
 open Lean.Parser in
 def versoCommentBodyFn : ParserFn := fun c s =>
-  let startPos := s.pos
-  let s := finishCommentBlock (pushMissingOnError := true) 1 c s
-  if !s.hasError then
-    let iniSz := s.stackSize
-    let commentEndPos := s.pos
-    let endPos := c.prev (c.prev commentEndPos)
-    let endPos := if endPos ≤ c.inputString.rawEndPos then endPos else c.inputString.rawEndPos
-    let c' := c.setEndPos endPos (by unfold endPos; split <;> simp [*])
-    let blockCtxt := Doc.Parser.BlockCtxt.forDocString c.fileMap startPos endPos
-    let s := Doc.Parser.document blockCtxt c' (s.setPos startPos)
-    let s :=
-      if !s.allErrors.isEmpty || !c'.atEnd s.pos then
-        -- Docstring parsing must always succeed, or else later error messages are atrocious! Syntax
-        -- errors in the docs should not cause verso-docstring-expecting commands to be removed from
-        -- consideration. So, at this stage, we push an indication of the failure, and then later,
-        -- when adding docstrings, the failing case is re-parsed and the errors are reported then.
-        -- We don't just parse them later because then the syntax of the docs doesn't end up as part
-        -- of the syntax of the actual program.
-        let s := s.restore iniSz endPos
-        let leading := c.mkEmptySubstringAt startPos
-        let trailing := c.mkEmptySubstringAt endPos
-        let s :=
-          s.pushSyntax <|
-          .atom (.original leading startPos trailing endPos) (String.Pos.Raw.extract c.inputString startPos endPos)
-        let s := s.mkNode `Lean.Doc.Syntax.parseFailure iniSz
-        {s with recoveredErrors := #[]}
-      else s
-    rawFn (Doc.Parser.ignoreFn <| chFn '-' >> chFn '/') (trailingWs := true) c s
-  else s
+  -- The opening `/--` or `/-!` is the token on the stack, and its trailing whitespace reaches the
+  -- content where this parser starts.
+  let openPos? := if s.stxStack.isEmpty then none else s.stxStack.back.getPos?
+  match openPos? with
+  | none => s.mkError "internal error: expected the documentation comment's opening delimiter"
+  | some openPos =>
+    let startPos := s.pos
+    let s := finishCommentBlock (pushMissingOnError := true) 1 c s
+    if !s.hasError then
+      let iniSz := s.stackSize
+      let commentEndPos := s.pos
+      let endPos := c.prev (c.prev commentEndPos)
+      let endPos := if endPos ≤ c.inputString.rawEndPos then endPos else c.inputString.rawEndPos
+      let c' := c.setEndPos endPos (by unfold endPos; split <;> simp [*])
+      let blockCtxt := Doc.Parser.BlockCtxt.forDocString c.fileMap openPos startPos endPos
+      -- The docstring parses with no recovered errors. This makes it easy to know that the recovered
+      -- errors in the end are due to the docstring.
+      let iniErrs := s.recoveredErrors
+      let s := Doc.Parser.documentFn blockCtxt c' ({ s with recoveredErrors := #[] }.setPos startPos)
+      let s :=
+        if s.errorMsg.isSome || !s.recoveredErrors.isEmpty || !c'.atEnd s.pos then
+          -- Docstring parsing must always succeed, or else later error messages are atrocious! Syntax
+          -- errors in the docs should not cause verso-docstring-expecting commands to be removed from
+          -- consideration. So, at this stage, we push an indication of the failure, and then later,
+          -- when adding docstrings, the failing case is re-parsed and the errors are reported then.
+          -- We don't just parse them later because then the syntax of the docs doesn't end up as part
+          -- of the syntax of the actual program.
+          let s := s.restore iniSz endPos
+          let leading := c.mkEmptySubstringAt startPos
+          let trailing := c.mkEmptySubstringAt endPos
+          let s :=
+            s.pushSyntax <|
+            .atom (.original leading startPos trailing endPos) (String.Pos.Raw.extract c.inputString startPos endPos)
+          s.mkNode `Lean.Doc.Syntax.parseFailure iniSz
+        else s
+      -- A docstring's own errors are reported when it is re-parsed, so we only restore the initial
+      -- errors.
+      let s := { s with recoveredErrors := iniErrs }
+      rawFn (Doc.Parser.ignoreFn <| chFn '-' >> chFn '/') (trailingWs := true) c s
+    else s
 
 def versoCommentBody : Parser where
   fn := fun c s => nodeFn `Lean.Parser.Command.versoCommentBody versoCommentBodyFn c s
@@ -64,7 +106,11 @@ def versoCommentBody.formatter : PrettyPrinter.Formatter := do
   visitArgs $ do
     visitAtom `«-/»
     goLeft
-    Lean.Doc.Parser.document.formatter
+    -- Markup that did not parse is kept as the text that was written.
+    if (← getCur).isOfKind `Lean.Doc.Syntax.parseFailure then
+      visitArgs (visitAtom .anonymous)
+    else
+      formatterForKind (← getCur).getKind
 
 def commentBody : Parser :=
 { fn := rawFn (finishCommentBlock (pushMissingOnError := true) 1) (trailingWs := true) }
@@ -89,7 +135,8 @@ A Verso comment node contains the `/--` atom, the document's syntax tree, and a 
 -- @[builtin_doc] -- FIXME: suppress the hover
 @[run_builtin_parser_attribute_hooks]
 def docComment := leading_parser
-  ppDedent $ "/--" >> ppSpace >> Doc.Parser.ifVerso versoCommentBody commentBody >> ppLine
+  ppDedent $ docCommentOpen "/--" >> ppSpace >> Doc.Parser.ifVerso versoCommentBody commentBody >>
+    ppLine
 
 @[inherit_doc docComment, run_builtin_parser_attribute_hooks]
 def plainDocComment : Parser := Doc.Parser.withoutVersoSyntax docComment

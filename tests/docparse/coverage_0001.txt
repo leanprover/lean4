@@ -1,0 +1,1 @@
+This file triggers the parser coverage check; its contents are not parsed.

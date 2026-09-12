@@ -1,0 +1,49 @@
+Input: "0_0 - \\frac{0}{1}\n"
+4 failures:
+Failure: expected identifier
+ --> 1:12-1:13
+  |
+1 | 0_0 - \frac{0}{1}
+  |             ^
+  = consumed input prefix: 12 bytes
+
+Failure: unexpected newline; expected '![', '$$', '$', '*', '[', '[^', '_', '`' or '{'
+ --> 1:14-1:15
+  |
+1 | 0_0 - \frac{0}{1}
+  |               ^
+  = consumed input prefix: 14 bytes
+
+Failure: expected identifier
+ --> 1:15-1:16
+  |
+1 | 0_0 - \frac{0}{1}
+  |                ^
+  = consumed input prefix: 15 bytes
+
+Failure: unexpected newline; expected '![', '$$', '$', '*', '[', '[^', '_', '`' or '{'
+ --> 1:17
+  |
+1 | 0_0 - \frac{0}{1}
+  |                  ^
+  = consumed input prefix: 17 bytes
+
+Final stack:
+  [(Lean.Doc.Parser.Block.para
+    [(Lean.Doc.Parser.Inline.text
+      (Lean.Doc.Parser.versoText "0"))
+     (Lean.Doc.Parser.Inline.emph
+      (Lean.Doc.Parser.emphDelimiter "_")
+      [(Lean.Doc.Parser.Inline.text
+        (Lean.Doc.Parser.versoText "0 - \\frac"))
+       (Lean.Doc.Parser.Inline.role
+        "{"
+        <missing>
+        "}")])
+     (Lean.Doc.Parser.Inline.role
+      "{"
+      <missing>
+      "}")])]
+Remaining:
+"\n"
+Round-trip not reproduced, as the parse reported errors: leaf without original source info: <missing>

@@ -1,8 +1,17 @@
-Failure @19 (⟨1, 19⟩): expected link target '(url)' or '[ref]' (use '\[' for a literal '[')
+Input: "![alt text is good]](logo.png)"
+Failure: expected link target '(url)' or '[ref]' (use '\[' for a literal '[')
+ --> 1:19-1:20
+  |
+1 | ![alt text is good]](logo.png)
+  |                    ^
+  = consumed input prefix: 19 bytes
 Final stack:
-  (Lean.Doc.Syntax.image
+  (Lean.Doc.Parser.Inline.image
    "!["
-   (str "\"alt text is good\"")
+   (Lean.Doc.Parser.versoImageAlt
+    "alt text is good")
    "]"
-   (Lean.Doc.Syntax.url <missing>))
-Remaining: "](logo.png)"
+   <missing>)
+Remaining:
+"](logo.png)"
+Round-trip not reproduced, as the parse reported errors: leaf without original source info: <missing>

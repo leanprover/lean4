@@ -27,11 +27,12 @@ def checkGreaterThanFive : DeferredCheckHandler := fun d => do
 @[doc_role]
 def gtFive (xs : TSyntaxArray `inline) : DocM (Inline ElabInline) := do
   if h : xs.size = 1 then
-    match xs[0] with
-    | `(inline|code($s)) =>
-      let some n := s.getString.toNat? | throwErrorAt s "expected a number"
-      return .deferred (← addDeferredCheck (.mk (GreaterThanFive.mk n)) #[] (← getRef)) #[.code s.getString]
-    | other => throwErrorAt other "expected a number"
+    match InlineView.of xs[0] with
+    | some (.code { content, .. }) =>
+      let val := content.getVersoCode
+      let some n := val.toNat? | throwErrorAt content "expected a number"
+      return .deferred (← addDeferredCheck (.mk (GreaterThanFive.mk n)) #[] (← getRef)) #[.code val]
+    | _ => throwErrorAt xs[0] "expected a number"
   else
     throwError "expected precisely one code argument"
 

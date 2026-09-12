@@ -1,5 +1,9 @@
+Input: "43\n\"foo\""
 Success! Final stack:
-  [(Lean.Doc.Syntax.anon
-    (Lean.Doc.Syntax.arg_num (num "43")))]
+  [(Lean.Doc.Parser.Arg.anon
+    (Lean.Doc.Parser.ArgVal.num (num "43")))]
 Remaining:
 "\n\"foo\""
+Round-trip OK
+Decoded views:
+  anon (val := num (lit := 43) (value := 43))

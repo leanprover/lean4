@@ -1,13 +1,20 @@
-Failure @29 (⟨1, 29⟩): expected token
+Input: "scheme dialect:=\"chicken\" +43 99"
+Failure: expected token
+ --> 1:29-1:30
+  |
+1 | scheme dialect:="chicken" +43 99
+  |                              ^
+  = consumed input prefix: 29 bytes
 Final stack:
  • `scheme
- • [(Lean.Doc.Syntax.named_no_paren
+ • [(Lean.Doc.Parser.Arg.named_no_paren
       `dialect
       ":="
-      (Lean.Doc.Syntax.arg_str
+      (Lean.Doc.Parser.ArgVal.str
        (str "\"chicken\"")))
-     (Lean.Doc.Syntax.flag_on "+" <missing>)
-     (Lean.Doc.Syntax.anon
-      (Lean.Doc.Syntax.arg_num (num "99")))]
+     (Lean.Doc.Parser.Arg.flag_on "+" <missing>)
+     (Lean.Doc.Parser.Arg.anon
+      (Lean.Doc.Parser.ArgVal.num (num "99")))]
 
-Remaining: " 99"
+All input consumed.
+Round-trip not reproduced, as the parse reported errors: non-whitespace '4' at 27 not part of any token

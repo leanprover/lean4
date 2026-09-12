@@ -1,0 +1,18 @@
+Input: ":::note\n%%%\nx := 1\n%%%\n:::\n"
+Failure: metadata blocks may only appear at the document's top level
+ --> 2:3
+  |
+2 | %%%
+  |    ^
+  = consumed input prefix: 11 bytes
+Final stack:
+  (Lean.Doc.Parser.Block.directive
+   (Lean.Doc.Parser.directiveDelimiter ":::")
+   `note
+   []
+   [(Lean.Doc.Parser.Block.metadata_block
+     "%%%"
+     <missing>)])
+Remaining:
+"\nx := 1\n%%%\n:::\n"
+Round-trip not reproduced, as the parse reported errors: leaf without original source info: <missing>

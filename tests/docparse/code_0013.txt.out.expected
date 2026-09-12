@@ -1,0 +1,11 @@
+Input: "`` a`b ``"
+Success! Final stack:
+  (Lean.Doc.Parser.Inline.code
+   (Lean.Doc.Parser.codeDelimiter "``")
+   (Lean.Doc.Parser.versoCode
+    [(Lean.Doc.Parser.versoCodeLine "a`b")])
+   (Lean.Doc.Parser.codeDelimiter "``"))
+All input consumed.
+Round-trip OK
+Decoded views:
+  code (opener := "``") (content := "a`b") (closer := "``")

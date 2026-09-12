@@ -1,20 +1,22 @@
-Failure @35 (⟨2, 15⟩): unexpected end of input; expected '![', '$$', '$', '*', '[', '[^', '_', '`', '{', block opener (at line start: '#', '>', ':', '*', '-', '+', '1.', '```', '%%%', '{..}') or newline
+Input: ": an excellent idea\nLet's say more!"
+Failure: unexpected end of input; expected '![', '$$', '$', '*', '[', '[^', '_', '`', '{', block opener (at line start: '#', '>', ':', '*', '-', '+', '1.', '```', '%%%', '{…}') or newline
+ --> 2:15
+  |
+2 | Let's say more!
+  |                ^
+  = consumed input prefix: 35 bytes
 Final stack:
-  [(Lean.Doc.Syntax.dl
-    "dl{"
-    [(Lean.Doc.Syntax.desc
+  [(Lean.Doc.Parser.Block.dl
+    [(Lean.Doc.Parser.DescItem.item
       ":"
-      [(Lean.Doc.Syntax.text
-        (str "\" an excellent idea\""))
-       (Lean.Doc.Syntax.linebreak
-        "line!"
-        (str "\"\\n\""))
-       (Lean.Doc.Syntax.text
-        (str "\"Let's say more!\""))]
-      "=>"
-      [(Lean.Doc.Syntax.para
-        "para{"
-        [(Lean.Doc.Syntax.footnote <missing>)])
-       <missing>])]
-    "}")]
-Remaining: ""
+      [(Lean.Doc.Parser.Inline.text
+        (Lean.Doc.Parser.versoText
+         "an excellent idea"))
+       (Lean.Doc.Parser.Inline.linebreak "\n")
+       (Lean.Doc.Parser.Inline.text
+        (Lean.Doc.Parser.versoText
+         "Let's say more!"))]
+      [(Lean.Doc.Parser.Block.para [<missing>])
+       <missing>])])]
+All input consumed.
+Round-trip not reproduced, as the parse reported errors: leaf without original source info: <missing>

@@ -1,44 +1,37 @@
-Failure @92 (⟨7, 0⟩): '['; expected '![', '$$', '$', '*', '[', '[^', '_', '`' or '{'
+Input: ": {ref defs}[Basic definitions]\n\n  The def is something\n\n: {ref large}{Sufficiently large}\n\n  More text\n\n: `foo`\n\n  Thing\n"
+Failure: unexpected newline; expected '![', '$$', '$', '*', '[', '[^', '_', '`' or '{'
+ --> 7:0-7:1
+  |
+7 |   More text
+  | ^
+  = consumed input prefix: 92 bytes
 Final stack:
-  [(Lean.Doc.Syntax.dl
-    "dl{"
-    [(Lean.Doc.Syntax.desc
+  [(Lean.Doc.Parser.Block.dl
+    [(Lean.Doc.Parser.DescItem.item
       ":"
-      [(Lean.Doc.Syntax.text (str "\" \""))
-       (Lean.Doc.Syntax.role
+      [(Lean.Doc.Parser.Inline.role
         "{"
         `ref
-        [(Lean.Doc.Syntax.anon
-          (Lean.Doc.Syntax.arg_ident `defs))]
+        [(Lean.Doc.Parser.Arg.anon
+          (Lean.Doc.Parser.ArgVal.ident `defs))]
         "}"
-        "["
-        [(Lean.Doc.Syntax.text
-          (str "\"Basic definitions\""))]
-        "]")]
-      "=>"
-      [(Lean.Doc.Syntax.para
-        "para{"
-        [(Lean.Doc.Syntax.text
-          (str "\"The def is something\""))]
-        "}")])
-     (Lean.Doc.Syntax.desc
+        ["["]
+        [(Lean.Doc.Parser.Inline.text
+          (Lean.Doc.Parser.versoText
+           "Basic definitions"))]
+        ["]"])]
+      [(Lean.Doc.Parser.Block.para
+        [(Lean.Doc.Parser.Inline.text
+          (Lean.Doc.Parser.versoText
+           "The def is something"))])])
+     (Lean.Doc.Parser.DescItem.item
       ":"
-      [(Lean.Doc.Syntax.text (str "\" \""))
-       (Lean.Doc.Syntax.role
+      [(Lean.Doc.Parser.Inline.role
         "{"
         `ref
-        [(Lean.Doc.Syntax.anon
-          (Lean.Doc.Syntax.arg_ident `large))]
-        "}"
-        "["
-        [(Lean.Doc.Syntax.role
-          "{"
-          `Sufficiently
-          [(Lean.Doc.Syntax.anon
-            (Lean.Doc.Syntax.arg_ident `large))]
-          "}"
-          "["
-          [(Lean.Doc.Syntax.footnote <missing>)]
-          "]")]
-        "]")])])]
-Remaining: "  More text\n\n: `foo`\n\n  Thing\n"
+        [(Lean.Doc.Parser.Arg.anon
+          (Lean.Doc.Parser.ArgVal.ident `large))]
+        "}")])])]
+Remaining:
+"  More text\n\n: `foo`\n\n  Thing\n"
+Round-trip not reproduced, as the parse reported errors: input from position 70 on is not covered by any token's source info

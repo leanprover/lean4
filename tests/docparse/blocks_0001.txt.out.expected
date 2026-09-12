@@ -1,12 +1,16 @@
+Input: "This is just some textual content. How is it?\n\nMore?"
 Success! Final stack:
-  [(Lean.Doc.Syntax.para
-    "para{"
-    [(Lean.Doc.Syntax.text
-      (str
-       "\"This is just some textual content. How is it?\""))]
-    "}")
-   (Lean.Doc.Syntax.para
-    "para{"
-    [(Lean.Doc.Syntax.text (str "\"More?\""))]
-    "}")]
+  [(Lean.Doc.Parser.Block.para
+    [(Lean.Doc.Parser.Inline.text
+      (Lean.Doc.Parser.versoText
+       "This is just some textual content. How is it?"))])
+   (Lean.Doc.Parser.Block.para
+    [(Lean.Doc.Parser.Inline.text
+      (Lean.Doc.Parser.versoText "More?"))])]
 All input consumed.
+Round-trip OK
+Decoded views:
+  para
+    text (content := "This is just some textual content. How is it?")
+  para
+    text (content := "More?")

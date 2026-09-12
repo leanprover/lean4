@@ -10,14 +10,14 @@ open Lean Elab Command
 
 initialize thrower : StatefulLinter Unit Nat ←
   registerStatefulLinter ()
-    (pre := fun stx _ _ => do
+    (pre := fun stx _ _ _ => do
       unless Parser.isTerminalCommand stx do throwError "thrower boom"
       pure none)
     (post := fun _ self _ _ _ => pure self)
 
 initialize producer : StatefulLinter Unit Nat ←
   registerStatefulLinter ()
-    (pre := fun stx _ _ =>
+    (pre := fun stx _ _ _ =>
       pure <| if Parser.isTerminalCommand stx then none else some 42)
     (post := fun _ self _ _ _ => pure self)
 

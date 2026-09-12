@@ -14,7 +14,7 @@ structure Counter where
 
 initialize counterLinter : StatefulLinter Counter Nat ←
   registerStatefulLinter (Counter.mk 0)
-    (pre := fun stx self _ =>
+    (pre := fun stx self _ _ =>
       pure <| if Parser.isTerminalCommand stx then none else some (self.count + 1))
     (post := fun _ self preState _ _ => do
       match preState with

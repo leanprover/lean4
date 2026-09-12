@@ -29,6 +29,8 @@ public structure BuildConfig extends LogConfig where
   showSuccess : Bool := false
   /-- File to save input-to-output mappings from the build of the workspace's root -/
   outputsFile? : Option FilePath := none
+  /-- Print a build summary table at the end. -/
+  summary : Bool := false
   /--
   Per-package Lean option overrides, applied to every module whose owning
   package's `baseName` appears as a key. When `recFetchSetup` builds module

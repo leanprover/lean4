@@ -1888,6 +1888,17 @@ def withAntiquotFn (antiquotP p : ParserFn) (isCatAntiquot := false) : ParserFn 
   info := orelseInfo antiquotP.info p.info
 }
 
+/--
+Like `withAntiquot`, but uses `OrElseOnAntiquotBehavior.acceptLhs` instead of `.takeLongest`.
+This means that when the antiquotation parser `antiquotP` succeeds, `p` is not tried.
+This is useful when `p` has side effects on the parser stack that would not be undone by
+backtracking.
+-/
+@[builtin_doc] def withAntiquotAcceptLhs (antiquotP p : Parser) : Parser := {
+  fn := withAntiquotFn antiquotP.fn p.fn (isCatAntiquot := true)
+  info := orelseInfo antiquotP.info p.info
+}
+
 def withoutInfo (p : Parser) : Parser := {
   fn := p.fn
 }

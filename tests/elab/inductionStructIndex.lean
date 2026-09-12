@@ -191,6 +191,84 @@ example {a : Nat} (hp : 0 < a) (h : Pos ⟨a, hp⟩) : 1 ≤ a := by
   | one => exact Nat.le_refl _
   | succ p _ ih => exact Nat.le_add_right_of_le (ih p.2)
 
+-- The type of the new variable must not depend on the base, neither directly nor through a
+-- let-bound definition. Then the outer step is skipped and the index is rejected as usual.
+structure Outer (p : Prop) (h : p) where
+  inner : Wrap
+
+example {a : Nat} (p : Prop) (hp : p) (o : Outer p hp)
+    (hr : Relation.TransGen (fun x y : Outer p hp => x = y) o ⟨⟨a⟩⟩) : True := by
+  induction hr with
+  | single _ => trivial
+  | tail _ _ _ => trivial
+
+/--
+error: Invalid target: Index in target's type is not a variable (consider using the `cases` tactic instead)
+  { inner := a }
+-/
+#guard_msgs in
+example {a : Nat} (ha : 0 < a) (o : Outer (0 < a) ha)
+    (hr : Relation.TransGen (fun x y : Outer (0 < a) ha => x = y) o ⟨⟨a⟩⟩) : True := by
+  induction hr with
+  | single _ => trivial
+  | tail _ _ _ => trivial
+
+/--
+error: Invalid target: Index in target's type is not a variable (consider using the `cases` tactic instead)
+  { inner := a }
+-/
+#guard_msgs in
+example {a : Nat} (ha : 0 < a) : True := by
+  let c := a
+  have h : 0 < c := ha
+  have r : ∀ o : Outer (0 < c) h, Relation.TransGen (fun x y : Outer (0 < c) h => x = y) o ⟨⟨a⟩⟩ → True := by
+    intro o hr
+    induction hr with
+    | single _ => trivial
+    | tail _ _ _ => trivial
+  trivial
+
+-- A metavariable in the goal whose context contains the base becomes a function of the new variable,
+-- like `revert` does. Here `?n` is created before the target exists…
+/--
+trace: case single
+o a b✝ : Wrap
+a✝ : o = b✝
+⊢ ?_ = b✝.inner
+---
+warning: declaration uses `sorry`
+-/
+#guard_msgs in
+set_option pp.mvars false in
+example {a : Nat} {o : Wrap} : ∃ n, n = a := by
+  refine ⟨?_, ?_⟩
+  case refine_2 =>
+    have h : Relation.TransGen (fun x y : Wrap => x = y) o ⟨a⟩ := .single sorry
+    induction h with
+    | single _ => trace_state; sorry
+    | tail _ _ _ => sorry
+  exact a
+
+-- … and here after, so that the reverted target is in its context as well.
+/--
+trace: case single
+o a b✝ : Wrap
+a✝ : o = b✝
+⊢ ?_ ⋯ = b✝.inner
+---
+warning: declaration uses `sorry`
+-/
+#guard_msgs in
+set_option pp.mvars false in
+example {a : Nat} {o : Wrap} (h : Relation.TransGen (fun x y : Wrap => x = y) o ⟨a⟩) :
+    ∃ n, n = a := by
+  refine ⟨?_, ?_⟩
+  case refine_2 =>
+    induction h with
+    | single _ => trace_state; sorry
+    | tail _ _ _ => sorry
+  exact a
+
 -- Inside a section, the auxiliary declaration for the recursive reference (`_example`, `sec`) mentions
 -- the section variables, so the change of variables has to deal with it.
 section

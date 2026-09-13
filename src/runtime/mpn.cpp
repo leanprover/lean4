@@ -23,6 +23,13 @@ Revision History:
 
 #define max(a,b)    (((a) > (b)) ? (a) : (b))
 
+/*
+  NOTE: `tests/elab/mpn_model.lean` transliterates the routines in this file and proves them
+  correct against `Nat`. It quotes each one beside the definition standing for it, and discharges
+  the preconditions they assert, so a change here should be mirrored there; otherwise the
+  quotation no longer matches the code it claims to model.
+*/
+
 namespace lean {
 
 typedef uint64_t mpn_double_digit;
@@ -91,13 +98,12 @@ void mpn_mul(mpn_digit const * a, size_t const lnga,
              mpn_digit * c) {
     // Essentially Knuth's Algorithm M.
     // Perhaps implement a more efficient version, see e.g., Knuth, Section 4.3.3.
-    size_t i;
     mpn_digit k;
 
 #define DIGIT_BITS (sizeof(mpn_digit)*8)
 #define HALF_BITS (sizeof(mpn_digit)*4)
 
-    for (unsigned i = 0; i < lnga; i++)
+    for (size_t i = 0; i < lnga; i++)
         c[i] = 0;
 
     for (size_t j = 0; j < lngb; j++) {
@@ -107,7 +113,7 @@ void mpn_mul(mpn_digit const * a, size_t const lnga,
         }
         else {
             k = 0;
-            for (i = 0; i < lnga; i++) {
+            for (size_t i = 0; i < lnga; i++) {
                 mpn_digit const & u_i = a[i];
                 mpn_double_digit t;
                 t = ((mpn_double_digit)u_i * (mpn_double_digit)v_j) +
@@ -133,18 +139,6 @@ public:
 
     mpn_buffer(size_t nsz, const mpn_digit & elem = 0):buffer<mpn_digit>() {
         for (size_t i = 0; i < nsz; i++) push_back(elem);
-    }
-
-    void resize(size_t nsz, const mpn_digit & elem = 0) {
-        buffer<mpn_digit>::resize(static_cast<unsigned>(nsz), elem);
-    }
-
-    mpn_digit & operator[](size_t idx) {
-        return buffer<mpn_digit>::operator[](static_cast<unsigned>(idx));
-    }
-
-    const mpn_digit & operator[](size_t idx) const {
-        return buffer<mpn_digit>::operator[](static_cast<unsigned>(idx));
     }
 };
 
@@ -269,10 +263,10 @@ void mpn_div(mpn_digit const * numer, size_t const lnum,
              mpn_digit const * denom, size_t const lden,
              mpn_digit * quot,
              mpn_digit * rem) {
+    lean_assert(lden > 0 && lden <= lnum);
 
     if (lnum < lden) {
-        for (size_t i = 0; i < (lnum-lden+1); i++)
-            quot[i] = 0;
+        // NOTE: nothing to set in `quot` as its output length, `lnum - lden + 1`, is not positive
         for (size_t i = 0; i < lden; i++)
             rem[i] = (i < lnum) ? numer[i] : 0;
         return;
@@ -320,6 +314,7 @@ void mpn_div(mpn_digit const * numer, size_t const lnum,
 
 char * mpn_to_string(mpn_digit const * a, size_t const lng, char * buf, size_t const lbuf) {
     lean_assert(buf && lbuf > 0);
+    lean_assert(lng > 0);
 
     if (lng == 1) {
 #ifdef _WINDOWS
@@ -330,7 +325,7 @@ char * mpn_to_string(mpn_digit const * a, size_t const lng, char * buf, size_t c
     }
     else {
         mpn_buffer temp(lng, 0), t_numer(lng+1, 0), t_denom(1, 0);
-        for (unsigned i = 0; i < lng; i++)
+        for (size_t i = 0; i < lng; i++)
             temp[i] = a[i];
 
         size_t j = 0;

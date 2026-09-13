@@ -201,6 +201,19 @@ rev = {repr rev}
 name = {repr libRoot}
 "
 
+def claudeSettingsContents :=
+"{
+  \"extraKnownMarketplaces\": {
+    \"leanprover\": {
+      \"source\": {
+        \"source\": \"github\",
+        \"repo\": \"leanprover/skills\"
+      }
+    }
+  }
+}
+"
+
 def readmeFileContents (pkgName : String) := s!"# {pkgName}"
 
 def mathReadmeFileContents (pkgName : String) := s!"# {pkgName}
@@ -465,6 +478,13 @@ def initPkg
       else
         readmeFileContents <| dotlessName name
     IO.FS.writeFile readmeFile contents
+
+  -- Create .claude/settings.json for Claude Code marketplace configuration
+  let claudeDir := dir / ".claude"
+  let claudeSettings := claudeDir / "settings.json"
+  unless (← claudeSettings.pathExists) do
+    IO.FS.createDirAll claudeDir
+    IO.FS.writeFile claudeSettings claudeSettingsContents
 
   -- initialize a `.git` repository if none already
   let repo := GitRepo.mk dir

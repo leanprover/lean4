@@ -30,7 +30,7 @@ COMMANDS:
   check-lint            check if there is a properly configured lint driver
   clean                 remove build outputs
   shake                 minimize imports in source files
-  challenge             judge a solution against a challenge
+  comparator            judge a solution against a challenge
   check                 check this project against external checker(s)
   env <cmd> <args>...   execute a command in Lake's environment
   lean <file>           elaborate a Lean file in Lake's context
@@ -398,11 +398,11 @@ ANNOTATIONS:
   * `import X -- shake: keep`
     Preserves this specific import"
 
-def helpChallenge :=
+def helpComparator :=
 "Judge a solution against a challenge
 
 USAGE:
-  lake challenge --config <FILE>
+  lake comparator --config <FILE>
 
 Establishes that every named theorem in the solution proves the same statement
 as the challenge, uses no axiom outside the permitted list, and is accepted by
@@ -423,7 +423,7 @@ OPTIONS:
 
 CONFIGURATION:
   The challenge author writes the file and distributes it with the project, so
-  that a solver need only point `lake challenge` at it:
+  that a solver need only point `lake comparator` at it:
 
   {
     \"challenge_module\": \"Challenge\",
@@ -463,7 +463,7 @@ ENVIRONMENT:
   the `.olean` files being exported.
 
 HARDENING:
-  `challenge` uses `bwrap` for sandboxing. `/` is bound read-only and the home directories are then
+  `comparator` uses `bwrap` for sandboxing. `/` is bound read-only and the home directories are then
   covered, so the code being judged builds against the system it expects and reads none of the
   invoking user's files. Only `.lake` is writable. Only dependency resolution has a network, because
   it has to fetch git dependencies; the build, the export and any external kernels run in an empty
@@ -503,11 +503,11 @@ ENVIRONMENT:
   the `.olean` files being exported.
 
 HARDENING:
-  The sandbox bounds writes and the network exactly as `lake challenge`'s
+  The sandbox bounds writes and the network exactly as `lake comparator`'s
   does, and its limits apply here too. See the HARDENING section of
-  `lake help challenge`.
+  `lake help comparator`.
 
-See `lake help challenge` to judge a solution against a challenge instead."
+See `lake help comparator` to judge a solution against a challenge instead."
 
 def helpCacheCli :=
 "Manage the Lake cache
@@ -893,7 +893,7 @@ public def help : (cmd : String) → String
 | "check-lint"          => helpCheckLint
 | "clean"               => helpClean
 | "shake"               => helpShake
-| "challenge"           => helpChallenge
+| "comparator"          => helpComparator
 | "check"               => helpCheck
 | "script"              => helpScriptCli
 | "scripts"             => helpScriptList

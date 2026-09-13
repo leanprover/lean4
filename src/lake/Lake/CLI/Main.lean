@@ -80,7 +80,7 @@ public structure LakeOptions where
   rev? : Option GitRev := none
   maxRevs : Nat := 100
   shake : Shake.Args := {}
-  challengeConfig? : Option FilePath := none
+  comparatorConfig? : Option FilePath := none
   builtinLint : BuiltinLint.Args := {}
   /-- Whether `lake lint` should also run builtin lints (via `--builtin-lint`). -/
   runBuiltinLint : Bool := false
@@ -401,10 +401,10 @@ def lakeLongOption : (opt : String) → CliM PUnit
   let mod ← takeOptArg "--only" "minimize only this module"
   modifyThe LakeOptions fun opts =>
     {opts with shake.onlyMods := opts.shake.onlyMods.push mod.toName}
--- Challenge options
+-- Comparator options
 | "--config" => do
   let file ← takeOptArg "--config" "path"
-  modifyThe LakeOptions ({· with challengeConfig? := some file})
+  modifyThe LakeOptions ({· with comparatorConfig? := some file})
 | opt             =>  throw <| CliError.unknownLongOption opt
 
 def lakeOption :=
@@ -1167,8 +1167,8 @@ protected def shake : CliM PUnit := do
   if exitCode != 0 then
     exit exitCode
 
-/-- The `lake challenge` command: judge a solution against a challenge. -/
-protected def challenge : CliM PUnit := do
+/-- The `lake comparator` command: judge a solution against a challenge. -/
+protected def comparator : CliM PUnit := do
   processOptions lakeOption
   let opts ← getThe LakeOptions
   noArgsRem do
@@ -1176,7 +1176,7 @@ protected def challenge : CliM PUnit := do
   -- The workspace is deliberately not loaded here: evaluating the project's configuration is code
   -- execution, and containing it is what the sandbox is for.
   let cfg ← mkLoadConfig opts
-  exit <| ← Check.runChallenge opts.challengeConfig? leanInstall lakeInstall cfg.wsDir
+  exit <| ← Check.runComparator opts.comparatorConfig? leanInstall lakeInstall cfg.wsDir
 
 /--
 The half of `lake check` that runs inside the sandbox, selected by `LAKE_CHECK_EXPORT`.
@@ -1364,7 +1364,7 @@ def lakeCli : (cmd : String) → CliM PUnit
 | "check-lint"          => lake.checkLint
 | "clean"               => lake.clean
 | "shake"               => lake.shake
-| "challenge"           => lake.challenge
+| "comparator"          => lake.comparator
 | "check"               => lake.check
 | "script"              => lake.script
 | "scripts"             => lake.script.list

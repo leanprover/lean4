@@ -21,6 +21,6 @@ test_status_out 2 'solution_module' comparator --config incomplete.json
 test_status_out 2 'could not read the configuration' comparator --config absent.json
 
 # No configuration at all.
-test_status_out 2 'pass `--config <file>`' comparator
+test_status_out 2 'comparator.json' comparator
 
 rm -f produced.out

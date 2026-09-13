@@ -402,7 +402,7 @@ def helpComparator :=
 "Judge a solution against a challenge
 
 USAGE:
-  lake comparator --config <FILE>
+  lake comparator [--config <FILE>]
 
 Establishes that every named theorem in the solution proves the same statement
 as the challenge, uses no axiom outside the permitted list, and is accepted by
@@ -420,6 +420,7 @@ Building the project once, before distributing it, is enough to write one.
 
 OPTIONS:
   --config=<file>       JSON file describing the challenge (see below)
+                        (default: `comparator.json` in the current directory)
 
 CONFIGURATION:
   The challenge author writes the file and distributes it with the project, so

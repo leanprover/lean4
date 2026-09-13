@@ -406,7 +406,12 @@ macro "wrapped%" : term => `(html%{<div><b>x</b> <i>y</i> {bold} z</div>})
 #guard_msgs in
 #eval dump html%{<a title="a  b"/>}
 
-/-- error: Unterminated HTML character reference '&b' -/
+/--
+error: Unterminated HTML character reference '&b'
+
+Hint: Escape the ampersand
+  &a̲m̲p̲;̲
+-/
 #guard_msgs in
 #eval dump html%{<a href="?a=1&b=2"/>}
 
@@ -468,6 +473,15 @@ Hint: Remove end tag
 -/
 #guard_msgs in
 #eval dump html%{<br></br>}
+
+/--
+error: Unterminated HTML character reference '&'
+
+Hint: Escape the ampersand
+  &a̲m̲p̲;̲
+-/
+#guard_msgs in
+#eval dump html%{<p>Tom & Jerry</p>}
 
 /-- error: Invalid HTML named character reference `&foo;` -/
 #guard_msgs in

@@ -2605,10 +2605,16 @@ extern "C" LEAN_EXPORT obj_res lean_sarray_ensure_capacity(obj_arg a, size_t min
     size_t cap = lean_sarray_capacity(a);
     if (min_cap <= cap) {
         return a;
-    } else if (lean_is_exclusive(a)) {
-        return lean_copy_sarray(a, exact ? min_cap : min_cap * 2);
+    }
+    if (min_cap > LEAN_MAX_SMALL_NAT)
+        lean_internal_panic_out_of_memory();
+    // Doubling for amortized growth can overflow `size_t` on 32-bit systems; cap it.
+    // The guard above keeps `min_cap * 2` itself from wrapping.
+    size_t new_cap = exact ? min_cap : std::min(min_cap * 2, (size_t)LEAN_MAX_SMALL_NAT);
+    if (lean_is_exclusive(a)) {
+        return lean_copy_sarray(a, new_cap);
     } else {
-        return lean_copy_sarray_nonlinear(a, exact ? min_cap : min_cap * 2);
+        return lean_copy_sarray_nonlinear(a, new_cap);
     }
 }
 

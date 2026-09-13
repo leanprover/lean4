@@ -188,6 +188,10 @@ private def toInt32 : Signal → Int32
 
 /--
 `Signal.Waiter` can be used to handle a specific signal once.
+
+The event loop is torn down when `main` returns, after the tasks that are still running have
+finished. A `wait` still pending at that point never completes, and starting a new one fails with
+`UV_ECANCELED`. A signal that arrives while the process finishes exiting gets its default action.
 -/
 structure Waiter where
   private ofNative ::
@@ -220,8 +224,8 @@ def wait (s : Signal.Waiter) : IO (AsyncTask Int) := do
 /--
 If:
 - `s` is still running this stops `s` without resolving any remaining `AsyncTask`s that were created
-  through `wait`. Note that if another `AsyncTask` is binding on any of these it is going hang
-  forever without further intervention.
+  through `wait`. Those tasks fail once the last reference to their promise is dropped, rather than
+  producing a value.
 - `s` is not yet or not anymore running this is a no-op.
 -/
 @[inline]
@@ -235,8 +239,8 @@ does not start the signal waiter.
 def selector (s : Signal.Waiter) : Selector Unit :=
   {
     tryFn := do
-      let signalWaiter : AsyncTask _ ← async s.wait
-      if ← IO.hasFinished signalWaiter then
+      let signalWaiter ← s.native.next
+      if ← signalWaiter.isResolved then
         return some ()
       else
         s.native.cancel

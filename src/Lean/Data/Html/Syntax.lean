@@ -126,24 +126,25 @@ where
 which must point at at the character {lit}`&` in {name}`s`.
 Returns the decoded string, and the position just after {lit}`;`.
 
-Errors are reported using {name}`errAt`,
-which takes two offsets into {name}`s` and the error message. -/
-partial def decodeCharacterReferenceAt [Monad m]
-    (s : String) (i : String.Pos.Raw)
-    (errAt : ∀ {α}, String.Pos.Raw → String.Pos.Raw → MessageData → m α) :
-    m (String × String.Pos.Raw) := do
+Errors are reported at {name}`refAt`,
+which should produce the subsyntax between two offsets into {name}`s`. -/
+partial def decodeCharacterReferenceAt (s : String) (i : String.Pos.Raw)
+    (refAt : String.Pos.Raw → String.Pos.Raw → Syntax) :
+    CoreM (String × String.Pos.Raw) := do
   -- The body is an optional `#` followed by at least one ASCII alphanumeric.
   let j := i.next s
   let k := if j.get s == '#' then j.next s else j
   let bodyEnd := skipAlphanum s k
   if bodyEnd.get s != ';' then
-    errAt i bodyEnd m!"Unterminated HTML character reference '{i.extract s bodyEnd}'"
+    let hint ← MessageData.hint m!"Escape the ampersand" #["&amp;"] (ref? := refAt i j)
+    throwErrorAt (refAt i bodyEnd)
+      m!"Unterminated HTML character reference '{i.extract s bodyEnd}'{hint}"
   let refEnd := bodyEnd.next s
   match characterReference? (j.extract s bodyEnd) with
   | some val => return (val, refEnd)
   | none =>
     let kind := if j.get s == '#' then "numeric" else "named"
-    errAt i refEnd m!"Invalid HTML {kind} character reference `{i.extract s refEnd}`"
+    throwErrorAt (refAt i refEnd) m!"Invalid HTML {kind} character reference `{i.extract s refEnd}`"
 where
   skipAlphanum (s : String) (i : String.Pos.Raw) : String.Pos.Raw :=
     if h : i.atEnd s then i
@@ -151,18 +152,17 @@ where
     else i
 
 /-- Decodes HTML character references in {name}`ref`, leaving other characters unchanged. -/
-partial def decodeCharacterReferences [Monad m] [MonadError m]
-    (ref : TSyntax `str) : m String :=
+partial def decodeCharacterReferences (ref : TSyntax `str) : CoreM String :=
   go ref.getString ⟨0⟩ ""
 where
-  go (s : String) (i : String.Pos.Raw) (out : String) : m String := do
+  go (s : String) (i : String.Pos.Raw) (out : String) : CoreM String := do
     if h : i.atEnd s then
       return out
     else
       let c := i.get' s h
       if c == '&' then
         let (val, refEnd) ← decodeCharacterReferenceAt s i
-          (fun s e m => throwErrorAt (subsyntaxNodeAtom ref ⟨s.byteIdx+1⟩ ⟨e.byteIdx+1⟩) m)
+          (fun s e => subsyntaxNodeAtom ref ⟨s.byteIdx+1⟩ ⟨e.byteIdx+1⟩)
         go s refEnd (out ++ val)
       else
         go s (i.next' s h) (out.push c)
@@ -264,11 +264,10 @@ private def finish (acc : TextAcc) (trimStart trimEnd : Bool) : String :=
 normalizing as described in {lit}`Content.view`.
 Whitespace at the start is dropped when {name}`trimStart` is set.
 Throws if {name}`t` contains an invalid character reference. -/
-private partial def push [Monad m] [MonadError m]
-  (acc : TextAcc) (t : Text) (trimStart : Bool) : m TextAcc := do
+private partial def push (acc : TextAcc) (t : Text) (trimStart : Bool) : CoreM TextAcc := do
   go (← viewNodeAtom t) ⟨0⟩ acc
 where
-  go (s : String) (i : String.Pos.Raw) (acc : TextAcc) : m TextAcc := do
+  go (s : String) (i : String.Pos.Raw) (acc : TextAcc) : CoreM TextAcc := do
     if i.atEnd s then
       return acc
     let c := i.get s
@@ -278,8 +277,7 @@ where
     else
       let acc := acc.flushWs trimStart
       if c == '&' then
-        let (val, refEnd) ← decodeCharacterReferenceAt s i
-          (fun s e m => throwErrorAt (subsyntaxNodeAtom t s e) m)
+        let (val, refEnd) ← decodeCharacterReferenceAt s i (fun s e => subsyntaxNodeAtom t s e)
         go s refEnd { acc with out := acc.out ++ val }
       else
         go s j { acc with out := acc.out.push c }
@@ -394,7 +392,7 @@ inductive AttrValView where
 decoding character references when the value is a string literal.
 
 Throws if an invalid character reference is encountered. -/
-def AttrVal.view [Monad m] [MonadError m] (stx : AttrVal) : m AttrValView := do
+def AttrVal.view (stx : AttrVal) : CoreM AttrValView := do
   let c := stx.raw[0]
   if c.getKind == `str then
     return .str ⟨c⟩ (← decodeCharacterReferences ⟨c⟩)

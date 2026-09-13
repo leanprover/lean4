@@ -2005,7 +2005,10 @@ static object * string_ensure_capacity(object * o, size_t extra) {
     size_t sz  = string_size(o);
     size_t cap = string_capacity(o);
     if (sz + extra > cap) {
-        object * new_o = alloc_string(sz, cap + sz + extra, string_len(o));
+        // The amortizing `cap + sz + extra` can overflow `size_t` on 32-bit systems;
+        // fall back to the exact required capacity.
+        size_t new_cap = cap <= SIZE_MAX - (sz + extra) ? cap + sz + extra : sz + extra;
+        object * new_o = alloc_string(sz, new_cap, string_len(o));
         lean_assert(string_capacity(new_o) >= sz + extra);
         if (lean_string_is_marked_linear(o)) lean_string_mark_linear_core(new_o);
         memcpy(w_string_cstr(new_o), string_cstr(o), sz);
@@ -2098,7 +2101,8 @@ std::string string_to_std(b_obj_arg o) {
 }
 
 static size_t mk_capacity(size_t sz) {
-    return sz*2;
+    // Doubling can overflow `size_t` on 32-bit systems; fall back to the exact size.
+    return sz <= SIZE_MAX / 2 ? sz * 2 : sz;
 }
 
 static void check_string_linearity(b_obj_arg s) {
@@ -2143,6 +2147,10 @@ extern "C" LEAN_EXPORT object * lean_string_append(object * s1, object * s2) {
     size_t sz2      = lean_string_size(s2);
     size_t len1     = lean_string_len(s1);
     size_t len2     = lean_string_len(s2);
+    // `s1` and `s2` may alias, so `sz1 + sz2` is only bounded by twice the address
+    // space and can overflow on 32-bit systems; the result is then unrepresentable.
+    if (sz2 - 1 > SIZE_MAX - sz1)
+        lean_internal_panic_out_of_memory();
     size_t new_len  = len1 + len2;
     size_t new_sz   = sz1 + sz2 - 1;
     object * r;

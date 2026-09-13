@@ -33,19 +33,18 @@ public def propagateHints (s : State) (assign : Assignment) (hints : Array Nat) 
     let some hintClause := s.get? hintIdx | return .error
     let mut unit : Option Nat := none
     for (atom, pol) in hintClause do
-      match assign.get? atom with
-      | some value =>
-        let isUnit := match unit with | some u => u == atom | none => false
-        if value == pol then
-          if isUnit then continue else return .error
-        else
-          if isUnit then return .error else continue
-      | none =>
+      if (assign.get? atom).all (· == pol) then
         match unit with
         | none =>
           unit := some atom
           assign := assign.insert atom pol
-        | some _ => return .error
+        | some u =>
+          if atom = u then continue else return .error
+      else
+        match unit with
+        | none => continue
+        | some u =>
+          if atom = u then return .error else continue
     match unit with
     | none => return .conflict
     | some _ => continue
@@ -86,7 +85,7 @@ theorem propagateHints_spec (s : State) (assign : Assignment) (hints : Array Nat
       (onContinue := fun xs state => ⌜
         match state.2 with
         | some atom => ∃ pol,
-            curAssign.get? atom = none
+            (curAssign.get? atom).all (· == pol)
             ∧ state.1 = curAssign.insert atom pol
             ∧ ∀ lit ∈ xs.prefix, lit = (atom, pol) ∨ curAssign.get? lit.1 = some !lit.2
         | none =>
@@ -94,62 +93,55 @@ theorem propagateHints_spec (s : State) (assign : Assignment) (hints : Array Nat
             ∧ ∀ lit ∈ xs.prefix, curAssign.get? lit.1 = some !lit.2⌝)
   all_goals mleave
   · next pref1 cur1 suff1 hfor1 b1 curAssign hintClause hclause hout pref cur suff hfor b st
-      assignNow unit value hget isUnit hval hisU ih =>
-    simp only [isUnit, unit, st, assignNow] at hisU hget ⊢
-    simp only [beq_iff_eq] at hval
-    simp only [true_and, reduceCtorEq, false_and, and_false, exists_false, or_false,
-      List.forall_mem_append, List.forall_mem_singleton] at ih ⊢
-    replace ih := ih.right
-    split at hisU
-    · next u heq =>
-      simp only [beq_iff_eq] at hisU
-      subst hisU
-      simp only [heq] at ih ⊢
-      obtain ⟨pol, hnone, hins, hall⟩ := ih
-      have hpol : pol = cur.snd := by
-        rw [hins, Assignment.get?_insert_of_eq rfl] at hget
-        simp only [Option.some.injEq] at hget
-        rw [hget, hval]
-      subst hpol
-      exact ⟨cur.snd, hnone, hins, hall, Or.inl (by simp)⟩
-    · simp at hisU
-  · simp
+      assignNow unit hval hunit ih =>
+    simp only [unit, st, assignNow] at hunit ih hval ⊢
+    simp only [hunit, reduceCtorEq, false_and, and_false, exists_false, or_false] at ih
+    simp only [ih, List.mem_append, List.mem_cons, List.not_mem_nil, or_false] at hval ⊢
+    refine Or.inl ⟨by trivial, cur.snd, hval, rfl, fun lit hlit => ?_⟩
+    cases hlit
+    next hlit => simp [hlit, ih]
+    next hlit => simp [hlit]
+  · next pref1 cur1 suff1 hfor1 b1 curAssign hintClause hclause hout pref cur suff hfor b st
+      assignNow unit hval u hunit hcur ih =>
+    simp only [unit, st, assignNow] at hunit ih hval ⊢
+    simp only [hunit, reduceCtorEq, false_and, and_false, exists_false, or_false] at ih
+    obtain ⟨_, pol, hunitVal, hinsert, ih⟩ := ih
+    refine Or.inl ⟨by trivial, pol, hunitVal, hinsert, fun lit hlit => ?_⟩
+    simp only [List.mem_append, List.mem_cons, List.not_mem_nil, or_false] at hlit
+    cases hlit
+    next hlit => simp [hlit, ih]
+    next hlit =>
+      simp only [hinsert, hcur, Assignment.get?_insert_of_eq, Option.all_some, beq_iff_eq] at hval
+      simp [←hcur, hlit, hval]
   · simp
   · next pref1 cur1 suff1 hfor1 b1 curAssign hintClause hclause hout pref cur suff hfor b st
-      assignNow unit value hget isUnit hval hisU ih =>
-    simp only [isUnit, unit, st, assignNow] at hisU hget ⊢
-    simp only [beq_iff_eq] at hval
-    simp only [true_and, reduceCtorEq, false_and, and_false, exists_false, or_false,
-      List.forall_mem_append, List.forall_mem_singleton] at ih ⊢
-    replace ih := ih.right
-    have hcur : value = !cur.snd := Bool.eq_not_of_ne hval
-    subst hcur
-    split at hisU
-    · next u heq =>
-      simp only [beq_iff_eq] at hisU
-      simp only [heq] at ih ⊢
-      obtain ⟨pol, hnone, hins, hall⟩ := ih
-      have hne : u ≠ cur.fst := by simpa using hisU
-      rw [hins, Assignment.get?_insert_of_ne hne] at hget
-      exact ⟨pol, hnone, hins, hall, Or.inr hget⟩
-    · next heq =>
-      simp only [heq] at ih ⊢
-      obtain ⟨hsame, hall⟩ := ih
-      rw [hsame] at hget
-      exact ⟨hsame, hall, hget⟩
-  · next pref1 cur1 suff1 hfor1 b1 curAssign hintClause hclause hout pref cur suff hfor b st
-      assignNow unit hget hnone ih =>
-    simp only [unit, st, assignNow] at hnone hget ⊢
-    simp only [true_and, reduceCtorEq, false_and, and_false, exists_false, or_false,
-      List.forall_mem_append, List.forall_mem_singleton] at ih ⊢
-    replace ih := ih.right
-    simp only [hnone] at ih
-    obtain ⟨hsame, hall⟩ := ih
-    rw [hsame]
-    refine ⟨cur.snd, ?_, rfl, fun lit hlit => Or.inr (hall lit hlit), Or.inl (by simp)⟩
-    rw [← hsame]
-    exact hget
+      assignNow unit hval hunit ih =>
+    simp only [unit, st, assignNow] at hunit ih hval ⊢
+    simp only [hunit, reduceCtorEq, false_and, and_false, exists_false, or_false] at ih
+    simp only [ih, List.mem_append, List.mem_cons, List.not_mem_nil, or_false] at hval ⊢
+    refine Or.inl ⟨by trivial, by trivial, fun lit hlit => ?_⟩
+    cases hlit
+    next hlit => simp [hlit, ih]
+    next hlit =>
+      simp only [←hlit, Bool.not_eq_true, Option.all_eq_false] at hval
+      obtain ⟨val, hget, hval⟩ := hval
+      simp only [beq_eq_false_iff_ne, ne_eq] at hval
+      simp [hget, Bool.eq_not, hval]
   · simp
+  · next pref1 cur1 suff1 hfor1 b1 curAssign hintClause hclause hout pref cur suff hfor b st
+      assignNow unit hval u hunit hcur ih =>
+    simp only [unit, st, assignNow] at hunit ih hval ⊢
+    simp only [hunit, reduceCtorEq, false_and, and_false, exists_false, or_false] at ih
+    obtain ⟨_, pol, hunitVal, hinsert, ih⟩ := ih
+    refine Or.inl ⟨by trivial, pol, hunitVal, hinsert, fun lit hlit => ?_⟩
+    simp only [List.mem_append, List.mem_cons, List.not_mem_nil, or_false] at hlit
+    cases hlit
+    next hlit => simp [hlit, ih]
+    next hlit =>
+      simp only [hinsert, Bool.not_eq_true, Option.all_eq_false, Assignment.get?_insert_of_ne (Ne.symm hcur)] at hval
+      obtain ⟨val, hget, hval⟩ := hval
+      simp only [beq_eq_false_iff_ne, ne_eq] at hval
+      simp [hlit, hget, Bool.eq_not, hval]
   · simp
   · simp_all
   · next pref cur suff hfor b curAssign hintClause hclause hout r st assignNow unit hr1 hr2 ih =>

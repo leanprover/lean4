@@ -65,12 +65,12 @@ meta partial def elabContent (stx : Content) : TermElabM Expr := withRef stx do
       if isVoidElement tagName then
         if let some children := children? then
           let hint ←
-            let some ⟨start, _⟩ := stx.raw.getRange? | pure m!""
-            let some ⟨stop, _⟩ := children.raw.getRange? | pure m!""
-            let src := (← getFileMap).source
-            let noChildren := start.extract src (stop.prev src)
-            MessageData.hint m!"Remove children" #[noChildren ++ "/>"]
-          throwErrorAt elemStx m!"Void element `{tagName}` cannot have children{hint}"
+            let some ⟨start, _⟩ := elemStx.raw.getRange? | pure m!""
+            -- Everything up to the start tag's `>` is kept; children and end tag are dropped.
+            let some gt := elemStx.raw[3].getPos? | pure m!""
+            let selfClosing := start.extract (← getFileMap).source gt ++ "/>"
+            MessageData.hint "Remove end tag" #[selfClosing]
+          throwErrorAt elemStx m!"Void element `{tagName}` cannot have an end tag{hint}"
       let attrs ← elabAttrs attrs
       let children? ← children?.mapM elabContent
       let e := mkApp3 (.const ``Html.element []) (toExpr tagName) attrs <|

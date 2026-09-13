@@ -24,7 +24,7 @@ import Init.System.Platform
 
 Builds and exports Lean code, then establishes that it is accepted by the kernel and, where there
 is a challenge to compare against, that it proves the challenge's statements using no axiom outside
-a whitelist. This backs `lake challenge` and `lake check`.
+a whitelist. This backs `lake comparator` and `lake check`.
 
 The code being judged is adversarial input: it is built and exported inside a `bwrap` sandbox,
 and no `.olean` produced from it is ever mapped into the process that reports the verdict. Only the
@@ -616,18 +616,18 @@ def checkProject : M Unit := do
     checkUsedAxioms exported
 
 /--
-Runs `lake challenge`: builds and exports the challenge and the solution in a sandbox, then judges
+Runs `lake comparator`: builds and exports the challenge and the solution in a sandbox, then judges
 the solution against the challenge.
 -/
-public def runChallenge (configFile? : Option System.FilePath) (lean : LeanInstall)
+public def runComparator (configFile? : Option System.FilePath) (lean : LeanInstall)
     (lake : LakeInstall) (projectDir : System.FilePath) : IO ExitCode := do
   let base ←
-    match ← mkContext "challenge" lean lake projectDir with
+    match ← mkContext "comparator" lean lake projectDir with
     | .error rc => return rc
     | .ok ctx => pure ctx
 
   let some configFile := configFile?
-    | return ← cannotRun "no challenge configuration given; pass `--config <file>`"
+    | return ← cannotRun "no comparator configuration given; pass `--config <file>`"
   let contents ←
     try IO.FS.readFile configFile
     catch e => return ← cannotRun s!"could not read the configuration: {e}"
@@ -645,7 +645,7 @@ public def runChallenge (configFile? : Option System.FilePath) (lean : LeanInsta
     | .error rc => return rc
     | .ok ks => pure ks
 
-  if let some rc ← checkManifest "challenge" base.projectDir then
+  if let some rc ← checkManifest "comparator" base.projectDir then
     return rc
 
   try

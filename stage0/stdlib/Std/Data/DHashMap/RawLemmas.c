@@ -33,7 +33,7 @@ lean_object* l_Lean_Name_mkStr2(lean_object*, lean_object*);
 lean_object* l_Lean_mkSepArray(lean_object*, lean_object*);
 lean_object* l_Array_append___redArg(lean_object*, lean_object*);
 lean_object* l_Lean_SourceInfo_fromRef(lean_object*, uint8_t);
-lean_object* l_Array_mkArray0(lean_object*);
+lean_object* l_Array_mkArray0___redArg();
 lean_object* l_Lean_Syntax_node5(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Syntax_node6(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Array_mkArray2___redArg(lean_object*, lean_object*);
@@ -618,6 +618,8 @@ static const lean_array_object l_Std_DHashMap_Internal_Raw___aux__Std__Data__DHa
 static const lean_object* l_Std_DHashMap_Internal_Raw___aux__Std__Data__DHashMap__RawLemmas______macroRules__Std__DHashMap__Internal__Raw__tacticSimp__to__rawUsing____1___closed__39 = (const lean_object*)&l_Std_DHashMap_Internal_Raw___aux__Std__Data__DHashMap__RawLemmas______macroRules__Std__DHashMap__Internal__Raw__tacticSimp__to__rawUsing____1___closed__39_value;
 LEAN_EXPORT lean_object* l_Std_DHashMap_Internal_Raw___aux__Std__Data__DHashMap__RawLemmas______macroRules__Std__DHashMap__Internal__Raw__tacticSimp__to__rawUsing____1(lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Std_DHashMap_Internal_Raw___aux__Std__Data__DHashMap__RawLemmas______macroRules__Std__DHashMap__Internal__Raw__tacticSimp__to__rawUsing____1___boxed(lean_object*, lean_object*, lean_object*);
+LEAN_EXPORT lean_object* l_Std_DHashMap_Raw_Equiv_instTrans___redArg();
+LEAN_EXPORT lean_object* l_Std_DHashMap_Raw_Equiv_instTrans___redArg___boxed(lean_object*);
 LEAN_EXPORT lean_object* l_Std_DHashMap_Raw_Equiv_instTrans(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l___private_Init_Data_Array_Basic_0__Array_mapMUnsafe_map___at___00Std_DHashMap_Internal_Raw___aux__Std__Data__DHashMap__RawLemmas______macroRules__Std__DHashMap__Internal__Raw__tacticSimp__to__rawUsing____1_spec__1(size_t v_sz_477_, size_t v_i_478_, lean_object* v_bs_479_){
 _start:
@@ -801,7 +803,7 @@ static lean_object* _init_l_Std_DHashMap_Internal_Raw___aux__Std__Data__DHashMap
 _start:
 {
 lean_object* v___x_640_; 
-v___x_640_ = l_Array_mkArray0(lean_box(0));
+v___x_640_ = l_Array_mkArray0___redArg();
 return v___x_640_;
 }
 }
@@ -931,34 +933,34 @@ v___jp_691_:
 {
 size_t v_sz_709_; lean_object* v___x_710_; lean_object* v___x_711_; lean_object* v___x_712_; lean_object* v___x_713_; lean_object* v___x_714_; lean_object* v___x_715_; lean_object* v___x_716_; lean_object* v___x_717_; lean_object* v___x_718_; lean_object* v___x_719_; lean_object* v___x_720_; lean_object* v___x_721_; lean_object* v___x_722_; lean_object* v___x_723_; lean_object* v___x_724_; lean_object* v___x_725_; lean_object* v___x_726_; 
 v_sz_709_ = lean_array_size(v___y_708_);
-lean_inc(v___y_695_);
+lean_inc(v___y_694_);
 lean_inc_n(v___y_705_, 11);
-v___x_710_ = l___private_Init_Data_Array_Basic_0__Array_mapMUnsafe_map___at___00Std_DHashMap_Internal_Raw___aux__Std__Data__DHashMap__RawLemmas______macroRules__Std__DHashMap__Internal__Raw__tacticSimp__to__rawUsing____1_spec__3(v___y_705_, v___y_695_, v_sz_709_, v___y_697_, v___y_708_);
+v___x_710_ = l___private_Init_Data_Array_Basic_0__Array_mapMUnsafe_map___at___00Std_DHashMap_Internal_Raw___aux__Std__Data__DHashMap__RawLemmas______macroRules__Std__DHashMap__Internal__Raw__tacticSimp__to__rawUsing____1_spec__3(v___y_705_, v___y_694_, v_sz_709_, v___y_697_, v___y_708_);
 v___x_711_ = lean_obj_once(&l_Std_DHashMap_Internal_Raw___aux__Std__Data__DHashMap__RawLemmas______macroRules__Std__DHashMap__Internal__Raw__tacticSimp__to__rawUsing____1___closed__1, &l_Std_DHashMap_Internal_Raw___aux__Std__Data__DHashMap__RawLemmas______macroRules__Std__DHashMap__Internal__Raw__tacticSimp__to__rawUsing____1___closed__1_once, _init_l_Std_DHashMap_Internal_Raw___aux__Std__Data__DHashMap__RawLemmas______macroRules__Std__DHashMap__Internal__Raw__tacticSimp__to__rawUsing____1___closed__1);
 v___x_712_ = l_Lean_mkSepArray(v___x_710_, v___x_711_);
 lean_dec_ref(v___x_710_);
-v___x_713_ = l_Array_append___redArg(v___y_693_, v___x_712_);
+v___x_713_ = l_Array_append___redArg(v___y_696_, v___x_712_);
 lean_dec_ref(v___x_712_);
 lean_inc(v___y_703_);
 v___x_714_ = lean_alloc_ctor(1, 3, 0);
 lean_ctor_set(v___x_714_, 0, v___y_705_);
 lean_ctor_set(v___x_714_, 1, v___y_703_);
 lean_ctor_set(v___x_714_, 2, v___x_713_);
-lean_inc(v___y_696_);
-v___x_715_ = l_Lean_Syntax_node1(v___y_705_, v___y_696_, v___x_714_);
+lean_inc(v___y_695_);
+v___x_715_ = l_Lean_Syntax_node1(v___y_705_, v___y_695_, v___x_714_);
 lean_inc(v___y_701_);
 v___x_716_ = l_Lean_Syntax_node1(v___y_705_, v___y_701_, v___x_715_);
-lean_inc(v___y_694_);
-v___x_717_ = l_Lean_Syntax_node3(v___y_705_, v___y_694_, v___y_702_, v___x_716_, v___y_704_);
+lean_inc(v___y_693_);
+v___x_717_ = l_Lean_Syntax_node3(v___y_705_, v___y_693_, v___y_702_, v___x_716_, v___y_704_);
 v___x_718_ = ((lean_object*)(l_Std_DHashMap_Internal_Raw___aux__Std__Data__DHashMap__RawLemmas______macroRules__Std__DHashMap__Internal__Raw__tacticSimp__to__rawUsing____1___closed__2));
 v___x_719_ = lean_alloc_ctor(2, 2, 0);
 lean_ctor_set(v___x_719_, 0, v___y_705_);
 lean_ctor_set(v___x_719_, 1, v___x_718_);
 v___x_720_ = l_Lean_Syntax_node2(v___y_705_, v___y_692_, v___y_707_, v___y_698_);
 v___x_721_ = l_Lean_Syntax_node1(v___y_705_, v___y_703_, v___x_720_);
-v___x_722_ = l_Lean_Syntax_node1(v___y_705_, v___y_696_, v___x_721_);
+v___x_722_ = l_Lean_Syntax_node1(v___y_705_, v___y_695_, v___x_721_);
 v___x_723_ = l_Lean_Syntax_node1(v___y_705_, v___y_701_, v___x_722_);
-v___x_724_ = l_Lean_Syntax_node2(v___y_705_, v___y_700_, v___y_695_, v___x_723_);
+v___x_724_ = l_Lean_Syntax_node2(v___y_705_, v___y_700_, v___y_694_, v___x_723_);
 lean_inc(v___y_706_);
 v___x_725_ = l_Lean_Syntax_node3(v___y_705_, v___y_706_, v___x_717_, v___x_719_, v___x_724_);
 v___x_726_ = lean_alloc_ctor(0, 2, 0);
@@ -1080,10 +1082,10 @@ if (lean_obj_tag(v_using_x3f_728_) == 0)
 lean_object* v___x_800_; 
 v___x_800_ = ((lean_object*)(l_Std_DHashMap_Internal_Raw___aux__Std__Data__DHashMap__RawLemmas______macroRules__Std__DHashMap__Internal__Raw__tacticSimp__to__rawUsing____1___closed__39));
 v___y_692_ = v___x_741_;
-v___y_693_ = v___x_799_;
-v___y_694_ = v___x_735_;
-v___y_695_ = v___x_762_;
-v___y_696_ = v___x_739_;
+v___y_693_ = v___x_735_;
+v___y_694_ = v___x_762_;
+v___y_695_ = v___x_739_;
+v___y_696_ = v___x_799_;
 v___y_697_ = v___x_783_;
 v___y_698_ = v___x_769_;
 v___y_699_ = v___y_730_;
@@ -1108,10 +1110,10 @@ v___x_802_ = lean_unsigned_to_nat(1u);
 v___x_803_ = lean_mk_empty_array_with_capacity(v___x_802_);
 v___x_804_ = lean_array_push(v___x_803_, v_val_801_);
 v___y_692_ = v___x_741_;
-v___y_693_ = v___x_799_;
-v___y_694_ = v___x_735_;
-v___y_695_ = v___x_762_;
-v___y_696_ = v___x_739_;
+v___y_693_ = v___x_735_;
+v___y_694_ = v___x_762_;
+v___y_695_ = v___x_739_;
+v___y_696_ = v___x_799_;
 v___y_697_ = v___x_783_;
 v___y_698_ = v___x_769_;
 v___y_699_ = v___y_730_;
@@ -1138,12 +1140,28 @@ lean_dec_ref(v_a_820_);
 return v_res_822_;
 }
 }
-LEAN_EXPORT lean_object* l_Std_DHashMap_Raw_Equiv_instTrans(lean_object* v_00_u03b1_823_, lean_object* v_00_u03b2_824_){
+LEAN_EXPORT lean_object* l_Std_DHashMap_Raw_Equiv_instTrans___redArg(){
 _start:
 {
-lean_object* v___x_825_; 
-v___x_825_ = lean_box(0);
-return v___x_825_;
+lean_object* v___x_824_; 
+v___x_824_ = lean_box(0);
+return v___x_824_;
+}
+}
+LEAN_EXPORT lean_object* l_Std_DHashMap_Raw_Equiv_instTrans___redArg___boxed(lean_object* v___dummy_825_){
+_start:
+{
+lean_object* v_res_826_; 
+v_res_826_ = l_Std_DHashMap_Raw_Equiv_instTrans___redArg();
+return v_res_826_;
+}
+}
+LEAN_EXPORT lean_object* l_Std_DHashMap_Raw_Equiv_instTrans(lean_object* v_00_u03b1_827_, lean_object* v_00_u03b2_828_){
+_start:
+{
+lean_object* v___x_829_; 
+v___x_829_ = lean_box(0);
+return v___x_829_;
 }
 }
 lean_object* runtime_initialize_Std_Data_DHashMap_Internal_Raw(uint8_t builtin);

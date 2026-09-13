@@ -62,7 +62,7 @@ lean_object* l_StateT_instMonad___redArg___lam__9(lean_object*, lean_object*, le
 lean_object* l_StateT_map(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_StateT_pure(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_StateT_bind(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
-lean_object* l_Array_instInhabited(lean_object*);
+lean_object* l_Array_instInhabited___redArg();
 lean_object* l_instInhabitedOfMonad___redArg(lean_object*, lean_object*);
 lean_object* l_instInhabitedForall___redArg___lam__0___boxed(lean_object*, lean_object*);
 lean_object* lean_panic_fn_borrowed(lean_object*, lean_object*);
@@ -1239,7 +1239,7 @@ static lean_object* _init_l_panic___at___00__private_Lean_Util_CollectAxioms_0__
 _start:
 {
 lean_object* v___x_365_; 
-v___x_365_ = l_Array_instInhabited(lean_box(0));
+v___x_365_ = l_Array_instInhabited___redArg();
 return v___x_365_;
 }
 }
@@ -1768,9 +1768,9 @@ return v___x_552_;
 LEAN_EXPORT lean_object* l___private_Lean_Util_CollectAxioms_0__Lean_initFn___lam__4_00___x40_Lean_Util_CollectAxioms_751524320____hygCtx___hyg_2____boxed(lean_object* v_exportedEnv_553_, lean_object* v___x_554_, lean_object* v_names_555_, lean_object* v_name_556_, lean_object* v_x_557_){
 _start:
 {
-uint8_t v___x_1704__boxed_558_; lean_object* v_res_559_; 
-v___x_1704__boxed_558_ = lean_unbox(v___x_554_);
-v_res_559_ = l___private_Lean_Util_CollectAxioms_0__Lean_initFn___lam__4_00___x40_Lean_Util_CollectAxioms_751524320____hygCtx___hyg_2_(v_exportedEnv_553_, v___x_1704__boxed_558_, v_names_555_, v_name_556_, v_x_557_);
+uint8_t v___x_1706__boxed_558_; lean_object* v_res_559_; 
+v___x_1706__boxed_558_ = lean_unbox(v___x_554_);
+v_res_559_ = l___private_Lean_Util_CollectAxioms_0__Lean_initFn___lam__4_00___x40_Lean_Util_CollectAxioms_751524320____hygCtx___hyg_2_(v_exportedEnv_553_, v___x_1706__boxed_558_, v_names_555_, v_name_556_, v_x_557_);
 lean_dec_ref(v_x_557_);
 return v_res_559_;
 }

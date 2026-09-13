@@ -6,6 +6,7 @@ Authors: Sebastian Graf
 module
 
 prelude
+meta import Init.Data.Erased
 public import Lean.Elab.Do.InferControlInfo
 public import Lean.Elab.Binders
 import Lean.Meta.ProdN
@@ -99,10 +100,12 @@ def CodeLiveness.lub (a b : CodeLiveness) : CodeLiveness :=
 
 /-- A mutable variable declared by `let mut` in a `do` block. -/
 structure MutVar where
-  /-- The identifier of the `let mut` declaration. -/
+  /-- The identifier of the `let mut` or `erased mut` declaration. -/
   ident : Ident
-  /-- The `FVarId` of the initial binding produced by `let mut`. -/
+  /-- The `FVarId` of the initial binding produced by the declaration. -/
   baseId : FVarId
+  /-- Whether the variable comes from `erased mut`. -/
+  erased : Bool
   deriving Inhabited
 
 /-- The raw `Name` of a `mut` variable, as found in the local context. -/
@@ -336,30 +339,30 @@ def DoOps.default : DoOps where
     return mkApp (← read).monadInfo.m α
 
 /-- Register the given name as that of a `mut` variable. -/
-def declareMutVar (x : Ident) (k : DoElabM α) : DoElabM α := do
+def declareMutVar (x : Ident) (erased : Bool) (k : DoElabM α) : DoElabM α := do
   let fvar ← getFVarFromUserName x.getId
-  let mutVar : MutVar := { ident := x, baseId := fvar.fvarId! }
+  let mutVar : MutVar := { ident := x, baseId := fvar.fvarId!, erased }
   withReader (fun ctx => { ctx with
     mutVars := ctx.mutVars.push mutVar,
     mutVarDefs := ctx.mutVarDefs.insert x.getId mutVar,
   }) k
 
 /-- Register the given names as that of `mut` variables. -/
-def declareMutVars (xs : Array Ident) (k : DoElabM α) : DoElabM α := do
+def declareMutVars (xs : Array Ident) (erased : Bool) (k : DoElabM α) : DoElabM α := do
   let fvars ← xs.mapM (getFVarFromUserName ·.getId)
-  let newMutVars : Array MutVar := xs.zipWith (fun x fvar => { ident := x, baseId := fvar.fvarId! }) fvars
+  let newMutVars : Array MutVar := xs.zipWith (fun x fvar => { ident := x, baseId := fvar.fvarId!, erased }) fvars
   withReader (fun ctx => { ctx with
     mutVars := ctx.mutVars ++ newMutVars,
     mutVarDefs := ctx.mutVarDefs.insertMany (newMutVars.map fun mutVar => (mutVar.getId, mutVar)),
   }) k
 
 /-- Register the given name as that of a `mut` variable if the syntax token `mut` is present. -/
-def declareMutVar? (mutTk? : Option Syntax) (x : Ident) (k : DoElabM α) : DoElabM α :=
-  if mutTk?.isSome then declareMutVar x k else k
+def declareMutVar? (mutTk? : Option Syntax) (x : Ident) (erased : Bool) (k : DoElabM α) : DoElabM α :=
+  if mutTk?.isSome then declareMutVar x erased k else k
 
 /-- Register the given names as that of `mut` variables if the syntax token `mut` is present. -/
-def declareMutVars? (mutTk? : Option Syntax) (xs : Array Ident) (k : DoElabM α) : DoElabM α :=
-  if mutTk?.isSome then declareMutVars xs k else k
+def declareMutVars? (mutTk? : Option Syntax) (xs : Array Ident) (erased : Bool) (k : DoElabM α) : DoElabM α :=
+  if mutTk?.isSome then declareMutVars xs erased k else k
 
 /-- Look up a declared `mut` variable by its raw `Name`. -/
 def findMutVar? (n : Name) : DoElabM (Option MutVar) := do
@@ -602,14 +605,55 @@ def registerMutVarAlias (x : Name) : DoElabM Unit := do
     if id != baseMutVar.baseId then
       pushInfoLeaf <| .ofFVarAliasInfo (baseMutVar.mkAliasInfo id)
 
+/-- Bind `x` to `carried.out` at the underlying type while `k` runs, and zeta-substitute the
+binding away, so the source name reaches proofs and never compiled code. The newest binding of
+`x` must be the carried `Erased` binding. -/
+def withErasedProj (x : Ident) (k : DoElabM Expr) (info : Bool := true) : DoElabM Expr := do
+  let carried ← getLocalDeclFromUserName x.getId
+  let_expr c@Erased t ← carried.type
+    | throwError "the carried binding of erased variable `{x.getId}` has type{indentExpr carried.type}\ninstead of an `Erased` type"
+  let outVal := mkApp2 (mkConst ``Erased.out c.constLevels!) t carried.toExpr
+  withLetDecl x.getId t outVal (nondep := true) fun xv => do
+    if info then
+      Term.addLocalVarInfo x xv
+    -- Uses of `x` resolve to the projection, so alias it to the variable's base binding for
+    -- find-references and rename.
+    let baseId := ((← findMutVar? x.getId).map (·.baseId)).getD carried.fvarId
+    pushInfoLeaf <| .ofFVarAliasInfo { userName := x.getId, id := xv.fvarId!, baseId }
+    let body ← k
+    return (← body.abstractM #[xv]).instantiate1 outVal
+
+/-- Bind the `.out` projection of each erased variable among `mutVars` around `k`. -/
+def withErasedProjs (mutVars : Array MutVar) (k : DoElabM Expr) (info : Bool := true) : DoElabM Expr :=
+  (mutVars.filter (·.erased)).foldr (init := k) fun mv k => withErasedProj mv.ident k info
+
+/-- `Erased.mk e`, which erases `e` in compiled code. -/
+def mkErasedMkApp (e : Expr) : MetaM Expr := do
+  let t ← inferType e
+  return mkApp2 (mkConst ``Erased.mk [← getLevel t]) t e
+
+/-- The type of `mv`'s slot in runtime state (tuples, join parameters): an erased variable's slot
+carries the `Erased` value. -/
+def MutVar.stateType (mv : MutVar) : MetaM Expr := do
+  let t := (← getLocalDeclFromUserName mv.getId).type
+  if mv.erased then return mkApp (mkConst ``Erased [← getLevel t]) t else return t
+
+/-- The current value of `mv` as packed into runtime state. -/
+def MutVar.stateValue (mv : MutVar) : MetaM Expr := do
+  let v := (← getLocalDeclFromUserName mv.getId).toExpr
+  if mv.erased then mkErasedMkApp v else return v
+
 /--
 Given a list of mut vars `vars` and an FVar `tupleVar` binding a tuple, bind the mut vars to the
 fields of the tuple and call `k` in the resulting local context.
 -/
-def bindMutVarsFromTuple (vars : List Name) (tupleVar : FVarId) (k : DoElabM Expr) : DoElabM Expr :=
-  do go vars tupleVar (← tupleVar.getType) #[]
+def bindMutVarsFromTuple (vars : List Name) (tupleVar : FVarId) (k : DoElabM Expr) : DoElabM Expr := do
+  let erasedVars := (← read).mutVars.filter fun mv => mv.erased && vars.contains mv.getId
+  -- Like the erased rebindings themselves, the projections contribute only aliases here.
+  let k := withErasedProjs erasedVars k (info := false)
+  go vars tupleVar (← tupleVar.getType) #[] k
 where
-  go vars tupleVar tupleTy letFVars := do
+  go vars tupleVar tupleTy letFVars k := do
     let tuple := mkFVar tupleVar
     match vars with
     | []  => mkLetFVars letFVars (← k)
@@ -629,7 +673,7 @@ where
       withLetDecl x fstTy fst fun xf => do
         registerMutVarAlias x
         withLetDecl (← tupleVar.getUserName) sndTy snd fun r => do
-          go xs r.fvarId! sndTy (letFVars |>.push xf |>.push r)
+          go xs r.fvarId! sndTy (letFVars |>.push xf |>.push r) k
 
 /--
   Backtrackable state for the `TermElabM` monad.
@@ -683,12 +727,11 @@ def DoElemCont.withDuplicableCont (nondupDec : DoElemCont) (callerInfo : Control
   let γ := (← read).doBlockResultType
   let mγ ← mkMonadApp γ
   let mutVars := (← read).mutVars |>.filter (callerInfo.reassigns.contains ·.getId)
-  let mutVarNames := mutVars.map (·.getId)
   let joinName ← mkFreshUserName `__do_jp
   -- σ is the tuple type of the mut vars, or mγ if jumpCount = 0. Hence it is either level mi.u or mi.v.
   -- let σ ← mkFreshTypeMVar (userName := `σ)
-  let mutDecls ← mutVarNames.mapM (getLocalDeclFromUserName ·)
-  let mutTypes := mutDecls.map (·.type)
+  -- An erased variable's join parameter carries the `Erased` value; its projection rebinds below.
+  let mutTypes ← mutVars.mapM (·.stateType)
   let joinTy ← mkArrow nondupDec.resultType (← mkArrowN mutTypes mγ)
   let joinRhsMVar ← mkFreshExprSyntheticOpaqueMVar joinTy
   withLetDecl joinName joinTy joinRhsMVar (kind := .implDetail) (nondep := true) fun jp => do
@@ -697,9 +740,8 @@ def DoElemCont.withDuplicableCont (nondupDec : DoElemCont) (callerInfo : Control
     let result ← getFVarFromUserName nondupDec.resultName
     let mut e := mkApp jp' result
     for x in mutVars do
-      let newX ← getFVarFromUserName x.getId
-      Term.addTermInfo' x.ident newX
-      e := mkApp e (← getFVarFromUserName x.getId)
+      Term.addTermInfo' x.ident (← getFVarFromUserName x.getId)
+      e := mkApp e (← x.stateValue)
     return e
 
   let elabBody :=
@@ -710,9 +752,9 @@ def DoElemCont.withDuplicableCont (nondupDec : DoElemCont) (callerInfo : Control
 
   let joinRhs ← joinRhsMVar.mvarId!.withContext do
     withLocalDeclD nondupDec.resultName nondupDec.resultType fun r => do
-    withLocalDeclsDND (mutDecls.map fun (d : LocalDecl) => (d.userName, d.type)) fun muts => do
+    withLocalDeclsDND ((mutVars.zip mutTypes).map fun (mv, t) => (mv.getId, t)) fun muts => do
     for (x, newX) in mutVars.zip muts do Term.addTermInfo' x.ident newX
-    let e ← (nondupDec.withDeadCodeFromInfo callerInfo).k
+    let e ← withErasedProjs mutVars (nondupDec.withDeadCodeFromInfo callerInfo).k
     mkLambdaFVars (#[r] ++ muts) e
   unless ← joinRhsMVar.mvarId!.checkedAssign joinRhs do
     joinRhsMVar.mvarId!.withContext do

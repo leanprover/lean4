@@ -377,7 +377,9 @@ jobs:
               },
               {
                 "name": "macOS aarch64",
-                "enabled": level >= 1 || macos_arm,
+                // Kept out of the merge queue, where it would be the slowest job; breakage surfaces
+                // on master instead.
+                "enabled": isPushToMaster || level >= 2 || macos_arm,
                 "test": level >= 2,
                 // standard GH runner only comes with 7GB so use large runner if possible when running tests
                 "os": large && (fast || level >= 2) ? "nscloud-macos-sequoia-arm64-6x14" : "macos-15",

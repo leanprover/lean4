@@ -23,7 +23,7 @@ lean_object* l_String_quote(lean_object*);
 lean_object* l_Repr_addAppParen(lean_object*, lean_object*);
 uint8_t lean_nat_dec_le(lean_object*, lean_object*);
 lean_object* l_Bool_repr___redArg(uint8_t);
-lean_object* l_Lean_Data_Trie_empty(lean_object*);
+lean_object* l_Lean_Data_Trie_empty___redArg();
 lean_object* l_Lean_Data_Trie_insert___redArg(lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Data_Trie_matchPrefix___redArg(lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* lean_nat_add(lean_object*, lean_object*);
@@ -49,7 +49,6 @@ lean_object* lean_string_utf8_extract_fast(lean_object*, lean_object*, lean_obje
 lean_object* lean_nat_sub(lean_object*, lean_object*);
 uint8_t l_String_Slice_beq(lean_object*, lean_object*);
 lean_object* l_Lake_Date_toString(lean_object*);
-lean_object* l_String_Slice_positions(lean_object*);
 lean_object* l_String_Slice_toString(lean_object*);
 lean_object* l_String_Slice_Pos_nextn(lean_object*, lean_object*, lean_object*);
 lean_object* l_Lake_Date_ofString_x3f(lean_object*);
@@ -4450,8 +4449,8 @@ return v___x_1250_;
 v___jp_1251_:
 {
 lean_object* v___x_1261_; lean_object* v___x_1262_; uint8_t v___x_1263_; 
-v___x_1261_ = l_String_Slice_positions(v___y_1254_);
 lean_dec_ref(v___y_1254_);
+v___x_1261_ = lean_unsigned_to_nat(0u);
 lean_inc(v___y_1253_);
 v___x_1262_ = l_WellFounded_opaqueFix_u2083___at___00Lake_ToolchainVer_ofString_spec__2___redArg(v___y_1257_, v___y_1259_, v___x_1261_, v___y_1253_);
 lean_dec_ref(v___y_1259_);
@@ -6112,7 +6111,7 @@ static lean_object* _init_l___private_Lake_Util_Version_0__Lake_ComparatorOp_par
 _start:
 {
 lean_object* v___x_1783_; 
-v___x_1783_ = l_Lean_Data_Trie_empty(lean_box(0));
+v___x_1783_ = l_Lean_Data_Trie_empty___redArg();
 return v___x_1783_;
 }
 }

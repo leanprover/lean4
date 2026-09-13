@@ -6,6 +6,7 @@ Authors: Sebastian Graf
 module
 
 prelude
+meta import Init.Data.Erased
 public import Lean.Elab.BuiltinDo.Basic
 meta import Lean.Parser.Do
 meta import Std.WP.Gadget.ForIn
@@ -169,10 +170,22 @@ structure ForInApp where
   σ : Expr
   /-- The pattern naming the loop's mutable variables in the state tuple. -/
   statePat : Term
+  /-- The erased variables among the loop's mutable variables; annotations bind their `.out`
+  projections over the state tuple. -/
+  erasedMutVars : Array MutVar := #[]
+
+/-- Bind the `.out` projection of each erased variable over `e`, so that an annotation names erased
+variables at their underlying type. The `+zeta` substitutes the binding away at elaboration, so
+annotation goals carry the projection inline like the compiled body does. -/
+private def ForInApp.wrapErasedProjs (g : ForInApp) (e : Term) : DoElabM Term := do
+  let mut e := e
+  for mv in g.erasedMutVars do
+    e ← `(let +zeta $(mv.ident):ident := Erased.out $(⟨mv.ident.raw⟩); $e)
+  return e
 
 /-- Abstract `e` over the loop's state tuple, so that `e` may name the loop's mutable variables. -/
-private def ForInApp.mkStateFun (g : ForInApp) (e : Term) : DoElabM Term :=
-  `(fun $(g.statePat) => $e)
+private def ForInApp.mkStateFun (g : ForInApp) (e : Term) : DoElabM Term := do
+  `(fun $(g.statePat) => $(← g.wrapErasedProjs e))
 
 /-- Elaborate the gadget application that replaces the loop. The gadgets live downstream of this
 module, so `gadget` is an unresolved name that resolves in the user's context. -/
@@ -242,7 +255,7 @@ private def mkForInLoopGadget (g : ForInApp)
     -- unfolded type, and a specification's instance arguments are synthesized before the check that
     -- would unfold it.
     return ((invClause : Syntax), ← `($(mkIdent ``Std.WP.WhileInvariant.mk)
-      fun $exitVar:ident $(g.statePat) => $invBody))
+      fun $exitVar:ident $(g.statePat) => $(← g.wrapErasedProjs invBody)))
   let varArg? ← dec?.mapM fun decClause => do
     let (binders, body) ← match decClause with
       | `(doLoopDecreasing| decreasing $binders* => $body) => pure (binders, body)
@@ -296,17 +309,17 @@ private def mkForInLoopGadget (g : ForInApp)
         | some e => mkSome oldReturnCont.resultType e
       defs := defs.push returnVar
     for x in loopMutVars do
-      let defn ← getLocalDeclFromUserName x.getId
-      Term.addTermInfo' x.ident defn.toExpr
+      Term.addTermInfo' x.ident (← getFVarFromUserName x.getId)
+      let v ← x.stateValue
       -- ForIn forces the mut tuple into the universe mi.u: that of the do block result type.
       -- If we don't do this, then we are stuck on solving constraints such as
       --   `max ?u.46 ?u.47 =?= max (max ?u.22 ?u.46) ?u.47`
       -- It's important we do this as a separate isLevelDefEq check on the decremented level because
       -- otherwise (`ensureHasType (mkSort mi.u.succ)`) we are stuck on constraints like
       --   `max (?u+1) (?v+1) =?= ?u+1`
-      let u ← getDecLevel defn.type
+      let u ← getDecLevel (← inferType v)
       discard <| isLevelDefEq u mi.u
-      defs := defs.push defn.toExpr
+      defs := defs.push v
     if info.returnsEarly && loopMutVars.isEmpty then
       defs := defs.push (mkConst ``Unit.unit)
     return defs
@@ -367,7 +380,8 @@ private def mkForInLoopGadget (g : ForInApp)
   let mut forIn := mkApp app body
   unless inv?.isNone && dec?.isNone do
     let g : ForInApp :=
-      { xs, init := preS, body, σ, statePat := ← mkStatePat loopMutVars info.returnsEarly }
+      { xs, init := preS, body, σ, statePat := ← mkStatePat loopMutVars info.returnsEarly,
+        erasedMutVars := loopMutVars.filter (·.erased) }
     if (← instantiateMVars ρ).isConstOf ``Lean.Loop then
       if let some e ← mkForInLoopGadget g inv? dec? then forIn := e
     else if let some decClause := dec? then

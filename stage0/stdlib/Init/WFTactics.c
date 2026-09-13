@@ -23,7 +23,7 @@ lean_object* l_Lean_addMacroScope(lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Syntax_node2(lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Syntax_node1(lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Syntax_node3(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
-lean_object* l_Array_mkArray0(lean_object*);
+lean_object* l_Array_mkArray0___redArg();
 lean_object* l_Lean_Name_mkStr2(lean_object*, lean_object*);
 lean_object* lean_mk_empty_array_with_capacity(lean_object*);
 lean_object* lean_array_push(lean_object*, lean_object*);
@@ -571,7 +571,7 @@ static lean_object* _init_l___aux__Init__WFTactics______macroRules__tacticSimp__
 _start:
 {
 lean_object* v___x_73_; 
-v___x_73_ = l_Array_mkArray0(lean_box(0));
+v___x_73_ = l_Array_mkArray0___redArg();
 return v___x_73_;
 }
 }

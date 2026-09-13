@@ -972,11 +972,12 @@ public:
         if (m_queues_size != 0) {
             // Tasks enqueued after `shutdown` never run. They are kept reachable instead of losing
             // their only reference with the queues, so leak checkers treat them like any other
-            // object still referenced at exit.
-            std::vector<lean_task_object *> * unrun = new std::vector<lean_task_object *>();
+            // object still referenced at exit. Appended rather than replaced, since an embedder may
+            // finalize more than one task manager.
+            if (g_unrun_tasks == nullptr)
+                g_unrun_tasks = new std::vector<lean_task_object *>();
             for (auto & q : m_queues)
-                unrun->insert(unrun->end(), q.begin(), q.end());
-            g_unrun_tasks = unrun;
+                g_unrun_tasks->insert(g_unrun_tasks->end(), q.begin(), q.end());
         }
     }
 

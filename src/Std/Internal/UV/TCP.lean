@@ -24,6 +24,10 @@ private opaque SocketImpl : NonemptyType.{0}
 /--
 Represents a TCP socket.
 
+While a `recv?`, `waitReadable` or `accept` is pending, the event loop keeps the socket alive even
+if nothing else references it. Two connected sockets that each wait to receive from the other
+therefore stay open until one receive is cancelled with `cancelRecv` or the program exits.
+
 The event loop is torn down when `main` returns, after the tasks that are still running have
 finished. A promise still pending at that point is never resolved. From then on `cancelRecv` and
 `cancelAccept` succeed as no-ops and every other operation fails with `UV_ECANCELED`.

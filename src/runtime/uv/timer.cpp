@@ -96,7 +96,6 @@ void handle_timer_event(uv_timer_t* handle) {
 
         lean_object * promise = timer->m_promise;
         if (promise != NULL) {
-            lean_assert(!timer_promise_is_finished(timer));
             lean_inc(promise);
         }
 
@@ -105,10 +104,13 @@ void handle_timer_event(uv_timer_t* handle) {
         timer->m_loop_ref = false;
         lean_dec(obj);
 
-        // Rule 1: nothing below may touch the timer.
+        // Rule 1: nothing below may touch the timer. Code holding the promise may have resolved it
+        // already.
         if (promise != NULL) {
-            lean_object* res = lean_io_promise_resolve(lean_box(0), promise);
-            lean_dec(res);
+            if (!promise_is_resolved(promise)) {
+                lean_object* res = lean_io_promise_resolve(lean_box(0), promise);
+                lean_dec(res);
+            }
             lean_dec(promise);
         }
     }

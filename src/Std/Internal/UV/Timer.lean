@@ -45,8 +45,9 @@ This creates a `Timer` in the initial state and doesn't run it yet.
   milliseconds, counting from when it's run. Note that this includes the 0th multiple right after
   starting the timer. A `timeout` of 0 ticks every millisecond.
 
-The event loop keeps a running timer alive only while a promise from `next` is still pending, so a
-repeating timer can be freed without calling `Timer.stop`.
+The event loop keeps a running timer alive only while it owes a promise from `next`, that is until
+it resolves it or `cancel`/`stop` drops it, so a repeating timer can be freed without calling
+`Timer.stop`.
 -/
 @[extern "lean_uv_timer_mk"]
 opaque mk (timeout : UInt64) (repeating : Bool) : IO Timer
@@ -56,7 +57,9 @@ This function has different behavior depending on the state and configuration of
 - if `repeating` is `false` and:
   - it is initial, run it and return a new `IO.Promise` that is set to resolve once `timeout`
     milliseconds have elapsed. After this `IO.Promise` is resolved the `Timer` is finished.
-  - it is running or finished, return the same `IO.Promise` that the first call to `next` returned.
+  - it is running, or finished after firing, return the same `IO.Promise` that the first call to
+    `next` returned.
+  - it was finished by `stop` before firing, return a new `IO.Promise` that is never resolved.
 - if `repeating` is `true` and:
   - it is initial, run it and return a new `IO.Promise` that resolves right away
     (as it is the 0th multiple of `timeout`).
@@ -64,11 +67,12 @@ This function has different behavior depending on the state and configuration of
      - If it is, return a new `IO.Promise` that resolves upon finishing the next cycle
      - If it is not, return the last `IO.Promise`
      This ensures that the returned `IO.Promise` resolves at the next repetition of the timer.
-  - if it is finished, return the last `IO.Promise` created by `next`. Notably this could be one
-    that never resolves if the timer was stopped before fulfilling the last one.
+  - if it is finished, return a new `IO.Promise` that is never resolved: `stop` dropped the one the
+    timer still owed.
 
-Once the event loop has been torn down at exit, this function fails with `UV_ECANCELED` rather
-than returning a promise.
+A promise from `next` may also be resolved by the code holding it; the timer then treats it as
+fulfilled when it fires. Once the event loop has been torn down at exit, this function fails with
+`UV_ECANCELED` rather than returning a promise.
 -/
 @[extern "lean_uv_timer_next"]
 opaque next (timer : @& Timer) : IO (IO.Promise Unit)

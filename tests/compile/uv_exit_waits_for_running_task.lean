@@ -4,8 +4,8 @@ import Std.Internal.UV
 Returning from `main` waits for the running tasks with the event loop still up, so a task blocked
 on a libuv promise completes once that promise resolves.
 
-Stopping the loop before the tasks finished used to leave the promise pending forever while the
-task kept it referenced: the task never woke, and the process waited for it forever.
+If the loop stopped first, the promise would stay pending while the task kept it referenced, and
+the process would wait for that task forever.
 -/
 
 open Std.Internal.UV

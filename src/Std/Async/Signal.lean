@@ -191,7 +191,7 @@ private def toInt32 : Signal → Int32
 
 The event loop is torn down when `main` returns, after the tasks that are still running have
 finished. A `wait` still pending at that point never completes, and starting a new one fails with
-`UV_ECANCELED`.
+`UV_ECANCELED`. A signal that arrives while the process finishes exiting gets its default action.
 -/
 structure Waiter where
   private ofNative ::

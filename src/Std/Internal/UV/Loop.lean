@@ -41,6 +41,10 @@ opaque configure (options : @& Options) : IO Unit
 /--
 Checks if the event loop is still active and processing events. Returns `false` once the event loop
 has been torn down at exit.
+
+The teardown runs in `lean_finalize_task_manager` and is final: an embedder that initializes a task
+manager again afterwards gets no event loop, and every operation that needs one fails with
+`UV_ECANCELED`.
 -/
 @[extern "lean_uv_event_loop_alive"]
 opaque alive : BaseIO Bool

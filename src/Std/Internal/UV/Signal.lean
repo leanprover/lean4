@@ -31,7 +31,8 @@ of all functions on `Signal`s.
 
 The event loop is torn down when `main` returns, after the tasks that are still running have
 finished. A promise still pending at that point is never resolved. From then on `stop` and `cancel`
-succeed as no-ops and every other operation fails with `UV_ECANCELED`.
+succeed as no-ops and every other operation fails with `UV_ECANCELED`. The teardown stops every
+signal handler, so a signal that arrives while the process finishes exiting gets its default action.
 -/
 def Signal : Type := SignalImpl.type
 
@@ -47,8 +48,9 @@ This creates a `Signal` in the initial state and doesn't start listening yet.
   signal `signum` is received and continues listening. While it listens, a signal that arrives with
   no promise from `next` pending is consumed without being reported.
 
-The event loop keeps a running signal handler alive only while a promise from `next` is still
-pending, so a repeating one can be freed without calling `Signal.stop`.
+The event loop keeps a running signal handler alive only while it owes a promise from `next`, that
+is until it resolves it or `cancel`/`stop` drops it, so a repeating one can be freed without calling
+`Signal.stop`.
 -/
 @[extern "lean_uv_signal_mk"]
 opaque mk (signum : Int32) (repeating : Bool) : IO Signal
@@ -58,7 +60,10 @@ This function has different behavior depending on the state and configuration of
 - if `repeating` is `false` and:
   - it is initial, start listening and return a new `IO.Promise` that is set to resolve once
     the signal `signum` is received. After this `IO.Promise` is resolved the `Signal` is finished.
-  - it is running or finished, return the same `IO.Promise` that the first call to `next` returned.
+  - it is running, or finished after receiving the signal, return the same `IO.Promise` that the
+    first call to `next` returned.
+  - it was finished by `stop` before receiving the signal, return a new `IO.Promise` that is never
+    resolved.
 - if `repeating` is `true` and:
   - it is initial, start listening and return a new `IO.Promise` that resolves when the next
     signal `signum` is received.
@@ -66,11 +71,13 @@ This function has different behavior depending on the state and configuration of
      - If it is, return a new `IO.Promise` that resolves upon receiving the next signal
      - If it is not, return the last `IO.Promise`
      This ensures that the returned `IO.Promise` resolves at the next occurrence of the signal.
-  - if it is finished, return the last `IO.Promise` created by `next`. Notably this could be one
-    that never resolves if the signal handler was stopped before fulfilling the last one.
+  - if it is finished, return a new `IO.Promise` that is never resolved: `stop` dropped the one the
+    handler still owed.
 
-The resolved `IO.Promise` contains the signal number that was received. Once the event loop has
-been torn down at exit, this function fails with `UV_ECANCELED` rather than returning a promise.
+A promise from `next` may also be resolved by the code holding it; the handler then treats it as
+fulfilled when the signal arrives. The resolved `IO.Promise` contains the signal number that was
+received. Once the event loop has been torn down at exit, this function fails with `UV_ECANCELED`
+rather than returning a promise.
 -/
 @[extern "lean_uv_signal_next"]
 opaque next (signal : @& Signal) : IO (IO.Promise Int)

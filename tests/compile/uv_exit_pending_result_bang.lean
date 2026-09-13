@@ -4,9 +4,9 @@ import Std.Internal.UV
 A `Promise.result!` continuation on a libuv promise that is still pending when the program exits
 must not run.
 
-Tearing down the event loop used to drop such a promise, resolving it to `none`: the continuation
-then ran on the exiting thread, where `Promise.result!` panics and blocks forever, so the process
-never exited.
+Teardown keeps such a promise unresolved. Dropping it would resolve it to `none` and run the
+continuation on the exiting thread, where `Promise.result!` panics and then blocks, so the process
+would never exit.
 -/
 
 open Std.Internal.UV

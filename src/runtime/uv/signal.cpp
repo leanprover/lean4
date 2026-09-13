@@ -93,7 +93,6 @@ void handle_signal_event(uv_signal_t* handle, int signum) {
 
         lean_object * promise = signal->m_promise;
         if (promise != NULL) {
-            lean_assert(!signal_promise_is_finished(signal));
             lean_inc(promise);
         }
 
@@ -101,10 +100,13 @@ void handle_signal_event(uv_signal_t* handle, int signum) {
         signal->m_loop_ref = false;
         lean_dec(obj);
 
-        // Rule 1: nothing below may touch the signal.
+        // Rule 1: nothing below may touch the signal. Code holding the promise may have resolved it
+        // already.
         if (promise != NULL) {
-            lean_object* res = lean_io_promise_resolve(lean_box(signum), promise);
-            lean_dec(res);
+            if (!promise_is_resolved(promise)) {
+                lean_object* res = lean_io_promise_resolve(lean_box(signum), promise);
+                lean_dec(res);
+            }
             lean_dec(promise);
         }
     }

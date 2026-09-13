@@ -2,15 +2,13 @@ import Std.Internal.UV
 import Std.Net.Addr
 
 /-!
-Regression guard for the libuv teardown walk running Lean code.
+The libuv teardown walk must not run Lean code.
 
-The teardown hooks used to resolve promises and drop references from inside the `uv_walk` callback.
-A `(sync := true)` continuation attached to such a promise then ran on the walking thread; when it
-dropped the last reference to another handle, that handle's finalizer freed a `uv_handle_t` still
-linked into the queue `uv_walk` was iterating, crashing the walk.
-
-Teardown now keeps a promise that is still pending instead of releasing it, so the continuation
-below never runs; it prints if it does.
+Below, a `(sync := true)` continuation is the sole owner of three handles and hangs off a promise
+still pending at exit. If the walk resolved or dropped that promise, the continuation would run on
+the walking thread, and the finalizers of the handles it drops would free `uv_handle_t`s still
+linked into the queue `uv_walk` iterates. Teardown keeps the promise instead, so the continuation
+never runs; it prints if it does.
 -/
 
 open Std.Internal.UV Std.Net

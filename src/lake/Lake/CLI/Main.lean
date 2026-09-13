@@ -137,6 +137,7 @@ public def LakeOptions.mkLoadConfig (opts : LakeOptions) : EIO CliError LoadConf
 /-- Make a `BuildConfig` from a `LakeOptions`. -/
 def LakeOptions.mkBuildConfig
   (opts : LakeOptions) (out := OutStream.stderr) (showSuccess := false)
+  (outputsPackage? : Option Package := none)
 : BuildConfig where
   oldMode := opts.oldMode
   trustHash := opts.trustHash
@@ -146,7 +147,8 @@ def LakeOptions.mkBuildConfig
   failLv := opts.failLv
   outLv := opts.outLv
   ansiMode := opts.ansiMode
-  outputsFile? := opts.outputsFile?
+  outputsFile? := opts.outputsFile?.filter fun _ => outputsPackage?.isSome
+  outputsIdx := outputsPackage?.elim 0 (·.wsIdx)
   out; showSuccess
 
 export LakeOptions (mkLoadConfig mkBuildConfig)
@@ -687,23 +689,21 @@ protected def put : CliM PUnit := do
   let opts ← getThe LakeOptions
   let some scope := opts.scope?
     | error "the `--scope` or `--repo` option must be set"
-  if opts.package?.isSome then
-    error "the `--package` option is not supported for `cache put`"
   if opts.rev?.isSome then
     error "the `--rev` option is not supported for `cache put`; \
       to upload artifacts for different revisions, use the staging workflow, \
       e.g., `lake cache stage` and `lake cache put-staged`"
   noArgsRem do
   let cfg ← mkLoadConfig opts
-  let lakeEnv := cfg.lakeEnv
-  let pkg ← loadPackage cfg
-  let lakeCfg ← loadLakeConfig lakeEnv
-  let lakeCache := computeLakeCache pkg lakeEnv
+  let ws ← loadWorkspace cfg
+  let pkg ← match opts.package? with
+    | some pkg => parsePackageSpec ws pkg
+    | _ => pure ws.root
   let platform := cachePlatform pkg (opts.platform?.getD .system)
-  let toolchain := cacheToolchain pkg (opts.toolchain?.getD lakeEnv.cacheToolchain)
-  let service ← computeUploadService opts.service? lakeEnv lakeCfg
+  let toolchain := cacheToolchain pkg (opts.toolchain?.getD ws.lakeEnv.cacheToolchain)
+  let service ← computeUploadService opts.service? ws.lakeEnv ws.lakeConfig
   let rev ← computePackageRev pkg.dir
-  putCore rev file lakeCache.artifactDir service scope platform toolchain
+  putCore rev file ws.lakeCache.artifactDir service scope platform toolchain
 
 protected def add : CliM PUnit := do
   processOptions lakeOption
@@ -819,6 +819,8 @@ protected def putStaged : CliM PUnit := do
   processOptions lakeOption
   let opts ← getThe LakeOptions
   let stagingDir ← FilePath.mk <$> takeArg "staging directory"
+  let some rev := opts.rev?
+    | error "the `--rev` option must be set"
   let some scope := opts.scope?
     | error "the `--scope` or `--repo` option must be set"
   if opts.package?.isSome then
@@ -829,7 +831,6 @@ protected def putStaged : CliM PUnit := do
   let platform := opts.platform?.getD .none
   let toolchain := opts.toolchain?.getD .none
   let service ← computeUploadService opts.service? cfg.lakeEnv lakeCfg
-  let rev ← opts.rev?.getDM (computePackageRev cfg.wsDir)
   let outputsFile := stagingDir / stagingOutputsFile
   putCore rev outputsFile stagingDir service scope platform toolchain
 
@@ -953,7 +954,13 @@ protected def build : CliM PUnit := do
   specs.forM fun spec =>
     unless spec.buildable do
       throw <| .invalidBuildTarget spec.info.key.toSimpleString
-  let buildConfig := mkBuildConfig opts (out := .stdout) (showSuccess := true)
+  let outputsPackage? ← id do
+    match opts.outputsFile?, opts.package? with
+    | some _, some pkg => some <$> parsePackageSpec ws pkg
+    | some _, none => return some ws.root
+    | none, some _ => error "`--package` requires `-o`"
+    | none, none => return none
+  let buildConfig := mkBuildConfig opts (out := .stdout) (showSuccess := true) outputsPackage?
   ws.runBuild (buildSpecs specs) buildConfig
 
 protected def checkBuild : CliM PUnit := do

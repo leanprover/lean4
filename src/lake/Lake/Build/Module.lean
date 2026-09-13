@@ -1113,20 +1113,19 @@ where
         else
           mod.buildLean presetup
   trackOutputsIfEnabled arts : JobM ModuleOutputArtifacts := do
-    if mod.pkg.isRoot then
-      if let some ref := (← getBuildContext).outputsRef? then
-        let inputHash := (← getTrace).hash
-        if let some ltar := arts.ltar? then
-          ref.insert inputHash ltar.descr
-          return arts
-        else
-          let ltar ← id do
-            if (← mod.ltarFile.pathExists) then
-              computeArtifact mod.ltarFile "ltar"
-            else
-              mod.packLtar arts
-          ref.insert inputHash ltar.descr (mod.platformIndependent.getD false)
-          return {arts with ltar? := some ltar}
+    if let some ref ← Internal.getOutputsRef? mod.pkg then
+      let inputHash := (← getTrace).hash
+      if let some ltar := arts.ltar? then
+        ref.insert inputHash ltar.descr
+        return arts
+      else
+        let ltar ← id do
+          if (← mod.ltarFile.pathExists) then
+            computeArtifact mod.ltarFile "ltar"
+          else
+            mod.packLtar arts
+        ref.insert inputHash ltar.descr (mod.platformIndependent.getD false)
+        return {arts with ltar? := some ltar}
     return arts
   adjustMTime arts : JobM ModuleOutputArtifacts := do
     match (← getMTime mod.traceFile |>.toBaseIO) with

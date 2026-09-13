@@ -53,6 +53,10 @@ structure MonitorState where
   totalJobs : Nat := 0
   wantsRebuild : Bool := false
   failures : Array String
+  /-- Non-optional jobs bucketed by their maximum log level, independent of `failLv`. -/
+  cleanJobs : Nat := 0
+  warnedJobs : Nat := 0
+  erroredJobs : Nat := 0
   resetCtrl : String
   lastUpdate : Nat
   spinnerIdx : Fin Monitor.spinnerFrames.size := ⟨0, by decide⟩
@@ -120,6 +124,13 @@ def reportJob (job : OpaqueJob) : MonitorM PUnit := do
     modify fun s => if s.wantsRebuild then s else {s with wantsRebuild := true}
   if failed && !optional then
     modify fun s => {s with failures := s.failures.push caption}
+  if !optional && action ≥ .fetch then
+    if maxLv ≥ .error then
+      modify fun s => {s with erroredJobs := s.erroredJobs + 1}
+    else if maxLv ≥ .warning then
+      modify fun s => {s with warnedJobs := s.warnedJobs + 1}
+    else
+      modify fun s => {s with cleanJobs := s.cleanJobs + 1}
   let hasOutput := failed || (log.hasEntries && maxLv ≥ outLv)
   let showJob :=
     (!optional || showOptional) &&
@@ -212,6 +223,10 @@ public structure MonitorResult where
   wantsRebuild : Bool
   failures : Array String
   numJobs : Nat
+  /-- Non-optional jobs bucketed by their maximum log level, independent of `failLv`. -/
+  cleanJobs : Nat := 0
+  warnedJobs : Nat := 0
+  erroredJobs : Nat := 0
 
 @[inline] def MonitorResult.isOk (self : MonitorResult) : Bool :=
   self.failures.isEmpty
@@ -252,6 +267,9 @@ def monitorJobs'
     failures := s.failures
     numJobs := s.totalJobs
     wantsRebuild := s.wantsRebuild
+    cleanJobs := s.cleanJobs
+    warnedJobs := s.warnedJobs
+    erroredJobs := s.erroredJobs
   }
 
 /-- The job monitor function. An auxiliary definition for `runFetchM`. -/
@@ -385,10 +403,45 @@ def Workspace.startBuild
   let compute := Job.async build (caption := caption)
   compute.run.run'.run bctx |>.run nilTrace
 
+/--
+Print a build summary table with ✔/⚠/✖ counts and a list of failed job captions.
+
+Jobs are bucketed by their maximum log level (clean, warnings, errors); whether a
+bucket counts as a success or a failure is determined by `failLv`, so that warnings
+are reported as failures under `--wfail`.
+-/
+def reportSummary (cfg : BuildConfig) (out : IO.FS.Stream) (result : MonitorResult) : BaseIO Unit := do
+  let clean := result.cleanJobs
+  let warned := result.warnedJobs
+  let errored := result.erroredJobs
+  print! out "Build summary:\n"
+  if clean > 0 then
+    print! out s!"  ✔ {clean} {jobs clean} succeeded\n"
+  if warned > 0 then
+    if cfg.failLv ≤ .warning then
+      print! out s!"  ✖ {warned} {jobs warned} failed with warnings\n"
+    else
+      print! out s!"  ⚠ {warned} {jobs warned} succeeded with warnings\n"
+  if errored > 0 then
+    print! out s!"  ✖ {errored} {jobs errored} failed with errors\n"
+  for caption in result.failures do
+    print! out s!"    {caption}\n"
+  if clean == 0 && warned == 0 && errored == 0 then
+    if cfg.noBuild then
+      print! out s!"  All targets up-to-date ({result.numJobs} jobs).\n"
+    else
+      print! out s!"  No jobs.\n"
+  flush out
+where
+  jobs (n : Nat) := if n == 1 then "job" else "jobs"
+
 def finalizeBuild
   (cfg : BuildConfig) (bctx : BuildContext ) (mctx : MonitorContext) (result : BuildResult α)
 : IO α := do
-  reportResult cfg mctx.out result
+  if cfg.summary then
+    reportSummary cfg mctx.out result.toMonitorResult
+  else
+    reportResult cfg mctx.out result
   if let some outputsFile := cfg.outputsFile? then
     bctx.workspace.saveOutputs (logger := mctx.logger)
       bctx.outputsRef? mctx.out outputsFile (cfg.verbosity matches .verbose)

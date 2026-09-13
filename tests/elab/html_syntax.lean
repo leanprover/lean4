@@ -382,6 +382,38 @@ macro "wrapped%" : term => `(html%{<div><b>x</b> <i>y</i> {bold} z</div>})
 #guard_msgs in
 #eval render html%{<p>&amp;&lt;&gt;&quot;&apos;</p>}
 
+-- Character references are decoded in quoted attribute values.
+/-- info: {"a":[["href","?a=1&b=2"]],"c":[],"t":"a"} -/
+#guard_msgs in
+#eval dump html%{<a href="?a=1&amp;b=2"/>}
+
+-- Escapable characters are re-encoded as character references by `render`.
+/-- info: "<a href=\"?a=1&amp;b=2\"></a>" -/
+#guard_msgs in
+#eval render html%{<a href="?a=1&amp;b=2"/>}
+
+/-- info: {"a":[["title","<b> \"q\" AB"]],"c":[],"t":"a"} -/
+#guard_msgs in
+#eval dump html%{<a title="&lt;b&gt; &quot;q&quot; &#65;&#x42;"/>}
+
+-- Lean's string escapes apply first; reference decoding happens on the resulting string.
+/-- info: {"a":[["title","a & b"]],"c":[],"t":"a"} -/
+#guard_msgs in
+#eval dump html%{<a title="a \x26amp; b"/>}
+
+-- Whitespace in an attribute value is significant.
+/-- info: {"a":[["title","a  b"]],"c":[],"t":"a"} -/
+#guard_msgs in
+#eval dump html%{<a title="a  b"/>}
+
+/-- error: Unterminated HTML character reference '&b' -/
+#guard_msgs in
+#eval dump html%{<a href="?a=1&b=2"/>}
+
+/-- error: Invalid HTML named character reference `&foo;` -/
+#guard_msgs in
+#eval dump html%{<a title="&foo;"/>}
+
 /-! ## Rendering -/
 
 /-- info: "<p class=\"x\">a &amp; b<br/>c</p>" -/
@@ -409,13 +441,33 @@ Hint: Replace with start tag
 #eval dump html%{<p></q>}
 
 /--
-error: Void element `br` cannot have children
+error: Void element `br` cannot have an end tag
 
-Hint: Remove children
+Hint: Remove end tag
   <̵b̵r̵>̵x̵<̵/̵b̵r̵>̵<̲b̲r̲/̲>̲
 -/
 #guard_msgs in
 #eval dump html%{<br>x</br>}
+
+-- The suggestion covers only the element, not the content preceding it, and keeps its attributes.
+/--
+error: Void element `img` cannot have an end tag
+
+Hint: Remove end tag
+  <img src="a" a̵l̵t̵=̵"̵b̵"̵>̵y̵<̵/̵i̵m̵g̵>̵a̲l̲t̲=̲"̲b̲"̲/̲>̲
+-/
+#guard_msgs in
+#eval dump html%{<p>abc<img src="a" alt="b">y</img></p>}
+
+-- A void element with an end tag but no children gets its own message.
+/--
+error: Void element `br` cannot have an end tag
+
+Hint: Remove end tag
+  <̵b̵r̵>̵<̵/̵b̵r̵>̵<̲b̲r̲/̲>̲
+-/
+#guard_msgs in
+#eval dump html%{<br></br>}
 
 /-- error: Invalid HTML named character reference `&foo;` -/
 #guard_msgs in

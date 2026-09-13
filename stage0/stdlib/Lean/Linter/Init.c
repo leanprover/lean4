@@ -1753,7 +1753,7 @@ v___x_597_ = lean_nat_dec_lt(v___x_595_, v___x_596_);
 if (v___x_597_ == 0)
 {
 uint8_t v___x_598_; 
-lean_dec_ref(v___x_594_);
+lean_dec(v___x_594_);
 v___x_598_ = lean_unbox(v_defValue_589_);
 v___y_591_ = v___x_598_;
 goto v___jp_590_;
@@ -1763,7 +1763,7 @@ else
 if (v___x_597_ == 0)
 {
 uint8_t v___x_599_; 
-lean_dec_ref(v___x_594_);
+lean_dec(v___x_594_);
 v___x_599_ = lean_unbox(v_defValue_589_);
 v___y_591_ = v___x_599_;
 goto v___jp_590_;
@@ -1774,7 +1774,7 @@ size_t v___x_600_; size_t v___x_601_; uint8_t v___x_602_;
 v___x_600_ = ((size_t)0ULL);
 v___x_601_ = lean_usize_of_nat(v___x_596_);
 v___x_602_ = l___private_Init_Data_Array_Basic_0__Array_anyMUnsafe_any___at___00Lean_Linter_getLinterValue_spec__2(v_o_587_, v___x_594_, v___x_600_, v___x_601_);
-lean_dec_ref(v___x_594_);
+lean_dec(v___x_594_);
 if (v___x_602_ == 0)
 {
 uint8_t v___x_603_; 

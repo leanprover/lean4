@@ -48,13 +48,13 @@ uint8_t l___private_Lean_Data_Name_0__Lean_Name_quickCmpImpl(lean_object*, lean_
 lean_object* lean_nat_mul(lean_object*, lean_object*);
 lean_object* lean_nat_add(lean_object*, lean_object*);
 lean_object* l_Lake_Job_mapM___redArg(lean_object*, lean_object*, lean_object*, lean_object*, uint8_t, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
+lean_object* l_Lean_Name_toStringWithToken___at___00Lean_Name_toString_spec__0(lean_object*, uint8_t);
 lean_object* l_Lake_LeanExeConfig_toLeanLibConfig___redArg(lean_object*);
 extern lean_object* l_Lake_Module_linkInfoNoExportFacet;
 extern lean_object* l_Lake_Module_keyword;
 extern lean_object* l_Lake_Module_linkInfoExportFacet;
 lean_object* l_Lake_ensureJob___redArg(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* lean_st_ref_take(lean_object*);
-lean_object* l_Lean_Name_toStringWithToken___at___00Lean_Name_toString_spec__0(lean_object*, uint8_t);
 lean_object* l_Lake_Job_toOpaque___redArg(lean_object*);
 lean_object* lean_array_push(lean_object*, lean_object*);
 lean_object* lean_st_ref_put(lean_object*, lean_object*);
@@ -639,7 +639,7 @@ return v_res_240_;
 LEAN_EXPORT lean_object* l___private_Lake_Build_Executable_0__Lake_LeanExe_recBuildExe(lean_object* v_self_242_, lean_object* v_a_243_, lean_object* v_a_244_, lean_object* v_a_245_, lean_object* v_a_246_, lean_object* v_a_247_, lean_object* v_a_248_){
 _start:
 {
-lean_object* v_config_250_; lean_object* v_pkg_251_; lean_object* v_name_252_; lean_object* v_root_253_; lean_object* v_exeName_254_; uint8_t v_supportInterpreter_255_; lean_object* v___x_256_; lean_object* v___f_257_; lean_object* v___x_258_; lean_object* v___f_259_; lean_object* v___x_260_; lean_object* v___x_261_; lean_object* v___f_262_; lean_object* v___x_263_; 
+lean_object* v_config_250_; lean_object* v_pkg_251_; lean_object* v_name_252_; lean_object* v_root_253_; lean_object* v_exeName_254_; uint8_t v_supportInterpreter_255_; lean_object* v___x_256_; lean_object* v___f_257_; lean_object* v___x_258_; lean_object* v___f_259_; uint8_t v___x_260_; lean_object* v___x_261_; lean_object* v___x_262_; lean_object* v___x_263_; lean_object* v___x_264_; lean_object* v___x_265_; lean_object* v___f_266_; uint8_t v___x_267_; lean_object* v___x_268_; 
 v_config_250_ = lean_ctor_get(v_self_242_, 2);
 lean_inc(v_config_250_);
 v_pkg_251_ = lean_ctor_get(v_self_242_, 0);
@@ -661,102 +661,102 @@ v___x_258_ = l_Lake_instDataKindFilePath;
 v___f_259_ = lean_alloc_closure((void*)(l___private_Lake_Build_Executable_0__Lake_LeanExe_recBuildExe___lam__1___boxed), 10, 2);
 lean_closure_set(v___f_259_, 0, v___x_258_);
 lean_closure_set(v___f_259_, 1, v___f_257_);
-v___x_260_ = lean_alloc_ctor(1, 1, 0);
-lean_ctor_set(v___x_260_, 0, v_pkg_251_);
-v___x_261_ = lean_box(v_supportInterpreter_255_);
-v___f_262_ = lean_alloc_closure((void*)(l___private_Lake_Build_Executable_0__Lake_LeanExe_recBuildExe___lam__2___boxed), 14, 7);
-lean_closure_set(v___f_262_, 0, v___x_261_);
-lean_closure_set(v___f_262_, 1, v_pkg_251_);
-lean_closure_set(v___f_262_, 2, v_config_250_);
-lean_closure_set(v___f_262_, 3, v_name_252_);
-lean_closure_set(v___f_262_, 4, v_root_253_);
-lean_closure_set(v___f_262_, 5, v___x_260_);
-lean_closure_set(v___f_262_, 6, v___f_259_);
-v___x_263_ = l_Lake_ensureJob___redArg(v___x_258_, v___f_262_, v_a_243_, v_a_244_, v_a_245_, v_a_246_, v_a_247_, v_a_248_);
-if (lean_obj_tag(v___x_263_) == 0)
+v___x_260_ = 1;
+v___x_261_ = l_Lean_Name_toStringWithToken___at___00Lean_Name_toString_spec__0(v_name_252_, v___x_260_);
+v___x_262_ = ((lean_object*)(l___private_Lake_Build_Executable_0__Lake_LeanExe_recBuildExe___closed__0));
+v___x_263_ = lean_string_append(v___x_261_, v___x_262_);
+v___x_264_ = lean_alloc_ctor(1, 1, 0);
+lean_ctor_set(v___x_264_, 0, v_pkg_251_);
+v___x_265_ = lean_box(v_supportInterpreter_255_);
+v___f_266_ = lean_alloc_closure((void*)(l___private_Lake_Build_Executable_0__Lake_LeanExe_recBuildExe___lam__2___boxed), 14, 7);
+lean_closure_set(v___f_266_, 0, v___x_265_);
+lean_closure_set(v___f_266_, 1, v_pkg_251_);
+lean_closure_set(v___f_266_, 2, v_config_250_);
+lean_closure_set(v___f_266_, 3, v_name_252_);
+lean_closure_set(v___f_266_, 4, v_root_253_);
+lean_closure_set(v___f_266_, 5, v___x_264_);
+lean_closure_set(v___f_266_, 6, v___f_259_);
+v___x_267_ = 0;
+v___x_268_ = l_Lake_ensureJob___redArg(v___x_258_, v___f_266_, v_a_243_, v_a_244_, v_a_245_, v_a_246_, v_a_247_, v_a_248_);
+if (lean_obj_tag(v___x_268_) == 0)
 {
-lean_object* v_a_264_; lean_object* v_a_265_; lean_object* v___x_267_; uint8_t v_isShared_268_; uint8_t v_isSharedCheck_293_; 
-v_a_264_ = lean_ctor_get(v___x_263_, 0);
-v_a_265_ = lean_ctor_get(v___x_263_, 1);
-v_isSharedCheck_293_ = !lean_is_exclusive(v___x_263_);
+lean_object* v_a_269_; lean_object* v_a_270_; lean_object* v___x_272_; uint8_t v_isShared_273_; uint8_t v_isSharedCheck_293_; 
+v_a_269_ = lean_ctor_get(v___x_268_, 0);
+v_a_270_ = lean_ctor_get(v___x_268_, 1);
+v_isSharedCheck_293_ = !lean_is_exclusive(v___x_268_);
 if (v_isSharedCheck_293_ == 0)
 {
-v___x_267_ = v___x_263_;
-v_isShared_268_ = v_isSharedCheck_293_;
-goto v_resetjp_266_;
-}
-else
-{
-lean_inc(v_a_265_);
-lean_inc(v_a_264_);
-lean_dec(v___x_263_);
-v___x_267_ = lean_box(0);
-v_isShared_268_ = v_isSharedCheck_293_;
-goto v_resetjp_266_;
-}
-v_resetjp_266_:
-{
-lean_object* v_task_269_; lean_object* v_kind_270_; lean_object* v___x_272_; uint8_t v_isShared_273_; uint8_t v_isSharedCheck_291_; 
-v_task_269_ = lean_ctor_get(v_a_264_, 0);
-v_kind_270_ = lean_ctor_get(v_a_264_, 1);
-v_isSharedCheck_291_ = !lean_is_exclusive(v_a_264_);
-if (v_isSharedCheck_291_ == 0)
-{
-lean_object* v_unused_292_; 
-v_unused_292_ = lean_ctor_get(v_a_264_, 2);
-lean_dec(v_unused_292_);
-v___x_272_ = v_a_264_;
-v_isShared_273_ = v_isSharedCheck_291_;
+v___x_272_ = v___x_268_;
+v_isShared_273_ = v_isSharedCheck_293_;
 goto v_resetjp_271_;
 }
 else
 {
-lean_inc(v_kind_270_);
-lean_inc(v_task_269_);
-lean_dec(v_a_264_);
+lean_inc(v_a_270_);
+lean_inc(v_a_269_);
+lean_dec(v___x_268_);
 v___x_272_ = lean_box(0);
-v_isShared_273_ = v_isSharedCheck_291_;
+v_isShared_273_ = v_isSharedCheck_293_;
 goto v_resetjp_271_;
 }
 v_resetjp_271_:
 {
-lean_object* v_registeredJobs_274_; lean_object* v___x_275_; uint8_t v___x_276_; lean_object* v___x_277_; lean_object* v___x_278_; lean_object* v___x_279_; uint8_t v___x_280_; lean_object* v_job_282_; 
-v_registeredJobs_274_ = lean_ctor_get(v_a_247_, 4);
-v___x_275_ = lean_st_ref_take(v_registeredJobs_274_);
-v___x_276_ = 1;
-v___x_277_ = l_Lean_Name_toStringWithToken___at___00Lean_Name_toString_spec__0(v_name_252_, v___x_276_);
-v___x_278_ = ((lean_object*)(l___private_Lake_Build_Executable_0__Lake_LeanExe_recBuildExe___closed__0));
-v___x_279_ = lean_string_append(v___x_277_, v___x_278_);
-v___x_280_ = 0;
-if (v_isShared_273_ == 0)
+lean_object* v_task_274_; lean_object* v_kind_275_; lean_object* v___x_277_; uint8_t v_isShared_278_; uint8_t v_isSharedCheck_291_; 
+v_task_274_ = lean_ctor_get(v_a_269_, 0);
+v_kind_275_ = lean_ctor_get(v_a_269_, 1);
+v_isSharedCheck_291_ = !lean_is_exclusive(v_a_269_);
+if (v_isSharedCheck_291_ == 0)
 {
-lean_ctor_set(v___x_272_, 2, v___x_279_);
-v_job_282_ = v___x_272_;
-goto v_reusejp_281_;
+lean_object* v_unused_292_; 
+v_unused_292_ = lean_ctor_get(v_a_269_, 2);
+lean_dec(v_unused_292_);
+v___x_277_ = v_a_269_;
+v_isShared_278_ = v_isSharedCheck_291_;
+goto v_resetjp_276_;
+}
+else
+{
+lean_inc(v_kind_275_);
+lean_inc(v_task_274_);
+lean_dec(v_a_269_);
+v___x_277_ = lean_box(0);
+v_isShared_278_ = v_isSharedCheck_291_;
+goto v_resetjp_276_;
+}
+v_resetjp_276_:
+{
+lean_object* v_registeredJobs_279_; lean_object* v_job_281_; 
+v_registeredJobs_279_ = lean_ctor_get(v_a_247_, 4);
+if (v_isShared_278_ == 0)
+{
+lean_ctor_set(v___x_277_, 2, v___x_263_);
+v_job_281_ = v___x_277_;
+goto v_reusejp_280_;
 }
 else
 {
 lean_object* v_reuseFailAlloc_290_; 
 v_reuseFailAlloc_290_ = lean_alloc_ctor(0, 3, 1);
-lean_ctor_set(v_reuseFailAlloc_290_, 0, v_task_269_);
-lean_ctor_set(v_reuseFailAlloc_290_, 1, v_kind_270_);
-lean_ctor_set(v_reuseFailAlloc_290_, 2, v___x_279_);
-v_job_282_ = v_reuseFailAlloc_290_;
-goto v_reusejp_281_;
+lean_ctor_set(v_reuseFailAlloc_290_, 0, v_task_274_);
+lean_ctor_set(v_reuseFailAlloc_290_, 1, v_kind_275_);
+lean_ctor_set(v_reuseFailAlloc_290_, 2, v___x_263_);
+v_job_281_ = v_reuseFailAlloc_290_;
+goto v_reusejp_280_;
 }
-v_reusejp_281_:
+v_reusejp_280_:
 {
-lean_object* v___x_283_; lean_object* v___x_284_; lean_object* v___x_285_; lean_object* v___x_286_; lean_object* v___x_288_; 
-lean_ctor_set_uint8(v_job_282_, sizeof(void*)*3, v___x_280_);
-lean_inc_ref(v_job_282_);
-v___x_283_ = l_Lake_Job_toOpaque___redArg(v_job_282_);
-v___x_284_ = lean_array_push(v___x_275_, v___x_283_);
-v___x_285_ = lean_st_ref_put(v_registeredJobs_274_, v___x_284_);
-v___x_286_ = l_Lake_Job_renew___redArg(v_job_282_);
-if (v_isShared_268_ == 0)
+lean_object* v___x_282_; lean_object* v___x_283_; lean_object* v___x_284_; lean_object* v___x_285_; lean_object* v___x_286_; lean_object* v___x_288_; 
+lean_ctor_set_uint8(v_job_281_, sizeof(void*)*3, v___x_267_);
+v___x_282_ = lean_st_ref_take(v_registeredJobs_279_);
+lean_inc_ref(v_job_281_);
+v___x_283_ = l_Lake_Job_toOpaque___redArg(v_job_281_);
+v___x_284_ = lean_array_push(v___x_282_, v___x_283_);
+v___x_285_ = lean_st_ref_put(v_registeredJobs_279_, v___x_284_);
+v___x_286_ = l_Lake_Job_renew___redArg(v_job_281_);
+if (v_isShared_273_ == 0)
 {
-lean_ctor_set(v___x_267_, 0, v___x_286_);
-v___x_288_ = v___x_267_;
+lean_ctor_set(v___x_272_, 0, v___x_286_);
+v___x_288_ = v___x_272_;
 goto v_reusejp_287_;
 }
 else
@@ -764,7 +764,7 @@ else
 lean_object* v_reuseFailAlloc_289_; 
 v_reuseFailAlloc_289_ = lean_alloc_ctor(0, 2, 0);
 lean_ctor_set(v_reuseFailAlloc_289_, 0, v___x_286_);
-lean_ctor_set(v_reuseFailAlloc_289_, 1, v_a_265_);
+lean_ctor_set(v_reuseFailAlloc_289_, 1, v_a_270_);
 v___x_288_ = v_reuseFailAlloc_289_;
 goto v_reusejp_287_;
 }
@@ -778,8 +778,8 @@ return v___x_288_;
 }
 else
 {
-lean_dec(v_name_252_);
-return v___x_263_;
+lean_dec_ref(v___x_263_);
+return v___x_268_;
 }
 }
 }

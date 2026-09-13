@@ -73,7 +73,7 @@ lean_object* l_Lean_Syntax_getArg(lean_object*, lean_object*);
 uint8_t l_Lean_Syntax_isOfKind(lean_object*, lean_object*);
 lean_object* l_String_removeLeadingSpaces(lean_object*);
 lean_object* l_Lean_Environment_getModuleIdx_x3f(lean_object*, lean_object*);
-lean_object* l_Lean_instInhabitedPersistentArray_default(lean_object*);
+lean_object* l_Lean_instInhabitedPersistentArray_default___redArg();
 lean_object* l_Lean_PersistentEnvExtension_getModuleEntries___redArg(lean_object*, lean_object*, lean_object*, lean_object*, uint8_t);
 uint8_t l___private_Lean_Data_Name_0__Lean_Name_quickCmpImpl(lean_object*, lean_object*);
 lean_object* lean_nat_mul(lean_object*, lean_object*);
@@ -5833,7 +5833,7 @@ static lean_object* _init_l_Lean_getMainModuleDoc___closed__0(void){
 _start:
 {
 lean_object* v___x_1554_; 
-v___x_1554_ = l_Lean_instInhabitedPersistentArray_default(lean_box(0));
+v___x_1554_ = l_Lean_instInhabitedPersistentArray_default___redArg();
 return v___x_1554_;
 }
 }
@@ -6100,8 +6100,8 @@ goto v___jp_1593_;
 }
 else
 {
-lean_dec(v_pre_1615_);
 lean_dec_ref_known(v_pre_1614_, 2);
+lean_dec(v_pre_1615_);
 lean_dec_ref_known(v_pre_1613_, 2);
 lean_dec_ref_known(v_kind_1612_, 2);
 lean_dec_ref_known(v___x_1610_, 3);
@@ -6119,16 +6119,16 @@ goto v___jp_1593_;
 }
 else
 {
-lean_dec(v_pre_1613_);
 lean_dec_ref_known(v_kind_1612_, 2);
+lean_dec(v_pre_1613_);
 lean_dec_ref_known(v___x_1610_, 3);
 goto v___jp_1593_;
 }
 }
 else
 {
-lean_dec_ref_known(v___x_1610_, 3);
 lean_dec(v_kind_1612_);
+lean_dec_ref_known(v___x_1610_, 3);
 goto v___jp_1593_;
 }
 }

@@ -253,7 +253,7 @@ jobs:
         if: matrix.release && !matrix.wasm
         run: |
           make -C build/$TARGET_STAGE leanchecker-paranoid -j$NPROC
-      - name: Build lean4lean
+      - name: Build lean4lean and con-leche
         if: matrix.release && !matrix.wasm
         run: |
           if ! command -v elan > /dev/null; then
@@ -264,7 +264,7 @@ jobs:
             export PATH="$PWD/build/elan/bin:$PATH"
           fi
           elan --version  # fails step if not found
-          make -C build/$TARGET_STAGE lean4lean
+          make -C build/$TARGET_STAGE lean4lean con-leche
       - name: Build nanoda
         if: matrix.release && !matrix.wasm
         run: |

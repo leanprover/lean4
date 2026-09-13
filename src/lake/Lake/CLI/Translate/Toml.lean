@@ -208,7 +208,7 @@ gen_toml_encoders%
 /-- Create a TOML table that encodes the declarative configuration of the package. -/
 public def Package.mkTomlConfig (pkg : Package) (t : Table := {}) : Table :=
   let cfg : PackageConfig pkg.keyName pkg.origName :=
-    {pkg.config with testDriver := pkg.testDriver, lintDriver := pkg.lintDriver}
+    {pkg.config with testDriver := pkg.testDriver, testDrivers := pkg.testDrivers, lintDriver := pkg.lintDriver}
   cfg.toToml t
   |>.smartInsert `defaultTargets pkg.defaultTargets
   |>.smartInsert `require pkg.depConfigs

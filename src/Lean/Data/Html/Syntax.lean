@@ -38,45 +38,6 @@ open Parser PrettyPrinter
   Parsers that *can* be antiquoted are documented as such.
 -/
 
-/-! # Character references -/
-
-/-- Decodes the body {lit}`ref` of an
-[HTML character reference](https://html.spec.whatwg.org/dev/syntax.html#character-references)
-{lit}`&ref;`.
-
-Named references (such as {lit}`amp`) must be known by {name}`namedCharacterReference?`.
-Numeric references in decimal ({lit}`#123`) or hexadecimal ({lit}`#x7B`) notation
-must denote a Unicode scalar value that is not U+0000, U+000D,
-a noncharacter, or a control other than ASCII whitespace. -/
-def characterReference? (ref : String) : Option String :=
-  let i : String.Pos.Raw := 0
-  if h : i.atEnd ref then none
-  else if i.get' ref h == '#' then
-    let i := i.next' ref h
-    if h : i.atEnd ref then none
-    else if i.get' ref h == 'x' || i.get' ref h == 'X' then numeric 16 ref (i.next' ref h)
-    else numeric 10 ref i
-  else namedCharacterReference? ref
-where
-  numeric (radix : Nat) (ref : String) (i : String.Pos.Raw) : Option String := do
-    let mut n : Nat := 0
-    let mut i := i
-    while h : ¬i.atEnd ref do
-      let d ← digit? (i.get' ref h)
-      if d ≥ radix then none
-      n := n * radix + d
-      if n > 0x10FFFF then none -- exceeded Unicode range
-      i := i.next' ref h
-    let c := Char.ofNat n
-    if c == '\x00' || c == '\x0d' || isNonCharacter c || (isControl c && !isAsciiWhitespace c) then
-      none
-    return String.singleton c
-  digit? (c : Char) : Option Nat :=
-    if '0' ≤ c && c ≤ '9' then some (c.toNat - '0'.toNat)
-    else if 'a' ≤ c && c ≤ 'f' then some (10 + c.toNat - 'a'.toNat)
-    else if 'A' ≤ c && c ≤ 'F' then some (10 + c.toNat - 'A'.toNat)
-    else none
-
 /-! ## Helpers -/
 
 /-- Consumes one character satisfying {name}`p`,
@@ -112,6 +73,99 @@ private def parseFirstMany.formatter (kind : Name) (_ : String) (_ _ : Char → 
 private def viewNodeAtom [Monad m] [MonadError m] : TSyntax k → m String
   | ⟨.node _ _ #[.atom _ s]⟩ => return s
   | _ => Elab.throwUnsupportedSyntax
+
+/-- Syntax spanning bytes {name}`b` to {name}`e` of {name}`s`, for reporting errors. -/
+private def subsyntaxNodeAtom (s : Syntax) (b e : String.Pos.Raw) : Syntax :=
+  match s with
+  | .node _ _ #[.atom (.original _ pos _ _) s] =>
+    .atom (.synthetic ⟨pos.byteIdx + b.byteIdx⟩ ⟨pos.byteIdx + e.byteIdx⟩ (canonical := true))
+      (b.extract s e)
+  | _ => s
+
+/-! ## Character references -/
+
+/-- Returns the string encoded by the body {lit}`ref` of an
+[HTML character reference](https://html.spec.whatwg.org/dev/syntax.html#character-references)
+{lit}`&ref;`,
+or {name}`none` if the body is invalid.
+
+Named references (such as {lit}`&amp;`) must be listed in the HTML standard.
+Numeric references in decimal ({lit}`&#123;`) or hexadecimal ({lit}`&#x7B;`) notation
+must denote a Unicode scalar value that is not U+0000, U+000D,
+a noncharacter, or a control other than ASCII whitespace. -/
+def characterReference? (ref : String) : Option String :=
+  let i : String.Pos.Raw := 0
+  if h : i.atEnd ref then none
+  else if i.get' ref h == '#' then
+    let i := i.next' ref h
+    if h : i.atEnd ref then none
+    else if i.get' ref h == 'x' || i.get' ref h == 'X' then numeric 16 ref (i.next' ref h)
+    else numeric 10 ref i
+  else namedCharacterReference? ref
+where
+  numeric (radix : Nat) (ref : String) (i : String.Pos.Raw) : Option String := do
+    let mut n : Nat := 0
+    let mut i := i
+    while h : ¬i.atEnd ref do
+      let d ← digit? (i.get' ref h)
+      if d ≥ radix then none
+      n := n * radix + d
+      if n > 0x10FFFF then none -- exceeded Unicode range
+      i := i.next' ref h
+    let c := Char.ofNat n
+    if c == '\x00' || c == '\x0d' || isNonCharacter c || (isControl c && !isAsciiWhitespace c) then
+      none
+    return String.singleton c
+  digit? (c : Char) : Option Nat :=
+    if '0' ≤ c && c ≤ '9' then some (c.toNat - '0'.toNat)
+    else if 'a' ≤ c && c ≤ 'f' then some (10 + c.toNat - 'a'.toNat)
+    else if 'A' ≤ c && c ≤ 'F' then some (10 + c.toNat - 'A'.toNat)
+    else none
+
+/-- Decodes one character reference starting at {name}`i`,
+which must point at at the character {lit}`&` in {name}`s`.
+Returns the decoded string, and the position just after {lit}`;`.
+
+Errors are reported using {name}`errAt`,
+which takes two offsets into {name}`s` and the error message. -/
+partial def decodeCharacterReferenceAt [Monad m]
+    (s : String) (i : String.Pos.Raw)
+    (errAt : ∀ {α}, String.Pos.Raw → String.Pos.Raw → MessageData → m α) :
+    m (String × String.Pos.Raw) := do
+  -- The body is an optional `#` followed by at least one ASCII alphanumeric.
+  let j := i.next s
+  let k := if j.get s == '#' then j.next s else j
+  let bodyEnd := skipAlphanum s k
+  if bodyEnd.get s != ';' then
+    errAt i bodyEnd m!"Unterminated HTML character reference '{i.extract s bodyEnd}'"
+  let refEnd := bodyEnd.next s
+  match characterReference? (j.extract s bodyEnd) with
+  | some val => return (val, refEnd)
+  | none =>
+    let kind := if j.get s == '#' then "numeric" else "named"
+    errAt i refEnd m!"Invalid HTML {kind} character reference `{i.extract s refEnd}`"
+where
+  skipAlphanum (s : String) (i : String.Pos.Raw) : String.Pos.Raw :=
+    if h : i.atEnd s then i
+    else if (i.get' s h).isAlphanum then skipAlphanum s (i.next' s h)
+    else i
+
+/-- Decodes HTML character references in {name}`ref`, leaving other characters unchanged. -/
+partial def decodeCharacterReferences [Monad m] [MonadError m]
+    (ref : TSyntax `str) : m String :=
+  go ref.getString ⟨0⟩ ""
+where
+  go (s : String) (i : String.Pos.Raw) (out : String) : m String := do
+    if h : i.atEnd s then
+      return out
+    else
+      let c := i.get' s h
+      if c == '&' then
+        let (val, refEnd) ← decodeCharacterReferenceAt s i
+          (fun s e m => throwErrorAt (subsyntaxNodeAtom ref ⟨s.byteIdx+1⟩ ⟨e.byteIdx+1⟩) m)
+        go s refEnd (out ++ val)
+      else
+        go s (i.next' s h) (out.push c)
 
 /-! ## Raw symbols -/
 
@@ -186,15 +240,6 @@ def text.parenthesizer : Parenthesizer := Parenthesizer.visitToken
 @[combinator_formatter text, formatter Lean.Html.Syntax.text]
 def text.formatter : Formatter := Formatter.visitAtom textKind
 
-/-- Syntax spanning bytes {name}`b` to {name}`e` of {name}`t`, for reporting errors.
-Falls back to {name}`t` itself when its position in the source is not known exactly. -/
-private def Text.subsyntax (t : Text) (b e : String.Pos.Raw) : Syntax :=
-  match t.raw with
-  | .node _ _ #[.atom (.original _ pos _ _) s] =>
-    .atom (.synthetic ⟨pos.byteIdx + b.byteIdx⟩ ⟨pos.byteIdx + e.byteIdx⟩ (canonical := true))
-      (b.extract s e)
-  | _ => t.raw
-
 /-- Accumulator for normalizing the contents of a run of {name}`text` nodes. -/
 private structure TextAcc where
   out : String := ""
@@ -233,31 +278,11 @@ where
     else
       let acc := acc.flushWs trimStart
       if c == '&' then
-        let bodyEnd ← parseCharRef s i
-        let refEnd := bodyEnd.next s
-        match characterReference? (j.extract s bodyEnd) with
-        | some val => go s refEnd { acc with out := acc.out ++ val }
-        | none =>
-          let kind := if j.get s == '#' then "numeric" else "named"
-          throwErrorAt (t.subsyntax i refEnd)
-            m!"Invalid HTML {kind} character reference `{i.extract s refEnd}`"
+        let (val, refEnd) ← decodeCharacterReferenceAt s i
+          (fun s e m => throwErrorAt (subsyntaxNodeAtom t s e) m)
+        go s refEnd { acc with out := acc.out ++ val }
       else
         go s j { acc with out := acc.out.push c }
-  /-- If a character reference {lit}`&body;` starts at {name}`i`,
-  returns the position of its semicolon.
-  The body is an optional {lit}`#` followed by at least one ASCII alphanumeric. -/
-  parseCharRef (s : String) (i : String.Pos.Raw) : m String.Pos.Raw := do
-    let j := i.next s
-    let k := if j.get s == '#' then j.next s else j
-    let bodyEnd := skipAlphanum s k
-    if bodyEnd.get s != ';' then
-      throwErrorAt (t.subsyntax i bodyEnd)
-        m!"Unterminated HTML character reference '{i.extract s bodyEnd}'"
-    return bodyEnd
-  skipAlphanum (s : String) (i : String.Pos.Raw) : String.Pos.Raw :=
-    if h : i.atEnd s then i
-    else if (i.get' s h).isAlphanum then skipAlphanum s (i.next' s h)
-    else i
 
 end TextAcc
 
@@ -360,14 +385,19 @@ def attrVal : Parser :=
   node attrValKind (strLit <|> interp (trailingWs := true))
 
 inductive AttrValView where
-  | str (val : TSyntax `str)
+  /-- A string literal and its value {name}`val`, with character references decoded. -/
+  | str (stx : TSyntax `str) (val : String)
   | interp (val : Term)
   deriving Inhabited
 
-def AttrVal.view [Monad m] [MonadError m] (stx : AttrVal) : m AttrValView :=
+/-- Provides a view on the attribute value,
+decoding character references when the value is a string literal.
+
+Throws if an invalid character reference is encountered. -/
+def AttrVal.view [Monad m] [MonadError m] (stx : AttrVal) : m AttrValView := do
   let c := stx.raw[0]
   if c.getKind == `str then
-    return .str ⟨c⟩
+    return .str ⟨c⟩ (← decodeCharacterReferences ⟨c⟩)
   else if c.getKind == interpKind then
     return .interp ⟨c[1]⟩
   else
@@ -382,7 +412,8 @@ abbrev Attr := TSyntax attrKind
 We support double-quoted attribute values {lit}`<tag name="val">`,
 empty attributes {lit}`<tag name>`,
 interpolations of one value {lit}`<tag name={ term }>`,
-and interpolations of a sequence of attributes {lit}`<tag {... term }/>`. -/
+and interpolations of a sequence of attributes {lit}`<tag {... term }/>`.
+Character references are decoded in double-quoted values. -/
 @[run_parser_attribute_hooks]
 def attr : Parser :=
   node attrKind <|

@@ -626,8 +626,7 @@ public def runComparator (configFile? : Option System.FilePath) (lean : LeanInst
     | .error rc => return rc
     | .ok ctx => pure ctx
 
-  let some configFile := configFile?
-    | return ← cannotRun "no comparator configuration given; pass `--config <file>`"
+  let configFile := configFile?.getD "comparator.json"
   let contents ←
     try IO.FS.readFile configFile
     catch e => return ← cannotRun s!"could not read the configuration: {e}"

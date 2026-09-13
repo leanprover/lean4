@@ -91,8 +91,12 @@ def ofArray (hs : Array Html) : Html := ofCollection hs
 Like {lean}`seq hs.toArray`, but may produce a more compact representation. -/
 def ofList (hs : List Html) : Html := ofCollection hs
 
+/-- Returns the given HTML, or {name}`empty` when the input is {lean}`none`. -/
+def ofOption (h? : Option Html) : Html := h?.getD .empty
+
 instance : Coe (Array Html) Html := ⟨ofArray⟩
 instance : Coe (List Html) Html := ⟨ofList⟩
+instance : Coe (Option Html) Html := ⟨ofOption⟩
 
 /-- A compact JSON encoding of {name}`Html`. -/
 instance : ToJson Html where

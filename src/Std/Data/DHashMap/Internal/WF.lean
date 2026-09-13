@@ -153,6 +153,11 @@ theorem fold_push_key {l : Raw α β} {acc : Array α} :
       acc ++ (List.keys (toListModel l.buckets)).toArray := by
   simp [fold_push_apply, keys_eq_map]
 
+theorem fold_push_value {β : Type v} {l : Raw α (fun _ => β)} {acc : Array β} :
+    Raw.fold (fun acc _ v => acc.push v) acc l =
+      acc ++ (List.values (toListModel l.buckets)).toArray := by
+  simp [fold_push_apply, values_eq_map]
+
 theorem foldM_eq_foldlM_toListModel {δ : Type w} {m : Type w → Type w'} [Monad m] [LawfulMonad m]
     {f : δ → (a : α) → β a → m δ} {init : δ} {b : Raw α β} :
     b.foldM f init = (toListModel b.buckets).foldlM (fun a b => f a b.1 b.2) init := by
@@ -239,6 +244,10 @@ theorem values_eq_values_toListModel {β : Type v}  {m : Raw α (fun _ => β)} :
 theorem keysArray_eq_toArray_keys_toListModel {m : Raw α β} :
     m.keysArray = (List.keys (toListModel m.buckets)).toArray := by
   simp [Raw.keysArray, fold_push_key]
+
+theorem valuesArray_eq_toArray_values_toListModel {β : Type v} {m : Raw α (fun _ => β)} :
+    m.valuesArray = (List.values (toListModel m.buckets)).toArray := by
+  simp [Raw.valuesArray, fold_push_value]
 
 theorem forM_eq_forM_toListModel {l: Raw α β} {m : Type w → Type w'} [Monad m] [LawfulMonad m]
     {f : (a : α) → β a → m PUnit} :

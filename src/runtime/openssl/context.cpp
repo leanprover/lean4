@@ -359,23 +359,6 @@ static lean_obj_res mk_client_ctx_checked(b_obj_arg ca, uint8_t ca_is_file, uint
     return mk_client_ctx(verify_peer, trust_system_roots, allow_partial_chain, has_ca != 0, ca_src);
 }
 
-// Runs a constructor behind the two guards every entry point needs: OpenSSL initialized before any
-// `ERR_*` call can register `atexit(OPENSSL_cleanup)` behind `OPENSSL_INIT_NO_ATEXIT`'s back, and no
-// C++ exception escaping into Lean-generated code.
-template<typename F>
-static lean_obj_res ssl_entry_point(F && build) {
-    try {
-        if (!ensure_openssl_initialized()) {
-            return lean_io_result_mk_error(lean_mk_io_user_error(
-                mk_string("OPENSSL_init_ssl failed")));
-        }
-
-        return build();
-    } catch (std::exception & ex) {
-        return lean_io_result_mk_error(lean_mk_io_user_error(mk_string(ex.what())));
-    }
-}
-
 /* Std.Internal.SSL.Context.Server.mkImpl (cert : @& String) (certIsFile : Bool) (key : @& String) (keyIsFile : Bool) : IO Context.Server */
 extern "C" LEAN_EXPORT lean_obj_res lean_ssl_ctx_mk_server(b_obj_arg cert, uint8_t cert_is_file, b_obj_arg key, uint8_t key_is_file) {
     return ssl_entry_point([&] { return mk_server_ctx(cert, cert_is_file, key, key_is_file); });

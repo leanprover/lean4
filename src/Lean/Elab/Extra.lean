@@ -541,7 +541,10 @@ def elabBinRelCore (noProp : Bool) (stx : Syntax) (expectedType? : Option Expr) 
       let rhs ← withRef rhsStx <| toBoolIfNecessary rhs
       let lhsType ← inferType lhs
       let rhs ← withRef rhsStx <| ensureHasType lhsType rhs
-      elabAppArgs f #[] #[Arg.expr lhs, Arg.expr rhs] expectedType? (explicit := false) (ellipsis := false) (resultIsOutParamSupport := false)
+      -- Wrap in TermInfo to match binop% behavior for goto-definition
+      withRef stx <|
+        withTermInfoContext' .anonymous stx do
+          elabAppArgs f #[] #[Arg.expr lhs, Arg.expr rhs] expectedType? (explicit := false) (ellipsis := false) (resultIsOutParamSupport := false)
     else
       let mut maxType := r.max?.get!
       /- If `noProp == true` and `maxType` is `Prop`, then set `maxType := Bool`. `See toBoolIfNecessary` -/

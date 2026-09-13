@@ -452,6 +452,21 @@ public instance {α : Type u} [LE α] [Min α] [IsLinearPreorder α] [LawfulOrde
         exact fun hac => le_trans hac (by simpa [hbc] using Std.le_total (a := b) (b := c))
     split <;> simp [*, LawfulOrderLeftLeaningMin.min_eq_left, LawfulOrderLeftLeaningMin.min_eq_right]
 
+section minOfLe
+
+public theorem min_eq_of_minOfLe {α : Type u} [LE α] [DecidableLE α] {a b : α} :
+    letI : Min α := minOfLe
+    min a b = if a ≤ b then a else b :=
+  rfl
+
+public instance lawfulOrderLeftLeaningMin_minOfLe {α : Type u} [LE α] [DecidableLE α] :
+    letI : Min α := minOfLe
+    Std.LawfulOrderLeftLeaningMin α := by
+  let : Min α := minOfLe
+  exact ⟨fun _ _ h => by simp [h, min_eq_of_minOfLe], fun _ _ h => by simp [h, min_eq_of_minOfLe]⟩
+
+end minOfLe
+
 end Min
 end Std
 
@@ -598,6 +613,26 @@ public instance {α : Type u} [LE α] [Max α] [IsLinearPreorder α] [LawfulOrde
       · simp only [iff_and_self]
         exact fun hbc => le_trans (by simpa [hba] using Std.le_total (a := b) (b := a)) hbc
     split <;> simp [*, LawfulOrderLeftLeaningMax.max_eq_left, LawfulOrderLeftLeaningMax.max_eq_right]
+
+section maxOfLe
+
+public theorem max_eq_of_maxOfLe {α : Type u} [LE α] [DecidableLE α] {a b : α} :
+    letI : Max α := maxOfLe
+    max a b = if a ≤ b then b else a :=
+  rfl
+
+public instance lawfulOrderSup_maxOfLe {α : Type u} [LE α] [DecidableLE α]
+    [Trans (α := α) (· ≤ ·) (· ≤ ·) (· ≤ ·)] [Std.Total (α := α) (· ≤ ·)] :
+    letI : Max α := maxOfLe
+    Std.LawfulOrderSup α := by
+  let : Max α := maxOfLe
+  refine ⟨fun a b c => ?_⟩
+  rw [max_eq_of_maxOfLe]
+  split <;> rename_i h
+  · exact ⟨fun h' => ⟨le_trans h h', h'⟩, (·.2)⟩
+  · exact ⟨fun h' => ⟨h', le_trans (le_of_not_ge h) h'⟩, (·.1)⟩
+
+end maxOfLe
 
 end Max
 end Std

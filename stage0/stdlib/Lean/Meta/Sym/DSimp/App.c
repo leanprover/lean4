@@ -26,7 +26,7 @@ lean_object* lean_array_get_size(lean_object*);
 uint8_t lean_nat_dec_lt(lean_object*, lean_object*);
 lean_object* lean_array_fget_borrowed(lean_object*, lean_object*);
 lean_object* l_mkPanicMessageWithDecl(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
-lean_object* l_Lean_Meta_Sym_DSimp_instInhabitedDSimpM(lean_object*);
+lean_object* l_Lean_Meta_Sym_DSimp_instInhabitedDSimpM___redArg();
 lean_object* lean_panic_fn_borrowed(lean_object*, lean_object*);
 lean_object* l_Lean_Expr_getAppNumArgs(lean_object*);
 lean_object* l_Lean_Expr_getAppFn(lean_object*);
@@ -220,7 +220,7 @@ static lean_object* _init_l_panic___at___00__private_Lean_Meta_Sym_DSimp_App_0__
 _start:
 {
 lean_object* v___x_70_; 
-v___x_70_ = l_Lean_Meta_Sym_DSimp_instInhabitedDSimpM(lean_box(0));
+v___x_70_ = l_Lean_Meta_Sym_DSimp_instInhabitedDSimpM___redArg();
 return v___x_70_;
 }
 }

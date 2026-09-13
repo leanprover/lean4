@@ -1013,20 +1013,20 @@ return v___x_500_;
 }
 else
 {
-lean_object* v___x_501_; lean_object* v___x_502_; lean_object* v___x_503_; 
+lean_object* v___x_501_; lean_object* v___x_502_; lean_object* v___x_503_; lean_object* v___x_504_; lean_object* v___x_505_; 
 v___x_501_ = lean_unsigned_to_nat(0u);
 v___x_502_ = l_Lean_Syntax_getArg(v_stx_488_, v___x_501_);
-v___x_503_ = l_Lean_Elab_Tactic_Grind_elabSymDSimproc(v___x_502_, v_a_489_, v_a_490_, v_a_491_, v_a_492_, v_a_493_, v_a_494_, v_a_495_, v_a_496_);
-if (lean_obj_tag(v___x_503_) == 0)
-{
-lean_object* v_a_504_; lean_object* v___x_505_; lean_object* v___x_506_; lean_object* v___x_507_; 
-v_a_504_ = lean_ctor_get(v___x_503_, 0);
-lean_inc(v_a_504_);
-lean_dec_ref_known(v___x_503_, 1);
-v___x_505_ = lean_unsigned_to_nat(2u);
-v___x_506_ = l_Lean_Syntax_getArg(v_stx_488_, v___x_505_);
+v___x_503_ = lean_unsigned_to_nat(2u);
+v___x_504_ = l_Lean_Syntax_getArg(v_stx_488_, v___x_503_);
 lean_dec(v_stx_488_);
-v___x_507_ = l_Lean_Elab_Tactic_Grind_elabSymDSimproc(v___x_506_, v_a_489_, v_a_490_, v_a_491_, v_a_492_, v_a_493_, v_a_494_, v_a_495_, v_a_496_);
+v___x_505_ = l_Lean_Elab_Tactic_Grind_elabSymDSimproc(v___x_502_, v_a_489_, v_a_490_, v_a_491_, v_a_492_, v_a_493_, v_a_494_, v_a_495_, v_a_496_);
+if (lean_obj_tag(v___x_505_) == 0)
+{
+lean_object* v_a_506_; lean_object* v___x_507_; 
+v_a_506_ = lean_ctor_get(v___x_505_, 0);
+lean_inc(v_a_506_);
+lean_dec_ref_known(v___x_505_, 1);
+v___x_507_ = l_Lean_Elab_Tactic_Grind_elabSymDSimproc(v___x_504_, v_a_489_, v_a_490_, v_a_491_, v_a_492_, v_a_493_, v_a_494_, v_a_495_, v_a_496_);
 if (lean_obj_tag(v___x_507_) == 0)
 {
 lean_object* v_a_508_; lean_object* v___x_510_; uint8_t v_isShared_511_; uint8_t v_isSharedCheck_516_; 
@@ -1050,7 +1050,7 @@ v_resetjp_509_:
 {
 lean_object* v___f_512_; lean_object* v___x_514_; 
 v___f_512_ = lean_alloc_closure((void*)(l___private_Lean_Elab_Tactic_Grind_DSimprocDSLBuiltin_0__Lean_Elab_Tactic_Grind_elabDSimprocAndThen___lam__0___boxed), 13, 2);
-lean_closure_set(v___f_512_, 0, v_a_504_);
+lean_closure_set(v___f_512_, 0, v_a_506_);
 lean_closure_set(v___f_512_, 1, v_a_508_);
 if (v_isShared_511_ == 0)
 {
@@ -1074,14 +1074,14 @@ return v___x_514_;
 }
 else
 {
-lean_dec(v_a_504_);
+lean_dec(v_a_506_);
 return v___x_507_;
 }
 }
 else
 {
-lean_dec(v_stx_488_);
-return v___x_503_;
+lean_dec(v___x_504_);
+return v___x_505_;
 }
 }
 }
@@ -1228,20 +1228,20 @@ return v___x_590_;
 }
 else
 {
-lean_object* v___x_591_; lean_object* v___x_592_; lean_object* v___x_593_; 
+lean_object* v___x_591_; lean_object* v___x_592_; lean_object* v___x_593_; lean_object* v___x_594_; lean_object* v___x_595_; 
 v___x_591_ = lean_unsigned_to_nat(0u);
 v___x_592_ = l_Lean_Syntax_getArg(v_stx_578_, v___x_591_);
-v___x_593_ = l_Lean_Elab_Tactic_Grind_elabSymDSimproc(v___x_592_, v_a_579_, v_a_580_, v_a_581_, v_a_582_, v_a_583_, v_a_584_, v_a_585_, v_a_586_);
-if (lean_obj_tag(v___x_593_) == 0)
-{
-lean_object* v_a_594_; lean_object* v___x_595_; lean_object* v___x_596_; lean_object* v___x_597_; 
-v_a_594_ = lean_ctor_get(v___x_593_, 0);
-lean_inc(v_a_594_);
-lean_dec_ref_known(v___x_593_, 1);
-v___x_595_ = lean_unsigned_to_nat(2u);
-v___x_596_ = l_Lean_Syntax_getArg(v_stx_578_, v___x_595_);
+v___x_593_ = lean_unsigned_to_nat(2u);
+v___x_594_ = l_Lean_Syntax_getArg(v_stx_578_, v___x_593_);
 lean_dec(v_stx_578_);
-v___x_597_ = l_Lean_Elab_Tactic_Grind_elabSymDSimproc(v___x_596_, v_a_579_, v_a_580_, v_a_581_, v_a_582_, v_a_583_, v_a_584_, v_a_585_, v_a_586_);
+v___x_595_ = l_Lean_Elab_Tactic_Grind_elabSymDSimproc(v___x_592_, v_a_579_, v_a_580_, v_a_581_, v_a_582_, v_a_583_, v_a_584_, v_a_585_, v_a_586_);
+if (lean_obj_tag(v___x_595_) == 0)
+{
+lean_object* v_a_596_; lean_object* v___x_597_; 
+v_a_596_ = lean_ctor_get(v___x_595_, 0);
+lean_inc(v_a_596_);
+lean_dec_ref_known(v___x_595_, 1);
+v___x_597_ = l_Lean_Elab_Tactic_Grind_elabSymDSimproc(v___x_594_, v_a_579_, v_a_580_, v_a_581_, v_a_582_, v_a_583_, v_a_584_, v_a_585_, v_a_586_);
 if (lean_obj_tag(v___x_597_) == 0)
 {
 lean_object* v_a_598_; lean_object* v___x_600_; uint8_t v_isShared_601_; uint8_t v_isSharedCheck_606_; 
@@ -1265,7 +1265,7 @@ v_resetjp_599_:
 {
 lean_object* v___f_602_; lean_object* v___x_604_; 
 v___f_602_ = lean_alloc_closure((void*)(l___private_Lean_Elab_Tactic_Grind_DSimprocDSLBuiltin_0__Lean_Elab_Tactic_Grind_elabDSimprocOrElse___lam__0___boxed), 13, 2);
-lean_closure_set(v___f_602_, 0, v_a_594_);
+lean_closure_set(v___f_602_, 0, v_a_596_);
 lean_closure_set(v___f_602_, 1, v_a_598_);
 if (v_isShared_601_ == 0)
 {
@@ -1289,14 +1289,14 @@ return v___x_604_;
 }
 else
 {
-lean_dec(v_a_594_);
+lean_dec(v_a_596_);
 return v___x_597_;
 }
 }
 else
 {
-lean_dec(v_stx_578_);
-return v___x_593_;
+lean_dec(v___x_594_);
+return v___x_595_;
 }
 }
 }

@@ -19,7 +19,8 @@ open Html Syntax
 
 meta def elabAttrVal (stx : AttrVal) : TermElabM Expr := withRef stx do
   match ← stx.view with
-  | .str s | .interp s => elabTermEnsuringType s (Expr.const ``String [])
+  | .str _ val => return toExpr val
+  | .interp s => elabTermEnsuringType s (Expr.const ``String [])
 
 /-- Returns {lit}`.inl (attr : (String × String))`
 or {lit}`.inr (attrs : Array (String × String))`. -/

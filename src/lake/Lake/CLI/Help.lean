@@ -404,7 +404,7 @@ def helpComparator :=
 "Judge a solution against a challenge
 
 USAGE:
-  lake comparator [--config <FILE>]
+  lake comparator [--config <FILE>] [--paranoid]
 
 Establishes that every named theorem in the solution proves the same statement
 as the challenge, uses no axiom outside the permitted list, and is accepted by
@@ -423,6 +423,9 @@ Building the project once, before distributing it, is enough to write one.
 OPTIONS:
   --config=<file>       JSON file describing the challenge (see below)
                         (default: `comparator.json` in the current directory)
+  --paranoid            also run all external checkers bundled with Lean besides
+                        Lean's own kernel: `leanchecker-paranoid`, `lean4lean`,
+                        `nanoda` and `con-leche`
 
 CONFIGURATION:
   The challenge author writes the file and distributes it with the project, so
@@ -476,7 +479,7 @@ def helpCheck :=
 "Check this project against external checker(s)
 
 USAGE:
-  lake check
+  lake check [--paranoid]
 
 Builds the default build targets, exports them, and replays the result through
 the kernel, erroring on any use of non-standard axioms.
@@ -490,10 +493,15 @@ The project has to carry a `lake-manifest.json`, because dependencies are
 resolved inside the sandbox and it cannot write to the project directory.
 Building the project once is enough to write one.
 
+OPTIONS:
+  --paranoid            also run all external checkers bundled with Lean besides
+                        Lean's own kernel: `leanchecker-paranoid`, `lean4lean`,
+                        `nanoda` and `con-leche`
+
 EXIT CODES:
-  0                     the kernel accepts the project and it rests only on the
-                        permitted axioms
-  1                     the kernel rejects it, an axiom is not permitted, or a
+  0                     every selected checker accepts the project and it uses
+                        only the permitted axioms
+  1                     a checker rejects it, an axiom is not permitted, or a
                         build did not succeed
   2                     could not start: `bwrap` is missing, the project has
                         no `lake-manifest.json`, or it has no default targets

@@ -13,9 +13,11 @@ certificate/key, peer-verification mode, and protocol options shared across all 
 from the same context.
 
 For every context, session tickets and TLS compression are disabled, renegotiation is refused, and
-TLS 1.2 is the minimum version. A server built here therefore offers no session resumption; a client
-does not resume either, since resuming additionally requires selecting a session per connection,
-which the session layer never does.
+TLS 1.2 is the minimum version. TLS 1.2 is limited to suites with forward secrecy and authenticated
+encryption (ECDHE with AES-GCM or ChaCha20-Poly1305), and keys and signatures to OpenSSL's security
+level 2. OpenSSL's configuration file is never read, so none of this depends on the machine. A server
+built here offers no session resumption; a client does not resume either, since resuming additionally
+requires selecting a session per connection, which the session layer never does.
 
 A context settles who is trusted, not who is being talked to: nothing here checks that a peer
 certificate matches the host it came from. That check belongs to the session layer, which binds a
@@ -123,8 +125,8 @@ structure Config where
   Trust anchors supplied by the caller, trusted in addition to the platform anchors or — with
   `trustSystemRoots := false` — instead of them. `none` supplies no anchors of its own.
 
-  Private key and CRL entries in the material are ignored, so a bundle may hold them; no revocation
-  checking is performed. Material yielding no certificate at all is rejected.
+  Private key and CRL entries in the material are ignored, so a bundle may hold them; Lean performs
+  no revocation checking of its own. Material yielding no certificate at all is rejected.
   -/
   ca : Option PEM := none
   /--
@@ -134,47 +136,48 @@ structure Config where
   -/
   verifyPeer : Bool := true
   /--
-  Whether the platform default trust anchors are trusted.
+  Whether the platform's trust anchors are trusted, so that connections to public HTTPS servers work
+  out of the box. With `false` only `ca` is trusted, and neither the platform nor the environment is
+  consulted.
 
-  With `true`, connections to public HTTPS servers work out of the box. Which anchors those are is
-  platform-specific: the Keychain on macOS, the `ROOT` store on Windows, the system bundle
-  elsewhere. `SSL_CERT_FILE` and `SSL_CERT_DIR` are honoured on every platform, and are consulted
-  afresh for every context.
+  Which anchors those are depends on the platform:
+  * On macOS, a chain that neither `ca` nor the environment's anchors establish is handed to the
+    system's trust evaluation during the handshake. It applies the Keychain's trust settings as they
+    stand at that moment (a root added as `mkcert` and `security add-trusted-cert` do is trusted, one
+    explicitly denied is not) and Apple's requirements for TLS certificates, such as Certificate
+    Transparency, CA distrust dates, and a validity of at most 825 days even under a locally trusted
+    root. The chain it settles on is then checked again by OpenSSL, so the hostname rules are those
+    of every other platform. The evaluation never fetches a missing intermediate over the network, so
+    the server has to send its whole chain.
+  * On Windows, the `ROOT` certificate store, which needs OpenSSL 3.2 or later; the `Disallowed`
+    store and per-certificate properties are not consulted. OpenSSL's compiled-in certificate paths
+    are read only when the `ROOT` store is unavailable, since they name directories on the machine
+    the build ran on.
+  * Elsewhere, OpenSSL's compiled-in certificate paths, and where those hold nothing — as for a
+    binary built against a relocated OpenSSL — the usual system bundle locations.
 
-  Where the platform has a store of its own, OpenSSL's compiled-in paths are not merged on top of
-  it. Doing so would reinstate anchors the platform store had turned away, and nothing can take an
-  anchor out again; a build that carries the paths of the machine it was built on would also be
-  reaching for directories that belong to nobody on the machine it runs on. Those paths are read
-  only when the platform store yields no anchor at all, where there is no verdict left to
-  contradict. Elsewhere they are the primary source, and if they name nothing — as they do for a
-  binary built against a relocated OpenSSL — the usual system bundle locations are read instead,
-  so a context is refused only when the machine really has no anchors to offer.
+  `SSL_CERT_FILE` and `SSL_CERT_DIR` are read afresh for every context and add their anchors to the
+  platform's, except in a set-user-ID or set-group-ID process, which ignores them. On macOS a chain
+  that `ca` or one of those anchors establishes is accepted on OpenSSL's verdict alone, without the
+  system evaluation. A variable naming a missing or unreadable file is reported only when no anchor
+  was found anywhere else.
 
-  An unreadable `SSL_CERT_FILE` is reported only when nothing else supplied an anchor. The variable
-  adds to the platform anchors rather than replacing them, so a stale one left behind by a removed
-  toolchain leaves the store narrower than asked for, never broader.
-
-  On macOS the Keychain is read once per process, since doing so costs around a tenth of a second,
-  so a root added to it after the first context is built is not picked up until the process
-  restarts. The per-certificate trust settings decide, so a root added locally (as `mkcert` and
-  `security add-trusted-cert` do) is trusted and one explicitly denied is not; a setting that
-  applies only to a named host, key usage, or application grants no trust, since an anchor cannot
-  carry that restriction.
-
-  With `false` none of that is consulted, environment variables included, and only `ca` is trusted.
+  Lean performs no revocation checking of its own.
   -/
   trustSystemRoots : Bool := true
   /--
   Whether a certificate in the trust store may anchor a chain without being self-signed itself.
 
-  With `false`, the default, a chain is accepted only once it reaches a self-signed certificate, so
-  an intermediate CA cannot serve as a trust anchor. Supplying nothing but intermediates as `ca`
+  With `false`, the default, a chain is accepted only once it reaches a self-signed certificate, or
+  one whose `TRUSTED CERTIFICATE` block explicitly trusts it for TLS servers, so an ordinary
+  intermediate CA cannot serve as a trust anchor. Supplying nothing but intermediates as `ca`
   while also excluding the platform anchors then describes a context that could never verify
   anything, and is rejected outright rather than left to fail at every handshake. Alongside the
   platform anchors an intermediate is merely redundant, so it passes.
 
   With `true` any certificate in the store anchors a chain, which is what pinning to an intermediate
-  rather than to the root above it requires.
+  rather than to the root above it requires. On macOS, independently of this flag, a Keychain trust
+  setting on an intermediate or leaf makes it an anchor for the system evaluation.
   -/
   allowPartialChain : Bool := false
 
@@ -190,9 +193,9 @@ issued by any other authority, public roots included, is then rejected. `ca` mus
 one certificate in that case, since a verifying context with no anchor at all could never complete a
 handshake; that combination is refused here rather than at connection time.
 
-A trusted CA has to be self-signed unless `allowPartialChain` says otherwise, since a chain is only
-accepted once it reaches a self-signed certificate. Pinning to nothing but intermediates is refused
-here rather than failing at every handshake.
+A trusted CA has to be self-signed, or explicitly trusted for TLS servers, unless `allowPartialChain`
+says otherwise. Pinning to nothing but ordinary intermediates is refused here rather than failing at
+every handshake.
 
 Verifying the peer proves the certificate chains to a trusted anchor; it does **not** prove the
 certificate belongs to the host being connected to. Binding a hostname is the session layer's job.

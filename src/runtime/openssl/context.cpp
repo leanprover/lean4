@@ -61,8 +61,8 @@ void initialize_openssl_context() {
     }, [](void *, lean_object *) {});
 }
 
-// Applies the hardened options every context shares. The minimum protocol version is left to the
-// caller, since it is the only one whose failure is worth reporting.
+// Applies the hardened options every context shares. The minimum protocol version and cipher list are
+// left to the caller, since they are the ones whose failure is worth reporting.
 static void configure_ctx_options(SSL_CTX * ctx) {
     SSL_CTX_set_options(ctx,
         // No effect on TLS 1.3, which replaced renegotiation with key updates.
@@ -72,10 +72,14 @@ static void configure_ctx_options(SSL_CTX * ctx) {
         // stateful form; the call below is what stops those being sent.
         SSL_OP_NO_TICKET |
 
-        // TLS 1.2 and below only; TLS 1.3 has no compression. A libssl built against zlib and
-        // running at security level 1 would otherwise negotiate it, which is CRIME.
+        // TLS 1.2 and below only; TLS 1.3 has no compression. Already OpenSSL's default; stated so
+        // that avoiding CRIME does not rest on that default.
         SSL_OP_NO_COMPRESSION
     );
+
+    // Level 2 (112-bit security: RSA and DH keys of at least 2048 bits) is OpenSSL's own default only
+    // from 3.2; earlier releases, which the build still accepts, default to level 1.
+    SSL_CTX_set_security_level(ctx, 2);
 
     // Without this a TLS 1.3 server still puts two NewSessionTickets on the wire per connection.
     // Read only by the server state machine.
@@ -119,6 +123,13 @@ static ssl_ctx_ptr mk_ssl_ctx_base(const SSL_METHOD * method, lean_obj_res * err
 
     if (SSL_CTX_set_min_proto_version(ctx.get(), TLS1_2_VERSION) != 1) {
         *err = mk_openssl_io_error("SSL_CTX_set_min_proto_version failed");
+        return nullptr;
+    }
+
+    // TLS 1.2 suites with forward secrecy and an AEAD only, which drops static-RSA key exchange and
+    // CBC. TLS 1.3 suites are configured separately and are all of that kind already.
+    if (SSL_CTX_set_cipher_list(ctx.get(), "ECDHE+AESGCM:ECDHE+CHACHA20") != 1) {
+        *err = mk_openssl_io_error("SSL_CTX_set_cipher_list failed");
         return nullptr;
     }
 
@@ -200,10 +211,15 @@ static lean_obj_res load_server_credentials(SSL_CTX * ctx, pem_source cert, pem_
     EVP_PKEY_free(pkey);
 
     // A key of the certificate's own algorithm is compared here and rejected outright; one of a
-    // different algorithm lands in an unused slot instead, which only the check below catches.
+    // different algorithm lands in an unused slot instead, which only the check below catches. A key
+    // with no slot at all (X25519, say, which cannot sign) is refused as a type.
     if (!used) {
-        return mk_pem_error(key, ERR_GET_LIB(ERR_peek_last_error()) == ERR_LIB_X509
-            ? mismatch
+        unsigned long reason = ERR_peek_last_error();
+        bool unusable = ERR_GET_LIB(reason) == ERR_LIB_SSL &&
+                        ERR_GET_REASON(reason) == SSL_R_UNKNOWN_CERTIFICATE_TYPE;
+
+        return mk_pem_error(key, ERR_GET_LIB(reason) == ERR_LIB_X509 ? mismatch
+            : unusable ? "the private key's algorithm cannot be used for TLS"
             : unreadable_key);
     }
 
@@ -242,9 +258,26 @@ static lean_obj_res mk_server_ctx(b_obj_arg cert, uint8_t cert_is_file, b_obj_ar
     return wrap_ssl_context(std::move(ctx));
 }
 
+// Whether the store holds a certificate chain building terminates on: one a `TRUSTED CERTIFICATE`
+// block explicitly trusts for TLS servers, or a self-signed one carrying no such settings. The store's
+// own copies are what count, since it keeps only the first of a repeated certificate.
+static bool store_has_anchor(X509_STORE * store) {
+    STACK_OF(X509) * certs = X509_STORE_get1_all_certs(store);
+    if (certs == nullptr) return false;
+
+    bool any = false;
+    for (int i = 0; !any && i < sk_X509_num(certs); i++) {
+        any = X509_check_trust(sk_X509_value(certs, i), X509_TRUST_SSL_SERVER, 0) == X509_TRUST_TRUSTED;
+    }
+
+    sk_X509_pop_free(certs, X509_free);
+    return any;
+}
+
 // Adds every certificate `src` yields to the trust store, on top of whatever it already holds.
-// With `require_self_signed`, the material must also hold a certificate a chain can terminate at.
-static lean_obj_res load_ca_bundle(SSL_CTX * ctx, pem_source src, bool require_self_signed) {
+// With `require_anchor`, which is only passed when the store starts empty, the material must also
+// hold a certificate a chain can terminate at.
+static lean_obj_res load_ca_bundle(SSL_CTX * ctx, pem_source src, bool require_anchor) {
     ERR_clear_error();
 
     lean_obj_res err = nullptr;
@@ -259,7 +292,6 @@ static lean_obj_res load_ca_bundle(SSL_CTX * ctx, pem_source src, bool require_s
 
     X509_STORE * store = SSL_CTX_get_cert_store(ctx);
     int cert_count = 0;
-    bool any_self_signed = false;
 
     for (int i = 0, n = sk_X509_INFO_num(infos); i < n; i++) {
         // A bundle may hold private keys and CRLs; only certificates are anchors.
@@ -267,10 +299,6 @@ static lean_obj_res load_ca_bundle(SSL_CTX * ctx, pem_source src, bool require_s
 
         if (cert == nullptr) continue;
         cert_count++;
-
-        // `EXFLAG_SS` is the same notion of self-signed that chain building terminates on. A bundle
-        // pairing a root with the intermediates below it therefore passes on the strength of the root.
-        if ((X509_get_extension_flags(cert) & EXFLAG_SS) != 0) any_self_signed = true;
 
         if (X509_STORE_add_cert(store, cert) != 1) {
             err = mk_openssl_io_error("X509_STORE_add_cert failed");
@@ -286,10 +314,10 @@ static lean_obj_res load_ca_bundle(SSL_CTX * ctx, pem_source src, bool require_s
     if (cert_count == 0)
         return mk_pem_error(src, "the CA material contains no certificates");
 
-    if (require_self_signed && !any_self_signed) {
+    if (require_anchor && !store_has_anchor(store)) {
         return mk_pem_error(src,
-            "the CA material holds no self-signed certificate, so no chain can terminate in it "
-            "(supply the root, or allow partial chains to anchor at an intermediate)");
+            "the CA material holds no certificate a TLS server chain can terminate in (supply the "
+            "root, or allow partial chains to anchor at an intermediate)");
     }
 
     return nullptr;
@@ -298,7 +326,7 @@ static lean_obj_res load_ca_bundle(SSL_CTX * ctx, pem_source src, bool require_s
 // `has_ca` says whether the caller supplied CA material at all, which decides whether dropping the
 // platform anchors would leave nothing behind. `load_ca_bundle` is what enforces that supplied
 // material actually yields a certificate, so the two together settle the case where the caller is
-// the only source of anchors. Where the platform is, `load_system_trust_store` answers for it.
+// the only source of anchors. Where the platform is, `use_system_trust_store` answers for it.
 static lean_obj_res mk_client_ctx(uint8_t verify_peer, uint8_t trust_system_roots, uint8_t allow_partial_chain, bool has_ca, pem_source ca) {
     if (verify_peer && !trust_system_roots && !has_ca) {
         return mk_ssl_invalid_argument(
@@ -325,7 +353,7 @@ static lean_obj_res mk_client_ctx(uint8_t verify_peer, uint8_t trust_system_root
     if (trust_system_roots) {
         std::string detail;
 
-        if (!load_system_trust_store(ctx.get(), &detail)) {
+        if (!use_system_trust_store(ctx.get(), &detail)) {
             std::string msg("failed to load system trust store");
             if (!detail.empty()) msg += ": " + detail;
 
@@ -338,9 +366,9 @@ static lean_obj_res mk_client_ctx(uint8_t verify_peer, uint8_t trust_system_root
     if (has_ca) {
         // An anchor that cannot terminate a chain is only a dead configuration when it is the sole
         // source of anchors; alongside the platform roots it is merely redundant.
-        bool require_self_signed = !allow_partial_chain && !trust_system_roots;
+        bool require_anchor = !allow_partial_chain && !trust_system_roots;
 
-        if (lean_obj_res ca_err = load_ca_bundle(ctx.get(), ca, require_self_signed)) return ca_err;
+        if (lean_obj_res ca_err = load_ca_bundle(ctx.get(), ca, require_anchor)) return ca_err;
     }
 
     SSL_CTX_set_verify(ctx.get(), SSL_VERIFY_PEER, nullptr);

@@ -50,14 +50,13 @@ static BIO * open_pem_bio(pem_source src, char const * unreadable, lean_obj_res 
     return bio;
 }
 
-struct ssl_ctx_deleter { void operator()(SSL_CTX * ctx) const { SSL_CTX_free(ctx); } };
-
 // Owns a context while it is still being built, so no error path has to remember to free it.
+struct ssl_ctx_deleter { void operator()(SSL_CTX * ctx) const { SSL_CTX_free(ctx); } };
 using ssl_ctx_ptr = std::unique_ptr<SSL_CTX, ssl_ctx_deleter>;
 
 void initialize_openssl_context() {
     g_ssl_context_external_class = lean_register_external_class([](void * ptr) {
-            SSL_CTX_free((SSL_CTX*)ptr);
+        SSL_CTX_free((SSL_CTX*)ptr);
     }, [](void *, lean_object *) {});
 }
 
@@ -115,21 +114,21 @@ static ssl_ctx_ptr mk_ssl_ctx_base(const SSL_METHOD * method, lean_obj_res * err
     ssl_ctx_ptr ctx(SSL_CTX_new(method));
 
     if (ctx == nullptr) {
-        *err = mk_openssl_io_error("SSL_CTX_new failed");
+        *err = mk_openssl_io_error("could not create the TLS context");
         return nullptr;
     }
 
     configure_ctx_options(ctx.get());
 
     if (SSL_CTX_set_min_proto_version(ctx.get(), TLS1_2_VERSION) != 1) {
-        *err = mk_openssl_io_error("SSL_CTX_set_min_proto_version failed");
+        *err = mk_openssl_io_error("could not set the minimum TLS version");
         return nullptr;
     }
 
     // TLS 1.2 suites with forward secrecy and an AEAD only, which drops static-RSA key exchange and
     // CBC. TLS 1.3 suites are configured separately and are all of that kind already.
     if (SSL_CTX_set_cipher_list(ctx.get(), "ECDHE+AESGCM:ECDHE+CHACHA20") != 1) {
-        *err = mk_openssl_io_error("SSL_CTX_set_cipher_list failed");
+        *err = mk_openssl_io_error("could not configure the TLS cipher suites");
         return nullptr;
     }
 
@@ -301,7 +300,7 @@ static lean_obj_res load_ca_bundle(SSL_CTX * ctx, pem_source src, bool require_a
         cert_count++;
 
         if (X509_STORE_add_cert(store, cert) != 1) {
-            err = mk_openssl_io_error("X509_STORE_add_cert failed");
+            err = mk_openssl_io_error("could not add a CA certificate to the trust store");
             break;
         }
     }
@@ -395,7 +394,7 @@ static lean_obj_res ssl_entry_point(F && build) {
     try {
         if (!ensure_openssl_initialized()) {
             return lean_io_result_mk_error(lean_mk_io_user_error(
-                mk_string("OPENSSL_init_ssl failed")));
+                mk_string("could not initialize the TLS library")));
         }
 
         return build();

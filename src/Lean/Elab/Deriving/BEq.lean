@@ -243,7 +243,7 @@ def mkBEqInstanceHandler (declNames : Array Name) : CommandElabM Bool := do
     return false
 
 builtin_initialize
-  registerDerivingHandler `BEq mkBEqInstanceHandler
+  --registerDerivingHandler `BEq mkBEqInstanceHandler
   registerTraceClass `Elab.Deriving.beq
 
 end Lean.Elab.Deriving.BEq

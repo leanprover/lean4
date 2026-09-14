@@ -51,7 +51,7 @@ def mkReflBEqInstanceHandler (declNames : Array Name) : CommandElabM Bool := do
     return false
 
 builtin_initialize
-  registerDerivingHandler ``ReflBEq mkReflBEqInstanceHandler
+  --registerDerivingHandler ``ReflBEq mkReflBEqInstanceHandler
   registerTraceClass `Elab.Deriving.reflBEq
 
 end Lean.Elab.Deriving.ReflBEq

@@ -52,7 +52,7 @@ def mkLawfulBEqInstanceHandler (declNames : Array Name) : CommandElabM Bool := d
     return false
 
 builtin_initialize
-  registerDerivingHandler ``LawfulBEq mkLawfulBEqInstanceHandler
+  --registerDerivingHandler ``LawfulBEq mkLawfulBEqInstanceHandler
   registerTraceClass `Elab.Deriving.lawfulBEq
 
 end Lean.Elab.Deriving.LawfulBEq

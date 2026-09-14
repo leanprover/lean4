@@ -535,6 +535,67 @@ instance : LawfulEqOrd Nat where
 
 end Nat
 
+theorem Ord.Internal.lawfulEq_fallback {p : Prop} {cmp : Ordering} {l r : Nat} :
+    cmp = compare l r → ¬ r = l → cmp = .eq → p :=
+  fun h hne h' => absurd (Std.LawfulEqCmp.eq_of_compare (h ▸ h')).symm hne
+
+/-- Internal declaration for `deriving TransOrd` -/
+def Ord.Internal.TransCombine (a b c : Ordering) : Prop :=
+  (match a, b with
+  | .eq, b => c == b
+  | a, .eq => c == a
+  | .lt, .lt => c.isLT
+  | .gt, .gt => c.isGT
+  | _, _ => true : Bool)
+deriving Decidable
+
+set_option synthInstance.maxSize 1000 in
+theorem Ord.Internal.transCombine_of_eq_swap_of_isLE_trans :
+    ∀ {ab bc ac cb ba ca : Ordering},
+      ab = ba.swap → ac = ca.swap → bc = cb.swap →
+      (ab.isLE → bc.isLE → ac.isLE) → (cb.isLE → ba.isLE → ca.isLE) →
+      (ba.isLE → ac.isLE → bc.isLE) → (ca.isLE → ab.isLE → cb.isLE) →
+      (ac.isLE → cb.isLE → ab.isLE) → (bc.isLE → ca.isLE → ba.isLE) →
+      TransCombine ab bc ac := by decide
+
+theorem Ord.Internal.TransCombine.isLE_trans :
+    ∀ {o₁ o₂ o₃ : Ordering}, TransCombine o₁ o₂ o₃ → o₁.isLE → o₂.isLE → o₃.isLE := by decide
+
+theorem Ord.Internal.transCombine_of_transCmp {α : Type u} {cmp : α → α → Ordering}
+    [TransCmp cmp] {a b c : α} : TransCombine (cmp a b) (cmp b c) (cmp a c) :=
+  transCombine_of_eq_swap_of_isLE_trans OrientedCmp.eq_swap OrientedCmp.eq_swap OrientedCmp.eq_swap
+    TransCmp.isLE_trans TransCmp.isLE_trans TransCmp.isLE_trans
+    TransCmp.isLE_trans TransCmp.isLE_trans TransCmp.isLE_trans
+
+theorem Ord.Internal.transCmp_of_transCombine {α : Type u} (cmp : α → α → Ordering)
+    [OrientedCmp cmp] (h : ∀ a b c, TransCombine (cmp a b) (cmp b c) (cmp a c)) : TransCmp cmp where
+  isLE_trans := (h ..).isLE_trans
+
+theorem Ord.Internal.transCombine_then : ∀ {o₁ o₂ o₃ o₁' o₂' o₃' : Ordering},
+    TransCombine o₁ o₂ o₃ → TransCombine o₁' o₂' o₃' →
+    TransCombine (o₁.then o₁') (o₂.then o₂') (o₃.then o₃') := by decide
+
+theorem Ord.Internal.transCombine_then' : ∀ {o₁ o₂ o₃ o₁' o₂' o₃' : Ordering},
+    TransCombine o₁ o₂ o₃ → (o₁ = .eq → o₂ = .eq → o₃ = .eq → TransCombine o₁' o₂' o₃') →
+    TransCombine (o₁.then o₁') (o₂.then o₂') (o₃.then o₃') := by decide
+
+theorem Ord.Internal.transCombine_dthen : ∀ {o₁ o₂ o₃ : Ordering} {o₁' o₂' o₃'},
+    TransCombine o₁ o₂ o₃ → (∀ h₁ h₂ h₃, TransCombine (o₁' h₁) (o₂' h₂) (o₃' h₃)) →
+    TransCombine (o₁.dthen o₁') (o₂.dthen o₂') (o₃.dthen o₃') := by decide
+
+theorem Ord.Internal.transOrd_fallback {cmp cmp' cmp'' : Ordering} {a b c : Nat} :
+    (¬ b = a → cmp = compare a b) → (¬ c = b → cmp' = compare b c) →
+      (¬ c = a → cmp'' = compare a c) → (¬ (a = b ∧ b = c)) →
+      TransCombine cmp cmp' cmp'' := by
+  intro hcmp hcmp' hcmp'' h
+  rw [eq_comm] at hcmp hcmp' hcmp''
+  replace hcmp : (compare a b).then cmp = cmp := by simpa [Ordering.then_eq_right_iff] using hcmp
+  replace hcmp' : (compare b c).then cmp' = cmp' := by simpa [Ordering.then_eq_right_iff] using hcmp'
+  replace hcmp'' : (compare a c).then cmp'' = cmp'' := by simpa [Ordering.then_eq_right_iff] using hcmp''
+  rw [← hcmp, ← hcmp', ← hcmp'']
+  apply transCombine_then' transCombine_of_transCmp
+  simp_all
+
 namespace Int
 
 instance : TransOrd Int :=

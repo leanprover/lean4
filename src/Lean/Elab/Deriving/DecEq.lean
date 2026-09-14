@@ -289,7 +289,7 @@ def mkDecEqInstanceHandler (declNames : Array Name) : CommandElabM Bool := do
   declNames.foldlM (fun b n => andM (pure b) (mkDecEqInstance n)) true
 
 builtin_initialize
-  registerDerivingHandler `DecidableEq mkDecEqInstanceHandler
+  --registerDerivingHandler `DecidableEq mkDecEqInstanceHandler
   registerTraceClass `Elab.Deriving.decEq
 
 end Lean.Elab.Deriving.DecEq

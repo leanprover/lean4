@@ -20,7 +20,7 @@ partial def cleanupCore (mvarId : MVarId) (toPreserve : Array FVarId) (indirectP
     for localDecl in lctx do
       unless used.contains localDecl.fvarId do
         lctx := lctx.erase localDecl.fvarId
-    let localInsts := (← getLocalInstances).filter fun inst => used.contains inst.fvar.fvarId!
+    let localInsts := (← getLocalInstances).eraseAll (!used.contains ·)
     let mvarNew ← mkFreshExprMVarAt lctx localInsts (← instantiateMVars (← mvarId.getType)) .syntheticOpaque (← mvarId.getTag)
     mvarId.assign mvarNew
     return mvarNew.mvarId!

@@ -134,7 +134,12 @@ where
         -- New trees are not guarded by a transformation here so add back trailing eagerly. Unlikely
         -- to be a bottleneck but could be optimized by adding a transformation node to `InfoTree`.
         let trailing := untrimmedTac.getTrailing?.getD default
-        modifyInfoState fun s => { s with trees := trees ++ s.trees.map (·.addTrailing trailing) }
+        unless trailing.isEmpty do
+          -- Substitute info holes first so that term-level tactic blocks ending in the same token
+          -- as `tac` (e.g. `exact foo <| by ...`) regain the trailing whitespace as well.
+          modifyInfoState fun s => { s with
+            trees := s.trees.map (·.substitute s.assignment |>.addTrailing trailing) }
+        modifyInfoState fun s => { s with trees := trees ++ s.trees }
 
       withTheReader Term.Context ({ · with tacSnap? := some {
         new := next

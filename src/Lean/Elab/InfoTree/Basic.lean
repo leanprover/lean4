@@ -196,12 +196,12 @@ partial def InfoTree.addTrailing? (trailing : Substring.Raw) : Elab.InfoTree →
   | .node info children => Id.run do
     let stx? := info.stx.addTrailing? trailing
     -- NOTE: we need to visit the children even if `stx` was not actually changed as info trees are
-    -- not necessarily properly nested regarding syntax ranges!
-    let childTrailing := (stx?.getD info.stx).getTrailing?.getD trailing
+    -- not necessarily properly nested regarding syntax ranges! In particular, a child may end at
+    -- `trailing` even if `stx` ends elsewhere, so always pass down `trailing` itself.
     let mut changed := false
     let mut newChildren := children
     for c in children, i in 0...* do
-      if let some c' := c.addTrailing? childTrailing then
+      if let some c' := c.addTrailing? trailing then
         changed := true
         newChildren := newChildren.set i c'
     if stx?.isNone && !changed then

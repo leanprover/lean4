@@ -15,7 +15,7 @@ Author: Sofia Rodrigues
 #include <openssl/x509_vfy.h>
 #include <openssl/x509v3.h>
 #include <cerrno>
-#include <climits>
+#include <limits>
 #include <memory>
 #include <string>
 
@@ -40,7 +40,7 @@ static BIO * open_pem_bio(pem_source src, char const * unreadable, lean_obj_res 
         return bio;
     }
 
-    if (src.size() > (size_t)INT_MAX) {
+    if (src.size() > static_cast<size_t>(std::numeric_limits<int>::max())) {
         *err = mk_ssl_invalid_argument("the PEM string is too large");
         return nullptr;
     }

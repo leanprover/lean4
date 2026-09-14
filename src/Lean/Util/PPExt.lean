@@ -8,6 +8,7 @@ module
 prelude
 public import Lean.Elab.InfoTree.Types
 import Init.Data.Format.Macro
+import Lean.PrettyPrinter.Delaborator.Options
 
 public section
 
@@ -68,7 +69,7 @@ builtin_initialize ppExt : EnvExtension PPFns ←
 
 def ppExprWithInfos (ctx : PPContext) (e : Expr) : BaseIO FormatWithInfos := do
   if pp.raw.get ctx.opts then
-    let e := instantiateMVarsCore ctx.mctx e |>.1
+    let e := if pp.instantiateMVars.get ctx.opts then instantiateMVarsCore ctx.mctx e |>.1 else e
     return format (toString e)
   else
     match (← ppExt.getState ctx.env |>.ppExprWithInfos ctx e |>.toBaseIO) with

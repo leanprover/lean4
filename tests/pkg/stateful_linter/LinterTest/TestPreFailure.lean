@@ -6,7 +6,8 @@ runs sync, so the pre-failure → `none` behaviour is pinned on both paths. A pl
 avoids a counted module-doc command. -/
 
 /--
-error: stateful linter #0 (pre) failed: thrower boom
+error: stateful linter LinterTest.PreFailure.thrower (#0) failed:
+  thrower boom
 ---
 info: thrower: none, producer: some (42)
 -/
@@ -15,7 +16,8 @@ def pf1 := 1
 
 set_option Elab.async false in
 /--
-error: stateful linter #0 (pre) failed: thrower boom
+error: stateful linter LinterTest.PreFailure.thrower (#0) failed:
+  thrower boom
 ---
 info: thrower: none, producer: some (42)
 -/

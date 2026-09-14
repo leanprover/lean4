@@ -206,21 +206,18 @@ def interpWith (kind : SyntaxNodeKind) (openSym : String) (trailingWs : Bool) : 
   node kind <|
     rawSymbol openSym (trailingWs := true) >> termParser >> rawSymbol "}" (trailingWs := trailingWs)
 
-abbrev interpKind := `Lean.Html.Syntax.interp
-abbrev interpManyKind := `Lean.Html.Syntax.interpMany
-
 /-- Parses {lit}`{ term }`. -/
 @[run_parser_attribute_hooks]
-def interp (trailingWs : Bool := false) : Parser := interpWith interpKind "{" trailingWs
+def interp (trailingWs : Bool := false) : Parser := interpWith decl_name% "{" trailingWs
 
 /-- Parses {lit}`{... term }`. -/
 @[run_parser_attribute_hooks]
-def interpMany (trailingWs : Bool := false) : Parser := interpWith interpManyKind "{..." trailingWs
+def interpMany (trailingWs : Bool := false) : Parser := interpWith decl_name% "{..." trailingWs
+
+abbrev interpKind := ``interp
+abbrev interpManyKind := ``interpMany
 
 /-! ## Text content -/
-
-abbrev textKind := `Lean.Html.Syntax.text
-abbrev Text := TSyntax textKind
 
 /-- Parses [HTML text content](https://html.spec.whatwg.org/dev/dom.html#text-content),
 stopping at an interpolation {lit}`{`, a tag `<`,
@@ -229,10 +226,13 @@ def text : Parser where
   fn c s :=
     let startPos := s.pos
     let s := takeWhile1Fn isTextChar "expected HTML text" c s
-    mkNodeToken textKind startPos (includeWhitespace := false) c s
+    mkNodeToken decl_name% startPos (includeWhitespace := false) c s
 where
   isTextChar (c : Char) :=
     (!isControl c || isAsciiWhitespace c) && !isNonCharacter c && c ∉ ['{', '}', '<']
+
+abbrev textKind := ``text
+abbrev Text := TSyntax textKind
 
 @[combinator_parenthesizer text, parenthesizer Lean.Html.Syntax.text]
 def text.parenthesizer : Parenthesizer := Parenthesizer.visitToken
@@ -286,9 +286,6 @@ end TextAcc
 
 /-! ## Comments -/
 
-abbrev commentKind := `Lean.Html.Syntax.comment
-abbrev Comment := TSyntax commentKind
-
 private partial def commentContentsFn : ParserFn := fun c s =>
   let i := s.pos
   if h : c.atEnd i then
@@ -323,7 +320,10 @@ private partial def commentFn : ParserFn := fun c s =>
 
 /-- Parses an [HTML comment](https://html.spec.whatwg.org/dev/syntax.html#comments). -/
 def comment : Parser where
-  fn := nodeFn commentKind <| rawFn commentFn (trailingWs := false)
+  fn := nodeFn decl_name% <| rawFn commentFn (trailingWs := false)
+
+abbrev commentKind := ``comment
+abbrev Comment := TSyntax commentKind
 
 @[combinator_parenthesizer comment, parenthesizer Lean.Html.Syntax.comment]
 def comment.parenthesizer := Parenthesizer.visitToken
@@ -338,49 +338,49 @@ def Comment.view [Monad m] [MonadError m] : Comment → m String
 
 /-! ## Tag names -/
 
-abbrev tagNameKind := `Lean.Html.Syntax.tagName
-abbrev TagName := TSyntax tagNameKind
-
 /-- Parses an [HTML tag name](https://html.spec.whatwg.org/dev/syntax.html#syntax-tag-name):
 an ASCII letter followed by characters other than ASCII whitespace, U+0000 NULL, `/`, `>`.
 This includes [custom element names](https://html.spec.whatwg.org/dev/custom-elements.html#valid-custom-element-name). -/
 @[run_parser_attribute_hooks]
 def tagName : Parser :=
-  parseFirstMany tagNameKind "tag name" Char.isAlpha isTagNameChar
+  parseFirstMany decl_name% "tag name" Char.isAlpha isTagNameChar
 where
   isTagNameChar (c : Char) : Bool :=
     !isAsciiWhitespace c && c.toNat != 0x0000 && c ∉ ['/', '>']
+
+abbrev tagNameKind := ``tagName
+abbrev TagName := TSyntax tagNameKind
 
 def TagName.view [Monad m] [MonadError m] : TagName → m String :=
   viewNodeAtom
 
 /-! ## Attribute names -/
 
-abbrev attrNameKind := `Lean.Html.Syntax.attrName
-abbrev AttrName := TSyntax attrNameKind
-
 /-- Parses an [HTML attribute name](https://html.spec.whatwg.org/dev/syntax.html#attributes-2)
 that does not start with {lit}`{` (which would conflict with interpolation). -/
 @[run_parser_attribute_hooks]
 def attrName : Parser :=
-  parseFirstMany attrNameKind "attribute name" isAttrNameFirstChar isAttrNameChar
+  parseFirstMany decl_name% "attribute name" isAttrNameFirstChar isAttrNameChar
 where
   isAttrNameFirstChar (c : Char) : Bool := isAttrNameChar c && c != '{'
   /-- https://html.spec.whatwg.org/dev/syntax.html#attributes-2 -/
   isAttrNameChar (c : Char) : Bool :=
     !isControl c && c ∉ [' ', '"', '\'', '>', '/', '='] && !isNonCharacter c
 
+abbrev attrNameKind := ``attrName
+abbrev AttrName := TSyntax attrNameKind
+
 def AttrName.view [Monad m] [MonadError m] : AttrName → m String :=
   viewNodeAtom
 
 /-! ## Attribute values -/
 
-abbrev attrValKind := `Lean.Html.Syntax.attrVal
-abbrev AttrVal := TSyntax attrValKind
-
 @[run_parser_attribute_hooks]
 def attrVal : Parser :=
-  node attrValKind (strLit <|> interp (trailingWs := true))
+  node decl_name% (strLit <|> interp (trailingWs := true))
+
+abbrev attrValKind := ``attrVal
+abbrev AttrVal := TSyntax attrValKind
 
 inductive AttrValView where
   /-- A string literal and its value {name}`val`, with character references decoded. -/
@@ -403,9 +403,6 @@ def AttrVal.view (stx : AttrVal) : CoreM AttrValView := do
 
 /-! ## Attributes -/
 
-abbrev attrKind := `Lean.Html.Syntax.attr
-abbrev Attr := TSyntax attrKind
-
 /-- Parses an [HTML attribute](https://html.spec.whatwg.org/dev/syntax.html#attributes-2).
 We support double-quoted attribute values {lit}`<tag name="val">`,
 empty attributes {lit}`<tag name>`,
@@ -414,10 +411,13 @@ and interpolations of a sequence of attributes {lit}`<tag {... term }/>`.
 Character references are decoded in double-quoted values. -/
 @[run_parser_attribute_hooks]
 def attr : Parser :=
-  node attrKind <|
+  node decl_name% <|
     (attrName >> optional (rawSymbol "=" (trailingWs := true) >> attrVal))
     -- `{...` should be tried before its prefix `{`.
     <|> interpMany (trailingWs := true) <|> interp (trailingWs := true)
+
+abbrev attrKind := ``attr
+abbrev Attr := TSyntax attrKind
 
 inductive AttrView where
   | val (name : AttrName) (val : AttrVal)

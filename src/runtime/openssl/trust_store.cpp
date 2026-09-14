@@ -21,6 +21,7 @@ Author: Sofia Rodrigues
 #include <sys/stat.h>
 
 #if defined(__APPLE__)
+#include <AvailabilityMacros.h>
 #include <Security/Security.h>
 #include <CoreFoundation/CoreFoundation.h>
 #include <memory>
@@ -214,6 +215,19 @@ static CFArrayRef copy_peer_certificates(X509_STORE_CTX * ctx) {
     return certs.release();
 }
 
+// The chain the evaluation settled on, leaf first and anchor last.
+static CFArrayRef copy_evaluated_chain(SecTrustRef trust) {
+#if MAC_OS_X_VERSION_MIN_REQUIRED >= 120000
+    return SecTrustCopyCertificateChain(trust);
+#else
+    CFIndex n = SecTrustGetCertificateCount(trust);
+    CFMutableArrayRef chain = CFArrayCreateMutable(nullptr, n, &kCFTypeArrayCallBacks);
+    if (chain == nullptr) return nullptr;
+    for (CFIndex i = 0; i < n; i++) CFArrayAppendValue(chain, SecTrustGetCertificateAtIndex(trust, i));
+    return chain;
+#endif
+}
+
 // Verifies `ctx`'s peer again with OpenSSL, trusting only the anchor the platform settled on, so the
 // name, purpose and key-strength checks are OpenSSL's own as on every other platform. libssl reads
 // the verdict, the verified chain and the peer name back from `ctx`, so all three are moved there.
@@ -224,16 +238,12 @@ static int verify_along_evaluated_chain(X509_STORE_CTX * ctx, SecTrustRef trust)
     x509_stack_ptr anchor(sk_X509_new_null());
     std::unique_ptr<X509_STORE_CTX, released_by<X509_STORE_CTX_free>> check(X509_STORE_CTX_new());
 
-    CFIndex n = SecTrustGetCertificateCount(trust);
-    bool built = untrusted != nullptr && anchor != nullptr && check != nullptr;
+    cf_ptr<CFArrayRef> chain(copy_evaluated_chain(trust));
+    CFIndex n = chain != nullptr ? CFArrayGetCount(chain.get()) : 0;
+    bool built = chain != nullptr && untrusted != nullptr && anchor != nullptr && check != nullptr;
 
-    // The evaluated chain runs from the leaf to the anchor.
     for (CFIndex i = 0; built && i < n; i++) {
-        // `SecTrustCopyCertificateChain` replaces this, but only from macOS 12, and releases target 11.
-#pragma clang diagnostic push
-#pragma clang diagnostic ignored "-Wdeprecated-declarations"
-        cf_ptr<CFDataRef> der(SecCertificateCopyData(SecTrustGetCertificateAtIndex(trust, i)));
-#pragma clang diagnostic pop
+        cf_ptr<CFDataRef> der(SecCertificateCopyData((SecCertificateRef)CFArrayGetValueAtIndex(chain.get(), i)));
 
         unsigned char const * bytes = CFDataGetBytePtr(der.get());
         X509 * cert = d2i_X509(nullptr, &bytes, CFDataGetLength(der.get()));

@@ -34,11 +34,17 @@ resulting NDJSON export crosses the boundary.
 
 namespace Lake.Check
 
-public inductive SandboxLocation where
+inductive SandboxLocation where
   | noSandbox
   | path (path : String)
 
-public structure Context where
+inductive ModuleKind where
+  | check
+  | solution
+  | challenge
+  deriving DecidableEq, Repr, Hashable
+
+structure Context where
   projectDir : System.FilePath
   challengeModule : Lean.Name
   solutionModule : Lean.Name
@@ -68,8 +74,9 @@ public structure Context where
   externalKernels : (Std.TreeMap String (Array String))
   /-- The checkers `--paranoid` adds, each as a name and a command as for `externalKernels`. -/
   bundledKernels : Array (String × Array String)
+  moduleStore : Std.HashMap ModuleKind System.FilePath
 
-public abbrev M := ReaderT Context IO
+abbrev M := ReaderT Context IO
 
 structure SandboxArgs where
   cmd : String
@@ -328,20 +335,23 @@ Builds and exports the project in one sandboxed `lake` process, and returns the 
 so the modules to check never cross a process boundary: it resolves them, builds them and dumps the
 export itself, writing the export to stdout and everything else to stderr.
 -/
-def withSafeBuildAndExport (f : System.FilePath → M α) : M α := do
-  IO.println "Building and exporting"
-  let projectDir ← getProjectDir
-  IO.FS.withTempFile fun handle path => do
-    runSandBoxedWithStdoutTo handle {
-      cmd := (← read).whichLake.toString,
-      args := #["check"],
-      envPass := #["PATH", "HOME", "LEAN_ABORT_ON_PANIC"]
-      envOverride := #[("LEAN_ABORT_ON_PANIC", some "1"), ("LAKE_CHECK_EXPORT", some "1")]
-      readablePaths := #[projectDir, ← getLeanPrefix, ← getLakeHome]
-      writablePaths := #[projectDir / ".lake"]
-      tmpfsPaths := forbiddenPaths
-    }
-    f path
+def withSafeCheckExport (f : System.FilePath → M α) : M α := do
+  if let some checkPath := (← read).moduleStore[ModuleKind.check]? then
+    f checkPath
+  else
+    IO.println "Building and exporting"
+    let projectDir ← getProjectDir
+    IO.FS.withTempFile fun handle path => do
+      runSandBoxedWithStdoutTo handle {
+        cmd := (← read).whichLake.toString,
+        args := #["check"],
+        envPass := #["PATH", "HOME", "LEAN_ABORT_ON_PANIC"]
+        envOverride := #[("LEAN_ABORT_ON_PANIC", some "1"), ("LAKE_CHECK_EXPORT", some "1")]
+        readablePaths := #[projectDir, ← getLeanPrefix, ← getLakeHome]
+        writablePaths := #[projectDir / ".lake"]
+        tmpfsPaths := forbiddenPaths
+      }
+      f path
 
 def safeLakeBuild (targets : Array Lean.Name) : M Unit := do
   let targetArgs := targets.map (·.toString)
@@ -385,6 +395,14 @@ def withSafeExport (module : Lean.Name) (decls : Array Lean.Name) (f : System.Fi
     M α := do
   IO.println s!"Exporting {decls} from {module}"
   withRunExporter (#[module.toString, "--"] ++ decls.map (·.toString)) f
+
+def withSafeBuildAndExport (kind : ModuleKind) (module : Lean.Name) (decls : Array Lean.Name) (f : System.FilePath → M α) :
+    M α := do
+  if let some modulePath := (← read).moduleStore[kind]? then
+    f modulePath
+  else
+    safeLakeBuild #[module]
+    withSafeExport module decls f
 
 def runExternalKernel (kernelName : String) (kernelCommand : Array String)
     (solutionPath : System.FilePath) : M (Option String) := do
@@ -508,16 +526,14 @@ where
     IO.ofExcept <| compareAt challenge solution targets definitionNames (← primitiveTargets)
     IO.ofExcept <| checkAxioms solution theoremNames definitionNames (← getLegalAxioms)
 
-public def compareIt : M Unit := do
+def compareIt : M Unit := do
   let exportTargets := (← builtinTargets) ++ (← getTheoremNames) ++ (← getLegalAxioms)
     ++ (← primitiveTargets) ++ (← getDefinitionNames)
 
   let challengeModule ← getChallengeModule
-  safeLakeBuild #[challengeModule]
-  withSafeExport challengeModule exportTargets fun challengeExportPath => do
+  withSafeBuildAndExport .challenge challengeModule exportTargets fun challengeExportPath => do
     let solutionModule ← getSolutionModule
-    safeLakeBuild #[solutionModule]
-    withSafeExport solutionModule exportTargets fun solutionExportPath => do
+    withSafeBuildAndExport .solution solutionModule exportTargets fun solutionExportPath => do
       verifyMatch challengeExportPath solutionExportPath
       IO.println "Your solution is okay!"
 
@@ -562,12 +578,26 @@ def bundledKernels (lean : LeanInstall) : Array (String × Array String) :=
     ("con-leche", #[(exe "con-leche").toString])
   ]
 
+def resolveModuleStore (cmd : String)
+    (entries : Array (String × ModuleKind × Option System.FilePath)) :
+    IO (Except ExitCode (Std.HashMap ModuleKind System.FilePath)) := do
+  let mut store := {}
+  for (flag, kind, path?) in entries do
+    let some path := path? | continue
+    unless ← path.pathExists do
+      return .error (← cannotRun s!"`lake {cmd} {flag}`: '{path}' does not exist")
+    if ← path.isDir then
+      return .error (← cannotRun s!"`lake {cmd} {flag}`: '{path}' is a directory")
+    store := store.insert kind (← IO.FS.realPath path)
+  return .ok store
+
 /--
 Resolves the external tools the commands need and builds the context they share, or reports why
 that is not possible.
 -/
 def mkContext (cmd : String) (paranoid : Bool) (inadvisablyNoSandbox : Bool) (lean : LeanInstall)
-    (lake : LakeInstall) (projectDir : System.FilePath) : IO (Except ExitCode Context) := do
+    (lake : LakeInstall) (projectDir : System.FilePath)
+    (moduleStore : Std.HashMap ModuleKind System.FilePath) : IO (Except ExitCode Context) := do
   let whichSandbox ←
     if inadvisablyNoSandbox then
       IO.eprintln s!"WARNING: Sandbox disabled, this run is not trustworthy."
@@ -609,6 +639,7 @@ def mkContext (cmd : String) (paranoid : Bool) (inadvisablyNoSandbox : Bool) (le
     whichEnvBin := envBinPath
     externalKernels := {}
     bundledKernels
+    moduleStore
   }
 
 /-- Resolves the external kernels a configuration asks for. -/
@@ -644,8 +675,9 @@ def checkUsedAxioms (exported : LeanExport.ExportedEnv) : M Unit := do
 
 /-- Checks a set of module roots at once against the kernel with no challenge to compare it to. -/
 def checkProject : M Unit := do
-  safeResolveDeps
-  withSafeBuildAndExport fun exportPath => do
+  unless (← read).moduleStore.contains .check do
+    safeResolveDeps
+  withSafeCheckExport fun exportPath => do
     runKernels exportPath
     let exported ← LeanExport.parseStream <| .ofHandle (← IO.FS.Handle.mk exportPath .read)
     checkUsedAxioms exported
@@ -654,10 +686,20 @@ def checkProject : M Unit := do
 Runs `lake comparator`: builds and exports the challenge and the solution in a sandbox, then judges
 the solution against the challenge.
 -/
-public def runComparator (configFile? : Option System.FilePath) (paranoid : Bool) (inadvisablyNoSandbox : Bool)
-    (lean : LeanInstall) (lake : LakeInstall) (projectDir : System.FilePath) : IO ExitCode := do
+public def runComparator (configFile? : Option System.FilePath)
+    (challengeFromExport? solutionFromExport? : Option System.FilePath) (paranoid : Bool)
+    (inadvisablyNoSandbox : Bool) (lean : LeanInstall) (lake : LakeInstall)
+    (projectDir : System.FilePath) : IO ExitCode := do
+  let resolved ← resolveModuleStore "comparator" #[
+      ("--challenge-from-export", .challenge, challengeFromExport?),
+      ("--solution-from-export", .solution, solutionFromExport?)
+    ]
+  let moduleStore ←
+    match resolved with
+    | .error rc => return rc
+    | .ok store => pure store
   let base ←
-    match ← mkContext "comparator" paranoid inadvisablyNoSandbox lean lake projectDir with
+    match ← mkContext "comparator" paranoid inadvisablyNoSandbox lean lake projectDir moduleStore with
     | .error rc => return rc
     | .ok ctx => pure ctx
 
@@ -679,8 +721,10 @@ public def runComparator (configFile? : Option System.FilePath) (paranoid : Bool
     | .error rc => return rc
     | .ok ks => pure ks
 
-  if let some rc ← checkManifest "comparator" base.projectDir then
-    return rc
+  let needsProject := !(moduleStore.contains .challenge && moduleStore.contains .solution)
+  if needsProject then
+    if let some rc ← checkManifest "comparator" base.projectDir then
+      return rc
 
   try
     let ctx := { base with
@@ -691,8 +735,11 @@ public def runComparator (configFile? : Option System.FilePath) (paranoid : Bool
       legalAxioms := cfg.permitted_axioms.map String.toName,
       externalKernels
     }
-    let (leanPath, binPath) ← ReaderT.run safeResolveWorkspace ctx
-    ReaderT.run compareIt { ctx with leanPath, binPath }
+    if needsProject then
+      let (leanPath, binPath) ← ReaderT.run safeResolveWorkspace ctx
+      ReaderT.run compareIt { ctx with leanPath, binPath }
+    else
+      ReaderT.run compareIt ctx
     return 0
   catch e =>
     IO.eprintln s!"error: {e}"
@@ -702,14 +749,21 @@ public def runComparator (configFile? : Option System.FilePath) (paranoid : Bool
 Runs `lake check`: builds and exports the project's default targets in the sandbox and checks them
 with the kernel, with no challenge to compare them against.
 -/
-public def runCheck (paranoid : Bool) (inadvisablyNoSandbox : Bool) (lean : LeanInstall)
-    (lake : LakeInstall) (projectDir : System.FilePath) : IO ExitCode := do
+public def runCheck (fromExport? : Option System.FilePath) (paranoid : Bool)
+    (inadvisablyNoSandbox : Bool) (lean : LeanInstall) (lake : LakeInstall)
+    (projectDir : System.FilePath) : IO ExitCode := do
+  let resolved ← resolveModuleStore "check" #[("--from-export", .check, fromExport?)]
+  let moduleStore ←
+    match resolved with
+    | .error rc => return rc
+    | .ok store => pure store
   let base ←
-    match ← mkContext "check" paranoid inadvisablyNoSandbox lean lake projectDir with
+    match ← mkContext "check" paranoid inadvisablyNoSandbox lean lake projectDir moduleStore with
     | .error rc => return rc
     | .ok ctx => pure ctx
-  if let some rc ← checkManifest "check" base.projectDir then
-    return rc
+  unless moduleStore.contains .check do
+    if let some rc ← checkManifest "check" base.projectDir then
+      return rc
   try
     -- Checkers that police axioms themselves are held to the axioms `checkUsedAxioms` permits.
     checkProject.run { base with legalAxioms := standardAxioms }

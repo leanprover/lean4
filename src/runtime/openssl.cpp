@@ -25,7 +25,12 @@ bool ensure_openssl_initialized() {
     // freed lock. Lean hands work to a thread pool that can outlive `main`, so that handler
     // must not be installed. Nothing then frees OpenSSL's globals, which is intended: they stay
     // reachable from static storage for the life of the process.
-    static const bool ok = OPENSSL_init_ssl(OPENSSL_INIT_NO_ATEXIT, nullptr) == 1;
+    //
+    // `OPENSSL_INIT_NO_LOAD_CONFIG` keeps `openssl.cnf` out. Its compiled-in path names a directory
+    // on the build machine, which on the machine a toolchain runs on can belong to anyone, and a
+    // file there can load a provider module or lower the security level of every context.
+    static const bool ok =
+        OPENSSL_init_ssl(OPENSSL_INIT_NO_ATEXIT | OPENSSL_INIT_NO_LOAD_CONFIG, nullptr) == 1;
 
     return ok;
 }

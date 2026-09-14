@@ -375,7 +375,7 @@ macro "wrapped%" : term => `(html%{<div><b>x</b> <i>y</i> {bold} z</div>})
 #guard_msgs in
 #eval dump html%{<p>&#65;&#x42;&#X43;</p>}
 
-#guard html%{<p>&nbsp;&NotEqualTilde;&#x1F600;</p>} == .element "p" #[] (.text " ≂̸😀")
+#guard html%{<p>&nbsp;&NotEqualTilde;&#x1F600;&NewLine;</p>} == .element "p" #[] (.text " ≂̸😀\n")
 
 -- Some character references are escaped again when rendering.
 /-- info: "<p>&amp;&lt;&gt;\"'</p>" -/

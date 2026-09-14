@@ -559,7 +559,8 @@ def bundledKernels (lean : LeanInstall) : Array (String × Array String) :=
     ("Lean paranoid", #[(exe "leanchecker-paranoid").toString, "--silent", "--from-export"]),
     ("lean4lean", #[(exe "lean4lean").toString, "--import"]),
     ("nanoda", #[(exe "nanoda_bin").toString]),
-    ("con-leche", #[(exe "con-leche").toString])
+    ("con-leche", #[(exe "con-leche").toString]),
+    ("con-ron", #[(exe "con-ron").toString])
   ]
 
 /--

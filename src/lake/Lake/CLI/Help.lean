@@ -425,7 +425,7 @@ OPTIONS:
                              directory)
   --paranoid                 also run all external checkers bundled with Lean
                              besides Lean's own kernel: `leanchecker-paranoid`,
-                             `lean4lean`, `nanoda` and `con-leche`
+                             `lean4lean`, `nanoda`, `con-leche` and `con-ron`
   --inadvisably-no-sandbox   disable the built-in sandbox. This can compromise
                              the result fully and is only advised for expert
                              users.
@@ -499,7 +499,7 @@ Building the project once is enough to write one.
 OPTIONS:
   --paranoid                 also run all external checkers bundled with Lean
                              besides Lean's own kernel: `leanchecker-paranoid`,
-                             `lean4lean`, `nanoda` and `con-leche`
+                             `lean4lean`, `nanoda`, `con-leche` and `con-ron`
   --inadvisably-no-sandbox   disable the built-in sandbox. This can compromise
                              the result fully and is only advised for expert
                              users.

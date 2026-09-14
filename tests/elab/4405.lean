@@ -1,5 +1,11 @@
 import Lean.Elab.Command
 
+/-!
+# Regression test, to make sure `isDefEq` uses occurs check in metavariable types
+
+https://github.com/leanprover/lean4/issues/4405
+-/
+
 set_option pp.mvars false
 
 /--
@@ -41,7 +47,7 @@ open Lean Meta
 /--
 info: Defeq?: false
 ---
-info: fun x_0 x_1 => x_1
+info: fun x_1 x_2 => x_2
 -/
 #guard_msgs in
 run_meta do
@@ -49,8 +55,7 @@ run_meta do
   let mvarIdFin ← mkFreshExprMVar (.some (.app (.const `Fin []) mvarIdNat))
   -- mvarIdNat.assign (.app (.const ``Fin.val []) mvaridFin))
   let b ← isDefEq mvarIdNat (mkApp2 (.const ``Fin.val []) mvarIdNat mvarIdFin)
-  logInfo m!"Defeq?: {b}" -- prints true
-  -- Now mvaridNat occurs in its own type
-  -- This will stack overflow
+  logInfo m!"Defeq?: {b}" -- used to print true
+  -- Since mvaridNat occurred in its own type, this used to stack overflow:
   let r ← abstractMVars mvarIdFin (levels := false)
   logInfo m!"{r.expr}"

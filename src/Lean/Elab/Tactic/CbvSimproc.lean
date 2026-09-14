@@ -24,15 +24,13 @@ def elabCbvSimprocPattern (stx : Syntax) : MetaM Expr := do
     return pattern
   go.run'
 
--- **Note**: `abstractMVars` returns a lambda expression, but `mkPatternFromExpr` expects a
--- proof term (it calls `inferType` to get the forall type used as the pattern). We convert the
--- lambda telescope into a forall telescope, then create a metavariable of that forall type so
+-- **Note**: `mkPatternFromExpr` expects a proof term (it calls `inferType` to get the forall type
+-- used as the pattern). We create a metavariable of that forall type so
 -- that `mkPatternFromExpr` can recover it via `inferType`. This is a workaround until the
 -- pattern API supports lambda telescopes directly (see `Sym.mkSimprocPatternFromExpr'`).
 public def mkSimprocPatternFromExpr (e : Expr) : MetaM Pattern := do
-  let result ← abstractMVars e
-  let forallExpr ← lambdaTelescope result.expr fun args body => mkForallFVars args body
-  let term ← mkFreshExprMVar forallExpr
+  let result ← abstractMVars e (isLambda := false)
+  let term ← mkFreshExprMVar result.expr
   mkPatternFromExpr term result.paramNames.toList
 
 

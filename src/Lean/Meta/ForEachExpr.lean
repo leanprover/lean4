@@ -86,19 +86,19 @@ private def shouldInferBinderName (x : Expr) : m Bool := do
 
 /--
   Auxiliary method for (temporarily) setting the user facing name of metavariables.
-  Let `?m` be a metavariable in `isTarget.contains ?m`, and `?m` does not have a user facing name.
+  Let `?m` be a metavariable such that `isTarget ?m = true`, and `?m` does not have a user facing name.
   Then, we try to find an application `f ... ?m` in `e`, and (temporarily) use the
   corresponding parameter name (with a fresh macro scope) as the user facing name for `?m`.
   This method returns all metavariables whose user facing name has been updated.
 -/
-def setMVarUserNamesAt (e : Expr) (isTarget : Array Expr) : MetaM (Array MVarId) := do
+def setMVarUserNamesAt (e : Expr) (isTarget : Expr → Bool) : MetaM (Array MVarId) := do
   let toReset ← IO.mkRef #[]
   forEachExpr (← instantiateMVars e) fun e => do
     if e.isApp then
       let args := e.getAppArgs
       for h : i in *...args.size do
         let arg := args[i]
-        if arg.isMVar && isTarget.contains arg then
+        if arg.isMVar && isTarget arg then
           let mvarId := arg.mvarId!
           if (← mvarId.getDecl).userName.isAnonymous then
             forallBoundedTelescope (← inferType e.getAppFn) (some (i+1)) fun xs _ => do
@@ -127,7 +127,7 @@ def resetMVarUserNames (toReset : Array MVarId) : MetaM Unit := do
 def mkForallFVars' (xs : Array Expr) (type : Expr) : MetaM Expr := do
   if (← xs.anyM shouldInferBinderName) then
     let setMVarsAt (e : Expr) : StateRefT (Array MVarId) MetaM Unit := do
-      let mvarIds ← setMVarUserNamesAt e xs
+      let mvarIds ← setMVarUserNamesAt e xs.contains
       modify (· ++ mvarIds)
     let go : StateRefT (Array MVarId) MetaM Expr := do
       try

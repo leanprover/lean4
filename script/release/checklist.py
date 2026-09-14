@@ -67,24 +67,11 @@ class RepoChecker:
             self.cl.fatal("Branch not pushed")
         self.lrepo.push(head, remote="nightly" if nightly else "origin")
 
-        # Mathlib bump PRs are opened from the nightly-testing repo, which
-        # pygithub doesn't support because both belong to the same organization:
-        # https://github.com/PyGithub/PyGithub/issues/2942
-        # So we just give the user a link instead.
-        # TODO https://github.com/PyGithub/PyGithub/pull/3479 was merged, await release and update
-        if nightly:
-            url = util.create_pr_url(
-                base=self.rrepo,
-                base_branch=base,
-                head=nightly,
-                head_branch=head,
-                title=title,
-            )
-            self.cl.blocked(f"[u link={url}]Create PR manually[/]")
-
         if not self.prompt(f"Create PR for branch [b]{e(head)}[/b]?"):
             self.cl.fatal("PR not created")
-        pr = util.create_pr(self.grepo, head=head, base=base, title=title)
+        pr = util.create_pr(
+            self.grepo, title=title, base=base, head=head, head_repo=nightly
+        )
         self.cl.blocked(f"PR created: {util.fmt_pr(pr)}")
 
 

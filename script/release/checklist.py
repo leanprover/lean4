@@ -61,7 +61,13 @@ class RepoChecker:
         return False
 
     def create_pr(
-        self, base: str, head: str, title: str, nightly: ReleaseRepo | None = None
+        self,
+        *,
+        base: str,
+        head: str,
+        title: str,
+        body: str | None = None,
+        nightly: ReleaseRepo | None = None,
     ) -> None:
         if not self.prompt(f"Push branch [b]{e(head)}[/b]?"):
             self.cl.fatal("Branch not pushed")
@@ -70,7 +76,12 @@ class RepoChecker:
         if not self.prompt(f"Create PR for branch [b]{e(head)}[/b]?"):
             self.cl.fatal("PR not created")
         pr = util.create_pr(
-            self.grepo, title=title, base=base, head=head, head_repo=nightly
+            self.grepo,
+            title=title,
+            body=body,
+            base=base,
+            head=head,
+            head_repo=nightly,
         )
         self.cl.blocked(f"PR created: {util.fmt_pr(pr)}")
 
@@ -347,7 +358,12 @@ class DownstreamChecker(RepoChecker):
         self.lrepo.commit(title)
 
         # Create bump PR
-        self.create_pr(base=base, head=head, title=title, nightly=self.rrepo.nightly)
+        body = None
+        if self.rrepo.gh_full_name == repos.VERSO.gh_full_name:
+            body = f"No-Changelog: toolchain bump for release {self.version.tag}"
+        self.create_pr(
+            title=title, body=body, base=base, head=head, nightly=self.rrepo.nightly
+        )
 
     def check_next_bump_branch(self) -> None:
         if self.rrepo.rc1_pr_base != "bump":

@@ -11,6 +11,7 @@ from typing import Literal, NoReturn, Self
 
 from github import Auth, Github
 from github.GithubException import UnknownObjectException
+from github.GithubObject import NotSet
 from github.GitRelease import GitRelease
 from github.Issue import Issue
 from github.PullRequest import PullRequest
@@ -404,7 +405,9 @@ def find_pr(grepo: Repository, head: str, base: str, title: str) -> PullRequest 
 
 def create_pr(
     grepo: Repository,
+    *,
     title: str,
+    body: str | None = None,
     base: str,
     head: str,
     head_repo: ReleaseRepo | None = None,
@@ -413,6 +416,7 @@ def create_pr(
         return grepo.create_pull(
             title=title,
             base=base,
+            body=body if body is not None else NotSet,
             head=f"{head_repo.gh_owner}:{head}",
             head_repo=head_repo.gh_full_name,
         )
@@ -420,6 +424,7 @@ def create_pr(
         return grepo.create_pull(
             title=title,
             base=base,
+            body=body if body is not None else NotSet,
             head=f"{grepo.owner.login}:{head}",
         )
 

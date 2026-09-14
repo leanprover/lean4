@@ -47,7 +47,7 @@ initialize emitter : StatefulLinter Counter Tree ←
       let intermediate ← if Parser.isTerminalCommand stx then pure none else
         let count := self.count + 1
         pure <| some <| .node "i" count []
-      let final := { count := (intermediate.map (·.getCount)).getD self.count }
+      let final := { count := (intermediate.map (·.getCount)).getD self.count + 1 }
       return { final, intermediate })
 
 initialize emitter' : StatefulLinter Counter Tree ←
@@ -56,8 +56,9 @@ initialize emitter' : StatefulLinter Counter Tree ←
       let intermediate ← if Parser.isTerminalCommand stx then pure none else
         let count := self.count + 10
         let some readi := emitter.readIntermediate | pure none
-        pure <| some <| .node "ii" count [readi]
-      let final := { count := (intermediate.map (·.getCount)).getD self.count }
+        let readFinali := emitter.readFinal
+        pure <| some <| .node "ii" count [readi, .node "fi" readFinali.count []]
+      let final := { count := (intermediate.map (·.getCount)).getD self.count + 10 }
       return { final, intermediate })
 
 initialize emitter'' : StatefulLinter Counter Tree ←
@@ -67,8 +68,10 @@ initialize emitter'' : StatefulLinter Counter Tree ←
         let count := self.count + 100
         let some readi := emitter.readIntermediate | pure none
         let some readii := emitter'.readIntermediate | pure none
-        pure <| some <| .node "iii" count [readii, readi]
-      let final := { count := (intermediate.map (·.getCount)).getD self.count }
+        let readFinali := emitter.readFinal
+        let readFinalii := emitter'.readFinal
+        pure <| some <| .node "iii" count [readii, .node "fii" readFinalii.count [], readi, .node "fi" readFinali.count []]
+      let final := { count := (intermediate.map (·.getCount)).getD self.count + 100 }
       return { final, intermediate })
 
 initialize

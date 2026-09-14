@@ -404,7 +404,7 @@ def helpComparator :=
 "Judge a solution against a challenge
 
 USAGE:
-  lake comparator [--config <FILE>] [--paranoid]
+  lake comparator [--config <FILE>] [--paranoid] [--inadvisably-no-sandbox]
 
 Establishes that every named theorem in the solution proves the same statement
 as the challenge, uses no axiom outside the permitted list, and is accepted by
@@ -413,19 +413,22 @@ the kernel.
 The project is untrusted input: its configuration is evaluated, and its code
 built and exported, inside a `bwrap` sandbox, and none of its `.olean` files
 is ever loaded into Lake's own address space. `bubblewrap` is required, and
-needs either unprivileged user namespaces or to be installed setuid root;
-there is no unsandboxed mode, so this command is available on Linux only.
+needs either unprivileged user namespaces or to be installed setuid root.
 
 The project has to carry a `lake-manifest.json`, because dependencies are
 resolved inside the sandbox and it cannot write to the project directory.
 Building the project once, before distributing it, is enough to write one.
 
 OPTIONS:
-  --config=<file>       JSON file describing the challenge (see below)
-                        (default: `comparator.json` in the current directory)
-  --paranoid            also run all external checkers bundled with Lean besides
-                        Lean's own kernel: `leanchecker-paranoid`, `lean4lean`,
-                        `nanoda` and `con-leche`
+  --config=<file>            JSON file describing the challenge (see below)
+                             (default: `comparator.json` in the current
+                             directory)
+  --paranoid                 also run all external checkers bundled with Lean
+                             besides Lean's own kernel: `leanchecker-paranoid`,
+                             `lean4lean`, `nanoda` and `con-leche`
+  --inadvisably-no-sandbox   disable the built-in sandbox. This can compromise
+                             the result fully and is only advised for expert
+                             users.
 
 CONFIGURATION:
   The challenge author writes the file and distributes it with the project, so
@@ -479,24 +482,27 @@ def helpCheck :=
 "Check this project against external checker(s)
 
 USAGE:
-  lake check [--paranoid]
+  lake check [--paranoid] [--inadvisably-no-sandbox]
 
 Builds the default build targets, exports them, and replays the result through
 the kernel, erroring on any use of non-standard axioms.
 
 The project is untrusted input: its configuration is evaluated, and its code
 built and exported, inside a `bwrap` sandbox, and none of its `.olean` files
-is ever loaded into Lake's own address space. `bwrap` is required; there is
-no unsandboxed mode, so this command is available on Linux only.
+is ever loaded into Lake's own address space. `bubblewrap` is required, and
+needs either unprivileged user namespaces or to be installed setuid root.
 
 The project has to carry a `lake-manifest.json`, because dependencies are
 resolved inside the sandbox and it cannot write to the project directory.
 Building the project once is enough to write one.
 
 OPTIONS:
-  --paranoid            also run all external checkers bundled with Lean besides
-                        Lean's own kernel: `leanchecker-paranoid`, `lean4lean`,
-                        `nanoda` and `con-leche`
+  --paranoid                 also run all external checkers bundled with Lean
+                             besides Lean's own kernel: `leanchecker-paranoid`,
+                             `lean4lean`, `nanoda` and `con-leche`
+  --inadvisably-no-sandbox   disable the built-in sandbox. This can compromise
+                             the result fully and is only advised for expert
+                             users.
 
 EXIT CODES:
   0                     every selected checker accepts the project and it uses

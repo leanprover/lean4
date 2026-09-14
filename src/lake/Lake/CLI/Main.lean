@@ -83,6 +83,8 @@ public structure LakeOptions where
   comparatorConfig? : Option FilePath := none
   /-- Whether `lake check` and `lake comparator` run every bundled checker (via `--paranoid`). -/
   paranoid : Bool := false
+  /-- Whether `lake check` and `lake comparator` should disable their sandbox (very insecure) -/
+  inadvisablyNoSandbox : Bool := false
   builtinLint : BuiltinLint.Args := {}
   /-- Whether `lake lint` should also run builtin lints (via `--builtin-lint`). -/
   runBuiltinLint : Bool := false
@@ -410,6 +412,7 @@ def lakeLongOption : (opt : String) → CliM PUnit
   let file ← takeOptArg "--config" "path"
   modifyThe LakeOptions ({· with comparatorConfig? := some file})
 | "--paranoid" => modifyThe LakeOptions ({· with paranoid := true})
+| "--inadvisably-no-sandbox" => modifyThe LakeOptions ({· with inadvisablyNoSandbox := true})
 | opt             =>  throw <| CliError.unknownLongOption opt
 
 def lakeOption :=
@@ -1187,7 +1190,7 @@ protected def comparator : CliM PUnit := do
   -- execution, and containing it is what the sandbox is for.
   let cfg ← mkLoadConfig opts
   exit <| ←
-    Check.runComparator opts.comparatorConfig? opts.paranoid leanInstall lakeInstall cfg.wsDir
+    Check.runComparator opts.comparatorConfig? opts.paranoid opts.inadvisablyNoSandbox leanInstall lakeInstall cfg.wsDir
 
 /--
 The half of `lake check` that runs inside the sandbox, selected by `LAKE_CHECK_EXPORT`.
@@ -1218,7 +1221,7 @@ protected def check : CliM PUnit := do
     -- The workspace is deliberately not loaded here: evaluating the project's configuration is code
     -- execution, and containing it is what the sandbox is for.
     let cfg ← mkLoadConfig opts
-    exit <| ← Check.runCheck opts.paranoid leanInstall lakeInstall cfg.wsDir
+    exit <| ← Check.runCheck opts.paranoid opts.inadvisablyNoSandbox leanInstall lakeInstall cfg.wsDir
 
 protected def script : CliM PUnit := do
   if let some cmd ← takeArg? then

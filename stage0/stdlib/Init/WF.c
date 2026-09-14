@@ -244,7 +244,7 @@ return v_res_53_;
 LEAN_EXPORT uint8_t l_Prod_Lex_instDecidableRelOfDecidableEq___redArg(lean_object* v_00_u03b1eqDec_54_, lean_object* v_rDec_55_, lean_object* v_sDec_56_, lean_object* v_x_57_, lean_object* v_x_58_){
 _start:
 {
-lean_object* v_fst_59_; lean_object* v_snd_60_; lean_object* v_fst_61_; lean_object* v_snd_62_; lean_object* v_decide_63_; lean_object* v_decide_64_; uint8_t v___x_65_; 
+lean_object* v_fst_59_; lean_object* v_snd_60_; lean_object* v_fst_61_; lean_object* v_snd_62_; lean_object* v_decide_63_; uint8_t v___x_64_; 
 v_fst_59_ = lean_ctor_get(v_x_57_, 0);
 lean_inc_n(v_fst_59_, 2);
 v_snd_60_ = lean_ctor_get(v_x_57_, 1);
@@ -255,20 +255,20 @@ lean_inc_n(v_fst_61_, 2);
 v_snd_62_ = lean_ctor_get(v_x_58_, 1);
 lean_inc(v_snd_62_);
 lean_dec_ref(v_x_58_);
-v_decide_63_ = lean_apply_2(v_00_u03b1eqDec_54_, v_fst_59_, v_fst_61_);
-v_decide_64_ = lean_apply_2(v_rDec_55_, v_fst_59_, v_fst_61_);
-v___x_65_ = lean_unbox(v_decide_64_);
-if (v___x_65_ == 0)
+v_decide_63_ = lean_apply_2(v_rDec_55_, v_fst_59_, v_fst_61_);
+v___x_64_ = lean_unbox(v_decide_63_);
+if (v___x_64_ == 0)
 {
-uint8_t v___x_66_; 
-v___x_66_ = lean_unbox(v_decide_63_);
+lean_object* v_decide_65_; uint8_t v___x_66_; 
+v_decide_65_ = lean_apply_2(v_00_u03b1eqDec_54_, v_fst_59_, v_fst_61_);
+v___x_66_ = lean_unbox(v_decide_65_);
 if (v___x_66_ == 0)
 {
 uint8_t v___x_67_; 
 lean_dec(v_snd_62_);
 lean_dec(v_snd_60_);
 lean_dec_ref(v_sDec_56_);
-v___x_67_ = lean_unbox(v_decide_63_);
+v___x_67_ = lean_unbox(v_decide_65_);
 return v___x_67_;
 }
 else
@@ -283,9 +283,12 @@ else
 {
 uint8_t v___x_70_; 
 lean_dec(v_snd_62_);
+lean_dec(v_fst_61_);
 lean_dec(v_snd_60_);
+lean_dec(v_fst_59_);
 lean_dec_ref(v_sDec_56_);
-v___x_70_ = lean_unbox(v_decide_64_);
+lean_dec_ref(v_00_u03b1eqDec_54_);
+v___x_70_ = lean_unbox(v_decide_63_);
 return v___x_70_;
 }
 }

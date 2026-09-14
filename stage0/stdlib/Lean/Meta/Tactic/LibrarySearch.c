@@ -3227,13 +3227,13 @@ goto v___jp_1102_;
 }
 v___jp_1102_:
 {
-uint8_t v___x_1104_; lean_object* v___x_1105_; lean_object* v___x_1106_; 
-v___x_1104_ = lean_nat_dec_lt(v___y_1103_, v___x_1098_);
-v___x_1105_ = lean_unsigned_to_nat(0u);
+lean_object* v___x_1104_; lean_object* v___x_1105_; uint8_t v___x_1106_; 
+v___x_1104_ = lean_unsigned_to_nat(0u);
 lean_inc(v_g_1096_);
 lean_inc(v_f_1094_);
-v___x_1106_ = l_WellFounded_opaqueFix_u2083___at___00Lean_Meta_LibrarySearch_interleaveWith_spec__1___redArg(v___y_1103_, v_x_1095_, v_f_1094_, v_y_1097_, v_g_1096_, v___x_1105_, v_res_1101_);
-if (v___x_1104_ == 0)
+v___x_1105_ = l_WellFounded_opaqueFix_u2083___at___00Lean_Meta_LibrarySearch_interleaveWith_spec__1___redArg(v___y_1103_, v_x_1095_, v_f_1094_, v_y_1097_, v_g_1096_, v___x_1104_, v_res_1101_);
+v___x_1106_ = lean_nat_dec_lt(v___y_1103_, v___x_1098_);
+if (v___x_1106_ == 0)
 {
 lean_object* v___x_1107_; size_t v_sz_1108_; size_t v___x_1109_; lean_object* v___x_1110_; lean_object* v___x_1111_; 
 lean_dec(v_f_1094_);
@@ -3241,7 +3241,7 @@ v___x_1107_ = l_Array_extract___redArg(v_y_1097_, v___y_1103_, v___x_1099_);
 v_sz_1108_ = lean_array_size(v___x_1107_);
 v___x_1109_ = ((size_t)0ULL);
 v___x_1110_ = l___private_Init_Data_Array_Basic_0__Array_mapMUnsafe_map___at___00Lean_Meta_LibrarySearch_interleaveWith_spec__0___redArg(v_g_1096_, v_sz_1108_, v___x_1109_, v___x_1107_);
-v___x_1111_ = l_Array_append___redArg(v___x_1106_, v___x_1110_);
+v___x_1111_ = l_Array_append___redArg(v___x_1105_, v___x_1110_);
 lean_dec_ref(v___x_1110_);
 return v___x_1111_;
 }
@@ -3253,7 +3253,7 @@ v___x_1112_ = l_Array_extract___redArg(v_x_1095_, v___y_1103_, v___x_1098_);
 v_sz_1113_ = lean_array_size(v___x_1112_);
 v___x_1114_ = ((size_t)0ULL);
 v___x_1115_ = l___private_Init_Data_Array_Basic_0__Array_mapMUnsafe_map___at___00Lean_Meta_LibrarySearch_interleaveWith_spec__0___redArg(v_f_1094_, v_sz_1113_, v___x_1114_, v___x_1112_);
-v___x_1116_ = l_Array_append___redArg(v___x_1106_, v___x_1115_);
+v___x_1116_ = l_Array_append___redArg(v___x_1105_, v___x_1115_);
 lean_dec_ref(v___x_1115_);
 return v___x_1116_;
 }

@@ -46,12 +46,14 @@ void initialize_libuv_udp_socket() {
 
         if (udp_socket->m_promise_read != nullptr) {
             lean_inc(f);
-            lean_apply_1(f, udp_socket->m_promise_read);
+            lean_inc(udp_socket->m_promise_read);
+            lean_dec(lean_apply_1(f, udp_socket->m_promise_read));
         }
 
         if (udp_socket->m_byte_array != nullptr) {
             lean_inc(f);
-            lean_apply_1(f, udp_socket->m_byte_array);
+            lean_inc(udp_socket->m_byte_array);
+            lean_dec(lean_apply_1(f, udp_socket->m_byte_array));
         }
     });
 }
@@ -182,6 +184,10 @@ extern "C" LEAN_EXPORT lean_obj_res lean_uv_udp_send(b_obj_arg socket, obj_arg d
         free(send_uv);
         return lean_io_result_mk_error(decode_io_error(ENOMEM, nullptr));
     }
+
+    // The loop thread releases `data_array`, which recursively releases the `ByteArray`s the caller
+    // may still hold references to, so their refcounts have to be atomic.
+    mark_mt(data_array);
 
     udp_send_data* send_data = (udp_send_data*)send_uv->data;
     send_data->promise = promise;

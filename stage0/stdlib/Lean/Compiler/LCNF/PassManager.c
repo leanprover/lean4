@@ -2172,12 +2172,12 @@ return v_res_727_;
 LEAN_EXPORT lean_object* l_panic___at___00Lean_Compiler_LCNF_PassInstaller_withEachOccurrence_spec__0(lean_object* v_msg_729_, lean_object* v___y_730_, lean_object* v___y_731_){
 _start:
 {
-lean_object* v___f_733_; lean_object* v___x_1598__overap_734_; lean_object* v___x_735_; 
+lean_object* v___f_733_; lean_object* v___x_1599__overap_734_; lean_object* v___x_735_; 
 v___f_733_ = ((lean_object*)(l_panic___at___00Lean_Compiler_LCNF_PassInstaller_withEachOccurrence_spec__0___closed__0));
-v___x_1598__overap_734_ = lean_panic_fn_borrowed(v___f_733_, v_msg_729_);
+v___x_1599__overap_734_ = lean_panic_fn_borrowed(v___f_733_, v_msg_729_);
 lean_inc(v___y_731_);
 lean_inc_ref(v___y_730_);
-v___x_735_ = lean_apply_3(v___x_1598__overap_734_, v___y_730_, v___y_731_, lean_box(0));
+v___x_735_ = lean_apply_3(v___x_1599__overap_734_, v___y_730_, v___y_731_, lean_box(0));
 return v___x_735_;
 }
 }

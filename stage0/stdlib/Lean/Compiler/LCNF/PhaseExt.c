@@ -4166,10 +4166,10 @@ return v___x_1477_;
 LEAN_EXPORT lean_object* l_Lean_PersistentHashMap_findAux___at___00Lean_PersistentHashMap_find_x3f___at___00Lean_Compiler_LCNF_getDeclCore_x3f_spec__0_spec__0___redArg___boxed(lean_object* v_x_1478_, lean_object* v_x_1479_, lean_object* v_x_1480_){
 _start:
 {
-size_t v_x_450__boxed_1481_; lean_object* v_res_1482_; 
-v_x_450__boxed_1481_ = lean_unbox_usize(v_x_1479_);
+size_t v_x_455__boxed_1481_; lean_object* v_res_1482_; 
+v_x_455__boxed_1481_ = lean_unbox_usize(v_x_1479_);
 lean_dec(v_x_1479_);
-v_res_1482_ = l_Lean_PersistentHashMap_findAux___at___00Lean_PersistentHashMap_find_x3f___at___00Lean_Compiler_LCNF_getDeclCore_x3f_spec__0_spec__0___redArg(v_x_1478_, v_x_450__boxed_1481_, v_x_1480_);
+v_res_1482_ = l_Lean_PersistentHashMap_findAux___at___00Lean_PersistentHashMap_find_x3f___at___00Lean_Compiler_LCNF_getDeclCore_x3f_spec__0_spec__0___redArg(v_x_1478_, v_x_455__boxed_1481_, v_x_1480_);
 lean_dec(v_x_1480_);
 lean_dec_ref(v_x_1478_);
 return v_res_1482_;
@@ -4462,10 +4462,10 @@ return v___x_1586_;
 LEAN_EXPORT lean_object* l_Lean_PersistentHashMap_findAux___at___00Lean_PersistentHashMap_find_x3f___at___00Lean_Compiler_LCNF_getDeclCore_x3f_spec__0_spec__0___boxed(lean_object* v_00_u03b2_1587_, lean_object* v_x_1588_, lean_object* v_x_1589_, lean_object* v_x_1590_){
 _start:
 {
-size_t v_x_593__boxed_1591_; lean_object* v_res_1592_; 
-v_x_593__boxed_1591_ = lean_unbox_usize(v_x_1589_);
+size_t v_x_598__boxed_1591_; lean_object* v_res_1592_; 
+v_x_598__boxed_1591_ = lean_unbox_usize(v_x_1589_);
 lean_dec(v_x_1589_);
-v_res_1592_ = l_Lean_PersistentHashMap_findAux___at___00Lean_PersistentHashMap_find_x3f___at___00Lean_Compiler_LCNF_getDeclCore_x3f_spec__0_spec__0(v_00_u03b2_1587_, v_x_1588_, v_x_593__boxed_1591_, v_x_1590_);
+v_res_1592_ = l_Lean_PersistentHashMap_findAux___at___00Lean_PersistentHashMap_find_x3f___at___00Lean_Compiler_LCNF_getDeclCore_x3f_spec__0_spec__0(v_00_u03b2_1587_, v_x_1588_, v_x_598__boxed_1591_, v_x_1590_);
 lean_dec(v_x_1590_);
 lean_dec_ref(v_x_1588_);
 return v_res_1592_;

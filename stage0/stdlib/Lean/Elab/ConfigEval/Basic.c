@@ -6358,10 +6358,10 @@ return v___x_2063_;
 LEAN_EXPORT lean_object* l_Lean_Elab_ConfigEval_foldConfigM___redArg___lam__1___boxed(lean_object* v_x_2064_){
 _start:
 {
-uint32_t v_x_876__boxed_2065_; uint8_t v_res_2066_; lean_object* v_r_2067_; 
-v_x_876__boxed_2065_ = lean_unbox_uint32(v_x_2064_);
+uint32_t v_x_877__boxed_2065_; uint8_t v_res_2066_; lean_object* v_r_2067_; 
+v_x_877__boxed_2065_ = lean_unbox_uint32(v_x_2064_);
 lean_dec(v_x_2064_);
-v_res_2066_ = l_Lean_Elab_ConfigEval_foldConfigM___redArg___lam__1(v_x_876__boxed_2065_);
+v_res_2066_ = l_Lean_Elab_ConfigEval_foldConfigM___redArg___lam__1(v_x_877__boxed_2065_);
 v_r_2067_ = lean_box(v_res_2066_);
 return v_r_2067_;
 }

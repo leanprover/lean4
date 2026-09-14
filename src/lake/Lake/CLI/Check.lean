@@ -385,8 +385,6 @@ def runExternalKernel (kernelName : String) (kernelCommand : Array String)
       ("use_stdin", false),
       ("export_file_path", solutionPath.toString),
       ("permitted_axioms", .arr <| legalAxioms.map (.str ∘ Lean.Name.toString)),
-      -- Skipped rather than fatal, as a `lake check` export holds every axiom in scope: the checker
-      -- still fails on a use, and Lake polices axiom use itself.
       ("unpermitted_axiom_hard_error", false),
       ("num_threads", 4),
       ("nat_extension", true),

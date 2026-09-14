@@ -329,7 +329,7 @@ unsafe def parenthesizerForKindUnsafe (k : SyntaxNodeKind) : Parenthesizer := do
 @[implemented_by parenthesizerForKindUnsafe]
 opaque parenthesizerForKind (k : SyntaxNodeKind) : Parenthesizer
 
-@[combinator_parenthesizer withAntiquot, expose]
+@[combinator_parenthesizer withAntiquot, combinator_parenthesizer withAntiquotAcceptLhs, expose]
 def withAntiquot.parenthesizer (antiP p : Parenthesizer) : Parenthesizer := do
   let stx ← getCur
   -- early check as minor optimization that also cleans up the backtrack traces

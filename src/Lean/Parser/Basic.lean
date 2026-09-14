@@ -1871,20 +1871,29 @@ def unicodeSymbol (sym asciiSym : String) (preserveForPP : Bool := false) : Pars
     checkNoWsBefore "no space before spliced term" >> antiquotExpr >>
     nameP
 
-def withAntiquotFn (antiquotP p : ParserFn) (isCatAntiquot := false) : ParserFn := fun c s =>
+def withAntiquotFn (antiquotP p : ParserFn) (antiquotBehavior := OrElseOnAntiquotBehavior.takeLongest) : ParserFn := fun c s =>
   -- fast check that is false in most cases
   if c.get s.pos == '$' then
-    -- Do not allow antiquotation choice nodes here as `antiquotP` is the strictly more general
-    -- antiquotation than any in `p`.
-    -- If it is a category antiquotation, do not backtrack into the category at all as that would
-    -- run *all* parsers of the category, and trailing parsers will later be applied anyway.
-    orelseFnCore (antiquotBehavior := if isCatAntiquot then .acceptLhs else .takeLongest) antiquotP p c s
+    -- `antiquotBehavior` should not be `.merge`: antiquotation choice nodes are not useful here as
+    -- `antiquotP` is the strictly more general antiquotation than any in `p`.
+    orelseFnCore (antiquotBehavior := antiquotBehavior) antiquotP p c s
   else
     p c s
 
 /-- Optimized version of `mkAntiquot ... <|> p`. -/
 @[builtin_doc] def withAntiquot (antiquotP p : Parser) : Parser := {
   fn := withAntiquotFn antiquotP.fn p.fn
+  info := orelseInfo antiquotP.info p.info
+}
+
+/--
+Like `withAntiquot`, but uses `OrElseOnAntiquotBehavior.acceptLhs` instead of `.takeLongest`.
+This means that when the antiquotation parser `antiquotP` succeeds, `p` is not tried.
+This is useful when `p` has side effects on the parser stack that would not be undone by
+backtracking.
+-/
+@[builtin_doc] def withAntiquotAcceptLhs (antiquotP p : Parser) : Parser := {
+  fn := withAntiquotFn antiquotP.fn p.fn (antiquotBehavior := .acceptLhs)
   info := orelseInfo antiquotP.info p.info
 }
 
@@ -1960,7 +1969,9 @@ def leadingParserAux (kind : Name) (tables : PrattParsingTables) (behavior : Lea
   mkResult s iniSz
 
 def leadingParser (kind : Name) (tables : PrattParsingTables) (behavior : LeadingIdentBehavior) (antiquotParser : ParserFn) : ParserFn :=
-  withAntiquotFn (isCatAntiquot := true) antiquotParser (leadingParserAux kind tables behavior)
+  -- Do not backtrack into the category after a category antiquotation, as that would run *all*
+  -- parsers of the category, and trailing parsers will later be applied anyway.
+  withAntiquotFn (antiquotBehavior := .acceptLhs) antiquotParser (leadingParserAux kind tables behavior)
 
 def trailingLoopStep (tables : PrattParsingTables) (left : Syntax) (ps : List (Parser × Nat)) : ParserFn := fun c s =>
   longestMatchFn left (ps ++ tables.trailingParsers) c s

@@ -388,6 +388,13 @@ bool load_system_trust_store(SSL_CTX * ctx, std::string * detail) {
 #elif defined(LEAN_WINDOWS)
     X509_STORE * store = SSL_CTX_get_cert_store(ctx);
 
+    // The ROOT store is a separate backend, reached only through OpenSSL's winstore loader (3.2 and
+    // later). `SSL_CTX_set_default_verify_paths` arms the compiled-in file and directory lookups
+    // and never consults it, so the store has to be named explicitly.
+    //
+    // The URI carries an authority (`//`) where OSSL_STORE-winstore(7) documents only
+    // `org.openssl.winstore:`. Both load, since the loader matches on the scheme prefix, and the
+    // authority also stops `OSSL_STORE_open` trying the `file` loader against this URI first.
     int winstore = SSL_CTX_load_verify_store(ctx, "org.openssl.winstore://");
 
     std::string env_detail;

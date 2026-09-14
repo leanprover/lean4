@@ -68,7 +68,7 @@ end PEM
 private opaque ContextServerImpl : NonemptyType.{0}
 
 /--
-Server-side TLS context (`SSL_CTX` configured with `TLS_server_method`).
+Server-side TLS context.
 -/
 def Context.Server : Type := ContextServerImpl.type
 
@@ -77,7 +77,7 @@ instance : Nonempty Context.Server := ContextServerImpl.property
 private opaque ContextClientImpl : NonemptyType.{0}
 
 /--
-Client-side TLS context (`SSL_CTX` configured with `TLS_client_method`).
+Client-side TLS context.
 -/
 def Context.Client : Type := ContextClientImpl.type
 

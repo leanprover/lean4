@@ -110,6 +110,35 @@ test_math_tmp () {
 test_math_tmp math-lax qed-lax QedLax
 test_math_tmp math qed Qed
 
+# Test cs template
+
+test_cs_tmp () {
+  local lang=$1; local pkg="cs-$lang"
+  local mod
+  if [ "$lang" = lean ]; then mod=CsLean; else mod=CsToml; fi
+  echo "# TEST: cs.$lang template"
+  # Use `--offline` and remove the `require`,
+  # since we do not wish to download CSLib during tests
+  ELAN_TOOLCHAIN="v4.0.0-test" test_run new $pkg cs.$lang --offline
+  test_cmd_out 'v4.0.0' grep -o 'v4.0.0' $pkg/lakefile.$lang
+  test_exp -f $pkg/.github/workflows/lean_action_ci.yml
+  test_exp -f $pkg/.github/workflows/update.yml
+  test_exp -f $pkg/.github/workflows/create-release.yml
+  test_cmd grep -F 'CSLib' $pkg/.github/workflows/lean_action_ci.yml
+  test_cmd grep -F 'cslib' $pkg/.github/workflows/update.yml
+  if [ "$lang" = lean ]; then
+    test_cmd grep -F 'require "leanprover" / "cslib"' $pkg/lakefile.lean
+    sed_i '/^require.*/{N;d;}' $pkg/lakefile.lean
+  else
+    test_cmd_out 'scope = "leanprover"' grep -F 'scope = "leanprover"' $pkg/lakefile.toml
+    sed_i '/^\[\[require\]\]/{N;N;N;d;}' $pkg/lakefile.toml
+  fi
+  test_lib $pkg $mod
+}
+
+test_cs_tmp lean
+test_cs_tmp toml
+
 # Test `init .`
 
 echo "# TEST: init ."

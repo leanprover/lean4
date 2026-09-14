@@ -18,6 +18,7 @@ import Init.Data.String.TakeDrop
 import Init.Data.ToString.Macro
 import Init.System.IO
 import Init.System.Platform
+import Std.Internal.UV.System
 
 /-!
 # Judging Lean code against the kernel, and against a challenge
@@ -32,6 +33,10 @@ resulting NDJSON export crosses the boundary.
 -/
 
 namespace Lake.Check
+
+public inductive SandboxLocation where
+  | noSandbox
+  | path (path : String)
 
 public structure Context where
   projectDir : System.FilePath
@@ -49,7 +54,7 @@ public structure Context where
   until `safeResolveWorkspace` records it.
   -/
   binPath : String
-  whichSandbox : String
+  whichSandbox : SandboxLocation
   whichLake : System.FilePath
   /--
   Bound into the sandbox. Redundant for a Lake co-located with the toolchain, but a Lake installed
@@ -129,10 +134,7 @@ s!"`lake {cmd}` needs `{exe}` to sandbox the code it checks, and it was not foun
   Install `bubblewrap` from your distribution and put `bwrap` on PATH, or set
   COMPARATOR_BWRAP to its full path. It needs either unprivileged user
   namespaces or a `bwrap` installed setuid root, which is how distributions
-  that disable them ship it.
-
-  There is no unsandboxed mode: the code being checked is untrusted, and it
-  is built and exported inside the sandbox."
+  that disable them ship it."
 
 /-- The environment the sandboxed child runs with; `envOverride` wins over `envPass`. -/
 def sandboxEnv (spawnArgs : SandboxArgs) : IO (Array (String × String)) := do
@@ -193,13 +195,22 @@ def buildSandboxArgs (spawnArgs : SandboxArgs) (env : Array (String × String))
 
 /-- The `bwrap` invocation that puts `spawnArgs` under the sandbox. -/
 def sandboxSpawnArgs (spawnArgs : SandboxArgs) : M IO.Process.SpawnArgs := do
-  return {
-    cmd := (← read).whichEnvBin.toString
-    args :=
-      #["-i", (← read).whichSandbox]
-        ++ buildSandboxArgs spawnArgs (← sandboxEnv spawnArgs) (← getProjectDir)
-    cwd := ← getProjectDir
-  }
+  match (← read).whichSandbox with
+  | .noSandbox =>
+    return {
+      cmd := spawnArgs.cmd,
+      args := spawnArgs.args,
+      cwd := if let some cwd := spawnArgs.cwd then cwd else ← getProjectDir
+      env := spawnArgs.envOverride
+    }
+  | .path whichSandbox =>
+    return {
+      cmd := (← read).whichEnvBin.toString
+      args :=
+        #["-i", whichSandbox]
+          ++ buildSandboxArgs spawnArgs (← sandboxEnv spawnArgs) (← getProjectDir)
+      cwd := ← getProjectDir
+    }
 
 open IO.Process in
 partial def runSandBoxedWithStdoutTo (handle : IO.FS.Handle) (spawnArgs : SandboxArgs) : M Unit := do
@@ -409,7 +420,7 @@ def runExternalKernel (kernelName : String) (kernelCommand : Array String)
       readablePaths := #[configPath.toString, solutionPath.toString, kernelExe, ← getLeanPrefix]
       writablePaths := #[]
       tmpfsPaths := forbiddenPaths
-      cwd := some "/tmp"
+      cwd := some (← Std.Internal.UV.System.osTmpdir)
     }
     try
       let ret ← runSandBoxedExitCode spawnArgs
@@ -555,16 +566,21 @@ def bundledKernels (lean : LeanInstall) : Array (String × Array String) :=
 Resolves the external tools the commands need and builds the context they share, or reports why
 that is not possible.
 -/
-def mkContext (cmd : String) (paranoid : Bool) (lean : LeanInstall) (lake : LakeInstall)
-    (projectDir : System.FilePath) : IO (Except ExitCode Context) := do
-  if !System.Platform.isLinux then
-    return .error (← cannotRun
-      s!"`lake {cmd}` sandboxes the code it checks with `bwrap`, which needs Linux namespaces. \
-      There is no unsandboxed mode, so the command is unavailable on this platform.")
+def mkContext (cmd : String) (paranoid : Bool) (inadvisablyNoSandbox : Bool) (lean : LeanInstall)
+    (lake : LakeInstall) (projectDir : System.FilePath) : IO (Except ExitCode Context) := do
+  let whichSandbox ←
+    if inadvisablyNoSandbox then
+      IO.eprintln s!"WARNING: Sandbox disabled, this run is not trustworthy."
+      pure .noSandbox
+    else
+      if !System.Platform.isLinux then
+        return .error (← cannotRun
+          s!"`lake {cmd}` sandboxes the code it checks with `bwrap`, which needs Linux namespaces.")
 
-  let whichSandbox := (← IO.getEnv "COMPARATOR_BWRAP").getD "bwrap"
-  let some sandboxPath ← whichExe whichSandbox
-    | return .error (← cannotRun (missingSandboxError cmd whichSandbox))
+      let whichSandbox := (← IO.getEnv "COMPARATOR_BWRAP").getD "bwrap"
+      let some sandboxPath ← whichExe whichSandbox
+        | return .error (← cannotRun (missingSandboxError cmd whichSandbox))
+      pure <| .path sandboxPath.toString
   -- Always the bundled exporter: the export format has to match the compiler that produced the
   -- oleans, so letting this be pointed elsewhere would reintroduce the toolchain-pinning problem.
   let whichLean4Export := lean.binDir / "leanexport" |>.addExtension System.FilePath.exeExtension
@@ -585,7 +601,7 @@ def mkContext (cmd : String) (paranoid : Bool) (lean : LeanInstall) (lake : Lake
     leanPrefix := lean.sysroot
     leanPath := ""
     binPath := ""
-    whichSandbox := sandboxPath.toString
+    whichSandbox := whichSandbox
     whichLake := lake.lake
     lakeHome := lake.home
     whichLean4Export
@@ -638,10 +654,10 @@ def checkProject : M Unit := do
 Runs `lake comparator`: builds and exports the challenge and the solution in a sandbox, then judges
 the solution against the challenge.
 -/
-public def runComparator (configFile? : Option System.FilePath) (paranoid : Bool)
+public def runComparator (configFile? : Option System.FilePath) (paranoid : Bool) (inadvisablyNoSandbox : Bool)
     (lean : LeanInstall) (lake : LakeInstall) (projectDir : System.FilePath) : IO ExitCode := do
   let base ←
-    match ← mkContext "comparator" paranoid lean lake projectDir with
+    match ← mkContext "comparator" paranoid inadvisablyNoSandbox lean lake projectDir with
     | .error rc => return rc
     | .ok ctx => pure ctx
 
@@ -686,10 +702,10 @@ public def runComparator (configFile? : Option System.FilePath) (paranoid : Bool
 Runs `lake check`: builds and exports the project's default targets in the sandbox and checks them
 with the kernel, with no challenge to compare them against.
 -/
-public def runCheck (paranoid : Bool) (lean : LeanInstall) (lake : LakeInstall)
-    (projectDir : System.FilePath) : IO ExitCode := do
+public def runCheck (paranoid : Bool) (inadvisablyNoSandbox : Bool) (lean : LeanInstall)
+    (lake : LakeInstall) (projectDir : System.FilePath) : IO ExitCode := do
   let base ←
-    match ← mkContext "check" paranoid lean lake projectDir with
+    match ← mkContext "check" paranoid inadvisablyNoSandbox lean lake projectDir with
     | .error rc => return rc
     | .ok ctx => pure ctx
   if let some rc ← checkManifest "check" base.projectDir then

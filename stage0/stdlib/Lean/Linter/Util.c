@@ -1,6 +1,6 @@
 // Lean compiler output
 // Module: Lean.Linter.Util
-// Imports: public import Lean.Server.InfoUtils public import Lean.Linter.Init public import Lean.Elab.Term public import Lean.Linter.CodeQuality.Basic
+// Imports: public import Lean.Elab.InfoTree.Util public import Lean.Linter.Init public import Lean.Elab.Term public import Lean.Linter.CodeQuality.Basic
 #include <lean/lean.h>
 #if defined(__clang__)
 #pragma clang diagnostic ignored "-Wunused-parameter"
@@ -27,7 +27,7 @@ lean_object* l_id___boxed(lean_object*, lean_object*);
 lean_object* lean_mk_empty_array_with_capacity(lean_object*);
 lean_object* l_List_filterMapTR_go___redArg(lean_object*, lean_object*, lean_object*);
 uint8_t l_Lean_Elab_Info_contains(lean_object*, lean_object*, uint8_t);
-lean_object* l___private_Lean_Server_InfoUtils_0__Lean_Elab_InfoTree_visitM_go(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
+lean_object* l___private_Lean_Elab_InfoTree_Util_0__Lean_Elab_InfoTree_visitM_go(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l___private_Init_Dynamic_0__Dynamic_typeNameImpl(lean_object*);
 lean_object* l_Lean_Name_mkStr4(lean_object*, lean_object*, lean_object*, lean_object*);
 uint8_t lean_name_eq(lean_object*, lean_object*);
@@ -348,7 +348,7 @@ v___f_84_ = lean_alloc_closure((void*)(l___private_Lean_Linter_Util_0__Lean_Lint
 lean_closure_set(v___f_84_, 0, v_toPure_82_);
 lean_closure_set(v___f_84_, 1, v_range_79_);
 v___x_85_ = lean_box(0);
-v___x_86_ = l___private_Lean_Server_InfoUtils_0__Lean_Elab_InfoTree_visitM_go(lean_box(0), lean_box(0), v_inst_78_, v___f_83_, v___f_84_, v___x_85_, v_tree_80_);
+v___x_86_ = l___private_Lean_Elab_InfoTree_Util_0__Lean_Elab_InfoTree_visitM_go(lean_box(0), lean_box(0), v_inst_78_, v___f_83_, v___f_84_, v___x_85_, v_tree_80_);
 return v___x_86_;
 }
 }
@@ -1238,7 +1238,7 @@ lean_dec(v_stx_434_);
 return v_res_435_;
 }
 }
-lean_object* runtime_initialize_Lean_Server_InfoUtils(uint8_t builtin);
+lean_object* runtime_initialize_Lean_Elab_InfoTree_Util(uint8_t builtin);
 lean_object* runtime_initialize_Lean_Linter_Init(uint8_t builtin);
 lean_object* runtime_initialize_Lean_Elab_Term(uint8_t builtin);
 lean_object* runtime_initialize_Lean_Linter_CodeQuality_Basic(uint8_t builtin);
@@ -1249,7 +1249,7 @@ lean_object * res;
 if (_G_runtime_initialized) return lean_io_result_mk_ok(lean_box(0));
 _G_runtime_initialized = true;
 lean_initialize_runtime_module();
-res = runtime_initialize_Lean_Server_InfoUtils(builtin);
+res = runtime_initialize_Lean_Elab_InfoTree_Util(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
 res = runtime_initialize_Lean_Linter_Init(builtin);
@@ -1270,7 +1270,7 @@ if (_G_meta_initialized) return lean_io_result_mk_ok(lean_box(0));
 _G_meta_initialized = true;
 return lean_io_result_mk_ok(lean_box(0));
 }
-lean_object* initialize_Lean_Server_InfoUtils(uint8_t builtin);
+lean_object* initialize_Lean_Elab_InfoTree_Util(uint8_t builtin);
 lean_object* initialize_Lean_Linter_Init(uint8_t builtin);
 lean_object* initialize_Lean_Elab_Term(uint8_t builtin);
 lean_object* initialize_Lean_Linter_CodeQuality_Basic(uint8_t builtin);
@@ -1279,7 +1279,7 @@ LEAN_EXPORT lean_object* initialize_Lean_Linter_Util(uint8_t builtin) {
 lean_object * res;
 if (_G_initialized) return lean_io_result_mk_ok(lean_box(0));
 _G_initialized = true;
-res = initialize_Lean_Server_InfoUtils(builtin);
+res = initialize_Lean_Elab_InfoTree_Util(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
 res = initialize_Lean_Linter_Init(builtin);

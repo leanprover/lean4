@@ -1,6 +1,6 @@
 // Lean compiler output
 // Module: Lean.Elab.DocString.Builtin
-// Imports: import Lean.Elab.DocString.Builtin.Parsing public import Lean.Elab.DocString.Builtin.Scopes public import Lean.Elab.DocString.Builtin.Postponed import Lean.Elab.Open import Lean.Meta.Reduce import Lean.Elab.Tactic.Doc import Lean.Data.EditDistance public import Lean.Elab.DocString.Builtin.Keywords import Lean.Server.InfoUtils import Init.Omega
+// Imports: import Lean.Elab.DocString.Builtin.Parsing public import Lean.Elab.DocString.Builtin.Scopes public import Lean.Elab.DocString.Builtin.Postponed import Lean.Elab.Open import Lean.Meta.Reduce import Lean.Elab.Tactic.Doc import Lean.Data.EditDistance public import Lean.Elab.DocString.Builtin.Keywords import Lean.Elab.InfoTree.Util import Init.Omega
 #include <lean/lean.h>
 #if defined(__clang__)
 #pragma clang diagnostic ignored "-Wunused-parameter"
@@ -80720,7 +80720,7 @@ lean_object* runtime_initialize_Lean_Meta_Reduce(uint8_t builtin);
 lean_object* runtime_initialize_Lean_Elab_Tactic_Doc(uint8_t builtin);
 lean_object* runtime_initialize_Lean_Data_EditDistance(uint8_t builtin);
 lean_object* runtime_initialize_Lean_Elab_DocString_Builtin_Keywords(uint8_t builtin);
-lean_object* runtime_initialize_Lean_Server_InfoUtils(uint8_t builtin);
+lean_object* runtime_initialize_Lean_Elab_InfoTree_Util(uint8_t builtin);
 lean_object* runtime_initialize_Init_Omega(uint8_t builtin);
 void lean_initialize_runtime_module();
 static bool _G_runtime_initialized = false;
@@ -80753,7 +80753,7 @@ lean_dec_ref(res);
 res = runtime_initialize_Lean_Elab_DocString_Builtin_Keywords(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
-res = runtime_initialize_Lean_Server_InfoUtils(builtin);
+res = runtime_initialize_Lean_Elab_InfoTree_Util(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
 res = runtime_initialize_Init_Omega(builtin);
@@ -81000,7 +81000,7 @@ lean_object* initialize_Lean_Meta_Reduce(uint8_t builtin);
 lean_object* initialize_Lean_Elab_Tactic_Doc(uint8_t builtin);
 lean_object* initialize_Lean_Data_EditDistance(uint8_t builtin);
 lean_object* initialize_Lean_Elab_DocString_Builtin_Keywords(uint8_t builtin);
-lean_object* initialize_Lean_Server_InfoUtils(uint8_t builtin);
+lean_object* initialize_Lean_Elab_InfoTree_Util(uint8_t builtin);
 lean_object* initialize_Init_Omega(uint8_t builtin);
 static bool _G_initialized = false;
 LEAN_EXPORT lean_object* initialize_Lean_Elab_DocString_Builtin(uint8_t builtin) {
@@ -81031,7 +81031,7 @@ lean_dec_ref(res);
 res = initialize_Lean_Elab_DocString_Builtin_Keywords(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
-res = initialize_Lean_Server_InfoUtils(builtin);
+res = initialize_Lean_Elab_InfoTree_Util(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
 res = initialize_Init_Omega(builtin);

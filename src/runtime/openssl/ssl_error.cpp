@@ -23,15 +23,18 @@ namespace lean {
 lean_object * mk_openssl_error(char const * where) {
     std::string msg(where);
 
+    // Only the reason text is kept; the packed code, library and function names mean nothing to a caller.
+    bool first = true;
     for (int i = 0; i < 10; i++) {
         unsigned long err = ERR_get_error();
         if (err == 0) break;
 
-        char err_buf[256];
-        ERR_error_string_n(err, err_buf, sizeof(err_buf));
+        char const * reason = ERR_reason_error_string(err);
+        if (reason == nullptr) continue;
 
-        msg += i == 0 ? ": " : "; ";
-        msg += err_buf;
+        msg += first ? ": " : "; ";
+        msg += reason;
+        first = false;
     }
 
     if (ERR_peek_error() != 0) {

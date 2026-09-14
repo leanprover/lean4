@@ -1,11 +1,11 @@
 import Std.Internal.SSL
+import Std.Async.System
 import Lean
 
 /-!
-Tests for `Std.Internal.SSL.Context`: TLS context creation and configuration.
-
-This is the Context-only layer split out of #13112 (`TCP.SSL`); session and socket
-behaviour are exercised in separate test files.
+Tests for `Std.Internal.SSL.Context`: TLS context creation and configuration. Nothing here performs
+a handshake, so what a context trusts is only observable through what it refuses to build; session
+and socket behaviour are exercised in separate test files.
 -/
 
 open Std.Internal.SSL
@@ -60,6 +60,17 @@ def testIntermediateCertPEM : String := include_cert% "async_ssl_certs/intermedi
 -- A CRL: the non-certificate bundle entry that is not a private key. It is what separates "this
 -- bundle holds no certificates" from "this bundle could not be read".
 def testCRLPEM : String := include_cert% "async_ssl_certs/crl.pem"
+
+-- `intermediate.pem` carrying explicit trust for TLS server authentication, which lets it anchor a
+-- chain although it is not self-signed.
+def testTrustedIntermediatePEM : String := include_cert% "async_ssl_certs/trustedintermediate.pem"
+
+-- `cert.pem` carrying an explicit rejection for TLS server authentication, which stops it anchoring
+-- a chain although it is self-signed.
+def testRejectedCertPEM : String := include_cert% "async_ssl_certs/rejectedcert.pem"
+
+-- A key that parses but whose algorithm cannot sign, so no TLS certificate can use it.
+def testX25519KeyPEM : String := include_cert% "async_ssl_certs/x25519key.pem"
 
 -- Three distinct certificates in one file, the shape of a real CA bundle.
 def testBundlePEM : String := testCertPEM ++ testWildcardCertPEM ++ testMultiSANCertPEM
@@ -140,8 +151,8 @@ def assertErrorMessage (label expected : String) (act : IO Unit) : IO Unit := do
     unless actual == expected do
       throw <| IO.userError s!"{label}:\nexpected error: {expected}\nactual error:   {actual}"
 
--- For a failure whose exact wording depends on the platform's C library or on OpenSSL's ambient
--- configuration. The set is spelled out so an unexpected *third* message still fails the test.
+-- For a failure whose exact wording depends on the platform's C library. The set is spelled out so an
+-- unexpected *third* message still fails the test.
 def assertErrorMessageOneOf (label : String) (expected : List String) (act : IO Unit) : IO Unit := do
   match ← act.toBaseIO with
   | .ok _ => throw <| IO.userError s!"{label}: expected failure, but it succeeded"
@@ -151,8 +162,8 @@ def assertErrorMessageOneOf (label : String) (expected : List String) (act : IO 
       throw <| IO.userError s!"{label}:\nexpected one of:\n\
         {String.intercalate "\n  --- or ---\n" expected}\nactual error:   {actual}"
 
--- A missing file reaches OpenSSL's error queue as an `ENOENT` entry, which is turned back into the
--- corresponding `IO.Error` on the offending path.
+-- A file that cannot be opened is reported with the `errno` the open failed with, on the offending
+-- path.
 def missingFileError (path : String) : String :=
   s!"no such file or directory (error code: 2)\n  file: {path}"
 
@@ -178,9 +189,9 @@ def caUnreadable : String := "could not read PEM CA certificates"
 
 def caNoCerts : String := "the CA material contains no certificates"
 
-def caNoSelfSigned : String :=
-  "the CA material holds no self-signed certificate, so no chain can terminate in it (supply the \
-    root, or allow partial chains to anchor at an intermediate)"
+def caNoAnchor : String :=
+  "the CA material holds no certificate a TLS server chain can terminate in (supply the root, or \
+    allow partial chains to anchor at an intermediate)"
 
 -- Context creation and configuration (smoke test).
 def testContextCreation (f : Fixtures) : IO Unit := do
@@ -201,10 +212,6 @@ def testContextCreation (f : Fixtures) : IO Unit := do
 
   -- The same anchors supplied in memory rather than by path.
   let _clientCtx5 ← Context.Client.mk { ca := some (.text testCertPEM) }
-
--- An absent CA with `verifyPeer := true` falls back to the platform trust anchors and succeeds.
-def testMkFromPEMEmptyFallsBack : IO Unit := do
-  let _clientCtx ← Context.Client.mk {}
 
 /-!
 `trustSystemRoots := false` narrows the store to the supplied CA, which is what pinning against a
@@ -241,12 +248,12 @@ refused where the mistake is rather than at every handshake.
 -/
 
 def testPinningRejectsIntermediateOnly (f : Fixtures) : IO Unit := do
-  assertErrorMessage "pinned to an intermediate PEM" (malformedPEMError caNoSelfSigned)
+  assertErrorMessage "pinned to an intermediate PEM" (malformedPEMError caNoAnchor)
     (discard <| Context.Client.mk
       { ca := some (.text testIntermediateCertPEM), trustSystemRoots := false })
 
   assertErrorMessage "pinned to an intermediate CA file"
-    (malformedFileError f.intermediate caNoSelfSigned)
+    (malformedFileError f.intermediate caNoAnchor)
     (discard <| Context.Client.mk { ca := some (.file f.intermediate), trustSystemRoots := false })
 
 -- `allowPartialChain` is the opt-in that makes an intermediate anchor a chain, so the same material
@@ -273,10 +280,28 @@ def testPinningAcceptsRootWithIntermediate : IO Unit := do
 def testIntermediateAllowedBesideSystemRoots : IO Unit := do
   let _clientCtx ← Context.Client.mk { ca := some (.text testIntermediateCertPEM) }
 
--- With verification off nothing is anchored at all, so the check does not apply.
-def testIntermediateIgnoredWithoutVerification : IO Unit := do
+/-!
+Self-signed is the default notion of an anchor, not the only one: a `TRUSTED CERTIFICATE` block carries
+explicit trust settings that OpenSSL consults first. Trust for TLS servers makes an intermediate an
+anchor on its own, and a rejection unmakes a self-signed root.
+-/
+
+def testPinningToExplicitlyTrustedIntermediate : IO Unit := do
   let _clientCtx ← Context.Client.mk
-    { ca := some (.text testIntermediateCertPEM), verifyPeer := false, trustSystemRoots := false }
+    { ca := some (.text testTrustedIntermediatePEM), trustSystemRoots := false }
+
+def testPinningRejectsExplicitlyRejectedRoot : IO Unit := do
+  assertErrorMessage "pinned to a root rejected for TLS servers" (malformedPEMError caNoAnchor)
+    (discard <| Context.Client.mk { ca := some (.text testRejectedCertPEM), trustSystemRoots := false })
+
+  -- The store keeps the first copy of a repeated certificate, so a plain copy behind the rejected one
+  -- anchors nothing either. The reverse order keeps the plain copy, which does.
+  assertErrorMessage "rejected root repeated as a plain copy" (malformedPEMError caNoAnchor)
+    (discard <| Context.Client.mk
+      { ca := some (.text (testRejectedCertPEM ++ testCertPEM)), trustSystemRoots := false })
+
+  let _clientCtx ← Context.Client.mk
+    { ca := some (.text (testCertPEM ++ testRejectedCertPEM)), trustSystemRoots := false }
 
 -- With verification off there is no store to be empty, so excluding the platform anchors is not a
 -- contradiction and `trustSystemRoots` is simply ignored.
@@ -293,13 +318,6 @@ def testPinningStillValidatesCA (f : Fixtures) : IO Unit := do
   assertErrorMessage "pinned to a CA string with no certificates" (malformedPEMError caNoCerts)
     (discard <| Context.Client.mk
       { ca := some (.text "not a certificate at all"), trustSystemRoots := false })
-
--- An unusable path is still rejected as a path, before the anchor bookkeeping is consulted.
-def testPinningRejectsNulInCAFile : IO Unit := do
-  let caPath := "ca\x00.pem"
-
-  assertErrorMessage "NUL byte in a pinned CA path" (nulByteError caPath)
-    (discard <| Context.Client.mk { ca := some (.file caPath), trustSystemRoots := false })
 
 /-!
 Server credentials may be supplied in memory rather than by path, for a certificate that comes from
@@ -334,10 +352,6 @@ def testMkServerFromMemoryErrors : IO Unit := do
 def testMkServerFromMemoryAcceptsNul : IO Unit := do
   let _serverCtx ← Context.Server.mk
     { cert := .text (testCertPEM.push '\x00'), key := .text testKeyPEM }
-
--- `verifyPeer := false` succeeds without parsing the CA material, even for a real bundle.
-def testMkFromPEMNoVerify : IO Unit := do
-  let _clientCtx ← Context.Client.mk { ca := some (.text testBundlePEM), verifyPeer := false }
 
 -- A bundle of several distinct certificates is loaded in full: every certificate in the PEM becomes
 -- a trust anchor, not just the first one. Repeated certificates are skipped instead of failing, so a
@@ -412,6 +426,12 @@ def testMkServerRejectsMismatchedKey (f : Fixtures) : IO Unit := do
   assertErrorMessage "server key from a different pair"
     (malformedFileError f.unrelatedKey "the private key does not match the certificate")
     (discard <| Context.Server.mk { cert := .file f.cert, key := .file f.unrelatedKey })
+
+-- A key that parses but cannot sign is refused for its algorithm, not reported as unreadable.
+def testMkServerRejectsUnusableKeyAlgorithm : IO Unit := do
+  assertErrorMessage "X25519 server key"
+    (malformedPEMError "the private key's algorithm cannot be used for TLS")
+    (discard <| Context.Server.mk { cert := .text testCertPEM, key := .text testX25519KeyPEM })
 
 -- A key of a different algorithm than the certificate lands in an unused slot of the context, so
 -- `SSL_CTX_use_PrivateKey` accepts it without ever comparing the two; only the separate
@@ -542,20 +562,24 @@ def testAcceptsExpiredCert (f : Fixtures) : IO Unit := do
 /-!
 A certificate can be refused on policy grounds rather than because it could not be read: the TLS
 security level turns away an RSA key that is too short. Reporting that as unparsable PEM sends the
-reader after a problem their file does not have. The key is 512 bits so that every level a build may
-default to rejects it — OpenSSL defaults to level 2 only since 3.2, and level 1 still admits 1024.
-
-The level is not ours to fix, though: a context inherits it from the ambient `openssl.cnf`, and a build
-configured `DEFAULT@SECLEVEL=0` admits the certificate outright. The weak certificate is therefore paired
-with an unrelated key, so the load fails either way and the two failures can be told apart.
+reader after a problem their file does not have. Every context pins security level 2 and never reads
+`openssl.cnf`, so the verdict is the same whichever OpenSSL the build links. The weak certificate is
+paired with an unrelated key, so a context that did admit it would still fail, but with a different
+message.
 -/
 
+def weakCertError : String :=
+  "the certificate is rejected by the TLS security level (key too small or signature digest too weak)"
+
 def testMkServerRejectsWeakCert (f : Fixtures) : IO Unit := do
-  assertErrorMessageOneOf "512-bit server certificate"
-    [ malformedFileError f.weak
-        "the certificate is rejected by the TLS security level (key too small or signature digest too weak)",
-      malformedFileError f.key "the private key does not match the certificate" ]
+  assertErrorMessage "512-bit server certificate" (malformedFileError f.weak weakCertError)
     (discard <| Context.Server.mk { cert := .file f.weak, key := .file f.key })
+
+-- The chain behind the leaf is held to the same level, though a server only forwards it.
+def testMkServerRejectsWeakChainMember : IO Unit := do
+  assertErrorMessage "512-bit certificate behind the leaf" (malformedPEMError weakCertError)
+    (discard <| Context.Server.mk
+      { cert := .text (testCertPEM ++ testWeakCertPEM), key := .text testKeyPEM })
 
 -- The security level governs the certificate a server presents, not the anchors a client trusts, so
 -- the very file rejected above still loads as a CA. This is what pins the diagnosis to the security
@@ -582,12 +606,12 @@ also pin the errno itself, which is what would catch a platform decoding an OS e
 the wrong table.
 -/
 
--- Anything that is not a regular file is classified from its mode rather than by opening it, because
--- opening is not a reliable test: POSIX `fopen` succeeds on a directory and fails only at the first
--- read, and a FIFO blocks until a writer appears. The note is *appended* to the failure OpenSSL
--- actually reported rather than replacing it, because the file type need not be what went wrong —
--- OpenSSL reads a FIFO or a `/dev/fd` entry as happily as a file on disk, so a mismatched key reached
--- through one still has to say so.
+-- A path that is opened but yields nothing usable is classified from its mode afterwards, since the
+-- open alone does not tell: POSIX `fopen` succeeds on a directory and fails only at the first read.
+-- The note is *appended* to the failure OpenSSL actually reported rather than replacing it, because
+-- the file type need not be what went wrong — OpenSSL reads a FIFO or a `/dev/fd` entry as happily as
+-- a file on disk (a FIFO waits for its writer first), so a mismatched key reached through one still
+-- has to say so.
 def testRejectsDirectoryPaths (f : Fixtures) : IO Unit := do
   let note := " (the path is not a regular file)"
 
@@ -640,13 +664,41 @@ def testMkRejectsNonDirectoryParent (f : Fixtures) : IO Unit := do
       missingFileError f.nonDirParent ]
     (discard <| Context.Client.mk { ca := some (.file f.nonDirParent) })
 
+/-!
+`SSL_CERT_FILE` and `SSL_CERT_DIR` add to the platform anchors, so no value they take can leave a
+default context unbuildable: not an empty one, not one naming a file removed since, and not one naming
+a single private CA. The environment is read afresh for every context, so it can be changed between
+constructions. Windows is skipped because libuv sets variables there through the Win32 API, which the
+C runtime's `getenv` does not observe.
+-/
+
+def withEnv (name value : String) (act : IO Unit) : IO Unit := do
+  let old ← IO.getEnv name
+  Std.Async.System.setEnvVar name value
+  try act finally
+    match old with
+    | some v => Std.Async.System.setEnvVar name v
+    | none => Std.Async.System.unsetEnvVar name
+
+def testCertEnvVarsNeverBreakDefaultContext (f : Fixtures) : IO Unit := do
+  if System.Platform.isWindows then
+    return
+
+  for value in ["", "/nonexistent/ca.pem", f.junk, f.cert] do
+    withEnv "SSL_CERT_FILE" value (discard <| Context.Client.mk {})
+
+  for value in ["", "/nonexistent/certs", f.dir] do
+    withEnv "SSL_CERT_DIR" value (discard <| Context.Client.mk {})
+
+  -- Pinned contexts never read the environment, so a stale variable cannot reach them either.
+  withEnv "SSL_CERT_FILE" "/nonexistent/ca.pem"
+    (discard <| Context.Client.mk { ca := some (.text testCertPEM), trustSystemRoots := false })
+
 #eval withFixtures fun f => do
   testContextCreation f
-  testMkFromPEMEmptyFallsBack
   testMkServerFromMemory f
   testMkServerFromMemoryErrors
   testMkServerFromMemoryAcceptsNul
-  testMkFromPEMNoVerify
   testMkFromPEMAcceptsBundle
   testMkFromPEMAcceptsNulBytes
 
@@ -662,7 +714,6 @@ def testMkRejectsNonDirectoryParent (f : Fixtures) : IO Unit := do
   testPinningRejectsEmptyCAMaterial
   testPinningIgnoredWithoutVerification
   testPinningStillValidatesCA f
-  testPinningRejectsNulInCAFile
 
 -- A trust anchor must be one a chain can terminate at.
 #eval withFixtures fun f => do
@@ -670,7 +721,12 @@ def testMkRejectsNonDirectoryParent (f : Fixtures) : IO Unit := do
   testPinningToIntermediateWithPartialChain f
   testPinningAcceptsRootWithIntermediate
   testIntermediateAllowedBesideSystemRoots
-  testIntermediateIgnoredWithoutVerification
+  testPinningToExplicitlyTrustedIntermediate
+  testPinningRejectsExplicitlyRejectedRoot
+
+-- The environment's anchors add to the platform's.
+#eval withFixtures fun f => do
+  testCertEnvVarsNeverBreakDefaultContext f
 
 -- CA material that cannot be used as a trust anchor.
 #eval withFixtures fun f => do
@@ -693,6 +749,7 @@ def testMkRejectsNonDirectoryParent (f : Fixtures) : IO Unit := do
   testMkServerRejectsSwappedFiles f
   testMkServerRejectsMismatchedKey f
   testMkServerRejectsCrossAlgorithmKey f
+  testMkServerRejectsUnusableKeyAlgorithm
   testMkServerRejectsCorruptChainMember f
   testRejectsNulInPaths f
 
@@ -706,6 +763,7 @@ def testMkRejectsNonDirectoryParent (f : Fixtures) : IO Unit := do
 #eval withFixtures fun f => do
   testAcceptsExpiredCert f
   testMkServerRejectsWeakCert f
+  testMkServerRejectsWeakChainMember
   testAcceptsWeakCertAsCA f
 
 -- OS-level failures keep the path and the real errno.

@@ -7056,10 +7056,10 @@ return v___x_2114_;
 LEAN_EXPORT lean_object* l_Lean_PersistentHashMap_findAux___at___00Lean_PersistentHashMap_find_x3f___at___00Lean_Compiler_LCNF_UnreachableBranches_getFunctionSummary_x3f_spec__0_spec__0___redArg___boxed(lean_object* v_x_2115_, lean_object* v_x_2116_, lean_object* v_x_2117_){
 _start:
 {
-size_t v_x_412__boxed_2118_; lean_object* v_res_2119_; 
-v_x_412__boxed_2118_ = lean_unbox_usize(v_x_2116_);
+size_t v_x_417__boxed_2118_; lean_object* v_res_2119_; 
+v_x_417__boxed_2118_ = lean_unbox_usize(v_x_2116_);
 lean_dec(v_x_2116_);
-v_res_2119_ = l_Lean_PersistentHashMap_findAux___at___00Lean_PersistentHashMap_find_x3f___at___00Lean_Compiler_LCNF_UnreachableBranches_getFunctionSummary_x3f_spec__0_spec__0___redArg(v_x_2115_, v_x_412__boxed_2118_, v_x_2117_);
+v_res_2119_ = l_Lean_PersistentHashMap_findAux___at___00Lean_PersistentHashMap_find_x3f___at___00Lean_Compiler_LCNF_UnreachableBranches_getFunctionSummary_x3f_spec__0_spec__0___redArg(v_x_2115_, v_x_417__boxed_2118_, v_x_2117_);
 lean_dec(v_x_2117_);
 lean_dec_ref(v_x_2115_);
 return v_res_2119_;
@@ -7476,10 +7476,10 @@ return v___x_2240_;
 LEAN_EXPORT lean_object* l_Lean_PersistentHashMap_findAux___at___00Lean_PersistentHashMap_find_x3f___at___00Lean_Compiler_LCNF_UnreachableBranches_getFunctionSummary_x3f_spec__0_spec__0___boxed(lean_object* v_00_u03b2_2241_, lean_object* v_x_2242_, lean_object* v_x_2243_, lean_object* v_x_2244_){
 _start:
 {
-size_t v_x_638__boxed_2245_; lean_object* v_res_2246_; 
-v_x_638__boxed_2245_ = lean_unbox_usize(v_x_2243_);
+size_t v_x_643__boxed_2245_; lean_object* v_res_2246_; 
+v_x_643__boxed_2245_ = lean_unbox_usize(v_x_2243_);
 lean_dec(v_x_2243_);
-v_res_2246_ = l_Lean_PersistentHashMap_findAux___at___00Lean_PersistentHashMap_find_x3f___at___00Lean_Compiler_LCNF_UnreachableBranches_getFunctionSummary_x3f_spec__0_spec__0(v_00_u03b2_2241_, v_x_2242_, v_x_638__boxed_2245_, v_x_2244_);
+v_res_2246_ = l_Lean_PersistentHashMap_findAux___at___00Lean_PersistentHashMap_find_x3f___at___00Lean_Compiler_LCNF_UnreachableBranches_getFunctionSummary_x3f_spec__0_spec__0(v_00_u03b2_2241_, v_x_2242_, v_x_643__boxed_2245_, v_x_2244_);
 lean_dec(v_x_2244_);
 lean_dec_ref(v_x_2242_);
 return v_res_2246_;

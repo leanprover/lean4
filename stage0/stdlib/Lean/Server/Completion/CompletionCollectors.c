@@ -15654,9 +15654,9 @@ goto v___jp_5497_;
 LEAN_EXPORT lean_object* l___private_Lean_Server_Completion_CompletionCollectors_0__Lean_Server_Completion_trailingDotCompletion___redArg___lam__0___boxed(lean_object* v_fst_5548_, lean_object* v_caps_5549_, lean_object* v_mkItem_5550_, lean_object* v_ctx_5551_, lean_object* v_stx_5552_, lean_object* v_snd_5553_, lean_object* v_x_5554_, lean_object* v_____s_5555_){
 _start:
 {
-uint8_t v_snd_832__boxed_5556_; lean_object* v_res_5557_; 
-v_snd_832__boxed_5556_ = lean_unbox(v_snd_5553_);
-v_res_5557_ = l___private_Lean_Server_Completion_CompletionCollectors_0__Lean_Server_Completion_trailingDotCompletion___redArg___lam__0(v_fst_5548_, v_caps_5549_, v_mkItem_5550_, v_ctx_5551_, v_stx_5552_, v_snd_832__boxed_5556_, v_x_5554_, v_____s_5555_);
+uint8_t v_snd_833__boxed_5556_; lean_object* v_res_5557_; 
+v_snd_833__boxed_5556_ = lean_unbox(v_snd_5553_);
+v_res_5557_ = l___private_Lean_Server_Completion_CompletionCollectors_0__Lean_Server_Completion_trailingDotCompletion___redArg___lam__0(v_fst_5548_, v_caps_5549_, v_mkItem_5550_, v_ctx_5551_, v_stx_5552_, v_snd_833__boxed_5556_, v_x_5554_, v_____s_5555_);
 lean_dec(v_stx_5552_);
 lean_dec_ref(v_caps_5549_);
 lean_dec_ref(v_fst_5548_);

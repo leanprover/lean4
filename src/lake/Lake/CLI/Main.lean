@@ -81,6 +81,16 @@ public structure LakeOptions where
   maxRevs : Nat := 100
   shake : Shake.Args := {}
   comparatorConfig? : Option FilePath := none
+  /-- File received via `lake check --from-export` -/
+  checkFromExport? : Option FilePath := none
+  /-- File received via `lake comparator --challenge-from-export` -/
+  challengeFromExport? : Option FilePath := none
+  /-- File received via `lake comparator --solution-from-export` -/
+  solutionFromExport? : Option FilePath := none
+  /-- Whether `lake check` and `lake comparator` run every bundled checker (via `--paranoid`). -/
+  paranoid : Bool := false
+  /-- Whether `lake check` and `lake comparator` should disable their sandbox (very insecure) -/
+  inadvisablyNoSandbox : Bool := false
   builtinLint : BuiltinLint.Args := {}
   /-- Whether `lake lint` should also run builtin lints (via `--builtin-lint`). -/
   runBuiltinLint : Bool := false
@@ -137,6 +147,7 @@ public def LakeOptions.mkLoadConfig (opts : LakeOptions) : EIO CliError LoadConf
 /-- Make a `BuildConfig` from a `LakeOptions`. -/
 def LakeOptions.mkBuildConfig
   (opts : LakeOptions) (out := OutStream.stderr) (showSuccess := false)
+  (outputsPackage? : Option Package := none)
 : BuildConfig where
   oldMode := opts.oldMode
   trustHash := opts.trustHash
@@ -146,7 +157,8 @@ def LakeOptions.mkBuildConfig
   failLv := opts.failLv
   outLv := opts.outLv
   ansiMode := opts.ansiMode
-  outputsFile? := opts.outputsFile?
+  outputsFile? := opts.outputsFile?.filter fun _ => outputsPackage?.isSome
+  outputsIdx := outputsPackage?.elim 0 (·.wsIdx)
   out; showSuccess
 
 export LakeOptions (mkLoadConfig mkBuildConfig)
@@ -401,10 +413,21 @@ def lakeLongOption : (opt : String) → CliM PUnit
   let mod ← takeOptArg "--only" "minimize only this module"
   modifyThe LakeOptions fun opts =>
     {opts with shake.onlyMods := opts.shake.onlyMods.push mod.toName}
--- Comparator options
+-- Check and comparator options
 | "--config" => do
   let file ← takeOptArg "--config" "path"
   modifyThe LakeOptions ({· with comparatorConfig? := some file})
+| "--from-export" => do
+  let file ← takeOptArg "--from-export" "path"
+  modifyThe LakeOptions ({· with checkFromExport? := some file})
+| "--challenge-from-export" => do
+  let file ← takeOptArg "--challenge-from-export" "path"
+  modifyThe LakeOptions ({· with challengeFromExport? := some file})
+| "--solution-from-export" => do
+  let file ← takeOptArg "--solution-from-export" "path"
+  modifyThe LakeOptions ({· with solutionFromExport? := some file})
+| "--paranoid" => modifyThe LakeOptions ({· with paranoid := true})
+| "--inadvisably-no-sandbox" => modifyThe LakeOptions ({· with inadvisablyNoSandbox := true})
 | opt             =>  throw <| CliError.unknownLongOption opt
 
 def lakeOption :=
@@ -687,23 +710,21 @@ protected def put : CliM PUnit := do
   let opts ← getThe LakeOptions
   let some scope := opts.scope?
     | error "the `--scope` or `--repo` option must be set"
-  if opts.package?.isSome then
-    error "the `--package` option is not supported for `cache put`"
   if opts.rev?.isSome then
     error "the `--rev` option is not supported for `cache put`; \
       to upload artifacts for different revisions, use the staging workflow, \
       e.g., `lake cache stage` and `lake cache put-staged`"
   noArgsRem do
   let cfg ← mkLoadConfig opts
-  let lakeEnv := cfg.lakeEnv
-  let pkg ← loadPackage cfg
-  let lakeCfg ← loadLakeConfig lakeEnv
-  let lakeCache := computeLakeCache pkg lakeEnv
+  let ws ← loadWorkspace cfg
+  let pkg ← match opts.package? with
+    | some pkg => parsePackageSpec ws pkg
+    | _ => pure ws.root
   let platform := cachePlatform pkg (opts.platform?.getD .system)
-  let toolchain := cacheToolchain pkg (opts.toolchain?.getD lakeEnv.cacheToolchain)
-  let service ← computeUploadService opts.service? lakeEnv lakeCfg
+  let toolchain := cacheToolchain pkg (opts.toolchain?.getD ws.lakeEnv.cacheToolchain)
+  let service ← computeUploadService opts.service? ws.lakeEnv ws.lakeConfig
   let rev ← computePackageRev pkg.dir
-  putCore rev file lakeCache.artifactDir service scope platform toolchain
+  putCore rev file ws.lakeCache.artifactDir service scope platform toolchain
 
 protected def add : CliM PUnit := do
   processOptions lakeOption
@@ -819,6 +840,8 @@ protected def putStaged : CliM PUnit := do
   processOptions lakeOption
   let opts ← getThe LakeOptions
   let stagingDir ← FilePath.mk <$> takeArg "staging directory"
+  let some rev := opts.rev?
+    | error "the `--rev` option must be set"
   let some scope := opts.scope?
     | error "the `--scope` or `--repo` option must be set"
   if opts.package?.isSome then
@@ -829,7 +852,6 @@ protected def putStaged : CliM PUnit := do
   let platform := opts.platform?.getD .none
   let toolchain := opts.toolchain?.getD .none
   let service ← computeUploadService opts.service? cfg.lakeEnv lakeCfg
-  let rev ← opts.rev?.getDM (computePackageRev cfg.wsDir)
   let outputsFile := stagingDir / stagingOutputsFile
   putCore rev outputsFile stagingDir service scope platform toolchain
 
@@ -953,7 +975,13 @@ protected def build : CliM PUnit := do
   specs.forM fun spec =>
     unless spec.buildable do
       throw <| .invalidBuildTarget spec.info.key.toSimpleString
-  let buildConfig := mkBuildConfig opts (out := .stdout) (showSuccess := true)
+  let outputsPackage? ← id do
+    match opts.outputsFile?, opts.package? with
+    | some _, some pkg => some <$> parsePackageSpec ws pkg
+    | some _, none => return some ws.root
+    | none, some _ => error "`--package` requires `-o`"
+    | none, none => return none
+  let buildConfig := mkBuildConfig opts (out := .stdout) (showSuccess := true) outputsPackage?
   ws.runBuild (buildSpecs specs) buildConfig
 
 protected def checkBuild : CliM PUnit := do
@@ -1176,7 +1204,9 @@ protected def comparator : CliM PUnit := do
   -- The workspace is deliberately not loaded here: evaluating the project's configuration is code
   -- execution, and containing it is what the sandbox is for.
   let cfg ← mkLoadConfig opts
-  exit <| ← Check.runComparator opts.comparatorConfig? leanInstall lakeInstall cfg.wsDir
+  exit <| ←
+    Check.runComparator opts.comparatorConfig? opts.challengeFromExport? opts.solutionFromExport?
+      opts.paranoid opts.inadvisablyNoSandbox leanInstall lakeInstall cfg.wsDir
 
 /--
 The half of `lake check` that runs inside the sandbox, selected by `LAKE_CHECK_EXPORT`.
@@ -1207,7 +1237,8 @@ protected def check : CliM PUnit := do
     -- The workspace is deliberately not loaded here: evaluating the project's configuration is code
     -- execution, and containing it is what the sandbox is for.
     let cfg ← mkLoadConfig opts
-    exit <| ← Check.runCheck leanInstall lakeInstall cfg.wsDir
+    exit <| ← Check.runCheck opts.checkFromExport? opts.paranoid opts.inadvisablyNoSandbox
+      leanInstall lakeInstall cfg.wsDir
 
 protected def script : CliM PUnit := do
   if let some cmd ← takeArg? then

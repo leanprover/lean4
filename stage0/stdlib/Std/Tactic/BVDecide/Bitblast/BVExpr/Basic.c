@@ -1616,110 +1616,53 @@ return v___x_465_;
 }
 case 1:
 {
-lean_object* v_n_466_; uint8_t v___x_467_; 
+if (lean_obj_tag(v_x_463_) == 1)
+{
+lean_object* v_n_466_; lean_object* v_n_467_; uint8_t v___x_468_; 
 v_n_466_ = lean_ctor_get(v_x_462_, 0);
-v___x_467_ = 0;
-switch(lean_obj_tag(v_x_463_))
-{
-case 0:
-{
-return v___x_467_;
+v_n_467_ = lean_ctor_get(v_x_463_, 0);
+v___x_468_ = lean_nat_dec_eq(v_n_466_, v_n_467_);
+return v___x_468_;
 }
-case 1:
+else
 {
-lean_object* v_n_468_; uint8_t v___x_469_; 
-v_n_468_ = lean_ctor_get(v_x_463_, 0);
-v___x_469_ = lean_nat_dec_eq(v_n_466_, v_n_468_);
+uint8_t v___x_469_; 
+v___x_469_ = 0;
 return v___x_469_;
 }
-case 4:
-{
-return v___x_467_;
-}
-case 5:
-{
-return v___x_467_;
-}
-case 6:
-{
-return v___x_467_;
-}
-default: 
-{
-return v___x_467_;
-}
-}
 }
 case 2:
 {
-lean_object* v_n_470_; uint8_t v___x_471_; 
+if (lean_obj_tag(v_x_463_) == 2)
+{
+lean_object* v_n_470_; lean_object* v_n_471_; uint8_t v___x_472_; 
 v_n_470_ = lean_ctor_get(v_x_462_, 0);
-v___x_471_ = 0;
-switch(lean_obj_tag(v_x_463_))
-{
-case 0:
-{
-return v___x_471_;
+v_n_471_ = lean_ctor_get(v_x_463_, 0);
+v___x_472_ = lean_nat_dec_eq(v_n_470_, v_n_471_);
+return v___x_472_;
 }
-case 2:
+else
 {
-lean_object* v_n_472_; uint8_t v___x_473_; 
-v_n_472_ = lean_ctor_get(v_x_463_, 0);
-v___x_473_ = lean_nat_dec_eq(v_n_470_, v_n_472_);
+uint8_t v___x_473_; 
+v___x_473_ = 0;
 return v___x_473_;
 }
-case 4:
-{
-return v___x_471_;
-}
-case 5:
-{
-return v___x_471_;
-}
-case 6:
-{
-return v___x_471_;
-}
-default: 
-{
-return v___x_471_;
-}
-}
 }
 case 3:
 {
-lean_object* v_n_474_; uint8_t v___x_475_; 
+if (lean_obj_tag(v_x_463_) == 3)
+{
+lean_object* v_n_474_; lean_object* v_n_475_; uint8_t v___x_476_; 
 v_n_474_ = lean_ctor_get(v_x_462_, 0);
-v___x_475_ = 0;
-switch(lean_obj_tag(v_x_463_))
-{
-case 0:
-{
-return v___x_475_;
+v_n_475_ = lean_ctor_get(v_x_463_, 0);
+v___x_476_ = lean_nat_dec_eq(v_n_474_, v_n_475_);
+return v___x_476_;
 }
-case 3:
+else
 {
-lean_object* v_n_476_; uint8_t v___x_477_; 
-v_n_476_ = lean_ctor_get(v_x_463_, 0);
-v___x_477_ = lean_nat_dec_eq(v_n_474_, v_n_476_);
+uint8_t v___x_477_; 
+v___x_477_ = 0;
 return v___x_477_;
-}
-case 4:
-{
-return v___x_475_;
-}
-case 5:
-{
-return v___x_475_;
-}
-case 6:
-{
-return v___x_475_;
-}
-default: 
-{
-return v___x_475_;
-}
 }
 }
 case 4:

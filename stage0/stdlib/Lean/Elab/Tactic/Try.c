@@ -1,6 +1,6 @@
 // Lean compiler output
 // Module: Lean.Elab.Tactic.Try
-// Imports: public import Lean.Meta.Tactic.ExposeNames public import Lean.Meta.Tactic.Try public import Lean.Meta.TryThis public import Lean.Server.InfoUtils public import Lean.Elab.Tactic.SimpTrace public import Lean.Elab.Tactic.LibrarySearch public import Lean.Elab.Tactic.Grind.Main public import Lean.Elab.Parallel public meta import Lean.Elab.Command import Lean.Elab.BuiltinTerm import Init.Omega import Lean.Elab.ConfigEval
+// Imports: public import Lean.Meta.Tactic.ExposeNames public import Lean.Meta.Tactic.Try public import Lean.Meta.TryThis public import Lean.Elab.InfoTree.Util public import Lean.Elab.Tactic.SimpTrace public import Lean.Elab.Tactic.LibrarySearch public import Lean.Elab.Tactic.Grind.Main public import Lean.Elab.Parallel public meta import Lean.Elab.Command import Lean.Elab.BuiltinTerm import Init.Omega import Lean.Elab.ConfigEval
 #include <lean/lean.h>
 #if defined(__clang__)
 #pragma clang diagnostic ignored "-Wunused-parameter"
@@ -46043,7 +46043,7 @@ return v_res_17236_;
 lean_object* runtime_initialize_Lean_Meta_Tactic_ExposeNames(uint8_t builtin);
 lean_object* runtime_initialize_Lean_Meta_Tactic_Try(uint8_t builtin);
 lean_object* runtime_initialize_Lean_Meta_TryThis(uint8_t builtin);
-lean_object* runtime_initialize_Lean_Server_InfoUtils(uint8_t builtin);
+lean_object* runtime_initialize_Lean_Elab_InfoTree_Util(uint8_t builtin);
 lean_object* runtime_initialize_Lean_Elab_Tactic_SimpTrace(uint8_t builtin);
 lean_object* runtime_initialize_Lean_Elab_Tactic_LibrarySearch(uint8_t builtin);
 lean_object* runtime_initialize_Lean_Elab_Tactic_Grind_Main(uint8_t builtin);
@@ -46067,7 +46067,7 @@ lean_dec_ref(res);
 res = runtime_initialize_Lean_Meta_TryThis(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
-res = runtime_initialize_Lean_Server_InfoUtils(builtin);
+res = runtime_initialize_Lean_Elab_InfoTree_Util(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
 res = runtime_initialize_Lean_Elab_Tactic_SimpTrace(builtin);
@@ -46175,7 +46175,7 @@ return lean_io_result_mk_ok(lean_box(0));
 lean_object* initialize_Lean_Meta_Tactic_ExposeNames(uint8_t builtin);
 lean_object* initialize_Lean_Meta_Tactic_Try(uint8_t builtin);
 lean_object* initialize_Lean_Meta_TryThis(uint8_t builtin);
-lean_object* initialize_Lean_Server_InfoUtils(uint8_t builtin);
+lean_object* initialize_Lean_Elab_InfoTree_Util(uint8_t builtin);
 lean_object* initialize_Lean_Elab_Tactic_SimpTrace(uint8_t builtin);
 lean_object* initialize_Lean_Elab_Tactic_LibrarySearch(uint8_t builtin);
 lean_object* initialize_Lean_Elab_Tactic_Grind_Main(uint8_t builtin);
@@ -46198,7 +46198,7 @@ lean_dec_ref(res);
 res = initialize_Lean_Meta_TryThis(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
-res = initialize_Lean_Server_InfoUtils(builtin);
+res = initialize_Lean_Elab_InfoTree_Util(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
 res = initialize_Lean_Elab_Tactic_SimpTrace(builtin);

@@ -17475,10 +17475,10 @@ return v___x_5760_;
 LEAN_EXPORT lean_object* l___private_Init_Data_Array_Basic_0__Array_foldlMUnsafe_fold___at___00__private_Lean_Compiler_LCNF_JoinPoints_0__Lean_Compiler_LCNF_JoinPointCommonArgs_reduce_goReduce_spec__0___lam__0___boxed(lean_object* v___x_5761_, lean_object* v___x_5762_, lean_object* v_____r_5763_, lean_object* v___y_5764_, lean_object* v___y_5765_, lean_object* v___y_5766_, lean_object* v___y_5767_, lean_object* v___y_5768_, lean_object* v___y_5769_){
 _start:
 {
-uint8_t v___x_8984__boxed_5770_; uint8_t v___x_8985__boxed_5771_; lean_object* v_res_5772_; 
-v___x_8984__boxed_5770_ = lean_unbox(v___x_5761_);
-v___x_8985__boxed_5771_ = lean_unbox(v___x_5762_);
-v_res_5772_ = l___private_Init_Data_Array_Basic_0__Array_foldlMUnsafe_fold___at___00__private_Lean_Compiler_LCNF_JoinPoints_0__Lean_Compiler_LCNF_JoinPointCommonArgs_reduce_goReduce_spec__0___lam__0(v___x_8984__boxed_5770_, v___x_8985__boxed_5771_, v_____r_5763_, v___y_5764_, v___y_5765_, v___y_5766_, v___y_5767_, v___y_5768_);
+uint8_t v___x_8985__boxed_5770_; uint8_t v___x_8986__boxed_5771_; lean_object* v_res_5772_; 
+v___x_8985__boxed_5770_ = lean_unbox(v___x_5761_);
+v___x_8986__boxed_5771_ = lean_unbox(v___x_5762_);
+v_res_5772_ = l___private_Init_Data_Array_Basic_0__Array_foldlMUnsafe_fold___at___00__private_Lean_Compiler_LCNF_JoinPoints_0__Lean_Compiler_LCNF_JoinPointCommonArgs_reduce_goReduce_spec__0___lam__0(v___x_8985__boxed_5770_, v___x_8986__boxed_5771_, v_____r_5763_, v___y_5764_, v___y_5765_, v___y_5766_, v___y_5767_, v___y_5768_);
 lean_dec(v___y_5768_);
 lean_dec_ref(v___y_5767_);
 lean_dec(v___y_5766_);
@@ -18366,7 +18366,7 @@ v_a_6021_ = lean_ctor_get(v___x_6020_, 0);
 lean_inc(v_a_6021_);
 lean_dec_ref_known(v___x_6020_, 1);
 lean_inc_ref(v_decl_6002_);
-v___x_6022_ = l___private_Lean_Compiler_LCNF_CompilerM_0__Lean_Compiler_LCNF_updateFunDeclImp___redArg(v___x_6010_, v_decl_6002_, v_newType_6014_, v___y_6012_, v___y_6013_, v___y_6017_);
+v___x_6022_ = l___private_Lean_Compiler_LCNF_CompilerM_0__Lean_Compiler_LCNF_updateFunDeclImp___redArg(v___x_6010_, v_decl_6002_, v_newType_6014_, v___y_6013_, v___y_6012_, v___y_6017_);
 if (lean_obj_tag(v___x_6022_) == 0)
 {
 lean_object* v_a_6023_; lean_object* v___x_6025_; uint8_t v_isShared_6026_; uint8_t v_isSharedCheck_6060_; 
@@ -18650,8 +18650,8 @@ lean_object* v_a_6083_;
 v_a_6083_ = lean_ctor_get(v___x_6082_, 0);
 lean_inc(v_a_6083_);
 lean_dec_ref_known(v___x_6082_, 1);
-v___y_6012_ = v_a_6072_;
-v___y_6013_ = v_a_6077_;
+v___y_6012_ = v_a_6077_;
+v___y_6013_ = v_a_6072_;
 v_newType_6014_ = v_a_6083_;
 v___y_6015_ = v_a_5899_;
 v___y_6016_ = v_a_5900_;
@@ -18753,8 +18753,8 @@ return v___x_6097_;
 else
 {
 lean_inc_ref(v_type_6006_);
-v___y_6012_ = v_a_6072_;
-v___y_6013_ = v_a_6077_;
+v___y_6012_ = v_a_6077_;
+v___y_6013_ = v_a_6072_;
 v_newType_6014_ = v_type_6006_;
 v___y_6015_ = v_a_5899_;
 v___y_6016_ = v_a_5900_;

@@ -6,7 +6,7 @@ Authors: Lars König
 module
 
 prelude
-public import Lean.Server.InfoUtils
+public import Lean.Elab.InfoTree.Util
 public import Lean.Linter.Init
 public import Lean.Elab.Term
 public import Lean.Linter.CodeQuality.Basic

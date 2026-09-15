@@ -2533,10 +2533,10 @@ return v___x_742_;
 LEAN_EXPORT lean_object* l___private_Init_While_0__repeatM_erased___at___00Lean_rewriteManualLinksCore_spec__0___redArg___boxed(lean_object* v_s_751_, lean_object* v___x_752_, lean_object* v___x_753_, lean_object* v___x_754_, lean_object* v_a_755_){
 _start:
 {
-uint32_t v___x_2314__boxed_756_; lean_object* v_res_757_; 
-v___x_2314__boxed_756_ = lean_unbox_uint32(v___x_754_);
+uint32_t v___x_2315__boxed_756_; lean_object* v_res_757_; 
+v___x_2315__boxed_756_ = lean_unbox_uint32(v___x_754_);
 lean_dec(v___x_754_);
-v_res_757_ = l___private_Init_While_0__repeatM_erased___at___00Lean_rewriteManualLinksCore_spec__0___redArg(v_s_751_, v___x_752_, v___x_753_, v___x_2314__boxed_756_, v_a_755_);
+v_res_757_ = l___private_Init_While_0__repeatM_erased___at___00Lean_rewriteManualLinksCore_spec__0___redArg(v_s_751_, v___x_752_, v___x_753_, v___x_2315__boxed_756_, v_a_755_);
 lean_dec(v___x_752_);
 lean_dec_ref(v_s_751_);
 return v_res_757_;
@@ -2905,10 +2905,10 @@ return v___x_857_;
 LEAN_EXPORT lean_object* l___private_Init_While_0__repeatM_erased___at___00Lean_rewriteManualLinksCore_spec__0___boxed(lean_object* v_s_858_, lean_object* v___x_859_, lean_object* v___x_860_, lean_object* v___x_861_, lean_object* v_inst_862_, lean_object* v_a_863_){
 _start:
 {
-uint32_t v___x_2599__boxed_864_; lean_object* v_res_865_; 
-v___x_2599__boxed_864_ = lean_unbox_uint32(v___x_861_);
+uint32_t v___x_2600__boxed_864_; lean_object* v_res_865_; 
+v___x_2600__boxed_864_ = lean_unbox_uint32(v___x_861_);
 lean_dec(v___x_861_);
-v_res_865_ = l___private_Init_While_0__repeatM_erased___at___00Lean_rewriteManualLinksCore_spec__0(v_s_858_, v___x_859_, v___x_860_, v___x_2599__boxed_864_, v_inst_862_, v_a_863_);
+v_res_865_ = l___private_Init_While_0__repeatM_erased___at___00Lean_rewriteManualLinksCore_spec__0(v_s_858_, v___x_859_, v___x_860_, v___x_2600__boxed_864_, v_inst_862_, v_a_863_);
 lean_dec(v___x_859_);
 lean_dec_ref(v_s_858_);
 return v_res_865_;

@@ -807,9 +807,9 @@ return v___x_164_;
 LEAN_EXPORT lean_object* l_Lean_parseVersoDocString___redArg___lam__3___boxed(lean_object* v_text_165_, lean_object* v_fst_166_, lean_object* v_snd_167_, lean_object* v___x_168_, lean_object* v_logMessage_169_, lean_object* v_toBind_170_, lean_object* v___f_171_, lean_object* v_____do__lift_172_){
 _start:
 {
-uint8_t v___x_1476__boxed_173_; lean_object* v_res_174_; 
-v___x_1476__boxed_173_ = lean_unbox(v___x_168_);
-v_res_174_ = l_Lean_parseVersoDocString___redArg___lam__3(v_text_165_, v_fst_166_, v_snd_167_, v___x_1476__boxed_173_, v_logMessage_169_, v_toBind_170_, v___f_171_, v_____do__lift_172_);
+uint8_t v___x_1478__boxed_173_; lean_object* v_res_174_; 
+v___x_1478__boxed_173_ = lean_unbox(v___x_168_);
+v_res_174_ = l_Lean_parseVersoDocString___redArg___lam__3(v_text_165_, v_fst_166_, v_snd_167_, v___x_1478__boxed_173_, v_logMessage_169_, v_toBind_170_, v___f_171_, v_____do__lift_172_);
 lean_dec(v_fst_166_);
 return v_res_174_;
 }
@@ -843,9 +843,9 @@ return v___x_189_;
 LEAN_EXPORT lean_object* l_Lean_parseVersoDocString___redArg___lam__4___boxed(lean_object* v_text_190_, lean_object* v___x_191_, lean_object* v_logMessage_192_, lean_object* v_toBind_193_, lean_object* v___f_194_, lean_object* v_getFileName_195_, lean_object* v_a_196_, lean_object* v_x_197_, lean_object* v___y_198_){
 _start:
 {
-uint8_t v___x_1510__boxed_199_; lean_object* v_res_200_; 
-v___x_1510__boxed_199_ = lean_unbox(v___x_191_);
-v_res_200_ = l_Lean_parseVersoDocString___redArg___lam__4(v_text_190_, v___x_1510__boxed_199_, v_logMessage_192_, v_toBind_193_, v___f_194_, v_getFileName_195_, v_a_196_, v_x_197_, v___y_198_);
+uint8_t v___x_1512__boxed_199_; lean_object* v_res_200_; 
+v___x_1512__boxed_199_ = lean_unbox(v___x_191_);
+v_res_200_ = l_Lean_parseVersoDocString___redArg___lam__4(v_text_190_, v___x_1512__boxed_199_, v_logMessage_192_, v_toBind_193_, v___f_194_, v_getFileName_195_, v_a_196_, v_x_197_, v___y_198_);
 return v_res_200_;
 }
 }
@@ -884,9 +884,9 @@ return v___x_225_;
 LEAN_EXPORT lean_object* l_Lean_parseVersoDocString___redArg___lam__5___boxed(lean_object* v_text_226_, lean_object* v_pos_227_, lean_object* v_source_228_, lean_object* v___x_229_, lean_object* v_logMessage_230_, lean_object* v_toBind_231_, lean_object* v___f_232_, lean_object* v_____do__lift_233_){
 _start:
 {
-uint8_t v___x_1540__boxed_234_; lean_object* v_res_235_; 
-v___x_1540__boxed_234_ = lean_unbox(v___x_229_);
-v_res_235_ = l_Lean_parseVersoDocString___redArg___lam__5(v_text_226_, v_pos_227_, v_source_228_, v___x_1540__boxed_234_, v_logMessage_230_, v_toBind_231_, v___f_232_, v_____do__lift_233_);
+uint8_t v___x_1542__boxed_234_; lean_object* v_res_235_; 
+v___x_1542__boxed_234_ = lean_unbox(v___x_229_);
+v_res_235_ = l_Lean_parseVersoDocString___redArg___lam__5(v_text_226_, v_pos_227_, v_source_228_, v___x_1542__boxed_234_, v_logMessage_230_, v_toBind_231_, v___f_232_, v_____do__lift_233_);
 lean_dec_ref(v_source_228_);
 lean_dec(v_pos_227_);
 return v_res_235_;
@@ -1590,8 +1590,8 @@ return v___x_514_;
 else
 {
 lean_object* v___x_515_; 
-lean_dec_ref_known(v_pre_478_, 2);
 lean_dec(v_pre_479_);
+lean_dec_ref_known(v_pre_478_, 2);
 lean_dec_ref_known(v_kind_477_, 2);
 lean_dec_ref_known(v___x_476_, 3);
 lean_dec(v_toPure_464_);
@@ -1602,8 +1602,8 @@ return v___x_515_;
 else
 {
 lean_object* v___x_516_; 
-lean_dec(v_pre_478_);
 lean_dec_ref_known(v_kind_477_, 2);
+lean_dec(v_pre_478_);
 lean_dec_ref_known(v___x_476_, 3);
 lean_dec(v_toPure_464_);
 v___x_516_ = lean_apply_4(v_toBind_463_, lean_box(0), lean_box(0), v_inst_455_, v___f_467_);
@@ -1673,9 +1673,9 @@ return v___x_548_;
 LEAN_EXPORT lean_object* l_Lean_reportVersoParseFailure___redArg___lam__0___boxed(lean_object* v_text_549_, lean_object* v_pos_550_, lean_object* v_source_551_, lean_object* v___x_552_, lean_object* v_logMessage_553_, lean_object* v_____do__lift_554_){
 _start:
 {
-uint8_t v___x_1166__boxed_555_; lean_object* v_res_556_; 
-v___x_1166__boxed_555_ = lean_unbox(v___x_552_);
-v_res_556_ = l_Lean_reportVersoParseFailure___redArg___lam__0(v_text_549_, v_pos_550_, v_source_551_, v___x_1166__boxed_555_, v_logMessage_553_, v_____do__lift_554_);
+uint8_t v___x_1167__boxed_555_; lean_object* v_res_556_; 
+v___x_1167__boxed_555_ = lean_unbox(v___x_552_);
+v_res_556_ = l_Lean_reportVersoParseFailure___redArg___lam__0(v_text_549_, v_pos_550_, v_source_551_, v___x_1167__boxed_555_, v_logMessage_553_, v_____do__lift_554_);
 lean_dec_ref(v_source_551_);
 lean_dec(v_pos_550_);
 return v_res_556_;

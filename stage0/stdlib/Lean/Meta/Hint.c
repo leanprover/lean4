@@ -9132,17 +9132,17 @@ lean_dec(v___y_3113_);
 v___x_3118_ = lean_nat_dec_le(v___x_3110_, v___x_3111_);
 if (v___x_3118_ == 0)
 {
-v___y_3090_ = v___x_3117_;
-v___y_3091_ = v___x_3116_;
-v___y_3092_ = v_maxCharDiffDistance_3115_;
+v___y_3090_ = v_maxCharDiffDistance_3115_;
+v___y_3091_ = v___x_3117_;
+v___y_3092_ = v___x_3116_;
 v___y_3093_ = v___x_3110_;
 goto v___jp_3089_;
 }
 else
 {
-v___y_3090_ = v___x_3117_;
-v___y_3091_ = v___x_3116_;
-v___y_3092_ = v_maxCharDiffDistance_3115_;
+v___y_3090_ = v_maxCharDiffDistance_3115_;
+v___y_3091_ = v___x_3117_;
+v___y_3092_ = v___x_3116_;
 v___y_3093_ = v___x_3111_;
 goto v___jp_3089_;
 }
@@ -9194,8 +9194,8 @@ return v___x_3074_;
 v___jp_3075_:
 {
 lean_object* v_charArrDiff_3080_; lean_object* v___x_3081_; lean_object* v___x_3082_; uint8_t v___x_3083_; 
-v_charArrDiff_3080_ = l___private_Lean_Meta_Hint_0__Lean_Meta_Hint_readableDiff_joinEdits___redArg(v___y_3077_);
-lean_dec_ref(v___y_3077_);
+v_charArrDiff_3080_ = l___private_Lean_Meta_Hint_0__Lean_Meta_Hint_readableDiff_joinEdits___redArg(v___y_3078_);
+lean_dec_ref(v___y_3078_);
 v___x_3081_ = lean_array_get_size(v_charArrDiff_3080_);
 v___x_3082_ = lean_unsigned_to_nat(3u);
 v___x_3083_ = lean_nat_dec_le(v___x_3081_, v___x_3082_);
@@ -9204,8 +9204,8 @@ if (v___x_3083_ == 0)
 lean_object* v_approxEditDistance_3084_; uint8_t v___x_3085_; 
 v_approxEditDistance_3084_ = lean_array_get_size(v___y_3079_);
 lean_dec_ref(v___y_3079_);
-v___x_3085_ = lean_nat_dec_le(v_approxEditDistance_3084_, v___y_3078_);
-lean_dec(v___y_3078_);
+v___x_3085_ = lean_nat_dec_le(v_approxEditDistance_3084_, v___y_3077_);
+lean_dec(v___y_3077_);
 if (v___x_3085_ == 0)
 {
 uint8_t v___x_3086_; 
@@ -9239,7 +9239,7 @@ goto v___jp_3070_;
 else
 {
 lean_dec_ref(v___y_3079_);
-lean_dec(v___y_3078_);
+lean_dec(v___y_3077_);
 lean_dec(v___y_3076_);
 lean_dec_ref(v_s_x27_3068_);
 lean_dec_ref(v_s_3067_);
@@ -9250,11 +9250,11 @@ goto v___jp_3070_;
 v___jp_3089_:
 {
 lean_object* v___x_3094_; lean_object* v_maxWordDiffDistance_3095_; lean_object* v___x_3096_; lean_object* v___x_3097_; lean_object* v_charDiffRaw_3098_; lean_object* v___x_3099_; lean_object* v___x_3100_; lean_object* v___x_3101_; uint8_t v___x_3102_; 
-v___x_3094_ = lean_nat_shiftr(v___y_3093_, v___y_3091_);
+v___x_3094_ = lean_nat_shiftr(v___y_3093_, v___y_3092_);
 lean_dec(v___y_3093_);
-v_maxWordDiffDistance_3095_ = lean_nat_add(v___y_3090_, v___x_3094_);
+v_maxWordDiffDistance_3095_ = lean_nat_add(v___y_3091_, v___x_3094_);
 lean_dec(v___x_3094_);
-lean_dec(v___y_3090_);
+lean_dec(v___y_3091_);
 lean_inc_ref(v_s_3067_);
 v___x_3096_ = l___private_Lean_Meta_Hint_0__Lean_Meta_Hint_readableDiff_splitChars(v_s_3067_);
 lean_inc_ref(v_s_x27_3068_);
@@ -9267,8 +9267,8 @@ v___x_3102_ = lean_nat_dec_lt(v___x_3099_, v___x_3100_);
 if (v___x_3102_ == 0)
 {
 v___y_3076_ = v_maxWordDiffDistance_3095_;
-v___y_3077_ = v_charDiffRaw_3098_;
-v___y_3078_ = v___y_3092_;
+v___y_3077_ = v___y_3090_;
+v___y_3078_ = v_charDiffRaw_3098_;
 v___y_3079_ = v___x_3101_;
 goto v___jp_3075_;
 }
@@ -9281,8 +9281,8 @@ if (v___x_3103_ == 0)
 if (v___x_3102_ == 0)
 {
 v___y_3076_ = v_maxWordDiffDistance_3095_;
-v___y_3077_ = v_charDiffRaw_3098_;
-v___y_3078_ = v___y_3092_;
+v___y_3077_ = v___y_3090_;
+v___y_3078_ = v_charDiffRaw_3098_;
 v___y_3079_ = v___x_3101_;
 goto v___jp_3075_;
 }
@@ -9293,8 +9293,8 @@ v___x_3104_ = ((size_t)0ULL);
 v___x_3105_ = lean_usize_of_nat(v___x_3100_);
 v___x_3106_ = l___private_Init_Data_Array_Basic_0__Array_foldlMUnsafe_fold___at___00Lean_Meta_Hint_readableDiff_spec__0(v_charDiffRaw_3098_, v___x_3104_, v___x_3105_, v___x_3101_);
 v___y_3076_ = v_maxWordDiffDistance_3095_;
-v___y_3077_ = v_charDiffRaw_3098_;
-v___y_3078_ = v___y_3092_;
+v___y_3077_ = v___y_3090_;
+v___y_3078_ = v_charDiffRaw_3098_;
 v___y_3079_ = v___x_3106_;
 goto v___jp_3075_;
 }
@@ -9306,8 +9306,8 @@ v___x_3107_ = ((size_t)0ULL);
 v___x_3108_ = lean_usize_of_nat(v___x_3100_);
 v___x_3109_ = l___private_Init_Data_Array_Basic_0__Array_foldlMUnsafe_fold___at___00Lean_Meta_Hint_readableDiff_spec__0(v_charDiffRaw_3098_, v___x_3107_, v___x_3108_, v___x_3101_);
 v___y_3076_ = v_maxWordDiffDistance_3095_;
-v___y_3077_ = v_charDiffRaw_3098_;
-v___y_3078_ = v___y_3092_;
+v___y_3077_ = v___y_3090_;
+v___y_3078_ = v_charDiffRaw_3098_;
 v___y_3079_ = v___x_3109_;
 goto v___jp_3075_;
 }

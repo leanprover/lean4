@@ -58,8 +58,7 @@ multiple times in the same file.
 -/
 @[builtin_command_parser]
 def moduleDoc := leading_parser ppDedent <|
-  docCommentOpen "/-!" >> ppSpace >> Doc.Parser.ifVersoModuleDocs versoCommentBody commentBody >>
-    ppLine
+  docCommentOpen "/-!" >> Doc.Parser.ifVersoModuleDocs versoCommentBody commentBody >> ppLine
 
 
 def namedPrio := leading_parser

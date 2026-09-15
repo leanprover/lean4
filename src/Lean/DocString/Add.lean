@@ -143,33 +143,20 @@ private def docCommentRange (view : VersoDocstringView) :
 
 open Lean.Parser Command in
 /--
-The source positions of a docstring whose body was parsed as Markdown: its opening delimiter, the
-start of its text, and its closing delimiter.
-
-Such a body is one token that runs through the closing delimiter, so that delimiter comes off the
-end of the token rather than from a token of its own.
+The source positions a docstring is read from: its opening delimiter, the start of its content, and
+its closing delimiter.
 -/
-private def markdownCommentRange (source : String)
-    (docComment : TSyntax [``docComment, ``moduleDoc]) :
+private def docStringRange (docComment : TSyntax [``docComment, ``moduleDoc]) :
     Except MessageData (String.Pos.Raw × String.Pos.Raw × String.Pos.Raw) := do
-  let some openPos := docComment.raw[0].getPos? (canonicalOnly := true)
+  let ⟨.node _ _ #[opener, .node _ _ #[content, closer]]⟩ := docComment
+    | throw m!"This documentation comment has an unexpected structure, so it cannot be parsed."
+  let some openPos := opener.getPos? (canonicalOnly := true)
     | throw (noSourceLocation "opening delimiter")
-  let some startPos := docComment.raw[1].getPos? (canonicalOnly := true)
+  let some startPos := content.getPos? (canonicalOnly := true)
     | throw (noSourceLocation "content")
-  let some contentEnd := docComment.raw[1].getTailPos? (canonicalOnly := true)
-    | throw (noSourceLocation "content")
-  return (openPos, startPos, String.Pos.Raw.prev source <| contentEnd.prev source)
-
-open Lean.Parser Command in
-/--
-The source positions a docstring is read from. Only the closing delimiter is found differently: a
-body parsed as Verso markup has it as a token of its own, while one parsed as Markdown includes the
-closing delimiter in the body token.
--/
-private def docStringRange (source : String) (docComment : TSyntax [``docComment, ``moduleDoc]) :
-    Except MessageData (String.Pos.Raw × String.Pos.Raw × String.Pos.Raw) :=
-  if docComment.raw[1].isOfKind ``versoCommentBody then docCommentRange (.of docComment)
-  else markdownCommentRange source docComment
+  let some endPos := closer.getPos? (canonicalOnly := true)
+    | throw (noSourceLocation "closing delimiter")
+  return (openPos, startPos, endPos)
 
 open Lean.Doc in
 open Lean.Parser Command in
@@ -186,7 +173,7 @@ def parseVersoDocString
   let text ← getFileMap
   -- TODO fallback to string version without nice interactivity
   let (openPos, startPos, endPos) ←
-    match docStringRange text.source docComment with
+    match docStringRange docComment with
     | .ok range => pure range
     | .error msg => throwError msg
 
@@ -372,7 +359,7 @@ def versoDocString
   let body := docComment.raw[1]
   -- Re-parsing reads the comment from its delimiters and its content, so every one of those needs a
   -- source position. A macro-generated docstring may lack any of them.
-  if (docStringRange (← getFileMap).source docComment).toOption.isSome then
+  if (docStringRange docComment).toOption.isSome then
     -- Source positions are available, so re-parse from source for interactive features.
     if let some stx ← parseVersoDocString docComment then
       let ((text, subsections), deferredChecks) ←

@@ -469,11 +469,11 @@ partial def collectSyntaxBasedSemanticTokens (text : FileMap) : (stx : Syntax) â
     if noHighlightKinds.contains stx.getKind then
       return #[]
     if docKinds.contains stx.getKind then
-      -- Docs are only highlighted in Verso format, in which case `stx[1]` is a node.
-      if stx[1].isAtom then
-        return #[]
-      else
+      -- Docs are only highlighted in Verso format.
+      if stx[1].isOfKind ``Lean.Parser.Command.versoCommentBody then
         return collectVersoTokens stx[1] (collectSyntaxBasedSemanticTokens text)
+      else
+        return #[]
     let mut tokens :=
       if stx.isOfKind choiceKind then
         collectSyntaxBasedSemanticTokens text stx[0]

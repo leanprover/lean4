@@ -36,21 +36,21 @@ def findDocString? (n : Lean.Name) : Lean.MetaM (Option String) := do
 
 /--
 info: some
-  "Conjunction\n\nSecond line\n\n\nConventions for notations in identifiers:\n\n * The recommended spelling of `☃` in identifiers is `snowmand`.\n\n * The recommended spelling of `☋` in identifiers is `orbitalAnd`.\n\n   the preferred notation is `∧`.\n\n   more stuff\n\n   even more stuff\n\n   hello"
+  "Conjunction\n\nSecond line\n\nConventions for notations in identifiers:\n\n * The recommended spelling of `☃` in identifiers is `snowmand`.\n\n * The recommended spelling of `☋` in identifiers is `orbitalAnd`.\n\n   the preferred notation is `∧`.\n\n   more stuff\n\n   even more stuff\n\n   hello"
 -/
 #guard_msgs in
 #eval findDocString? `MyAnd
 
 /--
 info: some
-  "Conjunction\n\nSecond line\n\n\nConventions for notations in identifiers:\n\n * The recommended spelling of `☃` in identifiers is `snowmand`.\n\n * The recommended spelling of `something` in identifiers is `and` (Docstring)."
+  "Conjunction\n\nSecond line\n\nConventions for notations in identifiers:\n\n * The recommended spelling of `☃` in identifiers is `snowmand`.\n\n * The recommended spelling of `something` in identifiers is `and` (Docstring)."
 -/
 #guard_msgs in
 #eval findDocString? `«term_☃_»
 
 /--
 info: some
-  "Conjunction\n\nSecond line\n\n\nConventions for notations in identifiers:\n\n * The recommended spelling of `☋` in identifiers is `orbitalAnd`.\n\n   the preferred notation is `∧`.\n\n   more stuff\n\n   even more stuff\n\n   hello\n\n\n\n\n * The recommended spelling of `something` in identifiers is `and` (Docstring)."
+  "Conjunction\n\nSecond line\n\nConventions for notations in identifiers:\n\n * The recommended spelling of `☋` in identifiers is `orbitalAnd`.\n\n   the preferred notation is `∧`.\n\n   more stuff\n\n   even more stuff\n\n   hello\n\n\n * The recommended spelling of `something` in identifiers is `and` (Docstring)."
 -/
 #guard_msgs in
 #eval findDocString? `«term_☋_»

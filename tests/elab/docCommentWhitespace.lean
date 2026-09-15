@@ -1,8 +1,9 @@
 import Lean
 
 /-!
-Tests that the whitespace after a doc comment's opening delimiter is the delimiter's trailing
-whitespace, and that text which reads as a Lean comment is part of the comment's body.
+Tests how a doc comment's whitespace is divided from its text. The opening delimiter's trailing
+whitespace runs up to the text, and the text's trailing whitespace runs up to the closing delimiter,
+so the stored doc string includes neither. Text that reads as a Lean comment belongs to the body.
 -/
 
 open Lean Elab Command
@@ -13,43 +14,50 @@ def parseCommand (src : String) : CommandElabM Syntax := do
   | .error e => throwError e
 
 /--
-Shows the opening delimiter of the first doc comment in `src`, the whitespace that follows it, and
-the body.
+Shows the atoms of the first doc comment in `src`: its opening delimiter, its text, and its closing
+delimiter, the first two with the whitespace that follows them.
 -/
 def showDocAtoms (src : String) : CommandElabM Unit := do
   let stx ← parseCommand src
   let some doc := stx.find? fun s =>
       s.isOfKind ``Parser.Command.docComment || s.isOfKind ``Parser.Command.moduleDoc
     | throwError "no doc comment"
-  let trailing := (doc[0].getTrailing?.map (·.toString)).getD ""
-  logInfo m!"delimiter {repr doc[0].getAtomVal}, whitespace {repr trailing}, \
-    body {repr doc[1].getAtomVal}"
+  let trailing (a : Syntax) := (a.getTrailing?.map (·.toString)).getD ""
+  logInfo m!"delimiter {repr doc[0].getAtomVal}, whitespace {repr (trailing doc[0])}, \
+    text {repr doc[1][0].getAtomVal}, whitespace {repr (trailing doc[1][0])}, \
+    closer {repr doc[1][1].getAtomVal}"
 
 def ppCommandSrc (src : String) : CommandElabM Unit := do
   logInfo (← liftCoreM <| PrettyPrinter.ppCommand ⟨← parseCommand src⟩)
 
-/-! The delimiter records the whitespace, and the body starts at the text. -/
+/-!
+The delimiter records the whitespace before the text, and the text records the whitespace before
+the closing delimiter.
+-/
 
-/-- info: delimiter "/--", whitespace " ", body "foo -/" -/
+/-- info: delimiter "/--", whitespace " ", text "foo", whitespace " ", closer "-/" -/
 #guard_msgs in #eval showDocAtoms "/-- foo -/ def x := 1"
 
-/-- info: delimiter "/--", whitespace "\n", body "a\n  b\n    c\n-/" -/
+/-- info: delimiter "/--", whitespace "\n", text "a\n  b\n    c", whitespace "\n", closer "-/" -/
 #guard_msgs in #eval showDocAtoms "/--\na\n  b\n    c\n-/\ndef x := 1"
 
-/-- info: delimiter "/-!", whitespace " ", body "Module doc -/" -/
+/-- info: delimiter "/-!", whitespace " ", text "Module doc", whitespace " ", closer "-/" -/
 #guard_msgs in #eval showDocAtoms "/-! Module doc -/"
 
 /-!
 Text right after the opening delimiter that looks like a comment is part of the body, not a comment.
 -/
 
-/-- info: delimiter "/--", whitespace " ", body "--verbose turns on logging -/" -/
+/-- info: delimiter "/--", whitespace " ", text "--verbose turns on logging", whitespace " ", closer "-/" -/
 #guard_msgs in #eval showDocAtoms "/-- --verbose turns on logging -/ def x := 1"
 
-/-- info: delimiter "/--", whitespace " ", body "/- nested -/ text -/" -/
+/-- info: delimiter "/--", whitespace " ", text "/- nested -/ text", whitespace " ", closer "-/" -/
 #guard_msgs in #eval showDocAtoms "/-- /- nested -/ text -/ def x := 1"
 
-/-! The stored doc strings do not include the whitespace after the opening delimiter. -/
+/-!
+The stored doc strings do not include the whitespace after the opening delimiter or before the
+closing one.
+-/
 
 /-- foo -/
 def a := 1
@@ -69,17 +77,17 @@ def d := 1
 /-!   Module doc with leading spaces. -/
 
 /--
-info: some "foo "
-some "Indented text.\nMore text.\n"
-some "--verbose turns on logging "
-some "/- nested -/ text "
+info: some "foo"
+some "Indented text.\nMore text."
+some "--verbose turns on logging"
+some "/- nested -/ text"
 -/
 #guard_msgs in
 #eval show MetaM Unit from do
   for n in [``a, ``b, ``c, ``d] do
     IO.println (repr (← findDocString? (← getEnv) n))
 
-/-- info: some "Module doc with leading spaces. " -/
+/-- info: some "Module doc with leading spaces." -/
 #guard_msgs in
 #eval show MetaM Unit from do
   IO.println (repr ((getMainModuleDoc (← getEnv)).toList.getLast?.map (·.doc)))
@@ -139,3 +147,20 @@ info: #[Lean.Doc.Block.para #[Lean.Doc.Inline.text "--verbose turns on logging "
 -/
 #guard_msgs in
 #eval do printVersoBlocks ``versoLine; printVersoBlocks ``versoBlock
+
+/-!
+A documentation comment built in code reads back its text, and takes a position from `src` only.
+-/
+
+/--
+info: "Built text", has a position: false
+"Built text", position copied: true
+-/
+#guard_msgs in
+#eval show CommandElabM Unit from do
+  let src ← parseCommand "def x := 1"
+  let loose := mkMarkdownDocComment "Built text"
+  let placed := mkMarkdownDocCommentFrom src "Built text"
+  IO.println s!"{repr loose.getDocString}, has a position: {loose.raw.getPos?.isSome}"
+  let copied := placed.raw.getPos? == src.getPos?
+  IO.println s!"{repr placed.getDocString}, position copied: {copied}"

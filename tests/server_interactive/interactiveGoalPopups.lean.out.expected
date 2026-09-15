@@ -32,7 +32,7 @@ Popup for MyNat:
 {"type":
  {"tag": [{"subexprPos": "/", "info": {"__rpcref": "0"}}, {"text": "Type"}]},
  "exprExplicit": {"text": "MyNat"},
- "doc": "MyNat doc "}
+ "doc": "MyNat doc"}
 Popups for type of h:
 Popup for MyEq x x:
 {"__rpcref": "1"}
@@ -69,4 +69,4 @@ Popup for MyTrue:
 {"type":
  {"tag": [{"subexprPos": "/", "info": {"__rpcref": "0"}}, {"text": "Prop"}]},
  "exprExplicit": {"text": "MyTrue"},
- "doc": "MyTrue doc "}
+ "doc": "MyTrue doc"}

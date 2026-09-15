@@ -92,8 +92,8 @@ def versoCommentBodyFn : ParserFn := fun c s =>
       rawFn (Doc.Parser.ignoreFn <| chFn '-' >> chFn '/') (trailingWs := true) c s
     else s
 
-def versoCommentBody : Parser where
-  fn := fun c s => nodeFn `Lean.Parser.Command.versoCommentBody versoCommentBodyFn c s
+def versoCommentBody : Parser :=
+  node `Lean.Parser.Command.versoCommentBody { fn := versoCommentBodyFn }
 
 
 @[combinator_parenthesizer versoCommentBody, expose]
@@ -103,40 +103,92 @@ open PrettyPrinter Formatter in
 open Syntax.MonadTraverser in
 @[combinator_formatter versoCommentBody, expose]
 def versoCommentBody.formatter : PrettyPrinter.Formatter := do
-  visitArgs $ do
+  checkKind `Lean.Parser.Command.versoCommentBody
+  visitArgs do
     visitAtom `«-/»
-    goLeft
+    let markup ← getCur
     -- Markup that did not parse is kept as the text that was written.
-    if (← getCur).isOfKind `Lean.Doc.Syntax.parseFailure then
-      visitArgs (visitAtom .anonymous)
+    let text :=
+      if markup.isOfKind `Lean.Doc.Syntax.parseFailure then markup[0].getAtomVal
+      else Doc.Parser.versoDocumentToString (⟨markup⟩ : Doc.VersoDocument)
+    let text := text.trimAsciiEnd.copy
+    if text.contains '\n' then
+      -- Content that spans lines puts each delimiter on a line of its own. The pretty printer
+      -- does the right thing with indentation and text nodes that contain newlines.
+      pushWhitespace "\n"
+      push text
+      pushWhitespace "\n"
     else
-      formatterForKind (← getCur).getKind
+      -- Content on one line keeps the delimiters on its line, unless the comment does not fit.
+      PrettyPrinter.Formatter.group do
+        pushLine
+        push text
+        pushLine
+    goLeft
+
+open Lean.Parser in
+/--
+Parses the text of a documentation comment that is not read as Verso markup, then its closing
+delimiter. The text is one atom whose trailing whitespace is the spaces and newlines before the
+closing delimiter, and the closing delimiter is an atom of its own.
+-/
+def commentBodyFn : ParserFn := fun c s =>
+  let startPos := s.pos
+  let s := finishCommentBlock (pushMissingOnError := true) 1 c s
+  if s.hasError then s
+  else
+    let closerPos := c.prev (c.prev s.pos)
+    let textEnd := Id.run do
+      let mut pos := closerPos
+      while pos > startPos do
+        let prev := c.prev pos
+        let ch := c.get prev
+        if ch == ' ' || ch == '\n' then pos := prev else break
+      return pos
+    let info := SourceInfo.original (c.mkEmptySubstringAt startPos) startPos
+      (c.substring textEnd closerPos) textEnd
+    let s := s.pushSyntax (.atom info (c.extract startPos textEnd))
+    rawFn (Doc.Parser.ignoreFn <| chFn '-' >> chFn '/') (trailingWs := true) c (s.setPos closerPos)
 
 def commentBody : Parser :=
-{ fn := rawFn (finishCommentBlock (pushMissingOnError := true) 1) (trailingWs := true) }
+  node `Lean.Parser.Command.commentBody { fn := commentBodyFn }
 
 @[combinator_parenthesizer commentBody, expose]
 def commentBody.parenthesizer := PrettyPrinter.Parenthesizer.visitToken
+
+open PrettyPrinter Formatter in
+open Syntax.MonadTraverser in
 @[combinator_formatter commentBody, expose]
-def commentBody.formatter := PrettyPrinter.Formatter.visitAtom Name.anonymous
+def commentBody.formatter : PrettyPrinter.Formatter := do
+  checkKind `Lean.Parser.Command.commentBody
+  visitArgs do
+    visitAtom `«-/»
+    -- The text is printed with the whitespace that separates it from the closing delimiter, which
+    -- is its trailing whitespace in the source.
+    let stx ← getCur
+    let .atom info val := stx | throwError m!"not an atom: {stx}"
+    let ws := info.getTrailing?.map (·.toString) |>.getD " "
+    pushToken info (val ++ ws) false
+    goLeft
+    pushLine
 
 /--
-A `docComment` parses a "documentation comment" like `/-- foo -/`. This is not treated like
-a regular comment (that is, as whitespace); it is parsed and forms part of the syntax tree structure.
+A `docComment` parses a "documentation comment" like `/-- foo -/`. This is not treated like a
+regular comment (that is, as whitespace); it is parsed and forms part of the syntax tree structure.
 
 At parse time, `docComment` checks the value of the `doc.verso` option. If it is true, the contents
 are parsed as Verso markup. If not, the contents are treated as plain text or Markdown. Use
 `plainDocComment` to always treat the contents as plain text.
 
-A plain text doc comment node contains a `/--` atom and then the remainder of the comment, `foo -/`
-in this example. Use `TSyntax.getDocString` to extract the body text from a doc string syntax node.
-A Verso comment node contains the `/--` atom, the document's syntax tree, and a closing `-/` atom.
+A plain text doc comment node contains a `/--` atom and then a node holding the comment's text as an
+atom and its closing `-/` atom. Use `TSyntax.getDocString` to extract the text from a doc string
+syntax node.  A Verso comment node contains the `/--` atom, the document's syntax tree, and a
+closing `-/` atom.
 -/
 -- @[builtin_doc] -- FIXME: suppress the hover
 @[run_builtin_parser_attribute_hooks]
 def docComment := leading_parser
-  ppDedent $ docCommentOpen "/--" >> ppSpace >> Doc.Parser.ifVerso versoCommentBody commentBody >>
-    ppLine
+  ppDedent $ docCommentOpen "/--" >> Doc.Parser.ifVerso versoCommentBody commentBody >> ppLine
 
 @[inherit_doc docComment, run_builtin_parser_attribute_hooks]
 def plainDocComment : Parser := Doc.Parser.withoutVersoSyntax docComment

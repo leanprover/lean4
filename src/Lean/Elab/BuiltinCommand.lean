@@ -26,9 +26,8 @@ namespace Lean.Elab.Command
     | return  -- must be from partial syntax, ignore
 
   match stx[1] with
-  | Syntax.atom _ val =>
+  | Syntax.node _ ``Lean.Parser.Command.commentBody #[.atom _ doc, _] =>
     if getMainVersoModuleDocs (← getEnv) |>.isEmpty then
-      let doc := String.Pos.Raw.extract val 0 (val.rawEndPos.unoffsetBy ⟨2⟩)
       modifyEnv fun env => addMainModuleDoc env ⟨doc, range⟩
     else
       throwError m!"Can't add Markdown-format module docs because there is already Verso-format content present."

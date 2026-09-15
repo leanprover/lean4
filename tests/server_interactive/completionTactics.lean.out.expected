@@ -27,14 +27,14 @@
    "data": ["file:///completionTactics.lean", 23, 21, 0]},
   {"label": "skip",
    "kind": 14,
-   "documentation": {"value": "A docstring ", "kind": "markdown"},
+   "documentation": {"value": "A docstring", "kind": "markdown"},
    "data": ["file:///completionTactics.lean", 23, 21, 0]},
   {"label": "ident",
    "kind": 14,
    "data": ["file:///completionTactics.lean", 23, 21, 0]},
   {"label": "exact",
    "kind": 14,
-   "documentation": {"value": "Another docstring ", "kind": "markdown"},
+   "documentation": {"value": "Another docstring", "kind": "markdown"},
    "data": ["file:///completionTactics.lean", 23, 21, 0]},
   {"label": "intro",
    "kind": 14,
@@ -67,7 +67,7 @@ Resolution of set_option:
 Resolution of skip:
 {"label": "skip",
  "kind": 14,
- "documentation": {"value": "A docstring ", "kind": "markdown"},
+ "documentation": {"value": "A docstring", "kind": "markdown"},
  "data": ["file:///completionTactics.lean", 23, 21, 0]}
 Resolution of ident:
 {"label": "ident",
@@ -76,7 +76,7 @@ Resolution of ident:
 Resolution of exact:
 {"label": "exact",
  "kind": 14,
- "documentation": {"value": "Another docstring ", "kind": "markdown"},
+ "documentation": {"value": "Another docstring", "kind": "markdown"},
  "data": ["file:///completionTactics.lean", 23, 21, 0]}
 Resolution of intro:
 {"label": "intro",
@@ -108,14 +108,14 @@ Resolution of intro:
    "data": ["file:///completionTactics.lean", 26, 24, 0]},
   {"label": "skip",
    "kind": 14,
-   "documentation": {"value": "A docstring ", "kind": "markdown"},
+   "documentation": {"value": "A docstring", "kind": "markdown"},
    "data": ["file:///completionTactics.lean", 26, 24, 0]},
   {"label": "ident",
    "kind": 14,
    "data": ["file:///completionTactics.lean", 26, 24, 0]},
   {"label": "exact",
    "kind": 14,
-   "documentation": {"value": "Another docstring ", "kind": "markdown"},
+   "documentation": {"value": "Another docstring", "kind": "markdown"},
    "data": ["file:///completionTactics.lean", 26, 24, 0]},
   {"label": "intro",
    "kind": 14,
@@ -148,7 +148,7 @@ Resolution of set_option:
 Resolution of skip:
 {"label": "skip",
  "kind": 14,
- "documentation": {"value": "A docstring ", "kind": "markdown"},
+ "documentation": {"value": "A docstring", "kind": "markdown"},
  "data": ["file:///completionTactics.lean", 26, 24, 0]}
 Resolution of ident:
 {"label": "ident",
@@ -157,7 +157,7 @@ Resolution of ident:
 Resolution of exact:
 {"label": "exact",
  "kind": 14,
- "documentation": {"value": "Another docstring ", "kind": "markdown"},
+ "documentation": {"value": "Another docstring", "kind": "markdown"},
  "data": ["file:///completionTactics.lean", 26, 24, 0]}
 Resolution of intro:
 {"label": "intro",
@@ -192,14 +192,14 @@ Resolution of intro:
    "data": ["file:///completionTactics.lean", 32, 26, 0]},
   {"label": "skip",
    "kind": 14,
-   "documentation": {"value": "A docstring ", "kind": "markdown"},
+   "documentation": {"value": "A docstring", "kind": "markdown"},
    "data": ["file:///completionTactics.lean", 32, 26, 0]},
   {"label": "ident",
    "kind": 14,
    "data": ["file:///completionTactics.lean", 32, 26, 0]},
   {"label": "exact",
    "kind": 14,
-   "documentation": {"value": "Another docstring ", "kind": "markdown"},
+   "documentation": {"value": "Another docstring", "kind": "markdown"},
    "data": ["file:///completionTactics.lean", 32, 26, 0]},
   {"label": "intro",
    "kind": 14,
@@ -232,7 +232,7 @@ Resolution of set_option:
 Resolution of skip:
 {"label": "skip",
  "kind": 14,
- "documentation": {"value": "A docstring ", "kind": "markdown"},
+ "documentation": {"value": "A docstring", "kind": "markdown"},
  "data": ["file:///completionTactics.lean", 32, 26, 0]}
 Resolution of ident:
 {"label": "ident",
@@ -241,7 +241,7 @@ Resolution of ident:
 Resolution of exact:
 {"label": "exact",
  "kind": 14,
- "documentation": {"value": "Another docstring ", "kind": "markdown"},
+ "documentation": {"value": "Another docstring", "kind": "markdown"},
  "data": ["file:///completionTactics.lean", 32, 26, 0]}
 Resolution of intro:
 {"label": "intro",
@@ -273,14 +273,14 @@ Resolution of intro:
    "data": ["file:///completionTactics.lean", 35, 27, 0]},
   {"label": "skip",
    "kind": 14,
-   "documentation": {"value": "A docstring ", "kind": "markdown"},
+   "documentation": {"value": "A docstring", "kind": "markdown"},
    "data": ["file:///completionTactics.lean", 35, 27, 0]},
   {"label": "ident",
    "kind": 14,
    "data": ["file:///completionTactics.lean", 35, 27, 0]},
   {"label": "exact",
    "kind": 14,
-   "documentation": {"value": "Another docstring ", "kind": "markdown"},
+   "documentation": {"value": "Another docstring", "kind": "markdown"},
    "data": ["file:///completionTactics.lean", 35, 27, 0]},
   {"label": "intro",
    "kind": 14,
@@ -313,7 +313,7 @@ Resolution of set_option:
 Resolution of skip:
 {"label": "skip",
  "kind": 14,
- "documentation": {"value": "A docstring ", "kind": "markdown"},
+ "documentation": {"value": "A docstring", "kind": "markdown"},
  "data": ["file:///completionTactics.lean", 35, 27, 0]}
 Resolution of ident:
 {"label": "ident",
@@ -322,7 +322,7 @@ Resolution of ident:
 Resolution of exact:
 {"label": "exact",
  "kind": 14,
- "documentation": {"value": "Another docstring ", "kind": "markdown"},
+ "documentation": {"value": "Another docstring", "kind": "markdown"},
  "data": ["file:///completionTactics.lean", 35, 27, 0]}
 Resolution of intro:
 {"label": "intro",
@@ -354,14 +354,14 @@ Resolution of intro:
    "data": ["file:///completionTactics.lean", 40, 7, 0]},
   {"label": "skip",
    "kind": 14,
-   "documentation": {"value": "A docstring ", "kind": "markdown"},
+   "documentation": {"value": "A docstring", "kind": "markdown"},
    "data": ["file:///completionTactics.lean", 40, 7, 0]},
   {"label": "ident",
    "kind": 14,
    "data": ["file:///completionTactics.lean", 40, 7, 0]},
   {"label": "exact",
    "kind": 14,
-   "documentation": {"value": "Another docstring ", "kind": "markdown"},
+   "documentation": {"value": "Another docstring", "kind": "markdown"},
    "data": ["file:///completionTactics.lean", 40, 7, 0]},
   {"label": "intro",
    "kind": 14,
@@ -394,7 +394,7 @@ Resolution of set_option:
 Resolution of skip:
 {"label": "skip",
  "kind": 14,
- "documentation": {"value": "A docstring ", "kind": "markdown"},
+ "documentation": {"value": "A docstring", "kind": "markdown"},
  "data": ["file:///completionTactics.lean", 40, 7, 0]}
 Resolution of ident:
 {"label": "ident",
@@ -403,7 +403,7 @@ Resolution of ident:
 Resolution of exact:
 {"label": "exact",
  "kind": 14,
- "documentation": {"value": "Another docstring ", "kind": "markdown"},
+ "documentation": {"value": "Another docstring", "kind": "markdown"},
  "data": ["file:///completionTactics.lean", 40, 7, 0]}
 Resolution of intro:
 {"label": "intro",
@@ -435,14 +435,14 @@ Resolution of intro:
    "data": ["file:///completionTactics.lean", 44, 2, 0]},
   {"label": "skip",
    "kind": 14,
-   "documentation": {"value": "A docstring ", "kind": "markdown"},
+   "documentation": {"value": "A docstring", "kind": "markdown"},
    "data": ["file:///completionTactics.lean", 44, 2, 0]},
   {"label": "ident",
    "kind": 14,
    "data": ["file:///completionTactics.lean", 44, 2, 0]},
   {"label": "exact",
    "kind": 14,
-   "documentation": {"value": "Another docstring ", "kind": "markdown"},
+   "documentation": {"value": "Another docstring", "kind": "markdown"},
    "data": ["file:///completionTactics.lean", 44, 2, 0]},
   {"label": "intro",
    "kind": 14,
@@ -475,7 +475,7 @@ Resolution of set_option:
 Resolution of skip:
 {"label": "skip",
  "kind": 14,
- "documentation": {"value": "A docstring ", "kind": "markdown"},
+ "documentation": {"value": "A docstring", "kind": "markdown"},
  "data": ["file:///completionTactics.lean", 44, 2, 0]}
 Resolution of ident:
 {"label": "ident",
@@ -484,7 +484,7 @@ Resolution of ident:
 Resolution of exact:
 {"label": "exact",
  "kind": 14,
- "documentation": {"value": "Another docstring ", "kind": "markdown"},
+ "documentation": {"value": "Another docstring", "kind": "markdown"},
  "data": ["file:///completionTactics.lean", 44, 2, 0]}
 Resolution of intro:
 {"label": "intro",
@@ -516,14 +516,14 @@ Resolution of intro:
    "data": ["file:///completionTactics.lean", 49, 2, 0]},
   {"label": "skip",
    "kind": 14,
-   "documentation": {"value": "A docstring ", "kind": "markdown"},
+   "documentation": {"value": "A docstring", "kind": "markdown"},
    "data": ["file:///completionTactics.lean", 49, 2, 0]},
   {"label": "ident",
    "kind": 14,
    "data": ["file:///completionTactics.lean", 49, 2, 0]},
   {"label": "exact",
    "kind": 14,
-   "documentation": {"value": "Another docstring ", "kind": "markdown"},
+   "documentation": {"value": "Another docstring", "kind": "markdown"},
    "data": ["file:///completionTactics.lean", 49, 2, 0]},
   {"label": "intro",
    "kind": 14,
@@ -556,7 +556,7 @@ Resolution of set_option:
 Resolution of skip:
 {"label": "skip",
  "kind": 14,
- "documentation": {"value": "A docstring ", "kind": "markdown"},
+ "documentation": {"value": "A docstring", "kind": "markdown"},
  "data": ["file:///completionTactics.lean", 49, 2, 0]}
 Resolution of ident:
 {"label": "ident",
@@ -565,7 +565,7 @@ Resolution of ident:
 Resolution of exact:
 {"label": "exact",
  "kind": 14,
- "documentation": {"value": "Another docstring ", "kind": "markdown"},
+ "documentation": {"value": "Another docstring", "kind": "markdown"},
  "data": ["file:///completionTactics.lean", 49, 2, 0]}
 Resolution of intro:
 {"label": "intro",
@@ -597,14 +597,14 @@ Resolution of intro:
    "data": ["file:///completionTactics.lean", 53, 2, 0]},
   {"label": "skip",
    "kind": 14,
-   "documentation": {"value": "A docstring ", "kind": "markdown"},
+   "documentation": {"value": "A docstring", "kind": "markdown"},
    "data": ["file:///completionTactics.lean", 53, 2, 0]},
   {"label": "ident",
    "kind": 14,
    "data": ["file:///completionTactics.lean", 53, 2, 0]},
   {"label": "exact",
    "kind": 14,
-   "documentation": {"value": "Another docstring ", "kind": "markdown"},
+   "documentation": {"value": "Another docstring", "kind": "markdown"},
    "data": ["file:///completionTactics.lean", 53, 2, 0]},
   {"label": "intro",
    "kind": 14,
@@ -637,7 +637,7 @@ Resolution of set_option:
 Resolution of skip:
 {"label": "skip",
  "kind": 14,
- "documentation": {"value": "A docstring ", "kind": "markdown"},
+ "documentation": {"value": "A docstring", "kind": "markdown"},
  "data": ["file:///completionTactics.lean", 53, 2, 0]}
 Resolution of ident:
 {"label": "ident",
@@ -646,7 +646,7 @@ Resolution of ident:
 Resolution of exact:
 {"label": "exact",
  "kind": 14,
- "documentation": {"value": "Another docstring ", "kind": "markdown"},
+ "documentation": {"value": "Another docstring", "kind": "markdown"},
  "data": ["file:///completionTactics.lean", 53, 2, 0]}
 Resolution of intro:
 {"label": "intro",
@@ -678,14 +678,14 @@ Resolution of intro:
    "data": ["file:///completionTactics.lean", 59, 4, 0]},
   {"label": "skip",
    "kind": 14,
-   "documentation": {"value": "A docstring ", "kind": "markdown"},
+   "documentation": {"value": "A docstring", "kind": "markdown"},
    "data": ["file:///completionTactics.lean", 59, 4, 0]},
   {"label": "ident",
    "kind": 14,
    "data": ["file:///completionTactics.lean", 59, 4, 0]},
   {"label": "exact",
    "kind": 14,
-   "documentation": {"value": "Another docstring ", "kind": "markdown"},
+   "documentation": {"value": "Another docstring", "kind": "markdown"},
    "data": ["file:///completionTactics.lean", 59, 4, 0]},
   {"label": "intro",
    "kind": 14,
@@ -718,7 +718,7 @@ Resolution of set_option:
 Resolution of skip:
 {"label": "skip",
  "kind": 14,
- "documentation": {"value": "A docstring ", "kind": "markdown"},
+ "documentation": {"value": "A docstring", "kind": "markdown"},
  "data": ["file:///completionTactics.lean", 59, 4, 0]}
 Resolution of ident:
 {"label": "ident",
@@ -727,7 +727,7 @@ Resolution of ident:
 Resolution of exact:
 {"label": "exact",
  "kind": 14,
- "documentation": {"value": "Another docstring ", "kind": "markdown"},
+ "documentation": {"value": "Another docstring", "kind": "markdown"},
  "data": ["file:///completionTactics.lean", 59, 4, 0]}
 Resolution of intro:
 {"label": "intro",
@@ -759,14 +759,14 @@ Resolution of intro:
    "data": ["file:///completionTactics.lean", 64, 2, 0]},
   {"label": "skip",
    "kind": 14,
-   "documentation": {"value": "A docstring ", "kind": "markdown"},
+   "documentation": {"value": "A docstring", "kind": "markdown"},
    "data": ["file:///completionTactics.lean", 64, 2, 0]},
   {"label": "ident",
    "kind": 14,
    "data": ["file:///completionTactics.lean", 64, 2, 0]},
   {"label": "exact",
    "kind": 14,
-   "documentation": {"value": "Another docstring ", "kind": "markdown"},
+   "documentation": {"value": "Another docstring", "kind": "markdown"},
    "data": ["file:///completionTactics.lean", 64, 2, 0]},
   {"label": "intro",
    "kind": 14,
@@ -799,7 +799,7 @@ Resolution of set_option:
 Resolution of skip:
 {"label": "skip",
  "kind": 14,
- "documentation": {"value": "A docstring ", "kind": "markdown"},
+ "documentation": {"value": "A docstring", "kind": "markdown"},
  "data": ["file:///completionTactics.lean", 64, 2, 0]}
 Resolution of ident:
 {"label": "ident",
@@ -808,7 +808,7 @@ Resolution of ident:
 Resolution of exact:
 {"label": "exact",
  "kind": 14,
- "documentation": {"value": "Another docstring ", "kind": "markdown"},
+ "documentation": {"value": "Another docstring", "kind": "markdown"},
  "data": ["file:///completionTactics.lean", 64, 2, 0]}
 Resolution of intro:
 {"label": "intro",
@@ -840,14 +840,14 @@ Resolution of intro:
    "data": ["file:///completionTactics.lean", 70, 4, 0]},
   {"label": "skip",
    "kind": 14,
-   "documentation": {"value": "A docstring ", "kind": "markdown"},
+   "documentation": {"value": "A docstring", "kind": "markdown"},
    "data": ["file:///completionTactics.lean", 70, 4, 0]},
   {"label": "ident",
    "kind": 14,
    "data": ["file:///completionTactics.lean", 70, 4, 0]},
   {"label": "exact",
    "kind": 14,
-   "documentation": {"value": "Another docstring ", "kind": "markdown"},
+   "documentation": {"value": "Another docstring", "kind": "markdown"},
    "data": ["file:///completionTactics.lean", 70, 4, 0]},
   {"label": "intro",
    "kind": 14,
@@ -880,7 +880,7 @@ Resolution of set_option:
 Resolution of skip:
 {"label": "skip",
  "kind": 14,
- "documentation": {"value": "A docstring ", "kind": "markdown"},
+ "documentation": {"value": "A docstring", "kind": "markdown"},
  "data": ["file:///completionTactics.lean", 70, 4, 0]}
 Resolution of ident:
 {"label": "ident",
@@ -889,7 +889,7 @@ Resolution of ident:
 Resolution of exact:
 {"label": "exact",
  "kind": 14,
- "documentation": {"value": "Another docstring ", "kind": "markdown"},
+ "documentation": {"value": "Another docstring", "kind": "markdown"},
  "data": ["file:///completionTactics.lean", 70, 4, 0]}
 Resolution of intro:
 {"label": "intro",
@@ -921,14 +921,14 @@ Resolution of intro:
    "data": ["file:///completionTactics.lean", 76, 2, 0]},
   {"label": "skip",
    "kind": 14,
-   "documentation": {"value": "A docstring ", "kind": "markdown"},
+   "documentation": {"value": "A docstring", "kind": "markdown"},
    "data": ["file:///completionTactics.lean", 76, 2, 0]},
   {"label": "ident",
    "kind": 14,
    "data": ["file:///completionTactics.lean", 76, 2, 0]},
   {"label": "exact",
    "kind": 14,
-   "documentation": {"value": "Another docstring ", "kind": "markdown"},
+   "documentation": {"value": "Another docstring", "kind": "markdown"},
    "data": ["file:///completionTactics.lean", 76, 2, 0]},
   {"label": "intro",
    "kind": 14,
@@ -961,7 +961,7 @@ Resolution of set_option:
 Resolution of skip:
 {"label": "skip",
  "kind": 14,
- "documentation": {"value": "A docstring ", "kind": "markdown"},
+ "documentation": {"value": "A docstring", "kind": "markdown"},
  "data": ["file:///completionTactics.lean", 76, 2, 0]}
 Resolution of ident:
 {"label": "ident",
@@ -970,7 +970,7 @@ Resolution of ident:
 Resolution of exact:
 {"label": "exact",
  "kind": 14,
- "documentation": {"value": "Another docstring ", "kind": "markdown"},
+ "documentation": {"value": "Another docstring", "kind": "markdown"},
  "data": ["file:///completionTactics.lean", 76, 2, 0]}
 Resolution of intro:
 {"label": "intro",
@@ -1005,14 +1005,14 @@ Resolution of intro:
    "data": ["file:///completionTactics.lean", 86, 2, 0]},
   {"label": "skip",
    "kind": 14,
-   "documentation": {"value": "A docstring ", "kind": "markdown"},
+   "documentation": {"value": "A docstring", "kind": "markdown"},
    "data": ["file:///completionTactics.lean", 86, 2, 0]},
   {"label": "ident",
    "kind": 14,
    "data": ["file:///completionTactics.lean", 86, 2, 0]},
   {"label": "exact",
    "kind": 14,
-   "documentation": {"value": "Another docstring ", "kind": "markdown"},
+   "documentation": {"value": "Another docstring", "kind": "markdown"},
    "data": ["file:///completionTactics.lean", 86, 2, 0]},
   {"label": "intro",
    "kind": 14,
@@ -1045,7 +1045,7 @@ Resolution of set_option:
 Resolution of skip:
 {"label": "skip",
  "kind": 14,
- "documentation": {"value": "A docstring ", "kind": "markdown"},
+ "documentation": {"value": "A docstring", "kind": "markdown"},
  "data": ["file:///completionTactics.lean", 86, 2, 0]}
 Resolution of ident:
 {"label": "ident",
@@ -1054,7 +1054,7 @@ Resolution of ident:
 Resolution of exact:
 {"label": "exact",
  "kind": 14,
- "documentation": {"value": "Another docstring ", "kind": "markdown"},
+ "documentation": {"value": "Another docstring", "kind": "markdown"},
  "data": ["file:///completionTactics.lean", 86, 2, 0]}
 Resolution of intro:
 {"label": "intro",
@@ -1086,14 +1086,14 @@ Resolution of intro:
    "data": ["file:///completionTactics.lean", 91, 4, 0]},
   {"label": "skip",
    "kind": 14,
-   "documentation": {"value": "A docstring ", "kind": "markdown"},
+   "documentation": {"value": "A docstring", "kind": "markdown"},
    "data": ["file:///completionTactics.lean", 91, 4, 0]},
   {"label": "ident",
    "kind": 14,
    "data": ["file:///completionTactics.lean", 91, 4, 0]},
   {"label": "exact",
    "kind": 14,
-   "documentation": {"value": "Another docstring ", "kind": "markdown"},
+   "documentation": {"value": "Another docstring", "kind": "markdown"},
    "data": ["file:///completionTactics.lean", 91, 4, 0]},
   {"label": "intro",
    "kind": 14,
@@ -1126,7 +1126,7 @@ Resolution of set_option:
 Resolution of skip:
 {"label": "skip",
  "kind": 14,
- "documentation": {"value": "A docstring ", "kind": "markdown"},
+ "documentation": {"value": "A docstring", "kind": "markdown"},
  "data": ["file:///completionTactics.lean", 91, 4, 0]}
 Resolution of ident:
 {"label": "ident",
@@ -1135,7 +1135,7 @@ Resolution of ident:
 Resolution of exact:
 {"label": "exact",
  "kind": 14,
- "documentation": {"value": "Another docstring ", "kind": "markdown"},
+ "documentation": {"value": "Another docstring", "kind": "markdown"},
  "data": ["file:///completionTactics.lean", 91, 4, 0]}
 Resolution of intro:
 {"label": "intro",
@@ -1170,14 +1170,14 @@ Resolution of intro:
    "data": ["file:///completionTactics.lean", 102, 4, 0]},
   {"label": "skip",
    "kind": 14,
-   "documentation": {"value": "A docstring ", "kind": "markdown"},
+   "documentation": {"value": "A docstring", "kind": "markdown"},
    "data": ["file:///completionTactics.lean", 102, 4, 0]},
   {"label": "ident",
    "kind": 14,
    "data": ["file:///completionTactics.lean", 102, 4, 0]},
   {"label": "exact",
    "kind": 14,
-   "documentation": {"value": "Another docstring ", "kind": "markdown"},
+   "documentation": {"value": "Another docstring", "kind": "markdown"},
    "data": ["file:///completionTactics.lean", 102, 4, 0]},
   {"label": "intro",
    "kind": 14,
@@ -1210,7 +1210,7 @@ Resolution of set_option:
 Resolution of skip:
 {"label": "skip",
  "kind": 14,
- "documentation": {"value": "A docstring ", "kind": "markdown"},
+ "documentation": {"value": "A docstring", "kind": "markdown"},
  "data": ["file:///completionTactics.lean", 102, 4, 0]}
 Resolution of ident:
 {"label": "ident",
@@ -1219,7 +1219,7 @@ Resolution of ident:
 Resolution of exact:
 {"label": "exact",
  "kind": 14,
- "documentation": {"value": "Another docstring ", "kind": "markdown"},
+ "documentation": {"value": "Another docstring", "kind": "markdown"},
  "data": ["file:///completionTactics.lean", 102, 4, 0]}
 Resolution of intro:
 {"label": "intro",
@@ -1254,14 +1254,14 @@ Resolution of intro:
    "data": ["file:///completionTactics.lean", 112, 2, 0]},
   {"label": "skip",
    "kind": 14,
-   "documentation": {"value": "A docstring ", "kind": "markdown"},
+   "documentation": {"value": "A docstring", "kind": "markdown"},
    "data": ["file:///completionTactics.lean", 112, 2, 0]},
   {"label": "ident",
    "kind": 14,
    "data": ["file:///completionTactics.lean", 112, 2, 0]},
   {"label": "exact",
    "kind": 14,
-   "documentation": {"value": "Another docstring ", "kind": "markdown"},
+   "documentation": {"value": "Another docstring", "kind": "markdown"},
    "data": ["file:///completionTactics.lean", 112, 2, 0]},
   {"label": "intro",
    "kind": 14,
@@ -1294,7 +1294,7 @@ Resolution of set_option:
 Resolution of skip:
 {"label": "skip",
  "kind": 14,
- "documentation": {"value": "A docstring ", "kind": "markdown"},
+ "documentation": {"value": "A docstring", "kind": "markdown"},
  "data": ["file:///completionTactics.lean", 112, 2, 0]}
 Resolution of ident:
 {"label": "ident",
@@ -1303,7 +1303,7 @@ Resolution of ident:
 Resolution of exact:
 {"label": "exact",
  "kind": 14,
- "documentation": {"value": "Another docstring ", "kind": "markdown"},
+ "documentation": {"value": "Another docstring", "kind": "markdown"},
  "data": ["file:///completionTactics.lean", 112, 2, 0]}
 Resolution of intro:
 {"label": "intro",
@@ -1335,14 +1335,14 @@ Resolution of intro:
    "data": ["file:///completionTactics.lean", 118, 4, 0]},
   {"label": "skip",
    "kind": 14,
-   "documentation": {"value": "A docstring ", "kind": "markdown"},
+   "documentation": {"value": "A docstring", "kind": "markdown"},
    "data": ["file:///completionTactics.lean", 118, 4, 0]},
   {"label": "ident",
    "kind": 14,
    "data": ["file:///completionTactics.lean", 118, 4, 0]},
   {"label": "exact",
    "kind": 14,
-   "documentation": {"value": "Another docstring ", "kind": "markdown"},
+   "documentation": {"value": "Another docstring", "kind": "markdown"},
    "data": ["file:///completionTactics.lean", 118, 4, 0]},
   {"label": "intro",
    "kind": 14,
@@ -1375,7 +1375,7 @@ Resolution of set_option:
 Resolution of skip:
 {"label": "skip",
  "kind": 14,
- "documentation": {"value": "A docstring ", "kind": "markdown"},
+ "documentation": {"value": "A docstring", "kind": "markdown"},
  "data": ["file:///completionTactics.lean", 118, 4, 0]}
 Resolution of ident:
 {"label": "ident",
@@ -1384,7 +1384,7 @@ Resolution of ident:
 Resolution of exact:
 {"label": "exact",
  "kind": 14,
- "documentation": {"value": "Another docstring ", "kind": "markdown"},
+ "documentation": {"value": "Another docstring", "kind": "markdown"},
  "data": ["file:///completionTactics.lean", 118, 4, 0]}
 Resolution of intro:
 {"label": "intro",
@@ -1416,25 +1416,25 @@ Resolution of intro:
    "data": ["file:///completionTactics.lean", 133, 2, 0]},
   {"label": "skip",
    "kind": 14,
-   "documentation": {"value": "A docstring ", "kind": "markdown"},
+   "documentation": {"value": "A docstring", "kind": "markdown"},
    "data": ["file:///completionTactics.lean", 133, 2, 0]},
   {"label": "ident",
    "kind": 14,
    "data": ["file:///completionTactics.lean", 133, 2, 0]},
   {"label": "let rec",
    "kind": 14,
-   "documentation": {"value": "Local recursive def ", "kind": "markdown"},
+   "documentation": {"value": "Local recursive def", "kind": "markdown"},
    "data": ["file:///completionTactics.lean", 133, 2, 0]},
   {"label": "exact",
    "kind": 14,
-   "documentation": {"value": "Another docstring ", "kind": "markdown"},
+   "documentation": {"value": "Another docstring", "kind": "markdown"},
    "data": ["file:///completionTactics.lean", 133, 2, 0]},
   {"label": "intro",
    "kind": 14,
    "data": ["file:///completionTactics.lean", 133, 2, 0]},
   {"label": "let",
    "kind": 14,
-   "documentation": {"value": "Local def ", "kind": "markdown"},
+   "documentation": {"value": "Local def", "kind": "markdown"},
    "data": ["file:///completionTactics.lean", 133, 2, 0]}],
  "isIncomplete": true}
 Resolution of open:
@@ -1464,7 +1464,7 @@ Resolution of set_option:
 Resolution of skip:
 {"label": "skip",
  "kind": 14,
- "documentation": {"value": "A docstring ", "kind": "markdown"},
+ "documentation": {"value": "A docstring", "kind": "markdown"},
  "data": ["file:///completionTactics.lean", 133, 2, 0]}
 Resolution of ident:
 {"label": "ident",
@@ -1473,12 +1473,12 @@ Resolution of ident:
 Resolution of let rec:
 {"label": "let rec",
  "kind": 14,
- "documentation": {"value": "Local recursive def ", "kind": "markdown"},
+ "documentation": {"value": "Local recursive def", "kind": "markdown"},
  "data": ["file:///completionTactics.lean", 133, 2, 0]}
 Resolution of exact:
 {"label": "exact",
  "kind": 14,
- "documentation": {"value": "Another docstring ", "kind": "markdown"},
+ "documentation": {"value": "Another docstring", "kind": "markdown"},
  "data": ["file:///completionTactics.lean", 133, 2, 0]}
 Resolution of intro:
 {"label": "intro",
@@ -1487,5 +1487,5 @@ Resolution of intro:
 Resolution of let:
 {"label": "let",
  "kind": 14,
- "documentation": {"value": "Local def ", "kind": "markdown"},
+ "documentation": {"value": "Local def", "kind": "markdown"},
  "data": ["file:///completionTactics.lean", 133, 2, 0]}

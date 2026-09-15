@@ -555,8 +555,7 @@ elab "ppCmd " c:command : command => do
   catch e => logInfo m!"FAILED: {e.toMessageData}"
 
 /--
-info: /-- A *document* ⏎
--/
+info: /-- A *document* -/
 def documented : Nat :=
   1
 -/

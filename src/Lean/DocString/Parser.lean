@@ -2116,8 +2116,8 @@ public def ifVersoFn (ifVerso ifNotVerso : ParserFn) : ParserFn := fun c s =>
 
 @[inherit_doc ifVersoFn]
 public def ifVerso (ifVerso ifNotVerso : Parser) : Parser where
-  fn :=
-    ifVersoFn ifVerso.fn ifNotVerso.fn
+  info := orelseInfo ifVerso.info ifNotVerso.info
+  fn := ifVersoFn ifVerso.fn ifNotVerso.fn
 
 /--
 Formatter for `ifVerso`—formats according to the underlying formatters.
@@ -2146,6 +2146,7 @@ public def ifVersoModuleDocsFn (ifVerso ifNotVerso : ParserFn) : ParserFn := fun
 
 @[inherit_doc ifVersoModuleDocsFn]
 public def ifVersoModuleDocs (ifVerso ifNotVerso : Parser) : Parser where
+  info := orelseInfo ifVerso.info ifNotVerso.info
   fn := ifVersoModuleDocsFn ifVerso.fn ifNotVerso.fn
 
 /--

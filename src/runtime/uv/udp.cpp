@@ -434,7 +434,6 @@ extern "C" LEAN_EXPORT lean_obj_res lean_uv_udp_cancel_recv(b_obj_arg socket) {
 
     event_loop_unlock(&global_ev);
 
-    // Rules 1 and 2: the cancellation is complete and the lock dropped before releasing.
     lean_dec(promise);
 
     if (byte_array != nullptr) {

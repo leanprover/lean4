@@ -6,17 +6,9 @@ cat > "$TMP_DIR/test.c" <<'EOF'
 #include LEAN_TEST_HEADER
 
 #include <stdint.h>
-#include <stdio.h>
 
 static int check_expected(uint64_t a, uint64_t b, uint64_t expected) {
-    uint64_t actual = lean_uint64_mul_hi(a, b);
-    if (actual != expected) {
-        fprintf(stderr, "mul_hi(%016llx, %016llx) = %016llx, expected %016llx\n",
-            (unsigned long long)a, (unsigned long long)b,
-            (unsigned long long)actual, (unsigned long long)expected);
-        return 0;
-    }
-    return 1;
+    return lean_uint64_mul_hi(a, b) == expected;
 }
 
 #if defined(LEAN_TEST_HAS_UINT128)

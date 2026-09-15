@@ -611,7 +611,7 @@ high 64-bit words, so that `low.toNat + 2 ^ 64 * high.toNat = a.toNat * b.toNat`
 
 This function is compiled using `UInt64.mulFullImpl`.
 -/
-def UInt64.mulFull (a b : UInt64) : UInt64 × UInt64 :=
+noncomputable def UInt64.mulFull (a b : UInt64) : UInt64 × UInt64 :=
   let product := a.toNat * b.toNat
   (UInt64.ofNat product, UInt64.ofNat (product / UInt64.size))
 
@@ -623,7 +623,7 @@ where `sum = a + b + carry.toUInt64` wraps around on overflow and `carryOut` is 
 
 This function is compiled using `UInt64.addCarryImpl`.
 -/
-def UInt64.addCarry (a b : UInt64) (carry : Bool) : UInt64 × Bool :=
+noncomputable def UInt64.addCarry (a b : UInt64) (carry : Bool) : UInt64 × Bool :=
   let sum := a.toNat + b.toNat + carry.toNat
   (UInt64.ofNat sum, decide (UInt64.size ≤ sum))
 
@@ -635,7 +635,7 @@ Computes `a - b - borrow` for 64-bit unsigned integers and an incoming borrow bi
 
 This function is compiled using `UInt64.subBorrowImpl`.
 -/
-def UInt64.subBorrow (a b : UInt64) (borrow : Bool) : UInt64 × Bool :=
+noncomputable def UInt64.subBorrow (a b : UInt64) (borrow : Bool) : UInt64 × Bool :=
   let subtrahend := b.toNat + borrow.toNat
   if subtrahend ≤ a.toNat then
     (UInt64.ofNat (a.toNat - subtrahend), false)

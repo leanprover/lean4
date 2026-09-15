@@ -59,6 +59,9 @@ This function has different behavior depending on the state and configuration of
      This ensures that the returned `IO.Promise` resolves at the next repetition of the timer.
   - if it is finished, return the last `IO.Promise` created by `next`. Notably this could be one
     that never resolves if the timer was stopped before fulfilling the last one.
+
+A promise from `next` may also be resolved by the code holding it; the timer then treats it as
+fulfilled when it fires.
 -/
 @[extern "lean_uv_timer_next"]
 opaque next (timer : @& Timer) : IO (IO.Promise Unit)

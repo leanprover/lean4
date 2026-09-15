@@ -53,19 +53,34 @@ void handle_signal_event(uv_signal_t* handle, int signum) {
 
     if (signal->m_repeating) {
         if (!signal_promise_is_finished(signal)) {
-            lean_object* res = lean_io_promise_resolve(lean_box(signum), signal->m_promise);
+            // Rule 1: a continuation may `cancel` or `stop` the signal, releasing the field's
+            // reference.
+            lean_object * promise = signal->m_promise;
+            lean_inc(promise);
+            lean_object* res = lean_io_promise_resolve(lean_box(signum), promise);
             lean_dec(res);
+            lean_dec(promise);
         }
     } else {
-        if (signal->m_promise != NULL) {
-            lean_object* res = lean_io_promise_resolve(lean_box(signum), signal->m_promise);
-            lean_dec(res);
-        }
-
         uv_signal_stop(signal->m_uv_signal);
         signal->m_state = SIGNAL_STATE_FINISHED;
 
+        lean_object * promise = signal->m_promise;
+        if (promise != NULL) {
+            lean_inc(promise);
+        }
+
         lean_dec(obj);
+
+        // Rule 1: nothing below may touch the signal. Code holding the promise may have resolved
+        // it already.
+        if (promise != NULL) {
+            if (!promise_is_resolved(promise)) {
+                lean_object* res = lean_io_promise_resolve(lean_box(signum), promise);
+                lean_dec(res);
+            }
+            lean_dec(promise);
+        }
     }
 }
 
@@ -208,9 +223,10 @@ extern "C" LEAN_EXPORT lean_obj_res lean_uv_signal_next(b_obj_arg obj) {
                         signal->m_promise = create_promise();
                     }
 
-                    lean_inc(signal->m_promise);
+                    lean_object * promise = signal->m_promise;
+                    lean_inc(promise);
                     event_loop_unlock(&global_ev);
-                    return lean_io_result_mk_ok(signal->m_promise);
+                    return lean_io_result_mk_ok(promise);
                 }
             case SIGNAL_STATE_FINISHED:
                 {
@@ -220,18 +236,20 @@ extern "C" LEAN_EXPORT lean_obj_res lean_uv_signal_next(b_obj_arg obj) {
                         return lean_io_result_mk_ok(finished_promise);
                     }
 
-                    lean_inc(signal->m_promise);
+                    lean_object * promise = signal->m_promise;
+                    lean_inc(promise);
                     event_loop_unlock(&global_ev);
-                    return lean_io_result_mk_ok(signal->m_promise);
+                    return lean_io_result_mk_ok(promise);
                 }
         }
     } else {
         if (signal->m_state == SIGNAL_STATE_INITIAL) {
             return setup_signal();
         } else if (signal->m_promise != NULL) {
-            lean_inc(signal->m_promise);
+            lean_object * promise = signal->m_promise;
+            lean_inc(promise);
             event_loop_unlock(&global_ev);
-            return lean_io_result_mk_ok(signal->m_promise);
+            return lean_io_result_mk_ok(promise);
         } else {
             lean_object* finished_promise = create_promise();
             event_loop_unlock(&global_ev);
@@ -276,20 +294,32 @@ extern "C" LEAN_EXPORT lean_obj_res lean_uv_signal_cancel(b_obj_arg obj) {
     // It's locking here to avoid changing the state during other operations.
     event_loop_lock(&global_ev);
 
+    lean_object * promise = NULL;
+    bool release_signal = false;
+
     if (signal->m_state == SIGNAL_STATE_RUNNING && signal->m_promise != NULL) {
-        if (signal->m_repeating) {
-            lean_dec(signal->m_promise);
-            signal->m_promise = NULL;
-        } else {
+        promise = signal->m_promise;
+        signal->m_promise = NULL;
+
+        // A repeating signal keeps listening, so the loop keeps its reference until `stop`.
+        if (!signal->m_repeating) {
             uv_signal_stop(signal->m_uv_signal);
-            lean_dec(signal->m_promise);
-            signal->m_promise = NULL;
             signal->m_state = SIGNAL_STATE_INITIAL;
-            lean_dec(obj);
+            release_signal = true;
         }
     }
 
     event_loop_unlock(&global_ev);
+
+    // Rules 1 and 2: the cancellation is complete and the lock dropped before releasing.
+    if (promise != NULL) {
+        lean_dec(promise);
+    }
+
+    if (release_signal) {
+        lean_dec(obj);
+    }
+
     return lean_io_result_mk_ok(lean_box(0));
 }
 

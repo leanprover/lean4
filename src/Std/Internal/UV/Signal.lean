@@ -62,7 +62,9 @@ This function has different behavior depending on the state and configuration of
   - if it is finished, return the last `IO.Promise` created by `next`. Notably this could be one
     that never resolves if the signal handler was stopped before fulfilling the last one.
 
-The resolved `IO.Promise` contains the signal number that was received.
+A promise from `next` may also be resolved by the code holding it; the handler then treats it as
+fulfilled when the signal arrives. The resolved `IO.Promise` contains the signal number that was
+received.
 -/
 @[extern "lean_uv_signal_next"]
 opaque next (signal : @& Signal) : IO (IO.Promise Int)

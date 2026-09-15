@@ -16,6 +16,7 @@ typedef struct {
     uv_random_t req;
     lean_object* promise;
     lean_object* byte_array;
+    uv_pending_req pending;
 } random_req_t;
 
 // Std.Internal.UV.System.getProcessTitle : IO String
@@ -449,6 +450,8 @@ extern "C" LEAN_EXPORT lean_obj_res lean_uv_random(uint64_t size) {
         [](uv_random_t* uv_req, int status, void* buf, size_t buflen) {
             random_req_t* req = (random_req_t*)uv_req;
 
+            event_loop_unregister_request(&global_ev, &req->pending);
+
             if (status < 0) {
                 lean_dec(req->byte_array);
                 lean_promise_resolve(mk_except_err(lean_decode_uv_error(status, nullptr)), req->promise);
@@ -461,6 +464,11 @@ extern "C" LEAN_EXPORT lean_obj_res lean_uv_random(uint64_t size) {
             free(req);
         }
     );
+
+    if (result == 0) {
+        // Before unlocking: the callback runs on the loop thread, which needs the lock.
+        event_loop_register_request(&global_ev, &req->pending, (uv_req_t*)&req->req);
+    }
 
     event_loop_unlock(&global_ev);
 

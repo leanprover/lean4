@@ -61,6 +61,8 @@ void event_loop_init(event_loop_t * event_loop) {
     check_uv(uv_cond_init(&event_loop->cond_var), "Failed to initialize condition variable");
     check_uv(uv_async_init(event_loop->loop, &event_loop->async, NULL), "Failed to initialize async");
     event_loop->n_waiters = 0;
+    event_loop->state = EVENT_LOOP_RUNNING;
+    event_loop->requests = nullptr;
 }
 
 // Locks the event loop for the side of the requesters.
@@ -81,13 +83,62 @@ void event_loop_unlock(event_loop_t * event_loop) {
     uv_mutex_unlock(&event_loop->mutex);
 }
 
+// Makes `event_loop_run_loop` return before its next `uv_run`. The caller holds the loop lock, so
+// the loop thread is not inside `uv_run` and observes the new state once the lock is released.
+void event_loop_request_stop(event_loop_t * event_loop) {
+    event_loop->state = EVENT_LOOP_STOPPING;
+    // `event_loop_unlock` only signals when no other requester is waiting.
+    uv_cond_signal(&event_loop->cond_var);
+}
+
+void event_loop_register_request(event_loop_t * event_loop, uv_pending_req * pending, uv_req_t * req) {
+    pending->req = req;
+    pending->prev = nullptr;
+    pending->next = event_loop->requests;
+
+    if (event_loop->requests != nullptr) {
+        event_loop->requests->prev = pending;
+    }
+
+    event_loop->requests = pending;
+}
+
+void event_loop_unregister_request(event_loop_t * event_loop, uv_pending_req * pending) {
+    if (pending->prev != nullptr) {
+        pending->prev->next = pending->next;
+    } else {
+        event_loop->requests = pending->next;
+    }
+
+    if (pending->next != nullptr) {
+        pending->next->prev = pending->prev;
+    }
+
+    pending->prev = nullptr;
+    pending->next = nullptr;
+}
+
+// Asks libuv to cancel every tracked request. This only succeeds for requests still queued in the
+// threadpool; one that already started finishes on its worker. The loop thread has stopped, so no
+// callback runs afterwards: the requests, and the promises they hold, stay reachable from the loop.
+void event_loop_cancel_requests(event_loop_t * event_loop) {
+    for (uv_pending_req * pending = event_loop->requests; pending != nullptr; pending = pending->next) {
+        uv_cancel(pending->req);
+    }
+}
+
 // Runs the loop and stops when it needs to register new requests.
 void event_loop_run_loop(event_loop_t * event_loop) {
-    while (uv_loop_alive(event_loop->loop)) {
+    while (true) {
         uv_mutex_lock(&event_loop->mutex);
 
-        while (event_loop->n_waiters != 0) {
+        while (event_loop->n_waiters != 0 && event_loop->state == EVENT_LOOP_RUNNING) {
             uv_cond_wait(&event_loop->cond_var, &event_loop->mutex);
+        }
+
+        if (event_loop->state != EVENT_LOOP_RUNNING) {
+            uv_mutex_unlock(&event_loop->mutex);
+            break;
         }
 
         uv_run(event_loop->loop, UV_RUN_ONCE);

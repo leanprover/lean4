@@ -51,7 +51,7 @@ where
       col := {col with modSet := col.modSet.insert root}
       -- Importers report failures reached through imports. Directly reached modules
       -- stay in the collection so their build jobs report those failures.
-      let some imps ← (← root.imports.fetch).wait?
+      let some imps ← (← root.imports.fetch).waitUnlessCanceled?
         | let col' := {col with hasErrors := true}
           return if viaImport then col' else {col' with mods := col'.mods.push root}
       for mod in imps do

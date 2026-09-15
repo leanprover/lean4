@@ -105,7 +105,7 @@ abbrev g : Nat := 0xa4d1cbd5c3fd34126765a442efb99905f8104dd258ac507fd6406cff1426
 example : (3 : Fin 7) ^ 1000 = 4 := by decide +kernel
 
 /-! Window transitions and exponent digits on either side of a window boundary. -/
-example : [512, 1024].all (fun bits =>
+example : [64, 512, 1024].all (fun bits =>
     [2 ^ bits - 1, 2 ^ bits, 2 ^ bits + 1].all (fun m =>
       Nat.powMod (m - 1) 65537 m == m - 1)) := by decide +kernel
 example : [15, 16, 17, 63, 64, 65].all (fun e =>

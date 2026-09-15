@@ -9,6 +9,7 @@ versoDocs.lean:634:43-634:53: warning: Code element could be more specific.
 
 Hint: Insert a role to document it:
   • {̲l̲e̲a̲n̲}̲`-checked`
+  • {̲s̲y̲n̲t̲a̲x̲ ̲L̲e̲a̲n̲.̲P̲a̲r̲s̲e̲r̲.̲T̲a̲c̲t̲i̲c̲.̲g̲r̲i̲n̲d̲P̲a̲r̲a̲m̲}̲`-checked`
   • {̲s̲y̲n̲t̲a̲x̲ ̲d̲o̲E̲l̲e̲m̲}̲`-checked`
   • {̲s̲y̲n̲t̲a̲x̲ ̲g̲r̲i̲n̲d̲_̲r̲e̲f̲}̲`-checked`
   • {̲s̲y̲n̲t̲a̲x̲ ̲t̲e̲r̲m̲}̲`-checked`

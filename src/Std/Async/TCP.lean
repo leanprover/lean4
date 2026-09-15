@@ -188,8 +188,7 @@ def recvSelector (s : TCP.Socket.Client) (size : UInt64) : Selector (Option Byte
       let readableWaiter ← s.native.waitReadable
 
       if ← readableWaiter.isResolved then
-        -- We know that this read should not block
-        let res ← (s.recv? size).block
+        let res ← s.recv? size
         return some res
       else
         s.native.cancelRecv
@@ -207,9 +206,10 @@ def recvSelector (s : TCP.Socket.Client) (size : UInt64) : Selector (Option Byte
           let win promise := do
             try
               discard <| IO.ofExcept res
-              -- We know that this read should not block
-              let res ← (s.recv? size).block
-              promise.resolve (.ok res)
+              -- Chained rather than blocked on: blocking a pool worker makes the task manager spawn
+              -- a replacement thread.
+              let readPromise ← s.native.recv? size
+              discard <| BaseIO.mapTask (t := AsyncTask.ofPromise readPromise) promise.resolve
             catch e =>
               promise.resolve (.error e)
           waiter.race lose win

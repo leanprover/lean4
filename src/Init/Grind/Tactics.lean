@@ -283,7 +283,7 @@ example (as : Array α) (lo hi i j : Nat) :
 -/
 syntax (name := grind)
   "grind" optConfig (&" only")?
-  (" [" withoutPosition(grindParam,*) "]")?
+  (" [" withoutPosition(Lean.Parser.Tactic.grindParam,*) "]")?
   (" => " grindSeq)? : tactic
 
 /--
@@ -293,7 +293,7 @@ theorems in a local invocation.
 -/
 syntax (name := grindTrace)
   "grind?" optConfig (&" only")?
-  (" [" withoutPosition(grindParam,*) "]")?
+  (" [" withoutPosition(Lean.Parser.Tactic.grindParam,*) "]")?
   : tactic
 
 /--
@@ -311,7 +311,7 @@ example (x : Nat) : myP x → myQ x := by
 -/
 syntax (name := sym)
   "sym" optConfig (&" only")?
-  (" [" withoutPosition(grindParam,*) "]")?
+  (" [" withoutPosition(Lean.Parser.Tactic.grindParam,*) "]")?
   " => " grindSeq : tactic
 
 /--
@@ -332,7 +332,7 @@ Please use `grind` instead if you need additional capabilities.
 
 Like `grind`, it accepts a list of extra facts and lemmas, e.g. `lia [foo n, = bar]`.
 -/
-syntax (name := lia) "lia" optConfig (" [" withoutPosition(grindParam,*) "]")? : tactic
+syntax (name := lia) "lia" optConfig (" [" withoutPosition(Lean.Parser.Tactic.grindParam,*) "]")? : tactic
 
 /--
 `grind_order` solves simple goals about partial orders and linear orders.
@@ -361,7 +361,7 @@ Like `grind`, it accepts a list of extra facts and lemmas, e.g. `grobner [foo x 
 Lemmas given this way are instantiated via E-matching, while the `@[grind]` lemma set is not enabled
 implicitly.
 -/
-syntax (name := grobner) "grobner" optConfig (" [" withoutPosition(grindParam,*) "]")? : tactic
+syntax (name := grobner) "grobner" optConfig (" [" withoutPosition(Lean.Parser.Tactic.grindParam,*) "]")? : tactic
 
 /-!
 Sets symbol priorities for the E-matching pattern inference procedure used in `grind`

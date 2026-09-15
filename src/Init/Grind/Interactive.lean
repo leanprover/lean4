@@ -7,6 +7,10 @@ module
 prelude
 public import Init.Grind.Attr
 public section
+
+/-- A shared parser for the parameter lists of `grind` and related tactics. -/
+declare_syntax_cat Lean.Parser.Tactic.grindParam
+
 namespace Lean.Parser.Tactic
 
 syntax anchor := "#" noWs hexnum
@@ -19,11 +23,11 @@ when selecting patterns.
 syntax grindLemmaMin := ppGroup("!" (Attr.grindMod ppSpace)? term)
 
 syntax grindErase    := "-" ident
-/--
-The `!` modifier instructs `grind` to consider only minimal indexable subexpressions
-when selecting patterns.
--/
-syntax grindParam    := grindErase <|> grindLemmaMin <|> grindLemma <|> anchor
+/-- Extra facts, lemma modifiers, exclusions, and anchors for `grind` and related tactics. -/
+syntax grindParam := grindErase <|> grindLemmaMin <|> grindLemma <|> anchor
+
+-- Register the abbreviation to preserve its antiquotations when parsing through the category.
+attribute [Lean.Parser.Tactic.grindParam_parser] grindParam
 
 namespace Grind
 declare_syntax_cat grind_filter (behavior := both)
@@ -148,11 +152,11 @@ syntax (name := done) "done" : grind
 
 /-- `finish` tries to close the current goal using `grind`'s default strategy -/
 syntax (name := finish) "finish" (ppSpace configItem)*
-    (ppSpace &"only")? (" [" withoutPosition(grindParam,*) "]")? : grind
+    (ppSpace &"only")? (" [" withoutPosition(Lean.Parser.Tactic.grindParam,*) "]")? : grind
 
 /-- `finish?` tries to close the current goal using `grind`'s default strategy and suggests a tactic script. -/
 syntax (name := finishTrace) "finish?" (ppSpace configItem)*
-    (ppSpace &"only")? (" [" withoutPosition(grindParam,*) "]")? : grind
+    (ppSpace &"only")? (" [" withoutPosition(Lean.Parser.Tactic.grindParam,*) "]")? : grind
 
 /--
 The `have` tactic is for adding opaque definitions and hypotheses to the local context of the main goal.

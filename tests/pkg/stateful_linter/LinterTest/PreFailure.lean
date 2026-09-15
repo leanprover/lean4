@@ -10,20 +10,19 @@ open Lean Elab Command
 
 initialize thrower : StatefulLinter Unit Nat ←
   registerStatefulLinter ()
-    (pre := fun stx _ _ => do
+    (run := fun stx prev => do
       unless Parser.isTerminalCommand stx do throwError "thrower boom"
-      pure none)
-    (post := fun _ self _ _ _ => pure self)
+      pure ⟨(), none⟩)
 
 initialize producer : StatefulLinter Unit Nat ←
   registerStatefulLinter ()
-    (pre := fun stx _ _ =>
-      pure <| if Parser.isTerminalCommand stx then none else some 42)
-    (post := fun _ self _ _ _ => pure self)
+    (run := fun stx prev => do
+      if Parser.isTerminalCommand stx then return ⟨(), none⟩ else
+        return ⟨(), some 42⟩)
 
-initialize observer : StatefulLinter Unit Unit ←
-  registerStatefulLinter ()
-    (post := fun stx self _ _ readPre => do
+initialize observer : SimpleStatefulLinter Unit ←
+  registerSimpleStatefulLinter ()
+    (run := fun stx prev => do
       unless Parser.isTerminalCommand stx do
-        logInfo m!"thrower: {readPre thrower}, producer: {readPre producer}"
-      pure self)
+        logInfo m!"thrower: {thrower.readIntermediate}, producer: {producer.readIntermediate}"
+      pure prev)

@@ -438,20 +438,22 @@ private def analyzeFrameRule (rule : BackwardRule) (opHead : Name) (numExcess : 
 
 /--
 The frame backward rule for a frame operator `op : R → Pred → Pred`, built from the frame rule
-`WP.Frames.op_wp_upperAdjoint_le_wp`.
+`op_wp_upperAdjoint_le_wp`.
 
 The rule concludes `pre ⊑ wp prog Q E s⃗` from the split VC `pre ⊑ (op F W) s⃗` and the frame
-condition `WP.Frames op prog F`, with the frame `F` left schematic and the weakest footprint
-`W = wp prog (fun a => upperAdjoint (op F) (Q a)) E` baked in, so a single rule serves every inferred
-frame. `analyzeFrameRule` records the positions of the schematic slots.
+condition `WP.Frames op prog F`, with the frame `F` left schematic and the
+weakest footprint `W = wp prog (fun a => upperAdjoint (op F) (Q a)) (upperAdjoint (opE F) E)`
+baked in, so a single rule serves every inferred frame. `analyzeFrameRule` records the positions
+of the schematic slots.
 -/
 public def mkFrameBackwardRule (fp : FrameProc) (info : WPApp) :
     MetaM FrameBackwardRule := do
-  -- Pin the program and the operator, leaving everything else schematic;
-  -- `tryMkBackwardRuleFromSpec` turns the unassigned metavariables into rule parameters.
+  -- Pin the program and the operator, leaving everything else schematic; instance synthesis
+  -- commits the companion, and `tryMkBackwardRuleFromSpec` turns the unassigned metavariables
+  -- into rule parameters.
   let op ← fp.mkOpAppM info
-  let specProof ← mkAppOptM ``Std.WP.WP.Frames.op_wp_upperAdjoint_le_wp
-    ((info.args.take 7).map some ++ #[none, some op, none])
+  let specProof ← mkAppOptM ``Std.WP.op_wp_upperAdjoint_le_wp
+    ((info.args.take 7).map some ++ #[none, some op, none, none])
   let some specThm ← mkSpecTheoremFromStx (← getRef) specProof
     | throwError "frame: could not build the frame spec for operator{indentExpr op}"
   let some rule ← (tryMkBackwardRuleFromSpec specThm info).run

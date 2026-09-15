@@ -8,6 +8,12 @@ public meta import Lean.Elab.Tactic.VCGen.FrameProc
 public meta import Lean.Elab.Tactic.VCGen.FrameProcAttr
 public meta import Lean.Elab.Tactic.VCGen.RuleConstruction
 
+/-!
+Tests `vcgen` frame inference on a custom trace-semantics `WP` instance: a `@[frameproc]` for the
+`Always'` temporal predicate frames safety facts through `bind` chains of a DyLean-style
+interpreter.
+-/
+
 set_option experimental.vcgen true
 
 open Lean.Order
@@ -278,7 +284,7 @@ instance: WPMonad Traceful TraceProp EStack⟨⟩ where
     ⟩⟩
 
     wp_trans_monotone x := by
-      simp only [Lean.Order.PredTrans.monotone, Lean.Order.PartialOrder.rel]
+      simp only [Lean.Order.PredTrans.Monotone, Lean.Order.PartialOrder.rel]
       grind
   }
 

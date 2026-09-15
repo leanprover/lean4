@@ -21,6 +21,7 @@ Author: Leonardo de Moura
 #include "runtime/interrupt.h"
 #include "runtime/buffer.h"
 #include "runtime/io.h"
+#include "runtime/libuv.h"
 #include "runtime/hash.h"
 
 #if defined(__GLIBC__) || defined(__APPLE__)
@@ -739,6 +740,10 @@ struct scoped_current_task_object : flet<lean_task_object *> {
     scoped_current_task_object(lean_task_object * t):flet(g_current_task_object, t) {}
 };
 
+// Not `static`: the store in `~task_manager` is never read back, and it must survive optimization to
+// keep the tasks reachable.
+std::vector<lean_task_object *> * g_unrun_tasks = nullptr;
+
 class task_manager {
     mutex                                         m_mutex;
     std::vector<std::unique_ptr<lthread>>         m_std_workers;
@@ -752,6 +757,7 @@ class task_manager {
     condition_variable                            m_task_finished_cv;
     condition_variable                            m_dedicated_finished_cv;
     bool                                          m_shutting_down{false};
+    bool                                          m_workers_joined{false};
 
     lean_task_object * dequeue() {
         lean_assert(m_queues_size != 0);
@@ -776,6 +782,13 @@ class task_manager {
         unsigned prio = imp->m_prio;
         if (prio == LEAN_SYNC_PRIO) {
             run_task(lock, t);
+            return;
+        }
+        if (m_workers_joined) {
+            // Only the event loop can still get here once `shutdown` has returned.
+            // Nothing will run the task; `~task_manager` keeps it reachable.
+            m_queues[0].push_back(t);
+            m_queues_size++;
             return;
         }
         if (prio > LEAN_MAX_PRIO) {
@@ -954,8 +967,26 @@ public:
     }
 
     ~task_manager() {
+        shutdown();
+
+        if (m_queues_size != 0) {
+            // Tasks enqueued after `shutdown` never run. They are kept reachable instead of losing
+            // their only reference with the queues, so leak checkers treat them like any other
+            // object still referenced at exit. Appended rather than replaced, since an embedder may
+            // finalize more than one task manager.
+            if (g_unrun_tasks == nullptr)
+                g_unrun_tasks = new std::vector<lean_task_object *>();
+            for (auto & q : m_queues)
+                g_unrun_tasks->insert(g_unrun_tasks->end(), q.begin(), q.end());
+        }
+    }
+
+    // Lets the workers run every queued task, then waits for them to exit. Idempotent.
+    void shutdown() {
         {
             unique_lock<mutex> lock(m_mutex);
+            if (m_workers_joined)
+                return;
             m_shutting_down = true;
             // we can assume that `m_std_workers` will not be changed after this line
         }
@@ -967,6 +998,7 @@ public:
 
         unique_lock<mutex> lock(m_mutex);
         m_dedicated_finished_cv.wait(lock, [&]() { return m_num_dedicated_workers == 0; });
+        m_workers_joined = true;
         // never seems to terminate under Emscripten
 #endif
     }
@@ -1112,6 +1144,13 @@ extern "C" LEAN_EXPORT void lean_init_task_manager() {
 
 extern "C" LEAN_EXPORT void lean_finalize_task_manager() {
     if (g_task_manager) {
+        // The workers finish with the event loop still running, so a task that waits directly on a
+        // libuv promise completes as it would otherwise. One that waits on a continuation of such a
+        // promise may not: `shutdown` spawns no new workers, so a continuation the loop enqueues
+        // after the last worker went idle never runs. The loop is torn down before the task manager
+        // is freed, since the loop thread enqueues continuations on it until it stops.
+        g_task_manager->shutdown();
+        finalize_libuv();
         delete g_task_manager;
         g_task_manager = nullptr;
     }
@@ -1127,10 +1166,7 @@ scoped_task_manager::scoped_task_manager(unsigned num_workers) {
 }
 
 scoped_task_manager::~scoped_task_manager() {
-    if (g_task_manager) {
-        delete g_task_manager;
-        g_task_manager = nullptr;
-    }
+    lean_finalize_task_manager();
 }
 
 void deactivate_task(lean_task_object * t) {

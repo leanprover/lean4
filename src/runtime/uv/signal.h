@@ -34,15 +34,26 @@ typedef struct {
     lean_object *   m_promise;     // The associated promise for asynchronous results.
     int             m_signum;      // Signal number to watch for.
     bool            m_repeating;   // Flag indicating if the signal handler is repeating.
-    uv_signal_state m_state;       // The state of the signal. Beyond the API description on the Lean
-                                   // side this state has the invariant:
-                                   // `m_state != SIGNAL_STATE_INITIAL` -> `m_promise != NULL`
+    uv_signal_state m_state;       // The state of the signal.
+    bool            m_loop_ref;    // Whether the loop holds its reference on the signal object.
 } lean_uv_signal_object;
+
+// `m_promise` may be NULL in any state: `stop` leaves a FINISHED signal without one, and `cancel` on
+// a repeating signal leaves it RUNNING without one. A repeating signal also keeps its last promise
+// after resolving it, until `next` replaces it.
+//
+// The loop holds exactly one reference on the signal object iff `m_loop_ref`, which is set exactly
+// while the signal is RUNNING with a promise the loop has yet to resolve. It is tracked explicitly
+// rather than derived from the promise, because code holding the promise can resolve it itself.
+// Every release of the loop's reference is gated on it; releasing without it frees the handle while
+// it is still armed.
 
 // =======================================
 // Signal object manipulation functions.
 static inline lean_object* lean_uv_signal_new(lean_uv_signal_object * s) { return lean_alloc_external(g_uv_signal_external_class, s); }
 static inline lean_uv_signal_object* lean_to_uv_signal(lean_object * o) { return (lean_uv_signal_object*)(lean_get_external_data(o)); }
+
+void lean_uv_signal_teardown(lean_object * obj, uv_deferred_teardown & deferred);
 
 #endif
 

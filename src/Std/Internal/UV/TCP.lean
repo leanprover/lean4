@@ -23,6 +23,14 @@ private opaque SocketImpl : NonemptyType.{0}
 
 /--
 Represents a TCP socket.
+
+While a `recv?`, `waitReadable` or `accept` is pending, the event loop keeps the socket alive even
+if nothing else references it. Two connected sockets that each wait to receive from the other
+therefore stay open until one receive is cancelled with `cancelRecv` or the program exits.
+
+The event loop is torn down when `main` returns, after the tasks that are still running have
+finished. A promise still pending at that point is never resolved. From then on `cancelRecv` and
+`cancelAccept` succeed as no-ops and every other operation fails with `UV_ECANCELED`.
 -/
 def Socket : Type := SocketImpl.type
 
@@ -68,8 +76,9 @@ opaque waitReadable (socket : @& Socket) : IO (IO.Promise (Except IO.Error Bool)
 
 /--
 Cancels a receive operation in the form of `recv?` or `waitReadable` if there is currently one
-pending. This resolves their returned `IO.Promise` to `none`. This function is considered dangerous,
-as improper use can cause data loss, and is therefore not exposed to the top-level API.
+pending. Their returned `IO.Promise` is dropped rather than resolved, so a computation waiting on it
+fails instead of producing a value. This function is considered dangerous, as improper use can cause
+data loss, and is therefore not exposed to the top-level API.
 
 Note that this function is idempotent and as such can be called multiple times on the same socket
 without causing errors, in particular also without a receive running in the first place.

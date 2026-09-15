@@ -4,9 +4,11 @@ Released under Apache 2.0 license as described in the file LICENSE.
 
 Author: Markus Himmel, Sofia Rodrigues
  */
-#include <pthread.h>
+#include <cstdio>
+#include <memory>
 #include "runtime/libuv.h"
 #include "runtime/object.h"
+#include "runtime/thread.h"
 
 #ifndef LEAN_EMSCRIPTEN
 #include <uv.h>
@@ -16,6 +18,14 @@ namespace lean {
 
 #ifndef LEAN_EMSCRIPTEN
 
+static std::unique_ptr<lthread> g_libuv_thread;
+
+// How long `finalize_libuv` waits for outstanding threadpool requests before abandoning them. Only
+// reached when a request is stuck in an uninterruptible syscall; the common case exits immediately.
+// This bounds `finalize_libuv`, not the exit: libuv's own exit-time `uv_library_shutdown` still joins
+// a stuck worker.
+static constexpr uint64_t LEAN_UV_TEARDOWN_DRAIN_NS = 100ull * 1000ull * 1000ull;
+
 extern "C" void initialize_libuv() {
     initialize_libuv_timer();
     initialize_libuv_tcp_socket();
@@ -23,7 +33,164 @@ extern "C" void initialize_libuv() {
     initialize_libuv_signal();
     initialize_libuv_loop();
 
-    lthread([]() { event_loop_run_loop(&global_ev); });
+    g_libuv_thread.reset(new lthread([]() { event_loop_run_loop(&global_ev); }));
+}
+
+// Tears the event loop down, freeing everything libuv owns. `lean_finalize_task_manager` calls this
+// once the workers have finished, so no task is using the loop any more. A promise still pending is
+// kept unresolved rather than released (rule 3 at `uv_deferred_teardown`), so no Lean code runs here.
+// Joining the loop thread waits for a callback it is running, including a `(sync := true)`
+// continuation, so one that blocks delays the exit for as long as it blocks.
+//
+// This is terminal: `initialize_libuv` is only ever called from `initialize_runtime_module`, so the
+// loop is not restarted afterwards and every subsequent uv operation fails with `UV_ECANCELED`.
+// Embedders that construct more than one `scoped_task_manager` in a process therefore get a working
+// loop only for the first one.
+extern "C" void finalize_libuv() {
+    if (g_libuv_thread == nullptr) {
+        return;
+    }
+
+    event_loop_lock_internal(&global_ev);
+    event_loop_request_stop(&global_ev);
+    event_loop_unlock(&global_ev);
+
+    g_libuv_thread->join();
+    g_libuv_thread = nullptr;
+
+    event_loop_lock_internal(&global_ev);
+
+    uv_deferred_teardown deferred_teardown;
+
+    uv_walk(global_ev.loop, [](uv_handle_t * handle, void * arg) {
+        if (uv_is_closing(handle)) {
+            return;
+        }
+
+        // Closed after the drain below, which needs it to keep the loop polling.
+        if (handle == (uv_handle_t *)&global_ev.async) {
+            return;
+        }
+
+        uv_deferred_teardown * deferred = (uv_deferred_teardown *)arg;
+        lean_object * obj = (lean_object*)handle->data;
+
+        // Every constructor attaches the wrapper before releasing the loop lock this walk holds, so
+        // a live handle without one cannot be observed here. Checked unconditionally because the
+        // teardown below is what detaches `m_uv_*`, and skipping it would leave the handle's owner
+        // free to `free` the same pointer that the `uv_close` below hands to `free`. A panic rather
+        // than an assertion, which would throw through libuv's frames with the loop lock held.
+        if (obj == nullptr) {
+            lean_internal_panic("libuv teardown reached a handle without a Lean wrapper");
+        }
+
+        switch (uv_handle_get_type(handle)) {
+            case UV_TIMER:
+                lean_uv_timer_teardown(obj, *deferred);
+                break;
+            case UV_TCP:
+                lean_uv_tcp_socket_teardown(obj, *deferred);
+                break;
+            case UV_UDP:
+                lean_uv_udp_socket_teardown(obj, *deferred);
+                break;
+            case UV_SIGNAL:
+                lean_uv_signal_teardown(obj, *deferred);
+                break;
+            default: {
+                // The loop belongs to the runtime alone (see `global_ev`), so this only fires once
+                // the runtime grows a handle type without teaching this switch about it. Aborting
+                // with the type named is the mildest outcome available: the cases above would have
+                // taken the same handle for a Lean wrapper and freed it.
+                char const * name = uv_handle_type_name(uv_handle_get_type(handle));
+                std::string msg = "libuv teardown reached an unhandled handle type: ";
+                msg += name != nullptr ? name : "unknown";
+                lean_internal_panic(msg.c_str());
+            }
+        }
+
+        uv_close(handle, [](uv_handle_t * handle) { free(handle); });
+    }, &deferred_teardown);
+
+    event_loop_mark_finalized(&global_ev);
+    event_loop_cancel_requests(&global_ev);
+
+    // Closing a stream completes the `uv_write_t`/`uv_connect_t`/`uv_shutdown_t` it still had queued
+    // with `UV_ECANCELED`, and the drain below runs those callbacks; they keep their promise (rule 3).
+    //
+    // The lock can be dropped because `event_loop_mark_finalized` above already turns every requester
+    // away before it reaches the mutex, and the loop thread has been joined, so this thread is the
+    // only one that touches `loop`.
+    event_loop_unlock(&global_ev);
+
+    uint64_t const deadline = uv_hrtime() + LEAN_UV_TEARDOWN_DRAIN_NS;
+
+    // Whether `uv_loop_close` would still fail once `async` is closed: it rejects any active request
+    // and any handle still in the loop, closing or not.
+    auto const busy = []() {
+        bool other_handle = false;
+        uv_walk(global_ev.loop, [](uv_handle_t * handle, void * arg) {
+            if (handle != (uv_handle_t *)&global_ev.async) {
+                *(bool *)arg = true;
+            }
+        }, &other_handle);
+        return other_handle || global_ev.loop->active_reqs.count != 0;
+    };
+
+    // `async` stays open and active through this drain so that `uv_run` keeps polling while anything
+    // is left. On Windows a closed socket stays in the loop until IOCP delivers the aborted
+    // completions of the accept and read requests it had posted, and those do not count as active,
+    // so without `async` the loop would look idle and `uv_run` would stop polling before they arrive.
+    //
+    // The first pass normally finishes everything. What survives it is such a socket, whose
+    // completions are already on their way, or a threadpool request whose worker has to finish on
+    // its own, so sleeping between passes costs nothing in the common case.
+    for (;;) {
+        uv_run(global_ev.loop, UV_RUN_NOWAIT);
+
+        if (!busy() || uv_hrtime() >= deadline) {
+            break;
+        }
+
+        uv_sleep(1);
+    }
+
+    // No send is pending on `async` any more (requesters stop sending at `STOPPING`, and the passes
+    // above consumed any earlier one), so on Windows too its close completes in this single pass.
+    uv_close((uv_handle_t *)&global_ev.async, nullptr);
+    uv_run(global_ev.loop, UV_RUN_NOWAIT);
+
+    event_loop_lock_internal(&global_ev);
+
+    bool abandoned = event_loop_abandon_requests(&global_ev);
+
+    // A request that outlived the drain keeps its `uv_req_t` and the loop that owns it. Freeing
+    // either would need the loop to run once more so the completion callback could reap it, and the
+    // only ways to get there are worse than the retention: a drainer thread would outlive the
+    // runtime that just declared itself finalized and race `exit`, and `uv_library_shutdown` queues
+    // its stop messages behind the pending work, so it blocks for as long as the stuck request takes.
+    // Both stay reachable from `global_ev`, so this costs address space at exit rather than a
+    // reported leak.
+    if (!abandoned) {
+        int close_result = uv_loop_close(global_ev.loop);
+
+        if (close_result != 0) {
+            // Not worth aborting the process for: `main` has already produced its output, and an
+            // unclosed loop is still reachable from `global_ev`.
+            fprintf(stderr, "warning: libuv event loop did not close at exit: %s\n",
+                    uv_strerror(close_result));
+        } else {
+            // Nothing reads `loop` once the state is `EVENT_LOOP_FINALIZED`: every entry point is
+            // turned away by `event_loop_lock`, and the finalizers that take the
+            // `event_loop_wait_finalized` path only free their own wrapper.
+            free(global_ev.loop);
+            global_ev.loop = nullptr;
+        }
+    }
+
+    event_loop_unlock(&global_ev);
+
+    deferred_teardown.run();
 }
 
 extern "C" LEAN_EXPORT char ** lean_setup_args(int argc, char ** argv) {
@@ -38,6 +205,7 @@ extern "C" LEAN_EXPORT lean_obj_res lean_libuv_version(lean_obj_arg o) {
 #else
 
 extern "C" void initialize_libuv() {}
+extern "C" void finalize_libuv() {}
 
 extern "C" LEAN_EXPORT lean_obj_res lean_libuv_version(lean_obj_arg o) {
     return lean_box(0);

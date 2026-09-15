@@ -445,18 +445,22 @@ extern "C" LEAN_EXPORT lean_obj_res lean_uv_tcp_cancel_recv(b_obj_arg socket) {
     uv_read_stop((uv_stream_t*)tcp_socket->m_uv_tcp);
 
     lean_object* promise = tcp_socket->m_promise_read;
-    lean_dec(promise);
-    tcp_socket->m_promise_read = nullptr;
-
     lean_object* byte_array = tcp_socket->m_byte_array;
+
+    tcp_socket->m_promise_read = nullptr;
+    tcp_socket->m_byte_array = nullptr;
+
+    event_loop_unlock(&global_ev);
+
+    // Rules 1 and 2: the cancellation is complete and the lock dropped before releasing.
+    lean_dec(promise);
+
     if (byte_array != nullptr) {
         lean_dec(byte_array);
-        tcp_socket->m_byte_array = nullptr;
     }
 
     lean_dec(socket);
 
-    event_loop_unlock(&global_ev);
     return lean_io_result_mk_ok(lean_box(0));
 }
 
@@ -632,19 +636,22 @@ extern "C" LEAN_EXPORT lean_obj_res lean_uv_tcp_cancel_accept(b_obj_arg socket) 
     }
 
     lean_object* promise = tcp_socket->m_promise_accept;
-    lean_dec(promise);
-    tcp_socket->m_promise_accept = nullptr;
-
     lean_object* client = tcp_socket->m_client;
+
+    tcp_socket->m_promise_accept = nullptr;
+    tcp_socket->m_client = nullptr;
+
+    event_loop_unlock(&global_ev);
+
+    // Rules 1 and 2: the cancellation is complete and the lock dropped before releasing.
+    lean_dec(promise);
 
     if (client != nullptr) {
         lean_dec(client);
-        tcp_socket->m_client = nullptr;
     }
 
     lean_dec(socket);
 
-    event_loop_unlock(&global_ev);
     return lean_io_result_mk_ok(lean_box(0));
 }
 

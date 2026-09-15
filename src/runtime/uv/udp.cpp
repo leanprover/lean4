@@ -417,29 +417,30 @@ extern "C" LEAN_EXPORT lean_obj_res lean_uv_udp_wait_readable(b_obj_arg socket) 
 extern "C" LEAN_EXPORT lean_obj_res lean_uv_udp_cancel_recv(b_obj_arg socket) {
     lean_uv_udp_socket_object* udp_socket = lean_to_uv_udp_socket(socket);
 
-    lean_inc(socket);
     event_loop_lock(&global_ev);
 
     if (udp_socket->m_promise_read == nullptr) {
         event_loop_unlock(&global_ev);
-        lean_dec(socket);
         return lean_io_result_mk_ok(lean_box(0));
     }
 
     uv_udp_recv_stop(udp_socket->m_uv_udp);
 
     lean_object* promise = udp_socket->m_promise_read;
-    lean_dec(promise);
-    udp_socket->m_promise_read = nullptr;
-
     lean_object* byte_array = udp_socket->m_byte_array;
+
+    udp_socket->m_promise_read = nullptr;
+    udp_socket->m_byte_array = nullptr;
+
+    event_loop_unlock(&global_ev);
+
+    // Rules 1 and 2: the cancellation is complete and the lock dropped before releasing.
+    lean_dec(promise);
 
     if (byte_array != nullptr) {
         lean_dec(byte_array);
-        udp_socket->m_byte_array = nullptr;
     }
 
-    event_loop_unlock(&global_ev);
     lean_dec(socket);
 
     return lean_io_result_mk_ok(lean_box(0));

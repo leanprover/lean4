@@ -29,6 +29,22 @@ typedef struct {
     _Atomic(int) n_waiters; // Atomic counter for managing waiters for `loop`.
 } event_loop_t;
 
+/* Rules for releasing Lean objects from the handle wrappers in `runtime/uv`. They are stated here
+   rather than at each site that depends on them. (`Timer.stop` and `Signal.stop` follow them since
+   #14793.)
+
+   1. Releasing a `lean_object` can run arbitrary Lean code. Resolving a promise, and dropping the
+      last reference to an unresolved one, both hand control to the task manager, and a
+      `(sync := true)` continuation then runs inline on the releasing thread. Such a continuation may
+      re-enter the same handle and may drop its last reference. So a callback or a `cancel` must
+      finish mutating the wrapper -- clear its fields, stop the handle -- *before* it releases
+      anything, and must not touch the wrapper afterwards.
+
+   2. Releases must happen outside the loop lock. A continuation reached from `lean_dec` can block,
+      e.g. a `Promise.result!` waiter on a dropped promise, or one waiting on a `Std.Mutex` held by a
+      thread parked in `event_loop_lock`; every other thread would then wait on the lock we hold.
+      Callbacks cannot follow this rule: they run inside `uv_run`, which holds the lock. */
+
 // The multithreaded event loop object for all tasks in the task manager.
 extern event_loop_t global_ev;
 

@@ -53,7 +53,7 @@ namespace Std.WP
 ## The WP Typeclass
 
 The `WP` typeclass interprets a program type `Prog` whose results have type `Value` as a monotone
-predicate transformer `wpTrans : Prog → PredTrans Pred EPred Value`.
+predicate transformer `trans : Prog → PredTrans Pred EPred Value`.
 -/
 
 /-- Weakest precondition interpretation of a program type `Prog` whose results have type `Value`,
@@ -62,24 +62,24 @@ as a monotone predicate transformer over assertion language `Pred` with exceptio
 class WP (Prog : Type u) (Value : outParam (Type v)) (Pred : outParam (Type w))
     (EPred : outParam (Type w')) [Assertion Pred] [Assertion EPred] where
   /-- The weakest precondition transformer for a program. -/
-  wpTrans : Prog → PredTrans Pred EPred Value
+  trans : Prog → PredTrans Pred EPred Value
   /-- Monotonicity: weaker postconditions yield weaker preconditions. -/
-  wp_trans_monotone (x : Prog) : wpTrans x |>.Monotone
+  wp_trans_monotone (x : Prog) : trans x |>.Monotone
 
 /-- Weakest precondition of `x` for normal postcondition `post` and exception postcondition `epost`.
 The `WP` interpretation can be supplied explicitly via dot notation (`inst.wp x post epost`). -/
 def WP.wp {Prog : Type u} {Value : Type v} {Pred : Type w} {EPred : Type w'}
     [Assertion Pred] [Assertion EPred] [self : WP Prog Value Pred EPred]
     (x : Prog) (post : Value → Pred) (epost : EPred) : Pred :=
-  (self.wpTrans x).apply post epost
+  (self.trans x).apply post epost
 
 -- `wp x post epost` computes the weakest precondition; it is `WP.wp` with the interpretation
 -- synthesised as an instance.
 export Std.WP.WP (wp)
 
-@[simp, grind =] theorem WP.wpTrans_apply_eq {Prog : Type u} {Value : Type v}
+@[simp, grind =] theorem WP.trans_apply_eq {Prog : Type u} {Value : Type v}
     [Assertion Pred] [Assertion EPred] [WP Prog Value Pred EPred] (x : Prog) :
-  (WP.wpTrans x).apply = wp x := rfl
+  (WP.trans x).apply = wp x := rfl
 
 /-!
 ## Derived WP Lemmas

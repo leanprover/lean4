@@ -40,7 +40,7 @@ pointwise function-lattice instances. -/
 abbrev StateProp := (st : State) → st.Invariant → Prop
 
 instance Stateful.instWP {α : Type} : WP (Stateful α) α StateProp EStack⟨⟩ where
-  wpTrans f := ⟨fun post _epost =>
+  trans f := ⟨fun post _epost =>
     fun st _ =>
       let (optRes, stOut) := f.run st
       ∃ h : stOut.Invariant,
@@ -50,7 +50,7 @@ instance Stateful.instWP {α : Type} : WP (Stateful α) α StateProp EStack⟨�
   wp_trans_monotone x := by
     simp only [Lean.Order.PredTrans.Monotone, Lean.Order.PartialOrder.rel, Stateful.run]; grind
 
-theorem Stateful.wpTrans_apply_eq {α : Type} (x : Stateful α)
+theorem Stateful.trans_apply_eq {α : Type} (x : Stateful α)
     (post : α → StateProp) (epost : EStack⟨⟩) (st : State) (h : st.Invariant) :
     wp x post epost st h
       = ∃ h' : (x st).2.Invariant,
@@ -64,7 +64,7 @@ instance : WPMonad Stateful StateProp EStack⟨⟩ where
     intro st h hp; exact ⟨h, hp⟩
   bind_le_wp_bind x f post epost := by
     intro st h hp
-    simp only [Stateful.wpTrans_apply_eq, bind] at hp ⊢
+    simp only [Stateful.trans_apply_eq, bind] at hp ⊢
     grind
 
 /--

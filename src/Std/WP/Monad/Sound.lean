@@ -72,7 +72,7 @@ instance EStateM.instLawfulWPMonadAttach {ε σ : Type} : LawfulWPMonadAttach (E
     obtain ⟨s, s', heq⟩ := hcan
     have hxs : x s = EStateM.Result.ok a s' := heq
     have h := hwp s (by simp)
-    simp only [wp, WP.wpTrans, hxs] at h
+    simp only [wp, WP.trans, hxs] at h
     simpa using h
 
 instance ExceptT.instLawfulWPMonadAttach {ε m Pred EPred}
@@ -251,8 +251,8 @@ theorem EStateM.of_run_eq_wp {ε σ α : Type} {x : EStateM.Result ε σ α}
   change P (prog s)
   cases heq : prog s with
   | ok a s' =>
-    simpa [wp, WP.wpTrans, heq] using hwp
+    simpa [wp, WP.trans, heq] using hwp
   | error e s' =>
-    simpa [wp, WP.wpTrans, heq] using hwp
+    simpa [wp, WP.trans, heq] using hwp
 
 end Std.WP

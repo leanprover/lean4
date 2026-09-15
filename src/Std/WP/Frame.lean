@@ -61,12 +61,12 @@ theorem WP.frames_of_frameClosure {R : Type t} (op : R → Pred → Pred)
     (hactE : ∀ r r' E, opE (comp r r') E = opE r (opE r' E))
     {x : Prog} {F : R}
     (h : ∃ f : Prog → PredTrans Pred EPred Value,
-      ∀ x : Prog, WP.wpTrans x = (f x).frameClosure op) :
+      ∀ x : Prog, WP.trans x = (f x).frameClosure op) :
     WP.Frames op x F := by
   obtain ⟨f, hf⟩ := h
   constructor
   intro Q E
-  show op F ((WP.wpTrans x).apply Q E) ⊑ (WP.wpTrans x).apply _ _
+  show op F ((WP.trans x).apply Q E) ⊑ (WP.trans x).apply _ _
   rw [hf x]
   exact PredTrans.frameClosure_frames op comp hact hactE (f x) Q E F
 
@@ -91,7 +91,7 @@ exception-channel companion. -/
 @[instance_reducible] noncomputable def WP.withFrameClosure {R : Type t} (op : R → Pred → Pred)
     {opE : R → EPred → EPred} [FrameOp op EPred opE]
     (base : WP Prog Value Pred EPred) : WP Prog Value Pred EPred where
-  wpTrans x := (base.wpTrans x).frameClosure op
+  trans x := (base.trans x).frameClosure op
   wp_trans_monotone x := PredTrans.monotone_frameClosure op (base.wp_trans_monotone x)
 
 omit [WP Prog Value Pred EPred] in
@@ -100,7 +100,7 @@ theorem WP.withFrameClosure_le_wp_iff {R : Type t} (op : R → Pred → Pred)
     (base : WP Prog Value Pred EPred) (x : Prog) (Q : Value → Pred) (E : EPred) (pre : Pred) :
     pre ⊑ (WP.withFrameClosure op base).wp x Q E ↔
       ∀ r, op r pre ⊑ base.wp x (fun a => op r (Q a)) (opE r E) :=
-  PredTrans.le_frameClosure_iff op (base.wpTrans x)
+  PredTrans.le_frameClosure_iff op (base.trans x)
 
 omit [WP Prog Value Pred EPred] in
 theorem WP.le_wp_of_withFrameClosure_eq {R : Type t} {op : R → Pred → Pred}

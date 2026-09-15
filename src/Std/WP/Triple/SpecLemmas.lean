@@ -394,7 +394,7 @@ theorem Spec.tryCatch_Except (x : Except ε α) (h : ε → Except ε α) :
 theorem Spec.orElse_Except (x : Except ε α) (h : Unit → Except ε α) :
     Triple (OrElse.orElse x h : Except ε α)
       (wp x post (fun (_ : ε) => wp (h ()) post epost)) post epost :=
-  Triple.intro (by simp only [wp, WP.wpTrans, OrElse.orElse, MonadExcept.orElse]; cases x <;> rfl)
+  Triple.intro (by simp only [wp, WP.trans, OrElse.orElse, MonadExcept.orElse]; cases x <;> rfl)
 
 /-! # `OptionT` -/
 

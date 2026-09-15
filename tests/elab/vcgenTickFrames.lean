@@ -144,7 +144,7 @@ def tick [Monad m] : TickT m Unit := show StateT Nat m Unit from modify (· + 1)
 `StateT` wp over `costConj`. -/
 noncomputable def TickT.wp [Monad m] [Assertion Pred] [Assertion EPred] [WPMonad m Pred EPred]
     {α : Type} (x : TickT m α) (Q : α → Nat → Pred) (E : EPred) : Nat → Pred :=
-  ((WP.wpTrans x.run).frameClosure costConj).apply Q E
+  ((WP.trans x.run).frameClosure costConj).apply Q E
 
 /-- The simp normal form for `TickT.wp`: the meet over all shifts `r` of the base wp under the
 shifted postcondition `⌜r ≤ m⌝ ⊓ Q a (m - r)`, offset by `r`. -/
@@ -192,7 +192,7 @@ theorem frames_costConj [Assertion Pred] [Assertion EPred] [WPMonad m Pred EPred
     {α : Type} (x : TickT m α) (F : Nat) :
     WP.Frames costConj x F :=
   WP.frames_of_frameClosure costConj (· + ·) costConj_add (fun _ _ _ => rfl)
-    ⟨fun y => WP.wpTrans y.run, fun _ => rfl⟩
+    ⟨fun y => WP.trans y.run, fun _ => rfl⟩
 
 /-- The frame rule, pointwise: holding `F` commutes into the postcondition of any `TickT` program. -/
 theorem tickFrames [Assertion Pred] [Assertion EPred] [WPMonad m Pred EPred]

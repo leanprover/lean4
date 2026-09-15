@@ -1,9 +1,16 @@
-Failure @25 (⟨3, 0⟩): expected column 1
+Input: " ``` scheme\n(define x 4)\nx\n```"
+Failure: expected closing '```' for the code block opened on line 1 at column 1
+ --> 3:0-3:1
+  |
+3 | x
+  | ^
+  = consumed input prefix: 25 bytes
 Final stack:
-  (Lean.Doc.Syntax.codeblock
-   "```"
+  (Lean.Doc.Parser.Block.codeblock
+   (Lean.Doc.Parser.codeBlockFence "```")
    [`scheme []]
-   "\n"
-   (str "\"\\n\"")
+   (Lean.Doc.Parser.versoCodeBlock [])
    <missing>)
-Remaining: "x\n```"
+Remaining:
+"x\n```"
+Round-trip not reproduced, as the parse reported errors: leaf without original source info: <missing>

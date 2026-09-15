@@ -1,0 +1,15 @@
+Input: "[^a^b]\n"
+Failure: expected a character other than '^', '[', '\', or a tab
+ --> 1:3-1:4
+  |
+1 | [^a^b]
+  |    ^
+  = consumed input prefix: 3 bytes
+Final stack:
+  [(Lean.Doc.Parser.Block.para
+    [(Lean.Doc.Parser.Inline.footnote
+      "[^"
+      (Lean.Doc.Parser.versoRef "a")
+      <missing>)])]
+All input consumed.
+Round-trip not reproduced, as the parse reported errors: leaf without original source info: <missing>

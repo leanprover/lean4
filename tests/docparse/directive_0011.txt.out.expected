@@ -1,0 +1,18 @@
+Input: ":::: d \"a \\\"b\\\" c\"\nfoo\n::::"
+Success! Final stack:
+  (Lean.Doc.Parser.Block.directive
+   (Lean.Doc.Parser.directiveDelimiter "::::")
+   `d
+   [(Lean.Doc.Parser.Arg.anon
+     (Lean.Doc.Parser.ArgVal.str
+      (str "\"a \\\"b\\\" c\"")))]
+   [(Lean.Doc.Parser.Block.para
+     [(Lean.Doc.Parser.Inline.text
+       (Lean.Doc.Parser.versoText "foo"))])]
+   (Lean.Doc.Parser.directiveDelimiter "::::"))
+All input consumed.
+Round-trip OK
+Decoded views:
+  directive (opener := "::::") (name := d) (args := [anon (val := str (lit := "a \"b\" c") (value := "a \"b\" c"))]) (closer := "::::")
+    para
+      text (content := "foo")

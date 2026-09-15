@@ -1,0 +1,14 @@
+Input: "%%%\n  a := 1\n%%%"
+Failure: expected metadata contents at column 0
+ --> 2:2-2:3
+  |
+2 |   a := 1
+  |   ^
+  = consumed input prefix: 6 bytes
+Final stack:
+  (Lean.Doc.Parser.Block.metadata_block
+   "%%%"
+   <missing>)
+Remaining:
+"a := 1\n%%%"
+Round-trip not reproduced, as the parse reported errors: leaf without original source info: <missing>

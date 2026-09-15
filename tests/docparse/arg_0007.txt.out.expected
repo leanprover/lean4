@@ -1,4 +1,11 @@
-Failure @2 (⟨1, 2⟩): expected no space before
+Input: "- other"
+Failure: expected no space before
+ --> 1:2-1:3
+  |
+1 | - other
+  |   ^
+  = consumed input prefix: 2 bytes
 Final stack:
-  (Lean.Doc.Syntax.flag_off "-" `other)
-Remaining: "other"
+  (Lean.Doc.Parser.Arg.flag_off "-" `other)
+All input consumed.
+Round-trip not reproduced, as the parse reported errors: whitespace at 1 not covered by the source info of `other

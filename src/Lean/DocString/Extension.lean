@@ -234,14 +234,8 @@ def getModuleDoc? (env : Environment) (moduleName : Name) : Option (Array Module
 
 def getDocStringText [Monad m] [MonadError m] (stx : TSyntax `Lean.Parser.Command.docComment) : m String :=
   match stx.raw[1] with
-  | Syntax.atom _ val =>
-    return String.Pos.Raw.extract val 0 (val.rawEndPos.unoffsetBy ⟨2⟩)
-  | Syntax.node _ `Lean.Parser.Command.versoCommentBody _ =>
-    match stx.raw[1][0] with
-    | Syntax.atom _ val =>
-      return String.Pos.Raw.extract val 0 (val.rawEndPos.unoffsetBy ⟨2⟩)
-    | _ =>
-      throwErrorAt stx "unexpected doc string{indentD stx}"
+  | Syntax.node _ `Lean.Parser.Command.commentBody #[.atom _ text, _] =>
+    return text
   | _ =>
     throwErrorAt stx "unexpected doc string{indentD stx}"
 

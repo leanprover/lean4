@@ -69,8 +69,7 @@ set_option maxRecDepth 4096 in
 set_option maxHeartbeats 1000 in
 example : Nat.powMod 2 (2 ^ 200) 1000000007 = 988385428 := by decide
 
-/-! A cryptographic-sized modulus and exponent exercise kernel replay. -/
-set_option maxRecDepth 4096 in
+/-! `decide +kernel` at 255-bit operand size. -/
 example : Nat.powMod 2
     57896044618658097711785492504343953926634992332820282019728792003956564819948
     57896044618658097711785492504343953926634992332820282019728792003956564819949 = 1 := by
@@ -101,3 +100,13 @@ abbrev g : Nat := 0xa4d1cbd5c3fd34126765a442efb99905f8104dd258ac507fd6406cff1426
 #guard Nat.powMod g (M - 1) M = 1
 -- And via `Fin`, the main motivating use case.
 #guard ((Fin.ofNat _ g : Fin M) ^ (M - 1) = 1 : Bool)
+
+/-! Kernel evaluation through the `Fin` consumer. -/
+example : (3 : Fin 7) ^ 1000 = 4 := by decide +kernel
+
+/-! Window transitions and exponent digits on either side of a window boundary. -/
+example : [512, 1024].all (fun bits =>
+    [2 ^ bits - 1, 2 ^ bits, 2 ^ bits + 1].all (fun m =>
+      Nat.powMod (m - 1) 65537 m == m - 1)) := by decide +kernel
+example : [15, 16, 17, 63, 64, 65].all (fun e =>
+    Nat.powMod 7 e 97 == 7 ^ e % 97) := by decide +kernel

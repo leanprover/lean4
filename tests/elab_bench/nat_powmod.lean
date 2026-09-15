@@ -1,14 +1,15 @@
 module
-import Lean
-public meta import Lean
+meta import Lean
 
 /-! Kernel reduction of modular powers at cryptographic operand sizes. -/
 
 open Lean in
 run_cmd do
   let bench := (← IO.getEnv "TEST_BENCH") == some "1"
-  let cases := if bench then [31, 61, 127, 255, 521, 1024] else [255]
+  let cases := if bench then [31, 61, 127, 255, 521, 1024, 4096] else [255]
   let env ← getEnv
+  -- Finish pending kernel tasks before timing. The references also prevent hoisting
+  -- pure kernel calls across the timer if this code is compiled.
   let ready ← IO.mkRef env.toKernelEnv
   let env := Environment.ofKernelEnv (← ready.get)
   for bits in cases do
@@ -20,13 +21,15 @@ run_cmd do
     let type := mkApp3 (mkConst ``Eq [.succ .zero]) (mkConst ``Nat) lhs value
     let refl := mkApp2 (mkConst ``Eq.refl [.succ .zero]) (mkConst ``Nat) value
     let proof := mkApp (mkLambda `h .default type (mkBVar 0)) refl
-    let input ← IO.mkRef (env, proof)
-    let (env, proof) ← input.get
-    let start ← IO.monoNanosNow
-    let checked ← IO.mkRef (Kernel.check env {} proof)
-    let checked ← checked.get
-    let stop ← IO.monoNanosNow
-    match checked with
-    | .error _ => throwError "kernel reduction disagrees with native powMod"
-    | .ok _ => pure ()
-    if bench then IO.println s!"powMod {bits} bits: {stop - start} ns"
+    let repetitions := if bench then 20 else 1
+    let mut total : Nat := 0
+    for _ in [:repetitions] do
+      let input ← IO.mkRef (env, proof)
+      let (env, proof) ← input.get
+      let start ← IO.monoNanosNow
+      let checked ← IO.mkRef (Kernel.check env {} proof)
+      let checked ← checked.get
+      let stop ← IO.monoNanosNow
+      let _ ← ofExceptKernelException checked
+      total := total + (stop - start)
+    IO.println s!"measurement: powmod_kernel_{bits}bit {total.toFloat / repetitions.toFloat / 1e6} ms"

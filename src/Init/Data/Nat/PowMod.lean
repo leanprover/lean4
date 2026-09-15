@@ -57,11 +57,16 @@ private theorem powMod.window_eq (b m k fuel e : Nat) (hk : 2 ≤ k) (h : e < fu
 /--
 Computes `b ^ e % m` using modular exponentiation.
 
-The Lean definition uses four-bit windows for `m ≤ 2 ^ 512`, three-bit windows for
-`m ≤ 2 ^ 1024`, and square-and-multiply for larger moduli. Windows trade larger
-intermediate integers for fewer kernel reductions: for positive `m`, intermediates
-are bounded by `m ^ 31`, `m ^ 15`, and `m ^ 2`, respectively. Compiled execution
-uses GMP modular exponentiation.
+The Lean definition uses four-bit windows for `m ≤ 2 ^ 512` and three-bit
+windows for `m ≤ 2 ^ 1024`. Above that, a reduced base below `2 ^ 64` uses two-bit
+windows through `m ≤ 2 ^ 4096`, then one-bit windows when the exponent is at
+least `2 ^ 64`. Other inputs use square-and-multiply. Small bases make the
+left-to-right window products cheaper; short exponents retain the binary loop.
+
+For positive `m`, the four- and three-bit windows have intermediate bounds
+`m ^ 31` and `m ^ 15`; the small-base two- and one-bit windows have bounds
+`m ^ 4 * 2 ^ 192` and `m ^ 2 * 2 ^ 64`. The binary loop stays below `m ^ 2`.
+Compiled execution uses GMP modular exponentiation.
 
 Because `Nat.mod` satisfies `n % 0 = n`, `powMod b e 0` is `b ^ e`; in that case
 intermediates can be as large as the result.
@@ -83,7 +88,13 @@ def powMod (b e m : @& Nat) : Nat :=
   -- Shifts keep the bounds reducible under Meta's default exponentiation limit.
   (e.beq 0).rec
     ((m.ble ((1 : Nat).shiftLeft 1024)).rec
-      (powMod.go m e.succ (b.mod m) e 1)
+      (((b.mod m).ble 18446744073709551615).rec
+        (powMod.go m e.succ (b.mod m) e 1)
+        ((m.ble ((1 : Nat).shiftLeft 4096)).rec
+          ((e.ble 18446744073709551615).rec
+            (powMod.window (b.mod m) m 2 e.succ e)
+            (powMod.go m e.succ (b.mod m) e 1))
+          (powMod.window (b.mod m) m 4 e.succ e)))
       ((m.ble ((1 : Nat).shiftLeft 512)).rec
         (powMod.window (b.mod m) m 8 e.succ e)
         (powMod.window (b.mod m) m 16 e.succ e)))
@@ -119,15 +130,12 @@ theorem powMod_def (b e m : Nat) : powMod b e m = b ^ e % m := by
   split
   next he => subst e; rfl
   next he =>
-    split
-    next =>
-      split
-      all_goals
-        rw [powMod.window_eq _ _ _ _ _ (by decide) (by omega)]
+    repeat' split
+    all_goals first
+      | rw [powMod.window_eq _ _ _ _ _ (by decide) (by omega)]
         exact (Nat.pow_mod b e m).symm
-    next =>
-      rw [powMod.go_eq _ _ _ _ _ (by omega), Nat.mul_one]
-      exact (Nat.pow_mod b e m).symm
+      | rw [powMod.go_eq _ _ _ _ _ (by omega), Nat.mul_one]
+        exact (Nat.pow_mod b e m).symm
 
 theorem powMod_zero (b m : Nat) : powMod b 0 m = 1 % m := by simp [powMod_def]
 

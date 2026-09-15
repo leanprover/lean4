@@ -1696,6 +1696,11 @@ inductive LeadingIdentBehavior where
   `<foo>` and parsers associated with the auxiliary token “ident”, which parses identifiers.
   -/
   | both
+  /--
+  Like `default`, and parsers associated with the token `<foo>` also execute when the leading
+  token is the identifier `<foo>`. Tokens in syntax declarations stay reserved, unlike `both`.
+  -/
+  | newDefault
   deriving Inhabited, BEq, Repr
 
 /--
@@ -1748,7 +1753,7 @@ def indexed {α : Type} (map : TokenMap α) (c : ParserContext) (s : ParserState
       match map.get? val with
       | some as => (s, as)
       | none    => find identKind
-    | .both =>
+    | .both | .newDefault =>
       match map.get? val with
       | some as =>
         if val == identKind then

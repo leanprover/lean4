@@ -6,7 +6,7 @@ Authors: Kim Morrison
 module
 
 prelude
-import all Lean.LibrarySuggestions.SymbolFrequency
+import Lean.LibrarySuggestions.SymbolFrequency
 public import Lean.LibrarySuggestions.Basic
 
 /-!
@@ -16,6 +16,10 @@ This is an implementation of the "Sine Qua Non" premise selection algorithm, fro
 "Sine Qua Non for Large Theory Reasoning" by Hodor and Voronkov.
 
 It needs to be tuned and evaluated for Lean.
+
+The trigger index is computed on first use from the imported library, using that library's symbol
+frequencies. No index is prepared during module export or stored in olean files. The first query may
+be expensive for large imported libraries.
 -/
 
 namespace Lean.LibrarySuggestions.SineQuaNon
@@ -48,7 +52,7 @@ def triggerSymbols (ci : ConstantInfo) (maxTolerance : Float := 3.0) : MetaM (Ar
   let frequencies ← consts.filterMapM fun n => do
     if denyList.contains n then
       return none
-    let f := (← symbolFrequency n) + (← localSymbolFrequency n)
+    let f ← symbolFrequency n
     return if f = 0 then
       none
     else
@@ -78,49 +82,19 @@ def prepareTriggers (names : Array Name) (maxTolerance : Float := 3.0) : MetaM (
       map := insertTrigger map trigger name tolerance
   return map
 
-/--
-Combine two trigger maps, taking the sorted union of the triggered theorems for each symbol.
-If one map is much larger than the other, it should be the first argument.
--/
-def combineTriggers (map₁ map₂ : NameMap (List (Name × Float))) : NameMap (List (Name × Float)) := Id.run do
-  let mut map := map₁
-  for (trigger, decls₂) in map₂ do
-    map := match map₁.find? trigger with
-    | none => map.insert trigger decls₂
-    | some decls₁ => map.insert trigger (decls₂.foldl (init := decls₁) (fun acc (decl, tolerance) => acc.orderedInsert (fun x y => x.2 ≤ y.2) (decl, tolerance)))
-  return map
-
-/--
-The state is just an array of array of maps.
-We don't assemble these on import for efficiency reasons: most modules will not query this extension.
-
-Instead, we use an `IO.Ref` below so that within each module we can assemble the global `NameMap (List (Name × Float))` once.
-
-Since we never modify the extension state except on export, the `IO.Ref` does not need updating after first access.
--/
-builtin_initialize sineQuaNonExt : PersistentEnvExtension (NameMap (List (Name × Float))) Empty (Array (Array (NameMap (List (Name × Float))))) ←
-  registerPersistentEnvExtension {
-    name            := `sineQueNon
-    mkInitial       := pure ∅
-    addImportedFn   := fun mapss _ => pure mapss
-    addEntryFn      := nofun
-    -- TODO: it would be nice to avoid the `toArray` here, e.g. via iterators.
-    exportEntriesFnEx := fun env _ => unsafe
-      let ents := env.unsafeRunMetaM do return #[← prepareTriggers (env.constants.map₂.toArray.map (·.1))]
-      .uniform ents
-    statsFn         := fun _ => "sine qua non premise selection extension"
-  }
-
 /-- A global `IO.Ref` containing the "sine qua non" triggers. This is initialized on first use. -/
 builtin_initialize sineQuaNonTriggersRef : IO.Ref (Option (NameMap (List (Name × Float)))) ← IO.mkRef none
 
-/-- The "sine qua non" triggers for imported constants. This is initialized on first use. -/
+/--
+The "sine qua non" triggers for imported constants. This is computed and cached on first use,
+assuming the imported environment remains fixed for the lifetime of the process.
+-/
 def sineQuaNonTriggerMap : CoreM (NameMap (List (Name × Float))) := do
   match ← sineQuaNonTriggersRef.get with
   | some map => return map
   | none =>
-    let mapss := sineQuaNonExt.getState (← getEnv)
-    let map := mapss.foldl (init := {}) fun acc maps => maps.foldl (init := acc) fun acc map => combineTriggers acc map
+    let map ← Meta.MetaM.run' <| withoutExporting do
+      prepareTriggers (← getEnv).constants.map₁.keysArray
     sineQuaNonTriggersRef.set (some map)
     return map
 

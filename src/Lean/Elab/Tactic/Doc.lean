@@ -7,6 +7,8 @@ module
 
 prelude
 import Lean.DocString
+import Lean.DocString.Add
+import Lean.Elab.DocString
 public import Lean.Elab.Command
 public import Lean.Parser.Tactic.Doc
 
@@ -16,6 +18,18 @@ namespace Lean.Elab.Tactic.Doc
 open Lean.Parser.Tactic.Doc
 open Lean.Elab.Command
 open Lean.Parser.Command
+
+/--
+The text of a documentation comment as Markdown. A Verso comment is elaborated and rendered, and
+when it does not parse, its errors are logged and the text is empty.
+-/
+private def docCommentMarkdown (doc : TSyntax ``docComment) : CommandElabM String := do
+  if isVersoDocComment doc then
+    let some blocks ← parseVersoDocString doc | return ""
+    let ((text, subsections), _) ← liftTermElabM <| (Doc.elabBlocks blocks).execForModule
+    liftCoreM <| Doc.MarkdownM.run' <| Doc.ToMarkdown.toMarkdown ({ text, subsections } : VersoDocString)
+  else
+    getDocStringText doc
 
 @[builtin_command_elab «tactic_extension»] def elabTacticExtension : CommandElab
   | `(«tactic_extension»|tactic_extension%$cmd $_) => do
@@ -28,13 +42,14 @@ open Lean.Parser.Command
     if !(isTactic (← getEnv) tacName) then
       throwErrorAt tac "`{.ofConstName tacName}` is not a tactic"
 
-    modifyEnv (tacticDocExtExt.addEntry · (tacName, docs.getDocString))
+    let text ← docCommentMarkdown docs
+    modifyEnv (tacticDocExtExt.addEntry · (tacName, text))
     pure ()
   | _ => throwError "Malformed tactic extension command"
 
 @[builtin_command_elab «register_tactic_tag»] def elabRegisterTacticTag : CommandElab
   | `(«register_tactic_tag»|$[$doc:docComment]? register_tactic_tag $tag:ident $user:str) => do
-    let docstring ← doc.mapM getDocStringText
+    let docstring ← doc.mapM docCommentMarkdown
     modifyEnv (knownTacticTagExt.addEntry · (tag.getId, user.getString, docstring))
   | _ => throwError "Malformed 'register_tactic_tag' command"
 

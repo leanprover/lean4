@@ -1,19 +1,31 @@
 /-
 Copyright (c) 2026 Lean FRO, LLC. All rights reserved.
+Copyright (c) 2022 Bhavik Mehta. All rights reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
-Authors: Kim Morrison
+Authors: Kim Morrison, Bhavik Mehta
 -/
 module
 
 prelude
 public import Init.Data.Nat.Lemmas
+import Init.Data.Bool
 import Init.Omega
-import Init.RCases
-import Init.WFTactics
 
 public section
 
 namespace Nat
+
+/-- Kernel reduction loop for `powMod`, with an accumulator and decreasing fuel.
+The explicit recursors keep the recursive function unapplied until a branch is selected.
+Adapted from Bhavik Mehta's `powModK` in PrimeCert (Apache 2.0). -/
+@[expose] noncomputable def powMod.go (m : Nat) : Nat → Nat → Nat → Nat → Nat :=
+  Nat.rec (fun _ _ _ => 0)
+    (fun _ rec b e acc =>
+      (e.beq 0).rec
+        (((e.mod 2).beq 0).rec
+          (rec ((b.mul b).mod m) (e.div 2) ((b.mul acc).mod m))
+          (rec ((b.mul b).mod m) (e.div 2) acc))
+        (acc.mod m))
 
 /--
 Computes `b ^ e % m` by square-and-multiply, reducing modulo `m` at each step so
@@ -34,27 +46,37 @@ Examples:
 * `powMod 2 10 1000 = 24`
 * `powMod 3 4 0 = 81`
 -/
-@[expose, semireducible, extern "lean_nat_powmod"]
-def powMod (b e m : @& Nat) : Nat :=
-  if e = 0 then 1 % m
-  else
-    let r := powMod (b * b % m) (e / 2) m
-    if e % 2 = 1 then r * b % m else r
-termination_by e
-decreasing_by omega
+@[expose, extern "lean_nat_powmod"]
+def powMod (b e m : @& Nat) : Nat := powMod.go m e.succ (b.mod m) e 1
+
+private theorem powMod.go_eq (m fuel b e acc : Nat) (h : e < fuel) :
+    powMod.go m fuel b e acc = (b ^ e * acc) % m := by
+  induction fuel generalizing b e acc with
+  | zero => omega
+  | succ fuel ih =>
+    change (e.beq 0).rec
+      (((e % 2).beq 0).rec
+        (powMod.go m fuel (b * b % m) (e / 2) (b * acc % m))
+        (powMod.go m fuel (b * b % m) (e / 2) acc))
+      (acc % m) = (b ^ e * acc) % m
+    simp only [Bool.rec_eq, beq_eq]
+    split
+    next he => simp [he]
+    next he =>
+      split
+      next hev =>
+        rw [ih _ _ _ (by omega)]
+        have hev' : 2 * (e / 2) = e := by omega
+        rw [Nat.mul_mod, ← Nat.pow_mod, ← Nat.pow_two, ← Nat.pow_mul, hev', ← Nat.mul_mod]
+      next hod =>
+        rw [ih _ _ _ (by omega)]
+        have hod' : 2 * (e / 2) + 1 = e := by omega
+        rw [Nat.mul_mod, Nat.mod_mod, ← Nat.pow_mod, ← Nat.pow_two, ← Nat.pow_mul,
+          ← Nat.mul_mod, ← Nat.mul_assoc, ← Nat.pow_succ, Nat.succ_eq_add_one, hod']
 
 theorem powMod_def (b e m : Nat) : powMod b e m = b ^ e % m := by
-  fun_induction powMod b e m with
-  | case1 b => rw [Nat.pow_zero]
-  | case2 b e hne r hodd ih =>
-    subst r
-    have hod : 2 * (e / 2) + 1 = e := by omega
-    rw [ih, ← Nat.pow_mod, ← Nat.pow_two, ← Nat.pow_mul, Nat.mod_mul_mod,
-      ← Nat.pow_succ, Nat.succ_eq_add_one, hod]
-  | case3 b e hne r heven ih =>
-    subst r
-    have hev : 2 * (e / 2) = e := by omega
-    rw [ih, ← Nat.pow_mod, ← Nat.pow_two, ← Nat.pow_mul, hev]
+  change powMod.go m (e + 1) (b % m) e 1 = _
+  rw [powMod.go_eq _ _ _ _ _ (by omega), Nat.mul_one, ← Nat.pow_mod]
 
 theorem powMod_zero (b m : Nat) : powMod b 0 m = 1 % m := by simp [powMod_def]
 

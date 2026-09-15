@@ -19,6 +19,24 @@ example : Nat.powMod 7 5 13   = 11   := rfl
 example : Nat.powMod 3 4 0    = 81   := rfl  -- `m = 0` behaves like `^`
 example : Nat.powMod 2 10 0   = 1024 := rfl
 
+/-! The accumulator loop preserves the zero-exponent convention for symbolic
+bases and moduli, and handles both parities and non-coprime inputs. -/
+example (b m : Nat) : Nat.powMod b 0 m = 1 % m := rfl
+example : Nat.powMod 0 0 0 = 1 := rfl
+example : Nat.powMod 0 (2 ^ 100) 0 = 0 := by decide +kernel
+example : Nat.powMod 1 (2 ^ 100) 0 = 1 := by decide +kernel
+example : Nat.powMod 6 5 12 = 0 := by decide +kernel
+example : Nat.powMod 6 6 12 = 0 := by decide +kernel
+example : Nat.powMod 9 5 27 = 0 := by decide +kernel
+example : Nat.powMod 9 6 27 = 0 := by decide +kernel
+
+/-! Exhaustive small inputs include modulus zero and agree with ordinary
+exponentiation in both the kernel model and compiled evaluation. -/
+example : (List.range 12).all (fun b => (List.range 12).all (fun e =>
+    (List.range 12).all (fun m => Nat.powMod b e m == b ^ e % m))) := by decide +kernel
+#guard (List.range 12).all (fun b => (List.range 12).all (fun e =>
+  (List.range 12).all (fun m => Nat.powMod b e m == b ^ e % m)))
+
 /-! The runtime override stays total for `m = 0` even when the exponent exceeds
 `UINT_MAX` (`2 ^ 32`). -/
 #guard Nat.powMod 1 (2 ^ 32) 0 = 1
@@ -50,6 +68,13 @@ example : Nat.powMod 3 (10 ^ 12) 1000003 = 81 := by decide
 set_option maxRecDepth 4096 in
 set_option maxHeartbeats 1000 in
 example : Nat.powMod 2 (2 ^ 200) 1000000007 = 988385428 := by decide
+
+/-! A cryptographic-sized modulus and exponent exercise kernel replay. -/
+set_option maxRecDepth 4096 in
+example : Nat.powMod 2
+    57896044618658097711785492504343953926634992332820282019728792003956564819948
+    57896044618658097711785492504343953926634992332820282019728792003956564819949 = 1 := by
+  decide +kernel
 
 /-! `simp` evaluates closed `Nat.powMod` terms with the `Nat.reducePowMod` simproc,
 but does not unfold `powMod_def` on its own: rewriting to `b ^ e % m` would

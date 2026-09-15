@@ -39,7 +39,9 @@ This creates a `Timer` in the initial state and doesn't run it yet.
   milliseconds, counting from when it's run.
 - If `repeating` is `true` this constructs a timer that resolves after multiples of `timeout`
   milliseconds, counting from when it's run. Note that this includes the 0th multiple right after
-  starting the timer. Furthermore a repeating timer will only be freed after `Timer.stop` is called.
+  starting the timer. A `timeout` of 0 ticks every millisecond, and `reset` then delays the next
+  tick by 1 millisecond. Furthermore a repeating timer will only be freed after `Timer.stop` is
+  called.
 -/
 @[extern "lean_uv_timer_mk"]
 opaque mk (timeout : UInt64) (repeating : Bool) : IO Timer

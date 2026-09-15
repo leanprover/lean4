@@ -96,7 +96,8 @@ extern "C" LEAN_EXPORT lean_obj_res lean_uv_timer_mk(uint64_t timeout, uint8_t r
     if (timer == nullptr) {
         return lean_io_result_mk_error(decode_io_error(ENOMEM, nullptr));
     }
-    timer->m_timeout = timeout;
+    // libuv treats a repeat period of 0 as a one-shot timer.
+    timer->m_timeout = repeating && timeout == 0 ? 1 : timeout;
     timer->m_repeating = repeating;
     timer->m_state = TIMER_STATE_INITIAL;
     timer->m_promise = NULL;

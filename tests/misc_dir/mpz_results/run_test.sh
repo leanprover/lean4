@@ -7,5 +7,7 @@ fi
 if [[ "$OSTYPE" != "cygwin" && "$OSTYPE" != "msys" ]]; then
   MPZ_TEST_FLAGS+=(-Wl,-rpath,"$BUILD_DIR/lib/lean")
 fi
-leanc "${MPZ_TEST_FLAGS[@]}" main.cpp -leanshared -lleanshared -o main.out
+MPZ_TEST_CFLAGS=$(leanc --print-cflags)
+MPZ_TEST_LDFLAGS=$(leanc -leanshared --print-ldflags)
+${CXX} ${MPZ_TEST_CFLAGS} "${MPZ_TEST_FLAGS[@]}" main.cpp ${MPZ_TEST_LDFLAGS} -lleanshared -o main.out
 ./main.out

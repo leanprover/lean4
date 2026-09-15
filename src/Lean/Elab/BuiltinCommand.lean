@@ -269,16 +269,18 @@ private def throwUnnecessaryScopeName (header : Name) : CommandElabM Unit := do
   modify fun s => {s with scopes := s.scopes.drop endSize }
   popScopes endSize
 
-private partial def elabChoiceAux (cmds : Array Syntax) (i : Nat) : CommandElabM Unit :=
-  if h : i < cmds.size then
+private partial def elabChoiceAux (choiceStx : Syntax) (i : Nat) : CommandElabM Unit :=
+  if i < choiceStx.getNumArgs then
     catchInternalId unsupportedSyntaxExceptionId
-      (elabCommand cmds[i])
-      (fun _ => elabChoiceAux cmds (i+1))
+      (do
+        elabCommand (choiceStx.getArg i)
+        pushInfoLeaf <| .ofChoiceResolutionInfo { stx := choiceStx, chosenAltIdx := i })
+      (fun _ => elabChoiceAux choiceStx (i+1))
   else
     throwUnsupportedSyntax
 
 @[builtin_command_elab choice] def elabChoice : CommandElab := fun stx =>
-  elabChoiceAux stx.getArgs 0
+  elabChoiceAux stx 0
 
 @[builtin_command_elab «universe»] def elabUniverse : CommandElab := fun n => do
   n[1].forArgsM addUnivLevel

@@ -195,4 +195,85 @@ private def assertAdvertisesNoBody (what : String) (result : Option Body.Length 
     -- A prompt protocol error is an acceptable answer; only the timeout is a defect.
     pure ()
 
+-- ============================================================
+-- Section 6 — evicting a pooled connection must not abort its exchange
+-- ============================================================
+
+/-- A connector handing out `servers` in order; opening more than there are fails the test. -/
+private def mockConnector (servers : Array Mock.Server) (opened : IO.Ref Nat) :
+    Client.Connector := fun origin config => do
+  let index ← opened.modifyGet fun n => (n, n + 1)
+  let some server := servers[index]?
+    | return .error (.connect
+        s!"the pool opened more than {servers.size} connections (for {origin.host})")
+  return .ok (← Client.Connection.new server origin config)
+
+private def poolRequest : Async (Request Body.Empty) :=
+  Request.new |>.method .get |>.uri! "/x" |>.header! "Host" "example.com" |>.empty
+
+#eval show IO _ from
+  runWithTimeout "an origin swap does not kill another origin's in-flight response" 8000 <|
+  Async.block do
+  let (clientA, serverA) ← Mock.new
+  let (clientB, serverB) ← Mock.new
+  let opened ← IO.mkRef 0
+  -- Retries disabled: a retry would paper over the teardown by re-sending the request.
+  let client ← Client.new {} (mockConnector #[serverA, serverB] opened) 0
+  let request ← poolRequest
+
+  -- A gets its head and half its body; the caller still holds an open stream.
+  let resultA ← IO.Promise.new
+  background do discard <| resultA.resolve (← client.trySend (testOrigin "a.example") request)
+  let _ ← drainRequest clientA
+  clientA.send "HTTP/1.1 200 OK\r\nContent-Length: 10\r\n\r\n01234".toUTF8
+  let responseA ← match ← await resultA.result! with
+    | .error e => throw (IO.userError s!"request A failed: {e}")
+    | .ok response => pure response
+
+  -- B targets a different origin, so the pool evicts A's connection.
+  let resultB ← IO.Promise.new
+  background do discard <| resultB.resolve (← client.trySend (testOrigin "b.example") request)
+  let _ ← drainRequest clientB
+  clientB.send (rawResp "200 OK" #[("Content-Length", "2"), ("Connection", "keep-alive")] "ok")
+  match ← await resultB.result! with
+  | .error e => throw (IO.userError s!"request B failed: {e}")
+  | .ok response => let _ : String ← response.body.readAll; pure ()
+
+  -- A's remaining body must still arrive.
+  background do
+    try clientA.send "56789".toUTF8 catch _ => pure ()
+  let bodyA : String ← try responseA.body.readAll
+    catch e => throw (IO.userError s!"the origin swap tore down A's in-flight response: {e}")
+  unless bodyA == "0123456789" do
+    throw <| IO.userError s!"A's response body was truncated to {bodyA.quote}"
+
+#eval show IO _ from
+  runWithTimeout "concurrent cross-origin pool requests both succeed" 8000 <| Async.block do
+  let mocks ← (Array.range 4).mapM fun _ => Mock.new
+  let opened ← IO.mkRef 0
+  let client ← Client.new {} (mockConnector (mocks.map (·.2)) opened) 1
+  let request ← poolRequest
+
+  -- Every mock answers every request it sees, so the test never depends on which connection the
+  -- pool happens to hand a given request.
+  for (mockClient, _) in mocks do
+    background do
+      repeat
+        let _ ← drainRequest mockClient
+        mockClient.send
+          (rawResp "200 OK" #[("Content-Length", "2"), ("Connection", "keep-alive")] "ok")
+
+  let resultA ← IO.Promise.new
+  let resultB ← IO.Promise.new
+  background do discard <| resultA.resolve (← client.trySend (testOrigin "a.example") request)
+  background do discard <| resultB.resolve (← client.trySend (testOrigin "b.example") request)
+  for (label, result) in [("a.example", resultA), ("b.example", resultB)] do
+    match ← await result.result! with
+    | .error e => throw (IO.userError s!"the concurrent request to {label} failed: {e}")
+    | .ok response =>
+      let _ : String ← try response.body.readAll
+        catch e =>
+          throw (IO.userError s!"reading the concurrent response from {label} failed: {e}")
+      pure ()
+
 end ClientRegressionTests

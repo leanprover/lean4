@@ -24,6 +24,6 @@ example : Nat.powMod 2 (Nat.shiftLeft 1 64 - 1) (Nat.shiftLeft 1 4096 + 1) =
     Nat.shiftLeft 1 4095 + 1 := by decide +kernel
 example : Nat.powMod 2 (Nat.shiftLeft 1 64) (Nat.shiftLeft 1 4096 + 1) = 1 := by
   decide +kernel
--- A full-size exponent also reduces with the default kernel recursion limit.
+-- A full-size exponent also reduces without raising `maxRecDepth`.
 example : Nat.powMod 2 (Nat.shiftLeft 1 5000) (Nat.shiftLeft 1 4096 + 1) = 1 := by
   decide +kernel

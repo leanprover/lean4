@@ -16,7 +16,9 @@ run_cmd do
     let m := 2 ^ bits - 19
     for largeBase in (if bench && bits ≥ 2048 then [false, true] else [false]) do
       let e := m - 1
-      let base := if largeBase then m / 3 else 2
+      let mut base := if largeBase then m / 3 else 2
+      while Nat.gcd base m != 1 do
+        base := base + 1
       let result := Nat.powMod base e m
       let value := mkRawNatLit result
       let lhs := mkApp3 (mkConst ``Nat.powMod) (mkRawNatLit base) (mkRawNatLit e) (mkRawNatLit m)

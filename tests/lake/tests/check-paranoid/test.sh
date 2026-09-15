@@ -16,8 +16,8 @@ export COMPARATOR_BWRAP="$PWD/../fake-bwrap.sh"
 "$LAKE" resolve-deps
 
 SYSROOT="$("$LAKE" env printenv LEAN_SYSROOT)"
-BUNDLED=(leanchecker-paranoid lean4lean nanoda_bin con-leche)
-KERNELS=("Lean paranoid" lean4lean nanoda con-leche)
+BUNDLED=(leanchecker-paranoid lean4lean nanoda_bin con-leche con-ron)
+KERNELS=("Lean paranoid" lean4lean nanoda con-leche con-ron)
 
 # The real checkers are bundled into release toolchains only.
 bundled=1
@@ -67,6 +67,7 @@ match_text 'leanchecker-paranoid stub got: --silent --from-export /' produced.ou
 match_text 'lean4lean stub got: --import /' produced.out
 match_text 'nanoda_bin stub got: /' produced.out
 match_text 'con-leche stub got: /' produced.out
+match_text 'con-ron stub got: /' produced.out
 match_text '"permitted_axioms":["propext","Classical.choice","Quot.sound"]' produced.out
 match_text '"unpermitted_axiom_hard_error":false' produced.out
 for kernel in "${KERNELS[@]}" "Lean default"; do
@@ -88,6 +89,7 @@ test_status_out 1 'lean4lean kernel rejected the solution' \
 match_text 'error: lean4lean exited with 1' produced.out
 match_text 'nanoda kernel accepts the solution' produced.out
 match_text 'con-leche kernel accepts the solution' produced.out
+match_text 'con-ron kernel accepts the solution' produced.out
 match_text 'Lean paranoid kernel accepts the solution' produced.out
 match_text 'Lean default kernel accepts the solution' produced.out
 rm work/reject-lean4lean

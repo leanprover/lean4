@@ -36,11 +36,12 @@ void lean_uv_tcp_socket_finalizer(void* ptr) {
     lean_always_assert(tcp_socket->m_promise_read == nullptr);
     lean_always_assert(tcp_socket->m_byte_array == nullptr);
 
-    /// It's changing here because the object is being freed in the finalizer, and we need the data
-    /// inside of it.
-    tcp_socket->m_uv_tcp->data = ptr;
-
     event_loop_lock(&global_ev);
+
+    // The close callback needs the struct, since the object is being freed. Rewritten under the lock
+    // because the loop thread reads `data` as the Lean object in every callback until `uv_close`: a
+    // TCP listen callback runs without the loop holding a reference, so it can race this finalizer.
+    tcp_socket->m_uv_tcp->data = ptr;
 
     uv_close((uv_handle_t*)tcp_socket->m_uv_tcp, [](uv_handle_t* handle) {
         lean_uv_tcp_socket_object* tcp_socket = (lean_uv_tcp_socket_object*)handle->data;

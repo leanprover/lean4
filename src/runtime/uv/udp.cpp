@@ -25,11 +25,11 @@ void lean_uv_udp_socket_finalizer(void* ptr) {
     lean_always_assert(udp_socket->m_promise_read == nullptr);
     lean_always_assert(udp_socket->m_byte_array == nullptr);
 
-    /// It's changing here because the object is being freed in the finalizer, and we need the data
-    /// inside of it.
-    udp_socket->m_uv_udp->data = ptr;
-
     event_loop_lock(&global_ev);
+
+    // The close callback needs the struct, since the object is being freed. Rewritten under the lock
+    // because callbacks on the loop thread read `data` as the Lean object until `uv_close`.
+    udp_socket->m_uv_udp->data = ptr;
 
     uv_close((uv_handle_t*)udp_socket->m_uv_udp, [](uv_handle_t* handle) {
         lean_uv_udp_socket_object* udp_socket = (lean_uv_udp_socket_object*)handle->data;

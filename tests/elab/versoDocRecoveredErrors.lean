@@ -17,7 +17,7 @@ def parseWithVersoDocs (doc : String) : CommandElabM Unit := do
   let p := andthenFn whitespace (categoryParserFnImpl `command)
   let s := p.run ictx pmctx (getTokenTable env) (mkParserState doc)
   let docstringLost := s.stxStack.toSubarray.toArray.any fun stx =>
-    (stx.find? (·.isOfKind `Lean.Doc.Syntax.parseFailure)).isSome
+    (stx.find? (·.isOfKind Lean.Doc.parseFailureKind)).isSome
   logInfo m!"recovered errors: {s.recoveredErrors.size}, docstring lost: {docstringLost}"
 
 /-- info: recovered errors: 1, docstring lost: false -/

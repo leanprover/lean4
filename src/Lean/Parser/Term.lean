@@ -84,7 +84,7 @@ def versoCommentBodyFn : ParserFn := fun c s =>
           let s :=
             s.pushSyntax <|
             .atom (.original leading startPos trailing endPos) (String.Pos.Raw.extract c.inputString startPos endPos)
-          s.mkNode `Lean.Doc.Syntax.parseFailure iniSz
+          s.mkNode Doc.parseFailureKind iniSz
         else s
       -- A docstring's own errors are reported when it is re-parsed, so we only restore the initial
       -- errors.
@@ -93,7 +93,11 @@ def versoCommentBodyFn : ParserFn := fun c s =>
     else s
 
 def versoCommentBody : Parser :=
-  node `Lean.Parser.Command.versoCommentBody { fn := versoCommentBodyFn }
+  -- The markup is a document, or a parse failure node when it does not parse.
+  let info := { Doc.Parser.documentInfo with
+    collectKinds := (Doc.Parser.documentInfo.collectKinds · |>.insert Doc.parseFailureKind)
+  }
+  node `Lean.Parser.Command.versoCommentBody { info, fn := versoCommentBodyFn }
 
 
 @[combinator_parenthesizer versoCommentBody, expose]
@@ -109,7 +113,7 @@ def versoCommentBody.formatter : PrettyPrinter.Formatter := do
     let markup ← getCur
     -- Markup that did not parse is kept as the text that was written.
     let text :=
-      if markup.isOfKind `Lean.Doc.Syntax.parseFailure then markup[0].getAtomVal
+      if markup.isOfKind Doc.parseFailureKind then markup[0].getAtomVal
       else Doc.Parser.versoDocumentToString (⟨markup⟩ : Doc.VersoDocument)
     let text := text.trimAsciiEnd.copy
     if text.contains '\n' then

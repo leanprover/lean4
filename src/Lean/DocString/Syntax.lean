@@ -396,6 +396,9 @@ def versoCodeLineKind : SyntaxNodeKind := ``versoCodeLine
 /-- The contents of a Verso code block. -/
 def versoCodeBlockKind : SyntaxNodeKind := ``versoCodeBlock
 
+/-- The text of a Verso docstring whose markup does not parse. -/
+def parseFailureKind : SyntaxNodeKind := `Lean.Doc.Parser.parseFailure
+
 /--
 Text content in a Verso document. The token contains the source text with escape sequences
 intact. Use `TSyntax.getVersoText` to decode it.

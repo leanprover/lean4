@@ -115,7 +115,7 @@ def VersoDocstringView.of (docComment : TSyntax [``docComment, ``moduleDoc]) : V
   let body := docComment.raw[1]
   { opener := docComment.raw[0]
     markup :=
-      if body[0].isOfKind `Lean.Doc.Syntax.parseFailure then .parseFailure body[0][0]
+      if body[0].isOfKind Doc.parseFailureKind then .parseFailure body[0][0]
       else .document ⟨body[0]⟩
     closer := body[1] }
 

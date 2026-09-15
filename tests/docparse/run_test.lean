@@ -507,65 +507,6 @@ def testConfigs : List (String × ParserFn × Bool) := [
   ("documentIndented", documentFn {baseColumn := 2}, true),
 ]
 
-/--
-Every syntax kind that the Verso parser can produce. The coverage test checks that each of these
-kinds occurs in the output of at least one successfully parsed test file.
--/
-def parserProducedKinds : List Name := [
-  -- literal content and the delimiter runs
-  Lean.Doc.versoTextKind,
-  Lean.Doc.versoCodeKind,
-  Lean.Doc.versoCodeLineKind,
-  Lean.Doc.versoCodeBlockKind,
-  ``Parser.headerMarker,
-  ``Parser.listMarker,
-  ``Parser.emphDelimiter,
-  ``Parser.boldDelimiter,
-  ``Parser.codeDelimiter,
-  ``Parser.codeBlockFence,
-  ``Parser.directiveDelimiter,
-  -- argument values and arguments
-  ``Parser.ArgVal.str,
-  ``Parser.ArgVal.ident,
-  ``Parser.ArgVal.num,
-  ``Parser.Arg.anon,
-  ``Parser.Arg.named,
-  ``Parser.Arg.named_no_paren,
-  ``Parser.Arg.flag_on,
-  ``Parser.Arg.flag_off,
-  -- link targets
-  ``Parser.LinkTarget.url,
-  ``Parser.LinkTarget.ref,
-  -- inline elements
-  ``Parser.Inline.text,
-  ``Parser.Inline.emph,
-  ``Parser.Inline.bold,
-  ``Parser.Inline.code,
-  ``Parser.Inline.inline_math,
-  ``Parser.Inline.display_math,
-  ``Parser.Inline.link,
-  ``Parser.Inline.image,
-  ``Parser.Inline.footnote,
-  ``Parser.Inline.linebreak,
-  ``Parser.Inline.role,
-  -- list items
-  ``Parser.ListItem.item,
-  ``Parser.DescItem.item,
-  -- block elements
-  ``Parser.Block.para,
-  ``Parser.Block.ul,
-  ``Parser.Block.ol,
-  ``Parser.Block.dl,
-  ``Parser.Block.blockquote,
-  ``Parser.Block.codeblock,
-  ``Parser.Block.directive,
-  ``Parser.Block.header,
-  ``Parser.Block.link_ref,
-  ``Parser.Block.footnote_ref,
-  ``Parser.Block.metadata_block,
-  ``Parser.Block.command,
-]
-
 partial def collectKinds (stx : Syntax) (kinds : Array Name) : Array Name :=
   match stx with
   | .node _ k args =>
@@ -772,8 +713,9 @@ def blankParagraphs : IO UInt32 := do
     return 1
 
 /--
-Parses every test input in the current directory and reports any kind from
-`parserProducedKinds` that occurs in no successful parse result.
+Parses every test input in the current directory. Reports any kind from `Parser.documentKinds` that
+occurs in no successful parse result, and any kind in a successful parse result that is not a
+builtin syntax kind.
 -/
 def coverage : IO UInt32 := do
   let mut seen : Array Name := #[]
@@ -792,15 +734,27 @@ def coverage : IO UInt32 := do
     if s'.allErrors.isEmpty then
       for stx in s'.stxStack.extract 0 s'.stxStack.size do
         seen := collectKinds stx seen
-  let missing := parserProducedKinds.filter (!seen.contains ·)
+  let missing := Parser.documentKinds.filter (!seen.contains ·)
+  let mut failed := false
   if missing.isEmpty then
     IO.println "All parser-produced syntax kinds are covered."
-    return 0
   else
+    failed := true
     IO.println "Syntax kinds not covered by any successfully parsed test file:"
     for k in missing do
       IO.println s!"  {k}"
-    return 1
+  -- A kind outside the builtin set counts as syntax from another module, so a command that
+  -- contains it records a dependency on the module that declares it.
+  let builtinKinds ← Parser.builtinSyntaxNodeKindSetRef.get
+  let unregistered := seen.filter (!builtinKinds.contains ·)
+  if unregistered.isEmpty then
+    IO.println "All parser-produced syntax kinds are builtin."
+  else
+    failed := true
+    IO.println "Parser-produced syntax kinds that are not builtin:"
+    for k in unregistered do
+      IO.println s!"  {k}"
+  return if failed then 1 else 0
 
 def main : List String → IO UInt32
   | [inputFile] => do

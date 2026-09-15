@@ -2104,6 +2104,42 @@ public def locateError (ictx : InputContext) (pos : String.Pos.Raw) (e : Error) 
     let stop := if isGrowableVersoDelimiter ch then versoRunEnd ictx ch pos else ictx.next pos
     (pos, some stop, e)
 
+/--
+The syntax kinds of the nodes that `documentFn` produces.
+-/
+public def documentKinds : List SyntaxNodeKind := [
+  -- the document and its literal content
+  ``document, versoTextKind, versoRefKind, versoLinkUrlKind, versoLinkRefUrlKind, versoImageAltKind,
+  versoCodeKind, versoCodeLineKind, versoCodeBlockKind,
+  -- delimiters and markers
+  ``headerMarker, ``listMarker, ``emphDelimiter, ``boldDelimiter, ``codeDelimiter, ``codeBlockFence,
+  ``directiveDelimiter, ``inlineMathMarker, ``displayMathMarker,
+  -- argument values and arguments
+  ``ArgVal.str, ``ArgVal.ident, ``ArgVal.num, ``Arg.anon, ``Arg.named, ``Arg.named_no_paren,
+  ``Arg.flag_on, ``Arg.flag_off,
+  -- link targets
+  ``LinkTarget.url, ``LinkTarget.ref,
+  -- inline elements
+  ``Inline.text, ``Inline.emph, ``Inline.bold, ``Inline.code, ``Inline.inline_math,
+  ``Inline.display_math, ``Inline.link, ``Inline.image, ``Inline.footnote, ``Inline.linebreak,
+  ``Inline.role,
+  -- list items
+  ``ListItem.item, ``DescItem.item,
+  -- block elements
+  ``Block.para, ``Block.ul, ``Block.ol, ``Block.dl, ``Block.blockquote, ``Block.codeblock,
+  ``Block.directive, ``Block.header, ``Block.link_ref, ``Block.footnote_ref, ``Block.metadata_block,
+  ``Block.command
+]
+
+/--
+Parser information for Verso markup.
+
+Listing the syntax kinds that `documentFn` produces ensures that we don't get spurious module
+dependencies.
+-/
+public def documentInfo : ParserInfo where
+  collectKinds s := documentKinds.foldl (·.insert ·) s
+
 section
 open Lean.PrettyPrinter
 

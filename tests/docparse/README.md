@@ -27,8 +27,9 @@ ordinarily a failure at a `<missing>` leaf or an uncovered region.
 
 The `coverage_0001.txt` entry leaves its own contents unparsed. It re-parses every input file in the
 directory instead. It fails when no successful parse result contains some syntax kind from
-`parserProducedKinds` in `run_test.lean`. Keep that list in step with the productions in
-`Lean.DocString.Syntax` when the parser changes.
+`Lean.Doc.Parser.documentKinds`, and when a successful parse result contains a kind that is not a
+builtin syntax kind. Between them, the two checks keep `documentKinds` equal to the kinds the parser
+produces.
 
 The `blankPara_0001.txt` entry re-parses every input file as well. It fails when a paragraph in a
 successful parse is written as nothing but whitespace. A paragraph contains content, so a run of

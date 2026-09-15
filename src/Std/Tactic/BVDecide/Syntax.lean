@@ -95,5 +95,20 @@ structure BVDecideConfig where
   for `bv_decide`.
   -/
   solverMode : SolverMode := .proof
+  /--
+  Enable support for uninterpreted functions over `BitVec` and `Bool` by counterexample-guided
+  abstraction refinement.
+  -/
+  uf : Bool := false
+  /--
+  The number of iterations that the CEGAR refinement loop may run up to.
+  -/
+  cegarRounds : Nat := 64
+
+/--
+Whether this configuration requires the solver to use incremental solving.
+-/
+def BVDecideConfig.needsIncremental (cfg : BVDecideConfig) : Bool :=
+  cfg.uf
 
 end Lean.Elab.Tactic.BVDecide

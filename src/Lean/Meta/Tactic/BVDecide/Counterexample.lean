@@ -30,13 +30,10 @@ expression - pair values.
 -/
 public def reconstructCounterExample (aig : Std.Sat.AIG BVBit) (assignment : Array (Bool × Nat))
     (atomsAssignment : Std.HashMap Nat (Nat × Expr × Bool)) :
-    Array (Expr × BVExpr.PackedBitVec) := Id.run do
+    Array (Expr × Bool × BVExpr.PackedBitVec) := Id.run do
   let mut sparseMap : Std.HashMap Nat (Std.TreeMap Nat Bool) := {}
   for (decl, idx) in aig.decls.zipIdx do
     let .atom bitVar := decl | continue
-    let (_, _, synthetic) := atomsAssignment[bitVar.var]!
-    if synthetic then
-      continue
     /-
     The CNF variable of an AIG node is the index of the node and the node of an atom doubles as
     the variable of the atom. We assume that a variable can be found at its index as CaDiCal prints
@@ -57,16 +54,22 @@ public def reconstructCounterExample (aig : Std.Sat.AIG BVBit) (assignment : Arr
     sparseMap := sparseMap.insert bitVar.var bitMap
 
   let mut finalMap := #[]
-  for (bitVecVar, bitMap) in sparseMap.toArray do
+  for (bitVecVar, bitMap) in sparseMap do
     let mut value : Nat := 0
     let mut currentBit := 0
-    for (bitIdx, bitValue) in bitMap.toList do
+    for (bitIdx, bitValue) in bitMap do
       assert! bitIdx == currentBit
       if bitValue then
         value := value ||| (1 <<< currentBit)
       currentBit := currentBit + 1
-    let (_, atomExpr, _) := atomsAssignment[bitVecVar]!
-    finalMap := finalMap.push (atomExpr, ⟨BitVec.ofNat currentBit value⟩)
+    let (_, atomExpr, synthetic) := atomsAssignment[bitVecVar]!
+    finalMap := finalMap.push (atomExpr, synthetic, ⟨BitVec.ofNat currentBit value⟩)
+
+  -- There might exist atoms that have not been encoded into CNF, we fill them with 0s
+  for (atomId, (width, atomExpr, synthetic)) in atomsAssignment do
+    if sparseMap.contains atomId then continue
+    finalMap := finalMap.push (atomExpr, synthetic, ⟨BitVec.ofNat width 0⟩)
+
   return finalMap
 
 /--
@@ -86,12 +89,19 @@ public structure CounterExample where
   The actual counter example as a list of equations denoted as `expr = value` pairs.
   -/
   equations : Array (Expr × BVExpr.PackedBitVec)
+  /--
+  Some of the expressions in the equations may be function atoms that were used by the UF theory
+  solver. We want to inform the user that these are not just ordinary uninterpeted symbols.
+  -/
+  functionAtoms : Array Expr
 
 /--
 The result of a spurious counter example diagnosis.
 -/
 structure Diagnosis where
   uninterpretedSymbols : Std.HashSet Expr := {}
+  functionSymbols : Array Expr := {}
+  functionSymbolSet : Std.HashSet Expr := {}
   unusedRelevantHypotheses : Std.HashSet Normalize.Hyp := {}
   derivedEquations : Array (Expr × Expr) := #[]
 
@@ -117,6 +127,18 @@ def addUninterpretedSymbol (e : Expr) : DiagnosisM Unit :=
   modify fun s => { s with uninterpretedSymbols := s.uninterpretedSymbols.insert e }
 
 @[inline]
+def addFunctionSymbol (e : Expr) : DiagnosisM Unit :=
+  modify fun s =>
+    { s with
+        functionSymbolSet := s.functionSymbolSet.insert e,
+        functionSymbols := s.functionSymbols.push e
+    }
+
+@[inline]
+def isFunctionSymbol (e : Expr) : DiagnosisM Bool :=
+  return (← get).functionSymbolSet.contains e
+
+@[inline]
 def addUnusedRelevantHypothesis (hyp : Normalize.Hyp) : DiagnosisM Unit :=
   modify fun s => { s with unusedRelevantHypotheses := s.unusedRelevantHypotheses.insert hyp }
 
@@ -135,12 +157,17 @@ Diagnose spurious counter examples, currently this checks:
 - Whether all hypotheses which contain any variable that was bitblasted were included
 -/
 def diagnose : DiagnosisM Unit := do
+  for funAtom in (← read).functionAtoms do
+    addFunctionSymbol funAtom
+
   for (var, value) in ← equations do
     let (var, value) ← transformEquation var value
     addDerivedEquation var value
     match var with
     | .fvar fvarId => checkRelevantHypsUsed fvarId
-    | _ => addUninterpretedSymbol var
+    | _ =>
+      if ← isFunctionSymbol var then continue
+      addUninterpretedSymbol var
 where
   transformEquation (var : Expr) (value : BVExpr.PackedBitVec) : DiagnosisM (Expr × Expr) := do
     if var.isFVar then
@@ -224,6 +251,17 @@ where
 
 end DiagnosisM
 
+def functionExplainer (d : Diagnosis) : Option MessageData := do
+  guard !d.functionSymbols.isEmpty
+  let symList := d.functionSymbols.toList
+  let mut m := m!"The prover used the following expressions as uninterpreted functions:"
+  for e in symList do
+    m := m ++ m!"\n  - {e}"
+  return m
+
+def theoryExplainers : List (Diagnosis → Option MessageData) :=
+  [functionExplainer]
+
 def uninterpretedExplainer (d : Diagnosis) : Option MessageData := do
   guard !d.uninterpretedSymbols.isEmpty
   let symList := d.uninterpretedSymbols.toList
@@ -240,26 +278,30 @@ def unusedRelevantHypothesesExplainer (d : Diagnosis) : Option MessageData := do
     m := m ++ m!"\n  - {hyp.type} derived via {hyp.source}"
   return m
 
-def explainers : List (Diagnosis → Option MessageData) :=
+def spuriousExplainers : List (Diagnosis → Option MessageData) :=
   [uninterpretedExplainer, unusedRelevantHypothesesExplainer]
 
 public def explainCounterExampleQuality (counterExample : CounterExample) : MetaM MessageData := do
   let diagnosis ← DiagnosisM.run DiagnosisM.diagnose counterExample
-  let folder acc explainer := if let some m := explainer diagnosis then acc.push m else acc
-  let explanations := explainers.foldl (init := #[]) folder
+  let theoryExplanations := theoryExplainers.foldl (init := #[]) fun acc explainer =>
+    if let some m := explainer diagnosis then acc.push m else acc
+  let spuriorsExplanations := spuriousExplainers.foldl (init := #[]) fun acc explainer =>
+    if let some m := explainer diagnosis then acc.push m else acc
 
   let mut err := m!""
 
-  if explanations.isEmpty then
+  if !theoryExplanations.isEmpty then
+    err := err ++ theoryExplanations.foldl (init := m!"") (fun acc exp => acc ++ m!"- " ++ exp ++ m!"\n")
+
+  if spuriorsExplanations.isEmpty then
     err := err ++ m!"The prover found a counterexample, consider the following assignment:\n"
   else
     err := err ++ m!"The prover found a potentially spurious counterexample:\n"
-    err := err ++ explanations.foldl (init := m!"") (fun acc exp => acc ++ m!"- " ++ exp ++ m!"\n")
+    err := err ++ spuriorsExplanations.foldl (init := m!"") (fun acc exp => acc ++ m!"- " ++ exp ++ m!"\n")
     err := err ++ m!"Consider the following assignment:\n"
 
 
-  let folder := fun error (var, value) => error ++ m!"{var} = {value}\n"
-  err := diagnosis.derivedEquations.foldl (init := err) folder
+  err := diagnosis.derivedEquations.foldl (init := err) fun error (var, value) => error ++ m!"{var} = {value}\n"
   return err
 
 end Lean.Meta.Tactic.BVDecide

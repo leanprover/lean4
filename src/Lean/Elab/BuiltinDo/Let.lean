@@ -201,9 +201,9 @@ private def getLetConfigAndCheckMut (letConfigStx : TSyntax ``Parser.Term.letCon
   let `(doErased| erased%$tk $[mut%$mutTk?]? $x:ident $[: $t?]? := $e) := stx | throwUnsupportedSyntax
   elabDoLetOrReassign {} (.let mutTk? true) (← `(letDecl| $x:ident $[: $t?]? := $e)) tk dec
 
-@[builtin_macro Lean.Parser.Term.doErasedArrow] def expandDoErasedArrow : Macro := fun stx => do
+@[builtin_macro Lean.Parser.Term.doErased] def expandDoErasedArrow : Macro := fun stx => do
   match stx with
-  | `(doErasedArrow| erased%$tk $[mut%$mutTk?]? $x:ident $[: $t?]? ← $rhs) =>
+  | `(doErased| erased%$tk $[mut%$mutTk?]? $x:ident $[: $t?]? ← $rhs) =>
     let y := mkIdentFrom x (← MonadQuotation.addMacroScope `__x)
     let letElem ← `(doElem| let $y:ident $[: $t?]? ← $rhs)
     let erasedElem : TSyntax `doElem := ⟨(← `(doErased| erased%$tk $[mut%$mutTk?]? $x:ident := $y)).raw⟩

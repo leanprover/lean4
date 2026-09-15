@@ -187,6 +187,11 @@ theorem Prod.snd_bot {α : Type u} {β : Type v} [CCPO α] [CCPO β] :
     (⊥ : α × β).snd = (⊥ : β) :=
   PartialOrder.rel_antisymm (bot_le ((⊥ : α), (⊥ : β))).right (bot_le _)
 
+/-- The pair of the bottom elements is the bottom element. -/
+theorem Prod.mk_bot {α : Type u} {β : Type v} [CCPO α] [CCPO β] :
+    ((⊥ : α), (⊥ : β)) = (⊥ : α × β) :=
+  PartialOrder.rel_antisymm (Prod.mk_le _ _ _ (bot_le _) (bot_le _)) (bot_le _)
+
 /-- The first component of the top element is the top element. Propositional (not
 definitional), because `⊤` is a supremum, not a constructor application. -/
 theorem Prod.fst_top : (⊤ : α × β).fst = (⊤ : α) :=

@@ -43,10 +43,60 @@ private def mkPostPointwisePremise (postSpec postTarget postTy : Expr) (ssTypes 
       let rhs := mkAppN (mkApp postTarget a) ss'
       mkForallFVars (#[a] ++ ss') (← mkAppM ``PartialOrder.rel #[lhs, rhs])
 
+/-- An `AssertionHom E T hom` instance together with the arguments of its type,
+`#[E, T, hom, instE, instT]`. -/
+private structure AssertionHomInst where
+  levels : List Level
+  args : Array Expr
+  inst : Expr
+
+namespace AssertionHomInst
+
+/-- The stack type the conversion targets. -/
+private def T (p : AssertionHomInst) : Expr := p.args[1]!
+/-- The conversion itself. -/
+private def hom (p : AssertionHomInst) : Expr := p.args[2]!
+
+/-- Apply the `AssertionHom` field `field` to `args`. -/
+private def mkField (p : AssertionHomInst) (field : Name) (args : Array Expr) : Expr :=
+  mkAppN (mkConst field p.levels) (p.args ++ #[p.inst] ++ args)
+
+end AssertionHomInst
+
+/-- The `AssertionHom` instance of `E`, or `none` if there is none, in which case `E` is atomic.
+Runs instance synthesis, which is affordable here: rule construction is cached per spec theorem,
+`WPMonad` instance and excess-argument count, so the lookup runs once per shape, not per goal. -/
+private def assertionHom? (E : Expr) : MetaM (Option AssertionHomInst) := withNewMCtxDepth do
+  let some u ← decLevel? (← getLevel E) | return none
+  let .some instE ← trySynthInstance (mkApp (mkConst ``Assertion [u]) E) | return none
+  let T ← mkFreshExprMVar (mkSort (.succ u))
+  let hom ← mkFreshExprMVar (← mkArrow E T)
+  let instT ← mkFreshExprMVar (mkApp (mkConst ``Assertion [u]) T)
+  let .some inst ← trySynthInstance
+      (mkAppN (mkConst ``AssertionHom [u]) #[E, T, hom, instE, instT])
+    | return none
+  let instType ← instantiateMVars (← Meta.inferType inst)
+  let .const _ levels := instType.getAppFn | return none
+  return some { levels, args := instType.getAppArgs, inst := ← instantiateMVars inst }
+
+/-- Reduce a structure projection applied to a constructor application to the projected component,
+so that a factor of a converted exception postcondition is the assertion the user wrote. Any other
+term is returned unchanged; in particular a projection of a free or metavariable stays a
+projection. -/
+private def reduceProjOfCtor (e : Expr) : MetaM Expr := do
+  let .const fn _ := e.getAppFn | return e
+  let some _ ← getProjectionFnInfo? fn | return e
+  if ← isConstructorApp e.appArg!.consumeMData then
+    whnf e
+  else
+    return e
+
 /-- Recursively decompose `epostSpec ⊑ epostAbstract` into per-component proofs.
     - `(head, tail)` → mvar for `head ⊑ epostAbstract.fst`, recurse on `tail`
     - Otherwise, if `EPred` is a product, project `epostSpec.fst`/`.snd` and decompose those
     - Otherwise, if `EPred` is `Unit`, trivial via `Unit.unit_le`
+    - Otherwise, if `EPred` has an `AssertionHom` instance, convert both sides into stacks,
+      decompose the entailment between the images, and reflect it back via `le_of_hom_le`
     - Otherwise → single mvar for `epostSpec ⊑ epostAbstract` -/
 private partial def decomposeProdRel (EPred epostSpec epostAbstract : Expr)
     (stateArgNames : Array Name := #[]) : MetaM Expr := do
@@ -55,6 +105,10 @@ private partial def decomposeProdRel (EPred epostSpec epostAbstract : Expr)
     let absHead ← mkAppM ``Prod.fst #[epostAbstract]
     let absTail ← mkAppM ``Prod.snd #[epostAbstract]
     let hTail ← decomposeProdRel etTy tail absTail stateArgNames
+    -- A factor produced by an `AssertionHom` conversion is a projection of the spec's exception
+    -- postcondition literal. Reduce it, so a schematic factor is recognized and assigned below,
+    -- and the VC for a concrete factor states the assertion the user wrote.
+    let head ← reduceProjOfCtor head
     /- Sometimes, even though `epost` is not schematic itself, its components might be schematic.
       Think of a triple of a kind `⦃ pre ⦄ x ⦃ post; epost₁, ⊥, epost₃, ⊥, ... ⦄`.
       In this case we do not want to create new metavariables for `epost₁`, `epost₃`, etc.
@@ -89,6 +143,14 @@ private partial def decomposeProdRel (EPred epostSpec epostAbstract : Expr)
       -- The terminator is reducibly `PUnit`, under any of its names.
       if (← whnfR EPred).isConstOf ``PUnit then
         mkAppM ``Unit.unit_le #[epostAbstract]
+      else if let some p ← assertionHom? EPred then
+        -- `EPred` converts into a stack: decompose the entailment between the images and reflect
+        -- it back along the hom. The beta-reduced image of a spec's literal is a `Prod.mk`
+        -- application, so the stack cases above apply to it.
+        let homSpec := (mkApp p.hom epostSpec).headBeta
+        let homAbstract := mkApp p.hom epostAbstract
+        let h ← decomposeProdRel p.T homSpec homAbstract stateArgNames
+        return p.mkField ``AssertionHom.le_of_hom_le #[epostSpec, epostAbstract, h]
       else
         let hTy ← mkAppM ``PartialOrder.rel #[epostSpec, epostAbstract]
         mkFreshExprMVar (userName := `epostImpl) hTy
@@ -139,9 +201,11 @@ value, the relation `epostSpec ⊑ epost` is decomposed component by component:
 ∀ e s₁ ... sₙ, epostSpec.fst e s₁ ... sₙ ⊑ epost.fst e s₁ ... sₙ
 ```
 and recursively for the tail. `decomposeProdRel` assembles these component VCs using
-`Prod.mk_le` and `Unit.unit_le`. The proof is then generalized with `WP.wp_econs_le`.
-When the spec exception postcondition is `⊥`, no VC is needed and `WP.wp_econs_bot_le` is
-used instead.
+`Prod.mk_le` and `Unit.unit_le`. An exception postcondition type with an `AssertionHom` instance is
+first converted into a stack, whose components are decomposed the same way, and
+`AssertionHom.le_of_hom_le` reflects the entailment back. The proof is then generalized with
+`WP.wp_econs_le`. When the spec exception postcondition is `⊥`, no VC is needed and
+`WP.wp_econs_bot_le` is used instead.
 
 #### Excess state arguments
 

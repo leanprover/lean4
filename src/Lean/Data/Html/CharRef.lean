@@ -7,8 +7,10 @@ module
 
 prelude
 public import Init.Prelude
+import Init.While
 import Init.Data.Array.BinSearch
 import Init.Data.String.Basic
+import Lean.Data.Html.Spec
 
 set_option doc.verso true
 
@@ -17,7 +19,7 @@ public section
 namespace Lean.Html
 
 /-- Table of HTML named character references,
-separated by spaces (safe because no name or denotation contain spaces).
+separated by spaces (safe because no name or denotation contains spaces).
 This encoding was chosen to reduce {lit}`.olean` size. -/
 private def namedCharRefData : String :=
 "AElig Æ \
@@ -2162,14 +2164,55 @@ where
       go (denotationEnd.next data) <|
         acc.push (i.extract data nameEnd, denotationStart.extract data denotationEnd)
 
-/-- The [HTML named character references](https://html.spec.whatwg.org/dev/named-characters.html)
-that end in a semicolon, without the trailing {lit}`;`, sorted by name,
+/-- The named character references that end in a semicolon,
+without the semicolon, sorted by name,
 paired with the one or two characters they denote. -/
 private def namedCharacterReferences : Array (String × String) :=
   parseNamedCharRefData namedCharRefData
 
-/-- Looks up the string denoted by the named character reference {lit}`&ref;`. -/
+/-- Looks up the string denoted by the body {name}`ref`
+of an [HTML named character reference](https://html.spec.whatwg.org/dev/named-characters.html)
+{lit}`&ref;`.
+Returns {lean}`none` when {lit}`&ref;` is not listed in the HTML standard. -/
 def namedCharacterReference? (ref : String) : Option String :=
   namedCharacterReferences.binSearch (ref, "") (fun a b => a.1 < b.1) |>.map (·.2)
+
+/-- Looks up the string denoted by the body {name}`ref`
+of an [HTML character reference](https://html.spec.whatwg.org/dev/syntax.html#character-references)
+{lit}`&ref;`.
+Returns {lean}`none` when {lit}`&ref;` is not valid per the HTML standard.
+
+Named references (such as {lit}`&amp;`) must be listed in the HTML standard.
+Numeric references in decimal ({lit}`&#123;`) or hexadecimal ({lit}`&#x7B;`) notation
+must denote a Unicode scalar value that is not U+0000, U+000D,
+a noncharacter, or a control other than ASCII whitespace. -/
+def characterReference? (ref : String) : Option String :=
+  let i : String.Pos.Raw := 0
+  if h : i.atEnd ref then none
+  else if i.get' ref h == '#' then
+    let i := i.next' ref h
+    if h : i.atEnd ref then none
+    else if i.get' ref h == 'x' || i.get' ref h == 'X' then numeric 16 ref (i.next' ref h)
+    else numeric 10 ref i
+  else namedCharacterReference? ref
+where
+  numeric (radix : Nat) (ref : String) (i : String.Pos.Raw) : Option String := do
+    let mut n : Nat := 0
+    let mut i := i
+    while h : ¬i.atEnd ref do
+      let d ← digit? (i.get' ref h)
+      if d ≥ radix then none
+      n := n * radix + d
+      if n > 0x10FFFF then none -- exceeded Unicode range
+      i := i.next' ref h
+    let c := Char.ofNat n
+    if c == '\x00' || c == '\x0d' || isNonCharacter c || (isControl c && !isAsciiWhitespace c) then
+      none
+    return String.singleton c
+  digit? (c : Char) : Option Nat :=
+    if '0' ≤ c && c ≤ '9' then some (c.toNat - '0'.toNat)
+    else if 'a' ≤ c && c ≤ 'f' then some (10 + c.toNat - 'a'.toNat)
+    else if 'A' ≤ c && c ≤ 'F' then some (10 + c.toNat - 'A'.toNat)
+    else none
 
 end Lean.Html

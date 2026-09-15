@@ -11,7 +11,7 @@ public meta import Init.Data.Sum.Basic
 public meta import Init.Data.String.Modify
 public meta import Lean.Meta.Hint
 public meta import Lean.Data.Html.Spec
-public meta import Lean.Data.Html.Entities
+public meta import Lean.Data.Html.CharRef
 
 set_option doc.verso true
 
@@ -83,44 +83,6 @@ private def subsyntaxNodeAtom (s : Syntax) (b e : String.Pos.Raw) : Syntax :=
   | _ => s
 
 /-! ## Character references -/
-
-/-- Returns the string encoded by the body {lit}`ref` of an
-[HTML character reference](https://html.spec.whatwg.org/dev/syntax.html#character-references)
-{lit}`&ref;`,
-or {name}`none` if the body is invalid.
-
-Named references (such as {lit}`&amp;`) must be listed in the HTML standard.
-Numeric references in decimal ({lit}`&#123;`) or hexadecimal ({lit}`&#x7B;`) notation
-must denote a Unicode scalar value that is not U+0000, U+000D,
-a noncharacter, or a control other than ASCII whitespace. -/
-def characterReference? (ref : String) : Option String :=
-  let i : String.Pos.Raw := 0
-  if h : i.atEnd ref then none
-  else if i.get' ref h == '#' then
-    let i := i.next' ref h
-    if h : i.atEnd ref then none
-    else if i.get' ref h == 'x' || i.get' ref h == 'X' then numeric 16 ref (i.next' ref h)
-    else numeric 10 ref i
-  else namedCharacterReference? ref
-where
-  numeric (radix : Nat) (ref : String) (i : String.Pos.Raw) : Option String := do
-    let mut n : Nat := 0
-    let mut i := i
-    while h : ¬i.atEnd ref do
-      let d ← digit? (i.get' ref h)
-      if d ≥ radix then none
-      n := n * radix + d
-      if n > 0x10FFFF then none -- exceeded Unicode range
-      i := i.next' ref h
-    let c := Char.ofNat n
-    if c == '\x00' || c == '\x0d' || isNonCharacter c || (isControl c && !isAsciiWhitespace c) then
-      none
-    return String.singleton c
-  digit? (c : Char) : Option Nat :=
-    if '0' ≤ c && c ≤ '9' then some (c.toNat - '0'.toNat)
-    else if 'a' ≤ c && c ≤ 'f' then some (10 + c.toNat - 'a'.toNat)
-    else if 'A' ≤ c && c ≤ 'F' then some (10 + c.toNat - 'A'.toNat)
-    else none
 
 /-- Decodes one character reference starting at {name}`i`,
 which must point at at the character {lit}`&` in {name}`s`.

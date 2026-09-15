@@ -207,7 +207,8 @@ extern "C" LEAN_EXPORT lean_obj_res lean_uv_timer_next(b_obj_arg obj) {
                         event_loop_unlock(&global_ev);
                         return lean_io_result_mk_ok(promise);
                     } else {
-                        // Creates a resolved promise
+                        // `stop` dropped this timer's promise, so the fresh one is never
+                        // resolved, as documented on `next`.
                         lean_object* finished_promise = create_promise();
                         event_loop_unlock(&global_ev);
                         return lean_io_result_mk_ok(finished_promise);
@@ -224,7 +225,8 @@ extern "C" LEAN_EXPORT lean_obj_res lean_uv_timer_next(b_obj_arg obj) {
             return lean_io_result_mk_ok(promise);
         } else {
             event_loop_unlock(&global_ev);
-            // Creates a resolved promise
+            // `stop` dropped this timer's promise, so the fresh one is never resolved, as
+            // documented on `next`.
             lean_object* finished_promise = create_promise();
             return lean_io_result_mk_ok(finished_promise);
         }

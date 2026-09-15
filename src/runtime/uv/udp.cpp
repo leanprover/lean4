@@ -283,6 +283,8 @@ extern "C" LEAN_EXPORT lean_obj_res lean_uv_udp_recv(b_obj_arg socket, uint64_t 
         buf->base = (char*)lean_sarray_cptr(udp_socket->m_byte_array);
         buf->len = lean_sarray_capacity(udp_socket->m_byte_array);
     }, [](uv_udp_t *handle, ssize_t nread, const uv_buf_t *buf, const struct sockaddr *addr, unsigned flags) {
+        // libuv signals "nothing to read yet" as an empty read with no peer. No datagram arrived,
+        // so the receive stays armed instead of completing with an empty one.
         if (nread == 0 && addr == NULL) return;
 
         uv_udp_recv_stop(handle);

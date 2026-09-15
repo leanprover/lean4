@@ -39,7 +39,9 @@ def mk (duration : Std.Time.Millisecond.Offset) : Async Sleep := do
 If:
 - `s` is not yet running start it and return an `Async` computation that will complete once the previously
    configured `duration` has elapsed.
-- `s` is already or not anymore running return the same `Async` computation as the first call to `wait`.
+- `s` is already running, or finished after completing, return the same
+  `Async` computation as the first call to `wait`.
+- `s` was stopped with `stop` before completing, return an `Async` computation that fails.
 -/
 @[inline]
 def wait (s : Sleep) : Async Unit :=
@@ -57,9 +59,9 @@ def reset (s : Sleep) : Async Unit :=
 
 /--
 If:
-- `s` is still running this stops `s` without completing any remaining `Async` computations that were created
-  through `wait`. Note that if another `Async` computation is binding on any of these it will hang
-  forever without further intervention.
+- `s` is still running this stops `s` without completing any remaining `Async` computations that
+  were created through `wait`. Those computations fail once the last reference to their promise is
+  dropped, rather than producing a value.
 - `s` is not yet or not anymore running this is a no-op.
 -/
 @[inline]
@@ -136,7 +138,8 @@ If:
     call
   - the tick from the last call of `i` has finished return a new `Async` computation that waits for the
     closest next tick from the time of calling this function.
-- `i` is not running anymore this is a no-op.
+- `i` is not running anymore, the returned `Async` computation fails, as `stop` dropped the promise
+  it would have completed.
 -/
 @[inline]
 def tick (i : Interval) : Async Unit := do
@@ -154,9 +157,9 @@ def reset (i : Interval) : IO Unit :=
 
 /--
 If:
-- `i` is still running this stops `i` without completing any remaining `Async` computations that were created
-  through `tick`. Note that if another `Async` computation is binding on any of these it will hang
-  forever without further intervention.
+- `i` is still running this stops `i` without completing any remaining `Async` computations that
+  were created through `tick`. Those computations fail once the last reference to their promise is
+  dropped, rather than producing a value.
 - `i` is not yet or not anymore running this is a no-op.
 -/
 @[inline]

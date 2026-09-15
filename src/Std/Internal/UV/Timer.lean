@@ -51,7 +51,9 @@ This function has different behavior depending on the state and configuration of
 - if `repeating` is `false` and:
   - it is initial, run it and return a new `IO.Promise` that is set to resolve once `timeout`
     milliseconds have elapsed. After this `IO.Promise` is resolved the `Timer` is finished.
-  - it is running or finished, return the same `IO.Promise` that the first call to `next` returned.
+  - it is running, or finished after firing, return the same `IO.Promise`
+    that the first call to `next` returned.
+  - it was stopped with `stop` before firing, return a new `IO.Promise` that is never resolved.
 - if `repeating` is `true` and:
   - it is initial, run it and return a new `IO.Promise` that resolves right away
     (as it is the 0th multiple of `timeout`).
@@ -59,8 +61,8 @@ This function has different behavior depending on the state and configuration of
      - If it is, return a new `IO.Promise` that resolves upon finishing the next cycle
      - If it is not, return the last `IO.Promise`
      This ensures that the returned `IO.Promise` resolves at the next repetition of the timer.
-  - if it is finished, return the last `IO.Promise` created by `next`. Notably this could be one
-    that never resolves if the timer was stopped before fulfilling the last one.
+  - if it is finished, return a new `IO.Promise` that is never resolved, as `stop` dropped the last
+    one.
 
 A promise from `next` may also be resolved by the code holding it; the timer then treats it as
 fulfilled when it fires.

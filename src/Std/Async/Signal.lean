@@ -208,7 +208,9 @@ def mk (signum : Signal) (repeating : Bool) : IO Signal.Waiter := do
 If:
 - `s` is not yet running start listening and return an `AsyncTask` that will resolve once the
    previously configured signal is received.
-- `s` is already or not anymore running return the same `AsyncTask` as the first call to `wait`.
+- `s` is already running, or finished after receiving the signal, return the same `AsyncTask` as the
+  first call to `wait`.
+- `s` was stopped with `stop` before receiving the signal, return an `AsyncTask` that fails.
 
 The resolved `AsyncTask` contains the signal number that was received.
 -/
@@ -220,8 +222,8 @@ def wait (s : Signal.Waiter) : IO (AsyncTask Int) := do
 /--
 If:
 - `s` is still running this stops `s` without resolving any remaining `AsyncTask`s that were created
-  through `wait`. Note that if another `AsyncTask` is binding on any of these it is going hang
-  forever without further intervention.
+  through `wait`. Those tasks fail once the last reference to their promise is dropped, rather than
+  producing a value.
 - `s` is not yet or not anymore running this is a no-op.
 -/
 @[inline]

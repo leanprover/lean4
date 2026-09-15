@@ -1343,18 +1343,26 @@ void deactivate_promise(lean_promise_object * promise) {
 // =======================================
 // Natural numbers
 
-object * alloc_mpz(mpz const & m) {
+template<typename M>
+static object * alloc_mpz_core(M && m) {
     void * mem = lean_alloc_small_object(sizeof(mpz_object));
 #ifdef LEAN_MIMALLOC
     // placement new is not guaranteed to preserve this field so store and restore it
     unsigned sz = ((lean_object *)mem)->m_cs_sz;
 #endif
-    mpz_object * o = new (mem) mpz_object(m);
+    mpz_object * o = new (mem) mpz_object(std::forward<M>(m));
 #ifdef LEAN_MIMALLOC
     o->m_header.m_cs_sz = sz;
 #endif
     lean_set_st_header((lean_object*)o, LeanMPZ, 0);
     return (lean_object*)o;
+}
+
+object * alloc_mpz(mpz const & m) { return alloc_mpz_core(m); }
+object * alloc_mpz(mpz && m) {
+    if (m.has_excess_capacity())
+        return alloc_mpz(static_cast<mpz const &>(m));
+    return alloc_mpz_core(std::move(m));
 }
 
 #ifdef LEAN_USE_GMP
@@ -1377,6 +1385,13 @@ static inline obj_res mpz_to_nat(mpz const & m) {
         return lean_box(m.get_size_t());
     else
         return mpz_to_nat_core(m);
+}
+
+static inline obj_res mpz_to_nat(mpz && m) {
+    if (m.is_size_t() && m.get_size_t() <= LEAN_MAX_SMALL_NAT)
+        return lean_box(m.get_size_t());
+    else
+        return alloc_mpz(std::move(m));
 }
 
 extern "C" LEAN_EXPORT object * lean_cstr_to_nat(char const * n) {
@@ -1671,9 +1686,9 @@ inline object * mpz_to_int_core(mpz const & m) {
     return alloc_mpz(m);
 }
 
-static object * mpz_to_int(mpz const & m) {
+static object * mpz_to_int(mpz && m) {
     if (m < LEAN_MIN_SMALL_INT || m > LEAN_MAX_SMALL_INT)
-        return mpz_to_int_core(m);
+        return alloc_mpz(std::move(m));
     else
         return lean_box(static_cast<unsigned>(m.get_int()));
 }

@@ -65,6 +65,17 @@ public:
     mpz(mpz && s) noexcept;
     ~mpz();
 
+    /** Whether allocated limb capacity exceeds twice the used size. */
+    bool has_excess_capacity() const {
+#ifdef LEAN_USE_GMP
+        size_t used = mpz_size(m_val);
+        size_t capacity = static_cast<size_t>(m_val[0]._mp_alloc);
+        return capacity > used && capacity - used > used;
+#else
+        return false;
+#endif
+    }
+
 #ifdef LEAN_USE_GMP
     void set(mpz_t r) const;
 #endif

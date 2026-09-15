@@ -87,7 +87,7 @@ inductive Prog | skip | exit
 /-- The base wp: `skip` hands the heap to the postcondition, `exit` to the exception
 postcondition. -/
 @[instance_reducible] def baseWP : WP Prog Unit HProp HProp where
-  wpTrans x := ⟨fun Q E => match x with | .skip => Q () | .exit => E⟩
+  trans x := ⟨fun Q E => match x with | .skip => Q () | .exit => E⟩
   wp_trans_monotone x := by
     intro Q Q' E E' hE hQ
     cases x
@@ -108,7 +108,7 @@ exception postcondition through the frame rule. -/
 theorem frames_exit (x : Prog) (F : HProp) :
     WP.Frames sepConj x F :=
   WP.frames_of_frameClosure sepConj sepConj sepConj_assoc sepConj_assoc
-    ⟨fun y => baseWP.wpTrans y, fun _ => rfl⟩
+    ⟨fun y => baseWP.trans y, fun _ => rfl⟩
 
 /-- Lossy spec: owns `0 ↦ 1` and says nothing about the rest of the heap. -/
 @[spec]

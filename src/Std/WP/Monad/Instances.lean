@@ -41,7 +41,7 @@ variable {m : Type u → Type z}
 
 /-- `Id`'s `WP` interpretation: `Prop` assertions and no exceptions. -/
 instance Id.wpInst {α : Type u} : WP (Id α) α Prop EStack⟨⟩ where
-  wpTrans x := ⟨fun post _epost => post x⟩
+  trans x := ⟨fun post _epost => post x⟩
   wp_trans_monotone x := fun _ _ _ _ _ hpost => hpost x
 
 /-- `Id` is a WPMonad with `Prop` assertions and no exceptions. -/
@@ -55,7 +55,7 @@ postcondition layer. -/
 instance ExceptT.wpInst {Pred : Type v}
   [Assertion Pred] [Assertion EPred] [WP (m (Except ε α)) (Except ε α) Pred EPred] :
     WP (ExceptT ε m α) α Pred ((ε → Pred) × EPred) where
-  wpTrans x := PredTrans.pushExceptT (WP.wpTrans x.run)
+  trans x := PredTrans.pushExceptT (WP.trans x.run)
   wp_trans_monotone x := fun post post' epost epost' hepost hpost => by
     simp only [PredTrans.apply_pushExceptT]
     apply WP.wp_consequence_econs (x := x.run)
@@ -73,7 +73,7 @@ instance ExceptT.instWPMonad {Pred : Type v}
   pure_le_wp_pure x := fun post epost =>
     WPMonad.pure_le_wp_pure (m := m) (Except.ok x) (pushExcept post epost.fst) epost.snd
   bind_le_wp_bind x f := fun post epost => by
-    show (PredTrans.pushExceptT (WP.wpTrans x.run)).apply _ epost ⊑ _
+    show (PredTrans.pushExceptT (WP.trans x.run)).apply _ epost ⊑ _
     simp only [PredTrans.apply_pushExceptT]
     apply PartialOrder.rel_trans _ (WPMonad.bind_le_wp_bind (m := m) x.run _ (pushExcept post epost.fst) epost.snd)
     apply WP.wp_consequence
@@ -93,7 +93,7 @@ postcondition layer. -/
 instance OptionT.wpInst {Pred : Type u}
   [Assertion Pred] [Assertion EPred] [WP (m (Option α)) (Option α) Pred EPred] :
     WP (OptionT m α) α Pred ((Unit → Pred) × EPred) where
-  wpTrans x := PredTrans.pushOptionT (WP.wpTrans x.run)
+  trans x := PredTrans.pushOptionT (WP.trans x.run)
   wp_trans_monotone x := fun post post' epost epost' hepost hpost => by
     simp only [PredTrans.apply_pushOptionT]
     apply WP.wp_consequence_econs (x := x.run)
@@ -110,7 +110,7 @@ instance OptionT.instWPMonad {Pred : Type u}
   pure_le_wp_pure x := fun post epost =>
     WPMonad.pure_le_wp_pure (m := m) (some x) (pushOption post epost.fst) epost.snd
   bind_le_wp_bind x f := fun post epost => by
-    show (PredTrans.pushOptionT (WP.wpTrans x.run)).apply _ epost ⊑ _
+    show (PredTrans.pushOptionT (WP.trans x.run)).apply _ epost ⊑ _
     simp only [PredTrans.apply_pushOptionT]
     apply PartialOrder.rel_trans _ (WPMonad.bind_le_wp_bind (m := m) x.run _ (pushOption post epost.fst) epost.snd)
     apply WP.wp_consequence
@@ -129,7 +129,7 @@ theorem OptionT.wp_apply_eq {α : Type u} {Pred : Type u} {EPred}
 instance StateT.wpInst {EPred : Type v} {σ : Type u} {Pred : Type w}
   [Assertion Pred] [Assertion EPred] [WP (m (α × σ)) (α × σ) Pred EPred] :
     WP (StateT σ m α) α (σ → Pred) EPred where
-  wpTrans x := PredTrans.pushArg (WP.wpTrans <| x.run ·)
+  trans x := PredTrans.pushArg (WP.trans <| x.run ·)
   wp_trans_monotone x := fun post post' epost epost' hepost hpost s => by
     apply WP.wp_consequence_econs (x := x.run s)
     · intro ⟨a, s'⟩
@@ -156,7 +156,7 @@ theorem StateT.wp_apply_eq {σ : Type u}
 instance ReaderT.wpInst {Pred : Type v}
   [Assertion Pred] [Assertion EPred] [WP (m α) α Pred EPred] :
     WP (ReaderT ρ m α) α (ρ → Pred) EPred where
-  wpTrans x := ⟨fun post epost r => wp (x.run r) (fun a => post a r) epost⟩
+  trans x := ⟨fun post epost r => wp (x.run r) (fun a => post a r) epost⟩
   wp_trans_monotone x := fun post post' epost epost' hepost hpost r => by
     apply WP.wp_consequence_econs (x := x.run r)
     · intro a
@@ -191,7 +191,7 @@ theorem ReaderT.wp_apply_eq {ρ : Type u}
 /-- `Option`'s `WP` interpretation: `Prop` assertions and a `Unit`-indexed exception
 postcondition. -/
 instance Option.wpInst {α : Type u} : WP (Option α) α Prop (Unit → Prop) where
-  wpTrans x := ⟨fun post epost => pushOption post epost x⟩
+  trans x := ⟨fun post epost => pushOption post epost x⟩
   wp_trans_monotone x := fun post post' epost epost' hepost hpost => by
     cases x with
     | none => exact hepost ()
@@ -206,7 +206,7 @@ instance Option.instWPMonad : WPMonad Option.{u} Prop (Unit → Prop) where
 /-- `Except ε`'s `WP` interpretation: `Prop` assertions and an `ε`-indexed exception
 postcondition. -/
 instance Except.wpInst {α : Type u} : WP (Except ε α) α Prop (ε → Prop) where
-  wpTrans x := ⟨fun post epost => pushExcept post epost x⟩
+  trans x := ⟨fun post epost => pushExcept post epost x⟩
   wp_trans_monotone x := fun post post' epost epost' hepost hpost => by
     cases x with
     | ok a => exact hpost a
@@ -220,7 +220,7 @@ instance Except.instWPMonad : WPMonad (Except ε) Prop (ε → Prop) where
 
 /-- `EStateM ε σ`'s `WP` interpretation combining state and exceptions. -/
 instance EStateM.wpInst {α : Type} : WP (EStateM ε σ α) α (σ → Prop) (ε → σ → Prop) where
-  wpTrans x := ⟨fun post epost s => match x s with
+  trans x := ⟨fun post epost s => match x s with
     | .ok a s' => post a s'
     | .error el s' => epost el s'⟩
   wp_trans_monotone x := fun post post' epost epost' hepost hpost s => by
@@ -235,7 +235,7 @@ instance EStateM.instWPMonad : WPMonad (EStateM ε σ) (σ → Prop) (ε → σ 
   toWP _ := inferInstance
   pure_le_wp_pure x := fun post epost s => PartialOrder.rel_refl
   bind_le_wp_bind x f := fun post epost s => by
-    simp only [WP.wp, WP.wpTrans, bind, EStateM.bind]
+    simp only [WP.wp, WP.trans, bind, EStateM.bind]
     cases (x s) <;> exact PartialOrder.rel_refl
 
 end Std.WP

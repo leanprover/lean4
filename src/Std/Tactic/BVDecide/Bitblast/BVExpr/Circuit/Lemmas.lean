@@ -24,7 +24,7 @@ open Std.Sat.AIG
 
 namespace BVLogicalExpr
 
-namespace bitblast
+namespace bitblastWithCache
 
 mutual
 
@@ -112,12 +112,12 @@ theorem go_eval_eq_eval (expr : BVLogicalExpr) (aig : AIG BVBit) (assign : BVExp
 
 end
 
-end bitblast
+end bitblastWithCache
 
 theorem denote_bitblast (expr : BVLogicalExpr) (assign : BVExpr.Assignment) :
     ⟦bitblast expr, assign.toAIGAssignment⟧ = expr.eval assign := by
-  unfold bitblast
-  rw [bitblast.go_eval_eq_eval]
+  unfold bitblast bitblastWithCache
+  rw [bitblastWithCache.go_eval_eq_eval]
   apply BVExpr.Cache.Inv_empty
 
 theorem unsat_of_bitblast (expr : BVLogicalExpr) : expr.bitblast.Unsat → expr.Unsat :=  by

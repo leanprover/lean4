@@ -177,8 +177,7 @@ private theorem invMod?_spec {a modulus : UInt64} (hm : modulus ≠ 0) :
 
 theorem isSome_invMod? {a modulus : UInt64} (hm : modulus ≠ 0) :
     (invMod? a modulus).isSome ↔ Nat.gcd a.toNat modulus.toNat = 1 := by
-  simp only [invMod?, ite_eq_right hm, (invMod?_spec (a := a) hm).1]
-  split <;> simp_all
+  simp [invMod?, hm, (invMod?_spec (a := a) hm).1, apply_ite Option.isSome]
 
 /-- What `invMod? a modulus = some x` says about `x.toNat`, for a nonzero modulus. -/
 private theorem invMod?_eq_some_spec {a modulus x : UInt64} (hm : modulus ≠ 0)
@@ -263,10 +262,7 @@ def powModWord (base exponent modulus result : UInt64) : UInt64 :=
     else powModWord (mulMod base base modulus) exponent' modulus result
 termination_by exponent.toNat
 decreasing_by
-  simp only [UInt64.toNat_div]
-  change exponent.toNat / 2 < exponent.toNat
-  have : exponent.toNat ≠ 0 := by simpa [← UInt64.toNat_inj] using _h
-  omega
+  simpa using Nat.div_lt_self (Nat.pos_of_ne_zero (toNat_ne_zero _h)) (by decide : 1 < 2)
 
 /--
 Performs `steps` squaring steps, consuming that many bits of `exponent`. Returns the repeatedly
@@ -308,10 +304,7 @@ where
       go r (oldR % r) s nextS
   termination_by r.toNat
   decreasing_by
-    apply UInt64.mod_lt
-    change 0 < r.toNat
-    have : r.toNat ≠ 0 := by simpa [← UInt64.toNat_inj] using _h
-    omega
+    exact UInt64.mod_lt _ (Nat.pos_of_ne_zero (toNat_ne_zero _h))
 
 /-! ### Correctness of the runtime implementations -/
 
@@ -420,11 +413,9 @@ private theorem invModImpl_go_eq (modulus : UInt64) (hm : modulus ≠ 0) (oldR r
         some (UInt64.ofNat (invMod?.go modulus oldR.toNat r.toNat oldS.toNat s.toNat).2)
       else none) := by
   induction oldR, r, oldS, s using invModImpl.go.induct (modulus := modulus) with
-  | case1 oldS s => simp [invModImpl.go, invMod?.go]
-  | case2 oldR oldS s h =>
-    simp_all [invModImpl.go, invMod?.go, ← UInt64.toNat_inj]
+  | case1 | case2 => simp_all [invModImpl.go, invMod?.go, ← UInt64.toNat_inj]
   | case3 oldR r oldS s hr product nextS ih =>
-    have hr' : r.toNat ≠ 0 := by simpa [← UInt64.toNat_inj] using hr
+    have hr' := toNat_ne_zero hr
     rw [invMod?.go, invModImpl.go]
     simp only [hr, hr', ↓reduceDIte, dite_eq_ite, product, nextS] at ih ⊢
     rw [ih, UInt64.toNat_mod, toNat_condSub (mulMod_lt hm), toNat_mulMod hm, UInt64.toNat_div]

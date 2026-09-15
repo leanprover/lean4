@@ -41,18 +41,13 @@ builtin_initialize triggerDenyListExt : SimplePersistentEnvExtension Name NameSe
         `ite, `dite, `Exists, `OfNat, `OfNat.ofNat, `SizeOf, `SizeOf.sizeOf])
   }
 
-/--
-Return the relevant constants (i.e. ignoring instances and proofs)
-which appear in the type of `ci` and which are approximately least frequent in the library
-(relative to other constants appearing in the type of `ci`).
--/
-def triggerSymbols (ci : ConstantInfo) (maxTolerance : Float := 3.0) : MetaM (Array (Name × Float)) := do
-  let denyList := triggerDenyListExt.getState (← getEnv)
+def triggerSymbolsUsing (frequency : Name → Nat) (denyList : NameSet)
+    (ci : ConstantInfo) (maxTolerance : Float) : MetaM (Array (Name × Float)) := do
   let consts ← ci.type.relevantConstants
-  let frequencies ← consts.filterMapM fun n => do
+  let frequencies := consts.filterMap fun n => Id.run do
     if denyList.contains n then
       return none
-    let f ← symbolFrequency n
+    let f := frequency n
     return if f = 0 then
       none
     else
@@ -62,6 +57,16 @@ def triggerSymbols (ci : ConstantInfo) (maxTolerance : Float := 3.0) : MetaM (Ar
   let minFrequency := frequencies.foldl (fun acc (_, f) => min acc f) (frequencies[0]!.2)
   return frequencies.filterMap
     (fun (n, f) => if f ≤ minFrequency * maxTolerance then some (n, f / minFrequency) else none)
+
+/--
+Return the relevant constants (i.e. ignoring instances and proofs)
+which appear in the type of `ci` and which are approximately least frequent in the library
+(relative to other constants appearing in the type of `ci`).
+-/
+def triggerSymbols (ci : ConstantInfo) (maxTolerance : Float := 3.0) : MetaM (Array (Name × Float)) := do
+  let frequency ← symbolFrequencyMap
+  let denyList := triggerDenyListExt.getState (← getEnv)
+  triggerSymbolsUsing (frequency.getD · 0) denyList ci maxTolerance
 
 def _root_.List.orderedInsert (r : α → α → Bool := by exact (· ≤ ·)) (a : α) : List α → List α
   | [] => [a]
@@ -74,10 +79,12 @@ def insertTrigger (map : NameMap (List (Name × Float))) (trigger decl : Name) (
 def prepareTriggers (names : Array Name) (maxTolerance : Float := 3.0) : MetaM (NameMap (List (Name × Float))) := do
   let mut map := {}
   let env ← getEnv
+  let frequency ← symbolFrequencyMap
+  let denyList := triggerDenyListExt.getState env
   let names := names.filter fun n =>
     !isDeniedPremise env n && wasOriginallyTheorem env n
   for name in names do
-    let triggers ← triggerSymbols (← getConstInfo name) maxTolerance
+    let triggers ← triggerSymbolsUsing (frequency.getD · 0) denyList (← getConstInfo name) maxTolerance
     for (trigger, tolerance) in triggers do
       map := insertTrigger map trigger name tolerance
   return map

@@ -19,8 +19,6 @@ run_meta do
   assert! (← symbolFrequencyMapRef.get).isNone
   assert! (← sineQuaNonTriggersRef.get).isNone
 
-set_option maxHeartbeats 0
-
 public def localPredicate (n : Nat) : Prop := n = 42
 public theorem localTheorem : localPredicate 42 := by unfold localPredicate; rfl
 

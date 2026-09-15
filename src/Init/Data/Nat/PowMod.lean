@@ -58,15 +58,13 @@ private theorem powMod.window_eq (b m k fuel e : Nat) (hk : 2 ≤ k) (h : e < fu
 Computes `b ^ e % m` using modular exponentiation.
 
 The Lean definition uses six-bit windows for `m ≤ 2 ^ 64`, four-bit windows
-through `m ≤ 2 ^ 512`, and three-bit windows through `m ≤ 2 ^ 1024`.
-Above that, a reduced base below `2 ^ 64` uses two-bit
-windows through `m ≤ 2 ^ 4096`, then one-bit windows when the exponent is at
-least `2 ^ 64`. Other inputs use square-and-multiply. Small bases make the
-left-to-right window products cheaper; above `2 ^ 4096`, short exponents retain
-the binary loop.
+through `m ≤ 2 ^ 512`, three-bit windows through `m ≤ 2 ^ 1024`, and two-bit
+windows through `m ≤ 2 ^ 2048`. Above that, a reduced base below `2 ^ 64` uses
+two-bit windows through `m ≤ 2 ^ 4096`, then one-bit windows. Other inputs use
+square-and-multiply. Small bases make the left-to-right window products cheaper.
 
-For positive `m`, the six-, four-, and three-bit windows have intermediate bounds
-`m ^ 127`, `m ^ 31`, and `m ^ 15`; the small-base two- and one-bit windows have bounds
+For positive `m`, the six-, four-, three-, and two-bit windows have intermediate
+bounds `m ^ 127`, `m ^ 31`, `m ^ 15`, and `m ^ 7`; the small-base windows have bounds
 `m ^ 4 * 2 ^ 192` and `m ^ 2 * 2 ^ 64`. The binary loop stays below `m ^ 2`.
 Compiled execution uses GMP modular exponentiation.
 
@@ -90,13 +88,13 @@ def powMod (b e m : @& Nat) : Nat :=
   -- Shifts keep the bounds reducible under Meta's default exponentiation limit.
   (e.beq 0).rec
     ((m.ble ((1 : Nat).shiftLeft 1024)).rec
-      (((b.mod m).ble 18446744073709551615).rec
-        (powMod.go m e.succ (b.mod m) e 1)
-        ((m.ble ((1 : Nat).shiftLeft 4096)).rec
-          ((e.ble 18446744073709551615).rec
+      ((m.ble ((1 : Nat).shiftLeft 2048)).rec
+        (((b.mod m).ble 18446744073709551615).rec
+          (powMod.go m e.succ (b.mod m) e 1)
+          ((m.ble ((1 : Nat).shiftLeft 4096)).rec
             (powMod.window (b.mod m) m 2 e.succ e)
-            (powMod.go m e.succ (b.mod m) e 1))
-          (powMod.window (b.mod m) m 4 e.succ e)))
+            (powMod.window (b.mod m) m 4 e.succ e)))
+        (powMod.window (b.mod m) m 4 e.succ e))
       ((m.ble ((1 : Nat).shiftLeft 512)).rec
         (powMod.window (b.mod m) m 8 e.succ e)
         ((m.ble ((1 : Nat).shiftLeft 64)).rec

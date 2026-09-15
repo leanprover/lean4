@@ -13,13 +13,13 @@ example (b m : Nat) : Nat.powMod b 0 m = 1 % m := rfl
 /-! Small-base dispatch boundaries, including bases requiring reduction first.
 The direct powers have exponent at most 101, so the independent arithmetic
 reference remains small enough for kernel evaluation. -/
-example : [1024, 4096].all (fun bits =>
+example : [1024, 2048, 4096].all (fun bits =>
     [Nat.shiftLeft 1 bits - 1, Nat.shiftLeft 1 bits, Nat.shiftLeft 1 bits + 1].all (fun m =>
       [17, Nat.shiftLeft 1 64 - 1, Nat.shiftLeft 1 64, m + 17].all (fun b =>
         [0, 1, 3, 4, 5, 101].all (fun e =>
           Nat.powMod b e m == (b % m) ^ e % m)))) := by decide +kernel
 example : Nat.powMod 17 101 (Nat.shiftLeft 1 5000) = 17 ^ 101 := by decide
-/-! The exponent cutoff selects both paths above the large-modulus boundary. -/
+/-! Long exponents above the large-modulus boundary. -/
 example : Nat.powMod 2 (Nat.shiftLeft 1 64 - 1) (Nat.shiftLeft 1 4096 + 1) =
     Nat.shiftLeft 1 4095 + 1 := by decide +kernel
 example : Nat.powMod 2 (Nat.shiftLeft 1 64) (Nat.shiftLeft 1 4096 + 1) = 1 := by

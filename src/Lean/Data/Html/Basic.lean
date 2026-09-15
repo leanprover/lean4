@@ -7,9 +7,8 @@ module
 
 prelude
 public import Init.Data.Array.GetLit
-public import Init.Data.Array.Mem
+import Init.Data.Array.Mem
 public import Init.Dynamic
-
 public import Lean.Data.Json.Elab
 
 set_option doc.verso true

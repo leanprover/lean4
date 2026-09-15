@@ -7,24 +7,14 @@ module
 
 prelude
 public import Lean.Data.Html.Basic
-import Init.Data.String.Modify
+import Lean.Data.Html.Spec
 import Init.Data.String.Search
-import Init.Data.Array.BinSearch
 
 set_option doc.verso true
 
 public section
 
 namespace Lean.Html
-
-/-- Array of void element names, sorted lexicographically.
-
-Void elements are those that cannot have any child nodes.
-These only have a start tag; end tags must not be specified.
-See https://html.spec.whatwg.org/dev/syntax.html#void-elements -/
-def voidElements : Array String :=
-  #["area", "base", "br", "col", "embed", "hr", "img", "input", "link", "meta", "param", "source",
-    "track", "wbr"]
 
 section render_impl
 
@@ -84,7 +74,9 @@ private def popStr! (q : RenderWorkItemStack) :
 end RenderWorkItemStack
 
 /-- Renders into a string to be consumed by browsers.
-The input's structure is respected as much as possible; no whitespace is added or removed.
+The input's structure is respected as much as possible:
+- No whitespace is added or removed.
+- Tag names are not escaped.
 
 The output uses [HTML5 syntax](https://html.spec.whatwg.org/dev/syntax.html).
 Compatibility with [XML syntax for HTML](https://html.spec.whatwg.org/dev/xhtml.html)
@@ -93,7 +85,7 @@ but we make the following compatible choices:
 - Void elements with {name}`isEmpty` children are rendered as self-closing tags.
   - (Spec-violating) void elements with non-{name}`isEmpty` children
     are rendered like normal elements.
-- Attribute values are always quoted.
+- Attribute values are always double-quoted.
 
 and the following incompatible choices:
 - Attributes with empty values are [minimized](https://www.w3.org/TR/xhtml1/#h-4.5). -/
@@ -116,7 +108,7 @@ where
         | .element tag attrs children =>
           let q :=
             if children.isEmpty then
-              if voidElements.binSearchContains tag.toLower (· < ·) then
+              if isVoidElement tag then
                 q.pushKind .endVoidElement
               else
                 let q := q.pushKind .endElement |>.pushStr tag

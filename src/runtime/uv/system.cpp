@@ -422,6 +422,11 @@ extern "C" LEAN_EXPORT lean_obj_res lean_uv_hrtime() {
 
 // Std.Internal.UV.System.random : UInt64 → IO (IO.Promise (Except IO.Error (Array UInt8)))
 extern "C" LEAN_EXPORT lean_obj_res lean_uv_random(uint64_t size) {
+    // libuv rejects larger requests with `UV_E2BIG`; checking first avoids allocating the array.
+    if (size > 0x7FFFFFFF) {
+        return lean_io_result_mk_error(lean_decode_uv_error(UV_E2BIG, nullptr));
+    }
+
     random_req_t* req = (random_req_t*)malloc(sizeof(random_req_t));
     if (req == nullptr) {
         return lean_io_result_mk_error(decode_io_error(ENOMEM, nullptr));

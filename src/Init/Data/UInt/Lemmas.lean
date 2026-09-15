@@ -3624,8 +3624,16 @@ theorem UInt32.toNat_ofNat_le {n : Nat} : (UInt32.ofNat n).toNat ≤ n := toNat_
 theorem UInt64.toNat_ofNat_le {n : Nat} : (UInt64.ofNat n).toNat ≤ n := toNat_ofNat ▸ Nat.mod_le ..
 theorem USize.toNat_ofNat_le {n : Nat} : (USize.ofNat n).toNat ≤ n := toNat_ofNat ▸ Nat.mod_le ..
 
+@[simp] theorem Bool.toNat_toUInt8 (b : Bool) : b.toUInt8.toNat = b.toNat := by
+  cases b <;> rfl
+@[simp] theorem Bool.toNat_toUInt16 (b : Bool) : b.toUInt16.toNat = b.toNat := by
+  cases b <;> rfl
+@[simp] theorem Bool.toNat_toUInt32 (b : Bool) : b.toUInt32.toNat = b.toNat := by
+  cases b <;> rfl
 @[simp] theorem Bool.toNat_toUInt64 (b : Bool) : b.toUInt64.toNat = b.toNat := by
   cases b <;> rfl
+@[simp] theorem Bool.toNat_toUSize (b : Bool) : b.toUSize.toNat = b.toNat := by
+  cases b <;> simp [Bool.toUSize]
 
 namespace UInt64
 

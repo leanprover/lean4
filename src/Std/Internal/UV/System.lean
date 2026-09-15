@@ -221,7 +221,7 @@ opaque hrtime : IO UInt64
 /--
 Generates cryptographically secure random bytes.
 
-Fails with `UV_E2BIG` if more than 2^31 - 1 bytes are requested.
+Throws `IO.Error.resourceExhausted` if more than 2^31 - 1 bytes are requested.
 -/
 @[extern "lean_uv_random"]
 opaque random : UInt64 → IO (IO.Promise (Except IO.Error ByteArray))

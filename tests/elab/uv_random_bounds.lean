@@ -2,7 +2,7 @@ import Std.Internal.UV
 
 /-!
 Size bounds of `Std.Internal.UV.System.random`: zero and small sizes produce that many bytes, and
-sizes above 2^31 - 1, which libuv cannot serve in one request, fail with `E2BIG`. Sizes the
+sizes above 2^31 - 1 fail with `IO.Error.resourceExhausted`. Sizes the
 allocator refuses (2^48, 2^63) or that overflow the array size (2^64 - 1) used to abort the process
 before libuv could reject them.
 -/

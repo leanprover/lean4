@@ -1,6 +1,13 @@
 import Std.Async
 import Std.Internal.UV
 
+/-!
+Two threads call `stop` on the same running repeating timer or signal waiter at once; in the timer
+case a third thread keeps taking the event loop lock meanwhile. `stop` used to read or update the
+handle's state outside the lock, so both calls could find the handle running and each release the
+loop's reference to it.
+-/
+
 open Std.Async
 open Std.Internal.UV
 

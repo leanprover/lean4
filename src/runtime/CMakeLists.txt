@@ -93,6 +93,9 @@ set(
   uv/system.cpp
   uv/signal.cpp
   openssl.cpp
+  openssl/context.cpp
+  openssl/ssl_error.cpp
+  openssl/trust_store.cpp
 )
 
 add_library(leanrt_initial-exec STATIC ${RUNTIME_OBJS})

@@ -268,7 +268,7 @@ where
     let atom ← validAtom stx[0]
     /- For syntax categories where initialized with `LeadingIdentBehavior` different from default (e.g., `tactic`), we automatically mark
        the first symbol as nonReserved. -/
-    if (← read).behavior != Parser.LeadingIdentBehavior.default && (← read).first then
+    if ((← read).behavior == .symbol || (← read).behavior == .both) && (← read).first then
       return (← `(ParserDescr.nonReservedSymbol $(quote atom) false), 1)
     else
       return (← `(ParserDescr.symbol $(quote atom)), 1)

@@ -13,7 +13,7 @@ public section
 namespace Lean
 namespace Parser
 
-builtin_initialize registerBuiltinParserAttribute `builtin_doElem_parser ``Category.doElem
+builtin_initialize registerBuiltinParserAttribute `builtin_doElem_parser ``Category.doElem .newDefault
 builtin_initialize registerBuiltinDynamicParserAttribute `doElem_parser `doElem
 
 @[inline] def doElemParser (rbp : Nat := 0) : Parser :=
@@ -112,7 +112,7 @@ def letIdDeclNoBinders := leading_parser
 /-- `erased x := e` declares a verification-only variable; `mut` allows reassignment.
 `erased x ← act` runs `act` and hides its result in a verification-only variable. -/
 @[builtin_doElem_parser default+10] def doErased := leading_parser
-  nonReservedSymbol "erased " (includeIdent := true) >> optional "mut " >> (atomic doIdDecl <|> letIdDeclNoBinders)
+  nonReservedSymbol "erased " >> optional "mut " >> (atomic doIdDecl <|> letIdDeclNoBinders)
 
 @[builtin_doElem_parser] def doReassign      := leading_parser
   notFollowedByRedefinedTermToken >> (letIdDeclNoBinders <|> letPatDecl)
@@ -325,7 +325,7 @@ arguments of the assertion itself, such as the state of a state monad. `vcgen` r
 from the program and proves it; at runtime the element does nothing.
 -/
 @[builtin_doElem_parser default+10] def doAssertion := leading_parser:leadPrec
-  nonReservedSymbol "assert" (includeIdent := true) >>
+  nonReservedSymbol "assert" >>
     (atomic basicFun <|> (ppSpace >> termParser))
 
 @[builtin_doElem_parser] def doRepeat      := leading_parser

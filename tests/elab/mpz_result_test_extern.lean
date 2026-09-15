@@ -2,7 +2,7 @@ module
 
 import Lean.Util.TestExtern
 
-/-! Numeric smoke tests for bignum results and heap-to-scalar normalization. -/
+/-! Tests Int and Nat bignum results and heap-to-scalar normalization. -/
 
 test_extern Int.add (2 ^ 128) (2 ^ 128 + 1)
 test_extern Int.sub (-(2 ^ 128)) (2 ^ 128 + 1)

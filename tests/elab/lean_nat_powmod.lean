@@ -1,6 +1,6 @@
 /-!
 Tests for `Nat.powMod` (GMP-backed modular exponentiation from
-`Init.Data.Nat.PowMod`): the square-and-multiply kernel model (`decide`/`rfl`),
+`Init.Data.Nat.PowMod`): the windowed/binary kernel model (`decide`/`rfl`),
 the `lean_nat_powmod` extern (`#guard`/`native_decide`), the `Nat.reducePowMod`
 simproc, edge cases, and the 1024-bit ZMod case from Mathlib that motivated the
 feature.
@@ -19,37 +19,61 @@ example : Nat.powMod 7 5 13   = 11   := rfl
 example : Nat.powMod 3 4 0    = 81   := rfl  -- `m = 0` behaves like `^`
 example : Nat.powMod 2 10 0   = 1024 := rfl
 
+/-! The zero-exponent branch preserves the convention for symbolic
+bases and moduli, and handles both parities and non-coprime inputs. -/
+example (b m : Nat) : Nat.powMod b 0 m = 1 % m := rfl
+example : Nat.powMod 0 0 0 = 1 := rfl
+example : Nat.powMod 0 (2 ^ 100) 0 = 0 := by decide +kernel
+example : Nat.powMod 1 (2 ^ 100) 0 = 1 := by decide +kernel
+example : Nat.powMod 6 5 12 = 0 := by decide +kernel
+example : Nat.powMod 6 6 12 = 0 := by decide +kernel
+example : Nat.powMod 9 5 27 = 0 := by decide +kernel
+example : Nat.powMod 9 6 27 = 0 := by decide +kernel
+
+/-! Exhaustive small inputs include modulus zero and agree with ordinary
+exponentiation in both the kernel model and compiled evaluation. -/
+example : (List.range 12).all (fun b => (List.range 12).all (fun e =>
+    (List.range 12).all (fun m => Nat.powMod b e m == b ^ e % m))) := by decide +kernel
+#guard (List.range 12).all (fun b => (List.range 12).all (fun e =>
+  (List.range 12).all (fun m => Nat.powMod b e m == b ^ e % m)))
+
 /-! The runtime override stays total for `m = 0` even when the exponent exceeds
 `UINT_MAX` (`2 ^ 32`). -/
 #guard Nat.powMod 1 (2 ^ 32) 0 = 1
 #guard Nat.powMod 0 (2 ^ 32) 0 = 0
 
 /-! Kernel reduction (`decide`) and the compiled extern (`native_decide`) must
-agree, cross-validating the square-and-multiply model against `mpz_powm`. A
+agree, cross-validating the kernel model against `mpz_powm`. A
 divergence here would make `native_decide` unsound. -/
 -- Fermat's little theorem on a small prime: `3 ^ 100 ≡ 1 (mod 101)`.
 example : Nat.powMod 3 100 101 = 1 := by decide
 example : Nat.powMod 3 100 101 = 1 := by native_decide
--- A large exponent with a small base: square-and-multiply never materializes the
+-- A large exponent with a small base: modular exponentiation never materializes the
 -- astronomically large `b ^ e`, so `decide` succeeds where `b ^ e % m` could not.
 example : Nat.powMod 3 1000 1000003 = 73216 := by decide
 example : Nat.powMod 3 1000 1000003 = 73216 := by native_decide
 
 /-! `decide` of `Nat.powMod` is efficient even for very large exponents: the
-square-and-multiply model reduces in `O(log e)` steps and never materializes
+kernel model reduces in `O(log e)` steps and never materializes
 `b ^ e`, which the naive `b ^ e % m` model could never `decide`. -/
 example : Nat.powMod 7 65537 1000003 = 881993 := by decide
 -- `b ^ (2 ^ 40)` and `b ^ (10 ^ 12)` are astronomically large.
 example : Nat.powMod 3 (2 ^ 40) 1000003 = 378344 := by decide
 example : Nat.powMod 3 (10 ^ 12) 1000003 = 81 := by decide
--- The reduction is `O(log e)` deep, so cryptographic-scale exponents need
--- `maxRecDepth` raised; no exponentiation algorithm is shallower than `log₂ e`.
+-- Meta reduction depth grows with the exponent bit length; a raised recursion
+-- limit allows the windowed kernel model to handle cryptographic-scale exponents.
 -- The `maxHeartbeats` bound (heartbeats are deterministic, unlike wall-clock
 -- time) is a regression guard: a fallback to the naive `b ^ e % m` model would
 -- blow far past it.
 set_option maxRecDepth 4096 in
 set_option maxHeartbeats 1000 in
 example : Nat.powMod 2 (2 ^ 200) 1000000007 = 988385428 := by decide
+
+/-! `decide +kernel` at 255-bit operand size. -/
+example : Nat.powMod 2
+    57896044618658097711785492504343953926634992332820282019728792003956564819948
+    57896044618658097711785492504343953926634992332820282019728792003956564819949 = 1 := by
+  decide +kernel
 
 /-! `simp` evaluates closed `Nat.powMod` terms with the `Nat.reducePowMod` simproc,
 but does not unfold `powMod_def` on its own: rewriting to `b ^ e % m` would
@@ -76,3 +100,13 @@ abbrev g : Nat := 0xa4d1cbd5c3fd34126765a442efb99905f8104dd258ac507fd6406cff1426
 #guard Nat.powMod g (M - 1) M = 1
 -- And via `Fin`, the main motivating use case.
 #guard ((Fin.ofNat _ g : Fin M) ^ (M - 1) = 1 : Bool)
+
+/-! Kernel evaluation through the `Fin` consumer. -/
+example : (3 : Fin 7) ^ 1000 = 4 := by decide +kernel
+
+/-! Window transitions and exponent digits on either side of a window boundary. -/
+example : [512, 1024].all (fun bits =>
+    [2 ^ bits - 1, 2 ^ bits, 2 ^ bits + 1].all (fun m =>
+      Nat.powMod (m - 1) 65537 m == m - 1)) := by decide +kernel
+example : [15, 16, 17, 63, 64, 65].all (fun e =>
+    Nat.powMod 7 e 97 == 7 ^ e % 97) := by decide +kernel

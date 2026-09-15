@@ -6,7 +6,7 @@ Authors: Kim Morrison
 module
 
 prelude
-import Lean.LibrarySuggestions.SymbolFrequency
+import all Lean.LibrarySuggestions.SymbolFrequency
 public import Lean.LibrarySuggestions.Basic
 
 /-!
@@ -19,7 +19,8 @@ It needs to be tuned and evaluated for Lean.
 
 The trigger index is computed on first use from the imported library, using that library's symbol
 frequencies. No index is prepared during module export or stored in olean files. The first query may
-be expensive for large imported libraries.
+be expensive for large imported libraries. Index construction does not consume the caller's
+heartbeat budget, but can be interrupted.
 -/
 
 namespace Lean.LibrarySuggestions.SineQuaNon
@@ -100,7 +101,7 @@ def sineQuaNonTriggerMap : CoreM (NameMap (List (Name × Float))) := do
   match ← sineQuaNonTriggersRef.get with
   | some map => return map
   | none =>
-    let map ← Meta.MetaM.run' <| withoutExporting do
+    let map ← withUncountedHeartbeats <| Meta.MetaM.run' <| withoutExporting do
       prepareTriggers (← getEnv).constants.map₁.keysArray
     sineQuaNonTriggersRef.set (some map)
     return map

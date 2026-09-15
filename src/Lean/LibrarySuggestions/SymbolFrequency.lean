@@ -13,13 +13,23 @@ import Lean.LibrarySuggestions.Basic
 # Symbol frequency
 
 Symbol frequencies for library suggestions are computed on first use, without storing any data in
-olean files. The first query may be expensive for large imported libraries.
+olean files. The first query may be expensive for large imported libraries. Index construction does
+not consume the caller's heartbeat budget, but can be interrupted.
 -/
 
 namespace Lean.LibrarySuggestions
 
 /-- Process-local cache for the imported symbol frequencies. -/
 builtin_initialize symbolFrequencyMapRef : IO.Ref (Option (NameMap Nat)) ← IO.mkRef none
+
+/-- Exclude index preparation from heartbeat accounting, while retaining cancellation. -/
+def withUncountedHeartbeats (x : CoreM α) : CoreM α := do
+  Core.checkSystem "library suggestion initialization"
+  let heartbeats ← IO.getNumHeartbeats
+  try
+    withReader (fun ctx => { ctx with maxHeartbeats := 0 }) x
+  finally
+    IO.setNumHeartbeats heartbeats
 
 /--
 The symbol frequency map for imported constants. This is computed and cached on first use, assuming
@@ -30,7 +40,7 @@ public def symbolFrequencyMap : CoreM (NameMap Nat) := do
   match ← symbolFrequencyMapRef.get with
   | some map => return map
   | none =>
-    let map ← Meta.MetaM.run' <| withoutExporting do
+    let map ← withUncountedHeartbeats <| Meta.MetaM.run' <| withoutExporting do
       let env ← getEnv
       env.constants.map₁.foldM (init := ∅) fun acc name ci => do
         if isDeniedPremise env name || !wasOriginallyTheorem env name then

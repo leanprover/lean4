@@ -36,6 +36,9 @@ open Parser PrettyPrinter
 - In content, all whitespace is preserved by parsers, and then collapsed in {lit}`Content.view`.
 - To simplify away special handling of `$`, most parsers here cannot be antiquoted.
   Parsers that *can* be antiquoted are documented as such.
+- The docstrings of certain parsers are shown in IDEs on hover.
+  These parsers may contain additional, non-docstring comments
+  describing non-user-facing implementation details.
 -/
 
 /-! ## Helpers -/
@@ -168,11 +171,11 @@ def interpWith (kind : SyntaxNodeKind) (openSym : String) (trailingWs : Bool) : 
   node kind <|
     rawSymbol openSym (trailingWs := true) >> termParser >> rawSymbol "}" (trailingWs := trailingWs)
 
-/-- Parses {lit}`{ term }`. -/
+/- Parses {lit}`{ term }`. -/
 @[run_parser_attribute_hooks]
 def interp (trailingWs : Bool := false) : Parser := interpWith decl_name% "{" trailingWs
 
-/-- Parses {lit}`{... term }`. -/
+/- Parses {lit}`{... term }`. -/
 @[run_parser_attribute_hooks]
 def interpMany (trailingWs : Bool := false) : Parser := interpWith decl_name% "{..." trailingWs
 
@@ -181,9 +184,9 @@ abbrev interpManyKind := ``interpMany
 
 /-! ## Text content -/
 
-/-- Parses [HTML text content](https://html.spec.whatwg.org/dev/dom.html#text-content),
-stopping at an interpolation {lit}`{`, a tag `<`,
-or a closing bracket `}` (for {lit}`html%{ text }`). -/
+/-- [HTML text content](https://html.spec.whatwg.org/dev/dom.html#text-content). -/
+/- This parser stops at an interpolation `{`, a tag `<`,
+or a closing bracket `}` (for `html%{ text }`). -/
 def text : Parser where
   fn c s :=
     let startPos := s.pos
@@ -280,7 +283,7 @@ private partial def commentFn : ParserFn := fun c s =>
     -- Departure from spec: allow contents to begin with `>` or `->`.
     commentContentsFn c (s.setPos ⟨i.byteIdx + 4⟩)
 
-/-- Parses an [HTML comment](https://html.spec.whatwg.org/dev/syntax.html#comments). -/
+/-- An [HTML comment](https://html.spec.whatwg.org/dev/syntax.html#comments). -/
 def comment : Parser where
   fn := nodeFn decl_name% <| rawFn commentFn (trailingWs := false)
 
@@ -300,7 +303,7 @@ def Comment.view [Monad m] [MonadError m] : Comment → m String
 
 /-! ## Tag names -/
 
-/-- Parses an [HTML tag name](https://html.spec.whatwg.org/dev/syntax.html#syntax-tag-name):
+/-- An [HTML tag name](https://html.spec.whatwg.org/dev/syntax.html#syntax-tag-name):
 an ASCII letter followed by characters other than ASCII whitespace, U+0000 NULL, `/`, `>`.
 This includes [custom element names](https://html.spec.whatwg.org/dev/custom-elements.html#valid-custom-element-name). -/
 @[run_parser_attribute_hooks]
@@ -318,8 +321,8 @@ def TagName.view [Monad m] [MonadError m] : TagName → m String :=
 
 /-! ## Attribute names -/
 
-/-- Parses an [HTML attribute name](https://html.spec.whatwg.org/dev/syntax.html#attributes-2)
-that does not start with {lit}`{` (which would conflict with interpolation). -/
+/-- An [HTML attribute name](https://html.spec.whatwg.org/dev/syntax.html#attributes-2).
+Attribute names may not start with {lit}`{` (which would conflict with interpolation). -/
 @[run_parser_attribute_hooks]
 def attrName : Parser :=
   parseFirstMany decl_name% "attribute name" isAttrNameFirstChar isAttrNameChar
@@ -365,7 +368,7 @@ def AttrVal.view (stx : AttrVal) : CoreM AttrValView := do
 
 /-! ## Attributes -/
 
-/-- Parses an [HTML attribute](https://html.spec.whatwg.org/dev/syntax.html#attributes-2).
+/-- An [HTML attribute](https://html.spec.whatwg.org/dev/syntax.html#attributes-2).
 We support double-quoted attribute values {lit}`<tag name="val">`,
 empty attributes {lit}`<tag name>`,
 interpolations of one value {lit}`<tag name={ term }>`,
@@ -495,13 +498,13 @@ attribute [combinator_parenthesizer content, parenthesizer Lean.Html.Syntax.cont
   content.parenthesizer
 attribute [combinator_formatter content, formatter Lean.Html.Syntax.content] content.formatter
 
-/-- Parses an HTML element:
+/-- An HTML element:
 {lit}`<tag attr*/>` or {lit}`<tag attr*>content</tag>`.
+
 Tags must be closed: void element syntax such as `<br>`,
 and implied end tags such as `<ul><li>item</ul>`,
-are not supported.
-
-Start and end tag names are not checked for equality in the parser. -/
+are not supported. -/
+/- Start and end tag names are not checked for equality in the parser. -/
 @[run_parser_attribute_hooks]
 def element : Parser := elementWith (content)
 

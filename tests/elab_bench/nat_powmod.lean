@@ -6,7 +6,7 @@ meta import Lean
 open Lean in
 run_cmd do
   let bench := (← IO.getEnv "TEST_BENCH") == some "1"
-  let cases := if bench then [31, 61, 127, 255, 521, 1024, 4096] else [255]
+  let cases := if bench then [31, 61, 127, 255, 512, 521, 1024, 4096] else [255]
   let env ← getEnv
   -- Finish pending kernel tasks before timing. The references also prevent hoisting
   -- pure kernel calls across the timer if this code is compiled.

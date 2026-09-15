@@ -1,6 +1,6 @@
 /-!
 Tests for `Nat.powMod` (GMP-backed modular exponentiation from
-`Init.Data.Nat.PowMod`): the square-and-multiply kernel model (`decide`/`rfl`),
+`Init.Data.Nat.PowMod`): the windowed/binary kernel model (`decide`/`rfl`),
 the `lean_nat_powmod` extern (`#guard`/`native_decide`), the `Nat.reducePowMod`
 simproc, edge cases, and the 1024-bit ZMod case from Mathlib that motivated the
 feature.
@@ -19,7 +19,7 @@ example : Nat.powMod 7 5 13   = 11   := rfl
 example : Nat.powMod 3 4 0    = 81   := rfl  -- `m = 0` behaves like `^`
 example : Nat.powMod 2 10 0   = 1024 := rfl
 
-/-! The accumulator loop preserves the zero-exponent convention for symbolic
+/-! The zero-exponent branch preserves the convention for symbolic
 bases and moduli, and handles both parities and non-coprime inputs. -/
 example (b m : Nat) : Nat.powMod b 0 m = 1 % m := rfl
 example : Nat.powMod 0 0 0 = 1 := rfl
@@ -43,25 +43,25 @@ example : (List.range 12).all (fun b => (List.range 12).all (fun e =>
 #guard Nat.powMod 0 (2 ^ 32) 0 = 0
 
 /-! Kernel reduction (`decide`) and the compiled extern (`native_decide`) must
-agree, cross-validating the square-and-multiply model against `mpz_powm`. A
+agree, cross-validating the kernel model against `mpz_powm`. A
 divergence here would make `native_decide` unsound. -/
 -- Fermat's little theorem on a small prime: `3 ^ 100 ≡ 1 (mod 101)`.
 example : Nat.powMod 3 100 101 = 1 := by decide
 example : Nat.powMod 3 100 101 = 1 := by native_decide
--- A large exponent with a small base: square-and-multiply never materializes the
+-- A large exponent with a small base: modular exponentiation never materializes the
 -- astronomically large `b ^ e`, so `decide` succeeds where `b ^ e % m` could not.
 example : Nat.powMod 3 1000 1000003 = 73216 := by decide
 example : Nat.powMod 3 1000 1000003 = 73216 := by native_decide
 
 /-! `decide` of `Nat.powMod` is efficient even for very large exponents: the
-square-and-multiply model reduces in `O(log e)` steps and never materializes
+kernel model reduces in `O(log e)` steps and never materializes
 `b ^ e`, which the naive `b ^ e % m` model could never `decide`. -/
 example : Nat.powMod 7 65537 1000003 = 881993 := by decide
 -- `b ^ (2 ^ 40)` and `b ^ (10 ^ 12)` are astronomically large.
 example : Nat.powMod 3 (2 ^ 40) 1000003 = 378344 := by decide
 example : Nat.powMod 3 (10 ^ 12) 1000003 = 81 := by decide
--- The reduction is `O(log e)` deep, so cryptographic-scale exponents need
--- `maxRecDepth` raised; no exponentiation algorithm is shallower than `log₂ e`.
+-- Meta reduction depth grows with the exponent bit length; a raised recursion
+-- limit allows the windowed kernel model to handle cryptographic-scale exponents.
 -- The `maxHeartbeats` bound (heartbeats are deterministic, unlike wall-clock
 -- time) is a regression guard: a fallback to the naive `b ^ e % m` model would
 -- blow far past it.

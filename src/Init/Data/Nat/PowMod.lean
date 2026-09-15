@@ -45,7 +45,7 @@ private theorem powMod.window_eq (b m k fuel e : Nat) (hk : 2 ≤ k) (h : e < fu
     change (e.beq 0).rec
       (((powMod.window b m k fuel (e / k)) ^ k * b ^ (e % k)) % m)
       (1 % m) = b ^ e % m
-    simp only [Bool.rec_eq, Nat.beq_eq]
+    simp only [Bool.rec_eq, beq_eq]
     split
     next he => simp [he]
     next he =>
@@ -57,7 +57,7 @@ private theorem powMod.window_eq (b m k fuel e : Nat) (hk : 2 ≤ k) (h : e < fu
 /--
 Computes `b ^ e % m` using modular exponentiation.
 
-Kernel reduction uses four-bit windows for `m ≤ 2 ^ 512`, three-bit windows for
+The Lean definition uses four-bit windows for `m ≤ 2 ^ 512`, three-bit windows for
 `m ≤ 2 ^ 1024`, and square-and-multiply for larger moduli. Windows trade larger
 intermediate integers for fewer kernel reductions: for positive `m`, intermediates
 are bounded by `m ^ 31`, `m ^ 15`, and `m ^ 2`, respectively. Compiled execution
@@ -69,7 +69,8 @@ intermediates can be as large as the result.
 `powMod` is not definitionally equal to `b ^ e % m`. Concrete exponents reduce in
 `O(log e)` steps under `decide`, which `b ^ e % m` could not, and `simp` evaluates
 closed terms with the `Nat.reducePowMod` simproc. For symbolic reasoning, rewrite
-with `powMod_def`, which is deliberately not `@[simp]`: it would turn a cheap
+with `powMod_def`; unfolding can stop at the window selection for a symbolic modulus.
+This theorem is deliberately not `@[simp]`: it would turn a cheap
 `powMod` goal into an intractable `b ^ e % m` one.
 
 Examples:

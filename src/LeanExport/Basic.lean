@@ -58,6 +58,8 @@ public structure State where
   exportMData : Bool := false
   exportUnsafe : Bool := false
   ignoreMissing : Bool := false
+  /-- If set, the only axioms a dumped constant may use; see `dumpEnv`. -/
+  permittedAxioms? : Option NameSet := none
   /-- Maps the name of an inductive type to a list of names of corresponding recursors.
   This is used to facilitate exporting of related inductives, constructors, and recursors as a unit. -/
   recursorMap : NameMap NameSet := {}
@@ -416,8 +418,12 @@ public partial def dumpConstant (c : Name) : M Unit := do
       dumpConstant indName
 where
   dumpDeps e := do
-    for c in e.getUsedConstants do
-      dumpConstant c
+    for dep in e.getUsedConstants do
+      if let some permitted := (← get).permittedAxioms? then
+        if let some (.axiomInfo _) := (← read).env.find? dep then
+          unless permitted.contains dep do
+            throw <| .userError s!"Axiom '{dep}' is not permitted; it is used by '{c}'"
+      dumpConstant dep
   /- Return these for inclusion inline with the exported `recInfo`. -/
   dumpRecRule (rule : RecursorRule) : M Json := do
     return Json.mkObj [
@@ -458,16 +464,22 @@ public def dumpMetadata : M Unit := do
 /--
 Exports `constants?` from `env`, or every non-internal constant in scope if none are given.
 
-Each constant is dumped with its dependencies, so the export is closed under them either way.
+Each constant is dumped with its dependencies, so the export is closed under them either way. With
+`permittedAxioms?`, other axioms are left out, and dumping a constant that uses one throws.
 -/
 public def dumpEnv
     (env : Environment) (constants? : Option (List Name) := none) (cliOptions : List String := [])
+    (permittedAxioms? : Option NameSet := none)
 : IO Unit :=
   let constants := constants?.getD (env.constants.toList.map Prod.fst |>.filter (!·.isInternal))
   M.run env do
     let _ ← initState env cliOptions
+    modify fun st => { st with permittedAxioms? }
     dumpMetadata
     for c in constants do
+      if let some permitted := permittedAxioms? then
+        if let some (.axiomInfo _) := env.find? c then
+          unless permitted.contains c do continue
       modify fun st => { st with noMDataExprs := {} }
       dumpConstant c
 

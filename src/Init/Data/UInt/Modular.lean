@@ -30,17 +30,11 @@ def mulMod (a b modulus : UInt64) : UInt64 :=
   .ofNat (a.toNat * b.toNat % modulus.toNat)
 
 /--
-Raises a 64-bit unsigned integer to a natural-number power modulo `modulus`, using
-exponentiation by squaring. When `modulus` is `0`, the result is the wrapped power.
+Raises a 64-bit unsigned integer to a natural-number power modulo `modulus`. When `modulus` is `0`,
+the result is the wrapped power.
 -/
 def powMod (base : UInt64) (exponent : Nat) (modulus : UInt64) : UInt64 :=
-  if exponent = 0 then
-    1 % modulus
-  else
-    let result := powMod (mulMod base base modulus) (exponent / 2) modulus
-    if exponent % 2 = 1 then mulMod result base modulus else result
-termination_by exponent
-decreasing_by omega
+  .ofNat (base.toNat ^ exponent % modulus.toNat)
 
 /--
 Returns the multiplicative inverse of `a` modulo `modulus`, or `none` if the inverse does not
@@ -109,17 +103,7 @@ theorem mulMod_lt {a b modulus : UInt64} (h : modulus ≠ 0) : mulMod a b modulu
 
 private theorem toNat_powMod' (base : UInt64) (e : Nat) (modulus : UInt64) :
     (powMod base e modulus).toNat = base.toNat ^ e % wrapMod modulus := by
-  induction base, e using powMod.induct (modulus := modulus) with
-  | case1 base =>
-    rw [powMod, ite_eq_left rfl, UInt64.toNat_mod, UInt64.toNat_one, Nat.pow_zero, ← mod_wrapMod,
-      Nat.mod_eq_of_lt (Nat.lt_of_le_of_lt (Nat.mod_le 1 _) (by decide))]
-  | case2 base e he hodd ih =>
-    rw [powMod, ite_eq_right he, ite_eq_left hodd, toNat_mulMod', ih, toNat_mulMod', ← Nat.pow_mod,
-      Nat.mod_mul_mod, ← Nat.pow_two, ← Nat.pow_mul, ← Nat.pow_add_one,
-      show 2 * (e / 2) + 1 = e by omega]
-  | case3 base e he heven ih =>
-    rw [powMod, ite_eq_right he, ite_eq_right heven, ih, toNat_mulMod', ← Nat.pow_mod,
-      ← Nat.pow_two, ← Nat.pow_mul, show 2 * (e / 2) = e by omega]
+  rw [← mod_wrapMod, powMod, UInt64.toNat_ofNat']
 
 @[simp] theorem toNat_powMod {base : UInt64} {e : Nat} {modulus : UInt64} (h : modulus ≠ 0) :
     (powMod base e modulus).toNat = base.toNat ^ e % modulus.toNat := by
@@ -259,10 +243,10 @@ theorem invMod?_eq_some_iff {a modulus x : UInt64} :
 
 /-! ### Runtime implementations
 
-`powMod` processes a `Nat` exponent one bit at a time, while `invMod?` uses natural-number
-arithmetic for its Euclidean loop. The definitions below consume exponents 64 bits at a time
-and keep the modular arithmetic in machine words. They are installed with `@[csimp]`, so the
-compiled behaviour is proved equal to the definitions above.
+The specification of `powMod` computes the full natural-number power before reducing it, while
+`invMod?` uses natural-number arithmetic for its Euclidean loop. The definitions below consume
+exponents 64 bits at a time and keep the modular arithmetic in machine words. They are installed
+with `@[csimp]`, so the compiled behaviour is proved equal to the definitions above.
 -/
 
 /--

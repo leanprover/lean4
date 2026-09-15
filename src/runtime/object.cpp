@@ -1343,19 +1343,23 @@ void deactivate_promise(lean_promise_object * promise) {
 // =======================================
 // Natural numbers
 
-object * alloc_mpz(mpz const & m) {
+template<typename M>
+static object * alloc_mpz_core(M && m) {
     void * mem = lean_alloc_small_object(sizeof(mpz_object));
 #ifdef LEAN_MIMALLOC
     // placement new is not guaranteed to preserve this field so store and restore it
     unsigned sz = ((lean_object *)mem)->m_cs_sz;
 #endif
-    mpz_object * o = new (mem) mpz_object(m);
+    mpz_object * o = new (mem) mpz_object(std::forward<M>(m));
 #ifdef LEAN_MIMALLOC
     o->m_header.m_cs_sz = sz;
 #endif
     lean_set_st_header((lean_object*)o, LeanMPZ, 0);
     return (lean_object*)o;
 }
+
+object * alloc_mpz(mpz const & m) { return alloc_mpz_core(m); }
+object * alloc_mpz(mpz && m) { return alloc_mpz_core(std::move(m)); }
 
 #ifdef LEAN_USE_GMP
 extern "C" LEAN_EXPORT lean_object * lean_alloc_mpz(mpz_t v) {
@@ -1378,6 +1382,15 @@ static inline obj_res mpz_to_nat(mpz const & m) {
     else
         return mpz_to_nat_core(m);
 }
+
+static inline obj_res mpz_to_nat(mpz && m) {
+    if (m.is_size_t() && m.get_size_t() <= LEAN_MAX_SMALL_NAT)
+        return lean_box(m.get_size_t());
+    else
+        return alloc_mpz(std::move(m));
+}
+
+static object * mpz_to_int(mpz && m);
 
 extern "C" LEAN_EXPORT object * lean_cstr_to_nat(char const * n) {
     return mpz_to_nat(mpz(n));
@@ -1621,6 +1634,77 @@ extern "C" LEAN_EXPORT lean_obj_res lean_nat_gcd(b_lean_obj_arg a1, b_lean_obj_a
     }
 }
 
+static obj_res mk_extended_gcd_result(obj_arg g, obj_arg s, obj_arg t) {
+    // Match the field order of Nat.ExtendedGcdResult.
+    obj_res r = lean_alloc_ctor(0, 3, 0);
+    lean_ctor_set(r, 0, g);
+    lean_ctor_set(r, 1, s);
+    lean_ctor_set(r, 2, t);
+    return r;
+}
+
+extern "C" LEAN_EXPORT lean_obj_res lean_nat_extended_gcd(b_lean_obj_arg a, b_lean_obj_arg b) {
+    if (a == lean_box(0)) {
+        lean_inc(b);
+        return mk_extended_gcd_result(b, lean_int_to_int(0), lean_int_to_int(1));
+    }
+    if (b == lean_box(0) || lean_nat_dec_eq(a, b)) {
+        lean_inc(a);
+        return mk_extended_gcd_result(a, lean_int_to_int(1), lean_int_to_int(0));
+    }
+    if (lean_is_scalar(a) && lean_is_scalar(b) && lean_unbox(a) <= UINT16_MAX && lean_unbox(b) <= UINT16_MAX) {
+        // Coefficients fit in int32_t and accumulator products fit in int64_t for 16-bit inputs.
+        size_t r = lean_unbox(a), r1 = lean_unbox(b);
+        int64_t s = 1, t = 0, s1 = 0, t1 = 1;
+        while (r != 0) {
+            size_t q = r1 / r, next_r = r1 % r;
+            int64_t next_s = s1 - static_cast<int64_t>(q) * s;
+            int64_t next_t = t1 - static_cast<int64_t>(q) * t;
+            r1 = r; r = next_r;
+            s1 = s; s = next_s;
+            t1 = t; t = next_t;
+        }
+        return mk_extended_gcd_result(lean_box(r1), lean_int_to_int(static_cast<int>(s1)),
+                                      lean_int_to_int(static_cast<int>(t1)));
+    }
+    mpz g, s, t;
+#ifdef LEAN_USE_GMP
+    static_assert(sizeof(mp_limb_t) == sizeof(size_t), "GMP word size should equal the system word size");
+    mp_limb_t a_limb, b_limb;
+    mpz_t a_view, b_view;
+    mpz_srcptr aa, bb;
+    if (lean_is_scalar(a)) {
+        a_limb = lean_unbox(a);
+        aa = mpz_roinit_n(a_view, &a_limb, 1);
+    } else {
+        aa = mpz_value(a).get_mpz_t();
+    }
+    if (lean_is_scalar(b)) {
+        b_limb = lean_unbox(b);
+        bb = mpz_roinit_n(b_view, &b_limb, 1);
+    } else {
+        bb = mpz_value(b).get_mpz_t();
+    }
+    // Outside the zero/equal cases, the final Euclidean quotient is at least two.
+    // The alternating-sign coefficient recurrence then gives GMP's half-size bounds;
+    // equality occurs only when a/g or b/g is two, with the corresponding coefficient +1.
+    mpz_gcdext(g.get_mpz_t(), s.get_mpz_t(), t.get_mpz_t(), aa, bb);
+#else
+    mpz r = lean_is_scalar(a) ? mpz::of_size_t(lean_unbox(a)) : mpz_value(a);
+    mpz r1 = lean_is_scalar(b) ? mpz::of_size_t(lean_unbox(b)) : mpz_value(b);
+    mpz s0(1), t0(0), s1(0), t1(1);
+    while (!r.is_zero()) {
+        mpz q = r1 / r, next_r = rem(r1, r);
+        mpz next_s = s1 - q * s0, next_t = t1 - q * t0;
+        r1 = std::move(r); r = std::move(next_r);
+        s1 = std::move(s0); s0 = std::move(next_s);
+        t1 = std::move(t0); t0 = std::move(next_t);
+    }
+    g = std::move(r1); s = std::move(s1); t = std::move(t1);
+#endif
+    return mk_extended_gcd_result(mpz_to_nat(std::move(g)), mpz_to_int(std::move(s)), mpz_to_int(std::move(t)));
+}
+
 extern "C" LEAN_EXPORT lean_obj_res lean_nat_log2(b_lean_obj_arg a) {
     if (lean_is_scalar(a)) {
       unsigned res = 0;
@@ -1649,9 +1733,9 @@ inline object * mpz_to_int_core(mpz const & m) {
     return alloc_mpz(m);
 }
 
-static object * mpz_to_int(mpz const & m) {
+static object * mpz_to_int(mpz && m) {
     if (m < LEAN_MIN_SMALL_INT || m > LEAN_MAX_SMALL_INT)
-        return mpz_to_int_core(m);
+        return alloc_mpz(std::move(m));
     else
         return lean_box(static_cast<unsigned>(m.get_int()));
 }

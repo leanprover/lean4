@@ -6,6 +6,7 @@ Author: Leonardo de Moura
 */
 #pragma once
 #include <string>
+#include <utility>
 #include <lean/lean.h>
 #include "runtime/mpz.h"
 
@@ -23,6 +24,7 @@ struct mpz_object {
     mpz         m_value;
     mpz_object() {}
     explicit mpz_object(mpz const & m):m_value(m) {}
+    explicit mpz_object(mpz && m):m_value(std::move(m)) {}
 };
 
 typedef lean_external_class         external_object_class;
@@ -175,6 +177,7 @@ inline object* apply_m(object* f, unsigned n, object** args) { return lean_apply
 // MPZ
 
 LEAN_EXPORT object * alloc_mpz(mpz const &);
+LEAN_EXPORT object * alloc_mpz(mpz &&);
 inline mpz_object * to_mpz(object * o) { lean_assert(is_mpz(o)); return (mpz_object*)o; }
 
 // =======================================

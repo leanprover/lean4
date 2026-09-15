@@ -59,6 +59,14 @@ axiom sepConj_comm (a b : HProp) : (a ∗ b) = (b ∗ a)
 
 axiom sepConj_assoc (a b c : HProp) : ((a ∗ b) ∗ c) = (a ∗ (b ∗ c))
 
+axiom sepConj_bot_ax (a : HProp) : (a ∗ ⊥) = ⊥
+
+/-- Framing anything onto the empty postcondition stays empty. -/
+@[grind =] theorem sepConj_bot (a : HProp) : (a ∗ ⊥) = ⊥ := sepConj_bot_ax a
+
+instance : Std.Associative (α := HProp) sepConj := ⟨sepConj_assoc⟩
+instance : Std.Commutative (α := HProp) sepConj := ⟨sepConj_comm⟩
+
 /-- `(F ∗ ·)` preserves suprema, so it has an upper adjoint (the magic wand). -/
 axiom preservesSup_sepConj (F : HProp) : PreservesSup (sepConj F)
 
@@ -66,6 +74,8 @@ instance (F : HProp) : PreservesSup (sepConj F) := preservesSup_sepConj F
 
 /-- Monotonicity of `∗` in its right argument. -/
 axiom sepConj_mono_right (a : HProp) {b b' : HProp} (h : b ⊑ b') : a ∗ b ⊑ a ∗ b'
+
+attribute [local grind ←] PartialOrder.rel_of_eq
 
 /-! ## A program type with an exit
 
@@ -134,12 +144,7 @@ clause carries it into the exception postcondition. -/
 theorem exit_frames_via_vcgen :
     ⦃ ((0 : Addr) ↦ 1) ∗ ((5 : Addr) ↦ 7) ⦄ Prog.exit
     ⦃ fun _ => (⊥ : HProp); ((0 : Addr) ↦ 1) ∗ ((5 : Addr) ↦ 7) ⦄ := by
-  vcgen frames | Prog.exit => ((5 : Addr) ↦ 7)
-  case vc1 => exact frames_exit _ _
-  case vc2 => exact PartialOrder.rel_of_eq (sepConj_comm _ _)
-  case vc3 =>
-    rintro h ⟨_, h₂, _, _, _, hbot⟩
-    exact bot_le (fun _ => (⊥ : HProp) h) h₂ hbot
+  vcgen frames | Prog.exit => ((5 : Addr) ↦ 7) with finish
 
 abbrev AppState := Nat × Nat
 

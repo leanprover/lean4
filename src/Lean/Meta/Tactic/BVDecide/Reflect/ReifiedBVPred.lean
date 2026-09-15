@@ -19,43 +19,13 @@ namespace Lean.Meta.Tactic.BVDecide
 open Std.Tactic.BVDecide
 
 namespace ReifiedBVPred
-
-/--
-Construct an uninterpreted `Bool` atom from `origExpr`.
--/
-public def boolAtom (origExpr : Expr) : M (Option ReifiedBVPred) := do
-  /-
-  Idea: we have t : Bool here, let's construct:
-    BitVec.ofBool t : BitVec 1
-  as an atom. Then construct the BVPred corresponding to
-    BitVec.getLsb (BitVec.ofBool t) 0 : Bool
-  We can prove that this is equivalent to `t`. This allows us to have boolean variables in BVPred.
-  -/
-  let ty ← Sym.inferType origExpr
-  let_expr Bool := ty | return none
-  let atomExpr ← Sym.share <| mkApp (mkConst ``BitVec.ofBool) origExpr
-  let atom ← ReifiedBVExpr.mkAtom atomExpr 1 false
-  let bvExpr := .getLsbD atom.bvExpr 0
-  let expr ← Sym.share <| mkApp3 (mkConst ``BVPred.getLsbD) (toExpr 1) atom.expr (toExpr 0)
-  let proof := do
-    -- ofBool_congr does not hold definitionally, if this ever becomes an issue we need to find
-    -- a more clever encoding for boolean atoms
-    let atomEval ← ReifiedBVExpr.mkEvalExpr atom.width atom.expr
-    let atomProof := (← atom.evalsAtAtoms).getD (ReifiedBVExpr.mkBVRefl atom.width atomEval)
-    return mkApp3
-      (mkConst ``Std.Tactic.BVDecide.Reflect.BitVec.ofBool_congr)
-      origExpr
-      atomEval
-      atomProof
-  return some ⟨bvExpr, origExpr, proof, expr⟩
-
 /--
 Construct the reified version of applying the predicate in `pred` to `lhs` and `rhs`.
 This function assumes that `lhsExpr` and `rhsExpr` are the corresponding expressions to `lhs`
 and `rhs`.
 -/
 public def mkBinPred (lhs rhs : ReifiedBVExpr) (lhsExpr rhsExpr : Expr) (pred : BVBinPred)
-    (origExpr : Expr) : M (Option ReifiedBVPred) := do
+    (origExpr : Expr) : ReifyM (Option ReifiedBVPred) := do
   if h : lhs.width = rhs.width then
     let congrThm := congrThmOfBinPred pred
     let bvExpr : BVPred := .bin (w := lhs.width) lhs.bvExpr pred (h ▸ rhs.bvExpr)
@@ -90,7 +60,7 @@ Construct the reified version of `BitVec.getLsbD subExpr idx`.
 This function assumes that `subExpr` is the expression corresponding to `sub`.
 -/
 public def mkGetLsbD (sub : ReifiedBVExpr) (subExpr : Expr) (idx : Nat) (origExpr : Expr) :
-    M ReifiedBVPred := do
+    ReifyM ReifiedBVPred := do
   let bvExpr : BVPred := .getLsbD sub.bvExpr idx
   let idxExpr := toExpr idx
   let expr ← Sym.share <| mkApp3 (mkConst ``BVPred.getLsbD) (toExpr sub.width) sub.expr idxExpr

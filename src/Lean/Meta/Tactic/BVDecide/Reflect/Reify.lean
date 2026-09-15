@@ -13,6 +13,8 @@ import Lean.Meta.Tactic.BVDecide.Reflect.ReifiedBVLogical
 import Lean.Meta.Sym.LitValues
 import Lean.Meta.AppBuilder
 import Std.Tactic.BVDecide.Reflect
+import Lean.Meta.Sym.InferType
+import Lean.Meta.Sym.InstantiateMVarsS
 
 
 /-!
@@ -23,7 +25,110 @@ namespace Lean.Meta.Tactic.BVDecide
 
 open Std.Tactic.BVDecide
 
+def isValidBitVecAtom (e : Expr) : ReifyM (Option Nat) := do
+  let t ← Sym.instantiateMVarsS (← Sym.inferType e)
+  let_expr BitVec widthExpr := t | return none
+  return Sym.getNatValue? widthExpr
+
+def isValidBoolAtom (e : Expr) : ReifyM Bool := do
+  let ty ← Sym.inferType e
+  return ty.isConstOf ``Bool
+
+def mkBoolAtomWrapper (e : Expr) : Sym.SymM Expr :=
+  Sym.share <| mkApp (mkConst ``BitVec.ofBool) e
+
 mutual
+
+/--
+Register `e` as an atom of `width` that might potentially be `synthetic`.
+-/
+partial def registerAtom (e : Expr) (width : Nat) (synthetic : Bool) :
+    LemmaM ReifiedBVExpr := do
+  checkTheoryAtom e
+  let ident ← M.lookup e width synthetic
+  let expr ← Sym.share <| mkApp2 (mkConst ``BVExpr.var) (toExpr width) (toExpr ident)
+  -- This is safe because this proof always holds definitionally.
+  let proof := pure none
+  let reified := ⟨width, .var ident, expr, proof, expr⟩
+  return reified
+where
+  checkTheoryAtom (e : Expr) : LemmaM Unit := do
+    if ← M.isAtom e then return ()
+    if ← checkFunAtom e then return ()
+    return ()
+
+  checkFunAtom (e : Expr) : LemmaM Bool := do
+    e.withApp fun _ args => do
+      if args.isEmpty then return false
+      let allInterpreted ← args.allM fun arg =>
+        (Option.isSome <$> isValidBitVecAtom arg) <||> isValidBoolAtom arg
+      if !allInterpreted then return false
+      M.modifyTheoryAtoms fun ta => { ta with funAtoms := ta.funAtoms.push e }
+      return true
+
+partial def registerBitVecAtom? (e : Expr) (synthetic : Bool) : LemmaM (Option ReifiedBVExpr) := do
+  let some width ← isValidBitVecAtom e | return none
+  let atom ← registerAtom e width synthetic
+  return some atom
+
+partial def registerBoolAtom? (e : Expr) : LemmaM (Option ReifiedBVPred) := do
+  /-
+  Idea: we have t : Bool here, let's construct:
+    BitVec.ofBool t : BitVec 1
+  as an atom. Then construct the BVPred corresponding to
+    BitVec.getLsb (BitVec.ofBool t) 0 : Bool
+  We can prove that this is equivalent to `t`. This allows us to have boolean variables in BVPred.
+  -/
+  unless ← isValidBoolAtom e do return none
+  let atomExpr ← mkBoolAtomWrapper e
+  let atom ← registerAtom atomExpr 1 false
+  let bvExpr := .getLsbD atom.bvExpr 0
+  let expr ← Sym.share <| mkApp3 (mkConst ``BVPred.getLsbD) (toExpr 1) atom.expr (toExpr 0)
+  let proof := do
+    -- ofBool_congr does not hold definitionally, if this ever becomes an issue we need to find
+    -- a more clever encoding for boolean atoms
+    let atomEval ← ReifiedBVExpr.mkEvalExpr atom.width atom.expr
+    let atomProof := (← atom.evalsAtAtoms).getD (ReifiedBVExpr.mkBVRefl atom.width atomEval)
+    return mkApp3
+      (mkConst ``Std.Tactic.BVDecide.Reflect.BitVec.ofBool_congr)
+      e
+      atomEval
+      atomProof
+  return some ⟨bvExpr, e, proof, expr⟩
+
+partial def registerSubAtoms (e : Expr) : LemmaM Unit := do
+  assert! ← M.isAtom e <||> M.isAtom (← mkBoolAtomWrapper e)
+  e.forEach fun e => do
+    if ← M.isAtom e <||> M.isAtom (← mkBoolAtomWrapper e) then
+      return ()
+    else if let some _ ← isValidBitVecAtom e then
+      discard <| ReifiedBVExpr.of e
+    else if ← isValidBoolAtom e then
+      discard <| ReifiedBVLogical.of e
+
+/--
+Construct an uninterpreted `BitVec` atom from `x`, potentially `synthetic`.
+-/
+public partial def ReifiedBVExpr.bitVecAtom (e : Expr) (synthetic : Bool) :
+    LemmaM (Option ReifiedBVExpr) := do
+  let some atom ← registerBitVecAtom? e synthetic | return none
+  registerSubAtoms e
+  return some atom
+
+/--
+Construct an uninterpreted `Bool` atom from `origExpr`.
+-/
+public partial def ReifiedBVPred.boolAtom (e : Expr) : LemmaM (Option ReifiedBVPred) := do
+  let some atom ← registerBoolAtom? e | return none
+  registerSubAtoms e
+  return some atom
+
+/--
+Construct an uninterpreted `Bool` atom from `t`.
+-/
+public partial def ReifiedBVLogical.boolAtom (t : Expr) : LemmaM (Option ReifiedBVLogical) := do
+  let some pred ← ReifiedBVPred.boolAtom t | return none
+  ReifiedBVLogical.ofPred pred
 
 /--
 Reify an `Expr` that's a constant-width `BitVec`.
@@ -255,7 +360,7 @@ where
       return none
 
   binaryCongrProof (lhs rhs : ReifiedBVExpr) (lhsExpr rhsExpr : Expr) (congrThm : Expr) :
-      M (Option Expr) := do
+      ReifyM (Option Expr) := do
     let lhsEval ← ReifiedBVExpr.mkEvalExpr lhs.width lhs.expr
     let rhsEval ← ReifiedBVExpr.mkEvalExpr rhs.width rhs.expr
     let lhsProof? ← lhs.evalsAtAtoms
@@ -275,12 +380,12 @@ where
     let proof := unaryCongrProof inner innerExpr (mkConst congrThm)
     return some ⟨inner.width, bvExpr, origExpr, proof, expr⟩
 
-  unaryCongrProof (inner : ReifiedBVExpr) (innerExpr : Expr) (congrProof : Expr) : M (Option Expr) := do
+  unaryCongrProof (inner : ReifiedBVExpr) (innerExpr : Expr) (congrProof : Expr) : ReifyM (Option Expr) := do
     let innerEval ← ReifiedBVExpr.mkEvalExpr inner.width inner.expr
     let some innerProof ← inner.evalsAtAtoms | return none
     return mkApp4 congrProof (toExpr inner.width) innerExpr innerEval innerProof
 
-  goBvLit (x : Expr) : M (Option ReifiedBVExpr) := do
+  goBvLit (x : Expr) : LemmaM (Option ReifiedBVExpr) := do
     let some ⟨_, bvVal⟩ := Sym.getBitVecValue? x | return ← ReifiedBVExpr.bitVecAtom x false
     ReifiedBVExpr.mkBVConst bvVal
 

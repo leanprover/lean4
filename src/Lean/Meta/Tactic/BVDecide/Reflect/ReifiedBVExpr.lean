@@ -25,26 +25,16 @@ namespace ReifiedBVExpr
 /--
 Build `BVExpr.eval atoms expr` where `atoms` is the assignment stored in the monad.
 -/
-public def mkEvalExpr (w : Nat) (expr : Expr) : M Expr := do
+public def mkEvalExpr (w : Nat) (expr : Expr) : ReifyM Expr := do
   Sym.share <| mkApp3 (mkConst ``BVExpr.eval) (toExpr w) (← M.atomsAssignment) expr
 
 public def mkBVRefl (w : Nat) (expr : Expr) : Expr :=
   mkApp2 (mkConst ``Eq.refl [1]) (mkApp (mkConst ``BitVec) (toExpr w)) expr
 
 /--
-Register `e` as an atom of `width` that might potentially be `synthetic`.
--/
-public def mkAtom (e : Expr) (width : Nat) (synthetic : Bool) : M ReifiedBVExpr := do
-  let ident ← M.lookup e width synthetic
-  let expr ← Sym.share <| mkApp2 (mkConst ``BVExpr.var) (toExpr width) (toExpr ident)
-  -- This is safe because this proof always holds definitionally.
-  let proof := pure none
-  return ⟨width, .var ident, expr, proof, expr⟩
-
-/--
 Parse `expr` as a `Nat` or `BitVec` constant depending on `ty`.
 -/
-public def getNatOrBvValue? (ty : Expr) (expr : Expr) : M (Option Nat) := do
+public def getNatOrBvValue? (ty : Expr) (expr : Expr) : ReifyM (Option Nat) := do
   match_expr ty with
   | Nat =>
     Sym.getNatValue? expr |>.run
@@ -54,19 +44,9 @@ public def getNatOrBvValue? (ty : Expr) (expr : Expr) : M (Option Nat) := do
   | _ => return none
 
 /--
-Construct an uninterpreted `BitVec` atom from `x`, potentially `synthetic`.
--/
-public def bitVecAtom (x : Expr) (synthetic : Bool) : M (Option ReifiedBVExpr) := do
-  let t ← Sym.instantiateMVarsS (← Sym.inferType x)
-  let_expr BitVec widthExpr := t | return none
-  let some width := Sym.getNatValue? widthExpr | return none
-  let atom ← mkAtom x width synthetic
-  return some atom
-
-/--
 Build a reified version of the constant `val`.
 -/
-public def mkBVConst (val : BitVec w) : M ReifiedBVExpr := do
+public def mkBVConst (val : BitVec w) : ReifyM ReifiedBVExpr := do
   let bvExpr : BVExpr w := .const val
   let expr ← Sym.share <| mkApp2 (mkConst ``BVExpr.const) (toExpr w) (toExpr val)
   let syntheticOrigExpr ← Sym.share <| toExpr val

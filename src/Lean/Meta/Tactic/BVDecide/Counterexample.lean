@@ -57,16 +57,23 @@ public def reconstructCounterExample (aig : Std.Sat.AIG BVBit) (assignment : Arr
     sparseMap := sparseMap.insert bitVar.var bitMap
 
   let mut finalMap := #[]
-  for (bitVecVar, bitMap) in sparseMap.toArray do
+  for (bitVecVar, bitMap) in sparseMap do
     let mut value : Nat := 0
     let mut currentBit := 0
-    for (bitIdx, bitValue) in bitMap.toList do
+    for (bitIdx, bitValue) in bitMap do
       assert! bitIdx == currentBit
       if bitValue then
         value := value ||| (1 <<< currentBit)
       currentBit := currentBit + 1
     let (_, atomExpr, _) := atomsAssignment[bitVecVar]!
     finalMap := finalMap.push (atomExpr, ⟨BitVec.ofNat currentBit value⟩)
+
+  -- There might exist atoms that have not been encoded into CNF, we fill them with 0s
+  for (atomId, (width, atomExpr, synthetic)) in atomsAssignment do
+    if synthetic then continue
+    if sparseMap.contains atomId then continue
+    finalMap := finalMap.push (atomExpr, ⟨BitVec.ofNat width 0⟩)
+
   return finalMap
 
 /--

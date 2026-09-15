@@ -41,7 +41,7 @@ public structure ReflectionResult where
   /--
   Function to prove `False` given an unsatisfiability proof of `bvExpr`
   -/
-  proveFalse : Expr → M Expr
+  proveFalse : Expr → ReifyM Expr
   /--
   Set of unused hypotheses for diagnostic purposes.
   -/
@@ -52,9 +52,9 @@ public structure ReflectionResult where
   expr : Expr
 
 public abbrev UnsatProver (α : Type) := MVarId → ReflectionResult → Std.HashMap Nat (Nat × Expr × Bool) →
-    MetaM (Except CounterExample (UnsatProver.Result α))
+    ReifyM (Except CounterExample (UnsatProver.Result α))
 
-public def reflectBV (g : MVarId) : M ReflectionResult := g.withContext do
+public def reflectBV (g : MVarId) : ReifyM ReflectionResult := g.withContext do
   let mut sats := #[]
   let mut unusedHypotheses := {}
   for hyp in ← M.getHyps do
@@ -81,7 +81,7 @@ public def reflectBV (g : MVarId) : M ReflectionResult := g.withContext do
     }
 
 public def closeWithBVReflection (g : MVarId) (unsatProver : UnsatProver α) :
-    M (Except CounterExample α) :=
+    ReifyM (Except CounterExample α) :=
   g.withContext do
     let reflectionResult ←
       withTraceNode `Meta.Tactic.bv (fun _ => return "Reflecting goal into BVLogicalExpr") do

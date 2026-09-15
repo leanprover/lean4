@@ -1,0 +1,1 @@
+the interpreter holds its own reference to the options object

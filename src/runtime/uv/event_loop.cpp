@@ -25,7 +25,7 @@ event_loop_t global_ev;
 
 // Helpers
 
-void lean_promise_resolve_with_code(int status, obj_arg promise) {
+void lean_promise_resolve_with_code(int status, b_obj_arg promise) {
     obj_arg res = status == 0
         ? mk_except_ok(lean_box(0))
         : mk_except_err(lean_decode_uv_error(status, nullptr));
@@ -42,13 +42,8 @@ static void check_uv(int result, const char * msg) {
     }
 }
 
-// The callback that stops the loop when it's called.
-void async_callback(uv_async_t * handle) {
-    uv_stop(handle->loop);
-}
-
-// Interrupts the event loop and stops it so it can receive future requests.
-void event_loop_interrupt(event_loop_t * event_loop) {
+// Wakes the event loop so that it gives up the mutex to a waiting requester.
+static void event_loop_interrupt(event_loop_t * event_loop) {
     int result = uv_async_send(&event_loop->async);
     (void)result;
     lean_assert(result == 0);
@@ -90,18 +85,16 @@ void event_loop_run_loop(event_loop_t * event_loop) {
             uv_cond_wait(&event_loop->cond_var, &event_loop->mutex);
         }
 
+        // `UV_RUN_ONCE` returns after servicing one round of events. `async` is always active, so
+        // the loop never runs out of things to wait on; a requester wakes it with `uv_async_send`
+        // and this unlock is what lets that requester in.
         uv_run(event_loop->loop, UV_RUN_ONCE);
-        /*
-         * We leave `uv_run` only when `uv_stop` is called as there is always the `uv_async_t` so
-         * we can never run out of things to wait on. `uv_stop` is only called from `async_callback`
-         * when another thread wants to work with the event loop so we need to give up the mutex.
-         */
 
         uv_mutex_unlock(&event_loop->mutex);
     }
 }
 
-/* Std.Internal.UV.Loop.configure (options : Loop.Options) : BaseIO Unit */
+/* Std.Internal.UV.Loop.configure (options : @& Loop.Options) : IO Unit */
 extern "C" LEAN_EXPORT lean_obj_res lean_uv_event_loop_configure(b_obj_arg options) {
     bool accum = lean_ctor_get_uint8(options, 0);
     bool block = lean_ctor_get_uint8(options, 1);
@@ -110,19 +103,25 @@ extern "C" LEAN_EXPORT lean_obj_res lean_uv_event_loop_configure(b_obj_arg optio
 
     if (accum) {
         int result = uv_loop_configure(global_ev.loop, UV_METRICS_IDLE_TIME);
-        if (result != 0) return lean_io_result_mk_error(lean_decode_uv_error(result, NULL));
+        if (result != 0) {
+            event_loop_unlock(&global_ev);
+            return lean_io_result_mk_error(lean_decode_uv_error(result, NULL));
+        }
     }
 
     #if!defined(WIN32) && !defined(_WIN32)
     if (block) {
         int result = uv_loop_configure(global_ev.loop, UV_LOOP_BLOCK_SIGNAL, SIGPROF);
-        if (result != 0) return lean_io_result_mk_error(lean_decode_uv_error(result, NULL));
+        if (result != 0) {
+            event_loop_unlock(&global_ev);
+            return lean_io_result_mk_error(lean_decode_uv_error(result, NULL));
+        }
     }
     #endif
 
     event_loop_unlock(&global_ev);
 
-    return lean_box(0);
+    return lean_io_result_mk_ok(lean_box(0));
 }
 
 /* Std.Internal.UV.Loop.alive : BaseIO Bool */
@@ -140,7 +139,7 @@ void initialize_libuv_loop() {
 
 #else
 
-/* Std.Internal.UV.Loop.configure (options : Loop.Options) : BaseIO Unit */
+/* Std.Internal.UV.Loop.configure (options : @& Loop.Options) : IO Unit */
 extern "C" LEAN_EXPORT lean_obj_res lean_uv_event_loop_configure(b_obj_arg options) {
     return io_result_mk_error("lean_uv_event_loop_configure is not supported");
 }

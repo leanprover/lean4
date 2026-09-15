@@ -28,8 +28,11 @@ $CP llvm/lib/lib{clang-cpp,LLVM}*.so* stage1/lib/
 $CP $ZLIB/lib/libz.so* stage1/lib/
 # also copy USE_LLVM deps into stage 0
 $CP llvm/lib/libLLVM*.so* $ZLIB/lib/libz.so* stage0/lib/
-# general clang++ dependency, breaks cross-library C++ exceptions if linked statically
-$CP $GCC_LIB/lib/libgcc_s.so* stage1/lib/
+# general clang++ dependency, breaks cross-library C++ exceptions if linked statically. GCC's `libgcc_s.so` is a
+# linker script that also pulls in `-lgcc`, which we do not bundle, so point the link name at the shared object
+# instead; `rustc` links `-lgcc_s` for the bundled Rust checkers.
+$CP $GCC_LIB/lib/libgcc_s.so.* stage1/lib/
+ln -sf libgcc_s.so.1 stage1/lib/libgcc_s.so
 # bundle libatomic (referenced by LLVM >= 15, and required by the lean executable to run)
 $CP $GCC_LIB/lib/libatomic.so* stage1/lib/
 
@@ -55,7 +58,8 @@ $CP -r llvm/include/*-*-* llvm-host/include/ || true
 $CP $GLIBC/lib/libc_nonshared.a stage1/lib/glibc
 # libpthread_nonshared.a must be linked in order to be able to use `pthread_atfork(3)`. LibUV uses this function.
 $CP $GLIBC/lib/libpthread_nonshared.a stage1/lib/glibc
-for f in $GLIBC/lib/{ld,lib{c,dl,m,rt,pthread}}-*; do b=$(basename $f); cp $f stage1/lib/glibc/${b%-*}.so; done
+# `libutil` is on `rustc`'s default link line for the bundled Rust checkers; `--as-needed` drops it again
+for f in $GLIBC/lib/{ld,lib{c,dl,m,rt,pthread,util}}-*; do b=$(basename $f); cp $f stage1/lib/glibc/${b%-*}.so; done
 OPTIONS=()
 # We build cadical using the custom toolchain on Linux to avoid glibc versioning issues
 echo -n " -DLEAN_STANDALONE=ON -DCADICAL_USE_CUSTOM_CXX=ON"

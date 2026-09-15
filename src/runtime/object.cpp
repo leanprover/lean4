@@ -1359,7 +1359,11 @@ static object * alloc_mpz_core(M && m) {
 }
 
 object * alloc_mpz(mpz const & m) { return alloc_mpz_core(m); }
-object * alloc_mpz(mpz && m) { return alloc_mpz_core(std::move(m)); }
+object * alloc_mpz(mpz && m) {
+    if (m.has_excess_capacity())
+        return alloc_mpz(static_cast<mpz const &>(m));
+    return alloc_mpz_core(std::move(m));
+}
 
 #ifdef LEAN_USE_GMP
 extern "C" LEAN_EXPORT lean_object * lean_alloc_mpz(mpz_t v) {

@@ -177,6 +177,7 @@ inline object* apply_m(object* f, unsigned n, object** args) { return lean_apply
 // MPZ
 
 LEAN_EXPORT object * alloc_mpz(mpz const &);
+// Consume private, owned limb storage; copy instead if its capacity is excessive.
 LEAN_EXPORT object * alloc_mpz(mpz &&);
 inline mpz_object * to_mpz(object * o) { lean_assert(is_mpz(o)); return (mpz_object*)o; }
 

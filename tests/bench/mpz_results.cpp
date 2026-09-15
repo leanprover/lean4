@@ -153,10 +153,50 @@ static double timed(Op op, std::vector<std::unique_ptr<Pair>> & pairs, size_t ro
     return std::chrono::duration<double>(Clock::now() - start).count();
 }
 
+static void capacity_cases() {
+    mpz_t huge, small, near, dividend, ga, gb;
+    mpz_inits(huge, small, near, dividend, ga, gb, nullptr);
+    mpz_setbit(huge, 4096); mpz_add_ui(huge, huge, 1);
+    mpz_setbit(small, 64);
+    mpz_add(near, huge, small);
+    mpz_mul(dividend, huge, huge); mpz_add(dividend, dividend, small);
+    mpz_mul(ga, huge, small);
+    mpz_add_ui(gb, huge, 2); mpz_mul(gb, gb, small);
+    auto * a = to_lean(huge, false);
+    auto * b = to_lean(near, false);
+    auto * d = to_lean(dividend, false);
+    auto * x = to_lean(ga, false);
+    auto * y = to_lean(gb, false);
+    std::puts("op,retained_bytes");
+    auto measure = [&](char const * name, lean_object * lhs, lean_object * rhs,
+            lean_object * (*f)(lean_object *, lean_object *)) {
+        live_bytes = peak_bytes = 0;
+        counting = true;
+        auto * result = f(lhs, rhs);
+        counting = false;
+        std::printf("%s,%zu\n", name, live_bytes);
+        mpz_t actual; mpz_init(actual);
+        from_lean(actual, result, false);
+        if (mpz_cmp(actual, small)) std::abort();
+        mpz_clear(actual);
+        counting = true; lean_dec(result); counting = false;
+        if (live_bytes) std::abort();
+    };
+    measure("int_small_sub", b, a, lean_int_sub);
+    measure("nat_small_sub", b, a, lean_nat_sub);
+    measure("int_small_emod", d, a, lean_int_emod);
+    measure("nat_small_mod", d, a, lean_nat_mod);
+    measure("nat_small_gcd", x, y, lean_nat_gcd);
+    for (auto * o : {a, b, d, x, y}) lean_dec(o);
+    mpz_clears(huge, small, near, dividend, ga, gb, nullptr);
+}
+
 int main(int argc, char ** argv) {
-    bool count = argc > 1 && std::string(argv[1]) == "--allocations";
+    bool capacity = argc > 1 && std::string(argv[1]) == "--capacity";
+    bool count = capacity || (argc > 1 && std::string(argv[1]) == "--allocations");
     if (count) mp_set_memory_functions(counted_alloc, counted_realloc, counted_free);
     lean_initialize_runtime_module();
+    if (capacity) { capacity_cases(); return 0; }
     gmp_randstate_t state; gmp_randinit_mt(state); gmp_randseed_ui(state, 15160);
     std::puts(count ? "op,bits,allocs,reallocs,frees,requested_bytes,retained_bytes,peak_bytes" : "op,bits,ns");
     for (unsigned bits : {16, 32, 64, 256, 1024, 4096}) {

@@ -179,8 +179,27 @@ def interp (trailingWs : Bool := false) : Parser := interpWith decl_name% "{" tr
 @[run_parser_attribute_hooks]
 def interpMany (trailingWs : Bool := false) : Parser := interpWith decl_name% "{..." trailingWs
 
-abbrev interpKind := ``interp
-abbrev interpManyKind := ``interpMany
+abbrev interpKind (isMany : Bool) := if isMany then ``interpMany else ``interp
+abbrev Interp (isMany : Bool) := TSyntax (interpKind isMany)
+
+/-- A single-element {lit}`{ term }` or many-element {lit}`{... term }` interpolation. -/
+structure InterpView (isMany : Bool) where
+  /-- {lit}`{` or {lit}`{...`. -/
+  openBrace : Syntax
+  /-- The interpolated term. -/
+  term : Term
+  /-- {lit}`}`. -/
+  closeBrace : Syntax
+  deriving Repr, Inhabited, BEq
+
+def Interp.view [Monad m] [MonadError m] (stx : Interp isMany) : m (InterpView isMany) :=
+  let stx := stx.raw
+  if stx.getKind == interpKind isMany then
+    return { openBrace := stx[0], term := ⟨stx[1]⟩, closeBrace := stx[2] }
+  else
+    Elab.throwUnsupportedSyntax
+
+def InterpView.of := @Interp.view
 
 /-! ## Text content -/
 
@@ -348,23 +367,24 @@ abbrev attrValKind := ``attrVal
 abbrev AttrVal := TSyntax attrValKind
 
 inductive AttrValView where
-  /-- A string literal and its value {name}`val`, with character references decoded. -/
-  | str (stx : TSyntax `str) (val : String)
-  | interp (val : Term)
-  deriving Inhabited
+  /-- A string literal. Character references in the literal must be decoded before use
+  (via {name}`decodeCharacterReferences`). -/
+  | str (stx : TSyntax `str)
+  | interp (stx : Interp false)
+  deriving Repr, Inhabited, BEq
 
 /-- Provides a view on the attribute value,
-decoding character references when the value is a string literal.
-
-Throws if an invalid character reference is encountered. -/
-def AttrVal.view (stx : AttrVal) : CoreM AttrValView := do
+decoding character references when the value is a string literal. -/
+def AttrVal.view [Monad m] [MonadError m] (stx : AttrVal) : m AttrValView := do
   let c := stx.raw[0]
   if c.getKind == `str then
-    return .str ⟨c⟩ (← decodeCharacterReferences ⟨c⟩)
-  else if c.getKind == interpKind then
-    return .interp ⟨c[1]⟩
+    return .str ⟨c⟩
+  else if c.getKind == interpKind false then
+    return .interp ⟨c⟩
   else
     Elab.throwUnsupportedSyntax
+
+def AttrValView.of := @AttrVal.view
 
 /-! ## Attributes -/
 
@@ -384,12 +404,18 @@ def attr : Parser :=
 abbrev attrKind := ``attr
 abbrev Attr := TSyntax attrKind
 
+structure ValAttrView where
+  name : AttrName
+  /-- The {lit}`=` symbol. -/
+  eq : Syntax
+  val : AttrVal
+  deriving Repr, Inhabited, BEq
+
 inductive AttrView where
-  | val (name : AttrName) (val : AttrVal)
-  | bool (name : AttrName)
-  | interp (val : Term)
-  | interpMany (val : Term)
-  deriving Inhabited
+  | val (stx : ValAttrView)
+  | bool (stx : AttrName)
+  | interp (isMany : Bool) (stx : Interp isMany)
+  deriving Repr, Inhabited, BEq
 
 def Attr.view [Monad m] [MonadError m] (stx : Attr) : m AttrView :=
   let c := stx.raw[0]
@@ -398,18 +424,28 @@ def Attr.view [Monad m] [MonadError m] (stx : Attr) : m AttrView :=
     if val?.getNumArgs == 0 then
       return .bool ⟨c⟩
     else
-      return .val ⟨c⟩ ⟨val?[1]⟩
-  else if c.getKind == interpKind then
-    return .interp ⟨c[1]⟩
-  else if c.getKind == interpManyKind then
-    return .interpMany ⟨c[1]⟩
+      return .val { name := ⟨c⟩, eq := val?[0], val := ⟨val?[1]⟩ }
+  else if c.getKind == interpKind true then
+    return .interp true ⟨c⟩
+  else if c.getKind == interpKind false then
+    return .interp false ⟨c⟩
   else
     Elab.throwUnsupportedSyntax
 
-/-! ## Elements -/
+def AttrView.of := @Attr.view
+
+/-! ## Elements and content
+
+Content is not a syntax category because a category parser starts by reading a Lean token,
+which fails on text that begins with whitespace or, for example, `'`.
+Instead, {lit}`contentItemFn` dispatches to item parsers based on the next character. -/
 
 abbrev elementKind := `Lean.Html.Syntax.element
 abbrev Element := TSyntax elementKind
+
+abbrev contentKind := `Lean.Html.Syntax.content
+/-- A sequence of HTML text nodes, comments, elements, and interpolations. -/
+abbrev Content := TSyntax contentKind
 
 @[run_parser_attribute_hooks]
 def elementWith (content : Parser) : Parser :=
@@ -422,15 +458,48 @@ where
   /-- Lists the possible contents of a tag. -/
   expected := ["attribute", "'/>'", "'>'"]
 
-/-! ## Content
+structure TagView where
+  /-- {lit}`<` or {lit}`</`. -/
+  lt : Syntax
+  name : TagName
+  /-- Attributes on the tag. Always empty in end tags. -/
+  attrs : Array Attr
+  /-- {lit}`>` or {lit}`/>`. -/
+  gt : Syntax
+  deriving Repr, Inhabited, BEq
 
-Content is not a syntax category because a category parser starts by reading a Lean token,
-which fails on text that begins with whitespace or, for example, `'`.
-Instead, {lit}`contentItemFn` dispatches to item parsers based on the next character. -/
+structure ElementView where
+  startTag : TagView
+  /-- HTML content between the start and end tags. -/
+  children? : Option Content := none
+  /-- The end tag, if the element is not self-closing. -/
+  endTag? : Option TagView := none
+  deriving Repr, Inhabited, BEq
 
-abbrev contentKind := `Lean.Html.Syntax.content
-/-- A sequence of HTML text nodes, comments, elements, and interpolations. -/
-abbrev Content := TSyntax contentKind
+/-- Throws an informative error when the start and end tag names do not match (up to casing). -/
+def ElementView.checkNamesMatch : ElementView → CoreM Unit
+  | { startTag, endTag? := some endTag, .. } => do
+    let startTagName ← startTag.name.view
+    let endTagName ← endTag.name.view
+    if endTagName.toLower != startTagName.toLower then
+      let hint ← MessageData.hint m!"Replace with start tag" #[startTagName] (ref? := endTag.name)
+      throwErrorAt endTag.name
+        m!"Mismatched end tag, expected `{startTagName}` but got `{endTagName}`{hint}"
+  | _ => return ()
+
+def Element.view [Monad m] [MonadError m] (stx : Element) : m ElementView := do
+  let stx := stx.raw
+  if stx.getKind == elementKind then
+    let attrs : Array Attr := stx[2].getArgs.map (⟨·⟩)
+    let startTag : TagView := { lt := stx[0], name := ⟨stx[1]⟩, attrs, gt := stx[3] }
+    if stx.getNumArgs == 4 then
+      return { startTag }
+    let endTag : TagView := { lt := stx[5], name := ⟨stx[6]⟩, attrs := #[], gt := stx[7] }
+    return { startTag, children? := some ⟨stx[4]⟩, endTag? := endTag }
+  else
+    Elab.throwUnsupportedSyntax
+
+def ElementView.of := @Element.view
 
 def contentWith (itemFn : ParserFn) : Parser :=
   let antiquotP := mkAntiquot "content" contentKind
@@ -473,7 +542,7 @@ partial def contentItem.parenthesizer : Parenthesizer := do
   let k := (← Syntax.MonadTraverser.getCur).getKind
   if k == textKind then text.parenthesizer
   else if k == commentKind then comment.parenthesizer
-  else if k == interpKind then interp.parenthesizer
+  else if k == interpKind false then interp.parenthesizer
   else if k == elementKind then elementWith.parenthesizer content.parenthesizer
   else throwError "Unexpected syntax node kind `{k}` in HTML content"
 end
@@ -489,7 +558,7 @@ partial def contentItem.formatter : Formatter := do
   let k := (← Syntax.MonadTraverser.getCur).getKind
   if k == textKind then text.formatter
   else if k == commentKind then comment.formatter
-  else if k == interpKind then interp.formatter
+  else if k == interpKind false then interp.formatter
   else if k == elementKind then elementWith.formatter content.formatter
   else throwError "Unexpected syntax node kind `{k}` in HTML content"
 end
@@ -508,28 +577,44 @@ are not supported. -/
 @[run_parser_attribute_hooks]
 def element : Parser := elementWith (content)
 
-inductive ContentItemView where
-  | element (stx : Element) (startTag : TagName) (attrs : Array Attr) (children? : Option Content)
-  /-- A run of text nodes and comments, together with its normalized text content
-  (which may be empty). -/
-  | text (stxs : Array (Text ⊕ Comment)) (content : String)
-  | interp (v : Term)
+/-- Consecutive run of text nodes and comments. -/
+structure TextCommentsView where
+  stxs : Array (Text ⊕ Comment)
+  /-- Whether this is the first item in its enclosing {name}`content` node. -/
+  isFirst : Bool
+  /-- Whether this is the last item in its enclosing {name}`content` node. -/
+  isLast : Bool
+  deriving Repr, Inhabited, BEq
 
-/-- The syntax of this content node. Useful for reporting elaboration errors. -/
-def ContentItemView.getSyntax : ContentItemView → Syntax
-  | .element e .. => e.raw
-  | .text ts _ => mkNullNode (ts.map (Sum.elim TSyntax.raw TSyntax.raw))
-  | .interp v => v.raw
+/-- Returns the _normalized_ text contents of this sequence of text nodes and comments:
+- Consecutive whitespace is collapsed into a single space (U+0020).
+- Whitespace is dropped at the start of the first item within a {name}`content` node,
+  and at the end of the last item.
+- HTML character references are decoded into the Unicode characters they represent.
+
+Throws if an invalid character reference is encountered in the text. -/
+def TextCommentsView.getText (v : TextCommentsView) : CoreM String := do
+  let mut acc : TextAcc := {}
+  for tc in v.stxs do
+    let .inl t := tc | continue
+    acc ← withRef t <| acc.push t (trimStart := v.isFirst)
+  return acc.finish (trimStart := v.isFirst) (trimEnd := v.isLast)
+
+/-- A syntax spanning all nodes in this view. Useful for reporting elaboration errors. -/
+def TextCommentsView.getSyntax (v : TextCommentsView) : Syntax :=
+  mkNullNode (v.stxs.map (Sum.elim TSyntax.raw TSyntax.raw))
+
+inductive ContentItemView where
+  | element (stx : Element)
+  | textComments (stx : TextCommentsView)
+  | interp (stx : Interp false)
+  deriving Repr, Inhabited, BEq
 
 /-- Returns the sequence of items in an HTML {name}`content` node.
 
-Runs of text interspersed with comments are merged and _normalized_:
-- Consecutive whitespace is collapsed into a single space (U+0020),
-  except at the start and end of {name}`c` — whitespace there is dropped.
-- HTML character references are decoded into the Unicode characters they represent.
-
-Throws if the end tag of any directly nested element does not match its start tag (up to casing),
-or if an invalid character reference is encountered in text. -/
+Runs of text interspersed with comments are merged into a single item.
+This is because their text must be processed together into a single output
+(see {name}`TextCommentsView.getText`). -/
 def Content.view (c : Content) : CoreM (Array ContentItemView) := do
   let mut items : Array ContentItemView := #[]
   -- Text/comment nodes since the last element or interpolation.
@@ -541,38 +626,20 @@ def Content.view (c : Content) : CoreM (Array ContentItemView) := do
     else if k == commentKind then
       tcs := tcs.push <| .inr ⟨stx⟩
     else
-      items ← pushText items tcs (trimEnd := false)
+      items := items.push <|
+        .textComments { stxs := tcs, isFirst := items.isEmpty, isLast := false }
       tcs := #[]
       items := items.push (← viewItem stx)
-  pushText items tcs (trimEnd := true)
+  if !tcs.isEmpty then
+    items := items.push <| .textComments { stxs := tcs, isFirst := items.isEmpty, isLast := true }
+  return items
 where
-  /-- Appends the normalized text of {name}`tcs` to {name}`items`. -/
-  pushText (items : Array ContentItemView) (tcs : Array (Text ⊕ Comment)) (trimEnd : Bool) :
-      CoreM (Array ContentItemView) := do
-    -- Discard whitespace in the text/comment run that precedes all items.
-    let trimStart := items.isEmpty
-    let mut acc : TextAcc := {}
-    for tc in tcs do
-      let .inl t := tc | continue
-      acc ← withRef t <| acc.push t (trimStart := trimStart)
-    let val := acc.finish trimStart trimEnd
-    return items.push (.text tcs val)
   viewItem (stx : Syntax) : CoreM ContentItemView := withRef stx do
     let k := stx.getKind
-    if k == interpKind then
-      return .interp ⟨stx[1]⟩
+    if k == interpKind false then
+      return .interp ⟨stx⟩
     else if k == elementKind then
-      let startTag : TagName := ⟨stx[1]⟩
-      let attrs : Array Attr := stx[2].getArgs.map (⟨·⟩)
-      if stx.getNumArgs == 4 then
-        return .element ⟨stx⟩ startTag attrs none
-      let endTag : TagName := ⟨stx[6]⟩
-      let startTagName ← TagName.view startTag
-      let endTagName ← TagName.view endTag
-      if endTagName.toLower != startTagName.toLower then
-        let hint ← MessageData.hint m!"Replace with start tag" #[startTagName] (ref? := endTag)
-        throwErrorAt endTag m!"Mismatched end tag, expected `{startTagName}` but got `{endTagName}`{hint}"
-      return .element ⟨stx⟩ startTag attrs (some ⟨stx[4]⟩)
+      return .element ⟨stx⟩
     else
       Elab.throwUnsupportedSyntax
 

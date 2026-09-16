@@ -6847,11 +6847,7 @@ theorem cpopNatRec_zero_le (x : BitVec w) (n : Nat) :
 
 theorem toNat_cpop_le (x : BitVec w) :
     x.cpop.toNat ≤ w := by
-  have hlt := Nat.lt_two_pow_self (n := w)
-  have hle := cpopNatRec_zero_le (x := x) (n := w)
-  simp only [cpop_eq, toNat_ofNat, ge_iff_le]
-  rw [Nat.mod_eq_of_lt (by omega)]
-  exact hle
+  simpa only [toNat_cpop_eq_popcount] using Nat.popcount_le_of_lt_two_pow x.isLt
 
 theorem cpopNatRec_concat_of_lt {x : BitVec w} {b : Bool} (hn : 0 < n) :
     (concat x b).cpopNatRec n acc = b.toNat + x.cpopNatRec (n - 1) acc := by

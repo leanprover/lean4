@@ -1047,6 +1047,16 @@ if(NOT CMAKE_SYSTEM_NAME MATCHES "Emscripten")
       ${CMAKE_BINARY_DIR}/bin
   )
 
+  # `cargo` links with whatever `cc` is on `PATH`. In a standalone build, link the Rust checkers through `leanc`
+  # instead so that they bind to the bundled glibc and the default ELF interpreter like every other shipped binary.
+  set(CARGO_LINK_WITH_LEANC OFF)
+  set(CARGO_BUILD_ENV)
+  if(LEAN_STANDALONE AND CMAKE_SYSTEM_NAME STREQUAL "Linux" AND STAGE GREATER 0)
+    set(CARGO_LINK_WITH_LEANC ON)
+    string(TOUPPER "${CMAKE_SYSTEM_PROCESSOR}_unknown_linux_gnu" CARGO_RUST_TARGET)
+    set(CARGO_BUILD_ENV ${CMAKE_COMMAND} -E env "CARGO_TARGET_${CARGO_RUST_TARGET}_LINKER=${CMAKE_BINARY_DIR}/bin/leanc")
+  endif()
+
   # Not in `ALL` as it's expensive; release CI builds it explicitly.
   ExternalProject_Add(
     nanoda
@@ -1055,12 +1065,15 @@ if(NOT CMAKE_SYSTEM_NAME MATCHES "Emscripten")
     GIT_REPOSITORY https://github.com/ammkrn/nanoda_lib
     GIT_TAG 4c544ed4099c8227f07d5de77ad1e69fb0740a27
     CONFIGURE_COMMAND ""
-    BUILD_COMMAND cargo build --release --locked
+    BUILD_COMMAND ${CARGO_BUILD_ENV} cargo build --release --locked
     BUILD_IN_SOURCE ON
     INSTALL_COMMAND
       ${CMAKE_COMMAND} -E copy target/release/nanoda_bin${CMAKE_EXECUTABLE_SUFFIX}
       ${CMAKE_BINARY_DIR}/bin
   )
+  if(CARGO_LINK_WITH_LEANC)
+    add_dependencies(nanoda leanc)
+  endif()
 
   # Not in `ALL` as it's expensive; release CI builds it explicitly.
   ExternalProject_Add(
@@ -1087,12 +1100,15 @@ if(NOT CMAKE_SYSTEM_NAME MATCHES "Emscripten")
     GIT_TAG cb54c9a4e5f604a678b0230f96b8358b9fd73c82
     GIT_SUBMODULES ""
     CONFIGURE_COMMAND ""
-    BUILD_COMMAND cargo build --release --locked
+    BUILD_COMMAND ${CARGO_BUILD_ENV} cargo build --release --locked
     BUILD_IN_SOURCE ON
     INSTALL_COMMAND
       ${CMAKE_COMMAND} -E copy target/release/con-ron${CMAKE_EXECUTABLE_SUFFIX}
       ${CMAKE_BINARY_DIR}/bin
   )
+  if(CARGO_LINK_WITH_LEANC)
+    add_dependencies(con-ron leanc)
+  endif()
 
   # Not `ALL` as it's big; release CI builds it explicitly.
   if(USE_MIMALLOC)

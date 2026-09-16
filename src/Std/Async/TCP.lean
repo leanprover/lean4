@@ -206,8 +206,6 @@ def recvSelector (s : TCP.Socket.Client) (size : UInt64) : Selector (Option Byte
           let win promise := do
             try
               discard <| IO.ofExcept res
-              -- Chained rather than blocked on: blocking a pool worker makes the task manager spawn
-              -- a replacement thread.
               let readPromise ← s.native.recv? size
               discard <| BaseIO.mapTask (t := AsyncTask.ofPromise readPromise) promise.resolve
             catch e =>

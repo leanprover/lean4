@@ -23,3 +23,7 @@ example : [247, 248, 249, 495, 496, 497].all (fun k =>
 example : True := by
   fail_if_success have : Nat.popcount 255 = 7 := by decide +kernel
   trivial
+
+-- Meta reduction also handles values spanning several chunks.
+example : Nat.popcount (Nat.shiftLeft 1 600 - 1) = 600 := by decide
+example : Nat.popcount (Nat.shiftLeft 1 600 - 1) = 600 := rfl

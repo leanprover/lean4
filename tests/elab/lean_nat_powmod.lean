@@ -60,14 +60,9 @@ example : Nat.powMod 7 65537 1000003 = 881993 := by decide
 -- `b ^ (2 ^ 40)` and `b ^ (10 ^ 12)` are astronomically large.
 example : Nat.powMod 3 (2 ^ 40) 1000003 = 378344 := by decide
 example : Nat.powMod 3 (10 ^ 12) 1000003 = 81 := by decide
--- Meta reduction depth grows with the exponent bit length; a raised recursion
--- limit allows the windowed kernel model to handle cryptographic-scale exponents.
--- The `maxHeartbeats` bound (heartbeats are deterministic, unlike wall-clock
--- time) is a regression guard: a fallback to the naive `b ^ e % m` model would
--- blow far past it.
-set_option maxRecDepth 4096 in
-set_option maxHeartbeats 1000 in
-example : Nat.powMod 2 (2 ^ 200) 1000000007 = 988385428 := by decide
+-- Large-exponent regression for kernel reduction. Plain `decide` above only
+-- checks that the definition also works on small examples through Meta.
+example : Nat.powMod 2 (2 ^ 200) 1000000007 = 988385428 := by decide +kernel
 
 /-! `decide +kernel` at 255-bit operand size. -/
 example : Nat.powMod 2

@@ -1,6 +1,5 @@
 /-
-Copyright (c) 2026 Lean FRO, LLC. All rights reserved.
-Copyright (c) 2022 Bhavik Mehta. All rights reserved.
+Copyright (c) 2022 Bhavik Mehta and 2026 Lean FRO, LLC. All rights reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Kim Morrison, Bhavik Mehta
 -/
@@ -18,7 +17,8 @@ namespace Nat
 /-- Kernel reduction loop for `powMod`, with an accumulator and decreasing fuel.
 `go m fuel b e acc` computes `(b ^ e * acc) % m` when `e < fuel`.
 `Nat.rec` avoids well-founded recursion, and `Bool.rec` avoids `Decidable` unfolding.
-Adapted from Bhavik Mehta's `powModK` in PrimeCert (Apache 2.0). -/
+Adapted from Bhavik Mehta's `powModK` in PrimeCert (Apache 2.0), developed
+with help from Joachim Breitner. -/
 @[expose] noncomputable def powMod.go (m : Nat) : Nat → Nat → Nat → Nat → Nat :=
   Nat.rec (fun _ _ _ => 0)
     (fun _ rec b e acc =>
@@ -72,7 +72,7 @@ Because `Nat.mod` satisfies `n % 0 = n`, `powMod b e 0` is `b ^ e`; in that case
 intermediates can be as large as the result.
 
 `powMod` is not definitionally equal to `b ^ e % m`. Concrete exponents reduce in
-`O(log e)` steps under `decide`, which `b ^ e % m` could not, and `simp` evaluates
+`O(log e)` steps under `decide +kernel`, which `b ^ e % m` could not, and `simp` evaluates
 closed terms with the `Nat.reducePowMod` simproc. For symbolic reasoning, rewrite
 with `powMod_def`; unfolding can stop at the window selection for a symbolic modulus.
 This theorem is deliberately not `@[simp]`: it would turn a cheap
@@ -85,7 +85,6 @@ Examples:
 -/
 @[expose, extern "lean_nat_powmod"]
 def powMod (b e m : @& Nat) : Nat :=
-  -- Shifts keep the bounds reducible under Meta's default exponentiation limit.
   (e.beq 0).rec
     ((m.ble ((1 : Nat).shiftLeft 1024)).rec
       ((m.ble ((1 : Nat).shiftLeft 2048)).rec

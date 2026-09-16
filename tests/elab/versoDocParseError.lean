@@ -797,3 +797,36 @@ error: unexpected ']' (use '\]' to escape); expected '![', '$$', '$', '*', '[', 
 
 ]
 -/
+
+-- A recovery that skips to the line where the blocks then stop: the error is reported where the
+-- content failed, and the stop is reported on its own
+/--
+@ +2:14...*
+error: unexpected newline; expected ']'
+---
+@ +4:0...1
+error: unexpected ']' (use '\]' to escape); expected '![', '$$', '$', '*', '[', '[^', '_', '`', '{', block opener (at line start: '#', '>', ':', '*', '-', '+', '1.', '```', '%%%', '{…}'), newline or text
+-/
+#guard_msgs (positions := true) in
+/-!
+{foo}[unclosed
+
+]
+-/
+
+-- A code block that a dedented line ends: recovery skips that line, and a bracket on the next line
+-- is reported as the stop
+/--
+@ +4:0...1
+error: expected closing '```' for the code block opened on line 828 at column 2
+---
+@ +5:0...1
+error: unexpected ']' (use '\]' to escape); expected '![', '$$', '$', '*', '[', '[^', '_', '`', '{', block opener (at line start: '#', '>', ':', '*', '-', '+', '1.', '```', '%%%', '{…}'), newline or text
+-/
+#guard_msgs (positions := true) in
+/-!
+  ```
+  code
+foo
+]
+-/

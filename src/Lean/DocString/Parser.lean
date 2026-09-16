@@ -771,14 +771,6 @@ where
       satisfyFn (!·.isWhitespace) "non-whitespace" >> skipToNewline
 
 /--
-Recovers from a parse error by skipping input until one or more complete blank lines has been
-skipped.
--/
-public def recoverBlock (p : ParserFn) (final : ParserFn := skipFn) : ParserFn :=
-  recoverFn p fun _ =>
-    ignoreFn skipBlock >> final
-
-/--
 Runs `p`, and on failure consumes input with `recover` until parsing may continue. The error is
 recorded where `p` stopped, so that it marks the input that could not be read rather than the input
 that recovery passed over.
@@ -798,7 +790,7 @@ def recoverAtErrPos (p recover : ParserFn) : ParserFn := fun c s =>
   else s
 
 @[inherit_doc recoverAtErrPos]
-def recoverBlockAtErrPos (p : ParserFn) : ParserFn := recoverAtErrPos p (ignoreFn skipBlock)
+public def recoverBlockAtErrPos (p : ParserFn) : ParserFn := recoverAtErrPos p (ignoreFn skipBlock)
 
 /--
 Recovers from a parse error in a role by reading to its closing brace and consuming it. If the line
@@ -809,10 +801,6 @@ def recoverRoleAtErrPos (p : ParserFn) : ParserFn :=
     -- The brace is the role's closing delimiter, so recovery pushes it.
     atomicFn' (ignoreFn (takeUntilFn (fun c => c == '}' || c == '\n')) >> chFn '}') <|>
     ignoreFn skipBlock
-
-def recoverLine (p : ParserFn) : ParserFn :=
-  recoverFn p fun _ =>
-    ignoreFn skipRestOfLine
 
 def recoverWs (p : ParserFn) : ParserFn :=
   recoverFn p fun _ =>
@@ -849,10 +837,6 @@ def closeRefNameWith (closer : String) : ParserFn := fun c s =>
 
 @[inherit_doc closeRefNameWith]
 def closeRefName : ParserFn := closeRefNameWith "]"
-
-@[inherit_doc recoverAtErrPos]
-def recoverWsAtErrPos (p : ParserFn) : ParserFn :=
-  recoverAtErrPos p (ignoreFn <| takeUntilFn (fun c => c == ' ' || c == '\n'))
 
 /--
 Recovery inside an argument list reads to the next whitespace, or to a character that closes the
@@ -1251,7 +1235,7 @@ mutual
     closeMsg := "positional argument, named argument, flag, or '}' (use '\\{' for a literal '{')"
     bracketed :=
       atomicFn' (nodeFn nullKind (expectChFn '[')) >>
-      recoverBlock (manyFn (inlineFn ctxt.inner) >>
+      recoverBlockAtErrPos (manyFn (inlineFn ctxt.inner) >>
         nodeFn nullKind (expectChFn ']' >> withTrailing ctxt.tail))
     nonBracketed : ParserFn := fun c s =>
       let s := s.pushSyntax (mkNullNode #[])
@@ -1587,9 +1571,10 @@ def skipUntilDedent (indent : Nat) : ParserFn :=
   skipRestOfLine >>
   manyFn (chFn ' ' >> takeWhileFn (· == ' ') >> checkIndent indent >> skipRestOfLine)
 
+@[inherit_doc recoverAtErrPos]
 def recoverUnindent (indent : Nat) (p : ParserFn) (finish : ParserFn := skipFn) :
     ParserFn :=
-  recoverFn p (fun _ => ignoreFn (skipUntilDedent indent) >> finish)
+  recoverAtErrPos p (ignoreFn (skipUntilDedent indent) >> finish)
 
 /--
 Sets the leading whitespace of the first token in `stx` to run from `startPos`. Syntax without
@@ -2040,11 +2025,9 @@ mutual
   Sets the error that ended a sequence of blocks before the end of the input, unless a recovered
   error already reports the position it would be set at.
 
-  `ctxt` is the context that the blocks were parsed with, so reading a block at the position where
-  they stopped reproduces the error.
+  `ctxt` is the context that the blocks were parsed with.
   -/
   partial def earlyStopErrorFn (ctxt : BlockCtxt) : ParserFn := fun c s =>
-    -- `>>` stops at the first error, so this parser runs only on a parse that carries none.
     if c.atEnd s.pos then s
     else
       let s' := blockFn ctxt c (mkParserState c.inputString |>.setPos s.pos)
@@ -2052,11 +2035,10 @@ mutual
         match s'.errorMsg with
         | some e => (s'.pos, e)
         | none =>
-          -- The guard above passes only when a block failed here and `sepByFn` reset its error, so
-          -- the character at this position is the unexpected input. Reading a block reproduces that
-          -- error, so this case is a safety net.
+          -- A block sequence stops only where a block fails, so this case is a fallback that names
+          -- the character.
           (s.pos, { unexpected := s!"unexpected '{c.get s.pos}'" })
-      -- Recovery that reached this position described the block that ended the sequence.
+      -- A recovered error at the position where the blocks stopped is the error that stopped them.
       if s.recoveredErrors.any (·.1 == errPos) then s
       else { s with errorMsg := some e, pos := errPos }
 

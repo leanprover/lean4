@@ -1,10 +1,10 @@
 Input: "{tactic}`rw`{lit}`  [t]  `{kw}`at`{lit} h` applies th\n\ntest"
 Failure: unexpected ' '; expected '![', '$$', '$', '*', '[', '[^', '_', '`' or '{'
- --> 3:0-3:1
+ --> 1:39-1:40
   |
-3 | test
-  | ^
-  = consumed input prefix: 55 bytes
+1 | {tactic}`rw`{lit}`  [t]  `{kw}`at`{lit} h` applies th
+  |                                        ^
+  = consumed input prefix: 39 bytes
 Final stack:
   (Lean.Doc.Parser.Block.para
    [(Lean.Doc.Parser.Inline.role

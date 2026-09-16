@@ -1,10 +1,10 @@
 Input: "``` scheme\n(define x 4)\nx\n ````\nmore"
 Failure: expected closing '```' for the code block opened on line 1 at column 0
- --> 5:0-5:1
+ --> 4:1-4:5
   |
-5 | more
-  | ^
-  = consumed input prefix: 32 bytes
+4 |  ````
+  |  ^^^^
+  = consumed input prefix: 27 bytes
 Final stack:
   (Lean.Doc.Parser.Block.codeblock
    (Lean.Doc.Parser.codeBlockFence "```")

@@ -1,10 +1,10 @@
 Input: "```\ncode\n```x\n"
 Failure: unexpected 'x'; expected newline
- --> 4:0
+ --> 3:3-3:4
   |
-4 | 
-  | ^
-  = consumed input prefix: 14 bytes
+3 | ```x
+  |    ^
+  = consumed input prefix: 12 bytes
 Final stack:
   [(Lean.Doc.Parser.Block.codeblock
     (Lean.Doc.Parser.codeBlockFence "```")

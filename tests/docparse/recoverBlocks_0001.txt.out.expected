@@ -1,10 +1,10 @@
 Input: ": {ref defs}[Basic definitions]\n\n  The def is something\n\n: {ref large}{Sufficiently large}\n\n  More text\n\n: `foo`\n\n  Thing\n"
 Failure: unexpected newline; expected '![', '$$', '$', '*', '[', '[^', '_', '`' or '{'
- --> 7:0-7:1
+ --> 5:13-5:14
   |
-7 |   More text
-  | ^
-  = consumed input prefix: 92 bytes
+5 | : {ref large}{Sufficiently large}
+  |              ^
+  = consumed input prefix: 70 bytes
 Final stack:
   [(Lean.Doc.Parser.Block.dl
     [(Lean.Doc.Parser.DescItem.item

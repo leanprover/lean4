@@ -54,22 +54,6 @@ private def mkVersoParseMessage (ictx : InputContext) (pos : String.Pos.Raw) (e 
     keepFullRange := true
     data := toString e }
 
-open Lean.Parser in
-/--
-The errors to report for a document parse that ended at `s`.
-
-`documentFn` is built on `sepByFn`, which stops at the first block that does not parse and discards
-its error. Reading a block again at the position where it stopped recovers that error, so `ctxt`
-is the context the document was parsed with.
--/
-private def parseErrors
-    (ictx : InputContext) (pmctx : ParserModuleContext) (tokens : TokenTable)
-    (input : String) (ctxt : Doc.Parser.BlockCtxt) (s : ParserState) :
-    Array (String.Pos.Raw × SyntaxStack × Error) :=
-  if s.allErrors.isEmpty && !ictx.atEnd s.pos then
-    ((Doc.Parser.blockFn ctxt).run ictx pmctx tokens (mkParserState input |>.setPos s.pos)).allErrors
-  else s.allErrors
-
 open Lean.Doc in
 /--
 The markup of a Verso doc comment.
@@ -197,18 +181,10 @@ def parseVersoDocString
   -- TODO parse one block at a time for error recovery purposes
   let s := (Doc.Parser.documentFn blockCtxt).run ictx pmctx (getTokenTable env) s
 
-  let errors := parseErrors ictx pmctx (getTokenTable env) text.source blockCtxt s
+  let errors := s.allErrors
   if !errors.isEmpty then
     for (pos, _, err) in errors do
       logMessage (mkVersoParseMessage ictx pos err)
-    return none
-  if !ictx.atEnd s.pos then
-    -- Reading a block at the stopped position reported nothing, so the character there is named.
-    logMessage {
-      fileName := (← getFileName),
-      pos := text.toPosition s.pos,
-      data := s!"unexpected '{ictx.get s.pos}'"
-    }
     return none
   return some ⟨s.stxStack.back⟩
 
@@ -250,17 +226,8 @@ def reportVersoParseFailure
   let s := mkParserState text.source |>.setPos startPos
   let s := (Doc.Parser.documentFn blockCtxt).run ictx pmctx (getTokenTable env) s
 
-  let errors := parseErrors ictx pmctx (getTokenTable env) text.source blockCtxt s
-  for (pos, _, err) in errors do
+  for (pos, _, err) in s.allErrors do
     logMessage (mkVersoParseMessage ictx pos err)
-  if errors.isEmpty && !ictx.atEnd s.pos then
-    -- Reading a block at the stopped position reported nothing, so the character there is named.
-    logMessage {
-      fileName := ← getFileName,
-      pos := text.toPosition s.pos,
-      data := s!"unexpected '{ictx.get s.pos}'",
-      severity := .error
-    }
 
 open Lean.Doc in
 /--
@@ -327,14 +294,10 @@ def versoDocStringOfText
   -- TODO parse one block at a time for error recovery purposes
   let s := Doc.Parser.documentFn.run ictx pmctx (getTokenTable env) s
 
-  let errors := parseErrors ictx pmctx (getTokenTable env) docComment {} s
+  let errors := s.allErrors
   if !errors.isEmpty then
     for (_, _, err) in errors do
       logError err.toString
-    return { text := #[], subsections := #[], deferredChecks := #[] }
-  if !ictx.atEnd s.pos then
-    -- Reading a block at the stopped position reported nothing, so the character there is named.
-    logError s!"unexpected '{ictx.get s.pos}'"
     return { text := #[], subsections := #[], deferredChecks := #[] }
   let doc : VersoDocument := ⟨s.stxStack.back⟩
   execVersoBlocks declName binders doc (fileMap? := some text)

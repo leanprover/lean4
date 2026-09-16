@@ -2037,6 +2037,26 @@ mutual
     sepBy1Fn true (blockFn { c with recordTrailing := true }) (blockSepFallback base) ctx s
 
   /--
+  Sets the error that ended a sequence of blocks before the end of the input.
+
+  `ctxt` is the context that the blocks were parsed with, so reading a block at the position where
+  they stopped reproduces the error.
+  -/
+  partial def earlyStopErrorFn (ctxt : BlockCtxt) : ParserFn := fun c s =>
+    -- `>>` stops at the first error, so this parser runs only on a parse that carries none.
+    if c.atEnd s.pos then s
+    else
+      let s' := blockFn ctxt c (mkParserState c.inputString |>.setPos s.pos)
+      match s'.errorMsg with
+      | some e =>
+        { s with errorMsg := some e, pos := s'.pos }
+      | none =>
+        -- The guard above passes only when a block failed here and `sepByFn` reset its error, so
+        -- the character at this position is the unexpected input. Reading a block reproduces that
+        -- error, so this branch is a safety net.
+        s.setError { unexpected := s!"unexpected '{c.get s.pos}'" }
+
+  /--
   Parses a document: the whitespace it starts with, then zero or more blocks.
 
   The document's first token records the whitespace between the position where this parser starts
@@ -2050,7 +2070,7 @@ mutual
     -- A doc comment can sit inside Lean syntax that saved a position, such as the field list of a
     -- `structure`. Clearing it lets the document's top-level blocks start at any column.
     let s := (withNoPosition <| ignoreFn lineTailWsFn >>
-      blocksFn blockContext >> wsFallback docEndWs base) c s
+      blocksFn blockContext >> wsFallback docEndWs base >> earlyStopErrorFn blockContext) c s
     if s.hasError then s
     else
       let s := s.mkNode ``Parser.document base

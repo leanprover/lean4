@@ -23,6 +23,9 @@ Here is text with an unclosed role {name`Nat
 /--
 @ +2:27...28
 error: unexpected '_'; expected '*' to close bold text
+---
+@ +2:27...28
+error: unexpected '_' (use '\_' to escape); expected '![', '$$', '$', '*', '[', '[^', '_', '`', '{', block opener (at line start: '#', '>', ':', '*', '-', '+', '1.', '```', '%%%', '{…}'), newline or text
 -/
 #guard_msgs (positions := true) in
 /-!
@@ -37,6 +40,9 @@ A b c d e f.
 /--
 @ +2:27...28
 error: unexpected '_'; expected '*' to close bold text
+---
+@ +2:27...28
+error: unexpected '_' (use '\_' to escape); expected '![', '$$', '$', '*', '[', '[^', '_', '`', '{', block opener (at line start: '#', '>', ':', '*', '-', '+', '1.', '```', '%%%', '{…}'), newline or text
 -/
 #guard_msgs (positions := true) in
 /--
@@ -301,6 +307,9 @@ def unclosedCode := 0
 /--
 @ +2:8...9
 error: unexpected space before the closing '*'
+---
+@ +2:8...9
+error: unexpected '*' (use '\*' to escape); expected '![', '$$', '$', '*', '[', '[^', '_', '`', '{', block opener (at line start: '#', '>', ':', '*', '-', '+', '1.', '```', '%%%', '{…}'), newline or text
 -/
 #guard_msgs (positions := true) in
 /--
@@ -489,6 +498,9 @@ still what the message marks.
 /--
 @ +2:5...7
 error: unexpected '_'; expected '**' to close bold text
+---
+@ +2:5...7
+error: unexpected '_' (use '\_' to escape); expected '![', '$$', '$', '*', '[', '[^', '_', '`', '{', block opener (at line start: '#', '>', ':', '*', '-', '+', '1.', '```', '%%%', '{…}'), newline or text
 -/
 #guard_msgs (positions := true) in
 /--
@@ -500,6 +512,9 @@ def wrongClosingRun := 0
 /--
 @ +2:6...8
 error: unexpected space before the closing '*'
+---
+@ +2:6...8
+error: unexpected '*' (use '\*' to escape); expected '![', '$$', '$', '*', '[', '[^', '_', '`', '{', block opener (at line start: '#', '>', ':', '*', '-', '+', '1.', '```', '%%%', '{…}'), newline or text
 -/
 #guard_msgs (positions := true) in
 /--
@@ -511,6 +526,9 @@ def spaceBeforeClosingRun := 0
 /--
 @ +2:6...8
 error: unexpected space before the closing '*'
+---
+@ +2:6...8
+error: unexpected '_' (use '\_' to escape); expected '![', '$$', '$', '*', '[', '[^', '_', '`', '{', block opener (at line start: '#', '>', ':', '*', '-', '+', '1.', '```', '%%%', '{…}'), newline or text
 -/
 #guard_msgs (positions := true) in
 /--
@@ -570,7 +588,7 @@ def unterminatedCodeRun := 0
 -- Unterminated code block
 /--
 @ +2:0...3
-error: unterminated code block opened on line 577; expected '```'
+error: unterminated code block opened on line 595; expected '```'
 -/
 #guard_msgs (positions := true) in
 /--
@@ -582,7 +600,7 @@ def unterminatedCodeBlock := 0
 -- Unterminated code block, indented and with a longer fence
 /--
 @ +4:2...6
-error: unterminated code block opened on line 591; expected '````'
+error: unterminated code block opened on line 609; expected '````'
 -/
 #guard_msgs (positions := true) in
 /--
@@ -596,7 +614,7 @@ def unterminatedIndentedCodeBlock := 0
 -- Unterminated directive
 /--
 @ +2:0...3
-error: unterminated directive opened on line 603; expected ':::'
+error: unterminated directive opened on line 621; expected ':::'
 -/
 #guard_msgs (positions := true) in
 /--
@@ -608,7 +626,7 @@ def unterminatedDirective := 0
 -- Unterminated directive, indented
 /--
 @ +4:2...5
-error: unterminated directive opened on line 617; expected ':::'
+error: unterminated directive opened on line 635; expected ':::'
 -/
 #guard_msgs (positions := true) in
 /--
@@ -781,3 +799,19 @@ error: unexpected token; expected a string argument on one line
 b")}
 -/
 def commandStringSpansLines := 0
+
+-- A recovered error before an unmatched closing bracket: both are reported, in order
+/--
+@ +2:7...8
+error: unexpected '='; expected positional argument, named argument, flag, or newline
+---
+@ +5:0...1
+error: unexpected ']' (use '\]' to escape); expected '![', '$$', '$', '*', '[', '[^', '_', '`', '{', block opener (at line start: '#', '>', ':', '*', '-', '+', '1.', '```', '%%%', '{…}'), newline or text
+-/
+#guard_msgs (positions := true) in
+/-!
+:::foo =thing
+:::
+
+]
+-/

@@ -35,6 +35,7 @@ static name * g_eager_reduce = nullptr;
 static size_t g_nat_max_size = 0;
 static const size_t LEAN_NAT_MAX_SIZE_DEFAULT = 128*1024*1024;    // 128 MB
 static expr * g_nat_zero     = nullptr;
+static expr * g_nat_popcount = nullptr;
 static expr * g_nat_succ     = nullptr;
 static expr * g_nat_add      = nullptr;
 static expr * g_nat_sub      = nullptr;
@@ -673,6 +674,12 @@ optional<expr> type_checker::reduce_nat(expr const & e) {
     unsigned nargs = get_app_num_args(e);
     if (nargs == 1) {
         expr const & f = app_fn(e);
+        if (f == *g_nat_popcount) {
+            expr arg = whnf(app_arg(e));
+            if (!is_nat_lit_ext(arg)) return none_expr();
+            nat v = get_nat_val(arg);
+            return some_expr(mk_lit(literal(nat(lean_nat_popcount(v.raw())))));
+        }
         if (f == *g_nat_succ) {
             expr arg = whnf(app_arg(e));
             if (!is_nat_lit_ext(arg)) return none_expr();
@@ -1285,6 +1292,7 @@ void initialize_type_checker() {
     g_eager_reduce = new name{"eagerReduce"};
     g_dont_care    = new_persistent_expr_const("dontcare");
     g_nat_zero     = new_persistent_expr_const({"Nat", "zero"});
+    g_nat_popcount = new_persistent_expr_const({"Nat", "popcount"});
     g_nat_succ     = new_persistent_expr_const({"Nat", "succ"});
     g_nat_add      = new_persistent_expr_const({"Nat", "add"});
     g_nat_sub      = new_persistent_expr_const({"Nat", "sub"});
@@ -1309,6 +1317,7 @@ void finalize_type_checker() {
     delete g_bool_true;
     delete g_eager_reduce;
     delete g_dont_care;
+    delete g_nat_popcount;
     delete g_nat_succ;
     delete g_nat_zero;
     delete g_nat_add;

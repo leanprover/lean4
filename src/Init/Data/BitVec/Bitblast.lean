@@ -2756,7 +2756,7 @@ private theorem addRecAux_extractAndExtend_eq_cpopNatRec {x : BitVec w} :
 
 private theorem addRecAux_extractAndExtend_eq_cpop {x : BitVec w} :
     (extractAndExtend w x).addRecAux w 0#w = x.cpop := by
-  simp only [cpop]
+  simp only [cpop_eq]
   apply addRecAux_extractAndExtend_eq_cpopNatRec
 
 private theorem addRecAux_cpopTree {x : BitVec (len * w)} :
@@ -2792,7 +2792,7 @@ theorem cpop_eq_cpopRec {x : BitVec w} :
   · split
     · ext k hk
       cases hx : x.getLsbD 0
-      <;> simp [hx, cpop, ← getLsbD_eq_getElem, show k = 0 by omega, show w = 1 by omega]
+      <;> simp [hx, cpop_eq, ← getLsbD_eq_getElem, show k = 0 by omega, show w = 1 by omega]
     · have hw : w = 0 := by omega
       subst hw
       simp [of_length_zero]

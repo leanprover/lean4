@@ -95,21 +95,18 @@ def acceptSelector (s : TCP.Socket.Server) : Selector Client :=
       s.tryAccept
 
     registerFn waiter := do
-      let task ← s.native.accept
+      let ready ← s.native.waitAcceptable
 
       -- If we get cancelled the promise will be dropped so prepare for that
-      IO.chainTask (t := task.result?) fun res => do
-        match res with
-        | none => return ()
+      IO.chainTask (t := ready.result?) fun
+        | none => pure ()
         | some res =>
-          let lose := return ()
-          let win promise := do
-            try
-              let result ← IO.ofExcept res
-              promise.resolve (.ok (Client.ofNative result))
-            catch e =>
-              promise.resolve (.error e)
-          waiter.race lose win
+          waiter.race (lose := pure ()) fun promise => do
+            -- A connection is pending, so this accept does not wait.
+            match ← (do IO.ofExcept res; s.tryAccept).toBaseIO with
+            | .ok (some client) => promise.resolve (.ok client)
+            | .ok none => promise.resolve (.error (.userError "the pending connection was accepted concurrently"))
+            | .error e => promise.resolve (.error e)
 
     unregisterFn := s.native.cancelAccept
   }

@@ -15,6 +15,7 @@ public import Lean.Meta.Match.MatcherInfo
 public import Lean.Meta.Match.MatchPatternAttr
 public import Lean.Meta.Transform
 import Init.Data.String.Csimp
+import Init.Data.Nat.Popcount
 import Init.Data.Range.Polymorphic.Iterators
 
 public section
@@ -1029,6 +1030,8 @@ def reduceNat? (e : Expr) : MetaM (Option Expr) :=
   | .app (.const fn _) a =>
     if fn == ``Nat.succ then
       reduceUnaryNatOp Nat.succ a
+    else if fn == ``Nat.popcount then
+      reduceUnaryNatOp Nat.popcount a
     else
       return none
   | .app (.app (.const fn _) a1) a2 =>

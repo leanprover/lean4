@@ -11,7 +11,7 @@ public import Init.Data.Nat.Bitwise.Basic
 public import Init.Data.Bool
 import Init.Data.Nat.Bitwise.Lemmas
 import Init.Data.Nat.Lemmas
-import Init.Data.Int.Pow
+import Init.Data.Int.Pow -- Used by omega when normalizing powers.
 import Init.ByCases
 import Init.RCases
 import Init.Omega
@@ -41,8 +41,8 @@ multiplication adds these counts into the highest byte. The sum is at most 248. 
 @[expose, implicit_reducible] public noncomputable def loop : Nat → Nat → Nat :=
   Nat.rec (fun _ => 0) (fun _ rec n =>
     (n.ble 0xffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff).rec
-      ((word (n.mod 0x100000000000000000000000000000000000000000000000000000000000000)).add
-        (rec (n.div 0x100000000000000000000000000000000000000000000000000000000000000)))
+      ((word (n.land 0xffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff)).add
+        (rec (n.shiftRight 248)))
       (word n))
 
 end popcount
@@ -56,7 +56,7 @@ The compiled implementation scans machine limbs. -/
 namespace popcount
 
 /-- Binary specification used to prove the chunk algorithm. -/
-def count (n : @& Nat) : Nat :=
+def count (n : Nat) : Nat :=
   if h : n = 0 then 0 else count (n / 2) + n % 2
 termination_by n
 decreasing_by exact Nat.div_lt_self (Nat.zero_lt_of_ne_zero h) (by decide)
@@ -421,9 +421,14 @@ private theorem loop_eq (hf : n < fuel) : loop fuel n = count n := by
   | zero => omega
   | succ fuel ih =>
     change Bool.rec (motive := fun _ => Nat)
-      (word (n % 0x100000000000000000000000000000000000000000000000000000000000000) +
-        loop fuel (n / 0x100000000000000000000000000000000000000000000000000000000000000))
+      (word (n &&& 0xffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff) +
+        loop fuel (n >>> 248))
       (word n) (n.ble 0xffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff) = count n
+    rw [show n &&& 0xffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff =
+        n % 0x100000000000000000000000000000000000000000000000000000000000000 from
+      Nat.and_two_pow_sub_one_eq_mod n 248,
+      show n >>> 248 = n / 0x100000000000000000000000000000000000000000000000000000000000000 from
+        Nat.shiftRight_eq_div_pow n 248]
     cases h : n.ble 0xffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff with
     | false =>
       dsimp only

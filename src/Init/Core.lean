@@ -1230,6 +1230,12 @@ instance {c : Prop} {t : c → Prop} {e : ¬c → Prop} [dC : Decidable c] [dT :
   | isTrue hc  => dT hc
   | isFalse hc => dE hc
 
+@[macro_inline]
+instance {c : Bool} {t e : Prop} [dT : Decidable t] [dE : Decidable e] : Decidable (bif c then t else e) :=
+  match c with
+  | true  => dT
+  | false => dE
+
 /-- Auxiliary definition for generating compact `noConfusion` for enumeration types -/
 abbrev noConfusionTypeEnum {α : Sort u} (f : α → Nat) (P : Sort w) (x y : α) : Sort w :=
   ((f x).beq (f y)).casesOn P (P → P)

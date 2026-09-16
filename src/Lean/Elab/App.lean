@@ -2057,12 +2057,39 @@ where
           throw ex
       | ex@(.internal _ _) => throw ex
 
+/--
+Adds a `ChoiceResolutionInfo` node for the alternative `chosenAltIdx` of the `choice` node
+`choiceStx` to the saved `InfoState` of a successful elaboration candidate.
+Since `observing` captures the `InfoState` of each candidate and `applyResult` restores it for
+the candidate that is eventually picked, the `ChoiceResolutionInfo` node ends up in the
+`InfoTree` if and only if the candidate is picked. `elabAppAux` drops it again from the
+candidates it retains for an ambiguity error, where no candidate is picked.
+-/
+private def addChoiceResolutionInfo (choiceStx : Syntax) (chosenAltIdx : Nat) :
+    TermElabResult Expr → TermElabResult Expr
+  | .ok e s =>
+    if s.meta.core.infoState.enabled then
+      let tree := InfoTree.node (.ofChoiceResolutionInfo { stx := choiceStx, chosenAltIdx }) {}
+      .ok e { s with meta.core.infoState.trees := s.meta.core.infoState.trees.push tree }
+    else
+      .ok e s
+  | r => r
+
 private partial def elabAppFn (f : Syntax) (lvals : List LVal) (namedArgs : Array NamedArg) (args : Array Arg)
     (expectedType? : Option Expr) (explicit ellipsis overloaded : Bool) (acc : Array (TermElabResult Expr)) : TermElabM (Array (TermElabResult Expr)) := do
   if f.getKind == choiceKind then
     -- Set `errToSorry` to `false` when processing choice nodes. See comment above about the interaction between `errToSorry` and `observing`.
     withReader (fun ctx => { ctx with errToSorry := false }) do
-      f.getArgs.foldlM (init := acc) fun acc f => elabAppFn f lvals namedArgs args expectedType? explicit ellipsis true acc
+      let mut acc := acc
+      for alt in f.getArgs, chosenAltIdx in 0...* do
+        let startIdx := acc.size
+        acc ← elabAppFn alt lvals namedArgs args expectedType? explicit ellipsis true acc
+        -- Record which alternative of the choice node each candidate stems from so that the
+        -- `InfoTree` contains the resolution of the choice node for the candidate that is
+        -- eventually committed in `applyResult`.
+        for candidateIdx in startIdx...acc.size do
+          acc := acc.modify candidateIdx (addChoiceResolutionInfo f chosenAltIdx)
+      return acc
   else
     let elabFieldName (e field : Syntax) (explicitUnivs : List Level) := do
       let comps := field.identComponents
@@ -2220,12 +2247,17 @@ private def elabAppAux (f : Syntax) (namedArgs : Array NamedArg) (args : Array A
           let (tree?, msg) ← withoutModifyingState do
             s.restore
             let msg ← addMessageContext m!"{e} : {← inferType e}"
+            -- Drop the `ChoiceResolutionInfo` of the candidate: no candidate is committed when the
+            -- overload is ambiguous, so recording one as picked would be wrong.
+            let trees := s.meta.core.infoState.trees.filter fun
+              | .node (.ofChoiceResolutionInfo _) _ => false
+              | _ => true
             let tree? : Option InfoTree ←
-              if let some tree := s.meta.core.infoState.trees[0]? then
+              if !trees.isEmpty then
                 let ctx ← CommandContextInfo.save
                 pure <| some <| .context (.commandCtx ctx) <|
                   .node (.ofPartialTermInfo { elaborator := .anonymous, stx := (← getRef), lctx := (← getLCtx), expectedType? })
-                    s.meta.core.infoState.trees
+                    trees
               else
                 pure none
             return (tree?, msg)

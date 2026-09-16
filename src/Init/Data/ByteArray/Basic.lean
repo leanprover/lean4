@@ -113,6 +113,30 @@ def uset : (a : ByteArray) → (i : USize) → UInt8 → (h : i.toNat < a.size :
   | ⟨bs⟩, i, v, h => ⟨bs.uset i v h⟩
 
 /--
+Marks a byte array as linear, which is a no-op logically.
+
+At runtime the array is first made unique, copying it if the reference is not already unique, and
+then marked. If the environment variable {lit}`LEAN_ABORT_ON_NONLINEAR` is set, every non-linear use
+from that point on causes a panic instead of a silent copy.
+
+To debug where the non-linearity is coming from you can set a breakpoint on {lit}`lean_internal_panic`.
+-/
+@[never_extract, extern "lean_sarray_mark_linear"]
+def markLinear (a : ByteArray) : ByteArray := a
+
+@[simp, grind =] theorem markLinear_eq {a : ByteArray} : a.markLinear = a := rfl
+
+/--
+Returns {name}`b`, propagating the linearity marker of {name}`a` onto it. This is a no-op logically.
+
+See also {name}`ByteArray.markLinear`.
+-/
+@[never_extract, extern "lean_sarray_propagate_mark"]
+def propagateMark (a : @& ByteArray) (b : ByteArray) : ByteArray := b
+
+@[simp, grind =] theorem propagateMark_eq {a b : ByteArray} : a.propagateMark b = b := rfl
+
+/--
 Computes a hash for a {name}`ByteArray`.
 -/
 @[extern "lean_byte_array_hash"]

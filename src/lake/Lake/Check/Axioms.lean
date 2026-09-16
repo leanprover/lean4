@@ -54,6 +54,22 @@ where
 
 end Axioms
 
+/--
+The axioms some other constant in `env` refers to, each paired with one constant that refers to it.
+-/
+public def usedAxioms (env : LeanExport.ExportedEnv) : Array (Lean.Name × Lean.Name) :=
+  -- `constOrder` is the export order, so the result is deterministic without needing an `Ord`.
+  let collect : StateM (Std.HashSet Lean.Name × Array (Lean.Name × Lean.Name)) Unit := do
+    for name in env.constOrder do
+      let some info := env.constMap[name]? | continue
+      runForUsedConsts info fun ref => do
+        -- `runForUsedConsts` reports the constant itself, which is not an incoming reference
+        unless ref == name do
+          if let some (.axiomInfo ..) := env.constMap[ref]? then
+            modify fun (seen, used) =>
+              if seen.contains ref then (seen, used) else (seen.insert ref, used.push (ref, name))
+  (collect.run ({}, #[])).2.2
+
 public def checkAxioms (solution : LeanExport.ExportedEnv) (theoremTargets : Array Lean.Name)
     (definitionTargets : Array Lean.Name) (legalAxioms : Array Lean.Name) : Except String Unit := do
   let mut worklist := #[]

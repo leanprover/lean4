@@ -90,6 +90,10 @@ static const lean_object* l_Lake_instMonadBaseIOTask___closed__9 = (const lean_o
 LEAN_EXPORT const lean_object* l_Lake_instMonadBaseIOTask = (const lean_object*)&l_Lake_instMonadBaseIOTask___closed__9_value;
 LEAN_EXPORT lean_object* l_Lake_instInhabitedBaseIOTask___redArg(lean_object*);
 LEAN_EXPORT lean_object* l_Lake_instInhabitedBaseIOTask(lean_object*, lean_object*);
+static lean_once_cell_t l_Lake_instInhabitedOptionIOTask___redArg___closed__0_once = LEAN_ONCE_CELL_INITIALIZER;
+static lean_object* l_Lake_instInhabitedOptionIOTask___redArg___closed__0;
+LEAN_EXPORT lean_object* l_Lake_instInhabitedOptionIOTask___redArg();
+LEAN_EXPORT lean_object* l_Lake_instInhabitedOptionIOTask___redArg___boxed(lean_object*);
 static lean_once_cell_t l_Lake_instInhabitedOptionIOTask___closed__0_once = LEAN_ONCE_CELL_INITIALIZER;
 static lean_object* l_Lake_instInhabitedOptionIOTask___closed__0;
 LEAN_EXPORT lean_object* l_Lake_instInhabitedOptionIOTask(lean_object*);
@@ -412,7 +416,7 @@ v___x_213_ = l_Lake_instInhabitedBaseIOTask___redArg(v_inst_212_);
 return v___x_213_;
 }
 }
-static lean_object* _init_l_Lake_instInhabitedOptionIOTask___closed__0(void){
+static lean_object* _init_l_Lake_instInhabitedOptionIOTask___redArg___closed__0(void){
 _start:
 {
 lean_object* v___x_214_; lean_object* v___x_215_; 
@@ -421,12 +425,36 @@ v___x_215_ = lean_task_pure(v___x_214_);
 return v___x_215_;
 }
 }
-LEAN_EXPORT lean_object* l_Lake_instInhabitedOptionIOTask(lean_object* v_00_u03b1_216_){
+LEAN_EXPORT lean_object* l_Lake_instInhabitedOptionIOTask___redArg(){
 _start:
 {
 lean_object* v___x_217_; 
-v___x_217_ = lean_obj_once(&l_Lake_instInhabitedOptionIOTask___closed__0, &l_Lake_instInhabitedOptionIOTask___closed__0_once, _init_l_Lake_instInhabitedOptionIOTask___closed__0);
+v___x_217_ = lean_obj_once(&l_Lake_instInhabitedOptionIOTask___redArg___closed__0, &l_Lake_instInhabitedOptionIOTask___redArg___closed__0_once, _init_l_Lake_instInhabitedOptionIOTask___redArg___closed__0);
 return v___x_217_;
+}
+}
+LEAN_EXPORT lean_object* l_Lake_instInhabitedOptionIOTask___redArg___boxed(lean_object* v___dummy_218_){
+_start:
+{
+lean_object* v_res_219_; 
+v_res_219_ = l_Lake_instInhabitedOptionIOTask___redArg();
+return v_res_219_;
+}
+}
+static lean_object* _init_l_Lake_instInhabitedOptionIOTask___closed__0(void){
+_start:
+{
+lean_object* v___x_220_; 
+v___x_220_ = l_Lake_instInhabitedOptionIOTask___redArg();
+return v___x_220_;
+}
+}
+LEAN_EXPORT lean_object* l_Lake_instInhabitedOptionIOTask(lean_object* v_00_u03b1_221_){
+_start:
+{
+lean_object* v___x_222_; 
+v___x_222_ = lean_obj_once(&l_Lake_instInhabitedOptionIOTask___closed__0, &l_Lake_instInhabitedOptionIOTask___closed__0_once, _init_l_Lake_instInhabitedOptionIOTask___closed__0);
+return v___x_222_;
 }
 }
 lean_object* runtime_initialize_Init_Control_Option(uint8_t builtin);

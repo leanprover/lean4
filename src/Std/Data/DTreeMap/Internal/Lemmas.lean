@@ -4953,11 +4953,20 @@ theorem isEmpty_inter_iff [TransOrd α] (h₁ : m₁.WF) (h₂ : m₂.WF) :
     (m₁.inter m₂ h₁.balanced).isEmpty ↔ ∀ k, m₁.contains k → m₂.contains k = false := by
   simp_to_model [inter, contains, isEmpty] using List.isEmpty_filter_containsKey_iff
 
+theorem isEmpty_inter_comm [TransOrd α] (h₁ : m₁.WF) (h₂ : m₂.WF) :
+    (m₁.inter m₂ h₁.balanced).isEmpty = (m₂.inter m₁ h₂.balanced).isEmpty := by
+  simp_to_model [inter, contains, isEmpty] using List.isEmpty_filter_containsKey_comm
+
 theorem isEmpty_inter!_iff [TransOrd α] (h₁ : m₁.WF) (h₂ : m₂.WF) :
     (m₁.inter! m₂).isEmpty ↔ ∀ k, m₁.contains k → m₂.contains k = false := by
   rw [← inter_eq_inter!]
   apply isEmpty_inter_iff h₁ h₂
   all_goals wf_trivial
+
+theorem isEmpty_inter!_comm [TransOrd α] (h₁ : m₁.WF) (h₂ : m₂.WF) :
+    (m₁.inter! m₂).isEmpty = (m₂.inter! m₁).isEmpty := by
+  rw [← inter_eq_inter!, ← inter_eq_inter!]
+  exact isEmpty_inter_comm h₁ h₂
 
 end Inter
 

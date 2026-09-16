@@ -3,8 +3,6 @@ Copyright (c) 2026 Lean FRO, LLC. All rights reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Kim Morrison
 -/
-module
-
 import Lean.Compiler.NameDemangling
 
 /-!
@@ -25,7 +23,7 @@ def main : IO Unit := do
   repeat do
     let line ← stdin.getLine
     if line.isEmpty then break
-    let sym := line.trimRight
+    let sym := line.trimAscii.toString
     match demangleSymbol sym with
     | some s => stdout.putStrLn s
     | none => stdout.putStrLn sym

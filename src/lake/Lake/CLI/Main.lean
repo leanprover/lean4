@@ -79,6 +79,7 @@ public structure LakeOptions where
   toolchain? : Option CacheToolchain := none
   rev? : Option GitRev := none
   maxRevs : Nat := 100
+  summary : Bool := false
   shake : Shake.Args := {}
   comparatorConfig? : Option FilePath := none
   /-- File received via `lake check --from-export` -/
@@ -159,6 +160,7 @@ def LakeOptions.mkBuildConfig
   ansiMode := opts.ansiMode
   outputsFile? := opts.outputsFile?.filter fun _ => outputsPackage?.isSome
   outputsIdx := outputsPackage?.elim 0 (·.wsIdx)
+  summary := opts.summary
   out; showSuccess
 
 export LakeOptions (mkLoadConfig mkBuildConfig)
@@ -362,6 +364,7 @@ def lakeLongOption : (opt : String) → CliM PUnit
   let configFile ← takeOptArg "--file" "path"
   modifyThe LakeOptions ({· with configFile})
 | "--help"        => modifyThe LakeOptions ({· with wantsHelp := true})
+| "--summary"     => modifyThe LakeOptions ({· with summary := true})
 | "--"            => do
   let subArgs ← takeArgs
   modifyThe LakeOptions ({· with subArgs})

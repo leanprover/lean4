@@ -88,6 +88,18 @@ expected.
 def expectChFn (c : Char) (trailingWs := false) : ParserFn :=
   rawFn (expectFn (· == c) s!"'{c}'") trailingWs
 
+/--
+Runs `p`. An error that `p` reports at the position where it started becomes `expected msg`, so
+that the message names what was being read rather than what an inner parser expected. An error
+after `p` consumed input is unchanged.
+-/
+def expectedFn (msg : String) (p : ParserFn) : ParserFn := fun c s =>
+  let iniPos := s.pos
+  let s := p c s
+  if s.hasError && s.pos == iniPos then
+    s.setError { expected := [msg] }
+  else s
+
 partial def atMostAux (n : Nat) (p : ParserFn) (msg : String) : ParserFn :=
   fun c s => Id.run do
     let iniSz  := s.stackSize
@@ -896,11 +908,12 @@ where
   flag : ParserFn :=
     (nodeFn ``Arg.flag_on
       (asTokenFn (strFn  "+") >> recoverNonSpaceAtErrPos noSpace >>
-      recoverWsAtErrPos (rawIdentFn (includeWhitespace := false))) <|>
+      recoverWsAtErrPos flagName) <|>
     nodeFn ``Arg.flag_off
       (asTokenFn (strFn "-") >> recoverNonSpaceAtErrPos noSpace >>
-      recoverWsAtErrPos (rawIdentFn (includeWhitespace := false)))) >>
+      recoverWsAtErrPos flagName)) >>
     withTrailing tail
+  flagName : ParserFn := expectedFn "flag name" (rawIdentFn (includeWhitespace := false))
   noSpace : ParserFn := fun c s =>
     if h : c.atEnd s.pos then s
     else
@@ -922,7 +935,8 @@ where
     -- Inside the parentheses, the `)` closes the argument as well.
     let inParens := fun c => c == ')' || closes c
     atomicFn' (asTokenFn (strFn "(") eatSpaces) >>
-    recovering inParens iniSz (rawIdentFn (includeWhitespace := false)) >>
+    recovering inParens iniSz
+      (expectedFn "argument name" (rawIdentFn (includeWhitespace := false))) >>
     recovering inParens iniSz (asTokenFn (strFn ":=")) >>
     recovering inParens iniSz valFn >>
     recoverEolAtErrPos (asTokenFn (strFn ")")) >> wsFallback (eatSpaces >> tail) iniSz >>
@@ -957,19 +971,6 @@ public def argsFn (tail : ParserFn := argEndWs) (closes : Char → Bool := fun _
     ParserFn := fun c s =>
   let base := s.stxStack.size
   sepByFn true (guardSameLine >> argFn tail closes) (guardSameLine >> wsFallback eatSpaces base) c s
-
-/--
-Replaces any error from `p` at the initial position with `expected msg`. This ensures that
-each sub-parser of `delimitedInline` contributes a clear expected-token name, and clears
-unhelpful generic "unexpected" messages from inner parsers so that the more informative message
-from `inlineTextChar` survives error merging via `<|>`.
--/
-def expectedFn (msg : String) (p : ParserFn) : ParserFn := fun c s =>
-  let iniPos := s.pos
-  let s := p c s
-  if s.hasError && s.pos == iniPos then
-    s.setError { expected := [msg] }
-  else s
 
 /--
 Reads the name of a footnote or link reference, which is a run of the characters that a name may

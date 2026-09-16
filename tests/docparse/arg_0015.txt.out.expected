@@ -1,6 +1,6 @@
 Input: "(42)"
 3 failures:
-Failure: expected token
+Failure: expected argument name
  --> 1:1-1:2
   |
 1 | (42)

@@ -849,7 +849,7 @@ text {foo + x}`y`
 -- A flag name that is not an identifier
 /--
 @ +2:11...12
-error: expected token
+error: expected flag name
 -/
 #guard_msgs (positions := true) in
 /-!
@@ -880,4 +880,14 @@ error: expected no space before
 #guard_msgs (positions := true) in
 /-!
 {foo + x}`y`
+-/
+
+-- A parenthesized argument whose name is not an identifier
+/--
+@ +2:11...12
+error: expected argument name
+-/
+#guard_msgs (positions := true) in
+/-!
+text {foo (1 := 2)}`z`
 -/

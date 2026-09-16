@@ -1,5 +1,5 @@
 Input: "scheme dialect:=\"chicken\" +43 99"
-Failure: expected token
+Failure: expected flag name
  --> 1:27-1:28
   |
 1 | scheme dialect:="chicken" +43 99

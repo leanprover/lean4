@@ -27,3 +27,9 @@ example : True := by
 -- Meta reduction also handles values spanning several chunks.
 example : Nat.popcount (Nat.shiftLeft 1 600 - 1) = 600 := by decide
 example : Nat.popcount (Nat.shiftLeft 1 600 - 1) = 600 := rfl
+
+-- Dispatch boundaries and the generic whole-integer fallback.
+example : [63, 64, 65, 255, 256, 257, 4095, 4096, 4097,
+    65535, 65536, 65537, 131071, 131072, 131073].all (fun k =>
+      Nat.popcount (2^k-1) == k && Nat.popcount (2^k+1) == 2 &&
+      Nat.popcount ((2^(2*(k/2))-1)/3) == k/2) := by decide +kernel

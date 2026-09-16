@@ -1572,8 +1572,8 @@ def emitMainFn (mod : LLVM.Module llvmctx) (builder : LLVM.Builder llvmctx) : M 
   -- either `UInt32` or `(P)Unit`
   let retTy := retTy.appArg!
   -- finalize at least the task manager to avoid leak sanitizer false positives
-  -- from tasks outliving the main thread
-  callLeanFinalizeTaskManager builder
+  -- from tasks outliving the main thread; an uncaught error is reported first, since finalizing
+  -- waits for all running tasks
   let resv ← LLVM.buildLoad2 builder resty res "resv"
   let res_is_ok ← callLeanIOResultIsOk builder resv "res_is_ok"
   buildIfThenElse_ builder "res.is.ok" res_is_ok
@@ -1583,10 +1583,12 @@ def emitMainFn (mod : LLVM.Module llvmctx) (builder : LLVM.Builder llvmctx) : M 
         let retv ← callLeanUnboxUint32 builder (← callLeanIOResultGetValue builder resv "io_val") "retv"
         let retv ← LLVM.buildSext builder retv (← LLVM.i64Type llvmctx) "retv_sext"
         callLeanDecRef builder resv
+        callLeanFinalizeTaskManager builder
         let _ ← LLVM.buildRet builder retv
         pure ShouldForwardControlFlow.no
       else do
         callLeanDecRef builder resv
+        callLeanFinalizeTaskManager builder
         let _ ← LLVM.buildRet builder (← constInt64 0)
         pure ShouldForwardControlFlow.no
 
@@ -1595,6 +1597,7 @@ def emitMainFn (mod : LLVM.Module llvmctx) (builder : LLVM.Builder llvmctx) : M 
         let resv ← LLVM.buildLoad2 builder resty res "resv"
         callLeanIOResultShowError builder resv
         callLeanDecRef builder resv
+        callLeanFinalizeTaskManager builder
         let _ ← LLVM.buildRet builder (← constInt64 1)
         pure ShouldForwardControlFlow.no)
   -- at the merge

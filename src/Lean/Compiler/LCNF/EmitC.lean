@@ -1137,16 +1137,18 @@ where
     -- either `UInt32` or `(P)Unit`
     let retTy := retTy.appArg!
     let hasExitCode := retTy.isConstOf ``UInt32
-    -- finalize at least the task manager to avoid leak sanitizer false positives from tasks outliving the main thread
+    -- finalize at least the task manager to avoid leak sanitizer false positives from tasks outliving the main thread;
+    -- an uncaught error is reported first, since finalizing waits for all running tasks
     emitLns [
-      "  lean_finalize_task_manager();",
       "  if (lean_io_result_is_ok(res)) {",
       "    int ret = " ++ if hasExitCode then "lean_unbox_uint32(lean_io_result_get_value(res));" else "0;",
       "    lean_dec_ref(res);",
+      "    lean_finalize_task_manager();",
       "    return ret;",
       "  } else {",
       "    lean_io_result_show_error(res);",
       "    lean_dec_ref(res);",
+      "    lean_finalize_task_manager();",
       "    return 1;",
       "  }"]
     emitLn "}"

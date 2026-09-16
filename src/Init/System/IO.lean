@@ -501,6 +501,9 @@ def chainTask (t : Task α) (f : α → IO Unit) (prio := Task.Priority.default)
 /--
 Checks whether the current task's cancellation flag has been set by calling `IO.cancel` or by
 dropping the last reference to the task.
+
+It also returns `true` in every task once the process has started to exit, e.g. after `main`
+returned, since exit waits for all running tasks to finish.
 -/
 @[extern "lean_io_check_canceled"] opaque checkCanceled : BaseIO Bool
 

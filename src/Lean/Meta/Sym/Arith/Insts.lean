@@ -1,17 +1,24 @@
 /-
-Copyright (c) 2025 Amazon.com, Inc. or its affiliates. All Rights Reserved.
+Copyright (c) 2026 Amazon.com, Inc. or its affiliates. All Rights Reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Leonardo de Moura
 -/
 module
 prelude
-public import Lean.Meta.Tactic.Grind.Arith.EvalNum
-public import Lean.Meta.Tactic.Grind.SynthInstance
+public import Lean.Meta.Sym.Arith.EvalNum
+import Lean.Meta.Sym.SynthInstance
 import Init.Grind.Ring
 public section
-namespace Lean.Meta.Grind.Arith
 
-def getIsCharInst? (u : Level) (type : Expr) (semiringInst : Expr) : GoalM (Option (Expr × Nat)) := do withNewMCtxDepth do
+namespace Lean.Meta.Sym.Arith
+
+/-!
+Helpers for synthesizing the optional instances attached to a classified ring:
+`IsCharP`, `PowIdentity`, and `NoNatZeroDivisors`.
+-/
+
+/-- Returns the `IsCharP type semiringInst n` instance together with the evaluated `n`. -/
+def getIsCharInst? (u : Level) (type : Expr) (semiringInst : Expr) : SymM (Option (Expr × Nat)) := withNewMCtxDepth do
   let n ← mkFreshExprMVar (mkConst ``Nat)
   let charType := mkApp3 (mkConst ``Grind.IsCharP [u]) type semiringInst n
   let some charInst ← synthInstance? charType | return none
@@ -19,7 +26,11 @@ def getIsCharInst? (u : Level) (type : Expr) (semiringInst : Expr) : GoalM (Opti
   let some n ← evalNat? n | return none
   return some (charInst, n)
 
-def getPowIdentityInst? (u : Level) (type : Expr) : GoalM (Option (Expr × Expr × Nat)) := do withNewMCtxDepth do
+/--
+Returns the `PowIdentity` instance, the `CommSemiring` instance it was synthesized against,
+and the evaluated exponent `p`.
+-/
+def getPowIdentityInst? (u : Level) (type : Expr) : SymM (Option (Expr × Expr × Nat)) := withNewMCtxDepth do
   -- We use a fresh metavar for `CommSemiring` (unlike `getIsCharInst?` which pins the semiring)
   -- because `PowIdentity` instances may be declared against a canonical `CommSemiring` instance
   -- that is not definitionally equal to `CommRing.toCommSemiring`. The synthesized `csInst` is
@@ -33,10 +44,11 @@ def getPowIdentityInst? (u : Level) (type : Expr) : GoalM (Option (Expr × Expr 
   let some pVal ← evalNat? p | return none
   return some (inst, csInst, pVal)
 
-def getNoZeroDivInst? (u : Level) (type : Expr) : GoalM (Option Expr) := do
+/-- Returns the `NoNatZeroDivisors` instance for `type`, synthesizing the `NatModule` premise first. -/
+def getNoZeroDivInst? (u : Level) (type : Expr) : SymM (Option Expr) := do
   let natModuleType := mkApp (mkConst ``Grind.NatModule [u]) type
   let some natModuleInst ← synthInstance? natModuleType | return none
   let noZeroDivType := mkApp2 (mkConst ``Grind.NoNatZeroDivisors [u]) type natModuleInst
   synthInstance? noZeroDivType
 
-end Lean.Meta.Grind.Arith
+end Lean.Meta.Sym.Arith

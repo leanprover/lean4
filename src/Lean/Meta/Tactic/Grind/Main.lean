@@ -27,6 +27,7 @@ import Lean.Meta.Tactic.Grind.ReflCmp
 import Lean.Meta.Tactic.Grind.PP
 import Lean.Meta.Tactic.Grind.Core
 import Lean.Meta.Tactic.Grind.EMatchDiagnostics
+import Lean.Meta.Sym.Arith.Types
 public section
 namespace Lean.Meta.Grind
 
@@ -128,6 +129,7 @@ def GrindM.run (x : GrindM α) (params : Params) (evalTactic? : Option EvalTacti
   let anchorRefs? := params.anchorRefs?
   let debug := grind.debug.get (← getOptions)
   let ematchDiag := grind.ematch.diagnostics.get (← getOptions)
+  Sym.Arith.setExpThreshold config.exp
   x (← mkMethods evalTactic?).toMethodsRef
     { config, anchorRefs?, simpMethods, simp, extensions, symPrios, debug, ematchDiag }
     |>.run' {}

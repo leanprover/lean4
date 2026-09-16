@@ -103,5 +103,12 @@ example : (3 : Fin 7) ^ 1000 = 4 := by decide +kernel
 example : [64, 512, 1024].all (fun bits =>
     [2 ^ bits - 1, 2 ^ bits, 2 ^ bits + 1].all (fun m =>
       Nat.powMod (m - 1) 65537 m == m - 1)) := by decide +kernel
-example : [15, 16, 17, 63, 64, 65].all (fun e =>
+example : [1, 2, 3, 7, 8, 9, 15, 16, 17, 63, 64, 65].all (fun e =>
     Nat.powMod 7 e 97 == 7 ^ e % 97) := by decide +kernel
+
+/-! Full bases at every dispatch boundary, and a multi-level six-bit-window exponent. -/
+example : [64, 512, 1024, 2048, 4096].all (fun bits =>
+    [2 ^ bits - 1, 2 ^ bits, 2 ^ bits + 1].all (fun m =>
+      Nat.powMod (m - 3) 17 m == m - 129140163)) := by decide +kernel
+example : Nat.powMod (2^64-5) (2^64-3) (2^64-59) = 13725768017768333112 := by
+  decide +kernel

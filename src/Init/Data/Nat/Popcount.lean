@@ -16,7 +16,6 @@ import Init.Data.Int.Pow -- Used by omega when normalizing powers.
 import Init.ByCases
 import Init.RCases
 import Init.Omega
-import Init.WFTactics
 import Init.Data.List.Lemmas
 
 /-!
@@ -96,19 +95,40 @@ The compiled implementation scans machine limbs. -/
 
 namespace popcount
 
-/-- Binary specification used to prove the parallel counting algorithm. -/
-def count (n : Nat) : Nat :=
-  if h : n = 0 then 0 else count (n / 2) + n % 2
-termination_by n
-decreasing_by exact Nat.div_lt_self (Nat.zero_lt_of_ne_zero h) (by decide)
+/-- A structurally recursive binary counter, used only in the correctness proof. -/
+def count.go : Nat → Nat → Nat
+  | 0, _ => 0
+  | _ + 1, 0 => 0
+  | fuel + 1, n + 1 => count.go fuel ((n + 1) / 2) + (n + 1) % 2
 
-@[simp] theorem count_zero : count 0 = 0 := by rw [count]; rfl
+/-- Binary specification used to prove the parallel counting algorithm. -/
+def count (n : Nat) : Nat := count.go n n
+
+theorem count.go_succ (h : n ≤ fuel) : count.go (fuel + 1) n = count.go fuel n := by
+  induction fuel generalizing n with
+  | zero =>
+    have : n = 0 := by omega
+    subst n
+    rfl
+  | succ fuel ih =>
+    cases n with
+    | zero => rfl
+    | succ n => simp only [count.go]; rw [ih (by omega)]
+
+theorem count.go_eq (h : n ≤ fuel) : count.go fuel n = count n := by
+  obtain ⟨k, rfl⟩ := Nat.exists_eq_add_of_le h
+  induction k with
+  | zero => rfl
+  | succ k ih => rw [Nat.add_succ, count.go_succ (by omega), ih (by omega)]
+
+@[simp] theorem count_zero : count 0 = 0 := rfl
 
 theorem count_div_two (n : Nat) : count n = count (n / 2) + n % 2 := by
-  rw [count]
-  split
-  · next h => subst n; simp
-  · rfl
+  cases n with
+  | zero => rfl
+  | succ n =>
+    change count.go n ((n + 1) / 2) + (n + 1) % 2 = _
+    rw [count.go_eq (by omega)]
 
 @[simp] theorem count_one : count 1 = 1 := by
   rw [count_div_two]
@@ -175,17 +195,20 @@ theorem land_split :
     v &&& m = (v % 2 ^ s &&& m % 2 ^ s) + 2 ^ s * (v / 2 ^ s &&& m / 2 ^ s) := by
   rw [← Nat.and_mod_two_pow, ← Nat.and_div_two_pow, Nat.mod_add_div]
 
+theorem land_parts (ha : a < 2 ^ s) (hb : b < 2 ^ s) :
+    (a + 2 ^ s * c) &&& (b + 2 ^ s * d) = (a &&& b) + 2 ^ s * (c &&& d) := by
+  rw [land_split (s := s)]
+  simp only [Nat.add_mul_mod_self_left, Nat.mod_eq_of_lt ha, Nat.mod_eq_of_lt hb,
+    Nat.add_mul_div_left _ _ (Nat.two_pow_pos s), Nat.div_eq_of_lt ha,
+    Nat.div_eq_of_lt hb, Nat.zero_add]
+
 theorem land_split_byte :
     v &&& m = (v % 256 &&& m % 256) + 256 * (v / 256 &&& m / 256) :=
   land_split (s := 8)
 
 theorem land_split' {lo hi lo' hi' : Nat} (hlo : lo < 256) (hlo' : lo' < 256) :
-    (lo + 256 * hi) &&& (lo' + 256 * hi') = (lo &&& lo') + 256 * (hi &&& hi') := by
-  rw [land_split_byte]
-  rw [show (lo + 256 * hi) % 256 = lo by omega,
-    show (lo + 256 * hi) / 256 = hi by omega,
-    show (lo' + 256 * hi') % 256 = lo' by omega,
-    show (lo' + 256 * hi') / 256 = hi' by omega]
+    (lo + 256 * hi) &&& (lo' + 256 * hi') = (lo &&& lo') + 256 * (hi &&& hi') :=
+  land_parts (s := 8) hlo hlo'
 
 theorem shiftLeft_land_shiftRight :
     ((v >>> s) &&& m) <<< s = v &&& (m <<< s) :=
@@ -248,7 +271,6 @@ theorem rep_one_mul : 255 * rep 1 k + 1 = 256 ^ k := by
 @[simp] theorem stageB_zero : stageB v 0 = 0 := by simp [stageB]
 @[simp] theorem stageC_zero : stageC v 0 = 0 := by simp [stageC]
 
-set_option maxRecDepth 8192 in
 /-- On a byte the stages stay inside the byte, and the last one holds its set-bit count. -/
 theorem byte_pipeline (hv : v < 256) :
     stageA v 1 < 256 ∧ stageB v 1 ≤ 68 ∧ stageB v 1 % 16 ≤ 4 ∧ stageC v 1 ≤ 8 ∧
@@ -465,13 +487,6 @@ theorem pairs_bound (h : ∀ a ∈ xs, a ≤ s) : ∀ a ∈ pairs xs, a ≤ s + 
     · have := h a (by simp); have := h b (by simp); omega
     · exact ih (by intro c hc; exact h c (by simp [hc])) _ hc
 
-
-theorem land_parts (ha : a < 2 ^ s) (hb : b < 2 ^ s) :
-    (a + 2 ^ s * c) &&& (b + 2 ^ s * d) = (a &&& b) + 2 ^ s * (c &&& d) := by
-  rw [land_split (s := s)]
-  simp only [Nat.add_mul_mod_self_left, Nat.mod_eq_of_lt ha, Nat.mod_eq_of_lt hb,
-    Nat.add_mul_div_left _ _ (Nat.two_pow_pos s), Nat.div_eq_of_lt ha,
-    Nat.div_eq_of_lt hb, Nat.zero_add]
 
 theorem adjacent_length (xs : List Nat) : (adjacent xs).length = xs.length := by
   induction xs with

@@ -2037,7 +2037,8 @@ mutual
     sepBy1Fn true (blockFn { c with recordTrailing := true }) (blockSepFallback base) ctx s
 
   /--
-  Sets the error that ended a sequence of blocks before the end of the input.
+  Sets the error that ended a sequence of blocks before the end of the input, unless a recovered
+  error already reports the position it would be set at.
 
   `ctxt` is the context that the blocks were parsed with, so reading a block at the position where
   they stopped reproduces the error.
@@ -2047,14 +2048,17 @@ mutual
     if c.atEnd s.pos then s
     else
       let s' := blockFn ctxt c (mkParserState c.inputString |>.setPos s.pos)
-      match s'.errorMsg with
-      | some e =>
-        { s with errorMsg := some e, pos := s'.pos }
-      | none =>
-        -- The guard above passes only when a block failed here and `sepByFn` reset its error, so
-        -- the character at this position is the unexpected input. Reading a block reproduces that
-        -- error, so this branch is a safety net.
-        s.setError { unexpected := s!"unexpected '{c.get s.pos}'" }
+      let (errPos, e) : String.Pos.Raw × Error :=
+        match s'.errorMsg with
+        | some e => (s'.pos, e)
+        | none =>
+          -- The guard above passes only when a block failed here and `sepByFn` reset its error, so
+          -- the character at this position is the unexpected input. Reading a block reproduces that
+          -- error, so this case is a safety net.
+          (s.pos, { unexpected := s!"unexpected '{c.get s.pos}'" })
+      -- Recovery that reached this position described the block that ended the sequence.
+      if s.recoveredErrors.any (·.1 == errPos) then s
+      else { s with errorMsg := some e, pos := errPos }
 
   /--
   Parses a document: the whitespace it starts with, then zero or more blocks.

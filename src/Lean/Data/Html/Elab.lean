@@ -19,8 +19,10 @@ open Html Syntax
 
 meta def elabAttrVal (stx : AttrVal) : TermElabM Expr := withRef stx do
   match ← stx.view with
-  | .str _ val => return toExpr val
-  | .interp s => elabTermEnsuringType s (Expr.const ``String [])
+  | .str s => return toExpr (← decodeCharacterReferences s)
+  | .interp stx =>
+    let i ← stx.view
+    elabTermEnsuringType i.term (Expr.const ``String [])
 
 /-- Returns {lit}`.inl (attr : (String × String))`
 or {lit}`.inr (attrs : Array (String × String))`. -/
@@ -29,18 +31,20 @@ meta def elabAttr (stx : Attr) : TermElabM (Expr ⊕ Expr) := withRef stx do
   let pairType := mkApp2 (.const ``Prod [0, 0]) strType strType
   let arrayType := Expr.app (.const ``Array [0]) pairType
   match ← stx.view with
-  | .val name val =>
+  | .val { name, val, .. } =>
     let name ← name.view
     let val ← elabAttrVal val
     return .inl <| mkApp4 (.const ``Prod.mk [0, 0]) strType strType (toExpr name) val
   | .bool name =>
     let name ← name.view
     return .inl <| mkApp4 (.const ``Prod.mk [0, 0]) strType strType (toExpr name) (toExpr "")
-  | .interp t =>
-    let t ← elabTermEnsuringType t pairType
+  | .interp false stx =>
+    let i ← stx.view
+    let t ← elabTermEnsuringType i.term pairType
     return .inl t
-  | .interpMany t =>
-    let q ← `(ForIn.toArray (α := String × String) $t)
+  | .interp true stx =>
+    let i ← stx.view
+    let q ← `(ForIn.toArray (α := String × String) $(i.term))
     let t ← elabTermEnsuringType q arrayType
     return .inr t
 
@@ -59,30 +63,33 @@ meta def elabAttrs (stxs : Array Attr) : TermElabM Expr := do
 meta partial def elabContent (stx : Content) : TermElabM Expr := withRef stx do
   let mut es : Array Expr := #[]
   for it in ← stx.view do
-    withRef it.getSyntax do←
     match it with
-    | .element elemStx startTag attrs children? =>
-      let tagName ← startTag.view
+    | .element stx => withRef stx do←
+      let elem ← stx.view
+      elem.checkNamesMatch
+      let tagName ← elem.startTag.name.view
       if isVoidElement tagName then
-        if let some children := children? then
+        if elem.children?.isSome then
           let hint ←
-            let some ⟨start, _⟩ := elemStx.raw.getRange? | pure m!""
+            let some ⟨start, _⟩ := stx.raw.getRange? | pure m!""
             -- Everything up to the start tag's `>` is kept; children and end tag are dropped.
-            let some gt := elemStx.raw[3].getPos? | pure m!""
-            let selfClosing := start.extract (← getFileMap).source gt ++ "/>"
+            let some gtPos := elem.startTag.gt.getPos? | pure m!""
+            let selfClosing := start.extract (← getFileMap).source gtPos ++ "/>"
             MessageData.hint "Remove end tag" #[selfClosing]
-          throwErrorAt elemStx m!"Void element `{tagName}` cannot have an end tag{hint}"
-      let attrs ← elabAttrs attrs
-      let children? ← children?.mapM elabContent
+          throwErrorAt stx m!"Void element `{tagName}` cannot have an end tag{hint}"
+      let attrs ← elabAttrs elem.startTag.attrs
+      let children? ← elem.children?.mapM elabContent
       let e := mkApp3 (.const ``Html.element []) (toExpr tagName) attrs <|
         children?.getD (.const ``Html.empty [])
       es := es.push e
-    | .text _ t =>
-      if t.isEmpty then continue
-      let e := mkApp (.const ``Html.text []) (toExpr t)
+    | .textComments tcs => withRef tcs.getSyntax do←
+      let val ← tcs.getText
+      if val.isEmpty then continue
+      let e := mkApp (.const ``Html.text []) (toExpr val)
       es := es.push e
-    | .interp val =>
-      let e ← elabTermEnsuringType val (Expr.const ``Html [])
+    | .interp stx =>
+      let i ← stx.view
+      let e ← elabTermEnsuringType i.term (Expr.const ``Html [])
       es := es.push e
   match es with
   | #[] => return .const ``Html.empty []

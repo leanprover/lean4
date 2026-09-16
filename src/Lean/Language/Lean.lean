@@ -639,6 +639,10 @@ where
       }
       return
 
+    -- Extract only the necessary data from the old command snapshot
+    -- (allow the rest of the snapshot data to be released)
+    let oldElab? := old?.map fun old => ⟨old.stx, old.elabSnap.elabSnap⟩
+
     -- Start new task when leaving fast-forwarding path; see "General notes" above
     let _ ← (if sync then BaseIO.asTask else (.pure <$> ·)) do
       -- definitely resolved in `doElab` task
@@ -680,7 +684,7 @@ where
         }
       }
       let cmdState ← doElab stx cmds cmdState beginPos
-        { old? := old?.map fun old => ⟨old.stx, old.elabSnap.elabSnap⟩, new := elabPromise }
+        { old? := oldElab?, new := elabPromise }
         elabCmdCancelTk ctx
 
       let mut reportedCmdState := cmdState

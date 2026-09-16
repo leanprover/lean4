@@ -288,6 +288,8 @@ public:
        Return 0 if the number is negative
     */
     size_t log2() const;
+    /** Number of set bits in a nonnegative integer. */
+    mpz popcount() const;
 
     /** Return the number of trailing zero bits of the absolute value, or zero for zero. */
     size_t trailing_zeros() const;

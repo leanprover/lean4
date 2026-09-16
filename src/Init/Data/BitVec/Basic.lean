@@ -7,6 +7,7 @@ module
 
 prelude
 public import Init.Data.Int.Bitwise.Basic
+public import Init.Data.Nat.Popcount
 public import Init.Data.Bool
 public import Init.Data.Int.DivMod.Basic
 public import Init.WF
@@ -907,7 +908,9 @@ def cpopNatRec (x : BitVec w) (pos acc : Nat) : Nat :=
   Also known as `popcount`, `popcnt`.
 -/
 @[suggest_for BitVec.popcount BitVec.popcnt, implicit_reducible]
-def cpop (x : BitVec w) : BitVec w := BitVec.ofNat w (cpopNatRec x w 0)
+def cpop (x : BitVec w) : BitVec w :=
+  BitVec.ofNatLT (Nat.popcount x.toNat)
+    (Nat.lt_of_le_of_lt (Nat.popcount_le _) x.isLt)
 
 instance : Min (BitVec w) := minOfLe
 

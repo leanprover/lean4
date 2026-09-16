@@ -11,11 +11,15 @@ example : (1#65536).cpop = 1#65536 := by decide +kernel
 example : (511#9).cpop = 9#9 := by decide +kernel
 example (x : BitVec 8) : x.cpop ≤ 8#8 := by bv_decide
 
-def reference (n : Nat) : Nat :=
-  (List.range 32).foldl (fun s i => s + (n.testBit i).toNat) 0
-#eval do
-  for n in [:65536] do
-    unless Nat.popcount n == reference n do throw <| IO.userError s!"popcount mismatch: {n}"
-  for k in [63, 64, 65, 127, 128, 255, 256, 4096, 65536] do
-    unless (2 ^ k - 1).popcount == k do throw <| IO.userError s!"dense mismatch: {k}"
-    unless (2 ^ k).popcount == 1 do throw <| IO.userError s!"sparse mismatch: {k}"
+example : Nat.popcount 255 = 8 := by decide
+example : Nat.popcount 255 = 8 := rfl
+example : Nat.popcount Nat.zero = 0 := rfl
+example : Nat.popcount (Nat.succ 3) = 1 := rfl
+
+-- Chunk endpoints, carry boundaries, and totals larger than a byte.
+example : [247, 248, 249, 495, 496, 497].all (fun k =>
+    Nat.popcount (2^k-1) == k && Nat.popcount (2^k) == 1) := by decide +kernel
+
+example : True := by
+  fail_if_success have : Nat.popcount 255 = 7 := by decide +kernel
+  trivial

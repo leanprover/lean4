@@ -11,51 +11,85 @@ public import Init.Data.Nat.Bitwise.Basic
 public import Init.Data.Bool
 import Init.Data.Nat.Bitwise.Lemmas
 import Init.Data.Nat.Lemmas
+import Init.Data.Nat.Div.Lemmas
 import Init.Data.Int.Pow -- Used by omega when normalizing powers.
 import Init.ByCases
 import Init.RCases
 import Init.Omega
 import Init.WFTactics
+import Init.Data.List.Lemmas
 
 /-!
 # Population count
 
-The kernel-reducible implementation counts 248-bit chunks using shifts, masks, and multiplication.
-The bytewise algorithm and proof follow Bhavik Mehta's `PrimeCert.PopCount`.
+The kernel-reducible implementation counts bits in parallel across a natural number. Packed
+byte counts are combined into wider lanes; reduction modulo one less than the lane base then
+sums the lanes. The bytewise algorithm and proof follow Bhavik Mehta's `PrimeCert.PopCount`.
 -/
 namespace Nat
 namespace popcount
 
-/-- Count a chunk of at most 248 bits. Each byte is replaced by its bit count, then
-multiplication adds these counts into the highest byte. The sum is at most 248. -/
-@[expose, implicit_reducible] public def word (v : Nat) : Nat :=
-  let a := v.sub
-    ((v.shiftRight 1).land 0x55555555555555555555555555555555555555555555555555555555555555)
-  let b := (a.land 0x33333333333333333333333333333333333333333333333333333333333333).add
-    ((a.shiftRight 2).land 0x33333333333333333333333333333333333333333333333333333333333333)
-  let c := (b.add (b.shiftRight 4)).land
-    0x0f0f0f0f0f0f0f0f0f0f0f0f0f0f0f0f0f0f0f0f0f0f0f0f0f0f0f0f0f0f0f
-  ((c.mul 0x01010101010101010101010101010101010101010101010101010101010101).shiftRight 240).land 255
+/-- Replace each byte by its bit count. `ones` is an all-ones mask covering the input. -/
+@[expose, implicit_reducible] public def bytes (n ones : Nat) : Nat :=
+  let a := n.sub ((n.shiftRight 1).land (ones.div 3))
+  let b := (a.land (ones.div 5)).add ((a.shiftRight 2).land (ones.div 5))
+  (b.add (b.shiftRight 4)).land (ones.div 17)
 
-/-- Count chunks using structural recursion. The result is correct when `n < fuel`. -/
-@[expose, implicit_reducible] public noncomputable def loop : Nat → Nat → Nat :=
-  Nat.rec (fun _ => 0) (fun _ rec n =>
-    (n.ble 0xffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff).rec
-      ((word (n.land 0xffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff)).add
-        (rec (n.shiftRight 248)))
-      (word n))
+/-- Combine adjacent lanes until their base exceeds the maximum total count, then sum them
+by taking the remainder modulo one less than that base. -/
+@[expose, implicit_reducible] public noncomputable def fold : Nat → Nat → Nat → Nat → Nat → Nat :=
+  Nat.rec (fun _ _ _ _ => 0) (fun _ rec width ones lane n =>
+    (width.blt ((Nat.shiftLeft 1 lane).sub 1)).rec
+      (rec width ones (lane.add lane)
+        ((n.add (n.shiftRight lane)).land (ones.div ((Nat.shiftLeft 1 lane).add 1))))
+      (n.mod ((Nat.shiftLeft 1 lane).sub 1)))
+
+/-- Count an input covered by `width` bits, where `width` is eight times a power of two. -/
+@[expose, implicit_reducible] public noncomputable def wide (n width : Nat) : Nat :=
+  let ones := (Nat.shiftLeft 1 width).sub 1
+  fold width width ones 8 (bytes n ones)
+
+/-- Double the width until it covers the input. The base case uses the final width directly. -/
+@[expose, implicit_reducible] public noncomputable def grow : Nat → Nat → Nat → Nat :=
+  Nat.rec (fun n width => wide n width) (fun _ rec n width =>
+    ((n.shiftRight width).beq 0).rec
+      (rec n (width.add width)) (wide n width))
+
+/-- Count an input of at most 64 bits using byte lanes. -/
+@[expose, implicit_reducible] public def small (n : Nat) : Nat :=
+  (bytes n 0xffffffffffffffff).mod 255
+
+/-- Count an input covered by `width` bits using 16-bit lanes.
+Used at widths 256 and 4096. -/
+@[expose, implicit_reducible] public def word16 (n width : Nat) : Nat :=
+  let ones := (Nat.shiftLeft 1 width).sub 1
+  let c := bytes n ones
+  ((c.add (c.shiftRight 8)).land (ones.div 257)).mod 65535
+
+/-- Count an input of at most 65536 bits using 32-bit lanes. -/
+@[expose, implicit_reducible] public def word32 (n : Nat) : Nat :=
+  let ones := (Nat.shiftLeft 1 65536).sub 1
+  let c := bytes n ones
+  let d := (c.add (c.shiftRight 8)).land (ones.div 257)
+  ((d.add (d.shiftRight 16)).land (ones.div 65537)).mod 4294967295
 
 end popcount
 
 /-- The number of set bits in the binary representation of a natural number.
-Kernel reduction counts 248-bit chunks using existing natural-number arithmetic.
+Kernel reduction counts bits in parallel using existing natural-number arithmetic.
 The compiled implementation scans machine limbs. -/
 @[expose, implicit_reducible, extern "lean_nat_popcount"] public def popcount (n : @& Nat) : Nat :=
-  popcount.loop n.succ n
+  ((n.shiftRight 64).beq 0).rec
+    (((n.shiftRight 256).beq 0).rec
+      (((n.shiftRight 4096).beq 0).rec
+        (((n.shiftRight 65536).beq 0).rec (popcount.grow n.succ n 131072) (popcount.word32 n))
+        (popcount.word16 n 4096))
+      (popcount.word16 n 256))
+    (popcount.small n)
 
 namespace popcount
 
-/-- Binary specification used to prove the chunk algorithm. -/
+/-- Binary specification used to prove the parallel counting algorithm. -/
 def count (n : Nat) : Nat :=
   if h : n = 0 then 0 else count (n / 2) + n % 2
 termination_by n
@@ -160,8 +194,8 @@ theorem land_255 : v &&& 255 = v % 256 := Nat.and_two_pow_sub_one_eq_mod v 8
 
 /-! ## The three stages
 
-`rep b k` is the `k`-byte constant repeating the byte `b`. The masks of `word` are `rep 85 31`,
-`rep 51 31` and `rep 15 31`, and its multiplier is `rep 1 31`. -/
+`rep b k` is the `k`-byte constant repeating the byte `b`. The three stages use masks
+`rep 85 k`, `rep 51 k` and `rep 15 k`. -/
 
 /-- The `k`-byte constant repeating the byte `b`. -/
 def rep (b : Nat) : Nat → Nat
@@ -198,20 +232,6 @@ theorem land_rep_succ (hm : m < 256) :
     v &&& rep m (k + 1) = (v % 256 &&& m) + 256 * (v / 256 &&& rep m k) := by
   rw [land_split_byte, rep_mod_byte hm, rep_div_byte hm]
 
-/-- The top byte of a repeated-byte constant. -/
-theorem rep_succ_top : rep b (k + 1) = rep b k + 256 ^ k * b := by
-  induction k with
-  | zero => simp
-  | succ k ih =>
-    rw [rep_succ, ih, Nat.mul_add, ← Nat.add_assoc, ← rep_succ, Nat.pow_succ]
-    simp only [Nat.mul_assoc, Nat.mul_comm 256, ih]
-
-/-- A repeated-byte constant fits in its `k` bytes. -/
-theorem rep_lt (hb : b < 256) : rep b k < 256 ^ k := by
-  induction k with
-  | zero => simp
-  | succ k ih => rw [rep_succ, Nat.pow_succ]; omega
-
 /-- `rep 1 k` fills `k` bytes with ones. -/
 theorem rep_one_mul : 255 * rep 1 k + 1 = 256 ^ k := by
   induction k with
@@ -220,10 +240,6 @@ theorem rep_one_mul : 255 * rep 1 k + 1 = 256 ^ k := by
 
 @[simp] theorem stageB_zero : stageB v 0 = 0 := by simp [stageB]
 @[simp] theorem stageC_zero : stageC v 0 = 0 := by simp [stageC]
-
-/-- The last stage fits in its `k` bytes. -/
-theorem stageC_lt : stageC v k < 256 ^ k :=
-  Nat.lt_of_le_of_lt Nat.and_le_right (rep_lt (by omega))
 
 set_option maxRecDepth 8192 in
 /-- On a byte the stages stay inside the byte, and the last one holds its set-bit count. -/
@@ -344,111 +360,385 @@ theorem isBytewise_stageC : IsBytewise stageC :=
 
 end Bytewise
 
-/-! Multiplication adds the byte counts into the highest byte. -/
-def byteSum : Nat → Nat → Nat
-  | _, 0 => 0
-  | v, k + 1 => v % 256 + byteSum (v / 256) k
+/-! ## Packed lanes
 
-@[simp] theorem byteSum_zero (v : Nat) : byteSum v 0 = 0 := rfl
-@[simp] theorem byteSum_succ (v k : Nat) :
-    byteSum v (k + 1) = v % 256 + byteSum (v / 256) k := rfl
+These lists occur only in the correctness proof. The executable works on one natural number,
+with no list allocation or per-lane recursion.
+-/
+def pack (s : Nat) : List Nat → Nat
+  | [] => 0
+  | a :: xs => a + 2 ^ s * pack s xs
 
-theorem mul_rep_split (hv : v < 256 ^ (k + 1)) :
-    ∃ L T, L ≤ byteSum v (k + 1) * rep 1 k ∧
-      v * rep 1 (k + 1) = L + 256 ^ k * (byteSum v (k + 1) + 256 * T) := by
-  induction k generalizing v with
-  | zero =>
-    have hv' : v < 256 := by simpa using hv
-    exact ⟨0, 0, by simp, by simp [Nat.mod_eq_of_lt hv']⟩
-  | succ k ih =>
-    obtain ⟨L, T, hL, hLT⟩ := ih (v := v / 256) (by rw [Nat.pow_succ] at hv; omega)
-    have h1 : 256 * rep 1 k ≤ rep 1 (k + 1) := by rw [rep_succ]; omega
-    have hw : v = v % 256 + 256 * (v / 256) := (Nat.mod_add_div _ _).symm
-    refine ⟨v % 256 * rep 1 (k + 1) + 256 * L, T + v / 256, ?_, ?_⟩
-    · have h2 : 256 * L ≤ byteSum (v / 256) (k + 1) * rep 1 (k + 1) := by
-        calc
-          256 * L ≤ 256 * (byteSum (v / 256) (k + 1) * rep 1 k) :=
-            Nat.mul_le_mul_left _ hL
-          _ = byteSum (v / 256) (k + 1) * (256 * rep 1 k) := by
-            simp only [Nat.mul_left_comm]
-          _ ≤ _ := Nat.mul_le_mul_left _ h1
-      rw [byteSum_succ, Nat.add_mul]
+def pairs : List Nat → List Nat
+  | [] => []
+  | [a] => [a]
+  | a :: b :: xs => (a + b) :: pairs xs
+
+def adjacent : List Nat → List Nat
+  | [] => []
+  | [a] => [a]
+  | a :: b :: xs => (a + b) :: adjacent (b :: xs)
+
+def evenDigits : List Nat → List Nat
+  | [] => []
+  | [a] => [a]
+  | a :: _ :: xs => a :: evenDigits xs
+
+def stripe (s : Nat) : Nat → Nat
+  | 0 => 0
+  | k + 1 => (2 ^ s - 1) + 2 ^ (s + s) * stripe s k
+
+theorem pack_cons_mod (ha : a < 2 ^ s) : pack s (a :: xs) % 2 ^ s = a := by
+  simp only [pack, Nat.add_mul_mod_self_left, Nat.mod_eq_of_lt ha]
+
+theorem pack_cons_div (ha : a < 2 ^ s) : pack s (a :: xs) / 2 ^ s = pack s xs := by
+  simp only [pack, Nat.add_mul_div_left _ _ (Nat.two_pow_pos s), Nat.div_eq_of_lt ha,
+    Nat.zero_add]
+
+theorem pack_adjacent (xs : List Nat) :
+    pack s (adjacent xs) = pack s xs + pack s xs.tail := by
+  induction xs with
+  | nil => simp [adjacent, pack]
+  | cons a xs ih =>
+    cases xs with
+    | nil => simp [adjacent, pack]
+    | cons b xs =>
+      simp only [adjacent, pack, List.tail_cons] at ih ⊢
+      rw [ih, Nat.mul_add]
       omega
-    · conv => lhs; rw [hw, Nat.add_mul]
-      rw [rep_succ_top (b := 1) (k := k + 1), Nat.mul_one]
-      rw [Nat.mul_add (256 * (v / 256)), Nat.mul_assoc 256, hLT]
-      simp only [byteSum_succ, Nat.pow_succ, Nat.mul_add, Nat.mul_assoc,
-        Nat.add_assoc, Nat.add_left_comm, Nat.add_comm, Nat.mul_comm, Nat.mul_left_comm]
 
-theorem byteSum_mul_rep (hv : v < 256 ^ (k + 1)) (h : byteSum v (k + 1) < 256) :
-    v * rep 1 (k + 1) / 256 ^ k % 256 = byteSum v (k + 1) := by
-  obtain ⟨L, T, hL, hLT⟩ := mul_rep_split hv
-  have h255 : byteSum v (k + 1) * rep 1 k ≤ 255 * rep 1 k :=
-    Nat.mul_le_mul_right _ (by omega)
-  have hrep := rep_one_mul (k := k)
-  have hlt : L < 256 ^ k := by omega
-  rw [hLT, Nat.add_mul_div_left _ _ (Nat.pow_pos (by decide)), Nat.div_eq_of_lt hlt]
-  omega
+theorem adjacent_bound (h : ∀ a ∈ xs, a ≤ s) : ∀ a ∈ adjacent xs, a ≤ s + s := by
+  induction xs with
+  | nil => simp [adjacent]
+  | cons a xs ih =>
+    cases xs with
+    | nil => simp only [adjacent, List.mem_singleton]; intro b hb; subst b; have := h a (by simp); omega
+    | cons b xs =>
+      simp only [adjacent, List.mem_cons]
+      intro c hc
+      rcases hc with rfl | hc
+      · have := h a (by simp); have := h b (by simp); omega
+      · exact ih (by intro c hc; exact h c (by simp [hc])) _ hc
 
-theorem byteSum_stageC (hv : v < 256 ^ k) : byteSum (stageC v k) k = count v := by
-  induction k generalizing v with
-  | zero =>
-    have : v = 0 := by simpa using hv
-    subst v; simp
+theorem even_adjacent (xs : List Nat) : evenDigits (adjacent xs) = pairs xs := by
+  induction xs using pairs.induct with
+  | case1 => rfl
+  | case2 a => rfl
+  | case3 a b xs ih =>
+    cases xs with
+    | nil => rfl
+    | cons c xs => simp only [adjacent, evenDigits, pairs] at ih ⊢; exact congrArg (List.cons (a + b)) ih
+
+theorem pairs_sum (xs : List Nat) : (pairs xs).sum = xs.sum := by
+  induction xs using pairs.induct with
+  | case1 => rfl
+  | case2 a => rfl
+  | case3 a b xs ih => simp only [pairs, List.sum_cons, ih, Nat.add_assoc]
+
+theorem pairs_length (h : xs.length = 2 * k) : (pairs xs).length = k := by
+  induction k generalizing xs with
+  | zero => cases xs with
+    | nil => rfl
+    | cons a xs => simp at h
   | succ k ih =>
-    have hb := stageC_byte_le (v := v % 256) (Nat.mod_lt _ (by decide))
-    have heq := isBytewise_stageC v k
-    have hmod : stageC v (k + 1) % 256 = stageC (v % 256) 1 := by omega
-    have hdiv : stageC v (k + 1) / 256 = stageC (v / 256) k := by omega
-    rw [byteSum_succ, hmod, hdiv, ih (by rw [Nat.pow_succ] at hv; omega),
-      stageC_byte_eq (Nat.mod_lt _ (by decide))]
-    exact count_mod_add_div v 8
+    cases xs with
+    | nil => simp at h
+    | cons a xs => cases xs with
+      | nil => simp at h; omega
+      | cons b xs => simp only [List.length_cons] at h; simp only [pairs, List.length_cons]; rw [ih (xs := xs) (by omega)]
 
-theorem stageC_mul_rep (hv : v < 256 ^ (k + 1)) (hk : k < 31) :
-    stageC v (k + 1) * rep 1 (k + 1) / 256 ^ k % 256 = count v := by
-  have hn : count v ≤ 8 * (k + 1) := count_le_of_lt_two_pow (by
-    simpa only [Nat.pow_mul] using hv)
-  rw [byteSum_mul_rep stageC_lt (by rw [byteSum_stageC hv]; omega), byteSum_stageC hv]
+theorem pairs_bound (h : ∀ a ∈ xs, a ≤ s) : ∀ a ∈ pairs xs, a ≤ s + s := by
+  induction xs using pairs.induct with
+  | case1 => simp [pairs]
+  | case2 a => simp only [pairs, List.mem_singleton]; intro b hb; subst b; have := h a (by simp); omega
+  | case3 a b xs ih =>
+    simp only [pairs, List.mem_cons]
+    intro c hc
+    rcases hc with rfl | hc
+    · have := h a (by simp); have := h b (by simp); omega
+    · exact ih (by intro c hc; exact h c (by simp [hc])) _ hc
 
-set_option maxRecDepth 8192 in
-private theorem word_eq (hv : v < 2 ^ 248) : word v = count v := by
-  change (stageC v 31 * rep 1 31) >>> 240 &&& 255 = count v
-  rw [Nat.shiftRight_eq_div_pow, land_255]
-  exact stageC_mul_rep hv (by decide)
 
-private theorem loop_eq (hf : n < fuel) : loop fuel n = count n := by
-  induction fuel generalizing n with
+theorem land_parts (ha : a < 2 ^ s) (hb : b < 2 ^ s) :
+    (a + 2 ^ s * c) &&& (b + 2 ^ s * d) = (a &&& b) + 2 ^ s * (c &&& d) := by
+  rw [land_split (s := s)]
+  simp only [Nat.add_mul_mod_self_left, Nat.mod_eq_of_lt ha, Nat.mod_eq_of_lt hb,
+    Nat.add_mul_div_left _ _ (Nat.two_pow_pos s), Nat.div_eq_of_lt ha,
+    Nat.div_eq_of_lt hb, Nat.zero_add]
+
+theorem adjacent_length (xs : List Nat) : (adjacent xs).length = xs.length := by
+  induction xs with
+  | nil => rfl
+  | cons a xs ih => cases xs with
+    | nil => rfl
+    | cons b xs => simpa [adjacent] using congrArg Nat.succ ih
+
+theorem pack_land_stripe (hlen : xs.length = 2 * k) (h : ∀ a ∈ xs, a < 2 ^ s) :
+    pack s xs &&& stripe s k = pack (s + s) (evenDigits xs) := by
+  induction k generalizing xs with
+  | zero =>
+    cases xs with
+    | nil => simp [pack, stripe, evenDigits]
+    | cons a xs => simp at hlen
+  | succ k ih =>
+    cases xs with
+    | nil => simp at hlen
+    | cons a xs => cases xs with
+      | nil => simp at hlen; omega
+      | cons b xs =>
+        have ha := h a (by simp)
+        have hb := h b (by simp)
+        have hx : ∀ c ∈ xs, c < 2 ^ s := by intro c hc; exact h c (by simp [hc])
+        have hl : xs.length = 2 * k := by simp only [List.length_cons] at hlen; omega
+        have hp := Nat.two_pow_pos s
+        have hlo : a + 2 ^ s * b < 2 ^ (s + s) := by
+          rw [Nat.pow_add]
+          have hh := Nat.mul_le_mul_left (2 ^ s) hb
+          simp only [Nat.mul_succ] at hh
+          omega
+        have hm : 2 ^ s - 1 < 2 ^ (s + s) := by
+          have := Nat.pow_le_pow_right (by decide : 0 < 2) (show s ≤ s + s by omega)
+          omega
+        simp only [pack, stripe, evenDigits]
+        rw [show a + 2 ^ s * (b + 2 ^ s * pack s xs) = (a + 2 ^ s * b) + 2 ^ (s + s) * pack s xs by
+          simp [Nat.pow_add, Nat.mul_add, Nat.mul_assoc, Nat.add_assoc]]
+        rw [land_parts hlo hm, ih hl hx, Nat.and_two_pow_sub_one_eq_mod,
+          Nat.add_mul_mod_self_left, Nat.mod_eq_of_lt ha]
+
+/-- Adding the shifted lanes cannot carry: every pair sums to less than the lane base.
+The alternating mask keeps exactly the sums of disjoint pairs. -/
+theorem pack_merge (hlen : xs.length = 2 * k) (h : ∀ a ∈ xs, a ≤ s)
+    (hs : s + s < 2 ^ s) :
+    (pack s xs + pack s xs / 2 ^ s) &&& stripe s k = pack (s + s) (pairs xs) := by
+  have ht : pack s xs / 2 ^ s = pack s xs.tail := by
+    cases xs with
+    | nil => simp [pack]
+    | cons a xs => exact pack_cons_div (by have := h a (by simp); omega)
+  rw [ht, ← pack_adjacent, pack_land_stripe (by rw [adjacent_length]; exact hlen)
+    (by intro a ha; have := adjacent_bound h a ha; omega), even_adjacent]
+
+theorem stripe_mul (s k : Nat) :
+    (2 ^ s + 1) * stripe s k + 1 = 2 ^ ((s + s) * k) := by
+  induction k with
+  | zero => simp [stripe]
+  | succ k ih =>
+    have hp := Nat.two_pow_pos s
+    have hc : (2 ^ s + 1) * (2 ^ s - 1) + 1 = 2 ^ (s + s) := by
+      have hh := Nat.mul_le_mul_left (2 ^ s) (show 1 ≤ 2 ^ s by omega)
+      simp only [Nat.mul_one] at hh
+      rw [Nat.mul_sub, Nat.mul_one, Nat.add_mul, Nat.one_mul, Nat.pow_add]
+      omega
+    rw [stripe]
+    calc
+      (2 ^ s + 1) * ((2 ^ s - 1) + 2 ^ (s + s) * stripe s k) + 1 =
+          ((2 ^ s + 1) * (2 ^ s - 1) + 1) + 2 ^ (s + s) * ((2 ^ s + 1) * stripe s k) := by
+        rw [Nat.mul_add]; simp only [Nat.mul_left_comm, Nat.add_assoc, Nat.add_comm]
+      _ = 2 ^ (s + s) * ((2 ^ s + 1) * stripe s k + 1) := by rw [hc, Nat.mul_add, Nat.mul_one]; omega
+      _ = 2 ^ (s + s) * 2 ^ ((s + s) * k) := by rw [ih]
+      _ = 2 ^ ((s + s) * (k + 1)) := by simp only [Nat.mul_add, Nat.mul_one, Nat.pow_add]; simp only [Nat.mul_assoc, Nat.mul_comm]
+
+theorem stripe_eq (s k : Nat) : stripe s k = (2 ^ ((s + s) * k) - 1) / (2 ^ s + 1) := by
+  have h := stripe_mul s k
+  have hh : 2 ^ ((s + s) * k) - 1 = (2 ^ s + 1) * stripe s k := by omega
+  rw [hh, Nat.mul_div_right _ (Nat.zero_lt_succ _)]
+
+theorem pack_mod (xs : List Nat) : pack s xs % (2 ^ s - 1) = xs.sum % (2 ^ s - 1) := by
+  induction xs with
+  | nil => rfl
+  | cons a xs ih =>
+    have hp := Nat.two_pow_pos s
+    have hh : 2 ^ s = (2 ^ s - 1) + 1 := by omega
+    simp only [pack, List.sum_cons]
+    rw [show a + 2 ^ s * pack s xs = (2 ^ s - 1) * pack s xs + (a + pack s xs) by
+      conv => lhs; rw [hh, Nat.add_mul, Nat.one_mul]
+      omega]
+    rw [Nat.mul_add_mod, ← Nat.add_mod_mod, ih, Nat.add_mod_mod]
+
+
+theorem rep_mul (b k : Nat) : rep b k = b * rep 1 k := by
+  induction k with
+  | zero => simp
+  | succ k ih => simp only [rep_succ, ih, Nat.mul_add, Nat.mul_one]; simp only [Nat.mul_left_comm]
+
+theorem bytes_eq (n k : Nat) : bytes n (2 ^ (8 * k) - 1) = stageC n k := by
+  have hh : 2 ^ (8 * k) - 1 = 255 * rep 1 k := by
+    have := rep_one_mul (k := k)
+    rw [Nat.pow_mul]
+    change 256 ^ k - 1 = 255 * rep 1 k
+    omega
+  have h3 : (255 * rep 1 k) / 3 = rep 85 k := by
+    rw [show 255 * rep 1 k = 3 * (85 * rep 1 k) by simp only [← Nat.mul_assoc],
+      Nat.mul_div_right _ (by decide), rep_mul 85 k]
+  have h5 : (255 * rep 1 k) / 5 = rep 51 k := by
+    rw [show 255 * rep 1 k = 5 * (51 * rep 1 k) by simp only [← Nat.mul_assoc],
+      Nat.mul_div_right _ (by decide), rep_mul 51 k]
+  have h17 : (255 * rep 1 k) / 17 = rep 15 k := by
+    rw [show 255 * rep 1 k = 17 * (15 * rep 1 k) by simp only [← Nat.mul_assoc],
+      Nat.mul_div_right _ (by decide), rep_mul 15 k]
+  change (255 * rep 1 k).div 3 = rep 85 k at h3
+  change (255 * rep 1 k).div 5 = rep 51 k at h5
+  change (255 * rep 1 k).div 17 = rep 15 k at h17
+  simp only [bytes, hh]
+  rw [h3, h5, h17]
+  rfl
+
+def byteDigits : Nat → Nat → List Nat
+  | _, 0 => []
+  | n, k + 1 => count (n % 256) :: byteDigits (n / 256) k
+
+theorem byteDigits_length (n k : Nat) : (byteDigits n k).length = k := by
+  induction k generalizing n with
+  | zero => rfl
+  | succ k ih => simp only [byteDigits, List.length_cons, ih]
+
+theorem byteDigits_bound (n k : Nat) : ∀ a ∈ byteDigits n k, a ≤ 8 := by
+  induction k generalizing n with
+  | zero => simp [byteDigits]
+  | succ k ih =>
+    intro a ha
+    simp only [byteDigits, List.mem_cons] at ha
+    rcases ha with rfl | ha
+    · exact count_le_of_lt_two_pow (Nat.mod_lt _ (by decide))
+    · exact ih _ a ha
+
+theorem byteDigits_pack (n k : Nat) : pack 8 (byteDigits n k) = stageC n k := by
+  induction k generalizing n with
+  | zero => simp [byteDigits, pack]
+  | succ k ih =>
+    simp only [byteDigits, pack, ih]
+    rw [isBytewise_stageC.eq, stageC_byte_eq (Nat.mod_lt _ (by decide))]
+
+theorem byteDigits_sum (hn : n < 2 ^ (8 * k)) : (byteDigits n k).sum = count n := by
+  induction k generalizing n with
+  | zero =>
+    have : n = 0 := by simpa using hn
+    subst n
+    simp [byteDigits]
+  | succ k ih =>
+    have hh : n / 256 < 2 ^ (8 * k) := by
+      simp only [Nat.mul_add, Nat.mul_one, Nat.pow_add] at hn
+      omega
+    simp only [byteDigits, List.sum_cons, ih hh]
+    exact count_mod_add_div n 8
+
+theorem sum_le {xs : List Nat} {s : Nat} (h : ∀ a ∈ xs, a ≤ s) : xs.sum ≤ s * xs.length := by
+  induction xs with
+  | nil => simp
+  | cons a xs ih =>
+    have ha := h a (by simp)
+    have hh := ih (by intro b hb; exact h b (by simp [hb]))
+    simp only [List.sum_cons, List.length_cons, Nat.mul_succ]
+    omega
+
+theorem lane_bound (hs : 8 ≤ s) : s + s < 2 ^ s := by
+  obtain ⟨t, rfl⟩ := Nat.exists_eq_add_of_le hs
+  induction t with
+  | zero => decide
+  | succ t ih =>
+    rw [show 8 + (t + 1) = (8 + t) + 1 by omega, Nat.pow_succ]
+    omega
+
+/-- Each lane stores at most its original bit width. Pairing lanes preserves the total and
+this bound; the stopping test makes reduction modulo the lane base minus one exact. -/
+theorem fold_eq (hf : k < fuel) (hlen : xs.length = 2 ^ k) (hb : ∀ a ∈ xs, a ≤ s)
+    (hs : 8 ≤ s) : fold fuel (s * 2 ^ k) (2 ^ (s * 2 ^ k) - 1) s (pack s xs) = xs.sum := by
+  induction fuel generalizing k s xs with
   | zero => omega
   | succ fuel ih =>
     change Bool.rec (motive := fun _ => Nat)
-      (word (n &&& 0xffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff) +
-        loop fuel (n >>> 248))
-      (word n) (n.ble 0xffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff) = count n
-    rw [show n &&& 0xffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff =
-        n % 0x100000000000000000000000000000000000000000000000000000000000000 from
-      Nat.and_two_pow_sub_one_eq_mod n 248,
-      show n >>> 248 = n / 0x100000000000000000000000000000000000000000000000000000000000000 from
-        Nat.shiftRight_eq_div_pow n 248]
-    cases h : n.ble 0xffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff with
-    | false =>
-      dsimp only
-      rw [word_eq (Nat.mod_lt _ (by decide)), ih (by
-        have hh : ¬ n ≤ 0xffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff := by
-          intro hh
-          simp [Nat.ble_eq_true_of_le hh] at h
-        have hn : 0 < n := by omega
-        have hd := Nat.div_lt_self hn
-          (show 1 < 0x100000000000000000000000000000000000000000000000000000000000000 by decide)
-        omega)]
-      exact count_mod_add_div n 248
+      (fold fuel (s * 2 ^ k) (2 ^ (s * 2 ^ k) - 1) (s + s)
+        ((pack s xs + (pack s xs >>> s)) &&& ((2 ^ (s * 2 ^ k) - 1) / ((1 <<< s) + 1))))
+      (pack s xs % ((1 <<< s) - 1)) ((s * 2 ^ k).blt ((1 <<< s) - 1)) = xs.sum
+    simp only [Nat.one_shiftLeft]
+    have hsum := sum_le hb
+    rw [hlen] at hsum
+    cases h : (s * 2 ^ k).blt (2 ^ s - 1) with
     | true =>
       dsimp only
-      exact word_eq (by have := Nat.le_of_ble_eq_true h; omega)
+      have hh : s * 2 ^ k < 2 ^ s - 1 := Nat.blt_eq.mp h
+      rw [pack_mod, Nat.mod_eq_of_lt (by omega)]
+    | false =>
+      dsimp only
+      have hh : ¬ s * 2 ^ k < 2 ^ s - 1 := by intro hh; have := Nat.blt_eq.mpr hh; simp [h] at this
+      cases k with
+      | zero => have := lane_bound hs; simp only [Nat.pow_zero, Nat.mul_one] at hh; omega
+      | succ k =>
+        have hw : s * 2 ^ (k + 1) = (s + s) * 2 ^ k := by simp only [Nat.pow_succ, Nat.add_mul, ← Nat.mul_assoc]; omega
+        rw [hw, ← stripe_eq, Nat.shiftRight_eq_div_pow,
+          pack_merge (by rw [hlen, Nat.pow_succ, Nat.mul_comm]) hb (lane_bound hs)]
+        apply Eq.trans (ih (k := k) (s := s + s) (xs := pairs xs) (by omega) (pairs_length (by rw [hlen, Nat.pow_succ, Nat.mul_comm]))
+          (pairs_bound hb) (by omega))
+        exact pairs_sum xs
+
+
+theorem wide_eq (hn : n < 2 ^ (8 * 2 ^ k)) : wide n (8 * 2 ^ k) = count n := by
+  change fold (8 * 2 ^ k) (8 * 2 ^ k) ((1 <<< (8 * 2 ^ k)) - 1) 8 (bytes n ((1 <<< (8 * 2 ^ k)) - 1)) = count n
+  rw [Nat.one_shiftLeft, bytes_eq, ← byteDigits_pack]
+  rw [fold_eq (by have := Nat.lt_two_pow_self (n := k); omega)
+    (byteDigits_length n (2 ^ k)) (byteDigits_bound n (2 ^ k)) (by decide), byteDigits_sum hn]
+
+theorem grow_eq (hn : n < 2 ^ (8 * 2 ^ k + fuel)) : grow fuel n (8 * 2 ^ k) = count n := by
+  induction fuel generalizing k with
+  | zero => exact wide_eq (by simpa using hn)
+  | succ fuel ih =>
+    change Bool.rec (motive := fun _ => Nat)
+      (grow fuel n ((8 * 2 ^ k) + (8 * 2 ^ k))) (wide n (8 * 2 ^ k)) ((n >>> (8 * 2 ^ k)).beq 0) = count n
+    cases h : (n >>> (8 * 2 ^ k)).beq 0 with
+    | true =>
+      dsimp only
+      have hh : n / 2 ^ (8 * 2 ^ k) = 0 := by simpa only [Nat.beq_eq, Nat.shiftRight_eq_div_pow] using h
+      exact wide_eq (Nat.lt_of_div_eq_zero (Nat.two_pow_pos _) hh)
+    | false =>
+      dsimp only
+      rw [show 8 * 2 ^ k + 8 * 2 ^ k = 8 * 2 ^ (k + 1) by rw [Nat.pow_succ]; omega]
+      apply ih
+      have hp := Nat.two_pow_pos k
+      have hm : 8 * 2 ^ k + (fuel + 1) ≤ 8 * 2 ^ (k + 1) + fuel := by rw [Nat.pow_succ]; omega
+      exact Nat.lt_of_lt_of_le hn (Nat.pow_le_pow_right (by decide) hm)
+
+set_option exponentiation.threshold 65536
+
+theorem small_eq (hn : n < 2 ^ 64) : small n = count n := by
+  change wide n (8 * 2 ^ 3) = count n
+  exact wide_eq hn
+
+theorem word16_eq_256 (hn : n < 2 ^ 256) : word16 n 256 = count n := by
+  change wide n (8 * 2 ^ 5) = count n
+  exact wide_eq hn
+
+theorem word16_eq_4096 (hn : n < 2 ^ 4096) : word16 n 4096 = count n := by
+  change wide n (8 * 2 ^ 9) = count n
+  exact wide_eq hn
+
+theorem word32_eq (hn : n < 2 ^ 65536) : word32 n = count n := by
+  change wide n (8 * 2 ^ 13) = count n
+  exact wide_eq hn
+
+theorem count_eq (n : Nat) : Nat.popcount n = count n := by
+  have bound (k : Nat) (h : (n.shiftRight k).beq 0 = true) : n < 2 ^ k := by
+    have hh : n >>> k = 0 := Nat.eq_of_beq_eq_true h
+    rw [Nat.shiftRight_eq_div_pow] at hh
+    exact Nat.lt_of_div_eq_zero (Nat.two_pow_pos _) hh
+  unfold Nat.popcount
+  cases h64 : (n.shiftRight 64).beq 0 with
+  | true => exact small_eq (bound _ h64)
+  | false =>
+    cases h256 : (n.shiftRight 256).beq 0 with
+    | true => exact word16_eq_256 (bound _ h256)
+    | false =>
+      cases h4096 : (n.shiftRight 4096).beq 0 with
+      | true => exact word16_eq_4096 (bound _ h4096)
+      | false =>
+        cases h65536 : (n.shiftRight 65536).beq 0 with
+        | true => exact word32_eq (bound _ h65536)
+        | false =>
+          exact grow_eq (k := 14) (Nat.lt_of_lt_of_le (Nat.lt_two_pow_self (n := n))
+            (Nat.pow_le_pow_right (by decide) (by omega)))
 
 end popcount
 
 private theorem popcount_eq (n : Nat) : popcount n = popcount.count n :=
-  popcount.loop_eq (Nat.lt_succ_self _)
+  popcount.count_eq n
 
 @[simp] public theorem popcount_zero : popcount 0 = 0 := by
   simpa only [popcount_eq] using popcount.count_zero

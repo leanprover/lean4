@@ -55,9 +55,16 @@ by taking the remainder modulo one less than that base. -/
     ((n.shiftRight width).beq 0).rec
       (rec n (width.add width)) (wide n width))
 
-/-- Count an input of at most 64 bits using byte lanes. -/
-@[expose, implicit_reducible] public def small (n : Nat) : Nat :=
-  (bytes n 0xffffffffffffffff).mod 255
+/-- Count an input of at most 248 bits using byte lanes and precomputed masks.
+The total is strictly less than 255, so the final remainder recovers it exactly. -/
+@[expose, implicit_reducible] public def small (v : Nat) : Nat :=
+  let a := v.sub
+    ((v.shiftRight 1).land 0x55555555555555555555555555555555555555555555555555555555555555)
+  let b := (a.land 0x33333333333333333333333333333333333333333333333333333333333333).add
+    ((a.shiftRight 2).land 0x33333333333333333333333333333333333333333333333333333333333333)
+  let c := (b.add (b.shiftRight 4)).land
+    0x0f0f0f0f0f0f0f0f0f0f0f0f0f0f0f0f0f0f0f0f0f0f0f0f0f0f0f0f0f0f0f
+  c.mod 255
 
 /-- Count an input covered by `width` bits using 16-bit lanes.
 Used at widths 256 and 4096. -/
@@ -79,7 +86,7 @@ end popcount
 Kernel reduction counts bits in parallel using existing natural-number arithmetic.
 The compiled implementation scans machine limbs. -/
 @[expose, implicit_reducible, extern "lean_nat_popcount"] public def popcount (n : @& Nat) : Nat :=
-  ((n.shiftRight 64).beq 0).rec
+  ((n.shiftRight 248).beq 0).rec
     (((n.shiftRight 256).beq 0).rec
       (((n.shiftRight 4096).beq 0).rec
         (((n.shiftRight 65536).beq 0).rec (popcount.grow n.succ n 131072) (popcount.word32 n))
@@ -698,9 +705,11 @@ theorem grow_eq (hn : n < 2 ^ (8 * 2 ^ k + fuel)) : grow fuel n (8 * 2 ^ k) = co
 
 set_option exponentiation.threshold 65536
 
-theorem small_eq (hn : n < 2 ^ 64) : small n = count n := by
-  change wide n (8 * 2 ^ 3) = count n
-  exact wide_eq hn
+theorem small_eq (hn : n < 2 ^ 248) : small n = count n := by
+  change bytes n (2 ^ (8 * 31) - 1) % (2 ^ 8 - 1) = count n
+  rw [bytes_eq, ← byteDigits_pack, pack_mod, byteDigits_sum hn]
+  have h := count_le_of_lt_two_pow hn
+  exact Nat.mod_eq_of_lt (by omega)
 
 theorem word16_eq_256 (hn : n < 2 ^ 256) : word16 n 256 = count n := by
   change wide n (8 * 2 ^ 5) = count n
@@ -720,8 +729,8 @@ theorem count_eq (n : Nat) : Nat.popcount n = count n := by
     rw [Nat.shiftRight_eq_div_pow] at hh
     exact Nat.lt_of_div_eq_zero (Nat.two_pow_pos _) hh
   unfold Nat.popcount
-  cases h64 : (n.shiftRight 64).beq 0 with
-  | true => exact small_eq (bound _ h64)
+  cases h248 : (n.shiftRight 248).beq 0 with
+  | true => exact small_eq (bound _ h248)
   | false =>
     cases h256 : (n.shiftRight 256).beq 0 with
     | true => exact word16_eq_256 (bound _ h256)

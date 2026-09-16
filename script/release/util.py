@@ -23,6 +23,12 @@ from rich.markup import escape as e
 type Arg = str | bytes | PathLike[str] | PathLike[bytes]
 
 
+def get_repos_dir(repos_dir: Path | None) -> Path:
+    if repos_dir is not None:
+        return repos_dir
+    return Path(__file__).parent.parent.parent.parent / "release"
+
+
 def run(*args: Arg, cwd: Path | None = None, silent: bool = False) -> None:
     print(f"[bright_black]$ {e(' '.join(shlex.quote(str(arg)) for arg in args))}[/]")
     subprocess.run(args, check=True, cwd=cwd, capture_output=silent)
@@ -183,10 +189,8 @@ class ReleaseRepo:
     def gh_url(self) -> str:
         return f"https://github.com/{self.gh_full_name}"
 
-    @property
-    def local(self) -> "LocalRepo":
-        path = Path(__file__).parent.parent.parent.parent / "release" / self.gh_name
-        return LocalRepo(rrepo=self, path=path)
+    def local(self, repos_dir: Path) -> "LocalRepo":
+        return LocalRepo(rrepo=self, path=repos_dir / self.gh_name)
 
 
 @dataclass

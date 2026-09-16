@@ -16,6 +16,7 @@ from util import Checklist, CMakeVersion, ReleaseRepo, Version
 @dataclass
 class Config:
     version: Version
+    repos_dir: Path
     interactive: bool
     skip_weak_deps: bool
     skip_mathlib_checks: bool
@@ -29,7 +30,7 @@ class RepoChecker:
 
         self.rrepo = rrepo
         self.grepo = self.github.get_repo(self.rrepo.gh_full_name)
-        self.lrepo = self.rrepo.local
+        self.lrepo = self.rrepo.local(self.config.repos_dir)
 
     @property
     def github(self) -> Github:
@@ -340,7 +341,7 @@ class DownstreamChecker(RepoChecker):
             remote = "nightly" if self.rrepo.nightly else "origin"
             self.lrepo.switch(head, remote=remote)
         elif self.version.rc == 1 and self.rrepo.rc1_pr_base == "downstream":
-            dsl = repos.DOWNSTREAM_LEAN4.local
+            dsl = repos.DOWNSTREAM_LEAN4.local(self.config.repos_dir)
             dsl.prepare()
             dsl.switch("master")
             dsl.run(
@@ -930,6 +931,7 @@ class LeanChecker(RepoChecker):
 
 class Args:
     version: Version
+    repos_dir: Path | None
     interactive: bool
     skip_weak_deps: bool
     skip_mathlib_checks: bool
@@ -939,6 +941,7 @@ class Args:
 if __name__ == "__main__":
     parser = ArgumentParser()
     parser.add_argument("version", type=Version.parse)
+    parser.add_argument("-d", "--repos-dir", type=Path)
     parser.add_argument("-i", "--interactive", action="store_true")
     parser.add_argument("-W", "--skip-weak-deps", action="store_true")
     parser.add_argument("-M", "--skip-mathlib-checks", action="store_true")
@@ -949,6 +952,7 @@ if __name__ == "__main__":
     github = util.get_github_instance()
     config = Config(
         version=args.version,
+        repos_dir=util.get_repos_dir(args.repos_dir),
         interactive=args.interactive,
         skip_weak_deps=args.skip_weak_deps,
         skip_mathlib_checks=args.skip_mathlib_checks,

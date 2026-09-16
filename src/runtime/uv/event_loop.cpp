@@ -78,11 +78,17 @@ void event_loop_unlock(event_loop_t * event_loop) {
 
 // Runs the loop and stops when it needs to register new requests.
 void event_loop_run_loop(event_loop_t * event_loop) {
-    while (uv_loop_alive(event_loop->loop)) {
+    while (true) {
         uv_mutex_lock(&event_loop->mutex);
 
         while (event_loop->n_waiters != 0) {
             uv_cond_wait(&event_loop->cond_var, &event_loop->mutex);
+        }
+
+        // Checked with the lock held, since `lean_uv_event_loop_alive` unreferences `async` under it.
+        if (!uv_loop_alive(event_loop->loop)) {
+            uv_mutex_unlock(&event_loop->mutex);
+            break;
         }
 
         // `UV_RUN_ONCE` returns after servicing one round of events. `async` is always active, so
@@ -127,7 +133,10 @@ extern "C" LEAN_EXPORT lean_obj_res lean_uv_event_loop_configure(b_obj_arg optio
 /* Std.Internal.UV.Loop.alive : BaseIO Bool */
 extern "C" LEAN_EXPORT uint8_t lean_uv_event_loop_alive() {
     event_loop_lock(&global_ev);
+    // `async` only wakes the loop for requesters and is always active, so it is left out.
+    uv_unref((uv_handle_t *)&global_ev.async);
     int is_alive = uv_loop_alive(global_ev.loop);
+    uv_ref((uv_handle_t *)&global_ev.async);
     event_loop_unlock(&global_ev);
 
     return is_alive;

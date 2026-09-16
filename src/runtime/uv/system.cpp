@@ -3,7 +3,9 @@ Copyright (c) 2024 Lean FRO, LLC. All rights reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
 Author: Sofia Rodrigues
 */
+#include <climits>
 #include <cstring>
+#include <string>
 #include "runtime/uv/system.h"
 
 namespace lean {
@@ -109,19 +111,29 @@ extern "C" LEAN_EXPORT lean_obj_res lean_uv_cpu_info() {
     return lean_io_result_mk_ok(lean_cpu_infos);
 }
 
-// Std.Internal.UV.System.cwd : IO String
-extern "C" LEAN_EXPORT lean_obj_res lean_uv_cwd() {
-    char buffer[PATH_MAX];
-    size_t size = sizeof(buffer);
+// Calls a libuv function that writes a string into a caller-provided buffer, retrying with the size it
+// asks for when the buffer is too small.
+static lean_obj_res lean_uv_get_string(int (*get)(char *, size_t *)) {
+    std::string buffer(PATH_MAX, '\0');
+    size_t size = buffer.size();
 
-    int result = uv_cwd(buffer, &size);
+    int result = get(&buffer[0], &size);
+
+    if (result == UV_ENOBUFS) {
+        buffer.resize(size);
+        result = get(&buffer[0], &size);
+    }
 
     if (result < 0) {
         return lean_io_result_mk_error(lean_decode_uv_error(result, nullptr));
     }
 
-    lean_object* lean_cwd = lean_mk_string(buffer);
-    return lean_io_result_mk_ok(lean_cwd);
+    return lean_io_result_mk_ok(lean_mk_string_from_bytes(buffer.data(), size));
+}
+
+// Std.Internal.UV.System.cwd : IO String
+extern "C" LEAN_EXPORT lean_obj_res lean_uv_cwd() {
+    return lean_uv_get_string(uv_cwd);
 }
 
 // Std.Internal.UV.System.chdir : @& String → IO Unit
@@ -142,32 +154,12 @@ extern "C" LEAN_EXPORT lean_obj_res lean_uv_chdir(b_obj_arg path) {
 
 // Std.Internal.UV.System.osHomedir : IO String
 extern "C" LEAN_EXPORT lean_obj_res lean_uv_os_homedir() {
-    char buffer[PATH_MAX];
-    size_t size = sizeof(buffer);
-
-    int result = uv_os_homedir(buffer, &size);
-
-    if (result < 0) {
-        return lean_io_result_mk_error(lean_decode_uv_error(result, nullptr));
-    }
-
-    lean_object* lean_homedir = lean_mk_string(buffer);
-    return lean_io_result_mk_ok(lean_homedir);
+    return lean_uv_get_string(uv_os_homedir);
 }
 
 // Std.Internal.UV.System.osTmpdir : IO String
 extern "C" LEAN_EXPORT lean_obj_res lean_uv_os_tmpdir() {
-    char buffer[PATH_MAX];
-    size_t size = sizeof(buffer);
-
-    int result = uv_os_tmpdir(buffer, &size);
-
-    if (result < 0) {
-        return lean_io_result_mk_error(lean_decode_uv_error(result, nullptr));
-    }
-
-    lean_object* lean_tmpdir = lean_mk_string(buffer);
-    return lean_io_result_mk_ok(lean_tmpdir);
+    return lean_uv_get_string(uv_os_tmpdir);
 }
 
 // Std.Internal.UV.System.osGetPasswd : IO PasswdInfo
@@ -249,7 +241,7 @@ extern "C" LEAN_EXPORT lean_obj_res lean_uv_os_environ() {
     int result = uv_os_environ(&env, &count);
 
     if (result < 0) {
-        return lean_io_result_mk_error(lean_mk_string(uv_strerror(result)));
+        return lean_io_result_mk_error(lean_decode_uv_error(result, nullptr));
     }
 
     lean_object* env_array = lean_mk_empty_array();
@@ -381,7 +373,11 @@ extern "C" LEAN_EXPORT lean_obj_res lean_uv_os_getpriority(uint64_t pid) {
 
 // Std.Internal.UV.System.osSetPriority : UInt64 → Int → IO Unit
 extern "C" LEAN_EXPORT lean_obj_res lean_uv_os_setpriority(uint64_t pid, int64_t priority) {
-    int result = uv_os_setpriority(pid, priority);
+    if (priority < INT_MIN || priority > INT_MAX) {
+        return lean_io_result_mk_error(lean_decode_uv_error(UV_EINVAL, nullptr));
+    }
+
+    int result = uv_os_setpriority(pid, (int)priority);
 
     if (result < 0) {
         return lean_io_result_mk_error(lean_decode_uv_error(result, nullptr));

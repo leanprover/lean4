@@ -1849,8 +1849,9 @@ mutual
   public partial def blockCommandFn (ctxt : BlockCtxt) : ParserFn := fun c s =>
     let iniPos := s.pos
     let iniSz := s.stxStack.size
+    let iniErrs := s.recoveredErrors
     let restorePosOnErr : ParserState → ParserState
-      | ⟨stack, lhsPrec, _, cache, some msg, errs⟩ => ⟨stack, lhsPrec, iniPos, cache, some msg, errs⟩
+      | ⟨stack, lhsPrec, _, cache, some msg, _⟩ => ⟨stack, lhsPrec, iniPos, cache, some msg, iniErrs⟩
       | other => other
     let s := intro c s
     if s.hasError then restorePosOnErr s

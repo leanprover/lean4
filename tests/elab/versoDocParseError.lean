@@ -871,3 +871,13 @@ error: unexpected end of input; expected '![', '$$', '$', '*', '[', '[^', '_', '
 /-!
 text {foo (x := 1 y)}`z`
 -/
+
+-- A role at the start of a line is tried as a block command first; that attempt leaves no message
+/--
+@ +2:6...7
+error: expected no space before
+-/
+#guard_msgs (positions := true) in
+/-!
+{foo + x}`y`
+-/

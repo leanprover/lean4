@@ -30,6 +30,7 @@ typedef struct {
     lean_object*   m_client;           // Cached client that is going to be used in the next accept.
     lean_object*   m_byte_array;       //  Buffer for storing data received via `recv_start`.
     bool           m_shutdown_requested; // Whether `uv_shutdown` was already requested for this socket.
+    bool           m_listening;        // Whether `uv_listen` succeeded on this socket.
 } lean_uv_tcp_socket_object;
 
 // =======================================

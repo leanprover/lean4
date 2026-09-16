@@ -266,6 +266,11 @@ extern "C" LEAN_EXPORT lean_obj_res lean_uv_udp_recv(b_obj_arg socket, uint64_t 
         return lean_io_result_mk_error(lean_decode_uv_error(UV_EALREADY, nullptr));
     }
 
+    if (lean_object * size_error = lean_uv_recv_size_error(buffer_size)) {
+        event_loop_unlock(&global_ev);
+        return size_error;
+    }
+
     lean_object* byte_array = lean_alloc_sarray(1, 0, buffer_size);
     lean_object* promise = lean_promise_new();
     mark_mt(promise);
@@ -298,7 +303,7 @@ extern "C" LEAN_EXPORT lean_obj_res lean_uv_udp_recv(b_obj_arg socket, uint64_t 
             lean_dec(byte_array);
             lean_promise_resolve(mk_except_err(lean_decode_uv_error(UV_EMSGSIZE, nullptr)), promise);
         } else if (nread >= 0) {
-            lean_sarray_set_size(byte_array, nread);
+            byte_array = lean_uv_fit_read_buffer(byte_array, nread);
 
             lean_object* addr_obj;
 
@@ -537,11 +542,11 @@ extern "C" LEAN_EXPORT lean_obj_res lean_uv_udp_set_multicast_ttl(b_obj_arg sock
 extern "C" LEAN_EXPORT lean_obj_res lean_uv_udp_set_membership(b_obj_arg socket, b_obj_arg multicast_addr, b_obj_arg interface_addr, uint8_t membership) {
     lean_uv_udp_socket_object *udp_socket = lean_to_uv_udp_socket(socket);
 
-    char multicast_addr_str[INET_ADDRSTRLEN];
+    char multicast_addr_str[INET6_ADDRSTRLEN];
     lean_ip_addr_ntop(multicast_addr, multicast_addr_str, sizeof(multicast_addr_str));
 
     bool is_interface_null = is_scalar(interface_addr);
-    char interface_addr_str[INET_ADDRSTRLEN];
+    char interface_addr_str[INET6_ADDRSTRLEN];
 
     if (!is_interface_null) {
         lean_object* interface_addr_obj = lean_ctor_get(interface_addr, 0);
@@ -563,7 +568,7 @@ extern "C" LEAN_EXPORT lean_obj_res lean_uv_udp_set_membership(b_obj_arg socket,
 extern "C" LEAN_EXPORT lean_obj_res lean_uv_udp_set_multicast_interface(b_obj_arg socket, b_obj_arg interface_addr) {
     lean_uv_udp_socket_object *udp_socket = lean_to_uv_udp_socket(socket);
 
-    char interface_addr_str[INET_ADDRSTRLEN];
+    char interface_addr_str[INET6_ADDRSTRLEN];
     lean_ip_addr_ntop(interface_addr, interface_addr_str, sizeof(interface_addr_str));
 
     event_loop_lock(&global_ev);

@@ -27,7 +27,7 @@ public def mkTrans (x y z : Expr) (hxy hyz : Expr) : Expr :=
   mkApp6 (mkConst ``Eq.trans [1]) (mkConst ``Bool) x y z hxy hyz
 
 public def mkEvalExpr (expr : Expr) : ReifyM Expr := do
-  Sym.share <| mkApp2 (mkConst ``BVLogicalExpr.eval) (← M.atomsAssignment) expr
+  Sym.share <| mkApp2 (mkConst ``BVLogicalExpr.eval) (← ReifyM.atomsAssignment) expr
 
 /--
 Build a reified version of the constant `val`.
@@ -56,7 +56,7 @@ public def mkGate (lhs rhs : ReifiedBVLogical) (lhsExpr rhsExpr : Expr) (gate : 
     let lhsProof? ← lhs.evalsAtAtoms
     let rhsProof? ← rhs.evalsAtAtoms
     let some (lhsProof, rhsProof) :=
-      M.simplifyBinaryProof
+      ReifyM.simplifyBinaryProof
         ReifiedBVLogical.mkRefl
         lhsEvalExpr lhsProof?
         rhsEvalExpr rhsProof? | return none
@@ -105,7 +105,7 @@ public def mkIte (discr lhs rhs : ReifiedBVLogical) (discrExpr lhsExpr rhsExpr :
     let lhsProof? ← lhs.evalsAtAtoms
     let rhsProof? ← rhs.evalsAtAtoms
     let some (discrProof, lhsProof, rhsProof) :=
-      M.simplifyTernaryProof
+      ReifyM.simplifyTernaryProof
         ReifiedBVLogical.mkRefl
         discrEvalExpr discrProof?
         lhsEvalExpr lhsProof?

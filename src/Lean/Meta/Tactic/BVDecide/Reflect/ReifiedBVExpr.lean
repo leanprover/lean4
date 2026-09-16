@@ -26,7 +26,7 @@ namespace ReifiedBVExpr
 Build `BVExpr.eval atoms expr` where `atoms` is the assignment stored in the monad.
 -/
 public def mkEvalExpr (w : Nat) (expr : Expr) : ReifyM Expr := do
-  Sym.share <| mkApp3 (mkConst ``BVExpr.eval) (toExpr w) (← M.atomsAssignment) expr
+  Sym.share <| mkApp3 (mkConst ``BVExpr.eval) (toExpr w) (← ReifyM.atomsAssignment) expr
 
 public def mkBVRefl (w : Nat) (expr : Expr) : Expr :=
   mkApp2 (mkConst ``Eq.refl [1]) (mkApp (mkConst ``BitVec) (toExpr w)) expr

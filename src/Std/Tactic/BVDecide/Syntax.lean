@@ -95,5 +95,10 @@ structure BVDecideConfig where
   for `bv_decide`.
   -/
   solverMode : SolverMode := .proof
+  /--
+  Enable support for uninterpreted functions over `BitVec` and `Bool` by counterexample-guided
+  abstraction refinement.
+  -/
+  uf : Bool := false
 
 end Lean.Elab.Tactic.BVDecide

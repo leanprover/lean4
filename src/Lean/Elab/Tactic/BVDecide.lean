@@ -118,7 +118,7 @@ def mkContext (lratPath : System.FilePath) (cfg : BVDecideConfig)
 @[inherit_doc Lean.Parser.Tactic.bvCheck]
 def bvCheck (g : MVarId) (hypotheses : Array Normalize.Hyp) (ctx : TacticContext) :
     Meta.Sym.SymM Unit := do
-  M.run (hypotheses := hypotheses) do
+  ReifyM.run (hypotheses := hypotheses) do
     discard <| closeWithBVReflection g (lratChecker ctx)
 
 def evalBvCheck (target : Normalize.Target) (ctx : TacticContext) (warn : MetaM Unit) :

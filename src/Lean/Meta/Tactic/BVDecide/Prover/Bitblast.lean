@@ -23,10 +23,10 @@ open Std.Tactic.BVDecide.Reflect
 /--
 Turn an `LratCert` into a proof that some `reflectedExpr` is UNSAT.
 -/
-def LratCert.toReflectionProof (cert : LratCert) (ctx : TacticContext)
+public def LratCert.toReflectionProof (cert : LratCert) (ctx : TacticContext)
     (reflectionResult : ReflectionResult) : MetaM Expr := do
   withTraceNode `Meta.Tactic.sat (fun _ => return "Compiling expr term") do
-    mkAuxDecl ctx.exprDef reflectionResult.expr (mkConst ``BVLogicalExpr)
+    mkAuxDecl ctx.exprDef reflectionResult.satExpr.expr (mkConst ``BVLogicalExpr)
 
   withTraceNode `Meta.Tactic.sat (fun _ => return "Compiling proof certificate term") do
     mkAuxDecl ctx.certDef (toExpr cert) (mkConst ``String)
@@ -63,7 +63,7 @@ Run a SAT solver to obtain an LRAT certificate and use it to produce a proof of 
 public def lratBitblaster (ctx : TacticContext) : UnsatProver LratCert :=
   fun (goal : MVarId) (reflectionResult : ReflectionResult) (atomsAssignment : Std.HashMap Nat (Nat × Expr × Bool)) => do
   withTraceNode `Meta.Tactic.bv (fun _ => return "Preparing LRAT reflection term") do
-    let bvExpr := reflectionResult.bvExpr
+    let bvExpr := reflectionResult.satExpr.bvExpr
     let entry ←
       withTraceNode `Meta.Tactic.bv (fun _ => return "Bitblasting BVLogicalExpr to AIG") do
         -- lazyPure to prevent compiler lifting
@@ -94,7 +94,9 @@ public def lratBitblaster (ctx : TacticContext) : UnsatProver LratCert :=
     | .ok cert =>
       trace[Meta.Tactic.sat] "SAT solver found a proof."
       let proof ← cert.toReflectionProof ctx reflectionResult
-      return .ok ⟨proof, cert⟩
+      let proveFalse ← reflectionResult.satExpr.proveFalse proof
+      goal.assign proveFalse
+      return .ok cert
     | .error assignment =>
       trace[Meta.Tactic.sat] "SAT solver found a counter example."
       let equations := reconstructCounterExample entry.aig assignment atomsAssignment
@@ -105,10 +107,12 @@ public def lratBitblaster (ctx : TacticContext) : UnsatProver LratCert :=
 Given a pre-existing LRAT certificate in `ctx.lratPath` use it to produce a proof of UNSAT.
 -/
 public def lratChecker (ctx : TacticContext) : UnsatProver Unit :=
-  fun _ (reflectionResult : ReflectionResult) _ => do
+  fun (goal : MVarId) (reflectionResult : ReflectionResult) _ => do
   withTraceNode `Meta.Tactic.sat (fun _ => return "Preparing LRAT reflection term") do
     let cert ← LratCert.ofFile ctx.lratPath ctx.config.trimProofs
     let proof ← cert.toReflectionProof ctx reflectionResult
-    return .ok ⟨proof, ()⟩
+    let proveFalse ← reflectionResult.satExpr.proveFalse proof
+    goal.assign proveFalse
+    return .ok ()
 
 end Lean.Meta.Tactic.BVDecide

@@ -137,8 +137,14 @@ structure Context where
   hypotheses : Array Normalize.Hyp
 
 -- TODO
-structure TheoryAtoms where
-  funAtoms : Array Expr := #[]
+structure FunState where
+  atoms : Array Expr := #[]
+  masks : Array (Array Bool) := #[]
+  patterns : Array Expr := #[]
+
+-- TODO
+structure TheoryState where
+  funState : FunState := {}
 
 /--
 The state of the reflection monad
@@ -161,7 +167,7 @@ structure State where
   -/
   evalsAtCache : Std.HashMap Sym.ExprPtr (Option Expr) := {}
   -- TODO
-  theoryAtoms : TheoryAtoms := {}
+  theoryState : TheoryState := {}
 
 /--
 The reflection monad, used to track `BitVec` variables that we see as we traverse the context.
@@ -277,7 +283,7 @@ structure SatAtBVLogical where
   expr : Expr
 
 
-namespace M
+namespace ReifyM
 
 /--
 Run a reflection computation as a `SymM` one.
@@ -316,6 +322,10 @@ where
 def isAtom (e : Expr) : ReifyM Bool := do
   return (← getThe State).atoms.contains { expr := e }
 
+def getAtomNumber (e : Expr) : ReifyM (Option Nat) := do
+  let key : Sym.ExprPtr := { expr := e }
+  return (← getThe State).atoms[key]?.map (·.atomNumber)
+
 /--
 Look up an expression in the atoms, recording it if it has not previously appeared.
 -/
@@ -342,8 +352,8 @@ def lookup (e : Expr) (width : Nat) (synthetic : Bool) : ReifyM Nat := do
     return ident
 
 @[inline]
-def modifyTheoryAtoms (f : TheoryAtoms → TheoryAtoms) : ReifyM Unit := do
-  modify fun s => { s with theoryAtoms := f s.theoryAtoms }
+def modifyTheoryState (f : TheoryState → TheoryState) : ReifyM Unit := do
+  modify fun s => { s with theoryState := f s.theoryState }
 
 @[specialize]
 def simplifyBinaryProof' (mkFRefl : Expr → Expr) (fst : Expr) (fproof : Option Expr)
@@ -371,7 +381,7 @@ def simplifyTernaryProof (mkRefl : Expr → Expr) (fst : Expr) (fproof : Option 
 @[inline]
 def getHyps : ReifyM (Array Normalize.Hyp) := return (← read).hypotheses
 
-end M
+end ReifyM
 
 /--
 The state of the lemma reflection monad.

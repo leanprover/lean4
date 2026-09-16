@@ -7,6 +7,7 @@ module
 prelude
 
 public import Lean.Meta.Tactic.BVDecide.Prover.Bitblast
+public import Lean.Meta.Tactic.BVDecide.Prover.Cegar
 public import Lean.Meta.Tactic.BVDecide.Normalize
 import Lean.Meta.Sym.Util
 
@@ -16,13 +17,10 @@ This module provides the implementation of the `bv_decide` frontend itself.
 -/
 namespace Lean.Meta.Tactic.BVDecide
 
-public def TacticContext.preProcessContext (ctx : TacticContext) : Normalize.PreProcessContext :=
-  .new (.solve ctx.restrictedTypes) ctx.config
-
 def bvUnsat (g : MVarId) (hypotheses : Array Normalize.Hyp) (ctx : TacticContext) :
     Sym.SymM (Except CounterExample LratCert) :=
-  M.run (hypotheses := hypotheses) do
-    closeWithBVReflection g (lratBitblaster ctx)
+  ReifyM.run (hypotheses := hypotheses) do
+    closeWithBVReflection g (cegarBlaster ctx)
 
 /--
 The result of calling `bv_decide`.

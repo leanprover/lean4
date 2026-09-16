@@ -18,6 +18,7 @@ public import Lean.Meta.Sym.DSimp.DSimpM
 import Lean.Meta.Sym.DSimp.Result
 public import Lean.Meta.Tactic.Grind.Types
 public import Lean.Meta.Tactic.Grind.BVDecide.Types
+public import Lean.Meta.Tactic.BVDecide.TacticContext
 
 public section
 
@@ -107,6 +108,7 @@ inductive HypSource where
   | structureProjection (e : Expr)
   | andFlattened (s : HypSource)
   | grind
+  | cegar
   deriving Inhabited, Hashable, BEq
 
 partial instance : ToMessageData HypSource where
@@ -120,6 +122,7 @@ where
     | .structureProjection e => m!"structure lemma projection: {e}"
     | .andFlattened s => m!"and flattening from {go (stripFlatten s)}"
     | .grind => m!"grind state"
+    | .cegar => m!"cegar refinement loop"
 
   stripFlatten (s : HypSource) : HypSource :=
     match s with
@@ -209,6 +212,9 @@ Creates the context for a run of the pipeline in `mode`, disabling all configura
 def PreProcessContext.new (mode : Mode) (config : BVDecideConfig) : PreProcessContext where
   config := mode.adjustConfig config
   mode := mode
+
+public def _root_.Lean.Meta.Tactic.BVDecide.TacticContext.preProcessContext (ctx : TacticContext) : Normalize.PreProcessContext :=
+  .new (.solve ctx.restrictedTypes) ctx.config
 
 /--
 Identifies the `Sym.Simp` cache that a pass operates on.

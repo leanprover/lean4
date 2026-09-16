@@ -36,7 +36,7 @@ public def mkBinPred (lhs rhs : ReifiedBVExpr) (lhsExpr rhsExpr : Expr) (pred : 
       let lhsProof? ← lhs.evalsAtAtoms
       let rhsProof? ← rhs.evalsAtAtoms
       let some (lhsProof, rhsProof) :=
-        M.simplifyBinaryProof
+        ReifyM.simplifyBinaryProof
           (ReifiedBVExpr.mkBVRefl lhs.width)
           lhsEval lhsProof?
           rhsEval rhsProof? | return none

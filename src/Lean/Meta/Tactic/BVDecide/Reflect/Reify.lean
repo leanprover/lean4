@@ -25,17 +25,56 @@ namespace Lean.Meta.Tactic.BVDecide
 
 open Std.Tactic.BVDecide
 
-def isValidBitVecAtom (e : Expr) : ReifyM (Option Nat) := do
+public def isValidBitVecAtom (e : Expr) : ReifyM (Option Nat) := do
   let t ← Sym.instantiateMVarsS (← Sym.inferType e)
   let_expr BitVec widthExpr := t | return none
   return Sym.getNatValue? widthExpr
 
-def isValidBoolAtom (e : Expr) : ReifyM Bool := do
+public def isValidBoolAtom (e : Expr) : ReifyM Bool := do
   let ty ← Sym.inferType e
   return ty.isConstOf ``Bool
 
 def mkBoolAtomWrapper (e : Expr) : Sym.SymM Expr :=
   Sym.share <| mkApp (mkConst ``BitVec.ofBool) e
+
+def checkFunAtom (e : Expr) : LemmaM Bool := do
+  trace[Meta.Tactic.bv] m!"Checking for fun atom {e}"
+  e.withApp fun _ args => do
+    if args.isEmpty then return false
+    let interpretedMask ← args.mapM fun arg =>
+      (Option.isSome <$> isValidBitVecAtom arg) <||> isValidBoolAtom arg
+    if interpretedMask.all (· == false) then return false
+    let funPattern ← getFunctionPattern e interpretedMask
+    ReifyM.modifyTheoryState fun ts =>
+      { ts with
+          funState.atoms := ts.funState.atoms.push e
+          funState.masks := ts.funState.masks.push interpretedMask
+          funState.patterns := ts.funState.patterns.push funPattern
+      }
+    trace[Meta.Tactic.bv] m!"Registered fun atom: {e}, mask: {interpretedMask}"
+    return true
+where
+  getFunctionPattern (funAtom : Expr) (mask : Array Bool) : Sym.SymM Expr :=
+    funAtom.withApp fun fn args => do
+      assert! args.size == mask.size
+      let mut decls := #[]
+      for h : idx in 0...mask.size do
+        if mask[idx] then
+          let argType ← Sym.inferType args[idx]!
+          decls := decls.push (.anonymous, argType)
+      withLocalDeclsDND decls fun patternVars => do
+        let mut newArgs := #[]
+        let mut seen := 0
+        for h : idx in 0...args.size do
+          let arg := args[idx]
+          if mask[idx]! then
+            let patternVar := patternVars[seen]!
+            seen := seen + 1
+            newArgs := newArgs.push patternVar
+          else
+            newArgs := newArgs.push arg
+        let expr := mkAppN fn newArgs
+        Sym.share <| ← mkLambdaFVars patternVars expr
 
 mutual
 
@@ -45,7 +84,7 @@ Register `e` as an atom of `width` that might potentially be `synthetic`.
 partial def registerAtom (e : Expr) (width : Nat) (synthetic : Bool) :
     LemmaM ReifiedBVExpr := do
   checkTheoryAtom e
-  let ident ← M.lookup e width synthetic
+  let ident ← ReifyM.lookup e width synthetic
   let expr ← Sym.share <| mkApp2 (mkConst ``BVExpr.var) (toExpr width) (toExpr ident)
   -- This is safe because this proof always holds definitionally.
   let proof := pure none
@@ -53,18 +92,9 @@ partial def registerAtom (e : Expr) (width : Nat) (synthetic : Bool) :
   return reified
 where
   checkTheoryAtom (e : Expr) : LemmaM Unit := do
-    if ← M.isAtom e then return ()
+    if ← ReifyM.isAtom e then return ()
     if ← checkFunAtom e then return ()
     return ()
-
-  checkFunAtom (e : Expr) : LemmaM Bool := do
-    e.withApp fun _ args => do
-      if args.isEmpty then return false
-      let allInterpreted ← args.allM fun arg =>
-        (Option.isSome <$> isValidBitVecAtom arg) <||> isValidBoolAtom arg
-      if !allInterpreted then return false
-      M.modifyTheoryAtoms fun ta => { ta with funAtoms := ta.funAtoms.push e }
-      return true
 
 partial def registerBitVecAtom? (e : Expr) (synthetic : Bool) : LemmaM (Option ReifiedBVExpr) := do
   let some width ← isValidBitVecAtom e | return none
@@ -97,9 +127,9 @@ partial def registerBoolAtom? (e : Expr) : LemmaM (Option ReifiedBVPred) := do
   return some ⟨bvExpr, e, proof, expr⟩
 
 partial def registerSubAtoms (e : Expr) : LemmaM Unit := do
-  assert! ← M.isAtom e <||> M.isAtom (← mkBoolAtomWrapper e)
+  assert! ← ReifyM.isAtom e <||> ReifyM.isAtom (← mkBoolAtomWrapper e)
   e.forEach fun e => do
-    if ← M.isAtom e <||> M.isAtom (← mkBoolAtomWrapper e) then
+    if ← ReifyM.isAtom e <||> ReifyM.isAtom (← mkBoolAtomWrapper e) then
       return ()
     else if let some _ ← isValidBitVecAtom e then
       discard <| ReifiedBVExpr.of e
@@ -221,7 +251,7 @@ where
         let lhsProof? ← lhs.evalsAtAtoms
         let rhsProof? ← rhs.evalsAtAtoms
         let some (lhsProof, rhsProof) :=
-          M.simplifyBinaryProof'
+          ReifyM.simplifyBinaryProof'
             (ReifiedBVExpr.mkBVRefl lhs.width) lhsEval lhsProof?
             (ReifiedBVExpr.mkBVRefl rhs.width) rhsEval rhsProof? | return none
         return mkApp8 (mkConst ``Std.Tactic.BVDecide.Reflect.BitVec.append_congr)
@@ -366,7 +396,7 @@ where
     let lhsProof? ← lhs.evalsAtAtoms
     let rhsProof? ← rhs.evalsAtAtoms
     let some (lhsProof, rhsProof) :=
-      M.simplifyBinaryProof
+      ReifyM.simplifyBinaryProof
         (ReifiedBVExpr.mkBVRefl lhs.width)
         lhsEval lhsProof?
         rhsEval rhsProof? | return none

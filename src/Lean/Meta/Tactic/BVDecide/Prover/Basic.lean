@@ -22,42 +22,23 @@ open Std.Sat
 open Std.Tactic.BVDecide
 open Std.Tactic.BVDecide.Reflect
 
-public structure UnsatProver.Result (α : Type) where
-  /--
-  A proof that the input `BVLogicalExpr` of the `UnsatProver` is `Unsat`
-  -/
-  proof : Expr
-  /--
-  Potential meta data that can aid in squeezing the proof.
-  Used by `bv_decide?` to exfiltrate the LRAT certificate to avoid calling the SAT solver again.
-  -/
-  cert : α
-
 public structure ReflectionResult where
   /--
-  The reflected expression.
+  The reflected expression together with ways to prove things about it.
   -/
-  bvExpr : BVLogicalExpr
-  /--
-  Function to prove `False` given an unsatisfiability proof of `bvExpr`
-  -/
-  proveFalse : Expr → ReifyM Expr
+  satExpr : SatAtBVLogical
   /--
   Set of unused hypotheses for diagnostic purposes.
   -/
   unusedHypotheses : Std.HashSet Normalize.Hyp
-  /--
-  A cache for `toExpr bvExpr`.
-  -/
-  expr : Expr
 
 public abbrev UnsatProver (α : Type) := MVarId → ReflectionResult → Std.HashMap Nat (Nat × Expr × Bool) →
-    ReifyM (Except CounterExample (UnsatProver.Result α))
+    LemmaM (Except CounterExample α)
 
 public def reflectBV (g : MVarId) : ReifyM ReflectionResult := g.withContext do
   let mut sats := #[]
   let mut unusedHypotheses := {}
-  for hyp in ← M.getHyps do
+  for hyp in ← ReifyM.getHyps do
     checkSystem "bv_decide"
     if let (some reflected, lemmas) ← (SatAtBVLogical.of hyp).run then
       sats := (sats ++ lemmas).push reflected
@@ -73,29 +54,23 @@ public def reflectBV (g : MVarId) : ReifyM ReflectionResult := g.withContext do
     throwError error
   else
     let sat ← sats[1...*].foldlM (init := sats[0]) SatAtBVLogical.and
+    let sat := { sat with bvExpr := ShareCommon.shareCommon sat.bvExpr }
     return {
-      bvExpr := ShareCommon.shareCommon sat.bvExpr,
-      proveFalse := sat.proveFalse,
+      satExpr := sat
       unusedHypotheses := unusedHypotheses,
-      expr := sat.expr
     }
 
 public def closeWithBVReflection (g : MVarId) (unsatProver : UnsatProver α) :
-    ReifyM (Except CounterExample α) :=
+    ReifyM (Except CounterExample α) := Prod.fst <$> LemmaM.run do
   g.withContext do
     let reflectionResult ←
       withTraceNode `Meta.Tactic.bv (fun _ => return "Reflecting goal into BVLogicalExpr") do
         reflectBV g
-    trace[Meta.Tactic.bv] "Reflected bv logical expression: {reflectionResult.bvExpr}"
+    trace[Meta.Tactic.bv] "Reflected bv logical expression: {reflectionResult.satExpr.bvExpr}"
 
     let atomsPairs := (← getThe State).atoms.toList.map fun (expr, {width, atomNumber, synthetic}) =>
       (atomNumber, (width, expr.expr, synthetic))
     let atomsAssignment := Std.HashMap.ofList atomsPairs
-    match ← unsatProver g reflectionResult atomsAssignment with
-    | .ok ⟨bvExprUnsat, cert⟩ =>
-      let proveFalse ← reflectionResult.proveFalse bvExprUnsat
-      g.assign proveFalse
-      return .ok cert
-    | .error counterExample => return .error counterExample
+    unsatProver g reflectionResult atomsAssignment
 
 end Lean.Meta.Tactic.BVDecide

@@ -819,6 +819,7 @@ def Module.restoreNeededArtifacts (mod : Module) (cached : ModuleOutputArtifacts
   }
 
 def Module.restoreAllArtifacts (mod : Module) (cached : ModuleOutputArtifacts) : JobM ModuleOutputArtifacts := do
+  let copyArchives := (← getLakeEnv).copyCacheArchives
   return {cached with
     olean := ← restoreArtifact mod.oleanFile cached.olean
     oleanServer? := ← restoreSome mod.oleanServerFile cached.oleanServer?
@@ -828,7 +829,7 @@ def Module.restoreAllArtifacts (mod : Module) (cached : ModuleOutputArtifacts) :
     ir? := ← restoreSome mod.irFile cached.ir?
     c := ← restoreArtifact mod.cFile cached.c
     bc? := ← restoreSome mod.bcFile cached.bc?
-    ltar? := ← restoreSome mod.ltarFile cached.ltar?
+    ltar? := ← cached.ltar?.mapM (restoreArtifact mod.ltarFile · (copy := copyArchives))
   }
 where
   @[inline] restoreSome file art? := art?.mapM (restoreArtifact file ·)
@@ -1033,7 +1034,7 @@ where
       mod.clearOutputArtifacts
       mod.unpackLtar ltar.path inputHash
       -- Preserve the archive even when its individual artifacts are not cached yet.
-      discard <| restoreArtifact mod.ltarFile ltar
+      discard <| restoreArtifact mod.ltarFile ltar (copy := (← getLakeEnv).copyCacheArchives)
       -- Note: This branch implies that only the ltar output is (validly) cached.
       -- Thus, we use only the new trace unpacked from the ltar to resolve further artifacts.
       let savedTrace ← readTraceFile mod.traceFile

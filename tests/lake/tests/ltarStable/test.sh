@@ -72,6 +72,47 @@ for config in lakefile.toml readonly.toml; do
   test_cmd diff .lake/expected.jsonl .lake/actual.jsonl
 done
 
+# Exercise real hard-link failures when a second writable filesystem is available.
+cross_device_dir=${LAKE_TEST_CROSS_DEVICE_DIR:-/dev/shm}
+if [ -d "$cross_device_dir" ] && [ -w "$cross_device_dir" ]; then
+  cross_cache=$(mktemp -d "$cross_device_dir/lake-ltar-XXXXXX")
+  trap 'rm -rf "$cross_cache"' EXIT
+  archive=$(head -n 1 .lake/bundles2.txt)
+  if ln ".lake/staging/$archive" "$cross_cache/probe" 2>/dev/null; then
+    echo "Skipping cross-filesystem test: hard links succeed"
+  else
+    for config in lakefile.toml readonly.toml; do
+      for copy in '' false true; do
+        rm -rf .lake/build "$cross_cache/artifacts" "$cross_cache/outputs"
+        LAKE_CACHE_DIR="$cross_cache" test_run cache unstage .lake/staging
+        LAKE_CACHE_DIR="$cross_cache" LAKE_COPY_CACHE_ARCHIVES="$copy" \
+          test_run -f "$config" build --no-build
+        for module in Test Test/A Test/B; do
+          test_exp -f ".lake/build/lib/lean/$module.olean"
+          if [ "$copy" = true ]; then
+            test_exp -f ".lake/build/ir/$module.ltar"
+          else
+            test_exp ! -e ".lake/build/ir/$module.ltar"
+            test_exp ! -e ".lake/build/ir/$module.ltar.hash"
+          fi
+        done
+      done
+    done
+    # Also cover restoration from individual cached outputs with an archive entry.
+    LAKE_CACHE_DIR="$cross_cache" LAKE_COPY_CACHE_ARCHIVES=true test_run build --no-build
+    rm -rf .lake/build
+    LAKE_CACHE_DIR="$cross_cache" LAKE_COPY_CACHE_ARCHIVES=false test_run build --no-build
+    for module in Test Test/A Test/B; do
+      test_exp -f ".lake/build/lib/lean/$module.olean"
+      test_exp ! -e ".lake/build/ir/$module.ltar"
+    done
+  fi
+  rm -rf "$cross_cache"
+  trap - EXIT
+else
+  echo "Skipping cross-filesystem test: no writable second filesystem"
+fi
+
 # Preserving an archive must not retain stale outputs after its source changes.
 printf '\npublic def changed : Nat := 2\n' >> Test/A.lean
 test_out "Built Test.A" build -v -o .lake/changed.jsonl

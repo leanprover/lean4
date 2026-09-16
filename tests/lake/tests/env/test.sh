@@ -62,6 +62,12 @@ LAKE_RESTORE_ARTIFACTS= test_eq "true" -f restoreAllArtifacts.toml env printenv 
 LAKE_RESTORE_ARTIFACTS= test_eq "false" -f noRestoreArtifacts.toml env printenv LAKE_RESTORE_ARTIFACTS
 test_cmd rm lake-manifest.json
 
+# Test archive-copy opt-in, both with and without a workspace
+LAKE_COPY_CACHE_ARCHIVES= test_eq "false" env printenv LAKE_COPY_CACHE_ARCHIVES
+LAKE_COPY_CACHE_ARCHIVES=false test_eq "false" -d hello env printenv LAKE_COPY_CACHE_ARCHIVES
+LAKE_COPY_CACHE_ARCHIVES=true test_eq "true" env printenv LAKE_COPY_CACHE_ARCHIVES
+LAKE_COPY_CACHE_ARCHIVES=true test_eq "true" -d hello env printenv LAKE_COPY_CACHE_ARCHIVES
+
 # Test `LAKE_PKG_URL_MAP` setting and errors
 echo "# TEST: LAKE_PKG_URL_MAP"
 LAKE_PKG_URL_MAP='{"a":"a"}' test_eq '{"a":"a"}' env printenv LAKE_PKG_URL_MAP

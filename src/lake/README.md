@@ -29,6 +29,7 @@ A Lake configuration file defines the package's basic configuration. It also typ
   + [Lean `require`](#lean-require)
   + [Supported Sources](#supported-sources)
   + [TOML `require`](#toml-require)
+* [Retaining Cached Module Archives](#retaining-cached-module-archives)
 * [GitHub Release Builds](#github-release-builds)
 * [Writing and Running Scripts](#writing-and-running-scripts)
 * [Building and Running Lake from the Source](#building-and-running-lake-from-the-source)
@@ -511,6 +512,20 @@ git = "<url>"
 rev = "<rev>"
 subDir = "<subDir>"
 ```
+
+## Retaining Cached Module Archives
+
+When restoring a module from the artifact cache, Lake tries to retain its compressed
+archive in the build directory using a hard link. This shares the cached archive's
+storage and lets subsequent `lake build -o` calls reuse it without recompression.
+If hard linking fails, Lake leaves the archive in the cache without making a local
+copy. Required compilation outputs are still restored normally.
+
+Set `LAKE_COPY_CACHE_ARCHIVES=true` to allow copying archives when hard linking
+fails, for example when the cache is on another filesystem. This trades extra disk
+space for avoiding recompression. The default is `false`, independently of
+`restoreAllArtifacts` and `LAKE_RESTORE_ARTIFACTS`. Explicitly requesting archive
+outputs (with `-o` or the `ltar` facet) can still create archives as needed.
 
 ## GitHub Release Builds
 

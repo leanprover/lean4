@@ -100,10 +100,8 @@ jobs:
 
       - name: Add label based on comment
         uses: actions/github-script@v9
-        env:
-          APP_TOKEN: ${{ steps.app-token.outputs.token }}
         with:
-          github-token: ${{ secrets.GITHUB_TOKEN }}
+          github-token: ${{ steps.app-token.outputs.token }}
           script: |
             const { owner, repo, number: issue_number } = context.issue;
             const commentLines = context.payload.comment.body.split(/\r?\n/);
@@ -116,8 +114,7 @@ jobs:
             }
 
             // Limit to users with write access to `leanprover/downstream-lean4`
-            const appGithub = getOctokit(process.env.APP_TOKEN);
-            const { data } = await appGithub.rest.repos.getCollaboratorPermissionLevel({
+            const { data } = await github.rest.repos.getCollaboratorPermissionLevel({
               owner: 'leanprover',
               repo: 'downstream-lean4',
               username: context.payload.comment.user.login,

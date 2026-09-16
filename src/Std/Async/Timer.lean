@@ -24,6 +24,13 @@ structure Sleep where
   private ofNative ::
     native : Internal.UV.Timer
 
+/--
+The timeout passed to libuv. Longer durations are clamped, since they cannot elapse anyway.
+-/
+private def timeoutOf (duration : Std.Time.Millisecond.Offset) : UInt64 :=
+  let ms := duration.toInt.toNat
+  if ms < UInt64.size then ms.toUInt64 else (UInt64.size - 1).toUInt64
+
 namespace Sleep
 
 /--
@@ -32,7 +39,7 @@ This function only initializes but does not yet start the timer.
 -/
 @[inline]
 def mk (duration : Std.Time.Millisecond.Offset) : Async Sleep := do
-  let native ← Internal.UV.Timer.mk duration.toInt.toNat.toUInt64 false
+  let native ← Internal.UV.Timer.mk (timeoutOf duration) false
   return ofNative native
 
 /--
@@ -69,7 +76,9 @@ def stop (s : Sleep) : IO Unit :=
   s.native.stop
 
 /--
-Create a `Selector` that resolves once `s` has finished. `s` only starts when it runs inside of a Selectable.
+Create a `Selector` that resolves once `s` has finished. `s` only starts when it runs inside of a
+Selectable, and a select that it loses leaves it running, so a `Sleep` selected on repeatedly works
+as a deadline that elapses `duration` after the first of those selects.
 -/
 def selector (s : Sleep) : Selector Unit :=
   {
@@ -78,7 +87,6 @@ def selector (s : Sleep) : Selector Unit :=
       if ← sleepWaiter.isResolved then
         return some ()
       else
-        s.native.cancel
         return none
 
     registerFn waiter := do
@@ -91,7 +99,7 @@ def selector (s : Sleep) : Selector Unit :=
           let win promise := promise.resolve (.ok ())
           waiter.race lose win
 
-    unregisterFn := s.native.cancel
+    unregisterFn := pure ()
   }
 
 end Sleep
@@ -108,7 +116,9 @@ Return a `Selector` that completes after `duration`.
 -/
 def Selector.sleep (duration : Std.Time.Millisecond.Offset) : Async (Selector Unit) := do
   let sleeper ← Sleep.mk duration
-  return sleeper.selector
+  -- A fresh timer cannot have elapsed yet, and nothing else refers to `sleeper`, so it is started
+  -- only on registration and stopped once the select is over.
+  return { sleeper.selector with tryFn := pure none, unregisterFn := sleeper.native.cancel }
 
 /--
 `Interval` can be used to repeatedly wait for some duration like a clock.
@@ -126,7 +136,7 @@ This function only initializes but does not yet start the timer.
 -/
 @[inline]
 def mk (duration : Std.Time.Millisecond.Offset) (_ : 0 < duration := by decide) : IO Interval := do
-  let native ← Internal.UV.Timer.mk duration.toInt.toNat.toUInt64 true
+  let native ← Internal.UV.Timer.mk (timeoutOf duration) true
   return ofNative native
 
 /--

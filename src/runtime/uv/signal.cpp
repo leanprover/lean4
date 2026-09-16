@@ -45,9 +45,11 @@ static bool signal_promise_is_finished(lean_uv_signal_object * signal) {
     return signal->m_promise == NULL || promise_is_resolved(signal->m_promise);
 }
 
-void handle_signal_event(uv_signal_t* handle, int signum) {
+void handle_signal_event(uv_signal_t* handle, int) {
     lean_object * obj = (lean_object*)handle->data;
     lean_uv_signal_object * signal = lean_to_uv_signal(obj);
+    // Read before `lean_dec(obj)` below may free the signal.
+    int const signum = signal->m_lean_signum;
 
     lean_assert(signal->m_state == SIGNAL_STATE_RUNNING);
 
@@ -122,6 +124,7 @@ extern "C" LEAN_EXPORT lean_obj_res lean_uv_signal_mk(uint32_t signum_obj, uint8
         return lean_io_result_mk_error(decode_io_error(ENOMEM, nullptr));
     }
     signal->m_signum = signum;
+    signal->m_lean_signum = (int)(int32_t)signum_obj;
     signal->m_repeating = repeating;
     signal->m_state = SIGNAL_STATE_INITIAL;
     signal->m_promise = NULL;

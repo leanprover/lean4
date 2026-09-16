@@ -33,6 +33,7 @@ typedef struct {
     uv_signal_t *   m_uv_signal;   // LibUV signal handle.
     lean_object *   m_promise;     // The associated promise for asynchronous results.
     int             m_signum;      // Signal number to watch for.
+    int             m_lean_signum; // `m_signum` in the encoding of `Signal.toInt32`, reported to waiters.
     bool            m_repeating;   // Flag indicating if the signal handler is repeating.
     uv_signal_state m_state;       // The state of the signal.
 } lean_uv_signal_object;

@@ -11,7 +11,7 @@ public import Init.System.Uri
 public import Lean.Data.Lsp.Communication
 public import Lean.Data.Lsp.Diagnostics
 public import Lean.Data.Lsp.Extra
-public import Lean.Server.InfoUtils
+public import Lean.Elab.InfoTree.Util
 
 public section
 

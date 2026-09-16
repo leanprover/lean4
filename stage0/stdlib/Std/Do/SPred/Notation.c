@@ -30,7 +30,7 @@ lean_object* l_Lean_Syntax_getArgs(lean_object*);
 lean_object* l_Array_extract___redArg(lean_object*, lean_object*, lean_object*);
 lean_object* lean_array_get_size(lean_object*);
 uint8_t lean_nat_dec_eq(lean_object*, lean_object*);
-lean_object* l_Array_mkArray0(lean_object*);
+lean_object* l_Array_mkArray0___redArg();
 lean_object* l_Array_append___redArg(lean_object*, lean_object*);
 uint8_t lean_usize_dec_lt(size_t, size_t);
 lean_object* lean_array_uget_borrowed(lean_object*, size_t);
@@ -786,7 +786,7 @@ static lean_object* _init_l_Std_Do___aux__Std__Do__SPred__Notation______macroRul
 _start:
 {
 lean_object* v___x_338_; 
-v___x_338_ = l_Array_mkArray0(lean_box(0));
+v___x_338_ = l_Array_mkArray0___redArg();
 return v___x_338_;
 }
 }

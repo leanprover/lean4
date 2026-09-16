@@ -248,6 +248,35 @@ jobs:
           mv build/stage1.bak build/stage1
           cd src
           ../build/stage0/bin/lake cache clean
+      # Not part of the default targets because it is big
+      - name: Build leanchecker-paranoid
+        if: matrix.release && !matrix.wasm
+        run: |
+          make -C build/$TARGET_STAGE leanchecker-paranoid -j$NPROC
+      - name: Build lean4lean and con-leche
+        if: matrix.release && !matrix.wasm
+        run: |
+          if ! command -v elan > /dev/null; then
+            # Use consistent `ELAN_HOME` across platforms
+            (cd build && export ELAN_HOME=elan &&
+              curl https://elan.lean-lang.org/elan-init.sh -sSf |
+                sh -s -- -y --default-toolchain none --no-modify-path)
+            export PATH="$PWD/build/elan/bin:$PATH"
+          fi
+          elan --version  # fails step if not found
+          make -C build/$TARGET_STAGE lean4lean con-leche
+      - name: Build nanoda and con-ron
+        if: matrix.release && !matrix.wasm
+        run: |
+          # msys2 hides the runner's preinstalled cargo by trimming the Windows `PATH`
+          if command -v cygpath > /dev/null && [ -n "${USERPROFILE:-}" ]; then
+            export PATH="$(cygpath -u "$USERPROFILE")/.cargo/bin:$PATH"
+            # That cargo targets MSVC, so the `cc` crate has to find `cl.exe` itself rather than
+            # take the job's msys2 `CXX`
+            unset CC CXX
+          fi
+          cargo --version  # fails step if not found
+          make -C build/$TARGET_STAGE nanoda con-ron
       - name: Install
         run: |
           make -C build/$TARGET_STAGE install

@@ -1,3 +1,62 @@
+if(USE_MIMALLOC)
+  # `mimalloc.cpp` #includes all of mimalloc (`static.c`, compiled as C++ like everything else)
+  # together with the runtime's fused allocation entry point so mimalloc's fast path inlines into
+  # it.
+  set(MIMALLOC_SRC ${CMAKE_CURRENT_SOURCE_DIR}/mimalloc.cpp)
+  # Make all symbols visible, always build with optimizations as otherwise Lean becomes too slow.
+  # `MI_MAX_ALIGN_SIZE=8` means that an object with two fields will take 24 bytes instead of 32 bytes.
+  # The default value 16 is only necessary for mimalloc to be compatible with the system allocator, which
+  # we do not care about.
+  set(MIMALLOC_OPTS -DMI_SHARED_LIB -DMI_SHARED_LIB_EXPORT -O3 -DNDEBUG -DMI_WIN_NOREDIRECT -DMI_MAX_ALIGN_SIZE=8 -Wno-unused-function)
+  if(CMAKE_CXX_COMPILER_ID MATCHES "AppleClang|Clang")
+    list(APPEND MIMALLOC_OPTS -Wno-deprecated)
+  endif()
+  if(CMAKE_CXX_COMPILER_ID STREQUAL "GNU")
+    # GCC refuses to inline mimalloc's exported allocation functions into the entry point when
+    # compiling with -fPIC unless told that no symbol will be interposed (clang's default)
+    list(APPEND MIMALLOC_OPTS -fno-semantic-interposition)
+  endif()
+
+  # One target per (mitigation level, TLS model) the build needs, each carrying its own
+  # `target_compile_options`.
+  function(add_mimalloc_variant name type secure)
+    add_library(${name} ${type} ${MIMALLOC_SRC})
+    # Lean code includes it as `lean/mimalloc.h`, but `static.c` itself wants the original include
+    # directory, and `mimalloc.cpp` includes `static.c` from the source directory
+    target_include_directories(
+      ${name}
+      PRIVATE
+        ${LEAN_BINARY_DIR}/../mimalloc/src/mimalloc/include
+        ${LEAN_BINARY_DIR}/../mimalloc/src/mimalloc/src
+    )
+    target_compile_options(${name} PRIVATE ${MIMALLOC_OPTS} -DMI_SECURE=${secure} ${ARGN})
+  endfunction()
+
+  # `local-exec` matches the `leanrt` rationale below: those copies are only ever linked into an
+  # executable, never into `leanshared`.
+  set(MIMALLOC_LOCAL_EXEC_OPTS "")
+  if(NOT MSVC)
+    list(APPEND MIMALLOC_LOCAL_EXEC_OPTS -ftls-model=local-exec)
+  endif()
+
+  # Level 3 buys encoded free lists, which turn a stale reference-count operation on a freed object
+  # into a checked abort rather than silent heap corruption, and the padding it implies, which
+  # catches writes past an object. Level 4 adds only a double-free check that reports and continues.
+  # a real archive rather than an object library: the link rule refers to it as `-lmimalloc_paranoid`
+  add_mimalloc_variant(mimalloc_paranoid STATIC 3 ${MIMALLOC_LOCAL_EXEC_OPTS})
+  # only `leanchecker-paranoid` consumes it, and that target is not built by default
+  set_target_properties(
+    mimalloc_paranoid
+    PROPERTIES EXCLUDE_FROM_ALL TRUE ARCHIVE_OUTPUT_DIRECTORY ${CMAKE_ARCHIVE_OUTPUT_DIRECTORY}
+  )
+endif()
+
+# Later stages import the previous stage's copies of everything below (see `src/CMakeLists.txt`).
+# `mimalloc_paranoid` is not among them, as the previous stage does not build it by default.
+if(STAGE GREATER 1)
+  return()
+endif()
+
 set(
   RUNTIME_OBJS
   debug.cpp
@@ -35,23 +94,6 @@ set(
   uv/signal.cpp
   openssl.cpp
 )
-if(USE_MIMALLOC)
-  list(APPEND RUNTIME_OBJS ${LEAN_BINARY_DIR}/../mimalloc/src/mimalloc/src/static.c)
-  # Lean code includes it as `lean/mimalloc.h` but for compiling `static.c` itself, add original dir
-  include_directories(${LEAN_BINARY_DIR}/../mimalloc/src/mimalloc/include)
-  # make all symbols visible, always build with optimizations as otherwise Lean becomes too slow
-  set(MIMALLOC_FLAGS "-DMI_SHARED_LIB -DMI_SHARED_LIB_EXPORT -O3 -DNDEBUG -DMI_WIN_NOREDIRECT -DMI_SECURE=${LEAN_MI_SECURE} -Wno-unused-function")
-  if(CMAKE_CXX_COMPILER_ID MATCHES "AppleClang|Clang")
-    string(APPEND MIMALLOC_FLAGS " -Wno-deprecated")
-  endif()
-  set_source_files_properties(
-    ${LEAN_BINARY_DIR}/../mimalloc/src/mimalloc/src/static.c
-    PROPERTIES
-      # (C flags are incomplete, compile as C++ instead like everything else)
-      LANGUAGE CXX
-      COMPILE_FLAGS ${MIMALLOC_FLAGS}
-  )
-endif()
 
 add_library(leanrt_initial-exec STATIC ${RUNTIME_OBJS})
 set_target_properties(leanrt_initial-exec PROPERTIES ARCHIVE_OUTPUT_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR})
@@ -63,6 +105,13 @@ add_library(leanrt STATIC ${RUNTIME_OBJS})
 set_target_properties(leanrt PROPERTIES ARCHIVE_OUTPUT_DIRECTORY ${CMAKE_ARCHIVE_OUTPUT_DIRECTORY})
 if(NOT MSVC)
   target_compile_options(leanrt PRIVATE -ftls-model=local-exec)
+endif()
+# adds each variant's object to the archive; its `PRIVATE` flags do not propagate to the rest
+if(USE_MIMALLOC)
+  add_mimalloc_variant(mimalloc_initial-exec OBJECT ${LEAN_MI_SECURE})
+  add_mimalloc_variant(mimalloc_local-exec OBJECT ${LEAN_MI_SECURE} ${MIMALLOC_LOCAL_EXEC_OPTS})
+  target_link_libraries(leanrt_initial-exec PRIVATE mimalloc_initial-exec)
+  target_link_libraries(leanrt PRIVATE mimalloc_local-exec)
 endif()
 # We do not export Lean symbols when statically linking on Windows.
 if(CMAKE_SYSTEM_NAME MATCHES "Windows")

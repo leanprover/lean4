@@ -111,10 +111,8 @@ def computePrecompileImportsAux
   (fileName : String) (imports : Array Module)
 : FetchM (Job (Array Module)) := do
   collectImportsAux fileName imports fun imp =>
-    if imp.shouldPrecompile then
-      (true, ·) <$> imp.transImports.fetch
-    else
-      (false, ·) <$> imp.precompileImports.fetch
+    -- `imp.shouldPrecompile` implies `imp.lib.shouldPrecompile`
+    (imp.lib.shouldPrecompile, ·) <$> imp.precompileImports.fetch
 
 /-- Recursively compute a module's precompiled imports. -/
 def Module.recComputePrecompileImports (mod : Module) : FetchM (Job (Array Module)) := ensureJob do
@@ -130,15 +128,20 @@ Modules from the same library are loaded individually, while modules
 from other libraries are loaded as part of the whole library.
 -/
 def Module.fetchImportLibs
-  (self : Module) (imps : Array Module) (compileSelf : Bool)
+  (self : Module) (imps : Array Module)
+  (precompileModules : Bool) (precompileImports : Bool)
 : FetchM (Array (Job Dynlib)) := do
   let (_, jobs) ← imps.foldlM (init := (({} : NameSet), #[])) fun (libs, jobs) imp => do
     if libs.contains imp.lib.name then
       return (libs, jobs)
-    else if compileSelf && self.lib.name = imp.lib.name then
-      let job ← imp.dynlib.fetch
-      return (libs, jobs.push job)
-    else if compileSelf || imp.shouldPrecompile then
+    else if self.lib.name = imp.lib.name then
+      -- The library as a whole cannot be loaded here, as it includes the module itself.
+      if precompileModules then
+        let job ← imp.dynlib.fetch
+        return (libs, jobs.push job)
+      else
+        return (libs, jobs)
+    else if precompileImports || imp.lib.shouldPrecompile then
       let jobs ← jobs.push <$> imp.lib.shared.fetch
       return (libs.insert imp.lib.name, jobs)
     else
@@ -155,7 +158,7 @@ def fetchImportLibs
   let (_, jobs) ← mods.foldlM (init := (({} : NameSet), #[])) fun (libs, jobs) imp => do
     if libs.contains imp.lib.name then
       return (libs, jobs)
-    else if imp.shouldPrecompile then
+    else if imp.lib.shouldPrecompile then
       let jobs ← jobs.push <$> imp.lib.shared.fetch
       return (libs.insert imp.lib.name, jobs)
     else
@@ -577,14 +580,14 @@ def Module.recFetchPreSetup (mod : Module) : FetchM (Job ModulePreSetup) := ensu
   Remark: It should be possible to avoid transitive imports here when the module
   itself is precompiled, but they are currently kept to preserve the "bad import" errors.
   -/
-  let precompileImports ← if mod.shouldPrecompile then
+  let precompileImports ← if mod.shouldPrecompileImports then
     mod.transImports.fetch else mod.precompileImports.fetch
   let precompileImports ← precompileImports.await
   let impLibsJob ← Job.collectArray (traceCaption := "import dynlibs") <$>
-    mod.fetchImportLibs precompileImports mod.shouldPrecompile
+    mod.fetchImportLibs precompileImports mod.shouldPrecompile mod.shouldPrecompileImports
 
   let externLibsJob ← Job.collectArray (traceCaption := "package external libraries") <$>
-    if mod.shouldPrecompile then mod.pkg.externLibs.mapM (·.dynlib.fetch) else pure #[]
+    if mod.shouldPrecompileImports then mod.pkg.externLibs.mapM (·.dynlib.fetch) else pure #[]
   let dynlibsJob ← mod.dynlibs.fetchIn mod.pkg "module dynlibs"
   let pluginsJob ← mod.plugins.fetchIn mod.pkg "module plugins"
 
@@ -1110,20 +1113,19 @@ where
         else
           mod.buildLean presetup
   trackOutputsIfEnabled arts : JobM ModuleOutputArtifacts := do
-    if mod.pkg.isRoot then
-      if let some ref := (← getBuildContext).outputsRef? then
-        let inputHash := (← getTrace).hash
-        if let some ltar := arts.ltar? then
-          ref.insert inputHash ltar.descr
-          return arts
-        else
-          let ltar ← id do
-            if (← mod.ltarFile.pathExists) then
-              computeArtifact mod.ltarFile "ltar"
-            else
-              mod.packLtar arts
-          ref.insert inputHash ltar.descr (mod.platformIndependent.getD false)
-          return {arts with ltar? := some ltar}
+    if let some ref ← Internal.getOutputsRef? mod.pkg then
+      let inputHash := (← getTrace).hash
+      if let some ltar := arts.ltar? then
+        ref.insert inputHash ltar.descr
+        return arts
+      else
+        let ltar ← id do
+          if (← mod.ltarFile.pathExists) then
+            computeArtifact mod.ltarFile "ltar"
+          else
+            mod.packLtar arts
+        ref.insert inputHash ltar.descr (mod.platformIndependent.getD false)
+        return {arts with ltar? := some ltar}
     return arts
   adjustMTime arts : JobM ModuleOutputArtifacts := do
     match (← getMTime mod.traceFile |>.toBaseIO) with
@@ -1306,7 +1308,7 @@ def recComputeModuleLinkInfo
   let mut libJobs := #[]
   for facet in root.nativeFacets shouldExport do
     objJobs := objJobs.push <| ← facet.fetch root
-  let .ok imports _ ← (← root.transImports.fetch).wait
+  let some imports ← (← root.transImports.fetch).waitUnlessCanceled?
     | error s!"bad imports (see the '{root.name.toString}' job for details)"
   for mod in imports do
     for facet in mod.nativeFacets shouldExport do
@@ -1360,7 +1362,7 @@ def Module.recBuildDynlib (mod : Module) : FetchM (Job Dynlib) :=
   -- Fetch dependencies' dynlibs
   let libJobs ← id do
     let imps ← (← mod.imports.fetch).await
-    let libJobs ← mod.fetchImportLibs imps true
+    let libJobs ← mod.fetchImportLibs imps true true
     let libJobs ← mod.lib.moreLinkLibs.foldlM
       (·.push <$> ·.fetchIn mod.pkg) libJobs
     let libJobs ← mod.pkg.externLibs.foldlM
@@ -1439,14 +1441,14 @@ def setupEditedModule
   let impInfoJob ← fetchImportInfo fileName mod.pkg.keyName mod.name header
     (allowNonModules := mod.allowNonModules)
   let precompileImports ←
-    if mod.shouldPrecompile then
+    if mod.shouldPrecompileImports then
       (← computeTransImportsAux fileName localImports).await
     else
       (← computePrecompileImportsAux fileName localImports).await
   let impLibsJob ← Job.collectArray (traceCaption := "import dynlibs") <$>
-    mod.fetchImportLibs precompileImports mod.shouldPrecompile
+    mod.fetchImportLibs precompileImports mod.shouldPrecompile mod.shouldPrecompileImports
   let externLibsJob ← Job.collectArray (traceCaption := "package external libraries") <$>
-    if mod.shouldPrecompile then mod.pkg.externLibs.mapM (·.dynlib.fetch) else pure #[]
+    if mod.shouldPrecompileImports then mod.pkg.externLibs.mapM (·.dynlib.fetch) else pure #[]
   let dynlibsJob ← mod.dynlibs.fetchIn mod.pkg "module dynlibs"
   let pluginsJob ← mod.plugins.fetchIn mod.pkg "module plugins"
   extraDepJob.bindM (sync := true) fun _ => do
@@ -1465,7 +1467,7 @@ def setupEditedModule
       importArts := transImpArts
       dynlibs := dynlibs.map (·.path)
       plugins := plugins.map (·.path)
-      options := mod.leanOptions
+      options := mod.serverOptions
     }
 
 /--

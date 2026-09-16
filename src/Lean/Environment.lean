@@ -640,7 +640,6 @@ private def asyncConsts (env : Environment) : AsyncConsts :=
 Constructs an elaboration environment from a given kernel environment's constants. All constants are
 accessible in both the private and public scope. All other data is empty.
 -/
-@[export lean_elab_environment_of_kernel_env]
 def ofKernelEnv (env : Kernel.Environment) : Environment :=
   { base.private := env, base.public := env, importRealizationCtx? := none }
 

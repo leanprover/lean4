@@ -21,20 +21,6 @@ namespace Lean.Grind
 
 namespace Fin
 
--- TODO: we should replace this at runtime with either repeated squaring,
--- or a GMP accelerated function.
-@[expose]
-def npow [NeZero n] (x : Fin n) (y : Nat) : Fin n := npowRec y x
-
-instance [NeZero n] : HPow (Fin n) Nat (Fin n) where
-  hPow := Fin.npow
-
-instance [NeZero n] : Pow (Fin n) Nat where
-  pow := Fin.npow
-
-@[simp] theorem pow_zero [NeZero n] (a : Fin n) : a ^ 0 = 1 := rfl
-@[simp] theorem pow_succ [NeZero n] (a : Fin n) (n : Nat) : a ^ (n+1) = a ^ n * a := rfl
-
 theorem add_assoc (a b c : Fin n) : a + b + c = a + (b + c) := by
   cases a; cases b; cases c; simp [Fin.add_def, Nat.add_assoc]
 
@@ -123,8 +109,8 @@ instance (n : Nat) [NeZero n] : CommRing (Fin n) where
   mul_one := Fin.mul_one
   left_distrib := Fin.left_distrib
   zero_mul := Fin.zero_mul
-  pow_zero _ := by rfl
-  pow_succ _ _ := by rfl
+  pow_zero := Fin.pow_zero
+  pow_succ := Fin.pow_succ
   ofNat_succ := Fin.ofNat_succ
   sub_eq_add_neg := Fin.sub_eq_add_neg
   intCast_neg := Fin.intCast_neg
@@ -144,6 +130,8 @@ instance (n : Nat) [NeZero n] : IsCharP (Fin n) n := IsCharP.mk' _ _
 
 instance : PowIdentity (Fin 2) 2 where
   pow_eq x := by
+    ext
+    rw [Fin.val_pow]
     match x with
     | ⟨0, _⟩ => rfl
     | ⟨1, _⟩ => rfl

@@ -1586,7 +1586,7 @@ return v___x_511_;
 LEAN_EXPORT uint8_t l_Std_Net_instDecidableEqInterfaceAddress_decEq(lean_object* v_x_512_, lean_object* v_x_513_){
 _start:
 {
-lean_object* v_name_514_; lean_object* v_physicalAddress_515_; uint8_t v_isLoopback_516_; lean_object* v_address_517_; lean_object* v_netMask_518_; lean_object* v_name_519_; lean_object* v_physicalAddress_520_; uint8_t v_isLoopback_521_; lean_object* v_address_522_; lean_object* v_netMask_523_; uint8_t v___x_524_; uint8_t v___x_525_; uint8_t v___y_527_; 
+lean_object* v_name_514_; lean_object* v_physicalAddress_515_; uint8_t v_isLoopback_516_; lean_object* v_address_517_; lean_object* v_netMask_518_; lean_object* v_name_519_; lean_object* v_physicalAddress_520_; uint8_t v_isLoopback_521_; lean_object* v_address_522_; lean_object* v_netMask_523_; uint8_t v___y_525_; uint8_t v___x_528_; 
 v_name_514_ = lean_ctor_get(v_x_512_, 0);
 v_physicalAddress_515_ = lean_ctor_get(v_x_512_, 1);
 v_isLoopback_516_ = lean_ctor_get_uint8(v_x_512_, sizeof(void*)*4);
@@ -1597,50 +1597,7 @@ v_physicalAddress_520_ = lean_ctor_get(v_x_513_, 1);
 v_isLoopback_521_ = lean_ctor_get_uint8(v_x_513_, sizeof(void*)*4);
 v_address_522_ = lean_ctor_get(v_x_513_, 2);
 v_netMask_523_ = lean_ctor_get(v_x_513_, 3);
-v___x_524_ = lean_string_dec_eq(v_name_514_, v_name_519_);
-v___x_525_ = l_Std_Net_instDecidableEqMACAddr_decEq(v_physicalAddress_515_, v_physicalAddress_520_);
-if (v_isLoopback_521_ == 0)
-{
-if (v_isLoopback_516_ == 0)
-{
-uint8_t v___x_530_; 
-v___x_530_ = 1;
-v___y_527_ = v___x_530_;
-goto v___jp_526_;
-}
-else
-{
-v___y_527_ = v_isLoopback_521_;
-goto v___jp_526_;
-}
-}
-else
-{
-v___y_527_ = v_isLoopback_516_;
-goto v___jp_526_;
-}
-v___jp_526_:
-{
-if (v___x_524_ == 0)
-{
-return v___x_524_;
-}
-else
-{
-if (v___x_525_ == 0)
-{
-return v___x_525_;
-}
-else
-{
-if (v___y_527_ == 0)
-{
-return v___y_527_;
-}
-else
-{
-uint8_t v___x_528_; 
-v___x_528_ = l_Std_Net_instDecidableEqIPAddr_decEq(v_address_517_, v_address_522_);
+v___x_528_ = lean_string_dec_eq(v_name_514_, v_name_519_);
 if (v___x_528_ == 0)
 {
 return v___x_528_;
@@ -1648,51 +1605,92 @@ return v___x_528_;
 else
 {
 uint8_t v___x_529_; 
-v___x_529_ = l_Std_Net_instDecidableEqIPAddr_decEq(v_netMask_518_, v_netMask_523_);
+v___x_529_ = l_Std_Net_instDecidableEqMACAddr_decEq(v_physicalAddress_515_, v_physicalAddress_520_);
+if (v___x_529_ == 0)
+{
 return v___x_529_;
 }
+else
+{
+if (v_isLoopback_521_ == 0)
+{
+if (v_isLoopback_516_ == 0)
+{
+v___y_525_ = v___x_529_;
+goto v___jp_524_;
+}
+else
+{
+return v_isLoopback_521_;
+}
+}
+else
+{
+v___y_525_ = v_isLoopback_516_;
+goto v___jp_524_;
+}
+}
+}
+v___jp_524_:
+{
+if (v___y_525_ == 0)
+{
+return v___y_525_;
+}
+else
+{
+uint8_t v___x_526_; 
+v___x_526_ = l_Std_Net_instDecidableEqIPAddr_decEq(v_address_517_, v_address_522_);
+if (v___x_526_ == 0)
+{
+return v___x_526_;
+}
+else
+{
+uint8_t v___x_527_; 
+v___x_527_ = l_Std_Net_instDecidableEqIPAddr_decEq(v_netMask_518_, v_netMask_523_);
+return v___x_527_;
 }
 }
 }
 }
 }
-}
-LEAN_EXPORT lean_object* l_Std_Net_instDecidableEqInterfaceAddress_decEq___boxed(lean_object* v_x_531_, lean_object* v_x_532_){
+LEAN_EXPORT lean_object* l_Std_Net_instDecidableEqInterfaceAddress_decEq___boxed(lean_object* v_x_530_, lean_object* v_x_531_){
 _start:
 {
-uint8_t v_res_533_; lean_object* v_r_534_; 
-v_res_533_ = l_Std_Net_instDecidableEqInterfaceAddress_decEq(v_x_531_, v_x_532_);
-lean_dec_ref(v_x_532_);
+uint8_t v_res_532_; lean_object* v_r_533_; 
+v_res_532_ = l_Std_Net_instDecidableEqInterfaceAddress_decEq(v_x_530_, v_x_531_);
 lean_dec_ref(v_x_531_);
-v_r_534_ = lean_box(v_res_533_);
-return v_r_534_;
+lean_dec_ref(v_x_530_);
+v_r_533_ = lean_box(v_res_532_);
+return v_r_533_;
 }
 }
-LEAN_EXPORT uint8_t l_Std_Net_instDecidableEqInterfaceAddress(lean_object* v_x_535_, lean_object* v_x_536_){
+LEAN_EXPORT uint8_t l_Std_Net_instDecidableEqInterfaceAddress(lean_object* v_x_534_, lean_object* v_x_535_){
 _start:
 {
-uint8_t v___x_537_; 
-v___x_537_ = l_Std_Net_instDecidableEqInterfaceAddress_decEq(v_x_535_, v_x_536_);
-return v___x_537_;
+uint8_t v___x_536_; 
+v___x_536_ = l_Std_Net_instDecidableEqInterfaceAddress_decEq(v_x_534_, v_x_535_);
+return v___x_536_;
 }
 }
-LEAN_EXPORT lean_object* l_Std_Net_instDecidableEqInterfaceAddress___boxed(lean_object* v_x_538_, lean_object* v_x_539_){
+LEAN_EXPORT lean_object* l_Std_Net_instDecidableEqInterfaceAddress___boxed(lean_object* v_x_537_, lean_object* v_x_538_){
 _start:
 {
-uint8_t v_res_540_; lean_object* v_r_541_; 
-v_res_540_ = l_Std_Net_instDecidableEqInterfaceAddress(v_x_538_, v_x_539_);
-lean_dec_ref(v_x_539_);
+uint8_t v_res_539_; lean_object* v_r_540_; 
+v_res_539_ = l_Std_Net_instDecidableEqInterfaceAddress(v_x_537_, v_x_538_);
 lean_dec_ref(v_x_538_);
-v_r_541_ = lean_box(v_res_540_);
-return v_r_541_;
+lean_dec_ref(v_x_537_);
+v_r_540_ = lean_box(v_res_539_);
+return v_r_540_;
 }
 }
-LEAN_EXPORT lean_object* l_Std_Net_interfaceAddresses___boxed(lean_object* v_a_00___x40___internal___hyg_543_){
+LEAN_EXPORT lean_object* l_Std_Net_interfaceAddresses___boxed(lean_object* v_a_00___x40___internal___hyg_542_){
 _start:
 {
-lean_object* v_res_544_; 
-v_res_544_ = lean_uv_interface_addresses();
-return v_res_544_;
+lean_object* v_res_543_; 
+v_res_543_ = lean_uv_interface_addresses();
+return v_res_543_;
 }
 }
 lean_object* runtime_initialize_Init_System_IO(uint8_t builtin);

@@ -299,7 +299,7 @@ structure InductiveVal extends ConstantVal where
   -/
   isReflexive : Bool
 
-  deriving Inhabited
+  deriving Inhabited, BEq
 
 @[export lean_mk_inductive_val]
 def mkInductiveValEx (name : Name) (levelParams : List Name) (type : Expr) (numParams numIndices : Nat)
@@ -413,11 +413,11 @@ inductive QuotKind where
   | ctor  -- `Quot.mk`
   | lift  -- `Quot.lift`
   | ind   -- `Quot.ind`
-  deriving Inhabited
+  deriving Inhabited, BEq
 
 structure QuotVal extends ConstantVal where
   kind : QuotKind
-  deriving Inhabited
+  deriving Inhabited, BEq
 
 @[export lean_mk_quot_val]
 def mkQuotValEx (name : Name) (levelParams : List Name) (type : Expr) (kind : QuotKind) : QuotVal := {
@@ -436,7 +436,7 @@ inductive ConstantInfo where
   | inductInfo   (val : InductiveVal)
   | ctorInfo     (val : ConstructorVal)
   | recInfo      (val : RecursorVal)
-  deriving Inhabited
+  deriving Inhabited, BEq
 
 namespace ConstantInfo
 

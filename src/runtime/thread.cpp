@@ -53,6 +53,10 @@ void reset_thread_local() {
 using runnable = std::function<void()>;
 
 extern "C" LEAN_EXPORT void lean_initialize_thread() {
+#ifdef LEAN_MIMALLOC
+    // cache this thread's mimalloc theap for the allocation fast path; see `runtime/alloc_tls.h`
+    lean_mi_theap_cache_init();
+#endif
 }
 
 extern "C" LEAN_EXPORT void lean_finalize_thread() {

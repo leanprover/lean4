@@ -1304,8 +1304,10 @@ private def Context.setTransparency (ctx : Context) (transparency : Transparency
   { ctx with keyedConfig := ctx.keyedConfig.setTransparency transparency }
 
 @[inline] def withTransparency (mode : TransparencyMode) : n α → n α :=
-  -- We avoid `withConfig` for performance reasons.
-  mapMetaM <| withReader (·.setTransparency mode)
+  -- We avoid `withConfig` for performance reasons. `setTransparency` rebuilds `Config`,
+  -- `ConfigWithKey` and `Context`, so skip it when the mode is already in effect.
+  mapMetaM <| withReader fun ctx =>
+    if ctx.config.transparency == mode then ctx else ctx.setTransparency mode
 
 /-- `withDefault x` executes `x` using the default transparency setting. -/
 @[inline] def withDefault (x : n α) : n α :=
@@ -1338,8 +1340,7 @@ Recall that `.none < .reducible < .instances < .implicit < .default < .all`.
 -/
 @[inline] def withAtLeastTransparency (mode : TransparencyMode) : n α → n α :=
   mapMetaM <| withReader fun ctx =>
-    let modeOld := ctx.config.transparency
-    ctx.setTransparency <| if modeOld.lt mode then mode else modeOld
+    if ctx.config.transparency.lt mode then ctx.setTransparency mode else ctx
 
 /-- Execute `x` allowing `isDefEq` to assign synthetic opaque metavariables. -/
 @[inline] def withAssignableSyntheticOpaque (x : n α) : n α :=

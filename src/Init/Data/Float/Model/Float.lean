@@ -108,6 +108,12 @@ def sqrt (a : Float.Model) : Float.Model :=
   pack (UnpackedFloat.sqrt Format.binary64 a.unpack)
 
 /--
+Compute the fused multiply-add `a * b + c` of three `Float.Model`, with a single rounding.
+-/
+def fma (a b c : Float.Model) : Float.Model :=
+  pack (UnpackedFloat.fma Format.binary64 a.unpack b.unpack c.unpack)
+
+/--
 Negate a `Float.Model`.
 -/
 def neg (a : Float.Model) : Float.Model :=

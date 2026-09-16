@@ -217,6 +217,9 @@ public def leanIncludeDir? (self : Module) : Option FilePath :=
 @[inline] public def platformIndependent (self : Module) : Option Bool :=
   self.lib.platformIndependent
 
+@[inline] public def shouldPrecompileImports (self : Module) : Bool :=
+  self.lib.precompileImports
+
 @[inline] public def shouldPrecompile (self : Module) : Bool :=
   self.lib.precompileModules
 

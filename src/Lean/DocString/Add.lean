@@ -143,24 +143,16 @@ private def docStringRange (docComment : TSyntax [``docComment, ``moduleDoc]) :
   return (openPos, startPos, endPos)
 
 open Lean.Doc in
-open Lean.Parser Command in
+open Lean.Parser in
 /--
-Parses a docstring as Verso, returning the syntax if successful.
-
-When not successful, parser errors are logged.
+Parses the Verso docstring in the current file whose comment opens at `openPos` and whose contents
+are between `startPos` and `endPos`. Returns the document if it parsed, and otherwise logs each
+parse error.
 -/
-def parseVersoDocString
-    [Monad m] [MonadFileMap m] [MonadError m] [MonadEnv m] [MonadOptions m] [MonadLog m]
-    [MonadResolveName m]
-    (docComment : TSyntax [``docComment, ``moduleDoc]) :
-    m (Option VersoDocument) := do
+def parseVersoDocStringAt
+    [Monad m] [MonadFileMap m] [MonadEnv m] [MonadOptions m] [MonadLog m] [MonadResolveName m]
+    (openPos startPos endPos : String.Pos.Raw) : m (Option VersoDocument) := do
   let text ← getFileMap
-  -- TODO fallback to string version without nice interactivity
-  let (openPos, startPos, endPos) ←
-    match docStringRange docComment with
-    | .ok range => pure range
-    | .error msg => throwError msg
-
   let endPos := if endPos ≤ text.source.rawEndPos then endPos else text.source.rawEndPos
   have endPos_valid : endPos ≤ text.source.rawEndPos := by
     unfold endPos
@@ -181,14 +173,30 @@ def parseVersoDocString
   -- TODO parse one block at a time for error recovery purposes
   let s := (Doc.Parser.documentFn blockCtxt).run ictx pmctx (getTokenTable env) s
 
-  let errors := s.allErrors
-  if !errors.isEmpty then
-    for (pos, _, err) in errors do
-      logMessage (mkVersoParseMessage ictx pos err)
-    return none
-  return some ⟨s.stxStack.back⟩
+  if s.allErrors.isEmpty then
+    return some ⟨s.stxStack.back⟩
+  for (pos, _, err) in s.allErrors do
+    logMessage (mkVersoParseMessage ictx pos err)
+  return none
 
+open Lean.Doc in
+open Lean.Parser Command in
+/--
+Parses a docstring as Verso, returning the syntax if successful.
 
+When not successful, parser errors are logged.
+-/
+def parseVersoDocString
+    [Monad m] [MonadFileMap m] [MonadError m] [MonadEnv m] [MonadOptions m] [MonadLog m]
+    [MonadResolveName m]
+    (docComment : TSyntax [``docComment, ``moduleDoc]) :
+    m (Option VersoDocument) := do
+  -- TODO fallback to string version without nice interactivity
+  let (openPos, startPos, endPos) ←
+    match docStringRange docComment with
+    | .ok range => pure range
+    | .error msg => throwError msg
+  parseVersoDocStringAt openPos startPos endPos
 
 open Lean.Parser Command in
 /--
@@ -206,28 +214,7 @@ def reportVersoParseFailure
     match docCommentRange view with
     | .ok range => pure range
     | .error msg => throwError msg
-
-  let text ← getFileMap
-  let endPos := if endPos ≤ text.source.rawEndPos then endPos else text.source.rawEndPos
-  have endPos_valid : endPos ≤ text.source.rawEndPos := by
-    unfold endPos; split <;> simp [*]
-
-  let env ← getEnv
-  let ictx : InputContext :=
-    .mk text.source (← getFileName) (fileMap := text)
-      (endPos := endPos) (endPos_valid := endPos_valid)
-  let pmctx : ParserModuleContext := {
-    env,
-    options := ← getOptions,
-    currNamespace := ← getCurrNamespace,
-    openDecls := ← getOpenDecls
-  }
-  let blockCtxt := Doc.Parser.BlockCtxt.forDocString text openPos startPos endPos
-  let s := mkParserState text.source |>.setPos startPos
-  let s := (Doc.Parser.documentFn blockCtxt).run ictx pmctx (getTokenTable env) s
-
-  for (pos, _, err) in s.allErrors do
-    logMessage (mkVersoParseMessage ictx pos err)
+  discard <| parseVersoDocStringAt openPos startPos endPos
 
 open Lean.Doc in
 /--

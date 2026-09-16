@@ -23,6 +23,22 @@ builtin_initialize registerTraceClass `Elab.do
 builtin_initialize registerTraceClass `Elab.do.match
 builtin_initialize registerTraceClass `Elab.do.step
 
+register_builtin_option experimental.intrinsic : Bool := {
+  defValue := false
+  descr := "acknowledge that the intrinsic verification syntax (the contract clauses of a `def`, \
+the `assert` element, and the `invariant` and `decreasing` clauses of a loop) is experimental and \
+subject to change; `true` silences the warning that each of these forms reports"
+}
+
+/-- Report that an intrinsic verification form is experimental, at the keyword `kw` that introduces
+it. `what` names the form, as in ``m!"`assert` element"``. -/
+def warnIntrinsicExperimental [Monad m] [MonadLog m] [AddMessageContext m] [MonadOptions m]
+    (kw : Syntax) (what : MessageData) : m Unit := do
+  unless experimental.intrinsic.get (← getOptions) do
+    logWarningAt kw m!"The {what} is part of the experimental intrinsic verification syntax; \
+      `set_option experimental.intrinsic true` acknowledges its experimental status and silences \
+      this warning."
+
 structure MonadInfo where
   /-- The inferred type of the monad of type `Type u → Type v`. -/
   m : Expr
@@ -56,7 +72,7 @@ instance : Nonempty DoOpsRef :=
 
 /-- Whether a code block is alive or dead. -/
 inductive CodeLiveness where
-  /-- We inferred the code is semantically dead and don't need to elaborate it at all. -/
+  /-- We inferred the code is syntactically dead and don't need to elaborate it at all. -/
   | deadSyntactically
   /-- We inferred the code is semantically dead, but we need to elaborate it to produce a program. -/
   | deadSemantically
@@ -115,7 +131,7 @@ structure Context where
   mutVarDefs : Std.HashMap Name MutVar := {}
   /--
   The expected type of the current `do` block.
-  This can be different from `earlyReturnType` in `for` loop `do` blocks, for example.
+  This can be different from `ReturnCont.resultType` in `for` loop `do` blocks, for example.
   -/
   doBlockResultType : Expr
   /-- Information about `return`, `break` and `continue` continuations. -/
@@ -160,9 +176,8 @@ unsafe def DoOpsRef.toDoOpsImpl (r : DoOpsRef) : DoOps :=
 opaque DoOpsRef.toDoOps (r : DoOpsRef) : DoOps
 
 /--
-Whether the continuation of a `do` element is duplicable and if so whether it is just `pure r` for
-the result variable `r`. Saying `nonDuplicable` is always safe; `duplicable` allows for more
-optimizations.
+Whether the continuation of a `do` element is duplicable. Saying `nonDuplicable` is always safe;
+`duplicable` allows for more optimizations.
 -/
 inductive DoElemContKind
   | nonDuplicable
@@ -217,14 +232,14 @@ It is ``elabTerm `(do $e; $rest) = elabDoElem e dec``, where `elabDoElem e ·` i
 `do` element `e`, and `dec` is the `DoElemCont` describing the elaboration of the rest of the block
 `rest`.
 -/
-abbrev DoElab := TSyntax `doElem → DoElemCont → DoElabM Expr
+abbrev DoElab := DoElem → DoElemCont → DoElabM Expr
 
 structure ReturnCont where
   resultType : Expr
   /--
   The elaborator constructing a jump site to the return continuation,
   given some return value. The type of this return value determines the type of the jump expression;
-  this could very well be different than the `resultType` in case an intervening `match` as refined
+  this could very well be different than the `resultType` in case an intervening `match` has refined
   `resultType`. So `k` must *not* hardcode the type `resultType` into its definition; rather it
   should infer the type of the return value argument.
   -/
@@ -450,7 +465,7 @@ pure (x + y + z)
 ```
 Note that the continuation of the `let z ← ...` bind, roughly
 ``k := .cont `z _ `(let y := y + 3; pure (x + y + z))``,
-needs to elaborated in a local context that contains the reassignment of `x`, but not the shadowing
+needs to be elaborated in a local context that contains the reassignment of `x`, but not the shadowing
 mut var definition of `y`.
 -/
 def withLCtxKeepingMutVarDefs (oldLCtx : LocalContext) (oldCtx : Context) (resultName : Name) (k : DoElabM α) : DoElabM α := do
@@ -578,6 +593,16 @@ def DoElemCont.withDeadCodeFromInfo (dec : DoElemCont) (info : ControlInfo) : Do
   { dec with k := withDeadCode (if info.noFallthrough then .deadSemantically else .alive) dec.k }
 
 /--
+If `x` is a `mut` variable, record that its current binding aliases the original `let mut` binding,
+so that go-to-definition and find-references treat both as the same variable.
+-/
+def registerMutVarAlias (x : Name) : DoElabM Unit := do
+  if let some baseMutVar ← findMutVar? x then
+    let id := (← getFVarFromUserName x).fvarId!
+    if id != baseMutVar.baseId then
+      pushInfoLeaf <| .ofFVarAliasInfo (baseMutVar.mkAliasInfo id)
+
+/--
 Given a list of mut vars `vars` and an FVar `tupleVar` binding a tuple, bind the mut vars to the
 fields of the tuple and call `k` in the resulting local context.
 -/
@@ -589,16 +614,22 @@ where
     match vars with
     | []  => mkLetFVars letFVars (← k)
     | [x] =>
-      withLetDecl x tupleTy tuple fun x => do mkLetFVars (letFVars.push x) (← k)
+      withLetDecl x tupleTy tuple fun xf => do
+        registerMutVarAlias x
+        mkLetFVars (letFVars.push xf) (← k)
     | [x, y] =>
       let (fst, fstTy, snd, sndTy) ← getProdFields tuple tupleTy
-      withLetDecl x fstTy fst fun x =>
-      withLetDecl y sndTy snd fun y => do mkLetFVars (letFVars.push x |>.push y) (← k)
+      withLetDecl x fstTy fst fun xf =>
+      withLetDecl y sndTy snd fun yf => do
+        registerMutVarAlias x
+        registerMutVarAlias y
+        mkLetFVars (letFVars.push xf |>.push yf) (← k)
     | x :: xs => do
       let (fst, fstTy, snd, sndTy) ← getProdFields tuple tupleTy
-      withLetDecl x fstTy fst fun x => do
-      withLetDecl (← tupleVar.getUserName) sndTy snd fun r => do
-        go xs r.fvarId! sndTy (letFVars |>.push x |>.push r)
+      withLetDecl x fstTy fst fun xf => do
+        registerMutVarAlias x
+        withLetDecl (← tupleVar.getUserName) sndTy snd fun r => do
+          go xs r.fvarId! sndTy (letFVars |>.push xf |>.push r)
 
 /--
   Backtrackable state for the `TermElabM` monad.
@@ -710,6 +741,18 @@ def getContinueCont : DoElabM (Option (DoElabM Expr)) := do
 @[inline]
 def withDoBlockResultType (doBlockResultType : Expr) (k : DoElabM α) : DoElabM α := do
   withReader (fun ctx => { ctx with doBlockResultType }) k
+
+/--
+Refine the result type of the `do` block and its `return` continuation for the scope of `k`,
+as needed for a dependent `match` branch where a bare `return` targets the refined branch type.
+
+Relies on the `return` continuation result type coinciding with the `do` block result type, which
+holds for the tail-position dependent `match` this serves.
+-/
+def withRefinedResultType (doBlockResultType : Expr) (k : DoElabM α) : DoElabM α := do
+  let contInfo := (← read).contInfo.toContInfo
+  let contInfo := { contInfo with returnCont.resultType := doBlockResultType }
+  withReader (fun ctx => { ctx with doBlockResultType, contInfo := contInfo.toContInfoRef }) k
 
 /--
 Prepare the context for elaborating the body of a loop.
@@ -830,7 +873,7 @@ private partial def hasNestedActionsToLift : Syntax → Bool
     else args.any hasNestedActionsToLift
   | _ => false
 
-private partial def expandNestedActionsAux (baseId : Name) (inQuot : Bool) (inBinder : Bool) : Syntax → StateT (Array (TSyntax `doElem)) DoElabM Syntax
+private partial def expandNestedActionsAux (baseId : Name) (inQuot : Bool) (inBinder : Bool) : Syntax → StateT (Array DoElem) DoElabM Syntax
   | stx@(Syntax.node i k args) =>
     if k == choiceKind then do
       -- choice node: check that lifts are consistent
@@ -856,7 +899,7 @@ private partial def expandNestedActionsAux (baseId : Name) (inQuot : Bool) (inBi
       -- Wrap raw terms in `doExpr` so the subsequent `let _ ← _` quotation parses correctly.
       let isDoElem :=
         (Parser.getParserCategory? (← getEnv) `doElem).any (·.kinds.contains arg.getKind)
-      let act : TSyntax `doElem ←
+      let act : DoElem ←
         if isDoElem then pure ⟨arg⟩
         else let t : Term := ⟨arg⟩; `(doElem| $t:term)
       -- keep name deterministic across choice branches
@@ -871,7 +914,7 @@ private partial def expandNestedActionsAux (baseId : Name) (inQuot : Bool) (inBi
       return Syntax.node i k args
   | stx => return stx
 
-def expandNestedActions (stx : TSyntax kind) : DoElabM (Array (TSyntax `doElem) × TSyntax kind) := do
+def expandNestedActions (stx : TSyntax kind) : DoElabM (Array DoElem × TSyntax kind) := do
   if !hasNestedActionsToLift stx then
     return (#[], stx)
   else
@@ -907,7 +950,7 @@ private def withTermInfoContext' (elaborator : Name) (stx : Syntax) (expectedTyp
   controlAtTermElabM fun runInBase =>
     Term.withTermInfoContext' elaborator stx (expectedType? := expectedType) (runInBase x)
 
-private def elabDoElemFns (stx : TSyntax `doElem) (cont : DoElemCont)
+private def elabDoElemFns (stx : DoElem) (cont : DoElemCont)
     (fns : List (KeyedDeclsAttribute.AttributeEntry DoElab)) (catchExPostpone : Bool := true) : DoElabM Expr := do
   let s ← saveState
   match fns with
@@ -935,7 +978,7 @@ private def DoElemCont.mkUnit (k : DoElabM Expr) : DoElabM DoElemCont := do
   return DoElemCont.mk r unit k .nonDuplicable
 
 mutual
-partial def elabDoElem (stx : TSyntax `doElem) (cont : DoElemCont) (catchExPostpone : Bool := true) : DoElabM Expr := do
+partial def elabDoElem (stx : DoElem) (cont : DoElemCont) (catchExPostpone : Bool := true) : DoElabM Expr := do
   let k := stx.raw.getKind
   trace[Elab.do.step] "do element: {stx}"
   checkSystem "do element elaborator"
@@ -963,7 +1006,7 @@ partial def elabDoElem (stx : TSyntax `doElem) (cont : DoElemCont) (catchExPostp
   | []      => throwError "elaboration function for `{k}` has not been implemented{indentD stx}"
   | elabFns => elabDoElemFns stx cont elabFns catchExPostpone
 
-partial def elabDoElems1 (doElems : Array (TSyntax `doElem)) (cont : DoElemCont) (catchExPostpone : Bool := true) : DoElabM Expr := do
+partial def elabDoElems1 (doElems : Array DoElem) (cont : DoElemCont) (catchExPostpone : Bool := true) : DoElabM Expr := do
   if h : doElems.size = 0 then
     throwError "Empty array of `do` elements passed to `elabDoElems1`."
   else
@@ -976,7 +1019,7 @@ partial def elabDoElems1 (doElems : Array (TSyntax `doElem)) (cont : DoElemCont)
   res
 end
 
-partial def elabDoSeq (doSeq : TSyntax ``doSeq) (cont : DoElemCont) (catchExPostpone : Bool := true) : DoElabM Expr := do
+partial def elabDoSeq (doSeq : DoSeq) (cont : DoElemCont) (catchExPostpone : Bool := true) : DoElabM Expr := do
   let s ← saveState
   try
     elabDoElems1 (getDoElems doSeq) cont catchExPostpone
@@ -996,7 +1039,7 @@ def elabNestedAction : Term.TermElab := fun stx _ty? => do
   throwErrorAt stx "Nested action `{stx}` must be nested inside a `do` expression."
 
 /-- Elaborate `doSeq` using `ops` for pure/bind construction. -/
-def elabDoWith (ops : DoOps) (doSeq : TSyntax ``doSeq)
+def elabDoWith (ops : DoOps) (doSeq : DoSeq)
     (expectedType? : Option Expr) : TermElabM Expr := do
   Term.tryPostponeIfNoneOrMVar expectedType?
   let ctx ← mkContext expectedType? (ops := ops)

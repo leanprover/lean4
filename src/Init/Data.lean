@@ -22,7 +22,6 @@ public import Init.Data.Fin
 public import Init.Data.UInt
 public import Init.Data.SInt
 public import Init.Data.Float
-public import Init.Data.Float32
 public import Init.Data.Option
 public import Init.Data.Ord
 public import Init.Data.Random

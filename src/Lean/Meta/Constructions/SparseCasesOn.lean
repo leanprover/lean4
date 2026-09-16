@@ -38,7 +38,7 @@ builtin_initialize sparseCasesOnInfoExt : MapDeclarationExtension SparseCasesOnI
   mkMapDeclarationExtension (exportEntriesFn := fun env s =>
     let all := s.toArray
     -- Do not export for non-exposed defs at exported/server levels
-    let exported := s.filter (fun n _ => (env.setExporting true).find? n |>.any (·.hasValue)) |>.toArray
+    let exported := s.filter (fun n _ => env.hasExposedBody n) |>.toArray
     { exported, server := exported, «private» := all })
 
 /--

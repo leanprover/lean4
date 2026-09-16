@@ -13,9 +13,6 @@ Author: Sofia Rodrigues
 namespace lean {
 
 void initialize_openssl() {
-    if (OPENSSL_init_ssl(0, nullptr) != 1) {
-        lean_internal_panic("failed to initialize OpenSSL");
-    }
 }
 
 void finalize_openssl() {}

@@ -13,7 +13,7 @@
 #ifdef __cplusplus
 extern "C" {
 #endif
-lean_object* lean_st_ref_set(lean_object*, lean_object*);
+lean_object* lean_st_ref_swap(lean_object*, lean_object*);
 lean_object* lean_st_ref_get(lean_object*);
 lean_object* lean_st_mk_ref(lean_object*);
 lean_object* l_Lean_Elab_Term_TermElabM_run___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
@@ -356,7 +356,8 @@ lean_inc(v_fst_71_);
 v_snd_72_ = lean_ctor_get(v_a_67_, 1);
 lean_inc(v_snd_72_);
 lean_dec(v_a_67_);
-v___x_73_ = lean_st_ref_set(v___y_57_, v_snd_72_);
+v___x_73_ = lean_st_ref_swap(v___y_57_, v_snd_72_);
+lean_dec(v___x_73_);
 if (v_isShared_70_ == 0)
 {
 lean_ctor_set_tag(v___x_69_, 0);
@@ -811,7 +812,8 @@ lean_inc(v_fst_222_);
 v_snd_223_ = lean_ctor_get(v_a_218_, 1);
 lean_inc(v_snd_223_);
 lean_dec(v_a_218_);
-v___x_224_ = lean_st_ref_set(v___y_213_, v_snd_223_);
+v___x_224_ = lean_st_ref_swap(v___y_213_, v_snd_223_);
+lean_dec(v___x_224_);
 if (v_isShared_221_ == 0)
 {
 lean_ctor_set(v___x_220_, 0, v_fst_222_);
@@ -1221,7 +1223,8 @@ lean_inc(v_fst_366_);
 v_snd_367_ = lean_ctor_get(v_a_362_, 1);
 lean_inc(v_snd_367_);
 lean_dec(v_a_362_);
-v___x_368_ = lean_st_ref_set(v___y_355_, v_snd_367_);
+v___x_368_ = lean_st_ref_swap(v___y_355_, v_snd_367_);
+lean_dec(v___x_368_);
 if (v_isShared_365_ == 0)
 {
 lean_ctor_set(v___x_364_, 0, v_fst_366_);
@@ -1752,7 +1755,8 @@ lean_inc(v_fst_571_);
 v_snd_572_ = lean_ctor_get(v_a_567_, 1);
 lean_inc(v_snd_572_);
 lean_dec(v_a_567_);
-v___x_573_ = lean_st_ref_set(v___y_558_, v_snd_572_);
+v___x_573_ = lean_st_ref_swap(v___y_558_, v_snd_572_);
+lean_dec(v___x_573_);
 if (v_isShared_570_ == 0)
 {
 lean_ctor_set(v___x_569_, 0, v_fst_571_);
@@ -2147,11 +2151,13 @@ return v_res_737_;
 }
 }
 lean_object* runtime_initialize_Lean_Elab_Tactic_Basic(uint8_t builtin);
+void lean_initialize_runtime_module();
 static bool _G_runtime_initialized = false;
 LEAN_EXPORT lean_object* runtime_initialize_Lean_Elab_Task(uint8_t builtin) {
 lean_object * res;
 if (_G_runtime_initialized) return lean_io_result_mk_ok(lean_box(0));
 _G_runtime_initialized = true;
+lean_initialize_runtime_module();
 res = runtime_initialize_Lean_Elab_Tactic_Basic(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);

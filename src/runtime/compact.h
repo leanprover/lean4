@@ -43,7 +43,7 @@ class LEAN_EXPORT object_compactor {
     friend struct max_sharing_eq;
     lean::unordered_map<object*, object_offset, std::hash<object*>, std::equal_to<object*>> m_obj_table;
     std::unique_ptr<max_sharing_table> m_max_sharing_table;
-    std::vector<object*> m_todo;
+    // Scratch stack of child offsets, to avoid repeated stack allocs during recursion
     std::vector<object_offset> m_tmp;
     // Dependency regions sorted by `begin` address for binary search in `to_offset`
     std::vector<region_view> m_dep_regions;
@@ -60,21 +60,24 @@ class LEAN_EXPORT object_compactor {
     void * m_end;
     void * m_capacity;
     size_t capacity() const { return static_cast<char*>(m_capacity) - static_cast<char*>(m_begin); }
-    void save(object * o, object * new_o);
-    void save_max_sharing(object * o, object * new_o, size_t new_o_sz);
+    object_offset save(object * o, object * new_o);
+    object_offset save_max_sharing(object * o, object * new_o, size_t new_o_sz);
     object_offset to_offset(object * o);
+    // Compacts a not-yet-seen heap object (and, recursively, its children),
+    // returning its offset. Dispatches on the object's tag.
+    object_offset compact(object * o);
     void insert_terminator(object * o);
-    object * copy_object(object * o);
-    bool insert_constructor(object * o);
-    bool insert_array(object * o);
-    void insert_sarray(object * o);
-    void insert_string(object * o);
-    bool insert_thunk(object * o);
-    bool insert_task(object * o);
-    bool insert_promise(object * o);
-    bool insert_ref(object * o);
-    void insert_mpz(object * o);
-    bool insert_closure(object * o);
+    object * copy_object(object * o, size_t sz = 0);
+    object_offset insert_constructor(object * o);
+    object_offset insert_array(object * o);
+    object_offset insert_sarray(object * o);
+    object_offset insert_string(object * o);
+    object_offset insert_thunk(object * o);
+    object_offset insert_task(object * o);
+    object_offset insert_promise(object * o);
+    object_offset insert_ref(object * o);
+    object_offset insert_mpz(object * o);
+    object_offset insert_closure(object * o);
 public:
     object_compactor(void * base_addr = nullptr, std::vector<region_view> dep_regions = {},
                      bool allow_closures = false);
@@ -107,6 +110,9 @@ class LEAN_EXPORT region_reader {
     void * m_begin;
     void * m_next;
     void * m_end;
+    // Path of the file this region was loaded from (empty when constructed in-memory rather
+    // than read from disk). Lets snapshot save re-derive its dep paths from `env.header.regions`.
+    std::string m_fname;
     // Dependency regions for cross-region pointer fixup
     std::vector<region_view> m_dep_regions;
     // Sorted (old_base, delta) pairs for closure function pointer relocation
@@ -114,6 +120,7 @@ class LEAN_EXPORT region_reader {
     // Data-relative byte offsets of every closure's `m_fun` field. Used to patch fn
     // pointers on load without scanning the compacted region. Empty if no closures.
     std::vector<size_t> m_closure_offsets;
+    void sort_and_validate_dep_regions();
     void move(size_t d);
     void move(object * o);
     object * fix_object_ptr(object * o);

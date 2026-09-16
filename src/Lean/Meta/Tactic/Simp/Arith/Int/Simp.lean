@@ -9,7 +9,7 @@ public import Lean.Meta.Tactic.Simp.Arith.Util
 public import Lean.Meta.Tactic.Simp.Arith.Int.Basic
 public section
 
-def Int.Linear.Poly.gcdAll : Poly → Nat
+def Int.Internal.Linear.Poly.gcdAll : Poly → Nat
   | .num k => k.natAbs
   | .add k _ p => go k.natAbs p
 where
@@ -19,7 +19,7 @@ where
       | .num k' => Nat.gcd k k'.natAbs
       | .add k' _ p => go (Nat.gcd k k'.natAbs) p
 
-def Int.Linear.Poly.gcdCoeffs' : Poly → Nat
+def Int.Internal.Linear.Poly.gcdCoeffs' : Poly → Nat
   | .num _ => 1
   | .add k _ p => go k.natAbs p
 where
@@ -37,11 +37,11 @@ def simpEq? (e : Expr) : MetaM (Option (Expr × Expr)) := do
   let p := a.sub b |>.norm
   if p.isUnsatEq then
     let r := mkConst ``False
-    let h := mkApp4 (mkConst ``Int.Linear.eq_eq_false) (← toContextExpr atoms) (toExpr a) (toExpr b) eagerReflBoolTrue
+    let h := mkApp4 (mkConst ``Int.Internal.Linear.eq_eq_false) (← toContextExpr atoms) (toExpr a) (toExpr b) eagerReflBoolTrue
     return some (r, mkExpectedPropHint h (mkPropEq e r))
   else if p.isValidEq then
     let r := mkConst ``True
-    let h := mkApp4 (mkConst ``Int.Linear.eq_eq_true) (← toContextExpr atoms) (toExpr a) (toExpr b) eagerReflBoolTrue
+    let h := mkApp4 (mkConst ``Int.Internal.Linear.eq_eq_true) (← toContextExpr atoms) (toExpr a) (toExpr b) eagerReflBoolTrue
     return some (r, mkExpectedPropHint h (mkPropEq e r))
   else if p.toExpr == a && b == .num 0 then
     return none
@@ -49,27 +49,27 @@ def simpEq? (e : Expr) : MetaM (Option (Expr × Expr)) := do
     | .add 1 x (.add (-1) y (.num 0)) =>
       let r := mkIntEq atoms[x]! atoms[y]!
       if r == e then return none
-      let h := mkApp6 (mkConst ``Int.Linear.norm_eq_var) (← toContextExpr atoms) (toExpr a) (toExpr b) (toExpr x) (toExpr y) eagerReflBoolTrue
+      let h := mkApp6 (mkConst ``Int.Internal.Linear.norm_eq_var) (← toContextExpr atoms) (toExpr a) (toExpr b) (toExpr x) (toExpr y) eagerReflBoolTrue
       return some (r, mkExpectedPropHint h (mkPropEq e r))
     | .add 1 x (.num k) =>
       let r := mkIntEq atoms[x]! (toExpr (-k))
       if r == e then return none
-      let h := mkApp6 (mkConst ``Int.Linear.norm_eq_var_const) (← toContextExpr atoms) (toExpr a) (toExpr b) (toExpr x) (toExpr (-k)) eagerReflBoolTrue
+      let h := mkApp6 (mkConst ``Int.Internal.Linear.norm_eq_var_const) (← toContextExpr atoms) (toExpr a) (toExpr b) (toExpr x) (toExpr (-k)) eagerReflBoolTrue
       return some (r, mkExpectedPropHint h (mkPropEq e r))
     | _ =>
       let k := p.gcdCoeffs'
       if k == 1 then
         let r := mkIntEq (← p.denoteExpr (atoms[·]!)) (mkIntLit 0)
-        let h := mkApp5 (mkConst ``Int.Linear.norm_eq) (← toContextExpr atoms) (toExpr a) (toExpr b) (toExpr p) eagerReflBoolTrue
+        let h := mkApp5 (mkConst ``Int.Internal.Linear.norm_eq) (← toContextExpr atoms) (toExpr a) (toExpr b) (toExpr p) eagerReflBoolTrue
         return some (r, mkExpectedPropHint h (mkPropEq e r))
       else if p.getConst % k == 0 then
         let p := p.div k
         let r := mkIntEq (← p.denoteExpr (atoms[·]!)) (mkIntLit 0)
-        let h := mkApp6 (mkConst ``Int.Linear.norm_eq_coeff) (← toContextExpr atoms) (toExpr a) (toExpr b) (toExpr p) (toExpr (Int.ofNat k)) eagerReflBoolTrue
+        let h := mkApp6 (mkConst ``Int.Internal.Linear.norm_eq_coeff) (← toContextExpr atoms) (toExpr a) (toExpr b) (toExpr p) (toExpr (Int.ofNat k)) eagerReflBoolTrue
         return some (r, mkExpectedPropHint h (mkPropEq e r))
       else
         let r := mkConst ``False
-        let h := mkApp5 (mkConst ``Int.Linear.eq_eq_false_of_divCoeff) (← toContextExpr atoms) (toExpr a) (toExpr b) (toExpr (Int.ofNat k)) eagerReflBoolTrue
+        let h := mkApp5 (mkConst ``Int.Internal.Linear.eq_eq_false_of_divCoeff) (← toContextExpr atoms) (toExpr a) (toExpr b) (toExpr (Int.ofNat k)) eagerReflBoolTrue
         return some (r, mkExpectedPropHint h (mkPropEq e r))
 
 
@@ -81,11 +81,11 @@ def simpLe? (e : Expr) (checkIfModified : Bool) : MetaM (Option (Expr × Expr)) 
   let p := a.sub b |>.norm
   if p.isUnsatLe then
     let r := mkConst ``False
-    let h := mkApp4 (mkConst ``Int.Linear.le_eq_false) (← toContextExpr atoms) (toExpr a) (toExpr b) eagerReflBoolTrue
+    let h := mkApp4 (mkConst ``Int.Internal.Linear.le_eq_false) (← toContextExpr atoms) (toExpr a) (toExpr b) eagerReflBoolTrue
     return some (r, mkExpectedPropHint h (mkPropEq e r))
   else if p.isValidLe then
     let r := mkConst ``True
-    let h := mkApp4 (mkConst ``Int.Linear.le_eq_true) (← toContextExpr atoms) (toExpr a) (toExpr b) eagerReflBoolTrue
+    let h := mkApp4 (mkConst ``Int.Internal.Linear.le_eq_true) (← toContextExpr atoms) (toExpr a) (toExpr b) eagerReflBoolTrue
     return some (r, mkExpectedPropHint h (mkPropEq e r))
   else if checkIfModified && p.toExpr == a && b == .num 0 then
     return none
@@ -93,16 +93,16 @@ def simpLe? (e : Expr) (checkIfModified : Bool) : MetaM (Option (Expr × Expr)) 
     let k := p.gcdCoeffs'
     if k == 1 then
       let r := mkIntLE (← p.denoteExpr (atoms[·]!)) (mkIntLit 0)
-      let h := mkApp5 (mkConst ``Int.Linear.norm_le) (← toContextExpr atoms) (toExpr a) (toExpr b) (toExpr p) eagerReflBoolTrue
+      let h := mkApp5 (mkConst ``Int.Internal.Linear.norm_le) (← toContextExpr atoms) (toExpr a) (toExpr b) (toExpr p) eagerReflBoolTrue
       return some (r, mkExpectedPropHint h (mkPropEq e r))
     else
       let tight := p.getConst % k != 0
       let p := p.div k
       let r := mkIntLE (← p.denoteExpr (atoms[·]!)) (mkIntLit 0)
       let h ← if tight then
-        pure <| mkApp6 (mkConst ``Int.Linear.norm_le_coeff_tight) (← toContextExpr atoms) (toExpr a) (toExpr b) (toExpr p) (toExpr (Int.ofNat k)) eagerReflBoolTrue
+        pure <| mkApp6 (mkConst ``Int.Internal.Linear.norm_le_coeff_tight) (← toContextExpr atoms) (toExpr a) (toExpr b) (toExpr p) (toExpr (Int.ofNat k)) eagerReflBoolTrue
       else
-        pure <| mkApp6 (mkConst ``Int.Linear.norm_le_coeff) (← toContextExpr atoms) (toExpr a) (toExpr b) (toExpr p) (toExpr (Int.ofNat k)) eagerReflBoolTrue
+        pure <| mkApp6 (mkConst ``Int.Internal.Linear.norm_le_coeff) (← toContextExpr atoms) (toExpr a) (toExpr b) (toExpr p) (toExpr (Int.ofNat k)) eagerReflBoolTrue
       return some (r, mkExpectedPropHint h (mkPropEq e r))
 
 def simpRel? (e : Expr) : MetaM (Option (Expr × Expr)) := do
@@ -147,13 +147,13 @@ def simpDvd? (e : Expr) : MetaM (Option (Expr × Expr)) := do
       return none
     let rhs := mkIntDvd (toExpr d') (← p.denoteExpr (atoms[·]!))
     let h ← if g == 1 then
-      pure <| mkApp5 (mkConst ``Int.Linear.norm_dvd) (← toContextExpr atoms) (toExpr d) (toExpr e) (toExpr p) eagerReflBoolTrue
+      pure <| mkApp5 (mkConst ``Int.Internal.Linear.norm_dvd) (← toContextExpr atoms) (toExpr d) (toExpr e) (toExpr p) eagerReflBoolTrue
     else
-      pure <| mkApp7 (mkConst ``Int.Linear.norm_dvd_gcd) (← toContextExpr atoms) (toExpr d) (toExpr e) (toExpr d') (toExpr p) (toExpr g) eagerReflBoolTrue
+      pure <| mkApp7 (mkConst ``Int.Internal.Linear.norm_dvd_gcd) (← toContextExpr atoms) (toExpr d) (toExpr e) (toExpr d') (toExpr p) (toExpr g) eagerReflBoolTrue
     return some (rhs, mkExpectedPropHint h (mkPropEq lhs rhs))
   else
     let rhs := mkConst ``False
-    let h := mkApp4 (mkConst ``Int.Linear.dvd_eq_false) (← toContextExpr atoms) (toExpr d) (toExpr e) eagerReflBoolTrue
+    let h := mkApp4 (mkConst ``Int.Internal.Linear.dvd_eq_false) (← toContextExpr atoms) (toExpr d) (toExpr e) eagerReflBoolTrue
     return some (rhs, mkExpectedPropHint h (mkPropEq lhs rhs))
 
 def simpExpr? (lhs : Expr) : MetaM (Option (Expr × Expr)) := do
@@ -161,7 +161,7 @@ def simpExpr? (lhs : Expr) : MetaM (Option (Expr × Expr)) := do
   let p  := e.norm
   let e' := p.toExpr
   if e != e' then
-    let h := mkApp4 (mkConst ``Int.Linear.Expr.eq_of_norm_eq) (← toContextExpr ctx) (toExpr e) (toExpr p) eagerReflBoolTrue
+    let h := mkApp4 (mkConst ``Int.Internal.Linear.Expr.eq_of_norm_eq) (← toContextExpr ctx) (toExpr e) (toExpr p) eagerReflBoolTrue
     let lhs ← e.denoteExpr (ctx[·]!)
     let rhs ← p.denoteExpr (ctx[·]!)
     return some (rhs, mkExpectedPropHint h (mkIntEq lhs rhs))

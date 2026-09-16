@@ -7,7 +7,7 @@ module
 prelude
 public import Lean.Meta.Tactic.Grind.Types
 namespace Lean.Elab.Tactic.Grind
-open Meta Grind
+open Meta Lean.Meta.Grind
 
 public def elabAnchorRef (anchor : TSyntax `hexnum) : CoreM AnchorRef := do
   let numDigits := anchor.getHexNumSize

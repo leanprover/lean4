@@ -17,7 +17,7 @@ lean_object* lean_st_ref_get(lean_object*);
 uint8_t lean_nat_dec_lt(lean_object*, lean_object*);
 lean_object* lean_io_promise_new();
 lean_object* l_Std_Queue_enqueue___redArg(lean_object*, lean_object*);
-lean_object* lean_st_ref_set(lean_object*, lean_object*);
+lean_object* lean_st_ref_swap(lean_object*, lean_object*);
 lean_object* lean_nat_sub(lean_object*, lean_object*);
 lean_object* lean_io_promise_resolve(lean_object*, lean_object*);
 lean_object* lean_io_basemutex_lock(lean_object*);
@@ -215,7 +215,8 @@ goto v_reusejp_63_;
 v_reusejp_63_:
 {
 lean_object* v___x_65_; 
-v___x_65_ = lean_st_ref_set(v___y_51_, v___x_64_);
+v___x_65_ = lean_st_ref_swap(v___y_51_, v___x_64_);
+lean_dec(v___x_65_);
 return v___x_61_;
 }
 }
@@ -243,7 +244,8 @@ goto v_reusejp_69_;
 v_reusejp_69_:
 {
 lean_object* v___x_71_; lean_object* v___x_72_; lean_object* v___x_73_; 
-v___x_71_ = lean_st_ref_set(v___y_51_, v___x_70_);
+v___x_71_ = lean_st_ref_swap(v___y_51_, v___x_70_);
+lean_dec(v___x_71_);
 v___x_72_ = lean_box(0);
 v___x_73_ = l___private_Std_Sync_Semaphore_0__Std_mkResolvedPromise___redArg(v___x_72_);
 return v___x_73_;
@@ -337,7 +339,8 @@ goto v_reusejp_99_;
 v_reusejp_99_:
 {
 lean_object* v___x_101_; 
-v___x_101_ = lean_st_ref_set(v___y_87_, v___x_100_);
+v___x_101_ = lean_st_ref_swap(v___y_87_, v___x_100_);
+lean_dec(v___x_101_);
 return v___x_96_;
 }
 }
@@ -426,7 +429,8 @@ goto v_reusejp_129_;
 v_reusejp_129_:
 {
 lean_object* v___x_131_; lean_object* v___x_132_; 
-v___x_131_ = lean_st_ref_set(v___y_118_, v___x_130_);
+v___x_131_ = lean_st_ref_swap(v___y_118_, v___x_130_);
+lean_dec(v___x_131_);
 v___x_132_ = lean_box(0);
 return v___x_132_;
 }
@@ -477,7 +481,8 @@ goto v_reusejp_140_;
 v_reusejp_140_:
 {
 lean_object* v___x_142_; lean_object* v___x_144_; 
-v___x_142_ = lean_st_ref_set(v___y_118_, v___x_141_);
+v___x_142_ = lean_st_ref_swap(v___y_118_, v___x_141_);
+lean_dec(v___x_142_);
 if (v_isShared_137_ == 0)
 {
 lean_ctor_set(v___x_136_, 0, v_fst_138_);
@@ -585,11 +590,13 @@ return v_res_178_;
 lean_object* runtime_initialize_Init_Data_Queue(uint8_t builtin);
 lean_object* runtime_initialize_Init_System_Promise(uint8_t builtin);
 lean_object* runtime_initialize_Std_Sync_Mutex(uint8_t builtin);
+void lean_initialize_runtime_module();
 static bool _G_runtime_initialized = false;
 LEAN_EXPORT lean_object* runtime_initialize_Std_Sync_Semaphore(uint8_t builtin) {
 lean_object * res;
 if (_G_runtime_initialized) return lean_io_result_mk_ok(lean_box(0));
 _G_runtime_initialized = true;
+lean_initialize_runtime_module();
 res = runtime_initialize_Init_Data_Queue(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);

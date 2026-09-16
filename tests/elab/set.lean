@@ -1,4 +1,4 @@
-def Set (α : Type u) := α → Prop
+abbrev Set (α : Type u) := α → Prop
 def Set.in (s : Set α) (a : α) := s a
 
 notation:50 a " ∈ " s:50 => Set.in s a

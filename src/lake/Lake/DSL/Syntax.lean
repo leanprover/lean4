@@ -137,7 +137,7 @@ subdirectory is specified).
 public syntax fromClause :=
   " from " fromSource
 
-/-
+/--
 A `NameMap String` of Lake options used to configure the dependency.
 This is equivalent to passing `-K` options to the dependency on the command line.
 -/
@@ -464,7 +464,7 @@ meta if System.Platform.isWindows then
 extern_lib winOnlyLib := ...
 else meta if System.Platform.isOSX then
 extern_lib macOnlyLib := ...
-else
+else meta if System.Platform.isLinux then
 extern_lib linuxOnlyLib := ...
 ```
 -/

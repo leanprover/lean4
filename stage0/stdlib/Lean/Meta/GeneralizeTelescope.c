@@ -18,7 +18,7 @@ lean_object* l___private_Lean_Meta_Basic_0__Lean_Meta_withLocalDeclImp(lean_obje
 uint8_t l_Lean_Expr_hasMVar(lean_object*);
 lean_object* l_Lean_instantiateMVarsCore(lean_object*, lean_object*);
 lean_object* lean_st_ref_take(lean_object*);
-lean_object* lean_st_ref_set(lean_object*, lean_object*);
+lean_object* lean_st_ref_put(lean_object*, lean_object*);
 lean_object* l_List_reverse___redArg(lean_object*);
 lean_object* l_Lean_MessageData_ofExpr(lean_object*);
 size_t lean_array_size(lean_object*);
@@ -179,7 +179,7 @@ goto v_reusejp_27_;
 v_reusejp_27_:
 {
 lean_object* v___x_29_; lean_object* v___x_30_; lean_object* v___x_31_; 
-lean_ctor_set_uint8(v___x_28_, sizeof(void*)*2, v___x_22_);
+lean_ctor_set_uint8(v___x_28_, sizeof(void*)*2, v___x_11_);
 v___x_29_ = lean_array_fset(v_entries_3_, v_i_4_, v___x_28_);
 v___x_30_ = lean_unsigned_to_nat(1u);
 v___x_31_ = lean_nat_add(v_i_4_, v___x_30_);
@@ -764,10 +764,10 @@ v___jp_270_:
 {
 if (v_modified_269_ == 0)
 {
-lean_inc_ref(v_type_268_);
 lean_inc_ref(v_expr_267_);
-v___y_256_ = v_expr_267_;
-v___y_257_ = v_type_268_;
+lean_inc_ref(v_type_268_);
+v___y_256_ = v_type_268_;
+v___y_257_ = v_expr_267_;
 v___y_258_ = v___y_271_;
 v___y_259_ = v___y_272_;
 v___y_260_ = v___y_273_;
@@ -806,10 +806,10 @@ v___x_287_ = l_Lean_throwError___at___00Lean_Meta_GeneralizeTelescope_generalize
 if (lean_obj_tag(v___x_287_) == 0)
 {
 lean_dec_ref_known(v___x_287_, 1);
-lean_inc_ref(v_type_268_);
 lean_inc_ref(v_expr_267_);
-v___y_256_ = v_expr_267_;
-v___y_257_ = v_type_268_;
+lean_inc_ref(v_type_268_);
+v___y_256_ = v_type_268_;
+v___y_257_ = v_expr_267_;
 v___y_258_ = v___y_271_;
 v___y_259_ = v___y_272_;
 v___y_260_ = v___y_273_;
@@ -864,10 +864,10 @@ return v___x_293_;
 }
 else
 {
-lean_inc_ref(v_type_268_);
 lean_inc_ref(v_expr_267_);
-v___y_256_ = v_expr_267_;
-v___y_257_ = v_type_268_;
+lean_inc_ref(v_type_268_);
+v___y_256_ = v_type_268_;
+v___y_257_ = v_expr_267_;
 v___y_258_ = v___y_271_;
 v___y_259_ = v___y_272_;
 v___y_260_ = v___y_273_;
@@ -995,8 +995,8 @@ v___jp_255_:
 lean_object* v___x_262_; 
 v___x_262_ = ((lean_object*)(l_Lean_Meta_GeneralizeTelescope_generalizeTelescopeAux___redArg___closed__1));
 v_baseUserName_236_ = v___x_262_;
-v_e_237_ = v___y_256_;
-v_type_238_ = v___y_257_;
+v_e_237_ = v___y_257_;
+v_type_238_ = v___y_256_;
 v___y_239_ = v___y_258_;
 v___y_240_ = v___y_259_;
 v___y_241_ = v___y_260_;
@@ -1239,7 +1239,7 @@ goto v_reusejp_457_;
 v_reusejp_457_:
 {
 lean_object* v___x_459_; lean_object* v___x_460_; 
-v___x_459_ = lean_st_ref_set(v___y_440_, v___x_458_);
+v___x_459_ = lean_st_ref_put(v___y_440_, v___x_458_);
 v___x_460_ = lean_alloc_ctor(0, 1, 0);
 lean_ctor_set(v___x_460_, 0, v_fst_447_);
 return v___x_460_;
@@ -1528,11 +1528,13 @@ return v_res_581_;
 }
 lean_object* runtime_initialize_Lean_Meta_KAbstract(uint8_t builtin);
 lean_object* runtime_initialize_Lean_Meta_Check(uint8_t builtin);
+void lean_initialize_runtime_module();
 static bool _G_runtime_initialized = false;
 LEAN_EXPORT lean_object* runtime_initialize_Lean_Meta_GeneralizeTelescope(uint8_t builtin) {
 lean_object * res;
 if (_G_runtime_initialized) return lean_io_result_mk_ok(lean_box(0));
 _G_runtime_initialized = true;
+lean_initialize_runtime_module();
 res = runtime_initialize_Lean_Meta_KAbstract(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);

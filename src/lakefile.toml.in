@@ -43,10 +43,17 @@ nativeLibDir = "lib/lean"
 # Additional options derived from the CMake configuration
 moreLeanArgs = [${LEAN_EXTRA_OPTS_TOML}]
 
+# Enable core-only linters
+leanOptions.linter.coreInternal = true
+
 # Uncomment to limit number of reported errors further in case of overwhelming cmdline output
 #weakLeanArgs = ["-DmaxErrors=1"]
 
+# CMake's `LEANC_EXTRA_CC_FLAGS`
 moreLeancArgs = [${LEAN_MORE_LEANC_ARGS_TOML}]
+
+# CMake's `LEANC_INTERNAL_FLAGS`
+weakLeancArgs = [${LEAN_WEAK_LEANC_ARGS_TOML}]
 
 ${LEAN_EXTRA_LAKEFILE_TOML}
 
@@ -78,7 +85,7 @@ globs = ["Lake.*"]
 defaultFacets = ["static", "static.export"]
 # Load the previous stage's lake native code into lake's build process in order to prevent ABI
 # breakages from affecting bootstrapping.
-weakLeanArgs = ["--plugin", "${PREV_STAGE}/${CMAKE_RELATIVE_LIBRARY_OUTPUT_DIRECTORY}/libLake_shared${CMAKE_SHARED_LIBRARY_SUFFIX}"]
+weakLeanArgs = ["--plugin", "${PREV_STAGE}/${CMAKE_RELATIVE_LIBRARY_OUTPUT_DIRECTORY}/libLake_shared${CMAKE_SHARED_LIBRARY_SUFFIX}=initialize_Lake_All"]
 
 [[lean_lib]]
 name = "LakeMain"

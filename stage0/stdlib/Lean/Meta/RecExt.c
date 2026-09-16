@@ -18,7 +18,7 @@ lean_object* l_Lean_mkTagDeclarationExtension(lean_object*, lean_object*);
 lean_object* l_Lean_PersistentHashMap_mkEmptyEntriesArray(lean_object*, lean_object*);
 lean_object* lean_st_ref_take(lean_object*);
 lean_object* l_Lean_TagDeclarationExtension_tag(lean_object*, lean_object*, lean_object*);
-lean_object* lean_st_ref_set(lean_object*, lean_object*);
+lean_object* lean_st_ref_put(lean_object*, lean_object*);
 lean_object* lean_st_ref_get(lean_object*);
 uint8_t l_Lean_TagDeclarationExtension_isTagged(lean_object*, lean_object*, lean_object*, lean_object*);
 static const lean_string_object l___private_Lean_Meta_RecExt_0__Lean_Meta_initFn___closed__0_00___x40_Lean_Meta_RecExt_2067193597____hygCtx___hyg_2__value = {.m_header = {.m_rc = 0, .m_cs_sz = 0, .m_other = 0, .m_tag = 249}, .m_size = 7, .m_capacity = 7, .m_length = 6, .m_data = "recExt"};
@@ -161,7 +161,7 @@ goto v_reusejp_35_;
 v_reusejp_35_:
 {
 lean_object* v___x_37_; lean_object* v___x_38_; lean_object* v___x_39_; 
-v___x_37_ = lean_st_ref_set(v_a_18_, v___x_36_);
+v___x_37_ = lean_st_ref_put(v_a_18_, v___x_36_);
 v___x_38_ = lean_box(0);
 v___x_39_ = lean_alloc_ctor(0, 1, 0);
 lean_ctor_set(v___x_39_, 0, v___x_38_);
@@ -243,11 +243,13 @@ return v_res_81_;
 }
 }
 lean_object* runtime_initialize_Lean_Attributes(uint8_t builtin);
+void lean_initialize_runtime_module();
 static bool _G_runtime_initialized = false;
 LEAN_EXPORT lean_object* runtime_initialize_Lean_Meta_RecExt(uint8_t builtin) {
 lean_object * res;
 if (_G_runtime_initialized) return lean_io_result_mk_ok(lean_box(0));
 _G_runtime_initialized = true;
+lean_initialize_runtime_module();
 res = runtime_initialize_Lean_Attributes(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);

@@ -17,7 +17,7 @@ lean_object* l_Lean_MessageData_ofFormat(lean_object*);
 lean_object* lean_st_ref_get(lean_object*);
 lean_object* lean_st_ref_take(lean_object*);
 lean_object* l_Lean_PersistentArray_push___redArg(lean_object*, lean_object*);
-lean_object* lean_st_ref_set(lean_object*, lean_object*);
+lean_object* lean_st_ref_put(lean_object*, lean_object*);
 lean_object* l_Lean_Elab_getBetterRef(lean_object*, lean_object*);
 extern lean_object* l_Lean_Elab_pp_macroStack;
 lean_object* l_Std_DTreeMap_Internal_Impl_Const_get_x3f___at___00Lean_NameMap_find_x3f_spec__0___redArg(lean_object*, lean_object*);
@@ -238,7 +238,7 @@ goto v_reusejp_32_;
 v_reusejp_32_:
 {
 lean_object* v___x_34_; lean_object* v___x_35_; lean_object* v___x_36_; 
-v___x_34_ = lean_st_ref_set(v___y_2_, v___x_33_);
+v___x_34_ = lean_st_ref_put(v___y_2_, v___x_33_);
 v___x_35_ = lean_box(0);
 v___x_36_ = lean_alloc_ctor(0, 1, 0);
 lean_ctor_set(v___x_36_, 0, v___x_35_);
@@ -1518,11 +1518,13 @@ return v_res_514_;
 }
 }
 lean_object* runtime_initialize_Lean_Elab_ConfigEval_Instances(uint8_t builtin);
+void lean_initialize_runtime_module();
 static bool _G_runtime_initialized = false;
 LEAN_EXPORT lean_object* runtime_initialize_Lean_Elab_ConfigEval_Extra(uint8_t builtin) {
 lean_object * res;
 if (_G_runtime_initialized) return lean_io_result_mk_ok(lean_box(0));
 _G_runtime_initialized = true;
+lean_initialize_runtime_module();
 res = runtime_initialize_Lean_Elab_ConfigEval_Instances(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);

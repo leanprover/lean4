@@ -608,7 +608,6 @@ Export functions.
 @[export lean_expr_has_fvar] def hasFVarEx : Expr → Bool := hasFVar
 @[export lean_expr_has_expr_mvar] def hasExprMVarEx : Expr → Bool := hasExprMVar
 @[export lean_expr_has_level_mvar] def hasLevelMVarEx : Expr → Bool := hasLevelMVar
-@[export lean_expr_has_mvar] def hasMVarEx : Expr → Bool := hasMVar
 @[export lean_expr_has_level_param] def hasLevelParamEx : Expr → Bool := hasLevelParam
 @[export lean_expr_loose_bvar_range] def looseBVarRangeEx (e : Expr) : UInt32 := e.data.looseBVarRange
 @[export lean_expr_binder_info] def binderInfoEx : Expr → BinderInfo := binderInfo
@@ -683,7 +682,18 @@ def mkForall (x : Name) (bi : BinderInfo) (t : Expr) (b : Expr) : Expr :=
 
 /-- Return `Unit -> type`. Do not confuse with `Thunk type` -/
 def mkSimpleThunkType (type : Expr) : Expr :=
-  mkForall Name.anonymous .default (mkConst `Unit) type
+  /-
+  **Note**: We must not use `Name.anonymous` as the binder name.  If a tactic introduces
+  this binder using its name, the resulting local declaration named `Name.anonymous`
+  matches the terminal step of `resolveLocalName`'s component-stripping, capturing every
+  identifier in scope and breaking name resolution and pretty printing for the entire
+  local context.
+
+  Another possible fix is to modify `resolveLocalName` to ignore local declarations
+  whose user name is `Name.anonymous`, making name resolution robust against any
+  producer of anonymous local declarations.
+  -/
+  mkForall `_ .default (mkConst `Unit) type
 
 /-- Return `fun (_ : Unit), e` -/
 def mkSimpleThunk (type : Expr) : Expr :=
@@ -1696,7 +1706,6 @@ def getAutoParamTactic? (e : Expr) : Option Expr :=
     none
 
 /-- Return `true` if `e` is of the form `outParam _` -/
-@[export lean_is_out_param]
 def isOutParam (e : Expr) : Bool :=
   e.isAppOfArity ``outParam 1
 

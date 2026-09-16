@@ -171,6 +171,21 @@ bool is_not_zero(level const & l) {
     lean_unreachable(); // LCOV_EXCL_LINE
 }
 
+bool normalizes_to_zero(level const & l) {
+    switch (kind(l)) {
+    case level_kind::Zero:
+        return true;
+    case level_kind::Param: case level_kind::MVar: case level_kind::Succ:
+        return false;
+    case level_kind::Max:
+        return normalizes_to_zero(max_lhs(l)) && normalizes_to_zero(max_rhs(l));
+    case level_kind::IMax:
+        // `mk_imax` returns its right argument whenever that argument is `zero`.
+        return normalizes_to_zero(imax_rhs(l));
+    }
+    lean_unreachable(); // LCOV_EXCL_LINE
+}
+
 bool is_lt(level const & a, level const & b, bool use_hash) {
     if (is_eqp(a, b))              return false;
     unsigned da = get_depth(a);

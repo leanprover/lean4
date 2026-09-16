@@ -17,6 +17,13 @@ public section
 
 namespace Lean.Elab.Command
 
+/--
+Opaque linter state. Similar to `EnvExtensionState` for environment extensions.
+-/
+opaque LinterStateSpec : (α : Type) × Inhabited α := ⟨Unit, ⟨()⟩⟩
+@[expose] def LinterState : Type := LinterStateSpec.fst
+instance : Inhabited LinterState := LinterStateSpec.snd
+
 structure State where
   env            : Environment
   messages       : MessageLog := {}
@@ -29,6 +36,7 @@ structure State where
   infoState      : InfoState := {}
   traceState     : TraceState := {}
   snapshotTasks  : Array (Language.SnapshotTask Language.SnapshotTree) := #[]
+  prevLinterStates : Option (Task (Array LinterState)) := none
   deriving Nonempty
 
 structure Context where
@@ -68,6 +76,40 @@ structure Linter where
 structure ModuleLinter where
   run : Array Syntax → CommandElabM Unit
   name : Name := by exact decl_name%
+
+/--
+A handle to a registered stateful linter, returned by `registerStatefulLinter`.
+`σ` is the linter's persistent state, and `τ` is the pre-phase output type.
+-/
+structure StatefulLinter (σ τ : Type) where private mk ::
+  private idx : Nat
+deriving Inhabited
+
+/-- The type-erased registry entry for a stateful linter. -/
+structure StatefulLinterEntry where
+  init : LinterState
+  pre  : Syntax → (prev : Array LinterState) → CommandElabM (Option LinterState)
+  post : Syntax → (prev : Array LinterState) → (preSt : Array (Option LinterState)) → CommandElabM LinterState
+
+namespace StatefulLinter
+
+private unsafe def prevStateImpl [Inhabited σ] (l : StatefulLinter σ τ) (prev : Array LinterState) : σ :=
+  unsafeCast prev[l.idx]!
+@[implemented_by prevStateImpl]
+opaque prevState [Inhabited σ] (l : StatefulLinter σ τ) (prev : Array LinterState) : σ
+
+private unsafe def preStateImpl (l : StatefulLinter σ τ) (preSt : Array (Option LinterState)) : Option τ :=
+  (preSt[l.idx]!).map unsafeCast
+@[implemented_by preStateImpl]
+opaque preState (l : StatefulLinter σ τ) (preSt : Array (Option LinterState)) : Option τ
+
+end StatefulLinter
+
+/-- A typed accessor to a linter's previous state. -/
+abbrev PrevStateFn := {σ τ : Type} → [Inhabited σ] → StatefulLinter σ τ → σ
+
+/-- A typed accessor to a linter's pre-phase output. -/
+abbrev PreStateFn := {σ τ : Type} → StatefulLinter σ τ → Option τ
 
 /-
 Make the compiler generate specialized `pure`/`bind` so we do not have to optimize through the
@@ -109,6 +151,7 @@ def mkState (env : Environment) (messages : MessageLog := {}) (opts : Options :=
     environment (which only contains `import`ed objects). -/
 builtin_initialize lintersRef : IO.Ref (Array Linter) ← IO.mkRef #[]
 builtin_initialize moduleLintersRef : IO.Ref (Array ModuleLinter) ← IO.mkRef #[]
+builtin_initialize statefulLintersRef : IO.Ref (Array StatefulLinterEntry) ← IO.mkRef #[]
 builtin_initialize registerTraceClass `Elab.lint
 
 def addLinter (l : Linter) : IO Unit := do
@@ -118,6 +161,50 @@ def addLinter (l : Linter) : IO Unit := do
 def addModuleLinter (l : ModuleLinter) : IO Unit := do
   let ls ← moduleLintersRef.get
   moduleLintersRef.set (ls.push l)
+
+/--
+Registers a stateful linter and returns its handle (used by other linters to read its state).
+Must be called during initialization.
+
+### Lifecycle Phases
+* **`pre`**: Reads the previous command's persistant state (via `readPrevPostState`)
+and optionally outputs a pre-phase state (type `Option τ`).
+* **`post`**: Reads the previous command's state and all current pre-phase outputs
+(via `readPrevPostState` and `readCurrentPreState`), then produces the new state (type `σ`)
+for the next command.
+
+### State Access Rules
+* **Self**: Access its own persistent and pre-phase states directly via `selfPrevPostState` and
+`selfCurrentPreState`.
+* **Others**: Access other linters' states only via the `readPrevPostState` and
+`readCurrentPreState` closures that take typed handles of other linters.
+-/
+unsafe def registerStatefulLinterImpl (init : σ)
+    (pre  : Syntax → (selfPrevPostState : σ) → (readPrevPostState : PrevStateFn) → CommandElabM (Option τ) :=
+       fun _ _ _ => pure none)
+    (post : Syntax → (selfPrevPostState : σ) → (selfCurrentPreState : Option τ) →
+       (readPrevPostState : PrevStateFn) → (readCurrentPreState : PreStateFn) → CommandElabM σ) :
+    IO (StatefulLinter σ τ) := do
+  unless (← initializing) do
+    throw <| .userError "stateful linters can only be registered during initialization"
+  let ls ← statefulLintersRef.get
+  let idx := ls.size
+  statefulLintersRef.set <| ls.push
+    { init := unsafeCast init
+      pre  := fun stx prev =>
+        (·.map unsafeCast) <$> pre stx (unsafeCast prev[idx]!) (fun l => l.prevState prev)
+      post := fun stx prev preSt =>
+        unsafeCast <$> post stx (unsafeCast prev[idx]!) ((preSt[idx]!).map unsafeCast)
+          (fun l => l.prevState prev) (fun l => l.preState preSt) }
+  return ⟨idx⟩
+
+@[inherit_doc registerStatefulLinterImpl, implemented_by registerStatefulLinterImpl]
+opaque registerStatefulLinter (init : σ)
+    (pre  : Syntax → (selfPrevPostState : σ) → (readPrevPostState : PrevStateFn) → CommandElabM (Option τ) :=
+       fun _ _ _ => pure none)
+    (post : Syntax → (selfPrevPostState : σ) → (selfCurrentPreState : Option τ) →
+       (readPrevPostState : PrevStateFn) → (readCurrentPreState : PreStateFn) → CommandElabM σ) :
+    IO (StatefulLinter σ τ)
 
 instance : MonadInfoTree CommandElabM where
   getInfoState      := return (← get).infoState
@@ -248,15 +335,17 @@ instance : MonadLog CommandElabM where
     let msg := { msg with data := MessageData.withNamingContext { currNamespace := currNamespace, openDecls := openDecls } msg.data }
     modify fun s => { s with messages := s.messages.add msg }
 
-def runLinters (stx : Syntax) : CommandElabM Unit := do
+def runLinters (stx : Syntax) (promise : Option (IO.Promise InfoTree) := .none) : CommandElabM Unit := do
   profileitM Exception "linting" (← getOptions) do
     withTraceNode `Elab.lint (fun _ => return m!"running linters") do
       let linters ← lintersRef.get
+      let producedInfoTrees ← IO.mkRef ({} : PersistentArray InfoTree)
       unless linters.isEmpty do
         for linter in linters do
           withTraceNode `Elab.lint (fun _ => return m!"running linter: {.ofConstName linter.name}")
               (tag := linter.name.toString) do
             let savedState ← get
+            let originalSize := savedState.infoState.trees.size
             try
               linter.run stx
             catch ex =>
@@ -268,7 +357,15 @@ def runLinters (stx : Syntax) : CommandElabM Unit := do
             finally
               -- TODO: it would be good to preserve even more state (#4363) but preserving info
               -- trees currently breaks from linters adding context-less info nodes
+              let newInfoState ← getInfoState
+              if newInfoState.enabled then
+                producedInfoTrees.modify fun old =>
+                  old.append (newInfoState.trees.foldl (·.push ·) {} (start := originalSize))
               modify fun s => { savedState with messages := s.messages, traceState := s.traceState }
+      if let some promise := promise then
+        if (← getInfoState).enabled then
+          promise.resolve <|
+            mkLinterInfoGroupNode (← producedInfoTrees.get)
 
 def runModuleLinters (cmds : Array Syntax) : CommandElabM Unit := do
   profileitM Exception "module linting" (← getOptions) do
@@ -289,6 +386,56 @@ def runModuleLinters (cmds : Array Syntax) : CommandElabM Unit := do
                 logException ex
             finally
               modify fun s => { savedState with messages := s.messages, traceState := s.traceState }
+
+def runStatefulLinters (stx : Syntax) (prev : Array LinterState)
+    (promise : Option (IO.Promise InfoTree) := .none) : CommandElabM (Array LinterState) := do
+  profileitM Exception "stateful linting" (← getOptions) do
+    withTraceNode `Elab.lint (fun _ => return m!"running stateful linters") do
+      let linters ← statefulLintersRef.get
+      let producedInfoTrees ← IO.mkRef ({} : PersistentArray InfoTree)
+      let run {α : Type} (phase : String) (idx : Nat) (onError : CommandElabM α)
+          (act : CommandElabM α) : CommandElabM α :=
+        withTraceNode `Elab.lint
+            (fun _ => return m!"running stateful linter #{idx} ({phase})")
+            (tag := toString idx) do
+          let savedState ← get
+          let originalSize := savedState.infoState.trees.size
+          try
+            act
+          catch ex =>
+            match ex with
+            | .error ref msg =>
+              logException (.error ref m!"stateful linter #{idx} ({phase}) failed: {msg}")
+            | .internal _ _ => logException ex
+            onError
+          finally
+            let newInfoState ← getInfoState
+            if newInfoState.enabled then
+              producedInfoTrees.modify fun old =>
+                old.append (newInfoState.trees.foldl (·.push ·) {} (start := originalSize))
+            modify fun s => { savedState with messages := s.messages, traceState := s.traceState }
+      let mut preSt : Array (Option LinterState) := .emptyWithCapacity linters.size
+      let mut i := 0
+      for l in linters do
+        preSt := preSt.push (← run "pre" i (pure none) (l.pre stx prev))
+        i := i + 1
+      let mut postSt : Array LinterState := .emptyWithCapacity linters.size
+      i := 0
+      for l in linters do
+        postSt := postSt.push (← run "post" i (pure prev[i]!) (l.post stx prev preSt))
+        i := i + 1
+      if let some promise := promise then
+        if (← getInfoState).enabled then
+          promise.resolve <|
+            mkLinterInfoGroupNode (← producedInfoTrees.get)
+      return postSt
+
+def initialLinterStates : BaseIO (Array LinterState) := do
+  return (← statefulLintersRef.get).map (·.init)
+
+def prevLinterStatesTask : Option (Task (Array LinterState)) → BaseIO (Task (Array LinterState))
+  | some prev => return prev
+  | none      => return .pure (← initialLinterStates)
 
 /--
 Catches and logs exceptions occurring in `x`. Unlike `try catch` in `CommandElabM`, this function
@@ -367,6 +514,9 @@ def runLintersAsync (stx : Syntax) (cmds : Array Syntax) : CommandElabM Unit := 
         runModuleLinters cmds
     return
 
+  -- We create a promise for the info trees produced by the linters
+  let lintersInfoPromise ← IO.Promise.new (α := InfoTree)
+
   -- linters should have access to the complete info tree and message log
   let mut snaps := (← get).snapshotTasks
   if let some elabSnap := (← read).snap? then
@@ -383,14 +533,69 @@ def runLintersAsync (stx : Syntax) (cmds : Array Syntax) : CommandElabM Unit := 
     let messages := messages.markAllReported
     modify fun st => { st with messages := st.messages ++ messages }
     modifyInfoState fun _ => infoSt
-    runLinters stx
+    runLinters stx lintersInfoPromise
     if Parser.isTerminalCommand stx then
+        -- TODO: support code actions in module linters
+        -- Currently, code actions provided by terminal command are ignored
         runModuleLinters cmds
 
   let task ← BaseIO.bindTask (sync := true) (t := (← getInfoState).substituteLazy) fun infoSt =>
     BaseIO.mapTask (t := treeTask) fun _ =>
       lintAct infoSt
   logSnapshotTask { stx? := none, task, cancelTk? := cancelTk }
+
+  let infoHole ← liftCoreM mkFreshMVarId
+  modifyInfoState fun s => { s with
+    trees          := s.trees.modify 0 (pushInfoChild · (.hole infoHole))
+    lazyAssignment := s.lazyAssignment
+      |>.insert infoHole (lintersInfoPromise.resultD default)
+  }
+
+open Language in
+def runStatefulLintersAsync (stx : Syntax) : CommandElabM Unit := do
+  if (← statefulLintersRef.get).isEmpty then return
+  if !Elab.async.get (← getOptions) then
+    -- We only block when switching the `Elab.async` in the middle of elaborating a file.
+    let prev := (← prevLinterStatesTask (← get).prevLinterStates).get
+    let postSt ← withoutModifyingEnv <| runStatefulLinters stx prev
+    modify fun s => { s with prevLinterStates := some (.pure postSt) }
+    return
+
+  let mut snaps := (← get).snapshotTasks
+  if let some elabSnap := (← read).snap? then
+    snaps := snaps.push { stx? := none, cancelTk? := none, task := elabSnap.new.result!.map (sync := true) toSnapshotTree }
+  let tree := SnapshotTree.mk { diagnostics := .empty } snaps
+  let treeTask ← tree.waitAll
+
+  let prevTask ← prevLinterStatesTask (← get).prevLinterStates
+  let statePromise ← IO.Promise.new (α := Array LinterState)
+  let inits ← initialLinterStates
+  modify fun s => { s with prevLinterStates := some (statePromise.resultD inits) }
+
+  -- We create a promise for the info trees produced by the linters
+  let lintersInfoPromise ← IO.Promise.new (α := InfoTree)
+
+  let cancelTk ← IO.CancelToken.new
+  let lintAct ← wrapAsyncAsSnapshot (cancelTk? := cancelTk) fun (prev, infoSt) => do
+    let messages := tree.getAll.map (·.diagnostics.msgLog) |>.foldl (· ++ ·) .empty
+    let messages := messages.markAllReported
+    modify fun st => { st with messages := st.messages ++ messages }
+    modifyInfoState fun _ => infoSt
+    let postSt ← runStatefulLinters stx prev lintersInfoPromise
+    statePromise.resolve postSt
+
+  let task ← BaseIO.bindTask (sync := true) (t := (← getInfoState).substituteLazy) fun infoSt =>
+    BaseIO.bindTask (t := treeTask) fun _ =>
+      BaseIO.mapTask (t := prevTask) fun prev =>
+        lintAct (prev, infoSt)
+  logSnapshotTask { stx? := none, task, cancelTk? := cancelTk }
+
+  let infoHole ← liftCoreM mkFreshMVarId
+  modifyInfoState fun s => { s with
+    trees          := s.trees.modify 0 (pushInfoChild · (.hole infoHole))
+    lazyAssignment := s.lazyAssignment
+      |>.insert infoHole (lintersInfoPromise.resultD default)
+  }
 
 /--
 Registers a command elaborator for the given syntax node kind.
@@ -481,7 +686,7 @@ structure MacroExpandedSnapshot extends Snapshot where
 deriving TypeName
 open Language in
 instance : ToSnapshotTree MacroExpandedSnapshot where
-  toSnapshotTree s := ⟨s.toSnapshot, s.next.map (·.map (sync := true) toSnapshotTree)⟩
+  toSnapshotTreeM s := return ⟨← s.toSnapshot.transform, ← s.next.mapM (·.transform)⟩
 
 partial def elabCommand (stx : Syntax) : CommandElabM Unit :=
   try
@@ -663,6 +868,7 @@ def elabCommandTopLevel (stx : Syntax) (cmds : Array Syntax := #[]) : CommandEla
   unless (stx.find? (·.isOfKind ``Lean.guardMsgsCmd)).isSome do
     withLogging do
       runLintersAsync stx cmds
+      runStatefulLintersAsync stx
 
 /-- Adapt a syntax transformation to a regular, command-producing elaborator. -/
 def adaptExpander (exp : Syntax → CommandElabM Syntax) : CommandElab := fun stx => do

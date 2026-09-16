@@ -235,7 +235,7 @@ _start:
 lean_object* v___x_20_; lean_object* v___x_21_; lean_object* v___x_22_; 
 v___x_20_ = lean_obj_once(&l_Lean_addMessageContextPartial___at___00Lean_throwError___at___00Lean_PrettyPrinter_runForNodeKind_spec__1_spec__2___closed__1, &l_Lean_addMessageContextPartial___at___00Lean_throwError___at___00Lean_PrettyPrinter_runForNodeKind_spec__1_spec__2___closed__1_once, _init_l_Lean_addMessageContextPartial___at___00Lean_throwError___at___00Lean_PrettyPrinter_runForNodeKind_spec__1_spec__2___closed__1);
 v___x_21_ = lean_unsigned_to_nat(0u);
-v___x_22_ = lean_alloc_ctor(0, 10, 0);
+v___x_22_ = lean_alloc_ctor(0, 11, 0);
 lean_ctor_set(v___x_22_, 0, v___x_21_);
 lean_ctor_set(v___x_22_, 1, v___x_21_);
 lean_ctor_set(v___x_22_, 2, v___x_21_);
@@ -246,6 +246,7 @@ lean_ctor_set(v___x_22_, 6, v___x_20_);
 lean_ctor_set(v___x_22_, 7, v___x_20_);
 lean_ctor_set(v___x_22_, 8, v___x_20_);
 lean_ctor_set(v___x_22_, 9, v___x_20_);
+lean_ctor_set(v___x_22_, 10, v___x_20_);
 return v___x_22_;
 }
 }
@@ -1531,11 +1532,13 @@ return v_res_546_;
 }
 }
 lean_object* runtime_initialize_Lean_KeyedDeclsAttribute(uint8_t builtin);
+void lean_initialize_runtime_module();
 static bool _G_runtime_initialized = false;
 LEAN_EXPORT lean_object* runtime_initialize_Lean_PrettyPrinter_Basic(uint8_t builtin) {
 lean_object * res;
 if (_G_runtime_initialized) return lean_io_result_mk_ok(lean_box(0));
 _G_runtime_initialized = true;
+lean_initialize_runtime_module();
 res = runtime_initialize_Lean_KeyedDeclsAttribute(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);

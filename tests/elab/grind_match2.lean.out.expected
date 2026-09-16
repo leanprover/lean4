@@ -16,9 +16,9 @@
         match as with
         | [] => [a]
         | b :: bs => a :: a :: b :: bs with
-      | [] => Bool.true✝
-      | head :: tail => Bool.false✝) =
-      Bool.false✝
+      | [] => true
+      | head :: tail => false) =
+      false
 [grind] closed `grind.1`
 [grind] working on goal `grind.2`
 [grind.assert] as = b :: bs

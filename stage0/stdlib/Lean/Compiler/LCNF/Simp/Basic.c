@@ -40,8 +40,8 @@ return v___x_5_;
 else
 {
 lean_object* v___x_7_; 
-lean_dec_ref_known(v___x_5_, 1);
 lean_dec(v_a_6_);
+lean_dec_ref_known(v___x_5_, 1);
 v___x_7_ = l_Lean_Compiler_LCNF_findLetValue_x3f___redArg(v_pu_1_, v_fvarId_2_, v_a_3_);
 lean_dec(v_fvarId_2_);
 if (lean_obj_tag(v___x_7_) == 0)
@@ -213,11 +213,13 @@ return v_res_55_;
 }
 }
 lean_object* runtime_initialize_Lean_Compiler_LCNF_CompilerM(uint8_t builtin);
+void lean_initialize_runtime_module();
 static bool _G_runtime_initialized = false;
 LEAN_EXPORT lean_object* runtime_initialize_Lean_Compiler_LCNF_Simp_Basic(uint8_t builtin) {
 lean_object * res;
 if (_G_runtime_initialized) return lean_io_result_mk_ok(lean_box(0));
 _G_runtime_initialized = true;
+lean_initialize_runtime_module();
 res = runtime_initialize_Lean_Compiler_LCNF_CompilerM(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);

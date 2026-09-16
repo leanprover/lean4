@@ -160,7 +160,7 @@ return v_res_37_;
 LEAN_EXPORT uint8_t l_Prod_Lex_instDecidableRelOfDecidableEq___redArg(lean_object* v_00_u03b1eqDec_38_, lean_object* v_rDec_39_, lean_object* v_sDec_40_, lean_object* v_x_41_, lean_object* v_x_42_){
 _start:
 {
-lean_object* v_fst_43_; lean_object* v_snd_44_; lean_object* v_fst_45_; lean_object* v_snd_46_; lean_object* v___x_47_; lean_object* v___x_48_; uint8_t v___x_49_; 
+lean_object* v_fst_43_; lean_object* v_snd_44_; lean_object* v_fst_45_; lean_object* v_snd_46_; lean_object* v_decide_47_; lean_object* v_decide_48_; uint8_t v___x_49_; 
 v_fst_43_ = lean_ctor_get(v_x_41_, 0);
 lean_inc_n(v_fst_43_, 2);
 v_snd_44_ = lean_ctor_get(v_x_41_, 1);
@@ -171,27 +171,27 @@ lean_inc_n(v_fst_45_, 2);
 v_snd_46_ = lean_ctor_get(v_x_42_, 1);
 lean_inc(v_snd_46_);
 lean_dec_ref(v_x_42_);
-v___x_47_ = lean_apply_2(v_00_u03b1eqDec_38_, v_fst_43_, v_fst_45_);
-v___x_48_ = lean_apply_2(v_rDec_39_, v_fst_43_, v_fst_45_);
-v___x_49_ = lean_unbox(v___x_48_);
+v_decide_47_ = lean_apply_2(v_00_u03b1eqDec_38_, v_fst_43_, v_fst_45_);
+v_decide_48_ = lean_apply_2(v_rDec_39_, v_fst_43_, v_fst_45_);
+v___x_49_ = lean_unbox(v_decide_48_);
 if (v___x_49_ == 0)
 {
 uint8_t v___x_50_; 
-v___x_50_ = lean_unbox(v___x_47_);
+v___x_50_ = lean_unbox(v_decide_47_);
 if (v___x_50_ == 0)
 {
 uint8_t v___x_51_; 
 lean_dec(v_snd_46_);
 lean_dec(v_snd_44_);
 lean_dec_ref(v_sDec_40_);
-v___x_51_ = lean_unbox(v___x_47_);
+v___x_51_ = lean_unbox(v_decide_47_);
 return v___x_51_;
 }
 else
 {
-lean_object* v___x_52_; uint8_t v___x_53_; 
-v___x_52_ = lean_apply_2(v_sDec_40_, v_snd_44_, v_snd_46_);
-v___x_53_ = lean_unbox(v___x_52_);
+lean_object* v_x_52_; uint8_t v___x_53_; 
+v_x_52_ = lean_apply_2(v_sDec_40_, v_snd_44_, v_snd_46_);
+v___x_53_ = lean_unbox(v_x_52_);
 return v___x_53_;
 }
 }
@@ -201,7 +201,7 @@ uint8_t v___x_54_;
 lean_dec(v_snd_46_);
 lean_dec(v_snd_44_);
 lean_dec_ref(v_sDec_40_);
-v___x_54_ = lean_unbox(v___x_48_);
+v___x_54_ = lean_unbox(v_decide_48_);
 return v___x_54_;
 }
 }
@@ -452,11 +452,13 @@ return v_res_195_;
 lean_object* runtime_initialize_Init_BinderNameHint(uint8_t builtin);
 lean_object* runtime_initialize_Init_Grind_Tactics(uint8_t builtin);
 lean_object* runtime_initialize_Init_Data_Nat_Basic(uint8_t builtin);
+void lean_initialize_runtime_module();
 static bool _G_runtime_initialized = false;
 LEAN_EXPORT lean_object* runtime_initialize_Init_WF(uint8_t builtin) {
 lean_object * res;
 if (_G_runtime_initialized) return lean_io_result_mk_ok(lean_box(0));
 _G_runtime_initialized = true;
+lean_initialize_runtime_module();
 res = runtime_initialize_Init_BinderNameHint(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);

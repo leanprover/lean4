@@ -58,7 +58,7 @@ deriving instance BEq for Option
 @[simp, grind =] theorem map_some (a) (f : α → β) : (some a).map f = some (f a) := rfl
 
 /-- Lifts an optional value to any `Alternative`, sending `none` to `failure`. -/
-def getM [Alternative m] : Option α → m α
+@[implicit_reducible] def getM [Alternative m] : Option α → m α
   | none     => failure
   | some a   => pure a
 
@@ -66,7 +66,7 @@ def getM [Alternative m] : Option α → m α
 @[simp, grind =] theorem getM_some [Alternative m] {a : α} : getM (some a) = (pure a : m α) := rfl
 
 /-- Returns `true` on `some x` and `false` on `none`. -/
-@[inline] def isSome : Option α → Bool
+@[inline, implicit_reducible] def isSome : Option α → Bool
   | some _ => true
   | none   => false
 
@@ -82,7 +82,7 @@ Examples:
  * `(none : Option Nat).isNone = true`
  * `(some Nat.add).isNone = false`
 -/
-@[inline] def isNone : Option α → Bool
+@[inline, implicit_reducible] def isNone : Option α → Bool
   | some _ => false
   | none   => true
 
@@ -118,7 +118,7 @@ Examples:
  * `(some 2).bind (Option.guard (· > 2)) = none`
  * `(some 4).bind (Option.guard (· > 2)) = some 4`
 -/
-@[inline] protected def bind : Option α → (α → Option β) → Option β
+@[inline, implicit_reducible] protected def bind : Option α → (α → Option β) → Option β
   | none,   _ => none
   | some a, f => f a
 
@@ -194,7 +194,7 @@ Examples:
  * `none.filter (fun x : Nat => x % 2 == 0) = none`
  * `none.filter (fun x : Nat => true) = none`
 -/
-@[always_inline, inline] protected def filter (p : α → Bool) : Option α → Option α
+@[always_inline, inline, implicit_reducible] protected def filter (p : α → Bool) : Option α → Option α
   | some a => if p a then some a else none
   | none   => none
 
@@ -206,7 +206,7 @@ Examples:
  * `(some 22).all (· % 2 == 0) = true
  * `none.all (fun x : Nat => x % 2 == 0) = true
 -/
-@[always_inline, inline] protected def all (p : α → Bool) : Option α → Bool
+@[always_inline, inline, implicit_reducible] protected def all (p : α → Bool) : Option α → Bool
   | some a => p a
   | none   => true
 
@@ -221,7 +221,7 @@ Examples:
  * `(some 22).any (· % 2 == 0) = true
  * `none.any (fun x : Nat => true) = false
 -/
-@[always_inline, inline] protected def any (p : α → Bool) : Option α → Bool
+@[always_inline, inline, implicit_reducible] protected def any (p : α → Bool) : Option α → Bool
   | some a => p a
   | none   => false
 
@@ -376,7 +376,7 @@ Examples:
 /--
 Extracts the value from an option that can be proven to be `some`.
 -/
-@[inline] def get {α : Type u} : (o : Option α) → isSome o → α
+@[inline, implicit_reducible] def get {α : Type u} : (o : Option α) → isSome o → α
   | some x, _ => x
 
 @[simp, grind =] theorem some_get : ∀ {x : Option α} (h : isSome x), some (x.get h) = x
@@ -393,7 +393,7 @@ Examples:
  * `Option.guard (· > 2) 1 = none`
  * `Option.guard (· > 2) 5 = some 5`
 -/
-@[inline] def guard (p : α → Bool) (a : α) : Option α :=
+@[inline, implicit_reducible] def guard (p : α → Bool) (a : α) : Option α :=
   if p a then some a else none
 
 /--
@@ -436,7 +436,7 @@ Examples:
  * `(some none).join = none`
  * `(some (some v)).join = some v`
 -/
-@[inline] def join (x : Option (Option α)) : Option α := x.bind id
+@[inline, implicit_reducible] def join (x : Option (Option α)) : Option α := x.bind id
 
 @[simp, grind =] theorem join_none : (none : Option (Option α)).join = none := rfl
 @[simp, grind =] theorem join_some : (some o).join = o := rfl

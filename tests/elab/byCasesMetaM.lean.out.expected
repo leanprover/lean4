@@ -1,13 +1,13 @@
 [Meta.debug] p q : Prop
     h : p ∧ q
     ⊢ q ∧ q
-[Meta.debug] case inl
+[Meta.debug] case isTrue
     p q : Prop
     h : p ∧ q
     hAux : p
     ⊢ q ∧ q
     ------
-    case inr
+    case isFalse
     p q : Prop
     h : p ∧ q
     hAux : ¬p

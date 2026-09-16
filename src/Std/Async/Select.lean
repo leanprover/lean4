@@ -100,80 +100,102 @@ structure Selectable (α : Type) where
     -/
     cont : β → Async α
 
-private def shuffleIt {α : Type u} (xs : Array α) (gen : StdGen) : Array α :=
+private def shuffleIt {α : Type u} (xs : Array α) (gen : StdGen) : Array α × StdGen :=
   go xs gen 0
 where
-  go (xs : Array α) (gen : StdGen) (i : Nat) : Array α :=
+  go (xs : Array α) (gen : StdGen) (i : Nat) : Array α × StdGen :=
     if _ : i < xs.size - 1 then
       let (j, gen) := randNat gen i (xs.size - 1)
       let xs := xs.swapIfInBounds i j
       go xs gen (i + 1)
     else
-      xs
+      (xs, gen)
+
+/--
+Creates a `Selector` that performs fair and data-loss free multiplexing on multiple `Selectable`s.
+This allows the multiplexing operation to be composed with other selectors.
+
+The returned `Selector` polls and registers the `selectables` in random order for fairness. If
+registering with one of them fails, the error is reported through the `Waiter` unless the race
+was already won, in which case the winner's result takes priority.
+-/
+def Selectable.combine (selectables : Array (Selectable α)) : IO (Selector α) := do
+  return {
+    tryFn := do
+      let gen ← IO.stdGenRef.get
+      let (selectables, gen) := shuffleIt selectables gen
+      IO.stdGenRef.set gen
+
+      for selectable in selectables do
+        if let some val ← selectable.selector.tryFn then
+          return some (← selectable.cont val)
+
+      return none
+
+    registerFn := fun waiter => do
+      let gen ← IO.stdGenRef.get
+      let (selectables, gen) := shuffleIt selectables gen
+      IO.stdGenRef.set gen
+
+      for selectable in selectables do
+        if ← waiter.checkFinished then
+          return
+
+        let waiterPromise ← IO.Promise.new
+
+        try
+          selectable.selector.registerFn (waiter.withPromise waiterPromise)
+        catch e =>
+          waiter.race (lose := pure ()) (win := fun promise => promise.resolve (.error e))
+          return
+
+        discard <| IO.bindTask (t := waiterPromise.result?) fun res? => do
+          match res? with
+          | none =>
+            return (Task.pure (.ok ()))
+          | some res =>
+            let deliver : Async Unit :=
+              try
+                let val ← IO.ofExcept res
+                waiter.promise.resolve (.ok (← selectable.cont val))
+              catch e =>
+                waiter.promise.resolve (.error e)
+
+            deliver.toBaseIO
+
+    unregisterFn := do
+      for selectable in selectables do
+        try selectable.selector.unregisterFn catch _ => pure ()
+  }
 
 /--
 Performs fair and data-loss free multiplexing on the `Selectable`s in `selectables`.
 
-The protocol for this is as follows:
-1. The `selectables` are shuffled randomly.
-2. Run `Selector.tryFn` for each element in `selectables`. If any succeed, the corresponding
-  `Selectable.cont` is executed and its result is returned immediately.
-3. If none succeed, a `Waiter` is registered with each `Selector` using `Selector.registerFn`.
-   Once one of them resolves the `Waiter`, all `Selector.unregisterFn` functions are called, and
-   the `Selectable.cont` of the winning `Selector` is executed and returned.
+`selectables` is combined into a single `Selector` via `Selectable.combine`:
+1. If `Selector.tryFn` immediately yields a value, the corresponding `Selectable.cont` is
+   executed and its result is returned immediately.
+2. Otherwise, a single `Waiter` is registered with the combined `Selector` using
+   `Selector.registerFn`. Once the `Waiter` is resolved, `Selector.unregisterFn` is called
+   unconditionally, cleaning up every entry of `selectables`, before the result (or error) is
+   returned to the caller. This holds no matter how the race is decided: a winning result, an
+   error raised while resolving the `Waiter`, or a `registerFn` that throws mid-registration.
 -/
-partial def Selectable.one (selectables : Array (Selectable α)) : Async α := do
+def Selectable.one (selectables : Array (Selectable α)) : Async α := do
   if selectables.isEmpty then
     throw <| .userError "Selectable.one requires at least one Selectable"
 
-  let seed := UInt64.toNat (ByteArray.toUInt64LE! (← IO.getRandomBytes 8))
-  let gen := mkStdGen seed
-  let selectables := shuffleIt selectables gen
+  let selector ← Selectable.combine selectables
 
-  let gate ← IO.Promise.new
+  if let some val ← selector.tryFn then
+    return val
 
-  for selectable in selectables do
-    if let some val ← selectable.selector.tryFn then
-      let result ← selectable.cont val
-      return result
-
-  let finished ← IO.mkRef false
   let promise ← IO.Promise.new
 
-  for selectable in selectables do
-    if ← finished.get then
-      break
-
-    let waiterPromise ← IO.Promise.new
-    let waiter := Waiter.mk finished waiterPromise
-    selectable.selector.registerFn waiter
-
-    discard <| IO.bindTask (t := waiterPromise.result?) (sync := true) fun res? => do
-      match res? with
-      | none =>
-        /-
-        If we get `none` that means the waiterPromise was dropped, usually due to cancellation. In
-        this situation just do nothing.
-        -/
-        return (Task.pure (.ok ()))
-      | some res =>
-        let async : Async _ :=
-          try
-            let res ← IO.ofExcept res
-            discard <| await gate.result?
-
-            for selectable in selectables do
-              selectable.selector.unregisterFn
-
-            promise.resolve (.ok (← selectable.cont res))
-          catch e =>
-            promise.resolve (.error e)
-
-        async.toBaseIO
-
-  gate.resolve ()
-  let result ← Async.ofPromise (pure promise)
-  return result
+  try
+    selector.registerFn (Waiter.mk (← IO.mkRef false) promise)
+    Async.ofPromise (pure promise)
+  finally
+    selector.unregisterFn
 
 /--
 Performs fair and data-loss free non-blocking multiplexing on the `Selectable`s in `selectables`.
@@ -190,70 +212,17 @@ The protocol for this is as follows:
 -/
 def Selectable.tryOne (selectables : Array (Selectable α)) : Async (Option α) := do
   if selectables.isEmpty then
-    return none
+    throw <| .userError "Selectable.tryOne requires at least one Selectable"
 
-  let seed := UInt64.toNat (ByteArray.toUInt64LE! (← IO.getRandomBytes 8))
-  let gen := mkStdGen seed
-  let selectables := shuffleIt selectables gen
+  let gen ← IO.stdGenRef.get
+  let (selectables, gen) := shuffleIt selectables gen
+  IO.stdGenRef.set gen
 
   for selectable in selectables do
     if let some val ← selectable.selector.tryFn then
-      let result ← selectable.cont val
-      return some result
+      return some (← selectable.cont val)
 
   return none
-
-/--
-Creates a `Selector` that performs fair and data-loss free multiplexing on multiple `Selectable`s.
-This allows the multiplexing operation to be composed with other selectors.
--/
-def Selectable.combine (selectables : Array (Selectable α)) : IO (Selector α) := do
-  if selectables.isEmpty then
-    throw <| .userError "Selectable.one requires at least one Selectable"
-
-  let seed := UInt64.toNat (ByteArray.toUInt64LE! (← IO.getRandomBytes 8))
-  let gen := mkStdGen seed
-  let selectables := shuffleIt selectables gen
-
-  return {
-    tryFn := do
-      for selectable in selectables do
-        if let some val ← selectable.selector.tryFn then
-          let result ← selectable.cont val
-          return some result
-      return none
-
-    registerFn := fun waiter => do
-      for selectable in selectables do
-        let waiterPromise ← IO.Promise.new
-        let derivedWaiter := Waiter.mk waiter.finished waiterPromise
-        selectable.selector.registerFn derivedWaiter
-
-        let barrier ← IO.Promise.new
-
-        discard <| IO.bindTask (t := waiterPromise.result?) fun res? => do
-          match res? with
-          | none => return (Task.pure (.ok ()))
-          | some res =>
-            let async : Async _ := do
-              let mainPromise := waiter.promise
-
-              await barrier
-              for selectable in selectables do
-                selectable.selector.unregisterFn
-
-              try
-                let val ← IO.ofExcept res
-                let result ← selectable.cont val
-                mainPromise.resolve (.ok result)
-              catch e =>
-                mainPromise.resolve (.error e)
-            async.toBaseIO
-
-    unregisterFn := do
-      for selectable in selectables do
-        selectable.selector.unregisterFn
-  }
 
 end Async
 end Std

@@ -1,0 +1,5 @@
+{"value":{"scalar":{"value":1}},"source":{"declaration":{"name":"Inner.nestedDummyMarker","module":"Violations"}},"name":"linter.dummyMarker"}
+{"value":{"scalar":{"value":1}},"source":{"declaration":{"name":"fooDummyMarker","module":"Violations"}},"name":"linter.dummyMarker"}
+{"value":{"scalar":{"value":1}},"source":{"declaration":{"name":"subDummyMarker","module":"Violations.Sub"}},"name":"linter.dummyMarker"}
+{"value":{"scalar":{"value":1}},"source":{"module":{"name":"Violations.Sub"}},"name":"linter.unusedVariables"}
+{"value":{"scalar":{"value":2}},"source":{"module":{"name":"Violations"}},"name":"linter.unusedVariables"}

@@ -368,10 +368,10 @@ return v___x_100_;
 LEAN_EXPORT lean_object* l_instHashableArray___redArg___lam__0___boxed(lean_object* v_inst_101_, lean_object* v_x1_102_, lean_object* v_x2_103_){
 _start:
 {
-uint64_t v_x1_84__boxed_104_; uint64_t v_res_105_; lean_object* v_r_106_; 
-v_x1_84__boxed_104_ = lean_unbox_uint64(v_x1_102_);
+uint64_t v_x1_81__boxed_104_; uint64_t v_res_105_; lean_object* v_r_106_; 
+v_x1_81__boxed_104_ = lean_unbox_uint64(v_x1_102_);
 lean_dec_ref(v_x1_102_);
-v_res_105_ = l_instHashableArray___redArg___lam__0(v_inst_101_, v_x1_84__boxed_104_, v_x2_103_);
+v_res_105_ = l_instHashableArray___redArg___lam__0(v_inst_101_, v_x1_81__boxed_104_, v_x2_103_);
 v_r_106_ = lean_box_uint64(v_res_105_);
 return v_r_106_;
 }
@@ -592,11 +592,13 @@ return v_r_209_;
 }
 lean_object* runtime_initialize_Init_Data_Array_Basic(uint8_t builtin);
 lean_object* runtime_initialize_Init_Data_UInt_Basic(uint8_t builtin);
+void lean_initialize_runtime_module();
 static bool _G_runtime_initialized = false;
 LEAN_EXPORT lean_object* runtime_initialize_Init_Data_Hashable(uint8_t builtin) {
 lean_object * res;
 if (_G_runtime_initialized) return lean_io_result_mk_ok(lean_box(0));
 _G_runtime_initialized = true;
+lean_initialize_runtime_module();
 res = runtime_initialize_Init_Data_Array_Basic(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);

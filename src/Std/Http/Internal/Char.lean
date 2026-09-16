@@ -103,7 +103,20 @@ def quotedStringChar (c : Char) : Bool :=
 theorem quotedStringChar_lt_0x80 : quotedStringChar c → c < '\x80' := by
   simp [quotedStringChar, qdtext, quotedPairChar]
   split <;> simp only [true_or, Char.reduceLT, imp_self]
-  grind [→ Char.le_def.mp, Char.lt_def.mpr, vchar]
+  intro h
+  have hc : c ≤ '~' := by
+    rcases h with ((h | ⟨_, h⟩) | ⟨_, h⟩) | h | h
+    · nomatch h
+    · exact Char.le_trans h (by decide)
+    · exact h
+    · nomatch h
+    · simp only [vchar, ge_iff_le, Bool.decide_and, Bool.and_eq_true, decide_eq_true_eq] at h
+      exact h.2
+  have h80 : ('~' : Char) < '\x80' := by decide
+  rw [Char.lt_def, UInt32.lt_iff_toNat_lt]
+  rw [Char.le_def, UInt32.le_iff_toNat_le] at hc
+  rw [Char.lt_def, UInt32.lt_iff_toNat_lt] at h80
+  omega
 
 private theorem not_quotedStringChar_ofNat_aux :
     ∀ c : Nat, c < 128 → ¬(qdtext (Char.ofNat c)) ∧ ¬((Char.ofNat c = '\"') ∨ (Char.ofNat c = '\\')) →

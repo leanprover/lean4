@@ -30,3 +30,6 @@ Note: This linter can be disabled with `set_option linter.deprecated.syntax fals
 42 : Nat
 42 : Nat
 deprecated_syntax.lean:84:0-84:39: warning: `deprecated_syntax` should specify the date or library version at which the deprecation was introduced, using `(since := "...")`
+deprecated_syntax.lean:95:30-95:38: warning: syntax 'termOldThing' has been deprecated: use `42` instead
+
+Note: This linter can be disabled with `set_option linter.deprecated.syntax false`

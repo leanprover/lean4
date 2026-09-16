@@ -17,7 +17,7 @@ lean_object* lean_st_ref_take(lean_object*);
 lean_object* lean_mk_empty_array_with_capacity(lean_object*);
 lean_object* l_Lean_PersistentHashMap_mkEmptyEntriesArray(lean_object*, lean_object*);
 lean_object* lean_mk_array(lean_object*, lean_object*);
-lean_object* lean_st_ref_set(lean_object*, lean_object*);
+lean_object* lean_st_ref_put(lean_object*, lean_object*);
 lean_object* l_Lean_Meta_Simp_mainCore(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_profileitIOUnsafe___redArg(lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* lean_st_ref_get(lean_object*);
@@ -48,7 +48,7 @@ lean_object* l_Lean_Meta_Grind_eraseSimpMatchDiscrsOnly(lean_object*, lean_objec
 lean_object* l_Lean_Meta_Simp_Result_mkEqTrans(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Meta_Grind_replacePreMatchCond(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Meta_Sym_canon(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
-lean_object* l_Lean_Meta_Sym_shareCommon___redArg(lean_object*, lean_object*);
+lean_object* l_Lean_Meta_Sym_shareCommon(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Meta_Grind_updateLastTag(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_profileitM___at___00Lean_Meta_Grind_simpCore_spec__0___redArg(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_profileitM___at___00Lean_Meta_Grind_simpCore_spec__0___redArg___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
@@ -415,7 +415,7 @@ goto v_reusejp_124_;
 v_reusejp_124_:
 {
 lean_object* v___x_126_; lean_object* v_simp_127_; lean_object* v_simpMethods_128_; lean_object* v___x_129_; 
-v___x_126_ = lean_st_ref_set(v___y_101_, v___x_125_);
+v___x_126_ = lean_st_ref_put(v___y_101_, v___x_125_);
 v_simp_127_ = lean_ctor_get(v___y_100_, 0);
 v_simpMethods_128_ = lean_ctor_get(v___y_100_, 1);
 lean_inc_ref(v_simpMethods_128_);
@@ -513,7 +513,7 @@ goto v_reusejp_149_;
 v_reusejp_149_:
 {
 lean_object* v___x_151_; lean_object* v___x_153_; 
-v___x_151_ = lean_st_ref_set(v___y_101_, v___x_150_);
+v___x_151_ = lean_st_ref_put(v___y_101_, v___x_150_);
 if (v_isShared_133_ == 0)
 {
 lean_ctor_set(v___x_132_, 0, v_fst_134_);
@@ -700,7 +700,7 @@ goto v_reusejp_238_;
 v_reusejp_238_:
 {
 lean_object* v___x_240_; lean_object* v_simp_241_; lean_object* v_simpMethods_242_; lean_object* v___x_243_; 
-v___x_240_ = lean_st_ref_set(v___y_213_, v___x_239_);
+v___x_240_ = lean_st_ref_put(v___y_213_, v___x_239_);
 v_simp_241_ = lean_ctor_get(v___y_212_, 0);
 v_simpMethods_242_ = lean_ctor_get(v___y_212_, 1);
 lean_inc_ref(v_simpMethods_242_);
@@ -798,7 +798,7 @@ goto v_reusejp_263_;
 v_reusejp_263_:
 {
 lean_object* v___x_265_; lean_object* v___x_267_; 
-v___x_265_ = lean_st_ref_set(v___y_213_, v___x_264_);
+v___x_265_ = lean_st_ref_put(v___y_213_, v___x_264_);
 if (v_isShared_247_ == 0)
 {
 lean_ctor_set(v___x_246_, 0, v_fst_248_);
@@ -988,7 +988,7 @@ goto v_reusejp_342_;
 v_reusejp_342_:
 {
 lean_object* v___x_344_; lean_object* v___x_345_; 
-v___x_344_ = lean_st_ref_set(v___y_325_, v___x_343_);
+v___x_344_ = lean_st_ref_put(v___y_325_, v___x_343_);
 v___x_345_ = lean_alloc_ctor(0, 1, 0);
 lean_ctor_set(v___x_345_, 0, v_fst_332_);
 return v___x_345_;
@@ -1227,7 +1227,7 @@ goto v_reusejp_448_;
 v_reusejp_448_:
 {
 lean_object* v___x_450_; lean_object* v___x_451_; lean_object* v___x_453_; 
-v___x_450_ = lean_st_ref_set(v___y_411_, v___x_449_);
+v___x_450_ = lean_st_ref_put(v___y_411_, v___x_449_);
 v___x_451_ = lean_box(0);
 if (v_isShared_418_ == 0)
 {
@@ -1389,7 +1389,7 @@ lean_object* v_a_524_; lean_object* v___x_525_;
 v_a_524_ = lean_ctor_get(v___x_523_, 0);
 lean_inc(v_a_524_);
 lean_dec_ref_known(v___x_523_, 1);
-v___x_525_ = l_Lean_Meta_Sym_shareCommon___redArg(v_a_524_, v_a_488_);
+v___x_525_ = l_Lean_Meta_Sym_shareCommon(v_a_524_, v_a_487_, v_a_488_, v_a_489_, v_a_490_, v_a_491_, v_a_492_);
 if (lean_obj_tag(v___x_525_) == 0)
 {
 lean_object* v_a_526_; lean_object* v___x_528_; uint8_t v_isShared_529_; uint8_t v_isSharedCheck_573_; 
@@ -2425,7 +2425,7 @@ goto v_reusejp_757_;
 v_reusejp_757_:
 {
 lean_object* v___x_759_; lean_object* v___x_760_; lean_object* v___x_762_; 
-v___x_759_ = lean_st_ref_set(v___y_725_, v___x_758_);
+v___x_759_ = lean_st_ref_put(v___y_725_, v___x_758_);
 v___x_760_ = lean_box(0);
 if (v_isShared_720_ == 0)
 {
@@ -2750,7 +2750,7 @@ lean_object* v_a_882_; lean_object* v___x_883_;
 v_a_882_ = lean_ctor_get(v___x_881_, 0);
 lean_inc(v_a_882_);
 lean_dec_ref_known(v___x_881_, 1);
-v___x_883_ = l_Lean_Meta_Sym_shareCommon___redArg(v_a_882_, v_a_863_);
+v___x_883_ = l_Lean_Meta_Sym_shareCommon(v_a_882_, v_a_862_, v_a_863_, v_a_864_, v_a_865_, v_a_866_, v_a_867_);
 return v___x_883_;
 }
 else
@@ -2834,11 +2834,13 @@ lean_object* runtime_initialize_Lean_Meta_Tactic_Grind_Util(uint8_t builtin);
 lean_object* runtime_initialize_Lean_Meta_Tactic_Grind_MatchDiscrOnly(uint8_t builtin);
 lean_object* runtime_initialize_Lean_Meta_Tactic_Grind_MarkNestedSubsingletons(uint8_t builtin);
 lean_object* runtime_initialize_Lean_Meta_Sym_Util(uint8_t builtin);
+void lean_initialize_runtime_module();
 static bool _G_runtime_initialized = false;
 LEAN_EXPORT lean_object* runtime_initialize_Lean_Meta_Tactic_Grind_Simp(uint8_t builtin) {
 lean_object * res;
 if (_G_runtime_initialized) return lean_io_result_mk_ok(lean_box(0));
 _G_runtime_initialized = true;
+lean_initialize_runtime_module();
 res = runtime_initialize_Init_Grind_Lemmas(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);

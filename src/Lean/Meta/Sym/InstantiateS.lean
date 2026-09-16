@@ -9,7 +9,7 @@ public import Lean.Meta.Sym.SymM
 import Lean.Meta.Sym.LooseBVarsS
 import Init.Grind
 namespace Lean.Meta.Sym
-open Internal
+open Lean.Meta.Sym.Internal
 /--
 Similar to `Lean.Expr.instantiateRevRange`.
 It assumes the input is maximally shared, and ensures the output is too.

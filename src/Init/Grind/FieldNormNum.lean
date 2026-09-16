@@ -88,7 +88,7 @@ theorem ofRat_div' {α} [Field α] {a b : Rat} (ha : (a.den : α) ≠ 0) (hb : (
     (ofRat (a / b) : α) = ofRat a / ofRat b := by
   replace hb : ((b⁻¹).den : α) ≠ 0 := by
     simp only [Rat.den_inv, Rat.num_eq_zero, ne_eq]
-    rw [if_neg (by intro h; simp_all)]
+    rw [ite_eq_right (by intro h; simp_all)]
     rw [← Ring.intCast_natCast]
     by_cases h : 0 ≤ b.num
     · have : (b.num.natAbs : Int) = b.num := Int.natAbs_of_nonneg h

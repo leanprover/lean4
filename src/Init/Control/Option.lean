@@ -21,7 +21,7 @@ instance : ToBool (Option α) := ⟨Option.isSome⟩
 Adds the ability to fail to a monad. Unlike ordinary exceptions, there is no way to signal why a
 failure occurred.
 -/
-@[expose] def OptionT (m : Type u → Type v) (α : Type u) : Type v :=
+@[expose, implicit_reducible] def OptionT (m : Type u → Type v) (α : Type u) : Type v :=
   m (Option α)
 
 /--

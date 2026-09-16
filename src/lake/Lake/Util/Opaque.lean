@@ -29,7 +29,7 @@ public opaque mk.{v,u} {α : Type u} (a : α) : POpaque.{v} :=
   unsafe unsafeCast a
 
 /-- Cast away a value's type and universe. -/
-public abbrev _root_.Opaque.mk {α : Type u} (a : α) : Opaque := POpaque.mk a
+public abbrev _root_.Lake.Opaque.mk {α : Type u} (a : α) : Opaque := POpaque.mk a
 
 /--
 Cast an opaque value to a specific type.

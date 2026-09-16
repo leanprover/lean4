@@ -126,18 +126,24 @@ LEAN_EXPORT lean_object* l_Bool_toInt(uint8_t);
 LEAN_EXPORT lean_object* l_Bool_toInt___boxed(lean_object*);
 LEAN_EXPORT lean_object* l_boolPredToPred(lean_object*);
 LEAN_EXPORT lean_object* l_boolRelToRel(lean_object*);
+LEAN_EXPORT uint8_t l_Bool_and_x27(uint8_t, uint8_t);
+LEAN_EXPORT lean_object* l_Bool_and_x27___boxed(lean_object*, lean_object*);
+LEAN_EXPORT uint8_t l_Bool_or_x27(uint8_t, uint8_t);
+LEAN_EXPORT lean_object* l_Bool_or_x27___boxed(lean_object*, lean_object*);
+LEAN_EXPORT uint8_t l_Bool_not_x27(uint8_t);
+LEAN_EXPORT lean_object* l_Bool_not_x27___boxed(lean_object*);
 LEAN_EXPORT uint8_t l_Bool_xor(uint8_t v_a_1_, uint8_t v_b_2_){
 _start:
-{
-if (v_a_1_ == 0)
-{
-return v_b_2_;
-}
-else
 {
 if (v_b_2_ == 0)
 {
 return v_a_1_;
+}
+else
+{
+if (v_a_1_ == 0)
+{
+return v_b_2_;
 }
 else
 {
@@ -628,12 +634,89 @@ v___x_225_ = lean_box(0);
 return v___x_225_;
 }
 }
+LEAN_EXPORT uint8_t l_Bool_and_x27(uint8_t v_a_226_, uint8_t v_b_227_){
+_start:
+{
+if (v_a_226_ == 0)
+{
+return v_a_226_;
+}
+else
+{
+return v_b_227_;
+}
+}
+}
+LEAN_EXPORT lean_object* l_Bool_and_x27___boxed(lean_object* v_a_228_, lean_object* v_b_229_){
+_start:
+{
+uint8_t v_a_boxed_230_; uint8_t v_b_boxed_231_; uint8_t v_res_232_; lean_object* v_r_233_; 
+v_a_boxed_230_ = lean_unbox(v_a_228_);
+v_b_boxed_231_ = lean_unbox(v_b_229_);
+v_res_232_ = l_Bool_and_x27(v_a_boxed_230_, v_b_boxed_231_);
+v_r_233_ = lean_box(v_res_232_);
+return v_r_233_;
+}
+}
+LEAN_EXPORT uint8_t l_Bool_or_x27(uint8_t v_a_234_, uint8_t v_b_235_){
+_start:
+{
+if (v_a_234_ == 0)
+{
+return v_b_235_;
+}
+else
+{
+return v_a_234_;
+}
+}
+}
+LEAN_EXPORT lean_object* l_Bool_or_x27___boxed(lean_object* v_a_236_, lean_object* v_b_237_){
+_start:
+{
+uint8_t v_a_boxed_238_; uint8_t v_b_boxed_239_; uint8_t v_res_240_; lean_object* v_r_241_; 
+v_a_boxed_238_ = lean_unbox(v_a_236_);
+v_b_boxed_239_ = lean_unbox(v_b_237_);
+v_res_240_ = l_Bool_or_x27(v_a_boxed_238_, v_b_boxed_239_);
+v_r_241_ = lean_box(v_res_240_);
+return v_r_241_;
+}
+}
+LEAN_EXPORT uint8_t l_Bool_not_x27(uint8_t v_a_242_){
+_start:
+{
+if (v_a_242_ == 0)
+{
+uint8_t v___x_243_; 
+v___x_243_ = 1;
+return v___x_243_;
+}
+else
+{
+uint8_t v___x_244_; 
+v___x_244_ = 0;
+return v___x_244_;
+}
+}
+}
+LEAN_EXPORT lean_object* l_Bool_not_x27___boxed(lean_object* v_a_245_){
+_start:
+{
+uint8_t v_a_boxed_246_; uint8_t v_res_247_; lean_object* v_r_248_; 
+v_a_boxed_246_ = lean_unbox(v_a_245_);
+v_res_247_ = l_Bool_not_x27(v_a_boxed_246_);
+v_r_248_ = lean_box(v_res_247_);
+return v_r_248_;
+}
+}
 lean_object* runtime_initialize_Init_NotationExtra(uint8_t builtin);
+void lean_initialize_runtime_module();
 static bool _G_runtime_initialized = false;
 LEAN_EXPORT lean_object* runtime_initialize_Init_Data_Bool(uint8_t builtin) {
 lean_object * res;
 if (_G_runtime_initialized) return lean_io_result_mk_ok(lean_box(0));
 _G_runtime_initialized = true;
+lean_initialize_runtime_module();
 res = runtime_initialize_Init_NotationExtra(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);

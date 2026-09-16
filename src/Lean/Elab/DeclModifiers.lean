@@ -126,9 +126,9 @@ structure Modifiers where
   /-- Input syntax, used for adjusting declaration range (unless missing) -/
   stx             : TSyntax ``Parser.Command.declModifiers := ⟨.missing⟩
   /--
-  The docstring, if present, and whether it's Verso.
+  The docstring, if present.
   -/
-  docString?      : Option (TSyntax ``Parser.Command.docComment × Bool) := none
+  docString?      : Option (TSyntax ``Parser.Command.docComment) := none
   visibility      : Visibility := Visibility.regular
   isProtected     : Bool := false
   computeKind     : ComputeKind := .regular
@@ -225,7 +225,7 @@ def elabModifiers (stx : TSyntax ``Parser.Command.declModifiers) : m Modifiers :
       RecKind.partial
     else
       RecKind.nonrec
-  let docString? := docCommentStx.getOptional?.map (TSyntax.mk ·, doc.verso.get (← getOptions))
+  let docString? := docCommentStx.getOptional?.map (TSyntax.mk ·)
   let visibility ← elabVisibility (visibilityStx.getOptional?.map (⟨·⟩))
   let isProtected := !protectedStx.isNone
   let attrs ← match attrsStx.getOptional? with
@@ -308,8 +308,8 @@ structure ExpandDeclIdResult where
   declName   : Name
   /-- Universe parameter names provided using the `universe` command and `.{...}` notation. -/
   levelNames : List Name
-  /-- The docstring, and whether it's Verso -/
-  docString? : Option (TSyntax ``Parser.Command.docComment × Bool)
+  /-- The docstring. -/
+  docString? : Option (TSyntax ``Parser.Command.docComment)
 
 open Lean.Elab.Term (TermElabM)
 

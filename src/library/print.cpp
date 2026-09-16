@@ -11,7 +11,6 @@ Author: Leonardo de Moura
 #include "kernel/find_fn.h"
 #include "kernel/instantiate.h"
 #include "library/formatter.h"
-#include "library/annotation.h"
 #include "library/util.h"
 #include "library/print.h"
 

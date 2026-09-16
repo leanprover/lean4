@@ -103,3 +103,11 @@ i 1.5
    "message": "declaration uses `sorry`",
    "fullRange":
    {"start": {"line": 1, "character": 0}, "end": {"line": 1, "character": 7}}}]}
+so 0
+so 1
+so 2
+so 2.5
+sov 0
+sov 1
+sov 0
+sov 1

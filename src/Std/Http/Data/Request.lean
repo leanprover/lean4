@@ -104,7 +104,7 @@ instance : ToString Head where
     toString req.headers ++
     "\r\n"
 
-open Internal in
+open Std.Http.Internal in
 instance : Encode .v11 Head where
   encode buffer req :=
     let buffer := Encode.encode (v := .v11) buffer req.method

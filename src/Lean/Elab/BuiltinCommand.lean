@@ -613,6 +613,7 @@ open Lean.Parser.Command.InternalSyntax in
   let platforms :=
     (if System.Platform.isWindows then [" Windows"] else [])
     ++ (if System.Platform.isOSX then [" macOS"] else [])
+    ++ (if System.Platform.isLinux then [" Linux"] else [])
     ++ (if System.Platform.isEmscripten then [" Emscripten"] else [])
   logInfo m!"Lean {Lean.versionString}\nTarget: {target}{String.join platforms}"
 

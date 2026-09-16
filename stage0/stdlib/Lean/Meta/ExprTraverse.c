@@ -148,9 +148,9 @@ return v___x_40_;
 LEAN_EXPORT lean_object* l___private_Lean_Meta_ExprTraverse_0__Lean_Meta_traverseLambdaWithPos_visit___redArg___lam__1___boxed(lean_object* v_inst_41_, lean_object* v_inst_42_, lean_object* v_binderName_43_, lean_object* v_binderInfo_44_, lean_object* v___f_45_, lean_object* v_d_46_){
 _start:
 {
-uint8_t v_binderInfo_120__boxed_47_; lean_object* v_res_48_; 
-v_binderInfo_120__boxed_47_ = lean_unbox(v_binderInfo_44_);
-v_res_48_ = l___private_Lean_Meta_ExprTraverse_0__Lean_Meta_traverseLambdaWithPos_visit___redArg___lam__1(v_inst_41_, v_inst_42_, v_binderName_43_, v_binderInfo_120__boxed_47_, v___f_45_, v_d_46_);
+uint8_t v_binderInfo_116__boxed_47_; lean_object* v_res_48_; 
+v_binderInfo_116__boxed_47_ = lean_unbox(v_binderInfo_44_);
+v_res_48_ = l___private_Lean_Meta_ExprTraverse_0__Lean_Meta_traverseLambdaWithPos_visit___redArg___lam__1(v_inst_41_, v_inst_42_, v_binderName_43_, v_binderInfo_116__boxed_47_, v___f_45_, v_d_46_);
 return v_res_48_;
 }
 }
@@ -783,11 +783,13 @@ return v___x_427_;
 }
 }
 lean_object* runtime_initialize_Lean_SubExpr(uint8_t builtin);
+void lean_initialize_runtime_module();
 static bool _G_runtime_initialized = false;
 LEAN_EXPORT lean_object* runtime_initialize_Lean_Meta_ExprTraverse(uint8_t builtin) {
 lean_object * res;
 if (_G_runtime_initialized) return lean_io_result_mk_ok(lean_box(0));
 _G_runtime_initialized = true;
+lean_initialize_runtime_module();
 res = runtime_initialize_Lean_SubExpr(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);

@@ -16,9 +16,7 @@ This module contains the implementation of counterexample recovery and explanati
 
 namespace Lean.Meta.Tactic.BVDecide
 
-open Std.Sat
 open Std.Tactic.BVDecide
-open Std.Tactic.BVDecide.Reflect
 
 /--
 Given:
@@ -86,7 +84,7 @@ public structure CounterExample where
   The set of unused but potentially relevant hypotheses. Useful for diagnosing spurious counter
   examples.
   -/
-  unusedHypotheses : Std.HashSet FVarId
+  unusedHypotheses : Std.HashSet Normalize.Hyp
   /--
   The actual counter example as a list of equations denoted as `expr = value` pairs.
   -/
@@ -97,7 +95,7 @@ The result of a spurious counter example diagnosis.
 -/
 structure Diagnosis where
   uninterpretedSymbols : Std.HashSet Expr := {}
-  unusedRelevantHypotheses : Std.HashSet FVarId := {}
+  unusedRelevantHypotheses : Std.HashSet Normalize.Hyp := {}
   derivedEquations : Array (Expr × Expr) := #[]
 
 abbrev DiagnosisM : Type → Type := ReaderT CounterExample <| StateRefT Diagnosis MetaM
@@ -110,7 +108,7 @@ def run (x : DiagnosisM Unit) (counterExample : CounterExample) : MetaM Diagnosi
     return issues
 
 @[inline]
-def unusedHyps : DiagnosisM (Std.HashSet FVarId) := do
+def unusedHyps : DiagnosisM (Std.HashSet Normalize.Hyp) := do
   return (← read).unusedHypotheses
 
 @[inline]
@@ -122,8 +120,8 @@ def addUninterpretedSymbol (e : Expr) : DiagnosisM Unit :=
   modify fun s => { s with uninterpretedSymbols := s.uninterpretedSymbols.insert e }
 
 @[inline]
-def addUnusedRelevantHypothesis (fvar : FVarId) : DiagnosisM Unit :=
-  modify fun s => { s with unusedRelevantHypotheses := s.unusedRelevantHypotheses.insert fvar }
+def addUnusedRelevantHypothesis (hyp : Normalize.Hyp) : DiagnosisM Unit :=
+  modify fun s => { s with unusedRelevantHypotheses := s.unusedRelevantHypotheses.insert hyp }
 
 @[inline]
 def addDerivedEquation (var : Expr) (value : Expr) : DiagnosisM Unit :=
@@ -131,7 +129,7 @@ def addDerivedEquation (var : Expr) (value : Expr) : DiagnosisM Unit :=
 
 def checkRelevantHypsUsed (fvar : FVarId) : DiagnosisM Unit := do
   for hyp in ← unusedHyps do
-    if (← hyp.getType).containsFVar fvar then
+    if hyp.type.containsFVar fvar then
       addUnusedRelevantHypothesis hyp
 
 /--
@@ -158,42 +156,62 @@ where
         if h : value.w = 8 then
           return (x, toExpr <| UInt8.ofBitVec (h ▸ value.bv))
         else
-          throwError m!"Value for UInt8 was not 8 bit but {value.w} bit"
+          throwError m!"Value for UInt8 was not 8 bits but {value.w} bits"
       | UInt16.toBitVec x =>
         if h : value.w = 16 then
           return (x, toExpr <| UInt16.ofBitVec (h ▸ value.bv))
         else
-          throwError m!"Value for UInt16 was not 16 bit but {value.w} bit"
+          throwError m!"Value for UInt16 was not 16 bits but {value.w} bits"
       | UInt32.toBitVec x =>
         if h : value.w = 32 then
           return (x, toExpr <| UInt32.ofBitVec (h ▸ value.bv))
         else
-          throwError m!"Value for UInt32 was not 32 bit but {value.w} bit"
+          throwError m!"Value for UInt32 was not 32 bits but {value.w} bits"
       | UInt64.toBitVec x =>
         if h : value.w = 64 then
           return (x, toExpr <| UInt64.ofBitVec (h ▸ value.bv))
         else
-          throwError m!"Value for UInt64 was not 64 bit but {value.w} bit"
+          throwError m!"Value for UInt64 was not 64 bits but {value.w} bits"
+      | USize.toBitVec32 x _ =>
+        if value.w = 32 then
+          return (x, toExpr <| USize.ofNat value.bv.toNat)
+        else
+          throwError m!"Value for USize was not 32 bits but {value.w} bits"
+      | USize.toBitVec64 x _ =>
+        if value.w = 64 then
+          return (x, toExpr <| USize.ofNat value.bv.toNat)
+        else
+          throwError m!"Value for USize was not 64 bits but {value.w} bits"
       | Int8.toBitVec x =>
         if h : value.w = 8 then
           return (x, toExpr <| Int8.ofBitVec (h ▸ value.bv))
         else
-          throwError m!"Value for Int8 was not 8 bit but {value.w} bit"
+          throwError m!"Value for Int8 was not 8 bits but {value.w} bits"
       | Int16.toBitVec x =>
         if h : value.w = 16 then
           return (x, toExpr <| Int16.ofBitVec (h ▸ value.bv))
         else
-          throwError m!"Value for Int16 was not 16 bit but {value.w} bit"
+          throwError m!"Value for Int16 was not 16 bits but {value.w} bits"
       | Int32.toBitVec x =>
         if h : value.w = 32 then
           return (x, toExpr <| Int32.ofBitVec (h ▸ value.bv))
         else
-          throwError m!"Value for Int32 was not 32 bit but {value.w} bit"
+          throwError m!"Value for Int32 was not 32 bits but {value.w} bits"
       | Int64.toBitVec x =>
         if h : value.w = 64 then
           return (x, toExpr <| Int64.ofBitVec (h ▸ value.bv))
         else
-          throwError m!"Value for Int64 was not 64 bit but {value.w} bit"
+          throwError m!"Value for Int64 was not 64 bits but {value.w} bits"
+      | ISize.toBitVec32 x _ =>
+        if value.w = 32 then
+          return (x, toExpr <| ISize.ofInt value.bv.toInt)
+        else
+          throwError m!"Value for ISize was not 32 bits but {value.w} bits"
+      | ISize.toBitVec64 x _ =>
+        if value.w = 64 then
+          return (x, toExpr <| ISize.ofInt value.bv.toInt)
+        else
+          throwError m!"Value for ISize was not 64 bits but {value.w} bits"
       | _ =>
         match var with
         | .app (.const (.str p s) levels) arg =>
@@ -212,12 +230,18 @@ end DiagnosisM
 def uninterpretedExplainer (d : Diagnosis) : Option MessageData := do
   guard !d.uninterpretedSymbols.isEmpty
   let symList := d.uninterpretedSymbols.toList
-  return m!"It abstracted the following unsupported expressions as opaque variables: {symList}"
+  let mut m := m!"It abstracted the following unsupported expressions as opaque variables:"
+  for e in symList do
+    m := m ++ m!"\n  - {e}"
+  return m
 
 def unusedRelevantHypothesesExplainer (d : Diagnosis) : Option MessageData := do
   guard !d.unusedRelevantHypotheses.isEmpty
-  let hypList := d.unusedRelevantHypotheses.toList.map mkFVar
-  return m!"The following potentially relevant hypotheses could not be used: {hypList}"
+  let hyps := d.unusedRelevantHypotheses.toList
+  let mut m := m!"The following potentially relevant hypotheses could not be used:"
+  for hyp in hyps do
+    m := m ++ m!"\n  - {hyp.type} derived via {hyp.source}"
+  return m
 
 def explainers : List (Diagnosis → Option MessageData) :=
   [uninterpretedExplainer, unusedRelevantHypothesesExplainer]

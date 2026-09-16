@@ -20,10 +20,17 @@ extern "C" object* initialize_Init(uint8_t);
 extern "C" object* initialize_Std(uint8_t);
 extern "C" object* initialize_Lean(uint8_t);
 
+static bool g_initialized = false;
 /* Initializes the Lean runtime. Before executing any code which uses the Lean package,
 you must first call this function, and then `lean::io_mark_end_initialization`. In between
-these two calls, you may also have to run additional initializers for your own modules. */
+these two calls, you may also have to run additional initializers for your own modules.
+
+This function is, and needs to stay, idempotent; it is called by the generated initializer of every
+module using the Lean package, which may happen multiple times in a single executable. */
 extern "C" LEAN_EXPORT void lean_initialize() {
+    if (g_initialized)
+        return;
+    g_initialized = true;
     save_stack_info();
     initialize_util_module();
     uint8_t builtin = 1;

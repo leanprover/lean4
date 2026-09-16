@@ -1987,17 +1987,17 @@ static lean_once_cell_t l_Std_Packages_LinearOrderOfLEArgs_min__eq___autoParam__
 static lean_object* l_Std_Packages_LinearOrderOfLEArgs_min__eq___autoParam___closed__14;
 static lean_once_cell_t l_Std_Packages_LinearOrderOfLEArgs_min__eq___autoParam___closed__15_once = LEAN_ONCE_CELL_INITIALIZER;
 static lean_object* l_Std_Packages_LinearOrderOfLEArgs_min__eq___autoParam___closed__15;
-static const lean_string_object l_Std_Packages_LinearOrderOfLEArgs_min__eq___autoParam___closed__16_value = {.m_header = {.m_rc = 0, .m_cs_sz = 0, .m_other = 0, .m_tag = 249}, .m_size = 21, .m_capacity = 21, .m_length = 20, .m_data = "_root_.Std.min_eq_if"};
+static const lean_string_object l_Std_Packages_LinearOrderOfLEArgs_min__eq___autoParam___closed__16_value = {.m_header = {.m_rc = 0, .m_cs_sz = 0, .m_other = 0, .m_tag = 249}, .m_size = 22, .m_capacity = 22, .m_length = 21, .m_data = "_root_.Std.min_eq_ite"};
 static const lean_object* l_Std_Packages_LinearOrderOfLEArgs_min__eq___autoParam___closed__16 = (const lean_object*)&l_Std_Packages_LinearOrderOfLEArgs_min__eq___autoParam___closed__16_value;
 static lean_once_cell_t l_Std_Packages_LinearOrderOfLEArgs_min__eq___autoParam___closed__17_once = LEAN_ONCE_CELL_INITIALIZER;
 static lean_object* l_Std_Packages_LinearOrderOfLEArgs_min__eq___autoParam___closed__17;
 static lean_once_cell_t l_Std_Packages_LinearOrderOfLEArgs_min__eq___autoParam___closed__18_once = LEAN_ONCE_CELL_INITIALIZER;
 static lean_object* l_Std_Packages_LinearOrderOfLEArgs_min__eq___autoParam___closed__18;
-static const lean_string_object l_Std_Packages_LinearOrderOfLEArgs_min__eq___autoParam___closed__19_value = {.m_header = {.m_rc = 0, .m_cs_sz = 0, .m_other = 0, .m_tag = 249}, .m_size = 10, .m_capacity = 10, .m_length = 9, .m_data = "min_eq_if"};
+static const lean_string_object l_Std_Packages_LinearOrderOfLEArgs_min__eq___autoParam___closed__19_value = {.m_header = {.m_rc = 0, .m_cs_sz = 0, .m_other = 0, .m_tag = 249}, .m_size = 11, .m_capacity = 11, .m_length = 10, .m_data = "min_eq_ite"};
 static const lean_object* l_Std_Packages_LinearOrderOfLEArgs_min__eq___autoParam___closed__19 = (const lean_object*)&l_Std_Packages_LinearOrderOfLEArgs_min__eq___autoParam___closed__19_value;
 static const lean_ctor_object l_Std_Packages_LinearOrderOfLEArgs_min__eq___autoParam___closed__20_value_aux_0 = {.m_header = {.m_rc = 0, .m_cs_sz = sizeof(lean_ctor_object) + sizeof(void*)*2 + 8, .m_other = 2, .m_tag = 1}, .m_objs = {((lean_object*)(((size_t)(0) << 1) | 1)),((lean_object*)&l_Std_Packages_PreorderOfLEArgs_lt___autoParam___closed__35_value),LEAN_SCALAR_PTR_LITERAL(184, 175, 53, 50, 212, 152, 178, 8)}};
 static const lean_ctor_object l_Std_Packages_LinearOrderOfLEArgs_min__eq___autoParam___closed__20_value_aux_1 = {.m_header = {.m_rc = 0, .m_cs_sz = sizeof(lean_ctor_object) + sizeof(void*)*2 + 8, .m_other = 2, .m_tag = 1}, .m_objs = {((lean_object*)&l_Std_Packages_LinearOrderOfLEArgs_min__eq___autoParam___closed__20_value_aux_0),((lean_object*)&l_Std_Packages_PreorderOfLEArgs_beq___autoParam___closed__3_value),LEAN_SCALAR_PTR_LITERAL(239, 63, 99, 250, 117, 187, 118, 169)}};
-static const lean_ctor_object l_Std_Packages_LinearOrderOfLEArgs_min__eq___autoParam___closed__20_value = {.m_header = {.m_rc = 0, .m_cs_sz = sizeof(lean_ctor_object) + sizeof(void*)*2 + 8, .m_other = 2, .m_tag = 1}, .m_objs = {((lean_object*)&l_Std_Packages_LinearOrderOfLEArgs_min__eq___autoParam___closed__20_value_aux_1),((lean_object*)&l_Std_Packages_LinearOrderOfLEArgs_min__eq___autoParam___closed__19_value),LEAN_SCALAR_PTR_LITERAL(221, 251, 154, 192, 151, 172, 136, 228)}};
+static const lean_ctor_object l_Std_Packages_LinearOrderOfLEArgs_min__eq___autoParam___closed__20_value = {.m_header = {.m_rc = 0, .m_cs_sz = sizeof(lean_ctor_object) + sizeof(void*)*2 + 8, .m_other = 2, .m_tag = 1}, .m_objs = {((lean_object*)&l_Std_Packages_LinearOrderOfLEArgs_min__eq___autoParam___closed__20_value_aux_1),((lean_object*)&l_Std_Packages_LinearOrderOfLEArgs_min__eq___autoParam___closed__19_value),LEAN_SCALAR_PTR_LITERAL(187, 181, 112, 158, 19, 203, 210, 75)}};
 static const lean_object* l_Std_Packages_LinearOrderOfLEArgs_min__eq___autoParam___closed__20 = (const lean_object*)&l_Std_Packages_LinearOrderOfLEArgs_min__eq___autoParam___closed__20_value;
 static lean_once_cell_t l_Std_Packages_LinearOrderOfLEArgs_min__eq___autoParam___closed__21_once = LEAN_ONCE_CELL_INITIALIZER;
 static lean_object* l_Std_Packages_LinearOrderOfLEArgs_min__eq___autoParam___closed__21;
@@ -2116,17 +2116,17 @@ static lean_object* l_Std_Packages_LinearOrderOfLEArgs_min__eq___autoParam___clo
 static lean_once_cell_t l_Std_Packages_LinearOrderOfLEArgs_min__eq___autoParam___closed__78_once = LEAN_ONCE_CELL_INITIALIZER;
 static lean_object* l_Std_Packages_LinearOrderOfLEArgs_min__eq___autoParam___closed__78;
 LEAN_EXPORT lean_object* l_Std_Packages_LinearOrderOfLEArgs_min__eq___autoParam;
-static const lean_string_object l_Std_Packages_LinearOrderOfLEArgs_max__eq___autoParam___closed__0_value = {.m_header = {.m_rc = 0, .m_cs_sz = 0, .m_other = 0, .m_tag = 249}, .m_size = 21, .m_capacity = 21, .m_length = 20, .m_data = "_root_.Std.max_eq_if"};
+static const lean_string_object l_Std_Packages_LinearOrderOfLEArgs_max__eq___autoParam___closed__0_value = {.m_header = {.m_rc = 0, .m_cs_sz = 0, .m_other = 0, .m_tag = 249}, .m_size = 22, .m_capacity = 22, .m_length = 21, .m_data = "_root_.Std.max_eq_ite"};
 static const lean_object* l_Std_Packages_LinearOrderOfLEArgs_max__eq___autoParam___closed__0 = (const lean_object*)&l_Std_Packages_LinearOrderOfLEArgs_max__eq___autoParam___closed__0_value;
 static lean_once_cell_t l_Std_Packages_LinearOrderOfLEArgs_max__eq___autoParam___closed__1_once = LEAN_ONCE_CELL_INITIALIZER;
 static lean_object* l_Std_Packages_LinearOrderOfLEArgs_max__eq___autoParam___closed__1;
 static lean_once_cell_t l_Std_Packages_LinearOrderOfLEArgs_max__eq___autoParam___closed__2_once = LEAN_ONCE_CELL_INITIALIZER;
 static lean_object* l_Std_Packages_LinearOrderOfLEArgs_max__eq___autoParam___closed__2;
-static const lean_string_object l_Std_Packages_LinearOrderOfLEArgs_max__eq___autoParam___closed__3_value = {.m_header = {.m_rc = 0, .m_cs_sz = 0, .m_other = 0, .m_tag = 249}, .m_size = 10, .m_capacity = 10, .m_length = 9, .m_data = "max_eq_if"};
+static const lean_string_object l_Std_Packages_LinearOrderOfLEArgs_max__eq___autoParam___closed__3_value = {.m_header = {.m_rc = 0, .m_cs_sz = 0, .m_other = 0, .m_tag = 249}, .m_size = 11, .m_capacity = 11, .m_length = 10, .m_data = "max_eq_ite"};
 static const lean_object* l_Std_Packages_LinearOrderOfLEArgs_max__eq___autoParam___closed__3 = (const lean_object*)&l_Std_Packages_LinearOrderOfLEArgs_max__eq___autoParam___closed__3_value;
 static const lean_ctor_object l_Std_Packages_LinearOrderOfLEArgs_max__eq___autoParam___closed__4_value_aux_0 = {.m_header = {.m_rc = 0, .m_cs_sz = sizeof(lean_ctor_object) + sizeof(void*)*2 + 8, .m_other = 2, .m_tag = 1}, .m_objs = {((lean_object*)(((size_t)(0) << 1) | 1)),((lean_object*)&l_Std_Packages_PreorderOfLEArgs_lt___autoParam___closed__35_value),LEAN_SCALAR_PTR_LITERAL(184, 175, 53, 50, 212, 152, 178, 8)}};
 static const lean_ctor_object l_Std_Packages_LinearOrderOfLEArgs_max__eq___autoParam___closed__4_value_aux_1 = {.m_header = {.m_rc = 0, .m_cs_sz = sizeof(lean_ctor_object) + sizeof(void*)*2 + 8, .m_other = 2, .m_tag = 1}, .m_objs = {((lean_object*)&l_Std_Packages_LinearOrderOfLEArgs_max__eq___autoParam___closed__4_value_aux_0),((lean_object*)&l_Std_Packages_PreorderOfLEArgs_beq___autoParam___closed__3_value),LEAN_SCALAR_PTR_LITERAL(239, 63, 99, 250, 117, 187, 118, 169)}};
-static const lean_ctor_object l_Std_Packages_LinearOrderOfLEArgs_max__eq___autoParam___closed__4_value = {.m_header = {.m_rc = 0, .m_cs_sz = sizeof(lean_ctor_object) + sizeof(void*)*2 + 8, .m_other = 2, .m_tag = 1}, .m_objs = {((lean_object*)&l_Std_Packages_LinearOrderOfLEArgs_max__eq___autoParam___closed__4_value_aux_1),((lean_object*)&l_Std_Packages_LinearOrderOfLEArgs_max__eq___autoParam___closed__3_value),LEAN_SCALAR_PTR_LITERAL(199, 52, 145, 90, 100, 208, 222, 233)}};
+static const lean_ctor_object l_Std_Packages_LinearOrderOfLEArgs_max__eq___autoParam___closed__4_value = {.m_header = {.m_rc = 0, .m_cs_sz = sizeof(lean_ctor_object) + sizeof(void*)*2 + 8, .m_other = 2, .m_tag = 1}, .m_objs = {((lean_object*)&l_Std_Packages_LinearOrderOfLEArgs_max__eq___autoParam___closed__4_value_aux_1),((lean_object*)&l_Std_Packages_LinearOrderOfLEArgs_max__eq___autoParam___closed__3_value),LEAN_SCALAR_PTR_LITERAL(155, 125, 95, 219, 151, 115, 215, 103)}};
 static const lean_object* l_Std_Packages_LinearOrderOfLEArgs_max__eq___autoParam___closed__4 = (const lean_object*)&l_Std_Packages_LinearOrderOfLEArgs_max__eq___autoParam___closed__4_value;
 static lean_once_cell_t l_Std_Packages_LinearOrderOfLEArgs_max__eq___autoParam___closed__5_once = LEAN_ONCE_CELL_INITIALIZER;
 static lean_object* l_Std_Packages_LinearOrderOfLEArgs_max__eq___autoParam___closed__5;
@@ -3050,17 +3050,17 @@ static lean_object* l_Std_Packages_LinearOrderOfOrdArgs_max___autoParam___closed
 static lean_once_cell_t l_Std_Packages_LinearOrderOfOrdArgs_max___autoParam___closed__25_once = LEAN_ONCE_CELL_INITIALIZER;
 static lean_object* l_Std_Packages_LinearOrderOfOrdArgs_max___autoParam___closed__25;
 LEAN_EXPORT lean_object* l_Std_Packages_LinearOrderOfOrdArgs_max___autoParam;
-static const lean_string_object l_Std_Packages_LinearOrderOfOrdArgs_min__eq___autoParam___closed__0_value = {.m_header = {.m_rc = 0, .m_cs_sz = 0, .m_other = 0, .m_tag = 249}, .m_size = 34, .m_capacity = 34, .m_length = 33, .m_data = "_root_.Std.min_eq_if_isLE_compare"};
+static const lean_string_object l_Std_Packages_LinearOrderOfOrdArgs_min__eq___autoParam___closed__0_value = {.m_header = {.m_rc = 0, .m_cs_sz = 0, .m_other = 0, .m_tag = 249}, .m_size = 35, .m_capacity = 35, .m_length = 34, .m_data = "_root_.Std.min_eq_ite_isLE_compare"};
 static const lean_object* l_Std_Packages_LinearOrderOfOrdArgs_min__eq___autoParam___closed__0 = (const lean_object*)&l_Std_Packages_LinearOrderOfOrdArgs_min__eq___autoParam___closed__0_value;
 static lean_once_cell_t l_Std_Packages_LinearOrderOfOrdArgs_min__eq___autoParam___closed__1_once = LEAN_ONCE_CELL_INITIALIZER;
 static lean_object* l_Std_Packages_LinearOrderOfOrdArgs_min__eq___autoParam___closed__1;
 static lean_once_cell_t l_Std_Packages_LinearOrderOfOrdArgs_min__eq___autoParam___closed__2_once = LEAN_ONCE_CELL_INITIALIZER;
 static lean_object* l_Std_Packages_LinearOrderOfOrdArgs_min__eq___autoParam___closed__2;
-static const lean_string_object l_Std_Packages_LinearOrderOfOrdArgs_min__eq___autoParam___closed__3_value = {.m_header = {.m_rc = 0, .m_cs_sz = 0, .m_other = 0, .m_tag = 249}, .m_size = 23, .m_capacity = 23, .m_length = 22, .m_data = "min_eq_if_isLE_compare"};
+static const lean_string_object l_Std_Packages_LinearOrderOfOrdArgs_min__eq___autoParam___closed__3_value = {.m_header = {.m_rc = 0, .m_cs_sz = 0, .m_other = 0, .m_tag = 249}, .m_size = 24, .m_capacity = 24, .m_length = 23, .m_data = "min_eq_ite_isLE_compare"};
 static const lean_object* l_Std_Packages_LinearOrderOfOrdArgs_min__eq___autoParam___closed__3 = (const lean_object*)&l_Std_Packages_LinearOrderOfOrdArgs_min__eq___autoParam___closed__3_value;
 static const lean_ctor_object l_Std_Packages_LinearOrderOfOrdArgs_min__eq___autoParam___closed__4_value_aux_0 = {.m_header = {.m_rc = 0, .m_cs_sz = sizeof(lean_ctor_object) + sizeof(void*)*2 + 8, .m_other = 2, .m_tag = 1}, .m_objs = {((lean_object*)(((size_t)(0) << 1) | 1)),((lean_object*)&l_Std_Packages_PreorderOfLEArgs_lt___autoParam___closed__35_value),LEAN_SCALAR_PTR_LITERAL(184, 175, 53, 50, 212, 152, 178, 8)}};
 static const lean_ctor_object l_Std_Packages_LinearOrderOfOrdArgs_min__eq___autoParam___closed__4_value_aux_1 = {.m_header = {.m_rc = 0, .m_cs_sz = sizeof(lean_ctor_object) + sizeof(void*)*2 + 8, .m_other = 2, .m_tag = 1}, .m_objs = {((lean_object*)&l_Std_Packages_LinearOrderOfOrdArgs_min__eq___autoParam___closed__4_value_aux_0),((lean_object*)&l_Std_Packages_PreorderOfLEArgs_beq___autoParam___closed__3_value),LEAN_SCALAR_PTR_LITERAL(239, 63, 99, 250, 117, 187, 118, 169)}};
-static const lean_ctor_object l_Std_Packages_LinearOrderOfOrdArgs_min__eq___autoParam___closed__4_value = {.m_header = {.m_rc = 0, .m_cs_sz = sizeof(lean_ctor_object) + sizeof(void*)*2 + 8, .m_other = 2, .m_tag = 1}, .m_objs = {((lean_object*)&l_Std_Packages_LinearOrderOfOrdArgs_min__eq___autoParam___closed__4_value_aux_1),((lean_object*)&l_Std_Packages_LinearOrderOfOrdArgs_min__eq___autoParam___closed__3_value),LEAN_SCALAR_PTR_LITERAL(73, 151, 2, 7, 12, 248, 85, 191)}};
+static const lean_ctor_object l_Std_Packages_LinearOrderOfOrdArgs_min__eq___autoParam___closed__4_value = {.m_header = {.m_rc = 0, .m_cs_sz = sizeof(lean_ctor_object) + sizeof(void*)*2 + 8, .m_other = 2, .m_tag = 1}, .m_objs = {((lean_object*)&l_Std_Packages_LinearOrderOfOrdArgs_min__eq___autoParam___closed__4_value_aux_1),((lean_object*)&l_Std_Packages_LinearOrderOfOrdArgs_min__eq___autoParam___closed__3_value),LEAN_SCALAR_PTR_LITERAL(252, 91, 221, 47, 255, 74, 48, 19)}};
 static const lean_object* l_Std_Packages_LinearOrderOfOrdArgs_min__eq___autoParam___closed__4 = (const lean_object*)&l_Std_Packages_LinearOrderOfOrdArgs_min__eq___autoParam___closed__4_value;
 static lean_once_cell_t l_Std_Packages_LinearOrderOfOrdArgs_min__eq___autoParam___closed__5_once = LEAN_ONCE_CELL_INITIALIZER;
 static lean_object* l_Std_Packages_LinearOrderOfOrdArgs_min__eq___autoParam___closed__5;
@@ -3121,17 +3121,17 @@ static lean_object* l_Std_Packages_LinearOrderOfOrdArgs_min__eq___autoParam___cl
 static lean_once_cell_t l_Std_Packages_LinearOrderOfOrdArgs_min__eq___autoParam___closed__33_once = LEAN_ONCE_CELL_INITIALIZER;
 static lean_object* l_Std_Packages_LinearOrderOfOrdArgs_min__eq___autoParam___closed__33;
 LEAN_EXPORT lean_object* l_Std_Packages_LinearOrderOfOrdArgs_min__eq___autoParam;
-static const lean_string_object l_Std_Packages_LinearOrderOfOrdArgs_max__eq___autoParam___closed__0_value = {.m_header = {.m_rc = 0, .m_cs_sz = 0, .m_other = 0, .m_tag = 249}, .m_size = 34, .m_capacity = 34, .m_length = 33, .m_data = "_root_.Std.max_eq_if_isGE_compare"};
+static const lean_string_object l_Std_Packages_LinearOrderOfOrdArgs_max__eq___autoParam___closed__0_value = {.m_header = {.m_rc = 0, .m_cs_sz = 0, .m_other = 0, .m_tag = 249}, .m_size = 35, .m_capacity = 35, .m_length = 34, .m_data = "_root_.Std.max_eq_ite_isGE_compare"};
 static const lean_object* l_Std_Packages_LinearOrderOfOrdArgs_max__eq___autoParam___closed__0 = (const lean_object*)&l_Std_Packages_LinearOrderOfOrdArgs_max__eq___autoParam___closed__0_value;
 static lean_once_cell_t l_Std_Packages_LinearOrderOfOrdArgs_max__eq___autoParam___closed__1_once = LEAN_ONCE_CELL_INITIALIZER;
 static lean_object* l_Std_Packages_LinearOrderOfOrdArgs_max__eq___autoParam___closed__1;
 static lean_once_cell_t l_Std_Packages_LinearOrderOfOrdArgs_max__eq___autoParam___closed__2_once = LEAN_ONCE_CELL_INITIALIZER;
 static lean_object* l_Std_Packages_LinearOrderOfOrdArgs_max__eq___autoParam___closed__2;
-static const lean_string_object l_Std_Packages_LinearOrderOfOrdArgs_max__eq___autoParam___closed__3_value = {.m_header = {.m_rc = 0, .m_cs_sz = 0, .m_other = 0, .m_tag = 249}, .m_size = 23, .m_capacity = 23, .m_length = 22, .m_data = "max_eq_if_isGE_compare"};
+static const lean_string_object l_Std_Packages_LinearOrderOfOrdArgs_max__eq___autoParam___closed__3_value = {.m_header = {.m_rc = 0, .m_cs_sz = 0, .m_other = 0, .m_tag = 249}, .m_size = 24, .m_capacity = 24, .m_length = 23, .m_data = "max_eq_ite_isGE_compare"};
 static const lean_object* l_Std_Packages_LinearOrderOfOrdArgs_max__eq___autoParam___closed__3 = (const lean_object*)&l_Std_Packages_LinearOrderOfOrdArgs_max__eq___autoParam___closed__3_value;
 static const lean_ctor_object l_Std_Packages_LinearOrderOfOrdArgs_max__eq___autoParam___closed__4_value_aux_0 = {.m_header = {.m_rc = 0, .m_cs_sz = sizeof(lean_ctor_object) + sizeof(void*)*2 + 8, .m_other = 2, .m_tag = 1}, .m_objs = {((lean_object*)(((size_t)(0) << 1) | 1)),((lean_object*)&l_Std_Packages_PreorderOfLEArgs_lt___autoParam___closed__35_value),LEAN_SCALAR_PTR_LITERAL(184, 175, 53, 50, 212, 152, 178, 8)}};
 static const lean_ctor_object l_Std_Packages_LinearOrderOfOrdArgs_max__eq___autoParam___closed__4_value_aux_1 = {.m_header = {.m_rc = 0, .m_cs_sz = sizeof(lean_ctor_object) + sizeof(void*)*2 + 8, .m_other = 2, .m_tag = 1}, .m_objs = {((lean_object*)&l_Std_Packages_LinearOrderOfOrdArgs_max__eq___autoParam___closed__4_value_aux_0),((lean_object*)&l_Std_Packages_PreorderOfLEArgs_beq___autoParam___closed__3_value),LEAN_SCALAR_PTR_LITERAL(239, 63, 99, 250, 117, 187, 118, 169)}};
-static const lean_ctor_object l_Std_Packages_LinearOrderOfOrdArgs_max__eq___autoParam___closed__4_value = {.m_header = {.m_rc = 0, .m_cs_sz = sizeof(lean_ctor_object) + sizeof(void*)*2 + 8, .m_other = 2, .m_tag = 1}, .m_objs = {((lean_object*)&l_Std_Packages_LinearOrderOfOrdArgs_max__eq___autoParam___closed__4_value_aux_1),((lean_object*)&l_Std_Packages_LinearOrderOfOrdArgs_max__eq___autoParam___closed__3_value),LEAN_SCALAR_PTR_LITERAL(128, 163, 17, 249, 0, 135, 134, 232)}};
+static const lean_ctor_object l_Std_Packages_LinearOrderOfOrdArgs_max__eq___autoParam___closed__4_value = {.m_header = {.m_rc = 0, .m_cs_sz = sizeof(lean_ctor_object) + sizeof(void*)*2 + 8, .m_other = 2, .m_tag = 1}, .m_objs = {((lean_object*)&l_Std_Packages_LinearOrderOfOrdArgs_max__eq___autoParam___closed__4_value_aux_1),((lean_object*)&l_Std_Packages_LinearOrderOfOrdArgs_max__eq___autoParam___closed__3_value),LEAN_SCALAR_PTR_LITERAL(16, 229, 85, 81, 148, 169, 86, 96)}};
 static const lean_object* l_Std_Packages_LinearOrderOfOrdArgs_max__eq___autoParam___closed__4 = (const lean_object*)&l_Std_Packages_LinearOrderOfOrdArgs_max__eq___autoParam___closed__4_value;
 static lean_once_cell_t l_Std_Packages_LinearOrderOfOrdArgs_max__eq___autoParam___closed__5_once = LEAN_ONCE_CELL_INITIALIZER;
 static lean_object* l_Std_Packages_LinearOrderOfOrdArgs_max__eq___autoParam___closed__5;
@@ -3274,23 +3274,26 @@ return v_r_44_;
 LEAN_EXPORT uint8_t l_Std_FactoryInstances_beqOfDecidableLE___redArg___lam__0(lean_object* v_inst_45_, lean_object* v_a_46_, lean_object* v_b_47_){
 _start:
 {
-lean_object* v___x_48_; lean_object* v___x_49_; uint8_t v___x_50_; 
+lean_object* v___x_48_; uint8_t v___x_49_; 
 lean_inc_ref(v_inst_45_);
-lean_inc(v_a_46_);
 lean_inc(v_b_47_);
-v___x_48_ = lean_apply_2(v_inst_45_, v_b_47_, v_a_46_);
-v___x_49_ = lean_apply_2(v_inst_45_, v_a_46_, v_b_47_);
-v___x_50_ = lean_unbox(v___x_49_);
-if (v___x_50_ == 0)
+lean_inc(v_a_46_);
+v___x_48_ = lean_apply_2(v_inst_45_, v_a_46_, v_b_47_);
+v___x_49_ = lean_unbox(v___x_48_);
+if (v___x_49_ == 0)
 {
-uint8_t v___x_51_; 
-v___x_51_ = lean_unbox(v___x_49_);
-return v___x_51_;
+uint8_t v___x_50_; 
+lean_dec(v_b_47_);
+lean_dec(v_a_46_);
+lean_dec_ref(v_inst_45_);
+v___x_50_ = lean_unbox(v___x_48_);
+return v___x_50_;
 }
 else
 {
-uint8_t v___x_52_; 
-v___x_52_ = lean_unbox(v___x_48_);
+lean_object* v___x_51_; uint8_t v___x_52_; 
+v___x_51_ = lean_apply_2(v_inst_45_, v_b_47_, v_a_46_);
+v___x_52_ = lean_unbox(v___x_51_);
 return v___x_52_;
 }
 }
@@ -3327,15 +3330,15 @@ _start:
 {
 lean_object* v___x_67_; lean_object* v___x_68_; uint8_t v___x_69_; 
 lean_inc_ref(v_inst_64_);
-lean_inc(v_a_65_);
 lean_inc(v_b_66_);
-v___x_67_ = lean_apply_2(v_inst_64_, v_b_66_, v_a_65_);
-v___x_68_ = lean_apply_2(v_inst_64_, v_a_65_, v_b_66_);
+lean_inc(v_a_65_);
+v___x_67_ = lean_apply_2(v_inst_64_, v_a_65_, v_b_66_);
+v___x_68_ = lean_apply_2(v_inst_64_, v_b_66_, v_a_65_);
 v___x_69_ = lean_unbox(v___x_68_);
 if (v___x_69_ == 0)
 {
 uint8_t v___x_70_; 
-v___x_70_ = lean_unbox(v___x_68_);
+v___x_70_ = lean_unbox(v___x_67_);
 return v___x_70_;
 }
 else
@@ -3345,7 +3348,7 @@ v___x_71_ = lean_unbox(v___x_67_);
 if (v___x_71_ == 0)
 {
 uint8_t v___x_72_; 
-v___x_72_ = lean_unbox(v___x_68_);
+v___x_72_ = lean_unbox(v___x_67_);
 return v___x_72_;
 }
 else
@@ -3371,15 +3374,15 @@ _start:
 {
 lean_object* v___x_86_; lean_object* v___x_87_; uint8_t v___x_88_; 
 lean_inc_ref(v_inst_82_);
-lean_inc(v_a_84_);
 lean_inc(v_b_85_);
-v___x_86_ = lean_apply_2(v_inst_82_, v_b_85_, v_a_84_);
-v___x_87_ = lean_apply_2(v_inst_82_, v_a_84_, v_b_85_);
+lean_inc(v_a_84_);
+v___x_86_ = lean_apply_2(v_inst_82_, v_a_84_, v_b_85_);
+v___x_87_ = lean_apply_2(v_inst_82_, v_b_85_, v_a_84_);
 v___x_88_ = lean_unbox(v___x_87_);
 if (v___x_88_ == 0)
 {
 uint8_t v___x_89_; 
-v___x_89_ = lean_unbox(v___x_87_);
+v___x_89_ = lean_unbox(v___x_86_);
 return v___x_89_;
 }
 else
@@ -3389,7 +3392,7 @@ v___x_90_ = lean_unbox(v___x_86_);
 if (v___x_90_ == 0)
 {
 uint8_t v___x_91_; 
-v___x_91_ = lean_unbox(v___x_87_);
+v___x_91_ = lean_unbox(v___x_86_);
 return v___x_91_;
 }
 else
@@ -19504,11 +19507,13 @@ lean_object* runtime_initialize_Init_Data_Order_FactoriesExtra(uint8_t builtin);
 lean_object* runtime_initialize_Init_Data_Order_Factories(uint8_t builtin);
 lean_object* runtime_initialize_Init_Data_Bool(uint8_t builtin);
 lean_object* runtime_initialize_Init_Data_Order_Lemmas(uint8_t builtin);
+void lean_initialize_runtime_module();
 static bool _G_runtime_initialized = false;
 LEAN_EXPORT lean_object* runtime_initialize_Init_Data_Order_PackageFactories(uint8_t builtin) {
 lean_object * res;
 if (_G_runtime_initialized) return lean_io_result_mk_ok(lean_box(0));
 _G_runtime_initialized = true;
+lean_initialize_runtime_module();
 res = runtime_initialize_Init_Data_Order_LemmasExtra(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);

@@ -37,7 +37,7 @@ def delta : Nat := 3
 
 /-- The "ratio" parameter of the size-bounded tree. Controls how aggressive the rebalancing
 operations are. -/
-@[inline, Std.Internal.tree_tac]
+@[inline, Std.Internal.tree_tac, implicit_reducible]
 def ratio : Nat := 2
 
 variable {α : Type u} {β : α → Type v}
@@ -52,7 +52,7 @@ In contrast to other functions, `size` is defined here because it is required to
 -/
 
 /-- The size information stored in the tree. -/
-@[inline]
+@[inline, implicit_reducible]
 def size : Impl α β → Nat
   | inner sz _ _ _ _ => sz
   | leaf => 0

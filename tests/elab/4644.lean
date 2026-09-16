@@ -26,18 +26,13 @@ example: check_sorted #[0, 3, 3, 5, 8, 10, 10, 10] = true := by
   rfl -- fails because `rfl` uses `.default` transparency, and `sorted_from_var` is marked as irreducible
 
 /--
-error: Tactic `decide` failed for proposition
-  check_sorted #[0, 3, 3, 5, 8, 10, 10, 10] = true
-because its `Decidable` instance
-  instDecidableEqBool (check_sorted #[0, 3, 3, 5, 8, 10, 10, 10]) true
-did not reduce to `isTrue` or `isFalse`.
+error: Tactic `decide` failed to reduce
+  @decide (check_sorted #[0, 3, 3, 5, 8, 10, 10, 10] = true)
+    (instDecidableEqBool (check_sorted #[0, 3, 3, 5, 8, 10, 10, 10]) true)
+to `true` or `false`.
 
-After unfolding the instances `instDecidableEqBool`, `Bool.decEq`, and `Nat.decLe`, reduction got stuck at the `Decidable` instance
-  match check_sorted #[0, 3, 3, 5, 8, 10, 10, 10], true with
-  | false, false => isTrue ⋯
-  | false, true => isFalse ⋯
-  | true, false => isFalse ⋯
-  | true, true => isTrue ⋯
+After unfolding the instances `instDecidableEqBool`, `Bool.decEq`, and `Nat.decLe`, reduction got stuck at
+  sorted_to_var #[0, 3, 3, 5, 8, 10, 10, 10] (#[0, 3, 3, 5, 8, 10, 10, 10].size - 2) ⋯
 -/
 #guard_msgs in
 example: check_sorted #[0, 3, 3, 5, 8, 10, 10, 10] := by

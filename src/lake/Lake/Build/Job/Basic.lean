@@ -104,6 +104,28 @@ public def JobResult.prependLog (log : Log) (self : JobResult α) : JobResult α
   | .ok a s => .ok a <| s.modifyLog (log ++ ·)
   | .error e s => .error ⟨log.size + e.val⟩ <| s.modifyLog (log ++ ·)
 
+/--
+**For internal use only.**
+Log message marking a job continuation canceled by the build's cancellation
+token. Do not match this directly; use `JobResult.isCanceled`.
+-/
+public def cancelMessage : String := "canceled after earlier build failure"
+
+/--
+Whether this result is a cancellation.
+
+Also correct on merged results (e.g., from `zipResultWith`, `mix`,
+`collectArray`): a result that contains both a genuine failure and
+cancellations is classified as failed.
+-/
+public def JobResult.isCanceled : JobResult α → Bool
+  | .error _ s =>
+    -- Scan the log, not the entry at the error position: merges concatenate
+    -- logs but reset the position. Assumes failures log at error level.
+    s.log.maxLv < .error &&
+    s.log.any fun e => e.level == .trace && e.message == cancelMessage
+  | .ok .. => false
+
 /-- The `Task` of a Lake job. -/
 public abbrev JobTask α := BaseIOTask (JobResult α)
 

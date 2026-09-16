@@ -1768,25 +1768,6 @@ theorem getElem?_union_of_not_mem_right [TransCmp cmp] (h₁ : t₁.WF) (h₂ : 
     (t₁ ∪ t₂)[k]? = t₁[k]? :=
   DTreeMap.Raw.Const.get?_union_of_not_mem_right h₁ h₂ not_mem
 
-/- get? -/
-@[deprecated getElem?_union (since := "2025-12-10")]
-theorem get?_union [TransCmp cmp] (h₁ : t₁.WF) (h₂ : t₂.WF)
-    {k : α} :
-    (t₁ ∪ t₂).get? k = (t₂.get? k).or (t₁.get? k) :=
-  DTreeMap.Raw.Const.get?_union h₁ h₂
-
-@[deprecated getElem?_union_of_not_mem_left (since := "2025-12-10")]
-theorem get?_union_of_not_mem_left [TransCmp cmp] (h₁ : t₁.WF) (h₂ : t₂.WF)
-    {k : α} (not_mem : ¬k ∈ t₁) :
-    (t₁ ∪ t₂).get? k = t₂.get? k :=
-  DTreeMap.Raw.Const.get?_union_of_not_mem_left h₁ h₂ not_mem
-
-@[deprecated getElem?_union_of_not_mem_right (since := "2025-12-10")]
-theorem get?_union_of_not_mem_right [TransCmp cmp] (h₁ : t₁.WF) (h₂ : t₂.WF)
-    {k : α} (not_mem : ¬k ∈ t₂) :
-    (t₁ ∪ t₂).get? k = t₁.get? k :=
-  DTreeMap.Raw.Const.get?_union_of_not_mem_right h₁ h₂ not_mem
-
 /- getElem -/
 theorem getElem_union_of_mem_right [TransCmp cmp] (h₁ : t₁.WF) (h₂ : t₂.WF)
     {k : α} (mem : k ∈ t₂) :
@@ -1801,25 +1782,6 @@ theorem getElem_union_of_not_mem_left [TransCmp cmp] (h₁ : t₁.WF) (h₂ : t�
 theorem getElem_union_of_not_mem_right [TransCmp cmp] (h₁ : t₁.WF) (h₂ : t₂.WF)
     {k : α} (not_mem : ¬k ∈ t₂) {h'} :
     (t₁ ∪ t₂)[k]'h' = t₁[k]'(mem_of_mem_union_of_not_mem_right h₁ h₂ h' not_mem) :=
-  DTreeMap.Raw.Const.get_union_of_not_mem_right h₁ h₂ not_mem
-
-/- get -/
-@[deprecated getElem_union_of_mem_right (since := "2025-12-10")]
-theorem get_union_of_mem_right [TransCmp cmp] (h₁ : t₁.WF) (h₂ : t₂.WF)
-    {k : α} (mem : k ∈ t₂) :
-    (t₁ ∪ t₂).get k (mem_union_of_right h₁ h₂ mem) = t₂.get k mem :=
-  DTreeMap.Raw.Const.get_union_of_mem_right h₁ h₂ mem
-
-@[deprecated getElem_union_of_not_mem_left (since := "2025-12-10")]
-theorem get_union_of_not_mem_left [TransCmp cmp] (h₁ : t₁.WF) (h₂ : t₂.WF)
-    {k : α} (not_mem : ¬k ∈ t₁) {h'} :
-    (t₁ ∪ t₂).get k h' = t₂.get k (mem_of_mem_union_of_not_mem_left h₁ h₂ h' not_mem) :=
-  DTreeMap.Raw.Const.get_union_of_not_mem_left h₁ h₂ not_mem
-
-@[deprecated getElem_union_of_not_mem_right (since := "2025-12-10")]
-theorem get_union_of_not_mem_right [TransCmp cmp] (h₁ : t₁.WF) (h₂ : t₂.WF)
-    {k : α} (not_mem : ¬k ∈ t₂) {h'} :
-    (t₁ ∪ t₂).get k h' = t₁.get k (mem_of_mem_union_of_not_mem_right h₁ h₂ h' not_mem) :=
   DTreeMap.Raw.Const.get_union_of_not_mem_right h₁ h₂ not_mem
 
 /- getD -/
@@ -1852,25 +1814,6 @@ theorem getElem!_union_of_not_mem_left [TransCmp cmp] (h₁ : t₁.WF) (h₂ : t
 theorem getElem!_union_of_not_mem_right [TransCmp cmp] (h₁ : t₁.WF) (h₂ : t₂.WF)
     {k : α} [Inhabited β] (not_mem : ¬k ∈ t₂)  :
     (t₁ ∪ t₂)[k]! = t₁[k]! :=
-  DTreeMap.Raw.Const.get!_union_of_not_mem_right h₁ h₂ not_mem
-
-/- get! -/
-@[deprecated getElem!_union (since := "2025-12-10")]
-theorem get!_union [TransCmp cmp] (h₁ : t₁.WF) (h₂ : t₂.WF)
-    {k : α} [Inhabited β] :
-    (t₁ ∪ t₂).get! k = t₂.getD k (t₁.get! k) :=
-  DTreeMap.Raw.Const.get!_union h₁ h₂
-
-@[deprecated getElem!_union_of_not_mem_left (since := "2025-12-10")]
-theorem get!_union_of_not_mem_left [TransCmp cmp] (h₁ : t₁.WF) (h₂ : t₂.WF)
-    {k : α} [Inhabited β] (not_mem : ¬k ∈ t₁) :
-    (t₁ ∪ t₂).get! k = t₂.get! k :=
-  DTreeMap.Raw.Const.get!_union_of_not_mem_left h₁ h₂ not_mem
-
-@[deprecated getElem!_union_of_not_mem_right (since := "2025-12-10")]
-theorem get!_union_of_not_mem_right [TransCmp cmp] (h₁ : t₁.WF) (h₂ : t₂.WF)
-    {k : α} [Inhabited β] (not_mem : ¬k ∈ t₂)  :
-    (t₁ ∪ t₂).get! k = t₁.get! k :=
   DTreeMap.Raw.Const.get!_union_of_not_mem_right h₁ h₂ not_mem
 
 /- getKey? -/
@@ -2042,42 +1985,11 @@ theorem getElem?_inter_of_not_mem_right [TransCmp cmp] (h₁ : t₁.WF) (h₂ : 
     (t₁ ∩ t₂)[k]? = none :=
   DTreeMap.Raw.Const.get?_inter_of_not_mem_right h₁ h₂ not_mem
 
-/- get? -/
-@[deprecated getElem?_inter (since := "2025-12-10")]
-theorem get?_inter [TransCmp cmp] (h₁ : t₁.WF) (h₂ : t₂.WF) {k : α} :
-    (t₁ ∩ t₂).get? k = if k ∈ t₂ then t₁.get? k else none :=
-  DTreeMap.Raw.Const.get?_inter h₁ h₂
-
-@[deprecated getElem?_inter_of_mem_right (since := "2025-12-10")]
-theorem get?_inter_of_mem_right [TransCmp cmp] (h₁ : t₁.WF) (h₂ : t₂.WF)
-    {k : α} (mem : k ∈ t₂) :
-    (t₁ ∩ t₂).get? k = t₁.get? k :=
-  DTreeMap.Raw.Const.get?_inter_of_mem_right h₁ h₂ mem
-
-@[deprecated getElem?_inter_of_not_mem_left (since := "2025-12-10")]
-theorem get?_inter_of_not_mem_left [TransCmp cmp] (h₁ : t₁.WF) (h₂ : t₂.WF)
-    {k : α} (not_mem : k ∉ t₁) :
-    (t₁ ∩ t₂).get? k = none :=
-  DTreeMap.Raw.Const.get?_inter_of_not_mem_left h₁ h₂ not_mem
-
-@[deprecated getElem?_inter_of_not_mem_right (since := "2025-12-10")]
-theorem get?_inter_of_not_mem_right [TransCmp cmp] (h₁ : t₁.WF) (h₂ : t₂.WF)
-    {k : α} (not_mem : k ∉ t₂) :
-    (t₁ ∩ t₂).get? k = none :=
-  DTreeMap.Raw.Const.get?_inter_of_not_mem_right h₁ h₂ not_mem
-
 /- getElem -/
 @[simp]
 theorem getElem_inter [TransCmp cmp] (h₁ : t₁.WF) (h₂ : t₂.WF)
     {k : α} {h_mem : k ∈ t₁ ∩ t₂} :
     (t₁ ∩ t₂)[k]'h_mem = t₁[k]'((mem_inter_iff h₁ h₂).1 h_mem).1 :=
-  DTreeMap.Raw.Const.get_inter h₁ h₂
-
-/- get -/
-@[deprecated getElem_inter (since := "2025-12-10")]
-theorem get_inter [TransCmp cmp] (h₁ : t₁.WF) (h₂ : t₂.WF)
-    {k : α} {h_mem : k ∈ t₁ ∩ t₂} :
-    (t₁ ∩ t₂).get k h_mem = t₁.get k ((mem_inter_iff h₁ h₂).1 h_mem).1 :=
   DTreeMap.Raw.Const.get_inter h₁ h₂
 
 /- getD -/
@@ -2120,30 +2032,6 @@ theorem getElem!_inter_of_not_mem_right [TransCmp cmp] [Inhabited β] (h₁ : t�
 theorem getElem!_inter_of_not_mem_left [TransCmp cmp] [Inhabited β] (h₁ : t₁.WF) (h₂ : t₂.WF)
     {k : α} (not_mem : k ∉ t₁) :
     (t₁ ∩ t₂)[k]! = default :=
-  DTreeMap.Raw.Const.get!_inter_of_not_mem_left h₁ h₂ not_mem
-
-/- get! -/
-@[deprecated getElem!_inter (since := "2025-12-10")]
-theorem get!_inter [TransCmp cmp] [Inhabited β] (h₁ : t₁.WF) (h₂ : t₂.WF) {k : α} :
-    (t₁ ∩ t₂).get! k = if k ∈ t₂ then t₁.get! k else default :=
-  DTreeMap.Raw.Const.get!_inter h₁ h₂
-
-@[deprecated getElem!_inter_of_mem_right (since := "2025-12-10")]
-theorem get!_inter_of_mem_right [TransCmp cmp] [Inhabited β] (h₁ : t₁.WF) (h₂ : t₂.WF)
-    {k : α} (mem : k ∈ t₂) :
-    (t₁ ∩ t₂).get! k = t₁.get! k :=
-  DTreeMap.Raw.Const.get!_inter_of_mem_right h₁ h₂ mem
-
-@[deprecated getElem!_inter_of_not_mem_right (since := "2025-12-10")]
-theorem get!_inter_of_not_mem_right [TransCmp cmp] [Inhabited β] (h₁ : t₁.WF) (h₂ : t₂.WF)
-    {k : α} (not_mem : k ∉ t₂) :
-    (t₁ ∩ t₂).get! k = default :=
-  DTreeMap.Raw.Const.get!_inter_of_not_mem_right h₁ h₂ not_mem
-
-@[deprecated getElem!_inter_of_not_mem_left (since := "2025-12-10")]
-theorem get!_inter_of_not_mem_left [TransCmp cmp] [Inhabited β] (h₁ : t₁.WF) (h₂ : t₂.WF)
-    {k : α} (not_mem : k ∉ t₁) :
-    (t₁ ∩ t₂).get! k = default :=
   DTreeMap.Raw.Const.get!_inter_of_not_mem_left h₁ h₂ not_mem
 
 /- getKey? -/
@@ -2354,41 +2242,10 @@ theorem getElem?_diff_of_mem_right [TransCmp cmp] (h₁ : t₁.WF) (h₂ : t₂.
     (t₁ \ t₂)[k]? = none :=
   DTreeMap.Raw.Const.get?_diff_of_mem_right h₁ h₂ mem
 
-/- get? -/
-@[deprecated getElem?_diff (since := "2025-12-10")]
-theorem get?_diff [TransCmp cmp] (h₁ : t₁.WF) (h₂ : t₂.WF) {k : α} :
-    (t₁ \ t₂).get? k = if k ∈ t₂ then none else t₁.get? k :=
-  DTreeMap.Raw.Const.get?_diff h₁ h₂
-
-@[deprecated getElem?_diff_of_not_mem_right (since := "2025-12-10")]
-theorem get?_diff_of_not_mem_right [TransCmp cmp] (h₁ : t₁.WF) (h₂ : t₂.WF)
-    {k : α} (not_mem : k ∉ t₂) :
-    (t₁ \ t₂).get? k = t₁.get? k :=
-  DTreeMap.Raw.Const.get?_diff_of_not_mem_right h₁ h₂ not_mem
-
-@[deprecated getElem?_diff_of_not_mem_left (since := "2025-12-10")]
-theorem get?_diff_of_not_mem_left [TransCmp cmp] (h₁ : t₁.WF) (h₂ : t₂.WF)
-    {k : α} (not_mem : k ∉ t₁) :
-    (t₁ \ t₂).get? k = none :=
-  DTreeMap.Raw.Const.get?_diff_of_not_mem_left h₁ h₂ not_mem
-
-@[deprecated getElem?_diff_of_mem_right (since := "2025-12-10")]
-theorem get?_diff_of_mem_right [TransCmp cmp] (h₁ : t₁.WF) (h₂ : t₂.WF)
-    {k : α} (mem : k ∈ t₂) :
-    (t₁ \ t₂).get? k = none :=
-  DTreeMap.Raw.Const.get?_diff_of_mem_right h₁ h₂ mem
-
 /- getElem -/
 theorem getElem_diff [TransCmp cmp] (h₁ : t₁.WF) (h₂ : t₂.WF)
     {k : α} {h_mem : k ∈ t₁ \ t₂} :
     (t₁ \ t₂)[k]'h_mem = t₁[k]'((mem_diff_iff h₁ h₂).1 h_mem).1 :=
-  DTreeMap.Raw.Const.get_diff h₁ h₂
-
-/- get -/
-@[deprecated getElem_diff (since := "2025-12-10")]
-theorem get_diff [TransCmp cmp] (h₁ : t₁.WF) (h₂ : t₂.WF)
-    {k : α} {h_mem : k ∈ t₁ \ t₂} :
-    (t₁ \ t₂).get k h_mem = t₁.get k ((mem_diff_iff h₁ h₂).1 h_mem).1 :=
   DTreeMap.Raw.Const.get_diff h₁ h₂
 
 /- getD -/
@@ -2431,30 +2288,6 @@ theorem getElem!_diff_of_mem_right [TransCmp cmp] [Inhabited β] (h₁ : t₁.WF
 theorem getElem!_diff_of_not_mem_left [TransCmp cmp] [Inhabited β] (h₁ : t₁.WF) (h₂ : t₂.WF)
     {k : α} (not_mem : k ∉ t₁) :
     (t₁ \ t₂)[k]! = default :=
-  DTreeMap.Raw.Const.get!_diff_of_not_mem_left h₁ h₂ not_mem
-
-/- get! -/
-@[deprecated getElem!_diff (since := "2025-12-10")]
-theorem get!_diff [TransCmp cmp] [Inhabited β] (h₁ : t₁.WF) (h₂ : t₂.WF) {k : α} :
-    (t₁ \ t₂).get! k = if k ∈ t₂ then default else t₁.get! k :=
-  DTreeMap.Raw.Const.get!_diff h₁ h₂
-
-@[deprecated getElem!_diff_of_not_mem_right (since := "2025-12-10")]
-theorem get!_diff_of_not_mem_right [TransCmp cmp] [Inhabited β] (h₁ : t₁.WF) (h₂ : t₂.WF)
-    {k : α} (not_mem : k ∉ t₂) :
-    (t₁ \ t₂).get! k = t₁.get! k :=
-  DTreeMap.Raw.Const.get!_diff_of_not_mem_right h₁ h₂ not_mem
-
-@[deprecated getElem!_diff_of_mem_right (since := "2025-12-10")]
-theorem get!_diff_of_mem_right [TransCmp cmp] [Inhabited β] (h₁ : t₁.WF) (h₂ : t₂.WF)
-    {k : α} (mem : k ∈ t₂) :
-    (t₁ \ t₂).get! k = default :=
-  DTreeMap.Raw.Const.get!_diff_of_mem_right h₁ h₂ mem
-
-@[deprecated getElem!_diff_of_not_mem_left (since := "2025-12-10")]
-theorem get!_diff_of_not_mem_left [TransCmp cmp] [Inhabited β] (h₁ : t₁.WF) (h₂ : t₂.WF)
-    {k : α} (not_mem : k ∉ t₁) :
-    (t₁ \ t₂).get! k = default :=
   DTreeMap.Raw.Const.get!_diff_of_not_mem_left h₁ h₂ not_mem
 
 /- getKey? -/

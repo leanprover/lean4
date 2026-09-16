@@ -38,23 +38,25 @@ partial def LeanLib.recCollectLocalModules
 := ensureJob do
   let mut col : ModuleCollection := {}
   for mod in (← self.getModuleArray) do
-    col ← go mod col
+    col ← go mod col (viaImport := false)
   if col.hasErrors then
     -- This is not considered a fatal error because we want the modules
     -- built to provide better error categorization in the monitor.
-    logError s!"{self.name}: some modules have bad imports"
+    logError s!"{self.name}: some modules have bad imports or could not be read"
   return Job.pure col.mods
 where
-  go root col := do
+  go root col (viaImport : Bool) := do
     let mut col := col
     unless col.modSet.contains root do
       col := {col with modSet := col.modSet.insert root}
-      -- We discard errors here as they will be reported later when the module is built.
+      -- Importers report failures reached through imports. Directly reached modules
+      -- stay in the collection so their build jobs report those failures.
       let some imps ← (← root.imports.fetch).wait?
-        | return {col with hasErrors := true}
+        | let col' := {col with hasErrors := true}
+          return if viaImport then col' else {col' with mods := col'.mods.push root}
       for mod in imps do
         if mod.lib.name = self.name then
-          col ← go mod col
+          col ← go mod col (viaImport := true)
       col := {col with mods := col.mods.push root}
     return col
 

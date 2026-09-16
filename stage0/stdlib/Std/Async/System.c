@@ -4175,8 +4175,8 @@ lean_object* v___x_1349_;
 if (v_isShared_1343_ == 0)
 {
 lean_ctor_set(v___x_1342_, 4, v___y_1347_);
-lean_ctor_set(v___x_1342_, 2, v___y_1346_);
-lean_ctor_set(v___x_1342_, 1, v___y_1345_);
+lean_ctor_set(v___x_1342_, 2, v___y_1345_);
+lean_ctor_set(v___x_1342_, 1, v___y_1346_);
 v___x_1349_ = v___x_1342_;
 goto v_reusejp_1348_;
 }
@@ -4185,8 +4185,8 @@ else
 lean_object* v_reuseFailAlloc_1353_; 
 v_reuseFailAlloc_1353_ = lean_alloc_ctor(0, 5, 0);
 lean_ctor_set(v_reuseFailAlloc_1353_, 0, v_username_1336_);
-lean_ctor_set(v_reuseFailAlloc_1353_, 1, v___y_1345_);
-lean_ctor_set(v_reuseFailAlloc_1353_, 2, v___y_1346_);
+lean_ctor_set(v_reuseFailAlloc_1353_, 1, v___y_1346_);
+lean_ctor_set(v_reuseFailAlloc_1353_, 2, v___y_1345_);
 lean_ctor_set(v_reuseFailAlloc_1353_, 3, v_shell_1339_);
 lean_ctor_set(v_reuseFailAlloc_1353_, 4, v___y_1347_);
 v___x_1349_ = v_reuseFailAlloc_1353_;
@@ -4221,8 +4221,8 @@ if (lean_obj_tag(v_homedir_1340_) == 0)
 {
 lean_object* v___x_1357_; 
 v___x_1357_ = lean_box(0);
-v___y_1345_ = v___y_1355_;
-v___y_1346_ = v___y_1356_;
+v___y_1345_ = v___y_1356_;
+v___y_1346_ = v___y_1355_;
 v___y_1347_ = v___x_1357_;
 goto v___jp_1344_;
 }
@@ -4263,8 +4263,8 @@ goto v_reusejp_1362_;
 }
 v_reusejp_1362_:
 {
-v___y_1345_ = v___y_1355_;
-v___y_1346_ = v___y_1356_;
+v___y_1345_ = v___y_1356_;
+v___y_1346_ = v___y_1355_;
 v___y_1347_ = v___x_1363_;
 goto v___jp_1344_;
 }
@@ -4577,11 +4577,13 @@ return v_res_1452_;
 lean_object* runtime_initialize_Std_Time(uint8_t builtin);
 lean_object* runtime_initialize_Std_Internal_UV_System(uint8_t builtin);
 lean_object* runtime_initialize_Std_Data_HashMap(uint8_t builtin);
+void lean_initialize_runtime_module();
 static bool _G_runtime_initialized = false;
 LEAN_EXPORT lean_object* runtime_initialize_Std_Async_System(uint8_t builtin) {
 lean_object * res;
 if (_G_runtime_initialized) return lean_io_result_mk_ok(lean_box(0));
 _G_runtime_initialized = true;
+lean_initialize_runtime_module();
 res = runtime_initialize_Std_Time(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);

@@ -52,7 +52,7 @@ def mkForallCongrFor (xs : Array Expr) : MetaM Expr := do
   let result ← mkLambdaFVars #[p, q, h] result
   return result
 
-open Internal
+open Lean.Meta.Sym.Internal
 
 structure ArrowInfo where
   binderName : Name

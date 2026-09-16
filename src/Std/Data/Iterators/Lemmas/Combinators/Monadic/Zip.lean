@@ -24,6 +24,7 @@ cannot be created directly with `IterM.zip`.
 
 `Intermediate.zip` is meant to be used only for verification purposes.
 -/
+@[implicit_reducible]
 noncomputable def IterM.Intermediate.zip [Iterator α₁ m β₁] (it₁ : IterM (α := α₁) m β₁)
     (memo : (Option { out : β₁ //
         ∃ it : IterM (α := α₁) m β₁, it.IsPlausibleOutput out }))

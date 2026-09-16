@@ -26,7 +26,7 @@ attribute [run_builtin_parser_attribute_hooks]
   unicodeSymbol nonReservedSymbol
   withCache withResetCache withPosition withPositionAfterLinebreak withoutPosition withForbidden withoutForbidden setExpected
   incQuotDepth decQuotDepth suppressInsideQuot evalInsideQuot
-  withOpen withOpenDecl
+  withOpen withOpenDecl withSetOption withSetOptionValue
   dbgTraceState
 
 /-- The parser `optional(p)`, or `(p)?`, parses `p` if it succeeds,

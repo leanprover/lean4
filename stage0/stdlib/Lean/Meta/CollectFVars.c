@@ -19,7 +19,7 @@ lean_object* lean_array_get_size(lean_object*);
 uint8_t lean_nat_dec_lt(lean_object*, lean_object*);
 lean_object* lean_st_ref_take(lean_object*);
 lean_object* lean_nat_add(lean_object*, lean_object*);
-lean_object* lean_st_ref_set(lean_object*, lean_object*);
+lean_object* lean_st_ref_put(lean_object*, lean_object*);
 lean_object* lean_array_fget(lean_object*, lean_object*);
 lean_object* lean_local_ctx_find(lean_object*, lean_object*);
 uint8_t l_Lean_Expr_hasMVar(lean_object*);
@@ -138,7 +138,7 @@ goto v_reusejp_19_;
 v_reusejp_19_:
 {
 lean_object* v___x_21_; lean_object* v___x_22_; 
-v___x_21_ = lean_st_ref_set(v___y_2_, v___x_20_);
+v___x_21_ = lean_st_ref_put(v___y_2_, v___x_20_);
 v___x_22_ = lean_alloc_ctor(0, 1, 0);
 lean_ctor_set(v___x_22_, 0, v_fst_9_);
 return v___x_22_;
@@ -203,7 +203,7 @@ v_resetjp_55_:
 lean_object* v___x_58_; lean_object* v___x_59_; lean_object* v___x_60_; lean_object* v___x_61_; lean_object* v___x_63_; 
 v___x_58_ = lean_st_ref_take(v_a_47_);
 v___x_59_ = l_Lean_collectFVars(v___x_58_, v_a_54_);
-v___x_60_ = lean_st_ref_set(v_a_47_, v___x_59_);
+v___x_60_ = lean_st_ref_put(v_a_47_, v___x_59_);
 v___x_61_ = lean_box(0);
 if (v_isShared_57_ == 0)
 {
@@ -316,7 +316,7 @@ v___x_105_ = lean_st_ref_take(v_a_95_);
 v___x_106_ = lean_unsigned_to_nat(1u);
 v___x_107_ = lean_nat_add(v___x_105_, v___x_106_);
 lean_dec(v___x_105_);
-v___x_108_ = lean_st_ref_set(v_a_95_, v___x_107_);
+v___x_108_ = lean_st_ref_put(v_a_95_, v___x_107_);
 v___x_109_ = lean_array_fget(v_fvarIds_100_, v___x_99_);
 lean_dec(v___x_99_);
 lean_dec_ref(v_fvarIds_100_);
@@ -1187,11 +1187,13 @@ return v_r_375_;
 }
 lean_object* runtime_initialize_Lean_Util_CollectFVars(uint8_t builtin);
 lean_object* runtime_initialize_Lean_Meta_Basic(uint8_t builtin);
+void lean_initialize_runtime_module();
 static bool _G_runtime_initialized = false;
 LEAN_EXPORT lean_object* runtime_initialize_Lean_Meta_CollectFVars(uint8_t builtin) {
 lean_object * res;
 if (_G_runtime_initialized) return lean_io_result_mk_ok(lean_box(0));
 _G_runtime_initialized = true;
+lean_initialize_runtime_module();
 res = runtime_initialize_Lean_Util_CollectFVars(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);

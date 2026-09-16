@@ -52,6 +52,10 @@ This is a current compiler limitation for `module`s that may be lifted in the fu
 #guard_msgs in
 public def Fun.mk (f : Nat → Nat) : Fun := f
 
+public structure UInt8Struct where
+  x : UInt8
+deriving Inhabited
+
 #guard_msgs(drop warning) in
 /-- A theorem. -/
 public theorem t : f = 1 := testSorry
@@ -423,7 +427,7 @@ meta structure Foo where
 deriving TypeName
 
 /--
-info: @[implicit_reducible] private meta def instTypeNameFoo : TypeName Foo :=
+info: @[instance_reducible] private meta def instTypeNameFoo : TypeName Foo :=
 inst✝
 -/
 #guard_msgs in

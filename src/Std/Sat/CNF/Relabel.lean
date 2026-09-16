@@ -122,7 +122,7 @@ theorem unsat_relabel_iff {f : CNF α} {r : α → β}
     have : ∀ a, VarMem a f → g (r a) = a := by
       intro v h
       dsimp [g]
-      rw [dif_pos ⟨v, h, rfl⟩]
+      rw [dite_eq_left ⟨v, h, rfl⟩]
       apply hw _ h
       · exact (Exists.choose_spec (⟨v, h, rfl⟩ : ∃ a', VarMem a' f ∧ r a' = r v)).2
       · exact (Exists.choose_spec (⟨v, h, rfl⟩ : ∃ a', VarMem a' f ∧ r a' = r v)).1

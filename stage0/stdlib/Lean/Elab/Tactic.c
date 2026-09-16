@@ -1,6 +1,6 @@
 // Lean compiler output
 // Module: Lean.Elab.Tactic
-// Imports: public import Lean.Elab.Tactic.Basic public import Lean.Elab.Tactic.ElabTerm public import Lean.Elab.Tactic.Induction public import Lean.Elab.Tactic.Generalize public import Lean.Elab.Tactic.Injection public import Lean.Elab.Tactic.Match public import Lean.Elab.Tactic.Rewrite public import Lean.Elab.Tactic.Location public import Lean.Elab.Tactic.SimpTrace public import Lean.Elab.Tactic.Simp public import Lean.Elab.Tactic.Simproc public import Lean.Elab.Tactic.CbvSimproc public import Lean.Elab.Tactic.BuiltinTactic public import Lean.Elab.Tactic.Split public import Lean.Elab.Tactic.Conv public import Lean.Elab.Tactic.Delta public import Lean.Elab.Tactic.Meta public import Lean.Elab.Tactic.Unfold public import Lean.Elab.Tactic.Calc public import Lean.Elab.Tactic.Congr public import Lean.Elab.Tactic.Guard public import Lean.Elab.Tactic.RCases public import Lean.Elab.Tactic.Repeat public import Lean.Elab.Tactic.Ext public import Lean.Elab.Tactic.Change public import Lean.Elab.Tactic.FalseOrByContra public import Lean.Elab.Tactic.Omega public import Lean.Elab.Tactic.Simpa public import Lean.Elab.Tactic.NormCast public import Lean.Elab.Tactic.Symm public import Lean.Elab.Tactic.SolveByElim public import Lean.Elab.Tactic.LibrarySearch public import Lean.Elab.Tactic.ShowTerm public import Lean.Elab.Tactic.Rfl public import Lean.Elab.Tactic.Rewrites public import Lean.Elab.Tactic.DiscrTreeKey public import Lean.Elab.Tactic.BVDecide public import Lean.Elab.Tactic.BoolToPropSimps public import Lean.Elab.Tactic.Classical public import Lean.Elab.Tactic.Impossible public import Lean.Elab.Tactic.Grind public import Lean.Elab.Tactic.Monotonicity public import Lean.Elab.Tactic.Try public import Lean.Elab.Tactic.AsAuxLemma public import Lean.Elab.Tactic.TreeTacAttr public import Lean.Elab.Tactic.ExposeNames public import Lean.Elab.Tactic.SimpArith public import Lean.Elab.Tactic.Show public import Lean.Elab.Tactic.Lets public import Lean.Elab.Tactic.Do public import Lean.Elab.Tactic.Decide public import Lean.Elab.Tactic.Cbv
+// Imports: public import Lean.Elab.Tactic.Basic public import Lean.Elab.Tactic.ElabTerm public import Lean.Elab.Tactic.Induction public import Lean.Elab.Tactic.Generalize public import Lean.Elab.Tactic.Injection public import Lean.Elab.Tactic.Match public import Lean.Elab.Tactic.Rewrite public import Lean.Elab.Tactic.Location public import Lean.Elab.Tactic.SimpTrace public import Lean.Elab.Tactic.Simp public import Lean.Elab.Tactic.Simproc public import Lean.Elab.Tactic.CbvSimproc public import Lean.Elab.Tactic.BuiltinTactic public import Lean.Elab.Tactic.Split public import Lean.Elab.Tactic.Conv public import Lean.Elab.Tactic.Delta public import Lean.Elab.Tactic.Meta public import Lean.Elab.Tactic.Unfold public import Lean.Elab.Tactic.Calc public import Lean.Elab.Tactic.Congr public import Lean.Elab.Tactic.Guard public import Lean.Elab.Tactic.RCases public import Lean.Elab.Tactic.Repeat public import Lean.Elab.Tactic.Ext public import Lean.Elab.Tactic.Change public import Lean.Elab.Tactic.FalseOrByContra public import Lean.Elab.Tactic.Omega public import Lean.Elab.Tactic.Simpa public import Lean.Elab.Tactic.NormCast public import Lean.Elab.Tactic.Symm public import Lean.Elab.Tactic.SolveByElim public import Lean.Elab.Tactic.LibrarySearch public import Lean.Elab.Tactic.ShowTerm public import Lean.Elab.Tactic.Rfl public import Lean.Elab.Tactic.Rewrites public import Lean.Elab.Tactic.DiscrTreeKey public import Lean.Elab.Tactic.BVDecide public import Lean.Elab.Tactic.BoolToPropSimps public import Lean.Elab.Tactic.Classical public import Lean.Elab.Tactic.Impossible public import Lean.Elab.Tactic.Grind public import Lean.Elab.Tactic.Monotonicity public import Lean.Elab.Tactic.Try public import Lean.Elab.Tactic.AutoTry public import Lean.Elab.Tactic.AsAuxLemma public import Lean.Elab.Tactic.TreeTacAttr public import Lean.Elab.Tactic.ExposeNames public import Lean.Elab.Tactic.SimpArith public import Lean.Elab.Tactic.Show public import Lean.Elab.Tactic.Lets public import Lean.Elab.Tactic.Do public import Lean.Elab.Tactic.VCGen public import Lean.Elab.Tactic.Decide public import Lean.Elab.Tactic.Cbv
 #include <lean/lean.h>
 #if defined(__clang__)
 #pragma clang diagnostic ignored "-Wunused-parameter"
@@ -56,6 +56,7 @@ lean_object* runtime_initialize_Lean_Elab_Tactic_Impossible(uint8_t builtin);
 lean_object* runtime_initialize_Lean_Elab_Tactic_Grind(uint8_t builtin);
 lean_object* runtime_initialize_Lean_Elab_Tactic_Monotonicity(uint8_t builtin);
 lean_object* runtime_initialize_Lean_Elab_Tactic_Try(uint8_t builtin);
+lean_object* runtime_initialize_Lean_Elab_Tactic_AutoTry(uint8_t builtin);
 lean_object* runtime_initialize_Lean_Elab_Tactic_AsAuxLemma(uint8_t builtin);
 lean_object* runtime_initialize_Lean_Elab_Tactic_TreeTacAttr(uint8_t builtin);
 lean_object* runtime_initialize_Lean_Elab_Tactic_ExposeNames(uint8_t builtin);
@@ -63,13 +64,16 @@ lean_object* runtime_initialize_Lean_Elab_Tactic_SimpArith(uint8_t builtin);
 lean_object* runtime_initialize_Lean_Elab_Tactic_Show(uint8_t builtin);
 lean_object* runtime_initialize_Lean_Elab_Tactic_Lets(uint8_t builtin);
 lean_object* runtime_initialize_Lean_Elab_Tactic_Do(uint8_t builtin);
+lean_object* runtime_initialize_Lean_Elab_Tactic_VCGen(uint8_t builtin);
 lean_object* runtime_initialize_Lean_Elab_Tactic_Decide(uint8_t builtin);
 lean_object* runtime_initialize_Lean_Elab_Tactic_Cbv(uint8_t builtin);
+void lean_initialize_runtime_module();
 static bool _G_runtime_initialized = false;
 LEAN_EXPORT lean_object* runtime_initialize_Lean_Elab_Tactic(uint8_t builtin) {
 lean_object * res;
 if (_G_runtime_initialized) return lean_io_result_mk_ok(lean_box(0));
 _G_runtime_initialized = true;
+lean_initialize_runtime_module();
 res = runtime_initialize_Lean_Elab_Tactic_Basic(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
@@ -199,6 +203,9 @@ lean_dec_ref(res);
 res = runtime_initialize_Lean_Elab_Tactic_Try(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
+res = runtime_initialize_Lean_Elab_Tactic_AutoTry(builtin);
+if (lean_io_result_is_error(res)) return res;
+lean_dec_ref(res);
 res = runtime_initialize_Lean_Elab_Tactic_AsAuxLemma(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
@@ -218,6 +225,9 @@ res = runtime_initialize_Lean_Elab_Tactic_Lets(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
 res = runtime_initialize_Lean_Elab_Tactic_Do(builtin);
+if (lean_io_result_is_error(res)) return res;
+lean_dec_ref(res);
+res = runtime_initialize_Lean_Elab_Tactic_VCGen(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
 res = runtime_initialize_Lean_Elab_Tactic_Decide(builtin);
@@ -278,6 +288,7 @@ lean_object* initialize_Lean_Elab_Tactic_Impossible(uint8_t builtin);
 lean_object* initialize_Lean_Elab_Tactic_Grind(uint8_t builtin);
 lean_object* initialize_Lean_Elab_Tactic_Monotonicity(uint8_t builtin);
 lean_object* initialize_Lean_Elab_Tactic_Try(uint8_t builtin);
+lean_object* initialize_Lean_Elab_Tactic_AutoTry(uint8_t builtin);
 lean_object* initialize_Lean_Elab_Tactic_AsAuxLemma(uint8_t builtin);
 lean_object* initialize_Lean_Elab_Tactic_TreeTacAttr(uint8_t builtin);
 lean_object* initialize_Lean_Elab_Tactic_ExposeNames(uint8_t builtin);
@@ -285,6 +296,7 @@ lean_object* initialize_Lean_Elab_Tactic_SimpArith(uint8_t builtin);
 lean_object* initialize_Lean_Elab_Tactic_Show(uint8_t builtin);
 lean_object* initialize_Lean_Elab_Tactic_Lets(uint8_t builtin);
 lean_object* initialize_Lean_Elab_Tactic_Do(uint8_t builtin);
+lean_object* initialize_Lean_Elab_Tactic_VCGen(uint8_t builtin);
 lean_object* initialize_Lean_Elab_Tactic_Decide(uint8_t builtin);
 lean_object* initialize_Lean_Elab_Tactic_Cbv(uint8_t builtin);
 static bool _G_initialized = false;
@@ -421,6 +433,9 @@ lean_dec_ref(res);
 res = initialize_Lean_Elab_Tactic_Try(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
+res = initialize_Lean_Elab_Tactic_AutoTry(builtin);
+if (lean_io_result_is_error(res)) return res;
+lean_dec_ref(res);
 res = initialize_Lean_Elab_Tactic_AsAuxLemma(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
@@ -440,6 +455,9 @@ res = initialize_Lean_Elab_Tactic_Lets(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
 res = initialize_Lean_Elab_Tactic_Do(builtin);
+if (lean_io_result_is_error(res)) return res;
+lean_dec_ref(res);
+res = initialize_Lean_Elab_Tactic_VCGen(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
 res = initialize_Lean_Elab_Tactic_Decide(builtin);

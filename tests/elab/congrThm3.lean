@@ -11,7 +11,7 @@ def test (f : Expr) : MetaM Unit := do
   IO.println (← Meta.ppExpr thm.type)
 
 /--
-info: ∀ (p p_1 : Prop), p = p_1 → ∀ {h : Decidable p} [h_1 : Decidable p_1], decide p = decide p_1
+info: ∀ (p p_1 : Prop), p = p_1 → ∀ {self : Decidable p} [self_1 : Decidable p_1], decide p = decide p_1
 -/
 #guard_msgs in
 #eval test (mkConst ``decide)

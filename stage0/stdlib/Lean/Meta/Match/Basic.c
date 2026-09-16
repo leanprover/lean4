@@ -29,7 +29,7 @@ uint8_t l_Lean_Expr_hasMVar(lean_object*);
 lean_object* lean_st_ref_get(lean_object*);
 lean_object* l_Lean_instantiateMVarsCore(lean_object*, lean_object*);
 lean_object* lean_st_ref_take(lean_object*);
-lean_object* lean_st_ref_set(lean_object*, lean_object*);
+lean_object* lean_st_ref_put(lean_object*, lean_object*);
 lean_object* l_Lean_stringToMessageData(lean_object*);
 lean_object* l_Lean_MessageData_ofExpr(lean_object*);
 uint8_t lean_usize_dec_lt(size_t, size_t);
@@ -2259,7 +2259,7 @@ v_resetjp_534_:
 lean_object* v___x_537_; lean_object* v___x_538_; lean_object* v___x_539_; lean_object* v___x_540_; lean_object* v___x_542_; 
 v___x_537_ = lean_st_ref_take(v_a_527_);
 v___x_538_ = l_Lean_CollectFVars_State_add(v___x_537_, v_fvarId_533_);
-v___x_539_ = lean_st_ref_set(v_a_527_, v___x_538_);
+v___x_539_ = lean_st_ref_put(v_a_527_, v___x_538_);
 v___x_540_ = lean_box(0);
 if (v_isShared_536_ == 0)
 {
@@ -2339,7 +2339,7 @@ lean_dec_ref_known(v_p_526_, 3);
 v___x_556_ = lean_st_ref_take(v_a_527_);
 v___x_557_ = l_Lean_CollectFVars_State_add(v___x_556_, v_varId_553_);
 v___x_558_ = l_Lean_CollectFVars_State_add(v___x_557_, v_hId_555_);
-v___x_559_ = lean_st_ref_set(v_a_527_, v___x_558_);
+v___x_559_ = lean_st_ref_put(v_a_527_, v___x_558_);
 v_p_526_ = v_p_554_;
 goto _start;
 }
@@ -2490,7 +2490,7 @@ goto v_reusejp_610_;
 v_reusejp_610_:
 {
 lean_object* v___x_612_; lean_object* v___x_613_; 
-v___x_612_ = lean_st_ref_set(v___y_593_, v___x_611_);
+v___x_612_ = lean_st_ref_put(v___y_593_, v___x_611_);
 v___x_613_ = lean_alloc_ctor(0, 1, 0);
 lean_ctor_set(v___x_613_, 0, v_fst_600_);
 return v___x_613_;
@@ -8684,11 +8684,13 @@ lean_object* runtime_initialize_Lean_Meta_CollectFVars(uint8_t builtin);
 lean_object* runtime_initialize_Lean_Meta_Match_Value(uint8_t builtin);
 lean_object* runtime_initialize_Lean_Meta_AppBuilder(uint8_t builtin);
 lean_object* runtime_initialize_Lean_Meta_Match_NamedPatterns(uint8_t builtin);
+void lean_initialize_runtime_module();
 static bool _G_runtime_initialized = false;
 LEAN_EXPORT lean_object* runtime_initialize_Lean_Meta_Match_Basic(uint8_t builtin) {
 lean_object * res;
 if (_G_runtime_initialized) return lean_io_result_mk_ok(lean_box(0));
 _G_runtime_initialized = true;
+lean_initialize_runtime_module();
 res = runtime_initialize_Lean_Meta_Tactic_FVarSubst(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);

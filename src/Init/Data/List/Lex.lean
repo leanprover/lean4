@@ -218,29 +218,9 @@ protected theorem lt_of_le_of_lt [LT α] [LE α] [IsLinearOrder α] [LawfulOrder
       · simp only [not_lt] at w₄
         exact Lex.rel (lt_of_le_of_ne w₄ (w₅.imp Eq.symm))
 
-@[deprecated List.lt_of_le_of_lt (since := "2025-08-01")]
-protected theorem lt_of_le_of_lt' [LT α]
-    [Std.Asymm (· < · : α → α → Prop)]
-    [Std.Trichotomous (· < · : α → α → Prop)]
-    [Trans (¬ · < · : α → α → Prop) (¬ · < ·) (¬ · < ·)]
-    {l₁ l₂ l₃ : List α} (h₁ : l₁ ≤ l₂) (h₂ : l₂ < l₃) : l₁ < l₃ :=
-  letI : LE α := .ofLT α
-  haveI : IsLinearOrder α := IsLinearOrder.of_lt
-  List.lt_of_le_of_lt h₁ h₂
-
 protected theorem le_trans [LT α] [LE α] [IsLinearOrder α] [LawfulOrderLT α]
     {l₁ l₂ l₃ : List α} (h₁ : l₁ ≤ l₂) (h₂ : l₂ ≤ l₃) : l₁ ≤ l₃ :=
   fun h₃ => h₁ (List.lt_of_le_of_lt h₂ h₃)
-
-@[deprecated List.le_trans (since := "2025-08-01")]
-protected theorem le_trans' [LT α]
-    [Std.Asymm (· < · : α → α → Prop)]
-    [Std.Trichotomous (· < · : α → α → Prop)]
-    [Trans (¬ · < · : α → α → Prop) (¬ · < ·) (¬ · < ·)]
-    {l₁ l₂ l₃ : List α} (h₁ : l₁ ≤ l₂) (h₂ : l₂ ≤ l₃) : l₁ ≤ l₃ :=
-  letI := LE.ofLT α
-  haveI : IsLinearOrder α := IsLinearOrder.of_lt
-  List.le_trans h₁ h₂
 
 instance [LT α] [LE α] [IsLinearOrder α] [LawfulOrderLT α] :
     Trans (· ≤ · : List α → List α → Prop) (· ≤ ·) (· ≤ ·) where

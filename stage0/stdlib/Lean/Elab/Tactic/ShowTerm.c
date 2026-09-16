@@ -20,7 +20,7 @@ uint8_t l_Lean_Expr_hasMVar(lean_object*);
 lean_object* lean_st_ref_get(lean_object*);
 lean_object* l_Lean_instantiateMVarsCore(lean_object*, lean_object*);
 lean_object* lean_st_ref_take(lean_object*);
-lean_object* lean_st_ref_set(lean_object*, lean_object*);
+lean_object* lean_st_ref_put(lean_object*, lean_object*);
 lean_object* l_Lean_Elab_Tactic_getMainGoal___redArg(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Elab_Tactic_saveState___redArg(lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Elab_Tactic_evalTactic(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
@@ -275,7 +275,7 @@ goto v_reusejp_49_;
 v_reusejp_49_:
 {
 lean_object* v___x_51_; lean_object* v___x_52_; 
-v___x_51_ = lean_st_ref_set(v___y_32_, v___x_50_);
+v___x_51_ = lean_st_ref_put(v___y_32_, v___x_50_);
 v___x_52_ = lean_alloc_ctor(0, 1, 0);
 lean_ctor_set(v___x_52_, 0, v_fst_39_);
 return v___x_52_;
@@ -529,9 +529,9 @@ return v___x_135_;
 LEAN_EXPORT lean_object* l_Lean_Elab_Tactic_ShowTerm_evalShowTerm___lam__0___boxed(lean_object* v___x_138_, lean_object* v_tk_139_, lean_object* v___x_140_, lean_object* v___y_141_, lean_object* v___y_142_, lean_object* v___y_143_, lean_object* v___y_144_, lean_object* v___y_145_, lean_object* v___y_146_, lean_object* v___y_147_, lean_object* v___y_148_, lean_object* v___y_149_){
 _start:
 {
-uint8_t v___x_2252__boxed_150_; lean_object* v_res_151_; 
-v___x_2252__boxed_150_ = lean_unbox(v___x_140_);
-v_res_151_ = l_Lean_Elab_Tactic_ShowTerm_evalShowTerm___lam__0(v___x_138_, v_tk_139_, v___x_2252__boxed_150_, v___y_141_, v___y_142_, v___y_143_, v___y_144_, v___y_145_, v___y_146_, v___y_147_, v___y_148_);
+uint8_t v___x_2099__boxed_150_; lean_object* v_res_151_; 
+v___x_2099__boxed_150_ = lean_unbox(v___x_140_);
+v_res_151_ = l_Lean_Elab_Tactic_ShowTerm_evalShowTerm___lam__0(v___x_138_, v_tk_139_, v___x_2099__boxed_150_, v___y_141_, v___y_142_, v___y_143_, v___y_144_, v___y_145_, v___y_146_, v___y_147_, v___y_148_);
 lean_dec(v___y_148_);
 lean_dec_ref(v___y_147_);
 lean_dec(v___y_146_);
@@ -744,7 +744,7 @@ goto v_reusejp_281_;
 v_reusejp_281_:
 {
 lean_object* v___x_283_; lean_object* v___x_284_; 
-v___x_283_ = lean_st_ref_set(v___y_264_, v___x_282_);
+v___x_283_ = lean_st_ref_put(v___y_264_, v___x_282_);
 v___x_284_ = lean_alloc_ctor(0, 1, 0);
 lean_ctor_set(v___x_284_, 0, v_fst_271_);
 return v___x_284_;
@@ -1077,11 +1077,13 @@ return v_res_438_;
 }
 lean_object* runtime_initialize_Lean_Elab_ElabRules(uint8_t builtin);
 lean_object* runtime_initialize_Lean_Meta_Tactic_TryThis(uint8_t builtin);
+void lean_initialize_runtime_module();
 static bool _G_runtime_initialized = false;
 LEAN_EXPORT lean_object* runtime_initialize_Lean_Elab_Tactic_ShowTerm(uint8_t builtin) {
 lean_object * res;
 if (_G_runtime_initialized) return lean_io_result_mk_ok(lean_box(0));
 _G_runtime_initialized = true;
+lean_initialize_runtime_module();
 res = runtime_initialize_Lean_Elab_ElabRules(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);

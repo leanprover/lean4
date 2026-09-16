@@ -15,7 +15,7 @@ import Init.Data.List.Pairwise
 import Init.Data.List.Perm
 import Init.Data.List.Range
 import Init.Data.List.Sublist
-import Init.Data.Nat.Linear
+import Init.Data.Nat.Internal.Linear
 import Init.Data.Prod
 
 public section
@@ -152,11 +152,11 @@ theorem cons_merge_cons (s : α → α → Bool) (a b l r) :
 
 @[simp] theorem cons_merge_cons_pos (s : α → α → Bool) (l r) (h : s a b) :
     merge (a::l) (b::r) s = a :: merge l (b::r) s := by
-  rw [cons_merge_cons, if_pos h]
+  rw [cons_merge_cons, ite_eq_left h]
 
 @[simp] theorem cons_merge_cons_neg (s : α → α → Bool) (l r) (h : ¬ s a b) :
     merge (a::l) (b::r) s = b :: merge (a::l) r s := by
-  rw [cons_merge_cons, if_neg h]
+  rw [cons_merge_cons, ite_eq_right h]
 
 @[simp] theorem length_merge (s : α → α → Bool) (l r) :
     (merge l r s).length = l.length + r.length := by
@@ -200,7 +200,7 @@ theorem merge_stable : ∀ (xs ys) (_ : ∀ x y, x ∈ xs → y ∈ ys → x.2 �
   | (i, x) :: xs, (j, y) :: ys, h => by
     simp only [merge, zipIdxLE, map_cons]
     split <;> rename_i w
-    · rw [if_pos (by simp [h _ _ (mem_cons_self ..) (mem_cons_self ..)])]
+    · rw [ite_eq_left (by simp [h _ _ (mem_cons_self ..) (mem_cons_self ..)])]
       simp only [map_cons, cons.injEq, true_and]
       rw [merge_stable, map_cons]
       exact fun x' y' mx my => h x' y' (mem_cons_of_mem (i, x) mx) my
@@ -251,7 +251,7 @@ theorem merge_of_le : ∀ {xs ys : List α} (_ : ∀ a b, a ∈ xs → b ∈ ys 
   | xs, [], _ => by simp
   | x :: xs, y :: ys, h => by
     simp only [merge, cons_append]
-    rw [if_pos, merge_of_le]
+    rw [ite_eq_left, merge_of_le]
     · intro a b ma mb
       exact h a b (mem_cons_of_mem _ ma) mb
     · exact h x y mem_cons_self mem_cons_self
@@ -394,7 +394,7 @@ theorem mergeSort_cons {le : α → α → Bool}
       simp only [mem_mergeSort] at ha
       simp only [← q.mem_iff, mem_mergeSort] at hb
       simp only [zipIdxLE]
-      simp only [Bool.if_false_right, Bool.and_eq_true, Prod.mk.injEq, and_imp]
+      simp only [Bool.ite_false_right, Bool.and_eq_true, Prod.mk.injEq, and_imp]
       intro ab h ba h'
       simp only [Bool.decide_eq_true] at ba
       replace h : i ≤ j := by simpa [ab, ba] using h

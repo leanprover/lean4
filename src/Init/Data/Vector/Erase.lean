@@ -27,11 +27,13 @@ open Nat
 
 /-! ### eraseIdx -/
 
-@[grind =]
 theorem eraseIdx_eq_take_drop_succ {xs : Vector α n} {i : Nat} (h) :
     xs.eraseIdx i = (xs.take i ++ xs.drop (i + 1)).cast (by omega) := by
   rcases xs with ⟨xs, rfl⟩
   simp [Array.eraseIdx_eq_take_drop_succ, *]
+
+grind_pattern eraseIdx_eq_take_drop_succ => xs.eraseIdx i h, xs.take i
+grind_pattern eraseIdx_eq_take_drop_succ => xs.eraseIdx i h, xs.drop i
 
 @[grind =]
 theorem getElem?_eraseIdx {xs : Vector α n} {i : Nat} (h : i < n) {j : Nat} :

@@ -27,9 +27,6 @@ protected structure Lean.Syntax.Range where
   stop  : String.Pos.Raw
   deriving Inhabited, Repr, BEq, Hashable
 
-@[expose, deprecated Lean.Syntax.Range (since := "2025-10-20")]
-def String.Range := Lean.Syntax.Range
-
 def Lean.Syntax.Range.contains (r : Lean.Syntax.Range) (pos : String.Pos.Raw) (includeStop := false) : Bool :=
   r.start <= pos && (if includeStop then pos <= r.stop else pos < r.stop)
 
@@ -49,27 +46,13 @@ def Lean.Syntax.Range.includes (super sub : Lean.Syntax.Range)
       sub.stop <= super.stop
   )
 
-@[deprecated Lean.Syntax.Range.includes (since := "2025-10-20")]
-def String.Range.includes (super sub : Lean.Syntax.Range)
-    (includeSuperStop := false) (includeSubStop := false) : Bool :=
-  Lean.Syntax.Range.includes super sub includeSuperStop includeSubStop
-
 def Lean.Syntax.Range.overlaps (first second : Lean.Syntax.Range)
     (includeFirstStop := false) (includeSecondStop := false) : Bool :=
   (if includeFirstStop then second.start <= first.stop else second.start < first.stop) &&
     (if includeSecondStop then first.start <= second.stop else first.start < second.stop)
 
-@[deprecated Lean.Syntax.Range.overlaps (since := "2025-10-20")]
-def String.Range.overlaps (first second : Lean.Syntax.Range)
-    (includeFirstStop := false) (includeSecondStop := false) : Bool :=
-  Lean.Syntax.Range.overlaps first second includeFirstStop includeSecondStop
-
 def Lean.Syntax.Range.bsize (r : Lean.Syntax.Range) : Nat :=
   r.stop.byteIdx - r.start.byteIdx
-
-@[deprecated Lean.Syntax.Range.bsize (since := "2025-10-20")]
-def String.Range.bsize (r : Lean.Syntax.Range) : Nat :=
-  Lean.Syntax.Range.bsize r
 
 namespace Lean
 
@@ -664,6 +647,23 @@ def Stack.matches (stack : Syntax.Stack) (pattern : List $ Option SyntaxNodeKind
   (stack
     |>.zipWith (fun (s, _) p => p |>.map (s.isOfKind ·) |>.getD true) pattern
     |>.all id)
+
+/--
+Adds the given trailing substring to a `Syntax`' existing trailing substring if they are adjacent,
+otherwise returns `none`.
+-/
+def addTrailing? (stx : Syntax) (trailing : Substring.Raw) : Option Syntax := do
+  if let some (.original leading pos innerTrailing endPos) := stx.getTailInfo? then
+    if innerTrailing.stopPos == trailing.startPos then
+      let trailing := { innerTrailing with stopPos := trailing.stopPos }
+      return stx.setTailInfo (.original leading pos trailing endPos)
+  none
+
+/--
+Adds the given trailing substring to a `Syntax`' existing trailing substring if they are adjacent.
+-/
+def addTrailing (stx : Syntax) (trailing : Substring.Raw) : Syntax :=
+  stx.addTrailing? trailing |>.getD stx
 
 end Syntax
 

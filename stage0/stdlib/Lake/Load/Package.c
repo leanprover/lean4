@@ -21,7 +21,7 @@ uint8_t lean_nat_dec_eq(lean_object*, lean_object*);
 lean_object* lean_mk_empty_array_with_capacity(lean_object*);
 extern lean_object* l_Lean_searchPathRef;
 lean_object* l_Lake_Env_leanSearchPath(lean_object*);
-lean_object* lean_st_ref_set(lean_object*, lean_object*);
+lean_object* lean_st_ref_swap(lean_object*, lean_object*);
 uint8_t lean_string_dec_eq(lean_object*, lean_object*);
 lean_object* lean_string_append(lean_object*, lean_object*);
 lean_object* lean_array_get_size(lean_object*);
@@ -973,7 +973,8 @@ lean_object* v_lakeEnv_274_; lean_object* v___x_275_; lean_object* v___x_276_; l
 v_lakeEnv_274_ = lean_ctor_get(v_cfg_271_, 0);
 v___x_275_ = l_Lean_searchPathRef;
 v___x_276_ = l_Lake_Env_leanSearchPath(v_lakeEnv_274_);
-v___x_277_ = lean_st_ref_set(v___x_275_, v___x_276_);
+v___x_277_ = lean_st_ref_swap(v___x_275_, v___x_276_);
+lean_dec(v___x_277_);
 v___x_278_ = ((lean_object*)(l_Lake_loadPackage___closed__0));
 v___x_279_ = l_Lake_resolveConfigFile(v___x_278_, v_cfg_271_, v_a_272_);
 if (lean_obj_tag(v___x_279_) == 0)
@@ -1140,11 +1141,13 @@ lean_object* runtime_initialize_Lake_Config_LakefileConfig(uint8_t builtin);
 lean_object* runtime_initialize_Lake_Util_IO(uint8_t builtin);
 lean_object* runtime_initialize_Lake_Load_Lean(uint8_t builtin);
 lean_object* runtime_initialize_Lake_Load_Toml(uint8_t builtin);
+void lean_initialize();
 static bool _G_runtime_initialized = false;
 LEAN_EXPORT lean_object* runtime_initialize_Lake_Load_Package(uint8_t builtin) {
 lean_object * res;
 if (_G_runtime_initialized) return lean_io_result_mk_ok(lean_box(0));
 _G_runtime_initialized = true;
+lean_initialize();
 res = runtime_initialize_Lake_Load_Config(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);

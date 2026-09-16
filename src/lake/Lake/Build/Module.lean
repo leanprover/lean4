@@ -1032,6 +1032,8 @@ where
       updateAction .unpack
       mod.clearOutputArtifacts
       mod.unpackLtar ltar.path inputHash
+      -- Preserve the archive even when its individual artifacts are not cached yet.
+      discard <| restoreArtifact mod.ltarFile ltar
       -- Note: This branch implies that only the ltar output is (validly) cached.
       -- Thus, we use only the new trace unpacked from the ltar to resolve further artifacts.
       let savedTrace ← readTraceFile mod.traceFile
@@ -1116,7 +1118,7 @@ where
     if let some ref ← Internal.getOutputsRef? mod.pkg then
       let inputHash := (← getTrace).hash
       if let some ltar := arts.ltar? then
-        ref.insert inputHash ltar.descr
+        ref.insert inputHash ltar.descr (mod.platformIndependent.getD false)
         return arts
       else
         let ltar ← id do

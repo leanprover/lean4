@@ -84,18 +84,22 @@ private def popStr! (q : RenderWorkItemStack) :
 end RenderWorkItemStack
 
 /-- Renders into a string to be consumed by browsers.
-The input's structure is respected as much as possible; no whitespace is added or removed.
+The input's structure is respected as much as possible:
+- No whitespace is added or removed.
+- Tag names are not escaped.
 
 The output uses [HTML5 syntax](https://html.spec.whatwg.org/dev/syntax.html).
-Compatibility with [XML syntax for HTML](https://html.spec.whatwg.org/dev/xhtml.html)
-is not ensured,
-but we make the following compatible choices:
-- Void elements with {name}`isEmpty` children are rendered as self-closing tags.
-  - (Spec-violating) void elements with non-{name}`isEmpty` children
-    are rendered like normal elements.
-- Attribute values are always quoted.
+It is not compatible with [XML syntax for HTML](https://html.spec.whatwg.org/dev/xhtml.html).
 
-and the following incompatible choices:
+# Details of the output syntax
+
+We make the following XML-compatible choices:
+- Void elements with {name}`isEmpty` children are rendered as self-closing tags.
+  - Void elements with non-{name}`isEmpty` children are rendered like normal elements.
+    Such elements are forbidden by the HTML spec.
+- Attribute values are always double-quoted.
+
+And the following incompatible choices:
 - Attributes with empty values are [minimized](https://www.w3.org/TR/xhtml1/#h-4.5). -/
 partial def render (h : Html) : String :=
   go "" {

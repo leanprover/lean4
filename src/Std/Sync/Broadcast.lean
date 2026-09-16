@@ -272,7 +272,10 @@ private def close (ch : Bounded α) : EIO Broadcast.Error Unit := do
     for consumer in st.waiters.toArray do
       consumer.resolve false
 
-    set { st with waiters := ∅, closed := true }
+    for producer in st.producers.toArray do
+      producer.resolve false
+
+    set { st with waiters := ∅, producers := ∅, closed := true }
     return ()
 
 private def isClosed (ch : Bounded α) : BaseIO Bool :=
@@ -572,7 +575,7 @@ instance [Inhabited α] : AsyncRead (Broadcast.Receiver α) (Option α) where
 instance [Inhabited α] : AsyncWrite (Broadcast α) α where
   write receiver x := do
     let task ← receiver.send x
-    discard <| Async.ofTask <| task
+    discard <| Async.ofAsyncTask task
 
 end Receiver
 

@@ -1,10 +1,10 @@
 Input: "scheme dialect:=\"chicken\" + x 99"
 Failure: expected no space before
- --> 1:28-1:29
+ --> 1:27-1:28
   |
 1 | scheme dialect:="chicken" + x 99
-  |                             ^
-  = consumed input prefix: 28 bytes
+  |                            ^
+  = consumed input prefix: 27 bytes
 Final stack:
  • `scheme
  • [(Lean.Doc.Parser.Arg.named_no_paren

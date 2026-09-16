@@ -830,3 +830,44 @@ error: unexpected ']' (use '\]' to escape); expected '![', '$$', '$', '*', '[', 
 foo
 ]
 -/
+
+/-!
+An error inside a role's argument list is reported where the argument failed, and not where the
+recovery that skips the rest of the argument resumes.
+-/
+
+-- A space after a flag sign
+/--
+@ +2:11...12
+error: expected no space before
+-/
+#guard_msgs (positions := true) in
+/-!
+text {foo + x}`y`
+-/
+
+-- A flag name that is not an identifier
+/--
+@ +2:11...12
+error: expected token
+-/
+#guard_msgs (positions := true) in
+/-!
+text {foo +1x y}`z`
+-/
+
+-- A parenthesized argument with content after its value
+/--
+@ +2:18...19
+error: expected ')'
+---
+@ +2:24...*
+error: unexpected newline; expected positional argument, named argument, flag, or '}' (use '\{' for a literal '{')
+---
+@ +3:0...*
+error: unexpected end of input; expected '![', '$$', '$', '*', '[', '[^', '_', '`' or '{'
+-/
+#guard_msgs (positions := true) in
+/-!
+text {foo (x := 1 y)}`z`
+-/

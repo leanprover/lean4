@@ -802,15 +802,15 @@ def recoverRoleAtErrPos (p : ParserFn) : ParserFn :=
     atomicFn' (ignoreFn (takeUntilFn (fun c => c == '}' || c == '\n')) >> chFn '}') <|>
     ignoreFn skipBlock
 
-def recoverWs (p : ParserFn) : ParserFn :=
-  recoverFn p fun _ =>
-    ignoreFn <| takeUntilFn (fun c =>  c == ' ' || c == '\n')
+@[inherit_doc recoverAtErrPos]
+def recoverWsAtErrPos (p : ParserFn) : ParserFn :=
+  recoverAtErrPos p (ignoreFn <| takeUntilFn (fun c => c == ' ' || c == '\n'))
 
-def recoverNonSpace (p : ParserFn) : ParserFn :=
-  recoverFn p fun rctx =>
-    ignoreFn (takeUntilFn (fun c => c != ' ')) >>
-    show ParserFn from
-      fun _ s => s.shrinkStack rctx.initialSize
+/-- Runs `p`, and on failure skips the spaces there and discards everything `p` pushed. -/
+def recoverNonSpaceAtErrPos (p : ParserFn) : ParserFn :=
+  withCurrentStackSize fun iniSz =>
+    recoverAtErrPos p (ignoreFn (takeUntilFn (fun c => c != ' ')) >>
+      show ParserFn from fun _ s => s.shrinkStack iniSz)
 
 def recoverEol (p : ParserFn) : ParserFn :=
   recoverFn p fun _ => ignoreFn <| skipToNewline
@@ -895,11 +895,11 @@ where
   mkIdent (iniSz : Nat) : ParserFn := fun _ s => s.mkNode ``ArgVal.ident iniSz
   flag : ParserFn :=
     (nodeFn ``Arg.flag_on
-      (asTokenFn (strFn  "+") >> recoverNonSpace noSpace >>
-      recoverWs (rawIdentFn (includeWhitespace := false))) <|>
+      (asTokenFn (strFn  "+") >> recoverNonSpaceAtErrPos noSpace >>
+      recoverWsAtErrPos (rawIdentFn (includeWhitespace := false))) <|>
     nodeFn ``Arg.flag_off
-      (asTokenFn (strFn "-") >> recoverNonSpace noSpace >>
-      recoverWs (rawIdentFn (includeWhitespace := false)))) >>
+      (asTokenFn (strFn "-") >> recoverNonSpaceAtErrPos noSpace >>
+      recoverWsAtErrPos (rawIdentFn (includeWhitespace := false)))) >>
     withTrailing tail
   noSpace : ParserFn := fun c s =>
     if h : c.atEnd s.pos then s
@@ -925,7 +925,7 @@ where
     recovering inParens iniSz (rawIdentFn (includeWhitespace := false)) >>
     recovering inParens iniSz (asTokenFn (strFn ":=")) >>
     recovering inParens iniSz valFn >>
-    recoverEol (asTokenFn (strFn ")")) >> wsFallback (eatSpaces >> tail) iniSz >>
+    recoverEolAtErrPos (asTokenFn (strFn ")")) >> wsFallback (eatSpaces >> tail) iniSz >>
     mkNamed iniSz
 
 /--

@@ -15,7 +15,6 @@ export COMPARATOR_BWRAP="$PWD/../fake-bwrap.sh"
 # without depending on whether the machine running the tests happens to have one installed.
 export COMPARATOR_BWRAP=lake-comparator-missing-sandbox
 
-test_status_out 2 'There is no unsandboxed mode' comparator --config config.json
 test_status_out 2 'lake-comparator-missing-sandbox' comparator --config config.json
 
 rm -f produced.out

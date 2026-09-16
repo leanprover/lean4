@@ -265,15 +265,18 @@ jobs:
           fi
           elan --version  # fails step if not found
           make -C build/$TARGET_STAGE lean4lean con-leche
-      - name: Build nanoda
+      - name: Build nanoda and con-ron
         if: matrix.release && !matrix.wasm
         run: |
           # msys2 hides the runner's preinstalled cargo by trimming the Windows `PATH`
           if command -v cygpath > /dev/null && [ -n "${USERPROFILE:-}" ]; then
             export PATH="$(cygpath -u "$USERPROFILE")/.cargo/bin:$PATH"
+            # That cargo targets MSVC, so the `cc` crate has to find `cl.exe` itself rather than
+            # take the job's msys2 `CXX`
+            unset CC CXX
           fi
           cargo --version  # fails step if not found
-          make -C build/$TARGET_STAGE nanoda
+          make -C build/$TARGET_STAGE nanoda con-ron
       - name: Install
         run: |
           make -C build/$TARGET_STAGE install

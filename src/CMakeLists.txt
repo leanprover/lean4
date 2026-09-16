@@ -1077,6 +1077,23 @@ if(NOT CMAKE_SYSTEM_NAME MATCHES "Emscripten")
       ${CMAKE_BINARY_DIR}/bin
   )
 
+  # Not in `ALL` as it's expensive; release CI builds it explicitly. Its only submodule is the
+  # Aeneas verifier, which the binary does not need.
+  ExternalProject_Add(
+    con-ron
+    PREFIX con-ron
+    EXCLUDE_FROM_ALL ON
+    GIT_REPOSITORY https://github.com/leanprover/con-ron
+    GIT_TAG cb54c9a4e5f604a678b0230f96b8358b9fd73c82
+    GIT_SUBMODULES ""
+    CONFIGURE_COMMAND ""
+    BUILD_COMMAND cargo build --release --locked
+    BUILD_IN_SOURCE ON
+    INSTALL_COMMAND
+      ${CMAKE_COMMAND} -E copy target/release/con-ron${CMAKE_EXECUTABLE_SUFFIX}
+      ${CMAKE_BINARY_DIR}/bin
+  )
+
   # Not `ALL` as it's big; release CI builds it explicitly.
   if(USE_MIMALLOC)
     add_custom_target(

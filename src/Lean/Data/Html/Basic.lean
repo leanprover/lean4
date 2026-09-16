@@ -18,23 +18,27 @@ public section
 
 namespace Lean
 
-/-- A forest of HTML trees.
+/--
+HTML content, which may be either a single node or a sequence of sibling nodes.
 
 This type is optimized for convenient authoring of HTML documents.
 It is not formally related to
 the [HTML DOM representation](https://html.spec.whatwg.org/dev/dom.html).
-It is analogous to React's [Fragment](https://react.dev/reference/react/Fragment). -/
+It is analogous to React's [Fragment](https://react.dev/reference/react/Fragment).
+-/
 inductive Html where
   /-- An element with the given tag name, attributes, and children. -/
   | element (tag : String) (attrs : Array (String × String)) (children : Html)
-  /-- Textual content.
+  /--
+  Textual content.
 
   The characters `&`, `<`, and `>` are always escaped to HTML entities during rendering.
   Use {name (full := Html.raw)}`raw`
   in [raw text elements](https://html.spec.whatwg.org/dev/syntax.html#raw-text-elements)
-  ({lit}`script` and {lit}`style`) instead. -/
+  ({lit}`script` and {lit}`style`) instead.
+  -/
   | text : String → Html
-  /-- Bytes to be copied verbatim (and not escaped) during rendering. -/
+  /-- Characters to be copied verbatim (and not escaped) during rendering. -/
   | raw : String → Html
   /-- A sequence of HTML values. -/
   | seq : Array Html → Html
@@ -42,7 +46,7 @@ inductive Html where
 
 namespace Html
 
-/-- The empty HTML forest. -/
+/-- Empty HTML. -/
 @[suggest_for Lean.Html.nil Lean.Html.none]
 def empty : Html := .seq #[]
 
@@ -54,7 +58,9 @@ def isEmpty : Html → Bool
 
 /-- If {name}`escape` is {lean}`true`,
 then characters such as `&` are escaped
-to entities such as `&amp;` during rendering.-/
+to entities such as `&amp;` during rendering.
+
+Use {lean}`false` in raw text elements ({lit}`script` and {lit}`style`). -/
 def ofString (escape : Bool) : String → Html :=
   if escape then text else raw
 
@@ -62,9 +68,9 @@ instance : Coe String Html := ⟨.text⟩
 
 /-- Appends two HTML forests. -/
 def append : Html → Html → Html
-  | .seq xs, .seq ys =>
-    if xs.isEmpty then .seq ys
-    else if ys.isEmpty then .seq xs
+  | x@(.seq xs), y@(.seq ys) =>
+    if x.isEmpty then .seq ys
+    else if y.isEmpty then .seq xs
     else .seq (xs ++ ys)
   | .seq xs, y => if xs.isEmpty then y else .seq (xs.push y)
   | x, .seq ys => if ys.isEmpty then x else .seq (#[x] ++ ys)
@@ -74,7 +80,7 @@ instance : Append Html := ⟨.append⟩
 
 /-- Merges a collection of HTML values by appending them.
 
-Equivalent to {name}`seq`, but may produce a more compact representation. -/
+Like {lean}`seq (ForIn.toArray hs)`, but may produce a more compact representation. -/
 def ofCollection {ρ : Type w} [ForIn Id ρ Html] (hs : ρ) : Html := Id.run do
   let mut out := .empty
   for h in hs do

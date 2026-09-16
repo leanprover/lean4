@@ -96,7 +96,7 @@ jobs:
         with:
           client-id: ${{ vars.DOWNSTREAM_LEAN4_APP_CLIENT_ID }}
           private-key: ${{ secrets.DOWNSTREAM_LEAN4_APP_PRIVATE_KEY }}
-          repositories: downstream-lean4
+          repositories: lean4,downstream-lean4
 
       - name: Add label based on comment
         uses: actions/github-script@v9

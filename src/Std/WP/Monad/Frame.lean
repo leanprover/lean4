@@ -54,7 +54,7 @@ program. A caller of a spec picks a frame and applies the frame rule for that fr
     refine PartialOrder.rel_trans (PredTrans.frameClosure_le op e hunit hunitE _ _ _) ?_
     refine PartialOrder.rel_trans ?_
       (base.bind_le_wp_bind x f (fun a => op r (post a)) (opE r E'))
-    refine WP.wp_monotone_post x _ _ (opE r E') fun a => ?_
+    refine WP.wp_monotone_post (x := x) (epost := opE r E') fun a => ?_
     exact PartialOrder.rel_trans (PredTrans.frameClosure_frames op comp hact hactE _ _ _ r)
       (PredTrans.frameClosure_le op e hunit hunitE _ _ _)
 

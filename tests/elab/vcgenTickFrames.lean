@@ -359,7 +359,7 @@ cost `n` held fixed. -/
   intro r
   refine PartialOrder.rel_trans ?_
     ((WPMonad.le_wp_monadLift_StateT_apply x (fun a m => ⌜r ≤ m⌝ ⊓ Q a (m - r))) (n + r))
-  refine WP.wp_monotone_post x (fun a => Q a n) _ E (fun a => ?_)
+  refine WP.wp_monotone_post (fun a => ?_)
   rw [show n + r - r = n by omega]
   exact le_meet _ _ _ (le_ofProp _ _ (by omega)) PartialOrder.rel_refl
 

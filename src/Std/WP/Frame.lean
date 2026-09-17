@@ -80,7 +80,7 @@ theorem WP.frames_of_conjunctive {x : Prog} [WPConjunctive x]
   refine PartialOrder.rel_trans (y := wp x (fun _ => F) (opE F ⊤) ⊓ wp x Q E) ?_ ?_
   · exact le_meet _ _ _ (PartialOrder.rel_trans (meet_le_left _ _) hF) (meet_le_right _ _)
   · refine PartialOrder.rel_trans (WPConjunctive.wp_meet_wp_le (fun _ => F) Q (opE F ⊤) E) ?_
-    refine WP.wp_monotone _ _ _ _ _ ?_ (hE E)
+    refine WP.wp_monotone ?_ (hE E)
     intro a
     simp only [meet_apply]
     exact PartialOrder.rel_refl

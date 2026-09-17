@@ -8,6 +8,7 @@ module
 
 prelude
 public import Lean.Parser.Term.Basic
+public import Lean.DocString.Types
 meta import Lean.Parser.Term.Basic
 
 
@@ -1106,13 +1107,6 @@ end Lean.Doc.Parser
 namespace Lean.Doc
 
 public section
-
-/--
-A Verso document, which is a sequence of blocks.
-
-Use `VersoDocument.view` or `TSyntax.getVersoBlocks` to extract its contents.
--/
-abbrev VersoDocument := TSyntax ``Parser.document
 
 /--
 An inline element of a Verso document, such as text, emphasis, or a link.

@@ -9,7 +9,8 @@ module
 prelude
 import Lean.Elab.DocString
 public import Lean.DocString.DeferredCheck
-public import Lean.DocString.Parser
+public import Lean.DocString.Types
+import Lean.DocString.Parser
 public import Lean.Elab.Term.TermElabM
 
 public section
@@ -149,9 +150,8 @@ Parses the Verso docstring in the current file whose comment opens at `openPos` 
 are between `startPos` and `endPos`. Returns the document if it parsed, and otherwise logs each
 parse error.
 -/
-def parseVersoDocStringAt
-    [Monad m] [MonadFileMap m] [MonadEnv m] [MonadOptions m] [MonadLog m] [MonadResolveName m]
-    (openPos startPos endPos : String.Pos.Raw) : m (Option VersoDocument) := do
+def parseVersoDocStringAt (openPos startPos endPos : String.Pos.Raw) :
+    CoreM (Option VersoDocument) := do
   let text ← getFileMap
   let endPos := if endPos ≤ text.source.rawEndPos then endPos else text.source.rawEndPos
   have endPos_valid : endPos ≤ text.source.rawEndPos := by
@@ -186,11 +186,8 @@ Parses a docstring as Verso, returning the syntax if successful.
 
 When not successful, parser errors are logged.
 -/
-def parseVersoDocString
-    [Monad m] [MonadFileMap m] [MonadError m] [MonadEnv m] [MonadOptions m] [MonadLog m]
-    [MonadResolveName m]
-    (docComment : TSyntax [``docComment, ``moduleDoc]) :
-    m (Option VersoDocument) := do
+def parseVersoDocString (docComment : TSyntax [``docComment, ``moduleDoc]) :
+    CoreM (Option VersoDocument) := do
   -- TODO fallback to string version without nice interactivity
   let (openPos, startPos, endPos) ←
     match docStringRange docComment with
@@ -206,10 +203,7 @@ When Verso docstring parsing fails at parse time, a `parseFailure` node is creat
 raw text, because emitting an error at that stage could lead to unwanted parser backtracking. This
 function reports the actual error messages with proper source positions.
 -/
-def reportVersoParseFailure
-    [Monad m] [MonadFileMap m] [MonadError m] [MonadEnv m] [MonadOptions m] [MonadLog m]
-    [MonadResolveName m]
-    (view : VersoDocstringView) : m Unit := do
+def reportVersoParseFailure (view : VersoDocstringView) : CoreM Unit := do
   let (openPos, startPos, endPos) ←
     match docCommentRange view with
     | .ok range => pure range

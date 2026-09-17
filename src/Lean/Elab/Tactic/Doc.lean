@@ -25,7 +25,7 @@ when it does not parse, its errors are logged and the text is empty.
 -/
 private def docCommentMarkdown (doc : TSyntax ``docComment) : CommandElabM String := do
   if isVersoDocComment doc then
-    let some blocks ← parseVersoDocString doc | return ""
+    let some blocks ← liftCoreM (parseVersoDocString doc) | return ""
     let ((text, subsections), _) ← liftTermElabM <| (Doc.elabBlocks blocks).execForModule
     liftCoreM <| Doc.MarkdownM.run' <| Doc.ToMarkdown.toMarkdown ({ text, subsections } : VersoDocString)
   else

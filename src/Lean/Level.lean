@@ -520,7 +520,7 @@ Assumes that `u` and `v` don't contain meta-variables.
 def isEquiv (u v : Level) : Bool :=
   -- the first two (redundant) cases are the most common
   -- only use the complete procedure if both others failed
-  u == v || u.normalize == v.normalize || isEquivCore u v
+  u == v || isEquivCore u.normalize v.normalize
 
 end equiv
 

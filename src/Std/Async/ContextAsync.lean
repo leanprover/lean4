@@ -239,6 +239,17 @@ instance : MonadAwait AsyncTask ContextAsync where
   await t := fun _ => await t
 
 /--
+Runs `f` as a loop in constant space. The generic `Loop.forIn` would nest one bind per iteration.
+-/
+@[inline]
+protected def forIn {β : Type} (init : β) (f : Unit → β → ContextAsync (ForInStep β))
+    (prio := Task.Priority.default) : ContextAsync β :=
+  fun ctx => EAsync.forIn init (fun u b => f u b ctx) prio
+
+instance : ForIn ContextAsync Lean.Loop Unit where
+  forIn _ := ContextAsync.forIn
+
+/--
 Runs two computations concurrently and returns the result of the first to complete. Each computation runs
 in its own child context; when either completes, the other is cancelled immediately.
 -/

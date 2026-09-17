@@ -493,14 +493,13 @@ def normalizeAux (l : Level) (path : List Name) (k : Nat) (acc : NormLevel) : No
   | .imax u (.succ v) => normalizeAux u path k acc |> normalizeAux v path (k+1)
   | .imax u (.max v w) => normalizeAux (.imax u v) path k acc |> normalizeAux (.imax u w) path k
   | .imax u (.imax v w) => normalizeAux (.imax u w) path k acc |> normalizeAux (.imax v w) path k
-  | .imax u (.param v) =>
+  | .imax u (.param v) | .imax u (.mvar ⟨v⟩) =>
     match orderedInsert Name.cmp v path with
     | some path' => acc.addConst k path |>.addNode v k path' |> normalizeAux u path' k
     | none =>
       let acc := if k = 0 then acc else acc.addVar v k path
       normalizeAux u path k acc
-  | .mvar _ | .imax _ (.mvar _) => acc -- unreachable
-  | .param v =>
+  | .mvar ⟨v⟩ | .param v =>
     match orderedInsert Name.cmp v path with
     | some path' => acc.addConst k path |>.addNode v k path'
     | none => if k = 0 then acc else acc.addVar v k path

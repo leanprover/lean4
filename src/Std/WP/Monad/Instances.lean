@@ -58,7 +58,7 @@ instance ExceptT.wpInst {Pred : Type v}
   trans x := PredTrans.pushExceptT (WP.trans x.run)
   trans_monotone x := fun post post' epost epost' hepost hpost => by
     simp only [PredTrans.apply_pushExceptT]
-    apply WP.wp_consequence_econs (x := x.run)
+    apply WP.wp_monotone (x := x.run)
     · intro r
       cases r with
       | ok a => exact hpost a
@@ -76,7 +76,7 @@ instance ExceptT.instWPMonad {Pred : Type v}
     show (PredTrans.pushExceptT (WP.trans x.run)).apply _ epost ⊑ _
     simp only [PredTrans.apply_pushExceptT]
     apply PartialOrder.rel_trans _ (WPMonad.bind_le_wp_bind (m := m) x.run _ (pushExcept post epost.fst) epost.snd)
-    apply WP.wp_consequence
+    apply WP.wp_monotone_post
     intro r; cases r with
     | ok a => exact PartialOrder.rel_refl
     | error el =>
@@ -96,7 +96,7 @@ instance OptionT.wpInst {Pred : Type u}
   trans x := PredTrans.pushOptionT (WP.trans x.run)
   trans_monotone x := fun post post' epost epost' hepost hpost => by
     simp only [PredTrans.apply_pushOptionT]
-    apply WP.wp_consequence_econs (x := x.run)
+    apply WP.wp_monotone (x := x.run)
     · intro r; cases r with
       | some a => exact hpost a
       | none => exact hepost.left ()
@@ -113,7 +113,7 @@ instance OptionT.instWPMonad {Pred : Type u}
     show (PredTrans.pushOptionT (WP.trans x.run)).apply _ epost ⊑ _
     simp only [PredTrans.apply_pushOptionT]
     apply PartialOrder.rel_trans _ (WPMonad.bind_le_wp_bind (m := m) x.run _ (pushOption post epost.fst) epost.snd)
-    apply WP.wp_consequence
+    apply WP.wp_monotone_post
     intro r; cases r with
     | some a => exact PartialOrder.rel_refl
     | none =>
@@ -131,7 +131,7 @@ instance StateT.wpInst {EPred : Type v} {σ : Type u} {Pred : Type w}
     WP (StateT σ m α) α (σ → Pred) EPred where
   trans x := PredTrans.pushArg (WP.trans <| x.run ·)
   trans_monotone x := fun post post' epost epost' hepost hpost s => by
-    apply WP.wp_consequence_econs (x := x.run s)
+    apply WP.wp_monotone (x := x.run s)
     · intro ⟨a, s'⟩
       exact hpost a s'
     · exact hepost
@@ -158,7 +158,7 @@ instance ReaderT.wpInst {Pred : Type v}
     WP (ReaderT ρ m α) α (ρ → Pred) EPred where
   trans x := ⟨fun post epost r => wp (x.run r) (fun a => post a r) epost⟩
   trans_monotone x := fun post post' epost epost' hepost hpost r => by
-    apply WP.wp_consequence_econs (x := x.run r)
+    apply WP.wp_monotone (x := x.run r)
     · intro a
       exact hpost a r
     · exact hepost
@@ -172,7 +172,7 @@ instance ReaderT.instWPMonad {Pred : Type v}
     WPMonad.pure_le_wp_pure (m := m) x (fun a => post a r) epost
   bind_le_wp_bind x f := fun post epost r => by
     apply PartialOrder.rel_trans
-    · apply WP.wp_consequence
+    · apply WP.wp_monotone_post
       intro a; exact PartialOrder.rel_refl
     · apply WPMonad.bind_le_wp_bind
 

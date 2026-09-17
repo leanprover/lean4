@@ -58,7 +58,7 @@ instance StateT.instWPConjunctive {m : Type u → Type v} {σ : Type u} {Pred : 
     simp only [WP.trans_apply_eq, meet_apply, StateT.wp_apply_eq]
     refine PartialOrder.rel_trans
       ((base s).wp_meet_wp_le (fun p => Q₁ p.1 p.2) (fun p => Q₂ p.1 p.2) E₁ E₂)
-      (WP.wp_consequence _ _ _ _ ?_)
+      (WP.wp_monotone_post _ _ _ _ ?_)
     intro p
     simp only [meet_apply]
     exact PartialOrder.rel_refl
@@ -72,7 +72,7 @@ instance ReaderT.instWPConjunctive {m : Type u → Type v} {ρ : Type u} {Pred :
     simp only [WP.trans_apply_eq, meet_apply, ReaderT.wp_apply_eq]
     refine PartialOrder.rel_trans
       ((base r).wp_meet_wp_le (fun a => Q₁ a r) (fun a => Q₂ a r) E₁ E₂)
-      (WP.wp_consequence _ _ _ _ ?_)
+      (WP.wp_monotone_post _ _ _ _ ?_)
     intro a
     simp only [meet_apply]
     exact PartialOrder.rel_refl
@@ -85,7 +85,7 @@ instance OptionT.instWPConjunctive {m : Type u → Type v} {Pred : Type u} {EPre
     simp only [WP.trans_apply_eq, OptionT.wp_apply_eq, Prod.snd_meet]
     refine PartialOrder.rel_trans
       (base.wp_meet_wp_le (pushOption Q₁ E₁.fst) (pushOption Q₂ E₂.fst) E₁.snd E₂.snd)
-      (WP.wp_consequence _ _ _ _ ?_)
+      (WP.wp_monotone_post _ _ _ _ ?_)
     intro o
     cases o <;>
       simp only [meet_apply, pushOption, Prod.fst_meet] <;>
@@ -99,7 +99,7 @@ instance ExceptT.instWPConjunctive {m : Type u → Type v} {ε α : Type u} {Pre
     simp only [WP.trans_apply_eq, ExceptT.wp_apply_eq, Prod.snd_meet]
     refine PartialOrder.rel_trans
       (base.wp_meet_wp_le (pushExcept Q₁ E₁.fst) (pushExcept Q₂ E₂.fst) E₁.snd E₂.snd)
-      (WP.wp_consequence _ _ _ _ ?_)
+      (WP.wp_monotone_post _ _ _ _ ?_)
     intro e
     cases e <;>
       simp only [meet_apply, pushExcept, Prod.fst_meet] <;>

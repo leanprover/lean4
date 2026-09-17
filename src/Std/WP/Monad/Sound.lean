@@ -84,7 +84,7 @@ instance ExceptT.instLawfulWPMonadAttach {ε m Pred EPred}
       (P := fun r : Except ε α => match r with | .ok b => P b | .error _ => True)
       (a := .ok a) hcan ?_
     rw [ExceptT.wp_apply_eq] at hwp
-    refine PartialOrder.rel_trans hwp (WP.wp_consequence_econs _ _ _ _ _ ?_ (le_top _))
+    refine PartialOrder.rel_trans hwp (WP.wp_monotone _ _ _ _ _ ?_ (le_top _))
     intro r
     cases r with
     | ok b => exact PartialOrder.rel_refl
@@ -99,7 +99,7 @@ instance OptionT.instLawfulWPMonadAttach {m : Type u → Type z} {Pred : Type u}
       (P := fun r : Option α => match r with | some b => P b | none => True)
       (a := some a) hcan ?_
     rw [OptionT.wp_apply_eq] at hwp
-    refine PartialOrder.rel_trans hwp (WP.wp_consequence_econs _ _ _ _ _ ?_ (le_top _))
+    refine PartialOrder.rel_trans hwp (WP.wp_monotone _ _ _ _ _ ?_ (le_top _))
     intro r
     cases r with
     | some b => exact PartialOrder.rel_refl
@@ -168,7 +168,7 @@ theorem ExceptT.of_canReturn_run_wp {m : Type u → Type z} {ε : Type u} {Pred 
     P x := by
   refine LawfulWPMonadAttach.of_canReturn_wp (m := m) hcan ?_
   rw [ExceptT.wp_apply_eq] at hwp
-  refine PartialOrder.rel_trans hwp (WP.wp_consequence_econs _ _ _ _ _ ?_ (le_top _))
+  refine PartialOrder.rel_trans hwp (WP.wp_monotone _ _ _ _ _ ?_ (le_top _))
   intro r
   cases r <;> exact PartialOrder.rel_refl
 
@@ -182,7 +182,7 @@ theorem OptionT.of_canReturn_run_wp {m : Type u → Type z} {Pred : Type u} {EPr
     (hwp : ⊤ ⊑ wp prog (fun a => ⌜P (some a)⌝) ((fun _ => ⌜P none⌝), ⊤)) : P x := by
   refine LawfulWPMonadAttach.of_canReturn_wp (m := m) hcan ?_
   rw [OptionT.wp_apply_eq] at hwp
-  refine PartialOrder.rel_trans hwp (WP.wp_consequence_econs _ _ _ _ _ ?_ (le_top _))
+  refine PartialOrder.rel_trans hwp (WP.wp_monotone _ _ _ _ _ ?_ (le_top _))
   intro r
   cases r <;> exact PartialOrder.rel_refl
 

@@ -81,6 +81,22 @@ export Std.WP.WP (wp)
     [Assertion Pred] [Assertion EPred] [WP Prog Value Pred EPred] (x : Prog) :
   (WP.trans x).apply = wp x := rfl
 
+/-- Deprecated alias for `WP.trans`. -/
+@[deprecated WP.trans (since := "2026-09-17")]
+def WP.wpTrans {Prog : Type u} {Value : Type v} {Pred : Type w} {EPred : Type w'}
+    [Assertion Pred] [Assertion EPred] [self : WP Prog Value Pred EPred] (x : Prog) :
+    PredTrans Pred EPred Value := self.trans x
+
+@[deprecated WP.trans_monotone (since := "2026-09-17")]
+theorem WP.wp_trans_monotone {Prog : Type u} {Value : Type v} {Pred : Type w} {EPred : Type w'}
+    [Assertion Pred] [Assertion EPred] [self : WP Prog Value Pred EPred] (x : Prog) :
+    (self.trans x).Monotone := self.trans_monotone x
+
+@[deprecated WP.trans_apply_eq (since := "2026-09-17")]
+theorem WP.wpTrans_apply_eq {Prog : Type u} {Value : Type v}
+    [Assertion Pred] [Assertion EPred] [WP Prog Value Pred EPred] (x : Prog) :
+    (WP.trans x).apply = wp x := rfl
+
 /-!
 ## Derived WP Lemmas
 
@@ -92,42 +108,86 @@ namespace WP
 variable {Prog : Type u} {Value : Type v} [Assertion Pred] [Assertion EPred]
   [WP Prog Value Pred EPred]
 
-theorem wp_consequence (x : Prog)
+theorem wp_monotone_post (x : Prog)
   (post post' : Value → Pred) (epost : EPred) (h : post ⊑ post') :
     wp x post epost ⊑ wp x post' epost :=
   trans_monotone x post post' epost epost PartialOrder.rel_refl h
 
-theorem wp_consequence_econs (x : Prog)
+theorem wp_monotone (x : Prog)
   (post post' : Value → Pred) (epost epost' : EPred) (h : post ⊑ post') (h' : epost ⊑ epost') :
     wp x post epost ⊑ wp x post' epost' :=
   trans_monotone x post post' epost epost' h' h
 
-theorem wp_econs (x : Prog)
+theorem wp_monotone_epost (x : Prog)
   (post : Value → Pred) (epost epost' : EPred) (h' : epost ⊑ epost') :
     wp x post epost ⊑ wp x post epost' :=
   trans_monotone x post post epost epost' h' PartialOrder.rel_refl
 
-theorem wp_econs_bot (x : Prog)
+theorem wp_monotone_bot (x : Prog)
   (post : Value → Pred) (epost : EPred) :
     wp x post ⊥ ⊑ wp x post epost := by
-  solve_by_elim [wp_econs, bot_le]
+  solve_by_elim [wp_monotone_epost, bot_le]
 
+theorem wp_monotone_post_le (x : Prog)
+  (post post' : Value → Pred) (epost : EPred) (h : post ⊑ post') {pre : Pred}
+    (h' : pre ⊑ wp x post epost) :
+    pre ⊑ wp x post' epost :=
+  PartialOrder.rel_trans h' (wp_monotone_post x post post' epost h)
+
+theorem wp_monotone_epost_le (x : Prog)
+  (post : Value → Pred) (epost epost' : EPred) (h : epost ⊑ epost') {pre : Pred}
+    (h' : pre ⊑ wp x post epost) :
+    pre ⊑ wp x post epost' :=
+  PartialOrder.rel_trans h' (wp_monotone_epost x post epost epost' h)
+
+theorem wp_monotone_bot_le (x : Prog)
+  (post : Value → Pred) (epost : EPred) {pre : Pred} (h : pre ⊑ wp x post ⊥) :
+    pre ⊑ wp x post epost :=
+  PartialOrder.rel_trans h (wp_monotone_bot x post epost)
+
+@[deprecated wp_monotone_post (since := "2026-09-17")]
+theorem wp_consequence (x : Prog)
+  (post post' : Value → Pred) (epost : EPred) (h : post ⊑ post') :
+    wp x post epost ⊑ wp x post' epost :=
+  wp_monotone_post x post post' epost h
+
+@[deprecated wp_monotone (since := "2026-09-17")]
+theorem wp_consequence_econs (x : Prog)
+  (post post' : Value → Pred) (epost epost' : EPred) (h : post ⊑ post') (h' : epost ⊑ epost') :
+    wp x post epost ⊑ wp x post' epost' :=
+  wp_monotone x post post' epost epost' h h'
+
+@[deprecated wp_monotone_epost (since := "2026-09-17")]
+theorem wp_econs (x : Prog)
+  (post : Value → Pred) (epost epost' : EPred) (h' : epost ⊑ epost') :
+    wp x post epost ⊑ wp x post epost' :=
+  wp_monotone_epost x post epost epost' h'
+
+@[deprecated wp_monotone_bot (since := "2026-09-17")]
+theorem wp_econs_bot (x : Prog)
+  (post : Value → Pred) (epost : EPred) :
+    wp x post ⊥ ⊑ wp x post epost :=
+  wp_monotone_bot x post epost
+
+@[deprecated wp_monotone_post_le (since := "2026-09-17")]
 theorem wp_consequence_le (x : Prog)
   (post post' : Value → Pred) (epost : EPred) (h : post ⊑ post') {pre : Pred}
     (h' : pre ⊑ wp x post epost) :
     pre ⊑ wp x post' epost :=
-  PartialOrder.rel_trans h' (wp_consequence x post post' epost h)
+  wp_monotone_post_le x post post' epost h h'
 
+@[deprecated wp_monotone_epost_le (since := "2026-09-17")]
 theorem wp_econs_le (x : Prog)
   (post : Value → Pred) (epost epost' : EPred) (h : epost ⊑ epost') {pre : Pred}
     (h' : pre ⊑ wp x post epost) :
     pre ⊑ wp x post epost' :=
-  PartialOrder.rel_trans h' (wp_econs x post epost epost' h)
+  wp_monotone_epost_le x post epost epost' h h'
 
+@[deprecated wp_monotone_bot_le (since := "2026-09-17")]
 theorem wp_econs_bot_le (x : Prog)
   (post : Value → Pred) (epost : EPred) {pre : Pred} (h : pre ⊑ wp x post ⊥) :
     pre ⊑ wp x post epost :=
-  PartialOrder.rel_trans h (wp_econs_bot x post epost)
+  wp_monotone_bot_le x post epost h
 
 end WP
 

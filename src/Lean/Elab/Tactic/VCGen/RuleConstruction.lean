@@ -129,7 +129,7 @@ prf : ∀ (n : Nat) (pre : Prop) (hpre : pre ⊑ True)
   pre ⊑ wp (myPure n) post epost
 ```
 The postcondition VC is pointwise over the return value and over any excess state arguments. The
-proof is generalized with `WP.wp_consequence_le`.
+proof is generalized with `WP.wp_monotone_post_le`.
 
 #### Exception postcondition VCs
 
@@ -139,8 +139,8 @@ value, the relation `epostSpec ⊑ epost` is decomposed component by component:
 ∀ e s₁ ... sₙ, epostSpec.fst e s₁ ... sₙ ⊑ epost.fst e s₁ ... sₙ
 ```
 and recursively for the tail. `decomposeProdRel` assembles these component VCs using
-`Prod.mk_le` and `Unit.unit_le`. The proof is then generalized with `WP.wp_econs_le`.
-When the spec exception postcondition is `⊥`, no VC is needed and `WP.wp_econs_bot_le` is
+`Prod.mk_le` and `Unit.unit_le`. The proof is then generalized with `WP.wp_monotone_epost_le`.
+When the spec exception postcondition is `⊥`, no VC is needed and `WP.wp_monotone_bot_le` is
 used instead.
 
 #### Excess state arguments
@@ -205,7 +205,7 @@ private def mkSpecBackwardProof
     let hpostTy ← mkPostPointwisePremise postSpec postAbstract postTy ssTypes stateArgNames
     /- mvar `?postImpl` for the proof of the premise -/
     let hpost ← mkFreshExprMVar (userName := `postImpl) hpostTy
-    /- `wp_consequence_le` expects its premise at the *function-lattice* order `postSpec ⊑ postAbstract`,
+    /- `wp_monotone_post_le` expects its premise at the *function-lattice* order `postSpec ⊑ postAbstract`,
        whereas `hpost` is stated pointwise (`∀ a s…, postSpec a s… ⊑ postAbstract a s…`). The two are
        defeq, but unfolding the function-lattice `⊑` instance is blocked when the post's domain is a
        metavariable (e.g. the accumulator `β` of a `forIn` loop spec). Cast `hpost` to the function
@@ -213,8 +213,8 @@ private def mkSpecBackwardProof
     let relTy ← mkAppM ``PartialOrder.rel #[postSpec, postAbstract]
     let hpostRel ← mkExpectedTypeHint hpost relTy
     /- get the proof of `pre ⊑ wp prog postAbstract epostSpec`, where `post` is abstracted.
-       Uses wp_consequence_le: post ⊑ post' → pre ⊑ wp x post epost → pre ⊑ wp x post' epost -/
-    specApplied ← mkAppM ``WP.wp_consequence_le #[prog, postSpec, postAbstract, epostSpec, hpostRel, specApplied]
+       Uses wp_monotone_post_le: post ⊑ post' → pre ⊑ wp x post epost → pre ⊑ wp x post' epost -/
+    specApplied ← mkAppM ``WP.wp_monotone_post_le #[prog, postSpec, postAbstract, epostSpec, hpostRel, specApplied]
 
   /- abstract concrete `epost` if it is not already abstract -/
   unless epostAbstract.isMVar do
@@ -223,7 +223,7 @@ private def mkSpecBackwardProof
     /- mvar `epostAbstract` for new abstract `epost` -/
     epostAbstract ← mkFreshExprMVar (userName := `EPred) epostTy
     /- if `epost` is `⊥`, then `epost ⊑ epostAbstract` holds trivially and
-      abstracting `epost` can be simply done by `WP.wp_econs_bot_le` without
+      abstracting `epost` can be simply done by `WP.wp_monotone_bot_le` without
       introducing a new premise. This case is quite common, that's why we handle
       it specially.
       The test runs at a fresh metavariable depth, where a schematic component of
@@ -237,12 +237,12 @@ private def mkSpecBackwardProof
     if isBot then
       /- get the proof of `pre ⊑ wp prog postAbstract epostAbstract`, where `epost (= ⊥)` is abstracted.
         This proof DOES NOT have a `?epostImpl` premise -/
-      specApplied ← mkAppM ``WP.wp_econs_bot_le #[prog, postAbstract, epostAbstract, specApplied]
+      specApplied ← mkAppM ``WP.wp_monotone_bot_le #[prog, postAbstract, epostAbstract, specApplied]
     else
       /- Decompose `epostSpec ⊑ epostAbstract` into per-component proofs
         using `Prod.mk_le` and `Unit.unit_le` -/
       let hepost ← decomposeProdRel EPred epostSpec epostAbstract stateArgNames
-      specApplied ← mkAppM ``WP.wp_econs_le #[prog, postAbstract, epostSpec, epostAbstract, hepost, specApplied]
+      specApplied ← mkAppM ``WP.wp_monotone_epost_le #[prog, postAbstract, epostSpec, epostAbstract, hepost, specApplied]
 
   /- By default we always abstract `pre`, since in most of the specifications
     `pre` is not schematic. In exceptional cases, where `pre` is schematic, it

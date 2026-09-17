@@ -137,6 +137,8 @@ if(USE_MIMALLOC)
     # cadical, it might be worth reorganizing the directory structure.
     SOURCE_DIR
     "${CMAKE_BINARY_DIR}/mimalloc/src/mimalloc"
+    # Lean-specific allocation knobs; the `checkout` makes re-populating idempotent
+    PATCH_COMMAND git checkout -- . COMMAND git apply "${CMAKE_CURRENT_SOURCE_DIR}/script/mimalloc-lean.patch"
     EXCLUDE_FROM_ALL
   )
   FetchContent_MakeAvailable(mimalloc)

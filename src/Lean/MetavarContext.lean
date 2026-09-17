@@ -1235,6 +1235,8 @@ mutual
           mctx := s.mctx.addExprMVarDecl newMVarId Name.anonymous newMVarLCtx newLocalInsts newMVarType newMVarKind numScopeArgs,
           ngen := s.ngen.next
         }
+      if (← mvarId.isInstanceTyped) then
+        newMVarId.markInstanceTyped
       if !mvarDecl.kind.isSyntheticOpaque then
         mvarId.assign result
       else

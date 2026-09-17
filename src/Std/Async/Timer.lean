@@ -25,7 +25,7 @@ structure Sleep where
     native : Internal.UV.Timer
 
 /--
-The timeout passed to libuv. Longer durations are clamped, since they cannot elapse anyway.
+The timeout of the underlying timer. Longer durations are clamped, since they cannot elapse anyway.
 -/
 private def timeoutOf (duration : Std.Time.Millisecond.Offset) : UInt64 :=
   let ms := duration.toInt.toNat

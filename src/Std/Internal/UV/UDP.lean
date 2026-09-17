@@ -62,7 +62,7 @@ resolves when some data is available or an error occurs.
 Furthermore calling this function in parallel with `waitReadable` is not supported.
 
 A datagram larger than `size` is discarded in its entirety, and the promise resolves to an
-`EMSGSIZE` error (an `IO.Error.resourceExhausted`) instead of a truncated prefix. The socket stays
+`IO.Error.resourceExhausted` instead of a truncated prefix. The socket stays
 usable, so a receive loop should handle the error per datagram.
 -/
 @[extern "lean_uv_udp_recv"]

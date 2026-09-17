@@ -861,7 +861,7 @@ Run `samply record --help` to see samply's flags.
 
 REQUIREMENTS:
   samply                cargo install samply
-  curl, gzip            standard on most systems
+  curl, gzip            standard on most Linux/macOS systems
 
 Open the output file in Firefox Profiler at https://profiler.firefox.com/from-file/"
 

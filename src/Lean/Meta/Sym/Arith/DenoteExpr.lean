@@ -70,24 +70,32 @@ where
     | .num k => return mkApp2 (← getAddFn) acc (← denoteNum k)
     | .add k mn p => go p (mkApp2 (← getAddFn) acc (← denoteTerm k mn))
 
-/-- Denote a `RingExpr` using a variable lookup function. -/
 @[specialize]
-private def denoteRingExprCore (getVarExpr : Nat → Expr) (e : RingExpr) : m Expr := do
+private def denoteRingExprCore (getVarExpr : Nat → m Expr) (e : RingExpr) : m Expr := do
   go e
 where
   go : RingExpr → m Expr
   | .num k => denoteNum k
   | .natCast k => return mkApp (← getNatCastFn) (mkNatLit k)
   | .intCast k => return mkApp (← getIntCastFn) (mkIntLit k)
-  | .var x => return getVarExpr x
+  | .var x => getVarExpr x
   | .add a b => return mkApp2 (← getAddFn) (← go a) (← go b)
   | .sub a b => return mkApp2 (← getSubFn) (← go a) (← go b)
   | .mul a b => return mkApp2 (← getMulFn) (← go a) (← go b)
   | .pow a k => return mkApp2 (← getPowFn) (← go a) (toExpr k)
   | .neg a => return mkApp (← getNegFn) (← go a)
 
-/-- Denote a `RingExpr` using an explicit variable array. -/
-def denoteRingExpr (vars : Array Expr) (e : RingExpr) : m Expr := do
-  denoteRingExprCore (fun x => vars[x]!) e
+/-- Denote a `RingExpr` whose variables are the current ring's, looked up with `getVar`. -/
+def denoteRingExpr [MonadGetVar m] (e : RingExpr) : m Expr :=
+  denoteRingExprCore getVar e
+
+/--
+Denote a `RingExpr` whose variables index `vars` instead of the current ring's variables.
+Proof terms rename the variables of an expression to the compact range `0 .. n-1` of the
+variables it actually uses (see `renameVars`), and build an `RArray` context out of those
+`n` terms; the denotation of the renamed expression must use that same array.
+-/
+def denoteRingExpr' (vars : Array Expr) (e : RingExpr) : m Expr :=
+  denoteRingExprCore (fun x => pure vars[x]!) e
 
 end Lean.Meta.Sym.Arith

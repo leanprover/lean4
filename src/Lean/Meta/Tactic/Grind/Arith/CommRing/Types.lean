@@ -7,17 +7,20 @@ module
 prelude
 public import Init.Grind.Ring.CommSemiringAdapter
 public import Lean.Meta.Tactic.Grind.Types
+public import Lean.Meta.Sym.Arith.Types
 import Lean.Meta.Sym.Arith.Poly
 public section
 
 namespace Lean.Meta.Grind.Arith.CommRing
 export Lean.Grind.CommRing (Var Power Mon Poly)
-abbrev RingExpr := Grind.CommRing.Expr
-/-
-**Note**: recall that we use ring expressions to represent semiring expressions,
-and ignore non-applicable constructors.
+export Lean.Meta.Sym.Arith (RingExpr SemiringExpr)
+
+/-!
+The classification of a type as a (commutative) ring or semiring, its instances, and its
+cached operator functions live in `Sym.Arith.State`, a `SymExtension` shared by the whole
+`grind` run. This module only stores per-goal solver state, in the structures below, indexed
+by the ids assigned by `Sym.Arith.classify?`.
 -/
-abbrev SemiringExpr := Grind.CommRing.Expr
 
 mutual
 structure EqCnstr where
@@ -143,18 +146,8 @@ structure DiseqCnstr where
   -/
   ofSemiring? : Option (SemiringExpr × SemiringExpr)
 
-/-- Shared state for non-commutative and commutative semirings. -/
-structure Semiring where
-  id             : Nat
-  type           : Expr
-  /-- Cached `getDecLevel type` -/
-  u              : Level
-  /-- `Semiring` instance for `type` -/
-  semiringInst   : Expr
-  addFn?         : Option Expr := none
-  mulFn?         : Option Expr := none
-  powFn?         : Option Expr := none
-  natCastFn?     : Option Expr := none
+/-- Per-goal solver state of a (commutative or not) semiring classified by `Sym.Arith`. -/
+structure SemiringState where
   /-- Mapping from Lean expressions to their representations as `SemiringExpr` -/
   denote         : PHashMap ExprPtr SemiringExpr := {}
   /--
@@ -166,26 +159,8 @@ structure Semiring where
   varMap         : PHashMap ExprPtr Var := {}
   deriving Inhabited
 
-/-- Shared state for non-commutative and commutative rings. -/
-structure Ring where
-  id             : Nat
-  type           : Expr
-  /-- Cached `getDecLevel type` -/
-  u              : Level
-  /-- `Ring` instance for `type` -/
-  ringInst       : Expr
-  /-- `Semiring` instance for `type` -/
-  semiringInst   : Expr
-  /-- `IsCharP` instance for `type` if available. -/
-  charInst?      : Option (Expr × Nat)
-  addFn?         : Option Expr := none
-  mulFn?         : Option Expr := none
-  subFn?         : Option Expr := none
-  negFn?         : Option Expr := none
-  powFn?         : Option Expr := none
-  intCastFn?     : Option Expr := none
-  natCastFn?     : Option Expr := none
-  one?           : Option Expr := none
+/-- Per-goal solver state of a (commutative or not) ring classified by `Sym.Arith`. -/
+structure RingState where
   /--
   Mapping from variables to their denotations.
   Remark each variable can be in only one ring.
@@ -197,25 +172,8 @@ structure Ring where
   denote         : PHashMap ExprPtr RingExpr := {}
   deriving Inhabited
 
-/-- State for each `CommRing` processed by this module. -/
-structure CommRing extends Ring where
-  /-- Inverse if `fieldInst?` is `some inst` -/
-  invFn?         : Option Expr := none
-  /--
-  If this is a `OfSemiring.Q α` ring, this field contain the
-  `semiringId` for `α`.
-  -/
-  semiringId?    : Option Nat
-  /-- `CommSemiring` instance for `type` -/
-  commSemiringInst   : Expr
-  /-- `CommRing` instance for `type` -/
-  commRingInst   : Expr
-  /-- `NoNatZeroDivisors` instance for `type` if available. -/
-  noZeroDivInst? : Option Expr
-  /-- `Field` instance for `type` if available. -/
-  fieldInst?     : Option Expr
-  /-- `PowIdentity` instance, the synthesized `CommSemiring` instance, and exponent `p` if available. -/
-  powIdentityInst? : Option (Expr × Expr × Nat) := none
+/-- Per-goal solver state of a commutative ring: the Gröbner basis machinery. -/
+structure CommRingState extends RingState where
   /-- `denoteEntries` is `denote` as a `PArray` for deterministic traversal. -/
   denoteEntries  : PArray (Expr × RingExpr) := {}
   /-- Next unique id for `EqCnstr`s. -/
@@ -251,65 +209,36 @@ structure CommRing extends Ring where
   deriving Inhabited
 
 /--
-State for each `CommSemiring` processed by this module.
-Recall that `CommSemiring` are processed using the envelop `OfCommSemiring.Q`
--/
-structure CommSemiring extends Semiring where
-  /-- Id for `OfCommSemiring.Q` -/
-  ringId         : Nat
-  /-- `CommSemiring` instance for `type` -/
-  commSemiringInst   : Expr
-  /-- `AddRightCancel` instance for `type` if available. -/
-  addRightCancelInst? : Option (Option Expr) := none
-  toQFn?         : Option Expr := none
-  deriving Inhabited
+Per-goal state of the ring solver.
 
-/-- State for all `CommRing` types detected by `grind`. -/
+The four arrays are indexed by the ids assigned by `Sym.Arith.classify?`: `rings[i]` is the
+solver state for `Sym.Arith.State.rings[i]`, and likewise for `semirings`, `ncRings`, and
+`ncSemirings`. The `Sym.Arith` arrays are shared by every goal of the run and only grow, while
+a goal uses only some of the rings. To keep the two indexings aligned, an array here is padded
+with empty states up to the id being written (see `State.modifyRing`), and reading an id beyond
+the array returns the empty state. Rings a goal never used therefore cost at most an empty
+entry, and `rings.size ≤ Sym.Arith.State.rings.size` always holds.
+-/
 structure State where
-  /--
-  Commutative rings.
-  We expect to find a small number of rings in a given goal. Thus, using `Array` is fine here.
-  -/
-  rings : Array CommRing := {}
-  /--
-  Mapping from types to its "ring id". We cache failures using `none`.
-  `typeIdOf[type]` is `some id`, then `id < rings.size`. -/
-  typeIdOf : PHashMap ExprPtr (Option Nat) := {}
+  /-- Solver state of the commutative rings, indexed by `Sym.Arith` ring id. -/
+  rings : Array CommRingState := {}
   /- Mapping from expressions/terms to their ring ids. -/
   exprToRingId : PHashMap ExprPtr Nat := {}
-  /-- Commutative semirings. We support them using the envelope `OfCommRing.Q` -/
-  semirings : Array CommSemiring := {}
-  /--
-  Mapping from types to its "semiring id". We cache failures using `none`.
-  `stypeIdOf[type]` is `some id`, then `id < semirings.size`.
-  If a type is in this map, it is not in `typeIdOf`.
-  -/
-  stypeIdOf : PHashMap ExprPtr (Option Nat) := {}
+  /-- Solver state of the commutative semirings, indexed by `Sym.Arith` semiring id. -/
+  semirings : Array SemiringState := {}
   /-
   Mapping from expressions/terms to their semiring ids.
   If an expression is in this map, it is not in `exprToRingId`.
   -/
   exprToSemiringId : PHashMap ExprPtr Nat := {}
-  /--
-  Non commutative rings.
-  -/
-  ncRings : Array Ring := {}
+  /-- Solver state of the non-commutative rings, indexed by `Sym.Arith` id. -/
+  ncRings : Array RingState := {}
   /- Mapping from expressions/terms to their (non-commutative) ring ids. -/
   exprToNCRingId : PHashMap ExprPtr Nat := {}
-  /--
-  Mapping from types to its "ring id". We cache failures using `none`.
-  `nctypeIdOf[type]` is `some id`, then `id < ncRings.size`. -/
-  nctypeIdOf : PHashMap ExprPtr (Option Nat) := {}
-  /--
-  Non commutative semirings.
-  -/
-  ncSemirings : Array Semiring := {}
+  /-- Solver state of the non-commutative semirings, indexed by `Sym.Arith` id. -/
+  ncSemirings : Array SemiringState := {}
   /- Mapping from expressions/terms to their (non-commutative) semiring ids. -/
   exprToNCSemiringId : PHashMap ExprPtr Nat := {}
-  /--
-  Mapping from types to its "semiring id". We cache failures using `none`.
-  `ncstypeIdOf[type]` is `some id`, then `id < ncSemirings.size`. -/
-  ncstypeIdOf : PHashMap ExprPtr (Option Nat) := {}
   steps := 0
   /-- `true` if solver has already reported max degree issue. -/
   reportedMaxDegreeIssue : Bool := false
@@ -322,5 +251,78 @@ def get' : GoalM State := do
 
 @[inline] def modify' (f : State → State) : GoalM Unit := do
   ringExt.modifyState f
+
+/-- Applies `f` to `a[i]`, first padding `a` with empty states so that `i` is in range. -/
+@[inline] private def padAndModify [Inhabited α] (a : Array α) (i : Nat) (f : α → α) : Array α :=
+  (a.rightpad (i + 1) default).modify i f
+
+/-- Solver state of the commutative ring `ringId`; empty if this goal has not used it yet. -/
+def State.getRing (s : State) (ringId : Nat) : CommRingState :=
+  s.rings.getD ringId {}
+
+@[inline] def State.modifyRing (s : State) (ringId : Nat) (f : CommRingState → CommRingState) : State :=
+  { s with rings := padAndModify s.rings ringId f }
+
+/-- Solver state of the commutative semiring `semiringId`; empty if this goal has not used it yet. -/
+def State.getSemiring (s : State) (semiringId : Nat) : SemiringState :=
+  s.semirings.getD semiringId {}
+
+@[inline] def State.modifySemiring (s : State) (semiringId : Nat) (f : SemiringState → SemiringState) : State :=
+  { s with semirings := padAndModify s.semirings semiringId f }
+
+/-- Solver state of the non-commutative ring `ringId`; empty if this goal has not used it yet. -/
+def State.getNCRing (s : State) (ringId : Nat) : RingState :=
+  s.ncRings.getD ringId {}
+
+@[inline] def State.modifyNCRing (s : State) (ringId : Nat) (f : RingState → RingState) : State :=
+  { s with ncRings := padAndModify s.ncRings ringId f }
+
+/-- Solver state of the non-commutative semiring `semiringId`; empty if this goal has not used it yet. -/
+def State.getNCSemiring (s : State) (semiringId : Nat) : SemiringState :=
+  s.ncSemirings.getD semiringId {}
+
+@[inline] def State.modifyNCSemiring (s : State) (semiringId : Nat) (f : SemiringState → SemiringState) : State :=
+  { s with ncSemirings := padAndModify s.ncSemirings semiringId f }
+
+/-- Access to the per-goal state of the current (commutative or not) ring. -/
+class MonadRingState (m : Type → Type) where
+  getRingState : m RingState
+  modifyRingState : (RingState → RingState) → m Unit
+
+export MonadRingState (getRingState modifyRingState)
+
+@[always_inline]
+instance (m n) [MonadLift m n] [MonadRingState m] : MonadRingState n where
+  getRingState    := liftM (getRingState : m RingState)
+  modifyRingState f := liftM (modifyRingState f : m Unit)
+
+/-- Access to the per-goal state of the current commutative ring. -/
+class MonadCommRingState (m : Type → Type) where
+  getCommRingState : m CommRingState
+  modifyCommRingState : (CommRingState → CommRingState) → m Unit
+
+export MonadCommRingState (getCommRingState modifyCommRingState)
+
+@[always_inline]
+instance (m n) [MonadLift m n] [MonadCommRingState m] : MonadCommRingState n where
+  getCommRingState      := liftM (getCommRingState : m CommRingState)
+  modifyCommRingState f := liftM (modifyCommRingState f : m Unit)
+
+@[always_inline]
+instance (m) [Monad m] [MonadCommRingState m] : MonadRingState m where
+  getRingState := return (← getCommRingState).toRingState
+  modifyRingState f := modifyCommRingState fun s => { s with toRingState := f s.toRingState }
+
+/-- Access to the per-goal state of the current (commutative or not) semiring. -/
+class MonadSemiringState (m : Type → Type) where
+  getSemiringState : m SemiringState
+  modifySemiringState : (SemiringState → SemiringState) → m Unit
+
+export MonadSemiringState (getSemiringState modifySemiringState)
+
+@[always_inline]
+instance (m n) [MonadLift m n] [MonadSemiringState m] : MonadSemiringState n where
+  getSemiringState    := liftM (getSemiringState : m SemiringState)
+  modifySemiringState f := liftM (modifySemiringState f : m Unit)
 
 end Lean.Meta.Grind.Arith.CommRing

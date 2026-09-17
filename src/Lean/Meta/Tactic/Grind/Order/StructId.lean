@@ -22,6 +22,7 @@ private def getInst? (declName : Name) (u : Level) (type : Expr) : GoalM (Option
   synthInstance? <| mkApp (mkConst declName [u]) type
 
 open Arith CommRing
+open Sym.Arith (getRing)
 
 private def mkOrderedRingInst? (u : Level) (α : Expr) (semiringInst : Expr)
     (leInst ltInst isPreorderInst : Expr) : GoalM (Option Expr) := do

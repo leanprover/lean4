@@ -21,6 +21,7 @@ import Lean.Meta.Tactic.Grind.Order.Proof
 namespace Lean.Meta.Grind.Order
 
 open Arith CommRing
+open Sym.Arith (getRing)
 
 def getType? (e : Expr) : Option Expr :=
   match_expr e with
@@ -97,7 +98,7 @@ def mkCnstrNorm0 (s : Struct) (ringInst : Expr) (kind : CnstrKind) (lhs rhs : Ex
   | .le => mkLeNorm0 s ringInst lhs rhs
   | .lt => mkLtNorm0 s ringInst lhs rhs
 
-open Sym.Arith (MonadCanon)
+open Sym.Arith (MonadCanon MonadRing getAddFn getIntCastFn)
 
 /--
 Returns `rel lhs (rhs + 0)`

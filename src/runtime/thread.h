@@ -70,6 +70,7 @@ public:
 // NO MULTI THREADING SUPPORT
 #include <utility>
 #include <cstdlib>
+#include <mutex> // for std::adopt_lock_t used by unique_lock below (#15172)
 #define LEAN_THREAD_LOCAL
 namespace lean {
 constexpr int memory_order_relaxed = 0;

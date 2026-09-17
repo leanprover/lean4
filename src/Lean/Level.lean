@@ -407,110 +407,165 @@ partial def normalize (l : Level) : Level :=
         addOffset (mkIMaxAux l₁ l₂) k
     | _ => unreachable!
 
-section equiv
+/-!
+## Level normalization
 
-mutual
+Based on Yoan Géran, "A Canonical Form for Universe Levels in Impredicative Type Theory"
+<https://lmf.cnrs.fr/downloads/Perso/long.pdf>.
+-/
 
-/-- Represents `if ∀ n ∈ conds, "n" = 0 then 0 else level` -/
-private structure Conditional where
-  level : FlatLevel
-  conds : NameSet
+namespace Normalize
 
-/-- Represents `max constOff (param + paramOff)... extra...` -/
-private structure FlatLevel where
-  constOff : Nat := 0
-  paramOffs : NameMap Nat := ∅
-  extra : Array Conditional := #[]
-  /-- which parameters need to be `0` for the level to be `0`? -/
-  zeroConds : Option NameSet := some ∅
+local instance : Ord Name := ⟨Name.cmp⟩
 
-end
+/-- represents v+n -/
+structure VarNode where
+  var : Name
+  offset : Nat
+  deriving BEq, Ord, Repr
 
-private def flattenAux (l : Level) (off : Nat) (acc : FlatLevel) : FlatLevel :=
+/-- A key-value pair `vs => { const, var }` in NormLevel represents
+the max of `C(vs, const)` and `V(vs, v, n)` for each `v+n ∈ var`, using the `C` and `V` sublevel
+functions from <https://lmf.cnrs.fr/downloads/Perso/long.pdf>. -/
+structure Node where
+  const : Nat := 0
+  var : List VarNode := []
+  deriving Repr, Inhabited
+
+instance : BEq Node where
+  beq n₁ n₂ := n₁.const == n₂.const && n₁.var == n₂.var
+instance : Ord Node where
+  compare n₁ n₂ := compare n₁.const n₂.const |>.then <| compare n₁.var n₂.var
+
+def Node.isEmpty (n : Node) : Bool := n.const == 0 && n.var.isEmpty
+
+def subset (cmp : α → α → Ordering) : List α → List α → Bool
+  | [], _ => true
+  | _, [] => false
+  | x :: xs, y :: ys =>
+    match cmp x y with
+    | .lt => false
+    | .eq => subset cmp xs ys
+    | .gt => subset cmp (x :: xs) ys
+
+def orderedInsert (cmp : α → α → Ordering) (a : α) : List α → Option (List α)
+  | [] => some [a]
+  | b :: l =>
+    match cmp a b with
+    | .lt => some (a :: b :: l)
+    | .eq => none
+    | .gt => (orderedInsert cmp a l).map (b :: ·)
+
+abbrev NormLevel := Std.TreeMap (List Name) Node compare
+
+instance : BEq NormLevel where
+  beq l₁ l₂ :=
+    (l₁.all fun p n => l₂.get? p == some n) &&
+    (l₂.all fun p n => l₁.get? p == some n)
+
+def VarNode.addVar (v : Name) (k : Nat) : List VarNode → List VarNode
+  | [] => [⟨v, k⟩]
+  | v' :: l =>
+    match Name.cmp v v'.var with
+    | .lt => ⟨v, k⟩ :: v' :: l
+    | .eq => ⟨v, v'.offset.max k⟩ :: l
+    | .gt => v' :: addVar v k l
+
+def NormLevel.addVar (v : Name) (k : Nat) (path' : List Name) (s : NormLevel) : NormLevel :=
+  s.modify path' fun n => { n with var := VarNode.addVar v k n.var }
+
+def NormLevel.addNode (v : Name) (k : Nat) (path' : List Name) (s : NormLevel) : NormLevel :=
+  s.alter path' fun
+    | none => some { var := [⟨v, k⟩] }
+    | some n => some { n with var := VarNode.addVar v k n.var }
+
+def NormLevel.addConst (k : Nat) (path : List Name) (acc : NormLevel) : NormLevel :=
+  if k = 0 || k = 1 && !path.isEmpty then acc else
+  acc.alter path fun
+    | none => some { const := k }
+    | some n => some { n with const := k.max n.const }
+
+def normalizeAux (l : Level) (path : List Name) (k : Nat) (acc : NormLevel) : NormLevel :=
   match l with
-  | .zero => acc
-  | .succ l' =>
-    if acc.constOff ≤ off then
-      flattenAux l' (off + 1) { acc with zeroConds := none, constOff := off + 1 }
-    else
-      flattenAux l' (off + 1) { acc with zeroConds := none }
-  | .max l₁ l₂ => flattenAux l₂ off (flattenAux l₁ off acc)
-  | .imax l₁ l₂ =>
-    let prevConds := acc.zeroConds
-    let acc := flattenAux l₂ off { acc with zeroConds := some ∅ }
-    match acc.zeroConds with
-    | none => flattenAux l₁ off acc
-    | some c =>
-      if c.isEmpty then
-        { acc with zeroConds := prevConds }
-      else
-        { acc with
-          extra := acc.extra.push ⟨flattenAux l₁ off { constOff := off }, c⟩,
-          zeroConds := prevConds.map (·.union c) }
-  | .param p
-  | .mvar ⟨p⟩ =>
-    { acc with
-      paramOffs :=
-        match acc.paramOffs.find? p with
-        | none => acc.paramOffs.insert p off
-        | some prev => if prev < off then acc.paramOffs.insert p off else acc.paramOffs,
-      zeroConds := acc.zeroConds.map (·.insert p) }
+  | .zero | .imax _ .zero => acc.addConst k path
+  | .succ u => normalizeAux u path (k+1) acc
+  | .max u v => normalizeAux u path k acc |> normalizeAux v path k
+  | .imax u (.succ v) => normalizeAux u path k acc |> normalizeAux v path (k+1)
+  | .imax u (.max v w) => normalizeAux (.imax u v) path k acc |> normalizeAux (.imax u w) path k
+  | .imax u (.imax v w) => normalizeAux (.imax u w) path k acc |> normalizeAux (.imax v w) path k
+  | .imax u (.param v) =>
+    match orderedInsert Name.cmp v path with
+    | some path' => acc.addConst k path |>.addNode v k path' |> normalizeAux u path' k
+    | none =>
+      let acc := if k = 0 then acc else acc.addVar v k path
+      normalizeAux u path k acc
+  | .mvar _ | .imax _ (.mvar _) => acc -- unreachable
+  | .param v =>
+    match orderedInsert Name.cmp v path with
+    | some path' => acc.addConst k path |>.addNode v k path'
+    | none => if k = 0 then acc else acc.addVar v k path
 
-private def FlatLevel.merge (l l' : FlatLevel) : FlatLevel :=
-  { l with
-    constOff := l.constOff.max l'.constOff,
-    paramOffs := l.paramOffs.mergeWith (fun _ => Max.max) l'.paramOffs,
-    extra := l.extra ++ l'.extra } -- `zeroConds` is not maintained during the equiv checks
+def subsumeVars : List VarNode → List VarNode → List VarNode
+  | [], _ => []
+  | xs, [] => xs
+  | x :: xs, y :: ys =>
+    match Name.cmp x.var y.var with
+    | .lt => x :: subsumeVars xs (y :: ys)
+    | .eq => if x.offset ≤ y.offset then subsumeVars xs ys else x :: subsumeVars xs ys
+    | .gt => subsumeVars (x :: xs) ys
 
-private partial def FlatLevel.setZero (l : FlatLevel) (param : Name) : FlatLevel := Id.run do
-  let mut newExtra : Array Conditional := #[]
-  for ⟨l', c⟩ in l.extra do
-    let l' := setZero l' param
-    let c := c.erase param
-    unless c.isEmpty do
-      newExtra := newExtra.push ⟨l', c⟩
-  return { l with extra := newExtra, paramOffs := l.paramOffs.erase param }
+/-- Remove from `n₁` the sublevels dominated by `n₂`, whose condition set is a subset of
+`n₁`'s: `C(c)` is dominated by `C(c')` when `c ≤ c'` and by `V(x+k)` when `c ≤ k + 1`, and
+`V(x+k)` is dominated by `V(x+k')` when `k ≤ k'`.
 
-private partial def FlatLevel.setNonzero (l : FlatLevel) (param : Name) : FlatLevel := Id.run do
-  let oldExtra := l.extra
-  let mut l := { l with extra := #[] }
-  for ⟨l', c⟩ in oldExtra do
-    let l' := setNonzero l' param
-    if c.contains param then
-      l := l.merge l'
-    else
-      l := { l with extra := l.extra.push ⟨l', c⟩ }
-  let off := l.paramOffs.find? param
-  match off with
-  | none => return l
-  | some off => return { l with constOff := Max.max l.constOff (off + 1) }
+`same` says the two sit at the *same* condition set, where a variable may still discharge the
+constant but the variables must not discharge themselves. -/
+def Node.subsumeBy (same : Bool) (n₁ n₂ : Node) : Node :=
+  let n₁ :=
+    if n₁.const = 0 ||
+      (same || n₁.const > n₂.const) &&
+      (n₂.var.isEmpty || n₁.const > n₂.var.foldl (·.max ·.offset) 0 + 1)
+    then n₁ else { n₁ with const := 0 }
+  if same || n₂.var.isEmpty then n₁ else { n₁ with var := subsumeVars n₁.var n₂.var }
 
-private partial def FlatLevel.isEquiv (l₁ l₂ : FlatLevel) : Bool := Id.run do
-  if l₁.constOff != l₂.constOff then
-    return false
-  if h : l₁.extra.size ≠ 0 then
-    have : 0 < l₁.extra.size := Nat.zero_lt_of_ne_zero h
-    let a := l₁.extra[0]
-    let .inner _ nm _ _ _  := a.conds.inner.inner.inner | unreachable! -- any key from the set
-    return isEquiv (setZero l₁ nm) (setZero l₂ nm) &&
-      isEquiv (setNonzero l₁ nm) (setNonzero l₂ nm)
-  if h : l₂.extra.size ≠ 0 then
-    have : 0 < l₂.extra.size := Nat.zero_lt_of_ne_zero h
-    let a := l₂.extra[0]
-    let .inner _ nm _ _ _  := a.conds.inner.inner.inner | unreachable! -- any key from the set
-    return isEquiv (setZero l₁ nm) (setZero l₂ nm) &&
-      isEquiv (setNonzero l₁ nm) (setNonzero l₂ nm)
-  return l₁.paramOffs.size == l₂.paramOffs.size && l₁.paramOffs.toArray == l₂.paramOffs.toArray
+/-- Remove the parts of the sublevels at `(p₁, n₁)` that are dominated by the sublevels
+at `(p₂, n₂)`. -/
+def Node.subsume (p₁ : List Name) (n₁ : Node) (p₂ : List Name) (n₂ : Node) : Node :=
+  if subset compare p₂ p₁ then n₁.subsumeBy (p₁.length == p₂.length) n₂ else n₁
 
-@[inline]
-private def isEquivCore (u v : Level) : Bool :=
-  (flattenAux u 0 {}).isEquiv (flattenAux v 0 {})
+/-- Remove the parts of the sublevels at `(p₁, n₁)` dominated by other entries of the map. -/
+def NormLevel.minimize (acc : NormLevel) (p₁ : List Name) (n₁ : Node) : Node :=
+  acc.foldl (init := n₁) (Node.subsume p₁)
 
-@[inline]
-private def geqCore (u v : Level) : Bool :=
-  let fu := flattenAux u 0 {}
-  let fv := flattenAux v 0 {}
-  fu.isEquiv (fu.merge fv)
+def NormLevel.subsumption (acc : NormLevel) : NormLevel :=
+  acc.foldl (init := acc) fun acc p₁ n₁ =>
+    let n := acc.minimize p₁ n₁
+    if n.isEmpty then acc.erase p₁ else acc.insert p₁ n
+
+def normalize (l : Level) : NormLevel :=
+  Normalize.normalizeAux l [] 0 {} |>.subsumption
+
+/-- Sublevel comparison, following Theorem 39 of the paper: `l₁ ≤ l₂` iff every sublevel
+of `l₁` is dominated by some sublevel of `l₂`, where
+`C(E, L) ≤ C(F, K) ↔ F ⊆ E ∧ L ≤ K`, `C(E, L) ≤ V(F, x, K) ↔ F ⊆ E ∧ L ≤ K + 1`,
+and `V(E, x, L) ≤ V(F, y, K) ↔ F ⊆ E ∧ x = y ∧ L ≤ K`.
+
+Each sublevel picks its own dominator, and a node bundles several of them, so it is not
+enough to look for a single entry of `l₂` dominating a whole node of `l₁`: for
+`imax 2 v ≤ max 2 v` the constant is dominated at `∅` and the variable at `{v}`. Instead
+each entry of `l₂` discharges what it can from the sublevels of `n₁` that are still
+outstanding, which is the same `subsumeBy` step minimization uses; the node is dominated
+once nothing is left, and the fold stops there. -/
+def NormLevel.le (l₁ l₂ : NormLevel) : Bool :=
+  l₁.all fun p₁ n₁ =>
+    -- `none` means nothing is left to discharge, which stops the fold
+    Option.isNone <| l₂.foldlM (init := n₁) (m := Option) fun n p₂ n₂ =>
+      if subset compare p₂ p₁ then
+        let n := n.subsumeBy false n₂
+        if n.isEmpty then none else some n
+      else some n
+
+end Normalize
 
 /--
 Return true if `u` and `v` denote the same level.
@@ -520,9 +575,8 @@ Assumes that `u` and `v` don't contain meta-variables.
 def isEquiv (u v : Level) : Bool :=
   -- the first two (redundant) cases are the most common
   -- only use the complete procedure if both others failed
-  u == v || u.normalize == v.normalize || isEquivCore u v
+  u == v || Normalize.normalize u == Normalize.normalize v
 
-end equiv
 
 /-- Reduce (if possible) universe level by 1 -/
 def dec : Level → Option Level
@@ -736,25 +790,7 @@ def instantiateParams (u : Level) (paramNames : List Name) (vs : List Level) : L
 
 @[export lean_level_geq]
 def geq (u v : Level) : Bool :=
-  u == v || go u.normalize v.normalize || geqCore u v
-where
-  go (u v : Level) : Bool :=
-    u == v ||
-    let k := fun () =>
-      match v with
-      | imax v₁ v₂ => go u v₁ && go u v₂
-      | _          =>
-        let v' := v.getLevelOffset
-        (u.getLevelOffset == v' || v'.isZero)
-        && u.getOffset ≥ v.getOffset
-    match u, v with
-    | _,          zero      => true
-    | u,          max v₁ v₂ => go u v₁ && go u v₂
-    | max u₁ u₂,  v         => go u₁ v || go u₂ v || k ()
-    | imax _  u₂, v         => go u₂ v
-    | succ u,     succ v    => go u v
-    | _,          _         => k ()
-  termination_by (u, v)
+  u == v ||  (Normalize.normalize v).le (Normalize.normalize u)
 
 end Level
 

@@ -550,6 +550,10 @@ private partial def compileStxMatch (discrs : List Term) (alts : List Alt) : Ter
   | _,             []           =>
    logError "non-exhaustive 'match' (syntax)"
    pure Syntax.missing
+  -- Fewer patterns than discriminants left to match.
+  | _::_,          ([], _)::_   => do
+   logError "not enough patterns in 'match' (syntax)"
+   pure Syntax.missing
   | discr::discrs, alt::alts    => do
     let info ← getHeadInfo alt
     let alts := (info.onMatch info.check, alt) :: (← alts.mapM fun alt =>

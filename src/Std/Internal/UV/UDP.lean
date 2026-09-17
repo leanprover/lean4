@@ -58,9 +58,12 @@ opaque send (socket : @& Socket) (data : Array ByteArray) (addr : @& Option Sock
 
 /--
 Receives data from an UDP socket. `size` is for the maximum bytes to receive. The promise
-resolves when some data is available or an error occurs. If a datagram larger than `size` arrives,
-it is discarded in its entirety and the promise resolves to an `IO.Error.resourceExhausted`.
+resolves when some data is available or an error occurs.
 Furthermore calling this function in parallel with `waitReadable` is not supported.
+
+A datagram larger than `size` is discarded in its entirety, and the promise resolves to an
+`IO.Error.resourceExhausted` instead of a truncated prefix. The socket stays usable, so a receive
+loop should handle the error per datagram.
 -/
 @[extern "lean_uv_udp_recv"]
 opaque recv (socket : @& Socket) (size : UInt64) : IO (IO.Promise (Except IO.Error (ByteArray × Option SocketAddress)))
@@ -74,8 +77,9 @@ opaque waitReadable (socket : @& Socket) : IO (IO.Promise (Except IO.Error Unit)
 
 /--
 Cancels a receive operation in the form of `recv` or `waitReadable` if there is currently one
-pending. This resolves their returned `IO.Promise` to `none`. This function is considered dangerous,
-as improper use can cause data loss, and is therefore not exposed to the top-level API.
+pending. The event loop releases their returned `IO.Promise` without resolving it; once nothing else
+references it, its `result?` resolves to `none`. This function is considered dangerous, as improper
+use can cause data loss, and is therefore not exposed to the top-level API.
 Note that this function is idempotent and as such can be called multiple times on the same socket
 without causing errors, in particular also without a receive running in the first place.
 -/

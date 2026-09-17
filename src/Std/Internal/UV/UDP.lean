@@ -59,7 +59,7 @@ opaque send (socket : @& Socket) (data : Array ByteArray) (addr : @& Option Sock
 /--
 Receives data from an UDP socket. `size` is for the maximum bytes to receive. The promise
 resolves when some data is available or an error occurs. If a datagram larger than `size` arrives,
-it is discarded in its entirety and the promise resolves to an `EMSGSIZE` error.
+it is discarded in its entirety and the promise resolves to an `IO.Error.resourceExhausted`.
 Furthermore calling this function in parallel with `waitReadable` is not supported.
 -/
 @[extern "lean_uv_udp_recv"]

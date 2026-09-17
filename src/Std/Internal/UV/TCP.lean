@@ -142,7 +142,7 @@ Enables the Nagle algorithm for a TCP socket.
 opaque noDelay (socket : @& Socket) : IO Unit
 
 /--
-Enables TCP keep-alive for a socket. If delay is less than 1 then UV_EINVAL is returned.
+Enables TCP keep-alive for a socket. If delay is less than 1 then an `IO.Error.invalidArgument` is returned.
 -/
 @[extern "lean_uv_tcp_keepalive"]
 opaque keepAlive (socket : @& Socket) (enable : Int8) (delay : UInt32) : IO Unit

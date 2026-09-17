@@ -27,7 +27,7 @@ structure Server where
     native : Internal.UV.TCP.Socket
 
 /--
-The delay passed to libuv, which takes the seconds as a `UInt32`.
+The keep-alive delay in seconds, which has to fit in a `UInt32`.
 -/
 private def keepAliveDelay (delay : Std.Time.Second.Offset) : IO UInt32 := do
   let seconds := delay.val.toNat

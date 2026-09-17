@@ -7,10 +7,10 @@ conflicts, but be careful.
 
 open Grove.Framework Widget
 
-namespace GroveStdlib.Generated.«associative-create-then-query»
+namespace GroveStdlib.Generated.«numeric-order-instances»
 
-def table : RestoreStateM (Table.Data .subexpression .subexpression .declaration) :=
-  Table.load .subexpression .subexpression .declaration savedStateFile%
+def table : RestoreStateM (Table.Data .declaration .declaration .synthesis) :=
+  Table.load .declaration .declaration .synthesis savedStateFile%
 
 def restoreState : RestoreStateM Unit := do
   addTable (← table)

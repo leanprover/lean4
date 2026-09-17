@@ -7,10 +7,10 @@ conflicts, but be careful.
 
 open Grove.Framework Widget
 
-namespace GroveStdlib.Generated.«slice-producing»
+namespace GroveStdlib.Generated.«slice-producing-complete»
 
-def table : RestoreStateM (AssociationTable.Data .declaration) :=
-  AssociationTable.load .declaration savedStateFile%
+def table : RestoreStateM Assertion.Data :=
+  readSavedState savedStateFile%
 
 def restoreState : RestoreStateM Unit := do
-  addAssociationTable (← table)
+  addAssertion (← table)

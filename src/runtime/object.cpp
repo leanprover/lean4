@@ -752,8 +752,7 @@ class task_manager {
     condition_variable                            m_task_finished_cv;
     condition_variable                            m_dedicated_finished_cv;
     std::atomic<bool>                             m_shutting_down{false};
-    // Threads blocked in `wait_for` or `wait_any`. During shutdown workers are only spawned while
-    // this is nonzero, since a blocked thread would otherwise wait forever on queued work.
+    // Number of threads blocked in `wait_for` or `wait_any`, see `scoped_waiting`.
     unsigned                                      m_waiting{0};
 
     lean_task_object * dequeue() {
@@ -859,6 +858,7 @@ class task_manager {
     }
 
     void spawn_dedicated_worker(lean_task_object * t) {
+        m_num_dedicated_workers++;
         lthread([this, t]() {
             save_stack_info(false);
             unique_lock<mutex> lock(m_mutex);
@@ -866,8 +866,6 @@ class task_manager {
             m_num_dedicated_workers--;
             m_dedicated_finished_cv.notify_all();
         });
-        // Counted only once the thread has started, which cannot decrement first: the caller holds `m_mutex`.
-        m_num_dedicated_workers++;
         // `lthread` will be implicitly freed, which frees up its control resources but does not terminate the thread
     }
 
@@ -942,6 +940,18 @@ class task_manager {
         }
     }
 
+    /* Registers the caller as blocked on a task while in scope. During shutdown, workers are
+       spawned only for such threads; work nobody waits for is still dropped at exit. */
+    struct scoped_waiting {
+        task_manager & m_tm;
+        scoped_waiting(task_manager & tm):m_tm(tm) {
+            m_tm.m_waiting++;
+            if (m_tm.m_shutting_down && m_tm.m_queues_size != 0 && m_tm.m_idle_std_workers == 0)
+                m_tm.spawn_worker();
+        }
+        ~scoped_waiting() { m_tm.m_waiting--; }
+    };
+
     object * wait_any_check(object * task_list) {
         object * it = task_list;
         while (!is_scalar(it)) {
@@ -965,13 +975,11 @@ public:
         }
         m_queue_cv.notify_all();
 #ifndef LEAN_EMSCRIPTEN
-        // A blocked thread can spawn a worker until every task finished, so join until none is left.
+        // A blocked thread can still spawn a worker, so join until no worker is left.
         unique_lock<mutex> lock(m_mutex);
-        while (true) {
-            std::vector<std::unique_ptr<lthread>> workers = std::move(m_std_workers);
-            m_std_workers.clear();
-            if (workers.empty() && m_num_dedicated_workers == 0)
-                break;
+        while (!m_std_workers.empty() || m_num_dedicated_workers != 0) {
+            std::vector<std::unique_ptr<lthread>> workers;
+            workers.swap(m_std_workers);
             lock.unlock();
             for (auto & t : workers)
                 t->join();
@@ -1028,18 +1036,15 @@ public:
         if (g_current_task_object && g_current_task_object->m_imp.load(std::memory_order_relaxed)->m_prio == LEAN_SYNC_PRIO) {
             lean_panic("`Task.get` called from a `(sync := true)` task");
         }
-        m_waiting++;
+        scoped_waiting waiting(*this);
         if (in_pool) {
             m_max_std_workers++;
             if (m_idle_std_workers == 0)
                 spawn_worker();
             else
                 m_queue_cv.notify_one();
-        } else if (m_shutting_down && m_queues_size != 0 && m_idle_std_workers == 0) {
-            spawn_worker();
         }
         m_task_finished_cv.wait(lock, [&]() { return t->m_value != nullptr; });
-        m_waiting--;
         if (in_pool) {
             m_max_std_workers--;
         }
@@ -1049,14 +1054,10 @@ public:
         if (object * t = wait_any_check(task_list))
             return t;
         unique_lock<mutex> lock(m_mutex);
-        m_waiting++;
-        if (m_shutting_down && m_queues_size != 0 && m_idle_std_workers == 0)
-            spawn_worker();
+        scoped_waiting waiting(*this);
         while (true) {
-            if (object * t = wait_any_check(task_list)) {
-                m_waiting--;
+            if (object * t = wait_any_check(task_list))
                 return t;
-            }
             m_task_finished_cv.wait(lock);
         }
     }
@@ -1156,21 +1157,9 @@ scoped_task_manager::~scoped_task_manager() {
 void deactivate_task(lean_task_object * t) {
     if (g_task_manager) {
         g_task_manager->deactivate_task(t);
-    } else if (object * v = t->m_value) {
-        lean_dec(v);
-        free_task(t);
     } else {
-        // An embedder can free a task that never finished after `lean_finalize_task_manager`, e.g.
-        // one waiting on a promise that was pending at exit. Its dependents were all deactivated,
-        // since each holds a reference to it.
-        lean_task_imp * imp = t->m_imp.load(std::memory_order_relaxed);
-        lean_task_object * it = imp->m_head_dep;
-        while (it) {
-            lean_task_object * next_it = it->m_imp.load(std::memory_order_relaxed)->m_next_dep;
-            free_task(it);
-            it = next_it;
-        }
-        if (object * c = imp->m_closure) lean_dec(c);
+        lean_assert(t->m_value != nullptr);
+        lean_dec(t->m_value);
         free_task(t);
     }
 }
@@ -1207,17 +1196,7 @@ extern "C" LEAN_EXPORT obj_res lean_task_spawn_core(obj_arg c, unsigned prio, bo
         return lean_task_pure(apply_1(c, box(0)));
     } else {
         lean_task_object * new_task = alloc_task(c, prio, keep_alive);
-        try {
-            g_task_manager->enqueue(new_task);
-        } catch (...) {
-            // A dedicated worker failed to start, so the task was not queued and is only referenced here.
-            if (prio > LEAN_MAX_PRIO && prio != LEAN_SYNC_PRIO) {
-                lean_task_imp * imp = new_task->m_imp.load(std::memory_order_relaxed);
-                lean_dec(imp->m_closure);
-                free_task(new_task);
-            }
-            throw;
-        }
+        g_task_manager->enqueue(new_task);
         return (lean_object*)new_task;
     }
 }
@@ -1377,9 +1356,7 @@ extern "C" LEAN_EXPORT obj_res lean_io_promise_result_opt(b_obj_arg promise) {
 }
 
 void deactivate_promise(lean_promise_object * promise) {
-    // Without a task manager nothing may run the result's continuations, so it stays unresolved.
-    if (g_task_manager)
-        g_task_manager->resolve(promise->m_result, mk_option_none());
+    g_task_manager->resolve(promise->m_result, mk_option_none());
     lean_dec_ref((lean_object *)promise->m_result);
     lean_free_small_object((lean_object *)promise);
 }

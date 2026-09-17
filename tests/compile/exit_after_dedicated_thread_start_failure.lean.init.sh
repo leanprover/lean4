@@ -1,1 +1,0 @@
-TEST_EXIT=1

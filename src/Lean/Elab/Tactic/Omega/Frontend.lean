@@ -707,7 +707,7 @@ def evalOmega : Tactic
     tryCatchRuntimeEx
       (Meta.withReducibleAndInstances (evalAssumption tk))
       (fun ex => do
-        -- Unfolding arithmetic in an unrelated hypothesis can exhaust recursion.
+        -- Unfolding an unused arithmetic hypothesis can exhaust recursion.
         if ex.isMaxRecDepth then failure else throw ex) <|> do
     let cfg ← elabOmegaConfig cfg
     omegaTactic cfg

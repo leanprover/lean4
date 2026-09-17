@@ -327,36 +327,57 @@ Its own name is the token's syntax node kind.
 -/
 
 open Lean.Parser in
+/--
+Wraps a parser so that it is built when it is first used rather than when the module is
+initialized. The parser's info is empty because the Verso grammar supplies its information through
+`Lean.Doc.Parser.documentInfo`. These parsers are used for metaprogramming and quotation only,
+rather than general docstrings, so most clients shouldn't pay for them.
+
+When the parsers were defined in the usual way, there was a significant startup overhead because
+evaluating them occurred in an initializer. `onFirstUse` places the parser value under a lambda,
+triggering the compiler's closed term extraction. Extracted closed terms are evaluated lazily, at
+first access, instead of eagerly in the initializer.
+
+If compiler changes lead to this no longer being the case, then onFirstUse should be reconsidered.
+To check whether closed term extraction is still happening, enable `trace.compiler.ir.result` on one
+of the parsers in this module ahd look for `_closed_N` as the body of the last displayed entry.  To
+check that compilation still produces the lazily-evaluated version, inspect the generated C code and
+look for `lean_obj_once`.
+-/
+@[inline] private def onFirstUse (p : Unit → Parser) : Parser :=
+  { fn := fun c s => (p ()).fn c s }
+
+open Lean.Parser in
 /-- Literal text content. -/
-def versoText : Parser := mkAntiquot "versoText" decl_name%
+def versoText : Parser := onFirstUse fun _ => mkAntiquot "versoText" decl_name%
 
 open Lean.Parser in
 /-- The name of a footnote or a link reference. -/
-def versoRef : Parser := mkAntiquot "versoRef" decl_name%
+def versoRef : Parser := onFirstUse fun _ => mkAntiquot "versoRef" decl_name%
 
 open Lean.Parser in
 /-- The URL of a link or an image. -/
-def versoLinkUrl : Parser := mkAntiquot "versoLinkUrl" decl_name%
+def versoLinkUrl : Parser := onFirstUse fun _ => mkAntiquot "versoLinkUrl" decl_name%
 
 open Lean.Parser in
 /-- The URL that a link reference definition provides. -/
-def versoLinkRefUrl : Parser := mkAntiquot "versoLinkRefUrl" decl_name%
+def versoLinkRefUrl : Parser := onFirstUse fun _ => mkAntiquot "versoLinkRefUrl" decl_name%
 
 open Lean.Parser in
 /-- The alternate text of an image. -/
-def versoImageAlt : Parser := mkAntiquot "versoImageAlt" decl_name%
+def versoImageAlt : Parser := onFirstUse fun _ => mkAntiquot "versoImageAlt" decl_name%
 
 open Lean.Parser in
 /-- Literal inline code content. -/
-def versoCode : Parser := mkAntiquot "versoCode" decl_name%
+def versoCode : Parser := onFirstUse fun _ => mkAntiquot "versoCode" decl_name%
 
 open Lean.Parser in
 /-- One source line of inline code or code block content. -/
-def versoCodeLine : Parser := mkAntiquot "versoCodeLine" decl_name%
+def versoCodeLine : Parser := onFirstUse fun _ => mkAntiquot "versoCodeLine" decl_name%
 
 open Lean.Parser in
 /-- Literal code block content. -/
-def versoCodeBlock : Parser := mkAntiquot "versoCodeBlock" decl_name%
+def versoCodeBlock : Parser := onFirstUse fun _ => mkAntiquot "versoCodeBlock" decl_name%
 
 end
 
@@ -642,11 +663,14 @@ public section
 namespace ArgVal
 
 open Lean.Parser in
-def str : Lean.Parser.Parser := nodeWithAntiquot "ArgVal.str" decl_name% Lean.Parser.strLit
+def str : Lean.Parser.Parser := onFirstUse fun _ =>
+  nodeWithAntiquot "ArgVal.str" decl_name% Lean.Parser.strLit
 open Lean.Parser in
-def ident : Lean.Parser.Parser := nodeWithAntiquot "ArgVal.ident" decl_name% Lean.Parser.ident
+def ident : Lean.Parser.Parser := onFirstUse fun _ =>
+  nodeWithAntiquot "ArgVal.ident" decl_name% Lean.Parser.ident
 open Lean.Parser in
-def num : Lean.Parser.Parser := nodeWithAntiquot "ArgVal.num" decl_name% Lean.Parser.numLit
+def num : Lean.Parser.Parser := onFirstUse fun _ =>
+  nodeWithAntiquot "ArgVal.num" decl_name% Lean.Parser.numLit
 
 end ArgVal
 
@@ -654,7 +678,7 @@ open Lean.Parser in
 /--
 Argument values. Quotations may use antiquotations for any of the forms.
 -/
-def argVal : Lean.Parser.Parser :=
+def argVal : Lean.Parser.Parser := onFirstUse fun _ =>
   withAntiquot (mkAntiquot "argVal" decl_name% (isPseudoKind := true)) <|
     ArgVal.str <|> ArgVal.ident <|> ArgVal.num
 
@@ -662,22 +686,22 @@ namespace Arg
 
 open Lean.Parser in
 @[inherit_doc Lean.Doc.Syntax.anon, builtin_doc]
-def anon : Lean.Parser.Parser := nodeWithAntiquot "anon" decl_name% argVal
+def anon : Lean.Parser.Parser := onFirstUse fun _ => nodeWithAntiquot "anon" decl_name% argVal
 open Lean.Parser in
 @[inherit_doc Lean.Doc.Syntax.named, builtin_doc]
-def named : Lean.Parser.Parser :=
+def named : Lean.Parser.Parser := onFirstUse fun _ =>
   nodeWithAntiquot "named" decl_name% ("(" >> Lean.Parser.ident >> " := " >> argVal >> ")")
 open Lean.Parser in
 @[inherit_doc Lean.Doc.Syntax.named_no_paren, builtin_doc]
-def named_no_paren : Lean.Parser.Parser :=
+def named_no_paren : Lean.Parser.Parser := onFirstUse fun _ =>
   nodeWithAntiquot "named_no_paren" decl_name% (Lean.Parser.ident >> " := " >> argVal)
 open Lean.Parser in
 @[inherit_doc Lean.Doc.Syntax.flag_on, builtin_doc]
-def flag_on : Lean.Parser.Parser :=
+def flag_on : Lean.Parser.Parser := onFirstUse fun _ =>
   nodeWithAntiquot "flag_on" decl_name% ("+" >> Lean.Parser.ident)
 open Lean.Parser in
 @[inherit_doc Lean.Doc.Syntax.flag_off, builtin_doc]
-def flag_off : Lean.Parser.Parser :=
+def flag_off : Lean.Parser.Parser := onFirstUse fun _ =>
   nodeWithAntiquot "flag_off" decl_name% ("-" >> Lean.Parser.ident)
 
 end Arg
@@ -686,7 +710,7 @@ open Lean.Parser in
 /--
 Arguments to a role, directive, command, or code block.
 -/
-def arg : Lean.Parser.Parser :=
+def arg : Lean.Parser.Parser := onFirstUse fun _ =>
   withAntiquot (mkAntiquot "arg" decl_name% (isPseudoKind := true)) <|
     Arg.named <|> Arg.flag_on <|> Arg.flag_off <|>
       atomic Arg.named_no_paren <|> Arg.anon
@@ -695,11 +719,11 @@ namespace LinkTarget
 
 open Lean.Parser in
 @[inherit_doc Lean.Doc.Syntax.url, builtin_doc]
-def url : Lean.Parser.Parser :=
+def url : Lean.Parser.Parser := onFirstUse fun _ =>
   nodeWithAntiquot "url" decl_name% ("(" >> versoLinkUrl >> ")")
 open Lean.Parser in
 @[inherit_doc Lean.Doc.Syntax.ref, builtin_doc]
-def ref : Lean.Parser.Parser :=
+def ref : Lean.Parser.Parser := onFirstUse fun _ =>
   nodeWithAntiquot "ref" decl_name% ("[" >> versoRef >> "]")
 
 end LinkTarget
@@ -708,7 +732,7 @@ open Lean.Parser in
 /--
 The target of a link or image.
 -/
-def linkTarget : Lean.Parser.Parser :=
+def linkTarget : Lean.Parser.Parser := onFirstUse fun _ =>
   withAntiquot (mkAntiquot "linkTarget" decl_name% (isPseudoKind := true)) <|
     LinkTarget.url <|> LinkTarget.ref
 
@@ -736,7 +760,7 @@ private def charRun (ch : Char) : Lean.Parser.Parser :=
 
 open Lean.Parser in
 /-- Matches an unordered list item's marker, producing a single atom. -/
-private def bulletAtom : Lean.Parser.Parser :=
+private def bulletAtom : Lean.Parser.Parser := onFirstUse fun _ =>
   tokenWithAntiquot {
     -- A single scan, so that nothing pushes a wrapper node beside the atom.
     fn := rawFn (trailingWs := true) fun c s =>
@@ -749,7 +773,7 @@ private def bulletAtom : Lean.Parser.Parser :=
 
 open Lean.Parser in
 /-- Matches an ordered list item's marker, producing a single atom. -/
-private def numberAtom : Lean.Parser.Parser :=
+private def numberAtom : Lean.Parser.Parser := onFirstUse fun _ =>
   tokenWithAntiquot {
     fn := rawFn (trailingWs := true) fun c s =>
       let s' := (takeWhile1Fn (·.isDigit) "'0'-'9'" >>
@@ -764,17 +788,17 @@ Metadata block contents, which are the fields of a structure instance.
 The fields occur between delimiters that are not otherwise tokens, so `%%%` is added to the
 token table while reading them.
 -/
-private def metadataContentsLit : Lean.Parser.Parser where
+private def metadataContentsLit : Lean.Parser.Parser := onFirstUse fun _ => {
   fn :=
     adaptUncacheableContextFn (fun c => { c with tokens := c.tokens.insert "%%%" "%%%" })
       (withAntiquot (mkAntiquot "metadataContents" ``Lean.Parser.Term.structInstFields)
-        (structInstFields (sepByIndent structInstField ", " (allowTrailingSep := true)))).fn
+        (structInstFields (sepByIndent structInstField ", " (allowTrailingSep := true)))).fn }
 
 open Lean.Parser in
 /--
 The sequence of `#` characters that introduces a header. Its length determines the header's level.
 -/
-def headerMarker : Lean.Parser.Parser :=
+def headerMarker : Lean.Parser.Parser := onFirstUse fun _ =>
   nodeWithAntiquot "headerMarker" decl_name% (charRun '#')
 
 open Lean.Parser in
@@ -782,34 +806,34 @@ open Lean.Parser in
 The marker that introduces a list item. An unordered list uses `*`, `-`, or `+`. An ordered list
 uses a number followed by `.` or `)`.
 -/
-def listMarker : Lean.Parser.Parser :=
+def listMarker : Lean.Parser.Parser := onFirstUse fun _ =>
   nodeWithAntiquot "listMarker" decl_name% (atomic bulletAtom <|> numberAtom)
 
 open Lean.Parser in
 /-- The marker of an item in an unordered list. -/
-private def unorderedListMarker : Lean.Parser.Parser :=
+private def unorderedListMarker : Lean.Parser.Parser := onFirstUse fun _ =>
   nodeWithAntiquot "listMarker" ``listMarker bulletAtom
 
 open Lean.Parser in
 /-- The marker of an item in an ordered list. -/
-private def orderedListMarker : Lean.Parser.Parser :=
+private def orderedListMarker : Lean.Parser.Parser := onFirstUse fun _ =>
   nodeWithAntiquot "listMarker" ``listMarker numberAtom
 
 open Lean.Parser in
 /--
 The `:` that introduces an item in a description list.
 -/
-private def descItemMarker : Lean.Parser.Parser :=
+private def descItemMarker : Lean.Parser.Parser := onFirstUse fun _ =>
   atomic (atomOf ":" >> notFollowedBy { fn := satisfyFn (· == ':') "':'" } "':'")
 
 open Lean.Parser in
 /-- The run of `_` characters that delimits emphasis. -/
-def emphDelimiter : Lean.Parser.Parser :=
+def emphDelimiter : Lean.Parser.Parser := onFirstUse fun _ =>
   nodeWithAntiquot "emphDelimiter" decl_name% (charRun '_')
 
 open Lean.Parser in
 /-- The sequence of `*` characters that delimits bold text. -/
-def boldDelimiter : Lean.Parser.Parser :=
+def boldDelimiter : Lean.Parser.Parser := onFirstUse fun _ =>
   nodeWithAntiquot "boldDelimiter" decl_name% (charRun '*')
 
 open Lean.Parser in
@@ -817,14 +841,14 @@ open Lean.Parser in
 The sequence of backticks that delimits inline code. Longer delimiters allow backticks in the
 content.
 -/
-def codeDelimiter : Lean.Parser.Parser :=
+def codeDelimiter : Lean.Parser.Parser := onFirstUse fun _ =>
   nodeWithAntiquot "codeDelimiter" decl_name% (charRun '`')
 
 open Lean.Parser in
 /--
 The fence that surrounds a code block. Longer fences allow more backticks in the content.
 -/
-def codeBlockFence : Lean.Parser.Parser :=
+def codeBlockFence : Lean.Parser.Parser := onFirstUse fun _ =>
   nodeWithAntiquot "codeBlockFence" decl_name% (charRun '`')
 
 open Lean.Parser in
@@ -832,17 +856,17 @@ open Lean.Parser in
 The `$` that introduces inline mathematical notation. `$` begins an antiquotation, so a quotation
 splices this atom in as `$m:inlineMathMarker`.
 -/
-def inlineMathMarker : Lean.Parser.Parser :=
+def inlineMathMarker : Lean.Parser.Parser := onFirstUse fun _ =>
   nodeWithAntiquot "inlineMathMarker" decl_name% (atomOf "$")
 
 open Lean.Parser in
 @[inherit_doc inlineMathMarker]
-def displayMathMarker : Lean.Parser.Parser :=
+def displayMathMarker : Lean.Parser.Parser := onFirstUse fun _ =>
   nodeWithAntiquot "displayMathMarker" decl_name% (atomOf "$$")
 
 open Lean.Parser in
 /-- The sequence of `:` characters that delimits a directive. -/
-def directiveDelimiter : Lean.Parser.Parser :=
+def directiveDelimiter : Lean.Parser.Parser := onFirstUse fun _ =>
   nodeWithAntiquot "directiveDelimiter" decl_name% (charRun ':')
 
 /--
@@ -881,7 +905,7 @@ open Lean.Parser in
 /--
 Inline code, used on its own and as the content of mathematical notation.
 -/
-private def inlineCode : Lean.Parser.Parser :=
+private def inlineCode : Lean.Parser.Parser := onFirstUse fun _ =>
   nodeWithAntiquot "code" `Lean.Doc.Parser.Inline.code
     { fn := matchingDelimiterLengths codeDelimiter '`' versoCode }
 
@@ -1096,7 +1120,7 @@ def block : Lean.Parser.Parser := { fn := blockQuot }
 
 open Lean.Parser in
 /-- A Verso document, which is a sequence of blocks. -/
-def document : Lean.Parser.Parser :=
+def document : Lean.Parser.Parser := onFirstUse fun _ =>
   nodeWithAntiquot "document" decl_name% (many (atomic block))
 
 end

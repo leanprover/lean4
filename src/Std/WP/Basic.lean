@@ -62,9 +62,16 @@ as a monotone predicate transformer over assertion language `Pred` with exceptio
 class WP (Prog : Type u) (Value : outParam (Type v)) (Pred : outParam (Type w))
     (EPred : outParam (Type w')) [Assertion Pred] [Assertion EPred] where
   /-- The weakest precondition transformer for a program. -/
-  trans : Prog → PredTrans Pred EPred Value
+  trans : Prog → PredTrans Pred EPred Value := wpTrans
+  /-- Deprecated alias for `trans`; provide either field when defining an instance. -/
+  wpTrans : Prog → PredTrans Pred EPred Value := trans
   /-- Monotonicity: weaker postconditions yield weaker preconditions. -/
-  trans_monotone (x : Prog) : trans x |>.Monotone
+  trans_monotone (x : Prog) : trans x |>.Monotone := wp_trans_monotone x
+  /-- Deprecated alias for `trans_monotone`; provide either field when defining an instance. -/
+  wp_trans_monotone (x : Prog) : trans x |>.Monotone := trans_monotone x
+
+attribute [deprecated WP.trans (since := "2026-09-17")] WP.wpTrans
+attribute [deprecated WP.trans_monotone (since := "2026-09-17")] WP.wp_trans_monotone
 
 /-- Weakest precondition of `x` for normal postcondition `post` and exception postcondition `epost`.
 The `WP` interpretation can be supplied explicitly via dot notation (`inst.wp x post epost`). -/
@@ -80,17 +87,6 @@ export Std.WP.WP (wp)
 @[simp, grind =] theorem WP.trans_apply_eq {Prog : Type u} {Value : Type v}
     [Assertion Pred] [Assertion EPred] [WP Prog Value Pred EPred] (x : Prog) :
   (WP.trans x).apply = wp x := rfl
-
-/-- Deprecated alias for `WP.trans`. -/
-@[deprecated WP.trans (since := "2026-09-17")]
-def WP.wpTrans {Prog : Type u} {Value : Type v} {Pred : Type w} {EPred : Type w'}
-    [Assertion Pred] [Assertion EPred] [self : WP Prog Value Pred EPred] (x : Prog) :
-    PredTrans Pred EPred Value := self.trans x
-
-@[deprecated WP.trans_monotone (since := "2026-09-17")]
-theorem WP.wp_trans_monotone {Prog : Type u} {Value : Type v} {Pred : Type w} {EPred : Type w'}
-    [Assertion Pred] [Assertion EPred] [self : WP Prog Value Pred EPred] (x : Prog) :
-    (self.trans x).Monotone := self.trans_monotone x
 
 @[deprecated WP.trans_apply_eq (since := "2026-09-17")]
 theorem WP.wpTrans_apply_eq {Prog : Type u} {Value : Type v}

@@ -8,6 +8,8 @@ module
 prelude
 public import Lean.Meta.Tactic.Injection
 import Init.Data.Nat.Internal.Linear
+import Lean.Structure
+import Lean.ProjFns
 
 public section
 
@@ -32,6 +34,86 @@ private def toOffset? (e : Expr) : MetaM (Option (Expr × Nat)) := do
   | none => isOffset? e
 
 /--
+The constructor or the projector of a one-field structure, applied to the parameters. The two are inverse to each other by (virtual)
+iota and eta, so both are definitional bijections.
+-/
+private structure Bijection where
+  isCtor : Bool
+  ctor : Expr
+  proj : Expr
+
+/-- The inverse of `b` applied to `e`, where `b⁻¹ (b x)` is folded to `x`. -/
+private def Bijection.inv (b : Bijection) (e : Expr) : Expr :=
+  let (fn, invFn) := if b.isCtor then (b.ctor, b.proj) else (b.proj, b.ctor)
+  if e.isApp && e.appFn! == fn then e.appArg! else mkApp invFn e
+
+/-- The constructor and the projector of the one-field structure `structName` with universes `us`
+and parameters `params`. -/
+private def structCtorProj? (structName : Name) (us : List Level) (params : Array Expr) :
+    MetaM (Option (Expr × Expr)) := do
+  let env ← getEnv
+  let some (.inductInfo { isRec := false, ctors := [ctorName], numIndices := 0, numParams, .. }) :=
+    env.find? structName | return none
+  let some info := getStructureInfo? env structName | return none
+  let #[fieldName] := info.fieldNames | return none
+  let some projFn := getProjFnForField? env structName fieldName | return none
+  unless params.size == numParams do return none
+  return some (mkAppN (mkConst ctorName us) params, mkAppN (mkConst projFn us) params)
+
+/--
+Returns `some (x, [b₁, …, bₙ])` if `e` is `bₙ (… (b₁ x) …)` for a free variable `x` and
+bijections `bᵢ`, `n ≥ 1`.
+-/
+private partial def bijectionChain? (e : Expr) (outer : List Bijection := []) :
+    MetaM (Option (FVarId × List Bijection)) := do
+  let e := e.consumeMData
+  let push (isCtor : Bool) (ctorProj? : Option (Expr × Expr)) (arg : Expr) := do
+    let some (ctor, proj) := ctorProj? | return none
+    bijectionChain? arg ({ isCtor, ctor, proj } :: outer)
+  match e with
+  | .fvar x => return if outer.isEmpty then none else some (x, outer)
+  | .proj structName 0 x =>
+    let xType ← whnf (← inferType x)
+    let .const _ us := xType.getAppFn | return none
+    push false (← structCtorProj? structName us xType.getAppArgs) x
+  | .app .. =>
+    let .const declName us := e.getAppFn | return none
+    let args := e.getAppArgs
+    let env ← getEnv
+    if let some projInfo := env.getProjectionFnInfo? declName then
+      let some (.ctorInfo ctorVal) := env.find? projInfo.ctorName | return none
+      unless args.size == projInfo.numParams + 1 do return none
+      push false (← structCtorProj? ctorVal.induct us (args.extract 0 projInfo.numParams))
+        args[projInfo.numParams]!
+    else if let some (.ctorInfo ctorVal) := env.find? declName then
+      unless args.size == ctorVal.numParams + 1 do return none
+      push true (← structCtorProj? ctorVal.induct us (args.extract 0 ctorVal.numParams))
+        args[ctorVal.numParams]!
+    else
+      return none
+  | _ => return none
+
+/--
+Solves the equation `eqDecl : a = b` of type `α` if it is of the form `c x = t` or `t = c x`, where
+`c` is a chain of constructors and projections of one-field structures and `x` is a free variable not occurring in `t`, by the definitional change of variables `x := c⁻¹ t`: the
+equation is replaced by `x = c⁻¹ t`, which `unifyEq?` substitutes in its next round.
+-/
+private def changeOfVariables? (mvarId : MVarId) (eqDecl : LocalDecl) (subst : FVarSubst)
+    (α a b : Expr) : MetaM (Option UnifyEqResult) := do
+  let go (bx t : Expr) (symm : Bool) : MetaM (Option UnifyEqResult) := do
+    let some (x, bs) ← bijectionChain? bx | return none
+    if t.containsFVar x || (← x.getDecl).isLet then return none
+    let inv (e : Expr) := bs.foldr (·.inv) e
+    let prf := eqDecl.toExpr
+    let prf ← if symm then mkEqSymm prf else pure prf
+    let prf ← mkCongrArg (← withLocalDeclD `z α fun z => mkLambdaFVars #[z] (inv z)) prf
+    let mvarId ← mvarId.assert eqDecl.userName (← mkEq (mkFVar x) (inv t)) prf
+    let mvarId ← mvarId.clear eqDecl.fvarId
+    return some { mvarId, subst, numNewEqs := 1 }
+  if let some r ← go a b (symm := false) then return some r
+  go b a (symm := true)
+
+/--
   Helper method for methods such as `Cases.unifyEqs?`.
   Given the given goal `mvarId` containing the local hypothesis `eqFVarId`, it performs the following operations:
 
@@ -42,6 +124,8 @@ private def toOffset? (e : Expr) : MetaM (Option (Expr × Nat)) := do
      - If `a` (`b`) is a free variable not occurring in `b` (`a`), replace it everywhere.
      - If `a` and `b` are distinct constructors, return `none` to indicate that the goal has been closed.
      - If `a` and `b` are the same constructor, apply `injection`, the result contains the number of new equalities introduced in the goal.
+     - If `a` (`b`) is a chain of constructors and projections of one-field structures applied to a free variable
+       not occurring in `b` (`a`), replace the equation by one that substitutes the variable, see `changeOfVariables?`.
      - It also tries to apply the given `acyclic` method to try to close the goal.
        Remark: It is a parameter because `simp` uses `unifyEq?`, and `acyclic` depends on `simp`.
 -/
@@ -56,7 +140,7 @@ def unifyEq? (mvarId : MVarId) (eqFVarId : FVarId) (subst : FVarSubst := {})
       return some { mvarId, subst, numNewEqs := 1 }
     else match eqDecl.type.eq? with
       | none => throwError "Expected an equality, but found{indentExpr eqDecl.type}"
-      | some (_, a, b) =>
+      | some (α, a, b) =>
         /-
           Remark: we do not check `isDefeq` here because we would fail to substitute equalities
           such as `x = t` and `t = x` when `x` and `t` are proofs (proof irrelevance).
@@ -118,6 +202,8 @@ def unifyEq? (mvarId : MVarId) (eqFVarId : FVarId) (subst : FVarSubst := {})
               let mvarId ← mvarId.assert eqDecl.userName aEqb' prf
               let mvarId ←  mvarId.clear eqFVarId
               return some { mvarId, subst, numNewEqs := 1 }
+            else if let some r ← changeOfVariables? mvarId eqDecl subst α a b then
+              return some r
             else
               match caseName? with
               | none => throwError "Dependent elimination failed: Failed to solve equation{indentExpr eqDecl.type}"

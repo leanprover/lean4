@@ -14,8 +14,6 @@ import Lean.Elab.Do.PatternVar
 
 public section
 
--- The `erased` doElem quotations below need the current stage's parser until stage0 catches up.
-set_option internal.parseQuotWithCurrentStage true
 
 namespace Lean.Elab.Do
 
@@ -198,15 +196,15 @@ private def getLetConfigAndCheckMut (letConfigStx : TSyntax ``Parser.Term.letCon
   elabDoLetOrReassign config (.let mutTk? false) decl tk dec
 
 @[builtin_doElem_elab Lean.Parser.Term.doErased] def elabDoErased : DoElab := fun stx dec => do
-  let `(doErased| erased%$tk $[mut%$mutTk?]? $x:ident $[: $t?]? := $e) := stx | throwUnsupportedSyntax
+  let `(doElem| erased%$tk $[mut%$mutTk?]? $x:ident $[: $t?]? := $e) := stx | throwUnsupportedSyntax
   elabDoLetOrReassign {} (.let mutTk? true) (← `(letDecl| $x:ident $[: $t?]? := $e)) tk dec
 
 @[builtin_macro Lean.Parser.Term.doErasedArrow] def expandDoErasedArrow : Macro := fun stx => do
   match stx with
-  | `(doErasedArrow| erased%$tk $[mut%$mutTk?]? $x:ident $[: $t?]? ← $rhs) =>
+  | `(doElem| erased%$tk $[mut%$mutTk?]? $x:ident $[: $t?]? ← $rhs) =>
     let y := mkIdentFrom x (← MonadQuotation.addMacroScope `__x)
     let letElem ← `(doElem| let $y:ident $[: $t?]? ← $rhs)
-    let erasedElem : TSyntax `doElem := ⟨(← `(doErased| erased%$tk $[mut%$mutTk?]? $x:ident := $y)).raw⟩
+    let erasedElem ← `(doElem| erased%$tk $[mut%$mutTk?]? $x:ident := $y)
     `(doElem| do $letElem:doElem; $erasedElem:doElem)
   | _ => Macro.throwUnsupported
 

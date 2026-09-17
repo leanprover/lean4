@@ -594,7 +594,13 @@ private partial def compileStxMatch (discrs : List Term) (alts : List Alt) : Ter
     for d in floatedLetDecls do
       stx ← `(let_delayed $d:letDecl; $stx)
     `(have __discr := $discr; $stx)
-  | _, _ => unreachable!
+  | [], _ => do
+    -- More patterns than discriminants (e.g. `match stx with | _, `(bar) => ...`).
+    logError "too many patterns in 'match' (syntax)"
+    pure Syntax.missing
+  | _, _ => do
+    logError "invalid 'match' (syntax)"
+    pure Syntax.missing
 
 abbrev IdxSet := Std.HashSet Nat
 

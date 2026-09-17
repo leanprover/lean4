@@ -77,8 +77,7 @@ def stop (s : Sleep) : IO Unit :=
 
 /--
 Create a `Selector` that resolves once `s` has finished. `s` only starts when it runs inside of a
-Selectable, and a select that it loses leaves it running, so a `Sleep` selected on repeatedly works
-as a deadline that elapses `duration` after the first of those selects.
+Selectable, and a select that it loses cancels it, so the next select starts it again from `duration`.
 -/
 def selector (s : Sleep) : Selector Unit :=
   {
@@ -87,6 +86,7 @@ def selector (s : Sleep) : Selector Unit :=
       if ← sleepWaiter.isResolved then
         return some ()
       else
+        s.native.cancel
         return none
 
     registerFn waiter := do
@@ -99,7 +99,7 @@ def selector (s : Sleep) : Selector Unit :=
           let win promise := promise.resolve (.ok ())
           waiter.race lose win
 
-    unregisterFn := pure ()
+    unregisterFn := s.native.cancel
   }
 
 end Sleep
@@ -116,9 +116,7 @@ Return a `Selector` that completes after `duration`.
 -/
 def Selector.sleep (duration : Std.Time.Millisecond.Offset) : Async (Selector Unit) := do
   let sleeper ← Sleep.mk duration
-  -- A fresh timer cannot have elapsed yet, and nothing else refers to `sleeper`, so it is started
-  -- only on registration and stopped once the select is over.
-  return { sleeper.selector with tryFn := pure none, unregisterFn := sleeper.native.cancel }
+  return sleeper.selector
 
 /--
 `Interval` can be used to repeatedly wait for some duration like a clock.

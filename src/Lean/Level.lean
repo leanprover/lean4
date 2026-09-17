@@ -573,8 +573,6 @@ Assumes that `u` and `v` don't contain meta-variables.
 -/
 @[export lean_level_is_equiv]
 def isEquiv (u v : Level) : Bool :=
-  -- the first two (redundant) cases are the most common
-  -- only use the complete procedure if both others failed
   u == v || Normalize.normalize u == Normalize.normalize v
 
 

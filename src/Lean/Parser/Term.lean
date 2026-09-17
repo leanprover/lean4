@@ -9,7 +9,8 @@ prelude
 public import Lean.Parser.Term.Basic
 public import Lean.Parser.Term.Doc
 import Lean.DocString.Parser
-public import Lean.DocString.Formatter
+public import Lean.PrettyPrinter.Formatter
+import Lean.DocString.Formatter
 
 public section
 
@@ -119,12 +120,12 @@ def versoCommentBody : Parser :=
   node `Lean.Parser.Command.versoCommentBody { info, fn := versoCommentBodyFn }
 
 
-@[combinator_parenthesizer versoCommentBody, expose]
+@[combinator_parenthesizer versoCommentBody]
 def versoCommentBody.parenthesizer := PrettyPrinter.Parenthesizer.visitToken
 
 open PrettyPrinter Formatter in
 open Syntax.MonadTraverser in
-@[combinator_formatter versoCommentBody, expose]
+@[combinator_formatter versoCommentBody]
 def versoCommentBody.formatter : PrettyPrinter.Formatter := do
   checkKind `Lean.Parser.Command.versoCommentBody
   visitArgs do
@@ -176,12 +177,12 @@ def commentBodyFn : ParserFn := fun c s =>
 def commentBody : Parser :=
   node `Lean.Parser.Command.commentBody { fn := commentBodyFn }
 
-@[combinator_parenthesizer commentBody, expose]
+@[combinator_parenthesizer commentBody]
 def commentBody.parenthesizer := PrettyPrinter.Parenthesizer.visitToken
 
 open PrettyPrinter Formatter in
 open Syntax.MonadTraverser in
-@[combinator_formatter commentBody, expose]
+@[combinator_formatter commentBody]
 def commentBody.formatter : PrettyPrinter.Formatter := do
   checkKind `Lean.Parser.Command.commentBody
   visitArgs do

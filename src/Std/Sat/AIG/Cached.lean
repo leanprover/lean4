@@ -25,18 +25,17 @@ namespace AIG
 variable {α : Type} [Hashable α] [DecidableEq α]
 
 /--
-A version of `AIG.mkAtom` that uses the subterm cache in `AIG`. This version is meant for
-programming, for proving purposes use `AIG.mkAtom` and equality theorems to this one.
+Add a new input node to `aig`.
 -/
 def mkAtomCached (aig : AIG α) (n : α) : Entrypoint α :=
   let ⟨decls, cache, hdag, hzero, hconst⟩ := aig
   let decl := .atom n
-  match cache.get? decl with
+  match hcache : cache.get? decl with
   | some hit =>
     ⟨⟨decls, cache, hdag, hzero, hconst⟩ , hit.idx, false, hit.hbound⟩
   | none =>
     let g := decls.size
-    let cache := cache.insert decls decl
+    let cache := cache.insert decls decl (Cache.get?_eq_none_iff.mp hcache)
     let decls := decls.push decl
     have hdag := by
       intro i lhs rhs h1 h2
@@ -49,18 +48,18 @@ def mkAtomCached (aig : AIG α) (n : α) : Entrypoint α :=
     ⟨⟨decls, cache, hdag, hzero', hconst⟩, ⟨g, false, by simp [g, decls]⟩⟩
 
 /--
-A version of `AIG.mkConst` that uses the subterm cache in `AIG`. This version is meant for
-programming, for proving purposes use `AIG.mkGate` and equality theorems to this one.
+Add a new constant node to `aig`.
 -/
 @[inline]
 def mkConstCached (aig : AIG α) (val : Bool) : Ref aig :=
   ⟨0, val, aig.hzero⟩
 
 /--
-A version of `AIG.mkGate` that uses the subterm cache in `AIG`. This version is meant for
-programming, for proving purposes use `AIG.mkGate` and equality theorems to this one.
+Add a new and inverter gate to the AIG in `aig`.
 
 Beyond caching this function also implements a subset of the optimizations presented in:
+"Local Two-Level And-Inverter Graph Minimization without Blowu"
+(https://cca.informatik.uni-freiburg.de/papers/BrummayerBiere-MEMICS06.pdf)
 -/
 def mkGateCached (aig : AIG α) (input : BinaryInput aig) : Entrypoint α :=
   let lhs := input.lhs.gate
@@ -79,7 +78,7 @@ where
     have := input.lhs.hgate
     have := input.rhs.hgate
     let decl := .gate (.mk lhs linv) (.mk rhs rinv)
-    match cache.get? decl with
+    match hcache : cache.get? decl with
     | some hit =>
       ⟨⟨decls, cache, hdag, hzero, hconst⟩, ⟨hit.idx, false, hit.hbound⟩⟩
     | none =>
@@ -112,7 +111,7 @@ where
         else
           -- Gate couldn't be simplified
           let g := decls.size
-          let cache := cache.insert decls decl
+          let cache := cache.insert decls decl (Cache.get?_eq_none_iff.mp hcache)
           let decls := decls.push decl
           have hdag := by
             intro i lhs rhs h1 h2

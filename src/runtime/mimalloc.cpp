@@ -50,3 +50,8 @@ extern "C" LEAN_EXPORT LEAN_ATTR_MALLOC lean_object * lean_alloc_small_object_co
     o->m_cs_sz = sz;
     return o;
 }
+
+/* Big-object allocation and the reference-counted deletion machinery, in this TU so that
+   mimalloc's `mi_malloc` and `mi_free` fast paths inline into them, as they do into the small
+   allocation entry point above. */
+#include "object_rc.cpp"

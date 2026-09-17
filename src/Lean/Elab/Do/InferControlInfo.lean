@@ -13,8 +13,6 @@ import Lean.Elab.Do.PatternVar
 
 public section
 
--- The `erased` doElem quotations below need the current stage's parser until stage0 catches up.
-set_option internal.parseQuotWithCurrentStage true
 
 namespace Lean.Elab.Do
 

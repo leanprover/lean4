@@ -32,15 +32,21 @@ def docCommentOpen (sym : String) : Parser where
     let s := symbolFn sym c s
     if s.hasError then s
     else
-      -- The whitespace here is a prefix of what the token's own scan accepted, so a tab or an
-      -- isolated carriage return has already been reported.
-      let stopPos := startPos + sym
-      let s := takeWhileFn (·.isWhitespace) c (s.setPos stopPos)
-      let info :=
-        SourceInfo.original
-          (c.mkEmptySubstringAt startPos) startPos
-          (c.substring (startPos := stopPos) (stopPos := s.pos)) stopPos
-      s.popSyntax.pushSyntax (.atom info sym)
+      match s.stxStack.back with
+      | .atom (.original _ _ trailing _) _ =>
+        -- The token's trailing whitespace only needs to be cut when a comment follows the delimiter.
+        if trailing.all (·.isWhitespace) then s
+        else
+          -- The whitespace here is a prefix of what the token's own scan accepted, so a tab or an
+          -- isolated carriage return has already been reported.
+          let stopPos := startPos + sym
+          let s := takeWhileFn (·.isWhitespace) c (s.setPos stopPos)
+          let info :=
+            SourceInfo.original
+              (c.mkEmptySubstringAt startPos) startPos
+              (c.substring (startPos := stopPos) (stopPos := s.pos)) stopPos
+          s.popSyntax.pushSyntax (.atom info sym)
+      | _ => s
 
 @[combinator_formatter docCommentOpen, expose]
 def docCommentOpen.formatter (sym : String) : PrettyPrinter.Formatter :=
@@ -48,6 +54,19 @@ def docCommentOpen.formatter (sym : String) : PrettyPrinter.Formatter :=
 @[combinator_parenthesizer docCommentOpen, expose]
 def docCommentOpen.parenthesizer (sym : String) : PrettyPrinter.Parenthesizer :=
   PrettyPrinter.Parenthesizer.symbolNoAntiquot.parenthesizer sym
+
+/--
+Parses the closing delimiter of a documentation comment at the current position, which
+`finishCommentBlock` has already matched, together with the whitespace after it.
+-/
+def docCommentCloseFn : ParserFn := fun c s =>
+  let closerPos := s.pos
+  let stopPos := closerPos + "-/"
+  let s := whitespace c (s.setPos stopPos)
+  let info :=
+    SourceInfo.original
+      (c.mkEmptySubstringAt closerPos) closerPos (c.substring stopPos s.pos) stopPos
+  s.pushSyntax (.atom info "-/")
 
 open Lean.Parser in
 def versoCommentBodyFn : ParserFn := fun c s =>
@@ -89,7 +108,7 @@ def versoCommentBodyFn : ParserFn := fun c s =>
       -- A docstring's own errors are reported when it is re-parsed, so we only restore the initial
       -- errors.
       let s := { s with recoveredErrors := iniErrs }
-      rawFn (Doc.Parser.ignoreFn <| chFn '-' >> chFn '/') (trailingWs := true) c s
+      docCommentCloseFn c s
     else s
 
 def versoCommentBody : Parser :=
@@ -152,7 +171,7 @@ def commentBodyFn : ParserFn := fun c s =>
     let info := SourceInfo.original (c.mkEmptySubstringAt startPos) startPos
       (c.substring textEnd closerPos) textEnd
     let s := s.pushSyntax (.atom info (c.extract startPos textEnd))
-    rawFn (Doc.Parser.ignoreFn <| chFn '-' >> chFn '/') (trailingWs := true) c (s.setPos closerPos)
+    docCommentCloseFn c (s.setPos closerPos)
 
 def commentBody : Parser :=
   node `Lean.Parser.Command.commentBody { fn := commentBodyFn }

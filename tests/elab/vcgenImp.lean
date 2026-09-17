@@ -150,7 +150,7 @@ abbrev Assn := Env → State → Prop
 
 instance : WP Cmd Unit Assn EStack⟨⟩ where
   trans c := ⟨fun Q _epost Φ s => wpCmd Φ c (Q () Φ) s⟩
-  wp_trans_monotone c := by
+  trans_monotone c := by
     intro Q Q' e e' _he hQ Φ s h
     exact wpCmd_mono (fun s' h' => hQ () Φ s' h') s h
 

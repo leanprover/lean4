@@ -50,7 +50,7 @@ theorem op_wp_upperAdjoint_le_wp {R : Type t} {op : R → Pred → Pred}
   haveI := FrameOp.preservesSup (op := op) (EPred := EPred) (opE := opE)
   haveI := FrameOp.preservesSupE (op := op) (EPred := EPred) (opE := opE)
   refine PartialOrder.rel_trans (hframes.op_wp_le_wp_op _ _) ?_
-  apply WP.wp_trans_monotone
+  apply WP.trans_monotone
   · exact (PreservesSup.upperAdjoint_le (opE F) E)
   · intro a
     exact PreservesSup.upperAdjoint_le (op F) (Q a)
@@ -92,7 +92,7 @@ exception-channel companion. -/
     {opE : R → EPred → EPred} [FrameOp op EPred opE]
     (base : WP Prog Value Pred EPred) : WP Prog Value Pred EPred where
   trans x := (base.trans x).frameClosure op
-  wp_trans_monotone x := PredTrans.monotone_frameClosure op (base.wp_trans_monotone x)
+  trans_monotone x := PredTrans.monotone_frameClosure op (base.trans_monotone x)
 
 omit [WP Prog Value Pred EPred] in
 theorem WP.withFrameClosure_le_wp_iff {R : Type t} (op : R → Pred → Pred)

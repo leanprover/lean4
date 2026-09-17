@@ -34,7 +34,7 @@ axiom wp_add : ∀ {l r : Lang} {Φ : Value → Prop},
 
 instance instWP_Lang : WP Lang Value Prop EStack⟨⟩ where
   trans l := ⟨fun Φ _ => wp l Φ⟩
-  wp_trans_monotone x := by
+  trans_monotone x := by
     simp [PredTrans.Monotone, Lean.Order.PartialOrder.rel]
     intros; apply wp_mono <;> trivial
 
@@ -81,7 +81,7 @@ axiom wpS_add : ∀ {l r} {Φ : ValueS → Nat → Prop} {s : Nat},
 
 instance instWP_LangS : WP LangS ValueS (Nat → Prop) EStack⟨⟩ where
   trans l := ⟨fun Φ _ => wpS l Φ⟩
-  wp_trans_monotone x := by
+  trans_monotone x := by
     simp [PredTrans.Monotone, Lean.Order.PartialOrder.rel]
     intros; apply wpS_mono <;> trivial
 

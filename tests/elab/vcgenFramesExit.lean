@@ -88,7 +88,7 @@ inductive Prog | skip | exit
 postcondition. -/
 @[instance_reducible] def baseWP : WP Prog Unit HProp HProp where
   trans x := ⟨fun Q E => match x with | .skip => Q () | .exit => E⟩
-  wp_trans_monotone x := by
+  trans_monotone x := by
     intro Q Q' E E' hE hQ
     cases x
     · exact hQ ()

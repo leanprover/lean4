@@ -64,7 +64,7 @@ class WP (Prog : Type u) (Value : outParam (Type v)) (Pred : outParam (Type w))
   /-- The weakest precondition transformer for a program. -/
   trans : Prog → PredTrans Pred EPred Value
   /-- Monotonicity: weaker postconditions yield weaker preconditions. -/
-  wp_trans_monotone (x : Prog) : trans x |>.Monotone
+  trans_monotone (x : Prog) : trans x |>.Monotone
 
 /-- Weakest precondition of `x` for normal postcondition `post` and exception postcondition `epost`.
 The `WP` interpretation can be supplied explicitly via dot notation (`inst.wp x post epost`). -/
@@ -95,17 +95,17 @@ variable {Prog : Type u} {Value : Type v} [Assertion Pred] [Assertion EPred]
 theorem wp_consequence (x : Prog)
   (post post' : Value → Pred) (epost : EPred) (h : post ⊑ post') :
     wp x post epost ⊑ wp x post' epost :=
-  wp_trans_monotone x post post' epost epost PartialOrder.rel_refl h
+  trans_monotone x post post' epost epost PartialOrder.rel_refl h
 
 theorem wp_consequence_econs (x : Prog)
   (post post' : Value → Pred) (epost epost' : EPred) (h : post ⊑ post') (h' : epost ⊑ epost') :
     wp x post epost ⊑ wp x post' epost' :=
-  wp_trans_monotone x post post' epost epost' h' h
+  trans_monotone x post post' epost epost' h' h
 
 theorem wp_econs (x : Prog)
   (post : Value → Pred) (epost epost' : EPred) (h' : epost ⊑ epost') :
     wp x post epost ⊑ wp x post epost' :=
-  wp_trans_monotone x post post epost epost' h' PartialOrder.rel_refl
+  trans_monotone x post post epost epost' h' PartialOrder.rel_refl
 
 theorem wp_econs_bot (x : Prog)
   (post : Value → Pred) (epost : EPred) :

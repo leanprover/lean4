@@ -362,8 +362,12 @@ private def elabSimpArg (indexConfig : Meta.ConfigWithKey) (eraseLocal : Bool) (
         let name ← mkFreshId
         elabDeclToUnfoldOrTheorem indexConfig (.stx name arg) e post inv kind
       | .simproc declName =>
+        if inv then
+          throwErrorAt arg[1] m!"Invalid `←` modifier: `{.ofConstName declName}` is a simproc"
         return .addSimproc declName post
       | .ext ext₁? ext₂? h =>
+        if inv then
+          throwErrorAt arg[1] "Invalid `←` modifier: cannot be used on a simp extension"
         return .ext ext₁? ext₂? h
       | .none    =>
         let name ← mkFreshId

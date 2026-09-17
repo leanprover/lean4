@@ -18,7 +18,7 @@ namespace Async
 /--
 Unix style signals for Unix and Windows.
 SIGKILL and SIGSTOP are missing because they cannot be caught.
-SIGBUS, SIGFPE, SIGILL, and SIGSEGV are missing because they cannot be caught safely by libuv.
+SIGBUS, SIGFPE, SIGILL, and SIGSEGV are missing because they cannot be caught safely.
 SIGPIPE is not present because the runtime ignores the signal.
 -/
 inductive Signal
@@ -208,7 +208,9 @@ def mk (signum : Signal) (repeating : Bool) : IO Signal.Waiter := do
 If:
 - `s` is not yet running start listening and return an `AsyncTask` that will resolve once the
    previously configured signal is received.
-- `s` is already or not anymore running return the same `AsyncTask` as the first call to `wait`.
+- `s` is already running, or finished after receiving the signal, return the same `AsyncTask` as the
+  first call to `wait`.
+- `s` was stopped with `stop` before receiving the signal, return an `AsyncTask` that fails.
 
 The resolved `AsyncTask` contains the signal number that was received.
 -/
@@ -220,8 +222,8 @@ def wait (s : Signal.Waiter) : IO (AsyncTask Int) := do
 /--
 If:
 - `s` is still running this stops `s` without resolving any remaining `AsyncTask`s that were created
-  through `wait`. Note that if another `AsyncTask` is binding on any of these it is going hang
-  forever without further intervention.
+  through `wait`. Those tasks fail once the last reference to their promise is dropped, rather than
+  producing a value.
 - `s` is not yet or not anymore running this is a no-op.
 -/
 @[inline]
@@ -231,12 +233,15 @@ def stop (s : Signal.Waiter) : IO Unit :=
 /--
 Create a `Selector` that resolves once `s` has received the signal. Note that calling this function
 does not start the signal waiter.
+
+A select that `s` loses leaves it listening, and a signal that arrives before the next select is
+reported by that select, so `stop` has to be called once `s` is no longer needed.
 -/
 def selector (s : Signal.Waiter) : Selector Unit :=
   {
     tryFn := do
-      let signalWaiter : AsyncTask _ ← async s.wait
-      if ← IO.hasFinished signalWaiter then
+      let signalWaiter ← s.native.next
+      if ← signalWaiter.isResolved then
         return some ()
       else
         s.native.cancel

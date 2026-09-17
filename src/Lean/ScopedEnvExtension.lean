@@ -27,10 +27,26 @@ structure ScopedEntries (β : Type) where
   map : SMap Name (PArray β) := {}
   deriving Inhabited
 structure StateStack (α : Type) (β : Type) (σ : Type) where
+  /--
+  The `state` of the head of `stateStack`. Cached here so that `ScopedEnvExtension.getState`, which
+  is on hot paths such as parsing and simp set lookup, is a single projection.
+  -/
+  state         : σ
   stateStack    : List (State σ) := {}
   scopedEntries : ScopedEntries β := {}
   newEntries    : List (Entry α) := []
   deriving Inhabited
+
+/-- The `state` of the head of `stack`, or `fallback` if `stack` is empty. -/
+@[inline] private def headState (stack : List (State σ)) (fallback : σ) : σ :=
+  match stack with
+  | top :: _ => top.state
+  | []       => fallback
+
+/-- Replaces the state stack, keeping the cached `StateStack.state` in sync. -/
+private def StateStack.setStateStack (s : StateStack α β σ) (stateStack : List (State σ)) :
+    StateStack α β σ :=
+  { s with state := headState stateStack s.state, stateStack }
 
 structure Descr (α : Type) (β : Type) (σ : Type) where
   name           : Name := by exact decl_name%
@@ -50,8 +66,9 @@ instance [Inhabited α] : Inhabited (Descr α β σ) where
     addEntry     := fun s _ => s
   }
 
-def mkInitial (descr : Descr α β σ) : IO (StateStack α β σ) :=
-  return { stateStack := [ { state := (← descr.mkInitial ) } ] }
+def mkInitial (descr : Descr α β σ) : IO (StateStack α β σ) := do
+  let state ← descr.mkInitial
+  return { state, stateStack := [ { state } ] }
 
 def ScopedEntries.insert (scopedEntries : ScopedEntries β) (ns : Name) (b : β) : ScopedEntries β :=
   match scopedEntries.map.find? ns with
@@ -71,26 +88,32 @@ def addImportedFn (descr : Descr α β σ) (as : Array (Array (Entry α))) : Imp
         let b ← descr.ofOLeanEntry s a
         scopedEntries := scopedEntries.insert ns b
   s := descr.finalizeImport s
-  return { stateStack := [ { state := s } ], scopedEntries := scopedEntries }
+  return { state := s, stateStack := [ { state := s } ], scopedEntries := scopedEntries }
 
 def addEntryFn (descr : Descr α β σ) (s : StateStack α β σ) (e : Entry β) : StateStack α β σ :=
   match s with
-  | { stateStack := stateStack, scopedEntries := scopedEntries, newEntries := newEntries } =>
+  | { state := state, stateStack := stateStack, scopedEntries := scopedEntries,
+      newEntries := newEntries } =>
     match e with
-    | Entry.global b => {
+    | Entry.global b =>
+      let stateStack := stateStack.map fun s => { s with state := descr.addEntry s.state b }
+      {
+        state         := headState stateStack state
         scopedEntries := scopedEntries
         newEntries    := (Entry.global (descr.toOLeanEntry b)) :: newEntries
-        stateStack    := stateStack.map fun s => { s with state := descr.addEntry s.state b }
+        stateStack    := stateStack
       }
     | Entry.«scoped» ns b =>
+      let stateStack := stateStack.map fun s =>
+        if s.activeScopes.contains ns then
+          { s with state := descr.addEntry s.state b }
+        else
+          s
       {
+        state         := headState stateStack state
         scopedEntries := scopedEntries.insert ns b
         newEntries    := (Entry.«scoped» ns (descr.toOLeanEntry b)) :: newEntries
-        stateStack    := stateStack.map fun s =>
-          if s.activeScopes.contains ns then
-            { s with state := descr.addEntry s.state b }
-          else
-            s
+        stateStack    := stateStack
       }
 
 def exportEntriesFn (descr : Descr α β σ) (env : Environment) (s : StateStack α β σ) : OLeanEntries (Array (Entry α)) := Id.run do
@@ -118,11 +141,16 @@ open ScopedEnvExtension
 structure ScopedEnvExtension (α : Type) (β : Type) (σ : Type) where
   descr : Descr α β σ
   ext   : PersistentEnvExtension (Entry α) (Entry β) (StateStack α β σ)
+  /--
+  `Inhabited` witness for `ext`'s state, built once at registration. Deriving it from `Inhabited σ`
+  instead would allocate a `StateStack` on every `getState` call.
+  -/
+  defaultState : StateStack α β σ
   deriving Inhabited
 
 builtin_initialize scopedEnvExtensionsRef : IO.Ref (Array (ScopedEnvExtension EnvExtensionEntry EnvExtensionEntry EnvExtensionState)) ← IO.mkRef #[]
 
-unsafe def registerScopedEnvExtensionUnsafe (descr : Descr α β σ) : IO (ScopedEnvExtension α β σ) := do
+unsafe def registerScopedEnvExtensionUnsafe [Inhabited σ] (descr : Descr α β σ) : IO (ScopedEnvExtension α β σ) := do
   let ext ← registerPersistentEnvExtension {
     name            := descr.name
     mkInitial       := mkInitial descr
@@ -136,23 +164,23 @@ unsafe def registerScopedEnvExtensionUnsafe (descr : Descr α β σ) : IO (Scope
     -- or `open in`.
     asyncMode       := .mainOnly
   }
-  let ext := { descr := descr, ext := ext : ScopedEnvExtension α β σ }
+  let ext := { descr := descr, ext := ext, defaultState := default : ScopedEnvExtension α β σ }
   scopedEnvExtensionsRef.modify fun exts => exts.push (unsafeCast ext)
   return ext
 
 @[implemented_by registerScopedEnvExtensionUnsafe]
-opaque registerScopedEnvExtension (descr : Descr α β σ) : IO (ScopedEnvExtension α β σ)
+opaque registerScopedEnvExtension [Inhabited σ] (descr : Descr α β σ) : IO (ScopedEnvExtension α β σ)
 
 def ScopedEnvExtension.pushScope (ext : ScopedEnvExtension α β σ) (env : Environment) : Environment :=
   ext.ext.modifyState (asyncMode := .local) env fun s =>
     match s.stateStack with
     | [] => s
-    | state :: stack => { s with stateStack := { state with delimitsLocal := true } :: state :: stack }
+    | state :: stack => s.setStateStack <| { state with delimitsLocal := true } :: state :: stack
 
 def ScopedEnvExtension.popScope (ext : ScopedEnvExtension α β σ) (env : Environment) : Environment :=
   ext.ext.modifyState (asyncMode := .local) env fun s =>
     match s.stateStack with
-    | _      :: state₂ :: stack => { s with stateStack := state₂ :: stack }
+    | _      :: state₂ :: stack => s.setStateStack <| state₂ :: stack
     | _ => s
 
 /-- Modifies `delimitsLocal` flag to `false` on the top `depth` entries of the state stack,
@@ -161,7 +189,7 @@ to turn off delimiting of local entries across multiple implicit scope levels
 -/
 def ScopedEnvExtension.setDelimitsLocal (ext : ScopedEnvExtension α β σ) (env : Environment) (depth : Nat) : Environment :=
   ext.ext.modifyState (asyncMode := .local) env fun s =>
-    {s with stateStack := go depth s.stateStack}
+    s.setStateStack <| go depth s.stateStack
 where
   go : Nat → List (State σ) → List (State σ)
     | 0, stack => stack
@@ -190,7 +218,7 @@ def stateStackModify (ext : ScopedEnvExtension α β σ) (states : List (State �
 
 def ScopedEnvExtension.addLocalEntry (ext : ScopedEnvExtension α β σ) (env : Environment) (b : β) : Environment :=
   ext.ext.modifyState (asyncMode := .local) env fun s =>
-    {s with stateStack := stateStackModify ext s.stateStack b}
+    s.setStateStack <| stateStackModify ext s.stateStack b
 
 def ScopedEnvExtension.addCore (env : Environment) (ext : ScopedEnvExtension α β σ) (b : β) (kind : AttributeKind) (namespaceName : Name) : Environment :=
   match kind with
@@ -202,11 +230,10 @@ def ScopedEnvExtension.add [Monad m] [MonadResolveName m] [MonadEnv m] (ext : Sc
   let ns ← getCurrNamespace
   modifyEnv (ext.addCore · b kind ns)
 
-def ScopedEnvExtension.getState [Inhabited σ] (ext : ScopedEnvExtension α β σ)
+def ScopedEnvExtension.getState (ext : ScopedEnvExtension α β σ)
     (env : Environment) (asyncMode := ext.ext.toEnvExtension.asyncMode) : σ :=
-  match ext.ext.getState (asyncMode := asyncMode) env |>.stateStack with
-  | top :: _ => top.state
-  | _        => unreachable!
+  haveI : Inhabited (StateStack α β σ) := ⟨ext.defaultState⟩
+  ext.ext.getState (asyncMode := asyncMode) env |>.state
 
 def ScopedEnvExtension.activateScoped (ext : ScopedEnvExtension α β σ) (env : Environment) (namespaceName : Name) : Environment :=
   ext.ext.modifyState (asyncMode := .local) env fun s =>
@@ -225,13 +252,13 @@ def ScopedEnvExtension.activateScoped (ext : ScopedEnvExtension α β σ) (env :
             for b in bs do
               state := ext.descr.addEntry state b
             { state := state, activeScopes := activeScopes }
-        { s with stateStack := top :: stack }
+        s.setStateStack <| top :: stack
     | _ => s
 
 def ScopedEnvExtension.modifyState (ext : ScopedEnvExtension α β σ) (env : Environment) (f : σ → σ) : Environment :=
   ext.ext.modifyState env fun s =>
     match s.stateStack with
-    | top :: stack => { s with stateStack := { top with state := f top.state } :: stack }
+    | top :: stack => s.setStateStack <| { top with state := f top.state } :: stack
     | _ => s
 
 def pushScope [Monad m] [MonadEnv m] [MonadLiftT (ST IO.RealWorld) m] : m Unit := do
@@ -262,7 +289,8 @@ structure SimpleScopedEnvExtension.Descr (α : Type) (σ : Type) where
   finalizeImport : σ → σ := id
   exportEntry?   : Environment → α → OLeanEntries (Option α) := fun _ a => .uniform (some a)
 
-def registerSimpleScopedEnvExtension (descr : SimpleScopedEnvExtension.Descr α σ) : IO (SimpleScopedEnvExtension α σ) := do
+def registerSimpleScopedEnvExtension (descr : SimpleScopedEnvExtension.Descr α σ) : IO (SimpleScopedEnvExtension α σ) :=
+  haveI : Inhabited σ := ⟨descr.initial⟩
   registerScopedEnvExtension {
     name           := descr.name
     mkInitial      := return descr.initial

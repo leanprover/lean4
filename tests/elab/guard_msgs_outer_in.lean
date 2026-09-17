@@ -3,13 +3,13 @@
 -/
 
 /-- error: Unknown option `foo` -/
-#guard_msgs in
+#guard_msgs (substring := true) in
 set_option foo true in
 #guard_msgs in
 example := True
 
 /-- error: Unknown attribute `[foo]` -/
-#guard_msgs in
+#guard_msgs (substring := true) in
 attribute [foo] foo in
 #guard_msgs in
 example := True

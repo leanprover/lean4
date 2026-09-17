@@ -16,5 +16,5 @@
  {"start": {"line": 10, "character": 4}, "end": {"line": 10, "character": 41}},
  "contents":
  {"value":
-  "`exact e` closes the main goal if its target type matches that of `e`.\n",
+  "`exact e` closes the main goal if its conclusion matches the type of the term `e`\nat default transparency.\n\nIf `e` contains holes (`?x`, `?_` or `_`) or implicit parameters that are not solved by unification\nor instance synthesis, `exact e` fails. Use the `refine` tactic to introduce side goals for\nunsolved holes.\n",
   "kind": "markdown"}}

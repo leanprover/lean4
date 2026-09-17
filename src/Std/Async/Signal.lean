@@ -18,7 +18,7 @@ namespace Async
 /--
 Unix style signals for Unix and Windows.
 SIGKILL and SIGSTOP are missing because they cannot be caught.
-SIGBUS, SIGFPE, SIGILL, and SIGSEGV are missing because they cannot be caught safely by libuv.
+SIGBUS, SIGFPE, SIGILL, and SIGSEGV are missing because they cannot be caught safely.
 SIGPIPE is not present because the runtime ignores the signal.
 -/
 inductive Signal

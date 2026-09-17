@@ -9,6 +9,7 @@ prelude
 public import Init.Data.UInt.Log2
 public import Lean.Compiler.LCNF.InferType
 import Init.Data.UInt.Lemmas
+import Lean.Util.SafeExponentiation
 
 public section
 
@@ -224,6 +225,17 @@ def Folder.mkBinary [Literal α] [Literal β] [Literal γ] (folder : α → β �
   let some arg₁ ← getLit fvarId₁ | return none
   let some arg₂ ← getLit fvarId₂ | return none
   mkLit <| folder arg₁ arg₂
+
+/--
+Folds `Nat.shiftLeft` on literals, unless the runtime cannot evaluate the shift
+(see `canEvalNatShiftLeft`).
+-/
+def Folder.natShiftLeft : Folder := fun args => do
+  let #[.fvar fvarId₁, .fvar fvarId₂] := args | return none
+  let some (arg₁ : Nat) ← getLit fvarId₁ | return none
+  let some (arg₂ : Nat) ← getLit fvarId₂ | return none
+  unless canEvalNatShiftLeft arg₁ arg₂ do return none
+  mkLit (arg₁ <<< arg₂)
 
 def Folder.mkBinaryDecisionProcedure [Literal α] [Literal β] {r : α → β → Prop} (folder : (a : α) → (b : β) → Decidable (r a b)) : Folder := fun args => do
   let #[.fvar fvarId₁, .fvar fvarId₂] := args | return none
@@ -530,7 +542,7 @@ def arithmeticFolders : List (Name × Folder) := [
   (``UInt64.div,  Folder.first #[Folder.mkBinary UInt64.div, Folder.rightNeutral (1 : UInt64) (· / ·), Folder.divShift ``UInt64.shiftRight (UInt64.shiftLeft 1 ·) UInt64.log2]),
   (``USize.div,  Folder.first #[Folder.mkBinaryUSize UInt64.div UInt32.div, Folder.rightNeutralUSize 1 1, Folder.divShiftUSize]),
 
-  (``Nat.shiftLeft, Folder.first #[Folder.mkBinary Nat.shiftLeft, Folder.rightNeutral 0 Nat.shiftLeft (by intros; rfl)]),
+  (``Nat.shiftLeft, Folder.first #[Folder.natShiftLeft, Folder.rightNeutral 0 Nat.shiftLeft (by intros; rfl)]),
   (``UInt8.shiftLeft, Folder.first #[Folder.mkBinary UInt8.shiftLeft, Folder.rightNeutral 0 UInt8.shiftLeft @UInt8.shiftLeft_zero]),
   (``UInt16.shiftLeft, Folder.first #[Folder.mkBinary UInt16.shiftLeft, Folder.rightNeutral 0 UInt16.shiftLeft @UInt16.shiftLeft_zero]),
   (``UInt32.shiftLeft, Folder.first #[Folder.mkBinary UInt32.shiftLeft, Folder.rightNeutral 0 UInt32.shiftLeft @UInt32.shiftLeft_zero]),

@@ -362,3 +362,83 @@ blank line longer than the indentation:
     IO.println s!"{what}:"
     for (content, trailing) in codeBlockTokens (← theBlock input) do
       IO.println s!"  content {content.quote}, trailing {trailing.quote}"
+
+/-!
+Every abbrev for Verso content has a `view` function that decodes it, reached by dot notation on a
+value whose type is written as the abbrev.
+-/
+
+/--
+info: text: "a*b"
+code: "Nat.add"
+opening delimiter: "`"
+image alt: "a]b"
+link URL: "u)v"
+footnote name: "a-b"
+link reference URL: "u"
+code block: "a\nb\n"
+first code line: "a\n"
+blocks in document: 2
+inline element: "Nat.add"
+block element: "a\nb\n"
+-/
+#guard_msgs in
+#eval show CommandElabM Unit from do
+  let some (.text text) := InlineView.of ⟨← theInline "a\\*b"⟩
+    | throwError "expected text"
+  IO.println s!"text: {text.content.view.quote}"
+  let some (.code code) := InlineView.of ⟨← theInline "`Nat.add`"⟩
+    | throwError "expected code"
+  IO.println s!"code: {code.content.view.quote}"
+  let opener : VersoDelimiter := ⟨code.opener.raw⟩
+  IO.println s!"opening delimiter: {opener.view.quote}"
+  let some (.image { alt, target := .url _ _ url _, .. }) :=
+      InlineView.of ⟨← theInline "![a\\]b](u\\)v)"⟩
+    | throwError "expected an image"
+  IO.println s!"image alt: {alt.view.quote}"
+  IO.println s!"link URL: {url.view.quote}"
+  let some (.footnote footnote) := InlineView.of ⟨← theInline "[^a-b]"⟩
+    | throwError "expected a footnote"
+  IO.println s!"footnote name: {footnote.name.view.quote}"
+  let some (.linkRef linkRef) := BlockView.of ⟨← theBlock "[a-b]: u"⟩
+    | throwError "expected a link reference"
+  IO.println s!"link reference URL: {linkRef.url.view.quote}"
+  let some (.codeblock codeblock) := BlockView.of ⟨← theBlock "```\na\nb\n```\n"⟩
+    | throwError "expected a code block"
+  IO.println s!"code block: {codeblock.content.view.quote}"
+  let firstLine : VersoCodeLine := codeblock.content.getVersoCodeBlockLines[0]!
+  IO.println s!"first code line: {firstLine.view.quote}"
+  let input := "a\n\nb\n"
+  let ictx := mkInputContext input "<input>"
+  let env : Environment ← mkEmptyEnvironment
+  let s := documentFn.run ictx {env, options := {}} (getTokenTable env) (mkParserState input)
+  let doc : VersoDocument := ⟨s.stxStack.back⟩
+  IO.println s!"blocks in document: {doc.view.size}"
+  let inline : VersoInline := ⟨← theInline "`Nat.add`"⟩
+  let .code inlineCode := inline.view
+    | throwError "expected code"
+  IO.println s!"inline element: {inlineCode.content.view.quote}"
+  let block : VersoBlock := ⟨← theBlock "```\na\nb\n```\n"⟩
+  let .codeblock blockCode := block.view
+    | throwError "expected a code block"
+  IO.println s!"block element: {blockCode.content.view.quote}"
+
+/-!
+A view of an inline or a block element is total: malformed syntax decodes to a default view, as
+`TSyntax.getString` reads a malformed string literal as `""`.
+-/
+
+/--
+info: inline view of missing syntax: text, missing syntax: true
+block view of missing syntax: para, missing syntax: true
+-/
+#guard_msgs in
+#eval show CommandElabM Unit from do
+  let inline : VersoInline := ⟨.missing⟩
+  let .text text := inline.view
+    | throwError "expected the default view"
+  IO.println s!"inline view of missing syntax: text, missing syntax: {text.stx.raw.isMissing}"
+  let block : VersoBlock := ⟨.missing⟩
+  let .para para := block.view
+    | throwError "expected the default view"
+  IO.println s!"block view of missing syntax: para, missing syntax: {para.stx.raw.isMissing}"

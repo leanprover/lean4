@@ -525,6 +525,7 @@ structure TextView where
   stx : TSyntax ``Parser.inline
   /-- The text. -/
   content : VersoText
+deriving Inhabited
 
 /-- Decodes the Verso text contained in the view, interpreting escape sequences. -/
 def TextView.getVersoText (v : TextView) : String := v.content.getVersoText
@@ -784,6 +785,7 @@ inductive InlineView where
   | linebreak (view : LinebreakView)
   /-- A role applied to some content. -/
   | role (view : RoleView)
+deriving Inhabited
 
 instance : Coe TextView InlineView := ⟨.text⟩
 instance : Coe EmphView InlineView := ⟨.emph⟩
@@ -904,6 +906,7 @@ structure ParaView where
   stx : TSyntax ``Parser.block
   /-- The paragraph's contents. -/
   content : TSyntaxArray ``Parser.inline
+deriving Inhabited
 
 /-- A view of `stx`, if it is a paragraph. -/
 def ParaView.of (stx : TSyntax ``Parser.block) : Option ParaView :=
@@ -1189,6 +1192,7 @@ inductive BlockView where
   | footnoteRef (view : FootnoteRefView)
   /-- A metadata block for the preceding header. -/
   | metadata (view : MetadataView)
+deriving Inhabited
 
 instance : Coe ParaView BlockView := ⟨.para⟩
 instance : Coe UnorderedListView BlockView := ⟨.ul⟩
@@ -1239,5 +1243,19 @@ def BlockView.of (stx : TSyntax ``Parser.block) : Option BlockView :=
   .linkRef <$> LinkRefView.of stx <|>
   .footnoteRef <$> FootnoteRefView.of stx <|>
   .metadata <$> MetadataView.of stx
+
+/--
+Returns a view of an inline element of a Verso document.
+
+Returns `default` if the syntax is malformed.
+-/
+def VersoInline.view (stx : VersoInline) : InlineView := (InlineView.of stx).getD default
+
+/--
+Returns a view of a block-level element of a Verso document.
+
+Returns `default` if the syntax is malformed.
+-/
+def VersoBlock.view (stx : VersoBlock) : BlockView := (BlockView.of stx).getD default
 
 end

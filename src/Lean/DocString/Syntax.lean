@@ -401,37 +401,37 @@ def parseFailureKind : SyntaxNodeKind := `Lean.Doc.Parser.parseFailure
 
 /--
 Text content in a Verso document. The token contains the source text with escape sequences
-intact. Use `TSyntax.getVersoText` to decode it.
+intact. Use `VersoText.view` or `TSyntax.getVersoText` to decode it.
 -/
 abbrev VersoText := TSyntax ``versoText
 
 /--
-The name of a footnote or a link reference in a Verso document. Use `TSyntax.getVersoRefName` to
-read it. These names may not contain `[`, `]`, `^`, newlines, or tabs.
+The name of a footnote or a link reference in a Verso document. Use `VersoRefName.view` or
+`TSyntax.getVersoRefName` to decode its name to a string.
 -/
 abbrev VersoRefName := TSyntax ``versoRef
 
 /--
-The URL of a link or an image in a Verso document. Use `TSyntax.getVersoLinkUrl` to read it.
+The URL of a link or an image in a Verso document. Use `VersoLinkUrl.view` or
+`TSyntax.getVersoLinkUrl` to decode the URL to a string.
 -/
 abbrev VersoLinkUrl := TSyntax ``versoLinkUrl
 
 /--
 The URL that a link reference definition provides in a Verso document. Use
-`TSyntax.getVersoLinkRefUrl` to read it.
+`VersoLinkRefUrl.view` or `TSyntax.getVersoLinkRefUrl` to decode the URL to a string.
 -/
 abbrev VersoLinkRefUrl := TSyntax ``versoLinkRefUrl
 
 /--
-The alternate text of an image in a Verso document. Use `TSyntax.getVersoImageAlt` to read it.
-
-It may contain `]` behind an escape character, and the escape remains part of the content.
+The alternate text of an image in a Verso document. Use `VersoImageAlt.view` or
+`TSyntax.getVersoImageAlt` to decode the alternate text to a string.
 -/
 abbrev VersoImageAlt := TSyntax ``versoImageAlt
 
 /--
 Inline code content in a Verso document, with one `versoCodeLine` token per source line. Use
-`TSyntax.getVersoCode` to read the code.
+`VersoCode.view` or `TSyntax.getVersoCode` to decode it to a string.
 -/
 abbrev VersoCode := TSyntax ``versoCode
 
@@ -439,12 +439,15 @@ abbrev VersoCode := TSyntax ``versoCode
 A single source line of code content in a Verso document, inside inline code or a code block. Only
 indentation that is semantically part of the line of code is included in the atom, while
 indentation of a code block or docstring as a whole is part of the tokens' whitespace.
+
+Use `VersoCodeLine.view` or `TSyntax.getVersoCodeLine` to decode the line to a string.
 -/
 abbrev VersoCodeLine := TSyntax ``versoCodeLine
 
 /--
 Code block content in a Verso document, with one `versoCodeLine` token per source line. The code
-block's indentation is whitespace between tokens. Use `TSyntax.getVersoCodeBlock` to read the code.
+block's indentation is whitespace between tokens. Use `VersoCodeBlock.view` or
+`TSyntax.getVersoCodeBlock` to decode it to a string.
 -/
 abbrev VersoCodeBlock := TSyntax ``versoCodeBlock
 
@@ -515,7 +518,7 @@ public section
 open Lean.Doc
 
 /--
-Decodes and returns the text that a Verso text token denotes, decoding escape sequences.
+Decodes the text that a Verso text token denotes, interpreting escape sequences.
 -/
 def getVersoText (s : VersoText) : String :=
   unescapeVerso <| (Syntax.isLit? versoTextKind s.raw).getD ""
@@ -527,13 +530,13 @@ def getVersoTextSource (s : VersoText) : String :=
   (Syntax.isLit? versoTextKind s.raw).getD ""
 
 /--
-Decodes and returns the name that a Verso footnote or link reference token contains.
+Decodes the name that a Verso footnote or link reference token contains.
 -/
 def getVersoRefName (s : VersoRefName) : String :=
   (Syntax.isLit? versoRefKind s.raw).getD ""
 
 /--
-Returns the URL that a Verso link or image token contains, as it was written.
+Decodes the URL that a Verso link or image token contains, interpreting escape sequences.
 -/
 def getVersoLinkUrl (s : VersoLinkUrl) : String :=
   unescapeVerso <| (Syntax.isLit? versoLinkUrlKind s.raw).getD ""
@@ -546,7 +549,7 @@ def getVersoLinkRefUrl (s : VersoLinkRefUrl) : String :=
   (Syntax.isLit? versoLinkRefUrlKind s.raw).getD ""
 
 /--
-Returns the alternate text that a Verso image token contains, as it was written.
+Decodes the alternate text that a Verso image token contains, interpreting escape sequences.
 -/
 def getVersoImageAlt (s : VersoImageAlt) : String :=
   unescapeVerso <| (Syntax.isLit? versoImageAltKind s.raw).getD ""
@@ -592,6 +595,38 @@ def getVersoCodeBlock (s : VersoCodeBlock) : String := Id.run do
 end
 
 end Lean.TSyntax
+
+namespace Lean.Doc
+
+public section
+
+@[inherit_doc TSyntax.getVersoText]
+def VersoText.view (s : VersoText) : String := s.getVersoText
+
+@[inherit_doc TSyntax.getVersoRefName]
+def VersoRefName.view (s : VersoRefName) : String := s.getVersoRefName
+
+@[inherit_doc TSyntax.getVersoLinkUrl]
+def VersoLinkUrl.view (s : VersoLinkUrl) : String := s.getVersoLinkUrl
+
+@[inherit_doc TSyntax.getVersoLinkRefUrl]
+def VersoLinkRefUrl.view (s : VersoLinkRefUrl) : String := s.getVersoLinkRefUrl
+
+@[inherit_doc TSyntax.getVersoImageAlt]
+def VersoImageAlt.view (s : VersoImageAlt) : String := s.getVersoImageAlt
+
+@[inherit_doc TSyntax.getVersoCodeLine]
+def VersoCodeLine.view (s : VersoCodeLine) : String := s.getVersoCodeLine
+
+@[inherit_doc TSyntax.getVersoCode]
+def VersoCode.view (s : VersoCode) : String := s.getVersoCode
+
+@[inherit_doc TSyntax.getVersoCodeBlock]
+def VersoCodeBlock.view (s : VersoCodeBlock) : String := s.getVersoCodeBlock
+
+end
+
+end Lean.Doc
 
 /-!
 The kinds of the nodes that the Verso parser builds, grouped by syntax category as
@@ -1075,9 +1110,23 @@ public section
 /--
 A Verso document, which is a sequence of blocks.
 
-Use `TSyntax.getVersoBlocks` to extract its contents.
+Use `VersoDocument.view` or `TSyntax.getVersoBlocks` to extract its contents.
 -/
 abbrev VersoDocument := TSyntax ``Parser.document
+
+/--
+An inline element of a Verso document, such as text, emphasis, or a link.
+
+Use `VersoInline.view` to inspect it.
+-/
+abbrev VersoInline := TSyntax ``Parser.inline
+
+/--
+A block-level element of a Verso document, such as a paragraph, a list, or a code block.
+
+Use `VersoBlock.view` to inspect it.
+-/
+abbrev VersoBlock := TSyntax ``Parser.block
 
 /--
 A delimiter of a Verso element, such as the backticks around a code literal or the asterisks around
@@ -1085,7 +1134,7 @@ bold text. The markers that introduce a header, a list item, and mathematical no
 delimiters too.
 
 Each sits in a node of its own, so that a quotation can splice one in place of writing it out. Use
-`TSyntax.getVersoDelimiter` to read its characters.
+`VersoDelimiter.view` or `TSyntax.getVersoDelimiter` to read its characters.
 -/
 abbrev VersoDelimiter :=
   TSyntax [``Parser.emphDelimiter, ``Parser.boldDelimiter,
@@ -1124,6 +1173,12 @@ end Lean.TSyntax
 namespace Lean.Doc
 
 public section
+
+@[inherit_doc TSyntax.getVersoBlocks]
+def VersoDocument.view (doc : VersoDocument) : Array VersoBlock := doc.getVersoBlocks
+
+@[inherit_doc TSyntax.getVersoDelimiter]
+def VersoDelimiter.view (delim : VersoDelimiter) : String := delim.getVersoDelimiter
 
 /-- A document stands for the blocks it contains. -/
 instance : Coe VersoDocument (TSyntaxArray ``Parser.block) where

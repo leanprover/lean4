@@ -2146,7 +2146,11 @@ Listing the syntax kinds that `documentFn` produces ensures that we don't get sp
 dependencies.
 -/
 public def documentInfo : ParserInfo where
-  collectKinds s := documentKinds.foldl (·.insert ·) s
+  -- `docComment` is part of every builtin parser with `declModifiers`. The check prior to the
+  -- insert saves significant initialization time.
+  collectKinds s :=
+    documentKinds.foldl (init := s) fun s k =>
+      if s.contains k then s else s.insert k
 
 section
 open Lean.PrettyPrinter

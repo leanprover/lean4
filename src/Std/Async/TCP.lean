@@ -27,6 +27,15 @@ structure Server where
     native : Internal.UV.TCP.Socket
 
 /--
+The keep-alive delay in seconds, which has to fit in a `UInt32`.
+-/
+private def keepAliveDelay (delay : Std.Time.Second.Offset) : IO UInt32 := do
+  let seconds := delay.val.toNat
+  if seconds < UInt32.size then
+    return seconds.toUInt32
+  throw <| IO.userError s!"keep-alive delay of {seconds} s is too large"
+
+/--
 Represents a TCP client socket, used to connect to a server.
 -/
 structure Client where
@@ -86,21 +95,18 @@ def acceptSelector (s : TCP.Socket.Server) : Selector Client :=
       s.tryAccept
 
     registerFn waiter := do
-      let task ← s.native.accept
+      let ready ← s.native.waitAcceptable
 
       -- If we get cancelled the promise will be dropped so prepare for that
-      IO.chainTask (t := task.result?) fun res => do
-        match res with
-        | none => return ()
+      IO.chainTask (t := ready.result?) fun
+        | none => pure ()
         | some res =>
-          let lose := return ()
-          let win promise := do
-            try
-              let result ← IO.ofExcept res
-              promise.resolve (.ok (Client.ofNative result))
-            catch e =>
-              promise.resolve (.error e)
-          waiter.race lose win
+          waiter.race (lose := pure ()) fun promise => do
+            -- A connection is pending, so this accept does not wait.
+            match ← (do IO.ofExcept res; s.tryAccept).toBaseIO with
+            | .ok (some client) => promise.resolve (.ok client)
+            | .ok none => promise.resolve (.error (.userError "the pending connection was accepted concurrently"))
+            | .error e => promise.resolve (.error e)
 
     unregisterFn := s.native.cancelAccept
   }
@@ -123,8 +129,8 @@ def noDelay (s : Server) : IO Unit :=
 Enables TCP keep-alive for all client sockets accepted by this server socket.
 -/
 @[inline]
-def keepAlive (s : Server) (enable : Bool) (delay : Std.Time.Second.Offset) (_ : delay.val ≥ 1 := by decide) : IO Unit :=
-  s.native.keepAlive enable.toInt8 delay.val.toNat.toUInt32
+def keepAlive (s : Server) (enable : Bool) (delay : Std.Time.Second.Offset) (_ : delay.val ≥ 1 := by decide) : IO Unit := do
+  s.native.keepAlive enable.toInt8 (← keepAliveDelay delay)
 
 end Server
 
@@ -206,8 +212,6 @@ def recvSelector (s : TCP.Socket.Client) (size : UInt64) : Selector (Option Byte
           let win promise := do
             try
               discard <| IO.ofExcept res
-              -- Chained rather than blocked on: blocking a pool worker makes the task manager spawn
-              -- a replacement thread.
               let readPromise ← s.native.recv? size
               discard <| BaseIO.mapTask (t := AsyncTask.ofPromise readPromise) promise.resolve
             catch e =>
@@ -249,8 +253,8 @@ def noDelay (s : Client) : IO Unit :=
 Enables TCP keep-alive with a specified delay for the client socket.
 -/
 @[inline]
-def keepAlive (s : Client) (enable : Bool) (delay : Std.Time.Second.Offset) (_ : delay.val ≥ 0 := by decide) : IO Unit :=
-  s.native.keepAlive enable.toInt8 delay.val.toNat.toUInt32
+def keepAlive (s : Client) (enable : Bool) (delay : Std.Time.Second.Offset) (_ : delay.val ≥ 0 := by decide) : IO Unit := do
+  s.native.keepAlive enable.toInt8 (← keepAliveDelay delay)
 
 end Client
 end Socket

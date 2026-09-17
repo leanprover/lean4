@@ -66,6 +66,10 @@ where
   termination_by r
   decreasing_by exact Nat.mod_lt _ (Nat.pos_of_ne_zero _h)
 
+@[export lean_nat_extended_gcd_fallback]
+private def extendedGcdFallback (a b : Nat) : ExtendedGcdResult :=
+  extendedGcd.go a 1 0 b 0 1
+
 @[simp] theorem extendedGcd_zero_left (b : Nat) : extendedGcd 0 b = ⟨b, 0, 1⟩ := by
   rw [extendedGcd, extendedGcd.go]
   rfl

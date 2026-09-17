@@ -158,7 +158,7 @@ partial def ofElem (stx : DoElem) : TermElabM ControlInfo := do
     ofLetOrReassign #[] none otherwise body?
   | `(doElem| let $[mut]? $_:letConfig $decl) =>
     ofLetOrReassignArrow false decl
-  | `(doErased| erased $[mut]? $_) => return .pure
+  | `(doElem| erased $[mut]? $_) => return .pure
   | `(doElem| $decl:letIdDeclNoBinders) =>
     ofLetOrReassign (← getLetIdDeclVars ⟨decl⟩) none none none
   | `(doElem| $decl:letPatDecl) =>

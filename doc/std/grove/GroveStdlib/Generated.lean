@@ -26,3 +26,4 @@ def restoreState : RestoreStateM Unit := do
   «numeric-order-instances».restoreState
   «slice-producing».restoreState
   «slice-producing-complete».restoreState
+  return ()

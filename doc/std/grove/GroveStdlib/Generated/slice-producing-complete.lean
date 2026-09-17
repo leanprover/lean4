@@ -9,11 +9,8 @@ open Grove.Framework Widget
 
 namespace GroveStdlib.Generated.«slice-producing-complete»
 
-
-def table : Assertion.Data  where
-  widgetId := "slice-producing-complete"
-  facts := #[
-  ]
+def table : RestoreStateM Assertion.Data :=
+  readSavedState savedStateFile%
 
 def restoreState : RestoreStateM Unit := do
-  addAssertion table
+  addAssertion (← table)

@@ -35,11 +35,12 @@ typedef struct {
     int             m_signum;      // Signal number to watch for.
     int             m_lean_signum; // `m_signum` in the encoding of `Signal.toInt32`, reported to waiters.
     bool            m_repeating;   // Flag indicating if the signal handler is repeating.
+    bool            m_received;    // Whether a repeating signal arrived while no promise was pending.
     uv_signal_state m_state;       // The state of the signal.
 } lean_uv_signal_object;
 
 // `m_promise` may be NULL in any state: `stop` leaves a FINISHED signal without one, and `cancel`
-// on a repeating signal leaves it RUNNING without one. A repeating signal also keeps its last
+// leaves it RUNNING without one. A repeating signal also keeps its last
 // promise after resolving it, until `next` replaces it.
 
 // =======================================

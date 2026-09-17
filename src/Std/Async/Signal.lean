@@ -192,12 +192,6 @@ private def toInt32 : Signal → Int32
 structure Waiter where
   private ofNative ::
     native : Internal.UV.Signal
-    /-- Whether a continuation is attached to the current promise of `native` for `selector`. -/
-    private armed : IO.Ref Bool
-    /-- The `Waiter` of the select that is currently registered through `selector`, if any. -/
-    private registered : IO.Ref (Option (Async.Waiter Unit))
-    /-- Whether a signal arrived while no select was registered, so the next select wins at once. -/
-    private unclaimed : IO.Ref Bool
 
 namespace Waiter
 
@@ -208,7 +202,7 @@ This function only initializes but does not yet start listening for the signal.
 @[inline]
 def mk (signum : Signal) (repeating : Bool) : IO Signal.Waiter := do
   let native ← Internal.UV.Signal.mk signum.toInt32 repeating
-  return .ofNative native (← IO.mkRef false) (← IO.mkRef none) (← IO.mkRef false)
+  return .ofNative native
 
 /--
 If:
@@ -244,32 +238,22 @@ A select that `s` loses leaves it listening, and a signal that arrives before th
 reported by that select, so `stop` has to be called once `s` is no longer needed.
 -/
 def selector (s : Signal.Waiter) : Selector Unit :=
-  let claim (waiter : Async.Waiter Unit) : BaseIO Unit :=
-    waiter.race (lose := s.unclaimed.set true) (win := fun promise => promise.resolve (.ok ()))
   {
     tryFn := do
-      if ← s.unclaimed.modifyGet (·, false) then
-        return some ()
       let signalWaiter ← s.native.next
       if ← signalWaiter.isResolved then
         return some ()
       else
+        s.native.cancel
         return none
 
     registerFn waiter := do
-      s.registered.set (some waiter)
-      -- One continuation per promise, so that a signal is claimed at most once.
-      unless ← s.armed.modifyGet (·, true) do
-        let signalWaiter ← s.wait
-        discard <| AsyncTask.mapIO (x := signalWaiter) fun _ => do
-          s.armed.set false
-          match ← s.registered.modifyGet (·, none) with
-          | some registered => claim registered
-          | none => s.unclaimed.set true
-      -- A signal claimed by nobody between `tryFn` and this registration.
-      if ← s.unclaimed.modifyGet (·, false) then
-        claim waiter
+      let signalWaiter ← s.wait
+      discard <| AsyncTask.mapIO (x := signalWaiter) fun _ => do
+        let lose := return ()
+        let win promise := promise.resolve (.ok ())
+        waiter.race lose win
 
-    unregisterFn := s.registered.set none
+    unregisterFn := s.native.cancel
 
   }

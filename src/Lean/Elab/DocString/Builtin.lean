@@ -117,24 +117,6 @@ deriving TypeName, Repr
 
 
 
-private def onlyCodes [Monad m] [MonadError m]
-    (stxs : TSyntaxArray ``Parser.inline) : m (Array VersoCode) := do
-  let mut codes := #[]
-  for stx in stxs do
-    match InlineView.of stx with
-    | some (.code v) => codes := codes.push v.content
-    | some (.text v) =>
-      unless v.content.getVersoText.all Char.isWhitespace do
-        throwErrorAt stx "Expected code"
-    | _ => throwErrorAt stx "Expected code"
-  return codes
-
-private def onlyCode [Monad m] [MonadError m]
-    (stxs : TSyntaxArray ``Parser.inline) : m VersoCode := do
-  let codes ← onlyCodes stxs
-  if h : codes.size = 1 then return codes[0]
-  else throwError "Expected precisely 1 code argument"
-
 private def strLitRange [Monad m] [MonadFileMap m] (s : StrLit) : m Lean.Syntax.Range := do
   let pos := (s.raw.getPos? (canonicalOnly := true)).get!
   let endPos := s.raw.getTailPos? true |>.get!

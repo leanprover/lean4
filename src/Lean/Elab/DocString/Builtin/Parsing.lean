@@ -7,6 +7,7 @@ module
 prelude
 public import Lean.Parser.Extension
 public import Lean.DocString.Syntax
+public import Lean.DocString.View
 public import Init.While
 import Init.Data.Array.Attach
 import Init.Data.Array.Mem
@@ -15,6 +16,50 @@ namespace Lean.Doc
 open Lean.Parser
 
 public section
+
+/--
+Requires that all non-whitespace arguments to a role are code elements, returning their content if
+so. Throws an error otherwise.
+-/
+def onlyCodes [Monad m] [MonadError m] (xs : TSyntaxArray ``Parser.inline) :
+    m (Array VersoCode) := do
+  let mut codes := #[]
+  for stx in xs do
+    match InlineView.of stx with
+    | some (.code v) => codes := codes.push v.content
+    | some (.text v) =>
+      unless v.content.view.all Char.isWhitespace do
+        throwErrorAt stx "Expected code"
+    | _ => throwErrorAt stx "Expected code"
+  return codes
+
+/--
+The syntax that spans a role's inline arguments, together with the square brackets around them (if
+present). Arguments that cover no source text of their own are named by the role instead.
+
+The arguments are the content of the role that is being elaborated, which is the current reference.
+-/
+private def argumentRange [Monad m] [MonadRef m] (xs : TSyntaxArray ``Parser.inline) : m Syntax := do
+  let ref ← getRef
+  if let some { brackets := some (opener, closer), .. } := RoleView.of ⟨ref⟩ then
+    return mkNullNode (#[opener] ++ xs.map (·.raw) ++ #[closer])
+  if xs.all isBlank then return ref
+  return mkNullNode (xs.map (·.raw))
+where
+  isBlank (x : TSyntax ``Parser.inline) : Bool :=
+    match InlineView.of x with
+    | some (.text v) => v.content.view.all Char.isWhitespace
+    | _ => false
+
+/--
+Requires that the non-whitespace arguments to a role are a single code element, returning its
+content if so. Throws an error otherwise.
+-/
+def onlyCode [Monad m] [MonadError m] (xs : TSyntaxArray ``Parser.inline) :
+    m VersoCode := do
+  let codes ← onlyCodes xs
+  if h : codes.size = 1 then return codes[0]
+  else throwErrorAt (← argumentRange xs) "Expected precisely 1 code argument"
 
 private def strLitRange [Monad m] [MonadFileMap m] (s : StrLit) : m Lean.Syntax.Range := do
   let pos := (s.raw.getPos? (canonicalOnly := true)).get!

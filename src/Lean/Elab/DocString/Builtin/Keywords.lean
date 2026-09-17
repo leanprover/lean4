@@ -6,6 +6,7 @@ Author: David Thrane Christiansen
 
 module
 prelude
+public import Lean.Elab.DocString.Builtin.Parsing
 public import Lean.Elab.DocString.Builtin.Scopes
 public import Lean.Elab.DocString.Builtin.Postponed
 public meta import Lean.Elab.DocString.Builtin.Postponed
@@ -30,16 +31,6 @@ public structure Data.Atom where
   /-- The syntax category -/
   category : Name
 deriving TypeName
-
-
-def onlyCode [Monad m] [MonadError m] (xs : TSyntaxArray ``Parser.inline) :
-    m VersoCode := do
-  if h : xs.size = 1 then
-    match InlineView.of xs[0] with
-    | some (.code v) => return v.content
-    | _ => throwErrorAt xs[0] "Expected code"
-  else
-    throwError "Expected precisely 1 code argument"
 
 
 /--

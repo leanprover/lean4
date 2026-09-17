@@ -912,3 +912,46 @@ category: term
     IO.println s!"category: {atom.category}"
 
 end KwAtomPublicTests
+
+/-!
+A role that takes a single code element reports content that is not code at that content, and a
+wrong number of code elements at the arguments, brackets included.
+-/
+
+/--
+@ +2:7...12
+error: Expected code
+-/
+#guard_msgs (positions := true) in
+/--
+{name}[text `Nat.add`]
+-/
+def notCode := 0
+
+/--
+@ +2:6...27
+error: Expected precisely 1 code argument
+-/
+#guard_msgs (positions := true) in
+/--
+{name}[`Nat.add` `Nat.mul`]
+-/
+def twoCodes := 0
+
+/--
+@ +2:6...8
+error: Expected precisely 1 code argument
+-/
+#guard_msgs (positions := true) in
+/--
+{name}[]
+-/
+def noCode := 0
+
+/-! Whitespace around the code element is not content. -/
+
+#guard_msgs in
+/--
+{name}[ `Nat.add` ]
+-/
+def spaceAroundCode := 0

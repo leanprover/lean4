@@ -44,6 +44,8 @@ public structure Env where
   enableArtifactCache? : Option Bool
   /-- Whether to restore all artifacts from the Lake cache by default (i.e., `LAKE_RESTORE_ARTIFACTS`). -/
   restoreAllArtifacts? : Option Bool
+  /-- Whether to copy cached module archives when hard links fail (`LAKE_COPY_CACHE_ARCHIVES`). -/
+  copyCacheArchives : Bool := false
   /-- Whether the system cache has been disabled (`LAKE_CACHE_DIR` is set but empty). -/
   noSystemCache : Bool := false
   /--
@@ -176,6 +178,7 @@ public def compute
     noCache := (noCache <|> (← IO.getEnv "LAKE_NO_CACHE").bind envToBool?).getD false
     enableArtifactCache? := (← IO.getEnv "LAKE_ARTIFACT_CACHE").bind envToBool?
     restoreAllArtifacts? := (← IO.getEnv "LAKE_RESTORE_ARTIFACTS").bind envToBool?
+    copyCacheArchives := ((← IO.getEnv "LAKE_COPY_CACHE_ARCHIVES").bind envToBool?).getD false
     lakeConfig? := (← IO.getEnv "LAKE_CONFIG") <|> userHome?.map (· / ".lake" / "config.toml" |>.toString)
     cacheKey? := (← IO.getEnv "LAKE_CACHE_KEY").map (·.trimAscii.copy)
     cacheArtifactEndpoint? := (← IO.getEnv "LAKE_CACHE_ARTIFACT_ENDPOINT").map normalizeUrl
@@ -294,6 +297,7 @@ public def baseVars (env : Env) : Array (String × Option String)  :=
     ("LAKE_CONFIG", if let some path := env.lakeConfig? then path.toString else ""),
     ("LAKE_PKG_URL_MAP", toJson env.pkgUrlMap |>.compress),
     ("LAKE_NO_CACHE", toString env.noCache),
+    ("LAKE_COPY_CACHE_ARCHIVES", toString env.copyCacheArchives),
     ("LAKE_CACHE_KEY", env.cacheKey?),
     ("LAKE_CACHE_ARTIFACT_ENDPOINT", env.cacheArtifactEndpoint?),
     ("LAKE_CACHE_REVISION_ENDPOINT", env.cacheRevisionEndpoint?),

@@ -640,16 +640,21 @@ Makes an artifact from the cache, `art`, available at the local path, `file` and
 altered artifact using `file` as the preferred path.
 
 If `file` already exists, it is used. Otherwise, the function first attempts to create `file`
-as hard link to the artifact. If this fails (e.g., because the artifact and path are on differets
+as hard link to the artifact. If this fails (e.g., because the artifact and path are on different
 drives and/or file systems), falls back to copying the artifact to the new path.
+If `copy := false`, a failed hard link instead returns `art` with its original cached path,
+without creating a local file or hash file.
 
 **For internal use.**
 -/
-public def restoreArtifact (file : FilePath) (art : Artifact) (exe := false) : LogIO Artifact := do
+public def restoreArtifact (file : FilePath) (art : Artifact) (exe := false) (copy := true) : LogIO Artifact := do
   unless (← file.pathExists) do
     logVerbose s!"found artifact in cache: {art.path}"
     createParentDirs file
     if let .error e ← (IO.FS.hardLink art.path file).toBaseIO then
+      unless copy do
+        logVerbose s!"could not hard link artifact, retaining cached path instead; error: {e}"
+        return art
       logVerbose s!"could not hard link artifact, copying from cache instead; error: {e}"
       copyFile art.path file
       -- make the local file unwritable where possible to discourage users from

@@ -208,9 +208,7 @@ def whereStructInst  := leading_parser
   withAntiquot (mkAntiquot "declVal" decl_name% (isPseudoKind := true)) <|
     declValSimple <|> declValEqns <|> whereStructInst
 /-- `given xs`/`requires P`/`ensures b => Q`/`throws e => R` contract clauses followed by the value
-of a `def`. Tried only after `declVal` fails, so contract-free definitions parse without probing for
-the clauses. `withoutInfo` avoids collecting `declVal`'s tokens and kinds a second time at startup;
-they are already registered through the `declVal` alternative of `definition`. -/
+of a `def`. Tried only after `declVal` fails. -/
 def contractDeclVal := leading_parser
   optional givenClause >> optional requiresClause >> optional ensuresClause >>
   many throwsClause >> withoutInfo declVal

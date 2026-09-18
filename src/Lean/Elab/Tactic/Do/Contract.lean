@@ -103,11 +103,14 @@ def expandDefContract : Macro := fun stx => do
   let ensuresStx := val[2]
   let throwsStx := val[3]
 
-  -- A complete parse always carries a clause here. The parser's error recovery produces
-  -- clause-less `contractDeclVal` trees, e.g. for `def f` without a value; degrade them to the
-  -- plain `def` elaboration.
+  -- Error recovery on the declVal form might have instead parsed the decl as a contractDeclVal.
+  -- If that is the case, we stop any attempt at expansion because it will just fail again in the
+  -- `def` elaborator.
   if givenStx.isNone && requiresStx.isNone && ensuresStx.isNone && throwsStx.getNumArgs == 0 then
     Macro.throwUnsupported
+
+  -- Construct `cleanDeclaration`, the regular, non-contract definition that the specification
+  -- refers to. `cleanDeclaration` is elaborated by the usual `def` elaborator.
   let (specStep?, strippedVal) ← extractSpecSection val[4]
   let cleanDeclaration := stx.setArg 1 (decl.setArg 3 strippedVal)
 
@@ -138,21 +141,18 @@ specification theorem; add `import Std.WP` to use them."
     | `(ensuresClause| ensures $f:basicFun) => `(fun $f:basicFun)
     | _ => Macro.throwUnsupported
   -- Each `throws` clause fills the slot of its exception type; the remaining slots stay `⊥`.
-  -- `contract_epost%` unfolds the result to a tuple in the stored statement.
-  let triple : Term ←
-    if throwsStx.getNumArgs == 0 then
-      `(⦃ $pre ⦄ $fId $args* ⦃ $post ⦄)
-    else do
-      let epost : Term ← throwsStx.getArgs.foldrM (init := ← `(⊥))
-        fun clause acc =>
-          match clause with
-          | `(throwsClause| throws $f:basicFun) =>
-            `($(mkCIdent ``Std.WP.EPostSlot.set) (fun $f:basicFun) $acc)
-          | _ => Macro.throwUnsupported
-      -- Build the `contract_epost%` node directly: the parser compiling this file predates it.
-      let epostGadget : Term :=
-        ⟨mkNode `Lean.Parser.Term.contractEPost #[mkAtom "contract_epost%", epost]⟩
-      `(⦃ $pre ⦄ $fId $args* ⦃ $post; $epostGadget ⦄)
+  -- `contract_eposts%` unfolds the result to an `estack⟨...⟩` in the stored statement.
+  let triple : Term ← do
+    let eposts : Term ← throwsStx.getArgs.foldrM (init := ← `(⊥))
+      fun clause acc =>
+        match clause with
+        | `(throwsClause| throws $f:basicFun) =>
+          `($(mkCIdent ``Std.WP.EPostSlot.set) (fun $f:basicFun) $acc)
+        | _ => Macro.throwUnsupported
+    -- Build the `contract_eposts%` node directly: the parser compiling this file predates it.
+    let epostsGadget : Term :=
+      ⟨mkNode `Lean.Parser.Term.contractEPosts #[mkAtom "contract_eposts%", eposts]⟩
+    `(⦃ $pre ⦄ $fId $args* ⦃ $post; $epostsGadget ⦄)
   let msg : TSyntax `str := ⟨Syntax.mkStrLit <|
     if specStep?.isSome then
       s!"unproved verification conditions for the contract of `{fId.getId}`; \
@@ -177,32 +177,42 @@ discharge them in a `where finally | spec => ...` section of the definition"⟩
       | fail $msg)
   return mkNullNode #[mkContractNotice val, cleanDeclaration, thm]
 
-/-- The unfolding equations of `EPostSlot.set` and of `⊥` at a stack type. -/
-private def epostUnfoldLemmas : Array Name :=
+/-- The unfolding equations of `EPostSlot.set` and of the projections of `⊥`. -/
+private def epostsUnfoldLemmas : Array Name :=
   #[``Std.WP.EPostSlot.set_fun, ``Std.WP.EPostSlot.set_head, ``Std.WP.EPostSlot.set_tail,
-    ``Lean.Order.Prod.fst_bot, ``Lean.Order.Prod.snd_bot, ``Std.WP.EStackEnd.bot_eq]
+    ``Lean.Order.Prod.fst_bot, ``Lean.Order.Prod.snd_bot]
 
-/-- Elaborate `contract_epost% e` and rewrite the `EPostSlot.set` applications in `e` to a
-tuple, so the spec theorem states the `throws` assertions directly. -/
-@[builtin_term_elab Lean.Parser.Term.contractEPost]
-def elabContractEPost : Term.TermElab := fun stx expectedType? => do
-  -- Wait for the exception postcondition type, so the slot instances resolve.
-  Term.tryPostponeIfNoneOrMVar expectedType?
-  if let some expectedType := expectedType? then
-    if (← instantiateMVars expectedType).hasExprMVar then
-      Term.tryPostpone
-  let e ← Term.withSynthesize <| Term.elabTerm stx[1] expectedType?
-  let e ← instantiateMVars e
+/-- Runs `Meta.simp` on `e` with exactly the lemmas in `names`. -/
+private def simpOnlyWith (names : Array Name) (e : Expr) : Elab.TermElabM Expr := do
   let mut thms : Meta.SimpTheorems := {}
-  for n in epostUnfoldLemmas do
+  for n in names do
     thms ← thms.addConst n
   let ctx ← Meta.Simp.mkContext (simpTheorems := #[thms])
     (congrTheorems := ← Meta.getSimpCongrTheorems)
   let (r, _) ← Meta.simp e ctx
   return r.expr
 
+/-- Elaborating `contract_eposts% e` rewrites the `EPostSlot.set` applications and `⊥` in `e` to an
+`estack⟨...⟩` expression. Used in the expansion of `throws` clauses to yield simpler specs. -/
+@[builtin_term_elab Lean.Parser.Term.contractEPosts]
+def elabContractEPosts : Term.TermElab := fun stx expectedType? => do
+  -- Wait for the type of the exception postconditions, so the slot instances resolve.
+  Term.tryPostponeIfNoneOrMVar expectedType?
+  if let some expectedType := expectedType? then
+    if (← instantiateMVars expectedType).hasExprMVar then
+      Term.tryPostpone
+  let e ← Term.withSynthesize <| Term.elabTerm stx[1] expectedType?
+  let e ← instantiateMVars e
+  let e' ← simpOnlyWith epostsUnfoldLemmas e
+  -- Without progress above, `e` is the bare `⊥` of a contract without `throws` clauses; keep it,
+  -- so the spec prints in the short `⦃Q⦄` form. Otherwise rewrite the stack's tail `⊥` as well.
+  if e' == e then
+    return e
+  simpOnlyWith #[``Std.WP.EStackEnd.bot_eq] e'
+
 open Lean.Elab.Do in
-/-- Report the experimental status of each contract clause the notice carries. -/
+/-- Report the experimental status of each contract clause the notice carries, in a slight
+command-level misuse of a `contractDeclVal` node. Does not change the environment. -/
 @[builtin_command_elab Lean.Parser.Command.contractDeclVal]
 def elabContractNotice : Elab.Command.CommandElab := fun stx => do
   -- A group is the `optional` node of a `given`/`requires`/`ensures` clause or the `many` node

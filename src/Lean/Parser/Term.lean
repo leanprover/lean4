@@ -1005,10 +1005,12 @@ We use them to implement `macro_rules` and `elab_rules`
 @[builtin_term_parser] def noErrorIfUnused := leading_parser
   "no_error_if_unused% " >> termParser
 
-/-- `contract_epost% e` elaborates the exception postcondition `e` of a `def` contract and
-rewrites `EPostSlot.set` applications in it to a tuple of assertions. -/
-@[builtin_term_parser] def contractEPost := leading_parser
-  "contract_epost% " >> termParser
+/--
+`contract_eposts% e` rewrites the `EPostSlot.set` applications and `⊥` in `e` to an `estack⟨...⟩`
+expression. Used in the expansion of `throws` clauses of a `def` contract to yield simpler specs.
+-/
+@[builtin_term_parser] def contractEPosts := leading_parser
+  "contract_eposts% " >> termParser
 
 def namedArgument  := leading_parser (withAnonymousAntiquot := false)
   atomic ("(" >> ident >> " := ") >> withoutPosition termParser >> ")"

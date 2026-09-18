@@ -724,7 +724,7 @@ partial def strLitFnAux (startPos : String.Pos.Raw) (includeWhitespace := true) 
     let s    := s.setPos (c.next' i h)
     if curr == '\"' then
       mkNodeToken strLitKind startPos includeWhitespace c s
-    else if curr == '\\' then andthenFn quotedStringFn (strLitFnAux startPos) c s
+    else if curr == '\\' then andthenFn quotedStringFn (strLitFnAux startPos includeWhitespace) c s
     else strLitFnAux startPos includeWhitespace c s
 
 /--

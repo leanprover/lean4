@@ -271,11 +271,14 @@ compared to it.
 def isBeforeEditPos (pos : String.Pos.Raw) : LeanProcessingM Bool := do
   return (← read).firstDiffPos?.any (pos < ·)
 
+/--
+Option for (server) time in milliseconds to wait before elaborating commands after the first
+changed command on document edit, so that rapid edits do not trigger re-elaboration of every
+subsequent command
+-/
 register_builtin_option server.elabDelayMs : Nat := {
   defValue := 100
-  descr := "(server) time in milliseconds to wait before elaborating commands after the first \
-    changed command on document edit, so that rapid edits do not trigger re-elaboration of every \
-    subsequent command"
+  descr := "delay before elaborating commands after first changed command"
 }
 
 /--

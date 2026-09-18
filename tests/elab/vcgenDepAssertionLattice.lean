@@ -51,8 +51,8 @@ instance Stateful.instWP {α : Type} : WP (Stateful α) α StateProp EStack⟨�
     simp only [Lean.Order.PredTrans.Monotone, Lean.Order.PartialOrder.rel, Stateful.run]; grind
 
 theorem Stateful.trans_apply_eq {α : Type} (x : Stateful α)
-    (post : α → StateProp) (epost : EStack⟨⟩) (st : State) (h : st.Invariant) :
-    wp x post epost st h
+    (post : α → StateProp) (eposts : EStack⟨⟩) (st : State) (h : st.Invariant) :
+    wp x post eposts st h
       = ∃ h' : (x st).2.Invariant,
           match (x st).1 with
           | none => True
@@ -60,9 +60,9 @@ theorem Stateful.trans_apply_eq {α : Type} (x : Stateful α)
 
 instance : WPMonad Stateful StateProp EStack⟨⟩ where
   toWP _ := Stateful.instWP
-  pure_le_wp_pure x post epost := by
+  pure_le_wp_pure x post eposts := by
     intro st h hp; exact ⟨h, hp⟩
-  bind_le_wp_bind x f post epost := by
+  bind_le_wp_bind x f post eposts := by
     intro st h hp
     simp only [Stateful.trans_apply_eq, bind] at hp ⊢
     grind

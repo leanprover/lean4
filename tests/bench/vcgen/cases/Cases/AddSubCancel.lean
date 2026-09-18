@@ -16,16 +16,16 @@ set_option experimental.vcgen true
 -- multiple small substeps in the modular lifting framework. This is good practice for performance
 -- sensitive use cases.
 
-@[spec high] theorem spec_get_StateT {m : Type u → Type v} {Pred EPred : Type u}
-    [Monad m] [Assertion Pred] [Assertion EPred] [WPMonad m Pred EPred]
-    {σ : Type u} (post : σ → σ → Pred) (epost : EPred) :
-    ⦃ fun s => post s s ⦄ (get : StateT σ m σ) ⦃ post; epost ⦄ := by
+@[spec high] theorem spec_get_StateT {m : Type u → Type v} {Pred EPosts : Type u}
+    [Monad m] [Assertion Pred] [Assertion EPosts] [WPMonad m Pred EPosts]
+    {σ : Type u} (post : σ → σ → Pred) (eposts : EPosts) :
+    ⦃ fun s => post s s ⦄ (get : StateT σ m σ) ⦃ post; eposts ⦄ := by
   vcgen
 
-@[spec high] theorem spec_set_StateT' {m : Type u → Type v} {Pred EPred : Type u}
-    [Monad m] [Assertion Pred] [Assertion EPred] [WPMonad m Pred EPred]
-    {σ : Type u} (s : σ) (post : PUnit → σ → Pred) (epost : EPred) :
-    ⦃ fun _ => post ⟨⟩ s ⦄ (set s : StateT σ m PUnit) ⦃ post; epost ⦄ := by
+@[spec high] theorem spec_set_StateT' {m : Type u → Type v} {Pred EPosts : Type u}
+    [Monad m] [Assertion Pred] [Assertion EPosts] [WPMonad m Pred EPosts]
+    {σ : Type u} (s : σ) (post : PUnit → σ → Pred) (eposts : EPosts) :
+    ⦃ fun _ => post ⟨⟩ s ⦄ (set s : StateT σ m PUnit) ⦃ post; eposts ⦄ := by
   vcgen
 
 def step (v : Nat) : StateM Nat Unit := do

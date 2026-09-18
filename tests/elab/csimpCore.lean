@@ -50,6 +50,8 @@ info: (Acc.rec, Acc.recC)
 (Nat.repeat, Nat.repeatTR)
 (String.utf8EncodeChar, String.utf8EncodeCharFast)
 (Thunk.fn, Thunk.fnImpl)
+(UInt64.invMod?, UInt64.invModImpl)
+(UInt64.powMod, UInt64.powModImpl)
 (Vector.pmap, Vector.pmapImpl)
 (String.Slice.Pos.next, String.Slice.Pos.nextFast)
 -/

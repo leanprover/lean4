@@ -50,8 +50,8 @@ instance EStateM.instWPConjunctive {ε σ α : Type} (x : EStateM ε σ α) : WP
     cases x s <;> first | exact PartialOrder.rel_refl | exact meet_le_left _ _
 
 /-- A `StateT` program lifts conjunctivity from its base monad. -/
-instance StateT.instWPConjunctive {m : Type u → Type v} {σ : Type u} {Pred : Type w} {EPred : Type z}
-    {α : Type u} [Monad m] [Assertion Pred] [Assertion EPred] [WPMonad m Pred EPred]
+instance StateT.instWPConjunctive {m : Type u → Type v} {σ : Type u} {Pred : Type w} {EPosts : Type z}
+    {α : Type u} [Monad m] [Assertion Pred] [Assertion EPosts] [WPMonad m Pred EPosts]
     (x : StateT σ m α) [base : ∀ s, WPConjunctive (x.run s)] : WPConjunctive x where
   wp_meet_wp_le Q₁ Q₂ E₁ E₂ := by
     intro s
@@ -64,8 +64,8 @@ instance StateT.instWPConjunctive {m : Type u → Type v} {σ : Type u} {Pred : 
     exact PartialOrder.rel_refl
 
 /-- A `ReaderT` program lifts conjunctivity from its base monad. -/
-instance ReaderT.instWPConjunctive {m : Type u → Type v} {ρ : Type u} {Pred : Type w} {EPred : Type z}
-    {α : Type u} [Monad m] [Assertion Pred] [Assertion EPred] [WPMonad m Pred EPred]
+instance ReaderT.instWPConjunctive {m : Type u → Type v} {ρ : Type u} {Pred : Type w} {EPosts : Type z}
+    {α : Type u} [Monad m] [Assertion Pred] [Assertion EPosts] [WPMonad m Pred EPosts]
     (x : ReaderT ρ m α) [base : ∀ r, WPConjunctive (x.run r)] : WPConjunctive x where
   wp_meet_wp_le Q₁ Q₂ E₁ E₂ := by
     intro r
@@ -78,8 +78,8 @@ instance ReaderT.instWPConjunctive {m : Type u → Type v} {ρ : Type u} {Pred :
     exact PartialOrder.rel_refl
 
 /-- An `OptionT` program lifts conjunctivity from its base monad. -/
-instance OptionT.instWPConjunctive {m : Type u → Type v} {Pred : Type u} {EPred : Type z}
-    {α : Type u} [Monad m] [Assertion Pred] [Assertion EPred] [WPMonad m Pred EPred]
+instance OptionT.instWPConjunctive {m : Type u → Type v} {Pred : Type u} {EPosts : Type z}
+    {α : Type u} [Monad m] [Assertion Pred] [Assertion EPosts] [WPMonad m Pred EPosts]
     (x : OptionT m α) [base : WPConjunctive x.run] : WPConjunctive x where
   wp_meet_wp_le Q₁ Q₂ E₁ E₂ := by
     simp only [WP.trans_apply_eq, OptionT.wp_apply_eq, Prod.snd_meet]
@@ -93,7 +93,7 @@ instance OptionT.instWPConjunctive {m : Type u → Type v} {Pred : Type u} {EPre
 
 /-- An `ExceptT` program lifts conjunctivity from its base monad. -/
 instance ExceptT.instWPConjunctive {m : Type u → Type v} {ε α : Type u} {Pred : Type w}
-    {EPred : Type z} [Monad m] [Assertion Pred] [Assertion EPred] [WPMonad m Pred EPred]
+    {EPosts : Type z} [Monad m] [Assertion Pred] [Assertion EPosts] [WPMonad m Pred EPosts]
     (x : ExceptT ε m α) [base : WPConjunctive x.run] : WPConjunctive x where
   wp_meet_wp_le Q₁ Q₂ E₁ E₂ := by
     simp only [WP.trans_apply_eq, ExceptT.wp_apply_eq, Prod.snd_meet]

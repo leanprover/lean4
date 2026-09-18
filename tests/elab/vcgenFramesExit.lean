@@ -7,7 +7,7 @@ Tests for framing the exception channel.
 
 The first part works on a two-constructor program type over a toy heap. The `WP` instance is the
 `sepConj`-frame closure of the evident base wp, so the companion `opE := sepConj` at
-`EPred = Pred` pushes the frame into the exception postcondition. `exit_frames_via_vcgen` proves
+`EPosts = Pred` pushes the frame into the exception postcondition. `exit_frames_via_vcgen` proves
 `⦃ 0 ↦ 1 ∗ 5 ↦ 7 ⦄ exit ⦃ ⊥; 0 ↦ 1 ∗ 5 ↦ 7 ⦄` with `vcgen`: the lossy spec owns only `0 ↦ 1`,
 and a `frames` clause carries `5 ↦ 7` into the exception postcondition. The separation algebra
 facts are axioms. Only the framing theorems carry proofs.

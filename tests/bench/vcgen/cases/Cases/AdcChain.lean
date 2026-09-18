@@ -33,24 +33,24 @@ def adc : StateM S Unit := modify fun s =>
 /-! Accessor-style specs: the instruction body is unfolded exactly once, in the spec
 proof; VC generation only ever sees the component equations. -/
 
-@[spec] theorem movRax_spec (i : BitVec 64) (post : PUnit → S → Prop) (epost : EStack⟨⟩) :
+@[spec] theorem movRax_spec (i : BitVec 64) (post : PUnit → S → Prop) (eposts : EStack⟨⟩) :
     ⦃ fun s => ∀ s' : S, s'.rax = i → s'.rbx = s.rbx → s'.cf = s.cf → post ⟨⟩ s' ⦄
-      movRax i ⦃ post; epost ⦄ :=
+      movRax i ⦃ post; eposts ⦄ :=
   ⟨fun _ h => h _ rfl rfl rfl⟩
 
-@[spec] theorem movRbx_spec (i : BitVec 64) (post : PUnit → S → Prop) (epost : EStack⟨⟩) :
+@[spec] theorem movRbx_spec (i : BitVec 64) (post : PUnit → S → Prop) (eposts : EStack⟨⟩) :
     ⦃ fun s => ∀ s' : S, s'.rax = s.rax → s'.rbx = i → s'.cf = s.cf → post ⟨⟩ s' ⦄
-      movRbx i ⦃ post; epost ⦄ :=
+      movRbx i ⦃ post; eposts ⦄ :=
   ⟨fun _ h => h _ rfl rfl rfl⟩
 
-@[spec] theorem adc_spec (post : PUnit → S → Prop) (epost : EStack⟨⟩) :
+@[spec] theorem adc_spec (post : PUnit → S → Prop) (eposts : EStack⟨⟩) :
     ⦃ fun s => ∀ s' : S,
         s'.rax = s.rax + s.rbx + BitVec.ofNat 64 s.cf.toNat →
         s'.rbx = s.rbx →
         s'.cf = ((s.rax + s.rbx + BitVec.ofNat 64 s.cf.toNat).toNat
                   != s.rax.toNat + s.rbx.toNat + s.cf.toNat) →
         post ⟨⟩ s' ⦄
-      adc ⦃ post; epost ⦄ :=
+      adc ⦃ post; eposts ⦄ :=
   ⟨fun _ h => h _ rfl rfl rfl⟩
 
 def chain : Nat → StateM S Unit

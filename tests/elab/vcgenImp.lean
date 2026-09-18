@@ -154,7 +154,7 @@ instance : WP Cmd Unit Assn EStack⟨⟩ where
     intro Q Q' e e' _he hQ Φ s h
     exact wpCmd_mono (fun s' h' => hQ () Φ s' h') s h
 
-variable {Q : Unit → Assn} {epost : EStack⟨⟩}
+variable {Q : Unit → Assn} {eposts : EStack⟨⟩}
 
 /-! ## `wp` equations, one per constructor
 
@@ -166,63 +166,63 @@ opaque for the `Spec.while`/`inv1` mechanism. -/
 /-- `wp` of a `Cmd` is `wpCmd` at the assertion's environment. Not a `simp` lemma; it is the rfl
 bridge behind the per-constructor equations below. -/
 private theorem wp_apply (c : Cmd) :
-    Std.WP.wp c Q epost = fun Φ s => wpCmd Φ c (Q () Φ) s := rfl
+    Std.WP.wp c Q eposts = fun Φ s => wpCmd Φ c (Q () Φ) s := rfl
 
 @[simp] theorem wp_skip_eq (Φ : Env) (s : State) :
-    Std.WP.wp Cmd.skip Q epost Φ s = Q () Φ s := by
+    Std.WP.wp Cmd.skip Q eposts Φ s = Q () Φ s := by
   simp only [wp_apply, wpCmd]
 
 @[simp] theorem wp_assign_eq (x : Var) (e : Expr) (Φ : Env) (s : State) :
-    Std.WP.wp (Cmd.assign x e) Q epost Φ s = Q () Φ (s.update x (e.eval s)) := by
+    Std.WP.wp (Cmd.assign x e) Q eposts Φ s = Q () Φ (s.update x (e.eval s)) := by
   simp only [wp_apply, wpCmd]
 
 @[simp] theorem wp_seq_eq (c₁ c₂ : Cmd) (Φ : Env) (s : State) :
-    Std.WP.wp (Cmd.seq c₁ c₂) Q epost Φ s =
-      Std.WP.wp c₁ (fun _ => Std.WP.wp c₂ Q epost) epost Φ s := by
+    Std.WP.wp (Cmd.seq c₁ c₂) Q eposts Φ s =
+      Std.WP.wp c₁ (fun _ => Std.WP.wp c₂ Q eposts) eposts Φ s := by
   simp only [wp_apply, wpCmd]
 
 @[simp] theorem wp_ite_eq (cond : Expr) (c₁ c₂ : Cmd) (Φ : Env) (s : State) :
-    Std.WP.wp (Cmd.ite cond c₁ c₂) Q epost Φ s =
-      if cond.eval s ≠ 0 then Std.WP.wp c₁ Q epost Φ s
-      else Std.WP.wp c₂ Q epost Φ s := by
+    Std.WP.wp (Cmd.ite cond c₁ c₂) Q eposts Φ s =
+      if cond.eval s ≠ 0 then Std.WP.wp c₁ Q eposts Φ s
+      else Std.WP.wp c₂ Q eposts Φ s := by
   simp only [wp_apply, wpCmd]
 
 @[simp] theorem wp_call_eq (f : FName) (Φ : Env) (s : State) :
-    Std.WP.wp (Cmd.call f) Q epost Φ s =
-      (Φ.lookup f).elim False (fun p => Std.WP.wp p.2 (fun u _ => Q u Φ) epost p.1 s) := by
+    Std.WP.wp (Cmd.call f) Q eposts Φ s =
+      (Φ.lookup f).elim False (fun p => Std.WP.wp p.2 (fun u _ => Q u Φ) eposts p.1 s) := by
   show wpCmd Φ (Cmd.call f) (Q () Φ) s = _
   rw [wpCmd]; cases Φ.lookup f <;> rfl
 
 theorem wp_while_eq (cond : Expr) (body : Cmd) (Φ : Env) (s : State) :
-    Std.WP.wp (Cmd.while cond body) Q epost Φ s =
+    Std.WP.wp (Cmd.while cond body) Q eposts Φ s =
       ∃ I : State → Prop, I s ∧
-        (∀ s', I s' → cond.eval s' ≠ 0 → Std.WP.wp body (fun _ _ => I) epost Φ s') ∧
+        (∀ s', I s' → cond.eval s' ≠ 0 → Std.WP.wp body (fun _ _ => I) eposts Φ s') ∧
         (∀ s', I s' → cond.eval s' = 0 → Q () Φ s') := by
   simp only [wp_apply, wpCmd]
 
 /-- Build a triple from the pointwise `wp` equation of the program. -/
 private theorem triple_of_wp {c : Cmd} {pre : Assn}
-    (h : ∀ Φ s, Std.WP.wp c Q epost Φ s = pre Φ s) : Triple c pre Q epost :=
+    (h : ∀ Φ s, Std.WP.wp c Q eposts Φ s = pre Φ s) : Triple c pre Q eposts :=
   Triple.iff.mpr (by rw [funext fun Φ => funext fun s => h Φ s]; exact PartialOrder.rel_refl)
 
 /-! ## Specification lemmas, one per constructor -/
 
 @[spec] theorem Spec.skip :
-    Triple Cmd.skip (Q ()) Q epost := triple_of_wp wp_skip_eq
+    Triple Cmd.skip (Q ()) Q eposts := triple_of_wp wp_skip_eq
 
 @[spec] theorem Spec.assign (x : Var) (e : Expr) :
-    Triple (Cmd.assign x e) (fun Φ s => Q () Φ (s.update x (e.eval s))) Q epost :=
+    Triple (Cmd.assign x e) (fun Φ s => Q () Φ (s.update x (e.eval s))) Q eposts :=
   triple_of_wp (wp_assign_eq x e)
 
 @[spec] theorem Spec.seq (c₁ c₂ : Cmd) :
     Triple (Cmd.seq c₁ c₂)
-      (Std.WP.wp c₁ (fun _ => Std.WP.wp c₂ Q epost) epost) Q epost :=
+      (Std.WP.wp c₁ (fun _ => Std.WP.wp c₂ Q eposts) eposts) Q eposts :=
   triple_of_wp (wp_seq_eq c₁ c₂)
 
 @[spec] theorem Spec.ite (cond : Expr) (c₁ c₂ : Cmd) :
     Triple (Cmd.ite cond c₁ c₂)
       (fun Φ s => if cond.eval s ≠ 0
-        then Std.WP.wp c₁ Q epost Φ s else Std.WP.wp c₂ Q epost Φ s) Q epost :=
+        then Std.WP.wp c₁ Q eposts Φ s else Std.WP.wp c₂ Q eposts Φ s) Q eposts :=
   triple_of_wp (wp_ite_eq cond c₁ c₂)
 
 /-- Lift a body's contract through a call: if `f` resolves to `body` in prefix environment `Φ'`, a
@@ -230,8 +230,8 @@ triple for `body` (proven with `Φ` pinned to `Φ'`, so its own inner calls reso
 for `call f`. The call analogue of `Spec.while`: each concrete function's contract is one application
 of this lemma over its body. -/
 theorem Spec.call_of_body (f : FName) (Φ' : Env) (body : Cmd) {P' Q' : State → Prop}
-    (hbody : Triple body (fun Φ s => Φ = Φ' ∧ P' s) (fun _ _ s => Q' s) epost) :
-    Triple (Cmd.call f) (fun Φ s => Φ.lookup f = some (Φ', body) ∧ P' s) (fun _ _ s => Q' s) epost :=
+    (hbody : Triple body (fun Φ s => Φ = Φ' ∧ P' s) (fun _ _ s => Q' s) eposts) :
+    Triple (Cmd.call f) (fun Φ s => Φ.lookup f = some (Φ', body) ∧ P' s) (fun _ _ s => Q' s) eposts :=
   Triple.iff.mpr (by
     rintro Φ s ⟨hlk, hp⟩
     simp only [wp_call_eq, hlk, Option.elim]
@@ -248,9 +248,9 @@ instantiates `I` from the `inv1` case, recurses into `body` for the preservation
 the exit condition as a VC. `I` is applied pointwise so the triple's assertion type stays `Assn`
 rather than `WhileInvariant`. -/
 @[spec] theorem Spec.while (cond : Expr) (body : Cmd) (I : WhileInvariant)
-    (step : Triple body (fun Φ s => I Φ s ∧ cond.eval s ≠ 0) (fun _ Φ s => I Φ s) epost)
+    (step : Triple body (fun Φ s => I Φ s ∧ cond.eval s ≠ 0) (fun _ Φ s => I Φ s) eposts)
     (hexit : ∀ Φ s, I Φ s → cond.eval s = 0 → Q () Φ s) :
-    Triple (Cmd.while cond body) (fun Φ s => I Φ s) Q epost :=
+    Triple (Cmd.while cond body) (fun Φ s => I Φ s) Q eposts :=
   Triple.iff.mpr (by
     intro Φ s hs
     simp only [wp_while_eq]

@@ -698,12 +698,7 @@ def text : Lean.Parser.Parser := { fn := textQuot }
 /--
 Emphasis, often rendered as italics.
 
-Emphasis may be nested by using longer sequences of `_` for the outer delimiters. For example:
-```
-Remember: __always butter the _rugbrød_ before adding toppings!__
-```
-Here, the outer `__` is used to emphasize the instructions, while the inner `_` indicates the use of
-a non-English word.
+Emphasis may be nested by using longer sequences of `_` for the outer delimiters.
 -/
 @[builtin_doc]
 def emph : Lean.Parser.Parser := { fn := emphQuot }
@@ -760,7 +755,7 @@ Footnotes must be defined elsewhere using the `[^NAME]: TEXT` syntax.
 def footnote : Lean.Parser.Parser := { fn := footnoteQuot }
 def linebreak : Lean.Parser.Parser := { fn := linebreakQuot }
 /--
-A _role_: an extension to the Verso document language in an inline position.
+A _role_ is an extension to the Verso document language in an inline position.
 
 Text is given a role using the following syntax: `{NAME ARGS*}[CONTENT]`. The `NAME` is an
 identifier that determines which role is being used, akin to a function name. Each of the `ARGS` may
@@ -890,7 +885,8 @@ A quotation, which contains a sequence of blocks that are at least as indented a
 @[builtin_doc]
 def blockquote : Lean.Parser.Parser := { fn := blockquoteQuot }
 /--
-A code block that contains literal code.
+A code block that contains literal code. The contents of a code block are not written in Verso
+syntax.
 
 Code blocks have the following syntax:
 ````
@@ -900,15 +896,16 @@ CONTENT
 ````
 
 `CONTENT` is a literal string. If the `CONTENT` contains a sequence of three or more backticks, then
-the opening and closing ` ``` ` (called _fences_) should have more backticks than the longest
-sequence in `CONTENT`. Additionally, the opening and closing fences should have the same number of
+the opening and closing ` ``` ` (called _fences_) must have more backticks than the longest
+sequence in `CONTENT`. Additionally, the opening and closing fences must have the same number of
 backticks.
 
 If `NAME` and `ARGS` are not provided, then the code block represents literal text. If provided, the
 `NAME` is an identifier that selects an interpretation of the block. Unlike Markdown, this name is
 not necessarily the language in which the code is written, though many custom code blocks are, in
-practice, named after the language that they contain. `NAME` is more akin to a function name. Each
-of the `ARGS` may have the following forms:
+practice, named after the language that they contain. `NAME` is more akin to a function name that
+determines the interpretation of the code block's contents. Each of the `ARGS` may have the
+following forms:
 * A value, which is a string literal, natural number, or identifier
 * A named argument, of the form `(NAME := VALUE)`
 * A flag, of the form `+NAME` or `-NAME`
@@ -918,8 +915,10 @@ The `CONTENT` is interpreted according to the indentation of the fences. If the 
 -/
 @[builtin_doc]
 def codeblock : Lean.Parser.Parser := { fn := codeblockQuot }
+
 /--
-A _directive_, which is an extension to the Verso language in block position.
+A _directive_, which is an extension to the Verso language in block position. The contents of a
+directive are written in Verso syntax.
 
 Directives have the following syntax:
 ```

@@ -143,8 +143,9 @@ builtin_initialize versoDocStringExt : MapDeclarationExtension VersoDocString �
       { exported := #[], server := ents, «private» := ents })
 
 /--
-Adds a builtin docstring to the compiler. The text is stored as given; the `builtin_doc` attribute
-removes its indentation when it generates the registration.
+Adds a builtin docstring to the compiler.
+
+The text should have already had its leading indentation removed by the caller.
 
 Links to the Lean manual aren't validated.
 -/

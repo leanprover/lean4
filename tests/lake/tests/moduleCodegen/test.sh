@@ -24,8 +24,8 @@ test_out "Built Test.B:irArts" build Test.B:c -v
 test_run build Test.C:c
 
 # An import's IR must be provided even for a plain `import`, as the language server loads it
-match_text 'Test/A.ir"' .lake/build/ir/Test/B.setup.json
-match_text 'Test/A.ir"' .lake/build/ir/Test/B.irsetup.json
+match_text 'A.ir"' .lake/build/ir/Test/B.setup.json
+match_text 'A.ir"' .lake/build/ir/Test/B.irsetup.json
 
 # The server allows `#eval` on a plainly imported definition, so it must be able to run it
 echo "# TEST: server eval across a plain import"
@@ -50,7 +50,7 @@ test_exp -f .lake/build/ir/Plain/P.c
 
 # A postponed module can import a non-postponed one from the same package
 test_out "Built Test.UsesPlain:irArts" build Test.UsesPlain:c -v
-match_text 'Plain/P.ir"' .lake/build/ir/Test/UsesPlain.irsetup.json
+match_text 'P.ir"' .lake/build/ir/Test/UsesPlain.irsetup.json
 # and from a package that does not postpone at all
 test_out "Built Test.UsesDep:irArts" build Test.UsesDep:c -v
 test_exp -f dep/.lake/build/ir/Dep.setup.json
@@ -85,7 +85,7 @@ test_run build Test.A:c Test.B:c Test.C:c --no-build
 
 # A non-inlinable definition's body is part of the module's IR, but not of its `.ir.sig`
 echo "# TEST: irArts on a value edit"
-test_cmd sed_i 's/n + n/n + n + 0/' Test/A.lean
+sed_i 's/n + n/n + n + 0/' Test/A.lean
 test_out "Built Test.A:irArts" build Test.A:c -v
 # importers read only the `.ir.sig`, so their own IR is unaffected
 test_run build Test.B:c Test.C:c --no-build
@@ -93,6 +93,6 @@ test_run build Test.B:c Test.C:c --no-build
 # A new public definition changes the `.ir.sig` as well
 echo "# TEST: irArts on an interface edit"
 test_run build Test.A:c Test.B:c Test.C:c
-test_cmd sed_i 's/^private def offset/public def extra : Nat := 7\nprivate def offset/' Test/A.lean
+sed_i 's/^private def offset/public def extra : Nat := 7\nprivate def offset/' Test/A.lean
 test_out "Built Test.A:irArts" build Test.A:c -v
 test_out "Built Test.B:irArts" build Test.B:c -v

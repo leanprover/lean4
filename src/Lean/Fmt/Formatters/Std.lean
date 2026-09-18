@@ -1,0 +1,16 @@
+/-
+Copyright (c) 2026 Lean FRO. All rights reserved.
+Released under Apache 2.0 license as described in the file LICENSE.
+
+Author: Marc Huisinga
+-/
+module
+
+prelude
+public import Lean.Fmt.Formatters.Std.Data
+public import Lean.Fmt.Formatters.Std.Do
+public import Lean.Fmt.Formatters.Std.Internal
+public import Lean.Fmt.Formatters.Std.Sat
+public import Lean.Fmt.Formatters.Std.Tactic
+public import Lean.Fmt.Formatters.Std.Time
+public import Lean.Fmt.Formatters.Std.WP

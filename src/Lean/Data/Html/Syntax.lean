@@ -484,17 +484,6 @@ structure ElementView where
   endTag? : Option TagView := none
   deriving Repr, Inhabited, BEq
 
-/-- Throws an informative error when the start and end tag names do not match (up to casing). -/
-def ElementView.checkNamesMatch : ElementView → CoreM Unit
-  | { startTag, endTag? := some endTag, .. } => do
-    let startTagName ← startTag.name.view
-    let endTagName ← endTag.name.view
-    if endTagName.toLower != startTagName.toLower then
-      let hint ← MessageData.hint m!"Replace with start tag" #[startTagName] (ref? := endTag.name)
-      throwErrorAt endTag.name
-        m!"Mismatched end tag, expected `{startTagName}` but got `{endTagName}`{hint}"
-  | _ => return ()
-
 def Element.view [Monad m] [MonadError m] (stx : Element) : m ElementView := do
   let stx := stx.raw
   if stx.getKind == elementKind then

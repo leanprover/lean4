@@ -10,7 +10,6 @@ public import Lean.PrettyPrinter.Formatter
 public import Lean.DocString.Syntax
 import Init.Data.Range.Polymorphic.Iterators
 meta import Init.Data.Range.Polymorphic.GetElemTactic
-import Lean.DocString.Parser
 import Lean.DocString.View
 
 

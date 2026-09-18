@@ -39,11 +39,11 @@ structure State where
   snapshotTasks  : Array (Language.SnapshotTask Language.SnapshotTree) := #[]
   prevLinterStates : Option (Task (Array LinterState)) := none
   /--
-  Code quality entries logged by the linters of each command, merged into the final environment
-  by `runFrontend`. This is a `PersistentArray` because the state is captured by the tasks of
-  every command, so an `Array` would be copied in full on each push.
+  Tasks for the code quality entries logged by the linters of the current command. Like `messages`,
+  this is per command: the language processor starts each command with an empty array and reports
+  the tasks in `Language.Lean.CommandResultSnapshot.codeQualityEntryTasks`.
   -/
-  codeQualityEntryTasks : PersistentArray (Task (Array Linter.CodeQualityLogEntry)) := {}
+  codeQualityEntryTasks : Array (Task (Array Linter.CodeQualityLogEntry)) := #[]
   deriving Nonempty
 
 structure Context where

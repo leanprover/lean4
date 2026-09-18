@@ -692,6 +692,7 @@ where
         diagnostics := (← Snapshot.Diagnostics.ofMessageLog cmdState.messages)
         traces := cmdState.traceState
         cmdState := reportedCmdState
+        codeQualityEntryTasks := cmdState.codeQualityEntryTasks
       }
 
       -- report info tree when relevant tasks are finished
@@ -758,7 +759,7 @@ where
     let scope := cmdState.scopes.head!
     -- reset per-command state
     let cmdStateRef ← IO.mkRef { cmdState with
-      messages := .empty, traceState := {}, snapshotTasks := #[] }
+      messages := .empty, traceState := {}, snapshotTasks := #[], codeQualityEntryTasks := #[] }
     let cmdCtx : Elab.Command.Context := { ctx with
       cmdPos       := beginPos
       snap?        := if internal.cmdlineSnapshots.get scope.opts then none else snap
@@ -814,6 +815,20 @@ where goCmd snap :=
     goCmd next.get
   else
     snap.elabSnap.resultSnap.get.cmdState
+
+/--
+Folds `f` over the command snapshots of `snap` in order, waiting for each command to be parsed.
+Returns `none` if the header could not be processed.
+-/
+partial def foldCmdSnaps? (snap : InitialSnapshot) (init : α)
+    (f : α → CommandParsedSnapshot → α) : Option α := do
+  let snap ← snap.result?
+  let snap ← snap.processedSnap.get.result?
+  go snap.firstCmdSnap.get init
+where
+  go (snap : CommandParsedSnapshot) (acc : α) : α :=
+    let acc := f acc snap
+    if let some next := snap.nextCmdSnap? then go next.get acc else acc
 
 /--
 Returns `snap` with all elaborated command data discarded, retaining only the imported

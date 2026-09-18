@@ -11,12 +11,10 @@ Registers two linters that log code quality entries:
   where `n` is the running declaration count threaded through its persistent state across
   commands.
 
-Also defines `#inspect_cq_entries`, which awaits the per-command capture tasks in
-`Command.State.codeQualityEntryTasks` and reports what they contain. Every command contributes
-two tasks, in order: regular linters and stateful linters; the terminal command adds one for the
-module linters if any are registered. Entries are shown as `<linter option>/<entry name>`, with
-`_` for
-unattributed entries.
+Also defines `#inspect_cq_state`, which checks that neither the capture tasks in
+`Command.State.codeQualityEntryTasks` nor the entries in `codeQualityLogExt` leak from one command
+into the next. The entries reach the final environment only through the per-command capture
+tasks merged in `runFrontend`; `PrintEntries.lean` checks what was persisted.
 -/
 
 open Lean Elab Command Linter
@@ -61,17 +59,11 @@ initialize
       return count)
 
 /--
-Reports, for the commands elaborated so far: the number of captured entries per task (two tasks
-per command: regular and stateful linters), the captured entry names in task order, and
-the size of the in-scope `codeQualityLogExt` state. The latter must stay `0`: linter env changes
-are discarded, so entries reach the final environment only through the capture tasks merged in
-`runFrontend`.
+Reports the number of capture tasks in the command state and the size of the in-scope
+`codeQualityLogExt` state. Both must stay `0`: the language processor starts every command with
+an empty task array (the tasks of preceding commands live in their snapshots) and linter env
+changes are discarded.
 -/
-elab "#inspect_cq_entries" : command => do
-  let tasks := (← get).codeQualityEntryTasks.toArray
-  let describe (e : CodeQualityLogEntry) : String :=
-    s!"{(e.linter?.map toString).getD "_"}/{e.entry.name}"
-  logInfo m!"per-command entry counts: {tasks.map (·.get.size)}"
-  let described := tasks.flatMap (·.get) |>.map describe
-  logInfo m!"captured entries: [{", ".intercalate described.toList}]"
+elab "#inspect_cq_state" : command => do
+  logInfo m!"capture tasks in state: {(← get).codeQualityEntryTasks.size}"
   logInfo m!"entries in current env: {(codeQualityLogExt.getState (← getEnv)).size}"

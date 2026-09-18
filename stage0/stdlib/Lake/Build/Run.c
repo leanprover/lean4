@@ -6624,8 +6624,8 @@ v___x_2314_ = lean_apply_2(v_putStr_2312_, v___x_2313_, lean_box(0));
 if (lean_obj_tag(v___x_2314_) == 0)
 {
 lean_dec_ref_known(v___x_2314_, 1);
-v___y_2242_ = v_a_2309_;
-v___y_2243_ = v___x_2306_;
+v___y_2242_ = v___x_2306_;
+v___y_2243_ = v_a_2309_;
 goto v___jp_2241_;
 }
 else
@@ -6655,8 +6655,8 @@ v___x_2331_ = lean_string_append(v___x_2329_, v___x_2330_);
 v___x_2332_ = l_mkPanicMessageWithDecl(v___x_2316_, v___x_2317_, v___x_2318_, v___x_2319_, v___x_2331_);
 lean_dec_ref(v___x_2331_);
 v___x_2333_ = l_panic___at___00__private_Lake_Build_Run_0__Lake_Monitor_renderProgress_spec__0(v___x_2332_);
-v___y_2242_ = v_a_2309_;
-v___y_2243_ = v___x_2306_;
+v___y_2242_ = v___x_2306_;
+v___y_2243_ = v_a_2309_;
 goto v___jp_2241_;
 }
 }
@@ -6820,12 +6820,12 @@ return v___x_2240_;
 v___jp_2241_:
 {
 lean_object* v___x_2244_; lean_object* v___x_2245_; uint8_t v___x_2246_; 
-v___x_2244_ = lean_array_get_size(v___y_2242_);
+v___x_2244_ = lean_array_get_size(v___y_2243_);
 v___x_2245_ = lean_box(0);
-v___x_2246_ = lean_nat_dec_lt(v___y_2243_, v___x_2244_);
+v___x_2246_ = lean_nat_dec_lt(v___y_2242_, v___x_2244_);
 if (v___x_2246_ == 0)
 {
-lean_dec_ref(v___y_2242_);
+lean_dec_ref(v___y_2243_);
 lean_dec_ref(v___x_2232_);
 return v___x_2245_;
 }
@@ -6834,8 +6834,8 @@ else
 size_t v___x_2247_; size_t v___x_2248_; lean_object* v___x_2249_; 
 v___x_2247_ = ((size_t)0ULL);
 v___x_2248_ = lean_usize_of_nat(v___x_2244_);
-v___x_2249_ = l___private_Init_Data_Array_Basic_0__Array_foldlMUnsafe_fold___at___00__private_Lake_Build_Run_0__Lake_BuildContext_saveOutputs___at___00__private_Lake_Build_Run_0__Lake_finalizeBuild_spec__0_spec__1(v___x_2232_, v___x_2233_, v___x_2234_, v___y_2242_, v___x_2247_, v___x_2248_, v___x_2245_);
-lean_dec_ref(v___y_2242_);
+v___x_2249_ = l___private_Init_Data_Array_Basic_0__Array_foldlMUnsafe_fold___at___00__private_Lake_Build_Run_0__Lake_BuildContext_saveOutputs___at___00__private_Lake_Build_Run_0__Lake_finalizeBuild_spec__0_spec__1(v___x_2232_, v___x_2233_, v___x_2234_, v___y_2243_, v___x_2247_, v___x_2248_, v___x_2245_);
+lean_dec_ref(v___y_2243_);
 return v___x_2249_;
 }
 }

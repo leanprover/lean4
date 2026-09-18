@@ -1,0 +1,9 @@
+html_syntax_parse.lean:10:17: error: unexpected character '}'; expected '</'
+html_syntax_parse.lean:11:29: error: unexpected character '}'; expected '</'
+html_syntax_parse.lean:12:16: error: unexpected character '}'; expected '</'
+html_syntax_parse.lean:13:20: error: unexpected character 'x'; expected '{' or string literal
+html_syntax_parse.lean:14:20: error: unexpected character '''; expected '{' or string literal
+html_syntax_parse.lean:15:23: error: missing end of character literal
+html_syntax_parse.lean:16:15: error: unexpected character '''; expected '/>', '>' or attribute
+html_syntax_parse.lean:17:17: error: unexpected character '"'; expected '/>', '>' or attribute
+html_syntax_parse.lean:19:0: error: unexpected end of input; expected '-->' (end of HTML comment)

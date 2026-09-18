@@ -7,10 +7,10 @@ module
 
 prelude
 public import Init.Data.Array.GetLit
-public import Init.Data.Array.Mem
+import Init.Data.Array.Mem
 public import Init.Dynamic
-
 public import Lean.Data.Json.Elab
+public import Lean.ToExpr
 
 set_option doc.verso true
 
@@ -42,7 +42,7 @@ inductive Html where
   | raw : String → Html
   /-- A sequence of HTML values. -/
   | seq : Array Html → Html
-  deriving Repr, Inhabited, BEq, Hashable, TypeName
+  deriving Repr, Inhabited, BEq, Hashable, TypeName, ToExpr
 
 namespace Html
 

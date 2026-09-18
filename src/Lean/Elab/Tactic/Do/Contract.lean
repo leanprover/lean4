@@ -85,7 +85,7 @@ private def mkContractNotice (val : Syntax) : Syntax :=
   mkNode ``Lean.Parser.Command.contractDeclVal (val.getArgs.pop.push (mkNullNode #[]))
 
 /-- Expand a `def` carrying `given`/`requires`/`ensures`/`throws` clauses into the plain `def`
-plus a spec theorem `@[spec] theorem f.spec : ∀ xs, ⦃P⦄ f args ⦃fun b => Q; epost⦄` proved by
+plus a spec theorem `@[spec] theorem f.spec : ∀ xs, ⦃P⦄ f args ⦃fun b => Q; E⦄` proved by
 `vcgen`. A `where finally | spec => steps` section supplies `grind`-mode steps for the
 verification conditions `finish` leaves open. -/
 @[builtin_macro Lean.Parser.Command.declaration]
@@ -102,17 +102,23 @@ def expandDefContract : Macro := fun stx => do
   let requiresStx := val[1]
   let ensuresStx := val[2]
   let throwsStx := val[3]
-  -- Replace the contract-carrying value with its inner `declVal` so the `def` elaborates normally.
+
+  -- A complete parse always carries a clause here. The parser's error recovery produces
+  -- clause-less `contractDeclVal` trees, e.g. for `def f` without a value; degrade them to the
+  -- plain `def` elaboration.
   if givenStx.isNone && requiresStx.isNone && ensuresStx.isNone && throwsStx.getNumArgs == 0 then
-    return stx.setArg 1 (decl.setArg 3 val[4])
+    Macro.throwUnsupported
   let (specStep?, strippedVal) ← extractSpecSection val[4]
   let cleanDeclaration := stx.setArg 1 (decl.setArg 3 strippedVal)
+
+  -- Contract def needs the proper Std.WP definitions to be imported.
   unless (← Macro.hasDecl ``Std.WP.Triple) do
     Macro.throwErrorAt
       (if !givenStx.isNone then givenStx else if !requiresStx.isNone then requiresStx
        else if !ensuresStx.isNone then ensuresStx else throwsStx)
       "`given`/`requires`/`ensures`/`throws` contracts elaborate to a `vcgen`-proved \
 specification theorem; add `import Std.WP` to use them."
+
   let sig := decl[2]
   let fId : Ident := ⟨decl[1][0]⟩
   let specId := mkIdentFrom fId (fId.getId ++ `spec)

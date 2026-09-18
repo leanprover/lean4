@@ -4251,8 +4251,8 @@ else
 lean_object* v_a_1328_; lean_object* v___x_1330_; uint8_t v_isShared_1331_; uint8_t v_isSharedCheck_1335_; 
 lean_dec(v_val_1267_);
 lean_dec_ref(v_children_1266_);
-lean_dec_ref(v_i_1265_);
 lean_dec_ref_known(v_x_1254_, 1);
+lean_dec_ref(v_i_1265_);
 lean_dec_ref(v_postNode_1253_);
 lean_dec_ref(v_preNode_1252_);
 v_a_1328_ = lean_ctor_get(v___x_1268_, 0);
@@ -4868,9 +4868,9 @@ return v___x_1518_;
 v___jp_1527_:
 {
 lean_object* v___x_1532_; 
-v___x_1532_ = l___private_Init_Data_Array_QSort_Basic_0__Array_qsort_sort___at___00Lean_Linter_unusedSimpArgs_spec__9___redArg(v___y_1529_, v___y_1530_, v___y_1528_, v___y_1531_);
+v___x_1532_ = l___private_Init_Data_Array_QSort_Basic_0__Array_qsort_sort___at___00Lean_Linter_unusedSimpArgs_spec__9___redArg(v___y_1528_, v___y_1530_, v___y_1529_, v___y_1531_);
 lean_dec(v___y_1531_);
-lean_dec(v___y_1529_);
+lean_dec(v___y_1528_);
 v___y_1516_ = v___x_1532_;
 goto v___jp_1515_;
 }
@@ -4882,16 +4882,16 @@ if (v___x_1538_ == 0)
 {
 lean_dec(v___y_1535_);
 lean_inc(v___y_1537_);
-v___y_1528_ = v___y_1537_;
-v___y_1529_ = v___y_1534_;
+v___y_1528_ = v___y_1534_;
+v___y_1529_ = v___y_1537_;
 v___y_1530_ = v___y_1536_;
 v___y_1531_ = v___y_1537_;
 goto v___jp_1527_;
 }
 else
 {
-v___y_1528_ = v___y_1537_;
-v___y_1529_ = v___y_1534_;
+v___y_1528_ = v___y_1534_;
+v___y_1529_ = v___y_1537_;
 v___y_1530_ = v___y_1536_;
 v___y_1531_ = v___y_1535_;
 goto v___jp_1527_;

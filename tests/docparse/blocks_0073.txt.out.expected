@@ -1,0 +1,44 @@
+Input: "*500*%$foo and a %$bare one\n\n> quoted %$x\n\n# head %$y\n\n`code %$z`\n"
+Success! Final stack:
+  [(Lean.Doc.Parser.Block.para
+    [(Lean.Doc.Parser.Inline.bold
+      (Lean.Doc.Parser.boldDelimiter "*")
+      [(Lean.Doc.Parser.Inline.text
+        (Lean.Doc.Parser.versoText "500"))]
+      (Lean.Doc.Parser.boldDelimiter "*"))
+     (Lean.Doc.Parser.Inline.text
+      (Lean.Doc.Parser.versoText
+       "%$foo and a %$bare one"))])
+   (Lean.Doc.Parser.Block.blockquote
+    ">"
+    [(Lean.Doc.Parser.Block.para
+      [(Lean.Doc.Parser.Inline.text
+        (Lean.Doc.Parser.versoText
+         "quoted %$x"))])])
+   (Lean.Doc.Parser.Block.header
+    (Lean.Doc.Parser.headerMarker "#")
+    [(Lean.Doc.Parser.Inline.text
+      (Lean.Doc.Parser.versoText "head %$y"))])
+   (Lean.Doc.Parser.Block.para
+    [(Lean.Doc.Parser.Inline.code
+      (Lean.Doc.Parser.codeDelimiter "`")
+      (Lean.Doc.Parser.versoCode
+       [(Lean.Doc.Parser.versoCodeLine
+         "code %$z")])
+      (Lean.Doc.Parser.codeDelimiter "`"))
+     (Lean.Doc.Parser.Inline.linebreak "\n")])]
+All input consumed.
+Round-trip OK
+Decoded views:
+  para
+    bold (opener := "*") (closer := "*")
+      text (content := "500")
+    text (content := "%$foo and a %$bare one")
+  blockquote (marker := ">")
+    para
+      text (content := "quoted %$x")
+  header (marker := "#") (level := 0)
+    text (content := "head %$y")
+  para
+    code (opener := "`") (content := "code %$z") (closer := "`")
+    linebreak (newline := "\n")

@@ -1,0 +1,7 @@
+Input: ">\n"
+Success! Final stack:
+  [(Lean.Doc.Parser.Block.blockquote ">" [])]
+All input consumed.
+Round-trip OK
+Decoded views:
+  blockquote (marker := ">")

@@ -1,13 +1,20 @@
+Input: "{hello}*there*"
 Success! Final stack:
-  (Lean.Doc.Syntax.role
+  (Lean.Doc.Parser.Inline.role
    "{"
    `hello
    []
    "}"
-   "["
-   [(Lean.Doc.Syntax.bold
-     "*"
-     [(Lean.Doc.Syntax.text (str "\"there\""))]
-     "*")]
-   "]")
+   []
+   [(Lean.Doc.Parser.Inline.bold
+     (Lean.Doc.Parser.boldDelimiter "*")
+     [(Lean.Doc.Parser.Inline.text
+       (Lean.Doc.Parser.versoText "there"))]
+     (Lean.Doc.Parser.boldDelimiter "*"))]
+   [])
 All input consumed.
+Round-trip OK
+Decoded views:
+  role (braceOpen := "{") (name := hello) (args := []) (braceClose := "}") (brackets := none)
+    bold (opener := "*") (closer := "*")
+      text (content := "there")

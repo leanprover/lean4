@@ -10,10 +10,11 @@ open Lean Doc Elab Term
 
 
 @[doc_code_block]
-def c (s : StrLit) : DocM (Block ElabInline ElabBlock) := pure (Block.code (s.getString.toList.reverse |> String.mk))
+def c (s : VersoCodeBlock) : DocM (Block ElabInline ElabBlock) :=
+  pure (Block.code (s.getVersoCodeBlock.toList.reverse |> String.mk))
 
 @[doc_directive]
-def d (s : TSyntaxArray `block) : DocM (Block ElabInline ElabBlock) := do
+def d (s : TSyntaxArray ``Parser.block) : DocM (Block ElabInline ElabBlock) := do
   .concat <$> s.reverse.mapM elabBlock
 
  /--
@@ -354,7 +355,6 @@ Examples:
 -/
 def somethingElseAgain := ()
 
-/- Commented out for bootstrapping
 /--
 error: Unknown option `pp.alll`
 ---
@@ -373,14 +373,12 @@ Examples:
  * {option}`set_option pp.all "true"` to set it
 -/
 def somethingElseAgain' := ()
--/
 
 /--
 {kw (cat := term)}`Type` {kw (of := termIfLet)}`if`
 -/
 def somethingElseAgain'' := ()
 
-/- Commented out for bootstrapping
 /--
 info:
 
@@ -392,12 +390,16 @@ Hint: Specify the syntax kind:
 {kw?}`Type`
 -/
 def somethingElseAgain''' := ()
--/
 
 /--
 {syntaxCat}`term`
 -/
 def stxDoc := ()
+
+/--
+The source still locates content whose boundary spaces were stripped: {syntaxCat}` term `
+-/
+def stxDocPadded := ()
 
 /--
 {syntaxCat}`thing`
@@ -587,7 +589,7 @@ end ShadowedBuiltin
 
 open Lean in
 @[doc_role]
-def r (_ : TSyntaxArray `inline) : DocM (Inline ElabInline) := do
+def r (_ : TSyntaxArray ``Parser.inline) : DocM (Inline ElabInline) := do
   return .empty
 
 /-! {r}`foo` -/
@@ -609,7 +611,7 @@ end ShadowedNonBuiltin
 namespace DoubleShadowed
 
 @[doc_role]
-def lit (_ : TSyntaxArray `inline) : DocM (Inline ElabInline) := do
+def lit (_ : TSyntaxArray ``Parser.inline) : DocM (Inline ElabInline) := do
   return .empty
 
 namespace Inner
@@ -911,3 +913,46 @@ category: term
     IO.println s!"category: {atom.category}"
 
 end KwAtomPublicTests
+
+/-!
+A role that takes a single code element reports content that is not code at that content, and a
+wrong number of code elements at the arguments, brackets included.
+-/
+
+/--
+@ +2:7...12
+error: Expected code
+-/
+#guard_msgs (positions := true) in
+/--
+{name}[text `Nat.add`]
+-/
+def notCode := 0
+
+/--
+@ +2:6...27
+error: Expected precisely 1 code argument
+-/
+#guard_msgs (positions := true) in
+/--
+{name}[`Nat.add` `Nat.mul`]
+-/
+def twoCodes := 0
+
+/--
+@ +2:6...8
+error: Expected precisely 1 code argument
+-/
+#guard_msgs (positions := true) in
+/--
+{name}[]
+-/
+def noCode := 0
+
+/-! Whitespace around the code element is not content. -/
+
+#guard_msgs in
+/--
+{name}[ `Nat.add` ]
+-/
+def spaceAroundCode := 0

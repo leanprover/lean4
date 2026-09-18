@@ -6,21 +6,34 @@ Authors: Leonardo de Moura
 module
 prelude
 public import Lean.Meta.Tactic.Grind.Types
+public import Lean.Meta.Sym.Arith.Types
 import Lean.Meta.Tactic.Grind.Arith.CommRing.DenoteExpr
 import Init.Omega
 public section
 namespace Lean.Meta.Grind.Arith.CommRing
 open Sym.Arith
 
-private abbrev M := StateT CommRing MetaM
+/-- The two halves of one ring: its `Sym.Arith` classification record and the goal's solver state. -/
+private structure RingInfo where
+  ring  : Sym.Arith.CommRing
+  state : CommRingState
+
+private abbrev M := StateT RingInfo MetaM
 
 private instance : MonadCanon M where
   canonExpr e := return e
   synthInstance? e := Meta.synthInstance? e none
 
 private instance : MonadCommRing M where
-  getCommRing := get
-  modifyCommRing := modify
+  getCommRing := return (← get).ring
+  modifyCommRing f := modify fun s => { s with ring := f s.ring }
+
+private instance : MonadCommRingState M where
+  getCommRingState := return (← get).state
+  modifyCommRingState f := modify fun s => { s with state := f s.state }
+
+private instance : MonadGetVar M where
+  getVar x := return (← get).state.vars[x]!
 
 private def toOption (cls : Name) (header : Thunk MessageData) (msgs : Array MessageData) : Option MessageData :=
   if msgs.isEmpty then
@@ -33,13 +46,13 @@ private def push (msgs : Array MessageData) (msg? : Option MessageData) : Array 
 
 private def ppBasis? : M (Option MessageData) := do
   let mut basis := #[]
-  for c in (← getCommRing).basis do
+  for c in (← getCommRingState).basis do
     basis := basis.push (toTraceElem (← c.denoteExpr))
   return toOption `basis "Basis" basis
 
 private def ppDiseqs? : M (Option MessageData) := do
   let mut diseqs := #[]
-  for d in (← getCommRing).diseqs do
+  for d in (← getCommRingState).diseqs do
     diseqs := diseqs.push (toTraceElem (← d.denoteExpr))
   return toOption `diseqs "Disequalities" diseqs
 
@@ -49,10 +62,22 @@ private def ppRing? : M (Option MessageData) := do
   let msgs := push msgs (← ppDiseqs?)
   return toOption `ring m!"Ring `{(← getRing).type}`" msgs
 
-def pp? (goal : Goal) : MetaM (Option MessageData) := do
+/--
+Prints the ring solver state of `goal`. `rings` are the `Sym.Arith` records of the run
+(see `Result.rings`).
+
+Both arrays are indexed by the ring id assigned by `Sym.Arith.classify?`: the goal's state
+is written at that id (`RingM.modifyCommRingState`), and the `Sym.Arith` array only grows
+during a run, so `rings` is at least as long as `s.rings` and `rings[i]` is the record of
+`s.rings[i]`.
+-/
+def pp? (goal : Goal) (rings : Array Sym.Arith.CommRing) : MetaM (Option MessageData) := do
   let mut msgs := #[]
-  for ring in (← ringExt.getStateCore goal).rings do
-    let some msg ← ppRing? |>.run' ring | pure ()
+  let s ← ringExt.getStateCore goal
+  for i in [:s.rings.size] do
+    let some ring := rings[i]?
+      | throwError "`grind` internal error, ring solver state without a `Sym.Arith` record (ring id {i})"
+    let some msg ← ppRing? |>.run' { ring, state := s.getRing i } | continue
     msgs := msgs.push msg
   if msgs.isEmpty then
     return none

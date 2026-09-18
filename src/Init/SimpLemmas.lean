@@ -113,7 +113,7 @@ theorem implies_congr_ctx {p₁ p₂ q₁ q₂ : Prop} (h₁ : p₁ = p₂) (h�
 theorem pi_congr {α : Sort u} {β β' : α → Sort v} (h : ∀ a, β a = β' a) : (∀ a, β a) = ∀ a, β' a :=
   (funext h : β = β') ▸ rfl
 
-@[deprecated pi_congr (since := "2026-07-22")]
+@[deprecated pi_congr +typeChanged (since := "2026-07-22")]
 theorem forall_congr {α : Sort u} {p q : α → Prop} (h : ∀ a, p a = q a) : (∀ a, p a) = (∀ a, q a) :=
   (funext h : p = q) ▸ rfl
 

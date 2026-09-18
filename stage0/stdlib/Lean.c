@@ -1,6 +1,6 @@
 // Lean compiler output
 // Module: Lean
-// Imports: public import Init public meta import Init public import Lean.Data public import Lean.Compiler public import Lean.Environment public import Lean.Modifiers public import Lean.ProjFns public import Lean.Runtime public import Lean.ResolveName public import Lean.Attributes public import Lean.Parser public import Lean.ReducibilityAttrs public import Lean.Elab public import Lean.Class public import Lean.LocalContext public import Lean.MetavarContext public import Lean.AuxRecursor public import Lean.Meta public import Lean.Util public import Lean.Structure public import Lean.PrettyPrinter public import Lean.CoreM public import Lean.ReservedNameAction public import Lean.InternalExceptionId public import Lean.Server public import Lean.ScopedEnvExtension public import Lean.DocString public import Lean.DeclarationRange public import Lean.LoadDynlib public import Lean.Widget public import Lean.Log public import Lean.Linter public import Lean.SubExpr public import Lean.LabelAttribute public import Lean.AutoDecl public import Lean.AddDecl public import Lean.Replay public import Lean.PrivateName public import Lean.LibrarySuggestions public import Lean.Namespace public import Lean.EnvExtension public import Lean.ErrorExplanation public import Lean.DefEqAttrib public import Lean.Shell public import Lean.ExtraModUses public import Lean.OriginalConstKind public import Lean.PostprocessTraces
+// Imports: public import Init public meta import Init public import Lean.Data public import Lean.Compiler public import Lean.Environment public import Lean.Modifiers public import Lean.ProjFns public import Lean.Runtime public import Lean.ResolveName public import Lean.Attributes public import Lean.Parser public import Lean.ReducibilityAttrs public import Lean.Elab public import Lean.Fmt public import Lean.Class public import Lean.LocalContext public import Lean.MetavarContext public import Lean.AuxRecursor public import Lean.Meta public import Lean.Util public import Lean.Structure public import Lean.PrettyPrinter public import Lean.CoreM public import Lean.ReservedNameAction public import Lean.InternalExceptionId public import Lean.Server public import Lean.ScopedEnvExtension public import Lean.DocString public import Lean.DeclarationRange public import Lean.LoadDynlib public import Lean.Widget public import Lean.Log public import Lean.Linter public import Lean.SubExpr public import Lean.LabelAttribute public import Lean.AutoDecl public import Lean.AddDecl public import Lean.Replay public import Lean.PrivateName public import Lean.LibrarySuggestions public import Lean.Namespace public import Lean.EnvExtension public import Lean.ErrorExplanation public import Lean.DefEqAttrib public import Lean.Shell public import Lean.ExtraModUses public import Lean.OriginalConstKind public import Lean.PostprocessTraces
 #include <lean/lean.h>
 #if defined(__clang__)
 #pragma clang diagnostic ignored "-Wunused-parameter"
@@ -25,6 +25,7 @@ lean_object* runtime_initialize_Lean_Attributes(uint8_t builtin);
 lean_object* runtime_initialize_Lean_Parser(uint8_t builtin);
 lean_object* runtime_initialize_Lean_ReducibilityAttrs(uint8_t builtin);
 lean_object* runtime_initialize_Lean_Elab(uint8_t builtin);
+lean_object* runtime_initialize_Lean_Fmt(uint8_t builtin);
 lean_object* runtime_initialize_Lean_Class(uint8_t builtin);
 lean_object* runtime_initialize_Lean_LocalContext(uint8_t builtin);
 lean_object* runtime_initialize_Lean_MetavarContext(uint8_t builtin);
@@ -100,6 +101,9 @@ res = runtime_initialize_Lean_ReducibilityAttrs(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
 res = runtime_initialize_Lean_Elab(builtin);
+if (lean_io_result_is_error(res)) return res;
+lean_dec_ref(res);
+res = runtime_initialize_Lean_Fmt(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
 res = runtime_initialize_Lean_Class(builtin);
@@ -230,6 +234,7 @@ lean_object* initialize_Lean_Attributes(uint8_t builtin);
 lean_object* initialize_Lean_Parser(uint8_t builtin);
 lean_object* initialize_Lean_ReducibilityAttrs(uint8_t builtin);
 lean_object* initialize_Lean_Elab(uint8_t builtin);
+lean_object* initialize_Lean_Fmt(uint8_t builtin);
 lean_object* initialize_Lean_Class(uint8_t builtin);
 lean_object* initialize_Lean_LocalContext(uint8_t builtin);
 lean_object* initialize_Lean_MetavarContext(uint8_t builtin);
@@ -306,6 +311,9 @@ res = initialize_Lean_ReducibilityAttrs(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
 res = initialize_Lean_Elab(builtin);
+if (lean_io_result_is_error(res)) return res;
+lean_dec_ref(res);
+res = initialize_Lean_Fmt(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
 res = initialize_Lean_Class(builtin);

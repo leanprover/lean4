@@ -1009,7 +1009,7 @@ This section develops machinery to reparametrize a goal:
 If `x` is an fvar, we'd like to transform the goal such that the context contains
 an fvar `y` that stands for `⟨x⟩`, so `x` becomes `y.1`.
 
-Payoff: An index of an induction target or index that is built from an fvar by constructors and
+Payoff: An index of an induction target that is built from an fvar by constructors and
 projections of one-field structures becomes a plain fvar, a form that is required for
 the application of induction.
 
@@ -1024,7 +1024,8 @@ private structure Result where
   newFVarId : FVarId
   /--
   Transports an expression of the original goal's context to the context of `mvarId`: substitutes
-  `x`, folds, and renames `y` and the reintroduced declarations to their new fvars.
+  `x`, simplifies the expression, and renames `y` and the reintroduced declarations to their new
+  fvars.
   -/
   transport : Expr → Expr
 
@@ -1036,7 +1037,7 @@ A let-bound `x` or one that auxiliary declarations depend on is kept in the cont
 The old goal is closed by instantiating `y` with `yInTermsOfX`.
 For this to be type correct, the arguments must satisfy `xInTermsOfY[y := yInTermsOfX] =?= x`.
 
-The `fold` function can be used to simplify expressions after the substitution.
+The `simplify` function can be used to simplify expressions after the substitution.
 For example, it could apply the replacement `yInTermsOfX[x := xInTermsOfY] ↦ y`,
 so that `yInTermsOfX` in the original expression will turn out as `y` in the end.
 
@@ -1045,7 +1046,7 @@ context, such as `x` itself or a local declaration depending on it, is still nee
 declaration, by `xInTermsOfY`, or by the type of `y`.
 -/
 private def reparametrize (mvarId : MVarId) (x y : FVarId) (xInTermsOfY yInTermsOfX : Expr)
-    (fold : Expr → Option Expr := fun _ => none) : MetaM (Option Result) := do
+    (simplify : Expr → Option Expr := fun _ => none) : MetaM (Option Result) := do
   mvarId.checkNotAssigned `reparametrize
   let mvarDecl ← mvarId.getDecl
   /-
@@ -1072,11 +1073,11 @@ private def reparametrize (mvarId : MVarId) (x y : FVarId) (xInTermsOfY yInTerms
   -- Metavariables depending on `x` become functions of `x`, so that we can substitute.
   let body ← elimMVarDeps #[mkFVar x] body
 
-  /- Replace `x` with its substitute, fold, then generalize over `y`. -/
+  /- Replace `x` with its substitute, simplify, then generalize over `y`. -/
   let transport (e : Expr) : Expr :=
     let e := e.replace fun e =>
       if e.consumeMData == mkFVar x then some xInTermsOfY else none
-    e.replace fold
+    e.replace simplify
   let newType ← mkForallFVars #[mkFVar y] (transport body)
   let lctx := toErase.foldl (init := mvarDecl.lctx) fun lctx d => lctx.erase d.fvarId
   let localInsts := mvarDecl.localInstances.filter fun inst => toErase.all (·.fvarId != inst.fvar.fvarId!)
@@ -1178,26 +1179,26 @@ private def makeTargetsFVars (elimInfo : ElimInfo) (targets : Array Expr)
   let mvarId ← getMainGoal
   let mut s : IndexState := { mvarId, targets := ← withMainContext (addImplicitTargets elimInfo targets), elimInfo, toTag }
   let allTargets := s.targets
-  let mut towers : Array (Option BijectionWrappedFVar) := #[]
+  let mut wrappedFVars : Array (Option BijectionWrappedFVar) := #[]
   for h : i in *...allTargets.size do
     let target := allTargets[i]
     let some tower ← mvarId.withContext (bijectionWrappedFVarForInduction? target)
-      | towers := towers.push none; continue
+      | wrappedFVars := wrappedFVars.push none; continue
     -- Two targets over the same variable can never become independent variables.
-    if let some j := towers.findIdx? (·.any (·.fvarId == tower.fvarId)) then
+    if let some j := wrappedFVars.findIdx? (·.any (·.fvarId == tower.fvarId)) then
       mvarId.withContext do
         throwError "Invalid target: The variable `{mkFVar tower.fvarId}` occurs in more than one \
           target (or index), consider using the `cases` tactic instead{indentExpr allTargets[j]!}{indentExpr target}"
-    towers := towers.push (some tower)
-  for i in *...towers.size do
-    let some tower := towers[i]! | continue
+    wrappedFVars := wrappedFVars.push (some tower)
+  for i in *...wrappedFVars.size do
+    let some tower := wrappedFVars[i]! | continue
     let mut x := tower.fvarId
     for k in *...tower.bijectionsInsideOut.length do
       -- `towers` is transported after every step, so the current one has to be re-read.
-      let some bijection := towers[i]!.bind (·.bijectionsInsideOut[k]?) | break
+      let some bijection := wrappedFVars[i]!.bind (·.bijectionsInsideOut[k]?) | break
       let some r ← s.mvarId.withContext (invertBijection bijection s.mvarId x) | break
       s := s.apply r
-      towers := towers.map (·.map (transportWrappedFVar · x r))
+      wrappedFVars := wrappedFVars.map (·.map (transportWrappedFVar · x r))
       x := r.newFVarId
   replaceMainGoal [s.mvarId]
   return (s.targets, s.toTag, s.elimInfo)

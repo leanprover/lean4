@@ -97,9 +97,7 @@ meta partial def elabContent (stx : Content) : TermElabM Expr := withRef stx do
     let children ← mkArrayLit (.const ``Html []) es.toList
     return .app (.const ``Html.ofArray []) children
 
-syntax "html%{" content "}" : term
-
 elab_rules : term
-  | `(term| html%{ $h:content }) => elabContent h
+  | `(term| html%{$h:content}) => elabContent h
 
 end Lean.Elab.Html

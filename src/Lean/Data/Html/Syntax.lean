@@ -229,26 +229,32 @@ private structure TextAcc where
   out : String := ""
   /-- Whether whitespace occurred after the last append to {lit}`out`. -/
   pendingWs : Bool := false
+  /-- Whether {lit}`pendingWs` contains a newline. -/
+  pendingNewline : Bool := false
 
 namespace TextAcc
 
 /-- Appends a single space whenever whitespace is pending,
-except when {name}`trimStart` is set and we haven't seen any non-whitespace yet -
-then pending whitespace is discarded. -/
-private def flushWs (acc : TextAcc) (trimStart : Bool) : TextAcc :=
-  let keep := acc.pendingWs && !(trimStart && acc.out.isEmpty)
-  { acc with out := if keep then acc.out.push ' ' else acc.out, pendingWs := false }
+except when the pending whitespace contains a newline and occurs at the start -
+then it is discarded. -/
+private def flushWs (acc : TextAcc) : TextAcc :=
+  let keep := acc.pendingWs && !(acc.out.isEmpty && acc.pendingNewline)
+  { acc with
+      out := if keep then acc.out.push ' ' else acc.out
+      pendingWs := false
+      pendingNewline := false }
 
 /-- Returns the accumulated text.
-Trailing whitespace is removed if {name}`trimEnd` is set. -/
-private def finish (acc : TextAcc) (trimStart trimEnd : Bool) : String :=
-  if trimEnd then acc.out else acc.flushWs trimStart |>.out
+Trailing whitespace is removed if it contains a newline,
+and otherwise collapsed to a single space. -/
+private def finish (acc : TextAcc)  : String :=
+  if acc.pendingNewline then acc.out
+  else acc.flushWs.out
 
 /-- Appends the text of {name}`t` to the accumulator,
-normalizing as described in {lit}`Content.view`.
-Whitespace at the start is dropped when {name}`trimStart` is set.
+normalizing it as described in {lit}`Content.view`.
 Throws if {name}`t` contains an invalid character reference. -/
-private partial def push (acc : TextAcc) (t : Text) (trimStart : Bool) : CoreM TextAcc := do
+private partial def push (acc : TextAcc) (t : Text)  : CoreM TextAcc := do
   go (← viewNodeAtom t) ⟨0⟩ acc
 where
   go (s : String) (i : String.Pos.Raw) (acc : TextAcc) : CoreM TextAcc := do
@@ -256,10 +262,12 @@ where
       return acc
     let c := i.get s
     let j := i.next s
-    if isAsciiWhitespace c then
+    if c == '\n' || c == '\r' then
+      go s j { acc with pendingWs := true, pendingNewline := true }
+    else if isAsciiWhitespace c then
       go s j { acc with pendingWs := true }
     else
-      let acc := acc.flushWs trimStart
+      let acc := acc.flushWs
       if c == '&' then
         let (val, refEnd) ← decodeCharacterReferenceAt s i (fun s e => subsyntaxNodeAtom t s e)
         go s refEnd { acc with out := acc.out ++ val }
@@ -580,16 +588,12 @@ def element : Parser := elementWith (content)
 /-- Consecutive run of text nodes and comments. -/
 structure TextCommentsView where
   stxs : Array (Text ⊕ Comment)
-  /-- Whether this is the first item in its enclosing {name}`content` node. -/
-  isFirst : Bool
-  /-- Whether this is the last item in its enclosing {name}`content` node. -/
-  isLast : Bool
   deriving Repr, Inhabited, BEq
 
 /-- Returns the _normalized_ text contents of this sequence of text nodes and comments:
-- Consecutive whitespace is collapsed into a single space (U+0020).
-- Whitespace is dropped at the start of the first item within a {name}`content` node,
-  and at the end of the last item.
+- Whitespace that contains a newline (U+000A or U+000D),
+  and is not surrounded by text on both sides, is removed.
+- Other consecutive whitespace is collapsed into a single space (U+0020).
 - HTML character references are decoded into the Unicode characters they represent.
 
 Throws if an invalid character reference is encountered in the text. -/
@@ -597,8 +601,8 @@ def TextCommentsView.getText (v : TextCommentsView) : CoreM String := do
   let mut acc : TextAcc := {}
   for tc in v.stxs do
     let .inl t := tc | continue
-    acc ← withRef t <| acc.push t (trimStart := v.isFirst)
-  return acc.finish (trimStart := v.isFirst) (trimEnd := v.isLast)
+    acc ← withRef t <| acc.push t
+  return acc.finish
 
 /-- A syntax spanning all nodes in this view. Useful for reporting elaboration errors. -/
 def TextCommentsView.getSyntax (v : TextCommentsView) : Syntax :=
@@ -626,12 +630,11 @@ def Content.view (c : Content) : CoreM (Array ContentItemView) := do
     else if k == commentKind then
       tcs := tcs.push <| .inr ⟨stx⟩
     else
-      items := items.push <|
-        .textComments { stxs := tcs, isFirst := items.isEmpty, isLast := false }
+      items := items.push <| .textComments { stxs := tcs }
       tcs := #[]
       items := items.push (← viewItem stx)
   if !tcs.isEmpty then
-    items := items.push <| .textComments { stxs := tcs, isFirst := items.isEmpty, isLast := true }
+    items := items.push <| .textComments { stxs := tcs }
   return items
 where
   viewItem (stx : Syntax) : CoreM ContentItemView := withRef stx do
@@ -642,5 +645,10 @@ where
       return .element ⟨stx⟩
     else
       Elab.throwUnsupportedSyntax
+
+/-- An HTML literal. -/
+@[term_parser] def «html%» : Parser :=
+  -- The opening brace is a `rawSymbol` so that `content` receives leading whitespace.
+  leading_parser "html%" >> rawSymbol "{" >> content >> "}"
 
 end Lean.Html.Syntax

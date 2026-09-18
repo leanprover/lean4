@@ -1099,35 +1099,6 @@ private def reparametrize (mvarId : MVarId) (x y : FVarId) (xInTermsOfY yInTerms
   return some { mvarId := newGoalId, newFVarId := fvarIds[0]!, transport := rename ∘ transport }
 
 /--
-Replaces `x : S params` by `⟨y⟩`, where `y` is a fresh variable named like `x`. The projections
-`⟨y⟩.f` created by the substitution fold back to `y`.
--/
-private def replaceByCtor (mvarId : MVarId) (x : FVarId) (ctorVal : ConstructorVal) (us : List Level)
-    (params : Array Expr) : MetaM (Option Result) := do
-  let yInTermsOfX ← mkProjFn ctorVal us params 0 (mkFVar x)
-  -- The field type of a one-field structure depends on the params only.
-  withLocalDeclD (← x.getUserName) (← inferType yInTermsOfX) fun y => do
-    let xInTermsOfY := mkAppN (mkConst ctorVal.name us) (params.push y)
-    -- `⟨y⟩.f` may be spelled with the projection function or as `Expr.proj`.
-    let projApp ← mkProjFn ctorVal us params 0 xInTermsOfY
-    reparametrize mvarId x y.fvarId! xInTermsOfY yInTermsOfX fun e =>
-      let e := e.consumeMData
-      if e == projApp || e == .proj ctorVal.induct 0 xInTermsOfY then some y else none
-
-/--
-Replaces `x` by `y.f`, where `y : S params` is a fresh variable named like `x`. The constructor
-applications `⟨y.f⟩` created by the substitution fold back to `y`.
--/
-private def replaceByProj (mvarId : MVarId) (x : FVarId) (ctorVal : ConstructorVal) (us : List Level)
-    (params : Array Expr) : MetaM (Option Result) := do
-  withLocalDeclD (← x.getUserName) (mkAppN (mkConst ctorVal.induct us) params) fun y => do
-    let xInTermsOfY ← mkProjFn ctorVal us params 0 y
-    let yInTermsOfX := mkAppN (mkConst ctorVal.name us) (params.push (mkFVar x))
-    reparametrize mvarId x y.fvarId! xInTermsOfY yInTermsOfX fun e =>
-      if e.consumeMData == mkAppN (mkConst ctorVal.name us) (params.push xInTermsOfY) then y
-      else none
-
-/--
 The goal of `induction` together with the expressions that have to be kept in sync with it while
 the indices of the targets are turned into variables.
 -/
@@ -1145,32 +1116,39 @@ private def IndexState.apply (s : IndexState) (r : Result) : IndexState where
     elimExpr := r.transport s.elimInfo.elimExpr, elimType := r.transport s.elimInfo.elimType }
   toTag    := s.toTag.map fun (id, x) => (id, (r.transport (mkFVar x)).fvarId!)
 
--- private def IndexBijection.ctor (ctorVal : ConstructorVal) (us : List Level) (params : Array Expr) :
---     IndexBijection :=
---   { isCtor := true, ctorVal, us, params }
-
--- private def IndexBijection.proj (ctorVal : ConstructorVal) (us : List Level) (params : Array Expr) :
---     IndexBijection :=
---   { isCtor := false, ctorVal, us, params }
-
-/-- Turns `b x` into a fresh variable by replacing the base `x`, see `replaceByProj`/`replaceByCtor`. -/
+/--
+Turns `b x` into a fresh variable `y` named like `x` by replacing `x` with `b⁻¹ y`.
+If this replacement creates subterms of the form `b (b⁻¹ y)`, these are simplified to `y`.
+Currently, such subterms are matched purely syntactically, so `.mk (.proj ...)` might fail to get
+simplified if the constructor's and the projection's parameters are merely definitionally equal.
+-/
 private def invertBijection (b : Bijection) (mvarId : MVarId) (x : FVarId) :
-    MetaM (Option Result) :=
-  if b.isCtor then
-    replaceByProj mvarId x b.ctorVal b.us b.params
-  else
-    replaceByCtor mvarId x b.ctorVal b.us b.params
+    MetaM (Option Result) := do
+  let yInTermsOfX ← b.mkApp (mkFVar x)
+  -- The type of `b x` depends on the params only, not on `x`.
+  withLocalDeclD (← x.getUserName) (← inferType yInTermsOfX) fun y => do
+    let xInTermsOfY ← b.inv.mkApp y
+    -- A projection `⟨y⟩.f` may be spelled with the projection function or as `Expr.proj`.
+    let redexToSimplify ← b.mkApp xInTermsOfY
+    reparametrize mvarId x y.fvarId! xInTermsOfY yInTermsOfX fun e =>
+      let e := e.consumeMData
+      if e == redexToSimplify || (!b.isCtor && e == .proj b.ctorVal.induct 0 xInTermsOfY) then some y
+      else none
 
 /--
-Updates a tower to use the variables in the goal that `reparametrize` returns.
-If `x` is the tower's fvar, the new base is `r.newFVarId`.
+Updates a bijection-wrapped fvar `x`, and its bijections, to use the variables in the goal that
+`reparametrize` returned.
 The substitution `r.transport` replaces `x` with a constructor or projection expression,
 which cannot serve as the base variable.
 
-`r` must have been obtained by `reparametrize` so that in all other cases the tower's fvar remains
-an fvar under `r.transport`.
+`r` must have been obtained by `reparametrize`.
 -/
 private def transportWrappedFVar (t : BijectionWrappedFVar) (x : FVarId) (r : Result) : BijectionWrappedFVar :=
+  /-
+  For fvars `z` other than `x`, `r.transport` transforms them into fvars again.
+  But `x` is replaced with a constructor or projection expression, which cannot serve as the base
+  variable.
+  -/
   { fvarId := if t.fvarId == x then r.newFVarId else (r.transport (mkFVar t.fvarId)).fvarId!
     bijectionsInsideOut := t.bijectionsInsideOut.map fun b => { b with params := b.params.map r.transport } }
 
@@ -1185,11 +1163,16 @@ private partial def bijectionWrappedFVarForInduction? (e : Expr) :
     return none
 
 /--
-Makes the implicit targets (the indices of the explicit `targets`) variables where a definitional
-change of variables suffices: a target `⟨x⟩` resp. `x.f` over a one-field structure becomes a fresh
-variable `y` by `x ↦ y.f` resp. `x ↦ ⟨y⟩`, from the innermost operation outwards. Targets of any
-other shape are left to `checkInductionTargets`. Returns all targets and the updated `toTag` and
-`elimInfo`.
+Applies a definitional change of variables that turns the given targets into variables if they
+are composed of one-field-structure constructors, projections.
+If the change of variables introduces reducible compositions of constructors and projections,
+such as `X.mk (y.fieldProjection)` where `y : X`, such occurrences are simplified.
+Currently, the simplification step matches strictly syntactically.
+
+For example, a target `⟨⟨x.fieldProjection⟩⟩` gets turned into `y`, replacing every occurrence of
+`x` with `⟨y.fieldProjection.fieldProjection⟩`.
+
+Targets that cannot be turned into fvars will be rejected by `checkInductionTargets`.
 -/
 private def makeTargetsFVars (elimInfo : ElimInfo) (targets : Array Expr)
     (toTag : Array (Ident × FVarId)) :

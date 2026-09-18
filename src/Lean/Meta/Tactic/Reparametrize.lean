@@ -1,3 +1,8 @@
+/-
+Copyright (c) 2026 Lean FRO, LLC. All rights reserved.
+Released under Apache 2.0 license as described in the file LICENSE.
+Authors: Paul Reichert
+-/
 module
 
 prelude
@@ -11,8 +16,8 @@ public section
 namespace Lean.Meta.OneFieldStructure
 
 /--
-The constructor or the projection of a one-field structure with concrete parameters.
-`ctor` and `proj` are definitionally mutually inverse functions.
+A one-field-structure constructor or projection, together with
+a choice of parameters and universe levels for the underlying structure.
 -/
 structure Bijection where
   isCtor : Bool
@@ -23,19 +28,18 @@ structure Bijection where
 def Bijection.inv (b : Bijection) : Bijection :=
   { b with isCtor := !b.isCtor }
 
-private protected def Bijection.mkApp (b : Bijection) (e : Expr) : MetaM Expr :=
+protected def Bijection.mkApp (b : Bijection) (e : Expr) : MetaM Expr :=
   if b.isCtor then
     return mkApp (mkAppN (mkConst b.ctorVal.name b.us) b.params) e
   else
     mkProjFn b.ctorVal b.us b.params 0 e
 
 /--
-Returns `x` if `e` is `b x`.
-The check is done mostly syntactically and it will fail if the bijection's
-parameters don't match syntactically.
+Given a bijection `b` and an expression `e`, return `x` if `e` syntactically matches `b x`.
+Returns none if the bijection's parameters don't match syntactically.
 
-If `x` is a `.proj` expression, we WHNF its inferred type, so that the
-parameters get exposed, and only then do we check them syntacticallly.
+If `x` is a `.proj` expression, we WHNF its inferred type, to expose the structure's parameters,
+and only then do we compare them syntacticallly.
 We might want to make the check less syntactical in the future, but this seems
 fine for now. A definitional equality check might be too leanient, so that
 `Bijection.mkApp` would cancel too much, and it is more expensive.

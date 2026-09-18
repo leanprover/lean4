@@ -145,11 +145,13 @@ builtin_initialize versoDocStringExt : MapDeclarationExtension VersoDocString �
 /--
 Adds a builtin docstring to the compiler.
 
+The text should have already had its leading indentation removed by the caller.
+
 Links to the Lean manual aren't validated.
 -/
 -- See the test `lean/run/docstringRewrites.lean` for the validation of builtin docstring links
 def addBuiltinDocString (declName : Name) (docString : String) : IO Unit := do
-  builtinDocStrings.modify (·.insert declName docString.removeLeadingSpaces)
+  builtinDocStrings.modify (·.insert declName docString)
 
 /--
 Removes a builtin docstring from the compiler. This is used when translating between formats.

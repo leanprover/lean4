@@ -13,7 +13,7 @@ def alpha := ()
 def beta := ()
 
 @[doc_role alpha, doc_role beta]
-meta def bothRoles (_ : TSyntaxArray `inline) : DocM (Inline ElabInline) := do
+meta def bothRoles (_ : TSyntaxArray ``Parser.inline) : DocM (Inline ElabInline) := do
   return .text "!"
 
 /-- Uses {alpha}`one` and {beta}`two`. -/
@@ -37,7 +37,7 @@ def delta := ()
 
 /-- Documentation of the role. -/
 @[doc_role gamma, doc_role delta]
-meta def documentedRole (_ : TSyntaxArray `inline) : DocM (Inline ElabInline) := do
+meta def documentedRole (_ : TSyntaxArray ``Parser.inline) : DocM (Inline ElabInline) := do
   return .text "?"
 
 /-- Uses {gamma}`one` and {delta}`two`. -/

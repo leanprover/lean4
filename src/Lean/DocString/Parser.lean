@@ -14,7 +14,6 @@ set_option linter.missingDocs true
 namespace Lean.Doc.Parser
 
 open Lean Parser
-open Lean.Doc.Syntax
 
 local instance : Coe Char ParserFn where
   coe := chFn
@@ -1301,7 +1300,7 @@ public def textLineFn (ctxt : InlineCtxt := {}) (recordTrailing := false) : Pars
     return s.mkNode nullKind iniSz
 
 open Lean.Parser.Term in
-/-- A non-`meta` copy of `Lean.Doc.Syntax.metadataContents`. -/
+/-- The fields of a metadata block, which are the fields of a structure instance. -/
 @[run_builtin_parser_attribute_hooks]
 public def metadataContents : Parser :=
   structInstFields (sepByIndent structInstField ", " (allowTrailingSep := true))

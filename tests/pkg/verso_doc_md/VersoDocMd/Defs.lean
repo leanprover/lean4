@@ -3,7 +3,6 @@ module
 public meta import Lean
 
 open Lean Doc Elab Command
-open scoped Lean.Doc.Syntax
 
 public section
 
@@ -16,7 +15,7 @@ meta structure IncludeDoc where
 deriving TypeName
 
 /-- Reads a single code inline and resolves it to a global constant. -/
-meta def codeTargetName (xs : TSyntaxArray `inline) : DocM Name :=
+meta def codeTargetName (xs : TSyntaxArray ``Parser.inline) : DocM Name :=
   match xs with
   | #[stx] => match CodeView.of stx with
     | some { content, .. } =>
@@ -26,7 +25,7 @@ meta def codeTargetName (xs : TSyntaxArray `inline) : DocM Name :=
 
 /-- Includes another declaration's docstring. The target is looked up when rendering to Markdown. -/
 @[doc_role]
-meta def include_docstring (xs : TSyntaxArray `inline) : DocM (Inline ElabInline) := do
+meta def include_docstring (xs : TSyntaxArray ``Parser.inline) : DocM (Inline ElabInline) := do
   return .custom (IncludeDoc.mk (← codeTargetName xs)) #[]
 
 /-- The renderer looks up and renders the target's docstring when the including docstring is shown. -/

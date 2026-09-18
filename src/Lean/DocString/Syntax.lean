@@ -29,292 +29,6 @@ not extensible, but roles, directives, and code blocks are hooks for extension. 
 `Lean.Elab.DocString`.
 -/
 
-open Lean.Parser (rawIdent)
-
-/-
-The declarations in this namespace are a temporary bootstrapping encoding, produced by quotations
-rather than by the parser. After a stage0 update they can be deleted, along with the migration
-sections in `Lean.DocString.View` and `Lean.Elab.DocString` that convert between the two.
--/
-namespace Lean.Doc.Syntax
-
-public section
-
-/-- Argument values -/
-declare_syntax_cat arg_val
-scoped syntax (name:=arg_str) str : arg_val
-scoped syntax (name:=arg_ident) ident : arg_val
-scoped syntax (name:=arg_num) num : arg_val
-
-/-- Arguments -/
-declare_syntax_cat doc_arg
-/-- Anonymous positional argument -/
-@[builtin_doc]
-scoped syntax (name:=anon) arg_val : doc_arg
-/-- Named argument -/
-@[builtin_doc]
-scoped syntax (name:=named) "(" ident " := " arg_val ")": doc_arg
-@[inherit_doc named, builtin_doc]
-scoped syntax (name:=named_no_paren) ident " := " arg_val : doc_arg
-/-- Boolean flag, turned on -/
-@[builtin_doc]
-scoped syntax (name:=flag_on) "+" ident : doc_arg
-/-- Boolean flag, turned off -/
-@[builtin_doc]
-scoped syntax (name:=flag_off) "-" ident : doc_arg
-
-/-- Link targets, which may be URLs or named references -/
-declare_syntax_cat link_target
-/-- A URL target, written explicitly. Use square brackets for a named target. -/
-@[builtin_doc]
-scoped syntax (name:=url) "(" str ")" : link_target
-/-- A named reference to a URL defined elsewhere. Use parentheses to write the URL here. -/
-@[builtin_doc]
-scoped syntax (name:=ref) "[" str "]" : link_target
-
-/--
-Verso inline objects. These are part of the ordinary text flow of a paragraph.
-
-This syntax uses the following conventions:
- * Sequences of inline items are in square brackets
- * Literal data, like strings or numbers, are in parentheses
- * Verso metaprogram names and arguments are in curly braces
--/
-declare_syntax_cat inline
-scoped syntax (name:=text) str : inline
-/--
-Emphasis, often rendered as italics.
-
-Emphasis may be nested by using longer sequences of `_` for the outer delimiters. For example:
-```
-Remember: __always butter the _rugbrød_ before adding toppings!__
-```
-Here, the outer `__` is used to emphasize the instructions, while the inner `_` indicates the use of
-a non-English word.
--/
-@[builtin_doc]
-scoped syntax (name:=emph) "_[" inline* "]" : inline
-/--
-Bold emphasis.
-
-A single `*` suffices to make text bold. Using `_` for emphasis.
-
-Bold text may be nested by using longer sequences of `*` for the outer delimiters.
--/
-@[builtin_doc]
-scoped syntax (name:=bold) "*[" inline* "]" : inline
-/--
-A link. The link's target may either be a concrete URL (written in parentheses) or a named URL
-(written in square brackets).
--/
-@[builtin_doc]
-scoped syntax (name:=link) "link[" inline* "]" link_target : inline
-/--
-An image, with alternate text and a URL.
-
-The alternate text is a plain string, rather than Verso markup.
-
-The image URL may either be a concrete URL (written in parentheses) or a named URL (written in
-square brackets).
--/
-
-@[builtin_doc]
-scoped syntax (name:=image) "image(" str ")" link_target : inline
-/--
-A footnote use site.
-
-Footnotes must be defined elsewhere using the `[^NAME]: TEXT` syntax.
--/
-@[builtin_doc]
-scoped syntax (name:=footnote) "footnote(" str ")" : inline
-scoped syntax (name:=linebreak) "line!" str : inline
-/--
-Literal code.
-
-Code may begin with any non-zero number of backticks. It must be terminated with the same number,
-and it may not contain a sequence of backticks that is at least as long as its starting or ending
-delimiters.
-
-If the first and last characters are space, and it contains at least one non-space character, then
-the resulting string has a single space stripped from each end. Thus, ``` `` `x `` ``` represents
-``"`x"``, not ``" `x "``.
--/
-@[builtin_doc]
-scoped syntax (name:=code) "code(" str ")" : inline
-/--
-A _role_: an extension to the Verso document language in an inline position.
-
-Text is given a role using the following syntax: `{NAME ARGS*}[CONTENT]`. The `NAME` is an
-identifier that determines which role is being used, akin to a function name. Each of the `ARGS` may
-have the following forms:
-* A value, which is a string literal, natural number, or identifier
-* A named argument, of the form `(NAME := VALUE)`
-* A flag, of the form `+NAME` or `-NAME`
-
-The `CONTENT` is a sequence of inline content. If there is only one piece of content and it has
-beginning and ending delimiters (e.g. code literals, links, or images, but not ordinary text), then
-the `[` and `]` may be omitted. In particular, `` {NAME ARGS*}`x` `` is equivalent to
-``{NAME ARGS*}[`x`]``.
--/
-@[builtin_doc]
-scoped syntax (name:=role) "role{" ident doc_arg* "}" "[" inline* "]"  : inline
-/-- Inline mathematical notation (equivalent to LaTeX's `$` notation) -/
-@[builtin_doc]
-scoped syntax (name:=inline_math) "\\math" code : inline
-/-- Display-mode mathematical notation -/
-@[builtin_doc]
-scoped syntax (name:=display_math) "\\displaymath" code : inline
-
-/--
-Block-level elements, such as paragraphs, headers, and lists.
-
-Conventions:
- * When there's concrete syntax that can be written as Lean atoms, do so (code blocks are ` ``` `,
-   directives `:::`)
- * When Verso's syntax requires a newline, use `|` because `"\n"` is not a valid Lean token
- * Directive bodies are in `{` and `}` to avoid quotation parsing issues with `:::` ... `:::`
- * If there's no concrete syntax per se, such as for paragraphs or lists, use a name with brackets
-   and braces
- * Use parentheses around required literals, such as the starting number of an ordered list
- * Use square brackets around sequences of literals
- * Use curly braces around blocks or lists items (because names and arguments a la roles are always
-   newline-separated for directives and code)
--/
-declare_syntax_cat block
-
-/-- Items from both ordered and unordered lists -/
-declare_syntax_cat list_item
-/-- A list item -/
-@[builtin_doc]
-syntax (name:=li) "*" block* : list_item
-
-/-- A description of an item -/
-declare_syntax_cat desc_item
-/-- A description of an item -/
-@[builtin_doc]
-scoped syntax (name:=desc) ":" inline* "=>" block* : desc_item
-
-/-- Paragraph -/
-@[builtin_doc]
-scoped syntax (name:=para) "para[" inline+ "]" : block
-/-- Unordered List -/
-@[builtin_doc]
-scoped syntax (name:=ul) "ul{" list_item* "}" : block
-/-- Description list -/
-@[builtin_doc]
-scoped syntax (name:=dl) "dl{" desc_item* "}" : block
-/-- Ordered list -/
-@[builtin_doc]
-scoped syntax (name:=ol) "ol(" num ")" "{" list_item* "}" : block
-/--
-A code block that contains literal code.
-
-Code blocks have the following syntax:
-````
-```(NAME ARGS*)?
-CONTENT
-```
-````
-
-`CONTENT` is a literal string. If the `CONTENT` contains a sequence of three or more backticks, then
-the opening and closing ` ``` ` (called _fences_) should have more backticks than the longest
-sequence in `CONTENT`. Additionally, the opening and closing fences should have the same number of
-backticks.
-
-If `NAME` and `ARGS` are not provided, then the code block represents literal text. If provided, the
-`NAME` is an identifier that selects an interpretation of the block. Unlike Markdown, this name is
-not necessarily the language in which the code is written, though many custom code blocks are, in
-practice, named after the language that they contain. `NAME` is more akin to a function name. Each
-of the `ARGS` may have the following forms:
-* A value, which is a string literal, natural number, or identifier
-* A named argument, of the form `(NAME := VALUE)`
-* A flag, of the form `+NAME` or `-NAME`
-
-The `CONTENT` is interpreted according to the indentation of the fences. If the fences are indented
-`n` spaces, then `n` spaces are removed from the start of each line of `CONTENT`.
--/
-@[builtin_doc]
-scoped syntax (name:=codeblock) "```" (ident doc_arg*)? "|" str "```" : block
-/--
-A quotation, which contains a sequence of blocks that are at least as indented as the `>`.
--/
-@[builtin_doc]
-scoped syntax (name:=blockquote) ">" block* : block
-/--
-A named URL that can be used in links and images.
--/
-@[builtin_doc]
-scoped syntax (name:=link_ref)  "[" str "]:" str : block
-/--
-A footnote definition.
--/
-@[builtin_doc]
-scoped syntax (name:=footnote_ref) "[^" str "]:" inline* : block
-/--
-A _directive_, which is an extension to the Verso language in block position.
-
-Directives have the following syntax:
-```
-:::NAME ARGS*
-CONTENT*
-:::
-```
-
-The `NAME` is an identifier that determines which directive is being used, akin to a function name.
-Each of the `ARGS` may have the following forms:
-* A value, which is a string literal, natural number, or identifier
-* A named argument, of the form `(NAME := VALUE)`
-* A flag, of the form `+NAME` or `-NAME`
-
-The `CONTENT` is a sequence of block content. Directives may be nested by using more colons in
-the outer directive. For example:
-```
-::::outer +flag (arg := 5)
-A paragraph.
-:::inner "label"
-* 1
-* 2
-:::
-::::
-```
-
--/
-@[builtin_doc]
-scoped syntax (name:=directive) ":::" rawIdent doc_arg* "{" block:max* "}" : block
-/--
-A header
-
-Headers must be correctly nested to form a tree structure. The first header in a document must
-start with `#`, and subsequent headers must have at most one more `#` than the preceding header.
--/
-@[builtin_doc]
-scoped syntax (name:=header) "header(" num ")" "{" inline+ "}" : block
-
-open Lean.Parser Term in
-meta def metadataContents : Lean.Parser.Parser :=
-  structInstFields (sepByIndent structInstField ", " (allowTrailingSep := true))
-
-/--
-Metadata for the preceding header.
--/
-@[builtin_doc]
-scoped syntax (name:=metadata_block) "%%%" metadataContents "%%%" : block
-
-/--
-A block-level command, which invokes an extension during documentation processing.
-
-The `NAME` is an identifier that determines which command is being used, akin to a function name.
-Each of the `ARGS` may have the following forms:
-* A value, which is a string literal, natural number, or identifier
-* A named argument, of the form `(NAME := VALUE)`
-* A flag, of the form `+NAME` or `-NAME`
--/
-@[builtin_doc]
-scoped syntax (name:=command) "command{" rawIdent doc_arg* "}" : block
-
-end
-
-end Lean.Doc.Syntax
 
 namespace Lean.Doc.Parser
 
@@ -685,22 +399,26 @@ def argVal : Lean.Parser.Parser := onFirstUse fun _ =>
 namespace Arg
 
 open Lean.Parser in
-@[inherit_doc Lean.Doc.Syntax.anon, builtin_doc]
+/-- Anonymous positional argument -/
+@[builtin_doc]
 def anon : Lean.Parser.Parser := onFirstUse fun _ => nodeWithAntiquot "anon" decl_name% argVal
 open Lean.Parser in
-@[inherit_doc Lean.Doc.Syntax.named, builtin_doc]
+/-- Named argument -/
+@[builtin_doc]
 def named : Lean.Parser.Parser := onFirstUse fun _ =>
   nodeWithAntiquot "named" decl_name% ("(" >> Lean.Parser.ident >> " := " >> argVal >> ")")
 open Lean.Parser in
-@[inherit_doc Lean.Doc.Syntax.named_no_paren, builtin_doc]
+@[inherit_doc named, builtin_doc]
 def named_no_paren : Lean.Parser.Parser := onFirstUse fun _ =>
   nodeWithAntiquot "named_no_paren" decl_name% (Lean.Parser.ident >> " := " >> argVal)
 open Lean.Parser in
-@[inherit_doc Lean.Doc.Syntax.flag_on, builtin_doc]
+/-- Boolean flag, turned on -/
+@[builtin_doc]
 def flag_on : Lean.Parser.Parser := onFirstUse fun _ =>
   nodeWithAntiquot "flag_on" decl_name% ("+" >> Lean.Parser.ident)
 open Lean.Parser in
-@[inherit_doc Lean.Doc.Syntax.flag_off, builtin_doc]
+/-- Boolean flag, turned off -/
+@[builtin_doc]
 def flag_off : Lean.Parser.Parser := onFirstUse fun _ =>
   nodeWithAntiquot "flag_off" decl_name% ("-" >> Lean.Parser.ident)
 
@@ -718,11 +436,13 @@ def arg : Lean.Parser.Parser := onFirstUse fun _ =>
 namespace LinkTarget
 
 open Lean.Parser in
-@[inherit_doc Lean.Doc.Syntax.url, builtin_doc]
+/-- A URL target, written explicitly. Use square brackets for a named target. -/
+@[builtin_doc]
 def url : Lean.Parser.Parser := onFirstUse fun _ =>
   nodeWithAntiquot "url" decl_name% ("(" >> versoLinkUrl >> ")")
 open Lean.Parser in
-@[inherit_doc Lean.Doc.Syntax.ref, builtin_doc]
+/-- A named reference to a URL defined elsewhere. Use parentheses to write the URL here. -/
+@[builtin_doc]
 def ref : Lean.Parser.Parser := onFirstUse fun _ =>
   nodeWithAntiquot "ref" decl_name% ("[" >> versoRef >> "]")
 
@@ -975,24 +695,81 @@ end
 namespace Inline
 
 def text : Lean.Parser.Parser := { fn := textQuot }
-@[inherit_doc Lean.Doc.Syntax.emph, builtin_doc]
+/--
+Emphasis, often rendered as italics.
+
+Emphasis may be nested by using longer sequences of `_` for the outer delimiters.
+-/
+@[builtin_doc]
 def emph : Lean.Parser.Parser := { fn := emphQuot }
-@[inherit_doc Lean.Doc.Syntax.bold, builtin_doc]
+/--
+Bold emphasis.
+
+A single `*` suffices to make text bold. Use `_` for emphasis.
+
+Bold text may be nested by using longer sequences of `*` for the outer delimiters.
+-/
+@[builtin_doc]
 def bold : Lean.Parser.Parser := { fn := boldQuot }
-@[inherit_doc Lean.Doc.Syntax.code, builtin_doc]
+/--
+Literal code.
+
+Code may begin with any non-zero number of backticks. It must be terminated with the same number,
+and it may not contain a sequence of backticks that is at least as long as its starting or ending
+delimiters.
+
+If the first and last characters are space, and it contains at least one non-space character, then
+the resulting string has a single space stripped from each end. Thus, ``` `` `x `` ``` represents
+``"`x"``, not ``" `x "``.
+-/
+@[builtin_doc]
 def code : Lean.Parser.Parser := inlineCode
-@[inherit_doc Lean.Doc.Syntax.inline_math, builtin_doc]
+/-- Inline mathematical notation (equivalent to LaTeX's `$` notation) -/
+@[builtin_doc]
 def inline_math : Lean.Parser.Parser := { fn := inlineMathQuot }
-@[inherit_doc Lean.Doc.Syntax.display_math, builtin_doc]
+/-- Display-mode mathematical notation -/
+@[builtin_doc]
 def display_math : Lean.Parser.Parser := { fn := displayMathQuot }
-@[inherit_doc Lean.Doc.Syntax.link, builtin_doc]
+/--
+A link. The link's target may either be a concrete URL (written in parentheses) or a named URL
+(written in square brackets).
+-/
+@[builtin_doc]
 def link : Lean.Parser.Parser := { fn := linkQuot }
-@[inherit_doc Lean.Doc.Syntax.image, builtin_doc]
+/--
+An image, with alternate text and a URL.
+
+The alternate text is a plain string, rather than Verso markup.
+
+The image URL may either be a concrete URL (written in parentheses) or a named URL (written in
+square brackets).
+-/
+@[builtin_doc]
 def image : Lean.Parser.Parser := { fn := imageQuot }
-@[inherit_doc Lean.Doc.Syntax.footnote, builtin_doc]
+/--
+A footnote use site.
+
+Footnotes must be defined elsewhere using the `[^NAME]: TEXT` syntax.
+-/
+@[builtin_doc]
 def footnote : Lean.Parser.Parser := { fn := footnoteQuot }
 def linebreak : Lean.Parser.Parser := { fn := linebreakQuot }
-@[inherit_doc Lean.Doc.Syntax.role, builtin_doc]
+/--
+A _role_ is an extension to the Verso document language in an inline position.
+
+Text is given a role using the following syntax: `{NAME ARGS*}[CONTENT]`. The `NAME` is an
+identifier that determines which role is being used, akin to a function name. Each of the `ARGS` may
+have the following forms:
+* A value, which is a string literal, natural number, or identifier
+* A named argument, of the form `(NAME := VALUE)`
+* A flag, of the form `+NAME` or `-NAME`
+
+The `CONTENT` is a sequence of inline content. If there is only one piece of content and it has
+beginning and ending delimiters (e.g. code literals, links, or images, but not ordinary text), then
+the `[` and `]` may be omitted. In particular, `` {NAME ARGS*}`x` `` is equivalent to
+``{NAME ARGS*}[`x`]``.
+-/
+@[builtin_doc]
 def role : Lean.Parser.Parser := { fn := roleQuot }
 
 end Inline
@@ -1074,43 +851,136 @@ end
 
 namespace ListItem
 
-@[inherit_doc Lean.Doc.Syntax.li, builtin_doc]
+/-- A list item -/
+@[builtin_doc]
 def item : Lean.Parser.Parser := { fn := listItemQuot listMarker }
 
 end ListItem
 
 namespace DescItem
 
-@[inherit_doc Lean.Doc.Syntax.desc, builtin_doc]
+/-- A description of an item -/
+@[builtin_doc]
 def item : Lean.Parser.Parser := { fn := descItemQuot }
 
 end DescItem
 
 namespace Block
 
-@[inherit_doc Lean.Doc.Syntax.para, builtin_doc]
+/-- Paragraph -/
+@[builtin_doc]
 def para : Lean.Parser.Parser := { fn := paraQuot }
-@[inherit_doc Lean.Doc.Syntax.ul, builtin_doc]
+/-- Unordered List -/
+@[builtin_doc]
 def ul : Lean.Parser.Parser := { fn := ulQuot }
-@[inherit_doc Lean.Doc.Syntax.ol, builtin_doc]
+/-- Ordered list -/
+@[builtin_doc]
 def ol : Lean.Parser.Parser := { fn := olQuot }
-@[inherit_doc Lean.Doc.Syntax.dl, builtin_doc]
+/-- Description list -/
+@[builtin_doc]
 def dl : Lean.Parser.Parser := { fn := dlQuot }
-@[inherit_doc Lean.Doc.Syntax.blockquote, builtin_doc]
+/--
+A quotation, which contains a sequence of blocks that are at least as indented as the `>`.
+-/
+@[builtin_doc]
 def blockquote : Lean.Parser.Parser := { fn := blockquoteQuot }
-@[inherit_doc Lean.Doc.Syntax.codeblock, builtin_doc]
+/--
+A code block that contains literal code. The contents of a code block are not written in Verso
+syntax.
+
+Code blocks have the following syntax:
+````
+```(NAME ARGS*)?
+CONTENT
+```
+````
+
+`CONTENT` is a literal string. If the `CONTENT` contains a sequence of three or more backticks, then
+the opening and closing ` ``` ` (called _fences_) must have more backticks than the longest
+sequence in `CONTENT`. Additionally, the opening and closing fences must have the same number of
+backticks.
+
+If `NAME` and `ARGS` are not provided, then the code block represents literal text. If provided, the
+`NAME` is an identifier that selects an interpretation of the block. Unlike Markdown, this name is
+not necessarily the language in which the code is written, though many custom code blocks are, in
+practice, named after the language that they contain. `NAME` is more akin to a function name that
+determines the interpretation of the code block's contents. Each of the `ARGS` may have the
+following forms:
+* A value, which is a string literal, natural number, or identifier
+* A named argument, of the form `(NAME := VALUE)`
+* A flag, of the form `+NAME` or `-NAME`
+
+The `CONTENT` is interpreted according to the indentation of the fences. If the fences are indented
+`n` spaces, then `n` spaces are removed from the start of each line of `CONTENT`.
+-/
+@[builtin_doc]
 def codeblock : Lean.Parser.Parser := { fn := codeblockQuot }
-@[inherit_doc Lean.Doc.Syntax.directive, builtin_doc]
+
+/--
+A _directive_, which is an extension to the Verso language in block position. The contents of a
+directive are written in Verso syntax.
+
+Directives have the following syntax:
+```
+:::NAME ARGS*
+CONTENT*
+:::
+```
+
+The `NAME` is an identifier that determines which directive is being used, akin to a function name.
+Each of the `ARGS` may have the following forms:
+* A value, which is a string literal, natural number, or identifier
+* A named argument, of the form `(NAME := VALUE)`
+* A flag, of the form `+NAME` or `-NAME`
+
+The `CONTENT` is a sequence of block content. Directives may be nested by using more colons in
+the outer directive. For example:
+```
+::::outer +flag (arg := 5)
+A paragraph.
+:::inner "label"
+* 1
+* 2
+:::
+::::
+```
+
+-/
+@[builtin_doc]
 def directive : Lean.Parser.Parser := { fn := directiveQuot }
-@[inherit_doc Lean.Doc.Syntax.header, builtin_doc]
+/--
+A header
+
+Headers must be correctly nested to form a tree structure. The first header in a document must
+start with `#`, and subsequent headers must have at most one more `#` than the preceding header.
+-/
+@[builtin_doc]
 def header : Lean.Parser.Parser := { fn := headerQuot }
-@[inherit_doc Lean.Doc.Syntax.link_ref, builtin_doc]
+/--
+A named URL that can be used in links and images.
+-/
+@[builtin_doc]
 def link_ref : Lean.Parser.Parser := { fn := linkRefQuot }
-@[inherit_doc Lean.Doc.Syntax.footnote_ref, builtin_doc]
+/--
+A footnote definition.
+-/
+@[builtin_doc]
 def footnote_ref : Lean.Parser.Parser := { fn := footnoteRefQuot }
-@[inherit_doc Lean.Doc.Syntax.metadata_block, builtin_doc]
+/--
+Metadata for the preceding header.
+-/
+@[builtin_doc]
 def metadata_block : Lean.Parser.Parser := { fn := metadataQuot }
-@[inherit_doc Lean.Doc.Syntax.command, builtin_doc]
+/--
+A block-level command, which invokes an extension during documentation processing.
+
+The `NAME` is an identifier that determines which command is being used, akin to a function name.
+Each of the `ARGS` may have the following forms:
+* A value, which is a string literal, natural number, or identifier
+* A named argument, of the form `(NAME := VALUE)`
+* A flag, of the form `+NAME` or `-NAME`
+-/
+@[builtin_doc]
 def command : Lean.Parser.Parser := { fn := commandQuot }
 
 end Block

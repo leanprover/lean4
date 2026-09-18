@@ -20,7 +20,6 @@ import Init.Omega
 namespace Lean.Doc
 open Lean Elab Term
 open Lean.Parser
-open scoped Lean.Doc.Syntax
 
 set_option linter.missingDocs true
 
@@ -423,13 +422,13 @@ Use `kw?` to receive a suggestion of a specific kind, and `kw!` to disable the c
 -/
 @[builtin_doc_role]
 public def kw (cat : Ident := mkIdent .anonymous) (of : Ident := mkIdent .anonymous)
-    (xs : TSyntaxArray `inline) : DocM (Inline ElabInline) := do
+    (xs : TSyntaxArray ``Parser.inline) : DocM (Inline ElabInline) := do
   let s ← onlyCode xs
   kwImpl (cat := cat) (of := of) false s
 
 @[inherit_doc kw, builtin_doc_role]
 public def kw? (cat : Ident := mkIdent .anonymous) (of : Ident := mkIdent .anonymous)
-    (xs : TSyntaxArray `inline) : DocM (Inline ElabInline) := do
+    (xs : TSyntaxArray ``Parser.inline) : DocM (Inline ElabInline) := do
   let s ← onlyCode xs
   kwImpl (cat := cat) (of := of) true s
 
@@ -453,7 +452,7 @@ builtin_initialize DeferredCheck.addBuiltinHandler ``PostponedKind checkKindExis
 
 @[inherit_doc kw, builtin_doc_role]
 public def kw! (of : Option Ident := none) (scope : DocScope := .local)
-    (xs : TSyntaxArray `inline) : DocM (Inline ElabInline) := do
+    (xs : TSyntaxArray ``Parser.inline) : DocM (Inline ElabInline) := do
   let s ← onlyCode xs
   let some of' := of
     | let h ←
@@ -487,8 +486,8 @@ public def kw! (of : Option Ident := none) (scope : DocScope := .local)
 Suggests the `kw` role, if applicable.
 -/
 @[builtin_doc_code_suggestions]
-public def suggestKw (code : StrLit) : DocM (Array CodeSuggestion) := do
-  let atoms := code.getString |>.split Char.isWhitespace |>.toStringList
+public def suggestKw (code : VersoCode) : DocM (Array CodeSuggestion) := do
+  let atoms := code.getVersoCode |>.split Char.isWhitespace |>.toStringList
   let env ← getEnv
   let parsers := Lean.Parser.parserExtension.getState env
   let cats := parsers.categories.toArray

@@ -14,6 +14,7 @@ import Init.Data.Nat.Order
 import Init.Data.Order.Lemmas
 import Lean.Elab.Binders
 import Lean.Meta.Tactic.Generalize
+import Lean.Meta.Tactic.Reparametrize
 
 
 public section
@@ -1001,6 +1002,8 @@ def evalInductionCore (stx : Syntax) (elimInfo : ElimInfo) (targets : Array Expr
 
 namespace Induction.Reparametrize
 
+open Lean.Meta.Tactic.Reparametrize
+
 /-!
 This section develops machinery to reparametrize a goal:
 If `x` is an fvar, we'd like to transform the goal such that the context contains
@@ -1142,22 +1145,16 @@ private def IndexState.apply (s : IndexState) (r : Result) : IndexState where
     elimExpr := r.transport s.elimInfo.elimExpr, elimType := r.transport s.elimInfo.elimType }
   toTag    := s.toTag.map fun (id, x) => (id, (r.transport (mkFVar x)).fvarId!)
 
-private structure IndexBijection where
-  isCtor : Bool
-  ctorVal : ConstructorVal
-  us : List Level
-  params : Array Expr
+-- private def IndexBijection.ctor (ctorVal : ConstructorVal) (us : List Level) (params : Array Expr) :
+--     IndexBijection :=
+--   { isCtor := true, ctorVal, us, params }
 
-private def IndexBijection.ctor (ctorVal : ConstructorVal) (us : List Level) (params : Array Expr) :
-    IndexBijection :=
-  { isCtor := true, ctorVal, us, params }
-
-private def IndexBijection.proj (ctorVal : ConstructorVal) (us : List Level) (params : Array Expr) :
-    IndexBijection :=
-  { isCtor := false, ctorVal, us, params }
+-- private def IndexBijection.proj (ctorVal : ConstructorVal) (us : List Level) (params : Array Expr) :
+--     IndexBijection :=
+--   { isCtor := false, ctorVal, us, params }
 
 /-- Turns `b x` into a fresh variable by replacing the base `x`, see `replaceByProj`/`replaceByCtor`. -/
-private def IndexBijection.invertBijection (b : IndexBijection) (mvarId : MVarId) (x : FVarId) :
+private def invertBijection (b : Bijection) (mvarId : MVarId) (x : FVarId) :
     MetaM (Option Result) :=
   if b.isCtor then
     replaceByProj mvarId x b.ctorVal b.us b.params
@@ -1166,7 +1163,7 @@ private def IndexBijection.invertBijection (b : IndexBijection) (mvarId : MVarId
 
 private structure BijectionTower where
   fvarId : FVarId
-  bijectionsInsideOut : List IndexBijection
+  bijectionsInsideOut : List Bijection
 
 /--
 Updates a tower to use the variables in the goal that `reparametrize` returns.
@@ -1177,47 +1174,18 @@ which cannot serve as the base variable.
 `r` must have been obtained by `reparametrize` so that in all other cases the tower's fvar remains
 an fvar under `r.transport`.
 -/
-private def BijectionTower.transport (t : BijectionTower) (x : FVarId) (r : Result) : BijectionTower :=
+private def transportWrappedFVar (t : BijectionWrappedFVar) (x : FVarId) (r : Result) : BijectionWrappedFVar :=
   { fvarId := if t.fvarId == x then r.newFVarId else (r.transport (mkFVar t.fvarId)).fvarId!
     bijectionsInsideOut := t.bijectionsInsideOut.map fun b => { b with params := b.params.map r.transport } }
 
-private partial def bijectionTower? (e : Expr) (outerBijections : List IndexBijection := []) :
-    MetaM (Option BijectionTower) := do
-  let e := e.consumeMData
-  let env ← getEnv
-  match e with
-  | .fvar fvarId =>
-    if outerBijections.isEmpty ∨ !(← fvarId.getDecl).isImplementationDetail then
-      return some { fvarId, bijectionsInsideOut := outerBijections }
-    else
-      return none
-  | .proj structName _ x =>
-    let some ctorVal := getNonRecStructureCtor? env structName | return none
-    if ctorVal.numFields ≠ 1 then return none
-    let xType ← whnfD (← inferType x)
-    let .const _ us := xType.getAppFn | return none
-    let params := xType.getAppArgs
-    let outerBijections := .proj ctorVal us params :: outerBijections
-    bijectionTower? x outerBijections
-  | .app .. =>
-    let .const declName us := e.getAppFn | return none
-    let args := e.getAppArgs
-    if let some projInfo := env.getProjectionFnInfo? declName then
-      let some ctorVal ← isCtor? projInfo.ctorName | return none
-      if ctorVal.numFields ≠ 1 then return none
-      if args.size ≠ projInfo.numParams + 1 ∨ !isNonRecStructure env ctorVal.induct then return none
-      let params := args.extract 0 projInfo.numParams
-      let outerBijections := .proj ctorVal us params :: outerBijections
-      bijectionTower? args[projInfo.numParams]! outerBijections
-    else
-      let some ctorVal ← isCtor? declName | return none
-      if ctorVal.numFields ≠ 1 then return none
-      if args.size ≠ ctorVal.numParams + ctorVal.numFields ∨ !isNonRecStructure env ctorVal.induct then return none
-      let params := args.extract 0 ctorVal.numParams
-      let field := args[ctorVal.numParams]!
-      let outerBijections := .ctor ctorVal us params :: outerBijections
-      bijectionTower? field outerBijections
-  | _ =>
+private partial def bijectionTower? (e : Expr) :
+    MetaM (Option BijectionWrappedFVar) := do
+  let some bijectionWrappedFVar ← Tactic.Reparametrize.bijectionChain? e
+    | return none
+  if bijectionWrappedFVar.bijectionsInsideOut.isEmpty
+      ∨ !(← bijectionWrappedFVar.fvarId.getDecl).isImplementationDetail then
+    return some bijectionWrappedFVar
+  else
     return none
 
 /--
@@ -1233,7 +1201,7 @@ private def makeTargetsFVars (elimInfo : ElimInfo) (targets : Array Expr)
   let mvarId ← getMainGoal
   let mut s : IndexState := { mvarId, targets := ← withMainContext (addImplicitTargets elimInfo targets), elimInfo, toTag }
   let allTargets := s.targets
-  let mut towers : Array (Option BijectionTower) := #[]
+  let mut towers : Array (Option BijectionWrappedFVar) := #[]
   for h : i in *...allTargets.size do
     let target := allTargets[i]
     let some tower ← mvarId.withContext (bijectionTower? target) | towers := towers.push none; continue
@@ -1249,9 +1217,9 @@ private def makeTargetsFVars (elimInfo : ElimInfo) (targets : Array Expr)
     for k in *...tower.bijectionsInsideOut.length do
       -- `towers` is transported after every step, so the current one has to be re-read.
       let some bijection := towers[i]!.bind (·.bijectionsInsideOut[k]?) | break
-      let some r ← s.mvarId.withContext (bijection.invertBijection s.mvarId x) | break
+      let some r ← s.mvarId.withContext (invertBijection bijection s.mvarId x) | break
       s := s.apply r
-      towers := towers.map (·.map (·.transport x r))
+      towers := towers.map (·.map (transportWrappedFVar · x r))
       x := r.newFVarId
   replaceMainGoal [s.mvarId]
   return (s.targets, s.toTag, s.elimInfo)

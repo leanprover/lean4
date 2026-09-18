@@ -10,6 +10,7 @@ public import Lean.Meta.Tactic.Injection
 import Init.Data.Nat.Internal.Linear
 import Lean.Structure
 import Lean.ProjFns
+import Lean.Meta.Tactic.Reparametrize
 
 public section
 
@@ -34,80 +35,22 @@ private def toOffset? (e : Expr) : MetaM (Option (Expr × Nat)) := do
   | none => isOffset? e
 
 /--
-The constructor or the projector of a one-field structure, applied to the parameters. The two are inverse to each other by (virtual)
-iota and eta, so both are definitional bijections.
--/
-private structure Bijection where
-  isCtor : Bool
-  ctor : Expr
-  proj : Expr
-
-/-- The inverse of `b` applied to `e`, where `b⁻¹ (b x)` is folded to `x`. -/
-private def Bijection.inv (b : Bijection) (e : Expr) : Expr :=
-  let (fn, invFn) := if b.isCtor then (b.ctor, b.proj) else (b.proj, b.ctor)
-  if e.isApp && e.appFn! == fn then e.appArg! else mkApp invFn e
-
-/-- The constructor and the projector of the one-field structure `structName` with universes `us`
-and parameters `params`. -/
-private def structCtorProj? (structName : Name) (us : List Level) (params : Array Expr) :
-    MetaM (Option (Expr × Expr)) := do
-  let env ← getEnv
-  let some (.inductInfo { isRec := false, ctors := [ctorName], numIndices := 0, numParams, .. }) :=
-    env.find? structName | return none
-  let some info := getStructureInfo? env structName | return none
-  let #[fieldName] := info.fieldNames | return none
-  let some projFn := getProjFnForField? env structName fieldName | return none
-  unless params.size == numParams do return none
-  return some (mkAppN (mkConst ctorName us) params, mkAppN (mkConst projFn us) params)
-
-/--
-Returns `some (x, [b₁, …, bₙ])` if `e` is `bₙ (… (b₁ x) …)` for a free variable `x` and
-bijections `bᵢ`, `n ≥ 1`.
--/
-private partial def bijectionChain? (e : Expr) (outer : List Bijection := []) :
-    MetaM (Option (FVarId × List Bijection)) := do
-  let e := e.consumeMData
-  let push (isCtor : Bool) (ctorProj? : Option (Expr × Expr)) (arg : Expr) := do
-    let some (ctor, proj) := ctorProj? | return none
-    bijectionChain? arg ({ isCtor, ctor, proj } :: outer)
-  match e with
-  | .fvar x => return if outer.isEmpty then none else some (x, outer)
-  | .proj structName 0 x =>
-    let xType ← whnf (← inferType x)
-    let .const _ us := xType.getAppFn | return none
-    push false (← structCtorProj? structName us xType.getAppArgs) x
-  | .app .. =>
-    let .const declName us := e.getAppFn | return none
-    let args := e.getAppArgs
-    let env ← getEnv
-    if let some projInfo := env.getProjectionFnInfo? declName then
-      let some (.ctorInfo ctorVal) := env.find? projInfo.ctorName | return none
-      unless args.size == projInfo.numParams + 1 do return none
-      push false (← structCtorProj? ctorVal.induct us (args.extract 0 projInfo.numParams))
-        args[projInfo.numParams]!
-    else if let some (.ctorInfo ctorVal) := env.find? declName then
-      unless args.size == ctorVal.numParams + 1 do return none
-      push true (← structCtorProj? ctorVal.induct us (args.extract 0 ctorVal.numParams))
-        args[ctorVal.numParams]!
-    else
-      return none
-  | _ => return none
-
-/--
 Solves the equation `eqDecl : a = b` of type `α` if it is of the form `c x = t` or `t = c x`, where
 `c` is a chain of constructors and projections of one-field structures and `x` is a free variable not occurring in `t`, by the definitional change of variables `x := c⁻¹ t`: the
 equation is replaced by `x = c⁻¹ t`, which `unifyEq?` substitutes in its next round.
 -/
-private def changeOfVariables? (mvarId : MVarId) (eqDecl : LocalDecl) (subst : FVarSubst)
+private def unifyEqReparametrizing? (mvarId : MVarId) (eqDecl : LocalDecl) (subst : FVarSubst)
     (α a b : Expr) : MetaM (Option UnifyEqResult) := do
   let go (bx t : Expr) (symm : Bool) : MetaM (Option UnifyEqResult) := do
-    let some (x, bs) ← bijectionChain? bx | return none
+    let some ⟨x, bs⟩ ← Tactic.Reparametrize.bijectionWrappedFVar? bx
+      | return none
     if t.containsFVar x || (← x.getDecl).isLet then return none
-    let inv (e : Expr) := bs.foldr (·.inv) e
+    -- PREVIOUSLY: wrapIntoInverse did some cancelling.
+    let inv (e : Expr) := bs.foldrM (·.inv.mkApp ·) e
     let prf := eqDecl.toExpr
     let prf ← if symm then mkEqSymm prf else pure prf
-    let prf ← mkCongrArg (← withLocalDeclD `z α fun z => mkLambdaFVars #[z] (inv z)) prf
-    let mvarId ← mvarId.assert eqDecl.userName (← mkEq (mkFVar x) (inv t)) prf
+    let prf ← mkCongrArg (← withLocalDeclD `z α fun z => do mkLambdaFVars #[z] (← inv z)) prf
+    let mvarId ← mvarId.assert eqDecl.userName (← mkEq (mkFVar x) (← inv t)) prf
     let mvarId ← mvarId.clear eqDecl.fvarId
     return some { mvarId, subst, numNewEqs := 1 }
   if let some r ← go a b (symm := false) then return some r
@@ -202,7 +145,7 @@ def unifyEq? (mvarId : MVarId) (eqFVarId : FVarId) (subst : FVarSubst := {})
               let mvarId ← mvarId.assert eqDecl.userName aEqb' prf
               let mvarId ←  mvarId.clear eqFVarId
               return some { mvarId, subst, numNewEqs := 1 }
-            else if let some r ← changeOfVariables? mvarId eqDecl subst α a b then
+            else if let some r ← unifyEqReparametrizing? mvarId eqDecl subst α a b then
               return some r
             else
               match caseName? with

@@ -285,6 +285,8 @@ public:
        Return 0 if the number is negative
     */
     size_t log2() const;
+    /** Number of set bits in a nonnegative integer. */
+    mpz popcount() const;
 
     /**
        \brief Return an upper bound on the size in bytes of the representation,

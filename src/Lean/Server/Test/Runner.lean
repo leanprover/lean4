@@ -737,9 +737,11 @@ partial def main (args : List String) : IO Unit := do
   let isProject := args[0]?.any (· == "-p")
   let (ipcCmd, ipcArgs) :=
     if isProject then
-      ("lake", #["serve", "--", "-DstderrAsMessages=false", "-Dexperimental.module=true"])
+      ("lake", #["serve", "--", "-DstderrAsMessages=false", "-Dexperimental.module=true",
+        "-Dserver.elabDelayMs=10"])
     else
-      ("lean", #["--server", "-DstderrAsMessages=false", "-Dexperimental.module=true"])
+      ("lean", #["--server", "-DstderrAsMessages=false", "-Dexperimental.module=true",
+        "-Dserver.elabDelayMs=10"])
   let path := if args.size == 1 then args[0]! else args[1]!
   let uri := s!"file:///{path}"
   -- We want `dbg_trace` tactics to write directly to stderr instead of being caught in reuse

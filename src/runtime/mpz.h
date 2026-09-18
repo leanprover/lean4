@@ -67,6 +67,8 @@ public:
 
 #ifdef LEAN_USE_GMP
     void set(mpz_t r) const;
+    mpz_srcptr get_mpz_t() const { return m_val; }
+    mpz_ptr get_mpz_t() { return m_val; }
 #endif
 
     friend void swap(mpz & a, mpz & b) noexcept;

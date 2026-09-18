@@ -39,14 +39,13 @@ Solves the equation `eqDecl : a = b` of type `α` if it is of the form `c x = t`
 `c` is a chain of constructors and projections of one-field structures and `x` is a free variable not occurring in `t`, by the definitional change of variables `x := c⁻¹ t`: the
 equation is replaced by `x = c⁻¹ t`, which `unifyEq?` substitutes in its next round.
 -/
-private def unifyEqReparametrizing? (mvarId : MVarId) (eqDecl : LocalDecl) (subst : FVarSubst)
+private def unifyEqInvertingBijections? (mvarId : MVarId) (eqDecl : LocalDecl) (subst : FVarSubst)
     (α a b : Expr) : MetaM (Option UnifyEqResult) := do
   let go (bx t : Expr) (symm : Bool) : MetaM (Option UnifyEqResult) := do
-    let some ⟨x, bs⟩ ← Tactic.Reparametrize.bijectionWrappedFVar? bx
+    let some ⟨x, bs⟩ ← OneFieldStructure.bijectionWrappedFVar? bx
       | return none
     if t.containsFVar x || (← x.getDecl).isLet then return none
-    -- PREVIOUSLY: wrapIntoInverse did some cancelling.
-    let inv (e : Expr) := bs.foldrM (·.inv.mkApp ·) e
+    let inv (e : Expr) := bs.foldrM (·.inv.mkAppAndSimplify ·) e
     let prf := eqDecl.toExpr
     let prf ← if symm then mkEqSymm prf else pure prf
     let prf ← mkCongrArg (← withLocalDeclD `z α fun z => do mkLambdaFVars #[z] (← inv z)) prf
@@ -145,7 +144,7 @@ def unifyEq? (mvarId : MVarId) (eqFVarId : FVarId) (subst : FVarSubst := {})
               let mvarId ← mvarId.assert eqDecl.userName aEqb' prf
               let mvarId ←  mvarId.clear eqFVarId
               return some { mvarId, subst, numNewEqs := 1 }
-            else if let some r ← unifyEqReparametrizing? mvarId eqDecl subst α a b then
+            else if let some r ← unifyEqInvertingBijections? mvarId eqDecl subst α a b then
               return some r
             else
               match caseName? with

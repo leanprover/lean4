@@ -1002,7 +1002,7 @@ def evalInductionCore (stx : Syntax) (elimInfo : ElimInfo) (targets : Array Expr
 
 namespace Induction.Reparametrize
 
-open Lean.Meta.Tactic.Reparametrize
+open Lean.Meta.OneFieldStructure
 
 /-!
 This section develops machinery to reparametrize a goal:
@@ -1176,7 +1176,7 @@ private def transportWrappedFVar (t : BijectionWrappedFVar) (x : FVarId) (r : Re
 
 private partial def bijectionWrappedFVarForInduction? (e : Expr) :
     MetaM (Option BijectionWrappedFVar) := do
-  let some bijectionWrappedFVar ← Tactic.Reparametrize.bijectionChain? e
+  let some bijectionWrappedFVar ← OneFieldStructure.bijectionWrappedFVar? e
     | return none
   if bijectionWrappedFVar.bijectionsInsideOut.isEmpty
       ∨ !(← bijectionWrappedFVar.fvarId.getDecl).isImplementationDetail then

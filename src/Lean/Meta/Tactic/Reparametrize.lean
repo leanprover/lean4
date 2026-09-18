@@ -8,7 +8,7 @@ import Lean.ProjFns
 
 public section
 
-namespace Lean.Meta.Tactic.Reparametrize
+namespace Lean.Meta.OneFieldStructure
 
 /--
 The constructor or the projection of a one-field structure with concrete parameters.
@@ -23,12 +23,40 @@ structure Bijection where
 def Bijection.inv (b : Bijection) : Bijection :=
   { b with isCtor := !b.isCtor }
 
-protected def Bijection.mkApp (b : Bijection) (e : Expr) : MetaM Expr :=
-  -- TODO: cancellation of inverses
+private protected def Bijection.mkApp (b : Bijection) (e : Expr) : MetaM Expr :=
   if b.isCtor then
     return mkApp (mkAppN (mkConst b.ctorVal.name b.us) b.params) e
   else
     mkProjFn b.ctorVal b.us b.params 0 e
+
+/--
+Returns `x` if `e` is `b x`.
+The check is done mostly syntactically and it will fail if the bijection's
+parameters don't match syntactically.
+
+If `x` is a `.proj` expression, we WHNF its inferred type, so that the
+parameters get exposed, and only then do we check them syntacticallly.
+We might want to make the check less syntactical in the future, but this seems
+fine for now. A definitional equality check might be too leanient, so that
+`Bijection.mkApp` would cancel too much, and it is more expensive.
+-/
+private def Bijection.unapply? (b : Bijection) (e : Expr) : MetaM (Option Expr) := do
+  if e.isApp then
+    let x := e.appArg!
+    return if (← b.mkApp x) == e then some x else none
+  else if let .proj structName 0 x := e then
+    if !b.isCtor && structName == b.ctorVal.induct then
+      let xType ← whnfD (← inferType x)
+      if xType == mkAppN (mkConst b.ctorVal.induct b.us) b.params then
+        return some x
+    return none
+  else
+    return none
+
+/-- Apply `b` to `e`, and if the result is `b (b⁻¹ x)`, simplify it to `x`. -/
+protected def Bijection.mkAppAndSimplify (b : Bijection) (e : Expr) : MetaM Expr := do
+  if let some x ← b.inv.unapply? e then return x
+  b.mkApp e
 
 private def buildBijection? (isCtor : Bool) (structName : Name) (us : List Level)
     (params : Array Expr) :
@@ -38,33 +66,13 @@ private def buildBijection? (isCtor : Bool) (structName : Name) (us : List Level
   if ctorVal.numFields ≠ 1 then return none
   return some { isCtor, ctorVal, us, params }
 
--- /-- The constructor and the projection of the one-field structure `structName` with universes `us`
--- and parameters `params`. -/
--- private def structCtorProj? (structName : Name) (us : List Level) (params : Array Expr) :
---     MetaM (Option (Expr × Expr)) := do
---   let env ← getEnv
---   let some (.inductInfo { isRec := false, ctors := [ctorName], numIndices := 0, numParams, .. }) :=
---     env.find? structName | return none
---   let some info := getStructureInfo? env structName | return none
---   let #[fieldName] := info.fieldNames | return none
---   let some projFn := getProjFnForField? env structName fieldName | return none
---   unless params.size == numParams do return none
---   return some (mkAppN (mkConst ctorName us) params, mkAppN (mkConst projFn us) params)
-
-
-/-
-PREVIOUSLY:
-
-* returned none on bare fvars
--/
-
 structure BijectionWrappedFVar where
   fvarId : FVarId
   bijectionsInsideOut : List Bijection
 
 /--
-Returns `some (x, [b₁, …, bₙ])` if `e` is `bₙ (… (b₁ x) …)` for a free variable `x` and
-bijections `bᵢ`, `n ≥ 1`.
+Parses a tower of one-field-structure constructor and projection applications around an fvar
+into a `BijectionWrappedFVar` object or returns `none` if parsing fails.
 -/
 partial def bijectionWrappedFVar? (e : Expr) (outer : List Bijection := []) :
     MetaM (Option BijectionWrappedFVar) := do
@@ -102,4 +110,4 @@ partial def bijectionWrappedFVar? (e : Expr) (outer : List Bijection := []) :
   | _ =>
     return none
 
-end Lean.Meta.Tactic.Reparametrize
+end Lean.Meta.OneFieldStructure

@@ -31,6 +31,36 @@ example (b : Box2 Nat) (h : IsZero b.val.val) : b = ⟨⟨0⟩⟩ := by
   cases h
   rfl
 
+-- Rewrapping the projection of `x` folds: `y := x` rather than `y := ⟨x.val⟩`.
+inductive Same : Nat → Nat → Prop
+  | mk (n : Nat) : Same n n
+
+/--
+trace: case mk
+x : Box Nat
+⊢ x = x
+-/
+#guard_msgs in
+example (x y : Box Nat) (h : Same x.val y.val) : x = y := by
+  cases h
+  trace_state
+  rfl
+
+-- No folding across different parameters: `⟨x.val⟩ : Tagged 1` is not `x : Tagged 0`.
+structure Tagged (n : Nat) where
+  val : Nat
+
+/--
+trace: case mk
+x : Tagged 0
+⊢ x = { val := { val := x.1 }.val }
+-/
+#guard_msgs in
+example (x : Tagged 0) (y : Tagged 1) (h : Same x.val y.val) : x = ⟨y.val⟩ := by
+  cases h
+  trace_state
+  rfl
+
 -- The variable occurs on the other side, so there is no change of variables, as for `x = t`.
 inductive Occurs (b : Box Nat) : Box Nat → Prop
   | mk (f : Box Nat → Box Nat) : Occurs b (f b)

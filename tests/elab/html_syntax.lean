@@ -459,33 +459,23 @@ Hint: Replace with start tag
 #eval html%{<p></q>}
 
 /--
-error: Void element `br` cannot have an end tag
+error: Void element `br` cannot have children or an end tag
 
-Hint: Remove end tag
-  <̵b̵r̵>̵x̵<̵/̵b̵r̵>̵<̲b̲r̲/̲>̲
--/
-#guard_msgs in
-#eval html%{<br>x</br>}
-
--- The suggestion covers only the element, not the content preceding it, and keeps its attributes.
-/--
-error: Void element `img` cannot have an end tag
-
-Hint: Remove end tag
-  <img src="a" a̵l̵t̵=̵"̵b̵"̵>̵y̵<̵/̵i̵m̵g̵>̵a̲l̲t̲=̲"̲b̲"̲/̲>̲
--/
-#guard_msgs in
-#eval html%{<p>abc<img src="a" alt="b">y</img></p>}
-
--- A void element with an end tag but no children gets its own message.
-/--
-error: Void element `br` cannot have an end tag
-
-Hint: Remove end tag
+Hint: Make it self-closing
   <̵b̵r̵>̵<̵/̵b̵r̵>̵<̲b̲r̲/̲>̲
 -/
 #guard_msgs in
 #eval html%{<br></br>}
+
+-- The suggestion covers only the element, not surrounding content, and keeps its attributes.
+/--
+error: Void element `img` cannot have children or an end tag
+
+Hint: Make it self-closing
+  <img src="a" a̵l̵t̵=̵"̵b̵"̵>̵y̵<̵/̵i̵m̵g̵>̵a̲l̲t̲=̲"̲b̲"̲/̲>̲
+-/
+#guard_msgs in
+#eval html%{<p>abc<img src="a" alt="b">y</img></p>}
 
 /--
 error: Unterminated HTML character reference '&'

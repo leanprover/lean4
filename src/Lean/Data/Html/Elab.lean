@@ -12,6 +12,34 @@ import Lean.Data.Html.Basic
 
 set_option doc.verso true
 
+namespace Lean.Html.Syntax
+
+/-- Throws an informative error when the start and end tag names do not match (up to casing). -/
+meta def Element.checkNamesMatch (stx : Element) : CoreM Unit := do
+  if let { startTag, endTag? := some endTag, .. } ← stx.view then
+    let startTagName ← startTag.name.view
+    let endTagName ← endTag.name.view
+    if endTagName.toLower != startTagName.toLower then
+      let hint ← MessageData.hint m!"Replace with start tag" #[startTagName] (ref? := endTag.name)
+      throwErrorAt endTag.name
+        m!"Mismatched end tag, expected `{startTagName}` but got `{endTagName}`{hint}"
+
+/-- Throws an informative error when the element should be void, yet has children. -/
+meta def Element.checkNoVoidChildren (stx : Element) : CoreM Unit := do
+  if let { startTag, children? := some _, .. } ← stx.view then
+    let tagName ← startTag.name.view
+    if isVoidElement tagName then
+      let hint ←
+        -- Everything up to the start tag's `>` is kept; children and end tag are dropped.
+        let some ltPos := startTag.lt.getPos? | pure m!""
+        let some gtPos := startTag.gt.getPos? | pure m!""
+        let selfClosing := ltPos.extract (← getFileMap).source gtPos ++ "/>"
+        MessageData.hint "Make it self-closing" #[selfClosing] (ref? := stx)
+      -- Note: having children implies having an end tag in the grammar.
+      throwErrorAt stx m!"Void element `{tagName}` cannot have children or an end tag{hint}"
+
+end Lean.Html.Syntax
+
 namespace Lean.Elab.Html
 
 open Lean Elab Term Meta
@@ -65,18 +93,10 @@ meta partial def elabContent (stx : Content) : TermElabM Expr := withRef stx do
   for it in ← stx.view do
     match it with
     | .element stx => withRef stx do←
+      stx.checkNamesMatch
+      stx.checkNoVoidChildren
       let elem ← stx.view
-      elem.checkNamesMatch
       let tagName ← elem.startTag.name.view
-      if isVoidElement tagName then
-        if elem.children?.isSome then
-          let hint ←
-            let some ⟨start, _⟩ := stx.raw.getRange? | pure m!""
-            -- Everything up to the start tag's `>` is kept; children and end tag are dropped.
-            let some gtPos := elem.startTag.gt.getPos? | pure m!""
-            let selfClosing := start.extract (← getFileMap).source gtPos ++ "/>"
-            MessageData.hint "Remove end tag" #[selfClosing]
-          throwErrorAt stx m!"Void element `{tagName}` cannot have an end tag{hint}"
       let attrs ← elabAttrs elem.startTag.attrs
       let children? ← elem.children?.mapM elabContent
       let e := mkApp3 (.const ``Html.element []) (toExpr tagName) attrs <|

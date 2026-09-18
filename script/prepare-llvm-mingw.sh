@@ -47,7 +47,7 @@ echo -n " -DSTAGE0_CMAKE_C_COMPILER=clang -DSTAGE0_CMAKE_CXX_COMPILER=clang++"
 echo -n " -DLEAN_EXTRA_CXX_FLAGS='--sysroot $PWD/llvm -idirafter /clang64/include/'"
 # cadical is linked into the Lean libraries, so it needs the same sysroot. It cannot come from
 # `CMAKE_CXX_FLAGS` as on Linux because stage0 is built with the msys2 compiler here.
-echo -n " -DCADICAL_EXTRA_CXX_FLAGS='--sysroot $PWD/llvm -idirafter /clang64/include/'"
+echo -n " -DCADICAL_EXTRA_CXX_FLAGS='--sysroot $PWD/llvm -idirafter /clang64/include/' -DCADICAL_USE_LEANC_LINKER_FLAGS=ON"
 echo -n " -DLEANC_INTERNAL_FLAGS='--sysroot ROOT -nostdinc -isystem ROOT/include/clang' -DLEANC_CC=ROOT/bin/clang.exe"
 echo -n " -DLEANC_INTERNAL_LINKER_FLAGS='--sysroot ROOT -L ROOT/lib -Wl,-Bstatic -lgmp $(pkg-config --static --libs libuv) -lssl -lcrypto -lunwind -Wl,-Bdynamic -lcrypt32 -lgdi32 -fuse-ld=lld'"
 # when not using the above flags, link GMP/libuv/OpenSSL dynamically/as usual. Always link ICU dynamically.

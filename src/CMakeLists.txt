@@ -890,7 +890,7 @@ if(STAGE GREATER 0 AND CADICAL AND INSTALL_CADICAL)
   add_dependencies(leancpp copy-cadical)
 endif()
 
-if(STAGE GREATER 0 AND CADICAL_LIB)
+if(CADICAL_LIB)
   set(CADICAL_LIB_DEP "${CMAKE_BINARY_DIR}/lib/lean/libcadical.a")
   add_custom_target(
     copy-cadical-lib

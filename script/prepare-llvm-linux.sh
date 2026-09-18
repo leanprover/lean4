@@ -61,7 +61,7 @@ $CP $GLIBC/lib/libpthread_nonshared.a stage1/lib/glibc
 # `libutil` is on `rustc`'s default link line for the bundled Rust checkers; `--as-needed` drops it again
 for f in $GLIBC/lib/{ld,lib{c,dl,m,rt,pthread,util}}-*; do b=$(basename $f); cp $f stage1/lib/glibc/${b%-*}.so; done
 OPTIONS=()
-echo -n " -DLEAN_STANDALONE=ON"
+echo -n " -DLEAN_STANDALONE=ON -DCADICAL_USE_LEANC_LINKER_FLAGS=ON"
 echo -n " -DCMAKE_CXX_COMPILER=$PWD/llvm-host/bin/clang++ -DLEAN_CXX_STDLIB='-Wl,-Bstatic -lc++ -lc++abi -Wl,-Bdynamic'"
 # these should also be used for cadical, so do not use `LEAN_EXTRA_CXX_FLAGS` here
 echo -n " -DCMAKE_CXX_FLAGS='--sysroot $PWD/llvm -idirafter $GLIBC_DEV/include ${EXTRA_FLAGS:-}'"

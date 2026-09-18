@@ -51,21 +51,17 @@ if(NOT CMAKE_SYSTEM_NAME MATCHES "Emscripten")
   set(CADICAL_LIB "" CACHE FILEPATH "Path to a static libcadical to link into the Lean libraries")
   set(CADICAL_INCLUDE_DIR "" CACHE PATH "Directory containing cadical.hpp")
   if(NOT (CADICAL AND CADICAL_LIB AND CADICAL_INCLUDE_DIR))
-    # cadical's objects end up in `libcadical.a`, which is linked into the Lean libraries, so the two
-    # have to agree on the compiler and C++ runtime.
     set(CADICAL_CXX ${CMAKE_CXX_COMPILER})
-    # Use same platform flags as for Lean executables, in particular from `prepare-llvm-linux.sh`,
-    # but not Lean-specific `LEAN_EXTRA_CXX_FLAGS` such as fsanitize. `prepare-llvm-mingw.sh` cannot
-    # put its sysroot into `CMAKE_CXX_FLAGS` because stage0 uses a different compiler there, so it
-    # passes the flags cadical needs separately.
     set(CADICAL_EXTRA_CXX_FLAGS "" CACHE STRING "Additional flags used to compile cadical")
     set(CADICAL_CXXFLAGS "${CMAKE_CXX_FLAGS} ${CADICAL_EXTRA_CXX_FLAGS}")
-    string(REPLACE "ROOT" "${CMAKE_BINARY_DIR}/stage1" CADICAL_INTERNAL_LINKER_FLAGS "${LEANC_INTERNAL_LINKER_FLAGS}")
-    set(CADICAL_LDFLAGS "${CADICAL_INTERNAL_LINKER_FLAGS}")
-    if(CMAKE_SYSTEM_NAME MATCHES "Linux")
-      string(APPEND CADICAL_LDFLAGS " -Wl,-rpath=\\$$ORIGIN/../lib")
-    elseif(CMAKE_SYSTEM_NAME MATCHES "Darwin")
-      string(APPEND CADICAL_LDFLAGS " -Wl,-rpath,@executable_path/../lib")
+    option(CADICAL_USE_LEANC_LINKER_FLAGS "Link the cadical executable with the leanc linker flags" OFF)
+    set(CADICAL_LDFLAGS "")
+    if(CADICAL_USE_LEANC_LINKER_FLAGS)
+      string(REPLACE "ROOT" "${CMAKE_BINARY_DIR}/stage1" CADICAL_LDFLAGS "${LEANC_INTERNAL_LINKER_FLAGS}")
+      if(CMAKE_SYSTEM_NAME MATCHES "Linux")
+        # find the bundled `libc++.so`
+        string(APPEND CADICAL_LDFLAGS " -Wl,-rpath=\\$$ORIGIN/../lib")
+      endif()
     endif()
     find_program(CCACHE ccache)
     if(CCACHE)
@@ -155,7 +151,8 @@ if(NOT CMAKE_SYSTEM_NAME MATCHES "Emscripten")
     CADICAL_ARGS
     -DCADICAL=${CADICAL} -DCADICAL_LIB=${CADICAL_LIB} -DCADICAL_INCLUDE_DIR=${CADICAL_INCLUDE_DIR}
   )
-  list(APPEND STAGE0_ARGS ${CADICAL_ARGS} -DLEANTAR=${LEANTAR})
+  # stage0 never runs cadical so no need to link against it there.
+  list(APPEND STAGE0_ARGS -DLEANTAR=${LEANTAR})
   list(APPEND CL_ARGS ${CADICAL_ARGS} -DLEANTAR=${LEANTAR})
 endif()
 

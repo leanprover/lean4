@@ -271,11 +271,12 @@ compared to it.
 def isBeforeEditPos (pos : String.Pos.Raw) : LeanProcessingM Bool := do
   return (← read).firstDiffPos?.any (pos < ·)
 
-/--
-Default delay in milliseconds before elaborating commands after the first changed command in the
-language server. To be replaced by a `server.*` option.
--/
-def defaultElabDelayMs : Nat := 100
+register_builtin_option server.elabDelayMs : Nat := {
+  defValue := 100
+  descr := "(server) time in milliseconds to wait before elaborating commands after the first \
+    changed command on document edit, so that rapid edits do not trigger re-elaboration of every \
+    subsequent command"
+}
 
 /--
 Sleeps for `ms`, returning early if `cancelTk` is set. Returns `true` if the sleep was cancelled.
@@ -780,7 +781,7 @@ where
         if sync && ctx.firstDiffPos?.isSome && Elab.inServer.get scope.opts then
           -- Wait before elaborating the rest of the file so that rapid edits do not trigger
           -- re-elaboration of every subsequent command.
-          if ← sleepWithCancellation defaultElabDelayMs.toUInt32 parseCancelTk then
+          if ← sleepWithCancellation (server.elabDelayMs.get scope.opts).toUInt32 parseCancelTk then
             -- This run has been superseded by a newer edit; terminate it without elaborating the
             -- rest of the file so that nothing waits on `next`.
             resolveTerminalCmdSnap next cmdState parserState

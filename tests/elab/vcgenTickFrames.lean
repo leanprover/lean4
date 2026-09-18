@@ -144,7 +144,7 @@ def tick [Monad m] : TickT m Unit := show StateT Nat m Unit from modify (· + 1)
 `StateT` wp over `costConj`. -/
 noncomputable def TickT.wp [Monad m] [Assertion Pred] [Assertion EPred] [WPMonad m Pred EPred]
     {α : Type} (x : TickT m α) (Q : α → Nat → Pred) (E : EPred) : Nat → Pred :=
-  ((WP.wpTrans x.run).frameClosure costConj).apply Q E
+  ((WP.trans x.run).frameClosure costConj).apply Q E
 
 /-- The simp normal form for `TickT.wp`: the meet over all shifts `r` of the base wp under the
 shifted postcondition `⌜r ≤ m⌝ ⊓ Q a (m - r)`, offset by `r`. -/
@@ -192,7 +192,7 @@ theorem frames_costConj [Assertion Pred] [Assertion EPred] [WPMonad m Pred EPred
     {α : Type} (x : TickT m α) (F : Nat) :
     WP.Frames costConj x F :=
   WP.frames_of_frameClosure costConj (· + ·) costConj_add (fun _ _ _ => rfl)
-    ⟨fun y => WP.wpTrans y.run, fun _ => rfl⟩
+    ⟨fun y => WP.trans y.run, fun _ => rfl⟩
 
 /-- The frame rule, pointwise: holding `F` commutes into the postcondition of any `TickT` program. -/
 theorem tickFrames [Assertion Pred] [Assertion EPred] [WPMonad m Pred EPred]
@@ -359,7 +359,7 @@ cost `n` held fixed. -/
   intro r
   refine PartialOrder.rel_trans ?_
     ((WPMonad.le_wp_monadLift_StateT_apply x (fun a m => ⌜r ≤ m⌝ ⊓ Q a (m - r))) (n + r))
-  refine WP.wp_consequence x (fun a => Q a n) _ E (fun a => ?_)
+  refine WP.wp_monotone_post (fun a => ?_)
   rw [show n + r - r = n by omega]
   exact le_meet _ _ _ (le_ofProp _ _ (by omega)) PartialOrder.rel_refl
 

@@ -7,9 +7,13 @@ module
 
 prelude
 public import Init.Data.Array.QSort
+public import Lean.Data.PersistentHashMap
 public import Lean.Data.PersistentHashSet
 public import Lean.Hygiene
+public import Lean.Data.Name
+public import Lean.Data.Format
 public import Init.Data.Option.Coe
+public import Std.Data.TreeSet.Basic
 import Init.Data.Nat.Internal.Linear
 
 public section
@@ -403,12 +407,173 @@ partial def normalize (l : Level) : Level :=
         addOffset (mkIMaxAux l₁ l₂) k
     | _ => unreachable!
 
+/-!
+## Level normalization
+
+Based on Yoan Géran, "A Canonical Form for Universe Levels in Impredicative Type Theory"
+<https://lmf.cnrs.fr/downloads/Perso/long.pdf>.
+-/
+
+namespace Normalize
+
+local instance : Ord Name := ⟨Name.cmp⟩
+
+/-- represents v+n -/
+structure VarNode where
+  var : Name
+  offset : Nat
+  deriving BEq, Ord, Repr
+
+/-- A key-value pair `vs => { const, var }` in NormLevel represents
+the max of `C(vs, const)` and `V(vs, v, n)` for each `v+n ∈ var`, using the `C` and `V` sublevel
+functions from <https://lmf.cnrs.fr/downloads/Perso/long.pdf>. -/
+structure Node where
+  const : Nat := 0
+  var : List VarNode := []
+  deriving Repr, Inhabited
+
+instance : BEq Node where
+  beq n₁ n₂ := n₁.const == n₂.const && n₁.var == n₂.var
+instance : Ord Node where
+  compare n₁ n₂ := compare n₁.const n₂.const |>.then <| compare n₁.var n₂.var
+
+def Node.isEmpty (n : Node) : Bool := n.const == 0 && n.var.isEmpty
+
+def subset (cmp : α → α → Ordering) : List α → List α → Bool
+  | [], _ => true
+  | _, [] => false
+  | x :: xs, y :: ys =>
+    match cmp x y with
+    | .lt => false
+    | .eq => subset cmp xs ys
+    | .gt => subset cmp (x :: xs) ys
+
+def orderedInsert (cmp : α → α → Ordering) (a : α) : List α → Option (List α)
+  | [] => some [a]
+  | b :: l =>
+    match cmp a b with
+    | .lt => some (a :: b :: l)
+    | .eq => none
+    | .gt => (orderedInsert cmp a l).map (b :: ·)
+
+abbrev NormLevel := Std.TreeMap (List Name) Node compare
+
+instance : BEq NormLevel where
+  beq l₁ l₂ :=
+    (l₁.all fun p n => l₂.get? p == some n) &&
+    (l₂.all fun p n => l₁.get? p == some n)
+
+def VarNode.addVar (v : Name) (k : Nat) : List VarNode → List VarNode
+  | [] => [⟨v, k⟩]
+  | v' :: l =>
+    match Name.cmp v v'.var with
+    | .lt => ⟨v, k⟩ :: v' :: l
+    | .eq => ⟨v, v'.offset.max k⟩ :: l
+    | .gt => v' :: addVar v k l
+
+def NormLevel.addVar (v : Name) (k : Nat) (path' : List Name) (s : NormLevel) : NormLevel :=
+  s.modify path' fun n => { n with var := VarNode.addVar v k n.var }
+
+def NormLevel.addNode (v : Name) (k : Nat) (path' : List Name) (s : NormLevel) : NormLevel :=
+  s.alter path' fun
+    | none => some { var := [⟨v, k⟩] }
+    | some n => some { n with var := VarNode.addVar v k n.var }
+
+def NormLevel.addConst (k : Nat) (path : List Name) (acc : NormLevel) : NormLevel :=
+  if k = 0 || k = 1 && !path.isEmpty then acc else
+  acc.alter path fun
+    | none => some { const := k }
+    | some n => some { n with const := k.max n.const }
+
+def normalizeAux (l : Level) (path : List Name) (k : Nat) (acc : NormLevel) : NormLevel :=
+  match l with
+  | .zero | .imax _ .zero => acc.addConst k path
+  | .succ u => normalizeAux u path (k+1) acc
+  | .max u v => normalizeAux u path k acc |> normalizeAux v path k
+  | .imax u (.succ v) => normalizeAux u path k acc |> normalizeAux v path (k+1)
+  | .imax u (.max v w) => normalizeAux (.imax u v) path k acc |> normalizeAux (.imax u w) path k
+  | .imax u (.imax v w) => normalizeAux (.imax u w) path k acc |> normalizeAux (.imax v w) path k
+  | .imax u (.param v) | .imax u (.mvar ⟨v⟩) =>
+    match orderedInsert Name.cmp v path with
+    | some path' => acc.addConst k path |>.addNode v k path' |> normalizeAux u path' k
+    | none =>
+      let acc := if k = 0 then acc else acc.addVar v k path
+      normalizeAux u path k acc
+  | .mvar ⟨v⟩ | .param v =>
+    match orderedInsert Name.cmp v path with
+    | some path' => acc.addConst k path |>.addNode v k path'
+    | none => if k = 0 then acc else acc.addVar v k path
+
+def subsumeVars : List VarNode → List VarNode → List VarNode
+  | [], _ => []
+  | xs, [] => xs
+  | x :: xs, y :: ys =>
+    match Name.cmp x.var y.var with
+    | .lt => x :: subsumeVars xs (y :: ys)
+    | .eq => if x.offset ≤ y.offset then subsumeVars xs ys else x :: subsumeVars xs ys
+    | .gt => subsumeVars (x :: xs) ys
+
+/-- Remove from `n₁` the sublevels dominated by `n₂`, whose condition set is a subset of
+`n₁`'s: `C(c)` is dominated by `C(c')` when `c ≤ c'` and by `V(x+k)` when `c ≤ k + 1`, and
+`V(x+k)` is dominated by `V(x+k')` when `k ≤ k'`.
+
+`same` says the two sit at the *same* condition set, where a variable may still discharge the
+constant but the variables must not discharge themselves. -/
+def Node.subsumeBy (same : Bool) (n₁ n₂ : Node) : Node :=
+  let n₁ :=
+    if n₁.const = 0 ||
+      (same || n₁.const > n₂.const) &&
+      (n₂.var.isEmpty || n₁.const > n₂.var.foldl (·.max ·.offset) 0 + 1)
+    then n₁ else { n₁ with const := 0 }
+  if same || n₂.var.isEmpty then n₁ else { n₁ with var := subsumeVars n₁.var n₂.var }
+
+/-- Remove the parts of the sublevels at `(p₁, n₁)` that are dominated by the sublevels
+at `(p₂, n₂)`. -/
+def Node.subsume (p₁ : List Name) (n₁ : Node) (p₂ : List Name) (n₂ : Node) : Node :=
+  if subset compare p₂ p₁ then n₁.subsumeBy (p₁.length == p₂.length) n₂ else n₁
+
+/-- Remove the parts of the sublevels at `(p₁, n₁)` dominated by other entries of the map. -/
+def NormLevel.minimize (acc : NormLevel) (p₁ : List Name) (n₁ : Node) : Node :=
+  acc.foldl (init := n₁) (Node.subsume p₁)
+
+def NormLevel.subsumption (acc : NormLevel) : NormLevel :=
+  acc.foldl (init := acc) fun acc p₁ n₁ =>
+    let n := acc.minimize p₁ n₁
+    if n.isEmpty then acc.erase p₁ else acc.insert p₁ n
+
+def normalize (l : Level) : NormLevel :=
+  Normalize.normalizeAux l [] 0 {} |>.subsumption
+
+/-- Sublevel comparison, following Theorem 39 of the paper: `l₁ ≤ l₂` iff every sublevel
+of `l₁` is dominated by some sublevel of `l₂`, where
+`C(E, L) ≤ C(F, K) ↔ F ⊆ E ∧ L ≤ K`, `C(E, L) ≤ V(F, x, K) ↔ F ⊆ E ∧ L ≤ K + 1`,
+and `V(E, x, L) ≤ V(F, y, K) ↔ F ⊆ E ∧ x = y ∧ L ≤ K`.
+
+Each sublevel picks its own dominator, and a node bundles several of them, so it is not
+enough to look for a single entry of `l₂` dominating a whole node of `l₁`: for
+`imax 2 v ≤ max 2 v` the constant is dominated at `∅` and the variable at `{v}`. Instead
+each entry of `l₂` discharges what it can from the sublevels of `n₁` that are still
+outstanding, which is the same `subsumeBy` step minimization uses; the node is dominated
+once nothing is left, and the fold stops there. -/
+def NormLevel.le (l₁ l₂ : NormLevel) : Bool :=
+  l₁.all fun p₁ n₁ =>
+    -- `none` means nothing is left to discharge, which stops the fold
+    Option.isNone <| l₂.foldlM (init := n₁) (m := Option) fun n p₂ n₂ =>
+      if subset compare p₂ p₁ then
+        let n := n.subsumeBy false n₂
+        if n.isEmpty then none else some n
+      else some n
+
+end Normalize
+
 /--
 Return true if `u` and `v` denote the same level.
-Check is currently incomplete.
+Assumes that `u` and `v` don't contain meta-variables.
 -/
+@[export lean_level_is_equiv]
 def isEquiv (u v : Level) : Bool :=
-  u == v || u.normalize == v.normalize
+  u == v || Normalize.normalize u == Normalize.normalize v
+
 
 /-- Reduce (if possible) universe level by 1 -/
 def dec : Level → Option Level
@@ -620,26 +785,9 @@ def getParamSubst : List Name → List Level → Name → Option Level
 def instantiateParams (u : Level) (paramNames : List Name) (vs : List Level) : Level :=
   u.substParams (getParamSubst paramNames vs)
 
+@[export lean_level_geq]
 def geq (u v : Level) : Bool :=
-  go u.normalize v.normalize
-where
-  go (u v : Level) : Bool :=
-    u == v ||
-    let k := fun () =>
-      match v with
-      | imax v₁ v₂ => go u v₁ && go u v₂
-      | _          =>
-        let v' := v.getLevelOffset
-        (u.getLevelOffset == v' || v'.isZero)
-        && u.getOffset ≥ v.getOffset
-    match u, v with
-    | _,          zero      => true
-    | u,          max v₁ v₂ => go u v₁ && go u v₂
-    | max u₁ u₂,  v         => go u₁ v || go u₂ v || k ()
-    | imax _  u₂, v         => go u₂ v
-    | succ u,     succ v    => go u v
-    | _,          _         => k ()
-  termination_by (u, v)
+  u == v ||  (Normalize.normalize v).le (Normalize.normalize u)
 
 end Level
 

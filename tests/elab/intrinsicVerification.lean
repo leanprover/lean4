@@ -1077,11 +1077,25 @@ info: twoLayer.spec : ∀ (n : Nat),
 
 /--
 error: failed to synthesize instance of type class
-  EPostSlot ?m.16 Prop EStack⟨⟩
+  EPostSlot EStack⟨⟩ ?m.17 Prop
 
 Hint: Type class instance resolution failures can be inspected with the `set_option trace.Meta.synthInstance true` command.
 -/
 #guard_msgs in
 def noSlot (n : Nat) : Id Nat
     throws e => True
+  := pure n
+
+/-! A `throws` clause whose exception type matches no layer reports at the clause. -/
+
+/--
+error: failed to synthesize instance of type class
+  EPostSlot (String → Prop) Nat Prop
+
+Hint: Type class instance resolution failures can be inspected with the `set_option trace.Meta.synthInstance true` command.
+-/
+#guard_msgs in
+def noNatSlot (n : Nat) : Except String Nat
+    ensures r => r = n
+    throws (e : Nat) => False
   := pure n

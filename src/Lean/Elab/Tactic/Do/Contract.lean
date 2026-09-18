@@ -145,10 +145,13 @@ specification theorem; add `import Std.WP` to use them."
   let triple : Term ← do
     let eposts : Term ← throwsStx.getArgs.foldrM (init := ← `(⊥))
       fun clause acc =>
-        match clause with
-        | `(throwsClause| throws $f:basicFun) =>
-          `($(mkCIdent ``Std.WP.EPostSlot.set) (fun $f:basicFun) $acc)
-        | _ => Macro.throwUnsupported
+        -- The clause's position carries over to its `set` application, so a failing slot
+        -- instance reports at the clause.
+        withRef clause do
+          match clause with
+          | `(throwsClause| throws $f:basicFun) =>
+            `($(mkCIdent ``Std.WP.EPostSlot.set) (fun $f:basicFun) $acc)
+          | _ => Macro.throwUnsupported
     -- Build the `contract_eposts%` node directly: the parser compiling this file predates it.
     let epostsGadget : Term :=
       ⟨mkNode `Lean.Parser.Term.contractEPosts #[mkAtom "contract_eposts%", eposts]⟩

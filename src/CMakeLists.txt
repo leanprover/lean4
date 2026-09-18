@@ -536,6 +536,11 @@ if(CMAKE_SYSTEM_NAME MATCHES "Darwin")
   set(LEAN_CXX_STDLIB "-lc++")
 endif()
 
+if(CADICAL_LIB)
+  string(APPEND TOOLCHAIN_STATIC_LINKER_FLAGS " -lcadical")
+  string(APPEND TOOLCHAIN_SHARED_LINKER_FLAGS " -lcadical")
+endif()
+
 string(APPEND TOOLCHAIN_STATIC_LINKER_FLAGS " ${LEAN_CXX_STDLIB}")
 string(APPEND TOOLCHAIN_SHARED_LINKER_FLAGS " ${LEAN_CXX_STDLIB}")
 
@@ -883,6 +888,17 @@ if(STAGE GREATER 0 AND CADICAL AND INSTALL_CADICAL)
     COMMAND ${CMAKE_COMMAND} -E copy_if_different "${CADICAL}" "${CMAKE_BINARY_DIR}/bin/cadical${CMAKE_EXECUTABLE_SUFFIX}"
   )
   add_dependencies(leancpp copy-cadical)
+endif()
+
+if(STAGE GREATER 0 AND CADICAL_LIB)
+  set(CADICAL_LIB_DEP "${CMAKE_BINARY_DIR}/lib/lean/libcadical.a")
+  add_custom_target(
+    copy-cadical-lib
+    COMMAND ${CMAKE_COMMAND} -E make_directory "${CMAKE_BINARY_DIR}/lib/lean"
+    COMMAND ${CMAKE_COMMAND} -E copy_if_different "${CADICAL_LIB}" "${CADICAL_LIB_DEP}"
+  )
+  add_dependencies(leanrt copy-cadical-lib)
+  add_dependencies(leanrt_initial-exec copy-cadical-lib)
 endif()
 
 if(LEANTAR AND INSTALL_LEANTAR)

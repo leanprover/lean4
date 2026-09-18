@@ -71,6 +71,8 @@ structure CommRing extends Ring where
   noZeroDivInst?     : Option Expr
   /-- `Field` instance for `type` if available. -/
   fieldInst?         : Option Expr
+  /-- `PowIdentity` instance, the synthesized `CommSemiring` instance, and exponent `p` if available. -/
+  powIdentityInst?   : Option (Expr × Expr × Nat) := none
   deriving Inhabited
 
 /--
@@ -98,8 +100,11 @@ inductive ClassifyResult where
 
 /-- Arith type classification state, stored as a `SymExtension`. -/
 structure State where
-  /-- Exponent threshold for `HPow` evaluation. -/
-  exp            : Nat := 8
+  /--
+  Maximum exponent eagerly evaluated while computing bounds for `ToInt` and
+  the characteristic of a ring. Same meaning as `Grind.Config.exp`.
+  -/
+  exp            : Nat := 2^20
   /-- Commutative rings. -/
   rings          : Array CommRing := {}
   /-- Commutative semirings. -/

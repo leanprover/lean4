@@ -6,9 +6,10 @@ Authors: Leonardo de Moura
 module
 prelude
 public import Lean.Meta.Tactic.Grind.Arith.CommRing.RingM
-import Lean.Meta.Tactic.Grind.Arith.Insts
+import Lean.Meta.Sym.Arith.Insts
 public section
 namespace Lean.Meta.Grind.Arith.CommRing
+open Sym.Arith (getIsCharInst? getNoZeroDivInst? getPowIdentityInst?)
 
 /--
 Returns the ring id for the given type if there is a `CommRing` instance for it.

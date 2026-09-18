@@ -595,6 +595,6 @@ jobs:
       - name: Update toolchain on mathlib4's nightly-testing branch
         if: steps.mathlib-app-token.outcome == 'success'
         run: |
-          gh workflow -R leanprover-community/mathlib4-nightly-testing run nightly_bump_and_merge.yml
+          gh workflow -R leanprover-community/mathlib4-nightly-testing run nightly_bump_toolchain.yml
         env:
           GITHUB_TOKEN: ${{ steps.mathlib-app-token.outputs.token }}

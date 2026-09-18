@@ -97,7 +97,7 @@ EOF
 # Test that releases do not contaminate downstream jobs
 echo "# TEST: Downstream job contamination"
 test_out_diff <(cat << 'EOF'
-Build completed successfully (5 jobs).
+Build completed successfully (7 jobs).
 EOF
 ) build Test
 

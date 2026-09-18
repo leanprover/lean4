@@ -1161,10 +1161,6 @@ private def invertBijection (b : Bijection) (mvarId : MVarId) (x : FVarId) :
   else
     replaceByCtor mvarId x b.ctorVal b.us b.params
 
-private structure BijectionTower where
-  fvarId : FVarId
-  bijectionsInsideOut : List Bijection
-
 /--
 Updates a tower to use the variables in the goal that `reparametrize` returns.
 If `x` is the tower's fvar, the new base is `r.newFVarId`.
@@ -1178,7 +1174,7 @@ private def transportWrappedFVar (t : BijectionWrappedFVar) (x : FVarId) (r : Re
   { fvarId := if t.fvarId == x then r.newFVarId else (r.transport (mkFVar t.fvarId)).fvarId!
     bijectionsInsideOut := t.bijectionsInsideOut.map fun b => { b with params := b.params.map r.transport } }
 
-private partial def bijectionTower? (e : Expr) :
+private partial def bijectionWrappedFVarForInduction? (e : Expr) :
     MetaM (Option BijectionWrappedFVar) := do
   let some bijectionWrappedFVar ← Tactic.Reparametrize.bijectionChain? e
     | return none
@@ -1204,7 +1200,8 @@ private def makeTargetsFVars (elimInfo : ElimInfo) (targets : Array Expr)
   let mut towers : Array (Option BijectionWrappedFVar) := #[]
   for h : i in *...allTargets.size do
     let target := allTargets[i]
-    let some tower ← mvarId.withContext (bijectionTower? target) | towers := towers.push none; continue
+    let some tower ← mvarId.withContext (bijectionWrappedFVarForInduction? target)
+      | towers := towers.push none; continue
     -- Two targets over the same variable can never become independent variables.
     if let some j := towers.findIdx? (·.any (·.fvarId == tower.fvarId)) then
       mvarId.withContext do

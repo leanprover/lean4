@@ -10,7 +10,7 @@ public import Lean.Meta.Tactic.Injection
 import Init.Data.Nat.Internal.Linear
 import Lean.Structure
 import Lean.ProjFns
-import Lean.Meta.Tactic.Reparametrize
+import Lean.Meta.Tactic.OneFieldStructure
 
 public section
 
@@ -35,9 +35,10 @@ private def toOffset? (e : Expr) : MetaM (Option (Expr × Nat)) := do
   | none => isOffset? e
 
 /--
-Solves the equation `eqDecl : a = b` of type `α` if it is of the form `c x = t` or `t = c x`, where
-`c` is a chain of constructors and projections of one-field structures and `x` is a free variable not occurring in `t`, by the definitional change of variables `x := c⁻¹ t`: the
-equation is replaced by `x = c⁻¹ t`, which `unifyEq?` substitutes in its next round.
+Replaces the equation `eqDecl : b x = t` or `t = b x`, where `b` is a chain of one-field-structure
+constructors and projections and `x` is a free variable not occurring in `t`, by replacing the
+equation by `x = b⁻¹ t`.
+`x` will be subsituted by `b⁻¹ t` by the next `unifyEq?` call.
 -/
 private def unifyEqInvertingBijections? (mvarId : MVarId) (eqDecl : LocalDecl) (subst : FVarSubst)
     (α a b : Expr) : MetaM (Option UnifyEqResult) := do
@@ -67,7 +68,8 @@ private def unifyEqInvertingBijections? (mvarId : MVarId) (eqDecl : LocalDecl) (
      - If `a` and `b` are distinct constructors, return `none` to indicate that the goal has been closed.
      - If `a` and `b` are the same constructor, apply `injection`, the result contains the number of new equalities introduced in the goal.
      - If `a` (`b`) is a chain of constructors and projections of one-field structures applied to a free variable
-       not occurring in `b` (`a`), replace the equation by one that substitutes the variable, see `changeOfVariables?`.
+       not occurring in `b` (`a`), replace the equation by one that substitutes the variable, see
+       `unifyEqInvertingBijections?`.
      - It also tries to apply the given `acyclic` method to try to close the goal.
        Remark: It is a parameter because `simp` uses `unifyEq?`, and `acyclic` depends on `simp`.
 -/

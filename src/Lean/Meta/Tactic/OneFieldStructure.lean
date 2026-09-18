@@ -38,11 +38,11 @@ protected def Bijection.mkApp (b : Bijection) (e : Expr) : MetaM Expr :=
 Given a bijection `b` and an expression `e`, return `x` if `e` syntactically matches `b x`.
 Returns none if the bijection's parameters don't match syntactically.
 
-If `x` is a `.proj` expression, we WHNF its inferred type, to expose the structure's parameters,
-and only then do we compare them syntacticallly.
+If `e` is a `.proj` expression, we WHNF its inferred type, to expose the structure's parameters,
+and only then do we compare them syntactically.
 We might want to make the check less syntactical in the future, but this seems
-fine for now. A definitional equality check might be too leanient, so that
-`Bijection.mkApp` would cancel too much, and it is more expensive.
+fine for now. A definitional equality check might be too lenient, so that
+`Bijection.mkAppAndSimplify` would cancel too much, and it is more expensive.
 -/
 private def Bijection.unapply? (b : Bijection) (e : Expr) : MetaM (Option Expr) := do
   if e.isApp then

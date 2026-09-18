@@ -14,7 +14,7 @@ import Init.Data.Nat.Order
 import Init.Data.Order.Lemmas
 import Lean.Elab.Binders
 import Lean.Meta.Tactic.Generalize
-import Lean.Meta.Tactic.Reparametrize
+import Lean.Meta.Tactic.OneFieldStructure
 
 
 public section
@@ -1138,8 +1138,6 @@ private def invertBijection (b : Bijection) (mvarId : MVarId) (x : FVarId) :
 /--
 Updates a bijection-wrapped fvar `x`, and its bijections, to use the variables in the goal that
 `reparametrize` returned.
-The substitution `r.transport` replaces `x` with a constructor or projection expression,
-which cannot serve as the base variable.
 
 `r` must have been obtained by `reparametrize`.
 -/
@@ -1152,7 +1150,7 @@ private def transportWrappedFVar (t : BijectionWrappedFVar) (x : FVarId) (r : Re
   { fvarId := if t.fvarId == x then r.newFVarId else (r.transport (mkFVar t.fvarId)).fvarId!
     bijectionsInsideOut := t.bijectionsInsideOut.map fun b => { b with params := b.params.map r.transport } }
 
-private partial def bijectionWrappedFVarForInduction? (e : Expr) :
+private def bijectionWrappedFVarForInduction? (e : Expr) :
     MetaM (Option BijectionWrappedFVar) := do
   let some bijectionWrappedFVar ← OneFieldStructure.bijectionWrappedFVar? e
     | return none
@@ -1164,7 +1162,7 @@ private partial def bijectionWrappedFVarForInduction? (e : Expr) :
 
 /--
 Applies a definitional change of variables that turns the given targets into variables if they
-are composed of one-field-structure constructors, projections.
+are composed of one-field-structure constructors and projections.
 If the change of variables introduces reducible compositions of constructors and projections,
 such as `X.mk (y.fieldProjection)` where `y : X`, such occurrences are simplified.
 Currently, the simplification step matches strictly syntactically.

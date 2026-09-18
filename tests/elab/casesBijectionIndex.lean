@@ -61,7 +61,40 @@ example (x : Tagged 0) (y : Tagged 1) (h : Same x.val y.val) : x = ⟨y.val⟩ :
   trace_state
   rfl
 
--- The variable occurs on the other side, so there is no change of variables, as for `x = t`.
+-- Constructors of one-constructor-one-field inductives, not declared as a structure, are
+-- inverted, too.
+inductive Wrap where
+  | mk : Nat → Wrap
+
+/--
+trace: case mk
+⊢ Wrap.mk 0 = Wrap.mk 0
+-/
+#guard_msgs in
+example (w : Wrap) (h : IsZero w.1) : w = .mk 0 := by
+  cases h
+  trace_state
+  rfl
+
+-- A class with one field is a one-field structure as well, so its constructor and projection
+-- are inverted, too.
+class Origin (α : Type) where
+  origin : α
+
+inductive IsOne : Nat → Prop
+  | mk : IsOne 1
+
+/--
+trace: case mk
+⊢ { origin := 1 } = { origin := 1 }
+-/
+#guard_msgs in
+example [inst : Origin Nat] (h : IsOne Origin.origin) : inst = ⟨1⟩ := by
+  cases h
+  trace_state
+  rfl
+
+-- If a variable occurs in two different indices of the target, no change of variable can help.
 inductive Occurs (b : Box Nat) : Box Nat → Prop
   | mk (f : Box Nat → Box Nat) : Occurs b (f b)
 

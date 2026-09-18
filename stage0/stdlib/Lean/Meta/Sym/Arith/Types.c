@@ -194,7 +194,7 @@ lean_object* v___x_21_; lean_object* v___x_22_; lean_object* v___x_23_; lean_obj
 v___x_21_ = lean_obj_once(&l_Lean_Meta_Sym_Arith_instInhabitedSemiring_default___closed__2, &l_Lean_Meta_Sym_Arith_instInhabitedSemiring_default___closed__2_once, _init_l_Lean_Meta_Sym_Arith_instInhabitedSemiring_default___closed__2);
 v___x_22_ = lean_box(0);
 v___x_23_ = l_Lean_Meta_Sym_Arith_instInhabitedRing_default;
-v___x_24_ = lean_alloc_ctor(0, 7, 0);
+v___x_24_ = lean_alloc_ctor(0, 8, 0);
 lean_ctor_set(v___x_24_, 0, v___x_23_);
 lean_ctor_set(v___x_24_, 1, v___x_22_);
 lean_ctor_set(v___x_24_, 2, v___x_22_);
@@ -202,6 +202,7 @@ lean_ctor_set(v___x_24_, 3, v___x_21_);
 lean_ctor_set(v___x_24_, 4, v___x_21_);
 lean_ctor_set(v___x_24_, 5, v___x_22_);
 lean_ctor_set(v___x_24_, 6, v___x_22_);
+lean_ctor_set(v___x_24_, 7, v___x_22_);
 return v___x_24_;
 }
 }
@@ -440,7 +441,7 @@ _start:
 lean_object* v___x_107_; lean_object* v___x_108_; lean_object* v___x_109_; lean_object* v___x_110_; 
 v___x_107_ = lean_obj_once(&l_Lean_Meta_Sym_Arith_instInhabitedState_default___closed__2, &l_Lean_Meta_Sym_Arith_instInhabitedState_default___closed__2_once, _init_l_Lean_Meta_Sym_Arith_instInhabitedState_default___closed__2);
 v___x_108_ = ((lean_object*)(l_Lean_Meta_Sym_Arith_instInhabitedState_default___closed__0));
-v___x_109_ = lean_unsigned_to_nat(8u);
+v___x_109_ = lean_unsigned_to_nat(1048576u);
 v___x_110_ = lean_alloc_ctor(0, 6, 0);
 lean_ctor_set(v___x_110_, 0, v___x_109_);
 lean_ctor_set(v___x_110_, 1, v___x_108_);

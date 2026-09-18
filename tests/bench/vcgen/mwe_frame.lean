@@ -4,7 +4,7 @@ MWE: `vcgen` loses precondition facts in postcondition entailment VCs.
 import Cases
 import Driver
 
-set_option mvcgen.warning false
+set_option experimental.vcgen true
 
 open Lean Std Do
 

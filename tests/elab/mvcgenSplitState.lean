@@ -15,7 +15,7 @@ Note that `s` is an excess state variable that does not only occur in the progra
 application of the predicate transformer.
 -/
 
-set_option mvcgen.warning false in
+set_option linter.deprecated.syntax false in
 example :
   ⦃⌜True⌝⦄
   (do

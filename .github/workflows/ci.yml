@@ -28,6 +28,10 @@ jobs:
   # This job determines various settings for the following CI runs; see the `outputs` for details
   configure:
     runs-on: ubuntu-latest
+    env:
+      # don't schedule nightlies on forks
+      IS_NIGHTLY: ${{ (github.event_name == 'schedule' && github.repository == 'leanprover/lean4') || inputs.action == 'release nightly' }}
+      IS_LEAN4_REPO_TAG: ${{ startsWith(github.ref, 'refs/tags/') && github.repository == 'leanprover/lean4' }}
     outputs:
       # The build matrix, dynamically generated here
       matrix: ${{ steps.set-matrix.outputs.matrix }}
@@ -47,12 +51,18 @@ jobs:
       RELEASE_TAG: ${{ steps.set-release.outputs.RELEASE_TAG }}
 
     steps:
-      - name: Checkout
+      - name: Checkout (full)
         uses: actions/checkout@v6
-        # don't schedule nightlies on forks
-        if: github.event_name == 'schedule' && github.repository == 'leanprover/lean4' || inputs.action == 'release nightly' || (startsWith(github.ref, 'refs/tags/') && github.repository == 'leanprover/lean4')
+        if: env.IS_NIGHTLY == 'true' || env.IS_LEAN4_REPO_TAG == 'true'
+      - name: Checkout (sparse)
+        uses: actions/checkout@v6
+        if: env.IS_NIGHTLY != 'true' && env.IS_LEAN4_REPO_TAG != 'true'
+        with:
+          sparse-checkout: |
+            src/stdlib_flags.h
+            stage0/src/stdlib_flags.h
       - name: Set Nightly
-        if: github.event_name == 'schedule' && github.repository == 'leanprover/lean4' || inputs.action == 'release nightly'
+        if: env.IS_NIGHTLY == 'true'
         id: set-nightly
         run: |
           if [[ -n '${{ secrets.PUSH_NIGHTLY_TOKEN }}' ]]; then
@@ -256,6 +266,11 @@ jobs:
             const macos_arm = ${{ steps.set-level.outputs.macos-arm }};
             const target_stage = ${{ steps.set-level.outputs.target-stage }};
             const lakeCi = "${{ steps.set-level.outputs.lake-ci }}" == "true";
+            // A release build stamps the commit githash into its `.olean`s and enforces it, which
+            // makes every artifact commit-specific and thus unusable to the caches. Only what we
+            // actually ship is built that way; everything below it builds unstamped so that it can
+            // reuse cached artifacts.
+            const stamped = level >= 2;
             console.log(`level: ${level}, fast: ${fast}`);
             // use large runners where available (original repo)
             let large = ${{ github.repository == 'leanprover/lean4' }};
@@ -271,7 +286,7 @@ jobs:
                 "enabled": level >= 2,
                 "test": true,
                 "shell": "nix develop .#oldGlibc -c bash -euxo pipefail {0}",
-                "llvm-url": "https://github.com/leanprover/lean-llvm/releases/download/22.1.4/lean-llvm-x86_64-linux-gnu.tar.zst",
+                "llvm-url": "https://github.com/leanprover/lean-llvm/releases/download/23.1.0/lean-llvm-x86_64-linux-gnu.tar.zst",
                 "prepare-llvm": "../script/prepare-llvm-linux.sh lean-llvm*",
                 "binary-check": "ldd -v",
                 "CMAKE_OPTIONS": "-DLLVM=ON -DLLVM_CONFIG=${GITHUB_WORKSPACE}/build/llvm-host/bin/llvm-config"
@@ -279,8 +294,13 @@ jobs:
               {
                 // portable release build: use channel with older glibc (2.26)
                 "name": "Linux release",
-                "os": large ? chonk : "ubuntu-latest",
-                "release": true,
+                // The self-hosted runner carries a different toolset than the hosted ones, so what
+                // we ship is built on a hosted runner even when it is free.
+                "os": large ? (stamped ? "nscloud-ubuntu-24.04-amd64-8x16" : chonk) : "ubuntu-latest",
+                "release": stamped,
+                // Unstamped builds are published too (`pr-release.yml`, `grove.yml`), so always pack
+                // and upload the artifact.
+                "upload": true,
                 "enabled": true,
                 "check-rebootstrap": level >= 1,
                 // Done as part of test-bench
@@ -289,26 +309,14 @@ jobs:
                 // NOTE: `test-bench` currently seems to be broken on `ubuntu-latest`
                 "test-bench": large && level >= 2,
                 "shell": "nix develop .#oldGlibc -c bash -euxo pipefail {0}",
-                "llvm-url": "https://github.com/leanprover/lean-llvm/releases/download/22.1.4/lean-llvm-x86_64-linux-gnu.tar.zst",
+                "llvm-url": "https://github.com/leanprover/lean-llvm/releases/download/23.1.0/lean-llvm-x86_64-linux-gnu.tar.zst",
                 "prepare-llvm": "../script/prepare-llvm-linux.sh lean-llvm*",
                 "binary-check": "ldd -v",
                 // We are not warning-free yet on all platforms, start with Linux
-                // Do not (yet) use Lake cache on release
-                "CMAKE_OPTIONS": "-DLEAN_EXTRA_CXX_FLAGS=-Werror" + (level < 3 ? " -DUSE_LAKE_CACHE=ON" : ""),
-                "lake-actions-cache": level < 3,
-              },
-              {
-                "name": "Linux Lake (Cached)",
-                "os": large ? "nscloud-ubuntu-24.04-amd64-8x16" : "ubuntu-latest",
-                "enabled": true,
-                "check-rebootstrap": level >= 1,
-                // Done as part of test-bench
-                //"check-stage3": level >= 2,
-                "test": true,
-                "secondary": true,
-                // NOTE: `test-bench` currently seems to be broken on `ubuntu-latest`
-                "test-bench": large && level >= 2,
-                "CMAKE_OPTIONS": "-DLEAN_EXTRA_CXX_FLAGS=-Werror -DUSE_LAKE_CACHE=ON",
+                // A stamped build would reject the `.olean`s the cache holds from other commits, so
+                // it neither enables the cache for the build nor transfers it.
+                "CMAKE_OPTIONS": "-DLEAN_EXTRA_CXX_FLAGS=-Werror" + (stamped ? "" : " -DUSE_LAKE_CACHE=ON"),
+                "lake-cache": !stamped,
               },
               {
                 "name": "Linux RelWithAssert",
@@ -319,7 +327,9 @@ jobs:
                 "CMAKE_PRESET": "relwithassert",
                 // * `elab_bench/big_do` crashes with exit code 134
                 // * `compile_bench/channel` randomly segfaults
-                "CTEST_OPTIONS": "-E 'elab_bench/big_do|compile_bench/channel'",
+                // * `challenge-olean-issue` intentionally breaks memsafety
+                // * `builtin-lint` OOMs
+                "CTEST_OPTIONS": "-E 'elab_bench/big_do|compile_bench/channel|challenge-olean-issue|builtin-lint'",
               },
               {
                 "name": "Linux fsanitize",
@@ -338,8 +348,22 @@ jobs:
                 // * `pkg/|lake/` tests sometimes time out (likely even hang), related to Lake CI
                 //   failures?
                 // * `kernelMaxRecDepth` stack-overflows in the interpreter.
-                // * `elab_bench` is too expensive to run with fsanitize (also can e.g. stack overflow).
-                "CTEST_OPTIONS": "-E 'StackOverflow|interactive|async_select_channel|9366|elab/grind|pkg/|lake/|kernelMaxRecDepth|elab_bench/'"
+                // * `*bench` is too expensive to run with fsanitize (also can e.g. stack overflow).
+                // * elab/try_ is too slow because it needs to set up symbol frequency
+                // * treeMap2 is simply large and thus takes a lot of time
+                "CTEST_OPTIONS": "-E 'StackOverflow|interactive|async_select_channel|9366|elab/grind|pkg/|lake/|kernelMaxRecDepth|bench/|elab/try_|treeMap2'"
+              },
+              {
+                "name": "Linux tsanitize",
+                "os": large ? "nscloud-ubuntu-24.04-amd64-32x64" : "ubuntu-latest",
+                "enabled": (level >= 2 || fsanitize) && target_stage < 2,
+                "test": true,
+                // turn off custom allocator & symbolic functions to make TSAN do its magic
+                "CMAKE_PRESET": "sanitize-thread",
+                // We take a small subset of tests for tsan and run with reduced test parallelism.
+                // This is necessary as running tsan in parallel on all of our test suite would
+                // easily OOM the runner.
+                "CTEST_OPTIONS": "-j2 -E 'async_http_body|async_http_dispatch|async_http_encode|async_http_fuzz|async_http_response_framing|async_http_hang_regressions|task_iterators' -R '(compile/534)|(elab/(async.*|sync_.*|task.*|bv_bitwise|net_addr|networkInterfaces|openssl|idbg.*|Process|handleLocking|ioNulBytes|ioRandomBytes|libuv|readDir|realPath|st_test|stateRef|grind_list_count|vcgenSymBlock|doControlInfoAggregate))'"
               },
               {
                 "name": "macOS",
@@ -348,21 +372,23 @@ jobs:
                 "test": false,  // Tier 2 platform
                 "enabled": level >= 2,
                 "shell": "bash -euxo pipefail {0}",
-                "llvm-url": "https://github.com/leanprover/lean-llvm/releases/download/22.1.4/lean-llvm-x86_64-apple-darwin.tar.zst",
+                "llvm-url": "https://github.com/leanprover/lean-llvm/releases/download/23.1.0/lean-llvm-x86_64-apple-darwin.tar.zst",
                 "prepare-llvm": "../script/prepare-llvm-macos.sh lean-llvm*",
                 "binary-check": "otool -L",
                 "tar": "gtar", // https://github.com/actions/runner-images/issues/2619
               },
               {
                 "name": "macOS aarch64",
-                "enabled": level >= 1 || macos_arm,
+                // Kept out of the merge queue, where it would be the slowest job; breakage surfaces
+                // on master instead.
+                "enabled": isPushToMaster || level >= 2 || macos_arm,
                 "test": level >= 2,
                 // standard GH runner only comes with 7GB so use large runner if possible when running tests
                 "os": large && (fast || level >= 2) ? "nscloud-macos-sequoia-arm64-6x14" : "macos-15",
                 "CMAKE_OPTIONS": "-DLEAN_INSTALL_SUFFIX=-darwin_aarch64",
                 "release": true,
                 "shell": "bash -euxo pipefail {0}",
-                "llvm-url": "https://github.com/leanprover/lean-llvm/releases/download/22.1.4/lean-llvm-aarch64-apple-darwin.tar.zst",
+                "llvm-url": "https://github.com/leanprover/lean-llvm/releases/download/23.1.0/lean-llvm-aarch64-apple-darwin.tar.zst",
                 "prepare-llvm": "../script/prepare-llvm-macos.sh lean-llvm*",
                 "binary-check": "otool -L",
                 "tar": "gtar", // https://github.com/actions/runner-images/issues/2619
@@ -375,7 +401,7 @@ jobs:
                 "test": true,
                 "shell": "msys2 {0}",
                 "CMAKE_OPTIONS": "-G \"Unix Makefiles\"",
-                "llvm-url": "https://github.com/leanprover/lean-llvm/releases/download/22.1.4/lean-llvm-x86_64-w64-windows-gnu.tar.zst",
+                "llvm-url": "https://github.com/leanprover/lean-llvm/releases/download/23.1.0/lean-llvm-x86_64-w64-windows-gnu.tar.zst",
                 "prepare-llvm": "../script/prepare-llvm-mingw.sh lean-llvm*",
                 "binary-check": "ldd",
               },
@@ -387,7 +413,7 @@ jobs:
                 "enabled": level >= 2,
                 "test": true,
                 "shell": "nix develop .#oldGlibcAArch -c bash -euxo pipefail {0}",
-                "llvm-url": "https://github.com/leanprover/lean-llvm/releases/download/22.1.4/lean-llvm-aarch64-linux-gnu.tar.zst",
+                "llvm-url": "https://github.com/leanprover/lean-llvm/releases/download/23.1.0/lean-llvm-aarch64-linux-gnu.tar.zst",
                 "prepare-llvm": "../script/prepare-llvm-linux.sh lean-llvm*",
               },
               // Started running out of memory building expensive modules, a 2GB heap is just not that much even before fragmentation
@@ -569,6 +595,6 @@ jobs:
       - name: Update toolchain on mathlib4's nightly-testing branch
         if: steps.mathlib-app-token.outcome == 'success'
         run: |
-          gh workflow -R leanprover-community/mathlib4-nightly-testing run nightly_bump_and_merge.yml
+          gh workflow -R leanprover-community/mathlib4-nightly-testing run nightly_bump_toolchain.yml
         env:
           GITHUB_TOKEN: ${{ steps.mathlib-app-token.outputs.token }}

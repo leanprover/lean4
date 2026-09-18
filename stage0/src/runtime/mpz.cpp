@@ -222,6 +222,10 @@ size_t mpz::log2() const {
     return r - 1;
 }
 
+size_t mpz::size_in_bytes() const {
+    return mpz_size(m_val) * sizeof(mp_limb_t);
+}
+
 mpz & mpz::operator&=(mpz const & o) {
     mpz_and(m_val, m_val, o.m_val);
     return *this;
@@ -854,6 +858,10 @@ static unsigned log2_uint(unsigned v) {
 
 size_t mpz::log2() const {
     return (m_size - 1)*sizeof(mpn_digit)*8 + log2_uint(m_digits[m_size - 1]);
+}
+
+size_t mpz::size_in_bytes() const {
+    return m_size * sizeof(mpn_digit);
 }
 
 mpz & mpz::operator&=(mpz const & o) {

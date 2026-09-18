@@ -184,4 +184,69 @@ Standard Expect header name
 -/
 def expect : Header.Name := .mk "expect"
 
+/--
+Standard Cookie header name (client → server)
+-/
+def cookie : Header.Name := .mk "cookie"
+
+/--
+Standard Set-Cookie header name (server → client)
+-/
+def setCookie : Header.Name := .mk "set-cookie"
+
+/--
+Standard Location header name
+-/
+def location : Header.Name := .mk "location"
+
+/--
+Standard Proxy-Authorization header name
+-/
+def proxyAuthorization : Header.Name := .mk "proxy-authorization"
+
+/--
+Standard Content-Encoding header name
+-/
+def contentEncoding : Header.Name := .mk "content-encoding"
+
+/--
+Standard Content-Language header name
+-/
+def contentLanguage : Header.Name := .mk "content-language"
+
+/--
+Standard Content-Location header name
+-/
+def contentLocation : Header.Name := .mk "content-location"
+
+/--
+Standard Last-Modified header name
+-/
+def lastModified : Header.Name := .mk "last-modified"
+
+/--
+Standard Referer header name
+-/
+def referer : Header.Name := .mk "referer"
+
+/--
+Standard Origin header name
+-/
+def origin : Header.Name := .mk "origin"
+
+/--
+Standard Keep-Alive header name
+-/
+def keepAlive : Header.Name := .mk "keep-alive"
+
+/--
+Standard If-None-Match header name
+-/
+def ifNoneMatch : Header.Name := .mk "if-none-match"
+
+/--
+Standard If-Modified-Since header name
+-/
+def ifModifiedSince : Header.Name := .mk "if-modified-since"
+
 end Std.Http.Header.Name

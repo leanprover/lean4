@@ -21,7 +21,7 @@ open Std.Do
 
 variable [LE α] [Std.IsLinearOrder α]
 
-set_option mvcgen.warning false
+set_option linter.deprecated.syntax false
 
 def Monotone' {α : Type} [LE α] (f : Fin n → α) : Prop := ∀ i j, i ≤ j → f i ≤ f j
 

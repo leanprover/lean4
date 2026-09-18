@@ -203,7 +203,7 @@ def getDeclAt? (declName : Name) (phase : Phase) : CoreM (Option (Decl phase.toP
   match phase with
   | .base => getBaseDecl? declName
   | .mono => getMonoDecl? declName
-  | .impure => throwError "Internal compiler error: getDecl? on impure is unuspported for now"
+  | .impure => throwError "Internal compiler error: getDecl? on impure is unsupported for now"
 
 @[inline]
 def getDecl? (declName : Name) : CompilerM (Option ((pu : Purity) × Decl pu)) := do

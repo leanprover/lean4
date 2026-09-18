@@ -60,7 +60,8 @@ def elabSimprocRewriteInline : SymSimprocElab := fun stx => do
   let mut thms : Theorems := {}
   for name in names do
     let declName ← realizeGlobalConstNoOverload name
-    thms := thms.insert (← mkTheoremFromDecl declName)
+    for thm in (← mkTheoremsFromDecl declName) do
+      thms := thms.insert thm
   return thms.rewrite (← elabOptDischarger d?)
 
 @[builtin_sym_simproc andThen]

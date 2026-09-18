@@ -477,7 +477,7 @@ instance : Std.Trichotomous (. < . : Nat → Nat → Prop) where
   trichotomous _ _ h₁ h₂ := Nat.le_antisymm (Nat.ge_of_not_lt h₂) (Nat.ge_of_not_lt h₁)
 
 set_option linter.missingDocs false in
-@[deprecated Nat.instTrichotomousLt (since := "2025-10-27")]
+@[deprecated Nat.instTrichotomousLt +typeChanged (since := "2025-10-27")]
 theorem Nat.instAntisymmNotLt : Std.Antisymm (¬ . < . : Nat → Nat → Prop) where
   antisymm := Nat.instTrichotomousLt.trichotomous
 

@@ -36,17 +36,17 @@ def myid (x : α) := x
 
 /--
 trace: [Compiler.extractClosed] size: 2
-    def Arr.nonTrivialArrayTable._closed_0 : Nat :=
+    def Arr.nonTrivialArrayTable._closed_0 : lcAny :=
       let _x.1 := 2;
       let _x.2 := Arr.myid._redArg _x.1;
       return _x.2
 [Compiler.extractClosed] size: 2
-    def Arr.nonTrivialArrayTable._closed_1 : Nat :=
+    def Arr.nonTrivialArrayTable._closed_1 : lcAny :=
       let _x.1 := 5;
       let _x.2 := Arr.myid._redArg _x.1;
       return _x.2
 [Compiler.extractClosed] size: 2
-    def Arr.nonTrivialArrayTable._closed_2 : Nat :=
+    def Arr.nonTrivialArrayTable._closed_2 : lcAny :=
       let _x.1 := 7;
       let _x.2 := Arr.myid._redArg _x.1;
       return _x.2
@@ -164,17 +164,17 @@ def myid (x : α) := x
 
 /--
 trace: [Compiler.extractClosed] size: 2
-    def BArr.nonTrivialArrayTable._closed_0 : UInt8 :=
+    def BArr.nonTrivialArrayTable._closed_0 : lcAny :=
       let _x.1 := 2;
       let _x.2 := BArr.myid._redArg _x.1;
       return _x.2
 [Compiler.extractClosed] size: 2
-    def BArr.nonTrivialArrayTable._closed_1 : UInt8 :=
+    def BArr.nonTrivialArrayTable._closed_1 : lcAny :=
       let _x.1 := 5;
       let _x.2 := BArr.myid._redArg _x.1;
       return _x.2
 [Compiler.extractClosed] size: 2
-    def BArr.nonTrivialArrayTable._closed_2 : UInt8 :=
+    def BArr.nonTrivialArrayTable._closed_2 : lcAny :=
       let _x.1 := 7;
       let _x.2 := BArr.myid._redArg _x.1;
       return _x.2
@@ -335,17 +335,17 @@ def myid (x : α) := x
 
 /--
 trace: [Compiler.extractClosed] size: 2
-    def FArr.nonTrivialArrayTable._closed_0 : Float :=
+    def FArr.nonTrivialArrayTable._closed_0 : lcAny :=
       let _x.1 := FArr.arrayTable._closed_1;
       let _x.2 := FArr.myid._redArg _x.1;
       return _x.2
 [Compiler.extractClosed] size: 2
-    def FArr.nonTrivialArrayTable._closed_1 : Float :=
+    def FArr.nonTrivialArrayTable._closed_1 : lcAny :=
       let _x.1 := FArr.arrayTable._closed_4;
       let _x.2 := FArr.myid._redArg _x.1;
       return _x.2
 [Compiler.extractClosed] size: 2
-    def FArr.nonTrivialArrayTable._closed_2 : Float :=
+    def FArr.nonTrivialArrayTable._closed_2 : lcAny :=
       let _x.1 := FArr.arrayTable._closed_6;
       let _x.2 := FArr.myid._redArg _x.1;
       return _x.2

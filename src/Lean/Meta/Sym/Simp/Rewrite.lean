@@ -99,7 +99,7 @@ public def Theorems.rewrite (thms : Theorems) (d : Discharger := dischargeNone) 
   -- and theorem B succeeds with cd=false, the result is still cd=true: in another
   -- context A might succeed (with higher priority) and produce a different result.
   let mut anyCD := false
-  for (thm, numExtra) in thms.getMatchWithExtra e do
+  for (thm, numExtra) in thms.getMatchWithExtra (← getMCtx) e do
     let result ← if numExtra == 0 then
       thm.rewrite e d
     else

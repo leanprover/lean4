@@ -973,23 +973,6 @@ def reduceRecMatcher? (e : Expr) : MetaM (Option Expr) := do
           return none
       | _ => return none
 
-unsafe def reduceBoolNativeUnsafe (constName : Name) : MetaM Bool := evalConstCheck Bool `Bool constName
-unsafe def reduceNatNativeUnsafe (constName : Name) : MetaM Nat := evalConstCheck Nat `Nat constName
-@[implemented_by reduceBoolNativeUnsafe] opaque reduceBoolNative (constName : Name) : MetaM Bool
-@[implemented_by reduceNatNativeUnsafe] opaque reduceNatNative (constName : Name) : MetaM Nat
-
-def reduceNative? (e : Expr) : MetaM (Option Expr) :=
-  match e with
-  | Expr.app (Expr.const fName _) (Expr.const argName _) =>
-    if fName == ``Lean.reduceBool then do
-      return toExpr (← reduceBoolNative argName)
-    else if fName == ``Lean.reduceNat then do
-      return toExpr (← reduceNatNative argName)
-    else
-      return none
-  | _ =>
-    return none
-
 @[inline] def withNatValue (a : Expr) (k : Nat → MetaM (Option α)) : MetaM (Option α) := do
   if !a.hasExprMVar && a.hasFVar then
     return none
@@ -1086,12 +1069,9 @@ partial def whnfImp (e : Expr) : MetaM Expr :=
         match (← reduceNat? e') with
         | some v => cache useCache e v
         | none   =>
-          match (← reduceNative? e') with
-          | some v => cache useCache e v
-          | none   =>
-            match (← unfoldDefinition? e') with
-            | some e'' => cache useCache e (← whnfImp e'')
-            | none => cache useCache e e'
+          match (← unfoldDefinition? e') with
+          | some e'' => cache useCache e (← whnfImp e'')
+          | none => cache useCache e e'
 
 /-- If `e` is a projection function that satisfies `p`, then reduce it -/
 def reduceProjOf? (e : Expr) (p : Name → Bool) : MetaM (Option Expr) := do

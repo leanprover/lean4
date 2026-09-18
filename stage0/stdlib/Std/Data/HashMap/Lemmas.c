@@ -1,6 +1,6 @@
 // Lean compiler output
 // Module: Std.Data.HashMap.Lemmas
-// Imports: public import Std.Data.DHashMap.Lemmas public import Std.Data.HashMap.AdditionalOperations import all Std.Data.DHashMap.Basic import Init.Data.List.Pairwise
+// Imports: public import Std.Data.DHashMap.Lemmas public import Std.Data.HashMap.AdditionalOperations public import Std.Internal.ForIn.Basic import all Std.Data.DHashMap.Basic import Init.Data.List.Pairwise
 #include <lean/lean.h>
 #if defined(__clang__)
 #pragma clang diagnostic ignored "-Wunused-parameter"
@@ -15,6 +15,8 @@ extern "C" {
 #endif
 LEAN_EXPORT lean_object* l___private_Std_Data_HashMap_Lemmas_0__GetElem_x3f_match__1_splitter___redArg(lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l___private_Std_Data_HashMap_Lemmas_0__GetElem_x3f_match__1_splitter(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
+LEAN_EXPORT lean_object* l_Std_HashMap_Equiv_instTrans___redArg();
+LEAN_EXPORT lean_object* l_Std_HashMap_Equiv_instTrans___redArg___boxed(lean_object*);
 LEAN_EXPORT lean_object* l_Std_HashMap_Equiv_instTrans(lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Std_HashMap_Equiv_instTrans___boxed(lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l___private_Std_Data_HashMap_Lemmas_0__GetElem_x3f_match__1_splitter___redArg(lean_object* v_x_1_, lean_object* v_h__1_2_, lean_object* v_h__2_3_){
@@ -63,37 +65,59 @@ return v___x_16_;
 }
 }
 }
-LEAN_EXPORT lean_object* l_Std_HashMap_Equiv_instTrans(lean_object* v_00_u03b1_17_, lean_object* v_00_u03b2_18_, lean_object* v_x_19_, lean_object* v_x_20_){
+LEAN_EXPORT lean_object* l_Std_HashMap_Equiv_instTrans___redArg(){
 _start:
 {
-lean_object* v___x_21_; 
-v___x_21_ = lean_box(0);
-return v___x_21_;
+lean_object* v___x_18_; 
+v___x_18_ = lean_box(0);
+return v___x_18_;
 }
 }
-LEAN_EXPORT lean_object* l_Std_HashMap_Equiv_instTrans___boxed(lean_object* v_00_u03b1_22_, lean_object* v_00_u03b2_23_, lean_object* v_x_24_, lean_object* v_x_25_){
+LEAN_EXPORT lean_object* l_Std_HashMap_Equiv_instTrans___redArg___boxed(lean_object* v___dummy_19_){
 _start:
 {
-lean_object* v_res_26_; 
-v_res_26_ = l_Std_HashMap_Equiv_instTrans(v_00_u03b1_22_, v_00_u03b2_23_, v_x_24_, v_x_25_);
-lean_dec_ref(v_x_25_);
-lean_dec_ref(v_x_24_);
-return v_res_26_;
+lean_object* v_res_20_; 
+v_res_20_ = l_Std_HashMap_Equiv_instTrans___redArg();
+return v_res_20_;
+}
+}
+LEAN_EXPORT lean_object* l_Std_HashMap_Equiv_instTrans(lean_object* v_00_u03b1_21_, lean_object* v_00_u03b2_22_, lean_object* v_x_23_, lean_object* v_x_24_){
+_start:
+{
+lean_object* v___x_25_; 
+v___x_25_ = lean_box(0);
+return v___x_25_;
+}
+}
+LEAN_EXPORT lean_object* l_Std_HashMap_Equiv_instTrans___boxed(lean_object* v_00_u03b1_26_, lean_object* v_00_u03b2_27_, lean_object* v_x_28_, lean_object* v_x_29_){
+_start:
+{
+lean_object* v_res_30_; 
+v_res_30_ = l_Std_HashMap_Equiv_instTrans(v_00_u03b1_26_, v_00_u03b2_27_, v_x_28_, v_x_29_);
+lean_dec_ref(v_x_29_);
+lean_dec_ref(v_x_28_);
+return v_res_30_;
 }
 }
 lean_object* runtime_initialize_Std_Data_DHashMap_Lemmas(uint8_t builtin);
 lean_object* runtime_initialize_Std_Data_HashMap_AdditionalOperations(uint8_t builtin);
+lean_object* runtime_initialize_Std_Internal_ForIn_Basic(uint8_t builtin);
 lean_object* runtime_initialize_Std_Data_DHashMap_Basic(uint8_t builtin);
 lean_object* runtime_initialize_Init_Data_List_Pairwise(uint8_t builtin);
+void lean_initialize_runtime_module();
 static bool _G_runtime_initialized = false;
 LEAN_EXPORT lean_object* runtime_initialize_Std_Data_HashMap_Lemmas(uint8_t builtin) {
 lean_object * res;
 if (_G_runtime_initialized) return lean_io_result_mk_ok(lean_box(0));
 _G_runtime_initialized = true;
+lean_initialize_runtime_module();
 res = runtime_initialize_Std_Data_DHashMap_Lemmas(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
 res = runtime_initialize_Std_Data_HashMap_AdditionalOperations(builtin);
+if (lean_io_result_is_error(res)) return res;
+lean_dec_ref(res);
+res = runtime_initialize_Std_Internal_ForIn_Basic(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
 res = runtime_initialize_Std_Data_DHashMap_Basic(builtin);
@@ -113,6 +137,7 @@ return lean_io_result_mk_ok(lean_box(0));
 }
 lean_object* initialize_Std_Data_DHashMap_Lemmas(uint8_t builtin);
 lean_object* initialize_Std_Data_HashMap_AdditionalOperations(uint8_t builtin);
+lean_object* initialize_Std_Internal_ForIn_Basic(uint8_t builtin);
 lean_object* initialize_Std_Data_DHashMap_Basic(uint8_t builtin);
 lean_object* initialize_Init_Data_List_Pairwise(uint8_t builtin);
 static bool _G_initialized = false;
@@ -124,6 +149,9 @@ res = initialize_Std_Data_DHashMap_Lemmas(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
 res = initialize_Std_Data_HashMap_AdditionalOperations(builtin);
+if (lean_io_result_is_error(res)) return res;
+lean_dec_ref(res);
+res = initialize_Std_Internal_ForIn_Basic(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
 res = initialize_Std_Data_DHashMap_Basic(builtin);

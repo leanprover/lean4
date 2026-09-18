@@ -311,20 +311,19 @@ def checkAltNames (alts : Array Alt) (altsSyntax : Array Syntax) : TacticM Unit 
       else
         throwOrLogErrorAt altStx m!"Invalid alternative name `{altName}`: {msg}"
 
-/-- Given the goal `altMVarId` for a given alternative that introduces `numFields` new variables,
-    return the number of explicit variables. Recall that when the `@` is not used, only the explicit variables can
-    be named by the user. -/
-def getNumExplicitFields (altMVarId : MVarId) (numFields : Nat) : MetaM Nat := altMVarId.withContext do
-  let target ← altMVarId.getType
+/-- Given the goal `altMVarId` for an alternative that introduces `numFields` new variables, return
+    how many the user can name when the `@` modifier is absent: the explicit and the `let`-bound
+    ones (`introN` names `let`-bound binders as explicit). -/
+def getNumExplicitFields (altMVarId : MVarId) (numFields : Nat) : MetaM Nat :=
   withoutModifyingState do
-    -- The `numFields` count includes explicit, implicit and let-bound variables.
-    -- `forallMetaBoundTelescope` will reduce let-bindings, so we don't just count how many
-    -- explicit binders are in `bis`, but how many implicit ones.
-    -- If this turns out to be insufficient, then the real (and complicated) logic for which
-    -- arguments are explicit or implicit can be found in `introNImp`,
-    let (_, bis, _) ← forallMetaBoundedTelescope target numFields
-    let numImplicits := (bis.filter (!·.isExplicit)).size
-    return numFields - numImplicits
+    -- Introduce the fields as the subsequent `introN` will, so the two agree on which are nameable.
+    let (fvarIds, altMVarId) ← altMVarId.introN numFields
+    altMVarId.withContext do
+      let mut numExplicit := 0
+      for fvarId in fvarIds do
+        if (← fvarId.getDecl).binderInfo.isExplicit then
+          numExplicit := numExplicit + 1
+      return numExplicit
 
 def saveAltVarsInfo (altMVarId : MVarId) (altStx : Syntax) (fvarIds : Array FVarId) : TermElabM Unit :=
   withSaveInfoContext <| altMVarId.withContext do
@@ -1036,7 +1035,7 @@ def elabFunTargetCall (cases : Bool) (stx : Syntax) : TacticM Expr := do
     let unfolding := tactic.fun_induction.unfolding.get (← getOptions)
     let some funIndInfo ← getFunIndInfo? (cases := cases) (unfolding := unfolding) fnName |
       let theoremKind := if cases then "cases" else "induction"
-      throwError "No functional {theoremKind} theorem for `{.ofConstName fnName}`, or function is mutually recursive "
+      throwError "No functional {theoremKind} theorem for `{.ofConstName fnName}`, or the function is mutually recursive"
     let candidates ← FunInd.collect funIndInfo (← getMainGoal)
     if candidates.isEmpty then
       throwError "Could not find suitable call of `{.ofConstName fnName}` in the goal"
@@ -1059,7 +1058,7 @@ def elabFunTarget (cases : Bool) (stx : Syntax) : TacticM (ElimInfo × Array Exp
     let unfolding := tactic.fun_induction.unfolding.get (← getOptions)
     let some funIndInfo ← getFunIndInfo? (cases := cases) (unfolding := unfolding) fnName |
       let theoremKind := if cases then "cases" else "induction"
-      throwError "No functional {theoremKind} theorem for `{.ofConstName fnName}`, or function is mutually recursive "
+      throwError "No functional {theoremKind} theorem for `{.ofConstName fnName}`, or the function is mutually recursive"
     if funArgs.size != funIndInfo.params.size then
       throwError "Expected fully applied application of `{.ofConstName fnName}` with \
         {funIndInfo.params.size} arguments, but found {funArgs.size} arguments"

@@ -478,9 +478,9 @@ goto v___jp_79_;
 v___jp_68_:
 {
 lean_object* v___x_72_; lean_object* v___x_74_; 
-v___x_72_ = lean_nat_add(v___y_70_, v___y_71_);
+v___x_72_ = lean_nat_add(v___y_69_, v___y_71_);
 lean_dec(v___y_71_);
-lean_dec(v___y_70_);
+lean_dec(v___y_69_);
 if (v_isShared_65_ == 0)
 {
 lean_ctor_set(v___x_64_, 4, v_r_42_);
@@ -509,7 +509,7 @@ lean_object* v___x_76_;
 if (v_isShared_53_ == 0)
 {
 lean_ctor_set(v___x_52_, 4, v___x_74_);
-lean_ctor_set(v___x_52_, 3, v___y_69_);
+lean_ctor_set(v___x_52_, 3, v___y_70_);
 lean_ctor_set(v___x_52_, 2, v_v_56_);
 lean_ctor_set(v___x_52_, 1, v_k_55_);
 lean_ctor_set(v___x_52_, 0, v___x_67_);
@@ -523,7 +523,7 @@ v_reuseFailAlloc_77_ = lean_alloc_ctor(0, 5, 0);
 lean_ctor_set(v_reuseFailAlloc_77_, 0, v___x_67_);
 lean_ctor_set(v_reuseFailAlloc_77_, 1, v_k_55_);
 lean_ctor_set(v_reuseFailAlloc_77_, 2, v_v_56_);
-lean_ctor_set(v_reuseFailAlloc_77_, 3, v___y_69_);
+lean_ctor_set(v_reuseFailAlloc_77_, 3, v___y_70_);
 lean_ctor_set(v_reuseFailAlloc_77_, 4, v___x_74_);
 v___x_76_ = v_reuseFailAlloc_77_;
 goto v_reusejp_75_;
@@ -568,8 +568,8 @@ if (lean_obj_tag(v_r_58_) == 0)
 lean_object* v_size_85_; 
 v_size_85_ = lean_ctor_get(v_r_58_, 0);
 lean_inc(v_size_85_);
-v___y_69_ = v___x_83_;
-v___y_70_ = v___x_84_;
+v___y_69_ = v___x_84_;
+v___y_70_ = v___x_83_;
 v___y_71_ = v_size_85_;
 goto v___jp_68_;
 }
@@ -577,8 +577,8 @@ else
 {
 lean_object* v___x_86_; 
 v___x_86_ = lean_unsigned_to_nat(0u);
-v___y_69_ = v___x_83_;
-v___y_70_ = v___x_84_;
+v___y_69_ = v___x_84_;
+v___y_70_ = v___x_83_;
 v___y_71_ = v___x_86_;
 goto v___jp_68_;
 }
@@ -3556,11 +3556,13 @@ return v___x_1236_;
 }
 }
 lean_object* runtime_initialize_Lean_SubExpr(uint8_t builtin);
+void lean_initialize_runtime_module();
 static bool _G_runtime_initialized = false;
 LEAN_EXPORT lean_object* runtime_initialize_Lean_PrettyPrinter_Delaborator_SubExpr(uint8_t builtin) {
 lean_object * res;
 if (_G_runtime_initialized) return lean_io_result_mk_ok(lean_box(0));
 _G_runtime_initialized = true;
+lean_initialize_runtime_module();
 res = runtime_initialize_Lean_SubExpr(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);

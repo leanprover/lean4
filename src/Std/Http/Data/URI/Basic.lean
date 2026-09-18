@@ -109,6 +109,7 @@ password field in new code, and never include it in logs or error messages.
 Reference: https://www.rfc-editor.org/rfc/rfc3986.html#section-3.2.1
 -/
 structure UserInfo where
+
   /--
   The encoded username.
   -/
@@ -563,6 +564,13 @@ instance : ToString Query where
         Query.formatQueryParam key value
       "?" ++ String.intercalate "&" encodedParams
 
+/--
+Formats an optional query component, preserving `some .empty` as an explicit empty query delimiter.
+-/
+def formatOption : Option Query → String
+  | none => ""
+  | some q => if q.isEmpty then "?" else toString q
+
 end Query
 
 end URI
@@ -590,9 +598,9 @@ structure URI where
   path : URI.Path
 
   /--
-  Optional query string as key-value pairs.
+  Optional query string as key-value pairs. `some .empty` preserves an explicit empty query delimiter.
   -/
-  query : URI.Query
+  query : Option URI.Query := none
 
   /--
   Optional fragment identifier (the part after '#'), percent-encoded.
@@ -607,7 +615,7 @@ instance : ToString URI where
       | none => ""
       | some auth => s!"//{toString auth}"
     let pathPart := toString uri.path
-    let queryPart := toString uri.query
+    let queryPart := URI.Query.formatOption uri.query
     let fragmentPart := uri.fragment.map (fun f => "#" ++ toString (URI.EncodedFragment.encode f)) |>.getD ""
     s!"{schemePart}:{authorityPart}{pathPart}{queryPart}{fragmentPart}"
 
@@ -794,7 +802,7 @@ def build (b : Builder) : URI :=
     scheme
     authority := authority
     path
-    query := query
+    query := if query.isEmpty then none else some query
     fragment := b.fragment
   }
 
@@ -822,7 +830,7 @@ def withPath (uri : URI) (path : URI.Path) : URI :=
 Returns a new URI with the query replaced.
 -/
 def withQuery (uri : URI) (query : URI.Query) : URI :=
-  { uri with query }
+  { uri with query := some query }
 
 /--
 Returns a new URI with the fragment replaced.
@@ -842,6 +850,115 @@ def normalize (uri : URI) : URI :=
   { uri with path := uri.path.normalize }
 
 end URI
+
+/--
+The web origin of an HTTP connection: the (scheme, host, port) triple that
+identifies where a connection is established, per RFC 6454.
+
+Two `Origin` values are equal when all three components match, which is the
+standard same-origin check used for redirect and credential decisions.
+-/
+structure URI.Origin where
+
+  /--
+  URI scheme (`"http"` or `"https"`).
+  -/
+  scheme : URI.Scheme
+
+  /--
+  Hostname or IP address.
+  -/
+  host   : URI.Host
+
+  /--
+  Port number.
+  -/
+  port   : UInt16
+deriving Repr, BEq
+
+namespace URI.Origin
+
+/--
+Constructs the canonical `host[:port]` string, omitting the port when it is the default for the scheme.
+-/
+def hostHeader (o : URI.Origin) : String :=
+  let defaultPort := URI.Scheme.defaultPort o.scheme
+  if o.port == defaultPort then toString o.host
+  else s!"{o.host}:{o.port}"
+
+end URI.Origin
+
+/--
+A relative reference as defined in RFC 3986 Section 4.2.
+
+```
+relative-ref  = relative-part [ "?" query ] [ "#" fragment ]
+relative-part = "//" authority path-abempty
+              / path-absolute
+              / path-noscheme
+              / path-empty
+```
+
+Unlike a full URI, a relative reference carries no scheme. The authority is present only when the
+path begins with `"//"`.
+-/
+structure URI.RelativeRef where
+  /--
+  Optional authority component, present only when the reference begins with `"//"`.
+  -/
+  authority : Option URI.Authority
+
+  /--
+  The hierarchical path component.
+  -/
+  path : URI.Path
+
+  /--
+  Optional query string as key-value pairs. `some .empty` preserves an explicit empty query delimiter.
+  -/
+  query : Option URI.Query := none
+
+  /--
+  Optional fragment identifier (the part after `'#'`), decoded.
+  -/
+  fragment : Option String
+deriving Repr, Inhabited, BEq
+
+instance : ToString URI.RelativeRef where
+  toString ref :=
+    let authorityPart := ref.authority.map (fun a => s!"//{toString a}") |>.getD ""
+    let pathPart      := toString ref.path
+    let queryPart     := URI.Query.formatOption ref.query
+    let fragmentPart  := ref.fragment.map (fun f => "#" ++ toString (URI.EncodedFragment.encode f)) |>.getD ""
+    s!"{authorityPart}{pathPart}{queryPart}{fragmentPart}"
+
+/--
+A URI reference as defined in RFC 3986 Section 4.1:
+
+```
+URI-reference = URI / relative-ref
+```
+
+Use `URIReference` when parsing a value that may be either a complete URI (with scheme) or a
+relative reference (without scheme), such as the `Location` response header in HTTP redirects
+(RFC 9110 §10.2.2).
+-/
+inductive URIReference where
+  /--
+  A complete URI with a scheme (e.g., `"http://example.com/path"`).
+  -/
+  | absolute (uri : URI)
+
+  /--
+  A relative reference without a scheme (e.g., `"../other"`, `"//example.com/path"`, `"?q=1"`).
+  -/
+  | relative (ref : URI.RelativeRef)
+deriving Repr, Inhabited
+
+instance : ToString URIReference where
+  toString
+    | .absolute uri => toString uri
+    | .relative ref => toString ref
 
 /--
 HTTP request target forms as defined in RFC 9112 Section 3.3.
@@ -891,7 +1008,7 @@ Returns an empty array for targets without a query.
 -/
 def query : RequestTarget → URI.Query
   | .originForm _ q => q.getD URI.Query.empty
-  | .absoluteForm uri => uri.query
+  | .absoluteForm uri => uri.query.getD URI.Query.empty
   | _ => URI.Query.empty
 
 /--
@@ -906,7 +1023,7 @@ instance : ToString RequestTarget where
   toString
     | .originForm path query =>
         let pathStr := toString path
-        let queryStr := query.map toString |>.getD ""
+        let queryStr := URI.Query.formatOption query
         s!"{pathStr}{queryStr}"
     | .absoluteForm uri => toString uri
     | .authorityForm auth => toString auth

@@ -6,8 +6,10 @@ Authors: Leonardo de Moura
 module
 
 prelude
-public import Init.GrindInstances.ToInt
 public import Init.Data.Nat.Div.Basic
+public import Init.Data.Int.Basic
+public import Init.Data.Int.DivMod.Basic
+public import Init.Data.Cast
 import Init.ByCases
 import Init.Data.Int.DivMod.Lemmas
 import Init.Data.Int.LemmasAux
@@ -87,8 +89,7 @@ theorem mod_congr {a b : Nat} {a' b' : Int}
   simp_all [Int.natCast_emod]
 
 theorem finVal {n : Nat} {a : Fin n} {a' : Int}
-    (h₁ : Lean.Grind.ToInt.toInt a = a') : NatCast.natCast (a.val) = a' := by
-  rw [← h₁, Lean.Grind.ToInt.toInt, Lean.Grind.instToIntFinCoOfNatIntCast]
+    (h₁ : (a.val : Int) = a') : NatCast.natCast (a.val) = a' := h₁
 
 theorem eq_eq {a b : Nat} {a' b' : Int}
     (h₁ : NatCast.natCast a = a') (h₂ : NatCast.natCast b = b') : (a = b) = (a' = b') := by

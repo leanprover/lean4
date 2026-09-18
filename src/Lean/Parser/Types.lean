@@ -184,7 +184,15 @@ structure CacheableParserContext where
   suppressInsideQuot : Bool := false
   savedPos?          : Option String.Pos.Raw := none
   forbiddenTks       : Array Token := #[]
-  deriving BEq
+
+/-- Compares `forbiddenTks` by pointer first: contexts overwhelmingly share the array object (the
+empty default, or the array created on entering a `withForbidden` region), so parser-cache key
+comparisons skip the element walk. -/
+instance : BEq CacheableParserContext where
+  beq a b := a.prec == b.prec && a.quotDepth == b.quotDepth &&
+    a.suppressInsideQuot == b.suppressInsideQuot && a.savedPos? == b.savedPos? &&
+    withPtrEq a.forbiddenTks b.forbiddenTks (fun _ => a.forbiddenTks == b.forbiddenTks)
+      (fun h => by rw [h]; exact beq_self_eq_true _)
 
 /-- Parser context updateable in `adaptUncacheableContextFn`. -/
 structure ParserContextCore extends InputContext, ParserModuleContext, CacheableParserContext where

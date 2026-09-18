@@ -1,0 +1,7 @@
+{"value":{"dict":{"dictionary":{"Pkg.Sub":1,"Pkg.Nonexistent":0,"Pkg":1}}},"source":{"module":{"name":"Pkg"}},"name":"sourceFoundMetric"}
+{"value":{"dict":{"dictionary":{"b":2,"a":1}}},"source":{"module":{"name":"Pkg"}},"name":"tallyMetric"}
+{"value":{"scalar":{"value":1}},"source":{"declaration":{"name":"answer","module":"Pkg"}},"name":"sizeMetric"}
+{"value":{"scalar":{"value":1}},"source":{"module":{"name":"Pkg"}},"name":"envMetric"}
+{"value":{"scalar":{"value":1}},"source":{"module":{"name":"Pkg"}},"name":"linter.unusedVariables"}
+{"value":{"scalar":{"value":1}},"source":{"module":{"name":"Pkg"}},"name":"topLevelMetric"}
+{"value":{"scalar":{"value":2}},"source":{"module":{"name":"Pkg"}},"name":"sizeMetric"}

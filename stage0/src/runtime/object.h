@@ -221,7 +221,6 @@ inline uint8 * sarray_cptr(object * o) { return lean_sarray_cptr(o); }
 
 inline obj_res byte_array_mk(obj_arg a) { return lean_byte_array_mk(a); }
 inline obj_res byte_array_data(obj_arg a) { return lean_byte_array_data(a); }
-inline obj_res copy_byte_array(obj_arg a) { return lean_copy_byte_array(a); }
 inline obj_res mk_empty_byte_array(b_obj_arg capacity) { return lean_mk_empty_byte_array(capacity); }
 inline obj_res byte_array_size(b_obj_arg a) { return lean_byte_array_size(a); }
 inline uint8 byte_array_get(b_obj_arg a, b_obj_arg i) { return lean_byte_array_get(a, i); }
@@ -474,8 +473,8 @@ LEAN_EXPORT void io_eprintln(obj_arg s);
 // ST ref primitives
 inline obj_res st_mk_ref(obj_arg v) { return lean_st_mk_ref(v); }
 inline obj_res st_ref_get(b_obj_arg r) { return lean_st_ref_get(r); }
-inline obj_res st_ref_set(b_obj_arg r, obj_arg v) { return lean_st_ref_set(r, v); }
-inline obj_res st_ref_reset(b_obj_arg r) { return lean_st_ref_reset(r); }
+inline obj_res st_ref_put(b_obj_arg r, obj_arg v) { return lean_st_ref_put(r, v); }
+inline obj_res st_ref_take(b_obj_arg r) { return lean_st_ref_take(r); }
 inline obj_res st_ref_swap(b_obj_arg r, obj_arg v) { return lean_st_ref_swap(r, v); }
 
 obj_res lean_promise_new();

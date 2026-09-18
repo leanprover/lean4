@@ -558,7 +558,7 @@ def mkSimpContext (stx : Syntax) (eraseLocal : Bool) (kind := SimpKind.simp)
     if kind == SimpKind.simpAll then
       throwError "Tactic `simp_all` does not support the `discharger` option"
     if kind == SimpKind.dsimp then
-      throwError "Tactic `dsimp` does not support the `discharger' option"
+      throwError "Tactic `dsimp` does not support the `discharger` option"
   let dischargeWrapper ← mkDischargeWrapper stx[2]
   let simpOnly := !stx[simpOnlyPos].isNone
   let mut simpTheorems ← if simpOnly then

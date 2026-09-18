@@ -8,7 +8,7 @@ Because `loop` eventually calls `step 0`, the program throws, so the exceptional
 is left unconstrained.
 -/
 
-open Lean Meta Order Std.Internal.Do
+open Lean Meta Order Std.WP
 
 namespace MatchIota
 
@@ -17,7 +17,7 @@ set_option mvcgen.warning false
 abbrev M := ExceptT String <| StateM Nat
 
 @[spec high] theorem spec_throw (e : String) {post : α → Nat → Prop} :
-    ⦃epost e⦄ (throw (m := M) e) ⦃post; epost⟨epost⟩⦄ := ⟨PartialOrder.rel_refl⟩
+    ⦃epost e⦄ (throw (m := M) e) ⦃post; estack⟨epost⟩⦄ := ⟨PartialOrder.rel_refl⟩
 
 @[spec high] theorem spec_set (x : Nat) {post : PUnit → Nat → Prop} :
     ⦃fun _ => post ⟨⟩ x⦄ (set (m := M) x) ⦃post⦄ := ⟨PartialOrder.rel_refl⟩

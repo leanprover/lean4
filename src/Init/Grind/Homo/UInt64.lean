@@ -22,8 +22,19 @@ attribute [grind hom]
   UInt64.toBitVec_and UInt64.toBitVec_or UInt64.toBitVec_xor UInt64.toBitVec_shiftLeft UInt64.toBitVec_shiftRight
   UInt64.toBitVec_zero UInt64.toBitVec_one UInt64.toBitVec_not UInt64.toBitVec_neg
   UInt64.eq_iff_toBitVec_eq
-  UInt64.toBitVec_ofNat UInt64.toBitVec_ofNat'
   UInt64.toBitVec_toUInt8 UInt64.toBitVec_toUInt16 UInt64.toBitVec_toUInt32 UInt64.toBitVec_toUSize UInt64.toBitVec_toInt64
+
+
+/- The core `UInt64.toBitVec_ofNat` rules produce literals in `BitVec.ofNat` form; `grind`
+keeps `BitVec` literals in `OfNat.ofNat` form, so they are restated with a canonical
+right-hand side. -/
+@[grind hom] theorem Lean.Grind.UInt64.toBitVec_OfNat_ofNat (a : Nat) :
+    (OfNat.ofNat a : UInt64).toBitVec = OfNat.ofNat a :=
+  (UInt64.toBitVec_ofNat a).trans BitVec.ofNat_eq_ofNat.symm
+
+@[grind hom] theorem Lean.Grind.UInt64.toBitVec_ofNat (a : Nat) :
+    (UInt64.ofNat a).toBitVec = OfNat.ofNat a :=
+  (UInt64.toBitVec_ofNat' a).trans BitVec.ofNat_eq_ofNat.symm
 
 @[grind hom] theorem Lean.Grind.UInt64.toNat_eq_toBitVec_toNat (x : UInt64) : x.toNat = x.toBitVec.toNat := rfl
 

@@ -144,9 +144,10 @@ def elabResetGrindAttrs : CommandElab := fun _ => liftTermElabM do
   -- `[grind symbol 0] Eq` after a `reset_grind_attr%` command.
   -- Grind.resetSymbolPrioExt
   modifyEnv fun env => Grind.grindExt.modifyState env fun ext => { ext with casesTypes := {}, inj := {}, ematch := {} }
-  modifyEnv fun env => Grind.homoExt.modifyState env fun _ => {}
-  modifyEnv fun env => Grind.homoPredExt.modifyState env fun _ => {}
-  modifyEnv fun env => Grind.homoSourceTypesExt.modifyState env fun _ => {}
+  -- We don't reset homomorphism.
+  -- modifyEnv fun env => Grind.homoExt.modifyState env fun _ => {}
+  -- modifyEnv fun env => Grind.homoPredExt.modifyState env fun _ => {}
+  -- modifyEnv fun env => Grind.homoSourceTypesExt.modifyState env fun _ => {}
 
 open Command Term in
 @[builtin_command_elab Lean.Parser.Command.initGrindNorm]
@@ -454,10 +455,10 @@ def evalGrindTraceCore (stx : Syntax) (trace := true) (verbose := true) (useSorr
     Tactic.TryThis.addSuggestions stx <| tacs.map fun tac => { suggestion := .tsyntax tac }
 
 @[builtin_tactic Lean.Parser.Tactic.lia] def evalLia : Tactic := fun stx => do
-  let `(tactic| lia $config:optConfig) := stx | throwUnsupportedSyntax
+  let `(tactic| lia $config:optConfig $[ [$params:grindParam,*] ]?) := stx | throwUnsupportedSyntax
   let config ← elabCutsatConfig config
   let extensions ← Grind.getLiaExtensions
-  evalGrindCore stx { config with } none none none (extensions? := some extensions)
+  evalGrindCore stx { config with } none params none (extensions? := some extensions)
 
 @[builtin_tactic Lean.Parser.Tactic.cutsat] def evalCutsat : Tactic := fun stx => do
   let `(tactic| cutsat $config:optConfig) := stx | throwUnsupportedSyntax
@@ -482,8 +483,15 @@ def evalGrindTraceCore (stx : Syntax) (trace := true) (verbose := true) (useSorr
   evalGrindCore stx { config with } none none none
 
 @[builtin_tactic Lean.Parser.Tactic.grobner] def evalGrobner : Tactic := fun stx => do
-  let `(tactic| grobner $config:optConfig) := stx | throwUnsupportedSyntax
-  let config ← elabGrobnerConfig config
-  evalGrindCore stx { config with } none none none
+  let `(tactic| grobner $config:optConfig $[ [$params:grindParam,*] ]?) := stx | throwUnsupportedSyntax
+  if params.isSome then
+    -- Enable E-matching for the supplied lemmas without the `@[grind]` E-matching rules, and
+    -- disable local-theorem E-matching as `lia` does. Other `@[grind]` data (e.g. `inj`) is kept.
+    let config ← elabGrobnerConfig config (init := { ematch := ({} : Grind.Config).ematch, genLocal := 0 })
+    let ext := { (← Grind.getDefaultExtensionState) with ematch := {} }
+    evalGrindCore stx { config with } none params none (extensions? := some #[ext])
+  else
+    let config ← elabGrobnerConfig config
+    evalGrindCore stx { config with } none params none
 
 end Lean.Elab.Tactic

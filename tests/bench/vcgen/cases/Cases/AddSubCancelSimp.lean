@@ -6,7 +6,7 @@ Same benchmark as `AddSubCancel` but using equality (`simp`) specs for `get` and
 instead of triple specs. Exercises the simp/equality spec rule-construction path.
 -/
 
-open Lean Meta Order Std.Internal.Do
+open Lean Meta Order Std.WP
 
 namespace AddSubCancelSimp
 

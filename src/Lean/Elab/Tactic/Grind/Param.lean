@@ -230,13 +230,13 @@ def processParam (params : Grind.Params)
   | .ematch kind =>
     params ← withRef p <| addEMatchTheorem params id declName kind minIndexable
   | .cases eager =>
-    if incremental then throwError "`cases` parameter are not supported here"
+    if incremental then throwError "`cases` parameter is not supported here"
     ensureNoMinIndexable minIndexable
     withRef p <| Grind.validateCasesAttr declName eager
     params := params.insertCasesTypes declName eager
   | .intro =>
     if let some info ← Grind.isCasesAttrPredicateCandidate? declName false then
-      if incremental then throwError "`cases` parameter are not supported here"
+      if incremental then throwError "`cases` parameter is not supported here"
       for ctor in info.ctors do
         params ← withRef p <| addEMatchTheorem params id ctor (.default false) minIndexable
     else
@@ -281,7 +281,7 @@ public def elabGrindParams (params : Grind.Params) (ps : TSyntaxArray ``Parser.T
       match p with
       | `(Parser.Tactic.grindParam| - $id:ident) =>
         if incremental then
-          throwErrorAt p "invalid `-` occurrence, it can only used at the `grind` tactic entry point"
+          throwErrorAt p "invalid `-` occurrence, it can only be used at the `grind` tactic entry point"
         let declName ← realizeGlobalConstNoOverloadWithInfo id
         Term.checkDeprecatedCore declName
         if let some declName ← Grind.isCasesAttrCandidate? declName false then

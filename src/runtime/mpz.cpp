@@ -214,12 +214,23 @@ mpz mpz::pow(unsigned int exp) const {
     return r;
 }
 
+mpz mpz::powm(mpz const & exp, mpz const & m) const {
+    lean_assert(m != 0);
+    mpz r;
+    mpz_powm(r.m_val, m_val, exp.m_val, m.m_val);
+    return r;
+}
+
 size_t mpz::log2() const {
     if (is_nonpos())
         return 0;
     size_t r = mpz_sizeinbase(m_val, 2);
     lean_assert(r > 0);
     return r - 1;
+}
+
+size_t mpz::size_in_bytes() const {
+    return mpz_size(m_val) * sizeof(mp_limb_t);
 }
 
 mpz & mpz::operator&=(mpz const & o) {
@@ -827,6 +838,25 @@ mpz mpz::pow(unsigned int p) const {
     return result;
 }
 
+mpz mpz::powm(mpz const & exp, mpz const & m) const {
+    lean_assert(!m.is_zero());
+    if (m == 1) return mpz(0);
+    mpz result(1);
+    mpz base(*this);
+    base %= m;
+    mpz e(exp);
+    while (!e.is_zero()) {
+        if (e.mod8() & 1) {
+            result *= base;
+            result %= m;
+        }
+        base *= base;
+        base %= m;
+        div2k(e, e, 1);
+    }
+    return result;
+}
+
 static unsigned log2_uint(unsigned v) {
     unsigned r = 0;
     if (v & 0xFFFF0000) {
@@ -854,6 +884,10 @@ static unsigned log2_uint(unsigned v) {
 
 size_t mpz::log2() const {
     return (m_size - 1)*sizeof(mpn_digit)*8 + log2_uint(m_digits[m_size - 1]);
+}
+
+size_t mpz::size_in_bytes() const {
+    return m_size * sizeof(mpn_digit);
 }
 
 mpz & mpz::operator&=(mpz const & o) {

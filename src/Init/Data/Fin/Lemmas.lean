@@ -9,6 +9,7 @@ public import Init.Ext
 public import Init.Data.Nat.Div.Basic
 public import Init.Data.Order.Classes
 public import Init.NotationExtra
+public import Init.Data.Nat.PowMod
 import Init.ByCases
 import Init.Data.Nat.Lemmas
 import Init.Data.Nat.Internal.Linear
@@ -49,7 +50,7 @@ theorem pos_iff_nonempty {n : Nat} : 0 < n ↔ Nonempty (Fin n) :=
 
 @[simp] protected theorem eta (a : Fin n) (h : a < n) : (⟨a, h⟩ : Fin n) = a := rfl
 
-@[ext, grind ext]
+@[ext]
 protected theorem ext {a b : Fin n} (h : (a : Nat) = b) : a = b := eq_of_val_eq h
 
 theorem val_ne_iff {a b : Fin n} : a.1 ≠ b.1 ↔ a ≠ b := not_congr val_inj
@@ -1019,11 +1020,11 @@ private theorem reverseInduction_castSucc_aux {n : Nat} {motive : Fin (n + 1) �
   induction j generalizing i with
   | zero => omega
   | succ j ih =>
-    rw [reverseInduction.go, dif_neg (by exact Nat.ne_of_lt h2)]
+    rw [reverseInduction.go, dite_eq_right (by exact Nat.ne_of_lt h2)]
     by_cases hij : i = j
     · subst hij; simp [reverseInduction.go]
     · dsimp only
-      rw [ih _ _ (by omega), eq_comm, reverseInduction.go, dif_neg (by change i.1 + 1 ≠ _; omega)]
+      rw [ih _ _ (by omega), eq_comm, reverseInduction.go, dite_eq_right (by change i.1 + 1 ≠ _; omega)]
 
 @[simp, grind =] theorem reverseInduction_castSucc {n : Nat} {motive : Fin (n + 1) → Sort _} {zero succ}
     (i : Fin n) : reverseInduction (motive := motive) zero succ (castSucc i) =
@@ -1070,13 +1071,13 @@ as `Fin.natAdd m (j : Fin n)`.
 
 @[simp, grind =] theorem addCases_left {m n : Nat} {motive : Fin (m + n) → Sort _} {left right} (i : Fin m) :
     addCases (motive := motive) left right (Fin.castAdd n i) = left i := by
-  rw [addCases, dif_pos (castAdd_lt _ _)]; rfl
+  rw [addCases, dite_eq_left (castAdd_lt _ _)]; rfl
 
 @[simp, grind =]
 theorem addCases_right {m n : Nat} {motive : Fin (m + n) → Sort _} {left right} (i : Fin n) :
     addCases (motive := motive) left right (natAdd m i) = right i := by
   have : ¬(natAdd m i : Nat) < m := Nat.not_lt.2 (le_coe_natAdd ..)
-  rw [addCases, dif_neg this]; exact eq_of_heq <| (eqRec_heq _ _).trans (by congr 1; simp)
+  rw [addCases, dite_eq_right this]; exact eq_of_heq <| (eqRec_heq _ _).trans (by congr 1; simp)
 
 /-! ### zero -/
 
@@ -1122,7 +1123,7 @@ theorem sub_ofNat [NeZero n] (x : Fin n) (y : Nat) :
 
 private theorem _root_.Nat.mod_eq_sub_of_lt_two_mul {x n} (h₁ : n ≤ x) (h₂ : x < 2 * n) :
     x % n = x - n := by
-  rw [Nat.mod_eq, if_pos (by omega), Nat.mod_eq_of_lt (by omega)]
+  rw [Nat.mod_eq_ite, ite_eq_left (by omega), Nat.mod_eq_of_lt (by omega)]
 
 theorem coe_sub_iff_le {a b : Fin n} : (↑(a - b) : Nat) = a - b ↔ b ≤ a := by
   rw [sub_def, le_def]
@@ -1216,5 +1217,25 @@ protected theorem mul_zero [NeZero n] (k : Fin n) : k * 0 = 0 := by
 
 protected theorem zero_mul [NeZero n] (k : Fin n) : (0 : Fin n) * k = 0 := by
   simp [Fin.ext_iff, mul_def]
+
+/--
+Exponentiation on `Fin n`, computed by modular exponentiation so that the full
+power `x.val ^ y` is never formed.
+-/
+def npow (x : Fin n) (y : Nat) : Fin n :=
+  ⟨Nat.powMod x.val y n, by rw [Nat.powMod_def]; exact Nat.mod_lt _ x.pos⟩
+
+instance : NatPow (Fin n) where
+  pow := Fin.npow
+
+@[simp] theorem val_pow (a : Fin n) (k : Nat) :
+    (a ^ k).val = a.val ^ k % n :=
+  Nat.powMod_def a.val k n
+
+@[simp] protected theorem pow_zero [NeZero n] (a : Fin n) : a ^ 0 = 1 := by
+  ext; exact Nat.powMod_zero a.val n
+
+protected theorem pow_succ (a : Fin n) (k : Nat) : a ^ (k + 1) = a ^ k * a := by
+  ext; exact Nat.powMod_succ a.val k n
 
 end Fin

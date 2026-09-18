@@ -1,6 +1,6 @@
 // Lean compiler output
 // Module: Init.Grind.Module.Basic
-// Imports: public import Init.Grind.ToInt import all Init.Grind.ToInt
+// Imports: public import Init.Data.Int.DivMod.Basic import Init.Data.Int.Lemmas
 #include <lean/lean.h>
 #if defined(__clang__)
 #pragma clang diagnostic ignored "-Wunused-parameter"
@@ -58,17 +58,19 @@ lean_dec_ref(v_I_12_);
 return v_res_13_;
 }
 }
-lean_object* runtime_initialize_Init_Grind_ToInt(uint8_t builtin);
-lean_object* runtime_initialize_Init_Grind_ToInt(uint8_t builtin);
+lean_object* runtime_initialize_Init_Data_Int_DivMod_Basic(uint8_t builtin);
+lean_object* runtime_initialize_Init_Data_Int_Lemmas(uint8_t builtin);
+void lean_initialize_runtime_module();
 static bool _G_runtime_initialized = false;
 LEAN_EXPORT lean_object* runtime_initialize_Init_Grind_Module_Basic(uint8_t builtin) {
 lean_object * res;
 if (_G_runtime_initialized) return lean_io_result_mk_ok(lean_box(0));
 _G_runtime_initialized = true;
-res = runtime_initialize_Init_Grind_ToInt(builtin);
+lean_initialize_runtime_module();
+res = runtime_initialize_Init_Data_Int_DivMod_Basic(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
-res = runtime_initialize_Init_Grind_ToInt(builtin);
+res = runtime_initialize_Init_Data_Int_Lemmas(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
 return lean_io_result_mk_ok(lean_box(0));
@@ -80,17 +82,17 @@ if (_G_meta_initialized) return lean_io_result_mk_ok(lean_box(0));
 _G_meta_initialized = true;
 return lean_io_result_mk_ok(lean_box(0));
 }
-lean_object* initialize_Init_Grind_ToInt(uint8_t builtin);
-lean_object* initialize_Init_Grind_ToInt(uint8_t builtin);
+lean_object* initialize_Init_Data_Int_DivMod_Basic(uint8_t builtin);
+lean_object* initialize_Init_Data_Int_Lemmas(uint8_t builtin);
 static bool _G_initialized = false;
 LEAN_EXPORT lean_object* initialize_Init_Grind_Module_Basic(uint8_t builtin) {
 lean_object * res;
 if (_G_initialized) return lean_io_result_mk_ok(lean_box(0));
 _G_initialized = true;
-res = initialize_Init_Grind_ToInt(builtin);
+res = initialize_Init_Data_Int_DivMod_Basic(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
-res = initialize_Init_Grind_ToInt(builtin);
+res = initialize_Init_Data_Int_Lemmas(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
 res = runtime_initialize_Init_Grind_Module_Basic(builtin);

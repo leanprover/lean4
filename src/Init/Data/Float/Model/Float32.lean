@@ -57,6 +57,18 @@ def pack (f : UnpackedFloat) : Float32.Model where
   valid := by simp
 
 /--
+The special `NaN` value.
+-/
+def nan : Float32.Model :=
+  pack .notANumber
+
+/--
+The special `Inf` value.
+-/
+def inf : Float32.Model :=
+  pack (.infinity .positive)
+
+/--
 Compute the sum of two `Float32.Model`.
 -/
 def add (a b : Float32.Model) : Float32.Model :=
@@ -97,6 +109,12 @@ Compute the square root of a `Float32.Model`.
 -/
 def sqrt (a : Float32.Model) : Float32.Model :=
   pack (UnpackedFloat.sqrt Format.binary32 a.unpack)
+
+/--
+Compute the fused multiply-add `a * b + c` of three `Float32.Model`, with a single rounding.
+-/
+def fma (a b c : Float32.Model) : Float32.Model :=
+  pack (UnpackedFloat.fma Format.binary32 a.unpack b.unpack c.unpack)
 
 /--
 Negate a `Float32.Model`.

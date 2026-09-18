@@ -9,8 +9,8 @@ prelude
 public import Init.Data.Order.LemmasExtra  -- shake: keep (instance inlined by `haveI`)
 public import Init.Data.Order.FactoriesExtra
 public import Init.Data.Order.Factories -- shake: keep (autoparam filling `Min.leftLeaningOfLE`)
+public import Init.Data.Order.Lemmas -- shake: keep (everyone applying these factories needs this)
 import Init.Data.Bool
-import Init.Data.Order.Lemmas
 
 namespace Std
 
@@ -428,7 +428,7 @@ public structure Packages.LinearOrderOfLEArgs (α : Type u) extends
       ∀ a b : α, Min.min a b = if a ≤ b then a else b := by
     extract_lets
     first
-    | exact fun a b => _root_.Std.min_eq_if (a := a) (b := b)
+    | exact fun a b => _root_.Std.min_eq_ite (a := a) (b := b)
     | fail "Failed to automatically prove that `min` is left-leaning. \
             Please ensure that a `LawfulOrderLeftLeaningMin` instance can be synthesized or \
             manually provide the field `min_eq`."
@@ -437,7 +437,7 @@ public structure Packages.LinearOrderOfLEArgs (α : Type u) extends
       ∀ a b : α, Max.max a b = if b ≤ a then a else b := by
     extract_lets
     first
-    | exact fun a b => _root_.Std.max_eq_if (a := a) (b := b)
+    | exact fun a b => _root_.Std.max_eq_ite (a := a) (b := b)
     | fail "Failed to automatically prove that `max` is left-leaning. \
             Please ensure that a `LawfulOrderLeftLeaningMax` instance can be synthesized or \
             manually provide the field `max_eq`."
@@ -735,7 +735,7 @@ public structure Packages.LinearOrderOfOrdArgs (α : Type u) extends
       ∀ a b : α, Min.min a b = if (compare a b).isLE then a else b := by
     extract_lets
     first
-    | exact fun a b => _root_.Std.min_eq_if_isLE_compare (a := a) (b := b)
+    | exact fun a b => _root_.Std.min_eq_ite_isLE_compare (a := a) (b := b)
     | fail "Failed to automatically prove that `min` is left-leaning. \
             Please ensure that a `LawfulOrderLeftLeaningMin` instance can be synthesized or \
             manually provide the field `min_eq`."
@@ -744,7 +744,7 @@ public structure Packages.LinearOrderOfOrdArgs (α : Type u) extends
       ∀ a b : α, Max.max a b = if (compare a b).isGE then a else b := by
     extract_lets
     first
-    | exact fun a b => _root_.Std.max_eq_if_isGE_compare (a := a) (b := b)
+    | exact fun a b => _root_.Std.max_eq_ite_isGE_compare (a := a) (b := b)
     | fail "Failed to automatically prove that `max` is left-leaning. \
             Please ensure that a `LawfulOrderLeftLeaningMax` instance can be synthesized or \
             manually provide the field `max_eq`."

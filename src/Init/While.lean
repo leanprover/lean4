@@ -41,9 +41,9 @@ private instance [Nonempty β] {f : α → m (α ⊕ β)} {a : α} :
     Nonempty (Subtype (repeatM.Pred f a)) :=
   open scoped Classical in
   if h : ∃ g, repeatM.body f g = g then
-    ⟨⟨h.choose a, by simp only [repeatM.Pred, dif_pos h]⟩⟩
+    ⟨⟨h.choose a, by simp only [repeatM.Pred, dite_eq_left h]⟩⟩
   else
-    ⟨⟨pure (Classical.choice inferInstance), by simp only [repeatM.Pred, dif_neg h]⟩⟩
+    ⟨⟨pure (Classical.choice inferInstance), by simp only [repeatM.Pred, dite_eq_right h]⟩⟩
 
 /-- Computational core of `repeatM`: returns the loop value paired with its
 `repeatM.Pred` proof. -/
@@ -54,7 +54,7 @@ private partial def repeatM.impl [Nonempty β]
     simp only [repeatM.Pred]
     split <;> rename_i h
     · have key : (fun x => (repeatM.impl f x).val) = h.choose := funext fun x => by
-        simpa only [repeatM.Pred, dif_pos h] using (repeatM.impl f x).property
+        simpa only [repeatM.Pred, dite_eq_left h] using (repeatM.impl f x).property
       rw [key]; exact congrFun h.choose_spec a
     · trivial⟩
 
@@ -76,7 +76,7 @@ private theorem repeatM_eq [Nonempty β] {f : α → m (α ⊕ β)} (a : α)
     (h : ∃ g, repeatM.body f g = g) :
     repeatM f a = repeatM.body f (repeatM f) a := by
   have key : (fun x => (repeatM.impl f x).val) = h.choose := funext fun x => by
-    simpa only [repeatM.Pred, dif_pos h] using (repeatM.impl f x).property
+    simpa only [repeatM.Pred, dite_eq_left h] using (repeatM.impl f x).property
   show (repeatM.impl f a).val = repeatM.body f (fun x => (repeatM.impl f x).val) a
   rw [key, congrFun key a]; exact (congrFun h.choose_spec a).symm
 

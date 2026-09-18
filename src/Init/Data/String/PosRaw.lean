@@ -289,7 +289,7 @@ theorem Pos.Raw.lt_of_le_of_lt {a b c : Pos.Raw} : a ≤ b → b < c → a < c :
 theorem Pos.Raw.ne_of_lt {a b : Pos.Raw} : a < b → a ≠ b := by
   simpa [lt_iff, Pos.Raw.ext_iff] using Nat.ne_of_lt
 
-@[deprecated Pos.Raw.lt_iff (since := "2025-10-10")]
+@[deprecated Pos.Raw.lt_iff +typeChanged (since := "2025-10-10")]
 theorem pos_lt_eq (p₁ p₂ : Pos.Raw) : (p₁ < p₂) = (p₁.1 < p₂.1) :=
   propext Pos.Raw.lt_iff
 
@@ -322,11 +322,11 @@ theorem byteIdx_mk (n : Nat) : byteIdx ⟨n⟩ = n := rfl
 
 @[simp] theorem mk_byteIdx (p : Pos.Raw) : ⟨p.byteIdx⟩ = p := rfl
 
-@[deprecated byteIdx_offsetBy (since := "2025-10-08")]
+@[deprecated byteIdx_offsetBy +typeChanged (since := "2025-10-08")]
 theorem add_byteIdx {p₁ p₂ : Pos.Raw} : (p₂.offsetBy p₁).byteIdx = p₁.byteIdx + p₂.byteIdx := by
   simp
 
-@[deprecated byteIdx_offsetBy (since := "2025-10-08")]
+@[deprecated byteIdx_offsetBy +typeChanged (since := "2025-10-08")]
 theorem add_eq {p₁ p₂ : Pos.Raw} : p₂.offsetBy p₁ = ⟨p₁.byteIdx + p₂.byteIdx⟩ := rfl
 
 @[deprecated byteIdx_unoffsetBy (since := "2025-10-08")]

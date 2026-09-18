@@ -16,3 +16,7 @@ example : 0.1 + 0.2 != 0.3 := rfl
 example : 9689081178615771e-325 + 2.225e-308 == 2.321890811786158e-308 := by decide +kernel
 example : 12312.123124 + 0.0002321 = 12312.123356099999 := rfl
 example : 12312000000000000000000000000.123124 + 0.0002321 == 1.2312e+28 := by decide +kernel
+example : Float.nan = 0 / 0 := rfl
+example : Float.inf = 1 / 0 := rfl
+example : Float32.nan = 0 / 0 := rfl
+example : Float32.inf = 1 / 0 := rfl

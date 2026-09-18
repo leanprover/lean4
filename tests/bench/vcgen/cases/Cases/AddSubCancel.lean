@@ -6,11 +6,11 @@ Basic add/sub loop in `StateM`: each `step` adds then subtracts the same value, 
 loop preserves the state. Exercises the `get`/`set` `StateT` specs in the simplest setting.
 -/
 
-open Lean Meta Order Std.Internal.Do
+open Lean Meta Order Std.WP
 
 namespace AddSubCancel
 
-set_option mvcgen.warning false
+set_option experimental.vcgen true
 
 -- The following specs partially evaluate the specs for `get` and `set` that otherwise would need
 -- multiple small substeps in the modular lifting framework. This is good practice for performance

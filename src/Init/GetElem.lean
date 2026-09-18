@@ -171,13 +171,13 @@ instance (priority := low) [GetElem coll idx elem valid] [∀ xs i, Decidable (v
     (c : cont) (i : idx) (h : dom c i) : c[i]? = some (c[i]'h) := by
   have : Decidable (dom c i) := .isTrue h
   rw [getElem?_def]
-  exact dif_pos h
+  exact dite_eq_left h
 
 @[simp, grind =] theorem getElem?_neg [GetElem? cont idx elem dom] [LawfulGetElem cont idx elem dom]
     (c : cont) (i : idx) (h : ¬dom c i) : c[i]? = none := by
   have : Decidable (dom c i) := .isFalse h
   rw [getElem?_def]
-  exact dif_neg h
+  exact dite_eq_right h
 
 @[simp, grind =] theorem getElem!_pos [GetElem? cont idx elem dom] [LawfulGetElem cont idx elem dom]
     [Inhabited elem] (c : cont) (i : idx) (h : dom c i) :

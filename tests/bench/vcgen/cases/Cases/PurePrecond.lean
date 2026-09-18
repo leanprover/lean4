@@ -8,11 +8,11 @@ so VC generation must introduce and discharge these pure preconditions. `step` f
 preserving `b = true`.
 -/
 
-open Lean Meta Order Std.Internal.Do
+open Lean Meta Order Std.WP
 
 namespace PurePrecond
 
-set_option mvcgen.warning false
+set_option experimental.vcgen true
 
 def flipp (_ : Bool) : StateM Bool Unit := modify not
 

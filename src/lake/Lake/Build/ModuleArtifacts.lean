@@ -56,7 +56,7 @@ public protected def ModuleOutputDescrs.fromJson? (val : Json) : Except String M
   let obj ← JsonObject.fromJson? val
   let oleanHashes : Array ArtifactDescr ← obj.get "o"
   let some olean := oleanHashes[0]?
-    | throw "expected a least one 'o' (.olean) hash"
+    | throw "expected at least one 'o' (.olean) hash"
   return {
     isModule := (← obj.get? "m").getD (oleanHashes.size > 1)
     olean := olean

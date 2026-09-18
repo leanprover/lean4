@@ -1,0 +1,9 @@
+name = "exe-private-lean-import"
+defaultTargets = ["main"]
+
+[[lean_lib]]
+name = "Foo"
+
+[[lean_exe]]
+name = "main"
+root = "Main"

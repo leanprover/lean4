@@ -7,18 +7,18 @@ otherwise increments the state by one. With the loop driving the state up from `
 never fires, so the program never throws and ends at state `n`.
 -/
 
-open Lean Meta Order Std.Internal.Do
+open Lean Meta Order Std.WP
 
 namespace GetThrowSet
 
-set_option mvcgen.warning false
+set_option experimental.vcgen true
 
 abbrev M := ExceptT String <| StateM Nat
 
 -- Partially evaluated specs for best performance.
 
 @[spec high] theorem spec_throw (e : String) {post : α → Nat → Prop} :
-    ⦃epost e⦄ (throw (m := M) e) ⦃post; epost⟨epost⟩⦄ := ⟨PartialOrder.rel_refl⟩
+    ⦃epost e⦄ (throw (m := M) e) ⦃post; estack⟨epost⟩⦄ := ⟨PartialOrder.rel_refl⟩
 
 @[spec high] theorem spec_set (x : Nat) :
     ⦃fun _ => post ⟨⟩ x⦄ (set (m := M) x) ⦃post⦄ := by

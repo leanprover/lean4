@@ -89,6 +89,16 @@ register_builtin_option grind.ematch.diagnostics : Bool := {
   descr    := "enable E-matching theorem instantiation diagnostics"
 }
 
+register_builtin_option grind.ematch.diagnostics.costThreshold : Nat := {
+  defValue := 10
+  descr    := "report E-matching instances that were at least this costly (roughly the size of their transitive closure of follow up instances)"
+}
+
+register_builtin_option grind.ematch.diagnostics.branchThreshold : Nat := {
+  defValue := 10
+  descr    := "report E-matching instances that participated in at least this many other instances directly"
+}
+
 /--
 Anchors are used to reference terms, local theorems, and case-splits in the `grind` state.
 We also use anchors to prune the search space when they are provided as `grind` parameters

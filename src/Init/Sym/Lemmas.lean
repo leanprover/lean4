@@ -42,6 +42,18 @@ theorem ite_false {α : Sort u} (c : Prop) {inst : Decidable c} (a b : α) {ht :
 theorem ite_false_congr {α : Sort u} (c : Prop) {inst : Decidable c} (a b : α) (c' : Prop) (h : c = c') {ht : ¬ c'} : @ite α c inst a b = b := by
   simp [*]
 
+theorem ite_of_decide_eq_true {α : Sort u} (c : Prop) {inst : Decidable c} (a b : α) {ht : decide c = true} : @ite α c inst a b = a := by
+  simp_all
+
+theorem ite_of_decide_eq_false {α : Sort u} (c : Prop) {inst : Decidable c} (a b : α) {ht : decide c = false} : @ite α c inst a b = b := by
+  simp_all
+
+theorem ite_of_decide_eq_true_congr {α : Sort u} (c : Prop) {inst : Decidable c} (a b : α) (c' : Prop) (h : c = c') {_ : Decidable c'} {ht : decide c' = true} : @ite α c inst a b = a := by
+  simp_all
+
+theorem ite_of_decide_eq_false_congr {α : Sort u} (c : Prop) {inst : Decidable c} (a b : α) (c' : Prop) (h : c = c') {_ : Decidable c'} {ht : decide c' = false} : @ite α c inst a b = b := by
+  simp_all
+
 theorem dite_true {α : Sort u} (c : Prop) {inst : Decidable c} (a : c → α) (b : ¬ c → α) {ht : c} : @dite α c inst a b = a ht := by
   simp [*]
 
@@ -177,6 +189,10 @@ theorem decide_isTrue_congr (p p' : Prop) (heq : p = p') {inst : Decidable p} {h
 
 theorem decide_isFalse (p : Prop) {inst : Decidable p} {h : ¬p} : decide p = false := by simp [*]
 theorem decide_isFalse_congr (p p' : Prop) (heq : p = p') {inst : Decidable p} {hnp : ¬p'} : decide p = false := by simp [*]
+
+theorem decide_eq_congr (p p' : Prop) (heq : p = p') {inst : Decidable p} {inst' : Decidable p'}
+    {b : Bool} {h : inst'.decide = b} : inst.decide = b := by
+  subst heq; cases Subsingleton.allEq inst inst'; assumption
 
 theorem decide_prop_eq_true (p : Prop) {inst : Decidable p} (h : p = True) : decide p = true := by simp [*]
 theorem decide_prop_eq_false (p : Prop) {inst : Decidable p} (h : p = False) : decide p = false := by simp [*]

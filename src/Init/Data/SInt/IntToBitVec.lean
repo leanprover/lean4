@@ -9,6 +9,7 @@ prelude
 public import Init.Data.SInt.Lemmas
 public import Init.Data.SInt.Bitwise
 public import Init.Data.UInt.IntToBitVec
+import Init.ByCases
 
 public section
 
@@ -52,8 +53,7 @@ theorem ISize.ne_iff_toBitVec32_ne {a b : ISize} (h : System.Platform.numBits = 
   subst h
   rfl
 
-@[int_toBitVec]
-theorem ISize.toBitVec32_ofNat (n : Nat) (h : System.Platform.numBits = 32) :
+theorem ISize.toBitVec32_ofNat (h : System.Platform.numBits = 32) (n : Nat) :
     toBitVec32 (no_index (OfNat.ofNat n)) h = BitVec.ofNat _ n := by
   simp only [ISize.toBitVec_ofNat, ISize.toBitVec32_eq_toBitVec]
   generalize 32 = x at *
@@ -107,6 +107,22 @@ theorem ISize.toBitVec32_mod {a b : ISize} (h : System.Platform.numBits = 32) :
   generalize 32 = x at *
   subst h
   rfl
+
+@[int_toBitVec]
+theorem ISize.toBitVec32_min {a b : ISize} (h : System.Platform.numBits = 32) :
+    (min a b).toBitVec32 h =
+      if (a.toBitVec32 h).sle (b.toBitVec32 h) then a.toBitVec32 h else b.toBitVec32 h := by
+  have : a ≤ b ↔ (a.toBitVec32 h).sle (b.toBitVec32 h) := by
+    simp [ISize.le_iff_toBitVec32_sle, h]
+  simp [ISize.min_def, apply_ite (ISize.toBitVec32 · h), this]
+
+@[int_toBitVec]
+theorem ISize.toBitVec32_max {a b : ISize} (h : System.Platform.numBits = 32) :
+    (max a b).toBitVec32 h =
+      if (a.toBitVec32 h).sle (b.toBitVec32 h) then b.toBitVec32 h else a.toBitVec32 h := by
+  have : a ≤ b ↔ (a.toBitVec32 h).sle (b.toBitVec32 h) := by
+    simp [ISize.le_iff_toBitVec32_sle, h]
+  simp [ISize.max_def, apply_ite (ISize.toBitVec32 · h), this]
 
 @[int_toBitVec]
 theorem ISize.toBitVec32_neg {a : ISize} (h : System.Platform.numBits = 32) :
@@ -314,8 +330,7 @@ theorem ISize.ne_iff_toBitVec64_ne {a b : ISize} (h : System.Platform.numBits = 
   subst h
   rfl
 
-@[int_toBitVec]
-theorem ISize.toBitVec64_ofNat (n : Nat) (h : System.Platform.numBits = 64) :
+theorem ISize.toBitVec64_ofNat (h : System.Platform.numBits = 64) (n : Nat) :
     toBitVec64 (no_index (OfNat.ofNat n)) h = BitVec.ofNat _ n := by
   simp only [ISize.toBitVec_ofNat, ISize.toBitVec64_eq_toBitVec]
   generalize 64 = x at *
@@ -369,6 +384,22 @@ theorem ISize.toBitVec64_mod {a b : ISize} (h : System.Platform.numBits = 64) :
   generalize 64 = x at *
   subst h
   rfl
+
+@[int_toBitVec]
+theorem ISize.toBitVec64_min {a b : ISize} (h : System.Platform.numBits = 64) :
+    (min a b).toBitVec64 h =
+      if (a.toBitVec64 h).sle (b.toBitVec64 h) then a.toBitVec64 h else b.toBitVec64 h := by
+  have : a ≤ b ↔ (a.toBitVec64 h).sle (b.toBitVec64 h) := by
+    simp [ISize.le_iff_toBitVec64_sle, h]
+  simp [ISize.min_def, apply_ite (ISize.toBitVec64 · h), this]
+
+@[int_toBitVec]
+theorem ISize.toBitVec64_max {a b : ISize} (h : System.Platform.numBits = 64) :
+    (max a b).toBitVec64 h =
+      if (a.toBitVec64 h).sle (b.toBitVec64 h) then b.toBitVec64 h else a.toBitVec64 h := by
+  have : a ≤ b ↔ (a.toBitVec64 h).sle (b.toBitVec64 h) := by
+    simp [ISize.le_iff_toBitVec64_sle, h]
+  simp [ISize.max_def, apply_ite (ISize.toBitVec64 · h), this]
 
 @[int_toBitVec]
 theorem ISize.toBitVec64_neg {a : ISize} (h : System.Platform.numBits = 64) :

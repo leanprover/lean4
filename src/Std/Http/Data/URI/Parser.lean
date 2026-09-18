@@ -313,10 +313,13 @@ private def parseFragment (config : URI.Config) : Parser URI.EncodedFragment := 
 
 private def parseHierPart (config : URI.Config) : Parser (Option URI.Authority × URI.Path) := do
   -- Check for "//" authority path-abempty
+  -- RFC 3986 §3.2 allows an empty reg-name, so `file:///path` (empty host) is valid.
+  -- When parseAuthority fails on an empty host, treat authority as absent so the
+  -- scheme guard in callers fires correctly on non-http(s) URIs.
   if (← tryOpt (skipString "//")).isSome then
-    let authority ← parseAuthority config
+    let authority ← tryOpt (attempt (parseAuthority config))
     let path ← parsePath config true true  -- path-abempty (must start with "/" or be empty)
-    return (some authority, path)
+    return (authority, path)
   else
     -- path-absolute / path-rootless / path-empty
     let path ← parsePath config false true
@@ -335,7 +338,6 @@ def parseURI (config : URI.Config := {}) : Parser URI := do
   let (authority, path) ← parseHierPart config
 
   let query ← optional (skipByteChar '?' *> parseQuery config)
-  let query := query.getD .empty
 
   let fragment ← optional do
     let some result := (← (skipByteChar '#' *> parseFragment config)) |>.decode
@@ -370,7 +372,6 @@ where
     skipByte ':'.toUInt8
     let (auth, path) ← parseHierPart config
     let query ← optional (skipByteChar '?' *> parseQuery config)
-    let query := query.getD URI.Query.empty
 
     return .absoluteForm { path, scheme, authority := auth, query, fragment := none }
 
@@ -384,7 +385,6 @@ where
       if ← peekIs (· == '/'.toUInt8) then
         let (authority, path) ← parseHierPart config
         let query ← optional (skipByteChar '?' *> parseQuery config)
-        let query := query.getD .empty
         return .absoluteForm { scheme, path, authority, query, fragment := none }
       else
         fail "not http absolute uri with path"
@@ -402,6 +402,60 @@ where
     skipByteChar ':'
     let port ← parsePortNumber
     return .authorityForm { host, port := .value port }
+
+/--
+Parses a URI reference as defined in RFC 3986 Section 4.1:
+
+```
+URI-reference = URI / relative-ref
+relative-ref  = relative-part [ "?" query ] [ "#" fragment ]
+relative-part = "//" authority path-abempty
+              / path-absolute
+              / path-noscheme
+              / path-empty
+```
+
+Tries a full URI first (requires a scheme). Falls back to a relative reference: authority-rooted
+(`//host/path`), absolute-path (`/path`), path-noscheme (`foo/bar`, `../baz`), query-only
+(`?q`), fragment-only (`#frag`), or empty.
+-/
+def parseURIReference (config : URI.Config := {}) : Parser Std.Http.URIReference :=
+  attempt uri <|> relative
+where
+  fragment : Parser String := do
+    let enc ← parseFragment config
+    let some dec := enc.decode | fail "invalid fragment encoding"
+    return dec
+
+  -- Full URI: scheme ":" hier-part [ "?" query ] [ "#" fragment ]
+  uri : Parser Std.Http.URIReference := attempt do
+    let scheme ← parseScheme config
+    skipByte ':'.toUInt8
+    let (authority, path) ← parseHierPart config
+    let query ← optional (skipByteChar '?' *> parseQuery config)
+    let frag ← optional (skipByteChar '#' *> fragment)
+    return .absolute { scheme, authority, path, query, fragment := frag }
+
+  -- relative-part "//" authority path-abempty
+  withAuthority : Parser Std.Http.URI.RelativeRef := attempt do
+    skipString "//"
+    let authority ← parseAuthority config
+    let path ← parsePath config true true
+    let query ← optional (skipByteChar '?' *> parseQuery config)
+    let frag ← optional (skipByteChar '#' *> fragment)
+    return { authority := some authority, path, query, fragment := frag }
+
+  -- relative-part: path-absolute / path-noscheme / path-empty
+  withPath : Parser Std.Http.URI.RelativeRef := do
+    -- path-absolute starts with "/"; path-noscheme starts with a non-colon pchar or is empty
+    let path ← parsePath config false true
+    let query ← optional (skipByteChar '?' *> parseQuery config)
+    let frag ← optional (skipByteChar '#' *> fragment)
+    return { authority := none, path, query, fragment := frag }
+
+  relative : Parser Std.Http.URIReference := do
+    let ref ← withAuthority <|> withPath
+    return .relative ref
 
 /--
 Parses an HTTP `Host` header value.

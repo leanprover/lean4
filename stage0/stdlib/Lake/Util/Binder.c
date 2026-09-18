@@ -51,7 +51,7 @@ uint8_t l_Lean_Syntax_isIdent(lean_object*);
 lean_object* l_Lean_Name_mkStr2(lean_object*, lean_object*);
 lean_object* l_Lean_Syntax_node1(lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Syntax_node2(lean_object*, lean_object*, lean_object*, lean_object*);
-lean_object* l_Array_mkArray0(lean_object*);
+lean_object* l_Array_mkArray0___redArg();
 lean_object* l_Array_append___redArg(lean_object*, lean_object*);
 lean_object* l_Array_mkArray1___redArg(lean_object*);
 lean_object* l_Lean_Syntax_node4(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
@@ -2297,7 +2297,7 @@ static lean_object* _init_l_Lake_BinderSyntaxView_mkBinder___closed__4(void){
 _start:
 {
 lean_object* v___x_733_; 
-v___x_733_ = l_Array_mkArray0(lean_box(0));
+v___x_733_ = l_Array_mkArray0___redArg();
 return v___x_733_;
 }
 }
@@ -2766,11 +2766,13 @@ return v___x_1002_;
 }
 }
 lean_object* runtime_initialize_Lean_Parser_Term(uint8_t builtin);
+void lean_initialize();
 static bool _G_runtime_initialized = false;
 LEAN_EXPORT lean_object* runtime_initialize_Lake_Util_Binder(uint8_t builtin) {
 lean_object * res;
 if (_G_runtime_initialized) return lean_io_result_mk_ok(lean_box(0));
 _G_runtime_initialized = true;
+lean_initialize();
 res = runtime_initialize_Lean_Parser_Term(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);

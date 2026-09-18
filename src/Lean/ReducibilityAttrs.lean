@@ -163,7 +163,7 @@ private def validate (declName : Name) (status : ReducibilityStatus) (attrKind :
     | .local =>
       match status with
       | .reducible =>
-        throwError "failed to set `[local reducible]` for `{.ofConstName declName}`, recall that `[reducible]` affects the term indexing datastructures used by `simp` and type class resolution{suffix}"
+        throwError "failed to set `[local reducible]` for `{.ofConstName declName}`, recall that `[reducible]` affects the term indexing data structures used by `simp` and type class resolution{suffix}"
       | .irreducible =>
         unless statusOld matches .semireducible | .implicitReducible | .instanceReducible do
           throwError "failed to set `[local irreducible]`, `{.ofConstName declName}` is currently `{statusOld.toAttrString}`, `[semireducible]`, `[implicit_reducible]` nor `[instance_reducible]` expected{suffix}"

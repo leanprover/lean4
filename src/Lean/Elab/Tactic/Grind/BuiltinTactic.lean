@@ -287,7 +287,18 @@ def split? (c : SplitInfo) : Action := fun goal kna kp => do
     Action.splitCore c numCases isRec (stopAtFirstFailure := false) (compress := false) >> Action.intros genNew >> Action.assertAll
   a goal kna kp
 
-@[builtin_grind_tactic cases] def evalCases : GrindTactic := fun stx => withMainContext do
+/--
+Drains the pending raw facts (e.g., queued by `internalize_all` in `sym` mode) before a
+case-split tactic, so that split candidates are inspected in a fully propagated state and
+the queued facts are not preprocessed once per subgoal created by the split.
+Returns `true` if draining closed the goal.
+-/
+def drainRawFacts : GrindTacticM Bool := do
+  match (← liftActionCore Action.assertAll) with
+  | .closed => return true
+  | .subgoals => return false
+
+@[builtin_grind_tactic cases] def evalCases : GrindTactic := fun stx => do
   let (anchor, ordinal) ← match stx with
     | `(grind| cases #$anchor:hexnum) => pure ((anchor : TSyntax `hexnum), 1)
     | `(grind| cases #$anchor:hexnum/$i:num) =>
@@ -295,6 +306,8 @@ def split? (c : SplitInfo) : Action := fun goal kna kp => do
         throwErrorAt i "invalid anchor ordinal, it must be ≥ 1"
       pure (anchor, i.getNat)
     | _ => throwUnsupportedSyntax
+  if (← drainRawFacts) then return ()
+  withMainContext do
   let anchorRef ← elabAnchorRef anchor
   let c? ← liftGoalM do
     let mut remaining := ordinal
@@ -345,8 +358,10 @@ def mkCasesSuggestions (candidates : Array SplitCandidateWithAnchor) (numDigits 
     }
   return suggestions
 
-@[builtin_grind_tactic casesTrace] def evalCasesTrace : GrindTactic := fun stx => withMainContext do
+@[builtin_grind_tactic casesTrace] def evalCasesTrace : GrindTactic := fun stx => do
   let `(grind| cases? $[$filter?]?) := stx | throwUnsupportedSyntax
+  if (← drainRawFacts) then return ()
+  withMainContext do
   let filter ← elabFilter filter?
   let { candidates, numDigits } ← liftGoalM <| getSplitCandidateAnchors filter.eval
   let suggestions ← mkCasesSuggestions candidates numDigits
@@ -354,6 +369,13 @@ def mkCasesSuggestions (candidates : Array SplitCandidateWithAnchor) (numDigits 
   return ()
 
 @[builtin_grind_tactic casesNext] def evalCasesNext : GrindTactic := fun _ => do
+  /-
+  **Note**: We cannot use `Action.assertAll >> Action.splitNext` here: `assertAll` is
+  always applicable, and `>>` treats the second action's "not applicable" as a skip, so
+  the composition would never fail. `cases_next` must fail when there is no split
+  candidate (see `grind_finish_trace.lean`); `repeat`/`first` idioms rely on it.
+  -/
+  if (← drainRawFacts) then return ()
   liftAction (Action.splitNext (stopAtFirstFailure := false))
 
 @[builtin_grind_tactic Parser.Tactic.Grind.focus] def evalFocus : GrindTactic := fun stx => do

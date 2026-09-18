@@ -1,6 +1,6 @@
 // Lean compiler output
 // Module: Lean.Server.Utils
-// Imports: public import Init.System.Uri public import Lean.Data.Lsp.Communication public import Lean.Data.Lsp.Diagnostics public import Lean.Data.Lsp.Extra public import Lean.Server.InfoUtils
+// Imports: public import Init.System.Uri public import Lean.Data.Lsp.Communication public import Lean.Data.Lsp.Diagnostics public import Lean.Data.Lsp.Extra public import Lean.Elab.InfoTree.Util
 #include <lean/lean.h>
 #if defined(__clang__)
 #pragma clang diagnostic ignored "-Wunused-parameter"
@@ -2238,12 +2238,14 @@ lean_object* runtime_initialize_Init_System_Uri(uint8_t builtin);
 lean_object* runtime_initialize_Lean_Data_Lsp_Communication(uint8_t builtin);
 lean_object* runtime_initialize_Lean_Data_Lsp_Diagnostics(uint8_t builtin);
 lean_object* runtime_initialize_Lean_Data_Lsp_Extra(uint8_t builtin);
-lean_object* runtime_initialize_Lean_Server_InfoUtils(uint8_t builtin);
+lean_object* runtime_initialize_Lean_Elab_InfoTree_Util(uint8_t builtin);
+void lean_initialize_runtime_module();
 static bool _G_runtime_initialized = false;
 LEAN_EXPORT lean_object* runtime_initialize_Lean_Server_Utils(uint8_t builtin) {
 lean_object * res;
 if (_G_runtime_initialized) return lean_io_result_mk_ok(lean_box(0));
 _G_runtime_initialized = true;
+lean_initialize_runtime_module();
 res = runtime_initialize_Init_System_Uri(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
@@ -2256,7 +2258,7 @@ lean_dec_ref(res);
 res = runtime_initialize_Lean_Data_Lsp_Extra(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
-res = runtime_initialize_Lean_Server_InfoUtils(builtin);
+res = runtime_initialize_Lean_Elab_InfoTree_Util(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
 l_Lean_Server_instInhabitedDocumentMeta_default = _init_l_Lean_Server_instInhabitedDocumentMeta_default();
@@ -2276,7 +2278,7 @@ lean_object* initialize_Init_System_Uri(uint8_t builtin);
 lean_object* initialize_Lean_Data_Lsp_Communication(uint8_t builtin);
 lean_object* initialize_Lean_Data_Lsp_Diagnostics(uint8_t builtin);
 lean_object* initialize_Lean_Data_Lsp_Extra(uint8_t builtin);
-lean_object* initialize_Lean_Server_InfoUtils(uint8_t builtin);
+lean_object* initialize_Lean_Elab_InfoTree_Util(uint8_t builtin);
 static bool _G_initialized = false;
 LEAN_EXPORT lean_object* initialize_Lean_Server_Utils(uint8_t builtin) {
 lean_object * res;
@@ -2294,7 +2296,7 @@ lean_dec_ref(res);
 res = initialize_Lean_Data_Lsp_Extra(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
-res = initialize_Lean_Server_InfoUtils(builtin);
+res = initialize_Lean_Elab_InfoTree_Util(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
 res = runtime_initialize_Lean_Server_Utils(builtin);

@@ -49,9 +49,7 @@ protected theorem countP_go_eq_add {l} : countP.go p l n = n + countP.go p l 0 :
     if h : p hd then simp [h, Nat.add_assoc] else simp [h]
 
 @[simp] theorem countP_cons_of_pos {l} (pa : p a) : countP p (a :: l) = countP p l + 1 := by
-  have : countP.go p (a :: l) 0 = countP.go p l 1 := show cond .. = _ by rw [pa]; rfl
-  unfold countP
-  rw [this, Nat.add_comm, List.countP_go_eq_add]
+  simp [countP, countP.go, pa, List.countP_go_eq_add (n := 1), Nat.add_comm]
 
 @[simp] theorem countP_cons_of_neg {l} (pa : ¬p a) : countP p (a :: l) = countP p l := by
   simp [countP, countP.go, pa]
@@ -415,20 +413,20 @@ theorem count_erase {a b : α} :
     rw [erase_cons]
     if hc : c = b then
       have hc_beq := beq_iff_eq.mpr hc
-      rw [if_pos hc_beq, hc, count_cons, Nat.add_sub_cancel]
+      rw [ite_eq_left hc_beq, hc, count_cons, Nat.add_sub_cancel]
     else
       have hc_beq := beq_false_of_ne hc
-      simp only [hc_beq, if_false, count_cons, count_cons, count_erase, reduceCtorEq]
+      simp only [hc_beq, ite_false, count_cons, count_cons, count_erase, reduceCtorEq]
       if ha : b = a then
         rw [ha, eq_comm] at hc
-        rw [if_pos (beq_iff_eq.2 ha), if_neg (by simpa using Ne.symm hc), Nat.add_zero, Nat.add_zero]
+        rw [ite_eq_left (beq_iff_eq.2 ha), ite_eq_right (by simpa using Ne.symm hc), Nat.add_zero, Nat.add_zero]
       else
-        rw [if_neg (by simpa using ha), Nat.sub_zero, Nat.sub_zero]
+        rw [ite_eq_right (by simpa using ha), Nat.sub_zero, Nat.sub_zero]
 
 @[simp] theorem count_erase_self {a : α} {l : List α} :
-    count a (List.erase l a) = count a l - 1 := by rw [count_erase, if_pos (by simp)]
+    count a (List.erase l a) = count a l - 1 := by rw [count_erase, ite_eq_left (by simp)]
 
 @[simp] theorem count_erase_of_ne (ab : a ≠ b) {l : List α} : count a (l.erase b) = count a l := by
-  rw [count_erase, if_neg (by simpa using ab.symm), Nat.sub_zero]
+  rw [count_erase, ite_eq_right (by simpa using ab.symm), Nat.sub_zero]
 
 end count

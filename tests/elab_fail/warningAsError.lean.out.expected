@@ -1,6 +1,12 @@
 warningAsError.lean:8:6-8:7: warning: `g` has been deprecated: Use `f` instead
+
+Hint: Replace the deprecated name:
+  g̵f̲
 1
 warningAsError.lean:12:6-12:7: error: `g` has been deprecated: Use `f` instead
+
+Hint: Replace the deprecated name:
+  g̵f̲
 1
 warningAsError.lean:15:7-15:13: error: Variable name `unused` is not explicitly referenced.
 

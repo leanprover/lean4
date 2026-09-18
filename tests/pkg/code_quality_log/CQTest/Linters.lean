@@ -13,8 +13,9 @@ Registers two linters that log code quality entries:
 
 Also defines `#inspect_cq_entries`, which awaits the per-command capture tasks in
 `Command.State.codeQualityEntryTasks` and reports what they contain. Every command contributes
-three tasks, in order: regular linters, module linters (empty except on the terminal command),
-and stateful linters. Entries are shown as `<linter option>/<entry name>`, with `_` for
+two tasks, in order: regular linters and stateful linters; the terminal command adds one for the
+module linters if any are registered. Entries are shown as `<linter option>/<entry name>`, with
+`_` for
 unattributed entries.
 -/
 
@@ -60,8 +61,8 @@ initialize
       return count)
 
 /--
-Reports, for the commands elaborated so far: the number of captured entries per task (three tasks
-per command: regular, module, and stateful linters), the captured entry names in task order, and
+Reports, for the commands elaborated so far: the number of captured entries per task (two tasks
+per command: regular and stateful linters), the captured entry names in task order, and
 the size of the in-scope `codeQualityLogExt` state. The latter must stay `0`: linter env changes
 are discarded, so entries reach the final environment only through the capture tasks merged in
 `runFrontend`.

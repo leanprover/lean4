@@ -88,12 +88,13 @@ inline optional<expr> inductive_reduce_rec(environment const & env, expr const &
         major = to_cnstr_when_K(env, rec_val, major, whnf, infer_type, is_def_eq);
     }
     major = to_cnstr_when_structure(env, rec_val, major, whnf, infer_type);
-
     major = whnf(major);
     if (is_nat_lit(major))
         major = nat_lit_to_constructor(major);
     else if (is_string_lit(major))
         major = whnf(string_lit_to_constructor(major));
+    else
+        major = to_cnstr_when_structure(env, rec_val, major, whnf, infer_type);
     optional<recursor_rule> rule = get_rec_rule_for(rec_val, major);
     if (!rule) return none_expr();
     buffer<expr> major_args;

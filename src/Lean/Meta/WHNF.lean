@@ -241,8 +241,11 @@ private def reduceRec (recVal : RecursorVal) (recLvls : List Level) (recArgs : A
       withTransparency .all <| whnf major
     else
       whnf major
+    if recVal.k then
+      major ← toCtorWhenK recVal major
     major ← major.toCtorIfLit
     major ← cleanupNatOffsetMajor major
+    major ← toCtorWhenStructure recVal major
     match getRecRuleFor recVal major with
     | some rule =>
       let majorArgs := major.getAppArgs

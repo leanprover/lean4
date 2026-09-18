@@ -6,6 +6,7 @@ public import Std.Data.TreeSet.Basic
 public import Std.Data.ExtTreeSet.Basic
 public import Std.Data.ExtTreeSet.Lemmas
 public import Init.Data.Ord.String
+public import Std.Data.DHashMap.Internal.AssocList.Lemmas
 
 namespace Lean.Level
 
@@ -874,6 +875,21 @@ theorem FlattenedLevel.forall_eval_split {l l' : FlattenedLevel} :
     · refine cast ?_ (hnz f)
       congr <;> grind
 
+theorem FlattenedLevel.forall_eval_split_le {l l' : FlattenedLevel} :
+    (∀ f, l.eval f ≤ l'.eval f) ↔
+      (∀ f : Name → Nat, l.eval (fun x => if x = key then 0 else f x) ≤
+        l'.eval (fun x => if x = key then 0 else f x)) ∧
+      (∀ f : Name → Nat, l.eval (fun x => if x = key then Max.max 1 (f x) else f x) ≤
+    l'.eval (fun x => if x = key then Max.max 1 (f x) else f x)) := by
+  constructor
+  · grind
+  · intro ⟨hz, hnz⟩ f
+    by_cases h : f key = 0
+    · refine cast ?_ (hz f)
+      congr <;> grind
+    · refine cast ?_ (hnz f)
+      congr <;> grind
+
 theorem _root_.Std.ExtTreeSet.size_le_of_subset
     {cmp} [Std.TransCmp cmp] {a b : Std.ExtTreeSet α cmp}
     (h : ∀ k, k ∈ a → k ∈ b) : a.size ≤ b.size := by
@@ -899,6 +915,18 @@ theorem _root_.Std.ExtTreeSet.size_lt_of_subset
   rintro (h | h)
   · rwa [← Std.ExtTreeSet.mem_congr h]
   · solve_by_elim
+
+theorem termination_le {a : List Name} (h : ∀ {x}, x ∈ a → x ∈ b ∧ x ≠ k) :
+    (Std.ExtTreeSet.ofList a Name.quickCmp).size ≤
+      (Std.ExtTreeSet.ofList b Name.quickCmp).size := by
+  apply Std.ExtTreeSet.size_le_of_subset <;> grind
+
+theorem termination_lt {a : List Name} (h : ∀ {x}, x ∈ a → x ∈ b ∧ x ≠ k)
+    (h' : k ∈ b) :
+    (Std.ExtTreeSet.ofList a Name.quickCmp).size <
+      (Std.ExtTreeSet.ofList b Name.quickCmp).size := by
+  apply Std.ExtTreeSet.size_lt_of_subset (k := k) <;> grind
+
 
 theorem FlattenedLevel.beq_iff (hl : WF l) (hl' : WF l') :
     FlattenedLevel.beq l l' ↔ ∀ f, l.eval f = l'.eval f := by
@@ -1003,6 +1031,97 @@ decreasing_by
       · simp [splitVars, *]
         simp [Conditional.splitVars, *]
 
+theorem _root_.Std.max_eq_right_iff [LE α] [Max α] [Std.IsPartialOrder α]
+      [Std.LawfulOrderSup α] {a b : α} : Max.max a b = b ↔ a ≤ b := by
+    rw [← Std.le_antisymm_iff, Std.max_le_iff, eq_true Std.right_le_max, and_true,
+      eq_true (Std.le_refl _), and_true]
+
+  theorem SortedAssocList.le_iff_merge_eq
+      [LE β] [DecidableLE β] [Std.IsPartialOrder β] [Max β] [Std.LawfulOrderSup β]
+      {cmp : α → α → Ordering} [Std.TransCmp cmp] [Std.LawfulEqCmp cmp]
+      {x y : SortedAssocList α β cmp} :
+      x.le y ↔ x.merge y = y := by
+    fun_induction le <;> simp_all +contextual [merge, ← Std.max_eq_right_iff] <;>
+      grind [CompareOrder.cmp_eq (cmp := cmp)]
+
+  theorem FlattenedLevel.le_iff (hl : WF l) (hl' : WF l') :
+      FlattenedLevel.le l l' ↔ ∀ f, l.eval f ≤ l'.eval f := by
+    rw [le]
+    simp only [Std.DHashMap.Internal.AssocList.panicWithPosWithDecl_eq, bind_pure_comp]
+    split
+    · simp only [Id.run_pure, Bool.false_eq_true, false_iff]
+      intro h
+      specialize h fun _ => 0
+      simp [FlattenedLevel.eval_zero, *] at h
+      lia
+    split
+    · rename_i a _ ha
+      replace ha : a ∈ l.extra := by grind
+      have := hl.conditional_wf ha
+      have := this.conds_ne_nil
+      match heq : a.conds, this with | .cons cond t, _ => ?_
+      simp only [Id.run_pure, Bool.and_eq_true]
+      rw [le_iff (by grind) (by grind), le_iff (by grind) (by grind)]
+      simp only [eval_setZero, eval_setNonzero, hl, hl', ← FlattenedLevel.forall_eval_split_le]
+    split
+    · rename_i a _ ha
+      replace ha : a ∈ l'.extra := by grind
+      have := hl'.conditional_wf ha
+      have := this.conds_ne_nil
+      match heq : a.conds, this with | .cons cond t, _ => ?_
+      simp only [Id.run_pure, Bool.and_eq_true]
+      rw [le_iff (by grind) (by grind), le_iff (by grind) (by grind)]
+      simp only [eval_setZero, eval_setNonzero, hl, hl', ← FlattenedLevel.forall_eval_split_le]
+    have : l.extra = [] := by cases h : l.extra <;> grind
+    have : l'.extra = [] := by cases h : l'.extra <;> grind
+    simp only [Id.run_pure, SortedAssocList.le_iff_merge_eq]
+    constructor
+    · intro h
+      have : l.merge l' = l' := by
+        cases l; cases l'; simp_all [merge]
+      rw [← this]
+      simp [FlattenedLevel.eval_merge, hl, hl', Std.left_le_max]
+    · intro hf
+      change (l.merge l').paramOff = _
+      apply SortedAssocList.ext (hl.merge hl').paramOff_wf hl'.paramOff_wf
+      intro k
+      rw [FlattenedLevel.find?_paramOff_of_extra (hl.merge hl') (by simp [merge, *]),
+        FlattenedLevel.find?_paramOff_of_extra hl' ‹_›]
+      simp_all only [Nat.not_lt, List.nil_eq, reduceCtorEq, implies_true, eval,
+        Conditional.evalList_le_iff, List.not_mem_nil, Conditional.eval_le_iff, ne_eq, Nat.max_assoc,
+        false_implies, Nat.max_eq_left, merge, Nat.max_eq_right, List.append_nil,
+        evalAssocList_merge hl.paramOff_wf hl'.paramOff_wf, ite_eq_right_iff, Nat.add_eq_zero_iff,
+        Nat.succ_ne_self, and_true, not_imp, and_imp]
+      grind
+  termination_by
+    (Std.ExtTreeSet.ofList l.splitVars Name.quickCmp).size +
+      (Std.ExtTreeSet.ofList l'.splitVars Name.quickCmp).size
+  decreasing_by
+    · apply Nat.add_lt_add_of_lt_of_le
+      · apply termination_lt (splitVars_setZero hl)
+        · simp [splitVars, *]
+          simp [Conditional.splitVars, *]
+      · exact termination_le (splitVars_setZero hl')
+    · apply Nat.add_lt_add_of_lt_of_le
+      · apply termination_lt (splitVars_setNonzero hl)
+        · simp [splitVars, *]
+          simp [Conditional.splitVars, *]
+      · exact termination_le (splitVars_setNonzero hl')
+    · apply Nat.add_lt_add_of_le_of_lt
+      · exact termination_le (splitVars_setZero hl)
+      · apply termination_lt (splitVars_setZero hl')
+        · simp [splitVars, *]
+          simp [Conditional.splitVars, *]
+    · apply Nat.add_lt_add_of_le_of_lt
+      · exact termination_le (splitVars_setNonzero hl)
+      · apply termination_lt (splitVars_setNonzero hl')
+        · simp [splitVars, *]
+          simp [Conditional.splitVars, *]
+
 theorem Level.isEquivComplete_iff {l l' : Level} :
     l.flatten.beq l'.flatten ↔ l.eval = l'.eval := by
   simp [funext_iff, FlattenedLevel.beq_iff]
+
+theorem Level.geqComplete_iff {l l' : Level} :
+      l.flatten.le l'.flatten ↔ ∀ f, l.eval f ≤ l'.eval f := by
+  simp [FlattenedLevel.le_iff]

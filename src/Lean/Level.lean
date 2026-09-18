@@ -456,6 +456,18 @@ def SortedAssocList.erase {cmp : α → α → Ordering} (k : α) :
     | .eq => t
     | .gt => .cons k' v' (t.erase k)
 
+@[specialize]
+def SortedAssocList.le [LE β] [DecidableLE β] {cmp : α → α → Ordering} :
+    SortedAssocList α β cmp → SortedAssocList α β cmp → Bool
+  | .nil, _ => true
+  | _, .nil => false
+  | l@(.cons k v t), .cons k' v' t' =>
+    match cmp k k' with
+    | .lt => false
+    | .eq => v ≤ v' && t.le t'
+    | .gt => l.le t'
+termination_by l r => sizeOf l + sizeOf r
+
 inductive SortedSetNode (α : Type) (cmp : α → α → Ordering) : Type where
   | nil
   | cons (k : α) (t : SortedSetNode α cmp)
@@ -698,6 +710,20 @@ def FlattenedLevel.beq (l₁ l₂ : FlattenedLevel) : Bool := Id.run do
   return l₁.paramOff == l₂.paramOff
 partial_fixpoint
 
+def FlattenedLevel.le (l₁ l₂ : FlattenedLevel) : Bool := Id.run do
+  if l₂.constOff < l₁.constOff then
+    return false
+  if let a :: _ := l₁.extra then
+    let .cons cond _ := a.conds | unreachable!
+    return (setZero l₁ cond).le (setZero l₂ cond) &&
+      (setNonzero l₁ cond).le (setNonzero l₂ cond)
+  if let a :: _ := l₂.extra then
+    let .cons cond _ := a.conds | unreachable!
+    return (setZero l₁ cond).le (setZero l₂ cond) &&
+      (setNonzero l₁ cond).le (setNonzero l₂ cond)
+  return l₁.paramOff.le l₂.paramOff
+partial_fixpoint
+
 /--
 Return true if `u` and `v` denote the same level.
 Assumes that `u` and `v` don't contain meta-variables.
@@ -706,11 +732,9 @@ Assumes that `u` and `v` don't contain meta-variables.
 def isEquiv (u v : Level) : Bool :=
   u == v || (flatten u).beq (flatten v)
 
-@[inline]
-private def geqCore (u v : Level) : Bool :=
-  let fu := flatten u
-  let fv := flatten v
-  FlattenedLevel.beq fu (fu.merge fv)
+@[export lean_level_geq]
+def geq (u v : Level) : Bool :=
+  u == v || (flatten v).le (flatten u)
 
 
 /-- Reduce (if possible) universe level by 1 -/
@@ -922,28 +946,6 @@ def getParamSubst : List Name → List Level → Name → Option Level
 
 def instantiateParams (u : Level) (paramNames : List Name) (vs : List Level) : Level :=
   u.substParams (getParamSubst paramNames vs)
-
-@[export lean_level_geq]
-def geq (u v : Level) : Bool :=
-  u == v || go u.normalize v.normalize || geqCore u v
-where
-  go (u v : Level) : Bool :=
-    u == v ||
-    let k := fun () =>
-      match v with
-      | imax v₁ v₂ => go u v₁ && go u v₂
-      | _          =>
-        let v' := v.getLevelOffset
-        (u.getLevelOffset == v' || v'.isZero)
-        && u.getOffset ≥ v.getOffset
-    match u, v with
-    | _,          zero      => true
-    | u,          max v₁ v₂ => go u v₁ && go u v₂
-    | max u₁ u₂,  v         => go u₁ v || go u₂ v || k ()
-    | imax _  u₂, v         => go u₂ v
-    | succ u,     succ v    => go u v
-    | _,          _         => k ()
-  termination_by (u, v)
 
 end Level
 

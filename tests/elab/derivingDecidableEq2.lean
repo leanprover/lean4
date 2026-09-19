@@ -62,17 +62,10 @@ inductive Tyₛ : Type (u+1)
 | SPi : (T : Type u) -> (T -> Tyₛ) -> Tyₛ
 
 /--
-error: Tactic `cases` failed with a nested error:
-Dependent elimination failed: Failed to solve equation
-  A✝¹ arg✝¹ = A✝ arg✝
-at case `Tmₛ.app` after processing
-  _, (Tmₛ.app _ _ _ _), _
-the dependent pattern matcher can solve the following kinds of equations
-- <var> = <term> and <term> = <var>
-- <term> = <term> where the terms are definitionally equal
-- <constructor> = <constructor>, examples: List.cons x xs = List.cons y ys, and List.cons x xs = List.nil
----
-warning: unused `termination_by`, function is not recursive
+error: While deriving an instance, the following complex instance requirements were encountered that could not be synthesized:
+  [DecidableEq (Type u)] and [{T : Type u} → DecidableEq (T → Tyₛ)]
+
+Note: This usually indicates a missing instance that can be derived using `deriving instance ClassName for TypeName`. If this is however intentional, you can disable this error using `set_option deriving.strict false`
 -/
 #guard_msgs(pass trace, all) in
 inductive Tmₛ.{u} :  Tyₛ.{u} -> Type (u+1)
@@ -106,3 +99,6 @@ deriving DecidableEq
 #guard_msgs in
 #with_exporting
 #reduce fun (a : PrivField2) => decEq a a
+
+set_option pp.all true
+#print Nat.add

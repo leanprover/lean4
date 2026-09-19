@@ -23,8 +23,8 @@ def Lean.mkInstanceNameOfType (type : Expr) : TermElabM Name := do
     return name
 
 def Lean.mkInstance (name : Name) (levelParams : List Name) (type value : Expr)
-    (isMeta : Bool) (compile : Bool := true) (prio : Nat := eval_prio default) :
-    TermElabM Unit := do
+    (isMeta : Bool) (compile : Bool := true) (attrKind : AttributeKind := .global)
+    (prio : Nat := eval_prio default) : TermElabM Unit := do
   let env ← getEnv
   let isUnsafe := env.hasUnsafe type || env.hasUnsafe value
   let isProp ← isProp type
@@ -51,7 +51,7 @@ def Lean.mkInstance (name : Name) (levelParams : List Name) (type value : Expr)
     addDecl decl
   unless isProp do
     setReducibilityStatus name .instanceReducible
-  addInstance name (if isPrivateName name then .local else .global) prio
+  addInstance name attrKind prio
   if isMeta && !isProp then
     modifyEnv (markMeta · name)
   unless isProp do
@@ -186,6 +186,27 @@ private def goodHypothesisKeys (keys : Array DiscrTree.Key) (env : Environment) 
     | .const nm _ => isIgnoredConstant nm env
     | _ => false
 
+inductive CanonicalInstanceFailure where
+  | nonUnique (matching filtered : Array InstanceEntry)
+  | unifyFailed (instEntry : InstanceEntry)
+  | hasMVars (instEntry : InstanceEntry) (e : Expr) (isArg : Bool)
+deriving Inhabited
+
+def CanonicalInstanceFailure.toMessageData : CanonicalInstanceFailure → MessageData
+  | .nonUnique matching filtered =>
+    if matching.isEmpty then
+      "No matching instances"
+    else if filtered.isEmpty then
+      m!"The instance(s) {.andList (matching.map (·.val)).toList} matched but none of them \
+        had the right shape to be considered"
+    else
+      m!"There were multiple instance candidates: {.andList (filtered.map (·.val)).toList}"
+  | .unifyFailed instEntry => m!"Failed to unify conclusion of {instEntry.val}"
+  | .hasMVars instEntry e isArg =>
+    m!"After unifying with the conclusion of {instEntry.val}, \
+      the {if isArg then "argument" else "instance application"}{indentExpr e}\n\
+      still contained unexpected {if e.hasLevelMVar then "level " else ""}metavariables"
+
 /--
 Given an instance type `instType`, try to apply a canonical instance, producing new instance
 hypotheses as synthetic opaque metavariables.
@@ -200,20 +221,17 @@ discrimination tree keys (forall and constants except `Eq` because of `Decidable
 we only try an instance if it is the only one with "good keys".
 -/
 def tryApplyCanonicalInstance (instType : Expr) :
-    MetaM (Option (Expr × Array (MVarId × Bool))) := do
+    MetaM (Except CanonicalInstanceFailure (Expr × Array (MVarId × Bool))) := do
   let lctx ← getLCtx
   let linsts ← getLocalInstances
   forallTelescopeReducing (whnfType := true) instType fun vars body => do
     -- try to apply instance
-    trace[Elab.Deriving] "Trying to reduce {body}"
     let instances ← getGlobalInstancesIndex
     let matching ← instances.getUnify body
-    trace[Elab.Deriving] "Instances: {matching}"
     let env ← getEnv
-    let matching := matching.filter fun inst => goodKeys inst.keys env
-    trace[Elab.Deriving] "Good instances: {matching}"
-    let #[instEntry] := matching | return none
-    let some name := instEntry.globalName? | return none
+    let filtered := matching.filter fun inst => goodKeys inst.keys env && inst.globalName?.isSome
+    let #[instEntry] := filtered | return .error (.nonUnique matching filtered)
+    let some name := instEntry.globalName? | unreachable!
     let c ← mkConstWithFreshMVarLevels name
     let (args, bis, instBody) ← forallMetaTelescopeReducing (← inferType c)
     let mut outVars := #[]
@@ -234,28 +252,24 @@ def tryApplyCanonicalInstance (instType : Expr) :
           let mvarApp ← mkFreshRevertedMVarAt argType lctx linsts
           arg.mvarId!.assign mvarApp
           newMVar := mvarApp.getAppFn.mvarId!
-        trace[Elab.Deriving] "Hypothesis keys {keys} for {arg}"
         outVars := outVars.push (newMVar, goodHypothesisKeys keys env)
     unless ← isDefEqI instBody body do
-      trace[Elab.Deriving] "Failed to unify"
-      return none
+      return .error (.unifyFailed instEntry)
     let c ← instantiateMVars c
     if c.hasLevelMVar then
-      trace[Elab.Deriving] "Remaining level metavariables in {c}"
-      return none
+      return .error (.hasMVars instEntry c (isArg := false))
     let mctx ← getMCtx
     let mut res := c
     for arg in args do
       let arg ← instantiateMVars arg
       -- all metavariables that were there before should be synthetic opaque
       if arg.hasLevelMVar then
-        trace[Elab.Deriving] "Remaining level metavariables in {arg}"
-        return none
+        return .error (.hasMVars instEntry c (isArg := true))
       if arg.hasAnyMVar (fun m => !(mctx.getDecl m).kind.isSyntheticOpaque) then
-        trace[Elab.Deriving] "Remaining metavariables in {arg}"
-        return none
+        return .error (.hasMVars instEntry c (isArg := true))
       res := res.app arg
-    return some (← mkLambdaFVars vars res, outVars)
+    trace[Elab.Deriving] "Result: {res}, {outVars}"
+    return .ok (← mkLambdaFVars vars res, outVars)
 
 structure Deriving.State where
   instanceMVars : Array MVarId := #[]
@@ -264,6 +278,7 @@ structure Deriving.State where
   invariant1 : instanceMVars.size = newLInsts.size := by rfl
   invariant2 (i : Nat) (hi : i < newLInsts.size) :
     newLInsts[i].fvar = .mvar instanceMVars[i] := by nofun
+  splitFailures : Array (MVarId × CanonicalInstanceFailure) := #[]
 
 structure Deriving.Context where
   /-- Level parameters for the instances -/
@@ -361,16 +376,21 @@ private partial def synthInstanceDerivingAux (type : Expr)
   let mctx ← getMCtx
   -- try reducing e.g. `BEq (List α)` to `BEq α`
   let res ← tryApplyCanonicalInstance type
-  if let some (assignment, outVars) := res then
+  match res with
+  | .ok (assignment, outVars) =>
     for (var, allow) in outVars do
       let res ← synthInstanceDerivingAux (← var.getType) allow
       var.assign res
     instantiateMVars assignment
-  else
+  | .error e =>
     if ← containsRecursiveDecl type then
-      throwError "Got stuck at instance requirement for nested type:{indentExpr type}"
+      throwError "Got stuck at instance requirement for nested type:{indentExpr type}\n\
+        Reason: {e.toMessageData}"
     setMCtx mctx
-    pushInstanceHypothesis type className
+    let res ← pushInstanceHypothesis type className
+    let mvar := res.getAppFn.mvarId!
+    modify fun state => { state with splitFailures := state.splitFailures.push (mvar, e) }
+    return res
 
 def synthInstanceDeriving (e : Expr) : DerivingM Expr := do
   withLCtx (← getLCtx) ((← getLocalInstances) ++ (← get).newLInsts) do
@@ -432,21 +452,27 @@ private def filterInstanceObligations (state : Deriving.State) : MetaM (Array MV
   return newMVars
 
 private def checkInstanceHypotheses (instanceHyps : Array MVarId) : DerivingM Unit := do
-  let mut complexHyps := #[]
+  let mut complexHyps : Array (Expr × Option CanonicalInstanceFailure) := #[]
   for mvar in instanceHyps do
     let type ← mvar.getType
     withReducible do←
     forallTelescopeReducing type (whnfType := true) fun _ body => do←
       let path ← DiscrTree.mkPath body
       unless goodHypothesisKeys path (← getEnv) do
-        complexHyps := complexHyps.push type
+        let reason? := ((← get).splitFailures.find? (·.1 == mvar)).map (·.2)
+        complexHyps := complexHyps.push (type, reason?)
   unless complexHyps.isEmpty do
-    let note := .note m!"This usually indicates a missing instance that can be derived using \
+    let mut msg := m!"While deriving an instance, the following complex instance requirements \
+      were encountered that could not be synthesized:"
+    for (type, reason?) in complexHyps do
+      if let some reason := reason? then
+        msg := msg ++ indentD (type ++ ", reason: " ++ reason.toMessageData)
+      else
+        msg := msg ++ indentD type
+    msg := msg ++ .note m!"This usually indicates a missing instance that can be derived using \
       `deriving instance ClassName for TypeName`. If this is however intentional, you can disable \
       this error using `set_option deriving.strict false`"
-    throwError "While deriving an instance, the following complex instance requirements \
-      were encountered that could not be synthesized:\
-      {indentD (.andList (complexHyps.toList.map (m!"[{·}]")))}{note}"
+    throwError msg
 
 def produceInstanceHyps : DerivingM (Array Expr) := do
   let filtered ← withLCtx (← read).paramLCtx (← read).paramLInsts do

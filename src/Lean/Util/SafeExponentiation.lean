@@ -35,4 +35,14 @@ def checkExponent (n : Nat) (warning := true) : CoreM Bool := do
   else
     return true
 
+/--
+Returns `true` if the runtime can evaluate the natural number shift `a <<< b`.
+
+`Nat.shiftLeft` aborts the whole process ("Nat.shiftl exponent is too big") when `a ≠ 0` and `b`
+does not fit in 32 bits. Procedures that evaluate shifts of literals during elaboration or
+compilation must leave the shift unevaluated in that case.
+-/
+def canEvalNatShiftLeft (a b : Nat) : Bool :=
+  a == 0 || b < UInt32.size
+
 end Lean

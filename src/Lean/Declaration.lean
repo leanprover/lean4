@@ -248,15 +248,15 @@ def Declaration.getNames : Declaration → List Name
 @[inline] def Declaration.forExprM {m : Type → Type} [Monad m] (d : Declaration) (f : Expr → m Unit) : m Unit :=
   d.foldExprM (fun _ a => f a) ()
 
-/-- The kernel compiles (mutual) inductive declarations (see `inductiveDecls`) into a set of
-    - `Declaration.inductDecl` (for each inductive datatype in the mutual Declaration),
-    - `Declaration.ctorDecl` (for each Constructor in the mutual Declaration),
-    - `Declaration.recDecl` (automatically generated recursors).
+/-- The kernel compiles (mutual) inductive declarations (see `Declaration.inductDecl`) into a set of
+    - `InductiveVal` (for each inductive datatype in the mutual declaration),
+    - `ConstructorVal` (for each constructor in the mutual declaration),
+    - `RecursorVal` (automatically generated recursors).
 
     This data is used to implement iota-reduction efficiently and compile nested inductive
     declarations.
 
-    A series of checks are performed by the kernel to check whether a `inductiveDecls`
+    A series of checks are performed by the kernel to check whether a `Declaration.inductDecl`
     is valid or not. -/
 structure InductiveVal extends ConstantVal where
   /-- Number of parameters. A parameter is an argument to the defined type that is fixed over constructors.
@@ -272,7 +272,7 @@ structure InductiveVal extends ConstantVal where
   An example of this is the `n : Nat` argument in the vector constructor `cons : α → Vector α n → Vector α (n+1)`.
   -/
   numIndices : Nat
-  /-- List of all (including this one) inductive datatypes in the mutual declaration containing this one -/
+  /-- List of all (including this one) inductive datatypes in the mutual declaration containing this one. -/
   all : List Name
   /-- List of the names of the constructors for this inductive datatype. -/
   ctors : List Name

@@ -478,8 +478,7 @@ def addAnswer (cNode : ConsumerNode) : SynthM Unit := do
     let key := cNode.key
     let { waiters, answers } ← getEntry key
     if isNewAnswer answers answer then
-      let newEntry := { waiters, answers := answers.push answer }
-      modify fun s => { s with tableEntries := s.tableEntries.insert key newEntry }
+      modify fun s => { s with tableEntries := s.tableEntries.modify key fun entry => { waiters, answers := entry.answers.push answer } }
       waiters.forM (wakeUp answer)
 
 /--
@@ -578,11 +577,11 @@ def consume (cNode : ConsumerNode) : SynthM Unit := do
            modify fun s =>
              { s with
                resumeStack  := answers'.foldl (fun s answer => s.push (cNode, answer)) s.resumeStack,
-               tableEntries := s.tableEntries.insert key' { entry' with waiters := entry'.waiters.push waiter } }
+               tableEntries := s.tableEntries.modify key' fun entry' => { entry' with waiters := entry'.waiters.push waiter } }
      | some entry => modify fun s =>
        { s with
          resumeStack  := entry.answers.foldl (fun s answer => s.push (cNode, answer)) s.resumeStack,
-         tableEntries := s.tableEntries.insert key { entry with waiters := entry.waiters.push waiter } }
+         tableEntries := s.tableEntries.modify key fun entry => { entry with waiters := entry.waiters.push waiter } }
 
 def getTop : SynthM GeneratorNode :=
   return (← get).generatorStack.back!

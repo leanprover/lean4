@@ -67,7 +67,7 @@ are discarded, so entries reach the final environment only through the capture t
 `runFrontend`.
 -/
 elab "#inspect_cq_entries" : command => do
-  let tasks := (← get).codeQualityEntryTasks
+  let tasks := (← get).codeQualityEntryTasks.toArray
   let describe (e : CodeQualityLogEntry) : String :=
     s!"{(e.linter?.map toString).getD "_"}/{e.entry.name}"
   logInfo m!"per-command entry counts: {tasks.map (·.get.size)}"

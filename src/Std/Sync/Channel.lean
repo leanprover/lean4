@@ -506,7 +506,8 @@ private def close (ch : Bounded α) : EIO Error Unit := do
     let st ← get
     if st.closed then throw .alreadyClosed
     for consumer in st.consumers.toArray do consumer.resolve false
-    set { st with consumers := ∅, closed := true }
+    for producer in st.producers.toArray do producer.resolve false
+    set { st with consumers := ∅, producers := ∅, closed := true }
     return ()
 
 private def isClosed (ch : Bounded α) : BaseIO Bool :=
@@ -695,6 +696,8 @@ When a channel is closed:
 - no new values can be sent successfully anymore
 - all blocked consumers are resolved to `none` (as no new messages can be sent they will never
   resolve)
+- producers blocked on a full buffer fail with `Error.closed`; on a zero-capacity channel, a blocked
+  producer's value is instead one that can still be received
 - if there are already values waiting to be received they can still be received by subsequent `recv`
   calls
 -/

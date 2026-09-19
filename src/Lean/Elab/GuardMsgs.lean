@@ -210,6 +210,9 @@ def runAndCollectMessages (cmd : Syntax) : CommandElabM MessageLog := do
     let expected : String := (← dc?.mapM (getDocStringText ·)).getD ""
         |>.trimAscii |>.copy |> removeTrailingWhitespaceMarker
     let { whitespace, ordering, filterFn, reportPositions, substring } ← parseGuardMsgsSpec spec?
+    -- `elabCommandTopLevel` resets the message log. Preserve messages produced by an
+    -- enclosing `… in` command (e.g. `set_option` / `attribute`) so they are not wiped (#15196).
+    let savedMsgs := (← get).messages
     let msgs ← runAndCollectMessages cmd
     let mut toCheck : MessageLog := MessageLog.empty
     let mut toPassthrough : MessageLog := MessageLog.empty
@@ -235,11 +238,11 @@ def runAndCollectMessages (cmd : Syntax) : CommandElabM MessageLog := do
       -- Exact mode: check equality (after whitespace normalization)
       whitespace.apply expected == whitespace.apply res
     if passed then
-      -- Passed. Only put toPassthrough messages back on the message log
-      modify fun st => { st with messages := toPassthrough }
+      -- Passed. Keep outer messages and only add toPassthrough from the nested command.
+      modify fun st => { st with messages := savedMsgs ++ toPassthrough }
     else
-      -- Failed. Put all the messages back on the message log and add an error
-      modify fun st => { st with messages := msgs }
+      -- Failed. Keep outer messages, restore nested messages, and add our error below.
+      modify fun st => { st with messages := savedMsgs ++ msgs }
       let feedback :=
         if guard_msgs.diff.get (← getOptions) then
           let diff := Diff.diff (expected.split '\n').toStringArray (res.split '\n').toStringArray
@@ -286,6 +289,7 @@ def guardMsgsCodeAction : CommandCodeAction := fun _ _ _ node => do
 
 @[builtin_command_elab Lean.guardPanicCmd] def elabGuardPanic : CommandElab
   | `(command| #guard_panic in $cmd) => do
+    let savedMsgs := (← get).messages
     let msgs ← runAndCollectMessages cmd
     -- Check if any message contains "PANIC"
     let mut foundPanic := false
@@ -296,11 +300,11 @@ def guardMsgsCodeAction : CommandCodeAction := fun _ _ _ node => do
         foundPanic := true
         break
     if foundPanic then
-      -- Success - clear the messages so they don't appear
-      modify fun st => { st with messages := MessageLog.empty }
+      -- Success - clear nested messages so they don't appear, but keep outer ones
+      modify fun st => { st with messages := savedMsgs }
     else
-      -- Failed - put the messages back and add our error
-      modify fun st => { st with messages := msgs }
+      -- Failed - put the nested messages back (after any outer ones) and add our error
+      modify fun st => { st with messages := savedMsgs ++ msgs }
       logError "Expected a PANIC but none was found"
   | _ => throwUnsupportedSyntax
 

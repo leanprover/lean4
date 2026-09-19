@@ -106,7 +106,7 @@ def resetTraceState : m Unit :=
   opts.hasTrace && go (`trace ++ cls)
 where
   go (opt : Name) : Bool :=
-    if let some enabled := opts.get? opt then
+    if let some enabled := (opts.find? opt).bind KVMap.Value.ofDataValue? then
       enabled
     else if let .str parent _ := opt then
       inherited.contains opt && go parent
@@ -116,7 +116,8 @@ where
 /-- Determine if tracing is available for a given class, checking ancestor classes if appropriate. -/
 @[inline]
 def isTracingEnabledFor (cls : Name) : m Bool := do
-  return checkTraceOption (← MonadTrace.getInheritedTraceOptions) (← getOptions) cls
+  -- unrestricted acquisition: trace collection cannot influence a cached resolution result
+  return checkTraceOption (← MonadTrace.getInheritedTraceOptions) (← getOptionsUnrestricted) cls
 
 @[export lean_is_trace_class_enabled]
 private def isTracingEnabledForExport (opts : Options) (cls : Name) : BaseIO Bool := do
@@ -211,7 +212,7 @@ True if the `trace.profiler` data should be retained for export - either to a fi
 that would otherwise consume the trace state as messages must leave it intact.
 -/
 @[inline] def trace.profiler.isExporting (opts : Options) : Bool :=
-  (trace.profiler.output.get? opts).isSome || trace.profiler.serve.get opts
+  (opts.find? trace.profiler.output.name).isSome || trace.profiler.serve.get opts
 
 register_builtin_option trace.profiler.output.pp : Bool := {
   defValue := false
@@ -332,7 +333,9 @@ The `cls`, `collapsed`, and `tag` arguments are forwarded to the constructor of 
 def withTraceNode [always : MonadAlwaysExcept ε m] [MonadLiftT BaseIO m]
     [ExceptToTraceResult ε α] (cls : Name)
     (msg : Except ε α → m MessageData) (k : m α) (collapsed := true) (tag := "") : m α := do
-  let opts ← getOptions
+  -- unrestricted acquisition here and in `postCallback`: trace and profiler collection cannot
+  -- influence a cached resolution result
+  let opts ← getOptionsUnrestricted
   if !opts.hasTrace then
     return (← k)
   let clsEnabled ← isTracingEnabledFor cls
@@ -415,7 +418,9 @@ TODO: find better name for this function.
 def withTraceNodeBefore [MonadRef m] [AddMessageContext m] [MonadOptions m]
     [always : MonadAlwaysExcept ε m] [MonadLiftT BaseIO m] [ExceptToTraceResult ε α] (cls : Name)
     (msg : Unit → m MessageData) (k : m α) (collapsed := true) (tag := "") : m α := do
-  let opts ← getOptions
+  -- unrestricted acquisition here and in `postCallback`: trace and profiler collection cannot
+  -- influence a cached resolution result
+  let opts ← getOptionsUnrestricted
   if !opts.hasTrace then
     return (← k)
   let clsEnabled ← isTracingEnabledFor cls
@@ -445,7 +450,8 @@ where
     MonadExcept.ofExcept res
 
 def addTraceAsMessages [Monad m] [MonadRef m] [MonadLog m] [MonadTrace m] : m Unit := do
-  if trace.profiler.isExporting (← getOptions) then
+  -- unrestricted acquisition: profiler collection cannot influence a cached resolution result
+  if trace.profiler.isExporting (← getOptionsUnrestricted) then
     -- do not add trace messages if the profile is being exported (`trace.profiler.output` or
     -- `trace.profiler.serve`) as it would be redundant, pretty printing the trace messages is
     -- expensive, and `getResetTraces` would consume the data we want to export

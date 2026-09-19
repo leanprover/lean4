@@ -38,7 +38,12 @@ structure State where
   traceState     : TraceState := {}
   snapshotTasks  : Array (Language.SnapshotTask Language.SnapshotTree) := #[]
   prevLinterStates : Option (Task (Array LinterState)) := none
-  codeQualityEntryTasks : Array (Task (Array Linter.CodeQualityLogEntry)) := #[]
+  /--
+  Code quality entries logged by the linters of each command, merged into the final environment
+  by `runFrontend`. This is a `PersistentArray` because the state is captured by the tasks of
+  every command, so an `Array` would be copied in full on each push.
+  -/
+  codeQualityEntryTasks : PersistentArray (Task (Array Linter.CodeQualityLogEntry)) := {}
   deriving Nonempty
 
 structure Context where
@@ -532,14 +537,14 @@ def logSnapshotTask (task : Language.SnapshotTask Language.SnapshotTree) : Comma
   modify fun s => { s with snapshotTasks := s.snapshotTasks.push task }
 
 open Language in
-def runLintersAsync (stx : Syntax) (cmds : Array Syntax) : CommandElabM Unit := do
+def runLintersAsync (stx : Syntax) (cmds : PersistentArray Syntax) : CommandElabM Unit := do
   let lintersCodeQualityEntriesPromise ← IO.Promise.new (α := Array Linter.CodeQualityLogEntry)
   let moduleLintersCodeQualityEntriesPromise ← IO.Promise.new (α := Array Linter.CodeQualityLogEntry)
   if !Elab.async.get (← getOptions) then
     withoutModifyingEnv do
       runLinters stx (codeQualityEntriesPromise? := lintersCodeQualityEntriesPromise)
       if Parser.isTerminalCommand stx then
-        runModuleLinters cmds moduleLintersCodeQualityEntriesPromise
+        runModuleLinters cmds.toArray moduleLintersCodeQualityEntriesPromise
       modify fun s => { s with codeQualityEntryTasks :=
         s.codeQualityEntryTasks
                         |>.push (lintersCodeQualityEntriesPromise.resultD #[])
@@ -569,7 +574,7 @@ def runLintersAsync (stx : Syntax) (cmds : Array Syntax) : CommandElabM Unit := 
     if Parser.isTerminalCommand stx then
         -- TODO: support code actions in module linters
         -- Currently, code actions provided by terminal command are ignored
-        runModuleLinters cmds
+        runModuleLinters cmds.toArray
 
   let task ← BaseIO.bindTask (sync := true) (t := (← getInfoState).substituteLazy) fun infoSt =>
     BaseIO.mapTask (t := treeTask) fun _ =>
@@ -879,9 +884,10 @@ private partial def recordUsedSyntaxKinds (stx : Syntax) : CommandElabM Unit := 
 
 /--
 `elabCommand` wrapper that should be used for the initial invocation, not for recursive calls after
-macro expansion etc.
+macro expansion etc. `cmds` holds the commands of the module elaborated so far; module linters
+receive them together with `stx` when `stx` is the terminal command.
 -/
-def elabCommandTopLevel (stx : Syntax) (cmds : Array Syntax := #[]) : CommandElabM Unit := withRef stx do profileitM Exception "elaboration" (← getOptions) do
+def elabCommandTopLevel (stx : Syntax) (cmds : PersistentArray Syntax := {}) : CommandElabM Unit := withRef stx do profileitM Exception "elaboration" (← getOptions) do
   withReader ({ · with suppressElabErrors :=
     stx.hasMissing && !showPartialSyntaxErrors.get (← getOptions) }) do
   -- initialize quotation context using hash of input string

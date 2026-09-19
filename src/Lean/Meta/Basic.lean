@@ -2830,6 +2830,9 @@ end PPContext
 Turns a `MetaM MessageData` into a `MessageData.lazy` which will run the monadic value.
 The optional array of expressions is used to set the `hasSyntheticSorry` fields, and should
 comprise the expressions that are included in the message data.
+
+Runs with the default `Meta.Config`. To preserve the caller’s configuration, capture it with
+`getConfig` and restore it inside `f` using `withConfig`.
 -/
 def MessageData.ofLazyM (f : MetaM MessageData) (es : Array Expr := #[]) : MessageData :=
   .lazy

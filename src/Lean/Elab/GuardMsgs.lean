@@ -284,15 +284,25 @@ def guardMsgsCodeAction : CommandCodeAction := fun _ _ _ node => do
       }
   }]
 
+/--
+True if `msg` looks like a real Lean panic report.
+
+`panic!` / `mkPanicMessage` always emit messages whose text contains the
+prefix `PANIC at ` (see `Init.Util`). A bare substring check for `PANIC`
+incorrectly treats ordinary errors that mention that identifier as panics
+and then clears the whole message log (#15117).
+-/
+private def isPanicMessage (msgStr : String) : Bool :=
+  msgStr.contains "PANIC at "
+
 @[builtin_command_elab Lean.guardPanicCmd] def elabGuardPanic : CommandElab
   | `(command| #guard_panic in $cmd) => do
     let msgs ← runAndCollectMessages cmd
-    -- Check if any message contains "PANIC"
     let mut foundPanic := false
     for msg in msgs.toList do
       if msg.isSilent then continue
       let msgStr ← msg.data.toString
-      if msgStr.contains "PANIC" then
+      if isPanicMessage msgStr then
         foundPanic := true
         break
     if foundPanic then

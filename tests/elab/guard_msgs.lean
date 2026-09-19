@@ -429,6 +429,17 @@ error: Expected a PANIC but none was found
 #guard_panic in
 run_cmd (panic! "this message should not appear" : Lean.Elab.Command.CommandElabM Unit)
 
+-- Regression for #15117: an ordinary error whose text mentions the identifier
+-- PANIC must not be treated as a panic, and must not clear the message log.
+/--
+error: Unknown identifier `PANIC`
+---
+error: Expected a PANIC but none was found
+-/
+#guard_msgs in
+#guard_panic in
+theorem guard_panic_not_ident : False := PANIC
+
 end GuardPanic
 
 section Substring

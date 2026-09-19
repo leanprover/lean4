@@ -1163,6 +1163,16 @@ bool type_checker::is_def_eq_core(expr const & t, expr const & s) {
     r = is_def_eq_proof_irrel(t_n, s_n);
     if (r != l_undef) return r == l_true;
 
+    /*
+      Try eta-expansion before delta-reduction, as `Meta.isDefEq` does.
+      Since the kernel has no metavariables, `(fun x => t) =?= s` holds iff `(fun x => t) =?= (fun x => s x)`,
+      so this cannot lose solutions, and it avoids unfolding `s` when the two sides differ only by eta.
+      Without it, `(fun x => f a x) =?= f a` delta-normalizes `f a` symbolically, which is exponential for
+      `f` a structural recursion over a tree (issue #14803).
+    */
+    if (try_eta_expansion(t_n, s_n))
+        return true;
+
     /* NB: `lazy_delta_reduction` updates `t_n` and `s_n` even when returning `l_undef`. */
     r = lazy_delta_reduction(t_n, s_n);
     if (r != l_undef) return r == l_true;
@@ -1191,6 +1201,7 @@ bool type_checker::is_def_eq_core(expr const & t, expr const & s) {
     if (is_def_eq_app(t_n, s_n))
         return true;
 
+    /* Retry: `lazy_delta_reduction` may have exposed a lambda on one of the sides. */
     if (try_eta_expansion(t_n, s_n))
         return true;
 

@@ -1113,20 +1113,19 @@ where
         else
           mod.buildLean presetup
   trackOutputsIfEnabled arts : JobM ModuleOutputArtifacts := do
-    if mod.pkg.isRoot then
-      if let some ref := (← getBuildContext).outputsRef? then
-        let inputHash := (← getTrace).hash
-        if let some ltar := arts.ltar? then
-          ref.insert inputHash ltar.descr
-          return arts
-        else
-          let ltar ← id do
-            if (← mod.ltarFile.pathExists) then
-              computeArtifact mod.ltarFile "ltar"
-            else
-              mod.packLtar arts
-          ref.insert inputHash ltar.descr (mod.platformIndependent.getD false)
-          return {arts with ltar? := some ltar}
+    if let some ref ← Internal.getOutputsRef? mod.pkg then
+      let inputHash := (← getTrace).hash
+      if let some ltar := arts.ltar? then
+        ref.insert inputHash ltar.descr
+        return arts
+      else
+        let ltar ← id do
+          if (← mod.ltarFile.pathExists) then
+            computeArtifact mod.ltarFile "ltar"
+          else
+            mod.packLtar arts
+        ref.insert inputHash ltar.descr (mod.platformIndependent.getD false)
+        return {arts with ltar? := some ltar}
     return arts
   adjustMTime arts : JobM ModuleOutputArtifacts := do
     match (← getMTime mod.traceFile |>.toBaseIO) with
@@ -1309,7 +1308,7 @@ def recComputeModuleLinkInfo
   let mut libJobs := #[]
   for facet in root.nativeFacets shouldExport do
     objJobs := objJobs.push <| ← facet.fetch root
-  let .ok imports _ ← (← root.transImports.fetch).wait
+  let some imports ← (← root.transImports.fetch).waitUnlessCanceled?
     | error s!"bad imports (see the '{root.name.toString}' job for details)"
   for mod in imports do
     for facet in mod.nativeFacets shouldExport do

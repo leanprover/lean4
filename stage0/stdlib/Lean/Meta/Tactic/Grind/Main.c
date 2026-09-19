@@ -27184,12 +27184,12 @@ v___x_9818_ = lean_apply_3(v_inst_9813_, lean_box(0), v___x_9817_, v___f_9816_);
 return v___x_9818_;
 }
 }
-LEAN_EXPORT lean_object* l_Lean_Meta_Grind_withProtectedMCtx___redArg___lam__3(lean_object* v___f_9819_, lean_object* v_mvarId_9820_){
+LEAN_EXPORT lean_object* l_Lean_Meta_Grind_withProtectedMCtx___redArg___lam__3(lean_object* v___f_9819_, lean_object* v_____x_9820_){
 _start:
 {
 lean_object* v___x_9821_; lean_object* v___x_9822_; 
 v___x_9821_ = lean_box(0);
-v___x_9822_ = lean_apply_2(v___f_9819_, v___x_9821_, v_mvarId_9820_);
+v___x_9822_ = lean_apply_2(v___f_9819_, v___x_9821_, v_____x_9820_);
 return v___x_9822_;
 }
 }

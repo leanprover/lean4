@@ -478,6 +478,14 @@ C function `sqrt`.
 @[extern "sqrt"] def Float.sqrt : Float → Float :=
   fun a => .ofModel a.toModel.sqrt
 /--
+Computes the fused multiply-add `x * y + z` of three floating-point numbers. This operation is performed with a single rounding, which can be more accurate than performing the multiplication and addition separately.
+
+This function has a logical model in terms of `Float.Model`. It is implemented in compiled code by
+the C function `fma`.
+-/
+@[extern "fma"] def Float.fma : Float → Float → Float → Float :=
+  fun x y z => .ofModel (x.toModel.fma y.toModel z.toModel)
+/--
 Computes the cube root of a floating-point number.
 
 This function does not reduce in the kernel. It is implemented in compiled code by the C function

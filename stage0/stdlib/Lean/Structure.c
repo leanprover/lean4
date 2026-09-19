@@ -1053,14 +1053,14 @@ return v___x_220_;
 else
 {
 lean_object* v___x_221_; lean_object* v___x_222_; lean_object* v___x_223_; uint8_t v___x_224_; 
-v___x_221_ = lean_unsigned_to_nat(1u);
-v___x_222_ = lean_nat_sub(v___x_218_, v___x_221_);
-v___x_223_ = lean_box(0);
-v___x_224_ = lean_nat_dec_le(v___x_217_, v___x_222_);
+v___x_221_ = lean_box(0);
+v___x_222_ = lean_unsigned_to_nat(1u);
+v___x_223_ = lean_nat_sub(v___x_218_, v___x_222_);
+v___x_224_ = lean_nat_dec_le(v___x_217_, v___x_223_);
 if (v___x_224_ == 0)
 {
-lean_dec(v___x_222_);
-return v___x_223_;
+lean_dec(v___x_223_);
+return v___x_221_;
 }
 else
 {
@@ -1072,14 +1072,14 @@ lean_inc(v_fieldName_225_);
 v___x_228_ = lean_alloc_ctor(0, 4, 1);
 lean_ctor_set(v___x_228_, 0, v_fieldName_225_);
 lean_ctor_set(v___x_228_, 1, v___x_226_);
-lean_ctor_set(v___x_228_, 2, v___x_223_);
-lean_ctor_set(v___x_228_, 3, v___x_223_);
+lean_ctor_set(v___x_228_, 2, v___x_221_);
+lean_ctor_set(v___x_228_, 3, v___x_221_);
 lean_ctor_set_uint8(v___x_228_, sizeof(void*)*4, v___x_227_);
-v___x_229_ = l_Array_binSearchAux___at___00Lean_StructureInfo_getProjFn_x3f_spec__0___redArg(v_fieldInfo_213_, v___x_228_, v___x_217_, v___x_222_);
+v___x_229_ = l_Array_binSearchAux___at___00Lean_StructureInfo_getProjFn_x3f_spec__0___redArg(v_fieldInfo_213_, v___x_228_, v___x_217_, v___x_223_);
 lean_dec_ref_known(v___x_228_, 4);
 if (lean_obj_tag(v___x_229_) == 0)
 {
-return v___x_223_;
+return v___x_221_;
 }
 else
 {

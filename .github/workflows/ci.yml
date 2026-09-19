@@ -349,7 +349,9 @@ jobs:
                 //   failures?
                 // * `kernelMaxRecDepth` stack-overflows in the interpreter.
                 // * `*bench` is too expensive to run with fsanitize (also can e.g. stack overflow).
-                "CTEST_OPTIONS": "-E 'StackOverflow|interactive|async_select_channel|9366|elab/grind|pkg/|lake/|kernelMaxRecDepth|bench/'"
+                // * elab/try_ is too slow because it needs to set up symbol frequency
+                // * treeMap2 is simply large and thus takes a lot of time
+                "CTEST_OPTIONS": "-E 'StackOverflow|interactive|async_select_channel|9366|elab/grind|pkg/|lake/|kernelMaxRecDepth|bench/|elab/try_|treeMap2'"
               },
               {
                 "name": "Linux tsanitize",
@@ -593,6 +595,6 @@ jobs:
       - name: Update toolchain on mathlib4's nightly-testing branch
         if: steps.mathlib-app-token.outcome == 'success'
         run: |
-          gh workflow -R leanprover-community/mathlib4-nightly-testing run nightly_bump_and_merge.yml
+          gh workflow -R leanprover-community/mathlib4-nightly-testing run nightly_bump_toolchain.yml
         env:
           GITHUB_TOKEN: ${{ steps.mathlib-app-token.outputs.token }}

@@ -3732,31 +3732,31 @@ return v___x_1090_;
 }
 else
 {
-lean_object* v___x_1091_; lean_object* v___x_1092_; uint8_t v___x_1093_; uint8_t v___x_1094_; 
-v___x_1091_ = lean_unsigned_to_nat(1u);
-v___x_1092_ = lean_nat_sub(v___x_1088_, v___x_1091_);
-v___x_1093_ = 1;
-v___x_1094_ = lean_nat_dec_le(v___x_1087_, v___x_1092_);
+uint8_t v___x_1091_; lean_object* v___x_1092_; lean_object* v___x_1093_; uint8_t v___x_1094_; 
+v___x_1091_ = 1;
+v___x_1092_ = lean_unsigned_to_nat(1u);
+v___x_1093_ = lean_nat_sub(v___x_1088_, v___x_1092_);
+v___x_1094_ = lean_nat_dec_le(v___x_1087_, v___x_1093_);
 if (v___x_1094_ == 0)
 {
-lean_dec(v___x_1092_);
+lean_dec(v___x_1093_);
 lean_dec_ref(v___x_1086_);
 lean_dec(v_declName_1063_);
-return v___x_1093_;
+return v___x_1091_;
 }
 else
 {
 lean_object* v___x_1095_; lean_object* v___x_1096_; lean_object* v___x_1097_; 
-v___x_1095_ = lean_box(v___x_1093_);
+v___x_1095_ = lean_box(v___x_1091_);
 v___x_1096_ = lean_alloc_ctor(0, 2, 0);
 lean_ctor_set(v___x_1096_, 0, v_declName_1063_);
 lean_ctor_set(v___x_1096_, 1, v___x_1095_);
-v___x_1097_ = l_Array_binSearchAux___at___00Lean_getReducibilityStatusCore_spec__1___redArg(v___x_1086_, v___x_1096_, v___x_1087_, v___x_1092_);
+v___x_1097_ = l_Array_binSearchAux___at___00Lean_getReducibilityStatusCore_spec__1___redArg(v___x_1086_, v___x_1096_, v___x_1087_, v___x_1093_);
 lean_dec_ref_known(v___x_1096_, 2);
 lean_dec_ref(v___x_1086_);
 if (lean_obj_tag(v___x_1097_) == 0)
 {
-return v___x_1093_;
+return v___x_1091_;
 }
 else
 {

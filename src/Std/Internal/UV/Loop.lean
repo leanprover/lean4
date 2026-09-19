@@ -34,7 +34,7 @@ structure Options where
 Configures the event loop with the specified options.
 -/
 @[extern "lean_uv_event_loop_configure"]
-opaque configure (options : Options) : BaseIO Unit
+opaque configure (options : @& Options) : IO Unit
 
 /--
 Checks if the event loop is still active and processing events.

@@ -4,7 +4,6 @@ Released under Apache 2.0 license as described in the file LICENSE.
 
 Author: Markus Himmel, Sofia Rodrigues
  */
-#include <pthread.h>
 #include "runtime/libuv.h"
 #include "runtime/object.h"
 

@@ -14,13 +14,12 @@ structure Counter where
 
 initialize counterLinter : StatefulLinter Counter Nat ←
   registerStatefulLinter (Counter.mk 0)
-    (pre := fun stx self _ =>
-      pure <| if Parser.isTerminalCommand stx then none else some (self.count + 1))
-    (post := fun _ self preState _ _ => do
-      match preState with
-      | some n =>
+    (run := fun stx prev => do
+      if Parser.isTerminalCommand stx then
+        return { final := prev }
+      else
+        let final := prev.count + 1
         -- brief sleep so an async→sync transition actually blocks the sync command here
         IO.sleep 20
-        logInfo m!"count: {n}"
-        pure { count := n }
-      | none => pure self)
+        logInfo m!"count: {final}"
+        return ⟨{ count := final }, final⟩)

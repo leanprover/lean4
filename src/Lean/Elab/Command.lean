@@ -21,9 +21,19 @@ namespace Lean.Elab.Command
 /--
 Opaque linter state. Similar to `EnvExtensionState` for environment extensions.
 -/
-opaque LinterStateSpec : (α : Type) × Inhabited α := ⟨Unit, ⟨()⟩⟩
-@[expose] def LinterState : Type := LinterStateSpec.fst
-instance : Inhabited LinterState := LinterStateSpec.snd
+opaque LinterStateSpec : (σ : Type) × (_τ : Type) × Inhabited σ := ⟨Unit, Unit, ⟨()⟩⟩
+@[expose] def LinterPersistentState : Type := LinterStateSpec.fst
+instance : Inhabited LinterPersistentState := LinterStateSpec.snd.snd
+@[expose] def LinterIntermediateState : Type := Option LinterStateSpec.snd.fst
+deriving Inhabited
+
+structure LinterResult σ τ where
+  final : σ
+  intermediate : Option τ := none
+deriving Inhabited
+
+@[expose] def LinterResultState := LinterResult LinterPersistentState LinterIntermediateState
+deriving Inhabited
 
 structure State where
   env            : Environment
@@ -37,7 +47,7 @@ structure State where
   infoState      : InfoState := {}
   traceState     : TraceState := {}
   snapshotTasks  : Array (Language.SnapshotTask Language.SnapshotTree) := #[]
-  prevLinterStates : Option (Task (Array LinterState)) := none
+  prevLinterStates : Option (Task (Array LinterPersistentState)) := none
   codeQualityEntryTasks : Array (Task (Array Linter.CodeQualityLogEntry)) := #[]
   deriving Nonempty
 
@@ -85,33 +95,44 @@ A handle to a registered stateful linter, returned by `registerStatefulLinter`.
 -/
 structure StatefulLinter (σ τ : Type) where private mk ::
   private idx : Nat
+  /-- The declaration name of the stateful linter, used in debugging. -/
+  name : Name
 deriving Inhabited
 
 /-- The type-erased registry entry for a stateful linter. -/
 structure StatefulLinterEntry where
-  init : LinterState
-  pre  : Syntax → (prev : Array LinterState) → CommandElabM (Option LinterState)
-  post : Syntax → (prev : Array LinterState) → (preSt : Array (Option LinterState)) → CommandElabM LinterState
+  name : Name
+  init : LinterPersistentState
+  run  : Syntax →
+    (prevs : Array LinterPersistentState) →
+    (results : Array LinterResultState) →
+    CommandElabM LinterResultState
 
 namespace StatefulLinter
 
-private unsafe def prevStateImpl [Inhabited σ] (l : StatefulLinter σ τ) (prev : Array LinterState) : σ :=
+private unsafe def prevStateImpl (init : σ) (l : StatefulLinter σ τ) (prev : Array LinterPersistentState) : σ :=
+  letI : Inhabited σ := ⟨init⟩
   unsafeCast prev[l.idx]!
 @[implemented_by prevStateImpl]
-opaque prevState [Inhabited σ] (l : StatefulLinter σ τ) (prev : Array LinterState) : σ
+opaque prevState (init : σ) (l : StatefulLinter σ τ) (prev : Array LinterPersistentState) :
+    σ := init
 
-private unsafe def preStateImpl (l : StatefulLinter σ τ) (preSt : Array (Option LinterState)) : Option τ :=
-  (preSt[l.idx]!).map unsafeCast
-@[implemented_by preStateImpl]
-opaque preState (l : StatefulLinter σ τ) (preSt : Array (Option LinterState)) : Option τ
+private unsafe def resultStateImpl (l : StatefulLinter σ τ) (init : σ)
+    (results : Array LinterResultState) : LinterResult σ τ :=
+  letI : Inhabited (LinterResult σ τ) := ⟨init, none⟩
+  unsafeCast results[l.idx]!
+@[implemented_by resultStateImpl]
+opaque resultState (l : StatefulLinter σ τ) (init : σ)
+    (results : Array LinterResultState) :
+  LinterResult σ τ := ⟨init, none⟩
 
 end StatefulLinter
 
 /-- A typed accessor to a linter's previous state. -/
-abbrev PrevStateFn := {σ τ : Type} → [Inhabited σ] → StatefulLinter σ τ → σ
+abbrev PrevStateFn := {σ τ : Type} → StatefulLinter σ τ → σ
 
-/-- A typed accessor to a linter's pre-phase output. -/
-abbrev PreStateFn := {σ τ : Type} → StatefulLinter σ τ → Option τ
+/-- A typed accessor to a linter's intermediate state. -/
+abbrev ResultStateFn := {σ τ : Type} → StatefulLinter σ τ → LinterResult σ τ
 
 /-
 Make the compiler generate specialized `pure`/`bind` so we do not have to optimize through the
@@ -164,13 +185,34 @@ def addModuleLinter (l : ModuleLinter) : IO Unit := do
   let ls ← moduleLintersRef.get
   moduleLintersRef.set (ls.push l)
 
+class StateReader where
+  protected readPrev : PrevStateFn
+  protected readResult : ResultStateFn
+
+@[macro_inline, expose]
+def StatefulLinter.readResult (s : StatefulLinter σ τ) [StateReader] :=
+  StateReader.readResult s
+
+@[macro_inline, expose]
+def StatefulLinter.readIntermediate (s : StatefulLinter σ τ) [StateReader] :=
+  StateReader.readResult s |>.intermediate
+
+@[macro_inline, expose]
+def StatefulLinter.readFinal (s : StatefulLinter σ τ) [StateReader] :=
+  StateReader.readResult s |>.final
+
+@[macro_inline, expose]
+def StatefulLinter.readPrev (s : StatefulLinter σ τ) [StateReader] :=
+  StateReader.readPrev s
+
 /--
 Registers a stateful linter and returns its handle (used by other linters to read its state).
 Must be called during initialization.
 
 ### Lifecycle Phases
-* **`pre`**: Reads the previous command's persistant state (via `readPrevPostState`)
-and optionally outputs a pre-phase state (type `Option τ`).
+* **`pre`**: Reads the previous command's persistant state (via `readPrevPostState`) and the
+intermediate pre-phase state of any other stateful linter (via `readCurrentPreState`) and
+optionally outputs its own intermediate pre-phase state (type `Option τ`).
 * **`post`**: Reads the previous command's state and all current pre-phase outputs
 (via `readPrevPostState` and `readCurrentPreState`), then produces the new state (type `σ`)
 for the next command.
@@ -182,31 +224,35 @@ for the next command.
 `readCurrentPreState` closures that take typed handles of other linters.
 -/
 unsafe def registerStatefulLinterImpl (init : σ)
-    (pre  : Syntax → (selfPrevPostState : σ) → (readPrevPostState : PrevStateFn) → CommandElabM (Option τ) :=
-       fun _ _ _ => pure none)
-    (post : Syntax → (selfPrevPostState : σ) → (selfCurrentPreState : Option τ) →
-       (readPrevPostState : PrevStateFn) → (readCurrentPreState : PreStateFn) → CommandElabM σ) :
-    IO (StatefulLinter σ τ) := do
+    (run : Syntax → (selfPrevFinalState : σ) → [StateReader] → CommandElabM (LinterResult σ τ))
+    (name : Name := by exact decl_name%) : IO (StatefulLinter σ τ) := do
   unless (← initializing) do
     throw <| .userError "stateful linters can only be registered during initialization"
   let ls ← statefulLintersRef.get
   let idx := ls.size
   statefulLintersRef.set <| ls.push
-    { init := unsafeCast init
-      pre  := fun stx prev =>
-        (·.map unsafeCast) <$> pre stx (unsafeCast prev[idx]!) (fun l => l.prevState prev)
-      post := fun stx prev preSt =>
-        unsafeCast <$> post stx (unsafeCast prev[idx]!) ((preSt[idx]!).map unsafeCast)
-          (fun l => l.prevState prev) (fun l => l.preState preSt) }
-  return ⟨idx⟩
+    { name
+      init := unsafeCast init
+      run  := fun stx prevs results =>
+        letI : StateReader := {
+          readPrev l := l.prevState (unsafeCast init) prevs
+          readResult l := l.resultState (unsafeCast init) results
+        }
+        unsafeCast <$> run stx (unsafeCast prevs[idx]!) }
+  return { idx, name }
 
 @[inherit_doc registerStatefulLinterImpl, implemented_by registerStatefulLinterImpl]
 opaque registerStatefulLinter (init : σ)
-    (pre  : Syntax → (selfPrevPostState : σ) → (readPrevPostState : PrevStateFn) → CommandElabM (Option τ) :=
-       fun _ _ _ => pure none)
-    (post : Syntax → (selfPrevPostState : σ) → (selfCurrentPreState : Option τ) →
-       (readPrevPostState : PrevStateFn) → (readCurrentPreState : PreStateFn) → CommandElabM σ) :
+    (run : Syntax → (selfPrevFinalState : σ) → [StateReader] → CommandElabM (LinterResult σ τ))
+    (name : autoParam Name registerStatefulLinterImpl._auto_1) :
     IO (StatefulLinter σ τ)
+
+abbrev SimpleStatefulLinter σ := StatefulLinter σ Unit
+
+@[inline] def registerSimpleStatefulLinter (init : σ)
+    (run : Syntax → (selfPrevFinalState : σ) → [StateReader] → CommandElabM σ)
+    (name : Name := by exact decl_name%) : IO (SimpleStatefulLinter σ):=
+  registerStatefulLinter init (name := name) fun stx prev => return { final := ← run stx prev }
 
 instance : MonadInfoTree CommandElabM where
   getInfoState      := return (← get).infoState
@@ -405,20 +451,20 @@ def runModuleLinters (cmds : Array Syntax)
       if let some codeQualityEntriesPromise := codeQualityEntriesPromise? then
         codeQualityEntriesPromise.resolve (← producedCodeQualityEntries.get)
 
-def runStatefulLinters (stx : Syntax) (prev : Array LinterState)
+def runStatefulLinters (stx : Syntax) (prev : Array LinterPersistentState)
     (infoTreePromise? : Option (IO.Promise InfoTree) := .none)
     (codeQualityEntriesPromise? : Option (IO.Promise (Array Linter.CodeQualityLogEntry)) := .none)
-     : CommandElabM (Array LinterState) := do
+     : CommandElabM (Array LinterPersistentState) := do
   profileitM Exception "stateful linting" (← getOptions) do
     withTraceNode `Elab.lint (fun _ => return m!"running stateful linters") do
       let linters ← statefulLintersRef.get
       let producedInfoTrees ← IO.mkRef ({} : PersistentArray InfoTree)
       let producedCodeQualityEntries ← IO.mkRef (#[] : Array Linter.CodeQualityLogEntry)
-      let run {α : Type} (phase : String) (idx : Nat) (onError : CommandElabM α)
+      let run {α : Type} (idx : Nat) (name : Name) (onError : CommandElabM α)
           (act : CommandElabM α) : CommandElabM α :=
         withTraceNode `Elab.lint
-            (fun _ => return m!"running stateful linter #{idx} ({phase})")
-            (tag := toString idx) do
+            (fun _ => return m!"running stateful linter {.ofConstName name} (#{idx})")
+            (tag := toString name) do
           let savedState ← get
           let originalSize := savedState.infoState.trees.size
           try
@@ -426,7 +472,8 @@ def runStatefulLinters (stx : Syntax) (prev : Array LinterState)
           catch ex =>
             match ex with
             | .error ref msg =>
-              logException (.error ref m!"stateful linter #{idx} ({phase}) failed: {msg}")
+              logException (.error ref
+                m!"stateful linter {.ofConstName name} (#{idx}) failed:{indentD msg}")
             | .internal _ _ => logException ex
             onError
           finally
@@ -438,28 +485,23 @@ def runStatefulLinters (stx : Syntax) (prev : Array LinterState)
             modify fun s => { savedState with messages := s.messages, traceState := s.traceState }
             let oldStateSize := (Linter.codeQualityLogExt.getState (env := savedState.env)).size
             producedCodeQualityEntries.modify (· ++ newState.extract oldStateSize)
-      let mut preSt : Array (Option LinterState) := .emptyWithCapacity linters.size
+      let mut results : Array LinterResultState := .emptyWithCapacity linters.size
       let mut i := 0
       for l in linters do
-        preSt := preSt.push (← run "pre" i (pure none) (l.pre stx prev))
-        i := i + 1
-      let mut postSt : Array LinterState := .emptyWithCapacity linters.size
-      i := 0
-      for l in linters do
-        postSt := postSt.push (← run "post" i (pure prev[i]!) (l.post stx prev preSt))
-        i := i + 1
+        results := results.push (← run i l.name (pure ⟨prev[i]!, none⟩) (l.run stx prev results))
       if let some infoTreePromise := infoTreePromise? then
         if (← getInfoState).enabled then
           infoTreePromise.resolve <|
             mkLinterInfoGroupNode (← producedInfoTrees.get)
       if let some codeQualityEntriesPromise := codeQualityEntriesPromise? then
         codeQualityEntriesPromise.resolve (← producedCodeQualityEntries.get)
-      return postSt
+      return results.map (·.final)
 
-def initialLinterStates : BaseIO (Array LinterState) := do
+def initialLinterStates : BaseIO (Array LinterPersistentState) := do
   return (← statefulLintersRef.get).map (·.init)
 
-def prevLinterStatesTask : Option (Task (Array LinterState)) → BaseIO (Task (Array LinterState))
+def prevLinterStatesTask : Option (Task (Array LinterPersistentState)) →
+    BaseIO (Task (Array LinterPersistentState))
   | some prev => return prev
   | none      => return .pure (← initialLinterStates)
 
@@ -609,7 +651,7 @@ def runStatefulLintersAsync (stx : Syntax) : CommandElabM Unit := do
   let treeTask ← tree.waitAll
 
   let prevTask ← prevLinterStatesTask (← get).prevLinterStates
-  let statePromise ← IO.Promise.new (α := Array LinterState)
+  let statePromise ← IO.Promise.new (α := Array LinterPersistentState)
   let inits ← initialLinterStates
   modify fun s => { s with prevLinterStates := some (statePromise.resultD inits) }
 

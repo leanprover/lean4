@@ -48,8 +48,8 @@ initialize addLinter {
 }
 
 initialize
-  let _ ← registerStatefulLinter (τ := Unit) (0 : Nat)
-    (post := fun stx count _ _ _ => do
+  let _ ← registerSimpleStatefulLinter (0 : Nat)
+    (run := fun stx count => do
       let some n := declName? stx | return count
       let count := count + 1
       logCodeQualityEntryIf linter.cqTest {

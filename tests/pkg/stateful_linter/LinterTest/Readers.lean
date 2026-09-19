@@ -17,25 +17,70 @@ structure Counter where
 structure Payload where
   current : Nat
 
+inductive Tree where
+| node (name : String) (count : Nat) (sub : List Tree)
+
+def Tree.getCount : Tree → Nat
+  | .node _ count _ => count
+
+def Tree.toMessageData : Tree → MessageData
+  | .node name count sub =>
+    let sub := m!"{name} := {count}" :: sub.map fun t => m!"• {.nest 2 t.toMessageData}"
+    m!"\n".joinSep sub
+
+instance : ToMessageData Tree := ⟨(·.toMessageData)⟩
+
 /-- Registers a post-only linter that reports the count `emitter` staged this command, reading it
 through `emitter`'s handle. Its own handoff type is irrelevant, so `τ := Unit` and the handle is
 discarded (nobody reads this linter). -/
-def registerReader (emitter : StatefulLinter Counter Payload) (label : String) :
+def registerReader [ToMessageData α] (emitter : StatefulLinter Counter α) (label : String) :
     IO Unit := do
-  let _ ← registerStatefulLinter (τ := Unit) (Counter.mk 0)
-    (post := fun _ self _ _ readPre => do
-      if let some p := readPre emitter then
-        logInfo m!"{label} sees count {p.current}"
-      pure self)
+  let _ ← registerSimpleStatefulLinter (Counter.mk 0)
+    (run := fun _ prev => do
+      if let some p := emitter.readIntermediate then
+        logInfo m!"{label} sees\n{p}"
+      return prev)
 
-initialize emitter : StatefulLinter Counter Payload ←
+initialize emitter : StatefulLinter Counter Tree ←
   registerStatefulLinter (Counter.mk 0)
-    (pre := fun stx self _ =>
-      pure <| if Parser.isTerminalCommand stx then none else some { current := self.count + 1 })
-    (post := fun _ self preState _ _ =>
-      pure { count := (preState.map Payload.current).getD self.count })
+    (run := fun stx self => do
+      let intermediate ← if Parser.isTerminalCommand stx then pure none else
+        let count := self.count + 1
+        pure <| some <| .node "i" count []
+      let final := { count := (intermediate.map (·.getCount)).getD self.count + 1 }
+      return { final, intermediate })
+
+initialize emitter' : StatefulLinter Counter Tree ←
+  registerStatefulLinter (Counter.mk 0)
+    (run := fun stx self => do
+      let intermediate ← if Parser.isTerminalCommand stx then pure none else
+        let count := self.count + 10
+        let some readi := emitter.readIntermediate | pure none
+        let readFinali := emitter.readFinal
+        pure <| some <| .node "ii" count [readi, .node "fi" readFinali.count []]
+      let final := { count := (intermediate.map (·.getCount)).getD self.count + 10 }
+      return { final, intermediate })
+
+initialize emitter'' : StatefulLinter Counter Tree ←
+  registerStatefulLinter (Counter.mk 0)
+    (run := fun stx self => do
+      let intermediate ← if Parser.isTerminalCommand stx then pure none else
+        let count := self.count + 100
+        let some readi := emitter.readIntermediate | pure none
+        let some readii := emitter'.readIntermediate | pure none
+        let readFinali := emitter.readFinal
+        let readFinalii := emitter'.readFinal
+        pure <| some <| .node "iii" count [readii, .node "fii" readFinalii.count [], readi, .node "fi" readFinali.count []]
+      let final := { count := (intermediate.map (·.getCount)).getD self.count + 100 }
+      return { final, intermediate })
 
 initialize
-  registerReader emitter "reader A"
-  registerReader emitter "reader B"
-  registerReader emitter "reader C"
+  registerReader emitter "reader A(i)"
+  registerReader emitter "reader B(i)"
+  registerReader emitter "reader C(i)"
+  registerReader emitter' "reader A(ii)"
+  registerReader emitter' "reader B(ii)"
+  registerReader emitter' "reader C(ii)"
+  registerReader emitter'' "reader A(iii)"
+  registerReader emitter'' "reader B(iii)"
+  registerReader emitter'' "reader C(iii)"

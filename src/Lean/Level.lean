@@ -7,10 +7,16 @@ module
 
 prelude
 public import Init.Data.Array.QSort
+public import Lean.Data.PersistentHashMap
 public import Lean.Data.PersistentHashSet
 public import Lean.Hygiene
+public import Lean.Data.Name
+public import Lean.Data.Format
 public import Init.Data.Option.Coe
-import Init.Data.Nat.Internal.Linear
+public import Std.Data.TreeSet.Basic
+public import Std.Internal.Order.Basic
+public import Init.ByCases
+public import Init.Data.Nat.Internal.Linear
 
 public section
 
@@ -403,12 +409,333 @@ partial def normalize (l : Level) : Level :=
         addOffset (mkIMaxAux l₁ l₂) k
     | _ => unreachable!
 
+inductive SortedAssocList (α β : Type) (cmp : α → α → Ordering) where
+  | nil
+  | cons (k : α) (v : β) (t : SortedAssocList α β cmp)
+deriving Repr, BEq
+
+@[specialize]
+def SortedAssocList.insertMax [Max β] {cmp : α → α → Ordering} (k : α) (v : β) :
+    SortedAssocList α β cmp → SortedAssocList α β cmp
+  | .nil => .cons k v .nil
+  | a@(.cons k' v' t) =>
+    match cmp k k' with
+    | .lt => .cons k v a
+    | .eq => .cons k' (Max.max v v') t
+    | .gt => .cons k' v' (t.insertMax k v)
+
+@[specialize]
+def SortedAssocList.find? {cmp : α → α → Ordering} (k : α) :
+    SortedAssocList α β cmp → Option β
+  | .nil => none
+  | .cons k' v' t =>
+    match cmp k k' with
+    | .lt => none
+    | .eq => v'
+    | .gt => t.find? k
+
+@[specialize]
+def SortedAssocList.merge [Max β] {cmp : α → α → Ordering} :
+    SortedAssocList α β cmp → SortedAssocList α β cmp → SortedAssocList α β cmp
+  | .nil, x => x
+  | x, .nil => x
+  | l@(.cons k v t), r@(.cons k' v' t') =>
+    match cmp k k' with
+    | .lt => .cons k v <| merge t r
+    | .eq => .cons k (Max.max v v') <| merge t t'
+    | .gt => .cons k' v' <| merge l t'
+termination_by l r => sizeOf l + sizeOf r
+
+@[specialize]
+def SortedAssocList.erase {cmp : α → α → Ordering} (k : α) :
+    SortedAssocList α β cmp → SortedAssocList α β cmp
+  | .nil => .nil
+  | a@(.cons k' v' t) =>
+    match cmp k k' with
+    | .lt => a
+    | .eq => t
+    | .gt => .cons k' v' (t.erase k)
+
+@[specialize]
+def SortedAssocList.le [LE β] [DecidableLE β] {cmp : α → α → Ordering} :
+    SortedAssocList α β cmp → SortedAssocList α β cmp → Bool
+  | .nil, _ => true
+  | _, .nil => false
+  | l@(.cons k v t), .cons k' v' t' =>
+    match cmp k k' with
+    | .lt => false
+    | .eq => v ≤ v' && t.le t'
+    | .gt => l.le t'
+termination_by l r => sizeOf l + sizeOf r
+
+inductive SortedSetNode (α : Type) (cmp : α → α → Ordering) : Type where
+  | nil
+  | cons (k : α) (t : SortedSetNode α cmp)
+deriving Repr, BEq
+
+inductive SortedSet (α : Type) (cmp : α → α → Ordering) where
+  | nil
+  | cons (k : α) (t : SortedSetNode α cmp)
+  | never
+deriving Repr, BEq
+
+@[grind =]
+def SortedSetNode.toList {cmp : α → α → Ordering} :
+    SortedSetNode α cmp → List α
+  | .nil => []
+  | .cons k t => k :: t.toList
+
+@[grind =]
+def SortedSet.toList? {cmp : α → α → Ordering} :
+    SortedSet α cmp → Option (List α)
+  | .nil => some []
+  | .cons k t => some <| k :: t.toList
+  | .never => none
+
+attribute [simp] SortedSetNode.toList
+attribute [simp] SortedSet.toList?.eq_1 SortedSet.toList?.eq_2 SortedSet.toList?.eq_3
+
+@[specialize]
+def SortedSetNode.insert {cmp : α → α → Ordering} (k : α) :
+    SortedSetNode α cmp → SortedSetNode α cmp
+  | .nil => .cons k .nil
+  | a@(.cons k' t) =>
+    match cmp k k' with
+    | .lt => .cons k a
+    | .eq => .cons k' t
+    | .gt => .cons k' (t.insert k)
+
+@[specialize]
+def SortedSet.insert {cmp : α → α → Ordering} (k : α) :
+    SortedSet α cmp → SortedSet α cmp
+  | .never => .never
+  | .nil => .cons k .nil
+  | .cons k' t =>
+    match cmp k k' with
+    | .lt => .cons k (.cons k' t)
+    | .eq => .cons k' t
+    | .gt => .cons k' (t.insert k)
+
+
+@[specialize]
+def SortedSetNode.contains {cmp : α → α → Ordering} (k : α) :
+    SortedSetNode α cmp → Bool
+  | .nil => false
+  | .cons k' t =>
+    match cmp k k' with
+    | .lt => false
+    | .eq => true
+    | .gt => t.contains k
+
+@[specialize]
+def SortedSetNode.erase {cmp : α → α → Ordering} (k : α) :
+    SortedSetNode α cmp → SortedSetNode α cmp
+  | .nil => .nil
+  | a@(.cons k' t) =>
+    match cmp k k' with
+    | .lt => a
+    | .eq => t
+    | .gt => .cons k' (t.erase k)
+
+@[specialize]
+def SortedSetNode.merge {cmp : α → α → Ordering}:
+    SortedSetNode α cmp → SortedSetNode α cmp → SortedSetNode α cmp
+  | .nil, x => x
+  | x, .nil => x
+  | l@(.cons k t), r@(.cons k' t') =>
+    match cmp k k' with
+    | .lt => .cons k <| merge t r
+    | .eq => .cons k <| merge t t'
+    | .gt => .cons k' <| merge l t'
+termination_by l r => sizeOf l + sizeOf r
+
+@[specialize]
+def SortedSet.merge {cmp : α → α → Ordering} :
+    SortedSet α cmp → SortedSet α cmp → SortedSet α cmp
+  | .never, _ => .never
+  | _, .never => .never
+  | .nil, x => x
+  | x, .nil => x
+  | .cons k t, .cons k' t' =>
+    match cmp k k' with
+    | .lt => .cons k <| t.merge (.cons k' t')
+    | .eq => .cons k <| t.merge t'
+    | .gt => .cons k' <| SortedSetNode.merge (.cons k t) t'
+
+mutual
+
+structure Conditional where
+  level : FlattenedLevel
+  conds : SortedSetNode Name Name.quickCmp
+deriving Repr
+
+structure FlattenedLevel where
+  constOff : Nat := 0
+  paramOff : SortedAssocList Name Nat Name.quickCmp := .nil
+  extra : List Conditional := []
+deriving Repr
+
+end
+
+@[inline]
+def FlattenedLevel.addExtra (x : FlattenedLevel) (extra : Conditional) : FlattenedLevel :=
+  { x with extra := extra :: x.extra }
+
+@[inline]
+def FlattenedLevel.addParam (x : FlattenedLevel) (nm : Name) (off : Nat) : FlattenedLevel :=
+  { x with paramOff := x.paramOff.insertMax nm off }
+
+def flattenAux (l : Level) (off : Nat) (acc : FlattenedLevel)
+    (zc : SortedSet Name Name.quickCmp) : FlattenedLevel × SortedSet Name Name.quickCmp :=
+  match l with
+  | .zero => (acc, zc)
+  | .succ l' =>
+    if acc.constOff ≤ off then
+      flattenAux l' (off + 1) { acc with constOff := off + 1 } .never
+    else
+      flattenAux l' (off + 1) acc .never
+  | .max l₁ l₂ =>
+    let (acc, zc) := flattenAux l₁ off acc zc
+    flattenAux l₂ off acc zc
+  | .imax l₁ l₂ =>
+    let (acc, zc') := flattenAux l₂ off acc .nil
+    match zc' with
+    | .never => flattenAux l₁ off acc (zc.merge zc')
+    | .nil => (acc, zc)
+    | .cons k t =>
+      (acc.addExtra ⟨(flattenAux l₁ off { constOff := off } .never).1, .cons k t⟩, zc.merge zc')
+  | .param p | .mvar ⟨p⟩ => (acc.addParam p off, zc.insert p)
+
+def flatten (l : Level) : FlattenedLevel :=
+  (flattenAux l 0 {} .never).1
+
+def FlattenedLevel.merge (l l' : FlattenedLevel) : FlattenedLevel :=
+  { l with
+    constOff := l.constOff.max l'.constOff,
+    paramOff := l.paramOff.merge l'.paramOff,
+    extra := l.extra ++ l'.extra }
+
+def FlattenedLevel.setZero (l : FlattenedLevel) (key : Name) : FlattenedLevel :=
+  go [] l.extra
+termination_by sizeOf l
+decreasing_by cases l; decreasing_tactic
+where
+  go (newExtra : List Conditional) : List Conditional → FlattenedLevel
+    | [] =>
+      let l := { l with paramOff := l.paramOff.erase key }
+      { l with extra := newExtra }
+    | ⟨l', c⟩ :: tail =>
+      let c := c.erase key
+      match c with
+      | .nil => go newExtra tail
+      | _ =>
+        let l' := setZero l' key
+        go (⟨l', c⟩ :: newExtra) tail
+  termination_by l => sizeOf l
+
+def FlattenedLevel.setNonzero (l : FlattenedLevel) (key : Name) : FlattenedLevel :=
+  let l :=
+    match l.paramOff.find? key with
+    | none => l
+    | some off => { l with constOff := Max.max l.constOff (off + 1) }
+  go { l with extra := [] } l.extra
+termination_by sizeOf l
+decreasing_by rename_i l'; cases l'; split <;> simp +arith
+where
+  go (l : FlattenedLevel) : List Conditional → FlattenedLevel
+    | [] => l
+    | ⟨l', c⟩ :: tail =>
+      let l' := setNonzero l' key
+      if c.contains key then
+        go (l.merge l') tail
+      else
+        go (l.addExtra ⟨l', c⟩) tail
+  termination_by l => sizeOf l
+
+open Lean Order
+
+instance : Lean.Order.PartialOrder Bool where
+  rel a b := a → b
+  rel_refl := by decide
+  rel_trans := by decide
+  rel_antisymm := by decide
+
+noncomputable instance : Lean.Order.CCPO Bool where
+  has_csup {p} hp := by
+    by_cases h : p true
+    · exists true
+      simp [Lean.Order.is_sup, Lean.Order.PartialOrder.rel, h]
+    · exists false
+      simp [Lean.Order.is_sup, Lean.Order.PartialOrder.rel, h]
+
+@[partial_fixpoint_monotone]
+theorem monotone_and [Lean.Order.PartialOrder α] {f₁ f₂ : α → Bool}
+    (h₁ : Lean.Order.monotone f₁) (h₂ : Lean.Order.monotone f₂) :
+    Lean.Order.monotone fun x => f₁ x && f₂ x := by
+  intro a b h
+  simp only [Lean.Order.PartialOrder.rel, Bool.and_eq_true]
+  intro ⟨ha, hb⟩
+  exact ⟨h₁ a b h ha, h₂ a b h hb⟩
+
+instance [inst : PartialOrder α] : PartialOrder (Id α) := inst
+instance [inst : CCPO α] : CCPO (Id α) := inst
+
+@[partial_fixpoint_monotone]
+theorem Id.monotone_bind_right [PartialOrder β] [PartialOrder γ]
+    (x : Id α) (f : γ → α → Id β) (h : monotone f) :
+    monotone fun a => x >>= f a :=
+  monotone_apply _ _ h
+
+@[partial_fixpoint_monotone]
+theorem Id.monotone_run [PartialOrder α] [PartialOrder β]
+    (f : β → Id α) (h : monotone f) :
+    monotone fun a => Id.run (f a) := h
+
+@[partial_fixpoint_monotone]
+theorem Id.monotone_pure [PartialOrder α] [PartialOrder β]
+    (f : β → α) (h : monotone f) :
+    monotone fun a => (pure (f a) : Id α) := h
+
+def FlattenedLevel.beq (l₁ l₂ : FlattenedLevel) : Bool := Id.run do
+  if l₁.constOff != l₂.constOff then
+    return false
+  if let a :: _ := l₁.extra then
+    let .cons cond _ := a.conds | unreachable!
+    return (setZero l₁ cond).beq (setZero l₂ cond) &&
+      (setNonzero l₁ cond).beq (setNonzero l₂ cond)
+  if let a :: _ := l₂.extra then
+    let .cons cond _ := a.conds | unreachable!
+    return (setZero l₁ cond).beq (setZero l₂ cond) &&
+      (setNonzero l₁ cond).beq (setNonzero l₂ cond)
+  return l₁.paramOff == l₂.paramOff
+partial_fixpoint
+
+def FlattenedLevel.le (l₁ l₂ : FlattenedLevel) : Bool := Id.run do
+  if l₂.constOff < l₁.constOff then
+    return false
+  if let a :: _ := l₁.extra then
+    let .cons cond _ := a.conds | unreachable!
+    return (setZero l₁ cond).le (setZero l₂ cond) &&
+      (setNonzero l₁ cond).le (setNonzero l₂ cond)
+  if let a :: _ := l₂.extra then
+    let .cons cond _ := a.conds | unreachable!
+    return (setZero l₁ cond).le (setZero l₂ cond) &&
+      (setNonzero l₁ cond).le (setNonzero l₂ cond)
+  return l₁.paramOff.le l₂.paramOff
+partial_fixpoint
+
 /--
 Return true if `u` and `v` denote the same level.
-Check is currently incomplete.
+Assumes that `u` and `v` don't contain meta-variables.
 -/
+@[export lean_level_is_equiv]
 def isEquiv (u v : Level) : Bool :=
-  u == v || u.normalize == v.normalize
+  u == v || (flatten u).beq (flatten v)
+
+@[export lean_level_geq]
+def geq (u v : Level) : Bool :=
+  u == v || (flatten v).le (flatten u)
+
 
 /-- Reduce (if possible) universe level by 1 -/
 def dec : Level → Option Level
@@ -619,27 +946,6 @@ def getParamSubst : List Name → List Level → Name → Option Level
 
 def instantiateParams (u : Level) (paramNames : List Name) (vs : List Level) : Level :=
   u.substParams (getParamSubst paramNames vs)
-
-def geq (u v : Level) : Bool :=
-  go u.normalize v.normalize
-where
-  go (u v : Level) : Bool :=
-    u == v ||
-    let k := fun () =>
-      match v with
-      | imax v₁ v₂ => go u v₁ && go u v₂
-      | _          =>
-        let v' := v.getLevelOffset
-        (u.getLevelOffset == v' || v'.isZero)
-        && u.getOffset ≥ v.getOffset
-    match u, v with
-    | _,          zero      => true
-    | u,          max v₁ v₂ => go u v₁ && go u v₂
-    | max u₁ u₂,  v         => go u₁ v || go u₂ v || k ()
-    | imax _  u₂, v         => go u₂ v
-    | succ u,     succ v    => go u v
-    | _,          _         => k ()
-  termination_by (u, v)
 
 end Level
 

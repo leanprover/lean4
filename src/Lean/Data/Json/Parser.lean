@@ -156,6 +156,16 @@ def nat : Parser Nat := do
   else
     natNonZero
 
+/--
+Maximum absolute decimal exponent / fractional digit count accepted by the JSON
+number parser.
+
+`Nat.pow` panics on huge exponents, and materializing `10 ^ n` for large `n` is
+also a denial-of-service risk. Bounding by `USize.size` is far too loose on
+64-bit platforms (see #13987).
+-/
+def maxExponent : Nat := 10000
+
 @[inline]
 def numWithDecimals : Parser JsonNumber := do
   let sign ← numSign
@@ -167,7 +177,7 @@ def numWithDecimals : Parser JsonNumber := do
     if c == '.' then
       skip
       let (n, d) ← natNumDigits
-      if d > USize.size then fail "too many decimals"
+      if d > maxExponent then fail "too many decimals"
       let mantissa' := sign * (whole * (10^d : Nat) + n)
       let exponent' := d
       pure <| JsonNumber.mk mantissa' exponent'
@@ -186,11 +196,12 @@ def exponent (value : JsonNumber) : Parser JsonNumber := do
       if c == '-' then
         skip
         let n ← natMaybeZero
+        if n > maxExponent then fail "exp too large"
         return value.shiftr n
       else
         if c = '+' then skip
         let n ← natMaybeZero
-        if n > USize.size then fail "exp too large"
+        if n > maxExponent then fail "exp too large"
         return value.shiftl n
     else
       return value

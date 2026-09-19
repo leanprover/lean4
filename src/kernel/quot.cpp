@@ -58,12 +58,13 @@ environment environment::add_quot() const {
     name u_name("u");
     local_ctx lctx;
     name_generator g;
-    level u         = mk_univ_param(u_name);
-    expr Sort_u     = mk_sort(u);
-    expr alpha      = lctx.mk_local_decl(g, "α", Sort_u, mk_implicit_binder_info());
-    expr r          = lctx.mk_local_decl(g, "r", mk_arrow(alpha, mk_arrow(alpha, mk_Prop())));
-    /* constant {u} quot {α : Sort u} (r : α → α → Prop) : Sort u */
-    new_env.add_core(constant_info(quot_val(*quot_consts::g_quot, {u_name}, lctx.mk_pi({alpha, r}, Sort_u), quot_kind::Type)));
+    level u           = mk_univ_param(u_name);
+    expr Sort_u       = mk_sort(u);
+    expr Sort_max_1_u = mk_sort(mk_max(mk_level_one(),u));
+    expr alpha        = lctx.mk_local_decl(g, "α", Sort_u, mk_implicit_binder_info());
+    expr r            = lctx.mk_local_decl(g, "r", mk_arrow(alpha, mk_arrow(alpha, mk_Prop())));
+    /* constant {u} quot {α : Sort u} (r : α → α → Prop) : Sort (max 1 u) */
+    new_env.add_core(constant_info(quot_val(*quot_consts::g_quot, {u_name}, lctx.mk_pi({alpha, r}, Sort_max_1_u), quot_kind::Type)));
     expr quot_r     = mk_app(mk_constant(*quot_consts::g_quot, {u}), alpha, r);
     expr a          = lctx.mk_local_decl(g, "a", alpha);
     /* constant {u} quot.mk {α : Sort u} (r : α → α → Prop) (a : α) : @quot.{u} α r */

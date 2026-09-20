@@ -281,6 +281,10 @@ theorem decRef_spec (rc : Int32) :
 /-- A count no drop will ever free: persistent, or at or below the drop threshold. -/
 abbrev isNeverFreed (rc : Int32) : Bool := isPersistent rc || isDropStopped rc
 
+theorem cascade_dec_guard_eq_never_freed (rc : Int32) (h : rc ≤ 0) :
+    decide (rc.toUInt32 ≤ LEAN_RC_STICKY_DROP.toUInt32) = isNeverFreed rc := by
+  bv_decide
+
 /--
 Each iteration subtracts its chunk from a count the guard keeps clear of {name}`Int32.minValue`.
 -/

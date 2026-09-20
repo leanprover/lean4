@@ -120,14 +120,11 @@ def realizeNested (forConst other name : Name) : MetaM Unit :=
       name, levelParams := [], type := mkConst ``True, value := mkConst ``True.intro }
 
 -- realizations for `b` are not enabled in `a`'s realization environment
-/-- info: realization failed -/
+/--
+error: trying to realize `a.nested.inner` but `enableRealizationsForConst` must be called for `b` first
+-/
 #guard_msgs in
-run_meta do
-  try
-    realizeNested ``a ``b `a.nested
-    logInfo "realization succeeded"
-  catch _ =>
-    logInfo "realization failed"
+run_meta realizeNested ``a ``b `a.nested
 
 #guard_msgs in
 run_meta realizeNested ``b ``a `b.nested

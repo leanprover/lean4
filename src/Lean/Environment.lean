@@ -2713,7 +2713,7 @@ def realizeValue [BEq α] [Hashable α] [TypeName α] (env : Environment) (forCo
     | some ctx => pure ctx
     | none =>
       throw <| .userError s!"trying to realize `{TypeName.typeName α}` value but \
-        `enableRealizationsForConst` must be called for '{forConst}' first"
+        `enableRealizationsForConst` must be called for `{forConst}` first"
   let res ← (do
     -- First try checking for the key non-atomically as (de)allocating the promise is expensive.
     let m ← ctx.realizeMapRef.get
@@ -2768,6 +2768,10 @@ deriving Nonempty, TypeName
 def realizeConst (env : Environment) (forConst : Name) (constName : Name)
     (realize : Environment → Options → BaseIO (Environment × Dynamic)) :
     IO (Environment × Task (Option Kernel.Exception) × Dynamic) := do
+  -- `realizeValue` checks this as well but can only name the key type in its error message
+  unless env.areRealizationsEnabledForConst forConst do
+    throw <| .userError s!"trying to realize `{constName}` but `enableRealizationsForConst` must \
+      be called for `{forConst}` first"
   let res ← env.realizeValue forConst { constName : RealizeConstKey } fun realizeEnv realizeOpts => do
     -- ensure that environment extension modifications know they are in an async context
     let realizeEnv := realizeEnv.enterAsyncRealizing constName

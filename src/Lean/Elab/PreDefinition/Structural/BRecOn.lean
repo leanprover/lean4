@@ -69,8 +69,9 @@ private def withBelowDict [Inhabited α] (below : Expr) (numIndParams : Nat)
   let numTypeFormers := positions.size
   let belowType ← inferType below
   trace[Elab.definition.structural] "belowType: {belowType}"
-  unless (← isTypeCorrect below) do
-    trace[Elab.definition.structural] "not type correct!"
+  if (← isTracingEnabledFor `Elab.definition.structural) then
+    unless (← isTypeCorrect below) do
+      trace[Elab.definition.structural] "not type correct!"
   belowType.withApp fun f args => do
     unless numIndParams + numTypeFormers < args.size do
       trace[Elab.definition.structural] "unexpected 'below' type{indentExpr belowType}"
@@ -93,8 +94,9 @@ private def withBelowDict [Inhabited α] (below : Expr) (numIndParams : Nat)
       let belowDict := mkAppN pre packedCs
       let belowDict := mkAppN belowDict finalArgs
       trace[Elab.definition.structural] "initial belowDict for {Cs}:{indentExpr belowDict}"
-      unless (← isTypeCorrect belowDict) do
-        trace[Elab.definition.structural] "not type correct!"
+      if (← isTracingEnabledFor `Elab.definition.structural) then
+        unless (← isTypeCorrect belowDict) do
+          trace[Elab.definition.structural] "not type correct!"
       k Cs belowDict
 
 /--
@@ -229,10 +231,12 @@ def mkBRecOnF (recArgInfos : Array RecArgInfo) (positions : Positions)
   lambdaTelescope value fun xs value => do
     let (indicesMajorArgs, otherArgs) := recArgInfo.pickIndicesMajor xs
     let FType ← instantiateForall FType indicesMajorArgs
-    forallBoundedTelescope FType (some 1) fun below _ => do
-      -- TODO: `below` user name is `f`, and it will make a global `f` to be pretty printed as `_root_.f` in error messages.
-      -- We should add an option to `forallBoundedTelescope` to ensure fresh names are used.
-      let below := below[0]!
+    let .forallE n belowType _ bi ← whnfForall FType
+      | throwError "unexpected type of `brecOn` argument{indentExpr FType}"
+    -- TODO: `below` user name is `f`, and it will make a global `f` to be pretty printed as `_root_.f` in error messages.
+    -- We should use a fresh name here.
+    -- The type of `below` is never a class, so we do not need to check whether it is a local instance.
+    withLocalDeclNoLocalInstanceUpdate n bi belowType fun below => do
       let valueNew ← replaceRecApps recArgInfos positions below value
       mkLambdaFVars (indicesMajorArgs ++ #[below] ++ otherArgs) valueNew
 

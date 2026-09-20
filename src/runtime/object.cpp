@@ -9,6 +9,8 @@ Author: Leonardo de Moura
 #include <algorithm>
 #include <vector>
 #include <deque>
+#include <unordered_map>
+#include <memory>
 #include <cmath>
 #include <lean/lean.h>
 #include "runtime/object.h"
@@ -749,9 +751,19 @@ class task_manager {
     unsigned                                      m_queues_size{0};
     unsigned                                      m_max_prio{0};
     condition_variable                            m_queue_cv;
+    /* Woken on every task completion, but only used by `wait_any` */
     condition_variable                            m_task_finished_cv;
     condition_variable                            m_dedicated_finished_cv;
     bool                                          m_shutting_down{false};
+    struct task_waiters {
+        condition_variable m_cv;
+        unsigned           m_num_waiters{0};
+    };
+    typedef std::unordered_map<lean_task_object *, std::unique_ptr<task_waiters>> waiters_map;
+    /* Threads blocked in `wait_for`, keyed by the awaited task so that finishing a task wakes only
+       its own waiters. An entry is created by the first waiter and removed by the last one. */
+    waiters_map                                   m_waiters;
+    unsigned                                      m_num_wait_any{0};
 
     lean_task_object * dequeue() {
         lean_assert(m_queues_size != 0);
@@ -916,7 +928,11 @@ class task_manager {
         /* After the task has been finished and we propagated
            dependencies, we can release `imp` and keep just the value */
         free_task_imp(imp);
-        m_task_finished_cv.notify_all();
+        waiters_map::iterator ws = m_waiters.find(t);
+        if (ws != m_waiters.end())
+            ws->second->m_cv.notify_all();
+        if (m_num_wait_any > 0)
+            m_task_finished_cv.notify_all();
     }
 
     void handle_finished(unique_lock<mutex> & lock, lean_task_object * t, lean_task_imp * imp) {
@@ -1024,7 +1040,15 @@ public:
             else
                 m_queue_cv.notify_one();
         }
-        m_task_finished_cv.wait(lock, [&]() { return t->m_value != nullptr; });
+        std::unique_ptr<task_waiters> & ws = m_waiters[t];
+        if (!ws)
+            ws.reset(new task_waiters());
+        ws->m_num_waiters++;
+        ws->m_cv.wait(lock, [&]() { return t->m_value != nullptr; });
+        // `wait` returns with `lock` held, so the count is only ever changed under the mutex and
+        // the last waiter to return destroys the record
+        if (--ws->m_num_waiters == 0)
+            m_waiters.erase(t);
         if (in_pool) {
             m_max_std_workers--;
         }
@@ -1034,9 +1058,12 @@ public:
         if (object * t = wait_any_check(task_list))
             return t;
         unique_lock<mutex> lock(m_mutex);
+        m_num_wait_any++;
         while (true) {
-            if (object * t = wait_any_check(task_list))
+            if (object * t = wait_any_check(task_list)) {
+                m_num_wait_any--;
                 return t;
+            }
             m_task_finished_cv.wait(lock);
         }
     }

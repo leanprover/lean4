@@ -50,7 +50,7 @@ instance : EmptyCollection Options where
 def find := find?
 
 @[inline] def get? {α : Type} [KVMap.Value α] (o : Options) (k : Name) : Option α :=
-  o.map.find? k |>.bind KVMap.Value.ofDataValue?
+  o.find? k |>.bind KVMap.Value.ofDataValue?
 
 @[inline] def get {α : Type} [KVMap.Value α] (o : Options) (k : Name) (defVal : α) : α :=
   o.get? k |>.getD defVal
@@ -147,11 +147,19 @@ def getOptionDescr (name : Name) : IO String := do
 
 class MonadOptions (m : Type → Type) where
   getOptions : m Options
+  /--
+  Acquires the options without the recording check of `getOptions`, for readers whose result
+  provably cannot influence a computation that records its dependencies (trace and profiler
+  collection, message rendering, diagnostics counters, limits whose excess throws and is never
+  cached). Each use should document a brief argument on why it's safe; see `Lean.getRecordedOption`.
+  -/
+  getOptionsUnrestricted : m Options := getOptions
 
-export MonadOptions (getOptions)
+export MonadOptions (getOptions getOptionsUnrestricted)
 
 instance [MonadLift m n] [MonadOptions m] : MonadOptions n where
   getOptions := liftM (getOptions : m _)
+  getOptionsUnrestricted := liftM (getOptionsUnrestricted : m _)
 
 variable [Monad m] [MonadOptions m]
 

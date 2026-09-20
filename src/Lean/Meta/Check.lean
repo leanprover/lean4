@@ -201,7 +201,7 @@ def mkUnfoldAxiomsNote (givenType expectedType : Expr) : MetaM MessageData := do
   if env.header.isModule then
     let origDiag := (← get).diag
     try
-      let _ ← observing <| withOptions (diagnostics.set · true)  <| isDefEq givenType expectedType
+      let _ ← observing <| withSetOption diagnostics true <| isDefEq givenType expectedType
       let blocked := (← get).diag.unfoldAxiomCounter.toList.filterMap fun (n, count) => do
         let count := count - origDiag.unfoldAxiomCounter.findD n 0
         guard <| count > 0 && getOriginalConstKind? env n matches some .defn

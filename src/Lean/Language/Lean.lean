@@ -272,6 +272,51 @@ def isBeforeEditPos (pos : String.Pos.Raw) : LeanProcessingM Bool := do
   return (← read).firstDiffPos?.any (pos < ·)
 
 /--
+Option for (server) time in milliseconds to wait before elaborating commands after the first
+changed command on document edit, so that rapid edits do not trigger re-elaboration of every
+subsequent command
+-/
+register_builtin_option server.elabDelayMs : Nat := {
+  defValue := 100
+  descr := "delay before elaborating commands after first changed command"
+}
+
+/--
+Sleeps for `ms`, returning early if `cancelTk` is set. Returns `true` if the sleep was cancelled.
+-/
+private def sleepWithCancellation (ms : UInt32) (cancelTk : IO.CancelToken) : BaseIO Bool := do
+  if ← cancelTk.isSet then
+    return true
+  let cancelProm ← IO.Promise.new
+  cancelTk.onSet (cancelProm.resolve ())
+  let sleepTask ← BaseIO.asTask (IO.sleep ms)
+  let _ ← IO.waitAny
+    [cancelProm.result!.map (sync := true) fun _ => true,
+     sleepTask.map (sync := true) fun _ => false]
+  cancelTk.isSet
+
+/--
+Resolves `prom` with a terminal command snapshot for the given state, discarding any further
+commands. Used to terminate a processing run that has been superseded by a newer edit.
+-/
+private def resolveTerminalCmdSnap (prom : IO.Promise CommandParsedSnapshot)
+    (cmdState : Command.State) (parserState : Parser.ModuleParserState) : BaseIO Unit :=
+  -- this is a bit ugly as we don't want to adjust our API with `Option`s just for cancellation
+  -- (as no-one should look at this result in that case) but anything containing `Environment`
+  -- is not `Inhabited`
+  prom.resolve {
+    diagnostics := .empty, stx := .missing, parserState
+    elabSnap := {
+      diagnostics := .empty
+      elabSnap := default
+      resultSnap := .finished none { diagnostics := .empty, cmdState }
+      infoTreeSnap := .finished none { diagnostics := .empty }
+      reportSnap := default
+    }
+    nextCmdSnap? := none
+  }
+
+/--
   Adds unexpected exceptions from header processing to the message log as a last resort; standard
   errors should already have been caught earlier. -/
 private def withHeaderExceptions (ex : Snapshot → α) (act : LeanProcessingT IO α) :
@@ -628,21 +673,7 @@ where
       if let some old := old? then
         -- all of `old` is discarded, so cancel all of it
         toSnapshotTree old |>.children.forM (·.cancelRec)
-
-      -- this is a bit ugly as we don't want to adjust our API with `Option`s just for cancellation
-      -- (as no-one should look at this result in that case) but anything containing `Environment`
-      -- is not `Inhabited`
-      prom.resolve <| {
-        diagnostics := .empty, stx := .missing, parserState
-        elabSnap := {
-          diagnostics := .empty
-          elabSnap := default
-          resultSnap := .finished none { diagnostics := .empty, cmdState }
-          infoTreeSnap := .finished none { diagnostics := .empty }
-          reportSnap := default
-        }
-        nextCmdSnap? := none
-      }
+      resolveTerminalCmdSnap prom cmdState parserState
       return
 
     -- Start new task when leaving fast-forwarding path; see "General notes" above
@@ -754,7 +785,16 @@ where
             cancelTk? := none
           }
       if let some next := next? then
-        -- We're definitely off the fast-forwarding path now
+        -- We're definitely off the fast-forwarding path now. `sync` is true only for the first
+        -- command after an edit; all subsequent commands are invoked with `sync := false`.
+        if sync && ctx.firstDiffPos?.isSome && Elab.inServer.get scope.opts then
+          -- Wait before elaborating the rest of the file so that rapid edits do not trigger
+          -- re-elaboration of every subsequent command.
+          if ← sleepWithCancellation (server.elabDelayMs.get scope.opts).toUInt32 parseCancelTk then
+            -- This run has been superseded by a newer edit; terminate it without elaborating the
+            -- rest of the file so that nothing waits on `next`.
+            resolveTerminalCmdSnap next cmdState parserState
+            return
         parseCmd none parserState cmdState next (sync := false) elabCmdCancelTk (cmds.push stx) ctx
 
   doElab (stx : Syntax) (cmds : PersistentArray Syntax) (cmdState : Command.State) (beginPos : String.Pos.Raw)

@@ -739,7 +739,7 @@ def Module.recFetchSetup (mod : Module) : FetchM (Job ModuleSetup) := ensureJob 
 public def Module.setupFacetConfig : ModuleFacetConfig setupFacet :=
   mkFacetJobConfig (buildable := false) recFetchSetup
 
-/-- Remove all existing artifacts produced by the Lean build of the module. -/
+/-- Remove all existing artifacts produced by a Lean build of the module. -/
 public def Module.clearOutputArtifacts (mod : Module) : IO PUnit := do
   try
     removeFileIfExists mod.ltarFile
@@ -768,6 +768,16 @@ public def Module.clearOutputHashes (mod : Module) : IO PUnit := do
     clearFileHash mod.bcFile
   catch e =>
     error s!"failed to remove output hashes: {e}"
+
+/-- Remove any cached file hashes of the module IR build outputs (in `.hash` files). -/
+public def Module.clearIROutputHashes (mod : Module) : IO PUnit := do
+  try
+    clearFileHash mod.ltarFile
+    clearFileHash mod.irSigFile
+    clearFileHash mod.irFile
+    clearFileHash mod.cFile
+  catch e =>
+    error s!"failed to remove IR output hashes: {e}"
 
 /-- Cache the file hashes of the module build outputs in `.hash` files. -/
 public def Module.cacheOutputHashes (mod : Module) : IO PUnit := do
@@ -969,11 +979,14 @@ def Module.mkArtifacts (mod : Module) (srcFile : FilePath) (isModule : Bool) : M
   c? := mod.cFile
   bc? := if Lean.Internal.hasLLVMBackend () then some mod.bcFile else none
 
-def Module.computeIRArtifacts (mod : Module) (elabArts : ModuleOutputArtifacts) : FetchM ModuleOutputArtifacts :=
+def Module.computeIRArtifacts
+  (mod : Module) (elabArts : ModuleOutputArtifacts) (reuse : Bool)
+: FetchM ModuleOutputArtifacts :=
   return {elabArts with
     irSig? := some <| ← compute mod.irSigFile "ir.sig"
     ir? := some <| ← compute mod.irFile "ir"
     c? := some <| ← compute mod.cFile "c"
+    ltar? := if reuse then elabArts.ltar? else none
   }
 where
   @[inline] compute file ext := do
@@ -993,6 +1006,7 @@ def Module.computeArtifacts
     ir? := ← computeIf (isModule && !skipIR) mod.irFile "ir"
     c? := ← computeIf (!(isModule && skipIR)) mod.cFile "c"
     bc? := ← computeIf (Lean.Internal.hasLLVMBackend ()) mod.bcFile "bc"
+    ltar? :=  ← computeIf (← mod.ltarFile.pathExists) mod.ltarFile "ltar"
   }
 where
   @[inline] compute file ext := do
@@ -1085,9 +1099,9 @@ def Module.buildLean
   let setup ← mkModuleSetup mod presetup
   let arts := mod.mkArtifacts presetup.srcFile presetup.isModule
   mod.clearOutputArtifacts
+  mod.clearOutputHashes
   compileLeanModule presetup.srcFile relSrcFile setup mod.setupFile arts args
     (← getLeanPath) (← getLean)
-  mod.clearOutputHashes
   mod.computeArtifacts setup.isModule presetup.postponeCompile
 
 def  adjustMTime (arts : ModuleOutputArtifacts) (traceFile : FilePath) : JobM ModuleOutputArtifacts := do
@@ -1098,6 +1112,10 @@ def  adjustMTime (arts : ModuleOutputArtifacts) (traceFile : FilePath) : JobM Mo
     return arts
   | .error e =>
     error s!"failed to retrieve module artifact modification time: {e}"
+
+inductive ModuleFetchState
+| complete (arts : ModuleOutputArtifacts)
+| incomplete (savedTrace : SavedTrace) (ltar? : Option Artifact)
 
 /--
 Recursively build a Lean module.
@@ -1118,10 +1136,10 @@ def Module.recBuildElabArts (mod : Module) : FetchM (Job ModuleOutputArtifacts) 
     let arts ← adjustMTime arts mod.traceFile
     return arts
 where
-  fetchFromCache? presetup savedTrace restoreAll : JobM (ModuleOutputArtifacts ⊕ SavedTrace) := do
+  fetchFromCache? presetup savedTrace restoreAll : JobM ModuleFetchState := do
     let inputHash := (← getTrace).hash
     let some ltarOrArts ← getArtifacts? inputHash savedTrace mod.pkg
-      | return .inr savedTrace
+      | return .incomplete savedTrace none
     match (ltarOrArts : ModuleOutputs) with
     | .ltar ltar =>
       updateAction .unpack
@@ -1132,7 +1150,7 @@ where
       let savedTrace ← readTraceFile mod.traceFile
       let arts? ← getArtifactsUsingTrace? inputHash savedTrace mod.pkg
       if let some (arts : ModuleOutputArtifacts) := arts? then
-        -- on initial unpack from cache ensure all artifacts uniformly
+        -- On initial unpack from cache ensure all artifacts uniformly
         -- end up in the build directory and, if writable, the cache
         let arts ← mod.restoreAllArtifacts {arts with ltar? := some ltar}
         if (← mod.pkg.isArtifactCacheWritable) then
@@ -1140,11 +1158,12 @@ where
           -- Note: Cache service metadata is not preserved on an output update because it would
           -- result in downloading module outputs that are not available on the remote.
           (← getLakeCache).writeOutputs mod.pkg.cacheScope inputHash arts.descrs (overwrite := true)
-          return .inl arts
+          return .complete arts
         else
-          return .inl arts
+          return .complete arts
       else
-        return .inr savedTrace
+        let ltar ← if restoreAll then restoreArtifact mod.ltarFile ltar else pure ltar
+        return .incomplete savedTrace (some ltar)
     | .arts arts =>
       unless (← savedTrace.replayCachedIfUpToDate inputHash) do
         mod.clearOutputArtifacts
@@ -1154,7 +1173,12 @@ where
           mod.restoreAllArtifacts arts
         else
           mod.restoreNeededArtifacts arts
-      return .inl arts
+      -- Reuse a previously packed ltar if one exists
+      if arts.ltar?.isNone then
+        if (← mod.ltarFile.pathExists) then
+          let ltar ← computeArtifact mod.ltarFile "ltar"
+          return .complete {arts with ltar? := some ltar}
+      return .complete arts
   fetchCore (presetup : ModulePreSetup) : JobM ModuleOutputArtifacts := do
     let depTrace ← getTrace
     have : GetMTime Module := ⟨(·.getMTime presetup.isModule presetup.postponeCompile)⟩
@@ -1163,14 +1187,14 @@ where
     if (← mod.pkg.isArtifactCacheWritable) then
       let restore ← mod.pkg.restoreAllArtifacts
       match (← fetchFromCache? presetup savedTrace restore) with
-      | .inl arts =>
+      | .complete arts =>
         return arts
-      | .inr savedTrace =>
+      | .incomplete savedTrace ltar? =>
         let status ← savedTrace.replayIfUpToDate' (oldTrace := presetup.srcMTime) mod depTrace
         if status.isUpToDate then
           unless (← mod.checkArtifactsExist presetup.isModule presetup.postponeCompile) do
             -- Restoring from the archive stamps the trace with the current input
-            -- hash, so only do it on a verified hash match; an mtime-only match
+            -- hash, so only do it on a verified hash match. An mtime-only match
             -- leaves the hash unconfirmed, so rebuild instead.
             if status == .hashUpToDate then
               mod.unpackLtar mod.ltarFile depTrace.hash
@@ -1180,16 +1204,17 @@ where
           discard <| mod.buildLean presetup
         if status.isCacheable then
           let arts ← mod.cacheOutputArtifacts presetup.isModule restore presetup.postponeCompile
+          let arts := {arts with ltar? := arts.ltar? <|> ltar?}
           (← getLakeCache).writeOutputs mod.pkg.cacheScope depTrace.hash arts.descrs
           return arts
         else
-          mod.computeArtifacts presetup.isModule presetup.postponeCompile
+          let arts ← mod.computeArtifacts presetup.isModule presetup.postponeCompile
+          return {arts with ltar? := arts.ltar? <|> ltar?}
     else
       let status ← savedTrace.replayIfUpToDate' (oldTrace := presetup.srcMTime) mod depTrace
       if status.isUpToDate then
         unless (← mod.checkArtifactsExist presetup.isModule presetup.postponeCompile) do
-          -- As above: restore only on a verified hash match; an mtime-only match
-          -- rebuilds instead.
+          -- As above: restore on a hash match and rebuild on a mtime match.
           if status == .hashUpToDate then
             mod.unpackLtar mod.ltarFile depTrace.hash
           else
@@ -1198,11 +1223,12 @@ where
       else
         if (← mod.pkg.isArtifactCacheReadable) then
           match (← fetchFromCache? presetup savedTrace true) with
-          | .inl arts =>
+          | .complete arts =>
               return arts
-          | .inr savedTrace =>
+          | .incomplete savedTrace ltar? =>
             if (← savedTrace.replayIfUpToDate (oldTrace := presetup.srcMTime) mod depTrace) then
-              mod.computeArtifacts presetup.isModule presetup.postponeCompile
+              let arts ← mod.computeArtifacts presetup.isModule presetup.postponeCompile
+              return {arts with ltar? := arts.ltar? <|> ltar?}
             else
               mod.buildLean presetup
         else
@@ -1264,7 +1290,7 @@ Otherwise, `leanir` runs once elaboration (`elabArts`) has produced the `.olean`
 def Module.recBuildIRArts (mod : Module) : FetchM (Job ModuleOutputArtifacts) := do
   withRegisterJob s!"{mod.name}:irArts" do
   let elabJob ← mod.elabArts.fetch
-  elabJob.mapM (sync := true) fun elabArts => do
+  elabJob.mapM fun elabArts => do
     -- Already complete because `elabArts` waits on it
     let presetup ← (← mod.presetup.fetch).await
     -- Use the same trace as `elabArts` to maintain compatibility
@@ -1274,12 +1300,14 @@ def Module.recBuildIRArts (mod : Module) : FetchM (Job ModuleOutputArtifacts) :=
       return elabArts
     let depTrace := BuildTrace.nil s!"{mod.name} (leanir)"
       |>.mix (← importAllTrace elabArts) |>.mix presetup.irSigTrace
-    buildUnlessUpToDate (oldTrace := presetup.srcMTime) mod.irFile depTrace mod.irTraceFile do
+    let upToDate ← buildUnlessUpToDate? (oldTrace := presetup.srcMTime) mod.irFile depTrace mod.irTraceFile do
       createParentDirs mod.irSetupFile
       let irSetup ← mkModuleSetup mod presetup
       IO.FS.writeFile mod.irSetupFile (toJson irSetup).pretty
+      removeFileIfExists mod.ltarFile
+      mod.clearIROutputHashes
       compileLeanIR mod.irSetupFile mod.irFile mod.cFile (← getLeanPath) (← getLeanir)
-    let arts ← mod.computeIRArtifacts elabArts
+    let arts ← mod.computeIRArtifacts elabArts upToDate
     let arts ← adjustMTime arts mod.irTraceFile
     let arts ← trackOutputsIfEnabled arts
     return arts
@@ -1299,14 +1327,10 @@ where
     if let some ref ← Internal.getOutputsRef? mod.pkg then
       let inputHash := (← getTrace).hash
       if let some ltar := arts.ltar? then
-        ref.insert inputHash ltar.descr
+        ref.insert inputHash ltar.descr (mod.platformIndependent.getD false)
         return arts
       else
-        let ltar ← id do
-          if (← mod.ltarFile.pathExists) then
-            computeArtifact mod.ltarFile "ltar"
-          else
-            mod.packLtar arts
+        let ltar ← mod.packLtar arts
         ref.insert inputHash ltar.descr (mod.platformIndependent.getD false)
         return {arts with ltar? := some ltar}
     return arts

@@ -13,7 +13,8 @@ public import Std.Data.Iterators.Producers.Monadic.Array
 /-!
 # Array iterator
 
-This module provides an iterator for arrays that is accessible via `Array.iter`.
+This module provides forward and reverse iterators for arrays that are accessible via
+`Array.iter` and `Array.iterRev`.
 -/
 
 open Std Std.Iterators Std.Iterators.Types
@@ -49,3 +50,35 @@ The monadic version of this iterator is `Array.iterM`.
 def Array.iter {α : Type w} (l : Array α) :
     Iter (α := ArrayIterator α) α :=
   ((l.iterM Id).toIter : Iter α)
+
+/--
+Returns a finite reverse iterator for the given array starting at the given index.
+The iterator yields the elements of the array in reverse order and then terminates.
+
+The monadic version of this iterator is `Array.iterRevFromIdxM`.
+
+**Termination properties:**
+
+* `Finite` instance: always
+* `Productive` instance: always
+-/
+@[cbv_opaque, always_inline, inline]
+def Array.iterRevFromIdx {α : Type w} (l : Array α) (pos : Nat) :
+    Iter (α := ArrayRevIterator α) α :=
+  ((l.iterRevFromIdxM Id pos).toIter : Iter α)
+
+/--
+Returns a finite reverse iterator for the given array.
+The iterator yields the elements of the array in reverse order and then terminates.
+
+The monadic version of this iterator is `Array.iterRevM`.
+
+**Termination properties:**
+
+* `Finite` instance: always
+* `Productive` instance: always
+-/
+@[cbv_opaque, always_inline, inline]
+def Array.iterRev {α : Type w} (l : Array α) :
+    Iter (α := ArrayRevIterator α) α :=
+  ((l.iterRevM Id).toIter : Iter α)

@@ -52,39 +52,18 @@ def setDeclTransparent (env : Environment) (phase : Phase) (declName : Name) : E
     getTransparencyExt phase |>.modifyState env fun s =>
       (declName :: s.1, s.2.insert declName)
 
-structure AbstractDeclExtState (pu : Purity) (β : Purity → Type) where
-  map : PHashMap Name (β pu) := {}
-  /-- Keys of `map` in reverse insertion order, without duplicates; used by `replay?`. -/
-  revNames : List Name := []
-  deriving Inhabited
-
-namespace AbstractDeclExtState
-
-def insert (s : AbstractDeclExtState pu β) (n : Name) (v : β pu) : AbstractDeclExtState pu β :=
-  { map := s.map.insert n v
-    revNames := if s.map.contains n then s.revNames else n :: s.revNames }
-
-def find? (s : AbstractDeclExtState pu β) (n : Name) : Option (β pu) :=
-  s.map.find? n
-
-def toArray (s : AbstractDeclExtState pu β) : Array (Name × β pu) :=
-  s.map.toArray
-
-end AbstractDeclExtState
+abbrev AbstractDeclExtState (pu : Purity) (β : Purity → Type) := PHashMap Name (β pu)
 
 private def sortedEntries (s : AbstractDeclExtState pu β) (lt : β pu → β pu → Bool) : Array (β pu) :=
-  let decls := s.map.foldl (init := #[]) fun ps _ v => ps.push v
+  let decls := s.foldl (init := #[]) fun ps _ v => ps.push v
   decls.qsort lt
 
 private def replayFn (phase : Phase) : ReplayFn (AbstractDeclExtState phase.toPurity β) :=
   fun oldState newState _ otherState =>
-    takeNewEntriesRev newState.revNames oldState.revNames |>.foldl (init := otherState) fun otherState n =>
-      match newState.map.find? n with
-      | some v => otherState.insert n v
-      | none => otherState
+    PersistentHashMap.foldlNewEntries (·.insert · ·) newState oldState otherState
 
 private def statsFn (state : AbstractDeclExtState pu β) : Format :=
-  let numEntries := state.map.foldl (init := 0) (fun count _ _ => count + 1)
+  let numEntries := state.foldl (init := 0) (fun count _ _ => count + 1)
   format "number of local entries: " ++ format numEntries
 
 abbrev DeclExtState (pu : Purity) := AbstractDeclExtState pu Decl

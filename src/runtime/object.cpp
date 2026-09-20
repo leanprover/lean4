@@ -338,7 +338,7 @@ static inline void dec(lean_object * o, lean_object* & todo) {
         lean_internal_sub_rc(o, 1);
     } else if (lean_internal_get_rc(o) == 1) {
         push_back(todo, o);
-    } else if (lean_internal_get_rc(o) == 0) {
+    } else if (LEAN_UNLIKELY((unsigned)lean_internal_get_rc(o) <= (unsigned)LEAN_RC_STICKY_DROP)) {
         return;
     } else if (std::atomic_fetch_add_explicit(lean_get_rc_mt_addr(o), 1, std::memory_order_acq_rel) == -1) {
         push_back(todo, o);

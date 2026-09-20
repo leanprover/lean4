@@ -26,16 +26,13 @@ namespace AIG
 variable {α : Type} [Hashable α] [DecidableEq α]
 
 /--
-If we find a cached atom declaration in the AIG, denoting it is equivalent to denoting `AIG.mkAtom`.
+If we find a cached atom declaration in the AIG, denoting it yields the value of the atom.
 -/
 theorem denote_mkAtom_cached {aig : AIG α} {hit} :
     aig.cache.get? (.atom v) = some hit
       →
-    ⟦aig, ⟨hit.idx, false, hit.hbound⟩, assign⟧ = ⟦aig.mkAtom v, assign⟧ := by
-  have := hit.hvalid
-  simp only [denote_mkAtom]
-  unfold denote denote.go
-  split <;> simp_all
+    ⟦aig, ⟨hit.idx, false, hit.hbound⟩, assign⟧ = assign v := by
+  simp [denote_idx_atom hit.hvalid]
 
 /--
 `mkAtomCached` does not modify the input AIG upon a cache hit.
@@ -86,19 +83,23 @@ instance : LawfulOperator α (fun _ => α) mkAtomCached where
   decl_eq := mkAtomCached_decl_eq
 
 /--
-The central equality theorem between `mkAtomCached` and `mkAtom`.
+Denoting `mkAtomCached` yields the value of the atom.
 -/
 @[simp]
-theorem mkAtomCached_eval_eq_mkAtom_eval {aig : AIG α} :
-    ⟦aig.mkAtomCached var, assign⟧ = ⟦aig.mkAtom var, assign⟧ := by
+theorem denote_mkAtomCached {aig : AIG α} :
+    ⟦aig.mkAtomCached var, assign⟧ = assign var := by
   simp only [mkAtomCached]
   split
   next heq1 =>
     rw [denote_mkAtom_cached heq1]
-  · simp [mkAtom, denote]
+  · unfold denote denote.go
+    split
+    · simp_all
+    · simp_all
+    · next heq => simp at heq
 
 /--
-The central equality theorem between `mkConstCached` and `mkConst`.
+Denoting `mkConstCached` yields the constant.
 -/
 @[simp]
 theorem denote_mkConstCached {aig : AIG α} :
@@ -111,17 +112,16 @@ theorem denote_mkConstCached {aig : AIG α} :
   next heq => simp [aig.hconst] at heq
 
 /--
-If we find a cached gate declaration in the AIG, denoting it is equivalent to denoting `AIG.mkGate`.
+If we find a cached gate declaration in the AIG, denoting it yields the conjunction of its inputs.
 -/
-theorem denote_mkGate_cached {aig : AIG α} {input} {hit} :
+theorem denote_mkGate_cached {aig : AIG α} {input : BinaryInput aig} {hit} :
     aig.cache.get? (.gate (.mk input.lhs.gate input.lhs.invert) (.mk input.rhs.gate input.rhs.invert)) = some hit
       →
     ⟦⟨aig, hit.idx, false, hit.hbound⟩, assign⟧
       =
-    ⟦aig.mkGate input, assign⟧ := by
+    (⟦aig, input.lhs, assign⟧ && ⟦aig, input.rhs, assign⟧) := by
   intros
   have := hit.hvalid
-  simp only [denote_mkGate]
   conv =>
     lhs
     unfold denote denote.go
@@ -202,8 +202,24 @@ instance : LawfulOperator α BinaryInput mkGateCached where
     intros
     apply mkGateCached_decl_eq
 
-theorem mkGateCached.go_eval_eq_mkGate_eval {aig : AIG α} {input : BinaryInput aig} :
-    ⟦go aig input, assign⟧ = ⟦aig.mkGate input, assign⟧ := by
+/--
+Denoting a gate that was just pushed onto an AIG yields the conjunction of its inputs.
+-/
+theorem denote_gate_push {aig1 aig2 : AIG α} {input : BinaryInput aig1} {hidx}
+    (h : aig2.decls = aig1.decls.push (.gate (.mk input.lhs.gate input.lhs.invert) (.mk input.rhs.gate input.rhs.invert))) :
+    ⟦aig2, ⟨aig1.decls.size, false, hidx⟩, assign⟧
+      =
+    (⟦aig1, input.lhs, assign⟧ && ⟦aig1, input.rhs, assign⟧) := by
+  have hprefix : IsPrefix aig1.decls aig2.decls := by rw [h]; exact IsPrefix_push
+  have hgate : aig2.decls[aig1.decls.size]'hidx = .gate (.mk input.lhs.gate input.lhs.invert) (.mk input.rhs.gate input.rhs.invert) := by
+    simp [h]
+  rw [denote_idx_gate hgate]
+  simp only [Fanin.gate_mk, Fanin.invert_mk, Bool.bne_false]
+  rw [denote.eq_of_isPrefix ⟨aig1, input.lhs⟩ aig2 hprefix,
+    denote.eq_of_isPrefix ⟨aig1, input.rhs⟩ aig2 hprefix]
+
+theorem mkGateCached.denote_go {aig : AIG α} {input : BinaryInput aig} :
+    ⟦go aig input, assign⟧ = (⟦aig, input.lhs, assign⟧ && ⟦aig, input.rhs, assign⟧) := by
   simp only [go]
   split
   next heq1 =>
@@ -221,19 +237,18 @@ theorem mkGateCached.go_eval_eq_mkGate_eval {aig : AIG α} {input : BinaryInput 
           simp_all
           have := Bool.eq_not_of_ne hif
           simp_all
-      · simp [mkGate, denote]
+      · exact denote_gate_push rfl
 
 /--
-The central equality theorem between `mkGateCached` and `mkGate`.
+Denoting `mkGateCached` yields the conjunction of its inputs.
 -/
 @[simp]
-theorem mkGateCached_eval_eq_mkGate_eval {aig : AIG α} {input : BinaryInput aig} :
-    ⟦aig.mkGateCached input, assign⟧ = ⟦aig.mkGate input, assign⟧ := by
+theorem denote_mkGateCached {aig : AIG α} {input : BinaryInput aig} :
+    ⟦aig.mkGateCached input, assign⟧ = (⟦aig, input.lhs, assign⟧ && ⟦aig, input.rhs, assign⟧) := by
   simp only [mkGateCached]
   split
-  · rw [mkGateCached.go_eval_eq_mkGate_eval]
-  · rw [mkGateCached.go_eval_eq_mkGate_eval]
-    simp only [denote_mkGate]
+  · rw [mkGateCached.denote_go]
+  · rw [mkGateCached.denote_go]
     rw [Bool.and_comm]
 
 end AIG

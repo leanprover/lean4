@@ -509,7 +509,7 @@ noncomputable instance HeapM.instWPMonad : WPMonad HeapM HProp EStack⟨⟩ :=
 theorem frames_sepConj {α : Type} (x : HeapM α) (F : HProp) :
     WP.Frames sepConj x F :=
   WP.frames_of_frameClosure sepConj sepConj sepConj_assoc (fun _ _ _ => rfl)
-    ⟨fun y => WP.wpTrans y.run, fun _ => rfl⟩
+    ⟨fun y => WP.trans y.run, fun _ => rfl⟩
 
 /-- Triple introduction from the base `StateM Heap` interpretation: prove the base triple with an
 arbitrary frame `F` held on both sides. -/

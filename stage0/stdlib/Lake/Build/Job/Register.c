@@ -181,7 +181,7 @@ goto v_reusejp_20_;
 else
 {
 lean_object* v_reuseFailAlloc_22_; 
-v_reuseFailAlloc_22_ = lean_alloc_ctor(0, 3, 2);
+v_reuseFailAlloc_22_ = lean_alloc_ctor(0, 3, 3);
 lean_ctor_set(v_reuseFailAlloc_22_, 0, v___x_15_);
 lean_ctor_set(v_reuseFailAlloc_22_, 1, v___x_19_);
 lean_ctor_set(v_reuseFailAlloc_22_, 2, v___x_14_);
@@ -192,6 +192,7 @@ v_reusejp_20_:
 {
 lean_ctor_set_uint8(v___x_21_, sizeof(void*)*3, v___x_16_);
 lean_ctor_set_uint8(v___x_21_, sizeof(void*)*3 + 1, v___x_17_);
+lean_ctor_set_uint8(v___x_21_, sizeof(void*)*3 + 2, v___x_17_);
 return v___x_21_;
 }
 }
@@ -313,7 +314,7 @@ goto v_reusejp_51_;
 else
 {
 lean_object* v_reuseFailAlloc_56_; 
-v_reuseFailAlloc_56_ = lean_alloc_ctor(0, 3, 2);
+v_reuseFailAlloc_56_ = lean_alloc_ctor(0, 3, 3);
 lean_ctor_set(v_reuseFailAlloc_56_, 0, v___x_46_);
 lean_ctor_set(v_reuseFailAlloc_56_, 1, v___x_50_);
 lean_ctor_set(v_reuseFailAlloc_56_, 2, v___x_45_);
@@ -325,6 +326,7 @@ v_reusejp_51_:
 lean_object* v___x_54_; 
 lean_ctor_set_uint8(v___x_52_, sizeof(void*)*3, v___x_47_);
 lean_ctor_set_uint8(v___x_52_, sizeof(void*)*3 + 1, v___x_48_);
+lean_ctor_set_uint8(v___x_52_, sizeof(void*)*3 + 2, v___x_48_);
 if (v_isShared_38_ == 0)
 {
 lean_ctor_set(v___x_37_, 1, v___x_52_);
@@ -459,7 +461,7 @@ goto v_reusejp_85_;
 else
 {
 lean_object* v_reuseFailAlloc_90_; 
-v_reuseFailAlloc_90_ = lean_alloc_ctor(0, 3, 2);
+v_reuseFailAlloc_90_ = lean_alloc_ctor(0, 3, 3);
 lean_ctor_set(v_reuseFailAlloc_90_, 0, v___x_80_);
 lean_ctor_set(v_reuseFailAlloc_90_, 1, v___x_84_);
 lean_ctor_set(v_reuseFailAlloc_90_, 2, v___x_79_);
@@ -471,6 +473,7 @@ v_reusejp_85_:
 lean_object* v___x_88_; 
 lean_ctor_set_uint8(v___x_86_, sizeof(void*)*3, v___x_81_);
 lean_ctor_set_uint8(v___x_86_, sizeof(void*)*3 + 1, v___x_82_);
+lean_ctor_set_uint8(v___x_86_, sizeof(void*)*3 + 2, v___x_82_);
 if (v_isShared_68_ == 0)
 {
 lean_ctor_set(v___x_67_, 1, v___x_86_);
@@ -988,12 +991,13 @@ v___x_277_ = lean_unsigned_to_nat(0u);
 v___x_278_ = 0;
 v___x_279_ = 0;
 v___x_280_ = lean_obj_once(&l_Lake_ensureJob___redArg___closed__1, &l_Lake_ensureJob___redArg___closed__1_once, _init_l_Lake_ensureJob___redArg___closed__1);
-v___x_281_ = lean_alloc_ctor(0, 3, 2);
+v___x_281_ = lean_alloc_ctor(0, 3, 3);
 lean_ctor_set(v___x_281_, 0, v___x_275_);
 lean_ctor_set(v___x_281_, 1, v___x_280_);
 lean_ctor_set(v___x_281_, 2, v___x_277_);
 lean_ctor_set_uint8(v___x_281_, sizeof(void*)*3, v___x_278_);
 lean_ctor_set_uint8(v___x_281_, sizeof(void*)*3 + 1, v___x_279_);
+lean_ctor_set_uint8(v___x_281_, sizeof(void*)*3 + 2, v___x_279_);
 v___x_282_ = lean_alloc_ctor(1, 2, 0);
 lean_ctor_set(v___x_282_, 0, v___x_277_);
 lean_ctor_set(v___x_282_, 1, v___x_281_);

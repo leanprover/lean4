@@ -78,12 +78,12 @@ public def LatticeOp.iInf : LatticeOp :=
 companion application `FrameOp.prod`, or a wand `upperAdjoint (FrameOp.prod …)`, whose component
 wands the `upperAdjoint` rewrites decompose further. -/
 private def projectsRewritableOperand (rhs : Expr) : Bool :=
-  rhs.getAppArgs[2]?.any fun epost =>
-    match epost.getAppFn with
+  rhs.getAppArgs[2]?.any fun eposts =>
+    match eposts.getAppFn with
     | .const ``Lean.Order.bot _ | .const ``Lean.Order.top _
     | .const ``Lean.Order.FrameOp.prod _ => true
     | .const ``Lean.Order.PreservesSup.upperAdjoint _ =>
-      epost.getAppArgs[2]?.any (·.isAppOf ``Lean.Order.FrameOp.prod)
+      eposts.getAppArgs[2]?.any (·.isAppOf ``Lean.Order.FrameOp.prod)
     | _ => false
 
 public def LatticeOp.fst : LatticeOp :=

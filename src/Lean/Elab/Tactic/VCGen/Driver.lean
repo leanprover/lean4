@@ -128,7 +128,7 @@ public structure Result where
   unmatchedFrames : Array Syntax := #[]
 
 /--
-Generate verification conditions for a goal of the form `pre ⊑ wp e post epost s₁ ... sₙ` by repeatedly
+Generate verification conditions for a goal of the form `pre ⊑ wp e post eposts s₁ ... sₙ` by repeatedly
 decomposing `e` using registered `@[spec]` theorems.
 Return the VCs and invariant goals.
 

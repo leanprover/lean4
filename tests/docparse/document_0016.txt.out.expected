@@ -1,0 +1,13 @@
+Input: "\\ hi\n"
+Success! Final stack:
+  (Lean.Doc.Parser.document
+   [(Lean.Doc.Parser.Block.para
+     [(Lean.Doc.Parser.Inline.text
+       (Lean.Doc.Parser.versoText "\\ hi"))
+      (Lean.Doc.Parser.Inline.linebreak "\n")])])
+All input consumed.
+Round-trip OK
+Decoded views:
+  para
+    text (content := " hi")
+    linebreak (newline := "\n")

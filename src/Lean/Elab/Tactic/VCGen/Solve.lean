@@ -40,7 +40,7 @@ public inductive SolveResult.StopReason where
   | noEntailment (target : Expr)
   /-- The target was of the form `pre ⊑ rhs`, but we couldn't make further progress. -/
   | noProgress (pre rhs : Expr)
-  /-- No spec applicable to the program `e` in `pre ⊑ wp e post epost s₁ ... sₙ` was found; `thms`
+  /-- No spec applicable to the program `e` in `pre ⊑ wp e post eposts s₁ ... sₙ` was found; `thms`
   are the candidates that were tried. Reached only when `errorOnMissingSpec` is `false`. -/
   | noSpecFound (e : Expr) (monad : Expr) (thms : Array SpecTheorem)
 
@@ -589,7 +589,7 @@ The function performs the following steps in order:
 9. **Lattice decomposition**: decompose `⊓`, `⇨`, `⌜p⌝` and `⊤` RHS connectives.
 10. **Lifted-hypothesis discharge**: close a residual `pre ⊑ ⌜φ⌝` entailment against the most
     recently lifted precondition `h : φ` in the local context, cached in `Scope.lastLiftedPre?`.
-11. **WP decomposition**: when the RHS is `wp e post epost s₁ ... sₙ`, in order:
+11. **WP decomposition**: when the RHS is `wp e post eposts s₁ ... sₙ`, in order:
     hoist/zeta program-head lets, split `ite`/`dite`/match, zeta-unfold fvar program heads,
     reduce projection heads, and finally apply a registered `@[spec]` theorem.
 -/

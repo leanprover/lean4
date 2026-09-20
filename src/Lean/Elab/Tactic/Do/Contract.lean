@@ -12,6 +12,7 @@ public import Lean.Elab.Util
 public import Lean.Elab.Command
 public import Lean.Elab.Do.Basic
 import Lean.DocString.Extension
+import Lean.Meta.Tactic.Simp.Main
 meta import Lean.Parser.Command
 meta import Lean.Parser.Term
 meta import Lean.Parser.Do
@@ -21,10 +22,10 @@ import Init.Grind.Interactive
 /-!
 # Intrinsic verification syntax
 
-A definition carrying `given xs` / `requires P` / `ensures b => Q` clauses expands to the plain
-definition plus a `vcgen`-proven, `@[spec]`-tagged specification theorem `f.spec`. An `assert`
-element in a `do` block elaborates to the assertion gadget that `vcgen` proves in the course of that
-theorem.
+A definition carrying `given xs` / `requires P` / `ensures b => Q` / `throws e => R` clauses
+expands to the plain definition plus a `vcgen`-proven, `@[spec]`-tagged specification theorem
+`f.spec`. An `assert` element in a `do` block elaborates to the assertion gadget that `vcgen`
+proves in the course of that theorem.
 -/
 
 public section
@@ -83,34 +84,44 @@ their experimental status from a monad that can read options and log. It reuses 
 private def mkContractNotice (val : Syntax) : Syntax :=
   mkNode ``Lean.Parser.Command.contractDeclVal (val.getArgs.pop.push (mkNullNode #[]))
 
-/-- Expand a `def` carrying `given`/`requires`/`ensures` clauses into the plain `def` plus a spec
-theorem `@[spec] theorem f.spec : ∀ xs, ⦃P⦄ f args ⦃fun b => Q⦄` proved by `vcgen`. A
-`where finally | spec => steps` section supplies `grind`-mode steps for the verification conditions
-`finish` leaves open. -/
+/-- Expand a `def` carrying `given`/`requires`/`ensures`/`throws` clauses into the plain `def`
+plus a spec theorem `@[spec] theorem f.spec : ∀ xs, ⦃P⦄ f args ⦃fun b => Q; E⦄` proved by
+`vcgen`. A `where finally | spec => steps` section supplies `grind`-mode steps for the
+verification conditions `finish` leaves open. -/
 @[builtin_macro Lean.Parser.Command.declaration]
 def expandDefContract : Macro := fun stx => do
   let decl := stx[1]
   unless decl.isOfKind ``Lean.Parser.Command.definition do Macro.throwUnsupported
   -- `definition = "def "(0) >> declId(1) >> optDeclSig(2) >> (declVal <|> contractDeclVal)(3) >> …`
   -- `contractDeclVal = optional givenClause(0) >> optional requiresClause(1) >>
-  --   optional ensuresClause(2) >> declVal(3)`
+  --   optional ensuresClause(2) >> many throwsClause(3) >> declVal(4)`
   -- `givenClause = "given"(0) >> many1 binders(1)`
   let val := decl[3]
   unless val.isOfKind ``Lean.Parser.Command.contractDeclVal do Macro.throwUnsupported
   let givenStx := val[0]
   let requiresStx := val[1]
   let ensuresStx := val[2]
-  -- Replace the contract-carrying value with its inner `declVal` so the `def` elaborates normally.
-  if givenStx.isNone && requiresStx.isNone && ensuresStx.isNone then
-    return stx.setArg 1 (decl.setArg 3 val[3])
-  let (specStep?, strippedVal) ← extractSpecSection val[3]
+  let throwsStx := val[3]
+
+  -- Error recovery on the declVal form might have instead parsed the decl as a contractDeclVal.
+  -- If that is the case, we stop any attempt at expansion because it will just fail again in the
+  -- `def` elaborator.
+  if givenStx.isNone && requiresStx.isNone && ensuresStx.isNone && throwsStx.getNumArgs == 0 then
+    Macro.throwUnsupported
+
+  -- Construct `cleanDeclaration`, the regular, non-contract definition that the specification
+  -- refers to. `cleanDeclaration` is elaborated by the usual `def` elaborator.
+  let (specStep?, strippedVal) ← extractSpecSection val[4]
   let cleanDeclaration := stx.setArg 1 (decl.setArg 3 strippedVal)
+
+  -- Contract def needs the proper Std.WP definitions to be imported.
   unless (← Macro.hasDecl ``Std.WP.Triple) do
     Macro.throwErrorAt
       (if !givenStx.isNone then givenStx else if !requiresStx.isNone then requiresStx
-       else ensuresStx)
-      "`given`/`requires`/`ensures` contracts elaborate to a `vcgen`-proved specification \
-theorem; add `import Std.WP` to use them."
+       else if !ensuresStx.isNone then ensuresStx else throwsStx)
+      "`given`/`requires`/`ensures`/`throws` contracts elaborate to a `vcgen`-proved \
+specification theorem; add `import Std.WP` to use them."
+
   let sig := decl[2]
   let fId : Ident := ⟨decl[1][0]⟩
   let specId := mkIdentFrom fId (fId.getId ++ `spec)
@@ -129,6 +140,22 @@ theorem; add `import Std.WP` to use them."
     match ensuresStx[0] with
     | `(ensuresClause| ensures $f:basicFun) => `(fun $f:basicFun)
     | _ => Macro.throwUnsupported
+  -- Each `throws` clause fills the slot of its exception type; the remaining slots stay `⊥`.
+  -- `contract_eposts%` unfolds the result to an `estack⟨...⟩` in the stored statement.
+  let triple : Term ← do
+    let eposts : Term ← throwsStx.getArgs.foldrM (init := ← `(⊥))
+      fun clause acc =>
+        -- The clause's position carries over to its `set` application, so a failing slot
+        -- instance reports at the clause.
+        withRef clause do
+          match clause with
+          | `(throwsClause| throws $f:basicFun) =>
+            `($(mkCIdent ``Std.WP.EPostSlot.set) (fun $f:basicFun) $acc)
+          | _ => Macro.throwUnsupported
+    -- Build the `contract_eposts%` node directly: the parser compiling this file predates it.
+    let epostsGadget : Term :=
+      ⟨mkNode `Lean.Parser.Term.contractEPosts #[mkAtom "contract_eposts%", eposts]⟩
+    `(⦃ $pre ⦄ $fId $args* ⦃ $post; $epostsGadget ⦄)
   let msg : TSyntax `str := ⟨Syntax.mkStrLit <|
     if specStep?.isSome then
       s!"unproved verification conditions for the contract of `{fId.getId}`; \
@@ -145,7 +172,7 @@ discharge them in a `where finally | spec => ...` section of the definition"⟩
   -- `Lean.Order` for the spec theorem without adding names to the user's scope.
   let thm ← `(command|
     open scoped Std.WP Lean.Order in
-    @[spec] theorem $specId $binders* : ⦃ $pre ⦄ $fId $args* ⦃ $post ⦄ := by
+    @[spec] theorem $specId $binders* : $triple := by
       vcgen [$fId:ident] with (try finish)
       $specTac:tactic
       first
@@ -153,13 +180,49 @@ discharge them in a `where finally | spec => ...` section of the definition"⟩
       | fail $msg)
   return mkNullNode #[mkContractNotice val, cleanDeclaration, thm]
 
+/-- The unfolding equations of `EPostSlot.set` and of the projections of `⊥`. -/
+private def epostsUnfoldLemmas : Array Name :=
+  #[``Std.WP.EPostSlot.set_fun, ``Std.WP.EPostSlot.set_head, ``Std.WP.EPostSlot.set_tail,
+    ``Lean.Order.Prod.fst_bot, ``Lean.Order.Prod.snd_bot]
+
+/-- Runs `Meta.simp` on `e` with exactly the lemmas in `names`. -/
+private def simpOnlyWith (names : Array Name) (e : Expr) : Elab.TermElabM Expr := do
+  let mut thms : Meta.SimpTheorems := {}
+  for n in names do
+    thms ← thms.addConst n
+  let ctx ← Meta.Simp.mkContext (simpTheorems := #[thms])
+    (congrTheorems := ← Meta.getSimpCongrTheorems)
+  let (r, _) ← Meta.simp e ctx
+  return r.expr
+
+/-- Elaborating `contract_eposts% e` rewrites the `EPostSlot.set` applications and `⊥` in `e` to an
+`estack⟨...⟩` expression. Used in the expansion of `throws` clauses to yield simpler specs. -/
+@[builtin_term_elab Lean.Parser.Term.contractEPosts]
+def elabContractEPosts : Term.TermElab := fun stx expectedType? => do
+  -- Wait for the type of the exception postconditions, so the slot instances resolve.
+  Term.tryPostponeIfNoneOrMVar expectedType?
+  if let some expectedType := expectedType? then
+    if (← instantiateMVars expectedType).hasExprMVar then
+      Term.tryPostpone
+  let e ← Term.withSynthesize <| Term.elabTerm stx[1] expectedType?
+  let e ← instantiateMVars e
+  let e' ← simpOnlyWith epostsUnfoldLemmas e
+  -- Without progress above, `e` is the bare `⊥` of a contract without `throws` clauses; keep it,
+  -- so the spec prints in the short `⦃Q⦄` form. Otherwise rewrite the stack's tail `⊥` as well.
+  if e' == e then
+    return e
+  simpOnlyWith #[``Std.WP.EStackEnd.bot_eq] e'
+
 open Lean.Elab.Do in
-/-- Report the experimental status of each contract clause the notice carries. -/
+/-- Report the experimental status of each contract clause the notice carries, in a slight
+command-level misuse of a `contractDeclVal` node. Does not change the environment. -/
 @[builtin_command_elab Lean.Parser.Command.contractDeclVal]
 def elabContractNotice : Elab.Command.CommandElab := fun stx => do
-  for clause in stx.getArgs.pop do
-    unless clause.isNone do
-      let kw := clause[0][0]
+  -- A group is the `optional` node of a `given`/`requires`/`ensures` clause or the `many` node
+  -- of the `throws` clauses; each clause starts with its keyword atom.
+  for group in stx.getArgs.pop do
+    for clause in group.getArgs do
+      let kw := clause[0]
       warnIntrinsicExperimental kw m!"`{kw.getAtomVal}` clause"
 
 open Lean.Elab.Do Lean.Parser.Term in

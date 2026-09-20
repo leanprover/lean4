@@ -76,4 +76,8 @@ macro_rules
     | _ => throw ()
   | _ => throw ()
 
+open Lean.Order in
+/-- `⊥` at the end of an exception postcondition stack is the empty stack value. -/
+theorem EStackEnd.bot_eq [CCPO EStackEnd] : (⊥ : EStackEnd) = estack⟨⟩ := rfl
+
 end Std.WP

@@ -714,6 +714,11 @@ extern "C" LEAN_EXPORT void lean_mark_mt(object * o) {
 // Tasks
 
 LEAN_THREAD_PTR(lean_task_object, g_current_task_object);
+/* Index of the current thread in `task_manager::m_std_workers`, or -1 outside the pool */
+LEAN_THREAD_VALUE(int, g_std_worker_idx, -1);
+/* How long a task stays reserved for the worker that made it runnable before other workers may
+   take it, see `task_manager::worker_slot` */
+static const std::chrono::microseconds g_park_timeout(200);
 
 static lean_task_imp * alloc_task_imp(obj_arg c, unsigned prio, bool keep_alive) {
     lean_task_imp * imp = (lean_task_imp*)lean_alloc_small_object(sizeof(lean_task_imp));
@@ -750,7 +755,6 @@ class task_manager {
     std::deque<lean_task_object *>                m_queues[LEAN_MAX_PRIO+1];
     unsigned                                      m_queues_size{0};
     unsigned                                      m_max_prio{0};
-    condition_variable                            m_queue_cv;
     /* Woken on every task completion, but only used by `wait_any` */
     condition_variable                            m_task_finished_cv;
     condition_variable                            m_dedicated_finished_cv;
@@ -764,6 +768,86 @@ class task_manager {
        its own waiters. An entry is created by the first waiter and removed by the last one. */
     waiters_map                                   m_waiters;
     unsigned                                      m_num_wait_any{0};
+    /* A task made runnable by finishing another task on a pool worker is parked in that worker's
+       slot instead of the queue so that the worker runs it right after its current task, which keeps
+       a chain of dependent tasks on one warm thread. An idle worker is still woken and steals the
+       task if it is still parked after `g_park_timeout`, so a long-running owner cannot delay it. */
+    struct worker_slot {
+        lean_task_object *                    m_task{nullptr};
+        std::chrono::steady_clock::time_point m_since;
+        /* The worker's own wake-up signal, see `wake_worker` */
+        condition_variable                    m_cv;
+        bool                                  m_in_idle_stack{false};
+        /* When the worker last finished a task; decides its position in the idle stack */
+        std::chrono::steady_clock::time_point m_last_work;
+    };
+    std::vector<std::unique_ptr<worker_slot>>     m_slots;
+    unsigned                                      m_num_parked{0};
+    /* Waiting workers, most recently idled last. Waking that one rather than an arbitrary waiter
+       keeps a stream of small tasks on a warm thread instead of cycling through cold ones. */
+    std::vector<unsigned>                         m_idle_stack;
+
+    /* Wakes the most recently idled worker, if any */
+    void wake_worker() {
+        if (m_idle_stack.empty())
+            return;
+        worker_slot & s = *m_slots[m_idle_stack.back()];
+        m_idle_stack.pop_back();
+        s.m_in_idle_stack = false;
+        s.m_cv.notify_one();
+    }
+
+    /* Blocks worker `idx` until `wake_worker` picks it or, if `timed`, `g_park_timeout` passes */
+    void idle_wait(unique_lock<mutex> & lock, unsigned idx, bool timed) {
+        worker_slot & s = *m_slots[idx];
+        s.m_in_idle_stack = true;
+        // Keep the stack ordered by when each worker last did work so that the top is the warmest
+        // one, independently of timeouts and spurious wake-ups
+        std::vector<unsigned>::iterator pos = m_idle_stack.begin();
+        while (pos != m_idle_stack.end() && m_slots[*pos]->m_last_work <= s.m_last_work)
+            ++pos;
+        m_idle_stack.insert(pos, idx);
+        if (timed)
+            s.m_cv.wait_for(lock, g_park_timeout);
+        else
+            s.m_cv.wait(lock);
+        if (s.m_in_idle_stack) {
+            // timeout, spurious wake-up or shutdown: nobody took us off the stack
+            s.m_in_idle_stack = false;
+            m_idle_stack.erase(std::find(m_idle_stack.begin(), m_idle_stack.end(), idx));
+        }
+    }
+    /* Number of idle workers in a timed wait for a parked task to become stale; one is enough to
+       guarantee that parked tasks are eventually stolen, so parking does not wake another */
+    unsigned                                      m_num_watching{0};
+
+    /* Takes the current worker's parked task unless the queue holds a task of higher priority */
+    lean_task_object * take_own_parked() {
+        worker_slot & s = *m_slots[g_std_worker_idx];
+        lean_task_object * t = s.m_task;
+        if (!t)
+            return nullptr;
+        if (m_queues_size > 0 && t->m_imp.load(std::memory_order_relaxed)->m_prio < m_max_prio)
+            return nullptr;
+        s.m_task = nullptr;
+        m_num_parked--;
+        return t;
+    }
+
+    /* Takes a task parked by another worker for longer than `g_park_timeout`, if any */
+    lean_task_object * steal_stale_parked() {
+        std::chrono::steady_clock::time_point now = std::chrono::steady_clock::now();
+        for (unsigned i = 0; i < m_slots.size(); i++) {
+            worker_slot & s = *m_slots[i];
+            if (s.m_task && now - s.m_since > g_park_timeout) {
+                lean_task_object * t = s.m_task;
+                s.m_task = nullptr;
+                m_num_parked--;
+                return t;
+            }
+        }
+        return nullptr;
+    }
 
     lean_task_object * dequeue() {
         lean_assert(m_queues_size != 0);
@@ -782,7 +866,8 @@ class task_manager {
         return result;
     }
 
-    void enqueue_core(unique_lock<mutex> & lock, lean_task_object * t) {
+    /* `park` requests keeping `t` on the current pool worker, see `worker_slot` */
+    void enqueue_core(unique_lock<mutex> & lock, lean_task_object * t, bool park = false) {
         lean_task_imp* imp = t->m_imp.load(std::memory_order_relaxed);
         lean_assert(imp);
         unsigned prio = imp->m_prio;
@@ -794,14 +879,28 @@ class task_manager {
             spawn_dedicated_worker(t);
             return;
         }
-        if (prio > m_max_prio)
-            m_max_prio = prio;
-        m_queues[prio].push_back(t);
-        m_queues_size++;
+        bool parked = false;
+        if (park && g_std_worker_idx >= 0 && !m_shutting_down && !m_slots[g_std_worker_idx]->m_task) {
+            worker_slot & s = *m_slots[g_std_worker_idx];
+            s.m_task  = t;
+            s.m_since = std::chrono::steady_clock::now();
+            m_num_parked++;
+            parked = true;
+        }
+        if (!parked) {
+            if (prio > m_max_prio)
+                m_max_prio = prio;
+            m_queues[prio].push_back(t);
+            m_queues_size++;
+        }
+        // A parked task still needs a worker ready to steal it in case the owner does not return
+        // in time, unless one is already watching
+        if (parked && m_num_watching > 0)
+            return;
         if (!m_idle_std_workers && m_std_workers.size() < m_max_std_workers)
             spawn_worker();
         else
-            m_queue_cv.notify_one();
+            wake_worker();
     }
 
     void deactivate_task_core(unique_lock<mutex> & lock, lean_task_object * t) {
@@ -828,39 +927,72 @@ class task_manager {
         if (m_shutting_down)
             return;
 
-        m_std_workers.emplace_back(new lthread([this]() {
+        unsigned idx = m_std_workers.size();
+        m_slots.emplace_back(new worker_slot());
+        m_std_workers.emplace_back(new lthread([this, idx]() {
             save_stack_info(false);
+            g_std_worker_idx = idx;
             unique_lock<mutex> lock(m_mutex);
             m_idle_std_workers++;
+            // Whether to watch for parked tasks for one `g_park_timeout` before sleeping indefinitely.
+            // A worker woken because a task was parked usually finds that its owner has taken it
+            // already; lingering as the watcher lets the owner's next parks skip the wake-up.
+            bool linger = true;
             while (true) {
-                if (m_queues_size == 0) {
-                    if (m_shutting_down) {
-                        // We're done
-                        break;
+                // A task parked by this worker's previous task comes first
+                lean_task_object * t = take_own_parked();
+                if (!t) {
+                    if (m_queues_size == 0 && m_num_parked == 0) {
+                        if (m_shutting_down) {
+                            // We're done
+                            break;
+                        }
+                        if (linger) {
+                            linger = false;
+                            m_num_watching++;
+                            idle_wait(lock, idx, true);
+                            m_num_watching--;
+                            continue;
+                        }
+                        // Wait for new tasks
+                        idle_wait(lock, idx, false);
+                        linger = true;
+                        continue;
                     }
-                    // Wait for new tasks
-                    m_queue_cv.wait(lock);
-                    continue;
-                }
 
-                // There's work to be done.
-                // If we have reached the maximum number of standard workers (because the
-                // maximum was decreased by `task_get`), wait for someone else to become
-                // idle before picking up new work.
-                // But during shutdown, we skip this throttling:
-                // because the finalizer might have called m_queue_cv.notify_all() for the last
-                // time, we don't want to get stuck behind the wait().
-                if (!m_shutting_down &&
-                    m_std_workers.size() - m_idle_std_workers >= m_max_std_workers) {
-                    m_queue_cv.wait(lock);
-                    continue;
-                }
+                    // There's work to be done.
+                    // If we have reached the maximum number of standard workers (because the
+                    // maximum was decreased by `task_get`), wait for someone else to become
+                    // idle before picking up new work.
+                    // But during shutdown, we skip this throttling:
+                    // because the finalizer might have woken every worker for the last time, we
+                    // don't want to get stuck behind the wait.
+                    if (!m_shutting_down &&
+                        m_std_workers.size() - m_idle_std_workers >= m_max_std_workers) {
+                        idle_wait(lock, idx, false);
+                        continue;
+                    }
 
-                lean_task_object * t = dequeue();
+                    if (m_queues_size > 0) {
+                        t = dequeue();
+                    } else {
+                        t = steal_stale_parked();
+                        if (!t) {
+                            // Only freshly parked tasks are left; give their owners the chance to
+                            // return for them
+                            m_num_watching++;
+                            idle_wait(lock, idx, true);
+                            m_num_watching--;
+                            continue;
+                        }
+                    }
+                }
                 m_idle_std_workers--;
                 run_task(lock, t);
                 m_idle_std_workers++;
                 reset_heartbeat();
+                linger = true;
+                m_slots[idx]->m_last_work = std::chrono::steady_clock::now();
             }
             m_idle_std_workers--;
         }));
@@ -947,7 +1079,7 @@ class task_manager {
             if (it_imp->m_deleted) {
                 free_task(it);
             } else {
-                enqueue_core(lock, it);
+                enqueue_core(lock, it, /* park */ true);
             }
             it = next_it;
         }
@@ -975,7 +1107,8 @@ public:
             m_shutting_down = true;
             // we can assume that `m_std_workers` will not be changed after this line
         }
-        m_queue_cv.notify_all();
+        for (std::unique_ptr<worker_slot> & s : m_slots)
+            s->m_cv.notify_all();
 #ifndef LEAN_EMSCRIPTEN
         // wait for all workers to finish
         for (auto & t : m_std_workers)
@@ -1038,7 +1171,7 @@ public:
             if (m_idle_std_workers == 0)
                 spawn_worker();
             else
-                m_queue_cv.notify_one();
+                wake_worker();
         }
         std::unique_ptr<task_waiters> & ws = m_waiters[t];
         if (!ws)

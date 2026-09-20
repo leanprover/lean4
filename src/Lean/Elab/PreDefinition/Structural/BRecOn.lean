@@ -235,7 +235,7 @@ def mkBRecOnF (recArgInfos : Array RecArgInfo) (positions : Positions)
       | throwError "unexpected type of `brecOn` argument{indentExpr FType}"
     -- TODO: `below` user name is `f`, and it will make a global `f` to be pretty printed as `_root_.f` in error messages.
     -- We should use a fresh name here.
-    -- The type of `below` is never a class, so we do not need to check whether it is a local instance.
+    -- `below` is only used to rebuild terms, so we do not need to check whether it is a local instance.
     withLocalDeclNoLocalInstanceUpdate n bi belowType fun below => do
       let valueNew ← replaceRecApps recArgInfos positions below value
       mkLambdaFVars (indicesMajorArgs ++ #[below] ++ otherArgs) valueNew

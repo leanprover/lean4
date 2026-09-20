@@ -718,6 +718,9 @@ LEAN_THREAD_VALUE(int, g_std_worker_idx, -1);
 /* How long a task stays reserved for the worker that made it runnable before other workers may
    take it, see `task_manager::worker_slot` */
 static const std::chrono::microseconds g_park_timeout(200);
+/* How many parked tasks a worker may run in a row while other tasks are queued before it has to
+   take one of those, so that a chain of dependent tasks cannot starve the queue */
+static const unsigned g_max_parked_streak = 8;
 
 static lean_task_imp * alloc_task_imp(obj_arg c, unsigned prio, bool keep_alive) {
     lean_task_imp * imp = (lean_task_imp*)lean_alloc_small_object(sizeof(lean_task_imp));
@@ -769,6 +772,8 @@ class task_manager {
         bool                                  m_in_idle_stack{false};
         /* When the worker last finished a task; decides its position in the idle stack */
         std::chrono::steady_clock::time_point m_last_work;
+        /* Parked tasks run in a row while the queue was non-empty, see `g_max_parked_streak` */
+        unsigned                              m_parked_streak{0};
     };
     std::vector<std::unique_ptr<worker_slot>>     m_slots;
     unsigned                                      m_num_parked{0};
@@ -810,14 +815,21 @@ class task_manager {
        guarantee that parked tasks are eventually stolen, so parking does not wake another */
     unsigned                                      m_num_watching{0};
 
-    /* Takes the current worker's parked task unless the queue holds a task of higher priority */
+    /* Takes the current worker's parked task unless the queue holds a task of higher priority or
+       queued tasks have been passed over `g_max_parked_streak` times in a row */
     lean_task_object * take_own_parked() {
         worker_slot & s = *m_slots[g_std_worker_idx];
         lean_task_object * t = s.m_task;
         if (!t)
             return nullptr;
-        if (m_queues_size > 0 && t->m_imp.load(std::memory_order_relaxed)->m_prio < m_max_prio)
-            return nullptr;
+        if (m_queues_size > 0) {
+            if (t->m_imp.load(std::memory_order_relaxed)->m_prio < m_max_prio ||
+                    s.m_parked_streak >= g_max_parked_streak)
+                return nullptr;
+            s.m_parked_streak++;
+        } else {
+            s.m_parked_streak = 0;
+        }
         s.m_task = nullptr;
         m_num_parked--;
         return t;
@@ -931,6 +943,7 @@ class task_manager {
                 // A task parked by this worker's previous task comes first
                 lean_task_object * t = take_own_parked();
                 if (!t) {
+                    m_slots[idx]->m_parked_streak = 0;
                     if (m_queues_size == 0 && m_num_parked == 0) {
                         if (m_shutting_down) {
                             // We're done

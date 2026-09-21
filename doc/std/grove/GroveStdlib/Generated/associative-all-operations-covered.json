@@ -1,0 +1,20 @@
+{
+  "widgetId": "associative-all-operations-covered",
+  "facts": [
+    {
+      "widgetId": "associative-all-operations-covered",
+      "factId": "all-covered",
+      "assertionId": "all-covered",
+      "state": {
+        "assertionId": "all-covered",
+        "description": "All operations should be covered",
+        "message": "There were 19697 operations that were not covered.",
+        "passed": false
+      },
+      "metadata": {
+        "comment": "Still missing some!",
+        "status": "bad"
+      }
+    }
+  ]
+}

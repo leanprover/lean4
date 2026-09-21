@@ -1,19 +1,24 @@
+Input: "![Lean logo](/static/lean_logo.svg)\n\nThis is an example website/blog, for testing purposes."
 Success! Final stack:
-  [(Lean.Doc.Syntax.para
-    "para{"
-    [(Lean.Doc.Syntax.image
-      "!["
-      (str "\"Lean logo\"")
-      "]"
-      (Lean.Doc.Syntax.url
-       "("
-       (str "\"/static/lean_logo.svg\"")
-       ")"))]
-    "}")
-   (Lean.Doc.Syntax.para
-    "para{"
-    [(Lean.Doc.Syntax.text
-      (str
-       "\"This is an example website/blog, for testing purposes.\""))]
-    "}")]
+  (Lean.Doc.Parser.document
+   [(Lean.Doc.Parser.Block.para
+     [(Lean.Doc.Parser.Inline.image
+       "!["
+       (Lean.Doc.Parser.versoImageAlt "Lean logo")
+       "]"
+       (Lean.Doc.Parser.LinkTarget.url
+        "("
+        (Lean.Doc.Parser.versoLinkUrl
+         "/static/lean_logo.svg")
+        ")"))])
+    (Lean.Doc.Parser.Block.para
+     [(Lean.Doc.Parser.Inline.text
+       (Lean.Doc.Parser.versoText
+        "This is an example website/blog, for testing purposes."))])])
 All input consumed.
+Round-trip OK
+Decoded views:
+  para
+    image (opener := "![") (alt := "Lean logo") (closer := "]") (target := url (opener := "(") (url := "/static/lean_logo.svg") (closer := ")"))
+  para
+    text (content := "This is an example website/blog, for testing purposes.")

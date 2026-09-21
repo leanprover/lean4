@@ -684,7 +684,7 @@ builtin_initialize folderExt : PersistentEnvExtension FolderOleanEntry FolderEnt
     exportEntriesFn := fun (entries, _) => entries.reverse.toArray.map (·.toFolderOleanEntry)
     asyncMode := .sync
     replay? := some fun oldState newState _ s =>
-      let newEntries := newState.1.take (newState.1.length - oldState.1.length)
+      let newEntries := takeNewEntries newState.1 oldState.1
       (newEntries ++ s.1, newEntries.foldl (init := s.2) fun s e => s.insert e.declName (newState.2.find! e.declName))
   }
 

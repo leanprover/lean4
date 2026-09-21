@@ -10912,10 +10912,10 @@ return v___x_4040_;
 LEAN_EXPORT lean_object* l___private_Init_Data_Array_Basic_0__Array_foldlMUnsafe_fold___at___00Lean_Elab_Structural_structuralRecursion_spec__5___lam__1___boxed(lean_object* v_docCtx_4041_, lean_object* v_a_4042_, lean_object* v___x_4043_, lean_object* v___x_4044_, lean_object* v___x_4045_, lean_object* v___y_4046_, lean_object* v___y_4047_, lean_object* v___y_4048_, lean_object* v___y_4049_, lean_object* v___y_4050_, lean_object* v___y_4051_, lean_object* v___y_4052_){
 _start:
 {
-uint8_t v___x_9191__boxed_4053_; uint8_t v___x_9193__boxed_4054_; lean_object* v_res_4055_; 
-v___x_9191__boxed_4053_ = lean_unbox(v___x_4043_);
-v___x_9193__boxed_4054_ = lean_unbox(v___x_4045_);
-v_res_4055_ = l___private_Init_Data_Array_Basic_0__Array_foldlMUnsafe_fold___at___00Lean_Elab_Structural_structuralRecursion_spec__5___lam__1(v_docCtx_4041_, v_a_4042_, v___x_9191__boxed_4053_, v___x_4044_, v___x_9193__boxed_4054_, v___y_4046_, v___y_4047_, v___y_4048_, v___y_4049_, v___y_4050_, v___y_4051_);
+uint8_t v___x_9192__boxed_4053_; uint8_t v___x_9194__boxed_4054_; lean_object* v_res_4055_; 
+v___x_9192__boxed_4053_ = lean_unbox(v___x_4043_);
+v___x_9194__boxed_4054_ = lean_unbox(v___x_4045_);
+v_res_4055_ = l___private_Init_Data_Array_Basic_0__Array_foldlMUnsafe_fold___at___00Lean_Elab_Structural_structuralRecursion_spec__5___lam__1(v_docCtx_4041_, v_a_4042_, v___x_9192__boxed_4053_, v___x_4044_, v___x_9194__boxed_4054_, v___y_4046_, v___y_4047_, v___y_4048_, v___y_4049_, v___y_4050_, v___y_4051_);
 lean_dec(v___y_4051_);
 lean_dec_ref(v___y_4050_);
 lean_dec(v___y_4049_);

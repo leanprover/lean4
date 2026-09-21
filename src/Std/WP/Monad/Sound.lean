@@ -19,7 +19,7 @@ open Lean.Order Std.WP
 /-!
 # Soundness of the Weakest Precondition Interpretation
 
-`LawfulWPMonadAttach m Pred EPred` relates the `wp` interpretation of `m` to the values that a
+`LawfulWPMonadAttach m Pred EPosts` relates the `wp` interpretation of `m` to the values that a
 program `x : m α` returns. Its single field `of_canReturn_wp` says: if the postcondition
 `fun a => ⌜P a⌝` follows from `⊤` under `wp x`, then `P a` holds for every `a` with
 `MonadAttach.CanReturn x a`.
@@ -38,13 +38,15 @@ namespace Std.WP
 
 /-- Soundness of the weakest precondition interpretation of `m`: a postcondition that `wp` proves
 holds of every value the program returns. -/
-class LawfulWPMonadAttach (m : Type u → Type v) (Pred : outParam (Type w)) (EPred : outParam (Type z))
-    [Monad m] [MonadAttach m] [LawfulMonadAttach m] [Assertion Pred] [Assertion EPred]
-    [WPMonad m Pred EPred] where
+class LawfulWPMonadAttach (m : Type u → Type v) (Pred : outParam (Type w)) (EPosts : outParam (Type z))
+    [Monad m] [MonadAttach m] [LawfulMonadAttach m] [Assertion Pred] [Assertion EPosts]
+    [WPMonad m Pred EPosts] where
   /-- From a `wp`-provable postcondition and a `MonadAttach.CanReturn` witness, conclude `P` at
   that value. -/
   of_canReturn_wp {α : Type u} {x : m α} {P : α → Prop} {a : α} :
     MonadAttach.CanReturn x a → (⊤ ⊑ wp x (fun a => ⌜P a⌝) ⊤) → P a
+
+attribute [deprecated_arg EPred EPosts (since := "2026-09-18")] LawfulWPMonadAttach
 
 instance Id.instLawfulWPMonadAttach : LawfulWPMonadAttach Id.{u} Prop EStack⟨⟩ where
   of_canReturn_wp hcan hwp := by
@@ -72,43 +74,43 @@ instance EStateM.instLawfulWPMonadAttach {ε σ : Type} : LawfulWPMonadAttach (E
     obtain ⟨s, s', heq⟩ := hcan
     have hxs : x s = EStateM.Result.ok a s' := heq
     have h := hwp s (by simp)
-    simp only [wp, WP.wpTrans, hxs] at h
+    simp only [wp, WP.trans, hxs] at h
     simpa using h
 
-instance ExceptT.instLawfulWPMonadAttach {ε m Pred EPred}
+instance ExceptT.instLawfulWPMonadAttach {ε m Pred EPosts}
     [Monad m] [MonadAttach m] [LawfulMonadAttach m]
-    [Assertion Pred] [Assertion EPred] [WPMonad m Pred EPred] [LawfulWPMonadAttach m Pred EPred] :
-    LawfulWPMonadAttach (ExceptT ε m) Pred ((ε → Pred) × EPred) where
+    [Assertion Pred] [Assertion EPosts] [WPMonad m Pred EPosts] [LawfulWPMonadAttach m Pred EPosts] :
+    LawfulWPMonadAttach (ExceptT ε m) Pred ((ε → Pred) × EPosts) where
   of_canReturn_wp := @fun α x P a hcan hwp => by
     refine LawfulWPMonadAttach.of_canReturn_wp (m := m)
       (P := fun r : Except ε α => match r with | .ok b => P b | .error _ => True)
       (a := .ok a) hcan ?_
     rw [ExceptT.wp_apply_eq] at hwp
-    refine PartialOrder.rel_trans hwp (WP.wp_consequence_econs _ _ _ _ _ ?_ (le_top _))
+    refine PartialOrder.rel_trans hwp (WP.wp_monotone ?_ (le_top _))
     intro r
     cases r with
     | ok b => exact PartialOrder.rel_refl
     | error e => exact le_ofProp _ _ trivial
 
-instance OptionT.instLawfulWPMonadAttach {m : Type u → Type z} {Pred : Type u} {EPred : Type w}
+instance OptionT.instLawfulWPMonadAttach {m : Type u → Type z} {Pred : Type u} {EPosts : Type w}
     [Monad m] [MonadAttach m] [LawfulMonadAttach m]
-    [Assertion Pred] [Assertion EPred] [WPMonad m Pred EPred] [LawfulWPMonadAttach m Pred EPred] :
-    LawfulWPMonadAttach (OptionT m) Pred ((Unit → Pred) × EPred) where
+    [Assertion Pred] [Assertion EPosts] [WPMonad m Pred EPosts] [LawfulWPMonadAttach m Pred EPosts] :
+    LawfulWPMonadAttach (OptionT m) Pred ((Unit → Pred) × EPosts) where
   of_canReturn_wp := @fun α x P a hcan hwp => by
     refine LawfulWPMonadAttach.of_canReturn_wp (m := m)
       (P := fun r : Option α => match r with | some b => P b | none => True)
       (a := some a) hcan ?_
     rw [OptionT.wp_apply_eq] at hwp
-    refine PartialOrder.rel_trans hwp (WP.wp_consequence_econs _ _ _ _ _ ?_ (le_top _))
+    refine PartialOrder.rel_trans hwp (WP.wp_monotone ?_ (le_top _))
     intro r
     cases r with
     | some b => exact PartialOrder.rel_refl
     | none => exact le_ofProp _ _ trivial
 
-instance StateT.instLawfulWPMonadAttach {m : Type u → Type z} {σ : Type u} {Pred : Type v} {EPred : Type w}
+instance StateT.instLawfulWPMonadAttach {m : Type u → Type z} {σ : Type u} {Pred : Type v} {EPosts : Type w}
     [Monad m] [MonadAttach m] [LawfulMonadAttach m]
-    [Assertion Pred] [Assertion EPred] [WPMonad m Pred EPred] [LawfulWPMonadAttach m Pred EPred] :
-    LawfulWPMonadAttach (StateT σ m) (σ → Pred) EPred where
+    [Assertion Pred] [Assertion EPosts] [WPMonad m Pred EPosts] [LawfulWPMonadAttach m Pred EPosts] :
+    LawfulWPMonadAttach (StateT σ m) (σ → Pred) EPosts where
   of_canReturn_wp := @fun α x P a hcan hwp => by
     obtain ⟨s, s', hcan⟩ := hcan
     refine LawfulWPMonadAttach.of_canReturn_wp (m := m) (P := fun q : α × σ => P q.1) (a := (a, s')) hcan ?_
@@ -116,10 +118,10 @@ instance StateT.instLawfulWPMonadAttach {m : Type u → Type z} {σ : Type u} {P
     rw [StateT.wp_apply_eq] at h
     simpa using h
 
-instance ReaderT.instLawfulWPMonadAttach {m : Type u → Type z} {ρ : Type u} {Pred : Type v} {EPred : Type w}
+instance ReaderT.instLawfulWPMonadAttach {m : Type u → Type z} {ρ : Type u} {Pred : Type v} {EPosts : Type w}
     [Monad m] [MonadAttach m] [LawfulMonadAttach m]
-    [Assertion Pred] [Assertion EPred] [WPMonad m Pred EPred] [LawfulWPMonadAttach m Pred EPred] :
-    LawfulWPMonadAttach (ReaderT ρ m) (ρ → Pred) EPred where
+    [Assertion Pred] [Assertion EPosts] [WPMonad m Pred EPosts] [LawfulWPMonadAttach m Pred EPosts] :
+    LawfulWPMonadAttach (ReaderT ρ m) (ρ → Pred) EPosts where
   of_canReturn_wp := @fun α x P a hcan hwp => by
     obtain ⟨r, hcan⟩ := hcan
     refine LawfulWPMonadAttach.of_canReturn_wp (m := m) (P := P) (a := a) hcan ?_
@@ -135,9 +137,9 @@ base-monad computation that `prog` becomes once its arguments are supplied.
 
 /-- A `wp`-provable postcondition holds at every value that the post-run computation
 `prog.run r : m α` returns. -/
-theorem ReaderT.of_canReturn_run_wp {m : Type u → Type z} {ρ : Type u} {Pred : Type v} {EPred : Type w}
+theorem ReaderT.of_canReturn_run_wp {m : Type u → Type z} {ρ : Type u} {Pred : Type v} {EPosts : Type w}
     [Monad m] [MonadAttach m] [LawfulMonadAttach m]
-    [Assertion Pred] [Assertion EPred] [WPMonad m Pred EPred] [LawfulWPMonadAttach m Pred EPred]
+    [Assertion Pred] [Assertion EPosts] [WPMonad m Pred EPosts] [LawfulWPMonadAttach m Pred EPosts]
     {α : Type u} {prog : ReaderT ρ m α} {r : ρ} {a : α} (P : α → Prop)
     (hcan : MonadAttach.CanReturn (prog.run r) a)
     (hwp : ⊤ ⊑ wp prog (fun a => ⌜P a⌝) ⊤ r) : P a := by
@@ -147,9 +149,9 @@ theorem ReaderT.of_canReturn_run_wp {m : Type u → Type z} {ρ : Type u} {Pred 
 
 /-- A `wp`-provable postcondition holds at every value-state pair that the post-run computation
 `prog.run s : m (α × σ)` returns. -/
-theorem StateT.of_canReturn_run_wp {m : Type u → Type z} {σ : Type u} {Pred : Type v} {EPred : Type w}
+theorem StateT.of_canReturn_run_wp {m : Type u → Type z} {σ : Type u} {Pred : Type v} {EPosts : Type w}
     [Monad m] [MonadAttach m] [LawfulMonadAttach m]
-    [Assertion Pred] [Assertion EPred] [WPMonad m Pred EPred] [LawfulWPMonadAttach m Pred EPred]
+    [Assertion Pred] [Assertion EPosts] [WPMonad m Pred EPosts] [LawfulWPMonadAttach m Pred EPosts]
     {α : Type u} {prog : StateT σ m α} {s : σ} {p : α × σ} (P : α × σ → Prop)
     (hcan : MonadAttach.CanReturn (prog.run s) p)
     (hwp : ⊤ ⊑ wp prog (fun a s' => ⌜P (a, s')⌝) ⊤ s) : P p := by
@@ -159,30 +161,30 @@ theorem StateT.of_canReturn_run_wp {m : Type u → Type z} {σ : Type u} {Pred :
 
 /-- A `wp`-provable postcondition with split `.ok`/`.error` cases holds at every result that the
 post-run computation `prog.run : m (Except ε α)` returns. -/
-theorem ExceptT.of_canReturn_run_wp {m : Type u → Type z} {ε : Type u} {Pred : Type v} {EPred : Type w}
+theorem ExceptT.of_canReturn_run_wp {m : Type u → Type z} {ε : Type u} {Pred : Type v} {EPosts : Type w}
     [Monad m] [MonadAttach m] [LawfulMonadAttach m]
-    [Assertion Pred] [Assertion EPred] [WPMonad m Pred EPred] [LawfulWPMonadAttach m Pred EPred]
+    [Assertion Pred] [Assertion EPosts] [WPMonad m Pred EPosts] [LawfulWPMonadAttach m Pred EPosts]
     {α : Type u} {prog : ExceptT ε m α} {x : Except ε α} (P : Except ε α → Prop)
     (hcan : MonadAttach.CanReturn prog.run x)
     (hwp : ⊤ ⊑ wp prog (fun a => ⌜P (.ok a)⌝) ((fun e => ⌜P (.error e)⌝), ⊤)) :
     P x := by
   refine LawfulWPMonadAttach.of_canReturn_wp (m := m) hcan ?_
   rw [ExceptT.wp_apply_eq] at hwp
-  refine PartialOrder.rel_trans hwp (WP.wp_consequence_econs _ _ _ _ _ ?_ (le_top _))
+  refine PartialOrder.rel_trans hwp (WP.wp_monotone ?_ (le_top _))
   intro r
   cases r <;> exact PartialOrder.rel_refl
 
 /-- A `wp`-provable postcondition with split `some`/`none` cases holds at every result that the
 post-run computation `prog.run : m (Option α)` returns. -/
-theorem OptionT.of_canReturn_run_wp {m : Type u → Type z} {Pred : Type u} {EPred : Type w}
+theorem OptionT.of_canReturn_run_wp {m : Type u → Type z} {Pred : Type u} {EPosts : Type w}
     [Monad m] [MonadAttach m] [LawfulMonadAttach m]
-    [Assertion Pred] [Assertion EPred] [WPMonad m Pred EPred] [LawfulWPMonadAttach m Pred EPred]
+    [Assertion Pred] [Assertion EPosts] [WPMonad m Pred EPosts] [LawfulWPMonadAttach m Pred EPosts]
     {α : Type u} {prog : OptionT m α} {x : Option α} (P : Option α → Prop)
     (hcan : MonadAttach.CanReturn prog.run x)
     (hwp : ⊤ ⊑ wp prog (fun a => ⌜P (some a)⌝) ((fun _ => ⌜P none⌝), ⊤)) : P x := by
   refine LawfulWPMonadAttach.of_canReturn_wp (m := m) hcan ?_
   rw [OptionT.wp_apply_eq] at hwp
-  refine PartialOrder.rel_trans hwp (WP.wp_consequence_econs _ _ _ _ _ ?_ (le_top _))
+  refine PartialOrder.rel_trans hwp (WP.wp_monotone ?_ (le_top _))
   intro r
   cases r <;> exact PartialOrder.rel_refl
 
@@ -251,8 +253,8 @@ theorem EStateM.of_run_eq_wp {ε σ α : Type} {x : EStateM.Result ε σ α}
   change P (prog s)
   cases heq : prog s with
   | ok a s' =>
-    simpa [wp, WP.wpTrans, heq] using hwp
+    simpa [wp, WP.trans, heq] using hwp
   | error e s' =>
-    simpa [wp, WP.wpTrans, heq] using hwp
+    simpa [wp, WP.trans, heq] using hwp
 
 end Std.WP

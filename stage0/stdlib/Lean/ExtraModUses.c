@@ -3078,11 +3078,11 @@ goto v___jp_1039_;
 LEAN_EXPORT lean_object* l___private_Lean_ExtraModUses_0__Lean_recordExtraModUseCore___redArg___lam__4___boxed(lean_object* v_modifyEnv_1071_, lean_object* v___f_1072_, lean_object* v_inst_1073_, lean_object* v_inst_1074_, lean_object* v_inst_1075_, lean_object* v_inst_1076_, lean_object* v_cls_1077_, lean_object* v_toBind_1078_, lean_object* v___f_1079_, lean_object* v_mod_1080_, lean_object* v_hint_1081_, lean_object* v_isMeta_1082_, lean_object* v_isExporting_1083_, lean_object* v_____do__lift_1084_){
 _start:
 {
-uint8_t v_isMeta_boxed_1085_; uint8_t v_isExporting_boxed_1086_; uint8_t v_____do__lift_554__boxed_1087_; lean_object* v_res_1088_; 
+uint8_t v_isMeta_boxed_1085_; uint8_t v_isExporting_boxed_1086_; uint8_t v_____do__lift_562__boxed_1087_; lean_object* v_res_1088_; 
 v_isMeta_boxed_1085_ = lean_unbox(v_isMeta_1082_);
 v_isExporting_boxed_1086_ = lean_unbox(v_isExporting_1083_);
-v_____do__lift_554__boxed_1087_ = lean_unbox(v_____do__lift_1084_);
-v_res_1088_ = l___private_Lean_ExtraModUses_0__Lean_recordExtraModUseCore___redArg___lam__4(v_modifyEnv_1071_, v___f_1072_, v_inst_1073_, v_inst_1074_, v_inst_1075_, v_inst_1076_, v_cls_1077_, v_toBind_1078_, v___f_1079_, v_mod_1080_, v_hint_1081_, v_isMeta_boxed_1085_, v_isExporting_boxed_1086_, v_____do__lift_554__boxed_1087_);
+v_____do__lift_562__boxed_1087_ = lean_unbox(v_____do__lift_1084_);
+v_res_1088_ = l___private_Lean_ExtraModUses_0__Lean_recordExtraModUseCore___redArg___lam__4(v_modifyEnv_1071_, v___f_1072_, v_inst_1073_, v_inst_1074_, v_inst_1075_, v_inst_1076_, v_cls_1077_, v_toBind_1078_, v___f_1079_, v_mod_1080_, v_hint_1081_, v_isMeta_boxed_1085_, v_isExporting_boxed_1086_, v_____do__lift_562__boxed_1087_);
 return v_res_1088_;
 }
 }

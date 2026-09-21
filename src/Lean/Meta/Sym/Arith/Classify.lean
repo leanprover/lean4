@@ -5,7 +5,7 @@ Authors: Leonardo de Moura
 -/
 module
 prelude
-public import Lean.Meta.Sym.Arith.EvalNum
+public import Lean.Meta.Sym.Arith.Insts
 import Lean.Meta.Sym.SynthInstance
 import Lean.Meta.Sym.Canon
 import Lean.Meta.DecLevel
@@ -29,23 +29,66 @@ Results (including failures) are cached in a single `PHashMap ExprPtr ClassifyRe
 to avoid repeated synthesis attempts.
 -/
 
-private def getIsCharInst? (u : Level) (type : Expr) (semiringInst : Expr) : SymM (Option (Expr × Nat)) := do
-  withNewMCtxDepth do
-    let n ← mkFreshExprMVar (mkConst ``Nat)
-    let charType := mkApp3 (mkConst ``Grind.IsCharP [u]) type semiringInst n
-    let some charInst ← Sym.synthInstance? charType | return none
-    let n ← instantiateMVars n
-    let some n ← evalNat? n | return none
-    return some (charInst, n)
+/--
+Fast path for the envelope type `Ring.OfSemiring.Q base` where `semiringInst` is
+`CommSemiring.toSemiring base commSemiringInst`. Synthesizing instances for the envelope is
+very expensive in Mathlib, so we construct them by hand and register them with
+`registerInstance`, which makes `synthInstance?` (and hence `canon`) return them directly.
+-/
+private def tryCommRingQ? (type base semiringInst commSemiringInst : Expr) : SymM (Option Nat) := do
+  let some u ← getDecLevel? base | return none
+  let commRingInst := mkApp2 (mkConst ``Grind.CommRing.OfCommSemiring.ofCommSemiring [u]) base commSemiringInst
+  let ringInst := mkApp2 (mkConst ``Grind.CommRing.toRing [u]) type commRingInst
+  let semiringInstQ := mkApp2 (mkConst ``Grind.Ring.toSemiring [u]) type ringInst
+  let commSemiringInstQ := mkApp2 (mkConst ``Grind.CommRing.toCommSemiring [u]) type semiringInstQ
+  registerInstance (mkApp (mkConst ``Grind.CommRing [u]) type) commRingInst
+  registerInstance (mkApp (mkConst ``Grind.Ring [u]) type) ringInst
+  registerInstance (mkApp (mkConst ``Grind.Semiring [u]) type) semiringInstQ
+  registerInstance (mkApp (mkConst ``Grind.CommSemiring [u]) type) commSemiringInstQ
+  registerInstance (mkApp (mkConst ``Grind.NatModule [u]) type)
+    (mkApp2 (mkConst ``Grind.Semiring.toNatModule [u]) type semiringInstQ)
+  registerInstance (mkApp3 (mkConst ``HAdd [u, u, u]) type type type)
+    (mkApp2 (mkConst ``instHAdd [u]) type (mkApp2 (mkConst ``Grind.Semiring.toAdd [u]) type semiringInstQ))
+  registerInstance (mkApp3 (mkConst ``HMul [u, u, u]) type type type)
+    (mkApp2 (mkConst ``instHMul [u]) type (mkApp2 (mkConst ``Grind.Semiring.toMul [u]) type semiringInstQ))
+  registerInstance (mkApp3 (mkConst ``HSub [u, u, u]) type type type)
+    (mkApp2 (mkConst ``instHSub [u]) type (mkApp2 (mkConst ``Grind.Ring.toSub [u]) type ringInst))
+  registerInstance (mkApp (mkConst ``Neg [u]) type)
+    (mkApp2 (mkConst ``Grind.Ring.toNeg [u]) type ringInst)
+  registerInstance (mkApp3 (mkConst ``HPow [u, 0, u]) type Nat.mkType type)
+    (mkApp2 (mkConst ``Grind.Semiring.npow [u]) type semiringInstQ)
+  registerInstance (mkApp (mkConst ``NatCast [u]) type)
+    (mkApp2 (mkConst ``Grind.Semiring.natCast [u]) type semiringInstQ)
+  registerInstance (mkApp (mkConst ``IntCast [u]) type)
+    (mkApp2 (mkConst ``Grind.Ring.intCast [u]) type ringInst)
+  -- Premises on the base type for the conditional envelope instances.
+  let addRightCancelInst? ← do
+    let some addInst ← synthInstance? (mkApp (mkConst ``Add [u]) base) | pure none
+    synthInstance? (mkApp2 (mkConst ``Grind.AddRightCancel [u]) base addInst)
+  let charInst? ← do
+    let some addRightCancelInst := addRightCancelInst? | pure none
+    let some (baseCharInst, n) ← getIsCharInst? u base semiringInst | pure none
+    let inst := mkApp5 (mkConst ``Grind.Ring.OfSemiring.instIsCharPQOfAddRightCancel [u])
+      base (mkRawNatLit n) semiringInst addRightCancelInst baseCharInst
+    pure (some (inst, n))
+  let noZeroDivInst? ← do
+    let some addRightCancelInst := addRightCancelInst? | pure none
+    -- `getNoZeroDivInst?` synthesizes the `NatModule base` premise instead of using
+    -- `Semiring.toNatModule`, so this query is shared with the one issued for the
+    -- `IntModule.OfNatModule.Q base` envelope; the results are definitionally equal.
+    let some noZeroDivInst ← getNoZeroDivInst? u base | pure none
+    pure (some (mkApp4 (mkConst ``Grind.Ring.OfSemiring.instNoNatZeroDivisorsQOfAddRightCancel [u])
+      base semiringInst addRightCancelInst noZeroDivInst))
+  let id := (← getArithState).rings.size
+  let ring : CommRing := {
+    id, semiringId? := none, type, u, semiringInst := semiringInstQ, ringInst,
+    commSemiringInst := commSemiringInstQ,
+    commRingInst, charInst?, noZeroDivInst?, fieldInst? := none, powIdentityInst? := none,
+  }
+  modifyArithState fun s => { s with rings := s.rings.push ring }
+  return some id
 
-private def getNoZeroDivInst? (u : Level) (type : Expr) : SymM (Option Expr) := do
-  let natModuleType := mkApp (mkConst ``Grind.NatModule [u]) type
-  let some natModuleInst ← Sym.synthInstance? natModuleType | return none
-  let noZeroDivType := mkApp2 (mkConst ``Grind.NoNatZeroDivisors [u]) type natModuleInst
-  Sym.synthInstance? noZeroDivType
-
-/-- Try to classify `type` as a `CommRing`. Returns the ring id on success. -/
-private def tryCommRing? (type : Expr) : SymM (Option Nat) := do
+private def tryCommRingCore? (type : Expr) : SymM (Option Nat) := do
   let u ← getDecLevel type
   let commRing := mkApp (mkConst ``Grind.CommRing [u]) type
   let some commRingInst ← Sym.synthInstance? commRing | return none
@@ -55,14 +98,23 @@ private def tryCommRing? (type : Expr) : SymM (Option Nat) := do
   let charInst? ← getIsCharInst? u type semiringInst
   let noZeroDivInst? ← getNoZeroDivInst? u type
   let fieldInst? ← Sym.synthInstance? <| mkApp (mkConst ``Grind.Field [u]) type
+  let powIdentityInst? ← getPowIdentityInst? u type
   let semiringId? := none
   let id := (← getArithState).rings.size
   let ring : CommRing := {
     id, semiringId?, type, u, semiringInst, ringInst, commSemiringInst,
-    commRingInst, charInst?, noZeroDivInst?, fieldInst?,
+    commRingInst, charInst?, noZeroDivInst?, fieldInst?, powIdentityInst?,
   }
   modifyArithState fun s => { s with rings := s.rings.push ring }
   return some id
+
+/-- Try to classify `type` as a `CommRing`. Returns the ring id on success. -/
+private def tryCommRing? (type : Expr) : SymM (Option Nat) := do
+  let_expr Grind.Ring.OfSemiring.Q base semiringInst := type | tryCommRingCore? type
+  -- `tryCommSemiring?` instantiates the envelope with `CommSemiring.toSemiring`;
+  -- fall back to the generic path otherwise.
+  let_expr Grind.CommSemiring.toSemiring _ commSemiringInst := semiringInst | tryCommRingCore? type
+  tryCommRingQ? type base semiringInst commSemiringInst
 
 /-- Try to classify `type` as a non-commutative `Ring`. -/
 private def tryNonCommRing? (type : Expr) : SymM (Option Nat) := do

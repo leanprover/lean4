@@ -1,0 +1,958 @@
+{
+  "widgetId": "associative-creation-operations",
+  "rows": [
+    {
+      "columns": [
+        {
+          "cellValue": "Std.DHashMap.emptyWithCapacity",
+          "columnIdentifier": "Std.DHashMap"
+        },
+        {
+          "cellValue": "Std.DHashMap.Raw.emptyWithCapacity",
+          "columnIdentifier": "Std.DHashMap.Raw"
+        },
+        {
+          "cellValue": "Std.ExtDHashMap.emptyWithCapacity",
+          "columnIdentifier": "Std.ExtDHashMap"
+        },
+        {
+          "cellValue": "Std.DTreeMap.empty",
+          "columnIdentifier": "Std.DTreeMap"
+        },
+        {
+          "cellValue": "Std.DTreeMap.Raw.empty",
+          "columnIdentifier": "Std.DTreeMap.Raw"
+        },
+        {
+          "cellValue": "Std.ExtDTreeMap.empty",
+          "columnIdentifier": "Std.ExtDTreeMap"
+        },
+        {
+          "cellValue": "Std.HashMap.emptyWithCapacity",
+          "columnIdentifier": "Std.HashMap"
+        },
+        {
+          "cellValue": "Std.HashMap.Raw.emptyWithCapacity",
+          "columnIdentifier": "Std.HashMap.Raw"
+        },
+        {
+          "cellValue": "Std.ExtHashMap.emptyWithCapacity",
+          "columnIdentifier": "Std.ExtHashMap"
+        },
+        {
+          "cellValue": "Std.TreeMap.empty",
+          "columnIdentifier": "Std.TreeMap"
+        },
+        {
+          "cellValue": "Std.TreeMap.Raw.empty",
+          "columnIdentifier": "Std.TreeMap.Raw"
+        },
+        {
+          "cellValue": "Std.ExtTreeMap.empty",
+          "columnIdentifier": "Std.ExtTreeMap"
+        },
+        {
+          "cellValue": "Std.HashSet.emptyWithCapacity",
+          "columnIdentifier": "Std.HashSet"
+        },
+        {
+          "cellValue": "Std.HashSet.Raw.emptyWithCapacity",
+          "columnIdentifier": "Std.HashSet.Raw"
+        },
+        {
+          "cellValue": "Std.ExtHashSet.emptyWithCapacity",
+          "columnIdentifier": "Std.ExtHashSet"
+        },
+        {
+          "cellValue": "Std.TreeSet.empty",
+          "columnIdentifier": "Std.TreeSet"
+        },
+        {
+          "cellValue": "Std.TreeSet.Raw.empty",
+          "columnIdentifier": "Std.TreeSet.Raw"
+        },
+        {
+          "cellValue": "Std.ExtTreeSet.empty",
+          "columnIdentifier": "Std.ExtTreeSet"
+        }
+      ],
+      "title": "empty",
+      "uuid": "2cb3c441-9663-4ce7-9527-0f40fc29925a"
+    },
+    {
+      "columns": [
+        {
+          "cellValue": "Std.DHashMap.ofList",
+          "columnIdentifier": "Std.DHashMap"
+        },
+        {
+          "cellValue": "Std.DHashMap.Raw.ofList",
+          "columnIdentifier": "Std.DHashMap.Raw"
+        },
+        {
+          "cellValue": "Std.ExtDHashMap.ofList",
+          "columnIdentifier": "Std.ExtDHashMap"
+        },
+        {
+          "cellValue": "Std.DTreeMap.ofList",
+          "columnIdentifier": "Std.DTreeMap"
+        },
+        {
+          "cellValue": "Std.DTreeMap.Raw.ofList",
+          "columnIdentifier": "Std.DTreeMap.Raw"
+        },
+        {
+          "cellValue": "Std.ExtDTreeMap.ofList",
+          "columnIdentifier": "Std.ExtDTreeMap"
+        },
+        {
+          "cellValue": "Std.HashMap.ofList",
+          "columnIdentifier": "Std.HashMap"
+        },
+        {
+          "cellValue": "Std.HashMap.Raw.ofList",
+          "columnIdentifier": "Std.HashMap.Raw"
+        },
+        {
+          "cellValue": "Std.ExtHashMap.ofList",
+          "columnIdentifier": "Std.ExtHashMap"
+        },
+        {
+          "cellValue": "Std.TreeMap.ofList",
+          "columnIdentifier": "Std.TreeMap"
+        },
+        {
+          "cellValue": "Std.TreeMap.Raw.ofList",
+          "columnIdentifier": "Std.TreeMap.Raw"
+        },
+        {
+          "cellValue": "Std.ExtTreeMap.ofList",
+          "columnIdentifier": "Std.ExtTreeMap"
+        },
+        {
+          "cellValue": "Std.HashSet.ofList",
+          "columnIdentifier": "Std.HashSet"
+        },
+        {
+          "cellValue": "Std.HashSet.Raw.ofList",
+          "columnIdentifier": "Std.HashSet.Raw"
+        },
+        {
+          "cellValue": "Std.ExtHashSet.ofList",
+          "columnIdentifier": "Std.ExtHashSet"
+        },
+        {
+          "cellValue": "Std.TreeSet.ofList",
+          "columnIdentifier": "Std.TreeSet"
+        },
+        {
+          "cellValue": "Std.TreeSet.Raw.ofList",
+          "columnIdentifier": "Std.TreeSet.Raw"
+        },
+        {
+          "cellValue": "Std.ExtTreeSet.ofList",
+          "columnIdentifier": "Std.ExtTreeSet"
+        }
+      ],
+      "title": "ofList",
+      "uuid": "7743a485-024d-43b6-bd5f-ebd3182eb94d"
+    },
+    {
+      "columns": [
+        {
+          "cellValue": "app (EmptyCollection.emptyCollection) (Std.DHashMap*)",
+          "columnIdentifier": "Std.DHashMap"
+        },
+        {
+          "cellValue": "app (EmptyCollection.emptyCollection) (Std.DHashMap.Raw*)",
+          "columnIdentifier": "Std.DHashMap.Raw"
+        },
+        {
+          "cellValue": "app (EmptyCollection.emptyCollection) (Std.ExtDHashMap*)",
+          "columnIdentifier": "Std.ExtDHashMap"
+        },
+        {
+          "cellValue": "app (EmptyCollection.emptyCollection) (Std.DTreeMap*)",
+          "columnIdentifier": "Std.DTreeMap"
+        },
+        {
+          "cellValue": "app (EmptyCollection.emptyCollection) (Std.DTreeMap.Raw*)",
+          "columnIdentifier": "Std.DTreeMap.Raw"
+        },
+        {
+          "cellValue": "app (EmptyCollection.emptyCollection) (Std.ExtDTreeMap*)",
+          "columnIdentifier": "Std.ExtDTreeMap"
+        },
+        {
+          "cellValue": "app (EmptyCollection.emptyCollection) (Std.HashMap*)",
+          "columnIdentifier": "Std.HashMap"
+        },
+        {
+          "cellValue": "app (EmptyCollection.emptyCollection) (Std.HashMap.Raw*)",
+          "columnIdentifier": "Std.HashMap.Raw"
+        },
+        {
+          "cellValue": "app (EmptyCollection.emptyCollection) (Std.ExtHashMap*)",
+          "columnIdentifier": "Std.ExtHashMap"
+        },
+        {
+          "cellValue": "app (EmptyCollection.emptyCollection) (Std.TreeMap*)",
+          "columnIdentifier": "Std.TreeMap"
+        },
+        {
+          "cellValue": "app (EmptyCollection.emptyCollection) (Std.TreeMap.Raw*)",
+          "columnIdentifier": "Std.TreeMap.Raw"
+        },
+        {
+          "cellValue": "app (EmptyCollection.emptyCollection) (Std.ExtTreeMap*)",
+          "columnIdentifier": "Std.ExtTreeMap"
+        },
+        {
+          "cellValue": "app (EmptyCollection.emptyCollection) (Std.HashSet*)",
+          "columnIdentifier": "Std.HashSet"
+        },
+        {
+          "cellValue": "app (EmptyCollection.emptyCollection) (Std.HashSet.Raw*)",
+          "columnIdentifier": "Std.HashSet.Raw"
+        },
+        {
+          "cellValue": "app (EmptyCollection.emptyCollection) (Std.ExtHashSet*)",
+          "columnIdentifier": "Std.ExtHashSet"
+        },
+        {
+          "cellValue": "app (EmptyCollection.emptyCollection) (Std.TreeSet*)",
+          "columnIdentifier": "Std.TreeSet"
+        },
+        {
+          "cellValue": "app (EmptyCollection.emptyCollection) (Std.TreeSet.Raw*)",
+          "columnIdentifier": "Std.TreeSet.Raw"
+        },
+        {
+          "cellValue": "app (EmptyCollection.emptyCollection) (Std.ExtTreeSet*)",
+          "columnIdentifier": "Std.ExtTreeSet"
+        }
+      ],
+      "title": "emptyCollection",
+      "uuid": "5ceaa26a-d2cb-4df3-9ac8-b5c11db2ae9d"
+    }
+  ],
+  "facts": [
+    {
+      "widgetId": "associative-creation-operations",
+      "factId": "2cb3c441-9663-4ce7-9527-0f40fc29925a",
+      "rowId": "2cb3c441-9663-4ce7-9527-0f40fc29925a",
+      "rowState": [
+        {
+          "columnIdentifier": "Std.DHashMap",
+          "cellValue": "Std.DHashMap.emptyWithCapacity",
+          "cellState": {
+            "declaration": {
+              "constructor": "def",
+              "def": {
+                "isDeprecated": false,
+                "name": "Std.DHashMap.emptyWithCapacity",
+                "renderedStatement": "Std.DHashMap.emptyWithCapacity.{u, v} {α : Type u} {β : α → Type v} [BEq α] [Hashable α]\n  (capacity : Nat := 8) : Std.DHashMap α β"
+              }
+            }
+          }
+        },
+        {
+          "columnIdentifier": "Std.DHashMap.Raw",
+          "cellValue": "Std.DHashMap.Raw.emptyWithCapacity",
+          "cellState": {
+            "declaration": {
+              "constructor": "def",
+              "def": {
+                "isDeprecated": false,
+                "name": "Std.DHashMap.Raw.emptyWithCapacity",
+                "renderedStatement": "Std.DHashMap.Raw.emptyWithCapacity.{u, v} {α : Type u} {β : α → Type v} (capacity : Nat := 8) :\n  Std.DHashMap.Raw α β"
+              }
+            }
+          }
+        },
+        {
+          "columnIdentifier": "Std.ExtDHashMap",
+          "cellValue": "Std.ExtDHashMap.emptyWithCapacity",
+          "cellState": {
+            "declaration": {
+              "constructor": "def",
+              "def": {
+                "isDeprecated": false,
+                "name": "Std.ExtDHashMap.emptyWithCapacity",
+                "renderedStatement": "Std.ExtDHashMap.emptyWithCapacity.{u, v} {α : Type u} {β : α → Type v} [BEq α] [Hashable α]\n  (capacity : Nat := 8) : Std.ExtDHashMap α β"
+              }
+            }
+          }
+        },
+        {
+          "columnIdentifier": "Std.DTreeMap",
+          "cellValue": "Std.DTreeMap.empty",
+          "cellState": {
+            "declaration": {
+              "constructor": "def",
+              "def": {
+                "isDeprecated": false,
+                "name": "Std.DTreeMap.empty",
+                "renderedStatement": "Std.DTreeMap.empty.{u, v} {α : Type u} {β : α → Type v} {cmp : α → α → Ordering} :\n  Std.DTreeMap α β cmp"
+              }
+            }
+          }
+        },
+        {
+          "columnIdentifier": "Std.DTreeMap.Raw",
+          "cellValue": "Std.DTreeMap.Raw.empty",
+          "cellState": {
+            "declaration": {
+              "constructor": "def",
+              "def": {
+                "isDeprecated": false,
+                "name": "Std.DTreeMap.Raw.empty",
+                "renderedStatement": "Std.DTreeMap.Raw.empty.{u, v} {α : Type u} {β : α → Type v} {cmp : α → α → Ordering} :\n  Std.DTreeMap.Raw α β cmp"
+              }
+            }
+          }
+        },
+        {
+          "columnIdentifier": "Std.ExtDTreeMap",
+          "cellValue": "Std.ExtDTreeMap.empty",
+          "cellState": {
+            "declaration": {
+              "constructor": "def",
+              "def": {
+                "isDeprecated": false,
+                "name": "Std.ExtDTreeMap.empty",
+                "renderedStatement": "Std.ExtDTreeMap.empty.{u, v} {α : Type u} {β : α → Type v} {cmp : α → α → Ordering} :\n  Std.ExtDTreeMap α β cmp"
+              }
+            }
+          }
+        },
+        {
+          "columnIdentifier": "Std.HashMap",
+          "cellValue": "Std.HashMap.emptyWithCapacity",
+          "cellState": {
+            "declaration": {
+              "constructor": "def",
+              "def": {
+                "isDeprecated": false,
+                "name": "Std.HashMap.emptyWithCapacity",
+                "renderedStatement": "Std.HashMap.emptyWithCapacity.{u, v} {α : Type u} {β : Type v} [BEq α] [Hashable α]\n  (capacity : Nat := 8) : Std.HashMap α β"
+              }
+            }
+          }
+        },
+        {
+          "columnIdentifier": "Std.HashMap.Raw",
+          "cellValue": "Std.HashMap.Raw.emptyWithCapacity",
+          "cellState": {
+            "declaration": {
+              "constructor": "def",
+              "def": {
+                "isDeprecated": false,
+                "name": "Std.HashMap.Raw.emptyWithCapacity",
+                "renderedStatement": "Std.HashMap.Raw.emptyWithCapacity.{u, v} {α : Type u} {β : Type v} (capacity : Nat := 8) :\n  Std.HashMap.Raw α β"
+              }
+            }
+          }
+        },
+        {
+          "columnIdentifier": "Std.ExtHashMap",
+          "cellValue": "Std.ExtHashMap.emptyWithCapacity",
+          "cellState": {
+            "declaration": {
+              "constructor": "def",
+              "def": {
+                "isDeprecated": false,
+                "name": "Std.ExtHashMap.emptyWithCapacity",
+                "renderedStatement": "Std.ExtHashMap.emptyWithCapacity.{u, v} {α : Type u} {β : Type v} [BEq α] [Hashable α]\n  (capacity : Nat := 8) : Std.ExtHashMap α β"
+              }
+            }
+          }
+        },
+        {
+          "columnIdentifier": "Std.TreeMap",
+          "cellValue": "Std.TreeMap.empty",
+          "cellState": {
+            "declaration": {
+              "constructor": "def",
+              "def": {
+                "isDeprecated": false,
+                "name": "Std.TreeMap.empty",
+                "renderedStatement": "Std.TreeMap.empty.{u, v} {α : Type u} {β : Type v} {cmp : α → α → Ordering} : Std.TreeMap α β cmp"
+              }
+            }
+          }
+        },
+        {
+          "columnIdentifier": "Std.TreeMap.Raw",
+          "cellValue": "Std.TreeMap.Raw.empty",
+          "cellState": {
+            "declaration": {
+              "constructor": "def",
+              "def": {
+                "isDeprecated": false,
+                "name": "Std.TreeMap.Raw.empty",
+                "renderedStatement": "Std.TreeMap.Raw.empty.{u, v} {α : Type u} {β : Type v} {cmp : α → α → Ordering} :\n  Std.TreeMap.Raw α β cmp"
+              }
+            }
+          }
+        },
+        {
+          "columnIdentifier": "Std.ExtTreeMap",
+          "cellValue": "Std.ExtTreeMap.empty",
+          "cellState": {
+            "declaration": {
+              "constructor": "def",
+              "def": {
+                "isDeprecated": false,
+                "name": "Std.ExtTreeMap.empty",
+                "renderedStatement": "Std.ExtTreeMap.empty.{u, v} {α : Type u} {β : Type v} {cmp : α → α → Ordering} :\n  Std.ExtTreeMap α β cmp"
+              }
+            }
+          }
+        },
+        {
+          "columnIdentifier": "Std.HashSet",
+          "cellValue": "Std.HashSet.emptyWithCapacity",
+          "cellState": {
+            "declaration": {
+              "constructor": "def",
+              "def": {
+                "isDeprecated": false,
+                "name": "Std.HashSet.emptyWithCapacity",
+                "renderedStatement": "Std.HashSet.emptyWithCapacity.{u} {α : Type u} [BEq α] [Hashable α] (capacity : Nat := 8) :\n  Std.HashSet α"
+              }
+            }
+          }
+        },
+        {
+          "columnIdentifier": "Std.HashSet.Raw",
+          "cellValue": "Std.HashSet.Raw.emptyWithCapacity",
+          "cellState": {
+            "declaration": {
+              "constructor": "def",
+              "def": {
+                "isDeprecated": false,
+                "name": "Std.HashSet.Raw.emptyWithCapacity",
+                "renderedStatement": "Std.HashSet.Raw.emptyWithCapacity.{u} {α : Type u} (capacity : Nat := 8) : Std.HashSet.Raw α"
+              }
+            }
+          }
+        },
+        {
+          "columnIdentifier": "Std.ExtHashSet",
+          "cellValue": "Std.ExtHashSet.emptyWithCapacity",
+          "cellState": {
+            "declaration": {
+              "constructor": "def",
+              "def": {
+                "isDeprecated": false,
+                "name": "Std.ExtHashSet.emptyWithCapacity",
+                "renderedStatement": "Std.ExtHashSet.emptyWithCapacity.{u} {α : Type u} [BEq α] [Hashable α] (capacity : Nat := 8) :\n  Std.ExtHashSet α"
+              }
+            }
+          }
+        },
+        {
+          "columnIdentifier": "Std.TreeSet",
+          "cellValue": "Std.TreeSet.empty",
+          "cellState": {
+            "declaration": {
+              "constructor": "def",
+              "def": {
+                "isDeprecated": false,
+                "name": "Std.TreeSet.empty",
+                "renderedStatement": "Std.TreeSet.empty.{u} {α : Type u} {cmp : α → α → Ordering} : Std.TreeSet α cmp"
+              }
+            }
+          }
+        },
+        {
+          "columnIdentifier": "Std.TreeSet.Raw",
+          "cellValue": "Std.TreeSet.Raw.empty",
+          "cellState": {
+            "declaration": {
+              "constructor": "def",
+              "def": {
+                "isDeprecated": false,
+                "name": "Std.TreeSet.Raw.empty",
+                "renderedStatement": "Std.TreeSet.Raw.empty.{u} {α : Type u} {cmp : α → α → Ordering} : Std.TreeSet.Raw α cmp"
+              }
+            }
+          }
+        },
+        {
+          "columnIdentifier": "Std.ExtTreeSet",
+          "cellValue": "Std.ExtTreeSet.empty",
+          "cellState": {
+            "declaration": {
+              "constructor": "def",
+              "def": {
+                "isDeprecated": false,
+                "name": "Std.ExtTreeSet.empty",
+                "renderedStatement": "Std.ExtTreeSet.empty.{u} {α : Type u} {cmp : α → α → Ordering} : Std.ExtTreeSet α cmp"
+              }
+            }
+          }
+        }
+      ],
+      "metadata": {
+        "comment": "",
+        "status": "done"
+      }
+    },
+    {
+      "widgetId": "associative-creation-operations",
+      "factId": "7743a485-024d-43b6-bd5f-ebd3182eb94d",
+      "rowId": "7743a485-024d-43b6-bd5f-ebd3182eb94d",
+      "rowState": [
+        {
+          "columnIdentifier": "Std.DHashMap",
+          "cellValue": "Std.DHashMap.ofList",
+          "cellState": {
+            "declaration": {
+              "constructor": "def",
+              "def": {
+                "isDeprecated": false,
+                "name": "Std.DHashMap.ofList",
+                "renderedStatement": "Std.DHashMap.ofList.{u, v} {α : Type u} {β : α → Type v} [BEq α] [Hashable α]\n  (l : List ((a : α) × β a)) : Std.DHashMap α β"
+              }
+            }
+          }
+        },
+        {
+          "columnIdentifier": "Std.DHashMap.Raw",
+          "cellValue": "Std.DHashMap.Raw.ofList",
+          "cellState": {
+            "declaration": {
+              "constructor": "def",
+              "def": {
+                "isDeprecated": false,
+                "name": "Std.DHashMap.Raw.ofList",
+                "renderedStatement": "Std.DHashMap.Raw.ofList.{u, v} {α : Type u} {β : α → Type v} [BEq α] [Hashable α]\n  (l : List ((a : α) × β a)) : Std.DHashMap.Raw α β"
+              }
+            }
+          }
+        },
+        {
+          "columnIdentifier": "Std.ExtDHashMap",
+          "cellValue": "Std.ExtDHashMap.ofList",
+          "cellState": {
+            "declaration": {
+              "constructor": "def",
+              "def": {
+                "isDeprecated": false,
+                "name": "Std.ExtDHashMap.ofList",
+                "renderedStatement": "Std.ExtDHashMap.ofList.{u, v} {α : Type u} {β : α → Type v} [BEq α] [Hashable α]\n  (l : List ((a : α) × β a)) : Std.ExtDHashMap α β"
+              }
+            }
+          }
+        },
+        {
+          "columnIdentifier": "Std.DTreeMap",
+          "cellValue": "Std.DTreeMap.ofList",
+          "cellState": {
+            "declaration": {
+              "constructor": "def",
+              "def": {
+                "isDeprecated": false,
+                "name": "Std.DTreeMap.ofList",
+                "renderedStatement": "Std.DTreeMap.ofList.{u, v} {α : Type u} {β : α → Type v} (l : List ((a : α) × β a))\n  (cmp : α → α → Ordering := by exact compare) : Std.DTreeMap α β cmp"
+              }
+            }
+          }
+        },
+        {
+          "columnIdentifier": "Std.DTreeMap.Raw",
+          "cellValue": "Std.DTreeMap.Raw.ofList",
+          "cellState": {
+            "declaration": {
+              "constructor": "def",
+              "def": {
+                "isDeprecated": false,
+                "name": "Std.DTreeMap.Raw.ofList",
+                "renderedStatement": "Std.DTreeMap.Raw.ofList.{u, v} {α : Type u} {β : α → Type v} (l : List ((a : α) × β a))\n  (cmp : α → α → Ordering := by exact compare) : Std.DTreeMap.Raw α β cmp"
+              }
+            }
+          }
+        },
+        {
+          "columnIdentifier": "Std.ExtDTreeMap",
+          "cellValue": "Std.ExtDTreeMap.ofList",
+          "cellState": {
+            "declaration": {
+              "constructor": "def",
+              "def": {
+                "isDeprecated": false,
+                "name": "Std.ExtDTreeMap.ofList",
+                "renderedStatement": "Std.ExtDTreeMap.ofList.{u, v} {α : Type u} {β : α → Type v} (l : List ((a : α) × β a))\n  (cmp : α → α → Ordering := by exact compare) : Std.ExtDTreeMap α β cmp"
+              }
+            }
+          }
+        },
+        {
+          "columnIdentifier": "Std.HashMap",
+          "cellValue": "Std.HashMap.ofList",
+          "cellState": {
+            "declaration": {
+              "constructor": "def",
+              "def": {
+                "isDeprecated": false,
+                "name": "Std.HashMap.ofList",
+                "renderedStatement": "Std.HashMap.ofList.{u, v} {α : Type u} {β : Type v} [BEq α] [Hashable α] (l : List (α × β)) :\n  Std.HashMap α β"
+              }
+            }
+          }
+        },
+        {
+          "columnIdentifier": "Std.HashMap.Raw",
+          "cellValue": "Std.HashMap.Raw.ofList",
+          "cellState": {
+            "declaration": {
+              "constructor": "def",
+              "def": {
+                "isDeprecated": false,
+                "name": "Std.HashMap.Raw.ofList",
+                "renderedStatement": "Std.HashMap.Raw.ofList.{u, v} {α : Type u} {β : Type v} [BEq α] [Hashable α] (l : List (α × β)) :\n  Std.HashMap.Raw α β"
+              }
+            }
+          }
+        },
+        {
+          "columnIdentifier": "Std.ExtHashMap",
+          "cellValue": "Std.ExtHashMap.ofList",
+          "cellState": {
+            "declaration": {
+              "constructor": "def",
+              "def": {
+                "isDeprecated": false,
+                "name": "Std.ExtHashMap.ofList",
+                "renderedStatement": "Std.ExtHashMap.ofList.{u, v} {α : Type u} {β : Type v} [BEq α] [Hashable α] (l : List (α × β)) :\n  Std.ExtHashMap α β"
+              }
+            }
+          }
+        },
+        {
+          "columnIdentifier": "Std.TreeMap",
+          "cellValue": "Std.TreeMap.ofList",
+          "cellState": {
+            "declaration": {
+              "constructor": "def",
+              "def": {
+                "isDeprecated": false,
+                "name": "Std.TreeMap.ofList",
+                "renderedStatement": "Std.TreeMap.ofList.{u, v} {α : Type u} {β : Type v} (l : List (α × β))\n  (cmp : α → α → Ordering := by exact compare) : Std.TreeMap α β cmp"
+              }
+            }
+          }
+        },
+        {
+          "columnIdentifier": "Std.TreeMap.Raw",
+          "cellValue": "Std.TreeMap.Raw.ofList",
+          "cellState": {
+            "declaration": {
+              "constructor": "def",
+              "def": {
+                "isDeprecated": false,
+                "name": "Std.TreeMap.Raw.ofList",
+                "renderedStatement": "Std.TreeMap.Raw.ofList.{u, v} {α : Type u} {β : Type v} (l : List (α × β))\n  (cmp : α → α → Ordering := by exact compare) : Std.TreeMap.Raw α β cmp"
+              }
+            }
+          }
+        },
+        {
+          "columnIdentifier": "Std.ExtTreeMap",
+          "cellValue": "Std.ExtTreeMap.ofList",
+          "cellState": {
+            "declaration": {
+              "constructor": "def",
+              "def": {
+                "isDeprecated": false,
+                "name": "Std.ExtTreeMap.ofList",
+                "renderedStatement": "Std.ExtTreeMap.ofList.{u, v} {α : Type u} {β : Type v} (l : List (α × β))\n  (cmp : α → α → Ordering := by exact compare) : Std.ExtTreeMap α β cmp"
+              }
+            }
+          }
+        },
+        {
+          "columnIdentifier": "Std.HashSet",
+          "cellValue": "Std.HashSet.ofList",
+          "cellState": {
+            "declaration": {
+              "constructor": "def",
+              "def": {
+                "isDeprecated": false,
+                "name": "Std.HashSet.ofList",
+                "renderedStatement": "Std.HashSet.ofList.{u} {α : Type u} [BEq α] [Hashable α] (l : List α) : Std.HashSet α"
+              }
+            }
+          }
+        },
+        {
+          "columnIdentifier": "Std.HashSet.Raw",
+          "cellValue": "Std.HashSet.Raw.ofList",
+          "cellState": {
+            "declaration": {
+              "constructor": "def",
+              "def": {
+                "isDeprecated": false,
+                "name": "Std.HashSet.Raw.ofList",
+                "renderedStatement": "Std.HashSet.Raw.ofList.{u} {α : Type u} [BEq α] [Hashable α] (l : List α) : Std.HashSet.Raw α"
+              }
+            }
+          }
+        },
+        {
+          "columnIdentifier": "Std.ExtHashSet",
+          "cellValue": "Std.ExtHashSet.ofList",
+          "cellState": {
+            "declaration": {
+              "constructor": "def",
+              "def": {
+                "isDeprecated": false,
+                "name": "Std.ExtHashSet.ofList",
+                "renderedStatement": "Std.ExtHashSet.ofList.{u} {α : Type u} [BEq α] [Hashable α] (l : List α) : Std.ExtHashSet α"
+              }
+            }
+          }
+        },
+        {
+          "columnIdentifier": "Std.TreeSet",
+          "cellValue": "Std.TreeSet.ofList",
+          "cellState": {
+            "declaration": {
+              "constructor": "def",
+              "def": {
+                "isDeprecated": false,
+                "name": "Std.TreeSet.ofList",
+                "renderedStatement": "Std.TreeSet.ofList.{u} {α : Type u} (l : List α) (cmp : α → α → Ordering := by exact compare) :\n  Std.TreeSet α cmp"
+              }
+            }
+          }
+        },
+        {
+          "columnIdentifier": "Std.TreeSet.Raw",
+          "cellValue": "Std.TreeSet.Raw.ofList",
+          "cellState": {
+            "declaration": {
+              "constructor": "def",
+              "def": {
+                "isDeprecated": false,
+                "name": "Std.TreeSet.Raw.ofList",
+                "renderedStatement": "Std.TreeSet.Raw.ofList.{u} {α : Type u} (l : List α) (cmp : α → α → Ordering := by exact compare) :\n  Std.TreeSet.Raw α cmp"
+              }
+            }
+          }
+        },
+        {
+          "columnIdentifier": "Std.ExtTreeSet",
+          "cellValue": "Std.ExtTreeSet.ofList",
+          "cellState": {
+            "declaration": {
+              "constructor": "def",
+              "def": {
+                "isDeprecated": false,
+                "name": "Std.ExtTreeSet.ofList",
+                "renderedStatement": "Std.ExtTreeSet.ofList.{u} {α : Type u} (l : List α) (cmp : α → α → Ordering := by exact compare) :\n  Std.ExtTreeSet α cmp"
+              }
+            }
+          }
+        }
+      ],
+      "metadata": {
+        "comment": "",
+        "status": "done"
+      }
+    },
+    {
+      "widgetId": "associative-creation-operations",
+      "factId": "5ceaa26a-d2cb-4df3-9ac8-b5c11db2ae9d",
+      "rowId": "5ceaa26a-d2cb-4df3-9ac8-b5c11db2ae9d",
+      "rowState": [
+        {
+          "columnIdentifier": "Std.DHashMap",
+          "cellValue": "app (EmptyCollection.emptyCollection) (Std.DHashMap*)",
+          "cellState": {
+            "predicate": {
+              "displayShort": "∅",
+              "key": "app (EmptyCollection.emptyCollection) (Std.DHashMap*)"
+            }
+          }
+        },
+        {
+          "columnIdentifier": "Std.DHashMap.Raw",
+          "cellValue": "app (EmptyCollection.emptyCollection) (Std.DHashMap.Raw*)",
+          "cellState": {
+            "predicate": {
+              "displayShort": "∅",
+              "key": "app (EmptyCollection.emptyCollection) (Std.DHashMap.Raw*)"
+            }
+          }
+        },
+        {
+          "columnIdentifier": "Std.ExtDHashMap",
+          "cellValue": "app (EmptyCollection.emptyCollection) (Std.ExtDHashMap*)",
+          "cellState": {
+            "predicate": {
+              "displayShort": "∅",
+              "key": "app (EmptyCollection.emptyCollection) (Std.ExtDHashMap*)"
+            }
+          }
+        },
+        {
+          "columnIdentifier": "Std.DTreeMap",
+          "cellValue": "app (EmptyCollection.emptyCollection) (Std.DTreeMap*)",
+          "cellState": {
+            "predicate": {
+              "displayShort": "∅",
+              "key": "app (EmptyCollection.emptyCollection) (Std.DTreeMap*)"
+            }
+          }
+        },
+        {
+          "columnIdentifier": "Std.DTreeMap.Raw",
+          "cellValue": "app (EmptyCollection.emptyCollection) (Std.DTreeMap.Raw*)",
+          "cellState": {
+            "predicate": {
+              "displayShort": "∅",
+              "key": "app (EmptyCollection.emptyCollection) (Std.DTreeMap.Raw*)"
+            }
+          }
+        },
+        {
+          "columnIdentifier": "Std.ExtDTreeMap",
+          "cellValue": "app (EmptyCollection.emptyCollection) (Std.ExtDTreeMap*)",
+          "cellState": {
+            "predicate": {
+              "displayShort": "∅",
+              "key": "app (EmptyCollection.emptyCollection) (Std.ExtDTreeMap*)"
+            }
+          }
+        },
+        {
+          "columnIdentifier": "Std.HashMap",
+          "cellValue": "app (EmptyCollection.emptyCollection) (Std.HashMap*)",
+          "cellState": {
+            "predicate": {
+              "displayShort": "∅",
+              "key": "app (EmptyCollection.emptyCollection) (Std.HashMap*)"
+            }
+          }
+        },
+        {
+          "columnIdentifier": "Std.HashMap.Raw",
+          "cellValue": "app (EmptyCollection.emptyCollection) (Std.HashMap.Raw*)",
+          "cellState": {
+            "predicate": {
+              "displayShort": "∅",
+              "key": "app (EmptyCollection.emptyCollection) (Std.HashMap.Raw*)"
+            }
+          }
+        },
+        {
+          "columnIdentifier": "Std.ExtHashMap",
+          "cellValue": "app (EmptyCollection.emptyCollection) (Std.ExtHashMap*)",
+          "cellState": {
+            "predicate": {
+              "displayShort": "∅",
+              "key": "app (EmptyCollection.emptyCollection) (Std.ExtHashMap*)"
+            }
+          }
+        },
+        {
+          "columnIdentifier": "Std.TreeMap",
+          "cellValue": "app (EmptyCollection.emptyCollection) (Std.TreeMap*)",
+          "cellState": {
+            "predicate": {
+              "displayShort": "∅",
+              "key": "app (EmptyCollection.emptyCollection) (Std.TreeMap*)"
+            }
+          }
+        },
+        {
+          "columnIdentifier": "Std.TreeMap.Raw",
+          "cellValue": "app (EmptyCollection.emptyCollection) (Std.TreeMap.Raw*)",
+          "cellState": {
+            "predicate": {
+              "displayShort": "∅",
+              "key": "app (EmptyCollection.emptyCollection) (Std.TreeMap.Raw*)"
+            }
+          }
+        },
+        {
+          "columnIdentifier": "Std.ExtTreeMap",
+          "cellValue": "app (EmptyCollection.emptyCollection) (Std.ExtTreeMap*)",
+          "cellState": {
+            "predicate": {
+              "displayShort": "∅",
+              "key": "app (EmptyCollection.emptyCollection) (Std.ExtTreeMap*)"
+            }
+          }
+        },
+        {
+          "columnIdentifier": "Std.HashSet",
+          "cellValue": "app (EmptyCollection.emptyCollection) (Std.HashSet*)",
+          "cellState": {
+            "predicate": {
+              "displayShort": "∅",
+              "key": "app (EmptyCollection.emptyCollection) (Std.HashSet*)"
+            }
+          }
+        },
+        {
+          "columnIdentifier": "Std.HashSet.Raw",
+          "cellValue": "app (EmptyCollection.emptyCollection) (Std.HashSet.Raw*)",
+          "cellState": {
+            "predicate": {
+              "displayShort": "∅",
+              "key": "app (EmptyCollection.emptyCollection) (Std.HashSet.Raw*)"
+            }
+          }
+        },
+        {
+          "columnIdentifier": "Std.ExtHashSet",
+          "cellValue": "app (EmptyCollection.emptyCollection) (Std.ExtHashSet*)",
+          "cellState": {
+            "predicate": {
+              "displayShort": "∅",
+              "key": "app (EmptyCollection.emptyCollection) (Std.ExtHashSet*)"
+            }
+          }
+        },
+        {
+          "columnIdentifier": "Std.TreeSet",
+          "cellValue": "app (EmptyCollection.emptyCollection) (Std.TreeSet*)",
+          "cellState": {
+            "predicate": {
+              "displayShort": "∅",
+              "key": "app (EmptyCollection.emptyCollection) (Std.TreeSet*)"
+            }
+          }
+        },
+        {
+          "columnIdentifier": "Std.TreeSet.Raw",
+          "cellValue": "app (EmptyCollection.emptyCollection) (Std.TreeSet.Raw*)",
+          "cellState": {
+            "predicate": {
+              "displayShort": "∅",
+              "key": "app (EmptyCollection.emptyCollection) (Std.TreeSet.Raw*)"
+            }
+          }
+        },
+        {
+          "columnIdentifier": "Std.ExtTreeSet",
+          "cellValue": "app (EmptyCollection.emptyCollection) (Std.ExtTreeSet*)",
+          "cellState": {
+            "predicate": {
+              "displayShort": "∅",
+              "key": "app (EmptyCollection.emptyCollection) (Std.ExtTreeSet*)"
+            }
+          }
+        }
+      ],
+      "metadata": {
+        "comment": "",
+        "status": "done"
+      }
+    }
+  ]
+}

@@ -1,6 +1,6 @@
 // Lean compiler output
 // Module: Lean.Linter.Extra.UnusedDecidableInType
-// Imports: public import Lean.Linter.Basic public import Lean.Meta.ForEachExpr public import Lean.Meta.Sorry public import Lean.PrivateName public import Lean.Server.InfoUtils public import Lean.Linter.Util
+// Imports: public import Lean.Linter.Basic public import Lean.Meta.ForEachExpr public import Lean.Meta.Sorry public import Lean.PrivateName public import Lean.Elab.InfoTree.Util public import Lean.Linter.Util
 #include <lean/lean.h>
 #if defined(__clang__)
 #pragma clang diagnostic ignored "-Wunused-parameter"
@@ -8091,7 +8091,7 @@ lean_object* runtime_initialize_Lean_Linter_Basic(uint8_t builtin);
 lean_object* runtime_initialize_Lean_Meta_ForEachExpr(uint8_t builtin);
 lean_object* runtime_initialize_Lean_Meta_Sorry(uint8_t builtin);
 lean_object* runtime_initialize_Lean_PrivateName(uint8_t builtin);
-lean_object* runtime_initialize_Lean_Server_InfoUtils(uint8_t builtin);
+lean_object* runtime_initialize_Lean_Elab_InfoTree_Util(uint8_t builtin);
 lean_object* runtime_initialize_Lean_Linter_Util(uint8_t builtin);
 void lean_initialize_runtime_module();
 static bool _G_runtime_initialized = false;
@@ -8112,7 +8112,7 @@ lean_dec_ref(res);
 res = runtime_initialize_Lean_PrivateName(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
-res = runtime_initialize_Lean_Server_InfoUtils(builtin);
+res = runtime_initialize_Lean_Elab_InfoTree_Util(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
 res = runtime_initialize_Lean_Linter_Util(builtin);
@@ -8139,7 +8139,7 @@ lean_object* initialize_Lean_Linter_Basic(uint8_t builtin);
 lean_object* initialize_Lean_Meta_ForEachExpr(uint8_t builtin);
 lean_object* initialize_Lean_Meta_Sorry(uint8_t builtin);
 lean_object* initialize_Lean_PrivateName(uint8_t builtin);
-lean_object* initialize_Lean_Server_InfoUtils(uint8_t builtin);
+lean_object* initialize_Lean_Elab_InfoTree_Util(uint8_t builtin);
 lean_object* initialize_Lean_Linter_Util(uint8_t builtin);
 static bool _G_initialized = false;
 LEAN_EXPORT lean_object* initialize_Lean_Linter_Extra_UnusedDecidableInType(uint8_t builtin) {
@@ -8158,7 +8158,7 @@ lean_dec_ref(res);
 res = initialize_Lean_PrivateName(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
-res = initialize_Lean_Server_InfoUtils(builtin);
+res = initialize_Lean_Elab_InfoTree_Util(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
 res = initialize_Lean_Linter_Util(builtin);

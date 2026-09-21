@@ -502,7 +502,7 @@ LEAN_EXPORT lean_object* l_Lean_throwErrorAt___at___00Lean_throwUnknownIdentifie
 LEAN_EXPORT lean_object* l_Lean_throwError___at___00Lean_throwErrorAt___at___00Lean_throwUnknownIdentifierAt___at___00Lean_throwUnknownConstantAt___at___00Lean_throwUnknownConstant___at___00Lean_getConstVal___at___00Lean_mkConstWithLevelParams___at___00Lean_Elab_addConstInfo___at___00__private_Lean_PrettyPrinter_Delaborator_Basic_0__Lean_PrettyPrinter_Delaborator_initFn_00___x40_Lean_PrettyPrinter_Delaborator_Basic_3103770728____hygCtx___hyg_2__spec__2_spec__6_spec__11_spec__14_spec__16_spec__18_spec__20_spec__22(lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_throwError___at___00Lean_throwErrorAt___at___00Lean_throwUnknownIdentifierAt___at___00Lean_throwUnknownConstantAt___at___00Lean_throwUnknownConstant___at___00Lean_getConstVal___at___00Lean_mkConstWithLevelParams___at___00Lean_Elab_addConstInfo___at___00__private_Lean_PrettyPrinter_Delaborator_Basic_0__Lean_PrettyPrinter_Delaborator_initFn_00___x40_Lean_PrettyPrinter_Delaborator_Basic_3103770728____hygCtx___hyg_2__spec__2_spec__6_spec__11_spec__14_spec__16_spec__18_spec__20_spec__22___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_PrettyPrinter_Delaborator_delabAttribute;
-static const lean_string_object l___private_Lean_PrettyPrinter_Delaborator_Basic_0__Lean_PrettyPrinter_Delaborator_delabAttribute___regBuiltin_Lean_PrettyPrinter_Delaborator_delabAttribute_docString__1___closed__0_value = {.m_header = {.m_rc = 0, .m_cs_sz = 0, .m_other = 0, .m_tag = 249}, .m_size = 513, .m_capacity = 513, .m_length = 512, .m_data = "Registers a delaborator.\n\n`@[delab k]` registers a declaration of type `Lean.PrettyPrinter.Delaborator.Delab` for the\n`Lean.Expr` constructor `k`. Multiple delaborators for a single constructor are tried in turn until\nthe first success. If the term to be delaborated is an application of a constant `c`, elaborators\nfor `app.c` are tried first; this is also done for `Expr.const`s (\"nullary applications\") to reduce\nspecial casing. If the term is an `Expr.mdata` with a single key `k`, `mdata.k` is tried first.\n"};
+static const lean_string_object l___private_Lean_PrettyPrinter_Delaborator_Basic_0__Lean_PrettyPrinter_Delaborator_delabAttribute___regBuiltin_Lean_PrettyPrinter_Delaborator_delabAttribute_docString__1___closed__0_value = {.m_header = {.m_rc = 0, .m_cs_sz = 0, .m_other = 0, .m_tag = 249}, .m_size = 512, .m_capacity = 512, .m_length = 511, .m_data = "Registers a delaborator.\n\n`@[delab k]` registers a declaration of type `Lean.PrettyPrinter.Delaborator.Delab` for the\n`Lean.Expr` constructor `k`. Multiple delaborators for a single constructor are tried in turn until\nthe first success. If the term to be delaborated is an application of a constant `c`, elaborators\nfor `app.c` are tried first; this is also done for `Expr.const`s (\"nullary applications\") to reduce\nspecial casing. If the term is an `Expr.mdata` with a single key `k`, `mdata.k` is tried first."};
 static const lean_object* l___private_Lean_PrettyPrinter_Delaborator_Basic_0__Lean_PrettyPrinter_Delaborator_delabAttribute___regBuiltin_Lean_PrettyPrinter_Delaborator_delabAttribute_docString__1___closed__0 = (const lean_object*)&l___private_Lean_PrettyPrinter_Delaborator_Basic_0__Lean_PrettyPrinter_Delaborator_delabAttribute___regBuiltin_Lean_PrettyPrinter_Delaborator_delabAttribute_docString__1___closed__0_value;
 LEAN_EXPORT lean_object* l___private_Lean_PrettyPrinter_Delaborator_Basic_0__Lean_PrettyPrinter_Delaborator_delabAttribute___regBuiltin_Lean_PrettyPrinter_Delaborator_delabAttribute_docString__1();
 LEAN_EXPORT lean_object* l___private_Lean_PrettyPrinter_Delaborator_Basic_0__Lean_PrettyPrinter_Delaborator_delabAttribute___regBuiltin_Lean_PrettyPrinter_Delaborator_delabAttribute_docString__1___boxed(lean_object*);
@@ -916,7 +916,7 @@ static const lean_object* l___private_Lean_PrettyPrinter_Delaborator_Basic_0__Le
 LEAN_EXPORT lean_object* l___private_Lean_PrettyPrinter_Delaborator_Basic_0__Lean_PrettyPrinter_Delaborator_initFn_00___x40_Lean_PrettyPrinter_Delaborator_Basic_688057830____hygCtx___hyg_2_();
 LEAN_EXPORT lean_object* l___private_Lean_PrettyPrinter_Delaborator_Basic_0__Lean_PrettyPrinter_Delaborator_initFn_00___x40_Lean_PrettyPrinter_Delaborator_Basic_688057830____hygCtx___hyg_2____boxed(lean_object*);
 LEAN_EXPORT lean_object* l_Lean_PrettyPrinter_Delaborator_appUnexpanderAttribute;
-static const lean_string_object l___private_Lean_PrettyPrinter_Delaborator_Basic_0__Lean_PrettyPrinter_Delaborator_appUnexpanderAttribute___regBuiltin_Lean_PrettyPrinter_Delaborator_appUnexpanderAttribute_docString__1___closed__0_value = {.m_header = {.m_rc = 0, .m_cs_sz = 0, .m_other = 0, .m_tag = 249}, .m_size = 620, .m_capacity = 620, .m_length = 619, .m_data = "Registers an unexpander for applications of a given constant.\n\n`@[app_unexpander c]` registers a `Lean.PrettyPrinter.Unexpander` for applications of the constant\n`c`. The unexpander is passed the result of pre-pretty printing the application *without*\nimplicitly passed arguments. If `pp.explicit` is set to true or `pp.notation` is set to false,\nit will not be called at all.\n\nUnexpanders work as an alternative for delaborators (`@[app_delab]`) that can be used without\nspecial imports. This however also makes them much less capable since they can only transform\nsyntax and don't have access to the expression tree.\n"};
+static const lean_string_object l___private_Lean_PrettyPrinter_Delaborator_Basic_0__Lean_PrettyPrinter_Delaborator_appUnexpanderAttribute___regBuiltin_Lean_PrettyPrinter_Delaborator_appUnexpanderAttribute_docString__1___closed__0_value = {.m_header = {.m_rc = 0, .m_cs_sz = 0, .m_other = 0, .m_tag = 249}, .m_size = 619, .m_capacity = 619, .m_length = 618, .m_data = "Registers an unexpander for applications of a given constant.\n\n`@[app_unexpander c]` registers a `Lean.PrettyPrinter.Unexpander` for applications of the constant\n`c`. The unexpander is passed the result of pre-pretty printing the application *without*\nimplicitly passed arguments. If `pp.explicit` is set to true or `pp.notation` is set to false,\nit will not be called at all.\n\nUnexpanders work as an alternative for delaborators (`@[app_delab]`) that can be used without\nspecial imports. This however also makes them much less capable since they can only transform\nsyntax and don't have access to the expression tree."};
 static const lean_object* l___private_Lean_PrettyPrinter_Delaborator_Basic_0__Lean_PrettyPrinter_Delaborator_appUnexpanderAttribute___regBuiltin_Lean_PrettyPrinter_Delaborator_appUnexpanderAttribute_docString__1___closed__0 = (const lean_object*)&l___private_Lean_PrettyPrinter_Delaborator_Basic_0__Lean_PrettyPrinter_Delaborator_appUnexpanderAttribute___regBuiltin_Lean_PrettyPrinter_Delaborator_appUnexpanderAttribute_docString__1___closed__0_value;
 LEAN_EXPORT lean_object* l___private_Lean_PrettyPrinter_Delaborator_Basic_0__Lean_PrettyPrinter_Delaborator_appUnexpanderAttribute___regBuiltin_Lean_PrettyPrinter_Delaborator_appUnexpanderAttribute_docString__1();
 LEAN_EXPORT lean_object* l___private_Lean_PrettyPrinter_Delaborator_Basic_0__Lean_PrettyPrinter_Delaborator_appUnexpanderAttribute___regBuiltin_Lean_PrettyPrinter_Delaborator_appUnexpanderAttribute_docString__1___boxed(lean_object*);
@@ -9246,7 +9246,7 @@ v___jp_3004_:
 if (v_preserveName_2990_ == 0)
 {
 lean_object* v___x_3008_; lean_object* v___x_3009_; 
-lean_dec_ref(v___y_3007_);
+lean_dec_ref(v___y_3005_);
 v___x_3008_ = ((lean_object*)(l_Lean_PrettyPrinter_Delaborator_getUnusedName___closed__0));
 v___x_3009_ = l_Lean_PrettyPrinter_Delaborator_getPPOption___redArg(v___x_3008_, v_a_2992_, v_a_2993_, v_a_2994_, v_a_2995_, v_a_2996_, v_a_2997_);
 if (lean_obj_tag(v___x_3009_) == 0)
@@ -9276,26 +9276,26 @@ lean_dec(v_a_3010_);
 if (v___x_3014_ == 0)
 {
 lean_del_object(v___x_3012_);
-v___y_3000_ = v___y_3005_;
-v___y_3001_ = v___y_3006_;
+v___y_3000_ = v___y_3006_;
+v___y_3001_ = v___y_3007_;
 goto v___jp_2999_;
 }
 else
 {
 uint8_t v___x_3015_; 
-v___x_3015_ = l_Lean_NameSet_contains(v_avoid_2991_, v___y_3005_);
+v___x_3015_ = l_Lean_NameSet_contains(v_avoid_2991_, v___y_3006_);
 if (v___x_3015_ == 0)
 {
 uint8_t v___x_3016_; 
-lean_inc(v___y_3005_);
-lean_inc_ref(v___y_3006_);
-v___x_3016_ = l___private_Lean_PrettyPrinter_Delaborator_Basic_0__Lean_PrettyPrinter_Delaborator_getUnusedName_bodyUsesSuggestion(v_body_2989_, v___y_3006_, v___y_3005_);
+lean_inc(v___y_3006_);
+lean_inc_ref(v___y_3007_);
+v___x_3016_ = l___private_Lean_PrettyPrinter_Delaborator_Basic_0__Lean_PrettyPrinter_Delaborator_getUnusedName_bodyUsesSuggestion(v_body_2989_, v___y_3007_, v___y_3006_);
 if (v___x_3016_ == 0)
 {
 lean_object* v___x_3018_; 
 if (v_isShared_3013_ == 0)
 {
-lean_ctor_set(v___x_3012_, 0, v___y_3005_);
+lean_ctor_set(v___x_3012_, 0, v___y_3006_);
 v___x_3018_ = v___x_3012_;
 goto v_reusejp_3017_;
 }
@@ -9303,7 +9303,7 @@ else
 {
 lean_object* v_reuseFailAlloc_3019_; 
 v_reuseFailAlloc_3019_ = lean_alloc_ctor(0, 1, 0);
-lean_ctor_set(v_reuseFailAlloc_3019_, 0, v___y_3005_);
+lean_ctor_set(v_reuseFailAlloc_3019_, 0, v___y_3006_);
 v___x_3018_ = v_reuseFailAlloc_3019_;
 goto v_reusejp_3017_;
 }
@@ -9315,16 +9315,16 @@ return v___x_3018_;
 else
 {
 lean_del_object(v___x_3012_);
-v___y_3000_ = v___y_3005_;
-v___y_3001_ = v___y_3006_;
+v___y_3000_ = v___y_3006_;
+v___y_3001_ = v___y_3007_;
 goto v___jp_2999_;
 }
 }
 else
 {
 lean_del_object(v___x_3012_);
-v___y_3000_ = v___y_3005_;
-v___y_3001_ = v___y_3006_;
+v___y_3000_ = v___y_3006_;
+v___y_3001_ = v___y_3007_;
 goto v___jp_2999_;
 }
 }
@@ -9333,7 +9333,7 @@ goto v___jp_2999_;
 else
 {
 lean_object* v_a_3021_; lean_object* v___x_3023_; uint8_t v_isShared_3024_; uint8_t v_isSharedCheck_3028_; 
-lean_dec(v___y_3005_);
+lean_dec(v___y_3006_);
 v_a_3021_ = lean_ctor_get(v___x_3009_, 0);
 v_isSharedCheck_3028_ = !lean_is_exclusive(v___x_3009_);
 if (v_isSharedCheck_3028_ == 0)
@@ -9376,8 +9376,8 @@ return v___x_3026_;
 else
 {
 lean_object* v___x_3029_; 
-lean_dec(v___y_3005_);
-v___x_3029_ = l_Lean_Core_withFreshMacroScope___redArg(v___y_3007_, v_a_2996_, v_a_2997_);
+lean_dec(v___y_3006_);
+v___x_3029_ = l_Lean_Core_withFreshMacroScope___redArg(v___y_3005_, v_a_2996_, v_a_2997_);
 return v___x_3029_;
 }
 }
@@ -9401,9 +9401,9 @@ v___f_3036_ = lean_alloc_closure((void*)(l_Lean_PrettyPrinter_Delaborator_getUnu
 lean_closure_set(v___f_3036_, 0, v_snd_3032_);
 if (v_preserveName_2990_ == 0)
 {
-v___y_3005_ = v_snd_3032_;
-v___y_3006_ = v_lctx_3033_;
-v___y_3007_ = v___f_3036_;
+v___y_3005_ = v___f_3036_;
+v___y_3006_ = v_snd_3032_;
+v___y_3007_ = v_lctx_3033_;
 goto v___jp_3004_;
 }
 else
@@ -9418,9 +9418,9 @@ return v___x_3037_;
 }
 else
 {
-v___y_3005_ = v_snd_3032_;
-v___y_3006_ = v_lctx_3033_;
-v___y_3007_ = v___f_3036_;
+v___y_3005_ = v___f_3036_;
+v___y_3006_ = v_snd_3032_;
+v___y_3007_ = v_lctx_3033_;
 goto v___jp_3004_;
 }
 }

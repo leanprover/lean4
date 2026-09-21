@@ -1,0 +1,23 @@
+Input: ":::note (x := \"a\nb\")\nBody.\n:::\n"
+Failure: unexpected token; expected a string argument on one line
+ --> 1:14-2:2
+  |
+1 | :::note (x := "a
+  |               ^^
+  = consumed input prefix: 19 bytes
+Final stack:
+  (Lean.Doc.Parser.Block.directive
+   (Lean.Doc.Parser.directiveDelimiter ":::")
+   `note
+   [(Lean.Doc.Parser.Arg.named
+     "("
+     `x
+     ":="
+     (Lean.Doc.Parser.ArgVal.str <missing>)
+     ")")]
+   [(Lean.Doc.Parser.Block.para
+     [(Lean.Doc.Parser.Inline.text
+       (Lean.Doc.Parser.versoText "Body."))])]
+   (Lean.Doc.Parser.directiveDelimiter ":::"))
+All input consumed.
+Round-trip not reproduced, as the parse reported errors: leaf without original source info: <missing>

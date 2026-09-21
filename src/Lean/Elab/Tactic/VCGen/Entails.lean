@@ -48,7 +48,7 @@ public def introPre (rule : BackwardRule) (goal : MVarId) : VCGenM (MVarId × FV
 /--
 Reduce a `Prod.fst` projection of a concrete tuple on the RHS of `pre ⊑ rhs` to the component it
 selects. An exception postcondition is a tuple with one component per exception layer, so the head
-layer of `pre ⊑ epost.fst` is a `Prod.fst` projection. `reduceHead?` performs the reduction, so a
+layer of `pre ⊑ eposts.fst` is a `Prod.fst` projection. `reduceHead?` performs the reduction, so a
 `.snd` chain below the projection and excess state arguments reduce in the same pass. Returns
 `none` if the RHS head is not `Prod.fst` or does not reduce; a `⊥`/`⊤` tuple falls through to the
 `Prod.fst` lattice split in `splitLatticeOp?`.

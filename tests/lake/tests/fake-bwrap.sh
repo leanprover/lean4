@@ -5,7 +5,7 @@
 #
 # Mounts and namespaces are ignored, so this provides no isolation whatsoever; `--clearenv` and
 # `--setenv` are honoured, because the command's environment is what the tests exercise. `lake
-# challenge` reaches this only through `COMPARATOR_BWRAP`, which is the documented escape hatch, so
+# comparator` reaches this only through `COMPARATOR_BWRAP`, which is the documented escape hatch, so
 # it adds no new way to fake a verdict.
 
 set -euo pipefail

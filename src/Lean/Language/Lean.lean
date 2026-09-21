@@ -13,6 +13,7 @@ module
 prelude
 public import Lean.Language.Util
 public import Lean.Language.Lean.Types
+public import Lean.Language.Lean.Util
 public import Lean.Elab.Import
 
 public section
@@ -421,7 +422,7 @@ where
                   let prom ← IO.Promise.new
                   let cancelTk ← IO.CancelToken.new
                   parseCmd oldCmd newParserState oldProcSuccess.cmdState prom (sync := true)
-                    cancelTk #[] ctx
+                    cancelTk {} ctx
                   return .finished none {
                     diagnostics := .empty
                     metaSnap := .finished newStx {
@@ -541,7 +542,7 @@ where
       }
       let prom ← IO.Promise.new
       let cancelTk ← IO.CancelToken.new
-      parseCmd none parserState cmdState prom (sync := true) cancelTk #[] ctx
+      parseCmd none parserState cmdState prom (sync := true) cancelTk {} ctx
       return {
         diagnostics := .empty
         metaSnap := .finished stx {
@@ -554,9 +555,15 @@ where
         }
       }
 
+  /-
+  `cmds` accumulates the commands parsed so far for the module linters, which run on the terminal
+  command. It is a `PersistentArray` because it is captured by closures handed to tasks (e.g. the
+  linter task of every command), so an `Array` would be shared at the time of the next push and
+  copied in full, making the cost of each command linear in its position in the file.
+  -/
   parseCmd (old? : Option CommandParsedSnapshot) (parserState : Parser.ModuleParserState)
       (cmdState : Command.State) (prom : IO.Promise CommandParsedSnapshot) (sync : Bool)
-      (parseCancelTk : IO.CancelToken) (cmds : Array Syntax) : LeanProcessingM Unit := do
+      (parseCancelTk : IO.CancelToken) (cmds : PersistentArray Syntax) : LeanProcessingM Unit := do
     let ctx ← read
 
     let unchanged old newParserState : BaseIO Unit :=
@@ -750,7 +757,7 @@ where
         -- We're definitely off the fast-forwarding path now
         parseCmd none parserState cmdState next (sync := false) elabCmdCancelTk (cmds.push stx) ctx
 
-  doElab (stx : Syntax) (cmds : Array Syntax) (cmdState : Command.State) (beginPos : String.Pos.Raw)
+  doElab (stx : Syntax) (cmds : PersistentArray Syntax) (cmdState : Command.State) (beginPos : String.Pos.Raw)
       (snap : SnapshotBundle DynamicSnapshot) (cancelTk : IO.CancelToken) :
       LeanProcessingM Command.State := do
     let ctx ← read
@@ -795,7 +802,7 @@ def processCommands (inputCtx : Parser.InputContext) (parserState : Parser.Modul
     BaseIO (Task CommandParsedSnapshot) := do
   let prom ← IO.Promise.new
   let cancelTk ← IO.CancelToken.new
-  process.parseCmd (old?.map (·.2)) parserState commandState prom (sync := true) cancelTk #[]
+  process.parseCmd (old?.map (·.2)) parserState commandState prom (sync := true) cancelTk {}
     |>.run (old?.map (·.1))
     |>.run { inputCtx with }
   return prom.result!

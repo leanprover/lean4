@@ -85,7 +85,8 @@ def _root_.Lean.MVarId.applyRfl (goal : MVarId) : MetaM Unit := goal.withContext
 
   let success ← approxDefEq <| isDefEqGuarded lhs rhs
   unless success do
-    let explanation := MessageData.ofLazyM (es := #[lhs, rhs]) do
+    let config ← approxDefEq getConfig
+    let explanation := MessageData.ofLazyM (es := #[lhs, rhs]) <| withConfig (fun _ => config) do
       let (lhs, rhs) ← addPPExplicitToExposeDiff lhs rhs
       return m!"The left-hand side{indentExpr lhs}\nis not definitionally equal to the right-hand side{indentExpr rhs}"
     throwTacticEx `rfl goal explanation

@@ -128,7 +128,7 @@ Returns `true` if `a` and `b` are represented by the same pointer at runtime, or
 If `k` is a function that performs an equality check on `a` and `b`, then this operation can be
 used to short-circuit the equality check for pointer-equal input.
 
-This is cannot be wrapped into a safe operation with logical value `k ()` because that would be
+This cannot be wrapped into a safe operation with logical value `k ()` because that would be
 unsound if `α` includes computationally irrelevant data like types. Consider the example
 `α := Prop`, `a := True`, `b := False`, `k := fun _ => false`. In this case, `a = b → k () = true`
 is true, but `a` and `b` have the same runtime representation of an erased type, so `ptrEq a b` is

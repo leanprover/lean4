@@ -1864,12 +1864,12 @@ private def isAssigned : Expr → MetaM Bool
   | .mvar mvarId => mvarId.isAssigned
   | _            => pure false
 
-private def expandDelayedAssigned? (t : Expr) : MetaM (Option Expr) := do
+private def expandDelayedAssigned? (t s : Expr) : MetaM (Option (Expr × Expr × Option LocalContext)) := do
   let tFn := t.getAppFn
   if !tFn.isMVar then return none
   let some { fvars, mvarIdPending } ← getDelayedMVarAssignment? tFn.mvarId! | return none
   let tNew ← instantiateMVars t
-  if tNew != t then return some tNew
+  if tNew != t then return some (tNew, s, none)
   /-
     If `assignSyntheticOpaque` is true, we must follow the delayed assignment.
     Recall a delayed assignment `mvarId [xs] := mvarIdPending` is morally an assignment
@@ -1879,19 +1879,20 @@ private def expandDelayedAssigned? (t : Expr) : MetaM (Option Expr) := do
     Here we just consume `fvar.size` arguments. That is, if `t` is of the form `mvarId as bs` where `as.size == fvars.size`,
     we return `mvarIdPending bs`.
 
-    TODO: improve this transformation. Here is a possible improvement.
-    Assume `t` is of the form `?m as` where `as` represent the arguments, and we are trying to solve
-    `?m as =?= s[as]` where `s[as]` represents a term containing occurrences of `as`.
-    We could try to compute the solution as usual `?m := fun ys => s[as/ys]`
-    We also have the delayed assignment `?m [xs] := ?n`, where `xs` are variables in the scope of `?n`,
-    and this delayed assignment is morally `?m := fun xs => ?n`.
-    Thus, we can reduce `?m as =?= s[as]` to `?n =?= s[as/xs]`, and solve it using `?n`'s local context.
-    This is more precise than simply dropping the arguments `as`.
+    When `t` is of the form `?m as` and the delayed assignment is
+    `?m [xs] := ?n`, we reduce `?m as =?= s[as]` to
+    `?n =?= s[as/xs]`. Here `s[as/xs]` is formed by replacing the
+    free-variable arguments `as` with the corresponding variables `xs`.
+    The comparison is performed in `?n`'s local context, so assignments to
+    `?n` can refer to those variables without leaking them into the outer scope.
   -/
   unless (← getConfig).assignSyntheticOpaque do return none
   let tArgs := t.getAppArgs
   if tArgs.size < fvars.size then return none
-  return some (mkAppRange (mkMVar mvarIdPending) fvars.size tArgs.size tArgs)
+  unless (tArgs[*...fvars.size]).all Expr.isFVar do return none
+  let s ← s.replaceFVarsM (tArgs[*...fvars.size]) fvars
+  let lctx := (← mvarIdPending.getDecl).lctx
+  return some (mkAppRange (mkMVar mvarIdPending) fvars.size tArgs.size tArgs, s, some lctx)
 
 private def isAssignable : Expr → MetaM Bool
   | .mvar mvarId => do let b ← mvarId.isReadOnlyOrSyntheticOpaque; pure (!b)
@@ -2047,10 +2048,10 @@ private partial def isDefEqQuickOther (t s : Expr) : MetaM LBool := do
     else if (← isAssigned sFn) then
       let s ← instantiateMVars s
       isDefEqQuick t s
-    else if let some t ← expandDelayedAssigned? t then
-      isDefEqQuick t s
-    else if let some s ← expandDelayedAssigned? s then
-      isDefEqQuick t s
+    else if let some (t, s, lctx?) ← expandDelayedAssigned? t s then
+      withLCtx' (lctx?.getD (← getLCtx)) <| isDefEqQuick t s
+    else if let some (s, t, lctx?) ← expandDelayedAssigned? s t then
+      withLCtx' (lctx?.getD (← getLCtx)) <| isDefEqQuick t s
     /- Remark: we do not eagerly synthesize synthetic metavariables when the constraint is not stuck.
        Reason: we may fail to solve a constraint of the form `?x =?= A` when the synthesized instance
        is not definitionally equal to `A`. We left the code here as a reminder of this issue. -/

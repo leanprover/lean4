@@ -672,7 +672,8 @@ Indicates that a task should be scheduled on a dedicated thread.
 Any priority higher than `Task.Priority.max` will result in the task being scheduled
 immediately on a dedicated thread. This is particularly useful for long-running and/or
 I/O-bound tasks since Lean will, by default, allocate no more non-dedicated workers
-than the number of cores to reduce context switches.
+than the number of cores to reduce context switches. If no thread can be started for the task, it
+runs in the thread pool at `Task.Priority.max` instead.
 -/
 def Priority.dedicated : Priority := 9
 

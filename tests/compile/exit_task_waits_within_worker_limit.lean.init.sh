@@ -1,0 +1,2 @@
+export LEAN_NUM_THREADS=2
+TEST_LEANI_ARGS=(-j2)

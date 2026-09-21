@@ -848,6 +848,13 @@ system, this is any definition. -/
 def hasExposedBody (env : Environment) (n : Name) : Bool :=
   env.setExporting true |>.find? n |>.any (·.hasValue)
 
+def getModuleIdxFor? (env : Environment) (declName : Name) : Option ModuleIdx :=
+  -- async constants are always from the current module
+  env.base.get env |>.const2ModIdx[declName]?
+
+def isImportedConst (env : Environment) (declName : Name) : Bool :=
+  env.getModuleIdxFor? declName |>.isSome
+
 /--
 Allows `realizeConst` calls for the given declaration in all derived environment branches.
 Realizations will run using the given environment and options to ensure deterministic results. Note
@@ -880,7 +887,7 @@ def enableRealizationsForConst (env : Environment) (opts : Options) (c : Name) :
     realizeMapRef := (← IO.mkRef {}) } }
 
 def areRealizationsEnabledForConst (env : Environment) (c : Name) : Bool :=
-  (env.base.get env |>.const2ModIdx.contains c) || env.localRealizationCtxMap.contains c
+  env.isImportedConst c || env.localRealizationCtxMap.contains c
 
 /-- Returns debug output about the asynchronous state of the environment. -/
 def dbgFormatAsyncState (env : Environment) : BaseIO String :=
@@ -1154,6 +1161,26 @@ def containsOnBranch (env : Environment) (n : Name) : Bool :=
   (env.asyncConsts.find? n |>.isSome) || (env.base.get env).constants.contains n
 
 /--
+Returns whether `realizeConst forConst` callbacks can access `c` in the private scope, i.e. whether
+`c` is part of the realization environment of `forConst`. Returns `false` if realizations for
+`forConst` are not enabled on the current environment branch. Like `contains`, may block on
+asynchronous elaboration.
+
+Use this to choose `forConst` when a realization depends on two (or more) constants: a correct target
+is one whose realization environment contains all others.
+-/
+def realizationEnvContains (env : Environment) (forConst c : Name) : Bool :=
+  let env := env.setExporting false
+  if env.isImportedConst forConst then
+    env.isImportedConst c
+  else match env.localRealizationCtxMap.find? forConst with
+    | some ctx =>
+      -- safety: `RealizationContext` is private
+      let realizeEnv : Environment := unsafe unsafeCast ctx.env
+      realizeEnv.setExporting false |>.contains c
+    | none => false
+
+/--
 Returns the constants added in the current module, in elaboration tree pre-order: the top-level
 declarations in elaboration order, each followed by its asynchronous sub-declarations, recursively.
 The recursive part can optionally be skipped for theorems for when their sub-decls are unimportant
@@ -1192,13 +1219,6 @@ def setMainModule (env : Environment) (m : Name) : Environment := Id.run do
 
 def mainModule (env : Environment) : Name :=
   env.header.mainModule
-
-def getModuleIdxFor? (env : Environment) (declName : Name) : Option ModuleIdx :=
-  -- async constants are always from the current module
-  env.base.get env |>.const2ModIdx[declName]?
-
-def isImportedConst (env : Environment) (declName : Name) : Bool :=
-  env.getModuleIdxFor? declName |>.isSome
 
 def isConstructor (env : Environment) (declName : Name) : Bool :=
   env.findAsync? declName |>.any (·.kind == .ctor)
@@ -2685,7 +2705,7 @@ def realizeValue [BEq α] [Hashable α] [TypeName α] (env : Environment) (forCo
   -- end
   let heartbeats ← IO.getNumHeartbeats
   -- find `RealizationContext` for `forConst` in `importRealizationCtx?` or `localRealizationCtxMap`
-  let ctx ← if env.base.get env |>.const2ModIdx.contains forConst then
+  let ctx ← if env.isImportedConst forConst then
     env.importRealizationCtx?.getDM <|
       throw <| .userError s!"Environment.realizeConst: `realizedImportedConsts` is empty"
   else
@@ -2693,7 +2713,7 @@ def realizeValue [BEq α] [Hashable α] [TypeName α] (env : Environment) (forCo
     | some ctx => pure ctx
     | none =>
       throw <| .userError s!"trying to realize `{TypeName.typeName α}` value but \
-        `enableRealizationsForConst` must be called for '{forConst}' first"
+        `enableRealizationsForConst` must be called for `{forConst}` first"
   let res ← (do
     -- First try checking for the key non-atomically as (de)allocating the promise is expensive.
     let m ← ctx.realizeMapRef.get
@@ -2748,6 +2768,10 @@ deriving Nonempty, TypeName
 def realizeConst (env : Environment) (forConst : Name) (constName : Name)
     (realize : Environment → Options → BaseIO (Environment × Dynamic)) :
     IO (Environment × Task (Option Kernel.Exception) × Dynamic) := do
+  -- `realizeValue` checks this as well but can only name the key type in its error message
+  unless env.areRealizationsEnabledForConst forConst do
+    throw <| .userError s!"trying to realize `{constName}` but `enableRealizationsForConst` must \
+      be called for `{forConst}` first"
   let res ← env.realizeValue forConst { constName : RealizeConstKey } fun realizeEnv realizeOpts => do
     -- ensure that environment extension modifications know they are in an async context
     let realizeEnv := realizeEnv.enterAsyncRealizing constName

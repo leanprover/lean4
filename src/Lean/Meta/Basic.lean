@@ -2710,6 +2710,8 @@ achieve deterministic results despite the non-deterministic choice of which thre
 realization. In other words, the state after calling `realizeConst` is *as if* `realize` had been
 called immediately after `enableRealizationsForConst forConst`, though the effects of this call are
 visible only after calling `realizeConst`. See below for more details on the replayed effects.
+Consequently, if `realize` depends on multiple constants, `forConst` must be one whose realization
+environment contains all others; see `Environment.realizationEnvContains`.
 
 `realizeConst` cannot check what other data is captured in the `realize` closure,
 so it is best practice to extract it into a separate function and pay close attention to the passed

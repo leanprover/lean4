@@ -65,6 +65,8 @@ abstract a let-variable.
 2) We use the `MetaM` type checker `check` to type check the expression we want to close,
    and the type of the binders. We also check that the value has the given type.
 3) If a let-variable is not in `zetaDeltaFVarIds`, we lambda abstract it.
+   If we could not establish that the value has the given type, we do not lambda abstract any
+   let-variable.
 
 Remark: We still use let-expressions for let-variables in `zetaDeltaFVarIds`, but we move the
 `let` inside the lambdas. The idea is to make sure the auxiliary definition does not have
@@ -121,6 +123,13 @@ structure State where
   newLocalDecls         : Array LocalDecl := #[]
   newLocalDeclsForMVars : Array LocalDecl := #[]
   newLetDecls           : Array LocalDecl := #[]
+  /--
+  Set when we could not establish that the value has the given type using `isDefEq`
+  (see `mkValueTypeClosureAux`). Then `zetaDeltaFVarIds` may be incomplete, and we conservatively
+  treat every let-declaration as dependent, i.e., we keep it as a `let` instead of lambda
+  abstracting it.
+  -/
+  allLetDeclsDependent  : Bool := false
   nextExprIdx           : Nat := 1
   exprMVarArgs          : Array Expr := #[]
   exprFVarArgs          : Array Expr := #[]
@@ -295,7 +304,7 @@ partial def process : ClosureM Unit := do
     | .ldecl _ _ userName type val nondep _ =>
       let zetaDeltaFVarIds ← getZetaDeltaFVarIds
       -- Note: If `nondep` is true then `zetaDeltaFVarIds.contains fvarId` must be false.
-      if nondep || !zetaDeltaFVarIds.contains fvarId then
+      if nondep || (!(← get).allLetDeclsDependent && !zetaDeltaFVarIds.contains fvarId) then
         /- Non-dependent let-decl
 
             Recall that if `fvarId` is in `zetaDeltaFVarIds`, then we zetaDelta-expanded it
@@ -362,10 +371,14 @@ def mkValueTypeClosureAux (type : Expr) (value : Expr) : ClosureM (Expr × Expr)
       the resulting declaration (see issue #13408).
 
       We use `withNewMCtxDepth` so that metavariables occurring in `type` or `value` are not assigned
-      as a side effect, and `.all` transparency as in `check`. We do not throw an error if the check
-      fails, since it is the caller's responsibility to provide a type correct declaration.
+      as a side effect, and `.all` transparency as in `check`. If the check fails (e.g., because
+      `type` or `value` contain metavariables that would have to be assigned, or because the caller
+      provided a value that does not have the given type), we do not know which let-declarations
+      must be unfolded, and we conservatively keep every let-declaration as a `let`.
+      Note that `isDefEq` restores `zetaDeltaFVarIds` when it fails.
       -/
-      discard <| withNewMCtxDepth <| withTransparency .all <| isDefEq (← inferType value) type
+      unless ← withNewMCtxDepth <| withTransparency .all <| isDefEq (← inferType value) type do
+        modify fun s => { s with allLetDeclsDependent := true }
     let type  ← collectExpr type
     let value ← collectExpr value
     process

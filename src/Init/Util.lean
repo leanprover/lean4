@@ -143,7 +143,7 @@ namespace MyType
 
 @[inline]
 unsafe def withPtrEqUnsafe (a b : MyType) (k : Unit → Bool) (h : a = b → k () = true) : Bool :=
-  _root_.withPtrEq a b k h
+  _root_.withPtrEqUnsafe a b k h
 
 -- Safety: `MyType` contains no irrelevant data
 @[implemented_by withPtrEqUnsafe]

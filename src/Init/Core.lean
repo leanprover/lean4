@@ -1100,6 +1100,9 @@ theorem of_toBoolUsing_eq_true {p : Prop} {d : Decidable p} (h : toBoolUsing d =
 theorem of_toBoolUsing_eq_false {p : Prop} {d : Decidable p} (h : toBoolUsing d = false) : ¬p :=
   of_decide_eq_false h
 
+theorem reflects_toBoolUsing {p : Prop} {d : Decidable p} : (toBoolUsing d).Reflects p :=
+  d.reflects_decide
+
 instance : Decidable True :=
   isTrue trivial
 

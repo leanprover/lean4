@@ -135,8 +135,8 @@ is true, but `a` and `b` have the same runtime representation of an erased type,
 true and this function returns `true`, even though `k ()` is `false`.
 
 Users who require a safe version of this function whose logical model is equal to `k ()` must
-manually check that their type contains no irrelevant data and then create a specialized version of
-this function using `implemented_by`:
+manually check that for their type pointer-equality implies logical equality and then create a
+specialized version of this function using `implemented_by`:
 
 ```lean
 namespace MyType
@@ -145,9 +145,9 @@ namespace MyType
 unsafe def withPtrEqUnsafe (a b : MyType) (k : Unit → Bool) (h : a = b → k () = true) : Bool :=
   _root_.withPtrEqUnsafe a b k h
 
--- Safety: `MyType` contains no irrelevant data
+-- Safety: `MyType` contains no non-subsingleton erased data
 @[implemented_by withPtrEqUnsafe]
-private def withPtrEq (a b : MyType) (k : Unit → Bool) (_h : a = b → k () = true) : Bool :=
+def withPtrEq (a b : MyType) (k : Unit → Bool) (_h : a = b → k () = true) : Bool :=
   k ()
 
 end MyType
@@ -156,7 +156,7 @@ end MyType
 @[inline] unsafe def withPtrEqUnsafe {α : Type u} (a b : α) (k : Unit → Bool) (_h : a = b → k () = true) : Bool :=
   if ptrEq a b then true else k ()
 
-@[deprecated withPtrEqUnsafe (since := "2026-09-21")]
+@[deprecated "See the docstring of `withPtrEqUnsafe`" (since := "2026-09-21")]
 unsafe def withPtrEq {α : Type u} (a b : α) (k : Unit → Bool) (h : a = b → k () = true) : Bool :=
   withPtrEqUnsafe a b k h
 

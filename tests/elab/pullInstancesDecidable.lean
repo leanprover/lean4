@@ -29,7 +29,7 @@ namespace T
 @[inline] unsafe def withPtrEqUnsafe (a b : T) (k : Unit → Bool) (h : a = b → k () = true) : Bool :=
   _root_.withPtrEqUnsafe a b k h
 
--- Safety: `T` contains no irrelevant data
+-- Safety: `T` contains no non-subsingleton erased data
 @[implemented_by withPtrEqUnsafe]
 private def withPtrEq (a b : T) (k : Unit → Bool) (_h : a = b → k () = true) : Bool :=
   k ()

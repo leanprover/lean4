@@ -279,7 +279,7 @@ private unsafe def withPtrEqUnsafe (a b : BVExpr w) (k : Unit → Bool)
     (h : a = b → k () = true) : Bool :=
   _root_.withPtrEqUnsafe a b k h
 
--- Safety: `BVExpr` contains no irrelevant data
+-- Safety: `BVExpr` contains no non-subsingleton erased data
 @[implemented_by withPtrEqUnsafe]
 private def withPtrEq (a b : BVExpr w) (k : Unit → Bool) (_h : a = b → k () = true) : Bool :=
   k ()

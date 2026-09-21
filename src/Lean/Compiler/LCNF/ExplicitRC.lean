@@ -214,6 +214,8 @@ def Context.addDerivedLetDecl (ctx : Context) (decl : LetDecl .impure) : Context
     if let .fvar parent := args[1]! then ctx.addDerivedLetValue #[parent] decl else ctx
   | .fap _ #[] =>
     ctx.addDerivedLetValue #[] decl |>.addUnconditionalBorrow decl.fvarId
+  | .fap .. | .ctor .. | .reuse ..  =>
+    ctx.addDerivedLetValue #[] decl
   | _ => ctx
 
 @[inline]

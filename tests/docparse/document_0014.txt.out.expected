@@ -1,0 +1,24 @@
+Input: "_a__b_\n"
+Success! Final stack:
+  (Lean.Doc.Parser.document
+   [(Lean.Doc.Parser.Block.para
+     [(Lean.Doc.Parser.Inline.emph
+       (Lean.Doc.Parser.emphDelimiter "_")
+       [(Lean.Doc.Parser.Inline.text
+         (Lean.Doc.Parser.versoText "a"))]
+       (Lean.Doc.Parser.emphDelimiter "_"))
+      (Lean.Doc.Parser.Inline.emph
+       (Lean.Doc.Parser.emphDelimiter "_")
+       [(Lean.Doc.Parser.Inline.text
+         (Lean.Doc.Parser.versoText "b"))]
+       (Lean.Doc.Parser.emphDelimiter "_"))
+      (Lean.Doc.Parser.Inline.linebreak "\n")])])
+All input consumed.
+Round-trip OK
+Decoded views:
+  para
+    emph (opener := "_") (closer := "_")
+      text (content := "a")
+    emph (opener := "_") (closer := "_")
+      text (content := "b")
+    linebreak (newline := "\n")

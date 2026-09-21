@@ -333,7 +333,7 @@ structure SpecTheorem where
   This is the key used in the discrimination tree.
   If the proof has type `∀ a b c d e, ⦃P⦄ prog ⦃Q⦄` and only `a`, `c` and `e` occur in `prog`,
   then the pattern is `prog[a:=#2, c:=#1, e:=#0]`.
-  For specs stated as `pre ⊑ wp prog post epost`, the pattern is keyed on `prog`.
+  For specs stated as `pre ⊑ wp prog post eposts`, the pattern is keyed on `prog`.
   -/
   pattern : Sym.Pattern
   /-- The proof for the theorem. -/

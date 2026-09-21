@@ -1,0 +1,521 @@
+{
+  "widgetId": "associative-create-then-query",
+  "selectedCellOptions": [
+    {
+      "columnValue": "01f88623-fa5f-4380-9772-b30f2fec5c94",
+      "layerIdentifier": "Std.DHashMap",
+      "rowValue": "2cb3c441-9663-4ce7-9527-0f40fc29925a",
+      "selectedCellOptions": [
+        "Std.DHashMap.isEmpty_emptyWithCapacity"
+      ]
+    },
+    {
+      "columnValue": "01f88623-fa5f-4380-9772-b30f2fec5c94",
+      "layerIdentifier": "Std.DHashMap.Raw",
+      "rowValue": "2cb3c441-9663-4ce7-9527-0f40fc29925a",
+      "selectedCellOptions": [
+        "Std.DHashMap.Raw.isEmpty_emptyWithCapacity"
+      ]
+    },
+    {
+      "columnValue": "01f88623-fa5f-4380-9772-b30f2fec5c94",
+      "layerIdentifier": "Std.DHashMap",
+      "rowValue": "5ceaa26a-d2cb-4df3-9ac8-b5c11db2ae9d",
+      "selectedCellOptions": [
+        "Std.DHashMap.isEmpty_empty"
+      ]
+    },
+    {
+      "columnValue": "01f88623-fa5f-4380-9772-b30f2fec5c94",
+      "layerIdentifier": "Std.DHashMap.Raw",
+      "rowValue": "5ceaa26a-d2cb-4df3-9ac8-b5c11db2ae9d",
+      "selectedCellOptions": [
+        "Std.DHashMap.Raw.isEmpty_emptyc"
+      ]
+    },
+    {
+      "columnValue": "01f88623-fa5f-4380-9772-b30f2fec5c94",
+      "layerIdentifier": "Std.DTreeMap",
+      "rowValue": "5ceaa26a-d2cb-4df3-9ac8-b5c11db2ae9d",
+      "selectedCellOptions": [
+        "Std.DTreeMap.isEmpty_emptyc"
+      ]
+    },
+    {
+      "columnValue": "01f88623-fa5f-4380-9772-b30f2fec5c94",
+      "layerIdentifier": "Std.DTreeMap.Raw",
+      "rowValue": "5ceaa26a-d2cb-4df3-9ac8-b5c11db2ae9d",
+      "selectedCellOptions": [
+        "Std.DTreeMap.Raw.isEmpty_emptyc"
+      ]
+    },
+    {
+      "columnValue": "01f88623-fa5f-4380-9772-b30f2fec5c94",
+      "layerIdentifier": "Std.ExtDTreeMap",
+      "rowValue": "5ceaa26a-d2cb-4df3-9ac8-b5c11db2ae9d",
+      "selectedCellOptions": [
+        "Std.ExtDTreeMap.isEmpty_empty"
+      ]
+    }
+  ],
+  "selectedColumnAssociations": [
+    "01f88623-fa5f-4380-9772-b30f2fec5c94",
+    "f084f852-af71-45b6-8ab3-d251a8144f72"
+  ],
+  "selectedLayers": [
+    "Std.DHashMap",
+    "Std.DHashMap.Raw",
+    "Std.ExtDHashMap",
+    "Std.DTreeMap",
+    "Std.DTreeMap.Raw",
+    "Std.ExtDTreeMap"
+  ],
+  "selectedRowAssociations": [
+    "2cb3c441-9663-4ce7-9527-0f40fc29925a",
+    "7743a485-024d-43b6-bd5f-ebd3182eb94d",
+    "5ceaa26a-d2cb-4df3-9ac8-b5c11db2ae9d"
+  ],
+  "facts": [
+    {
+      "widgetId": "associative-create-then-query",
+      "factId": "2cb3c441-9663-4ce7-9527-0f40fc29925a:::01f88623-fa5f-4380-9772-b30f2fec5c94:::Std.DHashMap::Std.DHashMap.Raw::Std.ExtDHashMap::Std.DTreeMap::Std.DTreeMap.Raw::Std.ExtDTreeMap",
+      "columnAssociationId": "01f88623-fa5f-4380-9772-b30f2fec5c94",
+      "rowAssociationId": "2cb3c441-9663-4ce7-9527-0f40fc29925a",
+      "selectedLayers": [
+        "Std.DHashMap",
+        "Std.DHashMap.Raw",
+        "Std.ExtDHashMap",
+        "Std.DTreeMap",
+        "Std.DTreeMap.Raw",
+        "Std.ExtDTreeMap"
+      ],
+      "layerStates": [
+        {
+          "layerIdentifier": "Std.DHashMap",
+          "rowState": {
+            "value": "Std.DHashMap.emptyWithCapacity",
+            "state": {
+              "declaration": {
+                "constructor": "def",
+                "def": {
+                  "isDeprecated": false,
+                  "name": "Std.DHashMap.emptyWithCapacity",
+                  "renderedStatement": "Std.DHashMap.emptyWithCapacity.{u, v} {α : Type u} {β : α → Type v} [BEq α] [Hashable α]\n  (capacity : Nat := 8) : Std.DHashMap α β"
+                }
+              }
+            }
+          },
+          "columnState": {
+            "value": "Std.DHashMap.isEmpty",
+            "state": {
+              "declaration": {
+                "constructor": "def",
+                "def": {
+                  "isDeprecated": false,
+                  "name": "Std.DHashMap.isEmpty",
+                  "renderedStatement": "Std.DHashMap.isEmpty.{u, v} {α : Type u} {β : α → Type v} {x✝ : BEq α} {x✝¹ : Hashable α}\n  (m : Std.DHashMap α β) : Bool"
+                }
+              }
+            }
+          },
+          "selectedCellStates": []
+        },
+        {
+          "layerIdentifier": "Std.DHashMap.Raw",
+          "rowState": {
+            "value": "Std.DHashMap.Raw.emptyWithCapacity",
+            "state": {
+              "declaration": {
+                "constructor": "def",
+                "def": {
+                  "isDeprecated": false,
+                  "name": "Std.DHashMap.Raw.emptyWithCapacity",
+                  "renderedStatement": "Std.DHashMap.Raw.emptyWithCapacity.{u, v} {α : Type u} {β : α → Type v} (capacity : Nat := 8) :\n  Std.DHashMap.Raw α β"
+                }
+              }
+            }
+          },
+          "columnState": {
+            "value": "Std.DHashMap.Raw.isEmpty",
+            "state": {
+              "declaration": {
+                "constructor": "def",
+                "def": {
+                  "isDeprecated": false,
+                  "name": "Std.DHashMap.Raw.isEmpty",
+                  "renderedStatement": "Std.DHashMap.Raw.isEmpty.{u, v} {α : Type u} {β : α → Type v} (m : Std.DHashMap.Raw α β) : Bool"
+                }
+              }
+            }
+          },
+          "selectedCellStates": []
+        },
+        {
+          "layerIdentifier": "Std.ExtDHashMap",
+          "rowState": {
+            "value": "Std.ExtDHashMap.emptyWithCapacity",
+            "state": {
+              "declaration": {
+                "constructor": "def",
+                "def": {
+                  "isDeprecated": false,
+                  "name": "Std.ExtDHashMap.emptyWithCapacity",
+                  "renderedStatement": "Std.ExtDHashMap.emptyWithCapacity.{u, v} {α : Type u} {β : α → Type v} [BEq α] [Hashable α]\n  (capacity : Nat := 8) : Std.ExtDHashMap α β"
+                }
+              }
+            }
+          },
+          "columnState": {
+            "value": "Std.ExtDHashMap.isEmpty",
+            "state": {
+              "declaration": {
+                "constructor": "def",
+                "def": {
+                  "isDeprecated": false,
+                  "name": "Std.ExtDHashMap.isEmpty",
+                  "renderedStatement": "Std.ExtDHashMap.isEmpty.{u, v} {α : Type u} {β : α → Type v} {x✝ : BEq α} {x✝¹ : Hashable α}\n  [EquivBEq α] [LawfulHashable α] (m : Std.ExtDHashMap α β) : Bool"
+                }
+              }
+            }
+          },
+          "selectedCellStates": []
+        },
+        {
+          "layerIdentifier": "Std.DTreeMap",
+          "rowState": {
+            "value": "Std.DTreeMap.empty",
+            "state": {
+              "declaration": {
+                "constructor": "def",
+                "def": {
+                  "isDeprecated": false,
+                  "name": "Std.DTreeMap.empty",
+                  "renderedStatement": "Std.DTreeMap.empty.{u, v} {α : Type u} {β : α → Type v} {cmp : α → α → Ordering} :\n  Std.DTreeMap α β cmp"
+                }
+              }
+            }
+          },
+          "columnState": {
+            "value": "Std.DTreeMap.isEmpty",
+            "state": {
+              "declaration": {
+                "constructor": "def",
+                "def": {
+                  "isDeprecated": false,
+                  "name": "Std.DTreeMap.isEmpty",
+                  "renderedStatement": "Std.DTreeMap.isEmpty.{u, v} {α : Type u} {β : α → Type v} {cmp : α → α → Ordering}\n  (t : Std.DTreeMap α β cmp) : Bool"
+                }
+              }
+            }
+          },
+          "selectedCellStates": []
+        },
+        {
+          "layerIdentifier": "Std.DTreeMap.Raw",
+          "rowState": {
+            "value": "Std.DTreeMap.Raw.empty",
+            "state": {
+              "declaration": {
+                "constructor": "def",
+                "def": {
+                  "isDeprecated": false,
+                  "name": "Std.DTreeMap.Raw.empty",
+                  "renderedStatement": "Std.DTreeMap.Raw.empty.{u, v} {α : Type u} {β : α → Type v} {cmp : α → α → Ordering} :\n  Std.DTreeMap.Raw α β cmp"
+                }
+              }
+            }
+          },
+          "columnState": {
+            "value": "Std.DTreeMap.Raw.isEmpty",
+            "state": {
+              "declaration": {
+                "constructor": "def",
+                "def": {
+                  "isDeprecated": false,
+                  "name": "Std.DTreeMap.Raw.isEmpty",
+                  "renderedStatement": "Std.DTreeMap.Raw.isEmpty.{u, v} {α : Type u} {β : α → Type v} {cmp : α → α → Ordering}\n  (t : Std.DTreeMap.Raw α β cmp) : Bool"
+                }
+              }
+            }
+          },
+          "selectedCellStates": []
+        },
+        {
+          "layerIdentifier": "Std.ExtDTreeMap",
+          "rowState": {
+            "value": "Std.ExtDTreeMap.empty",
+            "state": {
+              "declaration": {
+                "constructor": "def",
+                "def": {
+                  "isDeprecated": false,
+                  "name": "Std.ExtDTreeMap.empty",
+                  "renderedStatement": "Std.ExtDTreeMap.empty.{u, v} {α : Type u} {β : α → Type v} {cmp : α → α → Ordering} :\n  Std.ExtDTreeMap α β cmp"
+                }
+              }
+            }
+          },
+          "columnState": {
+            "value": "Std.ExtDTreeMap.isEmpty",
+            "state": {
+              "declaration": {
+                "constructor": "def",
+                "def": {
+                  "isDeprecated": false,
+                  "name": "Std.ExtDTreeMap.isEmpty",
+                  "renderedStatement": "Std.ExtDTreeMap.isEmpty.{u, v} {α : Type u} {β : α → Type v} {cmp : α → α → Ordering}\n  (t : Std.ExtDTreeMap α β cmp) : Bool"
+                }
+              }
+            }
+          },
+          "selectedCellStates": []
+        }
+      ],
+      "metadata": {
+        "comment": "Not necessary for `ExtDHashMap` because of simp lemma turning into varno",
+        "status": "done"
+      }
+    },
+    {
+      "widgetId": "associative-create-then-query",
+      "factId": "5ceaa26a-d2cb-4df3-9ac8-b5c11db2ae9d:::01f88623-fa5f-4380-9772-b30f2fec5c94:::Std.DHashMap::Std.DHashMap.Raw::Std.ExtDHashMap::Std.DTreeMap::Std.DTreeMap.Raw::Std.ExtDTreeMap",
+      "columnAssociationId": "01f88623-fa5f-4380-9772-b30f2fec5c94",
+      "rowAssociationId": "5ceaa26a-d2cb-4df3-9ac8-b5c11db2ae9d",
+      "selectedLayers": [
+        "Std.DHashMap",
+        "Std.DHashMap.Raw",
+        "Std.ExtDHashMap",
+        "Std.DTreeMap",
+        "Std.DTreeMap.Raw",
+        "Std.ExtDTreeMap"
+      ],
+      "layerStates": [
+        {
+          "layerIdentifier": "Std.DHashMap",
+          "rowState": {
+            "value": "app (EmptyCollection.emptyCollection) (Std.DHashMap*)",
+            "state": {
+              "predicate": {
+                "displayShort": "∅",
+                "key": "app (EmptyCollection.emptyCollection) (Std.DHashMap*)"
+              }
+            }
+          },
+          "columnState": {
+            "value": "Std.DHashMap.isEmpty",
+            "state": {
+              "declaration": {
+                "constructor": "def",
+                "def": {
+                  "isDeprecated": false,
+                  "name": "Std.DHashMap.isEmpty",
+                  "renderedStatement": "Std.DHashMap.isEmpty.{u, v} {α : Type u} {β : α → Type v} {x✝ : BEq α} {x✝¹ : Hashable α}\n  (m : Std.DHashMap α β) : Bool"
+                }
+              }
+            }
+          },
+          "selectedCellStates": [
+            {
+              "value": "Std.DHashMap.isEmpty_empty",
+              "state": {
+                "constructor": "thm",
+                "thm": {
+                  "isDeprecated": false,
+                  "isSimp": true,
+                  "name": "Std.DHashMap.isEmpty_empty",
+                  "renderedStatement": "Std.DHashMap.isEmpty_empty.{u, v} {α : Type u} {β : α → Type v} {x✝ : BEq α} {x✝¹ : Hashable α} :\n  ∅.isEmpty = true"
+                }
+              }
+            }
+          ]
+        },
+        {
+          "layerIdentifier": "Std.DHashMap.Raw",
+          "rowState": {
+            "value": "app (EmptyCollection.emptyCollection) (Std.DHashMap.Raw*)",
+            "state": {
+              "predicate": {
+                "displayShort": "∅",
+                "key": "app (EmptyCollection.emptyCollection) (Std.DHashMap.Raw*)"
+              }
+            }
+          },
+          "columnState": {
+            "value": "Std.DHashMap.Raw.isEmpty",
+            "state": {
+              "declaration": {
+                "constructor": "def",
+                "def": {
+                  "isDeprecated": false,
+                  "name": "Std.DHashMap.Raw.isEmpty",
+                  "renderedStatement": "Std.DHashMap.Raw.isEmpty.{u, v} {α : Type u} {β : α → Type v} (m : Std.DHashMap.Raw α β) : Bool"
+                }
+              }
+            }
+          },
+          "selectedCellStates": [
+            {
+              "value": "Std.DHashMap.Raw.isEmpty_emptyc",
+              "state": {
+                "constructor": "thm",
+                "thm": {
+                  "isDeprecated": true,
+                  "isSimp": false,
+                  "name": "Std.DHashMap.Raw.isEmpty_emptyc",
+                  "renderedStatement": "Std.DHashMap.Raw.isEmpty_emptyc.{u_1, u_2} {α : Type u_1} {β : α → Type u_2} [BEq α] [Hashable α] :\n  ∅.isEmpty = true"
+                }
+              }
+            }
+          ]
+        },
+        {
+          "layerIdentifier": "Std.ExtDHashMap",
+          "rowState": {
+            "value": "app (EmptyCollection.emptyCollection) (Std.ExtDHashMap*)",
+            "state": {
+              "predicate": {
+                "displayShort": "∅",
+                "key": "app (EmptyCollection.emptyCollection) (Std.ExtDHashMap*)"
+              }
+            }
+          },
+          "columnState": {
+            "value": "Std.ExtDHashMap.isEmpty",
+            "state": {
+              "declaration": {
+                "constructor": "def",
+                "def": {
+                  "isDeprecated": false,
+                  "name": "Std.ExtDHashMap.isEmpty",
+                  "renderedStatement": "Std.ExtDHashMap.isEmpty.{u, v} {α : Type u} {β : α → Type v} {x✝ : BEq α} {x✝¹ : Hashable α}\n  [EquivBEq α] [LawfulHashable α] (m : Std.ExtDHashMap α β) : Bool"
+                }
+              }
+            }
+          },
+          "selectedCellStates": []
+        },
+        {
+          "layerIdentifier": "Std.DTreeMap",
+          "rowState": {
+            "value": "app (EmptyCollection.emptyCollection) (Std.DTreeMap*)",
+            "state": {
+              "predicate": {
+                "displayShort": "∅",
+                "key": "app (EmptyCollection.emptyCollection) (Std.DTreeMap*)"
+              }
+            }
+          },
+          "columnState": {
+            "value": "Std.DTreeMap.isEmpty",
+            "state": {
+              "declaration": {
+                "constructor": "def",
+                "def": {
+                  "isDeprecated": false,
+                  "name": "Std.DTreeMap.isEmpty",
+                  "renderedStatement": "Std.DTreeMap.isEmpty.{u, v} {α : Type u} {β : α → Type v} {cmp : α → α → Ordering}\n  (t : Std.DTreeMap α β cmp) : Bool"
+                }
+              }
+            }
+          },
+          "selectedCellStates": [
+            {
+              "value": "Std.DTreeMap.isEmpty_emptyc",
+              "state": {
+                "constructor": "thm",
+                "thm": {
+                  "isDeprecated": false,
+                  "isSimp": true,
+                  "name": "Std.DTreeMap.isEmpty_emptyc",
+                  "renderedStatement": "Std.DTreeMap.isEmpty_emptyc.{u, v} {α : Type u} {β : α → Type v} {cmp : α → α → Ordering} :\n  ∅.isEmpty = true"
+                }
+              }
+            }
+          ]
+        },
+        {
+          "layerIdentifier": "Std.DTreeMap.Raw",
+          "rowState": {
+            "value": "app (EmptyCollection.emptyCollection) (Std.DTreeMap.Raw*)",
+            "state": {
+              "predicate": {
+                "displayShort": "∅",
+                "key": "app (EmptyCollection.emptyCollection) (Std.DTreeMap.Raw*)"
+              }
+            }
+          },
+          "columnState": {
+            "value": "Std.DTreeMap.Raw.isEmpty",
+            "state": {
+              "declaration": {
+                "constructor": "def",
+                "def": {
+                  "isDeprecated": false,
+                  "name": "Std.DTreeMap.Raw.isEmpty",
+                  "renderedStatement": "Std.DTreeMap.Raw.isEmpty.{u, v} {α : Type u} {β : α → Type v} {cmp : α → α → Ordering}\n  (t : Std.DTreeMap.Raw α β cmp) : Bool"
+                }
+              }
+            }
+          },
+          "selectedCellStates": [
+            {
+              "value": "Std.DTreeMap.Raw.isEmpty_emptyc",
+              "state": {
+                "constructor": "thm",
+                "thm": {
+                  "isDeprecated": false,
+                  "isSimp": true,
+                  "name": "Std.DTreeMap.Raw.isEmpty_emptyc",
+                  "renderedStatement": "Std.DTreeMap.Raw.isEmpty_emptyc.{u, v} {α : Type u} {β : α → Type v} {cmp : α → α → Ordering} :\n  ∅.isEmpty = true"
+                }
+              }
+            }
+          ]
+        },
+        {
+          "layerIdentifier": "Std.ExtDTreeMap",
+          "rowState": {
+            "value": "app (EmptyCollection.emptyCollection) (Std.ExtDTreeMap*)",
+            "state": {
+              "predicate": {
+                "displayShort": "∅",
+                "key": "app (EmptyCollection.emptyCollection) (Std.ExtDTreeMap*)"
+              }
+            }
+          },
+          "columnState": {
+            "value": "Std.ExtDTreeMap.isEmpty",
+            "state": {
+              "declaration": {
+                "constructor": "def",
+                "def": {
+                  "isDeprecated": false,
+                  "name": "Std.ExtDTreeMap.isEmpty",
+                  "renderedStatement": "Std.ExtDTreeMap.isEmpty.{u, v} {α : Type u} {β : α → Type v} {cmp : α → α → Ordering}\n  (t : Std.ExtDTreeMap α β cmp) : Bool"
+                }
+              }
+            }
+          },
+          "selectedCellStates": [
+            {
+              "value": "Std.ExtDTreeMap.isEmpty_empty",
+              "state": {
+                "constructor": "thm",
+                "thm": {
+                  "isDeprecated": false,
+                  "isSimp": true,
+                  "name": "Std.ExtDTreeMap.isEmpty_empty",
+                  "renderedStatement": "Std.ExtDTreeMap.isEmpty_empty.{u, v} {α : Type u} {β : α → Type v} {cmp : α → α → Ordering} :\n  ∅.isEmpty = true"
+                }
+              }
+            }
+          ]
+        }
+      ],
+      "metadata": {
+        "comment": "Missing for `ExtDHashMap`",
+        "status": "bad"
+      }
+    }
+  ]
+}

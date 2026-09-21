@@ -54,7 +54,7 @@ def registerSimplePersistentEnvExtension {α σ : Type} [Inhabited σ] (descr : 
     statsFn := fun s => format "number of local entries: " ++ format s.1.length
     asyncMode := descr.asyncMode
     replay? := descr.replay?.map fun replay oldState newState _ (entries, s) =>
-      let newEntries := newState.1.take (newState.1.length - oldState.1.length)
+      let newEntries := takeNewEntries newState.1 oldState.1
       let (newEntries, s) := replay newEntries newState.2 s
       (newEntries ++ entries, s)
   }

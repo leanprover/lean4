@@ -7,7 +7,7 @@ Tests for framing the exception channel.
 
 The first part works on a two-constructor program type over a toy heap. The `WP` instance is the
 `sepConj`-frame closure of the evident base wp, so the companion `opE := sepConj` at
-`EPred = Pred` pushes the frame into the exception postcondition. `exit_frames_via_vcgen` proves
+`EPosts = Pred` pushes the frame into the exception postcondition. `exit_frames_via_vcgen` proves
 `⦃ 0 ↦ 1 ∗ 5 ↦ 7 ⦄ exit ⦃ ⊥; 0 ↦ 1 ∗ 5 ↦ 7 ⦄` with `vcgen`: the lossy spec owns only `0 ↦ 1`,
 and a `frames` clause carries `5 ↦ 7` into the exception postcondition. The separation algebra
 facts are axioms. Only the framing theorems carry proofs.
@@ -87,8 +87,8 @@ inductive Prog | skip | exit
 /-- The base wp: `skip` hands the heap to the postcondition, `exit` to the exception
 postcondition. -/
 @[instance_reducible] def baseWP : WP Prog Unit HProp HProp where
-  wpTrans x := ⟨fun Q E => match x with | .skip => Q () | .exit => E⟩
-  wp_trans_monotone x := by
+  trans x := ⟨fun Q E => match x with | .skip => Q () | .exit => E⟩
+  trans_monotone x := by
     intro Q Q' E E' hE hQ
     cases x
     · exact hQ ()
@@ -108,7 +108,7 @@ exception postcondition through the frame rule. -/
 theorem frames_exit (x : Prog) (F : HProp) :
     WP.Frames sepConj x F :=
   WP.frames_of_frameClosure sepConj sepConj sepConj_assoc sepConj_assoc
-    ⟨fun y => baseWP.wpTrans y, fun _ => rfl⟩
+    ⟨fun y => baseWP.trans y, fun _ => rfl⟩
 
 /-- Lossy spec: owns `0 ↦ 1` and says nothing about the rest of the heap. -/
 @[spec]

@@ -1,0 +1,9 @@
+name = "copyDep"
+
+[[require]]
+name = "foo"
+path = "foo"
+copy = true
+
+[[lean_lib]]
+name = "CopyDep"

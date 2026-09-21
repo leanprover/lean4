@@ -13,8 +13,6 @@ import Lean.Elab.Do.PatternVar
 
 public section
 
--- The `erased` doElem quotations below need the current stage's parser until stage0 catches up.
-set_option internal.parseQuotWithCurrentStage true
 
 namespace Lean.Elab.Do
 
@@ -160,7 +158,7 @@ partial def ofElem (stx : DoElem) : TermElabM ControlInfo := do
     ofLetOrReassign #[] none otherwise body?
   | `(doElem| let $[mut]? $_:letConfig $decl) =>
     ofLetOrReassignArrow false decl
-  | `(doErased| erased $[mut]? $_) => return .pure
+  | `(doElem| erased $[mut]? $_) => return .pure
   | `(doElem| $decl:letIdDeclNoBinders) =>
     ofLetOrReassign (← getLetIdDeclVars ⟨decl⟩) none none none
   | `(doElem| $decl:letPatDecl) =>

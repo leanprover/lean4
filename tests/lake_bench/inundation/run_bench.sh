@@ -5,27 +5,23 @@ echo "Running $PREFIX"
 rm -rf .lake lake-manifest.json test
 lake -R run mkBuild
 
-echo "Running $PREFIX/build/no-op"
-lake -R clean
-lake build
-"$TEST_DIR/measure.py" -t "$PREFIX/build/no-op" -d -a -- \
+bench_build() {
+  local name=$1; shift
+  echo "Running $PREFIX/$name/no-op"
+  lake -R "$@" clean
   lake build
+  "$TEST_DIR/measure.py" -t "$PREFIX/$name/no-op" -d -a -- \
+    lake build
 
-echo "Running $PREFIX/build/clean"
-lake -R clean
-"$TEST_DIR/measure.py" -t "$PREFIX/build/clean" -d -a -- \
-  lake build
+  echo "Running $PREFIX/$name/clean"
+  lake -R "$@" clean
+  "$TEST_DIR/measure.py" -t "$PREFIX/$name/clean" -d -a -- \
+    lake build
+}
 
-echo "Running $PREFIX/build/precompile/no-op"
-lake -R -K precompile=true clean
-lake build
-"$TEST_DIR/measure.py" -t "$PREFIX/build/precompile/no-op" -d -a -- \
-  lake build
-
-echo "Running $PREFIX/build/precompile/clean"
-lake -R -K precompile=true clean
-"$TEST_DIR/measure.py" -t "$PREFIX/build/precompile/clean" -d -a -- \
-  lake build
+bench_build build
+bench_build precompileModules -K precompileModules=true
+bench_build precompileLibrary -K precompileLibrary=true
 
 echo "Running $PREFIX/config/elab"
 lake -R run nop

@@ -31,7 +31,7 @@ spec's precondition. `W` is the weakest footprint the rule leaves.
 goal          : P ⊑ wp prog Q E s⃗
    │ frame rule, introducing ?frame
    ▼
-split VC      : P ⊑ (op ?frame W) s⃗      side goal: Frames op (wpTrans prog) ?frame
+split VC      : P ⊑ (op ?frame W) s⃗      side goal: Frames op (trans prog) ?frame
    where        W = wp prog (fun a => adj (op ?frame) (Q a)) (adj (opE ?frame) E)
    │ spec rule, at a target the frameproc named
    ▼

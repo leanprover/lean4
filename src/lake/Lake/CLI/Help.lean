@@ -23,6 +23,7 @@ COMMANDS:
   build <targets>...    build targets
   query <targets>...    build targets and output results
   exe <exe> <args>...   build an exe and run it in Lake's environment
+  samply <exe>          profile an exe with samply and demangle Lean names
   check-build           check if any default build targets are configured
   test                  test the package using the configured test driver
   check-test            check if there is a properly configured test driver
@@ -136,13 +137,15 @@ The `@` and `+` markers can be used to disambiguate packages and modules
 from file paths or other kinds of targets (e.g., executables or libraries).
 
 LIBRARY FACETS:         build the library's ...
-  leanArts (default)    Lean artifacts (*.olean, *.ilean, *.c files)
+  elabArts              elaboration artifacts (*.olean, *.ilean files)
+  irArts (default)      compilation artifacts (*.ir, *.ir.sig, *.c files)
   static                static artifact (*.a file)
   shared                shared artifact (*.so, *.dll, or *.dylib file)
 
 MODULE FACETS:          build the module's ...
   deps                  dependencies (e.g., imports, shared libraries, etc.)
-  leanArts (default)    Lean artifacts (*.olean, *.ilean, *.c files)
+  elabArts              elaboration artifacts (*.olean, *.ilean files)
+  irArts (default)      compilation artifacts (*.ir, *.ir.sig, *.c files)
   olean                 OLean (binary blob of Lean data for importers)
   ilean                 ILean (binary blob of metadata for the Lean LSP server)
   c                     compiled C file
@@ -883,6 +886,37 @@ learn how to specify targets), builds it if it is out of date, and then runs
 it with the given `args` in Lake's environment (see `lake help env` for how
 the environment is set up)."
 
+def helpSamply :=
+"Profile an executable target with samply and demangle Lean names
+
+USAGE:
+  lake samply [OPTIONS] <exe-target> [-- [<samply-args>...] [-- <exe-args>...]]
+
+Builds the executable target, records a CPU profile using samply, symbolicates
+the raw addresses, demangles Lean compiler names, and writes a Firefox Profiler
+JSON file.
+
+OPTIONS:
+  -o FILE               output path (default: ./profile-demangled.json.gz)
+  --raw                 save the raw profile without serving (default: ./profile-raw.json.gz)
+  --no-serve            write output file and exit without serving it
+
+Anything after `--` is forwarded verbatim to `samply record`. An inner `--`
+separates samply's own flags from the profiled executable's arguments, e.g.:
+
+  lake samply mergeSort                          # no samply or exe args
+  lake samply mergeSort -- --rate 2000           # only samply args
+  lake samply mergeSort -- -- 10                 # only exe args
+  lake samply mergeSort -- --rate 2000 -- 10     # both
+
+Run `samply record --help` to see samply's flags.
+
+REQUIREMENTS:
+  samply                cargo install samply
+  curl, gzip            standard on most Linux/macOS systems
+
+Open the output file in Firefox Profiler at https://profiler.firefox.com/from-file/"
+
 def helpLean :=
 "Elaborate a Lean file in the context of the Lake workspace
 
@@ -951,6 +985,7 @@ public def help : (cmd : String) → String
 | "serve"               => helpServe
 | "env"                 => helpEnv
 | "exe" | "exec"        => helpExe
+| "samply"              => helpSamply
 | "lean"                => helpLean
 | "translate-config"    => helpTranslateConfig
 | _                     => usage

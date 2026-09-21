@@ -1,9 +1,11 @@
+Input: "# Header!"
 Success! Final stack:
-  [(Lean.Doc.Syntax.header
-    "header("
-    (num "0")
-    ")"
-    "{"
-    [(Lean.Doc.Syntax.text (str "\"Header!\""))]
-    "}")]
+  [(Lean.Doc.Parser.Block.header
+    (Lean.Doc.Parser.headerMarker "#")
+    [(Lean.Doc.Parser.Inline.text
+      (Lean.Doc.Parser.versoText "Header!"))])]
 All input consumed.
+Round-trip OK
+Decoded views:
+  header (marker := "#") (level := 0)
+    text (content := "Header!")

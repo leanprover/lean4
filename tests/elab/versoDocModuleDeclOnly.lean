@@ -20,7 +20,6 @@ info: Markdown:
 This is a plain Markdown module doc with `code` and **bold**.
 
 Verso syntax is {here}**visible**.
-
 Verso:
 -/
 #guard_msgs in

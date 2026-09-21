@@ -63,7 +63,7 @@ abstract a let-variable.
    if a let-variable needs to zetaDelta expanded, we store it in the set `zetaDeltaFVarIds`.
    We say a let-variable is zetaDelta expanded when we replace it with its value.
 2) We use the `MetaM` type checker `check` to type check the expression we want to close,
-   and the type of the binders.
+   and the type of the binders. We also check that the value has the given type.
 3) If a let-variable is not in `zetaDeltaFVarIds`, we lambda abstract it.
 
 Remark: We still use let-expressions for let-variables in `zetaDeltaFVarIds`, but we move the
@@ -351,6 +351,21 @@ structure MkValueTypeClosureResult where
 
 def mkValueTypeClosureAux (type : Expr) (value : Expr) : ClosureM (Expr × Expr) := do
   withTrackingZetaDelta do
+    let ctx ← read
+    if !ctx.zetaDelta && ctx.hasLetDecls then
+      /-
+      `preprocess` type checks `type` and `value` separately to find the let-declarations that must
+      be unfolded for each of them to be type correct. The auxiliary declaration `name : type := value`
+      is only type correct if moreover `value` has type `type`, so we also record the
+      let-declarations that must be unfolded to establish this. Otherwise, a let-variable whose value
+      is needed for `value : type` to hold would be lambda abstracted, and the kernel would reject
+      the resulting declaration (see issue #13408).
+
+      We use `withNewMCtxDepth` so that metavariables occurring in `type` or `value` are not assigned
+      as a side effect, and `.all` transparency as in `check`. We do not throw an error if the check
+      fails, since it is the caller's responsibility to provide a type correct declaration.
+      -/
+      discard <| withNewMCtxDepth <| withTransparency .all <| isDefEq (← inferType value) type
     let type  ← collectExpr type
     let value ← collectExpr value
     process

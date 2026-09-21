@@ -1,6 +1,5 @@
 name = "test"
 platformIndependent = true
-enableArtifactCache = true
 restoreAllArtifacts = true
 defaultTargets = ["Test"]
 

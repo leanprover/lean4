@@ -30,37 +30,6 @@ namespace Lean.Compiler.LCNF
 
 open ImpureType
 
-/-!
-The following section contains the derived value analysis. It figures out a dependency graph of
-values that were derived from other values through projections or `Array` accesses. This information
-is later used in the derived borrow analysis to reduce reference counting pressure.
-
-When a derived value has more than one parent, it is derived from one of the parent values but we
-cannot statically determine which one.
-
-The graph is built alongside the main traversal and lives in the reader context, so at any program
-point it only contains the values that are in scope there. This matters for `cases` with many
-alternatives that each project many fields out of the same value: the children of that value are
-then the projections of the current alternative only, instead of the projections of all alternatives.
--/
-
-/--
-Contains information about values derived through various forms of projection from other values.
--/
-structure DerivedValInfo where
-  /--
-  The set of variables this value may derive from. This is always set except for parameters as they
-  have no value to be derived from.
-  -/
-  parents : Array FVarId
-  /--
-  The variables in scope that were derived from this value.
-  -/
-  children : List FVarId := []
-  deriving Inhabited
-
-abbrev DerivedValMap := Std.TreeMap FVarId DerivedValInfo (Name.quickCmp ·.name ·.name)
-
 /--
 Collect the targets of all `reset` instructions in `code`. A `reset` target must be owned, so it is
 never treated as derived from its parents.
@@ -126,19 +95,42 @@ def LiveVars.insertLive (liveVars : LiveVars) (fvarId : FVarId) : LiveVars :=
 
 abbrev JPLiveVarMap := FVarIdMap LiveVars
 
+/--
+Contains information about values derived through various forms of projection from other values.
+-/
+structure DerivedValInfo where
+  /--
+  The set of variables this value may derive from. This is always set except for parameters as they
+  have no value to be derived from.
+  -/
+  parents : Array FVarId
+  /--
+  The variables in scope that were derived from this value.
+  -/
+  children : List FVarId := []
+  deriving Inhabited
+
+abbrev DerivedValMap := Std.TreeMap FVarId DerivedValInfo (Name.quickCmp ·.name ·.name)
+
 structure Context where
   /--
-  The targets of all `reset` instructions in the current declaration.
+  The targets of all `reset` instructions in the current declaration. We need to keep track of them
+  as we require an accurate reference count for these values and they may thus never be marked as a
+  derived borrow.
   -/
   resetTargets : FVarIdHashSet
   /--
-  The values in scope that are borrowed by nature and potentially objects. This currently includes:
+  The values in scope that are unconditionally borrowed and potentially objects.
+  This currently includes:
   - borrowed parameters
   - variables that are initialized from constants
   -/
-  borrowedValues : List FVarId := []
+  unconditionalBorrows : List FVarId := []
   /--
-  The derived value tree, restricted to the values in scope.
+  The derived value tree, restricted to the values in scope. We say that a value is derived from
+  another one if it was created via projection or array read access. Note that a value may have
+  multiple parents as for example `Array.get!` may derive the value from either the `Inhabited`
+  instance or the `Array` itself.
   -/
   derivedValMap : DerivedValMap := {}
   /--
@@ -181,11 +173,6 @@ def isBorrowed (fvarId : FVarId) : RcM Bool := return (← get).liveVars.borrows
 def modifyLive (f : LiveVars → LiveVars) : RcM Unit :=
   modify fun s => { s with liveVars := f s.liveVars }
 
-
-/--
-Register `child` as derived from `parents`. Only parents that are already part of the tree receive
-the child, and a `reset` target is never attached to its parents as it must remain owned.
--/
 def Context.addDerivedValue (ctx : Context) (parents : Array FVarId) (child : FVarId) : Context :=
   let derivedValMap := ctx.derivedValMap.insert child { parents }
   let derivedValMap :=
@@ -196,8 +183,8 @@ def Context.addDerivedValue (ctx : Context) (parents : Array FVarId) (child : FV
         derivedValMap.modify parent fun info => { info with children := child :: info.children }
   { ctx with derivedValMap }
 
-def Context.addBorrowedValue (ctx : Context) (fvarId : FVarId) : Context :=
-  { ctx with borrowedValues := fvarId :: ctx.borrowedValues }
+def Context.addUnconditionalBorrow (ctx : Context) (fvarId : FVarId) : Context :=
+  { ctx with unconditionalBorrows := fvarId :: ctx.unconditionalBorrows }
 
 def Context.addDerivedLetValue (ctx : Context) (parents : Array FVarId) (decl : LetDecl .impure) :
     Context :=
@@ -205,8 +192,7 @@ def Context.addDerivedLetValue (ctx : Context) (parents : Array FVarId) (decl : 
     ctx
   else
     let parents := parents.filter fun parent => (ctx.varMap.get? parent).any (·.isPossibleRef)
-    let ctx := ctx.addDerivedValue parents decl.fvarId
-    if parents.isEmpty then ctx.addBorrowedValue decl.fvarId else ctx
+    ctx.addDerivedValue parents decl.fvarId
 
 def Context.addDerivedLetDecl (ctx : Context) (decl : LetDecl .impure) : Context :=
   match decl.value with
@@ -227,7 +213,7 @@ def Context.addDerivedLetDecl (ctx : Context) (decl : LetDecl .impure) : Context
   | .fap ``Array.uget args =>
     if let .fvar parent := args[1]! then ctx.addDerivedLetValue #[parent] decl else ctx
   | .fap _ #[] =>
-    ctx.addDerivedLetValue #[] decl
+    ctx.addDerivedLetValue #[] decl |>.addUnconditionalBorrow decl.fvarId
   | _ => ctx
 
 @[inline]
@@ -243,7 +229,7 @@ def withParams (ps : Array (Param .impure)) (x : RcM α) : RcM α := do
       }
       let ctx := { ctx with idx := ctx.idx + 1, varMap }
       let ctx := ctx.addDerivedValue #[] p.fvarId
-      if p.borrow && p.type.isPossibleRef then ctx.addBorrowedValue p.fvarId else ctx
+      if p.borrow && p.type.isPossibleRef then ctx.addUnconditionalBorrow p.fvarId else ctx
   withReader update x
 
 @[inline]
@@ -295,7 +281,7 @@ def withCollectLiveVars (x : RcM α) : RcM (α × LiveVars) := do
   return (ret, collected)
 
 /--
-Traverse the transitive closure of values derived from `fvarId` and add them to `s` if:
+Traverse the transitive closure of values derived from `fvarId` and add them to `liveVars.borrows` if:
 - they pass `shouldAdd`.
 - all their parents are accessible
 -/
@@ -359,18 +345,24 @@ def bindVar (fvarId : FVarId) : RcM Unit :=
   modifyLive (·.erase fvarId)
 
 /--
-Mark all borrowed values in scope as well as the values derived from them as borrowed in `liveVars`.
+Based on the derived values tree and `liveVars`, determine all derived borrows that are active at
+this program point and insert them into `liveVars`.
 -/
-def addBorrowedValues (liveVars : LiveVars) : RcM LiveVars := do
+def addBorrows (liveVars : LiveVars) : RcM LiveVars := do
   let ctx ← read
-  return ctx.borrowedValues.foldl (init := liveVars) fun liveVars x =>
-    addDescendants x ctx.derivedValMap (liveVars.insertBorrow x)
+  let shouldAdd := fun y => !liveVars.vars.contains y
+  let borrowedValues := ctx.unconditionalBorrows.foldl (init := liveVars) fun liveVars x =>
+    addDescendants x ctx.derivedValMap (liveVars.insertBorrow x) shouldAdd
+  let liveVars := liveVars.vars.fold (init := borrowedValues) fun acc x =>
+    addDescendants x ctx.derivedValMap acc shouldAdd
+  return liveVars.borrows.fold (init := liveVars) fun acc x =>
+    addDescendants x ctx.derivedValMap acc shouldAdd
 
 @[inline]
 def setRetLiveVars : RcM Unit := do
   -- At the end of a function no values are live and all borrows derived from parameters will still
   -- be around.
-  let liveVars ← addBorrowedValues {}
+  let liveVars ← addBorrows {}
   modifyLive (fun _ => liveVars)
 
 @[inline]
@@ -631,11 +623,12 @@ partial def Code.explicitRc (code : Code .impure) : RcM (Code .impure) := do
         return alt.updateCode k
     return code.updateAlts! alts
   | .jmp fvarId args =>
+    /-
+    We take the information about what variables join points need to be live still and based on them
+    additionally determine derived values that get kept alive by these.
+    -/
     let jpLiveVars ← getJpLiveVars fvarId
-    -- When jumping to a jp we must ensure all the values it might want to use are still alive.
-    -- The join point only knows the borrowed values in scope at its definition, so the ones
-    -- introduced since then have to be added here.
-    let liveVars ← addBorrowedValues jpLiveVars
+    let liveVars ← addBorrows jpLiveVars
     modifyLive fun _ => liveVars
     let ps := (← findFunDecl? fvarId).get!.params
     let code ← addIncBefore args ps code

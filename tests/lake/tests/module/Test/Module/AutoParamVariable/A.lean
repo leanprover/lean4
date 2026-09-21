@@ -11,3 +11,5 @@ public theorem explicitPublic : h = h := rfl
 public section
 
 theorem sectionPublic : h = h := rfl
+
+private theorem privateTheorem : h = h := rfl

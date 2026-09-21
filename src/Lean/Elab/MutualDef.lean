@@ -1570,6 +1570,7 @@ def elabMutualDef (ds : Array Syntax) : CommandElabM Unit := do
   withExporting (isExporting := views.any fun view =>
     (view.kind != .example || view.modifiers.isPublic) &&
     view.modifiers.visibility.isInferredPublic env) do
+  -- Restore the scope's visibility before expanding the individual declaration names.
   runTermElabM fun vars => withExporting (isExporting := env.isExporting) do
     Term.elabMutualDef vars sc views
     Term.logGoalsAccomplishedSnapshotTask views defsParsedSnap

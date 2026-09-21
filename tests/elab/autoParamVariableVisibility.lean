@@ -33,6 +33,8 @@ run_cmd do
     let some (.const helper _) := type.getAutoParamTactic? | throwError "expected helper"
     if isPrivateName helper then
       throwError "public declaration has private helper: {helper}"
+    withExporting do
+      discard <| getConstInfo helper
     if (← getConstInfo decl).type.hasSorry then
       throwError "unexpected sorry"
   for decl in [``explicitPrivate, ``defaultPrivate, ``sectionPrivate] do
@@ -49,3 +51,9 @@ run_cmd do
           | throwError "expected helper"
         unless isPrivateName helper == !exporting do
           throwError "helper visibility does not match exporting state"
+
+run_cmd do
+  let declName := mkPrivateName (← getEnv) `privateDefinition
+  withDeclNameForAuxNaming declName <| withExporting do
+    unless isPrivateName (← mkAuxDeclName `_proof) do
+      throwError "helpers named after private declarations must remain private"

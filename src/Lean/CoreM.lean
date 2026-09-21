@@ -120,7 +120,7 @@ where
     !isPrivateName n && (env.setExporting false).containsOnBranch (mkPrivateName env n)
   curr (g : DeclNameGenerator) (base : Name) : Name := Id.run do
     let mut n := g.idxs.foldr (fun i n => n.appendIndexAfter i) base
-    if env.header.isModule && env.isExporting && isPrivateName n then
+    if env.header.isModule && env.isExporting && g.namePrefix == mkPrivateName env .anonymous then
       -- Retain the module-specific prefix when exporting helpers generated outside a declaration.
       n := n.replacePrefix privateHeader `_aux
     if env.header.isModule && !env.isExporting && !isPrivateName n then

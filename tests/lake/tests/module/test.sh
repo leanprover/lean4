@@ -7,7 +7,8 @@ source ../common.sh
 # This test covers Lake's interactions with the Lean module system.
 # ---
 
-test_run build Test.Module.AutoParamVariable.Import
+# Regression test for #14708: exported and private autoParam helpers.
+test_run build Test.Module.AutoParamVariable.Import Test.Module.AutoParamVariable.ImportAll
 
 mkdir Test/Generated
 cat > Test/Generated/Module.lean <<EOF

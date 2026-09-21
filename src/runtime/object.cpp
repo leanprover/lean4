@@ -742,8 +742,7 @@ struct scoped_current_task_object : flet<lean_task_object *> {
 class task_manager {
     mutex                                         m_mutex;
     std::vector<std::unique_ptr<lthread>>         m_std_workers;
-    // Standard workers that have started and not exited yet; during shutdown, `m_std_workers` also
-    // holds exited ones.
+    // Started and not exited; during shutdown `m_std_workers` also holds exited workers.
     unsigned                                      m_num_std_workers{0};
     unsigned                                      m_idle_std_workers{0};
     unsigned                                      m_max_std_workers{0};
@@ -797,7 +796,7 @@ class task_manager {
         wake_worker();
     }
 
-    // Wakes an idle worker for queued work, or starts one if none is idle and the limit allows it.
+    // Wakes an idle worker for queued work, or starts one within the worker limit.
     void wake_worker() {
         if (!m_idle_std_workers && m_num_std_workers < m_max_std_workers)
             spawn_worker();
@@ -829,55 +828,45 @@ class task_manager {
         if (m_shutting_down && m_waiting == 0)
             return;
 
-        lthread * worker;
-        try {
-            worker = new lthread([this]() {
-                save_stack_info(false);
-                unique_lock<mutex> lock(m_mutex);
-                m_idle_std_workers++;
-                while (true) {
-                    if (m_queues_size == 0) {
-                        if (m_shutting_down) {
-                            // We're done
-                            break;
-                        }
-                        // Wait for new tasks
-                        m_queue_cv.wait(lock);
-                        continue;
+        m_std_workers.emplace_back(new lthread([this]() {
+            save_stack_info(false);
+            unique_lock<mutex> lock(m_mutex);
+            m_idle_std_workers++;
+            while (true) {
+                if (m_queues_size == 0) {
+                    if (m_shutting_down) {
+                        // We're done
+                        break;
                     }
-
-                    // There's work to be done.
-                    // If we have reached the maximum number of standard workers (because the
-                    // maximum was decreased by `task_get`), wait for someone else to become
-                    // idle before picking up new work.
-                    // During shutdown, nothing may wake us again, so exit instead: `task_get` raises
-                    // the limit for every worker it blocks, so the busy workers are running tasks
-                    // and take the queued work once done.
-                    if (m_num_std_workers - m_idle_std_workers >= m_max_std_workers) {
-                        if (m_shutting_down)
-                            break;
-                        m_queue_cv.wait(lock);
-                        continue;
-                    }
-
-                    lean_task_object * t = dequeue();
-                    m_idle_std_workers--;
-                    run_task(lock, t);
-                    m_idle_std_workers++;
-                    reset_heartbeat();
+                    // Wait for new tasks
+                    m_queue_cv.wait(lock);
+                    continue;
                 }
+
+                // There's work to be done.
+                // If we have reached the maximum number of standard workers (because the
+                // maximum was decreased by `task_get`), wait for someone else to become
+                // idle before picking up new work.
+                // During shutdown, nothing may wake us again, so exit instead: since `task_get`
+                // raises the limit for every worker it blocks, the workers counted against it are
+                // running tasks and take the queued work once done.
+                if (m_num_std_workers - m_idle_std_workers >= m_max_std_workers) {
+                    if (m_shutting_down)
+                        break;
+                    m_queue_cv.wait(lock);
+                    continue;
+                }
+
+                lean_task_object * t = dequeue();
                 m_idle_std_workers--;
-                m_num_std_workers--;
-            });
-        } catch (exception & ex) {
-            // The running workers take the queued work; without any, nothing ever would.
-            if (m_num_std_workers == 0)
-                lean_internal_panic(ex.what());
-            return;
-        }
-        // Counted only once the thread has started, which cannot decrement first: the caller holds `m_mutex`.
+                run_task(lock, t);
+                m_idle_std_workers++;
+                reset_heartbeat();
+            }
+            m_idle_std_workers--;
+            m_num_std_workers--;
+        }));
         m_num_std_workers++;
-        m_std_workers.emplace_back(worker);
     }
 
     // Returns `false` if no thread could be started for `t`.
@@ -969,9 +958,8 @@ class task_manager {
         }
     }
 
-    /* Counts the caller as blocked on a task while in scope. During shutdown, workers are only
-       started while some thread is blocked, so work queued after the last worker exited runs only
-       if something waits for it. */
+    /* Counts the caller as blocked on a task while in scope. During shutdown, a worker is only
+       started while this is nonzero, so work nobody waits for is not run at exit. */
     struct scoped_waiting {
         task_manager & m_tm;
         scoped_waiting(task_manager & tm):m_tm(tm) { m_tm.m_waiting++; }
@@ -998,8 +986,7 @@ public:
         shutdown();
     }
 
-    /* Waits for every running task and joins all workers. Work queued after the last worker exited
-       runs only if a thread waits for it, see `scoped_waiting`. Idempotent. */
+    // Waits for every running task and joins all workers. Idempotent.
     void shutdown() {
         {
             unique_lock<mutex> lock(m_mutex);

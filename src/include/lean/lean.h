@@ -10,7 +10,18 @@ Author: Leonardo de Moura
 #include <stdint.h>
 #include <limits.h>
 #include <float.h>
+
+#ifndef __has_builtin
+#  define __has_builtin(x) 0
+#endif
+
+// The bundled toolchain omits math.h; only the fallback implementations need it.
+#if !__has_builtin(__builtin_elementwise_minimum) || \
+    !__has_builtin(__builtin_elementwise_minimumnum) || \
+    !__has_builtin(__builtin_elementwise_maximum) || \
+    !__has_builtin(__builtin_elementwise_maximumnum)
 #include <math.h>
+#endif
 
 #include <lean/config.h>
 
@@ -27,10 +38,6 @@ extern "C" {
 #else
 #include <stdatomic.h>
 #define  LEAN_USING_STD
-#endif
-
-#ifndef __has_builtin
-#  define __has_builtin(x) 0
 #endif
 
 #define LEAN_CLOSURE_MAX_ARGS      16

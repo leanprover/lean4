@@ -192,7 +192,8 @@ instance : BEq CacheableParserContext where
   beq a b := a.prec == b.prec && a.quotDepth == b.quotDepth &&
     a.suppressInsideQuot == b.suppressInsideQuot && a.savedPos? == b.savedPos? &&
     -- safety: `Array Token` has no erased data
-    (unsafe withPtrEq a.forbiddenTks b.forbiddenTks (fun _ => a.forbiddenTks == b.forbiddenTks)
+    (unsafe withPtrEqUnsafe a.forbiddenTks b.forbiddenTks
+      (fun _ => a.forbiddenTks == b.forbiddenTks)
       (fun h => by rw [h]; exact beq_self_eq_true _))
 
 /-- Parser context updateable in `adaptUncacheableContextFn`. -/

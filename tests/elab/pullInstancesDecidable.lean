@@ -27,7 +27,7 @@ info: false
 namespace T
 
 @[inline] unsafe def withPtrEqUnsafe (a b : T) (k : Unit → Bool) (h : a = b → k () = true) : Bool :=
-  _root_.withPtrEq a b k h
+  _root_.withPtrEqUnsafe a b k h
 
 -- Safety: `T` contains no irrelevant data
 @[implemented_by withPtrEqUnsafe]

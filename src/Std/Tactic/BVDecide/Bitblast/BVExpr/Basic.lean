@@ -277,7 +277,7 @@ instance : Hashable (BVExpr w) where
 @[inline]
 private unsafe def withPtrEqUnsafe (a b : BVExpr w) (k : Unit → Bool)
     (h : a = b → k () = true) : Bool :=
-  _root_.withPtrEq a b k h
+  _root_.withPtrEqUnsafe a b k h
 
 -- Safety: `BVExpr` contains no irrelevant data
 @[implemented_by withPtrEqUnsafe]

@@ -153,12 +153,12 @@ private def withPtrEq (a b : MyType) (k : Unit → Bool) (_h : a = b → k () = 
 end MyType
 ```
 -/
-@[inline] unsafe def withPtrEq {α : Type u} (a b : α) (k : Unit → Bool) (_h : a = b → k () = true) : Bool :=
+@[inline] unsafe def withPtrEqUnsafe {α : Type u} (a b : α) (k : Unit → Bool) (_h : a = b → k () = true) : Bool :=
   if ptrEq a b then true else k ()
 
-@[deprecated withPtrEq (since := "2026-09-21")]
-unsafe def withPtrEqUnsafe {α : Type u} (a b : α) (k : Unit → Bool) (h : a = b → k () = true) : Bool :=
-  withPtrEq a b k h
+@[deprecated withPtrEqUnsafe (since := "2026-09-21")]
+unsafe def withPtrEq {α : Type u} (a b : α) (k : Unit → Bool) (h : a = b → k () = true) : Bool :=
+  withPtrEqUnsafe a b k h
 
 /--
 Build a `DecidableEq` instance that short-circuits using `withPtrEq` where possible. Since the

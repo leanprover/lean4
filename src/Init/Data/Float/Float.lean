@@ -534,9 +534,69 @@ C function `fabs`.
 
 instance : HomogeneousPow Float := ⟨Float.pow⟩
 
-instance : Min Float := minOfLe
+/--
+Computes the IEEE-754-2019 `minimum` operation of two floats.
 
-instance : Max Float := maxOfLe
+This operation returns `NaN` if one of the operands is `NaN`, and
+considers `-0` to be smaller than `+0`.
+
+See also `Float.minimumNumber` for the variant that returns finite numbers
+over `NaN`.
+
+This function does not reduce in the kernel. It is implemented in compiled code
+by a compiler intrinsic if available.
+-/
+@[extern "lean_float_minimum"]
+opaque Float.minimum : Float → Float → Float
+
+/--
+Computes the IEEE-754-2019 `minimumNumber` operation of two floats.
+
+If one of the operands is `NaN` and the other is a number, then this
+operation will return that number.
+
+See also `Float.minimum` for the variant that always propagates `NaN`.
+
+This function does not reduce in the kernel. It is implemented in compiled code
+by a compiler intrinsic if available.
+-/
+@[extern "lean_float_minimum_number"]
+opaque Float.minimumNumber : Float → Float → Float
+
+/--
+Computes the IEEE-754-2019 `maximum` operation of two floats.
+
+This operation returns `NaN` if one of the operands is `NaN`, and
+considers `-0` to be smaller than `+0`.
+
+See also `Float.maximumNumber` for the variant that returns finite numbers
+over `NaN`.
+
+This function does not reduce in the kernel. It is implemented in compiled code
+by a compiler intrinsic if available.
+-/
+@[extern "lean_float_maximum"]
+opaque Float.maximum : Float → Float → Float
+
+/--
+Computes the IEEE-754-2019 `maximumNumber` operation of two floats.
+
+If one of the operands is `NaN` and the other is a number, then this
+operation will return that number.
+
+See also `Float.maximum` for the variant that always propagates `NaN`.
+
+This function does not reduce in the kernel. It is implemented in compiled code
+by a compiler intrinsic if available.
+-/
+@[extern "lean_float_maximum_number"]
+opaque Float.maximumNumber : Float → Float → Float
+
+instance : Min Float where
+  min := Float.minimum
+
+instance : Max Float where
+  max := Float.maximum
 
 /--
 Efficiently computes `x * 2^i`.

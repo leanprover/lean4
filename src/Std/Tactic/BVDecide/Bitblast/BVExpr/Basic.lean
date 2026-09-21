@@ -274,8 +274,19 @@ namespace BVExpr
 instance : Hashable (BVExpr w) where
   hash expr := expr.hashCode _
 
+@[inline]
+private unsafe def withPtrEqUnsafe (a b : BVExpr w) (k : Unit → Bool)
+    (h : a = b → k () = true) : Bool :=
+  _root_.withPtrEq a b k h
+
+-- Safety: `BVExpr` contains no irrelevant data
+@[implemented_by withPtrEqUnsafe]
+private def withPtrEq (a b : BVExpr w) (k : Unit → Bool) (_h : a = b → k () = true) : Bool :=
+  k ()
+
+@[no_expose]
 instance decEq : DecidableEq (BVExpr w) := fun l r =>
-  withPtrEqDecEq l r fun _ =>
+  withPtrEqDecEq withPtrEq (fun _ _ _ _ => rfl) l r fun _ =>
     if h : hash l ≠ hash r then
       .isFalse (ne_of_apply_ne hash h)
     else

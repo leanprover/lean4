@@ -122,19 +122,55 @@ unsafe def ptrEqList : (as bs : List α) → Bool
   | a::as, b::bs => if ptrEq a b then ptrEqList as bs else false
   | _, _ => false
 
-set_option linter.unusedVariables.funArgs false in
-@[inline] unsafe def withPtrEqUnsafe {α : Type u} (a b : α) (k : Unit → Bool) (h : a = b → k () = true) : Bool :=
+/--
+Returns `true` if `a` and `b` are represented by the same pointer at runtime, or `k ()` otherwise.
+
+If `k` is a function that performs an equality check on `a` and `b`, then this operation can be
+used to short-circuit the equality check for pointer-equal input.
+
+This is cannot be wrapped into a safe operation with logical value `k ()` because that would be
+unsound if `α` includes computationally irrelevant data like types. Consider the example
+`α := Prop`, `a := True`, `b := False`, `k := fun _ => false`. In this case, `a = b → k () = true`
+is true, but `a` and `b` have the same runtime representation of an erased type, so `ptrEq a b` is
+true and this function returns `true`, even though `k ()` is `false`.
+
+Users who require a safe version of this function whose logical model is equal to `k ()` must
+manually check that their type contains no irrelevant data and then create a specialized version of
+this function using `implemented_by`:
+
+```lean
+namespace MyType
+
+@[inline]
+unsafe def withPtrEqUnsafe (a b : MyType) (k : Unit → Bool) (h : a = b → k () = true) : Bool :=
+  _root_.withPtrEq a b k h
+
+-- Safety: `MyType` contains no irrelevant data
+@[implemented_by withPtrEqUnsafe]
+private def withPtrEq (a b : MyType) (k : Unit → Bool) (_h : a = b → k () = true) : Bool :=
+  k ()
+
+end MyType
+```
+-/
+@[inline] unsafe def withPtrEq {α : Type u} (a b : α) (k : Unit → Bool) (_h : a = b → k () = true) : Bool :=
   if ptrEq a b then true else k ()
 
-@[implemented_by withPtrEqUnsafe]
-def withPtrEq {α : Type u} (a b : α) (k : Unit → Bool) (h : a = b → k () = true) : Bool := k ()
+@[deprecated withPtrEq (since := "2026-09-21")]
+unsafe def withPtrEqUnsafe {α : Type u} (a b : α) (k : Unit → Bool) (h : a = b → k () = true) : Bool :=
+  withPtrEq a b k h
 
-/-- `withPtrEq` for `DecidableEq` -/
-@[inline] def withPtrEqDecEq {α : Type u} (a b : α) (k : Unit → Decidable (a = b)) : Decidable (a = b) :=
-  let b := withPtrEq a b (fun _ => toBoolUsing (k ())) (toBoolUsing_eq_true (k ()));
-  match h:b with
-  | true  => isTrue (of_toBoolUsing_eq_true h)
-  | false => isFalse (of_toBoolUsing_eq_false h)
+/--
+Build a `DecidableEq` instance that short-circuits using `withPtrEq` where possible. Since the
+general-purpose `withPtrEq` is unsafe, users need to provide their own `withPtrEq` function, see
+the comment on `withPtrEq`.
+-/
+@[inline] def withPtrEqDecEq {α : Type u}
+    (withPtrEq : (a b : α) → (k : Unit → Bool) → (h : a = b → k () = true) → Bool)
+    (hw : ∀ a b k h, withPtrEq a b k h = k ())
+    (a b : α) (k : Unit → Decidable (a = b)) : Decidable (a = b) where
+  decide := withPtrEq a b (fun _ => toBoolUsing (k ())) (toBoolUsing_eq_true (k ()))
+  reflects_decide := by simpa [hw] using reflects_toBoolUsing
 
 @[implemented_by withPtrAddrUnsafe]
 def withPtrAddr {α : Type u} {β : Type v} (a : α) (k : USize → β) (h : ∀ u₁ u₂, k u₁ = k u₂) : β := k 0

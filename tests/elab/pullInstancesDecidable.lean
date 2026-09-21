@@ -24,8 +24,20 @@ info: false
 @[inline] def withAddr {β : Type} [Subsingleton β] (a : T) (k : USize → β) : β :=
   withPtrAddr a k (fun _ _ => Subsingleton.elim _ _)
 
+namespace T
+
+@[inline] unsafe def withPtrEqUnsafe (a b : T) (k : Unit → Bool) (h : a = b → k () = true) : Bool :=
+  _root_.withPtrEq a b k h
+
+-- Safety: `T` contains no irrelevant data
+@[implemented_by withPtrEqUnsafe]
+private def withPtrEq (a b : T) (k : Unit → Bool) (_h : a = b → k () = true) : Bool :=
+  k ()
+
+end T
+
 @[inline] def ptrDec (a b : T) : Decidable (a = b) :=
-  withPtrEqDecEq a b (fun _ => noisy a b)
+  withPtrEqDecEq T.withPtrEq (fun _ _ _ _ => rfl) a b (fun _ => noisy a b)
 
 /-- The shape of a hash-consing equality test: decide by pointer first. -/
 def viaAddr (a b : @& T) : Decidable (a = b) :=

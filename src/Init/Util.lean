@@ -161,9 +161,9 @@ unsafe def withPtrEq {α : Type u} (a b : α) (k : Unit → Bool) (h : a = b →
   withPtrEqUnsafe a b k h
 
 /--
-Build a `DecidableEq` instance that short-circuits using `withPtrEq` where possible. Since the
-general-purpose `withPtrEq` is unsafe, users need to provide their own `withPtrEq` function, see
-the comment on `withPtrEq`.
+Build a `DecidableEq` instance that short-circuits using `withPtrEq` where possible.
+Since the general-purpose `withPtrEqUnsafe` is unsafe, users need to provide their own `withPtrEq`
+function; see the comment on `withPtrEqUnsafe`.
 -/
 @[inline] def withPtrEqDecEq {α : Type u}
     (withPtrEq : (a b : α) → (k : Unit → Bool) → (h : a = b → k () = true) → Bool)

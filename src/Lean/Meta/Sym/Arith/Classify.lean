@@ -18,7 +18,9 @@ namespace Lean.Meta.Sym.Arith
 # Algebraic structure classification
 
 Detects the strongest algebraic structure available for a type and caches
-the classification in `Arith.State.typeClassify`. The detection order is:
+the classification in `Arith.State.typeClassify`. The state is a `SymExtension`,
+so a type is classified once per `SymM` run and the result is shared by every
+`grind` goal and every tactic of a `sym` block. The detection order is:
 
 1. `Grind.CommRing` (includes `Field` check)
 2. `Grind.Ring` (non-commutative)
@@ -61,6 +63,7 @@ private def tryCommRingQ? (type base semiringInst commSemiringInst : Expr) : Sym
     (mkApp2 (mkConst ``Grind.Semiring.natCast [u]) type semiringInstQ)
   registerInstance (mkApp (mkConst ``IntCast [u]) type)
     (mkApp2 (mkConst ``Grind.Ring.intCast [u]) type ringInst)
+  trace[grind.ring] "new ring: {type}"
   -- Premises on the base type for the conditional envelope instances.
   let addRightCancelInst? ← do
     let some addInst ← synthInstance? (mkApp (mkConst ``Add [u]) base) | pure none
@@ -79,6 +82,8 @@ private def tryCommRingQ? (type base semiringInst commSemiringInst : Expr) : Sym
     let some noZeroDivInst ← getNoZeroDivInst? u base | pure none
     pure (some (mkApp4 (mkConst ``Grind.Ring.OfSemiring.instNoNatZeroDivisorsQOfAddRightCancel [u])
       base semiringInst addRightCancelInst noZeroDivInst))
+  trace[grind.ring] "NoNatZeroDivisors available: {noZeroDivInst?.isSome}"
+  trace[grind.ring] "PowIdentity available: false"
   let id := (← getArithState).rings.size
   let ring : CommRing := {
     id, semiringId? := none, type, u, semiringInst := semiringInstQ, ringInst,
@@ -95,10 +100,13 @@ private def tryCommRingCore? (type : Expr) : SymM (Option Nat) := do
   let ringInst := mkApp2 (mkConst ``Grind.CommRing.toRing [u]) type commRingInst
   let semiringInst := mkApp2 (mkConst ``Grind.Ring.toSemiring [u]) type ringInst
   let commSemiringInst := mkApp2 (mkConst ``Grind.CommRing.toCommSemiring [u]) type semiringInst
+  trace[grind.ring] "new ring: {type}"
   let charInst? ← getIsCharInst? u type semiringInst
   let noZeroDivInst? ← getNoZeroDivInst? u type
+  trace[grind.ring] "NoNatZeroDivisors available: {noZeroDivInst?.isSome}"
   let fieldInst? ← Sym.synthInstance? <| mkApp (mkConst ``Grind.Field [u]) type
   let powIdentityInst? ← getPowIdentityInst? u type
+  trace[grind.ring] "PowIdentity available: {powIdentityInst?.isSome}"
   let semiringId? := none
   let id := (← getArithState).rings.size
   let ring : CommRing := {
@@ -122,6 +130,7 @@ private def tryNonCommRing? (type : Expr) : SymM (Option Nat) := do
   let ring := mkApp (mkConst ``Grind.Ring [u]) type
   let some ringInst ← Sym.synthInstance? ring | return none
   let semiringInst := mkApp2 (mkConst ``Grind.Ring.toSemiring [u]) type ringInst
+  trace[grind.ring] "new ring: {type}"
   let charInst? ← getIsCharInst? u type semiringInst
   let id := (← getArithState).ncRings.size
   let ring : Ring := {

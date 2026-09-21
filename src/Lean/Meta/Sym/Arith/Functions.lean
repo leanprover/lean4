@@ -7,6 +7,7 @@ module
 prelude
 public import Lean.Meta.Sym.Arith.MonadRing
 public import Lean.Meta.Sym.Arith.MonadSemiring
+import Init.Grind.Ring
 public section
 namespace Lean.Meta.Sym.Arith
 
@@ -167,5 +168,28 @@ def getNatCastFn' : m Expr := do
   return natCastFn
 
 end SemiringFns
+
+section CommSemiringFns
+variable [MonadCommSemiring m]
+
+/-- The embedding `OfSemiring.toQ` of the semiring into its envelope ring. -/
+def getToQFn : m Expr := do
+  let s ← getCommSemiring
+  if let some toQFn := s.toQFn? then return toQFn
+  let toQFn ← canonExpr <| mkApp2 (mkConst ``Grind.Ring.OfSemiring.toQ [s.u]) s.type s.semiringInst
+  modifyCommSemiring fun s => { s with toQFn? := some toQFn }
+  return toQFn
+
+/-- The `AddRightCancel` instance of the semiring, if any. The result of the search is cached. -/
+def getAddRightCancelInst? : m (Option Expr) := do
+  let s ← getCommSemiring
+  if let some r := s.addRightCancelInst? then return r
+  let addRightCancelInst? ← do
+    let some addInst ← MonadCanon.synthInstance? (mkApp (mkConst ``Add [s.u]) s.type) | pure none
+    MonadCanon.synthInstance? (mkApp2 (mkConst ``Grind.AddRightCancel [s.u]) s.type addInst)
+  modifyCommSemiring fun s => { s with addRightCancelInst? := some addRightCancelInst? }
+  return addRightCancelInst?
+
+end CommSemiringFns
 
 end Lean.Meta.Sym.Arith

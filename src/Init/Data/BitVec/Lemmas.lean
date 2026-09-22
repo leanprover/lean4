@@ -445,7 +445,6 @@ theorem getElem?_zero_ofBool (b : Bool) : (ofBool b)[0]? = some b := by
 theorem getElem_ofBool_zero {b : Bool} : (ofBool b)[0] = b := by
   rw [getElem_eq_iff, getElem?_zero_ofBool]
 
-
 @[deprecated getElem_ofBool_zero (since := "2025-10-29")]
 theorem getElem_zero_ofBool (b : Bool) : (ofBool b)[0] = b := by
   simp
@@ -753,7 +752,6 @@ theorem two_mul_toInt_lt {w : Nat} {x : BitVec w} : 2 * x.toInt < 2 ^ w := by
     simp only [Nat.zero_lt_succ, Nat.mul_lt_mul_left, Int.natCast_mul, Int.cast_ofNat_Int]
     norm_cast; omega
 
-
 theorem two_mul_toInt_le {w : Nat} {x : BitVec w} : 2 * x.toInt ≤ 2 ^ w - 1 :=
   Int.le_sub_one_of_lt two_mul_toInt_lt
 
@@ -779,7 +777,6 @@ theorem le_two_mul_toInt {w : Nat} {x : BitVec w} : -2 ^ w ≤ 2 * x.toInt := by
   · rw [← Nat.two_pow_pred_add_two_pow_pred (by omega), ← Nat.two_mul, Nat.add_sub_cancel]
     simp only [Nat.zero_lt_succ, Nat.mul_lt_mul_left, Int.natCast_mul, Int.cast_ofNat_Int]
     norm_cast; omega
-
 
 theorem le_toInt {w : Nat} (x : BitVec w) : -2 ^ (w - 1) ≤ x.toInt := by
   by_cases h : w = 0
@@ -2158,7 +2155,6 @@ theorem toNat_ushiftRight_lt (x : BitVec w) (n : Nat) (hn : n ≤ w) :
     · apply hn
   · apply Nat.pow_pos (by decide)
 
-
 /-- Shifting right by `n`, which is larger than the bitwidth `w` produces `0. -/
 theorem ushiftRight_eq_zero {x : BitVec w} {n : Nat} (hn : w ≤ n) :
     x >>> n = 0#w := by
@@ -2355,7 +2351,6 @@ theorem sshiftRight_or_distrib (x y : BitVec w) (n : Nat) :
   split
     <;> by_cases w ≤ i
     <;> simp [*]
-
 
 @[grind =]
 theorem sshiftRight'_ofNat_eq_sshiftRight {x : BitVec w} {v k : Nat} : x.sshiftRight' (BitVec.ofNat v k) = x.sshiftRight (k % 2^v) := rfl
@@ -3288,7 +3283,6 @@ theorem append_extractLsb'_of_lt {x : BitVec (x_len * w)} :
   intros
   simp only [show (x_len - 1) * w + (i - (x_len - 1) * w) = i by omega]
 
-
 theorem extractLsb'_append_of_lt {x : BitVec (k * w)} {y : BitVec w} (hlt : i < k) :
     extractLsb' (i * w) w (y ++ x) = extractLsb' (i * w) w x := by
   ext j hj
@@ -3542,7 +3536,6 @@ theorem setWidth_succ (x : BitVec w) :
     (cons a x) ^^^ (cons b y) = cons (a ^^ b) (x ^^^ y) := by
   ext i
   simp [cons]
-
 
 theorem cons_append (x : BitVec w₁) (y : BitVec w₂) (a : Bool) :
     (cons a x) ++ y = (cons a (x ++ y)).cast (by omega) := by
@@ -5088,7 +5081,6 @@ theorem rotateLeft_eq_rotateLeftAux_of_lt {x : BitVec w} {r : Nat} (hr : r < w) 
     x.rotateLeft r = x.rotateLeftAux r := by
   simp only [rotateLeft, Nat.mod_eq_of_lt hr]
 
-
 /--
 Accessing bits in `x.rotateLeft r` the range `[0, r)` is equal to
 accessing bits `x` in the range `[w - r, w)`.
@@ -5502,7 +5494,6 @@ theorem mul_twoPow_eq_shiftLeft (x : BitVec w) (i : Nat) :
 theorem twoPow_mul_eq_shiftLeft (x : BitVec w) (i : Nat) :
     (twoPow w i) * x = x <<< i := by
   rw [BitVec.mul_comm, mul_twoPow_eq_shiftLeft]
-
 
 theorem twoPow_zero {w : Nat} : twoPow w 0 = 1#w := by
   apply eq_of_toNat_eq
@@ -6092,8 +6083,6 @@ theorem toInt_abs_eq_ite {x : BitVec w} :
     · simp [hx₂, abs_eq, toInt_neg_of_ne_intMin hx]
     · simp [hx₂, abs_eq]
 
-
-
 /--
 The absolute value of `x : BitVec w` is a case split on the sign of `x`, when `x ≠ intMin w`.
 This is a variant of `toInt_abs_eq_ite`.
@@ -6101,7 +6090,6 @@ This is a variant of `toInt_abs_eq_ite`.
 theorem toInt_abs_eq_ite_of_ne_intMin {x : BitVec w} (hx : x ≠ intMin w) :
   x.abs.toInt = if x.msb then -x.toInt else x.toInt := by
   simp [toInt_abs_eq_ite, hx]
-
 
 /--
 The absolute value of `x : BitVec w`, interpreted as an integer, is a case split:
@@ -6379,11 +6367,50 @@ theorem not_lt_iff {b : BitVec w} : ~~~b < b ↔ 0 < w ∧ b.msb = true := by
 
 /-! ### Count leading zeros -/
 
+/-- The leading-zero count expressed through the natural value's bit length. -/
+theorem toNat_clz (x : BitVec w) :
+    x.clz.toNat = if x = 0 then w else w - (x.toNat.log2 + 1) := by
+  by_cases h : x.toNat = 0 <;> simp [clz, h, toNat_eq]
+
+/-- The natural-number specification of `clz`. -/
+theorem clz_def (x : BitVec w) :
+    x.clz = BitVec.ofNat w (if x = 0 then w else w - (x.toNat.log2 + 1)) := by
+  apply eq_of_toNat_eq
+  rw [toNat_clz, toNat_ofNat]
+  split <;> rw [Nat.mod_eq_of_lt (Nat.lt_of_le_of_lt (by omega) Nat.lt_two_pow_self)]
+
 theorem clzAuxRec_zero (x : BitVec w) :
     x.clzAuxRec 0 = if x.getLsbD 0 then BitVec.ofNat w (w - 1) else BitVec.ofNat w w := by rfl
 
 theorem clzAuxRec_succ (x : BitVec w) :
     x.clzAuxRec (n + 1) = if x.getLsbD (n + 1) then BitVec.ofNat w (w - 1 - (n + 1)) else BitVec.clzAuxRec x n := by rfl
+
+private theorem clzAuxRec_eq_log2 {x : BitVec w} (hn : x.toNat < 2 ^ (n + 1)) :
+    x.clzAuxRec n = BitVec.ofNat w (if x.toNat = 0 then w else w - (x.toNat.log2 + 1)) := by
+  induction n with
+  | zero =>
+    have hlt : x.toNat < 2 := by simpa using hn
+    have hx : x.toNat = 0 ∨ x.toNat = 1 := by omega
+    rcases hx with hx | hx <;> simp [clzAuxRec_zero, getLsbD, hx]
+  | succ n ih =>
+    rw [clzAuxRec_succ]
+    split
+    next hbit =>
+      have hlo := Nat.ge_two_pow_of_testBit hbit
+      have hx : x.toNat ≠ 0 := by have := Nat.two_pow_pos (n + 1); omega
+      have hlog : x.toNat.log2 = n + 1 := (Nat.log2_eq_iff hx).mpr ⟨hlo, hn⟩
+      simp [hx, hlog, Nat.sub_sub, Nat.add_comm]
+    next hbit =>
+      apply ih
+      by_cases h : 2 ^ (n + 1) ≤ x.toNat
+      · exact False.elim (hbit (Nat.testBit_of_two_pow_le_and_two_pow_add_one_gt h hn))
+      · omega
+
+/-- The bit-by-bit characterization of `clz` used by the bitblaster. -/
+theorem clz_eq_clzAuxRec (x : BitVec w) : x.clz = x.clzAuxRec (w - 1) := by
+  rw [clzAuxRec_eq_log2 (Nat.lt_of_lt_of_le x.isLt
+    (Nat.pow_le_pow_of_le (by decide) (by omega))), clz_def]
+  simp [toNat_eq]
 
 theorem clzAuxRec_eq_clzAuxRec_of_le {x : BitVec w} (h : w - 1 ≤ n) :
     x.clzAuxRec n = x.clzAuxRec (w - 1) := by
@@ -6466,7 +6493,7 @@ theorem clzAuxRec_eq_iff_of_getLsbD_false {x : BitVec w} (h : ∀ i, n < i → x
 
 theorem clz_le {x : BitVec w} :
     clz x ≤ w := by
-  unfold clz
+  rw [clz_eq_clzAuxRec]
   rcases w with _|w
   · simp [of_length_zero]
   · exact clzAuxRec_le (n := w)
@@ -6475,8 +6502,8 @@ theorem clz_le {x : BitVec w} :
 theorem clz_eq_iff_eq_zero {x : BitVec w} :
     clz x = w ↔ x = 0#w := by
   rcases w with _|w
-  · simp [clz, of_length_zero]
-  · simp only [clz, Nat.add_one_sub_one, natCast_eq_ofNat, zero_iff_eq_false]
+  · simp [of_length_zero]
+  · simp only [clz_eq_clzAuxRec, Nat.add_one_sub_one, natCast_eq_ofNat, zero_iff_eq_false]
     rw [clzAuxRec_eq_iff_of_getLsbD_false (x := x) (n := w) (w := w + 1) (by intros i hi; simp [show w + 1 ≤ i by omega])]
     constructor
     · intro h i
@@ -6525,7 +6552,7 @@ theorem clzAuxRec_eq_zero_iff {x : BitVec w} (h : ∀ i, n < i → x.getLsbD i =
 
 theorem clz_eq_zero_iff {x : BitVec w} (hw : 0 < w) :
     (clz x).toNat = 0 ↔ 2 ^ (w - 1) ≤ x.toNat := by
-  simp only [clz, clzAuxRec_eq_zero_iff (x := x) (n := w - 1) (by intro i hi; simp [show w ≤ i by omega]) hw]
+  simp only [clz_eq_clzAuxRec, clzAuxRec_eq_zero_iff (x := x) (n := w - 1) (by intro i hi; simp [show w ≤ i by omega]) hw]
   by_cases hxw : x[w - 1]
   · simp [hxw, two_pow_le_toNat_of_getElem_eq_true (x := x) (i := w - 1) (by omega) hxw]
   · simp only [hxw, Bool.false_eq_true, false_iff, Nat.not_le]
@@ -6611,7 +6638,7 @@ theorem getLsbD_true_of_eq_clzAuxRec_of_ne_zero {x : BitVec w} (hx : ¬ x = 0#w)
 
 theorem getLsbD_true_clz_of_ne_zero {x : BitVec w} (hw : 0 < w) (hx : x ≠ 0#w) :
     x.getLsbD (w - 1 - (clz x).toNat) = true := by
-  unfold clz
+  rw [clz_eq_clzAuxRec]
   apply getLsbD_true_of_eq_clzAuxRec_of_ne_zero (x := x) (n := w - 1) (by omega)
   intro i hi
   simp [show w ≤ i by omega]
@@ -6632,7 +6659,7 @@ theorem toNat_lt_two_pow_sub_clz {x : BitVec w} :
     x.toNat < 2 ^ (w - (clz x).toNat) := by
   rcases w with _|w
   · simp [of_length_zero]
-  · unfold clz
+  · rw [clz_eq_clzAuxRec]
     have hlt := toNat_lt_iff_getLsbD_eq_false (x := x)
     have hzero := clzAuxRec_eq_zero_iff (x := x) (n := w) (by intro i hi; simp [show w + 1 ≤ i by omega]) (by omega)
     simp only [Nat.add_one_sub_one] at hzero
@@ -6650,15 +6677,56 @@ theorem toNat_lt_two_pow_sub_clz {x : BitVec w} :
         · simp [show w + 1 ≤ i by omega]
       · simp; omega
 
-theorem clz_eq_reverse_ctz {x : BitVec w} :
-    x.clz = (x.reverse).ctz := by
-  simp [ctz]
-
 /-! ### Count trailing zeros -/
 
-theorem ctz_eq_reverse_clz {x : BitVec w} :
-    x.ctz = (x.reverse).clz := by
-  simp [ctz]
+/-- Unlike `Nat.trailingZeros`, `ctz` returns the bit width on zero. -/
+theorem toNat_ctz (x : BitVec w) :
+    x.ctz.toNat = if x = 0 then w else x.toNat.trailingZeros := by
+  by_cases h : x.toNat = 0 <;> simp [ctz, h, toNat_eq]
+
+/-- For a nonzero bitvector, `ctz` agrees with the trailing-zero count of its natural value. -/
+theorem toNat_ctz_of_ne_zero {x : BitVec w} (hx : x ≠ 0) :
+    x.ctz.toNat = x.toNat.trailingZeros := by rw [toNat_ctz, ite_eq_right hx]
+
+@[simp] theorem ctz_zero : (0#w).ctz = BitVec.ofNat w w := by
+  apply eq_of_toNat_eq
+  simp [toNat_ctz]
+
+/-- Expresses `ctz` using the natural trailing-zero count, with the bit width as its zero case. -/
+theorem ctz_eq (x : BitVec w) :
+    x.ctz = if x = 0 then BitVec.ofNat w w else BitVec.ofNat w x.toNat.trailingZeros := by
+  calc
+    x.ctz = BitVec.ofNat w x.ctz.toNat := by simp
+    _ = _ := by rw [toNat_ctz]; split <;> rfl
+
+private theorem reverse_clz_eq_trailingZeros {x : BitVec w} (hx : x ≠ 0) :
+    x.reverse.clz.toNat = x.toNat.trailingZeros := by
+  have hr : x.reverse ≠ 0 := by simpa using hx
+  have hlt : x.reverse.clz.toNat < w := by
+    have := (clz_lt_iff_ne_zero (x := x.reverse)).mpr hr
+    simpa [lt_def] using this
+  symm
+  apply Nat.trailingZeros_eq_of_testBit
+  · change x.getLsbD x.reverse.clz.toNat = true
+    rw [← getMsbD_reverse, getMsbD]
+    simp only [hlt, decide_true, Bool.true_and]
+    exact getLsbD_true_clz_of_ne_zero (by omega) hr
+  · intro j hj
+    change x.getLsbD j = false
+    rw [← getMsbD_reverse, getMsbD]
+    simp only [show j < w by omega, decide_true, Bool.true_and]
+    apply Nat.testBit_lt_two_pow
+    exact Nat.lt_of_lt_of_le (toNat_lt_two_pow_sub_clz (x := x.reverse))
+      (Nat.pow_le_pow_of_le (by decide) (by omega))
+
+theorem ctz_eq_reverse_clz {x : BitVec w} : x.ctz = x.reverse.clz := by
+  apply eq_of_toNat_eq
+  by_cases hx : x = 0
+  · simp [hx, toNat_clz, reverse_eq_zero_iff]
+  · rw [toNat_ctz_of_ne_zero hx, reverse_clz_eq_trailingZeros hx]
+
+theorem clz_eq_reverse_ctz {x : BitVec w} : x.clz = x.reverse.ctz := by
+  simp only [ctz_eq_reverse_clz, reverse_reverse_eq]
 
 /-- The number of trailing zeroes is strictly less than the bitwidth iff the bitvector is nonzero. -/
 @[simp]
@@ -6677,8 +6745,8 @@ theorem getLsbD_false_of_lt_ctz {x : BitVec w} (hi : i < x.ctz.toNat) :
   · simp [hzero, getLsbD_reverse]
   · simp only [ctz_eq_reverse_clz, natCast_eq_ofNat, ne_eq, hzero, not_false_eq_true,
       iff_true] at hiff
-    simp only [ctz] at hi
-    have hi' : i < w := by simp [BitVec.lt_def] at hiff; omega
+    simp only [ctz_eq_reverse_clz, clz_eq_clzAuxRec] at hi
+    have hi' : i < w := by simp [BitVec.lt_def, clz_eq_clzAuxRec] at hiff; omega
     simp only [hi', decide_true, Bool.true_and]
     have : (x.reverse.clzAuxRec (w - 1)).toNat ≤ w := by
       rw [show ((x.reverse.clzAuxRec (w - 1)).toNat ≤ w) =
@@ -6699,10 +6767,10 @@ theorem getLsbD_false_of_lt_ctz {x : BitVec w} (hi : i < x.ctz.toNat) :
   trailing zeros, is true. -/
 theorem getLsbD_true_ctz_of_ne_zero {x : BitVec w} (hx : x ≠ 0#w) :
     x.getLsbD (ctz x).toNat = true := by
-  simp only [ctz_eq_reverse_clz, clz]
+  simp only [ctz_eq_reverse_clz, clz_eq_clzAuxRec]
   rw [getLsbD_eq_getMsbD, ← getLsbD_reverse]
   have := ctz_lt_iff_ne_zero (x := x)
-  simp only [ctz_eq_reverse_clz, clz, natCast_eq_ofNat, lt_def, toNat_ofNat, Nat.mod_two_pow_self,
+  simp only [ctz_eq_reverse_clz, clz_eq_clzAuxRec, natCast_eq_ofNat, lt_def, toNat_ofNat, Nat.mod_two_pow_self,
     ne_eq] at this
   simp only [this, hx, not_false_eq_true, decide_true, Bool.true_and]
   have hnotrev : ¬x.reverse = 0#w := by simp [reverse_eq_zero_iff, hx]
@@ -6715,33 +6783,6 @@ theorem two_pow_ctz_le_toNat_of_ne_zero {x : BitVec w} (hx : x ≠ 0#w) :
     2 ^ (ctz x).toNat ≤ x.toNat := by
   have hclz := getLsbD_true_ctz_of_ne_zero (x := x) hx
   exact Nat.ge_two_pow_of_testBit hclz
-
-/-- For a nonzero bitvector, `ctz` agrees with the trailing-zero count of its natural value. -/
-theorem toNat_ctz_of_ne_zero {x : BitVec w} (hx : x ≠ 0) :
-    x.ctz.toNat = x.toNat.trailingZeros := by
-  symm
-  apply Nat.trailingZeros_eq_of_testBit
-  · exact getLsbD_true_ctz_of_ne_zero hx
-  · intro i hi
-    exact getLsbD_false_of_lt_ctz hi
-
-@[simp] theorem ctz_zero : (0#w).ctz = BitVec.ofNat w w := by
-  change (0#w).reverse.clz = (w : BitVec w)
-  exact clz_eq_iff_eq_zero.mpr (reverse_eq_zero_iff.mpr rfl)
-
-/-- Unlike `Nat.trailingZeros`, `ctz` returns the bit width on zero. -/
-theorem toNat_ctz (x : BitVec w) :
-    x.ctz.toNat = if x = 0 then w else x.toNat.trailingZeros := by
-  by_cases hx : x = 0
-  · simp [hx, ctz_zero]
-  · rw [ite_eq_right hx, toNat_ctz_of_ne_zero hx]
-
-/-- Expresses `ctz` using the natural trailing-zero count, with the bit width as its zero case. -/
-theorem ctz_eq (x : BitVec w) :
-    x.ctz = if x = 0 then BitVec.ofNat w w else BitVec.ofNat w x.toNat.trailingZeros := by
-  calc
-    x.ctz = BitVec.ofNat w x.ctz.toNat := by simp
-    _ = _ := by rw [toNat_ctz]; split <;> rfl
 
 /-! ### Population Count -/
 
@@ -6774,7 +6815,6 @@ theorem cpopNatRec_eq {x : BitVec w} {n : Nat} (acc : Nat):
 theorem cpopNatRec_add {x : BitVec w} {acc n : Nat} :
     x.cpopNatRec n (acc + acc') = x.cpopNatRec n acc + acc' := by
   rw [cpopNatRec_eq (acc := acc + acc'), cpopNatRec_eq (acc := acc), Nat.add_assoc]
-
 
 @[simp]
 theorem cpopNatRec_cons_of_le {x : BitVec w} {b : Bool} (hn : n ≤ w) :

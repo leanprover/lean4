@@ -1032,3 +1032,21 @@ theorem trailingZeros_eq_of_testBit {n i : Nat} (hi : n.testBit i = true)
     · intro j hj
       rw [← testBit_succ]
       exact hlo (j + 1) (by omega)
+
+theorem testBit_trailingZeros {n : Nat} (hn : n ≠ 0) : n.testBit n.trailingZeros = true := by
+  induction n using Nat.div2Induction with
+  | ind n ih =>
+    rw [trailingZeros_def, ite_eq_right hn]
+    split
+    next heven =>
+      rw [testBit_add_one]
+      apply ih (by omega)
+      omega
+    next hodd =>
+      rw [testBit_zero]
+      simp [show n % 2 = 1 by omega]
+
+theorem trailingZeros_lt_of_lt_two_pow {n w : Nat} (hn : n ≠ 0) (hw : n < 2 ^ w) :
+    n.trailingZeros < w := by
+  have h := ge_two_pow_of_testBit (testBit_trailingZeros hn)
+  exact (Nat.pow_lt_pow_iff_right (by decide : 1 < 2)).mp (Nat.lt_of_le_of_lt h hw)

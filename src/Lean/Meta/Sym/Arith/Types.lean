@@ -98,6 +98,41 @@ inductive ClassifyResult where
   | /-- No algebraic structure found. -/ none
   deriving Inhabited
 
+/--
+Classification state for a type with an `IsPreorder` instance: the order instances, the
+canonical `≤`/`<` functions, and the link to the ring classification when the type is also
+an ordered ring.
+-/
+structure Order where
+  id                 : Nat
+  type               : Expr
+  /-- Cached `getDecLevel type` -/
+  u                  : Level
+  isPreorderInst     : Expr
+  /-- `LE` instance -/
+  leInst             : Expr
+  /-- `LT` instance if available -/
+  ltInst?            : Option Expr
+  /-- `IsPartialOrder` instance if available -/
+  isPartialInst?     : Option Expr
+  /-- `IsLinearPreorder` instance if available -/
+  isLinearPreInst?   : Option Expr
+  /-- `LawfulOrderLT` instance if available -/
+  lawfulOrderLTInst? : Option Expr
+  /-- Id of the `CommRing` (`rings`) or non-commutative `Ring` (`ncRings`) classification, if available. -/
+  ringId?            : Option Nat
+  /-- `true` if `ringId?` indexes `rings`, `false` if it indexes `ncRings` -/
+  isCommRing         : Bool
+  /-- `Ring` instance if available -/
+  ringInst?          : Option Expr
+  /-- `OrderedRing` instance if available -/
+  orderedRingInst?   : Option Expr
+  /-- Canonical `LE.le type leInst` -/
+  leFn               : Expr
+  /-- Canonical `LT.lt type ltInst`, present iff `lawfulOrderLTInst?` is -/
+  ltFn?              : Option Expr
+  deriving Inhabited
+
 /-- Arith type classification state, stored as a `SymExtension`. -/
 structure State where
   /--
@@ -115,6 +150,10 @@ structure State where
   ncSemirings    : Array Semiring := {}
   /-- Mapping from types to their classification result. Caches failures as `.none`. -/
   typeClassify   : PHashMap ExprPtr ClassifyResult := {}
+  /-- Order structures. -/
+  orders         : Array Order := {}
+  /-- Mapping from types to their order id. Caches failures as `none`. -/
+  typeOrderClassify : PHashMap ExprPtr (Option Nat) := {}
   deriving Inhabited
 
 builtin_initialize arithExt : SymExtension State ← registerSymExtension (return {})

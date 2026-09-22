@@ -201,4 +201,61 @@ where
     if let some id ← tryNonCommSemiring? type then return .nonCommSemiring id
     return .none
 
+private def canonFn (fn : Expr) : SymM Expr := do
+  shareCommon (← Sym.canon fn)
+
+private def mkOrderedRingInst? (u : Level) (type : Expr) (semiringInst : Expr)
+    (leInst ltInst isPreorderInst : Expr) : SymM (Option Expr) := do
+  synthInstance? <| mkApp5 (mkConst ``Grind.OrderedRing [u]) type semiringInst leInst ltInst isPreorderInst
+
+private def tryOrder? (type : Expr) : SymM (Option Nat) := do
+  let some u ← getDecLevel? type | return none
+  let some leInst ← synthInstance? (mkApp (mkConst ``LE [u]) type) | return none
+  let some isPreorderInst ← mkIsPreorderInst? u type (some leInst) | return none
+  let isPartialInst? ← mkIsPartialOrderInst? u type (some leInst)
+  let isLinearPreInst? ← mkIsLinearPreorderInst? u type (some leInst)
+  let ltInst? ← synthInstance? (mkApp (mkConst ``LT [u]) type)
+  let leFn ← canonFn <| mkApp2 (mkConst ``LE.le [u]) type leInst
+  let (lawfulOrderLTInst?, ltFn?) ← if let some ltInst := ltInst? then
+    let inst? ← mkLawfulOrderLTInst? u type ltInst? (some leInst)
+    if inst?.isNone then
+      pure (none, none)
+    else
+      pure (inst?, some (← canonFn <| mkApp2 (mkConst ``LT.lt [u]) type ltInst))
+  else
+    pure (none, none)
+  -- The ring link is only used by `grind order` for offsets, which need `<`.
+  let (ringId?, ringInst?, orderedRingInst?, isCommRing) ← if lawfulOrderLTInst?.isNone then
+    pure (none, none, none, false)
+  else match (← classify? type) with
+    | .commRing ringId =>
+      let ring := (← getArithState).rings[ringId]!
+      let some ordRingInst ← mkOrderedRingInst? u type ring.semiringInst leInst ltInst?.get! isPreorderInst
+        | pure (none, none, none, true)
+      pure (some ringId, some ring.ringInst, some ordRingInst, true)
+    | .nonCommRing ringId =>
+      let ring := (← getArithState).ncRings[ringId]!
+      let some ordRingInst ← mkOrderedRingInst? u type ring.semiringInst leInst ltInst?.get! isPreorderInst
+        | pure (none, none, none, false)
+      pure (some ringId, some ring.ringInst, some ordRingInst, false)
+    | _ => pure (none, none, none, false)
+  let id := (← getArithState).orders.size
+  let order : Order := {
+    id, type, u, leInst, isPreorderInst, ltInst?, leFn, isPartialInst?, ringInst?, orderedRingInst?
+    isLinearPreInst?, ltFn?, lawfulOrderLTInst?, ringId?, isCommRing
+  }
+  modifyArithState fun s => { s with orders := s.orders.push order }
+  return some id
+
+/--
+Classify `type` as an order structure (at least `IsPreorder`), returning its id in
+`State.orders`. Results, including failures, are cached in `State.typeOrderClassify`.
+-/
+def classifyOrder? (type : Expr) : SymM (Option Nat) := do
+  if let some id? := (← getArithState).typeOrderClassify.find? { expr := type } then
+    return id?
+  let id? ← tryOrder? type
+  modifyArithState fun s => { s with typeOrderClassify := s.typeOrderClassify.insert { expr := type } id? }
+  return id?
+
 end Lean.Meta.Sym.Arith

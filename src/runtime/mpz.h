@@ -142,48 +142,33 @@ public:
 
     mpz & operator=(mpz const & v);
     mpz & operator=(mpz && v) { swap(*this, v); return *this; }
-    mpz & operator=(char const * v);
-    mpz & operator=(unsigned int v);
     mpz & operator=(int v);
 
     LEAN_EXPORT friend int cmp(mpz const & a, mpz const & b);
-    LEAN_EXPORT friend int cmp(mpz const & a, unsigned b);
     LEAN_EXPORT friend int cmp(mpz const & a, int b);
 
     friend bool operator<(mpz const & a, mpz const & b) { return cmp(a, b) < 0; }
-    friend bool operator<(mpz const & a, unsigned b) { return cmp(a, b) < 0; }
     friend bool operator<(mpz const & a, int b) { return cmp(a, b) < 0; }
-    friend bool operator<(unsigned a, mpz const & b) { return cmp(b, a) > 0; }
     friend bool operator<(int a, mpz const & b) { return cmp(b, a) > 0; }
 
     friend bool operator>(mpz const & a, mpz const & b) { return cmp(a, b) > 0; }
-    friend bool operator>(mpz const & a, unsigned b) { return cmp(a, b) > 0; }
     friend bool operator>(mpz const & a, int b) { return cmp(a, b) > 0; }
-    friend bool operator>(unsigned a, mpz const & b) { return cmp(b, a) < 0; }
     friend bool operator>(int a, mpz const & b) { return cmp(b, a) < 0; }
 
     friend bool operator<=(mpz const & a, mpz const & b) { return cmp(a, b) <= 0; }
-    friend bool operator<=(mpz const & a, unsigned b) { return cmp(a, b) <= 0; }
     friend bool operator<=(mpz const & a, int b) { return cmp(a, b) <= 0; }
-    friend bool operator<=(unsigned a, mpz const & b) { return cmp(b, a) >= 0; }
     friend bool operator<=(int a, mpz const & b) { return cmp(b, a) >= 0; }
 
     friend bool operator>=(mpz const & a, mpz const & b) { return cmp(a, b) >= 0; }
-    friend bool operator>=(mpz const & a, unsigned b) { return cmp(a, b) >= 0; }
     friend bool operator>=(mpz const & a, int b) { return cmp(a, b) >= 0; }
-    friend bool operator>=(unsigned a, mpz const & b) { return cmp(b, a) <= 0; }
     friend bool operator>=(int a, mpz const & b) { return cmp(b, a) <= 0; }
 
     friend bool operator==(mpz const & a, mpz const & b) { return cmp(a, b) == 0; }
-    friend bool operator==(mpz const & a, unsigned b) { return cmp(a, b) == 0; }
     friend bool operator==(mpz const & a, int b) { return cmp(a, b) == 0; }
-    friend bool operator==(unsigned a, mpz const & b) { return cmp(b, a) == 0; }
     friend bool operator==(int a, mpz const & b) { return cmp(b, a) == 0; }
 
     friend bool operator!=(mpz const & a, mpz const & b) { return cmp(a, b) != 0; }
-    friend bool operator!=(mpz const & a, unsigned b) { return cmp(a, b) != 0; }
     friend bool operator!=(mpz const & a, int b) { return cmp(a, b) != 0; }
-    friend bool operator!=(unsigned a, mpz const & b) { return cmp(b, a) != 0; }
     friend bool operator!=(int a, mpz const & b) { return cmp(b, a) != 0; }
 
     mpz & operator+=(mpz const & o);
@@ -192,18 +177,12 @@ public:
     mpz & operator+=(uint64 u) { return u > std::numeric_limits<unsigned>::max() ? *this += mpz(u) : *this += static_cast<unsigned>(u); }
 
     mpz & operator-=(mpz const & o);
-    mpz & operator-=(unsigned u);
     mpz & operator-=(int u);
-    mpz & operator-=(uint64 u) { return u > std::numeric_limits<unsigned>::max() ? *this -= mpz(u) : *this -= static_cast<unsigned>(u); }
 
     mpz & operator*=(mpz const & o);
-    mpz & operator*=(unsigned u);
     mpz & operator*=(int u);
-    mpz & operator*=(uint64 u) { return u > std::numeric_limits<unsigned>::max() ? *this *= mpz(u) : *this *= static_cast<unsigned>(u); }
 
     mpz & operator/=(mpz const & o);
-    mpz & operator/=(unsigned u);
-    mpz & operator/=(uint64 u) { return u > std::numeric_limits<unsigned>::max() ? *this /= mpz(u) : *this /= static_cast<unsigned>(u); }
     mpz & operator/=(int u) { return operator/=(mpz(u)); } // TODO(Leo): improve
 
     mpz & operator%=(mpz const & o);
@@ -292,9 +271,6 @@ public:
     */
     size_t size_in_bytes() const;
 
-    friend void power(mpz & a, mpz const & b, unsigned k);
-    friend void _power(mpz & a, mpz const & b, unsigned k) { power(a, b, k); }
-    friend mpz pow(mpz a, unsigned k) { power(a, a, k); return a; }
 
     friend void gcd(mpz & g, mpz const & a, mpz const & b);
     friend mpz gcd(mpz const & a, mpz const & b) { mpz r; gcd(r, a, b); return r; }

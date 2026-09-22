@@ -123,7 +123,6 @@ void finalize() {
     finalize_library_core_module();
     finalize_kernel_module();
     finalize_util_module();
-    run_post_thread_finalizers();
     delete_thread_finalizer_manager();
 }
 

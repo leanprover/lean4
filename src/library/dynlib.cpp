@@ -4,7 +4,6 @@ Released under Apache 2.0 license as described in the file LICENSE.
 
 Author: Leonardo de Moura, Mac Malone
 */
-#include "util/io.h"
 #include "runtime/io.h"
 #include "runtime/object.h"
 #include "runtime/sstream.h"
@@ -117,19 +116,5 @@ extern "C" LEAN_EXPORT obj_res lean_dynlib_get(b_obj_arg dynlib, b_obj_arg name)
 extern "C" LEAN_EXPORT obj_res lean_dynlib_symbol_run_as_init(b_obj_arg /* dynlib */, b_obj_arg sym) {
     auto init_fn = reinterpret_cast<object *(*)(uint8_t)>(symbol_ptr(sym));
     return init_fn(1 /* builtin */);
-}
-
-/* Lean.loadDynlib : System.FilePath -> IO Unit */
-extern "C" obj_res lean_load_dynlib(obj_arg path);
-
-void load_dynlib(std::string path) {
-    consume_io_result(lean_load_dynlib(mk_string(path)));
-}
-
-/* Lean.loadPlugin : System.FilePath -> Option String -> IO Unit */
-extern "C" obj_res lean_load_plugin(obj_arg path, obj_arg init_fn);
-
-void load_plugin(std::string path) {
-    consume_io_result(lean_load_plugin(mk_string(path), box(0)));
 }
 }

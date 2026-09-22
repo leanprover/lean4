@@ -2190,12 +2190,6 @@ extern "C" LEAN_EXPORT bool lean_sarray_eq_cold(b_lean_obj_arg a1, b_lean_obj_ar
     return std::memcmp(lean_sarray_cptr(a1), lean_sarray_cptr(a2), len) == 0;
 }
 
-bool string_eq(object * s1, char const * s2) {
-    if (lean_string_size(s1) != strlen(s2) + 1)
-        return false;
-    return std::memcmp(lean_string_cstr(s1), s2, lean_string_size(s1)) == 0;
-}
-
 extern "C" LEAN_EXPORT bool lean_string_lt(object * s1, object * s2) {
     size_t sz1 = lean_string_size(s1) - 1; // ignore null char in the end
     size_t sz2 = lean_string_size(s2) - 1; // ignore null char in the end

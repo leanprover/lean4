@@ -118,24 +118,12 @@ mpz & mpz::operator=(mpz const & v) {
     mpz_set(m_val, v.m_val); return *this;
 }
 
-mpz & mpz::operator=(char const * v) {
-    mpz_set_str(m_val, v, 10); return *this;
-}
-
-mpz & mpz::operator=(unsigned int v) {
-    mpz_set_ui(m_val, v); return *this;
-}
-
 mpz & mpz::operator=(int v) {
     mpz_set_si(m_val, v); return *this;
 }
 
 int cmp(mpz const & a, mpz const & b) {
     return mpz_cmp(a.m_val, b.m_val);
-}
-
-int cmp(mpz const & a, unsigned b) {
-    return mpz_cmp_ui(a.m_val, b);
 }
 
 int cmp(mpz const & a, int b) {
@@ -150,13 +138,9 @@ mpz & mpz::operator+=(int u) { if (u >= 0) mpz_add_ui(m_val, m_val, u); else mpz
 
 mpz & mpz::operator-=(mpz const & o) { mpz_sub(m_val, m_val, o.m_val); return *this; }
 
-mpz & mpz::operator-=(unsigned u) { mpz_sub_ui(m_val, m_val, u); return *this; }
-
 mpz & mpz::operator-=(int u) { if (u >= 0) mpz_sub_ui(m_val, m_val, u); else mpz_add_ui(m_val, m_val, -static_cast<unsigned>(u)); return *this; }
 
 mpz & mpz::operator*=(mpz const & o) { mpz_mul(m_val, m_val, o.m_val); return *this; }
-
-mpz & mpz::operator*=(unsigned u) { mpz_mul_ui(m_val, m_val, u); return *this; }
 
 mpz & mpz::operator*=(int u) { mpz_mul_si(m_val, m_val, u); return *this; }
 
@@ -204,8 +188,6 @@ mpz mpz::emod(mpz const & n, mpz const & d) {
 }
 
 mpz & mpz::operator/=(mpz const & o) { mpz_tdiv_q(m_val, m_val, o.m_val); return *this; }
-mpz & mpz::operator/=(unsigned u) { mpz_tdiv_q_ui(m_val, m_val, u); return *this; }
-
 mpz & mpz::operator%=(mpz const & o) { mpz_tdiv_r(m_val, m_val, o.m_val); return *this; }
 
 mpz mpz::pow(unsigned int exp) const {
@@ -298,10 +280,6 @@ int32 mpz::smod32() const {
 
 int64 mpz::smod64() const {
     return static_cast<int64>(mod64());
-}
-
-void power(mpz & a, mpz const & b, unsigned k) {
-    mpz_pow_ui(a.m_val, b.m_val, k);
 }
 
 void gcd(mpz & g, mpz const & a, mpz const & b) {
@@ -536,18 +514,6 @@ mpz & mpz::operator=(mpz const & v) {
     return *this;
 }
 
-mpz & mpz::operator=(char const * v) {
-    mpz_dealloc(m_digits, sizeof(mpn_digit)*m_size);
-    init_str(v);
-    return *this;
-}
-
-mpz & mpz::operator=(unsigned int v) {
-    mpz_dealloc(m_digits, sizeof(mpn_digit)*m_size);
-    init_uint(v);
-    return *this;
-}
-
 mpz & mpz::operator=(int v) {
     mpz_dealloc(m_digits, sizeof(mpn_digit)*m_size);
     init_int(v);
@@ -567,14 +533,6 @@ int cmp(mpz const & a, mpz const & b) {
         } else {
             return mpn_compare(a.m_digits, a.m_size, b.m_digits, b.m_size);
         }
-    }
-}
-
-int cmp(mpz const & a, unsigned b) {
-    if (a.m_sign) {
-        return -1;
-    } else {
-        return mpn_compare(a.m_digits, a.m_size, &b, 1);
     }
 }
 
@@ -730,10 +688,6 @@ mpz & mpz::operator-=(mpz const & o) {
     return add(!o.m_sign, o.m_size, o.m_digits);
 }
 
-mpz & mpz::operator-=(unsigned u) {
-    return add(true, 1, &u);
-}
-
 mpz & mpz::operator-=(int u) {
     if (u < 0) {
         unsigned u1 = -static_cast<unsigned>(u);
@@ -748,10 +702,6 @@ mpz & mpz::operator*=(mpz const & o) {
     return mul(o.m_sign, o.m_size, o.m_digits);
 }
 
-mpz & mpz::operator*=(unsigned u) {
-    return mul(false, 1, &u);
-}
-
 mpz & mpz::operator*=(int u) {
     if (u < 0) {
         unsigned u1 = -static_cast<unsigned>(u);
@@ -764,10 +714,6 @@ mpz & mpz::operator*=(int u) {
 
 mpz & mpz::operator/=(mpz const & o) {
     return div(o.m_sign, o.m_size, o.m_digits);
-}
-
-mpz & mpz::operator/=(unsigned u) {
-    return div(false, 1, &u);
 }
 
 mpz & mpz::operator%=(mpz const & o) {
@@ -1061,11 +1007,6 @@ int32 mpz::smod32() const {
 
 int64 mpz::smod64() const {
     return static_cast<int64>(mod64());
-}
-
-void power(mpz & a, mpz const & b, unsigned k) {
-    a = b;
-    a.pow(k);
 }
 
 void gcd(mpz & g, mpz const & a, mpz const & b) {

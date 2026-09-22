@@ -56,7 +56,7 @@ inductive L' (α : Type u) : Type u
 
 end InNamespace
 /--
-info: @[instance_reducible, expose] def InNamespace.instBEqL'.{u_1} : {α : Type u_1} → [BEq α] → BEq (InNamespace.L' α)
+info: @[instance_reducible, expose] def InNamespace.instBEqL'.{u} : (α : Type u) → [BEq α] → BEq (InNamespace.L' α)
 -/
 #guard_msgs in #print sig InNamespace.instBEqL'
 /--

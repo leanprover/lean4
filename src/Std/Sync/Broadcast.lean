@@ -505,7 +505,12 @@ def subscribe (ch : Broadcast α) : IO (Broadcast.Receiver α) := do
   Broadcast.Receiver.mk <$> ch.inner.subscribe
 
 /--
-Closes a `Broadcast` channel.
+Closes a `Broadcast` channel. When a channel is closed:
+- no new values can be sent successfully anymore
+- all blocked receivers are resolved to `none` (as no new messages can be sent they will never
+  resolve)
+- senders blocked on a full buffer fail with `Error.closed`
+- values that are already buffered can still be received by subsequent `recv` calls
 -/
 @[inline]
 def close (ch : Broadcast α) : IO Unit := do

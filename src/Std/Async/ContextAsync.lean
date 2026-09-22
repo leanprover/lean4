@@ -250,8 +250,8 @@ instance : ForIn ContextAsync Lean.Loop Unit where
   forIn _ := ContextAsync.forIn
 
 /--
-Runs two computations concurrently and returns the result of the first to complete. Each computation runs
-in its own child context; when either completes, the other is cancelled immediately.
+Runs two computations concurrently and returns the result of the first to complete. Each computation
+runs in its own child context; once the first completes, both of these contexts are cancelled.
 -/
 @[inline, specialize]
 def race [Inhabited α] (x : ContextAsync α) (y : ContextAsync α)

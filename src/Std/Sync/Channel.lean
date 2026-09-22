@@ -375,7 +375,7 @@ The central state structure for a bounded channel. Maintains the following invar
 5. `bufCount` corresponds to the amount of slots in `buf` that are `some`.
 6. `sendIdx = (recvIdx + bufCount) % capacity`. However all four of these values still get tracked
    as there is potential to make a non-blocking send lock-free in the future with this approach.
-7. `closed = true → consumers = ∅`
+7. `closed = true → consumers = ∅ ∧ producers = ∅`
 
 While it (currently) lacks the partial lock-freeness of go channels, the protocol is based on
 [Go channels on steroids](https://docs.google.com/document/d/1yIAYmbvL3JxOKOjuCyon7JhW4cSv1wy5hC0ApeGMV9s/pub)

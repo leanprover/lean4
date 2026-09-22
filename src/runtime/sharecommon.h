@@ -5,8 +5,7 @@ Released under Apache 2.0 license as described in the file LICENSE.
 Author: Leonardo de Moura
 */
 #pragma once
-#include <vector>
-#include "runtime/object_ref.h"
+#include "runtime/object.h"
 #include "util/alloc.h"
 
 namespace lean {
@@ -53,18 +52,6 @@ public:
     lean_object * operator()(lean_object * a) {
         return visit(a);
     }
-};
-
-/*
-Similar to `sharecommon_quick_fn`, but we save the entry points and result values to ensure
-they are not deleted.
-*/
-class LEAN_EXPORT sharecommon_persistent_fn : private sharecommon_quick_fn {
-    std::vector<object_ref> m_saved;
-public:
-    sharecommon_persistent_fn(bool s = false):sharecommon_quick_fn(s) {}
-    void set_check_set(bool f) { m_check_set = f; }
-    lean_object * operator()(lean_object * e);
 };
 
 };

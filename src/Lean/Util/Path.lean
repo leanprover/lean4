@@ -55,14 +55,18 @@ abbrev SearchPath := System.SearchPath
 
 namespace SearchPath
 
+/-- If the package of `mod` can be found in `sp`, return the search path entry containing
+it. Otherwise, return `none`. The result depends only on `mod.getRoot`. -/
+def findRootWithExt (sp : SearchPath) (ext : String) (mod : Name) : IO (Option FilePath) := do
+  let pkg := mod.getRoot.toString (escape := false)
+  sp.findM? fun p =>
+    (p / pkg).isDir <||> ((p / pkg).addExtension ext).pathExists
+
 /-- If the package of `mod` can be found in `sp`, return the path with extension
 `ext` (`lean` or `olean`) corresponding to `mod`. Otherwise, return `none`. Does
 not check whether the returned path exists. -/
 def findWithExt (sp : SearchPath) (ext : String) (mod : Name) : IO (Option FilePath) := do
-  let pkg := mod.getRoot.toString (escape := false)
-  let root? ← sp.findM? fun p =>
-    (p / pkg).isDir <||> ((p / pkg).addExtension ext).pathExists
-  return root?.map (modToFilePath · mod ext)
+  return (← sp.findRootWithExt ext mod).map (modToFilePath · mod ext)
 
 /-- Like `findWithExt`, but ensures the returned path exists. -/
 def findModuleWithExt (sp : SearchPath) (ext : String) (mod : Name) : IO (Option FilePath) := do
@@ -113,11 +117,33 @@ def initSearchPath (leanSysroot : FilePath) (sp : SearchPath := ∅) : IO Unit :
 private def initSearchPathInternal : IO Unit := do
   initSearchPath (← getBuildDir)
 
+/--
+Cache for `findOLean`, mapping the root package of a module to the search path entry that
+contains it, paired with the search path those entries were resolved against.
+
+The result of `findRootWithExt` depends only on `mod.getRoot`, so without this cache every
+module of a package re-probes the whole search path. The stored search path is compared on
+each lookup, so any update of `searchPathRef` -- including the direct `set`s done by Lake --
+invalidates the cache.
+
+`findOLean` is not called concurrently by Lean itself. If a client does so, calls may overwrite
+each other's entries, so some packages are probed again; every stored root was resolved against
+the search path stored next to it, so results are unaffected.
+-/
+builtin_initialize oleanRootCacheRef : IO.Ref (SearchPath × List (Name × FilePath)) ←
+  IO.mkRef ([], [])
+
 /-- Find the compiled `.olean` of a module in the `LEAN_PATH` search path. -/
 partial def findOLean (mod : Name) : IO FilePath := do
   let sp ← searchPathRef.get
-  if let some fname ← sp.findWithExt "olean" mod then
-    return fname
+  let pkg := mod.getRoot
+  let (cachedSp, cache) ← oleanRootCacheRef.get
+  let cache := if cachedSp == sp then cache else []
+  if let some root := cache.lookup pkg then
+    return modToFilePath root mod "olean"
+  if let some root ← sp.findRootWithExt "olean" mod then
+    oleanRootCacheRef.set (sp, (pkg, root) :: cache)
+    return modToFilePath root mod "olean"
   else
     let pkg := FilePath.mk <| mod.getRoot.toString (escape := false)
     throw <| IO.userError s!"unknown module prefix '{pkg}'\n\n\

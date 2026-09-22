@@ -26,20 +26,19 @@ namespace Lean.Elab.Command
     | return  -- must be from partial syntax, ignore
 
   match stx[1] with
-  | Syntax.atom _ val =>
+  | Syntax.node _ ``Lean.Parser.Command.commentBody #[.atom _ doc, _] =>
     if getMainVersoModuleDocs (← getEnv) |>.isEmpty then
-      let doc := String.Pos.Raw.extract val 0 (val.rawEndPos.unoffsetBy ⟨2⟩)
       modifyEnv fun env => addMainModuleDoc env ⟨doc, range⟩
     else
       throwError m!"Can't add Markdown-format module docs because there is already Verso-format content present."
-  | Syntax.node _ ``Lean.Parser.Command.versoCommentBody args =>
-    let docSyntax := args.getD 0 .missing
-    if docSyntax.getKind == `Lean.Doc.Syntax.parseFailure then
+  | Syntax.node _ ``Lean.Parser.Command.versoCommentBody _ =>
+    let view := VersoDocstringView.of ⟨stx⟩
+    match view.markup with
+    | .parseFailure _ =>
       -- Report parser errors without attempting elaboration
-      runTermElabM fun _ => reportVersoParseFailure docSyntax
-    else
-      runTermElabM fun _ => do
-        addVersoModDocString range ⟨docSyntax⟩
+      runTermElabM fun _ => reportVersoParseFailure view
+    | .document doc =>
+      runTermElabM fun _ => addVersoModDocString range doc
   | _ => throwErrorAt stx "unexpected module doc string{indentD <| stx}"
 
 private def addScope (isNewNamespace : Bool) (header : String) (newNamespace : Name)
@@ -269,16 +268,18 @@ private def throwUnnecessaryScopeName (header : Name) : CommandElabM Unit := do
   modify fun s => {s with scopes := s.scopes.drop endSize }
   popScopes endSize
 
-private partial def elabChoiceAux (cmds : Array Syntax) (i : Nat) : CommandElabM Unit :=
-  if h : i < cmds.size then
+private partial def elabChoiceAux (choiceStx : Syntax) (i : Nat) : CommandElabM Unit :=
+  if i < choiceStx.getNumArgs then
     catchInternalId unsupportedSyntaxExceptionId
-      (elabCommand cmds[i])
-      (fun _ => elabChoiceAux cmds (i+1))
+      (do
+        elabCommand (choiceStx.getArg i)
+        pushInfoLeaf <| .ofChoiceResolutionInfo { stx := choiceStx, chosenAltIdx := i })
+      (fun _ => elabChoiceAux choiceStx (i+1))
   else
     throwUnsupportedSyntax
 
 @[builtin_command_elab choice] def elabChoice : CommandElab := fun stx =>
-  elabChoiceAux stx.getArgs 0
+  elabChoiceAux stx 0
 
 @[builtin_command_elab «universe»] def elabUniverse : CommandElab := fun n => do
   n[1].forArgsM addUnivLevel
@@ -613,6 +614,7 @@ open Lean.Parser.Command.InternalSyntax in
   let platforms :=
     (if System.Platform.isWindows then [" Windows"] else [])
     ++ (if System.Platform.isOSX then [" macOS"] else [])
+    ++ (if System.Platform.isLinux then [" Linux"] else [])
     ++ (if System.Platform.isEmscripten then [" Emscripten"] else [])
   logInfo m!"Lean {Lean.versionString}\nTarget: {target}{String.join platforms}"
 

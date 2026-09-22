@@ -49,9 +49,7 @@ protected theorem countP_go_eq_add {l} : countP.go p l n = n + countP.go p l 0 :
     if h : p hd then simp [h, Nat.add_assoc] else simp [h]
 
 @[simp] theorem countP_cons_of_pos {l} (pa : p a) : countP p (a :: l) = countP p l + 1 := by
-  have : countP.go p (a :: l) 0 = countP.go p l 1 := show cond .. = _ by rw [pa]; rfl
-  unfold countP
-  rw [this, Nat.add_comm, List.countP_go_eq_add]
+  simp [countP, countP.go, pa, List.countP_go_eq_add (n := 1), Nat.add_comm]
 
 @[simp] theorem countP_cons_of_neg {l} (pa : ¬p a) : countP p (a :: l) = countP p l := by
   simp [countP, countP.go, pa]
@@ -93,6 +91,8 @@ theorem countP_eq_length_filter' : countP p = length ∘ filter p := by
 theorem countP_le_length : countP p l ≤ l.length := by
   simp only [countP_eq_length_filter]
   apply length_filter_le
+
+grind_pattern countP_le_length => countP p l, l.length
 
 @[simp, grind =] theorem countP_append {l₁ l₂ : List α} : countP p (l₁ ++ l₂) = countP p l₁ + countP p l₂ := by
   simp only [countP_eq_length_filter, filter_append, length_append]
@@ -257,9 +257,10 @@ theorem count_eq_countP' {a : α} : count a = countP (· == a) := by
   funext l
   apply count_eq_countP
 
-@[grind =]
 theorem count_eq_length_filter {a : α} {l : List α} : count a l = (filter (· == a) l).length := by
   simp [count, countP_eq_length_filter]
+
+grind_pattern count_eq_length_filter => count a l, (filter _ l).length
 
 @[grind =]
 theorem count_tail : ∀ {l : List α} {a : α},
@@ -271,7 +272,7 @@ theorem count_tail : ∀ {l : List α} {a : α},
 
 theorem count_le_length {a : α} {l : List α} : count a l ≤ l.length := countP_le_length
 
-grind_pattern count_le_length => count a l
+grind_pattern count_le_length => count a l, l.length
 
 theorem Sublist.count_le (a : α) (h : l₁ <+ l₂) : count a l₁ ≤ count a l₂ := h.countP_le
 
@@ -351,6 +352,8 @@ theorem not_mem_of_count_eq_zero {a : α} {l : List α} (h : count a l = 0) : a 
 theorem count_eq_zero {l : List α} : count a l = 0 ↔ a ∉ l :=
   ⟨not_mem_of_count_eq_zero, count_eq_zero_of_not_mem⟩
 
+grind_pattern count_eq_zero => a ∈ l, count a l
+
 theorem count_eq_length {l : List α} : count a l = l.length ↔ ∀ b ∈ l, a = b := by
   rw [count, countP_eq_length]
   refine ⟨fun h b hb => Eq.symm ?_, fun h b hb => ?_⟩
@@ -410,20 +413,20 @@ theorem count_erase {a b : α} :
     rw [erase_cons]
     if hc : c = b then
       have hc_beq := beq_iff_eq.mpr hc
-      rw [if_pos hc_beq, hc, count_cons, Nat.add_sub_cancel]
+      rw [ite_eq_left hc_beq, hc, count_cons, Nat.add_sub_cancel]
     else
       have hc_beq := beq_false_of_ne hc
-      simp only [hc_beq, if_false, count_cons, count_cons, count_erase, reduceCtorEq]
+      simp only [hc_beq, ite_false, count_cons, count_cons, count_erase, reduceCtorEq]
       if ha : b = a then
         rw [ha, eq_comm] at hc
-        rw [if_pos (beq_iff_eq.2 ha), if_neg (by simpa using Ne.symm hc), Nat.add_zero, Nat.add_zero]
+        rw [ite_eq_left (beq_iff_eq.2 ha), ite_eq_right (by simpa using Ne.symm hc), Nat.add_zero, Nat.add_zero]
       else
-        rw [if_neg (by simpa using ha), Nat.sub_zero, Nat.sub_zero]
+        rw [ite_eq_right (by simpa using ha), Nat.sub_zero, Nat.sub_zero]
 
 @[simp] theorem count_erase_self {a : α} {l : List α} :
-    count a (List.erase l a) = count a l - 1 := by rw [count_erase, if_pos (by simp)]
+    count a (List.erase l a) = count a l - 1 := by rw [count_erase, ite_eq_left (by simp)]
 
 @[simp] theorem count_erase_of_ne (ab : a ≠ b) {l : List α} : count a (l.erase b) = count a l := by
-  rw [count_erase, if_neg (by simpa using ab.symm), Nat.sub_zero]
+  rw [count_erase, ite_eq_right (by simpa using ab.symm), Nat.sub_zero]
 
 end count

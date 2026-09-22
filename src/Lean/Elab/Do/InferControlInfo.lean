@@ -13,6 +13,7 @@ import Lean.Elab.Do.PatternVar
 
 public section
 
+
 namespace Lean.Elab.Do
 
 open Lean Meta Parser.Term
@@ -157,6 +158,7 @@ partial def ofElem (stx : DoElem) : TermElabM ControlInfo := do
     ofLetOrReassign #[] none otherwise body?
   | `(doElem| let $[mut]? $_:letConfig $decl) =>
     ofLetOrReassignArrow false decl
+  | `(doElem| erased $[mut]? $_) => return .pure
   | `(doElem| $decl:letIdDeclNoBinders) =>
     ofLetOrReassign (← getLetIdDeclVars ⟨decl⟩) none none none
   | `(doElem| $decl:letPatDecl) =>
@@ -185,7 +187,7 @@ partial def ofElem (stx : DoElem) : TermElabM ControlInfo := do
   | `(doElem| unless $_ do $elseSeq) =>
     ControlInfo.alternative {} <$> ofSeq elseSeq
   -- For/Repeat
-  | `(doElem| for $[$[$_ :]? $_ in $_],* do $bodySeq) =>
+  | `(doElem| for $[$[$_ :]? $_ in $_],* $[$_:doLoopInvariant]? $[$_:doLoopDecreasing]? do $bodySeq) =>
     let info ← ofSeq bodySeq
     return { info with  -- keep only reassigns and returnsEarly
       numRegularExits := 1,
@@ -193,7 +195,7 @@ partial def ofElem (stx : DoElem) : TermElabM ControlInfo := do
       breaks := false,
       noFallthrough := false,
     }
-  | `(doRepeat| repeat $bodySeq) =>
+  | `(doRepeat| repeat $[$_:doLoopInvariant]? $[$_:doLoopDecreasing]? $bodySeq) =>
     -- A break-less `repeat` never falls through; the elaborator injects an `unreachable!` so the
     -- surrounding continuation still has a polymorphic value to hand back, and any dead-code
     -- warning on subsequent elements is actionable.
@@ -225,6 +227,8 @@ partial def ofElem (stx : DoElem) : TermElabM ControlInfo := do
   | `(doElem| dbg_trace $_) => return .pure
   | `(doElem| assert! $_) => return .pure
   | `(doElem| debug_assert! $_) => return .pure
+  -- Names the parser directly because stage0's `doElem` category has no `assert` element.
+  | `(doAssertion| assert $_) => return .pure
   -- match_expr and let_expr
   | `(doElem| match_expr $[(meta := false)]? $_ with $[| $_:matchExprPat => $rhsSeqs]* | _ => $elseSeq) =>
     let mut info ← ofSeq elseSeq

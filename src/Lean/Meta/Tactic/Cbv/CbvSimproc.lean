@@ -254,7 +254,7 @@ def getCbvSimprocs : CoreM CbvSimprocs :=
 
 def cbvSimprocDispatch (tree : DiscrTree CbvSimprocEntry)
     (erased : PHashSet Name) : Simproc := fun e => do
-  let candidates := Sym.getMatchWithExtra tree e
+  let candidates := Sym.getMatchWithExtra (← getMCtx) tree e
   if candidates.isEmpty then
     return .rfl
   for (entry, numExtra) in candidates do

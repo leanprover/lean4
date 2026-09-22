@@ -71,7 +71,7 @@ where
       -- trace[Elab.Tactic.Do.vcgen] "assignMVars {← mvar.getTag}, isDelayedAssigned: {← mvar.isDelayedAssigned},\n{mvar}"
       let some prf ← (tryGoal mvar).run | addSubGoalAsVC mvar
       if ← mvar.isAssigned then
-        throwError "Tried to assign already assigned metavariable `{← mvar.getTag}`. MVar: {mvar}\nAssignment: {mkMVar mvar}\nNew assignment: {prf}"
+        throwError "Tried to assign metavariable `{← mvar.getTag}`, but it has already been assigned. MVar: {mvar}\nAssignment: {mkMVar mvar}\nNew assignment: {prf}"
       mvar.assign prf
 
   onGoal goal name : VCGenM Expr := do
@@ -98,7 +98,9 @@ where
     let_expr WP.wp m _ps _instWP α e := wp | onFail goal name
     -- NB: e here is a monadic expression, in the "object language"
     let e ← instantiateMVarsIfMVarApp e
-    let e := e.headBeta
+    -- `consumeMData` so that mdata (e.g. `save_info` from postponed elaboration in the `do` block)
+    -- does not hide a matcher application from `getSplitInfo?`.
+    let e := e.consumeMData.headBeta
     let goal := goal.withNewProg e -- to persist the instantiation of `e` and `trans`
     withTraceNode `Elab.Tactic.Do.vcgen (msg := fun _ => return m!"Program: {e}") do
 
@@ -113,7 +115,7 @@ where
       else
         leave (← onWPApp (goal.withNewProg e') name)
 
-    -- if, dite and match-expressions (without `+jp` which is handled by `onJoinPoint`)
+    -- if, dite, cond and match-expressions (without `+jp` which is handled by `onJoinPoint`)
     if let .some info ← getSplitInfo? e then
       return ← onSplit goal info name
 
@@ -370,7 +372,7 @@ def elabInvariants (stx : Syntax) (invariants : Array MVarId) (suggestInvariant 
           break
         dotOrCase := .true
         let some mv := invariants[n]? | do
-          logErrorAt alt m!"More invariants have been defined ({alts.size}) than there were unassigned invariants goals `inv<n>` ({invariants.size})."
+          logErrorAt alt m!"More invariants have been defined ({alts.size}) than there were unassigned invariant goals `inv<n>` ({invariants.size})."
           continue
         withRef rhs do
         discard <| evalTacticAt (← `(tactic| exact $rhs)) mv
@@ -404,8 +406,11 @@ def elabInvariants (stx : Syntax) (invariants : Array MVarId) (suggestInvariant 
         let mv := invariants[i]!
         if ← mv.isAssigned then
           continue
-        let invariant ← suggestInvariant mv
-        suggestions := suggestions.push (← `(invariantDotAlt| · $invariant))
+        -- A failing suggestion (e.g. an invariant shape the analysis does not understand)
+        -- degrades to "no suggestion" rather than failing the tactic.
+        let invariant? ← try some <$> suggestInvariant mv catch _ => pure none
+        if let some invariant := invariant? then
+          suggestions := suggestions.push (← `(invariantDotAlt| · $invariant))
       let alts' := alts ++ suggestions
       let stx' ← `(invariantAlts|invariants $alts'*)
       if suggestions.size > 0 then
@@ -449,8 +454,6 @@ where
 
 @[builtin_tactic Lean.Parser.Tactic.mvcgen]
 def elabMVCGen : Tactic := fun stx => withMainContext do
-  if mvcgen.warning.get (← getOptions) then
-    logWarningAt stx "The `mvcgen` tactic is experimental and still under development. Avoid using it in production projects."
   let ctx ← mkSpecContext stx[1] stx[2]
   let fuel := match ctx.config.stepLimit with
     | some n => .limited n
@@ -464,7 +467,7 @@ def elabMVCGen : Tactic := fun stx => withMainContext do
       tryCatchRuntimeEx
         (List.toArray <$> Term.withSynthesize do
           Tactic.run vc (Tactic.evalTactic tac *> Tactic.pruneSolvedGoals))
-        (fun ex => throwError "Error while running {tac} on {vc}Message: {indentD ex.toMessageData}\n{extraMsg}")
+        (fun ex => throwError "Error while running {tac} on {vc}\nMessage: {indentD ex.toMessageData}\n{extraMsg}")
   let invariants ←
     if ctx.config.leave then runOnVCs (← `(tactic| try mleave)) "Try again with -leave." invariants else pure invariants
   trace[Elab.Tactic.Do.vcgen] "before elabInvariants {← (invariants ++ vcs).mapM fun m => m.getTag}"

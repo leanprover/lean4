@@ -274,6 +274,12 @@ def checkNonClassInstance (c : Expr) : MetaM Unit := do
       throwError m!"The declaration `{c}` should not be an instance as its return type `{target}` \
       is not a type class."
 
+-- This option is registered in Lean.Elab.MutualDef.
+private def warnClassDefReducibility : Lean.Option Bool := {
+  defValue := true,
+  name := `warn.classDefReducibility
+}
+
 def addInstance (declName : Name) (attrKind : AttributeKind) (prio : Nat) : MetaM Unit := do
   let c ← mkConstWithLevelParams declName
   let cinfo ← getConstInfo declName
@@ -283,10 +289,14 @@ def addInstance (declName : Name) (attrKind : AttributeKind) (prio : Nat) : Meta
     checkImpossibleInstance cinfo
   let keys ← mkInstanceKey c
   let status ← getReducibilityStatus declName
-  unless status matches .reducible | .implicitReducible do
+  if status == .semireducible then do
     let info ← getConstInfo declName
     if info.isDefinition then
-      logWarning m!"instance `{declName}` must be marked with `@[reducible]` or `@[implicit_reducible]`"
+      if warnClassDefReducibility.get (← getOptions) then
+        logWarning m!"Definition `{declName}` of class type is semireducible. \
+Most type class instances should be instance-reducible, so consider marking this
+definition with `@[instance_reducible]`. If it is intentionally semireducible, \
+this warning can be disabled with `set_option warn.classDefReducibility false`."
     else if wasOriginallyDefn (← getEnv) declName then
       logWarning m!"instance `{declName}` must be marked with `@[expose]`"
   let projInfo? ← getProjectionFnInfo? declName
@@ -294,7 +304,7 @@ def addInstance (declName : Name) (attrKind : AttributeKind) (prio : Nat) : Meta
   instanceExtension.add { keys, val := c, priority := prio, globalName? := declName, attrKind, synthOrder } attrKind
 
 /-
-Adds instance **and** marks it with reducibility status `@[implicit_reducible]`. We use this function
+Adds instance **and** marks it with reducibility status `@[instance_reducible]`. We use this function
 to elaborate `instance` command.
 
 **Note**: We used to check whether `declName` had `instance` reducibility by using `isInstance declName`.
@@ -316,7 +326,7 @@ not its transparency status.
 Thus, we added a new transparency setting and set it here.
 -/
 def registerInstance (declName : Name) (attrKind : AttributeKind) (prio : Nat) : MetaM Unit := do
-  setReducibilityStatus declName .implicitReducible
+  setReducibilityStatus declName .instanceReducible
   addInstance declName attrKind prio
 
 /--

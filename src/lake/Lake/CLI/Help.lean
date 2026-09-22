@@ -23,6 +23,7 @@ COMMANDS:
   build <targets>...    build targets
   query <targets>...    build targets and output results
   exe <exe> <args>...   build an exe and run it in Lake's environment
+  samply <exe>          profile an exe with samply and demangle Lean names
   check-build           check if any default build targets are configured
   test                  test the package using the configured test driver
   check-test            check if there is a properly configured test driver
@@ -30,6 +31,8 @@ COMMANDS:
   check-lint            check if there is a properly configured lint driver
   clean                 remove build outputs
   shake                 minimize imports in source files
+  comparator            judge a solution against a challenge
+  check                 check this project against external checker(s)
   env <cmd> <args>...   execute a command in Lake's environment
   lean <file>           elaborate a Lean file in Lake's context
   update                update dependencies and save them to the manifest
@@ -57,6 +60,7 @@ BASIC OPTIONS:
   --keep-toolchain      do not update toolchain on workspace update
   --allow-empty         accept bare builds with no default targets configured
   --no-build            exit immediately if a build target is not up-to-date
+  --fail-fast           stop scheduling new build jobs after the first required failure
   --no-cache            build packages locally; do not download build caches
   --try-cache           attempt to download build caches for supported packages
   --json, -J            output JSON-formatted results (in `lake query`)
@@ -115,7 +119,7 @@ def helpBuild :=
 "Build targets
 
 USAGE:
-  lake build [<targets>...] [-o <mappings>]
+  lake build [<targets>...] [-o <mappings>] [--package <name>]
 
 A target is specified with a string of the form:
 
@@ -132,13 +136,15 @@ The `@` and `+` markers can be used to disambiguate packages and modules
 from file paths or other kinds of targets (e.g., executables or libraries).
 
 LIBRARY FACETS:         build the library's ...
-  leanArts (default)    Lean artifacts (*.olean, *.ilean, *.c files)
+  elabArts              elaboration artifacts (*.olean, *.ilean files)
+  irArts (default)      compilation artifacts (*.ir, *.ir.sig, *.c files)
   static                static artifact (*.a file)
   shared                shared artifact (*.so, *.dll, or *.dylib file)
 
 MODULE FACETS:          build the module's ...
   deps                  dependencies (e.g., imports, shared libraries, etc.)
-  leanArts (default)    Lean artifacts (*.olean, *.ilean, *.c files)
+  elabArts              elaboration artifacts (*.olean, *.ilean files)
+  irArts (default)      compilation artifacts (*.ir, *.ir.sig, *.c files)
   olean                 OLean (binary blob of Lean data for importers)
   ilean                 ILean (binary blob of metadata for the Lean LSP server)
   c                     compiled C file
@@ -160,11 +166,13 @@ TARGET EXAMPLES:        build the ...
 A bare `lake build` command will build the default target(s) of the root
 package. Package dependencies are not updated during a build.
 
-With the Lake cache enabled, the `-o` option will cause Lake to track the
-input-to-outputs mappings of targets in the root package touched during the
-build and write them to the specified file at the end of the build. These
-mappings can then be used to upload build artifacts to a remote cache with
-`lake cache put`."
+With the Lake cache enabled, Lake can track the targets the build covers
+(both those up-to-date and those newly built) and write the input-to-outputs
+mappings of each to a file specified by the `-o` option. By default, with `-o`,
+Lake will track the targets of the root package, use `--package` to select a
+different one. These mappings can then be used to upload the build artifacts
+to a remote cache with `lake cache put`. This will only include the artifacts
+from the covered targets. Other targets in the package will not be tracked."
 
 def helpQuery :=
 "Build targets and output results
@@ -287,6 +295,12 @@ OPTIONS:
                         `set_option <linter> false in` exception by editing the
                         offending source files in place, silencing the warning
                         for that declaration. Implies `--builtin-lint`.
+  --code-quality        records each linter warning as a code quality check result
+                        and runs the registered code quality checks.
+                        Setting this flag will skip lint driver.
+  --checks <mods>       comma-separated list of workspace modules providing
+                        package code quality checks; they are imported
+                        alongside each linted module (implies --code-quality)
 
 A lint driver can be configured by either setting the `lintDriver` package
 configuration option or by tagging a script or executable `@[lint_driver]`.
@@ -389,6 +403,166 @@ ANNOTATIONS:
   * `import X -- shake: keep`
     Preserves this specific import"
 
+def helpComparator :=
+"Judge a solution against a challenge
+
+USAGE:
+  lake comparator [--config <FILE>] [--challenge-from-export <FILE>]
+                  [--solution-from-export <FILE>] [--paranoid]
+                  [--inadvisably-no-sandbox]
+
+Establishes that every named theorem in the solution proves the same statement
+as the challenge, uses no axiom outside the permitted list, and is accepted by
+the kernel.
+
+The project is untrusted input: its configuration is evaluated, and its code
+built and exported, inside a `bwrap` sandbox, and none of its `.olean` files
+is ever loaded into Lake's own address space. `bubblewrap` is required, and
+needs either unprivileged user namespaces or to be installed setuid root.
+
+The project has to carry a `lake-manifest.json`, because dependencies are
+resolved inside the sandbox and it cannot write to the project directory.
+Building the project once, before distributing it, is enough to write one.
+
+OPTIONS:
+  --config=<file>            JSON file describing the challenge (see below)
+                             (default: `comparator.json` in the current
+                             directory)
+  --challenge-from-export=<file>
+                             judge this export as the challenge, instead of
+                             building and exporting `challenge_module`
+  --solution-from-export=<file>
+                             judge this export as the solution, instead of
+                             building and exporting `solution_module`
+  --paranoid                 also run all external checkers bundled with Lean
+                             besides Lean's own kernel: `leanchecker-paranoid`,
+                             `lean4lean`, `nanoda`, `con-leche` and `con-ron`
+  --inadvisably-no-sandbox   disable the built-in sandbox. This can compromise
+                             the result fully and is only advised for expert
+                             users.
+
+CONFIGURATION:
+  The challenge author writes the file and distributes it with the project, so
+  that a solver need only point `lake comparator` at it:
+
+  {
+    \"challenge_module\": \"Challenge\",
+    \"solution_module\": \"Solution\",
+    \"theorem_names\": [\"imo2024_p1\"],
+    \"definition_names\": [],
+    \"permitted_axioms\": [\"propext\", \"Quot.sound\", \"Classical.choice\"],
+    \"external_kernels\": {\"nanoda\": [\"nanoda_bin\"]}
+  }
+
+  `challenge_module`, `solution_module`, `theorem_names` and
+  `permitted_axioms` are required; the rest may be omitted.
+  `definition_names` lists the challenge's definition holes.
+  `permitted_axioms` is deliberately not defaulted: it is what the verdict
+  means, so the challenge author states it. The three above are the ones
+  `#print axioms` treats as a clean proof.
+
+  `external_kernels` names additional checkers to run over the export, each as
+  the command to execute; the solution must satisfy every one of them as well
+  as Lean's own kernel. `enable_nanoda: true` is still accepted and is
+  equivalent to a \"nanoda\" entry of [\"nanoda_bin\"]; name the command in
+  `external_kernels` instead to run it from elsewhere.
+
+EXIT CODES:
+  0                     accepted
+  1                     rejected: statement mismatch, forbidden axiom, kernel
+                        rejection, or a build that did not succeed
+  2                     could not start: `bwrap` or the manifest is missing,
+                        or the configuration is missing, unreadable or
+                        malformed
+
+EXPORTS:
+  The `--*-from-export` options take an NDJSON export as generated by
+  `leanexport` instead of building and exporting either the challenge or the
+  solution. Note that this option does not check that the provided export
+  matches the challenge or solution in the project this command is being run
+  in. This is useful for several scenarios:
+  - Using export files built in virtual machines for extra isolation.
+  - Using export files built by third parties, e.g. because they require
+    extensive computational resources to generate.
+  - Using export files generated through means other than a standard
+    `lake build`.
+
+ENVIRONMENT:
+  COMPARATOR_BWRAP      sandbox executable (default: `bwrap` on PATH)
+
+  The exporter is always the `leanexport` of this toolchain, and deliberately
+  not configurable: the export format has to match the compiler that produced
+  the `.olean` files being exported.
+
+HARDENING:
+  `comparator` uses `bwrap` for sandboxing. `/` is bound read-only and the home directories are then
+  covered, so the code being judged builds against the system it expects and reads none of the
+  invoking user's files. Only `.lake` is writable. Only dependency resolution has a network, because
+  it has to fetch git dependencies; the build, the export and any external kernels run in an empty
+  network namespace."
+
+def helpCheck :=
+"Check this project against external checker(s)
+
+USAGE:
+  lake check [--from-export <FILE>] [--paranoid] [--inadvisably-no-sandbox]
+
+Builds the default build targets, exports them, and replays the result through
+the kernel, erroring on any use of non-standard axioms.
+
+The project is untrusted input: its configuration is evaluated, and its code
+built and exported, inside a `bwrap` sandbox, and none of its `.olean` files
+is ever loaded into Lake's own address space. `bubblewrap` is required, and
+needs either unprivileged user namespaces or to be installed setuid root.
+
+The project has to carry a `lake-manifest.json`, because dependencies are
+resolved inside the sandbox and it cannot write to the project directory.
+Building the project once is enough to write one.
+
+OPTIONS:
+  --from-export=<file>       check this export, instead of building and
+                             exporting the project (see below)
+  --paranoid                 also run all external checkers bundled with Lean
+                             besides Lean's own kernel: `leanchecker-paranoid`,
+                             `lean4lean`, `nanoda`, `con-leche` and `con-ron`
+  --inadvisably-no-sandbox   disable the built-in sandbox. This can compromise
+                             the result fully and is only advised for expert
+                             users.
+
+EXPORTS:
+  The `--from-export` option takes an NDJSON export as generated by
+  `leanexport` instead of building and exporting the entire project. Note that
+  using this option only establishes that the export file is accepted and
+  nothing about the project this command is being run in. This is useful for
+  several scenarios:
+  - Using export files built in virtual machines for extra isolation.
+  - Using export files built by third parties, e.g. because they require
+    extensive computational resources to generate.
+  - Using export files generated through means other than a standard
+    `lake build`.
+
+EXIT CODES:
+  0                     every selected checker accepts the project and it uses
+                        only the permitted axioms
+  1                     a checker rejects it, an axiom is not permitted, or a
+                        build did not succeed
+  2                     could not start: `bwrap` is missing, the project has
+                        no `lake-manifest.json`, or it has no default targets
+
+ENVIRONMENT:
+  COMPARATOR_BWRAP      sandbox executable (default: `bwrap` on PATH)
+
+  The exporter is always the `leanexport` of this toolchain, and deliberately
+  not configurable: the export format has to match the compiler that produced
+  the `.olean` files being exported.
+
+HARDENING:
+  The sandbox bounds writes and the network exactly as `lake comparator`'s
+  does, and its limits apply here too. See the HARDENING section of
+  `lake help comparator`.
+
+See `lake help comparator` to judge a solution against a challenge instead."
+
 def helpCacheCli :=
 "Manage the Lake cache
 
@@ -417,37 +591,40 @@ USAGE:
 
 OPTIONS:
   --max-revs=<n>                  backtrack up to n revisions (default: 100)
-  --rev=<commit-hash>             uses this exact revision to lookup artifacts
-  --service=<name>                cache service to fetch from
-  --repo=<github-repo>            GitHub repository of the package or a fork
-  --platform=<target-triple>      with Reservoir or --repo, sets the platform
-  --toolchain=<name>              with Reservoir or --repo, sets the toolchain
-  --scope=<remote-scope>          scope for a custom endpoint
+  --rev=<commit-hash>             lookup artifacts only for set revision
+  --package=<name>                fetch outputs for set package
+  --service=<name>                fetch outputs from set cache service
+  --repo=<github-repo>            GitHub repository of the package or its fork
+  --platform=<target-triple>      with Reservoir or --repo, set the platform
+  --toolchain=<name>              with Reservoir or --repo, set the toolchain
+  --scope=<remote-scope>          verbatim scope for a custom endpoint
   --mappings-only                 only download mappings, delay artifacts
   --force-download                redownload existing files
 
 Downloads build outputs for packages in the workspace from a remote cache
 service. The cache service used can be specified via the `--service` option.
-Otherwise, Lake will the system default, or, if none is configured, Reservoir.
-See `lake cache services` for more information on how to configure services.
+Otherwise, Lake will use the configured default or, if none, Reservoir. See
+`lake cache services` for more information on how to configure services.
 
-If an input-to-outputs mappings file, `--scope`, or `--repo` is provided,
-Lake will download build outputs for the root package. Otherwise, it will use
-Reservoir to download outputs for each dependency in the workspace (in order).
-Non-Reservoir dependencies will be skipped.
+By default, Lake will use Reservoir to download outputs for each
+dependency in the workspace (in order). Non-Reservoir dependencies will be
+skipped. If instead an input-to-outputs mappings file, `--scope`, or `--repo`
+is provided, Lake will default to downloading build outputs for the root
+package. In either case, if `--package` is specified, Lake will switch to
+only downloading outputs for it.
 
 To determine what to download, Lake searches for input-to-output mappings for
-a given build of the package via the cache service. This mapping is identified
+a given build of a package via the cache service. This mapping is identified
 by a Git revision and prefixed with a scope derived from the package's name,
 GitHub repository, Lean toolchain, and current platform. The exact configuration
 can be customized using options.
 
-For Reservoir, setting `--repo` will cause Lake to lookup outputs for the root
+For Reservoir, setting `--repo` will cause Lake to lookup outputs for the
 package by a repository name, rather than the package's. This can be used to
 download outputs for a fork of the Reservoir package (if such artifacts are
 available). The `--platform` and `--toolchain` options can be used to download
 artifacts for a different platform/toolchain configuration than Lake detects.
-For a custom endpoint, the full prefix Lake uses can be set via  `--scope`.
+For a custom endpoint, the full prefix Lake uses can be set via `--scope`.
 
 If `--rev` is not set, Lake uses the package's current revision to lookup
 artifacts. If no mappings are found, Lake will backtrack the Git history up to
@@ -466,31 +643,32 @@ def helpCachePut :=
 "Upload build outputs from the Lake cache to a remote service
 
 USAGE:
-  lake cache put <mappings> <scope-option>
+  lake cache put <mappings>
 
-Uploads the input-to-output mappings contained in the specified file along
-with the corresponding output artifacts to a remote cache. The cache service
-used can be specified via the `--service` option. If not specified, Lake will use
-the system default, or error if none is configured. See the help page of
-`lake cache services` for more information on how to configure services.
-
-Files are uploaded using the AWS Signature Version 4 authentication protocol
-via `curl`. Thus, the service should generally be an S3-compatible bucket. The
-authentication key is set via the `LAKE_CACHE_KEY` environment variable.
-
-Since Lake does not currently use cryptographically secure hashes for
-artifacts and outputs, uploads to the cache are prefixed with a scope to avoid
-clashes. This scope is configured with the following options:
-
-  --scope=<remote-scope>          sets a fixed scope
-  --repo=<github-repo>            uses the repository + toolchain & platform
+OPTIONS:
+  --package=<name>                upload for set package
+  --service=<name>                upload to set cache service
+  --scope=<remote-scope>          upload under set scope verbatim
+  --repo=<github-repo>            scope w/ repository + toolchain & platform
   --toolchain=<name>              with --repo, sets the toolchain
   --platform=<target-triple>      with --repo, sets the platform
 
-At least one of `--scope` or `--repo` must be set. If `--repo` is used, Lake
-will produce a scope by augmenting the repository with toolchain and platform
-information as it deems necessary. If `--scope` is set, Lake will use the
-specified scope verbatim.
+Uploads the input-to-output mappings contained in the specified file along
+with the corresponding output artifacts to a remote cache. The cache service
+used can be specified via the `--service` option. If not specified, Lake will
+use the system default, or error if none is configured. See the help page of
+`lake cache services` for more information on how to configure services.
+
+Files are uploaded using the AWS Signature Version 4 authentication protocol
+via `curl`. Thus, the service should generally be an S3-compatible bucket.
+The authentication key is set via the `LAKE_CACHE_KEY` environment variable.
+
+Since Lake does not currently use cryptographically secure hashes for
+artifacts and outputs, uploads to the cache are prefixed with a scope to
+avoid clashes. This is controlled by `--scope` or `--repo`. With `--repo`,
+Lake will produce a scope by augmenting the repository with toolchain and
+platform information as it deems necessary. With `--scope`, Lake will use
+the specified scope verbatim.
 
 Artifacts are uploaded to the artifact endpoint with a file name derived
 from their Lake content hash (and prefixed by the repository or scope).
@@ -506,6 +684,7 @@ USAGE:
   lake cache add <mappings>
 
 OPTIONS:
+  --package=<name>                add mappings to set package
   --service=<name>                cache service to fetch from on demand
   --scope=<remote-scope>          the prefix of artifacts within the service
   --repo=<github-repo>            for Reservoir, a GitHub repository scope
@@ -513,7 +692,8 @@ OPTIONS:
 
 Reads a list of input-to-output mappings from the provided file and adds
 them to the local Lake cache. Mappings already in the cache are overwritten
-unless `--no-overwrite` is specified.
+unless `--no-overwrite` is specified. Mappings are added for the root package
+unless `--package` is specified.
 
 If `--service` is provided, the output artifacts can then be fetched lazily
 from that service during a Lake build. The service must either be `reservoir`
@@ -560,16 +740,21 @@ USAGE:
   lake cache put-staged <staging-directory>
 
 OPTIONS:
-  --scope=<remote-scope>          verbatim scope
-  --repo=<github-repo>            scope with repository + toolchain & platform
-  --toolchain=<name>              with --repo, sets the toolchain
-  --platform=<target-triple>      with --repo, sets the platform
+  --rev=<commit-hash>             upload for set revision
+  --service=<name>                upload to set cache service
+  --scope=<remote-scope>          upload under set scope verbatim
+  --repo=<github-repo>            scope w/ repository + toolchain & platform
+  --toolchain=<name>              with --repo, set the toolchain
+  --platform=<target-triple>      with --repo, set the platform
 
 Works like `lake cache put` but uploads outputs from the staging directory
-instead of the Lake cache. Does not configure the workspace and thus does not
-execute arbitrary user code. However, because of this, the package's platform
-and toolchain settings will not be automatically detected and must be
-specified manually via `--platform` and `--toolchain` (if desired)."
+instead of the Lake cache.
+
+Does not configure the workspace and thus does not execute arbitrary user
+code. However, because of this, the package's platform and toolchain settings
+will not be automatically detected for `--repo` and must be specified manually
+via `--platform` and `--toolchain` (if needed). Similarly, the source revision
+the outputs correspond to must be manually specified via `--rev`."
 
 def helpCacheClean :=
 "Removes ALL files from the local Lake cache
@@ -700,6 +885,37 @@ learn how to specify targets), builds it if it is out of date, and then runs
 it with the given `args` in Lake's environment (see `lake help env` for how
 the environment is set up)."
 
+def helpSamply :=
+"Profile an executable target with samply and demangle Lean names
+
+USAGE:
+  lake samply [OPTIONS] <exe-target> [-- [<samply-args>...] [-- <exe-args>...]]
+
+Builds the executable target, records a CPU profile using samply, symbolicates
+the raw addresses, demangles Lean compiler names, and writes a Firefox Profiler
+JSON file.
+
+OPTIONS:
+  -o FILE               output path (default: ./profile-demangled.json.gz)
+  --raw                 save the raw profile without serving (default: ./profile-raw.json.gz)
+  --no-serve            write output file and exit without serving it
+
+Anything after `--` is forwarded verbatim to `samply record`. An inner `--`
+separates samply's own flags from the profiled executable's arguments, e.g.:
+
+  lake samply mergeSort                          # no samply or exe args
+  lake samply mergeSort -- --rate 2000           # only samply args
+  lake samply mergeSort -- -- 10                 # only exe args
+  lake samply mergeSort -- --rate 2000 -- 10     # both
+
+Run `samply record --help` to see samply's flags.
+
+REQUIREMENTS:
+  samply                cargo install samply
+  curl, gzip            standard on most Linux/macOS systems
+
+Open the output file in Firefox Profiler at https://profiler.firefox.com/from-file/"
+
 def helpLean :=
 "Elaborate a Lean file in the context of the Lake workspace
 
@@ -760,12 +976,15 @@ public def help : (cmd : String) → String
 | "check-lint"          => helpCheckLint
 | "clean"               => helpClean
 | "shake"               => helpShake
+| "comparator"          => helpComparator
+| "check"               => helpCheck
 | "script"              => helpScriptCli
 | "scripts"             => helpScriptList
 | "run"                 => helpScriptRun
 | "serve"               => helpServe
 | "env"                 => helpEnv
 | "exe" | "exec"        => helpExe
+| "samply"              => helpSamply
 | "lean"                => helpLean
 | "translate-config"    => helpTranslateConfig
 | _                     => usage

@@ -123,18 +123,16 @@ protected def toString (p : Pos) : String :=
   |> String.intercalate "/"
   |> ("/" ++ ·)
 
-open Except in
 private def ofStringCoord : String → Except String Nat
-  | "0" => ok 0 | "1" => ok 1 | "2" => ok 2 | "3" => ok 3
-  | c => error s!"Invalid coordinate {c}"
+  | "0" => .ok 0 | "1" => .ok 1 | "2" => .ok 2 | "3" => .ok 3
+  | c => .error s!"Invalid coordinate {c}"
 
-open Except in
 protected def fromString? : String → Except String Pos
-  | "/" => Except.ok Pos.root
+  | "/" => .ok Pos.root
   | s =>
     match String.split s '/' |>.toStringList with
     | "" :: tail => Pos.ofArray <$> tail.toArray.mapM ofStringCoord
-    | ss => error s!"malformed {ss}"
+    | ss => .error s!"malformed {ss}"
 
 protected def fromString! (s : String) : Pos :=
   match Pos.fromString? s with

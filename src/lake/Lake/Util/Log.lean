@@ -268,7 +268,7 @@ public instance [Monad n] [MonadLiftT m n] : MonadLog (MonadLogT m n) where
 
 end MonadLogT
 
-/- A Lake log. An `Array` of log entries. -/
+/-- A Lake log. An `Array` of log entries. -/
 public structure Log where
   entries : Array LogEntry
   deriving Inhabited

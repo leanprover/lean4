@@ -24,7 +24,7 @@ namespace Std.Http
 
 set_option linter.all true
 
-open Internal
+open Std.Http.Internal
 
 /--
 A proposition stating that `s` is a valid HTTP reason phrase: every character passes

@@ -105,6 +105,21 @@ Is true if either the package or the library have `precompileModules` set.
   self.pkg.precompileModules || self.config.precompileModules
 
 /--
+Whether to precompile the imports of the library's modules.
+Is true if either the package or the library have `precompileImports` set,
+or if the library's modules are precompiled.
+-/
+@[inline] public def precompileImports (self : LeanLib) : Bool :=
+  self.precompileModules || self.pkg.precompileImports || self.config.precompileImports
+
+/--
+Whether to precompile the library for importers.
+Is true if the library has `precompileLibrary` set or its modules are precompiled.
+-/
+@[inline] public def shouldPrecompile (self : LeanLib) : Bool :=
+  self.precompileModules || self.config.precompileLibrary
+
+/--
 Whether to the library's Lean code is platform-independent.
 Returns the library's `platformIndependent` configuration if non-`none`.
 Otherwise, falls back to the package's.
@@ -154,6 +169,20 @@ Enabled if either the library or the package enables it.
 -/
 @[inline] public def allowImportAll (self : LeanLib) : Bool :=
   self.config.allowImportAll || self.pkg.allowImportAll
+
+/--
+Whether modules of this library are designed for use with the module system.
+Enabled if either the library or the package enables it.
+-/
+@[inline] public def requiresModuleSystem (self : LeanLib) : Bool :=
+  self.config.requiresModuleSystem || self.pkg.requiresModuleSystem
+
+/--
+Whether modules of this library may be non-module-system files without warning.
+Enabled if either the library or the package enables it.
+-/
+@[inline] public def allowNonModules (self : LeanLib) : Bool :=
+  self.config.allowNonModules || self.pkg.allowNonModules
 
 /--
 The dynamic libraries to load for modules of this library.
@@ -212,14 +241,14 @@ That is, the package's `weakLeancArgs` plus the library's `weakLeancArgs`.
   self.pkg.weakLeancArgs ++ self.config.weakLeancArgs
 
 /--
-Additionl target objects to pass to `ar` when linking the static library.
+Additional target objects to pass to `ar` when linking the static library.
 That is, the package's `moreLinkObjs` plus the library's `moreLinkObjs`.
 -/
 @[inline] public def moreLinkObjs (self : LeanLib) : TargetArray FilePath :=
   self.pkg.moreLinkObjs ++ self.config.moreLinkObjs
 
-/-
-Additionl target libraries to are linked to the shared library.
+/--
+Additional target libraries to are linked to the shared library.
 That is, the package's `moreLinkLibs` plus the library's `moreLinkLibs`.
 -/
 @[inline] public def moreLinkLibs (self : LeanLib) : TargetArray Dynlib :=

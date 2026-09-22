@@ -7,7 +7,7 @@ Author: Leonardo de Moura
 #include "util/kvmap.h"
 
 namespace lean {
-extern "C" object * lean_mk_bool_data_value(bool b);
+extern "C" object * lean_mk_bool_data_value(uint8 b);
 extern "C" uint8 lean_data_value_bool(object * v);
 extern "C" uint8 lean_data_value_beq(object * a, object * b);
 

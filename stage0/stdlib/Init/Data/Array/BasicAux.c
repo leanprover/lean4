@@ -1,6 +1,6 @@
 // Lean compiler output
 // Module: Init.Data.Array.BasicAux
-// Imports: import all Init.Data.Array.Basic public import Init.Data.Array.Set public import Init.Util import Init.Data.Nat.Linear
+// Imports: import all Init.Data.Array.Basic public import Init.Data.Array.Set public import Init.Util import Init.Data.Nat.Internal.Linear
 #include <lean/lean.h>
 #if defined(__clang__)
 #pragma clang diagnostic ignored "-Wunused-parameter"
@@ -127,43 +127,42 @@ return v_res_25_;
 LEAN_EXPORT lean_object* l___private_Init_Data_Array_BasicAux_0__Array_mapM_x27_go___redArg(lean_object* v_inst_26_, lean_object* v_f_27_, lean_object* v_as_28_, lean_object* v_i_29_, lean_object* v_acc_30_){
 _start:
 {
-lean_object* v___x_31_; uint8_t v___x_32_; 
-v___x_31_ = lean_array_get_size(v_as_28_);
-v___x_32_ = lean_nat_dec_eq(v_i_29_, v___x_31_);
-if (v___x_32_ == 0)
+lean_object* v_toApplicative_31_; lean_object* v_toBind_32_; lean_object* v_toPure_33_; lean_object* v___x_34_; uint8_t v___x_35_; 
+v_toApplicative_31_ = lean_ctor_get(v_inst_26_, 0);
+v_toBind_32_ = lean_ctor_get(v_inst_26_, 1);
+lean_inc(v_toBind_32_);
+v_toPure_33_ = lean_ctor_get(v_toApplicative_31_, 1);
+v___x_34_ = lean_array_get_size(v_as_28_);
+v___x_35_ = lean_nat_dec_eq(v_i_29_, v___x_34_);
+if (v___x_35_ == 0)
 {
-lean_object* v_toBind_33_; lean_object* v___f_34_; lean_object* v___x_35_; lean_object* v___x_36_; lean_object* v___x_37_; 
-v_toBind_33_ = lean_ctor_get(v_inst_26_, 1);
-lean_inc(v_toBind_33_);
+lean_object* v___f_36_; lean_object* v___x_37_; lean_object* v___x_38_; lean_object* v___x_39_; 
 lean_inc_ref(v_as_28_);
 lean_inc(v_f_27_);
 lean_inc(v_i_29_);
-v___f_34_ = lean_alloc_closure((void*)(l___private_Init_Data_Array_BasicAux_0__Array_mapM_x27_go___redArg___lam__0___boxed), 6, 5);
-lean_closure_set(v___f_34_, 0, v_i_29_);
-lean_closure_set(v___f_34_, 1, v_acc_30_);
-lean_closure_set(v___f_34_, 2, v_inst_26_);
-lean_closure_set(v___f_34_, 3, v_f_27_);
-lean_closure_set(v___f_34_, 4, v_as_28_);
-v___x_35_ = lean_array_fget(v_as_28_, v_i_29_);
+v___f_36_ = lean_alloc_closure((void*)(l___private_Init_Data_Array_BasicAux_0__Array_mapM_x27_go___redArg___lam__0___boxed), 6, 5);
+lean_closure_set(v___f_36_, 0, v_i_29_);
+lean_closure_set(v___f_36_, 1, v_acc_30_);
+lean_closure_set(v___f_36_, 2, v_inst_26_);
+lean_closure_set(v___f_36_, 3, v_f_27_);
+lean_closure_set(v___f_36_, 4, v_as_28_);
+v___x_37_ = lean_array_fget(v_as_28_, v_i_29_);
 lean_dec(v_i_29_);
 lean_dec_ref(v_as_28_);
-v___x_36_ = lean_apply_1(v_f_27_, v___x_35_);
-v___x_37_ = lean_apply_4(v_toBind_33_, lean_box(0), lean_box(0), v___x_36_, v___f_34_);
-return v___x_37_;
+v___x_38_ = lean_apply_1(v_f_27_, v___x_37_);
+v___x_39_ = lean_apply_4(v_toBind_32_, lean_box(0), lean_box(0), v___x_38_, v___f_36_);
+return v___x_39_;
 }
 else
 {
-lean_object* v_toApplicative_38_; lean_object* v_toPure_39_; lean_object* v___x_40_; 
+lean_object* v___x_40_; 
+lean_inc(v_toPure_33_);
+lean_dec(v_toBind_32_);
 lean_dec(v_i_29_);
 lean_dec_ref(v_as_28_);
 lean_dec(v_f_27_);
-v_toApplicative_38_ = lean_ctor_get(v_inst_26_, 0);
-lean_inc_ref(v_toApplicative_38_);
 lean_dec_ref(v_inst_26_);
-v_toPure_39_ = lean_ctor_get(v_toApplicative_38_, 1);
-lean_inc(v_toPure_39_);
-lean_dec_ref(v_toApplicative_38_);
-v___x_40_ = lean_apply_2(v_toPure_39_, lean_box(0), v_acc_30_);
+v___x_40_ = lean_apply_2(v_toPure_33_, lean_box(0), v_acc_30_);
 return v___x_40_;
 }
 }
@@ -219,28 +218,27 @@ return v_res_81_;
 LEAN_EXPORT lean_object* l___private_Init_Data_Array_BasicAux_0__mapMonoMImp_go___redArg(lean_object* v_inst_82_, lean_object* v_f_83_, lean_object* v_i_84_, lean_object* v_as_85_){
 _start:
 {
-lean_object* v___x_86_; uint8_t v___x_87_; 
-v___x_86_ = lean_array_get_size(v_as_85_);
-v___x_87_ = lean_nat_dec_lt(v_i_84_, v___x_86_);
-if (v___x_87_ == 0)
+lean_object* v_toApplicative_86_; lean_object* v_toBind_87_; lean_object* v_toPure_88_; lean_object* v___x_89_; uint8_t v___x_90_; 
+v_toApplicative_86_ = lean_ctor_get(v_inst_82_, 0);
+v_toBind_87_ = lean_ctor_get(v_inst_82_, 1);
+lean_inc(v_toBind_87_);
+v_toPure_88_ = lean_ctor_get(v_toApplicative_86_, 1);
+v___x_89_ = lean_array_get_size(v_as_85_);
+v___x_90_ = lean_nat_dec_lt(v_i_84_, v___x_89_);
+if (v___x_90_ == 0)
 {
-lean_object* v_toApplicative_88_; lean_object* v_toPure_89_; lean_object* v___x_90_; 
+lean_object* v___x_91_; 
+lean_inc(v_toPure_88_);
+lean_dec(v_toBind_87_);
 lean_dec(v_i_84_);
 lean_dec(v_f_83_);
-v_toApplicative_88_ = lean_ctor_get(v_inst_82_, 0);
-lean_inc_ref(v_toApplicative_88_);
 lean_dec_ref(v_inst_82_);
-v_toPure_89_ = lean_ctor_get(v_toApplicative_88_, 1);
-lean_inc(v_toPure_89_);
-lean_dec_ref(v_toApplicative_88_);
-v___x_90_ = lean_apply_2(v_toPure_89_, lean_box(0), v_as_85_);
-return v___x_90_;
+v___x_91_ = lean_apply_2(v_toPure_88_, lean_box(0), v_as_85_);
+return v___x_91_;
 }
 else
 {
-lean_object* v_toBind_91_; lean_object* v_a_92_; lean_object* v___f_93_; lean_object* v___x_94_; lean_object* v___x_95_; 
-v_toBind_91_ = lean_ctor_get(v_inst_82_, 1);
-lean_inc(v_toBind_91_);
+lean_object* v_a_92_; lean_object* v___f_93_; lean_object* v___x_94_; lean_object* v___x_95_; 
 v_a_92_ = lean_array_fget(v_as_85_, v_i_84_);
 lean_inc(v_f_83_);
 lean_inc(v_a_92_);
@@ -251,7 +249,7 @@ lean_closure_set(v___f_93_, 2, v_as_85_);
 lean_closure_set(v___f_93_, 3, v_inst_82_);
 lean_closure_set(v___f_93_, 4, v_f_83_);
 v___x_94_ = lean_apply_1(v_f_83_, v_a_92_);
-v___x_95_ = lean_apply_4(v_toBind_91_, lean_box(0), lean_box(0), v___x_94_, v___f_93_);
+v___x_95_ = lean_apply_4(v_toBind_87_, lean_box(0), lean_box(0), v___x_94_, v___f_93_);
 return v___x_95_;
 }
 }
@@ -344,12 +342,14 @@ return v___x_165_;
 lean_object* runtime_initialize_Init_Data_Array_Basic(uint8_t builtin);
 lean_object* runtime_initialize_Init_Data_Array_Set(uint8_t builtin);
 lean_object* runtime_initialize_Init_Util(uint8_t builtin);
-lean_object* runtime_initialize_Init_Data_Nat_Linear(uint8_t builtin);
+lean_object* runtime_initialize_Init_Data_Nat_Internal_Linear(uint8_t builtin);
+void lean_initialize_runtime_module();
 static bool _G_runtime_initialized = false;
 LEAN_EXPORT lean_object* runtime_initialize_Init_Data_Array_BasicAux(uint8_t builtin) {
 lean_object * res;
 if (_G_runtime_initialized) return lean_io_result_mk_ok(lean_box(0));
 _G_runtime_initialized = true;
+lean_initialize_runtime_module();
 res = runtime_initialize_Init_Data_Array_Basic(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
@@ -359,7 +359,7 @@ lean_dec_ref(res);
 res = runtime_initialize_Init_Util(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
-res = runtime_initialize_Init_Data_Nat_Linear(builtin);
+res = runtime_initialize_Init_Data_Nat_Internal_Linear(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
 return lean_io_result_mk_ok(lean_box(0));
@@ -374,7 +374,7 @@ return lean_io_result_mk_ok(lean_box(0));
 lean_object* initialize_Init_Data_Array_Basic(uint8_t builtin);
 lean_object* initialize_Init_Data_Array_Set(uint8_t builtin);
 lean_object* initialize_Init_Util(uint8_t builtin);
-lean_object* initialize_Init_Data_Nat_Linear(uint8_t builtin);
+lean_object* initialize_Init_Data_Nat_Internal_Linear(uint8_t builtin);
 static bool _G_initialized = false;
 LEAN_EXPORT lean_object* initialize_Init_Data_Array_BasicAux(uint8_t builtin) {
 lean_object * res;
@@ -389,7 +389,7 @@ lean_dec_ref(res);
 res = initialize_Init_Util(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
-res = initialize_Init_Data_Nat_Linear(builtin);
+res = initialize_Init_Data_Nat_Internal_Linear(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
 res = runtime_initialize_Init_Data_Array_BasicAux(builtin);

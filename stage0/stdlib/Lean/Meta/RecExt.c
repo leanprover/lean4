@@ -15,10 +15,10 @@ extern "C" {
 #endif
 lean_object* l_Lean_Name_mkStr1(lean_object*);
 lean_object* l_Lean_mkTagDeclarationExtension(lean_object*, lean_object*);
-lean_object* l_Lean_PersistentHashMap_mkEmptyEntriesArray(lean_object*, lean_object*);
+lean_object* l_Lean_PersistentHashMap_mkEmptyEntriesArray___redArg();
 lean_object* lean_st_ref_take(lean_object*);
 lean_object* l_Lean_TagDeclarationExtension_tag(lean_object*, lean_object*, lean_object*);
-lean_object* lean_st_ref_set(lean_object*, lean_object*);
+lean_object* lean_st_ref_put(lean_object*, lean_object*);
 lean_object* lean_st_ref_get(lean_object*);
 uint8_t l_Lean_TagDeclarationExtension_isTagged(lean_object*, lean_object*, lean_object*, lean_object*);
 static const lean_string_object l___private_Lean_Meta_RecExt_0__Lean_Meta_initFn___closed__0_00___x40_Lean_Meta_RecExt_2067193597____hygCtx___hyg_2__value = {.m_header = {.m_rc = 0, .m_cs_sz = 0, .m_other = 0, .m_tag = 249}, .m_size = 7, .m_capacity = 7, .m_length = 6, .m_data = "recExt"};
@@ -66,7 +66,7 @@ static lean_object* _init_l_Lean_Meta_markAsRecursive___redArg___closed__0(void)
 _start:
 {
 lean_object* v___x_12_; 
-v___x_12_ = l_Lean_PersistentHashMap_mkEmptyEntriesArray(lean_box(0), lean_box(0));
+v___x_12_ = l_Lean_PersistentHashMap_mkEmptyEntriesArray___redArg();
 return v___x_12_;
 }
 }
@@ -131,40 +131,40 @@ goto v_resetjp_29_;
 }
 v_resetjp_29_:
 {
-lean_object* v___x_32_; lean_object* v___x_33_; lean_object* v___x_34_; lean_object* v___x_36_; 
-v___x_32_ = l_Lean_Meta_recExt;
-v___x_33_ = l_Lean_TagDeclarationExtension_tag(v___x_32_, v_env_21_, v_declName_17_);
-v___x_34_ = lean_obj_once(&l_Lean_Meta_markAsRecursive___redArg___closed__2, &l_Lean_Meta_markAsRecursive___redArg___closed__2_once, _init_l_Lean_Meta_markAsRecursive___redArg___closed__2);
+lean_object* v___x_32_; lean_object* v___x_33_; lean_object* v___x_34_; lean_object* v___x_35_; lean_object* v___x_37_; 
+v___x_32_ = lean_box(0);
+v___x_33_ = l_Lean_Meta_recExt;
+v___x_34_ = l_Lean_TagDeclarationExtension_tag(v___x_33_, v_env_21_, v_declName_17_);
+v___x_35_ = lean_obj_once(&l_Lean_Meta_markAsRecursive___redArg___closed__2, &l_Lean_Meta_markAsRecursive___redArg___closed__2_once, _init_l_Lean_Meta_markAsRecursive___redArg___closed__2);
 if (v_isShared_31_ == 0)
 {
-lean_ctor_set(v___x_30_, 5, v___x_34_);
-lean_ctor_set(v___x_30_, 0, v___x_33_);
-v___x_36_ = v___x_30_;
-goto v_reusejp_35_;
+lean_ctor_set(v___x_30_, 5, v___x_35_);
+lean_ctor_set(v___x_30_, 0, v___x_34_);
+v___x_37_ = v___x_30_;
+goto v_reusejp_36_;
 }
 else
 {
 lean_object* v_reuseFailAlloc_40_; 
 v_reuseFailAlloc_40_ = lean_alloc_ctor(0, 9, 0);
-lean_ctor_set(v_reuseFailAlloc_40_, 0, v___x_33_);
+lean_ctor_set(v_reuseFailAlloc_40_, 0, v___x_34_);
 lean_ctor_set(v_reuseFailAlloc_40_, 1, v_nextMacroScope_22_);
 lean_ctor_set(v_reuseFailAlloc_40_, 2, v_ngen_23_);
 lean_ctor_set(v_reuseFailAlloc_40_, 3, v_auxDeclNGen_24_);
 lean_ctor_set(v_reuseFailAlloc_40_, 4, v_traceState_25_);
-lean_ctor_set(v_reuseFailAlloc_40_, 5, v___x_34_);
+lean_ctor_set(v_reuseFailAlloc_40_, 5, v___x_35_);
 lean_ctor_set(v_reuseFailAlloc_40_, 6, v_messages_26_);
 lean_ctor_set(v_reuseFailAlloc_40_, 7, v_infoState_27_);
 lean_ctor_set(v_reuseFailAlloc_40_, 8, v_snapshotTasks_28_);
-v___x_36_ = v_reuseFailAlloc_40_;
-goto v_reusejp_35_;
+v___x_37_ = v_reuseFailAlloc_40_;
+goto v_reusejp_36_;
 }
-v_reusejp_35_:
+v_reusejp_36_:
 {
-lean_object* v___x_37_; lean_object* v___x_38_; lean_object* v___x_39_; 
-v___x_37_ = lean_st_ref_set(v_a_18_, v___x_36_);
-v___x_38_ = lean_box(0);
+lean_object* v___x_38_; lean_object* v___x_39_; 
+v___x_38_ = lean_st_ref_put(v_a_18_, v___x_37_);
 v___x_39_ = lean_alloc_ctor(0, 1, 0);
-lean_ctor_set(v___x_39_, 0, v___x_38_);
+lean_ctor_set(v___x_39_, 0, v___x_32_);
 return v___x_39_;
 }
 }
@@ -243,11 +243,13 @@ return v_res_81_;
 }
 }
 lean_object* runtime_initialize_Lean_Attributes(uint8_t builtin);
+void lean_initialize_runtime_module();
 static bool _G_runtime_initialized = false;
 LEAN_EXPORT lean_object* runtime_initialize_Lean_Meta_RecExt(uint8_t builtin) {
 lean_object * res;
 if (_G_runtime_initialized) return lean_io_result_mk_ok(lean_box(0));
 _G_runtime_initialized = true;
+lean_initialize_runtime_module();
 res = runtime_initialize_Lean_Attributes(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);

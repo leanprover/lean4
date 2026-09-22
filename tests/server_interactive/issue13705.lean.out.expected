@@ -1,0 +1,34 @@
+blocked!
+unblocking!
+{"version": 2,
+ "uri": "file:///issue13705.lean",
+ "isIncremental": false,
+ "diagnostics":
+ [{"source": "Lean 4",
+   "severity": 1,
+   "range":
+   {"start": {"line": 16, "character": 2},
+    "end": {"line": 16, "character": 18}},
+   "message": "blocked",
+   "fullRange":
+   {"start": {"line": 16, "character": 2},
+    "end": {"line": 16, "character": 18}}},
+  {"source": "Lean 4",
+   "severity": 1,
+   "range":
+   {"start": {"line": 16, "character": 2},
+    "end": {"line": 16, "character": 18}},
+   "message": "blocked",
+   "fullRange":
+   {"start": {"line": 16, "character": 2},
+    "end": {"line": 16, "character": 18}}},
+  {"source": "Lean 4",
+   "severity": 3,
+   "range":
+   {"start": {"line": 19, "character": 0}, "end": {"line": 20, "character": 0}},
+   "message": "Goals accomplished!",
+   "leanTags": [2],
+   "isSilent": true,
+   "fullRange":
+   {"start": {"line": 19, "character": 0},
+    "end": {"line": 21, "character": 15}}}]}

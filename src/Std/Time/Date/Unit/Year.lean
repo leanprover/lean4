@@ -36,7 +36,7 @@ instance : ToString Era where
 /--
 `Offset` represents a year offset, defined as an `Int`.
 -/
-@[expose] def Offset : Type := Int
+@[expose, implicit_reducible] def Offset : Type := Int
 deriving Repr, DecidableEq, Inhabited, Add, Sub, Neg, LE, LT, ToString
 
 set_option backward.inferInstanceAs.wrap.instances false in
@@ -107,8 +107,8 @@ Calculates the number of days in the specified `year`.
 -/
 def days (year : Offset) : Bounded.LE 365 366 :=
   if year.isLeap
-    then .ofNatWrapping 366 (by decide)
-    else .ofNatWrapping 355 (by decide)
+    then .mk 366 (by decide)
+    else .mk 365 (by decide)
 
 /--
 Calculates the number of weeks in the specified `year`.

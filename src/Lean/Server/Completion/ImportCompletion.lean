@@ -13,7 +13,7 @@ meta import Lean.Parser.Module
 
 public section
 
-namespace ImportCompletion
+namespace Lean.Lsp.ImportCompletion
 
 open Lean Lsp
 
@@ -153,4 +153,4 @@ def computeCompletions (uri : DocumentUri) (pos : Lsp.Position) (text : FileMap)
   let completionList := find uri pos text headerStx availableImports
   return addCompletionItemData uri pos completionList
 
-end ImportCompletion
+end Lean.Lsp.ImportCompletion

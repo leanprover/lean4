@@ -1,0 +1,3 @@
+[a]: http://example.com/x   
+
+See [it][a].

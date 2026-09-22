@@ -16,7 +16,7 @@ register_builtin_option showTacticDiff : Bool := {
   descr := "When true, interactive goals for tactics will be decorated with diffing information. "
 }
 
-open Server Std Lean SubExpr
+open Server Lean SubExpr
 
 /-- A marker for a point in the expression where a subexpression has been inserted.
 

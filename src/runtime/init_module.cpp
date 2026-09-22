@@ -16,7 +16,13 @@ Author: Leonardo de Moura
 #include "runtime/libuv.h"
 
 namespace lean {
+// idempotent as it may be called both by the generated `main` and, via `lean_initialize`,
+// by generated module initializers
+static bool g_initialized = false;
 extern "C" LEAN_EXPORT void lean_initialize_runtime_module() {
+    if (g_initialized)
+        return;
+    g_initialized = true;
     initialize_alloc();
     initialize_debug();
     initialize_object();

@@ -1,24 +1,39 @@
+Input: "{hello world:=gaia}[there *is* _a meaning!_ ]"
 Success! Final stack:
-  (Lean.Doc.Syntax.role
+  (Lean.Doc.Parser.Inline.role
    "{"
    `hello
-   [(Lean.Doc.Syntax.named_no_paren
+   [(Lean.Doc.Parser.Arg.named_no_paren
      `world
      ":="
-     (Lean.Doc.Syntax.arg_ident `gaia))]
+     (Lean.Doc.Parser.ArgVal.ident `gaia))]
    "}"
-   "["
-   [(Lean.Doc.Syntax.text (str "\"there \""))
-    (Lean.Doc.Syntax.bold
-     "*"
-     [(Lean.Doc.Syntax.text (str "\"is\""))]
-     "*")
-    (Lean.Doc.Syntax.text (str "\" \""))
-    (Lean.Doc.Syntax.emph
-     "_"
-     [(Lean.Doc.Syntax.text
-       (str "\"a meaning!\""))]
-     "_")
-    (Lean.Doc.Syntax.text (str "\" \""))]
-   "]")
+   ["["]
+   [(Lean.Doc.Parser.Inline.text
+     (Lean.Doc.Parser.versoText "there "))
+    (Lean.Doc.Parser.Inline.bold
+     (Lean.Doc.Parser.boldDelimiter "*")
+     [(Lean.Doc.Parser.Inline.text
+       (Lean.Doc.Parser.versoText "is"))]
+     (Lean.Doc.Parser.boldDelimiter "*"))
+    (Lean.Doc.Parser.Inline.text
+     (Lean.Doc.Parser.versoText " "))
+    (Lean.Doc.Parser.Inline.emph
+     (Lean.Doc.Parser.emphDelimiter "_")
+     [(Lean.Doc.Parser.Inline.text
+       (Lean.Doc.Parser.versoText "a meaning!"))]
+     (Lean.Doc.Parser.emphDelimiter "_"))
+    (Lean.Doc.Parser.Inline.text
+     (Lean.Doc.Parser.versoText " "))]
+   ["]"])
 All input consumed.
+Round-trip OK
+Decoded views:
+  role (braceOpen := "{") (name := hello) (args := [named (parens := none) (name := world) (assign := ":=") (val := name (x := gaia))]) (braceClose := "}") (brackets := some ("[", "]"))
+    text (content := "there ")
+    bold (opener := "*") (closer := "*")
+      text (content := "is")
+    text (content := " ")
+    emph (opener := "_") (closer := "_")
+      text (content := "a meaning!")
+    text (content := " ")

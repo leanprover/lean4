@@ -9,7 +9,7 @@ prelude
 public import Init.Data.Array.Basic
 public import Init.WFTactics
 import Init.Data.List.BasicAux
-import Init.Data.Nat.Linear
+import Init.Data.Nat.Internal.Linear
 meta import Init.MetaTypes
 
 public section

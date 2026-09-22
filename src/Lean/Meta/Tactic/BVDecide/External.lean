@@ -100,22 +100,23 @@ public partial def runInterruptible (timeout : Nat) (args : IO.Process.SpawnArgs
   let child ← IO.Process.spawn { args with stdout := .piped, stderr := .piped, stdin := .null }
   let stdout ← IO.asTask child.stdout.readToEnd Task.Priority.dedicated
   let stderr ← IO.asTask child.stderr.readToEnd Task.Priority.dedicated
-  go (timeout * 1000) child stdout stderr
+  go (timeout * 1000) 1 64 child stdout stderr
 where
-  go {cfg} (budgetMs : Nat) (child : IO.Process.Child cfg) (stdout stderr : Task (Except IO.Error String)) :
-      CoreM (TimedOut IO.Process.Output) := do
+  go {cfg} (budgetMs sleepMs maxSleepMs : Nat) (child : IO.Process.Child cfg)
+      (stdout stderr : Task (Except IO.Error String)) : CoreM (TimedOut IO.Process.Output) := do
     let cleanup := killAndWait child
     withTimeoutCheck budgetMs cleanup do
     withInterruptCheck cleanup do
+      -- TODO: replace me with a select once we get libuv process support
       match ← child.tryWait with
       | some exitCode =>
         let stdout ← IO.ofExcept stdout.get
         let stderr ← IO.ofExcept stderr.get
         return .success { exitCode := exitCode, stdout := stdout, stderr := stderr }
       | none =>
-        let sleepMs : Nat := 50
         IO.sleep sleepMs.toUInt32
-        go (budgetMs - sleepMs) child stdout stderr
+        let nextSleepMs := if sleepMs ≥ maxSleepMs then sleepMs else sleepMs * 2
+        go (budgetMs - sleepMs) nextSleepMs maxSleepMs child stdout stderr
 
   killAndWait {cfg} (child : IO.Process.Child cfg) : IO Unit := do
     child.kill
@@ -183,7 +184,7 @@ public def satQuery (solverPath : System.FilePath) (problemPath : System.FilePat
         | .error err =>
           throwError s!"Error {err} while parsing:\n{stdout}"
       else
-        throwError s!"The external prover produced unexpected output, stdout:\n{stdout}stderr:\n{stderr}"
+        throwError s!"The external prover produced unexpected output, stdout:\n{stdout}\nstderr:\n{stderr}"
 where
   solverModeFlags (mode : Elab.Tactic.BVDecide.SolverMode) : Array String :=
     match mode with

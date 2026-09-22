@@ -162,6 +162,10 @@ theorem pmap_eq_map_attach {p : α → Prop} {f : ∀ a, p a → β} {xs : Array
   cases xs
   simp [List.pmap_eq_map_attach]
 
+theorem attachWith_eq_map_attach {xs : Array α} {P : α → Prop} {H : ∀ (a : α), a ∈ xs → P a} :
+    xs.attachWith P H = xs.attach.map fun ⟨x, h⟩ => ⟨x, H _ h⟩ := by
+  cases xs <;> simp_all [List.attachWith_eq_map_attach]
+
 @[simp]
 theorem pmap_eq_attachWith {p q : α → Prop} {f : ∀ a, p a → q a} {xs : Array α} (H) :
     pmap (fun a h => ⟨a, f a h⟩) xs H = xs.attachWith q (fun x h => f x (H x h)) := by

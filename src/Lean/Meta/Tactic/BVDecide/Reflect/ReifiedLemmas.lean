@@ -6,7 +6,11 @@ Authors: Henrik Böving
 module
 
 prelude
-public import Lean.Meta.Tactic.BVDecide.Reflect.ReifiedBVLogical
+public import Lean.Meta.Tactic.BVDecide.Reflect.Basic
+import Lean.Meta.Tactic.BVDecide.Reflect.ReifiedBVLogical
+import Lean.Meta.Tactic.BVDecide.Reflect.ReifiedBVPred
+import Lean.Meta.AppBuilder
+import Std.Tactic.BVDecide.Reflect
 
 section
 
@@ -39,15 +43,15 @@ where
     let resValExpr := lhs
     let lemmaName := ``Std.Tactic.BVDecide.Reflect.BitVec.cond_true
 
-    let notDiscrExpr := mkApp (mkConst ``Bool.not) discrExpr
+    let notDiscrExpr ← Sym.share <| mkApp (mkConst ``Bool.not) discrExpr
     let notDiscr ← ReifiedBVLogical.mkNot discr discrExpr notDiscrExpr
 
-    let eqBVExpr ← mkAppM ``BEq.beq #[atomExpr, resExpr]
+    let eqBVExpr ← Sym.share <| ← mkAppM ``BEq.beq #[atomExpr, resExpr]
     let some eqBVPred ← ReifiedBVPred.mkBinPred atom resValExpr atomExpr resExpr .eq eqBVExpr
       | return none
     let eqBV ← ReifiedBVLogical.ofPred eqBVPred
 
-    let orExpr := mkApp2 (mkConst ``Bool.or) notDiscrExpr eqBVExpr
+    let orExpr ← Sym.share <| mkApp2 (mkConst ``Bool.or) notDiscrExpr eqBVExpr
     let imp ← ReifiedBVLogical.mkGate notDiscr eqBV notDiscrExpr eqBVExpr .or orExpr
 
     let proof := do
@@ -72,12 +76,12 @@ where
     let resValExpr := rhs
     let lemmaName := ``Std.Tactic.BVDecide.Reflect.BitVec.cond_false
 
-    let eqBVExpr ← mkAppM ``BEq.beq #[atomExpr, resExpr]
+    let eqBVExpr ← Sym.share <| ← mkAppM ``BEq.beq #[atomExpr, resExpr]
     let some eqBVPred ← ReifiedBVPred.mkBinPred atom resValExpr atomExpr resExpr .eq eqBVExpr
       | return none
     let eqBV ← ReifiedBVLogical.ofPred eqBVPred
 
-    let orExpr := mkApp2 (mkConst ``Bool.or) discrExpr eqBVExpr
+    let orExpr ← Sym.share <| mkApp2 (mkConst ``Bool.or) discrExpr eqBVExpr
     let imp ← ReifiedBVLogical.mkGate discr eqBV discrExpr eqBVExpr .or orExpr
 
     let proof := do

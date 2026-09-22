@@ -158,3 +158,16 @@ example (f : Nat → Nat) (n : Nat) (hf : ∀ x, f x = x + 0 + 1) : f n + 0 = 1 
                                          --^ $/lean/plainGoal
 
 end
+
+-- #14394: no improper whitespace trimming in non-incremental blocks
+example {a : Nat} (ha : a = 3) : a ≤ 4 := (by
+  rw [ha]
+
+--^ $/lean/plainGoal
+  sorry)
+
+example {a : Nat} (ha : a = 3) : a ≤ 4 := by
+  rw [ha]
+
+--^ $/lean/plainGoal
+  sorry

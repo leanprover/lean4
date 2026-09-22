@@ -7,26 +7,11 @@ module
 
 prelude
 public import Lean.Compiler.IR.CompilerM
+import Lean.Runtime
 
 public section
 
 namespace Lean.IR.Checker
-
-@[extern "lean_get_max_ctor_fields"]
-opaque getMaxCtorFields : Unit → Nat
-def maxCtorFields := getMaxCtorFields ()
-
-@[extern "lean_get_max_ctor_scalars_size"]
-opaque getMaxCtorScalarsSize : Unit → Nat
-def maxCtorScalarsSize := getMaxCtorScalarsSize ()
-
-@[extern "lean_get_max_ctor_tag"]
-opaque getMaxCtorTag : Unit → Nat
-def maxCtorTag := getMaxCtorTag ()
-
-@[extern "lean_get_usize_size"]
-opaque getUSizeSize : Unit → Nat
-def usizeSize := getUSizeSize ()
 
 structure CheckerContext where
   localCtx : LocalContext := {}
@@ -136,9 +121,9 @@ def checkExpr (ty : IRType) (e : Expr) : M Unit := do
   | .ctor c ys =>
     if c.cidx > maxCtorTag && c.isRef then
       throwCheckerError s!"tag for constructor '{c.name}' is too big, this is a limitation of the current runtime"
-    if c.size > maxCtorFields then
+    if !c.size < maxCtorFields then
       throwCheckerError s!"constructor '{c.name}' has too many fields"
-    if c.ssize + c.usize * usizeSize > maxCtorScalarsSize then
+    if !c.ssize + c.usize * usizeSize < maxCtorScalarsSize then
       throwCheckerError s!"constructor '{c.name}' has too many scalar fields"
     if c.isRef then
       checkObjType ty

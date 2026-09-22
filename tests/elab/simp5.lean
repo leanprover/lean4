@@ -33,7 +33,8 @@ info: theorem ex2 : ∀ (p : Nat → Bool) (x : Nat), p x = true → (if p x = t
 fun p x h =>
   of_eq_true
     (Eq.trans
-      (congrFun' (congrArg Eq (ite_cond_eq_true 1 2 (Eq.trans (congrFun' (congrArg Eq h) true) (eq_self true)))) 1)
+      (congrFun' (congrArg Eq (ite_eq_left_of_eq_true 1 2 (Eq.trans (congrFun' (congrArg Eq h) true) (eq_self true))))
+        1)
       (eq_self 1))
 -/
 #guard_msgs in

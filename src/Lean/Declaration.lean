@@ -299,7 +299,7 @@ structure InductiveVal extends ConstantVal where
   -/
   isReflexive : Bool
 
-  deriving Inhabited
+  deriving Inhabited, BEq
 
 @[export lean_mk_inductive_val]
 def mkInductiveValEx (name : Name) (levelParams : List Name) (type : Expr) (numParams numIndices : Nat)
@@ -369,12 +369,13 @@ structure RecursorVal extends ConstantVal where
   rules : List RecursorRule
   /-- It supports K-like reduction.
   A recursor is said to support K-like reduction if one can assume it behaves
-  like `Eq` under axiom `K` --- that is, it has one constructor, the constructor has 0 arguments,
-  and it is an inductive predicate (ie, it lives in Prop).
+  like `Eq` under axiom `K` --- that is, it is an inductive predicate (i.e., it lives in `Prop`),
+  it has exactly one constructor, and that constructor has 0 fields.
 
-  Examples of inductives with K-like reduction is `Eq`, `Acc`, and `And.intro`.
-  Non-examples are `exists` (where the constructor has arguments) and
-    `Or.intro` (which has multiple constructors).
+  Examples of inductives with K-like reduction are `Eq`, `HEq`, and `True`.
+  Non-examples include those with multiple constructors (like `Or`)
+  and those whose constructor has one or more fields (like `And`, `Exists`,
+  and `Nonempty').
   -/
   k : Bool
   isUnsafe : Bool
@@ -412,11 +413,11 @@ inductive QuotKind where
   | ctor  -- `Quot.mk`
   | lift  -- `Quot.lift`
   | ind   -- `Quot.ind`
-  deriving Inhabited
+  deriving Inhabited, BEq
 
 structure QuotVal extends ConstantVal where
   kind : QuotKind
-  deriving Inhabited
+  deriving Inhabited, BEq
 
 @[export lean_mk_quot_val]
 def mkQuotValEx (name : Name) (levelParams : List Name) (type : Expr) (kind : QuotKind) : QuotVal := {
@@ -435,7 +436,7 @@ inductive ConstantInfo where
   | inductInfo   (val : InductiveVal)
   | ctorInfo     (val : ConstructorVal)
   | recInfo      (val : RecursorVal)
-  deriving Inhabited
+  deriving Inhabited, BEq
 
 namespace ConstantInfo
 

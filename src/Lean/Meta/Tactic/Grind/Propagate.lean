@@ -346,13 +346,13 @@ builtin_grind_propagator propagateIte ↑ite := fun e => do
     let f := e.getAppFn
     let args := e.getAppArgs
     let rhs := args[3]!
-    let h := mkApp (mkAppRange (mkConst ``ite_cond_eq_true f.constLevels!) 0 5 args) (← mkEqTrueProof c)
+    let h := mkApp (mkAppRange (mkConst ``ite_eq_left_of_eq_true f.constLevels!) 0 5 args) (← mkEqTrueProof c)
     applyCongrFun e rhs h 5 args (ite := true)
   else if (← isEqFalse c) then
     let f := e.getAppFn
     let args := e.getAppArgs
     let rhs := args[4]!
-    let h := mkApp (mkAppRange (mkConst ``ite_cond_eq_false f.constLevels!) 0 5 args) (← mkEqFalseProof c)
+    let h := mkApp (mkAppRange (mkConst ``ite_eq_right_of_eq_false f.constLevels!) 0 5 args) (← mkEqFalseProof c)
     applyCongrFun e rhs h 5 args (ite := true)
 
 /-- Propagates `dite` upwards -/

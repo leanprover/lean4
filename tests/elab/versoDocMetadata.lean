@@ -24,7 +24,8 @@ partial def containsMetadataMatchingInline [Monad m] (inline : Doc.Inline ElabIn
   | .text .. | .image .. | .linebreak .. | .math .. | .code .. => pure false
   | .concat xs | .bold xs | .emph xs | .link xs _ | .footnote _ xs => xs.anyM (containsMetadataMatchingInline · p)
   | .other container content =>
-    p container.val <||> content.anyM (containsMetadataMatchingInline · p)
+    (match container with | .custom v => p v | .deferred _ => pure false) <||>
+      content.anyM (containsMetadataMatchingInline · p)
 
 
 partial def containsMetadataMatchingBlock [Monad m] (block : Doc.Block ElabInline ElabBlock) (p : Dynamic → m Bool) : m Bool :=
@@ -38,7 +39,8 @@ partial def containsMetadataMatchingBlock [Monad m] (block : Doc.Block ElabInlin
       dt.anyM (containsMetadataMatchingInline · p) <||> dd.anyM (containsMetadataMatchingBlock · p)
   | .para xs => xs.anyM (containsMetadataMatchingInline · p)
   | .other container content =>
-      p container.val <||> content.anyM (containsMetadataMatchingBlock · p)
+      (match container with | .custom v => p v | .deferred _ => pure false) <||>
+        content.anyM (containsMetadataMatchingBlock · p)
 
 partial def containsMetadataMatchingPart [Monad m] (part : Doc.Part ElabInline ElabBlock Empty) (p : Dynamic → m Bool) : m Bool :=
   part.title.anyM (containsMetadataMatchingInline · p) <||>

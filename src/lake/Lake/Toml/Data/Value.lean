@@ -6,7 +6,7 @@ Authors: Mac Malone
 module
 
 prelude
-public import Init.Data.Float
+public import Init.Data.Float.Float
 public import Lake.Toml.Data.Dict
 public import Lake.Toml.Data.DateTime
 import Lake.Util.String

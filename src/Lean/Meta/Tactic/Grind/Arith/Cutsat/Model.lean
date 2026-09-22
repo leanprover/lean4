@@ -27,13 +27,35 @@ private def getCutsatAssignment? (goal : Goal) (node : ENode) : IO (Option Rat) 
   else
     return none
 
+/--
+If `e` is a single embedding step — an accessor application (`Fin.val a`, `BitVec.toNat a`,
+`BitVec.toInt a`) or a conversion to `BitVec` (`a.toBitVec`) — returns `a`. The value of `e`
+determines the value of `a`. Unlike `isEmbeddingApp?`, chains such as `a.toBitVec.toNat` are
+not collapsed; callers resolve them one step at a time.
+-/
+def embeddingArg? (e : Expr) : Option Expr :=
+  match_expr e with
+  | Fin.val _ a => some a
+  | BitVec.toNat _ a => some a
+  | BitVec.toInt _ a => some a
+  | UInt8.toBitVec a => some a
+  | UInt16.toBitVec a => some a
+  | UInt32.toBitVec a => some a
+  | UInt64.toBitVec a => some a
+  | USize.toBitVec a => some a
+  | Int8.toBitVec a => some a
+  | Int16.toBitVec a => some a
+  | Int32.toBitVec a => some a
+  | Int64.toBitVec a => some a
+  | ISize.toBitVec a => some a
+  | _ => none
+
 private def natCastToInt? (e : Expr) : Option Expr :=
   match_expr e with
   | NatCast.natCast _ inst a =>
     let_expr instNatCastInt := inst | none
     some a
-  | Grind.ToInt.toInt _ _ _ a => some a
-  | _ => none
+  | _ => embeddingArg? e
 
 def getAssignment? (goal : Goal) (e : Expr) : MetaM (Option Rat) := do
   let node ← goal.getENode (← goal.getRoot e)
@@ -63,8 +85,12 @@ def mkModel (goal : Goal) : MetaM (Array (Expr × Rat)) := do
     if (← isIntNatENode node) then
       if let some v ← getAssignment? goal node.self then
         model := assignEqc goal node.self v model
-  -- Assign natCast and toInt terms
-  for e in goal.exprs do
+  /-
+  Assign `natCast` and embedding chains. Values flow from a term to its argument
+  (`↑(a.toBitVec.toNat)` to `a.toBitVec.toNat` to `a.toBitVec` to `a`), and `goal.exprs` is in internalization order
+  (subterms first), so the reverse traversal resolves the chains in one pass.
+  -/
+  for e in goal.exprs.toArray.reverse do
     let node ← goal.getENode e
     let i := node.self
     let some n := natCastToInt? i | pure ()

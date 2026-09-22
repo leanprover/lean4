@@ -89,7 +89,7 @@ private def mkPermInv (perm : Array Var) : Array Var := Id.run do
     inv := inv.set! perm[i] i
   return inv
 
-def _root_.Int.Linear.Poly.reorder (p : Poly) (old2new : Array Var) : Poly :=
+def _root_.Int.Internal.Linear.Poly.reorder (p : Poly) (old2new : Array Var) : Poly :=
   match p with
   | .num k => .num k
   | .add a x p => .add a old2new[x]! (p.reorder old2new)

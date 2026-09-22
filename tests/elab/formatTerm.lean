@@ -10,6 +10,28 @@ def fmt (stx : CoreM Syntax) : CoreM Format := do PrettyPrinter.ppTerm ⟨← st
 #eval fmt `(if c then do t else if c then do t else do e) -- FIXME: make this cascade better?
 #eval fmt `(do if c then t else e)
 #eval fmt `(do if c then t else if c then t else e)
+#eval fmt `(do for x in xs do pure ())
+#eval fmt `(do let mut acc := 0; for x in xs do acc := acc + x; return acc)
+#eval fmt `(do while c do pure ())
+#eval fmt `(do unless c do pure ())
+-- intrinsic-verification clauses: each on its own line under the loop or the `def`
+#eval fmt `(do assert 0 ≤ acc)
+#eval fmt `(do assert s => s ≤ acc)
+#eval fmt `(do for x in xs invariant pref suff => 0 ≤ acc do pure ())
+#eval fmt `(do for x in xs invariant pref suff s => s ≤ acc do pure ())
+#eval fmt `(do while i < n invariant _ => i ≤ n decreasing n - i do pure ())
+#eval fmt `(do repeat decreasing n - i do pure ())
+#eval fmt `(do repeat invariant exit => if exit then i = n else i ≤ n decreasing n - i do pure ())
+#eval fmt `(do repeat invariant _ => i ≤ n decreasing n - i do pure () until i = n)
+#eval fmt `(command| def clampLow (n lo : Nat) : Id Nat requires lo ≤ n ensures r => r = n := pure n)
+#eval fmt `(command| def k (x : Nat) requires s => s > x ensures r => r ≥ x := pure x)
+#eval fmt `(command| def g (x : Nat) requires x > 0 ensures r => r ≥ x := pure x)
+#eval fmt `(command| def m (x : Nat) requires x > 0 ensures (lo, hi) => lo ≤ hi := pure (x, x))
+#eval fmt `(command| def h (x : Nat) : Id Nat ensures r => r = x := pure x
+where finally
+  | spec => skip)
+#eval fmt `(command| def t (x : Nat) : Except String Nat requires x > 0 ensures r => r = x throws e => e = "err" := pure x)
+#eval fmt `(command| def t2 (x : Nat) ensures r s => r = x throws e s => e = "err" throws (e : Nat) s => e = x := pure x)
 
 #eval fmt `(def foo := by
   · skip; skip
@@ -65,3 +87,8 @@ def foo : a b c d e f g a b c d e f g h where
   1 = 1 := rfl)
 
 #eval fmt `(by rw [] at h)
+
+-- `erased` is its own declaration form beside `let` and `have`
+#eval fmt `(do erased trace := 0; pure ())
+#eval fmt `(do erased mut trace : List Nat := []; trace := x :: trace.out)
+#eval fmt `(do erased mut n ← counter)

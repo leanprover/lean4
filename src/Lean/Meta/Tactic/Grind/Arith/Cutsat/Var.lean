@@ -7,7 +7,6 @@ module
 prelude
 public import Lean.Meta.Tactic.Grind.Arith.Cutsat.Types
 import Lean.Meta.Tactic.Grind.Arith.Cutsat.Nat
-import Lean.Meta.Tactic.Grind.Arith.Cutsat.ToInt
 import Lean.Meta.IntInstTesters
 public section
 namespace Lean.Meta.Grind.Arith.Cutsat
@@ -84,7 +83,6 @@ def mkVarImpl (expr : Expr) : GoalM Var := do
   cutsatExt.markTerm expr
   assertNatCast expr var
   assertNonneg expr var
-  assertToIntBounds expr var
   if (← isNonlinearTerm expr) then
     registerNonlinearOccsAt expr var
   return var

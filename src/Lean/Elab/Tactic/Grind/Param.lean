@@ -10,7 +10,7 @@ import Lean.Meta.Tactic.Grind.ForallProp
 import Lean.Elab.Tactic.Grind.Anchor
 import Lean.Elab.SyntheticMVars
 namespace Lean.Elab.Tactic
-open Meta
+open Lean Meta
 
 /-!
 `grind` parameter elaboration
@@ -147,7 +147,7 @@ def processTermParam (params : Grind.Params)
   checkNoRevert params
   let kind ← if let some mod := mod? then Grind.getAttrKindCore mod else pure .infer
   let kind ← match kind with
-    | .ematch .user | .cases _ | .intro | .inj | .ext | .symbol _ | .funCC | .norm .. | .unfold =>
+    | .ematch .user | .cases _ | .intro | .inj | .ext | .symbol _ | .funCC | .norm .. | .unfold | .homo | .homoPred =>
       throwError "invalid `grind` parameter, only global declarations are allowed with this kind of modifier"
     | .ematch kind => pure kind
     | .infer => pure <| .default false
@@ -230,13 +230,13 @@ def processParam (params : Grind.Params)
   | .ematch kind =>
     params ← withRef p <| addEMatchTheorem params id declName kind minIndexable
   | .cases eager =>
-    if incremental then throwError "`cases` parameter are not supported here"
+    if incremental then throwError "`cases` parameter is not supported here"
     ensureNoMinIndexable minIndexable
     withRef p <| Grind.validateCasesAttr declName eager
     params := params.insertCasesTypes declName eager
   | .intro =>
     if let some info ← Grind.isCasesAttrPredicateCandidate? declName false then
-      if incremental then throwError "`cases` parameter are not supported here"
+      if incremental then throwError "`cases` parameter is not supported here"
       for ctor in info.ctors do
         params ← withRef p <| addEMatchTheorem params id ctor (.default false) minIndexable
     else
@@ -263,6 +263,8 @@ def processParam (params : Grind.Params)
   | .funCC =>
     params := params.insertFunCC declName
   | .norm .. => throwError "normalization theorems should be registered using the `@[grind norm]` attribute"
+  | .homo => throwError "homomorphism rules should be registered using the `@[grind hom]` attribute"
+  | .homoPred => throwError "homomorphism predicates should be registered using the `@[grind hom_pred]` attribute"
   | .unfold => throwError "declarations to be unfolded during normalization should be registered using the `@[grind unfold]` attribute"
   return params
 
@@ -279,7 +281,7 @@ public def elabGrindParams (params : Grind.Params) (ps : TSyntaxArray ``Parser.T
       match p with
       | `(Parser.Tactic.grindParam| - $id:ident) =>
         if incremental then
-          throwErrorAt p "invalid `-` occurrence, it can only used at the `grind` tactic entry point"
+          throwErrorAt p "invalid `-` occurrence, it can only be used at the `grind` tactic entry point"
         let declName ← realizeGlobalConstNoOverloadWithInfo id
         Term.checkDeprecatedCore declName
         if let some declName ← Grind.isCasesAttrCandidate? declName false then

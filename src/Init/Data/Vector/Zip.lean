@@ -190,7 +190,7 @@ theorem reverse_zipWith {f : α → β → γ} {as : Vector α n} {bs : Vector �
 @[simp, grind =]
 theorem getElem_zip {as : Vector α n} {bs : Vector β n} {i : Nat} {h : i < n} :
     (zip as bs)[i] = (as[i], bs[i]) :=
-  getElem_zipWith ..
+  getElem_zipWith h
 
 theorem zip_eq_zipWith {as : Vector α n} {bs : Vector β n} : zip as bs = zipWith Prod.mk as bs := by
   rcases as with ⟨as, rfl⟩

@@ -8,8 +8,9 @@ module
 prelude
 public import Std.Data.HashMap
 public import Std.Tactic.BVDecide.Bitblast.BVExpr.Basic
-public import Lean.Meta.AppBuilder
-public import Lean.Data.RArray
+import Lean.Data.RArray
+public import Lean.Meta.Sym.SymM
+public import Lean.Meta.Tactic.BVDecide.Normalize.Basic
 
 public section
 
@@ -132,6 +133,9 @@ structure Atom where
   -/
   synthetic : Bool
 
+structure Context where
+  hypotheses : Array Normalize.Hyp
+
 /--
 The state of the reflection monad
 -/
@@ -140,7 +144,7 @@ structure State where
   The atoms encountered so far. Saved as a map from `BitVec` expressions to a (width, atomNumber)
   pair.
   -/
-  atoms : Std.HashMap Expr Atom := {}
+  atoms : Std.HashMap Sym.ExprPtr Atom := {}
   /--
   A cache for `atomsAssignment`. If it is `none` the cache is currently invalidated as new atoms
   have been added since it was last updated, if it is `some` it must be consistent with the atoms
@@ -151,12 +155,12 @@ structure State where
   Cached calls to `evalsAtAtoms` of various reflection structures. Whenever `atoms` is modified
   this cache is invalidated as `evalsAtAtoms` relies on `atoms`.
   -/
-  evalsAtCache : Std.HashMap Expr (Option Expr) := {}
+  evalsAtCache : Std.HashMap Sym.ExprPtr (Option Expr) := {}
 
 /--
 The reflection monad, used to track `BitVec` variables that we see as we traverse the context.
 -/
-abbrev M := StateRefT State MetaM
+abbrev M := ReaderT Context StateRefT State Sym.SymM
 
 /--
 A reified version of an `Expr` representing a `BVExpr`.
@@ -181,11 +185,12 @@ structure ReifiedBVExpr where
   expr : Expr
 
 def ReifiedBVExpr.evalsAtAtoms (reified : ReifiedBVExpr) : M (Option Expr) := do
-  match (← get).evalsAtCache[reified.originalExpr]? with
+  let key := { expr := reified.originalExpr }
+  match (← get).evalsAtCache[key]? with
   | some hit => return hit
   | none =>
     let proof? ← reified.evalsAtAtoms'
-    modify fun s => { s with evalsAtCache :=  s.evalsAtCache.insert reified.originalExpr proof? }
+    modify fun s => { s with evalsAtCache :=  s.evalsAtCache.insert key proof? }
     return proof?
 
 /--
@@ -210,11 +215,12 @@ structure ReifiedBVPred where
   expr : Expr
 
 def ReifiedBVPred.evalsAtAtoms (reified : ReifiedBVPred) : M (Option Expr) := do
-  match (← get).evalsAtCache[reified.originalExpr]? with
+  let key := { expr := reified.originalExpr }
+  match (← get).evalsAtCache[key]? with
   | some hit => return hit
   | none =>
     let proof? ← reified.evalsAtAtoms'
-    modify fun s => { s with evalsAtCache :=  s.evalsAtCache.insert reified.originalExpr proof? }
+    modify fun s => { s with evalsAtCache :=  s.evalsAtCache.insert key proof? }
     return proof?
 
 /--
@@ -239,11 +245,12 @@ structure ReifiedBVLogical where
   expr : Expr
 
 def ReifiedBVLogical.evalsAtAtoms (reified : ReifiedBVLogical) : M (Option Expr) := do
-  match (← get).evalsAtCache[reified.originalExpr]? with
+  let key := { expr := reified.originalExpr }
+  match (← get).evalsAtCache[key]? with
   | some hit => return hit
   | none =>
     let proof? ← reified.evalsAtAtoms'
-    modify fun s => { s with evalsAtCache :=  s.evalsAtCache.insert reified.originalExpr proof? }
+    modify fun s => { s with evalsAtCache :=  s.evalsAtCache.insert key proof? }
     return proof?
 
 /--
@@ -267,17 +274,18 @@ structure SatAtBVLogical where
 namespace M
 
 /--
-Run a reflection computation as a `MetaM` one.
+Run a reflection computation as a `SymM` one.
 -/
-def run (m : M α) : MetaM α :=
-  m.run' { }
+def run (m : M α) (hypotheses : Array Normalize.Hyp) : Sym.SymM α := do
+  let hypotheses ← hypotheses.mapM fun hyp => return { hyp with type := ← Sym.shareCommon hyp.type }
+  ReaderT.run m { hypotheses } |>.run' {}
 
 /--
 Retrieve the atoms as pairs of their width and expression.
 -/
 def atoms : M (Array (Nat × Expr)) := do
   let sortedAtoms := (← getThe State).atoms.toArray.qsort (·.2.atomNumber < ·.2.atomNumber)
-  return sortedAtoms.map (fun (expr, {width, ..}) => (width, expr))
+  return sortedAtoms.map (fun (expr, {width, ..}) => (width, expr.expr))
 
 /--
 Retrieve a `BitVec.Assignment` representing the atoms we found so far.
@@ -293,7 +301,7 @@ where
       let ras := Lean.RArray.ofArray as h
       let packedType := mkConst ``BVExpr.PackedBitVec
       let pack := fun (width, expr) => mkApp2 (mkConst ``BVExpr.PackedBitVec.mk) (toExpr width) expr
-      let newAtomsAssignment ← ras.toExpr packedType pack
+      let newAtomsAssignment ← Sym.shareCommon <| ← ras.toExpr packedType pack
       modify fun s => { s with atomsAssignmentCache := some newAtomsAssignment }
       return newAtomsAssignment
     else
@@ -303,7 +311,8 @@ where
 Look up an expression in the atoms, recording it if it has not previously appeared.
 -/
 def lookup (e : Expr) (width : Nat) (synthetic : Bool) : M Nat := do
-  match (← getThe State).atoms[e]? with
+  let key := { expr := e }
+  match (← getThe State).atoms[key]? with
   | some atom =>
     if width != atom.width then
       panic! "The same atom occurs with different widths, this is a bug"
@@ -311,11 +320,11 @@ def lookup (e : Expr) (width : Nat) (synthetic : Bool) : M Nat := do
   | none =>
     trace[Meta.Tactic.bv] "New atom of width {width}, synthetic? {synthetic}: {e}"
     let ident ← modifyGetThe State fun s =>
-      let newAtom := { width, synthetic, atomNumber := s.atoms.size}
+      let newAtom := { width, synthetic, atomNumber := s.atoms.size }
       let newAtomNumber := s.atoms.size
       let s := {
         s with
-          atoms := s.atoms.insert e newAtom,
+          atoms := s.atoms.insert key newAtom,
           -- must clear the caches as they depend on `atoms`.
           atomsAssignmentCache := none
           evalsAtCache := {}
@@ -346,6 +355,9 @@ def simplifyTernaryProof (mkRefl : Expr → Expr) (fst : Expr) (fproof : Option 
   | none, some stproof => some (mkRefl fst, stproof)
   | none, none => none
 
+@[inline]
+def getHyps : M (Array Normalize.Hyp) := return (← read).hypotheses
+
 end M
 
 /--
@@ -359,15 +371,15 @@ structure LemmaState where
   /--
   Cache for reification of `BVExpr`.
   -/
-  bvExprCache : Std.HashMap Expr (Option ReifiedBVExpr) := {}
+  bvExprCache : Std.HashMap Sym.ExprPtr (Option ReifiedBVExpr) := {}
   /--
   Cache for reification of `BVPred`.
   -/
-  bvPredCache : Std.HashMap Expr (Option ReifiedBVPred) := {}
+  bvPredCache : Std.HashMap Sym.ExprPtr (Option ReifiedBVPred) := {}
   /--
   Cache for reification of `BVLogicalExpr`.
   -/
-  bvLogicalCache : Std.HashMap Expr (Option ReifiedBVLogical) := {}
+  bvLogicalCache : Std.HashMap Sym.ExprPtr (Option ReifiedBVLogical) := {}
 
 /--
 The lemma reflection monad. It extends the usual reflection monad `M` by adding the ability to
@@ -390,31 +402,34 @@ def addLemma (lemma : SatAtBVLogical) : LemmaM Unit := do
 @[specialize]
 def withBVExprCache (e : Expr) (f : Expr → LemmaM (Option ReifiedBVExpr)) :
     LemmaM (Option ReifiedBVExpr) := do
-  match (← get).bvExprCache[e]? with
+  let key := { expr := e }
+  match (← get).bvExprCache[key]? with
   | some hit => return hit
   | none =>
     let res ← f e
-    modify fun s => { s with bvExprCache := s.bvExprCache.insert e res }
+    modify fun s => { s with bvExprCache := s.bvExprCache.insert key res }
     return res
 
 @[specialize]
 def withBVPredCache (e : Expr) (f : Expr → LemmaM (Option ReifiedBVPred)) :
     LemmaM (Option ReifiedBVPred) := do
-  match (← get).bvPredCache[e]? with
+  let key := { expr := e }
+  match (← get).bvPredCache[key]? with
   | some hit => return hit
   | none =>
     let res ← f e
-    modify fun s => { s with bvPredCache := s.bvPredCache.insert e res }
+    modify fun s => { s with bvPredCache := s.bvPredCache.insert key res }
     return res
 
 @[specialize]
 def withBVLogicalCache (e : Expr) (f : Expr → LemmaM (Option ReifiedBVLogical)) :
     LemmaM (Option ReifiedBVLogical) := do
-  match (← get).bvLogicalCache[e]? with
+  let key := { expr := e }
+  match (← get).bvLogicalCache[key]? with
   | some hit => return hit
   | none =>
     let res ← f e
-    modify fun s => { s with bvLogicalCache := s.bvLogicalCache.insert e res }
+    modify fun s => { s with bvLogicalCache := s.bvLogicalCache.insert key res }
     return res
 
 end LemmaM

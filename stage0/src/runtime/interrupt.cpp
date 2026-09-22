@@ -54,6 +54,33 @@ void check_heartbeat() {
         throw_heartbeat_exception();
 }
 
+LEAN_THREAD_VALUE(size_t, g_max_rec_depth, 0);
+LEAN_THREAD_VALUE(size_t, g_rec_depth, 0);
+
+/* The kernel re-checks a fully elaborated term from scratch, without the caching, metavariable
+   assignments, and reducibility shortcuts the elaborator uses while building it incrementally. As a
+   result the kernel recurses substantially deeper than the elaborator did for the same term (stdlib
+   `grind`/`simp` proofs check several thousand levels deep). We therefore let the kernel reach a
+   generous multiple of the configured `maxRecDepth` before bailing out, so that code which fits
+   within `maxRecDepth` during elaboration is not rejected by the kernel. */
+static constexpr size_t g_kernel_rec_depth_factor = 16;
+
+void set_max_rec_depth(size_t max) { g_max_rec_depth = max; }
+size_t get_max_rec_depth() { return g_max_rec_depth; }
+
+LEAN_EXPORT scope_max_rec_depth::scope_max_rec_depth(size_t max) :
+    m_max(g_max_rec_depth, max), m_curr(g_rec_depth, 0) {}
+
+LEAN_EXPORT scope_rec_depth::scope_rec_depth() {
+    g_rec_depth++;
+    if (g_max_rec_depth > 0 && g_rec_depth > g_max_rec_depth * g_kernel_rec_depth_factor) {
+        g_rec_depth--;
+        throw stack_space_exception("type checker");
+    }
+}
+
+LEAN_EXPORT scope_rec_depth::~scope_rec_depth() { g_rec_depth--; }
+
 LEAN_THREAD_VALUE(lean_object *, g_cancel_tk, nullptr);
 
 LEAN_EXPORT scope_cancel_tk::scope_cancel_tk(lean_object * o):flet<lean_object *>(g_cancel_tk, o) {}

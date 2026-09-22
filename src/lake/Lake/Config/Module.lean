@@ -7,6 +7,7 @@ module
 
 prelude
 public import Lake.Config.LeanLib
+public import Lean.Compiler.Options
 
 namespace Lake
 open Lean System
@@ -110,11 +111,17 @@ public abbrev pkg (self : Module) : Package :=
 @[inline] public def ileanFile (self : Module) : FilePath :=
   self.leanLibPath "ilean"
 
+@[inline] public def irSigFile (self : Module) : FilePath :=
+  self.leanLibPath "ir.sig"
+
 @[inline] public def irFile (self : Module) : FilePath :=
   self.leanLibPath "ir"
 
 @[inline] public def traceFile (self : Module) : FilePath :=
   self.leanLibPath "trace"
+
+@[inline] public def irTraceFile (self : Module) : FilePath :=
+  self.leanLibPath "ir.trace"
 
 @[inline] public def irPath (ext : String) (self : Module) : FilePath :=
   self.filePath self.pkg.irDir ext
@@ -124,6 +131,9 @@ public abbrev pkg (self : Module) : Package :=
 
 @[inline] public def setupFile (self : Module) : FilePath :=
   self.irPath "setup.json"
+
+@[inline] public def irSetupFile (self : Module) : FilePath :=
+  self.irPath "irsetup.json"
 
 @[inline] public def cFile (self : Module) : FilePath :=
   self.irPath "c"
@@ -173,6 +183,12 @@ public def dynlibSuffix := "-1"
 @[inline] public def allowImportAll (self : Module) : Bool :=
   self.lib.allowImportAll
 
+@[inline] public def requiresModuleSystem (self : Module) : Bool :=
+  self.lib.requiresModuleSystem
+
+@[inline] public def allowNonModules (self : Module) : Bool :=
+  self.lib.allowNonModules
+
 @[inline] public def dynlibs (self : Module) : TargetArray Dynlib :=
   self.lib.dynlibs
 
@@ -181,6 +197,9 @@ public def dynlibSuffix := "-1"
 
 @[inline] public def leanOptions (self : Module) : LeanOptions :=
   self.lib.leanOptions
+
+@[inline] public def postponeCompile (self : Module) : Bool :=
+  Compiler.compiler.postponeCompile.get self.leanOptions.toOptions
 
 @[inline] public def leanArgs (self : Module) : Array String :=
   self.lib.leanArgs
@@ -200,11 +219,16 @@ public def dynlibSuffix := "-1"
 @[inline] public def weakLinkArgs (self : Module) : Array String :=
   self.lib.weakLinkArgs
 
-@[inline] public def leanIncludeDir? (self : Module) : Option FilePath :=
-  if self.pkg.bootstrap then some <| self.pkg.buildDir / "include" else none
+/-- **For internal use only.** -/
+@[inline, deprecated "Deprecated without replacement." (since := "2026-08-19")]
+public def leanIncludeDir? (self : Module) : Option FilePath :=
+  if self.pkg.bootstrap then some <| self.pkg.bootstrapIncludeDir else none
 
 @[inline] public def platformIndependent (self : Module) : Option Bool :=
   self.lib.platformIndependent
+
+@[inline] public def shouldPrecompileImports (self : Module) : Bool :=
+  self.lib.precompileImports
 
 @[inline] public def shouldPrecompile (self : Module) : Bool :=
   self.lib.precompileModules

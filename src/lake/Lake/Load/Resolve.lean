@@ -113,7 +113,8 @@ def Workspace.updateDepPkgs (self : Workspace) : Workspace :=
     let depPkgs := pkg.depIdxs.attach.map fun ⟨j, j_mem⟩ =>
       pkgs[j]'(h i i_lt |>.2 j j_mem)
     let pkgs' := pkgs.set i {pkg with depPkgs}
-    have h := by
+    have h : ∀ j, (h : j < pkgs'.size) →
+        pkgs'[j].wsIdx = j ∧ ∀ k ∈ pkgs'[j].depIdxs, k < pkgs'.size := by
       intro j j_lt
       simp only [Vector.getElem_set, Vector.size, pkgs', pkg]
       split
@@ -181,7 +182,7 @@ This function can be used to prove that Array-bounded recursion terminates.
 def guardBySize! [Pure m] [MonadError m] (as : Array α) : m (PLift (as.size ≤ Lean.maxSmallNat)) :=
   if h : as.size ≤ Lean.maxSmallNat then pure ⟨h⟩ else error "Array-bounded termination"
 
-/-
+/--
 Adds the package's dependencies to the workspace and then recursively vists
 each package in the dependency graph starting from `next`. Each dependency missing
 from the workspace is added to the workspace using the `resolve` function.
@@ -238,15 +239,32 @@ abbrev UpdateT := StateT (NameMap PackageEntry)
   x.run init
 
 /--
-Reuse manifest versions of root packages that should not be updated.
-Also, move the packages directory if its location has changed.
+Validates selective-update names and reuses manifest versions of root packages
+that should not be updated. Also moves the packages directory if its location
+has changed.
+
+If `toUpdate` is non-empty, each name must be a current root dependency or a
+package already present in the workspace manifest (matching is case-sensitive).
+Accepting manifest packages preserves `lake update <pkg>` after its `require`
+is removed, allowing the package to be removed from the manifest. Unknown names
+produce an error before materialization.
 -/
 def reuseManifest
   (ws : Workspace) (toUpdate : NameSet)
 : UpdateT LoggerIO PUnit := do
   let rootName := ws.root.prettyName
+  let validateNames (entries : Array PackageEntry) : UpdateT LoggerIO PUnit := do
+    unless toUpdate.isEmpty do
+      let mut known : NameSet :=
+        ws.root.depConfigs.foldl (fun s d => s.insert d.name) {}
+      for entry in entries do
+        known := known.insert entry.name
+      for name in toUpdate do
+        unless known.contains name do
+          error s!"unknown package `{name.toString (escape := false)}`"
   match (← Manifest.load ws.manifestFile |>.toBaseIO) with
   | .ok manifest =>
+    validateNames manifest.packages
     -- Reuse manifest versions
     unless toUpdate.isEmpty do
       manifest.packages.forM fun entry => do
@@ -264,6 +282,7 @@ def reuseManifest
         if let .error e ← doRename.toBaseIO then
           error s!"could not rename workspace packages directory: {e}"
   | .error (.noFileOrDirectory ..) =>
+    validateNames #[]
     logInfo s!"{rootName}: no previous manifest, creating one from scratch"
   | .error e =>
     unless toUpdate.isEmpty do
@@ -413,8 +432,8 @@ Updates the workspace, materializing and reconfiguring dependencies.
 Dependencies are updated to latest specific revision matching that in `require`
 (e.g., if the `require` is `@master`, update to latest commit on master) or
 removed if the `require` is removed.
-If `tuUpdate` is empty, all direct dependencies of the workspace's root will be
-updated and/or remove. Otherwise, only those specified will be updated.
+If `toUpdate` is empty, all direct dependencies of the workspace's root will be
+updated and/or removed. Otherwise, only those specified will be updated.
 
 If `updateToolchain := true`, the workspace's toolchain is also updated to the
 latest toolchain compatible with the root and its direct dependencies.
@@ -526,7 +545,8 @@ def Package.runPostUpdateHooks (pkg : Package) : LakeT LoggerIO PUnit := do
 Updates the workspace, writes the new Lake manifest, and runs package
 post-update hooks.
 
-See `Workspace.updateAndMaterializeCore` for details on the update process.
+See `reuseManifest` for selective-update name validation and
+`Workspace.updateAndMaterializeCore` for details on the update process.
 -/
 public def Workspace.updateAndMaterialize
   (ws : Workspace)

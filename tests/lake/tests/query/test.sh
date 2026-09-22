@@ -7,6 +7,11 @@ source ../common.sh
 # Test the behavior of `lake query`
 # ---
 
+echo "# SETUP"
+
+# Ensure modules are built
+test_run build lib
+
 echo "# COMMON TESTS"
 
 # Test failure to build a query-only target
@@ -19,6 +24,14 @@ test_eq '"foo"' query foo --json
 # Test querying imports
 test_eq "B" query +A:imports
 test_eq '["C","B"]' query +A:transImports --json
+
+# Test querying a module's setup JSON
+$LAKE query +A:setup --json | $LAKE env lean --run pretty.lean |
+  diff -u --strip-trailing-cr .lake/build/ir/A.setup.json -
+
+# Test querying a module's dependency hash
+match_text $($LAKE query +A:depHash) .lake/build/lib/lean/A.trace
+test_eq "\"$($LAKE query +A:depHash)\"" query +A:depHash --json
 
 # Test querying deps
 $LAKE query :deps | diff -u --strip-trailing-cr <(cat << 'EOF'

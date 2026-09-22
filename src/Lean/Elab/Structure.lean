@@ -1035,6 +1035,7 @@ where
                          numBinders, fvar := fieldFVar, default? := none,
                          binfo := view.binderInfo, paramInfoOverrides,
                          kind := StructFieldKind.newField }
+          Term.addTermInfo' view.nameId fieldFVar (isBinder := true)
           withExporting (isExporting := wasExporting) do
             go (i+1)
       | some info =>
@@ -1068,7 +1069,7 @@ where
                 go (i+1)
             | .autoParam _ =>
               if let some type := view.type? then
-                throwErrorAt type "Invalid field: Uexpected type for field `{view.name}` when setting auto-param tactic for inherited field"
+                throwErrorAt type "Invalid field: Unexpected type for field `{view.name}` when setting auto-param tactic for inherited field"
               unless view.binders.getArgs.isEmpty do
                 throwErrorAt view.binders "Invalid field: Unexpected binders for field `{view.name}` when setting auto-param tactic for inherited field"
               withExporting (isExporting := wasExporting) do
@@ -1565,30 +1566,32 @@ def elabStructureCommand : InductiveElabDescr where
                     if fieldInfo.kind.isInCtor then
                       enableRealizationsForConst fieldInfo.declName
                   if view.isClass then
-                    -- Set implicitReducible on subobject projections to class parents.
+                    -- Set instanceReducible on subobject projections to class parents.
                     -- mkProjections defers reducibility to addParentInstances, but
                     -- addParentInstances only handles direct parents. Subobject fields
                     -- for non-direct parents (grandparents promoted to constructor
-                    -- subobjects during diamond flattening) also need implicitReducible
+                    -- subobjects during diamond flattening) also need instanceReducible
                     -- to be unfoldable at .instances transparency.
                     for fieldInfo in fieldInfos do
                       if let .subobject parentName := fieldInfo.kind then
                         if isClass (← getEnv) parentName then
-                          setReducibilityStatus fieldInfo.declName .implicitReducible
+                          setReducibilityStatus fieldInfo.declName .instanceReducible
                     addParentInstances parentInfos
                   -- Add field docstrings here (after @[class] attribute is applied)
                   -- so that Verso docstrings can use the class.
                   for field in view.fields do
-                    -- may not exist if overriding inherited field
-                    if (← getEnv).contains field.declName then
-                      if let some (doc, isVerso) := field.modifiers.docString? then
-                        addDocStringOf isVerso field.declName field.binders doc
+                    withoutExporting (when := isPrivateName field.declName) do
+                      -- may not exist if overriding inherited field
+                      if (← getEnv).contains field.declName then
+                        if let some doc := field.modifiers.docString? then
+                          addDocString field.declName field.binders doc
                   -- Add terminfo after docstrings so hovers include the docstring.
                   withSaveInfoContext do
                     for field in view.fields do
-                      -- may not exist if overriding inherited field
-                      if (← getEnv).contains field.declName then
-                        Term.addTermInfo' field.ref (← mkConstWithLevelParams field.declName) (isBinder := true)
+                      withoutExporting (when := isPrivateName field.declName) do
+                        -- may not exist if overriding inherited field
+                        if (← getEnv).contains field.declName then
+                          Term.addTermInfo' field.ref (← mkConstWithLevelParams field.declName) (isBinder := true)
                     -- Add terminfo for parents now that all parent projections exist.
                     for parent in parents do
                       if parent.addTermInfo then

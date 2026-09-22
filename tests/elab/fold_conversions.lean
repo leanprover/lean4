@@ -164,11 +164,10 @@ set_option trace.Compiler.saveBase true in
 def u64ToUSize : USize := (300 : UInt64).toUSize
 
 /--
-trace: [Compiler.saveBase] size: 2
+trace: [Compiler.saveBase] size: 1
     def u64ToUSizeLarge : USize :=
       let _x.1 := 5000000000;
-      let _x.2 := UInt64.toUSize _x.1;
-      return _x.2
+      return _x.1
 -/
 #guard_msgs in
 set_option trace.Compiler.saveBase true in

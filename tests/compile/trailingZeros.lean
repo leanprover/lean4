@@ -15,6 +15,10 @@ example : Int.trailingZeros (-(3 <<< 500)) = 500 := rfl
 example (i : Int) : i.trailingZeros = i.natAbs.trailingZeros :=
   Int.trailingZeros_eq_natAbs i
 
+example : ¬ (16 : Int) ∣ 24 := Int.two_pow_trailingZeros_add_one_not_dvd (by decide)
+example : ¬ (16 : Int) ∣ -24 := Int.two_pow_trailingZeros_add_one_not_dvd (by decide)
+example : ¬ (2 : Int) ∣ 7 := Int.two_pow_trailingZeros_add_one_not_dvd (by decide)
+
 def check (odd k : Nat) : IO Unit := do
   let n := odd <<< k
   unless n.trailingZeros == k do

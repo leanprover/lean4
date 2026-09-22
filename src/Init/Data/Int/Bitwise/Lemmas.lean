@@ -235,6 +235,15 @@ theorem two_pow_trailingZeros_dvd {i : Int} (h : i ≠ 0) :
     exact Int.one_dvd _
 termination_by i.natAbs
 
+theorem two_pow_trailingZeros_add_one_not_dvd {i : Int} (h : i ≠ 0) :
+    ¬ 2 ^ (i.trailingZeros + 1) ∣ i := by
+  intro hdvd
+  have hodd := shiftRight_trailingZeros_mod_two h
+  simp only [shiftRight_eq_div_pow, Int.natCast_pow, Int.cast_ofNat_Int] at hodd
+  rw [Int.pow_succ] at hdvd
+  have heven := Int.emod_eq_zero_of_dvd (Int.dvd_ediv_of_mul_dvd hdvd)
+  omega
+
 theorem trailingZeros_shiftLeft {x : Int} (hx : x ≠ 0) (n : Nat) :
     trailingZeros (x <<< n) = x.trailingZeros + n := by
   have : NeZero x := ⟨hx⟩

@@ -190,9 +190,9 @@ partial def getMatchLoop (mctx : MetavarContext) (todo : Array Expr) (c : Trie Î
       let e     := resolveAssignedMVars mctx <| etaReduce todo.back!
       let todo  := todo.pop
       let first := cs[0] /- Recall that `Key.star` is the minimal key -/
-      /- We must always visit `Key.star` edges since they are wildcards.
-        Thus, `todo` is not used linearly when there is `Key.star` edge
-        and there is an edge for `k` and `k != Key.star`. -/
+        /- We must always visit `Key.star` edges since they are wildcards.
+          Thus, `todo` is not used linearly when there is `Key.star` edge
+          and there is an edge for `k` and `k != Key.star`. -/
       let result := if first.1 == .star then
           getMatchLoop mctx todo first.2 result
         else

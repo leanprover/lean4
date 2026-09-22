@@ -1304,8 +1304,10 @@ private def Context.setTransparency (ctx : Context) (transparency : Transparency
   { ctx with keyedConfig := ctx.keyedConfig.setTransparency transparency }
 
 @[inline] def withTransparency (mode : TransparencyMode) : n α → n α :=
-  -- We avoid `withConfig` for performance reasons.
-  mapMetaM <| withReader (·.setTransparency mode)
+  -- We avoid `withConfig` for performance reasons. `setTransparency` rebuilds `Config`,
+  -- `ConfigWithKey` and `Context`, so skip it when the mode is already in effect.
+  mapMetaM <| withReader fun ctx =>
+    if ctx.config.transparency == mode then ctx else ctx.setTransparency mode
 
 /-- `withDefault x` executes `x` using the default transparency setting. -/
 @[inline] def withDefault (x : n α) : n α :=
@@ -1338,8 +1340,7 @@ Recall that `.none < .reducible < .instances < .implicit < .default < .all`.
 -/
 @[inline] def withAtLeastTransparency (mode : TransparencyMode) : n α → n α :=
   mapMetaM <| withReader fun ctx =>
-    let modeOld := ctx.config.transparency
-    ctx.setTransparency <| if modeOld.lt mode then mode else modeOld
+    if ctx.config.transparency.lt mode then ctx.setTransparency mode else ctx
 
 /-- Execute `x` allowing `isDefEq` to assign synthetic opaque metavariables. -/
 @[inline] def withAssignableSyntheticOpaque (x : n α) : n α :=
@@ -2666,7 +2667,10 @@ def realizeValue [BEq α] [Hashable α] [TypeName α] [TypeName β] (forConst : 
 where
   -- similar to `wrapAsyncAsSnapshot` but not sufficiently so to share code
   realizeAndReport (realize : MetaM Dynamic) (coreCtx : Core.Context) env opts := do
-    let coreCtx := { coreCtx with options := opts }
+    let coreCtx := { coreCtx with
+      options := opts
+      optionFlags := .ofOptions opts, optionFlags_eq := rfl
+    }
     let act :=
       IO.FS.withIsolatedStreams (isolateStderr := Core.stderrAsMessages.get opts) (do
         -- catch all exceptions
@@ -2709,6 +2713,8 @@ achieve deterministic results despite the non-deterministic choice of which thre
 realization. In other words, the state after calling `realizeConst` is *as if* `realize` had been
 called immediately after `enableRealizationsForConst forConst`, though the effects of this call are
 visible only after calling `realizeConst`. See below for more details on the replayed effects.
+Consequently, if `realize` depends on multiple constants, `forConst` must be one whose realization
+environment contains all others; see `Environment.realizationEnvContains`.
 
 `realizeConst` cannot check what other data is captured in the `realize` closure,
 so it is best practice to extract it into a separate function and pay close attention to the passed
@@ -2767,6 +2773,7 @@ where
   realizeAndReport (coreCtx : Core.Context) env opts := do
     let coreCtx := { coreCtx with
       options := opts
+      optionFlags := .ofOptions opts, optionFlags_eq := rfl
       maxHeartbeats := Core.getMaxHeartbeats opts
     }
     let act :=
@@ -2816,8 +2823,7 @@ namespace PPContext
 def runCoreM {α : Type} (ppCtx : PPContext) (x : CoreM α) : IO α :=
   Prod.fst <$> x.toIO { options := ppCtx.opts, currNamespace := ppCtx.currNamespace
                         openDecls := ppCtx.openDecls
-                        fileName := "<PrettyPrinter>", fileMap := default
-                        diag     := getDiag ppCtx.opts }
+                        fileName := "<PrettyPrinter>", fileMap := default }
                       { env := ppCtx.env, ngen := { namePrefix := `_pp_uniq } }
 
 def runMetaM {α : Type} (ppCtx : PPContext) (x : MetaM α) : IO α :=
@@ -2829,6 +2835,9 @@ end PPContext
 Turns a `MetaM MessageData` into a `MessageData.lazy` which will run the monadic value.
 The optional array of expressions is used to set the `hasSyntheticSorry` fields, and should
 comprise the expressions that are included in the message data.
+
+Runs with the default `Meta.Config`. To preserve the caller’s configuration, capture it with
+`getConfig` and restore it inside `f` using `withConfig`.
 -/
 def MessageData.ofLazyM (f : MetaM MessageData) (es : Array Expr := #[]) : MessageData :=
   .lazy

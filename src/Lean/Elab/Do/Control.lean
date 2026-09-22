@@ -45,9 +45,8 @@ def ControlStack.stateT (baseMonadInfo : MonadInfo) (muts : Array MutVar) (σ : 
     -- `e : StateT σ m α`. Fetch the state tuple `s : σ` and apply it to `e`, `e.run s`.
     -- See also `StateT.monadControl.liftWith`.
     let mutExprs ← muts.mapM fun x => do
-      let defn ← getLocalDeclFromUserName x.getId
-      Term.addTermInfo' x.ident defn.toExpr
-      pure defn.toExpr
+      Term.addTermInfo' x.ident (← getFVarFromUserName x.getId)
+      x.stateValue
     let (tuple, tupleTy) ← mkProdMkN mutExprs baseMonadInfo.u
     unless ← isDefEq tupleTy σ do -- just for sanity; maybe delete in the future
       throwError "State tuple type mismatch: expected {σ}, got {tupleTy}. This is a bug in the `do` elaborator."
@@ -64,7 +63,7 @@ def ControlStack.stateT (baseMonadInfo : MonadInfo) (muts : Array MutVar) (σ : 
     base.restoreCont { resultName, resultType, k }
 where
   mutVarNames := muts.map (·.getId)
-  getσ := do mkProdN (← mutVarNames.mapM (LocalDecl.type <$> getLocalDeclFromUserName ·)) baseMonadInfo.u
+  getσ := do mkProdN (← muts.mapM (·.stateType)) baseMonadInfo.u
   stM α := return mkApp2 (mkConst ``Prod [baseMonadInfo.u, baseMonadInfo.u]) α (← getσ) -- NB: muts `σ` might have been refined by dependent pattern matches
 
 def ControlStack.optionT (baseMonadInfo : MonadInfo) (optionTWrapper casesOnWrapper : Name)
@@ -209,9 +208,8 @@ structure EffectForwarder where
 def EffectForwarder.ofCont (info : ControlInfo) (dec : DoElemCont) : DoElabM EffectForwarder := do
   let mi := (← read).monadInfo
   let reassignedMutVars := (← read).mutVars |>.filter (info.reassigns.contains ·.getId)
-  let reassignedMutVarNames := reassignedMutVars.map (·.getId)
   let ρ := (← getReturnCont).resultType
-  let σ ← mkProdN (← reassignedMutVarNames.mapM (LocalDecl.type <$> getLocalDeclFromUserName ·)) mi.u
+  let σ ← mkProdN (← reassignedMutVars.mapM (·.stateType)) mi.u
 
   let needEarlyReturn := if info.returnsEarly then some ρ else none
   let needBreak := info.breaks && (← getBreakCont).isSome

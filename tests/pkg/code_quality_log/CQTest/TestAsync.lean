@@ -2,11 +2,12 @@ import CQTest.Linters
 
 /-!
 Exercises capture of code quality entries in asynchronous mode (the default): every `def` makes
-the regular linter and the stateful linter log one entry each, which must land in that command's
-regular- and stateful-linter slots of `Command.State.codeQualityEntryTasks` and nowhere else.
-`hidden` is elaborated with the linter option disabled, so its slots must be empty. The counts
-come in triples per command (regular, module, stateful linters), starting with a triple of zeros
-for this module docstring command.
+the regular linter log an attributed and an unattributed entry and the stateful linter log one
+attributed entry. The entries are captured per command in `Command.State.codeQualityEntryTasks`,
+handed over to the command's snapshot, and merged into the final environment by `runFrontend`;
+`PrintEntries.lean` checks what was persisted for this module. `hidden` is elaborated with the
+linter option disabled, so only the unattributed `raw:` entry (which the option does not gate)
+is recorded for it.
 -/
 
 def a1 := 1
@@ -19,11 +20,9 @@ def hidden := 3
 set_option linter.cqTest true
 
 /--
-info: per-command entry counts: [0, 0, 0, 1, 0, 1, 1, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0]
----
-info: captured entries: [a1, stateful:a1:1, a2, stateful:a2:2]
+info: capture tasks in state: 0
 ---
 info: entries in current env: 0
 -/
 #guard_msgs in
-#inspect_cq_entries
+#inspect_cq_state

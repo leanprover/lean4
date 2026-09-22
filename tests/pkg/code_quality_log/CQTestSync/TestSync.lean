@@ -17,11 +17,9 @@ def hidden := 3
 set_option linter.cqTest true
 
 /--
-info: per-command entry counts: [0, 0, 0, 1, 0, 1, 1, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0]
----
-info: captured entries: [s1, stateful:s1:1, s2, stateful:s2:2]
+info: capture tasks in state: 0
 ---
 info: entries in current env: 0
 -/
 #guard_msgs in
-#inspect_cq_entries
+#inspect_cq_state

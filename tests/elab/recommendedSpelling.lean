@@ -36,28 +36,28 @@ def findDocString? (n : Lean.Name) : Lean.MetaM (Option String) := do
 
 /--
 info: some
-  "Conjunction\n\nSecond line\n\n\nConventions for notations in identifiers:\n\n * The recommended spelling of `☃` in identifiers is `snowmand`.\n\n * The recommended spelling of `☋` in identifiers is `orbitalAnd`.\n\n   the preferred notation is `∧`.\n\n   more stuff\n\n   even more stuff\n\n   hello"
+  "Conjunction\n\nSecond line\n\nConventions for notations in identifiers:\n\n * The recommended spelling of `☃` in identifiers is `snowmand`.\n\n * The recommended spelling of `☋` in identifiers is `orbitalAnd`.\n\n   the preferred notation is `∧`.\n\n   more stuff\n\n   even more stuff\n\n   hello"
 -/
 #guard_msgs in
 #eval findDocString? `MyAnd
 
 /--
 info: some
-  "Conjunction\n\nSecond line\n\n\nConventions for notations in identifiers:\n\n * The recommended spelling of `☃` in identifiers is `snowmand`.\n\n * The recommended spelling of `something` in identifiers is `and` (Docstring)."
+  "Conjunction\n\nSecond line\n\nConventions for notations in identifiers:\n\n * The recommended spelling of `☃` in identifiers is `snowmand`.\n\n * The recommended spelling of `something` in identifiers is `and` (Docstring)."
 -/
 #guard_msgs in
 #eval findDocString? `«term_☃_»
 
 /--
 info: some
-  "Conjunction\n\nSecond line\n\n\nConventions for notations in identifiers:\n\n * The recommended spelling of `☋` in identifiers is `orbitalAnd`.\n\n   the preferred notation is `∧`.\n\n   more stuff\n\n   even more stuff\n\n   hello\n\n\n\n\n * The recommended spelling of `something` in identifiers is `and` (Docstring)."
+  "Conjunction\n\nSecond line\n\nConventions for notations in identifiers:\n\n * The recommended spelling of `☋` in identifiers is `orbitalAnd`.\n\n   the preferred notation is `∧`.\n\n   more stuff\n\n   even more stuff\n\n   hello\n\n\n * The recommended spelling of `something` in identifiers is `and` (Docstring)."
 -/
 #guard_msgs in
 #eval findDocString? `«term_☋_»
 
 /--
 info: some
-  "`And a b`, or `a ∧ b`, is the conjunction of propositions. It can be\nconstructed and destructed like a pair: if `ha : a` and `hb : b` then\n`⟨ha, hb⟩ : a ∧ b`, and if `h : a ∧ b` then `h.left : a` and `h.right : b`.\n\n\nConventions for notations in identifiers:\n\n * The recommended spelling of `∧` in identifiers is `and`.\n\n * The recommended spelling of `🥤` in identifiers is `bland`."
+  "`And a b`, or `a ∧ b`, is the conjunction of propositions. It can be\nconstructed and destructed like a pair: if `ha : a` and `hb : b` then\n`⟨ha, hb⟩ : a ∧ b`, and if `h : a ∧ b` then `h.left : a` and `h.right : b`.\n\nConventions for notations in identifiers:\n\n * The recommended spelling of `∧` in identifiers is `and`.\n\n * The recommended spelling of `🥤` in identifiers is `bland`."
 -/
 #guard_msgs in
 #eval findDocString? `And

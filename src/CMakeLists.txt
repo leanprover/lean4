@@ -8,7 +8,7 @@ endif()
 include(ExternalProject)
 project(LEAN CXX C)
 set(LEAN_VERSION_MAJOR 4 CACHE STRING "")
-set(LEAN_VERSION_MINOR 35 CACHE STRING "")
+set(LEAN_VERSION_MINOR 36 CACHE STRING "")
 set(LEAN_VERSION_PATCH 0 CACHE STRING "")
 set(LEAN_VERSION_IS_RELEASE 0 CACHE STRING "") # This number is 1 in the release revision, and 0 otherwise.
 set(LEAN_SPECIAL_VERSION_DESC "" CACHE STRING "Additional version description like 'nightly-2018-03-11'")
@@ -104,7 +104,6 @@ option(CUSTOM_ALLOCATORS "CUSTOM_ALLOCATORS" ON)
 option(SAVE_SNAPSHOT "SAVE_SNAPSHOT" ON)
 option(SAVE_INFO "SAVE_INFO" ON)
 option(MMAP "MMAP" ON)
-option(LAZY_RC "LAZY_RC" OFF)
 option(RUNTIME_STATS "RUNTIME_STATS" OFF)
 option(BSYMBOLIC "Link with -Bsymbolic to reduce call overhead in shared libraries (Linux)" ON)
 option(USE_GMP "USE_GMP" ON)
@@ -137,10 +136,6 @@ option(WFAIL "Fail build if warnings are emitted by Lean" ON)
 if(WFAIL MATCHES "ON")
   string(APPEND LEAN_EXTRA_LAKE_OPTS " --wfail")
   string(APPEND LEAN_EXTRA_MAKE_OPTS " -DwarningAsError=true")
-endif()
-
-if(LAZY_RC MATCHES "ON")
-  set(LEAN_LAZY_RC "#define LEAN_LAZY_RC")
 endif()
 
 if(USE_MIMALLOC)
@@ -219,6 +214,12 @@ string(APPEND LEANC_EXTRA_CC_FLAGS " -fstack-clash-protection")
 # Disable contraction of floating-point operations to ensure predictable semantics
 string(APPEND LEANC_EXTRA_CC_FLAGS " -ffp-contract=off")
 string(APPEND LEAN_EXTRA_CXX_FLAGS " -ffp-contract=off")
+
+# On Windows we want to disable writing COFF object file time stamps.
+# LLVM 23 seems to have a regression in this regard.
+if(CMAKE_SYSTEM_NAME MATCHES "Windows")
+  string(APPEND LEANC_EXTRA_CC_FLAGS " -mno-incremental-linker-compatible")
+endif()
 
 if(NOT MULTI_THREAD)
   message(STATUS "Disabled multi-thread support, it will not be safe to run multiple threads in parallel")
@@ -535,6 +536,11 @@ if(CMAKE_SYSTEM_NAME MATCHES "Darwin")
   set(LEAN_CXX_STDLIB "-lc++")
 endif()
 
+if(CADICAL_LIB)
+  string(APPEND TOOLCHAIN_STATIC_LINKER_FLAGS " -lcadical")
+  string(APPEND TOOLCHAIN_SHARED_LINKER_FLAGS " -lcadical")
+endif()
+
 string(APPEND TOOLCHAIN_STATIC_LINKER_FLAGS " ${LEAN_CXX_STDLIB}")
 string(APPEND TOOLCHAIN_SHARED_LINKER_FLAGS " ${LEAN_CXX_STDLIB}")
 
@@ -544,8 +550,8 @@ if(NOT LEAN_STANDALONE)
   string(APPEND CMAKE_EXE_LINKER_FLAGS " ${LEAN_CXX_STDLIB}")
 endif()
 
-# flags for user binaries = flags for toolchain binaries + Lake
-set(LEANC_STATIC_LINKER_FLAGS " ${TOOLCHAIN_STATIC_LINKER_FLAGS} -lLake")
+# flags for user binaries = flags for toolchain binaries + Lake (and deps)
+set(LEANC_STATIC_LINKER_FLAGS " ${TOOLCHAIN_STATIC_LINKER_FLAGS} -lLake -lLeanExport")
 if(CMAKE_SYSTEM_NAME MATCHES "Linux")
   set(LEANC_SHARED_LINKER_FLAGS " ${TOOLCHAIN_SHARED_LINKER_FLAGS} -Wl,--as-needed -lLake_shared -Wl,--no-as-needed")
 else()
@@ -607,7 +613,7 @@ if(CMAKE_SYSTEM_NAME MATCHES "Linux")
   string(APPEND LEANSHARED_LINKER_FLAGS " -Wl,-soname=libleanshared.so")
   string(
     APPEND LAKESHARED_LINKER_FLAGS
-    " -Wl,--whole-archive ${CMAKE_BINARY_DIR}/lib/lean/libLake.a.export -Wl,--no-whole-archive -Wl,-soname=libLake_shared.so"
+    " -Wl,--whole-archive ${CMAKE_BINARY_DIR}/lib/lean/libLake.a.export -Wl,--no-whole-archive ${CMAKE_BINARY_DIR}/lib/lean/libLeanExport.a.export -Wl,-soname=libLake_shared.so"
   )
   string(APPEND CMAKE_EXE_LINKER_FLAGS " -Wl,-rpath=$ORIGIN/../lib:$ORIGIN/../lib/lean")
 elseif(CMAKE_SYSTEM_NAME MATCHES "Darwin")
@@ -618,7 +624,7 @@ elseif(CMAKE_SYSTEM_NAME MATCHES "Darwin")
   string(APPEND LEANSHARED_LINKER_FLAGS " -install_name @rpath/libleanshared.dylib")
   string(
     APPEND LAKESHARED_LINKER_FLAGS
-    " -Wl,-force_load,${CMAKE_BINARY_DIR}/lib/lean/libLake.a.export -install_name @rpath/libLake_shared.dylib"
+    " -Wl,-force_load,${CMAKE_BINARY_DIR}/lib/lean/libLake.a.export ${CMAKE_BINARY_DIR}/lib/lean/libLeanExport.a.export -install_name @rpath/libLake_shared.dylib"
   )
   string(APPEND CMAKE_EXE_LINKER_FLAGS " -Wl,-rpath,@executable_path/../lib -Wl,-rpath,@executable_path/../lib/lean")
 elseif(CMAKE_SYSTEM_NAME MATCHES "Emscripten")
@@ -627,7 +633,7 @@ elseif(CMAKE_SYSTEM_NAME MATCHES "Emscripten")
 elseif(CMAKE_SYSTEM_NAME MATCHES "Windows")
   string(
     APPEND LAKESHARED_LINKER_FLAGS
-    " -Wl,--out-implib,${CMAKE_BINARY_DIR}/lib/lean/libLake_shared.dll.a -Wl,--whole-archive ${CMAKE_BINARY_DIR}/lib/lean/libLake.a.export -Wl,--no-whole-archive"
+    " -Wl,--out-implib,${CMAKE_BINARY_DIR}/lib/lean/libLake_shared.dll.a -Wl,--whole-archive ${CMAKE_BINARY_DIR}/lib/lean/libLake.a.export -Wl,--no-whole-archive ${CMAKE_BINARY_DIR}/lib/lean/libLeanExport.a.export"
   )
 endif()
 
@@ -681,12 +687,14 @@ execute_process(
 # Fallback for jj workspaces where git cannot find .git directly.
 # Use `jj git root` to find the backing git repo, then `jj log` to
 # resolve the current workspace's commit (git HEAD points to the root
-# workspace, not the current one).
+# workspace, not the current one). Both pass `--ignore-working-copy`, as a
+# snapshot writes a jj operation that races any jj command run during
+# configure; `@` is then as of the last jj command.
 if("${LAKE_LEAN_GITHASH}" STREQUAL "")
   find_program(JJ_EXECUTABLE jj)
   if(JJ_EXECUTABLE)
     execute_process(
-      COMMAND "${JJ_EXECUTABLE}" git root
+      COMMAND "${JJ_EXECUTABLE}" --ignore-working-copy git root
       WORKING_DIRECTORY "${CMAKE_CURRENT_SOURCE_DIR}"
       OUTPUT_VARIABLE _jj_git_dir
       OUTPUT_STRIP_TRAILING_WHITESPACE
@@ -694,7 +702,7 @@ if("${LAKE_LEAN_GITHASH}" STREQUAL "")
       RESULT_VARIABLE _jj_git_root_result
     )
     execute_process(
-      COMMAND "${JJ_EXECUTABLE}" log -r @ --no-graph -T "commit_id"
+      COMMAND "${JJ_EXECUTABLE}" --ignore-working-copy log -r @ --no-graph -T "commit_id"
       WORKING_DIRECTORY "${CMAKE_CURRENT_SOURCE_DIR}"
       OUTPUT_VARIABLE _jj_commit
       OUTPUT_STRIP_TRAILING_WHITESPACE
@@ -831,12 +839,12 @@ if(STAGE GREATER 1)
   add_custom_target(
     copy-leancpp
     COMMAND
-      cmake -E copy_if_different "${PREV_STAGE}/runtime/libleanrt_initial-exec.a"
+      ${CMAKE_COMMAND} -E copy_if_different "${PREV_STAGE}/runtime/libleanrt_initial-exec.a"
       "${CMAKE_BINARY_DIR}/runtime/libleanrt_initial-exec.a"
-    COMMAND cmake -E copy_if_different "${PREV_STAGE}/lib/lean/libleanrt.a" "${CMAKE_BINARY_DIR}/lib/lean/libleanrt.a"
-    COMMAND cmake -E copy_if_different "${PREV_STAGE}/lib/lean/libleancpp.a" "${CMAKE_BINARY_DIR}/lib/lean/libleancpp.a"
+    COMMAND ${CMAKE_COMMAND} -E copy_if_different "${PREV_STAGE}/lib/lean/libleanrt.a" "${CMAKE_BINARY_DIR}/lib/lean/libleanrt.a"
+    COMMAND ${CMAKE_COMMAND} -E copy_if_different "${PREV_STAGE}/lib/lean/libleancpp.a" "${CMAKE_BINARY_DIR}/lib/lean/libleancpp.a"
     COMMAND
-      cmake -E copy_if_different "${PREV_STAGE}/lib/temp/libleancpp_1.a" "${CMAKE_BINARY_DIR}/lib/temp/libleancpp_1.a"
+      ${CMAKE_COMMAND} -E copy_if_different "${PREV_STAGE}/lib/temp/libleancpp_1.a" "${CMAKE_BINARY_DIR}/lib/temp/libleancpp_1.a"
   )
   add_dependencies(leanrt_initial-exec copy-leancpp)
   add_dependencies(leanrt copy-leancpp)
@@ -845,7 +853,7 @@ if(STAGE GREATER 1)
   if(LLVM)
     add_custom_target(
       copy-lean-h-bc
-      COMMAND cmake -E copy_if_different "${PREV_STAGE}/lib/lean/lean.h.bc" "${CMAKE_BINARY_DIR}/lib/lean/lean.h.bc"
+      COMMAND ${CMAKE_COMMAND} -E copy_if_different "${PREV_STAGE}/lib/lean/lean.h.bc" "${CMAKE_BINARY_DIR}/lib/lean/lean.h.bc"
     )
     add_dependencies(leancpp copy-lean-h-bc)
   endif()
@@ -877,15 +885,26 @@ endif()
 if(STAGE GREATER 0 AND CADICAL AND INSTALL_CADICAL)
   add_custom_target(
     copy-cadical
-    COMMAND cmake -E copy_if_different "${CADICAL}" "${CMAKE_BINARY_DIR}/bin/cadical${CMAKE_EXECUTABLE_SUFFIX}"
+    COMMAND ${CMAKE_COMMAND} -E copy_if_different "${CADICAL}" "${CMAKE_BINARY_DIR}/bin/cadical${CMAKE_EXECUTABLE_SUFFIX}"
   )
   add_dependencies(leancpp copy-cadical)
+endif()
+
+if(CADICAL_LIB)
+  set(CADICAL_LIB_DEP "${CMAKE_BINARY_DIR}/lib/lean/libcadical.a")
+  add_custom_target(
+    copy-cadical-lib
+    COMMAND ${CMAKE_COMMAND} -E make_directory "${CMAKE_BINARY_DIR}/lib/lean"
+    COMMAND ${CMAKE_COMMAND} -E copy_if_different "${CADICAL_LIB}" "${CADICAL_LIB_DEP}"
+  )
+  add_dependencies(leanrt copy-cadical-lib)
+  add_dependencies(leanrt_initial-exec copy-cadical-lib)
 endif()
 
 if(LEANTAR AND INSTALL_LEANTAR)
   add_custom_target(
     copy-leantar
-    COMMAND cmake -E copy_if_different "${LEANTAR}" "${CMAKE_BINARY_DIR}/bin/leantar${CMAKE_EXECUTABLE_SUFFIX}"
+    COMMAND ${CMAKE_COMMAND} -E copy_if_different "${LEANTAR}" "${CMAKE_BINARY_DIR}/bin/leantar${CMAKE_EXECUTABLE_SUFFIX}"
   )
   add_dependencies(leancpp copy-leantar)
 endif()
@@ -922,6 +941,7 @@ set(
   Init
   Std
   Lean
+  LeanExport
   Leanc
   LeanIR
 )
@@ -1026,6 +1046,86 @@ if(NOT CMAKE_SYSTEM_NAME MATCHES "Emscripten")
     VERBATIM
   )
 
+  # NOTE: uses toolchain from contained `lean-toolchain` so bumps are necessary only on kernel
+  # interface changes. Not in `ALL` as it's expensive; release CI builds it explicitly.
+  ExternalProject_Add(
+    lean4lean
+    PREFIX lean4lean
+    EXCLUDE_FROM_ALL ON
+    GIT_REPOSITORY https://github.com/Kha/lean4lean
+    GIT_TAG lean4-bundle-4.35
+    PATCH_COMMAND bash ${LEAN_SOURCE_DIR}/../script/lean4lean-minimal-init.sh
+    CONFIGURE_COMMAND ""
+    BUILD_COMMAND lake build lean4lean
+    BUILD_IN_SOURCE ON
+    INSTALL_COMMAND
+      ${CMAKE_COMMAND} -E copy .lake/build/bin/lean4lean${CMAKE_EXECUTABLE_SUFFIX}
+      ${CMAKE_BINARY_DIR}/bin
+  )
+
+  # `cargo` links with whatever `cc` is on `PATH`. In a standalone build, link the Rust checkers through `leanc`
+  # instead so that they bind to the bundled glibc and the default ELF interpreter like every other shipped binary.
+  set(CARGO_LINK_WITH_LEANC OFF)
+  set(CARGO_BUILD_ENV)
+  if(LEAN_STANDALONE AND CMAKE_SYSTEM_NAME STREQUAL "Linux" AND STAGE GREATER 0)
+    set(CARGO_LINK_WITH_LEANC ON)
+    string(TOUPPER "${CMAKE_SYSTEM_PROCESSOR}_unknown_linux_gnu" CARGO_RUST_TARGET)
+    set(CARGO_BUILD_ENV ${CMAKE_COMMAND} -E env "CARGO_TARGET_${CARGO_RUST_TARGET}_LINKER=${CMAKE_BINARY_DIR}/bin/leanc")
+  endif()
+
+  # Not in `ALL` as it's expensive; release CI builds it explicitly.
+  ExternalProject_Add(
+    nanoda
+    PREFIX nanoda
+    EXCLUDE_FROM_ALL ON
+    GIT_REPOSITORY https://github.com/ammkrn/nanoda_lib
+    GIT_TAG 4c544ed4099c8227f07d5de77ad1e69fb0740a27
+    CONFIGURE_COMMAND ""
+    BUILD_COMMAND ${CARGO_BUILD_ENV} cargo build --release --locked
+    BUILD_IN_SOURCE ON
+    INSTALL_COMMAND
+      ${CMAKE_COMMAND} -E copy target/release/nanoda_bin${CMAKE_EXECUTABLE_SUFFIX}
+      ${CMAKE_BINARY_DIR}/bin
+  )
+  if(CARGO_LINK_WITH_LEANC)
+    add_dependencies(nanoda leanc)
+  endif()
+
+  # Not in `ALL` as it's expensive; release CI builds it explicitly.
+  ExternalProject_Add(
+    con-leche
+    PREFIX con-leche
+    EXCLUDE_FROM_ALL ON
+    GIT_REPOSITORY https://github.com/leanprover/con-leche
+    GIT_TAG b46cb0e6138d975e657857526839a3c7d8a1df20
+    CONFIGURE_COMMAND ""
+    BUILD_COMMAND lake build con-leche
+    BUILD_IN_SOURCE ON
+    INSTALL_COMMAND
+      ${CMAKE_COMMAND} -E copy .lake/build/bin/con-leche${CMAKE_EXECUTABLE_SUFFIX}
+      ${CMAKE_BINARY_DIR}/bin
+  )
+
+  # Not in `ALL` as it's expensive; release CI builds it explicitly. Its only submodule is the
+  # Aeneas verifier, which the binary does not need.
+  ExternalProject_Add(
+    con-ron
+    PREFIX con-ron
+    EXCLUDE_FROM_ALL ON
+    GIT_REPOSITORY https://github.com/leanprover/con-ron
+    GIT_TAG cb54c9a4e5f604a678b0230f96b8358b9fd73c82
+    GIT_SUBMODULES ""
+    CONFIGURE_COMMAND ""
+    BUILD_COMMAND ${CARGO_BUILD_ENV} cargo build --release --locked
+    BUILD_IN_SOURCE ON
+    INSTALL_COMMAND
+      ${CMAKE_COMMAND} -E copy target/release/con-ron${CMAKE_EXECUTABLE_SUFFIX}
+      ${CMAKE_BINARY_DIR}/bin
+  )
+  if(CARGO_LINK_WITH_LEANC)
+    add_dependencies(con-ron leanc)
+  endif()
+
   # Not `ALL` as it's big; release CI builds it explicitly.
   if(USE_MIMALLOC)
     add_custom_target(
@@ -1051,6 +1151,7 @@ endif()
 
 if(NOT CMAKE_SYSTEM_NAME MATCHES "Emscripten")
   add_custom_target(leanir ALL DEPENDS leanshared COMMAND $(MAKE) -f ${CMAKE_BINARY_DIR}/stdlib.make leanir VERBATIM)
+  add_custom_target(leanexport ALL DEPENDS leanshared COMMAND $(MAKE) -f ${CMAKE_BINARY_DIR}/stdlib.make leanexport VERBATIM)
 endif()
 
 # use Bash version for building, use Lean version in bin/ for tests & distribution

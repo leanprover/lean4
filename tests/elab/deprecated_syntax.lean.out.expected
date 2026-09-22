@@ -1,4 +1,4 @@
-deprecated_syntax.lean:9:7-9:26: warning: macro 'Lean.Parser.Term.paren' produces deprecated syntax 'Lean.Parser.Term.let_fun': use `have` instead
+deprecated_syntax.lean:9:8-9:25: warning: syntax 'Lean.Parser.Term.let_fun' has been deprecated: use `have` instead
 
 Note: This linter can be disabled with `set_option linter.deprecated.syntax false`
 have x := 1;

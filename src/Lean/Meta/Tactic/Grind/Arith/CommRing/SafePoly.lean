@@ -7,7 +7,7 @@ module
 prelude
 public import Lean.Meta.Tactic.Grind.Arith.CommRing.RingM
 public import Lean.Meta.Sym.Arith.Poly
-import Lean.Meta.Tactic.Grind.Arith.EvalNum
+import Lean.Meta.Sym.Arith.EvalNum
 import Init.Data.Nat.Internal.Linear
 public section
 namespace Lean.Meta.Grind.Arith.CommRing
@@ -77,7 +77,7 @@ private def toPoly (e : RingExpr) : OptionT RingM Poly := do
       return .num 1
     else match a with
     | .num n =>
-      guard (← checkExp k |>.run).isSome
+      guard (← Sym.Arith.checkExp k |>.run).isSome
       return .num (← applyChar (n^k))
     | .var x => return .ofMon (.mult {x, k} .unit)
     | _ => pow (← toPoly a) k
@@ -121,7 +121,7 @@ def _root_.Lean.Grind.CommRing.Mon.findInvNumeralVar? (m : Mon) : RingM (Option 
   match m with
   | .unit => return none
   | .mult pw m =>
-    let e := (← getRing).vars[pw.x]!
+    let e := (← getRingState).vars[pw.x]!
     let_expr Inv.inv _ _ a := e | m.findInvNumeralVar?
     let_expr OfNat.ofNat _ n _ := a | m.findInvNumeralVar?
     let some n ← getNatValue? n | m.findInvNumeralVar?

@@ -13,14 +13,18 @@
 #ifdef __cplusplus
 extern "C" {
 #endif
+LEAN_EXPORT lean_object* l_String_Slice_Pattern_Model_CharPred_instPatternModelForallCharBool___redArg();
+LEAN_EXPORT lean_object* l_String_Slice_Pattern_Model_CharPred_instPatternModelForallCharBool___redArg___boxed(lean_object*);
 LEAN_EXPORT lean_object* l_String_Slice_Pattern_Model_CharPred_instPatternModelForallCharBool(lean_object*);
 LEAN_EXPORT lean_object* l_String_Slice_Pattern_Model_CharPred_instPatternModelForallCharBool___boxed(lean_object*);
+LEAN_EXPORT lean_object* l_String_Slice_Pattern_Model_CharPred_Decidable_instPatternModelForallCharPropOfDecidablePred___redArg();
+LEAN_EXPORT lean_object* l_String_Slice_Pattern_Model_CharPred_Decidable_instPatternModelForallCharPropOfDecidablePred___redArg___boxed(lean_object*);
 LEAN_EXPORT lean_object* l_String_Slice_Pattern_Model_CharPred_Decidable_instPatternModelForallCharPropOfDecidablePred(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_String_Slice_Pattern_Model_CharPred_Decidable_instPatternModelForallCharPropOfDecidablePred___boxed(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l___private_Init_Data_String_Lemmas_Pattern_Pred_0__String_Slice_Pos_skipWhile_match__1_splitter___redArg(lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l___private_Init_Data_String_Lemmas_Pattern_Pred_0__String_Slice_Pos_skipWhile_match__1_splitter(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l___private_Init_Data_String_Lemmas_Pattern_Pred_0__String_Slice_Pos_skipWhile_match__1_splitter___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
-LEAN_EXPORT lean_object* l_String_Slice_Pattern_Model_CharPred_instPatternModelForallCharBool(lean_object* v_p_1_){
+LEAN_EXPORT lean_object* l_String_Slice_Pattern_Model_CharPred_instPatternModelForallCharBool___redArg(){
 _start:
 {
 lean_object* v___x_2_; 
@@ -28,85 +32,117 @@ v___x_2_ = lean_box(0);
 return v___x_2_;
 }
 }
-LEAN_EXPORT lean_object* l_String_Slice_Pattern_Model_CharPred_instPatternModelForallCharBool___boxed(lean_object* v_p_3_){
+LEAN_EXPORT lean_object* l_String_Slice_Pattern_Model_CharPred_instPatternModelForallCharBool___redArg___boxed(lean_object* v___dummy_3_){
 _start:
 {
 lean_object* v_res_4_; 
-v_res_4_ = l_String_Slice_Pattern_Model_CharPred_instPatternModelForallCharBool(v_p_3_);
-lean_dec_ref(v_p_3_);
+v_res_4_ = l_String_Slice_Pattern_Model_CharPred_instPatternModelForallCharBool___redArg();
 return v_res_4_;
 }
 }
-LEAN_EXPORT lean_object* l_String_Slice_Pattern_Model_CharPred_Decidable_instPatternModelForallCharPropOfDecidablePred(lean_object* v_p_5_, lean_object* v_inst_6_){
+LEAN_EXPORT lean_object* l_String_Slice_Pattern_Model_CharPred_instPatternModelForallCharBool(lean_object* v_p_5_){
 _start:
 {
-lean_object* v___x_7_; 
-v___x_7_ = lean_box(0);
-return v___x_7_;
+lean_object* v___x_6_; 
+v___x_6_ = lean_box(0);
+return v___x_6_;
 }
 }
-LEAN_EXPORT lean_object* l_String_Slice_Pattern_Model_CharPred_Decidable_instPatternModelForallCharPropOfDecidablePred___boxed(lean_object* v_p_8_, lean_object* v_inst_9_){
+LEAN_EXPORT lean_object* l_String_Slice_Pattern_Model_CharPred_instPatternModelForallCharBool___boxed(lean_object* v_p_7_){
 _start:
 {
-lean_object* v_res_10_; 
-v_res_10_ = l_String_Slice_Pattern_Model_CharPred_Decidable_instPatternModelForallCharPropOfDecidablePred(v_p_8_, v_inst_9_);
-lean_dec_ref(v_inst_9_);
-return v_res_10_;
+lean_object* v_res_8_; 
+v_res_8_ = l_String_Slice_Pattern_Model_CharPred_instPatternModelForallCharBool(v_p_7_);
+lean_dec_ref(v_p_7_);
+return v_res_8_;
 }
 }
-LEAN_EXPORT lean_object* l___private_Init_Data_String_Lemmas_Pattern_Pred_0__String_Slice_Pos_skipWhile_match__1_splitter___redArg(lean_object* v_x_11_, lean_object* v_h__1_12_, lean_object* v_h__2_13_){
+LEAN_EXPORT lean_object* l_String_Slice_Pattern_Model_CharPred_Decidable_instPatternModelForallCharPropOfDecidablePred___redArg(){
 _start:
 {
-if (lean_obj_tag(v_x_11_) == 0)
+lean_object* v___x_10_; 
+v___x_10_ = lean_box(0);
+return v___x_10_;
+}
+}
+LEAN_EXPORT lean_object* l_String_Slice_Pattern_Model_CharPred_Decidable_instPatternModelForallCharPropOfDecidablePred___redArg___boxed(lean_object* v___dummy_11_){
+_start:
 {
-lean_object* v___x_14_; lean_object* v___x_15_; 
-lean_dec(v_h__1_12_);
-v___x_14_ = lean_box(0);
-v___x_15_ = lean_apply_1(v_h__2_13_, v___x_14_);
+lean_object* v_res_12_; 
+v_res_12_ = l_String_Slice_Pattern_Model_CharPred_Decidable_instPatternModelForallCharPropOfDecidablePred___redArg();
+return v_res_12_;
+}
+}
+LEAN_EXPORT lean_object* l_String_Slice_Pattern_Model_CharPred_Decidable_instPatternModelForallCharPropOfDecidablePred(lean_object* v_p_13_, lean_object* v_inst_14_){
+_start:
+{
+lean_object* v___x_15_; 
+v___x_15_ = lean_box(0);
 return v___x_15_;
 }
-else
-{
-lean_object* v_val_16_; lean_object* v___x_17_; 
-lean_dec(v_h__2_13_);
-v_val_16_ = lean_ctor_get(v_x_11_, 0);
-lean_inc(v_val_16_);
-lean_dec_ref_known(v_x_11_, 1);
-v___x_17_ = lean_apply_1(v_h__1_12_, v_val_16_);
-return v___x_17_;
 }
-}
-}
-LEAN_EXPORT lean_object* l___private_Init_Data_String_Lemmas_Pattern_Pred_0__String_Slice_Pos_skipWhile_match__1_splitter(lean_object* v_s_18_, lean_object* v_motive_19_, lean_object* v_x_20_, lean_object* v_h__1_21_, lean_object* v_h__2_22_){
+LEAN_EXPORT lean_object* l_String_Slice_Pattern_Model_CharPred_Decidable_instPatternModelForallCharPropOfDecidablePred___boxed(lean_object* v_p_16_, lean_object* v_inst_17_){
 _start:
 {
-if (lean_obj_tag(v_x_20_) == 0)
+lean_object* v_res_18_; 
+v_res_18_ = l_String_Slice_Pattern_Model_CharPred_Decidable_instPatternModelForallCharPropOfDecidablePred(v_p_16_, v_inst_17_);
+lean_dec_ref(v_inst_17_);
+return v_res_18_;
+}
+}
+LEAN_EXPORT lean_object* l___private_Init_Data_String_Lemmas_Pattern_Pred_0__String_Slice_Pos_skipWhile_match__1_splitter___redArg(lean_object* v_x_19_, lean_object* v_h__1_20_, lean_object* v_h__2_21_){
+_start:
 {
-lean_object* v___x_23_; lean_object* v___x_24_; 
-lean_dec(v_h__1_21_);
-v___x_23_ = lean_box(0);
-v___x_24_ = lean_apply_1(v_h__2_22_, v___x_23_);
-return v___x_24_;
+if (lean_obj_tag(v_x_19_) == 0)
+{
+lean_object* v___x_22_; lean_object* v___x_23_; 
+lean_dec(v_h__1_20_);
+v___x_22_ = lean_box(0);
+v___x_23_ = lean_apply_1(v_h__2_21_, v___x_22_);
+return v___x_23_;
 }
 else
 {
-lean_object* v_val_25_; lean_object* v___x_26_; 
-lean_dec(v_h__2_22_);
-v_val_25_ = lean_ctor_get(v_x_20_, 0);
-lean_inc(v_val_25_);
-lean_dec_ref_known(v_x_20_, 1);
-v___x_26_ = lean_apply_1(v_h__1_21_, v_val_25_);
-return v___x_26_;
+lean_object* v_val_24_; lean_object* v___x_25_; 
+lean_dec(v_h__2_21_);
+v_val_24_ = lean_ctor_get(v_x_19_, 0);
+lean_inc(v_val_24_);
+lean_dec_ref_known(v_x_19_, 1);
+v___x_25_ = lean_apply_1(v_h__1_20_, v_val_24_);
+return v___x_25_;
 }
 }
 }
-LEAN_EXPORT lean_object* l___private_Init_Data_String_Lemmas_Pattern_Pred_0__String_Slice_Pos_skipWhile_match__1_splitter___boxed(lean_object* v_s_27_, lean_object* v_motive_28_, lean_object* v_x_29_, lean_object* v_h__1_30_, lean_object* v_h__2_31_){
+LEAN_EXPORT lean_object* l___private_Init_Data_String_Lemmas_Pattern_Pred_0__String_Slice_Pos_skipWhile_match__1_splitter(lean_object* v_s_26_, lean_object* v_motive_27_, lean_object* v_x_28_, lean_object* v_h__1_29_, lean_object* v_h__2_30_){
 _start:
 {
-lean_object* v_res_32_; 
-v_res_32_ = l___private_Init_Data_String_Lemmas_Pattern_Pred_0__String_Slice_Pos_skipWhile_match__1_splitter(v_s_27_, v_motive_28_, v_x_29_, v_h__1_30_, v_h__2_31_);
-lean_dec_ref(v_s_27_);
-return v_res_32_;
+if (lean_obj_tag(v_x_28_) == 0)
+{
+lean_object* v___x_31_; lean_object* v___x_32_; 
+lean_dec(v_h__1_29_);
+v___x_31_ = lean_box(0);
+v___x_32_ = lean_apply_1(v_h__2_30_, v___x_31_);
+return v___x_32_;
+}
+else
+{
+lean_object* v_val_33_; lean_object* v___x_34_; 
+lean_dec(v_h__2_30_);
+v_val_33_ = lean_ctor_get(v_x_28_, 0);
+lean_inc(v_val_33_);
+lean_dec_ref_known(v_x_28_, 1);
+v___x_34_ = lean_apply_1(v_h__1_29_, v_val_33_);
+return v___x_34_;
+}
+}
+}
+LEAN_EXPORT lean_object* l___private_Init_Data_String_Lemmas_Pattern_Pred_0__String_Slice_Pos_skipWhile_match__1_splitter___boxed(lean_object* v_s_35_, lean_object* v_motive_36_, lean_object* v_x_37_, lean_object* v_h__1_38_, lean_object* v_h__2_39_){
+_start:
+{
+lean_object* v_res_40_; 
+v_res_40_ = l___private_Init_Data_String_Lemmas_Pattern_Pred_0__String_Slice_Pos_skipWhile_match__1_splitter(v_s_35_, v_motive_36_, v_x_37_, v_h__1_38_, v_h__2_39_);
+lean_dec_ref(v_s_35_);
+return v_res_40_;
 }
 }
 lean_object* runtime_initialize_Init_Data_String_Pattern_Pred(uint8_t builtin);

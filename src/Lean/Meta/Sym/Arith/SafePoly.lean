@@ -152,7 +152,9 @@ private partial def toPolySemiring (e : SemiringExpr) : PolyM Poly := do
   | .add a b => combine (← toPolySemiring a) (← toPolySemiring b)
   | .mul a b => mul (← toPolySemiring a) (← toPolySemiring b)
   | .pow a k =>
-    match a with
+    if k == 0 then
+      return .num 1
+    else match a with
     | .num n =>
       checkExp' k
       return .num (n.natAbs ^ k)

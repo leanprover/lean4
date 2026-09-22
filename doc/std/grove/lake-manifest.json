@@ -1,11 +1,11 @@
-{"version": "1.2.0",
+{"version": "1.3.0",
  "packagesDir": ".lake/packages",
  "packages":
  [{"url": "https://github.com/TwoFx/grove.git",
    "type": "git",
    "subDir": "backend",
    "scope": "",
-   "rev": "8918d36d0560e46fe1abd6ca7a303a96863ffd53",
+   "rev": "2f4594425828b37690a95572075598f1aa9dd89e",
    "name": "grove",
    "manifestFile": "lake-manifest.json",
    "inputRev": "master",

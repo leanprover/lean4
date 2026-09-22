@@ -6,7 +6,6 @@ Authors: Leonardo de Moura
 module
 prelude
 public import Lean.Meta.Tactic.Grind.Types
-import Lean.Meta.Tactic.Grind.OrderInsts
 import Lean.Meta.Tactic.Grind.Arith.Cutsat.Util
 import Lean.Meta.Tactic.Grind.Arith.CommRing.RingId
 import Lean.Meta.Tactic.Grind.Arith.Linear.Var
@@ -14,7 +13,7 @@ import Lean.Meta.Sym.Arith.Insts
 import Init.Grind.Module.Envelope
 public section
 namespace Lean.Meta.Grind.Arith.Linear
-open Sym.Arith (getIsCharInst?)
+open Sym.Arith (getIsCharInst? mkIsPreorderInst? mkIsPartialOrderInst? mkIsLinearOrderInst? mkLawfulOrderLTInst?)
 
 private def preprocess (e : Expr) : GoalM Expr := do
   shareCommon (← canon e)

@@ -429,7 +429,7 @@ static object * lean_del_core(object * o, object * todo) {
     }
 }
 
-// sync with tests/elab/rc_sticky_thresholds.lean (`incRefHugeN`)
+// sync with tests/elab/rc_model.lean (`incRefHugeN`)
 extern "C" LEAN_EXPORT void lean_inc_ref_huge_n(lean_object * o, size_t n) {
     // `n` is above what `lean_inc_ref_n` adjusts by inline. Only `lean_mk_array` gets here.
     if (lean_is_st(o)) {
@@ -451,7 +451,7 @@ extern "C" LEAN_EXPORT void lean_inc_ref_huge_n(lean_object * o, size_t n) {
     }
 }
 
-// sync with tests/elab/rc_sticky_thresholds.lean (`decRefCold`)
+// sync with tests/elab/rc_model.lean (`decRefCold`)
 extern "C" LEAN_EXPORT void lean_dec_ref_cold(lean_object * o) {
     // `rc == 1` is the hot single-threaded free path and can never be sticky, so the sticky check
     // is kept out of it.

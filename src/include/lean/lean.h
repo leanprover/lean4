@@ -647,7 +647,7 @@ static inline _Atomic(int) * lean_get_rc_mt_addr(lean_object* o) {
    the band, and the room between `LEAN_RC_STICKY` and INT_MIN, are what bound how far such adjustments can
    move a frozen count: it takes more of them in flight at once than the band is wide to lift the count back
    out or to wrap it past INT_MIN. `LEAN_RC_INC_MAX` bounds what a single one of them contributes. */
-// sync with tests/elab/rc_sticky_thresholds.lean (`LEAN_RC_STICKY`, `LEAN_RC_STICKY_DROP`)
+// sync with tests/elab/rc_model.lean (`LEAN_RC_STICKY`, `LEAN_RC_STICKY_DROP`)
 #define LEAN_RC_STICKY      (INT_MIN + 0x10000000)
 #define LEAN_RC_STICKY_DROP (INT_MIN + 0x20000000)
 
@@ -658,13 +658,13 @@ static inline _Atomic(int) * lean_get_rc_mt_addr(lean_object* o) {
    of the room below `LEAN_RC_STICKY` one increment can consume, leaving the rest as margin against
    adjustments in flight on other threads. Code generation only ever emits `n` in the low thousands,
    so a constant `n` folds this test away and never reaches the bound. */
-// sync with tests/elab/rc_sticky_thresholds.lean (`LEAN_RC_INC_MAX`)
+// sync with tests/elab/rc_model.lean (`LEAN_RC_INC_MAX`)
 #define LEAN_RC_INC_MAX ((size_t)0x10000)
 
 /* Cold path of `lean_inc_ref_n` for increments above `LEAN_RC_INC_MAX`. */
 LEAN_EXPORT void lean_inc_ref_huge_n(lean_object * o, size_t n);
 
-// sync with tests/elab/rc_sticky_thresholds.lean (`incRefN`)
+// sync with tests/elab/rc_model.lean (`incRefN`)
 static inline void lean_inc_ref_n(lean_object * o, size_t n) {
     // A count above this could wrap clean past the sticky range, on either the single-threaded or
     // the thread-shared path, so both are handed to the cold helper. The test is on `n` alone, so a
@@ -693,7 +693,7 @@ static inline void lean_inc_ref(lean_object * o) {
 
 LEAN_EXPORT void lean_dec_ref_cold(lean_object * o);
 
-// sync with tests/elab/rc_sticky_thresholds.lean (`decRef`)
+// sync with tests/elab/rc_model.lean (`decRef`)
 static inline LEAN_ALWAYS_INLINE void lean_dec_ref(lean_object * o) {
     if (LEAN_LIKELY(lean_internal_get_rc(o) > 1)) {
         lean_internal_sub_rc(o, 1);

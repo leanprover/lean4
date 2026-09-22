@@ -17,7 +17,7 @@ error: Tactic `decide` failed to reduce
   @decide (((mul 4 1).mul 1).mul 1 = 4) (instDecidableEqFoo (((mul 4 1).mul 1).mul 1) 4)
 to `true` or `false`.
 
-After unfolding the instances `instDecidableEqFoo`, `instDecidableEqNat`, and `Nat.decEq`, reduction got stuck at
+After unfolding the instances `instDecidableEqFoo`, `instDecidableEqNat`, `Nat.decEq`, and `instDecidableEqFoo.decEq`, reduction got stuck at
   (((mul 4 1).mul 1).mul 1).num.beq 4
 -/
 #guard_msgs in
@@ -33,7 +33,7 @@ error: Tactic `decide` failed to reduce
   @decide (((add 4 1).add 1).add 1 = 4) (instDecidableEqFoo (((add 4 1).add 1).add 1) 4)
 to `true` or `false`.
 
-After unfolding the instances `instDecidableEqFoo`, `instDecidableEqNat`, and `Nat.decEq`, reduction got stuck at
+After unfolding the instances `instDecidableEqFoo`, `instDecidableEqNat`, `Nat.decEq`, and `instDecidableEqFoo.decEq`, reduction got stuck at
   (((add 4 1).add 1).add 1).num.beq 4
 -/
 #guard_msgs in

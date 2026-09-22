@@ -142,6 +142,7 @@ public:
 
     mpz & operator=(mpz const & v);
     mpz & operator=(mpz && v) { swap(*this, v); return *this; }
+    mpz & operator=(char const * v);
     mpz & operator=(unsigned int v);
     mpz & operator=(int v);
 
@@ -291,6 +292,9 @@ public:
     */
     size_t size_in_bytes() const;
 
+    friend void power(mpz & a, mpz const & b, unsigned k);
+    friend void _power(mpz & a, mpz const & b, unsigned k) { power(a, b, k); }
+    friend mpz pow(mpz a, unsigned k) { power(a, a, k); return a; }
 
     friend void gcd(mpz & g, mpz const & a, mpz const & b);
     friend mpz gcd(mpz const & a, mpz const & b) { mpz r; gcd(r, a, b); return r; }

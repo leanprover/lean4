@@ -545,11 +545,11 @@ considers `-0` to be smaller than `+0`.
 See also `Float32.minimumNumber` for the variant that returns finite numbers
 over `NaN`.
 
-This function does not reduce in the kernel. It is implemented in compiled code
+This function has a logical model in terms of `Float32.Model`. It is implemented in compiled code
 by a compiler intrinsic if available.
 -/
-@[extern "lean_float32_minimum"]
-opaque Float32.minimum : Float32 → Float32 → Float32
+@[extern "lean_float32_minimum"] def Float32.minimum : Float32 → Float32 → Float32 :=
+  fun a b => .ofModel (a.toModel.minimum b.toModel)
 
 /--
 Computes the IEEE-754-2019 `minimumNumber` operation of two floats.
@@ -559,11 +559,11 @@ operation will return that number.
 
 See also `Float32.minimum` for the variant that always propagates `NaN`.
 
-This function does not reduce in the kernel. It is implemented in compiled code
+This function has a logical model in terms of `Float32.Model`. It is implemented in compiled code
 by a compiler intrinsic if available.
 -/
-@[extern "lean_float32_minimum_number"]
-opaque Float32.minimumNumber : Float32 → Float32 → Float32
+@[extern "lean_float32_minimum_number"] def Float32.minimumNumber : Float32 → Float32 → Float32 :=
+  fun a b => .ofModel (a.toModel.minimumNumber b.toModel)
 
 /--
 Computes the IEEE-754-2019 `maximum` operation of two floats.
@@ -574,11 +574,11 @@ considers `-0` to be smaller than `+0`.
 See also `Float32.maximumNumber` for the variant that returns finite numbers
 over `NaN`.
 
-This function does not reduce in the kernel. It is implemented in compiled code
+This function has a logical model in terms of `Float32.Model`. It is implemented in compiled code
 by a compiler intrinsic if available.
 -/
-@[extern "lean_float32_maximum"]
-opaque Float32.maximum : Float32 → Float32 → Float32
+@[extern "lean_float32_maximum"] def Float32.maximum : Float32 → Float32 → Float32 :=
+  fun a b => .ofModel (a.toModel.maximum b.toModel)
 
 /--
 Computes the IEEE-754-2019 `maximumNumber` operation of two floats.
@@ -588,11 +588,11 @@ operation will return that number.
 
 See also `Float32.maximum` for the variant that always propagates `NaN`.
 
-This function does not reduce in the kernel. It is implemented in compiled code
+This function has a logical model in terms of `Float32.Model`. It is implemented in compiled code
 by a compiler intrinsic if available.
 -/
-@[extern "lean_float32_maximum_number"]
-opaque Float32.maximumNumber : Float32 → Float32 → Float32
+@[extern "lean_float32_maximum_number"] def Float32.maximumNumber : Float32 → Float32 → Float32 :=
+  fun a b => .ofModel (a.toModel.maximumNumber b.toModel)
 
 instance : Min Float32 where
   min := Float32.minimum

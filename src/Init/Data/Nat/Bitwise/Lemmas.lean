@@ -965,6 +965,7 @@ private theorem trailingZeros_lowWord_eq_mod (n : Nat) :
   change (2 ^ 64 - 1) &&& n = n % 2 ^ 64
   rw [Nat.and_comm, Nat.and_two_pow_sub_one_eq_mod]
 
+-- The recursor mirrors `trailingZeros`; `trailingZerosBits` unfolds to its local bit counter.
 private theorem trailingZeros_rec_eq_bits {n fuel : Nat} (h : n ≤ fuel) :
     (fuel.rec (fun _ => 0) (fun _ ih n =>
       (n.beq 0).rec

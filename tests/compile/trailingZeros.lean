@@ -11,6 +11,9 @@ example : Int.trailingZeros 0 = 0 := rfl
 example : Int.trailingZeros (-1) = 0 := rfl
 example : Int.trailingZeros (-24) = 3 := by decide
 example : Nat.trailingZeros (3 <<< 500) = 500 := rfl
+example : Nat.trailingZeros (1 <<< 64) = 64 := rfl
+example : Nat.trailingZeros (1 <<< 128) = 128 := rfl
+example : Nat.trailingZeros ((1 <<< 64) + 8) = 3 := rfl
 example : Int.trailingZeros (-(3 <<< 500)) = 500 := rfl
 example : Nat.trailingZeros (3 <<< 8192) = 8192 := rfl
 example : Int.trailingZeros (-(3 <<< 8192)) = 8192 := rfl

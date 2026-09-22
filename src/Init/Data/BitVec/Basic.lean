@@ -931,7 +931,7 @@ See `BitVec.clz_def` for the specification via `toNat` and `BitVec.clz_eq_clzAux
 its bit-by-bit characterization.
 -/
 @[implicit_reducible]
-def clz (x : BitVec w) : BitVec w :=
+noncomputable def clz (x : BitVec w) : BitVec w :=
   if x.toNat = 0 then
     .ofNatLT w (by exact Nat.lt_two_pow_self)
   else

@@ -128,9 +128,6 @@ public def insertPattern [BEq α] (d : DiscrTree α) (p : Pattern) (v : α) : Di
   let keys := p.mkDiscrTreeKeys
   d.insertKeyValue keys v
 
-abbrev findKey? (cs : Array (Key × Trie α)) (k : Key) : Option (Key × Trie α) :=
-  cs.binSearch (k, default) (fun a b => a.1 < b.1)
-
 def getKey (e : Expr) : Key :=
   match e.getAppFn' with
   | .lit v            => .lit v
@@ -166,41 +163,22 @@ def pushArgsTodo (todo : Array Expr) (e : Expr) : Array Expr :=
   | _ => todo
 
 partial def getMatchLoop (mctx : MetavarContext) (todo : Array Expr) (c : Trie α) (result : Array α) : Array α :=
-  match c with
-  | .chain key child =>
-    if todo.isEmpty then
-      result
-    else
-      let e     := resolveAssignedMVars mctx <| etaReduce todo.back!
-      let todo  := todo.pop
-      if key == .star then
-        getMatchLoop mctx todo child result
-      else if key == getKey e then
-        getMatchLoop mctx (pushArgsTodo todo e) child result
-      else
-        result
-
-  | .node vs cs =>
-    let csize := cs.size
-    if todo.isEmpty then
-      result ++ vs
-    else if h : csize = 0 then
-      result
-    else
-      let e     := resolveAssignedMVars mctx <| etaReduce todo.back!
-      let todo  := todo.pop
-      let first := cs[0] /- Recall that `Key.star` is the minimal key -/
-      /- We must always visit `Key.star` edges since they are wildcards.
-        Thus, `todo` is not used linearly when there is `Key.star` edge
-        and there is an edge for `k` and `k != Key.star`. -/
-      let result :=
-        if first.1 == .star then
-          getMatchLoop mctx todo first.2 result
-        else
-          result
-      match findKey? cs (getKey e) with
-      | none   => result
-      | some c => getMatchLoop mctx (pushArgsTodo todo e) c.2 result
+  if todo.isEmpty then
+    result ++ c.nodeValues
+  else if !c.hasChildren then
+    result
+  else
+    let e     := resolveAssignedMVars mctx <| etaReduce todo.back!
+    let todo  := todo.pop
+    /- We must always visit `Key.star` edges since they are wildcards.
+      Thus, `todo` is not used linearly when there is `Key.star` edge
+      and there is an edge for `k` and `k != Key.star`. -/
+    let result := match c.starChild? with
+      | some star => getMatchLoop mctx todo star result
+      | none      => result
+    match c.findChild? (getKey e) with
+    | none   => result
+    | some c => getMatchLoop mctx (pushArgsTodo todo e) c result
 
 /--
 Retrieves all values whose patterns match the expression `e`.
@@ -208,9 +186,8 @@ Retrieves all values whose patterns match the expression `e`.
 -/
 public def getMatch (mctx : MetavarContext) (d : DiscrTree α) (e : Expr) : Array α :=
   let result := match d.root.find? .star with
-  | none              => .mkEmpty initCapacity
-  | some (.chain _ _) => .mkEmpty initCapacity -- unreachable in well-formed trees!
-  | some (.node vs _) => vs
+  | none   => .mkEmpty initCapacity
+  | some c => c.nodeValues
   let e := resolveAssignedMVars mctx <| etaReduce e
   match d.root.find? (getKey e) with
   | none   => result

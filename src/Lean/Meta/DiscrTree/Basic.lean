@@ -124,6 +124,96 @@ where
       r := r.push (← go)
     return r
 
+namespace Trie
+
+/--
+Constructs a trie node from values and an array of children, using the compact `chain`
+representation when possible.
+-/
+@[inline]
+def mkNode (vs : Array α) (cs : Array (Key × Trie α)) : Trie α :=
+  if h : vs.isEmpty ∧ cs.size = 1 then
+    .chain cs[0].1 cs[0].2
+  else
+    .node vs cs
+
+/--
+Inspect a trie node as an array of values and an array of children.
+-/
+@[inline]
+def asNode : Trie α → Array α × Array (Key × Trie α)
+  | .chain k v => ⟨#[], #[(k, v)]⟩
+  | .node vs cs => ⟨vs, cs⟩
+
+/--
+Returns the values stored at the current trie node.
+Equivalent to `t.asNode.1`.
+-/
+@[inline]
+def nodeValues : Trie α → Array α
+  | .chain _ _ => #[]
+  | .node vs _ => vs
+
+/--
+Returns the child nodes of the current trie node.
+Equivalent to `t.asNode.2`.
+-/
+@[inline]
+def nodeChildren : Trie α → Array (Key × Trie α)
+  | .chain k v => #[(k, v)]
+  | .node _ cs => cs
+
+/--
+Checks whether a trie node is empty (no values and no children).
+
+This is only a check for actual trie emptiness (`t.size = 0`) if all operations maintain the
+invariant that no trie node has an empty child node.
+-/
+@[inline]
+def isEmptyNode : Trie α → Bool
+  | .chain _ _ => false
+  | .node vs children => vs.isEmpty && children.isEmpty
+
+/--
+Checks whether a trie node has any children.
+-/
+@[inline]
+def hasChildren : Trie α → Bool
+  | .chain .. => true
+  | .node _ cs => !cs.isEmpty
+
+/--
+Returns the child for `Key.star`, if any.
+`Key.star` is the minimal key, so it is always the first child of a `node`.
+-/
+@[inline]
+def starChild? : Trie α → Option (Trie α)
+  | .chain key child => if key == .star then some child else none
+  | .node _ cs =>
+    if h : 0 < cs.size then
+      if cs[0].1 == .star then some cs[0].2 else none
+    else
+      none
+
+/--
+Returns the child for key `k`, if any.
+-/
+@[inline]
+def findChild? (t : Trie α) (k : Key) : Option (Trie α) :=
+  match t with
+  | .chain key child => if key == k then some child else none
+  | .node _ cs => (cs.binSearch (k, default) (fun a b => a.1 < b.1)).map (·.2)
+
+/--
+Monadically folds over the children of a trie node together with their keys.
+-/
+@[inline]
+def foldChildrenM [Monad m] (f : σ → Key → Trie α → m σ) (init : σ) : Trie α → m σ
+  | .chain key child => f init key child
+  | .node _ cs => cs.foldlM (init := init) fun s (k, c) => f s k c
+
+end Trie
+
 private partial def createNodes (keys : Array Key) (v : α) (i : Nat) : Trie α :=
   if h : i < keys.size then
     let k := keys[i]
@@ -156,12 +246,10 @@ private partial def insertAux [BEq α] (keys : Array Key) (v : α) : Nat → Tri
     if h : i < keys.size then
       if keys[i] == k then
         .chain k (insertAux keys v (i+1) c)
-      else if keys[i] < k then
-        .node #[] #[(keys[i], createNodes keys v (i+1)), (k, c)]
       else
-        .node #[] #[(k, c), (keys[i], createNodes keys v (i+1))]
+        insertAux keys v i (.node #[] #[(k, c)])
     else
-      .node #[v] #[(k, c)]
+      insertAux keys v i (.node #[] #[(k, c)])
   | i, .node vs cs =>
     if h : i < keys.size then
       let k := keys[i]
@@ -170,7 +258,7 @@ private partial def insertAux [BEq α] (keys : Array Key) (v : α) : Nat → Tri
           (fun ⟨_, s⟩ => let c := insertAux keys v (i+1) s; (k, c)) -- merge with existing
           (fun _ => let c := createNodes keys v (i+1); (k, c))
           (k, default)
-      .node vs c
+      .mkNode vs c
     else
       .node (insertVal vs v) cs
 

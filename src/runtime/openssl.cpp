@@ -10,11 +10,27 @@ Author: Sofia Rodrigues
 #include <openssl/err.h>
 #include <openssl/ssl.h>
 
+namespace lean {
+
+void initialize_openssl() {
+}
+
+void finalize_openssl() {}
+
+}
+
 extern "C" LEAN_EXPORT lean_obj_res lean_openssl_version(lean_obj_arg o) {
     return lean_unsigned_to_nat(OPENSSL_VERSION_NUMBER);
 }
 
 #else
+
+namespace lean {
+
+void initialize_openssl() {}
+void finalize_openssl() {}
+
+}
 
 extern "C" LEAN_EXPORT lean_obj_res lean_openssl_version(lean_obj_arg o) {
     return lean_box(0);

@@ -44,7 +44,7 @@ attribute [implicit_reducible]
 
   -- necessary for division
   Bool.and Bool.not
-  Nat.testBit Nat.log2
+  Nat.testBit
   decide bne
 
   Array.get!Internal Array.getInternal

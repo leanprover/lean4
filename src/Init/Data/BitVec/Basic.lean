@@ -11,6 +11,7 @@ public import Init.Data.Bool
 public import Init.Data.Int.DivMod.Basic
 public import Init.Data.Nat.Log2
 public import Init.WF
+import Init.ByCases
 import Init.Data.Nat.Bitwise.Lemmas
 import Init.Data.Nat.Lemmas
 import Init.Data.Nat.Internal.Linear
@@ -889,8 +890,42 @@ def clzAuxRec {w : Nat} (x : BitVec w) (n : Nat) : BitVec w :=
   | 0 => if x.getLsbD 0 then BitVec.ofNat w (w - 1) else BitVec.ofNat w w
   | n' + 1 => if x.getLsbD n then BitVec.ofNat w (w - 1 - n) else clzAuxRec x n'
 
+/-- Binary search for the highest set bit within `[lo, hi)`, with fuel bounding `hi - lo`. -/
+@[implicit_reducible]
+def clz.log2Aux : Nat → Nat → Nat → Nat → Nat
+  | 0, lo, _, _ => lo
+  | fuel + 1, lo, hi, n =>
+    if hi ≤ lo + 1 then lo else
+      let mid := (lo + hi) / 2
+      if n >>> mid = 0 then clz.log2Aux fuel lo mid n else clz.log2Aux fuel mid hi n
+
+private theorem clz.log2Aux_eq {fuel lo hi n : Nat} (hn : n ≠ 0)
+    (hlo : lo ≤ n.log2) (hhi : n.log2 < hi) (hf : hi - lo ≤ fuel) :
+    clz.log2Aux fuel lo hi n = n.log2 := by
+  induction fuel generalizing lo hi with
+  | zero => omega
+  | succ fuel ih =>
+    rw [clz.log2Aux]
+    split
+    · omega
+    · dsimp only
+      split
+      next h =>
+        apply ih hlo
+        · apply (Nat.log2_lt hn).mpr
+          simpa [Nat.shiftRight_eq_div_pow, Nat.div_eq_zero_iff] using h
+        · omega
+      next h =>
+        refine ih ?_ hhi (by omega)
+        apply (Nat.le_log2 hn).mpr
+        have : ¬ n < 2 ^ ((lo + hi) / 2) := by
+          simpa [Nat.shiftRight_eq_div_pow, Nat.div_eq_zero_iff] using h
+        omega
+
 /--
 Count the number of leading zeros, returning `w` on zero.
+
+Kernel reduction uses a bounded search over bit positions; compiled code uses `Nat.log2`.
 
 See `BitVec.clz_def` for the specification via `toNat` and `BitVec.clz_eq_clzAuxRec` for
 its bit-by-bit characterization.
@@ -900,8 +935,24 @@ def clz (x : BitVec w) : BitVec w :=
   if x.toNat = 0 then
     .ofNatLT w (by exact Nat.lt_two_pow_self)
   else
+    .ofNatLT (w - (clz.log2Aux w 0 w x.toNat + 1))
+      (by exact Nat.lt_of_le_of_lt (Nat.sub_le ..) Nat.lt_two_pow_self)
+
+/-- Runtime implementation of `clz` using the native natural-number logarithm. -/
+def clzFast (x : BitVec w) : BitVec w :=
+  if x.toNat = 0 then
+    .ofNatLT w (by exact Nat.lt_two_pow_self)
+  else
     .ofNatLT (w - (x.toNat.log2 + 1))
       (by exact Nat.lt_of_le_of_lt (Nat.sub_le ..) Nat.lt_two_pow_self)
+
+@[csimp] theorem clz_eq_clzFast : @clz = @clzFast := by
+  funext w x
+  by_cases h : x.toNat = 0
+  · simp only [clz, clzFast, h, ↓reduceIte]
+  · have heq := clz.log2Aux_eq (fuel := w) (lo := 0) (hi := w) h
+      (Nat.zero_le _) ((Nat.log2_lt h).mpr x.isLt) (by omega)
+    simp only [clz, clzFast, h, ↓reduceIte, heq]
 
 /--
 Count the number of trailing zeros, returning `w` on zero.

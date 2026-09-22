@@ -5,6 +5,9 @@ import Init.Data.BitVec.Lemmas
 
 set_option exponentiation.threshold 8192
 
+example : ((1#8192) <<< 8191).clz = 0 := rfl
+example : ((1#8192) <<< 8191).ctz = 8191 := rfl
+example : ((1#8192) <<< 4096).clz = 4095 := rfl
 example : (1#8192).clz = 8191#8192 := rfl
 example : (3#8192).ctz = 0#8192 := rfl
 example : (0#8192).ctz = 8192#8192 := rfl

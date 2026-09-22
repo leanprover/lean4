@@ -162,6 +162,8 @@ theorem hasNotBit_eq (m n : Nat) : Nat.hasNotBit m n = (1 &&& (m >>> n) ≠ 1) :
 /--
 The number of zero bits below the least significant set bit of `n`, or zero if `n = 0`.
 
+See `Nat.trailingZeros_def` for a simple recursive characterization.
+
 The kernel skips zero 64-bit blocks, then counts bits in the first nonzero block.
 At runtime this scans the low machine words without allocating or dividing the input.
 -/

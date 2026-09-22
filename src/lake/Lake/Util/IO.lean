@@ -50,6 +50,12 @@ Like {lean}`IO.FS.removeDirAll`, but does not fail if {lean}`path` does not exis
 or if a file is first deleted by a racing process.
 -/
 public partial def removeDirAllIfExists (path : FilePath) : IO Unit := do
+  let mdata ← try path.symlinkMetadata catch
+    | .noFileOrDirectory .. => return
+    | e => throw e
+  if mdata.type == .symlink then
+    removeFileIfExists path
+    return
   let ents ← try path.readDir catch
     | .noFileOrDirectory .. => return -- path did not exist or something else was faster
     | e => throw e

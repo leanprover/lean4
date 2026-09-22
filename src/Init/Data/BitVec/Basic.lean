@@ -9,6 +9,7 @@ prelude
 public import Init.Data.Int.Bitwise.Basic
 public import Init.Data.Bool
 public import Init.Data.Int.DivMod.Basic
+public import Init.Data.Nat.Log2
 public import Init.WF
 import Init.Data.Nat.Bitwise.Lemmas
 import Init.Data.Nat.Lemmas
@@ -888,12 +889,32 @@ def clzAuxRec {w : Nat} (x : BitVec w) (n : Nat) : BitVec w :=
   | 0 => if x.getLsbD 0 then BitVec.ofNat w (w - 1) else BitVec.ofNat w w
   | n' + 1 => if x.getLsbD n then BitVec.ofNat w (w - 1 - n) else clzAuxRec x n'
 
-/-- Count the number of leading zeros. -/
-@[implicit_reducible]
-def clz (x : BitVec w) : BitVec w := clzAuxRec x (w - 1)
+/--
+Count the number of leading zeros, returning `w` on zero.
 
-/-- Count the number of trailing zeros. -/
-def ctz (x : BitVec w) : BitVec w := (x.reverse).clz
+See `BitVec.clz_def` for the specification via `toNat` and `BitVec.clz_eq_clzAuxRec` for
+its bit-by-bit characterization.
+-/
+@[implicit_reducible]
+def clz (x : BitVec w) : BitVec w :=
+  if x.toNat = 0 then
+    .ofNatLT w (by exact Nat.lt_two_pow_self)
+  else
+    .ofNatLT (w - (x.toNat.log2 + 1))
+      (by exact Nat.lt_of_le_of_lt (Nat.sub_le ..) Nat.lt_two_pow_self)
+
+/--
+Count the number of trailing zeros, returning `w` on zero.
+
+See `BitVec.ctz_eq` for the specification via `Nat.trailingZeros` and
+`BitVec.ctz_eq_reverse_clz` for the characterization used by the bitblaster.
+-/
+def ctz (x : BitVec w) : BitVec w :=
+  if h : x.toNat = 0 then
+    .ofNatLT w (by exact Nat.lt_two_pow_self)
+  else
+    .ofNatLT x.toNat.trailingZeros
+      (by exact Nat.lt_trans (Nat.trailingZeros_lt_of_lt_two_pow h x.isLt) Nat.lt_two_pow_self)
 
 /-- Count the number of bits with value `1` downward from the `pos`-th bit to the
   `0`-th bit of `x`, storing the result in `acc`. -/

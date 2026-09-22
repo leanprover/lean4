@@ -6,7 +6,7 @@ Authors: Leonardo de Moura, Jannis Limperg, Kim Morrison
 module
 prelude
 public import Lean.Meta.Basic
-public import Lean.Meta.DiscrTree.Basic
+public import Lean.Meta.DiscrTree.Util
 import Lean.Meta.WHNF
 public section
 namespace Lean.Meta.DiscrTree
@@ -429,9 +429,8 @@ private abbrev getUnifyKeyArgs (e : Expr) (root : Bool) : MetaM (Key × Array Ex
 private def getStarResult (d : DiscrTree α) : Array α :=
   let result : Array α := .mkEmpty initCapacity
   match d.root.find? .star with
-  | none                  => result
-  | some (.chain _ _) => result -- unreachable in well-formed trees!
-  | some (.node vs _) => result ++ vs
+  | none => result
+  | some c => result ++ c.nodeValues
 
 private abbrev findKey (cs : Array (Key × Trie α)) (k : Key) : Option (Key × Trie α) :=
   cs.binSearch (k, default) (fun a b => a.1 < b.1)
@@ -466,17 +465,19 @@ private partial def getMatchLoop (todo : Array Expr) (c : Trie α) (result : Arr
       /- We must always visit `Key.star` edges since they are wildcards.
          Thus, `todo` is not used linearly when there is `Key.star` edge
          and there is an edge for `k` and `k != Key.star`. -/
-      let result ←
+      let visitStar (result : Array α) : MetaM (Array α) :=
         if first.1 == .star then
           getMatchLoop todo first.2 result
         else
-          pure result
-      match k with
-      | .star  => return result
-      | _ =>
+          return result
+      let visitNonStar (k : Key) (args : Array Expr) (result : Array α) : MetaM (Array α) :=
         match findKey cs k with
         | none   => return result
         | some c => getMatchLoop (todo ++ args) c.2 result
+      let result ← visitStar result
+      match k with
+      | .star  => return result
+      | _      => visitNonStar k args result
 
 private def getMatchRoot (d : DiscrTree α) (k : Key) (args : Array Expr) (result : Array α) : MetaM (Array α) :=
   match d.root.find? k with

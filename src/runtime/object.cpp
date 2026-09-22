@@ -1663,6 +1663,27 @@ extern "C" LEAN_EXPORT size_t lean_nat_size_in_bytes(b_lean_obj_arg a) {
     return mpz_value(a).size_in_bytes();
 }
 
+static size_t trailing_zeros(size_t n) {
+    if (n == 0) return 0;
+    size_t result = 0;
+    while ((n & 1) == 0) {
+        result++;
+        n >>= 1;
+    }
+    return result;
+}
+
+extern "C" LEAN_EXPORT lean_obj_res lean_nat_trailing_zeros(b_lean_obj_arg a) {
+    return lean_usize_to_nat(lean_is_scalar(a)
+        ? trailing_zeros(lean_unbox(a)) : mpz_value(a).trailing_zeros());
+}
+
+extern "C" LEAN_EXPORT lean_obj_res lean_int_trailing_zeros(b_lean_obj_arg a) {
+    // Conversion to unsigned preserves the trailing zeros of negative scalars.
+    return lean_usize_to_nat(lean_is_scalar(a)
+        ? trailing_zeros(static_cast<size_t>(lean_scalar_to_int(a))) : mpz_value(a).trailing_zeros());
+}
+
 // =======================================
 // Integers
 

@@ -28,6 +28,46 @@ It is primarily intended to support the bitvector library.
 
 namespace Nat
 
+private theorem trailingZeros_aux_irrel {n k k' : Nat} (hk : n ≤ k) (hk' : n ≤ k') :
+    trailingZeros.aux k n = trailingZeros.aux k' n := by
+  induction k generalizing n k' with
+  | zero => cases Nat.eq_zero_of_le_zero hk; cases k' <;> simp [trailingZeros.aux]
+  | succ k ih =>
+    cases k' with
+    | zero => cases Nat.eq_zero_of_le_zero hk'; simp [trailingZeros.aux]
+    | succ k' =>
+      simp only [trailingZeros.aux]
+      split
+      · rfl
+      next hn =>
+        split
+        · exact congrArg (· + 1) (ih (k' := k')
+            (by have := bitwise_rec_lemma hn; omega)
+            (by have := bitwise_rec_lemma hn; omega))
+        · rfl
+
+theorem trailingZeros_def (n : Nat) :
+    n.trailingZeros = if n = 0 then 0 else if n % 2 = 0 then (n / 2).trailingZeros + 1 else 0 := by
+  cases n with
+  | zero => rfl
+  | succ n =>
+    simp only [trailingZeros, trailingZeros.aux, Nat.succ_ne_zero, ↓reduceIte]
+    split
+    · rw [trailingZeros_aux_irrel (k' := (n + 1) / 2) (by omega) (Nat.le_refl _)]
+    · rfl
+
+@[simp] theorem trailingZeros_zero : trailingZeros 0 = 0 := rfl
+
+theorem trailingZeros_eq_zero_of_mod_eq {n : Nat} (h : n % 2 = 1) :
+    trailingZeros n = 0 := by
+  rw [trailingZeros_def]
+  split <;> simp_all
+
+theorem trailingZeros_two_mul {n : Nat} (h : n ≠ 0) :
+    trailingZeros (2 * n) = trailingZeros n + 1 := by
+  rw [trailingZeros_def, ite_eq_right (by omega)]
+  simp
+
 private theorem two_pow_succ_sub_succ_div_two : (2 ^ (n+1) - (x + 1)) / 2 = 2^n - (x/2 + 1) := by
   omega
 

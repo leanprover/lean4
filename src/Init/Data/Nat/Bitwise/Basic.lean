@@ -19,6 +19,22 @@ theorem bitwise_rec_lemma {n : Nat} (hNe : n ≠ 0) : n / 2 < n :=
   Nat.div_lt_self (Nat.zero_lt_of_ne_zero hNe) (Nat.lt_succ_self _)
 
 /--
+The number of zero bits below the least significant set bit of `n`, or zero if `n = 0`.
+
+At runtime this scans the low machine words without allocating or dividing the input.
+-/
+@[expose, extern "lean_nat_trailing_zeros"]
+def trailingZeros (n : @& Nat) : Nat :=
+  aux n n
+where
+  aux : Nat → Nat → Nat
+    | 0, _ => 0
+    | fuel + 1, n =>
+      if n = 0 then 0
+      else if n % 2 = 0 then aux fuel (n / 2) + 1
+      else 0
+
+/--
 A helper for implementing bitwise operators on `Nat`.
 
 Each bit of the resulting `Nat` is the result of applying `f` to the corresponding bits of the input

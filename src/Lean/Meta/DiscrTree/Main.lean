@@ -600,41 +600,28 @@ where
         return result
       else
         cs.foldlM (init := result) fun result ⟨k, c⟩ => process (skip + k.arity) todo c result
-    | 0, .chain key child =>
+    | 0, _ =>
       if todo.isEmpty then
+        return result ++ c.nodeValues
+      let cs := c.nodeChildren
+      if cs.isEmpty then
         return result
       else
         let e     := todo.back!
         let todo  := todo.pop
         let (k, args) ← getUnifyKeyArgs e (root := false)
-        if k == .star then
-          process key.arity todo child result
-        else if key == .star then
-          process 0 todo child result
-        else if key == k then
-          process 0 (todo ++ args) child result
-        else
-          return result
-    | 0, .node vs cs => do
-      if todo.isEmpty then
-        return result ++ vs
-      else if cs.isEmpty then
-        return result
-      else
-        let e     := todo.back!
-        let todo  := todo.pop
-        let first := cs[0]!
-        let (k, args) ← getUnifyKeyArgs e (root := false)
+        let visitStar (result : Array α) : MetaM (Array α) :=
+          let first := cs[0]!
+          if first.1 == .star then
+            process 0 todo first.2 result
+          else
+            return result
+        let visitNonStar (k : Key) (args : Array Expr) (result : Array α) : MetaM (Array α) :=
+          match findKey cs k with
+          | none   => return result
+          | some c => process 0 (todo ++ args) c.2 result
         match k with
         | .star => cs.foldlM (init := result) fun result ⟨k, c⟩ => process k.arity todo c result
-        | _ =>
-          let result ←
-            if first.1 == .star then
-              process 0 todo first.2 result
-            else
-              pure result
-          match findKey cs k with
-          | none => return result
-          | some c => process 0 (todo ++ args) c.2 result
+        | _     => visitNonStar k args (← visitStar result)
 
 end Lean.Meta.DiscrTree

@@ -212,6 +212,18 @@ theorem trailingZeros_two_mul {i : Int} (h : i ≠ 0) :
   simpa [trailingZeros, Int.natAbs_mul] using
     Nat.trailingZeros_two_mul (n := i.natAbs) (by omega)
 
+theorem trailingZeros_def (i : Int) :
+    trailingZeros i = if i = 0 then 0 else if i % 2 = 0 then trailingZeros (i / 2) + 1 else 0 := by
+  by_cases hi : i = 0
+  · simp [hi, trailingZeros_zero]
+  rw [ite_eq_right hi]
+  rcases i.emod_two_eq with h | h
+  · rw [ite_eq_left h]
+    have heq : 2 * (i / 2) = i := by omega
+    have hdiv : i / 2 ≠ 0 := by omega
+    simpa only [heq] using trailingZeros_two_mul hdiv
+  · rw [ite_eq_right (by omega), trailingZeros_eq_zero_of_mod_eq h]
+
 theorem shiftRight_trailingZeros_mod_two {i : Int} (h : i ≠ 0) :
     (i >>> i.trailingZeros) % 2 = 1 := by
   rw (occs := .pos [2]) [← Int.emod_add_mul_ediv i 2]

@@ -67,7 +67,11 @@ protected def shiftLeft : Int → Nat → Int
 
 instance : HShiftLeft Int Nat Int := ⟨.shiftLeft⟩
 
-/-- The number of trailing zero bits of `i.natAbs`, or zero if `i = 0`. -/
+/--
+The number of trailing zero bits of `i.natAbs`, or zero if `i = 0`.
+
+See `Int.trailingZeros_def` for a simple recursive characterization.
+-/
 @[expose, extern "lean_int_trailing_zeros"]
 def trailingZeros (i : @& Int) : Nat := i.natAbs.trailingZeros
 

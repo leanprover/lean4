@@ -10,6 +10,9 @@ example : Nat.trailingZeros 24 = 3 := by decide
 example : Int.trailingZeros 0 = 0 := rfl
 example : Int.trailingZeros (-1) = 0 := rfl
 example : Int.trailingZeros (-24) = 3 := by decide
+example : Int.trailingZeros (-48) = Int.trailingZeros (-24) + 1 := by
+  rw [Int.trailingZeros_def]
+  decide
 example : Nat.trailingZeros (3 <<< 500) = 500 := rfl
 example : Nat.trailingZeros (1 <<< 64) = 64 := rfl
 example : Nat.trailingZeros (1 <<< 128) = 128 := rfl

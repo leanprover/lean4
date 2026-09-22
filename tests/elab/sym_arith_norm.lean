@@ -98,7 +98,7 @@ info: n1: 3 * x
 ---
 info: n2: y + 2 * (x - y)
 ---
-info: n3: x ^ 0 (normal)
+info: n3: 1
 ---
 info: n4: x ^ 2 + 2 * x + 1
 ---

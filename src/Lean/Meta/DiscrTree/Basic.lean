@@ -156,10 +156,9 @@ private partial def insertAux [BEq α] (keys : Array Key) (v : α) : Nat → Tri
     if h : i < keys.size then
       if keys[i] == k then
         .chain k (insertAux keys v (i+1) c)
-      else if keys[i] < k then
-        .node #[] #[(keys[i], createNodes keys v (i+1)), (k, c)]
       else
-        .node #[] #[(k, c), (keys[i], createNodes keys v (i+1))]
+        .node #[] <|
+          #[(k, c)].binInsert (fun a b => a.1 < b.1) (keys[i], createNodes keys v (i+1))
     else
       .node #[v] #[(k, c)]
   | i, .node vs cs =>

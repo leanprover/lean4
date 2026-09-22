@@ -376,4 +376,36 @@ def Tree.any (f : α → Bool) (t : Tree α) : Bool :=
 termination_by t
 decreasing_by cases t; decreasing_tactic
 
+#guard_msgs in
+def Tree.all (f : α → Bool) (t : Tree α) : Bool :=
+  if f t.val
+  then t.cs.all fun c => all f c
+  else false
+termination_by t
+decreasing_by cases t; decreasing_tactic
+
 end Binary
+
+section ArrayTree
+
+structure ArrayTree (α : Type u) where
+  val : α
+  cs : Array (ArrayTree α)
+
+#guard_msgs in
+def ArrayTree.any (f : α → Bool) (t : ArrayTree α) : Bool :=
+  if f t.val
+  then true
+  else t.cs.any fun c => any f c
+termination_by t
+decreasing_by cases t; decreasing_tactic
+
+#guard_msgs in
+def ArrayTree.all (f : α → Bool) (t : ArrayTree α) : Bool :=
+  if f t.val
+  then t.cs.all fun c => all f c
+  else false
+termination_by t
+decreasing_by cases t; decreasing_tactic
+
+end ArrayTree

@@ -881,4 +881,13 @@ and simplifies these to the function directly taking the value.
       binderNameHint x f <| binderNameHint h () <| f (wfParam x) := by
   simp [wfParam]
 
+@[wf_preprocess] theorem all_wfParam {xs : List α} {f : α → Bool} :
+    (wfParam xs).all f = xs.attach.unattach.all f := by
+  simp [wfParam]
+
+@[wf_preprocess] theorem all_unattach {P : α → Prop} {xs : List (Subtype P)} {f : α → Bool} :
+    xs.unattach.all f = xs.all fun ⟨x, h⟩ =>
+      binderNameHint x f <| binderNameHint h () <| f (wfParam x) := by
+  simp [wfParam]
+
 end List

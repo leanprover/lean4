@@ -19,3 +19,5 @@ public import Lean.Meta.Sym.Arith.DenoteExpr
 public import Lean.Meta.Sym.Arith.ToExpr
 public import Lean.Meta.Sym.Arith.VarRename
 public import Lean.Meta.Sym.Arith.Poly
+public import Lean.Meta.Sym.Arith.SafePoly
+public import Lean.Meta.Sym.Arith.Norm

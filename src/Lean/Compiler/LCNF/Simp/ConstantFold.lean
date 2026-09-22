@@ -276,7 +276,7 @@ def Folder.mkBinaryUSize (f64 : UInt64 → UInt64 → UInt64) (f32 : UInt32 → 
   let some arg₂ ← getUSizeLit fvarId₂ | return none
   let res64 := f64 arg₁ arg₂
   let res32 := f32 arg₁.toUInt32 arg₂.toUInt32
-  unless res32.toUInt64 == res64 do return none
+  unless res64.toUInt32 == res32 do return none
   mkUSizeLit res64
 
 def Folder.mkUnaryUSize (f64 : UInt64 → UInt64) (f32 : UInt32 → UInt32) : Folder := fun args => do
@@ -284,7 +284,7 @@ def Folder.mkUnaryUSize (f64 : UInt64 → UInt64) (f32 : UInt32 → UInt32) : Fo
   let some arg ← getUSizeLit fvarId | return none
   let res64 := f64 arg
   let res32 := f32 arg.toUInt32
-  unless res32.toUInt64 == res64 do return none
+  unless res64.toUInt32 == res32 do return none
   mkUSizeLit res64
 
 def Folder.mkUnaryToUSize [Literal α] (f64 : α → UInt64) (f32 : α → UInt32) : Folder := fun args => do
@@ -292,7 +292,7 @@ def Folder.mkUnaryToUSize [Literal α] (f64 : α → UInt64) (f32 : α → UInt3
   let some arg ← getLit fvarId | return none
   let res64 := f64 arg
   let res32 := f32 arg
-  unless res32.toUInt64 == res64 do return none
+  unless res64.toUInt32 == res32 do return none
   mkUSizeLit res64
 
 def Folder.mkUnaryOfUSize [Literal β] [BEq β] (f64 : UInt64 → β) (f32 : UInt32 → β) : Folder := fun args => do

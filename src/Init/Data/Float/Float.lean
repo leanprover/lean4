@@ -543,11 +543,11 @@ considers `-0` to be smaller than `+0`.
 See also `Float.minimumNumber` for the variant that returns finite numbers
 over `NaN`.
 
-This function does not reduce in the kernel. It is implemented in compiled code
+This function has a logical model in terms of `Float.Model`. It is implemented in compiled code
 by a compiler intrinsic if available.
 -/
-@[extern "lean_float_minimum"]
-opaque Float.minimum : Float → Float → Float
+@[extern "lean_float_minimum"] def Float.minimum : Float → Float → Float :=
+  fun a b => .ofModel (a.toModel.minimum b.toModel)
 
 /--
 Computes the IEEE-754-2019 `minimumNumber` operation of two floats.
@@ -557,11 +557,11 @@ operation will return that number.
 
 See also `Float.minimum` for the variant that always propagates `NaN`.
 
-This function does not reduce in the kernel. It is implemented in compiled code
+This function has a logical model in terms of `Float.Model`. It is implemented in compiled code
 by a compiler intrinsic if available.
 -/
-@[extern "lean_float_minimum_number"]
-opaque Float.minimumNumber : Float → Float → Float
+@[extern "lean_float_minimum_number"] def Float.minimumNumber : Float → Float → Float :=
+  fun a b => .ofModel (a.toModel.minimumNumber b.toModel)
 
 /--
 Computes the IEEE-754-2019 `maximum` operation of two floats.
@@ -572,11 +572,11 @@ considers `-0` to be smaller than `+0`.
 See also `Float.maximumNumber` for the variant that returns finite numbers
 over `NaN`.
 
-This function does not reduce in the kernel. It is implemented in compiled code
+This function has a logical model in terms of `Float.Model`. It is implemented in compiled code
 by a compiler intrinsic if available.
 -/
-@[extern "lean_float_maximum"]
-opaque Float.maximum : Float → Float → Float
+@[extern "lean_float_maximum"] def Float.maximum : Float → Float → Float :=
+  fun a b => .ofModel (a.toModel.maximum b.toModel)
 
 /--
 Computes the IEEE-754-2019 `maximumNumber` operation of two floats.
@@ -586,11 +586,11 @@ operation will return that number.
 
 See also `Float.maximum` for the variant that always propagates `NaN`.
 
-This function does not reduce in the kernel. It is implemented in compiled code
+This function has a logical model in terms of `Float.Model`. It is implemented in compiled code
 by a compiler intrinsic if available.
 -/
-@[extern "lean_float_maximum_number"]
-opaque Float.maximumNumber : Float → Float → Float
+@[extern "lean_float_maximum_number"] def Float.maximumNumber : Float → Float → Float :=
+  fun a b => .ofModel (a.toModel.maximumNumber b.toModel)
 
 instance : Min Float where
   min := Float.minimum

@@ -38,9 +38,6 @@ extern "C" LEAN_EXPORT obj_res lean_internal_set_max_heartbeat(usize max) {
 
 size_t get_max_heartbeat() { return g_max_heartbeat; }
 
-void set_max_heartbeat_thousands(unsigned max) { g_max_heartbeat = static_cast<size_t>(max) * 1000; }
-
-scope_heartbeat::scope_heartbeat(size_t max):flet<size_t>(g_heartbeat, max) {}
 LEAN_EXPORT scope_max_heartbeat::scope_max_heartbeat(size_t max):flet<size_t>(g_max_heartbeat, max) {}
 
 // separate definition to allow breakpoint in debugger
@@ -64,9 +61,6 @@ LEAN_THREAD_VALUE(size_t, g_rec_depth, 0);
    generous multiple of the configured `maxRecDepth` before bailing out, so that code which fits
    within `maxRecDepth` during elaboration is not rejected by the kernel. */
 static constexpr size_t g_kernel_rec_depth_factor = 16;
-
-void set_max_rec_depth(size_t max) { g_max_rec_depth = max; }
-size_t get_max_rec_depth() { return g_max_rec_depth; }
 
 LEAN_EXPORT scope_max_rec_depth::scope_max_rec_depth(size_t max) :
     m_max(g_max_rec_depth, max), m_curr(g_rec_depth, 0) {}
@@ -112,19 +106,5 @@ void check_system(char const * component_name, bool do_check_interrupted) {
         check_interrupted();
         check_heartbeat();
     }
-}
-
-void sleep_for(unsigned ms, unsigned step_ms) {
-    if (step_ms == 0)
-        step_ms = 1;
-    unsigned rounds = ms / step_ms;
-    chrono::milliseconds c(step_ms);
-    chrono::milliseconds r(ms % step_ms);
-    for (unsigned i = 0; i < rounds; i++) {
-        this_thread::sleep_for(c);
-        check_interrupted();
-    }
-    this_thread::sleep_for(r);
-    check_interrupted();
 }
 }

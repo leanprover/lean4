@@ -43,11 +43,6 @@ static void check_uv(int result, const char * msg) {
     }
 }
 
-// The callback that stops the loop when it's called.
-void async_callback(uv_async_t * handle) {
-    uv_stop(handle->loop);
-}
-
 // Interrupts the event loop and stops it so it can receive future requests.
 void event_loop_interrupt(event_loop_t * event_loop) {
     int result = uv_async_send(&event_loop->async);
@@ -116,9 +111,9 @@ void event_loop_run_loop(event_loop_t * event_loop) {
 
         uv_run(event_loop->loop, UV_RUN_ONCE);
         /*
-         * We leave `uv_run` only when `uv_stop` is called as there is always the `uv_async_t` so
-         * we can never run out of things to wait on. `uv_stop` is only called from `async_callback`
-         * when another thread wants to work with the event loop so we need to give up the mutex.
+         * There is always the `uv_async_t` so we can never run out of things to wait on.
+         * `event_loop_interrupt` sends on it when another thread wants to work with the event loop,
+         * which makes `uv_run` return so we can give up the mutex.
          */
 
         uv_mutex_unlock(&event_loop->mutex);

@@ -755,7 +755,6 @@ Recall that all theorems and definitions containing numeric literals are encoded
 
 @[export lean_expr_mk_bvar] def mkBVarEx : Nat → Expr := mkBVar
 @[export lean_expr_mk_fvar] def mkFVarEx : FVarId → Expr := mkFVar
-@[export lean_expr_mk_mvar] def mkMVarEx : MVarId → Expr := mkMVar
 @[export lean_expr_mk_sort] def mkSortEx : Level → Expr := mkSort
 @[export lean_expr_mk_const] def mkConstEx (c : Name) (lvls : List Level) : Expr := mkConst c lvls
 @[export lean_expr_mk_app] def mkAppEx : Expr → Expr → Expr := mkApp

@@ -324,7 +324,6 @@ def appendIndexAfter (n : Name) (idx : Nat) : Name :=
     | str p s => Name.mkStr p (String.Internal.append (String.Internal.append s "_") (toString idx))
     | n       => Name.mkStr n (String.Internal.append "_" (toString idx))
 
-@[export lean_name_append_before]
 def appendBefore (n : Name) (pre : String) : Name :=
   n.modifyBase fun
     | anonymous => Name.mkStr anonymous pre

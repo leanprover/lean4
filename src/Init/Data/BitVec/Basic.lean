@@ -938,7 +938,10 @@ noncomputable def clz (x : BitVec w) : BitVec w :=
     .ofNatLT (w - (clz.log2Aux w 0 w x.toNat + 1))
       (by exact Nat.lt_of_le_of_lt (Nat.sub_le ..) Nat.lt_two_pow_self)
 
-/-- Runtime implementation of `clz` using the native natural-number logarithm. -/
+/--
+Runtime implementation of `clz` using the native natural-number logarithm.
+Also used as the kernel model for fixed-width machine-integer leading-zero counts.
+-/
 def clzFast (x : BitVec w) : BitVec w :=
   if x.toNat = 0 then
     .ofNatLT w (by exact Nat.lt_two_pow_self)

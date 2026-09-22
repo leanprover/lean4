@@ -14,7 +14,12 @@ import Init.Data.BitVec.Lemmas
 
 public section
 
-/-! Leading- and trailing-zero counts for unsigned machine integers. -/
+/-!
+Leading- and trailing-zero counts for unsigned machine integers.
+
+The `clz` kernel definitions use `BitVec.clzFast`: at machine word widths, its
+`Nat.log2` model avoids the overhead of the bounded search used by `BitVec.clz`.
+-/
 
 /--
 Count the trailing zero bits, returning 8 on zero.

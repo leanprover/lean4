@@ -58,6 +58,12 @@ example : (UInt8.ofNat (1 <<< (8 - 1))).ctz = 8 - 1 := rfl
 example : (UInt8.ofNat (1 <<< (8 - 1))).clz = 0 := rfl
 example : (Int8.ofInt (-1)).clz = 0 := rfl
 example : (Int8.ofInt (-1)).ctz = 0 := rfl
+example : (UInt8.ofNat 176).ctz = 4 := rfl
+example : (UInt8.ofNat 176).clz = 0 := rfl
+example : Int8.minValue.ctz = 7 := rfl
+example : Int8.minValue.clz = 0 := rfl
+example : (Int8.ofInt 48).clz = 2 := rfl
+example : (UInt8.ofNat 48).ctz = 4 ∧ (UInt8.ofNat 48).clz = 2 := by decide
 
 example : (UInt16.ofNat 0).ctz = 16 := rfl
 example : (UInt16.ofNat 0).clz = 16 := rfl
@@ -65,6 +71,12 @@ example : (UInt16.ofNat (1 <<< (16 - 1))).ctz = 16 - 1 := rfl
 example : (UInt16.ofNat (1 <<< (16 - 1))).clz = 0 := rfl
 example : (Int16.ofInt (-1)).clz = 0 := rfl
 example : (Int16.ofInt (-1)).ctz = 0 := rfl
+example : (UInt16.ofNat 176).ctz = 4 := rfl
+example : (UInt16.ofNat 176).clz = 8 := rfl
+example : Int16.minValue.ctz = 15 := rfl
+example : Int16.minValue.clz = 0 := rfl
+example : (Int16.ofInt 48).clz = 10 := rfl
+example : (UInt16.ofNat 48).ctz = 4 ∧ (UInt16.ofNat 48).clz = 10 := by decide
 
 example : (UInt32.ofNat 0).ctz = 32 := rfl
 example : (UInt32.ofNat 0).clz = 32 := rfl
@@ -72,6 +84,12 @@ example : (UInt32.ofNat (1 <<< (32 - 1))).ctz = 32 - 1 := rfl
 example : (UInt32.ofNat (1 <<< (32 - 1))).clz = 0 := rfl
 example : (Int32.ofInt (-1)).clz = 0 := rfl
 example : (Int32.ofInt (-1)).ctz = 0 := rfl
+example : (UInt32.ofNat 176).ctz = 4 := rfl
+example : (UInt32.ofNat 176).clz = 24 := rfl
+example : Int32.minValue.ctz = 31 := rfl
+example : Int32.minValue.clz = 0 := rfl
+example : (Int32.ofInt 48).clz = 26 := rfl
+example : (UInt32.ofNat 48).ctz = 4 ∧ (UInt32.ofNat 48).clz = 26 := by decide
 
 example : (UInt64.ofNat 0).ctz = 64 := rfl
 example : (UInt64.ofNat 0).clz = 64 := rfl
@@ -79,8 +97,21 @@ example : (UInt64.ofNat (1 <<< (64 - 1))).ctz = 64 - 1 := rfl
 example : (UInt64.ofNat (1 <<< (64 - 1))).clz = 0 := rfl
 example : (Int64.ofInt (-1)).clz = 0 := rfl
 example : (Int64.ofInt (-1)).ctz = 0 := rfl
+example : (UInt64.ofNat 176).ctz = 4 := rfl
+example : (UInt64.ofNat 176).clz = 56 := rfl
+example : Int64.minValue.ctz = 63 := rfl
+example : Int64.minValue.clz = 0 := rfl
+example : (Int64.ofInt 48).clz = 58 := rfl
+example : (UInt64.ofNat 48).ctz = 4 ∧ (UInt64.ofNat 48).clz = 58 := by decide
 
 public def main : IO Unit := do
+  unless (0 : Nat).log2 == 0 && (1 : Nat).log2 == 0 do
+    throw <| IO.userError "Nat.log2: zero or one"
+  -- Check both possible scalar/bignum boundaries and nearby heap values.
+  for k in [30, 31, 32, 62, 63, 64, 65] do
+    for (n, expected) in [((1 <<< k) - 1, k - 1), (1 <<< k, k), ((1 <<< k) + 1, k)] do
+      unless n.log2 == expected do
+        throw <| IO.userError s!"Nat.log2: {n}"
   for n in [:256] do
     checkUInt8 n
     checkUInt16 n

@@ -108,9 +108,10 @@ meta partial def elabContent (stx : Content) : TermElabM Expr := withRef stx do
       if val.isEmpty then continue
       let e := mkApp (.const ``Html.text []) (toExpr val)
       es := es.push e
-    | .interp stx =>
+    | .interp isMany stx => withRef stx do←
       let i ← stx.view
-      let e ← elabTermEnsuringType i.term (Expr.const ``Html [])
+      let tm ← if isMany then `(Html.ofCollection $(i.term)) else pure i.term
+      let e ← elabTermEnsuringType tm (Expr.const ``Html [])
       es := es.push e
   match es with
   | #[] => return .const ``Html.empty []

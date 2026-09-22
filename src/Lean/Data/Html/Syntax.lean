@@ -503,8 +503,8 @@ def contentWith (itemFn : ParserFn) : Parser :=
   { -- Collects the tokens and node kinds of all items
     -- so that they are registered along with any syntax that uses `content`.
     info := orelseInfo antiquotP.info <| nodeInfo contentKind <| noFirstTokenInfo <|
-      andthenInfo (elementWith skip).info <| andthenInfo interp.info <|
-      andthenInfo comment.info text.info
+      andthenInfo (elementWith skip).info <| andthenInfo interpMany.info <|
+      andthenInfo interp.info <| andthenInfo comment.info text.info
     -- Antiquotations are only recognized inside quotations, so that `$` is text in literals.
     fn c s := if c.quotDepth > 0 then (withAntiquotFn antiquotP.fn contentFn) c s else contentFn c s
   }
@@ -517,13 +517,15 @@ private partial def contentItemFn : ParserFn := fun c s =>
     | '!' => comment.fn c s
     | '/' => s.mkError "HTML content"
     | _ => (elementWith (contentWith contentItemFn)).fn c s
-  | '{' => interp.fn c s
+  -- `{...` should be tried before its prefix `{`.
+  | '{' => (interpMany <|> interp).fn c s
   | _ => text.fn c s
 
-/-- Parses a sequence of HTML content nodes:
-{name}`text` contents, {name}`comment`s, {lit}`element`s, and {name}`interp`olations.
-
-This parser can be antiquoted. -/
+/-- A sequence of HTML content nodes:
+{name}`text` contents, {name}`comment`s, elements,
+single-item {name}`interp`olations {lit}`{ term }`,
+and many-item interpolations {lit}`{... term }` (see {name}`interpMany`). -/
+/- This parser can be antiquoted. -/
 def content : Parser := contentWith contentItemFn
 
 mutual
@@ -539,6 +541,7 @@ partial def contentItem.parenthesizer : Parenthesizer := do
   if k == textKind then text.parenthesizer
   else if k == commentKind then comment.parenthesizer
   else if k == interpKind false then interp.parenthesizer
+  else if k == interpKind true then interpMany.parenthesizer
   else if k == elementKind then elementWith.parenthesizer content.parenthesizer
   else throwError "Unexpected syntax node kind `{k}` in HTML content"
 end
@@ -555,6 +558,7 @@ partial def contentItem.formatter : Formatter := do
   if k == textKind then text.formatter
   else if k == commentKind then comment.formatter
   else if k == interpKind false then interp.formatter
+  else if k == interpKind true then interpMany.formatter
   else if k == elementKind then elementWith.formatter content.formatter
   else throwError "Unexpected syntax node kind `{k}` in HTML content"
 end
@@ -599,7 +603,7 @@ def TextCommentsView.getSyntax (v : TextCommentsView) : Syntax :=
 inductive ContentItemView where
   | element (stx : Element)
   | textComments (stx : TextCommentsView)
-  | interp (stx : Interp false)
+  | interp (isMany : Bool) (stx : Interp isMany)
   deriving Repr, Inhabited, BEq
 
 /-- Returns the sequence of items in an HTML {name}`content` node.
@@ -628,7 +632,9 @@ where
   viewItem (stx : Syntax) : m ContentItemView := withRef stx do
     let k := stx.getKind
     if k == interpKind false then
-      return .interp ⟨stx⟩
+      return .interp false ⟨stx⟩
+    else if k == interpKind true then
+      return .interp true ⟨stx⟩
     else if k == elementKind then
       return .element ⟨stx⟩
     else

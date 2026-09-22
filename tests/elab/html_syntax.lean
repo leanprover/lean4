@@ -227,6 +227,23 @@ info: element "p" #[] (seq #[element "b" #[] (text "x"), text " tail ", element 
 #guard_msgs in
 #eval html%{<ul>{#["a", "b"].map fun (s : String) => html%{<li>{s}</li>}}</ul>}
 
+-- Interpolated sequences of nodes: any type with a `ForIn` instance works.
+/-- info: element "ul" #[] (seq #[element "li" #[] (text "a"), element "li" #[] (text "b")]) -/
+#guard_msgs in
+#eval html%{<ul>{... ["a", "b"].map fun (s : String) => html%{<li>{s}</li>}}</ul>}
+
+/-- info: element "p" #[] (seq #[text "a ", element "b" #[] (text "x"), text " b"]) -/
+#guard_msgs in
+#eval html%{<p>a {... some bold} b</p>}
+
+/-- info: element "p" #[] (seq #[]) -/
+#guard_msgs in
+#eval html%{<p>{... (none : Option Html)}</p>}
+
+/-- info: seq #[element "b" #[] (text "x"), element "b" #[] (text "x"), text "y"] -/
+#guard_msgs in
+#eval html%{{... #[bold, bold]}y}
+
 -- Tag names cannot be interpolated; construct the element in Lean instead.
 def tagged (s : Bool) (h : Html) : Html := html%{
   <p>
@@ -542,6 +559,8 @@ info: html%{<a {...#[]} n="v" {("k", "v")} hidden>x</a>}
 ---
 info: html%{<a href="x"/><b>y</b> z {"w"} v}
 ---
+info: html%{<p>{...#["y"]} x</p>}
+---
 info: html%{<p /- c -/ a="1" -- d
    b>x</p>}
 -/
@@ -553,6 +572,8 @@ info: html%{<p /- c -/ a="1" -- d
   logInfo m!"{← PrettyPrinter.ppTerm stx}"
   -- Whitespace between content nodes is part of text nodes, so the pretty printer preserves it.
   let stx ← `(html%{<a href="x"/><b>y</b> z {"w"} v})
+  logInfo m!"{← PrettyPrinter.ppTerm stx}"
+  let stx ← `(html%{<p>{... #["y"]} x</p>})
   logInfo m!"{← PrettyPrinter.ppTerm stx}"
   -- Lean comments inside tags are preserved.
   let src := "html%{<p /- c -/ a=\"1\" -- d\n  b>x</p>}"

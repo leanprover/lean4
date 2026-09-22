@@ -46,7 +46,8 @@ See `Int8.clz_def` for the specification via the unsigned natural value.
 def Int8.clz (x : Int8) : UInt8 := x.toUInt8.clz
 
 @[simp, int_toBitVec]
-theorem Int8.toBitVec_clz (x : Int8) : x.clz.toBitVec = x.toBitVec.clz := rfl
+theorem Int8.toBitVec_clz (x : Int8) : x.clz.toBitVec = x.toBitVec.clz :=
+  UInt8.toBitVec_clz x.toUInt8
 
 /-- The natural-number specification of `Int8.clz`. -/
 theorem Int8.toNat_clz (x : Int8) : x.clz.toNat =
@@ -86,7 +87,8 @@ See `Int16.clz_def` for the specification via the unsigned natural value.
 def Int16.clz (x : Int16) : UInt16 := x.toUInt16.clz
 
 @[simp, int_toBitVec]
-theorem Int16.toBitVec_clz (x : Int16) : x.clz.toBitVec = x.toBitVec.clz := rfl
+theorem Int16.toBitVec_clz (x : Int16) : x.clz.toBitVec = x.toBitVec.clz :=
+  UInt16.toBitVec_clz x.toUInt16
 
 /-- The natural-number specification of `Int16.clz`. -/
 theorem Int16.toNat_clz (x : Int16) : x.clz.toNat =
@@ -126,7 +128,8 @@ See `Int32.clz_def` for the specification via the unsigned natural value.
 def Int32.clz (x : Int32) : UInt32 := x.toUInt32.clz
 
 @[simp, int_toBitVec]
-theorem Int32.toBitVec_clz (x : Int32) : x.clz.toBitVec = x.toBitVec.clz := rfl
+theorem Int32.toBitVec_clz (x : Int32) : x.clz.toBitVec = x.toBitVec.clz :=
+  UInt32.toBitVec_clz x.toUInt32
 
 /-- The natural-number specification of `Int32.clz`. -/
 theorem Int32.toNat_clz (x : Int32) : x.clz.toNat =
@@ -166,7 +169,8 @@ See `Int64.clz_def` for the specification via the unsigned natural value.
 def Int64.clz (x : Int64) : UInt64 := x.toUInt64.clz
 
 @[simp, int_toBitVec]
-theorem Int64.toBitVec_clz (x : Int64) : x.clz.toBitVec = x.toBitVec.clz := rfl
+theorem Int64.toBitVec_clz (x : Int64) : x.clz.toBitVec = x.toBitVec.clz :=
+  UInt64.toBitVec_clz x.toUInt64
 
 /-- The natural-number specification of `Int64.clz`. -/
 theorem Int64.toNat_clz (x : Int64) : x.clz.toNat =
@@ -206,7 +210,8 @@ See `ISize.clz_def` for the specification via the unsigned natural value.
 def ISize.clz (x : ISize) : USize := x.toUSize.clz
 
 @[simp]
-theorem ISize.toBitVec_clz (x : ISize) : x.clz.toBitVec = x.toBitVec.clz := rfl
+theorem ISize.toBitVec_clz (x : ISize) : x.clz.toBitVec = x.toBitVec.clz :=
+  USize.toBitVec_clz x.toUSize
 
 /-- The natural-number specification of `ISize.clz`. -/
 theorem ISize.toNat_clz (x : ISize) : x.clz.toNat =

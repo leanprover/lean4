@@ -46,16 +46,18 @@ Count the leading zero bits, returning 8 on zero.
 See `UInt8.clz_def` for the specification via `toNat`.
 -/
 @[expose, extern "lean_uint8_clz"]
-def UInt8.clz (x : UInt8) : UInt8 := ⟨x.toBitVec.clz⟩
+def UInt8.clz (x : UInt8) : UInt8 := ⟨x.toBitVec.clzFast⟩
 
 @[simp, int_toBitVec]
-theorem UInt8.toBitVec_clz (x : UInt8) : x.clz.toBitVec = x.toBitVec.clz := rfl
+theorem UInt8.toBitVec_clz (x : UInt8) : x.clz.toBitVec = x.toBitVec.clz := by
+  change x.toBitVec.clzFast = x.toBitVec.clz
+  rw [BitVec.clz_eq_clzFast]
 
 /-- The natural-number specification of `UInt8.clz`. -/
 theorem UInt8.toNat_clz (x : UInt8) : x.clz.toNat =
     if x = 0 then 8 else 8 - (x.toNat.log2 + 1) := by
-  change x.toBitVec.clz.toNat = _
-  rw [BitVec.toNat_clz]
+  change x.clz.toBitVec.toNat = _
+  rw [UInt8.toBitVec_clz, BitVec.toNat_clz]
   have h : x.toBitVec = 0 ↔ x = 0 := UInt8.toBitVec_inj
   simp only [h, UInt8.toNat_toBitVec]
 
@@ -94,16 +96,18 @@ Count the leading zero bits, returning 16 on zero.
 See `UInt16.clz_def` for the specification via `toNat`.
 -/
 @[expose, extern "lean_uint16_clz"]
-def UInt16.clz (x : UInt16) : UInt16 := ⟨x.toBitVec.clz⟩
+def UInt16.clz (x : UInt16) : UInt16 := ⟨x.toBitVec.clzFast⟩
 
 @[simp, int_toBitVec]
-theorem UInt16.toBitVec_clz (x : UInt16) : x.clz.toBitVec = x.toBitVec.clz := rfl
+theorem UInt16.toBitVec_clz (x : UInt16) : x.clz.toBitVec = x.toBitVec.clz := by
+  change x.toBitVec.clzFast = x.toBitVec.clz
+  rw [BitVec.clz_eq_clzFast]
 
 /-- The natural-number specification of `UInt16.clz`. -/
 theorem UInt16.toNat_clz (x : UInt16) : x.clz.toNat =
     if x = 0 then 16 else 16 - (x.toNat.log2 + 1) := by
-  change x.toBitVec.clz.toNat = _
-  rw [BitVec.toNat_clz]
+  change x.clz.toBitVec.toNat = _
+  rw [UInt16.toBitVec_clz, BitVec.toNat_clz]
   have h : x.toBitVec = 0 ↔ x = 0 := UInt16.toBitVec_inj
   simp only [h, UInt16.toNat_toBitVec]
 
@@ -142,16 +146,18 @@ Count the leading zero bits, returning 32 on zero.
 See `UInt32.clz_def` for the specification via `toNat`.
 -/
 @[expose, extern "lean_uint32_clz"]
-def UInt32.clz (x : UInt32) : UInt32 := ⟨x.toBitVec.clz⟩
+def UInt32.clz (x : UInt32) : UInt32 := ⟨x.toBitVec.clzFast⟩
 
 @[simp, int_toBitVec]
-theorem UInt32.toBitVec_clz (x : UInt32) : x.clz.toBitVec = x.toBitVec.clz := rfl
+theorem UInt32.toBitVec_clz (x : UInt32) : x.clz.toBitVec = x.toBitVec.clz := by
+  change x.toBitVec.clzFast = x.toBitVec.clz
+  rw [BitVec.clz_eq_clzFast]
 
 /-- The natural-number specification of `UInt32.clz`. -/
 theorem UInt32.toNat_clz (x : UInt32) : x.clz.toNat =
     if x = 0 then 32 else 32 - (x.toNat.log2 + 1) := by
-  change x.toBitVec.clz.toNat = _
-  rw [BitVec.toNat_clz]
+  change x.clz.toBitVec.toNat = _
+  rw [UInt32.toBitVec_clz, BitVec.toNat_clz]
   have h : x.toBitVec = 0 ↔ x = 0 := UInt32.toBitVec_inj
   simp only [h, UInt32.toNat_toBitVec]
 
@@ -190,16 +196,18 @@ Count the leading zero bits, returning 64 on zero.
 See `UInt64.clz_def` for the specification via `toNat`.
 -/
 @[expose, extern "lean_uint64_clz"]
-def UInt64.clz (x : UInt64) : UInt64 := ⟨x.toBitVec.clz⟩
+def UInt64.clz (x : UInt64) : UInt64 := ⟨x.toBitVec.clzFast⟩
 
 @[simp, int_toBitVec]
-theorem UInt64.toBitVec_clz (x : UInt64) : x.clz.toBitVec = x.toBitVec.clz := rfl
+theorem UInt64.toBitVec_clz (x : UInt64) : x.clz.toBitVec = x.toBitVec.clz := by
+  change x.toBitVec.clzFast = x.toBitVec.clz
+  rw [BitVec.clz_eq_clzFast]
 
 /-- The natural-number specification of `UInt64.clz`. -/
 theorem UInt64.toNat_clz (x : UInt64) : x.clz.toNat =
     if x = 0 then 64 else 64 - (x.toNat.log2 + 1) := by
-  change x.toBitVec.clz.toNat = _
-  rw [BitVec.toNat_clz]
+  change x.clz.toBitVec.toNat = _
+  rw [UInt64.toBitVec_clz, BitVec.toNat_clz]
   have h : x.toBitVec = 0 ↔ x = 0 := UInt64.toBitVec_inj
   simp only [h, UInt64.toNat_toBitVec]
 
@@ -238,16 +246,18 @@ Count the leading zero bits, returning the platform word width on zero.
 See `USize.clz_def` for the specification via `toNat`.
 -/
 @[expose, extern "lean_usize_clz"]
-def USize.clz (x : USize) : USize := ⟨x.toBitVec.clz⟩
+def USize.clz (x : USize) : USize := ⟨x.toBitVec.clzFast⟩
 
 @[simp]
-theorem USize.toBitVec_clz (x : USize) : x.clz.toBitVec = x.toBitVec.clz := rfl
+theorem USize.toBitVec_clz (x : USize) : x.clz.toBitVec = x.toBitVec.clz := by
+  change x.toBitVec.clzFast = x.toBitVec.clz
+  rw [BitVec.clz_eq_clzFast]
 
 /-- The natural-number specification of `USize.clz`. -/
 theorem USize.toNat_clz (x : USize) : x.clz.toNat =
     if x = 0 then System.Platform.numBits else System.Platform.numBits - (x.toNat.log2 + 1) := by
-  change x.toBitVec.clz.toNat = _
-  rw [BitVec.toNat_clz]
+  change x.clz.toBitVec.toNat = _
+  rw [USize.toBitVec_clz, BitVec.toNat_clz]
   have h : x.toBitVec = 0 ↔ x = 0 := USize.toBitVec_inj
   simp only [h, USize.toNat_toBitVec]
 

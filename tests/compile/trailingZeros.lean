@@ -12,6 +12,12 @@ example : Int.trailingZeros (-1) = 0 := rfl
 example : Int.trailingZeros (-24) = 3 := by decide
 example : Nat.trailingZeros (3 <<< 500) = 500 := rfl
 example : Int.trailingZeros (-(3 <<< 500)) = 500 := rfl
+example : Nat.trailingZeros (3 <<< 8192) = 8192 := rfl
+example : Int.trailingZeros (-(3 <<< 8192)) = 8192 := rfl
+example : Nat.trailingZeros ((1 <<< 65536) + 1) = 0 := rfl
+example : Nat.trailingZeros (((1 <<< 65536) + 1) <<< 8193) = 8193 := rfl
+example : [63, 64, 65, 127, 128, 129].map (fun k => Nat.trailingZeros (3 <<< k)) =
+    [63, 64, 65, 127, 128, 129] := rfl
 example (i : Int) : i.trailingZeros = i.natAbs.trailingZeros :=
   Int.trailingZeros_eq_natAbs i
 

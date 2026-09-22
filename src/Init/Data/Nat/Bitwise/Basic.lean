@@ -19,19 +19,6 @@ theorem bitwise_rec_lemma {n : Nat} (hNe : n ≠ 0) : n / 2 < n :=
   Nat.div_lt_self (Nat.zero_lt_of_ne_zero hNe) (Nat.lt_succ_self _)
 
 /--
-The number of zero bits below the least significant set bit of `n`, or zero if `n = 0`.
-
-At runtime this scans the low machine words without allocating or dividing the input.
--/
-@[expose, extern "lean_nat_trailing_zeros"]
-def trailingZeros (n : @& Nat) : Nat :=
-  -- Use recursors directly to keep kernel reduction depth low.
-  n.rec (fun _ => nat_lit 0) (fun _ ih n =>
-    ((nat_lit 2).ble n).rec (nat_lit 0)
-      (((n.mod (nat_lit 2)).beq (nat_lit 0)).rec (nat_lit 0)
-        ((ih (n.div (nat_lit 2))).succ))) n
-
-/--
 A helper for implementing bitwise operators on `Nat`.
 
 Each bit of the resulting `Nat` is the result of applying `f` to the corresponding bits of the input
@@ -171,5 +158,26 @@ Asserts that the `(n+1)`th least significant bit of `m` is not set.
 
 @[grind =]
 theorem hasNotBit_eq (m n : Nat) : Nat.hasNotBit m n = (1 &&& (m >>> n) ≠ 1) := rfl
+
+/--
+The number of zero bits below the least significant set bit of `n`, or zero if `n = 0`.
+
+The kernel skips zero 64-bit blocks, then counts bits in the first nonzero block.
+At runtime this scans the low machine words without allocating or dividing the input.
+-/
+@[expose, extern "lean_nat_trailing_zeros"]
+def trailingZeros (n : @& Nat) : Nat :=
+  -- Use recursors directly to keep kernel reduction depth low.
+  let bits := fun (n : Nat) =>
+    n.rec (fun _ => nat_lit 0) (fun _ ih n =>
+      ((nat_lit 2).ble n).rec (nat_lit 0)
+        (((n.mod (nat_lit 2)).beq (nat_lit 0)).rec (nat_lit 0)
+          ((ih (n.div (nat_lit 2))).succ))) n
+  n.rec (fun _ => nat_lit 0) (fun _ ih n =>
+    (n.beq (nat_lit 0)).rec
+      ((((nat_lit 0xffffffffffffffff).land n).beq (nat_lit 0)).rec
+        (bits ((nat_lit 0xffffffffffffffff).land n))
+        ((ih (Nat.shiftRight n (nat_lit 64))).add (nat_lit 64)))
+      (nat_lit 0)) n
 
 end Nat

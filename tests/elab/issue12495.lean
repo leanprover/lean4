@@ -7,7 +7,8 @@ structure Box (α : Type u) where
 
 structure Rec where
   base? : Option (Box Rec)
-
+set_option trace.Meta.whnf true in
+set_option trace.Meta.isDefEq true in
 def test (self : Rec) : List (Box Rec) :=
   match self with
   | {base? := none, ..} => []

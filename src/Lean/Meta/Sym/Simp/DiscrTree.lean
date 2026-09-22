@@ -6,7 +6,7 @@ Authors: Leonardo de Moura
 module
 prelude
 public import Lean.Meta.Sym.Pattern
-public import Lean.Meta.DiscrTree.Basic
+public import Lean.Meta.DiscrTree.Util
 import Lean.Meta.Sym.Offset
 import Lean.Meta.Sym.Eta
 import Init.Omega
@@ -207,9 +207,8 @@ Retrieves all values whose patterns match the expression `e`.
 -/
 public def getMatch (mctx : MetavarContext) (d : DiscrTree α) (e : Expr) : Array α :=
   let result := match d.root.find? .star with
-  | none              => .mkEmpty initCapacity
-  | some (.chain _ _) => .mkEmpty initCapacity -- unreachable in well-formed trees!
-  | some (.node vs _) => vs
+  | none   => .mkEmpty initCapacity
+  | some c => c.nodeValues
   let e := resolveAssignedMVars mctx <| etaReduce e
   match d.root.find? (getKey e) with
   | none   => result

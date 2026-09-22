@@ -1016,3 +1016,19 @@ theorem trailingZeros_two_mul {n : Nat} (h : n ≠ 0) :
     trailingZeros (2 * n) = trailingZeros n + 1 := by
   rw [trailingZeros_def, ite_eq_right (by omega)]
   simp
+
+/-- The trailing-zero count is the index of the least significant set bit. -/
+theorem trailingZeros_eq_of_testBit {n i : Nat} (hi : n.testBit i = true)
+    (hlo : ∀ j < i, n.testBit j = false) : n.trailingZeros = i := by
+  induction i generalizing n with
+  | zero => exact trailingZeros_eq_zero_of_mod_eq (mod_two_eq_one_iff_testBit_zero.mpr hi)
+  | succ i ih =>
+    have hn : n ≠ 0 := by intro h; simp [h] at hi
+    have heven : n % 2 = 0 := mod_two_eq_zero_iff_testBit_zero.mpr (hlo 0 (by omega))
+    rw [trailingZeros_def, ite_eq_right hn, ite_eq_left heven]
+    congr 1
+    apply ih
+    · simpa only [testBit_succ] using hi
+    · intro j hj
+      rw [← testBit_succ]
+      exact hlo (j + 1) (by omega)

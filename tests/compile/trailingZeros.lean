@@ -1,4 +1,5 @@
 module
+import Init.Data.BitVec.Lemmas
 import Init.Data.Dyadic.Basic
 
 /-! Regression tests for arbitrary-precision trailing-zero counting (#15264). -/
@@ -30,6 +31,14 @@ example (i : Int) : i.trailingZeros = i.natAbs.trailingZeros :=
 example : ¬ (16 : Int) ∣ 24 := Int.two_pow_trailingZeros_add_one_not_dvd (by decide)
 example : ¬ (16 : Int) ∣ -24 := Int.two_pow_trailingZeros_add_one_not_dvd (by decide)
 example : ¬ (2 : Int) ∣ 7 := Int.two_pow_trailingZeros_add_one_not_dvd (by decide)
+
+example : (0#0).ctz.toNat = 0 := by rw [BitVec.toNat_ctz]; decide
+example : (0#65).ctz.toNat = 65 := by rw [BitVec.toNat_ctz]; decide
+example : (BitVec.ofNat 129 (3 <<< 64)).ctz.toNat = 64 := by
+  rw [BitVec.toNat_ctz]
+  decide
+example (x : BitVec w) (hx : x ≠ 0) : x.ctz = BitVec.ofNat w x.toNat.trailingZeros := by
+  rw [BitVec.ctz_eq, ite_eq_right hx]
 
 def check (odd k : Nat) : IO Unit := do
   let n := odd <<< k

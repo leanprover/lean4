@@ -5,6 +5,7 @@ Released under Apache 2.0 license as described in the file LICENSE.
 Author: Sofia Rodrigues, Henrik Böving
 */
 #include "runtime/uv/event_loop.h"
+#include <cstring>
 
 
 /*
@@ -79,6 +80,29 @@ void event_loop_unlock(event_loop_t * event_loop) {
         uv_cond_signal(&event_loop->cond_var);
     }
     uv_mutex_unlock(&event_loop->mutex);
+}
+
+// `nullptr` if `size` is a valid receive buffer size. libuv reports an empty buffer as `UV_ENOBUFS`,
+// which would read as a resource shortage.
+lean_obj_res lean_uv_recv_size_error(uint64_t size) {
+    if (size != 0) {
+        return nullptr;
+    }
+    return lean_io_result_mk_error(lean_mk_io_error_invalid_argument(EINVAL, lean_mk_string("receive buffer size must be positive")));
+}
+
+// Sets the size of a receive buffer to the `nread` bytes it received. A read that fills less than half
+// of it is moved to a buffer of its own size instead, so that many small reads do not each keep a
+// full-sized buffer alive.
+lean_object * lean_uv_fit_read_buffer(lean_object * byte_array, size_t nread) {
+    if (nread * 2 >= lean_sarray_capacity(byte_array)) {
+        lean_sarray_set_size(byte_array, nread);
+        return byte_array;
+    }
+    lean_object * fitted = lean_alloc_sarray(1, nread, nread);
+    memcpy(lean_sarray_cptr(fitted), lean_sarray_cptr(byte_array), nread);
+    lean_dec(byte_array);
+    return fitted;
 }
 
 // Runs the loop and stops when it needs to register new requests.

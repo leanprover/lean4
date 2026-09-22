@@ -1646,13 +1646,7 @@ extern "C" LEAN_EXPORT lean_obj_res lean_nat_gcd(b_lean_obj_arg a1, b_lean_obj_a
 
 extern "C" LEAN_EXPORT lean_obj_res lean_nat_log2(b_lean_obj_arg a) {
     if (lean_is_scalar(a)) {
-      unsigned res = 0;
-      size_t n = lean_unbox(a);
-      while (n >= 2) {
-        res++;
-        n /= 2;
-      }
-      return lean_box(res);
+      return lean_box(lean_usize_log2(lean_unbox(a)));
     } else {
       return lean_box(mpz_value(a).log2());
     }

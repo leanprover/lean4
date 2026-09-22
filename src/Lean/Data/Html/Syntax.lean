@@ -8,7 +8,6 @@ module
 prelude
 import Init.Prelude
 public meta import Init.Data.Sum.Basic
-public meta import Init.Data.String.Modify
 public meta import Lean.Meta.Hint
 public meta import Lean.Data.Html.Spec
 public meta import Lean.Data.Html.CharRef
@@ -608,7 +607,7 @@ inductive ContentItemView where
 Runs of text interspersed with comments are merged into a single item.
 This is because their text must be processed together into a single output
 (see {name}`TextCommentsView.getText`). -/
-def Content.view (c : Content) : CoreM (Array ContentItemView) := do
+def Content.view [Monad m] [MonadError m] (c : Content) : m (Array ContentItemView) := do
   let mut items : Array ContentItemView := #[]
   -- Text/comment nodes since the last element or interpolation.
   let mut tcs : Array (Text ⊕ Comment) := #[]
@@ -626,7 +625,7 @@ def Content.view (c : Content) : CoreM (Array ContentItemView) := do
     items := items.push <| .textComments { stxs := tcs }
   return items
 where
-  viewItem (stx : Syntax) : CoreM ContentItemView := withRef stx do
+  viewItem (stx : Syntax) : m ContentItemView := withRef stx do
     let k := stx.getKind
     if k == interpKind false then
       return .interp ⟨stx⟩

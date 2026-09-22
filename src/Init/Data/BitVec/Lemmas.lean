@@ -445,6 +445,7 @@ theorem getElem?_zero_ofBool (b : Bool) : (ofBool b)[0]? = some b := by
 theorem getElem_ofBool_zero {b : Bool} : (ofBool b)[0] = b := by
   rw [getElem_eq_iff, getElem?_zero_ofBool]
 
+
 @[deprecated getElem_ofBool_zero (since := "2025-10-29")]
 theorem getElem_zero_ofBool (b : Bool) : (ofBool b)[0] = b := by
   simp
@@ -752,6 +753,7 @@ theorem two_mul_toInt_lt {w : Nat} {x : BitVec w} : 2 * x.toInt < 2 ^ w := by
     simp only [Nat.zero_lt_succ, Nat.mul_lt_mul_left, Int.natCast_mul, Int.cast_ofNat_Int]
     norm_cast; omega
 
+
 theorem two_mul_toInt_le {w : Nat} {x : BitVec w} : 2 * x.toInt ≤ 2 ^ w - 1 :=
   Int.le_sub_one_of_lt two_mul_toInt_lt
 
@@ -777,6 +779,7 @@ theorem le_two_mul_toInt {w : Nat} {x : BitVec w} : -2 ^ w ≤ 2 * x.toInt := by
   · rw [← Nat.two_pow_pred_add_two_pow_pred (by omega), ← Nat.two_mul, Nat.add_sub_cancel]
     simp only [Nat.zero_lt_succ, Nat.mul_lt_mul_left, Int.natCast_mul, Int.cast_ofNat_Int]
     norm_cast; omega
+
 
 theorem le_toInt {w : Nat} (x : BitVec w) : -2 ^ (w - 1) ≤ x.toInt := by
   by_cases h : w = 0
@@ -2155,6 +2158,7 @@ theorem toNat_ushiftRight_lt (x : BitVec w) (n : Nat) (hn : n ≤ w) :
     · apply hn
   · apply Nat.pow_pos (by decide)
 
+
 /-- Shifting right by `n`, which is larger than the bitwidth `w` produces `0. -/
 theorem ushiftRight_eq_zero {x : BitVec w} {n : Nat} (hn : w ≤ n) :
     x >>> n = 0#w := by
@@ -2351,6 +2355,7 @@ theorem sshiftRight_or_distrib (x y : BitVec w) (n : Nat) :
   split
     <;> by_cases w ≤ i
     <;> simp [*]
+
 
 @[grind =]
 theorem sshiftRight'_ofNat_eq_sshiftRight {x : BitVec w} {v k : Nat} : x.sshiftRight' (BitVec.ofNat v k) = x.sshiftRight (k % 2^v) := rfl
@@ -3283,6 +3288,7 @@ theorem append_extractLsb'_of_lt {x : BitVec (x_len * w)} :
   intros
   simp only [show (x_len - 1) * w + (i - (x_len - 1) * w) = i by omega]
 
+
 theorem extractLsb'_append_of_lt {x : BitVec (k * w)} {y : BitVec w} (hlt : i < k) :
     extractLsb' (i * w) w (y ++ x) = extractLsb' (i * w) w x := by
   ext j hj
@@ -3536,6 +3542,7 @@ theorem setWidth_succ (x : BitVec w) :
     (cons a x) ^^^ (cons b y) = cons (a ^^ b) (x ^^^ y) := by
   ext i
   simp [cons]
+
 
 theorem cons_append (x : BitVec w₁) (y : BitVec w₂) (a : Bool) :
     (cons a x) ++ y = (cons a (x ++ y)).cast (by omega) := by
@@ -5081,6 +5088,7 @@ theorem rotateLeft_eq_rotateLeftAux_of_lt {x : BitVec w} {r : Nat} (hr : r < w) 
     x.rotateLeft r = x.rotateLeftAux r := by
   simp only [rotateLeft, Nat.mod_eq_of_lt hr]
 
+
 /--
 Accessing bits in `x.rotateLeft r` the range `[0, r)` is equal to
 accessing bits `x` in the range `[w - r, w)`.
@@ -5494,6 +5502,7 @@ theorem mul_twoPow_eq_shiftLeft (x : BitVec w) (i : Nat) :
 theorem twoPow_mul_eq_shiftLeft (x : BitVec w) (i : Nat) :
     (twoPow w i) * x = x <<< i := by
   rw [BitVec.mul_comm, mul_twoPow_eq_shiftLeft]
+
 
 theorem twoPow_zero {w : Nat} : twoPow w 0 = 1#w := by
   apply eq_of_toNat_eq
@@ -6083,6 +6092,8 @@ theorem toInt_abs_eq_ite {x : BitVec w} :
     · simp [hx₂, abs_eq, toInt_neg_of_ne_intMin hx]
     · simp [hx₂, abs_eq]
 
+
+
 /--
 The absolute value of `x : BitVec w` is a case split on the sign of `x`, when `x ≠ intMin w`.
 This is a variant of `toInt_abs_eq_ite`.
@@ -6090,6 +6101,7 @@ This is a variant of `toInt_abs_eq_ite`.
 theorem toInt_abs_eq_ite_of_ne_intMin {x : BitVec w} (hx : x ≠ intMin w) :
   x.abs.toInt = if x.msb then -x.toInt else x.toInt := by
   simp [toInt_abs_eq_ite, hx]
+
 
 /--
 The absolute value of `x : BitVec w`, interpreted as an integer, is a case split:
@@ -6370,7 +6382,7 @@ theorem not_lt_iff {b : BitVec w} : ~~~b < b ↔ 0 < w ∧ b.msb = true := by
 /-- The leading-zero count expressed through the natural value's bit length. -/
 theorem toNat_clz (x : BitVec w) :
     x.clz.toNat = if x = 0 then w else w - (x.toNat.log2 + 1) := by
-  by_cases h : x.toNat = 0 <;> simp [clz, h, toNat_eq]
+  by_cases h : x.toNat = 0 <;> simp [clz_eq_clzFast, clzFast, h, toNat_eq]
 
 /-- The natural-number specification of `clz`. -/
 theorem clz_def (x : BitVec w) :
@@ -6815,6 +6827,7 @@ theorem cpopNatRec_eq {x : BitVec w} {n : Nat} (acc : Nat):
 theorem cpopNatRec_add {x : BitVec w} {acc n : Nat} :
     x.cpopNatRec n (acc + acc') = x.cpopNatRec n acc + acc' := by
   rw [cpopNatRec_eq (acc := acc + acc'), cpopNatRec_eq (acc := acc), Nat.add_assoc]
+
 
 @[simp]
 theorem cpopNatRec_cons_of_le {x : BitVec w} {b : Bool} (hn : n ≤ w) :

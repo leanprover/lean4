@@ -15,7 +15,7 @@ elab "bench_bitvec_zero_counts" : command => do
   let scale := if bench then 4096 else 64
   let repetitions := if bench then 100 else 3
   for w in [scale, 16 * scale] do
-    for k in [0, min 256 (w - 2)] do
+    for k in [0, w / 2, w - 2] do
       let n := 3 <<< k
       for fn in [``BitVec.ctz, ``BitVec.clz] do
         let input := mkApp2 (mkConst ``BitVec.ofNat) (mkNatLit w) (mkNatLit n)

@@ -367,7 +367,7 @@ private def elabSimpArg (indexConfig : Meta.ConfigWithKey) (eraseLocal : Bool) (
         return .addSimproc declName post
       | .ext ext₁? ext₂? h =>
         if inv then
-          throwErrorAt arg[1] "Invalid `←` modifier: cannot be used on a simp extension"
+          throwErrorAt arg[1] "Invalid `←` modifier: Cannot be used on a simp extension"
         return .ext ext₁? ext₂? h
       | .none    =>
         let name ← mkFreshId

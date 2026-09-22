@@ -651,6 +651,23 @@ static inline _Atomic(int) * lean_get_rc_mt_addr(lean_object* o) {
 #define LEAN_RC_STICKY      (INT_MIN + 0x10000000)
 #define LEAN_RC_STICKY_DROP (INT_MIN + 0x20000000)
 
+/* Whether the count of `o` is thread-shared and not stuck, that is, one that increments still
+   adjust. Read as unsigned, a persistent count (0), a single-threaded count and a stuck count all
+   fall below every such count, so one comparison rejects them all. */
+// sync with tests/elab/rc_model.lean (`isUnstuckMt_unsigned`)
+static inline bool lean_is_unstuck_mt(lean_object * o) {
+    return (unsigned)lean_internal_get_rc(o) > (unsigned)LEAN_RC_STICKY;
+}
+
+/* Whether the count of `o` is one no drop will ever free: persistent, or at or below the drop
+   threshold. Read as unsigned, both fall below every unstuck thread-shared count, so one comparison
+   catches both; so would a single-threaded count, which callers must have excluded first. */
+// sync with tests/elab/rc_model.lean (`isNeverFreed_unsigned`)
+static inline bool lean_is_never_freed(lean_object * o) {
+    assert(!lean_is_st(o));
+    return (unsigned)lean_internal_get_rc(o) <= (unsigned)LEAN_RC_STICKY_DROP;
+}
+
 /* Largest `n` that `lean_inc_ref_n` adjusts the count by inline; above this it defers to
    `lean_inc_ref_huge_n`, which either applies the whole `n` or leaves the object frozen. Overflow
    in either direction still lands inside the sticky range for any `n` up to
@@ -676,9 +693,7 @@ static inline void lean_inc_ref_n(lean_object * o, size_t n) {
     }
     if (LEAN_LIKELY(lean_is_st(o))) {
         lean_internal_add_rc(o, n);
-    } else if ((unsigned)lean_internal_get_rc(o) > (unsigned)LEAN_RC_STICKY) {
-        // Read as unsigned, a persistent count (0) and a sticky count both fall below every live
-        // thread-shared count, so one comparison rejects both.
+    } else if (lean_is_unstuck_mt(o)) {
 #ifdef __cplusplus
         std::atomic_fetch_sub_explicit(lean_get_rc_mt_addr(o), n, std::memory_order_relaxed);
 #else

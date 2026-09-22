@@ -155,7 +155,13 @@ inline bool has_fvar(expr const & e) {
     return r;
 }
 bool has_univ_param(expr const & e);
-unsigned get_loose_bvar_range(expr const & e);
+/* This is the implementation in Lean */
+unsigned loose_bvar_range_core(expr const & e);
+inline unsigned get_loose_bvar_range(expr const & e) {
+    unsigned r = static_cast<unsigned>(get_data(e) >> 44);
+    lean_assert(r == loose_bvar_range_core(e));
+    return r;
+}
 
 struct expr_hash { unsigned operator()(expr const & e) const { return hash(e); } };
 struct expr_pair_hash {

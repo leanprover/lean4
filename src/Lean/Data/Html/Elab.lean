@@ -6,6 +6,7 @@ Author: Wojciech Nawrocki
 module
 
 prelude
+public meta import Init.Data.String.Modify
 public meta import Lean.Data.Html.Syntax
 public meta import Lean.Elab.Term
 import Lean.Data.Html.Basic
@@ -15,7 +16,7 @@ set_option doc.verso true
 namespace Lean.Html.Syntax
 
 /-- Throws an informative error when the start and end tag names do not match (up to casing). -/
-meta def Element.checkNamesMatch (stx : Element) : CoreM Unit := do
+public meta def Element.checkNamesMatch (stx : Element) : CoreM Unit := do
   if let { startTag, endTag? := some endTag, .. } ← stx.view then
     let startTagName ← startTag.name.view
     let endTagName ← endTag.name.view
@@ -25,7 +26,7 @@ meta def Element.checkNamesMatch (stx : Element) : CoreM Unit := do
         m!"Mismatched end tag, expected `{startTagName}` but got `{endTagName}`{hint}"
 
 /-- Throws an informative error when the element should be void, yet has children. -/
-meta def Element.checkNoVoidChildren (stx : Element) : CoreM Unit := do
+public meta def Element.checkNoVoidChildren (stx : Element) : CoreM Unit := do
   if let { startTag, children? := some _, .. } ← stx.view then
     let tagName ← startTag.name.view
     if isVoidElement tagName then

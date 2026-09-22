@@ -39,4 +39,9 @@ extern "C" LEAN_EXPORT bool lean_options_get_bool(obj_arg opts, obj_arg n, bool 
 bool options::get_bool(name const & n, bool default_value) const {
     return lean_options_get_bool(this->to_obj_arg(), n.to_obj_arg(), default_value);
 }
+
+extern "C" LEAN_EXPORT obj_res lean_options_update_bool(obj_arg opts, obj_arg n, bool v);
+options options::update(name const & n, bool v) const {
+    return options(lean_options_update_bool(this->to_obj_arg(), n.to_obj_arg(), v));
+}
 }

@@ -16,6 +16,7 @@ public:
     options();
     explicit options(obj_arg o): object_ref(o) {}
     bool get_bool(name const & n, bool default_value = false) const;
+    options update(name const & n, bool v) const;
     friend bool is_eqp(options const & a, options const & b) { return a.raw() == b.raw(); }
 };
 

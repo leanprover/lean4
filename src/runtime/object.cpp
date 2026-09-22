@@ -5,6 +5,7 @@ Released under Apache 2.0 license as described in the file LICENSE.
 Author: Leonardo de Moura
 */
 #include <atomic>
+#include <bit>
 #include <string>
 #include <algorithm>
 #include <vector>
@@ -1664,13 +1665,7 @@ extern "C" LEAN_EXPORT size_t lean_nat_size_in_bytes(b_lean_obj_arg a) {
 }
 
 static size_t trailing_zeros(size_t n) {
-    if (n == 0) return 0;
-    size_t result = 0;
-    while ((n & 1) == 0) {
-        result++;
-        n >>= 1;
-    }
-    return result;
+    return n == 0 ? 0 : std::countr_zero(n);
 }
 
 extern "C" LEAN_EXPORT lean_obj_res lean_nat_trailing_zeros(b_lean_obj_arg a) {

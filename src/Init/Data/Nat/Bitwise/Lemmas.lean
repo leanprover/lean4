@@ -28,33 +28,44 @@ It is primarily intended to support the bitvector library.
 
 namespace Nat
 
-private theorem trailingZeros_aux_irrel {n k k' : Nat} (hk : n ≤ k) (hk' : n ≤ k') :
-    trailingZeros.aux k n = trailingZeros.aux k' n := by
+private theorem trailingZeros_rec_irrel {n k k' : Nat} (hk : n ≤ k) (hk' : n ≤ k') :
+    (k.rec (fun _ => 0) (fun _ ih n =>
+      ((2).ble n).rec 0 (((n % 2).beq 0).rec 0 ((ih (n / 2)).succ))) n : Nat) =
+    (k'.rec (fun _ => 0) (fun _ ih n =>
+      ((2).ble n).rec 0 (((n % 2).beq 0).rec 0 ((ih (n / 2)).succ))) n : Nat) := by
   induction k generalizing n k' with
-  | zero => cases Nat.eq_zero_of_le_zero hk; cases k' <;> simp [trailingZeros.aux]
+  | zero => cases hk; cases k' <;> rfl
   | succ k ih =>
-    cases k' with
-    | zero => cases Nat.eq_zero_of_le_zero hk'; simp [trailingZeros.aux]
-    | succ k' =>
-      simp only [trailingZeros.aux]
-      split
+    cases k'
+    · cases hk'; rfl
+    · dsimp only
+      cases h : Nat.ble 2 n
       · rfl
-      next hn =>
-        split
-        · exact congrArg (· + 1) (ih (k' := k')
-            (by have := bitwise_rec_lemma hn; omega)
-            (by have := bitwise_rec_lemma hn; omega))
+      · cases (n % 2).beq 0
         · rfl
+        · have hn := Nat.log2_terminates n (Nat.le_of_ble_eq_true h)
+          exact congrArg Nat.succ
+            (ih (Nat.le_of_lt_add_one (Nat.lt_of_lt_of_le hn hk))
+              (Nat.le_of_lt_add_one (Nat.lt_of_lt_of_le hn hk')))
 
 theorem trailingZeros_def (n : Nat) :
-    n.trailingZeros = if n = 0 then 0 else if n % 2 = 0 then (n / 2).trailingZeros + 1 else 0 := by
+    trailingZeros n = if n = 0 then 0 else if n % 2 = 0 then trailingZeros (n / 2) + 1 else 0 := by
+  rw [trailingZeros, trailingZeros]
   cases n with
   | zero => rfl
   | succ n =>
-    simp only [trailingZeros, trailingZeros.aux, Nat.succ_ne_zero, ↓reduceIte]
-    split
-    · rw [trailingZeros_aux_irrel (k' := (n + 1) / 2) (by omega) (Nat.le_refl _)]
-    · rfl
+    simp only [Nat.succ_ne_zero, ↓reduceIte]
+    cases h : Nat.ble 2 (n + 1)
+    · have h' : ¬ 2 ≤ n + 1 := fun hn => Bool.noConfusion (h.symm.trans (Nat.ble_eq_true_of_le hn))
+      have : n = 0 := by omega
+      subst n
+      rfl
+    · cases hb : ((n + 1).mod 2).beq 0
+      · have he : (n + 1) % 2 ≠ 0 := Nat.ne_of_beq_eq_false hb
+        rw [ite_eq_right he]
+      · have he : (n + 1) % 2 = 0 := Nat.eq_of_beq_eq_true hb
+        rw [ite_eq_left he]
+        exact congrArg Nat.succ (trailingZeros_rec_irrel (n := (n + 1) / 2) (k := n) (by omega) (Nat.le_refl _))
 
 @[simp] theorem trailingZeros_zero : trailingZeros 0 = 0 := rfl
 

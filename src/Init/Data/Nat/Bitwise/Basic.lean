@@ -25,14 +25,11 @@ At runtime this scans the low machine words without allocating or dividing the i
 -/
 @[expose, extern "lean_nat_trailing_zeros"]
 def trailingZeros (n : @& Nat) : Nat :=
-  aux n n
-where
-  aux : Nat → Nat → Nat
-    | 0, _ => 0
-    | fuel + 1, n =>
-      if n = 0 then 0
-      else if n % 2 = 0 then aux fuel (n / 2) + 1
-      else 0
+  -- Use recursors directly to keep kernel reduction depth low.
+  n.rec (fun _ => nat_lit 0) (fun _ ih n =>
+    ((nat_lit 2).ble n).rec (nat_lit 0)
+      (((n.mod (nat_lit 2)).beq (nat_lit 0)).rec (nat_lit 0)
+        ((ih (n.div (nat_lit 2))).succ))) n
 
 /--
 A helper for implementing bitwise operators on `Nat`.

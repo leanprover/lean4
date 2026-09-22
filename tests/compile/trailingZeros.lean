@@ -10,10 +10,8 @@ example : Nat.trailingZeros 24 = 3 := by decide
 example : Int.trailingZeros 0 = 0 := rfl
 example : Int.trailingZeros (-1) = 0 := rfl
 example : Int.trailingZeros (-24) = 3 := by decide
-set_option maxRecDepth 2048 in
-example : Nat.trailingZeros (3 <<< 80) = 80 := by decide
-set_option maxRecDepth 2048 in
-example : Int.trailingZeros (-(3 <<< 80)) = 80 := by decide
+example : Nat.trailingZeros (3 <<< 500) = 500 := rfl
+example : Int.trailingZeros (-(3 <<< 500)) = 500 := rfl
 example (i : Int) : i.trailingZeros = i.natAbs.trailingZeros :=
   Int.trailingZeros_eq_natAbs i
 

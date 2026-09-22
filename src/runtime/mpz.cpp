@@ -4,6 +4,7 @@ Released under Apache 2.0 license as described in the file LICENSE.
 
 Author: Leonardo de Moura
 */
+#include <bit>
 #include <memory>
 #include <string>
 #include <cstring>
@@ -895,13 +896,7 @@ size_t mpz::trailing_zeros() const {
     if (is_zero()) return 0;
     size_t i = 0;
     while (m_digits[i] == 0) i++;
-    size_t result = i * sizeof(mpn_digit) * 8;
-    mpn_digit digit = m_digits[i];
-    while ((digit & 1) == 0) {
-        result++;
-        digit >>= 1;
-    }
-    return result;
+    return i * sizeof(mpn_digit) * 8 + std::countr_zero(m_digits[i]);
 }
 
 size_t mpz::size_in_bytes() const {

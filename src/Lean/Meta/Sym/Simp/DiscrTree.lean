@@ -193,8 +193,7 @@ partial def getMatchLoop (mctx : MetavarContext) (todo : Array Expr) (c : Trie Î
       /- We must always visit `Key.star` edges since they are wildcards.
         Thus, `todo` is not used linearly when there is `Key.star` edge
         and there is an edge for `k` and `k != Key.star`. -/
-      let result :=
-        if first.1 == .star then
+      let result := if first.1 == .star then
           getMatchLoop mctx todo first.2 result
         else
           result

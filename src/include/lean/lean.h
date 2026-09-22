@@ -11,6 +11,18 @@ Author: Leonardo de Moura
 #include <limits.h>
 #include <float.h>
 
+#ifndef __has_builtin
+#  define __has_builtin(x) 0
+#endif
+
+// The bundled toolchain omits math.h; only the fallback implementations need it.
+#if !__has_builtin(__builtin_elementwise_minimum) || \
+    !__has_builtin(__builtin_elementwise_minimumnum) || \
+    !__has_builtin(__builtin_elementwise_maximum) || \
+    !__has_builtin(__builtin_elementwise_maximumnum)
+#include <math.h>
+#endif
+
 #include <lean/config.h>
 
 #ifdef LEAN_MIMALLOC
@@ -3310,6 +3322,90 @@ static inline double lean_int32_to_float(uint32_t a) { return (double)(int32_t) 
 static inline double lean_int64_to_float(uint64_t a) { return (double)(int64_t) a; }
 static inline double lean_isize_to_float(size_t a) { return (double)(ptrdiff_t) a; }
 
+static inline double lean_float_minimum(double a, double b) {
+#if __has_builtin(__builtin_elementwise_minimum)
+    // This path is taken when building Lean with our bundled LLVM toolchain, so you get this in
+    // all nightlies and release builds.
+    //
+    // This function is also part of the C23 standard as `fminimum`, but it will be a while until
+    // we can assume that this is available
+    return __builtin_elementwise_minimum(a, b);
+#else
+    // This is a fallback path taken if you build Lean using your system compiler and it does not
+    // have the intrinsic above (i.e. your compiler is an older Clang or a different C compiler)
+    if (isnan(a) || isnan(b))
+        return a + b;
+    if (a == b)
+        return signbit(a) ? a : b;
+    return a < b ? a : b;
+#endif
+}
+
+static inline double lean_float_minimum_number(double a, double b) {
+#if __has_builtin(__builtin_elementwise_minimumnum)
+    // This path is taken when building Lean with our bundled LLVM toolchain, so you get this in
+    // all nightlies and release builds.
+    //
+    // This function is also part of the C23 standard as `fminimum_num`, but it will be a while
+    // until we can assume that this is available
+    return __builtin_elementwise_minimumnum(a, b);
+#else
+    // This is a fallback path taken if you build Lean using your system compiler and it does not
+    // have the intrinsic above (i.e. your compiler is an older Clang or a different C compiler)
+    if (isnan(a) || isnan(b)) {
+        if (isnan(a) && isnan(b))
+            return a + b;
+        (void)(a == b);
+        return isnan(a) ? b : a;
+    }
+    if (a == b)
+        return signbit(a) ? a : b;
+    return a < b ? a : b;
+#endif
+}
+
+static inline double lean_float_maximum(double a, double b) {
+#if __has_builtin(__builtin_elementwise_maximum)
+    // This path is taken when building Lean with our bundled LLVM toolchain, so you get this in
+    // all nightlies and release builds.
+    //
+    // This function is also part of the C23 standard as `fmaximum`, but it will be a while until
+    // we can assume that this is available
+    return __builtin_elementwise_maximum(a, b);
+#else
+    // This is a fallback path taken if you build Lean using your system compiler and it does not
+    // have the intrinsic above (i.e. your compiler is an older Clang or a different C compiler)
+    if (isnan(a) || isnan(b))
+        return a + b;
+    if (a == b)
+        return signbit(a) ? b : a;
+    return a > b ? a : b;
+#endif
+}
+
+static inline double lean_float_maximum_number(double a, double b) {
+#if __has_builtin(__builtin_elementwise_maximumnum)
+    // This path is taken when building Lean with our bundled LLVM toolchain, so you get this in
+    // all nightlies and release builds.
+    //
+    // This function is also part of the C23 standard as `fmaximum_num`, but it will be a while
+    // until we can assume that this is available
+    return __builtin_elementwise_maximumnum(a, b);
+#else
+    // This is a fallback path taken if you build Lean using your system compiler and it does not
+    // have the intrinsic above (i.e. your compiler is an older Clang or a different C compiler)
+    if (isnan(a) || isnan(b)) {
+        if (isnan(a) && isnan(b))
+            return a + b;
+        (void)(a == b);
+        return isnan(a) ? b : a;
+    }
+    if (a == b)
+        return signbit(a) ? b : a;
+    return a > b ? a : b;
+#endif
+}
+
 /* float32 primitives */
 static inline uint8_t lean_float32_to_uint8(float a) {
     return 0. <= a ? (a < 256. ? (uint8_t)a : UINT8_MAX) : 0;
@@ -3389,6 +3485,90 @@ static inline float lean_isize_to_float32(size_t a) { return (float)(ptrdiff_t) 
 
 static inline float lean_float_to_float32(double a) { return (float)a; }
 static inline double lean_float32_to_float(float a) { return (double)a; }
+
+static inline float lean_float32_minimum(float a, float b) {
+#if __has_builtin(__builtin_elementwise_minimum)
+    // This path is taken when building Lean with our bundled LLVM toolchain, so you get this in
+    // all nightlies and release builds.
+    //
+    // This function is also part of the C23 standard as `fminimum`, but it will be a while until
+    // we can assume that this is available
+    return __builtin_elementwise_minimum(a, b);
+#else
+    // This is a fallback path taken if you build Lean using your system compiler and it does not
+    // have the intrinsic above (i.e. your compiler is an older Clang or a different C compiler)
+    if (isnan(a) || isnan(b))
+        return a + b;
+    if (a == b)
+        return signbit(a) ? a : b;
+    return a < b ? a : b;
+#endif
+}
+
+static inline float lean_float32_minimum_number(float a, float b) {
+#if __has_builtin(__builtin_elementwise_minimumnum)
+    // This path is taken when building Lean with our bundled LLVM toolchain, so you get this in
+    // all nightlies and release builds.
+    //
+    // This function is also part of the C23 standard as `fminimum_num`, but it will be a while
+    // until we can assume that this is available
+    return __builtin_elementwise_minimumnum(a, b);
+#else
+    // This is a fallback path taken if you build Lean using your system compiler and it does not
+    // have the intrinsic above (i.e. your compiler is an older Clang or a different C compiler)
+    if (isnan(a) || isnan(b)) {
+        if (isnan(a) && isnan(b))
+            return a + b;
+        (void)(a == b);
+        return isnan(a) ? b : a;
+    }
+    if (a == b)
+        return signbit(a) ? a : b;
+    return a < b ? a : b;
+#endif
+}
+
+static inline float lean_float32_maximum(float a, float b) {
+#if __has_builtin(__builtin_elementwise_maximum)
+    // This path is taken when building Lean with our bundled LLVM toolchain, so you get this in
+    // all nightlies and release builds.
+    //
+    // This function is also part of the C23 standard as `fmaximum`, but it will be a while until
+    // we can assume that this is available
+    return __builtin_elementwise_maximum(a, b);
+#else
+    // This is a fallback path taken if you build Lean using your system compiler and it does not
+    // have the intrinsic above (i.e. your compiler is an older Clang or a different C compiler)
+    if (isnan(a) || isnan(b))
+        return a + b;
+    if (a == b)
+        return signbit(a) ? b : a;
+    return a > b ? a : b;
+#endif
+}
+
+static inline float lean_float32_maximum_number(float a, float b) {
+#if __has_builtin(__builtin_elementwise_maximumnum)
+    // This path is taken when building Lean with our bundled LLVM toolchain, so you get this in
+    // all nightlies and release builds.
+    //
+    // This function is also part of the C23 standard as `fmaximum_num`, but it will be a while
+    // until we can assume that this is available
+    return __builtin_elementwise_maximumnum(a, b);
+#else
+    // This is a fallback path taken if you build Lean using your system compiler and it does not
+    // have the intrinsic above (i.e. your compiler is an older Clang or a different C compiler)
+    if (isnan(a) || isnan(b)) {
+        if (isnan(a) && isnan(b))
+            return a + b;
+        (void)(a == b);
+        return isnan(a) ? b : a;
+    }
+    if (a == b)
+        return signbit(a) ? b : a;
+    return a > b ? a : b;
+#endif
+}
 
 /* Efficient C implementations of defns used by the compiler */
 static inline size_t lean_hashmap_mk_idx(lean_obj_arg sz, uint64_t hash) {

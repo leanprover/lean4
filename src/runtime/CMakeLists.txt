@@ -95,6 +95,10 @@ set(
   openssl.cpp
   cadical.cpp
 )
+if(NOT USE_MIMALLOC)
+  # with mimalloc, `object_rc.cpp` is #included into `mimalloc.cpp` instead (see there)
+  list(APPEND RUNTIME_OBJS object_rc.cpp)
+endif()
 
 if(CADICAL_INCLUDE_DIR)
   # scoped to this file so that cadical's headers cannot shadow ours

@@ -387,14 +387,20 @@ def toDecodedSegments (p : Path) : Array String :=
 end Path
 
 /--
-Query string represented as an array of key-value pairs. Both keys and values are stored as
-`EncodedQueryParam` for proper application/x-www-form-urlencoded encoding. Values are optional to
-support parameters without values (e.g., "?flag"). Order is preserved based on insertion order.
+A query component read as an array of key-value pairs, the form convention layered over the opaque
+`EncodedQuery` that a URI actually carries. Keys and values are `QueryParam`s, the parameters
+themselves rather than any of their spellings, so a parameter posted as `a%3Ab` and one posted as
+`a:b` are the same parameter. Values are optional to support parameters without values (e.g.,
+"?flag"). Order is preserved based on insertion order.
 
-Reference: https://www.rfc-editor.org/rfc/rfc3986.html#section-3.4
+Obtain one with `EncodedQuery.params`, or `URI.queryParams` for a parsed URI; a consumer that reads
+the query some other way can ignore this type entirely. Percent-encoding is applied when the
+parameters are spelled back out as a query, not while they are held here.
+
+Reference: https://url.spec.whatwg.org/#urlencoded-parsing
 -/
 @[expose]
-def Query := Array (EncodedQueryParam × Option EncodedQueryParam)
+def Query := Array (QueryParam × Option QueryParam)
 deriving Repr, Inhabited, BEq
 
 namespace Query
@@ -403,7 +409,7 @@ namespace Query
 Extracts all unique query parameter names.
 -/
 @[expose]
-def names (query : Query) : Array EncodedQueryParam :=
+def names (query : Query) : Array QueryParam :=
   query.map (fun p => p.fst)
   |> Array.toList
   |> List.eraseDups
@@ -413,7 +419,7 @@ def names (query : Query) : Array EncodedQueryParam :=
 Extracts all query parameter values.
 -/
 @[expose]
-def values (query : Query) : Array (Option EncodedQueryParam) :=
+def values (query : Query) : Array (Option QueryParam) :=
   query.map (fun p => p.snd)
 
 /--
@@ -421,63 +427,64 @@ Returns the query as an array of (key, value) pairs. This is an identity functio
 already an array of pairs.
 -/
 @[expose]
-def toArray (query : Query) : Array (EncodedQueryParam × Option EncodedQueryParam) :=
+def toArray (query : Query) : Array (QueryParam × Option QueryParam) :=
   query
 
 /--
-Formats a query parameter as a string in the format "key" or "key=value". The key and value are
-already percent-encoded as `EncodedQueryParam`.
+Formats a query parameter as a string in the format "key" or "key=value", percent-encoding both.
 -/
-def formatQueryParam (key : EncodedQueryParam) (value : Option EncodedQueryParam) : String :=
+def formatQueryParam (key : QueryParam) (value : Option QueryParam) : String :=
   match value with
-  | none => toString key
-  | some v => s!"{toString key}={toString v}"
+  | none => toString key.encode
+  | some v => s!"{toString key.encode}={toString v.encode}"
 
 /--
-Finds the first value of a query parameter by key name. Returns `none` if the key is not found.
-The value remains encoded as `EncodedQueryParam`.
+Finds the first value of a query parameter by name. Returns `none` if the name is not found.
 -/
-def findEncoded? (query : Query) (key : EncodedQueryParam) : Option (Option EncodedQueryParam) :=
-  let matchingKey := Array.find? (fun x => x.fst.toByteArray = key.toByteArray) query
-  matchingKey.map (fun x => x.snd)
+def findParam? (query : Query) (key : QueryParam) : Option (Option QueryParam) :=
+  (Array.find? (fun x => x.fst == key) query).map (fun x => x.snd)
 
 /--
-Finds the first value of a query parameter by raw key string. The key is percent-encoded before
-matching. This avoids aliasing between raw and pre-encoded spellings.
+Finds the first value of a query parameter by name.
 -/
-def find? (query : Query) (key : String) : Option (Option EncodedQueryParam) :=
-  query.findEncoded? (EncodedQueryParam.encode key)
+def find? (query : Query) (key : String) : Option (Option QueryParam) :=
+  query.findParam? (QueryParam.ofString key)
 
 /--
-Finds all values of a query parameter by key name. Returns an empty array if the key is not found.
-The values remain encoded as `EncodedQueryParam`.
+Finds the first value of a query parameter by an encoded spelling of its name.
 -/
-def findAllEncoded (query : Query) (key : EncodedQueryParam) : Array (Option EncodedQueryParam) :=
-  query.filterMap (fun x =>
-    if x.fst.toByteArray = key.toByteArray then
-      some x.snd
-    else
-      none)
+def findEncoded? (query : Query) (key : EncodedQueryParam) : Option (Option QueryParam) :=
+  query.findParam? key.toQueryParam
 
 /--
-Finds all values of a query parameter by raw key string. The key is percent-encoded before matching.
+Finds all values of a query parameter by name. Returns an empty array if the name is not found.
 -/
-def findAll (query : Query) (key : String) : Array (Option EncodedQueryParam) :=
-  query.findAllEncoded (EncodedQueryParam.encode key)
+def findAllParam (query : Query) (key : QueryParam) : Array (Option QueryParam) :=
+  query.filterMap (fun x => if x.fst == key then some x.snd else none)
+
+/--
+Finds all values of a query parameter by name.
+-/
+def findAll (query : Query) (key : String) : Array (Option QueryParam) :=
+  query.findAllParam (QueryParam.ofString key)
+
+/--
+Finds all values of a query parameter by an encoded spelling of its name.
+-/
+def findAllEncoded (query : Query) (key : EncodedQueryParam) : Array (Option QueryParam) :=
+  query.findAllParam key.toQueryParam
 
 /--
 Adds a query parameter to the query string.
 -/
 def insert (query : Query) (key : String) (value : String) : Query :=
-  let encodedKey : EncodedQueryParam := EncodedQueryParam.encode key
-  let encodedValue : EncodedQueryParam := EncodedQueryParam.encode value
-  query.push (encodedKey, some encodedValue)
+  query.push (QueryParam.ofString key, some (QueryParam.ofString value))
 
 /--
-Adds an already-encoded key-value pair to the query string.
+Adds a key-value pair to the query string from encoded spellings.
 -/
 def insertEncoded (query : Query) (key : EncodedQueryParam) (value : Option EncodedQueryParam) : Query :=
-  query.push (key, value)
+  query.push (key.toQueryParam, value.map EncodedQueryParam.toQueryParam)
 
 /--
 Creates an empty query string.
@@ -487,66 +494,80 @@ def empty : Query := #[]
 /--
 Creates a query string from a list of key-value pairs.
 -/
-def ofList (pairs : List (EncodedQueryParam × Option EncodedQueryParam)) : Query :=
+def ofList (pairs : List (QueryParam × Option QueryParam)) : Query :=
   pairs.toArray
 
 /--
 Checks if a query parameter exists.
 -/
-def containsEncoded (query : Query) (key : EncodedQueryParam) : Bool :=
-  query.any (fun x => x.fst.toByteArray = key.toByteArray)
+def containsParam (query : Query) (key : QueryParam) : Bool :=
+  query.any (fun x => x.fst == key)
 
 /--
-Checks if a query parameter exists by raw key string. The key is percent-encoded before matching.
+Checks if a query parameter exists.
 -/
 def contains (query : Query) (key : String) : Bool :=
-  query.containsEncoded (EncodedQueryParam.encode key)
+  query.containsParam (QueryParam.ofString key)
 
 /--
-Removes all occurrences of a query parameter by key name.
+Checks if a query parameter exists, by an encoded spelling of its name.
 -/
-def eraseEncoded (query : Query) (key : EncodedQueryParam) : Query :=
-  query.filter (fun x =>
-    x.fst.toByteArray ≠ key.toByteArray
-  )
+def containsEncoded (query : Query) (key : EncodedQueryParam) : Bool :=
+  query.containsParam key.toQueryParam
 
 /--
-Removes all occurrences of a query parameter by raw key string. The key is percent-encoded before matching.
+Removes all occurrences of a query parameter by name.
+-/
+def eraseParam (query : Query) (key : QueryParam) : Query :=
+  query.filter (fun x => x.fst != key)
+
+/--
+Removes all occurrences of a query parameter by name.
 -/
 def erase (query : Query) (key : String) : Query :=
-  query.eraseEncoded (EncodedQueryParam.encode key)
+  query.eraseParam (QueryParam.ofString key)
 
 /--
-Gets the first value of a query parameter by key name, decoded as a string.
-Returns `none` if the key is not found or if the value cannot be decoded as UTF-8.
+Removes all occurrences of a query parameter by an encoded spelling of its name.
+-/
+def eraseEncoded (query : Query) (key : EncodedQueryParam) : Query :=
+  query.eraseParam key.toQueryParam
+
+/--
+Gets the first value of a query parameter by name, as a string.
+Returns `none` if the name is not found or if the value's bytes are not valid UTF-8.
 -/
 def get (query : Query) (key : String) : Option String :=
   match query.find? key with
   | none => none
   | some none => some ""  -- Key exists but has no value
-  | some (some encoded) => encoded.decode
+  | some (some value) => value.toString?
 
 /--
-Gets the first value of a query parameter by key name, decoded as a string.
-Returns the default value if the key is not found or if the value cannot be decoded.
+Gets the first value of a query parameter by name, as a string.
+Returns the default value if the name is not found or if the value's bytes are not valid UTF-8.
 -/
 def getD (query : Query) (key : String) (default : String) : String :=
   query.get key |>.getD default
 
 /--
-Sets a query parameter, replacing all existing values for that key.
-Both key and value will be automatically percent-encoded.
+Sets a query parameter, replacing all existing values for that name.
 -/
 def set (query : Query) (key : String) (value : String) : Query :=
   query.erase key |>.insert key value
+
+/--
+Spells these parameters out as a query component.
+-/
+def toEncodedQuery (query : Query) : EncodedQuery :=
+  EncodedQuery.ofParams query
 
 /--
 Converts the query to a properly encoded query string format.
 Example: "key1=value1&key2=value2&flag"
 -/
 def toRawString (query : Query) : String :=
-  let params := query.map (fun (k, v) => formatQueryParam k v)
-  String.intercalate "&" params.toList
+  toString query.toEncodedQuery
 
 instance : EmptyCollection Query :=
   ⟨Query.empty⟩
@@ -558,20 +579,20 @@ instance : Insert (String × String) Query :=
   ⟨fun ⟨k, v⟩ q => q.insert k v⟩
 
 instance : ToString Query where
-  toString q :=
-    if q.isEmpty then "" else
-      let encodedParams := q.toList.map fun (key, value) =>
-        Query.formatQueryParam key value
-      "?" ++ String.intercalate "&" encodedParams
+  toString q := if q.isEmpty then "" else "?" ++ q.toRawString
+
+end Query
+
+namespace EncodedQuery
 
 /--
 Formats an optional query component, preserving `some .empty` as an explicit empty query delimiter.
 -/
-def formatOption : Option Query → String
+def formatOption : Option EncodedQuery → String
   | none => ""
-  | some q => if q.isEmpty then "?" else toString q
+  | some q => "?" ++ toString q
 
-end Query
+end EncodedQuery
 
 end URI
 
@@ -598,9 +619,10 @@ structure URI where
   path : URI.Path
 
   /--
-  Optional query string as key-value pairs. `some .empty` preserves an explicit empty query delimiter.
+  Optional query component, kept exactly as it was written. `some .empty` preserves an explicit empty
+  query delimiter. Use `queryParams` to read it as key-value pairs.
   -/
-  query : Option URI.Query := none
+  query : Option URI.EncodedQuery := none
 
   /--
   Optional fragment identifier (the part after '#'), percent-encoded.
@@ -615,7 +637,7 @@ instance : ToString URI where
       | none => ""
       | some auth => s!"//{toString auth}"
     let pathPart := toString uri.path
-    let queryPart := URI.Query.formatOption uri.query
+    let queryPart := URI.EncodedQuery.formatOption uri.query
     let fragmentPart := uri.fragment.map (fun f => "#" ++ toString (URI.EncodedFragment.encode f)) |>.getD ""
     s!"{schemePart}:{authorityPart}{pathPart}{queryPart}{fragmentPart}"
 
@@ -792,17 +814,15 @@ def build (b : Builder) : URI :=
     absolute := true
   }
 
-  let query :=
+  let params :=
     b.query.map fun (k, v) =>
-      (EncodedQueryParam.encode k, v.map EncodedQueryParam.encode)
-
-  let query := URI.Query.ofList query.toList
+      (QueryParam.ofString k, v.map QueryParam.ofString)
 
   {
     scheme
     authority := authority
     path
-    query := if query.isEmpty then none else some query
+    query := if params.isEmpty then none else some (EncodedQuery.ofParams params)
     fragment := b.fragment
   }
 
@@ -827,10 +847,23 @@ def withPath (uri : URI) (path : URI.Path) : URI :=
   { uri with path }
 
 /--
-Returns a new URI with the query replaced.
+Reads the query component as key-value pairs, following the form convention. Returns an empty array
+for a URI without a query.
 -/
-def withQuery (uri : URI) (query : URI.Query) : URI :=
+def queryParams (uri : URI) : URI.Query :=
+  uri.query.map URI.EncodedQuery.params |>.getD URI.Query.empty
+
+/--
+Returns a new URI with the query component replaced.
+-/
+def withQuery (uri : URI) (query : URI.EncodedQuery) : URI :=
   { uri with query := some query }
+
+/--
+Returns a new URI whose query component spells out these parameters.
+-/
+def withQueryParams (uri : URI) (params : URI.Query) : URI :=
+  { uri with query := some params.toEncodedQuery }
 
 /--
 Returns a new URI with the fragment replaced.
@@ -914,9 +947,10 @@ structure URI.RelativeRef where
   path : URI.Path
 
   /--
-  Optional query string as key-value pairs. `some .empty` preserves an explicit empty query delimiter.
+  Optional query component, kept exactly as it was written. `some .empty` preserves an explicit empty
+  query delimiter.
   -/
-  query : Option URI.Query := none
+  query : Option URI.EncodedQuery := none
 
   /--
   Optional fragment identifier (the part after `'#'`), decoded.
@@ -928,7 +962,7 @@ instance : ToString URI.RelativeRef where
   toString ref :=
     let authorityPart := ref.authority.map (fun a => s!"//{toString a}") |>.getD ""
     let pathPart      := toString ref.path
-    let queryPart     := URI.Query.formatOption ref.query
+    let queryPart     := URI.EncodedQuery.formatOption ref.query
     let fragmentPart  := ref.fragment.map (fun f => "#" ++ toString (URI.EncodedFragment.encode f)) |>.getD ""
     s!"{authorityPart}{pathPart}{queryPart}{fragmentPart}"
 
@@ -970,7 +1004,7 @@ inductive RequestTarget where
   Origin-form request target (most common for HTTP requests). Consists of a path and an optional query string.
   Example: `/path/to/resource?key=value`
   -/
-  | originForm (path : URI.Path) (query : Option URI.Query)
+  | originForm (path : URI.Path) (query : Option URI.EncodedQuery)
 
   /--
   Absolute-form request target containing a complete URI. Used when making requests through a proxy.
@@ -1004,12 +1038,18 @@ def path : RequestTarget → URI.Path
 
 /--
 Extracts the query component from a request target, if available.
-Returns an empty array for targets without a query.
 -/
-def query : RequestTarget → URI.Query
-  | .originForm _ q => q.getD URI.Query.empty
-  | .absoluteForm uri => uri.query.getD URI.Query.empty
-  | _ => URI.Query.empty
+def query : RequestTarget → Option URI.EncodedQuery
+  | .originForm _ q => q
+  | .absoluteForm uri => uri.query
+  | _ => none
+
+/--
+Reads a request target's query component as key-value pairs, following the form convention. Returns
+an empty array for targets without a query.
+-/
+def queryParams (target : RequestTarget) : URI.Query :=
+  target.query.map URI.EncodedQuery.params |>.getD URI.Query.empty
 
 /--
 Extracts the authority component from a request target, if available.
@@ -1023,7 +1063,7 @@ instance : ToString RequestTarget where
   toString
     | .originForm path query =>
         let pathStr := toString path
-        let queryStr := URI.Query.formatOption query
+        let queryStr := URI.EncodedQuery.formatOption query
         s!"{pathStr}{queryStr}"
     | .absoluteForm uri => toString uri
     | .authorityForm auth => toString auth

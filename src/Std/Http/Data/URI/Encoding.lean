@@ -42,7 +42,7 @@ def isEncodedChar (rule : UInt8 → Bool) (c : UInt8) : Bool :=
 
 /--
 Checks if a byte is valid in a percent-encoded query string component. Extends `isEncodedChar` to also
-allow '+' which represents space in application/x-www-form-urlencoded format.
+allow '+', which RFC 3986 admits anywhere in a query as a sub-delim, even under a narrower rule.
 -/
 def isEncodedQueryChar (rule : UInt8 → Bool) (c : UInt8) : Bool :=
   isEncodedChar rule c ∨ c = '+'.toUInt8
@@ -60,7 +60,7 @@ instance : Decidable (IsAllowedEncodedChars r s) :=
 
 /--
 Checks if all characters in a `ByteArray` are allowed in an encoded query parameter. Allows '+' as an
-alternative encoding for space (application/x-www-form-urlencoded).
+ordinary sub-delim.
 -/
 @[inline]
 abbrev IsAllowedEncodedQueryChars (rule : UInt8 → Bool) (s : ByteArray) : Prop :=
@@ -384,11 +384,13 @@ end EncodedString
 
 /--
 A percent-encoded query string component with a compile-time proof that it contains only valid encoded
-query characters. Extends `EncodedString` to support the '+' character for spaces, following the
-application/x-www-form-urlencoded format.
+query characters. Extends `EncodedString` to admit '+', which a query may carry literally as a
+sub-delim.
 
-This type is specifically designed for encoding query parameters where spaces can be represented as '+'
-instead of "%20".
+A '+' stands for itself, as RFC 3986 defines it, and not for a space the way
+application/x-www-form-urlencoded reads it. A space is written "%20".
+
+Reference: https://www.rfc-editor.org/rfc/rfc3986.html#section-3.4
 -/
 structure EncodedQueryString (r : UInt8 → Bool) where
   private mk ::
@@ -413,6 +415,12 @@ def empty : EncodedQueryString r :=
 
 instance : Inhabited (EncodedQueryString r) where
   default := EncodedQueryString.empty
+
+/--
+Checks whether an encoded query string carries no bytes at all.
+-/
+def isEmpty (s : EncodedQueryString r) : Bool :=
+  s.toByteArray.isEmpty
 
 /--
 Appends a single encoded query character to an encoded query string.
@@ -476,17 +484,36 @@ private def byteToHex (b : UInt8) (s : EncodedQueryString r) : EncodedQueryStrin
   ⟨ba, valid⟩
 
 /--
-Encodes a raw string into an `EncodedQueryString` with automatic proof construction. Unreserved characters
-are kept as-is, spaces are encoded as '+', and all other characters are percent-encoded.
+Appends raw bytes, percent-encoding every byte the rule `rd` does not admit. `rd` may be stricter
+than the string's own rule `r`, which is how a name or a value gets the separators escaped inside a
+query that is allowed to carry them literally.
 -/
-def encode (s : String) (r : UInt8 → Bool := isQueryChar) : EncodedQueryString r :=
-  s.toUTF8.foldl (init := EncodedQueryString.empty) fun acc c =>
-    if h : isAsciiByte c ∧ r c then
-      acc.push c (by simp [isEncodedQueryChar, isEncodedChar]; exact Or.inl (And.intro h.left (Or.inl h.right)))
-    else if _ : c = ' '.toUInt8 then
-      acc.push '+'.toUInt8 (by simp [isEncodedQueryChar])
+private def encodeBytesInto (acc : EncodedQueryString r) (bs : ByteArray) (rd : UInt8 → Bool)
+    (hrd : ∀ c, rd c = true → r c = true) : EncodedQueryString r :=
+  bs.foldl (init := acc) fun acc c =>
+    if h : isAsciiByte c ∧ rd c then
+      acc.push c (by
+        simp [isEncodedQueryChar, isEncodedChar]
+        exact Or.inl (And.intro h.left (Or.inl (hrd c h.right))))
     else
       byteToHex c acc
+
+/--
+Encodes raw bytes into an `EncodedQueryString` with automatic proof construction. Bytes allowed by `r`
+are kept as-is and all others are percent-encoded, so a space becomes "%20".
+
+Every byte has exactly one spelling here, so for a rule that admits no character which may also appear
+percent-encoded, such as `isUnreserved`, the result is the canonical spelling of those bytes.
+-/
+def encodeBytes (bs : ByteArray) (r : UInt8 → Bool := isQueryChar) : EncodedQueryString r :=
+  encodeBytesInto EncodedQueryString.empty bs r (fun _ h => h)
+
+/--
+Encodes a raw string into an `EncodedQueryString` with automatic proof construction. Characters allowed
+by `r` are kept as-is and all others are percent-encoded, so a space becomes "%20".
+-/
+def encode (s : String) (r : UInt8 → Bool := isQueryChar) : EncodedQueryString r :=
+  encodeBytes s.toUTF8 r
 
 /--
 Converts an `EncodedQueryString` to a `String`, given a proof that all characters satisfying `r` are ASCII.
@@ -495,21 +522,21 @@ def toString (es : EncodedQueryString r) : String :=
   ⟨es.toByteArray, isValidUTF8_of_isAsciiByte es.toByteArray (all_of_all_of_imp es.valid (fun c h => isEncodedQueryChar_isAscii c h))⟩
 
 /--
-Decodes an `EncodedQueryString` back to a regular `String`. Converts percent-encoded sequences and '+'
-signs back to their original characters. Returns `none` if the decoded bytes are not valid UTF-8.
+Resolves the percent-encoded sequences in a validated query component. With `plusIsSpace`, a '+' is
+also read as a space, which is how application/x-www-form-urlencoded spells one; otherwise it is an
+ordinary sub-delim standing for itself, as RFC 3986 has it.
 
-This is almost the same code from `System.Uri.UriEscape.decodeUri`, but with `Option` instead.
+This is almost the same code from `System.Uri.UriEscape.decodeUri`.
 -/
-def decode (es : EncodedQueryString r) : Option String := Id.run do
+private def decodeRaw (rawBytes : ByteArray) (plusIsSpace : Bool) : ByteArray := Id.run do
   let mut decoded : ByteArray := ByteArray.empty
-  let rawBytes := es.toByteArray
   let len := rawBytes.size
   let mut i := 0
   let percent := '%'.toNat.toUInt8
   let plus := '+'.toNat.toUInt8
   while h : i < len do
     let c := rawBytes[i]
-    (decoded, i) := if c == plus then
+    (decoded, i) := if plusIsSpace ∧ c == plus then
       (decoded.push ' '.toNat.toUInt8, i + 1)
     else if h₁ : c == percent ∧ i + 1 < len then
       let h1 := rawBytes[i + 1]
@@ -526,7 +553,21 @@ def decode (es : EncodedQueryString r) : Option String := Id.run do
         ((decoded.push c).push h1, i + 2)
     else
       (decoded.push c, i + 1)
-  return String.fromUTF8? decoded
+  return decoded
+
+/--
+Decodes an `EncodedQueryString` back to the bytes it stands for, by resolving its percent-encoded
+sequences. A '+' is an ordinary sub-delim here and stands for itself, not for a space.
+-/
+def decodeBytes (es : EncodedQueryString r) : ByteArray :=
+  decodeRaw es.toByteArray (plusIsSpace := false)
+
+/--
+Decodes an `EncodedQueryString` back to a regular `String` by resolving its percent-encoded sequences.
+Returns `none` if the decoded bytes are not valid UTF-8.
+-/
+def decode (es : EncodedQueryString r) : Option String :=
+  String.fromUTF8? es.decodeBytes
 
 end EncodedQueryString
 
@@ -647,7 +688,8 @@ def decode (userInfo : EncodedUserInfo) : Option String :=
 end EncodedUserInfo
 
 /--
-A percent-encoded URI query parameter. Valid characters are `pchar / "/" / "?"` with '+' for spaces.
+A percent-encoded URI query parameter. Valid characters are `pchar / "/" / "?"` minus the '&' and '='
+separators, which must be percent-encoded to appear in a name or a value.
 -/
 abbrev EncodedQueryParam := EncodedQueryString isQueryDataChar
 
@@ -684,5 +726,246 @@ def decode (param : EncodedQueryParam) : Option String :=
   EncodedQueryString.decode param
 
 end EncodedQueryParam
+
+/--
+The name or the value of a query parameter, as the bytes it stands for rather than as one of its
+spellings. Percent-encoding is not canonical, so `a%3Ab` and `a:b` are two spellings of the same
+parameter; a `QueryParam` is that parameter.
+
+A '+' is a sub-delim rather than a space, so `a+b` and `a%20b` are different parameters.
+
+Reference: https://www.rfc-editor.org/rfc/rfc3986.html#section-3.4
+-/
+structure QueryParam where
+  /--
+  The bytes this parameter stands for. They are not percent-encoded and need not be valid UTF-8,
+  since a percent-encoded sequence may denote any byte.
+  -/
+  toByteArray : ByteArray
+deriving Inhabited
+
+namespace QueryParam
+
+/--
+The parameter named by a string.
+-/
+def ofString (s : String) : QueryParam :=
+  ⟨s.toUTF8⟩
+
+/--
+The parameter's name as a string, or `none` if its bytes are not valid UTF-8.
+-/
+def toString? (param : QueryParam) : Option String :=
+  String.fromUTF8? param.toByteArray
+
+/--
+The spelling this parameter takes on the wire, with everything a query may not carry literally,
+such as a space or a separator, percent-encoded.
+-/
+def encode (param : QueryParam) : EncodedQueryParam :=
+  EncodedQueryString.encodeBytes param.toByteArray isQueryDataChar
+
+instance : BEq QueryParam where
+  beq x y := x.toByteArray == y.toByteArray
+
+instance : Hashable QueryParam where
+  hash x := Hashable.hash x.toByteArray
+
+-- A parameter's bytes need not be valid UTF-8, so it is shown as the spelling it takes on the wire.
+instance : Repr QueryParam where
+  reprPrec param n := reprPrec (EncodedQueryString.toString param.encode) n
+
+end QueryParam
+
+namespace EncodedQueryParam
+
+/--
+The parameter this spelling stands for.
+-/
+def toQueryParam (param : EncodedQueryParam) : QueryParam :=
+  ⟨param.decodeBytes⟩
+
+end EncodedQueryParam
+
+/--
+A percent-encoded URI query component, the whole of what follows a '?'. RFC 3986 leaves its contents
+opaque: valid characters are `pchar / "/" / "?"`, and nothing in the grammar gives '&' or '=' any
+meaning. Reading it as parameters is a separate convention, applied by `params`, which a consumer
+that gives the query a meaning of its own can ignore.
+
+Those parameters are read on the first lookup and kept afterwards, so a component nobody inspects is
+never split, and one that is inspected repeatedly is split once.
+
+Reference: https://www.rfc-editor.org/rfc/rfc3986.html#section-3.4
+-/
+structure EncodedQuery where
+  private mk ::
+
+  /--
+  The component as it was written, percent-encoding and all.
+  -/
+  encoded : EncodedQueryString isQueryChar
+
+  /--
+  The parameters `encoded` spells out, read on first use.
+  -/
+  private parameters : Thunk (Array (QueryParam × Option QueryParam))
+
+namespace EncodedQuery
+
+/--
+Reads a validated query component as '&'-separated `name=value` pairs.
+
+This is the form convention rather than anything RFC 3986 defines, so it never fails: the first '='
+in a pair separates the name from the value, leaving a value free to contain further '=' as base64
+padding does, a pair with no '=' is a name with no value, and an empty pair contributes nothing.
+-/
+private def paramsOf (bytes : ByteArray) (plusIsSpace : Bool) : Array (QueryParam × Option QueryParam) := Id.run do
+  let ampersand := '&'.toUInt8
+  let equals := '='.toUInt8
+
+  let mut params := #[]
+  let mut start := 0
+  let mut separator := none
+  let mut i := 0
+
+  let pair := fun (start stop : Nat) (separator : Option Nat) =>
+    let decode := fun (start stop : Nat) =>
+      QueryParam.mk (EncodedQueryString.decodeRaw (bytes.extract start stop) plusIsSpace)
+    match separator with
+    | none => (decode start stop, none)
+    | some separator => (decode start separator, some (decode (separator + 1) stop))
+
+  while h : i < bytes.size do
+    let c := bytes[i]
+    if c == ampersand then
+      if start < i then
+        params := params.push (pair start i separator)
+      start := i + 1
+      separator := none
+    else if c == equals && separator.isNone then
+      separator := some i
+    i := i + 1
+
+  if start < bytes.size then
+    params := params.push (pair start bytes.size separator)
+
+  return params
+
+private def ofEncoded (encoded : EncodedQueryString isQueryChar) : EncodedQuery :=
+  EncodedQuery.mk encoded (Thunk.mk fun _ => paramsOf encoded.toByteArray (plusIsSpace := false))
+
+/--
+The parameters this query spells out, with '+' standing for itself as RFC 3986 defines it.
+-/
+def params (query : EncodedQuery) : Array (QueryParam × Option QueryParam) :=
+  query.parameters.get
+
+/--
+The parameters this component spells out when it is an application/x-www-form-urlencoded payload,
+where a '+' stands for a space. Use this for a submitted form body, not for the query of a URI.
+
+Unlike `params`, this reading is not kept, since a body is normally read once.
+-/
+def formParams (query : EncodedQuery) : Array (QueryParam × Option QueryParam) :=
+  paramsOf query.encoded.toByteArray (plusIsSpace := true)
+
+/--
+The component's underlying bytes.
+-/
+def toByteArray (query : EncodedQuery) : ByteArray :=
+  query.encoded.toByteArray
+
+/--
+Checks whether the component carries no bytes at all, as in a URI ending in a bare '?'.
+-/
+def isEmpty (query : EncodedQuery) : Bool :=
+  query.encoded.isEmpty
+
+/--
+The empty query component, as in a URI ending in a bare '?'.
+-/
+def empty : EncodedQuery :=
+  ofEncoded EncodedQueryString.empty
+
+/--
+Encodes a raw string into an encoded query component.
+-/
+def encode (s : String) : EncodedQuery :=
+  ofEncoded (EncodedQueryString.encode (r := isQueryChar) s)
+
+/--
+Attempts to create an encoded query component from raw bytes.
+-/
+def ofByteArray? (ba : ByteArray) : Option EncodedQuery :=
+  (EncodedQueryString.ofByteArray? (r := isQueryChar) ba).map ofEncoded
+
+/--
+Creates an encoded query component from raw bytes, panicking on invalid encoding.
+-/
+def ofByteArray! (ba : ByteArray) : EncodedQuery :=
+  ofEncoded (EncodedQueryString.ofByteArray! (r := isQueryChar) ba)
+
+/--
+Attempts to create an encoded query component from an encoded string.
+-/
+def fromString? (s : String) : Option EncodedQuery :=
+  (EncodedQueryString.ofString? (r := isQueryChar) s).map ofEncoded
+
+/--
+Decodes an encoded query component back to a UTF-8 string. This resolves the percent-encoded
+sequences across the whole component, including any '&' and '=' it uses as separators, so the result
+is no longer a query that can be split into parameters.
+-/
+def decode (query : EncodedQuery) : Option String :=
+  EncodedQueryString.decode query.encoded
+
+private theorem isQueryChar_of_isQueryDataChar (c : UInt8) (h : isQueryDataChar c = true) :
+    isQueryChar c = true := by
+  simp [isQueryDataChar, Bool.and_eq_true] at h
+  exact h.left.left
+
+private def appendParam (acc : EncodedQueryString isQueryChar) (param : QueryParam) : EncodedQueryString isQueryChar :=
+  EncodedQueryString.encodeBytesInto acc param.toByteArray isQueryDataChar isQueryChar_of_isQueryDataChar
+
+private def appendByte (acc : EncodedQueryString isQueryChar) (c : UInt8)
+    (h : isEncodedQueryChar isQueryChar c) : EncodedQueryString isQueryChar :=
+  EncodedQueryString.push acc c h
+
+private def appendPair (acc : EncodedQueryString isQueryChar) (key : QueryParam)
+    (value : Option QueryParam) : EncodedQueryString isQueryChar :=
+  let acc := if acc.isEmpty then acc else appendByte acc '&'.toUInt8 (by decide)
+  let acc := appendParam acc key
+  match value with
+  | none => acc
+  | some value => appendParam (appendByte acc '='.toUInt8 (by decide)) value
+
+/--
+Appends a parameter to a query component, leaving the parameters already spelled out there untouched.
+Everything the name or the value may not carry literally, including the '&' and '=' separators, is
+percent-encoded, so the result splits back into the previous parameters followed by this one.
+-/
+def insert (query : EncodedQuery) (key : QueryParam) (value : Option QueryParam) : EncodedQuery :=
+  ofEncoded (appendPair query.encoded key value)
+
+/--
+The query component that spells out these parameters.
+-/
+def ofParams (params : Array (QueryParam × Option QueryParam)) : EncodedQuery :=
+  ofEncoded <| params.foldl (init := EncodedQueryString.empty) fun acc (key, value) =>
+    appendPair acc key value
+
+end EncodedQuery
+
+instance : Inhabited EncodedQuery := ⟨EncodedQuery.empty⟩
+
+instance : ToString EncodedQuery where
+  toString query := toString query.encoded
+
+instance : Repr EncodedQuery where
+  reprPrec query n := reprPrec (toString query.encoded) n
+
+instance : BEq EncodedQuery where
+  beq x y := x.encoded == y.encoded
 
 end Std.Http.URI

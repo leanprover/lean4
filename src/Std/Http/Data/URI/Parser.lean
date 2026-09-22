@@ -270,36 +270,23 @@ def parsePath (config : URI.Config) (forceAbsolute : Bool) (allowEmpty : Bool) :
   return { segments := segments, absolute := isAbsolute }
 
 -- query = *( pchar / "/" / "?" )
-private def parseQuery (config : URI.Config) : Parser URI.Query := do
+--
+-- The component stays opaque, as RFC 3986 defines it: only its charset and percent-encoding are
+-- checked here. Reading it as parameters is the caller's choice, via `EncodedQuery.params`.
+private def parseQuery (config : URI.Config) : Parser URI.EncodedQuery := do
   let queryBytes ←
     takeWhileAtMost (fun c => isQueryChar c ∨ c = '%'.toUInt8) config.maxQueryLength
 
-  let some queryStr := String.fromUTF8? queryBytes.toByteArray
-    | fail "invalid query string"
+  let bytes := queryBytes.toByteArray
 
-  if queryStr.isEmpty then
-    return URI.Query.empty
-
-  let rawPairs := queryStr.split '&'
-
-  if rawPairs.length > config.maxQueryParams then
+  -- The parameter limit still has to hold, so count the separators without building the pairs.
+  if bytes.foldl (fun n c => if c == '&'.toUInt8 then n + 1 else n) 0 ≥ config.maxQueryParams then
     fail s!"too many query parameters (limit: {config.maxQueryParams})"
 
-  let pairs : Option URI.Query := rawPairs.foldM (init := URI.Query.empty) fun acc pair => do
-    match pair.split '=' |>.toStringList with
-    | [key] =>
-      let key ← URI.EncodedQueryParam.fromString? key
-      pure (acc.insertEncoded key none)
-    | key :: value =>
-      let key ← URI.EncodedQueryParam.fromString? key
-      let value ← URI.EncodedQueryParam.fromString? (String.intercalate "=" value)
-      pure (acc.insertEncoded key (some value))
-    | [] => pure acc  -- unreachable: splitOn always returns at least one element
+  let some query := URI.EncodedQuery.ofByteArray? bytes
+    | fail "invalid percent encoding in query"
 
-  if let some pairs := pairs then
-    return pairs
-  else
-    fail "invalid query string"
+  return query
 
 --  fragment = *( pchar / "/" / "?" )
 private def parseFragment (config : URI.Config) : Parser URI.EncodedFragment := do

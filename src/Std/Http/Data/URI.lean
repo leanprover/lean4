@@ -71,11 +71,12 @@ targets gain the parameter on their existing query; authority-form and asterisk-
 returned unchanged because they do not carry a query.
 -/
 def setQueryParam (target : RequestTarget) (key value : String) : RequestTarget :=
+  let insert (query : Option URI.EncodedQuery) : URI.EncodedQuery :=
+    query.getD .empty |>.insert (.ofString key) (some (.ofString value))
+
   match target with
-  | .originForm path query =>
-    .originForm path (some ((query.getD URI.Query.empty).insert key value))
-  | .absoluteForm af =>
-    .absoluteForm { af with query := some ((af.query.getD URI.Query.empty).insert key value) }
+  | .originForm path query => .originForm path (some (insert query))
+  | .absoluteForm af => .absoluteForm { af with query := some (insert af.query) }
   | other => other
 
 end RequestTarget

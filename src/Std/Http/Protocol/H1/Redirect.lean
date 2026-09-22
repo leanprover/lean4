@@ -279,7 +279,7 @@ private def rewriteHostHeader (headers : Headers) (origin : URI.Origin) : Header
 /--
 Extracts the base query, preserving absence as `none`.
 -/
-private def requestTargetQuery? : RequestTarget → Option URI.Query
+private def requestTargetQuery? : RequestTarget → Option URI.EncodedQuery
   | .originForm _ q => q
   | .absoluteForm uri => uri.query
   | _ => none
@@ -288,7 +288,7 @@ private def requestTargetQuery? : RequestTarget → Option URI.Query
 Rewrites the target actually placed on the wire.
 -/
 private def rewriteTarget (ref : URIReference) (isCrossOrigin : Bool)
-    (basePath : URI.Path) (baseQuery : Option URI.Query)
+    (basePath : URI.Path) (baseQuery : Option URI.EncodedQuery)
     (currentScheme : URI.Scheme) : RequestTarget :=
   match ref with
   | .absolute af =>

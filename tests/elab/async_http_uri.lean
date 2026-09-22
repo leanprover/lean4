@@ -175,7 +175,7 @@ info: none
 #eval IO.println (repr (EncodedQueryString.ofByteArray? "%".toUTF8))
 
 /--
-info: some "hello world"
+info: some "hello+world"
 -/
 #guard_msgs in
 #eval IO.println (repr <| EncodedQueryString.decode =<< (EncodedQueryString.ofByteArray? "hello+world".toUTF8))
@@ -246,7 +246,7 @@ info: some " "
   match (URI.Parser.parseRequestTarget <* Std.Internal.Parsec.eof).run
       s!"/path?{raw}".toUTF8 with
   | .ok result =>
-      (result.query.get "a&b" == some "c=d")
+      (result.queryParams.get "a&b" == some "c=d")
   | .error _ => false
 
 #guard
@@ -306,12 +306,12 @@ info: Std.Http.RequestTarget.asteriskForm
   IO.println (repr result)
 
 /--
-info: #[("q", some "hello%20world"), ("category", some "tech%2Bgames")]
+info: #[("q", some "hello%20world"), ("category", some "tech+games")]
 -/
 #guard_msgs in
 #eval show IO _ from do
   let result ← runParser parseRequestTarget "/api/search?q=hello%20world&category=tech%2Bgames"
-  IO.println (repr result.query)
+  IO.println (repr result.queryParams)
 
 /--
 info: Std.Http.RequestTarget.originForm { segments := #[], absolute := true } none
@@ -614,7 +614,7 @@ info: http://example.com/?key=value
 #eval do
   let uri := URI.parse! "http://example.com/"
   let query := URI.Query.empty.insert "key" "value"
-  IO.println (uri.withQuery query)
+  IO.println (uri.withQueryParams query)
 
 /--
 info: http://example.com/new/path
@@ -673,7 +673,7 @@ info: 3
 #guard_msgs in
 #eval show IO _ from do
   let result ← runParser parseRequestTarget "/search?tag=a&tag=b&tag=c"
-  let all := result.query.findAll "tag"
+  let all := result.queryParams.findAll "tag"
   IO.println all.size
 
 /--
@@ -682,7 +682,7 @@ info: #[some "a", some "b", some "c"]
 #guard_msgs in
 #eval show IO _ from do
   let result ← runParser parseRequestTarget "/search?tag=a&tag=b&tag=c"
-  let all := result.query.findAll "tag"
+  let all := result.queryParams.findAll "tag"
   IO.println (repr all)
 
 /--
@@ -691,7 +691,7 @@ info: some (some "a")
 #guard_msgs in
 #eval show IO _ from do
   let result ← runParser parseRequestTarget "/search?key=a&key=b&key=c"
-  IO.println (repr (result.query.find? "key"))
+  IO.println (repr (result.queryParams.find? "key"))
 
 -- Empty value vs no value
 /--
@@ -700,7 +700,7 @@ info: some (some "")
 #guard_msgs in
 #eval show IO _ from do
   let result ← runParser parseRequestTarget "/api?key="
-  IO.println (repr (result.query.find? "key"))
+  IO.println (repr (result.queryParams.find? "key"))
 
 /--
 info: some none
@@ -708,7 +708,7 @@ info: some none
 #guard_msgs in
 #eval show IO _ from do
   let result ← runParser parseRequestTarget "/api?key"
-  IO.println (repr (result.query.find? "key"))
+  IO.println (repr (result.queryParams.find? "key"))
 
 /--
 info: some (some "value")
@@ -716,37 +716,94 @@ info: some (some "value")
 #guard_msgs in
 #eval show IO _ from do
   let result ← runParser parseRequestTarget "/api?key=value"
-  IO.println (repr (result.query.find? "key"))
+  IO.println (repr (result.queryParams.find? "key"))
 
--- Raw lookup APIs should not alias with pre-encoded key spellings.
+-- A query holds the parameters themselves, not their spellings, so `%61` and `a` are one name with
+-- two values and the first one on the wire wins. The string "%61" names a different parameter,
+-- whose spelling is `%2561` (#14934).
 #guard
   match (parseRequestTarget <* Std.Internal.Parsec.eof).run "/api?%61=1&a=2".toUTF8 with
   | .ok result =>
       let encodedA? := EncodedQueryParam.fromString? "%61"
-      ((result.query.find? "a" |>.bind id |>.bind EncodedQueryParam.decode) == some "2") &&
-      (result.query.find? "%61").isNone &&
-      result.query.contains "a" &&
-      !result.query.contains "%61" &&
+      ((result.queryParams.find? "a" |>.bind id |>.bind QueryParam.toString?) == some "1") &&
+      (result.queryParams.findAll "a").size == 2 &&
+      result.queryParams.names.size == 1 &&
+      (result.queryParams.find? "%61").isNone &&
+      result.queryParams.contains "a" &&
+      !result.queryParams.contains "%61" &&
+      result.queryParams.containsParam (QueryParam.ofString "a") &&
       (match encodedA? with
        | some encodedA =>
-           ((result.query.findEncoded? encodedA |>.bind id |>.bind EncodedQueryParam.decode) == some "1") &&
-           result.query.containsEncoded encodedA
+           ((result.queryParams.findEncoded? encodedA |>.bind id |>.bind QueryParam.toString?) == some "1") &&
+           result.queryParams.containsEncoded encodedA
        | none => false)
   | .error _ => false
 
+-- Erasing a name removes every parameter with that name, whichever spelling it arrived in.
 #guard
   match (parseRequestTarget <* Std.Internal.Parsec.eof).run "/api?%61=1&a=2".toUTF8 with
   | .ok result =>
       match EncodedQueryParam.fromString? "%61" with
       | some encodedA =>
-          let erasedRaw := result.query.erase "a"
-          let erasedEncoded := result.query.eraseEncoded encodedA
-          !erasedRaw.contains "a" &&
-          erasedRaw.containsEncoded encodedA &&
-          !erasedEncoded.containsEncoded encodedA &&
-          erasedEncoded.contains "a"
+          (result.queryParams.erase "a").toArray.isEmpty &&
+          (result.queryParams.eraseEncoded encodedA).toArray.isEmpty &&
+          (result.queryParams.eraseParam (QueryParam.ofString "a")).toArray.isEmpty
       | none => false
   | .error _ => false
+
+-- A browser posts a field named `a:b` as `a%3Ab`; it is reachable by its own name (#14934).
+#guard
+  match EncodedQueryParam.fromString? "a%3Ab", EncodedQueryParam.fromString? "on" with
+  | some k, some v =>
+      let query := URI.Query.empty.insertEncoded k (some v)
+      query.get "a:b" == some "on" &&
+      query.getD "a:b" "missing" == "on" &&
+      query.contains "a:b" &&
+      (query.findAll "a:b").size == 1 &&
+      (query.erase "a:b").toArray.isEmpty &&
+      (query.set "a:b" "off").toArray.size == 1 &&
+      -- the parameter the browser sent and the one built from the name are the same
+      query.names == #[QueryParam.ofString "a:b"]
+  | _, _ => false
+
+-- A name whose bytes are not valid UTF-8 is still a parameter: it is found by its spelling, has no
+-- `String` form, and survives being written back out.
+#guard
+  match EncodedQueryParam.fromString? "%FF", EncodedQueryParam.fromString? "1" with
+  | some k, some v =>
+      let query := URI.Query.empty.insertEncoded k (some v)
+      query.containsEncoded k &&
+      !query.contains "a" &&
+      ((query.names[0]?.map QueryParam.toString?) == some none) &&
+      query.toRawString == "%FF=1"
+  | _, _ => false
+
+-- Spelling is decided when the query is written, not while it is held: a space is written `%20`, and
+-- a `+` is a sub-delim a query carries literally rather than a spelling of a space.
+#guard
+  (URI.Query.empty.insert "a b" "c+d").toRawString == "a%20b=c+d"
+
+-- `a+b` names the parameter `a+b`; the one named `a b` is spelled `a%20b` (#14934).
+#guard
+  match (parseRequestTarget <* Std.Internal.Parsec.eof).run "/api?a+b=1&a%20b=2".toUTF8 with
+  | .ok result =>
+      result.queryParams.get "a+b" == some "1" &&
+      result.queryParams.get "a b" == some "2" &&
+      !result.queryParams.contains "a%20b" &&
+      result.queryParams.names.size == 2 &&
+      result.queryParams.toRawString == "a+b=1&a%20b=2" &&
+      -- the component itself is kept as it arrived
+      (result.query.map toString) == some "a+b=1&a%20b=2"
+  | .error _ => false
+
+-- A form body spells a space `+`, so it is read with `formParams`; the same bytes in a URI query
+-- keep RFC 3986's reading, where `+` stands for itself.
+#guard
+  match EncodedQuery.fromString? "a+b=c+d" with
+  | some body =>
+      URI.Query.get body.formParams "a b" == some "c d" &&
+      URI.Query.get body.params "a+b" == some "c+d"
+  | none => false
 
 -- ============================================================================
 -- Query Operations
@@ -964,28 +1021,32 @@ info: Std.Http.RequestTarget.absoluteForm
 #eval parseCheckFail "http://example.com:65536/path"
 #eval parseCheckFail "http://example.com:99999/path"
 
--- parseQuery now uses `split '&'` instead of `splitOn "&"`.
--- A trailing `&` is accepted and produces an empty-key entry; it is not a
--- parse failure.
+-- A trailing `&` leaves an empty pair, which names no parameter and so contributes none. The
+-- component still keeps the separator it arrived with.
 #guard
   match (parseRequestTarget <* Std.Internal.Parsec.eof).run "/path?key=val&".toUTF8 with
-  | .ok result => result.query.size == 2
+  | .ok result => result.queryParams.size == 1 && (result.query.map toString) == some "key=val&"
   | .error _ => false
 
--- parseQuery uses `split '='` instead of `splitOn "="`.
--- A pair containing more than one unencoded `=` must be rejected because the
--- three-element split falls into the error branch.
-#eval parseCheckFail "/path?key=a=b"
+-- Only the first `=` in a pair separates, so a value is free to contain more of them. Base64
+-- padding relies on this, and rejecting it would reject the whole URI (#14934).
+#guard
+  match (parseRequestTarget <* Std.Internal.Parsec.eof).run "/path?key=a=b&token=YQ==".toUTF8 with
+  | .ok result =>
+      result.queryParams.get "key" == some "a=b" &&
+      result.queryParams.get "token" == some "YQ==" &&
+      (result.query.map toString) == some "key=a=b&token=YQ=="
+  | .error _ => false
 
--- A percent-encoded `=` in the value is fine; `%3D` is preserved as-is in
--- the EncodedQueryParam.
+-- A `=` percent-encoded in a value belongs to the value rather than separating it, so it decodes
+-- to the same parameter the literal spelling gives.
 /--
-info: some (some "a%3Db")
+info: some "a=b"
 -/
 #guard_msgs in
 #eval show IO _ from do
   let result ← runParser parseRequestTarget "/path?key=a%3Db"
-  IO.println (repr (result.query.find? "key"))
+  IO.println (repr (result.queryParams.get "key"))
 
 -- IPv4/IPv6 parsing now uses `takeWhile1AtMost` (still requires ≥1 byte).
 -- Both types continue to work at the very end of the input.

@@ -81,9 +81,15 @@ def handler (req : Request Body.Stream) : ContextAsync (Response Body.Stream) :=
 
 ### URI Query Semantics
 
-`RequestTarget.query` is parsed using form-style key/value conventions (`k=v&...`), and `+` is decoded as a
-space in query components. If you need RFC 3986 opaque query handling, use the raw request target string
-(`toString req.head.uri`) and parse it with custom logic.
+`RequestTarget.query` is the query component exactly as it was received, opaque as RFC 3986 defines
+it, so `+` is a sub-delim standing for itself rather than for a space. Reading it as key/value pairs
+(`k=v&...`) is the form convention and is opt-in, through `RequestTarget.queryParams` or
+`EncodedQuery.params`; a consumer that gives the query its own meaning can work from the component
+directly and never build the pairs.
+
+Under that convention the first `=` in a pair separates the name from the value, so a value may
+contain further `=`, and a name is matched by the bytes it stands for rather than by its spelling:
+a parameter sent as `a%3Ab` is found under the name `a:b`.
 
 ### Reading the Request Body
 

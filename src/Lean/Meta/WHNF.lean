@@ -1002,6 +1002,13 @@ def reducePow (a b : Expr) : MetaM (Option Expr) :=
   trace[Meta.isDefEq.whnf.reduceBinOp] "{a} ^ {b}"
   return mkRawNatLit <| a ^ b
 
+def reduceShiftLeft (a b : Expr) : MetaM (Option Expr) :=
+  withNatValue a fun a =>
+  withNatValue b fun b => OptionT.run do
+  guard (canEvalNatShiftLeft a b)
+  trace[Meta.isDefEq.whnf.reduceBinOp] "{a} <<< {b}"
+  return mkRawNatLit <| a <<< b
+
 def reduceBinNatPred (f : Nat → Nat → Bool) (a b : Expr) : MetaM (Option Expr) := do
   withNatValue a fun a =>
   withNatValue b fun b =>
@@ -1028,7 +1035,7 @@ def reduceNat? (e : Expr) : MetaM (Option Expr) :=
     | ``Nat.land => reduceBinNatOp Nat.land a1 a2
     | ``Nat.lor  => reduceBinNatOp Nat.lor a1 a2
     | ``Nat.xor  => reduceBinNatOp Nat.xor a1 a2
-    | ``Nat.shiftLeft  => reduceBinNatOp Nat.shiftLeft a1 a2
+    | ``Nat.shiftLeft  => reduceShiftLeft a1 a2
     | ``Nat.shiftRight => reduceBinNatOp Nat.shiftRight a1 a2
     | _ => return none
   | _ =>

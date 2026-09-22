@@ -10,6 +10,7 @@ import Lean.Meta.Tactic.Grind.Arith.CommRing.RingId
 import Lean.Meta.Tactic.Grind.Arith.CommRing.NonCommRingM
 import Lean.Meta.Tactic.Grind.Arith.CommRing.NonCommSemiringM
 public import Lean.Meta.Tactic.Grind.PropagatorAttr
+import Lean.Util.SafeExponentiation
 public section
 namespace Lean.Meta.Grind.Arith
 
@@ -39,7 +40,8 @@ The following propagator ensure that `3 &&& mask` is merged with the equivalence
 `mask = 15`.
 -/
 
-def propagateNatBinOp (declName : Name) (congrThmName : Name) (op : Nat → Nat → Nat) (e : Expr) : GoalM Unit := do
+def propagateNatBinOp (declName : Name) (congrThmName : Name) (op : Nat → Nat → Nat) (e : Expr)
+    (canEval : Nat → Nat → Bool := fun _ _ => true) : GoalM Unit := do
   let arity := 6
   unless e.isAppOfArity declName arity do return ()
   unless e.getArg! 0 |>.isConstOf ``Nat do return ()
@@ -50,6 +52,7 @@ def propagateNatBinOp (declName : Name) (congrThmName : Name) (op : Nat → Nat 
   let b := e.getArg! (arity - 1) arity
   let bRoot ← getRoot b
   let some k₂ ← getNatValue? bRoot | return ()
+  unless canEval k₁ k₂ do return ()
   let k := op k₁ k₂
   let r ← shareCommon (mkNatLit k)
   internalize r 0
@@ -60,7 +63,7 @@ builtin_grind_propagator propagateNatAnd ↑HAnd.hAnd := propagateNatBinOp ``HAn
 builtin_grind_propagator propagateNatOr ↑HOr.hOr := propagateNatBinOp ``HOr.hOr ``Grind.Nat.or_congr (· ||| ·)
 builtin_grind_propagator propagateNatXOr ↑HXor.hXor := propagateNatBinOp ``HXor.hXor ``Grind.Nat.xor_congr (· ^^^ ·)
 builtin_grind_propagator propagateNatShiftLeft ↑HShiftLeft.hShiftLeft :=
-  propagateNatBinOp ``HShiftLeft.hShiftLeft ``Grind.Nat.shiftLeft_congr (· <<< ·)
+  propagateNatBinOp ``HShiftLeft.hShiftLeft ``Grind.Nat.shiftLeft_congr (· <<< ·) (canEval := canEvalNatShiftLeft)
 builtin_grind_propagator propagateNatShiftRight ↑HShiftRight.hShiftRight :=
   propagateNatBinOp ``HShiftRight.hShiftRight ``Grind.Nat.shiftRight_congr (· >>> ·)
 

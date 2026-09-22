@@ -8,6 +8,7 @@ prelude
 public import Lean.Meta.Sym.DSimp.DSimpM
 import Lean.Meta.Sym.LitValues
 import Lean.Meta.Offset
+import Lean.Util.SafeExponentiation
 namespace Lean.Meta.Sym.DSimp
 
 /-!
@@ -243,7 +244,27 @@ def evalPow (maxExponent : Nat) (α β : Expr) (a b : Expr) : DSimpM Result :=
 abbrev shift [ShiftLeft α] [ShiftRight α] (left : Bool) (a b : α) : α :=
   if left then a <<< b else a >>> b
 
+/--
+Returns `false` if `a <<< b` has literal arguments that the runtime cannot shift
+(see `canEvalNatShiftLeft`).
+-/
+def canEvalShiftLeft (α β : Expr) (a b : Expr) : Bool := Id.run do
+  let amount : Option Nat := match_expr β with
+    | Nat => getNatValue? b
+    | Fin _ => (fun v => v.val.val) <$> getFinValue? b
+    | BitVec _ => (fun v => v.val.toNat) <$> getBitVecValue? b
+    | _ => none
+  let value : Option Nat := match_expr α with
+    | Nat => getNatValue? a
+    | Int => Int.natAbs <$> getIntValue? a
+    | Fin _ => (fun v => v.val.val) <$> getFinValue? a
+    | BitVec _ => (fun v => v.val.toNat) <$> getBitVecValue? a
+    | _ => none
+  let (some value, some amount) := (value, amount) | return true
+  return canEvalNatShiftLeft value amount
+
 def evalShift (left : Bool) (α β : Expr) (a b : Expr) : DSimpM Result :=
+  if left && !canEvalShiftLeft α β a b then return .rfl else
   if isSameExpr α β then
     match_expr α with
     | Nat => evalBinNat (shift left) a b
@@ -398,6 +419,7 @@ def evalBitVecCast (m a : Expr) : DSimpM Result := do
 def evalBitVecShiftLeftZeroExtend (a m : Expr) : DSimpM Result := do
   let some a := getBitVecValue? a | return .rfl
   let some m := getNatValue? m | return .rfl
+  unless canEvalNatShiftLeft a.val.toNat m do return .rfl
   let e ← share <| toExpr <|a.val.shiftLeftZeroExtend m
   return .step e (done := true)
 
@@ -553,7 +575,11 @@ public def evalGround (config : EvalStepConfig := {}) : DSimproc := fun e =>
     | BitVec _ => evalBitVecNatBool BitVec.getLsbD a i
     | _ => return .rfl
   | BitVec.append _ _ a b => evalBitVecAppend a b
-  | BitVec.shiftLeft _ a i => evalBitVecNatBitVec BitVec.shiftLeft a i
+  | BitVec.shiftLeft w a i =>
+    if canEvalShiftLeft (mkApp (mkConst ``BitVec) w) (mkConst ``Nat) a i then
+      evalBitVecNatBitVec BitVec.shiftLeft a i
+    else
+      return .rfl
   | BitVec.ushiftRight _ a i => evalBitVecNatBitVec BitVec.ushiftRight a i
   | BitVec.sshiftRight _ a i => evalBitVecNatBitVec BitVec.sshiftRight a i
   | BitVec.sshiftRight' _ _ a b => evalBinBitVec' BitVec.sshiftRight' a b

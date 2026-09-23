@@ -118,7 +118,13 @@ public def registerJoinPoint (goal : MVarId) (jp : FVarId) (val : Expr) (info : 
   let goal ← goal.define `__do_jp_spec specTy body
   let .goal decls goal ← Sym.introN goal 1
     | throwError "vcgen +jp: failed to introduce the proof of{indentExpr specTy}"
-  let lctxSize := (← goal.getDecl).lctx.numIndices
+  -- Hide `__do_jp_spec` from local spec collection, `grind`, and the displayed VCs.
+  let decl ← goal.getDecl
+  let lctx := decl.lctx.setKind decls[0]! .implDetail
+  let goal' ← mkFreshExprMVarAt lctx decl.localInstances decl.type .syntheticOpaque decl.userName
+  goal.assign goal'
+  let goal := goal'.mvarId!
+  let lctxSize := lctx.numIndices
   modify fun s => { s with
     joinPoints := s.joinPoints.insert jp
       { spec := .fvar decls[0]!, pre, hyp, numStates, lctxSize } }
@@ -168,7 +174,7 @@ public def jump? (goal : MVarId) (info : WPApp) : VCGenM (Option (List MVarId)) 
   goal.withContext do
   let args := info.prog.getAppArgs
   let locals := (← getLCtx).foldl (start := jp.lctxSize) (init := #[]) fun ds d =>
-    if d.isImplementationDetail then ds else ds.push d
+    if d.isImplementationDetail || d.userName.isImplementationDetail then ds else ds.push d
   let ss := info.excessArgs
   unless jp.numStates ≤ ss.size do
     throwError "vcgen +jp: the jump{indentExpr info.prog}\nhas fewer than {jp.numStates} states"

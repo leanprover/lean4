@@ -55,9 +55,13 @@ info: RegularBEq.instLawfulBEqWithHEq.{u} (α : Type u) [BEq α] (a✝ : Nat) [L
 #check instLawfulBEqWithHEq
 
 
--- No `BEq` derived? Not a great error message yet, but the error location helps, so good enough.
+-- `ReflBEq` produces an error message if `BEq` wasn't derived
 
-/-- error: There is no `BEq` instance for `Foo` -/
+/--
+error: Failed to derive `LawfulBEq` for `Foo`; it is a law type class for `BEq` but there is no `BEq` instance for `Foo`.
+
+Hint: Adding the command `deriving instance BEq for Foo` may allow Lean to derive the missing instance.
+-/
 #guard_msgs in
 structure Foo where
   deriving ReflBEq
@@ -138,9 +142,13 @@ info: LinearBEq.instLawfulBEqWithHEq.{u} (α : Type u) [BEq α] (a✝ : Nat) [La
 #check instLawfulBEqWithHEq
 
 
--- No `BEq` derived? Not a great error message yet, but the error location helps, so good enough.
+-- `ReflBEq` produces an error message if `BEq` wasn't derived
 
-/-- error: There is no `BEq` instance for `Foo` -/
+/--
+error: Failed to derive `LawfulBEq` for `Foo`; it is a law type class for `BEq` but there is no `BEq` instance for `Foo`.
+
+Hint: Adding the command `deriving instance BEq for Foo` may allow Lean to derive the missing instance.
+-/
 #guard_msgs in
 structure Foo where
   deriving ReflBEq

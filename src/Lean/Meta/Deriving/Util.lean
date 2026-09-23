@@ -147,7 +147,7 @@ or `deriving.reduceInstances` is disabled.
 Note: This option only works for deriving handlers that support it, i.e. deriving handlers that use
 the `Lean.Meta.Deriving` framework.
 -/
-register_option deriving.strict : Bool := {
+register_builtin_option deriving.strict : Bool := {
   defValue := true
   descr := "if true, reject complex instance hypotheses in deriving handlers"
 }
@@ -723,7 +723,7 @@ def mkInductiveDerivingHandler (perMutualBlock : DerivingM Bool) (needSucc : Boo
       return false
   return true
 
-def deriveSimpleLawTypeClass (derivedFrom : Name)
+def deriveSimpleLawTypeClass (typeClass derivedFrom : Name)
     (perInstance : (inst : Expr) → (instValue : Expr) → DerivingM Bool) :
     DerivingHandler := fun names => liftTermElabM do
   let instances ← getGlobalInstancesIndex
@@ -733,7 +733,13 @@ def deriveSimpleLawTypeClass (derivedFrom : Name)
     let instanceEntries := instances.getEntriesWithKeys
       (#[.const derivedFrom 1, .const name arity] ++ Array.replicate arity .star)
     if instanceEntries.isEmpty then
-      throwError "There is no `{.ofConstName derivedFrom}` instance for `{.ofConstName name}`"
+      let hint := .hint' m!"Adding the command \
+        `deriving instance {.ofConstName derivedFrom} for {.ofConstName name}` \
+        may allow Lean to derive the missing instance."
+      throwError "Failed to derive `{.ofConstName typeClass}` for `{.ofConstName name}`; \
+        it is a law type class for `{.ofConstName derivedFrom}` \
+        but there is no `{.ofConstName derivedFrom}` instance for `{.ofConstName name}`.\
+        {hint}"
     let #[instEntry] := instanceEntries |
       throwError "There are multiple `{.ofConstName derivedFrom}` instances for \
         `{.ofConstName name}`, namely: {.andList (instanceEntries.map (·.val)).toList}"

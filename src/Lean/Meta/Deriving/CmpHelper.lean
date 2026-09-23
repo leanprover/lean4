@@ -17,6 +17,14 @@ public section
 
 namespace Lean.Meta.CmpHelper
 
+register_builtin_option backward.deriving.comparisons.old : Bool := {
+  defValue := false
+}
+
+register_builtin_option deriving.comparisons.linear_construction_threshold : Nat := {
+  defValue := 5
+}
+
 inductive Kind where
   | beq
   | ord
@@ -465,7 +473,7 @@ def makeCmpHelpersFromEquations (kind : Kind) (levelParams : List Name) (lparams
     (isUnsafe : Bool) : MetaM Unit := do
   let mut predefs : Array Elab.PreDefinition := #[]
   for (indName, ctorCases) in cases do
-    if ctorCases.size ≤ 5 then
+    if ctorCases.size ≤ deriving.comparisons.linear_construction_threshold.get (← getOptions) then
       let predef ← makeCmpHelperDoubleMatch kind levelParams lparams params moreVars indName ctorCases isUnsafe
       predefs := predefs.push predef
     else
@@ -1308,7 +1316,7 @@ def deriveCmpClass (k : Kind) : Elab.DerivingHandler := mkInductiveDerivingHandl
   return true
 
 def deriveReflCmpClass (k : Kind) : Elab.DerivingHandler :=
-    deriveSimpleLawTypeClass k.className fun inst instValue => do
+    deriveSimpleLawTypeClass k.lawfulEqClassName k.className fun inst instValue => do
   let name := (← read).names[0]!
   let mkApp2 (.const nm [u]) α cmpFn := instValue | return false
   unless nm == k.classCtorName do return false
@@ -1351,7 +1359,7 @@ def deriveReflCmpClass (k : Kind) : Elab.DerivingHandler :=
 
 def deriveLawfulEqClass (k : Kind) : Elab.DerivingHandler :=
     derivePrerequisite k.reflClassName (deriveReflCmpClass k) <|
-    deriveSimpleLawTypeClass k.className fun inst instValue => do
+    deriveSimpleLawTypeClass k.lawfulEqClassName k.className fun inst instValue => do
   let name := (← read).names[0]!
   let mkApp2 (.const nm [u]) α cmpFn := instValue | return false
   unless nm == k.classCtorName do return false

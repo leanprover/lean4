@@ -5,9 +5,11 @@ import Std.WP
 `vcgen` weakens a concrete exception postcondition of a spec with pointwise verification
 conditions: for a bare `ε → Prop` such as the one of `Except ε`, and for a type such as `Thrown`
 that converts to a stack via `ToEStack`. A schematic component is assigned the goal's component.
+A `throws` clause of a `def` contract fills `Thrown` via its `EPostSlot` instance.
 -/
 
 set_option experimental.vcgen true
+set_option experimental.intrinsic true
 open Std.WP Lean.Order
 
 /-! ## A bare `ε → Prop` -/
@@ -92,3 +94,28 @@ example : ⦃True⦄ boom ⦃fun _ => True; { onThrow e := e = "boom" ∨ e = "c
 
 example : ⦃Q "boom"⦄ boom' ⦃fun _ => True; { onThrow := Q }⦄ := by
   vcgen
+
+/-! ## `throws` clauses on `Thrown` -/
+
+instance : EPostSlot Thrown String Prop where
+  set R _ := { onThrow := R }
+
+@[spec] theorem Prog.ret_spec {a : α} {post : α → Prop} {E : Thrown} :
+    ⦃post a⦄ (Prog.ret a) ⦃post; E⦄ := ⟨PartialOrder.rel_refl⟩
+
+@[spec] theorem Prog.throw_spec {e : String} {post : α → Prop} {E : Thrown} :
+    ⦃E.onThrow e⦄ (Prog.throw e : Prog α) ⦃post; E⦄ := ⟨PartialOrder.rel_refl⟩
+
+def okC : Prog Unit ensures _ => True := .ret ()
+
+def boomC : Prog Unit ensures _ => True throws e => e = "boom" := .throw "boom"
+
+/-- info: okC.spec : ⦃ ⊤ ⦄ okC ⦃ fun x => True ⦄ -/
+#guard_msgs in #check okC.spec
+
+/-- info: boomC.spec : ⦃ ⊤ ⦄ boomC ⦃ fun x => True; { onThrow := fun e => e = "boom" } ⦄ -/
+#guard_msgs in #check boomC.spec
+
+example : ⦃True⦄ boomC ⦃fun _ => True; { onThrow e := e = "boom" ∨ e = "x" }⦄ := by
+  vcgen
+  grind

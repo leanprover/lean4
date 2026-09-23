@@ -621,7 +621,7 @@ where
           | none   => return result
           | some c => process 0 (todo ++ args) c.2 result
         match k with
-        | .star => cs.foldlM (init := result) fun result ⟨k, c⟩ => process k.arity todo c result
-        | _     => visitNonStar k args (← visitStar result)
+        | .star  => cs.foldlM (init := result) fun result ⟨k, c⟩ => process k.arity todo c result
+        | _      => visitNonStar k args (← visitStar result)
 
 end Lean.Meta.DiscrTree

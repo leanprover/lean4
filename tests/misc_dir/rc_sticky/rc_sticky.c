@@ -2,14 +2,16 @@
 Regression tests for the sticky reference-count paths of the runtime (#14838, #15241).
 */
 #include <lean/lean.h>
-#include <stdio.h>
+
+// `leanc` ships no C library headers, but links the C library.
+int printf(char const * fmt, ...);
 
 void lean_initialize_runtime_module(void);
 
 static int g_failures = 0;
 
 #define CHECK(c) do { \
-    if (!(c)) { fprintf(stderr, "%s:%d: check failed: %s\n", __FILE__, __LINE__, #c); g_failures++; } \
+    if (!(c)) { printf("%s:%d: check failed: %s\n", __FILE__, __LINE__, #c); g_failures++; } \
 } while (0)
 
 static int rc(lean_object * o) { return lean_internal_get_rc(o); }
@@ -17,7 +19,7 @@ static int rc(lean_object * o) { return lean_internal_get_rc(o); }
 #define CHECK_RC(o, expected) do { \
     int actual_ = rc(o), expected_ = (expected); \
     if (actual_ != expected_) { \
-        fprintf(stderr, "%s:%d: count of %s is %#x, expected %#x\n", __FILE__, __LINE__, #o, \
+        printf("%s:%d: count of %s is %#x, expected %#x\n", __FILE__, __LINE__, #o, \
                 (unsigned)actual_, (unsigned)expected_); \
         g_failures++; \
     } \
@@ -92,7 +94,7 @@ int main(void) {
     test_cascade_leaves_never_freed_counts();
     test_inc_leaves_frozen_counts();
     if (g_failures != 0) {
-        fprintf(stderr, "%d check(s) failed\n", g_failures);
+        printf("%d check(s) failed\n", g_failures);
         return 1;
     }
     return 0;

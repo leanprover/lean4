@@ -25,6 +25,25 @@ hygienic binder introduction, hypothesis-internalization for grind, and the emis
 
 namespace Lean.Elab.Tactic.VCGen
 
+/-- Completes the class application `@cls x₁ … xₙ` to an instance. The array `xs` works as in
+`mkAppOptM`: `some x` fixes an argument and `none` leaves it to instance search. The result holds
+all arguments of `cls` in order, followed by the instance. Example: for `cls := ToEStack` and
+`xs := #[some E]`, the result is `#[E, T, instE, instT, inst]`. -/
+public def synthInstanceOpt? (cls : Name) (xs : Array (Option Expr)) :
+    MetaM (Option (Array Expr)) :=
+  withNewMCtxDepth do
+    let c ← mkConstWithFreshMVarLevels cls
+    let (args, _, _) ← forallMetaTelescopeReducing (← inferType c)
+    if xs.size > args.size then
+      throwError "synthInstanceOpt?: too many arguments for `{cls}`"
+    for arg in args, x? in xs do
+      if let some x := x? then
+        unless ← isDefEq arg x do return none
+    let some inst ← synthInstance? (mkAppN c args) | return none
+    let res ← (args.push inst).mapM instantiateMVars
+    if res.any (·.hasExprMVar) then return none
+    return res
+
 /-- Change `goal`'s `Prop`-typed target to the definitionally-equal `targetNew`, assigning `goal` a
 fresh synthetic-opaque goal for `targetNew`, so the kernel checks the two types against each other.
 Unlike `MVarId.replaceTargetDefEq` it skips the `instantiateMVars`/`Expr.equal` round-trip, so it

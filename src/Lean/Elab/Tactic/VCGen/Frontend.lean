@@ -153,11 +153,7 @@ rather than a deep-embedding program type with a bespoke `WP`. The `Pred`/`EPost
 as metavariables for instance search to fill; instance search runs at default transparency, while the
 caller reduces types at reducible transparency. -/
 private def isWPMonad (m : Expr) : MetaM Bool := withDefault do
-  try
-    let wpm ← mkConstWithFreshMVarLevels ``Std.WP.WPMonad
-    let (args, _, _) ← forallMetaTelescopeReducing (← inferType wpm)
-    unless ← isDefEq args[0]! m do return false
-    return (← synthInstance? (mkAppN wpm args)).isSome
+  try return (← synthInstanceOpt? ``Std.WP.WPMonad #[some m]).isSome
   catch _ => return false
 
 /-- Infer the program type of a `vcgen` goal, the key for frame-procedure selection and the expected

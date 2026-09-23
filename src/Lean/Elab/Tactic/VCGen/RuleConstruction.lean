@@ -10,6 +10,7 @@ public import Lean.Elab.Tactic.Do.VCGen.Split
 public import Lean.Elab.Tactic.VCGen.Context
 public import Lean.Elab.Tactic.VCGen.Reduce
 public import Lean.Elab.Tactic.VCGen.SpecDB
+import Lean.Elab.Tactic.VCGen.Util
 public import Lean.Meta.Sym.Apply
 public import Lean.Meta.Sym.Util
 meta import Std.WP.Frame
@@ -42,17 +43,6 @@ private def mkPostPointwisePremise (postSpec postTarget postTy : Expr) (ssTypes 
       let lhs := postSpec.betaRev <| ss'.reverse.push a
       let rhs := mkAppN (mkApp postTarget a) ss'
       mkForallFVars (#[a] ++ ss') (← mkAppM ``PartialOrder.rel #[lhs, rhs])
-
-/-- The arguments `#[E, T, instE, instT]` of the `ToEStack E T` instance of `E`, and the instance.
-Rule construction is cached, so the instance synthesis runs once per rule, not per goal. -/
-private def toEStack? (E : Expr) : MetaM (Option (Array Expr × Expr)) := withNewMCtxDepth do
-  let some u ← decLevel? (← getLevel E) | return none
-  let .some instE ← trySynthInstance (mkApp (mkConst ``Assertion [u]) E) | return none
-  let T ← mkFreshExprMVar (mkSort (.succ u))
-  let instT ← mkFreshExprMVar (mkApp (mkConst ``Assertion [u]) T)
-  let .some inst ← trySynthInstance (mkAppN (mkConst ``ToEStack [u]) #[E, T, instE, instT])
-    | return none
-  return some (← #[E, T, instE, instT].mapM instantiateMVars, ← instantiateMVars inst)
 
 /-- Reduce a projection of a constructor application, e.g. `(⟨R⟩ : Thrown).onThrow` to `R`.
 Return any other term unchanged. -/
@@ -119,15 +109,15 @@ private partial def decomposeProdRel (EPosts epostsSpec epostsAbstract : Expr)
         let hTy ← mkPostPointwisePremise epostsSpec epostsAbstract EPostsR ssTypes stateArgNames
         let h ← mkFreshExprMVar (userName := `epostsImpl) hTy
         mkExpectedTypeHint h (← mkAppM ``PartialOrder.rel #[epostsSpec, epostsAbstract])
-      else if let some (args, inst) ← toEStack? EPosts then
-        let toEStack ← mkAppOptM ``ToEStack.toEStack (args.push inst |>.map some)
+      else if let some args ← synthInstanceOpt? ``ToEStack #[some EPosts] then
+        let toEStack ← mkAppOptM ``ToEStack.toEStack (args.map some)
         -- `unfoldProjInst?` turns the image of a spec literal into a stack literal.
         let stackSpec := mkApp toEStack epostsSpec
         let stackAbstract := mkApp toEStack epostsAbstract
         let h ← decomposeProdRel args[1]! ((← unfoldProjInst? stackSpec).getD stackSpec)
           stackAbstract stateArgNames
         withDefault <| mkAppOptM ``ToEStack.le_of_toEStack_le <|
-          (args.push inst |>.map some) ++ #[some epostsSpec, some epostsAbstract, some h]
+          (args.map some) ++ #[some epostsSpec, some epostsAbstract, some h]
       else
         let hTy ← mkAppM ``PartialOrder.rel #[epostsSpec, epostsAbstract]
         mkFreshExprMVar (userName := `epostsImpl) hTy

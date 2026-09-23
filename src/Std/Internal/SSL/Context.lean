@@ -11,21 +11,12 @@ public import Init.System.IO
 TLS contexts for servers and clients: the certificate and key, the peer verification mode, and the
 protocol options shared by every session created from a context.
 
-Every context requires TLS 1.2 or later; disables session tickets, session resumption, compression
-and renegotiation; limits TLS 1.2 to ECDHE with AES-GCM or ChaCha20-Poly1305 and TLS 1.3 to its
-AES-GCM and ChaCha20-Poly1305 suites; and holds keys and signatures to OpenSSL security level 2.
+Every context requires TLS 1.2 or later, allows only ECDHE with AES-GCM or ChaCha20-Poly1305 (and
+the matching TLS 1.3 suites), runs at OpenSSL security level 2, and disables session tickets,
+resumption, compression and renegotiation. A toolchain linking the system's OpenSSL also reads its
+configuration, which can tighten these settings but not loosen them.
 
-A toolchain bundling its own OpenSSL never reads an OpenSSL configuration file. One linking the
-system's OpenSSL reads the distribution's (or the one `OPENSSL_CONF` names, once per process), whose
-policy can tighten these settings but not loosen them. A policy leaving no suite for a TLS version it
-permits is refused.
-
-A context decides who is trusted, not who is being talked to: matching the peer certificate against
-a hostname is the session layer's job.
-
-Encrypted certificates and keys are refused rather than prompted for, and encrypted keys in CA
-material are skipped. Material reached through `SSL_CERT_FILE` or `SSL_CERT_DIR` is instead read with
-an empty passphrase, so an encrypted block whose passphrase is empty is trusted there.
+Encrypted certificates and keys are refused rather than prompted for.
 -/
 
 public section

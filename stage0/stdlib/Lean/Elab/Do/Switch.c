@@ -18,7 +18,7 @@ lean_object* l_Lean_Syntax_setKind(lean_object*, lean_object*);
 lean_object* l_Lean_replaceRef(lean_object*, lean_object*);
 lean_object* l_Lean_SourceInfo_fromRef(lean_object*, uint8_t);
 lean_object* l_Lean_Name_mkStr1(lean_object*);
-lean_object* l_Array_mkArray0(lean_object*);
+lean_object* l_Array_mkArray0___redArg();
 lean_object* l_Lean_Syntax_node2(lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Syntax_node1(lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_addBuiltinDeclarationRanges(lean_object*, lean_object*);
@@ -434,7 +434,7 @@ static lean_object* _init_l___private_Lean_Elab_Do_Switch_0__Lean_Elab_Term_toDo
 _start:
 {
 lean_object* v___x_85_; 
-v___x_85_ = l_Array_mkArray0(lean_box(0));
+v___x_85_ = l_Array_mkArray0___redArg();
 return v___x_85_;
 }
 }

@@ -96,7 +96,16 @@ set(
   openssl/context.cpp
   openssl/ssl_error.cpp
   openssl/trust_store.cpp
+  cadical.cpp
 )
+
+if(CADICAL_INCLUDE_DIR)
+  # scoped to this file so that cadical's headers cannot shadow ours
+  set_source_files_properties(
+    cadical.cpp
+    PROPERTIES INCLUDE_DIRECTORIES "${CADICAL_INCLUDE_DIR}" COMPILE_DEFINITIONS LEAN_CADICAL
+  )
+endif()
 
 add_library(leanrt_initial-exec STATIC ${RUNTIME_OBJS})
 set_target_properties(leanrt_initial-exec PROPERTIES ARCHIVE_OUTPUT_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR})

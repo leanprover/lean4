@@ -9,6 +9,7 @@ prelude
 import Lean.Meta.Tactic.BVDecide.Reflect.SatAtBVLogical
 public import Lean.Meta.Tactic.BVDecide.Normalize.Enums
 public import Std.Tactic.BVDecide.Bitblast.BVExpr.Basic
+public import Std.Sat.AIG.Basic
 
 /-!
 This module contains the implementation of counterexample recovery and explanation.
@@ -20,29 +21,26 @@ open Std.Tactic.BVDecide
 
 /--
 Given:
-- `var2Cnf`: The mapping from AIG to CNF variables.
+- `aig`: The AIG that was used to produce the CNF.
 - `assignments`: A model for the CNF as provided by a SAT solver.
-- `aigSize`: The amount of nodes in the AIG that was used to produce the CNF.
 - `atomsAssignment`: The mapping of the reflection monad from atom indices to `Expr`.
 
 Reconstruct bit by bit which value expression must have had which `BitVec` value and return all
 expression - pair values.
 -/
-public def reconstructCounterExample (var2Cnf : Std.HashMap BVBit Nat) (assignment : Array (Bool × Nat))
-    (aigSize : Nat) (atomsAssignment : Std.HashMap Nat (Nat × Expr × Bool)) :
+public def reconstructCounterExample (aig : Std.Sat.AIG BVBit) (assignment : Array (Bool × Nat))
+    (atomsAssignment : Std.HashMap Nat (Nat × Expr × Bool)) :
     Array (Expr × BVExpr.PackedBitVec) := Id.run do
   let mut sparseMap : Std.HashMap Nat (Std.TreeMap Nat Bool) := {}
-  let filter bvBit _ :=
-    let (_, _, synthetic) := atomsAssignment[bvBit.var]!
-    !synthetic
-  let var2Cnf := var2Cnf.filter filter
-  for (bitVar, cnfVar) in var2Cnf.toArray do
+  for (decl, idx) in aig.decls.zipIdx do
+    let .atom bitVar := decl | continue
+    let (_, _, synthetic) := atomsAssignment[bitVar.var]!
+    if synthetic then
+      continue
     /-
-    The setup of the variables in CNF is as follows:
-    1. One auxiliary variable for each node in the AIG
-    2. The actual BitVec bitwise variables
-    Hence we access the assignment array offset by the AIG size to obtain the value for a BitVec bit.
-    We assume that a variable can be found at its index as CaDiCal prints them in order.
+    The CNF variable of an AIG node is the index of the node and the node of an atom doubles as
+    the variable of the atom. We assume that a variable can be found at its index as CaDiCal prints
+    them in order.
 
     Note that cadical will report an assignment for all literals up to the maximum literal from the
     CNF. So even if variable or AIG bits below the maximum literal did not occur in the CNF they
@@ -53,7 +51,6 @@ public def reconstructCounterExample (var2Cnf : Std.HashMap BVBit Nat) (assignme
     For this situation we do the same as cadical for literals that did not show up in the CNF:
     set them to true.
     -/
-    let idx := cnfVar + aigSize
     let varSet := if h : idx < assignment.size then assignment[idx].fst else true
     let mut bitMap := sparseMap.getD bitVar.var {}
     bitMap := bitMap.insert bitVar.idx varSet

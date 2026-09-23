@@ -167,5 +167,3 @@ Every test `.lean` file must include a module docstring (`/-! ... -/`) briefly e
 ## Rebasing vs PR base
 
 When asked to "rebase a PR onto X", **only change the local branch base** — never change the PR's `--base` target on GitHub unless explicitly told to.
-
-Common Lean4 case: rebasing onto `nightly-with-mathlib` is done to get a mathlib-tested snapshot for CI; the PR still targets `master`.

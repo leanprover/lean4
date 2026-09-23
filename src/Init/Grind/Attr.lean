@@ -304,12 +304,17 @@ the multi-pattern `q x x, r x y`. The term `p x y` is ignored due to `p`’s low
 priority. Symbols with priority `0` are never used in patterns.
 -/
 syntax grindSym    := &"symbol" ppSpace prio
-syntax grindMod :=
-    grindEqBoth <|> grindEqRhs <|> grindEq <|> grindEqBwd <|> grindBwd
-    <|> grindFwd <|> grindRL <|> grindLR <|> grindUsr <|> grindCasesEager
-    <|> grindCases <|> grindIntro <|> grindExt <|> grindGen <|> grindSym <|> grindInj
-    <|> grindFunCC <|> grindHomPred <|> grindHom
-    <|> grindNorm <|> grindUnfold <|> grindDef
+/-- Modifiers for `grind` attributes and tactic parameters. -/
+declare_syntax_cat grind_mod (behavior := both)
+
+attribute [grind_mod_parser]
+  grindEqBoth grindEqRhs grindEq grindEqBwd grindBwd
+  grindFwd grindRL grindLR grindUsr grindCasesEager
+  grindCases grindIntro grindExt grindGen grindSym grindInj
+  grindFunCC grindHomPred grindHom grindNorm grindUnfold grindDef
+
+-- Retain the wrapper's syntax kind and antiquotations while sharing the modifier parsers.
+syntax grindMod := grind_mod
 
 /--
 Marks a theorem or definition for use by the `grind` tactic.

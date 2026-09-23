@@ -478,6 +478,14 @@ C function `sqrt`.
 @[extern "sqrt"] def Float.sqrt : Float → Float :=
   fun a => .ofModel a.toModel.sqrt
 /--
+Computes the fused multiply-add `x * y + z` of three floating-point numbers. This operation is performed with a single rounding, which can be more accurate than performing the multiplication and addition separately.
+
+This function has a logical model in terms of `Float.Model`. It is implemented in compiled code by
+the C function `fma`.
+-/
+@[extern "fma"] def Float.fma : Float → Float → Float → Float :=
+  fun x y z => .ofModel (x.toModel.fma y.toModel z.toModel)
+/--
 Computes the cube root of a floating-point number.
 
 This function does not reduce in the kernel. It is implemented in compiled code by the C function
@@ -526,9 +534,69 @@ C function `fabs`.
 
 instance : HomogeneousPow Float := ⟨Float.pow⟩
 
-instance : Min Float := minOfLe
+/--
+Computes the IEEE-754-2019 `minimum` operation of two floats.
 
-instance : Max Float := maxOfLe
+This operation returns `NaN` if one of the operands is `NaN`, and
+considers `-0` to be smaller than `+0`.
+
+See also `Float.minimumNumber` for the variant that returns finite numbers
+over `NaN`.
+
+This function has a logical model in terms of `Float.Model`. It is implemented in compiled code
+by a compiler intrinsic if available.
+-/
+@[extern "lean_float_minimum"] def Float.minimum : Float → Float → Float :=
+  fun a b => .ofModel (a.toModel.minimum b.toModel)
+
+/--
+Computes the IEEE-754-2019 `minimumNumber` operation of two floats.
+
+If one of the operands is `NaN` and the other is a number, then this
+operation will return that number.
+
+See also `Float.minimum` for the variant that always propagates `NaN`.
+
+This function has a logical model in terms of `Float.Model`. It is implemented in compiled code
+by a compiler intrinsic if available.
+-/
+@[extern "lean_float_minimum_number"] def Float.minimumNumber : Float → Float → Float :=
+  fun a b => .ofModel (a.toModel.minimumNumber b.toModel)
+
+/--
+Computes the IEEE-754-2019 `maximum` operation of two floats.
+
+This operation returns `NaN` if one of the operands is `NaN`, and
+considers `-0` to be smaller than `+0`.
+
+See also `Float.maximumNumber` for the variant that returns finite numbers
+over `NaN`.
+
+This function has a logical model in terms of `Float.Model`. It is implemented in compiled code
+by a compiler intrinsic if available.
+-/
+@[extern "lean_float_maximum"] def Float.maximum : Float → Float → Float :=
+  fun a b => .ofModel (a.toModel.maximum b.toModel)
+
+/--
+Computes the IEEE-754-2019 `maximumNumber` operation of two floats.
+
+If one of the operands is `NaN` and the other is a number, then this
+operation will return that number.
+
+See also `Float.maximum` for the variant that always propagates `NaN`.
+
+This function has a logical model in terms of `Float.Model`. It is implemented in compiled code
+by a compiler intrinsic if available.
+-/
+@[extern "lean_float_maximum_number"] def Float.maximumNumber : Float → Float → Float :=
+  fun a b => .ofModel (a.toModel.maximumNumber b.toModel)
+
+instance : Min Float where
+  min := Float.minimum
+
+instance : Max Float where
+  max := Float.maximum
 
 /--
 Efficiently computes `x * 2^i`.

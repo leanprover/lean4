@@ -30,6 +30,7 @@ structure Semiring where
   mulFn?         : Option Expr := none
   powFn?         : Option Expr := none
   natCastFn?     : Option Expr := none
+  natSMulFn?     : Option Expr := none
   deriving Inhabited
 
 /-- Classification state for a type with a `Ring` instance. -/
@@ -51,6 +52,8 @@ structure Ring where
   powFn?         : Option Expr := none
   intCastFn?     : Option Expr := none
   natCastFn?     : Option Expr := none
+  natSMulFn?     : Option Expr := none
+  intSMulFn?     : Option Expr := none
   one?           : Option Expr := none
   deriving Inhabited
 
@@ -71,6 +74,8 @@ structure CommRing extends Ring where
   noZeroDivInst?     : Option Expr
   /-- `Field` instance for `type` if available. -/
   fieldInst?         : Option Expr
+  /-- `PowIdentity` instance, the synthesized `CommSemiring` instance, and exponent `p` if available. -/
+  powIdentityInst?   : Option (Expr × Expr × Nat) := none
   deriving Inhabited
 
 /--
@@ -96,10 +101,48 @@ inductive ClassifyResult where
   | /-- No algebraic structure found. -/ none
   deriving Inhabited
 
+/--
+Classification state for a type with an `IsPreorder` instance: the order instances, the
+canonical `≤`/`<` functions, and the link to the ring classification when the type is also
+an ordered ring.
+-/
+structure Order where
+  id                 : Nat
+  type               : Expr
+  /-- Cached `getDecLevel type` -/
+  u                  : Level
+  isPreorderInst     : Expr
+  /-- `LE` instance -/
+  leInst             : Expr
+  /-- `LT` instance if available -/
+  ltInst?            : Option Expr
+  /-- `IsPartialOrder` instance if available -/
+  isPartialInst?     : Option Expr
+  /-- `IsLinearPreorder` instance if available -/
+  isLinearPreInst?   : Option Expr
+  /-- `LawfulOrderLT` instance if available -/
+  lawfulOrderLTInst? : Option Expr
+  /-- Id of the `CommRing` (`rings`) or non-commutative `Ring` (`ncRings`) classification, if available. -/
+  ringId?            : Option Nat
+  /-- `true` if `ringId?` indexes `rings`, `false` if it indexes `ncRings` -/
+  isCommRing         : Bool
+  /-- `Ring` instance if available -/
+  ringInst?          : Option Expr
+  /-- `OrderedRing` instance if available -/
+  orderedRingInst?   : Option Expr
+  /-- Canonical `LE.le type leInst` -/
+  leFn               : Expr
+  /-- Canonical `LT.lt type ltInst`, present iff `lawfulOrderLTInst?` is -/
+  ltFn?              : Option Expr
+  deriving Inhabited
+
 /-- Arith type classification state, stored as a `SymExtension`. -/
 structure State where
-  /-- Exponent threshold for `HPow` evaluation. -/
-  exp            : Nat := 8
+  /--
+  Maximum exponent eagerly evaluated while computing bounds for `ToInt` and
+  the characteristic of a ring. Same meaning as `Grind.Config.exp`.
+  -/
+  exp            : Nat := 2^20
   /-- Commutative rings. -/
   rings          : Array CommRing := {}
   /-- Commutative semirings. -/
@@ -110,6 +153,10 @@ structure State where
   ncSemirings    : Array Semiring := {}
   /-- Mapping from types to their classification result. Caches failures as `.none`. -/
   typeClassify   : PHashMap ExprPtr ClassifyResult := {}
+  /-- Order structures. -/
+  orders         : Array Order := {}
+  /-- Mapping from types to their order id. Caches failures as `none`. -/
+  typeOrderClassify : PHashMap ExprPtr (Option Nat) := {}
   deriving Inhabited
 
 builtin_initialize arithExt : SymExtension State ← registerSymExtension (return {})

@@ -208,6 +208,34 @@ test_lines 6 .lake/outputs.jsonl
 test_run -f platformIndependent.toml build Test:static -o .lake/outputs.jsonl
 test_lines 3 .lake/outputs.jsonl
 
+# Test producing output mappings for a dependency with `--package`
+test_run -f dep.toml update
+# Only the covered targets of the selected package are tracked,
+# even when targets of other packages are built as well
+test_run -f dep.toml build Test @dep/Dep -o .lake/outputs.jsonl --package=dep
+test_lines 2 .lake/outputs.jsonl
+test_run -f dep.toml build Test -o .lake/outputs.jsonl --package=dep
+test_lines 1 .lake/outputs.jsonl
+# Without `--package`, the root is tracked
+test_run -f dep.toml build Test @dep/Dep -o .lake/outputs.jsonl
+test_lines 3 .lake/outputs.jsonl
+# The platform independence of the selected package (not of the root)
+# decides whether platform-dependent outputs are included
+test_run -f dep.toml build @dep/Dep:static -o .lake/outputs.jsonl --package=dep
+test_lines 4 .lake/outputs.jsonl
+test_run -f dep.toml build Test:static -o .lake/outputs.jsonl
+test_lines 3 .lake/outputs.jsonl
+# A selected package without the artifact cache enabled is reported,
+# but its mappings are still produced
+LAKE_ARTIFACT_CACHE=false test_out \
+  'dep: the artifact cache is not enabled for this package' \
+  -f dep.toml build @dep/Dep -o .lake/outputs.jsonl --package=dep
+test_lines 2 .lake/outputs.jsonl
+test_err 'unknown package `bogus`' \
+  -f dep.toml build Test -o .lake/outputs.jsonl --package=bogus
+test_err '`--package` requires `-o`' -f dep.toml build Test --package=dep
+test_run update
+
 # Test `lake cache stage` and `lake cache unstage`
 test_run build Test:static -o .lake/outputs.jsonl
 test_lines 6 .lake/outputs.jsonl

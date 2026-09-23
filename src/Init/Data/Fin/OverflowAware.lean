@@ -22,7 +22,7 @@ Examples:
 * {lean}`(2 : Fin 3).addNat? 1 = (none : Option (Fin 3))`
 * {lean}`(2 : Fin 4).addNat? 1 = (some 3 : Option (Fin 4))`
 -/
-@[inline]
+@[inline, expose]
 protected def addNat? (i : Fin n) (m : Nat) : Option (Fin n) :=
   if h : i + m < n then some ⟨i + m, h⟩ else none
 

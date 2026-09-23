@@ -6,7 +6,7 @@ Authors: Leonardo de Moura
 module
 prelude
 public import Lean.Meta.Sym.Pattern
-public import Lean.Meta.DiscrTree.Basic
+public import Lean.Meta.DiscrTree.Util
 import Lean.Meta.Sym.Offset
 import Lean.Meta.Sym.Eta
 import Init.Omega
@@ -167,6 +167,19 @@ def pushArgsTodo (todo : Array Expr) (e : Expr) : Array Expr :=
 
 partial def getMatchLoop (mctx : MetavarContext) (todo : Array Expr) (c : Trie α) (result : Array α) : Array α :=
   match c with
+  | .chain key child =>
+    if todo.isEmpty then
+      result
+    else
+      let e     := resolveAssignedMVars mctx <| etaReduce todo.back!
+      let todo  := todo.pop
+      if key == .star then
+        getMatchLoop mctx todo child result
+      else if key == getKey e then
+        getMatchLoop mctx (pushArgsTodo todo e) child result
+      else
+        result
+
   | .node vs cs =>
     let csize := cs.size
     if todo.isEmpty then
@@ -177,25 +190,16 @@ partial def getMatchLoop (mctx : MetavarContext) (todo : Array Expr) (c : Trie �
       let e     := resolveAssignedMVars mctx <| etaReduce todo.back!
       let todo  := todo.pop
       let first := cs[0] /- Recall that `Key.star` is the minimal key -/
-      if csize = 1 then
-        /- Special case: only one child node -/
-        if first.1 == .star then
-          getMatchLoop mctx todo first.2 result
-        else if first.1 == getKey e then
-          getMatchLoop mctx (pushArgsTodo todo e) first.2 result
-        else
-          result
-      else
         /- We must always visit `Key.star` edges since they are wildcards.
           Thus, `todo` is not used linearly when there is `Key.star` edge
           and there is an edge for `k` and `k != Key.star`. -/
-        let result := if first.1 == .star then
+      let result := if first.1 == .star then
           getMatchLoop mctx todo first.2 result
         else
           result
-        match findKey? cs (getKey e) with
-        | none   => result
-        | some c => getMatchLoop mctx (pushArgsTodo todo e) c.2 result
+      match findKey? cs (getKey e) with
+      | none   => result
+      | some c => getMatchLoop mctx (pushArgsTodo todo e) c.2 result
 
 /--
 Retrieves all values whose patterns match the expression `e`.
@@ -203,8 +207,8 @@ Retrieves all values whose patterns match the expression `e`.
 -/
 public def getMatch (mctx : MetavarContext) (d : DiscrTree α) (e : Expr) : Array α :=
   let result := match d.root.find? .star with
-  | none              => .mkEmpty initCapacity
-  | some (.node vs _) => vs
+  | none   => .mkEmpty initCapacity
+  | some c => c.nodeValues
   let e := resolveAssignedMVars mctx <| etaReduce e
   match d.root.find? (getKey e) with
   | none   => result

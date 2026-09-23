@@ -1,4 +1,12 @@
-Failure @0 (⟨1, 0⟩): unexpected '[' (use '\[' to escape); expected text
+Input: "[abc"
+Failure: unexpected '[' (use '\[' to escape); expected text
+ --> 1:0-1:1
+  |
+1 | [abc
+  | ^
+  = consumed input prefix: 0 bytes
 Final stack:
   <missing>
-Remaining: "[abc"
+Remaining:
+"[abc"
+Round-trip not tested: this parser classifies input rather than producing document syntax

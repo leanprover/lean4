@@ -341,7 +341,7 @@ def isDeniedPremise (env : Environment) (name : Name) (allowPrivate : Bool := fa
   if Lean.Linter.isDeprecated env name then return true
   if (nameDenyListExt.getState env).any (fun p => name.anyS (· == p)) then return true
   if let some moduleIdx := env.getModuleIdxFor? name then
-    let moduleName := env.header.moduleNames[moduleIdx.toNat]!
+    let moduleName := env.header.modules[moduleIdx.toNat]!.module
     if isDeniedModule env moduleName then
       return true
   let some ci := env.find? name | return true

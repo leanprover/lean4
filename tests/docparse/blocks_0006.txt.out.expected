@@ -1,38 +1,46 @@
+Input: "*\n * A1\n * A2\n*\n * B1"
 Success! Final stack:
-  [(Lean.Doc.Syntax.ul
-    "ul{"
-    [(Lean.Doc.Syntax.li
-      "*"
-      [(Lean.Doc.Syntax.ul
-        "ul{"
-        [(Lean.Doc.Syntax.li
-          "*"
-          [(Lean.Doc.Syntax.para
-            "para{"
-            [(Lean.Doc.Syntax.text
-              (str "\"A1\""))]
-            "}")])
-         (Lean.Doc.Syntax.li
-          "*"
-          [(Lean.Doc.Syntax.para
-            "para{"
-            [(Lean.Doc.Syntax.text (str "\"A2\""))
-             (Lean.Doc.Syntax.linebreak
-              "line!"
-              (str "\"\\n\""))]
-            "}")])]
-        "}")])
-     (Lean.Doc.Syntax.li
-      "*"
-      [(Lean.Doc.Syntax.ul
-        "ul{"
-        [(Lean.Doc.Syntax.li
-          "*"
-          [(Lean.Doc.Syntax.para
-            "para{"
-            [(Lean.Doc.Syntax.text
-              (str "\"B1\""))]
-            "}")])]
-        "}")])]
-    "}")]
+  [(Lean.Doc.Parser.Block.ul
+    [(Lean.Doc.Parser.ListItem.item
+      (Lean.Doc.Parser.listMarker "*")
+      [(Lean.Doc.Parser.Block.ul
+        [(Lean.Doc.Parser.ListItem.item
+          (Lean.Doc.Parser.listMarker "*")
+          [(Lean.Doc.Parser.Block.para
+            [(Lean.Doc.Parser.Inline.text
+              (Lean.Doc.Parser.versoText
+               "A1"))])])
+         (Lean.Doc.Parser.ListItem.item
+          (Lean.Doc.Parser.listMarker "*")
+          [(Lean.Doc.Parser.Block.para
+            [(Lean.Doc.Parser.Inline.text
+              (Lean.Doc.Parser.versoText "A2"))
+             (Lean.Doc.Parser.Inline.linebreak
+              "\n")])])])])
+     (Lean.Doc.Parser.ListItem.item
+      (Lean.Doc.Parser.listMarker "*")
+      [(Lean.Doc.Parser.Block.ul
+        [(Lean.Doc.Parser.ListItem.item
+          (Lean.Doc.Parser.listMarker "*")
+          [(Lean.Doc.Parser.Block.para
+            [(Lean.Doc.Parser.Inline.text
+              (Lean.Doc.Parser.versoText
+               "B1"))])])])])])]
 All input consumed.
+Round-trip OK
+Decoded views:
+  ul
+    item (marker := "*")
+      ul
+        item (marker := "*")
+          para
+            text (content := "A1")
+        item (marker := "*")
+          para
+            text (content := "A2")
+            linebreak (newline := "\n")
+    item (marker := "*")
+      ul
+        item (marker := "*")
+          para
+            text (content := "B1")

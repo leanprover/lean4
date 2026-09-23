@@ -13,7 +13,7 @@
 #ifdef __cplusplus
 extern "C" {
 #endif
-lean_object* l_Lean_PersistentHashMap_mkEmptyEntriesArray(lean_object*, lean_object*);
+lean_object* l_Lean_PersistentHashMap_mkEmptyEntriesArray___redArg();
 size_t lean_array_size(lean_object*);
 uint8_t lean_usize_dec_lt(size_t, size_t);
 lean_object* lean_array_uget_borrowed(lean_object*, size_t);
@@ -38,9 +38,9 @@ static const lean_ctor_object l_Lean_Meta_Sym_mkMethods___lam__0___closed__0_val
 static const lean_object* l_Lean_Meta_Sym_mkMethods___lam__0___closed__0 = (const lean_object*)&l_Lean_Meta_Sym_mkMethods___lam__0___closed__0_value;
 LEAN_EXPORT lean_object* l_Lean_Meta_Sym_mkMethods___lam__0(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Meta_Sym_mkMethods___lam__0___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
-static const lean_closure_object l_Lean_Meta_Sym_mkMethods___closed__0_value = {.m_header = {.m_rc = 0, .m_cs_sz = sizeof(lean_closure_object) + sizeof(void*)*0, .m_other = 0, .m_tag = 245}, .m_fun = (void*)l_Lean_Meta_Sym_Simp_dischargeNone___boxed, .m_arity = 11, .m_num_fixed = 0, .m_objs = {} };
+static const lean_closure_object l_Lean_Meta_Sym_mkMethods___closed__0_value = {.m_header = {.m_rc = 0, .m_cs_sz = sizeof(lean_closure_object) + sizeof(void*)*0, .m_other = 0, .m_tag = 245}, .m_fun = (void*)l_Lean_Meta_Sym_mkMethods___lam__0___boxed, .m_arity = 11, .m_num_fixed = 0, .m_objs = {} };
 static const lean_object* l_Lean_Meta_Sym_mkMethods___closed__0 = (const lean_object*)&l_Lean_Meta_Sym_mkMethods___closed__0_value;
-static const lean_closure_object l_Lean_Meta_Sym_mkMethods___closed__1_value = {.m_header = {.m_rc = 0, .m_cs_sz = sizeof(lean_closure_object) + sizeof(void*)*0, .m_other = 0, .m_tag = 245}, .m_fun = (void*)l_Lean_Meta_Sym_mkMethods___lam__0___boxed, .m_arity = 11, .m_num_fixed = 0, .m_objs = {} };
+static const lean_closure_object l_Lean_Meta_Sym_mkMethods___closed__1_value = {.m_header = {.m_rc = 0, .m_cs_sz = sizeof(lean_closure_object) + sizeof(void*)*0, .m_other = 0, .m_tag = 245}, .m_fun = (void*)l_Lean_Meta_Sym_Simp_dischargeNone___boxed, .m_arity = 11, .m_num_fixed = 0, .m_objs = {} };
 static const lean_object* l_Lean_Meta_Sym_mkMethods___closed__1 = (const lean_object*)&l_Lean_Meta_Sym_mkMethods___closed__1_value;
 LEAN_EXPORT lean_object* l_Lean_Meta_Sym_mkMethods(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Meta_Sym_mkMethods___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
@@ -147,7 +147,7 @@ static lean_object* _init_l_Lean_Meta_Sym_mkSimprocFor___closed__0(void){
 _start:
 {
 lean_object* v___x_39_; 
-v___x_39_ = l_Lean_PersistentHashMap_mkEmptyEntriesArray(lean_box(0), lean_box(0));
+v___x_39_ = l_Lean_PersistentHashMap_mkEmptyEntriesArray___redArg();
 return v___x_39_;
 }
 }
@@ -302,39 +302,39 @@ return v_res_104_;
 LEAN_EXPORT lean_object* l_Lean_Meta_Sym_mkMethods(lean_object* v_declNames_107_, lean_object* v_a_108_, lean_object* v_a_109_, lean_object* v_a_110_, lean_object* v_a_111_){
 _start:
 {
-lean_object* v___x_113_; lean_object* v___x_114_; 
-v___x_113_ = ((lean_object*)(l_Lean_Meta_Sym_mkMethods___closed__0));
-v___x_114_ = l_Lean_Meta_Sym_mkSimprocFor(v_declNames_107_, v___x_113_, v_a_108_, v_a_109_, v_a_110_, v_a_111_);
-if (lean_obj_tag(v___x_114_) == 0)
+lean_object* v___f_113_; lean_object* v___x_114_; lean_object* v___x_115_; 
+v___f_113_ = ((lean_object*)(l_Lean_Meta_Sym_mkMethods___closed__0));
+v___x_114_ = ((lean_object*)(l_Lean_Meta_Sym_mkMethods___closed__1));
+v___x_115_ = l_Lean_Meta_Sym_mkSimprocFor(v_declNames_107_, v___x_114_, v_a_108_, v_a_109_, v_a_110_, v_a_111_);
+if (lean_obj_tag(v___x_115_) == 0)
 {
-lean_object* v_a_115_; lean_object* v___x_117_; uint8_t v_isShared_118_; uint8_t v_isSharedCheck_124_; 
-v_a_115_ = lean_ctor_get(v___x_114_, 0);
-v_isSharedCheck_124_ = !lean_is_exclusive(v___x_114_);
+lean_object* v_a_116_; lean_object* v___x_118_; uint8_t v_isShared_119_; uint8_t v_isSharedCheck_124_; 
+v_a_116_ = lean_ctor_get(v___x_115_, 0);
+v_isSharedCheck_124_ = !lean_is_exclusive(v___x_115_);
 if (v_isSharedCheck_124_ == 0)
 {
-v___x_117_ = v___x_114_;
-v_isShared_118_ = v_isSharedCheck_124_;
-goto v_resetjp_116_;
+v___x_118_ = v___x_115_;
+v_isShared_119_ = v_isSharedCheck_124_;
+goto v_resetjp_117_;
 }
 else
 {
-lean_inc(v_a_115_);
-lean_dec(v___x_114_);
-v___x_117_ = lean_box(0);
-v_isShared_118_ = v_isSharedCheck_124_;
-goto v_resetjp_116_;
+lean_inc(v_a_116_);
+lean_dec(v___x_115_);
+v___x_118_ = lean_box(0);
+v_isShared_119_ = v_isSharedCheck_124_;
+goto v_resetjp_117_;
 }
-v_resetjp_116_:
+v_resetjp_117_:
 {
-lean_object* v___f_119_; lean_object* v___x_120_; lean_object* v___x_122_; 
-v___f_119_ = ((lean_object*)(l_Lean_Meta_Sym_mkMethods___closed__1));
+lean_object* v___x_120_; lean_object* v___x_122_; 
 v___x_120_ = lean_alloc_ctor(0, 2, 0);
-lean_ctor_set(v___x_120_, 0, v___f_119_);
-lean_ctor_set(v___x_120_, 1, v_a_115_);
-if (v_isShared_118_ == 0)
+lean_ctor_set(v___x_120_, 0, v___f_113_);
+lean_ctor_set(v___x_120_, 1, v_a_116_);
+if (v_isShared_119_ == 0)
 {
-lean_ctor_set(v___x_117_, 0, v___x_120_);
-v___x_122_ = v___x_117_;
+lean_ctor_set(v___x_118_, 0, v___x_120_);
+v___x_122_ = v___x_118_;
 goto v_reusejp_121_;
 }
 else
@@ -354,18 +354,18 @@ return v___x_122_;
 else
 {
 lean_object* v_a_125_; lean_object* v___x_127_; uint8_t v_isShared_128_; uint8_t v_isSharedCheck_132_; 
-v_a_125_ = lean_ctor_get(v___x_114_, 0);
-v_isSharedCheck_132_ = !lean_is_exclusive(v___x_114_);
+v_a_125_ = lean_ctor_get(v___x_115_, 0);
+v_isSharedCheck_132_ = !lean_is_exclusive(v___x_115_);
 if (v_isSharedCheck_132_ == 0)
 {
-v___x_127_ = v___x_114_;
+v___x_127_ = v___x_115_;
 v_isShared_128_ = v_isSharedCheck_132_;
 goto v_resetjp_126_;
 }
 else
 {
 lean_inc(v_a_125_);
-lean_dec(v___x_114_);
+lean_dec(v___x_115_);
 v___x_127_ = lean_box(0);
 v_isShared_128_ = v_isSharedCheck_132_;
 goto v_resetjp_126_;

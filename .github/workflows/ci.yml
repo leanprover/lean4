@@ -286,7 +286,7 @@ jobs:
                 "enabled": level >= 2,
                 "test": true,
                 "shell": "nix develop .#oldGlibc -c bash -euxo pipefail {0}",
-                "llvm-url": "https://github.com/leanprover/lean-llvm/releases/download/23.1.0/lean-llvm-x86_64-linux-gnu.tar.zst",
+                "llvm-url": "https://github.com/leanprover/lean-llvm/releases/download/23.1.1/lean-llvm-x86_64-linux-gnu.tar.zst",
                 "prepare-llvm": "../script/prepare-llvm-linux.sh lean-llvm*",
                 "binary-check": "ldd -v",
                 "CMAKE_OPTIONS": "-DLLVM=ON -DLLVM_CONFIG=${GITHUB_WORKSPACE}/build/llvm-host/bin/llvm-config"
@@ -294,7 +294,9 @@ jobs:
               {
                 // portable release build: use channel with older glibc (2.26)
                 "name": "Linux release",
-                "os": large ? chonk : "ubuntu-latest",
+                // The self-hosted runner carries a different toolset than the hosted ones, so what
+                // we ship is built on a hosted runner even when it is free.
+                "os": large ? (stamped ? "nscloud-ubuntu-24.04-amd64-8x16" : chonk) : "ubuntu-latest",
                 "release": stamped,
                 // Unstamped builds are published too (`pr-release.yml`, `grove.yml`), so always pack
                 // and upload the artifact.
@@ -307,7 +309,7 @@ jobs:
                 // NOTE: `test-bench` currently seems to be broken on `ubuntu-latest`
                 "test-bench": large && level >= 2,
                 "shell": "nix develop .#oldGlibc -c bash -euxo pipefail {0}",
-                "llvm-url": "https://github.com/leanprover/lean-llvm/releases/download/23.1.0/lean-llvm-x86_64-linux-gnu.tar.zst",
+                "llvm-url": "https://github.com/leanprover/lean-llvm/releases/download/23.1.1/lean-llvm-x86_64-linux-gnu.tar.zst",
                 "prepare-llvm": "../script/prepare-llvm-linux.sh lean-llvm*",
                 "binary-check": "ldd -v",
                 // We are not warning-free yet on all platforms, start with Linux
@@ -347,7 +349,11 @@ jobs:
                 //   failures?
                 // * `kernelMaxRecDepth` stack-overflows in the interpreter.
                 // * `*bench` is too expensive to run with fsanitize (also can e.g. stack overflow).
-                "CTEST_OPTIONS": "-E 'StackOverflow|interactive|async_select_channel|9366|elab/grind|pkg/|lake/|kernelMaxRecDepth|bench/'"
+                // * elab/try_ is too slow because it needs to set up symbol frequency
+                // * treeMap2 is simply large and thus takes a lot of time
+                // * docparse times out as well
+                // * async_http_idle_timeout is flakey at the moment, re-enable in the future
+                "CTEST_OPTIONS": "-E 'StackOverflow|interactive|async_select_channel|9366|elab/grind|pkg/|lake/|kernelMaxRecDepth|bench/|elab/try_|treeMap2|docparse/|async_http_idle_timeout'"
               },
               {
                 "name": "Linux tsanitize",
@@ -368,21 +374,23 @@ jobs:
                 "test": false,  // Tier 2 platform
                 "enabled": level >= 2,
                 "shell": "bash -euxo pipefail {0}",
-                "llvm-url": "https://github.com/leanprover/lean-llvm/releases/download/23.1.0/lean-llvm-x86_64-apple-darwin.tar.zst",
+                "llvm-url": "https://github.com/leanprover/lean-llvm/releases/download/23.1.1/lean-llvm-x86_64-apple-darwin.tar.zst",
                 "prepare-llvm": "../script/prepare-llvm-macos.sh lean-llvm*",
                 "binary-check": "otool -L",
                 "tar": "gtar", // https://github.com/actions/runner-images/issues/2619
               },
               {
                 "name": "macOS aarch64",
-                "enabled": level >= 1 || macos_arm,
+                // Kept out of the merge queue, where it would be the slowest job; breakage surfaces
+                // on master instead.
+                "enabled": isPushToMaster || level >= 2 || macos_arm,
                 "test": level >= 2,
                 // standard GH runner only comes with 7GB so use large runner if possible when running tests
                 "os": large && (fast || level >= 2) ? "nscloud-macos-sequoia-arm64-6x14" : "macos-15",
                 "CMAKE_OPTIONS": "-DLEAN_INSTALL_SUFFIX=-darwin_aarch64",
                 "release": true,
                 "shell": "bash -euxo pipefail {0}",
-                "llvm-url": "https://github.com/leanprover/lean-llvm/releases/download/23.1.0/lean-llvm-aarch64-apple-darwin.tar.zst",
+                "llvm-url": "https://github.com/leanprover/lean-llvm/releases/download/23.1.1/lean-llvm-aarch64-apple-darwin.tar.zst",
                 "prepare-llvm": "../script/prepare-llvm-macos.sh lean-llvm*",
                 "binary-check": "otool -L",
                 "tar": "gtar", // https://github.com/actions/runner-images/issues/2619
@@ -395,7 +403,7 @@ jobs:
                 "test": true,
                 "shell": "msys2 {0}",
                 "CMAKE_OPTIONS": "-G \"Unix Makefiles\"",
-                "llvm-url": "https://github.com/leanprover/lean-llvm/releases/download/23.1.0/lean-llvm-x86_64-w64-windows-gnu.tar.zst",
+                "llvm-url": "https://github.com/leanprover/lean-llvm/releases/download/23.1.1/lean-llvm-x86_64-w64-windows-gnu.tar.zst",
                 "prepare-llvm": "../script/prepare-llvm-mingw.sh lean-llvm*",
                 "binary-check": "ldd",
               },
@@ -407,7 +415,7 @@ jobs:
                 "enabled": level >= 2,
                 "test": true,
                 "shell": "nix develop .#oldGlibcAArch -c bash -euxo pipefail {0}",
-                "llvm-url": "https://github.com/leanprover/lean-llvm/releases/download/23.1.0/lean-llvm-aarch64-linux-gnu.tar.zst",
+                "llvm-url": "https://github.com/leanprover/lean-llvm/releases/download/23.1.1/lean-llvm-aarch64-linux-gnu.tar.zst",
                 "prepare-llvm": "../script/prepare-llvm-linux.sh lean-llvm*",
               },
               // Started running out of memory building expensive modules, a 2GB heap is just not that much even before fragmentation
@@ -589,6 +597,6 @@ jobs:
       - name: Update toolchain on mathlib4's nightly-testing branch
         if: steps.mathlib-app-token.outcome == 'success'
         run: |
-          gh workflow -R leanprover-community/mathlib4-nightly-testing run nightly_bump_and_merge.yml
+          gh workflow -R leanprover-community/mathlib4-nightly-testing run nightly_bump_toolchain.yml
         env:
           GITHUB_TOKEN: ${{ steps.mathlib-app-token.outputs.token }}

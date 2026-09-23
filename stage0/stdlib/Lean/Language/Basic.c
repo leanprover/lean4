@@ -67,7 +67,7 @@ lean_object* l_Lean_Name_mkStr1(lean_object*);
 lean_object* l_Lean_Name_mkStr3(lean_object*, lean_object*, lean_object*);
 lean_object* lean_register_option(lean_object*, lean_object*);
 lean_object* l_Lean_MessageData_kind(lean_object*);
-lean_object* l_Lean_instInhabitedPersistentArrayNode_default(lean_object*);
+lean_object* l_Lean_instInhabitedPersistentArrayNode_default___redArg();
 size_t lean_usize_shift_right(size_t, size_t);
 lean_object* lean_usize_to_nat(size_t);
 lean_object* lean_array_get_borrowed(lean_object*, lean_object*, lean_object*);
@@ -2170,21 +2170,21 @@ return v___x_642_;
 }
 else
 {
-size_t v___x_645_; size_t v___x_646_; lean_object* v___x_203__overap_647_; lean_object* v___x_648_; 
+size_t v___x_645_; size_t v___x_646_; lean_object* v___x_205__overap_647_; lean_object* v___x_648_; 
 v___x_645_ = ((size_t)0ULL);
 v___x_646_ = lean_usize_of_nat(v___x_641_);
-v___x_203__overap_647_ = l___private_Init_Data_Array_Basic_0__Array_foldlMUnsafe_fold(lean_box(0), lean_box(0), lean_box(0), v___x_634_, v___f_635_, v_children_639_, v___x_645_, v___x_646_, v___x_642_);
-v___x_648_ = lean_apply_1(v___x_203__overap_647_, lean_box(0));
+v___x_205__overap_647_ = l___private_Init_Data_Array_Basic_0__Array_foldlMUnsafe_fold(lean_box(0), lean_box(0), lean_box(0), v___x_634_, v___f_635_, v_children_639_, v___x_645_, v___x_646_, v___x_642_);
+v___x_648_ = lean_apply_1(v___x_205__overap_647_, lean_box(0));
 return v___x_648_;
 }
 }
 else
 {
-size_t v___x_649_; size_t v___x_650_; lean_object* v___x_206__overap_651_; lean_object* v___x_652_; 
+size_t v___x_649_; size_t v___x_650_; lean_object* v___x_208__overap_651_; lean_object* v___x_652_; 
 v___x_649_ = ((size_t)0ULL);
 v___x_650_ = lean_usize_of_nat(v___x_641_);
-v___x_206__overap_651_ = l___private_Init_Data_Array_Basic_0__Array_foldlMUnsafe_fold(lean_box(0), lean_box(0), lean_box(0), v___x_634_, v___f_635_, v_children_639_, v___x_649_, v___x_650_, v___x_642_);
-v___x_652_ = lean_apply_1(v___x_206__overap_651_, lean_box(0));
+v___x_208__overap_651_ = l___private_Init_Data_Array_Basic_0__Array_foldlMUnsafe_fold(lean_box(0), lean_box(0), lean_box(0), v___x_634_, v___f_635_, v_children_639_, v___x_649_, v___x_650_, v___x_642_);
+v___x_652_ = lean_apply_1(v___x_208__overap_651_, lean_box(0));
 return v___x_652_;
 }
 }
@@ -3705,7 +3705,7 @@ static lean_object* _init_l___private_Lean_Data_PersistentArray_0__Lean_Persiste
 _start:
 {
 lean_object* v___x_1218_; 
-v___x_1218_ = l_Lean_instInhabitedPersistentArrayNode_default(lean_box(0));
+v___x_1218_ = l_Lean_instInhabitedPersistentArrayNode_default___redArg();
 return v___x_1218_;
 }
 }

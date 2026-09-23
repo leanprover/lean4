@@ -6,14 +6,14 @@ Authors: Leonardo de Moura
 module
 prelude
 public import Lean.Meta.Tactic.Grind.Types
-import Lean.Meta.Tactic.Grind.OrderInsts
 import Lean.Meta.Tactic.Grind.Arith.Cutsat.Util
 import Lean.Meta.Tactic.Grind.Arith.CommRing.RingId
 import Lean.Meta.Tactic.Grind.Arith.Linear.Var
-import Lean.Meta.Tactic.Grind.Arith.Insts
+import Lean.Meta.Sym.Arith.Insts
 import Init.Grind.Module.Envelope
 public section
 namespace Lean.Meta.Grind.Arith.Linear
+open Sym.Arith (getIsCharInst? mkIsPreorderInst? mkIsPartialOrderInst? mkIsLinearOrderInst? mkLawfulOrderLTInst?)
 
 private def preprocess (e : Expr) : GoalM Expr := do
   shareCommon (← canon e)
@@ -66,7 +66,7 @@ private def isCutsatType (type : Expr) : GoalM Bool := do
 
 private def getCommRingInst? (ringId? : Option Nat) : GoalM (Option Expr) := do
   let some ringId := ringId? | return none
-  return some (← CommRing.RingM.run ringId do return (← CommRing.getCommRing).commRingInst)
+  return some (← CommRing.RingM.run ringId do return (← Sym.Arith.getCommRing).commRingInst)
 
 private def mkRingInst? (u : Level) (type : Expr) (commRingInst? : Option Expr) : GoalM (Option Expr) := do
   if let some commRingInst := commRingInst? then

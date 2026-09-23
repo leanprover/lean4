@@ -30,7 +30,7 @@ lean_object* l_Lean_Syntax_node4(lean_object*, lean_object*, lean_object*, lean_
 uint8_t l_Lean_Syntax_isNone(lean_object*);
 uint8_t l_Lean_Syntax_matchesNull(lean_object*, lean_object*);
 uint8_t l_Lean_Syntax_matchesIdent(lean_object*, lean_object*);
-lean_object* l_Array_mkArray0(lean_object*);
+lean_object* l_Array_mkArray0___redArg();
 lean_object* lean_mk_empty_array_with_capacity(lean_object*);
 lean_object* lean_array_push(lean_object*, lean_object*);
 lean_object* l_Lean_Syntax_node8(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
@@ -918,7 +918,7 @@ static lean_object* _init_l_Std_WP_unexpandTriple___closed__4(void){
 _start:
 {
 lean_object* v___x_493_; 
-v___x_493_ = l_Array_mkArray0(lean_box(0));
+v___x_493_ = l_Array_mkArray0___redArg();
 return v___x_493_;
 }
 }

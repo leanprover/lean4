@@ -7,6 +7,7 @@ module
 prelude
 public import Lean.Meta.Sym.Arith.MonadRing
 public import Lean.Meta.Sym.Arith.MonadSemiring
+import Init.Grind.Ring
 public section
 namespace Lean.Meta.Sym.Arith
 
@@ -54,8 +55,33 @@ private def mkNatCastFn (u : Level) (type : Expr) (semiringInst : Expr) : m Expr
   | some inst => checkInst ``NatCast.natCast inst inst'; pure inst
   canonExpr <| mkApp2 (mkConst ``NatCast.natCast [u]) type inst
 
+/--
+`HSMul.hSMul scalar type type inst` with the synthesized instance (checked against the
+structure's `nsmul`/`zsmul` field), or the field itself when no instance is available.
+-/
+private def mkSMulFn (u : Level) (type : Expr) (scalar : Expr) (expectedSMulInst : Expr) : m Expr := do
+  let inst' := mkApp3 (mkConst ``instHSMul [0, u]) scalar type expectedSMulInst
+  let inst ← match (← MonadCanon.synthInstance? (mkApp3 (mkConst ``HSMul [0, u, u]) scalar type type)) with
+    | none => pure inst'
+    | some inst => checkInst ``HSMul.hSMul inst inst'; pure inst
+  canonExpr <| mkApp4 (mkConst ``HSMul.hSMul [0, u, u]) scalar type type inst
+
 section RingFns
 variable [MonadRing m]
+
+def getNatSMulFn : m Expr := do
+  let ring ← getRing
+  if let some fn := ring.natSMulFn? then return fn
+  let fn ← mkSMulFn ring.u ring.type Nat.mkType (mkApp2 (mkConst ``Grind.Semiring.nsmul [ring.u]) ring.type ring.semiringInst)
+  modifyRing fun s => { s with natSMulFn? := some fn }
+  return fn
+
+def getIntSMulFn : m Expr := do
+  let ring ← getRing
+  if let some fn := ring.intSMulFn? then return fn
+  let fn ← mkSMulFn ring.u ring.type Int.mkType (mkApp2 (mkConst ``Grind.Ring.zsmul [ring.u]) ring.type ring.ringInst)
+  modifyRing fun s => { s with intSMulFn? := some fn }
+  return fn
 
 def getAddFn : m Expr := do
   let ring ← getRing
@@ -136,6 +162,13 @@ end CommRingFns
 section SemiringFns
 variable [MonadSemiring m]
 
+def getNatSMulFn' : m Expr := do
+  let sr ← getSemiring
+  if let some fn := sr.natSMulFn? then return fn
+  let fn ← mkSMulFn sr.u sr.type Nat.mkType (mkApp2 (mkConst ``Grind.Semiring.nsmul [sr.u]) sr.type sr.semiringInst)
+  modifySemiring fun s => { s with natSMulFn? := some fn }
+  return fn
+
 def getAddFn' : m Expr := do
   let sr ← getSemiring
   if let some addFn := sr.addFn? then return addFn
@@ -167,5 +200,28 @@ def getNatCastFn' : m Expr := do
   return natCastFn
 
 end SemiringFns
+
+section CommSemiringFns
+variable [MonadCommSemiring m]
+
+/-- The embedding `OfSemiring.toQ` of the semiring into its envelope ring. -/
+def getToQFn : m Expr := do
+  let s ← getCommSemiring
+  if let some toQFn := s.toQFn? then return toQFn
+  let toQFn ← canonExpr <| mkApp2 (mkConst ``Grind.Ring.OfSemiring.toQ [s.u]) s.type s.semiringInst
+  modifyCommSemiring fun s => { s with toQFn? := some toQFn }
+  return toQFn
+
+/-- The `AddRightCancel` instance of the semiring, if any. The result of the search is cached. -/
+def getAddRightCancelInst? : m (Option Expr) := do
+  let s ← getCommSemiring
+  if let some r := s.addRightCancelInst? then return r
+  let addRightCancelInst? ← do
+    let some addInst ← MonadCanon.synthInstance? (mkApp (mkConst ``Add [s.u]) s.type) | pure none
+    MonadCanon.synthInstance? (mkApp2 (mkConst ``Grind.AddRightCancel [s.u]) s.type addInst)
+  modifyCommSemiring fun s => { s with addRightCancelInst? := some addRightCancelInst? }
+  return addRightCancelInst?
+
+end CommSemiringFns
 
 end Lean.Meta.Sym.Arith

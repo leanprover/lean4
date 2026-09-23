@@ -1,4 +1,8 @@
+Input: "{test}\n> Here's a blockquote\n\n with multiple paras\n\nthat ends"
 Success! Final stack:
-  (Lean.Doc.Syntax.command "{" `test [] "}")
+  (Lean.Doc.Parser.Block.command "{" `test [] "}")
 Remaining:
 "> Here's a blockquote\n\n with multiple paras\n\nthat ends"
+Round-trip OK
+Decoded views:
+  command (braceOpen := "{") (name := test) (args := []) (braceClose := "}")

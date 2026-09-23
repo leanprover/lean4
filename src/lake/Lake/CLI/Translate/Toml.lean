@@ -146,7 +146,9 @@ public protected def Dependency.toToml (dep : Dependency) (t : Table  := {}) : T
   let t :=
     if let some src := dep.src? then
       match src with
-      | .path dir => t.insert `path (toToml dir)
+      | .path dir copy =>
+        t.insert `path (toToml dir)
+        |>.insertD `copy copy false
       | .git url rev? subDir? =>
         t.insert `git url
         |>.smartInsert `rev rev?

@@ -17,8 +17,12 @@ lean_object* l_Std_Do_SPred_pure___redArg(lean_object*);
 lean_object* l_Std_Do_SVal_curry___redArg(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l___private_Std_Do_SPred_Laws_0__Std_Do_SPred_entails_match__1_splitter___redArg(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l___private_Std_Do_SPred_Laws_0__Std_Do_SPred_entails_match__1_splitter(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
+LEAN_EXPORT lean_object* l_Std_Do_SPred_instTransEntails___redArg();
+LEAN_EXPORT lean_object* l_Std_Do_SPred_instTransEntails___redArg___boxed(lean_object*);
 LEAN_EXPORT lean_object* l_Std_Do_SPred_instTransEntails(lean_object*);
 LEAN_EXPORT lean_object* l_Std_Do_SPred_instTransEntails___boxed(lean_object*);
+LEAN_EXPORT lean_object* l_Std_Do_SPred_instTransBientails___redArg();
+LEAN_EXPORT lean_object* l_Std_Do_SPred_instTransBientails___redArg___boxed(lean_object*);
 LEAN_EXPORT lean_object* l_Std_Do_SPred_instTransBientails(lean_object*);
 LEAN_EXPORT lean_object* l_Std_Do_SPred_instTransBientails___boxed(lean_object*);
 static lean_once_cell_t l_Std_Do_SVal_evalsTo___redArg___lam__0___closed__0_once = LEAN_ONCE_CELL_INITIALIZER;
@@ -74,7 +78,7 @@ return v___x_17_;
 }
 }
 }
-LEAN_EXPORT lean_object* l_Std_Do_SPred_instTransEntails(lean_object* v_00_u03c3s_18_){
+LEAN_EXPORT lean_object* l_Std_Do_SPred_instTransEntails___redArg(){
 _start:
 {
 lean_object* v___x_19_; 
@@ -82,16 +86,15 @@ v___x_19_ = lean_box(0);
 return v___x_19_;
 }
 }
-LEAN_EXPORT lean_object* l_Std_Do_SPred_instTransEntails___boxed(lean_object* v_00_u03c3s_20_){
+LEAN_EXPORT lean_object* l_Std_Do_SPred_instTransEntails___redArg___boxed(lean_object* v___dummy_20_){
 _start:
 {
 lean_object* v_res_21_; 
-v_res_21_ = l_Std_Do_SPred_instTransEntails(v_00_u03c3s_20_);
-lean_dec(v_00_u03c3s_20_);
+v_res_21_ = l_Std_Do_SPred_instTransEntails___redArg();
 return v_res_21_;
 }
 }
-LEAN_EXPORT lean_object* l_Std_Do_SPred_instTransBientails(lean_object* v_00_u03c3s_22_){
+LEAN_EXPORT lean_object* l_Std_Do_SPred_instTransEntails(lean_object* v_00_u03c3s_22_){
 _start:
 {
 lean_object* v___x_23_; 
@@ -99,66 +102,99 @@ v___x_23_ = lean_box(0);
 return v___x_23_;
 }
 }
-LEAN_EXPORT lean_object* l_Std_Do_SPred_instTransBientails___boxed(lean_object* v_00_u03c3s_24_){
+LEAN_EXPORT lean_object* l_Std_Do_SPred_instTransEntails___boxed(lean_object* v_00_u03c3s_24_){
 _start:
 {
 lean_object* v_res_25_; 
-v_res_25_ = l_Std_Do_SPred_instTransBientails(v_00_u03c3s_24_);
+v_res_25_ = l_Std_Do_SPred_instTransEntails(v_00_u03c3s_24_);
 lean_dec(v_00_u03c3s_24_);
 return v_res_25_;
+}
+}
+LEAN_EXPORT lean_object* l_Std_Do_SPred_instTransBientails___redArg(){
+_start:
+{
+lean_object* v___x_27_; 
+v___x_27_ = lean_box(0);
+return v___x_27_;
+}
+}
+LEAN_EXPORT lean_object* l_Std_Do_SPred_instTransBientails___redArg___boxed(lean_object* v___dummy_28_){
+_start:
+{
+lean_object* v_res_29_; 
+v_res_29_ = l_Std_Do_SPred_instTransBientails___redArg();
+return v_res_29_;
+}
+}
+LEAN_EXPORT lean_object* l_Std_Do_SPred_instTransBientails(lean_object* v_00_u03c3s_30_){
+_start:
+{
+lean_object* v___x_31_; 
+v___x_31_ = lean_box(0);
+return v___x_31_;
+}
+}
+LEAN_EXPORT lean_object* l_Std_Do_SPred_instTransBientails___boxed(lean_object* v_00_u03c3s_32_){
+_start:
+{
+lean_object* v_res_33_; 
+v_res_33_ = l_Std_Do_SPred_instTransBientails(v_00_u03c3s_32_);
+lean_dec(v_00_u03c3s_32_);
+return v_res_33_;
 }
 }
 static lean_object* _init_l_Std_Do_SVal_evalsTo___redArg___lam__0___closed__0(void){
 _start:
 {
-lean_object* v___x_26_; lean_object* v___x_27_; 
-v___x_26_ = lean_box(0);
-v___x_27_ = l_Std_Do_SPred_pure___redArg(v___x_26_);
-return v___x_27_;
-}
-}
-LEAN_EXPORT lean_object* l_Std_Do_SVal_evalsTo___redArg___lam__0(lean_object* v_t_28_){
-_start:
-{
-lean_object* v___x_29_; 
-v___x_29_ = lean_obj_once(&l_Std_Do_SVal_evalsTo___redArg___lam__0___closed__0, &l_Std_Do_SVal_evalsTo___redArg___lam__0___closed__0_once, _init_l_Std_Do_SVal_evalsTo___redArg___lam__0___closed__0);
-return v___x_29_;
-}
-}
-LEAN_EXPORT lean_object* l_Std_Do_SVal_evalsTo___redArg___lam__0___boxed(lean_object* v_t_30_){
-_start:
-{
-lean_object* v_res_31_; 
-v_res_31_ = l_Std_Do_SVal_evalsTo___redArg___lam__0(v_t_30_);
-lean_dec(v_t_30_);
-return v_res_31_;
-}
-}
-LEAN_EXPORT lean_object* l_Std_Do_SVal_evalsTo___redArg(lean_object* v_00_u03c3s_33_){
-_start:
-{
-lean_object* v___f_34_; lean_object* v___x_35_; 
-v___f_34_ = ((lean_object*)(l_Std_Do_SVal_evalsTo___redArg___closed__0));
-v___x_35_ = l_Std_Do_SVal_curry___redArg(v_00_u03c3s_33_, v___f_34_);
+lean_object* v___x_34_; lean_object* v___x_35_; 
+v___x_34_ = lean_box(0);
+v___x_35_ = l_Std_Do_SPred_pure___redArg(v___x_34_);
 return v___x_35_;
 }
 }
-LEAN_EXPORT lean_object* l_Std_Do_SVal_evalsTo(lean_object* v_00_u03b1_36_, lean_object* v_00_u03c3s_37_, lean_object* v_f_38_, lean_object* v_a_39_){
+LEAN_EXPORT lean_object* l_Std_Do_SVal_evalsTo___redArg___lam__0(lean_object* v_t_36_){
 _start:
 {
-lean_object* v___x_40_; 
-v___x_40_ = l_Std_Do_SVal_evalsTo___redArg(v_00_u03c3s_37_);
-return v___x_40_;
+lean_object* v___x_37_; 
+v___x_37_ = lean_obj_once(&l_Std_Do_SVal_evalsTo___redArg___lam__0___closed__0, &l_Std_Do_SVal_evalsTo___redArg___lam__0___closed__0_once, _init_l_Std_Do_SVal_evalsTo___redArg___lam__0___closed__0);
+return v___x_37_;
 }
 }
-LEAN_EXPORT lean_object* l_Std_Do_SVal_evalsTo___boxed(lean_object* v_00_u03b1_41_, lean_object* v_00_u03c3s_42_, lean_object* v_f_43_, lean_object* v_a_44_){
+LEAN_EXPORT lean_object* l_Std_Do_SVal_evalsTo___redArg___lam__0___boxed(lean_object* v_t_38_){
 _start:
 {
-lean_object* v_res_45_; 
-v_res_45_ = l_Std_Do_SVal_evalsTo(v_00_u03b1_41_, v_00_u03c3s_42_, v_f_43_, v_a_44_);
-lean_dec(v_a_44_);
-lean_dec(v_f_43_);
-return v_res_45_;
+lean_object* v_res_39_; 
+v_res_39_ = l_Std_Do_SVal_evalsTo___redArg___lam__0(v_t_38_);
+lean_dec(v_t_38_);
+return v_res_39_;
+}
+}
+LEAN_EXPORT lean_object* l_Std_Do_SVal_evalsTo___redArg(lean_object* v_00_u03c3s_41_){
+_start:
+{
+lean_object* v___f_42_; lean_object* v___x_43_; 
+v___f_42_ = ((lean_object*)(l_Std_Do_SVal_evalsTo___redArg___closed__0));
+v___x_43_ = l_Std_Do_SVal_curry___redArg(v_00_u03c3s_41_, v___f_42_);
+return v___x_43_;
+}
+}
+LEAN_EXPORT lean_object* l_Std_Do_SVal_evalsTo(lean_object* v_00_u03b1_44_, lean_object* v_00_u03c3s_45_, lean_object* v_f_46_, lean_object* v_a_47_){
+_start:
+{
+lean_object* v___x_48_; 
+v___x_48_ = l_Std_Do_SVal_evalsTo___redArg(v_00_u03c3s_45_);
+return v___x_48_;
+}
+}
+LEAN_EXPORT lean_object* l_Std_Do_SVal_evalsTo___boxed(lean_object* v_00_u03b1_49_, lean_object* v_00_u03c3s_50_, lean_object* v_f_51_, lean_object* v_a_52_){
+_start:
+{
+lean_object* v_res_53_; 
+v_res_53_ = l_Std_Do_SVal_evalsTo(v_00_u03b1_49_, v_00_u03c3s_50_, v_f_51_, v_a_52_);
+lean_dec(v_a_52_);
+lean_dec(v_f_51_);
+return v_res_53_;
 }
 }
 lean_object* runtime_initialize_Std_Do_SPred_Notation(uint8_t builtin);

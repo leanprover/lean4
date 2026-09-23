@@ -1,14 +1,19 @@
+Input: "> Quotation\nand contained"
 Success! Final stack:
-  [(Lean.Doc.Syntax.blockquote
+  [(Lean.Doc.Parser.Block.blockquote
     ">"
-    [(Lean.Doc.Syntax.para
-      "para{"
-      [(Lean.Doc.Syntax.text
-        (str "\"Quotation\""))
-       (Lean.Doc.Syntax.linebreak
-        "line!"
-        (str "\"\\n\""))
-       (Lean.Doc.Syntax.text
-        (str "\"and contained\""))]
-      "}")])]
+    [(Lean.Doc.Parser.Block.para
+      [(Lean.Doc.Parser.Inline.text
+        (Lean.Doc.Parser.versoText "Quotation"))
+       (Lean.Doc.Parser.Inline.linebreak "\n")
+       (Lean.Doc.Parser.Inline.text
+        (Lean.Doc.Parser.versoText
+         "and contained"))])])]
 All input consumed.
+Round-trip OK
+Decoded views:
+  blockquote (marker := ">")
+    para
+      text (content := "Quotation")
+      linebreak (newline := "\n")
+      text (content := "and contained")

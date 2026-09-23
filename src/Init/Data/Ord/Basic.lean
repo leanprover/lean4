@@ -290,6 +290,8 @@ theorem isLE_then_iff_and : ∀ {o₁ o₂ : Ordering}, (o₁.then o₂).isLE �
 theorem isLE_left_of_isLE_then : ∀ {o₁ o₂ : Ordering}, (o₁.then o₂).isLE → o₁.isLE := by decide
 theorem isGE_left_of_isGE_then : ∀ {o₁ o₂ : Ordering}, (o₁.then o₂).isGE → o₁.isGE := by decide
 
+theorem isLE_and_isGE_eq : ∀ {o : Ordering}, (o.isLE && o.isGE) = o.isEq := by decide
+
 instance : Std.Associative Ordering.then := ⟨then_assoc⟩
 instance : Std.IdempotentOp Ordering.then := ⟨fun _ => then_self⟩
 
@@ -393,7 +395,7 @@ theorem compareOfLessAndEq_eq_lt
   repeat' split <;> simp_all
 
 theorem compareOfLessAndEq_eq_eq
-    {α : Type u} [LT α] [LE α] [DecidableLT α] [DecidableLE α] [DecidableEq α]
+    {α : Type u} [LT α] [LE α] [DecidableLT α] [DecidableEq α]
     (refl : ∀ (x : α), x ≤ x) (not_le : ∀ {x y : α}, ¬ x ≤ y ↔ y < x) {x y : α} :
     compareOfLessAndEq x y = .eq ↔ x = y := by
   rw [compareOfLessAndEq]
@@ -420,7 +422,7 @@ theorem compareOfLessAndEq_eq_gt
   exact lt_iff_not_gt_and_ne_of_antisymm_of_total_of_not_le antisymm total not_le
 
 theorem isLE_compareOfLessAndEq
-    {α : Type u} [LT α] [LE α] [DecidableLT α] [DecidableLE α] [DecidableEq α]
+    {α : Type u} [LT α] [LE α] [DecidableLT α] [DecidableEq α]
     (antisymm : ∀ {x y : α}, x ≤ y → y ≤ x → x = y)
     (not_le : ∀ {x y : α}, ¬ x ≤ y ↔ y < x) (total : ∀ (x y : α), x ≤ y ∨ y ≤ x) {x y : α} :
     (compareOfLessAndEq x y).isLE ↔ x ≤ y := by
@@ -438,7 +440,7 @@ theorem isLE_compareOfLessAndEq
     · exact Or.inl <| not_le.mp hge
 
 theorem isGE_compareOfLessAndEq
-    {α : Type u} [LT α] [LE α] [DecidableLT α] [DecidableLE α] [DecidableEq α]
+    {α : Type u} [LT α] [LE α] [DecidableLT α] [DecidableEq α]
     (antisymm : ∀ {x y : α}, x ≤ y → y ≤ x → x = y)
     (not_le : ∀ {x y : α}, ¬ x ≤ y ↔ y < x) (total : ∀ (x y : α), x ≤ y ∨ y ≤ x) {x y : α} :
     (compareOfLessAndEq x y).isGE ↔ y ≤ x := by

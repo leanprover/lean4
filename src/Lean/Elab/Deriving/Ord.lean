@@ -11,6 +11,7 @@ import Lean.Elab.Deriving.Basic
 import Lean.Elab.Deriving.Util
 import Lean.Meta.Constructions.CtorIdx
 import Lean.Meta.Constructions.CasesOnSameCtor
+import Lean.Meta.Deriving.CmpHelper
 import Lean.Meta.SameCtorUtils
 import Init.Data.Array.OfFn
 
@@ -191,7 +192,10 @@ def mkOrdInstance (declName : Name) : CommandElabM Unit := do
         mkOrdInstanceCmds declName
     cmds.forM elabCommand
 
+open Lean Meta CmpHelper in
 def mkOrdInstanceHandler (declNames : Array Name) : CommandElabM Bool := do
+  unless backward.deriving.comparisons.old.get (← getOptions) do
+    return false
   if (← declNames.allM isInductive) then
     for declName in declNames do
       mkOrdInstance declName
@@ -200,7 +204,7 @@ def mkOrdInstanceHandler (declNames : Array Name) : CommandElabM Bool := do
     return false
 
 builtin_initialize
-  --registerDerivingHandler `Ord mkOrdInstanceHandler
+  registerDerivingHandler `Ord mkOrdInstanceHandler
   registerTraceClass `Elab.Deriving.ord
 
 end Lean.Elab.Deriving.Ord

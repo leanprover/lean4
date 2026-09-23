@@ -13,6 +13,7 @@ import Lean.Elab.Deriving.Util
 import Lean.Meta.NatTable
 import Lean.Meta.Constructions.CtorIdx
 import Lean.Meta.Constructions.CasesOnSameCtor
+import Lean.Meta.Deriving.CmpHelper
 import Lean.Meta.SameCtorUtils
 import Init.Data.Array.OfFn
 
@@ -285,11 +286,14 @@ def mkDecEqInstance (declName : Name) : CommandElabM Bool := do
   else
     mkDecEq declName
 
+open Lean Meta CmpHelper in
 def mkDecEqInstanceHandler (declNames : Array Name) : CommandElabM Bool := do
+  unless backward.deriving.comparisons.old.get (← getOptions) do
+    return false
   declNames.foldlM (fun b n => andM (pure b) (mkDecEqInstance n)) true
 
 builtin_initialize
-  --registerDerivingHandler `DecidableEq mkDecEqInstanceHandler
+  registerDerivingHandler `DecidableEq mkDecEqInstanceHandler
   registerTraceClass `Elab.Deriving.decEq
 
 end Lean.Elab.Deriving.DecEq

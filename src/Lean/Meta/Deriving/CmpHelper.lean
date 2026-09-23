@@ -1527,6 +1527,11 @@ def deriveDecidableEq : Elab.DerivingHandler := mkInductiveDerivingHandler (need
       mkInstanceForDeriving hyps type value
   return true
 
+private def conditional (handler : Elab.DerivingHandler) : Elab.DerivingHandler := fun names => do
+  if backward.deriving.comparisons.old.get (← getOptions) then
+    return false
+  handler names
+
 builtin_initialize
   registerReservedNamePredicate fun env nm => Id.run do
     let .str pre sfx := nm | return false
@@ -1537,9 +1542,9 @@ builtin_initialize
     (kinds.any (fun k => sfx == k.unfoldSuffix) && env.isConstructor pre) ||
     (Kind.lemmaSuffixes.contains sfx && isHelper pre)
   for kind in kinds do
-    Elab.registerDerivingHandler kind.className (deriveCmpClass kind)
-    Elab.registerDerivingHandler kind.reflClassName (deriveReflCmpClass kind)
-    Elab.registerDerivingHandler kind.lawfulEqClassName (deriveLawfulEqClass kind)
-  Elab.registerDerivingHandler ``DecidableEq deriveDecidableEq
+    Elab.registerDerivingHandler kind.className (conditional <| deriveCmpClass kind)
+    Elab.registerDerivingHandler kind.reflClassName (conditional <| deriveReflCmpClass kind)
+    Elab.registerDerivingHandler kind.lawfulEqClassName (conditional <| deriveLawfulEqClass kind)
+  Elab.registerDerivingHandler ``DecidableEq (conditional deriveDecidableEq)
 
 end Lean.Meta.CmpHelper

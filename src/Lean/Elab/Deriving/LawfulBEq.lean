@@ -8,6 +8,7 @@ module
 prelude
 import Lean.Elab.Deriving.Basic
 import Lean.Elab.Deriving.Util
+import Lean.Meta.Deriving.CmpHelper
 import Init.LawfulBEqTactics
 
 namespace Lean.Elab.Deriving.LawfulBEq
@@ -43,7 +44,10 @@ def mkLawfulBEqInstance (declName : Name) : CommandElabM Unit := do
     let cmds ← liftTermElabM <| mkLawfulBEqInstanceCmds declName
     cmds.forM elabCommand
 
+open Lean Meta CmpHelper in
 def mkLawfulBEqInstanceHandler (declNames : Array Name) : CommandElabM Bool := do
+  unless backward.deriving.comparisons.old.get (← getOptions) do
+    return false
   if (← declNames.allM isInductive) then
     for declName in declNames do
       mkLawfulBEqInstance declName
@@ -52,7 +56,7 @@ def mkLawfulBEqInstanceHandler (declNames : Array Name) : CommandElabM Bool := d
     return false
 
 builtin_initialize
-  --registerDerivingHandler ``LawfulBEq mkLawfulBEqInstanceHandler
+  registerDerivingHandler ``LawfulBEq mkLawfulBEqInstanceHandler
   registerTraceClass `Elab.Deriving.lawfulBEq
 
 end Lean.Elab.Deriving.LawfulBEq

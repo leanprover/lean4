@@ -8,6 +8,7 @@ module
 prelude
 public import Std.Tactic.BVDecide
 public import Std.Tactic.Do
+public import Std.Tactic.WP
 
 @[expose] public section
 

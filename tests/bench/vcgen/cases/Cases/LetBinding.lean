@@ -1,5 +1,5 @@
 import Lean
-import Std.Tactic.Do
+import Std.Tactic.WP
 
 /-!
 Same add/sub loop as `AddSubCancel` but with a pure `let offset := ...` binding inside `step`.

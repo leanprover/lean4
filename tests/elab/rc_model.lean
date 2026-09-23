@@ -2,7 +2,6 @@ import Std.Tactic.BVDecide
 import Std.Tactic.Do
 
 open Std Do
-set_option mvcgen.warning false
 
 set_option doc.verso true
 

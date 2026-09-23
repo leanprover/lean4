@@ -14,3 +14,4 @@ public import Std.WP.Monad
 public import Std.WP.Triple
 public import Std.WP.Gadget.Assert
 public import Std.WP.Gadget.ForIn
+public import Std.Tactic.WP

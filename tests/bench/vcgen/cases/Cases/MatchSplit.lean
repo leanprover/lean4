@@ -1,5 +1,5 @@
 import Lean
-import Std.Tactic.Do
+import Std.Tactic.WP
 
 /-!
 Pattern matching where the discriminant *is* the symbolic state (`match s with ...` after
@@ -12,8 +12,6 @@ at `0` after exactly `n` steps without ever throwing.
 open Lean Meta Order Std.WP
 
 namespace MatchSplit
-
-set_option mvcgen.warning false
 
 abbrev M := ExceptT String <| StateM Nat
 

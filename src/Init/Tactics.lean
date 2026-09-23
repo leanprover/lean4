@@ -2515,7 +2515,7 @@ are in scope in the frame, bound to the matched arguments.
 the keyword is slated for removal. Alternatives after `invariants?` elaborate like `invariants`.
 -/
 macro (name := vcgenMacro) (priority:=low) "vcgen" : tactic =>
-  Macro.throwError "to use `vcgen`, please include `import Std.Tactic.Do`"
+  Macro.throwError "to use `vcgen`, please include `import Std.Tactic.WP`"
 
 /--
 `cbv` performs simplification that closely mimics call-by-value evaluation.

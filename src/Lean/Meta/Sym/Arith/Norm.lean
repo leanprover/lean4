@@ -338,13 +338,22 @@ inductive RelKind where
   | eq | le | lt
   deriving Inhabited, BEq
 
-/-- Positive monomials, negated negative monomials, and the constant of `p`. -/
-private def splitPoly (p : Poly) : Poly × Poly × Int :=
+/--
+Positive monomials, negated negative monomials, and the constant of `p`. With a nonzero
+characteristic `c` the coefficients of `p` lie in `[0, c)`, so a coefficient above `c / 2` is
+read as the negative `k - c` (balanced residue), otherwise everything would land on one side.
+-/
+private def splitPoly (char? : Option Nat) (p : Poly) : Poly × Poly × Int :=
+  let neg? (k : Int) : Option Int := match char? with
+    | none => if k < 0 then some (-k) else none
+    | some c => if k > c / 2 then some (c - k) else none
   match p with
-  | .num k => (.num 0, .num 0, k)
+  | .num k => (.num 0, .num 0, (neg? k).map (- ·) |>.getD k)
   | .add k m p =>
-    let (l, r, c) := splitPoly p
-    if k < 0 then (l, .add (-k) m r, c) else (.add k m l, r, c)
+    let (l, r, c) := splitPoly char? p
+    match neg? k with
+    | some k' => (l, .add k' m r, c)
+    | none => (.add k m l, r, c)
 
 /-- Monomial-wise minimum of two polynomials with nonnegative coefficients: the part they share. -/
 private partial def commonPart : Poly → Poly → Poly
@@ -377,9 +386,9 @@ private def normalizeRelCore (rel : RelKind) (relFn : Expr) (order? : Option Ord
   | .commRing _ =>
     let ring ← getCommRing
     let u := ring.u
-    -- The relation theorems have no characteristic support; coefficients are not reduced.
-    let some p ← (toPoly? (l.sub r)).run budget | return .notApplicable
-    let (lp, rp, c) := splitPoly p
+    let char? := ring.charInst?.bind fun (inst, c) => if c != 0 then some (inst, c) else none
+    let some p ← (toPoly? (l.sub r)).run { budget with char? := char?.map (·.2) } | return .notApplicable
+    let (lp, rp, c) := splitPoly (char?.map (·.2)) p
     let lp := if c > 0 then lp.addConst c else lp
     let rp := if c < 0 then rp.addConst (-c) else rp
     let l' := lp.toExpr
@@ -387,14 +396,18 @@ private def normalizeRelCore (rel : RelKind) (relFn : Expr) (order? : Option Ord
     let e' ← share (mkApp2 relFn (← denoteRingExpr' vars l') (← denoteRingExpr' vars r'))
     if isSameExpr e' e then return .normal
     let ctx ← mkContext ring.type (mkApp (← getNatCastFn) (mkNatLit 0)) vars
+    -- `thm type [c] commRingInst [charInst]`, then the order instances.
+    let base (name nameC : Name) : Expr := match char? with
+      | none => mkApp2 (mkConst name [u]) ring.type ring.commRingInst
+      | some (charInst, c) => mkApp4 (mkConst nameC [u]) ring.type (toExpr c) ring.commRingInst charInst
     let h := match rel with
-      | .eq => mkApp2 (mkConst ``Grind.CommRing.eq_norm_expr [u]) ring.type ring.commRingInst
+      | .eq => base ``Grind.CommRing.eq_norm_expr ``Grind.CommRing.eq_norm_exprC
       | .le =>
         let o := order?.get!
-        mkApp6 (mkConst ``Grind.CommRing.le_norm_expr [u]) ring.type ring.commRingInst o.leInst o.ltInst?.get! o.isPreorderInst o.orderedRingInst?.get!
+        mkApp4 (base ``Grind.CommRing.le_norm_expr ``Grind.CommRing.le_norm_exprC) o.leInst o.ltInst?.get! o.isPreorderInst o.orderedRingInst?.get!
       | .lt =>
         let o := order?.get!
-        mkApp7 (mkConst ``Grind.CommRing.lt_norm_expr [u]) ring.type ring.commRingInst o.leInst o.ltInst?.get! o.lawfulOrderLTInst?.get! o.isPreorderInst o.orderedRingInst?.get!
+        mkApp5 (base ``Grind.CommRing.lt_norm_expr ``Grind.CommRing.lt_norm_exprC) o.leInst o.ltInst?.get! o.lawfulOrderLTInst?.get! o.isPreorderInst o.orderedRingInst?.get!
     let h := mkApp6 h ctx (toExpr l) (toExpr r) (toExpr l') (toExpr r') eagerReflBoolTrue
     return .step e' (mkExpectedPropHint h (mkPropEq e e'))
   | .commSemiring _ =>

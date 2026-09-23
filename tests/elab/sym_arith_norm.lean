@@ -212,6 +212,23 @@ run_meta SymM.run do
   for n in [``nr1, ``nr2, ``nr3, ``nr4, ``nr5, ``nr6] do
     test n
 
+-- Relations over a ring with a nonzero characteristic.
+def cr1 : Prop := 256 * u + v = v
+def cr2 : Prop := 255 * u = u * 3 - 4 * u
+def cr3 : Prop := u + 2 = v
+
+/--
+info: cr1: 0 = 0
+---
+info: cr2: 0 = 0
+---
+info: cr3: u + 2 = v (normal)
+-/
+#guard_msgs in
+run_meta SymM.run do
+  for n in [``cr1, ``cr2, ``cr3] do
+    test n
+
 -- A relation over a type that does not classify is untouched.
 def sr1 : Prop := "a" ++ "b" = "ab"
 

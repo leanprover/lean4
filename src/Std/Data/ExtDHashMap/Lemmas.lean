@@ -70,11 +70,11 @@ theorem mem_congr [EquivBEq α] [LawfulHashable α] {a b : α} (hab : a == b) : 
   m.inductionOn fun _ => DHashMap.mem_congr hab
 
 @[simp, grind =]
-theorem contains_empty [EquivBEq α] [LawfulHashable α] {a : α} : (∅ : DHashMap α β).contains a = false :=
+theorem contains_empty [EquivBEq α] [LawfulHashable α] {a : α} : (∅ : ExtDHashMap α β).contains a = false :=
   DHashMap.contains_empty
 
 @[simp]
-theorem not_mem_empty [EquivBEq α] [LawfulHashable α] {a : α} : ¬a ∈ (∅ : DHashMap α β) :=
+theorem not_mem_empty [EquivBEq α] [LawfulHashable α] {a : α} : ¬a ∈ (∅ : ExtDHashMap α β) :=
   DHashMap.not_mem_empty
 
 theorem eq_empty_iff_forall_contains [EquivBEq α] [LawfulHashable α] : m = ∅ ↔ ∀ a, m.contains a = false :=
@@ -90,7 +90,7 @@ theorem insert_eq_insert [EquivBEq α] [LawfulHashable α] {p : (a : α) × β a
 
 @[simp]
 theorem singleton_eq_insert [EquivBEq α] [LawfulHashable α] {p : (a : α) × β a} :
-    Singleton.singleton p = (∅ : DHashMap α β).insert p.1 p.2 :=
+    Singleton.singleton p = (∅ : ExtDHashMap α β).insert p.1 p.2 :=
   rfl
 
 @[simp, grind =]
@@ -2700,6 +2700,15 @@ theorem isEmpty_inter_right [EquivBEq α] [LawfulHashable α] (h : m₂.isEmpty)
 theorem isEmpty_inter_iff [EquivBEq α] [LawfulHashable α] :
     (m₁ ∩ m₂).isEmpty ↔ ∀ k, k ∈ m₁ → k ∉ m₂ :=
   m₁.inductionOn₂ m₂ fun _ _ => DHashMap.isEmpty_inter_iff
+
+theorem isEmpty_inter_comm [EquivBEq α] [LawfulHashable α] :
+    (m₁ ∩ m₂).isEmpty = (m₂ ∩ m₁).isEmpty :=
+  m₁.inductionOn₂ m₂ fun _ _ => DHashMap.isEmpty_inter_comm
+
+theorem inter_eq_empty_comm [EquivBEq α] [LawfulHashable α] :
+    m₁ ∩ m₂ = ∅ ↔ m₂ ∩ m₁ = ∅ := by
+  rw [← isEmpty_iff, ← isEmpty_iff, ← Bool.eq_iff_iff]
+  exact isEmpty_inter_comm
 
 end Inter
 

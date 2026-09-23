@@ -22,7 +22,7 @@ def testRecordLints : CoreM (Array (Name × String)) := do
     data := mkLinterMsg `linter.dummy m!"unused variable 'x'"
   }
   let log : MessageLog := MessageLog.empty.add msg
-  let env ← Linter.recordLints env log
+  let env ← Linter.recordLints default env #[(none, log)]
   return (Linter.lintLogExt.getState env).map fun e =>
     (e.linter, e.message.data)
 
@@ -40,7 +40,7 @@ def testRecordLintsIgnoresUntagged : CoreM Nat := do
     data := m!"plain error with no tag"
   }
   let log : MessageLog := MessageLog.empty.add msg
-  let env ← Linter.recordLints env log
+  let env ← Linter.recordLints default env #[(none, log)]
   return (Linter.lintLogExt.getState env).size
 
 /-- info: 0 -/
@@ -58,7 +58,7 @@ def testRecordLintsIgnoresNonLinterTags : CoreM Nat := do
     data := .tagged `lean.unknownIdentifier m!"unknown identifier 'foo'"
   }
   let log : MessageLog := MessageLog.empty.add msg
-  let env ← Linter.recordLints env log
+  let env ← Linter.recordLints default env #[(none, log)]
   return (Linter.lintLogExt.getState env).size
 
 /-- info: 0 -/
@@ -79,7 +79,7 @@ def testRecordLintsMultiple : CoreM (Array Name) := do
       |>.add (mk `linter.a "a")
       |>.add (mk `linter.b "b")
       |>.add (mk `linter.a "a2")
-  let env ← Linter.recordLints env log
+  let env ← Linter.recordLints default env #[(none, log)]
   return (Linter.lintLogExt.getState env).map (·.linter)
 
 /-- info: #[`linter.a, `linter.b, `linter.a] -/

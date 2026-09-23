@@ -1,0 +1,64 @@
+{"textDocument": {"uri": "file:///15053.lean"},
+ "position": {"line": 14, "character": 5}}
+{"rendered": "```lean\ncase right\nA B C : Prop\nhA : A\n⊢ B\n```",
+ "goals": ["case right\nA B C : Prop\nhA : A\n⊢ B"]}
+{"textDocument": {"uri": "file:///15053.lean"},
+ "position": {"line": 16, "character": 7}}
+{"rendered": "```lean\ncase right\nA B C : Prop\nhA : A\n⊢ B\n```",
+ "goals": ["case right\nA B C : Prop\nhA : A\n⊢ B"]}
+{"textDocument": {"uri": "file:///15053.lean"},
+ "position": {"line": 16, "character": 5}}
+{"rendered": "```lean\ncase right\nA B C : Prop\nhA : A\n⊢ B\n```",
+ "goals": ["case right\nA B C : Prop\nhA : A\n⊢ B"]}
+{"textDocument": {"uri": "file:///15053.lean"},
+ "position": {"line": 16, "character": 3}}
+{"rendered": "```lean\nA B C : Prop\nhA : A\nhAB : A ∧ B\n⊢ A ↔ C\n```",
+ "goals": ["A B C : Prop\nhA : A\nhAB : A ∧ B\n⊢ A ↔ C"]}
+{"textDocument": {"uri": "file:///15053.lean"},
+ "position": {"line": 16, "character": 0}}
+{"rendered": "```lean\nA B C : Prop\nhA : A\nhAB : A ∧ B\n⊢ A ↔ C\n```",
+ "goals": ["A B C : Prop\nhA : A\nhAB : A ∧ B\n⊢ A ↔ C"]}
+{"textDocument": {"uri": "file:///15053.lean"},
+ "position": {"line": 28, "character": 7}}
+{"rendered": "```lean\ncase right\nA B C : Prop\nhA : A\n⊢ B\n```",
+ "goals": ["case right\nA B C : Prop\nhA : A\n⊢ B"]}
+{"textDocument": {"uri": "file:///15053.lean"},
+ "position": {"line": 28, "character": 5}}
+{"rendered": "```lean\ncase right\nA B C : Prop\nhA : A\n⊢ B\n```",
+ "goals": ["case right\nA B C : Prop\nhA : A\n⊢ B"]}
+{"textDocument": {"uri": "file:///15053.lean"},
+ "position": {"line": 37, "character": 3}}
+{"rendered": "```lean\ncase right\nA B : Prop\nhA : A\nhB : B\n⊢ B\n```",
+ "goals": ["case right\nA B : Prop\nhA : A\nhB : B\n⊢ B"]}
+{"textDocument": {"uri": "file:///15053.lean"},
+ "position": {"line": 39, "character": 5}}
+{"rendered": "```lean\ncase right\nA B : Prop\nhA : A\nhB : B\n⊢ B\n```",
+ "goals": ["case right\nA B : Prop\nhA : A\nhB : B\n⊢ B"]}
+{"textDocument": {"uri": "file:///15053.lean"},
+ "position": {"line": 39, "character": 3}}
+{"rendered": "```lean\ncase right\nA B : Prop\nhA : A\nhB : B\n⊢ B\n```",
+ "goals": ["case right\nA B : Prop\nhA : A\nhB : B\n⊢ B"]}
+{"textDocument": {"uri": "file:///15053.lean"},
+ "position": {"line": 50, "character": 7}}
+{"rendered": "```lean\ncase right\nA B C : Prop\nhA : A\nhB : B\n⊢ B\n```",
+ "goals": ["case right\nA B C : Prop\nhA : A\nhB : B\n⊢ B"]}
+{"textDocument": {"uri": "file:///15053.lean"},
+ "position": {"line": 50, "character": 5}}
+{"rendered": "no goals", "goals": []}
+{"textDocument": {"uri": "file:///15053.lean"},
+ "position": {"line": 50, "character": 3}}
+{"rendered": "```lean\nA B C : Prop\nhA : A\nhB : B\nhAB : A ∧ B\n⊢ A ↔ C\n```",
+ "goals": ["A B C : Prop\nhA : A\nhB : B\nhAB : A ∧ B\n⊢ A ↔ C"]}
+{"textDocument": {"uri": "file:///15053.lean"},
+ "position": {"line": 58, "character": 5}}
+{"rendered": "```lean\n⊢ True\n```", "goals": ["⊢ True"]}
+{"textDocument": {"uri": "file:///15053.lean"},
+ "position": {"line": 58, "character": 3}}
+{"rendered": "```lean\nthis : True\n⊢ False\n```",
+ "goals": ["this : True\n⊢ False"]}
+{"textDocument": {"uri": "file:///15053.lean"},
+ "position": {"line": 67, "character": 5}}
+{"rendered": "```lean\n⊢ True\n```", "goals": ["⊢ True"]}
+{"textDocument": {"uri": "file:///15053.lean"},
+ "position": {"line": 74, "character": 5}}
+{"rendered": "```lean\n⊢ True\n```", "goals": ["⊢ True"]}

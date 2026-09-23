@@ -9,6 +9,8 @@ public import Lean.Meta.Tactic.Grind.Injective
 public import Lean.Meta.Tactic.Grind.Cases
 public import Lean.Meta.Tactic.Grind.ExtAttr
 public import Lean.Meta.Tactic.Simp.Attr
+public import Lean.Meta.Tactic.Grind.Homo
+import Lean.Meta.Sym.Simp.Attr
 import Lean.ExtraModUses
 public section
 namespace Lean.Meta.Grind
@@ -26,6 +28,8 @@ inductive AttrKind where
   | funCC
   | norm (post : Bool) (inv : Bool)
   | unfold
+  | homo
+  | homoPred
 
 /-- Return theorem kind for `stx` of the form `Attr.grindThmMod` -/
 def getAttrKindCore (stx : Syntax) : CoreM AttrKind := do
@@ -59,6 +63,8 @@ def getAttrKindCore (stx : Syntax) : CoreM AttrKind := do
   | `(Parser.Attr.grindMod|norm ↑ ←) => return .norm true true
   | `(Parser.Attr.grindMod|norm ↓ ←) => return .norm (post := false) true
   | `(Parser.Attr.grindMod|unfold) => return .unfold
+  | `(Parser.Attr.grindMod|hom) => return .homo
+  | `(Parser.Attr.grindMod|hom_pred) => return .homoPred
   | `(Parser.Attr.grindMod|symbol $prio:prio) =>
     let some prio := prio.raw.isNatLit? | throwErrorAt prio "priority expected"
     return .symbol prio
@@ -179,6 +185,14 @@ private def mkGrindAttr (attrName : Name) (minIndexable : Bool) (showInfo : Bool
           throwError "declaration to unfold must be set using the default `[grind]` attribute"
         unless (← addDeclToUnfold normExt declName (post := false) (inv := false) (prio := eval_prio default) (attrKind := attrKind)) do
           throwError "cannot mark declaration to be unfolded by `grind`"
+      | .homo =>
+        unless attrName == `grind do
+          throwError "homomorphism rules must be set using the default `[grind]` attribute"
+        addHomoAttr declName attrKind
+      | .homoPred =>
+        unless attrName == `grind do
+          throwError "homomorphism predicates must be set using the default `[grind]` attribute"
+        addHomoPredAttr declName attrKind
       | .cases eager => ext.addCasesAttr declName eager attrKind
       | .funCC => ext.addFunCCAttr declName attrKind
       | .ext => ext.addExtAttr declName attrKind
@@ -247,6 +261,13 @@ def registerAttr (attrName : Name) (ref : Name := by exact decl_name%) : IO Exte
   return ext
 
 builtin_initialize grindExt : Extension ← registerAttr `grind
+
+/--
+Extension backing the `@[lia]` attribute. It uses the same recording mechanism as `@[grind]`
+(see `registerAttr`), but provides a separate, smaller E-matching lemma set that the `lia`
+tactic instantiates (e.g. `Nat.max_def`), without enabling the full `@[grind]` set.
+-/
+builtin_initialize liaExt : Extension ← registerAttr `lia
 
 /-- Returns `true` is `declName` is a builtin split or has been tagged with `[grind]` attribute. -/
 def isGlobalSplit (declName : Name) : CoreM Bool := do

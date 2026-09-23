@@ -23,7 +23,7 @@ def tst (x : Nat) : IO Bool := do
 #eval tst 2
 
 def tstReturn (x : Nat) : IO Nat := do
-  return (← return 42) + x
+  return (← pure 42) + x
 
 /-- info: 47 -/
 #guard_msgs in

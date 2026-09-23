@@ -6,7 +6,7 @@ The bug is in `introCore.finalize`: it unconditionally creates an `auxMVar` with
 delayed assignment and assigns the original mvar to it, even when `fvars` is empty
 (no binders were introduced). Then `intros` checks `fvars.isEmpty` and returns `.failed`,
 but the mvar is already assigned. Downstream code that checks `isAssigned` (e.g. VC filters
-in mvcgen') will wrongly think the goal is solved.
+in vcgen) will wrongly think the goal is solved.
 
 Fix: guard `finalize` with `if fvars.isEmpty then return (#[], mvarId)`.
 -/

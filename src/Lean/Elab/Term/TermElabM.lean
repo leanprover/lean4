@@ -169,9 +169,9 @@ structure LetRecToLift where
   termination    : TerminationHints
   /-- The binders syntax for the declaration, used for docstring elaboration. -/
   binders        : Syntax := .missing
-  /-- The docstring, if present, and whether it's Verso. Docstring processing is deferred until the
-  declaration is added to the environment (needed for Verso docstrings to work). -/
-  docString?     : Option (TSyntax ``Lean.Parser.Command.docComment × Bool) := none
+  /-- The docstring, if present. Docstring processing is deferred until the declaration is added to
+  the environment (needed for Verso docstrings to work). -/
+  docString?     : Option (TSyntax ``Lean.Parser.Command.docComment) := none
   deriving Inhabited
 
 /--
@@ -237,28 +237,55 @@ instance : Inhabited TacticFinishedSnapshot where
   default := { toSnapshot := default, state? := default, moreSnaps := default }
 
 instance : ToSnapshotTree TacticFinishedSnapshot where
-  toSnapshotTree s := ⟨s.toSnapshot, s.moreSnaps⟩
+  toSnapshotTreeM s := return ⟨← Snapshot.transform s.toSnapshot, ← s.moreSnaps.mapM (·.transform)⟩
+
+/-- Applies the given transformation to the `TacticFinishedSnapshot`. -/
+def TacticFinishedSnapshot.transform (s : TacticFinishedSnapshot) (trans : SnapshotTreeTransform) : TacticFinishedSnapshot :=
+  { s with moreSnaps := s.moreSnaps.map (·.map (sync := true) (·.transform trans)) }
 
 /-- Snapshot just before execution of a tactic. -/
-structure TacticParsedSnapshot extends Language.Snapshot where
+structure TacticParsedSnapshotInner (α : Type) extends Language.Snapshot where
   /-- Syntax tree of the tactic, stored and compared for incremental reuse. -/
   stx      : Syntax
   /-- Task for nested incrementality, if enabled for tactic. -/
-  inner?   : Option (SnapshotTask TacticParsedSnapshot) := none
+  inner?   : Option (SnapshotTask α) := none
   /-- Task for state after tactic execution. -/
   finished : SnapshotTask TacticFinishedSnapshot
-  /-- Tasks for subsequent, potentially parallel, tactic steps. -/
-  next     : Array (SnapshotTask TacticParsedSnapshot) := #[]
 
-instance : Inhabited TacticParsedSnapshot where
+instance : Inhabited (TacticParsedSnapshotInner α) where
   default := { toSnapshot := default, stx := default, finished := default }
 
+partial instance [ToSnapshotTree α] : ToSnapshotTree (TacticParsedSnapshotInner α) where
+  toSnapshotTreeM s :=
+    return ⟨← Snapshot.transform s.toSnapshot,
+      (← s.inner?.toArray.mapM (·.transform)) ++
+      #[← s.finished.transform]⟩
+
+structure TacticParsedSnapshot where
+  transformed : TransformedSnap (TacticParsedSnapshotInner TacticParsedSnapshot)
+  /-- Tasks for subsequent, potentially parallel, tactic steps. -/
+  next     : Array (SnapshotTask TacticParsedSnapshot) := #[]
+deriving Inhabited
+
+/--
+Pushes the transformation inwards by one level, allowing transformation-correct access to fields.
+-/
+def TacticParsedSnapshot.applyTransform (s : TacticParsedSnapshot) :
+    TacticParsedSnapshotInner TacticParsedSnapshot where
+  toSnapshot := s.transformed.raw.toSnapshot.transform s.transformed.transform
+  stx := s.transformed.transform.transformSyntax s.transformed.raw.stx
+  inner? := s.transformed.raw.inner?.map (·.map (sync := true) ({ transformed := ·.transformed.compose s.transformed.transform }))
+  finished := s.transformed.raw.finished.map (sync := true) (·.transform s.transformed.transform)
+
 partial instance : ToSnapshotTree TacticParsedSnapshot where
-  toSnapshotTree := go where
-    go := fun s => ⟨s.toSnapshot,
-      s.inner?.toArray.map (·.map (sync := true) go) ++
-      #[s.finished.map (sync := true) toSnapshotTree] ++
-      s.next.map (·.map (sync := true) go)⟩
+  toSnapshotTreeM := go
+where
+  go s := do
+    let _ : ToSnapshotTree TacticParsedSnapshot := ⟨go⟩
+    let inner ← withReader (·.compose s.transformed.transform) do
+      toSnapshotTreeM s.transformed.raw
+    let next ← s.next.mapM (·.transform)
+    return { inner with children := inner.children ++ next }
 
 end Snapshot
 end Tactic
@@ -779,7 +806,7 @@ def traceAtCmdPos (cls : Name) (msg : Unit → MessageData) : TermElabM Unit :=
 def ppGoal (mvarId : MVarId) : TermElabM Format :=
   Meta.ppGoal mvarId
 
-open Level (LevelElabM)
+open Lean.Elab.Level (LevelElabM)
 
 def liftLevelM (x : LevelElabM α) : TermElabM α := do
   let ctx ← read
@@ -1126,7 +1153,7 @@ def throwTypeMismatchError (header? : Option MessageData) (expectedType : Expr) 
   | some f => Meta.throwAppTypeMismatch f e
 
 def withoutMacroStackAtErr (x : TermElabM α) : TermElabM α :=
-  withTheReader Core.Context (fun (ctx : Core.Context) => { ctx with options := pp.macroStack.set ctx.options false }) x
+  withTheReader Core.Context (fun (ctx : Core.Context) => ctx.setOptions (pp.macroStack.set ctx.options false)) x
 
 namespace ContainsPendingMVar
 
@@ -1411,7 +1438,7 @@ def withSavedContext (savedCtx : SavedContext) (x : TermElabM α) : TermElabM α
         errToSorry := savedCtx.errToSorry,
         fixedTermElabs := savedCtx.fixedTermElabs,
       }) <|
-    withTheReader Core.Context (fun ctx => { ctx with options := savedCtx.options, openDecls := savedCtx.openDecls }) <|
+    withTheReader Core.Context (fun ctx => { ctx.setOptions savedCtx.options with openDecls := savedCtx.openDecls }) <|
       withLevelNames savedCtx.levelNames x
 
 /--
@@ -1482,7 +1509,8 @@ partial def removeSaveInfoAnnotation (e : Expr) : Expr :=
 /--
   Return `some mvarId` if `e` corresponds to a hole that is going to be filled "later" by executing a tactic or resuming elaboration.
 
-  We do not save `ofTermInfo` for this kind of node in the `InfoTree`.
+  We do not save `ofTermInfo` for this kind of node in the `InfoTree`, unless the would-be children
+  of the node already contain the `InfoTree.hole` for it.
 -/
 def isTacticOrPostponedHole? (e : Expr) : TermElabM (Option MVarId) := do
   match e with
@@ -1493,14 +1521,41 @@ def isTacticOrPostponedHole? (e : Expr) : TermElabM (Option MVarId) := do
     | _                                  => return none
   | _ => pure none
 
+/--
+Returns `true` if the `InfoTree`s produced by the elaboration that is currently being wrapped in an
+`Info` node already contain an `InfoTree.hole` for `mvarId`, i.e. if the hole was emitted by a
+nested elaboration rather than by the current one.
+-/
+private partial def hasInfoHoleFor (mvarId : MVarId) : TermElabM Bool := do
+  return (← getInfoState).trees.any go
+where
+  go : InfoTree → Bool
+    | .hole mvarId' => mvarId' == mvarId
+    | .context _ t  => go t
+    | .node _ c     => c.any go
+
 def mkTermInfo (elaborator : Name) (stx : Syntax) (e : Expr) (expectedType? : Option Expr := none)
     (lctx? : Option LocalContext := none) (isBinder := false) (isDisplayableTerm := false) :
     TermElabM (Sum Info MVarId) := do
-  match (← isTacticOrPostponedHole? e) with
-  | some mvarId => return Sum.inr mvarId
-  | none =>
-    let e := removeSaveInfoAnnotation e
-    return Sum.inl <| Info.ofTermInfo { elaborator, lctx := lctx?.getD (← getLCtx), expr := e, stx, expectedType?, isBinder, isDisplayableTerm }
+  if let some mvarId ← isTacticOrPostponedHole? e then
+    /-
+    Recall that `withInfoContext'` discards the `InfoTree`s of the elaboration when we return a
+    hole, and that the `Info` for the hole is supplied later via `assignInfoHoleId`.
+
+    If a nested elaboration already emitted the hole for `mvarId`, then the current elaboration
+    merely passes the hole through as returning another hole would discard all `Info` it produced,
+    e.g. the `Info` for `type` in `(e : type)` when `e` is a tactic block. In this case, we emit an
+    ordinary term node that contains the nested hole.
+
+    Otherwise, the current elaboration created the hole (e.g. by postponing) and we must return it
+    so that the `Info` supplied later has somewhere to go. Note that the elaboration may already
+    have produced `InfoTree`s before creating the hole, but those are reproduced when its
+    elaboration is resumed.
+    -/
+    unless (← hasInfoHoleFor mvarId) do
+      return Sum.inr mvarId
+  let e := removeSaveInfoAnnotation e
+  return Sum.inl <| Info.ofTermInfo { elaborator, lctx := lctx?.getD (← getLCtx), expr := e, stx, expectedType?, isBinder, isDisplayableTerm }
 
 def mkPartialTermInfo (elaborator : Name) (stx : Syntax) (expectedType? : Option Expr := none)
     (lctx? : Option LocalContext := none) :
@@ -1660,11 +1715,6 @@ private def isLambdaWithImplicit (stx : Syntax) : Bool :=
   | `(fun $binders* => $_) => binders.raw.any fun b => b.isOfKind ``Lean.Parser.Term.implicitBinder || b.isOfKind `Lean.Parser.Term.instBinder
   | _                      => false
 
-private partial def dropTermParens : Syntax → Syntax := fun stx =>
-  match stx with
-  | `(($stx)) => dropTermParens stx
-  | _         => stx
-
 private def isHole (stx : Syntax) : Bool :=
   stx.isOfKind ``Lean.Parser.Term.hole || stx.isOfKind ``Lean.Parser.Term.syntheticHole
 
@@ -1692,7 +1742,7 @@ def mkNoImplicitLambdaAnnotation (type : Expr) : Expr :=
 
 /-- Block usage of implicit lambdas if `stx` is `@f` or `@f arg1 ...` or `fun` with an implicit binder annotation. -/
 def blockImplicitLambda (stx : Syntax) : Bool :=
-  let stx := dropTermParens stx
+  let stx := Parser.Term.dropParens stx
   -- TODO: make it extensible
   isExplicit stx || isExplicitApp stx || isLambdaWithImplicit stx || isHole stx || isTacticBlock stx ||
   isNoImplicitLambda stx || isTypeAscription stx
@@ -1804,7 +1854,8 @@ private partial def elabTermAux (expectedType? : Option Expr) (catchExPostpone :
     withTraceNode `Elab.step (fun _ => return m!"expected type: {expectedType?}, term\n{stx}")
       (tag := stx.getKind.toString) do
     checkSystem "elaborator"
-    checkDeprecatedSyntax stx (← read).macroStack
+    if (← read).checkDeprecated then
+      checkDeprecatedSyntax stx (← read).macroStack
     let env ← getEnv
     let result ← match (← liftMacroM (expandMacroImpl? env stx)) with
     | some (decl, stxNew?) =>
@@ -2092,9 +2143,9 @@ def isLetRecAuxMVar (mvarId : MVarId) : TermElabM Bool := do
   trace[Elab.letrec] "mvarId root: {mkMVar mvarId}"
   return (← get).letRecsToLift.any (·.mvarId == mvarId)
 
-public def checkDeprecatedCore (constName : Name) : TermElabM Unit := do
+public def checkDeprecatedCore (constName : Name) (allowSuggestion := true) : TermElabM Unit := do
   if (← read).checkDeprecated then
-    Linter.checkDeprecated constName
+    Linter.checkDeprecated constName allowSuggestion
 
 /--
   Create an `Expr.const` using the given name and explicit levels.
@@ -2104,7 +2155,7 @@ public def checkDeprecatedCore (constName : Name) : TermElabM Unit := do
   If `checkDeprecated := true`, then `Linter.checkDeprecated` is invoked.
 -/
 def mkConst (constName : Name) (explicitLevels : List Level := []) : TermElabM Expr := do
-  checkDeprecatedCore constName
+  checkDeprecatedCore constName (allowSuggestion := false)
   let cinfo ← getConstVal constName
   if explicitLevels.length > cinfo.levelParams.length then
     throwError "too many explicit universe levels for `{constName}`"

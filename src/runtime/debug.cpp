@@ -21,8 +21,6 @@ Author: Leonardo de Moura
 #include "runtime/debug.h"
 
 namespace lean {
-static volatile bool           g_has_violations     = false;
-static volatile bool           g_enable_assertions  = true;
 static std::set<std::string> * g_enabled_debug_tags = nullptr;
 
 void initialize_debug() {
@@ -33,18 +31,7 @@ void finalize_debug() {
     delete g_enabled_debug_tags;
 }
 
-bool has_violations() {
-    return g_has_violations;
-}
 // LCOV_EXCL_START
-void enable_assertions(bool f) {
-    g_enable_assertions = f;
-}
-
-bool assertions_enabled() {
-    return g_enable_assertions;
-}
-
 void notify_assertion_violation(const char * fileName, int line, const char * condition) {
     std::cerr << "LEAN ASSERTION VIOLATION\n";
     std::cerr << "File: " << fileName << "\n";
@@ -65,19 +52,8 @@ extern "C" LEAN_EXPORT lean_obj_res lean_internal_enable_debug(b_lean_obj_arg ta
     return lean_box(0);
 }
 
-void disable_debug(char const * tag) {
-    if (g_enabled_debug_tags)
-        g_enabled_debug_tags->erase(tag);
-}
-
 bool is_debug_enabled(const char * tag) {
     return g_enabled_debug_tags && g_enabled_debug_tags->find(tag) != g_enabled_debug_tags->end();
-}
-
-static bool g_debug_dialog = true;
-
-void enable_debug_dialog(bool flag) {
-    g_debug_dialog = flag;
 }
 
 [[noreturn]] void debuggable_exit() {
@@ -90,10 +66,6 @@ void invoke_debugger() {
     EM_ASM(debugger;);
     exit(1);
 #else
-    g_has_violations = true;
-    if (!g_debug_dialog) {
-        throw unreachable_reached();
-    }
     for (;;) {
         if (std::cin.eof())
             debuggable_exit();

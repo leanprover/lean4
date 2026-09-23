@@ -489,6 +489,7 @@ theorem IterM.length_eq_fold {α β : Type w} {m : Type w → Type w'} [Iterator
     it.length = it.fold (init := .up 0) (fun acc _ => .up <| acc.down + 1) :=
   (rfl)
 
+set_option linter.defProp false in
 @[deprecated IterM.length_eq_fold (since := "2026-01-28")]
 def IterM.count_eq_fold := @IterM.length_eq_fold
 
@@ -498,6 +499,7 @@ theorem IterM.length_eq_forIn {α β : Type w} {m : Type w → Type w'} [Iterato
     it.length = ForIn.forIn it (.up 0) (fun _ acc => return .yield (.up (acc.down + 1))) :=
   (rfl)
 
+set_option linter.defProp false in
 @[deprecated IterM.length_eq_forIn (since := "2026-01-28")]
 def IterM.count_eq_forIn := @IterM.length_eq_forIn
 
@@ -525,6 +527,7 @@ theorem IterM.length_eq_match_step {α β : Type w} {m : Type w → Type w'} [It
   · simp
   · simp
 
+set_option linter.defProp false in
 @[deprecated IterM.length_eq_match_step (since := "2026-01-28")]
 def IterM.count_eq_match_step := @IterM.length_eq_match_step
 
@@ -538,6 +541,7 @@ theorem IterM.up_size_toArray_eq_length {α β : Type w} [Iterator α m β] [Fin
   · simp only [List.size_toArray, List.length_nil]; rfl
   · simp
 
+set_option linter.defProp false in
 @[deprecated IterM.up_size_toArray_eq_length (since := "2026-01-28")]
 def IterM.up_size_toArray_eq_count := @IterM.up_size_toArray_eq_length
 
@@ -551,6 +555,7 @@ theorem IterM.up_length_toList_eq_length {α β : Type w} [Iterator α m β] [Fi
   · simp only [List.length_nil]; rfl
   · simp
 
+set_option linter.defProp false in
 @[deprecated IterM.up_length_toList_eq_length (since := "2026-01-28")]
 def IterM.up_length_toList_eq_count := @IterM.up_length_toList_eq_length
 
@@ -562,6 +567,7 @@ theorem IterM.up_length_toListRev_eq_length {α β : Type w} [Iterator α m β] 
     (.up <| ·.length) <$> it.toListRev = it.length := by
   simp only [toListRev_eq, Functor.map_map, List.length_reverse, up_length_toList_eq_length]
 
+set_option linter.defProp false in
 @[deprecated IterM.up_length_toListRev_eq_length (since := "2026-01-28")]
 def IterM.up_length_toListRev_eq_count := @IterM.up_length_toListRev_eq_length
 

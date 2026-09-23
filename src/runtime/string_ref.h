@@ -33,8 +33,6 @@ public:
     friend bool operator==(string_ref const & s1, string_ref const & s2) { return string_eq(s1.raw(), s2.raw()); }
     friend bool operator!=(string_ref const & s1, string_ref const & s2) { return string_ne(s1.raw(), s2.raw()); }
     friend bool operator<(string_ref const & s1, string_ref const & s2) { return string_lt(s1.raw(), s2.raw()); }
-    friend bool operator==(string_ref const & s1, char const * s2) { return string_eq(s1.raw(), s2); }
-    friend bool operator!=(string_ref const & s1, char const * s2) { return !(s1 == s2); }
 };
 typedef list_ref<string_ref> string_refs;
 };

@@ -26,7 +26,7 @@ attribute [run_builtin_parser_attribute_hooks]
   unicodeSymbol nonReservedSymbol
   withCache withResetCache withPosition withPositionAfterLinebreak withoutPosition withForbidden withoutForbidden setExpected
   incQuotDepth decQuotDepth suppressInsideQuot evalInsideQuot
-  withOpen withOpenDecl
+  withOpen withOpenDecl withSetOption withSetOptionValue
   dbgTraceState
 
 /-- The parser `optional(p)`, or `(p)?`, parses `p` if it succeeds,
@@ -108,7 +108,13 @@ This parser has arity 1: it produces a `hygieneInfoKind` node containing an anon
 You can use `HygieneInfo.mkIdent` to create an `Ident` from the syntax object,
 but you can also use `TSyntax.getHygieneInfo` to get the raw name from the identifier. -/
 @[run_builtin_parser_attribute_hooks, builtin_doc] def hygieneInfo : Parser :=
-  withAntiquot (mkAntiquot "hygieneInfo" hygieneInfoKind (anonymous := false)) hygieneInfoNoAntiquot
+  -- We cannot use `withAntiquot` here because it uses `OrElseOnAntiquotBehavior.takeLongest`,
+  -- meaning that `hygieneInfoFn` would also be run when the antiquotation parser succeeds.
+  -- `hygieneInfoFn` has a side effect on the previous token in the parser stack that survives
+  -- backtracking: it steals trailing whitespace from the previous token.
+  -- This side effect must not occur when the antiquotation parser already succeeded, since the
+  -- antiquotation will always parse further than the zero-width `hygieneInfoFn`.
+  withAntiquotAcceptLhs (mkAntiquot "hygieneInfo" hygieneInfoKind (anonymous := false)) hygieneInfoNoAntiquot
 
 /-- The parser `num` parses a numeric literal in several bases:
 

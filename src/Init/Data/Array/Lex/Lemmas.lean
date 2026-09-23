@@ -55,7 +55,7 @@ protected theorem not_le_iff_gt [LT α] {xs ys : Array α} :
   Classical.not_not
 
 @[simp] theorem lex_empty [BEq α] {lt : α → α → Bool} {xs : Array α} : xs.lex #[] lt = false := by
-  simp [lex, Std.Rco.forIn'_eq_if]
+  simp [lex, Std.Rco.forIn'_eq_ite]
 
 private theorem cons_lex_cons.forIn'_congr_aux [Monad m] {as bs : ρ} {_ : Membership α ρ}
     [ForIn' m ρ α inferInstance] (w : as = bs)
@@ -87,10 +87,10 @@ private theorem cons_lex_cons [BEq α] {lt : α → α → Bool} {a b : α} {xs 
     l₁.toArray.lex l₂.toArray lt = l₁.lex l₂ lt := by
   induction l₁ generalizing l₂ with
   | nil =>
-    cases l₂ <;> simp [lex, Std.Rco.forIn'_eq_if]
+    cases l₂ <;> simp [lex, Std.Rco.forIn'_eq_ite]
   | cons x l₁ ih =>
     cases l₂ with
-    | nil => simp [lex, Std.Rco.forIn'_eq_if]
+    | nil => simp [lex, Std.Rco.forIn'_eq_ite]
     | cons y l₂ =>
       rw [List.toArray_cons, List.toArray_cons y, cons_lex_cons, List.lex, ih]
 
@@ -144,29 +144,9 @@ protected theorem lt_of_le_of_lt [LE α] [LT α] [LawfulOrderLT α] [IsLinearOrd
     {xs ys zs : Array α} (h₁ : xs ≤ ys) (h₂ : ys < zs) : xs < zs :=
   Std.lt_of_le_of_lt (α := List α) h₁ h₂
 
-@[deprecated Array.lt_of_le_of_lt (since := "2025-08-01")]
-protected theorem lt_of_le_of_lt' [LT α]
-    [i₁ : Std.Asymm (· < · : α → α → Prop)]
-    [i₂ : Std.Trichotomous (· < · : α → α → Prop)]
-    [i₃ : Trans (¬ · < · : α → α → Prop) (¬ · < ·) (¬ · < ·)]
-    {xs ys zs : Array α} (h₁ : xs ≤ ys) (h₂ : ys < zs) : xs < zs :=
-  letI := LE.ofLT α
-  haveI : IsLinearOrder α := IsLinearOrder.of_lt
-  Array.lt_of_le_of_lt h₁ h₂
-
 protected theorem le_trans [LE α] [LT α] [LawfulOrderLT α] [IsLinearOrder α]
     {xs ys zs : Array α} (h₁ : xs ≤ ys) (h₂ : ys ≤ zs) : xs ≤ zs :=
   fun h₃ => h₁ (Array.lt_of_le_of_lt h₂ h₃)
-
-@[deprecated Array.le_trans (since := "2025-08-01")]
-protected theorem le_trans' [LT α]
-    [i₁ : Std.Asymm (· < · : α → α → Prop)]
-    [i₂ : Std.Trichotomous (· < · : α → α → Prop)]
-    [i₃ : Trans (¬ · < · : α → α → Prop) (¬ · < ·) (¬ · < ·)]
-    {xs ys zs : Array α} (h₁ : xs ≤ ys) (h₂ : ys ≤ zs) : xs ≤ zs :=
-  letI := LE.ofLT α
-  haveI : IsLinearOrder α := IsLinearOrder.of_lt
-  Array.le_trans h₁ h₂
 
 instance [LE α] [LT α] [LawfulOrderLT α] [IsLinearOrder α] :
     Trans (· ≤ · : Array α → Array α → Prop) (· ≤ ·) (· ≤ ·) where

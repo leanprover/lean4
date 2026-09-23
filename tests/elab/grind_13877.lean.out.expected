@@ -1,0 +1,17 @@
+Try these:
+  [apply] grind only [= reflTransGen_iff_eq, EqvGen.rel, #9242, #a190, #f6a6, #f38a, #e48b, #5525, #3442, #7112, EqvGen]
+  [apply] grind only [= reflTransGen_iff_eq, EqvGen.rel, EqvGen]
+  [apply] grind [EqvGen] =>
+    instantiate only [= reflTransGen_iff_eq, EqvGen.rel]
+    instantiate only [#9242]
+    cases #a190
+    · cases #f6a6 <;> cases #f38a <;> cases #e48b <;> instantiate only [#9242]
+    · cases #f6a6
+      · cases #f38a <;> cases #5525 <;> instantiate only [#3442]
+      · cases #f38a
+        · cases #7112
+          · instantiate only [#3442]
+          · cases #e48b <;> instantiate only [#9242]
+        · cases #7112
+          · instantiate only [#3442]
+          · cases #e48b <;> instantiate only [#9242]

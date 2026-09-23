@@ -158,9 +158,9 @@ indistinguishable from a direct `lean` invocation from Lake's perspective.
 ## What's currently hooked
 
 Today the hook is wired at `compileLeanModule`: the per-module `lean`
-invocation, and the follow-up `leanir` invocation when
+invocation, and the separate `leanir` invocation when
 `compiler.postponeCompile` is set (each gets its own manifest; the
-`leanir` job declares the deferred `.ir`/`.c` as its outputs and the
+`leanir` job declares the deferred `.ir.sig`/`.ir`/`.c` as its outputs and the
 artifacts the `lean` step produced among its inputs). The dispatcher
 (`Lake.WrappedExec.runRawProcOrWrapped`)
 itself is generic and could be threaded through any other subprocess
@@ -323,3 +323,15 @@ requires any further changes to Lake.
   spawn sets to `none` are dropped). The single-`LEAN_PATH` env of the
   current call site doesn't need it; a future call site that does will
   bump `schema_version` and switch to an ordered array-of-pairs.
+
+## Refresh against upstream master (September 2026)
+
+Deferred compilation now runs in the `irArts` facet. The wrapper follows that
+facet and declares `.ir.sig`, `.ir`, and `.c` as its outputs. Ordinary module
+compilation also declares `.ir.sig`. Import artifacts now contain nested arrays;
+the manifest flattens both the olean and IR groups.
+
+The manifest describes declared dependencies known to Lake. It is not a complete
+filesystem read set: `include_str`, metaprograms, and environment-dependent reads
+can access undeclared files. A wrapper must provide such files separately or
+keep those jobs local. Future dynamic dependency support needs a separate protocol.

@@ -1,84 +1,132 @@
+Input: "* `structure` and `inductive` commands\n  * [#5842](https://github.com/leanprover/lean4/pull/5842) and [#5783](https://github.com/leanprover/lean4/pull/5783) implement a feature where the `structure` command can now define recursive inductive types:\n    ```lean\n    structure Tree where\n      n : Nat\n      children : Fin n → Tree\n\n    def Tree.size : Tree → Nat\n      | {n, children} => Id.run do\n        let mut s := 0\n        for h : i in [0 : n] do\n          s := s + (children ⟨i, h.2⟩).size\n        pure s\n    ```\n  * [#5814](https://github.com/leanprover/lean4/pull/5814) "
 Success! Final stack:
-  (Lean.Doc.Syntax.ul
-   "ul{"
-   [(Lean.Doc.Syntax.li
-     "*"
-     [(Lean.Doc.Syntax.para
-       "para{"
-       [(Lean.Doc.Syntax.code
-         "`"
-         (str "\"structure\"")
-         "`")
-        (Lean.Doc.Syntax.text (str "\" and \""))
-        (Lean.Doc.Syntax.code
-         "`"
-         (str "\"inductive\"")
-         "`")
-        (Lean.Doc.Syntax.text
-         (str "\" commands\""))]
-       "}")
-      (Lean.Doc.Syntax.ul
-       "ul{"
-       [(Lean.Doc.Syntax.li
-         "*"
-         [(Lean.Doc.Syntax.para
-           "para{"
-           [(Lean.Doc.Syntax.link
+  (Lean.Doc.Parser.Block.ul
+   [(Lean.Doc.Parser.ListItem.item
+     (Lean.Doc.Parser.listMarker "*")
+     [(Lean.Doc.Parser.Block.para
+       [(Lean.Doc.Parser.Inline.code
+         (Lean.Doc.Parser.codeDelimiter "`")
+         (Lean.Doc.Parser.versoCode
+          [(Lean.Doc.Parser.versoCodeLine
+            "structure")])
+         (Lean.Doc.Parser.codeDelimiter "`"))
+        (Lean.Doc.Parser.Inline.text
+         (Lean.Doc.Parser.versoText " and "))
+        (Lean.Doc.Parser.Inline.code
+         (Lean.Doc.Parser.codeDelimiter "`")
+         (Lean.Doc.Parser.versoCode
+          [(Lean.Doc.Parser.versoCodeLine
+            "inductive")])
+         (Lean.Doc.Parser.codeDelimiter "`"))
+        (Lean.Doc.Parser.Inline.text
+         (Lean.Doc.Parser.versoText
+          " commands"))])
+      (Lean.Doc.Parser.Block.ul
+       [(Lean.Doc.Parser.ListItem.item
+         (Lean.Doc.Parser.listMarker "*")
+         [(Lean.Doc.Parser.Block.para
+           [(Lean.Doc.Parser.Inline.link
              "["
-             [(Lean.Doc.Syntax.text
-               (str "\"#5842\""))]
+             [(Lean.Doc.Parser.Inline.text
+               (Lean.Doc.Parser.versoText
+                "#5842"))]
              "]"
-             (Lean.Doc.Syntax.url
+             (Lean.Doc.Parser.LinkTarget.url
               "("
-              (str
-               "\"https://github.com/leanprover/lean4/pull/5842\"")
+              (Lean.Doc.Parser.versoLinkUrl
+               "https://github.com/leanprover/lean4/pull/5842")
               ")"))
-            (Lean.Doc.Syntax.text
-             (str "\" and \""))
-            (Lean.Doc.Syntax.link
+            (Lean.Doc.Parser.Inline.text
+             (Lean.Doc.Parser.versoText " and "))
+            (Lean.Doc.Parser.Inline.link
              "["
-             [(Lean.Doc.Syntax.text
-               (str "\"#5783\""))]
+             [(Lean.Doc.Parser.Inline.text
+               (Lean.Doc.Parser.versoText
+                "#5783"))]
              "]"
-             (Lean.Doc.Syntax.url
+             (Lean.Doc.Parser.LinkTarget.url
               "("
-              (str
-               "\"https://github.com/leanprover/lean4/pull/5783\"")
+              (Lean.Doc.Parser.versoLinkUrl
+               "https://github.com/leanprover/lean4/pull/5783")
               ")"))
-            (Lean.Doc.Syntax.text
-             (str
-              "\" implement a feature where the \""))
-            (Lean.Doc.Syntax.code
-             "`"
-             (str "\"structure\"")
-             "`")
-            (Lean.Doc.Syntax.text
-             (str
-              "\" command can now define recursive inductive types:\""))]
-           "}")
-          (Lean.Doc.Syntax.codeblock
-           "```"
+            (Lean.Doc.Parser.Inline.text
+             (Lean.Doc.Parser.versoText
+              " implement a feature where the "))
+            (Lean.Doc.Parser.Inline.code
+             (Lean.Doc.Parser.codeDelimiter "`")
+             (Lean.Doc.Parser.versoCode
+              [(Lean.Doc.Parser.versoCodeLine
+                "structure")])
+             (Lean.Doc.Parser.codeDelimiter "`"))
+            (Lean.Doc.Parser.Inline.text
+             (Lean.Doc.Parser.versoText
+              " command can now define recursive inductive types:"))])
+          (Lean.Doc.Parser.Block.codeblock
+           (Lean.Doc.Parser.codeBlockFence "```")
            [`lean []]
-           "\n"
-           (str
-            "\"structure Tree where\\n  n : Nat\\n  children : Fin n → Tree\\n\\ndef Tree.size : Tree → Nat\\n  | {n, children} => Id.run do\\n    let mut s := 0\\n    for h : i in [0 : n] do\\n      s := s + (children ⟨i, h.2⟩).size\\n    pure s\\n\"")
-           "```")])
-        (Lean.Doc.Syntax.li
-         "*"
-         [(Lean.Doc.Syntax.para
-           "para{"
-           [(Lean.Doc.Syntax.link
+           (Lean.Doc.Parser.versoCodeBlock
+            [(Lean.Doc.Parser.versoCodeLine
+              "structure Tree where\n")
+             (Lean.Doc.Parser.versoCodeLine
+              "  n : Nat\n")
+             (Lean.Doc.Parser.versoCodeLine
+              "  children : Fin n → Tree\n")
+             (Lean.Doc.Parser.versoCodeLine "\n")
+             (Lean.Doc.Parser.versoCodeLine
+              "def Tree.size : Tree → Nat\n")
+             (Lean.Doc.Parser.versoCodeLine
+              "  | {n, children} => Id.run do\n")
+             (Lean.Doc.Parser.versoCodeLine
+              "    let mut s := 0\n")
+             (Lean.Doc.Parser.versoCodeLine
+              "    for h : i in [0 : n] do\n")
+             (Lean.Doc.Parser.versoCodeLine
+              "      s := s + (children ⟨i, h.2⟩).size\n")
+             (Lean.Doc.Parser.versoCodeLine
+              "    pure s\n")])
+           (Lean.Doc.Parser.codeBlockFence
+            "```"))])
+        (Lean.Doc.Parser.ListItem.item
+         (Lean.Doc.Parser.listMarker "*")
+         [(Lean.Doc.Parser.Block.para
+           [(Lean.Doc.Parser.Inline.link
              "["
-             [(Lean.Doc.Syntax.text
-               (str "\"#5814\""))]
+             [(Lean.Doc.Parser.Inline.text
+               (Lean.Doc.Parser.versoText
+                "#5814"))]
              "]"
-             (Lean.Doc.Syntax.url
+             (Lean.Doc.Parser.LinkTarget.url
               "("
-              (str
-               "\"https://github.com/leanprover/lean4/pull/5814\"")
+              (Lean.Doc.Parser.versoLinkUrl
+               "https://github.com/leanprover/lean4/pull/5814")
               ")"))
-            (Lean.Doc.Syntax.text (str "\" \""))]
-           "}")])]
-       "}")])]
-   "}")
+            (Lean.Doc.Parser.Inline.text
+             (Lean.Doc.Parser.versoText
+              " "))])])])])])
 All input consumed.
+Round-trip OK
+Decoded views:
+  ul
+    item (marker := "*")
+      para
+        code (opener := "`") (content := "structure") (closer := "`")
+        text (content := " and ")
+        code (opener := "`") (content := "inductive") (closer := "`")
+        text (content := " commands")
+      ul
+        item (marker := "*")
+          para
+            link (opener := "[") (closer := "]") (target := url (opener := "(") (url := "https://github.com/leanprover/lean4/pull/5842") (closer := ")"))
+              text (content := "#5842")
+            text (content := " and ")
+            link (opener := "[") (closer := "]") (target := url (opener := "(") (url := "https://github.com/leanprover/lean4/pull/5783") (closer := ")"))
+              text (content := "#5783")
+            text (content := " implement a feature where the ")
+            code (opener := "`") (content := "structure") (closer := "`")
+            text (content := " command can now define recursive inductive types:")
+          codeblock (openFence := "```") (name? := some lean) (args := []) (content := "structure Tree where\n  n : Nat\n  children : Fin n → Tree\n\ndef Tree.size : Tree → Nat\n  | {n, children} => Id.run do\n    let mut s := 0\n    for h : i in [0 : n] do\n      s := s + (children ⟨i, h.2⟩).size\n    pure s\n") (closeFence := "```")
+        item (marker := "*")
+          para
+            link (opener := "[") (closer := "]") (target := url (opener := "(") (url := "https://github.com/leanprover/lean4/pull/5814") (closer := ")"))
+              text (content := "#5814")
+            text (content := " ")

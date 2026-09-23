@@ -724,7 +724,7 @@ partial def strLitFnAux (startPos : String.Pos.Raw) (includeWhitespace := true) 
     let s    := s.setPos (c.next' i h)
     if curr == '\"' then
       mkNodeToken strLitKind startPos includeWhitespace c s
-    else if curr == '\\' then andthenFn quotedStringFn (strLitFnAux startPos) c s
+    else if curr == '\\' then andthenFn quotedStringFn (strLitFnAux startPos includeWhitespace) c s
     else strLitFnAux startPos includeWhitespace c s
 
 /--
@@ -944,7 +944,7 @@ def mkTokenAndFixPos (startPos : String.Pos.Raw) (tk : Option Token) : ParserFn 
   match tk with
   | none    => s.mkErrorAt "token" startPos
   | some tk =>
-    if c.forbiddenTk? == some tk then
+    if c.forbiddenTks.contains tk then
       s.mkErrorAt "forbidden token" startPos
     else
       let leading   := c.mkEmptySubstringAt startPos
@@ -1295,7 +1295,20 @@ def nameLitNoAntiquot : Parser := {
   info := mkAtomicInfo "name"
 }
 
-def identFn : ParserFn := expectTokenFn identKind "identifier"
+def identFn : ParserFn := fun c s =>
+  if c.forbiddenTks.isEmpty then
+    expectTokenFn identKind "identifier" c s
+  else
+    -- A forbidden token used as an identifier (e.g. a non-reserved clause keyword like
+    -- `invariant`) stops the enclosing term, mirroring `mkTokenAndFixPos`.
+    let iniSz  := s.stackSize
+    let iniPos := s.pos
+    let s := expectTokenFn identKind "identifier" c s
+    if s.hasError then s
+    else match s.stxStack.back with
+      | .ident _ rawVal _ _ =>
+        if c.forbiddenTks.contains rawVal.toString then s.mkErrorAt "forbidden token" iniPos iniSz else s
+      | _ => s
 
 def identNoAntiquot : Parser := {
   fn   := identFn
@@ -1578,7 +1591,33 @@ would be treated as an application.
 
 This parser has the same arity as `p` - it just forwards the results of `p`. -/
 @[builtin_doc] def withForbidden (tk : Token) (p : Parser) : Parser :=
-  adaptCacheableContext ({ · with forbiddenTk? := tk }) p
+  adaptCacheableContext
+    (fun c => if c.forbiddenTks.contains tk then c
+              else { c with forbiddenTks := c.forbiddenTks.push tk }) p
+
+/-- Appends the tokens from `tks` missing from `init`; the tokens in `tks` must be distinct. -/
+private def mergeForbiddenTks (init tks : Array Token) : Array Token := Id.run do
+  -- Membership is tested on the prefix seeded from `init`, so the loop does not hold a second
+  -- reference to the original array while pushing.
+  let size := init.size
+  let mut ts := init
+  for tk in tks do
+    unless ts.any (· == tk) (stop := size) do
+      ts := ts.push tk
+  return ts
+
+/-- `withForbiddens(tks, p)` runs `p` with every token in `tks` treated as forbidden, i.e. the
+combined effect of nesting `withForbidden` for each token (see `withForbidden`). The tokens in
+`tks` must be distinct.
+
+This parser has the same arity as `p` - it just forwards the results of `p`. -/
+@[builtin_doc] def withForbiddens (tks : Array Token) (p : Parser)
+    (_h : tks.toList.Nodup := by decide) : Parser :=
+  adaptCacheableContext (fun c =>
+    if c.forbiddenTks.isEmpty then
+      { c with forbiddenTks := tks }
+    else
+      { c with forbiddenTks := mergeForbiddenTks c.forbiddenTks tks }) p
 
 /-- `withoutForbidden(p)` runs `p` disabling the "forbidden token" (see `withForbidden`), if any.
 This is usually used by bracketing constructs like `(...)` because there is no parsing ambiguity
@@ -1586,7 +1625,7 @@ inside these nested constructs.
 
 This parser has the same arity as `p` - it just forwards the results of `p`. -/
 @[builtin_doc] def withoutForbidden (p : Parser) : Parser :=
-  adaptCacheableContext ({ · with forbiddenTk? := none }) p
+  adaptCacheableContext ({ · with forbiddenTks := #[] }) p
 
 def eoiFn : ParserFn := fun c s =>
   let i := s.pos
@@ -1832,20 +1871,29 @@ def unicodeSymbol (sym asciiSym : String) (preserveForPP : Bool := false) : Pars
     checkNoWsBefore "no space before spliced term" >> antiquotExpr >>
     nameP
 
-def withAntiquotFn (antiquotP p : ParserFn) (isCatAntiquot := false) : ParserFn := fun c s =>
+def withAntiquotFn (antiquotP p : ParserFn) (antiquotBehavior := OrElseOnAntiquotBehavior.takeLongest) : ParserFn := fun c s =>
   -- fast check that is false in most cases
   if c.get s.pos == '$' then
-    -- Do not allow antiquotation choice nodes here as `antiquotP` is the strictly more general
-    -- antiquotation than any in `p`.
-    -- If it is a category antiquotation, do not backtrack into the category at all as that would
-    -- run *all* parsers of the category, and trailing parsers will later be applied anyway.
-    orelseFnCore (antiquotBehavior := if isCatAntiquot then .acceptLhs else .takeLongest) antiquotP p c s
+    -- `antiquotBehavior` should not be `.merge`: antiquotation choice nodes are not useful here as
+    -- `antiquotP` is the strictly more general antiquotation than any in `p`.
+    orelseFnCore (antiquotBehavior := antiquotBehavior) antiquotP p c s
   else
     p c s
 
 /-- Optimized version of `mkAntiquot ... <|> p`. -/
 @[builtin_doc] def withAntiquot (antiquotP p : Parser) : Parser := {
   fn := withAntiquotFn antiquotP.fn p.fn
+  info := orelseInfo antiquotP.info p.info
+}
+
+/--
+Like `withAntiquot`, but uses `OrElseOnAntiquotBehavior.acceptLhs` instead of `.takeLongest`.
+This means that when the antiquotation parser `antiquotP` succeeds, `p` is not tried.
+This is useful when `p` has side effects on the parser stack that would not be undone by
+backtracking.
+-/
+@[builtin_doc] def withAntiquotAcceptLhs (antiquotP p : Parser) : Parser := {
+  fn := withAntiquotFn antiquotP.fn p.fn (antiquotBehavior := .acceptLhs)
   info := orelseInfo antiquotP.info p.info
 }
 
@@ -1921,7 +1969,9 @@ def leadingParserAux (kind : Name) (tables : PrattParsingTables) (behavior : Lea
   mkResult s iniSz
 
 def leadingParser (kind : Name) (tables : PrattParsingTables) (behavior : LeadingIdentBehavior) (antiquotParser : ParserFn) : ParserFn :=
-  withAntiquotFn (isCatAntiquot := true) antiquotParser (leadingParserAux kind tables behavior)
+  -- Do not backtrack into the category after a category antiquotation, as that would run *all*
+  -- parsers of the category, and trailing parsers will later be applied anyway.
+  withAntiquotFn (antiquotBehavior := .acceptLhs) antiquotParser (leadingParserAux kind tables behavior)
 
 def trailingLoopStep (tables : PrattParsingTables) (left : Syntax) (ps : List (Parser × Nat)) : ParserFn := fun c s =>
   longestMatchFn left (ps ++ tables.trailingParsers) c s

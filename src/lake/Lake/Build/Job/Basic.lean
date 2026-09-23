@@ -74,6 +74,8 @@ public structure JobState where
   action : JobAction := .unknown
   /-- Whether this job failed due to a request to rebuild for `--no-build`. -/
   wantsRebuild : Bool := false
+  /-- Whether this job was cut short by the build's cancellation token (see `BuildConfig.failFast`). -/
+  canceled : Bool := false
   /-- Current trace of a build job. -/
   trace : BuildTrace := .nil
   /-- How long the job spent building (in milliseconds). -/
@@ -84,6 +86,7 @@ public def JobState.merge (a b : JobState) : JobState where
   log := a.log ++ b.log
   action := a.action.merge b.action
   wantsRebuild := a.wantsRebuild || b.wantsRebuild
+  canceled := a.canceled || b.canceled
   trace := mixTrace a.trace b.trace
   buildTime := a.buildTime + b.buildTime
 
@@ -103,6 +106,16 @@ public def JobResult.prependLog (log : Log) (self : JobResult α) : JobResult α
   match self with
   | .ok a s => .ok a <| s.modifyLog (log ++ ·)
   | .error e s => .error ⟨log.size + e.val⟩ <| s.modifyLog (log ++ ·)
+
+/--
+Whether this result was cut short by cancellation rather than by a failure
+of its own. A result that carries a genuine failure in its log is a failure,
+even if it was also canceled; use `JobResult.isCanceled` only after checking
+for failure (as the monitor does).
+-/
+@[inline] public def JobResult.isCanceled : JobResult α → Bool
+  | .error _ s => s.canceled
+  | .ok .. => false
 
 /-- The `Task` of a Lake job. -/
 public abbrev JobTask α := BaseIOTask (JobResult α)

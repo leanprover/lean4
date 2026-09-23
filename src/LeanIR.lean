@@ -11,6 +11,7 @@ import all Lean.Util.Path
 import all Lean.Environment
 import Lean.Compiler.Options
 import Lean.Compiler.IR.CompilerM
+import Lean.Compiler.ModPkgExt
 
 import all Lean.Compiler.CSimpAttr
 import Lean.Compiler.LCNF.EmitC
@@ -21,6 +22,13 @@ import Lean.Compiler.LCNF.Main
 /-! Lean codegen as a separate process. -/
 
 open Lean Compiler LCNF
+
+/-- Leaner alternative to `.ir` for non-`import all` compilation. -/
+def mkIRSigData (env : Environment) : IO ModuleData := do
+  let data ← mkModuleData env .exported
+  return { data with
+    extraConstNames := getIRExtraConstNames env .exported
+  }
 
 def mkIRData (env : Environment) : IO ModuleData := do
   -- TODO: should we use a more specific/efficient data format for IR?
@@ -72,18 +80,18 @@ public def main (args : List String) : IO UInt32 := do
   opts := Compiler.compiler.inLeanIR.set opts true
   opts := maxHeartbeats.set opts 0
 
-  --initSearchPathInternal  -- TODO
-  initSearchPath (← getBuildDir)
+  initSearchPathInternal
   -- Provide access to private scope of target module but no others; provide all IR
   let env ← profileitIO "import" opts <| withImporting do
-    let imports := #[{ module := modName, importAll := true, isMeta := true }]
-    -- `private` because inlining may make ext data from private imports transitively required
-    -- no `arts` yet because they are for `exported`
-    let (_, s) ← importModulesCore (globalLevel := .private) /-(arts := setup.importArts)-/ imports |>.run
-    let s := { s with moduleNameMap := s.moduleNameMap.modify modName fun m => if m.module == modName then { m with irPhases := .runtime } else { m with irPhases := .all } }
+    -- `importAll` so we have access to all private data
+    let imports := #[{ module := modName, importAll := true : Import }]
+    let (_, s) ← importModulesCore (globalLevel := .exported) (loadIRSig := true)
+      (arts := setup.importArts) imports |>.run
+    let s := { s with moduleNameMap := s.moduleNameMap.modify modName fun m => { m with irPhases := .runtime } }
     -- level exported because otherwise we would try to load the current module's `.ir`
-    finalizeImport (leakEnv := true) (loadExts := false) (level := .exported) s imports opts
+    finalizeImport (leakEnv := true) (loadExts := false) (level := .exported) (loadIRSig := true) s imports opts
   let env := env.setMainModule modName
+  let env := env.setModulePackage setup.package?
 
   let initExt {α β σ} [Inhabited σ] (ext : PersistentEnvExtension α β σ) (env : Environment) : IO Environment := do
     let s := ext.toEnvExtension.getState env
@@ -141,7 +149,7 @@ public def main (args : List String) : IO UInt32 := do
       logError e.toMessageData
 
   let .ok (_, s) := res? | unreachable!
-  let env := s.env
+  let mut env := s.env
 
   for msg in s.messages.unreported do
     IO.eprintln (← msg.toString)
@@ -149,8 +157,11 @@ public def main (args : List String) : IO UInt32 := do
   if s.messages.hasErrors then
    return 1
 
-  -- Make sure to change the module name so we derive a different base address
-  saveModuleData irFile (env.mainModule ++ `ir) (← mkIRData env)
+  -- Save, basing `.ir` on top of `.ir.sig`
+  let irSigFile := (irFile : System.FilePath).addExtension "sig"
+  saveModuleDataParts (env.mainModule ++ `ir) #[
+    (irSigFile, ← mkIRSigData env),
+    (irFile, ← mkIRData env)]
 
   let .ok out ← IO.FS.Handle.mk c .write |>.toBaseIO
     | IO.eprintln s!"failed to create '{c}'"

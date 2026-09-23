@@ -18,8 +18,8 @@ When `$LAKE_WRAPPED_EXEC` is set to a path, Lake routes selected subprocess
 invocations through that path (the "wrapper") instead of invoking them
 directly via `rawProc`.
 
-Lake writes a JSON manifest carrying the exact `argv`, `env`, `cwd`, the set
-of input files that must be available before the invocation runs, and the
+Lake writes a JSON manifest carrying the exact `argv`, `env`, `cwd`, the declared
+input files known to Lake before the invocation runs, and the
 set of output files Lake expects to find on disk after it completes. The
 wrapper decides what to do with that — it can exec the named command itself
 in any environment it likes, look up a cached result, hand off to a worker
@@ -41,7 +41,7 @@ Design constraints:
   already maintains for incremental builds and the artifact cache
   (`fetchTransImportArts` for the lean module input closure, the argv
   construction itself for outputs), keeping the manifest consistent with
-  what the build actually reads and writes.
+  those declared artifacts. Metaprogram IO and undeclared reads are not tracked.
 * Lake stays the executor: cache, hashes, trace sidecars, incremental
   rebuilds all continue to work because Lake invokes the wrapper the same
   way it would invoke the original binary, and outputs must reappear at
@@ -164,7 +164,7 @@ public def procOrWrapped
   (args : IO.Process.SpawnArgs) (job? : Option JobIO) (quiet := false)
 : LogIO Unit := do
   withLogErrorPos do
-  let out ← runRawProcOrWrapped args job?
+  let out ← runRawProcOrWrapped args job? (quiet := quiet)
   if out.exitCode = 0 then
     logOutput out (if quiet then logVerbose else logInfo)
   else

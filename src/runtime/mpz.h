@@ -23,7 +23,7 @@ namespace lean {
 /** \brief Wrapper for GMP integers */
 class LEAN_EXPORT mpz {
     friend class object_compactor;
-    friend class compacted_region;
+    friend class region_reader;
 #ifdef LEAN_USE_GMP
     mpz_t m_val;
     mpz(__mpz_struct const * v) { mpz_init_set(m_val, v); }
@@ -210,6 +210,8 @@ public:
     friend mpz rem(mpz const & a, mpz const & b) { mpz r(a); return r %= b; }
 
     mpz pow(unsigned int exp) const;
+    /** \brief Modular exponentiation: returns `this^exp mod m`. Requires `m != 0`. */
+    mpz powm(mpz const & exp, mpz const & m) const;
 
     friend mpz operator+(mpz a, mpz const & b) { return a += b; }
     friend mpz operator+(mpz a, unsigned b)  { return a += b; }
@@ -283,6 +285,12 @@ public:
        Return 0 if the number is negative
     */
     size_t log2() const;
+
+    /**
+       \brief Return an upper bound on the size in bytes of the representation,
+       i.e. the number of limbs times the bytes per limb. Used to bound memory usage.
+    */
+    size_t size_in_bytes() const;
 
     friend void power(mpz & a, mpz const & b, unsigned k);
     friend void _power(mpz & a, mpz const & b, unsigned k) { power(a, b, k); }

@@ -74,14 +74,10 @@ public def lratBitblaster (ctx : TacticContext) : UnsatProver LratCert :=
     if ctx.config.graphviz then
       IO.FS.writeFile ("." / "aig.gv") <| AIG.toGraphviz entry
 
-    let (cnf, map) ←
+    let cnf ←
       withTraceNode `Meta.Tactic.sat (fun _ => return "Converting AIG to CNF") do
         -- lazyPure to prevent compiler lifting
-        IO.lazyPure (fun _ =>
-          let (entry, map) := entry.relabelNat'
-          let cnf := AIG.toCNF entry
-          (cnf, map)
-        )
+        IO.lazyPure (fun _ => AIG.toCNF entry)
 
     let res ←
       withTraceNode `Meta.Tactic.sat (fun _ => return "Obtaining external proof certificate") do
@@ -101,7 +97,7 @@ public def lratBitblaster (ctx : TacticContext) : UnsatProver LratCert :=
       return .ok ⟨proof, cert⟩
     | .error assignment =>
       trace[Meta.Tactic.sat] "SAT solver found a counter example."
-      let equations := reconstructCounterExample map assignment aigSize atomsAssignment
+      let equations := reconstructCounterExample entry.aig assignment atomsAssignment
       return .error { goal, unusedHypotheses := reflectionResult.unusedHypotheses, equations }
 
 

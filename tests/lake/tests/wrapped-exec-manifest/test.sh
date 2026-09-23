@@ -101,6 +101,7 @@ assert_outputs_endswith 'Dep.ilean'
 assert_outputs_endswith 'Dep.olean.server'
 assert_outputs_endswith 'Dep.olean.private'
 assert_outputs_endswith 'Dep.ir'
+assert_outputs_endswith 'Dep.ir.sig'
 
 # --- Onlymod (imports Dep): transitive import closure in inputs ---
 
@@ -116,6 +117,7 @@ assert_outputs_endswith 'Onlymod.ilean'
 # import, not just the exported view.
 assert_inputs_endswith 'Dep.olean'
 assert_inputs_endswith 'Dep.ir'
+assert_inputs_endswith 'Dep.ir.sig'
 assert_inputs_endswith 'Dep.olean.server'
 assert_inputs_endswith 'Dep.olean.private'
 # args must include the source-file path that appears in inputs (i.e.
@@ -143,7 +145,7 @@ assert_outputs_endswith 'Postponed.olean'
 assert_outputs_endswith 'Postponed.olean.server'
 assert_outputs_endswith 'Postponed.olean.private'
 assert_jq_true "lean job in postpone mode must not declare the deferred .ir/.c" '
-  [.outputs[] | select(endswith("Postponed.ir") or endswith("Postponed.c"))] | length == 0
+  [.outputs[] | select(endswith("Postponed.ir") or endswith("Postponed.ir.sig") or endswith("Postponed.c"))] | length == 0
 '
 
 # The leanir job produces exactly the deferred outputs, reading the
@@ -152,9 +154,10 @@ M="$IR_MANIFEST"
 assert_jq_true "job_id != wrappedExecManifest_Postponed:leanir" \
   '.job_id == "wrappedExecManifest_Postponed:leanir"'
 assert_outputs_endswith 'Postponed.ir'
+assert_outputs_endswith 'Postponed.ir.sig'
 assert_outputs_endswith 'Postponed.c'
-assert_jq_true "leanir job must declare exactly the .ir and .c outputs" '.outputs | length == 2'
-assert_inputs_endswith '.setup.json'
+assert_jq_true "leanir job must declare exactly the .ir, .ir.sig and .c outputs" '.outputs | length == 3'
+assert_inputs_endswith '.irsetup.json'
 assert_inputs_endswith 'Postponed.olean'
 assert_inputs_endswith 'Postponed.olean.private'
 

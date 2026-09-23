@@ -566,6 +566,7 @@ def elabUnsafe : TermElab := fun stx expectedType? =>
     if (← read).declName?.any (isMarkedMeta (← getEnv)) then
       modifyEnv (markMeta · unsafeFn)
       modifyEnv (markMeta · implName)
+    setInlineAttribute unsafeFn .alwaysInline
     compileDecls #[unsafeFn]
     addDecl <| Declaration.opaqueDecl {
       name        := implName

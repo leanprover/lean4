@@ -28,6 +28,7 @@ Hint: Using one of these would be unambiguous:
   [apply] `Vector.zero`
   [apply] `Zero.zero`
   [apply] `Lean.Level.zero`
+  [apply] `Float.Model.UnpackedFloat.zero`
   [apply] `System.Uri.UriEscape.zero`
   [apply] `Lean.Grind.IntModule.OfNatModule.zero`
   [apply] `Lean.Grind.Linarith.Expr.zero`

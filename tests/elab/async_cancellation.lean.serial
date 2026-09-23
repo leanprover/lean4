@@ -1,0 +1,2 @@
+This test counts completed work units in a specific window of time. The count
+must neither be too high nor too low. Under high load, the test may fail.

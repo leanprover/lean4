@@ -15,6 +15,7 @@ import Lean.Meta.Tactic.Grind.Arith.CommRing.Reify
 import Lean.Meta.Tactic.Grind.Arith.CommRing.SafePoly
 public section
 namespace Lean.Meta.Grind.Arith.CommRing
+open Sym.Arith
 /-- Returns `some ringId` if `a` and `b` are elements of the same ring. -/
 private def inSameRing? (a b : Expr) : GoalM (Option Nat) := do
   let some ringId ← getTermRingId? a | return none
@@ -44,17 +45,17 @@ private def inSameNonCommSemiring? (a b : Expr) : GoalM (Option Nat) := do
   return semiringId
 
 def mkEqCnstr (p : Poly) (h : EqCnstrProof) : RingM EqCnstr := do
-  let id := (← getCommRing).nextId
+  let id := (← getCommRingState).nextId
   let sugar := p.degree
-  modifyCommRing fun s => { s with nextId := s.nextId + 1 }
+  modifyCommRingState fun s => { s with nextId := s.nextId + 1 }
   return { sugar, p, h, id }
 
 /--
 Returns the ring expression denoting the given Lean expression.
 Recall that we compute the ring expressions during internalization.
 -/
-private def toRingExpr? [Monad m] [MonadLiftT GrindM m] [MonadLiftT Sym.SymM m] [MonadRing m] (e : Expr) : m (Option RingExpr) := do
-  let ring ← getRing
+private def toRingExpr? [Monad m] [MonadLiftT GrindM m] [MonadLiftT Sym.SymM m] [MonadRingState m] (e : Expr) : m (Option RingExpr) := do
+  let ring ← getRingState
   if let some re := ring.denote.find? { expr := e } then
     return some re
   else if let some x := ring.varMap.find? { expr := e } then
@@ -67,8 +68,8 @@ private def toRingExpr? [Monad m] [MonadLiftT GrindM m] [MonadLiftT Sym.SymM m] 
 Returns the semiring expression denoting the given Lean expression.
 Recall that we compute the semiring expressions during internalization.
 -/
-private def toSemiringExpr? [Monad m] [MonadLiftT GrindM m] [MonadLiftT Sym.SymM m] [MonadSemiring m] (e : Expr) : m (Option SemiringExpr) := do
-  let semiring ← getSemiring
+private def toSemiringExpr? [Monad m] [MonadLiftT GrindM m] [MonadLiftT Sym.SymM m] [MonadSemiringState m] (e : Expr) : m (Option SemiringExpr) := do
+  let semiring ← getSemiringState
   if let some re := semiring.denote.find? { expr := e } then
     return some re
   else if let some x := semiring.varMap.find? { expr := e } then
@@ -88,7 +89,7 @@ then the leading coefficient of the equation must also divide `k`
 def _root_.Lean.Grind.CommRing.Mon.findSimp? (k : Int) (m : Mon) : RingM (Option EqCnstr) := do
   let checkCoeff ← checkCoeffDvd
   let noZeroDiv ← noZeroDivisors
-  for c in (← getCommRing).basis do
+  for c in (← getCommRingState).basis do
     if !checkCoeff || noZeroDiv || (c.p.lc ∣ k) then
     if c.p.divides m then
       return some c
@@ -114,7 +115,7 @@ def PolyDerivation.simplifyWith (d : PolyDerivation) (c : EqCnstr) : RingM PolyD
   return .step r.p r.k₁ d r.k₂ r.m₂ c
 
 def PolyDerivation.simplifyNumEq0 (d : PolyDerivation) : RingM PolyDerivation := do
-  let some numEq0 := (← getCommRing).numEq0? | return d
+  let some numEq0 := (← getCommRingState).numEq0? | return d
   let .num k := numEq0.p | return d
   return .normEq0 (d.p.normEq0 k.natAbs) d numEq0
 
@@ -152,12 +153,34 @@ partial def EqCnstr.simplifyWithExhaustively (c₁ c₂ : EqCnstr) : RingM EqCns
   c.simplifyWithExhaustively c₂
 
 def EqCnstr.simplifyUsingNumEq0 (c : EqCnstr) : RingM EqCnstr := do
-  let some c' := (← getCommRing).numEq0? | return c
+  let some c' := (← getCommRingState).numEq0? | return c
   let .num k := c'.p | return c
   return { c with p := c.p.normEq0 k.natAbs, h := .numEq0 k.natAbs c' c }
 
-/-- Simplify the given equation constraint using the current basis. -/
-def EqCnstr.simplify (c : EqCnstr) : RingM EqCnstr := do
+/--
+Simplify the given equation constraint using the current basis.
+
+**Note**: This function (and `simplifyBasis`) runs with `checkCoeffDvd := true`. It rewrites a
+monomial `k'*m'` using an equation with leading term `k*m` only if `k ∣ k'` (or the ring
+implements `NoNatZeroDivisors`). Rewriting without this restriction requires multiplying the
+equation by `k/gcd k k' ≠ ±1` first, and *replacing* an equation with the result loses
+information: `p = 0` cannot be recovered from `(k/gcd k k') * p = 0` in an arbitrary
+commutative ring. The consequences of the skipped rewrites are not lost: a skipped rewrite at
+the leading monomial coincides with the S-polynomial computed by `superposeWith`, so it is
+derived non-destructively. The price is that the basis is not
+fully interreduced (e.g., `2*x = 0` and `3*x = 0` may coexist), and reduction is an incomplete
+ideal-membership test in rings without `NoNatZeroDivisors` (e.g., `x = 0` is not derived from
+`2*x = 0` and `3*x = 0`). The complete alternative is a strong Gröbner basis over `Int`
+(Kandri-Rody & Kapur): replace multiply-through rewriting with Euclidean remainder reduction
+on coefficients (`k' = q*k + r`, so the equation is never multiplied by a constant), and
+additionally superpose gcd-polynomials (Bézout combinations producing `gcd k k'` times the lcm
+of the leading monomials). We should consider this option in the future.
+
+**Note**: If using `withCheckCoeffDvd` becomes too expensive when one does not have
+`NoNatZeroDivisors`, we will add a flag to perform the simplification anyway even if
+information is lost.
+-/
+def EqCnstr.simplify (c : EqCnstr) : RingM EqCnstr := withCheckCoeffDvd do
   let mut c := c
   repeat
     c ← simplifyUsingNumEq0 c
@@ -183,11 +206,19 @@ def EqCnstr.checkConstant (c : EqCnstr) : RingM Bool := do
     if n < 0 then
       n := -n
       c := { c with p := .num n, h := .mul (-1) c }
-    if let some c' := (← getCommRing).numEq0? then
+    if let some c' := (← getCommRingState).numEq0? then
       let .num m := c'.p | unreachable!
       let (g, a, b) := gcdExt n m
+      if g == m then
+        /-
+        `n` is a multiple of the current `numEq0`; the new constraint is redundant.
+        We must not set `numEq0Updated` here: superposition may keep regenerating the
+        same constant, and requeueing the basis each time would loop until `maxSteps`.
+        -/
+        trace_goal[grind.ring.assert.trivial] "{← c.denoteExpr}"
+        return true
       c := { c with p := .num g, h := .gcd a b c c' }
-    modifyCommRing fun s => { s with numEq0? := some c, numEq0Updated := true }
+    modifyCommRingState fun s => { s with numEq0? := some c, numEq0Updated := true }
     trace_goal[grind.ring.assert.store] "{← c.denoteExpr}"
   return true
 
@@ -213,21 +244,27 @@ private def addSorted (c : EqCnstr) : List EqCnstr → List EqCnstr
 
 def addToBasisCore (c : EqCnstr) : RingM Unit := do
   trace[grind.debug.ring.basis] "{← c.denoteExpr}"
-  modifyCommRing fun s => { s with
+  modifyCommRingState fun s => { s with
     basis := addSorted c s.basis
     recheck := true
   }
 
 def EqCnstr.addToQueue (c : EqCnstr) : RingM Unit := do
   if (← checkMaxSteps) then return ()
+  /-
+  Superposition may produce constant polynomials since the basis is not fully
+  interreduced (see **Note** at `EqCnstr.simplify`). `checkConstant` processes them
+  immediately; the queue must not contain constant polynomials.
+  -/
+  if (← c.checkConstant) then return ()
   trace_goal[grind.ring.assert.queue] "{← c.denoteExpr}"
   if (← checkMaxDegree c.p) then return () -- discard
-  modifyCommRing fun s => { s with queue := s.queue.insert c }
+  modifyCommRingState fun s => { s with queue := s.queue.insert c }
 
 def EqCnstr.superposeWith (c : EqCnstr) : RingM Unit := do
   if (← checkMaxSteps) then return ()
   let .add _ m _ := c.p | return ()
-  for c' in (← getCommRing).basis do
+  for c' in (← getCommRingState).basis do
     let .add _ m' _ := c'.p | pure ()
     if m.sharesVar m' then
       let r ← c.p.spolM c'.p
@@ -265,7 +302,13 @@ def EqCnstr.toMonic (c : EqCnstr) : RingM EqCnstr := do
     return { c with p := c.p.mulConst (-1), h := .mul (-1) c }
   return c
 
-def EqCnstr.simplifyBasis (c : EqCnstr) : RingM Unit := do
+/--
+Simplifies the basis using `c`. Every equation that `c` rewrites is removed from the basis
+and requeued in its rewritten form.
+
+See **Note** at `EqCnstr.simplify` for why `checkCoeffDvd` must be enabled here.
+-/
+def EqCnstr.simplifyBasis (c : EqCnstr) : RingM Unit := withCheckCoeffDvd do
   trace[grind.debug.ring.simpBasis] "using: {← c.denoteExpr}"
   let .add _ m _ := c.p | return ()
   let rec go (basis : List EqCnstr) (acc : List EqCnstr) : RingM (List EqCnstr) := do
@@ -275,16 +318,25 @@ def EqCnstr.simplifyBasis (c : EqCnstr) : RingM Unit := do
       match c'.p with
       | .add _ m' _ =>
         if m.divides m' then
-          let c'' ← c'.simplifyWithExhaustively c
-          trace[grind.debug.ring.simpBasis] "simplified: {← c''.denoteExpr}"
-          unless (← checkConstant c'') do
-            addToQueue c''
-          go basis acc
+          /-
+          **Note**: Only the first `simplifyWithCore` step is inspected because it decides basis
+          membership: if it returns `none` (the leading monomial divides, but the rewrite is blocked by
+          the `checkCoeffDvd` restriction), `c'` must remain in the basis untouched.
+          -/
+          if let some c'' ← c'.simplifyWithCore c then
+            let c'' ← c''.simplifyWithExhaustively c
+            trace[grind.debug.ring.simpBasis] "simplified: {← c''.denoteExpr}"
+            unless (← checkConstant c'') do
+              addToQueue c''
+            go basis acc
+          else
+            -- The rewrite was skipped because of the `checkCoeffDvd` restriction. Keep `c'`.
+            go basis (c' :: acc)
         else
           go basis (c' :: acc)
       | _ => go basis (c' :: acc)
-  let basis ← go (← getCommRing).basis []
-  modifyCommRing fun s => { s with basis }
+  let basis ← go (← getCommRingState).basis []
+  modifyCommRingState fun s => { s with basis }
 
 def EqCnstr.addToBasisAfterSimp (c : EqCnstr) : RingM Unit := do
   let c ← c.toMonic
@@ -294,10 +346,10 @@ def EqCnstr.addToBasisAfterSimp (c : EqCnstr) : RingM Unit := do
   addToBasisCore c
 
 private def checkNumEq0Updated : RingM Unit := do
-  if (← getCommRing).numEq0Updated then
+  if (← getCommRingState).numEq0Updated then
     -- `numEq0?` was updated, then we must move the basis back to the queue to be simplified.
-    let basis := (← getCommRing).basis
-    modifyCommRing fun s => { s with numEq0Updated := false, basis := {} }
+    let basis := (← getCommRingState).basis
+    modifyCommRingState fun s => { s with numEq0Updated := false, basis := {} }
     for c in basis do
       c.addToQueue
 
@@ -337,7 +389,7 @@ def DiseqCnstr.simplify (c : DiseqCnstr) : RingM DiseqCnstr :=
 
 def saveDiseq (c : DiseqCnstr) : RingM Unit := do
   trace_goal[grind.ring.assert.store] "{← c.denoteExpr}"
-  modifyCommRing fun s => { s with diseqs := s.diseqs.push c }
+  modifyCommRingState fun s => { s with diseqs := s.diseqs.push c }
 
 def addNewDiseq (c : DiseqCnstr) : RingM Unit := do
   let c ← c.simplify
@@ -377,7 +429,7 @@ private def diseqToEq (a b : Expr) : RingM Unit := do
   let ring ← getCommRing
   let some fieldInst := ring.fieldInst? | unreachable!
   let e ← pre <| mkApp2 (← getSubFn) a b
-  modifyCommRing fun s => { s with invSet := s.invSet.insert e }
+  modifyCommRingState fun s => { s with invSet := s.invSet.insert e }
   let eInv ← pre <| mkApp (← getInvFn) e
   let lhs ← pre <| mkApp2 (← getMulFn) e eInv
   internalize lhs gen none
@@ -389,7 +441,7 @@ private def diseqZeroToEq (a b : Expr) : RingM Unit := do
   let gen ← getGeneration a
   let ring ← getCommRing
   let some fieldInst := ring.fieldInst? | unreachable!
-  modifyCommRing fun s => { s with invSet := s.invSet.insert a }
+  modifyCommRingState fun s => { s with invSet := s.invSet.insert a }
   let aInv ← pre <| mkApp (← getInvFn) a
   let lhs ← pre <| mkApp2 (← getMulFn) a aInv
   internalize lhs gen none
@@ -471,11 +523,11 @@ Returns `true` if the todo queue is not empty or the `recheck` flag is set to `t
 -/
 private def needCheck : RingM Bool := do
   unless (← isQueueEmpty) do return true
-  return (← getCommRing).recheck
+  return (← getCommRingState).recheck
 
 private def checkDiseqs : RingM Unit := do
-  let diseqs := (← getCommRing).diseqs
-  modifyCommRing fun s => { s with diseqs := {} }
+  let diseqs := (← getCommRingState).diseqs
+  modifyCommRingState fun s => { s with diseqs := {} }
   -- No indexing simple
   for diseq in diseqs do
     addNewDiseq diseq
@@ -495,11 +547,11 @@ private def propagateEqs : RingM Bool := do
   TODO: support for semiring
   -/
   let go : StateT (Bool × PropagateEqMap) RingM Unit := do
-    for a in (← getRing).vars do
+    for a in (← getRingState).vars do
       if (← checkMaxSteps) then return ()
       let some ra ← toRingExpr? a | unreachable!
       process a ra
-    for (a, ra) in (← getCommRing).denoteEntries do
+    for (a, ra) in (← getCommRingState).denoteEntries do
       if (← checkMaxSteps) then return ()
       process a ra
   let (_, (propagated, _)) ← go.run (false, {})
@@ -547,7 +599,7 @@ def checkRing : RingM CheckResult := do
     if (← checkMaxSteps) then return .progress
   checkDiseqs
   if (← propagateEqs) then return .propagated
-  modifyCommRing fun s => { s with recheck := false }
+  modifyCommRingState fun s => { s with recheck := false }
   return .progress
 
 def check : GoalM CheckResult := do profileitM Exception "grind ring" (← getOptions) do

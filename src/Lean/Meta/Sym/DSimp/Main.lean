@@ -13,7 +13,7 @@ import Lean.Meta.Sym.DSimp.Forall
 import Lean.Meta.Sym.DSimp.Let
 import Lean.Meta.Sym.AlphaShareBuilder
 namespace Lean.Meta.Sym.DSimp
-open Internal
+open Lean.Meta.Sym.Internal
 
 def dsimpStep : DSimproc := fun e => do
   match e with

@@ -197,7 +197,7 @@ private def splitThenConstructor (mvar : MVarId) (n : Nat) : MetaM Unit :=
 match n with
 | 0   => do
   let (subgoals',_) ← Term.TermElabM.run <| Tactic.run mvar do
-    Tactic.evalTactic (← `(tactic| constructor))
+    Tactic.evalTactic (← `(tactic| constructor!))
   let [] := subgoals' | throwError "expected no subgoals"
   pure ()
 | n + 1 => do
@@ -205,7 +205,7 @@ match n with
     Tactic.evalTactic (← `(tactic| refine ⟨?_,?_⟩))
   let [sg1, sg2] := subgoals | throwError "expected two subgoals"
   let (subgoals',_) ← Term.TermElabM.run <| Tactic.run sg1 do
-    Tactic.evalTactic (← `(tactic| constructor))
+    Tactic.evalTactic (← `(tactic| constructor!))
   let [] := subgoals' | throwError "expected no subgoals"
   splitThenConstructor sg2 n
 

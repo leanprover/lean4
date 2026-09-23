@@ -60,6 +60,8 @@ def Key.format : Key → Format
 instance : ToFormat Key := ⟨Key.format⟩
 
 partial def Trie.format [ToFormat α] : Trie α → Format
+  | .chain k c => Format.group $ Format.paren $
+    "chain " ++ Std.format k ++ " => " ++ format c
   | .node vs cs => Format.group $ Format.paren $
     "node" ++ (if vs.isEmpty then Format.nil else " " ++ Std.format vs)
     ++ Format.join (cs.toList.map fun ⟨k, c⟩ => Format.line ++ Format.paren (Std.format k ++ " => " ++ format c))
@@ -126,7 +128,7 @@ private partial def createNodes (keys : Array Key) (v : α) (i : Nat) : Trie α 
   if h : i < keys.size then
     let k := keys[i]
     let c := createNodes keys v (i+1)
-    .node #[] #[(k, c)]
+    .chain k c
   else
     .node #[v] #[]
 
@@ -150,6 +152,15 @@ where
   termination_by vs.size - i
 
 private partial def insertAux [BEq α] (keys : Array Key) (v : α) : Nat → Trie α → Trie α
+  | i, .chain k c =>
+    if h : i < keys.size then
+      if keys[i] == k then
+        .chain k (insertAux keys v (i+1) c)
+      else
+        .node #[] <|
+          #[(k, c)].binInsert (fun a b => a.1 < b.1) (keys[i], createNodes keys v (i+1))
+    else
+      .node #[v] #[(k, c)]
   | i, .node vs cs =>
     if h : i < keys.size then
       let k := keys[i]
@@ -166,13 +177,11 @@ def insertKeyValue [BEq α] (d : DiscrTree α) (keys : Array Key) (v : α) : Dis
   if keys.isEmpty then panic! "invalid key sequence"
   else
     let k := keys[0]!
-    match d.root.find? k with
-    | none =>
-      let c := createNodes keys v 1
-      { root := d.root.insert k c }
-    | some c =>
-      let c := insertAux keys v 1 c
-      { root := d.root.insert k c }
+    { d with root :=
+        d.root.alter k fun
+          | none => some <| createNodes keys v 1
+          | some c => insertAux keys v 1 c
+    }
 
 @[deprecated insertKeyValue (since := "2026-01-02")]
 def insertCore [BEq α] (d : DiscrTree α) (keys : Array Key) (v : α) : DiscrTree α :=

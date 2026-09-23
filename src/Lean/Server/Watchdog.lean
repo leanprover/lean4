@@ -67,9 +67,11 @@ right to add non-standard extensions in case they're needed, for example to comm
 state.
 -/
 
+open IO
+
 namespace Lean.Server.Watchdog
 
-open IO
+open Lean Lean.IO
 open Lsp
 open JsonRpc
 open System.Uri

@@ -12,25 +12,11 @@ public section
 namespace Lean.Grind
 open Function
 
-theorem _root_.Function.Injective.leftInverse
-    {α β} (f : α → β) (hf : Injective f) [hα : Nonempty α] :
-    ∃ g : β → α, LeftInverse g f := by
-  classical
-  cases hα; next a0 =>
-  let g : β → α := fun b =>
-    if h : ∃ a, f a = b then Classical.choose h else a0
-  exists g
-  intro a
-  have h : ∃ a', f a' = f a := ⟨a, rfl⟩
-  have hfa : f (Classical.choose h) = f a := Classical.choose_spec h
-  have : Classical.choose h = a := hf hfa
-  simp [g, h, this]
-
 noncomputable def leftInv {α : Sort u} {β : Sort v} (f : α → β) (hf : Injective f) [Nonempty α] : β → α :=
-  Classical.choose (hf.leftInverse f)
+  Classical.choose hf.exists_leftInverse
 
 theorem leftInv_eq {α : Sort u} {β : Sort v} (f : α → β) (hf : Injective f) [Nonempty α] (a : α) : leftInv f hf (f a) = a :=
-  Classical.choose_spec (hf.leftInverse f) a
+  Classical.choose_spec hf.exists_leftInverse a
 
 @[app_unexpander leftInv]
 meta def leftInvUnexpander : PrettyPrinter.Unexpander := fun stx => do

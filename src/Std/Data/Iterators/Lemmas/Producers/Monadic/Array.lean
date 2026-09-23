@@ -105,13 +105,13 @@ theorem Array.iterFromIdxM_equiv_iterM_drop_toList {α : Type w} {array : Array 
     split
     · rename_i heq
       rw [List.drop_eq_nil_iff] at heq
-      rw [dif_neg (by omega)]
+      rw [dite_eq_right (by omega)]
       simp [Pure.pure, HetT.pure_bind]
     · rename_i x xs heq
       have hlt : pos < l.length := by
         have := heq ▸ List.drop_eq_nil_iff
         simpa using this
-      rw [dif_pos hlt]
+      rw [dite_eq_left hlt]
       simp [Pure.pure]
       congr
       · rw [← List.drop_drop (i := 1) (j := pos), heq, List.drop_succ_cons, List.drop_zero]

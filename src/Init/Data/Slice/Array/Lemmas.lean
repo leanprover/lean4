@@ -44,16 +44,8 @@ theorem step_eq {it : Iter (α := SubarrayIterator α) α} :
   simp only [Iter.step, IterM.Step.toPure, Iter.toIter_toIterM, IterStep.mapIterator, IterM.step,
     Iterator.step, SubarrayIterator.step, Id.run_pure, Shrink.inflate_deflate]
   by_cases h : it.internalState.xs.start < it.internalState.xs.stop
-  · simp only [h, ↓reduceDIte]
-    split
-    · rfl
-    · rename_i h'
-      exact h'.elim h
-  · simp only [h, ↓reduceDIte]
-    split
-    · rename_i h'
-      exact h.elim h'
-    · rfl
+  · simp [h, ↓reduceDIte]
+  · simp [h, ↓reduceDIte]
 
 theorem val_step_eq {it : Iter (α := SubarrayIterator α) α} :
     it.step.val = if h : it.1.xs.start < it.1.xs.stop then
@@ -84,15 +76,16 @@ theorem toList_eq {α : Type u} {it : Iter (α := SubarrayIterator α) α} :
       · simp [Subarray.array, Subarray.stop]
     · simp only [Iter.IsPlausibleStep, IterM.IsPlausibleStep, Iterator.IsPlausibleStep, instIteratorSubarrayIteratorId, -- TODO
       IterStep.mapIterator_yield, SubarrayIterator.step]
-      rw [dif_pos]; rotate_left; exact h
+      rw [dite_eq_left]; rotate_left; exact h
       rfl
-  · rw [dif_neg]; rotate_left; exact h
+  · rw [dite_eq_right]; rotate_left; exact h
     simp_all [it.internalState.xs.stop_le_array_size]
 
 theorem length_eq {α : Type u} {it : Iter (α := SubarrayIterator α) α} :
     it.length = it.internalState.xs.stop - it.internalState.xs.start := by
   simp [← Iter.length_toList_eq_length, toList_eq, it.internalState.xs.stop_le_array_size]
 
+set_option linter.defProp false in
 @[deprecated length_eq (since := "2026-01-28")]
 def count_eq := @length_eq
 
@@ -168,7 +161,7 @@ public theorem Array.toSubarray_eq_toSubarray_of_min_eq_min {xs : Array α}
   · split
     · have h₁ : start ≤ xs.size := by omega
       have h₂ : start ≤ stop' := by omega
-      simp only [dif_pos h₁, dif_pos h₂]
+      simp only [dite_eq_left h₁, dite_eq_left h₂]
       split
       · simp_all
       · simp_all [Nat.min_eq_right (Nat.le_of_lt _)]

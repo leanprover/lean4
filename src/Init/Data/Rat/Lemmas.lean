@@ -173,12 +173,6 @@ theorem mk_eq_divInt {num den nz c} : ⟨num, den, nz, c⟩ = num /. (den : Nat)
 
 theorem num_divInt_den (a : Rat) : a.num /. a.den = a := by rw [divInt_ofNat, mkRat_self]
 
-@[deprecated mk_eq_divInt (since := "2025-10-29")]
-theorem mk'_eq_divInt {n d h c} : (⟨n, d, h, c⟩ : Rat) = n /. d := (num_divInt_den _).symm
-
-@[deprecated num_divInt_den (since := "2025-08-22")]
-abbrev divInt_self := @num_divInt_den
-
 @[simp] theorem zero_divInt (n) : 0 /. n = 0 := by cases n <;> simp [divInt]
 
 @[simp] theorem divInt_zero (n) : n /. 0 = 0 := mkRat_zero n
@@ -201,9 +195,6 @@ theorem divInt_eq_divInt_iff (z₁ : d₁ ≠ 0) (z₂ : d₂ ≠ 0) :
   rcases Int.eq_nat_or_neg d₂ with ⟨_, rfl | rfl⟩ <;>
   simp_all [divInt_neg', Int.neg_eq_zero,
     mkRat_eq_iff, Int.neg_mul, Int.mul_neg, Int.eq_neg_comm, eq_comm]
-
-@[deprecated divInt_eq_divInt_iff (since := "2025-08-22")]
-abbrev divInt_eq_iff := @divInt_eq_divInt_iff
 
 theorem divInt_mul_left {a : Int} (a0 : a ≠ 0) : (a * n) /. (a * d) = n /. d := by
   if d0 : d = 0 then simp [d0] else
@@ -243,7 +234,7 @@ theorem den_divInt (a b : Int) : (a /. b).den = if b = 0 then 1 else b.natAbs / 
   · simp only [den_mkRat, Int.ofNat_eq_natCast, Int.natAbs_natCast]
     split <;> rename_i h
     · simp_all
-    · simp [if_neg (by omega), Int.gcd]
+    · simp [ite_eq_right (by omega), Int.gcd]
   · simp [Int.gcd, Nat.gcd_comm]
 
 /-- Define a (dependent) function or prove `∀ r : Rat, p r` by dealing with rational
@@ -279,11 +270,6 @@ def numDenCasesOn''.{u} {C : Rat → Sort u} (a : Rat)
 
 @[simp] theorem num_natCast (n : Nat) : (n : Rat).num = n := rfl
 @[simp] theorem den_natCast (n : Nat) : (n : Rat).den = 1 := rfl
-
-@[deprecated num_ofNat (since := "2025-08-22")]
-abbrev ofNat_num := @num_ofNat
-@[deprecated den_ofNat (since := "2025-08-22")]
-abbrev ofNat_den := @den_ofNat
 
 theorem add_def (a b : Rat) :
     a + b = normalize (a.num * b.den + b.num * a.den) (a.den * b.den)
@@ -996,11 +982,6 @@ protected theorem lt_div_iff' {a b c : Rat} (hc : 0 < c) : a < b / c ↔ c * a <
 
 @[simp] theorem num_intCast (a : Int) : (a : Rat).num = a := rfl
 
-@[deprecated den_intCast (since := "2025-08-22")]
-abbrev intCast_den := @den_intCast
-@[deprecated num_intCast (since := "2025-08-22")]
-abbrev intCast_num := @num_intCast
-
 /-!
 The following lemmas are later subsumed by e.g. `Int.cast_add` and `Int.cast_mul` in Mathlib
 but it is convenient to have these earlier, for users who only need `Int` and `Rat`.
@@ -1128,12 +1109,17 @@ theorem ofScientific_def' :
   · push_cast
     rfl
 
-theorem ofScientific_def_eq_if :
+theorem ofScientific_def_eq_ite :
     (OfScientific.ofScientific m s e : Rat) = if s then (m : Rat) / (10 : Rat) ^ e else (m : Rat) * (10 : Rat) ^ e := by
   simp [ofScientific_def']
   split
   next => rw [Rat.zpow_neg, ← Rat.div_def, Rat.zpow_natCast]
   next => rw [Rat.zpow_natCast]
+
+@[deprecated ofScientific_def_eq_ite (since := "2026-07-21")]
+theorem ofScientific_def_eq_if {m : Nat} {s : Bool} {e : Nat} :
+    (OfScientific.ofScientific m s e : Rat) = if s then (m : Rat) / (10 : Rat) ^ e else (m : Rat) * (10 : Rat) ^ e :=
+  ofScientific_def_eq_ite
 
 /-!
 # min and max
@@ -1247,7 +1233,7 @@ theorem ceil_eq_neg_floor_neg (a : Rat) : a.ceil = -((-a).floor) := by
   simp only [neg_den, neg_num]
   split
   · simp
-  · rw [Int.neg_ediv, if_neg, Int.sign_eq_one_of_pos, Int.neg_sub, Int.sub_neg, Int.add_comm]
+  · rw [Int.neg_ediv, ite_eq_right, Int.sign_eq_one_of_pos, Int.neg_sub, Int.sub_neg, Int.add_comm]
     · have := a.den_nz; omega
     · intro h
       rw [Int.ofNat_dvd_left] at h
@@ -1312,7 +1298,7 @@ protected theorem abs_nonneg {x : Rat} :
 
 protected theorem abs_of_nonneg {x : Rat} (h : 0 ≤ x) :
     x.abs = x := by
-  rw [Rat.abs, if_pos h]
+  rw [Rat.abs, ite_eq_left h]
 
 protected theorem abs_of_nonpos {x : Rat} (h : x ≤ 0) :
     x.abs = -x := by

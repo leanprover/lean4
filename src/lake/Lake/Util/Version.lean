@@ -401,10 +401,14 @@ public instance : ToString ComparatorOp := ⟨ComparatorOp.toString⟩
 end ComparatorOp
 
 public structure VerComparator where
-  private innerMk ::
-    private ver : StdVer
-    private op : ComparatorOp
-    private includeSuffixes : Bool := false
+ /-- **For internal use only.** -/
+  mk ::
+    /-- **For internal use only.** -/
+    ver : StdVer
+    /-- **For internal use only.** -/
+    op : ComparatorOp
+    /-- **For internal use only.** -/
+    includeSuffixes : Bool := false
     deriving Repr
 
 namespace VerComparator
@@ -470,7 +474,8 @@ public  instance : ToString VerComparator := ⟨VerComparator.toString⟩
 end VerComparator
 
 public structure VerRange where
-  private innerMk ::
+  /-- **For internal use only.** -/
+  mk ::
     toString : String
     clauses : Array (Array VerComparator)
     deriving Repr, Inhabited
@@ -632,6 +637,8 @@ where
 
 public def parse (s : String) : Except String VerRange := do
   runVerParse s parseM
+
+public instance : DecodeVersion VerRange := ⟨VerRange.parse⟩
 
 public def test (self : VerRange) (ver : StdVer) : Bool :=
   self.clauses.any (·.all (·.test ver))

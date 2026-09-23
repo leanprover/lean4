@@ -53,24 +53,6 @@ def argsToMonoWithFnType (args : Array (Arg .pure)) (type : Expr)
     result := result.push monoArg
   return result
 
-def argsToMonoRedArg (args : Array (Arg .pure)) (params : Array (Param .pure))
-    (redArgs : Array (Arg .pure)) : ToMonoM (Array (Arg .pure)) := do
-  let mut result := #[]
-  let mut argIdx := 0
-  for redArg in redArgs do
-    match redArg with
-    | .fvar fvarId =>
-      while params[argIdx]!.fvarId != fvarId do
-        argIdx := argIdx + 1
-      let arg ← argToMono args[argIdx]!
-      argIdx := argIdx + 1
-      result := result.push arg
-    | .erased | .type _ => pure ()
-  for arg in args[params.size...*] do
-    let arg ← argToMono arg
-    result := result.push arg
-  return result
-
 def ctorAppToMono (ctorInfo : ConstructorVal) (args : Array (Arg .pure))
     : ToMonoM (LetValue .pure) := do
   let argsNewParams : Array (Arg .pure) := .replicate ctorInfo.numParams .erased
@@ -82,15 +64,7 @@ partial def LetValue.toMono (e : LetValue .pure) : ToMonoM (LetValue .pure) := d
   match e with
   | .erased | .lit .. => return e
   | .const declName _ args =>
-    if declName == ``Decidable.isTrue then
-      return .const ``Bool.true [] #[]
-    else if declName == ``Decidable.isFalse then
-      return .const ``Bool.false [] #[]
-    else if declName == ``Decidable.decide then
-      -- Decidable.decide is the identity function since Decidable
-      -- and Bool have the same runtime representation.
-      return args[1]!.toLetValue
-    else if declName == ``Quot.mk then
+    if declName == ``Quot.mk then
       return args[2]!.toLetValue
     else if declName == ``Quot.lcInv then
       match args[2]! with
@@ -113,20 +87,12 @@ partial def LetValue.toMono (e : LetValue .pure) : ToMonoM (LetValue .pure) := d
       else
         ctorAppToMono ctorInfo args
     else
-      let env ← getEnv
-      if let some monoDecl ← getMonoDecl? declName then
-        if args.size >= monoDecl.params.size then
-          if let .code (.let { fvarId := resultFVar, value := .const callName _ callArgs, .. }
-                             (.return retFVar)) := monoDecl.value then
-            let redArgDeclName := declName ++ `_redArg
-            if callName == redArgDeclName && retFVar == resultFVar then
-              let args ← argsToMonoRedArg args monoDecl.params callArgs
-              return .const redArgDeclName [] args
-        let args ← argsToMonoWithFnType args monoDecl.type
-        return .const declName [] args
-      else
-        let args ← args.mapM argToMono
-        return .const declName [] args
+      let args ←
+        if let some monoDecl ← getMonoDecl? declName then
+          argsToMonoWithFnType args monoDecl.type
+        else
+          args.mapM argToMono
+      return .const declName [] args
   | .fvar fvarId args =>
     if (← get).typeParams.contains fvarId then
       return .erased
@@ -173,18 +139,6 @@ partial def FunDecl.toMono (decl : FunDecl .pure) : ToMonoM (FunDecl .pure) := d
   let params ← decl.params.mapM (·.toMono)
   let value ← decl.value.toMono
   decl.update type params value
-
-/-- Convert `cases` `Decidable` => `Bool` -/
-partial def decToMono (c : Cases .pure) (_ : c.typeName == ``Decidable) : ToMonoM (Code .pure) := do
-  let resultType ← toMonoType c.resultType
-  let alts ← c.alts.mapM fun alt => do
-    match alt with
-    | .default k => return alt.updateCode (← k.toMono)
-    | .alt ctorName ps k =>
-      eraseParams ps
-      let ctorName := if ctorName == ``Decidable.isTrue then ``Bool.true else ``Bool.false
-      return .alt ctorName #[] (← k.toMono)
-  return .cases ⟨``Bool, resultType, c.discr, alts⟩
 
 /-- Eliminate `cases` for `Nat`. -/
 partial def casesNatToMono (c: Cases .pure) (_ : c.typeName == ``Nat) : ToMonoM (Code .pure) := do
@@ -290,6 +244,28 @@ partial def casesStringToMono (c : Cases .pure) (_ : c.typeName == ``String) : T
   let k ← k.toMono
   return .let decl k
 
+/-- Eliminate `cases` for `Float`. -/
+partial def casesFloatToMono (c : Cases .pure) (_ : c.typeName == ``Float) : ToMonoM (Code .pure) := do
+  assert! c.alts.size == 1
+  let .alt _ ps k := c.alts[0]! | unreachable!
+  eraseParams ps
+  let p := ps[0]!
+  let decl := { fvarId := p.fvarId, binderName := p.binderName, type := anyExpr, value := .const ``Float.toModel [] #[.fvar c.discr] }
+  modifyLCtx fun lctx => lctx.addLetDecl decl
+  let k ← k.toMono
+  return .let decl k
+
+/-- Eliminate `cases` for `Float32`. -/
+partial def casesFloat32ToMono (c : Cases .pure) (_ : c.typeName == ``Float32) : ToMonoM (Code .pure) := do
+  assert! c.alts.size == 1
+  let .alt _ ps k := c.alts[0]! | unreachable!
+  eraseParams ps
+  let p := ps[0]!
+  let decl := { fvarId := p.fvarId, binderName := p.binderName, type := anyExpr, value := .const ``Float32.toModel [] #[.fvar c.discr] }
+  modifyLCtx fun lctx => lctx.addLetDecl decl
+  let k ← k.toMono
+  return .let decl k
+
 /-- Eliminate `cases` for `Thunk. -/
 partial def casesThunkToMono (c : Cases .pure) (_ : c.typeName == ``Thunk) : ToMonoM (Code .pure) := do
   assert! c.alts.size == 1
@@ -351,9 +327,7 @@ partial def Code.toMono (code : Code .pure) : ToMonoM (Code .pure) := do
   | .jmp fvarId args => return code.updateJmp! fvarId (← args.mapM argToMono)
   | .return .. => return code
   | .cases c =>
-    if h : c.typeName == ``Decidable then
-      decToMono c h
-    else if h : c.typeName == ``Nat then
+    if h : c.typeName == ``Nat then
       casesNatToMono c h
     else if h : c.typeName == ``Int then
       casesIntToMono c h
@@ -373,6 +347,10 @@ partial def Code.toMono (code : Code .pure) : ToMonoM (Code .pure) := do
       casesFloatArrayToMono c h
     else if h : c.typeName == ``String then
       casesStringToMono c h
+    else if h : c.typeName == ``Float then
+      casesFloatToMono c h
+    else if h : c.typeName == ``Float32 then
+      casesFloat32ToMono c h
     else if h : c.typeName == ``Thunk then
       casesThunkToMono c h
     else if h : c.typeName == ``Task then

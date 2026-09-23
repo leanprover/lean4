@@ -9,7 +9,7 @@ pp.unicode.fun = true
 [[require]]
 name = "baz"
 scope = "foo"
-version = "git#abcdef"
+rev = "abcdef"
 
 [[require]]
 name = "foo"
@@ -21,6 +21,11 @@ name = "bar"
 git = "https://example.com"
 rev = "abc"
 subDir = "sub/dir"
+
+[[require]]
+name = "qux"
+path = "qux"
+copy = true
 
 [[lean_lib]]
 name = "A"

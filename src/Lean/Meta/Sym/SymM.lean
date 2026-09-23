@@ -7,6 +7,9 @@ module
 prelude
 public import Lean.Meta.Sym.AlphaShareCommon
 public import Lean.Meta.CongrTheorems
+public import Lean.Meta.Transform
+import Lean.Meta.WHNF
+import Lean.Meta.AppBuilder
 public section
 namespace Lean.Meta.Sym
 
@@ -140,6 +143,19 @@ structure SharedExprs where
 structure Config where
   /-- When `true`, issues are collected during proof search and reported on failure. -/
   verbose : Bool := true
+  /--
+  When `true`, `shareCommon` maintains the `SymM` invariant that reducible constants
+  have been eagerly unfolded: if a new term contains one, `shareCommon` unfolds it
+  before adding the term to the table of maximally shared terms.
+  -/
+  enforceUnfoldReducible : Bool := true
+  /--
+  When `true`, `shareCommon` maintains the `SymM` invariant that kernel projections
+  have been folded into projection function applications: if a new term contains one,
+  `shareCommon` folds it before adding the term to the table of maximally shared terms.
+  `cbv` disables this check because it processes kernel projections natively.
+  -/
+  enforceFoldProjs : Bool := true
   deriving Inhabited
 
 /-- Readonly context for the symbolic computation framework. -/
@@ -198,9 +214,78 @@ structure State where
   -/
   issues : List MessageData := []
   canon : Canon.State := {}
+  /--
+  Instances registered by satellite modules for types they create themselves
+  (e.g., `grind linarith`'s envelope type `IntModule.OfNatModule.Q`).
+  `Sym.synthInstance?` consults this table (keyed by the instance type, structural equality)
+  before running typeclass resolution. This both skips searches whose results are known in
+  advance, and ensures the registered term is used as the canonical representative.
+
+  We currently use this table to reduce the overhead of type class resolution in `grind`.
+  -/
+  instanceOverrides : PHashMap Expr Expr := {}
   debug : Bool := false
 
 abbrev SymM := ReaderT Context <| StateRefT State MetaM
+
+/--
+Auxiliary function for implementing `unfoldReducible` and `unfoldReducibleSimproc`.
+Performs a single step.
+-/
+public def unfoldReducibleStep (e : Expr) : MetaM TransformStep := do
+  let .const declName _ := e.getAppFn | return .continue
+  unless isUnfoldReducibleCandidate (← getEnv) declName do return .continue
+  let some v ← unfoldDefinition? e | return .continue
+  return .visit v
+
+def isUnfoldReducibleTarget (e : Expr) : CoreM Bool := do
+  let env ← getEnv
+  return Option.isSome <| e.find? fun e =>
+    if let .const declName _ := e then
+      isUnfoldReducibleCandidate env declName
+    else
+      false
+
+/--
+Unfolds all `reducible` declarations occurring in `e`.
+This is meant as a preprocessing step. It does **not** guarantee maximally shared terms
+-/
+public def unfoldReducible (e : Expr) : MetaM Expr := do
+  if !(← isUnfoldReducibleTarget e) then return e
+  Meta.transform e (pre := unfoldReducibleStep)
+
+/--
+Converts nested `Expr.proj`s into projection applications if possible.
+The structural simplifier and pattern matcher do not handle kernel projection
+terms; this preprocessing step folds them into projection function applications.
+-/
+public def foldProjs (e : Expr) : MetaM Expr := do
+  if Option.isNone <| e.find? fun e => e.isProj then return e
+  let post (e : Expr) := do
+    let .proj structName idx s := e | return .done e
+    let some info := getStructureInfo? (← getEnv) structName |
+      trace[sym.issues] "found `Expr.proj` but `{structName}` is not marked as structure{indentExpr e}"
+      return .done e
+    if h : idx < info.fieldNames.size then
+      let fieldName := info.fieldNames[idx]
+      /-
+      In the test `grind_cat.lean`, the following operation fails if we are not using default
+      transparency. We get the following error.
+      ```
+      error: AppBuilder for 'mkProjection', structure expected
+        T
+      has type
+        F ⟶ G
+      ```
+      We should make `mkProjection` more robust.
+
+      The `mkProjection` function may create new kernel projections. So, we must use `.visit`.
+      -/
+      return .visit (← withDefault <| mkProjection s fieldName)
+    else
+      trace[sym.issues] "found `Expr.proj` with invalid field index `{idx}`{indentExpr e}"
+      return .done e
+  Meta.transform e (post := post)
 
 private def mkSharedExprs : AlphaShareCommonM SharedExprs := do
   let falseExpr  ← shareCommonAlphaInc <| mkConst ``False
@@ -213,7 +298,10 @@ private def mkSharedExprs : AlphaShareCommonM SharedExprs := do
   return { falseExpr, trueExpr, bfalseExpr, btrueExpr, natZExpr, ordEqExpr, intExpr }
 
 def SymM.run (x : SymM α) : MetaM α := do
-  let (sharedExprs, share) := mkSharedExprs |>.run {}
+  let (sharedExprs, share) ←
+    match mkSharedExprs { env := (← getEnv) } {} with
+    | .ok sharedExprs share => pure (sharedExprs, share)
+    | .error .. => unreachable! -- checks are disabled
   let debug := sym.debug.get (← getOptions)
   let extensions ← SymExtensions.mkInitialStates
   x { sharedExprs } |>.run' { debug, share, extensions }
@@ -246,14 +334,99 @@ def getOrderingEqExpr : SymM Expr := return (← getSharedExprs).ordEqExpr
 def getIntExpr : SymM Expr := return (← getSharedExprs).intExpr
 
 /--
+Runs an `AlphaShareCommonM` action over the `SymM` hash-consing state.
+On a check violation, returns the cache accumulated before the failure as `.error`;
+the terms hash-consed before the failure are kept in the state, since they
+individually satisfy the invariants.
+-/
+def runShareCommonM (k : AlphaShareCommonM α) (ctx : AlphaShareCommon.Context) : SymM (Except AlphaShareCommon.Cache α) := do
+  let share ← modifyGet fun s => (s.share, { s with share := {} })
+  match k ctx share with
+  | .ok a share => modify fun s => { s with share }; return .ok a
+  | .error cache share => modify fun s => { s with share }; return .error cache
+
+/--
+Runs `x` with the `shareCommon` kernel-projection check disabled.
+Use this to wrap code that temporarily violates the `SymM` folded-projections
+invariant, e.g., a head reducer that exposes kernel projections in intermediate
+terms and restores the invariant in its final result.
+-/
+def withoutFoldProjsCheck [MonadWithReaderOf Context m] (x : m α) : m α :=
+  withTheReader Context (fun ctx => { ctx with
+    config.enforceFoldProjs := false }) x
+
+def withoutShareCommonChecks [MonadWithReaderOf Context m] (x : m α) : m α :=
+  withTheReader Context (fun ctx => { ctx with
+    config.enforceFoldProjs := false, config.enforceUnfoldReducible := false }) x
+
+/-- Returns the `AlphaShareCommon` context with the checks enabled by the current configuration. -/
+private def checkedShareCtx : SymM AlphaShareCommon.Context := do
+  let config := (← readThe Context).config
+  return {
+    env            := (← getEnv)
+    checkReducible := config.enforceUnfoldReducible
+    checkProj      := config.enforceFoldProjs
+  }
+
+/--
+Restores the `SymM` invariants enabled in the current configuration.
+The final `unfoldReducible` is needed because `foldProjs` can introduce fresh reducible
+constants: `mkProjection` recovers structure parameters from `inferType`, and those types
+come from environment signatures that were never preprocessed.
+-/
+private def repairShareViolation (e : Expr) : SymM Expr := do
+  let config := (← readThe Context).config
+  let mut e := e
+  if config.enforceUnfoldReducible then e ← unfoldReducible e
+  if config.enforceFoldProjs then e ← foldProjs e
+  if config.enforceUnfoldReducible then e ← unfoldReducible e
+  return e
+
+/--
 Applies hash-consing to `e`. Recall that all expressions in a `grind` goal have
 been hash-consed. We perform this step before we internalize expressions.
+
+This function does not try to `unfoldReducible` and `foldProjs` like `shareCommon`.
+`cache` may contain the results accumulated by a run of `shareCommon` that was
+interrupted by a check violation; see `repairAndShare`.
+-/
+def shareCommonWithoutChecks (e : Expr) (cache : AlphaShareCommon.Cache := {}) : SymM Expr := do
+  match (← runShareCommonM (shareCommonAlpha e cache) { env := (← getEnv) }) with
+  | .ok e => return e
+  | .error _ => unreachable!
+
+/--
+Fallback used by `shareCommon` and `shareCommonInc` after a check violation:
+repairs the term and re-runs the full hash-consing pass with checks disabled, so
+this second pass always succeeds. In the exotic case where the repair does not
+eliminate all violations (e.g., a reducible definition that cannot be unfolded because
+of smart-unfolding blocking reduction), the term is admitted as-is; other parts of the
+system report this kind of issue.
+-/
+private def repairAndShare (e : Expr) (cache : AlphaShareCommon.Cache) : SymM Expr := do
+  -- `unfoldReducible` and `foldProjs` enter binders using `Meta.transform`, which
+  -- requires a closed term. Open terms are admitted without repair.
+  -- assert! !e.hasLooseBVars
+  if e.hasLooseBVars then throwError "internal error, expression has loose bound variables at `shareCommon`{indentExpr e}"
+  let e ← repairShareViolation e
+  -- The repair only rebuilds the violating parts of the term, so the subterms visited
+  -- by the interrupted run still occur in `e` and their cached results remain valid.
+  shareCommonWithoutChecks e cache
+
+/--
+Applies hash-consing to `e`. Recall that all expressions in a `grind` goal have
+been hash-consed. We perform this step before we internalize expressions.
+
+Depending on the current configuration, this function also maintains the `SymM`
+invariants that reducible constants have been unfolded and kernel projections folded.
+The checks are node-local and are only performed on terms that have not been
+hash-consed before, so already-shared subterms cost nothing. When a violation is
+found, the term is repaired using `unfoldReducible`/`foldProjs` and re-processed.
 -/
 def shareCommon (e : Expr) : SymM Expr := do
-  let share ← modifyGet fun s => (s.share, { s with share := {} })
-  let (e, share) := shareCommonAlpha e share
-  modify fun s => { s with share }
-  return e
+  match (← runShareCommonM (shareCommonAlpha e) (← checkedShareCtx)) with
+  | .ok e => return e
+  | .error cache => repairAndShare e cache
 
 /--
 Incremental variant of `shareCommon` for expressions constructed from already-shared subterms.
@@ -274,10 +447,13 @@ let result ← shareCommonInc result -- efficiently restore sharing
 ```
 -/
 def shareCommonInc (e : Expr) : SymM Expr := do
-  let share ← modifyGet fun s => (s.share, { s with share := {} })
-  let (e, share) := shareCommonAlphaInc e share
-  modify fun s => { s with share }
-  return e
+  match (← runShareCommonM (shareCommonAlphaInc e) (← checkedShareCtx)) with
+  | .ok e => return e
+  | .error _ =>
+    -- The repair destroys the pointer sharing that justified the incremental
+    -- variant, so we fall back to the full `shareCommonAlpha` pass. The incremental
+    -- variant does not use a cache, so there is nothing to reuse here.
+    repairAndShare e {}
 
 @[inherit_doc shareCommonInc]
 abbrev share (e : Expr) : SymM Expr :=
@@ -301,7 +477,7 @@ def reportIssue (msg : MessageData) : SymM Unit := do
   if (← getConfig).verbose then
     reportIssue msg
 
-private meta def expandReportIssueMacro (s : Syntax) : MacroM (TSyntax `doElem) := do
+private meta def expandReportIssueMacro (s : Syntax) : MacroM DoElem := do
   let msg ← if s.getKind == interpolatedStrKind then `(m! $(⟨s⟩)) else `(($(⟨s⟩) : MessageData))
   `(doElem| Sym.reportIssueIfVerbose $msg)
 
@@ -315,7 +491,7 @@ macro "reportIssue!" s:(interpolatedStr(term) <|> term) : doElem => do
     if sym.debug.get (← getOptions) then
       reportIssue msg
 
-meta def expandReportDbgIssueMacro (s : Syntax) : MacroM (TSyntax `doElem) := do
+meta def expandReportDbgIssueMacro (s : Syntax) : MacroM DoElem := do
   let msg ← if s.getKind == interpolatedStrKind then `(m! $(⟨s⟩)) else `(($(⟨s⟩) : MessageData))
   `(doElem| Sym.reportDbgIssue $msg)
 

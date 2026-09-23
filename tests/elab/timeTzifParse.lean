@@ -101,10 +101,10 @@ info: 0
 info: zoned("1969-12-31T21:00:00.000000000-03:00")
 -/
 #guard_msgs in
-#eval ZonedDateTime.ofTimestamp (Timestamp.ofSecondsSinceUnixEpoch 0) rules
+#eval DateTime.ofTimestamp (Timestamp.ofSecondsSinceUnixEpoch 0) rules
 
 /--
 info: zoned("2012-12-10T00:35:47.000000000-02:00")
 -/
 #guard_msgs in
-#eval ZonedDateTime.ofTimestamp (Timestamp.ofSecondsSinceUnixEpoch 1355106947) rules
+#eval DateTime.ofTimestamp (Timestamp.ofSecondsSinceUnixEpoch 1355106947) rules

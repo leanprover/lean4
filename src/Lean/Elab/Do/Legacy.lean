@@ -761,7 +761,7 @@ private def expandDoIf? (stx : Syntax) : MacroM (Option Syntax) := match stx wit
       e ← if eIsSeq then pure e else `(doSeq|$e:doElem)
       e ← match cond with
         | `(doIfCond|let $pat := $d) => `(doElem| match $d:term with | $pat:term => $t | _ => $e)
-        | `(doIfCond|let $pat ← $d)  => `(doElem| match ← $d    with | $pat:term => $t | _ => $e)
+        | `(doIfCond|let $pat ← $d)  => `(doElem| match ← $d:term with | $pat:term => $t | _ => $e)
         | `(doIfCond|$cond:doIfProp) => `(doElem| if $cond:doIfProp then $t else $e)
         | _                          => `(doElem| if $(Syntax.missing) then $t else $e)
       eIsSeq := false
@@ -1341,8 +1341,20 @@ private partial def expandNestedActionAux (inQuot : Bool) (inBinder : Bool) : Sy
     else if k == ``Parser.Term.nestedAction && !inQuot then withFreshMacroScope do
       if inBinder then
         throwErrorAt stx "cannot lift `(<- ...)` over a binder, this error usually happens when you are trying to lift a method nested in a `fun`, `let`, or `match`-alternative, and it can often be fixed by adding a missing `do`"
-      let term := args[1]!
-      let term ← expandNestedActionAux inQuot inBinder term
+      let arg := args[1]!
+      -- The parser has been extended to accept arbitrary `doElem`s, but the legacy `do` elaborator
+      -- only supports a term after `←`. Pre-stage0-update format stored a term directly; the new
+      -- format wraps a term in `doExpr`. Anything else is a non-trivial `doElem` we cannot lift.
+      let isDoElem :=
+        (Parser.getParserCategory? (← getEnv) `doElem).any (·.kinds.contains arg.getKind)
+      let termArg ←
+        if arg.getKind == ``Parser.Term.doExpr then
+          pure arg[0]
+        else if isDoElem then
+          throwErrorAt arg "the legacy `do` elaborator only supports a term after `←`; use `set_option backward.do.legacy false` to enable the new elaborator with full `doElem` support"
+        else
+          pure arg
+      let term ← expandNestedActionAux inQuot inBinder termArg
       -- keep name deterministic across choice branches
       let id ← mkIdentFromRef (.num baseId (← get).length)
       let auxDoElem : Syntax ← `(doElem| let $id:ident ← $term:term)
@@ -1551,10 +1563,13 @@ mutual
      `doFor` is of the form
      ```
      def doForDecl := leading_parser termParser >> " in " >> withForbidden "do" termParser
-     def doFor := leading_parser "for " >> sepBy1 doForDecl ", " >> "do " >> doSeq
+     def doFor := leading_parser "for " >> sepBy1 doForDecl ", " >> optional doLoopInvariant >> " do " >> doSeq
      ```
   -/
   partial def doForToCode (doFor : Syntax) (doElems : List Syntax) : M CodeBlock := do
+    -- The `invariant` and `decreasing` clauses elaborate to `vcgen` gadgets, which only the new
+    -- `do` elaborator builds.
+    unless doFor[2].isNone && doFor[3].isNone do throwUnsupportedSyntax
     let doForDecls := doFor[1].getSepArgs
     if h : doForDecls.size > 1 then
       /-
@@ -1581,7 +1596,7 @@ mutual
       let y  := doForDecl[1]
       let ys := doForDecl[3]
       let doForDecls := doForDecls.eraseIdx 1
-      let body := doFor[3]
+      let body := doFor[5]
       withFreshMacroScope do
         /- Recall that `@` (explicit) disables `coeAtOutParam`.
            We used `@` at `Stream` functions to make sure `resultIsOutParamSupport` is not used. -/
@@ -1600,7 +1615,7 @@ mutual
       let x         := doForDecls[0]![1]
       withRef x <| checkNotShadowingMutable (← getPatternVarsEx x)
       let xs        := doForDecls[0]![3]
-      let forElems  := getDoSeqElems doFor[3]
+      let forElems  := getDoSeqElems doFor[5]
       let forInBodyCodeBlock ← withFor (doSeqToCode forElems)
       let ⟨uvars, forInBody⟩ ← mkForInBody x forInBodyCodeBlock
       let ctx ← read
@@ -1783,7 +1798,8 @@ mutual
           else if k == ``Parser.Term.doUnless then
             doUnlessToCode doElem doElems
           else if k == ``Parser.Term.doRepeat then
-            let seq := doElem[1]
+            unless doElem[1].isNone && doElem[2].isNone do throwUnsupportedSyntax
+            let seq := doElem[3]
             let expanded ← `(doElem| for _ in Loop.mk do $seq)
             doSeqToCode (expanded :: doElems)
           else if k == ``Parser.Term.doFor then withFreshMacroScope do

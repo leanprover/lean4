@@ -1,6 +1,6 @@
 // Lean compiler output
 // Module: Init.Data.Array.Mem
-// Imports: public import Init.Data.Array.Basic public import Init.WFTactics import Init.Data.List.BasicAux import Init.Data.Nat.Linear meta import Init.MetaTypes
+// Imports: public import Init.Data.Array.Basic public import Init.WFTactics import Init.Data.List.BasicAux import Init.Data.Nat.Internal.Linear meta import Init.MetaTypes
 #include <lean/lean.h>
 #if defined(__clang__)
 #pragma clang diagnostic ignored "-Wunused-parameter"
@@ -24,7 +24,7 @@ lean_object* l_Lean_addMacroScope(lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Syntax_node2(lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Syntax_node5(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Syntax_node3(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
-lean_object* l_Array_mkArray0(lean_object*);
+lean_object* l_Array_mkArray0___redArg();
 lean_object* l_Lean_Syntax_node4(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Syntax_node6(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 static const lean_string_object l_Array_tacticArray__get__dec___closed__0_value = {.m_header = {.m_rc = 0, .m_cs_sz = 0, .m_other = 0, .m_tag = 249}, .m_size = 6, .m_capacity = 6, .m_length = 5, .m_data = "Array"};
@@ -357,7 +357,7 @@ static lean_object* _init_l_Array___aux__Init__Data__Array__Mem______macroRules_
 _start:
 {
 lean_object* v___x_161_; 
-v___x_161_ = l_Array_mkArray0(lean_box(0));
+v___x_161_ = l_Array_mkArray0___redArg();
 return v___x_161_;
 }
 }
@@ -902,12 +902,14 @@ return v_res_543_;
 lean_object* runtime_initialize_Init_Data_Array_Basic(uint8_t builtin);
 lean_object* runtime_initialize_Init_WFTactics(uint8_t builtin);
 lean_object* runtime_initialize_Init_Data_List_BasicAux(uint8_t builtin);
-lean_object* runtime_initialize_Init_Data_Nat_Linear(uint8_t builtin);
+lean_object* runtime_initialize_Init_Data_Nat_Internal_Linear(uint8_t builtin);
+void lean_initialize_runtime_module();
 static bool _G_runtime_initialized = false;
 LEAN_EXPORT lean_object* runtime_initialize_Init_Data_Array_Mem(uint8_t builtin) {
 lean_object * res;
 if (_G_runtime_initialized) return lean_io_result_mk_ok(lean_box(0));
 _G_runtime_initialized = true;
+lean_initialize_runtime_module();
 res = runtime_initialize_Init_Data_Array_Basic(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
@@ -917,7 +919,7 @@ lean_dec_ref(res);
 res = runtime_initialize_Init_Data_List_BasicAux(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
-res = runtime_initialize_Init_Data_Nat_Linear(builtin);
+res = runtime_initialize_Init_Data_Nat_Internal_Linear(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
 return lean_io_result_mk_ok(lean_box(0));
@@ -936,7 +938,7 @@ return lean_io_result_mk_ok(lean_box(0));
 lean_object* initialize_Init_Data_Array_Basic(uint8_t builtin);
 lean_object* initialize_Init_WFTactics(uint8_t builtin);
 lean_object* initialize_Init_Data_List_BasicAux(uint8_t builtin);
-lean_object* initialize_Init_Data_Nat_Linear(uint8_t builtin);
+lean_object* initialize_Init_Data_Nat_Internal_Linear(uint8_t builtin);
 lean_object* initialize_Init_MetaTypes(uint8_t builtin);
 static bool _G_initialized = false;
 LEAN_EXPORT lean_object* initialize_Init_Data_Array_Mem(uint8_t builtin) {
@@ -952,7 +954,7 @@ lean_dec_ref(res);
 res = initialize_Init_Data_List_BasicAux(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
-res = initialize_Init_Data_Nat_Linear(builtin);
+res = initialize_Init_Data_Nat_Internal_Linear(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
 res = initialize_Init_MetaTypes(builtin);

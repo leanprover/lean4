@@ -219,7 +219,7 @@ def currentlyEnabled [Monad M] (merge_var : extension) : M Bool := do
   | Ext_Zicfilp =>
     (pure ((← (currentlyEnabled Ext_Zicsr))
       && ((hartSupports Ext_Zicfilp)
-      && (← (get_xLPE (← return User))))))
+      && (← (get_xLPE (← pure User))))))
   | Ext_Svnapot => (pure false)
   | Ext_Svpbmt => (pure false)
   | Ext_Svrsw60t59b => (pure ((hartSupports Ext_Svrsw60t59b) && (← (currentlyEnabled Ext_Sv39))))

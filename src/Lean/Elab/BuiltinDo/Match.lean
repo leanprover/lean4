@@ -23,7 +23,7 @@ open Lean.Parser.Term
 open Lean.Meta
 open Lean.Meta.Match
 
-private def elabDoSeqWithRefinedType (type : Expr) (doSeq : TSyntax ``doSeq) (dec : DoElemCont) : DoElabM Expr := do
+private def elabDoSeqWithRefinedType (type : Expr) (doSeq : DoSeq) (dec : DoElemCont) : DoElabM Expr := do
   let newDoBlockResultType ← withNewMCtxDepth do
     let γ ← mkFreshExprMVar (mkSort (← read).monadInfo.u.succ)
     unless ← isDefEqGuarded type (← mkMonadApp γ) do
@@ -33,10 +33,10 @@ private def elabDoSeqWithRefinedType (type : Expr) (doSeq : TSyntax ``doSeq) (de
   trace[Elab.do.match] "newDoBlockResultType: {newDoBlockResultType}"
   -- The `doBlockResultType` *is* the continuation's return type, since it is duplicable.
   let dec := { dec with resultType := newDoBlockResultType }
-  withDoBlockResultType newDoBlockResultType (elabDoSeq doSeq dec)
+  withRefinedResultType newDoBlockResultType (elabDoSeq doSeq dec)
 
 /--
-Expand a `doMatch` into a term `match` term. We do this for `match_syntax` and
+Expand a `doMatch` into a term-level `match`. We do this for `match_syntax` and
 `match (dependent := true)`. For the latter, the functionality is very restricted to effectively
 ban join points.
 Reason: In case of a dependent match, it is hard to guarantee that generalization of join points and

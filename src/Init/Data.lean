@@ -22,7 +22,6 @@ public import Init.Data.Fin
 public import Init.Data.UInt
 public import Init.Data.SInt
 public import Init.Data.Float
-public import Init.Data.Float32
 public import Init.Data.Option
 public import Init.Data.Ord
 public import Init.Data.Random
@@ -39,6 +38,7 @@ public import Init.Data.Queue
 public import Init.Data.Sum
 public import Init.Data.BEq
 public import Init.Data.Subtype
+public import Init.Data.Erased
 public import Init.Data.ULift
 public import Init.Data.PLift
 public import Init.Data.Zero

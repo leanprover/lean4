@@ -36,5 +36,4 @@ elab doc?:(docComment)? "register_linter_set" name:ident " := " decl:ident* : co
   let initializer ← `($[$doc?]? meta initialize $name : Lean.Option Bool ← Lean.Linter.registerSet $(quote name.getId))
   withMacroExpansion (← getRef) initializer <| elabCommand initializer
 
-
 end Lean.Linter

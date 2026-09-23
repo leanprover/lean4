@@ -32,10 +32,7 @@ private def mkImpossibleNegType (mainGoal : MVarId) (goalType : Expr)
     (cfg : Parser.Tactic.ImpossibleConfig) :
     MetaM (Expr × Array Name) := mainGoal.withContext do
   let dummy ← mkFreshExprSyntheticOpaqueMVar goalType
-  let cleaned ← dummy.mvarId!.cleanup
-  let (_, reverted) ← cleaned.revert
-    (clearAuxDeclsInsteadOfRevert := true)
-    (← cleaned.getDecl).lctx.getFVarIds
+  let reverted ← dummy.mvarId!.revertAll
   let revertedType ← reverted.getType
   let r ← Closure.mkValueTypeClosure revertedType (mkConst ``True)
     (zetaDelta := false)

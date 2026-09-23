@@ -29,16 +29,10 @@ protected theorem sum_pos_iff_exists_pos_nat {l : List Nat} : 0 < l.sum ↔ ∃ 
     simp [← ih]
     omega
 
-@[deprecated List.sum_pos_iff_exists_pos_nat (since := "2025-01-15")]
-protected def _root_.Nat.sum_pos_iff_exists_pos := @List.sum_pos_iff_exists_pos_nat
-
 protected theorem sum_eq_zero_iff_forall_eq_nat {xs : List Nat} :
     xs.sum = 0 ↔ ∀ x ∈ xs, x = 0 := by
   rw [← Decidable.not_iff_not]
   simp [← Nat.pos_iff_ne_zero, List.sum_pos_iff_exists_pos_nat]
-
-@[deprecated List.sum_pos_iff_exists_pos_nat (since := "2025-01-15")]
-protected def _root_.Nat.sum_eq_zero_iff_forall_eq := @List.sum_eq_zero_iff_forall_eq_nat
 
 @[simp]
 theorem sum_replicate_nat {n : Nat} {a : Nat} : (replicate n a).sum = n * a := by

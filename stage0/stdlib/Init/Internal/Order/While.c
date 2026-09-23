@@ -13,11 +13,11 @@
 #ifdef __cplusplus
 extern "C" {
 #endif
-LEAN_EXPORT lean_object* l___private_Init_Internal_Order_While_0__whileM_body_match__1_splitter___redArg(lean_object*, lean_object*, lean_object*);
-LEAN_EXPORT lean_object* l___private_Init_Internal_Order_While_0__whileM_body_match__1_splitter(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
+LEAN_EXPORT lean_object* l___private_Init_Internal_Order_While_0__repeatM_body_match__1_splitter___redArg(lean_object*, lean_object*, lean_object*);
+LEAN_EXPORT lean_object* l___private_Init_Internal_Order_While_0__repeatM_body_match__1_splitter(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l___private_Init_Internal_Order_While_0__Lean_Loop_forIn_match__1_splitter___redArg(lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l___private_Init_Internal_Order_While_0__Lean_Loop_forIn_match__1_splitter(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
-LEAN_EXPORT lean_object* l___private_Init_Internal_Order_While_0__whileM_body_match__1_splitter___redArg(lean_object* v_____do__lift_1_, lean_object* v_h__1_2_, lean_object* v_h__2_3_){
+LEAN_EXPORT lean_object* l___private_Init_Internal_Order_While_0__repeatM_body_match__1_splitter___redArg(lean_object* v_____do__lift_1_, lean_object* v_h__1_2_, lean_object* v_h__2_3_){
 _start:
 {
 if (lean_obj_tag(v_____do__lift_1_) == 0)
@@ -42,7 +42,7 @@ return v___x_7_;
 }
 }
 }
-LEAN_EXPORT lean_object* l___private_Init_Internal_Order_While_0__whileM_body_match__1_splitter(lean_object* v_00_u03b1_8_, lean_object* v_00_u03b2_9_, lean_object* v_motive_10_, lean_object* v_____do__lift_11_, lean_object* v_h__1_12_, lean_object* v_h__2_13_){
+LEAN_EXPORT lean_object* l___private_Init_Internal_Order_While_0__repeatM_body_match__1_splitter(lean_object* v_00_u03b1_8_, lean_object* v_00_u03b2_9_, lean_object* v_motive_10_, lean_object* v_____do__lift_11_, lean_object* v_h__1_12_, lean_object* v_h__2_13_){
 _start:
 {
 if (lean_obj_tag(v_____do__lift_11_) == 0)
@@ -120,11 +120,13 @@ return v___x_33_;
 lean_object* runtime_initialize_Init_While(uint8_t builtin);
 lean_object* runtime_initialize_Init_While(uint8_t builtin);
 lean_object* runtime_initialize_Init_Internal_Order_MonadTail(uint8_t builtin);
+void lean_initialize_runtime_module();
 static bool _G_runtime_initialized = false;
 LEAN_EXPORT lean_object* runtime_initialize_Init_Internal_Order_While(uint8_t builtin) {
 lean_object * res;
 if (_G_runtime_initialized) return lean_io_result_mk_ok(lean_box(0));
 _G_runtime_initialized = true;
+lean_initialize_runtime_module();
 res = runtime_initialize_Init_While(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);

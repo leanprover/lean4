@@ -1,0 +1,2 @@
+issue13705_nested.lean:14:8-14:14: warning: declaration uses `sorry`
+issue13705_nested.lean:26:8-26:14: warning: declaration uses `sorry`

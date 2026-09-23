@@ -1,12 +1,17 @@
+Input: "leanExample context more:=\"stuff\"\n\nabc"
 Success! Final stack:
  • `leanExample
- • [(Lean.Doc.Syntax.anon
-      (Lean.Doc.Syntax.arg_ident `context))
-     (Lean.Doc.Syntax.named_no_paren
+ • [(Lean.Doc.Parser.Arg.anon
+      (Lean.Doc.Parser.ArgVal.ident `context))
+     (Lean.Doc.Parser.Arg.named_no_paren
       `more
       ":="
-      (Lean.Doc.Syntax.arg_str
+      (Lean.Doc.Parser.ArgVal.str
        (str "\"stuff\"")))]
 
 Remaining:
 "\n\nabc"
+Round-trip OK
+Decoded views:
+  anon (val := name (x := context))
+  named (parens := none) (name := more) (assign := ":=") (val := str (lit := "stuff") (value := "stuff"))

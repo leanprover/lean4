@@ -422,7 +422,7 @@ def elabSyntax (stx : Syntax) : CommandElabM Name := do
       let mut name := base
       let mut i := 1
       -- Avoid name conflicts, for which we have to check both public and private name
-      while (←
+      while (← do
         let fullName := (← getCurrNamespace) ++ name
         hasConst fullName <||>
           (withoutExporting <| hasConst (mkPrivateName (← getEnv) fullName))) do
@@ -466,8 +466,8 @@ def elabSyntax (stx : Syntax) : CommandElabM Name := do
   let stx' ← `($[$doc?:docComment]? $[$vis?:visibility]? meta def $declName:ident : Lean.ParserDescr := ParserDescr.nodeWithAntiquot $(quote (toString declName.getId)) $(quote stxNodeKind) $val)
   withMacroExpansion stx stx' <| elabCommand stx'
 
-def checkRuleKind (given expected : SyntaxNodeKind) : Bool :=
-  given == expected || given == expected ++ `antiquot
+def checkRuleKind (actual expected : SyntaxNodeKind) : Bool :=
+  actual == expected || actual == expected ++ `antiquot
 
 def inferMacroRulesAltKind : TSyntax ``matchAlt → CommandElabM SyntaxNodeKind
   | `(matchAltExpr| | $pat:term => $_) => do

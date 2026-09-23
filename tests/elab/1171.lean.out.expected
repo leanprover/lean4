@@ -19,7 +19,7 @@ Nat.hasDecEq._unary._proof_1.fix fun _x a =>
         | 0, n.succ => fun x => isFalse (Nat.hasDecEq._unary._proof_4 n)
         | n.succ, m.succ => fun x =>
           match h : x ⟨n, m⟩ (Nat.hasDecEq._unary._proof_5 n m) with
-          | isTrue heq => isTrue (Nat.hasDecEq._unary._proof_6 n m heq)
-          | isFalse hne => isFalse (Nat.hasDecEq._unary._proof_7 n m hne))
+          | { decide := true, reflects_decide := heq } => isTrue (Nat.hasDecEq._unary._proof_6 n m heq)
+          | { decide := false, reflects_decide := hne } => isFalse (Nat.hasDecEq._unary._proof_7 n m hne))
         a_1)
     a

@@ -16,21 +16,38 @@ A compacted region holds multiple Lean objects in a contiguous memory region, wh
 read/written to/from disk. Objects inside the region do not have reference counters and cannot be
 freed individually. The contents of `.olean` files are compacted regions.
 -/
-@[expose] public def CompactedRegion := USize
-
-@[extern "lean_compacted_region_is_memory_mapped"]
-public opaque CompactedRegion.isMemoryMapped : CompactedRegion → Bool
-
-/-- Size in bytes. -/
-@[extern "lean_compacted_region_size"]
-public opaque CompactedRegion.size : CompactedRegion → USize
-
-/--
-Frees a compacted region and its contents. No live references to the contents may exist at the
-time of invocation.
+/-
+This structure carries the region's loading metadata (`filePath`, `size`, ...) as plain Lean values
+plus a private `root` pointer to the region's root object. Because `root` is an ordinary pointer
+into the buffer rather than an opaque external handle, embedding a `CompactedRegion` in compacted
+data is sound as long as the region is supplied as one of the `depRegions`: the object compactor
+then relocates `root` like any other cross-region pointer, and it is re-resolved against the freshly
+mapped buffer on load.
 -/
-@[extern "lean_compacted_region_free"]
-public unsafe opaque CompactedRegion.free : CompactedRegion → IO Unit
+public structure CompactedRegion where
+  /-- Path the region was loaded from. -/
+  filePath       : System.FilePath
+  /-- Size in bytes of the region's mapping (the backing `.olean` file). -/
+  size           : USize
+  /-- Whether the region's buffer is backed by a memory mapping of its file. -/
+  isMemoryMapped : Bool
+  /--
+  Logical base address the region's mapping is relative to (`olean_header.base_addr`), used to
+  translate cross-region pointers when this region is used as a dependency.
+  -/
+  private baseAddr     : USize
+  /--
+  Byte offset of the region's root object from the start of the mapping; `root - bufferOffset`
+  recovers the mapping base (the address to unmap/free and the start of the dependency range).
+  -/
+  private bufferOffset : USize
+  /--
+  Pointer to the region's root object. A plain pointer into the data buffer (not an external handle),
+  so the object compactor relocates it as a cross-region pointer when the region is embedded in
+  compacted data with itself supplied as a `depRegion`.
+  -/
+  private root         : NonScalar
+  deriving Nonempty
 
 opaque CompactorSpec : NonemptyType.{0}
 /--
@@ -43,6 +60,13 @@ Not thread-safe: a `Compactor` value must not be used concurrently from multiple
 subsequent saves will dereference dangling pointers.
 -/
 public def Compactor := CompactorSpec.type
+
+/--
+Frees a compacted region and its contents. No live references to the contents may exist at the
+time of invocation.
+-/
+@[extern "lean_compacted_region_free"]
+public unsafe opaque CompactedRegion.free (region : CompactedRegion) : IO Unit
 
 /--
 Saves arbitrary data to a compacted region on disk.

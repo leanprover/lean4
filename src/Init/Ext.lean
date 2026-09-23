@@ -79,11 +79,8 @@ macro "ext1" xs:(colGt ppSpace rintroPat)* : tactic =>
 end Elab.Tactic.Ext
 end Lean
 
-attribute [ext] Prod PProd Sigma PSigma
+attribute [ext] Prod PProd MProd Sigma PSigma PLift ULift PULift
 attribute [ext] funext propext Subtype.ext Array.ext Char.ext
-
-@[deprecated Subtype.ext_iff (since := "2025-10-26")]
-protected def Subtype.eq_iff := @Subtype.ext_iff
 
 attribute [grind ext] funext Array.ext
 

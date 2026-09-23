@@ -18,8 +18,6 @@ public import Init.Grind.Interactive
 
 namespace Lean.Elab.Tactic.Do.VCGen
 
--- TODO: move the `vcgen` fields to a `Config` in `Std.Tactic.WP`, and rename the trace class
--- `Elab.Tactic.Do.vcgen` to `Elab.Tactic.VCGen`.
 structure Config where
   /--
   If `true` (the default), we will try to prove VCs via `mvcgen_trivial`, which is extensible

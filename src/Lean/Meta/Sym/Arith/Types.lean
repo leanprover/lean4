@@ -30,6 +30,7 @@ structure Semiring where
   mulFn?         : Option Expr := none
   powFn?         : Option Expr := none
   natCastFn?     : Option Expr := none
+  natSMulFn?     : Option Expr := none
   deriving Inhabited
 
 /-- Classification state for a type with a `Ring` instance. -/
@@ -51,6 +52,8 @@ structure Ring where
   powFn?         : Option Expr := none
   intCastFn?     : Option Expr := none
   natCastFn?     : Option Expr := none
+  natSMulFn?     : Option Expr := none
+  intSMulFn?     : Option Expr := none
   one?           : Option Expr := none
   deriving Inhabited
 

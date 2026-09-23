@@ -55,8 +55,33 @@ private def mkNatCastFn (u : Level) (type : Expr) (semiringInst : Expr) : m Expr
   | some inst => checkInst ``NatCast.natCast inst inst'; pure inst
   canonExpr <| mkApp2 (mkConst ``NatCast.natCast [u]) type inst
 
+/--
+`HSMul.hSMul scalar type type inst` with the synthesized instance (checked against the
+structure's `nsmul`/`zsmul` field), or the field itself when no instance is available.
+-/
+private def mkSMulFn (u : Level) (type : Expr) (scalar : Expr) (expectedSMulInst : Expr) : m Expr := do
+  let inst' := mkApp3 (mkConst ``instHSMul [0, u]) scalar type expectedSMulInst
+  let inst ← match (← MonadCanon.synthInstance? (mkApp3 (mkConst ``HSMul [0, u, u]) scalar type type)) with
+    | none => pure inst'
+    | some inst => checkInst ``HSMul.hSMul inst inst'; pure inst
+  canonExpr <| mkApp4 (mkConst ``HSMul.hSMul [0, u, u]) scalar type type inst
+
 section RingFns
 variable [MonadRing m]
+
+def getNatSMulFn : m Expr := do
+  let ring ← getRing
+  if let some fn := ring.natSMulFn? then return fn
+  let fn ← mkSMulFn ring.u ring.type Nat.mkType (mkApp2 (mkConst ``Grind.Semiring.nsmul [ring.u]) ring.type ring.semiringInst)
+  modifyRing fun s => { s with natSMulFn? := some fn }
+  return fn
+
+def getIntSMulFn : m Expr := do
+  let ring ← getRing
+  if let some fn := ring.intSMulFn? then return fn
+  let fn ← mkSMulFn ring.u ring.type Int.mkType (mkApp2 (mkConst ``Grind.Ring.zsmul [ring.u]) ring.type ring.ringInst)
+  modifyRing fun s => { s with intSMulFn? := some fn }
+  return fn
 
 def getAddFn : m Expr := do
   let ring ← getRing
@@ -136,6 +161,13 @@ end CommRingFns
 
 section SemiringFns
 variable [MonadSemiring m]
+
+def getNatSMulFn' : m Expr := do
+  let sr ← getSemiring
+  if let some fn := sr.natSMulFn? then return fn
+  let fn ← mkSMulFn sr.u sr.type Nat.mkType (mkApp2 (mkConst ``Grind.Semiring.nsmul [sr.u]) sr.type sr.semiringInst)
+  modifySemiring fun s => { s with natSMulFn? := some fn }
+  return fn
 
 def getAddFn' : m Expr := do
   let sr ← getSemiring

@@ -377,22 +377,20 @@ instance : MonadEnv CoreM where
   modifyEnv f := modify fun s => { s with env := f s.env, cache := {} }
 
 instance : MonadOptions CoreM where
-  getOptions := do
-    let ctx ← read
-    if ctx.isRecordingDeps then
-      reportViolation
-    return ctx.options
+  getOptions := return checkedOptions (← read)
   getOptionsUnrestricted := return (← read).options
 where
   /--
-  Reports a `getOptions` call inside a recording computation. It returns nothing, so that the
-  caller reads the options along a single path; it is monadic, so that the call is not dead code;
-  and it is out of line, as `getOptions` is inlined at every call site.
+  The options of `ctx`, panicking inside a recording computation. Out of line, as `getOptions` is
+  inlined at every call site.
   -/
-  @[noinline] reportViolation : CoreM Unit :=
-    panic! "`getOptions` called inside a computation recording its dependencies; \
-      use `Lean.getRecordedOption` for reads that can influence the result and \
-      `getOptionsUnrestricted` for all others"
+  @[noinline] checkedOptions (ctx : Context) : Options :=
+    if ctx.isRecordingDeps then
+      have : Inhabited Options := ⟨ctx.options⟩
+      panic! "`getOptions` called inside a computation recording its dependencies; \
+        use `Lean.getRecordedOption` for reads that can influence the result and \
+        `getOptionsUnrestricted` for all others"
+    else ctx.options
 
 instance : MonadWithOptions CoreM where
   withOptions f x := do

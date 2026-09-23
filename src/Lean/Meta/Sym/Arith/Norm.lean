@@ -18,6 +18,7 @@ public import Lean.Meta.Sym.Simp.App
 import Lean.Meta.AppBuilder
 import Lean.Meta.Sym.AlphaShareBuilder
 import Lean.Data.RArray
+import Init.Grind.Norm
 public section
 namespace Lean.Meta.Sym.Arith
 open Lean.Meta.Sym.Simp (Result mkEqTransResult)
@@ -115,6 +116,7 @@ def getArithType? (e : Expr) : Option Expr :=
   | HSub.hSub α _ _ _ _ _ => some α
   | HMul.hMul α _ _ _ _ _ => some α
   | HPow.hPow α β _ _ _ _ => if β.isConstOf ``Nat then some α else none
+  | HSMul.hSMul σ α _ _ _ _ => if σ.isConstOf ``Nat || σ.isConstOf ``Int then some α else none
   | Neg.neg α _ _ => some α
   | _ => none
 
@@ -130,18 +132,45 @@ atoms in the reifier; their subterms are simplified either way.
 section Visit
 variable [Monad m] [MonadLiftT SymM m] [MonadLiftT MetaM m]
 
+private def liftNorm (kind : Kind) (x : NormM α) : m α :=
+  ((x.run { kind }).run' {} : SymM α)
+
 private def congrBin (e f a b : Expr) (ra rb : Result) (h : e = .app (.app f a) b) : m Result := do
   let r ← (Simp.mkCongrArg (.app f a) f a ra rfl : SymM Result)
   Simp.mkCongr e (.app f a) b r rb h
 
-private partial def visitAtoms (isRing : Bool) (simpAtom : Expr → m Result) (e : Expr) : m Result := do
+/--
+The `k • a` rewrite hook: given `e₁ := k • a` (`k : Nat` or `Int`) whose `HSMul` instance is
+the structure's, returns `↑k * a` with a proof of `e₁ = ↑k * a` by `Grind.smul_nat_eq_mul` /
+`Grind.smul_int_eq_mul`. The kernel closes the gap between the instances of `e₁` and the
+canonical ones while checking the expected type.
+-/
+private def mkSMulStep (kind : Kind) (isNat : Bool) (e₁ k a : Expr) : NormM (Expr × Expr) := do
+  let (type, u, castFn, mulFn, thm) ← match kind with
+    | .commRing _ =>
+      let ring ← getRing
+      if isNat then
+        pure (ring.type, ring.u, ← getNatCastFn, ← getMulFn, mkApp2 (mkConst ``Grind.smul_nat_eq_mul [ring.u]) ring.type ring.semiringInst)
+      else
+        pure (ring.type, ring.u, ← getIntCastFn, ← getMulFn, mkApp2 (mkConst ``Grind.smul_int_eq_mul [ring.u]) ring.type ring.ringInst)
+    | .commSemiring _ =>
+      let sr ← getSemiring
+      pure (sr.type, sr.u, ← getNatCastFn', ← getMulFn', mkApp2 (mkConst ``Grind.smul_nat_eq_mul [sr.u]) sr.type sr.semiringInst)
+  -- `↑k` is `k` itself when the scalar type is the carrier (`Nat` or `Int`); the cast is
+  -- definitionally the identity there, and the kernel unfolds it in the expected-type check.
+  let k' := if type.isConstOf (if isNat then ``Nat else ``Int) then k else mkApp castFn k
+  let e₂ ← share (mkApp2 mulFn k' a)
+  return (e₂, mkExpectedPropHint (mkApp2 thm k a) (mkApp3 (mkConst ``Eq [u.succ]) type e₁ e₂))
+
+private partial def visitAtoms (kind : Kind) (simpAtom : Expr → m Result) (e : Expr) : m Result := do
+  let isRing := kind matches .commRing _
   let bin : m Result := do
     match h : e with
-    | .app (.app f a) b => congrBin e f a b (← visitAtoms isRing simpAtom a) (← visitAtoms isRing simpAtom b) h
+    | .app (.app f a) b => congrBin e f a b (← visitAtoms kind simpAtom a) (← visitAtoms kind simpAtom b) h
     | _ => unreachable!
   let un : m Result := do
     match h : e with
-    | .app f a => (Simp.mkCongrArg e f a (← visitAtoms isRing simpAtom a) h : SymM Result)
+    | .app f a => (Simp.mkCongrArg e f a (← visitAtoms kind simpAtom a) h : SymM Result)
     | _ => unreachable!
   match_expr e with
   | HAdd.hAdd _ _ _ _ _ _ => bin
@@ -152,7 +181,27 @@ private partial def visitAtoms (isRing : Bool) (simpAtom : Expr → m Result) (e
     -- Only literal exponents are interpreted; the exponent is not simplified.
     unless (Sym.getNatValue? k).run.isSome do return (← simpAtom e)
     match h : e with
-    | .app (.app f a) k => congrBin e f a k (← visitAtoms isRing simpAtom a) .rfl h
+    | .app (.app f a) k => congrBin e f a k (← visitAtoms kind simpAtom a) .rfl h
+    | _ => unreachable!
+  | HSMul.hSMul σ _ _ _ _ _ =>
+    let isNat := σ.isConstOf ``Nat
+    unless isNat || (isRing && σ.isConstOf ``Int) do return (← simpAtom e)
+    -- The instance must be the structure's `nsmul`/`zsmul`; compare the canonicalized prefix.
+    let ok ← liftNorm kind do
+      let fn ← match kind, isNat with
+        | .commRing _, true => getNatSMulFn
+        | .commRing _, false => getIntSMulFn
+        | .commSemiring _, _ => getNatSMulFn'
+      return isSameExpr fn (← canonExpr e.appFn!.appFn!)
+    unless ok do return (← simpAtom e)
+    match h : e with
+    | .app (.app f k) a =>
+      let r₁ ← congrBin e f k a (← simpAtom k) (← visitAtoms kind simpAtom a) h
+      let e₁ := r₁.getResultExpr e
+      let (e₂, h₂) ← liftNorm kind (mkSMulStep kind isNat e₁ e₁.appFn!.appArg! e₁.appArg!)
+      match r₁ with
+      | .rfl _ cd => return .step e₂ h₂ (contextDependent := cd)
+      | .step _ h₁ _ cd => mkEqTransResult e e₁ h₁ (.step e₂ h₂) cd
     | _ => unreachable!
   | NatCast.natCast _ _ a => if (Sym.getNatValue? a).run.isSome then return .rfl else simpAtom e
   | IntCast.intCast _ _ a => if isRing && (Sym.getIntValue? a).run.isSome then return .rfl else simpAtom e
@@ -302,7 +351,7 @@ def normalize? [Monad m] [MonadLiftT SymM m] [MonadLiftT MetaM m] (e : Expr) (si
   | HSub.hSub _ _ _ _ _ _ => unless isRing do return .rfl
   | Neg.neg _ _ _ => unless isRing do return .rfl
   | _ => pure ()
-  let r₁ ← visitAtoms isRing simpAtom e
+  let r₁ ← visitAtoms kind simpAtom e
   let e₁ := r₁.getResultExpr e
   match (← ((normalizeCore e₁).run { kind } |>.run' {} : SymM CoreResult)) with
   | .notApplicable => return r₁

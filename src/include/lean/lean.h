@@ -690,6 +690,15 @@ static inline bool lean_is_never_freed(lean_object * o) {
 // sync with tests/elab/rc_model.lean (`LEAN_RC_INC_MAX`)
 #define LEAN_RC_INC_MAX ((size_t)0x10000)
 
+/* An overflowing single-threaded count lands at or below this: the inline increment wraps it into
+   `[INT_MIN, INT_MIN + LEAN_RC_INC_MAX)`, and `lean_inc_ref_huge_n` freezes it here, so
+   `lean_mark_mt` can still tell an object only one thread owns. A frozen thread-shared count stays
+   above it while at most 4094 maximal increments are in flight at once, two fewer than the sticky
+   range already allows before a frozen count wraps into the single-threaded range (i.e. about
+   equally safe to assume not to happen in practice). */
+// sync with tests/elab/rc_model.lean (`LEAN_RC_STUCK_ST`)
+#define LEAN_RC_STUCK_ST (INT_MIN + (int)LEAN_RC_INC_MAX)
+
 /* Cold path of `lean_inc_ref_n` for increments above `LEAN_RC_INC_MAX`. */
 LEAN_EXPORT void lean_inc_ref_huge_n(lean_object * o, size_t n);
 

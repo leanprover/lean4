@@ -6,7 +6,7 @@ Authors: Sebastian Graf
 import Cases
 import Driver
 
-set_option mvcgen.warning false
+set_option experimental.vcgen true
 
 /-!
 # VCGen Test Suite

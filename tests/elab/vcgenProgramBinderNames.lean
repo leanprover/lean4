@@ -9,7 +9,7 @@ binders stay inaccessible. -/
 open Std.WP Lean.Order
 
 set_option experimental.intrinsic true
-set_option mvcgen.warning false
+set_option experimental.vcgen true
 set_option warn.sorry false
 set_option linter.unusedVariables false
 

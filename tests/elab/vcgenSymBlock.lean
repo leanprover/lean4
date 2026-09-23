@@ -5,7 +5,7 @@ import Std.Tactic.Do
 
 open Std.WP Lean.Order
 
-set_option mvcgen.warning false
+set_option experimental.vcgen true
 set_option warn.sorry false
 
 /-! ## Trivial postcondition: `vcgen` closes the goal -/
@@ -112,7 +112,7 @@ example :
       · fun _pref suff r => r + suff.length * 5 ≤ 25
     <;> finish
 
-/-! ## `invariants?` (suggest mode) inside `sym =>` -/
+/-! ## `invariants?` warns that suggestions are not available in `vcgen` -/
 
 def mySum (l : List Nat) : Nat := Id.run do
   let mut acc := 0
@@ -121,9 +121,9 @@ def mySum (l : List Nat) : Nat := Id.run do
   return acc
 
 /--
-info: There were no suggestions for missing invariants.
+warning: Invariant suggestions have not been ported from `mvcgen` and the feature is slated for removal. If you found the old feature useful, send Sebastian Graf a message.
 -/
-#guard_msgs (info) in
+#guard_msgs (info, warning) in
 theorem mySum_suggest (l : List Nat) : mySum l = l.sum := by
   generalize h : mySum l = r
   apply Std.WP.Id.of_run_eq_wp h

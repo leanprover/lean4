@@ -5,7 +5,7 @@ import Std.Data.HashMap
 definition plus an `@[spec]`-tagged `f.spec` Hoare triple that `vcgen` proves automatically; a
 `for … invariant` clause inside the body supplies the loop invariant it needs. New cases go here. -/
 
-set_option mvcgen.warning false
+set_option experimental.vcgen true
 set_option experimental.intrinsic true
 
 /-! ## Contracts elaborate with nothing opened
@@ -889,3 +889,213 @@ def onOneLine (k : Nat) : Id Nat given (n : Nat) requires k = n ensures r => r =
 /-- info: onOneLine.spec : ∀ (k n : Nat), ⦃ k = n ⦄ onOneLine k ⦃ fun r => r = n ⦄ -/
 #guard_msgs in
 #check @onOneLine.spec
+
+/-! ## Erased state
+
+`erased` declares verification-only state. The variable reads at its underlying type everywhere,
+its carried `Erased` binding erases in compiled code, and its slot in a loop's state tuple holds
+a dummy. -/
+
+def erasedSumEvens (xs : List Nat) : Id Nat
+    ensures r => r % 2 = 0 := do
+  let mut acc := 0
+  erased mut seen : List Nat := []
+  for x in xs invariant _pre _suff => acc = 2 * seen.length do
+    acc := acc + 2
+    seen := x :: seen
+  return acc
+
+/-- info: 6 -/
+#guard_msgs in
+#eval erasedSumEvens [1, 2, 3]
+
+/-! An existential `ensures` takes its witness from an erased variable: the invariant carries the
+witness, and the exit condition instantiates the existential from it. -/
+
+def erasedDoubleSum (xs : List Nat) : Id Nat
+    ensures r => ∃ n, r = 2 * n := do
+  let mut acc := 0
+  erased mut half : Nat := 0
+  for x in xs invariant _pre _suff => acc = 2 * half do
+    acc := acc + x + x
+    half := half + x
+  return acc
+
+/-- info: 12 -/
+#guard_msgs in
+#eval erasedDoubleSum [1, 2, 3]
+
+/-! The declaration forms: `erased` with and without `mut`, reassignment with an ascription, and
+monadic binds (the action runs, its result erases). -/
+
+def erasedForms : Id Nat := do
+  erased y := 5
+  erased mut x := 1
+  x := x + y
+  x : Nat := 2
+  erased z ← pure 3
+  erased mut m ← pure 4
+  m := m + z
+  pure 0
+
+/-- info: 0 -/
+#guard_msgs in
+#eval erasedForms
+
+/-! An erased variable reassigned in a branch flows through the join point. -/
+
+def erasedBranch (b : Bool) : Id Nat
+    ensures r => r = 0 := do
+  erased mut n : Nat := 0
+  if b then
+    n := n + 1
+  else
+    n := n + 2
+  assert n > 0
+  return 0
+
+/-- info: 0 -/
+#guard_msgs in
+#eval erasedBranch true
+
+/-! An erased value reaching compiled code is rejected through the noncomputability of
+`Erased.out`. -/
+
+/--
+error: failed to compile definition: it depends on 'Erased.out', which recovers the value of an erased variable. An erased variable's value is available in specifications such as `invariant` clauses and `assert`s, but not in compiled code. Consider marking the definition as 'noncomputable'.
+-/
+#guard_msgs in
+def erasedLeak (xs : List Nat) : Id Nat := do
+  erased mut seen : List Nat := []
+  for x in xs do
+    seen := x :: seen
+  return seen.length
+
+/-! An erased reassignment checks a contradicting type ascription like a plain one. -/
+
+/--
+error: Type mismatch
+  g
+has type
+  Int
+but is expected to have type
+  Nat
+-/
+#guard_msgs in
+def erasedAscriptionMismatch : Id Nat := do
+  erased mut g : Int := 0
+  g : Nat := 1
+  pure 0
+
+/-! `erased` stays a regular identifier at a doElem head when no erased shape parses. -/
+
+def erasedAsIdent (erased : Nat → Id Unit) : Id Nat := do
+  erased 5
+  let mut erased := 1
+  erased := erased + 1
+  erased ← pure 3
+  pure erased
+
+/-- info: 3 -/
+#guard_msgs in
+#eval erasedAsIdent fun _ => pure ()
+
+/-! An erased variable stays out of pattern reassignments. -/
+
+/-- error: an erased variable takes a plain reassignment, as in `g := e` -/
+#guard_msgs in
+def erasedPatReassign : Id Nat := do
+  let mut a := 1
+  erased mut g := 2
+  (a, g) := (3, 4)
+  pure a
+
+/-! ## The `throws` clause states the exception postcondition
+
+A `throws e => R` clause fills the exception slot of `e`'s type; every other slot stays `⊥`.
+The spec theorem states the assertions as a tuple. -/
+
+def checkPos (n : Int) : Except String Int
+    ensures r => r = n
+    throws e => n ≤ 0 ∧ e = "not positive"
+  := do
+    if n ≤ 0 then throw "not positive"
+    return n
+
+/-- info: checkPos.spec : ∀ (n : Int), ⦃ ⊤ ⦄ checkPos n ⦃ fun r => r = n; fun e => n ≤ 0 ∧ e = "not positive" ⦄ -/
+#guard_msgs in
+#check @checkPos.spec
+
+/-! A `throws` clause with no `ensures`: the normal postcondition defaults to `⊤`. -/
+
+def onlyThrows (n : Nat) : Except String Nat
+    throws e => e = "zero"
+  := do
+    if n = 0 then throw "zero"
+    return n
+
+/-- info: onlyThrows.spec : ∀ (n : Nat), ⦃ ⊤ ⦄ onlyThrows n ⦃ fun x => ⊤; fun e => e = "zero" ⦄ -/
+#guard_msgs in
+#check @onlyThrows.spec
+
+/-! In a state monad the clause binds the state after the exception, like `ensures`. -/
+
+def bumpOrBoom (n : Nat) : EStateM String Nat Unit
+    requires s => s = n
+    ensures _ s => s = n + 1
+    throws e s => e = "boom" ∧ s = n
+  := do
+    if n > 100 then throw "boom"
+    modify (· + 1)
+
+/-- info: bumpOrBoom.spec : ∀ (n : Nat), ⦃ fun s => s = n ⦄ bumpOrBoom n ⦃ fun x s => s = n + 1; fun e s => e = "boom" ∧ s = n ⦄ -/
+#guard_msgs in
+#check @bumpOrBoom.spec
+
+/-! ## Several `throws` clauses fill several slots
+
+An unascribed binder lands in the outermost slot. An ascription `throws (e : ε) => R` selects
+the layer of type `ε`. The unmentioned tail of the stack stays `⊥`. -/
+
+def twoLayer (n : Nat) : ExceptT String (ExceptT Nat (StateM Nat)) Unit
+    requires s => s = n
+    ensures _ s => s = n + 1
+    throws e s => e = "zero" ∧ s = n
+    throws (e : Nat) s => False
+  := do
+    if n = 0 then throw "zero"
+    modify (· + 1)
+
+/--
+info: twoLayer.spec : ∀ (n : Nat),
+  ⦃ fun s => s = n ⦄ twoLayer n ⦃ fun x s => s = n + 1; estack⟨fun e s => e = "zero" ∧ s = n, fun e s => False⟩ ⦄
+-/
+#guard_msgs in
+#check @twoLayer.spec
+
+/-! A monad with no exception layer has no slot to fill. -/
+
+/--
+error: failed to synthesize instance of type class
+  EPostSlot EStack⟨⟩ ?m.17 Prop
+
+Hint: Type class instance resolution failures can be inspected with the `set_option trace.Meta.synthInstance true` command.
+-/
+#guard_msgs in
+def noSlot (n : Nat) : Id Nat
+    throws e => True
+  := pure n
+
+/-! A `throws` clause whose exception type matches no layer reports at the clause. -/
+
+/--
+error: failed to synthesize instance of type class
+  EPostSlot (String → Prop) Nat Prop
+
+Hint: Type class instance resolution failures can be inspected with the `set_option trace.Meta.synthInstance true` command.
+-/
+#guard_msgs in
+def noNatSlot (n : Nat) : Except String Nat
+    ensures r => r = n
+    throws (e : Nat) => False
+  := pure n

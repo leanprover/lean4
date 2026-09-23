@@ -238,9 +238,9 @@ example : true'' = true   := by with_reducible apply_rfl -- Error
 
 /--
 error: Tactic `apply` failed: could not unify the conclusion of 'HEq.refl'
-  @HEq ?α ?a ?α ?a
+  ?a ≍ ?a
 with the goal
-  @HEq Bool true'' Bool true
+  true'' ≍ true
 
 Note: The full type of 'HEq.refl' is
   ∀ {α : Sort _} (a : α), a ≍ a

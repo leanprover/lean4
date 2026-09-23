@@ -1,0 +1,24 @@
+Input: "- : hello\n\n x\n"
+Failure: expected description body with indentation at least 3
+ --> 3:1-3:2
+  |
+3 |  x
+  |  ^
+  = consumed input prefix: 12 bytes
+Final stack:
+  [(Lean.Doc.Parser.Block.ul
+    [(Lean.Doc.Parser.ListItem.item
+      (Lean.Doc.Parser.listMarker "-")
+      [(Lean.Doc.Parser.Block.dl
+        [(Lean.Doc.Parser.DescItem.item
+          ":"
+          [(Lean.Doc.Parser.Inline.text
+            (Lean.Doc.Parser.versoText "hello"))]
+          <missing>)])
+       (Lean.Doc.Parser.Block.para
+        [(Lean.Doc.Parser.Inline.text
+          (Lean.Doc.Parser.versoText "x"))
+         (Lean.Doc.Parser.Inline.linebreak
+          "\n")])])])]
+All input consumed.
+Round-trip not reproduced, as the parse reported errors: leaf without original source info: <missing>

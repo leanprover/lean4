@@ -12,7 +12,7 @@ open Lean Meta Order Std.WP
 
 namespace PurePrecond
 
-set_option mvcgen.warning false
+set_option experimental.vcgen true
 
 def flipp (_ : Bool) : StateM Bool Unit := modify not
 

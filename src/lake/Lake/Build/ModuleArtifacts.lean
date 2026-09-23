@@ -22,7 +22,7 @@ public structure ModuleOutputDescrs where
   ilean : ArtifactDescr
   irSig? : Option ArtifactDescr := none
   ir? : Option ArtifactDescr := none
-  c : ArtifactDescr
+  c? : Option ArtifactDescr := none
   bc? : Option ArtifactDescr := none
   ltar? : Option ArtifactDescr := none
 
@@ -43,7 +43,8 @@ public protected def ModuleOutputDescrs.toJson (self : ModuleOutputDescrs) : Jso
     obj := obj.insert "rs" irSig
   if let some ir := self.ir? then
     obj := obj.insert "r" ir
-  obj := obj.insert "c" self.c
+  if let some c := self.c? then
+    obj := obj.insert "c" c
   if let some bc := self.bc? then
     obj := obj.insert "b" bc
   if let some ltar := self.ltar? then
@@ -65,7 +66,7 @@ public protected def ModuleOutputDescrs.fromJson? (val : Json) : Except String M
     ilean := ← obj.get "i"
     irSig? := ← obj.get? "rs"
     ir? := ← obj.get? "r"
-    c := ← obj.get "c"
+    c? := ← obj.get? "c"
     bc? := ← obj.get? "b"
     ltar? := ← obj.get? "l"
   }
@@ -81,7 +82,7 @@ public structure ModuleOutputArtifacts where
   ilean : Artifact
   irSig? : Option Artifact := none
   ir? : Option Artifact := none
-  c : Artifact
+  c? : Option Artifact := none
   bc? : Option Artifact := none
   ltar? : Option Artifact := none
 
@@ -94,6 +95,6 @@ public def ModuleOutputArtifacts.descrs (arts : ModuleOutputArtifacts) : ModuleO
   ilean := arts.ilean.descr
   irSig? := arts.irSig?.map (·.descr)
   ir? := arts.ir?.map (·.descr)
-  c := arts.c.descr
+  c? := arts.c?.map (·.descr)
   bc? := arts.bc?.map (·.descr)
   ltar? := arts.ltar?.map (·.descr)

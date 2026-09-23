@@ -1,0 +1,33 @@
+Input: "[a]: http://example.com/x   \n\nSee [it][a].\n"
+Success! Final stack:
+  [(Lean.Doc.Parser.Block.link_ref
+    "["
+    (Lean.Doc.Parser.versoRef "a")
+    "]:"
+    (Lean.Doc.Parser.versoLinkRefUrl
+     "http://example.com/x"))
+   (Lean.Doc.Parser.Block.para
+    [(Lean.Doc.Parser.Inline.text
+      (Lean.Doc.Parser.versoText "See "))
+     (Lean.Doc.Parser.Inline.link
+      "["
+      [(Lean.Doc.Parser.Inline.text
+        (Lean.Doc.Parser.versoText "it"))]
+      "]"
+      (Lean.Doc.Parser.LinkTarget.ref
+       "["
+       (Lean.Doc.Parser.versoRef "a")
+       "]"))
+     (Lean.Doc.Parser.Inline.text
+      (Lean.Doc.Parser.versoText "."))
+     (Lean.Doc.Parser.Inline.linebreak "\n")])]
+All input consumed.
+Round-trip OK
+Decoded views:
+  linkRef (opener := "[") (name := "a") (closer := "]:") (url := "http://example.com/x")
+  para
+    text (content := "See ")
+    link (opener := "[") (closer := "]") (target := ref (opener := "[") (name := "a") (closer := "]"))
+      text (content := "it")
+    text (content := ".")
+    linebreak (newline := "\n")

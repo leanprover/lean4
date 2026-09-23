@@ -3,7 +3,7 @@ import Lean
 import Std
 import Std.Tactic.Do
 
-set_option mvcgen.warning false
+set_option experimental.vcgen true
 set_option warn.sorry false
 
 /-! Tests for the `vcgen until <pattern>` stop condition. -/

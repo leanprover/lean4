@@ -9,7 +9,7 @@ whose unfolding produces the recursive call `recf 2` handled by the same equatio
 next one.
 -/
 
-set_option mvcgen.warning false
+set_option experimental.vcgen true
 
 def recf (n : Nat) : Id Nat :=
   match n with | 0 => pure 1 | n + 1 => recf n

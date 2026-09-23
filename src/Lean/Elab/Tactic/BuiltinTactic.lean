@@ -134,7 +134,12 @@ where
         -- New trees are not guarded by a transformation here so add back trailing eagerly. Unlikely
         -- to be a bottleneck but could be optimized by adding a transformation node to `InfoTree`.
         let trailing := untrimmedTac.getTrailing?.getD default
-        modifyInfoState fun s => { s with trees := trees ++ s.trees.map (·.addTrailing trailing) }
+        unless trailing.isEmpty do
+          -- Substitute info holes first so that term-level tactic blocks ending in the same token
+          -- as `tac` (e.g. `exact foo <| by ...`) regain the trailing whitespace as well.
+          modifyInfoState fun s => { s with
+            trees := s.trees.map (·.substitute s.assignment |>.addTrailing trailing) }
+        modifyInfoState fun s => { s with trees := trees ++ s.trees }
 
       withTheReader Term.Context ({ · with tacSnap? := some {
         new := next
@@ -269,17 +274,19 @@ def elabSetOption : Tactic := fun stx => do
 def evalTacticSeq : Tactic :=
   Term.withNarrowedArgTacticReuse (argIdx := 0) evalTactic
 
-partial def evalChoiceAux (tactics : Array Syntax) (i : Nat) : TacticM Unit :=
-  if h : i < tactics.size then
-    let tactic := tactics[i]
+partial def evalChoiceAux (choiceStx : Syntax) (i : Nat) : TacticM Unit :=
+  if i < choiceStx.getNumArgs then
+    let tactic := choiceStx.getArg i
     catchInternalId unsupportedSyntaxExceptionId
-      (evalTactic tactic)
-      (fun _ => evalChoiceAux tactics (i+1))
+      (do
+        evalTactic tactic
+        pushInfoLeaf <| .ofChoiceResolutionInfo { stx := choiceStx, chosenAltIdx := i })
+      (fun _ => evalChoiceAux choiceStx (i+1))
   else
     throwUnsupportedSyntax
 
 @[builtin_tactic choice] def evalChoice : Tactic := fun stx =>
-  evalChoiceAux stx.getArgs 0
+  evalChoiceAux stx 0
 
 @[builtin_tactic skip] def evalSkip : Tactic := fun _ => pure ()
 
@@ -447,7 +454,7 @@ where
         let e := (← fvarId.getValue?).get!
         let e' ← Tactic.elabTermEnsuringType v (← fvarId.getType)
         unless ← withAssignableSyntheticOpaque <| isDefEq e e' do
-          let (e, e') ← addPPExplicitToExposeDiff e e'
+          let (e, e') ← withAssignableSyntheticOpaque <| addPPExplicitToExposeDiff e e'
           throwErrorAt v "Provided term{indentExpr e'}\n\
             is not definitionally equal to{indentD m!"{Expr.fvar fvarId} := {e}"}"
         let mvars ← filterOldMVars (← getMVars e') mvarCounterSaved

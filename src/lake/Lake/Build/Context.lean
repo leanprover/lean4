@@ -21,12 +21,16 @@ public structure BuildConfig extends LogConfig where
   trustHash : Bool := true
   /-- Early exit if a target has to be rebuilt. -/
   noBuild : Bool := false
+  /-- Stop scheduling new build jobs after the first required target failure. -/
+  failFast : Bool := false
   /-- Verbosity level (`-q`, `-v`, or neither). -/
   verbosity : Verbosity := .normal
   /-- Whether to print a message when the build finishes successfully (if not quiet). -/
   showSuccess : Bool := false
-  /-- File to save input-to-output mappings from the build of the workspace's root -/
+  /-- File to save tracked input-to-output mappings from the build of a package. -/
   outputsFile? : Option FilePath := none
+  /-- When tracking input-to-output mappings, the workspace index of the tracked package. -/
+  outputsIdx : Nat := 0
   /--
   Per-package Lean option overrides, applied to every module whose owning
   package's `baseName` appears as a key. When `recFetchSetup` builds module
@@ -84,10 +88,17 @@ public structure BuildContext extends BuildConfig, Context where
   leanIncludeDirs : Array (Option (FilePath × BuildTrace))
   registeredJobs : JobQueue
   /--
-  Input-to-output(s) map for hashes of the root package's artifacts.
+  Input-to-output(s) map for hashes of the tracked package's artifacts.
   If `none`, tracking outputs is disabled for this build.
   -/
   outputsRef? : Option CacheRef := none
+  /--
+  Cancellation token for the build. Once the token is set, job continuations
+  (e.g., `Job.mapM` / `Job.bindM`) error instead of scheduling new work;
+  already-running tasks complete normally. If `none`, cancellation is disabled.
+   Only the build monitor should set this token: reporting assumes that a counted failure exists when the token is set.
+  -/
+  cancelTk? : Option IO.CancelToken := none
 
 /-- A transformer to equip a monad with a `BuildContext`. -/
 public abbrev BuildT := ReaderT BuildContext

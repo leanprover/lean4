@@ -9,7 +9,8 @@ Includes the example from issue #12275, where the alternative's body is only wel
 the let-bound discriminant unfolds to its value.
 -/
 
-set_option mvcgen.warning false
+set_option linter.deprecated.syntax false
+set_option experimental.vcgen true
 
 def dep (n : Option Nat) : Id Nat :=
   match _h : n with | some y => pure (y + 1) | none => pure 2

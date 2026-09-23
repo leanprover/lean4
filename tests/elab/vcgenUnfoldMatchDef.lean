@@ -10,7 +10,7 @@ as a spec: it matches any call and would strand its overlap hypothesis as an unp
 verification condition.
 -/
 
-set_option mvcgen.warning false
+set_option experimental.vcgen true
 
 def dep (n : Option Nat) : Id Nat :=
   match n with | some y => pure (y + 1) | none => pure 2

@@ -16,6 +16,7 @@ from util import Checklist, CMakeVersion, ReleaseRepo, Version
 @dataclass
 class Config:
     version: Version
+    repos_dir: Path
     interactive: bool
     skip_weak_deps: bool
     skip_mathlib_checks: bool
@@ -29,7 +30,7 @@ class RepoChecker:
 
         self.rrepo = rrepo
         self.grepo = self.github.get_repo(self.rrepo.gh_full_name)
-        self.lrepo = self.rrepo.local
+        self.lrepo = self.rrepo.local(self.config.repos_dir)
 
     @property
     def github(self) -> Github:
@@ -61,30 +62,28 @@ class RepoChecker:
         return False
 
     def create_pr(
-        self, base: str, head: str, title: str, nightly: ReleaseRepo | None = None
+        self,
+        *,
+        base: str,
+        head: str,
+        title: str,
+        body: str | None = None,
+        nightly: ReleaseRepo | None = None,
     ) -> None:
         if not self.prompt(f"Push branch [b]{e(head)}[/b]?"):
             self.cl.fatal("Branch not pushed")
         self.lrepo.push(head, remote="nightly" if nightly else "origin")
 
-        # Mathlib bump PRs are opened from the nightly-testing repo, which
-        # pygithub doesn't support because both belong to the same organization:
-        # https://github.com/PyGithub/PyGithub/issues/2942
-        # So we just give the user a link instead.
-        # TODO https://github.com/PyGithub/PyGithub/pull/3479 was merged, await release and update
-        if nightly:
-            url = util.create_pr_url(
-                base=self.rrepo,
-                base_branch=base,
-                head=nightly,
-                head_branch=head,
-                title=title,
-            )
-            self.cl.blocked(f"[u link={url}]Create PR manually[/]")
-
         if not self.prompt(f"Create PR for branch [b]{e(head)}[/b]?"):
             self.cl.fatal("PR not created")
-        pr = util.create_pr(self.grepo, head=head, base=base, title=title)
+        pr = util.create_pr(
+            self.grepo,
+            title=title,
+            body=body,
+            base=base,
+            head=head,
+            head_repo=nightly,
+        )
         self.cl.blocked(f"PR created: {util.fmt_pr(pr)}")
 
 
@@ -342,7 +341,7 @@ class DownstreamChecker(RepoChecker):
             remote = "nightly" if self.rrepo.nightly else "origin"
             self.lrepo.switch(head, remote=remote)
         elif self.version.rc == 1 and self.rrepo.rc1_pr_base == "downstream":
-            dsl = repos.DOWNSTREAM_LEAN4.local
+            dsl = repos.DOWNSTREAM_LEAN4.local(self.config.repos_dir)
             dsl.prepare()
             dsl.switch("master")
             dsl.run(
@@ -360,7 +359,12 @@ class DownstreamChecker(RepoChecker):
         self.lrepo.commit(title)
 
         # Create bump PR
-        self.create_pr(base=base, head=head, title=title, nightly=self.rrepo.nightly)
+        body = None
+        if self.rrepo.gh_full_name == repos.VERSO.gh_full_name:
+            body = f"No-Changelog: toolchain bump for release {self.version.tag}"
+        self.create_pr(
+            title=title, body=body, base=base, head=head, nightly=self.rrepo.nightly
+        )
 
     def check_next_bump_branch(self) -> None:
         if self.rrepo.rc1_pr_base != "bump":
@@ -827,12 +831,6 @@ class LeanChecker(RepoChecker):
             self.cl.fail(f"{what} not posted")
             return
 
-        proofwidgets = self.github.get_repo(repos.PROOFWIDGETS4.gh_full_name)
-        proofwidgets_tag = util.get_proofwidgets_release_for(proofwidgets, self.version)
-        if proofwidgets_tag is None:
-            self.cl.fail("ProofWidgets release tag not found")
-            return
-
         release_notes_url = f"https://lean-lang.org/doc/reference/latest/releases/{self.version.stable}/"
 
         msg = ""
@@ -842,9 +840,26 @@ class LeanChecker(RepoChecker):
             msg += f"We have a new release candidate of Lean, `{self.version.tag}`. "
         msg += f"See the [release notes]({release_notes_url}) for more information."
         msg += "\n\n"
-        msg += "The usual repos are all available with the new toolchain "
-        msg += f"at their respective `{self.version.tag}` tags "
-        msg += f"(and ProofWidgets at `{proofwidgets_tag.name}`). "
+
+        if self.version.patch > 0:
+            # Patch releases only update the repos marked `patch_release`, and
+            # ProofWidgets is not one of them.
+            names = [f"`{r.gh_name}`" for r in repos.ALL if r.patch_release]
+            msg += f"{util.join_and(names)} are available with the new toolchain "
+            msg += f"at their respective `{self.version.tag}` tags. "
+        else:
+            proofwidgets = self.github.get_repo(repos.PROOFWIDGETS4.gh_full_name)
+            proofwidgets_tag = util.get_proofwidgets_release_for(
+                proofwidgets, self.version
+            )
+            if proofwidgets_tag is None:
+                self.cl.fail("ProofWidgets release tag not found")
+                return
+
+            msg += "The usual repos are all available with the new toolchain "
+            msg += f"at their respective `{self.version.tag}` tags "
+            msg += f"(and ProofWidgets at `{proofwidgets_tag.name}`). "
+
         msg += "We encourage all projects downstream "
         msg += f"to update to `{self.version.tag}` when possible, and "
         msg += "to release their own corresponding toolchain tags after updating."
@@ -916,6 +931,7 @@ class LeanChecker(RepoChecker):
 
 class Args:
     version: Version
+    repos_dir: Path | None
     interactive: bool
     skip_weak_deps: bool
     skip_mathlib_checks: bool
@@ -925,6 +941,7 @@ class Args:
 if __name__ == "__main__":
     parser = ArgumentParser()
     parser.add_argument("version", type=Version.parse)
+    parser.add_argument("-d", "--repos-dir", type=Path)
     parser.add_argument("-i", "--interactive", action="store_true")
     parser.add_argument("-W", "--skip-weak-deps", action="store_true")
     parser.add_argument("-M", "--skip-mathlib-checks", action="store_true")
@@ -935,6 +952,7 @@ if __name__ == "__main__":
     github = util.get_github_instance()
     config = Config(
         version=args.version,
+        repos_dir=util.get_repos_dir(args.repos_dir),
         interactive=args.interactive,
         skip_weak_deps=args.skip_weak_deps,
         skip_mathlib_checks=args.skip_mathlib_checks,

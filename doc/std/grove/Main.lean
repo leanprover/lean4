@@ -13,6 +13,7 @@ def project : Grove.Framework.Project where
   config := config
   rootNode := GroveStdlib.std
   restoreState := GroveStdlib.Generated.restoreState
+  renamings := #[]
 
 def main (args : List String) : IO UInt32 :=
   Grove.Framework.main project #[`Init, `Std, `Lean] args

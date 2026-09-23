@@ -342,6 +342,12 @@ def evalIntBDiv (a b : Expr) : SimpM Result := do
   let e ← share <| toExpr (Int.bdiv a b)
   return .step e (mkApp2 (mkConst ``Eq.refl [1]) Int.mkType e) (done := true)
 
+def evalLog2 (a : Expr) (maxExponent : Nat) : SimpM Result := do
+  let some n := getNatValue? a | return .rfl
+  if n > 2^maxExponent then return .rfl
+  let e ← share <| toExpr n.log2
+  return .step e (mkApp2 (mkConst ``Eq.refl [1]) Nat.mkType e) (done := true)
+
 abbrev evalBinPred (toValue? : Expr → Option α) (trueThm falseThm : Expr) (op : α → α → Bool) (a b : Expr) : SimpM Result := do
   let some va := toValue? a | return .rfl
   let some vb := toValue? b | return .rfl
@@ -595,8 +601,14 @@ def evalBitVecOfNat (n a : Expr) : SimpM Result := do
   let some a ← getNatValue? a |>.run | return .rfl
   if (← getNatValue? n |>.run).isSome then return .rfl -- already in normal form
   let some n ← evalNat n |>.run | return .rfl -- TODO: consider using dsimp
-  let r ← share (toExpr (BitVec.ofNat n a))
+  let r ← share <| toExpr (BitVec.ofNat n a)
   return .step r (mkRflBitVec r n) (done := true)
+
+def evalBitVecOfNatClamp (n a : Expr) : SimpM Result := do
+  let some nv := getNatValue? n | return .rfl
+  let some av := getNatValue? a | return .rfl
+  let r ← share <| toExpr (BitVec.ofNatClamp nv av)
+  return .step r (mkRflBitVec r nv) (done := true)
 
 def evalBitVecToInt (a : Expr) : SimpM Result := do
   let some a := getBitVecValue? a | return .rfl
@@ -710,6 +722,7 @@ public def evalGround (config : EvalStepConfig := {}) : Simproc := fun e =>
   | Complement.complement α _ a => evalComplement α a
   | Nat.gcd a b => evalBinNat Nat.gcd a b
   | Nat.succ a => evalUnaryNat (· + 1) a
+  | Nat.log2 a => evalLog2 a config.maxExponent
   | Int.gcd a b => evalIntGcd a b
   | Int.tdiv a b => evalBinInt Int.tdiv a b
   | Int.fdiv a b => evalBinInt Int.fdiv a b
@@ -769,6 +782,7 @@ public def evalGround (config : EvalStepConfig := {}) : Simproc := fun e =>
   | BitVec.allOnes n => evalBitVecAllOnes n
   | BitVec.toNat _ a => evalBitVecToNat a
   | BitVec.ofNat n a => evalBitVecOfNat n a
+  | BitVec.ofNatClamp n a => evalBitVecOfNatClamp n a
   | BitVec.toInt _ a => evalBitVecToInt a
   | BitVec.ofInt n i => evalBitVecOfInt n i
   | BitVec.toFin _ a => evalBitVecToFin a

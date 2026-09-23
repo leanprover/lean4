@@ -109,6 +109,13 @@ Motivations:
 def letIdDeclNoBinders := leading_parser
   atomic (node ``letId ident >> pushNone >> optType >> " := ") >> termParser
 
+/-- `erased x := e` declares a verification-only variable; `mut` allows reassignment. -/
+@[builtin_doElem_parser default+10] def doErased := leading_parser
+  nonReservedSymbol "erased " (includeIdent := true) >> optional "mut " >> letIdDeclNoBinders
+/-- `erased x ← act` runs `act` and hides its result in a verification-only variable. -/
+@[builtin_doElem_parser default+10] def doErasedArrow := leading_parser
+  nonReservedSymbol "erased " (includeIdent := true) >> optional "mut " >> doIdDecl
+
 @[builtin_doElem_parser] def doReassign      := leading_parser
   notFollowedByRedefinedTermToken >> (letIdDeclNoBinders <|> letPatDecl)
 

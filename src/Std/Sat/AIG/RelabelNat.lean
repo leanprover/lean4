@@ -307,14 +307,26 @@ theorem ofAIG_find_some {aig : AIG α} : ∀ a ∈ aig, ∃ n, (ofAIG aig)[a]? =
 end State
 end RelabelNat
 
+namespace relabelNat
+
+def map (m : HashMap α Nat) (x : α) : Nat :=
+  m[x]!
+
+theorem map_inj (aig : AIG α) : ∀ x y, x ∈ aig → y ∈ aig →
+    map (RelabelNat.State.ofAIG aig) x = map (RelabelNat.State.ofAIG aig) y → x = y := by
+  intro x y hx hy heq
+  unfold map at heq
+  rcases RelabelNat.State.ofAIG_find_some x hx with ⟨n, hn⟩
+  rcases RelabelNat.State.ofAIG_find_some y hy with ⟨m, hm⟩
+  simp only [HashMap.getElem!_eq_get!_getElem?, hn, Option.get!_some, hm] at heq
+  subst heq
+  exact RelabelNat.State.ofAIG_find_unique _ hn _ hm
+
+end relabelNat
+
 def relabelNat' (aig : AIG α) : (AIG Nat × HashMap α Nat) :=
   let map := RelabelNat.State.ofAIG aig
-  let aig := aig.relabel fun x =>
-    -- The none branch never gets hit, we prove this below.
-    match map[x]? with
-    | some var => var
-    | none => 0
-  (aig, map)
+  (aig.relabel (relabelNat.map map) (relabelNat.map_inj aig), map)
 
 /--
 Map an `AIG` with arbitrary atom identifiers to one that uses `Nat` as atom identifiers. This is
@@ -331,36 +343,13 @@ theorem relabelNat'_fst_eq_relabelNat {aig : AIG α} : aig.relabelNat'.fst = aig
 theorem relabelNat_size_eq_size {aig : AIG α} : aig.relabelNat.decls.size = aig.decls.size := by
   simp [relabelNat, relabelNat']
 
-theorem relabelNat_unsat_iff_of_NonEmpty [Nonempty α] {aig : AIG α} {hidx1} {hidx2} :
-    (aig.relabelNat).UnsatAt idx invert hidx1 ↔ aig.UnsatAt idx invert hidx2 := by
-  simp only [relabelNat, relabelNat']
-  rw [relabel_unsat_iff]
-  intro x y hx hy heq
-  split at heq
-  next hcase1 =>
-    split at heq
-    next hcase2 =>
-      apply RelabelNat.State.ofAIG_find_unique
-      · assumption
-      · rw [heq]
-        assumption
-    next hcase2 =>
-      exfalso
-      rcases RelabelNat.State.ofAIG_find_some y hy with ⟨n, hn⟩
-      simp [hcase2] at hn
-  next hcase =>
-    exfalso
-    rcases RelabelNat.State.ofAIG_find_some x hx with ⟨n, hn⟩
-    simp [hcase] at hn
-
 /--
 `relabelNat` preserves unsatisfiablility.
 -/
 theorem relabelNat_unsat_iff {aig : AIG α} {hidx1} {hidx2} :
     (aig.relabelNat).UnsatAt idx invert hidx1 ↔ aig.UnsatAt idx invert hidx2 := by
-  by_cases hNonempty : Nonempty α
-  · apply relabelNat_unsat_iff_of_NonEmpty
-  · apply relabel_unsat_iff_of_not_Nonempty hNonempty
+  simp only [relabelNat, relabelNat']
+  rw [relabel_unsat_iff]
 
 namespace Entrypoint
 

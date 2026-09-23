@@ -42,7 +42,6 @@ def DataValue.sameCtor : DataValue → DataValue → Bool
   | .ofSyntax _, .ofSyntax _ => true
   | _,           _           => false
 
-@[export lean_data_value_to_string]
 def DataValue.str : DataValue → String
   | .ofString v => v
   | .ofBool v   => toString v

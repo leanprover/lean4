@@ -8,6 +8,7 @@ module
 prelude
 public import Lean.Server.Completion.CompletionInfoSelection
 public import Lean.Server.CodeActions.Basic
+import Lean.Language.Lean.Util
 
 public section
 
@@ -31,7 +32,7 @@ private def compareRanges (r1 r2 : Lean.Syntax.Range) : Ordering :=
 def waitUnknownIdentifierRanges (doc : EditableDocument) (requestedRange : Lean.Syntax.Range)
     : BaseIO (Array Lean.Syntax.Range × Bool) := do
   let text := doc.meta.text
-  let some parsedSnap := RequestM.findCmdParsedSnap doc requestedRange.start |>.get
+  let some parsedSnap := Language.Lean.findCmdParsedSnap doc.initSnap doc.meta.text requestedRange.start |>.get
     | return (#[], false)
   let tree := Language.toSnapshotTree parsedSnap.elabSnap
   let msgLog := tree.collectMessagesInRange requestedRange |>.get
@@ -45,7 +46,7 @@ def waitUnknownIdentifierRanges (doc : EditableDocument) (requestedRange : Lean.
       continue
     ranges := ranges.push msgRange
   let isAnyUnknownIdentifierMessage := ! ranges.isEmpty
-  let autoImplicitUsages : ServerTask (Std.TreeSet Lean.Syntax.Range compareRanges) :=
+  let autoImplicitUsages : Task (Std.TreeSet Lean.Syntax.Range compareRanges) :=
     tree.foldInfosInRange requestedRange ∅ fun ctx i acc => Id.run do
       let .ofTermInfo ti := i
         | return acc
@@ -202,7 +203,7 @@ def computeQueries
     (requestedPos : String.Pos.Raw)
     : RequestM (Array Query) := do
   let text := doc.meta.text
-  let some (stx, infoTree) := RequestM.findCmdDataAtPos doc requestedPos (includeStop := true) |>.get
+  let some (stx, infoTree) := Language.Lean.findCmdDataAtPos doc.initSnap doc.meta.text requestedPos (includeStop := true) |>.get
     | return #[]
   let (completionPartitions, _) := findPrioritizedCompletionPartitionsAt text requestedPos stx infoTree
   let mut queries := #[]

@@ -11,7 +11,7 @@ import Lean
 open Std.Do
 
 set_option grind.warning false
-set_option mvcgen.warning false
+set_option linter.deprecated.syntax false
 set_option warn.sorry false
 
 namespace Code

@@ -17,7 +17,7 @@ unfolding at a recursive call.
 -/
 
 open Std.WP Lean.Order
-set_option mvcgen.warning false
+set_option experimental.vcgen true
 set_option linter.unusedVariables false
 
 abbrev P := ExceptT String (StateM (List Char))

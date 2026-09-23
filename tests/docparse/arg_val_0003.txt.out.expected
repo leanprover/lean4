@@ -1,4 +1,11 @@
-Failure @0 (⟨1, 0⟩): unexpected end of input; expected '(', '+' or '-'
+Input: ""
+Failure: unexpected end of input; expected '(', '+' or '-'
+ --> 1:0
+  |
+1 | 
+  | ^
+  = consumed input prefix: 0 bytes
 Final stack:
   <missing>
-Remaining: ""
+All input consumed.
+Round-trip not reproduced, as the parse reported errors: leaf without original source info: <missing>

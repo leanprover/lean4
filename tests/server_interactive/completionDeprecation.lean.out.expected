@@ -45,8 +45,7 @@ Resolution of foo4:
  "label": "foo4",
  "kind": 3,
  "documentation":
- {"value":
-  "(some (`SomeStructure.foo4` has been deprecated.))\n\nA docstring. ",
+ {"value": "(some (`SomeStructure.foo4` has been deprecated.))\n\nA docstring.",
   "kind": "markdown"},
  "detail": "SomeStructure → Nat",
  "data":
@@ -57,7 +56,7 @@ Resolution of foo8:
  "kind": 3,
  "documentation":
  {"value":
-  "(some (`SomeStructure.foo8` has been deprecated; please use `SomeStructure.foo1` instead.))\n\nA docstring. ",
+  "(some (`SomeStructure.foo8` has been deprecated; please use `SomeStructure.foo1` instead.))\n\nA docstring.",
   "kind": "markdown"},
  "detail": "SomeStructure → Nat",
  "data":
@@ -96,7 +95,7 @@ Resolution of foo6:
  "kind": 3,
  "documentation":
  {"value":
-  "(some (`SomeStructure.foo6` has been deprecated, use `SomeStructure.foo1` instead.))\n\nA docstring. ",
+  "(some (`SomeStructure.foo6` has been deprecated, use `SomeStructure.foo1` instead.))\n\nA docstring.",
   "kind": "markdown"},
  "detail": "SomeStructure → Nat",
  "data":
@@ -113,7 +112,7 @@ Resolution of foo3:
 Resolution of foo2:
 {"label": "foo2",
  "kind": 3,
- "documentation": {"value": "A docstring. ", "kind": "markdown"},
+ "documentation": {"value": "A docstring.", "kind": "markdown"},
  "detail": "SomeStructure → Nat",
  "data":
  ["file:///completionDeprecation.lean", 25, 28, 0, "cSomeStructure.foo2"]}

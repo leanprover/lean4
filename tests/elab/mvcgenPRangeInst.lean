@@ -3,7 +3,7 @@ import Std.Tactic.Do
 open Std.Do
 
 set_option warn.sorry false
-set_option mvcgen.warning false
+set_option linter.deprecated.syntax false
 
 def foo (l : List Nat) : Nat := Id.run do
   let mut out := 0

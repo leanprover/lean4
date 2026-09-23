@@ -8,7 +8,7 @@ verification condition, and that a goal stating `⊤` closes the projected excep
 `⊤.fst e` outright.
 -/
 
-set_option mvcgen.warning false
+set_option experimental.vcgen true
 open Std.WP Lean.Order
 
 abbrev M := ExceptT String Id

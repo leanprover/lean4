@@ -5,7 +5,7 @@ import Std.Tactic.Do
 `refine_lift no_implicit_lambda% …`). `vcgen` must read the program type through that annotation.
 Also checks that `⦃…⦄` elaborates with only `open Std.WP` (no `open Lean.Order`). -/
 
-set_option mvcgen.warning false
+set_option experimental.vcgen true
 
 open Std.WP
 

@@ -640,7 +640,6 @@ private def asyncConsts (env : Environment) : AsyncConsts :=
 Constructs an elaboration environment from a given kernel environment's constants. All constants are
 accessible in both the private and public scope. All other data is empty.
 -/
-@[export lean_elab_environment_of_kernel_env]
 def ofKernelEnv (env : Kernel.Environment) : Environment :=
   { base.private := env, base.public := env, importRealizationCtx? := none }
 
@@ -849,6 +848,13 @@ system, this is any definition. -/
 def hasExposedBody (env : Environment) (n : Name) : Bool :=
   env.setExporting true |>.find? n |>.any (·.hasValue)
 
+def getModuleIdxFor? (env : Environment) (declName : Name) : Option ModuleIdx :=
+  -- async constants are always from the current module
+  env.base.get env |>.const2ModIdx[declName]?
+
+def isImportedConst (env : Environment) (declName : Name) : Bool :=
+  env.getModuleIdxFor? declName |>.isSome
+
 /--
 Allows `realizeConst` calls for the given declaration in all derived environment branches.
 Realizations will run using the given environment and options to ensure deterministic results. Note
@@ -881,7 +887,7 @@ def enableRealizationsForConst (env : Environment) (opts : Options) (c : Name) :
     realizeMapRef := (← IO.mkRef {}) } }
 
 def areRealizationsEnabledForConst (env : Environment) (c : Name) : Bool :=
-  (env.base.get env |>.const2ModIdx.contains c) || env.localRealizationCtxMap.contains c
+  env.isImportedConst c || env.localRealizationCtxMap.contains c
 
 /-- Returns debug output about the asynchronous state of the environment. -/
 def dbgFormatAsyncState (env : Environment) : BaseIO String :=
@@ -1155,6 +1161,26 @@ def containsOnBranch (env : Environment) (n : Name) : Bool :=
   (env.asyncConsts.find? n |>.isSome) || (env.base.get env).constants.contains n
 
 /--
+Returns whether `realizeConst forConst` callbacks can access `c` in the private scope, i.e. whether
+`c` is part of the realization environment of `forConst`. Returns `false` if realizations for
+`forConst` are not enabled on the current environment branch. Like `contains`, may block on
+asynchronous elaboration.
+
+Use this to choose `forConst` when a realization depends on two (or more) constants: a correct target
+is one whose realization environment contains all others.
+-/
+def realizationEnvContains (env : Environment) (forConst c : Name) : Bool :=
+  let env := env.setExporting false
+  if env.isImportedConst forConst then
+    env.isImportedConst c
+  else match env.localRealizationCtxMap.find? forConst with
+    | some ctx =>
+      -- safety: `RealizationContext` is private
+      let realizeEnv : Environment := unsafe unsafeCast ctx.env
+      realizeEnv.setExporting false |>.contains c
+    | none => false
+
+/--
 Returns the constants added in the current module, in elaboration tree pre-order: the top-level
 declarations in elaboration order, each followed by its asynchronous sub-declarations, recursively.
 The recursive part can optionally be skipped for theorems for when their sub-decls are unimportant
@@ -1193,13 +1219,6 @@ def setMainModule (env : Environment) (m : Name) : Environment := Id.run do
 
 def mainModule (env : Environment) : Name :=
   env.header.mainModule
-
-def getModuleIdxFor? (env : Environment) (declName : Name) : Option ModuleIdx :=
-  -- async constants are always from the current module
-  env.base.get env |>.const2ModIdx[declName]?
-
-def isImportedConst (env : Environment) (declName : Name) : Bool :=
-  env.getModuleIdxFor? declName |>.isSome
 
 def isConstructor (env : Environment) (declName : Name) : Bool :=
   env.findAsync? declName |>.any (·.kind == .ctor)
@@ -1308,6 +1327,44 @@ inductive EnvExtension.AsyncMode where
 
 abbrev ReplayFn (σ : Type) :=
   (oldState : σ) → (newState : σ) → (newConsts : List Name) → σ → σ
+
+/--
+Implementation of `takeNewEntriesRev`. Entries are only ever consed onto an extension's list, so
+`oldEntries` is normally a physical suffix of `newEntries`: the very cons cell at which the two lists
+join. We walk `newEntries` until `ptrEq` finds that cell, so only the new entries are visited,
+whereas the reference implementation walks both lists in full to compute their lengths. The new
+entries are consed onto `acc` as they are visited, which produces them oldest first without a final
+`reverse`. If the walk reaches `[]` without finding the cell, `oldEntries` is not a physical
+suffix (e.g. `[]` is a scalar and thus always found, but a list rebuilt with the same contents is
+not), and we fall back to the reference implementation.
+-/
+private unsafe def takeNewEntriesRevUnsafe (newEntries oldEntries : List α) : List α :=
+  go newEntries []
+where
+  go (l : List α) (acc : List α) : List α :=
+    if ptrEq l oldEntries then
+      acc
+    else match l with
+      | [] => newEntries.take (newEntries.length - oldEntries.length) |>.reverse
+      | a :: as => go as (a :: acc)
+
+/--
+Returns the entries `newEntries` has in front of its suffix `oldEntries`, oldest first.
+
+This is intended for `ReplayFn` implementations of extensions that record entries in a list, where
+`newEntries` is `oldEntries` with the entries added in the meantime consed on. The suffix is found
+by pointer equality, so the cost is proportional to the number of new entries rather than to the
+number of all entries added in the current file; the latter matters because every realization
+replays every such extension. If `oldEntries` is not a physical suffix of `newEntries`, the leading
+`newEntries.length - oldEntries.length` entries are returned instead.
+-/
+@[implemented_by takeNewEntriesRevUnsafe]
+def takeNewEntriesRev (newEntries oldEntries : List α) : List α :=
+  newEntries.take (newEntries.length - oldEntries.length) |>.reverse
+
+/-- Like `takeNewEntriesRev`, but returns the new entries in their order in `newEntries`. -/
+def takeNewEntries (newEntries oldEntries : List α) : List α :=
+  takeNewEntriesRev newEntries oldEntries |>.reverse
 
 /--
 Environment extension, can only be generated by `registerEnvExtension` that allocates a unique index
@@ -2648,7 +2705,7 @@ def realizeValue [BEq α] [Hashable α] [TypeName α] (env : Environment) (forCo
   -- end
   let heartbeats ← IO.getNumHeartbeats
   -- find `RealizationContext` for `forConst` in `importRealizationCtx?` or `localRealizationCtxMap`
-  let ctx ← if env.base.get env |>.const2ModIdx.contains forConst then
+  let ctx ← if env.isImportedConst forConst then
     env.importRealizationCtx?.getDM <|
       throw <| .userError s!"Environment.realizeConst: `realizedImportedConsts` is empty"
   else
@@ -2656,7 +2713,7 @@ def realizeValue [BEq α] [Hashable α] [TypeName α] (env : Environment) (forCo
     | some ctx => pure ctx
     | none =>
       throw <| .userError s!"trying to realize `{TypeName.typeName α}` value but \
-        `enableRealizationsForConst` must be called for '{forConst}' first"
+        `enableRealizationsForConst` must be called for `{forConst}` first"
   let res ← (do
     -- First try checking for the key non-atomically as (de)allocating the promise is expensive.
     let m ← ctx.realizeMapRef.get
@@ -2711,6 +2768,10 @@ deriving Nonempty, TypeName
 def realizeConst (env : Environment) (forConst : Name) (constName : Name)
     (realize : Environment → Options → BaseIO (Environment × Dynamic)) :
     IO (Environment × Task (Option Kernel.Exception) × Dynamic) := do
+  -- `realizeValue` checks this as well but can only name the key type in its error message
+  unless env.areRealizationsEnabledForConst forConst do
+    throw <| .userError s!"trying to realize `{constName}` but `enableRealizationsForConst` must \
+      be called for `{forConst}` first"
   let res ← env.realizeValue forConst { constName : RealizeConstKey } fun realizeEnv realizeOpts => do
     -- ensure that environment extension modifications know they are in an async context
     let realizeEnv := realizeEnv.enterAsyncRealizing constName

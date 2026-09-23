@@ -8,6 +8,9 @@ def f (x : MyEmpty) : Nat :=
 set_option trace.Compiler.saveMono true
 /--
 trace: [Compiler.saveMono] size: 0
+    def f._redArg _dummy : Nat :=
+      ⊥
+[Compiler.saveMono] size: 0
     def f x : Nat :=
       ⊥
 ---

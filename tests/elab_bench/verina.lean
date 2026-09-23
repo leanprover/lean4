@@ -11,7 +11,7 @@ itself. Each fixture lives in its own namespace with `@[local grind]` lemmas.
 -/
 
 open Std.WP Lean.Order
-set_option mvcgen.warning false
+set_option experimental.vcgen true
 set_option experimental.intrinsic true
 set_option warn.sorry false
 set_option maxHeartbeats 1000000

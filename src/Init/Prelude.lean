@@ -1819,7 +1819,7 @@ instance [HomogeneousPow α] : Pow α α where
 instance instHSMul {α β} [SMul α β] : HSMul α β β where
   hSMul := SMul.smul
 
-instance (priority := 910) {α : Type u} [Mul α] : SMul α α where
+instance (priority := 1100) {α : Type u} [Mul α] : SMul α α where
   smul x y := Mul.mul x y
 
 @[default_instance]
@@ -5030,7 +5030,7 @@ inductive SourceInfo where
   binders, as in the macro expansion for dependent if:
   ```
   `(if $h : $cond then $t else $e) ~>
-  `(dite $cond (fun $h => $t) (fun $h => $t))
+  `(dite $cond (fun $h => $t) (fun $h => $e))
   ```
   In these cases, if the user hovers over `h` they will see information about both binding sites.
   -/

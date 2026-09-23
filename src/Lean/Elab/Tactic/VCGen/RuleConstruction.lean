@@ -43,117 +43,55 @@ private def mkPostPointwisePremise (postSpec postTarget postTy : Expr) (ssTypes 
       let rhs := mkAppN (mkApp postTarget a) ss'
       mkForallFVars (#[a] ++ ss') (← mkAppM ``PartialOrder.rel #[lhs, rhs])
 
-/-- An `AssertionHom E T hom` instance together with the arguments of its type,
-`#[E, T, hom, instE, instT]`. -/
-private structure AssertionHomInst where
-  levels : List Level
-  args : Array Expr
-  inst : Expr
-
-namespace AssertionHomInst
-
-/-- The stack type the conversion targets. -/
-private def T (p : AssertionHomInst) : Expr := p.args[1]!
-/-- The conversion itself. -/
-private def hom (p : AssertionHomInst) : Expr := p.args[2]!
-
-/-- Apply the `AssertionHom` field `field` to `args`. -/
-private def mkField (p : AssertionHomInst) (field : Name) (args : Array Expr) : Expr :=
-  mkAppN (mkConst field p.levels) (p.args ++ #[p.inst] ++ args)
-
-end AssertionHomInst
-
-/-- The `AssertionHom` instance of `E`, or `none` if there is none, in which case `E` is atomic.
-Runs instance synthesis, which is affordable here: rule construction is cached per spec theorem,
-`WPMonad` instance and excess-argument count, so the lookup runs once per shape, not per goal. -/
-private def assertionHom? (E : Expr) : MetaM (Option AssertionHomInst) := withNewMCtxDepth do
-  let some u ← decLevel? (← getLevel E) | return none
-  let .some instE ← trySynthInstance (mkApp (mkConst ``Assertion [u]) E) | return none
-  let T ← mkFreshExprMVar (mkSort (.succ u))
-  let hom ← mkFreshExprMVar (← mkArrow E T)
-  let instT ← mkFreshExprMVar (mkApp (mkConst ``Assertion [u]) T)
-  let .some inst ← trySynthInstance
-      (mkAppN (mkConst ``AssertionHom [u]) #[E, T, hom, instE, instT])
-    | return none
-  let instType ← instantiateMVars (← Meta.inferType inst)
-  let .const _ levels := instType.getAppFn | return none
-  return some { levels, args := instType.getAppArgs, inst := ← instantiateMVars inst }
-
-/-- Reduce a structure projection applied to a constructor application to the projected component,
-so that a factor of a converted exception postcondition is the assertion the user wrote. Any other
-term is returned unchanged; in particular a projection of a free or metavariable stays a
-projection. -/
-private def reduceProjOfCtor (e : Expr) : MetaM Expr := do
-  let .const fn _ := e.getAppFn | return e
-  let some _ ← getProjectionFnInfo? fn | return e
-  if ← isConstructorApp e.appArg!.consumeMData then
-    whnf e
-  else
-    return e
-
-/-- Recursively decompose `epostSpec ⊑ epostAbstract` into per-component proofs.
-    - `(head, tail)` → mvar for `head ⊑ epostAbstract.fst`, recurse on `tail`
-    - Otherwise, if `EPred` is a product, project `epostSpec.fst`/`.snd` and decompose those
-    - Otherwise, if `EPred` is `Unit`, trivial via `Unit.unit_le`
-    - Otherwise, if `EPred` has an `AssertionHom` instance, convert both sides into stacks,
-      decompose the entailment between the images, and reflect it back via `le_of_hom_le`
-    - Otherwise → single mvar for `epostSpec ⊑ epostAbstract` -/
-private partial def decomposeProdRel (EPred epostSpec epostAbstract : Expr)
+/-- Recursively decompose `epostsSpec ⊑ epostsAbstract` into per-component proofs.
+    - `(head, tail)` → mvar for `head ⊑ epostsAbstract.fst`, recurse on `tail`
+    - Otherwise, if `EPosts` is a product, project `epostsSpec.fst`/`.snd` and decompose those
+    - Otherwise, if `EPosts` is `Unit`, trivial via `Unit.unit_le`
+    - Otherwise → single mvar for `epostsSpec ⊑ epostsAbstract` -/
+private partial def decomposeProdRel (EPosts epostsSpec epostsAbstract : Expr)
     (stateArgNames : Array Name := #[]) : MetaM Expr := do
-  match_expr epostSpec with
+  match_expr epostsSpec with
   | Prod.mk ehTy etTy head tail =>
-    let absHead ← mkAppM ``Prod.fst #[epostAbstract]
-    let absTail ← mkAppM ``Prod.snd #[epostAbstract]
+    let absHead ← mkAppM ``Prod.fst #[epostsAbstract]
+    let absTail ← mkAppM ``Prod.snd #[epostsAbstract]
     let hTail ← decomposeProdRel etTy tail absTail stateArgNames
-    -- A factor produced by an `AssertionHom` conversion is a projection of the spec's exception
-    -- postcondition literal. Reduce it, so a schematic factor is recognized and assigned below,
-    -- and the VC for a concrete factor states the assertion the user wrote.
-    let head ← reduceProjOfCtor head
-    /- Sometimes, even though `epost` is not schematic itself, its components might be schematic.
-      Think of a triple of a kind `⦃ pre ⦄ x ⦃ post; epost₁, ⊥, epost₃, ⊥, ... ⦄`.
-      In this case we do not want to create new metavariables for `epost₁`, `epost₃`, etc.
-      Instead, we will just assign them to `epostAbstract.snd.fst` and
-      `epostAbstract.snd.snd.fst`, etc. -/
+    /- Sometimes, even though `eposts` is not schematic itself, its components might be schematic.
+      Think of a triple of a kind `⦃ pre ⦄ x ⦃ post; eposts₁, ⊥, eposts₃, ⊥, ... ⦄`.
+      In this case we do not want to create new metavariables for `eposts₁`, `eposts₃`, etc.
+      Instead, we will just assign them to `epostsAbstract.snd.fst` and
+      `epostsAbstract.snd.snd.fst`, etc. -/
     if head.isMVar then
       head.mvarId!.assign absHead
-      mkAppM ``Prod.mk_le_snd #[tail, epostAbstract, hTail]
+      mkAppM ``Prod.mk_le_snd #[tail, epostsAbstract, hTail]
     else
       -- Collect state types: e.g. String → Nat → Prop → skip first (exc type), rest are state types
       let ssTypes ← forallTelescope ehTy fun xs _ => xs.drop 1 |>.mapM (Meta.inferType ·)
       let headTy ← Meta.inferType head
       let hHeadTy ← mkPostPointwisePremise head absHead headTy ssTypes stateArgNames
-      let hHead ← mkFreshExprMVar (userName := `epostImpl) hHeadTy
-      mkAppM ``Prod.mk_le #[head, tail, epostAbstract, hHead, hTail]
+      let hHead ← mkFreshExprMVar (userName := `epostsImpl) hHeadTy
+      mkAppM ``Prod.mk_le #[head, tail, epostsAbstract, hHead, hTail]
   | _ =>
-    let EPred := EPred.consumeMData
-    match_expr EPred with
+    let EPosts := EPosts.consumeMData
+    match_expr EPosts with
     | Prod ehTy etTy =>
-      let specHead ← mkAppM ``Prod.fst #[epostSpec]
-      let specTail ← mkAppM ``Prod.snd #[epostSpec]
-      let absHead ← mkAppM ``Prod.fst #[epostAbstract]
-      let absTail ← mkAppM ``Prod.snd #[epostAbstract]
+      let specHead ← mkAppM ``Prod.fst #[epostsSpec]
+      let specTail ← mkAppM ``Prod.snd #[epostsSpec]
+      let absHead ← mkAppM ``Prod.fst #[epostsAbstract]
+      let absTail ← mkAppM ``Prod.snd #[epostsAbstract]
       let headTy ← Meta.inferType specHead
       -- Collect state types: e.g. String → Nat → Prop → skip first (exc type), rest are state types
       let ssTypes ← forallTelescope ehTy fun xs _ => xs.drop 1 |>.mapM (Meta.inferType ·)
       let hHeadTy ← mkPostPointwisePremise specHead absHead headTy ssTypes stateArgNames
-      let hHead ← mkFreshExprMVar (userName := `epostImpl) hHeadTy
+      let hHead ← mkFreshExprMVar (userName := `epostsImpl) hHeadTy
       let hTail ← decomposeProdRel etTy specTail absTail stateArgNames
-      mkAppM ``Prod.mk_le #[specHead, specTail, epostAbstract, hHead, hTail]
+      mkAppM ``Prod.mk_le #[specHead, specTail, epostsAbstract, hHead, hTail]
     | _ =>
       -- The terminator is reducibly `PUnit`, under any of its names.
-      if (← whnfR EPred).isConstOf ``PUnit then
-        mkAppM ``Unit.unit_le #[epostAbstract]
-      else if let some p ← assertionHom? EPred then
-        -- `EPred` converts into a stack: decompose the entailment between the images and reflect
-        -- it back along the hom. The beta-reduced image of a spec's literal is a `Prod.mk`
-        -- application, so the stack cases above apply to it.
-        let homSpec := (mkApp p.hom epostSpec).headBeta
-        let homAbstract := mkApp p.hom epostAbstract
-        let h ← decomposeProdRel p.T homSpec homAbstract stateArgNames
-        return p.mkField ``AssertionHom.le_of_hom_le #[epostSpec, epostAbstract, h]
+      if (← whnfR EPosts).isConstOf ``PUnit then
+        mkAppM ``Unit.unit_le #[epostsAbstract]
       else
-        let hTy ← mkAppM ``PartialOrder.rel #[epostSpec, epostAbstract]
-        mkFreshExprMVar (userName := `epostImpl) hTy
+        let hTy ← mkAppM ``PartialOrder.rel #[epostsSpec, epostsAbstract]
+        mkFreshExprMVar (userName := `epostsImpl) hTy
 
 /--
 Create the proof term for the backward rule built from an instantiated spec theorem.
@@ -166,14 +104,14 @@ verification conditions for the generalization.
 Consider the spec theorem `WPMonad.bind_le_wp_bind`:
 ```
 WPMonad.bind_le_wp_bind :
-  wp x (fun a => wp (f a) post epost) epost ⊑ wp (x >>= f) post epost
+  wp x (fun a => wp (f a) post eposts) eposts ⊑ wp (x >>= f) post eposts
 ```
-This theorem is already in WP-form, so `post` and `epost` are schematic. However, its precondition
-`wp x (fun a => wp (f a) post epost) epost` is not. Hence we must emit a VC for the precondition:
+This theorem is already in WP-form, so `post` and `eposts` are schematic. However, its precondition
+`wp x (fun a => wp (f a) post eposts) eposts` is not. Hence we must emit a VC for the precondition:
 ```
-prf : ∀ {α β} (x : m α) (f : α → m β) (post : β → Pred) (epost : EPred)
-  (pre : Pred) (hpre : pre ⊑ wp x (fun a => wp (f a) post epost) epost),
-  pre ⊑ wp (x >>= f) post epost
+prf : ∀ {α β} (x : m α) (f : α → m β) (post : β → Pred) (eposts : EPosts)
+  (pre : Pred) (hpre : pre ⊑ wp x (fun a => wp (f a) post eposts) eposts),
+  pre ⊑ wp (x >>= f) post eposts
 ```
 The proof term is constructed with `PartialOrder.rel_trans hpre WPMonad.bind_le_wp_bind`.
 
@@ -182,30 +120,28 @@ The proof term is constructed with `PartialOrder.rel_trans hpre WPMonad.bind_le_
 Similarly, a VC is generated for the postcondition if it is not schematic. For example, a
 hypothetical restrictive spec for `pure` could be:
 ```
-myPure.spec (n : Nat) : (⊤ : Prop) ⊑ wp (myPure n) (fun r => r = n) epost
+myPure.spec (n : Nat) : (⊤ : Prop) ⊑ wp (myPure n) (fun r => r = n) eposts
 ```
 This yields a backward rule of the form:
 ```
 prf : ∀ (n : Nat) (pre : Prop) (hpre : pre ⊑ True)
-  (post : Nat → Prop) (hpost : ∀ r, r = n ⊑ post r) (epost : Unit),
-  pre ⊑ wp (myPure n) post epost
+  (post : Nat → Prop) (hpost : ∀ r, r = n ⊑ post r) (eposts : Unit),
+  pre ⊑ wp (myPure n) post eposts
 ```
 The postcondition VC is pointwise over the return value and over any excess state arguments. The
-proof is generalized with `WP.wp_consequence_le`.
+proof is generalized with `WP.wp_monotone_post_le`.
 
 #### Exception postcondition VCs
 
 A VC is also generated for the exception postcondition if it is not schematic. For a product
-value, the relation `epostSpec ⊑ epost` is decomposed component by component:
+value, the relation `epostsSpec ⊑ eposts` is decomposed component by component:
 ```
-∀ e s₁ ... sₙ, epostSpec.fst e s₁ ... sₙ ⊑ epost.fst e s₁ ... sₙ
+∀ e s₁ ... sₙ, epostsSpec.fst e s₁ ... sₙ ⊑ eposts.fst e s₁ ... sₙ
 ```
 and recursively for the tail. `decomposeProdRel` assembles these component VCs using
-`Prod.mk_le` and `Unit.unit_le`. An exception postcondition type with an `AssertionHom` instance is
-first converted into a stack, whose components are decomposed the same way, and
-`AssertionHom.le_of_hom_le` reflects the entailment back. The proof is then generalized with
-`WP.wp_econs_le`. When the spec exception postcondition is `⊥`, no VC is needed and
-`WP.wp_econs_bot_le` is used instead.
+`Prod.mk_le` and `Unit.unit_le`. The proof is then generalized with `WP.wp_monotone_epost_le`.
+When the spec exception postcondition is `⊥`, no VC is needed and `WP.wp_monotone_bot_le` is
+used instead.
 
 #### Excess state arguments
 
@@ -213,8 +149,8 @@ Furthermore, when there are excess state arguments `[s₁, ..., sₙ]` involved,
 specialized to those arguments:
 ```
 ... :
-  pre ⊑ wp x (fun a => wp (f a) post epost) epost s₁ ... sₙ →
-  pre ⊑ wp (x >>= f) post epost s₁ ... sₙ
+  pre ⊑ wp x (fun a => wp (f a) post eposts) eposts s₁ ... sₙ →
+  pre ⊑ wp (x >>= f) post eposts s₁ ... sₙ
 ```
 The precondition and all generated pointwise postcondition premises are applied to these same state
 arguments.
@@ -241,22 +177,22 @@ it for the particular predicate type, exception postcondition type and `WPMonad`
 For `StateM Nat` and one excess state arg `s`, the type produced for `WPMonad.bind_le_wp_bind` becomes
 ```
 prf : ∀ (pre : Prop) (α : Type) (x : StateT Nat Id α) (β : Type)
-  (f : α → StateT Nat Id β) (post : β → Nat → Prop) (epost : Unit) (s : Nat),
-  pre ⊑ wp x (fun a => wp (f a) post epost) epost s →
-  pre ⊑ wp (x >>= f) post epost s
+  (f : α → StateT Nat Id β) (post : β → Nat → Prop) (eposts : Unit) (s : Nat),
+  pre ⊑ wp x (fun a => wp (f a) post eposts) eposts s →
+  pre ⊑ wp (x >>= f) post eposts s
 ```
 -/
 private def mkSpecBackwardProof
-    (pre prog postSpec epostSpec specProof EPred : Expr) (ss ssTypes : Array Expr)
+    (pre prog postSpec epostsSpec specProof EPosts : Expr) (ss ssTypes : Array Expr)
     (stateArgNames : Array Name := #[]) : MetaM AbstractMVarsResult := do
-  /- we start with `pre ⊑ wp prog post epost` where
+  /- we start with `pre ⊑ wp prog post eposts` where
   1. `pre` represents the Lean expression for `pre`
-  2. `prog`, `postSpec`, and `epostSpec` are the selected arguments of the spec's `wp` RHS
-  3. `specProof` is the proof of the spec `pre ⊑ wp prog postSpec epostSpec`
+  2. `prog`, `postSpec`, and `epostsSpec` are the selected arguments of the spec's `wp` RHS
+  3. `specProof` is the proof of the spec `pre ⊑ wp prog postSpec epostsSpec`
   4. `ss` represents the Lean expressions for the state variables `s1`, `s2`, ..., `sn`
   5. `ssTypes` represents the Lean types for the state variables `s1`, `s2`, ..., `sn` -/
   let mut postAbstract := postSpec.consumeMData
-  let mut epostAbstract := epostSpec.consumeMData
+  let mut epostsAbstract := epostsSpec.consumeMData
   let mut specApplied := specProof
 
   /- abstract concrete `post` if it is not already abstract -/
@@ -269,56 +205,56 @@ private def mkSpecBackwardProof
     let hpostTy ← mkPostPointwisePremise postSpec postAbstract postTy ssTypes stateArgNames
     /- mvar `?postImpl` for the proof of the premise -/
     let hpost ← mkFreshExprMVar (userName := `postImpl) hpostTy
-    /- `wp_consequence_le` expects its premise at the *function-lattice* order `postSpec ⊑ postAbstract`,
+    /- `wp_monotone_post_le` expects its premise at the *function-lattice* order `postSpec ⊑ postAbstract`,
        whereas `hpost` is stated pointwise (`∀ a s…, postSpec a s… ⊑ postAbstract a s…`). The two are
        defeq, but unfolding the function-lattice `⊑` instance is blocked when the post's domain is a
        metavariable (e.g. the accumulator `β` of a `forIn` loop spec). Cast `hpost` to the function
        order here so the defeq is forced at this depth, keeping the user-facing VC pointwise. -/
     let relTy ← mkAppM ``PartialOrder.rel #[postSpec, postAbstract]
     let hpostRel ← mkExpectedTypeHint hpost relTy
-    /- get the proof of `pre ⊑ wp prog postAbstract epostSpec`, where `post` is abstracted.
-       Uses wp_consequence_le: post ⊑ post' → pre ⊑ wp x post epost → pre ⊑ wp x post' epost -/
-    specApplied ← mkAppM ``WP.wp_consequence_le #[prog, postSpec, postAbstract, epostSpec, hpostRel, specApplied]
+    /- get the proof of `pre ⊑ wp prog postAbstract epostsSpec`, where `post` is abstracted.
+       Uses wp_monotone_post_le: post ⊑ post' → pre ⊑ wp x post eposts → pre ⊑ wp x post' eposts -/
+    specApplied ← mkAppM ``WP.wp_monotone_post_le #[prog, postSpec, postAbstract, epostsSpec, hpostRel, specApplied]
 
-  /- abstract concrete `epost` if it is not already abstract -/
-  unless epostAbstract.isMVar do
-    /- `EStack⟨t₁, t₂, ..., tₙ⟩`: type of `epost` -/
-    let epostTy ← Meta.inferType epostSpec
-    /- mvar `epostAbstract` for new abstract `epost` -/
-    epostAbstract ← mkFreshExprMVar (userName := `EPred) epostTy
-    /- if `epost` is `⊥`, then `epost ⊑ epostAbstract` holds trivially and
-      abstracting `epost` can be simply done by `WP.wp_econs_bot_le` without
+  /- abstract concrete `eposts` if it is not already abstract -/
+  unless epostsAbstract.isMVar do
+    /- `EStack⟨t₁, t₂, ..., tₙ⟩`: type of `eposts` -/
+    let epostsTy ← Meta.inferType epostsSpec
+    /- mvar `epostsAbstract` for new abstract `eposts` -/
+    epostsAbstract ← mkFreshExprMVar (userName := `EPosts) epostsTy
+    /- if `eposts` is `⊥`, then `eposts ⊑ epostsAbstract` holds trivially and
+      abstracting `eposts` can be simply done by `WP.wp_monotone_bot_le` without
       introducing a new premise. This case is quite common, that's why we handle
       it specially.
       The test runs at a fresh metavariable depth, where a schematic component of
-      `epost` such as `E` in `estack⟨E⟩` is read-only. `decomposeProdRel` below
-      assigns `E` the matching component of `epostAbstract`. -/
+      `eposts` such as `E` in `estack⟨E⟩` is read-only. `decomposeProdRel` below
+      assigns `E` the matching component of `epostsAbstract`. -/
     let isBot ← withNewMCtxDepth do
       try
-        let botEPred ← mkAppOptM ``Lean.Order.bot #[epostTy, none]
-        isDefEqGuarded epostSpec botEPred
+        let botEPred ← mkAppOptM ``Lean.Order.bot #[epostsTy, none]
+        isDefEqGuarded epostsSpec botEPred
       catch _ => pure false
     if isBot then
-      /- get the proof of `pre ⊑ wp prog postAbstract epostAbstract`, where `epost (= ⊥)` is abstracted.
-        This proof DOES NOT have a `?epostImpl` premise -/
-      specApplied ← mkAppM ``WP.wp_econs_bot_le #[prog, postAbstract, epostAbstract, specApplied]
+      /- get the proof of `pre ⊑ wp prog postAbstract epostsAbstract`, where `eposts (= ⊥)` is abstracted.
+        This proof DOES NOT have a `?epostsImpl` premise -/
+      specApplied ← mkAppM ``WP.wp_monotone_bot_le #[prog, postAbstract, epostsAbstract, specApplied]
     else
-      /- Decompose `epostSpec ⊑ epostAbstract` into per-component proofs
+      /- Decompose `epostsSpec ⊑ epostsAbstract` into per-component proofs
         using `Prod.mk_le` and `Unit.unit_le` -/
-      let hepost ← decomposeProdRel EPred epostSpec epostAbstract stateArgNames
-      specApplied ← mkAppM ``WP.wp_econs_le #[prog, postAbstract, epostSpec, epostAbstract, hepost, specApplied]
+      let heposts ← decomposeProdRel EPosts epostsSpec epostsAbstract stateArgNames
+      specApplied ← mkAppM ``WP.wp_monotone_epost_le #[prog, postAbstract, epostsSpec, epostsAbstract, heposts, specApplied]
 
   /- By default we always abstract `pre`, since in most of the specifications
     `pre` is not schematic. In exceptional cases, where `pre` is schematic, it
     is redundant, but we still do that to keep the code simple.
 
-    Here we also apply the excess state arguments to `pre` and `wp prog postAbstract epostAbstract` -/
+    Here we also apply the excess state arguments to `pre` and `wp prog postAbstract epostsAbstract` -/
   /- use `beta` to create `pre s₁ ... sₙ`  to avoid creating beta redexes when `pre` is a lambda -/
   let preApplied := pre.beta ss
-  /- proof of the original theorem with abstracted `post` and `epost` specialized to the excess state arguments -/
+  /- proof of the original theorem with abstracted `post` and `eposts` specialized to the excess state arguments -/
   specApplied := mkAppN specApplied ss
-  /- `wp prog postAbstract epostAbstract s₁ ... sₙ` -/
-  let wpTy ← mkAppM ``Std.WP.wp <| #[prog, postAbstract, epostAbstract] ++ ss
+  /- `wp prog postAbstract epostsAbstract s₁ ... sₙ` -/
+  let wpTy ← mkAppM ``Std.WP.wp <| #[prog, postAbstract, epostsAbstract] ++ ss
   let specAppliedTy ← mkAppM ``PartialOrder.rel #[preApplied, wpTy]
   /- later when the whole proof is type checked, we want to help the kernel by providing the expected type -/
   specApplied ← mkExpectedTypeHint specApplied specAppliedTy
@@ -356,25 +292,25 @@ private def eqSpecToWp? (info : WPApp) (eqPrf eqType : Expr) :
   -- current metavariable depth: `mkAppOptM` raises the depth, so the equation's type metavariables
   -- are read-only there.
   guard <| ← withReducible <| approxDefEq <| isDefEqGuarded eqα info.Prog
-  -- `post`/`epost` are schematic metavariables (their VCs collapse downstream).
+  -- `post`/`eposts` are schematic metavariables (their VCs collapse downstream).
   let post ← mkFreshExprMVar (userName := `Q) (← mkArrow info.Value info.Pred)
-  let epost ← mkFreshExprMVar (userName := `E) info.EPred
-  -- The goal's leading `wp` arguments `#[Prog, Value, Pred, EPred, instAL, instEAL, instWP]` are
+  let eposts ← mkFreshExprMVar (userName := `E) info.EPosts
+  -- The goal's leading `wp` arguments `#[Prog, Value, Pred, EPosts, instAL, instEAL, instWP]` are
   -- exactly the leading arguments of `wp_le_wp_of_eq`.
   let specProof ← mkAppOptM ``Std.WP.wp_le_wp_of_eq <|
-    (info.args.take 7).map some ++ #[none, none, some eqPrf, some post, some epost]
+    (info.args.take 7).map some ++ #[none, none, some eqPrf, some post, some eposts]
   return (specProof, ← instantiateMVars (← Meta.inferType specProof))
 
 /--
 Try to build a backward rule from a single spec theorem.
 
-For a spec already in `⊑ wp` form (`pre ⊑ wp prog post epost`, where the lattice type is
+For a spec already in `⊑ wp` form (`pre ⊑ wp prog post eposts`, where the lattice type is
 `info.Pred = σ1 → ... → σn → Prop`), produces an auxiliary lemma directly. An equality spec
 `lhs = rhs` is first normalized to `wp rhs Q E ⊑ wp lhs Q E` via `eqSpecToWp?` and then handled the
 same way.
 
 - `info.Pred`: the goal's lattice type (e.g. `Nat → Prop`)
-- `info.instWP`: the `WPMonad` instance for the goal monad
+- `info.instWP`: the `WP` instance of the goal's `wp` application
 - `info.excessArgs`: free variables representing state args from
   `info.Pred = σ1 → ... → σn → Prop`
 -/
@@ -390,9 +326,11 @@ public def tryMkBackwardRuleFromSpec (specThm : SpecTheorem) (info : WPApp)
   let_expr PartialOrder.rel Pred' _cl' pre rhs := specType
     | throwError "target not a partial order ⊑ application {specType}"
   guard <| ← isDefEqGuarded info.Pred Pred'
-  let_expr Std.WP.wp _Prog' _Value' _Pred' _EPred' _instAL' _instEAL' instWP' prog postSpec epostSpec := rhs
+  let_expr Std.WP.wp _Prog' _Value' _Pred' _EPred' _instAL' _instEAL' instWP' prog postSpec epostsSpec := rhs
     | throwError "target not a wp application {rhs}"
-  guard <| ← isDefEqGuarded info.instWP instWP'
+  -- `withDefault`: the goal can carry a registered `WP` instance (e.g. `Id.wpInst`) while the
+  -- spec spells `WPMonad.toWP ?inst`; default transparency unfolds both after `?inst` synthesis.
+  guard <| ← withDefault <| isDefEqGuarded info.instWP instWP'
   -- Use local excess-state binders so explicit post premises can be re-lifted to `⊑`.
   -- Name them positionally from `stateArgNames` (else `s`) so the rule's binders carry good names.
   let mut ss := #[]
@@ -401,7 +339,7 @@ public def tryMkBackwardRuleFromSpec (specThm : SpecTheorem) (info : WPApp)
     let ty ← Meta.inferType info.excessArgs[i]
     ssTypes := ssTypes.push ty
     ss := ss.push <| ← mkFreshExprMVar (userName := stateArgNames[i]?.getD `s) ty
-  let res ← mkSpecBackwardProof pre prog postSpec epostSpec specProof info.EPred ss ssTypes stateArgNames
+  let res ← mkSpecBackwardProof pre prog postSpec epostsSpec specProof info.EPosts ss ssTypes stateArgNames
   mkBackwardRuleFromExpr res.expr res.paramNames.toList
 
 /-! ## Split rules -/
@@ -430,9 +368,9 @@ public def mkBackwardRuleForSplit
       return (`s, ← Meta.inferType arg)
     withLocalDeclsDND excessArgNamesTypes fun ss => do
     withLocalDeclD `Post (← mkArrow a info.Pred) fun post => do
-    withLocalDeclD `EPred info.EPred fun epost => do
+    withLocalDeclD `EPosts info.EPosts fun eposts => do
     let mkWP (prog : Expr) : Expr :=
-      let args := info.args.take 7 ++ #[prog, post, epost]
+      let args := info.args.take 7 ++ #[prog, post, eposts]
       mkAppN (mkAppN info.head args) ss
     let Pred' ← Meta.inferType (mkWP abstractProg)
     withLocalDeclD `Pre Pred' fun pre => do
@@ -467,7 +405,7 @@ public def mkBackwardRuleForSplit
           let eqProof ← mkAppM ``congrArg #[context, res.proof?.get!]
           mkEqMPR eqProof (mkAppN subgoalHyps[idx]! altParams))
     let prf ← instantiateMVars prf
-    mkLambdaFVars (splitFVars ++ ss ++ #[post, epost, pre] ++ subgoalHyps) prf
+    mkLambdaFVars (splitFVars ++ ss ++ #[post, eposts, pre] ++ subgoalHyps) prf
   let prf ← instantiateMVars prf
   let res ← abstractMVars prf
   mkBackwardRuleFromExpr res.expr res.paramNames.toList
@@ -500,20 +438,22 @@ private def analyzeFrameRule (rule : BackwardRule) (opHead : Name) (numExcess : 
 
 /--
 The frame backward rule for a frame operator `op : R → Pred → Pred`, built from the frame rule
-`WP.Frames.op_wp_upperAdjoint_le_wp`.
+`op_wp_upperAdjoint_le_wp`.
 
 The rule concludes `pre ⊑ wp prog Q E s⃗` from the split VC `pre ⊑ (op F W) s⃗` and the frame
-condition `WP.Frames op prog F`, with the frame `F` left schematic and the weakest footprint
-`W = wp prog (fun a => upperAdjoint (op F) (Q a)) E` baked in, so a single rule serves every inferred
-frame. `analyzeFrameRule` records the positions of the schematic slots.
+condition `WP.Frames op prog F`, with the frame `F` left schematic and the
+weakest footprint `W = wp prog (fun a => upperAdjoint (op F) (Q a)) (upperAdjoint (opE F) E)`
+baked in, so a single rule serves every inferred frame. `analyzeFrameRule` records the positions
+of the schematic slots.
 -/
 public def mkFrameBackwardRule (fp : FrameProc) (info : WPApp) :
     MetaM FrameBackwardRule := do
-  -- Pin the program and the operator, leaving everything else schematic;
-  -- `tryMkBackwardRuleFromSpec` turns the unassigned metavariables into rule parameters.
+  -- Pin the program and the operator, leaving everything else schematic; instance synthesis
+  -- commits the companion, and `tryMkBackwardRuleFromSpec` turns the unassigned metavariables
+  -- into rule parameters.
   let op ← fp.mkOpAppM info
-  let specProof ← mkAppOptM ``Std.WP.WP.Frames.op_wp_upperAdjoint_le_wp
-    ((info.args.take 7).map some ++ #[none, some op, none])
+  let specProof ← mkAppOptM ``Std.WP.op_wp_upperAdjoint_le_wp
+    ((info.args.take 7).map some ++ #[none, some op, none, none])
   let some specThm ← mkSpecTheoremFromStx (← getRef) specProof
     | throwError "frame: could not build the frame spec for operator{indentExpr op}"
   let some rule ← (tryMkBackwardRuleFromSpec specThm info).run

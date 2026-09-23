@@ -276,6 +276,10 @@ public def id? (self : Package) : Option PkgId :=
 @[inline] public def precompileModules (self : Package) : Bool :=
   self.config.precompileModules
 
+/-- The package's `precompileImports` configuration. -/
+@[inline] public def precompileImports (self : Package) : Bool :=
+  self.config.precompileImports
+
 /-- The package's `moreGlobalServerArgs` configuration. -/
 @[inline] public def moreGlobalServerArgs (self : Package) : Array String :=
   self.config.moreGlobalServerArgs

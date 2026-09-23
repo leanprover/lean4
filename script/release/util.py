@@ -2,7 +2,6 @@ import datetime
 import re
 import shlex
 import subprocess
-import urllib.parse
 from collections.abc import Callable
 from dataclasses import dataclass, field
 from os import PathLike
@@ -12,6 +11,7 @@ from typing import Literal, NoReturn, Self
 
 from github import Auth, Github
 from github.GithubException import UnknownObjectException
+from github.GithubObject import NotSet
 from github.GitRelease import GitRelease
 from github.Issue import Issue
 from github.PullRequest import PullRequest
@@ -21,6 +21,12 @@ from rich import get_console, print, reconfigure
 from rich.markup import escape as e
 
 type Arg = str | bytes | PathLike[str] | PathLike[bytes]
+
+
+def get_repos_dir(repos_dir: Path | None) -> Path:
+    if repos_dir is not None:
+        return repos_dir
+    return Path(__file__).parent.parent.parent.parent / "release"
 
 
 def run(*args: Arg, cwd: Path | None = None, silent: bool = False) -> None:
@@ -183,10 +189,8 @@ class ReleaseRepo:
     def gh_url(self) -> str:
         return f"https://github.com/{self.gh_full_name}"
 
-    @property
-    def local(self) -> "LocalRepo":
-        path = Path(__file__).parent.parent.parent.parent / "release" / self.gh_name
-        return LocalRepo(rrepo=self, path=path)
+    def local(self, repos_dir: Path) -> "LocalRepo":
+        return LocalRepo(rrepo=self, path=repos_dir / self.gh_name)
 
 
 @dataclass
@@ -372,6 +376,12 @@ def edit(
     path.write_text(text)
 
 
+def join_and(items: list[str]) -> str:
+    if len(items) < 2:
+        return "".join(items)
+    return f"{', '.join(items[:-1])} and {items[-1]}"
+
+
 #########
 ## PRs ##
 #########
@@ -397,23 +407,30 @@ def find_pr(grepo: Repository, head: str, base: str, title: str) -> PullRequest 
             return pr
 
 
-def create_pr(grepo: Repository, head: str, base: str, title: str) -> PullRequest:
-    head = f"{grepo.owner.login}:{head}"
-    return grepo.create_pull(head=head, base=base, title=title)
-
-
-# https://docs.github.com/en/pull-requests/collaborating-with-pull-requests/proposing-changes-to-your-work-with-pull-requests/using-query-parameters-to-create-a-pull-request
-def create_pr_url(
-    base: ReleaseRepo,
-    base_branch: str,
-    head: ReleaseRepo,
-    head_branch: str,
+def create_pr(
+    grepo: Repository,
+    *,
     title: str,
-    body: str = "",
-) -> str:
-    url = f"{base.gh_url}/compare/{base_branch}...{head.gh_owner}:{head.gh_name}:{head_branch}"
-    params = {"title": title, "body": body}
-    return f"{url}?{urllib.parse.urlencode(params)}"
+    body: str | None = None,
+    base: str,
+    head: str,
+    head_repo: ReleaseRepo | None = None,
+) -> PullRequest:
+    if head_repo:
+        return grepo.create_pull(
+            title=title,
+            base=base,
+            body=body if body is not None else NotSet,
+            head=f"{head_repo.gh_owner}:{head}",
+            head_repo=head_repo.gh_full_name,
+        )
+    else:
+        return grepo.create_pull(
+            title=title,
+            base=base,
+            body=body if body is not None else NotSet,
+            head=f"{grepo.owner.login}:{head}",
+        )
 
 
 ###################

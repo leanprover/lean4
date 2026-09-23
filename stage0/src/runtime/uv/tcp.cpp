@@ -57,22 +57,32 @@ void initialize_libuv_tcp_socket() {
 
         if (tcp_socket->m_promise_accept != nullptr) {
             lean_inc(f);
-            lean_apply_1(f, tcp_socket->m_promise_accept);
+            lean_inc(tcp_socket->m_promise_accept);
+            lean_dec(lean_apply_1(f, tcp_socket->m_promise_accept));
         }
 
         if (tcp_socket->m_promise_shutdown != nullptr) {
             lean_inc(f);
-            lean_apply_1(f, tcp_socket->m_promise_shutdown);
+            lean_inc(tcp_socket->m_promise_shutdown);
+            lean_dec(lean_apply_1(f, tcp_socket->m_promise_shutdown));
         }
 
         if (tcp_socket->m_promise_read != nullptr) {
             lean_inc(f);
-            lean_apply_1(f, tcp_socket->m_promise_read);
+            lean_inc(tcp_socket->m_promise_read);
+            lean_dec(lean_apply_1(f, tcp_socket->m_promise_read));
         }
 
         if (tcp_socket->m_byte_array != nullptr) {
             lean_inc(f);
-            lean_apply_1(f, tcp_socket->m_byte_array);
+            lean_inc(tcp_socket->m_byte_array);
+            lean_dec(lean_apply_1(f, tcp_socket->m_byte_array));
+        }
+
+        if (tcp_socket->m_client != nullptr) {
+            lean_inc(f);
+            lean_inc(tcp_socket->m_client);
+            lean_dec(lean_apply_1(f, tcp_socket->m_client));
         }
     });
 }
@@ -92,6 +102,7 @@ extern "C" LEAN_EXPORT lean_obj_res lean_uv_tcp_new() {
     tcp_socket->m_promise_read = nullptr;
     tcp_socket->m_byte_array = nullptr;
     tcp_socket->m_client = nullptr;
+    tcp_socket->m_shutdown_requested = false;
 
     uv_tcp_t* uv_tcp = (uv_tcp_t*)malloc(sizeof(uv_tcp_t));
     if (uv_tcp == nullptr) {
@@ -229,6 +240,7 @@ extern "C" LEAN_EXPORT lean_obj_res lean_uv_tcp_send(b_obj_arg socket, obj_arg d
 
     lean_object* promise = lean_promise_new();
     mark_mt(promise);
+    mark_mt(data_array);
 
     tcp_send_data* send_data = (tcp_send_data*)write_uv->data;
     send_data->promise = promise;
@@ -304,6 +316,8 @@ extern "C" LEAN_EXPORT lean_obj_res lean_uv_tcp_recv(b_obj_arg socket, uint64_t 
         buf->base = (char*)lean_sarray_cptr(tcp_socket->m_byte_array);
         buf->len = lean_sarray_capacity(tcp_socket->m_byte_array);
     }, [](uv_stream_t* stream, ssize_t nread, const uv_buf_t* buf) {
+        if (nread == 0) return;
+
         uv_read_stop(stream);
 
         lean_uv_tcp_socket_object* tcp_socket = lean_to_uv_tcp_socket((lean_object*)stream->data);
@@ -375,6 +389,10 @@ extern "C" LEAN_EXPORT lean_obj_res lean_uv_tcp_wait_readable(b_obj_arg socket) 
         buf->base = NULL;
         buf->len = 0;
     }, [](uv_stream_t* stream, ssize_t nread, const uv_buf_t* buf) {
+        // `nread == 0` is libuv's equivalent of `EAGAIN`: the socket is not actually readable, so
+        // keep waiting rather than resolving the promise.
+        if (nread == 0) return;
+
         uv_read_stop(stream);
 
         lean_uv_tcp_socket_object* tcp_socket = lean_to_uv_tcp_socket((lean_object*)stream->data);
@@ -382,15 +400,12 @@ extern "C" LEAN_EXPORT lean_obj_res lean_uv_tcp_wait_readable(b_obj_arg socket) 
 
         tcp_socket->m_promise_read = nullptr;
 
-        if (nread == UV_ENOBUFS) {
-            lean_promise_resolve(mk_except_ok(lean_box(1)), promise);
-        } else if (nread == UV_EOF) {
+        if (nread == UV_EOF) {
             lean_promise_resolve(mk_except_ok(lean_box(0)), promise);
-        } else if (nread < 0) {
+        } else if (nread < 0 && nread != UV_ENOBUFS) {
             lean_promise_resolve(mk_except_err(lean_decode_uv_error(nread, nullptr)), promise);
         } else {
-            // This branch should be dead, we cannot receive a value >= 0 according to docs.
-            lean_always_assert(false);
+            lean_promise_resolve(mk_except_ok(lean_box(1)), promise);
         }
 
         lean_dec(promise);
@@ -524,13 +539,21 @@ extern "C" LEAN_EXPORT lean_obj_res lean_uv_tcp_accept(b_obj_arg socket) {
     event_loop_lock(&global_ev);
 
     if (tcp_socket->m_promise_accept != nullptr) {
-        return lean_io_result_mk_error(lean_decode_uv_error(UV_EALREADY, mk_string("parallel accept is not allowed! consider binding multiple sockets to the same address and accepting on them instead")));
+        event_loop_unlock(&global_ev);
+        return lean_io_result_mk_error(lean_mk_io_error_other_error(-UV_EALREADY, mk_string("parallel accept is not allowed! consider binding multiple sockets to the same address and accepting on them instead")));
     }
+
+    lean_object* client_res = lean_uv_tcp_new();
+
+    if (lean_io_result_is_error(client_res)) {
+        event_loop_unlock(&global_ev);
+        return client_res;
+    }
+
+    lean_object* client = lean_io_result_take_value(client_res);
 
     lean_object* promise = lean_promise_new();
     mark_mt(promise);
-
-    lean_object* client = lean_io_result_take_value(lean_uv_tcp_new());
 
     lean_uv_tcp_socket_object* client_socket = lean_to_uv_tcp_socket(client);
 
@@ -566,10 +589,17 @@ extern "C" LEAN_EXPORT lean_obj_res lean_uv_tcp_try_accept(b_obj_arg socket) {
 
     if (tcp_socket->m_promise_accept != nullptr) {
         event_loop_unlock(&global_ev);
-        return lean_io_result_mk_error(lean_decode_uv_error(UV_EALREADY, mk_string("parallel accept is not allowed! consider binding multiple sockets to the same address and accepting on them instead")));
+        return lean_io_result_mk_error(lean_mk_io_error_other_error(-UV_EALREADY, mk_string("parallel accept is not allowed! consider binding multiple sockets to the same address and accepting on them instead")));
     }
 
-    lean_object* client = lean_io_result_take_value(lean_uv_tcp_new());
+    lean_object* client_res = lean_uv_tcp_new();
+
+    if (lean_io_result_is_error(client_res)) {
+        event_loop_unlock(&global_ev);
+        return client_res;
+    }
+
+    lean_object* client = lean_io_result_take_value(client_res);
     lean_uv_tcp_socket_object* client_socket = lean_to_uv_tcp_socket(client);
 
     int result = uv_accept((uv_stream_t*)tcp_socket->m_uv_tcp, (uv_stream_t*)client_socket->m_uv_tcp);
@@ -625,9 +655,11 @@ extern "C" LEAN_EXPORT lean_obj_res lean_uv_tcp_shutdown(b_obj_arg socket) {
     // Locking early prevents potential parallelism issues setting the m_promise_shutdown.
     event_loop_lock(&global_ev);
 
-    if (tcp_socket->m_promise_shutdown != nullptr) {
+    // `uv_shutdown` clears the writable flag right away, so a second request fails with `ENOTCONN`
+    // no matter whether the first one is still pending; reject it here to report a meaningful error.
+    if (tcp_socket->m_shutdown_requested) {
         event_loop_unlock(&global_ev);
-        return lean_io_result_mk_error(lean_decode_uv_error(UV_EALREADY, mk_string("shutdown already in progress")));
+        return lean_io_result_mk_error(lean_mk_io_error_other_error(-UV_EALREADY, mk_string("shutdown already requested")));
     }
 
     uv_shutdown_t* shutdown_req = (uv_shutdown_t*)malloc(sizeof(uv_shutdown_t));
@@ -664,12 +696,19 @@ extern "C" LEAN_EXPORT lean_obj_res lean_uv_tcp_shutdown(b_obj_arg socket) {
 
     if (result < 0) {
         free(shutdown_req);
-        lean_dec(tcp_socket->m_promise_shutdown);
+
         tcp_socket->m_promise_shutdown = nullptr;
+
+        lean_dec(promise); // The socket does not own it.
+        lean_dec(promise); // We are not going to return it.
+        lean_dec(socket);
+
         event_loop_unlock(&global_ev);
 
         return lean_io_result_mk_error(lean_decode_uv_error(result, nullptr));
     }
+
+    tcp_socket->m_shutdown_requested = true;
 
     event_loop_unlock(&global_ev);
 

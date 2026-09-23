@@ -8,7 +8,13 @@ public meta import Lean.Elab.Tactic.VCGen.FrameProc
 public meta import Lean.Elab.Tactic.VCGen.FrameProcAttr
 public meta import Lean.Elab.Tactic.VCGen.RuleConstruction
 
-set_option mvcgen.warning false
+/-!
+Tests `vcgen` frame inference on a custom trace-semantics `WP` instance: a `@[frameproc]` for the
+`Always'` temporal predicate frames safety facts through `bind` chains of a DyLean-style
+interpreter.
+-/
+
+set_option experimental.vcgen true
 
 open Lean.Order
 
@@ -265,7 +271,7 @@ instance (r : TraceProp): Lean.Order.PreservesSup (Lean.Order.meet r) where
 public
 instance: WPMonad Traceful TraceProp EStack⟨⟩ where
   toWP α := {
-    wpTrans f := ⟨fun post _epost => ⟨
+    trans f := ⟨fun post _epost => ⟨
       fun trProof =>
         let (optRes, trOut) := f.run trProof.val.erase
         ∃ trOutProof: ProofTrace,
@@ -277,8 +283,8 @@ instance: WPMonad Traceful TraceProp EStack⟨⟩ where
         | some res => post res ⟨ trOutProof, h ⟩
     ⟩⟩
 
-    wp_trans_monotone x := by
-      simp only [Lean.Order.PredTrans.monotone, Lean.Order.PartialOrder.rel]
+    trans_monotone x := by
+      simp only [Lean.Order.PredTrans.Monotone, Lean.Order.PartialOrder.rel]
       grind
   }
 
@@ -340,7 +346,7 @@ theorem always_frame
 where
   op_wp_le_wp_op Q E := by
     simp only [PartialOrder.rel, my_meet_apply, and_imp, Subtype.forall]
-    dsimp only [wp, Always', WP.wpTrans]
+    dsimp only [wp, Always', WP.trans]
     simp [my_meet_apply]
     grind [Trace.le_trans]
 

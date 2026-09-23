@@ -116,8 +116,8 @@ LEAN_EXPORT uint8_t l_Lake_BuildConfig_showProgress(lean_object* v_cfg_5_){
 _start:
 {
 uint8_t v_noBuild_6_; uint8_t v_verbosity_7_; lean_object* v___x_8_; uint8_t v___y_10_; 
-v_noBuild_6_ = lean_ctor_get_uint8(v_cfg_5_, sizeof(void*)*4 + 2);
-v_verbosity_7_ = lean_ctor_get_uint8(v_cfg_5_, sizeof(void*)*4 + 3);
+v_noBuild_6_ = lean_ctor_get_uint8(v_cfg_5_, sizeof(void*)*5 + 2);
+v_verbosity_7_ = lean_ctor_get_uint8(v_cfg_5_, sizeof(void*)*5 + 4);
 v___x_8_ = l_Lake_Verbosity_ctorIdx(v_verbosity_7_);
 if (v_noBuild_6_ == 0)
 {
@@ -335,7 +335,7 @@ LEAN_EXPORT uint8_t l_Lake_getIsOldMode___redArg___lam__0(lean_object* v_x_78_){
 _start:
 {
 uint8_t v_oldMode_79_; 
-v_oldMode_79_ = lean_ctor_get_uint8(v_x_78_, sizeof(void*)*4);
+v_oldMode_79_ = lean_ctor_get_uint8(v_x_78_, sizeof(void*)*5);
 return v_oldMode_79_;
 }
 }
@@ -381,7 +381,7 @@ LEAN_EXPORT uint8_t l_Lake_getTrustHash___redArg___lam__0(lean_object* v_x_99_){
 _start:
 {
 uint8_t v_trustHash_100_; 
-v_trustHash_100_ = lean_ctor_get_uint8(v_x_99_, sizeof(void*)*4 + 1);
+v_trustHash_100_ = lean_ctor_get_uint8(v_x_99_, sizeof(void*)*5 + 1);
 return v_trustHash_100_;
 }
 }
@@ -427,7 +427,7 @@ LEAN_EXPORT uint8_t l_Lake_getNoBuild___redArg___lam__0(lean_object* v_x_120_){
 _start:
 {
 uint8_t v_noBuild_121_; 
-v_noBuild_121_ = lean_ctor_get_uint8(v_x_120_, sizeof(void*)*4 + 2);
+v_noBuild_121_ = lean_ctor_get_uint8(v_x_120_, sizeof(void*)*5 + 2);
 return v_noBuild_121_;
 }
 }
@@ -473,7 +473,7 @@ LEAN_EXPORT uint8_t l_Lake_getVerbosity___redArg___lam__0(lean_object* v_x_141_)
 _start:
 {
 uint8_t v_verbosity_142_; 
-v_verbosity_142_ = lean_ctor_get_uint8(v_x_141_, sizeof(void*)*4 + 3);
+v_verbosity_142_ = lean_ctor_get_uint8(v_x_141_, sizeof(void*)*5 + 4);
 return v_verbosity_142_;
 }
 }
@@ -625,7 +625,7 @@ LEAN_EXPORT lean_object* l_Lake_getLeanOptOverrides___redArg___lam__0(lean_objec
 _start:
 {
 lean_object* v_leanOptOverrides_219_; 
-v_leanOptOverrides_219_ = lean_ctor_get(v_x_218_, 2);
+v_leanOptOverrides_219_ = lean_ctor_get(v_x_218_, 3);
 lean_inc(v_leanOptOverrides_219_);
 return v_leanOptOverrides_219_;
 }
@@ -671,7 +671,7 @@ LEAN_EXPORT lean_object* l_Lake_getMacOSXDeploymentTarget_x3f___redArg___lam__0(
 _start:
 {
 lean_object* v_macosxDeploymentTarget_x3f_239_; 
-v_macosxDeploymentTarget_x3f_239_ = lean_ctor_get(v_x_238_, 3);
+v_macosxDeploymentTarget_x3f_239_ = lean_ctor_get(v_x_238_, 4);
 lean_inc(v_macosxDeploymentTarget_x3f_239_);
 return v_macosxDeploymentTarget_x3f_239_;
 }

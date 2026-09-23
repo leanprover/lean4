@@ -166,21 +166,21 @@ def r7 : Prop := (a + b) ^ 2 ≤ a ^ 2 + b ^ 2
 def r8 : Prop := 2 * a < b - a
 
 /--
-info: r1: b = a + c (not done)
+info: r1: b = a + c
 ---
-info: r2: 0 ≤ b (not done)
+info: r2: 0 ≤ b
 ---
-info: r3: 0 < 1 (not done)
+info: r3: 0 < 1
 ---
-info: r4: 0 = 0 (not done)
+info: r4: 0 = 0
 ---
 info: r5: unchanged
 ---
-info: r6: unchanged
+info: r6: a = 5 (normal)
 ---
-info: r7: 2 * (a * b) ≤ 0 (not done)
+info: r7: 2 * (a * b) ≤ 0
 ---
-info: r8: 3 * a < b (not done)
+info: r8: 3 * a < b
 -/
 #guard_msgs in
 run_meta SymM.run do
@@ -195,17 +195,17 @@ def nr5 : Prop := 2 * x + 3 ≤ y + x + 1
 def nr6 : Prop := x * y = y * x + 0
 
 /--
-info: nr1: 0 = x (not done)
+info: nr1: 0 = x
 ---
-info: nr2: 0 ≤ y (not done)
+info: nr2: 0 ≤ y
 ---
-info: nr3: 0 < 1 (not done)
+info: nr3: 0 < 1
 ---
-info: nr4: 0 = 0 (not done)
+info: nr4: 0 = 0
 ---
-info: nr5: x + 2 ≤ y (not done)
+info: nr5: x + 2 ≤ y
 ---
-info: nr6: 0 = 0 (not done)
+info: nr6: 0 = 0
 -/
 #guard_msgs in
 run_meta SymM.run do

@@ -509,14 +509,13 @@ private def normalizeRel? [Monad m] [MonadLiftT SymM m] [MonadLiftT MetaM m]
         let f := Grind.mkVarRename perm
         (l.renameVars f, r.renameVars f, perm.map (vars[·]!))
     normalizeRelCore rel relFn order? e₁ lhs₁ rhs₁ l r vars
-  -- Unlike terms, a normalized relation is not `done`: `post` still runs on it, to close
-  -- `t = t` and ground comparisons (`evalGround`) or to apply rewrite rules to relations.
   match (← liftNorm kind core) with
-  | .notApplicable | .normal => return r₀
+  | .notApplicable => return r₀
+  | .normal => return r₀.markAsDone
   | .step e' h₂ =>
     match r₀ with
-    | .rfl _ cd => return .step e' h₂ (contextDependent := cd)
-    | .step _ h₁ _ cd => mkEqTransResult e e₁ h₁ (.step e' h₂) cd
+    | .rfl _ cd => return .step e' h₂ (done := true) (contextDependent := cd)
+    | .step _ h₁ _ cd => mkEqTransResult e e₁ h₁ (.step e' h₂ (done := true)) cd
 
 /--
 Normalizes the arithmetic term `e` (an application of `+`, `-`, `*`, `^`, `•`, or negation
@@ -560,8 +559,9 @@ private def normalizeTerm? [Monad m] [MonadLiftT SymM m] [MonadLiftT MetaM m] (e
 Normalizes `e` into polynomial normal form after simplifying its atoms with `simpAtom`:
 either an arithmetic term (see `normalizeTerm?`) or a relation `lhs = rhs`, `lhs ≤ rhs`,
 `lhs < rhs` whose carrier type is a `CommRing` or `CommSemiring` (see "Relations").
-`e` must be maximally shared. The result cases are those of `normalizeTerm?`, except that a
-relation is never marked `done`, so that `post` simprocs still see it.
+`e` must be maximally shared. The result cases are those of `normalizeTerm?`. A normalized
+relation is `done` as well; a simplifier that wants `post` to see normalized relations (to
+close `t = t`, say) must apply it itself, as `Sym.Simp.simpArith` does.
 -/
 def normalize? [Monad m] [MonadLiftT SymM m] [MonadLiftT MetaM m] (e : Expr) (simpAtom : Expr → m Result) : m Result := do
   match_expr e with

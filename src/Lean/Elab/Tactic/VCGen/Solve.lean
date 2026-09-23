@@ -9,6 +9,7 @@ prelude
 public import Lean.Elab.Tactic.VCGen.Context
 public import Lean.Elab.Tactic.VCGen.RuleCache
 public import Lean.Elab.Tactic.VCGen.Entails
+public import Lean.Elab.Tactic.VCGen.JoinPoint
 public import Lean.Elab.Tactic.VCGen.BinderName
 public import Lean.Meta.Sym.InstantiateS
 public import Lean.Meta.Sym.Simp.App
@@ -96,19 +97,10 @@ private def forallIntro? (oldGoal : MVarId) (target : Expr) : VCGenM (Option (Li
     throwError "Failed to intro forall target {goal}"
   return some [goal]
 
-private def throwIfUnsupportedJP (name : Name) (val : Expr) : VCGenM Unit := do
-  if (← read).useJP && Lean.Elab.Tactic.Do.isJP name && val.isLambda then
-    throwError "vcgen: shared-continuation handling for `__do_jp` is not yet \
-      implemented. Detection point reached at {name}; the upstream \
-      `Lean.Elab.Tactic.Do.onJoinPoint` (`src/Lean/Elab/Tactic/Do/VCGen.lean:215`) \
-      needs to be ported to the worklist style. Drop `(jp := true)` to fall back \
-      to the default zeta-unfold behaviour."
-
 /-- Strategy 2: zeta-substitute a duplicable top-level `let` in the target, otherwise
 introduce it into the local context. -/
 private def targetLetIntro? (goal : MVarId) (target : Expr) : VCGenM (Option MVarId) := do
   let .letE name _ val body _ := target | return none
-  throwIfUnsupportedJP name val
   if isDuplicable val then
     trace[Elab.Tactic.Do.vcgen] "let-zeta-dup: {name}"
     return some (← goal.replaceTargetDefEqFast (← Sym.instantiateRevBetaS body #[val]))
@@ -290,17 +282,17 @@ private def wpConsumeMData? (goal : MVarId) (info : WPApp) : VCGenM (Option MVar
   let .mdata .. := info.prog | return none
   return some (← replaceProgDefEq goal info info.prog.consumeMData)
 
-/-- Strategy 11a: hoist or zeta-substitute a `let` from the program head. -/
-private def wpLet? (goal : MVarId) (info : WPApp) : VCGenM (Option MVarId) := do
+/-- Strategy 11a: hoist or zeta-substitute a `let` from the program head. Under `+jp`, a hoisted
+join point is registered, which adds the goal for its body. -/
+private def wpLet? (goal : MVarId) (info : WPApp) : VCGenM (Option (List MVarId)) := do
   let .letE name type val body nondep := info.prog.getAppFn | return none
   let appArgs := info.prog.getAppRevArgs
-  throwIfUnsupportedJP name val
   let val ← reduceHead val
   if isDuplicable val then
     trace[Elab.Tactic.Do.vcgen] "let-zeta-dup: {name}"
     let body' ← Sym.instantiateRevBetaS body #[val]
     let prog ← mkAppRevS body' appArgs
-    return some (← replaceProgDefEq goal info prog)
+    return some [← replaceProgDefEq goal info prog]
   else
     trace[Elab.Tactic.Do.vcgen] "let-hoist: {name}"
     let prog ← mkAppRevS body appArgs
@@ -312,9 +304,11 @@ private def wpLet? (goal : MVarId) (info : WPApp) : VCGenM (Option MVarId) := do
     let target := Expr.letE name type val target nondep
     let goal ← goal.replaceTargetDefEqFast target
     let name ← if isProgramName name then pure name else Meta.mkFreshBinderNameForTactic name
-    let .goal _ goal ← Sym.intros goal #[name]
+    let .goal decls goal' ← Sym.intros goal #[name]
       | throwError "Failed to intro the `let` of{indentExpr info.prog}"
-    return some goal
+    if appArgs.isEmpty && (← isJoinPointLet name val) then
+      return some (← registerJoinPoint goal' decls[0]! val info)
+    return some [goal']
 
 /-- Strategy 11b: fold the state arguments of the program's `wp` application, so the symbolic
 state a spec application threads through the goal is normalized as it is produced rather than left
@@ -636,12 +630,15 @@ public def solve (scope : Scope) (goal : MVarId) : VCGenM SolveResult := goal.wi
       return .stop (.untilPatternMatched info.M)
     if let some g ← wpConsumeMData? goal info then
       return .goals scope [g]
-    if let some g ← wpLet? goal info then
+    if let some gs ← wpLet? goal info then
       burnOne
-      return .goals scope [g]
+      return .goals scope gs
     if let some gs ← wpSimpStateArgs? goal info then
       return .goals scope gs
     if let some gs ← wpMatch? goal info then
+      burnOne
+      return .goals scope gs
+    if let some gs ← jump? goal info then
       burnOne
       return .goals scope gs
     if let some g ← wpFVarZeta? goal info then

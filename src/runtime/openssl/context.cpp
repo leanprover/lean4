@@ -14,10 +14,13 @@ Author: Sofia Rodrigues
 #include <openssl/x509.h>
 #include <openssl/x509_vfy.h>
 #include <openssl/x509v3.h>
+#include <algorithm>
 #include <cerrno>
+#include <cstring>
 #include <limits>
 #include <memory>
 #include <string>
+#include <unordered_set>
 
 #endif
 
@@ -32,8 +35,8 @@ static int reject_encrypted_pem(char *, int, int, void *) { return -1; }
 // Opens `src` for reading. On failure returns nullptr and stores an IO error in `*err`.
 static BIO * open_pem_bio(pem_source src, char const * unreadable, lean_obj_res * err) {
     if (src.is_file) {
-        // Captured here rather than recovered later by re-opening the path, which would both race
-        // and lose the distinction between an open failure and an unreadable file.
+        // `errno` is what tells an open failure apart from a file that opens but holds no PEM, so it
+        // is captured at the call rather than recovered afterwards.
         errno = 0;
         BIO * bio = BIO_new_file(src.data(), "r");
         if (bio == nullptr) *err = mk_ssl_file_error(src.obj, unreadable, errno);
@@ -46,7 +49,7 @@ static BIO * open_pem_bio(pem_source src, char const * unreadable, lean_obj_res 
     }
 
     BIO * bio = BIO_new_mem_buf(src.data(), (int)src.size());
-    if (bio == nullptr) *err = mk_ssl_invalid_argument(unreadable);
+    if (bio == nullptr) *err = mk_openssl_io_error(unreadable);
     return bio;
 }
 
@@ -76,9 +79,21 @@ static void configure_ctx_options(SSL_CTX * ctx) {
         SSL_OP_NO_COMPRESSION
     );
 
+    // Off by default, but a system `openssl.cnf` can switch them on. Ignoring an unexpected EOF would
+    // make a truncated stream read as a clean close; the rest drop extended master secret, re-enable
+    // legacy renegotiation, or allow TLS 1.3 resumption without a fresh key exchange.
+    SSL_CTX_clear_options(ctx,
+        SSL_OP_IGNORE_UNEXPECTED_EOF |
+        SSL_OP_NO_EXTENDED_MASTER_SECRET |
+        SSL_OP_ALLOW_UNSAFE_LEGACY_RENEGOTIATION |
+        SSL_OP_LEGACY_SERVER_CONNECT |
+        SSL_OP_ALLOW_NO_DHE_KEX
+    );
+
     // Level 2 (112-bit security: RSA and DH keys of at least 2048 bits) is OpenSSL's own default only
-    // from 3.2; earlier releases, which the build still accepts, default to level 1.
-    SSL_CTX_set_security_level(ctx, 2);
+    // from 3.2; earlier releases, which the build still accepts, default to level 1. A system crypto
+    // policy asking for more keeps it.
+    SSL_CTX_set_security_level(ctx, std::max(2, SSL_CTX_get_security_level(ctx)));
 
     // Without this a TLS 1.3 server still puts two NewSessionTickets on the wire per connection.
     // Read only by the server state machine.
@@ -98,13 +113,99 @@ static void configure_ctx_options(SSL_CTX * ctx) {
     SSL_CTX_set_mode(ctx, SSL_MODE_ACCEPT_MOVING_WRITE_BUFFER);
 
     // Inherited by every session, and inert until the session layer binds a peer hostname with
-    // SSL_set1_host. That check then rejects partial wildcards like `f*.example.com` (RFC 9525
-    // §6.3, which obsoletes RFC 6125 — the latter still permitted them), and matches the name only
-    // against the subjectAltName extension. Without the latter flag OpenSSL falls back to the
-    // subject CN whenever a certificate carries no dNSName SAN, which RFC 9525 removed along with
-    // the CN-ID itself (Appendix A); the fallback applies wildcard matching to the CN too.
+    // SSL_set1_host. That check then rejects partial wildcards like `f*.example.com` (RFC 9525 §6.3),
+    // and matches the name only against the subjectAltName extension: without the latter flag
+    // OpenSSL falls back to the subject CN whenever a certificate carries no dNSName SAN, which
+    // RFC 9525 does not allow (Appendix A).
     X509_VERIFY_PARAM_set_hostflags(SSL_CTX_get0_param(ctx),
         X509_CHECK_FLAG_NO_PARTIAL_WILDCARDS | X509_CHECK_FLAG_NEVER_CHECK_SUBJECT);
+}
+
+// OpenSSL's default TLS 1.3 suites. `TLS_AES_128_CCM_8_SHA256`, which a configuration can add, has
+// a 64-bit tag.
+static char const * const g_tls13_suites[] = {
+    "TLS_AES_256_GCM_SHA384",
+    "TLS_CHACHA20_POLY1305_SHA256",
+    "TLS_AES_128_GCM_SHA256",
+};
+
+// Narrows the TLS 1.2 suites to those with forward secrecy and an AEAD, which drops static-RSA key
+// exchange and CBC, and the TLS 1.3 suites to `g_tls13_suites`. Only suites the context already
+// allowed are kept, so a system crypto policy that removed some of these keeps them removed. Returns
+// nullptr on success, an IO error otherwise.
+static lean_obj_res restrict_ciphers(SSL_CTX * ctx) {
+    char const * failed = "could not configure the TLS cipher suites";
+
+    std::unordered_set<std::string> allowed;
+    STACK_OF(SSL_CIPHER) * before = SSL_CTX_get_ciphers(ctx);
+
+    for (int i = 0, n = sk_SSL_CIPHER_num(before); i < n; i++) {
+        allowed.insert(SSL_CIPHER_get_name(sk_SSL_CIPHER_value(before, i)));
+    }
+
+    if (SSL_CTX_set_cipher_list(ctx, "ECDHE+AESGCM:ECDHE+CHACHA20") != 1)
+        return mk_openssl_io_error(failed);
+
+    std::string kept;
+    bool narrowed = false;
+    STACK_OF(SSL_CIPHER) * after = SSL_CTX_get_ciphers(ctx);
+
+    for (int i = 0, n = sk_SSL_CIPHER_num(after); i < n; i++) {
+        SSL_CIPHER const * cipher = sk_SSL_CIPHER_value(after, i);
+
+        // The list also carries the TLS 1.3 suites, which `SSL_CTX_set_cipher_list` leaves alone.
+        if (strcmp(SSL_CIPHER_get_version(cipher), "TLSv1.3") == 0) continue;
+
+        char const * name = SSL_CIPHER_get_name(cipher);
+
+        if (allowed.count(name) == 0) {
+            narrowed = true;
+            continue;
+        }
+
+        if (!kept.empty()) kept += ':';
+        kept += name;
+    }
+
+    // A policy leaving none of these suites for a version it permits is reported rather than
+    // overridden in either direction. A version is ruled out by the bounds or by `Protocol = -TLSv1.x`;
+    // the minimum is already TLS 1.2 or above, and a maximum of 0 is none.
+    int max_version = SSL_CTX_get_max_proto_version(ctx);
+    uint64_t options = SSL_CTX_get_options(ctx);
+
+    bool tls12_permitted = SSL_CTX_get_min_proto_version(ctx) <= TLS1_2_VERSION &&
+                           (max_version == 0 || max_version >= TLS1_2_VERSION) &&
+                           (options & SSL_OP_NO_TLSv1_2) == 0;
+
+    bool tls13_permitted = (max_version == 0 || max_version >= TLS1_3_VERSION) &&
+                           (options & SSL_OP_NO_TLSv1_3) == 0;
+
+    auto refused_by_policy = [](char const * version) {
+        ERR_clear_error();
+        std::string msg = std::string("could not configure the TLS cipher suites: the system OpenSSL "
+                                      "configuration permits ") + version + " but leaves none of its "
+                                      "suites that Lean allows";
+        return lean_io_result_mk_error(lean_mk_io_user_error(mk_string(msg)));
+    };
+
+    if (narrowed && kept.empty() && tls12_permitted) return refused_by_policy("TLS 1.2");
+    if (narrowed && !kept.empty() && SSL_CTX_set_cipher_list(ctx, kept.c_str()) != 1)
+        return mk_openssl_io_error(failed);
+
+    std::string kept13;
+
+    for (char const * name : g_tls13_suites) {
+        if (allowed.count(name) == 0) continue;
+
+        if (!kept13.empty()) kept13 += ':';
+        kept13 += name;
+    }
+
+    // Without a TLS 1.3 suite OpenSSL would still offer TLS 1.3 and then fail every handshake.
+    if (kept13.empty() && tls13_permitted) return refused_by_policy("TLS 1.3");
+    if (SSL_CTX_set_ciphersuites(ctx, kept13.c_str()) != 1) return mk_openssl_io_error(failed);
+
+    return nullptr;
 }
 
 // Creates a configured SSL_CTX, or returns nullptr with an IO error stored in `*err`.
@@ -120,15 +221,15 @@ static ssl_ctx_ptr mk_ssl_ctx_base(const SSL_METHOD * method, lean_obj_res * err
 
     configure_ctx_options(ctx.get());
 
-    if (SSL_CTX_set_min_proto_version(ctx.get(), TLS1_2_VERSION) != 1) {
+    // A system crypto policy already requiring TLS 1.3 keeps that.
+    if (SSL_CTX_get_min_proto_version(ctx.get()) < TLS1_2_VERSION &&
+        SSL_CTX_set_min_proto_version(ctx.get(), TLS1_2_VERSION) != 1) {
         *err = mk_openssl_io_error("could not set the minimum TLS version");
         return nullptr;
     }
 
-    // TLS 1.2 suites with forward secrecy and an AEAD only, which drops static-RSA key exchange and
-    // CBC. TLS 1.3 suites are configured separately and are all of that kind already.
-    if (SSL_CTX_set_cipher_list(ctx.get(), "ECDHE+AESGCM:ECDHE+CHACHA20") != 1) {
-        *err = mk_openssl_io_error("could not configure the TLS cipher suites");
+    if (lean_obj_res cipher_err = restrict_ciphers(ctx.get())) {
+        *err = cipher_err;
         return nullptr;
     }
 
@@ -229,19 +330,19 @@ static lean_obj_res load_server_credentials(SSL_CTX * ctx, pem_source cert, pem_
     return nullptr;
 }
 
-static lean_obj_res mk_server_ctx(b_obj_arg cert, uint8_t cert_is_file, b_obj_arg key, uint8_t key_is_file) {
-    pem_source cert_src { cert, cert_is_file != 0 };
-    pem_source key_src { key, key_is_file != 0 };
+static lean_obj_res mk_server_ctx(b_obj_arg cert, b_obj_arg key) {
+    pem_source cert_src = pem_source::of(cert);
+    pem_source key_src = pem_source::of(key);
 
     // Only a path has to survive the trip through a C string; in-memory PEM is read with a length,
     // so a NUL there is data.
     if (cert_src.is_file) {
-        if (lean_obj_res err = reject_embedded_nul(cert))
+        if (lean_obj_res err = reject_embedded_nul(cert_src.obj))
             return err;
     }
 
     if (key_src.is_file) {
-        if (lean_obj_res err = reject_embedded_nul(key))
+        if (lean_obj_res err = reject_embedded_nul(key_src.obj))
             return err;
     }
 
@@ -349,10 +450,15 @@ static lean_obj_res mk_client_ctx(uint8_t verify_peer, uint8_t trust_system_root
         X509_VERIFY_PARAM_set_flags(SSL_CTX_get0_param(ctx.get()), X509_V_FLAG_PARTIAL_CHAIN);
     }
 
+    bool system_roots = false;
+
     if (trust_system_roots) {
         std::string detail;
+        system_roots = use_system_trust_store(ctx.get(), &detail);
 
-        if (!use_system_trust_store(ctx.get(), &detail)) {
+        // `ca` is trusted in addition to the platform anchors, so it is still a working configuration
+        // where the platform supplies none. Only a context left with nothing to trust is an error.
+        if (!system_roots && !has_ca) {
             std::string msg("failed to load system trust store");
             if (!detail.empty()) msg += ": " + detail;
 
@@ -361,11 +467,11 @@ static lean_obj_res mk_client_ctx(uint8_t verify_peer, uint8_t trust_system_root
     }
 
     // The caller's own CAs are added to whatever the store already holds: on top of the platform
-    // anchors, or into an otherwise empty store when those were excluded.
+    // anchors, or into an otherwise empty store when those were excluded or turned up empty.
     if (has_ca) {
         // An anchor that cannot terminate a chain is only a dead configuration when it is the sole
         // source of anchors; alongside the platform roots it is merely redundant.
-        bool require_anchor = !allow_partial_chain && !trust_system_roots;
+        bool require_anchor = !allow_partial_chain && !system_roots;
 
         if (lean_obj_res ca_err = load_ca_bundle(ctx.get(), ca, require_anchor)) return ca_err;
     }
@@ -374,16 +480,17 @@ static lean_obj_res mk_client_ctx(uint8_t verify_peer, uint8_t trust_system_root
     return wrap_ssl_context(std::move(ctx));
 }
 
-static lean_obj_res mk_client_ctx_checked(b_obj_arg ca, uint8_t ca_is_file, uint8_t has_ca, uint8_t verify_peer, uint8_t trust_system_roots, uint8_t allow_partial_chain) {
-    pem_source ca_src {ca, ca_is_file != 0};
+static lean_obj_res mk_client_ctx_checked(b_obj_arg ca, uint8_t verify_peer, uint8_t trust_system_roots, uint8_t allow_partial_chain) {
+    bool has_ca = !lean_is_scalar(ca);
+    pem_source ca_src = has_ca ? pem_source::of(lean_ctor_get(ca, 0)) : pem_source { nullptr, false };
 
     // Checked before `verifyPeer` is consulted, so a path that could never be opened is reported as
     // such even where it would not have been read.
     if (has_ca && ca_src.is_file) {
-        if (lean_obj_res err = reject_embedded_nul(ca)) return err;
+        if (lean_obj_res err = reject_embedded_nul(ca_src.obj)) return err;
     }
 
-    return mk_client_ctx(verify_peer, trust_system_roots, allow_partial_chain, has_ca != 0, ca_src);
+    return mk_client_ctx(verify_peer, trust_system_roots, allow_partial_chain, has_ca, ca_src);
 }
 
 // Runs a constructor behind the two guards every entry point needs: OpenSSL initialized before any
@@ -403,15 +510,15 @@ static lean_obj_res ssl_entry_point(F && build) {
     }
 }
 
-/* Std.Internal.SSL.Context.Server.mkImpl (cert : @& String) (certIsFile : Bool) (key : @& String) (keyIsFile : Bool) : IO Context.Server */
-extern "C" LEAN_EXPORT lean_obj_res lean_ssl_ctx_mk_server(b_obj_arg cert, uint8_t cert_is_file, b_obj_arg key, uint8_t key_is_file) {
-    return ssl_entry_point([&] { return mk_server_ctx(cert, cert_is_file, key, key_is_file); });
+/* Std.Internal.SSL.Context.Server.mkImpl (cert key : @& PEM) : IO Context.Server */
+extern "C" LEAN_EXPORT lean_obj_res lean_ssl_ctx_mk_server(b_obj_arg cert, b_obj_arg key) {
+    return ssl_entry_point([&] { return mk_server_ctx(cert, key); });
 }
 
-/* Std.Internal.SSL.Context.Client.mkImpl (ca : @& String) (caIsFile hasCA verifyPeer trustSystemRoots allowPartialChain : Bool) : IO Context.Client */
-extern "C" LEAN_EXPORT lean_obj_res lean_ssl_ctx_mk_client(b_obj_arg ca, uint8_t ca_is_file, uint8_t has_ca, uint8_t verify_peer, uint8_t trust_system_roots, uint8_t allow_partial_chain) {
+/* Std.Internal.SSL.Context.Client.mkImpl (ca : @& Option PEM) (verifyPeer trustSystemRoots allowPartialChain : Bool) : IO Context.Client */
+extern "C" LEAN_EXPORT lean_obj_res lean_ssl_ctx_mk_client(b_obj_arg ca, uint8_t verify_peer, uint8_t trust_system_roots, uint8_t allow_partial_chain) {
     return ssl_entry_point([&] {
-        return mk_client_ctx_checked(ca, ca_is_file, has_ca, verify_peer, trust_system_roots, allow_partial_chain);
+        return mk_client_ctx_checked(ca, verify_peer, trust_system_roots, allow_partial_chain);
     });
 }
 
@@ -419,11 +526,11 @@ extern "C" LEAN_EXPORT lean_obj_res lean_ssl_ctx_mk_client(b_obj_arg ca, uint8_t
 
 void initialize_openssl_context() {}
 
-extern "C" LEAN_EXPORT lean_obj_res lean_ssl_ctx_mk_server(b_obj_arg /*cert*/, uint8_t /*cert_is_file*/, b_obj_arg /*key*/, uint8_t /*key_is_file*/) {
+extern "C" LEAN_EXPORT lean_obj_res lean_ssl_ctx_mk_server(b_obj_arg /*cert*/, b_obj_arg /*key*/) {
     lean_always_assert(false && "Please build a version of Lean4 with OpenSSL to invoke this.");
 }
 
-extern "C" LEAN_EXPORT lean_obj_res lean_ssl_ctx_mk_client(b_obj_arg /*ca*/, uint8_t /*ca_is_file*/, uint8_t /*has_ca*/, uint8_t /*verify_peer*/, uint8_t /*trust_system_roots*/, uint8_t /*allow_partial_chain*/) {
+extern "C" LEAN_EXPORT lean_obj_res lean_ssl_ctx_mk_client(b_obj_arg /*ca*/, uint8_t /*verify_peer*/, uint8_t /*trust_system_roots*/, uint8_t /*allow_partial_chain*/) {
     lean_always_assert(false && "Please build a version of Lean4 with OpenSSL to invoke this.");
 }
 

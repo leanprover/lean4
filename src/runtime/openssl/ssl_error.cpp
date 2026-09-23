@@ -74,8 +74,8 @@ lean_obj_res mk_ssl_file_error(b_obj_arg file, char const * msg, int errnum) {
         file, EINVAL, mk_string(msg)));
 }
 
-lean_obj_res mk_pem_error(pem_source src, char const * msg, int errnum) {
-    return src.is_file ? mk_ssl_file_error(src.obj, msg, errnum) : mk_ssl_invalid_argument(msg);
+lean_obj_res mk_pem_error(pem_source src, char const * msg) {
+    return src.is_file ? mk_ssl_file_error(src.obj, msg) : mk_ssl_invalid_argument(msg);
 }
 
 bool rejected_by_security_level() {

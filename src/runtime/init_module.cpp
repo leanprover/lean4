@@ -34,7 +34,6 @@ extern "C" LEAN_EXPORT void lean_initialize_runtime_module() {
     initialize_mutex();
     initialize_process();
     initialize_stack_overflow();
-    initialize_openssl();
     initialize_openssl_context();
     initialize_libuv();
     initialize_cadical();
@@ -44,7 +43,6 @@ void initialize_runtime_module() {
 }
 void finalize_runtime_module() {
     finalize_stack_overflow();
-    finalize_openssl();
     finalize_process();
     finalize_mutex();
     finalize_thread();

@@ -447,7 +447,7 @@ extern "C" LEAN_EXPORT void lean_inc_ref_huge_n(lean_object * o, size_t n) {
     if (lean_is_st(o)) {
         int rc = lean_internal_get_rc(o);
         if (n > (size_t)(INT_MAX - rc))
-            lean_internal_set_rc(o, LEAN_RC_STICKY);
+            lean_internal_set_rc(o, LEAN_RC_STUCK_ST);
         else
             lean_internal_set_rc(o, rc + (int)n);
     } else {
@@ -660,19 +660,30 @@ static obj_res mark_mt_fn(obj_arg o) {
     return lean_box(0);
 }
 
+// Whether `o` is owned by one thread: its count is single-threaded or overflowed from one.
+// sync with tests/elab/rc_model.lean (`isUnshared`)
+static inline bool is_unshared(object * o) {
+    int rc = lean_internal_get_rc(o);
+    return rc > 0 || rc <= LEAN_RC_STUCK_ST;
+}
+
 extern "C" LEAN_EXPORT void lean_mark_mt(object * o) {
 #ifndef LEAN_MULTI_THREAD
     return;
 #endif
-    if (lean_is_scalar(o) || !lean_is_st(o)) return;
+    if (lean_is_scalar(o) || !is_unshared(o)) return;
 
     buffer<object*> todo;
     todo.push_back(o);
     while (!todo.empty()) {
         object * o = todo.back();
         todo.pop_back();
-        if (!lean_is_scalar(o) && lean_is_st(o)) {
-            lean_internal_set_rc(o, -lean_internal_get_rc(o));
+        if (!lean_is_scalar(o) && is_unshared(o)) {
+            // A count that overflowed, or is too large for the live thread-shared range, freezes at
+            // `LEAN_RC_STICKY`, where no later `lean_mark_mt` takes it for an unshared one.
+            // sync with tests/elab/rc_model.lean (`markMtRc`)
+            int rc = lean_internal_get_rc(o);
+            lean_internal_set_rc(o, rc < 0 || -rc <= LEAN_RC_STICKY_DROP ? LEAN_RC_STICKY : -rc);
             uint8_t tag = lean_ptr_tag(o);
             if (tag <= LeanMaxCtorTag) {
                 object ** it  = lean_ctor_obj_cptr(o);

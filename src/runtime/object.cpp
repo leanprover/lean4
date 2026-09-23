@@ -338,7 +338,7 @@ static inline void dec(lean_object * o, lean_object* & todo) {
         lean_internal_sub_rc(o, 1);
     } else if (lean_internal_get_rc(o) == 1) {
         push_back(todo, o);
-    } else if (lean_internal_get_rc(o) == 0) {
+    } else if (lean_is_never_freed(o)) {
         return;
     } else if (std::atomic_fetch_add_explicit(lean_get_rc_mt_addr(o), 1, std::memory_order_acq_rel) == -1) {
         push_back(todo, o);
@@ -441,7 +441,7 @@ static object * lean_del_core(object * o, object * todo) {
     }
 }
 
-// sync with tests/elab/rc_sticky_thresholds.lean (`incRefHugeN`)
+// sync with tests/elab/rc_model.lean (`incRefHugeN`)
 extern "C" LEAN_EXPORT void lean_inc_ref_huge_n(lean_object * o, size_t n) {
     // `n` is above what `lean_inc_ref_n` adjusts by inline. Only `lean_mk_array` gets here.
     if (lean_is_st(o)) {
@@ -454,7 +454,7 @@ extern "C" LEAN_EXPORT void lean_inc_ref_huge_n(lean_object * o, size_t n) {
         // The loop condition is the sticky test `lean_inc_ref_n` makes before its own
         // `fetch_sub`, so each iteration is one ordinary increment of at most `LEAN_RC_INC_MAX`,
         // and re-reading the count stops the loop once the count freezes.
-        while (n > 0 && (unsigned)lean_internal_get_rc(o) > (unsigned)LEAN_RC_STICKY) {
+        while (n > 0 && lean_is_unstuck_mt(o)) {
             size_t chunk = std::min(n, LEAN_RC_INC_MAX);
             std::atomic_fetch_sub_explicit(lean_get_rc_mt_addr(o), (int)chunk,
                                            std::memory_order_relaxed);
@@ -463,13 +463,13 @@ extern "C" LEAN_EXPORT void lean_inc_ref_huge_n(lean_object * o, size_t n) {
     }
 }
 
-// sync with tests/elab/rc_sticky_thresholds.lean (`decRefCold`)
+// sync with tests/elab/rc_model.lean (`decRefCold`)
 extern "C" LEAN_EXPORT void lean_dec_ref_cold(lean_object * o) {
     // `rc == 1` is the hot single-threaded free path and can never be sticky, so the sticky check
     // is kept out of it.
     if (lean_internal_get_rc(o) != 1) {
-        if (LEAN_UNLIKELY(lean_internal_get_rc(o) <= LEAN_RC_STICKY_DROP))
-            return; // over- or underflowed (sticky) count: never adjust or free
+        if (LEAN_UNLIKELY(lean_is_never_freed(o)))
+            return;
         if (std::atomic_fetch_add_explicit(lean_get_rc_mt_addr(o), 1, std::memory_order_acq_rel) != -1)
             return;
     }

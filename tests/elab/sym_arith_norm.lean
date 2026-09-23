@@ -19,7 +19,7 @@ def getDefValue (n : Name) : MetaM Expr := do
 def test (n : Name) (simpAtom : Expr → SymM Sym.Simp.Result := fun _ => return .rfl) : SymM Unit := do
   let e ← preprocessExpr (← getDefValue n)
   match (← normalize? e simpAtom) with
-  | .rfl false _ => logInfo m!"{n}: not applicable"
+  | .rfl false _ => logInfo m!"{n}: unchanged"
   | .rfl true _ => logInfo m!"{n}: {e} (normal)"
   | .step e' h done _ =>
     addDecl <| .thmDecl { name := n ++ `norm, levelParams := [], type := ← mkEq e e', value := h }
@@ -130,9 +130,9 @@ def s1 : Int := a
 def s2 : Int → Int := fun z => z
 
 /--
-info: s1: not applicable
+info: s1: unchanged
 ---
-info: s2: not applicable
+info: s2: unchanged
 -/
 #guard_msgs in
 run_meta SymM.run do
@@ -142,17 +142,83 @@ run_meta SymM.run do
 -- Budget.
 def big : Int := (a + 1) ^ 100
 
-/-- info: big: not applicable -/
+/-- info: big: unchanged -/
 #guard_msgs in
 set_option sym.arith.maxDegree 8 in
 run_meta SymM.run do
   test ``big
 
-/-- info: big: not applicable -/
+/-- info: big: unchanged -/
 #guard_msgs in
 set_option sym.arith.maxTerms 8 in
 run_meta SymM.run do
   test ``big
+
+/-! ## Relations -/
+
+def r1 : Prop := a + b = c + 2 * a
+def r2 : Prop := a ≤ b + a
+def r3 : Prop := a < a + 1
+def r4 : Prop := a * b + c = c + b * a
+def r5 : Prop := a = b
+def r6 : Prop := a = 5
+def r7 : Prop := (a + b) ^ 2 ≤ a ^ 2 + b ^ 2
+def r8 : Prop := 2 * a < b - a
+
+/--
+info: r1: b = a + c (not done)
+---
+info: r2: 0 ≤ b (not done)
+---
+info: r3: 0 < 1 (not done)
+---
+info: r4: 0 = 0 (not done)
+---
+info: r5: unchanged
+---
+info: r6: unchanged
+---
+info: r7: 2 * (a * b) ≤ 0 (not done)
+---
+info: r8: 3 * a < b (not done)
+-/
+#guard_msgs in
+run_meta SymM.run do
+  for n in [``r1, ``r2, ``r3, ``r4, ``r5, ``r6, ``r7, ``r8] do
+    test n
+
+def nr1 : Prop := x + y = y + 2 * x
+def nr2 : Prop := x ≤ x + y
+def nr3 : Prop := x + 1 < x + 2
+def nr4 : Prop := (x + y) * (x + y) = x * x + 2 * x * y + y * y
+def nr5 : Prop := 2 * x + 3 ≤ y + x + 1
+def nr6 : Prop := x * y = y * x + 0
+
+/--
+info: nr1: 0 = x (not done)
+---
+info: nr2: 0 ≤ y (not done)
+---
+info: nr3: 0 < 1 (not done)
+---
+info: nr4: 0 = 0 (not done)
+---
+info: nr5: x + 2 ≤ y (not done)
+---
+info: nr6: 0 = 0 (not done)
+-/
+#guard_msgs in
+run_meta SymM.run do
+  for n in [``nr1, ``nr2, ``nr3, ``nr4, ``nr5, ``nr6] do
+    test n
+
+-- A relation over a type that does not classify is untouched.
+def sr1 : Prop := "a" ++ "b" = "ab"
+
+/-- info: sr1: unchanged -/
+#guard_msgs in
+run_meta SymM.run do
+  test ``sr1
 
 /-! ## Atoms are simplified by the callback before normalization -/
 

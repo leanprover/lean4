@@ -88,8 +88,8 @@ example (x : Nat) : 2 • x + x = 3 * x := by
 example (k : Nat) (x : Nat) : k • x + x = x + k * x := by
   sym => simp arithSimp
 
--- A normal form produced by one variant is still visited by another: the leaf `g a` of the
--- normalized term is rewritten by `rewriteG`, and a further `arith` pass merges it.
+-- A normal form produced by one variant is still visited by another: `arith` normalizes the
+-- relation to `g a = a`, and `rewriteG` then rewrites its leaf `g a`.
 def g (a : Int) : Int := a
 theorem g_eq (a : Int) : g a = a := rfl
 
@@ -100,4 +100,62 @@ example (a : Int) : g a + a = 2 * a := by
   sym =>
     simp arithSimp
     simp rewriteG
+
+-- Relations: everything moves to one side and is split by sign; on semirings the common part
+-- of both sides is cancelled.
+/--
+trace: case grind
+x y z : Int
+h : y = x + z
+⊢ y = x + z
+-/
+#guard_msgs in
+example (x y z : Int) (h : y = x + z) : x + y = z + 2 * x := by
+  sym =>
     simp arithSimp
+    show_goals
+    exact h
+
+/--
+trace: case grind
+a b : Int
+h : 0 ≤ b
+⊢ 0 ≤ b
+-/
+#guard_msgs in
+example (a b : Int) (h : 0 ≤ b) : a ≤ b + a := by
+  sym =>
+    simp arithSimp
+    show_goals
+    exact h
+
+example (a : Int) : a < a + 1 := by
+  sym => simp arithSimp
+
+/--
+trace: case grind
+x y : Nat
+h : 0 = x
+⊢ 0 = x
+-/
+#guard_msgs in
+example (x y : Nat) (h : 0 = x) : x + y = y + 2 * x := by
+  sym =>
+    simp arithSimp
+    show_goals
+    exact h
+
+example (x y : Nat) (h : 0 ≤ y) : x ≤ x + y := by
+  sym =>
+    simp arithSimp
+    exact h
+
+example (x : Nat) : x + 1 < x + 2 := by
+  sym => simp arithSimp
+
+-- Both sides normalize to the same polynomial: the relation closes.
+example (a b : Int) : (a + b) * (a - b) = a ^ 2 - b ^ 2 := by
+  sym => simp arithSimp
+
+example (x y : Nat) : (x + y) * (x + y) ≤ x * x + 2 * x * y + y * y := by
+  sym => simp arithSimp

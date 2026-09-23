@@ -13,15 +13,15 @@ open Lean Meta Sym Arith
 def summary (type : Expr) : SymM String := do
   let some id ← classifyOrder? type | return "none"
   let o := (← getArithState).orders[id]!
-  return s!"id={o.id} lt={o.ltInst?.isSome} partial={o.isPartialInst?.isSome} linear={o.isLinearPreInst?.isSome} lawfulLT={o.lawfulOrderLTInst?.isSome} ring={o.ringId?} commRing={o.isCommRing} orderedRing={o.orderedRingInst?.isSome}"
+  return s!"id={o.id} lt={o.ltInst?.isSome} partial={o.isPartialInst?.isSome} linear={o.isLinearPreInst?.isSome} lawfulLT={o.lawfulOrderLTInst?.isSome} ring={o.ringId?} semiring={o.semiringId?} commRing={o.isCommRing} orderedRing={o.orderedRingInst?.isSome}"
 
-/-- info: id=0 lt=true partial=true linear=true lawfulLT=true ring=(some 0) commRing=true orderedRing=true -/
+/-- info: id=0 lt=true partial=true linear=true lawfulLT=true ring=(some 0) semiring=none commRing=true orderedRing=true -/
 #guard_msgs in
 run_meta SymM.run do
   logInfo (← summary (mkConst ``Int))
 
--- `Nat` is a `CommSemiring`, not a ring, so there is no ring link and no `OrderedRing`.
-/-- info: id=0 lt=true partial=true linear=true lawfulLT=true ring=none commRing=false orderedRing=false -/
+-- `Nat` is a `CommSemiring`, not a ring: the link goes through `semiringId?`.
+/-- info: id=0 lt=true partial=true linear=true lawfulLT=true ring=none semiring=(some 0) commRing=false orderedRing=true -/
 #guard_msgs in
 run_meta SymM.run do
   logInfo (← summary (mkConst ``Nat))

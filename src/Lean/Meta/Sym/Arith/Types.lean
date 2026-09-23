@@ -126,9 +126,11 @@ structure Order where
   ringId?            : Option Nat
   /-- `true` if `ringId?` indexes `rings`, `false` if it indexes `ncRings` -/
   isCommRing         : Bool
+  /-- Id of the `CommSemiring` classification (`semirings`) when the type is an ordered semiring that is not a ring. -/
+  semiringId?        : Option Nat := none
   /-- `Ring` instance if available -/
   ringInst?          : Option Expr
-  /-- `OrderedRing` instance if available -/
+  /-- `OrderedRing` instance if available (with the semiring instance of `ringId?`, or of `semiringId?`) -/
   orderedRingInst?   : Option Expr
   /-- Canonical `LE.le type leInst` -/
   leFn               : Expr

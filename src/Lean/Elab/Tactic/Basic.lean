@@ -209,7 +209,12 @@ partial def evalTactic (stx : Syntax) : TacticM Unit := do
         if evalFns.isEmpty && macros.isEmpty then
           throwErrorAt stx "Tactic `{stx.getKind}` has not been implemented"
         let s ← Tactic.saveState
-        expandEval s macros evalFns #[]
+        -- The expansion of `t₁` in `deprecated_syntax t₁` reports no deprecated syntax or
+        -- constants, so that `t₁` warns once even if it expands to `t₁` or to another `t₂`.
+        if isDeprecatedSyntax (← getEnv) stx.getKind then
+          Term.withoutCheckDeprecated <| expandEval s macros evalFns #[]
+        else
+          expandEval s macros evalFns #[]
     | .missing => pure ()
     | _ => throwError m!"Unexpected tactic{indentD stx}"
 where

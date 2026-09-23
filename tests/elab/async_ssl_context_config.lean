@@ -2,20 +2,11 @@ import Std.Internal.SSL
 import Std.Async.System
 
 /-!
-Checks which OpenSSL configuration file a TLS context reads, which follows who owns the OpenSSL being
-linked. A toolchain bundling its own carries that build's compiled-in configuration path, which names
-a directory on the machine it was built on; on the machine it runs on that directory can belong to
-anyone, and a file planted there could load a provider module or lower the security level of every
-context, so such a build reads no configuration at all. Against a system OpenSSL the same file is the
-distribution's own, carrying its crypto policy and FIPS settings, and is read as by any other
-consumer of that library.
-
-`OPENSSL_CONF` stands in for that file here: it names a configuration whose provider section replaces
-the default provider with one that cannot be loaded, so a context built after reading it has no
-ciphers and cannot be created. Whether the context builds is therefore exactly whether the
-configuration was read. It has to be set before the first context of the process, because OpenSSL is
-initialized once, so this lives in a file of its own. Windows is skipped because libuv sets variables
-there through the Win32 API, which the C runtime's `getenv` does not observe.
+Checks that a standalone build never reads `openssl.cnf` and a build against the system OpenSSL
+does. `OPENSSL_CONF` names a configuration that loads a nonexistent provider, so the context builds
+exactly when the file was not read. It must run before the process's first context, since OpenSSL is
+initialized once, so it has a file of its own. Windows is skipped: libuv sets variables there
+through the Win32 API, which `getenv` does not see.
 -/
 
 open Std.Internal.SSL
@@ -35,8 +26,7 @@ def brokenConfig : String :=
   if System.Platform.isWindows then
     return
 
-  -- Set by the test environment for a build bundling its own dependencies, which is the build whose
-  -- compiled-in configuration path is not to be trusted.
+  -- Set by the test environment for a build bundling its own dependencies.
   let standalone := (← IO.getEnv "LEAN_STANDALONE") == some "1"
 
   IO.FS.withTempDir fun dir => do

@@ -687,11 +687,9 @@ def testMkRejectsNonDirectoryParent (f : Fixtures) : IO Unit := do
     (discard <| Context.Client.mk { ca := some (.file f.nonDirParent) })
 
 /-!
-`SSL_CERT_FILE` and `SSL_CERT_DIR` add to the platform anchors, so no value they take can leave a
-default context unbuildable: not an empty one, not one naming a file removed since, and not one naming
-a single private CA. The environment is read afresh for every context, so it can be changed between
-constructions. Windows is skipped because libuv sets variables there through the Win32 API, which the
-C runtime's `getenv` does not observe.
+`SSL_CERT_FILE` and `SSL_CERT_DIR` add to the platform anchors, so no value of theirs can make a
+default context unbuildable. They are read for every context. Windows is skipped: libuv sets
+variables there through the Win32 API, which `getenv` does not see.
 -/
 
 def withEnv (name value : String) (act : IO Unit) : IO Unit := do

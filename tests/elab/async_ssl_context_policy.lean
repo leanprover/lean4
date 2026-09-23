@@ -2,18 +2,12 @@ import Std.Internal.SSL
 import Std.Async.System
 
 /-!
-Checks that a system crypto policy can narrow the TLS settings of a context but never widen them. A
-build linking the system's OpenSSL reads the distribution's configuration, whose `system_default`
-section is applied as each context is created, before Lean sets its own floor. Lean's floor has to
-intersect with that policy rather than replace it.
-
-`OPENSSL_CONF` names a policy here whose only TLS 1.2 suite is static-RSA `AES128-SHA`, at security
-level 0. It shares no suite with Lean's, so a context built after reading it has none left and is
-refused; replacing the policy with Lean's own list would instead build it. A standalone build reads no
-configuration at all, so it builds the context either way. This has to run before the first context
-of the process, because OpenSSL is initialized once, so it lives in a file of its own. Windows is
-skipped because libuv sets variables there through the Win32 API, which the C runtime's `getenv`
-does not observe.
+Checks that a system crypto policy can narrow Lean's TLS settings but not widen them. `OPENSSL_CONF`
+names a policy whose only TLS 1.2 suite is static-RSA `AES128-SHA`, which Lean does not allow, so a
+build reading it refuses the context; a standalone build reads no configuration and builds it. It
+must run before the process's first context, since OpenSSL is initialized once, so it has a file of
+its own. Windows is skipped: libuv sets variables there through the Win32 API, which `getenv` does
+not see.
 -/
 
 open Std.Internal.SSL

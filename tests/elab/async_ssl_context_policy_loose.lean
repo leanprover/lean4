@@ -3,16 +3,12 @@ import Std.Async.System
 import Lean
 
 /-!
-Checks that a system crypto policy asking for *less* than Lean's floor is overridden, the companion of
-`async_ssl_context_policy.lean`. `OPENSSL_CONF` names a policy that drops the security level to 0,
-allows TLS 1.0, re-enables unsafe legacy renegotiation, and offers one of Lean's TLS 1.2 suites
-beside a static-RSA one. Short of a handshake only the security level is observable here: the shared
-suite keeps the context buildable, and a 512-bit certificate is still refused, so level 0 did not
-stick. That the configuration is read at all is what `async_ssl_context_config.lean` checks; a
-standalone build reads none, and passes the same checks for that reason. This has to run before the
-first context of the process, because OpenSSL is initialized once, so it lives in a file of its own.
-Windows is skipped because libuv sets variables there through the Win32 API, which the C runtime's
-`getenv` does not observe.
+Checks that a system policy asking for less than Lean's floor is overridden. `OPENSSL_CONF` names a
+policy with security level 0, TLS 1.0, unsafe legacy renegotiation and a static-RSA suite; without a
+handshake only the security level is observable, so the test checks that a 512-bit certificate is
+still refused. It must run before the process's first context, since OpenSSL is initialized once, so
+it has a file of its own. Windows is skipped: libuv sets variables there through the Win32 API,
+which `getenv` does not see.
 -/
 
 open Std.Internal.SSL

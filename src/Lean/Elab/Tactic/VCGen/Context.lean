@@ -149,16 +149,18 @@ public structure Scope where
 public structure JoinPoint where
   /-- The let-bound proof `__do_jp_spec : ∀ xs, ⦃⌜?H xs⌝⦄ __do_jp xs ⦃post⦄`. -/
   spec : Expr
-  /-- The precondition of `spec`, `fun xs => ⌜?H xs⌝`. -/
+  /-- The precondition of `spec`, `fun xs ss => ⌜?H xs ss⌝` over the states `ss`. -/
   pre : Expr
   /-- The metavariable `?H`, which `finalizeJoinPoints` assigns. -/
   hyp : MVarId
+  /-- The number of states that `?H` takes after the join parameters. -/
+  numStates : Nat
   /-- The size of the local context after registration. A jump closes over the later locals. -/
   lctxSize : Nat
 
-/-- A jump `__do_jp args`, closed up to the goal `pre ⊑ ⌜?H args⌝ s₁ … sₙ`. -/
+/-- A jump `__do_jp args` in the states `s₁ … sₙ`, closed up to the goal `pre ⊑ ⌜?H args s₁ … sₙ⌝`. -/
 public structure Jump where
-  /-- The goal `pre ⊑ ⌜?H args⌝ s₁ … sₙ`, which `finalizeJoinPoints` closes. -/
+  /-- The goal `pre ⊑ ⌜?H args s₁ … sₙ⌝`, which `finalizeJoinPoints` closes. -/
   goal : MVarId
   /-- `fun xs => ∃ ys, xs = args`, with `ys` the locals introduced since registration. -/
   payload : Expr

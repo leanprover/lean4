@@ -250,3 +250,41 @@ theorem loop_in_alt_triple : ⦃ True ⦄ loop_in_alt f ⦃ fun r => r > 0 ⦄ :
   vcgen +jp
   case inv1 => rename_i y _; exact (fun _ _ x => ⌜x > 0 ∧ y ≤ y⌝)
   all_goals grind
+
+-- The join point body starts in the state of each jump: the payloads record `s = 5`, so the body
+-- can use the `set 5` before the split.
+def set_before (b : Bool) : StateM Nat Nat := do
+  set 5
+  let mut x := 0
+  if b then x := 1 else x := 2
+  let s ← get
+  return s + x
+
+theorem set_before_triple : ⦃ fun _ => True ⦄ set_before b ⦃ fun r => ⌜r ≥ 6⌝ ⦄ := by
+  unfold set_before
+  vcgen +jp
+  all_goals grind
+
+-- The branches write different states, so each disjunct records its own state.
+def set_in_branch (b : Bool) : StateM Nat Nat := do
+  let mut x := 0
+  if b then set 1; x := 1 else set 2; x := 2
+  let s ← get
+  return s + x
+
+theorem set_in_branch_triple : ⦃ fun _ => True ⦄ set_in_branch b ⦃ fun r => ⌜r ≥ 2⌝ ⦄ := by
+  unfold set_in_branch
+  vcgen +jp
+  all_goals grind
+
+-- The precondition constrains the initial state, which is still the state at each jump.
+def read_after (b : Bool) : StateM Nat Nat := do
+  let mut x := 0
+  if b then x := 1 else x := 2
+  let s ← get
+  return s + x
+
+theorem read_after_triple : ⦃ fun s => ⌜s > 3⌝ ⦄ read_after b ⦃ fun r => ⌜r ≥ 5⌝ ⦄ := by
+  unfold read_after
+  vcgen +jp
+  all_goals grind

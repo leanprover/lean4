@@ -2618,233 +2618,233 @@
       ]
     },
     {
-      "rowValue": "BitVec",
       "columnValue": "BEq",
       "layerIdentifier": "()",
+      "rowValue": "BitVec",
       "selectedCellOptions": [
         "{\"typeName\": \"BitVec\", \"parameterClassNames\": [], \"className\": \"BEq\"}"
       ]
     },
     {
-      "rowValue": "BitVec",
       "columnValue": "LE",
       "layerIdentifier": "()",
+      "rowValue": "BitVec",
       "selectedCellOptions": [
         "{\"typeName\": \"BitVec\", \"parameterClassNames\": [], \"className\": \"LE\"}"
       ]
     },
     {
-      "rowValue": "BitVec",
       "columnValue": "LT",
       "layerIdentifier": "()",
+      "rowValue": "BitVec",
       "selectedCellOptions": [
         "{\"typeName\": \"BitVec\", \"parameterClassNames\": [], \"className\": \"LT\"}"
       ]
     },
     {
-      "rowValue": "BitVec",
       "columnValue": "Ord",
       "layerIdentifier": "()",
+      "rowValue": "BitVec",
       "selectedCellOptions": [
         "{\"typeName\": \"BitVec\", \"parameterClassNames\": [], \"className\": \"Ord\"}"
       ]
     },
     {
-      "rowValue": "BitVec",
       "columnValue": "Min",
       "layerIdentifier": "()",
+      "rowValue": "BitVec",
       "selectedCellOptions": [
         "{\"typeName\": \"BitVec\", \"parameterClassNames\": [], \"className\": \"Min\"}"
       ]
     },
     {
-      "rowValue": "BitVec",
       "columnValue": "Max",
       "layerIdentifier": "()",
+      "rowValue": "BitVec",
       "selectedCellOptions": [
         "{\"typeName\": \"BitVec\", \"parameterClassNames\": [], \"className\": \"Max\"}"
       ]
     },
     {
-      "rowValue": "BitVec",
       "columnValue": "DecidableEq",
       "layerIdentifier": "()",
+      "rowValue": "BitVec",
       "selectedCellOptions": [
         "{\"typeName\": \"BitVec\", \"parameterClassNames\": [], \"className\": \"DecidableEq\"}"
       ]
     },
     {
-      "rowValue": "BitVec",
       "columnValue": "DecidableLE",
       "layerIdentifier": "()",
+      "rowValue": "BitVec",
       "selectedCellOptions": [
         "{\"typeName\": \"BitVec\", \"parameterClassNames\": [], \"className\": \"DecidableLE\"}"
       ]
     },
     {
-      "rowValue": "BitVec",
       "columnValue": "DecidableLT",
       "layerIdentifier": "()",
+      "rowValue": "BitVec",
       "selectedCellOptions": [
         "{\"typeName\": \"BitVec\", \"parameterClassNames\": [], \"className\": \"DecidableLT\"}"
       ]
     },
     {
-      "rowValue": "BitVec",
       "columnValue": "Std.IsPreorder",
       "layerIdentifier": "()",
+      "rowValue": "BitVec",
       "selectedCellOptions": [
         "{\"typeName\": \"BitVec\", \"parameterClassNames\": [], \"className\": \"Std.IsPreorder\"}"
       ]
     },
     {
-      "rowValue": "BitVec",
       "columnValue": "Std.IsPartialOrder",
       "layerIdentifier": "()",
+      "rowValue": "BitVec",
       "selectedCellOptions": [
         "{\"typeName\": \"BitVec\",\n \"parameterClassNames\": [],\n \"className\": \"Std.IsPartialOrder\"}"
       ]
     },
     {
-      "rowValue": "BitVec",
       "columnValue": "Std.IsLinearPreorder",
       "layerIdentifier": "()",
+      "rowValue": "BitVec",
       "selectedCellOptions": [
         "{\"typeName\": \"BitVec\",\n \"parameterClassNames\": [],\n \"className\": \"Std.IsLinearPreorder\"}"
       ]
     },
     {
-      "rowValue": "BitVec",
       "columnValue": "Std.IsLinearOrder",
       "layerIdentifier": "()",
+      "rowValue": "BitVec",
       "selectedCellOptions": [
         "{\"typeName\": \"BitVec\",\n \"parameterClassNames\": [],\n \"className\": \"Std.IsLinearOrder\"}"
       ]
     },
     {
-      "rowValue": "BitVec",
       "columnValue": "Std.LawfulOrderLT",
       "layerIdentifier": "()",
+      "rowValue": "BitVec",
       "selectedCellOptions": [
         "{\"typeName\": \"BitVec\",\n \"parameterClassNames\": [],\n \"className\": \"Std.LawfulOrderLT\"}"
       ]
     },
     {
-      "rowValue": "BitVec",
       "columnValue": "Std.LawfulOrderBEq",
       "layerIdentifier": "()",
+      "rowValue": "BitVec",
       "selectedCellOptions": [
         "{\"typeName\": \"BitVec\",\n \"parameterClassNames\": [],\n \"className\": \"Std.LawfulOrderBEq\"}"
       ]
     },
     {
-      "rowValue": "BitVec",
       "columnValue": "Std.LawfulOrderOrd",
       "layerIdentifier": "()",
+      "rowValue": "BitVec",
       "selectedCellOptions": [
         "{\"typeName\": \"BitVec\",\n \"parameterClassNames\": [],\n \"className\": \"Std.LawfulOrderOrd\"}"
       ]
     },
     {
-      "rowValue": "BitVec",
       "columnValue": "Std.LawfulOrderMin",
       "layerIdentifier": "()",
+      "rowValue": "BitVec",
       "selectedCellOptions": [
         "{\"typeName\": \"BitVec\",\n \"parameterClassNames\": [],\n \"className\": \"Std.LawfulOrderMin\"}"
       ]
     },
     {
-      "rowValue": "BitVec",
       "columnValue": "Std.LawfulOrderInf",
       "layerIdentifier": "()",
+      "rowValue": "BitVec",
       "selectedCellOptions": [
         "{\"typeName\": \"BitVec\",\n \"parameterClassNames\": [],\n \"className\": \"Std.LawfulOrderInf\"}"
       ]
     },
     {
-      "rowValue": "BitVec",
       "columnValue": "Std.LawfulOrderLeftLeaningMin",
       "layerIdentifier": "()",
+      "rowValue": "BitVec",
       "selectedCellOptions": [
         "{\"typeName\": \"BitVec\",\n \"parameterClassNames\": [],\n \"className\": \"Std.LawfulOrderLeftLeaningMin\"}"
       ]
     },
     {
-      "rowValue": "BitVec",
       "columnValue": "Std.LawfulOrderMax",
       "layerIdentifier": "()",
+      "rowValue": "BitVec",
       "selectedCellOptions": [
         "{\"typeName\": \"BitVec\",\n \"parameterClassNames\": [],\n \"className\": \"Std.LawfulOrderMax\"}"
       ]
     },
     {
-      "rowValue": "BitVec",
       "columnValue": "Std.LawfulOrderSup",
       "layerIdentifier": "()",
+      "rowValue": "BitVec",
       "selectedCellOptions": [
         "{\"typeName\": \"BitVec\",\n \"parameterClassNames\": [],\n \"className\": \"Std.LawfulOrderSup\"}"
       ]
     },
     {
-      "rowValue": "BitVec",
       "columnValue": "Std.LawfulOrderLeftLeaningMax",
       "layerIdentifier": "()",
+      "rowValue": "BitVec",
       "selectedCellOptions": [
         "{\"typeName\": \"BitVec\",\n \"parameterClassNames\": [],\n \"className\": \"Std.LawfulOrderLeftLeaningMax\"}"
       ]
     },
     {
-      "rowValue": "BitVec",
       "columnValue": "Std.ReflOrd",
       "layerIdentifier": "()",
+      "rowValue": "BitVec",
       "selectedCellOptions": [
         "{\"typeName\": \"BitVec\", \"parameterClassNames\": [], \"className\": \"Std.ReflOrd\"}"
       ]
     },
     {
-      "rowValue": "BitVec",
       "columnValue": "Std.OrientedOrd",
       "layerIdentifier": "()",
+      "rowValue": "BitVec",
       "selectedCellOptions": [
         "{\"typeName\": \"BitVec\",\n \"parameterClassNames\": [],\n \"className\": \"Std.OrientedOrd\"}"
       ]
     },
     {
-      "rowValue": "BitVec",
       "columnValue": "Std.TransOrd",
       "layerIdentifier": "()",
+      "rowValue": "BitVec",
       "selectedCellOptions": [
         "{\"typeName\": \"BitVec\", \"parameterClassNames\": [], \"className\": \"Std.TransOrd\"}"
       ]
     },
     {
-      "rowValue": "BitVec",
       "columnValue": "Std.LawfulEqOrd",
       "layerIdentifier": "()",
+      "rowValue": "BitVec",
       "selectedCellOptions": [
         "{\"typeName\": \"BitVec\",\n \"parameterClassNames\": [],\n \"className\": \"Std.LawfulEqOrd\"}"
       ]
     },
     {
-      "rowValue": "BitVec",
       "columnValue": "Std.LawfulBEqOrd",
       "layerIdentifier": "()",
+      "rowValue": "BitVec",
       "selectedCellOptions": [
         "{\"typeName\": \"BitVec\",\n \"parameterClassNames\": [],\n \"className\": \"Std.LawfulBEqOrd\"}"
       ]
     },
     {
-      "rowValue": "BitVec",
       "columnValue": "EquivBEq",
       "layerIdentifier": "()",
+      "rowValue": "BitVec",
       "selectedCellOptions": [
         "{\"typeName\": \"BitVec\", \"parameterClassNames\": [], \"className\": \"EquivBEq\"}"
       ]
     },
     {
-      "rowValue": "BitVec",
       "columnValue": "LawfulBEq",
       "layerIdentifier": "()",
+      "rowValue": "BitVec",
       "selectedCellOptions": [
         "{\"typeName\": \"BitVec\", \"parameterClassNames\": [], \"className\": \"LawfulBEq\"}"
       ]
@@ -23148,8 +23148,8 @@
     {
       "widgetId": "numeric-order-instances",
       "factId": "BitVec:::BEq:::()",
-      "rowAssociationId": "BitVec",
       "columnAssociationId": "BEq",
+      "rowAssociationId": "BitVec",
       "selectedLayers": [
         "()"
       ],
@@ -23193,15 +23193,15 @@
         }
       ],
       "metadata": {
-        "status": "done",
-        "comment": ""
+        "comment": "",
+        "status": "done"
       }
     },
     {
       "widgetId": "numeric-order-instances",
       "factId": "BitVec:::LE:::()",
-      "rowAssociationId": "BitVec",
       "columnAssociationId": "LE",
+      "rowAssociationId": "BitVec",
       "selectedLayers": [
         "()"
       ],
@@ -23245,15 +23245,15 @@
         }
       ],
       "metadata": {
-        "status": "done",
-        "comment": ""
+        "comment": "",
+        "status": "done"
       }
     },
     {
       "widgetId": "numeric-order-instances",
       "factId": "BitVec:::LT:::()",
-      "rowAssociationId": "BitVec",
       "columnAssociationId": "LT",
+      "rowAssociationId": "BitVec",
       "selectedLayers": [
         "()"
       ],
@@ -23297,15 +23297,15 @@
         }
       ],
       "metadata": {
-        "status": "done",
-        "comment": ""
+        "comment": "",
+        "status": "done"
       }
     },
     {
       "widgetId": "numeric-order-instances",
       "factId": "BitVec:::Ord:::()",
-      "rowAssociationId": "BitVec",
       "columnAssociationId": "Ord",
+      "rowAssociationId": "BitVec",
       "selectedLayers": [
         "()"
       ],
@@ -23349,15 +23349,15 @@
         }
       ],
       "metadata": {
-        "status": "done",
-        "comment": ""
+        "comment": "",
+        "status": "done"
       }
     },
     {
       "widgetId": "numeric-order-instances",
       "factId": "BitVec:::Min:::()",
-      "rowAssociationId": "BitVec",
       "columnAssociationId": "Min",
+      "rowAssociationId": "BitVec",
       "selectedLayers": [
         "()"
       ],
@@ -23401,15 +23401,15 @@
         }
       ],
       "metadata": {
-        "status": "done",
-        "comment": ""
+        "comment": "",
+        "status": "done"
       }
     },
     {
       "widgetId": "numeric-order-instances",
       "factId": "BitVec:::Max:::()",
-      "rowAssociationId": "BitVec",
       "columnAssociationId": "Max",
+      "rowAssociationId": "BitVec",
       "selectedLayers": [
         "()"
       ],
@@ -23453,15 +23453,15 @@
         }
       ],
       "metadata": {
-        "status": "done",
-        "comment": ""
+        "comment": "",
+        "status": "done"
       }
     },
     {
       "widgetId": "numeric-order-instances",
       "factId": "BitVec:::DecidableEq:::()",
-      "rowAssociationId": "BitVec",
       "columnAssociationId": "DecidableEq",
+      "rowAssociationId": "BitVec",
       "selectedLayers": [
         "()"
       ],
@@ -23505,15 +23505,15 @@
         }
       ],
       "metadata": {
-        "status": "done",
-        "comment": ""
+        "comment": "",
+        "status": "done"
       }
     },
     {
       "widgetId": "numeric-order-instances",
       "factId": "BitVec:::DecidableLE:::()",
-      "rowAssociationId": "BitVec",
       "columnAssociationId": "DecidableLE",
+      "rowAssociationId": "BitVec",
       "selectedLayers": [
         "()"
       ],
@@ -23557,15 +23557,15 @@
         }
       ],
       "metadata": {
-        "status": "done",
-        "comment": ""
+        "comment": "",
+        "status": "done"
       }
     },
     {
       "widgetId": "numeric-order-instances",
       "factId": "BitVec:::DecidableLT:::()",
-      "rowAssociationId": "BitVec",
       "columnAssociationId": "DecidableLT",
+      "rowAssociationId": "BitVec",
       "selectedLayers": [
         "()"
       ],
@@ -23609,15 +23609,15 @@
         }
       ],
       "metadata": {
-        "status": "done",
-        "comment": ""
+        "comment": "",
+        "status": "done"
       }
     },
     {
       "widgetId": "numeric-order-instances",
       "factId": "BitVec:::Std.IsPreorder:::()",
-      "rowAssociationId": "BitVec",
       "columnAssociationId": "Std.IsPreorder",
+      "rowAssociationId": "BitVec",
       "selectedLayers": [
         "()"
       ],
@@ -23661,15 +23661,15 @@
         }
       ],
       "metadata": {
-        "status": "done",
-        "comment": ""
+        "comment": "",
+        "status": "done"
       }
     },
     {
       "widgetId": "numeric-order-instances",
       "factId": "BitVec:::Std.IsPartialOrder:::()",
-      "rowAssociationId": "BitVec",
       "columnAssociationId": "Std.IsPartialOrder",
+      "rowAssociationId": "BitVec",
       "selectedLayers": [
         "()"
       ],
@@ -23713,15 +23713,15 @@
         }
       ],
       "metadata": {
-        "status": "done",
-        "comment": ""
+        "comment": "",
+        "status": "done"
       }
     },
     {
       "widgetId": "numeric-order-instances",
       "factId": "BitVec:::Std.IsLinearPreorder:::()",
-      "rowAssociationId": "BitVec",
       "columnAssociationId": "Std.IsLinearPreorder",
+      "rowAssociationId": "BitVec",
       "selectedLayers": [
         "()"
       ],
@@ -23765,15 +23765,15 @@
         }
       ],
       "metadata": {
-        "status": "done",
-        "comment": ""
+        "comment": "",
+        "status": "done"
       }
     },
     {
       "widgetId": "numeric-order-instances",
       "factId": "BitVec:::Std.IsLinearOrder:::()",
-      "rowAssociationId": "BitVec",
       "columnAssociationId": "Std.IsLinearOrder",
+      "rowAssociationId": "BitVec",
       "selectedLayers": [
         "()"
       ],
@@ -23817,15 +23817,15 @@
         }
       ],
       "metadata": {
-        "status": "done",
-        "comment": ""
+        "comment": "",
+        "status": "done"
       }
     },
     {
       "widgetId": "numeric-order-instances",
       "factId": "BitVec:::Std.LawfulOrderLT:::()",
-      "rowAssociationId": "BitVec",
       "columnAssociationId": "Std.LawfulOrderLT",
+      "rowAssociationId": "BitVec",
       "selectedLayers": [
         "()"
       ],
@@ -23869,15 +23869,15 @@
         }
       ],
       "metadata": {
-        "status": "done",
-        "comment": ""
+        "comment": "",
+        "status": "done"
       }
     },
     {
       "widgetId": "numeric-order-instances",
       "factId": "BitVec:::Std.LawfulOrderBEq:::()",
-      "rowAssociationId": "BitVec",
       "columnAssociationId": "Std.LawfulOrderBEq",
+      "rowAssociationId": "BitVec",
       "selectedLayers": [
         "()"
       ],
@@ -23921,15 +23921,15 @@
         }
       ],
       "metadata": {
-        "status": "done",
-        "comment": ""
+        "comment": "",
+        "status": "done"
       }
     },
     {
       "widgetId": "numeric-order-instances",
       "factId": "BitVec:::Std.LawfulOrderOrd:::()",
-      "rowAssociationId": "BitVec",
       "columnAssociationId": "Std.LawfulOrderOrd",
+      "rowAssociationId": "BitVec",
       "selectedLayers": [
         "()"
       ],
@@ -23973,15 +23973,15 @@
         }
       ],
       "metadata": {
-        "status": "done",
-        "comment": ""
+        "comment": "",
+        "status": "done"
       }
     },
     {
       "widgetId": "numeric-order-instances",
       "factId": "BitVec:::Std.LawfulOrderMin:::()",
-      "rowAssociationId": "BitVec",
       "columnAssociationId": "Std.LawfulOrderMin",
+      "rowAssociationId": "BitVec",
       "selectedLayers": [
         "()"
       ],
@@ -24025,15 +24025,15 @@
         }
       ],
       "metadata": {
-        "status": "done",
-        "comment": ""
+        "comment": "",
+        "status": "done"
       }
     },
     {
       "widgetId": "numeric-order-instances",
       "factId": "BitVec:::Std.LawfulOrderInf:::()",
-      "rowAssociationId": "BitVec",
       "columnAssociationId": "Std.LawfulOrderInf",
+      "rowAssociationId": "BitVec",
       "selectedLayers": [
         "()"
       ],
@@ -24077,15 +24077,15 @@
         }
       ],
       "metadata": {
-        "status": "done",
-        "comment": ""
+        "comment": "",
+        "status": "done"
       }
     },
     {
       "widgetId": "numeric-order-instances",
       "factId": "BitVec:::Std.LawfulOrderLeftLeaningMin:::()",
-      "rowAssociationId": "BitVec",
       "columnAssociationId": "Std.LawfulOrderLeftLeaningMin",
+      "rowAssociationId": "BitVec",
       "selectedLayers": [
         "()"
       ],
@@ -24129,15 +24129,15 @@
         }
       ],
       "metadata": {
-        "status": "done",
-        "comment": ""
+        "comment": "",
+        "status": "done"
       }
     },
     {
       "widgetId": "numeric-order-instances",
       "factId": "BitVec:::Std.LawfulOrderMax:::()",
-      "rowAssociationId": "BitVec",
       "columnAssociationId": "Std.LawfulOrderMax",
+      "rowAssociationId": "BitVec",
       "selectedLayers": [
         "()"
       ],
@@ -24181,15 +24181,15 @@
         }
       ],
       "metadata": {
-        "status": "done",
-        "comment": ""
+        "comment": "",
+        "status": "done"
       }
     },
     {
       "widgetId": "numeric-order-instances",
       "factId": "BitVec:::Std.LawfulOrderSup:::()",
-      "rowAssociationId": "BitVec",
       "columnAssociationId": "Std.LawfulOrderSup",
+      "rowAssociationId": "BitVec",
       "selectedLayers": [
         "()"
       ],
@@ -24233,15 +24233,15 @@
         }
       ],
       "metadata": {
-        "status": "done",
-        "comment": ""
+        "comment": "",
+        "status": "done"
       }
     },
     {
       "widgetId": "numeric-order-instances",
       "factId": "BitVec:::Std.LawfulOrderLeftLeaningMax:::()",
-      "rowAssociationId": "BitVec",
       "columnAssociationId": "Std.LawfulOrderLeftLeaningMax",
+      "rowAssociationId": "BitVec",
       "selectedLayers": [
         "()"
       ],
@@ -24285,15 +24285,15 @@
         }
       ],
       "metadata": {
-        "status": "done",
-        "comment": ""
+        "comment": "",
+        "status": "done"
       }
     },
     {
       "widgetId": "numeric-order-instances",
       "factId": "BitVec:::Std.ReflOrd:::()",
-      "rowAssociationId": "BitVec",
       "columnAssociationId": "Std.ReflOrd",
+      "rowAssociationId": "BitVec",
       "selectedLayers": [
         "()"
       ],
@@ -24337,15 +24337,15 @@
         }
       ],
       "metadata": {
-        "status": "done",
-        "comment": ""
+        "comment": "",
+        "status": "done"
       }
     },
     {
       "widgetId": "numeric-order-instances",
       "factId": "BitVec:::Std.OrientedOrd:::()",
-      "rowAssociationId": "BitVec",
       "columnAssociationId": "Std.OrientedOrd",
+      "rowAssociationId": "BitVec",
       "selectedLayers": [
         "()"
       ],
@@ -24389,15 +24389,15 @@
         }
       ],
       "metadata": {
-        "status": "done",
-        "comment": ""
+        "comment": "",
+        "status": "done"
       }
     },
     {
       "widgetId": "numeric-order-instances",
       "factId": "BitVec:::Std.TransOrd:::()",
-      "rowAssociationId": "BitVec",
       "columnAssociationId": "Std.TransOrd",
+      "rowAssociationId": "BitVec",
       "selectedLayers": [
         "()"
       ],
@@ -24441,15 +24441,15 @@
         }
       ],
       "metadata": {
-        "status": "done",
-        "comment": ""
+        "comment": "",
+        "status": "done"
       }
     },
     {
       "widgetId": "numeric-order-instances",
       "factId": "BitVec:::Std.LawfulEqOrd:::()",
-      "rowAssociationId": "BitVec",
       "columnAssociationId": "Std.LawfulEqOrd",
+      "rowAssociationId": "BitVec",
       "selectedLayers": [
         "()"
       ],
@@ -24493,15 +24493,15 @@
         }
       ],
       "metadata": {
-        "status": "done",
-        "comment": ""
+        "comment": "",
+        "status": "done"
       }
     },
     {
       "widgetId": "numeric-order-instances",
       "factId": "BitVec:::Std.LawfulBEqOrd:::()",
-      "rowAssociationId": "BitVec",
       "columnAssociationId": "Std.LawfulBEqOrd",
+      "rowAssociationId": "BitVec",
       "selectedLayers": [
         "()"
       ],
@@ -24545,15 +24545,15 @@
         }
       ],
       "metadata": {
-        "status": "done",
-        "comment": ""
+        "comment": "",
+        "status": "done"
       }
     },
     {
       "widgetId": "numeric-order-instances",
       "factId": "BitVec:::EquivBEq:::()",
-      "rowAssociationId": "BitVec",
       "columnAssociationId": "EquivBEq",
+      "rowAssociationId": "BitVec",
       "selectedLayers": [
         "()"
       ],
@@ -24597,15 +24597,15 @@
         }
       ],
       "metadata": {
-        "status": "done",
-        "comment": ""
+        "comment": "",
+        "status": "done"
       }
     },
     {
       "widgetId": "numeric-order-instances",
       "factId": "BitVec:::LawfulBEq:::()",
-      "rowAssociationId": "BitVec",
       "columnAssociationId": "LawfulBEq",
+      "rowAssociationId": "BitVec",
       "selectedLayers": [
         "()"
       ],
@@ -24649,8 +24649,8 @@
         }
       ],
       "metadata": {
-        "status": "done",
-        "comment": ""
+        "comment": "",
+        "status": "done"
       }
     }
   ]

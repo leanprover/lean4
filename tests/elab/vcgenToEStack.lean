@@ -73,10 +73,10 @@ def boom : Prog Unit := .throw "boom"
 def boom' : Prog Unit := .throw "boom"
 
 @[spec] theorem boom_spec {post : Unit → Prop} :
-    ⦃True⦄ boom ⦃post; (⟨fun e => e = "boom"⟩ : Thrown)⦄ := ⟨fun _ => rfl⟩
+    ⦃True⦄ boom ⦃post; { onThrow e := e = "boom" }⦄ := ⟨fun _ => rfl⟩
 
 @[spec] theorem boom'_spec {post : Unit → Prop} {E : String → Prop} :
-    ⦃E "boom"⦄ boom' ⦃post; (⟨E⟩ : Thrown)⦄ := ⟨PartialOrder.rel_refl⟩
+    ⦃E "boom"⦄ boom' ⦃post; { onThrow := E }⦄ := ⟨PartialOrder.rel_refl⟩
 
 /--
 trace: case vc1
@@ -85,10 +85,10 @@ a✝ : a✝¹ = "boom"
 ⊢ a✝¹ = "boom" ∨ a✝¹ = "crash"
 -/
 #guard_msgs in
-example : ⦃True⦄ boom ⦃fun _ => True; (⟨fun e => e = "boom" ∨ e = "crash"⟩ : Thrown)⦄ := by
+example : ⦃True⦄ boom ⦃fun _ => True; { onThrow e := e = "boom" ∨ e = "crash" }⦄ := by
   vcgen
   trace_state
   grind
 
-example : ⦃Q "boom"⦄ boom' ⦃fun _ => True; (⟨Q⟩ : Thrown)⦄ := by
+example : ⦃Q "boom"⦄ boom' ⦃fun _ => True; { onThrow := Q }⦄ := by
   vcgen

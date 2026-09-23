@@ -2,7 +2,8 @@ module
 
 import Std.Data
 
-/-! Check union/intersection emptiness distributivity across the map and set APIs. -/
+/-! Check union/intersection emptiness distributivity across the map and set APIs, including the
+`Raw` variants. -/
 
 open Std
 
@@ -125,3 +126,52 @@ example {cmp : α → α → Ordering} [TransCmp cmp] {t₁ t₂ t₃ : ExtTreeS
 example {cmp : α → α → Ordering} [TransCmp cmp] {t₁ t₂ t₃ : ExtTreeSet α cmp} :
     t₁ ∩ (t₂ ∪ t₃) = ∅ ↔ t₁ ∩ t₂ = ∅ ∧ t₁ ∩ t₃ = ∅ :=
   ExtTreeSet.inter_union_eq_empty
+
+example [BEq α] [EquivBEq α] [Hashable α] [LawfulHashable α]
+    {m₁ m₂ m₃ : DHashMap.Raw α β} (h₁ : m₁.WF) (h₂ : m₂.WF) (h₃ : m₃.WF) :
+    DHashMap.Raw.Equiv ((m₁ ∪ m₂) ∩ m₃) (∅ : DHashMap.Raw α β) ↔
+      DHashMap.Raw.Equiv (m₁ ∩ m₃) (∅ : DHashMap.Raw α β) ∧
+        DHashMap.Raw.Equiv (m₂ ∩ m₃) (∅ : DHashMap.Raw α β) :=
+  DHashMap.Raw.union_inter_equiv_empty h₁ h₂ h₃
+
+example [BEq α] [EquivBEq α] [Hashable α] [LawfulHashable α]
+    {m₁ m₂ m₃ : DHashMap.Raw α β} (h₁ : m₁.WF) (h₂ : m₂.WF) (h₃ : m₃.WF) :
+    DHashMap.Raw.Equiv (m₁ ∩ (m₂ ∪ m₃)) (∅ : DHashMap.Raw α β) ↔
+      DHashMap.Raw.Equiv (m₁ ∩ m₂) (∅ : DHashMap.Raw α β) ∧
+        DHashMap.Raw.Equiv (m₁ ∩ m₃) (∅ : DHashMap.Raw α β) :=
+  DHashMap.Raw.inter_union_equiv_empty h₁ h₂ h₃
+
+example [BEq α] [EquivBEq α] [Hashable α] [LawfulHashable α]
+    {m₁ m₂ m₃ : HashMap.Raw α β} (h₁ : m₁.WF) (h₂ : m₂.WF) (h₃ : m₃.WF) :
+    HashMap.Raw.Equiv ((m₁ ∪ m₂) ∩ m₃) (∅ : HashMap.Raw α β) ↔
+      HashMap.Raw.Equiv (m₁ ∩ m₃) (∅ : HashMap.Raw α β) ∧
+        HashMap.Raw.Equiv (m₂ ∩ m₃) (∅ : HashMap.Raw α β) :=
+  HashMap.Raw.union_inter_equiv_empty h₁ h₂ h₃
+
+example [BEq α] [EquivBEq α] [Hashable α] [LawfulHashable α]
+    {m₁ m₂ m₃ : HashSet.Raw α} (h₁ : m₁.WF) (h₂ : m₂.WF) (h₃ : m₃.WF) :
+    HashSet.Raw.Equiv ((m₁ ∪ m₂) ∩ m₃) (∅ : HashSet.Raw α) ↔
+      HashSet.Raw.Equiv (m₁ ∩ m₃) (∅ : HashSet.Raw α) ∧
+        HashSet.Raw.Equiv (m₂ ∩ m₃) (∅ : HashSet.Raw α) :=
+  HashSet.Raw.union_inter_equiv_empty h₁ h₂ h₃
+
+example {cmp : α → α → Ordering} [TransCmp cmp]
+    {t₁ t₂ t₃ : DTreeMap.Raw α β cmp} (h₁ : t₁.WF) (h₂ : t₂.WF) (h₃ : t₃.WF) :
+    DTreeMap.Raw.Equiv ((t₁ ∪ t₂) ∩ t₃) (∅ : DTreeMap.Raw α β cmp) ↔
+      DTreeMap.Raw.Equiv (t₁ ∩ t₃) (∅ : DTreeMap.Raw α β cmp) ∧
+        DTreeMap.Raw.Equiv (t₂ ∩ t₃) (∅ : DTreeMap.Raw α β cmp) :=
+  DTreeMap.Raw.union_inter_equiv_empty h₁ h₂ h₃
+
+example {cmp : α → α → Ordering} [TransCmp cmp]
+    {t₁ t₂ t₃ : TreeMap.Raw α β cmp} (h₁ : t₁.WF) (h₂ : t₂.WF) (h₃ : t₃.WF) :
+    TreeMap.Raw.Equiv ((t₁ ∪ t₂) ∩ t₃) (∅ : TreeMap.Raw α β cmp) ↔
+      TreeMap.Raw.Equiv (t₁ ∩ t₃) (∅ : TreeMap.Raw α β cmp) ∧
+        TreeMap.Raw.Equiv (t₂ ∩ t₃) (∅ : TreeMap.Raw α β cmp) :=
+  TreeMap.Raw.union_inter_equiv_empty h₁ h₂ h₃
+
+example {cmp : α → α → Ordering} [TransCmp cmp]
+    {t₁ t₂ t₃ : TreeSet.Raw α cmp} (h₁ : t₁.WF) (h₂ : t₂.WF) (h₃ : t₃.WF) :
+    TreeSet.Raw.Equiv ((t₁ ∪ t₂) ∩ t₃) (∅ : TreeSet.Raw α cmp) ↔
+      TreeSet.Raw.Equiv (t₁ ∩ t₃) (∅ : TreeSet.Raw α cmp) ∧
+        TreeSet.Raw.Equiv (t₂ ∩ t₃) (∅ : TreeSet.Raw α cmp) :=
+  TreeSet.Raw.union_inter_equiv_empty h₁ h₂ h₃

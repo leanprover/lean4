@@ -2,14 +2,11 @@ import Std.Internal.SSL
 import Std.Async.System
 
 /-!
-Checks that a system crypto policy switching a TLS version off with `Protocol` is not held to having
-suites for it. `OPENSSL_CONF` names a policy that disables TLS 1.3 through `Protocol = -TLSv1.3` and
-lists no TLS 1.3 suite at all, leaving TLS 1.2 with Lean's own suites: a working configuration, so
-the context has to build, as it does when the same policy caps the version with `MaxProtocol`. A
-standalone build reads no configuration, and builds it too. This has to run before the first context
-of the process, because OpenSSL is initialized once, so it lives in a file of its own. Windows is
-skipped because libuv sets variables there through the Win32 API, which the C runtime's `getenv`
-does not observe.
+Checks that a policy disabling TLS 1.3 through `Protocol = -TLSv1.3` is not required to leave a TLS
+1.3 suite: `OPENSSL_CONF` names such a policy with no TLS 1.3 suites, and the context must still
+build. It must run before the process's first context, since OpenSSL is initialized once, so it has
+a file of its own. Windows is skipped: libuv sets variables there through the Win32 API, which
+`getenv` does not see.
 -/
 
 open Std.Internal.SSL

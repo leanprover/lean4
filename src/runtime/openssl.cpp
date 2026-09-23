@@ -4,6 +4,7 @@ Released under Apache 2.0 license as described in the file LICENSE.
 Author: Sofia Rodrigues
 */
 #include "runtime/openssl.h"
+#include "runtime/openssl/context.h"
 
 #ifndef LEAN_EMSCRIPTEN
 #include <openssl/opensslv.h>
@@ -13,20 +14,10 @@ Author: Sofia Rodrigues
 namespace lean {
 
 bool ensure_openssl_initialized() {
-    // `OPENSSL_INIT_NO_ATEXIT` is the load-bearing flag. By default OpenSSL registers
-    // `atexit(OPENSSL_cleanup)`, which tears down global state — among it the ENGINE lock that
-    // `SSL_CTX_new` reads — while other threads may still be inside OpenSSL, dereferencing the
-    // freed lock. Lean hands work to a thread pool that can outlive `main`, so that handler
-    // must not be installed. Nothing then frees OpenSSL's globals, which is intended: they stay
-    // reachable from static storage for the life of the process.
-    //
-    // Whether `openssl.cnf` is read follows who owns the OpenSSL being linked. A toolchain bundling
-    // its own carries that build's compiled-in configuration path, which names a directory on the
-    // machine the toolchain was built on; on the machine it runs on that directory can belong to
-    // anyone, and a file there can load a provider module or lower the security level of every
-    // context, so `OPENSSL_INIT_NO_LOAD_CONFIG` keeps it out. Against a system OpenSSL the same file
-    // is the distribution's own, carrying its crypto policy and FIPS settings, and Lean reads it as
-    // every other consumer of that library does.
+    // `NO_ATEXIT`: the default `atexit(OPENSSL_cleanup)` frees global state that thread-pool tasks
+    // outliving `main` may still be using. A standalone toolchain skips `openssl.cnf`, whose
+    // compiled-in path names a directory on the build machine; a system OpenSSL reads the
+    // distribution's crypto policy like any other consumer.
 #ifdef LEAN_STANDALONE
     uint64_t const config = OPENSSL_INIT_NO_LOAD_CONFIG;
 #else
@@ -51,3 +42,9 @@ extern "C" LEAN_EXPORT lean_obj_res lean_openssl_version(lean_obj_arg o) {
 }
 
 #endif
+
+namespace lean {
+void initialize_openssl() {
+    initialize_openssl_context();
+}
+}

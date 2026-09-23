@@ -35,8 +35,7 @@ static int reject_encrypted_pem(char *, int, int, void *) { return -1; }
 // Opens `src` for reading. On failure returns nullptr and stores an IO error in `*err`.
 static BIO * open_pem_bio(pem_source src, char const * unreadable, lean_obj_res * err) {
     if (src.is_file) {
-        // `errno` is what tells an open failure apart from a file that opens but holds no PEM, so it
-        // is captured at the call rather than recovered afterwards.
+        // Captured here: it tells an unopenable file apart from one holding no PEM.
         errno = 0;
         BIO * bio = BIO_new_file(src.data(), "r");
         if (bio == nullptr) *err = mk_ssl_file_error(src.obj, unreadable, errno);
@@ -63,25 +62,19 @@ void initialize_openssl_context() {
     }, [](void *, lean_object *) {});
 }
 
-// Applies the hardened options every context shares. The minimum protocol version and cipher list are
-// left to the caller, since they are the ones whose failure is worth reporting.
+// Options every context shares. The caller sets the version floor and cipher list, whose failures it
+// reports.
 static void configure_ctx_options(SSL_CTX * ctx) {
     SSL_CTX_set_options(ctx,
-        // No effect on TLS 1.3, which replaced renegotiation with key updates.
         SSL_OP_NO_RENEGOTIATION |
-
-        // Disables RFC 5077 session tickets in TLS 1.2. In TLS 1.3 it only downgrades them to the
-        // stateful form; the call below is what stops those being sent.
+        // TLS 1.2 tickets; `SSL_CTX_set_num_tickets` below covers TLS 1.3.
         SSL_OP_NO_TICKET |
-
-        // TLS 1.2 and below only; TLS 1.3 has no compression. Already OpenSSL's default; stated so
-        // that avoiding CRIME does not rest on that default.
+        // The default, but a system `openssl.cnf` can re-enable compression (CRIME).
         SSL_OP_NO_COMPRESSION
     );
 
-    // Off by default, but a system `openssl.cnf` can switch them on. Ignoring an unexpected EOF would
-    // make a truncated stream read as a clean close; the rest drop extended master secret, re-enable
-    // legacy renegotiation, or allow TLS 1.3 resumption without a fresh key exchange.
+    // Off by default, but a system `openssl.cnf` can switch them on. The first makes a truncated
+    // stream read as a clean close.
     SSL_CTX_clear_options(ctx,
         SSL_OP_IGNORE_UNEXPECTED_EOF |
         SSL_OP_NO_EXTENDED_MASTER_SECRET |
@@ -90,49 +83,38 @@ static void configure_ctx_options(SSL_CTX * ctx) {
         SSL_OP_ALLOW_NO_DHE_KEX
     );
 
-    // Level 2 (112-bit security: RSA and DH keys of at least 2048 bits) is OpenSSL's own default only
-    // from 3.2; earlier releases, which the build still accepts, default to level 1. A system crypto
-    // policy asking for more keeps it.
+    // Level 2 (RSA and DH keys of at least 2048 bits) is the default only from OpenSSL 3.2. A stricter
+    // system policy is kept.
     SSL_CTX_set_security_level(ctx, std::max(2, SSL_CTX_get_security_level(ctx)));
 
-    // Without this a TLS 1.3 server still puts two NewSessionTickets on the wire per connection.
-    // Read only by the server state machine.
+    // A TLS 1.3 server otherwise sends two NewSessionTickets per connection.
     SSL_CTX_set_num_tickets(ctx, 0);
 
-    // A backstop. Every read this file performs goes through a bare BIO and passes the callback
-    // itself, so nothing here consults this one; it is set so that any OpenSSL path reaching for the
-    // context's callback still cannot end up prompting on a terminal.
+    // Backstop: the reads below pass their own callback, but no OpenSSL path may prompt on a terminal.
     SSL_CTX_set_default_passwd_cb(ctx, reject_encrypted_pem);
 
-    // Backs the flags above: a TLS 1.2 server still offers session-ID resumption through this cache,
-    // which defaults to SSL_SESS_CACHE_SERVER. The client half of the mask is already off there.
+    // A TLS 1.2 server would otherwise still offer session-ID resumption.
     SSL_CTX_set_session_cache_mode(ctx, SSL_SESS_CACHE_OFF);
 
-    // Lets a session layer relocate a buffered write between SSL_write() retries, as long as its
-    // contents stay identical, without tripping OpenSSL's buffer-stability check.
+    // The session layer may move a pending write's buffer between `SSL_write` retries.
     SSL_CTX_set_mode(ctx, SSL_MODE_ACCEPT_MOVING_WRITE_BUFFER);
 
-    // Inherited by every session, and inert until the session layer binds a peer hostname with
-    // SSL_set1_host. That check then rejects partial wildcards like `f*.example.com` (RFC 9525 §6.3),
-    // and matches the name only against the subjectAltName extension: without the latter flag
-    // OpenSSL falls back to the subject CN whenever a certificate carries no dNSName SAN, which
-    // RFC 9525 does not allow (Appendix A).
+    // Applies once the session layer calls `SSL_set1_host`: no partial wildcards (RFC 9525 §6.3) and
+    // no fallback to the subject CN (RFC 9525 Appendix A).
     X509_VERIFY_PARAM_set_hostflags(SSL_CTX_get0_param(ctx),
         X509_CHECK_FLAG_NO_PARTIAL_WILDCARDS | X509_CHECK_FLAG_NEVER_CHECK_SUBJECT);
 }
 
-// OpenSSL's default TLS 1.3 suites. `TLS_AES_128_CCM_8_SHA256`, which a configuration can add, has
-// a 64-bit tag.
+// OpenSSL's default TLS 1.3 suites, which leave out `TLS_AES_128_CCM_8_SHA256` (64-bit tag).
 static char const * const g_tls13_suites[] = {
     "TLS_AES_256_GCM_SHA384",
     "TLS_CHACHA20_POLY1305_SHA256",
     "TLS_AES_128_GCM_SHA256",
 };
 
-// Narrows the TLS 1.2 suites to those with forward secrecy and an AEAD, which drops static-RSA key
-// exchange and CBC, and the TLS 1.3 suites to `g_tls13_suites`. Only suites the context already
-// allowed are kept, so a system crypto policy that removed some of these keeps them removed. Returns
-// nullptr on success, an IO error otherwise.
+// Narrows TLS 1.2 to ECDHE with an AEAD and TLS 1.3 to `g_tls13_suites`, keeping only suites the
+// context already allowed, so a system policy can tighten the list but not widen it. Returns nullptr
+// on success, an IO error otherwise.
 static lean_obj_res restrict_ciphers(SSL_CTX * ctx) {
     char const * failed = "could not configure the TLS cipher suites";
 
@@ -167,9 +149,8 @@ static lean_obj_res restrict_ciphers(SSL_CTX * ctx) {
         kept += name;
     }
 
-    // A policy leaving none of these suites for a version it permits is reported rather than
-    // overridden in either direction. A version is ruled out by the bounds or by `Protocol = -TLSv1.x`;
-    // the minimum is already TLS 1.2 or above, and a maximum of 0 is none.
+    // A policy leaving no suite for a version it still permits is refused. The minimum is already at
+    // least TLS 1.2, and a maximum of 0 means none.
     int max_version = SSL_CTX_get_max_proto_version(ctx);
     uint64_t options = SSL_CTX_get_options(ctx);
 
@@ -244,13 +225,9 @@ static lean_obj_res wrap_ssl_context(ssl_ctx_ptr ctx) {
     return lean_io_result_mk_ok(obj);
 }
 
-// What `SSL_CTX_use_certificate_chain_file` does, against an arbitrary BIO: the leaf certificate
-// plus every intermediate behind it, so the whole chain reaches the peer. There is no public
-// `SSL_CTX_use_certificate_chain_bio`, so in-memory material has to go the long way round.
+// `SSL_CTX_use_certificate_chain_file` for a BIO, which OpenSSL has no public function for.
 static bool use_certificate_chain_bio(SSL_CTX * ctx, BIO * bio) {
-
-    // `_AUX` so a certificate carrying OpenSSL's trust extensions is read the same way the file
-    // variant reads it.
+    // `_AUX`, as the file variant reads the leaf.
     X509 * leaf = PEM_read_bio_X509_AUX(bio, nullptr, reject_encrypted_pem, nullptr);
     if (leaf == nullptr) return false;
 
@@ -310,9 +287,8 @@ static lean_obj_res load_server_credentials(SSL_CTX * ctx, pem_source cert, pem_
     bool used = SSL_CTX_use_PrivateKey(ctx, pkey) == 1;
     EVP_PKEY_free(pkey);
 
-    // A key of the certificate's own algorithm is compared here and rejected outright; one of a
-    // different algorithm lands in an unused slot instead, which only the check below catches. A key
-    // with no slot at all (X25519, say, which cannot sign) is refused as a type.
+    // A key of the leaf's algorithm is compared here. One of another algorithm lands in an unused
+    // slot, which only `SSL_CTX_check_private_key` catches; one that cannot sign (X25519) has no slot.
     if (!used) {
         unsigned long reason = ERR_peek_last_error();
         bool unusable = ERR_GET_LIB(reason) == ERR_LIB_SSL &&
@@ -334,8 +310,7 @@ static lean_obj_res mk_server_ctx(b_obj_arg cert, b_obj_arg key) {
     pem_source cert_src = pem_source::of(cert);
     pem_source key_src = pem_source::of(key);
 
-    // Only a path has to survive the trip through a C string; in-memory PEM is read with a length,
-    // so a NUL there is data.
+    // In-memory PEM is read with a length, so only a path must be free of NULs.
     if (cert_src.is_file) {
         if (lean_obj_res err = reject_embedded_nul(cert_src.obj))
             return err;
@@ -358,9 +333,9 @@ static lean_obj_res mk_server_ctx(b_obj_arg cert, b_obj_arg key) {
     return wrap_ssl_context(std::move(ctx));
 }
 
-// Whether the store holds a certificate chain building terminates on: one a `TRUSTED CERTIFICATE`
-// block explicitly trusts for TLS servers, or a self-signed one carrying no such settings. The store's
-// own copies are what count, since it keeps only the first of a repeated certificate.
+// Whether the store holds a chain anchor: a self-signed certificate, or one a `TRUSTED CERTIFICATE`
+// block trusts for TLS servers. The store keeps only the first copy of a repeated certificate, so its
+// copies are the ones checked.
 static bool store_has_anchor(X509_STORE * store) {
     STACK_OF(X509) * certs = X509_STORE_get1_all_certs(store);
     if (certs == nullptr) return false;
@@ -374,9 +349,8 @@ static bool store_has_anchor(X509_STORE * store) {
     return any;
 }
 
-// Adds every certificate `src` yields to the trust store, on top of whatever it already holds.
-// With `require_anchor`, which is only passed when the store starts empty, the material must also
-// hold a certificate a chain can terminate at.
+// Adds every certificate in `src` to the trust store. `require_anchor`, passed only when the store
+// starts empty, also requires one of them to be a chain anchor.
 static lean_obj_res load_ca_bundle(SSL_CTX * ctx, pem_source src, bool require_anchor) {
     ERR_clear_error();
 
@@ -423,10 +397,6 @@ static lean_obj_res load_ca_bundle(SSL_CTX * ctx, pem_source src, bool require_a
     return nullptr;
 }
 
-// `has_ca` says whether the caller supplied CA material at all, which decides whether dropping the
-// platform anchors would leave nothing behind. `load_ca_bundle` is what enforces that supplied
-// material actually yields a certificate, so the two together settle the case where the caller is
-// the only source of anchors. Where the platform is, `use_system_trust_store` answers for it.
 static lean_obj_res mk_client_ctx(uint8_t verify_peer, uint8_t trust_system_roots, uint8_t allow_partial_chain, bool has_ca, pem_source ca) {
     if (verify_peer && !trust_system_roots && !has_ca) {
         return mk_ssl_invalid_argument(
@@ -438,15 +408,14 @@ static lean_obj_res mk_client_ctx(uint8_t verify_peer, uint8_t trust_system_root
     ssl_ctx_ptr ctx = mk_ssl_ctx_base(TLS_client_method(), &err);
     if (ctx == nullptr) return err;
 
-    // With verification off the CA material is never consulted.
+    // The CA material is never read without verification.
     if (!verify_peer) {
         SSL_CTX_set_verify(ctx.get(), SSL_VERIFY_NONE, nullptr);
         return wrap_ssl_context(std::move(ctx));
     }
 
     if (allow_partial_chain) {
-        // Lets chain building stop at any certificate in the store rather than only at a self-signed
-        // one, which is what anchoring on an intermediate requires.
+        // Chain building may stop at any certificate in the store, as pinning an intermediate needs.
         X509_VERIFY_PARAM_set_flags(SSL_CTX_get0_param(ctx.get()), X509_V_FLAG_PARTIAL_CHAIN);
     }
 
@@ -456,8 +425,7 @@ static lean_obj_res mk_client_ctx(uint8_t verify_peer, uint8_t trust_system_root
         std::string detail;
         system_roots = use_system_trust_store(ctx.get(), &detail);
 
-        // `ca` is trusted in addition to the platform anchors, so it is still a working configuration
-        // where the platform supplies none. Only a context left with nothing to trust is an error.
+        // With `ca` the context still has anchors when the platform supplies none.
         if (!system_roots && !has_ca) {
             std::string msg("failed to load system trust store");
             if (!detail.empty()) msg += ": " + detail;
@@ -466,11 +434,8 @@ static lean_obj_res mk_client_ctx(uint8_t verify_peer, uint8_t trust_system_root
         }
     }
 
-    // The caller's own CAs are added to whatever the store already holds: on top of the platform
-    // anchors, or into an otherwise empty store when those were excluded or turned up empty.
     if (has_ca) {
-        // An anchor that cannot terminate a chain is only a dead configuration when it is the sole
-        // source of anchors; alongside the platform roots it is merely redundant.
+        // CA material without an anchor only makes a dead context when it is the sole source.
         bool require_anchor = !allow_partial_chain && !system_roots;
 
         if (lean_obj_res ca_err = load_ca_bundle(ctx.get(), ca, require_anchor)) return ca_err;
@@ -484,8 +449,7 @@ static lean_obj_res mk_client_ctx_checked(b_obj_arg ca, uint8_t verify_peer, uin
     bool has_ca = !lean_is_scalar(ca);
     pem_source ca_src = has_ca ? pem_source::of(lean_ctor_get(ca, 0)) : pem_source { nullptr, false };
 
-    // Checked before `verifyPeer` is consulted, so a path that could never be opened is reported as
-    // such even where it would not have been read.
+    // Checked even when `verifyPeer` is off and the path would not be read.
     if (has_ca && ca_src.is_file) {
         if (lean_obj_res err = reject_embedded_nul(ca_src.obj)) return err;
     }
@@ -493,9 +457,8 @@ static lean_obj_res mk_client_ctx_checked(b_obj_arg ca, uint8_t verify_peer, uin
     return mk_client_ctx(verify_peer, trust_system_roots, allow_partial_chain, has_ca, ca_src);
 }
 
-// Runs a constructor behind the two guards every entry point needs: OpenSSL initialized before any
-// `ERR_*` call can register `atexit(OPENSSL_cleanup)` behind `OPENSSL_INIT_NO_ATEXIT`'s back, and no
-// C++ exception escaping into Lean-generated code.
+// Initializes OpenSSL before any other call can register `atexit(OPENSSL_cleanup)`, and keeps C++
+// exceptions out of Lean code.
 template<typename F>
 static lean_obj_res ssl_entry_point(F && build) {
     try {

@@ -37,9 +37,7 @@ static char const * getenv_or_null_if_empty(char const * name) {
     return value != nullptr && value[0] != '\0' ? value : nullptr;
 }
 
-// Whether a certificate has been loaded into the store. `X509_STORE_load_file` succeeds on a file
-// holding only CRLs, which anchor nothing. The store still belongs to the context being built, so its
-// objects are read in place.
+// Whether the store holds a certificate; `X509_STORE_load_file` also succeeds on a CRL-only file.
 static bool store_holds_certificate(X509_STORE * store) {
     STACK_OF(X509_OBJECT) * objs = X509_STORE_get0_objects(store);
 
@@ -77,8 +75,7 @@ static bool load_env_anchors(X509_STORE * store, std::string * detail) {
 
 #if !defined(__APPLE__)
 
-// Whether a hash directory holds a certificate. Hash entries are usually symlinks, so one left dangling
-// by a removed certificate does not count.
+// Whether a hash directory holds a certificate. A dangling symlink does not count.
 static bool dir_has_hashed_certs(char const * path) {
     DIR * dir = opendir(path);
     if (dir == nullptr) return false;
@@ -126,10 +123,8 @@ static bool any_dir_with_certs(char const * list_str) {
     return false;
 }
 
-// Adds the compiled-in locations, whatever the environment says; `load_env_anchors` adds what the
-// environment names on top of them. A toolchain bundling its own OpenSSL never reads these: like its
-// `openssl.cnf`, they name directories on the machine the build ran on, which on the machine it runs
-// on can belong to anyone.
+// OpenSSL's compiled-in locations. A standalone toolchain skips them: they name directories on the
+// build machine.
 #if !defined(LEAN_STANDALONE)
 static void load_default_paths(X509_STORE * store) {
     X509_STORE_load_file(store, X509_get_default_cert_file());
@@ -137,8 +132,7 @@ static void load_default_paths(X509_STORE * store) {
 }
 #endif
 
-// Whether the store demonstrably holds a trust anchor: a certificate loaded into it, or one in the
-// hash directories `dirs` names.
+// Whether the store holds a certificate, or one of the hash directories `dirs` does.
 static bool trust_store_has_certs(X509_STORE * store, char const * dirs) {
     return (dirs != nullptr && any_dir_with_certs(dirs)) || store_holds_certificate(store);
 }
@@ -171,14 +165,12 @@ static bool load_fallback_anchors(X509_STORE * store) {
         }
     }
 
-    // `X509_STORE_load_path` only records the path — the lookup itself is lazy — so it reports
-    // success for a directory that does not exist, and the directory has to be examined directly.
+    // `X509_STORE_load_path` succeeds even for a missing directory, since lookups are lazy.
     for (char const * dir : g_fallback_cert_dirs) {
         if (dir_has_hashed_certs(dir) && X509_STORE_load_path(store, dir) == 1) any = true;
     }
 
-    // A load that failed leaves its own reason behind, and the caller either succeeds or reports a
-    // failure of its own.
+    // The caller reports failure in its own terms.
     ERR_clear_error();
 
     return any;
@@ -239,11 +231,10 @@ static CFArrayRef copy_evaluated_chain(SecTrustRef trust) {
 #endif
 }
 
-// Verifies `ctx`'s peer again with OpenSSL, trusting only the anchor the platform settled on, so the
-// name, purpose and key-strength checks are OpenSSL's own as on every other platform. libssl reads
-// the verdict, the verified chain and the peer name back from `ctx`, so all three are moved there.
-// Only the verification parameters carry over: the fresh context has no verify callback, CRLs, DANE
-// or stapled OCSP response, none of which a Lean context sets.
+// Verifies the peer again with OpenSSL, trusting only the anchor the platform settled on, so name,
+// purpose and key-strength checks match other platforms. libssl reads the verdict, verified chain and
+// peer name back from `ctx`. Only the verification parameters carry over; Lean sets no verify
+// callback, CRLs, DANE or stapled OCSP.
 static int verify_along_evaluated_chain(X509_STORE_CTX * ctx, SecTrustRef trust) {
     x509_stack_ptr untrusted(sk_X509_new_null());
     x509_stack_ptr anchor(sk_X509_new_null());
@@ -293,10 +284,9 @@ static bool reaches_platform_anchor(SecTrustRef trust) {
            SecTrustEvaluateWithError(trust, nullptr);
 }
 
-// The OpenSSL error for what the platform rejected, or the store's own verdict where the platform's
-// code is no more precise. Apple ranks a breach of its TLS certificate rules (a leaf valid for too
-// long, a disallowed name or usage) above an untrusted chain, so such a code is only reported as a
-// rejection once the chain is known to reach a trusted anchor; otherwise the store's verdict stands.
+// The OpenSSL error for the platform's rejection, falling back to the store's verdict. Apple reports
+// a TLS rule breach (validity too long, disallowed name or usage) ahead of an untrusted chain, so it
+// only counts as a rejection once the chain is known to reach a trusted anchor.
 static int x509_error_for(SecTrustRef trust, CFErrorRef error, int store_error) {
     switch (error != nullptr ? CFErrorGetCode(error) : 0) {
     case errSecCertificateExpired: return X509_V_ERR_CERT_HAS_EXPIRED;
@@ -312,15 +302,15 @@ static int x509_error_for(SecTrustRef trust, CFErrorRef error, int store_error) 
     }
 }
 
-// Accepts a chain the store's own anchors establish, and otherwise defers to the system's trust
-// evaluation, which applies the Keychain's trust settings and Apple's CA policy as they stand now.
+// Accepts a chain the store's anchors establish, and otherwise defers to the system's trust
+// evaluation (Keychain trust settings and Apple's CA policy).
 static int verify_with_platform_fallback(X509_STORE_CTX * ctx, void *) {
     if (X509_verify_cert(ctx) > 0) return 1;
 
     int store_error = X509_STORE_CTX_get_error(ctx);
 
-    // A name is checked only once the store has built a chain, and a second opinion on the chain
-    // cannot change the name. A session that does not verify its peer discards the verdict anyway.
+    // A name mismatch implies the chain was already built, and a non-verifying session discards the
+    // verdict: neither needs the platform.
     SSL * ssl = static_cast<SSL *>(X509_STORE_CTX_get_ex_data(ctx, SSL_get_ex_data_X509_STORE_CTX_idx()));
 
     if (store_error == X509_V_ERR_HOSTNAME_MISMATCH || store_error == X509_V_ERR_IP_ADDRESS_MISMATCH ||
@@ -340,9 +330,8 @@ static int verify_with_platform_fallback(X509_STORE_CTX * ctx, void *) {
                    SecTrustCreateWithCertificates(certs.get(), policy.get(), &raw_trust) == errSecSuccess;
     cf_ptr<SecTrustRef> trust(raw_trust);
 
-    // Fetching would download issuers from URLs in the unauthenticated peer's certificates,
-    // synchronously, bounded per certificate but not per chain: a peer sending cross-signed copies
-    // could hold the handshake for minutes. A chain missing an intermediate fails, as elsewhere.
+    // Fetching downloads issuers named by the unauthenticated peer, synchronously and unbounded per
+    // chain, which lets a peer stall the handshake for minutes.
     created = created && SecTrustSetNetworkFetchAllowed(trust.get(), false) == errSecSuccess;
 
     if (!created) {
@@ -369,8 +358,7 @@ bool use_system_trust_store(SSL_CTX * ctx, std::string * detail) {
     std::string env_detail;
 
 #if defined(__APPLE__)
-    // The platform verifier stands behind the store, so an unreadable `SSL_CERT_FILE` never leaves the
-    // context without anchors.
+    // The platform verifier backs the store, so an unreadable `SSL_CERT_FILE` is not an error.
     load_env_anchors(store, &env_detail);
     (void)detail;
 
@@ -379,11 +367,10 @@ bool use_system_trust_store(SSL_CTX * ctx, std::string * detail) {
 
     return true;
 #else
-    // The platform's anchors are settled before the environment's are added, so that a variable naming
-    // a single private CA adds it to them instead of standing in for them.
+    // Platform anchors are decided first, so the environment's add to them rather than replace them.
 #if defined(LEAN_WINDOWS)
-    // The store is opened here, so an OpenSSL without the loader fails now, but its certificates are
-    // only looked up during verification, so the store cannot be inspected for them.
+    // Opened eagerly, so a missing loader fails here, but certificates load lazily and cannot be
+    // counted.
     bool platform = SSL_CTX_load_verify_store(ctx, "org.openssl.winstore://") == 1;
 
 #if !defined(LEAN_STANDALONE)
@@ -393,8 +380,7 @@ bool use_system_trust_store(SSL_CTX * ctx, std::string * detail) {
     }
 #endif
 #else
-    // The well-known bundles are always read, so the compiled-in paths can add to them but never
-    // stand in for them.
+    // The distribution bundles are always read; the compiled-in paths only add to them.
     bool platform = load_fallback_anchors(store);
 
 #if !defined(LEAN_STANDALONE)
@@ -410,8 +396,7 @@ bool use_system_trust_store(SSL_CTX * ctx, std::string * detail) {
         return true;
     }
 
-    // A variable naming an unreadable file is the likelier thing to have gone wrong, so it is what
-    // gets reported once nothing else supplied an anchor either.
+    // With no anchor anywhere, an unreadable `SSL_CERT_FILE` is the likelier cause.
 #if defined(LEAN_WINDOWS)
     char const * none = "the Windows ROOT store is unavailable (it needs OpenSSL 3.2 or later) and no CA "
                         "file was configured";
@@ -421,8 +406,7 @@ bool use_system_trust_store(SSL_CTX * ctx, std::string * detail) {
 #endif
     *detail = env_ok ? none : env_detail;
 
-    // The individual load failures are what `detail` already summarizes; left in the queue they would
-    // be appended to it as well.
+    // `detail` already summarizes the load failures.
     ERR_clear_error();
 
     return false;

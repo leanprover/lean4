@@ -2,13 +2,11 @@ import Std.Internal.SSL
 import Std.Async.System
 
 /-!
-The TLS 1.3 counterpart of `async_ssl_context_policy.lean`. `OPENSSL_CONF` names a policy whose only
-TLS 1.3 suite is `TLS_AES_128_CCM_8_SHA256`, which Lean does not allow, while leaving TLS 1.3 itself
-permitted. OpenSSL would then offer TLS 1.3 with no suite to negotiate and fail every handshake, so
-a build reading the policy refuses the context instead. A standalone build reads no configuration,
-and builds it. This has to run before the first context of the process, because OpenSSL is
-initialized once, so it lives in a file of its own. Windows is skipped because libuv sets variables
-there through the Win32 API, which the C runtime's `getenv` does not observe.
+Checks that a policy permitting TLS 1.3 but leaving only `TLS_AES_128_CCM_8_SHA256`, which Lean does
+not allow, is refused rather than producing a context whose TLS 1.3 handshakes all fail. A
+standalone build reads no configuration and builds it. It must run before the process's first
+context, since OpenSSL is initialized once, so it has a file of its own. Windows is skipped: libuv
+sets variables there through the Win32 API, which `getenv` does not see.
 -/
 
 open Std.Internal.SSL

@@ -7,10 +7,11 @@ Author: Sofia Rodrigues
 #include <lean/lean.h>
 
 namespace lean {
+void initialize_openssl();
+
 #ifndef LEAN_EMSCRIPTEN
-// Initializes OpenSSL on first call, returning whether the library is usable. Deliberately lazy: a
-// program that never opens a TLS connection never loads OpenSSL's providers. Every entry point that
-// touches OpenSSL must call this first.
+// Initializes OpenSSL on first call and returns whether it is usable. Lazy, so programs without TLS
+// never load OpenSSL's providers. Every entry point that touches OpenSSL must call this first.
 bool ensure_openssl_initialized();
 #endif
 }

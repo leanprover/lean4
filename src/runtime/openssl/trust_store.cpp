@@ -54,7 +54,7 @@ static char const * env_cert_dirs() {
 }
 
 // Loads the anchors named by `SSL_CERT_FILE` and `SSL_CERT_DIR`, and reports whether the named bundle
-// could be read.
+// could be read. OpenSSL reads them with an empty passphrase, so a block encrypted under one is trusted.
 static bool load_env_anchors(X509_STORE * store, std::string * detail) {
     char const * env_file = getenv_or_null_if_empty(X509_get_default_cert_file_env());
     char const * env_dir = env_cert_dirs();
@@ -125,7 +125,7 @@ static bool any_dir_with_certs(char const * list_str) {
 
 // OpenSSL's compiled-in locations. A standalone toolchain skips them: they name directories on the
 // build machine.
-#if !defined(LEAN_STANDALONE)
+#if defined(LEAN_WINDOWS) && !defined(LEAN_STANDALONE)
 static void load_default_paths(X509_STORE * store) {
     X509_STORE_load_file(store, X509_get_default_cert_file());
     X509_STORE_load_path(store, X509_get_default_cert_dir());
@@ -154,12 +154,14 @@ static char const * const g_fallback_cert_dirs[] = {
     "/etc/pki/tls/certs",
 };
 
-// Adds the first readable of the well-known bundles, plus every hash directory that exists.
-static bool load_fallback_anchors(X509_STORE * store) {
+// Adds the first readable of the well-known bundles, stored in `*bundle`, plus every hash directory
+// that exists.
+static bool load_fallback_anchors(X509_STORE * store, char const ** bundle) {
     bool any = false;
 
     for (char const * file : g_fallback_cert_files) {
         if (X509_STORE_load_file(store, file) == 1 && store_holds_certificate(store)) {
+            *bundle = file;
             any = true;
             break;
         }
@@ -381,10 +383,19 @@ bool use_system_trust_store(SSL_CTX * ctx, std::string * detail) {
 #endif
 #else
     // The distribution bundles are always read; the compiled-in paths only add to them.
-    bool platform = load_fallback_anchors(store);
+    char const * bundle = nullptr;
+    bool platform = load_fallback_anchors(store, &bundle);
 
 #if !defined(LEAN_STANDALONE)
-    load_default_paths(store);
+    // A distribution's OpenSSL usually names the bundle just read, which would parse it twice.
+    char const * default_file = X509_get_default_cert_file();
+    struct stat read_st, default_st;
+    bool same_bundle = bundle != nullptr && stat(bundle, &read_st) == 0 &&
+                       stat(default_file, &default_st) == 0 && read_st.st_dev == default_st.st_dev &&
+                       read_st.st_ino == default_st.st_ino;
+
+    if (!same_bundle) X509_STORE_load_file(store, default_file);
+    X509_STORE_load_path(store, X509_get_default_cert_dir());
     platform = platform || trust_store_has_certs(store, X509_get_default_cert_dir());
 #endif
 #endif

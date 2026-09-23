@@ -12,7 +12,7 @@ public import Lean.Meta.Sym.Simp.Result
 public import Lean.Meta.Sym.Canon
 public import Lean.Meta.Sym.SynthInstance
 public import Lean.Meta.Sym.Arith.Classify
-import Lean.Meta.Sym.Arith.VarRename
+public import Lean.Meta.Sym.Arith.VarRename
 import Lean.Meta.Sym.Arith.ToExpr
 public import Lean.Meta.Sym.Simp.App
 import Lean.Meta.AppBuilder
@@ -323,10 +323,204 @@ private def normalizeCore (e : Expr) : NormM CoreResult := do
       mkApp6 (mkConst ``Grind.CommRing.eq_normS [u]) type inst ctx (toExpr re) (toExpr re') eagerReflBoolTrue
   return .step e' (mkExpectedPropHint h (mkApp3 (mkConst ``Eq [u.succ]) type e e'))
 
+/-! ## Relations
+
+`lhs = rhs`, `lhs ≤ rhs`, `lhs < rhs` over a `CommRing` or `CommSemiring` are normalized by
+moving everything to one side and splitting by sign (`x + y = z + 2 * x` becomes `y = z + x`).
+Rings use `eq_norm_expr`, `le_norm_expr`, `lt_norm_expr` (`CommSolver.lean`). Semirings have no
+subtraction: both sides are normalized as terms after removing their common part `c`
+(`eq_normS` twice, the relation between `lhs' + c` and `rhs' + c` by congruence), and `c` is
+cancelled with `AddRightCancel.add_right_cancel_iff`, `OrderedAdd.add_le_left_iff`, or
+`OrderedAdd.add_lt_left_iff`.
+-/
+
+inductive RelKind where
+  | eq | le | lt
+  deriving Inhabited, BEq
+
+/-- Positive monomials, negated negative monomials, and the constant of `p`. -/
+private def splitPoly (p : Poly) : Poly × Poly × Int :=
+  match p with
+  | .num k => (.num 0, .num 0, k)
+  | .add k m p =>
+    let (l, r, c) := splitPoly p
+    if k < 0 then (l, .add (-k) m r, c) else (.add k m l, r, c)
+
+/-- Monomial-wise minimum of two polynomials with nonnegative coefficients: the part they share. -/
+private partial def commonPart : Poly → Poly → Poly
+  | .num a, .num b => .num (min a b)
+  | .num a, .add _ _ q => commonPart (.num a) q
+  | .add _ _ p, .num b => commonPart p (.num b)
+  | .add k₁ m₁ p, .add k₂ m₂ q =>
+    match m₁.grevlex m₂ with
+    | .eq => .add (min k₁ k₂) m₁ (commonPart p q)
+    | .gt => commonPart p (.add k₂ m₂ q)
+    | .lt => commonPart (.add k₁ m₁ p) q
+
+private def mkIffSymm (a b h : Expr) : Expr :=
+  mkApp3 (mkConst ``Iff.symm) a b h
+
+private def mkPropExt (a b h : Expr) : Expr :=
+  mkApp3 (mkConst ``propext) a b h
+
 /--
-Normalizes the arithmetic term `e` (an application of `+`, `-`, `*`, `^`, or negation whose
-carrier type is a `CommRing` or `CommSemiring`) into polynomial normal form, after simplifying
-its atoms with `simpAtom`. `e` must be maximally shared.
+Given the reified sides `l`, `r` of `e := rel lhs rhs` (atoms already numbered in order),
+returns the normalized relation. `relFn` is the canonical `Eq α`/`LE.le α inst`/`LT.lt α inst`,
+and `order?` the order classification, required for `≤` and `<`.
+-/
+private def normalizeRelCore (rel : RelKind) (relFn : Expr) (order? : Option Order) (e lhs rhs : Expr)
+    (l r : RingExpr) (vars : Array Expr) : NormM CoreResult := do
+  let kind ← getKind
+  let opts ← getOptions
+  let budget : PolyConfig := { maxTerms? := some (sym.arith.maxTerms.get opts), maxDegree? := some (sym.arith.maxDegree.get opts) }
+  match kind with
+  | .commRing _ =>
+    let ring ← getCommRing
+    let u := ring.u
+    -- The relation theorems have no characteristic support; coefficients are not reduced.
+    let some p ← (toPoly? (l.sub r)).run budget | return .notApplicable
+    let (lp, rp, c) := splitPoly p
+    let lp := if c > 0 then lp.addConst c else lp
+    let rp := if c < 0 then rp.addConst (-c) else rp
+    let l' := lp.toExpr
+    let r' := rp.toExpr
+    let e' ← share (mkApp2 relFn (← denoteRingExpr' vars l') (← denoteRingExpr' vars r'))
+    if isSameExpr e' e then return .normal
+    let ctx ← mkContext ring.type (mkApp (← getNatCastFn) (mkNatLit 0)) vars
+    let h := match rel with
+      | .eq => mkApp2 (mkConst ``Grind.CommRing.eq_norm_expr [u]) ring.type ring.commRingInst
+      | .le =>
+        let o := order?.get!
+        mkApp6 (mkConst ``Grind.CommRing.le_norm_expr [u]) ring.type ring.commRingInst o.leInst o.ltInst?.get! o.isPreorderInst o.orderedRingInst?.get!
+      | .lt =>
+        let o := order?.get!
+        mkApp7 (mkConst ``Grind.CommRing.lt_norm_expr [u]) ring.type ring.commRingInst o.leInst o.ltInst?.get! o.lawfulOrderLTInst?.get! o.isPreorderInst o.orderedRingInst?.get!
+    let h := mkApp6 h ctx (toExpr l) (toExpr r) (toExpr l') (toExpr r') eagerReflBoolTrue
+    return .step e' (mkExpectedPropHint h (mkPropEq e e'))
+  | .commSemiring _ =>
+    let sr ← getCommSemiring
+    let u := sr.u
+    let cfg := { budget with semiring := true }
+    let some pl ← (toPoly? l).run cfg | return .notApplicable
+    let some pr ← (toPoly? r).run cfg | return .notApplicable
+    -- Cancellation needs `AddRightCancel` for `=` and the ordered structure for `≤`/`<`.
+    let cancel? : Option (Expr → Expr → Expr → Expr) ← match rel with
+      | .eq =>
+        match (← getAddRightCancelInst?) with
+        | none => pure none
+        | some arcInst =>
+          let some addInst ← MonadCanon.synthInstance? (mkApp (mkConst ``Add [u]) sr.type) | pure none
+          pure <| some fun a b c => mkApp6 (mkConst ``Grind.AddRightCancel.add_right_cancel_iff [u]) sr.type addInst arcInst a b c
+      | .le | .lt =>
+        let o := order?.get!
+        let hAdd := mkApp2 (mkConst ``instHAdd [u]) sr.type (mkApp2 (mkConst ``Grind.Semiring.toAdd [u]) sr.type sr.semiringInst)
+        let addFn := mkApp4 (mkConst ``HAdd.hAdd [u, u, u]) sr.type sr.type sr.type hAdd
+        let ordAdd := mkApp6 (mkConst ``Grind.OrderedRing.toOrderedAdd [u]) sr.type sr.semiringInst o.leInst o.ltInst?.get! o.isPreorderInst o.orderedRingInst?.get!
+        if rel == .le then
+          pure <| some fun a b c =>
+            let iff := mkApp8 (mkConst ``Grind.OrderedAdd.add_le_left_iff [u]) sr.type hAdd o.leInst o.isPreorderInst ordAdd a b c
+            mkIffSymm (mkApp2 o.leFn a b) (mkApp2 o.leFn (mkApp2 addFn a c) (mkApp2 addFn b c)) iff
+        else
+          let acm := mkApp2 (mkConst ``Grind.NatModule.toAddCommMonoid [u]) sr.type (mkApp2 (mkConst ``Grind.Semiring.toNatModule [u]) sr.type sr.semiringInst)
+          let ltFn := o.ltFn?.get!
+          pure <| some fun a b c =>
+            let iff := mkApp10 (mkConst ``Grind.OrderedAdd.add_lt_left_iff [u]) sr.type o.leInst o.isPreorderInst acm ordAdd o.ltInst?.get! o.lawfulOrderLTInst?.get! a b c
+            mkIffSymm (mkApp2 ltFn a b) (mkApp2 ltFn (mkApp2 addFn a c) (mkApp2 addFn b c)) iff
+    let c := commonPart pl pr
+    let hasC := cancel?.isSome && !c.isZero
+    let (lp, rp) := if hasC then (pl.combine (c.mulConst (-1)), pr.combine (c.mulConst (-1))) else (pl, pr)
+    let l' := lp.toExpr
+    let r' := rp.toExpr
+    let el ← share (← denoteSemiringExpr' vars l')
+    let er ← share (← denoteSemiringExpr' vars r')
+    let e' ← share (mkApp2 relFn el er)
+    if isSameExpr e' e then return .normal
+    let ctx ← mkContext sr.type (mkApp (← getNatCastFn') (mkNatLit 0)) vars
+    -- Term steps `lhs = lhs' + c` and `rhs = rhs' + c` (without `+ c` when nothing is cancelled).
+    let mkTermStep (x xC : RingExpr) (ex exC : Expr) : Expr :=
+      mkExpectedPropHint
+        (mkApp6 (mkConst ``Grind.CommRing.eq_normS [u]) sr.type sr.commSemiringInst ctx (toExpr x) (toExpr xC) eagerReflBoolTrue)
+        (mkApp3 (mkConst ``Eq [u.succ]) sr.type ex exC)
+    let (lC, rC) : RingExpr × RingExpr := if hasC then (.add l' c.toExpr, .add r' c.toExpr) else (l', r')
+    let elC ← if hasC then share (← denoteSemiringExpr' vars lC) else pure el
+    let erC ← if hasC then share (← denoteSemiringExpr' vars rC) else pure er
+    let r₁ : Result := if isSameExpr lhs elC then .rfl else .step elC (mkTermStep l lC lhs elC)
+    let r₂ : Result := if isSameExpr rhs erC then .rfl else .step erC (mkTermStep r rC rhs erC)
+    let rel₁ ← Simp.mkCongr (.app (.app relFn lhs) rhs) (.app relFn lhs) rhs
+      (← Simp.mkCongrArg (.app relFn lhs) relFn lhs r₁ rfl) r₂ rfl
+    let eC := rel₁.getResultExpr e
+    if !hasC then
+      match rel₁ with
+      | .rfl .. => return .normal
+      | .step _ h .. => return .step e' h
+    let some mkIff := cancel? | throwError "internal error: `Sym.Arith` relation normalizer has no cancellation lemma"
+    let ec ← share (← denoteSemiringExpr' vars c.toExpr)
+    let hCancel := mkExpectedPropHint (mkPropExt eC e' (mkIff el er ec)) (mkPropEq eC e')
+    match rel₁ with
+    | .rfl .. => return .step e' hCancel
+    | .step _ h .. => return .step e' (← Simp.mkEqTrans e eC h e' hCancel)
+
+/-- The `normalize?` path for relations; `e` is `rel lhs rhs` with carrier `α`. -/
+private def normalizeRel? [Monad m] [MonadLiftT SymM m] [MonadLiftT MetaM m]
+    (rel : RelKind) (α e lhs rhs : Expr) (simpAtom : Expr → m Result) : m Result := do
+  let kind ← match (← (classify? α : SymM _)) with
+    | .commRing id => pure (Kind.commRing id)
+    | .commSemiring id => pure (Kind.commSemiring id)
+    | _ => return .rfl
+  let order? ← match rel with
+    | .eq => pure none
+    | .le | .lt =>
+      let some id ← classifyOrder? α | return .rfl
+      let o := (← getArithState).orders[id]!
+      unless o.orderedRingInst?.isSome do return .rfl
+      if rel == .lt then unless o.lawfulOrderLTInst?.isSome do return .rfl
+      -- The relation's instance must be the classified one; compare the canonicalized prefix.
+      let fn := if rel == .le then o.leFn else o.ltFn?.get!
+      let ok ← liftNorm kind do return isSameExpr fn (← canonExpr e.appFn!.appFn!)
+      unless ok do return .rfl
+      pure (some o)
+  let r₁ ← visitAtoms kind simpAtom lhs
+  let r₂ ← visitAtoms kind simpAtom rhs
+  let r₀ ← match h : e with
+    | .app (.app f a) b => congrBin e f a b r₁ r₂ h
+    | _ => unreachable!
+  let e₁ := r₀.getResultExpr e
+  let lhs₁ := e₁.appFn!.appArg!
+  let rhs₁ := e₁.appArg!
+  let relFn := match rel, order? with
+    | .eq, _ => e₁.appFn!.appFn!
+    | .le, some o => o.leFn
+    | .lt, some o => o.ltFn?.get!
+    | _, none => e₁.appFn!.appFn!
+  let core : NormM CoreResult := do
+    let lhsC ← canonArith lhs₁
+    let rhsC ← canonArith rhs₁
+    let reify (x : Expr) : NormM (Option RingExpr) := match kind with
+      | .commRing _ => reifyRing? x (skipVar := false)
+      | .commSemiring _ => reifySemiring? x
+    let some l ← reify lhsC | return .notApplicable
+    let some r ← reify rhsC | return .notApplicable
+    if l matches .var _ && r matches .var _ then return .notApplicable
+    let vars := (← get).vars
+    let perm := (Array.range vars.size).qsort fun i j => Expr.lt vars[i]! vars[j]!
+    let (l, r, vars) :=
+      if perm.zipIdx.all fun (i, j) => i == j then (l, r, vars)
+      else
+        let f := Grind.mkVarRename perm
+        (l.renameVars f, r.renameVars f, perm.map (vars[·]!))
+    normalizeRelCore rel relFn order? e₁ lhs₁ rhs₁ l r vars
+  match (← liftNorm kind core) with
+  | .notApplicable => return r₀
+  | .normal => return r₀.markAsDone
+  | .step e' h₂ =>
+    match r₀ with
+    | .rfl _ cd => return .step e' h₂ (done := true) (contextDependent := cd)
+    | .step _ h₁ _ cd => mkEqTransResult e e₁ h₁ (.step e' h₂ (done := true)) cd
+
+/--
+Normalizes the arithmetic term `e` (an application of `+`, `-`, `*`, `^`, `•`, or negation
+whose carrier type is a `CommRing` or `CommSemiring`) into polynomial normal form, after
+simplifying its atoms with `simpAtom`. `e` must be maximally shared.
 
 The result distinguishes three cases:
 * `.rfl`: the normalizer does not apply (`e` is not such a term, or it is an atom for its
@@ -337,7 +531,7 @@ The result distinguishes three cases:
 * `.rfl (done := true)` (or the atom rewrite marked `done`): `e` is already in normal form.
 * `.step e' h (done := true)`: `e` normalizes to `e'`.
 -/
-def normalize? [Monad m] [MonadLiftT SymM m] [MonadLiftT MetaM m] (e : Expr) (simpAtom : Expr → m Result) : m Result := do
+private def normalizeTerm? [Monad m] [MonadLiftT SymM m] [MonadLiftT MetaM m] (e : Expr) (simpAtom : Expr → m Result) : m Result := do
   let some α := getArithType? e | return .rfl
   let kind ← match (← (classify? α : SymM _)) with
     | .commRing id => pure (Kind.commRing id)
@@ -360,5 +554,20 @@ def normalize? [Monad m] [MonadLiftT SymM m] [MonadLiftT MetaM m] (e : Expr) (si
     match r₁ with
     | .rfl _ cd => return .step e' h₂ (done := true) (contextDependent := cd)
     | .step _ h₁ _ cd => mkEqTransResult e e₁ h₁ (.step e' h₂ (done := true)) cd
+
+/--
+Normalizes `e` into polynomial normal form after simplifying its atoms with `simpAtom`:
+either an arithmetic term (see `normalizeTerm?`) or a relation `lhs = rhs`, `lhs ≤ rhs`,
+`lhs < rhs` whose carrier type is a `CommRing` or `CommSemiring` (see "Relations").
+`e` must be maximally shared. The result cases are those of `normalizeTerm?`. A normalized
+relation is `done` as well; a simplifier that wants `post` to see normalized relations (to
+close `t = t`, say) must apply it itself, as `Sym.Simp.simpArith` does.
+-/
+def normalize? [Monad m] [MonadLiftT SymM m] [MonadLiftT MetaM m] (e : Expr) (simpAtom : Expr → m Result) : m Result := do
+  match_expr e with
+  | Eq α lhs rhs => normalizeRel? .eq α e lhs rhs simpAtom
+  | LE.le α _ lhs rhs => normalizeRel? .le α e lhs rhs simpAtom
+  | LT.lt α _ lhs rhs => normalizeRel? .lt α e lhs rhs simpAtom
+  | _ => normalizeTerm? e simpAtom
 
 end Lean.Meta.Sym.Arith

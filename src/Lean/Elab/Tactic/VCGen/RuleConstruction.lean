@@ -43,10 +43,31 @@ private def mkPostPointwisePremise (postSpec postTarget postTy : Expr) (ssTypes 
       let rhs := mkAppN (mkApp postTarget a) ss'
       mkForallFVars (#[a] ++ ss') (← mkAppM ``PartialOrder.rel #[lhs, rhs])
 
+/-- The arguments `#[E, T, instE, instT]` of the `ToEStack E T` instance of `E`, and the instance.
+Rule construction is cached, so the instance synthesis runs once per rule, not per goal. -/
+private def toEStack? (E : Expr) : MetaM (Option (Array Expr × Expr)) := withNewMCtxDepth do
+  let some u ← decLevel? (← getLevel E) | return none
+  let .some instE ← trySynthInstance (mkApp (mkConst ``Assertion [u]) E) | return none
+  let T ← mkFreshExprMVar (mkSort (.succ u))
+  let instT ← mkFreshExprMVar (mkApp (mkConst ``Assertion [u]) T)
+  let .some inst ← trySynthInstance (mkAppN (mkConst ``ToEStack [u]) #[E, T, instE, instT])
+    | return none
+  return some (← #[E, T, instE, instT].mapM instantiateMVars, ← instantiateMVars inst)
+
+/-- Reduce a projection of a constructor application, e.g. `(⟨R⟩ : Thrown).onThrow` to `R`.
+Return any other term unchanged. -/
+private def reduceProjOfCtor (e : Expr) : MetaM Expr := do
+  let .const fn _ := e.getAppFn | return e
+  let some _ ← getProjectionFnInfo? fn | return e
+  if ← isConstructorApp e.appArg!.consumeMData then whnf e else return e
+
 /-- Recursively decompose `epostsSpec ⊑ epostsAbstract` into per-component proofs.
     - `(head, tail)` → mvar for `head ⊑ epostsAbstract.fst`, recurse on `tail`
     - Otherwise, if `EPosts` is a product, project `epostsSpec.fst`/`.snd` and decompose those
     - Otherwise, if `EPosts` is `Unit`, trivial via `Unit.unit_le`
+    - Otherwise, if `EPosts` is a function type, a pointwise mvar
+    - Otherwise, if `EPosts` has a `ToEStack` instance, decompose the entailment between the
+      stacks and reflect it via `ToEStack.le_of_toEStack_le`
     - Otherwise → single mvar for `epostsSpec ⊑ epostsAbstract` -/
 private partial def decomposeProdRel (EPosts epostsSpec epostsAbstract : Expr)
     (stateArgNames : Array Name := #[]) : MetaM Expr := do
@@ -55,6 +76,8 @@ private partial def decomposeProdRel (EPosts epostsSpec epostsAbstract : Expr)
     let absHead ← mkAppM ``Prod.fst #[epostsAbstract]
     let absTail ← mkAppM ``Prod.snd #[epostsAbstract]
     let hTail ← decomposeProdRel etTy tail absTail stateArgNames
+    -- The components of a `toEStack` image are projections such as `(⟨R⟩ : Thrown).onThrow`.
+    let head ← reduceProjOfCtor head
     /- Sometimes, even though `eposts` is not schematic itself, its components might be schematic.
       Think of a triple of a kind `⦃ pre ⦄ x ⦃ post; eposts₁, ⊥, eposts₃, ⊥, ... ⦄`.
       In this case we do not want to create new metavariables for `eposts₁`, `eposts₃`, etc.
@@ -86,9 +109,25 @@ private partial def decomposeProdRel (EPosts epostsSpec epostsAbstract : Expr)
       let hTail ← decomposeProdRel etTy specTail absTail stateArgNames
       mkAppM ``Prod.mk_le #[specHead, specTail, epostsAbstract, hHead, hTail]
     | _ =>
+      let EPostsR ← whnfR EPosts
       -- The terminator is reducibly `PUnit`, under any of its names.
-      if (← whnfR EPosts).isConstOf ``PUnit then
+      if EPostsR.isConstOf ``PUnit then
         mkAppM ``Unit.unit_le #[epostsAbstract]
+      else if EPostsR.isForall then
+        -- A bare `ε → σ → Prop`, e.g. of `Except ε`, yields a pointwise VC like a stack component.
+        let ssTypes ← forallTelescope EPostsR fun xs _ => xs.drop 1 |>.mapM (Meta.inferType ·)
+        let hTy ← mkPostPointwisePremise epostsSpec epostsAbstract EPostsR ssTypes stateArgNames
+        let h ← mkFreshExprMVar (userName := `epostsImpl) hTy
+        mkExpectedTypeHint h (← mkAppM ``PartialOrder.rel #[epostsSpec, epostsAbstract])
+      else if let some (args, inst) ← toEStack? EPosts then
+        let toEStack ← mkAppOptM ``ToEStack.toEStack (args.push inst |>.map some)
+        -- `unfoldProjInst?` turns the image of a spec literal into a stack literal.
+        let stackSpec := mkApp toEStack epostsSpec
+        let stackAbstract := mkApp toEStack epostsAbstract
+        let h ← decomposeProdRel args[1]! ((← unfoldProjInst? stackSpec).getD stackSpec)
+          stackAbstract stateArgNames
+        withDefault <| mkAppOptM ``ToEStack.le_of_toEStack_le <|
+          (args.push inst |>.map some) ++ #[some epostsSpec, some epostsAbstract, some h]
       else
         let hTy ← mkAppM ``PartialOrder.rel #[epostsSpec, epostsAbstract]
         mkFreshExprMVar (userName := `epostsImpl) hTy
@@ -139,9 +178,10 @@ value, the relation `epostsSpec ⊑ eposts` is decomposed component by component
 ∀ e s₁ ... sₙ, epostsSpec.fst e s₁ ... sₙ ⊑ eposts.fst e s₁ ... sₙ
 ```
 and recursively for the tail. `decomposeProdRel` assembles these component VCs using
-`Prod.mk_le` and `Unit.unit_le`. The proof is then generalized with `WP.wp_monotone_epost_le`.
-When the spec exception postcondition is `⊥`, no VC is needed and `WP.wp_monotone_bot_le` is
-used instead.
+`Prod.mk_le` and `Unit.unit_le`. A bare function value such as the one of `Except ε` yields the
+same pointwise VC. A value of a type with a `ToEStack` instance is first converted to a stack.
+The proof is then generalized with `WP.wp_monotone_epost_le`. When the spec exception
+postcondition is `⊥`, no VC is needed and `WP.wp_monotone_bot_le` is used instead.
 
 #### Excess state arguments
 

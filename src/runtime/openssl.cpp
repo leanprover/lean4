@@ -7,16 +7,10 @@ Author: Sofia Rodrigues
 
 #ifndef LEAN_EMSCRIPTEN
 #include <openssl/opensslv.h>
-#include <openssl/crypto.h>
 #include <openssl/err.h>
 #include <openssl/ssl.h>
 
 namespace lean {
-
-void initialize_openssl() {
-}
-
-void finalize_openssl() {}
 
 bool ensure_openssl_initialized() {
     // `OPENSSL_INIT_NO_ATEXIT` is the load-bearing flag. By default OpenSSL registers
@@ -26,11 +20,20 @@ bool ensure_openssl_initialized() {
     // must not be installed. Nothing then frees OpenSSL's globals, which is intended: they stay
     // reachable from static storage for the life of the process.
     //
-    // `OPENSSL_INIT_NO_LOAD_CONFIG` keeps `openssl.cnf` out. Its compiled-in path names a directory
-    // on the build machine, which on the machine a toolchain runs on can belong to anyone, and a
-    // file there can load a provider module or lower the security level of every context.
-    static const bool ok =
-        OPENSSL_init_ssl(OPENSSL_INIT_NO_ATEXIT | OPENSSL_INIT_NO_LOAD_CONFIG, nullptr) == 1;
+    // Whether `openssl.cnf` is read follows who owns the OpenSSL being linked. A toolchain bundling
+    // its own carries that build's compiled-in configuration path, which names a directory on the
+    // machine the toolchain was built on; on the machine it runs on that directory can belong to
+    // anyone, and a file there can load a provider module or lower the security level of every
+    // context, so `OPENSSL_INIT_NO_LOAD_CONFIG` keeps it out. Against a system OpenSSL the same file
+    // is the distribution's own, carrying its crypto policy and FIPS settings, and Lean reads it as
+    // every other consumer of that library does.
+#ifdef LEAN_STANDALONE
+    uint64_t const config = OPENSSL_INIT_NO_LOAD_CONFIG;
+#else
+    uint64_t const config = OPENSSL_INIT_LOAD_CONFIG;
+#endif
+
+    static const bool ok = OPENSSL_init_ssl(OPENSSL_INIT_NO_ATEXIT | config, nullptr) == 1;
 
     return ok;
 }
@@ -38,20 +41,10 @@ bool ensure_openssl_initialized() {
 }
 
 extern "C" LEAN_EXPORT lean_obj_res lean_openssl_version(lean_obj_arg o) {
-    // The linked library rather than the headers it was compiled against, so a Lean binary running
-    // against an upgraded shared OpenSSL reports what it actually loaded (as `lean_libuv_version`
-    // does for libuv).
-    return lean_unsigned_to_nat(OpenSSL_version_num());
+    return lean_unsigned_to_nat(OPENSSL_VERSION_NUMBER);
 }
 
 #else
-
-namespace lean {
-
-void initialize_openssl() {}
-void finalize_openssl() {}
-
-}
 
 extern "C" LEAN_EXPORT lean_obj_res lean_openssl_version(lean_obj_arg o) {
     return lean_box(0);

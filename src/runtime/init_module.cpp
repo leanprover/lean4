@@ -14,7 +14,6 @@ Author: Leonardo de Moura
 #include "runtime/mutex.h"
 #include "runtime/init_module.h"
 #include "runtime/libuv.h"
-#include "runtime/openssl.h"
 #include "runtime/openssl/context.h"
 
 namespace lean {
@@ -33,7 +32,6 @@ extern "C" LEAN_EXPORT void lean_initialize_runtime_module() {
     initialize_mutex();
     initialize_process();
     initialize_stack_overflow();
-    initialize_openssl();
     initialize_openssl_context();
     initialize_libuv();
 }
@@ -42,7 +40,6 @@ void initialize_runtime_module() {
 }
 void finalize_runtime_module() {
     finalize_stack_overflow();
-    finalize_openssl();
     finalize_process();
     finalize_mutex();
     finalize_thread();

@@ -31,7 +31,8 @@ def testExpiredCertPEM : String := include_cert% "async_ssl_certs/expired.pem"
 -- certificate for `BEGIN RSA PRIVATE KEY`, which is the case the loader has to skip.
 def testTraditionalKeyPEM : String := include_cert% "async_ssl_certs/tradkey.pem"
 
--- Matches none of the certificates above, so it is only good for provoking a key/cert mismatch.
+-- The key of `intermediate.pem`, so it matches none of the certificates above and is only good for
+-- provoking a key/cert mismatch.
 def testUnrelatedKeyPEM : String := include_cert% "async_ssl_certs/key2.pem"
 
 -- A P-256 key, so the mismatch against the RSA certificates is one of algorithm rather than value.
@@ -84,7 +85,7 @@ where a test needs a *path*.
 structure Fixtures where
   cert : String
   key : String
-  /-- Matches no certificate here, so pairing it with `cert` is a key/certificate mismatch. -/
+  /-- Matches no certificate used here, so pairing it with `cert` is a key/certificate mismatch. -/
   unrelatedKey : String
   ecKey : String
   encKey : String
@@ -193,6 +194,21 @@ def caNoAnchor : String :=
   "the CA material holds no certificate a TLS server chain can terminate in (supply the root, or \
     allow partial chains to anchor at an intermediate)"
 
+/--
+Whether the host supplies platform trust anchors. A Nix sandbox or a container without
+`ca-certificates` has none, and a default context is then refused by design, so the few tests that
+need one are skipped there. That is only expected where the anchors come from files: macOS and
+Windows always have a platform store, so a failure there, like any other failure, fails the test.
+-/
+def hasSystemRoots : IO Bool := do
+  match ← (discard <| Context.Client.mk).toBaseIO with
+  | .ok _ => return true
+  | .error e =>
+    let fileBased := !System.Platform.isOSX && !System.Platform.isWindows
+    if fileBased && (toString e).startsWith "failed to load system trust store" then
+      return false
+    throw e
+
 -- Context creation and configuration (smoke test).
 def testContextCreation (f : Fixtures) : IO Unit := do
   let _serverCtx ← Context.Server.mk { cert := .file f.cert, key := .file f.key }
@@ -208,7 +224,8 @@ def testContextCreation (f : Fixtures) : IO Unit := do
   let _clientCtx3 ← Context.Client.mk { ca := some (.file f.cert), verifyPeer := false }
 
   -- Defaults: no CA file, peer verification against the system trust anchors.
-  let _clientCtx4 ← Context.Client.mk
+  if ← hasSystemRoots then
+    discard <| Context.Client.mk
 
   -- The same anchors supplied in memory rather than by path.
   let _clientCtx5 ← Context.Client.mk { ca := some (.text testCertPEM) }
@@ -276,9 +293,15 @@ def testPinningAcceptsRootWithIntermediate : IO Unit := do
     { ca := some (.text (testCertPEM ++ testIntermediateCertPEM)), trustSystemRoots := false }
 
 -- Alongside the platform anchors an intermediate is redundant rather than fatal, so the check fires
--- only where the supplied material is the sole source of anchors.
+-- only where the supplied material is the sole source of anchors — which it also is on a host whose
+-- platform supplies none.
 def testIntermediateAllowedBesideSystemRoots : IO Unit := do
-  let _clientCtx ← Context.Client.mk { ca := some (.text testIntermediateCertPEM) }
+  if ← hasSystemRoots then
+    discard <| Context.Client.mk { ca := some (.text testIntermediateCertPEM) }
+  else
+    assertErrorMessage "intermediate on a host without platform anchors"
+      (malformedPEMError caNoAnchor)
+      (discard <| Context.Client.mk { ca := some (.text testIntermediateCertPEM) })
 
 /-!
 Self-signed is the default notion of an anchor, not the only one: a `TRUSTED CERTIFICATE` block carries
@@ -353,9 +376,9 @@ def testMkServerFromMemoryAcceptsNul : IO Unit := do
   let _serverCtx ← Context.Server.mk
     { cert := .text (testCertPEM.push '\x00'), key := .text testKeyPEM }
 
--- A bundle of several distinct certificates is loaded in full: every certificate in the PEM becomes
--- a trust anchor, not just the first one. Repeated certificates are skipped instead of failing, so a
--- bundle that overlaps the system trust anchors (or repeats itself) still yields a usable context.
+-- Repeated certificates are skipped instead of failing, so a bundle that overlaps the system trust
+-- anchors (or repeats itself) still yields a usable context. That the certificates behind the first
+-- are loaded at all is what `testPinningAcceptsRootWithIntermediate` shows.
 def testMkFromPEMAcceptsBundle : IO Unit := do
   let _clientCtx ← Context.Client.mk { ca := some (.text testBundlePEM) }
   let _clientCtx2 ← Context.Client.mk { ca := some (.text (testBundlePEM ++ testCertPEM)) }
@@ -562,10 +585,9 @@ def testAcceptsExpiredCert (f : Fixtures) : IO Unit := do
 /-!
 A certificate can be refused on policy grounds rather than because it could not be read: the TLS
 security level turns away an RSA key that is too short. Reporting that as unparsable PEM sends the
-reader after a problem their file does not have. Every context pins security level 2 and never reads
-`openssl.cnf`, so the verdict is the same whichever OpenSSL the build links. The weak certificate is
-paired with an unrelated key, so a context that did admit it would still fail, but with a different
-message.
+reader after a problem their file does not have. Every context runs at security level 2 or above,
+which a 512-bit key fails whatever a system crypto policy adds. The weak certificate is paired with an
+unrelated key, so a context that did admit it would still fail, but with a different message.
 -/
 
 def weakCertError : String :=
@@ -684,15 +706,22 @@ def testCertEnvVarsNeverBreakDefaultContext (f : Fixtures) : IO Unit := do
   if System.Platform.isWindows then
     return
 
+  -- Pinned contexts never read the environment. Pinning to an intermediate alone is refused for want
+  -- of an anchor, and the root `SSL_CERT_FILE` names would supply one if it reached the store.
+  withEnv "SSL_CERT_FILE" f.cert do
+    assertErrorMessage "pinned context beside an anchor in SSL_CERT_FILE"
+      (malformedPEMError caNoAnchor)
+      (discard <| Context.Client.mk
+        { ca := some (.text testIntermediateCertPEM), trustSystemRoots := false })
+
+  if !(← hasSystemRoots) then
+    return
+
   for value in ["", "/nonexistent/ca.pem", f.junk, f.cert] do
     withEnv "SSL_CERT_FILE" value (discard <| Context.Client.mk {})
 
   for value in ["", "/nonexistent/certs", f.dir] do
     withEnv "SSL_CERT_DIR" value (discard <| Context.Client.mk {})
-
-  -- Pinned contexts never read the environment, so a stale variable cannot reach them either.
-  withEnv "SSL_CERT_FILE" "/nonexistent/ca.pem"
-    (discard <| Context.Client.mk { ca := some (.text testCertPEM), trustSystemRoots := false })
 
 #eval withFixtures fun f => do
   testContextCreation f

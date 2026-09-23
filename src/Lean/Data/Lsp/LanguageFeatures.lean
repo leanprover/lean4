@@ -26,6 +26,9 @@ structure CompletionOptions where
   resolveProvider      : Bool := false
   deriving FromJson, ToJson
 
+#guard_msgs (drop error) in
+set_option backward.deriving.comparisons.old true -- for `.ofNat`
+
 inductive CompletionItemKind where
   | text | method | function | constructor | field
   | variable | class | interface | module | property
@@ -33,35 +36,6 @@ inductive CompletionItemKind where
   | color | file | reference | folder | enumMember
   | constant | struct | event | operator | typeParameter
   deriving Inhabited, DecidableEq, Repr, Hashable
-
-#guard_msgs (drop error) in
-def CompletionItemKind.ofNat : Nat → CompletionItemKind
-  | 0 => .text
-  | 1 => .method
-  | 2 => .function
-  | 3 => .constructor
-  | 4 => .field
-  | 5 => .variable
-  | 6 => .class
-  | 7 => .interface
-  | 8 => .module
-  | 9 => .property
-  | 10 => .unit
-  | 11 => .value
-  | 12 => .enum
-  | 13 => .keyword
-  | 14 => .snippet
-  | 15 => .color
-  | 16 => .field
-  | 17 => .reference
-  | 18 => .folder
-  | 19 => .enumMember
-  | 20 => .constant
-  | 21 => .struct
-  | 22 => .event
-  | 23 => .operator
-  | 24 => .typeParameter
-  | i => panic! s!"Unexpected input {i} to CompletionItemKind.ofNat"
 
 instance : ToJson CompletionItemKind where
   toJson a := toJson (a.ctorIdx + 1)
@@ -80,11 +54,6 @@ structure InsertReplaceEdit where
 inductive CompletionItemTag where
   | deprecated
   deriving Inhabited, DecidableEq, Repr, Hashable
-
-#guard_msgs (drop error) in
-def CompletionItemTag.ofNat : Nat → CompletionItemTag
-  | 0 => .deprecated
-  | i => panic! s!"Unexpected input {i} to CompletionItemTag.ofNat"
 
 instance : ToJson CompletionItemTag where
   toJson t := toJson (t.ctorIdx + 1)

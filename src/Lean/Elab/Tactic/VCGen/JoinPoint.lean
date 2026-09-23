@@ -92,28 +92,28 @@ public def registerJoinPoint (goal : MVarId) (jp : FVarId) (val : Expr) (info : 
     | _ =>
       let lvls := (← Sym.inferType info.instAL).getAppFn.constLevels!
       mkAppNS (mkConst ``Std.WP.Assertion.toCompleteLattice lvls) #[info.Pred, info.instAL]
-  -- `?H` also takes the states, so that the body knows the state at each jump. Without a base
-  -- instance for them, `?H` takes none and the body starts in an arbitrary state.
-  let numStates ← forallBoundedTelescope info.Pred info.excessArgs.size fun ss _ => do
-    return if ss.size == info.excessArgs.size && (← baseInstance? instCL ss).isSome then ss.size
-      else 0
   let lctx ← getLCtx
   let localInsts ← getLocalInstances
-  let (hyp, pre, specTy, bodyTy) ← forallBoundedTelescope jpTy numParams fun xs _ => do
-    let (hyp, P) ← forallBoundedTelescope info.Pred numStates fun ss B => do
+  let (hyp, pre, specTy, bodyTy, numStates) ← forallBoundedTelescope jpTy numParams fun xs _ => do
+    let (hyp, P, numStates) ← forallBoundedTelescope info.Pred info.excessArgs.size fun ss B => do
+      -- `?H` also takes the states, so that the body knows the state at each jump. Without a base
+      -- instance for them, `?H` takes none and the body starts in an arbitrary state.
+      let (ss, B, instB) ← match ← baseInstance? instCL ss with
+        | some instB => pure (ss, B, instB)
+        | none => pure (#[], info.Pred, instCL)
       let hypTy ← mkForallFVarsS (xs ++ ss) (mkSort .zero)
       let hyp ← mkFreshExprMVarAt lctx localInsts hypTy .syntheticOpaque
-      let some instB ← baseInstance? instCL ss | unreachable!
       let some u := (← Sym.getLevel B).dec | throwError "vcgen +jp: `{B}` is not a type"
       let φ ← mkAppNS hyp (xs ++ ss)
-      return (hyp, ← mkLambdaFVarsS ss (← mkAppNS (mkConst ``CompleteLattice.ofProp [u]) #[B, instB, φ]))
+      let P ← mkLambdaFVarsS ss (← mkAppNS (mkConst ``CompleteLattice.ofProp [u]) #[B, instB, φ])
+      return (hyp, P, ss.size)
     let triple (prog : Expr) : VCGenM Expr := do
       mkAppNS (mkConst ``Std.WP.Triple info.head.constLevels!)
         #[info.Pred, info.EPosts, info.Prog, info.Value, info.instAL, info.instEAL, prog,
           info.instWP, P, info.post, info.eposts]
     return (hyp.mvarId!, ← mkLambdaFVarsS xs P,
       ← mkForallFVarsS xs (← triple (← mkAppNS (.fvar jp) xs)),
-      ← mkForallFVarsS xs (← triple (← betaS val xs)))
+      ← mkForallFVarsS xs (← triple (← betaS val xs)), numStates)
   let body ← mkFreshExprSyntheticOpaqueMVar bodyTy (← goal.getTag)
   let goal ← goal.define `__do_jp_spec specTy body
   let .goal decls goal ← Sym.introN goal 1
@@ -135,8 +135,7 @@ private def checkPayloadScope (jp : JoinPoint) (jump payload : Expr) : MetaM Uni
     match sub with
     | .fvar fvarId => if let some decl := lctx.find? fvarId then note decl
     | .mvar mvarId =>
-      for decl? in (← mvarId.getDecl).lctx.decls.toList do
-        if let some decl := decl? then note decl
+      (← mvarId.getDecl).lctx.foldlM (start := jp.lctxSize) (init := ()) fun _ decl => note decl
     | _ => pure ()
   let leaked ← leakedRef.get
   unless leaked.isEmpty do

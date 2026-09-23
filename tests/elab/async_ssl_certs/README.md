@@ -1,21 +1,19 @@
 # TLS test certificate fixtures
 
-Certificate fixtures used by the `async_ssl_*` tests, self-signed but for `intermediate.pem` and its trusted copy. These contain **no secrets**: the
-private key exists only so the tests can drive a real TLS handshake, and nothing outside the
-test suite trusts these certificates. They are committed as fixtures (instead of generated at
-test time) so the tests neither shell out to the `openssl` CLI nor depend on it being
-installed — subprocess spawning in these tests also produced spurious LeakSanitizer reports
-in the sanitizer CI build.
+Certificate fixtures used by the `async_ssl_*` tests, self-signed but for `intermediate.pem` and
+its trusted copy. These contain **no secrets**: the private key exists only so the tests can drive a
+real TLS handshake, and nothing outside the test suite trusts these certificates. They are committed
+as fixtures so the tests neither shell out to the `openssl` CLI nor depend on it being installed.
 
 All certificates are signed by `key.pem` (RSA-2048) and are valid until 2126, with two exceptions:
 `expired.pem`, whose validity window is entirely in 2020 (building a context parses a certificate
-without checking its validity period, so this one is rejected only at handshake time), and `weakcert.pem`, which is self-signed under a throwaway 512-bit key that is not
-kept.
+without checking its validity period, so this one is rejected only at handshake time), and
+`weakcert.pem`, which is self-signed under a throwaway 512-bit key that is not kept.
 
 | file | subject | notes |
 |---|---|---|
-| `key.pem` | | RSA-2048 private key for all certs below |
-| `key2.pem` | | second RSA-2048 key, matching none of the certificates |
+| `key.pem` | | RSA-2048 private key for the certs below, except `intermediate.pem` and its trusted copy (`key2.pem`) and `weakcert.pem` |
+| `key2.pem` | | second RSA-2048 key; it is the key of `intermediate.pem` (and of its trusted copy), so it matches none of the server certificates below |
 | `eckey.pem` | | P-256 key; a *different algorithm* from every certificate here, which OpenSSL accepts against an RSA certificate unless `SSL_CTX_check_private_key` is consulted |
 | `enckey.pem` | | `key.pem` encrypted with the passphrase `lean4`; encrypted keys are unsupported and must be rejected without prompting for one |
 | `emptypwkey.pem` | | `key.pem` encrypted under an *empty* passphrase; still an encrypted key, and rejected only because the password callback reports a failure rather than a zero-length passphrase |

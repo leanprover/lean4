@@ -22,6 +22,9 @@ struct pem_source {
     b_obj_arg obj;
     bool is_file;
 
+    // Reads a `Std.Internal.SSL.PEM`, whose `file` and `text` constructors each hold one string.
+    static pem_source of(b_obj_arg pem) { return { lean_ctor_get(pem, 0), lean_obj_tag(pem) == 0 }; }
+
     char const * data() const { return lean_string_cstr(obj); }
     size_t size() const { return lean_string_size(obj) - 1; }
 };
@@ -42,7 +45,7 @@ lean_obj_res mk_ssl_invalid_argument(char const * msg);
 lean_obj_res mk_ssl_file_error(b_obj_arg file, char const * msg, int errnum = 0);
 
 // Reports a failure against PEM material, naming the path when there is one to name.
-lean_obj_res mk_pem_error(pem_source src, char const * msg, int errnum = 0);
+lean_obj_res mk_pem_error(pem_source src, char const * msg);
 
 // Whether a certificate was turned away on policy grounds rather than being unreadable as PEM.
 bool rejected_by_security_level();

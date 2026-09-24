@@ -553,8 +553,8 @@ ordinary comments.
 ### General Conventions
 
 * Docstrings should not refer to the surrounding context of the module
-  in which they’re defined. Avoid phrases like “`This can be seen in
-  `otherFunction`, defined above`” and “`this module's other
+  in which they’re defined. Avoid phrases like “``This can be seen in
+  `otherFunction`, defined above``” and “`this module's other
   functions`”.
 * Docstrings may assume that parameter names in the corresponding
   signature are in scope. They may be referred to by
@@ -568,8 +568,8 @@ ordinary comments.
   when inheritance doesn’t make sense. This is because following
   cross-references is difficult in many contexts, such as editor
   hovers. It’s useful to relate an operation to existing ones, but the
-  description should also stand alone. Instead of “`Variant of `f`
-  that also receives the index`”, write a standalone description. The
+  description should also stand alone. Instead of “``Variant of `f`
+  that also receives the index``”, write a standalone description. The
   relationship to the other function is an additional comment that’s
   useful to include.
 * When a concept is used in multiple places, centralize its

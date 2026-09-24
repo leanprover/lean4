@@ -2041,6 +2041,34 @@ theorem eq_norm_expr_nc {α} [Ring α] (ctx : Context α) (lhs rhs : Expr) (lhs'
   replace h : lhs.denote ctx - rhs.denote ctx = lhs'.denote ctx - rhs'.denote ctx := h
   rw [← AddCommGroup.sub_eq_zero_iff, h, AddCommGroup.sub_eq_zero_iff]
 
+
+noncomputable def norm_cnstrC_nc_cert (lhs rhs lhs' rhs' : Expr) (c : Nat) : Bool :=
+  ((rhs.sub lhs).toPolyC_nc c).beq' ((rhs'.sub lhs').toPolyC_nc c)
+
+theorem le_norm_exprC_nc {α c} [Ring α] [IsCharP α c] [LE α] [LT α] [IsPreorder α] [OrderedRing α] (ctx : Context α) (lhs rhs : Expr) (lhs' rhs' : Expr)
+    : norm_cnstrC_nc_cert lhs rhs lhs' rhs' c → (lhs.denote ctx ≤ rhs.denote ctx) = (lhs'.denote ctx ≤ rhs'.denote ctx) := by
+  simp [norm_cnstrC_nc_cert]; intro h
+  replace h := congrArg (Poly.denote ctx) h; simp [Expr.denote_toPolyC_nc] at h
+  replace h : rhs.denote ctx - lhs.denote ctx = rhs'.denote ctx - lhs'.denote ctx := h
+  rw [← OrderedAdd.sub_nonneg_iff, h, OrderedAdd.sub_nonneg_iff]
+
+theorem lt_norm_exprC_nc {α c} [Ring α] [IsCharP α c] [LE α] [LT α] [LawfulOrderLT α] [IsPreorder α] [OrderedRing α] (ctx : Context α) (lhs rhs : Expr) (lhs' rhs' : Expr)
+    : norm_cnstrC_nc_cert lhs rhs lhs' rhs' c → (lhs.denote ctx < rhs.denote ctx) = (lhs'.denote ctx < rhs'.denote ctx) := by
+  simp [norm_cnstrC_nc_cert]; intro h
+  replace h := congrArg (Poly.denote ctx) h; simp [Expr.denote_toPolyC_nc] at h
+  replace h : rhs.denote ctx - lhs.denote ctx = rhs'.denote ctx - lhs'.denote ctx := h
+  rw [← OrderedAdd.sub_pos_iff, h, OrderedAdd.sub_pos_iff]
+
+noncomputable def norm_eqC_nc_cert (lhs rhs lhs' rhs' : Expr) (c : Nat) : Bool :=
+  ((lhs.sub rhs).toPolyC_nc c).beq' ((lhs'.sub rhs').toPolyC_nc c)
+
+theorem eq_norm_exprC_nc {α c} [Ring α] [IsCharP α c] (ctx : Context α) (lhs rhs : Expr) (lhs' rhs' : Expr)
+    : norm_eqC_nc_cert lhs rhs lhs' rhs' c → (lhs.denote ctx = rhs.denote ctx) = (lhs'.denote ctx = rhs'.denote ctx) := by
+  simp [norm_eqC_nc_cert]; intro h
+  replace h := congrArg (Poly.denote ctx) h; simp [Expr.denote_toPolyC_nc] at h
+  replace h : lhs.denote ctx - rhs.denote ctx = lhs'.denote ctx - rhs'.denote ctx := h
+  rw [← AddCommGroup.sub_eq_zero_iff, h, AddCommGroup.sub_eq_zero_iff]
+
 /-!
 Helper theorems for quick normalization
 -/

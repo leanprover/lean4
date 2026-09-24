@@ -27,10 +27,11 @@ open Lean.Meta.Sym.Internal (mkAppS mkAppS₂)
 /-!
 # Polynomial normalization of ring and semiring terms
 
-`normalize?` rewrites a term of a `CommRing` or `CommSemiring` into the polynomial normal
-form of `Poly.toExpr`, with a proof by reflection: the certificate compares the `Init`
-polynomial of the input with the polynomial of the output (`Expr.eq_of_toPoly_eq`,
-`Expr.eq_of_toPolyC_eq`, `eq_normS`).
+`normalize?` rewrites a term of a `CommRing`, `Ring`, `CommSemiring`, or `Semiring` into the
+polynomial normal form of `Poly.toExpr`, with a proof by reflection: the certificate compares
+the `Init` polynomial of the input with the polynomial of the output (`Expr.eq_of_toPoly_eq`,
+`Expr.eq_of_toPolyC_eq`, `eq_normS`, and their `_nc` variants for the non-commutative
+structures, where monomials keep the order of their factors).
 
 The normalizer owns the traversal of the arithmetic tree: it recurses through the operators
 its structure interprets and hands every atom (maximal non-arithmetic subterm) to the
@@ -64,7 +65,21 @@ register_builtin_option sym.arith.maxDegree : Nat := {
 inductive Kind where
   | commRing (id : Nat)
   | commSemiring (id : Nat)
+  /-- Non-commutative ring (`Sym.Arith.State.ncRings`). -/
+  | ring (id : Nat)
+  /-- Non-commutative semiring (`Sym.Arith.State.ncSemirings`). -/
+  | semiring (id : Nat)
   deriving Inhabited
+
+/-- `true` for (commutative or not) rings, `false` for semirings. -/
+def Kind.isRing : Kind → Bool
+  | .commRing _ | .ring _ => true
+  | .commSemiring _ | .semiring _ => false
+
+/-- `true` for the commutative structures. -/
+def Kind.isComm : Kind → Bool
+  | .commRing _ | .commSemiring _ => true
+  | .ring _ | .semiring _ => false
 
 structure NormM.Context where
   kind : Kind
@@ -97,6 +112,32 @@ instance : MonadCommSemiring NormM where
   modifyCommSemiring f := do
     let .commSemiring id ← getKind | throwError "internal error: `Sym.Arith` normalizer is not in a commutative semiring"
     modifyArithState fun s => { s with semirings := s.semirings.modify id f }
+
+/-- Both ring kinds; takes precedence over the instance derived from `MonadCommRing`. -/
+instance (priority := high) : MonadRing NormM where
+  getRing := do
+    match (← getKind) with
+    | .commRing id => return (← getArithState).rings[id]!.toRing
+    | .ring id => return (← getArithState).ncRings[id]!
+    | _ => throwError "internal error: `Sym.Arith` normalizer is not in a ring"
+  modifyRing f := do
+    match (← getKind) with
+    | .commRing id => modifyArithState fun s => { s with rings := s.rings.modify id fun r => { r with toRing := f r.toRing } }
+    | .ring id => modifyArithState fun s => { s with ncRings := s.ncRings.modify id f }
+    | _ => throwError "internal error: `Sym.Arith` normalizer is not in a ring"
+
+/-- Both semiring kinds; takes precedence over the instance derived from `MonadCommSemiring`. -/
+instance (priority := high) : MonadSemiring NormM where
+  getSemiring := do
+    match (← getKind) with
+    | .commSemiring id => return (← getArithState).semirings[id]!.toSemiring
+    | .semiring id => return (← getArithState).ncSemirings[id]!
+    | _ => throwError "internal error: `Sym.Arith` normalizer is not in a semiring"
+  modifySemiring f := do
+    match (← getKind) with
+    | .commSemiring id => modifyArithState fun s => { s with semirings := s.semirings.modify id fun r => { r with toSemiring := f r.toSemiring } }
+    | .semiring id => modifyArithState fun s => { s with ncSemirings := s.ncSemirings.modify id f }
+    | _ => throwError "internal error: `Sym.Arith` normalizer is not in a semiring"
 
 instance : MonadMkVar NormM where
   mkVar e := do
@@ -146,14 +187,13 @@ the structure's, returns `↑k * a` with a proof of `e₁ = ↑k * a` by `Grind.
 canonical ones while checking the expected type.
 -/
 private def mkSMulStep (kind : Kind) (isNat : Bool) (e₁ k a : Expr) : NormM (Expr × Expr) := do
-  let (type, u, castFn, mulFn, thm) ← match kind with
-    | .commRing _ =>
+  let (type, u, castFn, mulFn, thm) ← if kind.isRing then
       let ring ← getRing
       if isNat then
         pure (ring.type, ring.u, ← getNatCastFn, ← getMulFn, mkApp2 (mkConst ``Grind.smul_nat_eq_mul [ring.u]) ring.type ring.semiringInst)
       else
         pure (ring.type, ring.u, ← getIntCastFn, ← getMulFn, mkApp2 (mkConst ``Grind.smul_int_eq_mul [ring.u]) ring.type ring.ringInst)
-    | .commSemiring _ =>
+    else
       let sr ← getSemiring
       pure (sr.type, sr.u, ← getNatCastFn', ← getMulFn', mkApp2 (mkConst ``Grind.smul_nat_eq_mul [sr.u]) sr.type sr.semiringInst)
   -- `↑k` is `k` itself when the scalar type is the carrier (`Nat` or `Int`); the cast is
@@ -163,7 +203,7 @@ private def mkSMulStep (kind : Kind) (isNat : Bool) (e₁ k a : Expr) : NormM (E
   return (e₂, mkExpectedPropHint (mkApp2 thm k a) (mkApp3 (mkConst ``Eq [u.succ]) type e₁ e₂))
 
 private partial def visitAtoms (kind : Kind) (simpAtom : Expr → m Result) (e : Expr) : m Result := do
-  let isRing := kind matches .commRing _
+  let isRing := kind.isRing
   let bin : m Result := do
     match h : e with
     | .app (.app f a) b => congrBin e f a b (← visitAtoms kind simpAtom a) (← visitAtoms kind simpAtom b) h
@@ -188,10 +228,10 @@ private partial def visitAtoms (kind : Kind) (simpAtom : Expr → m Result) (e :
     unless isNat || (isRing && σ.isConstOf ``Int) do return (← simpAtom e)
     -- The instance must be the structure's `nsmul`/`zsmul`; compare the canonicalized prefix.
     let ok ← liftNorm kind do
-      let fn ← match kind, isNat with
-        | .commRing _, true => getNatSMulFn
-        | .commRing _, false => getIntSMulFn
-        | .commSemiring _, _ => getNatSMulFn'
+      let fn ← match kind.isRing, isNat with
+        | true, true => getNatSMulFn
+        | true, false => getIntSMulFn
+        | false, _ => getNatSMulFn'
       return isSameExpr fn (← canonExpr e.appFn!.appFn!)
     unless ok do return (← simpAtom e)
     match h : e with
@@ -217,7 +257,7 @@ succeed. Nodes that the structure does not interpret (`-` in a semiring, `^` wit
 exponent, casts of non-literals) are atoms. Returns `e` itself when nothing changes.
 -/
 private partial def canonArith (e : Expr) : NormM Expr := do
-  let isRing := (← getKind) matches .commRing _
+  let isRing := (← getKind).isRing
   let bin (e a b : Expr) : NormM Expr := do
     let f := e.appFn!.appFn!
     let f' ← canonExpr f
@@ -279,9 +319,7 @@ threshold was exceeded.
 private def normalizeCore (e : Expr) : NormM CoreResult := do
   let kind ← getKind
   let ec ← canonArith e
-  let re? : Option RingExpr ← match kind with
-    | .commRing _ => reifyRing? ec (skipVar := false)
-    | .commSemiring _ => reifySemiring? ec
+  let re? : Option RingExpr ← if kind.isRing then reifyRing? ec (skipVar := false) else reifySemiring? ec
   let some re := re? | return .notApplicable
   if re matches .var _ then return .notApplicable
   -- Number the atoms in `Expr.lt` order. Reification numbered them by first occurrence;
@@ -291,41 +329,50 @@ private def normalizeCore (e : Expr) : NormM CoreResult := do
   let (re, vars) :=
     if perm.zipIdx.all fun (i, j) => i == j then (re, vars)
     else (re.renameVars (Grind.mkVarRename perm), perm.map (vars[·]!))
+  -- `inst` is the structure instance the certificate theorem takes: `CommRing`, `Ring`,
+  -- `CommSemiring`, or `Semiring`.
   let (type, u, inst, char?, zero) ← match kind with
     | .commRing _ =>
       let ring ← getCommRing
       let char? := ring.charInst?.bind fun (inst, c) => if c != 0 then some (inst, c) else none
       pure (ring.type, ring.u, ring.commRingInst, char?, mkApp (← getNatCastFn) (mkNatLit 0))
+    | .ring _ =>
+      let ring ← getRing
+      let char? := ring.charInst?.bind fun (inst, c) => if c != 0 then some (inst, c) else none
+      pure (ring.type, ring.u, ring.ringInst, char?, mkApp (← getNatCastFn) (mkNatLit 0))
     | .commSemiring _ =>
       let sr ← getCommSemiring
       pure (sr.type, sr.u, sr.commSemiringInst, none, mkApp (← getNatCastFn') (mkNatLit 0))
+    | .semiring _ =>
+      let sr ← getSemiring
+      pure (sr.type, sr.u, sr.semiringInst, none, mkApp (← getNatCastFn') (mkNatLit 0))
   let opts ← getOptions
   let cfg : PolyConfig := {
     char? := char?.map (·.2)
-    semiring := kind matches .commSemiring _
+    semiring := !kind.isRing
+    commutative := kind.isComm
     maxTerms? := some (sym.arith.maxTerms.get opts)
     maxDegree? := some (sym.arith.maxDegree.get opts)
   }
   let some p ← (toPoly? re).run cfg | return .notApplicable
   let re' := p.toExpr
-  let e' ← match kind with
-    | .commRing _ => share (← denoteRingExpr' vars re')
-    | .commSemiring _ => share (← denoteSemiringExpr' vars re')
+  let e' ← if kind.isRing then share (← denoteRingExpr' vars re') else share (← denoteSemiringExpr' vars re')
   if isSameExpr e' e then
     return .normal
   let ctx ← mkContext type zero vars
-  let h := match kind, char? with
-    | .commRing _, some (charInst, c) =>
-      mkApp8 (mkConst ``Grind.CommRing.Expr.eq_of_toPolyC_eq [u]) type (toExpr c) inst charInst ctx (toExpr re) (toExpr re') eagerReflBoolTrue
-    | .commRing _, none =>
-      mkApp6 (mkConst ``Grind.CommRing.Expr.eq_of_toPoly_eq [u]) type inst ctx (toExpr re) (toExpr re') eagerReflBoolTrue
-    | .commSemiring _, _ =>
-      mkApp6 (mkConst ``Grind.CommRing.eq_normS [u]) type inst ctx (toExpr re) (toExpr re') eagerReflBoolTrue
+  let thm := match kind, char? with
+    | .commRing _, some (charInst, c) => mkApp4 (mkConst ``Grind.CommRing.Expr.eq_of_toPolyC_eq [u]) type (toExpr c) inst charInst
+    | .commRing _, none => mkApp2 (mkConst ``Grind.CommRing.Expr.eq_of_toPoly_eq [u]) type inst
+    | .ring _, some (charInst, c) => mkApp4 (mkConst ``Grind.CommRing.Expr.eq_of_toPolyC_nc_eq [u]) type (toExpr c) inst charInst
+    | .ring _, none => mkApp2 (mkConst ``Grind.CommRing.Expr.eq_of_toPoly_nc_eq [u]) type inst
+    | .commSemiring _, _ => mkApp2 (mkConst ``Grind.CommRing.eq_normS [u]) type inst
+    | .semiring _, _ => mkApp2 (mkConst ``Grind.CommRing.eq_normS_nc [u]) type inst
+  let h := mkApp4 thm ctx (toExpr re) (toExpr re') eagerReflBoolTrue
   return .step e' (mkExpectedPropHint h (mkApp3 (mkConst ``Eq [u.succ]) type e e'))
 
 /-! ## Relations
 
-`lhs = rhs`, `lhs ≤ rhs`, `lhs < rhs` over a `CommRing` or `CommSemiring` are normalized by
+`lhs = rhs`, `lhs ≤ rhs`, `lhs < rhs` over a ring or semiring are normalized by
 moving everything to one side and splitting by sign (`x + y = z + 2 * x` becomes `y = z + x`).
 Rings use `eq_norm_expr`, `le_norm_expr`, `lt_norm_expr` (`CommSolver.lean`). Semirings have no
 subtraction: both sides are normalized as terms after removing their common part `c`
@@ -366,6 +413,26 @@ private partial def commonPart : Poly → Poly → Poly
     | .gt => commonPart p (.add k₂ m₂ q)
     | .lt => commonPart (.add k₁ m₁ p) q
 
+/--
+The ring relation theorem for `rel`: the `_nc` variant for non-commutative rings, the `C`
+variant for a nonzero characteristic. Spelled out so that a renamed theorem is caught when
+this file is compiled.
+-/
+private def relThmName (rel : RelKind) (comm : Bool) (char : Bool) : Name :=
+  match rel, comm, char with
+  | .eq, true,  false => ``Grind.CommRing.eq_norm_expr
+  | .eq, true,  true  => ``Grind.CommRing.eq_norm_exprC
+  | .eq, false, false => ``Grind.CommRing.eq_norm_expr_nc
+  | .eq, false, true  => ``Grind.CommRing.eq_norm_exprC_nc
+  | .le, true,  false => ``Grind.CommRing.le_norm_expr
+  | .le, true,  true  => ``Grind.CommRing.le_norm_exprC
+  | .le, false, false => ``Grind.CommRing.le_norm_expr_nc
+  | .le, false, true  => ``Grind.CommRing.le_norm_exprC_nc
+  | .lt, true,  false => ``Grind.CommRing.lt_norm_expr
+  | .lt, true,  true  => ``Grind.CommRing.lt_norm_exprC
+  | .lt, false, false => ``Grind.CommRing.lt_norm_expr_nc
+  | .lt, false, true  => ``Grind.CommRing.lt_norm_exprC_nc
+
 private def mkIffSymm (a b h : Expr) : Expr :=
   mkApp3 (mkConst ``Iff.symm) a b h
 
@@ -382,10 +449,12 @@ private def normalizeRelCore (rel : RelKind) (relFn : Expr) (order? : Option Ord
   let kind ← getKind
   let opts ← getOptions
   let budget : PolyConfig := { maxTerms? := some (sym.arith.maxTerms.get opts), maxDegree? := some (sym.arith.maxDegree.get opts) }
-  match kind with
-  | .commRing _ =>
-    let ring ← getCommRing
+  let budget := { budget with commutative := kind.isComm }
+  if kind.isRing then
+    let ring ← getRing
     let u := ring.u
+    -- Instance for the certificate theorem: `CommRing` or `Ring`.
+    let inst ← if kind.isComm then pure (← getCommRing).commRingInst else pure ring.ringInst
     let char? := ring.charInst?.bind fun (inst, c) => if c != 0 then some (inst, c) else none
     let some p ← (toPoly? (l.sub r)).run { budget with char? := char?.map (·.2) } | return .notApplicable
     let (lp, rp, c) := splitPoly (char?.map (·.2)) p
@@ -396,33 +465,41 @@ private def normalizeRelCore (rel : RelKind) (relFn : Expr) (order? : Option Ord
     let e' ← share (mkApp2 relFn (← denoteRingExpr' vars l') (← denoteRingExpr' vars r'))
     if isSameExpr e' e then return .normal
     let ctx ← mkContext ring.type (mkApp (← getNatCastFn) (mkNatLit 0)) vars
-    -- `thm type [c] commRingInst [charInst]`, then the order instances.
-    let base (name nameC : Name) : Expr := match char? with
-      | none => mkApp2 (mkConst name [u]) ring.type ring.commRingInst
-      | some (charInst, c) => mkApp4 (mkConst nameC [u]) ring.type (toExpr c) ring.commRingInst charInst
+    -- `thm type [c] inst [charInst]`, then the order instances.
+    let base (name : Name) : Expr :=
+      match char? with
+      | none => mkApp2 (mkConst name [u]) ring.type inst
+      | some (charInst, c) => mkApp4 (mkConst name [u]) ring.type (toExpr c) inst charInst
     let h := match rel with
-      | .eq => base ``Grind.CommRing.eq_norm_expr ``Grind.CommRing.eq_norm_exprC
+      | .eq => base (relThmName rel kind.isComm char?.isSome)
       | .le =>
         let o := order?.get!
-        mkApp4 (base ``Grind.CommRing.le_norm_expr ``Grind.CommRing.le_norm_exprC) o.leInst o.ltInst?.get! o.isPreorderInst o.orderedRingInst?.get!
+        mkApp4 (base (relThmName rel kind.isComm char?.isSome)) o.leInst o.ltInst?.get! o.isPreorderInst o.orderedRingInst?.get!
       | .lt =>
         let o := order?.get!
-        mkApp5 (base ``Grind.CommRing.lt_norm_expr ``Grind.CommRing.lt_norm_exprC) o.leInst o.ltInst?.get! o.lawfulOrderLTInst?.get! o.isPreorderInst o.orderedRingInst?.get!
+        mkApp5 (base (relThmName rel kind.isComm char?.isSome)) o.leInst o.ltInst?.get! o.lawfulOrderLTInst?.get! o.isPreorderInst o.orderedRingInst?.get!
     let h := mkApp6 h ctx (toExpr l) (toExpr r) (toExpr l') (toExpr r') eagerReflBoolTrue
     return .step e' (mkExpectedPropHint h (mkPropEq e e'))
-  | .commSemiring _ =>
-    let sr ← getCommSemiring
+  else
+    let sr ← getSemiring
     let u := sr.u
+    -- Instance for `eq_normS` / `eq_normS_nc`: `CommSemiring` or `Semiring`.
+    let (inst, normS) ← if kind.isComm then
+        pure ((← getCommSemiring).commSemiringInst, ``Grind.CommRing.eq_normS)
+      else
+        pure (sr.semiringInst, ``Grind.CommRing.eq_normS_nc)
     let cfg := { budget with semiring := true }
     let some pl ← (toPoly? l).run cfg | return .notApplicable
     let some pr ← (toPoly? r).run cfg | return .notApplicable
     -- Cancellation needs `AddRightCancel` for `=` and the ordered structure for `≤`/`<`.
     let cancel? : Option (Expr → Expr → Expr → Expr) ← match rel with
       | .eq =>
-        match (← getAddRightCancelInst?) with
+        let some addInst ← MonadCanon.synthInstance? (mkApp (mkConst ``Add [u]) sr.type) | pure none
+        let arcInst? ← if kind.isComm then getAddRightCancelInst?
+          else MonadCanon.synthInstance? (mkApp2 (mkConst ``Grind.AddRightCancel [u]) sr.type addInst)
+        match arcInst? with
         | none => pure none
         | some arcInst =>
-          let some addInst ← MonadCanon.synthInstance? (mkApp (mkConst ``Add [u]) sr.type) | pure none
           pure <| some fun a b c => mkApp6 (mkConst ``Grind.AddRightCancel.add_right_cancel_iff [u]) sr.type addInst arcInst a b c
       | .le | .lt =>
         let o := order?.get!
@@ -452,7 +529,7 @@ private def normalizeRelCore (rel : RelKind) (relFn : Expr) (order? : Option Ord
     -- Term steps `lhs = lhs' + c` and `rhs = rhs' + c` (without `+ c` when nothing is cancelled).
     let mkTermStep (x xC : RingExpr) (ex exC : Expr) : Expr :=
       mkExpectedPropHint
-        (mkApp6 (mkConst ``Grind.CommRing.eq_normS [u]) sr.type sr.commSemiringInst ctx (toExpr x) (toExpr xC) eagerReflBoolTrue)
+        (mkApp6 (mkConst normS [u]) sr.type inst ctx (toExpr x) (toExpr xC) eagerReflBoolTrue)
         (mkApp3 (mkConst ``Eq [u.succ]) sr.type ex exC)
     let (lC, rC) : RingExpr × RingExpr := if hasC then (.add l' c.toExpr, .add r' c.toExpr) else (l', r')
     let elC ← if hasC then share (← denoteSemiringExpr' vars lC) else pure el
@@ -479,7 +556,9 @@ private def normalizeRel? [Monad m] [MonadLiftT SymM m] [MonadLiftT MetaM m]
   let kind ← match (← (classify? α : SymM _)) with
     | .commRing id => pure (Kind.commRing id)
     | .commSemiring id => pure (Kind.commSemiring id)
-    | _ => return .rfl
+    | .nonCommRing id => pure (Kind.ring id)
+    | .nonCommSemiring id => pure (Kind.semiring id)
+    | .none => return .rfl
   let order? ← match rel with
     | .eq => pure none
     | .le | .lt =>
@@ -508,9 +587,8 @@ private def normalizeRel? [Monad m] [MonadLiftT SymM m] [MonadLiftT MetaM m]
   let core : NormM CoreResult := do
     let lhsC ← canonArith lhs₁
     let rhsC ← canonArith rhs₁
-    let reify (x : Expr) : NormM (Option RingExpr) := match kind with
-      | .commRing _ => reifyRing? x (skipVar := false)
-      | .commSemiring _ => reifySemiring? x
+    let reify (x : Expr) : NormM (Option RingExpr) :=
+      if kind.isRing then reifyRing? x (skipVar := false) else reifySemiring? x
     let some l ← reify lhsC | return .notApplicable
     let some r ← reify rhsC | return .notApplicable
     -- No shortcut when both sides are atoms: `x ≤ x` must become `0 ≤ 0`, and a relation
@@ -550,8 +628,10 @@ private def normalizeTerm? [Monad m] [MonadLiftT SymM m] [MonadLiftT MetaM m] (e
   let kind ← match (← (classify? α : SymM _)) with
     | .commRing id => pure (Kind.commRing id)
     | .commSemiring id => pure (Kind.commSemiring id)
-    | _ => return .rfl
-  let isRing := kind matches .commRing _
+    | .nonCommRing id => pure (Kind.ring id)
+    | .nonCommSemiring id => pure (Kind.semiring id)
+    | .none => return .rfl
+  let isRing := kind.isRing
   -- Roots that the structure does not interpret are atoms; after this check, an atom root
   -- reported by the reifier can only be a non-standard instance.
   match_expr e with

@@ -299,20 +299,21 @@ def isSemiringExpr : RingExpr → Bool
   | .pow a _ => isSemiringExpr a
 
 open Lean.Grind.CommRing in
-/-- info: exprs=1087, mismatches=0 0 0 -/
+/-- info: exprs=1087, mismatches=0 0 0 0 0 0 -/
 #guard_msgs in
 run_meta SymM.run do
   let es := leaves ++ grow leaves leaves
   let es := es ++ grow (grow leaves leaves).toArray[:20].toArray.toList leaves
-  let mut bad₁ : Nat := 0
-  let mut bad₂ : Nat := 0
-  let mut bad₃ : Nat := 0
+  let check (cfg : PolyConfig) (e : RingExpr) (expected : Poly) : SymM Nat := do
+    let some p ← (toPoly? e).run cfg | throwError "unexpected failure"
+    return if p == expected then 0 else 1
+  let mut bad := Array.replicate 6 0
   for e in es do
-    let some p ← (toPoly? e).run {} | throwError "unexpected failure"
-    unless p == e.toPoly do bad₁ := bad₁ + 1
-    let some p ← (toPoly? e).run { char? := some 7 } | throwError "unexpected failure"
-    unless p == e.toPolyC 7 do bad₂ := bad₂ + 1
+    bad := bad.modify 0 (· + (← check {} e e.toPoly))
+    bad := bad.modify 1 (· + (← check { char? := some 7 } e (e.toPolyC 7)))
+    bad := bad.modify 2 (· + (← check { commutative := false } e e.toPoly_nc))
+    bad := bad.modify 3 (· + (← check { commutative := false, char? := some 7 } e (e.toPolyC_nc 7)))
     if isSemiringExpr e then
-      let some p ← (toPoly? e).run { semiring := true } | throwError "unexpected failure"
-      unless p == e.toPolyS do bad₃ := bad₃ + 1
-  logInfo m!"exprs={es.length}, mismatches={bad₁} {bad₂} {bad₃}"
+      bad := bad.modify 4 (· + (← check { semiring := true } e e.toPolyS))
+      bad := bad.modify 5 (· + (← check { semiring := true, commutative := false } e e.toPolyS_nc))
+  logInfo m!"exprs={es.length}, mismatches={bad[0]!} {bad[1]!} {bad[2]!} {bad[3]!} {bad[4]!} {bad[5]!}"

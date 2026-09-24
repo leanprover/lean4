@@ -824,6 +824,10 @@ def tryAutoCongrTheorem? (e : Expr) : SimpM (Option Result) := do
         -- Do not visit instance implicit arguments when `ground := true`
         -- See comment at `congrArgs`
         argsNew := argsNew.push arg
+        -- If this instance argument has kind `eq` we must still record a reflexivity result so that
+        -- `argResults` stays aligned with the `eq` arguments consumed by the second loop below.
+        if kind matches .eq then
+          argResults := argResults.push { expr := arg }
         i := i + 1
         continue
     match kind with

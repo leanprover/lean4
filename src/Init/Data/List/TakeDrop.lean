@@ -126,6 +126,9 @@ theorem tail_drop {l : List α} {i : Nat} : (l.drop i).tail = l.drop (i + 1) := 
 theorem drop_tail {l : List α} {i : Nat} : l.tail.drop i = l.drop (i + 1) := by
   rw [Nat.add_comm, ← drop_drop, drop_one]
 
+theorem tail_drop_eq_drop_tail {l : List α} {i : Nat} : (l.drop i).tail = l.tail.drop i := by
+  simp
+
 @[simp]
 theorem drop_eq_nil_iff {l : List α} {i : Nat} : l.drop i = [] ↔ l.length ≤ i := by
   refine ⟨fun h => ?_, drop_eq_nil_of_le⟩

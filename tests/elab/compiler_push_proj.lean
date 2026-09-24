@@ -84,7 +84,7 @@ trace: [Compiler.pushProj] size: 10
             goto resetjp.3 b isSharedCheck.10
           | Bool.true =>
             inc val.2;
-            dec b;
+            dec[ref] b;
             goto resetjp.3 ◾ isSharedCheck.10
 [Compiler.pushProj] size: 2
     def test2._boxed a b : tobj :=
@@ -152,7 +152,7 @@ trace: [Compiler.pushProj] size: 14
             goto resetjp.2 a isSharedCheck.10
           | Bool.true =>
             inc val.1;
-            dec a;
+            dec[ref] a;
             goto resetjp.2 ◾ isSharedCheck.10
         | Option.some =>
           let val.11 : tobj := oproj[0] a;
@@ -178,7 +178,7 @@ trace: [Compiler.pushProj] size: 14
             goto resetjp.13 b isSharedCheck.20
           | Bool.true =>
             inc val.12;
-            dec b;
+            dec[ref] b;
             goto resetjp.13 ◾ isSharedCheck.20
 -/
 #guard_msgs in
@@ -246,7 +246,7 @@ trace: [Compiler.pushProj] size: 18
             goto resetjp.2 a isSharedCheck.10
           | Bool.true =>
             inc val.1;
-            dec a;
+            dec[ref] a;
             goto resetjp.2 ◾ isSharedCheck.10
         | Option.some =>
           cases c : tobj
@@ -279,7 +279,7 @@ trace: [Compiler.pushProj] size: 18
               goto resetjp.14 b isSharedCheck.21
             | Bool.true =>
               inc val.13;
-              dec b;
+              dec[ref] b;
               goto resetjp.14 ◾ isSharedCheck.21
 [Compiler.pushProj] size: 2
     def test4._boxed a b c : tobj :=

@@ -159,7 +159,14 @@ def getArithType? (e : Expr) : Option Expr :=
   | HPow.hPow α β _ _ _ _ => if β.isConstOf ``Nat then some α else none
   | HSMul.hSMul σ α _ _ _ _ => if σ.isConstOf ``Nat || σ.isConstOf ``Int then some α else none
   | Neg.neg α _ _ => some α
+  | HDiv.hDiv α _ _ _ _ _ => some α
+  | Inv.inv α _ _ => some α
   | _ => none
+
+/-- `true` if the structure of `kind` is a field. -/
+private def isFieldKind (kind : Kind) : SymM Bool := do
+  let .commRing id := kind | return false
+  return (← getArithState).rings[id]!.fieldInst?.isSome
 
 /-!
 ## Simplifying the atoms
@@ -202,15 +209,55 @@ private def mkSMulStep (kind : Kind) (isNat : Bool) (e₁ k a : Expr) : NormM (E
   let e₂ ← share (mkApp2 mulFn k' a)
   return (e₂, mkExpectedPropHint (mkApp2 thm k a) (mkApp3 (mkConst ``Eq [u.succ]) type e₁ e₂))
 
-private partial def visitAtoms (kind : Kind) (simpAtom : Expr → m Result) (e : Expr) : m Result := do
+/-!
+Field rewrites applied by the walk, all without side conditions (`Init/Grind/Ring/Field.lean`):
+`a / b ↦ a * b⁻¹`, `(a * b)⁻¹ ↦ a⁻¹ * b⁻¹`, `(-a)⁻¹ ↦ -a⁻¹`, `a⁻¹⁻¹ ↦ a`, `0⁻¹ ↦ 0`, `1⁻¹ ↦ 1`.
+After them, `x⁻¹` for an atom or numeral `x` is an atom of the polynomial.
+-/
+
+private def mkFieldStep (thm : Expr) (e₁ e₂ : Expr) : NormM (Expr × Expr) := do
+  let ring ← getCommRing
+  let e₂ ← share e₂
+  return (e₂, mkExpectedPropHint thm (mkApp3 (mkConst ``Eq [ring.u.succ]) ring.type e₁ e₂))
+
+/-- `a / b = a * b⁻¹` -/
+private def mkDivStep (e a b : Expr) : NormM (Expr × Expr) := do
+  let ring ← getCommRing
+  let thm := mkApp4 (mkConst ``Grind.Field.div_eq_mul_inv [ring.u]) ring.type ring.fieldInst?.get! a b
+  mkFieldStep thm e (mkApp2 (← getMulFn) a (mkApp (← getInvFn) b))
+
+/-- The inverse rewrites, for `e := x⁻¹` with the field's `Inv` instance. -/
+private def mkInvStep? (e x : Expr) : NormM (Option (Expr × Expr)) := do
+  let ring ← getCommRing
+  let fieldInst := ring.fieldInst?.get!
+  let invFn ← getInvFn
+  let thm (name : Name) : Expr := mkApp2 (mkConst name [ring.u]) ring.type fieldInst
+  match_expr x with
+  | HMul.hMul _ _ _ _ a b =>
+    unless isSameExpr (← getMulFn) (← canonExpr x.appFn!.appFn!) do return none
+    return some (← mkFieldStep (mkApp2 (thm ``Grind.Field.inv_mul) a b) e (mkApp2 (← getMulFn) (mkApp invFn a) (mkApp invFn b)))
+  | Neg.neg _ _ a =>
+    unless isSameExpr (← getNegFn) (← canonExpr x.appFn!) do return none
+    return some (← mkFieldStep (mkApp (thm ``Grind.Field.inv_neg) a) e (mkApp (← getNegFn) (mkApp invFn a)))
+  | Inv.inv _ _ a =>
+    unless isSameExpr invFn (← canonExpr x.appFn!) do return none
+    return some (← mkFieldStep (mkApp (thm ``Grind.Field.inv_inv) a) e a)
+  | OfNat.ofNat _ _ _ =>
+    match (Sym.getNatValue? x).run with
+    | some 0 => return some (← mkFieldStep (thm ``Grind.Field.inv_zero) e (← denoteNum 0))
+    | some 1 => return some (← mkFieldStep (thm ``Grind.Field.inv_one) e (← denoteNum 1))
+    | _ => return none
+  | _ => return none
+
+private partial def visitAtoms (kind : Kind) (isField : Bool) (simpAtom : Expr → m Result) (e : Expr) : m Result := do
   let isRing := kind.isRing
   let bin : m Result := do
     match h : e with
-    | .app (.app f a) b => congrBin e f a b (← visitAtoms kind simpAtom a) (← visitAtoms kind simpAtom b) h
+    | .app (.app f a) b => congrBin e f a b (← visitAtoms kind isField simpAtom a) (← visitAtoms kind isField simpAtom b) h
     | _ => unreachable!
   let un : m Result := do
     match h : e with
-    | .app f a => (Simp.mkCongrArg e f a (← visitAtoms kind simpAtom a) h : SymM Result)
+    | .app f a => (Simp.mkCongrArg e f a (← visitAtoms kind isField simpAtom a) h : SymM Result)
     | _ => unreachable!
   match_expr e with
   | HAdd.hAdd _ _ _ _ _ _ => bin
@@ -221,7 +268,7 @@ private partial def visitAtoms (kind : Kind) (simpAtom : Expr → m Result) (e :
     -- Only literal exponents are interpreted; the exponent is not simplified.
     unless (Sym.getNatValue? k).run.isSome do return (← simpAtom e)
     match h : e with
-    | .app (.app f a) k => congrBin e f a k (← visitAtoms kind simpAtom a) .rfl h
+    | .app (.app f a) k => congrBin e f a k (← visitAtoms kind isField simpAtom a) .rfl h
     | _ => unreachable!
   | HSMul.hSMul σ _ _ _ _ _ =>
     let isNat := σ.isConstOf ``Nat
@@ -236,12 +283,35 @@ private partial def visitAtoms (kind : Kind) (simpAtom : Expr → m Result) (e :
     unless ok do return (← simpAtom e)
     match h : e with
     | .app (.app f k) a =>
-      let r₁ ← congrBin e f k a (← simpAtom k) (← visitAtoms kind simpAtom a) h
+      let r₁ ← congrBin e f k a (← simpAtom k) (← visitAtoms kind isField simpAtom a) h
       let e₁ := r₁.getResultExpr e
       let (e₂, h₂) ← liftNorm kind (mkSMulStep kind isNat e₁ e₁.appFn!.appArg! e₁.appArg!)
       match r₁ with
       | .rfl _ cd => return .step e₂ h₂ (contextDependent := cd)
       | .step _ h₁ _ cd => mkEqTransResult e e₁ h₁ (.step e₂ h₂) cd
+    | _ => unreachable!
+  | HDiv.hDiv _ _ _ _ a b =>
+    unless isField do return (← simpAtom e)
+    let ok ← liftNorm kind do return isSameExpr (← getDivFn) (← canonExpr e.appFn!.appFn!)
+    unless ok do return (← simpAtom e)
+    let (e₂, h) ← liftNorm kind (mkDivStep e a b)
+    mkEqTransResult e e₂ h (← visitAtoms kind isField simpAtom e₂)
+  | Inv.inv _ _ _ =>
+    unless isField do return (← simpAtom e)
+    let ok ← liftNorm kind do return isSameExpr (← getInvFn) (← canonExpr e.appFn!)
+    unless ok do return (← simpAtom e)
+    -- Simplify `x` (a proper subterm, so `simp` normalizes it without re-entering `e`),
+    -- then rewrite `x'⁻¹`.
+    match h : e with
+    | .app f x =>
+      let r ← (Simp.mkCongrArg e f x (← simpAtom x) h : SymM Result)
+      let e₁ := r.getResultExpr e
+      let some (e₂, h₁) ← liftNorm kind (mkInvStep? e₁ e₁.appArg!) | return r
+      let r₂ ← visitAtoms kind isField simpAtom e₂
+      let r₁ ← mkEqTransResult e₁ e₂ h₁ r₂
+      match r with
+      | .rfl _ cd => return if cd && !r₁.isContextDependent then r₁.withContextDependent else r₁
+      | .step _ h₀ _ cd => mkEqTransResult e e₁ h₀ r₁ cd
     | _ => unreachable!
   | NatCast.natCast _ _ a => if (Sym.getNatValue? a).run.isSome then return .rfl else simpAtom e
   | IntCast.intCast _ _ a => if isRing && (Sym.getIntValue? a).run.isSome then return .rfl else simpAtom e
@@ -571,8 +641,9 @@ private def normalizeRel? [Monad m] [MonadLiftT SymM m] [MonadLiftT MetaM m]
       let ok ← liftNorm kind do return isSameExpr fn (← canonExpr e.appFn!.appFn!)
       unless ok do return .rfl
       pure (some o)
-  let r₁ ← visitAtoms kind simpAtom lhs
-  let r₂ ← visitAtoms kind simpAtom rhs
+  let isField ← isFieldKind kind
+  let r₁ ← visitAtoms kind isField simpAtom lhs
+  let r₂ ← visitAtoms kind isField simpAtom rhs
   let r₀ ← match h : e with
     | .app (.app f a) b => congrBin e f a b r₁ r₂ h
     | _ => unreachable!
@@ -610,9 +681,9 @@ private def normalizeRel? [Monad m] [MonadLiftT SymM m] [MonadLiftT MetaM m]
     | .step _ h₁ _ cd => mkEqTransResult e e₁ h₁ (.step e' h₂ (done := true)) cd
 
 /--
-Normalizes the arithmetic term `e` (an application of `+`, `-`, `*`, `^`, `•`, or negation
-whose carrier type is a `CommRing` or `CommSemiring`) into polynomial normal form, after
-simplifying its atoms with `simpAtom`. `e` must be maximally shared.
+Normalizes the arithmetic term `e` (an application of `+`, `-`, `*`, `^`, `•`, negation, or,
+in a field, `/` and `⁻¹`, whose carrier type is a ring or semiring) into polynomial normal
+form, after simplifying its atoms with `simpAtom`. `e` must be maximally shared.
 
 The result distinguishes three cases:
 * `.rfl`: the normalizer does not apply (`e` is not such a term, or it is an atom for its
@@ -632,14 +703,17 @@ private def normalizeTerm? [Monad m] [MonadLiftT SymM m] [MonadLiftT MetaM m] (e
     | .nonCommSemiring id => pure (Kind.semiring id)
     | .none => return .rfl
   let isRing := kind.isRing
+  let isField ← (isFieldKind kind : SymM _)
   -- Roots that the structure does not interpret are atoms; after this check, an atom root
   -- reported by the reifier can only be a non-standard instance.
   match_expr e with
   | HPow.hPow _ _ _ _ _ k => unless (Sym.getNatValue? k).run.isSome do return .rfl
   | HSub.hSub _ _ _ _ _ _ => unless isRing do return .rfl
   | Neg.neg _ _ _ => unless isRing do return .rfl
+  | HDiv.hDiv _ _ _ _ _ _ => unless isField do return .rfl
+  | Inv.inv _ _ _ => unless isField do return .rfl
   | _ => pure ()
-  let r₁ ← visitAtoms kind simpAtom e
+  let r₁ ← visitAtoms kind isField simpAtom e
   let e₁ := r₁.getResultExpr e
   match (← ((normalizeCore e₁).run { kind } |>.run' {} : SymM CoreResult)) with
   | .notApplicable => return r₁

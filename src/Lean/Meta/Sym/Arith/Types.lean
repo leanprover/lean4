@@ -61,6 +61,8 @@ structure Ring where
 structure CommRing extends Ring where
   /-- Inverse function if `fieldInst?` is `some inst` -/
   invFn?             : Option Expr := none
+  /-- Division function if `fieldInst?` is `some inst` -/
+  divFn?             : Option Expr := none
   /--
   If this is a `OfSemiring.Q α` ring, this field contains the
   `semiringId` for `α`.

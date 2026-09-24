@@ -51,6 +51,9 @@ theorem empty_eq : ∅ = m ↔ m = ∅ := eq_comm
 theorem emptyWithCapacity_eq [EquivBEq α] [LawfulHashable α] {c} : (emptyWithCapacity c : ExtDHashMap α β) = ∅ :=
   isEmpty_iff.mp DHashMap.isEmpty_emptyWithCapacity
 
+theorem isEmpty_empty [EquivBEq α] [LawfulHashable α] : (∅ : ExtDHashMap α β).isEmpty = true := by
+  simp
+
 @[simp]
 theorem not_insert_eq_empty [EquivBEq α] [LawfulHashable α] {k : α} {v : β k} :
     ¬m.insert k v = ∅ :=

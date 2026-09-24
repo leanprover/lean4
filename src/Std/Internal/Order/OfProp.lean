@@ -119,6 +119,36 @@ theorem CompleteLattice.ofProp_prop_eq (p : Prop) : (⌜p⌝ : Prop) = p := by
   simp only [CompleteLattice.ofProp]
   rcases Classical.em p with hp | hp <;> simp [hp, top_prop_eq, bot_prop_eq]
 
+@[deprecated CompleteLattice.ofProp_apply +typeChanged (since := "2026-09-24")]
+theorem CompleteLattice.ofProp_apply_1 {σ1 : Type _}
+    (p : Prop) (s1 : σ1) :
+    (⌜p⌝ : σ1 → Prop) s1 = p := by
+  simp only [CompleteLattice.ofProp_apply, ofProp_prop_eq]
+
+@[deprecated CompleteLattice.ofProp_apply +typeChanged (since := "2026-09-24")]
+theorem CompleteLattice.ofProp_apply_2 {σ1 : Type _} {σ2 : Type _}
+    (p : Prop) (s1 : σ1) (s2 : σ2) :
+    (⌜p⌝ : σ1 → σ2 → Prop) s1 s2 = p := by
+  simp only [CompleteLattice.ofProp_apply, ofProp_prop_eq]
+
+@[deprecated CompleteLattice.ofProp_apply +typeChanged (since := "2026-09-24")]
+theorem CompleteLattice.ofProp_apply_3 {σ1 : Type _} {σ2 : Type _} {σ3 : Type _}
+    (p : Prop) (s1 : σ1) (s2 : σ2) (s3 : σ3) :
+    (⌜p⌝ : σ1 → σ2 → σ3 → Prop) s1 s2 s3 = p := by
+  simp only [CompleteLattice.ofProp_apply, ofProp_prop_eq]
+
+@[deprecated CompleteLattice.ofProp_apply +typeChanged (since := "2026-09-24")]
+theorem CompleteLattice.ofProp_apply_4 {σ1 : Type _} {σ2 : Type _} {σ3 : Type _} {σ4 : Type _}
+    (p : Prop) (s1 : σ1) (s2 : σ2) (s3 : σ3) (s4 : σ4) :
+    (⌜p⌝ : σ1 → σ2 → σ3 → σ4 → Prop) s1 s2 s3 s4 = p := by
+  simp only [CompleteLattice.ofProp_apply, ofProp_prop_eq]
+
+@[deprecated CompleteLattice.ofProp_apply +typeChanged (since := "2026-09-24")]
+theorem CompleteLattice.ofProp_apply_5 {σ1 : Type _} {σ2 : Type _} {σ3 : Type _} {σ4 : Type _} {σ5 : Type _}
+    (p : Prop) (s1 : σ1) (s2 : σ2) (s3 : σ3) (s4 : σ4) (s5 : σ5) :
+    (⌜p⌝ : σ1 → σ2 → σ3 → σ4 → σ5 → Prop) s1 s2 s3 s4 s5 = p := by
+  simp only [CompleteLattice.ofProp_apply, ofProp_prop_eq]
+
 @[deprecated CompleteLattice.top_le_ofProp (since := "2026-09-24")]
 theorem top_le_ofProp [CompleteLattice l] (p : Prop) : p → (⊤ : l) ⊑ ⌜p⌝ :=
   CompleteLattice.top_le_ofProp p
@@ -166,6 +196,9 @@ theorem CompleteLattice.ofProp_mono {φ₁ φ₂ : Prop} (h : φ₁ → φ₂) :
     case isFalse hp2 => exact absurd (h hp1) hp2
   case isFalse =>
     exact bot_le _
+@[deprecated CompleteLattice.ofProp_mono (since := "2026-09-24")]
+theorem CompleteLattice.ofProp_imp (p₁ p₂ : Prop) : (p₁ → p₂) → ⌜p₁⌝ ⊑ (⌜p₂⌝ : l) :=
+  ofProp_mono
 theorem CompleteLattice.ofProp_congr {φ₁ φ₂ : Prop} (h : φ₁ ↔ φ₂) : (⌜φ₁⌝ : l) = ⌜φ₂⌝ :=
   rel_antisymm (ofProp_mono h.1) (ofProp_mono h.2)
 

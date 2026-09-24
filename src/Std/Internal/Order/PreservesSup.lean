@@ -190,11 +190,11 @@ theorem Prod.mk_meet (p q : α × β) : ((p.fst ⊓ q.fst, p.snd ⊓ q.snd) : α
   prod_eq_of_pprod_eq <| by rw [prod_meet_toPProd, ← PProd.mk_meet]
 
 /-- The first component of a meet is the meet of the first components. -/
-@[simp] theorem Prod.fst_meet (p q : α × β) : (p ⊓ q).fst = p.fst ⊓ q.fst := by
+theorem Prod.fst_meet (p q : α × β) : (p ⊓ q).fst = p.fst ⊓ q.fst := by
   rw [← Prod.mk_meet]
 
 /-- The second component of a meet is the meet of the second components. -/
-@[simp] theorem Prod.snd_meet (p q : α × β) : (p ⊓ q).snd = p.snd ⊓ q.snd := by
+theorem Prod.snd_meet (p q : α × β) : (p ⊓ q).snd = p.snd ⊓ q.snd := by
   rw [← Prod.mk_meet]
 
 theorem Prod.fst_join (p q : α × β) : (p ⊔ q).fst = p.fst ⊔ q.fst :=

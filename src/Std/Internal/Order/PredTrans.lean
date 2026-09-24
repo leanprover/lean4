@@ -21,7 +21,7 @@ postcondition `EPosts` to a precondition `Pred`. The order and the chain-complet
 pointwise ones of the function space.
 
 `PredTrans Pred EPosts` is a monad, so monadic programs can be interpreted by a monad morphism into
-it. This module provides that monad structure, the `apply` simp framework of the monadic
+it. This module provides that monad structure, the `apply` computation rules of the monadic
 combinators, the `push` family that moves a result type into a postcondition, and the standard
 monad class instances.
 -/
@@ -111,48 +111,41 @@ instance instLawfulMonad : LawfulMonad (PredTrans Pred EPosts) where
   bind_assoc _ _ _ := ext fun _ _ => rfl
 
 /-!
-## `apply_*` simp framework
+## `apply_*` computation rules
 
-Simp lemmas for reducing `(expr).apply post eposts` for each monadic combinator.
+Equations that reduce `(expr).apply post eposts` for each monadic combinator.
 -/
 
 /-- Unfolding `PredTrans.pure` through `apply`. -/
-@[simp, grind =]
 theorem apply_pure (a : α) (post : α → Pred) (eposts : EPosts) :
     (PredTrans.pure a : PredTrans Pred EPosts α).apply post eposts = post a := rfl
 
 /-- Unfolding `pure` through `apply`. -/
-@[simp, grind =]
 theorem apply_Pure_pure (a : α) (post : α → Pred) (eposts : EPosts) :
     (Pure.pure a : PredTrans Pred EPosts α).apply post eposts = post a := rfl
 
 /-- Unfolding `PredTrans.bind` through `apply`. -/
-@[simp, grind =]
 theorem apply_bind (x : PredTrans Pred EPosts α) (f : α → PredTrans Pred EPosts β)
     (post : β → Pred) (eposts : EPosts) :
     (x.bind f).apply post eposts = x.apply (fun a => (f a).apply post eposts) eposts := rfl
 
 /-- Unfolding `>>=` through `apply`. -/
-@[simp, grind =]
 theorem apply_Bind_bind (x : PredTrans Pred EPosts α) (f : α → PredTrans Pred EPosts β)
     (post : β → Pred) (eposts : EPosts) :
     (x >>= f).apply post eposts = x.apply (fun a => (f a).apply post eposts) eposts := rfl
 
 /-- Unfolding `<$>` through `apply`. -/
-@[simp, grind =]
 theorem apply_Functor_map (f : α → β) (x : PredTrans Pred EPosts α)
     (post : β → Pred) (eposts : EPosts) :
     (f <$> x).apply post eposts = x.apply (post ∘ f) eposts := rfl
 
 /-- Unfolding `<*>` through `apply`. -/
-@[simp]
 theorem apply_Seq_seq (f : PredTrans Pred EPosts (α → β)) (x : PredTrans Pred EPosts α)
     (post : β → Pred) (eposts : EPosts) :
     (f <*> x).apply post eposts =
       f.apply (fun g => x.apply (fun a => post (g a)) eposts) eposts := rfl
 
 /-- Unfolding `dite` through `apply`. -/
-@[simp]
 theorem apply_dite (c : Prop) [Decidable c]
     (t : c → PredTrans Pred EPosts α) (e : ¬ c → PredTrans Pred EPosts α)
     (post : α → Pred) (eposts : EPosts) :
@@ -161,7 +154,6 @@ theorem apply_dite (c : Prop) [Decidable c]
   split <;> rfl
 
 /-- Unfolding `ite` through `apply`. -/
-@[simp]
 theorem apply_ite (c : Prop) [Decidable c]
     (t : PredTrans Pred EPosts α) (e : PredTrans Pred EPosts α)
     (post : α → Pred) (eposts : EPosts) :
@@ -184,7 +176,6 @@ def pushArg {σ : Type z} (x : σ → PredTrans Pred EPosts (α × σ)) :
   ⟨fun post eposts s => (x s).apply (fun (a, s) => post a s) eposts⟩
 
 /-- Unfolding lemma for `pushArg`: applies the state-threaded transformer at state `s`. -/
-@[simp, grind =]
 theorem apply_pushArg {σ : Type z} (x : σ → PredTrans Pred EPosts (α × σ))
     (post : α → σ → Pred) (eposts : EPosts) (s : σ) :
     (pushArg x).apply post eposts s = (x s).apply (fun (a, s) => post a s) eposts := rfl
@@ -196,7 +187,6 @@ def popArg {σ : Type z} (x : PredTrans (σ → Pred) EPosts α) (s : σ) :
   ⟨fun post eposts => x.apply (fun a s => post (a, s)) eposts s⟩
 
 /-- Unfolding `popArg` through `apply`. -/
-@[simp, grind =]
 theorem apply_popArg {σ : Type z} (x : PredTrans (σ → Pred) EPosts α) (s : σ)
     (post : α × σ → Pred) (eposts : EPosts) :
     (x.popArg s).apply post eposts = x.apply (fun a s => post (a, s)) eposts s := rfl
@@ -206,7 +196,6 @@ def liftArg {σ : Type z} (x : PredTrans Pred EPosts α) : PredTrans (σ → Pre
   ⟨fun post eposts s => x.apply (fun a => post a s) eposts⟩
 
 /-- Unfolding `liftArg` through `apply`. -/
-@[simp, grind =]
 theorem apply_liftArg {σ : Type z} (x : PredTrans Pred EPosts α)
     (post : α → σ → Pred) (eposts : EPosts) (s : σ) :
     (liftArg x : PredTrans (σ → Pred) EPosts α).apply post eposts s
@@ -216,7 +205,6 @@ instance {σ : Type z} : MonadLift (PredTrans Pred EPosts) (PredTrans (σ → Pr
   monadLift := liftArg
 
 /-- Unfolding `monadLift` through `apply`. -/
-@[simp, grind =]
 theorem apply_monadLift {σ : Type z} (x : PredTrans Pred EPosts α)
     (post : α → σ → Pred) (eposts : EPosts) (s : σ) :
     (MonadLift.monadLift x : PredTrans (σ → Pred) EPosts α).apply post eposts s
@@ -238,12 +226,12 @@ def pushExcept {α : Type u} {ε : Type v} {Pred : Type w}
   | .error e => eposts e
 
 /-- A normal result uses the normal postcondition. -/
-@[simp, grind =] theorem pushExcept_ok {α : Type u} {ε : Type v} {Pred : Type w}
+theorem pushExcept_ok {α : Type u} {ε : Type v} {Pred : Type w}
     (post : α → Pred) (eposts : ε → Pred) (a : α) :
     pushExcept post eposts (.ok a) = post a := rfl
 
 /-- An exceptional result uses the exception postcondition. -/
-@[simp, grind =] theorem pushExcept_error {α : Type u} {ε : Type v} {Pred : Type w}
+theorem pushExcept_error {α : Type u} {ε : Type v} {Pred : Type w}
     (post : α → Pred) (eposts : ε → Pred) (e : ε) :
     pushExcept post eposts (.error e) = eposts e := rfl
 
@@ -255,12 +243,12 @@ def pushOption {α : Type u} {Pred : Type w}
   | .none => eposts ()
 
 /-- A present result uses the normal postcondition. -/
-@[simp, grind =] theorem pushOption_some {α : Type u} {Pred : Type w}
+theorem pushOption_some {α : Type u} {Pred : Type w}
     (post : α → Pred) (eposts : Unit → Pred) (a : α) :
     pushOption post eposts (.some a) = post a := rfl
 
 /-- An absent result uses the absent postcondition. -/
-@[simp, grind =] theorem pushOption_none {α : Type u} {Pred : Type w}
+theorem pushOption_none {α : Type u} {Pred : Type w}
     (post : α → Pred) (eposts : Unit → Pred) :
     pushOption post eposts .none = eposts () := rfl
 
@@ -277,7 +265,6 @@ def pushExceptT {ε : Type z} (x : PredTrans Pred EPosts (Except ε α)) :
   ⟨fun post eposts => x.apply (pushExcept post eposts.fst) eposts.snd⟩
 
 /-- Unfolding lemma for `pushExceptT`. -/
-@[simp, grind =]
 theorem apply_pushExceptT {ε : Type z}
     (x : PredTrans Pred EPosts (Except ε α)) (post : α → Pred)
     (eposts : (ε → Pred) × EPosts) :
@@ -293,7 +280,6 @@ def pushOptionT (x : PredTrans Pred EPosts (Option α)) :
   ⟨fun post eposts => x.apply (pushOption post eposts.fst) eposts.snd⟩
 
 /-- Unfolding lemma for `pushOptionT`. -/
-@[simp, grind =]
 theorem apply_pushOptionT (x : PredTrans Pred EPosts (Option α)) (post : α → Pred)
     (eposts : (Unit → Pred) × EPosts) :
     (pushOptionT x).apply post eposts
@@ -322,18 +308,30 @@ instance {ε : Type z} : MonadExceptOf ε (PredTrans Pred ((ε → Pred) × EPos
   tryCatch := tryCatch
 
 /-- Unfolding `throw` through `apply`: the first exception postcondition at the thrown value. -/
-@[simp, grind =] theorem apply_throw {ε : Type u} {α : Type u} {Pred : Type u}
+theorem apply_throw {ε : Type u} {α : Type u} {Pred : Type u}
     {EPosts : Type w} (e : ε) (post : α → Pred) (eposts : (ε → Pred) × EPosts) :
     (MonadExceptOf.throw e : PredTrans Pred ((ε → Pred) × EPosts) α).apply post eposts
       = eposts.fst e := rfl
 
 /-- Unfolding `tryCatch` through `apply`: the handler replaces the first exception
 postcondition. -/
-@[simp, grind =] theorem apply_tryCatch {ε : Type u} {α : Type u} {Pred : Type u}
+theorem apply_tryCatch {ε : Type u} {α : Type u} {Pred : Type u}
     {EPosts : Type w} (x : PredTrans Pred ((ε → Pred) × EPosts) α)
     (handle : ε → PredTrans Pred ((ε → Pred) × EPosts) α)
     (post : α → Pred) (eposts : (ε → Pred) × EPosts) :
     (MonadExceptOf.tryCatch x handle).apply post eposts
+      = x.apply post ((fun e => (handle e).apply post eposts), eposts.snd) := rfl
+
+theorem apply_MonadExcept_throw {ε : Type u} {α : Type u} {Pred : Type u}
+    {EPosts : Type w} (e : ε) (post : α → Pred) (eposts : (ε → Pred) × EPosts) :
+    (MonadExcept.throw e : PredTrans Pred ((ε → Pred) × EPosts) α).apply post eposts
+      = eposts.fst e := rfl
+
+theorem apply_MonadExcept_tryCatch {ε : Type u} {α : Type u} {Pred : Type u}
+    {EPosts : Type w} (x : PredTrans Pred ((ε → Pred) × EPosts) α)
+    (handle : ε → PredTrans Pred ((ε → Pred) × EPosts) α)
+    (post : α → Pred) (eposts : (ε → Pred) × EPosts) :
+    (MonadExcept.tryCatch x handle).apply post eposts
       = x.apply post ((fun e => (handle e).apply post eposts), eposts.snd) := rfl
 
 /-- Adds a first exception postcondition that the predicate transformer ignores. -/
@@ -341,7 +339,6 @@ def liftExcept {eh : Type z} (x : PredTrans Pred EPosts α) : PredTrans Pred (eh
   ⟨fun post eposts => x.apply post eposts.snd⟩
 
 /-- Unfolding `liftExcept` through `apply`. -/
-@[simp, grind =]
 theorem apply_liftExcept {eh : Type z} (x : PredTrans Pred EPosts α) (post : α → Pred)
     (eposts : eh × EPosts) :
     (liftExcept x : PredTrans Pred (eh × EPosts) α).apply post eposts
@@ -353,7 +350,6 @@ def popExcept {eh : Type z} (x : PredTrans Pred (eh × EPosts) α) (h : eh) :
   ⟨fun post eposts => x.apply post (h, eposts)⟩
 
 /-- Unfolding `popExcept` through `apply`. -/
-@[simp, grind =]
 theorem apply_popExcept {eh : Type z} (x : PredTrans Pred (eh × EPosts) α) (h : eh)
     (post : α → Pred) (eposts : EPosts) :
     (x.popExcept h).apply post eposts = x.apply post (h, eposts) := rfl
@@ -394,25 +390,46 @@ instance {σ : Type z} : MonadReaderOf σ (PredTrans (σ → Pred) EPosts) where
   read := get
 
 /-- Unfolding `get` through `apply`. -/
-@[simp, grind =] theorem apply_get {σ : Type z}
+theorem apply_get {σ : Type z}
     (post : σ → σ → Pred) (eposts : EPosts) (s : σ) :
     (MonadStateOf.get : PredTrans (σ → Pred) EPosts σ).apply post eposts s = post s s := rfl
 
 /-- Unfolding `set` through `apply`. -/
-@[simp, grind =] theorem apply_set {σ : Type z}
+theorem apply_set {σ : Type z}
     (s' : σ) (post : PUnit → σ → Pred) (eposts : EPosts) (s : σ) :
     (MonadStateOf.set s' : PredTrans (σ → Pred) EPosts PUnit).apply post eposts s = post ⟨⟩ s' := rfl
 
 /-- Unfolding `modifyGet` through `apply`. -/
-@[simp, grind =] theorem apply_modifyGet {σ α : Type z}
+theorem apply_modifyGet {σ α : Type z}
     (f : σ → α × σ) (post : α → σ → Pred) (eposts : EPosts) (s : σ) :
     (MonadStateOf.modifyGet f : PredTrans (σ → Pred) EPosts α).apply post eposts s
       = post (f s).1 (f s).2 := rfl
 
 /-- Unfolding `read` through `apply`. -/
-@[simp, grind =] theorem apply_read {σ : Type z}
+theorem apply_read {σ : Type z}
     (post : σ → σ → Pred) (eposts : EPosts) (s : σ) :
     (MonadReaderOf.read : PredTrans (σ → Pred) EPosts σ).apply post eposts s = post s s := rfl
+
+theorem apply_MonadState_get {σ : Type z}
+    (post : σ → σ → Pred) (eposts : EPosts) (s : σ) :
+    (MonadState.get : PredTrans (σ → Pred) EPosts σ).apply post eposts s = post s s := rfl
+
+theorem apply_MonadState_modifyGet {σ α : Type z}
+    (f : σ → α × σ) (post : α → σ → Pred) (eposts : EPosts) (s : σ) :
+    (MonadState.modifyGet f : PredTrans (σ → Pred) EPosts α).apply post eposts s
+      = post (f s).1 (f s).2 := rfl
+
+theorem apply_modify {σ : Type z}
+    (f : σ → σ) (post : PUnit → σ → Pred) (eposts : EPosts) (s : σ) :
+    (modify f : PredTrans (σ → Pred) EPosts PUnit).apply post eposts s = post ⟨⟩ (f s) := rfl
+
+theorem apply_modifyThe {σ : Type z}
+    (f : σ → σ) (post : PUnit → σ → Pred) (eposts : EPosts) (s : σ) :
+    (modifyThe σ f : PredTrans (σ → Pred) EPosts PUnit).apply post eposts s = post ⟨⟩ (f s) := rfl
+
+theorem apply_MonadReader_read {σ : Type z}
+    (post : σ → σ → Pred) (eposts : EPosts) (s : σ) :
+    (MonadReader.read : PredTrans (σ → Pred) EPosts σ).apply post eposts s = post s s := rfl
 
 instance {ε : Type u'} {σ : Type z} [MonadExceptOf ε (PredTrans Pred EPosts)] :
     MonadExceptOf ε (PredTrans (σ → Pred) EPosts) where

@@ -60,6 +60,8 @@ def Key.format : Key → Format
 instance : ToFormat Key := ⟨Key.format⟩
 
 partial def Trie.format [ToFormat α] : Trie α → Format
+  | .chain k c => Format.group $ Format.paren $
+    "chain " ++ Std.format k ++ " => " ++ format c
   | .node vs cs => Format.group $ Format.paren $
     "node" ++ (if vs.isEmpty then Format.nil else " " ++ Std.format vs)
     ++ Format.join (cs.toList.map fun ⟨k, c⟩ => Format.line ++ Format.paren (Std.format k ++ " => " ++ format c))
@@ -122,11 +124,11 @@ where
       r := r.push (← go)
     return r
 
-private partial def createNodes (keys : Array Key) (v : α) (i : Nat) : Trie α :=
+private def createNodes (keys : Array Key) (v : α) (i : Nat) : Trie α :=
   if h : i < keys.size then
     let k := keys[i]
     let c := createNodes keys v (i+1)
-    .node #[] #[(k, c)]
+    .chain k c
   else
     .node #[v] #[]
 
@@ -150,6 +152,15 @@ where
   termination_by vs.size - i
 
 private def insertAux [BEq α] (keys : Array Key) (v : α) : Nat → Trie α → Trie α
+  | i, .chain k c =>
+    if h : i < keys.size then
+      if keys[i] == k then
+        .chain k (insertAux keys v (i+1) c)
+      else
+        .node #[] <|
+          #[(k, c)].binInsert (fun a b => a.1 < b.1) (keys[i], createNodes keys v (i+1))
+    else
+      .node #[v] #[(k, c)]
   | i, .node vs cs =>
     if h : i < keys.size then
       let k := keys[i]
@@ -178,6 +189,14 @@ def insertCore [BEq α] (d : DiscrTree α) (keys : Array Key) (v : α) : DiscrTr
   insertKeyValue d keys v
 
 private def getEntriesWithKeysAux (keys : Array Key) : Nat → Trie α → Array α
+  | i, .chain k c =>
+    if h : i < keys.size then
+      if keys[i] == k then
+        getEntriesWithKeysAux keys (i + 1) c
+      else
+        #[]
+    else
+      #[]
   | i, .node vs cs =>
     if h : i < keys.size then
       let k := keys[i]

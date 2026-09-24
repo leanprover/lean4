@@ -9,7 +9,6 @@ prelude
 public import Init.Data.Float.Model.Format.Valid
 public import Init.Data.Float.Model.Unpacked.Pack.Lemmas
 public import Init.Data.Float.Model.Unpacked.Operations
-public import Init.Data.Order.Factories
 
 -- This file is part of the logical model for floats which authors of float libraries
 -- need to rely on.
@@ -178,11 +177,39 @@ instance : DecidableLT Float32.Model :=
 instance : BEq Float32.Model where
   beq a b := a.beq b
 
-instance : Min Float32.Model :=
-  Min.leftLeaningOfLE _
+/--
+Compute the IEEE-754-2019 `minimum` of two `Float32.Model`, which is `NaN` if either operand is
+`NaN` and considers `-0` to be smaller than `+0`.
+-/
+def minimum (a b : Float32.Model) : Float32.Model :=
+  pack (a.unpack.minimum b.unpack)
 
-instance : Max Float32.Model :=
-  Max.leftLeaningOfLE _
+/--
+Compute the IEEE-754-2019 `minimumNumber` of two `Float32.Model`, which ignores a `NaN` operand if
+the other operand is a number and considers `-0` to be smaller than `+0`.
+-/
+def minimumNumber (a b : Float32.Model) : Float32.Model :=
+  pack (a.unpack.minimumNumber b.unpack)
+
+/--
+Compute the IEEE-754-2019 `maximum` of two `Float32.Model`, which is `NaN` if either operand is
+`NaN` and considers `-0` to be smaller than `+0`.
+-/
+def maximum (a b : Float32.Model) : Float32.Model :=
+  pack (a.unpack.maximum b.unpack)
+
+/--
+Compute the IEEE-754-2019 `maximumNumber` of two `Float32.Model`, which ignores a `NaN` operand if
+the other operand is a number and considers `-0` to be smaller than `+0`.
+-/
+def maximumNumber (a b : Float32.Model) : Float32.Model :=
+  pack (a.unpack.maximumNumber b.unpack)
+
+instance : Min Float32.Model where
+  min a b := a.minimum b
+
+instance : Max Float32.Model where
+  max a b := a.maximum b
 
 /--
 Returns `true` if the float represents a real number, i.e., it is neither infinite nor `NaN`.

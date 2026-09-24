@@ -11,26 +11,10 @@ Author: Leonardo de Moura
 #include "lean/lean.h"
 
 namespace lean {
-using uchar = unsigned char;
-
-LEAN_EXPORT bool is_utf8_next(unsigned char c);
 LEAN_EXPORT unsigned get_utf8_size(unsigned char c);
-/* Return the length of the null terminated string encoded using UTF8 */
-LEAN_EXPORT size_t utf8_strlen(char const * str);
-/* Return the length of the string `str` encoded using UTF8.
-   `str` may contain null characters. */
-LEAN_EXPORT size_t utf8_strlen(std::string const & str);
 /* Return the length of the string `str` encoded using UTF8.
    `str` may contain null characters. */
 LEAN_EXPORT size_t utf8_strlen(char const * str, size_t sz);
-LEAN_EXPORT optional<size_t> utf8_char_pos(char const * str, size_t char_idx);
-LEAN_EXPORT char const * get_utf8_last_char(char const * str);
-LEAN_EXPORT std::string utf8_trim(std::string const & s);
-LEAN_EXPORT unsigned utf8_to_unicode(uchar const * begin, uchar const * end);
-inline unsigned utf8_to_unicode(char const * begin, char const * end) {
-    return utf8_to_unicode(reinterpret_cast<uchar const *>(begin),
-                           reinterpret_cast<uchar const *>(end));
-}
 
 /* If `c` is the first byte of an utf-8 encoded unicode scalar value,
    then return `some(n)` where `n` is the number of bytes needed to encode

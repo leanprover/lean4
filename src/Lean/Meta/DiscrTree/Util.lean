@@ -15,6 +15,8 @@ Monadically fold the keys and values stored in a `Trie`.
 @[specialize]
 partial def foldM [Monad m] (initialKeys : Array Key)
     (f : σ → Array Key → α → m σ) : (init : σ) → Trie α → m σ
+  | init, Trie.chain k c =>
+    c.foldM (initialKeys.push k) f init
   | init, Trie.node vs children => do
     let s ← vs.foldlM (init := init) fun s v => f s initialKeys v
     children.foldlM (init := s) fun s (k, t) =>
@@ -32,6 +34,8 @@ Monadically fold the values stored in a `Trie`.
 -/
 @[specialize]
 partial def foldValuesM [Monad m] (f : σ → α → m σ) : (init : σ) → Trie α → m σ
+  | init, chain _ c =>
+    c.foldValuesM (init := init) f
   | init, node vs children => do
     let s ← vs.foldlM (init := init) f
     children.foldlM (init := s) fun s (_, c) => c.foldValuesM (init := s) f
@@ -47,6 +51,7 @@ def foldValues (f : σ → α → σ) (init : σ) (t : Trie α) : σ :=
 The number of values stored in a `Trie`.
 -/
 partial def size : Trie α → Nat
+  | Trie.chain _ c => size c
   | Trie.node vs children =>
     children.foldl (init := vs.size) fun n (_, c) => n + size c
 
@@ -55,13 +60,17 @@ Generate a trie node from values and an array of children.
 -/
 @[inline]
 def mkNode (vs : Array α) (cs : Array (Key × Trie α)) : Trie α :=
-  .node vs cs
+  if h : vs.isEmpty ∧ cs.size = 1 then
+    .chain cs[0].1 cs[0].2
+  else
+    .node vs cs
 
 /--
 Inspect a trie node as an array of values and an array of children.
 -/
 @[inline]
 def asNode : Trie α → Array α × Array (Key × Trie α)
+  | .chain k v => ⟨#[], #[(k, v)]⟩
   | .node vs cs => ⟨vs, cs⟩
 
 /--
@@ -70,6 +79,7 @@ Equivalent to `t.asNode.1`.
 -/
 @[inline]
 def nodeValues : Trie α → Array α
+  | .chain _ _ => #[]
   | .node vs _ => vs
 
 /--
@@ -78,6 +88,7 @@ Equivalent to `t.asNode.2`.
 -/
 @[inline]
 def nodeChildren : Trie α → Array (Key × Trie α)
+  | .chain k v => #[(k, v)]
   | .node _ cs => cs
 
 /--
@@ -88,6 +99,7 @@ invariant that no trie node has an empty child node.
 -/
 @[inline]
 def isEmptyNode : Trie α → Bool
+  | .chain _ _ => false
   | .node vs children => vs.isEmpty && children.isEmpty
 
 end Trie
@@ -161,6 +173,11 @@ Any resulting subtrees containing no values will be pruned.
 partial def Trie.mapArraysM (t : DiscrTree.Trie α) (f : Array α → m (Array β)) :
     m (DiscrTree.Trie β) :=
   match t with
+  | .chain k c => do
+    let vs ← f #[] -- Corner case. Possible future optimization: modify `mapArraysM` semantics to only call `f` for non-empty arrays and then eliminate this line
+    let c ← c.mapArraysM f
+    let cs := if c.isEmptyNode then #[] else #[(k, c)]
+    return Trie.mkNode vs cs
   | .node vs children => do
     let vs ← f vs
     let children ← children.filterMapM fun (k, child) => do
@@ -169,7 +186,7 @@ partial def Trie.mapArraysM (t : DiscrTree.Trie α) (f : Array α → m (Array �
         return none
       else
         return some (k, child)
-    return .node vs children
+    return Trie.mkNode vs children
 
 /-- Apply a monadic function to the array of values at each node in a `DiscrTree`. -/
 @[inline]

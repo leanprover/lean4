@@ -26,7 +26,7 @@ For general server architecture, see `README.md`. This module implements the wat
 Most LSP clients only send us file diffs, so to facilitate sending entire file contents to freshly
 restarted workers, the watchdog needs to maintain the current state of each file. It can also use
 this state to detect changes to the header and thus restart the corresponding worker, freeing its
-public imports.
+imports.
 
 TODO(WN):
 We may eventually want to keep track of approximately (since this isn't knowable exactly) where in

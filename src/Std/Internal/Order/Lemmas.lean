@@ -420,6 +420,22 @@ theorem le_iInf_iff {ι : Type _} {Φ : ι → l} : (P ⊑ iInf Φ) ↔ ∀ i, P
 @[deprecated le_of_le_of_meet_le (since := "2026-09-24")]
 theorem le_trans_meet (h₁ : P ⊑ Q) (h₂ : P ⊓ Q ⊑ R) : P ⊑ R := le_of_le_of_meet_le h₁ h₂
 
+@[deprecated le_pi_eq_forall +typeChanged (since := "2026-09-24")]
+theorem le_iff_forall_le_1 {σ : Type vₗ} {P Q : σ → l} :
+    P ⊑ Q ↔ ∀ s, P s ⊑ Q s := Iff.rfl
+@[deprecated le_pi_eq_forall +typeChanged (since := "2026-09-24")]
+theorem le_iff_forall_le_2 {σ₁ σ₂ : Type vₗ} {P Q : σ₁ → σ₂ → l} :
+    P ⊑ Q ↔ ∀ s₁ s₂, P s₁ s₂ ⊑ Q s₁ s₂ := Iff.rfl
+@[deprecated le_pi_eq_forall +typeChanged (since := "2026-09-24")]
+theorem le_iff_forall_le_3 {σ₁ σ₂ σ₃ : Type vₗ} {P Q : σ₁ → σ₂ → σ₃ → l} :
+    P ⊑ Q ↔ ∀ s₁ s₂ s₃, P s₁ s₂ s₃ ⊑ Q s₁ s₂ s₃ := Iff.rfl
+@[deprecated le_pi_eq_forall +typeChanged (since := "2026-09-24")]
+theorem le_iff_forall_le_4 {σ₁ σ₂ σ₃ σ₄ : Type vₗ} {P Q : σ₁ → σ₂ → σ₃ → σ₄ → l} :
+    P ⊑ Q ↔ ∀ s₁ s₂ s₃ s₄, P s₁ s₂ s₃ s₄ ⊑ Q s₁ s₂ s₃ s₄ := Iff.rfl
+@[deprecated le_pi_eq_forall +typeChanged (since := "2026-09-24")]
+theorem le_iff_forall_le_5 {σ₁ σ₂ σ₃ σ₄ σ₅ : Type vₗ} {P Q : σ₁ → σ₂ → σ₃ → σ₄ → σ₅ → l} :
+    P ⊑ Q ↔ ∀ s₁ s₂ s₃ s₄ s₅, P s₁ s₂ s₃ s₄ s₅ ⊑ Q s₁ s₂ s₃ s₄ s₅ := Iff.rfl
+
 end CompleteLatticeAlgebra
 
 end Lean.Order

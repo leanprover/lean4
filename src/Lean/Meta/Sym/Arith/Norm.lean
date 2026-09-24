@@ -513,7 +513,8 @@ private def normalizeRel? [Monad m] [MonadLiftT SymM m] [MonadLiftT MetaM m]
       | .commSemiring _ => reifySemiring? x
     let some l ← reify lhsC | return .notApplicable
     let some r ← reify rhsC | return .notApplicable
-    if l matches .var _ && r matches .var _ then return .notApplicable
+    -- No shortcut when both sides are atoms: `x ≤ x` must become `0 ≤ 0`, and a relation
+    -- between distinct atoms normalizes to itself.
     let vars := (← get).vars
     let perm := (Array.range vars.size).qsort fun i j => Expr.lt vars[i]! vars[j]!
     let (l, r, vars) :=

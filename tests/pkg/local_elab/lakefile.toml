@@ -1,0 +1,5 @@
+name = "local_elab"
+defaultTargets = ["LocalElab"]
+
+[[lean_lib]]
+name = "LocalElab"

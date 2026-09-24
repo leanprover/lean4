@@ -21,13 +21,11 @@ namespace Lean.Parser
 namespace Attr
 
 /--
-Theorems tagged with the `spec` attribute are used by the `vcgen`, `mspec` and `mvcgen` tactics.
+Marks a specification for the `vcgen` tactic.
 
-* When used on a theorem `foo_spec : Triple (foo a b c) P Q`, then `mspec` and `mvcgen` will use
-  `foo_spec` as a specification for calls to `foo`.
-* Otherwise, when used on a definition that `@[simp]` would work on, it is added to the internal
-  simp set of `mvcgen` that is used within `wp⟦·⟧` contexts to simplify match discriminants and
-  applications of constants.
+* On a theorem `foo_spec : ⦃P⦄ foo a b c ⦃Q⦄`, `vcgen` uses `foo_spec` for calls to `foo`.
+* On a definition `foo` or an equation that `@[simp]` accepts, `vcgen` rewrites calls with its
+  equations.
 -/
 syntax (name := spec) "spec" (ppSpace prio)? : attr
 

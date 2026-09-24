@@ -7,6 +7,7 @@ Author: Leonardo de Moura
 #include <cstdlib>
 #include <string>
 #include "runtime/optional.h"
+#include "runtime/simdutf.h"
 #include "runtime/utf8.h"
 
 namespace lean {

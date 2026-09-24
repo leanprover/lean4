@@ -28,20 +28,23 @@ deriving DecidableEq
 #with_exporting
 #check decide (PubEnum.b = PubEnum.b)
 
+/-! `DecidableEq` instances are exposed by default -/
+
 public inductive PubInd where
   | a (n : Nat) | b
 deriving DecidableEq
 
-/--
-info: (instDecidableEqPubInd.decEq PubInd.b PubInd.b).1
--/
+/-- info: true -/
 #guard_msgs in
 #with_exporting
 #reduce decide (PubInd.b = PubInd.b)
 
 public inductive PubExpInd where
-  | a (n : Nat) | b
-deriving @[expose] DecidableEq
+  | private a (n : Nat) | b
+deriving DecidableEq
+
+#with_exporting
+#print PubExpInd._beqHelper
 
 /-- info: true -/
 #guard_msgs in

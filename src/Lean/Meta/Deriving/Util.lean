@@ -516,7 +516,7 @@ structure InstanceInfo (α : Type) where
   mkValue : (helpers : Array Expr) → DerivingM Expr
 
 def makeInstancesUsingMutualPartialBlock (infos : Array (InstanceInfo α))
-    (preHelpers : DerivingM α := by exact pure ()) : DerivingM Unit := do
+    (preHelpers : DerivingM α := by exact pure ()) : DerivingM Unit := withoutExporting do
   let helperMVars ← infos.mapM fun info => info.helpers.mapM fun helper => do
     mkFreshExprSyntheticOpaqueMVar helper.type
   let mut instanceValues := #[]
@@ -564,15 +564,14 @@ def makeInstancesUsingMutualPartialBlock (infos : Array (InstanceInfo α))
           termination := .none
         }
         helperPredefs := helperPredefs.push (← helperInfo.postprocess instHyps predef)
-    withoutExporting do
-      addPreDefinitions ({}, {}) helperPredefs
+    addPreDefinitions ({}, {}) helperPredefs
     -- Now with all helpers available, we can create the instances
     let nameSet : NameSet := .ofArray (← read).names
     for info in infos, instName in fullInstNames, type in fullInstTypes, value in instanceValues do
       unless nameSet.contains info.induct do continue
       let value ← instantiateMVars value
       let value ← mkLambdaFVars allParams value (binderInfoForMVars := .instImplicit)
-      withExporting do
+      withExporting (isExporting := !isPrivateName instName) do
         mkInstance instName (← read).levelParams type value (← read).isMeta
 
 def deriveTransformationInstPerConstructor (className : Name)

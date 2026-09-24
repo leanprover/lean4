@@ -306,12 +306,19 @@ extern "C" LEAN_EXPORT obj_res lean_state_sharecommon(b_obj_arg tc, obj_arg s, o
   out of it.
 */
 static inline void inc_st(lean_object * o) {
+#if defined(__GNUC__) || defined(__clang__)
     int rc;
     bool overflow = __builtin_add_overflow(lean_internal_get_rc(o), 1, &rc);
     // Storing before the test lets the increment stay a single instruction on the count.
     lean_internal_set_rc(o, rc);
     if (LEAN_UNLIKELY(overflow))
         lean_internal_panic_rc_overflow();
+#else
+    int rc = lean_internal_get_rc(o);
+    if (LEAN_UNLIKELY(rc == INT_MAX))
+        lean_internal_panic_rc_overflow();
+    lean_internal_set_rc(o, rc + 1);
+#endif
 }
 
 lean_object * sharecommon_quick_fn::check_cache(lean_object * a) {

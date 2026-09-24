@@ -157,6 +157,16 @@ def getInvFn : m Expr := do
   modifyCommRing fun s => { s with invFn? := some invFn }
   return invFn
 
+def getDivFn : m Expr := do
+  let ring ← getCommRing
+  let some fieldInst := ring.fieldInst?
+    | throwError "internal error: type is not a field{indentExpr ring.type}"
+  if let some divFn := ring.divFn? then return divFn
+  let expectedInst := mkApp2 (mkConst ``instHDiv [ring.u]) ring.type <| mkApp2 (mkConst ``Grind.Field.toDiv [ring.u]) ring.type fieldInst
+  let divFn ← mkBinHomoFn ring.type ring.u ``HDiv ``HDiv.hDiv expectedInst
+  modifyCommRing fun s => { s with divFn? := some divFn }
+  return divFn
+
 end CommRingFns
 
 section SemiringFns

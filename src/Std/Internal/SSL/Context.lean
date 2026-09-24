@@ -14,9 +14,11 @@ protocol options shared by every session created from a context.
 Every context requires TLS 1.2 or later, allows only ECDHE with AES-GCM or ChaCha20-Poly1305 (and
 the matching TLS 1.3 suites), runs at OpenSSL security level 2, and disables session tickets,
 resumption, compression and renegotiation. A toolchain linking the system's OpenSSL also reads its
-configuration, which can tighten these settings but not loosen them.
+configuration, which can tighten these settings but not loosen them; a context whose configuration
+leaves no allowed suite for a TLS version it permits is refused.
 
-Encrypted certificates and keys are refused rather than prompted for.
+Encrypted certificates and keys are refused rather than prompted for. Material reached through
+`SSL_CERT_FILE` or `SSL_CERT_DIR` is the exception: OpenSSL reads it with an empty passphrase.
 -/
 
 public section

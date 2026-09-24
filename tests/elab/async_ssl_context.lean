@@ -143,7 +143,7 @@ def assertErrorMessageOneOf (label : String) (expected : List String) (act : IO 
 def missingFileError (path : String) : String :=
   s!"no such file or directory (error code: 2)\n  file: {path}"
 
--- Failures with no `errno` behind them are reported as `EINVAL`.
+-- `EINVAL`: failures with no `errno` behind them, and `errno` `EINVAL` itself.
 def malformedFileError (path detail : String) : String :=
   s!"invalid argument (error code: 22, {detail})\n  file: {path}"
 
@@ -511,13 +511,13 @@ def testAcceptsWeakCertAsCA (f : Fixtures) : IO Unit := do
   let _clientCtx2 ← Context.Client.mk { ca := some (.file f.weak) }
 
 def testMkServerRejectsEmptyPaths (f : Fixtures) : IO Unit := do
-  -- `stat("")` is `ENOENT` on POSIX and `EINVAL` on the Windows CRT.
+  -- Opening `""` fails with `ENOENT` on POSIX and `EINVAL` on the Windows CRT.
   assertErrorMessageOneOf "empty server cert path"
-    [ missingFileError "", malformedFileError "" "could not read a PEM certificate chain" ]
+    [ missingFileError "", malformedFileError "" "invalid argument" ]
     (discard <| Context.Server.mk { cert := .file "", key := .file f.key })
 
   assertErrorMessageOneOf "empty server key path"
-    [ missingFileError "", malformedFileError "" "could not read an unencrypted PEM private key" ]
+    [ missingFileError "", malformedFileError "" "invalid argument" ]
     (discard <| Context.Server.mk { cert := .file f.cert, key := .file "" })
 
 -- POSIX `fopen` succeeds on a directory, so a non-regular file is noted after the fact, appended to

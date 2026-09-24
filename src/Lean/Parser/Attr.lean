@@ -37,9 +37,10 @@ end Priority
 namespace Attr
 
 @[builtin_attr_parser] def simple     := leading_parser ident >> optional (ppSpace >> (priorityParser <|> ident))
-/- Remark, We can't use `simple` for `class`, `instance`, `export`, and `macro` because they are keywords. -/
+/- Remark, We can't use `simple` for `class`, `instance`, `export`, `macro`, and `attribute` because they are keywords. -/
 @[builtin_attr_parser] def «macro»    := leading_parser "macro " >> ident
 @[builtin_attr_parser] def «export»   := leading_parser "export " >> ident
+@[builtin_attr_parser] def «attribute» := leading_parser "attribute"
 
 /- We don't use `simple` for recursor because the argument is not a priority -/
 @[builtin_attr_parser] def recursor         := leading_parser nonReservedSymbol "recursor " >> numLit

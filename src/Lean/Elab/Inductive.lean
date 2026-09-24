@@ -170,7 +170,7 @@ private def reorderCtorArgs (ctorType : Expr) : MetaM Expr := do
         break
       unless localDecl.userName.hasMacroScopes do
         break
-      if (← localDeclDependsOnPred localDecl fun fvarId => as.any fun p => p.fvarId! == fvarId) then
+      if (← findLocalDeclDependsOn localDecl fun fvarId => as.any fun p => p.fvarId! == fvarId) then
         break
       bsPrefix := bsPrefix.push b
       as := as.erase b

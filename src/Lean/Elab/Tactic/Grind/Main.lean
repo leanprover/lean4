@@ -54,8 +54,8 @@ where
     if rhsExpr.hasSyntheticSorry then
       throwErrorAt rhs "invalid constraint, rhs contains a synthetic `sorry`"
     let rhsExpr := rhsExpr.eta
-    let { paramNames := levelNames, mvars, expr := rhs } ← abstractMVars rhsExpr
-    let numMVars := mvars.size
+    let { paramNames := levelNames, expr := rhs, exprArgs, .. } ← abstractMVars rhsExpr
+    let numMVars := exprArgs.size
     let rhs := rhs.abstract xs
     return { levelNames, numMVars, expr := rhs }
 

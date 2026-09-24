@@ -734,7 +734,7 @@ where
      ```
     -/
     let setMVarsAt (e : Expr) : StateRefT (Array MVarId) MetaM Unit := do
-      let mvarIds ← setMVarUserNamesAt (← erasePatternRefAnnotations e) patternVars
+      let mvarIds ← setMVarUserNamesAt (← erasePatternRefAnnotations e) patternVars.contains
       modify (· ++ mvarIds)
     let go : StateRefT (Array MVarId) MetaM Expr := do
       try

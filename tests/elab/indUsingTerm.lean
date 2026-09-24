@@ -79,9 +79,9 @@ example (n : Nat) : n = n := by
   case case1 n => rfl
 
 example (n : Nat) : n = n := by
-  -- This renames the cases with unhelpful names
+  -- It's able to infer helpful names for the placeholders.
   induction n using elim_with_param _ _ true
-  case x_1 n => rfl
+  case case1 n => rfl
 
 example (n : Nat) : n = n := by
   -- We can put in custom names

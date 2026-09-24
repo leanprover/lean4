@@ -79,6 +79,10 @@ theorem Name.appendCore_eq_anonymous_iff {n n' : Name} :
     n.appendCore n' = anonymous ↔ n = anonymous ∧ n' = anonymous := by
   fun_induction appendCore with simp_all
 
+theorem Name.appendCore_eq_right_iff {n n' : Name} :
+    n.appendCore n' = n' ↔ n = anonymous := by
+  fun_induction appendCore with simp_all
+
 theorem isSome_privatePrefix? (n : Name) :
     (privatePrefix? n).isSome = isPrivateName n := by
   fun_induction privatePrefix? with simp_all [isPrivateName, isPrivatePrefix]
@@ -91,6 +95,19 @@ theorem appendCore_privatePrefix?_privateToUserName {n : Name} (h : isPrivateNam
     ((privatePrefix? n).get (by rwa [isSome_privatePrefix?])).appendCore (privateToUserName n) = n := by
   rw [privateToUserName, dite_eq_left h]
   fun_induction privateToUserNameAux with simp_all [privatePrefix?]
+
+theorem isPrivateName_iff_privateToUserName_ne_self {n : Name} :
+    isPrivateName n ↔ privateToUserName n ≠ n := by
+  constructor
+  · intro h h'
+    have := appendCore_privatePrefix?_privateToUserName h
+    rw [h', Name.appendCore_eq_right_iff] at this
+    replace := isPrivatePrefix_of_privatePrefix?_eq_some
+      (this ▸ Option.some_get (isSome_privatePrefix? _ ▸ h)).symm
+    simp [isPrivatePrefix] at this
+  · intro h
+    rw [privateToUserName] at h
+    split at h <;> simp_all
 
 theorem isPrivateName_appendCore_right {n n' : Name} (h : isPrivateName n) :
     isPrivateName (n.appendCore n') := by

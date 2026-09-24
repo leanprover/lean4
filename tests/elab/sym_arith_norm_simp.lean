@@ -55,8 +55,14 @@ example (p : Prop) [Decidable p] (a b : Int) : (if p then a else b) + 0 = if p t
 example : (2 + 3 : Int) * 4 = 20 := by
   sym => simp arithSimp
 
--- Characteristic.
-example (u v : UInt8) : 256 * u + v = v := by
+-- Characteristic, in terms and in relations.
+example (u v : UInt8) : (256 * u + v) * 1 = v := by
+  sym => simp arithSimp
+
+example (u v : UInt8) : 255 * u + v = v - u := by
+  sym => simp arithSimp
+
+example (u v : UInt8) : 254 * u + v = v - 2*u := by
   sym => simp arithSimp
 
 -- Idempotence: a normal form is final, so a second `simp` makes no progress.

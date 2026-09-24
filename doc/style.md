@@ -647,7 +647,7 @@ software developers and mathematicians.
 ##### Examples
 
 
-```
+```lean
 /--
 Equality is symmetric: if `a = b` then `b = a`.
 -/
@@ -664,7 +664,7 @@ theorem Nat.ble_eq_true_of_le (h : LE.le n m) : Eq (Nat.ble n m) true :=
 ```
 
 
-```
+```lean
 /--
 Propositional Extensionality.
 
@@ -726,7 +726,7 @@ visible in situations where the definition is not (e.g. hovers).
 ##### Examples
 
 
-```
+```lean
 /--
 The conjunction of two propositions. `And a b` is typically written `a ∧ b`.
 -/
@@ -930,7 +930,7 @@ described for theorems.
 ##### Examples
 
 
-```
+```lean
 /--
 A linked list with elements of type `α`.
 
@@ -963,7 +963,7 @@ fields, in addition to names bound in the signature.
 ##### Examples
 
 
-```
+```lean
 /--
 All the elements of some base type that satisfy a predicate.
 
@@ -1031,7 +1031,7 @@ overloads and that it uses accessible language.
 ##### Examples
 
 
-```
+```lean
 /--
 Addition of two terms that don't necessarily have the same type. Instances are used to assign
 meaning to the `+` operator.
@@ -1063,7 +1063,7 @@ it.
 ##### Examples
 
 
-```
+```lean
 /-- JSON literals -/
 declare_syntax_cat json (behavior := symbol)
 ```
@@ -1081,7 +1081,7 @@ command for term notation.
 ##### Examples
 
 
-```
+```lean
 /-- JSON array -/
 syntax "[" json,* "]" : json
 /--

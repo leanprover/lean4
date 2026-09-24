@@ -51,7 +51,9 @@ def bitblast (aig : AIG BVBit) (input : BVExpr.WithCache BVPred aig) : Return ai
         apply AIG.LawfulOperator.le_size_of_le_aig_size (f := mkUlt)
         dsimp only at hlhs hrhs
         omega
-      ⟨⟨res, this⟩, cache⟩
+      ⟨⟨res, this⟩, by
+        simp only
+        exact cache⟩
   | .getLsbD expr idx =>
     /-
     Note: This blasts the entire expression up to `w` despite only needing it up to `idx`.

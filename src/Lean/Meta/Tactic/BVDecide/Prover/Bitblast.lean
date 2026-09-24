@@ -9,6 +9,8 @@ prelude
 public import Lean.Meta.Tactic.BVDecide.Prover.Basic
 public import Lean.Meta.Tactic.BVDecide.TacticContext
 import Lean.Meta.Native
+import Lean.Meta.Tactic.Apply
+import Lean.Meta.Tactic.Cbv
 
 
 /-!
@@ -26,36 +28,55 @@ Turn an `LratCert` into a proof that some `reflectedExpr` is UNSAT.
 def LratCert.toReflectionProof (cert : LratCert) (ctx : TacticContext)
     (reflectionResult : ReflectionResult) : MetaM Expr := do
   withTraceNode `Meta.Tactic.sat (fun _ => return "Compiling expr term") do
-    mkAuxDecl ctx.exprDef reflectionResult.expr (mkConst ``BVLogicalExpr)
+    mkAuxDecl ctx.exprDef reflectionResult.expr (mkConst ``BVLogicalExpr) ctx
 
   withTraceNode `Meta.Tactic.sat (fun _ => return "Compiling proof certificate term") do
-    mkAuxDecl ctx.certDef (toExpr cert) (mkConst ``String)
+    mkAuxDecl ctx.certDef (toExpr cert) (mkConst ``String) ctx
 
   let reflectedExpr := mkConst ctx.exprDef
   let certExpr := mkConst ctx.certDef
   let reflectionTerm := mkApp2 (mkConst ``verifyBVExpr) reflectedExpr certExpr
 
   withTraceNode `Meta.Tactic.sat (fun _ => return "Compiling and evaluating reflection proof term") do
-    match (← nativeEqTrue `bv_decide reflectionTerm (axiomDeclRange? := (← getRef))) with
-    | .notTrue =>
-      throwError m!"Tactic `bv_decide` failed: The LRAT certificate could not be verified; \
-        evaluating the following term returned `false`:{indentExpr reflectionTerm}"
-    | .success auxProof =>
-      return mkApp3 (mkConst ``unsat_of_verifyBVExpr_eq_true) reflectedExpr certExpr auxProof
+    mkReflectionProof reflectedExpr certExpr reflectionTerm ctx
 where
+  mkReflectionProof (reflectedExpr certExpr reflectionTerm : Expr) (ctx : TacticContext) :
+      MetaM Expr := do
+    if ctx.config.native then
+      match (← nativeEqTrue `bv_decide reflectionTerm (axiomDeclRange? := (← getRef))) with
+      | .notTrue =>
+        throwError m!"Tactic `bv_decide` failed: The LRAT certificate could not be verified; \
+          evaluating the following term returned `false`:{indentExpr reflectionTerm}"
+      | .success auxProof =>
+        return mkApp3 (mkConst ``unsat_of_verifyBVExpr_eq_true) reflectedExpr certExpr auxProof
+    else
+      let target ← mkEq reflectionTerm (mkConst ``Bool.true)
+      let mvar ← mkFreshExprMVar (some target)
+      let [mvar'] ← mvar.mvarId!.applyConst ``of_decide_eq_true
+        | throwError "Could not apply `of_decide_eq_true`"
+      match (← Meta.Tactic.Cbv.cbvGoal mvar') with
+      | .none =>
+        let auxProof ← instantiateMVars mvar
+        return mkApp3 (mkConst ``unsat_of_verifyBVExpr_eq_true) reflectedExpr certExpr auxProof
+      | .some remaining =>
+        throwError "Could not evaluate expression to a value: {remaining}"
   /--
   Add an auxiliary declaration. Only used to create constants that appear in our reflection proof.
   -/
-  mkAuxDecl (name : Name) (value type : Expr) : CoreM Unit :=
-    withOptions (fun opt => opt.set `compiler.extract_closed false) do
-      addAndCompile <| .defnDecl {
-        name := name,
-        levelParams := [],
-        type := type,
-        value := value,
-        hints := .abbrev,
-        safety := .safe
-      }
+  mkAuxDecl (name : Name) (value type : Expr) (ctx : TacticContext) : CoreM Unit :=
+    let decl := .defnDecl {
+      name := name,
+      levelParams := [],
+      type := type,
+      value := value,
+      hints := .abbrev,
+      safety := .safe
+    }
+    if ctx.config.native then
+      withOptions (fun opt => opt.set `compiler.extract_closed false) do
+        addAndCompile decl
+    else
+      addDecl decl
 
 /--
 Run a SAT solver to obtain an LRAT certificate and use it to produce a proof of UNSAT.

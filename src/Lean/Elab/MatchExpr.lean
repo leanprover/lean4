@@ -176,9 +176,9 @@ partial def generate (discr : Term) (alts : List Alt) (elseAlt : ElseAlt) : Macr
       let discr' ← `(__discr)
       let body ← loop discr' altsNext
       if saveActual then
-        `(if h : ($discr).isApp then let a := Expr.appArg $discr h; let __discr := Expr.appFnCleanup $discr h; $body else $kElse ())
+        `(if h : (($discr).isAppInline) then let a := Expr.appArgInline $discr h; let __discr := Expr.appFnCleanupInline $discr h; $body else $kElse ())
       else
-        `(if h : ($discr).isApp then let __discr := Expr.appFnCleanup $discr h; $body else $kElse ())
+        `(if h : (($discr).isAppInline) then let __discr := Expr.appFnCleanupInline $discr h; $body else $kElse ())
     let mut result := body
     for funName in funNamesToMatch do
       if let some alt := getAltFor? alts funName then

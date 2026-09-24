@@ -391,7 +391,7 @@ instance : Std.LawfulIdentity (α := HProp) sepConj emp where
   right_id := sepConj_emp
 
 attribute [local grind ←] PartialOrder.rel_of_eq
-attribute [local grind ←] le_ofProp
+attribute [local grind ←] CompleteLattice.le_ofProp
 
 /-! ## Pure facts and existentials via the lattice
 
@@ -410,7 +410,8 @@ theorem sepPure_apply (φ : Prop) (h : Heap) : sepPure φ h ↔ φ ∧ emp h := 
     · assumption
     · exact False.elim <| (bot_le (x := (fun _ => False : HProp))) h hφ
   · intro ⟨hφ, he⟩
-    exact (le_meet (emp : HProp) ⌜φ⌝ emp (le_ofProp emp φ hφ) PartialOrder.rel_refl) h he
+    exact (le_meet (emp : HProp) ⌜φ⌝ emp (CompleteLattice.le_ofProp emp φ hφ)
+      PartialOrder.rel_refl) h he
 
 theorem sepPure_sepConj_iff (P : Prop) (Q : HProp) (h : Heap) :
     (sepPure P ∗ Q) h ↔ P ∧ Q h := by
@@ -464,7 +465,7 @@ theorem ofProp_meet_apply (φ : Prop) (P : HProp) (h : Heap) : (⌜φ⌝ ⊓ P) 
     · assumption
     · exact False.elim <| (bot_le (x := (fun _ => False : HProp))) h hφ
   · intro ⟨hφ, hP⟩
-    exact (le_meet P ⌜φ⌝ P (le_ofProp P φ hφ) PartialOrder.rel_refl) h hP
+    exact (le_meet P ⌜φ⌝ P (CompleteLattice.le_ofProp P φ hφ) PartialOrder.rel_refl) h hP
 
 /-- `∗` preserves joins in its right argument, in `⨆` form. -/
 theorem sepConj_iSup {ι : Type} (F : HProp) (g : ι → HProp) :
@@ -478,7 +479,7 @@ theorem sepConj_iSup {ι : Type} (F : HProp) (g : ι → HProp) :
 
 /-- Assert a pure fact alongside a resource that is kept. -/
 @[grind ←] theorem le_ofProp_meet_self {φ : Prop} (X : HProp) (h : φ) : X ⊑ ⌜φ⌝ ⊓ X :=
-  le_meet _ _ _ (le_ofProp _ _ h) PartialOrder.rel_refl
+  le_meet _ _ _ (CompleteLattice.le_ofProp _ _ h) PartialOrder.rel_refl
 
 /-! ## The magic wand as upper adjoint -/
 
@@ -724,7 +725,7 @@ theorem IsList_ne_le (xs : List Nat) (prev hd : Addr) (hhd : hd ≠ null) :
     exact (hhd ((sepPure_apply _ _).mp hh).1).elim
   | v :: vs =>
     rw [IsList_cons_eq]
-    refine ofProp_meet_le_left fun _ => iSup_le _ _ fun next => ?_
+    refine CompleteLattice.ofProp_meet_le fun _ => iSup_le _ _ fun next => ?_
     refine le_iSup_of_le v (le_iSup_of_le vs (le_iSup_of_le next (PartialOrder.rel_of_eq ?_)))
     rw [show (v :: vs = v :: vs) = True from propext ⟨fun _ => trivial, fun _ => rfl⟩,
       sepPure_true_eq_emp, emp_sepConj]
@@ -1003,7 +1004,7 @@ def sepConjFrameProc : FrameInferenceProc := fun i => do
 /-- One `alloc` takes the front cell of the pool and bumps the pointer. -/
 @[spec] theorem alloc_spec (k : Addr) :
     ⦃ Pool k ⦄ alloc ⦃ fun l => ⌜l = k ∧ l ≠ null⌝ ⊓ (l ↦ 0 ∗ Pool (k + 1)) ⦄ := by
-  refine ⟨PartialOrder.rel_trans (Pool_gt k) (ofProp_meet_le_left fun hk => ?_)⟩
+  refine ⟨PartialOrder.rel_trans (Pool_gt k) (CompleteLattice.ofProp_meet_le fun hk => ?_)⟩
   have hkn : k ≠ null := ne_null_of_allocPtr_lt hk
   rw [Pool, Unallocated_eq]
   refine Triple.le_wp ?_
@@ -1063,7 +1064,7 @@ theorem load_next_IsList_ne (xs : List Nat) (prev hd : Addr) (hhd : hd ≠ null)
   vcgen [load_spec] with (try finish)
   refine PartialOrder.rel_trans ?_
     (le_iSup_of_le v (le_iSup_of_le vs
-      (le_meet _ _ _ (le_ofProp _ _ rfl) PartialOrder.rel_refl)))
+      (le_meet _ _ _ (CompleteLattice.le_ofProp _ _ rfl) PartialOrder.rel_refl)))
   grind
 
 /-- Overwrite the prev field of a list head known to be non-null. -/
@@ -1086,7 +1087,7 @@ noncomputable abbrev ReverseLoopInv (xs : List Nat) (n : Nat) (b : Addr × Addr)
     (hle : xs.length ≤ n) :
     IsList xs null head ⊑ ReverseLoopInv xs n (null, head) := by
   refine le_iSup_of_le xs (le_iSup_of_le [] ?_)
-  refine le_meet _ _ _ (le_ofProp _ _ ⟨hle, by simp⟩) ?_
+  refine le_meet _ _ _ (CompleteLattice.le_ofProp _ _ ⟨hle, by simp⟩) ?_
   show IsList xs null head ⊑ IsList xs null head ∗ IsList [] head null
   exact PartialOrder.rel_of_eq (by rw [IsList_nil_null, sepConj_emp])
 
@@ -1104,7 +1105,7 @@ noncomputable abbrev ReverseLoopInv (xs : List Nat) (n : Nat) (b : Addr × Addr)
   · grind
   refine PartialOrder.rel_trans (reverse_store_handoff_le v vs acc curr next prev hcn) ?_
   refine le_iSup_of_le vs (le_iSup_of_le (v :: acc) ?_)
-  refine le_meet _ _ _ (le_ofProp _ _ ⟨by grind, by grind⟩) PartialOrder.rel_refl
+  refine le_meet _ _ _ (CompleteLattice.le_ofProp _ _ ⟨by grind, by grind⟩) PartialOrder.rel_refl
 
 /-- Break out of the reverse loop: `curr = null` forces the unvisited segment empty, so the
 invariant holds at any remaining budget. -/
@@ -1117,7 +1118,7 @@ invariant holds at any remaining budget. -/
   refine sepPure_sepConj_le_of _ _ _ fun hrest => ?_
   subst hrest
   refine le_iSup_of_le [] (le_iSup_of_le acc ?_)
-  refine le_meet _ _ _ (le_ofProp _ _ ⟨by simp, by simpa using hrev⟩) ?_
+  refine le_meet _ _ _ (CompleteLattice.le_ofProp _ _ ⟨by simp, by simpa using hrev⟩) ?_
   show IsList acc null prev ⊑ IsList [] prev null ∗ IsList acc null prev
   exact PartialOrder.rel_of_eq (by rw [IsList_nil_null, emp_sepConj])
 
@@ -1173,7 +1174,7 @@ identity. -/
       x ↦ u₀ ∗ (x + 1) ↦ xprev ∗ (x + 2) ↦ v ∗ IsList rest x u₀ ∗ IsList ys yprev y)) ?_
   · grind
   refine le_iSup_of_le v (le_iSup_of_le rest (le_iSup_of_le xprev ?_))
-  refine le_meet _ _ _ (le_ofProp _ _ ⟨by grind, hx⟩) ?_
+  refine le_meet _ _ _ (CompleteLattice.le_ofProp _ _ ⟨by grind, hx⟩) ?_
   refine PartialOrder.rel_trans
     (le_sepConj_wand_refl _ (IsList (v :: rest ++ ys) xprev x)) ?_
   subst hxs
@@ -1199,7 +1200,7 @@ re-establish the loop invariant on the rest. -/
         IsList ys yprev y)) ?_
   · grind
   refine le_iSup_of_le w (le_iSup_of_le rest' (le_iSup_of_le t ?_))
-  refine le_meet _ _ _ (le_ofProp _ _ ⟨by grind, hu⟩) ?_
+  refine le_meet _ _ _ (CompleteLattice.le_ofProp _ _ ⟨by grind, hu⟩) ?_
   have habs : IsList ((w :: rest') ++ ys) t u ∗ (t ↦ u ∗ (t + 1) ↦ pt ∗ (t + 2) ↦ v)
       ⊑ IsList (v :: (w :: rest') ++ ys) pt t := by
     refine PartialOrder.rel_trans (PartialOrder.rel_of_eq ?_)
@@ -1229,7 +1230,7 @@ holds at the exhausted budget. -/
   refine sepPure_sepConj_le_of _ _ _ fun hrest => ?_
   subst hrest
   refine le_iSup_of_le v (le_iSup_of_le [] (le_iSup_of_le pt ?_))
-  refine le_meet _ _ _ (le_ofProp _ _ ⟨by simp, ht⟩) ?_
+  refine le_meet _ _ _ (CompleteLattice.le_ofProp _ _ ⟨by simp, ht⟩) ?_
   refine PartialOrder.rel_of_eq ?_
   rw [IsList_nil_null]
   grind

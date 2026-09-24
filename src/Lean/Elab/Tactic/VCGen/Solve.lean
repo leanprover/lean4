@@ -157,7 +157,7 @@ private def liftedHyp? (scope : Scope) (goal : MVarId) (α pre rhs : Expr) :
   goal.withContext do
     unless α.isProp do return none
     let some hyp ← liftedPreFor? scope rhs | return none
-    goal.assign (← mkAppM ``Lean.Order.le_of_right #[pre, rhs, hyp.toExpr])
+    goal.assign (← mkAppM ``Lean.Order.le_prop_of_right #[pre, rhs, hyp.toExpr])
     return some []
 
 /-- Close a bare `Prop` residual, such as the subgoal of the `⌜φ⌝` lattice rule, against the

@@ -11,6 +11,7 @@ prelude
 import all Init.Prelude -- for unfolding `Name.beq`
 public import Init.Data.Array.Basic
 public import Init.MetaTypes
+public import Init.Data.Char.Xid
 import Init.Data.Array.GetLit
 import Init.Data.Char.Basic
 meta import Init.MetaTypes
@@ -118,7 +119,7 @@ def isSubScriptAlnum (c : Char) : Bool :=
   c.val == 0x2c7c
 
 @[inline] def isIdFirst (c : Char) : Bool :=
-  c.isAlpha || c = '_' || isLetterLike c
+  c.isAlpha || c = '_' || c.isXID_Start
 
 @[inline] private def isAlphaAscii (c : UInt8) : Bool :=
   'a'.toUInt8 ≤ c && c ≤ 'z'.toUInt8
@@ -131,7 +132,8 @@ def isSubScriptAlnum (c : Char) : Bool :=
   isAlphaAscii c || '0'.toUInt8 ≤ c && c ≤ '9'.toUInt8
 
 @[inline] def isIdRest (c : Char) : Bool :=
-  c.isAlphanum || c = '_' || c = '\'' || c == '!' || c == '?' || isLetterLike c || isSubScriptAlnum c
+  c.isAlphanum || c = '_' || c = '\'' || c == '!' || c == '?' || isNumericSubscript c ||
+  c.isXID_Continue
 
 @[inline] def isIdRestAscii (c : UInt8) : Bool :=
   isAlphanumAscii c || c = '_'.toUInt8 || c = '\''.toUInt8 || c == '!'.toUInt8 || c == '?'.toUInt8

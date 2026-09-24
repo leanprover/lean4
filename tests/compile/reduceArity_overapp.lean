@@ -14,7 +14,7 @@ def curry (f : uncurried ins out) : curried ins out :=
   match ins with
   | [] => f ()
   | [_] => f
-  | (_ :: _ :: _) => λx => curry (λxs => f (x, xs))
+  | (_ :: _ :: _) => λ x => curry (λ xs => f (x, xs))
 
 def main : IO Unit := do
   let val : String := curry (ins := [Int, String]) Prod.snd 1 "a"

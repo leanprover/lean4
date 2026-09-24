@@ -971,7 +971,13 @@ def withSubst (goal : Expr) (a b : Expr) (a_eq_b : Expr) (k : Expr → MetaM Exp
   let fwdDeps := (← collectForwardDeps #[b] (preserveOrder := true)).drop 1
   let motive ← mkLambdaFVars #[b] (← mkForallFVars fwdDeps goal)
   let reflCase ← forallBoundedTelescope (motive.betaRev #[a]) fwdDeps.size fun vars goal => do
-    mkLambdaFVars vars <| ← k goal
+    let mut lctx ← getLCtx
+    for x in fwdDeps do
+      lctx := lctx.erase x.fvarId!
+    let linsts ← getLocalInstances
+    let linsts := linsts.eraseAll (fwdDeps.contains <| .fvar ·)
+    withLCtx lctx linsts do
+      mkLambdaFVars vars <| ← k goal
   return mkAppN (mkApp6 (.const ``Eq.ndrec [0, u]) ty a motive reflCase b a_eq_b) fwdDeps
 
 /--

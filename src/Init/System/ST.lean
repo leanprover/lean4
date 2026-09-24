@@ -12,15 +12,37 @@ import Init.Classical
 
 public section
 
-opaque Void.nonemptyType (σ : Type) : NonemptyType.{0}
+structure VoidSpec (σ : Type) (α : Type) where
+  private mk' ::
+    mk : σ → α
+    get : α → σ
+    get_mk {x} : get (mk x) = x
 
-@[expose] def Void (σ : Type) : Type := Void.nonemptyType σ |>.type
+opaque Void.nonemptyType (σ : Type) : Subtype (Nonempty <| VoidSpec σ ·) := ⟨σ, ⟨{
+  mk := id
+  get := id
+  get_mk := rfl
+}⟩⟩
 
-instance Void.instNonempty : Nonempty (Void σ) :=
-  by exact (Void.nonemptyType σ).property
+@[expose] def Void (σ : Type) : Type := Void.nonemptyType σ |>.val
+
+namespace Void
+
+private noncomputable def spec (σ : Type) :=
+  Classical.choice (nonemptyType σ).property
+
+instance instNonempty [Nonempty σ] : Nonempty (Void σ) :=
+  by exact .intro <| (spec σ).mk Classical.ofNonempty
 
 @[extern "lean_void_mk", never_extract]
-opaque Void.mk (x : σ) : Void σ
+def mk (x : σ) : Void σ := (spec σ).mk x
+
+noncomputable def get (x : Void σ) : σ := (spec σ).get x
+
+@[simp, grind =] theorem get_mk {x : σ} : get (mk x) = x :=
+  (spec σ).get_mk
+
+end Void
 
 structure ST.Out (σ : Type) (α : Type) where
   val : α

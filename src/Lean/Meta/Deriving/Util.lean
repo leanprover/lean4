@@ -152,6 +152,28 @@ register_builtin_option deriving.strict : Bool := {
   descr := "if true, reject complex instance hypotheses in deriving handlers"
 }
 
+/--
+If true, in cases where a deriving handler would usually expect there to be exactly one matching
+instance, choose the last one with the highest priority (the one that would be tried first by
+instance synthesis).
+
+This currently happens in two scenarios: First, when `deriving.reduceInstances` is enabled,
+instances are usually only applied when they are the only suitable one. For example, when a
+deriving handler requires a `BEq (Option α)` hypothesis, it would usually be split into `BEq α`.
+But if there were two instances for `BEq (Option α)`, it would fail unless this option is enabled.
+
+Second, when deriving a law type class (e.g. `ReflBEq` for `BEq`), the deriving handler checks that
+there is only one instance of the original type class unless this option is enabled.
+
+Note: This option only works for deriving handlers that support it, i.e. deriving handlers that use
+the `Lean.Meta.Deriving` framework.
+-/
+register_builtin_option deriving.chooseArbitraryInstance : Bool := {
+  defValue := false
+  descr := "if true, choose an arbitrary instance when only one would usually be expected \
+    in deriving handlers"
+}
+
 private def isIgnoredConstant (nm : Name) (env : Environment) : Bool :=
   nm == ``Eq || (env.getProjectionFnInfo? nm).any (·.fromClass)
 
@@ -192,13 +214,24 @@ inductive CanonicalInstanceFailure where
   | hasMVars (instEntry : InstanceEntry) (e : Expr) (isArg : Bool)
 deriving Inhabited
 
+def CanonicalInstanceFailure.isNoMatch : CanonicalInstanceFailure → Bool
+  | .nonUnique matching _ => matching.isEmpty
+  | _ => false
+
+def CanonicalInstanceFailure.isMultiMatch : CanonicalInstanceFailure → Bool
+  | .nonUnique _ filtered => filtered.size > 1
+  | _ => false
+
 def CanonicalInstanceFailure.toMessageData : CanonicalInstanceFailure → MessageData
   | .nonUnique matching filtered =>
     if matching.isEmpty then
       "No matching instances"
     else if filtered.isEmpty then
-      m!"The instance(s) {.andList (matching.map (·.val)).toList} matched but none of them \
-        had the right shape to be considered"
+      if let #[single] := filtered then
+        m!"The instance {single.val} matched but did not have the right shape to be considered"
+      else
+        m!"The instances {.andList (matching.map (·.val)).toList} matched but none of them \
+          had the right shape to be considered"
     else
       m!"There were multiple instance candidates: {.andList (filtered.map (·.val)).toList}"
   | .unifyFailed instEntry => m!"Failed to unify conclusion of {instEntry.val}"
@@ -206,6 +239,20 @@ def CanonicalInstanceFailure.toMessageData : CanonicalInstanceFailure → Messag
     m!"After unifying with the conclusion of {instEntry.val}, \
       the {if isArg then "argument" else "instance application"}{indentExpr e}\n\
       still contained unexpected {if e.hasLevelMVar then "level " else ""}metavariables"
+
+def chooseInstance (possible : Array InstanceEntry) : CoreM (Option InstanceEntry) := do
+  if possible.isEmpty then
+    return none
+  if let #[single] := possible then
+    return single
+  unless deriving.chooseArbitraryInstance.get (← getOptions) do
+    return none
+  let mut best := possible[0]!
+  for h : i in 1...possible.size do
+    let inst := possible[i]
+    if best.priority ≤ inst.priority then
+      best := inst
+  return best
 
 /--
 Given an instance type `instType`, try to apply a canonical instance, producing new instance
@@ -230,7 +277,7 @@ def tryApplyCanonicalInstance (instType : Expr) :
     let matching ← instances.getUnify body
     let env ← getEnv
     let filtered := matching.filter fun inst => goodKeys inst.keys env && inst.globalName?.isSome
-    let #[instEntry] := filtered | return .error (.nonUnique matching filtered)
+    let some instEntry ← chooseInstance filtered | return .error (.nonUnique matching filtered)
     let some name := instEntry.globalName? | unreachable!
     let c ← mkConstWithFreshMVarLevels name
     let (args, bis, instBody) ← forallMetaTelescopeReducing (← inferType c)
@@ -466,11 +513,18 @@ private def checkInstanceHypotheses (instanceHyps : Array MVarId) : DerivingM Un
       were encountered that could not be synthesized:"
     for (type, reason?) in complexHyps do
       if let some reason := reason? then
-        msg := msg ++ indentD (type ++ ", reason: " ++ reason.toMessageData)
+        msg := msg ++ indentD (type ++ ", reason:" ++ indentD reason.toMessageData)
       else
         msg := msg ++ indentD type
-    msg := msg ++ .note m!"This usually indicates a missing instance that can be derived using \
-      `deriving instance ClassName for TypeName`. If this is however intentional, you can disable \
+    if complexHyps.any (·.2.any (·.isNoMatch)) then
+      msg := msg ++ .hint' m!"You may be able to derive the missing instance using the syntax \
+        `deriving instance ClassName for TypeName`."
+    if complexHyps.any (·.2.any (·.isMultiMatch)) then
+      msg := msg ++ .hint' m!"Multiple instance candidates usually indicates that one of the \
+        mentioned instances is redundant. If this is intentional though, you can make the \
+        deriving handler choose an instance using \
+        `set_option deriving.chooseArbitraryInstance true`."
+    msg := msg ++ .hint' "If you want to keep these hypotheses as-is, you can disable \
       this error using `set_option deriving.strict false`"
     throwError msg
 
@@ -739,7 +793,7 @@ def deriveSimpleLawTypeClass (typeClass derivedFrom : Name)
         it is a law type class for `{.ofConstName derivedFrom}` \
         but there is no `{.ofConstName derivedFrom}` instance for `{.ofConstName name}`.\
         {hint}"
-    let #[instEntry] := instanceEntries |
+    let some instEntry ← chooseInstance instanceEntries |
       throwError "There are multiple `{.ofConstName derivedFrom}` instances for \
         `{.ofConstName name}`, namely: {.andList (instanceEntries.map (·.val)).toList}"
     let some instName := instEntry.globalName? |

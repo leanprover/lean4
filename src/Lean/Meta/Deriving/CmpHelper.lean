@@ -19,10 +19,34 @@ namespace Lean.Meta.CmpHelper
 
 register_builtin_option backward.deriving.comparisons.old : Bool := {
   defValue := false
+  descr :=
+    "Use the old deriving handler for comparison type classes \
+    (i.e. `BEq`, `Ord` and `DecidableEq`).\n\n\
+    While the new deriving handler generally supports more options, it does not yet handle some \
+    cases that were supported before, in particular certain inductives with complex indices.\n\n\
+    This is a backwards compatibility option, intended to help migrating to new Lean releases. \
+    It may be removed without further notice 6 months after their introduction. \
+    Please report an issue if you rely on this option."
 }
 
 register_builtin_option deriving.comparisons.linear_construction_threshold : Nat := {
   defValue := 5
+  descr :=
+    "If the inductive data type has this many or more constructors, use a different \
+    implementation for deriving comparison type classes (that is, `BEq`, `Ord` and `DecidableEq`)
+    that avoids the  quadratic code size produced by the default implementation.\n\n\
+    The alternative construction compiles to less efficient code in some cases, so by default \
+    it is only used for inductive types with 5 or more constructors.\n\n\
+    Note: Changing this setting to a value below 2 may cause the deriving handler to fail"
+}
+
+register_builtin_option deriving.comparisons.noEquations : Bool := {
+  defValue := false
+  descr :=
+    "The new deriving handlers for comparison type classes eagerly creates equations for the \
+    operations. This is necessary for `DecidableEq` to work properly but may be turned off for \
+    performance reasons if necessary for `BEq` and `Ord`. In the future, this option may become \
+    unnecessary due to speedups in equation generation."
 }
 
 inductive Kind where
@@ -502,7 +526,7 @@ def makeCmpHelpersFromEquations (kind : Kind) (levelParams : List Name) (lparams
   let mut predefs : Array Elab.PreDefinition := #[]
   for (indName, ctorCases) in cases do
     let helperName := kind.mkHelperName indName (← getEnv)
-    if ctorCases.size ≤ deriving.comparisons.linear_construction_threshold.get (← getOptions) then
+    if ctorCases.size < deriving.comparisons.linear_construction_threshold.get (← getOptions) then
       let predef ← makeCmpHelperDoubleMatch kind helperName levelParams lparams params moreVars indName ctorCases isUnsafe
       predefs := predefs.push predef
     else
@@ -516,6 +540,7 @@ def makeCmpHelpersFromEquations (kind : Kind) (levelParams : List Name) (lparams
       Elab.Term.TermElabM.run' <| Elab.addPreDefinitions ({}, {}) predefs
   withoutExporting do
   if isUnsafe then return
+  if deriving.comparisons.noEquations.get (← getOptions) then return
   for (indName, cases) in cases do
     let helperName := kind.mkHelperName indName (← getEnv)
     let info ← getConstInfoInduct indName

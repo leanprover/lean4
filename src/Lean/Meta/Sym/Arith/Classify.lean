@@ -226,29 +226,34 @@ private def tryOrder? (type : Expr) : SymM (Option Nat) := do
     pure (none, none)
   -- The ring link is used by `grind order` for offsets and by the `Sym.Arith` normalizer for
   -- relations; both need `<`.
-  let (ringId?, semiringId?, ringInst?, orderedRingInst?, isCommRing) ← if lawfulOrderLTInst?.isNone then
-    pure (none, none, none, none, false)
+  let (ringId?, semiringId?, isCommSemiring, ringInst?, orderedRingInst?, isCommRing) ← if lawfulOrderLTInst?.isNone then
+    pure (none, none, true, none, none, false)
   else match (← classify? type) with
     | .commRing ringId =>
       let ring := (← getArithState).rings[ringId]!
       let some ordRingInst ← mkOrderedRingInst? u type ring.semiringInst leInst ltInst?.get! isPreorderInst
-        | pure (none, none, none, none, true)
-      pure (some ringId, none, some ring.ringInst, some ordRingInst, true)
+        | pure (none, none, true, none, none, true)
+      pure (some ringId, none, true, some ring.ringInst, some ordRingInst, true)
     | .nonCommRing ringId =>
       let ring := (← getArithState).ncRings[ringId]!
       let some ordRingInst ← mkOrderedRingInst? u type ring.semiringInst leInst ltInst?.get! isPreorderInst
-        | pure (none, none, none, none, false)
-      pure (some ringId, none, some ring.ringInst, some ordRingInst, false)
+        | pure (none, none, true, none, none, false)
+      pure (some ringId, none, true, some ring.ringInst, some ordRingInst, false)
     | .commSemiring semiringId =>
       let sr := (← getArithState).semirings[semiringId]!
       let some ordRingInst ← mkOrderedRingInst? u type sr.semiringInst leInst ltInst?.get! isPreorderInst
-        | pure (none, none, none, none, false)
-      pure (none, some semiringId, none, some ordRingInst, false)
-    | _ => pure (none, none, none, none, false)
+        | pure (none, none, true, none, none, false)
+      pure (none, some semiringId, true, none, some ordRingInst, false)
+    | .nonCommSemiring semiringId =>
+      let sr := (← getArithState).ncSemirings[semiringId]!
+      let some ordRingInst ← mkOrderedRingInst? u type sr.semiringInst leInst ltInst?.get! isPreorderInst
+        | pure (none, none, true, none, none, false)
+      pure (none, some semiringId, false, none, some ordRingInst, false)
+    | .none => pure (none, none, true, none, none, false)
   let id := (← getArithState).orders.size
   let order : Order := {
     id, type, u, leInst, isPreorderInst, ltInst?, leFn, isPartialInst?, ringInst?, orderedRingInst?
-    isLinearPreInst?, ltFn?, lawfulOrderLTInst?, ringId?, semiringId?, isCommRing
+    isLinearPreInst?, ltFn?, lawfulOrderLTInst?, ringId?, semiringId?, isCommSemiring, isCommRing
   }
   modifyArithState fun s => { s with orders := s.orders.push order }
   return some id

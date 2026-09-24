@@ -31,6 +31,8 @@ structure PolyConfig where
   char?     : Option Nat := none
   /-- When `true`, mirrors `Expr.toPolyS` (semiring: nonnegative coefficients, no subtraction). -/
   semiring  : Bool := false
+  /-- When `false`, mirrors the non-commutative functions (`toPoly_nc`, `toPolyC_nc`, `toPolyS_nc`). -/
+  commutative : Bool := true
   /-- Maximum number of monomials of any intermediate polynomial. -/
   maxTerms? : Option Nat := none
   /-- Maximum degree of any intermediate polynomial. -/
@@ -70,7 +72,12 @@ def mulConst (k : Int) (p : Poly) : PolyM Poly := do
   if let some c := (← read).char? then return .mulConstC k p c else return .mulConst k p
 
 def mulMon (k : Int) (m : Mon) (p : Poly) : PolyM Poly := do
-  if let some c := (← read).char? then return .mulMonC k m p c else return .mulMon k m p
+  let cfg ← read
+  match cfg.commutative, cfg.char? with
+  | true,  none   => return .mulMon k m p
+  | true,  some c => return .mulMonC k m p c
+  | false, none   => return .mulMon_nc k m p
+  | false, some c => return .mulMonC_nc k m p c
 
 private partial def combineCore (p₁ p₂ : Poly) : PolyM Poly := withIncRecDepth do
   match p₁, p₂ with
@@ -94,7 +101,7 @@ def combine (p₁ p₂ : Poly) : PolyM Poly := do
   checkBudget p
   return p
 
-/-- Mirror of `Poly.mul` (`Poly.mulC`). -/
+/-- Mirror of `Poly.mul` (`Poly.mulC`, `Poly.mul_nc`, `Poly.mulC_nc`); `mulMon` selects the variant. -/
 def mul (p₁ : Poly) (p₂ : Poly) : PolyM Poly :=
   go p₁ (.num 0)
 where
@@ -105,13 +112,23 @@ where
       checkSystem "sym arith poly"
       go p₁ (← combine acc (← mulMon k m p₂))
 
-/-- Mirror of `Poly.pow` (`Poly.powC`). -/
-def pow (p : Poly) (k : Nat) : PolyM Poly := withIncRecDepth do
+/-- Mirror of `Poly.pow` (`Poly.powC`): `p * pow p k`. -/
+private def powComm (p : Poly) (k : Nat) : PolyM Poly := withIncRecDepth do
   match k with
   | 0 => return .num 1
   | 1 => return p
   | 2 => mul p p
-  | k+3 => mul p (← pow p (k+2))
+  | k+3 => mul p (← powComm p (k+2))
+
+/-- Mirror of `Poly.pow_nc` (`Poly.powC_nc`): `pow_nc p k * p`. -/
+private def powNC (p : Poly) (k : Nat) : PolyM Poly := withIncRecDepth do
+  match k with
+  | 0 => return .num 1
+  | 1 => return p
+  | k+2 => mul (← powNC p (k+1)) p
+
+def pow (p : Poly) (k : Nat) : PolyM Poly := do
+  if (← read).commutative then powComm p k else powNC p k
 
 private def checkExp' (k : Nat) : PolyM Unit :=
   fun _ => checkExp k
@@ -123,7 +140,7 @@ private def mkPowVar (x : Var) (k : Nat) : PolyM Poly := do
       failure
   return .ofMon (.mult {x, k} .unit)
 
-/-- Mirror of `Expr.toPoly` and `Expr.toPolyC`. -/
+/-- Mirror of `Expr.toPoly`, `Expr.toPolyC`, `Expr.toPoly_nc`, `Expr.toPolyC_nc`. -/
 private partial def toPolyRing (e : RingExpr) : PolyM Poly := do
   match e with
   | .intCast n | .natCast n
@@ -143,7 +160,7 @@ private partial def toPolyRing (e : RingExpr) : PolyM Poly := do
     | .var x => mkPowVar x k
     | _ => pow (← toPolyRing a) k
 
-/-- Mirror of `Expr.toPolyS`. -/
+/-- Mirror of `Expr.toPolyS` and `Expr.toPolyS_nc`. -/
 private partial def toPolySemiring (e : SemiringExpr) : PolyM Poly := do
   match e with
   | .num n   => return .num n.natAbs
@@ -165,8 +182,8 @@ private partial def toPolySemiring (e : SemiringExpr) : PolyM Poly := do
 end SafePoly
 
 /--
-Converts `e` into a polynomial, mirroring `Expr.toPoly`, `Expr.toPolyC c`, or `Expr.toPolyS`
-depending on the configuration. Returns `none` if the computation exceeds the budget or the
+Converts `e` into a polynomial, mirroring `Expr.toPoly`, `Expr.toPolyC c`, `Expr.toPolyS`, or
+their non-commutative variants, depending on the configuration. Returns `none` if the computation exceeds the budget or the
 exponent threshold.
 -/
 def toPoly? (e : RingExpr) : PolyM Poly := do

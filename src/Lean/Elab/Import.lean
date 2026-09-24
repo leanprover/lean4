@@ -9,6 +9,7 @@ prelude
 public import Lean.Parser.Module
 meta import Lean.Parser.Module
 import Lean.Compiler.ModPkgExt
+import Lean.Compiler.Options
 public import Lean.DeprecatedModule
 import Init.Data.String.Modify
 
@@ -154,10 +155,15 @@ def processHeaderCore
       .exported
   else
     .private
+  -- A file that runs native codegen in-process (set by the `lean` driver for `--c`/`--bc`/`--run`)
+  -- does its own codegen instead of postponing it to `leanir`, so it needs the imported LCNF
+  -- signatures/bodies that live in `.ir` under separate codegen. This includes non-module legacy
+  -- executables (e.g. `leanc`/`leanchecker`), so it is not gated on `isModule`.
+  let loadCodegenIR := Compiler.compiler.loadImportedIR.get opts
   let (env, messages) ← try
     let env ←
       importModules (leakEnv := leakEnv) (loadExts := true) (level := level)
-        imports opts trustLevel plugins arts
+        (loadCodegenIR := loadCodegenIR) imports opts trustLevel plugins arts
     pure (env, messages)
   catch e =>
     let env ← mkEmptyEnvironment

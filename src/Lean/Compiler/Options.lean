@@ -30,6 +30,14 @@ register_builtin_option compiler.checkMeta : Bool := {
     intended only for debugging purposes."
 }
 
+register_builtin_option compiler.eagerToDecl : Bool := {
+  defValue := false
+  descr := "Run the LCNF conversion (`toDecl`/`checkMeta`) eagerly even when compilation is \
+    postponed to `leanir`, so that compilation-type errors such as noncomputability surface at \
+    elaboration time. Set (by raw name) by `Lean.compileDecls` when the caller interprets \
+    compilation failures instead of reporting them."
+}
+
 register_builtin_option compiler.relaxedMetaCheck : Bool := {
   defValue := false
   descr := "Allow mixed `meta`/non-`meta` references in the same module. References to imports are unaffected."
@@ -42,13 +50,19 @@ register_builtin_option compiler.ignoreBorrowAnnotation : Bool := {
 }
 
 register_builtin_option compiler.postponeCompile : Bool := {
-  defValue := false
+  defValue := true
   descr := "Internal. Toggle experimental `leanir` separate compilation."
 }
 
 register_builtin_option compiler.inLeanIR : Bool := {
   defValue := false
   descr := "Internal. Indicates whether the compiler is currently running in `leanir`."
+}
+
+register_builtin_option compiler.loadImportedIR : Bool := {
+  defValue := false
+  descr := "Internal. Load imported modules' IR at import time so in-process native codegen \
+    (e.g. `--c`/`--bc`) can resolve imported declarations. Set automatically by the `lean` driver."
 }
 
 end Lean.Compiler

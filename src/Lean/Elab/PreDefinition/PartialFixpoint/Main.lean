@@ -188,7 +188,8 @@ def partialFixpoint (docCtx : LocalContext × LocalInstances) (preDefs : Array P
         pure (goal, ← instantiateMVars hmono)
     let (_, hmono) ← PProdN.genMk mkMonoPProd hmonos
 
-    let packedValue ← mkFixOfMonFun packedType packedInst hmono
+    -- The `RecAppSyntax` markers are only needed for the monotonicity error messages above
+    let packedValue ← eraseRecAppSyntaxExpr (← mkFixOfMonFun packedType packedInst hmono)
 
     trace[Elab.definition.partialFixpoint] "packedValue: {packedValue}"
 

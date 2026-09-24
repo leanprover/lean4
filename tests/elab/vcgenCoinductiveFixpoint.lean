@@ -1,5 +1,4 @@
 import Std.WP
-import Std.Tactic.Do
 
 /-!
 # `coinductive_fixpoint` beside a `vcgen` proof

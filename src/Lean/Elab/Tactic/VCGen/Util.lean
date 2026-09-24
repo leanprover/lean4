@@ -27,10 +27,10 @@ namespace Lean.Elab.Tactic.VCGen
 
 /-- Completes the class application `@cls x₁ … xₙ` to an instance. The array `xs` works as in
 `mkAppOptM`: `some x` fixes an argument and `none` leaves it to instance search. The result holds
-all arguments of `cls` in order, followed by the instance. Example: for `cls := ToEStack` and
-`xs := #[some E]`, the result is `#[E, T, instE, instT, inst]`. -/
+all arguments of `cls` in order and the instance. Example: for `cls := ToEStack` and
+`xs := #[some E]`, the result is `(#[E, T, instE, instT], inst)`. -/
 public def synthInstanceOpt? (cls : Name) (xs : Array (Option Expr)) :
-    MetaM (Option (Array Expr)) :=
+    MetaM (Option (Array Expr × Expr)) :=
   withNewMCtxDepth do
     let c ← mkConstWithFreshMVarLevels cls
     let (args, _, _) ← forallMetaTelescopeReducing (← inferType c)
@@ -40,9 +40,10 @@ public def synthInstanceOpt? (cls : Name) (xs : Array (Option Expr)) :
       if let some x := x? then
         unless ← isDefEq arg x do return none
     let some inst ← synthInstance? (mkAppN c args) | return none
-    let res ← (args.push inst).mapM instantiateMVars
-    if res.any (·.hasExprMVar) then return none
-    return res
+    let args ← args.mapM instantiateMVars
+    let inst ← instantiateMVars inst
+    if inst.hasExprMVar || args.any (·.hasExprMVar) then return none
+    return some (args, inst)
 
 /-- Change `goal`'s `Prop`-typed target to the definitionally-equal `targetNew`, assigning `goal` a
 fresh synthetic-opaque goal for `targetNew`, so the kernel checks the two types against each other.

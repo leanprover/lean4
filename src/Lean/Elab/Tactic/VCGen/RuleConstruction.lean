@@ -48,8 +48,11 @@ private def mkPostPointwisePremise (postSpec postTarget postTy : Expr) (ssTypes 
 Return any other term unchanged. -/
 private def reduceProjOfCtor (e : Expr) : MetaM Expr := do
   let .const fn _ := e.getAppFn | return e
-  let some _ ← getProjectionFnInfo? fn | return e
-  if ← isConstructorApp e.appArg!.consumeMData then whnf e else return e
+  let some info ← getProjectionFnInfo? fn | return e
+  let args := e.getAppArgs
+  let some s := args[info.numParams]? | return e
+  let some f ← projectCore? s.consumeMData info.i | return e
+  return mkAppN f (args.extract (info.numParams + 1)) |>.headBeta
 
 /-- Recursively decompose `epostsSpec ⊑ epostsAbstract` into per-component proofs.
     - `(head, tail)` → mvar for `head ⊑ epostsAbstract.fst`, recurse on `tail`
@@ -109,7 +112,8 @@ private partial def decomposeProdRel (EPosts epostsSpec epostsAbstract : Expr)
         let hTy ← mkPostPointwisePremise epostsSpec epostsAbstract EPostsR ssTypes stateArgNames
         let h ← mkFreshExprMVar (userName := `epostsImpl) hTy
         mkExpectedTypeHint h (← mkAppM ``PartialOrder.rel #[epostsSpec, epostsAbstract])
-      else if let some args ← synthInstanceOpt? ``ToEStack #[some EPosts] then
+      else if let some (args, inst) ← synthInstanceOpt? ``ToEStack #[some EPosts] then
+        let args := args.push inst
         let toEStack ← mkAppOptM ``ToEStack.toEStack (args.map some)
         -- `unfoldProjInst?` turns the image of a spec literal into a stack literal.
         let stackSpec := mkApp toEStack epostsSpec

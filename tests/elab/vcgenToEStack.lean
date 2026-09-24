@@ -95,6 +95,26 @@ example : ⦃True⦄ boom ⦃fun _ => True; { onThrow e := e = "boom" ∨ e = "c
 example : ⦃Q "boom"⦄ boom' ⦃fun _ => True; { onThrow := Q }⦄ := by
   vcgen
 
+def isBoom (e : String) : Prop := e = "boom"
+
+def boom'' : Prog Unit := .throw "boom"
+
+@[spec] theorem boom''_spec {post : Unit → Prop} :
+    ⦃True⦄ boom'' ⦃post; { onThrow := isBoom }⦄ := ⟨fun _ => rfl⟩
+
+-- A named assertion stays folded in the verification condition.
+/--
+trace: case vc1
+a✝¹ : String
+a✝ : isBoom a✝¹
+⊢ isBoom a✝¹ ∨ a✝¹ = "crash"
+-/
+#guard_msgs in
+example : ⦃True⦄ boom'' ⦃fun _ => True; { onThrow e := isBoom e ∨ e = "crash" }⦄ := by
+  vcgen
+  trace_state
+  grind
+
 /-! ## `throws` clauses on `Thrown` -/
 
 instance : EPostSlot Thrown String Prop where

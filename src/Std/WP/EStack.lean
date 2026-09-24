@@ -86,7 +86,7 @@ theorem EStackEnd.bot_eq [CCPO EStackEnd] : (⊥ : EStackEnd) = estack⟨⟩ := 
 open Lean.Order in
 /-- `toEStack` exposes the exception postconditions `E` as a stack. Example: `Thrown` with the field
 `onThrow : String → Prop` has `toEStack t = estack⟨t.onThrow⟩`, and `vcgen` weakens `onThrow`. -/
-class ToEStack.{u} (E : Type u) (T : outParam (Type u)) [Assertion E] [Assertion T] where
+class ToEStack (E : Type u) (T : outParam (Type u)) [Assertion E] [Assertion T] where
   /-- The stack that `E` converts to. -/
   toEStack : E → T
   /-- An entailment between the stacks is an entailment between the originals. -/

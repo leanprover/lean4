@@ -34,7 +34,7 @@ inductive PEM where
   /--
   Read the PEM from the file at `path`.
   -/
-  | file (path : String)
+  | file (path : System.FilePath)
 
   /--
   Take `contents` as the PEM bytes themselves.
@@ -116,10 +116,10 @@ structure Config where
 
   * macOS: a chain that neither `ca` nor the environment's anchors establish goes to the system's
     trust evaluation during the handshake. It applies the Keychain's current trust settings and
-    Apple's TLS requirements, such as Certificate Transparency, CA distrust dates, and at most 825
-    days of validity even under a locally trusted root. OpenSSL then checks the chain it settles on
-    again, so hostname rules match other platforms. Missing intermediates are never fetched, so the
-    server has to send its whole chain.
+    Apple's TLS requirements, such as Certificate Transparency, CA distrust dates, pinned Apple
+    hosts, and at most 825 days of validity even under a locally trusted root. OpenSSL then checks
+    the chain it settles on again, so hostname rules are at least as strict as on other platforms.
+    Missing intermediates are never fetched: the server, `ca` or the environment has to supply them.
   * Windows: the `ROOT` certificate store, which needs OpenSSL 3.2 or later. The `Disallowed` store
     and per-certificate properties are not consulted.
   * Elsewhere: the usual system bundle locations.
@@ -127,10 +127,10 @@ structure Config where
   A toolchain linking the system's OpenSSL also reads that library's compiled-in certificate paths
   (on Windows only when the `ROOT` store is unavailable); a standalone toolchain never does.
 
-  `SSL_CERT_FILE` and `SSL_CERT_DIR` are read for every context and add to the platform anchors,
-  except in a set-user-ID or set-group-ID process. On macOS a chain that they or `ca` establish is
-  accepted without the system evaluation. A variable naming an unreadable file is only reported when
-  no other anchor was found.
+  `SSL_CERT_FILE` and `SSL_CERT_DIR` are read for every verifying context and add to the platform
+  anchors, except in a set-user-ID or set-group-ID process. On macOS a chain that they or `ca`
+  establish is accepted without the system evaluation. A variable naming an unreadable file is only
+  reported when no other anchor was found.
 
   Lean performs no revocation checking of its own.
   -/

@@ -102,8 +102,7 @@ theorem isPrivateName_iff_privateToUserName_ne_self {n : Name} :
   · intro h h'
     have := appendCore_privatePrefix?_privateToUserName h
     rw [h', Name.appendCore_eq_right_iff] at this
-    replace := isPrivatePrefix_of_privatePrefix?_eq_some
-      (this ▸ Option.some_get (isSome_privatePrefix? _ ▸ h)).symm
+    replace := isPrivatePrefix_of_privatePrefix?_eq_some (this ▸ Option.some_get _).symm
     simp [isPrivatePrefix] at this
   · intro h
     rw [privateToUserName] at h
@@ -139,46 +138,31 @@ theorem isPrivateName_mkPrivateNameCore {modNm n : Name} (h : modNm.hasNum = fal
   left
   exact isPrivatePrefix_appendCore h
 
+theorem isPrivateName_iff_exists_isPrivatePrefix {n : Name} :
+    isPrivateName n ↔ ∃ pfx nm, isPrivatePrefix pfx ∧ n = pfx.appendCore nm := by
+  constructor
+  · intro h
+    rw [← appendCore_privatePrefix?_privateToUserName h]
+    refine ⟨_, _, ?_, rfl⟩
+    apply isPrivatePrefix_of_privatePrefix?_eq_some
+    rw [eq_comm, Option.some_get]
+  · rintro ⟨pfx, nm, h, rfl⟩
+    apply isPrivateName_appendCore_right
+    revert h
+    fun_cases isPrivatePrefix <;> simp +contextual [isPrivateName, isPrivatePrefix]
+
 theorem isPrivateName_iff_exists_mkPrivateNameCore {n : Name} :
     isPrivateName n ↔ ∃ modNm nm, modNm.hasNum = false ∧ n = mkPrivateNameCore modNm nm := by
   constructor
-  · unfold mkPrivateNameCore
-    induction n with
-    | anonymous => simp [isPrivateName]
-    | str _ s ih =>
-      intro h
-      rw [isPrivateName] at h
-      obtain ⟨modNm, nm, h₁, rfl⟩ := ih h
-      exists modNm, nm.str s
-    | num p i ih =>
-      rcases i with _ | i
-      · simp only [isPrivateName, isPrivatePrefix, Bool.or_eq_true]
-        rintro (h | h)
-        · obtain ⟨modNm, hmodNm, rfl⟩ := isPrivatePrefix_go_implies_exists h
-          exists modNm, .anonymous
-        · obtain ⟨modNm, nm, h₁, rfl⟩ := ih h
-          exists modNm, nm.num 0
-      · simp only [isPrivateName, isPrivatePrefix, Bool.false_or]
-        intro h
-        obtain ⟨modNm, nm, h₁, rfl⟩ := ih h
-        exists modNm, nm.num (i + 1)
-  · rintro ⟨modNm, nm, h, rfl⟩
-    exact isPrivateName_mkPrivateNameCore h
-
-theorem isPrivateName_iff_exists_isPrivatePrefix {n : Name} :
-    isPrivateName n ↔ ∃ pfx nm, isPrivatePrefix pfx ∧ n = pfx.appendCore nm := by
-  rw [isPrivateName_iff_exists_mkPrivateNameCore]
-  unfold mkPrivateNameCore
-  constructor
-  · rintro ⟨modNm, nm, h, rfl⟩
-    exists privateHeader.appendCore modNm |>.num 0, nm
-    simp [isPrivatePrefix_appendCore h]
-  · rintro ⟨pfx, nm, h, rfl⟩
-    revert h
+  · rw [isPrivateName_iff_exists_isPrivatePrefix]
+    unfold mkPrivateNameCore
+    rintro ⟨pfx, nm, h, rfl⟩; revert h
     fun_cases isPrivatePrefix
     · intro h
-      obtain ⟨modNm, h', rfl⟩ := isPrivatePrefix_go_implies_exists h
-      exists modNm, nm, h'
+      obtain ⟨modNm, hmod, rfl⟩ := isPrivatePrefix_go_implies_exists h
+      exists modNm, nm
     · simp
+  · rintro ⟨modNm, nm, h, rfl⟩
+    exact isPrivateName_mkPrivateNameCore h
 
 end Lean

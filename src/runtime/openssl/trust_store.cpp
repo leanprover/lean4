@@ -10,6 +10,7 @@ Author: Sofia Rodrigues
 
 #include <openssl/crypto.h>
 #include <openssl/err.h>
+#include <openssl/pem.h>
 #include <openssl/x509.h>
 #include <openssl/x509_vfy.h>
 #include <openssl/x509v3.h>
@@ -75,7 +76,25 @@ static bool load_env_anchors(X509_STORE * store, std::string * detail) {
 
 #if !defined(__APPLE__)
 
-// Whether a hash directory holds a certificate. A dangling symlink does not count.
+// Whether `path` is a regular file holding a certificate as a hash directory lookup reads it: PEM,
+// under an empty passphrase.
+static bool hashed_file_has_cert(std::string const & path) {
+    struct stat st;
+    if (stat(path.c_str(), &st) != 0 || !S_ISREG(st.st_mode)) return false;
+
+    BIO * bio = BIO_new_file(path.c_str(), "rb");
+    if (bio == nullptr) return false;
+
+    X509 * cert = PEM_read_bio_X509_AUX(bio, nullptr, nullptr, const_cast<char *>(""));
+    bool found = cert != nullptr;
+
+    X509_free(cert);
+    BIO_free(bio);
+    return found;
+}
+
+// Whether a hash directory holds a certificate. A dangling symlink, or a file that is unreadable or
+// holds no certificate, does not count.
 static bool dir_has_hashed_certs(char const * path) {
     DIR * dir = opendir(path);
     if (dir == nullptr) return false;
@@ -92,8 +111,7 @@ static bool dir_has_hashed_certs(char const * path) {
         size_t digits = ++i;
         while (isdigit((unsigned char)name[i])) i++;
 
-        struct stat st;
-        if (i > digits && name[i] == '\0' && stat((std::string(path) + "/" + name).c_str(), &st) == 0 && S_ISREG(st.st_mode)) {
+        if (i > digits && name[i] == '\0' && hashed_file_has_cert(std::string(path) + "/" + name)) {
             found = true;
             break;
         }
@@ -451,8 +469,11 @@ bool use_system_trust_store(SSL_CTX * ctx, std::string * detail) {
     char const * none = "the Windows ROOT store is unavailable (it needs OpenSSL 3.2 or later) and no CA "
                         "file was configured";
 #else
-    char const * none = "no trust anchors: none of the usual system bundles could be read "
-                        "(set SSL_CERT_FILE or SSL_CERT_DIR)";
+    char const * none = OPENSSL_issetugid()
+        ? "no trust anchors: none of the usual system bundles could be read (SSL_CERT_FILE and "
+          "SSL_CERT_DIR are ignored in a set-user-ID or set-group-ID process)"
+        : "no trust anchors: none of the usual system bundles could be read "
+          "(set SSL_CERT_FILE or SSL_CERT_DIR)";
 #endif
     *detail = env_ok ? none : env_detail;
 

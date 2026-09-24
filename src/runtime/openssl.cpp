@@ -10,6 +10,7 @@ Author: Sofia Rodrigues
 #include <openssl/opensslv.h>
 #include <openssl/err.h>
 #include <openssl/ssl.h>
+#include "runtime/thread.h"
 
 namespace lean {
 
@@ -25,6 +26,16 @@ bool ensure_openssl_initialized() {
 #endif
 
     static const bool ok = OPENSSL_init_ssl(OPENSSL_INIT_NO_ATEXIT | config, nullptr) == 1;
+
+#ifdef LEAN_WINDOWS
+    // A statically linked libcrypto has no `DllMain` to free a thread's OpenSSL state when it exits.
+    LEAN_THREAD_VALUE(bool, g_thread_stop_registered, false);
+
+    if (ok && !g_thread_stop_registered) {
+        g_thread_stop_registered = true;
+        register_thread_finalizer([](void *) { OPENSSL_thread_stop(); }, nullptr);
+    }
+#endif
 
     return ok;
 }

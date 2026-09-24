@@ -34,10 +34,18 @@ static int reject_encrypted_pem(char *, int, int, void *) { return -1; }
 
 // Opens `src` for reading. On failure returns nullptr and stores an IO error in `*err`.
 static BIO * open_pem_bio(pem_source src, char const * unreadable, lean_obj_res * err) {
+    // The Windows CRT hands an empty name to its invalid-parameter handler, whose default ends the
+    // process; MinGW executables install one that returns instead.
+    if (src.is_file && src.size() == 0) {
+        *err = lean_io_result_mk_error(decode_io_error(ENOENT, src.obj));
+        return nullptr;
+    }
+
     if (src.is_file) {
         // Captured here: it tells an unopenable file apart from one holding no PEM.
         errno = 0;
-        BIO * bio = BIO_new_file(src.data(), "r");
+        // Binary, as OpenSSL's own loaders read: the Windows CRT's text mode ends the file at a Ctrl-Z.
+        BIO * bio = BIO_new_file(src.data(), "rb");
         if (bio == nullptr) *err = mk_ssl_file_error(src.obj, unreadable, errno);
         return bio;
     }

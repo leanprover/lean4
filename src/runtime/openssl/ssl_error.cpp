@@ -13,6 +13,7 @@ Author: Sofia Rodrigues
 #include <cstring>
 #include <string>
 #include <sys/stat.h>
+#include <uv.h>
 
 #endif
 
@@ -59,9 +60,13 @@ lean_obj_res mk_ssl_invalid_argument(char const * msg) {
 lean_obj_res mk_ssl_file_error(b_obj_arg file, char const * msg, int errnum) {
     ERR_clear_error();
 
-    struct stat st;
+    // libuv takes the path as UTF-8 on Windows as well, where `stat` reads it in the ANSI code page.
+    uv_fs_t req;
+    bool irregular = uv_fs_stat(nullptr, &req, lean_string_cstr(file), nullptr) == 0 &&
+                     !S_ISREG(req.statbuf.st_mode);
+    uv_fs_req_cleanup(&req);
 
-    if (stat(lean_string_cstr(file), &st) == 0 && !S_ISREG(st.st_mode)) {
+    if (irregular) {
         lean_inc(file);
         return lean_io_result_mk_error(lean_mk_io_error_invalid_argument_file(
             file, EINVAL, mk_string(std::string(msg) + " (the path is not a regular file)")));

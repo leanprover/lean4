@@ -457,6 +457,13 @@ def testMkFromPEMSkipsNonCertificates : IO Unit := do
   let _clientCtx3 ← Context.Client.mk { ca := some (.text (testCRLPEM ++ testCertPEM)) }
   let _clientCtx4 ← Context.Client.mk { ca := some (.text (testCertPEM ++ testCRLPEM)) }
 
+-- A file is read as bytes, like `PEM.text`: a Ctrl-Z, end of file to the Windows CRT's text mode,
+-- hides nothing behind it.
+def testMkReadsCAFilePastCtrlZ (f : Fixtures) : IO Unit := do
+  let path := (System.FilePath.mk f.cert).withFileName "ctrlz.pem"
+  IO.FS.writeFile path ("\x1a\n" ++ testCertPEM)
+  let _clientCtx ← Context.Client.mk { ca := some (.file path), trustSystemRoots := false }
+
 /-!
 A NUL in `PEM.text` does not truncate the input but is junk to the PEM parser; where it sits
 decides the outcome.
@@ -510,15 +517,16 @@ def testAcceptsWeakCertAsCA (f : Fixtures) : IO Unit := do
   let _clientCtx ← Context.Client.mk { ca := some (.text testWeakCertPEM) }
   let _clientCtx2 ← Context.Client.mk { ca := some (.file f.weak) }
 
+-- Never handed to the C library, whose Windows build may end the process over it.
 def testMkServerRejectsEmptyPaths (f : Fixtures) : IO Unit := do
-  -- Opening `""` fails with `ENOENT` on POSIX and `EINVAL` on the Windows CRT.
-  assertErrorMessageOneOf "empty server cert path"
-    [ missingFileError "", malformedFileError "" "invalid argument" ]
+  assertErrorMessage "empty server cert path" (missingFileError "")
     (discard <| Context.Server.mk { cert := .file "", key := .file f.key })
 
-  assertErrorMessageOneOf "empty server key path"
-    [ missingFileError "", malformedFileError "" "invalid argument" ]
+  assertErrorMessage "empty server key path" (missingFileError "")
     (discard <| Context.Server.mk { cert := .file f.cert, key := .file "" })
+
+  assertErrorMessage "empty CA path" (missingFileError "")
+    (discard <| Context.Client.mk { ca := some (.file "") })
 
 -- POSIX `fopen` succeeds on a directory, so a non-regular file is noted after the fact, appended to
 -- the failure OpenSSL reported.
@@ -595,13 +603,21 @@ def testCertEnvVarsNeverBreakDefaultContext (f : Fixtures) : IO Unit := do
       (discard <| Context.Client.mk
         { ca := some (.text testIntermediateCertPEM), trustSystemRoots := false })
 
+  -- Named like a hash directory entry, but holding no certificate.
+  let junkHashDir := System.FilePath.mk f.dir / "junkhash"
+  IO.FS.createDir junkHashDir
+  IO.FS.writeFile (junkHashDir / "deadbeef.0") "this is not pem\n"
+
   if !(← hasSystemRoots) then
+    withEnv "SSL_CERT_DIR" junkHashDir.toString do
+      if ← hasSystemRoots then
+        throw <| IO.userError "a hash directory holding no certificate counted as a trust anchor"
     return
 
   for value in ["", "/nonexistent/ca.pem", f.junk, f.cert] do
     withEnv "SSL_CERT_FILE" value (discard <| Context.Client.mk {})
 
-  for value in ["", "/nonexistent/certs", f.dir] do
+  for value in ["", "/nonexistent/certs", f.dir, junkHashDir.toString] do
     withEnv "SSL_CERT_DIR" value (discard <| Context.Client.mk {})
 
 #eval withFixtures fun f => do
@@ -647,6 +663,7 @@ def testCertEnvVarsNeverBreakDefaultContext (f : Fixtures) : IO Unit := do
   testMkRejectsCertlessCAFile f
   testMkFromPEMRejectsCertlessPEM
   testMkFromPEMSkipsNonCertificates
+  testMkReadsCAFilePastCtrlZ f
 
 -- Server credentials that do not load.
 #eval withFixtures fun f => do

@@ -9,7 +9,6 @@ prelude
 public import Lean.Meta.Sym.Apply
 public import Std.Internal.Order.Heyting
 import Std.Internal.Order.FrameClosure
-import Std.Internal.Order.Automation
 import Lean.Meta.Sym.Simp.Rewrite
 import Lean.Meta.AppBuilder
 import Lean.Meta.AbstractMVars

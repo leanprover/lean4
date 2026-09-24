@@ -122,6 +122,10 @@ def eraseNamedArg (namedArgs : List NamedArg) (binderName : Name) : List NamedAr
 private def hasOptAutoParams (type : Expr) : MetaM Bool := do
   forallTelescopeReducing type fun xs _ =>
     xs.anyM fun x => do
+      -- Fallbacks on implicit binders must not force eta-expansion: the parameter is inserted
+      -- automatically anyway, and pinning it to its fallback would defeat unification.
+      unless (← x.fvarId!.getBinderInfo).isExplicit do
+        return false
       let xType ← inferType x
       return xType.isOptParam || xType.isAutoParam
 
@@ -726,6 +730,27 @@ where
     else
       return false
 
+/--
+Builds the `by ..` block for the `autoParam` tactic `tactic` of parameter `argName`.
+-/
+private def mkAutoParamTacticBlock (argName : Name) (tactic : Expr) : M Syntax := do
+  let .const tacticDecl _ := tactic
+    | throwError "Internal error when elaborating function application: autoParam `{argName}` is not a constant"
+  match evalSyntaxConstant (← getEnv) (← getOptions) tacticDecl with
+  | .error err => throwError err
+  | .ok tacticSyntax =>
+    let tacticBlock ← `(by $(⟨tacticSyntax⟩))
+    /-
+    We insert position information from the current ref into `stx` everywhere, simulating this being
+    a tactic script inserted by the user, which ensures error messages and logging will always be attributed
+    to this application rather than sometimes being placed at position (1,0) in the file.
+    Placing position information on `by` syntax alone is not sufficient since incrementality
+    (in particular, `Lean.Elab.Term.withReuseContext`) controls the ref to avoid leakage of outside data.
+    Note that `tacticSyntax` contains no position information itself, since it is erased by `Lean.Elab.Term.quoteAutoTactic`.
+    -/
+    let info := (← getRef).getHeadInfo.nonCanonicalSynthetic
+    return tacticBlock.raw.rewriteBottomUp (·.setInfo info)
+
 mutual
   /--
   Create a fresh local variable with the current binder name and argument type, add it to `etaArgs` and `f`,
@@ -756,6 +781,21 @@ mutual
     else
       mkFreshExprMVar argType
     modify fun s => { s with toSetErrorCtx := s.toSetErrorCtx.push arg.mvarId! }
+    /-
+    An `optParam`/`autoParam` on an implicit binder is only a fallback: `arg` is a regular
+    metavariable that unification may assign, and the default value or tactic is used only if it is
+    still unassigned once everything else has been synthesized.
+    Ellipsis suppresses fallbacks, just as it does for explicit binders.
+    -/
+    unless (← read).ellipsis do
+      let paramType ← getParamType
+      if let some defVal := paramType.getOptParamDefault? then
+        registerSyntheticMVarWithCurrRef arg.mvarId! (.defaultValue defVal argName)
+      else if let some tactic := paramType.getAutoParamTactic? then
+        let tacticBlock ← mkAutoParamTacticBlock argName tactic
+        registerTacticMVar arg.mvarId! tacticBlock (.autoParam argName)
+        -- See the note in `processExplicitArg` about `addTermInfo'`.
+        addTermInfo' tacticBlock arg
     addNewArg argName arg
     main
 
@@ -826,32 +866,15 @@ mutual
       let paramType ← getParamType
       match (← read).explicit, paramType.getOptParamDefault?, paramType.getAutoParamTactic? with
       | false, some defVal, _  => addNewArg argName defVal; main
-      | false, _, some (.const tacticDecl _) =>
-        let env ← getEnv
-        let opts ← getOptions
-        match evalSyntaxConstant env opts tacticDecl with
-        | Except.error err       => throwError err
-        | Except.ok tacticSyntax =>
-          let tacticBlock ← `(by $(⟨tacticSyntax⟩))
-          /-
-          We insert position information from the current ref into `stx` everywhere, simulating this being
-          a tactic script inserted by the user, which ensures error messages and logging will always be attributed
-          to this application rather than sometimes being placed at position (1,0) in the file.
-          Placing position information on `by` syntax alone is not sufficient since incrementality
-          (in particular, `Lean.Elab.Term.withReuseContext`) controls the ref to avoid leakage of outside data.
-          Note that `tacticSyntax` contains no position information itself, since it is erased by `Lean.Elab.Term.quoteAutoTactic`.
-          -/
-          let info := (← getRef).getHeadInfo.nonCanonicalSynthetic
-          let tacticBlock := tacticBlock.raw.rewriteBottomUp (·.setInfo info)
-          let mvar ← mkTacticMVar (← getArgExpectedType) tacticBlock (.autoParam argName)
-          -- Note(kmill): We are adding terminfo to simulate a previous implementation that elaborated `tacticBlock`.
-          -- We should look into removing this since terminfo for synthetic syntax is suspect,
-          -- but we noted it was necessary to preserve the behavior of the unused variable linter.
-          addTermInfo' tacticBlock mvar
-          addNewArg argName mvar
-          main
-      | false, _, some _ =>
-        throwError "Internal error when elaborating function application: autoParam `{argName}` is not a constant"
+      | false, _, some tactic =>
+        let tacticBlock ← mkAutoParamTacticBlock argName tactic
+        let mvar ← mkTacticMVar (← getArgExpectedType) tacticBlock (.autoParam argName)
+        -- Note(kmill): We are adding terminfo to simulate a previous implementation that elaborated `tacticBlock`.
+        -- We should look into removing this since terminfo for synthetic syntax is suspect,
+        -- but we noted it was necessary to preserve the behavior of the unused variable linter.
+        addTermInfo' tacticBlock mvar
+        addNewArg argName mvar
+        main
       | _, _, _ =>
         if (← read).ellipsis then
           addImplicitArg argName

@@ -39,14 +39,13 @@ deriving DecidableEq
 #with_exporting
 #reduce decide (PubInd.b = PubInd.b)
 
-public inductive PubExpInd where
+/-! ... unless the inductive has a private constructor (or a private field) -/
+
+public inductive PubIndPrivCtor where
   | private a (n : Nat) | b
 deriving DecidableEq
 
-#with_exporting
-#print PubExpInd._beqHelper
-
-/-- info: true -/
+/-- info: (instDecidableEqPubIndPrivCtor.decEq PubIndPrivCtor.b PubIndPrivCtor.b).1 -/
 #guard_msgs in
 #with_exporting
-#reduce decide (PubExpInd.b = PubExpInd.b)
+#reduce decide (PubIndPrivCtor.b = PubIndPrivCtor.b)

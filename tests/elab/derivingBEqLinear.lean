@@ -2,17 +2,13 @@ module
 
 set_option warn.classDefReducibility false
 
-set_option deriving.beq.linear_construction_threshold 0
+set_option deriving.comparisons.linear_construction_threshold 2
 
 public section
 
 inductive Foo
   | mk1 | mk2 | mk3
   deriving @[expose] BEq
-
-/-- info: instBEqFoo.beq_spec (x✝ y✝ : Foo) : (x✝ == y✝) = (x✝.ctorIdx == y✝.ctorIdx) -/
-#guard_msgs in
-#check instBEqFoo.beq_spec
 
 namespace Foo
 theorem ex1 : (mk1 == mk2) = false :=
@@ -32,21 +28,6 @@ inductive L (α : Type u) : Type u
   | cons : α → L α → L α
   deriving @[expose] BEq
 
-/--
-info: instBEqL.beq_spec.{u_1} {α✝ : Type u_1} [BEq α✝] (x✝ x✝¹ : L α✝) :
-  (x✝ == x✝¹) =
-    match x✝.ctorIdx.decEq x✝¹.ctorIdx with
-    | { decide := true, reflects_decide := h } =>
-      match x✝, x✝¹, h with
-      | L.nil, L.nil, ⋯ => true
-      | L.cons a a_1, L.cons a' a'_1, ⋯ => a == a' && a_1 == a'_1
-    | { decide := false, reflects_decide := reflects_decide } => false
--/
-#guard_msgs in #check instBEqL.beq_spec
-
-/-- error: Unknown identifier `instBEqL.beq_spec_2` -/
-#guard_msgs in #check instBEqL.beq_spec_2
-
 namespace L
 theorem ex1 : (L.cons 10 L.nil == L.cons 20 L.nil) = false := rfl
 theorem ex2 : (L.cons 10 L.nil == L.nil) = false := rfl
@@ -63,35 +44,11 @@ end InNamespace
 info: @[instance_reducible, expose] def InNamespace.instBEqL'.{u} : (α : Type u) → [BEq α] → BEq (InNamespace.L' α)
 -/
 #guard_msgs in #print sig InNamespace.instBEqL'
-/--
-info: theorem InNamespace.instBEqL'.beq_spec.{u_1} : ∀ {α : Type u_1} [inst : BEq α] (x x_1 : InNamespace.L' α),
-  (x == x_1) =
-    match x.ctorIdx.decEq x_1.ctorIdx with
-    | { decide := true, reflects_decide := h } =>
-      match x, x_1, h with
-      | InNamespace.L'.nil, InNamespace.L'.nil, ⋯ => true
-      | InNamespace.L'.cons a a_1, InNamespace.L'.cons a' a'_1, ⋯ => a == a' && a_1 == a'_1
-    | { decide := false, reflects_decide := reflects_decide } => false
--/
-#guard_msgs in #print sig InNamespace.instBEqL'.beq_spec
 
 inductive Vec (α : Type u) : Nat → Type u
   | nil  : Vec α 0
   | cons : α → {n : Nat} → Vec α n → Vec α (n+1)
   deriving @[expose] BEq
-
-/--
-info: instBEqVec.beq_spec.{u_1} {α✝ : Type u_1} {a✝ : Nat} [BEq α✝] (x✝ x✝¹ : Vec α✝ a✝) :
-  (x✝ == x✝¹) =
-    match x✝.ctorIdx.decEq x✝¹.ctorIdx with
-    | { decide := true, reflects_decide := h } =>
-      match a✝, x✝, x✝¹ with
-      | 0, Vec.nil, Vec.nil, ⋯ => true
-      | x + 1, Vec.cons a a_1, Vec.cons a' a'_1, ⋯ => a == a' && a_1 == a'_1
-    | { decide := false, reflects_decide := reflects_decide } => false
--/
-#guard_msgs in
-#check instBEqVec.beq_spec
 
 namespace Vec
 theorem ex1 : (cons 10 Vec.nil == cons 20 Vec.nil) = false := rfl
@@ -159,11 +116,6 @@ deriving BEq
 /-- info: private def instBEqPrivStruct.beq : PrivStruct → PrivStruct → Bool -/
 #guard_msgs in
 #print sig instBEqPrivStruct.beq
-/--
-info: private theorem instBEqPrivStruct.beq_spec : ∀ (x x_1 : PrivStruct), (x == x_1) = (x.a == x_1.a)
--/
-#guard_msgs in
-#print sig instBEqPrivStruct.beq_spec
 
 end
 

@@ -174,7 +174,7 @@ info: r3: 0 < 1
 ---
 info: r4: 0 = 0
 ---
-info: r5: unchanged
+info: r5: a = b (normal)
 ---
 info: r6: a = 5 (normal)
 ---

@@ -165,3 +165,29 @@ example (a b : Int) : (a + b) * (a - b) = a ^ 2 - b ^ 2 := by
 
 example (x y : Nat) : (x + y) * (x + y) ≤ x * x + 2 * x * y + y * y := by
   sym => simp arithSimp
+
+-- Relations between atoms: reflexive ones close, distinct atoms stay.
+example (x : Int) : x + 0 ≤ x := by
+  sym => simp arithSimp
+
+example (x : Int) : x ≤ x := by
+  sym => simp arithSimp
+
+example (x : Int) : x = x := by
+  sym => simp arithSimp
+
+example (x : Nat) : x ≤ x := by
+  sym => simp arithSimp
+
+/-- error: `Sym.simp` made no progress -/
+#guard_msgs in
+example (x y : Int) (h : x < y) : x < y := by
+  sym =>
+    simp arithSimp
+    exact h
+
+example (x : Int) : ¬ x < x := by
+  sym => simp arithSimp
+
+example (x : Rat) : ¬ x < x := by
+  sym => simp arithSimp

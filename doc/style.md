@@ -935,7 +935,7 @@ described for theorems.
 A linked list with elements of type `α`.
 
 Like `Array`, `List` represents an ordered sequence. Their performance
-characteristics differ, however, and are described in [the Lean Language Reference](manual://...).
+characteristics differ, however, and are described in [the Lean Language Reference](lean-manual://...).
 -/
 inductive List (α : Type u) where
   /-- The empty list, typically written `[]`. -/

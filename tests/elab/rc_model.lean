@@ -65,6 +65,15 @@ abbrev isStuck (rc : Int32) : Bool := rc ≤ LEAN_RC_STICKY
 abbrev isUnstuckMt (rc : Int32) : Bool := isMt rc && !isStuck rc
 
 /--
+{lit}`lean_is_unstuck_mt` is the single comparison
+{lit}`(unsigned)lean_internal_get_rc(o) > (unsigned)LEAN_RC_STICKY`: read as unsigned, a persistent,
+a single-threaded and a stuck count all fall below every unstuck thread-shared count.
+-/
+theorem isUnstuckMt_unsigned (rc : Int32) :
+    decide (rc.toUInt32 > LEAN_RC_STICKY.toUInt32) = isUnstuckMt rc := by
+  bv_decide
+
+/--
 The number of references a count stands for: {lit}`rc` when single-threaded, {lit}`-rc` when
 thread-shared, since a thread-shared count is stored negated. Widened, because
 {lit}`-Int32.minValue` does not fit in {name}`Int32`. Signed, though no count is ever negative: the
@@ -79,7 +88,7 @@ abbrev refCountNat (rc : Int32) : Nat := (refCount rc).toNatClampNeg
 /--
 The thread-shared arm of {lit}`lean_inc_ref_huge_n`, sans concurrent semantics:
 ```
-    while (n > 0 && (unsigned)lean_internal_get_rc(o) > (unsigned)LEAN_RC_STICKY) {
+    while (n > 0 && lean_is_unstuck_mt(o)) {
         size_t chunk = std::min(n, LEAN_RC_INC_MAX);
         std::atomic_fetch_sub_explicit(lean_get_rc_mt_addr(o), (int)chunk, std::memory_order_relaxed);
         n -= chunk;
@@ -181,7 +190,7 @@ abbrev incRefHugeN (rc : Int32) (n : USize) : Int32 :=
     if (LEAN_UNLIKELY(n > LEAN_RC_INC_MAX)) { lean_inc_ref_huge_n(o, n); return; }
     if (LEAN_LIKELY(lean_is_st(o))) {
         lean_internal_add_rc(o, n);
-    } else if ((unsigned)lean_internal_get_rc(o) > (unsigned)LEAN_RC_STICKY) {
+    } else if (lean_is_unstuck_mt(o)) {
         std::atomic_fetch_sub_explicit(lean_get_rc_mt_addr(o), n, std::memory_order_relaxed);
     }
 ```
@@ -231,7 +240,7 @@ abbrev isDropStopped (rc : Int32) : Bool := rc ≤ LEAN_RC_STICKY_DROP
 {lit}`lean_dec_ref_cold`, as the count it leaves behind or {lit}`none` if the object was freed:
 ```
     if (lean_internal_get_rc(o) != 1) {
-        if (LEAN_UNLIKELY(lean_internal_get_rc(o) <= LEAN_RC_STICKY_DROP)) return;
+        if (LEAN_UNLIKELY(lean_is_never_freed(o))) return;
         if (std::atomic_fetch_add_explicit(lean_get_rc_mt_addr(o), 1,
                                           std::memory_order_acq_rel) != -1) return;
     }
@@ -243,7 +252,7 @@ whether to free is against {lit}`-1` while the count the object keeps is {lit}`0
 abbrev decRefCold (rc : Int32) : Option Int32 := Id.run do
   let mut rc := rc
   if rc != 1 then
-    if rc ≤ LEAN_RC_STICKY_DROP then return some rc
+    if rc.toUInt32 ≤ LEAN_RC_STICKY_DROP.toUInt32 then return some rc
     let old := rc
     rc := rc + 1
     if old != -1 then return some rc
@@ -280,6 +289,16 @@ theorem decRef_spec (rc : Int32) :
 
 /-- A count no drop will ever free: persistent, or at or below the drop threshold. -/
 abbrev isNeverFreed (rc : Int32) : Bool := isPersistent rc || isDropStopped rc
+
+/--
+{lit}`lean_is_never_freed` is the single comparison
+{lit}`(unsigned)lean_internal_get_rc(o) <= (unsigned)LEAN_RC_STICKY_DROP`, which both drop paths
+reach only once a single-threaded count is excluded. On the counts that remain it is exactly
+{name}`isNeverFreed`; a single-threaded count would read as never freed too.
+-/
+theorem isNeverFreed_unsigned (rc : Int32) (h : !isSt rc) :
+    decide (rc.toUInt32 ≤ LEAN_RC_STICKY_DROP.toUInt32) = isNeverFreed rc := by
+  bv_decide
 
 /--
 Each iteration subtracts its chunk from a count the guard keeps clear of {name}`Int32.minValue`.
@@ -410,7 +429,7 @@ private theorem decRef_keeps (rc rc' : Int32) (h : decRef rc = some rc') :
       || (!isNeverFreed rc && refCount rc' == refCount rc - 1 && !(refCount rc == 1)) := by
   have hcold : ∀ rc : Int32, decRefCold rc =
       (if rc != 1 then
-        (if rc ≤ LEAN_RC_STICKY_DROP then some rc
+        (if rc.toUInt32 ≤ LEAN_RC_STICKY_DROP.toUInt32 then some rc
          else if rc != -1 then some (rc + 1) else none)
        else none) := fun _ => rfl
   simp only [decRef, hcold] at h

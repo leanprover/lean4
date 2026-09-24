@@ -246,25 +246,6 @@ def decodeMinorVars (vars : Array Expr) (idxOfMotive : FVarIdMap Nat) :
     ihs := ihs.push none
   return (fields, idxOfField, ihs)
 
-def _root_.Lean.Meta.DiscrTree.Trie.atKey (x : DiscrTree.Trie α)
-    (keys : Array DiscrTree.Key) (i : Nat) : Array α :=
-  let .node vs children := x
-  if h : i < keys.size then
-    if let some entry := children.binSearch (keys[i], default) (fun a b => a.1 < b.1) then
-      entry.2.atKey keys (i + 1)
-    else
-      #[]
-  else
-    vs
-termination_by keys.size - i
-
-def _root_.Lean.Meta.DiscrTree.atKey (x : DiscrTree α) (keys : Array DiscrTree.Key) :
-    Array α :=
-  if h : keys.size = 0 then
-    #[]
-  else
-    (x.root.find? keys[0]).map (·.atKey keys 1) |>.getD #[]
-
 inductive CmpHelperStrategy where
   | doubleMatch
   | withCtorIdx
@@ -608,7 +589,7 @@ def FnAccumulator.insert (acc : FnAccumulator) (kind : Kind) (typeLambda : Expr)
   withLCtx acc.paramLCtx acc.paramInsts do
     let (_, _, e) ← lambdaMetaTelescope typeLambda
     let path ← DiscrTree.mkPath e
-    let keyedEntries := acc.tree.atKey path
+    let keyedEntries := acc.tree.getEntriesWithKeys path
     for h : j in *...keyedEntries.size do
       let entryIdx := keyedEntries[j]
       let entry := acc.entries[entryIdx]!

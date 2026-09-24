@@ -1,5 +1,5 @@
 import Lean
-import Std.Tactic.WP
+import Std.WP
 
 /-!
 Pattern matching with a concrete discriminant (the literal argument `v` of `step`). Each

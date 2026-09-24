@@ -1,5 +1,5 @@
 import Lean
-import Std.Tactic.WP
+import Std.WP
 
 /-!
 Exception handling with `ExceptT String <| StateM Nat`: each `step` conditionally throws and

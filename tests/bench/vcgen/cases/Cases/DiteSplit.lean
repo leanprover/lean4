@@ -1,5 +1,5 @@
 import Lean
-import Std.Tactic.WP
+import Std.WP
 
 /-!
 Dependent if-then-else (`if h : cond then ...`) inside an `ExceptT String <| StateM Nat`

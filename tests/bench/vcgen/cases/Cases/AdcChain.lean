@@ -1,5 +1,5 @@
 import Lean
-import Std.Tactic.WP
+import Std.WP
 
 /-!
 Carry-flag chain in `StateM`: a minimal machine with two registers and a carry flag,

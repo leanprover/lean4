@@ -1,5 +1,5 @@
 import Lean
-import Std.Tactic.WP
+import Std.WP
 
 /-!
 A `ReaderT Nat <| StateM Nat` combination. Each `step` reads the reader `r`, adds it to the

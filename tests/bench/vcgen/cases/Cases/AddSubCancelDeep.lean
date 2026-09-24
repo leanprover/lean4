@@ -1,5 +1,5 @@
 import Lean
-import Std.Tactic.WP
+import Std.WP
 
 /-!
 Same loop as `AddSubCancel` but threaded through a deep monad transformer stack.

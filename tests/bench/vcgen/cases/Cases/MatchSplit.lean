@@ -1,5 +1,5 @@
 import Lean
-import Std.Tactic.WP
+import Std.WP
 
 /-!
 Pattern matching where the discriminant *is* the symbolic state (`match s with ...` after

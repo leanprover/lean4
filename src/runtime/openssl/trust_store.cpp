@@ -188,6 +188,8 @@ template<typename T> using cf_ptr = std::unique_ptr<std::remove_pointer_t<T>, re
 static void free_x509_stack(STACK_OF(X509) * sk) { sk_X509_pop_free(sk, X509_free); }
 using x509_stack_ptr = std::unique_ptr<STACK_OF(X509), released_by<free_x509_stack>>;
 
+static void free_openssl_string(char * str) { OPENSSL_free(str); }
+
 static bool append_sec_certificate(CFMutableArrayRef certs, X509 * cert) {
     unsigned char * der = nullptr;
     int len = i2d_X509(cert, &der);
@@ -204,8 +206,9 @@ static bool append_sec_certificate(CFMutableArrayRef certs, X509 * cert) {
     return true;
 }
 
-// The peer's certificates, leaf first, as `SecTrustCreateWithCertificates` takes them.
-static CFArrayRef copy_peer_certificates(X509_STORE_CTX * ctx) {
+// What `SecTrustCreateWithCertificates` takes: the peer's certificates, leaf first, then the
+// intermediates the store added to the partial chain.
+static CFArrayRef copy_candidate_certificates(X509_STORE_CTX * ctx) {
     X509 * leaf = X509_STORE_CTX_get0_cert(ctx);
     STACK_OF(X509) * sent = X509_STORE_CTX_get0_untrusted(ctx);
 
@@ -215,6 +218,21 @@ static CFArrayRef copy_peer_certificates(X509_STORE_CTX * ctx) {
     for (int i = 0; i < sk_X509_num(sent); i++) {
         X509 * cert = sk_X509_value(sent, i);
         if (cert != leaf && !append_sec_certificate(certs.get(), cert)) return nullptr;
+    }
+
+    // From `ca`, `SSL_CERT_FILE` or `SSL_CERT_DIR`; with fetching off, Apple may not find them itself.
+    STACK_OF(X509) * built = X509_STORE_CTX_get0_chain(ctx);
+
+    for (int i = 1; i < sk_X509_num(built); i++) {
+        X509 * cert = sk_X509_value(built, i);
+
+        // A `TRUSTED CERTIFICATE` block rejecting it must not become a hint for Apple's path building.
+        if (sk_X509_find(sent, cert) >= 0 ||
+            X509_check_trust(cert, X509_TRUST_SSL_SERVER, 0) == X509_TRUST_REJECTED) {
+            continue;
+        }
+
+        if (!append_sec_certificate(certs.get(), cert)) return nullptr;
     }
 
     return certs.release();
@@ -287,21 +305,42 @@ static bool reaches_platform_anchor(SecTrustRef trust) {
 }
 
 // The OpenSSL error for the platform's rejection, falling back to the store's verdict. Apple reports
-// a TLS rule breach (validity too long, disallowed name or usage) ahead of an untrusted chain, so it
-// only counts as a rejection once the chain is known to reach a trusted anchor.
-static int x509_error_for(SecTrustRef trust, CFErrorRef error, int store_error) {
-    switch (error != nullptr ? CFErrorGetCode(error) : 0) {
+// a TLS rule breach (name mismatch, pinning, validity too long, disallowed usage) ahead of an
+// untrusted chain, so it only counts as a rejection once the chain is known to reach a trusted anchor.
+static int x509_error_for(SecTrustRef trust, CFErrorRef error, int store_error, bool ip) {
+    CFIndex code = error != nullptr ? CFErrorGetCode(error) : 0;
+
+    switch (code) {
     case errSecCertificateExpired: return X509_V_ERR_CERT_HAS_EXPIRED;
     case errSecCertificateNotValidYet: return X509_V_ERR_CERT_NOT_YET_VALID;
     case errSecCertificateRevoked: return X509_V_ERR_CERT_REVOKED;
-    case errSecCertificateValidityPeriodTooLong:
-    case errSecCertificateNameNotAllowed:
-    case errSecCertificatePolicyNotAllowed:
-    case errSecInvalidExtendedKeyUsage:
-        if (reaches_platform_anchor(trust)) return X509_V_ERR_CERT_REJECTED;
-        [[fallthrough]];
-    default: return store_error != X509_V_OK ? store_error : X509_V_ERR_CERT_UNTRUSTED;
     }
+
+    if (!reaches_platform_anchor(trust)) return store_error != X509_V_OK ? store_error : X509_V_ERR_CERT_UNTRUSTED;
+    if (code == errSecHostNameMismatch) return ip ? X509_V_ERR_IP_ADDRESS_MISMATCH : X509_V_ERR_HOSTNAME_MISMATCH;
+
+    return X509_V_ERR_CERT_REJECTED;
+}
+
+// Apple's TLS policy for the peer's name, or null on failure; `*ip` reports an IP address. Apple
+// applies its pinned hosts and host-scoped Keychain trust settings only for a named peer, and takes one
+// name, so a peer allowed several gets none and is left to the OpenSSL pass.
+static SecPolicyRef copy_ssl_policy(X509_VERIFY_PARAM * param, bool * ip) {
+    *ip = false;
+    if (X509_VERIFY_PARAM_get0_host(param, 1) != nullptr) return SecPolicyCreateSSL(true, nullptr);
+
+    char const * host = X509_VERIFY_PARAM_get0_host(param, 0);
+    std::unique_ptr<char, released_by<free_openssl_string>> ip_str(
+        host == nullptr ? X509_VERIFY_PARAM_get1_ip_asc(param) : nullptr);
+    char const * name = host != nullptr ? host : ip_str.get();
+
+    if (name == nullptr) return SecPolicyCreateSSL(true, nullptr);
+
+    cf_ptr<CFStringRef> cf_name(CFStringCreateWithCString(nullptr, name, kCFStringEncodingUTF8));
+    if (cf_name == nullptr) return nullptr;
+
+    *ip = ip_str != nullptr;
+    return SecPolicyCreateSSL(true, cf_name.get());
 }
 
 // Accepts a chain the store's anchors establish, and otherwise defers to the system's trust
@@ -321,10 +360,10 @@ static int verify_with_platform_fallback(X509_STORE_CTX * ctx, void *) {
         return 0;
     }
 
-    cf_ptr<CFArrayRef> certs(copy_peer_certificates(ctx));
+    cf_ptr<CFArrayRef> certs(copy_candidate_certificates(ctx));
 
-    // No name is given: the OpenSSL pass that follows checks it.
-    cf_ptr<SecPolicyRef> policy(SecPolicyCreateSSL(true, nullptr));
+    bool ip = false;
+    cf_ptr<SecPolicyRef> policy(copy_ssl_policy(X509_STORE_CTX_get0_param(ctx), &ip));
 
     // `SecTrustCreateWithCertificates` accepts a null policy, which would drop the TLS rules.
     SecTrustRef raw_trust = nullptr;
@@ -346,7 +385,7 @@ static int verify_with_platform_fallback(X509_STORE_CTX * ctx, void *) {
     cf_ptr<CFErrorRef> error(raw_error);
 
     if (!trusted) {
-        X509_STORE_CTX_set_error(ctx, x509_error_for(trust.get(), error.get(), store_error));
+        X509_STORE_CTX_set_error(ctx, x509_error_for(trust.get(), error.get(), store_error, ip));
         return 0;
     }
 

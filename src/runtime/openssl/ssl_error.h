@@ -22,7 +22,8 @@ struct pem_source {
     b_obj_arg obj;
     bool is_file;
 
-    // Reads a `Std.Internal.SSL.PEM`, whose `file` and `text` constructors each hold one string.
+    // Reads a `Std.Internal.SSL.PEM`, whose `file` and `text` constructors each hold one string (a
+    // `FilePath` is represented by its string).
     static pem_source of(b_obj_arg pem) { return { lean_ctor_get(pem, 0), lean_obj_tag(pem) == 0 }; }
 
     char const * data() const { return lean_string_cstr(obj); }

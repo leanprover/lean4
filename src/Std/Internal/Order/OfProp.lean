@@ -111,6 +111,18 @@ theorem CompleteLattice.top_le_ofProp [CompleteLattice l] (p : Prop) : p → (�
   simp only [CompleteLattice.ofProp]
   rcases Classical.em p with h | h <;> simp [h]
 
+theorem top_le_ofProp_iff [CompleteLattice l] (p : Prop) :
+    ((⊤ : l) ⊑ ⌜p⌝) ↔ (p ∨ (⊤ : l) ⊑ ⊥) := by
+  constructor
+  · intro h
+    by_cases hp : p
+    · exact .inl hp
+    · refine .inr ?_
+      simpa only [CompleteLattice.ofProp, hp, ↓reduceIte] using h
+  · rintro (hp | h)
+    · exact top_le_ofProp p hp
+    · exact rel_trans h (bot_le _)
+
 /-- `x ⊑ ⌜p⌝` whenever `p` holds. -/
 theorem CompleteLattice.le_ofProp [CompleteLattice l] (x : l) (p : Prop) : p → x ⊑ ⌜p⌝ :=
   fun hp => PartialOrder.rel_trans (le_top x) (top_le_ofProp p hp)

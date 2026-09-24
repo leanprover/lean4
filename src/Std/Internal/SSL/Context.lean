@@ -120,8 +120,10 @@ structure Config where
     hosts, and at most 825 days of validity even under a locally trusted root. OpenSSL then checks
     the chain it settles on again, so hostname rules are at least as strict as on other platforms.
     Missing intermediates are never fetched: the server, `ca` or the environment has to supply them.
-  * Windows: the `ROOT` certificate store, which needs OpenSSL 3.2 or later. The `Disallowed` store
-    and per-certificate properties are not consulted.
+  * Windows: the `ROOT` certificate store, which needs OpenSSL 3.2 or later. Windows adds most roots
+    to it on demand, the first time its own chain engine needs one, so a public root no Windows
+    program on the machine has used yet is missing; supply it through `ca` or `SSL_CERT_FILE`. The
+    `Disallowed` store and per-certificate properties are not consulted.
   * Elsewhere: the usual system bundle locations.
 
   A toolchain linking the system's OpenSSL also reads that library's compiled-in certificate paths

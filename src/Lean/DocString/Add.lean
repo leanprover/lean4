@@ -359,7 +359,9 @@ def addMarkdownDocString
     throwError m!"invalid doc string, declaration `{.ofConstName declName}` is in an imported module"
   validateDocComment docComment
   let docString : String ← getDocStringText docComment
-  modifyEnv fun env => docStringExt.insert env declName docString.removeLeadingSpaces
+  -- replacing, as attributes applied before elaboration may already have written one
+  modifyEnv fun env =>
+    docStringExt.insert env declName docString.removeLeadingSpaces (allowOverwrite := true)
 
 /--
 Adds an elaborated Verso docstring to the environment, recording its `deferred` checks under this
@@ -374,7 +376,8 @@ def addVersoDocStringCore [Monad m] [MonadEnv m] [MonadLiftT BaseIO m] [MonadErr
   unless (← getEnv).getModuleIdxFor? declName |>.isNone do
     throwError s!"invalid doc string, declaration '{declName}' is in an imported module"
   modifyEnv fun env =>
-    let env := versoDocStringExt.insert env declName docs
+    -- replacing, as for `addMarkdownDocString`
+    let env := versoDocStringExt.insert env declName docs (allowOverwrite := true)
     deferred.foldl (init := env) fun env c =>
       Doc.deferredCheckExt.addEntry env { c with site := .decl declName }
 

@@ -3043,7 +3043,16 @@ builtin_initialize defHeightOverrideExt : EnvExtension (NameMap UInt32) ←
 
 /-- Register a height override for a definition so that `getMaxHeight` uses it. -/
 def setDefHeightOverride (env : Environment) (declName : Name) (height : UInt32) : Environment :=
-  defHeightOverrideExt.modifyState env fun m => m.insert declName height
+  defHeightOverrideExt.modifyState env fun m =>
+    have : Inhabited (NameMap UInt32) := ⟨m⟩
+    -- write-once, as for `MapDeclarationExtension.insert`
+    match m.find? declName with
+    | some prev =>
+      if prev != height then
+        panic! s!"definition height override for `{declName}` is already set"
+      else
+        m
+    | none => m.insert declName height
 
 def getMaxHeight (env : Environment) (e : Expr) : UInt32 :=
   let overrides := defHeightOverrideExt.getState env

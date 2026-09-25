@@ -107,11 +107,17 @@ Every structure created by `structure` or `class` has such an entry.
 This should be followed up with `setStructureParents` and `setStructureResolutionOrder`.
 -/
 def registerStructure (env : Environment) (e : StructureDescr) : Environment :=
-  structureExt.addEntry env {
-    structName := e.structName
-    fieldNames := e.fields.map fun e => e.fieldName
-    fieldInfo  := e.fields.qsort StructureFieldInfo.lt
-  }
+  have : Inhabited Environment := ⟨env⟩
+  -- Write-once, as for `MapDeclarationExtension.insert`; the one sanctioned update is
+  -- `setStructureParents` below.
+  if structureExt.getState env |>.snd.map.contains e.structName then
+    panic! s!"structure `{e.structName}` is already registered"
+  else
+    structureExt.addEntry env {
+      structName := e.structName
+      fieldNames := e.fields.map fun e => e.fieldName
+      fieldInfo  := e.fields.qsort StructureFieldInfo.lt
+    }
 
 /--
 Sets parent projection info for a structure defined in the current module.

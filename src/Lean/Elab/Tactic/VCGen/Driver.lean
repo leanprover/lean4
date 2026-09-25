@@ -111,6 +111,7 @@ public def work (scope : Scope) (goal : Grind.Goal) : VCGenM Unit := do
       let subgoals ← handleInvariantSubgoals subgoals
       worklist := worklist ++ subgoals.reverse.map (fun mv =>
         { goal := { goal with mvarId := mv }, scope })
+  finalizeJoinPoints
 
 public structure Result where
   /-- All invariant goals emitted during VC generation, in emit order. The MVarId at

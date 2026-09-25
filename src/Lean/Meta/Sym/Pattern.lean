@@ -295,6 +295,12 @@ structure UnifyM.State where
   tPending     : Array Nat             := #[]
   us           : List Level            := []
   args         : Array Expr            := #[]
+  /--
+  `true` if an operation that can assign metavariables ran outside of pending-constraint
+  processing: a universe conflict resolved by `isLevelDefEq`, or instance synthesis on a
+  type containing metavariables. See `canonicalizeMVarTypes`.
+  -/
+  mayHaveAssignedMVars : Bool          := false
 
 abbrev UnifyM := ReaderT UnifyM.Context StateRefT UnifyM.State SymM
 
@@ -337,6 +343,8 @@ def assignExpr (bidx : Nat) (e : Expr) : UnifyM Bool := do
 
 def assignLevel (uidx : Nat) (u : Level) : UnifyM Bool := do
   if let some u' := (← get).uAssignment[uidx]! then
+    if u.hasMVar || u'.hasMVar then
+      modify fun s => { s with mayHaveAssignedMVars := true }
     isLevelDefEq u u'
   else
     modify fun s => { s with uAssignment := s.uAssignment.set! uidx (some u) }
@@ -1130,6 +1138,10 @@ def mkPreResult : UnifyM MkPreResultResult := do
       let type ← instantiateLevelParamsS type pattern.levelParams us
       let type ← instantiateRevBetaS type args
       if pattern.isInstance i then
+        if type.hasMVar then
+          -- Synthesis can assign metavariables occurring in `type`, e.g. through class output
+          -- parameters.
+          modify fun s => { s with mayHaveAssignedMVars := true }
         if let .some val ← trySynthInstance type then
           args := args.push (← shareCommon val)
           continue
@@ -1224,6 +1236,29 @@ def mkResult (unresolvedInsts : Array MVarId) : UnifyM MatchUnifyResult := do
   let s ← get
   return { s with unresolvedInsts }
 
+/--
+Instantiates assigned metavariables in the stored types of the metavariables minted for
+pattern variables. `mkPreResult` mints all of them before the pending constraints are solved,
+so solving a pending constraint can assign a metavariable that already occurs in a sibling's
+type. Updating the stored types afterwards makes the metavariables returned in `args` (and
+thus the subgoals returned by `BackwardRule.apply`) canonical with respect to the assignments
+made during this unification. Unassigned siblings remain metavariable references, so
+assignments made by the caller still propagate. The instantiated type is definitionally equal
+to the stored one, as `MVarId.setType` requires.
+-/
+def canonicalizeMVarTypes : UnifyM Unit := do
+  let mvarCounterSaved := (← read).mvarCounterSaved
+  let mctx ← getMCtx
+  for arg in (← get).args do
+    let .mvar mvarId := arg | continue
+    let some decl := mctx.findDecl? mvarId | continue
+    -- Only metavariables minted by this unification; a pattern variable may also be bound to a
+    -- metavariable occurring in the target, which must be left untouched.
+    if decl.index ≥ mvarCounterSaved && !(← mvarId.isAssigned) then
+      let type ← instantiateMVarsS decl.type
+      unless isSameExpr type decl.type do
+        mvarId.setType type
+
 def main (p : Pattern) (e : Expr) (unify : Bool) (zetaDelta : Bool) : SymM (Option (MatchUnifyResult)) :=
   UnifyM.run p unify zetaDelta do
     unless (← process p.pattern e) do return none
@@ -1234,6 +1269,15 @@ def main (p : Pattern) (e : Expr) (unify : Bool) (zetaDelta : Bool) : SymM (Opti
       -- An instance may still be assigned while processing pending constraints; report only those
       -- that remain unresolved so the caller decides whether that is fatal.
       let unresolvedInsts ← instMVars.filterM fun m => return !(← m.isAssigned)
+      if unify then
+        -- A minted type can refer to a metavariable assigned during this call only if pending
+        -- constraints were processed, the type checks recorded in `tPending` ran, or an
+        -- operation flagged by `mayHaveAssignedMVars` occurred. Otherwise the minted types are
+        -- already canonical and the instantiation pass can be skipped.
+        let s ← get
+        if !s.ePending.isEmpty || !s.uPending.isEmpty || !s.iPending.isEmpty
+            || !s.tPending.isEmpty || s.mayHaveAssignedMVars then
+          canonicalizeMVarTypes
       return some (← mkResult unresolvedInsts)
 
 /--
@@ -1266,6 +1310,10 @@ Returns `some result` if unification succeeds, where `result` contains:
 Unlike `match?`, this handles terms containing metavariables by deferring
 constraints to Phase 2 unification. Use this when matching against goal
 expressions that may contain unsolved metavariables.
+
+The types of the fresh metavariables in `args` are canonical with respect to the
+assignments made during this call: assigned metavariables have been instantiated,
+unassigned ones (e.g. sibling subgoals) remain metavariable references.
 
 Instance arguments are synthesized (or assigned by unification). Any that cannot be resolved are
 reported in `MatchUnifyResult.unresolvedInsts` rather than silently left as loose metavariables in

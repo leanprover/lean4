@@ -129,6 +129,20 @@ def Message.Head.shouldKeepAlive (message : Message.Head dir) : Bool :=
       else
         tokens.any (· == "keep-alive")
 
+/--
+Returns `true` when an `Expect` header includes `100-continue`.
+
+RFC 9110 §15.2: Since HTTP/1.0 did not define any 1xx status codes, a server MUST NOT send a 1xx response
+to an HTTP/1.0 client, so the expectation never applies below HTTP/1.1.
+-/
+def Message.Head.hasExpectContinue (message : Message.Head dir) : Bool :=
+  if message.version != .v11 then
+    false
+  else
+    match message.headers.getAll? Header.Name.expect with
+    | some #[value] => Header.Expect.parse value |>.isSome
+    | _ => false
+
 instance : Repr (Message.Head dir) :=
   match dir with
   | .receiving => inferInstanceAs (Repr Request.Head)

@@ -392,20 +392,40 @@ where
         `getOptionsUnrestricted` for all others"
     else ctx.options
 
+/--
+Applies `f` to the options in scope of `x`, without the recording check of `withOptions`. Each use
+must argue that `f`'s result on an option read through `Lean.getRecordedOption` does not depend on
+the ambient options; `Lean.withSetOption` does so by construction.
+-/
+@[inline] def withOptionsUnrestricted (f : Options → Options) (x : CoreM α) : CoreM α := do
+  let options := f (← read).options
+  let optionFlags := OptionFlags.ofOptions options
+  if Kernel.isDiagnosticsEnabled (← getEnv) != optionFlags.diag then
+    modifyEnv fun env => Kernel.enableDiag env optionFlags.diag
+  withReader
+    (fun ctx =>
+      { ctx with
+        options
+        optionFlags
+        optionFlags_eq := rfl
+        maxRecDepth := maxRecDepth.get options })
+    x
+
 instance : MonadWithOptions CoreM where
   withOptions f x := do
-    let options := f (← read).options
-    let optionFlags := OptionFlags.ofOptions options
-    if Kernel.isDiagnosticsEnabled (← getEnv) != optionFlags.diag then
-      modifyEnv fun env => Kernel.enableDiag env optionFlags.diag
-    withReader
-      (fun ctx =>
-        { ctx with
-          options
-          optionFlags
-          optionFlags_eq := rfl
-          maxRecDepth := maxRecDepth.get options })
-      x
+    let f := if (← read).isRecordingDeps then reportViolation else f
+    withOptionsUnrestricted f x
+where
+  /--
+  Reports a `withOptions` call inside a recording computation and leaves the options unchanged.
+  Out of line, as `withOptions` is inlined at every call site; it takes no argument so that `f`
+  stays a known function there.
+  -/
+  @[noinline] reportViolation : Options → Options :=
+    have : Inhabited (Options → Options) := ⟨id⟩
+    panic! "`withOptions` called inside a computation recording its dependencies; a transformer \
+      may derive a recorded option's value from the ambient options, which the dependency log does \
+      not capture. Use `Lean.withSetOption` for a value independent of the ambient options"
 
 -- Helper function for ensuring fields derived from e.g. options have the correct value.
 @[inline] private def withConsistentCtx (x : CoreM α) : CoreM α := do
@@ -775,6 +795,20 @@ export Core (CoreM mkFreshUserName checkSystem withCurrHeartbeats)
 
 @[inline] def withAtLeastMaxRecDepth [MonadFunctorT CoreM m] (max : Nat) : m α → m α :=
   monadMap (m := CoreM) <| withReader (fun ctx => { ctx with maxRecDepth := Nat.max max ctx.maxRecDepth })
+
+/--
+Runs the given computation with the option `name` set to `v`. Unlike `withOptions`, this is allowed
+inside a computation recording its dependencies: `v` does not depend on the ambient options, so a
+recorded read of `name` in this scope observes `v` in every context.
+-/
+@[inline] def withSetOptionByName [MonadFunctorT CoreM m] [KVMap.Value β]
+    (name : Name) (v : β) : m α → m α :=
+  monadMap (m := CoreM) <| Core.withOptionsUnrestricted (·.set name v)
+
+/-- `withSetOptionByName` for an option given as a `Lean.Option`. -/
+@[inline] def withSetOption [MonadFunctorT CoreM m] [KVMap.Value β]
+    (opt : Lean.Option β) (v : β) : m α → m α :=
+  withSetOptionByName opt.name v
 
 @[inline] def catchInternalId [Monad m] [MonadExcept Exception m] (id : InternalExceptionId) (x : m α) (h : Exception → m α) : m α := do
   try

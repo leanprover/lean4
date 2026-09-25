@@ -6,6 +6,7 @@ Authors: Mac Malone
 module
 
 prelude
+public import Lean.Data.Trie
 public import Lean.Data.Json
 public import Lake.Util.Error
 public import Lake.Util.EStateT
@@ -13,6 +14,7 @@ public import Lean.Message
 public import Lake.Util.Lift
 import Init.Data.String.TakeDrop
 import Init.Data.String.Modify
+import Init.Data.String.Lemmas.Order
 
 open Lean
 
@@ -96,13 +98,17 @@ public def LogLevel.ansiColor : LogLevel → String
 | .warning => "33"
 | .error => "31"
 
-public def LogLevel.ofString? (s : String) : Option LogLevel :=
-  match s.toLower with
-  | "trace" => some .trace
-  | "info" | "information" => some .info
-  | "warn" | "warning" => some .warning
-  | "error" => some .error
-  | _ => none
+@[inline] public def LogLevel.ofString? (s : String.Slice) : Option LogLevel :=
+  trie.matchPrefix s.str s.startInclusive.offset s.endExclusive.offset.byteIdx
+where trie :=
+  let add sym lv t := t.insert sym lv
+  (∅ : Lean.Data.Trie LogLevel)
+  |> add "trace"        .trace
+  |> add "info"         .info
+  |> add "information"  .info
+  |> add "warn"         .warning
+  |> add "warning"      .warning
+  |> add "error"        .error
 
 public protected def LogLevel.toString : LogLevel → String
 | .trace => "trace"

@@ -37,6 +37,10 @@ public protected def decidableLT (a b : @& ByteArray) : Decidable (a < b) :=
 public instance : DecidableLT ByteArray :=
   ByteArray.decidableLT
 
+-- Work around #15328
+public instance : DecidableLE ByteArray :=
+  fun a b => inferInstanceAs (Decidable (¬ b < a))
+
 @[extern "lean_byte_array_compare"]
 public protected def compare (a b : @& ByteArray) : Ordering :=
   compare a.data b.data

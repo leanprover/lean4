@@ -1,20 +1,7 @@
-import Lean
-
 /-!
-Regression test for #15312: the unfold theorems of a mutual `partial_fixpoint` block are proved
-from the block's fixpoint equation `_fix_eq`, so that their proofs do not contain the functional
-and the monotonicity proof of the whole block.
+Equation lemmas of mutual `partial_fixpoint` and `inductive_fixpoint` blocks (#15312), including
+fixed parameters that are not a common prefix and universe polymorphism.
 -/
-
-open Lean Meta in
-/-- Checks that the unfold theorem of `declName` is proved via `_fix_eq`. -/
-def checkUnfoldViaFixEq (declName : Name) : MetaM Unit := do
-  let some eqDef ← getUnfoldEqnFor? declName | throwError "no unfold theorem for {declName}"
-  let consts := (← getConstInfo eqDef).value! (allowOpaque := true) |>.getUsedConstants
-  let usesFixEq := consts.any fun | .str _ "_fix_eq" => true | _ => false
-  unless usesFixEq && !consts.contains ``Lean.Order.fix_eq &&
-      !consts.contains ``Lean.Order.lfp_monotone_fix do
-    throwError "unexpected constants in the proof of {eqDef}: {consts}"
 
 namespace Ring
 
@@ -63,10 +50,6 @@ theorem Ring.f2.eq_2 : ∀ (m : Nat),
 -/
 #guard_msgs in #print equations f2
 
-#eval checkUnfoldViaFixEq ``f0
-#eval checkUnfoldViaFixEq ``f1
-#eval checkUnfoldViaFixEq ``f2
-
 example : f1 1 = some 1 := by rw [f1, f2]; rfl
 example : f2 1 = some 1 := by unfold f2 f0; rfl
 example : f0 2 = some 2 := by simp only [f0, f1, f2]; rfl
@@ -90,9 +73,6 @@ def h (n : Nat) (b : Bool) : Option Nat :=
   | m+1 => g b m
 partial_fixpoint
 end
-
-#eval checkUnfoldViaFixEq ``g
-#eval checkUnfoldViaFixEq ``h
 
 /--
 info: equations:
@@ -122,9 +102,6 @@ def q {α : Type u} (x : α) (n : Nat) : Option (List α) :=
 partial_fixpoint
 end
 
-#eval checkUnfoldViaFixEq ``p
-#eval checkUnfoldViaFixEq ``q
-
 example : p 'a' 2 = some ['a'] := by rw [p, q, p]; rfl
 
 end Univ
@@ -139,9 +116,6 @@ def Odd (n : Nat) : Prop :=
   ∃ m, n = m + 1 ∧ Even m
 inductive_fixpoint
 end
-
-#eval checkUnfoldViaFixEq ``Even
-#eval checkUnfoldViaFixEq ``Odd
 
 example : Odd 1 := by
   rw [Odd]

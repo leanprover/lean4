@@ -1,0 +1,29 @@
+diff --git a/src/alloc.c b/src/alloc.c
+index 0c542af5..f259b370 100644
+--- a/src/alloc.c
++++ b/src/alloc.c
+@@ -29,6 +29,12 @@ terms of the MIT license. A copy of the license can be found in the file
+ // Fast allocation in a page: just pop from the free list.
+ // Fall back to generic allocation only if the list is empty.
+ // Note: in release mode the (inlined) routine is about 7 instructions with a single test.
++// Allow an embedding runtime that always initializes a returned block's header before the block
++// can be read to skip scrubbing the free-list pointer it overlaps. Secure builds scrub regardless.
++#ifndef MI_BLOCK_SCRUB
++#define MI_BLOCK_SCRUB  1
++#endif
++
+ static mi_decl_forceinline void* mi_page_malloc_zero(mi_theap_t* theap, mi_page_t* page, size_t size, bool zero, size_t* usable) mi_attr_noexcept
+ {
+   if (page->block_size != 0) { // not the empty theap
+@@ -77,9 +83,9 @@ static mi_decl_forceinline void* mi_page_malloc_zero(mi_theap_t* theap, mi_page_
+ 
+   // zero the block? note: we need to zero the full block size (issue #63)
+   if mi_likely(!zero) {
+-    // #if MI_SECURE
++    #if MI_BLOCK_SCRUB || MI_SECURE
+     block->next = 0;  // don't leak internal data
+-    // #endif
++    #endif
+     #if (MI_DEBUG>0) && !MI_TRACK_ENABLED && !MI_TSAN
+       if (!mi_page_is_huge(page)) { memset(block, MI_DEBUG_UNINIT, bsize); }
+     #endif    

@@ -981,29 +981,51 @@ def withSubst (goal : Expr) (a b : Expr) (a_eq_b : Expr) (k : Expr → MetaM Exp
   return mkAppN (mkApp6 (.const ``Eq.ndrec [0, u]) ty a motive reflCase b a_eq_b) fwdDeps
 
 /--
-Given `h : cmp = kind.eqIndicator`, try to prove `goal`, which must be a `HEq` application.
+Given `hyp : cmp = kind.eqIndicator`, try to prove `goal`, which must be a `HEq` application.
 -/
 @[inline]
 private partial def proveLawfulHEq (ctx : Context) (kind : Kind) (lawfulHyps : Array Expr)
-    (idxOfField : FVarIdMap Nat) (ihs : Array (Option (Expr × Nat))) (cmp hyp goal : Expr) : MetaM Expr :=
-  go cmp hyp goal fun newGoal => do
-    let mkApp4 (.const ``HEq [u]) α l _ r := newGoal |
-      throwError "Unexpected goal after proveLawfulEq{indentExpr newGoal}"
-    unless ← withTransparency .none <| isDefEq l r do
-      throwError "Expected to be able to solve definitional equality of{indentExpr l}\nwith{indentExpr r}"
-    return mkApp2 (.const ``HEq.rfl [u]) α l
+    (idxOfField : FVarIdMap Nat) (ihs : Array (Option (Expr × Nat))) (cmp hyp goal : Expr) :
+    MetaM Expr :=
+  go cmp hyp goal {} fun newGoal equations => do
+    let mkApp4 (.const ``HEq [_]) _ l _ r := newGoal |
+      throwError "Unexpected goal after proveLawfulHEq{indentExpr newGoal}"
+    let .const nm us := l.getAppFn | unreachable!
+    let lhsArgs := l.getAppArgs
+    let rhsArgs := r.getAppArgs
+    let some thm ← mkHCongrWithArityForConst? nm us lhsArgs.size |
+      throwError "Failed to prove congruence lemma for{indentExpr l.getAppFn}"
+    let mut proof := thm.proof
+    for lhs in lhsArgs, rhs in rhsArgs, kind in thm.argKinds do
+      let type ← inferType lhs
+      let lvl ← getLevel type
+      let ignore := lvl.isAlwaysZero || lhs == rhs
+      proof := mkApp2 proof lhs rhs
+      if ignore then
+        match kind with
+        | .eq => proof := proof.app <| mkApp2 (.const ``Eq.refl [lvl]) type lhs
+        | .heq => proof := proof.app <| mkApp2 (.const ``HEq.refl [lvl]) type lhs
+        | _ => unreachable!
+      else
+        let some hyp := equations.get? lhs.fvarId! |
+          throwError "Missing hypothesis for argument {lhs} of{indentExpr l}"
+        match kind with
+        | .eq => proof := proof.app hyp
+        | .heq => proof := proof.app <| mkApp4 (.const ``heq_of_eq [lvl]) type lhs rhs hyp
+        | _ => unreachable!
+    return proof
 where
-  go (cmp hyp : Expr) (goal : Expr) (k : (newGoal : Expr) → MetaM Expr) : MetaM Expr := do
+  go (cmp hyp : Expr) (goal : Expr) (equations : FVarIdMap Expr)
+      (k : (newGoal : Expr) → FVarIdMap Expr → MetaM Expr) : MetaM Expr := withIncRecDepth do
     let fn := cmp.getAppFn
     if let .fvar f := fn then
       match ctx.varInfo.get! f with
       | .function i =>
         -- Given `cmp = f_i ⋯ a b`, we have `heq : a = b`
         let a := cmp.appFn!.appArg!
-        let b := cmp.appArg!
+        let _b := cmp.appArg!
         let heq := (cmp.updateFn lawfulHyps[i]!).app hyp
-        -- Now we need to substitute
-        withSubst goal a b heq k
+        k goal (equations.insert a.fvarId! heq)
       | .cmpVar _i =>
         -- We have `cmp = cmpFn ⋯ (fieldᵢ ⋯) ⋯ (fieldᵢ' ⋯')`
         -- The proof we need here is `ihᵢ ⋯₁ ⋯ (fieldᵢ' ⋯')`
@@ -1024,37 +1046,44 @@ where
           let heq := mkApp4 (.const ``eq_of_heq [u]) α lhs rhs heq
           -- Turn the equality `fieldᵢ ⋯ = fieldᵢ' ⋯'` into an equality `fieldᵢ = fieldᵢ'`
           let heq ← proveEqUnitLikeApp lhs rhs heq
-          -- Now we need to substitute
-          withSubst goal lhs rhs heq k
+          k goal (equations.insert fn.fvarId! heq)
     else if fn == kind.eqIndicator then
       -- this hypothesis gives us no usable information
-      k goal
+      k goal equations
     else if fn == kind.chain then
       let #[lhs, rhs] := cmp.getAppArgs | unreachable!
       let lhyp := mkApp3 kind.chainLeft lhs rhs hyp
       let rhyp := mkApp3 kind.chainRight lhs rhs hyp
-      go lhs lhyp goal fun newGoal => go rhs rhyp newGoal k
+      go lhs lhyp goal equations fun newGoal equations => go rhs rhyp newGoal equations k
     else if fn == kind.dependentChain then
       let #[lhs, rhs] := cmp.getAppArgs | unreachable!
       let lhyp := mkApp3 kind.dependentChainLeft lhs rhs hyp
       let rhyp := mkApp3 kind.dependentChainRight lhs rhs hyp
       let rhs' := rhs.betaRev #[lhyp]
-      -- Revert `rhyp`
-      let revertedGoal : Expr := .forallE `rhyp (kind.mkEq rhs') goal .default
-      let res ← go lhs lhyp revertedGoal fun newGoal => do
-        forallBoundedTelescope newGoal (some 1) fun vars newGoal => do
-          let ty ← inferType vars[0]!
-          mkLambdaFVars vars <| ← go ty.appFn!.appArg! vars[0]! newGoal k
-      return res.app rhyp
+      go lhs lhyp goal equations fun newGoal equations => do
+        go rhs' rhyp newGoal equations k
     else if fn.isConstOf ``Eq.rec || fn.isConstOf ``Eq.ndrec then
+      -- to prove things about `Eq.rec`, we have to use `Eq.rec` ourselves
       let args := cmp.getAppArgs
-      -- the left and right hand sides should be equal; but not necessarily syntacticly
-      assert! args.size >= 6
-      unless ← isDefEq args[1]! args[4]! do
-        throwError "Failed to reduce{indentExpr cmp}"
-      go (args[3]!.beta (args.drop 6)) hyp goal k
+      let [_, u] := fn.constLevels! | unreachable!
+      let #[α, lhs, motive, refl, rhs, eqHyp] := args.take 6 |
+        throwError "Invalid goal for `CmpHelper.proveLawfulHEq`:{indentExpr cmp}"
+      let overArgs := args.drop 6
+      assert! lhs.isFVar && rhs.isFVar && overArgs.all (·.isFVar)
+      let eq := mkApp3 (.const ``Eq [u]) α lhs rhs
+      let eqRefl := mkApp2 (.const ``Eq.refl [u]) α lhs
+      let ourMotive ← withLocalDeclD `heq eq fun heq => do
+        let eqRecApp := mkAppN (mkApp6 fn α lhs motive refl rhs heq) overArgs
+        mkLambdaFVars #[rhs, heq] <| ← mkForallFVars overArgs (← mkArrow (kind.mkEq eqRecApp) goal)
+      let ourRefl ← forallBoundedTelescope (ourMotive.beta #[lhs, eqRefl]) (some <| overArgs.size + 1)
+        fun vars goal => do
+          let hyp := vars.back!
+          let cmp := refl.beta vars.pop
+          mkLambdaFVars vars (← go cmp hyp goal equations k)
+      return mkAppN (mkApp6 (.const ``Eq.rec [0, u]) α lhs ourMotive ourRefl rhs eqHyp) overArgs
+        |>.app hyp
     else
-      throwError "Invalid goal for `CmpHelper.proveLawfulEq`:{indentExpr cmp}"
+      throwError "Invalid goal for `CmpHelper.proveLawfulHEq`:{indentExpr cmp}"
 
 def mkMaybeCtorElim (motive : Expr) (majors : Array Expr) (targetCtor : Name)
     (ctorBranch : (fields : Array Expr) → (motiveArgs : Array Expr) → MetaM Expr)

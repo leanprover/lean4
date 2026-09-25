@@ -927,13 +927,15 @@ private def applyAbstractResult? (type : Expr) (abstResult? : Option AbstractMVa
   return some result
 
 /-- Returns whether every recorded lookup in `log` gives the same answer in `opts`. -/
-private def validOptionAccesses (opts : Options) (log : Array RecordedOptionAccess) : Bool :=
-  log.all fun a => opts.find? a.name == a.value
+private def validOptionAccesses (opts : Options) (log : RecordedDeps) : Bool :=
+  log.options.all fun n => opts.find? n == log.base.find? n
 
 /-- Adds the dependencies of a nested query or a used cache entry to those of the enclosing query. -/
 private def _root_.Lean.RecordedDeps.mergeInto (child parent : RecordedDeps) : RecordedDeps :=
-  let options := child.options.foldl (init := parent.options) fun l a =>
-    if l.any (·.name == a.name) then l else l.push a
+  let options := child.options.foldl (init := parent.options) fun l n =>
+    -- A lookup answering differently from the parent's `base` was served by a write the parent
+    -- itself opened, so it is not a dependency of the parent.
+    if l.contains n || parent.base.find? n != child.base.find? n then l else l.push n
   { parent with options }
 
 /--
@@ -943,7 +945,7 @@ private def findCachedResult? (key : SynthInstanceCacheKey) : MetaM (Option Synt
   -- unrestricted: compared against the recorded lookups
   let opts ← getOptionsUnrestricted
   let some entries := (← get).cache.synthInstance.find? key | return none
-  return entries.find? (validOptionAccesses opts ·.deps.options)
+  return entries.find? (validOptionAccesses opts ·.deps)
 
 /--
 Auxiliary function for converting a cached `AbstractMVarsResult` returned by `SynthInstance.main` into an `Expr`.
@@ -972,9 +974,13 @@ private def cacheResult (cacheKey : SynthInstanceCacheKey) (log : RecordedDeps) 
       result?.map fun result => { expr := result, paramNames := #[], mvars := #[] }
     else
       some abstResult
-  -- Sorted so that comparing logs compares the sets of lookups, which the search can reach in any
-  -- order; an entry with the same dependencies is replaced.
-  let log := { log with options := log.options.qsort (fun a b => Name.quickLt a.name b.name) }
+  -- Stored with sorted names and `base` restricted to them, so that equal logs record the same
+  -- lookups with the same answers and an entry does not keep the full options alive.
+  let options := log.options.qsort Name.quickLt
+  let base := options.foldl (init := {}) fun b n => match log.base.find? n with
+    | some v => b.insert n v
+    | none   => b
+  let log := { options, base }
   modifyCache fun c => { c with synthInstance := c.synthInstance.alter cacheKey fun entries? =>
     some <| { deps := log, result? := value? } :: (entries?.getD [] |>.filter (·.deps != log)) }
 
@@ -996,7 +1002,11 @@ def synthInstanceCore? (type : Expr) (maxResultSize? : Option Nat := none) : Met
   -- becomes the entry's dependency log (`SynthInstanceCache`). The enclosing query's log, if any, is
   -- saved here and merged with this query's on exit, as it observed the result.
   let parentRecording := (← readThe Core.Context).isRecordingDeps
-  let parentDeps ← modifyGetThe Core.State fun s => (s.recordedDeps, { s with recordedDeps := {} })
+  -- These are the options `findCachedResult?` below validates entries against, so a lookup is
+  -- recorded with the answer that validation later compares.
+  let base ← getOptionsUnrestricted
+  let parentDeps ← modifyGetThe Core.State fun s =>
+    (s.recordedDeps, { s with recordedDeps := { base } })
   try
   withTheReader Core.Context (fun ctx => { ctx with isRecordingDeps := true }) do
   withTraceNode `Meta.synthInstance

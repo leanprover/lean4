@@ -49,3 +49,26 @@ Hint: Type class instance resolution failures can be inspected with the `set_opt
 example : T × T :=
   (set_option synthInstance.maxSize 1 in inferInstance,
    set_option synthInstance.maxSize 128 in inferInstance)
+
+abbrev MyNat := Nat
+
+/-- Reads an option under a write opened inside the recording query, via the unfolding hook. -/
+private def readUnderWrite : Config → ConstantInfo → CoreM Bool := fun _ _ => do
+  withSetOption Meta.maxSynthPendingDepth 42 do
+    discard <| getRecordedOption Meta.maxSynthPendingDepth
+  return true
+
+-- A lookup under a write opened inside the query observes the written value in every context, so
+-- it is not a dependency: recording it would pin the entry to `maxSynthPendingDepth = 42`, and the
+-- second query would miss.
+/--
+trace: [Meta.synthInstance.cache] new: Boo MyNat
+[Meta.synthInstance.cache] cached: Boo MyNat
+-/
+#guard_msgs in
+run_cmd liftTermElabM do
+  let q := mkApp (mkConst ``Boo) (mkConst ``MyNat)
+  withOptions (·.setBool `trace.Meta.synthInstance.cache true) do
+    withCanUnfoldPred readUnderWrite do
+      discard <| synthInstance? q
+      discard <| synthInstance? q

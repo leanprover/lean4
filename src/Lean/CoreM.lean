@@ -221,23 +221,20 @@ def ofOptions (opts : Options) : OptionFlags :=
 end OptionFlags
 
 /--
-An option lookup made by a recording computation, see `Lean.getRecordedOption`. We store the raw
-`Options.find?` result so that validation can distinguish an unset option from one set to
-its default, just like a computation could.
--/
-structure RecordedOptionAccess where
-  name  : Name
-  value : Option DataValue
-  deriving BEq
-
-/--
 The dependencies observed by a recording computation, accumulated in `Core.State.recordedDeps`.
 A result cached by the computation stays valid as long as they give the same answers. Currently used
 by type class resolution, see `Lean.Meta.SynthInstance`.
 -/
 structure RecordedDeps where
-  /-- The option lookups, deduplicated by name. -/
-  options : Array RecordedOptionAccess := #[]
+  /-- The names of the options looked up, deduplicated. -/
+  options : Array Name := #[]
+  /--
+  The options in effect when recording started, against which a cached entry is later validated. A
+  lookup answering differently was served by a write inside the computation (`Lean.withSetOption`),
+  so it does not depend on the ambient options and is not recorded. The recorded answers are read
+  from it, so a stored entry keeps it, restricted to the looked-up names.
+  -/
+  base : Options := {}
   deriving Inhabited, BEq
 
 namespace Core
@@ -929,12 +926,14 @@ where doCompile := do
 def compileDecl (decl : Declaration) (logErrors := true) : CoreM Unit := do
   compileDecls (Compiler.getDeclNamesForCodeGen decl) logErrors
 
-private def recordOptionAccess (access : RecordedOptionAccess) : CoreM Unit := do
+private def recordOptionAccess (name : Name) (value : Option DataValue) : CoreM Unit := do
   if (← read).isRecordingDeps then
-    -- Repeated lookups of an option dominate, so the membership test comes before the update.
+    -- Repeated lookups of an option dominate, so the membership test comes first. A lookup
+    -- answering differently from `base` was served by a write inside the computation, so it is not
+    -- a dependency.
     let d := (← get).recordedDeps
-    unless d.options.any (·.name == access.name) do
-      Core.modifyRecordedDeps fun ⟨options⟩ => ⟨options.push access⟩
+    if !d.options.contains name && d.base.find? name == value then
+      Core.modifyRecordedDeps fun deps => { deps with options := deps.options.push name }
 
 /--
 Reads an option and, inside a recording computation, records the lookup in
@@ -943,7 +942,7 @@ this is `Lean.Option.get`.
 -/
 def getRecordedOption [KVMap.Value α] (opt : Lean.Option α) : CoreM α := do
   let raw := (← getOptionsUnrestricted).find? opt.name
-  recordOptionAccess { name := opt.name, value := raw }
+  recordOptionAccess opt.name raw
   return (raw.bind KVMap.Value.ofDataValue?).getD opt.defValue
 
 def getDiag (opts : Options) : Bool :=

@@ -133,7 +133,16 @@ public def mkSparseCasesOn (indName : Name) (ctors : Array Name) : MetaM Name :=
     (value       := value)
     (hints       := ReducibilityHints.abbrev)
   addDecl (.defnDecl decl)
-  modifyEnv fun env => sparseCasesOnCacheExt.modifyState env fun s => s.insert key declName
+  modifyEnv fun env => sparseCasesOnCacheExt.modifyState env fun s =>
+    have : Inhabited _ := ⟨s⟩
+    -- write-once, as for `MapDeclarationExtension.insert`
+    match s.find? key with
+    | some prev =>
+      if prev != declName then
+        panic! s!"sparse `casesOn` for `{declName}` is already registered as `{prev}`"
+      else
+        s
+    | none => s.insert key declName
   setReducibleAttribute declName
   modifyEnv fun env => markSparseCasesOn env declName
   modifyEnv fun env => sparseCasesOnInfoExt.insert env declName {

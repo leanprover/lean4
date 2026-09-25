@@ -51,6 +51,12 @@ structure RequestOverrides where
   -/
   maxRedirects : Option Nat := none
 
+  /--
+  Overrides `Config.onlySafeRedirects` for this request. Set this to opt a single unsafe request
+  into (or out of) automatic redirect following without changing the client-wide policy.
+  -/
+  onlySafeRedirects : Option Bool := none
+
 /--
 Client connection configuration.
 -/
@@ -181,7 +187,8 @@ request. Fields left `none` keep their configured value.
 def apply (overrides : RequestOverrides) (config : Config) : Config :=
   { config with
     requestTimeout := overrides.requestTimeout.getD config.requestTimeout
-    maxRedirects := overrides.maxRedirects.getD config.maxRedirects }
+    maxRedirects := overrides.maxRedirects.getD config.maxRedirects
+  }
 
 end RequestOverrides
 

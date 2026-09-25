@@ -495,6 +495,10 @@ static obj_res mk_closure_3_2(lean_cfun3 fn, obj_arg a1, obj_arg a2) {
 static object * g_array_empty = nullptr;
 
 object * array_mk_empty() {
+    return lean_mk_empty_array();
+}
+
+extern "C" LEAN_EXPORT object * lean_mk_empty_array() {
     return g_array_empty;
 }
 

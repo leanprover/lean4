@@ -10,7 +10,6 @@ Author: Sofia Rodrigues
 
 #include <openssl/err.h>
 #include <cerrno>
-#include <cstring>
 #include <string>
 
 #endif
@@ -42,12 +41,6 @@ lean_object * mk_openssl_error(char const * where) {
     }
 
     return lean_mk_io_user_error(mk_string(msg));
-}
-
-lean_obj_res reject_embedded_nul(b_obj_arg path) {
-    return strlen(lean_string_cstr(path)) == lean_string_size(path) - 1
-        ? nullptr
-        : mk_embedded_nul_error(path);
 }
 
 lean_obj_res mk_ssl_invalid_argument(char const * msg) {

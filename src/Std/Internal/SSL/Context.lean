@@ -41,6 +41,25 @@ inductive PEM where
   -/
   | text (contents : String)
 
+/--
+PEM bytes as the runtime takes them, with the file they were read from so that a failure to parse
+them names it.
+-/
+private structure LoadedPEM where
+  bytes : ByteArray
+  path? : Option System.FilePath
+
+private def PEM.load : PEM → IO LoadedPEM
+  | .text contents =>
+    return { bytes := contents.toUTF8, path? := none }
+  | .file path => do
+    let bytes ← try IO.FS.readBinFile path catch
+      | .inappropriateType none code details =>
+        throw <| .inappropriateType (some path.toString) code details
+      | e =>
+        throw e
+    return { bytes, path? := some path }
+
 private opaque ContextServerImpl : NonemptyType.{0}
 
 /--
@@ -74,7 +93,7 @@ structure Config where
   key : PEM
 
 @[extern "lean_ssl_ctx_mk_server"]
-private opaque mkImpl (cert : @& PEM) (key : @& PEM) : IO Context.Server
+private opaque mkImpl (cert : @& LoadedPEM) (key : @& LoadedPEM) : IO Context.Server
 
 /--
 Creates a server-side TLS context from a certificate chain and private key. The server does not
@@ -84,8 +103,8 @@ Certificates are not checked against the clock, so an expired one loads here and
 during the handshake. A key that does not match the leaf certificate is rejected, as is an encrypted
 key.
 -/
-def mk (cfg : Config) : IO Context.Server :=
-  mkImpl cfg.cert cfg.key
+def mk (cfg : Config) : IO Context.Server := do
+  mkImpl (← cfg.cert.load) (← cfg.key.load)
 
 end Server
 
@@ -149,7 +168,7 @@ structure Config where
   allowPartialChain : Bool := false
 
 @[extern "lean_ssl_ctx_mk_client"]
-private opaque mkImpl (ca : @& Option PEM) (verifyPeer : Bool) (trustSystemRoots : Bool)
+private opaque mkImpl (ca : @& Option LoadedPEM) (verifyPeer : Bool) (trustSystemRoots : Bool)
     (allowPartialChain : Bool) : IO Context.Client
 
 /--
@@ -163,8 +182,15 @@ platform supplies no anchors; without `ca` that case is refused.
 Verification proves the certificate chains to a trusted anchor, **not** that it belongs to the host
 being connected to. Binding a hostname is the session layer's job.
 -/
-def mk (cfg : Config := {}) : IO Context.Client :=
-  mkImpl cfg.ca cfg.verifyPeer cfg.trustSystemRoots cfg.allowPartialChain
+def mk (cfg : Config := {}) : IO Context.Client := do
+  if cfg.verifyPeer && !cfg.trustSystemRoots && cfg.ca.isNone then
+    -- `EINVAL`, like the material the runtime rejects.
+    throw <| .invalidArgument none 22 "no trust anchors: peer verification is on, the platform \
+      trust anchors are excluded, and no CA certificate was given"
+
+  -- The CA material is not even read without verification.
+  let ca ← if cfg.verifyPeer then cfg.ca.mapM PEM.load else pure none
+  mkImpl ca cfg.verifyPeer cfg.trustSystemRoots cfg.allowPartialChain
 
 end Client
 end Context

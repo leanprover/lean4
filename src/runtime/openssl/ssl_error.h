@@ -21,10 +21,6 @@ namespace lean {
 lean_object * mk_openssl_error(char const * where);
 inline lean_obj_res mk_openssl_io_error(char const * where) { return lean_io_result_mk_error(mk_openssl_error(where)); }
 
-// Rejects a path whose bytes cannot reach the OS, which takes it as a NUL-terminated string and so
-// would silently act on a prefix. Returns `nullptr` when the path is fine to pass on.
-lean_obj_res reject_embedded_nul(b_obj_arg path);
-
 // Reports a failure with no errno behind it, discarding the queue so it cannot taint a later one.
 lean_obj_res mk_ssl_invalid_argument(char const * msg);
 

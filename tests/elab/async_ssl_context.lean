@@ -429,9 +429,8 @@ def testRejectsNulInPaths (f : Fixtures) : IO Unit := do
   assertErrorMessage "NUL byte in CA path" (nulByteError caPath)
     (discard <| Context.Client.mk { ca := some (.file caPath) })
 
-  -- Checked even though the file would not be read.
-  assertErrorMessage "NUL byte in CA path without verification" (nulByteError caPath)
-    (discard <| Context.Client.mk { ca := some (.file caPath), verifyPeer := false })
+  -- Without verification the CA path is never touched.
+  let _clientCtx ← Context.Client.mk { ca := some (.file caPath), verifyPeer := false }
 
 /-!
 CA material must contain at least one certificate; keys and CRLs alone parse without error.
@@ -517,7 +516,6 @@ def testAcceptsWeakCertAsCA (f : Fixtures) : IO Unit := do
   let _clientCtx ← Context.Client.mk { ca := some (.text testWeakCertPEM) }
   let _clientCtx2 ← Context.Client.mk { ca := some (.file f.weak) }
 
--- Never handed to the C library, whose Windows build may end the process over it.
 def testMkServerRejectsEmptyPaths (f : Fixtures) : IO Unit := do
   assertErrorMessage "empty server cert path" (missingFileError "")
     (discard <| Context.Server.mk { cert := .file "", key := .file f.key })
@@ -528,37 +526,34 @@ def testMkServerRejectsEmptyPaths (f : Fixtures) : IO Unit := do
   assertErrorMessage "empty CA path" (missingFileError "")
     (discard <| Context.Client.mk { ca := some (.file "") })
 
--- POSIX `fopen` succeeds on a directory, so a non-regular file is noted after the fact, appended to
--- the failure OpenSSL reported.
+-- POSIX opens a directory and fails the read; Windows cannot open it at all.
 def testRejectsDirectoryPaths (f : Fixtures) : IO Unit := do
-  let note := " (the path is not a regular file)"
+  let expected :=
+    [ s!"inappropriate type (error code: 21, illegal operation on a directory)\n  file: {f.dir}",
+      s!"permission denied (error code: 13)\n  file: {f.dir}" ]
 
-  assertErrorMessage "directory as server cert"
-    (malformedFileError f.dir ("could not read a PEM certificate chain" ++ note))
+  assertErrorMessageOneOf "directory as server cert" expected
     (discard <| Context.Server.mk { cert := .file f.dir, key := .file f.key })
 
-  assertErrorMessage "directory as server key"
-    (malformedFileError f.dir ("could not read an unencrypted PEM private key" ++ note))
+  assertErrorMessageOneOf "directory as server key" expected
     (discard <| Context.Server.mk { cert := .file f.cert, key := .file f.dir })
 
-  -- POSIX opens the directory and reads nothing; the Windows CRT cannot open it at all.
-  assertErrorMessageOneOf "directory as CA file"
-    [ malformedFileError f.dir (caNoCerts ++ note),
-      malformedFileError f.dir (caUnreadable ++ note) ]
+  assertErrorMessageOneOf "directory as CA file" expected
     (discard <| Context.Client.mk { ca := some (.file f.dir) })
 
--- A readable non-regular file.
-def testAppendsNoteToReadableNonRegularFile (f : Fixtures) : IO Unit := do
+  -- Without verification the CA path is never touched.
+  let _clientCtx ← Context.Client.mk { ca := some (.file f.dir), verifyPeer := false }
+
+-- A readable non-regular file is read like any other.
+def testReadsNonRegularFile (f : Fixtures) : IO Unit := do
   if System.Platform.isWindows then
     return
 
-  assertErrorMessage "character device as CA file"
-    (malformedFileError "/dev/null" (caNoCerts ++ " (the path is not a regular file)"))
+  assertErrorMessage "character device as CA file" (malformedFileError "/dev/null" caNoCerts)
     (discard <| Context.Client.mk { ca := some (.file "/dev/null") })
 
   assertErrorMessage "character device as server key"
-    (malformedFileError "/dev/null"
-      "could not read an unencrypted PEM private key (the path is not a regular file)")
+    (malformedFileError "/dev/null" "could not read an unencrypted PEM private key")
     (discard <| Context.Server.mk { cert := .file f.cert, key := .file "/dev/null" })
 
 -- Skipped when the permission bits do not bite, which is the case for a privileged user.
@@ -698,4 +693,4 @@ def testCertEnvVarsNeverBreakDefaultContext (f : Fixtures) : IO Unit := do
   testMkRejectsNonDirectoryParent f
   testMkServerRejectsEmptyPaths f
   testRejectsDirectoryPaths f
-  testAppendsNoteToReadableNonRegularFile f
+  testReadsNonRegularFile f

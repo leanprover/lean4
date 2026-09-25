@@ -1966,10 +1966,9 @@ the lexicographic order for products.
     [WellFoundedRelation γ] (f : α → Fun) (a : α) (n : γ) :
     (ofMeasure (Pred := Pred) f).EvalsTo a n = NondetFun.EvalsTo (f a) n := rfl
 
-/-! Fixed-arity specializations of `evalsTo_ofMeasure` at a lattice tower ending in `Prop`, in the
-manner of `CompleteLattice.ofProp_apply_1` and its siblings: the ground instances leave every
-parameter recoverable from the trigger, so these are usable `@[grind =]` lemmas where the general
-`NondetFun.evalsTo_apply` is not. The `pure` family is for a measure whose value depends on the
+/-! Fixed-arity specializations of `evalsTo_ofMeasure` at a lattice tower ending in `Prop`: the
+ground instances leave every parameter recoverable from the trigger, so these are usable
+`@[grind =]` lemmas where the general `NondetFun.evalsTo_apply` is not. The `pure` family is for a measure whose value depends on the
 cursor alone, as in `ofMeasure fun i => n - i`, which `NondetFun` interprets as that value. -/
 
 @[grind =] theorem evalsTo_ofMeasure_apply_1 {α : Type} {σ₁ : Type} {γ : Type}
@@ -2070,9 +2069,9 @@ measures. -/
   rfl
 
 /-! Fixed-arity specializations of `evalsBelow_ofMeasure_apply` for `Nat`-valued measures at a
-lattice tower ending in `Prop`, in the manner of `CompleteLattice.ofProp_apply_1` and its
-siblings: the ground instances leave every parameter recoverable from the trigger, so these are
-usable `@[grind =]` lemmas where the general `evalsBelow_ofMeasure_apply` is not. -/
+lattice tower ending in `Prop`: the ground instances leave every parameter recoverable from the
+trigger, so these are usable `@[grind =]` lemmas where the general `evalsBelow_ofMeasure_apply` is
+not. -/
 
 @[grind =] theorem evalsBelow_ofMeasure_apply_1 {α : Type} {σ₁ : Type}
     (f : α → σ₁ → Nat) (a' : α) (ma : Nat) (s₁ : σ₁) :

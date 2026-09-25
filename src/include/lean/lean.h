@@ -370,61 +370,34 @@ static inline size_t lean_unbox(lean_object * o) { return (size_t)(o) >> 1; }
 #define LEAN_TSAN
 #endif
 
-/*
-Under TSan we access `m_rc` through sequentially consistent atomics so that the otherwise
-non-atomic single-threaded fast paths are not flagged as data races.
-*/
-
 static inline int lean_internal_get_rc(lean_object* o) {
-#ifdef LEAN_TSAN
 #ifdef __cplusplus
-    return std::atomic_load_explicit((_Atomic(int)*)(&(o)->m_rc), std::memory_order_seq_cst);
+    return std::atomic_load_explicit((_Atomic(int)*)(&(o)->m_rc), std::memory_order_relaxed);
 #else
-    return atomic_load_explicit((_Atomic(int)*)(&(o)->m_rc), memory_order_seq_cst);
-#endif
-#else
-    return o->m_rc;
+    return atomic_load_explicit((_Atomic(int)*)(&(o)->m_rc), memory_order_relaxed);
 #endif
 }
 
 static inline void lean_internal_set_rc(lean_object* o, int rc) {
-#ifdef LEAN_TSAN
 #ifdef __cplusplus
-    std::atomic_store_explicit((_Atomic(int)*)(&(o)->m_rc), rc, std::memory_order_seq_cst);
+    std::atomic_store_explicit((_Atomic(int)*)(&(o)->m_rc), rc, std::memory_order_relaxed);
 #else
-    atomic_store_explicit((_Atomic(int)*)(&(o)->m_rc), rc, memory_order_seq_cst);
-#endif
-#else
-    o->m_rc = rc;
+    atomic_store_explicit((_Atomic(int)*)(&(o)->m_rc), rc, memory_order_relaxed);
 #endif
 }
 
 static inline void lean_internal_add_rc(lean_object* o, int add) {
-#ifdef LEAN_TSAN
-#ifdef __cplusplus
-    std::atomic_fetch_add_explicit((_Atomic(int)*)(&(o)->m_rc), add, std::memory_order_seq_cst);
-#else
-    atomic_fetch_add_explicit((_Atomic(int)*)(&(o)->m_rc), add, memory_order_seq_cst);
-#endif
-#else
     // Use unsigned arithmetic so that overflowing the single-threaded reference count wraps
     // deterministically into the negative "sticky" range instead of being undefined behavior.
     // The wrapped value is detected and frozen in `lean_inc_ref_n`, which keeps `add` small enough
     // for the wrap to land inside the sticky range (see `LEAN_RC_INC_MAX`).
-    o->m_rc = (int)((unsigned)o->m_rc + (unsigned)add);
-#endif
+    int rc = (unsigned)lean_internal_get_rc(o);
+    int result = (int)((unsigned)rc + (unsigned)add);
+    lean_internal_set_rc(o, result);
 }
 
 static inline void lean_internal_sub_rc(lean_object* o, int sub) {
-#ifdef LEAN_TSAN
-#ifdef __cplusplus
-    std::atomic_fetch_sub_explicit((_Atomic(int)*)(&(o)->m_rc), sub, std::memory_order_seq_cst);
-#else
-    atomic_fetch_sub_explicit((_Atomic(int)*)(&(o)->m_rc), sub, memory_order_seq_cst);
-#endif
-#else
-    o->m_rc -= sub;
-#endif
+    lean_internal_set_rc(o, lean_internal_get_rc(o) - sub);
 }
 
 LEAN_EXPORT void lean_set_exit_on_panic(bool flag);

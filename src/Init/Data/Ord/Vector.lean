@@ -23,7 +23,7 @@ namespace Vector
 
 open Std
 
-@[expose]
+@[expose, inline]
 protected def compareLex {α n} (cmp : α → α → Ordering) (a b : Vector α n) : Ordering :=
   Array.compareLex cmp a.toArray b.toArray
 

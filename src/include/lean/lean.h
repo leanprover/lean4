@@ -386,14 +386,16 @@ static inline void lean_internal_set_rc(lean_object* o, int rc) {
 #endif
 }
 
+/* `rc + add` on a reference count. Uses unsigned arithmetic so that overflowing a single-threaded
+   count wraps deterministically into the negative "sticky" range instead of being undefined behavior.
+   `lean_inc_ref_n` keeps `add` small enough for the wrap to land inside that range (see
+   `LEAN_RC_INC_MAX`). */
+static inline int lean_rc_add(int rc, int add) {
+    return (int)((unsigned)rc + (unsigned)add);
+}
+
 static inline void lean_internal_add_rc(lean_object* o, int add) {
-    // Use unsigned arithmetic so that overflowing the single-threaded reference count wraps
-    // deterministically into the negative "sticky" range instead of being undefined behavior.
-    // The wrapped value is detected and frozen in `lean_inc_ref_n`, which keeps `add` small enough
-    // for the wrap to land inside the sticky range (see `LEAN_RC_INC_MAX`).
-    int rc = (unsigned)lean_internal_get_rc(o);
-    int result = (int)((unsigned)rc + (unsigned)add);
-    lean_internal_set_rc(o, result);
+    lean_internal_set_rc(o, lean_rc_add(lean_internal_get_rc(o), add));
 }
 
 static inline void lean_internal_sub_rc(lean_object* o, int sub) {
@@ -600,21 +602,34 @@ LEAN_EXPORT size_t lean_object_byte_size(lean_object * o);
    the non-salient parts may not be initialized. */
 LEAN_EXPORT size_t lean_object_data_byte_size(lean_object * o);
 
+/* The `lean_rc_*` predicates classify a reference count already read with `lean_internal_get_rc`, so
+   that code testing it several times, or also adjusting it, reads it only once. Each `lean_is_*`
+   predicate on an object is its `lean_rc_*` counterpart applied to a fresh read. */
+
+static inline bool lean_rc_is_mt(int rc) { return rc < 0; }
+static inline bool lean_rc_is_st(int rc) { return rc > 0; }
+/* We never update the reference counter of objects stored in compact regions and allocated at initialization time. */
+static inline bool lean_rc_is_persistent(int rc) { return rc == 0; }
+static inline bool lean_rc_has_rc(int rc) { return rc != 0; }
+/* Single-threaded and the only reference. */
+static inline bool lean_rc_is_exclusive(int rc) { return rc == 1; }
+/* Single-threaded with more than one reference. Thread-shared counts are not "shared" in this sense. */
+static inline bool lean_rc_is_shared(int rc) { return rc > 1; }
+
 static inline bool lean_is_mt(lean_object * o) {
-    return lean_internal_get_rc(o) < 0;
+    return lean_rc_is_mt(lean_internal_get_rc(o));
 }
 
 static inline bool lean_is_st(lean_object * o) {
-    return lean_internal_get_rc(o) > 0;
+    return lean_rc_is_st(lean_internal_get_rc(o));
 }
 
-/* We never update the reference counter of objects stored in compact regions and allocated at initialization time. */
 static inline bool lean_is_persistent(lean_object * o) {
-    return lean_internal_get_rc(o) == 0;
+    return lean_rc_is_persistent(lean_internal_get_rc(o));
 }
 
 static inline bool lean_has_rc(lean_object * o) {
-    return lean_internal_get_rc(o) != 0;
+    return lean_rc_has_rc(lean_internal_get_rc(o));
 }
 
 static inline _Atomic(int) * lean_get_rc_mt_addr(lean_object* o) {
@@ -640,17 +655,25 @@ static inline _Atomic(int) * lean_get_rc_mt_addr(lean_object* o) {
    adjust. Read as unsigned, a persistent count (0), a single-threaded count and a stuck count all
    fall below every such count, so one comparison rejects them all. */
 // sync with tests/elab/rc_model.lean (`isUnstuckMt_unsigned`)
+static inline bool lean_rc_is_unstuck_mt(int rc) {
+    return (unsigned)rc > (unsigned)LEAN_RC_STICKY;
+}
+
 static inline bool lean_is_unstuck_mt(lean_object * o) {
-    return (unsigned)lean_internal_get_rc(o) > (unsigned)LEAN_RC_STICKY;
+    return lean_rc_is_unstuck_mt(lean_internal_get_rc(o));
 }
 
 /* Whether the count of `o` is one no drop will ever free: persistent, or at or below the drop
    threshold. Read as unsigned, both fall below every unstuck thread-shared count, so one comparison
    catches both; so would a single-threaded count, which callers must have excluded first. */
 // sync with tests/elab/rc_model.lean (`isNeverFreed_unsigned`)
+static inline bool lean_rc_is_never_freed(int rc) {
+    assert(!lean_rc_is_st(rc));
+    return (unsigned)rc <= (unsigned)LEAN_RC_STICKY_DROP;
+}
+
 static inline bool lean_is_never_freed(lean_object * o) {
-    assert(!lean_is_st(o));
-    return (unsigned)lean_internal_get_rc(o) <= (unsigned)LEAN_RC_STICKY_DROP;
+    return lean_rc_is_never_freed(lean_internal_get_rc(o));
 }
 
 /* Largest `n` that `lean_inc_ref_n` adjusts the count by inline; above this it defers to
@@ -686,10 +709,9 @@ static inline void lean_inc_ref_n(lean_object * o, size_t n) {
         return;
     }
     int rc = lean_internal_get_rc(o);
-    if (LEAN_LIKELY(rc > 0)) {
-        // TODO: overflow semantics important
-        lean_internal_set_rc(o, rc + n);
-    } else if (lean_is_unstuck_mt(o)) {
+    if (LEAN_LIKELY(lean_rc_is_st(rc))) {
+        lean_internal_set_rc(o, lean_rc_add(rc, (int)n));
+    } else if (lean_rc_is_unstuck_mt(rc)) {
 #ifdef __cplusplus
         std::atomic_fetch_sub_explicit(lean_get_rc_mt_addr(o), n, std::memory_order_relaxed);
 #else
@@ -707,9 +729,9 @@ LEAN_EXPORT void lean_dec_ref_cold(lean_object * o);
 // sync with tests/elab/rc_model.lean (`decRef`)
 static inline LEAN_ALWAYS_INLINE void lean_dec_ref(lean_object * o) {
     int rc = lean_internal_get_rc(o);
-    if (LEAN_LIKELY(rc > 1)) {
+    if (LEAN_LIKELY(lean_rc_is_shared(rc))) {
         lean_internal_set_rc(o, rc - 1);
-    } else if (rc != 0) {
+    } else if (lean_rc_has_rc(rc)) {
         lean_dec_ref_cold(o);
     }
 }
@@ -745,11 +767,7 @@ static inline lean_ref_object * lean_to_ref(lean_object * o) { assert(lean_is_re
 static inline lean_external_object * lean_to_external(lean_object * o) { assert(lean_is_external(o)); return (lean_external_object*)(o); }
 
 static inline bool lean_is_exclusive(lean_object * o) {
-    if (LEAN_LIKELY(lean_is_st(o))) {
-        return lean_internal_get_rc(o) == 1;
-    } else {
-        return false;
-    }
+    return lean_rc_is_exclusive(lean_internal_get_rc(o));
 }
 
 static inline uint8_t lean_is_exclusive_obj(lean_object * o) {
@@ -757,11 +775,7 @@ static inline uint8_t lean_is_exclusive_obj(lean_object * o) {
 }
 
 static inline bool lean_is_shared(lean_object * o) {
-    if (LEAN_LIKELY(lean_is_st(o))) {
-        return lean_internal_get_rc(o) > 1;
-    } else {
-        return false;
-    }
+    return lean_rc_is_shared(lean_internal_get_rc(o));
 }
 
 static inline bool lean_is_marked_linear_core(b_lean_obj_arg o) {

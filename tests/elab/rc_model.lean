@@ -57,14 +57,31 @@ The value of {name}`LEAN_RC_STUCK_ST`, which {lit}`decide` cannot compute throug
 theorem LEAN_RC_STUCK_ST_eq : LEAN_RC_STUCK_ST = Int32.minValue + 0x10000 := by
   cases System.Platform.numBits_eq <;> bv_decide
 
-/-- {lit}`lean_is_st`. -/
+/-!
+The predicates below mirror the {lit}`lean_rc_*` predicates on a count already read, which the
+runtime uses to read the count once however many of them it tests.
+-/
+
+/-- {lit}`lean_rc_is_st`. -/
 abbrev isSt (rc : Int32) : Bool := rc > 0
 
-/-- {lit}`lean_is_mt`. Note this holds of stuck counts too; they are also negative. -/
+/-- {lit}`lean_rc_is_mt`. Note this holds of stuck counts too; they are also negative. -/
 abbrev isMt (rc : Int32) : Bool := rc < 0
 
-/-- {lit}`lean_is_persistent`. -/
+/-- {lit}`lean_rc_is_persistent`. -/
 abbrev isPersistent (rc : Int32) : Bool := rc == 0
+
+/-- {lit}`lean_rc_has_rc`. -/
+abbrev hasRc (rc : Int32) : Bool := rc != 0
+
+/-- {lit}`lean_rc_is_exclusive`: single-threaded and the only reference. -/
+abbrev isExclusive (rc : Int32) : Bool := rc == 1
+
+/--
+{lit}`lean_rc_is_shared`: single-threaded with more than one reference. This is about references,
+not threads; it is unrelated to {lit}`isUnshared` below.
+-/
+abbrev isShared (rc : Int32) : Bool := rc > 1
 
 /-- Stuck in the sticky range: never adjusted or freed again. -/
 abbrev isStuck (rc : Int32) : Bool := rc ≤ LEAN_RC_STICKY
@@ -75,17 +92,17 @@ abbrev isStuckSt (rc : Int32) : Bool := rc ≤ LEAN_RC_STUCK_ST
 /--
 {lit}`is_unshared`, whether an object is owned by one thread:
 ```
-    return rc > 0 || rc <= LEAN_RC_STUCK_ST;
+    return lean_rc_is_st(rc) || rc <= LEAN_RC_STUCK_ST;
 ```
 -/
-abbrev isUnshared (rc : Int32) : Bool := rc > 0 || rc ≤ LEAN_RC_STUCK_ST
+abbrev isUnshared (rc : Int32) : Bool := isSt rc || rc ≤ LEAN_RC_STUCK_ST
 
 /-- A thread-shared count that is not stuck, so one that still tracks references. -/
 abbrev isUnstuckMt (rc : Int32) : Bool := isMt rc && !isStuck rc
 
 /--
-{lit}`lean_is_unstuck_mt` is the single comparison
-{lit}`(unsigned)lean_internal_get_rc(o) > (unsigned)LEAN_RC_STICKY`: read as unsigned, a persistent,
+{lit}`lean_rc_is_unstuck_mt` is the single comparison
+{lit}`(unsigned)rc > (unsigned)LEAN_RC_STICKY`: read as unsigned, a persistent,
 a single-threaded and a stuck count all fall below every unstuck thread-shared count.
 -/
 theorem isUnstuckMt_unsigned (rc : Int32) :
@@ -107,12 +124,15 @@ abbrev refCountNat (rc : Int32) : Nat := (refCount rc).toNatClampNeg
 /--
 The thread-shared arm of {lit}`lean_inc_ref_huge_n`, sans concurrent semantics:
 ```
-    while (n > 0 && lean_is_unstuck_mt(o)) {
+    while (n > 0 && lean_rc_is_unstuck_mt(rc)) {
         size_t chunk = std::min(n, LEAN_RC_INC_MAX);
-        std::atomic_fetch_sub_explicit(lean_get_rc_mt_addr(o), (int)chunk, std::memory_order_relaxed);
+        int old = std::atomic_fetch_sub_explicit(lean_get_rc_mt_addr(o), (int)chunk,
+                                                 std::memory_order_relaxed);
+        rc = lean_rc_add(old, -(int)chunk);
         n -= chunk;
     }
 ```
+Sequentially {lit}`old` is the count the previous iteration left, so {lit}`rc` is just decremented.
 -/
 def incRefHugeMt (rc : Int32) (n : USize) : Int32 := Id.run do
   let mut rc := rc
@@ -189,8 +209,8 @@ theorem incRefHugeMt_spec (rc : Int32) (n : USize) (h : isUnstuckMt rc) :
 /--
 {lit}`lean_inc_ref_huge_n`:
 ```
-    if (lean_is_st(o)) {
-        int rc = lean_internal_get_rc(o);
+    int rc = lean_internal_get_rc(o);
+    if (lean_rc_is_st(rc)) {
         if (n > (size_t)(INT_MAX - rc)) lean_internal_set_rc(o, LEAN_RC_STUCK_ST);
         else                            lean_internal_set_rc(o, rc + (int)n);
     } else {
@@ -208,12 +228,14 @@ abbrev incRefHugeN (rc : Int32) (n : USize) : Int32 :=
 {lit}`lean_inc_ref_n(o, n)`, sans concurrent semantics:
 ```
     if (LEAN_UNLIKELY(n > LEAN_RC_INC_MAX)) { lean_inc_ref_huge_n(o, n); return; }
-    if (LEAN_LIKELY(lean_is_st(o))) {
-        lean_internal_add_rc(o, n);
-    } else if (lean_is_unstuck_mt(o)) {
+    int rc = lean_internal_get_rc(o);
+    if (LEAN_LIKELY(lean_rc_is_st(rc))) {
+        lean_internal_set_rc(o, lean_rc_add(rc, (int)n));
+    } else if (lean_rc_is_unstuck_mt(rc)) {
         std::atomic_fetch_sub_explicit(lean_get_rc_mt_addr(o), n, std::memory_order_relaxed);
     }
 ```
+{lit}`lean_rc_add` wraps, as {name}`Int32` addition does.
 -/
 abbrev incRefN (rc : Int32) (n : USize) : Int32 := Id.run do
   if n > LEAN_RC_INC_MAX then return incRefHugeN rc n
@@ -262,8 +284,9 @@ abbrev isDropStopped (rc : Int32) : Bool := rc ≤ LEAN_RC_STICKY_DROP
 /--
 {lit}`lean_dec_ref_cold`, as the count it leaves behind or {lit}`none` if the object was freed:
 ```
-    if (lean_internal_get_rc(o) != 1) {
-        if (LEAN_UNLIKELY(lean_is_never_freed(o))) return;
+    int rc = lean_internal_get_rc(o);
+    if (!lean_rc_is_exclusive(rc)) {
+        if (LEAN_UNLIKELY(lean_rc_is_never_freed(rc))) return;
         if (std::atomic_fetch_add_explicit(lean_get_rc_mt_addr(o), 1,
                                           std::memory_order_acq_rel) != -1) return;
     }
@@ -274,7 +297,7 @@ whether to free is against {lit}`-1` while the count the object keeps is {lit}`0
 -/
 abbrev decRefCold (rc : Int32) : Option Int32 := Id.run do
   let mut rc := rc
-  if rc != 1 then
+  if !isExclusive rc then
     if rc.toUInt32 ≤ LEAN_RC_STICKY_DROP.toUInt32 then return some rc
     let old := rc
     rc := rc + 1
@@ -284,16 +307,18 @@ abbrev decRefCold (rc : Int32) : Option Int32 := Id.run do
 /--
 {lit}`lean_dec_ref`:
 ```
-    if (LEAN_LIKELY(lean_internal_get_rc(o) > 1)) {
-        lean_internal_sub_rc(o, 1);
-    } else if (lean_internal_get_rc(o) != 0) {
+    int rc = lean_internal_get_rc(o);
+    if (LEAN_LIKELY(lean_rc_is_shared(rc))) {
+        lean_internal_set_rc(o, rc - 1);
+    } else if (lean_rc_has_rc(rc)) {
         lean_dec_ref_cold(o);
     }
 ```
+{lit}`lean_dec_ref_cold` reads the count again, which sequentially is the same count.
 -/
 abbrev decRef (rc : Int32) : Option Int32 :=
-  if rc > 1 then some (rc - 1)
-  else if rc != 0 then decRefCold rc
+  if isShared rc then some (rc - 1)
+  else if hasRc rc then decRefCold rc
   else some rc
 
 theorem decRef_spec (rc : Int32) :
@@ -314,8 +339,8 @@ theorem decRef_spec (rc : Int32) :
 abbrev isNeverFreed (rc : Int32) : Bool := isPersistent rc || isDropStopped rc
 
 /--
-{lit}`lean_is_never_freed` is the single comparison
-{lit}`(unsigned)lean_internal_get_rc(o) <= (unsigned)LEAN_RC_STICKY_DROP`, which both drop paths
+{lit}`lean_rc_is_never_freed` is the single comparison
+{lit}`(unsigned)rc <= (unsigned)LEAN_RC_STICKY_DROP`, which both drop paths
 reach only once a single-threaded count is excluded. On the counts that remain it is exactly
 {name}`isNeverFreed`; a single-threaded count would read as never freed too.
 -/
@@ -386,8 +411,8 @@ theorem never_freed_is_absorbing (rc : Int32) (n : USize) (h : isNeverFreed rc) 
 The count {lit}`lean_mark_mt` leaves on each object it visits when sharing it with other threads.
 Which objects it visits is not modelled.
 ```
-        if (!lean_is_scalar(o) && is_unshared(o)) {
-            int rc = lean_internal_get_rc(o);
+        int rc = lean_internal_get_rc(o);
+        if (is_unshared(rc)) {
             lean_internal_set_rc(o, rc < 0 || -rc <= LEAN_RC_STICKY_DROP ? LEAN_RC_STICKY : -rc);
 ```
 -/

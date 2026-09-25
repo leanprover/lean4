@@ -335,11 +335,11 @@ static inline void dec(lean_object * o, lean_object* & todo) {
     if (lean_is_scalar(o))
         return;
     int rc = lean_internal_get_rc(o);
-    if (LEAN_LIKELY(rc > 1)) {
-        lean_internal_sub_rc(o, 1);
-    } else if (rc == 1) {
+    if (LEAN_LIKELY(lean_rc_is_shared(rc))) {
+        lean_internal_set_rc(o, rc - 1);
+    } else if (lean_rc_is_exclusive(rc)) {
         push_back(todo, o);
-    } else if (lean_is_never_freed(o)) {
+    } else if (lean_rc_is_never_freed(rc)) {
         return;
     } else if (std::atomic_fetch_add_explicit(lean_get_rc_mt_addr(o), 1, std::memory_order_acq_rel) == -1) {
         push_back(todo, o);
@@ -433,20 +433,21 @@ static object * lean_del_core(object * o, object * todo) {
 // sync with tests/elab/rc_model.lean (`incRefHugeN`)
 extern "C" LEAN_EXPORT void lean_inc_ref_huge_n(lean_object * o, size_t n) {
     // `n` is above what `lean_inc_ref_n` adjusts by inline. Only `lean_mk_array` gets here.
-    if (lean_is_st(o)) {
-        int rc = lean_internal_get_rc(o);
+    int rc = lean_internal_get_rc(o);
+    if (lean_rc_is_st(rc)) {
         if (n > (size_t)(INT_MAX - rc))
             lean_internal_set_rc(o, LEAN_RC_STUCK_ST);
         else
             lean_internal_set_rc(o, rc + (int)n);
     } else {
         // The loop condition is the sticky test `lean_inc_ref_n` makes before its own
-        // `fetch_sub`, so each iteration is one ordinary increment of at most `LEAN_RC_INC_MAX`,
-        // and re-reading the count stops the loop once the count freezes.
-        while (n > 0 && lean_is_unstuck_mt(o)) {
+        // `fetch_sub`, so each iteration is one ordinary increment of at most `LEAN_RC_INC_MAX`.
+        // Testing the count each `fetch_sub` leaves stops the loop once the count freezes.
+        while (n > 0 && lean_rc_is_unstuck_mt(rc)) {
             size_t chunk = std::min(n, LEAN_RC_INC_MAX);
-            std::atomic_fetch_sub_explicit(lean_get_rc_mt_addr(o), (int)chunk,
-                                           std::memory_order_relaxed);
+            int old = std::atomic_fetch_sub_explicit(lean_get_rc_mt_addr(o), (int)chunk,
+                                                     std::memory_order_relaxed);
+            rc = lean_rc_add(old, -(int)chunk);
             n -= chunk;
         }
     }
@@ -456,8 +457,9 @@ extern "C" LEAN_EXPORT void lean_inc_ref_huge_n(lean_object * o, size_t n) {
 extern "C" LEAN_EXPORT void lean_dec_ref_cold(lean_object * o) {
     // `rc == 1` is the hot single-threaded free path and can never be sticky, so the sticky check
     // is kept out of it.
-    if (lean_internal_get_rc(o) != 1) {
-        if (LEAN_UNLIKELY(lean_is_never_freed(o)))
+    int rc = lean_internal_get_rc(o);
+    if (!lean_rc_is_exclusive(rc)) {
+        if (LEAN_UNLIKELY(lean_rc_is_never_freed(rc)))
             return;
         if (std::atomic_fetch_add_explicit(lean_get_rc_mt_addr(o), 1, std::memory_order_acq_rel) != -1)
             return;
@@ -647,27 +649,28 @@ static obj_res mark_mt_fn(obj_arg o) {
 
 // Whether `o` is owned by one thread: its count is single-threaded or overflowed from one.
 // sync with tests/elab/rc_model.lean (`isUnshared`)
-static inline bool is_unshared(object * o) {
-    int rc = lean_internal_get_rc(o);
-    return rc > 0 || rc <= LEAN_RC_STUCK_ST;
+static inline bool is_unshared(int rc) {
+    return lean_rc_is_st(rc) || rc <= LEAN_RC_STUCK_ST;
 }
 
 extern "C" LEAN_EXPORT void lean_mark_mt(object * o) {
 #ifndef LEAN_MULTI_THREAD
     return;
 #endif
-    if (lean_is_scalar(o) || !is_unshared(o)) return;
+    if (lean_is_scalar(o) || !is_unshared(lean_internal_get_rc(o))) return;
 
     buffer<object*> todo;
     todo.push_back(o);
     while (!todo.empty()) {
         object * o = todo.back();
         todo.pop_back();
-        if (!lean_is_scalar(o) && is_unshared(o)) {
+        if (lean_is_scalar(o))
+            continue;
+        int rc = lean_internal_get_rc(o);
+        if (is_unshared(rc)) {
             // A count that overflowed, or is too large for the live thread-shared range, freezes at
             // `LEAN_RC_STICKY`, where no later `lean_mark_mt` takes it for an unshared one.
             // sync with tests/elab/rc_model.lean (`markMtRc`)
-            int rc = lean_internal_get_rc(o);
             lean_internal_set_rc(o, rc < 0 || -rc <= LEAN_RC_STICKY_DROP ? LEAN_RC_STICKY : -rc);
             uint8_t tag = lean_ptr_tag(o);
             if (tag <= LeanMaxCtorTag) {

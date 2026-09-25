@@ -1448,7 +1448,10 @@ static inline atomic<object*> * mt_ref_val_addr(object * o) {
   object as we do for multi-threaded `ST.Ref`s. It makes sense since
   the global `ST.Ref` may be used to communicate data between threads.
 */
-static inline bool ref_maybe_mt(b_obj_arg ref) { return lean_is_mt(ref) || lean_is_persistent(ref); }
+static inline bool ref_maybe_mt(b_obj_arg ref) {
+    int rc = lean_internal_get_rc(ref);
+    return lean_rc_is_mt(rc) || lean_rc_is_persistent(rc);
+}
 
 extern "C" LEAN_EXPORT obj_res lean_st_ref_get(b_obj_arg ref) {
     if (ref_maybe_mt(ref)) {

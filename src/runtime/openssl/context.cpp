@@ -20,9 +20,7 @@ Author: Sofia Rodrigues
 #include <limits>
 #include <memory>
 #include <string>
-#include <sys/stat.h>
 #include <unordered_set>
-#include <uv.h>
 
 #endif
 
@@ -34,51 +32,27 @@ lean_external_class * g_ssl_context_external_class = nullptr;
 
 static int reject_encrypted_pem(char *, int, int, void *) { return -1; }
 
-// PEM material the caller named: a path when `is_file`, otherwise the bytes themselves.
+// A `LoadedPEM`: the PEM bytes, and the `Option FilePath` they were read from.
 struct pem_source {
-    b_obj_arg obj;
-    bool is_file;
+    b_obj_arg bytes;
+    b_obj_arg path;
 
-    // Reads a `Std.Internal.SSL.PEM`, whose `file` and `text` constructors each hold one string (a
-    // `FilePath` is represented by its string).
-    static pem_source of(b_obj_arg pem) { return { lean_ctor_get(pem, 0), lean_obj_tag(pem) == 0 }; }
+    static pem_source of(b_obj_arg pem) { return { lean_ctor_get(pem, 0), lean_ctor_get(pem, 1) }; }
 
-    char const * data() const { return lean_string_cstr(obj); }
-    size_t size() const { return lean_string_size(obj) - 1; }
+    char const * data() const { return reinterpret_cast<char const *>(lean_sarray_cptr(bytes)); }
+    size_t size() const { return lean_sarray_size(bytes); }
 };
 
-// In-memory PEM is read with a length, so only a path must be free of NULs.
-static lean_obj_res reject_nul_path(pem_source src) {
-    return src.is_file ? reject_embedded_nul(src.obj) : nullptr;
-}
+// Reports a failure to use `src`, naming the file it came from when there is one.
+static lean_obj_res mk_pem_error(pem_source src, char const * msg) {
+    if (lean_is_scalar(src.path)) return mk_ssl_invalid_argument(msg);
 
-// Reports a failure against a path. `errnum` is the `errno` the open failed with, or 0 for a
-// failure with no OS error behind it (unparsable PEM, a key that does not match its certificate).
-static lean_obj_res mk_ssl_file_error(b_obj_arg file, char const * msg, int errnum = 0) {
     ERR_clear_error();
 
-    // libuv takes the path as UTF-8 on Windows as well, where `stat` reads it in the ANSI code page.
-    uv_fs_t req;
-    bool irregular = uv_fs_stat(nullptr, &req, lean_string_cstr(file), nullptr) == 0 &&
-                     !S_ISREG(req.statbuf.st_mode);
-    uv_fs_req_cleanup(&req);
+    b_obj_arg path = lean_ctor_get(src.path, 0);
+    lean_inc(path);
 
-    if (irregular) {
-        lean_inc(file);
-        return lean_io_result_mk_error(lean_mk_io_error_invalid_argument_file(
-            file, EINVAL, mk_string(std::string(msg) + " (the path is not a regular file)")));
-    }
-
-    if (errnum != 0) return lean_io_result_mk_error(decode_io_error(errnum, file));
-
-    lean_inc(file);
-    return lean_io_result_mk_error(lean_mk_io_error_invalid_argument_file(
-        file, EINVAL, mk_string(msg)));
-}
-
-// Reports a failure against PEM material, naming the path when there is one to name.
-static lean_obj_res mk_pem_error(pem_source src, char const * msg) {
-    return src.is_file ? mk_ssl_file_error(src.obj, msg) : mk_ssl_invalid_argument(msg);
+    return lean_io_result_mk_error(lean_mk_io_error_invalid_argument_file(path, EINVAL, mk_string(msg)));
 }
 
 // Whether a certificate was turned away on policy grounds rather than being unreadable as PEM.
@@ -94,21 +68,8 @@ static bool rejected_by_security_level() {
 
 // Opens `src` for reading. On failure returns nullptr and stores an IO error in `*err`.
 static BIO * open_pem_bio(pem_source src, char const * unreadable, lean_obj_res * err) {
-    // The Windows CRT fails an empty name with EINVAL where POSIX reports ENOENT.
-    if (src.is_file && src.size() == 0) {
-        *err = lean_io_result_mk_error(decode_io_error(ENOENT, src.obj));
-        return nullptr;
-    }
-
-    if (src.is_file) {
-        errno = 0;
-        BIO * bio = BIO_new_file(src.data(), "rb");
-        if (bio == nullptr) *err = mk_ssl_file_error(src.obj, unreadable, errno);
-        return bio;
-    }
-
     if (src.size() > static_cast<size_t>(std::numeric_limits<int>::max())) {
-        *err = mk_ssl_invalid_argument("the PEM string is too large");
+        *err = mk_pem_error(src, "the PEM material is too large");
         return nullptr;
     }
 
@@ -373,9 +334,6 @@ static lean_obj_res mk_server_ctx(b_obj_arg cert, b_obj_arg key) {
     pem_source cert_src = pem_source::of(cert);
     pem_source key_src = pem_source::of(key);
 
-    if (lean_obj_res err = reject_nul_path(cert_src)) return err;
-    if (lean_obj_res err = reject_nul_path(key_src)) return err;
-
     lean_obj_res base_err = nullptr;
     ssl_ctx_ptr ctx = mk_ssl_ctx_base(TLS_server_method(), &base_err);
     if (ctx == nullptr) return base_err;
@@ -454,22 +412,12 @@ static lean_obj_res load_ca_bundle(SSL_CTX * ctx, pem_source src, bool require_a
 
 static lean_obj_res mk_client_ctx(b_obj_arg ca_opt, uint8_t verify_peer, uint8_t trust_system_roots, uint8_t allow_partial_chain) {
     bool has_ca = !lean_is_scalar(ca_opt);
-    pem_source ca = has_ca ? pem_source::of(lean_ctor_get(ca_opt, 0)) : pem_source { nullptr, false };
-
-    // Checked even when `verifyPeer` is off and the path would not be read.
-    if (lean_obj_res err = reject_nul_path(ca)) return err;
-
-    if (verify_peer && !trust_system_roots && !has_ca) {
-        return mk_ssl_invalid_argument(
-            "no trust anchors: peer verification is on, the platform trust anchors are excluded, "
-            "and no CA certificate was given");
-    }
+    pem_source ca = has_ca ? pem_source::of(lean_ctor_get(ca_opt, 0)) : pem_source { nullptr, nullptr };
 
     lean_obj_res err = nullptr;
     ssl_ctx_ptr ctx = mk_ssl_ctx_base(TLS_client_method(), &err);
     if (ctx == nullptr) return err;
 
-    // The CA material is never read without verification.
     if (!verify_peer) {
         SSL_CTX_set_verify(ctx.get(), SSL_VERIFY_NONE, nullptr);
         return wrap_ssl_context(std::move(ctx));
@@ -522,12 +470,12 @@ static lean_obj_res ssl_entry_point(F && build) {
     }
 }
 
-/* Std.Internal.SSL.Context.Server.mkImpl (cert key : @& PEM) : IO Context.Server */
+/* Std.Internal.SSL.Context.Server.mkImpl (cert key : @& LoadedPEM) : IO Context.Server */
 extern "C" LEAN_EXPORT lean_obj_res lean_ssl_ctx_mk_server(b_obj_arg cert, b_obj_arg key) {
     return ssl_entry_point([&] { return mk_server_ctx(cert, key); });
 }
 
-/* Std.Internal.SSL.Context.Client.mkImpl (ca : @& Option PEM) (verifyPeer trustSystemRoots allowPartialChain : Bool) : IO Context.Client */
+/* Std.Internal.SSL.Context.Client.mkImpl (ca : @& Option LoadedPEM) (verifyPeer trustSystemRoots allowPartialChain : Bool) : IO Context.Client */
 extern "C" LEAN_EXPORT lean_obj_res lean_ssl_ctx_mk_client(b_obj_arg ca, uint8_t verify_peer, uint8_t trust_system_roots, uint8_t allow_partial_chain) {
     return ssl_entry_point([&] {
         return mk_client_ctx(ca, verify_peer, trust_system_roots, allow_partial_chain);

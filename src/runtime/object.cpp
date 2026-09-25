@@ -334,9 +334,10 @@ static inline lean_object * pop_back(lean_object * & todo) {
 static inline void dec(lean_object * o, lean_object* & todo) {
     if (lean_is_scalar(o))
         return;
-    if (LEAN_LIKELY(lean_internal_get_rc(o) > 1)) {
+    int rc = lean_internal_get_rc(o);
+    if (LEAN_LIKELY(rc > 1)) {
         lean_internal_sub_rc(o, 1);
-    } else if (lean_internal_get_rc(o) == 1) {
+    } else if (rc == 1) {
         push_back(todo, o);
     } else if (lean_is_never_freed(o)) {
         return;

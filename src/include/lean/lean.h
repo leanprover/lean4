@@ -685,8 +685,10 @@ static inline void lean_inc_ref_n(lean_object * o, size_t n) {
         lean_inc_ref_huge_n(o, n);
         return;
     }
-    if (LEAN_LIKELY(lean_is_st(o))) {
-        lean_internal_add_rc(o, n);
+    int rc = lean_internal_get_rc(o);
+    if (LEAN_LIKELY(rc > 0)) {
+        // TODO: overflow semantics important
+        lean_internal_set_rc(o, rc + n);
     } else if (lean_is_unstuck_mt(o)) {
 #ifdef __cplusplus
         std::atomic_fetch_sub_explicit(lean_get_rc_mt_addr(o), n, std::memory_order_relaxed);
@@ -704,9 +706,10 @@ LEAN_EXPORT void lean_dec_ref_cold(lean_object * o);
 
 // sync with tests/elab/rc_model.lean (`decRef`)
 static inline LEAN_ALWAYS_INLINE void lean_dec_ref(lean_object * o) {
-    if (LEAN_LIKELY(lean_internal_get_rc(o) > 1)) {
-        lean_internal_sub_rc(o, 1);
-    } else if (lean_internal_get_rc(o) != 0) {
+    int rc = lean_internal_get_rc(o);
+    if (LEAN_LIKELY(rc > 1)) {
+        lean_internal_set_rc(o, rc - 1);
+    } else if (rc != 0) {
         lean_dec_ref_cold(o);
     }
 }

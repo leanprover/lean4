@@ -192,6 +192,7 @@ where
           -- avoid follow-up errors by (trying to) add broken decl as axiom
           addAsAxiom
           throw ex
+        recordAxioms decl
   addAsAxiom := do
     -- try to add as axiom with given type for def/theorem
     match decl with

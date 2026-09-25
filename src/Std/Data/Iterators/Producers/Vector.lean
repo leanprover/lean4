@@ -14,9 +14,8 @@ set_option doc.verso true
 /-!
 # Vector iterator
 
-This module provides forward and reverse iterators for vectors that are accessible via
-{name (scope := "Std.Data.Iterators.Producers.Vector")}`Vector.iter` and
-{name (scope := "Std.Data.Iterators.Producers.Vector")}`Vector.iterRev`.
+This module provides an iterator for vectors that is accessible via
+{name (scope := "Std.Data.Iterators.Producers.Vector")}`Vector.iter`.
 -/
 
 @[expose] public section
@@ -54,35 +53,3 @@ The monadic version of this iterator is
 @[always_inline, inline]
 def Vector.iter {α : Type w} (xs : Vector α n) :=
   (xs.toArray.iter : Iter α)
-
-/--
-Returns a finite reverse iterator for the given vector starting at the given index.
-The iterator yields the elements of the vector in reverse order and then terminates.
-
-The monadic version of this iterator is
-{name (scope := "Std.Data.Iterators.Producers.Monadic.Vector")}`Vector.iterRevFromIdxM`.
-
-**Termination properties:**
-
-* {name}`Finite` instance: always
-* {name}`Productive` instance: always
--/
-@[always_inline, inline]
-def Vector.iterRevFromIdx {α : Type w} (xs : Vector α n) (pos : Nat) :=
-  (xs.toArray.iterRevFromIdx pos : Iter α)
-
-/--
-Returns a finite reverse iterator for the given vector.
-The iterator yields the elements of the vector in reverse order and then terminates.
-
-The monadic version of this iterator is
-{name (scope := "Std.Data.Iterators.Producers.Monadic.Vector")}`Vector.iterRevM`.
-
-**Termination properties:**
-
-* {name}`Finite` instance: always
-* {name}`Productive` instance: always
--/
-@[always_inline, inline]
-def Vector.iterRev {α : Type w} (xs : Vector α n) :=
-  (xs.toArray.iterRev : Iter α)

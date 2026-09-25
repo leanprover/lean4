@@ -211,34 +211,35 @@ private def goodHypothesisKeys (keys : Array DiscrTree.Key) (env : Environment) 
 inductive CanonicalInstanceFailure where
   | nonUnique (matching filtered : Array InstanceEntry)
   | unifyFailed (instEntry : InstanceEntry)
-  | hasMVars (instEntry : InstanceEntry) (e : Expr) (isArg : Bool)
+  | hasMVars (mctx : MetavarContext) (instEntry : InstanceEntry) (e : Expr) (isArg : Bool)
 deriving Inhabited
 
 def CanonicalInstanceFailure.isNoMatch : CanonicalInstanceFailure → Bool
-  | .nonUnique matching _ => matching.isEmpty
+  | .nonUnique _ filtered => filtered.isEmpty
   | _ => false
 
 def CanonicalInstanceFailure.isMultiMatch : CanonicalInstanceFailure → Bool
   | .nonUnique _ filtered => filtered.size > 1
   | _ => false
 
-def CanonicalInstanceFailure.toMessageData : CanonicalInstanceFailure → MessageData
+def CanonicalInstanceFailure.toMessageData : CanonicalInstanceFailure → MetaM MessageData
   | .nonUnique matching filtered =>
     if matching.isEmpty then
-      "No matching instances"
+      return "No matching instances"
     else if filtered.isEmpty then
-      if let #[single] := filtered then
-        m!"The instance {single.val} matched but did not have the right shape to be considered"
+      if let #[single] := matching then
+        return m!"The instance {single.val} matched but did not have the right shape to be considered"
       else
-        m!"The instances {.andList (matching.map (·.val)).toList} matched but none of them \
+        return m!"The instances {.andList (matching.map (·.val)).toList} matched but none of them \
           had the right shape to be considered"
     else
-      m!"There were multiple instance candidates: {.andList (filtered.map (·.val)).toList}"
-  | .unifyFailed instEntry => m!"Failed to unify conclusion of {instEntry.val}"
-  | .hasMVars instEntry e isArg =>
-    m!"After unifying with the conclusion of {instEntry.val}, \
-      the {if isArg then "argument" else "instance application"}{indentExpr e}\n\
-      still contained unexpected {if e.hasLevelMVar then "level " else ""}metavariables"
+      return m!"There were multiple instance candidates: {.andList (filtered.map (·.val)).toList}"
+  | .unifyFailed instEntry => return m!"Failed to unify with the conclusion of {instEntry.val}"
+  | .hasMVars mctx instEntry e isArg =>
+    withMCtx mctx do
+      addMessageContext m!"After unifying with the conclusion of {instEntry.val}, \
+        the {if isArg then "argument" else "instance application"}{indentExpr e}\n\
+        still contained unexpected {if e.hasLevelMVar then "level " else ""}metavariables"
 
 def chooseInstance (possible : Array InstanceEntry) : CoreM (Option InstanceEntry) := do
   if possible.isEmpty then
@@ -304,16 +305,16 @@ def tryApplyCanonicalInstance (instType : Expr) :
       return .error (.unifyFailed instEntry)
     let c ← instantiateMVars c
     if c.hasLevelMVar then
-      return .error (.hasMVars instEntry c (isArg := false))
+      return .error (.hasMVars (← getMCtx) instEntry c (isArg := false))
     let mctx ← getMCtx
     let mut res := c
     for arg in args do
       let arg ← instantiateMVars arg
       -- all metavariables that were there before should be synthetic opaque
       if arg.hasLevelMVar then
-        return .error (.hasMVars instEntry c (isArg := true))
+        return .error (.hasMVars mctx instEntry arg (isArg := true))
       if arg.hasAnyMVar (fun m => !(mctx.getDecl m).kind.isSyntheticOpaque) then
-        return .error (.hasMVars instEntry c (isArg := true))
+        return .error (.hasMVars mctx instEntry arg (isArg := true))
       res := res.app arg
     trace[Elab.Deriving] "Result: {res}, {outVars}"
     return .ok (← mkLambdaFVars vars res, outVars)
@@ -432,7 +433,7 @@ private partial def synthInstanceDerivingAux (type : Expr)
   | .error e =>
     if ← containsRecursiveDecl type then
       throwError "Got stuck at instance requirement for nested type:{indentExpr type}\n\
-        Reason: {e.toMessageData}"
+        Reason: {← e.toMessageData}"
     setMCtx mctx
     let res ← pushInstanceHypothesis type className
     let mvar := res.getAppFn.mvarId!
@@ -513,7 +514,7 @@ private def checkInstanceHypotheses (instanceHyps : Array MVarId) : DerivingM Un
       were encountered that could not be synthesized:"
     for (type, reason?) in complexHyps do
       if let some reason := reason? then
-        msg := msg ++ indentD (type ++ ", reason:" ++ indentD reason.toMessageData)
+        msg := msg ++ indentD (type ++ ", reason:" ++ indentD (← reason.toMessageData))
       else
         msg := msg ++ indentD type
     if complexHyps.any (·.2.any (·.isNoMatch)) then

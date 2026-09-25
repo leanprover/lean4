@@ -75,8 +75,13 @@ macro_rules
     | 0 => `(tactic| skip)
     | n+1 => `(tactic| ($seq:tacticSeq); iterate $(quote n) $seq:tacticSeq)
 
-/--
-Rewrites with the given rules, normalizing casts prior to each step.
+/-- `rw_mod_cast [e₁, ..., eₙ]` uses `e₁`, ..., `eₙ` as rewrite rules on the main goal.
+Unlike `rw`, it normalizes casts prior to each step using `norm_cast`, so the tactic can be
+used in more situations.
+
+* `rw_mod_cast [e₁, ..., eₙ] at loc` rewrites at location(s) `loc`.
+* `rw_mod_cast (config := cfg) [e₁, ..., eₙ]` uses `cfg` as configuration for `norm_cast`
+  (see there for more information).
 -/
 syntax "rw_mod_cast" optConfig rwRuleSeq (location)? : tactic
 macro_rules
@@ -86,12 +91,15 @@ macro_rules
     `(tactic| ($[$tacs]*))
 
 /--
-Normalize casts in the goal and the given expression, then close the goal with `exact`.
+`exact_mod_cast e` normalizes casts in the goal and the term `e`, then closes the goal by `exact`.
+`exact_mod_cast` is equivalent to `exact (mod_cast e)`. In particular `by exact_mod_cast e` can be
+replaced with `mod_cast e`.
 -/
 macro "exact_mod_cast " e:term : tactic => `(tactic| exact mod_cast ($e : _))
 
 /--
-Normalize casts in the goal and the given expression, then `apply` the expression to the goal.
+`apply_mod_cast e` normalizes casts in the goal and the term `e`, then `apply` the term to the goal.
+`apply_mod_cast` is equivalent to `apply (mod_cast e)`.
 -/
 macro "apply_mod_cast " e:term : tactic => `(tactic| apply mod_cast ($e : _))
 

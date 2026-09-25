@@ -2208,11 +2208,29 @@ extern "C" LEAN_EXPORT bool lean_string_lt(object * s1, object * s2) {
     return r < 0 || (r == 0 && sz1 < sz2);
 }
 
+extern "C" LEAN_EXPORT bool lean_byte_array_lt(object * a1, object * a2) {
+    size_t sz1 = lean_sarray_size(a1);
+    size_t sz2 = lean_sarray_size(a2);
+    int r = std::memcmp(lean_sarray_cptr(a1), lean_sarray_cptr(a2), std::min(sz1, sz2));
+    return r < 0 || (r == 0 && sz1 < sz2);
+}
+
 // Constructor indices of `Ordering`: lt = 0, eq = 1, gt = 2.
 extern "C" LEAN_EXPORT uint8_t lean_string_compare(b_obj_arg s1, b_obj_arg s2) {
     size_t sz1 = lean_string_size(s1) - 1; // ignore null char in the end
     size_t sz2 = lean_string_size(s2) - 1; // ignore null char in the end
     int r      = std::memcmp(lean_string_cstr(s1), lean_string_cstr(s2), std::min(sz1, sz2));
+    if (r < 0) return 0;
+    if (r > 0) return 2;
+    if (sz1 < sz2) return 0;
+    if (sz1 > sz2) return 2;
+    return 1;
+}
+
+extern "C" LEAN_EXPORT uint8_t lean_byte_array_compare(b_obj_arg a1, b_obj_arg a2) {
+    size_t sz1 = lean_sarray_size(a1);
+    size_t sz2 = lean_sarray_size(a2);
+    int r = std::memcmp(lean_sarray_cptr(a1), lean_sarray_cptr(a2), std::min(sz1, sz2));
     if (r < 0) return 0;
     if (r > 0) return 2;
     if (sz1 < sz2) return 0;

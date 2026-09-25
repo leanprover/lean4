@@ -287,6 +287,10 @@ public instance {α : Type u} [BEq α] [LE α] [LawfulOrderBEq α] [IsPartialOrd
     simp only [beq_iff_le_and_ge, and_imp]
     apply le_antisymm
 
+public instance [LE α] [BEq α] [LawfulBEq α] [Refl (α := α) (· ≤ ·)]
+    [Antisymm (α := α) (· ≤ ·)] : LawfulOrderBEq α where
+  beq_iff_le_and_ge a b := by simp [le_antisymm_iff]
+
 end BEq
 end Std
 

@@ -15,20 +15,23 @@ extern "C" {
 #endif
 LEAN_EXPORT lean_object* l_Std_WP_WP_wp___redArg(lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Std_WP_WP_wp(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
-LEAN_EXPORT lean_object* l_Std_WP_WP_wp___redArg(lean_object* v_self_1_, lean_object* v_x_2_, lean_object* v_post_3_, lean_object* v_epost_4_){
+LEAN_EXPORT lean_object* l_Std_WP_WP_wp___redArg(lean_object* v_self_1_, lean_object* v_x_2_, lean_object* v_post_3_, lean_object* v_eposts_4_){
 _start:
 {
-lean_object* v___x_5_; 
-v___x_5_ = lean_apply_3(v_self_1_, v_x_2_, v_post_3_, v_epost_4_);
-return v___x_5_;
+lean_object* v_trans_5_; lean_object* v___x_6_; 
+v_trans_5_ = lean_ctor_get(v_self_1_, 0);
+lean_inc(v_trans_5_);
+lean_dec_ref(v_self_1_);
+v___x_6_ = lean_apply_3(v_trans_5_, v_x_2_, v_post_3_, v_eposts_4_);
+return v___x_6_;
 }
 }
-LEAN_EXPORT lean_object* l_Std_WP_WP_wp(lean_object* v_Prog_6_, lean_object* v_Value_7_, lean_object* v_Pred_8_, lean_object* v_EPred_9_, lean_object* v_inst_10_, lean_object* v_inst_11_, lean_object* v_self_12_, lean_object* v_x_13_, lean_object* v_post_14_, lean_object* v_epost_15_){
+LEAN_EXPORT lean_object* l_Std_WP_WP_wp(lean_object* v_Prog_7_, lean_object* v_Value_8_, lean_object* v_Pred_9_, lean_object* v_EPosts_10_, lean_object* v_inst_11_, lean_object* v_inst_12_, lean_object* v_self_13_, lean_object* v_x_14_, lean_object* v_post_15_, lean_object* v_eposts_16_){
 _start:
 {
-lean_object* v___x_16_; 
-v___x_16_ = lean_apply_3(v_self_12_, v_x_13_, v_post_14_, v_epost_15_);
-return v___x_16_;
+lean_object* v___x_17_; 
+v___x_17_ = l_Std_WP_WP_wp___redArg(v_self_13_, v_x_14_, v_post_15_, v_eposts_16_);
+return v___x_17_;
 }
 }
 lean_object* runtime_initialize_Std_WP_Assertion(uint8_t builtin);

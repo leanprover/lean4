@@ -338,7 +338,7 @@ static inline void dec(lean_object * o, lean_object* & todo) {
         lean_internal_sub_rc(o, 1);
     } else if (lean_internal_get_rc(o) == 1) {
         push_back(todo, o);
-    } else if (lean_internal_get_rc(o) == 0) {
+    } else if (lean_is_never_freed(o)) {
         return;
     } else if (std::atomic_fetch_add_explicit(lean_get_rc_mt_addr(o), 1, std::memory_order_acq_rel) == -1) {
         push_back(todo, o);
@@ -429,20 +429,20 @@ static object * lean_del_core(object * o, object * todo) {
     }
 }
 
-// sync with tests/elab/rc_sticky_thresholds.lean (`incRefHugeN`)
+// sync with tests/elab/rc_model.lean (`incRefHugeN`)
 extern "C" LEAN_EXPORT void lean_inc_ref_huge_n(lean_object * o, size_t n) {
     // `n` is above what `lean_inc_ref_n` adjusts by inline. Only `lean_mk_array` gets here.
     if (lean_is_st(o)) {
         int rc = lean_internal_get_rc(o);
         if (n > (size_t)(INT_MAX - rc))
-            lean_internal_set_rc(o, LEAN_RC_STICKY);
+            lean_internal_set_rc(o, LEAN_RC_STUCK_ST);
         else
             lean_internal_set_rc(o, rc + (int)n);
     } else {
         // The loop condition is the sticky test `lean_inc_ref_n` makes before its own
         // `fetch_sub`, so each iteration is one ordinary increment of at most `LEAN_RC_INC_MAX`,
         // and re-reading the count stops the loop once the count freezes.
-        while (n > 0 && (unsigned)lean_internal_get_rc(o) > (unsigned)LEAN_RC_STICKY) {
+        while (n > 0 && lean_is_unstuck_mt(o)) {
             size_t chunk = std::min(n, LEAN_RC_INC_MAX);
             std::atomic_fetch_sub_explicit(lean_get_rc_mt_addr(o), (int)chunk,
                                            std::memory_order_relaxed);
@@ -451,13 +451,13 @@ extern "C" LEAN_EXPORT void lean_inc_ref_huge_n(lean_object * o, size_t n) {
     }
 }
 
-// sync with tests/elab/rc_sticky_thresholds.lean (`decRefCold`)
+// sync with tests/elab/rc_model.lean (`decRefCold`)
 extern "C" LEAN_EXPORT void lean_dec_ref_cold(lean_object * o) {
     // `rc == 1` is the hot single-threaded free path and can never be sticky, so the sticky check
     // is kept out of it.
     if (lean_internal_get_rc(o) != 1) {
-        if (LEAN_UNLIKELY(lean_internal_get_rc(o) <= LEAN_RC_STICKY_DROP))
-            return; // over- or underflowed (sticky) count: never adjust or free
+        if (LEAN_UNLIKELY(lean_is_never_freed(o)))
+            return;
         if (std::atomic_fetch_add_explicit(lean_get_rc_mt_addr(o), 1, std::memory_order_acq_rel) != -1)
             return;
     }
@@ -644,19 +644,30 @@ static obj_res mark_mt_fn(obj_arg o) {
     return lean_box(0);
 }
 
+// Whether `o` is owned by one thread: its count is single-threaded or overflowed from one.
+// sync with tests/elab/rc_model.lean (`isUnshared`)
+static inline bool is_unshared(object * o) {
+    int rc = lean_internal_get_rc(o);
+    return rc > 0 || rc <= LEAN_RC_STUCK_ST;
+}
+
 extern "C" LEAN_EXPORT void lean_mark_mt(object * o) {
 #ifndef LEAN_MULTI_THREAD
     return;
 #endif
-    if (lean_is_scalar(o) || !lean_is_st(o)) return;
+    if (lean_is_scalar(o) || !is_unshared(o)) return;
 
     buffer<object*> todo;
     todo.push_back(o);
     while (!todo.empty()) {
         object * o = todo.back();
         todo.pop_back();
-        if (!lean_is_scalar(o) && lean_is_st(o)) {
-            lean_internal_set_rc(o, -lean_internal_get_rc(o));
+        if (!lean_is_scalar(o) && is_unshared(o)) {
+            // A count that overflowed, or is too large for the live thread-shared range, freezes at
+            // `LEAN_RC_STICKY`, where no later `lean_mark_mt` takes it for an unshared one.
+            // sync with tests/elab/rc_model.lean (`markMtRc`)
+            int rc = lean_internal_get_rc(o);
+            lean_internal_set_rc(o, rc < 0 || -rc <= LEAN_RC_STICKY_DROP ? LEAN_RC_STICKY : -rc);
             uint8_t tag = lean_ptr_tag(o);
             if (tag <= LeanMaxCtorTag) {
                 object ** it  = lean_ctor_obj_cptr(o);
@@ -2188,12 +2199,6 @@ extern "C" LEAN_EXPORT bool lean_string_eq_cold(b_lean_obj_arg s1, b_lean_obj_ar
 extern "C" LEAN_EXPORT bool lean_sarray_eq_cold(b_lean_obj_arg a1, b_lean_obj_arg a2) {
     size_t len = lean_sarray_elem_size(a1) * lean_sarray_size(a1);
     return std::memcmp(lean_sarray_cptr(a1), lean_sarray_cptr(a2), len) == 0;
-}
-
-bool string_eq(object * s1, char const * s2) {
-    if (lean_string_size(s1) != strlen(s2) + 1)
-        return false;
-    return std::memcmp(lean_string_cstr(s1), s2, lean_string_size(s1)) == 0;
 }
 
 extern "C" LEAN_EXPORT bool lean_string_lt(object * s1, object * s2) {

@@ -74,7 +74,7 @@ lean_object* l_Lean_Elab_Info_updateContext_x3f(lean_object*, lean_object*);
 lean_object* l_Lean_PersistentArray_toList___redArg(lean_object*);
 uint8_t l_Lean_Elab_Info_isSmaller(lean_object*, lean_object*);
 lean_object* l_Lean_Elab_Info_lctx(lean_object*);
-uint8_t lean_local_ctx_is_empty(lean_object*);
+uint8_t l_Lean_LocalContext_isEmpty(lean_object*);
 lean_object* lean_array_push(lean_object*, lean_object*);
 uint8_t l_Lean_Elab_Info_occursInOrOnBoundary(lean_object*, lean_object*);
 uint8_t l_Lean_Syntax_hasArgs(lean_object*);
@@ -829,12 +829,14 @@ lean_object* v_snd_200_; lean_object* v_snd_201_; uint8_t v___y_203_; uint8_t v_
 v_snd_200_ = lean_ctor_get(v_a_198_, 1);
 v_snd_201_ = lean_ctor_get(v_b_199_, 1);
 v___x_208_ = l_Lean_Elab_Info_lctx(v_snd_200_);
-v___x_209_ = lean_local_ctx_is_empty(v___x_208_);
+v___x_209_ = l_Lean_LocalContext_isEmpty(v___x_208_);
+lean_dec_ref(v___x_208_);
 if (v___x_209_ == 0)
 {
 lean_object* v___x_215_; uint8_t v___x_216_; 
 v___x_215_ = l_Lean_Elab_Info_lctx(v_snd_201_);
-v___x_216_ = lean_local_ctx_is_empty(v___x_215_);
+v___x_216_ = l_Lean_LocalContext_isEmpty(v___x_215_);
+lean_dec_ref(v___x_215_);
 if (v___x_216_ == 0)
 {
 v___y_211_ = v___x_216_;
@@ -896,7 +898,8 @@ else
 {
 lean_object* v___x_213_; uint8_t v___x_214_; 
 v___x_213_ = l_Lean_Elab_Info_lctx(v_snd_201_);
-v___x_214_ = lean_local_ctx_is_empty(v___x_213_);
+v___x_214_ = l_Lean_LocalContext_isEmpty(v___x_213_);
+lean_dec_ref(v___x_213_);
 if (v___x_214_ == 0)
 {
 v___y_203_ = v___x_212_;

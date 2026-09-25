@@ -42,7 +42,7 @@ size_t lean_usize_mul(size_t, size_t);
 lean_object* lean_st_ref_put(lean_object*, lean_object*);
 lean_object* l_Lean_Expr_mvarId_x21(lean_object*);
 lean_object* l_Lean_MVarId_checkNotAssigned(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
-lean_object* lean_local_ctx_erase(lean_object*, lean_object*);
+lean_object* l_Lean_LocalContext_erase(lean_object*, lean_object*);
 lean_object* l___private_Init_Data_Array_Basic_0__Array_findFinIdx_x3f_loop(lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Array_eraseIdx___redArg(lean_object*, lean_object*);
 lean_object* l_Lean_MVarId_getTag(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
@@ -2894,7 +2894,8 @@ v___jp_939_:
 {
 lean_object* v_localInstances_947_; lean_object* v___x_948_; lean_object* v___x_949_; 
 v_localInstances_947_ = lean_ctor_get(v___y_943_, 3);
-v___x_948_ = lean_local_ctx_erase(v_lctx_938_, v_fvarId_899_);
+v___x_948_ = l_Lean_LocalContext_erase(v_lctx_938_, v_fvarId_899_);
+lean_dec(v_fvarId_899_);
 lean_inc(v___y_940_);
 v___x_949_ = l___private_Init_Data_Array_Basic_0__Array_findFinIdx_x3f_loop(lean_box(0), v___f_900_, v_localInstances_947_, v___y_940_);
 if (lean_obj_tag(v___x_949_) == 0)

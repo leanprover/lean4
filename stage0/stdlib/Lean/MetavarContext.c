@@ -135,7 +135,7 @@ lean_object* l_Array_toSubarray___redArg(lean_object*, lean_object*, lean_object
 lean_object* l_Lean_LocalDecl_index(lean_object*);
 lean_object* l_Lean_LocalDecl_userName(lean_object*);
 lean_object* l_Lean_Name_toString(lean_object*, uint8_t);
-lean_object* lean_local_ctx_erase(lean_object*, lean_object*);
+lean_object* l_Lean_LocalContext_erase(lean_object*, lean_object*);
 lean_object* l_EStateM_bind(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_EStateM_seqRight(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_EStateM_instMonad___redArg___lam__2(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
@@ -15520,7 +15520,8 @@ else
 {
 lean_object* v___x_5411_; lean_object* v___x_5412_; 
 v___x_5411_ = l_Lean_Expr_fvarId_x21(v___x_5408_);
-v___x_5412_ = lean_local_ctx_erase(v_b_5404_, v___x_5411_);
+v___x_5412_ = l_Lean_LocalContext_erase(v_b_5404_, v___x_5411_);
+lean_dec(v___x_5411_);
 v_i_5402_ = v___x_5407_;
 v_b_5404_ = v___x_5412_;
 goto _start;

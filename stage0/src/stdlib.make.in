@@ -114,7 +114,7 @@ $(OUTBIN)/leanexport$(EXE): $(OUTARC)/libLeanExport.a.trace
 endif
 
 # we specify the precise file names here to avoid rebuilds
-$(OUTLIB)/libInit_shared$(SO): ${LIB}/lean/libInit.a.export ${LIB}/lean/libStd.a.export ${CMAKE_BINARY_DIR}/runtime/libleanrt_initial-exec.a ${LIB}/temp/empty.c
+$(OUTLIB)/libInit_shared$(SO): ${LIB}/lean/libInit.a.export ${LIB}/lean/libStd.a.export ${CMAKE_BINARY_DIR}/runtime/libleanrt_initial-exec.a ${CADICAL_LIB_DEP} ${LIB}/temp/empty.c
 	$(link-preamble)
 ifeq "${CMAKE_SYSTEM_NAME}" "Windows"
 	$(LEANC_SH) -shared -o $@ \
@@ -127,7 +127,7 @@ endif
 
 Init_shared: $(OUTLIB)/libInit_shared$(SO)
 
-$(OUTLIB)/libleanshared$(SO): $(OUTLIB)/libInit_shared$(SO) ${LIB}/lean/libLean.a.export ${LIB}/lean/libleancpp.a ${LIB}/temp/libleanshell.a ${LIB}/temp/libleaninitialize.a
+$(OUTLIB)/libleanshared$(SO): $(OUTLIB)/libInit_shared$(SO) ${LIB}/lean/libLean.a.export ${LIB}/lean/libleancpp.a ${CADICAL_LIB_DEP} ${LIB}/temp/libleanshell.a ${LIB}/temp/libleaninitialize.a
 	$(link-preamble)
 ifeq "${CMAKE_SYSTEM_NAME}" "Windows"
 	@rm -f $(OUTLIB)/libleanshared_1$(SO)

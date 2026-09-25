@@ -37,7 +37,7 @@ lean_object* lean_whnf(lean_object*, lean_object*, lean_object*, lean_object*, l
 lean_object* lean_expr_instantiate1(lean_object*, lean_object*);
 lean_object* lean_array_push(lean_object*, lean_object*);
 lean_object* l_Lean_Meta_isExprDefEq(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
-lean_object* l_Lean_Meta_mkHasTypeButIsExpectedMsg___redArg(lean_object*, lean_object*, lean_object*, lean_object*);
+lean_object* l_Lean_Meta_mkHasTypeButIsExpectedMsg___redArg(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_mkIdent(lean_object*);
 lean_object* l_Lean_MessageData_ofSyntax(lean_object*);
 uint8_t l_Lean_Name_hasMacroScopes(lean_object*);
@@ -644,7 +644,7 @@ lean_object* v___x_219_; lean_object* v___x_220_; lean_object* v___x_221_;
 lean_dec_ref(v___f_203_);
 v___x_219_ = lean_box(0);
 v___x_220_ = ((lean_object*)(l_Lean_Meta_forallTelescopeCompatibleAux___redArg___closed__2));
-v___x_221_ = l_Lean_Meta_mkHasTypeButIsExpectedMsg___redArg(v_binderType_196_, v_binderType_200_, v___x_219_, v___x_220_);
+v___x_221_ = l_Lean_Meta_mkHasTypeButIsExpectedMsg___redArg(v_binderType_196_, v_binderType_200_, v___x_219_, v___x_220_, v___y_212_);
 if (lean_obj_tag(v___x_221_) == 0)
 {
 lean_object* v_a_222_; lean_object* v___x_223_; lean_object* v___x_224_; lean_object* v___x_225_; lean_object* v___x_226_; lean_object* v___x_227_; lean_object* v___x_228_; lean_object* v___x_229_; lean_object* v___x_230_; lean_object* v_a_231_; lean_object* v___x_233_; uint8_t v_isShared_234_; uint8_t v_isSharedCheck_238_; 

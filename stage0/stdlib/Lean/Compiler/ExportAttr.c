@@ -868,9 +868,9 @@ return v___x_223_;
 LEAN_EXPORT lean_object* l___private_Lean_Compiler_ExportAttr_0__Lean_initFn___lam__2_00___x40_Lean_Compiler_ExportAttr_1307678936____hygCtx___hyg_2____boxed(lean_object* v___x_224_, lean_object* v_env_225_, lean_object* v_n_226_, lean_object* v_x_227_){
 _start:
 {
-uint8_t v___x_1481__boxed_228_; uint8_t v_res_229_; lean_object* v_r_230_; 
-v___x_1481__boxed_228_ = lean_unbox(v___x_224_);
-v_res_229_ = l___private_Lean_Compiler_ExportAttr_0__Lean_initFn___lam__2_00___x40_Lean_Compiler_ExportAttr_1307678936____hygCtx___hyg_2_(v___x_1481__boxed_228_, v_env_225_, v_n_226_, v_x_227_);
+uint8_t v___x_1489__boxed_228_; uint8_t v_res_229_; lean_object* v_r_230_; 
+v___x_1489__boxed_228_ = lean_unbox(v___x_224_);
+v_res_229_ = l___private_Lean_Compiler_ExportAttr_0__Lean_initFn___lam__2_00___x40_Lean_Compiler_ExportAttr_1307678936____hygCtx___hyg_2_(v___x_1489__boxed_228_, v_env_225_, v_n_226_, v_x_227_);
 lean_dec(v_x_227_);
 v_r_230_ = lean_box(v_res_229_);
 return v_r_230_;

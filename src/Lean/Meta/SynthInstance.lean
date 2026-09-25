@@ -22,6 +22,11 @@ register_builtin_option synthInstance.maxHeartbeats : Nat := {
   descr := "maximum amount of heartbeats per typeclass resolution problem. A heartbeat is number of (small) memory allocations (in thousands), 0 means no limit"
 }
 
+register_builtin_option debug.synthInstance.checkCacheHits : Bool := {
+  defValue := false
+  descr := "differentially validate type class resolution cache hits: rerun every served query and panic if the result differs from the cached one, which means a dependency of the entry was not recorded (roughly doubles resolution cost)"
+}
+
 register_builtin_option synthInstance.maxSize : Nat := {
   defValue := 128
   descr := "maximum number of instances used to construct a solution in the type class instance synthesis procedure"
@@ -1018,18 +1023,8 @@ def synthInstanceCore? (type : Expr) (maxResultSize? : Option Nat := none) : Met
     let { type, cacheKeyType, kind } ← preprocess type
     let cacheKey := { localInsts, type := cacheKeyType, synthPendingDepth := (← read).synthPendingDepth,
                       maxResultSize, optionFlags := (← getOptionFlags) }
-    match ← findCachedResult? cacheKey with
-    | some entry =>
-      trace[Meta.synthInstance.cache] "cached: {type}"
-      -- The used entry's dependencies become dependencies of the enclosing query, if any.
-      if parentRecording then
-        modifyThe Core.State fun s => { s with recordedDeps := entry.deps.mergeInto s.recordedDeps }
-      let result? ← applyCachedAbstractResult? type entry.result?
-      trace[Meta.synthInstance] "result {result?} (cached)"
-      return result?
-    | none =>
-      trace[Meta.synthInstance.cache] "new: {type}"
-      let abstResult? ← withNewMCtxDepth (allowLevelAssignments := true) do
+    let runSearch : MetaM (Option AbstractMVarsResult) :=
+      withNewMCtxDepth (allowLevelAssignments := true) do
         match kind with
         | .noMVars =>
           /-
@@ -1054,6 +1049,42 @@ def synthInstanceCore? (type : Expr) (maxResultSize? : Option Nat := none) : Met
           SynthInstance.main (← preprocessOutParam type) maxResultSize
         | .mvarsNoOutputParams => SynthInstance.main type maxResultSize
         | .mvarsOutputParams => SynthInstance.main (← preprocessOutParam type) maxResultSize
+    -- `debug.synthInstance.checkCacheHits`: the search performs no cache lookup itself, so rerunning
+    -- it bypasses the entry under test.
+    let checkHit (served? : Option AbstractMVarsResult) : MetaM Unit := do
+      -- unrestricted: diagnostics only
+      unless debug.synthInstance.checkCacheHits.get (← getOptionsUnrestricted) do return
+      let fresh? : Except String (Option AbstractMVarsResult) ←
+        -- A fresh heartbeat budget, and a throwing search counts as a divergence.
+        try .ok <$> withCurrHeartbeats runSearch
+        catch ex => pure <| .error s!"exception: {← ex.toMessageData.toString}"
+      -- `toString` rather than the pretty printer, which would read options under recording
+      let fmt : Option AbstractMVarsResult → String
+        | none => "none"
+        | some r => toString r.expr
+      let mismatch? := match fresh?, served? with
+        | .error e, _ => some e
+        | .ok none, none => none
+        | .ok (some a), some b =>
+          if a.numMVars == b.numMVars && a.paramNames == b.paramNames && a.expr == b.expr then none
+          else some (fmt (some a))
+        | .ok r, _ => some (fmt r)
+      if let some fresh := mismatch? then
+        panic! s!"type class resolution cache hit differs from recomputation for\n  {toString type}\n\
+          cached: {fmt served?}\nrecomputed: {fresh}\na dependency of the entry was not recorded"
+    match ← findCachedResult? cacheKey with
+    | some entry =>
+      trace[Meta.synthInstance.cache] "cached: {type}"
+      -- The used entry's dependencies become dependencies of the enclosing query, if any.
+      if parentRecording then
+        modifyThe Core.State fun s => { s with recordedDeps := entry.deps.mergeInto s.recordedDeps }
+      checkHit entry.result?
+      let result? ← applyCachedAbstractResult? type entry.result?
+      trace[Meta.synthInstance] "result {result?} (cached)"
+      return result?
+    | none =>
+      trace[Meta.synthInstance.cache] "new: {type}"
+      let abstResult? ← runSearch
       let result? ← applyAbstractResult? type abstResult?
       trace[Meta.synthInstance] "result {result?}"
       cacheResult cacheKey ((← getThe Core.State).recordedDeps) kind abstResult? result?

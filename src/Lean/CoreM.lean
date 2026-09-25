@@ -221,24 +221,21 @@ def ofOptions (opts : Options) : OptionFlags :=
 end OptionFlags
 
 /--
-An option lookup made by a recording computation, see `Lean.getRecordedOption`. We store the raw
-`Options.find?` result so that validation can distinguish an unset option from one set to
-its default, just like a computation could.
--/
-structure RecordedOptionAccess where
-  name  : Name
-  value : Option DataValue
-  deriving BEq
-
-/--
 The dependencies observed by a recording computation, accumulated in `Core.State.recordedDeps`.
 A result cached by the computation stays valid as long as they give the same answers. Currently used
 by type class resolution, see `Lean.Meta.SynthInstance`.
 -/
 structure RecordedDeps where
-  /-- The option lookups, deduplicated by name. -/
-  options : Array RecordedOptionAccess := #[]
-  deriving Inhabited
+  /-- The names of the options looked up, deduplicated. -/
+  options : Array Name := #[]
+  /--
+  The options in effect when recording started, against which a cached entry is later validated. A
+  lookup answering differently was served by a write inside the computation (`Lean.withSetOption`),
+  so it does not depend on the ambient options and is not recorded. The recorded answers are read
+  from it, so a stored entry keeps it, restricted to the looked-up names.
+  -/
+  base : Options := {}
+  deriving Inhabited, BEq
 
 namespace Core
 
@@ -392,20 +389,40 @@ where
         `getOptionsUnrestricted` for all others"
     else ctx.options
 
+/--
+Applies `f` to the options in scope of `x`, without the recording check of `withOptions`. Each use
+must argue that `f`'s result on an option read through `Lean.getRecordedOption` does not depend on
+the ambient options; `Lean.withSetOption` does so by construction.
+-/
+@[inline] def withOptionsUnrestricted (f : Options → Options) (x : CoreM α) : CoreM α := do
+  let options := f (← read).options
+  let optionFlags := OptionFlags.ofOptions options
+  if Kernel.isDiagnosticsEnabled (← getEnv) != optionFlags.diag then
+    modifyEnv fun env => Kernel.enableDiag env optionFlags.diag
+  withReader
+    (fun ctx =>
+      { ctx with
+        options
+        optionFlags
+        optionFlags_eq := rfl
+        maxRecDepth := maxRecDepth.get options })
+    x
+
 instance : MonadWithOptions CoreM where
   withOptions f x := do
-    let options := f (← read).options
-    let optionFlags := OptionFlags.ofOptions options
-    if Kernel.isDiagnosticsEnabled (← getEnv) != optionFlags.diag then
-      modifyEnv fun env => Kernel.enableDiag env optionFlags.diag
-    withReader
-      (fun ctx =>
-        { ctx with
-          options
-          optionFlags
-          optionFlags_eq := rfl
-          maxRecDepth := maxRecDepth.get options })
-      x
+    let f := if (← read).isRecordingDeps then reportViolation else f
+    withOptionsUnrestricted f x
+where
+  /--
+  Reports a `withOptions` call inside a recording computation and leaves the options unchanged.
+  Out of line, as `withOptions` is inlined at every call site; it takes no argument so that `f`
+  stays a known function there.
+  -/
+  @[noinline] reportViolation : Options → Options :=
+    have : Inhabited (Options → Options) := ⟨id⟩
+    panic! "`withOptions` called inside a computation recording its dependencies; a transformer \
+      may derive a recorded option's value from the ambient options, which the dependency log does \
+      not capture. Use `Lean.withSetOption` for a value independent of the ambient options"
 
 -- Helper function for ensuring fields derived from e.g. options have the correct value.
 @[inline] private def withConsistentCtx (x : CoreM α) : CoreM α := do
@@ -776,6 +793,20 @@ export Core (CoreM mkFreshUserName checkSystem withCurrHeartbeats)
 @[inline] def withAtLeastMaxRecDepth [MonadFunctorT CoreM m] (max : Nat) : m α → m α :=
   monadMap (m := CoreM) <| withReader (fun ctx => { ctx with maxRecDepth := Nat.max max ctx.maxRecDepth })
 
+/--
+Runs the given computation with the option `name` set to `v`. Unlike `withOptions`, this is allowed
+inside a computation recording its dependencies: `v` does not depend on the ambient options, so a
+recorded read of `name` in this scope observes `v` in every context.
+-/
+@[inline] def withSetOptionByName [MonadFunctorT CoreM m] [KVMap.Value β]
+    (name : Name) (v : β) : m α → m α :=
+  monadMap (m := CoreM) <| Core.withOptionsUnrestricted (·.set name v)
+
+/-- `withSetOptionByName` for an option given as a `Lean.Option`. -/
+@[inline] def withSetOption [MonadFunctorT CoreM m] [KVMap.Value β]
+    (opt : Lean.Option β) (v : β) : m α → m α :=
+  withSetOptionByName opt.name v
+
 @[inline] def catchInternalId [Monad m] [MonadExcept Exception m] (id : InternalExceptionId) (x : m α) (h : Exception → m α) : m α := do
   try
     x
@@ -895,12 +926,14 @@ where doCompile := do
 def compileDecl (decl : Declaration) (logErrors := true) : CoreM Unit := do
   compileDecls (Compiler.getDeclNamesForCodeGen decl) logErrors
 
-private def recordOptionAccess (access : RecordedOptionAccess) : CoreM Unit := do
+private def recordOptionAccess (name : Name) (value : Option DataValue) : CoreM Unit := do
   if (← read).isRecordingDeps then
-    -- Repeated lookups of an option dominate, so the membership test comes before the update.
+    -- Repeated lookups of an option dominate, so the membership test comes first. A lookup
+    -- answering differently from `base` was served by a write inside the computation, so it is not
+    -- a dependency.
     let d := (← get).recordedDeps
-    unless d.options.any (·.name == access.name) do
-      Core.modifyRecordedDeps fun ⟨options⟩ => ⟨options.push access⟩
+    if !d.options.contains name && d.base.find? name == value then
+      Core.modifyRecordedDeps fun deps => { deps with options := deps.options.push name }
 
 /--
 Reads an option and, inside a recording computation, records the lookup in
@@ -909,14 +942,8 @@ this is `Lean.Option.get`.
 -/
 def getRecordedOption [KVMap.Value α] (opt : Lean.Option α) : CoreM α := do
   let raw := (← getOptionsUnrestricted).find? opt.name
-  recordOptionAccess { name := opt.name, value := raw }
+  recordOptionAccess opt.name raw
   return (raw.bind KVMap.Value.ofDataValue?).getD opt.defValue
-
-/-- `getRecordedOption` for a `Bool` option given by name. -/
-def getRecordedBoolOption (name : Name) (defVal := false) : CoreM Bool := do
-  let raw := (← getOptionsUnrestricted).find? name
-  recordOptionAccess { name, value := raw }
-  return (raw.bind KVMap.Value.ofDataValue?).getD defVal
 
 def getDiag (opts : Options) : Bool :=
   diagnostics.get opts

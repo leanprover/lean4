@@ -396,7 +396,8 @@ partition the cache. The recorded dependencies are the option lookups (`getRecor
 generations of the instance and unification-hint extensions read
 (`PersistentEnvExtensionDescrCore.trackGen`), and the position in `Environment.declChangeLog`,
 against whose later changes of declaration-keyed state the entry is validated. The search runs with
-`Core.Context.isRecordingDeps` set, so an unrecorded option read panics.
+`Core.Context.isRecordingDeps` set, so an unrecorded read of an option or an environment extension
+panics.
 
 These counters roll back with the environment, after which a different change can bring them back.
 The entries in `Meta.Cache` survive `SavedState.restore`, which therefore drops those the rollback

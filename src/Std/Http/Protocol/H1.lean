@@ -446,7 +446,8 @@ metadata) so a stalled consumer cannot accumulate unbounded pending input.
 -/
 @[inline]
 private def maxBufferedInputBytes (config : Config) : Nat :=
-  config.maxBodySize + config.maxHeaderBytes + config.maxStartLineLength + config.maxChunkLineLength
+  config.maxBufferedBodyBytes.getD config.maxBodySize
+    + config.maxHeaderBytes + config.maxStartLineLength + config.maxChunkLineLength
 
 /--
 Accumulates successfully accepted body bytes into the reader accounting.
@@ -768,8 +769,15 @@ private def writeHead (messageHead : Message.Head dir.swap) (machine : Machine d
           |>.erase Header.Name.transferEncoding
       else
         normalizeFramingHeaders headers size
-    | .sending, _ =>
-      normalizeFramingHeaders headers size
+    | .sending, messageHead =>
+      -- RFC 9110 §8.6: a user agent SHOULD NOT send `Content-Length` when the request carries no
+      -- content and the method does not anticipate any. A caller that asked for framing headers
+      -- explicitly still gets them normalized.
+      if size == .fixed 0 ∧ ¬messageHead.method.anticipatesContent
+          ∧ ¬hasFramingHeaders messageHead then
+        headers
+      else
+        normalizeFramingHeaders headers size
 
   let state : Writer.State :=
     match size with
@@ -1239,6 +1247,51 @@ partial def processWrite (machine : Machine dir) : Machine dir :=
     machine
 
 end
+
+/--
+`true` while the writer is producing an outgoing message body, i.e. the head has been flushed and
+the body is neither finished nor abandoned.
+-/
+def isWritingBody (machine : Machine dir) : Bool :=
+  match machine.writer.state with
+  | .writingBodyFixed _ | .writingBodyChunked | .writingBodyClosingFrame => true
+  | _ => false
+
+/--
+`true` when the peer has answered in full and will not read the rest of the outgoing body
+(`Connection: close`, an exhausted keep-alive quota). Pumping the remainder would stall the
+exchange until a timeout, so the caller should `abandonOutgoingBody` instead.
+-/
+def peerWillNotReadBody (machine : Machine dir) : Bool :=
+  !machine.keepAlive && machine.isWritingBody
+
+/--
+`true` when abandoning the outgoing body now would leave the framing the head already announced
+unfulfilled: declared bytes still owed under `Content-Length`, or a chunked body whose terminating
+zero chunk was never written.
+-/
+private def abandoningTruncatesBody (machine : Machine dir) : Bool :=
+  match machine.writer.state with
+  | .writingBodyFixed n => n > 0
+  | .writingBodyChunked | .writingBodyClosingFrame => true
+  | _ => false
+
+/--
+Abandons the current outgoing body after the peer has already provided the
+response that makes sending it unnecessary.
+
+Keep-alive is withdrawn whenever the head already announced framing that the abandoned body does
+not fulfil. The peer is still counting the declared bytes, so the next request written to this
+connection would be read as the body of this one (RFC 9112 §6.3); only closing resynchronizes.
+-/
+def abandonOutgoingBody (machine : Machine dir) : Machine dir :=
+  let truncated := machine.abandoningTruncatesBody
+  let machine := machine.modifyWriter (fun writer =>
+    { writer with
+      userData := .empty
+      userDataBytes := 0
+      userClosedBody := true })
+  completeWriterMessage (if truncated then machine.disableKeepAlive else machine)
 
 /-- Maps a reader failure to an HTTP status code. -/
 private def errorResponseStatus (error : H1.Error) : Status :=

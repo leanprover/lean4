@@ -60,105 +60,102 @@ private def isReplayBody : RedirectBodyAction → Bool
 /-! ## Terminal responses (`.done`) -/
 
 -- A non-3xx status is never a redirect.
-#guard isDone (decideRedirect origin (mkReq .get) false false .v11 .ok (withLocation "/x"))
+#guard isDone (decideRedirect origin (mkReq .get) false .v11 .ok (withLocation "/x"))
 
 -- A 3xx status with no `Location` header cannot be followed.
-#guard isDone (decideRedirect origin (mkReq .get) false false .v11 .found Headers.empty)
+#guard isDone (decideRedirect origin (mkReq .get) false .v11 .found Headers.empty)
 
 -- SSRF guard: a `Location` resolving to a non-http(s) scheme is rejected.
-#guard isDone (decideRedirect origin (mkReq .get) false false .v11 .found (withLocation "file:///etc/passwd"))
+#guard isDone (decideRedirect origin (mkReq .get) false .v11 .found (withLocation "file:///etc/passwd"))
 
 -- 305 Use Proxy / 306 Unused / 304 Not Modified / 300 Multiple Choices are terminal.
-#guard isDone (decideRedirect origin (mkReq .get) false false .v11 .useProxy (withLocation "/x"))
-#guard isDone (decideRedirect origin (mkReq .get) false false .v11 .unused (withLocation "/x"))
-#guard isDone (decideRedirect origin (mkReq .get) false false .v11 .notModified (withLocation "/x"))
-#guard isDone (decideRedirect origin (mkReq .get) false false .v11 .multipleChoices (withLocation "/x"))
-
--- `onlySafeRedirects` blocks redirects of unsafe methods.
-#guard isDone (decideRedirect origin (mkReq .post) false true .v11 .found (withLocation "/x"))
+#guard isDone (decideRedirect origin (mkReq .get) false .v11 .useProxy (withLocation "/x"))
+#guard isDone (decideRedirect origin (mkReq .get) false .v11 .unused (withLocation "/x"))
+#guard isDone (decideRedirect origin (mkReq .get) false .v11 .notModified (withLocation "/x"))
+#guard isDone (decideRedirect origin (mkReq .get) false .v11 .multipleChoices (withLocation "/x"))
 
 -- 301/302 only auto-follow GET/HEAD/POST; other unsafe methods are terminal.
-#guard isDone (decideRedirect origin (mkReq .put) false false .v11 .movedPermanently (withLocation "/x"))
+#guard isDone (decideRedirect origin (mkReq .put) false .v11 .movedPermanently (withLocation "/x"))
 
 -- 307/308 preserve the method, so a non-GET/HEAD request with a non-replayable body is terminal.
-#guard isDone (decideRedirect origin (mkReq .post) false false .v11 .temporaryRedirect (withLocation "/x"))
+#guard isDone (decideRedirect origin (mkReq .post) false .v11 .temporaryRedirect (withLocation "/x"))
 
 -- HTTP/1.0 only defines 301/302; HTTP/1.1-only codes (e.g. 303) must not auto-follow.
-#guard isDone (decideRedirect origin (mkReq .get) false false .v10 .seeOther (withLocation "/x"))
+#guard isDone (decideRedirect origin (mkReq .get) false .v10 .seeOther (withLocation "/x"))
 
 /-! ## Followed redirects: method selection -/
 
 -- Same-origin 302 on GET: method preserved, target rewritten to origin-form, empty body.
-#guard match plan? (decideRedirect origin (mkReq .get) false false .v11 .found (withLocation "/next")) with
+#guard match plan? (decideRedirect origin (mkReq .get) false .v11 .found (withLocation "/next")) with
   | some p => p.method == .get && !p.isCrossOrigin && toString p.target == "/next" && isEmptyBody p.bodyAction
   | none => false
 
 -- HTTP/1.0 302 on GET is followed.
-#guard match plan? (decideRedirect origin (mkReq .get) false false .v10 .found (withLocation "/x")) with
+#guard match plan? (decideRedirect origin (mkReq .get) false .v10 .found (withLocation "/x")) with
   | some _ => true
   | none => false
 
 -- 303 See Other downgrades to GET with an empty body.
-#guard match plan? (decideRedirect origin (mkReq .post) false false .v11 .seeOther (withLocation "/next")) with
+#guard match plan? (decideRedirect origin (mkReq .post) false .v11 .seeOther (withLocation "/next")) with
   | some p => p.method == .get && isEmptyBody p.bodyAction
   | none => false
 
 -- 301/302 on POST downgrade to GET under HTTP/1.1.
-#guard match plan? (decideRedirect origin (mkReq .post) false false .v11 .movedPermanently (withLocation "/x")) with
+#guard match plan? (decideRedirect origin (mkReq .post) false .v11 .movedPermanently (withLocation "/x")) with
   | some p => p.method == .get
   | none => false
 
 -- HTTP/1.0 301 preserves POST (with a replayable body so it is followed).
-#guard match plan? (decideRedirect origin (mkReq .post (version := .v10)) true false .v10 .movedPermanently (withLocation "/x")) with
+#guard match plan? (decideRedirect origin (mkReq .post (version := .v10)) true .v10 .movedPermanently (withLocation "/x")) with
   | some p => p.method == .post && isReplayBody p.bodyAction
   | none => false
 
 -- HTTP/1.0 301 preserves POST, so a NON-replayable body must make it terminal: the method is kept,
 -- so it would otherwise be followed with a `.replay` action that the body cannot satisfy.
-#guard isDone (decideRedirect origin (mkReq .post (version := .v10)) false false .v10 .movedPermanently (withLocation "/x"))
+#guard isDone (decideRedirect origin (mkReq .post (version := .v10)) false .v10 .movedPermanently (withLocation "/x"))
 
 -- 307 preserves POST and replays the body when replayable.
-#guard match plan? (decideRedirect origin (mkReq .post) true false .v11 .temporaryRedirect (withLocation "/x")) with
+#guard match plan? (decideRedirect origin (mkReq .post) true .v11 .temporaryRedirect (withLocation "/x")) with
   | some p => p.method == .post && isReplayBody p.bodyAction
   | none => false
 
 -- 307 on GET is followed with the method preserved.
-#guard match plan? (decideRedirect origin (mkReq .get) false false .v11 .temporaryRedirect (withLocation "/x")) with
+#guard match plan? (decideRedirect origin (mkReq .get) false .v11 .temporaryRedirect (withLocation "/x")) with
   | some p => p.method == .get
   | none => false
 
 -- 303 See Other preserves HEAD (RFC 9110 §15.4.4: 303 may be retrieved with GET or HEAD), so a
 -- HEAD request must not be downgraded to GET.
-#guard match plan? (decideRedirect origin (mkReq .head) false false .v11 .seeOther (withLocation "/next")) with
+#guard match plan? (decideRedirect origin (mkReq .head) false .v11 .seeOther (withLocation "/next")) with
   | some p => p.method == .head && isEmptyBody p.bodyAction
   | none => false
 
 /-! ## Target rewriting -/
 
 -- Absolute-path `Location` replaces the path.
-#guard match plan? (decideRedirect origin (mkReq .get) false false .v11 .found (withLocation "/x")) with
+#guard match plan? (decideRedirect origin (mkReq .get) false .v11 .found (withLocation "/x")) with
   | some p => toString p.target == "/x"
   | none => false
 
 -- Relative-path `Location` is merged against the base path (`/a/b` + `c` → `/a/c`).
-#guard match plan? (decideRedirect origin (mkReq .get) false false .v11 .found (withLocation "c")) with
+#guard match plan? (decideRedirect origin (mkReq .get) false .v11 .found (withLocation "c")) with
   | some p => toString p.target == "/a/c"
   | none => false
 
 -- Cross-origin absolute `Location` keeps absolute-form on the wire.
-#guard match plan? (decideRedirect origin (mkReq .get credHeaders) false false .v11 .found (withLocation "http://other.com/x")) with
+#guard match plan? (decideRedirect origin (mkReq .get credHeaders) false .v11 .found (withLocation "http://other.com/x")) with
   | some p => p.isCrossOrigin && toString p.target == "http://other.com/x"
   | none => false
 
 -- The fragment of an absolute `Location` is never placed on the wire (RFC 9112 §3.2).
-#guard match plan? (decideRedirect origin (mkReq .get) false false .v11 .found (withLocation "http://other.com/x#frag")) with
+#guard match plan? (decideRedirect origin (mkReq .get) false .v11 .found (withLocation "http://other.com/x#frag")) with
   | some p => toString p.target == "http://other.com/x"
   | none => false
 
 /-! ## Header scrubbing -/
 
 -- Cross-origin hop strips credential headers and rewrites Host to the new origin.
-#guard match plan? (decideRedirect origin (mkReq .get credHeaders) false false .v11 .found (withLocation "http://other.com/x")) with
+#guard match plan? (decideRedirect origin (mkReq .get credHeaders) false .v11 .found (withLocation "http://other.com/x")) with
   | some p =>
       !p.headers.contains .authorization
         && !p.headers.contains .cookie
@@ -166,18 +163,18 @@ private def isReplayBody : RedirectBodyAction → Bool
   | none => false
 
 -- Same-origin hop keeps credential headers.
-#guard match plan? (decideRedirect origin (mkReq .get credHeaders) false false .v11 .found (withLocation "/next")) with
+#guard match plan? (decideRedirect origin (mkReq .get credHeaders) false .v11 .found (withLocation "/next")) with
   | some p => p.headers.contains .authorization && p.headers.contains .cookie && !p.isCrossOrigin
   | none => false
 
 -- Changing the method to GET strips resource-specific content headers.
-#guard match plan? (decideRedirect origin (mkReq .post contentHeaders) false false .v11 .seeOther (withLocation "/next")) with
+#guard match plan? (decideRedirect origin (mkReq .post contentHeaders) false .v11 .seeOther (withLocation "/next")) with
   | some p => p.method == .get && !p.headers.contains .contentType && !p.headers.contains .contentLength
   | none => false
 
 -- A cross-origin hop on a request that carried no `Host` header leaves the plan without one:
 -- `rewriteHostHeader` only rewrites an existing `Host`, so supplying it is the caller's job.
-#guard match plan? (decideRedirect origin (mkReq .get) false false .v11 .found (withLocation "http://other.com/x")) with
+#guard match plan? (decideRedirect origin (mkReq .get) false .v11 .found (withLocation "http://other.com/x")) with
   | some p => p.isCrossOrigin && !p.headers.contains .host
   | none => false
 
@@ -191,7 +188,7 @@ info: "crossorigin: false, target: /next"
 -/
 #guard_msgs in
 #eval
-  match plan? (decideRedirect origin (mkReq .get) false false .v11 .found (withLocation "//example.com/next")) with
+  match plan? (decideRedirect origin (mkReq .get) false .v11 .found (withLocation "//example.com/next")) with
     | some p => s!"crossorigin: {p.isCrossOrigin}, target: {toString p.target}"
     | none => "no plan"
 
@@ -207,7 +204,7 @@ info: "target: /a/b?old=1"
 -/
 #guard_msgs in
 #eval
-  match plan? (decideRedirect origin queryReq false false .v11 .found (withLocation "#frag")) with
+  match plan? (decideRedirect origin queryReq false .v11 .found (withLocation "#frag")) with
   | some p => s!"target: {toString p.target}"
   | none => "no plan"
 
@@ -218,7 +215,7 @@ info: "target: /a/b?a=2"
 -/
 #guard_msgs in
 #eval
-  match plan? (decideRedirect origin queryReq false false .v11 .found (withLocation "?a=2")) with
+  match plan? (decideRedirect origin queryReq false .v11 .found (withLocation "?a=2")) with
   | some p => s!"target: {toString p.target}"
   | none => "no plan"
 
@@ -233,7 +230,7 @@ info: "methodIsGet: true, transferEncoding: false"
 -/
 #guard_msgs in
 #eval
-  match plan? (decideRedirect origin (mkReq .post sameOriginHopHeaders) false false .v11 .seeOther (withLocation "/next")) with
+  match plan? (decideRedirect origin (mkReq .post sameOriginHopHeaders) false .v11 .seeOther (withLocation "/next")) with
   | some p => s!"methodIsGet: {p.method == Method.get}, transferEncoding: {p.headers.contains .transferEncoding}"
   | none => "no plan"
 
@@ -251,28 +248,25 @@ info: "connection: false, x-hop: false"
 -/
 #guard_msgs in
 #eval
-  match plan? (decideRedirect origin (mkReq .get connectionNominatedHeaders) false false .v11 .found (withLocation "/next")) with
+  match plan? (decideRedirect origin (mkReq .get connectionNominatedHeaders) false .v11 .found (withLocation "/next")) with
   | some p => s!"connection: {p.headers.contains .connection}, x-hop: {p.headers.contains xHop}"
   | none => "no plan"
 
 /-! ## 303 with unsafe non-GET/HEAD methods -/
 
--- RFC 9110 §15.4.4: 303 applies to any method, retrieved with GET. With `onlySafeRedirects = false`
+-- RFC 9110 §15.4.4: 303 applies to any method, retrieved with GET, so
 -- a PUT/DELETE/PATCH receiving 303 is followed and rewritten to GET with an empty body.
-#guard match plan? (decideRedirect origin (mkReq .put) false false .v11 .seeOther (withLocation "/x")) with
+#guard match plan? (decideRedirect origin (mkReq .put) false .v11 .seeOther (withLocation "/x")) with
   | some p => p.method == .get && isEmptyBody p.bodyAction
   | none => false
 
-#guard match plan? (decideRedirect origin (mkReq .delete) false false .v11 .seeOther (withLocation "/x")) with
+#guard match plan? (decideRedirect origin (mkReq .delete) false .v11 .seeOther (withLocation "/x")) with
   | some p => p.method == .get && isEmptyBody p.bodyAction
   | none => false
 
-#guard match plan? (decideRedirect origin (mkReq .patch) false false .v11 .seeOther (withLocation "/x")) with
+#guard match plan? (decideRedirect origin (mkReq .patch) false .v11 .seeOther (withLocation "/x")) with
   | some p => p.method == .get && isEmptyBody p.bodyAction
   | none => false
-
--- `onlySafeRedirects = true` blocks the same PUT+303 since PUT is not a safe method.
-#guard isDone (decideRedirect origin (mkReq .put) false true .v11 .seeOther (withLocation "/x"))
 
 /-! ## `Status.isRedirection` boundaries -/
 

@@ -141,15 +141,6 @@ static bool any_dir_with_certs(char const * list_str) {
     return false;
 }
 
-// OpenSSL's compiled-in locations. A standalone toolchain skips them: they name directories on the
-// build machine.
-#if defined(LEAN_WINDOWS) && !defined(LEAN_STANDALONE)
-static void load_default_paths(X509_STORE * store) {
-    X509_STORE_load_file(store, X509_get_default_cert_file());
-    X509_STORE_load_path(store, X509_get_default_cert_dir());
-}
-#endif
-
 // Whether the store holds a certificate, or one of the hash directories `dirs` does.
 static bool trust_store_has_certs(X509_STORE * store, char const * dirs) {
     return (dirs != nullptr && any_dir_with_certs(dirs)) || store_holds_certificate(store);
@@ -414,12 +405,10 @@ static int verify_with_platform_fallback(X509_STORE_CTX * ctx, void *) {
 
 bool use_system_trust_store(SSL_CTX * ctx, std::string * detail) {
     X509_STORE * store = SSL_CTX_get_cert_store(ctx);
-    std::string env_detail;
 
 #if defined(__APPLE__)
     // The platform verifier backs the store, so an unreadable `SSL_CERT_FILE` is not an error.
-    load_env_anchors(store, &env_detail);
-    (void)detail;
+    load_env_anchors(store, detail);
 
     ERR_clear_error();
     SSL_CTX_set_cert_verify_callback(ctx, verify_with_platform_fallback, nullptr);
@@ -432,9 +421,12 @@ bool use_system_trust_store(SSL_CTX * ctx, std::string * detail) {
     // counted.
     bool platform = SSL_CTX_load_verify_store(ctx, "org.openssl.winstore://") == 1;
 
+    // OpenSSL's compiled-in locations. A standalone toolchain skips them: they name directories on the
+    // build machine.
 #if !defined(LEAN_STANDALONE)
     if (!platform) {
-        load_default_paths(store);
+        X509_STORE_load_file(store, X509_get_default_cert_file());
+        X509_STORE_load_path(store, X509_get_default_cert_dir());
         platform = trust_store_has_certs(store, X509_get_default_cert_dir());
     }
 #endif
@@ -457,7 +449,7 @@ bool use_system_trust_store(SSL_CTX * ctx, std::string * detail) {
 #endif
 #endif
 
-    bool env_ok = load_env_anchors(store, &env_detail);
+    bool env_ok = load_env_anchors(store, detail);
 
     if (platform || trust_store_has_certs(store, env_cert_dirs())) {
         ERR_clear_error();
@@ -475,7 +467,7 @@ bool use_system_trust_store(SSL_CTX * ctx, std::string * detail) {
         : "no trust anchors: none of the usual system bundles could be read "
           "(set SSL_CERT_FILE or SSL_CERT_DIR)";
 #endif
-    *detail = env_ok ? none : env_detail;
+    if (env_ok) *detail = none;
 
     // `detail` already summarizes the load failures.
     ERR_clear_error();

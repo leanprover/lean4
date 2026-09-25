@@ -333,3 +333,43 @@ info: @[instance_reducible, expose] def instMyClassTestParamsOfType1OfType2 : (p
 -/
 #guard_msgs in
 #print sig instMyClassTestParamsOfType1OfType2
+
+/-!
+Redundant instances are detected and omitted
+-/
+
+inductive TestRedundantForward (β : Bool → Type) where
+  | veryGeneral (a : Bool) (x : β a)
+  | verySpecific (x : β true) (y : List (β false))
+
+run_cmd handler #[``TestRedundantForward]
+
+-- would be `[∀ a, MyClass (β a)] [MyClass (β true)] [MyClass (List (β false))]`
+-- without processing but with the redundancy check, we get:
+
+/--
+info: @[instance_reducible, expose] def instMyClassTestRedundantForward : (β : Bool → Type) →
+  [(a : Bool) → MyClass (β a)] → MyClass (TestRedundantForward β)
+-/
+#guard_msgs in
+#print sig instMyClassTestRedundantForward
+
+/-!
+... in both directions
+-/
+
+inductive TestRedundantBackward (β : Bool → Type) where
+  | verySpecific (x : β true) (y : List (β false))
+  | veryGeneral (a : Bool) (x : β a)
+
+run_cmd handler #[``TestRedundantBackward]
+
+-- would be `[MyClass (β true)] [MyClass (List (β false))] [∀ a, MyClass (β a)]`
+-- without processing but with the redundancy check, we get:
+
+/--
+info: @[instance_reducible, expose] def instMyClassTestRedundantBackward : (β : Bool → Type) →
+  [(a : Bool) → MyClass (β a)] → MyClass (TestRedundantBackward β)
+-/
+#guard_msgs in
+#print sig instMyClassTestRedundantBackward

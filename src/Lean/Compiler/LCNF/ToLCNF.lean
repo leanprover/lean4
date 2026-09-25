@@ -535,7 +535,7 @@ where
       | .proj s i e  => visitProj s i e
       | .mdata d e   => visitMData d e
       | .lam ..      => visitLambda e
-      | .letE ..     => visitLet e #[]
+      | .letE ..     => visitLet e
       | .lit lit     => visitLit lit
       | .fvar fvarId => if (← get).toAny.contains fvarId then pure .erased else pure (.fvar fvarId)
       | .forallE .. | .mvar .. | .bvar .. | .sort ..  => unreachable!
@@ -937,19 +937,33 @@ where
       | .erased | .type .. => return .erased
       | .fvar fvarId => letValueToArg <| .proj s i fvarId
 
-  visitLet (e : Expr) (xs : Array Expr) : M (Arg .pure) := do
+  visitLet (e : Expr): M (Arg .pure) := do
+    if let some (.forallE ..) := (← read).expectedType then
+      let e' ← etaExpandN e 1
+      if e'.isLambda then
+        let funDecl ← withNewScope do
+          let (ps, e, eType?) ← ToLCNF.visitLambda e'
+          let e ← withExpectedType eType? do
+            visitLetCore e #[]
+          let c ← toCode e
+          mkAuxFunDecl ps c
+        pushElement (.fun funDecl)
+        return .fvar funDecl.fvarId
+    visitLetCore e #[]
+
+  visitLetCore (e : Expr) (xs : Array Expr) : M (Arg .pure) := do
     match e with
     | .letE binderName type value body _ =>
       let type := type.instantiateRev xs
       let value := value.instantiateRev xs
       if (← (liftMetaM <| Meta.isProp type) <||> isTypeFormerType type) then
-        visitLet body (xs.push value)
+        visitLetCore body (xs.push value)
       else
         let type' ← toLCNFType type
         let value' ← withExpectedType type' do
           visit value
         let letDecl ← mkLetDecl binderName type value type' value'
-        visitLet body (xs.push (.fvar letDecl.fvarId))
+        visitLetCore body (xs.push (.fvar letDecl.fvarId))
     | _ =>
       let e := e.instantiateRev xs
       visit e

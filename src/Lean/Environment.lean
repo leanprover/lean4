@@ -262,7 +262,7 @@ structure Environment where
   (`PersistentEnvExtensionDescrCore.trackGen`): while it is unchanged, no such extension has
   changed. Like the generations, it rolls back with the environment, so after a rollback a different
   modification can reach a value seen before. Results stored in the environment roll back with it
-  and stay sound. As the counter only grows along one environment lineage, a result stored outside
+  and stay sound. As the counter only grows along one environment branch, a result stored outside
   the environment stays sound across a rollback only if it was stamped with at most the restored
   value; later ones must be dropped.
   -/
@@ -624,6 +624,17 @@ structure Environment where
   `elabMutualDef` may switch from public to private when e.g. entering the proof of a theorem.
   -/
   isExporting : Bool := false
+  /--
+  For each constant added on this environment branch, the `constGen` at which it became observable
+  here (synchronous `addDecl`, asynchronous registration, merged realizations); see
+  `constAddedGen`.
+  -/
+  constAddedGens : PHashMap Name Nat := {}
+  /--
+  Counter bumped by every constant added on this environment branch: a consumer capturing it at
+  some point knows that a constant with a larger `constAddedGen` did not exist then.
+  -/
+  constGen : Nat := 0
 deriving Nonempty
 
 @[inline] private def VisibilityMap.get (m : VisibilityMap α) (env : Environment) : α :=
@@ -672,6 +683,25 @@ def setExporting (env : Environment) (isExporting : Bool) : Environment :=
     env
   else
     { env with isExporting }
+
+/--
+Registers `n` as added now on this environment branch, unless it already was: a constant announced
+by `addConstAsync` keeps the generation of its announcement when its asynchronous branch adds it.
+-/
+def registerConstAdded (env : Environment) (n : Name) : Environment :=
+  if env.constAddedGens.contains n then
+    env
+  else
+    { env with constAddedGens := env.constAddedGens.insert n (env.constGen + 1)
+               constGen := env.constGen + 1 }
+
+/--
+The `constGen` at which `n` was added on this branch. Constants not registered, in particular
+imported ones, have generation 0, i.e. are treated as older than anything a consumer captured. For
+caching that is a conservative approximation as lower generation numbers lead to more cache misses.
+-/
+def constAddedGen (env : Environment) (n : Name) : Nat :=
+  env.constAddedGens.find? n |>.getD 0
 
 /-- Consistently updates synchronous and (private) asynchronous parts of the environment without blocking. -/
 private def modifyCheckedAsync (env : Environment) (f : Kernel.Environment → Kernel.Environment) : Environment :=
@@ -731,6 +761,7 @@ def addDeclCore (env : Environment) (maxHeartbeats : USize) (maxRecDepth : USize
   -- visibility scopes but the caller can still customize the public one on the main elaboration
   -- branch by use of `addConstAsync` as is the case for `Lean.addDecl`.
   for n in decl.getNames do
+    env := env.registerConstAdded n
     let some info := env.checked.get.find? n | unreachable!
     env := { env with asyncConstsMap.private := env.asyncConstsMap.private.add {
       constInfo := .ofConstantInfo info
@@ -1080,6 +1111,7 @@ def addConstAsync (env : Environment) (constName : Name) (kind : ConstantKind)
       | some v => .mk v.nestedConsts.public
       | none   => .mk (α := AsyncConsts) default
   }
+  let env := env.registerConstAdded constName
   return {
     constName, kind, exportedKind?
     mainEnv := { env with
@@ -1860,7 +1892,7 @@ structure PersistentEnvExtensionDescrCore (α β σ : Type) where
   comparing generations. Generation-tracked extensions must use `AsyncMode.local` or `.mainOnly`, as
   generations are branch-local.
 
-  Generations only grow along an environment lineage, even when a modification restores an earlier
+  Generations only grow along an environment branch, even when a modification restores an earlier
   state: returning to an earlier generation would let a later, different modification reach a
   generation some result was recorded at, validating it against a state it never saw. The
   environment itself rolling back to an earlier generation is covered at
@@ -2914,6 +2946,13 @@ def realizeConst (env : Environment) (forConst : Name) (constName : Name)
     pure (.mk res)
   let some res := res.get? RealizeConstResult | unreachable!
   let exPromise ← IO.Promise.new
+  -- The realized constants become observable on this branch with this merge. Constants already
+  -- observable here keep their generation, including 0 for those added without registering one.
+  let env := res.newConsts.private.foldl (init := env) fun env c =>
+    if env.asyncConstsMap.private.find? c.constInfo.name |>.isSome then
+      env
+    else
+      env.registerConstAdded c.constInfo.name
   let env := { env with
     asyncConstsMap := {
       «private» := res.newConsts.private.foldl (init := env.asyncConstsMap.private) fun consts c =>

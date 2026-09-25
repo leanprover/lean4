@@ -220,6 +220,26 @@ def ofOptions (opts : Options) : OptionFlags :=
 
 end OptionFlags
 
+/--
+An option lookup made by a recording computation, see `Lean.getRecordedOption`. We store the raw
+`Options.find?` result so that validation can distinguish an unset option from one set to
+its default, just like a computation could.
+-/
+structure RecordedOptionAccess where
+  name  : Name
+  value : Option DataValue
+  deriving BEq
+
+/--
+The dependencies observed by a recording computation, accumulated in `Core.State.recordedDeps`.
+A result cached by the computation stays valid as long as they give the same answers. Currently used
+by type class resolution, see `Lean.Meta.SynthInstance`.
+-/
+structure RecordedDeps where
+  /-- The option lookups, deduplicated by name. -/
+  options : Array RecordedOptionAccess := #[]
+  deriving Inhabited
+
 namespace Core
 
 builtin_initialize registerTraceClass `Kernel
@@ -252,6 +272,13 @@ structure State where
   traceState      : TraceState     := {}
   /-- Cache for instantiating universe polymorphic declarations. -/
   cache           : Cache          := {}
+  /--
+  The dependencies observed by the recording computation, if enabled
+  (`Core.Context.isRecordingDeps`); they become the dependency log of the cache entry it produces,
+  see `Lean.Meta.SynthInstanceCache`. Not restored by `SavedState.restore`, so that dependencies
+  observed on a rolled-back path are kept.
+  -/
+  recordedDeps    : RecordedDeps   := {}
   /-- Message log. -/
   messages        : MessageLog     := {}
   /-- Info tree. We have the info tree here because we want to update it while adding attributes. -/
@@ -308,6 +335,11 @@ structure Context extends Context.Cold where
   errors; see also `logMessage` below.
   -/
   suppressElabErrors : Bool := false
+  /--
+  Whether the current computation records its dependencies into `Core.State.recordedDeps`. While
+  set, reading state that is not recorded panics, see instance `MonadOptions CoreM`.
+  -/
+  isRecordingDeps : Bool := false
 
 instance : Nonempty Context := ⟨{ toCold := Classical.ofNonempty }⟩
 
@@ -345,7 +377,20 @@ instance : MonadEnv CoreM where
   modifyEnv f := modify fun s => { s with env := f s.env, cache := {} }
 
 instance : MonadOptions CoreM where
-  getOptions := return (← read).options
+  getOptions := return checkedOptions (← read)
+  getOptionsUnrestricted := return (← read).options
+where
+  /--
+  The options of `ctx`, panicking inside a recording computation. Out of line, as `getOptions` is
+  inlined at every call site.
+  -/
+  @[noinline] checkedOptions (ctx : Context) : Options :=
+    if ctx.isRecordingDeps then
+      have : Inhabited Options := ⟨ctx.options⟩
+      panic! "`getOptions` called inside a computation recording its dependencies; \
+        use `Lean.getRecordedOption` for reads that can influence the result and \
+        `getOptionsUnrestricted` for all others"
+    else ctx.options
 
 instance : MonadWithOptions CoreM where
   withOptions f x := do
@@ -402,8 +447,12 @@ instance : Elab.MonadInfoTree CoreM where
   modifyInfoState f := modify fun s => { s with infoState := f s.infoState }
 
 @[inline] def modifyCache (f : Cache → Cache) : CoreM Unit :=
-  modify fun ⟨env, next, ngen, auxDeclNGen, trace, cache, messages, infoState, snaps⟩ =>
-   ⟨env, next, ngen, auxDeclNGen, trace, f cache, messages, infoState, snaps⟩
+  modify fun ⟨env, next, ngen, auxDeclNGen, trace, cache, deps, messages, infoState, snaps⟩ =>
+   ⟨env, next, ngen, auxDeclNGen, trace, f cache, deps, messages, infoState, snaps⟩
+
+@[inline] def modifyRecordedDeps (f : RecordedDeps → RecordedDeps) : CoreM Unit :=
+  modify fun ⟨env, next, ngen, auxDeclNGen, trace, cache, deps, messages, infoState, snaps⟩ =>
+   ⟨env, next, ngen, auxDeclNGen, trace, cache, f deps, messages, infoState, snaps⟩
 
 @[inline] def modifyInstLevelTypeCache (f : InstantiateLevelCache → InstantiateLevelCache) : CoreM Unit :=
   modifyCache fun ⟨c₁, c₂⟩ => ⟨f c₁, c₂⟩
@@ -467,6 +516,8 @@ itself after calling `act` as well as by reuse-handling code such as the one sup
 @[specialize] def withRestoreOrSaveFull (reusableResult? : Option (α × SavedState))
     (act : CoreM α) : CoreM (α × SavedState) := do
   if let some (val, state) := reusableResult? then
+    -- Restoring a full state would roll back `State.recordedDeps`, which recording does not support.
+    assert! !(← read).isRecordingDeps
     set state.toState
     IO.addHeartbeats state.passedHeartbeats
     return (val, state)
@@ -551,7 +602,8 @@ register_builtin_option debug.moduleNameAtTimeout : Bool := {
 }
 
 def throwMaxHeartbeat (moduleName : Name) (optionName : Name) (max : Nat) : CoreM Unit := do
-  let includeModuleName := debug.moduleNameAtTimeout.get (← getOptions)
+  -- unrestricted: message rendering only
+  let includeModuleName := debug.moduleNameAtTimeout.get (← getOptionsUnrestricted)
   let atModuleName := if includeModuleName then s!" at `{moduleName}`" else ""
   throw <| Exception.error (← getRef) <| .tagged `runtime.maxHeartbeats m!"\
     (deterministic) timeout{atModuleName}, maximum number of heartbeats ({max/1000}) has been reached\
@@ -640,6 +692,8 @@ def wrapAsync {α : Type} (act : α → CoreM β) (cancelTk? : Option IO.CancelT
   let (childDeclNGen, parentDeclNGen) := (← getDeclNGen).mkChild
   setDeclNGen parentDeclNGen
   let st ← get
+  -- The forked action's final state is discarded below, and with it its `State.recordedDeps`.
+  assert! !(← read).isRecordingDeps
   let st := { st with auxDeclNGen := childDeclNGen, ngen := childNGen }
   let ctx ← read
   let ctx := { ctx with cancelTk? }
@@ -840,6 +894,29 @@ where doCompile := do
 
 def compileDecl (decl : Declaration) (logErrors := true) : CoreM Unit := do
   compileDecls (Compiler.getDeclNamesForCodeGen decl) logErrors
+
+private def recordOptionAccess (access : RecordedOptionAccess) : CoreM Unit := do
+  if (← read).isRecordingDeps then
+    -- Repeated lookups of an option dominate, so the membership test comes before the update.
+    let d := (← get).recordedDeps
+    unless d.options.any (·.name == access.name) do
+      Core.modifyRecordedDeps fun ⟨options⟩ => ⟨options.push access⟩
+
+/--
+Reads an option and, inside a recording computation, records the lookup in
+`Core.State.recordedDeps`, see `Lean.Meta.SynthInstanceCache`. Outside a recording computation
+this is `Lean.Option.get`.
+-/
+def getRecordedOption [KVMap.Value α] (opt : Lean.Option α) : CoreM α := do
+  let raw := (← getOptionsUnrestricted).find? opt.name
+  recordOptionAccess { name := opt.name, value := raw }
+  return (raw.bind KVMap.Value.ofDataValue?).getD opt.defValue
+
+/-- `getRecordedOption` for a `Bool` option given by name. -/
+def getRecordedBoolOption (name : Name) (defVal := false) : CoreM Bool := do
+  let raw := (← getOptionsUnrestricted).find? name
+  recordOptionAccess { name, value := raw }
+  return (raw.bind KVMap.Value.ofDataValue?).getD defVal
 
 def getDiag (opts : Options) : Bool :=
   diagnostics.get opts

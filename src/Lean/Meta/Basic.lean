@@ -2271,7 +2271,8 @@ def instantiateLambdaWithParamInfos (e : Expr) (args : Array Expr) (cleanupAnnot
   return (res, e)
 
 def getPPContext : MetaM PPContext := do
-  return { env := (← getEnv), mctx := (← getMCtx), lctx := (← getLCtx), opts := (← getOptions),
+  -- unrestricted: message rendering only
+  return { env := (← getEnv), mctx := (← getMCtx), lctx := (← getLCtx), opts := (← getOptionsUnrestricted),
            currNamespace := (← getCurrNamespace), openDecls := (← getOpenDecls) }
 
 /-- Pretty-print the given expression. -/
@@ -2592,7 +2593,8 @@ def instantiateMVarsIfMVarApp (e : Expr) : MetaM Expr := do
     return e
 
 def instantiateMVarsProfiling (e : Expr) : MetaM Expr := do
-  profileitM Exception s!"instantiate metavars" (← getOptions) do
+  -- unrestricted: profiler collection only
+  profileitM Exception s!"instantiate metavars" (← getOptionsUnrestricted) do
   withTraceNode `Meta.instantiateMVars (fun _ => pure e) do
     instantiateMVars e
 
@@ -2751,7 +2753,8 @@ def realizeConst (forConst : Name) (constName : Name) (realize : MetaM Unit) :
     let exAct ← Core.wrapAsyncAsSnapshot (cancelTk? := none) fun
       | none => return
       | some ex => do
-        logError <| ex.toMessageData (← getOptions)
+        -- unrestricted: message rendering only
+        logError <| ex.toMessageData (← getOptionsUnrestricted)
     Core.logSnapshotTask {
       stx? := none
       task := (← BaseIO.mapTask (t := exTask) exAct)

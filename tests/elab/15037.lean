@@ -14,7 +14,8 @@ def g : {α : Type u} → [BEq α] → (x : E α → Nat) → Nat :=
 
 /--
 info: def g.{u} : {α : Type u} → [inst : BEq.{u} α] → (x : @E.{u} α inst → Nat) → Nat :=
-fun {α : Type u} [inst : BEq.{u} α] (x : @E.{u} α inst → Nat) => @OfNat.ofNat.{0} Nat (nat_lit 0) (instOfNatNat (nat_lit 0))
+fun {α : Type u} [inst : BEq.{u} α] (x : @E.{u} α inst → Nat) =>
+  @OfNat.ofNat.{0} Nat (nat_lit 0) (instOfNatNat (nat_lit 0))
 -/
 #guard_msgs in
 set_option pp.all true in

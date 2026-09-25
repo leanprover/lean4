@@ -9,7 +9,7 @@ inductive L (α : Type u) where
 deriving BEq, ReflBEq, LawfulBEq
 
 /--
-info: theorem RegularBEq.instReflBEqL.{u_1} : ∀ {α : Type u_1} [inst : BEq α] [ReflBEq α], ReflBEq (L α)
+info: theorem RegularBEq.instReflBEqL.{u} : ∀ (α : Type u) [x : BEq α] [ReflBEq α], ReflBEq (L α)
 -/
 #guard_msgs in
 #print sig instReflBEqL
@@ -20,7 +20,7 @@ inductive Vec (α : Type u) : Nat → Type u where
 deriving BEq, ReflBEq, LawfulBEq
 
 /--
-info: theorem RegularBEq.instReflBEqVec.{u_1} : ∀ {α : Type u_1} {a : Nat} [inst : BEq α] [ReflBEq α], ReflBEq (Vec α a)
+info: theorem RegularBEq.instReflBEqVec.{u} : ∀ (α : Type u) [x : BEq α] (a : Nat) [ReflBEq α], ReflBEq (Vec α a)
 -/
 #guard_msgs in
 #print sig instReflBEqVec
@@ -43,48 +43,34 @@ inductive WithHEq (α : Type u) : Nat → Type u where
 deriving BEq, ReflBEq, LawfulBEq
 
 /--
-info: RegularBEq.instReflBEqWithHEq.{u_1} {α✝ : Type u_1} {a✝ : Nat} [BEq α✝] [ReflBEq α✝] : ReflBEq (WithHEq α✝ a✝)
+info: RegularBEq.instReflBEqWithHEq.{u} (α : Type u) [BEq α] (a✝ : Nat) [ReflBEq α] : ReflBEq (WithHEq α a✝)
 -/
 #guard_msgs in
 #check instReflBEqWithHEq
 
 /--
-info: RegularBEq.instLawfulBEqWithHEq.{u_1} {α✝ : Type u_1} {a✝ : Nat} [BEq α✝] [LawfulBEq α✝] : LawfulBEq (WithHEq α✝ a✝)
+info: RegularBEq.instLawfulBEqWithHEq.{u} (α : Type u) [BEq α] (a✝ : Nat) [LawfulBEq α] : LawfulBEq (WithHEq α a✝)
 -/
 #guard_msgs in
 #check instLawfulBEqWithHEq
 
 
--- No `BEq` derived? Not a great error message yet, but the error location helps, so good enough.
+-- `ReflBEq` produces an error message if `BEq` wasn't derived
 
 /--
-error: failed to synthesize instance of type class
-  BEq Foo
+error: Failed to derive `LawfulBEq` for `Foo`; it is a law type class for `BEq` but there is no `BEq` instance for `Foo`.
 
-Hint: Adding the command `deriving instance BEq for RegularBEq.Foo` may allow Lean to derive the missing instance.
+Hint: Adding the command `deriving instance BEq for Foo` may allow Lean to derive the missing instance.
 -/
 #guard_msgs in
 structure Foo where
   deriving ReflBEq
 
--- No `ReflBEq` but `LawfulBEq`? ot a great error message yet.
+-- `deriving LawfulBEq` derives `ReflBEq` automatically if necessary
 
-/--
-@ +2:16...25
-error: failed to synthesize instance of type class
-  ReflBEq Bar
-
-Hint: Type class instance resolution failures can be inspected with the `set_option trace.Meta.synthInstance true` command.
--/
-#guard_msgs (positions := true) in
 structure Bar where
   deriving BEq, LawfulBEq
 
-/--
-@ +5:16...23
-error: Deriving `ReflBEq` for mutual inductives is not supported
--/
-#guard_msgs (positions := true) in
 mutual
 inductive Tree (α : Type u) where
   | node : TreeList α → Tree α
@@ -110,7 +96,7 @@ inductive L (α : Type u) where
 deriving BEq, ReflBEq, LawfulBEq
 
 /--
-info: theorem LinearBEq.instReflBEqL.{u_1} : ∀ {α : Type u_1} [inst : BEq α] [ReflBEq α], ReflBEq (L α)
+info: theorem LinearBEq.instReflBEqL.{u} : ∀ (α : Type u) [x : BEq α] [ReflBEq α], ReflBEq (L α)
 -/
 #guard_msgs in
 #print sig instReflBEqL
@@ -121,7 +107,7 @@ inductive Vec (α : Type u) : Nat → Type u where
 deriving BEq, ReflBEq, LawfulBEq
 
 /--
-info: theorem LinearBEq.instReflBEqVec.{u_1} : ∀ {α : Type u_1} {a : Nat} [inst : BEq α] [ReflBEq α], ReflBEq (Vec α a)
+info: theorem LinearBEq.instReflBEqVec.{u} : ∀ (α : Type u) [x : BEq α] (a : Nat) [ReflBEq α], ReflBEq (Vec α a)
 -/
 #guard_msgs in
 #print sig instReflBEqVec
@@ -144,48 +130,34 @@ inductive WithHEq (α : Type u) : Nat → Type u where
 deriving BEq, ReflBEq, LawfulBEq
 
 /--
-info: LinearBEq.instReflBEqWithHEq.{u_1} {α✝ : Type u_1} {a✝ : Nat} [BEq α✝] [ReflBEq α✝] : ReflBEq (WithHEq α✝ a✝)
+info: LinearBEq.instReflBEqWithHEq.{u} (α : Type u) [BEq α] (a✝ : Nat) [ReflBEq α] : ReflBEq (WithHEq α a✝)
 -/
 #guard_msgs in
 #check instReflBEqWithHEq
 
 /--
-info: LinearBEq.instLawfulBEqWithHEq.{u_1} {α✝ : Type u_1} {a✝ : Nat} [BEq α✝] [LawfulBEq α✝] : LawfulBEq (WithHEq α✝ a✝)
+info: LinearBEq.instLawfulBEqWithHEq.{u} (α : Type u) [BEq α] (a✝ : Nat) [LawfulBEq α] : LawfulBEq (WithHEq α a✝)
 -/
 #guard_msgs in
 #check instLawfulBEqWithHEq
 
 
--- No `BEq` derived? Not a great error message yet, but the error location helps, so good enough.
+-- `ReflBEq` produces an error message if `BEq` wasn't derived
 
 /--
-error: failed to synthesize instance of type class
-  BEq Foo
+error: Failed to derive `LawfulBEq` for `Foo`; it is a law type class for `BEq` but there is no `BEq` instance for `Foo`.
 
-Hint: Adding the command `deriving instance BEq for LinearBEq.Foo` may allow Lean to derive the missing instance.
+Hint: Adding the command `deriving instance BEq for Foo` may allow Lean to derive the missing instance.
 -/
 #guard_msgs in
 structure Foo where
   deriving ReflBEq
 
--- No `ReflBEq` but `LawfulBEq`? ot a great error message yet.
+-- `deriving LawfulBEq` derives `ReflBEq` automatically if necessary
 
-/--
-@ +2:16...25
-error: failed to synthesize instance of type class
-  ReflBEq Bar
-
-Hint: Type class instance resolution failures can be inspected with the `set_option trace.Meta.synthInstance true` command.
--/
-#guard_msgs (positions := true) in
 structure Bar where
   deriving BEq, LawfulBEq
 
-/--
-@ +5:16...23
-error: Deriving `ReflBEq` for mutual inductives is not supported
--/
-#guard_msgs (positions := true) in
 mutual
 inductive Tree (α : Type u) where
   | node : TreeList α → Tree α

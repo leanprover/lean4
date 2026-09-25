@@ -1,3 +1,5 @@
+-- The new deriving handler does not generate `method_specs` lemmas
+set_option backward.deriving.comparisons.old true
 set_option deriving.beq.linear_construction_threshold 1000
 
 inductive L (α : Type) where

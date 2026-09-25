@@ -26,6 +26,9 @@ structure CompletionOptions where
   resolveProvider      : Bool := false
   deriving FromJson, ToJson
 
+#guard_msgs (drop error) in
+set_option backward.deriving.comparisons.old true -- for `.ofNat`
+
 inductive CompletionItemKind where
   | text | method | function | constructor | field
   | variable | class | interface | module | property

@@ -2,6 +2,10 @@ module
 -- set_option trace.Elab.Deriving.lawfulBEq true
 -- set_option trace.Meta.MethodSpecs true
 
+-- The `reduceBEq` simproc currently only works for the old deriving handler
+-- The things it is used for (`ReflBEq` and `LawfulBEq`) work properly on the new one though
+-- without using `reduceBEq`
+set_option backward.deriving.comparisons.old true
 set_option deriving.beq.linear_construction_threshold 1000
 
 inductive L (α : Type u) where

@@ -96,6 +96,15 @@ Ordering.lt
   | .eq => b
   | a => a
 
+/--
+Dependent version of `Ordering.then`.
+-/
+@[macro_inline, expose, implicit_reducible]
+def dthen (a : Ordering) (b : a = .eq → Ordering) : Ordering :=
+  match a with
+  | .eq => b rfl
+  | a => a
+
 /-- Version of `Ordering.then'` for proof by reflection. -/
 @[expose] noncomputable def then' (a b : Ordering) : Ordering :=
   Ordering.rec a b a a
@@ -252,6 +261,7 @@ theorem isGE_eq_isGT_or_isEq : ∀ {o : Ordering}, o.isGE = (o.isGT || o.isEq) :
 theorem isEq_eq_beq_eq : ∀ {o : Ordering}, o.isEq = (o == .eq) := by decide
 theorem isNe_eq_not_beq_eq : ∀ {o : Ordering}, o.isNe = (!o == .eq) := by decide
 theorem isNe_eq_isLT_or_isGT : ∀ {o : Ordering}, o.isNe = (o.isLT || o.isGT) := by decide
+theorem isLE_and_isGE_eq : ∀ {o : Ordering}, (o.isLE && o.isGE) = o.isEq := by decide
 
 @[simp] theorem not_isLT_eq_isGE : ∀ {o : Ordering}, (!o.isLT) = o.isGE := by decide
 @[simp] theorem not_isLE_eq_isGT : ∀ {o : Ordering}, (!o.isLE) = o.isGT := by decide
@@ -271,6 +281,9 @@ theorem swap_then : ∀ (o₁ o₂ : Ordering), (o₁.then o₂).swap = o₁.swa
 theorem then_eq_lt : ∀ {o₁ o₂ : Ordering}, o₁.then o₂ = lt ↔ o₁ = lt ∨ o₁ = eq ∧ o₂ = lt := by decide
 theorem then_eq_gt : ∀ {o₁ o₂ : Ordering}, o₁.then o₂ = gt ↔ o₁ = gt ∨ o₁ = eq ∧ o₂ = gt := by decide
 @[simp] theorem then_eq_eq : ∀ {o₁ o₂ : Ordering}, o₁.then o₂ = eq ↔ o₁ = eq ∧ o₂ = eq := by decide
+theorem then_eq_eq_of_eq_eq : ∀ {o₁ o₂ : Ordering}, o₁ = eq → o₂ = eq → o₁.then o₂ = eq := by decide
+theorem left_eq_eq_of_then_eq_eq : ∀ {o₁ o₂ : Ordering}, o₁.then o₂ = eq → o₁ = eq := by decide
+theorem right_eq_eq_of_then_eq_eq : ∀ {o₁ o₂ : Ordering}, o₁.then o₂ = eq → o₂ = eq := by decide
 
 theorem isLT_then : ∀ {o₁ o₂ : Ordering}, (o₁.then o₂).isLT = (o₁.isLT || o₁.isEq && o₂.isLT) := by decide
 theorem isEq_then : ∀ {o₁ o₂ : Ordering}, (o₁.then o₂).isEq = (o₁.isEq && o₂.isEq) := by decide
@@ -290,7 +303,37 @@ theorem isLE_then_iff_and : ∀ {o₁ o₂ : Ordering}, (o₁.then o₂).isLE �
 theorem isLE_left_of_isLE_then : ∀ {o₁ o₂ : Ordering}, (o₁.then o₂).isLE → o₁.isLE := by decide
 theorem isGE_left_of_isGE_then : ∀ {o₁ o₂ : Ordering}, (o₁.then o₂).isGE → o₁.isGE := by decide
 
-theorem isLE_and_isGE_eq : ∀ {o : Ordering}, (o.isLE && o.isGE) = o.isEq := by decide
+theorem then_eq_left_iff : ∀ {o₁ o₂ : Ordering}, o₁.then o₂ = o₁ ↔ (o₁ = .eq → o₂ = o₁) := by decide
+theorem then_eq_right_iff : ∀ {o₁ o₂ : Ordering}, o₁.then o₂ = o₂ ↔ (o₁ ≠ .eq → o₂ = o₁) := by decide
+
+@[congr] theorem dthen_congr {x x' : Ordering}
+    {y : x = eq → Ordering} {y' : x' = eq → Ordering}
+    (hx : x = x') (hy : ∀ h, y (hx ▸ h) = y' h) :
+    x.dthen y = x'.dthen y' := by cases hx; cases funext hy; rfl
+
+@[simp] theorem dthen_eq_then : ∀ {o₁ o₂ : Ordering}, o₁.dthen (fun _ => o₂) = o₁.then o₂ := by decide
+
+theorem swap_dthen : ∀ (o₁ : Ordering) (o₂), (o₁.dthen o₂).swap = o₁.swap.dthen (fun h => (o₂ (swap_eq_eq.mp h)).swap) := by decide
+
+theorem dthen_eq_lt : ∀ {o₁ : Ordering} {o₂}, o₁.dthen o₂ = lt ↔ o₁ = lt ∨ ∃ h : o₁ = eq, o₂ h = lt := by decide
+theorem dthen_eq_gt : ∀ {o₁ : Ordering} {o₂}, o₁.dthen o₂ = gt ↔ o₁ = gt ∨ ∃ h : o₁ = eq, o₂ h = gt := by decide
+@[simp] theorem dthen_eq_eq : ∀ {o₁ : Ordering} {o₂}, o₁.dthen o₂ = eq ↔ ∃ h : o₁ = eq, o₂ h = eq := by decide
+theorem dthen_eq_eq_of_eq_eq : ∀ {o₁ : Ordering} {o₂}, (h₁ : o₁ = .eq) → o₂ h₁ = .eq → o₁.dthen o₂ = .eq := by decide
+theorem left_eq_eq_of_dthen_eq_eq : ∀ {o₁ : Ordering} {o₂}, o₁.dthen o₂ = .eq → o₁ = .eq := by decide
+theorem right_eq_eq_of_dthen_eq_eq : ∀ {o₁ : Ordering} {o₂}, (h : o₁.dthen o₂ = .eq) → o₂ (left_eq_eq_of_dthen_eq_eq h) = .eq := by decide
+
+@[simp] theorem lt_dthen {o} : lt.dthen o = lt := rfl
+@[simp] theorem gt_dthen {o} : gt.dthen o = gt := rfl
+@[simp] theorem eq_dthen {o} : eq.dthen o = o rfl := rfl
+
+theorem dthen_assoc : ∀ (o₁ : Ordering) (o₂ o₃), (o₁.dthen o₂).dthen o₃ =
+  o₁.dthen (fun h => (o₂ h).dthen fun h' => o₃ (dthen_eq_eq_of_eq_eq h h')) := by decide
+
+theorem isLE_dthen_iff_or : ∀ {o₁ : Ordering} {o₂}, (o₁.dthen o₂).isLE ↔ o₁ = lt ∨ (∃ h, (o₂ h).isLE) := by decide
+theorem isLE_left_of_isLE_dthen : ∀ {o₁ : Ordering} {o₂}, (o₁.dthen o₂).isLE → o₁.isLE := by decide
+theorem isGE_left_of_isGE_dthen : ∀ {o₁ : Ordering} {o₂}, (o₁.dthen o₂).isGE → o₁.isGE := by decide
+
+theorem dthen_eq_left_iff : ∀ {o₁ : Ordering} {o₂}, o₁.dthen o₂ = o₁ ↔ (∀ h, o₂ h = o₁) := by decide
 
 instance : Std.Associative Ordering.then := ⟨then_assoc⟩
 instance : Std.IdempotentOp Ordering.then := ⟨fun _ => then_self⟩

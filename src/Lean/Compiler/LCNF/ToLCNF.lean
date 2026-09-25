@@ -941,17 +941,20 @@ where
     if let some ex := (← read).expectedType then
       unless ex.isForall do
         return ← visitLetCore e #[]
-    if let .forallE .. ← liftMetaM <| Meta.inferType e >>= Meta.whnf then
-      let e' ← etaExpandN e 1
-      if e'.isLambda then
-        let funDecl ← withNewScope do
-          let (ps, e, eType?) ← ToLCNF.visitLambda e'
-          let e ← withExpectedType eType? do
-            visitLetCore e #[]
-          let c ← toCode e
-          mkAuxFunDecl ps c
-        pushElement (.fun funDecl)
-        return .fvar funDecl.fvarId
+    if let .forallE nm t _ bi ← liftMetaM <| Meta.inferType e >>= Meta.whnf then
+      let e' : Expr := .lam nm t (.app e (.bvar 0)) bi
+      let funDecl ← withNewScope do
+        let (ps, e, eType?) ← ToLCNF.visitLambda e'
+        let e ← e.withApp fun f args => do
+          match (← visitLetCore f #[]) with
+          | .erased | .type .. => return .erased
+          | .fvar fvarId =>
+            let args ← args.mapM (withoutExpectedType do visitAppArg ·)
+            letValueToArg <| .fvar fvarId args
+        let c ← toCode e
+        mkAuxFunDecl ps c
+      pushElement (.fun funDecl)
+      return .fvar funDecl.fvarId
     visitLetCore e #[]
 
   visitLetCore (e : Expr) (xs : Array Expr) : M (Arg .pure) := do

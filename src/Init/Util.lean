@@ -176,7 +176,7 @@ function; see the comment on `withPtrEqUnsafe`.
 def withPtrAddr {α : Type u} {β : Type v} (a : α) (k : USize → β) (h : ∀ u₁ u₂, k u₁ = k u₂) : β := k 0
 
 set_option linter.unusedVariables.funArgs false in
-@[inline] unsafe def withExclusiveUnsafe {α : Type u} {β : Type v} (a : @& α) (k : Bool → β)
+@[inline] unsafe def withIsExclusiveUnsafe {α : Type u} {β : Type v} (a : @& α) (k : Bool → β)
     (h : k true = k false) : β :=
   k (isExclusiveUnsafe a)
 
@@ -184,11 +184,12 @@ set_option linter.unusedVariables.funArgs false in
 Runs `k` on whether `a` is exclusive at runtime (see `isExclusiveUnsafe`). Logically, this is
 `k false`; the proof `h` ensures that the result does not depend on the answer.
 
-This can be used, for example, to skip caching values that are not referenced from anywhere else.
+This can be used, for example, to skip caching values that are referenced from at most
+one (owning) location.
 
 Being exclusive does not imply that `a` can be updated in place: that also requires the caller
 to own `a` rather than borrow it.
 -/
-@[implemented_by withExclusiveUnsafe]
-def withExclusive {α : Type u} {β : Type v} (a : @& α) (k : Bool → β) (h : k true = k false) : β :=
+@[implemented_by withIsExclusiveUnsafe]
+def withIsExclusive {α : Type u} {β : Type v} (a : @& α) (k : Bool → β) (h : k true = k false) : β :=
   k false

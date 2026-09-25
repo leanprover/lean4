@@ -373,3 +373,36 @@ info: @[instance_reducible, expose] def instMyClassTestRedundantBackward : (β :
 -/
 #guard_msgs in
 #print sig instMyClassTestRedundantBackward
+
+/-!
+The deriving handler properly propagates `unsafe`
+-/
+
+unsafe instance [MyClass α] : MyClass (Squash α) where
+  convert x := MyClass.convert (x.liftOn id lcProof)
+
+structure UsesSquash where
+  thing : Squash Nat
+
+run_cmd handler #[``UsesSquash]
+
+/-- info: @[instance_reducible, expose] unsafe def instMyClassUsesSquash : MyClass UsesSquash -/
+#guard_msgs in
+#print sig instMyClassUsesSquash
+
+/-- info: Data.nat 1 -/
+#guard_msgs in
+#eval MyClass.convert { thing := .mk 1 : UsesSquash }
+
+/-!
+... and `private`
+-/
+
+private structure TestPrivate where
+  thing : Nat
+
+run_cmd handler #[``TestPrivate]
+
+/-- info: @[instance_reducible] private def instMyClassTestPrivate : MyClass TestPrivate -/
+#guard_msgs in
+#print sig instMyClassTestPrivate

@@ -252,6 +252,21 @@ structure Environment where
   `getModuleIREntries`.
   -/
   private irBaseExts      : Array EnvExtensionState
+  /--
+  Generations of the generation-tracked extensions, indexed by `EnvExtension.genIdx?` and sized like
+  `extensions`, next to whose states they are kept so that both are always replaced together.
+  -/
+  private extGens         : Array Nat
+  /--
+  Counter bumped by every modification of a generation-tracked extension
+  (`PersistentEnvExtensionDescrCore.trackGen`): while it is unchanged, no such extension has
+  changed. Like the generations, it rolls back with the environment, so after a rollback a different
+  modification can reach a value seen before. Results stored in the environment roll back with it
+  and stay sound. As the counter only grows along one environment lineage, a result stored outside
+  the environment stays sound across a rollback only if it was stamped with at most the restored
+  value; later ones must be dropped.
+  -/
+  trackedGen              : Nat := 0
   /-- The header contains additional information that is set at import time. -/
   header                  : EnvironmentHeader := private_decl% {}
 deriving Nonempty
@@ -622,6 +637,10 @@ private def VisibilityMap.const (a : α) : VisibilityMap α :=
   { «private» := a, «public» := a }
 
 namespace Environment
+
+@[inherit_doc Kernel.Environment.trackedGen]
+def trackedGen (env : Environment) : Nat :=
+  env.base.private.trackedGen
 
 def header (env : Environment) : EnvironmentHeader :=
   -- can be assumed to be in sync with `env.checked`; see `setMainModule`, the only modifier of the header
@@ -1381,11 +1400,28 @@ structure EnvExtension (σ : Type) where private mk ::
   present.
   -/
   replay?   : Option (ReplayFn σ)
+  /-- Name for diagnostics; set automatically for persistent extensions. -/
+  name      : Name
+  /--
+  For a generation-tracked extension (`PersistentEnvExtensionDescrCore.trackGen`), the index of its
+  generation in `Kernel.Environment.extGens`.
+  -/
+  genIdx?   : Option Nat
   deriving Inhabited
 
 namespace EnvExtension
 
+/-- Whether `ext` is generation-tracked; see `PersistentEnvExtensionDescrCore.trackGen`. -/
+def isGenTracked (ext : EnvExtension σ) : Bool :=
+  ext.genIdx?.isSome
+
 private builtin_initialize envExtensionsRef : IO.Ref (Array (EnvExtension EnvExtensionState)) ← IO.mkRef #[]
+private builtin_initialize numTrackedExtsRef : IO.Ref Nat ← IO.mkRef 0
+
+/-- Pads `gens` with initial generations for the generation-tracked extensions registered since. -/
+private def ensureGensArraySize (gens : Array Nat) : IO (Array Nat) := do
+  let n ← numTrackedExtsRef.get
+  return gens ++ .replicate (n - gens.size) 0
 
 /--
   User-defined environment extensions are declared using the `initialize` command.
@@ -1459,13 +1495,27 @@ def asyncMayModify (ext : EnvExtension σ) (env : Environment) (asyncDecl : Name
 Applies the given function to the extension state. See `AsyncMode` for details on how modifications
 from different environment branches are reconciled.
 
+For generation-tracked extensions the modification bumps the generation if `bumpGen` is set; see
+`PersistentEnvExtensionDescrCore.trackGen`.
+
 Note that in modes `sync` and `async`, `f` will be called twice, on the local and on the `checked`
 state.
 -/
 def modifyState {σ : Type} (ext : EnvExtension σ) (env : Environment) (f : σ → σ)
-    (asyncMode := ext.asyncMode) (asyncDecl : Name := .anonymous) : Environment := Id.run do
+    (asyncMode := ext.asyncMode) (asyncDecl : Name := .anonymous)
+    (bumpGen := true) : Environment := Id.run do
   -- for panics
   let _ : Inhabited Environment := ⟨env⟩
+  let env := match ext.genIdx? with
+    | some i =>
+      if !bumpGen then env else
+      if i < env.base.private.extGens.size then
+        { env with
+          base.private.extGens := env.base.private.extGens.modify i (· + 1)
+          base.private.trackedGen := env.base.private.trackedGen + 1 }
+      else
+        panic! invalidExtMsg
+    | none => env
   -- safety: `ext`'s constructor is private, so we can assume the entry at `ext.idx` is of type `σ`
   match asyncMode with
   | .mainOnly =>
@@ -1563,6 +1613,20 @@ only for important optimizations.
 opaque getState {σ : Type} [Inhabited σ] (ext : EnvExtension σ) (env : Environment)
   (asyncMode := ext.asyncMode) (asyncDecl : Name := .anonymous) : σ
 
+/--
+Generation of the generation-tracked extension with index `genIdx` (`EnvExtension.genIdx?`) on the
+current branch of `env`.
+-/
+def getGenAt (env : Environment) (genIdx : Nat) : Nat :=
+  env.base.private.extGens[genIdx]!
+
+/-- Generation of the generation-tracked extension `ext` on the current branch of `env`. -/
+def getGen (ext : EnvExtension σ) (env : Environment) : Nat :=
+  if let some i := ext.genIdx? then
+    getGenAt env i
+  else
+    panic! s!"environment extension `{ext.name}` (index {ext.idx}) is not generation-tracked"
+
 end EnvExtension
 
 /-- Environment extensions can only be registered during initialization.
@@ -1571,15 +1635,27 @@ end EnvExtension
    2- We do not use any synchronization primitive to access `envExtensionsRef`.
 
    Note that by default, extension state is *not* stored in .olean files and will not propagate across `import`s.
-   For that, you need to register a persistent environment extension. -/
+   For that, you need to register a persistent environment extension.
+
+   `trackGen` makes the extension generation-tracked; see
+   `PersistentEnvExtensionDescrCore.trackGen`. -/
 def registerEnvExtension {σ : Type} (mkInitial : IO σ)
     (replay? : Option (ReplayFn σ) := none)
-    (asyncMode : EnvExtension.AsyncMode := .mainOnly) : IO (EnvExtension σ) := do
+    (asyncMode : EnvExtension.AsyncMode := .mainOnly)
+    (name : Name := .anonymous)
+    (trackGen : Bool := false) : IO (EnvExtension σ) := do
   unless (← initializing) do
     throw (IO.userError "failed to register environment, extensions can only be registered during initialization")
+  if trackGen then
+    unless asyncMode matches .local | .mainOnly do
+      throw (IO.userError "generation-tracked environment extensions must use `AsyncMode.local` or \
+        `.mainOnly`; generations are branch-local (see `PersistentEnvExtensionDescrCore.trackGen`)")
   let exts ← EnvExtension.envExtensionsRef.get
   let idx := exts.size
-  let ext : EnvExtension σ := { idx, mkInitial, asyncMode, replay? }
+  let genIdx? ← if trackGen then
+    some <$> EnvExtension.numTrackedExtsRef.modifyGet fun n => (n, n + 1)
+  else pure none
+  let ext : EnvExtension σ := { idx, mkInitial, asyncMode, replay?, name, genIdx? }
   -- safety: `EnvExtensionState` is opaque, so we can upcast to it
   EnvExtension.envExtensionsRef.modify fun exts => exts.push (unsafe unsafeCast ext)
   pure ext
@@ -1598,6 +1674,7 @@ def mkEmptyEnvironment (trustLevel : UInt32 := 0) : IO Environment := do
       header          := { trustLevel }
       extensions      := exts
       irBaseExts      := exts
+      extGens         := ← EnvExtension.ensureGensArraySize #[]
     }
     importRealizationCtx? := none
   }
@@ -1758,8 +1835,10 @@ def setState {α β σ : Type} (ext : PersistentEnvExtension α β σ) (env : En
 
 /-- Modify the state of the given extension in the given environment by applying the given function. -/
 def modifyState {α β σ : Type} (ext : PersistentEnvExtension α β σ) (env : Environment) (f : σ → σ)
-    (asyncMode := ext.toEnvExtension.asyncMode) (asyncDecl : Name := Name.anonymous) : Environment :=
-  ext.toEnvExtension.modifyState (asyncMode := asyncMode) (asyncDecl := asyncDecl) env fun ps => { ps with state := f (ps.state) }
+    (asyncMode := ext.toEnvExtension.asyncMode) (asyncDecl : Name := Name.anonymous)
+    (bumpGen := true) : Environment :=
+  ext.toEnvExtension.modifyState (asyncMode := asyncMode) (asyncDecl := asyncDecl)
+    (bumpGen := bumpGen) env fun ps => { ps with state := f (ps.state) }
 
 end PersistentEnvExtension
 
@@ -1775,6 +1854,13 @@ structure PersistentEnvExtensionDescrCore (α β σ : Type) where
   statsFn           : σ → Format := fun _ => Format.nil
   asyncMode         : EnvExtension.AsyncMode := .mainOnly
   replay?           : Option (ReplayFn σ) := none
+  /--
+  Whether the extension is generation-tracked: every modification bumps its generation
+  (`EnvExtension.getGen`), so that a result computed from the state can be validated later by
+  comparing generations. Generation-tracked extensions must use `AsyncMode.local` or `.mainOnly`, as
+  generations are branch-local.
+  -/
+  trackGen          : Bool := false
 
 attribute [inherit_doc PersistentEnvExtension.exportEntriesFn]
   PersistentEnvExtensionDescrCore.exportEntriesFnEx
@@ -1801,7 +1887,8 @@ unsafe def registerPersistentEnvExtensionUnsafe {α β σ : Type} [Inhabited σ]
   if pExts.any (fun ext => ext.name == descr.name) then throw (IO.userError s!"invalid environment extension, '{descr.name}' has already been used")
   let replay? := descr.replay?.map fun replay =>
     fun oldState newState newConsts s => { s with state := replay oldState.state newState.state newConsts s.state }
-  let ext ← registerEnvExtension (asyncMode := descr.asyncMode) (replay? := replay?) do
+  let ext ← registerEnvExtension (asyncMode := descr.asyncMode) (replay? := replay?)
+      (name := descr.name) (trackGen := descr.trackGen) do
     let initial ← descr.mkInitial
     let s : PersistentEnvExtensionState α σ := {
       importedEntries := #[],
@@ -2029,7 +2116,8 @@ private opaque runInitAttrs (env : Environment) (opts : Options) : IO Unit
 
 private def ensureExtensionsArraySize (env : Environment) : IO Environment := do
   let exts ← EnvExtension.ensureExtensionsArraySize env.base.private.extensions
-  return env.modifyCheckedAsync ({ · with extensions := exts })
+  let extGens ← EnvExtension.ensureGensArraySize env.base.private.extGens
+  return env.modifyCheckedAsync ({ · with extensions := exts, extGens })
 
 private partial def finalizePersistentExtensions (env : Environment) (mods : Array ModuleData) (opts : Options) : IO Environment := do
   loop 0 env
@@ -2424,6 +2512,7 @@ def finalizeImport (s : ImportState) (imports : Array Import) (opts : Options) (
     quotInit        := !imports.isEmpty -- We assume `Init.Prelude` initializes quotient module
     extensions      := exts
     irBaseExts      := exts
+    extGens         := ← EnvExtension.ensureGensArraySize #[]
     header     := {
       trustLevel, imports, moduleData, isModule
       modules      := modules.map (·.toEffectiveImport)

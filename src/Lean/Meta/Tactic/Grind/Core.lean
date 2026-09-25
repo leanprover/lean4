@@ -81,6 +81,8 @@ private def closeGoalWithValuesEq (lhs rhs : Expr) : GoalM Unit := do
   let p ← mkEq lhs rhs
   let hp ← mkEqProof lhs rhs
   let d ← mkDecide p
+  unless (← withTransparency .all <| isDefEq d (mkConst ``false)) do
+    return
   let pEqFalse := mkApp3 (mkConst ``eq_false_of_decide) p d.appArg! eagerReflBoolFalse
   let falseProof := mkApp4 (mkConst ``Eq.mp [Level.zero]) p (← getFalseExpr) pEqFalse hp
   closeGoal falseProof

@@ -32,24 +32,15 @@ lean_external_class * g_ssl_context_external_class = nullptr;
 
 static int reject_encrypted_pem(char *, int, int, void *) { return -1; }
 
-// A `LoadedPEM`: the PEM bytes, and the `Option FilePath` they were read from.
-struct pem_source {
-    b_obj_arg bytes;
-    b_obj_arg path;
-
-    static pem_source of(b_obj_arg pem) { return { lean_ctor_get(pem, 0), lean_ctor_get(pem, 1) }; }
-
-    char const * data() const { return reinterpret_cast<char const *>(lean_sarray_cptr(bytes)); }
-    size_t size() const { return lean_sarray_size(bytes); }
-};
-
-// Reports a failure to use `src`, naming the file it came from when there is one.
-static lean_obj_res mk_pem_error(pem_source src, char const * msg) {
-    if (lean_is_scalar(src.path)) return mk_ssl_invalid_argument(msg);
+// `src` is a `LoadedPEM`: the PEM bytes and the `Option FilePath` they were read from. Reports a
+// failure to use it, naming that file when there is one.
+static lean_obj_res mk_pem_error(b_obj_arg src, char const * msg) {
+    b_obj_arg path_opt = lean_ctor_get(src, 1);
+    if (lean_is_scalar(path_opt)) return mk_ssl_invalid_argument(msg);
 
     ERR_clear_error();
 
-    b_obj_arg path = lean_ctor_get(src.path, 0);
+    b_obj_arg path = lean_ctor_get(path_opt, 0);
     lean_inc(path);
 
     return lean_io_result_mk_error(lean_mk_io_error_invalid_argument_file(path, EINVAL, mk_string(msg)));
@@ -67,13 +58,16 @@ static bool rejected_by_security_level() {
 }
 
 // Opens `src` for reading. On failure returns nullptr and stores an IO error in `*err`.
-static BIO * open_pem_bio(pem_source src, char const * unreadable, lean_obj_res * err) {
-    if (src.size() > static_cast<size_t>(std::numeric_limits<int>::max())) {
+static BIO * open_pem_bio(b_obj_arg src, char const * unreadable, lean_obj_res * err) {
+    b_obj_arg bytes = lean_ctor_get(src, 0);
+    size_t size = lean_sarray_size(bytes);
+
+    if (size > static_cast<size_t>(std::numeric_limits<int>::max())) {
         *err = mk_pem_error(src, "the PEM material is too large");
         return nullptr;
     }
 
-    BIO * bio = BIO_new_mem_buf(src.data(), (int)src.size());
+    BIO * bio = BIO_new_mem_buf(lean_sarray_cptr(bytes), (int)size);
     if (bio == nullptr) *err = mk_openssl_io_error(unreadable);
     return bio;
 }
@@ -278,7 +272,7 @@ static bool use_certificate_chain_bio(SSL_CTX * ctx, BIO * bio) {
 }
 
 // Loads the certificate chain the server presents and the key it signs with.
-static lean_obj_res load_server_credentials(SSL_CTX * ctx, pem_source cert, pem_source key) {
+static lean_obj_res load_server_credentials(SSL_CTX * ctx, b_obj_arg cert, b_obj_arg key) {
     ERR_clear_error();
 
     lean_obj_res err = nullptr;
@@ -331,9 +325,6 @@ static lean_obj_res load_server_credentials(SSL_CTX * ctx, pem_source cert, pem_
 }
 
 static lean_obj_res mk_server_ctx(b_obj_arg cert, b_obj_arg key) {
-    pem_source cert_src = pem_source::of(cert);
-    pem_source key_src = pem_source::of(key);
-
     lean_obj_res base_err = nullptr;
     ssl_ctx_ptr ctx = mk_ssl_ctx_base(TLS_server_method(), &base_err);
     if (ctx == nullptr) return base_err;
@@ -341,7 +332,7 @@ static lean_obj_res mk_server_ctx(b_obj_arg cert, b_obj_arg key) {
     // The server presents its certificate but never authenticates the client (no mutual TLS).
     SSL_CTX_set_verify(ctx.get(), SSL_VERIFY_NONE, nullptr);
 
-    if (lean_obj_res err = load_server_credentials(ctx.get(), cert_src, key_src)) return err;
+    if (lean_obj_res err = load_server_credentials(ctx.get(), cert, key)) return err;
 
     return wrap_ssl_context(std::move(ctx));
 }
@@ -364,7 +355,7 @@ static bool store_has_anchor(X509_STORE * store) {
 
 // Adds every certificate in `src` to the trust store. `require_anchor`, passed only when the store
 // starts empty, also requires one of them to be a chain anchor.
-static lean_obj_res load_ca_bundle(SSL_CTX * ctx, pem_source src, bool require_anchor) {
+static lean_obj_res load_ca_bundle(SSL_CTX * ctx, b_obj_arg src, bool require_anchor) {
     ERR_clear_error();
 
     lean_obj_res err = nullptr;
@@ -412,7 +403,6 @@ static lean_obj_res load_ca_bundle(SSL_CTX * ctx, pem_source src, bool require_a
 
 static lean_obj_res mk_client_ctx(b_obj_arg ca_opt, uint8_t verify_peer, uint8_t trust_system_roots, uint8_t allow_partial_chain) {
     bool has_ca = !lean_is_scalar(ca_opt);
-    pem_source ca = has_ca ? pem_source::of(lean_ctor_get(ca_opt, 0)) : pem_source { nullptr, nullptr };
 
     lean_obj_res err = nullptr;
     ssl_ctx_ptr ctx = mk_ssl_ctx_base(TLS_client_method(), &err);
@@ -447,7 +437,7 @@ static lean_obj_res mk_client_ctx(b_obj_arg ca_opt, uint8_t verify_peer, uint8_t
         // CA material without an anchor only makes a dead context when it is the sole source.
         bool require_anchor = !allow_partial_chain && !system_roots;
 
-        if (lean_obj_res ca_err = load_ca_bundle(ctx.get(), ca, require_anchor)) return ca_err;
+        if (lean_obj_res ca_err = load_ca_bundle(ctx.get(), lean_ctor_get(ca_opt, 0), require_anchor)) return ca_err;
     }
 
     SSL_CTX_set_verify(ctx.get(), SSL_VERIFY_PEER, nullptr);

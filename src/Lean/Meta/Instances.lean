@@ -99,6 +99,7 @@ builtin_initialize instanceExtension : SimpleScopedEnvExtension InstanceEntry In
     exportEntry? := fun _ e =>
       if e.globalName?.any (!isPrivateName ·) then .uniform (some e)
       else ⟨none, none, some e⟩
+    trackGen := true
   }
 
 private def mkInstanceKey (e : Expr) : MetaM (Array InstanceKey) := do

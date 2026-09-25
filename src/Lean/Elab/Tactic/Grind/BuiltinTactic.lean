@@ -105,7 +105,7 @@ If the goal is not inconsistent and progress has been made,
 `pp?` is executed to produce an info message.
 -/
 def evalCheck (tacticName : Name) (k : GoalM Bool)
-    (pp? : Goal → MetaM (Option MessageData)) : GrindTacticM Unit := do
+    (pp? : Goal → Sym.SymM (Option MessageData)) : GrindTacticM Unit := do
   /- In sym mode, introduce remaining binders + by-contradiction + internalize
      so that satellite solvers (lia, ring, linarith) see all hypotheses.
      This matches the behavior of these tactics in default tactic mode
@@ -127,16 +127,16 @@ def evalCheck (tacticName : Name) (k : GoalM Bool)
     logInfo msg
 
 @[builtin_grind_tactic lia] def evalLIA : GrindTactic := fun _ =>
-  evalCheck `lia Arith.Cutsat.check Arith.Cutsat.pp?
+  evalCheck `lia Arith.Cutsat.check fun goal => Arith.Cutsat.pp? goal
 
 @[builtin_grind_tactic linarith] def evalLinarith : GrindTactic := fun _ => do
-  evalCheck `linarith Arith.Linear.check Arith.Linear.pp?
+  evalCheck `linarith Arith.Linear.check fun goal => Arith.Linear.pp? goal
 
 @[builtin_grind_tactic ring] def evalRing : GrindTactic := fun _ => do
-  evalCheck `ring Arith.CommRing.check' Arith.CommRing.pp?
+  evalCheck `ring Arith.CommRing.check' fun goal => do Arith.CommRing.pp? goal (← Sym.Arith.getArithState).rings
 
 @[builtin_grind_tactic ac] def evalAC : GrindTactic := fun _ => do
-  evalCheck `ac AC.check' AC.pp?
+  evalCheck `ac AC.check' fun goal => AC.pp? goal
 
 def logTheoremAnchor (proof : Expr) : TermElabM Unit := do
   let stx ← getRef

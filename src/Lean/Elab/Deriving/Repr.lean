@@ -31,7 +31,7 @@ def mkBodyForStruct (header : Header) (indVal : InductiveVal) : TermElabM Term :
   forallTelescopeReducing ctorVal.type fun xs _ => do
     let mut fields ← `(Format.nil)
     if xs.size != numParams + fieldNames.size then
-      throwError "'deriving Repr' failed, unexpected number of fields in structure"
+      throwError "`deriving Repr` failed, unexpected number of fields in structure"
     for h : i in *...fieldNames.size do
       let fieldName := fieldNames[i]
       let fieldNameLit := Syntax.mkStrLit (toString fieldName)

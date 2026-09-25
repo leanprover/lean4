@@ -1,5 +1,5 @@
 import Lean
-import Std.Tactic.Do
+import Std.WP
 
 /-!
 Carry-flag chain in `StateM`: a minimal machine with two registers and a carry flag,
@@ -13,8 +13,6 @@ must fold. Minimized from the AeneasVerif/kraken assembly verifier.
 open Lean Meta Order Std.WP
 
 namespace AdcChain
-
-set_option mvcgen.warning false
 
 structure S where
   rax : BitVec 64

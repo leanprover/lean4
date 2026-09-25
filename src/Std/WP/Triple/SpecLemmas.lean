@@ -2045,12 +2045,12 @@ theorem evalsBelow_ofMeasure {γ : Type uγ} [WellFoundedRelation γ]
     (f : α → γ) (a' : α) (ma : γ) :
     (ofMeasure (Pred := Pred) f).EvalsBelow a' ma = ⌜WellFoundedRelation.rel (f a') ma⌝ := by
   refine PartialOrder.rel_antisymm (iSup_le _ _ fun ma' => ?_) (le_iSup_of_le (f a') ?_)
-  · refine ofProp_meet_le_left fun h => ?_
+  · refine CompleteLattice.ofProp_meet_le fun h => ?_
     subst h
     exact PartialOrder.rel_refl
   · refine le_meet _ _ _ ?_ PartialOrder.rel_refl
     simp only [evalsTo_ofMeasure, NondetFun.evalsTo_pure]
-    rw [ofProp_eq_top trivial]
+    rw [CompleteLattice.ofProp_eq_top trivial]
     exact le_top _
 
 open Lean.Order in
@@ -2184,7 +2184,7 @@ theorem Spec.repeatM
     · refine Triple.intro ?_
       refine iSup_meet_le fun ma' => ?_
       rw [meet_comm (P := measure.EvalsTo a' ma'), meet_assoc]
-      exact ofProp_meet_le_left fun hlt => (ih ma' hlt a').le_wp
+      exact CompleteLattice.ofProp_meet_le fun hlt => (ih ma' hlt a').le_wp
     · exact Triple.pure b Lean.Order.PartialOrder.rel_refl
 
 /--

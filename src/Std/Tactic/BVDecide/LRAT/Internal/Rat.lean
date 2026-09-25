@@ -13,8 +13,6 @@ import Std.Data.HashSet
 
 namespace Std.Tactic.BVDecide.LRAT.Internal
 
-set_option mvcgen.warning false
-
 open Std.Sat Std.Do
 
 namespace State

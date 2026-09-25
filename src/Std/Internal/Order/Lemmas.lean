@@ -212,14 +212,14 @@ theorem le_of_imp_top_le (x y : Prop) : (x → (⊤ : Prop) ⊑ y) → x ⊑ y :
 theorem top_le_prop (x : Prop) : x → (⊤ : Prop) ⊑ x :=
   fun hx _ => hx
 
-theorem le_of_right (x y : Prop) : y → x ⊑ y :=
+theorem le_prop_of_right (x y : Prop) : y → x ⊑ y :=
   fun hy _ => hy
 
 theorem of_top_le_prop {x : Prop} : (⊤ : Prop) ⊑ x → x :=
   fun h => h (le_top True trivial)
 
 theorem true_le_of_top_le (x : Prop) : ((⊤ : Prop) ⊑ x) → (True : Prop) ⊑ x :=
-  fun h => le_of_right True x (of_top_le_prop h)
+  fun h => le_prop_of_right True x (of_top_le_prop h)
 
 @[simp] theorem iInf_prop_eq_forall {ι : Type uₗ} (f : ι → Prop) :
     (iInf f : Prop) = (∀ i, f i) := by
@@ -262,13 +262,9 @@ theorem le_forall {β : Sort uₗ} (p : Prop) (q : β → Prop)
     | inl ha => exact (left_le_join a b) ha
     | inr hb => exact (right_le_join a b) hb
 
-/-- Entailment between functions is pointwise. -/
-theorem le_iff_forall_le {σ : Type uₗ} {β : Type vₗ} [PartialOrder β] {f g : σ → β} :
-    (f ⊑ g) ↔ (∀ s, f s ⊑ g s) := Iff.rfl
-
 /-- Entailment between functions follows from pointwise entailment. -/
 theorem le_of_forall_le {σ : Type uₗ} {β : Type vₗ} [PartialOrder β] {f g : σ → β} :
-    (∀ s, f s ⊑ g s) → f ⊑ g := le_iff_forall_le.mpr
+    (∀ s, f s ⊑ g s) → f ⊑ g := Eq.mpr (le_pi_eq_forall f g)
 
 /-- `⊤ ⊑ g` for a function `g` follows from pointwise `⊤ ⊑ g s`. -/
 theorem top_le_of_forall_top_le {σ : Type uₗ} {β : Type vₗ} [CompleteLattice β] {g : σ → β} :
@@ -284,6 +280,12 @@ theorem top_le_of_forall_top_le {σ : Type uₗ} {β : Type vₗ} [CompleteLatti
 /-- The bottom element of the `Prop` lattice is `False`. -/
 @[grind =, simp] theorem bot_prop_eq : (⊥ : Prop) = False :=
   propext ⟨fun h => bot_le False h, fun h => h.elim⟩
+
+@[deprecated le_prop_of_right (since := "2026-09-24")]
+theorem le_of_right (x y : Prop) : y → x ⊑ y := le_prop_of_right x y
+@[deprecated le_pi_eq_forall +typeChanged (since := "2026-09-24")]
+theorem le_iff_forall_le {σ : Type uₗ} {β : Type vₗ} [PartialOrder β] {f g : σ → β} :
+    (f ⊑ g) ↔ (∀ s, f s ⊑ g s) := Iff.rfl
 
 end CompleteLattice
 
@@ -317,7 +319,8 @@ theorem le_join_of_le_left (h : P ⊑ Q) : P ⊑ Q ⊔ R := rel_trans h (left_le
 theorem le_join_of_le_right (h : P ⊑ R) : P ⊑ Q ⊔ R := rel_trans h (right_le_join _ _)
 theorem meet_le_comm : P ⊓ Q ⊑ Q ⊓ P := le_meet _ _ _ (meet_le_right _ _) (meet_le_left _ _)
 theorem join_le_comm : P ⊔ Q ⊑ Q ⊔ P := join_le _ _ _ (right_le_join _ _) (left_le_join _ _)
-theorem le_trans_meet (h₁ : P ⊑ Q) (h₂ : P ⊓ Q ⊑ R) : P ⊑ R := rel_trans (le_meet _ _ _ rel_refl h₁) h₂
+theorem le_of_le_of_meet_le (h₁ : P ⊑ Q) (h₂ : P ⊓ Q ⊑ R) : P ⊑ R :=
+  rel_trans (le_meet _ _ _ rel_refl h₁) h₂
 theorem le_iSup_of_le {β} {Ψ : β → l} (a : β) (h : P ⊑ Ψ a) : P ⊑ iSup Ψ :=
   rel_trans h (le_iSup _ a)
 theorem le_of_le_bot (h : P ⊑ (⊥ : l)) : P ⊑ Q := rel_trans h (bot_le _)
@@ -403,7 +406,7 @@ theorem meet_right_comm : (P ⊓ Q) ⊓ R = (P ⊓ R) ⊓ Q := by
 
 /-! #### Pointwise unfoldings of `⊑` on function lattices
 
-Fixed-arity instances of `le_iff_forall_le` for nested function lattices, stated separately per
+Fixed-arity instances of `le_pi_eq_forall` for nested function lattices, stated separately per
 arity so that `simp` and `grind` can apply them. Each is definitional via the function-space
 `PartialOrder` instance. -/
 
@@ -417,6 +420,9 @@ arity so that `simp` and `grind` can apply them. Each is definitional via the fu
     P ⊑ Q ↔ ∀ s₁ s₂ s₃ s₄, P s₁ s₂ s₃ s₄ ⊑ Q s₁ s₂ s₃ s₄ := Iff.rfl
 @[simp] theorem le_iff_forall_le_5 {σ₁ σ₂ σ₃ σ₄ σ₅ : Type vₗ} {P Q : σ₁ → σ₂ → σ₃ → σ₄ → σ₅ → l} :
     P ⊑ Q ↔ ∀ s₁ s₂ s₃ s₄ s₅, P s₁ s₂ s₃ s₄ s₅ ⊑ Q s₁ s₂ s₃ s₄ s₅ := Iff.rfl
+
+@[deprecated le_of_le_of_meet_le (since := "2026-09-24")]
+theorem le_trans_meet (h₁ : P ⊑ Q) (h₂ : P ⊓ Q ⊑ R) : P ⊑ R := le_of_le_of_meet_le h₁ h₂
 
 end CompleteLatticeAlgebra
 

@@ -1,5 +1,4 @@
 import Std.WP
-import Std.Tactic.Do
 
 /-! Tests that `vcgen` names a loop's verification-condition binders after the program's own `for`
 element, mutable variable, and `invariant` clause binders rather than after the spec lemma's

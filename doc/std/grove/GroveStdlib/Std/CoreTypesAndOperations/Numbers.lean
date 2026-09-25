@@ -14,7 +14,7 @@ namespace Numbers
 
 def unboundedNumericTypes : Array Lean.Name := #[``Nat, ``Int]
 def boundedNumericTypes : Array Lean.Name := #[
-  ``Fin,
+  ``Fin, ``BitVec,
   ``Int8, ``Int16, ``Int32, ``Int64, ``ISize,
   ``UInt8, ``UInt16, ``UInt32, ``UInt64, ``USize
 ]

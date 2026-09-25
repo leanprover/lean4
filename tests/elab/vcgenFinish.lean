@@ -4,7 +4,6 @@ Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Sebastian Graf
 -/
 import Std.WP
-import Std.Tactic.Do
 
 /-!
 `vcgen … with finish` internalises each branch before solving it: a dead `match` branch leaves no

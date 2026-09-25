@@ -30,13 +30,16 @@ private partial def updateAlts (unrefinedArgType : Expr) (typeNew : Expr) (altNu
         unless xs.size == numParams do
           throwError "unexpected matcher application, alternative must have {numParams} parameters"
         let d ← try instantiateForall d xs catch _ => throwError "unexpected matcher application, insufficient number of parameters in alternative"
-        forallBoundedTelescope d (some 1) fun x _ => do
-          let alt ← mkLambdaFVars x alt -- x is the new argument we are adding to the alternative
+        let .forallE n t _ bi ← whnfForall d
+          | throwError "unexpected type at MatcherApp.addArg"
+        -- `x` is the new argument we are adding to the alternative. It is only abstracted here, so
+        -- we do not need to check whether it is a local instance.
+        withLocalDeclNoLocalInstanceUpdate n bi t fun x => do
           let refined ← if refined then
             pure refined
           else
-            pure <| !(← isDefEq unrefinedArgType (← inferType x[0]!))
-          return (← mkLambdaFVars xs alt, refined)
+            pure <| !(← isDefEq unrefinedArgType t)
+          return (← mkLambdaFVars (xs.push x) alt, refined)
       updateAlts unrefinedArgType (b.instantiate1 alt) altNumParams (alts.set i alt) refined (i+1)
     | _ => throwError "unexpected type at MatcherApp.addArg"
   else

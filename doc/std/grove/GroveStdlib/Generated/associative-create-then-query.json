@@ -30,7 +30,7 @@
       "layerIdentifier": "Std.DHashMap.Raw",
       "rowValue": "5ceaa26a-d2cb-4df3-9ac8-b5c11db2ae9d",
       "selectedCellOptions": [
-        "Std.DHashMap.Raw.isEmpty_emptyc"
+        "Std.DHashMap.Raw.isEmpty_empty"
       ]
     },
     {
@@ -118,7 +118,20 @@
               }
             }
           },
-          "selectedCellStates": []
+          "selectedCellStates": [
+            {
+              "value": "Std.DHashMap.isEmpty_emptyWithCapacity",
+              "state": {
+                "constructor": "thm",
+                "thm": {
+                  "isDeprecated": false,
+                  "isSimp": true,
+                  "name": "Std.DHashMap.isEmpty_emptyWithCapacity",
+                  "renderedStatement": "Std.DHashMap.isEmpty_emptyWithCapacity.{u, v} {α : Type u} {β : α → Type v} {x✝ : BEq α}\n  {x✝¹ : Hashable α} {c : Nat} : (Std.DHashMap.emptyWithCapacity c).isEmpty = true"
+                }
+              }
+            }
+          ]
         },
         {
           "layerIdentifier": "Std.DHashMap.Raw",
@@ -148,7 +161,20 @@
               }
             }
           },
-          "selectedCellStates": []
+          "selectedCellStates": [
+            {
+              "value": "Std.DHashMap.Raw.isEmpty_emptyWithCapacity",
+              "state": {
+                "constructor": "thm",
+                "thm": {
+                  "isDeprecated": false,
+                  "isSimp": true,
+                  "name": "Std.DHashMap.Raw.isEmpty_emptyWithCapacity",
+                  "renderedStatement": "Std.DHashMap.Raw.isEmpty_emptyWithCapacity.{u, v} {α : Type u} {β : α → Type v} [BEq α] [Hashable α]\n  {c : Nat} : (Std.DHashMap.Raw.emptyWithCapacity c).isEmpty = true"
+                }
+              }
+            }
+          ]
         },
         {
           "layerIdentifier": "Std.ExtDHashMap",
@@ -279,8 +305,8 @@
     {
       "widgetId": "associative-create-then-query",
       "factId": "5ceaa26a-d2cb-4df3-9ac8-b5c11db2ae9d:::01f88623-fa5f-4380-9772-b30f2fec5c94:::Std.DHashMap::Std.DHashMap.Raw::Std.ExtDHashMap::Std.DTreeMap::Std.DTreeMap.Raw::Std.ExtDTreeMap",
-      "columnAssociationId": "01f88623-fa5f-4380-9772-b30f2fec5c94",
       "rowAssociationId": "5ceaa26a-d2cb-4df3-9ac8-b5c11db2ae9d",
+      "columnAssociationId": "01f88623-fa5f-4380-9772-b30f2fec5c94",
       "selectedLayers": [
         "Std.DHashMap",
         "Std.DHashMap.Raw",
@@ -355,14 +381,14 @@
           },
           "selectedCellStates": [
             {
-              "value": "Std.DHashMap.Raw.isEmpty_emptyc",
+              "value": "Std.DHashMap.Raw.isEmpty_empty",
               "state": {
                 "constructor": "thm",
                 "thm": {
-                  "isDeprecated": true,
-                  "isSimp": false,
-                  "name": "Std.DHashMap.Raw.isEmpty_emptyc",
-                  "renderedStatement": "Std.DHashMap.Raw.isEmpty_emptyc.{u_1, u_2} {α : Type u_1} {β : α → Type u_2} [BEq α] [Hashable α] :\n  ∅.isEmpty = true"
+                  "isDeprecated": false,
+                  "isSimp": true,
+                  "name": "Std.DHashMap.Raw.isEmpty_empty",
+                  "renderedStatement": "Std.DHashMap.Raw.isEmpty_empty.{u, v} {α : Type u} {β : α → Type v} [BEq α] [Hashable α] :\n  ∅.isEmpty = true"
                 }
               }
             }
@@ -513,8 +539,8 @@
         }
       ],
       "metadata": {
-        "comment": "Missing for `ExtDHashMap`",
-        "status": "bad"
+        "status": "bad",
+        "comment": "Missing for `ExtDHashMap`"
       }
     }
   ]

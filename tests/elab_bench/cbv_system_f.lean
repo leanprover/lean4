@@ -1041,8 +1041,8 @@ theorem red_cand_arrow_substitute {X Y : Term → Prop} {t1 : Term}
     (hrcX : RedCand X) (hrcY : RedCand Y)
     (hsub : ∀ t2, X t2 → Y (substitute 0 t1 t2)) :
     RedCandArrow X Y (lam t1) := by
-  -- Use normalizing_substitute_leaf to get normalization of t1
-  have ht1_norm : Normalizing t1 := by grind
+  have ht1_norm : Normalizing t1 :=
+    normalizing_substitute_leaf fun n => RedCand_Normalizing hrcY _ (hsub _ (RedCandVar n hrcX))
   -- Now induct on normalization of t1
   induction ht1_norm with
   | intro h1 ih1 =>

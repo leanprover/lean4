@@ -686,7 +686,7 @@ namespace Lean.Elab.Tactic.Do.SpecAttr
 
 def mkSpecAttr : AttributeImpl where
   name  := `spec
-  descr := "Marks Hoare triple specifications and simp theorems for use with `mvcgen` tactics"
+  descr := "Marks Hoare triple specifications and simp theorems for use with `vcgen`"
   -- .afterCompilation seems unnecessarily conservative, but the simp attribute impl needs it.
   -- The reason is that we cannot annotate definitions with `@[spec]` otherwise; the error is
   -- > trying to realize id.eq_1 but `enableRealizationsForConst` must be called for 'id' first

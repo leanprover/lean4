@@ -64,6 +64,10 @@ syntax (name := rewriteSet) "rewrite" ident (" with " sym_discharger)? : sym_sim
 /-- Rewrite using inline theorems. Optionally specify a discharger for conditional rewrites. -/
 syntax (name := rewriteInline) "rewrite" " [" ident,* "]" (" with " sym_discharger)? : sym_simproc
 
+/-- Normalize ring and semiring terms into polynomial normal form (`Sym.Arith.normalize?`).
+Simplifies the atoms recursively. Intended as a `pre` simproc. -/
+syntax (name := arith) "arith" : sym_simproc
+
 /-- Recursive simplification (calls the full simplifier). -/
 syntax (name := self) "self" : sym_simproc
 

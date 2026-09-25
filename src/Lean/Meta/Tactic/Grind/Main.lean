@@ -27,7 +27,7 @@ import Lean.Meta.Tactic.Grind.ReflCmp
 import Lean.Meta.Tactic.Grind.PP
 import Lean.Meta.Tactic.Grind.Core
 import Lean.Meta.Tactic.Grind.EMatchDiagnostics
-import Lean.Meta.Sym.Arith.Types
+public import Lean.Meta.Sym.Arith.Types
 public section
 namespace Lean.Meta.Grind
 
@@ -190,6 +190,11 @@ structure Result where
   simp        : Simp.Stats
   splitDiags  : PArray SplitDiagInfo
   ematchDiags : PArray EMatchDiagInfo
+  /--
+  `Sym.Arith` ring records at the end of the run. Goals store only ring solver state, and the
+  records are needed to print it after the `SymM` run is over.
+  -/
+  rings       : Array Sym.Arith.CommRing
 
 private def countersToMessageData (header : String) (cls : Name) (data : Array (Name × Nat)) : MetaM MessageData := do
   let data := data.qsort fun (d₁, c₁) (d₂, c₂) => if c₁ == c₂ then Name.lt d₁ d₂ else c₁ > c₂
@@ -238,7 +243,7 @@ def Result.hasFailed (r : Result) : Bool :=
   r.failure?.isSome
 
 def Result.toMessageData (result : Result) : MetaM MessageData := do
-  let mut msgs ← result.failure?.toList.mapM (goalToMessageData · result.config)
+  let mut msgs ← result.failure?.toList.mapM (goalToMessageData · result.config result.rings)
   if result.config.verbose then
     let mut issues := result.issues
     -- We did not find the following very useful in practice.
@@ -372,7 +377,8 @@ def mkResult (params : Params) (failure? : Option Goal) : GrindM Result := do
     if (← isDiagnosticsEnabled) then
       if let some msg ← mkGlobalDiag counters simp splitDiags ematchDiags then
         logInfo msg
-  return { failure?, issues, config := params.config, counters, simp, splitDiags, ematchDiags }
+  let rings := (← Sym.Arith.getArithState).rings
+  return { failure?, issues, config := params.config, counters, simp, splitDiags, ematchDiags, rings }
 
 def GrindM.runAtGoal (mvarId : MVarId) (params : Params) (k : Goal → GrindM α) (evalTactic? : Option EvalTactic := none) : MetaM α := do
   let go : GrindM α := withGTransparency do

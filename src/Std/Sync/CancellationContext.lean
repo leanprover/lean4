@@ -38,6 +38,8 @@ structure CancellationContext where
   state : Std.Mutex CancellationContext.State
   token : CancellationToken
   id : UInt64
+  /-- The ID of the context this one was forked from. -/
+  private parent? : Option UInt64 := none
 
 namespace CancellationContext
 
@@ -72,7 +74,7 @@ def fork (root : CancellationContext) : BaseIO CancellationContext := do
         |>.modify root.id (.map (·) (.push · newId))
     }
 
-    return { state := root.state, token, id := newId }
+    return { state := root.state, token, id := newId, parent? := some root.id }
 
 /--
 Recursively cancels a context and all its children with the given reason.
@@ -98,8 +100,11 @@ def cancel (x : CancellationContext) (reason : CancellationReason) : BaseIO Unit
     return
 
   x.state.atomically do
-    let st ← get
-    let st ← cancelChildren st x.id reason
+    let st ← cancelChildren (← get) x.id reason
+    -- A cancelled context no longer counts as its parent's child.
+    let st := match x.parent? with
+      | some parent => { st with tokens := st.tokens.modify parent (.map (·) (·.erase x.id)) }
+      | none => st
     set st
 
 /--

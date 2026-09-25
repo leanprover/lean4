@@ -365,9 +365,9 @@ least `.implicit`, so both `[instance_reducible]` and `[implicit_reducible]` unf
 -/
 private def isDefEqArgsFirstPass
     (paramInfo : Array ParamInfo) (args₁ args₂ : Array Expr) : MetaM DefEqArgsFirstPassResult := do
-  let opts ← getOptions
-  let respectTransparency := backward.isDefEq.respectTransparency.get opts
-  let implicitBump := backward.isDefEq.implicitBump.get opts
+  let flags ← getOptionFlags
+  let respectTransparency := flags.respectTransparency
+  let implicitBump := flags.implicitBump
   let mut postponedImplicit := #[]
   let mut postponedHO := #[]
   for h : i in *...paramInfo.size do
@@ -429,8 +429,9 @@ private partial def isDefEqArgs (f : Expr) (args₁ args₂ : Array Expr) : Meta
   for i in finfo.paramInfo.size...args₁.size do
     unless (← Meta.isExprDefEqAux args₁[i]! args₂[i]!) do
       return false
-  let respectTransparency := backward.isDefEq.respectTransparency.get (← getOptions)
-  let implicitBump := backward.isDefEq.implicitBump.get (← getOptions)
+  let flags ← getOptionFlags
+  let respectTransparency := flags.respectTransparency
+  let implicitBump := flags.implicitBump
   for i in postponedImplicit do
     /- Second pass: unify implicit arguments.
        When `respectTransparency` is `false` (old behavior), we bump to `.default` so that
@@ -539,8 +540,8 @@ If `backward.isDefEq.respectTransparency` is `false`, then we automatically disa
 `backward.isDefEq.respectTransparency.types` too.
 -/
 abbrev respectTransparencyAtTypes : CoreM Bool := do
-  let opts ← getOptions
-  return backward.isDefEq.respectTransparency.types.get opts && backward.isDefEq.respectTransparency.get opts
+  let flags ← getOptionFlags
+  return flags.respectTransparencyTypes && flags.respectTransparency
 
 /--
 Returns `true` if all metavariables whose types influence the type of `e`, a value assigned to an
@@ -642,7 +643,7 @@ private def checkTypesAndAssign (mvar : Expr) (v : Expr) : MetaM Bool :=
     if !mvar.isMVar then
       trace[Meta.isDefEq.assign.checkTypes] "metavariable expected"
       return false
-    if (← mvar.mvarId!.isInstanceTyped) && backward.isDefEq.respectTransparency.instanceSearchTypes.get (← getOptions) then
+    if (← mvar.mvarId!.isInstanceTyped) && (← getOptionFlags).respectTransparencyInstanceSearchTypes then
       -- The value assigned to an instance-typed metavariable must have the expected type up to
       -- instance transparency: either the candidate value `v` already is such a value, or we
       -- synthesize the instance now and require the candidate to be definitionally equal to the
@@ -1609,7 +1610,7 @@ private def isNonTrivialRegular (info : DefinitionVal) : MetaM Bool := do
          only applies there. At higher transparency levels, the normal unfolding behavior is
          sufficient, and running the heuristic adds overhead without benefit.
          See https://github.com/leanprover/lean4/pull/12650 -/
-      return projInfo.fromClass && backward.whnf.reducibleClassField.get (← getOptions) && (← getTransparency) == .reducible
+      return projInfo.fromClass && (← getOptionFlags).reducibleClassField && (← getTransparency) == .reducible
     return false
   | .opaque => return false
 where
@@ -1922,7 +1923,7 @@ private def etaEq (t s : Expr) : Bool :=
   performance foot-gun. Users can use the backward compatibility flag to restore the old behavior.
 -/
 private def withProofIrrelTransparency (k : MetaM α) : MetaM α := do
-  if backward.isDefEq.respectTransparency.get (← getOptions) then
+  if (← getOptionFlags).respectTransparency then
     k
   else
     withInferTypeConfig k
@@ -2276,7 +2277,7 @@ private def isDefEqProj : Expr → Expr → MetaM Bool
     if (← read).inTypeClassResolution then
       -- See comment at `inTypeClassResolution`
       pure (i == j && m == n) <&&> isDefEqStructArgs (Meta.isExprDefEqAux t s)
-    else if !backward.isDefEq.lazyProjDelta.get (← getOptions) then
+    else if !(← getOptionFlags).lazyProjDelta then
       pure (i == j && m == n) <&&> isDefEqStructArgs (Meta.isExprDefEqAux t s)
     else if i == j && m == n then
       isDefEqStructArgs (isDefEqProjDelta t s i)
@@ -2391,7 +2392,7 @@ succeed.
 See `tests/elab/isDefEqProjInstWithMVar.lean` for an example that fails with the old behavior.
 -/
 private def isDefEqAppFallback (t : Expr) (s : Expr) : MetaM Bool := do
-  if backward.isDefEq.throwOnStuckAfterApp.get (← getOptions) then
+  if (← getOptionFlags).throwOnStuckAfterApp then
     if (← isDefEqOnFailure t s) then return true
     whenUndefDo (isDefEqLateSpecialCases t s) do
     isDefEqOnFailure t s
@@ -2478,7 +2479,7 @@ private def cacheResult (keyInfo : DefEqCacheKeyInfo) (result : Bool) : MetaM Un
     modifyDefEqTransientCache fun c => c.insert key result
 
 private def whnfCoreAtDefEq (e : Expr) : MetaM Expr := do
-  if backward.isDefEq.lazyWhnfCore.get (← getOptions) then
+  if (← getOptionFlags).lazyWhnfCore then
     withConfig (fun ctx => { ctx with proj := .yesWithDeltaI }) <| whnfCore e
   else
     whnfCore e

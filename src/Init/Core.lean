@@ -11,14 +11,12 @@ prelude
 public import Init.SizeOf
 public import Init.Tactics
 
-public section
+public @[expose] section
 set_option linter.missingDocs true -- keep it documented
 
 -- BEq instance for Option defined here so it's available early in the import chain
 -- (before Init.Grind.Config and Init.MetaTypes which need BEq (Option Nat))
 deriving instance BEq for Option
-
-@[expose] section
 
 universe u v w
 

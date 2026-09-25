@@ -52,11 +52,13 @@ lean_object* runtime_initialize_Lean_Compiler_LCNF_ReduceArity(uint8_t builtin);
 lean_object* runtime_initialize_Lean_Compiler_LCNF_Probing(uint8_t builtin);
 lean_object* runtime_initialize_Lean_Compiler_LCNF_Irrelevant(uint8_t builtin);
 lean_object* runtime_initialize_Lean_Compiler_LCNF_SplitSCC(uint8_t builtin);
+void lean_initialize_runtime_module();
 static bool _G_runtime_initialized = false;
 LEAN_EXPORT lean_object* runtime_initialize_Lean_Compiler_LCNF(uint8_t builtin) {
 lean_object * res;
 if (_G_runtime_initialized) return lean_io_result_mk_ok(lean_box(0));
 _G_runtime_initialized = true;
+lean_initialize_runtime_module();
 res = runtime_initialize_Lean_Compiler_LCNF_AlphaEqv(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);

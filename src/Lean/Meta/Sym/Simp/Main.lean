@@ -15,7 +15,7 @@ import Lean.Meta.Sym.Simp.Forall
 namespace Lean.Meta.Sym.Simp
 builtin_initialize registerTraceClass `sym.simp.debug.cache
 
-open Internal
+open Lean.Meta.Sym.Internal
 
 def simpStep : Simproc := fun e => do
   match e with
@@ -32,13 +32,6 @@ def simpStep : Simproc := fun e => do
   | .forallE .. => simpForall e
   | .letE .. => simpLet e
   | .app .. => simpAppArgs e
-
-abbrev cacheResult (e : Expr) (r : Result) : SimpM Result := do
-  if r.isContextDependent then
-    modify fun s => { s with transientCache := s.transientCache.insert { expr := e } r }
-  else
-    modify fun s => { s with persistentCache := s.persistentCache.insert { expr := e } r }
-  return r
 
 set_option compiler.ignoreBorrowAnnotation true in
 @[export lean_sym_simp]

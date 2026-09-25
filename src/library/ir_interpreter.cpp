@@ -76,7 +76,6 @@ lit_val_kind lit_val_tag(lit_val const & l) { return static_cast<lit_val_kind>(c
 nat const & lit_val_num(lit_val const & l) { lean_assert(lit_val_tag(l) == lit_val_kind::Num); return cnstr_get_ref_t<nat>(l, 0); }
 string_ref const & lit_val_str(lit_val const & l) { lean_assert(lit_val_tag(l) == lit_val_kind::Str); return cnstr_get_ref_t<string_ref>(l, 0); }
 
-name const & ctor_info_name(ctor_info const & c) { return cnstr_get_ref_t<name>(c, 0); }
 nat const & ctor_info_tag(ctor_info const & c) { return cnstr_get_ref_t<nat>(c, 1); }
 nat const & ctor_info_size(ctor_info const & c) { return cnstr_get_ref_t<nat>(c, 2); }
 nat const & ctor_info_usize(ctor_info const & c) { return cnstr_get_ref_t<nat>(c, 3); }
@@ -158,15 +157,12 @@ type fn_body_sset_type(fn_body const & b) { lean_assert(fn_body_tag(b) == fn_bod
 fn_body const & fn_body_sset_cont(fn_body const & b) { lean_assert(fn_body_tag(b) == fn_body_kind::SSet); return cnstr_get_ref_t<fn_body>(b, 5); }
 var_id const & fn_body_inc_var(fn_body const & b) { lean_assert(fn_body_tag(b) == fn_body_kind::Inc); return cnstr_get_ref_t<var_id>(b, 0); }
 nat const & fn_body_inc_val(fn_body const & b) { lean_assert(fn_body_tag(b) == fn_body_kind::Inc); return cnstr_get_ref_t<nat>(b, 1); }
-bool fn_body_inc_maybe_scalar(fn_body const & b) { lean_assert(fn_body_tag(b) == fn_body_kind::Inc); return get_bool_field(b.raw(), 3); }
 fn_body const & fn_body_inc_cont(fn_body const & b) { lean_assert(fn_body_tag(b) == fn_body_kind::Inc); return cnstr_get_ref_t<fn_body>(b, 2); }
 var_id const & fn_body_dec_var(fn_body const & b) { lean_assert(fn_body_tag(b) == fn_body_kind::Dec); return cnstr_get_ref_t<var_id>(b, 0); }
 nat const & fn_body_dec_val(fn_body const & b) { lean_assert(fn_body_tag(b) == fn_body_kind::Dec); return cnstr_get_ref_t<nat>(b, 1); }
-bool fn_body_dec_maybe_scalar(fn_body const & b) { lean_assert(fn_body_tag(b) == fn_body_kind::Dec); return get_bool_field(b.raw(), 3); }
 fn_body const & fn_body_dec_cont(fn_body const & b) { lean_assert(fn_body_tag(b) == fn_body_kind::Dec); return cnstr_get_ref_t<fn_body>(b, 2); }
 var_id const & fn_body_del_var(fn_body const & b) { lean_assert(fn_body_tag(b) == fn_body_kind::Del); return cnstr_get_ref_t<var_id>(b, 0); }
 fn_body const & fn_body_del_cont(fn_body const & b) { lean_assert(fn_body_tag(b) == fn_body_kind::Del); return cnstr_get_ref_t<fn_body>(b, 1); }
-name const & fn_body_case_tid(fn_body const & b) { lean_assert(fn_body_tag(b) == fn_body_kind::Case); return cnstr_get_ref_t<name>(b, 0); }
 var_id const & fn_body_case_var(fn_body const & b) { lean_assert(fn_body_tag(b) == fn_body_kind::Case); return cnstr_get_ref_t<var_id>(b, 1); }
 type fn_body_case_var_type(fn_body const & b) { lean_assert(fn_body_tag(b) == fn_body_kind::Case); return cnstr_get_type(b, 2); }
 array_ref<alt_core> const & fn_body_case_alts(fn_body const & b) { lean_assert(fn_body_tag(b) == fn_body_kind::Case); return cnstr_get_ref_t<array_ref<alt_core>>(b, 3); }
@@ -946,6 +942,9 @@ private:
                     // originally borrowed parameters because the wrapper will decrement these after the call.
                     // Basically the wrapper is more homogeneous (removing both unboxed and borrowed parameters) than we
                     // would need in this instance.
+                    // A scalar parameter would break this: `box_t` allocates a box that this call alone owns and the
+                    // wrapper's decrement frees. `Lean.IR.ToIR.lowerParam` establishes that such a parameter is owned.
+                    lean_assert(!type_is_scalar(t));
                     inc(args2[i]);
                 }
             }
@@ -1126,7 +1125,7 @@ public:
 
     object * run_init(name const & decl, name const & init_decl) {
         try {
-            object * args[] = {};
+            object * args[] = { io_mk_world() };
             object * r = call_boxed(init_decl, 1, args);
             if (io_result_is_ok(r)) {
                 object * o = io_result_get_value(r);
@@ -1160,15 +1159,6 @@ object * run_boxed(elab_environment const & env, options const & opts, name cons
             << "' uses 'sorry' and/or contains errors");
     }
     return interpreter::with_interpreter<object *>(env, opts, fn, [&](interpreter & interp) { return interp.call_boxed(fn, n, args); });
-}
-
-extern "C" obj_res lean_elab_environment_of_kernel_env(obj_arg);
-elab_environment elab_environment_of_kernel_env(environment const & env) {
-    return elab_environment(lean_elab_environment_of_kernel_env(env.to_obj_arg()));
-}
-
-object * run_boxed_kernel(environment const & env, options const & opts, name const & fn, unsigned n, object **args) {
-    return run_boxed(elab_environment_of_kernel_env(env), opts, fn, n, args);
 }
 
 uint32 run_main(elab_environment const & env, options const & opts, list_ref<string_ref> const & args) {

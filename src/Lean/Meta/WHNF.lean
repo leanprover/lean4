@@ -491,42 +491,15 @@ private def unfoldNestedDIte (e : Expr) : CoreM Expr := do
   else
     return e
 
-/--
-Auxiliary predicate for `whnfMatcher`.
-See comment above.
--/
-def canUnfoldAtMatcher (cfg : Config) (info : ConstantInfo) : CoreM Bool := do
-  if (← canUnfoldDefault cfg info) then
-    return true
-  /- Beyond what the normal transparency allows, we additionally unfold
-     certain definitions to expose constructors in match discriminants. -/
-  if hasMatchPatternAttribute (← getEnv) info.name then
-    return true
-  return info.name == ``OfNat.ofNat -- needed to reduce numeric literals in match discriminants
-   || info.name == ``NatCast.natCast -- needed for `↑m` in match discriminants (pervasive in Int proofs)
-   || info.name == ``Zero.zero || info.name == ``One.one -- needed for `0`/`1` in match discriminants
-   || info.name == ``decEq
-   || info.name == ``Nat.decEq
-   || info.name == ``Char.ofNat   || info.name == ``Char.ofNatAux
-   || info.name == ``String.decEq || info.name == ``List.hasDecEq
-   || info.name == ``Fin.ofNat -- needed for Fin literal reduction in match discriminants
-   || info.name == ``UInt8.ofNat  || info.name == ``UInt8.decEq
-   || info.name == ``UInt16.ofNat || info.name == ``UInt16.decEq
-   || info.name == ``UInt32.ofNat || info.name == ``UInt32.decEq
-   || info.name == ``UInt64.ofNat || info.name == ``UInt64.decEq
-   /- `Fin.ofNat` reduces to `⟨a % n, _⟩`, so we also need to unfold `%` (i.e., `HMod.hMod`
-      and `Mod.mod`) to expose the `Fin.mk` constructor in match discriminants. -/
-   || info.name == ``HMod.hMod || info.name == ``Mod.mod
-
 private def whnfMatcher (e : Expr) : MetaM Expr := do
-  /- When reducing `match` expressions at `.reducible` or `.instances` transparency,
+  /- When reducing `match` expressions at `.reducible`, `.instances` or `.implicit` transparency,
      we use a custom `canUnfoldAtMatcher` predicate that additionally allows unfolding
      class projections (e.g., `OfNat.ofNat`, `NatCast.natCast`) and a few other specific
      definitions. This ensures match discriminants like `OfNat.ofNat α n inst` can be
      reduced to expose constructors, without bumping the overall transparency level.  -/
-  if (← getTransparency) matches .instances | .reducible then
+  if (← getTransparency) matches .reducible | .instances | .implicit then
     -- Also unfold some default-reducible constants; see `canUnfoldAtMatcher`
-    withCanUnfoldPred canUnfoldAtMatcher do
+    withCanUnfoldAtMatcherPred do
       whnf e
   else
     -- Do NOT use `canUnfoldAtMatcher` here as it does not affect all/default reducibility and inhibits caching (#2564).
@@ -545,7 +518,7 @@ def reduceMatcher? (e : Expr) : MetaM ReduceMatcherResult := do
     return ReduceMatcherResult.partialApp
   let constInfo ← getConstInfo declName
   let mut f ← instantiateValueLevelParams constInfo declLevels
-  if (← getTransparency) matches .instances | .reducible then
+  if (← getTransparency) matches .reducible | .instances | .implicit then
     f ← unfoldNestedDIte f
   let auxApp := mkAppN f args[*...prefixSz]
   let auxAppType ← inferType auxApp
@@ -812,7 +785,7 @@ in "reducible canonical form".
 See `unfoldProjInst?`
 -/
 partial def unfoldProjInstWhenInstances? (e : Expr) : MetaM (Option Expr) := do
-  if (← getTransparency) matches .instances then
+  if (← getTransparency) matches .instances | .implicit then
     unfoldProjInst? e
   else
     return none
@@ -822,10 +795,10 @@ When `true`, unfolding a `[reducible]` class field at `TransparencyMode.reducibl
 the associated instance projection at `TransparencyMode.instances`.
 
 **Motivation:** Consider `a ≤ b` where `a b : Nat` and `LE.le` is `[reducible]`. Unfolding `LE.le`
-gives `instLENat.1 a b`, which is stuck because `instLENat` is `[implicit_reducible]` (not
+gives `instLENat.1 a b`, which is stuck because `instLENat` is `[instance_reducible]` (not
 `[reducible]`). Similarly, `stM m (ExceptT ε m) α` unfolds to an instance projection that is stuck
 at `.reducible`. Without this option, marking a class field as `[reducible]` is pointless when the
-instance providing it is only `[implicit_reducible]`. This option makes the `[reducible]` annotation
+instance providing it is only `[instance_reducible]`. This option makes the `[reducible]` annotation
 on class fields work as the user expects by temporarily bumping to `.instances` for the projection.
 
 See `unfoldDefault` for the implementation.
@@ -841,15 +814,15 @@ This function has special support for unfolding class fields.
 The support is particularly important when the user marks a class field as `[reducible]` and
 the transparency mode is `.reducible`. For example, suppose `e` is `a ≤ b` where `a b : Nat`,
 and `LE.le` is marked as `[reducible]`. Simply unfolding `LE.le` would give `instLENat.1 a b`,
-which would be stuck because `instLENat` has transparency `[implicit_reducible]`. To avoid this, when we unfold
+which would be stuck because `instLENat` has transparency `[instance_reducible]`. To avoid this, when we unfold
 a `[reducible]` class field, we also unfold the associated projection `instLENat.1` using
-`.instances` reducibility, ultimately returning `Nat.le a b`.
+`withReducibleAndInstances` (i.e. `.instances` transparency), ultimately returning `Nat.le a b`.
 -/
 private def unfoldDefault (fInfo : ConstantInfo) (us : List Level) (e : Expr) : MetaM (Option Expr) := do
   if fInfo.hasValue then
     recordUnfold fInfo.name
     deltaBetaDefinition fInfo us e.getAppRevArgs (fun _ => pure none) fun e => do
-      if !backward.whnf.reducibleClassField.get (← getOptions) then
+      if !(← getOptionFlags).reducibleClassField then
         return some e
       else if !(← getTransparency) matches .reducible then
         return some e
@@ -877,7 +850,7 @@ mutual
         else
           let unfoldDefault (_ : Unit) : MetaM (Option Expr) :=
             unfoldDefault fInfo fLvls e
-          if smartUnfolding.get (← getOptions) then
+          if (← getOptionFlags).smartUnfolding then
             match ((← getEnv).find? (skipRealize := true) (mkSmartUnfoldingNameFor fInfo.name)) with
             | some fAuxInfo@(.defnInfo _) =>
               -- We use `preserveMData := true` to make sure the smart unfolding annotation are not erased in an over-application.
@@ -942,7 +915,7 @@ mutual
       let some cinfo ← getConstInfoNoEx? declName ignoreTransparency | pure none
       -- check smart unfolding only after `getUnfoldableConstNoEx?` because smart unfoldings have a
       -- significant chance of not existing and `Environment.contains` misses are more costly
-      if smartUnfolding.get (← getOptions) && (← getEnv).contains (mkSmartUnfoldingNameFor declName) then
+      if (← getOptionFlags).smartUnfolding && (← getEnv).contains (mkSmartUnfoldingNameFor declName) then
         return none
       else
         unless cinfo.hasValue do
@@ -999,23 +972,6 @@ def reduceRecMatcher? (e : Expr) : MetaM (Option Expr) := do
         else
           return none
       | _ => return none
-
-unsafe def reduceBoolNativeUnsafe (constName : Name) : MetaM Bool := evalConstCheck Bool `Bool constName
-unsafe def reduceNatNativeUnsafe (constName : Name) : MetaM Nat := evalConstCheck Nat `Nat constName
-@[implemented_by reduceBoolNativeUnsafe] opaque reduceBoolNative (constName : Name) : MetaM Bool
-@[implemented_by reduceNatNativeUnsafe] opaque reduceNatNative (constName : Name) : MetaM Nat
-
-def reduceNative? (e : Expr) : MetaM (Option Expr) :=
-  match e with
-  | Expr.app (Expr.const fName _) (Expr.const argName _) =>
-    if fName == ``Lean.reduceBool then do
-      return toExpr (← reduceBoolNative argName)
-    else if fName == ``Lean.reduceNat then do
-      return toExpr (← reduceNatNative argName)
-    else
-      return none
-  | _ =>
-    return none
 
 @[inline] def withNatValue (a : Expr) (k : Nat → MetaM (Option α)) : MetaM (Option α) := do
   if !a.hasExprMVar && a.hasFVar then
@@ -1082,7 +1038,7 @@ def reduceNat? (e : Expr) : MetaM (Option Expr) :=
 @[inline] private def useWHNFCache (e : Expr) : MetaM Bool := do
   -- We cache only closed terms without expr metavars.
   -- Potential refinement: cache if `e` is not stuck at a metavariable
-  if e.hasFVar || e.hasExprMVar || (← read).canUnfold?.isSome then
+  if e.hasFVar || e.hasExprMVar || (← read).customCanUnfoldPredicate?.isSome then
     return false
   else
     return true
@@ -1113,12 +1069,9 @@ partial def whnfImp (e : Expr) : MetaM Expr :=
         match (← reduceNat? e') with
         | some v => cache useCache e v
         | none   =>
-          match (← reduceNative? e') with
-          | some v => cache useCache e v
-          | none   =>
-            match (← unfoldDefinition? e') with
-            | some e'' => cache useCache e (← whnfImp e'')
-            | none => cache useCache e e'
+          match (← unfoldDefinition? e') with
+          | some e'' => cache useCache e (← whnfImp e'')
+          | none => cache useCache e e'
 
 /-- If `e` is a projection function that satisfies `p`, then reduce it -/
 def reduceProjOf? (e : Expr) (p : Name → Bool) : MetaM (Option Expr) := do

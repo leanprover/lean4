@@ -13,14 +13,4 @@ namespace lean {
 // Maps based on structural equality. That is, two keys are equal iff they are structurally equal
 template<typename T>
 using expr_map = typename lean::unordered_map<expr, T, expr_hash, std::equal_to<expr>>;
-// The following map also takes into account binder information
-template<typename T>
-using expr_bi_map = typename lean::unordered_map<expr, T, expr_hash, is_bi_equal_proc>;
-
-template<typename T>
-class expr_cond_bi_map : public lean::unordered_map<expr, T, expr_hash, is_cond_bi_equal_proc> {
-public:
-    expr_cond_bi_map(bool use_bi = false):
-        lean::unordered_map<expr, T, expr_hash, is_cond_bi_equal_proc>(10, expr_hash(), is_cond_bi_equal_proc(use_bi)) {}
-};
 };

@@ -14,9 +14,16 @@ Author: Leonardo de Moura
 #include "runtime/mutex.h"
 #include "runtime/init_module.h"
 #include "runtime/libuv.h"
+#include "runtime/cadical.h"
 
 namespace lean {
+// idempotent as it may be called both by the generated `main` and, via `lean_initialize`,
+// by generated module initializers
+static bool g_initialized = false;
 extern "C" LEAN_EXPORT void lean_initialize_runtime_module() {
+    if (g_initialized)
+        return;
+    g_initialized = true;
     initialize_alloc();
     initialize_debug();
     initialize_object();
@@ -26,6 +33,7 @@ extern "C" LEAN_EXPORT void lean_initialize_runtime_module() {
     initialize_process();
     initialize_stack_overflow();
     initialize_libuv();
+    initialize_cadical();
 }
 void initialize_runtime_module() {
     lean_initialize_runtime_module();

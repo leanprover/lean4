@@ -362,8 +362,12 @@ private def elabSimpArg (indexConfig : Meta.ConfigWithKey) (eraseLocal : Bool) (
         let name ← mkFreshId
         elabDeclToUnfoldOrTheorem indexConfig (.stx name arg) e post inv kind
       | .simproc declName =>
+        if inv then
+          throwErrorAt arg[1] m!"Invalid `←` modifier: `{.ofConstName declName}` is a simproc"
         return .addSimproc declName post
       | .ext ext₁? ext₂? h =>
+        if inv then
+          throwErrorAt arg[1] "Invalid `←` modifier: Cannot be used on a simp extension"
         return .ext ext₁? ext₂? h
       | .none    =>
         let name ← mkFreshId
@@ -525,7 +529,7 @@ def elabSimpLocals (thms : SimpTheorems) (kind : SimpKind) : MetaM SimpTheorems 
   for (name, ci) in env.constants.map₂.toList do
     -- Skip internal details, but allow private names (which are accessible from current module)
     if name.isInternalDetail && !isPrivateName name then continue
-    if (← isImplicitReducible name) then continue
+    if (← isInstanceReducible name) then continue
     match ci with
     | .defnInfo _ =>
       -- Definitions are added to unfold
@@ -558,7 +562,7 @@ def mkSimpContext (stx : Syntax) (eraseLocal : Bool) (kind := SimpKind.simp)
     if kind == SimpKind.simpAll then
       throwError "Tactic `simp_all` does not support the `discharger` option"
     if kind == SimpKind.dsimp then
-      throwError "Tactic `dsimp` does not support the `discharger' option"
+      throwError "Tactic `dsimp` does not support the `discharger` option"
   let dischargeWrapper ← mkDischargeWrapper stx[2]
   let simpOnly := !stx[simpOnlyPos].isNone
   let mut simpTheorems ← if simpOnly then

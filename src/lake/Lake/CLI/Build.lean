@@ -71,7 +71,7 @@ def resolveModuleTarget
   (ws : Workspace) (mod : Module) (facet : Name)
 : Except CliError BuildSpec :=
   if facet.isAnonymous then
-    return mkBuildSpec mod.leanArts
+    return mkBuildSpec mod.irArts
   else
     if let some config := ws.findModuleFacetConfig? (Module.facetKind ++ facet) then do
       return mkConfigBuildSpec (mod.facetCore config.name) config.toFacetConfig rfl

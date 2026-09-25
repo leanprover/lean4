@@ -21,8 +21,6 @@ h : ¬1 ≤ k
     [prop] 2 ≤ k
   [eqc] False propositions
     [prop] 1 ≤ k
-  [limits] Thresholds reached
-    [limit] maximum number of E-matching rounds has been reached, threshold: `(ematch := 0)`
 -/
 #guard_msgs in
 example (k : Rat) (hk : 2 ≤ k) : 1 ≤ k := by lia

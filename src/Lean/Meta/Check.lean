@@ -78,7 +78,10 @@ partial def addPPExplicitToExposeDiff (a b : Expr) : MetaM (Expr × Expr) := do
     -- but we don't want these assignments to leak out of the function.
     -- Note: we shouldn't instantiate mvars in `visit` to prevent leakage.
     withoutModifyingState do
-      visit (← instantiateMVars a) (← instantiateMVars b)
+      let traceState ← getTraceState
+      let r ← visit (← instantiateMVars a) (← instantiateMVars b)
+      setTraceState traceState
+      return r
 where
   visit (a b : Expr) : MetaM (Expr × Expr) := do
     try
@@ -224,7 +227,9 @@ function. Any expressions appearing in the trailing message should be included i
 def mkHasTypeButIsExpectedMsg (givenType expectedType : Expr)
     (trailing? : Option MessageData := none) (trailingExprs : Array Expr := #[])
     : MetaM MessageData := do
-  return MessageData.ofLazyM (es := #[givenType, expectedType] ++ trailingExprs) do
+  let config ← getConfig
+  return MessageData.ofLazyM (es := #[givenType, expectedType] ++ trailingExprs) <|
+      withConfig (fun _ => config) do
     let mut msg ← (try
       let givenTypeType ← inferType givenType
       let expectedTypeType ← inferType expectedType
@@ -348,11 +353,11 @@ prior tactics (such as `unfold`) leaving the goal in a state that's type-correct
 def withInstancesTypeCheckNote [MonadControlT MetaM m] [Monad m] (e : Expr) (x : m α) : m α := do
   let typeCheckNote := MessageData.ofLazyM (es := #[e]) do
     try
-      check e .instances
+      check e .implicit
       return .nil
     catch e =>
       return MessageData.note m!"The target expression is not type-correct \
-        under the `instances` transparency level, which may have triggered the failure. \
+        under the `implicit` transparency level, which may have triggered the failure. \
         This is usually caused by unfolding of semireducible definitions in prior tactic steps. \
         Use `set_option linter.tacticCheckInstances true` to investigate the source of the issue.\n\
         Full error:\

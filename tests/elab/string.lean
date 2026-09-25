@@ -1,6 +1,7 @@
 module
 
 meta import Init.Data.String
+import all Init.Data.String.Basic
 
 /-!
 # Tests for `String` functions
@@ -16,10 +17,10 @@ macro tk:"#test " t:term : command =>
 Examples from documentation (added in https://github.com/leanprover/lean4/pull/4166)
 -/
 
--- List.asString
-#test ['L', '∃', '∀', 'N'].asString = "L∃∀N"
-#test [].asString = ""
-#test ['a', 'a', 'a'].asString = "aaa"
+-- String.ofList
+#test String.ofList ['L', '∃', '∀', 'N'] = "L∃∀N"
+#test String.ofList [] = ""
+#test String.ofList ['a', 'a', 'a'] = "aaa"
 
 -- length
 #test "".length = 0
@@ -123,16 +124,6 @@ def next? (s : String) (p : String.Pos.Raw) : Option Char :=
 #test next? abc ⟨1⟩ = some 'c'
 #test next? abc ⟨5⟩ = none
 
--- posOf
-#guard "abba".posOf 'a' = ⟨0⟩
-#guard "abba".posOf 'z' = ⟨4⟩
-#guard "L∃∀N".posOf '∀' = ⟨4⟩
-
--- revPosOf
-#guard "abba".revPosOf 'a' = some ⟨3⟩
-#guard "abba".revPosOf 'z' = none
-#guard "L∃∀N".revPosOf '∀' = some ⟨4⟩
-
 /-!
 Behavior of `String.prev` (`lean_string_utf8_prev`) in special cases (see issue #9439).
 -/
@@ -199,3 +190,18 @@ Behavior of `String.next` (`lean_string_utf8_next`) in special cases (see issue 
 #test ("L∃∀N".pos ⟨1⟩ (by decide)).prev?.map (·.offset) = some ⟨0⟩
 #test ("L∃∀N".pos ⟨0⟩ (by decide)).prev? = none
 #test ("L∃∀N".pos ⟨1⟩ (by decide)).prev!.offset = ⟨0⟩
+
+#test String.Pos.Raw.extract "red green blue" ⟨0⟩ ⟨3⟩ = "red"
+#test String.Pos.Raw.extract "red green blue" ⟨3⟩ ⟨0⟩ = ""
+#test String.Pos.Raw.extract "red green blue" ⟨0⟩ ⟨100⟩ = "red green blue"
+#test String.Pos.Raw.extract "red green blue" ⟨4⟩ ⟨100⟩ = "green blue"
+#test String.Pos.Raw.extract "red green blue" ⟨0⟩ ⟨2 ^ 100⟩ = "red green blue"
+#test String.Pos.Raw.extract "red green blue" ⟨4⟩ ⟨2 ^ 100⟩ = "green blue"
+#test String.Pos.Raw.extract "L∃∀N" ⟨1⟩ ⟨2⟩ = "∃∀N"
+#test String.Pos.Raw.extract "L∃∀N" ⟨3⟩ ⟨2⟩ = ""
+#test String.Pos.Raw.extract "L∃∀N" ⟨2⟩ ⟨100⟩ = ""
+#test String.Pos.Raw.extract "L∃∀N" ⟨2 ^ 100⟩ ⟨1⟩ = ""
+#test String.Pos.Raw.extract "L∃∀N" ⟨2 ^ 100⟩ ⟨2 ^ 101⟩ = ""
+
+#test "red green blue".extract (String.pos _ ⟨0⟩ (by decide)) (String.pos _ ⟨3⟩ (by decide)) = "red"
+#test "red green blue".extract (String.pos _ ⟨4⟩ (by decide)) (String.pos _ ⟨14⟩ (by decide)) = "green blue"

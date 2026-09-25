@@ -241,30 +241,10 @@ extern "C" LEAN_EXPORT void lean_initialize_thread();
 extern "C" LEAN_EXPORT void lean_finalize_thread();
 
 typedef void (*thread_finalizer)(void *); // NOLINT
-LEAN_EXPORT void register_post_thread_finalizer(thread_finalizer fn, void * p);
 LEAN_EXPORT void register_thread_finalizer(thread_finalizer fn, void * p);
 LEAN_EXPORT void run_thread_finalizers();
-LEAN_EXPORT void run_post_thread_finalizers();
 LEAN_EXPORT void delete_thread_finalizer_manager();
 
-LEAN_EXPORT bool in_thread_finalization();
-
-/**
-    \brief Add \c fn to the list of functions used to reset thread local storage.
-
-    This function must only be invoked during initialization.
-
-    We use these functions to reset thread local storage that
-    contains cached data that may not be valid anymore.
-
-    \see reset_thread_local */
-LEAN_EXPORT void register_thread_local_reset_fn(std::function<void()> fn);
-
-/**
-   \brief Reset thread local storage that contains cached
-   data that may not be valid anymore.
-
-   We invoke this function before processing a command
-   and before executing a task. */
-LEAN_EXPORT void reset_thread_local();
+LEAN_EXPORT void run_with_thread_stack(std::function<void()> const & fn);
+LEAN_EXPORT void set_thread_stack_size_from_env();
 }

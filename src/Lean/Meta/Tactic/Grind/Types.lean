@@ -14,7 +14,7 @@ public import Lean.Meta.Sym.Canon
 meta import Init.Data.String.Basic
 import Lean.Meta.AbstractNestedProofs
 import Lean.Meta.Match.MatchEqsExt
-import Init.Data.Nat.Linear
+import Init.Data.Nat.Internal.Linear
 import Init.Omega
 import Lean.Util.ShareCommon
 public section
@@ -87,6 +87,16 @@ register_builtin_option grind.unusedLemmaThreshold : Nat := {
 register_builtin_option grind.ematch.diagnostics : Bool := {
   defValue := false
   descr    := "enable E-matching theorem instantiation diagnostics"
+}
+
+register_builtin_option grind.ematch.diagnostics.costThreshold : Nat := {
+  defValue := 10
+  descr    := "report E-matching instances that were at least this costly (roughly the size of their transitive closure of follow up instances)"
+}
+
+register_builtin_option grind.ematch.diagnostics.branchThreshold : Nat := {
+  defValue := 10
+  descr    := "report E-matching instances that participated in at least this many other instances directly"
 }
 
 /--

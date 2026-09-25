@@ -1,0 +1,15 @@
+name = "leanExit"
+version = "0.1.0"
+defaultTargets = ["TypeError", "Exit1NoError", "ErrorExit0", "Exit3"]
+
+[[lean_lib]]
+name = "TypeError"
+
+[[lean_lib]]
+name = "Exit1NoError"
+
+[[lean_lib]]
+name = "ErrorExit0"
+
+[[lean_lib]]
+name = "Exit3"

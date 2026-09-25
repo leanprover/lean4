@@ -142,15 +142,21 @@ public theorem LawfulOrderMax.of_ord (α : Type u) [Ord α] [Max α] [LE α] [La
   toLawfulOrderSup := .of_ord α compare_max_isLE_iff
   max_eq_or := max_eq_or
 
-public theorem min_eq_if_isLE_compare {α : Type u} [Ord α] [LE α] {_ : Min α}
+public theorem min_eq_ite_isLE_compare {α : Type u} [Ord α] [LE α] {_ : Min α}
     [LawfulOrderOrd α] [LawfulOrderLeftLeaningMin α] {a b : α} :
     min a b = if (compare a b).isLE then a else b := by
-  open Classical in simp [min_eq_if, isLE_compare]
+  open Classical in simp [min_eq_ite, isLE_compare]
 
-public theorem max_eq_if_isGE_compare {α : Type u} [Ord α] [LE α] {_ : Max α}
+@[deprecated Std.min_eq_ite_isLE_compare (since := "2026-07-21")]
+public theorem min_eq_if_isLE_compare {α : Type u} [Ord α] [LE α] {_ : Min α} [Std.LawfulOrderOrd α] [Std.LawfulOrderLeftLeaningMin α] {a : α} {b : α} : Min.min a b = if (Ord.compare a b).isLE = Bool.true then a else b := Std.min_eq_ite_isLE_compare
+
+public theorem max_eq_ite_isGE_compare {α : Type u} [Ord α] [LE α] {_ : Max α}
     [LawfulOrderOrd α] [LawfulOrderLeftLeaningMax α]
     {a b : α} : max a b = if (compare a b).isGE then a else b := by
-  open Classical in simp [max_eq_if, isGE_compare]
+  open Classical in simp [max_eq_ite, isGE_compare]
+
+@[deprecated Std.max_eq_ite_isGE_compare (since := "2026-07-21")]
+public theorem max_eq_if_isGE_compare {α : Type u} [Ord α] [LE α] {_ : Max α} [Std.LawfulOrderOrd α] [Std.LawfulOrderLeftLeaningMax α] {a : α} {b : α} : Max.max a b = if (Ord.compare a b).isGE = Bool.true then a else b := Std.max_eq_ite_isGE_compare
 
 theorem min_le_min [LE α] [Min α] [Std.LawfulOrderLeftLeaningMin α] [IsLinearOrder α] (a b : α) : min a b ≤ min b a := by
   apply (LawfulOrderInf.le_min_iff (min a b) b a).2
@@ -163,6 +169,27 @@ theorem min_le_min [LE α] [Min α] [Std.LawfulOrderLeftLeaningMin α] [IsLinear
 
 public instance [LE α] [Min α] [Std.LawfulOrderLeftLeaningMin α] [IsLinearOrder α] : Commutative (min : α → α → α) where
   comm a b := by apply le_antisymm <;> simp [min_le_min]
+
+public instance [BEq α] [Ord α] [LE α] [Std.LawfulBEqOrd α] [Std.LawfulOrderOrd α] :
+    Std.LawfulOrderBEq α where
+  beq_iff_le_and_ge a b := by
+    rw [← Std.LawfulBEqOrd.compare_eq_iff_beq, ← Ordering.isEq_iff_eq_eq,
+      ← Ordering.isLE_and_isGE_eq, Bool.and_eq_true, Std.LawfulOrderOrd.isGE_compare,
+      Std.LawfulOrderOrd.isLE_compare]
+
+section compareOfLessAndEq
+
+public instance lawfulOrderOrd_compareOfLessAndEq {α : Type u} [LE α] [LT α]
+    [Std.Total (α := α) (· ≤ ·)]
+    [Std.Antisymm (α := α) (· ≤ ·)] [DecidableLT α] [LawfulOrderLT α] [DecidableEq α] :
+    letI : Ord α := ⟨(compareOfLessAndEq · ·)⟩
+    Std.LawfulOrderOrd α := by
+  let : Ord α := ⟨(compareOfLessAndEq · ·)⟩
+  refine ⟨fun a b => ?_, fun a b => ?_⟩
+  · exact isLE_compareOfLessAndEq Std.le_antisymm Std.not_le (fun _ _ => Std.le_total)
+  · exact isGE_compareOfLessAndEq Std.le_antisymm Std.not_le (fun _ _ => Std.le_total)
+
+end compareOfLessAndEq
 
 end Std
 

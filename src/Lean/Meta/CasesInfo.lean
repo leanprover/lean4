@@ -11,6 +11,8 @@ import Init.Data.Range.Polymorphic.Iterators
 
 open Lean Meta
 
+namespace Lean
+
 /-!
 This modules defines the `CasesInfo` data structure and functions to obtain it.
 It contains information about the structure of casesOn-like functions, namely of
@@ -45,6 +47,7 @@ public structure CasesInfo where
   indName      : Name
   arity        : Nat
   discrPos     : Nat
+  motivePos    : Nat
   altsRange    : Std.Rco Nat
   altNumParams : Array CasesAltInfo
 
@@ -61,6 +64,7 @@ public def getCasesInfo? (declName : Name) : CoreM (Option CasesInfo) := do
       assert! r.appArg!.isFVar  -- major argument
       assert! r.getAppFn.isFVar -- motive
       let some discrPos := xs.idxOf? r.appArg! | unreachable!
+      let some motivePos := xs.idxOf? r.getAppFn | unreachable!
       let some indName := (← inferType xs[discrPos]!).getAppFn.constName? | unreachable!
       -- We recognize the per-ctor elims side condition here
       let xsTys ← (xs.extract (discrPos+1)).mapM inferType
@@ -80,4 +84,6 @@ public def getCasesInfo? (declName : Name) : CoreM (Option CasesInfo) := do
             let some ctorName := motiveArg.getAppFn.constName? | unreachable!
             let ctorVal ← getConstInfoCtor ctorName
             return .ctor ctorName ctorVal.numFields
-      return some { declName, indName, arity, discrPos, altsRange, altNumParams }
+      return some { declName, indName, arity, discrPos, motivePos, altsRange, altNumParams }
+
+end Lean

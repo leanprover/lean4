@@ -1,6 +1,6 @@
 // Lean compiler output
 // Module: Std.Data.ExtDTreeMap.Lemmas
-// Imports: public import Std.Data.ExtDTreeMap.Basic import Init.Data.List.Pairwise
+// Imports: public import Std.Data.ExtDTreeMap.Basic public import Std.Internal.ForIn.Basic import Init.Data.List.Pairwise
 #include <lean/lean.h>
 #if defined(__clang__)
 #pragma clang diagnostic ignored "-Wunused-parameter"
@@ -13,8 +13,10 @@
 #ifdef __cplusplus
 extern "C" {
 #endif
+LEAN_EXPORT lean_object* l_Std_ExtDTreeMap_instCoeTypeForall__1___redArg();
+LEAN_EXPORT lean_object* l_Std_ExtDTreeMap_instCoeTypeForall__1___redArg___boxed(lean_object*);
 LEAN_EXPORT lean_object* l_Std_ExtDTreeMap_instCoeTypeForall__1(lean_object*);
-LEAN_EXPORT lean_object* l_Std_ExtDTreeMap_instCoeTypeForall__1(lean_object* v_00_u03b1_1_){
+LEAN_EXPORT lean_object* l_Std_ExtDTreeMap_instCoeTypeForall__1___redArg(){
 _start:
 {
 lean_object* v___x_2_; 
@@ -22,14 +24,36 @@ v___x_2_ = lean_box(0);
 return v___x_2_;
 }
 }
+LEAN_EXPORT lean_object* l_Std_ExtDTreeMap_instCoeTypeForall__1___redArg___boxed(lean_object* v___dummy_3_){
+_start:
+{
+lean_object* v_res_4_; 
+v_res_4_ = l_Std_ExtDTreeMap_instCoeTypeForall__1___redArg();
+return v_res_4_;
+}
+}
+LEAN_EXPORT lean_object* l_Std_ExtDTreeMap_instCoeTypeForall__1(lean_object* v_00_u03b1_5_){
+_start:
+{
+lean_object* v___x_6_; 
+v___x_6_ = lean_box(0);
+return v___x_6_;
+}
+}
 lean_object* runtime_initialize_Std_Data_ExtDTreeMap_Basic(uint8_t builtin);
+lean_object* runtime_initialize_Std_Internal_ForIn_Basic(uint8_t builtin);
 lean_object* runtime_initialize_Init_Data_List_Pairwise(uint8_t builtin);
+void lean_initialize_runtime_module();
 static bool _G_runtime_initialized = false;
 LEAN_EXPORT lean_object* runtime_initialize_Std_Data_ExtDTreeMap_Lemmas(uint8_t builtin) {
 lean_object * res;
 if (_G_runtime_initialized) return lean_io_result_mk_ok(lean_box(0));
 _G_runtime_initialized = true;
+lean_initialize_runtime_module();
 res = runtime_initialize_Std_Data_ExtDTreeMap_Basic(builtin);
+if (lean_io_result_is_error(res)) return res;
+lean_dec_ref(res);
+res = runtime_initialize_Std_Internal_ForIn_Basic(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
 res = runtime_initialize_Init_Data_List_Pairwise(builtin);
@@ -45,6 +69,7 @@ _G_meta_initialized = true;
 return lean_io_result_mk_ok(lean_box(0));
 }
 lean_object* initialize_Std_Data_ExtDTreeMap_Basic(uint8_t builtin);
+lean_object* initialize_Std_Internal_ForIn_Basic(uint8_t builtin);
 lean_object* initialize_Init_Data_List_Pairwise(uint8_t builtin);
 static bool _G_initialized = false;
 LEAN_EXPORT lean_object* initialize_Std_Data_ExtDTreeMap_Lemmas(uint8_t builtin) {
@@ -52,6 +77,9 @@ lean_object * res;
 if (_G_initialized) return lean_io_result_mk_ok(lean_box(0));
 _G_initialized = true;
 res = initialize_Std_Data_ExtDTreeMap_Basic(builtin);
+if (lean_io_result_is_error(res)) return res;
+lean_dec_ref(res);
+res = initialize_Std_Internal_ForIn_Basic(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
 res = initialize_Init_Data_List_Pairwise(builtin);

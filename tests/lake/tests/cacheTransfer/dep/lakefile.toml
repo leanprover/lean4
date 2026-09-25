@@ -1,0 +1,6 @@
+name = "dep"
+# So that a build of this package on its own produces cacheable outputs
+enableArtifactCache = true
+
+[[lean_lib]]
+name = "Dep"

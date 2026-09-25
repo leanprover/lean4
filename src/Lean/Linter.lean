@@ -7,8 +7,10 @@ module
 
 prelude
 public import Lean.Linter.Util
+public import Lean.Linter.AmbiguousOpen
 public import Lean.Linter.Builtin
 public import Lean.Linter.CheckUnivs
+public import Lean.Linter.CodeQuality
 public import Lean.Linter.ConstructorAsVariable
 public import Lean.Linter.DefProp
 public import Lean.Linter.Deprecated
@@ -25,3 +27,4 @@ public import Lean.Linter.EnvLinter
 public import Lean.Linter.PersistentLintLog
 public import Lean.Linter.Extra
 public import Lean.Linter.TacticTypeCheck
+public import Lean.Linter.CoreInternal

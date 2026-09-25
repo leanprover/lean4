@@ -197,6 +197,11 @@ std::ostream & operator<<(std::ostream & out, level const & l);
     in \c l, l[A] != zero. */
 bool is_not_zero(level const & l);
 
+/** \brief Return true iff \c normalize(l) is \c zero, without building the normal form.
+    Unlike \c is_not_zero, this is a statement about \c l itself rather than about all of its
+    instantiations, so it fails for parameters and metavariables. */
+bool normalizes_to_zero(level const & l);
+
 /** \brief Convert a list of universe level parameter names into a list of levels. */
 levels lparams_to_levels(names const & ps);
 

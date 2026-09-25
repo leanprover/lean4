@@ -755,3 +755,27 @@ private def minimalGetRequest : Request.Head :=
     |>.step |>.step
     |>.assertOutputContains "Connection: keep-alive"
         "RFC 2616 §19.7.1: HTTP/1.0 keep-alive response must include Connection: keep-alive" |>.run
+
+#eval runGroup "RFC 9110 §8.6 / §6.3: client-side bodyless response framing" do
+  -- §8.6: a HEAD response has no body regardless of framing headers. The client reader must treat
+  -- it as zero-length and finish without blocking, even though Content-Length advertises bytes that
+  -- never arrive on the wire.
+  MachineTester.sending "§8.6: client HEAD response — body suppressed despite Content-Length"
+    |>.send { minimalGetRequest with method := .head } |>.step
+    |>.feed "HTTP/1.1 200 OK\r\nContent-Length: 100\r\n\r\n"
+    |>.step
+    |>.assertNoError
+    |>.assert (fun m => !m.canPullBody)
+        "HEAD response must expose no body to pull (reader must not block on absent body bytes)"
+    |>.assertReaderComplete |>.run
+
+  -- §6.3: a client response with a known zero-length body (e.g. 204) must auto-complete; otherwise
+  -- the connection would stall waiting for a `pullBody` that never produces bytes.
+  MachineTester.sending "§6.3: client zero-length response auto-completes without pullBody"
+    |>.send minimalGetRequest |>.step
+    |>.feed "HTTP/1.1 204 No Content\r\nContent-Length: 0\r\n\r\n"
+    |>.step
+    |>.assertNoError
+    |>.assert (fun m => !m.canPullBody)
+        "zero-length response body must not require a caller pullBody to advance"
+    |>.assertReaderComplete |>.run

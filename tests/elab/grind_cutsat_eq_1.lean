@@ -1,6 +1,6 @@
 module
 set_option grind.debug true
-open Int.Linear
+open Int.Internal.Linear
 
 /--
 trace: [grind.lia.assert] -1*「b + f a + 1」 + b + f a + 1 = 0

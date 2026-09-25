@@ -90,7 +90,7 @@ theorem ext' {xs ys : Array α} (h : xs.toList = ys.toList) : xs = ys := by
 
 @[simp, grind =] theorem toArray_toList {xs : Array α} : xs.toList.toArray = xs := rfl
 
-@[simp, grind =] theorem getElem_toList {xs : Array α} {i : Nat} (h : i < xs.size) : xs.toList[i] = xs[i] := rfl
+@[simp, grind =] theorem getElem_toList {xs : Array α} {i : Nat} (h : i < xs.toList.length) : xs.toList[i] = xs[i] := rfl
 
 @[simp, grind =] theorem getElem?_toList {xs : Array α} {i : Nat} : xs.toList[i]? = xs[i]? := by
   simp only [getElem?_def, getElem_toList]
@@ -170,7 +170,7 @@ Low-level indexing operator which is as fast as a C array read.
 
 This avoids overhead due to unboxing a `Nat` used as an index.
 -/
-@[extern "lean_array_uget", simp, expose]
+@[extern "lean_array_uget", simp, expose, implicit_reducible]
 def uget (xs : @& Array α) (i : USize) (h : i.toNat < xs.size) : α :=
   xs[i.toNat]
 
@@ -189,7 +189,7 @@ in-place when the reference to the array is unique.
 
 This avoids overhead due to unboxing a `Nat` used as an index.
 -/
-@[extern "lean_array_uset", expose]
+@[extern "lean_array_uset", expose, implicit_reducible]
 def uset (xs : Array α) (i : USize) (v : α) (h : i.toNat < xs.size) : Array α :=
   xs.set i.toNat v h
 
@@ -210,6 +210,31 @@ def pop (xs : Array α) : Array α where
   match xs with
   | ⟨[]⟩ => rfl
   | ⟨a::as⟩ => simp [pop, Nat.succ_sub_succ_eq_sub, size]
+
+/--
+Marks an array as linear, which is a no-op logically.
+
+At runtime the array is first made unique, copying it if the reference is not already unique, and
+then marked. If the environment variable `LEAN_ABORT_ON_NONLINEAR` is set, every non-linear use
+from that point on causes a panic instead of a silent copy.
+
+To debug where the non-linearity is coming from you can set a breakpoint on `lean_internal_panic`.
+-/
+@[never_extract, extern "lean_array_mark_linear", expose]
+def markLinear (xs : Array α) : Array α := xs
+
+@[simp, grind =] theorem markLinear_eq {xs : Array α} : xs.markLinear = xs := rfl
+
+/--
+Returns `ys`, propagating the linearity marker of `xs` onto it. This is a no-op logically.
+
+See also `Array.markLinear`.
+-/
+@[never_extract, extern "lean_array_propagate_mark", expose]
+def propagateMark {α : Type u} {β : Type v} (xs : @& Array α) (ys : Array β) : Array β := ys
+
+@[simp, grind =] theorem propagateMark_eq {α : Type u} {β : Type v} {xs : Array α} {ys : Array β} :
+    xs.propagateMark ys = ys := rfl
 
 /--
 Creates an array that contains `n` repetitions of `v`.
@@ -290,7 +315,7 @@ Examples:
 def isEmpty (xs : Array α) : Bool :=
   xs.size = 0
 
-@[specialize]
+@[specialize, expose]
 def isEqvAux (xs ys : Array α) (hsz : xs.size = ys.size) (p : α → α → Bool) :
     ∀ (i : Nat) (_ : i ≤ xs.size), Bool
   | 0, _ => true
@@ -307,7 +332,7 @@ Examples:
 * `#[1, 2, 3].isEqv #[2, 2, 4] (· < ·) = false`
 * `#[1, 2, 3].isEqv #[2, 3] (· < ·) = false`
 -/
-@[inline] def isEqv (xs ys : Array α) (p : α → α → Bool) : Bool :=
+@[inline, expose] def isEqv (xs ys : Array α) (p : α → α → Bool) : Bool :=
   if h : xs.size = ys.size then
     isEqvAux xs ys h p xs.size (Nat.le_refl xs.size)
   else
@@ -328,7 +353,7 @@ Examples:
  * `Array.ofFn (n := 3) toString = #["0", "1", "2"]`
  * `Array.ofFn (fun i => #["red", "green", "blue"].get i.val i.isLt) = #["red", "green", "blue"]`
 -/
-def ofFn {n} (f : Fin n → α) : Array α := go (emptyWithCapacity n) n (Nat.le_refl n) where
+@[expose] def ofFn {n} (f : Fin n → α) : Array α := go (emptyWithCapacity n) n (Nat.le_refl n) where
   /-- Auxiliary for `ofFn`. `ofFn.go f acc i h = acc ++ #[f (n - i), ..., f(n - 1)]` -/
   go (acc : Array α) : (i : Nat) → i ≤ n → Array α
   | i + 1, h =>
@@ -380,7 +405,7 @@ Returns the last element of an array, or panics if the array is empty.
 Safer alternatives include `Array.back`, which requires a proof the array is non-empty, and
 `Array.back?`, which returns an `Option`.
 -/
-@[inline]
+@[inline, expose]
 def back! [Inhabited α] (xs : Array α) : α :=
   xs[xs.size - 1]!
 
@@ -390,7 +415,7 @@ Returns the last element of an array, given a proof that the array is not empty.
 See `Array.back!` for the version that panics if the array is empty, or `Array.back?` for the
 version that returns an option.
 -/
-@[inline]
+@[inline, expose]
 def back (xs : Array α) (h : 0 < xs.size := by get_elem_tactic) : α :=
   xs[xs.size - 1]'(Nat.sub_one_lt_of_lt h)
 
@@ -400,7 +425,7 @@ Returns the last element of an array, or `none` if the array is empty.
 See `Array.back!` for the version that panics if the array is empty, or `Array.back` for the version
 that requires a proof the array is non-empty.
 -/
-@[inline]
+@[inline, expose]
 def back? (xs : Array α) : Option α :=
   xs[xs.size - 1]?
 
@@ -522,7 +547,7 @@ It was 3
 #[1, 2, 3, 4]
 ```
 -/
-@[implemented_by modifyMUnsafe]
+@[implemented_by modifyMUnsafe, expose]
 def modifyM [Monad m] (xs : Array α) (i : Nat) (f : α → m α) : m (Array α) := do
   if h : i < xs.size then
     let v   := xs[i]
@@ -540,7 +565,7 @@ Examples:
  * `#[1, 2, 3].modify 2 (· * 10) = #[1, 2, 30]`
  * `#[1, 2, 3].modify 3 (· * 10) = #[1, 2, 3]`
 -/
-@[inline]
+@[inline, expose]
 def modify (xs : Array α) (i : Nat) (f : α → α) : Array α :=
   Id.run <| modifyM xs i (pure <| f ·)
 
@@ -751,7 +776,7 @@ Applies the monadic action `f` to every element in the array, left-to-right, and
 of results.
 -/
 -- Reference implementation for `mapM`
-@[implemented_by mapMUnsafe]
+@[implemented_by mapMUnsafe, expose]
 def mapM {α : Type u} {β : Type v} {m : Type v → Type w} [Monad m] (f : α → m β) (as : Array α) : m (Array β) :=
   -- Note: we cannot use `foldlM` here for the reference implementation because this calls
   -- `bind` and `pure` too many times. (We are not assuming `m` is a `LawfulMonad`)
@@ -763,11 +788,33 @@ def mapM {α : Type u} {β : Type v} {m : Type v → Type w} [Monad m] (f : α �
   decreasing_by simp_wf; decreasing_trivial_pre_omega
   map 0 (emptyWithCapacity as.size)
 
+/-- See comment at `forIn'Unsafe`. This mirrors `mapMUnsafe`, threading the index `i`
+    and supplying the in-bounds proof via `lcProof`. -/
+@[inline]
+unsafe def mapFinIdxMUnsafe {α : Type u} {β : Type v} {m : Type v → Type w} [Monad m]
+    (as : Array α) (f : (i : Nat) → α → (h : i < as.size) → m β) : m (Array β) :=
+  let sz := as.usize
+  let rec @[specialize] map (i : USize) (bs : Array NonScalar) : m (Array PNonScalar.{v}) := do
+    if i < sz then
+     let v    := bs.uget i lcProof
+     -- Replace bs[i] by `box(0)`.  This ensures that `v` remains unshared if possible.
+     -- Note: we assume that arrays have a uniform representation irrespective
+     -- of the element type, and that it is valid to store `box(0)` in any array.
+     let bs'    := bs.uset i default lcProof
+     let vNew ← f i.toNat (unsafeCast v) lcProof
+     map (i+1) (bs'.uset i (unsafeCast vNew) lcProof)
+    else
+     pure (unsafeCast bs)
+  unsafeCast <| map 0 (unsafeCast as)
+
 /--
 Applies the monadic action `f` to every element in the array, along with the element's index and a
 proof that the index is in bounds, from left to right. Returns the array of results.
 -/
-@[inline, expose]
+-- Reference implementation for `mapFinIdxM`.
+-- This must not be `@[inline]`: inlining the reference body at call sites would
+-- bypass `@[implemented_by]` and lose the in-place behaviour (cf. `mapM`).
+@[implemented_by mapFinIdxMUnsafe, expose]
 def mapFinIdxM {α : Type u} {β : Type v} {m : Type v → Type w} [Monad m]
     (as : Array α) (f : (i : Nat) → α → (h : i < as.size) → m β) : m (Array β) :=
   let rec @[specialize] map (i : Nat) (j : Nat) (inv : i + j = as.size) (bs : Array β) : m (Array β) := do
@@ -1951,7 +1998,7 @@ def isPrefixOf [BEq α] (as bs : Array α) : Bool :=
   else
     false
 
-@[specialize]
+@[specialize, expose]
 def zipWithMAux {m : Type v → Type w} [Monad m] (as : Array α) (bs : Array β) (f : α → β → m γ) (i : Nat) (cs : Array γ) : m (Array γ) := do
   if h : i < as.size then
     let a := as[i]
@@ -1974,7 +2021,7 @@ Examples:
 * `#[].zipWith (· + ·) #[5, 6] = #[]`
 * `#[x₁, x₂, x₃].zipWith f #[y₁, y₂, y₃, y₄] = #[f x₁ y₁, f x₂ y₂, f x₃ y₃]`
 -/
-@[inline] def zipWith (f : α → β → γ) (as : Array α) (bs : Array β) : Array γ :=
+@[inline, expose] def zipWith (f : α → β → γ) (as : Array α) (bs : Array β) : Array γ :=
   Id.run (zipWithMAux as bs (pure <| f · ·) 0 #[])
 
 /--

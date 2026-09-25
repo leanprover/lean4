@@ -15,6 +15,7 @@ import Init.Data.Iterators.Lemmas.Consumers.Loop
 import Init.Data.String.Lemmas.Order
 import Init.Data.String.Lemmas.Basic
 import Init.Data.String.OrderInstances
+import Init.Data.Int.OfNat
 import Init.Grind
 
 public section

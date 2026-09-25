@@ -1,0 +1,8 @@
+name = "dep"
+
+# A package that does not postpone code generation
+[leanOptions]
+experimental.module = true
+
+[[lean_lib]]
+name = "Dep"

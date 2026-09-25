@@ -20,25 +20,6 @@ Author: Leonardo de Moura
 
 namespace lean {
 constexpr char const * lean_name_separator = ".";
-#ifdef _MSC_VER
-constexpr char16_t id_begin_escape = L'\xab';
-constexpr char16_t id_end_escape = L'\xbb';
-#else
-constexpr char16_t id_begin_escape = u'«';
-constexpr char16_t id_end_escape = u'»';
-#endif
-
-bool is_id_first(unsigned char const * begin, unsigned char const * end);
-inline bool is_id_first(char const * begin, char const * end) {
-    return is_id_first(reinterpret_cast<unsigned char const *>(begin),
-                      reinterpret_cast<unsigned char const *>(end));
-}
-
-bool is_id_rest(unsigned char const * begin, unsigned char const * end);
-inline bool is_id_rest(char const * begin, char const * end) {
-    return is_id_rest(reinterpret_cast<unsigned char const *>(begin),
-                      reinterpret_cast<unsigned char const *>(end));
-}
 
 extern "C" uint64_t lean_name_hash_exported(lean_obj_arg n);
 
@@ -59,7 +40,6 @@ public:
     static string_ref const & get_string(object * o) { return static_cast<string_ref const &>(cnstr_get_ref(o, 1)); }
     static nat const & get_numeral(object * o) { return static_cast<nat const &>(cnstr_get_ref(o, 1)); }
     static int cmp_core(object * o1, object * o2);
-    size_t size_core(bool unicode) const;
 private:
     explicit name(object_ref && r) noexcept:object_ref(r) {}
 public:
@@ -81,21 +61,6 @@ public:
        name <tt>foo::bla::tst</tt>.
     */
     name(std::initializer_list<char const *> const & l);
-    static name const & anonymous();
-    /**
-        \brief Create a unique internal name that is not meant to exposed
-        to the user. Different modules require a unique name.
-        The unique name is created using a numeric prefix.
-        A module that needs to create several unique names should
-        the following idiom:
-        <code>
-            name unique_prefix = name::mk_internal_unique_name();
-            name unique_name_1(unique_prefix, 1);
-            ...
-            name unique_name_k(unique_prefix, k);
-        </code>
-    */
-    static name mk_internal_unique_name();
     name & operator=(name const & other) { object_ref::operator=(other); return *this; }
     name & operator=(name && other) noexcept { object_ref::operator=(std::move(other)); return *this; }
     static uint64_t hash(b_obj_arg n) {
@@ -107,8 +72,6 @@ public:
     friend bool is_prefix_of(name const & n1, name const & n2);
     friend bool operator==(name const & a, name const & b) { return name::eq(a.raw(), b.raw()); }
     friend bool operator!=(name const & a, name const & b) { return !(a == b); }
-    friend bool operator==(name const & a, char const * b);
-    friend bool operator!=(name const & a, char const * b) { return !(a == b); }
     /** \brief Total order on hierarchical names. */
     friend int cmp(name const & a, name const & b) { return cmp_core(a.raw(), b.raw()); }
     friend bool operator<(name const & a, name const & b) { return cmp(a, b) < 0; }
@@ -129,25 +92,10 @@ public:
     bool is_atomic() const { return is_anonymous() || kind(get_prefix(raw())) == name_kind::ANONYMOUS; }
     /** \brief Given a name of the form a_1.a_2. ... .a_k, return a_1 if k >= 1, or the empty name otherwise. */
     name get_root() const;
-    /** \brief Convert this hierarchical name into a string. */
-    std::string to_string(char const * sep = lean_name_separator) const;
-    std::string escape(char const * sep = lean_name_separator) const;
-    /** \brief Size of the this name (in characters). */
-    size_t size() const;
-    /** \brief Size of the this name in unicode. */
-    size_t utf8_size() const;
-    /** \brief Return true iff the name contains only safe ASCII chars */
-    bool is_safe_ascii() const;
     friend LEAN_EXPORT std::ostream & operator<<(std::ostream & out, name const & n);
     /** \brief Concatenate the two given names. */
     friend name operator+(name const & n1, name const & n2);
 
-    /**
-        \brief Given a name of the form a_1.a_2. ... .a_k,
-           If a_k is a string,  return a_1.a_2. ... .a_k', where a_k' is the string p concatenated with a_k.
-           If a_k is a numeral, return a_1.a_2. ... .p.a_k
-    */
-    name append_before(char const * p) const;
     /**
         \brief Given a name of the form a_1.a_2. ... .a_k,
            If a_k is a string,  return a_1.a_2. ... .a_k', where a_k' is the string a_k concatenated with s.
@@ -161,18 +109,6 @@ public:
            Otherwise add _i as the last component.
     */
     name append_after(unsigned i) const;
-
-    /**
-        \brief Given a name of the form a_1.a_2. ... .a_k,
-           If a_k is a string, return the name itself.
-           Otherwise add the empty string as the last component.
-    */
-    name get_subscript_base() const;
-
-    /**
-        \brief Given a name of the form a_1.a_2. ... .a_k, determine whether it was produced by append_after(unsigned).
-    */
-    optional<pair<name, unsigned>> is_subscripted() const;
 
     /**
         \brief If prefix is a prefix of this name, then return a new name where the prefix is replaced with new_prefix.
@@ -201,8 +137,6 @@ public:
     }
 };
 
-LEAN_EXPORT name string_to_name(std::string const & str);
-
 struct name_hash_fn { unsigned operator()(name const & n) const { return n.hash(); } };
 struct name_eq_fn { bool operator()(name const & n1, name const & n2) const { return n1 == n2; } };
 struct name_cmp {
@@ -213,9 +147,6 @@ struct name_quick_cmp {
     typedef name type;
     int operator()(name const & n1, name const & n2) const { return quick_cmp(n1, n2); }
 };
-
-/** \brief Return true if \c p is part of \c n */
-bool is_part_of(std::string const & p, name n);
 
 /**
    \brief Return true iff the two given names are independent.
@@ -238,9 +169,6 @@ struct name_pair_quick_cmp {
 };
 
 typedef std::function<bool(name const &)> name_predicate; // NOLINT
-
-/** \brief Return true if it is a lean internal name, i.e., the name starts with a `_` */
-bool is_internal_name(name const & n);
 
 typedef list_ref<name> names;
 

@@ -123,10 +123,6 @@ theorem or_exists_add_one : p 0 ∨ (Exists fun n => p (n + 1)) ↔ Exists p :=
 @[simp] theorem ble_eq : (Nat.ble x y = true) = (x ≤ y) := propext <| Iff.intro Nat.le_of_ble_eq_true Nat.ble_eq_true_of_le
 @[simp] theorem blt_eq : (Nat.blt x y = true) = (x < y) := propext <| Iff.intro Nat.le_of_ble_eq_true Nat.ble_eq_true_of_le
 
-instance : LawfulBEq Nat where
-  eq_of_beq h := by simpa using h
-  rfl := by simp [BEq.beq]
-
 theorem beq_eq_true_eq (a b : Nat) : ((a == b) = true) = (a = b) := by simp
 theorem not_beq_eq_true_eq (a b : Nat) : ((!(a == b)) = true) = ¬(a = b) := by simp
 
@@ -438,8 +434,8 @@ theorem ge_of_not_lt {n m : Nat} (h : ¬ n < m) : n ≥ m := (Nat.lt_or_ge n m).
 protected theorem le_of_not_gt : ∀{a b : Nat}, ¬(b > a) → b ≤ a := Nat.ge_of_not_lt
 protected theorem le_of_not_lt : ∀{a b : Nat}, ¬(a < b) → b ≤ a := Nat.ge_of_not_lt
 
-theorem ne_of_gt {a b : Nat} (h : b < a) : a ≠ b := (ne_of_lt h).symm
-protected theorem ne_of_lt' : ∀{a b : Nat}, a < b → b ≠ a := ne_of_gt
+protected theorem ne_of_gt {a b : Nat} (h : b < a) : a ≠ b := (ne_of_lt h).symm
+protected theorem ne_of_lt' : ∀{a b : Nat}, a < b → b ≠ a := Nat.ne_of_gt
 
 @[simp] protected theorem not_le {a b : Nat} : ¬ a ≤ b ↔ b < a :=
   Iff.intro Nat.gt_of_not_le Nat.not_le_of_gt
@@ -477,7 +473,7 @@ instance : Std.Trichotomous (. < . : Nat → Nat → Prop) where
   trichotomous _ _ h₁ h₂ := Nat.le_antisymm (Nat.ge_of_not_lt h₂) (Nat.ge_of_not_lt h₁)
 
 set_option linter.missingDocs false in
-@[deprecated Nat.instTrichotomousLt (since := "2025-10-27")]
+@[deprecated Nat.instTrichotomousLt +typeChanged (since := "2025-10-27")]
 theorem Nat.instAntisymmNotLt : Std.Antisymm (¬ . < . : Nat → Nat → Prop) where
   antisymm := Nat.instTrichotomousLt.trichotomous
 
@@ -509,7 +505,7 @@ protected theorem lt_add_of_pos_right (h : 0 < k) : n < n + k :=
 protected theorem zero_lt_one : 0 < (1:Nat) :=
   zero_lt_succ 0
 
-protected theorem pos_iff_ne_zero : 0 < n ↔ n ≠ 0 := ⟨ne_of_gt, Nat.pos_of_ne_zero⟩
+protected theorem pos_iff_ne_zero : 0 < n ↔ n ≠ 0 := ⟨Nat.ne_of_gt, Nat.pos_of_ne_zero⟩
 
 theorem add_le_add {a b c d : Nat} (h₁ : a ≤ b) (h₂ : c ≤ d) : a + c ≤ b + d :=
   Nat.le_trans (Nat.add_le_add_right h₁ c) (Nat.add_le_add_left h₂ b)
@@ -871,7 +867,7 @@ Examples:
 -/
 protected abbrev min (n m : Nat) := min n m
 
-@[grind =] protected theorem min_def {n m : Nat} : min n m = if n ≤ m then n else m := rfl
+@[grind =, lia =] protected theorem min_def {n m : Nat} : min n m = if n ≤ m then n else m := rfl
 
 instance : Max Nat := maxOfLe
 
@@ -888,7 +884,7 @@ Examples:
 -/
 protected abbrev max (n m : Nat) := max n m
 
-@[grind =] protected theorem max_def {n m : Nat} : max n m = if n ≤ m then m else n := rfl
+@[grind =, lia =] protected theorem max_def {n m : Nat} : max n m = if n ≤ m then m else n := rfl
 
 
 /-! # Auxiliary theorems for well-founded recursion -/

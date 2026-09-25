@@ -66,21 +66,21 @@ will be missing the implicit bit.
 -/
 def unpackMantissa {spec : Format} (b : BitVec spec.numBits) :
     BitVec spec.mantissaBitsWithoutImplicit :=
-  b.extractLsb (spec.mantissaBitsWithoutImplicit - 1) 0 |>.cast (by have := spec.hm; omega)
+  b.extractLsb' 0 spec.mantissaBitsWithoutImplicit
 
 /--
 Unpacks the exponent portion of the packed float.
 -/
 def unpackExponent {spec : Format} (b : BitVec spec.numBits) :
     BitVec spec.exponentBits :=
-  b.extractLsb (spec.mantissaBitsWithoutImplicit + spec.exponentBits - 1) spec.mantissaBitsWithoutImplicit |>.cast (by have := spec.he; omega)
+  b.extractLsb' spec.mantissaBitsWithoutImplicit spec.exponentBits
 
 /--
 Unpacks the sign bit of the packed float.
 -/
 def unpackSign {spec : Format} (b : BitVec spec.numBits) :
     BitVec 1 :=
-  b.extractLsb (spec.mantissaBitsWithoutImplicit + spec.exponentBits) (spec.mantissaBitsWithoutImplicit + spec.exponentBits) |>.cast (by omega)
+  b.extractLsb' (spec.mantissaBitsWithoutImplicit + spec.exponentBits) 1
 
 /--
 Unpacks the given float according to the given specification.

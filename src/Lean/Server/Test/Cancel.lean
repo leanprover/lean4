@@ -42,11 +42,11 @@ elab_rules : tactic
   log "blocked"
   let ctx ← readThe Elab.Term.Context
   let some tacSnap := ctx.tacSnap? | unreachable!
-  tacSnap.new.resolve {
+  tacSnap.new.resolve { transformed.raw := {
     diagnostics := (← Language.Snapshot.Diagnostics.ofMessageLog (← Core.getMessageLog))
     stx := default
     finished := default
-  }
+  }}
 
   let ctx ← readThe Core.Context
   let some cancelTk := ctx.cancelTk? | unreachable!
@@ -87,11 +87,11 @@ elab_rules : tactic
   log "blocked"
   let ctx ← readThe Elab.Term.Context
   let some tacSnap := ctx.tacSnap? | unreachable!
-  tacSnap.new.resolve {
+  tacSnap.new.resolve { transformed.raw := {
     diagnostics := (← Language.Snapshot.Diagnostics.ofMessageLog (← Core.getMessageLog))
     stx := default
     finished := default
-  }
+  }}
 
   while true do
     if (← (← getUnblockedCancelTk).isSet) then
@@ -310,5 +310,3 @@ elab_rules : tactic
         IO.sleep 10
     finally
       prom.resolve ()
-
-

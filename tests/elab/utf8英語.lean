@@ -1,5 +1,11 @@
 import Lean.Util.TestExtern
 
+/-!
+Tests UTF-8 encoding and decoding: `String.toUTF8`, `String.ofByteArray`,
+`ByteArray.validateUTF8`, and byte access via `String.getUTF8Byte` and
+`String.Internal.ugetUTF8Byte`.
+-/
+
 deriving instance DecidableEq for ByteArray
 
 test_extern String.toUTF8 ""
@@ -13,7 +19,8 @@ macro "test_extern'" t:term " => " v:term : command =>
 def checkGet (s : String) (arr : Array UInt8) :=
   (List.range s.utf8ByteSize).all fun i =>
     let c := if h : _ then s.getUTF8Byte ⟨i⟩ h else unreachable!
-    c == arr[i]!
+    let c' := if h : _ then String.Internal.ugetUTF8Byte s (USize.ofNat i) h else unreachable!
+    c == arr[i]! && c' == arr[i]!
 
 macro "validate" arr:term " => " "↯" : command =>
   `(test_extern' ByteArray.validateUTF8 $arr => false)

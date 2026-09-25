@@ -35,7 +35,6 @@ class level : public object_ref {
     friend level mk_max_core(level const & l1, level const & l2);
     friend level mk_imax_core(level const & l1, level const & l2);
     friend level mk_univ_param(name const & n);
-    friend level mk_univ_mvar(name const & n);
     explicit level(object_ref && o) noexcept:object_ref(o) {}
 public:
     /** \brief Universe zero */
@@ -96,7 +95,6 @@ level mk_max(level const & l1, level const & l2);
 level mk_imax(level const & l1, level const & l2);
 level mk_succ(level const & l);
 level mk_univ_param(name const & n);
-level mk_univ_mvar(name const & n);
 
 /** \brief Convert (succ^k l) into (l, k). If l is not a succ, then return (l, 0) */
 pair<level, unsigned> to_offset(level l);
@@ -118,9 +116,6 @@ unsigned get_depth(level const & l);
     1) l is zero OR
     2) l = succ(l') and l' is explicit */
 bool is_explicit(level const & l);
-/** \brief Convert an explicit universe into a unsigned integer.
-    \pre is_explicit(l) */
-unsigned to_explicit(level const & l);
 /** \brief Return true iff \c l contains placeholder (aka meta parameters). */
 bool has_mvar(level const & l);
 /** \brief Return true iff \c l contains parameters */
@@ -150,11 +145,6 @@ bool is_geq_core(level l1, level l2);
 
 bool is_geq(level const & l1, level const & l2);
 
-bool levels_has_mvar(object * ls);
-bool has_mvar(levels const & ls);
-bool levels_has_param(object * ls);
-bool has_param(levels const & ls);
-
 /** \brief An arbitrary (monotonic) total order on universe level terms. */
 bool is_lt(level const & l1, level const & l2, bool use_hash);
 bool is_lt(levels const & as, levels const & bs, bool use_hash);
@@ -180,9 +170,6 @@ public:
 };
 template<typename F> level replace(level const & l, F const & f) { return replace_level_fn(f)(l); }
 
-/** \brief Return true if \c u occurs in \c l */
-bool occurs(level const & u, level const & l);
-
 /** \brief If \c l contains a parameter that is not in \c ps, then return it. Otherwise, return none. */
 optional<name> get_undef_param(level const & l, names const & lparams);
 
@@ -196,6 +183,11 @@ std::ostream & operator<<(std::ostream & out, level const & l);
 /** \brief If the result is true, then forall assignments \c A that assigns all parameters and metavariables occurring
     in \c l, l[A] != zero. */
 bool is_not_zero(level const & l);
+
+/** \brief Return true iff \c normalize(l) is \c zero, without building the normal form.
+    Unlike \c is_not_zero, this is a statement about \c l itself rather than about all of its
+    instantiations, so it fails for parameters and metavariables. */
+bool normalizes_to_zero(level const & l);
 
 /** \brief Convert a list of universe level parameter names into a list of levels. */
 levels lparams_to_levels(names const & ps);

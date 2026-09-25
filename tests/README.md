@@ -145,6 +145,22 @@ Otherwise, create a new test directory or pile:
    by updating the directory structure section above.
 5. Optionally update [`lint.py`](lint.py) if it makes sense.
 
+### Keep the source tree clean
+
+A test may not write into the checked-in source tree. CI enforces this by making tracked files
+read-only for the duration of the test run and by comparing `git status` before and after, so a
+test that violates it fails even if it tidies up afterwards.
+
+In practice this means:
+
+* Scratch output must land in an ignored path. Follow the pile's convention where there is one:
+  the `_tmp_` prefix in [`compile`](compile/.gitignore) and [`compile_bench`](compile_bench/.gitignore),
+  `produced.*` under [`lake`](lake/.gitignore) and [`pkg`](pkg/.gitignore). Otherwise add a
+  `.gitignore` entry next to the test.
+* A test that needs to edit its own inputs, or to initialize a Git repository, must work on a
+  copy. Lake tests have `copy_to_work` in [`lake/tests/common.sh`](lake/tests/common.sh) for this;
+  it copies into the ignored `work/` directory and `cd`s there.
+
 ## How to write a benchmark?
 
 When writing a benchmark, consider that most benchmarks are also executed as tests.
@@ -199,6 +215,7 @@ The most notable environment variables are:
 - `TEST_DIR`: Absolute path to the `tests` directory.
 - `SCRIPT_DIR`: Absolute path to the `script` directory.
 - `TEST_BENCH`: Set to `1` if we're currently executing a benchmark, unset otherwise.
+- `TEST_CTEST`: Set to `1` if the test is run under ctest, unset otherwise.
 
 The definitions come from `util.sh`,
 which provides a few utility functions and also uses `set` to set sensible bash defaults.
@@ -247,6 +264,24 @@ These bash variables (set via `<file>.init.sh`) are used by the run script:
 - `TEST_EXIT`:
   A bash variable containing the expected exit code of the program.
   When set to `nonzero` instead of a numerical value, the exit code must not be 0.
+
+- `TEST_REPEAT`:
+  A number specifying how often to repeat the benchmark.
+  The resulting measurements are averaged.
+  Has no effect when testing.
+
+- `TEST_REPEAT_DROP_HIGHEST`, `TEST_REPEAT_DROP_LOWEST`:
+  A number specifying how many extreme measurements to drop before averaging.
+  Only takes effect if `TEST_REPEAT` is set.
+
+For performance reasons, elab tests can use prebuilt header snapshots.
+Building the snapshots and wiring them into the ctest suite (as the `build_lean_header_snapshots.sh` setup fixture) is gated by the `LEAN_HEADER_SNAPSHOTS` CMake option, which currently defaults to `OFF`.
+Use of the snapshots at runtime is further controlled by the `LEAN_HEADER_SNAPSHOTS` environment variable:
+set it to `0` to force them off, or to `1` to force them on (if enabled at build time).
+By default, they are turned on only when running under ctest.
+To use the pre-built snapshots when manually running tests,
+run `tests/with_stage1_test_env.sh tests/build_lean_header_snapshots.sh`
+before running the test itself with `LEAN_HEADER_SNAPSHOTS=1` set.
 
 ## The `compile*` test pile
 
@@ -299,6 +334,15 @@ These bash variables (set via `<file>.init.sh`) are used by the run script:
 - `TEST_EXIT`:
   A bash variable containing the expected exit code of the program.
   When set to `nonzero` instead of a numerical value, the exit code must not be 0.
+
+- `TEST_REPEAT`:
+  A number specifying how often to repeat the benchmark.
+  The resulting measurements are averaged.
+  Has no effect when testing.
+
+- `TEST_REPEAT_DROP_HIGHEST`, `TEST_REPEAT_DROP_LOWEST`:
+  A number specifying how many extreme measurements to drop before averaging.
+  Only takes effect if `TEST_REPEAT` is set.
 
 ## The `interactive` test pile
 

@@ -560,9 +560,9 @@ lean_dec_ref(v___x_98_);
 lean_dec_ref(v_decl_97_);
 lean_dec_ref(v_cache_80_);
 lean_dec_ref(v_decls_79_);
-if (v_invert_85_ == 0)
-{
 if (v_invert_87_ == 0)
+{
+if (v_invert_85_ == 0)
 {
 v___y_109_ = v___x_133_;
 goto v___jp_108_;
@@ -570,13 +570,13 @@ goto v___jp_108_;
 else
 {
 lean_dec(v_gate_84_);
-v___y_104_ = v_invert_85_;
+v___y_104_ = v_invert_87_;
 goto v___jp_103_;
 }
 }
 else
 {
-v___y_109_ = v_invert_87_;
+v___y_109_ = v_invert_85_;
 goto v___jp_108_;
 }
 }
@@ -764,11 +764,13 @@ return v___x_194_;
 }
 lean_object* runtime_initialize_Std_Sat_AIG_Lemmas(uint8_t builtin);
 lean_object* runtime_initialize_Init_Omega(uint8_t builtin);
+void lean_initialize_runtime_module();
 static bool _G_runtime_initialized = false;
 LEAN_EXPORT lean_object* runtime_initialize_Std_Sat_AIG_Cached(uint8_t builtin) {
 lean_object * res;
 if (_G_runtime_initialized) return lean_io_result_mk_ok(lean_box(0));
 _G_runtime_initialized = true;
+lean_initialize_runtime_module();
 res = runtime_initialize_Std_Sat_AIG_Lemmas(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);

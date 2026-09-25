@@ -91,7 +91,7 @@ Ordering.gt
 Ordering.lt
 ```
 -/
-@[macro_inline, expose] def «then» (a b : Ordering) : Ordering :=
+@[macro_inline, expose, implicit_reducible] def «then» (a b : Ordering) : Ordering :=
   match a with
   | .eq => b
   | a => a
@@ -290,6 +290,8 @@ theorem isLE_then_iff_and : ∀ {o₁ o₂ : Ordering}, (o₁.then o₂).isLE �
 theorem isLE_left_of_isLE_then : ∀ {o₁ o₂ : Ordering}, (o₁.then o₂).isLE → o₁.isLE := by decide
 theorem isGE_left_of_isGE_then : ∀ {o₁ o₂ : Ordering}, (o₁.then o₂).isGE → o₁.isGE := by decide
 
+theorem isLE_and_isGE_eq : ∀ {o : Ordering}, (o.isLE && o.isGE) = o.isEq := by decide
+
 instance : Std.Associative Ordering.then := ⟨then_assoc⟩
 instance : Std.IdempotentOp Ordering.then := ⟨fun _ => then_self⟩
 
@@ -393,7 +395,7 @@ theorem compareOfLessAndEq_eq_lt
   repeat' split <;> simp_all
 
 theorem compareOfLessAndEq_eq_eq
-    {α : Type u} [LT α] [LE α] [DecidableLT α] [DecidableLE α] [DecidableEq α]
+    {α : Type u} [LT α] [LE α] [DecidableLT α] [DecidableEq α]
     (refl : ∀ (x : α), x ≤ x) (not_le : ∀ {x y : α}, ¬ x ≤ y ↔ y < x) {x y : α} :
     compareOfLessAndEq x y = .eq ↔ x = y := by
   rw [compareOfLessAndEq]
@@ -420,7 +422,7 @@ theorem compareOfLessAndEq_eq_gt
   exact lt_iff_not_gt_and_ne_of_antisymm_of_total_of_not_le antisymm total not_le
 
 theorem isLE_compareOfLessAndEq
-    {α : Type u} [LT α] [LE α] [DecidableLT α] [DecidableLE α] [DecidableEq α]
+    {α : Type u} [LT α] [LE α] [DecidableLT α] [DecidableEq α]
     (antisymm : ∀ {x y : α}, x ≤ y → y ≤ x → x = y)
     (not_le : ∀ {x y : α}, ¬ x ≤ y ↔ y < x) (total : ∀ (x y : α), x ≤ y ∨ y ≤ x) {x y : α} :
     (compareOfLessAndEq x y).isLE ↔ x ≤ y := by
@@ -438,7 +440,7 @@ theorem isLE_compareOfLessAndEq
     · exact Or.inl <| not_le.mp hge
 
 theorem isGE_compareOfLessAndEq
-    {α : Type u} [LT α] [LE α] [DecidableLT α] [DecidableLE α] [DecidableEq α]
+    {α : Type u} [LT α] [LE α] [DecidableLT α] [DecidableEq α]
     (antisymm : ∀ {x y : α}, x ≤ y → y ≤ x → x = y)
     (not_le : ∀ {x y : α}, ¬ x ≤ y ↔ y < x) (total : ∀ (x y : α), x ≤ y ∨ y ≤ x) {x y : α} :
     (compareOfLessAndEq x y).isGE ↔ y ≤ x := by
@@ -619,7 +621,7 @@ protected theorem compare_nil_right_eq_eq {α} [Ord α] {xs : List α} :
 end List
 
 /-- The lexicographic order on pairs. -/
-@[expose, implicit_reducible]
+@[expose, instance_reducible]
 def lexOrd [Ord α] [Ord β] : Ord (α × β) where
   compare := compareLex (compareOn (·.1)) (compareOn (·.2))
 
@@ -627,14 +629,14 @@ def lexOrd [Ord α] [Ord β] : Ord (α × β) where
 Constructs an `BEq` instance from an `Ord` instance that asserts that the result of `compare` is
 `Ordering.eq`.
 -/
-@[expose, implicit_reducible] def beqOfOrd [Ord α] : BEq α where
+@[expose, instance_reducible] def beqOfOrd [Ord α] : BEq α where
   beq a b := (compare a b).isEq
 
 /--
 Constructs an `LT` instance from an `Ord` instance that asserts that the result of `compare` is
 `Ordering.lt`.
 -/
-@[expose, implicit_reducible] def ltOfOrd [Ord α] : LT α where
+@[expose, instance_reducible] def ltOfOrd [Ord α] : LT α where
   lt a b := compare a b = Ordering.lt
 
 @[inline]
@@ -645,7 +647,7 @@ instance [Ord α] : DecidableRel (@LT.lt α ltOfOrd) := fun a b =>
 Constructs an `LE` instance from an `Ord` instance that asserts that the result of `compare`
 satisfies `Ordering.isLE`.
 -/
-@[expose, implicit_reducible] def leOfOrd [Ord α] : LE α where
+@[expose, instance_reducible] def leOfOrd [Ord α] : LE α where
   le a b := (compare a b).isLE
 
 @[inline]
@@ -677,7 +679,7 @@ Inverts the order of an `Ord` instance.
 The result is an `Ord α` instance that returns `Ordering.lt` when `ord` would return `Ordering.gt`
 and that returns `Ordering.gt` when `ord` would return `Ordering.lt`.
 -/
-@[expose, implicit_reducible] protected def opposite (ord : Ord α) : Ord α where
+@[expose, instance_reducible] protected def opposite (ord : Ord α) : Ord α where
   compare x y := ord.compare y x
 
 /--
@@ -688,7 +690,7 @@ In particular, `ord.on f` compares `x` and `y` by comparing `f x` and `f y` acco
 The function `compareOn` can be used to perform this comparison without constructing an intermediate
 `Ord` instance.
 -/
-@[expose, implicit_reducible] protected def on (_ : Ord β) (f : α → β) : Ord α where
+@[expose, instance_reducible] protected def on (_ : Ord β) (f : α → β) : Ord α where
   compare := compareOn f
 
 /--
@@ -707,7 +709,7 @@ The function `compareLex` can be used to perform this comparison without constru
 intermediate `Ord` instance. `Ordering.then` can be used to lexicographically combine the results of
 comparisons.
 -/
-@[expose, implicit_reducible] protected def lex' (ord₁ ord₂ : Ord α) : Ord α where
+@[expose, instance_reducible] protected def lex' (ord₁ ord₂ : Ord α) : Ord α where
   compare := compareLex ord₁.compare ord₂.compare
 
 end Ord

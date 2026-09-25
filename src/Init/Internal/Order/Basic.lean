@@ -52,6 +52,8 @@ class PartialOrder (α : Sort u) where
 
 @[inherit_doc] scoped infix:50 " ⊑ " => PartialOrder.rel
 
+attribute [grind .] PartialOrder.rel_refl
+
 section PartialOrder
 
 variable {α  : Sort u} [PartialOrder α]
@@ -77,6 +79,15 @@ theorem is_sup_unique {α} [PartialOrder α] {c : α → Prop} {s₁ s₂ : α}
   · apply (h₂ s₁).mpr
     intro y hy
     apply (h₁ s₁).mp PartialOrder.rel_refl y hy
+
+/--
+`is_meet x y w` states that `w` is a greatest lower bound of `x` and `y`.
+
+This is intended to be used in the construction of the strong induction principles of
+`inductive_fixpoint` and `coinductive_fixpoint`, and not meant to be used otherwise.
+-/
+@[expose] def is_meet (x y w : α) : Prop :=
+  w ⊑ x ∧ w ⊑ y ∧ ∀ z, z ⊑ x → z ⊑ y → z ⊑ w
 
 end PartialOrder
 
@@ -361,6 +372,31 @@ theorem lfp_le_of_le_monotone (f : α → α) {hm : monotone f} (x : α):
     unfold lfp_monotone
     apply lfp_le_of_le
 
+/--
+Strong Park induction for the least fixpoint of a monotone function `f`: to show `lfp f ⊑ x`,
+it suffices to show `f w ⊑ x` where `w` is a greatest lower bound of `x` and `lfp f`.
+The meet is passed as an explicit witness `w` (together with a proof of `is_meet x (lfp f) w`)
+so that callers can supply a definitionally convenient form of it.
+
+This is intended to be used in the construction of the strong induction principles of
+`inductive_fixpoint` and `coinductive_fixpoint`, and not meant to be used otherwise.
+-/
+theorem lfp_le_of_le_meet {f : α → α} (hm : monotone f) {x w : α}
+    (hw : is_meet x (lfp f) w) (h : f w ⊑ x) : lfp f ⊑ x :=
+  have hfw : f w ⊑ lfp f := rel_trans (hm _ _ hw.2.1) (lfp_prefixed (hm := hm))
+  rel_trans (lfp_le_of_le (hw.2.2 _ h hfw)) hw.1
+
+/--
+Same as `lfp_le_of_le_meet`, but uses the version of `lfp` that takes a witness of monotonicity.
+
+This is intended to be used in the construction of the strong induction principles of
+`inductive_fixpoint` and `coinductive_fixpoint`, and not meant to be used otherwise.
+-/
+theorem lfp_le_of_le_meet_monotone (f : α → α) {hm : monotone f} (x w : α)
+    (hw : is_meet x (lfp_monotone f hm) w) :
+    f w ⊑ x → lfp_monotone f hm ⊑ x :=
+  lfp_le_of_le_meet hm hw
+
 end lattice_fix
 
 section fix
@@ -504,6 +540,12 @@ theorem monotone_apply [PartialOrder γ] [∀ x, PartialOrder (β x)] (a : α) (
     (h : monotone f) :
     monotone (fun x => f x a) := fun _ _ hfg => h _ _ hfg a
 
+/-- A pointwise greatest lower bound is a greatest lower bound in the pointwise order. -/
+theorem is_meet_pi [∀ x, PartialOrder (β x)] {f g w : ∀ x, β x}
+    (h : ∀ x, is_meet (f x) (g x) (w x)) : is_meet f g w :=
+  ⟨fun x => (h x).1, fun x => (h x).2.1,
+   fun z hzf hzg x => (h x).2.2 (z x) (hzf x) (hzg x)⟩
+
 theorem chain_apply [∀ x, PartialOrder (β x)] {c : (∀ x, β x) → Prop} (hc : chain c) (x : α) :
     chain (fun y => ∃ f, c f ∧ f x = y) := by
   intro _ _ ⟨f, hf, hfeq⟩ ⟨g, hg, hgeq⟩
@@ -626,6 +668,12 @@ instance [PartialOrder α] [PartialOrder β] : PartialOrder (α ×' β) where
     cases a; cases b;
     dsimp at *
     rw [rel_antisymm ha.1 hb.1, rel_antisymm ha.2 hb.2]
+
+/-- A componentwise greatest lower bound is a greatest lower bound in the product order. -/
+theorem is_meet_pprod [PartialOrder α] [PartialOrder β] {x y w : α ×' β}
+    (h₁ : is_meet x.1 y.1 w.1) (h₂ : is_meet x.2 y.2 w.2) : is_meet x y w :=
+  ⟨⟨h₁.1, h₂.1⟩, ⟨h₁.2.1, h₂.2.1⟩,
+   fun z hzx hzy => ⟨h₁.2.2 z.1 hzx.1 hzy.1, h₂.2.2 z.2 hzx.2 hzy.2⟩⟩
 
 @[partial_fixpoint_monotone]
 theorem PProd.monotone_mk [PartialOrder α] [PartialOrder β] [PartialOrder γ]
@@ -755,6 +803,73 @@ theorem admissible_pprod_snd {α : Sort u} {β : Sort v} [CCPO α] [CCPO β] (P 
 
 end pprod_order
 
+section prod_order
+
+open PartialOrder
+
+variable {α : Type u} {β : Type v}
+
+/-- The order on `α × β` is the order on `α ×' β` at the two components. -/
+instance instPartialOrderProd [PartialOrder α] [PartialOrder β] : PartialOrder (α × β) where
+  rel a b := (⟨a.fst, a.snd⟩ : α ×' β) ⊑ ⟨b.fst, b.snd⟩
+  rel_refl := rel_refl
+  rel_trans ha hb := rel_trans ha hb
+  rel_antisymm := fun {a b} ha hb => by
+    have := rel_antisymm (α := α ×' β) ha hb
+    cases a; cases b; cases this; rfl
+
+/-- A pair is below `p` when both components are below the components of `p`. -/
+theorem Prod.mk_le [PartialOrder α] [PartialOrder β] (a : α) (b : β) (p : α × β)
+    (ha : a ⊑ p.fst) (hb : b ⊑ p.snd) : (a, b) ⊑ p :=
+  ⟨ha, hb⟩
+
+/-- A pair with the first component of `p` is below `p` when its second component is below the
+second component of `p`. -/
+theorem Prod.mk_le_snd [PartialOrder α] [PartialOrder β] (b : β) (p : α × β)
+    (hb : b ⊑ p.snd) : (p.fst, b) ⊑ p :=
+  ⟨rel_refl, hb⟩
+
+/-- A least upper bound of the pairs of `c` in `α ×' β` is one in `α × β`. -/
+theorem Prod.is_sup_of_pprod [PartialOrder α] [PartialOrder β] {c : α × β → Prop}
+    {s : α ×' β} (h : is_sup (fun p : α ×' β => c (p.fst, p.snd)) s) : is_sup c (s.fst, s.snd) :=
+  fun q => Iff.trans (h ⟨q.fst, q.snd⟩)
+    ⟨fun h p hp => h ⟨p.fst, p.snd⟩ hp, fun h p hp => h (p.fst, p.snd) hp⟩
+
+/-- The chain-complete suprema of `α × β` are those of `α ×' β` at the two components. -/
+instance instCCPOProd [CCPO α] [CCPO β] : CCPO (α × β) where
+  has_csup {c} hc :=
+    have hc' : chain (fun p : α ×' β => c (p.fst, p.snd)) := fun _ _ h₁ h₂ => hc _ _ h₁ h₂
+    ⟨_, Prod.is_sup_of_pprod (CCPO.csup_spec hc')⟩
+
+/-- The suprema of `α × β` are those of `α ×' β` at the two components. -/
+instance instCompleteLatticeProd [CompleteLattice α] [CompleteLattice β] :
+    CompleteLattice (α × β) where
+  has_sup c :=
+    ⟨_, Prod.is_sup_of_pprod (CompleteLattice.sup_spec fun p : α ×' β => c (p.fst, p.snd))⟩
+
+end prod_order
+
+section unit_order
+
+open PartialOrder
+
+instance instPartialOrderUnit : PartialOrder Unit where
+  rel _ _ := True
+  rel_refl := trivial
+  rel_trans _ _ := trivial
+  rel_antisymm _ _ := Subsingleton.elim _ _
+
+/-- The unique `Unit` value is below every `Unit` value. -/
+theorem Unit.unit_le (u : Unit) : () ⊑ u := trivial
+
+instance instCCPOUnit : CCPO Unit where
+  has_csup _ := ⟨(), fun _ => ⟨fun _ _ _ => trivial, fun _ => trivial⟩⟩
+
+instance instCompleteLatticeUnit : CompleteLattice Unit where
+  has_sup _ := ⟨(), fun _ => ⟨fun _ _ _ => trivial, fun _ => trivial⟩⟩
+
+end unit_order
+
 section flat_order
 
 variable {α : Sort u}
@@ -766,6 +881,23 @@ set_option linter.unusedVariables false in
 This is intended to be used in the construction of `partial_fixpoint`, and not meant to be used otherwise.
 -/
 @[expose] def FlatOrder {α : Sort u} (b : α) := α
+
+def FlatOrder.mk {α : Sort u} (b : α) (x : α) : FlatOrder b := x
+
+def FlatOrder.inner {α : Sort u} {b : α} (x : FlatOrder b) : α := x
+
+theorem FlatOrder.mk_inner {α : Sort u} {b : α} {x : FlatOrder b} :
+    FlatOrder.mk b x.inner = x :=
+  (rfl)
+
+theorem FlatOrder.inner_mk {α : Sort u} {b : α} {x : α} :
+    (FlatOrder.mk b x).inner = x :=
+  (rfl)
+
+@[simp]
+theorem FlatOrder.mk_inj {α : Sort u} {b : α} {x y : α} :
+    FlatOrder.mk b x = FlatOrder.mk b y ↔ x = y :=
+  Iff.rfl
 
 variable {b : α}
 
@@ -793,7 +925,7 @@ private theorem Classical.some_spec₂ {α : Sort _} {p : α → Prop} {h : ∃ 
 noncomputable def flat_csup (c : FlatOrder b → Prop) : FlatOrder b := by
   by_cases h : ∃ (x : FlatOrder b), c x ∧ x ≠ b
   · exact Classical.choose h
-  · exact b
+  · exact .mk b b
 
 theorem flat_csup_is_sup (c : FlatOrder b → Prop) (hc : chain c) :
     is_sup c (flat_csup c) := by
@@ -838,7 +970,7 @@ theorem flat_csup_eq (c : FlatOrder b → Prop) (hchain : chain c) :
   · apply flat_csup_is_sup _ hchain
   · apply CCPO.csup_spec
 
-theorem admissible_flatOrder (P : FlatOrder b → Prop) (hnot : P b) : admissible P := by
+theorem admissible_flatOrder (P : FlatOrder b → Prop) (hnot : P (.mk b b)) : admissible P := by
   intro c hchain h
   by_cases h' : ∃ (x : FlatOrder b), c x ∧ x ≠ b
   · simp [← flat_csup_eq, flat_csup, h']
@@ -889,6 +1021,7 @@ instance : MonoBind Option where
 
 theorem Option.admissible_eq_some (P : Prop) (y : α) :
     admissible (fun (x : Option α) => x = some y → P) := by
+  change admissible fun x : FlatOrder none => x = .mk _ (some y) → P
   apply admissible_flatOrder; simp
 
 instance [inst : ∀ α, PartialOrder (m α)] : PartialOrder (ExceptT ε m α) := inst _
@@ -1094,6 +1227,10 @@ instance ImplicationOrder.instCompleteLattice : CompleteLattice ImplicationOrder
     | Or.inl hfx₁ => Or.inl (h₁ x y hxy hfx₁)
     | Or.inr hfx₂ => Or.inr (h₂ x y hxy hfx₂)
 
+/-- In the implication order the meet of two propositions is their conjunction. -/
+theorem ImplicationOrder.is_meet_and (x y : ImplicationOrder) : is_meet x y (x ∧ y : Prop) :=
+  ⟨And.left, And.right, fun _ hzx hzy hz => ⟨hzx hz, hzy hz⟩⟩
+
 end implication_order
 
 section reverse_implication_order
@@ -1153,6 +1290,12 @@ instance ReverseImplicationOrder.instCompleteLattice : CompleteLattice ReverseIm
     match h with
     | Or.inl hfx₁ => Or.inl (h₁ x y hxy hfx₁)
     | Or.inr hfx₂ => Or.inr (h₂ x y hxy hfx₂)
+
+/-- In the reverse implication order the meet of two propositions is their disjunction. -/
+theorem ReverseImplicationOrder.is_meet_or (x y : ReverseImplicationOrder) :
+    is_meet x y (x ∨ y : Prop) :=
+  ⟨Or.inl, Or.inr, fun _ hzx hzy hw => hw.elim hzx hzy⟩
+
 end reverse_implication_order
 
 section antitone

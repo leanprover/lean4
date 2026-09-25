@@ -27,8 +27,9 @@ gcp -L llvm/bin/clang stage1/bin/
 gcp -L llvm/bin/ld64.lld stage1/bin/
 # a static archiver!
 gcp -L llvm/bin/llvm-ar stage1/bin/
-# dependencies of the above
-$CP llvm/lib/lib{clang-cpp,LLVM}.dylib stage1/lib/
+# dependencies of the above; the unversioned names are symlinks, so glob to also catch the
+# versioned files the binaries actually reference (`@rpath/libLLVM.<major>.<minor>.dylib`)
+$CP llvm/lib/lib{clang-cpp,LLVM}*.dylib stage1/lib/
 #find stage1 -type f -exec strip --strip-unneeded '{}' \; 2> /dev/null
 # lean.h dependencies
 $CP llvm/lib/clang/*/include/{std*,__std*,limits,float,__float*}.h stage1/include/clang

@@ -34,6 +34,8 @@ example [CommSemiring α] [AddRightCancel α] [IsCharP α 0] (x y : α) : x^2*y 
 trace: [grind.ring.assert.basis] ↑x + ↑y + -2 = 0
 [grind.ring.assert.basis] ↑y ^ 3 + -4 * ↑y ^ 2 + 4 * ↑y + -1 = 0
 [grind.ring.assert.basis] 2 * ↑y ^ 2 + -3 * ↑y + 1 = 0
+[grind.ring.assert.basis] ↑y ^ 3 + -2 * ↑y + 1 = 0
+[grind.ring.assert.basis] 3 * ↑y ^ 2 + -5 * ↑y + 2 = 0
 [grind.ring.assert.basis] ↑y + -1 = 0
 -/
 #guard_msgs (drop error, trace) in

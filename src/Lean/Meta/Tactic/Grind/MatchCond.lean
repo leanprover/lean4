@@ -319,6 +319,15 @@ where
       return none
 
 /--
+Returns `true` if `e` looks like a `match`-pattern instance: a metavariable (pattern
+variable), a constructor application, or a literal value.
+-/
+private def isPatternLike (e : Expr) : GoalM Bool := do
+  if e.getAppFn.isMVar then return true
+  if (← isConstructorApp? e).isSome then return true
+  isLitValue e
+
+/--
 Given a `match`-expression condition `e` that is known to be equal to `True`,
 try to close the goal by proving `False`. We use the following to example to illustrate
 the purpose of this function.
@@ -357,11 +366,25 @@ partial def tryToProveFalse (e : Expr) : GoalM Unit := do
       if target then
         let some (α?, lhs, rhs) := isEqHEq? (← inferType arg)
           | return none
-        let lhs' ← go lhs
-        trace[grind.debug.matchCond.proveFalse] "{lhs'} =?= {rhs}"
-        unless (← isDefEqD lhs' rhs) do
-          return none
         let isHEq := α?.isSome
+        let rhs ← instantiateMVars rhs
+        let lhs' ← if (← pure !rhs.hasExprMVar <&&> isEqv lhs rhs) then
+          -- The congruence closure already knows that `lhs = rhs`.
+          pure rhs
+        else
+          let lhs' ← go lhs
+          trace[grind.debug.matchCond.proveFalse] "{lhs'} =?= {rhs}"
+          /-
+          `rhs` is pattern-like for actual `match`-expression conditions. For hypotheses that
+          merely have the shape of a condition (e.g., `h : a = b → False` where `b` is not a
+          constructor application), `isDefEqD` may trigger arbitrarily expensive reductions
+          trying to decide `a =?= b`. See issue #14441.
+          -/
+          unless (← isPatternLike rhs) do
+            return none
+          unless (← isDefEqD lhs' rhs) do
+            return none
+          pure lhs'
         let some lhsEqLhs' ← if isHEq then proveHEq? lhs lhs' else proveEq? lhs lhs'
           | return none
         unless (← isDefEq arg lhsEqLhs') do

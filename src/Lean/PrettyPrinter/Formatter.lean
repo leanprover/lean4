@@ -166,6 +166,20 @@ def visitArgs (x : FormatterM Unit) : FormatterM Unit := do
   goDown (stx.getArgs.size - 1) *> x <* goUp
   goLeft
 
+/--
+Execute `x` at the last alternative of the current `choice` node, then move the cursor to the
+choice's left sibling.
+
+Formatters move left after visiting a node, but inside a `choice` that step lands on another
+alternative instead of past the `choice`. Restoring the entry position's `Traverser.left`
+leaves the enclosing walk unaffected.
+-/
+def visitChosenChoice (x : FormatterM Unit) : FormatterM Unit := do
+  let t0 := (← get).stxTrav
+  goDown (t0.cur.getArgs.size - 1)
+  x
+  modify fun st => { st with stxTrav := t0.left }
+
 /-- Execute `x`, pass array of generated Format objects to `fn`, and push result. -/
 def fold (fn : Array Format → Format) (x : FormatterM Unit) : FormatterM Unit := do
   let sp ← getStackSize
@@ -215,10 +229,11 @@ def withMaybeTag (pos? : Option String.Pos.Raw) (x : FormatterM Unit) : Formatte
   let stx ← getCur
   -- `orelse` may produce `choice` nodes for antiquotations
   if stx.getKind == `choice then
-    visitArgs do
-      -- format only last choice
-      -- TODO: We could use elaborator data here to format the chosen child when available
-      orelse.formatter p1 p2
+    -- Format only the last choice. If this `orelse` did not produce the choice (it comes from
+    -- an ambiguous inner position), formatting the alternative alone fails; then `p2` runs at
+    -- the choice itself and that position's own formatter handles it.
+    -- TODO: We could use elaborator data here to format the chosen child when available
+    visitChosenChoice (orelse.formatter p1 p2) <|> p2
   else
     -- HACK: We have no (immediate) information on which side of the orelse could have produced the current node, so try
     -- them in turn. Uses the syntax traverser non-linearly!
@@ -290,7 +305,7 @@ def categoryFormatterCore (cat : Name) : Formatter := do
   let stx ← getCur
   trace[PrettyPrinter.format] "formatting {indentD (format stx)}"
   if stx.getKind == `choice then
-    visitArgs do
+    visitChosenChoice do
       -- format only last choice
       -- TODO: We could use elaborator data here to format the chosen child when available
       formatterForKind (← getCur).getKind

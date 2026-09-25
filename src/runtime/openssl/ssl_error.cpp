@@ -12,8 +12,6 @@ Author: Sofia Rodrigues
 #include <cerrno>
 #include <cstring>
 #include <string>
-#include <sys/stat.h>
-#include <uv.h>
 
 #endif
 
@@ -55,42 +53,6 @@ lean_obj_res reject_embedded_nul(b_obj_arg path) {
 lean_obj_res mk_ssl_invalid_argument(char const * msg) {
     ERR_clear_error();
     return lean_io_result_mk_error(lean_mk_io_error_invalid_argument(EINVAL, mk_string(msg)));
-}
-
-lean_obj_res mk_ssl_file_error(b_obj_arg file, char const * msg, int errnum) {
-    ERR_clear_error();
-
-    // libuv takes the path as UTF-8 on Windows as well, where `stat` reads it in the ANSI code page.
-    uv_fs_t req;
-    bool irregular = uv_fs_stat(nullptr, &req, lean_string_cstr(file), nullptr) == 0 &&
-                     !S_ISREG(req.statbuf.st_mode);
-    uv_fs_req_cleanup(&req);
-
-    if (irregular) {
-        lean_inc(file);
-        return lean_io_result_mk_error(lean_mk_io_error_invalid_argument_file(
-            file, EINVAL, mk_string(std::string(msg) + " (the path is not a regular file)")));
-    }
-
-    if (errnum != 0) return lean_io_result_mk_error(decode_io_error(errnum, file));
-
-    lean_inc(file);
-    return lean_io_result_mk_error(lean_mk_io_error_invalid_argument_file(
-        file, EINVAL, mk_string(msg)));
-}
-
-lean_obj_res mk_pem_error(pem_source src, char const * msg) {
-    return src.is_file ? mk_ssl_file_error(src.obj, msg) : mk_ssl_invalid_argument(msg);
-}
-
-bool rejected_by_security_level() {
-    unsigned long err = ERR_peek_last_error();
-
-    if (ERR_GET_LIB(err) != ERR_LIB_SSL) return false;
-
-    int reason = ERR_GET_REASON(err);
-    return reason == SSL_R_EE_KEY_TOO_SMALL || reason == SSL_R_CA_KEY_TOO_SMALL ||
-           reason == SSL_R_CA_MD_TOO_WEAK;
 }
 
 #endif

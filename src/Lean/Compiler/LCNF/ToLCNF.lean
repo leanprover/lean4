@@ -938,7 +938,10 @@ where
       | .fvar fvarId => letValueToArg <| .proj s i fvarId
 
   visitLet (e : Expr): M (Arg .pure) := do
-    if let some (.forallE ..) := (← read).expectedType then
+    if let some ex := (← read).expectedType then
+      unless ex.isForall do
+        return ← visitLetCore e #[]
+    if let .forallE .. ← liftMetaM <| Meta.inferType e >>= Meta.whnf then
       let e' ← etaExpandN e 1
       if e'.isLambda then
         let funDecl ← withNewScope do

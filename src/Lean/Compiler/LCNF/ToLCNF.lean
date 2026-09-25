@@ -535,7 +535,7 @@ where
       | .proj s i e  => visitProj s i e
       | .mdata d e   => visitMData d e
       | .lam ..      => visitLambda e
-      | .letE ..     => visitLet e
+      | .letE ..     => visitLet e #[]
       | .lit lit     => visitLit lit
       | .fvar fvarId => if (← get).toAny.contains fvarId then pure .erased else pure (.fvar fvarId)
       | .forallE .. | .mvar .. | .bvar .. | .sort ..  => unreachable!
@@ -852,6 +852,12 @@ where
       let f ← Core.instantiateValueLevelParams info us
       visit (f.beta e.getAppArgs)
 
+  visitLazyIfPossible (e : Expr) : M (Arg .pure) := do
+    etaIfUnderApplied e 2 do
+      let args := e.getAppArgs
+      let e := mkAppN args[1]! args[2...*]
+      visit (← etaExpandN e 1)
+
   visitApp (e : Expr) : M (Arg .pure) := do
     if let .const declName us ← CSimp.replaceConstant (← getEnv) e.getAppFn then
       checkComputable declName
@@ -877,6 +883,8 @@ where
         visitNoConfusion e
       else if let some projInfo ← getProjectionFnInfo? declName then
         visitProjFn projInfo e
+      else if declName == `lazyIfPossible then
+        visitLazyIfPossible e
       else
         e.withApp visitAppDefaultConst
     else
@@ -937,39 +945,19 @@ where
       | .erased | .type .. => return .erased
       | .fvar fvarId => letValueToArg <| .proj s i fvarId
 
-  visitLet (e : Expr): M (Arg .pure) := do
-    if let some ex := (← read).expectedType then
-      unless ex.isForall do
-        return ← visitLetCore e #[]
-    if let .forallE nm t _ bi ← liftMetaM <| Meta.inferType e >>= Meta.whnf then
-      let e' : Expr := .lam nm t (.app e (.bvar 0)) bi
-      let funDecl ← withNewScope do
-        let (ps, e, eType?) ← ToLCNF.visitLambda e'
-        let e ← e.withApp fun f args => do
-          match (← visitLetCore f #[]) with
-          | .erased | .type .. => return .erased
-          | .fvar fvarId =>
-            let args ← args.mapM (withoutExpectedType do visitAppArg ·)
-            letValueToArg <| .fvar fvarId args
-        let c ← toCode e
-        mkAuxFunDecl ps c
-      pushElement (.fun funDecl)
-      return .fvar funDecl.fvarId
-    visitLetCore e #[]
-
-  visitLetCore (e : Expr) (xs : Array Expr) : M (Arg .pure) := do
+  visitLet (e : Expr) (xs : Array Expr) : M (Arg .pure) := do
     match e with
     | .letE binderName type value body _ =>
       let type := type.instantiateRev xs
       let value := value.instantiateRev xs
       if (← (liftMetaM <| Meta.isProp type) <||> isTypeFormerType type) then
-        visitLetCore body (xs.push value)
+        visitLet body (xs.push value)
       else
         let type' ← toLCNFType type
         let value' ← withExpectedType type' do
           visit value
         let letDecl ← mkLetDecl binderName type value type' value'
-        visitLetCore body (xs.push (.fvar letDecl.fvarId))
+        visitLet body (xs.push (.fvar letDecl.fvarId))
     | _ =>
       let e := e.instantiateRev xs
       visit e

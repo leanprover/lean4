@@ -15,6 +15,7 @@ public import Lean.Server.Completion.CompletionUtils
 public import Init.Data.List.Sort
 public import Std.Sync.Channel
 public import Lean.Server.Logging
+import all Lean.Elab.ErrorUtils
 
 public section
 
@@ -1678,9 +1679,30 @@ results in requests that need references.
 def startLoadingReferences (referenceData : Std.Mutex ReferenceData) : IO Unit := do
   let task ← ServerTask.IO.asTask do
     let oleanSearchPath ← Lean.searchPathRef.get
+    let mut compactedIleanCount := 0
+    let mut compactedIleanErrors := 0
+    let mut visitedPaths : Std.HashSet System.FilePath := {}
     for path in ← oleanSearchPath.findAllWithExt "ilean" do
       try
-        let ilean ← Ilean.load path
+        -- Avoid loading an ilean twice
+        let realPath ← FS.realPath path
+        if visitedPaths.contains realPath then continue
+        visitedPaths := visitedPaths.insert realPath
+
+        let compactedIlean : Option Ilean ← try
+          let .some compactedIlean ← Ilean.loadCompacted path | pure .none
+          compactedIleanCount := compactedIleanCount + 1
+          pure compactedIlean
+        catch _ =>
+          -- compacted ilean load errors should not be fatal, but we *should* log them
+          -- individually to help debug the global error message we give on error
+          compactedIleanErrors := compactedIleanErrors + 1
+          compactedIleanCount := compactedIleanCount + 1 -- errors mean there *was* a `.ilean.mmap` file, but something went wrong
+          pure .none
+
+        let ilean ← match compactedIlean with
+          | .none => Ilean.load path
+          | .some il => pure il
         referenceData.atomically do
           let rd ← get
           let rd ← rd.modifyReferencesM (·.addIlean path ilean)
@@ -1690,6 +1712,11 @@ def startLoadingReferences (referenceData : Std.Mutex ReferenceData) : IO Unit :
         -- ilean load errors should not be fatal, but we *should* log them
         -- when we add logging to the server
         pure ()
+
+    -- This warning message only makes sense if we're only building .ilean.mmap files for read-only toolchain and library files.
+    -- For other use cases, this will be too noisy.
+    if compactedIleanErrors > 0 then
+      (← getStderr).putStrLn s!"Attempted to load {compactedIleanCount} .{Ilean.compactedExt} {compactedIleanCount.plural "file"}, but failed to load {compactedIleanErrors} of them"
   referenceData.atomically <| modify fun rd =>
     { rd with loadingTask := task.mapCheap fun _ => () }
 

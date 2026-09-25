@@ -6,7 +6,6 @@ Author: Sofia Rodrigues
 #pragma once
 
 #include <lean/lean.h>
-#include "runtime/io.h"
 #include "runtime/object.h"
 #include "runtime/openssl.h"
 #include "runtime/openssl/ssl_error.h"

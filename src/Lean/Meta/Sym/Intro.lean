@@ -78,7 +78,7 @@ def introCore (mvarId : MVarId) (max : Nat) (names : Array Name) (hygienic : Boo
     | .forallE n type body bi =>
       let type       ← instantiateRevS type fvars
       let fvarId     ← mkFreshFVarId
-      let lctx       := lctx.mkLocalDecl fvarId (← mkName lctx n i) type bi
+      let lctx       := lctx.mkLocalDecl fvarId (← mkName lctx n i) type bi (.ofBinderName n)
       let fvar       ← mkFVarS fvarId
       let fvars      := fvars.push fvar
       let localInsts := updateLocalInsts localInsts fvar type
@@ -92,7 +92,7 @@ def introCore (mvarId : MVarId) (max : Nat) (names : Array Name) (hygienic : Boo
       This is fine here since we never revert them in the Sym framework.
       **Note**: If `type` is a proposition we could use a `cdecl`.
       -/
-      let lctx       := lctx.mkLetDecl fvarId (← mkName lctx n i) type value
+      let lctx       := lctx.mkLetDecl fvarId (← mkName lctx n i) type value (kind := .ofBinderName n)
       let fvar       ← mkFVarS fvarId
       let fvars      := fvars.push fvar
       let localInsts := updateLocalInsts localInsts fvar type

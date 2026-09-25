@@ -181,11 +181,12 @@ set_option linter.unusedVariables.funArgs false in
   k (isExclusiveUnsafe a)
 
 /--
-Runs `k` on whether `a` is exclusive at runtime (see `isExclusiveUnsafe`). Logically, this is
-`k false`; the proof `h` ensures that the result does not depend on the answer.
-
-This can be used, for example, to skip caching values that are referenced from at most
-one (owning) location.
+Checks whether `a` is exclusive at runtime, applying `k` to the verdict. This can be used, for
+example, to skip caching values that are not referenced from anywhere else. This function is
+safe because of the proof obligation `h`, which ensures that the result does not depend on the
+answer.
+ 
+This function is a safe wrapper around `isExclusive`. Logically, it is `k false`. 
 
 Being exclusive does not imply that `a` can be updated in place: that also requires the caller
 to own `a` rather than borrow it.

@@ -14,6 +14,8 @@ import Lean.Meta.Tactic.Grind.Simp
 import Lean.Meta.Tactic.Grind.MarkNestedSubsingletons
 import Lean.Meta.Tactic.Grind.PropagateInj
 import Lean.Util.CollectLevelParams
+import Lean.Util.ForEachExpr
+import Lean.Meta.Tactic.Grind.EMatchTheorem
 import Init.Grind.Util
 public section
 namespace Lean.Meta.Grind
@@ -333,6 +335,26 @@ private def activateTheorems (declName : Name) (generation : Nat) : GoalM Unit :
   activateInjectiveTheorems declName generation
 
 /--
+Marks the constants occurring in `e` as found and activates their theorems.
+The internalizer does not descend into binders (lambdas, `let`s, and dependent codomains of
+`forall`s) nor into nonparametric literals (see `isNonParametricLitValue`), but pattern symbol
+collection does (see `saveSymbolsAt`). Thus, a theorem whose ground pattern is `myPred (fun _ => True)`
+is also indexed by `True`, and one whose ground pattern is `f 'a'` is also indexed by `Char.ofNat`.
+They would never be activated if these symbols were not marked as found.
+-/
+private def activateTheoremsForConstsIn (e : Expr) (generation : Nat) : GoalM Unit := do
+  e.forEach' fun e => do
+    match e with
+    | .const declName _ =>
+      updateIndicesFound (.const declName)
+      activateTheorems declName generation
+      return false
+    | .app .. =>
+      let .const declName _ := e.getAppFn | return true
+      return !isOpaqueForIndexing declName
+    | _ => return true
+
+/--
 If type of `a` is a structure and is tagged with `[grind ext]` attribute,
 propagate `a = ⟨a.1, ..., a.n⟩`
 
@@ -500,6 +522,7 @@ want to internalize the raw natural value there. See `internalizeOfNatFinBitVecL
 -/
 private def internalizeNonParametricLiteral (e : Expr) (generation : Nat) (parent? : Option Expr) : GoalM Unit := do
   mkENode e generation
+  activateTheoremsForConstsIn e generation
   Solvers.internalize e parent?
 
 /--
@@ -573,17 +596,21 @@ where
       Solvers.internalize e parent?
     | .letE .. =>
       mkENode' e generation
+      activateTheoremsForConstsIn e generation
       Solvers.internalize e parent?
     | .lam .. =>
       addSplitCandidatesForFunext e generation parent?
       mkENode' e generation
+      activateTheoremsForConstsIn e generation
       tryEta e generation
       Solvers.internalize e parent?
     | .forallE _ d b _ =>
       mkENode' e generation
       internalizeImpl d generation e
       registerParent e d
-      unless b.hasLooseBVars do
+      if b.hasLooseBVars then
+        activateTheoremsForConstsIn b generation
+      else
         internalizeImpl b generation e
         registerParent e b
         addCongrTable e

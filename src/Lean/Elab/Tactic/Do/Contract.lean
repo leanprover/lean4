@@ -141,7 +141,7 @@ specification theorem; add `import Std.WP` to use them."
     | `(ensuresClause| ensures $f:basicFun) => `(fun $f:basicFun)
     | _ => Macro.throwUnsupported
   -- Each `throws` clause fills the slot of its exception type; the remaining slots stay `⊥`.
-  -- `contract_eposts%` unfolds the result to an `estack⟨...⟩` in the stored statement.
+  -- `contract_eposts%` unfolds the result in the stored statement, e.g. to an `estack⟨...⟩`.
   let triple : Term ← do
     let eposts : Term ← throwsStx.getArgs.foldrM (init := ← `(⊥))
       fun clause acc =>
@@ -180,11 +180,6 @@ discharge them in a `where finally | spec => ...` section of the definition"⟩
       | fail $msg)
   return mkNullNode #[mkContractNotice val, cleanDeclaration, thm]
 
-/-- The unfolding equations of `EPostSlot.set` and of the projections of `⊥`. -/
-private def epostsUnfoldLemmas : Array Name :=
-  #[``Std.WP.EPostSlot.set_fun, ``Std.WP.EPostSlot.set_head, ``Std.WP.EPostSlot.set_tail,
-    ``Lean.Order.Prod.fst_bot, ``Lean.Order.Prod.snd_bot]
-
 /-- Runs `Meta.simp` on `e` with exactly the lemmas in `names`. -/
 private def simpOnlyWith (names : Array Name) (e : Expr) : Elab.TermElabM Expr := do
   let mut thms : Meta.SimpTheorems := {}
@@ -195,8 +190,8 @@ private def simpOnlyWith (names : Array Name) (e : Expr) : Elab.TermElabM Expr :
   let (r, _) ← Meta.simp e ctx
   return r.expr
 
-/-- Elaborating `contract_eposts% e` rewrites the `EPostSlot.set` applications and `⊥` in `e` to an
-`estack⟨...⟩` expression. Used in the expansion of `throws` clauses to yield simpler specs. -/
+/-- Elaborating `contract_eposts% e` unfolds the `EPostSlot.set` applications and `⊥` in `e`, e.g.
+to an `estack⟨...⟩` expression. Used in the expansion of `throws` clauses to yield simpler specs. -/
 @[builtin_term_elab Lean.Parser.Term.contractEPosts]
 def elabContractEPosts : Term.TermElab := fun stx expectedType? => do
   -- Wait for the type of the exception postconditions, so the slot instances resolve.
@@ -206,12 +201,17 @@ def elabContractEPosts : Term.TermElab := fun stx expectedType? => do
       Term.tryPostpone
   let e ← Term.withSynthesize <| Term.elabTerm stx[1] expectedType?
   let e ← instantiateMVars e
-  let e' ← simpOnlyWith epostsUnfoldLemmas e
+  -- Unfold each `EPostSlot.set` to the body of its instance, e.g. `set R ⊥` to `(R, ⊥.snd)`.
+  let e' ← Meta.transform e (post := fun e => do
+    if e.isAppOf ``Std.WP.EPostSlot.set then
+      if let some e' ← Meta.unfoldProjInst? e then return .visit e'
+    return .continue)
   -- Without progress above, `e` is the bare `⊥` of a contract without `throws` clauses; keep it,
-  -- so the spec prints in the short `⦃Q⦄` form. Otherwise rewrite the stack's tail `⊥` as well.
+  -- so the spec prints in the short `⦃Q⦄` form. Otherwise rewrite the projections of `⊥`.
   if e' == e then
     return e
-  simpOnlyWith #[``Std.WP.EStackEnd.bot_eq] e'
+  simpOnlyWith #[``Lean.Order.Prod.fst_bot, ``Lean.Order.Prod.snd_bot, ``Std.WP.EStackEnd.bot_eq]
+    e'
 
 open Lean.Elab.Do in
 /-- Report the experimental status of each contract clause the notice carries, in a slight

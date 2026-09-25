@@ -2,7 +2,6 @@ import Std.Tactic.BVDecide
 import Std.Tactic.Do
 
 open Std Do
-set_option mvcgen.warning false
 
 set_option doc.verso true
 
@@ -49,6 +48,15 @@ abbrev LEAN_RC_STICKY_DROP : Int32 := Int32.minValue + 0x20000000
 /-- {lit}`#define LEAN_RC_INC_MAX ((size_t)0x10000)` -/
 abbrev LEAN_RC_INC_MAX : USize := 0x10000
 
+/-- {lit}`#define LEAN_RC_STUCK_ST (INT_MIN + (int)LEAN_RC_INC_MAX)` -/
+abbrev LEAN_RC_STUCK_ST : Int32 := Int32.minValue + LEAN_RC_INC_MAX.toUInt32.toInt32
+
+/--
+The value of {name}`LEAN_RC_STUCK_ST`, which {lit}`decide` cannot compute through {name}`USize`.
+-/
+theorem LEAN_RC_STUCK_ST_eq : LEAN_RC_STUCK_ST = Int32.minValue + 0x10000 := by
+  cases System.Platform.numBits_eq <;> bv_decide
+
 /-- {lit}`lean_is_st`. -/
 abbrev isSt (rc : Int32) : Bool := rc > 0
 
@@ -61,8 +69,28 @@ abbrev isPersistent (rc : Int32) : Bool := rc == 0
 /-- Stuck in the sticky range: never adjusted or freed again. -/
 abbrev isStuck (rc : Int32) : Bool := rc ≤ LEAN_RC_STICKY
 
+/-- A single-threaded count that overflowed: stuck, and still owned by one thread. -/
+abbrev isStuckSt (rc : Int32) : Bool := rc ≤ LEAN_RC_STUCK_ST
+
+/--
+{lit}`is_unshared`, whether an object is owned by one thread:
+```
+    return rc > 0 || rc <= LEAN_RC_STUCK_ST;
+```
+-/
+abbrev isUnshared (rc : Int32) : Bool := rc > 0 || rc ≤ LEAN_RC_STUCK_ST
+
 /-- A thread-shared count that is not stuck, so one that still tracks references. -/
 abbrev isUnstuckMt (rc : Int32) : Bool := isMt rc && !isStuck rc
+
+/--
+{lit}`lean_is_unstuck_mt` is the single comparison
+{lit}`(unsigned)lean_internal_get_rc(o) > (unsigned)LEAN_RC_STICKY`: read as unsigned, a persistent,
+a single-threaded and a stuck count all fall below every unstuck thread-shared count.
+-/
+theorem isUnstuckMt_unsigned (rc : Int32) :
+    decide (rc.toUInt32 > LEAN_RC_STICKY.toUInt32) = isUnstuckMt rc := by
+  bv_decide
 
 /--
 The number of references a count stands for: {lit}`rc` when single-threaded, {lit}`-rc` when
@@ -79,7 +107,7 @@ abbrev refCountNat (rc : Int32) : Nat := (refCount rc).toNatClampNeg
 /--
 The thread-shared arm of {lit}`lean_inc_ref_huge_n`, sans concurrent semantics:
 ```
-    while (n > 0 && (unsigned)lean_internal_get_rc(o) > (unsigned)LEAN_RC_STICKY) {
+    while (n > 0 && lean_is_unstuck_mt(o)) {
         size_t chunk = std::min(n, LEAN_RC_INC_MAX);
         std::atomic_fetch_sub_explicit(lean_get_rc_mt_addr(o), (int)chunk, std::memory_order_relaxed);
         n -= chunk;
@@ -113,36 +141,36 @@ The loop takes the whole increment and leaves a live thread-shared count, or the
 theorem incRefHugeMt_spec (rc : Int32) (n : USize) (h : isUnstuckMt rc) :
     (isUnstuckMt (incRefHugeMt rc n)
         && refCount (incRefHugeMt rc n) == refCount rc + n.toUInt64.toInt64)
-      || isStuck (incRefHugeMt rc n) := by
+      || (isStuck (incRefHugeMt rc n) && !isStuckSt (incRefHugeMt rc n)) := by
   -- Strengthened for the loop invariant: a step may land stuck, so `isUnstuckMt` would not survive
   -- as a hypothesis and `isMt` is carried instead.
-  have haux : isMt rc →
-      isMt (incRefHugeMt rc n) &&
+  have haux : isMt rc → !isStuckSt rc →
+      isMt (incRefHugeMt rc n) && !isStuckSt (incRefHugeMt rc n) &&
         (refCount (incRefHugeMt rc n) == refCount rc + n.toUInt64.toInt64
          || isStuck (incRefHugeMt rc n)) := by
-    intro h
+    intro h hst
     generalize hh : incRefHugeMt rc n = r
     apply Id.of_wp_run_eq hh
     mvcgen invariants
       | inv1 => fun p => ⟨p.2.toNat⟩
       | inv2 => ⇓ x => match x with
-          | .inl (rc', n') => ⌜isMt rc' ∧ (refCount rc' + n'.toUInt64.toInt64
+          | .inl (rc', n') => ⌜isMt rc' ∧ !isStuckSt rc' ∧ (refCount rc' + n'.toUInt64.toInt64
               = refCount rc + n.toUInt64.toInt64 ∨ isStuck rc')⌝
-          | .inr (rc', _) => ⌜isMt rc' ∧ (refCount rc' = refCount rc + n.toUInt64.toInt64
-              ∨ isStuck rc')⌝
-    case vc3.pre => exact ⟨h, Or.inl trivial⟩
+          | .inr (rc', _) => ⌜isMt rc' ∧ !isStuckSt rc' ∧ (refCount rc'
+              = refCount rc + n.toUInt64.toInt64 ∨ isStuck rc')⌝
+    case vc3.pre => exact ⟨h, hst, Or.inl trivial⟩
     case vc4.post.success =>
       rename_i r' hinv
-      obtain ⟨hmt, hex⟩ := hinv
+      obtain ⟨hmt, hsst, hex⟩ := hinv
       cases System.Platform.numBits_eq <;> bv_decide
     case vc2.step.isFalse =>
       rename_i b _ hg hinv
-      obtain ⟨-, hmt, hex⟩ := hinv
+      obtain ⟨-, hmt, hsst, hex⟩ := hinv
       simp only [Bool.and_eq_true, decide_eq_true_eq, not_and, not_lt] at hg
       cases System.Platform.numBits_eq <;> bv_decide
     case vc1.step.isTrue =>
       rename_i b mb rc1 n1 hg chunk rc2 n2 hinv
-      obtain ⟨hvar, hmt, hex⟩ := hinv
+      obtain ⟨hvar, hmt, hsst, hex⟩ := hinv
       simp only [Bool.and_eq_true, decide_eq_true_eq] at hg
       have hle : chunk ≤ n1 := Std.min_le_left
       have hle2 : chunk ≤ LEAN_RC_INC_MAX := Std.min_le_right
@@ -151,18 +179,19 @@ theorem incRefHugeMt_spec (rc : Int32) (n : USize) (h : isUnstuckMt rc) :
         show 0 < (min n1 LEAN_RC_INC_MAX).toNat
         rw [Std.min_eq_ite]; split <;> grind
       simp only [WhileVariant.eval, SVal.evalsTo] at hvar ⊢
-      refine ⟨_, rfl, by grind, ?_, ?_⟩
+      refine ⟨_, rfl, by grind, ?_, ?_, ?_⟩
       · cases System.Platform.numBits_eq <;> bv_decide
       · cases System.Platform.numBits_eq <;> bv_decide
-  have haux := haux (by bv_decide)
-  bv_decide
+      · cases System.Platform.numBits_eq <;> bv_decide
+  have haux := haux (by bv_decide) (by cases System.Platform.numBits_eq <;> bv_decide)
+  cases System.Platform.numBits_eq <;> bv_decide
 
 /--
 {lit}`lean_inc_ref_huge_n`:
 ```
     if (lean_is_st(o)) {
         int rc = lean_internal_get_rc(o);
-        if (n > (size_t)(INT_MAX - rc)) lean_internal_set_rc(o, LEAN_RC_STICKY);
+        if (n > (size_t)(INT_MAX - rc)) lean_internal_set_rc(o, LEAN_RC_STUCK_ST);
         else                            lean_internal_set_rc(o, rc + (int)n);
     } else {
         <the loop transcribed by `incRefHugeMt` above>
@@ -171,7 +200,7 @@ theorem incRefHugeMt_spec (rc : Int32) (n : USize) (h : isUnstuckMt rc) :
 -/
 abbrev incRefHugeN (rc : Int32) (n : USize) : Int32 :=
   if isSt rc then
-    if n > (Int32.maxValue - rc).toUInt32.toUSize then LEAN_RC_STICKY
+    if n > (Int32.maxValue - rc).toUInt32.toUSize then LEAN_RC_STUCK_ST
     else rc + n.toUInt32.toInt32
   else incRefHugeMt rc n
 
@@ -181,7 +210,7 @@ abbrev incRefHugeN (rc : Int32) (n : USize) : Int32 :=
     if (LEAN_UNLIKELY(n > LEAN_RC_INC_MAX)) { lean_inc_ref_huge_n(o, n); return; }
     if (LEAN_LIKELY(lean_is_st(o))) {
         lean_internal_add_rc(o, n);
-    } else if ((unsigned)lean_internal_get_rc(o) > (unsigned)LEAN_RC_STICKY) {
+    } else if (lean_is_unstuck_mt(o)) {
         std::atomic_fetch_sub_explicit(lean_get_rc_mt_addr(o), n, std::memory_order_relaxed);
     }
 ```
@@ -203,20 +232,23 @@ private theorem incRefN_eq (rc : Int32) (n : USize) :
        else rc) := rfl
 
 /--
-{lit}`lean_inc_ref_n` spec: a single-threaded count takes the increment exactly or gets stuck, never
-overflowing into thread-shared. Persistent and stuck counts are untouched. An unstuck thread-shared
-count takes the increment exactly or gets stuck, and either way never wraps into the single-threaded
-range.
+{lit}`lean_inc_ref_n` spec: a single-threaded count takes the increment exactly or overflows into
+the range {name}`isStuckSt` reserves for it, never into thread-shared. Persistent and stuck counts
+are untouched. An unstuck thread-shared count takes the increment exactly or gets stuck, and either
+way never wraps into the single-threaded range nor reaches {name}`isStuckSt`, so it never reads as
+unshared again.
 -/
 theorem incRefN_spec (rc : Int32) (n : USize) :
     let rc' := incRefN rc n
     let ni := n.toUInt64.toInt64
     if isSt rc then
-      (isSt rc' && refCount rc' == refCount rc + ni) || isStuck rc'
+      (isSt rc' && refCount rc' == refCount rc + ni) || isStuckSt rc'
     else if isPersistent rc || isStuck rc then
       rc' == rc
     else
-      isUnstuckMt rc && ((isUnstuckMt rc' && refCount rc' == refCount rc + ni) || isStuck rc') := by
+      isUnstuckMt rc
+        && ((isUnstuckMt rc' && refCount rc' == refCount rc + ni)
+          || (isStuck rc' && !isStuckSt rc')) := by
   -- must move `min` conditional out of `USize` for `bv_decide` to handle
   rw [incRefN_eq, incRefHugeN]
   have := incRefHugeMt_spec rc n
@@ -231,7 +263,7 @@ abbrev isDropStopped (rc : Int32) : Bool := rc ≤ LEAN_RC_STICKY_DROP
 {lit}`lean_dec_ref_cold`, as the count it leaves behind or {lit}`none` if the object was freed:
 ```
     if (lean_internal_get_rc(o) != 1) {
-        if (LEAN_UNLIKELY(lean_internal_get_rc(o) <= LEAN_RC_STICKY_DROP)) return;
+        if (LEAN_UNLIKELY(lean_is_never_freed(o))) return;
         if (std::atomic_fetch_add_explicit(lean_get_rc_mt_addr(o), 1,
                                           std::memory_order_acq_rel) != -1) return;
     }
@@ -243,7 +275,7 @@ whether to free is against {lit}`-1` while the count the object keeps is {lit}`0
 abbrev decRefCold (rc : Int32) : Option Int32 := Id.run do
   let mut rc := rc
   if rc != 1 then
-    if rc ≤ LEAN_RC_STICKY_DROP then return some rc
+    if rc.toUInt32 ≤ LEAN_RC_STICKY_DROP.toUInt32 then return some rc
     let old := rc
     rc := rc + 1
     if old != -1 then return some rc
@@ -280,6 +312,16 @@ theorem decRef_spec (rc : Int32) :
 
 /-- A count no drop will ever free: persistent, or at or below the drop threshold. -/
 abbrev isNeverFreed (rc : Int32) : Bool := isPersistent rc || isDropStopped rc
+
+/--
+{lit}`lean_is_never_freed` is the single comparison
+{lit}`(unsigned)lean_internal_get_rc(o) <= (unsigned)LEAN_RC_STICKY_DROP`, which both drop paths
+reach only once a single-threaded count is excluded. On the counts that remain it is exactly
+{name}`isNeverFreed`; a single-threaded count would read as never freed too.
+-/
+theorem isNeverFreed_unsigned (rc : Int32) (h : !isSt rc) :
+    decide (rc.toUInt32 ≤ LEAN_RC_STICKY_DROP.toUInt32) = isNeverFreed rc := by
+  bv_decide
 
 /--
 Each iteration subtracts its chunk from a count the guard keeps clear of {name}`Int32.minValue`.
@@ -339,6 +381,72 @@ theorem never_freed_is_absorbing (rc : Int32) (n : USize) (h : isNeverFreed rc) 
     · have hdesc := incRefN_descends rc n (by bv_decide)
       cases System.Platform.numBits_eq <;> bv_decide
   grind
+
+/--
+The count {lit}`lean_mark_mt` leaves on each object it visits when sharing it with other threads.
+Which objects it visits is not modelled.
+```
+        if (!lean_is_scalar(o) && is_unshared(o)) {
+            int rc = lean_internal_get_rc(o);
+            lean_internal_set_rc(o, rc < 0 || -rc <= LEAN_RC_STICKY_DROP ? LEAN_RC_STICKY : -rc);
+```
+-/
+abbrev markMtRc (rc : Int32) : Int32 :=
+  if isUnshared rc then
+    if rc < 0 || -rc ≤ LEAN_RC_STICKY_DROP then LEAN_RC_STICKY else -rc
+  else rc
+
+/--
+Sharing keeps the count of a single-threaded object exactly, as a live thread-shared count, unless
+it overflowed or is too large for that range. Then it freezes at {name}`LEAN_RC_STICKY` rather than
+wherever negating it would land, which for a count near {name}`Int32.maxValue` is in the range
+{name}`isStuckSt` reserves for overflowed single-threaded counts.
+-/
+theorem markMtRc_spec (rc : Int32) :
+    if isSt rc then
+      (isUnstuckMt (markMtRc rc) && !isNeverFreed (markMtRc rc)
+          && refCount (markMtRc rc) == refCount rc)
+        || markMtRc rc == LEAN_RC_STICKY
+    else if isStuckSt rc then
+      markMtRc rc == LEAN_RC_STICKY
+    else
+      markMtRc rc == rc := by
+  simp only [markMtRc, isUnshared, isStuckSt, LEAN_RC_STUCK_ST_eq]
+  split <;> (try split) <;> (try split) <;> bv_decide
+
+/--
+A shared count never reads as unshared, so a later {lit}`lean_mark_mt` leaves the object and what it
+points to alone.
+-/
+theorem markMtRc_shared (rc : Int32) : !isUnshared (markMtRc rc) := by
+  simp only [markMtRc, isUnshared, LEAN_RC_STUCK_ST_eq]
+  split <;> (try split) <;> bv_decide
+
+/-- No drop makes a shared count read as unshared again, by {name}`decRef_spec`. -/
+theorem decRef_stays_shared (rc rc' : Int32) (h : !isUnshared rc) (h' : decRef rc = some rc') :
+    !isUnshared rc' := by
+  have hs := decRef_spec rc
+  simp only [h'] at hs
+  simp only [isUnshared, LEAN_RC_STUCK_ST_eq] at h ⊢
+  split at hs <;> (try split at hs) <;> (try split at hs) <;>
+    simp only [beq_iff_eq, Option.some.injEq, reduceCtorEq] at hs <;> (try subst hs) <;> bv_decide
+
+/--
+An increment whose sticky check passed moves the count down by at most {name}`LEAN_RC_INC_MAX`, and
+once a thread-shared count has frozen at {name}`LEAN_RC_STICKY` only such increments in flight still
+move it. Short of 4095 of them the count stays clear of
+{name}`isStuckSt`, so {name}`markMtRc` leaves it alone.
+-/
+theorem frozen_shared_count_stays_shared (rc : Int32) (k : Nat) (hk : k ≤ 4094)
+    (h : LEAN_RC_STICKY.toInt - k * LEAN_RC_INC_MAX.toNat ≤ rc.toInt) : !isStuckSt rc := by
+  have h1 : LEAN_RC_STICKY.toInt = -0x70000000 := by decide
+  have h2 : LEAN_RC_STUCK_ST.toInt = -0x7fff0000 := by rw [LEAN_RC_STUCK_ST_eq]; decide
+  have h3 : LEAN_RC_INC_MAX.toNat = 0x10000 := by
+    cases System.Platform.numBits_eq <;> simp [LEAN_RC_INC_MAX, USize.toNat_ofNat, *]
+  rw [h3] at h
+  simp only [isStuckSt, Int32.le_iff_toInt_le, Bool.not_eq_true', decide_eq_false_iff_not,
+    Int.not_le]
+  omega
 
 /-! ## Counts that cannot overflow -/
 
@@ -410,7 +518,7 @@ private theorem decRef_keeps (rc rc' : Int32) (h : decRef rc = some rc') :
       || (!isNeverFreed rc && refCount rc' == refCount rc - 1 && !(refCount rc == 1)) := by
   have hcold : ∀ rc : Int32, decRefCold rc =
       (if rc != 1 then
-        (if rc ≤ LEAN_RC_STICKY_DROP then some rc
+        (if rc.toUInt32 ≤ LEAN_RC_STICKY_DROP.toUInt32 then some rc
          else if rc != -1 then some (rc + 1) else none)
        else none) := fun _ => rfl
   simp only [decRef, hcold] at h
@@ -542,11 +650,11 @@ example : run (some 3) [.inc 2, .dec, .dec, .dec, .dec] = some 1 := by native_de
 example : run (some 3) [.inc 2, .dec, .dec, .dec, .dec, .dec] = none := by native_decide
 
 /--
-One increment can overflow a live count. The implementation freezes at {name}`LEAN_RC_STICKY`, where
-no drop frees it again; the count that cannot overflow goes on tracking, and the two never meet
-again.
+One increment can overflow a live count. The implementation freezes at {name}`LEAN_RC_STUCK_ST`,
+where no drop frees it again; the count that cannot overflow goes on tracking, and the two never
+meet again.
 -/
-example : run (some 1) [.inc 0x7fffffff, .dec, .dec] = some LEAN_RC_STICKY := by native_decide
+example : run (some 1) [.inc 0x7fffffff, .dec, .dec] = some LEAN_RC_STUCK_ST := by native_decide
 example : runIdeal (some 1) [.inc 0x7fffffff, .dec, .dec] = some 0x7ffffffe := by native_decide
 
 /--
@@ -556,3 +664,12 @@ in the range, not that it stays put.
 -/
 example : run (some LEAN_RC_STICKY_DROP) [.inc 1] = some (LEAN_RC_STICKY_DROP - 1) := by
   native_decide
+
+/-- Sharing an object whose single-threaded count wrapped freezes it as a shared count. -/
+example : markMtRc (incRefN Int32.maxValue 1) = LEAN_RC_STICKY := by native_decide
+
+/--
+Sharing a count too large for the live thread-shared range freezes it at the same count, rather than
+where negating it lands, among the overflowed single-threaded counts.
+-/
+example : markMtRc Int32.maxValue = LEAN_RC_STICKY := by native_decide

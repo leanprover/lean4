@@ -56,7 +56,7 @@ theorem CompleteLattice.ofProp_imp [CompleteLattice l]
     exact bot_le _
 
 @[simp]
-theorem CompleteLattice.ofProp_intro [CompleteLattice l]
+theorem CompleteLattice.ofProp_le_eq_imp [CompleteLattice l]
   (p : Prop) (h : l) : (⌜p⌝ ⊑ h) = (p → ⊤ ⊑ h) := by
   simp only [CompleteLattice.ofProp]
   apply propext
@@ -70,7 +70,7 @@ theorem CompleteLattice.ofProp_intro [CompleteLattice l]
     next => exact bot_le _
 
 @[simp]
-theorem CompleteLattice.ofProp_intro_l [CompleteLattice l] (p : Prop) (x y : l) :
+theorem CompleteLattice.meet_ofProp_le_eq_imp [CompleteLattice l] (p : Prop) (x y : l) :
   (x ⊓ ⌜ p ⌝ ⊑ y) = (p → x ⊑ y) := by
   apply propext
   constructor
@@ -85,7 +85,7 @@ theorem CompleteLattice.ofProp_intro_l [CompleteLattice l] (p : Prop) (x y : l) 
     next => exact PartialOrder.rel_trans (meet_le_right x ⊥) (bot_le _)
 
 @[simp]
-theorem CompleteLattice.ofProp_intro_r [CompleteLattice l] (p : Prop) (x y : l) :
+theorem CompleteLattice.ofProp_meet_le_eq_imp [CompleteLattice l] (p : Prop) (x y : l) :
   (⌜ p ⌝ ⊓ x ⊑ y) = (p → x ⊑ y) := by
   apply propext
   constructor
@@ -107,26 +107,21 @@ theorem CompleteLattice.ofProp_intro_r [CompleteLattice l] (p : Prop) (x y : l) 
   rcases Classical.em p with h | h <;> simp [h]
 
 @[grind .]
-theorem top_le_ofProp [CompleteLattice l] (p : Prop) : p → (⊤ : l) ⊑ ⌜p⌝ := by
+theorem CompleteLattice.top_le_ofProp [CompleteLattice l] (p : Prop) : p → (⊤ : l) ⊑ ⌜p⌝ := by
   simp only [CompleteLattice.ofProp]
   rcases Classical.em p with h | h <;> simp [h]
 
 /-- `x ⊑ ⌜p⌝` whenever `p` holds. -/
-theorem le_ofProp [CompleteLattice l] (x : l) (p : Prop) : p → x ⊑ ⌜p⌝ :=
+theorem CompleteLattice.le_ofProp [CompleteLattice l] (x : l) (p : Prop) : p → x ⊑ ⌜p⌝ :=
   fun hp => PartialOrder.rel_trans (le_top x) (top_le_ofProp p hp)
 
 /-- `⌜p⌝ ⊑ rhs` reduces to assuming `p` and proving `⊤ ⊑ rhs`. -/
-theorem ofProp_le [CompleteLattice l] (p : Prop) (rhs : l) :
+theorem CompleteLattice.ofProp_le [CompleteLattice l] (p : Prop) (rhs : l) :
     (p → (⊤ : l) ⊑ rhs) → ⌜p⌝ ⊑ rhs :=
-  (CompleteLattice.ofProp_intro p rhs).mpr
-
-/-- `⌜p⌝ ⊓ x ⊑ rhs` reduces to assuming `p` and proving `x ⊑ rhs`. -/
-theorem ofProp_meet_le [CompleteLattice l] (p : Prop) (x rhs : l) :
-    (p → x ⊑ rhs) → ⌜p⌝ ⊓ x ⊑ rhs :=
-  (CompleteLattice.ofProp_intro_r p x rhs).mpr
+  (CompleteLattice.ofProp_le_eq_imp p rhs).mpr
 
 /-- Embedding a proposition into the `Prop` lattice (`⌜p⌝`) is the proposition itself. -/
-@[grind =, simp] theorem ofProp_prop_eq (p : Prop) : (⌜p⌝ : Prop) = p := by
+@[grind =, simp] theorem CompleteLattice.ofProp_prop_eq (p : Prop) : (⌜p⌝ : Prop) = p := by
   simp only [CompleteLattice.ofProp]
   rcases Classical.em p with hp | hp <;> simp [hp, top_prop_eq, bot_prop_eq]
 
@@ -158,61 +153,88 @@ step, avoiding the intermediate `(⌜p⌝ : Prop)` whose instance `ofProp_prop_e
     (⌜p⌝ : σ₁ → σ₂ → σ₃ → σ₄ → σ₅ → Prop) s₁ s₂ s₃ s₄ s₅ = p := by
   simp only [CompleteLattice.ofProp_apply, ofProp_prop_eq]
 
+@[deprecated CompleteLattice.top_le_ofProp (since := "2026-09-24")]
+theorem top_le_ofProp [CompleteLattice l] (p : Prop) : p → (⊤ : l) ⊑ ⌜p⌝ :=
+  CompleteLattice.top_le_ofProp p
+@[deprecated CompleteLattice.le_ofProp (since := "2026-09-24")]
+theorem le_ofProp [CompleteLattice l] (x : l) (p : Prop) : p → x ⊑ ⌜p⌝ :=
+  CompleteLattice.le_ofProp x p
+@[deprecated CompleteLattice.ofProp_le (since := "2026-09-24")]
+theorem ofProp_le [CompleteLattice l] (p : Prop) (rhs : l) :
+    (p → (⊤ : l) ⊑ rhs) → ⌜p⌝ ⊑ rhs :=
+  CompleteLattice.ofProp_le p rhs
+@[deprecated CompleteLattice.ofProp_prop_eq (since := "2026-09-24")]
+theorem ofProp_prop_eq (p : Prop) : (⌜p⌝ : Prop) = p :=
+  CompleteLattice.ofProp_prop_eq p
+@[deprecated CompleteLattice.ofProp_le_eq_imp (since := "2026-09-24")]
+theorem CompleteLattice.ofProp_intro [CompleteLattice l]
+    (p : Prop) (h : l) : (⌜p⌝ ⊑ h) = (p → ⊤ ⊑ h) :=
+  CompleteLattice.ofProp_le_eq_imp p h
+@[deprecated CompleteLattice.meet_ofProp_le_eq_imp (since := "2026-09-24")]
+theorem CompleteLattice.ofProp_intro_l [CompleteLattice l] (p : Prop) (x y : l) :
+    (x ⊓ ⌜ p ⌝ ⊑ y) = (p → x ⊑ y) :=
+  CompleteLattice.meet_ofProp_le_eq_imp p x y
+@[deprecated CompleteLattice.ofProp_meet_le_eq_imp (since := "2026-09-24")]
+theorem CompleteLattice.ofProp_intro_r [CompleteLattice l] (p : Prop) (x y : l) :
+    (⌜ p ⌝ ⊓ x ⊑ y) = (p → x ⊑ y) :=
+  CompleteLattice.ofProp_meet_le_eq_imp p x y
+
 section Lemmas
 
 set_option linter.unusedSectionVars false
 
 variable {l : Type u} [CompleteLattice l] {P P' Q Q' R R' T : l} {φ φ₁ φ₂ : Prop}
 
-theorem ofProp_elim {φ : Prop} (h1 : Q ⊑ (⌜φ⌝ : l)) (h2 : φ → Q ⊑ R) : Q ⊑ R := by
+theorem CompleteLattice.le_of_le_ofProp {φ : Prop} (h1 : Q ⊑ (⌜φ⌝ : l)) (h2 : φ → Q ⊑ R) : Q ⊑ R := by
   by_cases hφ : φ
   · exact h2 hφ
   · simp [CompleteLattice.ofProp, hφ] at h1
     exact rel_trans h1 (bot_le _)
 
-theorem ofProp_mono {φ₁ φ₂ : Prop} (h : φ₁ → φ₂) : ⌜φ₁⌝ ⊑ (⌜φ₂⌝ : l) :=
+theorem CompleteLattice.ofProp_mono {φ₁ φ₂ : Prop} (h : φ₁ → φ₂) : ⌜φ₁⌝ ⊑ (⌜φ₂⌝ : l) :=
   CompleteLattice.ofProp_imp _ _ h
-theorem ofProp_congr {φ₁ φ₂ : Prop} (h : φ₁ ↔ φ₂) : (⌜φ₁⌝ : l) = ⌜φ₂⌝ :=
+theorem CompleteLattice.ofProp_congr {φ₁ φ₂ : Prop} (h : φ₁ ↔ φ₂) : (⌜φ₁⌝ : l) = ⌜φ₂⌝ :=
   rel_antisymm (ofProp_mono h.1) (ofProp_mono h.2)
 
-theorem ofProp_meet_le_left {φ : Prop} (h : φ → Q ⊑ R) : (⌜φ⌝ : l) ⊓ Q ⊑ R := by
-  rw [CompleteLattice.ofProp_intro_r]; exact h
-theorem ofProp_meet_le_right {φ : Prop} (h : φ → Q ⊑ R) : Q ⊓ (⌜φ⌝ : l) ⊑ R := by
-  rw [CompleteLattice.ofProp_intro_l]; exact h
-theorem ofProp_eq_top {φ : Prop} (h : φ) : (⌜φ⌝ : l) = ⊤ :=
+theorem CompleteLattice.ofProp_meet_le {φ : Prop} (h : φ → Q ⊑ R) : (⌜φ⌝ : l) ⊓ Q ⊑ R := by
+  rw [CompleteLattice.ofProp_meet_le_eq_imp]; exact h
+theorem CompleteLattice.meet_ofProp_le {φ : Prop} (h : φ → Q ⊑ R) : Q ⊓ (⌜φ⌝ : l) ⊑ R := by
+  rw [CompleteLattice.meet_ofProp_le_eq_imp]; exact h
+theorem CompleteLattice.ofProp_eq_top {φ : Prop} (h : φ) : (⌜φ⌝ : l) = ⊤ :=
   (ofProp_congr ⟨fun _ => trivial, fun _ => h⟩).trans (CompleteLattice.ofProp_true l)
 
-theorem ofProp_and {φ₁ φ₂ : Prop} : (⌜φ₁⌝ : l) ⊓ ⌜φ₂⌝ = ⌜φ₁ ∧ φ₂⌝ := by
+theorem CompleteLattice.ofProp_meet_ofProp {φ₁ φ₂ : Prop} : (⌜φ₁⌝ : l) ⊓ ⌜φ₂⌝ = ⌜φ₁ ∧ φ₂⌝ := by
   apply rel_antisymm
-  · apply ofProp_meet_le_right
+  · apply meet_ofProp_le
     intro h₂
     apply ofProp_mono
     exact (⟨·, h₂⟩)
   · exact le_meet _ _ _ (ofProp_mono And.left) (ofProp_mono And.right)
 
-theorem ofProp_or {φ₁ φ₂ : Prop} : (⌜φ₁⌝ : l) ⊔ ⌜φ₂⌝ = ⌜φ₁ ∨ φ₂⌝ := by
+theorem CompleteLattice.ofProp_join_ofProp {φ₁ φ₂ : Prop} : (⌜φ₁⌝ : l) ⊔ ⌜φ₂⌝ = ⌜φ₁ ∨ φ₂⌝ := by
   apply rel_antisymm
   · exact join_le _ _ _ (ofProp_mono Or.inl) (ofProp_mono Or.inr)
-  · rw [CompleteLattice.ofProp_intro]
+  · rw [CompleteLattice.ofProp_le_eq_imp]
     rintro (h₁ | h₂)
     · rw [ofProp_eq_top h₁]
       exact left_le_join _ _
     · rw [ofProp_eq_top h₂]
       exact right_le_join _ _
 
-theorem ofProp_forall_le {β} {Φ : β → Prop} : (⌜∀ x, Φ x⌝ : l) ⊑ iInf (fun x => ⌜Φ x⌝) :=
+theorem CompleteLattice.ofProp_forall_le {β} {Φ : β → Prop} :
+    (⌜∀ x, Φ x⌝ : l) ⊑ iInf (fun x => ⌜Φ x⌝) :=
   le_iInf _ _ fun _ => ofProp_mono (· _)
 
-theorem ofProp_exists {β} {Φ : β → Prop} :
+theorem CompleteLattice.iSup_ofProp {β} {Φ : β → Prop} :
     iSup (fun x => (⌜Φ x⌝ : l)) = ⌜∃ x, Φ x⌝ := by
   apply rel_antisymm
   · exact iSup_le _ _ fun a => ofProp_mono (⟨a, ·⟩)
-  · rw [CompleteLattice.ofProp_intro]
+  · rw [CompleteLattice.ofProp_le_eq_imp]
     rintro ⟨x, hx⟩
     have h : (⌜Φ x⌝ : l) = ⊤ := ofProp_eq_top hx
     exact h ▸ le_iSup (fun x => (⌜Φ x⌝ : l)) x
 
-theorem ofProp_forall {β} {Φ : β → Prop} :
+theorem CompleteLattice.iInf_ofProp {β} {Φ : β → Prop} :
     iInf (fun x => (⌜Φ x⌝ : l)) = ⌜∀ x, Φ x⌝ := by
   apply rel_antisymm
   · by_cases h : ∃ x, ¬Φ x
@@ -223,6 +245,46 @@ theorem ofProp_forall {β} {Φ : β → Prop} :
       exact heq ▸ le_top _
   · exact ofProp_forall_le
 
+@[deprecated CompleteLattice.le_of_le_ofProp (since := "2026-09-24")]
+theorem ofProp_elim {φ : Prop} (h1 : Q ⊑ (⌜φ⌝ : l)) (h2 : φ → Q ⊑ R) : Q ⊑ R :=
+  CompleteLattice.le_of_le_ofProp h1 h2
+@[deprecated CompleteLattice.ofProp_mono (since := "2026-09-24")]
+theorem ofProp_mono {φ₁ φ₂ : Prop} (h : φ₁ → φ₂) : ⌜φ₁⌝ ⊑ (⌜φ₂⌝ : l) :=
+  CompleteLattice.ofProp_mono h
+@[deprecated CompleteLattice.ofProp_congr (since := "2026-09-24")]
+theorem ofProp_congr {φ₁ φ₂ : Prop} (h : φ₁ ↔ φ₂) : (⌜φ₁⌝ : l) = ⌜φ₂⌝ :=
+  CompleteLattice.ofProp_congr h
+@[deprecated CompleteLattice.ofProp_meet_le +typeChanged (since := "2026-09-24")]
+theorem ofProp_meet_le (p : Prop) (x rhs : l) :
+    (p → x ⊑ rhs) → ⌜p⌝ ⊓ x ⊑ rhs :=
+  CompleteLattice.ofProp_meet_le
+@[deprecated CompleteLattice.ofProp_meet_le (since := "2026-09-24")]
+theorem ofProp_meet_le_left {φ : Prop} (h : φ → Q ⊑ R) : (⌜φ⌝ : l) ⊓ Q ⊑ R :=
+  CompleteLattice.ofProp_meet_le h
+@[deprecated CompleteLattice.meet_ofProp_le (since := "2026-09-24")]
+theorem ofProp_meet_le_right {φ : Prop} (h : φ → Q ⊑ R) : Q ⊓ (⌜φ⌝ : l) ⊑ R :=
+  CompleteLattice.meet_ofProp_le h
+@[deprecated CompleteLattice.ofProp_eq_top (since := "2026-09-24")]
+theorem ofProp_eq_top {φ : Prop} (h : φ) : (⌜φ⌝ : l) = ⊤ :=
+  CompleteLattice.ofProp_eq_top h
+@[deprecated CompleteLattice.ofProp_meet_ofProp (since := "2026-09-24")]
+theorem ofProp_and {φ₁ φ₂ : Prop} : (⌜φ₁⌝ : l) ⊓ ⌜φ₂⌝ = ⌜φ₁ ∧ φ₂⌝ :=
+  CompleteLattice.ofProp_meet_ofProp
+@[deprecated CompleteLattice.ofProp_join_ofProp (since := "2026-09-24")]
+theorem ofProp_or {φ₁ φ₂ : Prop} : (⌜φ₁⌝ : l) ⊔ ⌜φ₂⌝ = ⌜φ₁ ∨ φ₂⌝ :=
+  CompleteLattice.ofProp_join_ofProp
+@[deprecated CompleteLattice.ofProp_forall_le (since := "2026-09-24")]
+theorem ofProp_forall_le {β} {Φ : β → Prop} : (⌜∀ x, Φ x⌝ : l) ⊑ iInf (fun x => ⌜Φ x⌝) :=
+  CompleteLattice.ofProp_forall_le
+@[deprecated CompleteLattice.iSup_ofProp (since := "2026-09-24")]
+theorem ofProp_exists {β} {Φ : β → Prop} :
+    iSup (fun x => (⌜Φ x⌝ : l)) = ⌜∃ x, Φ x⌝ :=
+  CompleteLattice.iSup_ofProp
+@[deprecated CompleteLattice.iInf_ofProp (since := "2026-09-24")]
+theorem ofProp_forall {β} {Φ : β → Prop} :
+    iInf (fun x => (⌜Φ x⌝ : l)) = ⌜∀ x, Φ x⌝ :=
+  CompleteLattice.iInf_ofProp
+
 end Lemmas
 
 /-- Frame a single state coordinate: from the function-order premise `(fun u => ⌜u = s⌝ ⊓ pre) ⊑ Q`
@@ -231,7 +293,7 @@ conclude the point entailment `pre ⊑ Q s`. Instantiating the premise at `u := 
 function-order goal `(fun u⃗ => ⌜u⃗ = s⃗⌝ ⊓ pre) ⊑ Q`. -/
 theorem le_apply_of_point_meet_le {σ : Type u} {β : Type v} [CompleteLattice β]
     (s : σ) (pre : β) (Q : σ → β) (h : (fun u => ⌜u = s⌝ ⊓ pre) ⊑ Q) : pre ⊑ Q s :=
-  (CompleteLattice.ofProp_intro_r (s = s) pre (Q s)).mp (h s) rfl
+  (CompleteLattice.ofProp_meet_le_eq_imp (s = s) pre (Q s)).mp (h s) rfl
 
 end Lean.Order
 

@@ -102,6 +102,14 @@ Tries to accept an incoming connection on a listening TCP socket.
 opaque tryAccept (socket : @& Socket) : IO (Except IO.Error (Option Socket))
 
 /--
+Returns an `IO.Promise` that resolves once `socket` has a connection that `tryAccept` returns
+without waiting. The connection stays queued until it is accepted. Calling this function in
+parallel with `accept` is not supported; `cancelAccept` cancels the wait.
+-/
+@[extern "lean_uv_tcp_wait_acceptable"]
+opaque waitAcceptable (socket : @& Socket) : IO (IO.Promise (Except IO.Error Unit))
+
+/--
 Cancels the accept request of a socket.
 -/
 @[extern "lean_uv_tcp_cancel_accept"]
@@ -134,7 +142,7 @@ Enables the Nagle algorithm for a TCP socket.
 opaque noDelay (socket : @& Socket) : IO Unit
 
 /--
-Enables TCP keep-alive for a socket. If delay is less than 1 then UV_EINVAL is returned.
+Enables TCP keep-alive for a socket. If delay is less than 1 then an `IO.Error.invalidArgument` is returned.
 -/
 @[extern "lean_uv_tcp_keepalive"]
 opaque keepAlive (socket : @& Socket) (enable : Int8) (delay : UInt32) : IO Unit

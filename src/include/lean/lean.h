@@ -15,6 +15,18 @@ Author: Leonardo de Moura
 #include <intrin.h>
 #endif
 
+#ifndef __has_builtin
+#  define __has_builtin(x) 0
+#endif
+
+// The bundled toolchain omits math.h; only the fallback implementations need it.
+#if !__has_builtin(__builtin_elementwise_minimum) || \
+    !__has_builtin(__builtin_elementwise_minimumnum) || \
+    !__has_builtin(__builtin_elementwise_maximum) || \
+    !__has_builtin(__builtin_elementwise_maximumnum)
+#include <math.h>
+#endif
+
 #include <lean/config.h>
 
 #ifdef LEAN_MIMALLOC
@@ -651,9 +663,26 @@ static inline _Atomic(int) * lean_get_rc_mt_addr(lean_object* o) {
    the band, and the room between `LEAN_RC_STICKY` and INT_MIN, are what bound how far such adjustments can
    move a frozen count: it takes more of them in flight at once than the band is wide to lift the count back
    out or to wrap it past INT_MIN. `LEAN_RC_INC_MAX` bounds what a single one of them contributes. */
-// sync with tests/elab/rc_sticky_thresholds.lean (`LEAN_RC_STICKY`, `LEAN_RC_STICKY_DROP`)
+// sync with tests/elab/rc_model.lean (`LEAN_RC_STICKY`, `LEAN_RC_STICKY_DROP`)
 #define LEAN_RC_STICKY      (INT_MIN + 0x10000000)
 #define LEAN_RC_STICKY_DROP (INT_MIN + 0x20000000)
+
+/* Whether the count of `o` is thread-shared and not stuck, that is, one that increments still
+   adjust. Read as unsigned, a persistent count (0), a single-threaded count and a stuck count all
+   fall below every such count, so one comparison rejects them all. */
+// sync with tests/elab/rc_model.lean (`isUnstuckMt_unsigned`)
+static inline bool lean_is_unstuck_mt(lean_object * o) {
+    return (unsigned)lean_internal_get_rc(o) > (unsigned)LEAN_RC_STICKY;
+}
+
+/* Whether the count of `o` is one no drop will ever free: persistent, or at or below the drop
+   threshold. Read as unsigned, both fall below every unstuck thread-shared count, so one comparison
+   catches both; so would a single-threaded count, which callers must have excluded first. */
+// sync with tests/elab/rc_model.lean (`isNeverFreed_unsigned`)
+static inline bool lean_is_never_freed(lean_object * o) {
+    assert(!lean_is_st(o));
+    return (unsigned)lean_internal_get_rc(o) <= (unsigned)LEAN_RC_STICKY_DROP;
+}
 
 /* Largest `n` that `lean_inc_ref_n` adjusts the count by inline; above this it defers to
    `lean_inc_ref_huge_n`, which either applies the whole `n` or leaves the object frozen. Overflow
@@ -662,13 +691,22 @@ static inline _Atomic(int) * lean_get_rc_mt_addr(lean_object* o) {
    of the room below `LEAN_RC_STICKY` one increment can consume, leaving the rest as margin against
    adjustments in flight on other threads. Code generation only ever emits `n` in the low thousands,
    so a constant `n` folds this test away and never reaches the bound. */
-// sync with tests/elab/rc_sticky_thresholds.lean (`LEAN_RC_INC_MAX`)
+// sync with tests/elab/rc_model.lean (`LEAN_RC_INC_MAX`)
 #define LEAN_RC_INC_MAX ((size_t)0x10000)
+
+/* An overflowing single-threaded count lands at or below this: the inline increment wraps it into
+   `[INT_MIN, INT_MIN + LEAN_RC_INC_MAX)`, and `lean_inc_ref_huge_n` freezes it here, so
+   `lean_mark_mt` can still tell an object only one thread owns. A frozen thread-shared count stays
+   above it while at most 4094 maximal increments are in flight at once, two fewer than the sticky
+   range already allows before a frozen count wraps into the single-threaded range (i.e. about
+   equally safe to assume not to happen in practice). */
+// sync with tests/elab/rc_model.lean (`LEAN_RC_STUCK_ST`)
+#define LEAN_RC_STUCK_ST (INT_MIN + (int)LEAN_RC_INC_MAX)
 
 /* Cold path of `lean_inc_ref_n` for increments above `LEAN_RC_INC_MAX`. */
 LEAN_EXPORT void lean_inc_ref_huge_n(lean_object * o, size_t n);
 
-// sync with tests/elab/rc_sticky_thresholds.lean (`incRefN`)
+// sync with tests/elab/rc_model.lean (`incRefN`)
 static inline void lean_inc_ref_n(lean_object * o, size_t n) {
     // A count above this could wrap clean past the sticky range, on either the single-threaded or
     // the thread-shared path, so both are handed to the cold helper. The test is on `n` alone, so a
@@ -680,9 +718,7 @@ static inline void lean_inc_ref_n(lean_object * o, size_t n) {
     }
     if (LEAN_LIKELY(lean_is_st(o))) {
         lean_internal_add_rc(o, n);
-    } else if ((unsigned)lean_internal_get_rc(o) > (unsigned)LEAN_RC_STICKY) {
-        // Read as unsigned, a persistent count (0) and a sticky count both fall below every live
-        // thread-shared count, so one comparison rejects both.
+    } else if (lean_is_unstuck_mt(o)) {
 #ifdef __cplusplus
         std::atomic_fetch_sub_explicit(lean_get_rc_mt_addr(o), n, std::memory_order_relaxed);
 #else
@@ -697,7 +733,7 @@ static inline void lean_inc_ref(lean_object * o) {
 
 LEAN_EXPORT void lean_dec_ref_cold(lean_object * o);
 
-// sync with tests/elab/rc_sticky_thresholds.lean (`decRef`)
+// sync with tests/elab/rc_model.lean (`decRef`)
 static inline LEAN_ALWAYS_INLINE void lean_dec_ref(lean_object * o) {
     if (LEAN_LIKELY(lean_internal_get_rc(o) > 1)) {
         lean_internal_sub_rc(o, 1);
@@ -3361,6 +3397,90 @@ static inline double lean_int32_to_float(uint32_t a) { return (double)(int32_t) 
 static inline double lean_int64_to_float(uint64_t a) { return (double)(int64_t) a; }
 static inline double lean_isize_to_float(size_t a) { return (double)(ptrdiff_t) a; }
 
+static inline double lean_float_minimum(double a, double b) {
+#if __has_builtin(__builtin_elementwise_minimum)
+    // This path is taken when building Lean with our bundled LLVM toolchain, so you get this in
+    // all nightlies and release builds.
+    //
+    // This function is also part of the C23 standard as `fminimum`, but it will be a while until
+    // we can assume that this is available
+    return __builtin_elementwise_minimum(a, b);
+#else
+    // This is a fallback path taken if you build Lean using your system compiler and it does not
+    // have the intrinsic above (i.e. your compiler is an older Clang or a different C compiler)
+    if (isnan(a) || isnan(b))
+        return a + b;
+    if (a == b)
+        return signbit(a) ? a : b;
+    return a < b ? a : b;
+#endif
+}
+
+static inline double lean_float_minimum_number(double a, double b) {
+#if __has_builtin(__builtin_elementwise_minimumnum)
+    // This path is taken when building Lean with our bundled LLVM toolchain, so you get this in
+    // all nightlies and release builds.
+    //
+    // This function is also part of the C23 standard as `fminimum_num`, but it will be a while
+    // until we can assume that this is available
+    return __builtin_elementwise_minimumnum(a, b);
+#else
+    // This is a fallback path taken if you build Lean using your system compiler and it does not
+    // have the intrinsic above (i.e. your compiler is an older Clang or a different C compiler)
+    if (isnan(a) || isnan(b)) {
+        if (isnan(a) && isnan(b))
+            return a + b;
+        (void)(a == b);
+        return isnan(a) ? b : a;
+    }
+    if (a == b)
+        return signbit(a) ? a : b;
+    return a < b ? a : b;
+#endif
+}
+
+static inline double lean_float_maximum(double a, double b) {
+#if __has_builtin(__builtin_elementwise_maximum)
+    // This path is taken when building Lean with our bundled LLVM toolchain, so you get this in
+    // all nightlies and release builds.
+    //
+    // This function is also part of the C23 standard as `fmaximum`, but it will be a while until
+    // we can assume that this is available
+    return __builtin_elementwise_maximum(a, b);
+#else
+    // This is a fallback path taken if you build Lean using your system compiler and it does not
+    // have the intrinsic above (i.e. your compiler is an older Clang or a different C compiler)
+    if (isnan(a) || isnan(b))
+        return a + b;
+    if (a == b)
+        return signbit(a) ? b : a;
+    return a > b ? a : b;
+#endif
+}
+
+static inline double lean_float_maximum_number(double a, double b) {
+#if __has_builtin(__builtin_elementwise_maximumnum)
+    // This path is taken when building Lean with our bundled LLVM toolchain, so you get this in
+    // all nightlies and release builds.
+    //
+    // This function is also part of the C23 standard as `fmaximum_num`, but it will be a while
+    // until we can assume that this is available
+    return __builtin_elementwise_maximumnum(a, b);
+#else
+    // This is a fallback path taken if you build Lean using your system compiler and it does not
+    // have the intrinsic above (i.e. your compiler is an older Clang or a different C compiler)
+    if (isnan(a) || isnan(b)) {
+        if (isnan(a) && isnan(b))
+            return a + b;
+        (void)(a == b);
+        return isnan(a) ? b : a;
+    }
+    if (a == b)
+        return signbit(a) ? b : a;
+    return a > b ? a : b;
+#endif
+}
+
 /* float32 primitives */
 static inline uint8_t lean_float32_to_uint8(float a) {
     return 0. <= a ? (a < 256. ? (uint8_t)a : UINT8_MAX) : 0;
@@ -3440,6 +3560,90 @@ static inline float lean_isize_to_float32(size_t a) { return (float)(ptrdiff_t) 
 
 static inline float lean_float_to_float32(double a) { return (float)a; }
 static inline double lean_float32_to_float(float a) { return (double)a; }
+
+static inline float lean_float32_minimum(float a, float b) {
+#if __has_builtin(__builtin_elementwise_minimum)
+    // This path is taken when building Lean with our bundled LLVM toolchain, so you get this in
+    // all nightlies and release builds.
+    //
+    // This function is also part of the C23 standard as `fminimum`, but it will be a while until
+    // we can assume that this is available
+    return __builtin_elementwise_minimum(a, b);
+#else
+    // This is a fallback path taken if you build Lean using your system compiler and it does not
+    // have the intrinsic above (i.e. your compiler is an older Clang or a different C compiler)
+    if (isnan(a) || isnan(b))
+        return a + b;
+    if (a == b)
+        return signbit(a) ? a : b;
+    return a < b ? a : b;
+#endif
+}
+
+static inline float lean_float32_minimum_number(float a, float b) {
+#if __has_builtin(__builtin_elementwise_minimumnum)
+    // This path is taken when building Lean with our bundled LLVM toolchain, so you get this in
+    // all nightlies and release builds.
+    //
+    // This function is also part of the C23 standard as `fminimum_num`, but it will be a while
+    // until we can assume that this is available
+    return __builtin_elementwise_minimumnum(a, b);
+#else
+    // This is a fallback path taken if you build Lean using your system compiler and it does not
+    // have the intrinsic above (i.e. your compiler is an older Clang or a different C compiler)
+    if (isnan(a) || isnan(b)) {
+        if (isnan(a) && isnan(b))
+            return a + b;
+        (void)(a == b);
+        return isnan(a) ? b : a;
+    }
+    if (a == b)
+        return signbit(a) ? a : b;
+    return a < b ? a : b;
+#endif
+}
+
+static inline float lean_float32_maximum(float a, float b) {
+#if __has_builtin(__builtin_elementwise_maximum)
+    // This path is taken when building Lean with our bundled LLVM toolchain, so you get this in
+    // all nightlies and release builds.
+    //
+    // This function is also part of the C23 standard as `fmaximum`, but it will be a while until
+    // we can assume that this is available
+    return __builtin_elementwise_maximum(a, b);
+#else
+    // This is a fallback path taken if you build Lean using your system compiler and it does not
+    // have the intrinsic above (i.e. your compiler is an older Clang or a different C compiler)
+    if (isnan(a) || isnan(b))
+        return a + b;
+    if (a == b)
+        return signbit(a) ? b : a;
+    return a > b ? a : b;
+#endif
+}
+
+static inline float lean_float32_maximum_number(float a, float b) {
+#if __has_builtin(__builtin_elementwise_maximumnum)
+    // This path is taken when building Lean with our bundled LLVM toolchain, so you get this in
+    // all nightlies and release builds.
+    //
+    // This function is also part of the C23 standard as `fmaximum_num`, but it will be a while
+    // until we can assume that this is available
+    return __builtin_elementwise_maximumnum(a, b);
+#else
+    // This is a fallback path taken if you build Lean using your system compiler and it does not
+    // have the intrinsic above (i.e. your compiler is an older Clang or a different C compiler)
+    if (isnan(a) || isnan(b)) {
+        if (isnan(a) && isnan(b))
+            return a + b;
+        (void)(a == b);
+        return isnan(a) ? b : a;
+    }
+    if (a == b)
+        return signbit(a) ? b : a;
+    return a > b ? a : b;
+#endif
+}
 
 /* Efficient C implementations of defns used by the compiler */
 static inline size_t lean_hashmap_mk_idx(lean_obj_arg sz, uint64_t hash) {

@@ -30,6 +30,7 @@ structure Semiring where
   mulFn?         : Option Expr := none
   powFn?         : Option Expr := none
   natCastFn?     : Option Expr := none
+  natSMulFn?     : Option Expr := none
   deriving Inhabited
 
 /-- Classification state for a type with a `Ring` instance. -/
@@ -51,6 +52,8 @@ structure Ring where
   powFn?         : Option Expr := none
   intCastFn?     : Option Expr := none
   natCastFn?     : Option Expr := none
+  natSMulFn?     : Option Expr := none
+  intSMulFn?     : Option Expr := none
   one?           : Option Expr := none
   deriving Inhabited
 
@@ -58,6 +61,8 @@ structure Ring where
 structure CommRing extends Ring where
   /-- Inverse function if `fieldInst?` is `some inst` -/
   invFn?             : Option Expr := none
+  /-- Division function if `fieldInst?` is `some inst` -/
+  divFn?             : Option Expr := none
   /--
   If this is a `OfSemiring.Q α` ring, this field contains the
   `semiringId` for `α`.
@@ -123,9 +128,13 @@ structure Order where
   ringId?            : Option Nat
   /-- `true` if `ringId?` indexes `rings`, `false` if it indexes `ncRings` -/
   isCommRing         : Bool
+  /-- Id of the semiring classification (`semirings` or `ncSemirings`) when the type is an ordered semiring that is not a ring. -/
+  semiringId?        : Option Nat := none
+  /-- `true` if `semiringId?` indexes `semirings`, `false` if it indexes `ncSemirings` -/
+  isCommSemiring     : Bool := true
   /-- `Ring` instance if available -/
   ringInst?          : Option Expr
-  /-- `OrderedRing` instance if available -/
+  /-- `OrderedRing` instance if available (with the semiring instance of `ringId?`, or of `semiringId?`) -/
   orderedRingInst?   : Option Expr
   /-- Canonical `LE.le type leInst` -/
   leFn               : Expr

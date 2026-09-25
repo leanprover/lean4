@@ -36,11 +36,12 @@ void lean_uv_tcp_socket_finalizer(void* ptr) {
     lean_always_assert(tcp_socket->m_promise_read == nullptr);
     lean_always_assert(tcp_socket->m_byte_array == nullptr);
 
-    /// It's changing here because the object is being freed in the finalizer, and we need the data
-    /// inside of it.
-    tcp_socket->m_uv_tcp->data = ptr;
-
     event_loop_lock(&global_ev);
+
+    // The close callback needs the struct, since the object is being freed. Rewritten under the lock
+    // because the loop thread reads `data` as the Lean object in every callback until `uv_close`: a
+    // TCP listen callback runs without the loop holding a reference, so it can race this finalizer.
+    tcp_socket->m_uv_tcp->data = ptr;
 
     uv_close((uv_handle_t*)tcp_socket->m_uv_tcp, [](uv_handle_t* handle) {
         lean_uv_tcp_socket_object* tcp_socket = (lean_uv_tcp_socket_object*)handle->data;
@@ -103,6 +104,8 @@ extern "C" LEAN_EXPORT lean_obj_res lean_uv_tcp_new() {
     tcp_socket->m_byte_array = nullptr;
     tcp_socket->m_client = nullptr;
     tcp_socket->m_shutdown_requested = false;
+    tcp_socket->m_listening = false;
+    tcp_socket->m_pending_connections = 0;
 
     uv_tcp_t* uv_tcp = (uv_tcp_t*)malloc(sizeof(uv_tcp_t));
     if (uv_tcp == nullptr) {
@@ -298,6 +301,11 @@ extern "C" LEAN_EXPORT lean_obj_res lean_uv_tcp_recv(b_obj_arg socket, uint64_t 
         return lean_io_result_mk_error(lean_decode_uv_error(UV_EALREADY, nullptr));
     }
 
+    if (lean_object * size_error = lean_uv_recv_size_error(buffer_size)) {
+        event_loop_unlock(&global_ev);
+        return size_error;
+    }
+
     lean_object* byte_array = lean_alloc_sarray(1, 0, buffer_size);
     tcp_socket->m_byte_array = byte_array;
 
@@ -328,7 +336,7 @@ extern "C" LEAN_EXPORT lean_obj_res lean_uv_tcp_recv(b_obj_arg socket, uint64_t 
         tcp_socket->m_byte_array = nullptr;
 
         if (nread >= 0) {
-            lean_sarray_set_size(byte_array, nread);
+            byte_array = lean_uv_fit_read_buffer(byte_array, nread);
             lean_promise_resolve(mk_except_ok(lean::mk_option_some(byte_array)), promise);
         } else if (nread == UV_EOF) {
             lean_dec(byte_array);
@@ -445,18 +453,21 @@ extern "C" LEAN_EXPORT lean_obj_res lean_uv_tcp_cancel_recv(b_obj_arg socket) {
     uv_read_stop((uv_stream_t*)tcp_socket->m_uv_tcp);
 
     lean_object* promise = tcp_socket->m_promise_read;
-    lean_dec(promise);
-    tcp_socket->m_promise_read = nullptr;
-
     lean_object* byte_array = tcp_socket->m_byte_array;
+
+    tcp_socket->m_promise_read = nullptr;
+    tcp_socket->m_byte_array = nullptr;
+
+    event_loop_unlock(&global_ev);
+
+    lean_dec(promise);
+
     if (byte_array != nullptr) {
         lean_dec(byte_array);
-        tcp_socket->m_byte_array = nullptr;
     }
 
     lean_dec(socket);
 
-    event_loop_unlock(&global_ev);
     return lean_io_result_mk_ok(lean_box(0));
 }
 
@@ -485,42 +496,49 @@ extern "C" LEAN_EXPORT lean_obj_res lean_uv_tcp_listen(b_obj_arg socket, int32_t
     event_loop_lock(&global_ev);
 
     int result = uv_listen((uv_stream_t*)tcp_socket->m_uv_tcp, backlog, [](uv_stream_t* stream, int status) {
-        lean_uv_tcp_socket_object* tcp_socket = lean_to_uv_tcp_socket((lean_object*)stream->data);
-
-        if (tcp_socket->m_promise_accept == nullptr) {
-            return;
-        }
+        lean_object* socket = (lean_object*)stream->data;
+        lean_uv_tcp_socket_object* tcp_socket = lean_to_uv_tcp_socket(socket);
 
         lean_object* promise = tcp_socket->m_promise_accept;
+        lean_object* client = tcp_socket->m_client;
 
-        if (status < 0) {
-            lean_promise_resolve_with_code(status, promise);
-            lean_dec(promise);
-            tcp_socket->m_promise_accept = nullptr;
+        // libuv reports a connection once and keeps it queued until `uv_accept` takes it.
+        if (status >= 0 && client == nullptr) {
+            tcp_socket->m_pending_connections++;
+        }
+
+        if (promise == nullptr) {
             return;
         }
 
-        lean_object* client = tcp_socket->m_client;
-        lean_uv_tcp_socket_object* client_socket = lean_to_uv_tcp_socket(client);
+        int result = status;
 
-        int result = uv_accept((uv_stream_t*)tcp_socket->m_uv_tcp, (uv_stream_t*)client_socket->m_uv_tcp);
+        if (status >= 0 && client != nullptr) {
+            lean_uv_tcp_socket_object* client_socket = lean_to_uv_tcp_socket(client);
+            result = uv_accept((uv_stream_t*)tcp_socket->m_uv_tcp, (uv_stream_t*)client_socket->m_uv_tcp);
+        }
 
         tcp_socket->m_promise_accept = nullptr;
         tcp_socket->m_client = nullptr;
 
+        // The accept increases the count and then the listen decreases
+        lean_dec(socket);
+
         if (result < 0) {
-            lean_dec(client);
+            if (client != nullptr) {
+                lean_dec(client);
+            }
             lean_promise_resolve_with_code(result, promise);
-            lean_dec(promise);
-            return;
+        } else {
+            lean_promise_resolve(mk_except_ok(client != nullptr ? client : lean_box(0)), promise);
         }
 
-        lean_promise_resolve(mk_except_ok(client), promise);
         lean_dec(promise);
-
-        // The accept increases the count and then the listen decreases
-        lean_dec((lean_object*)stream->data);
     });
+
+    if (result == 0) {
+        tcp_socket->m_listening = true;
+    }
 
     event_loop_unlock(&global_ev);
 
@@ -529,6 +547,11 @@ extern "C" LEAN_EXPORT lean_obj_res lean_uv_tcp_listen(b_obj_arg socket, int32_t
     }
 
     return lean_io_result_mk_ok(lean_box(0));
+}
+
+// An accept on a socket that is not listening would wait for a connection that never arrives.
+static lean_obj_res lean_uv_tcp_not_listening_error() {
+    return lean_io_result_mk_error(lean_mk_io_error_invalid_argument(EINVAL, mk_string("socket is not listening")));
 }
 
 /* Std.Internal.UV.TCP.Socket.accept (socket : @& Socket) : IO (IO.Promise (Except IO.Error Socket)) */
@@ -541,6 +564,11 @@ extern "C" LEAN_EXPORT lean_obj_res lean_uv_tcp_accept(b_obj_arg socket) {
     if (tcp_socket->m_promise_accept != nullptr) {
         event_loop_unlock(&global_ev);
         return lean_io_result_mk_error(lean_mk_io_error_other_error(-UV_EALREADY, mk_string("parallel accept is not allowed! consider binding multiple sockets to the same address and accepting on them instead")));
+    }
+
+    if (!tcp_socket->m_listening) {
+        event_loop_unlock(&global_ev);
+        return lean_uv_tcp_not_listening_error();
     }
 
     lean_object* client_res = lean_uv_tcp_new();
@@ -558,6 +586,11 @@ extern "C" LEAN_EXPORT lean_obj_res lean_uv_tcp_accept(b_obj_arg socket) {
     lean_uv_tcp_socket_object* client_socket = lean_to_uv_tcp_socket(client);
 
     int result = uv_accept((uv_stream_t*)tcp_socket->m_uv_tcp, (uv_stream_t*)client_socket->m_uv_tcp);
+
+    // `uv_accept` takes the queued connection unless there is none, even when it fails.
+    if (result != UV_EAGAIN && tcp_socket->m_pending_connections > 0) {
+        tcp_socket->m_pending_connections--;
+    }
 
     if (result < 0 && result != UV_EAGAIN) {
         event_loop_unlock(&global_ev);
@@ -592,6 +625,11 @@ extern "C" LEAN_EXPORT lean_obj_res lean_uv_tcp_try_accept(b_obj_arg socket) {
         return lean_io_result_mk_error(lean_mk_io_error_other_error(-UV_EALREADY, mk_string("parallel accept is not allowed! consider binding multiple sockets to the same address and accepting on them instead")));
     }
 
+    if (!tcp_socket->m_listening) {
+        event_loop_unlock(&global_ev);
+        return lean_uv_tcp_not_listening_error();
+    }
+
     lean_object* client_res = lean_uv_tcp_new();
 
     if (lean_io_result_is_error(client_res)) {
@@ -603,6 +641,11 @@ extern "C" LEAN_EXPORT lean_obj_res lean_uv_tcp_try_accept(b_obj_arg socket) {
     lean_uv_tcp_socket_object* client_socket = lean_to_uv_tcp_socket(client);
 
     int result = uv_accept((uv_stream_t*)tcp_socket->m_uv_tcp, (uv_stream_t*)client_socket->m_uv_tcp);
+
+    // `uv_accept` takes the queued connection unless there is none, even when it fails.
+    if (result != UV_EAGAIN && tcp_socket->m_pending_connections > 0) {
+        tcp_socket->m_pending_connections--;
+    }
 
     if (result < 0 && result != UV_EAGAIN) {
         event_loop_unlock(&global_ev);
@@ -620,6 +663,41 @@ extern "C" LEAN_EXPORT lean_obj_res lean_uv_tcp_try_accept(b_obj_arg socket) {
 
 
 
+/* Std.Internal.UV.TCP.Socket.waitAcceptable (socket : @& Socket) : IO (IO.Promise (Except IO.Error Unit)) */
+extern "C" LEAN_EXPORT lean_obj_res lean_uv_tcp_wait_acceptable(b_obj_arg socket) {
+    lean_uv_tcp_socket_object* tcp_socket = lean_to_uv_tcp_socket(socket);
+
+    event_loop_lock(&global_ev);
+
+    if (tcp_socket->m_promise_accept != nullptr) {
+        event_loop_unlock(&global_ev);
+        return lean_io_result_mk_error(lean_decode_uv_error(UV_EALREADY, nullptr));
+    }
+
+    if (!tcp_socket->m_listening) {
+        event_loop_unlock(&global_ev);
+        return lean_uv_tcp_not_listening_error();
+    }
+
+    lean_object* promise = lean_promise_new();
+    mark_mt(promise);
+
+    if (tcp_socket->m_pending_connections > 0) {
+        event_loop_unlock(&global_ev);
+        lean_promise_resolve(mk_except_ok(lean_box(0)), promise);
+        return lean_io_result_mk_ok(promise);
+    }
+
+    // The event loop owns the object. It will be released in the listen
+    lean_inc(socket);
+    lean_inc(promise);
+    tcp_socket->m_promise_accept = promise;
+
+    event_loop_unlock(&global_ev);
+
+    return lean_io_result_mk_ok(promise);
+}
+
 /* Std.Internal.UV.TCP.Socket.cancelAccept (socket : @& Socket) : IO Unit */
 extern "C" LEAN_EXPORT lean_obj_res lean_uv_tcp_cancel_accept(b_obj_arg socket) {
     lean_uv_tcp_socket_object* tcp_socket = lean_to_uv_tcp_socket(socket);
@@ -632,19 +710,21 @@ extern "C" LEAN_EXPORT lean_obj_res lean_uv_tcp_cancel_accept(b_obj_arg socket) 
     }
 
     lean_object* promise = tcp_socket->m_promise_accept;
-    lean_dec(promise);
-    tcp_socket->m_promise_accept = nullptr;
-
     lean_object* client = tcp_socket->m_client;
+
+    tcp_socket->m_promise_accept = nullptr;
+    tcp_socket->m_client = nullptr;
+
+    event_loop_unlock(&global_ev);
+
+    lean_dec(promise);
 
     if (client != nullptr) {
         lean_dec(client);
-        tcp_socket->m_client = nullptr;
     }
 
     lean_dec(socket);
 
-    event_loop_unlock(&global_ev);
     return lean_io_result_mk_ok(lean_box(0));
 }
 
@@ -770,11 +850,12 @@ extern "C" LEAN_EXPORT lean_obj_res lean_uv_tcp_nodelay(b_obj_arg socket) {
 }
 
 /* Std.Internal.UV.TCP.Socket.keepAlive (socket : @& Socket) (enable : Int8) (delay : UInt32) : IO Unit */
-extern "C" LEAN_EXPORT lean_obj_res lean_uv_tcp_keepalive(b_obj_arg socket, int32_t enable, uint32_t delay) {
+extern "C" LEAN_EXPORT lean_obj_res lean_uv_tcp_keepalive(b_obj_arg socket, uint8_t enable, uint32_t delay) {
     lean_uv_tcp_socket_object* tcp_socket = lean_to_uv_tcp_socket(socket);
 
     event_loop_lock(&global_ev);
-    int result = uv_tcp_keepalive(tcp_socket->m_uv_tcp, enable, delay);
+    // Lean passes `Int8` as `uint8_t`.
+    int result = uv_tcp_keepalive(tcp_socket->m_uv_tcp, (int8_t)enable, delay);
     event_loop_unlock(&global_ev);
 
     if (result < 0) {
@@ -830,6 +911,12 @@ extern "C" LEAN_EXPORT lean_obj_res lean_uv_tcp_cancel_accept(b_obj_arg socket) 
     );
 }
 
+extern "C" LEAN_EXPORT lean_obj_res lean_uv_tcp_wait_acceptable(b_obj_arg socket) {
+    lean_always_assert(
+        false && ("Please build a version of Lean4 with libuv to invoke this.")
+    );
+}
+
 extern "C" LEAN_EXPORT lean_obj_res lean_uv_tcp_accept(b_obj_arg socket) {
     lean_always_assert(
         false && ("Please build a version of Lean4 with libuv to invoke this.")
@@ -864,7 +951,7 @@ extern "C" LEAN_EXPORT lean_obj_res lean_uv_tcp_nodelay(b_obj_arg socket) {
     );
 }
 
-extern "C" LEAN_EXPORT lean_obj_res lean_uv_tcp_keepalive(b_obj_arg socket, int32_t enable, uint32_t delay) {
+extern "C" LEAN_EXPORT lean_obj_res lean_uv_tcp_keepalive(b_obj_arg socket, uint8_t enable, uint32_t delay) {
     lean_always_assert(
         false && ("Please build a version of Lean4 with libuv to invoke this.")
     );

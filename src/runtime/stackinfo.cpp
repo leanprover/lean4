@@ -107,19 +107,6 @@ void save_stack_info(bool main) {
     }
 }
 
-size_t get_used_stack_size() {
-    size_t curr_stack = reinterpret_cast<size_t>(get_stack_pointer());
-    return g_stack_base - curr_stack;
-}
-
-size_t get_available_stack_size() {
-    size_t sz = get_used_stack_size();
-    if (sz > g_stack_size)
-        return 0;
-    else
-        return g_stack_size - sz;
-}
-
 // separate definition to allow breakpoint in debugger
 void throw_stack_space_exception(char const * component_name) {
     throw stack_space_exception(component_name);

@@ -124,10 +124,10 @@ structure State where
   newLocalDeclsForMVars : Array LocalDecl := #[]
   newLetDecls           : Array LocalDecl := #[]
   /--
-  Set when we could not establish that the value has the given type using `isDefEq`
-  (see `mkValueTypeClosureAux`). Then `zetaDeltaFVarIds` may be incomplete, and we conservatively
-  treat every let-declaration as dependent, i.e., we keep it as a `let` instead of lambda
-  abstracting it.
+  Set when `check` fails in `preprocess`, or when we could not establish that the value has the
+  given type using `isDefEq` (see `mkValueTypeClosureAux`). Then `zetaDeltaFVarIds` may be
+  incomplete, and we conservatively treat every let-declaration as dependent, i.e., we keep it as
+  a `let` instead of lambda abstracting it.
   -/
   allLetDeclsDependent  : Bool := false
   nextExprIdx           : Nat := 1
@@ -186,7 +186,15 @@ def preprocess (e : Expr) : ClosureM Expr := do
   -- which let-decls are dependent. We say a let-decl is dependent if its lambda abstraction is type incorrect.
   -- There is nothing to find when the local context has no let-decls.
   if !ctx.zetaDelta && ctx.hasLetDecls then
-    check e
+    /-
+    As in `mkValueTypeClosureAux`, we use `withNewMCtxDepth` so that metavariables occurring in `e`
+    are not assigned as a side effect. If the check fails, `zetaDeltaFVarIds` may be incomplete,
+    and we conservatively keep every let-declaration as a `let`.
+    -/
+    try
+      withNewMCtxDepth <| check e
+    catch _ =>
+      modify fun s => { s with allLetDeclsDependent := true }
   pure e
 
 /--
@@ -376,6 +384,11 @@ def mkValueTypeClosureAux (type : Expr) (value : Expr) : ClosureM (Expr × Expr)
       provided a value that does not have the given type), we do not know which let-declarations
       must be unfolded, and we conservatively keep every let-declaration as a `let`.
       Note that `isDefEq` restores `zetaDeltaFVarIds` when it fails.
+
+      Setting `allLetDeclsDependent` is also a workaround for a limitation of `isDefEq`: it can fail
+      on goals that hold without assigning any metavariable. For example, given a let-variable
+      `E := ?α`, `?α =?= E` fails at a new metavariable context depth instead of unfolding `E`
+      (see the `testAux` test in `tests/elab/13408.lean`).
       -/
       unless ← withNewMCtxDepth <| withTransparency .all <| isDefEq (← inferType value) type do
         modify fun s => { s with allLetDeclsDependent := true }

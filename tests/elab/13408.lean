@@ -56,8 +56,10 @@ run_meta printAux "foo._aux_1_1"
 
 /-!
 Direct use of `mkAuxDefinition`, where `type` and `value` contain metavariables.
-Here `v : E` holds by unfolding `E := ?α`, but `isDefEq` cannot establish it without assigning
-metavariables, so all let-variables are kept as `let`s. The metavariables must not be assigned.
+Here `v : E` holds by unfolding `E := ?α`, but `isDefEq` fails to establish it: at a new
+metavariable context depth, `?α =?= E` fails instead of unfolding `E`. This is a limitation of
+`isDefEq`, and `allLetDeclsDependent` works around it by keeping all let-variables as `let`s.
+The metavariables must not be assigned.
 -/
 
 /-- info: testAux : (_x_1 : Type) →

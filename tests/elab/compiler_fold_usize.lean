@@ -151,11 +151,9 @@ public def testAddPos : USize :=
   x1 + x2
 
 /--
-trace: [Compiler.saveMono] size: 3
+trace: [Compiler.saveMono] size: 1
     def testAddNoAction : USize :=
-      let x1 := 1;
-      let x2 := 4294967296;
-      let _x.1 := USize.add x1 x2;
+      let _x.1 := 4294967297;
       return _x.1
 -/
 #guard_msgs in
@@ -179,11 +177,9 @@ public def testSubPos : USize :=
   x1 - x2
 
 /--
-trace: [Compiler.saveMono] size: 3
+trace: [Compiler.saveMono] size: 1
     def testSubNoAction : USize :=
-      let x1 := 11;
-      let x2 := 53;
-      let _x.1 := USize.sub x1 x2;
+      let _x.1 := 18446744073709551574;
       return _x.1
 -/
 #guard_msgs in
@@ -207,11 +203,9 @@ public def testMulPos : USize :=
   x1 * x2
 
 /--
-trace: [Compiler.saveMono] size: 3
+trace: [Compiler.saveMono] size: 1
     def testMulNoAction : USize :=
-      let x1 := 3;
-      let x2 := 4294967296;
-      let _x.1 := USize.mul x1 x2;
+      let _x.1 := 12884901888;
       return _x.1
 -/
 #guard_msgs in
@@ -284,11 +278,9 @@ public def testLandPos : USize :=
   x1 &&& x2
 
 /--
-trace: [Compiler.saveMono] size: 3
+trace: [Compiler.saveMono] size: 1
     def testLandNoOp : USize :=
-      let x1 := 4294967297;
-      let x2 := 4294967296;
-      let _x.1 := USize.land x1 x2;
+      let _x.1 := 4294967296;
       return _x.1
 -/
 #guard_msgs in
@@ -312,11 +304,9 @@ public def testLorPos : USize :=
   x1 ||| x2
 
 /--
-trace: [Compiler.saveMono] size: 3
+trace: [Compiler.saveMono] size: 1
     def testLorNoOp : USize :=
-      let x1 := 4294967297;
-      let x2 := 4294967296;
-      let _x.1 := USize.lor x1 x2;
+      let _x.1 := 4294967297;
       return _x.1
 -/
 #guard_msgs in
@@ -340,11 +330,9 @@ public def testXorPos : USize :=
   x1 ^^^ x2
 
 /--
-trace: [Compiler.saveMono] size: 3
+trace: [Compiler.saveMono] size: 1
     def testXorNoOp : USize :=
-      let x1 := 18446497783090249727;
-      let x2 := 1311784886829608959;
-      let _x.1 := USize.xor x1 x2;
+      let _x.1 := 17134924002497368064;
       return _x.1
 -/
 #guard_msgs in

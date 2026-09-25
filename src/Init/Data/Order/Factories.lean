@@ -200,6 +200,11 @@ This only makes sense for asymmetric `LT α` instances (see `Std.Asymm`).
 public def _root_.LE.ofLT (α : Type u) [LT α] : LE α where
   le a b := ¬ b < a
 
+public instance [LT α] [DecidableLT α] :
+    letI : LE α := LE.ofLT _
+    DecidableLE α :=
+  fun _ _ => inferInstanceAs <| Decidable (Not _)
+
 /--
 The `LE α` instance obtained from an asymmetric `LT α` instance is compatible with said
 `LT α` instance.
@@ -227,6 +232,12 @@ public theorem IsLinearPreorder.of_lt {α : Type u} [LT α]
     le_refl a := by
       open Classical in simpa [LE.ofLT] using! lt_asymm.asymm a a }
 
+public instance {α : Type u} [LT α] [Std.Asymm (α := α) (· < ·)]
+    [Trans (α := α) (¬ · < ·) (¬ · < ·) (¬ · < ·)] :
+    letI : LE α := LE.ofLT α
+    IsLinearPreorder α :=
+  .of_lt
+
 /--
 If an `LT α` instance is asymmetric and its negation is transitive and antisymmetric, then
 `LE.ofLT α` represents a linear order.
@@ -241,6 +252,12 @@ public theorem IsLinearOrder.of_lt {α : Type u} [LT α]
   haveI : IsLinearPreorder α := .of_lt
   { le_antisymm := by
       simpa [LE.ofLT] using! fun a b hab hba => lt_trichotomous.trichotomous a b hba hab }
+
+public instance {α : Type u} [LT α] [Std.Asymm (α := α) (· < ·)]
+    [Trans (α := α) (¬ · < ·) (¬ · < ·) (¬ · < ·)] [Trichotomous (α := α) (· < ·)] :
+    letI : LE α := LE.ofLT α
+    IsLinearOrder α :=
+  .of_lt
 
 /--
 This lemma characterizes in terms of `LT α` when a `Min α` instance

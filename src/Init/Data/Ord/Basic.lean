@@ -287,6 +287,8 @@ theorem then_assoc : ∀ (o₁ o₂ o₃ : Ordering), (o₁.then o₂).then o₃
 
 theorem isLE_then_iff_or : ∀ {o₁ o₂ : Ordering}, (o₁.then o₂).isLE ↔ o₁ = lt ∨ (o₁ = eq ∧ o₂.isLE) := by decide
 theorem isLE_then_iff_and : ∀ {o₁ o₂ : Ordering}, (o₁.then o₂).isLE ↔ o₁.isLE ∧ (o₁ = lt ∨ o₂.isLE) := by decide
+theorem isGE_then_iff_or : ∀ {o₁ o₂ : Ordering}, (o₁.then o₂).isGE ↔ o₁ = gt ∨ (o₁ = eq ∧ o₂.isGE) := by decide
+theorem isGE_then_iff_and : ∀ {o₁ o₂ : Ordering}, (o₁.then o₂).isGE ↔ o₁.isGE ∧ (o₁ = gt ∨ o₂.isGE) := by decide
 theorem isLE_left_of_isLE_then : ∀ {o₁ o₂ : Ordering}, (o₁.then o₂).isLE → o₁.isLE := by decide
 theorem isGE_left_of_isGE_then : ∀ {o₁ o₂ : Ordering}, (o₁.then o₂).isGE → o₁.isGE := by decide
 

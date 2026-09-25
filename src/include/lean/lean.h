@@ -1286,6 +1286,7 @@ static inline bool lean_sarray_eq(b_lean_obj_arg a1, b_lean_obj_arg a2) {
 }
 static inline uint8_t lean_sarray_dec_eq(b_lean_obj_arg a1, b_lean_obj_arg a2) { return lean_sarray_eq(a1, a2); }
 
+
 /* Remark: expand sarray API after we add better support in the compiler */
 
 /* ByteArray (special case of Array of Scalars) */
@@ -1344,6 +1345,10 @@ static inline lean_obj_res lean_byte_array_set(lean_obj_arg a, b_lean_obj_arg i,
 static inline lean_obj_res lean_byte_array_fset(lean_obj_arg a, b_lean_obj_arg i, uint8_t b) {
     return lean_byte_array_uset(a, lean_unbox(i), b);
 }
+
+LEAN_EXPORT bool lean_byte_array_lt(b_lean_obj_arg s1, b_lean_obj_arg s2);
+LEAN_EXPORT uint8_t lean_byte_array_compare(b_lean_obj_arg s1, b_lean_obj_arg s2);
+static inline uint8_t lean_byte_array_dec_lt(b_lean_obj_arg s1, b_lean_obj_arg s2) { return lean_byte_array_lt(s1, s2); }
 
 /* FloatArray (special case of Array of Scalars) */
 

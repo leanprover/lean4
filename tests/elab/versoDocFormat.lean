@@ -392,7 +392,7 @@ info: "* a\n\n%%%\nx := 1\n%%%\n": preserved
     roundTrip input
 
 /--
-error: parse errors in "::: d\n%%%\nx := 1\n%%%\n:::\n"
+info: "::: d\n%%%\nx := 1\n%%%\n:::\n": preserved
 -/
 #guard_msgs in
 #eval show CommandElabM Unit from do

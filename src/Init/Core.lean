@@ -29,6 +29,11 @@ which applies to all applications of the function).
 -/
 @[simp] def inline {α : Sort u} (a : α) : α := a
 
+/--
+Mark the input to be run lazily if possible, that is, if the input is a function type.
+-/
+@[simp, noinline] abbrev lazyIfPossible {α : Sort u} (a : α) : α := a
+
 theorem id_def {α : Sort u} (a : α) : id a = a := rfl
 
 attribute [grind] id

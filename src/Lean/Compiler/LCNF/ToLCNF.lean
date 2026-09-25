@@ -852,6 +852,12 @@ where
       let f ← Core.instantiateValueLevelParams info us
       visit (f.beta e.getAppArgs)
 
+  visitLazyIfPossible (e : Expr) : M (Arg .pure) := do
+    etaIfUnderApplied e 2 do
+      let args := e.getAppArgs
+      let e := mkAppN args[1]! args[2...*]
+      visit (← etaExpandN e 1)
+
   visitApp (e : Expr) : M (Arg .pure) := do
     if let .const declName us ← CSimp.replaceConstant (← getEnv) e.getAppFn then
       checkComputable declName
@@ -877,6 +883,8 @@ where
         visitNoConfusion e
       else if let some projInfo ← getProjectionFnInfo? declName then
         visitProjFn projInfo e
+      else if declName == `lazyIfPossible then
+        visitLazyIfPossible e
       else
         e.withApp visitAppDefaultConst
     else

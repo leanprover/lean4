@@ -1329,10 +1329,13 @@ partial def createDirAll (p : FilePath) : IO Unit := do
 
 /--
 Fully remove given directory by deleting all contained files and directories in an unspecified order.
-Symlinks are deleted but not followed. Fails if any contained entry cannot be deleted or was newly
-created during execution.
+Symlinks, including `p` itself, are deleted but not followed. Fails if any contained entry cannot be
+deleted or was newly created during execution.
 -/
 partial def removeDirAll (p : FilePath) : IO Unit := do
+  if (← p.symlinkMetadata).type == .symlink then
+    removeFile p
+    return
   for ent in (← p.readDir) do
     -- Do not follow symlinks
     if (← ent.path.symlinkMetadata).type == .dir then

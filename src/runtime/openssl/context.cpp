@@ -20,7 +20,9 @@ Author: Sofia Rodrigues
 #include <limits>
 #include <memory>
 #include <string>
+#include <sys/stat.h>
 #include <unordered_set>
+#include <uv.h>
 
 #endif
 
@@ -32,19 +34,74 @@ lean_external_class * g_ssl_context_external_class = nullptr;
 
 static int reject_encrypted_pem(char *, int, int, void *) { return -1; }
 
+// PEM material the caller named: a path when `is_file`, otherwise the bytes themselves.
+struct pem_source {
+    b_obj_arg obj;
+    bool is_file;
+
+    // Reads a `Std.Internal.SSL.PEM`, whose `file` and `text` constructors each hold one string (a
+    // `FilePath` is represented by its string).
+    static pem_source of(b_obj_arg pem) { return { lean_ctor_get(pem, 0), lean_obj_tag(pem) == 0 }; }
+
+    char const * data() const { return lean_string_cstr(obj); }
+    size_t size() const { return lean_string_size(obj) - 1; }
+};
+
+// In-memory PEM is read with a length, so only a path must be free of NULs.
+static lean_obj_res reject_nul_path(pem_source src) {
+    return src.is_file ? reject_embedded_nul(src.obj) : nullptr;
+}
+
+// Reports a failure against a path. `errnum` is the `errno` the open failed with, or 0 for a
+// failure with no OS error behind it (unparsable PEM, a key that does not match its certificate).
+static lean_obj_res mk_ssl_file_error(b_obj_arg file, char const * msg, int errnum = 0) {
+    ERR_clear_error();
+
+    // libuv takes the path as UTF-8 on Windows as well, where `stat` reads it in the ANSI code page.
+    uv_fs_t req;
+    bool irregular = uv_fs_stat(nullptr, &req, lean_string_cstr(file), nullptr) == 0 &&
+                     !S_ISREG(req.statbuf.st_mode);
+    uv_fs_req_cleanup(&req);
+
+    if (irregular) {
+        lean_inc(file);
+        return lean_io_result_mk_error(lean_mk_io_error_invalid_argument_file(
+            file, EINVAL, mk_string(std::string(msg) + " (the path is not a regular file)")));
+    }
+
+    if (errnum != 0) return lean_io_result_mk_error(decode_io_error(errnum, file));
+
+    lean_inc(file);
+    return lean_io_result_mk_error(lean_mk_io_error_invalid_argument_file(
+        file, EINVAL, mk_string(msg)));
+}
+
+// Reports a failure against PEM material, naming the path when there is one to name.
+static lean_obj_res mk_pem_error(pem_source src, char const * msg) {
+    return src.is_file ? mk_ssl_file_error(src.obj, msg) : mk_ssl_invalid_argument(msg);
+}
+
+// Whether a certificate was turned away on policy grounds rather than being unreadable as PEM.
+static bool rejected_by_security_level() {
+    unsigned long err = ERR_peek_last_error();
+
+    if (ERR_GET_LIB(err) != ERR_LIB_SSL) return false;
+
+    int reason = ERR_GET_REASON(err);
+    return reason == SSL_R_EE_KEY_TOO_SMALL || reason == SSL_R_CA_KEY_TOO_SMALL ||
+           reason == SSL_R_CA_MD_TOO_WEAK;
+}
+
 // Opens `src` for reading. On failure returns nullptr and stores an IO error in `*err`.
 static BIO * open_pem_bio(pem_source src, char const * unreadable, lean_obj_res * err) {
-    // The Windows CRT hands an empty name to its invalid-parameter handler, whose default ends the
-    // process; MinGW executables install one that returns instead.
+    // The Windows CRT fails an empty name with EINVAL where POSIX reports ENOENT.
     if (src.is_file && src.size() == 0) {
         *err = lean_io_result_mk_error(decode_io_error(ENOENT, src.obj));
         return nullptr;
     }
 
     if (src.is_file) {
-        // Captured here: it tells an unopenable file apart from one holding no PEM.
         errno = 0;
-        // Binary, as OpenSSL's own loaders read: the Windows CRT's text mode ends the file at a Ctrl-Z.
         BIO * bio = BIO_new_file(src.data(), "rb");
         if (bio == nullptr) *err = mk_ssl_file_error(src.obj, unreadable, errno);
         return bio;
@@ -113,7 +170,7 @@ static void configure_ctx_options(SSL_CTX * ctx) {
         X509_CHECK_FLAG_NO_PARTIAL_WILDCARDS | X509_CHECK_FLAG_NEVER_CHECK_SUBJECT);
 }
 
-// OpenSSL's default TLS 1.3 suites, which leave out `TLS_AES_128_CCM_8_SHA256` (64-bit tag).
+// OpenSSL's default TLS 1.3 suites (`TLS_DEFAULT_CIPHERSUITES`).
 static char const * const g_tls13_suites[] = {
     "TLS_AES_256_GCM_SHA384",
     "TLS_CHACHA20_POLY1305_SHA256",
@@ -279,8 +336,6 @@ static lean_obj_res load_server_credentials(SSL_CTX * ctx, pem_source cert, pem_
             : "could not read a PEM certificate chain");
     }
 
-    ERR_clear_error();
-
     char const * unreadable_key = "could not read an unencrypted PEM private key";
     char const * mismatch = "the private key does not match the certificate";
     BIO * key_bio = open_pem_bio(key, unreadable_key, &err);
@@ -318,16 +373,8 @@ static lean_obj_res mk_server_ctx(b_obj_arg cert, b_obj_arg key) {
     pem_source cert_src = pem_source::of(cert);
     pem_source key_src = pem_source::of(key);
 
-    // In-memory PEM is read with a length, so only a path must be free of NULs.
-    if (cert_src.is_file) {
-        if (lean_obj_res err = reject_embedded_nul(cert_src.obj))
-            return err;
-    }
-
-    if (key_src.is_file) {
-        if (lean_obj_res err = reject_embedded_nul(key_src.obj))
-            return err;
-    }
+    if (lean_obj_res err = reject_nul_path(cert_src)) return err;
+    if (lean_obj_res err = reject_nul_path(key_src)) return err;
 
     lean_obj_res base_err = nullptr;
     ssl_ctx_ptr ctx = mk_ssl_ctx_base(TLS_server_method(), &base_err);
@@ -405,7 +452,13 @@ static lean_obj_res load_ca_bundle(SSL_CTX * ctx, pem_source src, bool require_a
     return nullptr;
 }
 
-static lean_obj_res mk_client_ctx(uint8_t verify_peer, uint8_t trust_system_roots, uint8_t allow_partial_chain, bool has_ca, pem_source ca) {
+static lean_obj_res mk_client_ctx(b_obj_arg ca_opt, uint8_t verify_peer, uint8_t trust_system_roots, uint8_t allow_partial_chain) {
+    bool has_ca = !lean_is_scalar(ca_opt);
+    pem_source ca = has_ca ? pem_source::of(lean_ctor_get(ca_opt, 0)) : pem_source { nullptr, false };
+
+    // Checked even when `verifyPeer` is off and the path would not be read.
+    if (lean_obj_res err = reject_nul_path(ca)) return err;
+
     if (verify_peer && !trust_system_roots && !has_ca) {
         return mk_ssl_invalid_argument(
             "no trust anchors: peer verification is on, the platform trust anchors are excluded, "
@@ -453,18 +506,6 @@ static lean_obj_res mk_client_ctx(uint8_t verify_peer, uint8_t trust_system_root
     return wrap_ssl_context(std::move(ctx));
 }
 
-static lean_obj_res mk_client_ctx_checked(b_obj_arg ca, uint8_t verify_peer, uint8_t trust_system_roots, uint8_t allow_partial_chain) {
-    bool has_ca = !lean_is_scalar(ca);
-    pem_source ca_src = has_ca ? pem_source::of(lean_ctor_get(ca, 0)) : pem_source { nullptr, false };
-
-    // Checked even when `verifyPeer` is off and the path would not be read.
-    if (has_ca && ca_src.is_file) {
-        if (lean_obj_res err = reject_embedded_nul(ca_src.obj)) return err;
-    }
-
-    return mk_client_ctx(verify_peer, trust_system_roots, allow_partial_chain, has_ca, ca_src);
-}
-
 // Initializes OpenSSL before any other call can register `atexit(OPENSSL_cleanup)`, and keeps C++
 // exceptions out of Lean code.
 template<typename F>
@@ -489,7 +530,7 @@ extern "C" LEAN_EXPORT lean_obj_res lean_ssl_ctx_mk_server(b_obj_arg cert, b_obj
 /* Std.Internal.SSL.Context.Client.mkImpl (ca : @& Option PEM) (verifyPeer trustSystemRoots allowPartialChain : Bool) : IO Context.Client */
 extern "C" LEAN_EXPORT lean_obj_res lean_ssl_ctx_mk_client(b_obj_arg ca, uint8_t verify_peer, uint8_t trust_system_roots, uint8_t allow_partial_chain) {
     return ssl_entry_point([&] {
-        return mk_client_ctx_checked(ca, verify_peer, trust_system_roots, allow_partial_chain);
+        return mk_client_ctx(ca, verify_peer, trust_system_roots, allow_partial_chain);
     });
 }
 

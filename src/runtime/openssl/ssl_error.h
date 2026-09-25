@@ -17,19 +17,6 @@ namespace lean {
 
 #ifndef LEAN_EMSCRIPTEN
 
-// PEM material the caller named: a path when `is_file`, otherwise the bytes themselves.
-struct pem_source {
-    b_obj_arg obj;
-    bool is_file;
-
-    // Reads a `Std.Internal.SSL.PEM`, whose `file` and `text` constructors each hold one string (a
-    // `FilePath` is represented by its string).
-    static pem_source of(b_obj_arg pem) { return { lean_ctor_get(pem, 0), lean_obj_tag(pem) == 0 }; }
-
-    char const * data() const { return lean_string_cstr(obj); }
-    size_t size() const { return lean_string_size(obj) - 1; }
-};
-
 // Drains the OpenSSL error queue and returns a single error message combining up to 10 entries.
 lean_object * mk_openssl_error(char const * where);
 inline lean_obj_res mk_openssl_io_error(char const * where) { return lean_io_result_mk_error(mk_openssl_error(where)); }
@@ -40,16 +27,6 @@ lean_obj_res reject_embedded_nul(b_obj_arg path);
 
 // Reports a failure with no errno behind it, discarding the queue so it cannot taint a later one.
 lean_obj_res mk_ssl_invalid_argument(char const * msg);
-
-// Reports a failure against a path. `errnum` is the `errno` the open failed with, or 0 for a
-// failure with no OS error behind it (unparsable PEM, a key that does not match its certificate).
-lean_obj_res mk_ssl_file_error(b_obj_arg file, char const * msg, int errnum = 0);
-
-// Reports a failure against PEM material, naming the path when there is one to name.
-lean_obj_res mk_pem_error(pem_source src, char const * msg);
-
-// Whether a certificate was turned away on policy grounds rather than being unreadable as PEM.
-bool rejected_by_security_level();
 
 #endif
 

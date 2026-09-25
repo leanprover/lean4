@@ -67,7 +67,8 @@ inline expr to_cnstr_when_structure(environment const & env, const lean::recurso
     expr const fn = get_app_fn(e_type);
     if (!is_constant(fn, induct_name))  // Why is this check done ? if we're reducing, we already know the recursor expression to be type-correct, checking it again here should be not useful
         return e;
-    if (length(rec_val.to_constant_val().get_lparams()) == length(const_levels(fn)))
+    names non_nested_ind_params = env.get(head(rec_val.get_all())).get_lparams();
+    if (length(rec_val.to_constant_val().get_lparams()) == length(non_nested_ind_params))
         return e; // We do not perform eta for non-singleton propositions, see implementation in the kernel
     return expand_eta_struct(env, e_type, e);
 }
@@ -84,17 +85,14 @@ inline optional<expr> inductive_reduce_rec(environment const & env, expr const &
     unsigned major_idx           = rec_val.get_major_idx();
     if (major_idx >= rec_args.size()) return none_expr(); // major premise is missing
     expr major     = rec_args[major_idx];
-    if (rec_val.is_k()) {
+    if (rec_val.is_k())
         major = to_cnstr_when_K(env, rec_val, major, whnf, infer_type, is_def_eq);
-    }
     major = to_cnstr_when_structure(env, rec_val, major, whnf, infer_type);
     major = whnf(major);
     if (is_nat_lit(major))
         major = nat_lit_to_constructor(major);
     else if (is_string_lit(major))
         major = whnf(string_lit_to_constructor(major));
-    else
-        major = to_cnstr_when_structure(env, rec_val, major, whnf, infer_type);
     optional<recursor_rule> rule = get_rec_rule_for(rec_val, major);
     if (!rule) return none_expr();
     buffer<expr> major_args;

@@ -153,10 +153,19 @@ def mkMapDeclarationExtension (name : Name := by exact decl_name%)
 
 namespace MapDeclarationExtension
 
-def insert (ext : MapDeclarationExtension α) (env : Environment) (declName : Name) (val : α) : Environment :=
+/--
+Adds the entry for `declName`. Entries are write-once, so that facts derived from an entry stay valid;
+a site updating an entry must pass `allowOverwrite`, with a justification.
+-/
+def insert (ext : MapDeclarationExtension α) (env : Environment) (declName : Name) (val : α)
+    (allowOverwrite := false) : Environment :=
   have : Inhabited Environment := ⟨env⟩
   if let some modIdx := env.getModuleIdxFor? declName then -- See comment at `MapDeclarationExtension`
     panic! s!"cannot insert `{declName}` into `{ext.name}`, it is not defined in the current module but in `{env.allImportedModuleNames[modIdx]!}`"
+  else if !allowOverwrite &&
+      (ext.toPersistentEnvExtension.getState (asyncDecl := declName) env |>.contains declName) then
+    panic! s!"cannot insert `{declName}` into `{ext.name}`, it is already present; declaration-keyed \
+      extension entries are write-once (pass `allowOverwrite := true` if this update is intended)"
   else
     ext.addEntry (asyncDecl := declName) env (declName, val)
 

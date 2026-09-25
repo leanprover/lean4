@@ -959,7 +959,7 @@ private def recordOptionAccess (name : Name) (value : Option DataValue) : CoreM 
 
 /--
 Inside a recording computation, records the current generation of the generation-tracked extension
-`ext` in `Core.State.recordedDeps`.
+`ext` in `Core.State.recordedDeps`. Callers then read the state with `(genRecorded := true)`.
 -/
 def recordExtGenAccess (ext : EnvExtension σ) : CoreM Unit := do
   if !(← read).isRecordingDeps then

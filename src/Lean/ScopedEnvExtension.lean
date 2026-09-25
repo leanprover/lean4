@@ -276,9 +276,11 @@ def ScopedEnvExtension.add [Monad m] [MonadResolveName m] [MonadEnv m] (ext : Sc
   let ns ← getCurrNamespace
   modifyEnv (ext.addCore · b kind ns)
 
+/-- Returns the state in effect. For `genRecorded`, see `EnvExtension.getState`. -/
 def ScopedEnvExtension.getState [Inhabited σ] (ext : ScopedEnvExtension α β σ)
-    (env : Environment) (asyncMode := ext.ext.toEnvExtension.asyncMode) : σ :=
-  match ext.ext.getState (asyncMode := asyncMode) env |>.stateStack with
+    (env : Environment) (asyncMode := ext.ext.toEnvExtension.asyncMode)
+    (genRecorded := false) : σ :=
+  match ext.ext.getState (asyncMode := asyncMode) (genRecorded := genRecorded) env |>.stateStack with
   | top :: _ => top.state
   | _        => unreachable!
 

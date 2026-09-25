@@ -650,6 +650,13 @@ structure Environment where
   -/
   isExporting : Bool := false
   /--
+  Mirrors `Lean.Core.Context.isRecordingDeps` for pure extension reads, which cannot see the
+  context: while set, a generation-tracked extension must be read with `(genRecorded := true)`, by
+  which the caller asserts that it recorded the generation (`Lean.recordExtGenAccess`), and any other
+  extension must have `EnvExtension.logWrites`; other reads panic.
+  -/
+  isRecordingDeps : Bool := false
+  /--
   Log of declaration-keyed state changes some recording computation could have observed
   (`logDeclChange`): a write about a declaration is appended when the declaration was added before
   the latest recording started (`recordingConstGen`), as writes about younger declarations cannot
@@ -775,6 +782,10 @@ changes to the declarations they could have observed logged.
 -/
 def raiseRecordingConstGen (env : Environment) (gen : Nat) : Environment :=
   if gen ≤ env.recordingConstGen then env else { env with recordingConstGen := gen }
+
+/-- Updates `Environment.isRecordingDeps`. -/
+def setRecordingDeps (env : Environment) (recording : Bool) : Environment :=
+  if env.isRecordingDeps == recording then env else { env with isRecordingDeps := recording }
 
 /-- Consistently updates synchronous and (private) asynchronous parts of the environment without blocking. -/
 private def modifyCheckedAsync (env : Environment) (f : Kernel.Environment → Kernel.Environment) : Environment :=
@@ -1581,6 +1592,13 @@ private unsafe def getStateImpl {σ} [Inhabited σ] (ext : EnvExtension σ) (ext
   else
     panic! invalidExtMsg
 
+/-- Panics about a read of `ext` that `Environment.isRecordingDeps` forbids. -/
+-- Out of line with a borrowed `ext`, so that `getStateImpl` stays small enough to be inlined.
+@[noinline] private def panicUnrecordedRead {σ} [Inhabited σ] (ext : @& EnvExtension σ) : σ :=
+  panic! s!"environment extension `{ext.name}` (index {ext.idx}) read while recording \
+    dependencies, but it neither logs its writes (`logWrites`) nor is generation-tracked and read \
+    with `(genRecorded := true)` (see `Environment.isRecordingDeps`)"
+
 def mkInitialExtStates : IO (Array EnvExtensionState) := do
   let exts ← envExtensionsRef.get
   exts.mapM fun ext => ext.mkInitial
@@ -1687,7 +1705,10 @@ different environment branches are reconciled.
 
 -- `unsafe` fails to infer `Nonempty` here
 private unsafe def getStateUnsafe {σ : Type} [Inhabited σ] (ext : EnvExtension σ)
-    (env : Environment) (asyncMode := ext.asyncMode) (asyncDecl : Name := .anonymous) : σ := Id.run do
+    (env : Environment) (asyncMode := ext.asyncMode) (asyncDecl : Name := .anonymous)
+    (genRecorded := false) : σ := Id.run do
+  if env.isRecordingDeps && (if ext.isGenTracked then !genRecorded else !ext.logWrites) then
+    return panicUnrecordedRead ext
   -- safety: `ext`'s constructor is private, so we can assume the entry at `ext.idx` is of type `σ`
   match asyncMode with
   | .sync => ext.getStateImpl env.checked.get.extensions
@@ -1746,10 +1767,14 @@ different environment branches are reconciled.
 
 Overriding the extension's default `AsyncMode` is usually not recommended and should be considered
 only for important optimizations.
+
+`genRecorded` asserts that the caller recorded the extension's generation in the current recording
+computation (`Lean.recordExtGenAccess`), which reading a generation-tracked extension while
+`Environment.isRecordingDeps` is set requires.
 -/
 @[implemented_by getStateUnsafe]
 opaque getState {σ : Type} [Inhabited σ] (ext : EnvExtension σ) (env : Environment)
-  (asyncMode := ext.asyncMode) (asyncDecl : Name := .anonymous) : σ
+  (asyncMode := ext.asyncMode) (asyncDecl : Name := .anonymous) (genRecorded := false) : σ
 
 /--
 Generation of the generation-tracked extension with index `genIdx` (`EnvExtension.genIdx?`) on the
@@ -1780,7 +1805,7 @@ end EnvExtension
 def registerEnvExtension {σ : Type} (mkInitial : IO σ)
     (replay? : Option (ReplayFn σ) := none)
     (asyncMode : EnvExtension.AsyncMode := .mainOnly)
-    (name : Name := .anonymous)
+    (name : Name := by exact decl_name%)
     (trackGen : Bool := false)
     (logWrites : Bool := false) : IO (EnvExtension σ) := do
   unless (← initializing) do
@@ -1966,10 +1991,15 @@ def getModuleIREntries {α β σ : Type} [Inhabited σ] (ext : PersistentEnvExte
     let state   := ext.addEntryFn s.state b;
     { s with state := state }
 
-/-- Get the current state of the given extension in the given environment. -/
+/--
+Get the current state of the given extension in the given environment. For `genRecorded`, see
+`EnvExtension.getState`.
+-/
 def getState {α β σ : Type} [Inhabited σ] (ext : PersistentEnvExtension α β σ) (env : Environment)
-    (asyncMode := ext.toEnvExtension.asyncMode) (asyncDecl : Name := .anonymous) : σ :=
-  (ext.toEnvExtension.getState (asyncMode := asyncMode) (asyncDecl := asyncDecl) env).state
+    (asyncMode := ext.toEnvExtension.asyncMode) (asyncDecl : Name := .anonymous)
+    (genRecorded := false) : σ :=
+  (ext.toEnvExtension.getState (asyncMode := asyncMode) (asyncDecl := asyncDecl)
+    (genRecorded := genRecorded) env).state
 
 /-- Set the current state of the given extension in the given environment. -/
 @[inline] def setState {α β σ : Type} (ext : PersistentEnvExtension α β σ) (env : Environment)

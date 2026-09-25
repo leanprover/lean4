@@ -114,7 +114,7 @@ where go (isMeta isPublic : Bool) (decl : Decl pu) : StateT NameSet CompilerM Un
       -- We allow auxiliary defs to be used in either phase but we need to recursively check
       -- *their* references in this case. We also need to do this for non-auxiliary defs in case a
       -- public meta def tries to use a private meta import via a local private meta def :/ .
-      if irPhases == .all || isPublic && isPrivateName ref then
+      if isPublic && isPrivateName ref then
         if let some ⟨_, refDecl⟩ ← getLocalDecl? ref then
           go isMeta isPublic (refDecl.castPurity! pu)
 

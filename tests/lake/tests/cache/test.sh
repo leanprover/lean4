@@ -15,13 +15,25 @@ export LAKE_CACHE_DIR="$CACHE_DIR"
 test_exp ! -d "$CACHE_DIR"
 test_run cache clean
 
-# Test `lake cache services`
+# Verify `lake cache services` lists the configured service names, one per line
 LAKE_CONFIG=services.toml test_out_diff <(cat << EOF
 cdn
 bogus
 reservoir
 EOF
 ) cache services
+
+# Verify a `revDiscovery` policy is accepted on either kind of service
+LAKE_CONFIG=rev-discovery.toml test_out_diff <(cat << EOF
+s3-head
+reservoir-head
+reservoir
+EOF
+) cache services
+
+# Verify an unknown `revDiscovery` policy is rejected
+LAKE_CONFIG=bad-rev-discovery.toml \
+  test_err "expected one of 'head', 'nearest'" cache services
 
 # Verify packages without `enableArtifactCache` do not use the cache by default
 test_run build -f unset.toml Test:static

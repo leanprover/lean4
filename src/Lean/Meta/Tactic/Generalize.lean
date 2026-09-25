@@ -78,8 +78,10 @@ private partial def generalizeCore (mvarId : MVarId) (args : Array GeneralizeArg
       mvarNew.mvarId!.introNP (args.size + rfls.length)
 
 /-
-Remark: we use `TransparencyMode.instances` as the default setting at `generalize`
-and `generalizeHyp` to avoid excessive resource usage.
+Remark: we use `TransparencyMode.implicit` as the default setting at `generalize`
+and `generalizeHyp` to avoid excessive resource usage. (`.implicit` rather than the
+narrower `.instances` so that `[implicit_reducible]` arithmetic still unfolds during
+keyed matching, matching pre-split behavior.)
 
 **Motivation:**
 The `kabstract e p` operation is widely used, for instance, in the `generalize` tactic.
@@ -106,7 +108,7 @@ In this scenario, `kabstract` triggers a "max recursion depth reached" error whi
 testing whether `((2 ^ 7) + a) - 2 ^ 7` is definitionally equal to `0 - 0`.
 Note that the term `((2 ^ 7) + a) - 2 ^ 7` is not ground.
 We believe most users find the error message to be uninformative and unexpected.
-To fix this issue, we decided to use `TransparencyMode.instances` as the default setting.
+To fix this issue, we decided to use `TransparencyMode.implicit` as the default setting.
 
 Kyle Miller has performed the following analysis on the potential impact of the
 changes on Mathlib (2024-03-02).

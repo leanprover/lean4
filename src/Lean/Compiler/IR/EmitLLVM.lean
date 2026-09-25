@@ -1052,7 +1052,7 @@ def emitJmp (builder : LLVM.Builder llvmctx) (jp : JoinPointId) (xs : Array Arg)
   let ps ← match llvmctx.jpMap[jp]? with
   | some ps => pure ps
   | none    => throw s!"Unknown join point {jp}"
-  unless xs.size == ps.size do throw s!"Invalid goto, mismatched sizes between arguments, formal parameters."
+  unless xs.size == ps.size do throw s!"Invalid goto, mismatched sizes between arguments and formal parameters."
   for (p, x)  in ps.zip xs do
     let (_xty, xv) ← emitArgVal builder x
     emitLhsSlotStore builder p.x xv

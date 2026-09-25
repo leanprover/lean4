@@ -497,7 +497,7 @@ example := Second.Ordinal.ofInt (leap := true) 60 (by decide)
 example := Minute.Ordinal.ofInt 1 (by decide)
 example := Hour.Ordinal.ofInt 1 (by decide)
 example := Day.Ordinal.ofInt 1 (by decide)
-example := Week.Ordinal.ofInt 1 (by decide)
+example := Week.OfYear.Ordinal.ofInt 1 (by decide)
 
 example := Nanosecond.Ordinal.ofFin 1
 example := Millisecond.Ordinal.ofFin 1
@@ -506,7 +506,7 @@ example := Second.Ordinal.ofFin (leap := true) 37
 example := Minute.Ordinal.ofFin 1
 example := Hour.Ordinal.ofFin 1
 example := Day.Ordinal.ofFin 1
-example := Week.Ordinal.ofFin 1
+example := Week.OfYear.Ordinal.ofFin 1
 
 example := Nanosecond.Ordinal.ofNat 1
 example := Millisecond.Ordinal.ofNat 1
@@ -515,7 +515,7 @@ example := Second.Ordinal.ofNat (leap := true) 1
 example := Minute.Ordinal.ofNat 1
 example := Hour.Ordinal.ofNat 1
 example := Day.Ordinal.ofNat 1
-example := Week.Ordinal.ofNat 1
+example := Week.OfYear.Ordinal.ofNat 1
 
 example := Nanosecond.Ordinal.toOffset 1
 example := Millisecond.Ordinal.toOffset 1
@@ -524,7 +524,7 @@ example := Second.Ordinal.toOffset (leap := true) 1
 example := Minute.Ordinal.toOffset 1
 example := Hour.Ordinal.toOffset 1
 example := Day.Ordinal.toOffset 1
-example := Week.Ordinal.toOffset 1
+example := Week.OfYear.Ordinal.toOffset 1
 
 example : (1 : Nanosecond.Ordinal).toInt = (1 : Int) := rfl
 example : (1 : Millisecond.Ordinal).toInt = (1 : Int) := rfl
@@ -533,7 +533,7 @@ example : (1 : Second.Ordinal true).toInt = (1 : Int) := rfl
 example : (1 : Minute.Ordinal).toInt = (1 : Int) := rfl
 example : (1 : Hour.Ordinal).toInt = (1 : Int) := rfl
 example : (1 : Day.Ordinal).toInt = (1 : Int) := rfl
-example : (1 : Week.Ordinal).toInt = (1 : Int) := rfl
+example : (1 : Week.OfYear.Ordinal).toInt = (1 : Int) := rfl
 
 example : ((1 : Nanosecond.Ordinal).toFin (by decide) |>.val) = 1 := rfl
 example : ((1 : Millisecond.Ordinal).toFin (by decide) |>.val) = 1 := rfl
@@ -542,7 +542,7 @@ example : ((1 : Second.Ordinal true).toFin (by decide) |>.val) = 1 := rfl
 example : ((1 : Minute.Ordinal).toFin (by decide) |>.val) = 1 := rfl
 example : ((1 : Hour.Ordinal).toFin (by decide) |>.val) = 1 := rfl
 example : ((1 : Day.Ordinal).toFin (by decide) |>.val) = 1 := rfl
-example : ((1 : Week.Ordinal).toFin (by decide) |>.val) = 1 := rfl
+example : ((1 : Week.OfYear.Ordinal).toFin (by decide) |>.val) = 1 := rfl
 
 example : (1 : Nanosecond.Ordinal).toNat = 1 := rfl
 example : (1 : Millisecond.Ordinal).toNat = 1 := rfl
@@ -551,7 +551,7 @@ example : (1 : Second.Ordinal true).toNat = 1 := rfl
 example : (1 : Minute.Ordinal).toNat = 1 := rfl
 example : (1 : Hour.Ordinal).toNat = 1 := rfl
 example : (1 : Day.Ordinal).toNat = 1 := rfl
-example : (1 : Week.Ordinal).toNat = 1 := rfl
+example : (1 : Week.OfYear.Ordinal).toNat = 1 := rfl
 
 /--
 info: 9
@@ -662,10 +662,10 @@ false
 77
 CE
 1
-4
+3
 Std.Time.Weekday.tuesday
 12
-3
+4
 9938
 858650584
 1970-01-02T00:00:00.000000000
@@ -736,7 +736,7 @@ true
 256
 CE
 3
-3
+2
 Std.Time.Weekday.thursday
 37
 2
@@ -778,12 +778,13 @@ Std.Time.Weekday.thursday
   println! repr zoned.quarter
   println! repr zoned.alignedWeekOfMonth
   println! repr zoned.weekday
-  println! repr zoned.weekOfYear
-  println! repr zoned.weekOfMonth
+  println! repr <| zoned.weekOfYear Weekday.sunday
+  println! repr <| zoned.weekOfMonth Weekday.sunday
 
   println! zoned.toEpochDay
   println! zoned.toTimestamp
   println! DateTime.ofEpochDay 1 PlainTime.midnight .UTC
+
 
 /--
 info: 1997-03-19T02:03:04.000000000[America/Sao_Paulo]
@@ -811,10 +812,10 @@ false
 77
 CE
 1
-4
+3
 Std.Time.Weekday.tuesday
 12
-3
+4
 9938
 858661384
 
@@ -853,8 +854,8 @@ Std.Time.Weekday.tuesday
   println! repr zoned.quarter
   println! repr zoned.alignedWeekOfMonth
   println! repr zoned.weekday
-  println! repr zoned.weekOfYear
-  println! repr zoned.weekOfMonth
+  println! repr <| zoned.weekOfYear Weekday.sunday
+  println! repr <| zoned.weekOfMonth Weekday.sunday
 
   println! zoned.toEpochDay
   println! zoned.toTimestamp

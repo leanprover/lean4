@@ -202,13 +202,17 @@ partial def evalTactic (stx : Syntax) : TacticM Unit := do
         Term.withoutTacticIncrementality true <| withTacticInfoContext stx do
           stx.getArgs.forM evalTactic
       else withTraceNode `Elab.step (fun _ => return stx) (tag := stx.getKind.toString) do
-        checkDeprecatedSyntax stx (← readThe Term.Context).macroStack
+        if (← readThe Term.Context).checkDeprecated then
+          checkDeprecatedSyntax stx (← readThe Term.Context).macroStack
         let evalFns := tacticElabAttribute.getEntries (← getEnv) stx.getKind
         let macros  := macroAttribute.getEntries (← getEnv) stx.getKind
         if evalFns.isEmpty && macros.isEmpty then
           throwErrorAt stx "Tactic `{stx.getKind}` has not been implemented"
         let s ← Tactic.saveState
-        expandEval s macros evalFns #[]
+        if isDeprecatedSyntax (← getEnv) stx.getKind then
+          Term.withoutCheckDeprecated <| expandEval s macros evalFns #[]
+        else
+          expandEval s macros evalFns #[]
     | .missing => pure ()
     | _ => throwError m!"Unexpected tactic{indentD stx}"
 where
@@ -262,7 +266,9 @@ where
                     let old ← snap.old?
                     -- If the kind is equal, we can assume the old version was a macro as well
                     guard <| old.stx.isOfKind stx.getKind
-                    let state ← old.val.get.finished.get.state?
+                    -- (access to `raw` is fine here as there should be no transformation in this
+                    -- case anyway, see `resolve` below)
+                    let state ← old.val.get.transformed.raw.finished.get.state?
                     guard <| state.term.meta.core.nextMacroScope == nextMacroScope
                     -- check absence of traces; see Note [Incremental Macros]
                     guard <| state.term.meta.core.traceState.traces.size == 0
@@ -274,13 +280,15 @@ where
                   -- Store new unfolding in the snapshot tree
                   let cancelTk? := (← readThe Core.Context).cancelTk?
                   snap.new.resolve {
-                    stx := stx'
-                    diagnostics := .empty
-                    inner? := none
-                    finished := .finished stx' {
+                    transformed.raw := {
+                      stx := stx'
                       diagnostics := .empty
-                      state? := (← Tactic.saveState)
-                      moreSnaps := #[]
+                      inner? := none
+                      finished := .finished stx' {
+                        diagnostics := .empty
+                        state? := (← Tactic.saveState)
+                        moreSnaps := #[]
+                      }
                     }
                     next := #[{ stx? := stx', task := promise.resultD default, cancelTk? }]
                   }
@@ -289,7 +297,8 @@ where
                     new := promise
                     old? := do
                       let old ← old?
-                      return ⟨old.stx, (← old.next[0]?)⟩
+                      -- (access to `raw`: as above)
+                      return ⟨old.transformed.raw.stx, (← old.next[0]?)⟩
                   } }) do
                     evalTactic stx'
                   return
@@ -559,7 +568,7 @@ def closeMainGoal (tacName : Name) (val : Expr) (checkUnassigned := true): Tacti
   if (← mvarId.checkedAssign val) then
     replaceMainGoal []
   else
-    throwTacticEx tacName mvarId m!"attempting to close the goal using{indentExpr val}\nthis is often due occurs-check failure"
+    throwTacticEx tacName mvarId m!"attempting to close the goal using{indentExpr val}\nthis is often due to an occurs-check failure"
 
 @[inline] def liftMetaMAtMain (x : MVarId → MetaM α) : TacticM α := do
   withMainContext do x (← getMainGoal)

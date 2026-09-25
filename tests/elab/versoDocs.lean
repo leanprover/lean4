@@ -10,10 +10,11 @@ open Lean Doc Elab Term
 
 
 @[doc_code_block]
-def c (s : StrLit) : DocM (Block ElabInline ElabBlock) := pure (Block.code (s.getString.toList.reverse |> String.mk))
+def c (s : VersoCodeBlock) : DocM (Block ElabInline ElabBlock) :=
+  pure (Block.code (s.getVersoCodeBlock.toList.reverse |> String.mk))
 
 @[doc_directive]
-def d (s : TSyntaxArray `block) : DocM (Block ElabInline ElabBlock) := do
+def d (s : TSyntaxArray ``Parser.block) : DocM (Block ElabInline ElabBlock) := do
   .concat <$> s.reverse.mapM elabBlock
 
  /--
@@ -242,6 +243,7 @@ error: Unknown constant `b`
 Hint: Insert a fully-qualified name:
   • {name ̲(̲f̲u̲l̲l̲ ̲:̲=̲ ̲A̲.̲b̲)̲}`b`
   • {name ̲(̲f̲u̲l̲l̲ ̲:̲=̲ ̲M̲e̲t̲a̲.̲G̲r̲i̲n̲d̲.̲A̲r̲i̲t̲h̲.̲C̲u̲t̲s̲a̲t̲.̲D̲v̲d̲S̲o̲l̲u̲t̲i̲o̲n̲.̲b̲)̲}`b`
+  • {name ̲(̲f̲u̲l̲l̲ ̲:̲=̲ ̲S̲t̲d̲.̲T̲i̲m̲e̲.̲M̲o̲d̲i̲f̲i̲e̲r̲.̲b̲)̲}`b`
 -/
 #guard_msgs in
 /--
@@ -309,13 +311,15 @@ error: Unknown attribute `int`
 Hint: Use a known attribute:
   • ini̲t
   • i̵n̵e̲x̲t
+  • i̵n̵t̵l̲i̲a̲
 ---
 error: Unknown attribute `samp`
 
 Hint: Use a known attribute:
   • s̵a̵m̵p̵s̲i̲m̲p̲
-  • s̵a̵m̵p̵s̲y̲m̲m̲
   • s̵a̵m̵p̵c̲s̲i̲m̲p̲
+  • s̵a̵m̵p̵s̲y̲m̲m̲
+  • s̵a̵m̵p̵l̲i̲a̲
 ---
 error: Unknown attribute `inlone`
 
@@ -351,7 +355,6 @@ Examples:
 -/
 def somethingElseAgain := ()
 
-/- Commented out for bootstrapping
 /--
 error: Unknown option `pp.alll`
 ---
@@ -370,14 +373,12 @@ Examples:
  * {option}`set_option pp.all "true"` to set it
 -/
 def somethingElseAgain' := ()
--/
 
 /--
 {kw (cat := term)}`Type` {kw (of := termIfLet)}`if`
 -/
 def somethingElseAgain'' := ()
 
-/- Commented out for bootstrapping
 /--
 info:
 
@@ -389,12 +390,16 @@ Hint: Specify the syntax kind:
 {kw?}`Type`
 -/
 def somethingElseAgain''' := ()
--/
 
 /--
 {syntaxCat}`term`
 -/
 def stxDoc := ()
+
+/--
+The source still locates content whose boundary spaces were stripped: {syntaxCat}` term `
+-/
+def stxDocPadded := ()
 
 /--
 {syntaxCat}`thing`
@@ -584,7 +589,7 @@ end ShadowedBuiltin
 
 open Lean in
 @[doc_role]
-def r (_ : TSyntaxArray `inline) : DocM (Inline ElabInline) := do
+def r (_ : TSyntaxArray ``Parser.inline) : DocM (Inline ElabInline) := do
   return .empty
 
 /-! {r}`foo` -/
@@ -606,7 +611,7 @@ end ShadowedNonBuiltin
 namespace DoubleShadowed
 
 @[doc_role]
-def lit (_ : TSyntaxArray `inline) : DocM (Inline ElabInline) := do
+def lit (_ : TSyntaxArray ``Parser.inline) : DocM (Inline ElabInline) := do
   return .empty
 
 namespace Inner
@@ -668,24 +673,30 @@ private def docCodeStr (dc : DocCode) : String :=
 
 private partial def findInInline (name : Name) : Inline ElabInline → Array DocCode
   | .other container _ =>
-    if container.name == name then
-      if let some (lt : Data.LeanTerm) := container.val.get? Data.LeanTerm then
-        #[lt.term]
+    match container with
+    | .deferred _ => #[]
+    | .custom val =>
+      if val.typeName == name then
+        if let some (lt : Data.LeanTerm) := val.get? Data.LeanTerm then
+          #[lt.term]
+        else #[]
       else #[]
-    else #[]
   | .emph xs | .bold xs | .concat xs | .link xs _ | .footnote _ xs =>
     xs.flatMap (findInInline name)
   | .text .. | .code .. | .math .. | .linebreak .. | .image .. => #[]
 
 private partial def findInBlock (name : Name) : Block ElabInline ElabBlock → Array DocCode
   | .other container _ =>
-    if container.name == name then
-      if let some (lb : Data.LeanBlock) := container.val.get? Data.LeanBlock then
-        #[lb.commands]
-      else if let some (lt : Data.LeanTerm) := container.val.get? Data.LeanTerm then
-        #[lt.term]
+    match container with
+    | .deferred _ => #[]
+    | .custom val =>
+      if val.typeName == name then
+        if let some (lb : Data.LeanBlock) := val.get? Data.LeanBlock then
+          #[lb.commands]
+        else if let some (lt : Data.LeanTerm) := val.get? Data.LeanTerm then
+          #[lt.term]
+        else #[]
       else #[]
-    else #[]
   | .para inlines => inlines.flatMap (findInInline name)
   | .concat blocks | .blockquote blocks => blocks.flatMap (findInBlock name)
   | .dl items => items.flatMap fun ⟨x, y⟩ => x.flatMap (findInInline name) ++ y.flatMap (findInBlock name)
@@ -765,8 +776,10 @@ open Doc Elab
 
 private partial def findSetOptionInInline : Inline ElabInline → Array DocCode
   | .other container _ =>
-    if let some (so : Data.SetOption) := container.val.get? Data.SetOption then
-      #[so.term]
+    if let .custom val := container then
+      if let some (so : Data.SetOption) := val.get? Data.SetOption then
+        #[so.term]
+      else #[]
     else #[]
   | .emph xs | .bold xs | .concat xs | .link xs _ | .footnote _ xs =>
     xs.flatMap findSetOptionInInline
@@ -865,8 +878,10 @@ open Doc Elab
 
 private partial def findAtomInInline : Inline ElabInline → Array (Name × Data.Atom)
   | .other container _ =>
-    if let some (a : Data.Atom) := container.val.get? Data.Atom then
-      #[(container.name, a)]
+    if let .custom val := container then
+      if let some (a : Data.Atom) := val.get? Data.Atom then
+        #[(val.typeName, a)]
+      else #[]
     else #[]
   | .emph xs | .bold xs | .concat xs | .link xs _ | .footnote _ xs =>
     xs.flatMap findAtomInInline
@@ -898,3 +913,46 @@ category: term
     IO.println s!"category: {atom.category}"
 
 end KwAtomPublicTests
+
+/-!
+A role that takes a single code element reports content that is not code at that content, and a
+wrong number of code elements at the arguments, brackets included.
+-/
+
+/--
+@ +2:7...12
+error: Expected code
+-/
+#guard_msgs (positions := true) in
+/--
+{name}[text `Nat.add`]
+-/
+def notCode := 0
+
+/--
+@ +2:6...27
+error: Expected precisely 1 code argument
+-/
+#guard_msgs (positions := true) in
+/--
+{name}[`Nat.add` `Nat.mul`]
+-/
+def twoCodes := 0
+
+/--
+@ +2:6...8
+error: Expected precisely 1 code argument
+-/
+#guard_msgs (positions := true) in
+/--
+{name}[]
+-/
+def noCode := 0
+
+/-! Whitespace around the code element is not content. -/
+
+#guard_msgs in
+/--
+{name}[ `Nat.add` ]
+-/
+def spaceAroundCode := 0

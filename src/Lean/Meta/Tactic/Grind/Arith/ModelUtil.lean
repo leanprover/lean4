@@ -58,8 +58,9 @@ Returns `true` if `e` should be treated as an interpreted value by the arithmeti
 def isInterpretedTerm (e : Expr) : Bool :=
   isNatNum e || isIntNum e || e.isAppOf ``HAdd.hAdd || e.isAppOf ``HMul.hMul || e.isAppOf ``HSub.hSub || e.isAppOf ``HSMul.hSMul
   || e.isAppOf ``Neg.neg || e.isAppOf ``HDiv.hDiv || e.isAppOf ``HMod.hMod || e.isAppOf ``One.one || e.isAppOf ``Zero.zero
-  || e.isAppOf ``Inv.inv || e.isAppOf ``NatCast.natCast || e.isIte || e.isDIte || e.isAppOf ``OfNat.ofNat || e.isAppOf ``Grind.ToInt.toInt
+  || e.isAppOf ``Inv.inv || e.isAppOf ``NatCast.natCast || e.isIte || e.isDIte || e.isAppOf ``OfNat.ofNat
   || e.isAppOf ``Fin.val || e.isAppOf ``Grind.IntModule.OfNatModule.toQ || e matches .lit (.natVal _)
+  || e.isAppOf ``BitVec.toNat || e.isAppOf ``BitVec.toInt
 
 /--
 Adds the assignments `e' := v` to `a` for each `e'` in the equivalence class os `e`.

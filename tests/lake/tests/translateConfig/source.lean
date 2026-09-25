@@ -43,6 +43,7 @@ package test where
 require "foo" / "baz" @ "git#abcdef"
 require foo from "dir" with NameMap.empty.insert `foo "bar"
 require bar from git "https://example.com" @ "abc" / "sub" / "dir"
+require qux from copy "qux"
 
 @[default_target]
 lean_lib A where

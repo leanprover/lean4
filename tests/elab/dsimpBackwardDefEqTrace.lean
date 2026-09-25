@@ -27,7 +27,7 @@ set_option trace.Meta.Tactic.simp.backwardDefEq true in
 #guard_msgs in
 example : slow 1 = 1 := by dsimp only [slow_eq]
 
-@[implicit_reducible] def fastApp (f : Nat → Nat) (n : Nat) : Nat := f n
+@[instance_reducible] def fastApp (f : Nat → Nat) (n : Nat) : Nat := f n
 
 @[defeq] theorem fastApp_eq (f : Nat → Nat) (n : Nat) : fastApp f n = f n := rfl
 

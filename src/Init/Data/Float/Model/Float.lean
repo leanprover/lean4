@@ -9,7 +9,6 @@ prelude
 public import Init.Data.Float.Model.Format.Valid
 public import Init.Data.Float.Model.Unpacked.Pack.Lemmas
 public import Init.Data.Float.Model.Unpacked.Operations
-public import Init.Data.Order.Factories
 
 -- This file is part of the logical model for floats which authors of float libraries
 -- need to rely on.
@@ -36,6 +35,7 @@ structure Float.Model where
   toBits : UInt64
   /-- The underlying bit pattern is valid according to the IEEE `binary64` format. -/
   valid : Float.Model.Format.binary64.Valid toBits.toBitVec
+deriving DecidableEq
 
 namespace Float.Model
 
@@ -51,6 +51,18 @@ already correctly rounded for the `Format.binary64` format.
 def pack (f : UnpackedFloat) : Float.Model where
   toBits := UInt64.ofBitVec (UnpackedFloat.pack Format.binary64 f)
   valid := by simp
+
+/--
+The special `NaN` value.
+-/
+def nan : Float.Model :=
+  pack .notANumber
+
+/--
+The special `Inf` value.
+-/
+def inf : Float.Model :=
+  pack (.infinity .positive)
 
 /--
 Compute the sum of two `Float.Model`.
@@ -95,10 +107,19 @@ def sqrt (a : Float.Model) : Float.Model :=
   pack (UnpackedFloat.sqrt Format.binary64 a.unpack)
 
 /--
+Compute the fused multiply-add `a * b + c` of three `Float.Model`, with a single rounding.
+-/
+def fma (a b c : Float.Model) : Float.Model :=
+  pack (UnpackedFloat.fma Format.binary64 a.unpack b.unpack c.unpack)
+
+/--
 Negate a `Float.Model`.
 -/
 def neg (a : Float.Model) : Float.Model :=
   pack a.unpack.neg
+
+instance : Neg Float.Model where
+  neg a := a.neg
 
 /--
 Return a `Float.Model` with positive sign.
@@ -153,11 +174,39 @@ instance : DecidableLT Float.Model :=
 instance : BEq Float.Model where
   beq a b := a.beq b
 
-instance : Min Float.Model :=
-  Min.leftLeaningOfLE _
+/--
+Compute the IEEE-754-2019 `minimum` of two `Float.Model`, which is `NaN` if either operand is
+`NaN` and considers `-0` to be smaller than `+0`.
+-/
+def minimum (a b : Float.Model) : Float.Model :=
+  pack (a.unpack.minimum b.unpack)
 
-instance : Max Float.Model :=
-  Max.leftLeaningOfLE _
+/--
+Compute the IEEE-754-2019 `minimumNumber` of two `Float.Model`, which ignores a `NaN` operand if
+the other operand is a number and considers `-0` to be smaller than `+0`.
+-/
+def minimumNumber (a b : Float.Model) : Float.Model :=
+  pack (a.unpack.minimumNumber b.unpack)
+
+/--
+Compute the IEEE-754-2019 `maximum` of two `Float.Model`, which is `NaN` if either operand is
+`NaN` and considers `-0` to be smaller than `+0`.
+-/
+def maximum (a b : Float.Model) : Float.Model :=
+  pack (a.unpack.maximum b.unpack)
+
+/--
+Compute the IEEE-754-2019 `maximumNumber` of two `Float.Model`, which ignores a `NaN` operand if
+the other operand is a number and considers `-0` to be smaller than `+0`.
+-/
+def maximumNumber (a b : Float.Model) : Float.Model :=
+  pack (a.unpack.maximumNumber b.unpack)
+
+instance : Min Float.Model where
+  min a b := a.minimum b
+
+instance : Max Float.Model where
+  max a b := a.maximum b
 
 /--
 Returns `true` if the float represents a real number, i.e., it is neither infinite nor `NaN`.
@@ -291,5 +340,12 @@ Converts a `Float.Model` to an `ISize`, truncating after the decimal point, send
 `0` and clamping out-of-range values and infinities.
 -/
 def toISize (f : Float.Model) : ISize := f.unpack.toISize
+
+/-- Computes `m * 10^e`. -/
+def ofScientific (m : Nat) (e : Int) : Float.Model :=
+  .pack (UnpackedFloat.ofScientific Format.binary64 m e)
+
+instance : Inhabited Float.Model where
+  default := ofNat 0
 
 end Float.Model

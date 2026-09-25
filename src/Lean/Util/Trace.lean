@@ -304,8 +304,10 @@ instance (priority := low) : ExceptToTraceResult ε α where
     | .ok _ => .success
 
 /-- Convert an `Except` to a `TraceResult` using the `ExceptToTraceResult` instance. -/
-def _root_.Except.toTraceResult [ExceptToTraceResult ε α] (e : Except ε α) : TraceResult :=
+def Except.toTraceResult [ExceptToTraceResult ε α] (e : Except ε α) : TraceResult :=
   ExceptToTraceResult.toTraceResult e
+
+open Lean
 
 /-- Run the provided action `k`, and log its execution within a trace node.
 
@@ -397,6 +399,7 @@ private meta def expandTraceMacro (id : Syntax) (s : Syntax) : MacroM DoElem := 
 macro "trace[" id:ident "]" s:(interpolatedStr(term) <|> term) : doElem => do
   expandTraceMacro id s.raw
 
+open Lean
 
 /--
 Similar to `withTraceNode`, but msg is constructed **before** executing `k`.

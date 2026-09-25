@@ -15,7 +15,7 @@ public import Init.Data.Char.Basic
 import Init.ByCases
 import Init.Data.Fin.Lemmas
 import Init.Data.Int.OfNat
-import Init.Data.Nat.Linear
+import Init.Data.Nat.Internal.Linear
 import Init.Data.Nat.Simproc
 import Init.Data.Option.Lemmas
 import Init.Data.UInt.Lemmas
@@ -54,6 +54,7 @@ greater than the surrogate code points by the number of surrogate code points.
 
 The inverse of this function is called {name (scope := "Init.Data.Char.Ordinal")}`Char.ofOrdinal`.
 -/
+@[expose]
 def ordinal (c : Char) : Fin Char.numCodePoints :=
   if h : c.val < 0xd800 then
     ⟨c.val.toNat, by grind [UInt32.lt_iff_toNat_lt]⟩
@@ -66,6 +67,7 @@ greater than the surrogate code points by the number of surrogate code points.
 
 The inverse of this function is called {name}`Char.ordinal`.
 -/
+@[expose]
 def ofOrdinal (f : Fin Char.numCodePoints) : Char :=
   if h : (f : Nat) < 0xd800 then
     ⟨UInt32.ofNatLT f (by grind), by grind [UInt32.toNat_ofNatLT]⟩
@@ -79,6 +81,7 @@ Computes the next {name}`Char`, skipping over surrogate code points (which are n
 This function is specified by its interaction with {name}`Char.ordinal`, see
 {name (scope := "Init.Data.Char.Ordinal")}`Char.succ?_eq`.
 -/
+@[expose]
 def succ? (c : Char) : Option Char :=
   if h₀ : c.val < 0xd7ff then
     some ⟨c.val + 1, by grind [UInt32.lt_iff_toNat_lt, UInt32.toNat_add]⟩
@@ -98,6 +101,7 @@ valid {name}`Char`s) as necessary.
 This function is specified by its interaction with {name}`Char.ordinal`, see
 {name (scope := "Init.Data.Char.Ordinal")}`Char.succMany?_eq`.
 -/
+@[expose]
 def succMany? (m : Nat) (c : Char) : Option Char :=
   c.ordinal.addNat? m |>.map Char.ofOrdinal
 
@@ -130,7 +134,7 @@ theorem ofOrdinal_ordinal {c : Char} : Char.ofOrdinal c.ordinal = c := by
   simp only [val_ofOrdinal, coe_ordinal, UInt32.ofNatLT_add]
   split
   · grind [UInt32.lt_iff_toNat_lt, UInt32.ofNatLT_toNat]
-  · rw [dif_neg]
+  · rw [dite_eq_right]
     · simp only [← UInt32.toNat_inj, UInt32.toNat_add, UInt32.toNat_ofNatLT, Nat.reducePow]
       grind [UInt32.toNat_lt, UInt32.lt_iff_toNat_lt]
     · grind [UInt32.lt_iff_toNat_lt]
@@ -140,9 +144,9 @@ theorem ordinal_ofOrdinal {f : Fin Char.numCodePoints} : (Char.ofOrdinal f).ordi
   ext
   simp [coe_ordinal, val_ofOrdinal]
   split
-  · rw [if_pos, UInt32.toNat_ofNatLT]
+  · rw [ite_eq_left, UInt32.toNat_ofNatLT]
     simpa [UInt32.lt_iff_toNat_lt]
-  · rw [if_neg, UInt32.toNat_add, UInt32.toNat_ofNatLT, UInt32.toNat_ofNatLT, Nat.mod_eq_of_lt,
+  · rw [ite_eq_right, UInt32.toNat_add, UInt32.toNat_ofNatLT, UInt32.toNat_ofNatLT, Nat.mod_eq_of_lt,
       Nat.add_sub_cancel]
     · grind
     · simp only [UInt32.lt_iff_toNat_lt, UInt32.toNat_add, UInt32.toNat_ofNatLT, Nat.reducePow,
@@ -188,7 +192,7 @@ theorem ofOrdinal_le_of_le {f g : Fin Char.numCodePoints} (h : f ≤ g) :
     · simp only [UInt32.toNat_add, UInt32.toNat_ofNatLT, Nat.reducePow]
       grind
   · simp only [UInt32.toNat_add, UInt32.toNat_ofNatLT, Nat.reducePow]
-    rw [dif_neg (by grind)]
+    rw [dite_eq_right (by grind)]
     simp only [UInt32.toNat_add, UInt32.toNat_ofNatLT, Nat.reducePow]
     grind
 
@@ -216,7 +220,9 @@ theorem succ?_eq {c : Char} : c.succ? = (c.ordinal.addNat? 1).map Char.ofOrdinal
       · simp only [UInt32.ofNatLT_toNat, dite_eq_ite, left_eq_ite_iff, Nat.not_lt,
           Nat.reduceLeDiff, UInt32.left_eq_add]
         grind [UInt32.lt_iff_toNat_lt]
-      · grind
+      · rename_i hn
+        simp only [UInt32.lt_iff_toNat_lt, UInt32.toNat_ofNat] at h hn
+        omega
     · simp [coe_ordinal, -toNat_val]
       grind [UInt32.lt_iff_toNat_lt]
   | case2 =>
@@ -228,8 +234,10 @@ theorem succ?_eq {c : Char} : c.succ? = (c.ordinal.addNat? 1).map Char.ofOrdinal
     · simp only [coe_ordinal, Option.map_some, Option.some.injEq, Char.ext_iff, val_ofOrdinal,
         UInt32.ofNatLT_add, UInt32.reduceOfNatLT]
       split
-      · grind
-      · rw [dif_neg]
+      · rename_i h1 h2 _ h3
+        simp only [← UInt32.toNat_inj, UInt32.lt_iff_toNat_lt, UInt32.toNat_ofNat] at h1 h2 h3
+        omega
+      · rw [dite_eq_right]
         · simp only [← UInt32.toNat_inj, UInt32.toNat_add, UInt32.reduceToNat, Nat.reducePow,
             UInt32.toNat_ofNatLT, Nat.mod_add_mod]
           grind [UInt32.lt_iff_toNat_lt, UInt32.toNat_inj]

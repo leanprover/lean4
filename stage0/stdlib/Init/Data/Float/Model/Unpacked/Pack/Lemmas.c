@@ -133,11 +133,13 @@ return v___x_37_;
 }
 lean_object* runtime_initialize_Init_Data_Float_Model_Unpacked_Pack_Basic(uint8_t builtin);
 lean_object* runtime_initialize_Init_Data_Float_Model_Format_Valid(uint8_t builtin);
+void lean_initialize_runtime_module();
 static bool _G_runtime_initialized = false;
 LEAN_EXPORT lean_object* runtime_initialize_Init_Data_Float_Model_Unpacked_Pack_Lemmas(uint8_t builtin) {
 lean_object * res;
 if (_G_runtime_initialized) return lean_io_result_mk_ok(lean_box(0));
 _G_runtime_initialized = true;
+lean_initialize_runtime_module();
 res = runtime_initialize_Init_Data_Float_Model_Unpacked_Pack_Basic(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);

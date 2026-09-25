@@ -25,6 +25,8 @@ def isMatchValue (e : Expr) : MetaM Bool := do
   if (← getUInt16Value? e).isSome then return true
   if (← getUInt32Value? e).isSome then return true
   if (← getUInt64Value? e).isSome then return true
+  if (← getFloatValue? e).isSome then return true
+  if (← getFloat32Value? e).isSome then return true
   return false
 
 end Lean.Meta

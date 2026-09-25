@@ -14,3 +14,4 @@ public import Init.Data.BitVec.Decidable
 public import Init.Data.BitVec.Lemmas
 public import Init.Data.BitVec.Folds
 public import Init.Data.BitVec.Impl
+public import Init.Data.BitVec.Package

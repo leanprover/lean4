@@ -4953,11 +4953,20 @@ theorem isEmpty_inter_iff [TransOrd α] (h₁ : m₁.WF) (h₂ : m₂.WF) :
     (m₁.inter m₂ h₁.balanced).isEmpty ↔ ∀ k, m₁.contains k → m₂.contains k = false := by
   simp_to_model [inter, contains, isEmpty] using List.isEmpty_filter_containsKey_iff
 
+theorem isEmpty_inter_comm [TransOrd α] (h₁ : m₁.WF) (h₂ : m₂.WF) :
+    (m₁.inter m₂ h₁.balanced).isEmpty = (m₂.inter m₁ h₂.balanced).isEmpty := by
+  simp_to_model [inter, contains, isEmpty] using List.isEmpty_filter_containsKey_comm
+
 theorem isEmpty_inter!_iff [TransOrd α] (h₁ : m₁.WF) (h₂ : m₂.WF) :
     (m₁.inter! m₂).isEmpty ↔ ∀ k, m₁.contains k → m₂.contains k = false := by
   rw [← inter_eq_inter!]
   apply isEmpty_inter_iff h₁ h₂
   all_goals wf_trivial
+
+theorem isEmpty_inter!_comm [TransOrd α] (h₁ : m₁.WF) (h₂ : m₂.WF) :
+    (m₁.inter! m₂).isEmpty = (m₂.inter! m₁).isEmpty := by
+  rw [← inter_eq_inter!, ← inter_eq_inter!]
+  exact isEmpty_inter_comm h₁ h₂
 
 end Inter
 
@@ -5963,7 +5972,7 @@ theorem mem_alter_of_compare_eq [TransOrd α] [LawfulEqOrd α] (h : t.WF) {k k':
     {f : Option (β k) → Option (β k)}
     (he : compare k k' = .eq) :
     k' ∈ (t.alter k f h.balanced).1 ↔ (f (t.get? k)).isSome := by
-  rw [mem_alter h, if_pos he]
+  rw [mem_alter h, ite_eq_left he]
 
 theorem mem_alter!_of_compare_eq [TransOrd α] [LawfulEqOrd α] (h : t.WF) {k k': α}
     {f : Option (β k) → Option (β k)} (he : compare k k' = .eq) :
@@ -6401,7 +6410,7 @@ theorem mem_alter! [TransOrd α] (h : t.WF) {k k' : α} {f : Option β → Optio
 theorem mem_alter_of_compare_eq [TransOrd α] (h : t.WF) {k k': α} {f : Option β → Option β}
     (he : compare k k' = .eq) :
     k' ∈ (alter k f t h.balanced).1 ↔ (f (get? t k)).isSome := by
-  rw [mem_alter h, if_pos he]
+  rw [mem_alter h, ite_eq_left he]
 
 theorem mem_alter!_of_compare_eq [TransOrd α] (h : t.WF) {k k': α} {f : Option β → Option β}
     (he : compare k k' = .eq) :
@@ -10118,7 +10127,7 @@ theorem filterMap_equiv_filter {f : (a : α) → β a → Bool} (h : t.WF) :
     (t.filterMap (fun k => Option.guard (fun v => f k v)) h.balanced).1 ~m
       (t.filter f h.balanced).1 := by
   simp_to_model [filter, filterMap, Equiv]
-  simp only [Option.guard_def, ← List.filterMap_eq_filter, Option.map_if, List.Perm.rfl]
+  simp only [Option.guard_def, ← List.filterMap_eq_filter, Option.map_ite, List.Perm.rfl]
 
 theorem filterMap!_equiv_filter! {f : (a : α) → β a → Bool} (h : t.WF) :
     (t.filterMap! (fun k => Option.guard (fun v => f k v))) ~m

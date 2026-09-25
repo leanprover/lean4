@@ -131,6 +131,29 @@ theorem run_adapt [Monad m] (f : ε → ε') (x : ExceptT ε m α)
     : run (ExceptT.adapt f x : ExceptT ε' m α) = Except.mapError f <$> run x :=
   rfl
 
+theorem run_tryCatch [Monad m] [LawfulMonad m]
+    (x : ExceptT ε m α) (h : ε → ExceptT ε m α) :
+    (tryCatch x h : ExceptT ε m α).run =
+      (do
+        let r ← x.run
+        match r with
+        | .ok a => pure (.ok a)
+        | .error e => (h e).run) := by
+  simp only [tryCatch, tryCatchThe, MonadExceptOf.tryCatch, ExceptT.tryCatch, ExceptT.run_mk]
+  rfl
+
+@[simp] theorem run_liftM {m : Type u → Type v} [Monad m] [LawfulMonad m] (x : m α) :
+    (liftM x : ExceptT ε m α).run = (Except.ok <$> x : m (Except ε α)) := rfl
+
+theorem run_orElse [Monad m] [LawfulMonad m]
+    (x : ExceptT ε m α) (h : Unit → ExceptT ε m α) :
+    (OrElse.orElse x h : ExceptT ε m α).run = (do
+      let r ← x.run
+      match r with
+      | .ok a => pure (.ok a)
+      | .error _ => (h ()).run) := by
+  simp [OrElse.orElse, MonadExcept.orElse, run_tryCatch]
+
 end ExceptT
 
 /-! # Except -/

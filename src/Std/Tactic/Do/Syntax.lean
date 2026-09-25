@@ -7,6 +7,7 @@ module
 
 prelude
 public import Std.Do
+public import Std.WP.Tactic
 public import Std.Tactic.Do.ProofMode -- For (meta) importing `mgoalStx`; otherwise users might experience
 public import Init.Data.Array.GetLit
 public import Init.Grind.Interactive
@@ -50,18 +51,18 @@ structure Config where
   If `true` (the default), report a hard error when no `@[spec]` theorem matches the
   current program head. If `false`, leave such goals as unsolved VCs for the user to
   discharge manually. This is the behaviour that `mvcgen` exhibits implicitly;
-  the new prototypical `mvcgen'` opts into it via `(errorOnMissingSpec := false)`.
+  the new prototypical `vcgen` opts into it via `(errorOnMissingSpec := false)`.
   -/
   errorOnMissingSpec : Bool := true
   /--
-  If `true`, `mvcgen'` checks failed `BackwardRule.apply` calls by retrying after
+  If `true`, `vcgen` checks failed `BackwardRule.apply` calls by retrying after
   `unfoldReducible`-normalizing the goal. If the rule then succeeds, an earlier step
-  forgot a normalization; `mvcgen'` raises a hard error pointing at the offending
-  rule and the missing reduction. Off by default; only consulted by `mvcgen'`.
+  forgot a normalization; `vcgen` raises a hard error pointing at the offending
+  rule and the missing reduction. Off by default; only consulted by `vcgen`.
   -/
   debug : Bool := false
   /--
-  If `true` (the default in grind mode), `mvcgen'` calls `Grind.processHypotheses` on
+  If `true` (the default in grind mode), `vcgen` calls `Grind.processHypotheses` on
   each emitted VC, internalising local hypotheses into the parent's E-graph so that
   downstream grind steps share context. The tactic-level entry point disables this
   when there is no `with` clause (no grind step will consume the E-graph anyway).
@@ -72,21 +73,6 @@ end Lean.Elab.Tactic.Do.VCGen
 
 namespace Lean.Parser
 
-namespace Attr
-
-/--
-Theorems tagged with the `spec` attribute are used by the `mspec` and `mvcgen` tactics.
-
-* When used on a theorem `foo_spec : Triple (foo a b c) P Q`, then `mspec` and `mvcgen` will use
-  `foo_spec` as a specification for calls to `foo`.
-* Otherwise, when used on a definition that `@[simp]` would work on, it is added to the internal
-  simp set of `mvcgen` that is used within `wp⟦·⟧` contexts to simplify match discriminants and
-  applications of constants.
--/
-syntax (name := spec) "spec" (ppSpace prio)? : attr
-
-end Attr
-
 namespace Tactic
 
 @[tactic_alt Lean.Parser.Tactic.massumptionMacro]
@@ -96,7 +82,7 @@ syntax (name := massumption) "massumption" : tactic
 syntax (name := mclear) "mclear" colGt ident : tactic
 
 @[tactic_alt Lean.Parser.Tactic.mclearMacro]
-macro (name := mclearError) "mclear" : tactic => Macro.throwError "`mclear` expects at an identifier"
+macro (name := mclearError) "mclear" : tactic => Macro.throwError "`mclear` expects an identifier"
 
 @[tactic_alt Lean.Parser.Tactic.mconstructorMacro]
 syntax (name := mconstructor) "mconstructor" : tactic
@@ -387,32 +373,6 @@ macro "mvcgen_trivial" : tactic =>
   )
 
 /--
-An invariant alternative of the form `· term`, one per invariant goal.
--/
-syntax invariantDotAlt := ppDedent(ppLine) cdotTk (colGe term)
-
-/--
-An invariant alternative of the form `| inv<n> a b c => term`, one per invariant goal.
--/
-syntax invariantCaseAlt := ppDedent(ppLine) "| " caseArg " => " (colGe term)
-
-/--
-Either the contextual keyword ` invariants ` or its tracing form ` invariants? ` which suggests
-skeletons for missing invariants as a hint.
--/
-syntax invariantsKW := &"invariants " <|> &"invariants? "
-
-/--
-After `mvcgen [...]`, there can be an optional `invariants` followed by either
-* a bulleted list of invariants `· term; · term`.
-* a labelled list of invariants `| inv1 => term; inv2 a b c => term`, which is useful for naming
-  inaccessibles.
-The tracing variant ` invariants? ` will suggest a skeleton for missing invariants; see the
-docstring for `mvcgen`.
--/
-syntax invariantAlts := invariantsKW withPosition((colGe (invariantDotAlt <|> invariantCaseAlt))*)
-
-/--
 In induction alternative, which can have 1 or more cases on the left
 and `_`, `?_`, or a tactic sequence after the `=>`.
 -/
@@ -429,35 +389,42 @@ syntax (name := mvcgen) "mvcgen" optConfig
   (" [" withoutPosition((simpStar <|> simpErase <|> simpLemma),*,?) "] ")?
   (invariantAlts)? (vcAlts)? : tactic
 
+deprecated_syntax Lean.Parser.Tactic.mvcgen "use `vcgen` instead" (since := "2026-08-21")
+
 /--
 A hint tactic that expands to `mvcgen invariants?`.
 -/
 syntax (name := mvcgenHint) "mvcgen?" optConfig
   (" [" withoutPosition((simpStar <|> simpErase <|> simpLemma),*,?) "] ")? : tactic
 
--- Prototypical Sym-based variant of `mvcgen`; see `mvcgen` for documentation.
--- Same surface syntax modulo `vcAlts`, replaced by `simplifying_assumptions … with …`.
--- The optional `with $g` form is sugar for `sym => mvcgen' … <;> $g`: it enters grind
--- mode to share the internalised goal context with the user-supplied grind step (the only
--- way to do so from tactic mode). `$g` is a single grind-mode step, so passing a
--- multi-step sequence requires explicit grouping (e.g. `with (s₁; s₂)`).
-@[tactic_alt Lean.Parser.Tactic.mvcgen'Macro]
-syntax (name := mvcgen') "mvcgen'" optConfig
-  (" [" withoutPosition((simpStar <|> simpErase <|> simpLemma),*,?) "] ")?
-  (&" until " term)?
-  (invariantAlts)?
-  (&" simplifying_assumptions" (ppSpace colGt ident)? (" [" ident,* "]")?)?
-  (&" with " grind)? : tactic
+deprecated_syntax Lean.Parser.Tactic.mvcgenHint "use `vcgen` instead" (since := "2026-08-21")
 
-namespace Grind
-
-/-- `mvcgen'` step for `sym => …` blocks. No `with` clause: compose with subsequent grind
-steps using `<;>` instead. -/
-syntax (name := mvcgen') "mvcgen'" optConfig
-  (" [" withoutPosition((simpStar <|> simpErase <|> simpLemma),*,?) "] ")?
-  (&" until " term)?
-  (invariantAlts)?
-  (&" simplifying_assumptions" (ppSpace colGt ident)? (" [" ident,* "]")?)?
-  : grind
-
-end Grind
+deprecated_syntax massumption "the `Std.Do` proof mode is deprecated; use `vcgen` from `Std.WP`" (since := "2026-09-23")
+deprecated_syntax mclear "the `Std.Do` proof mode is deprecated; use `vcgen` from `Std.WP`" (since := "2026-09-23")
+deprecated_syntax mconstructor "the `Std.Do` proof mode is deprecated; use `vcgen` from `Std.WP`" (since := "2026-09-23")
+deprecated_syntax mexact "the `Std.Do` proof mode is deprecated; use `vcgen` from `Std.WP`" (since := "2026-09-23")
+deprecated_syntax mexfalso "the `Std.Do` proof mode is deprecated; use `vcgen` from `Std.WP`" (since := "2026-09-23")
+deprecated_syntax mexists "the `Std.Do` proof mode is deprecated; use `vcgen` from `Std.WP`" (since := "2026-09-23")
+deprecated_syntax mframe "the `Std.Do` proof mode is deprecated; use `vcgen` from `Std.WP`" (since := "2026-09-23")
+deprecated_syntax mdup "the `Std.Do` proof mode is deprecated; use `vcgen` from `Std.WP`" (since := "2026-09-23")
+deprecated_syntax mhave "the `Std.Do` proof mode is deprecated; use `vcgen` from `Std.WP`" (since := "2026-09-23")
+deprecated_syntax mreplace "the `Std.Do` proof mode is deprecated; use `vcgen` from `Std.WP`" (since := "2026-09-23")
+deprecated_syntax mright "the `Std.Do` proof mode is deprecated; use `vcgen` from `Std.WP`" (since := "2026-09-23")
+deprecated_syntax mleft "the `Std.Do` proof mode is deprecated; use `vcgen` from `Std.WP`" (since := "2026-09-23")
+deprecated_syntax mpure "the `Std.Do` proof mode is deprecated; use `vcgen` from `Std.WP`" (since := "2026-09-23")
+deprecated_syntax mpureIntro "the `Std.Do` proof mode is deprecated; use `vcgen` from `Std.WP`" (since := "2026-09-23")
+deprecated_syntax mrenameI "the `Std.Do` proof mode is deprecated; use `vcgen` from `Std.WP`" (since := "2026-09-23")
+deprecated_syntax mspecialize "the `Std.Do` proof mode is deprecated; use `vcgen` from `Std.WP`" (since := "2026-09-23")
+deprecated_syntax mspecializePure "the `Std.Do` proof mode is deprecated; use `vcgen` from `Std.WP`" (since := "2026-09-23")
+deprecated_syntax mstart "the `Std.Do` proof mode is deprecated; use `vcgen` from `Std.WP`" (since := "2026-09-23")
+deprecated_syntax mstop "the `Std.Do` proof mode is deprecated; use `vcgen` from `Std.WP`" (since := "2026-09-23")
+deprecated_syntax mleave "the `Std.Do` proof mode is deprecated; use `vcgen` from `Std.WP`" (since := "2026-09-23")
+deprecated_syntax mcases "the `Std.Do` proof mode is deprecated; use `vcgen` from `Std.WP`" (since := "2026-09-23")
+deprecated_syntax mrefine "the `Std.Do` proof mode is deprecated; use `vcgen` from `Std.WP`" (since := "2026-09-23")
+deprecated_syntax mintro "the `Std.Do` proof mode is deprecated; use `vcgen` from `Std.WP`" (since := "2026-09-23")
+deprecated_syntax mrevert "the `Std.Do` proof mode is deprecated; use `vcgen` from `Std.WP`" (since := "2026-09-23")
+deprecated_syntax mspecNoBind "the `Std.Do` proof mode is deprecated; use `vcgen` from `Std.WP`" (since := "2026-09-23")
+deprecated_syntax mspecNoSimp "the `Std.Do` proof mode is deprecated; use `vcgen` from `Std.WP`" (since := "2026-09-23")
+deprecated_syntax mspec "the `Std.Do` proof mode is deprecated; use `vcgen` from `Std.WP`" (since := "2026-09-23")
+deprecated_syntax tacticMvcgen_trivial_extensible "the `Std.Do` proof mode is deprecated; use `vcgen` from `Std.WP`" (since := "2026-09-23")
+deprecated_syntax tacticMvcgen_trivial "the `Std.Do` proof mode is deprecated; use `vcgen` from `Std.WP`" (since := "2026-09-23")

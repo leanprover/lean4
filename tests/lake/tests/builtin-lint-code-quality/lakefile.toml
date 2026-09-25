@@ -1,0 +1,9 @@
+name = "lint-code-quality"
+defaultTargets = ["Violations"]
+
+[[lean_lib]]
+name = "Linters"
+
+[[lean_lib]]
+name = "Violations"
+globs = "Violations.*"

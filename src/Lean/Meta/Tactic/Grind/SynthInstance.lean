@@ -9,6 +9,6 @@ public import Lean.Meta.Sym.SynthInstance
 public section
 namespace Lean.Meta.Grind
 
-export Sym (synthInstance synthInstance? synthInstanceMeta? synthInstanceAndAssign)
+export Sym (synthInstance synthInstance? synthInstanceMeta? synthInstanceAndAssign registerInstance)
 
 end Lean.Meta.Grind

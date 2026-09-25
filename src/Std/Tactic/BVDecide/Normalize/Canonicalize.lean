@@ -7,6 +7,7 @@ module
 
 prelude
 public import Init.Data.BitVec.Lemmas
+public import Init.Data.BitVec.Package
 public import Std.Tactic.BVDecide.Syntax
 public import Init.Data.BitVec.Bootstrap
 import Init.PropLemmas
@@ -26,7 +27,7 @@ theorem BitVec.eq_to_beq (a b : BitVec w) : (a = b) = ((a == b) = true) := by
   simp
 
 @[bv_normalize]
-theorem BitVec.ne_to_beq (a b : BitVec w) : (a ≠ b) = ((!(a == b)) = true) := by
+theorem BitVec.ne_to_beq (a b : BitVec w) : (¬a = b) = ((!(a == b)) = true) := by
   simp
 
 theorem Bool.eq_to_beq (a b : Bool) : (a = b) = ((a == b) = true) := by simp
@@ -44,7 +45,7 @@ theorem Bool.neg_to_not (a : Bool) : (¬a) = ((!a) = true) := by
   simp
 
 @[bv_normalize]
-theorem Bool.ne_to_beq (a b : Bool) : (a ≠ b) = ((!(a == b)) = true) := by
+theorem Bool.ne_to_beq (a b : Bool) : (¬a = b) = ((!(a == b)) = true) := by
   simp
 
 @[bv_normalize]
@@ -102,9 +103,15 @@ attribute [bv_normalize] BitVec.neg_eq
 attribute [bv_normalize] BitVec.mul_eq
 attribute [bv_normalize] BitVec.udiv_eq
 attribute [bv_normalize] BitVec.umod_eq
-attribute [bv_normalize ←] BitVec.shiftLeft_eq'
-attribute [bv_normalize ←] BitVec.sshiftRight_eq'
-attribute [bv_normalize ←] BitVec.ushiftRight_eq'
+
+@[bv_normalize]
+theorem BitVec.shiftLeft_eq' {x : BitVec w₁} {y : BitVec w₂} :  x <<< y.toNat = x <<< y := rfl
+
+@[bv_normalize]
+theorem BitVec.sshiftRight_eq' (x : BitVec w) : x.sshiftRight y.toNat = x.sshiftRight' y  := rfl
+
+@[bv_normalize]
+theorem BitVec.ushiftRight_eq' (x : BitVec w₁) (y : BitVec w₂) : x >>> y.toNat = x >>> y := rfl
 
 end Normalize
 end Std.Tactic.BVDecide

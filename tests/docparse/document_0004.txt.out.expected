@@ -1,0 +1,5 @@
+Input: ""
+Success! Final stack:
+  (Lean.Doc.Parser.document [])
+All input consumed.
+Round-trip OK

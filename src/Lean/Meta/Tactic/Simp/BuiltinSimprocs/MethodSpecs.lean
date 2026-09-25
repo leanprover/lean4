@@ -14,7 +14,7 @@ import Lean.Meta.Tactic.Simp.Main
 
 open Lean Meta Simp
 
-def reduceMethod (opName : String) (e : Expr) : SimpM Simp.Step := do
+private def reduceMethod (opName : String) (e : Expr) : SimpM Simp.Step := do
   let xs := e.getAppArgsN 3
   let inst := xs[0]!
   let lhs := xs[1]!
@@ -32,6 +32,7 @@ def reduceMethod (opName : String) (e : Expr) : SimpM Simp.Step := do
 
 public section
 
+set_option linter.coreInternal.internalModule false in -- User-facing builtin simprocs are fine
 /--
 This simproc reduces `_ == _` when both arguments are constructor applications and the `BEq` instance
 in question has been annotated with `@[method_specs]`.
@@ -40,6 +41,7 @@ builtin_simproc_decl reduceBEq (_ == _) := fun e => do
   unless e.isAppOfArity ``BEq.beq 4 do return .continue
   reduceMethod "beq" e
 
+set_option linter.coreInternal.internalModule false in -- User-facing builtin simprocs are fine
 /--
 This simproc reduces `Ord.compare _ _` when both arguments are constructor applications and the
 `Ord` instance in question has been annotated with `@[method_specs]`.

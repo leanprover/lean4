@@ -151,7 +151,7 @@ fun x y z =>
         (eagerReduce (Eq.refl true))))
 -/
 #guard_msgs (info) in
-open Int.Linear in
+open Int.Internal.Linear in
 #print ex₁
 
 theorem ex₂ (x y z : Int) (f : Int → Int) : x + f y + 2 + f y + z + z ≤ f y + 3*z + 1 + 1 + x + f y - z := by
@@ -171,7 +171,7 @@ fun x y z f =>
         (eagerReduce (Eq.refl true))))
 -/
 #guard_msgs (info) in
-open Int.Linear in
+open Int.Internal.Linear in
 #print ex₂
 
 example (x y : Int) (h : False) : 2*x = x + y := by
@@ -298,7 +298,7 @@ fun a b =>
       (iff_self (2 ∣ a + 2 * b + 11)))
 -/
 #guard_msgs (info) in
-open Lean in open Int.Linear in
+open Lean in open Int.Internal.Linear in
 #print ex3
 
 theorem ex4 (a b : Int) : 6 ∣ a + (11 - a) + 3*(a + 2*b) - 11 ↔ 2 ∣ a + 2*b := by
@@ -323,5 +323,5 @@ fun a b =>
       (iff_self (2 ∣ a)))
 -/
 #guard_msgs (info) in
-open Lean in open Int.Linear in
+open Lean in open Int.Internal.Linear in
 #print ex4

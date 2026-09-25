@@ -168,6 +168,58 @@ def withDeclNameForAuxNaming [Monad m] [MonadFinally m] [MonadDeclNameGenerator 
   else
     x
 
+/--
+Boolean options resolved eagerly into a single word, so that hot paths test a bit instead of looking
+the option up in a `KVMap`. The word is recomputed wherever the options change (`withOptions` and
+`Core.Context.setOptions`) and defaulted from them at construction; `Core.Context.optionFlags_eq`
+guarantees that it always agrees with the options in scope.
+
+Bits 0 to 8 are the definitional-equality and unfolding compatibility flags read on every step of
+`isDefEq` and `whnf`. Bit 9 is `diagnostics`.
+-/
+structure OptionFlags where
+  private bits : UInt16
+  deriving Inhabited, BEq, Hashable
+
+namespace OptionFlags
+
+@[inline] private def flag (b : Bool) (mask : UInt16) : UInt16 := if b then mask else 0
+
+@[inline] def respectTransparency (f : OptionFlags) : Bool := f.bits &&& 0x001 != 0
+@[inline] def respectTransparencyTypes (f : OptionFlags) : Bool := f.bits &&& 0x002 != 0
+@[inline] def respectTransparencyInstanceSearchTypes (f : OptionFlags) : Bool :=
+  f.bits &&& 0x004 != 0
+@[inline] def implicitBump (f : OptionFlags) : Bool := f.bits &&& 0x008 != 0
+@[inline] def reducibleClassField (f : OptionFlags) : Bool := f.bits &&& 0x010 != 0
+@[inline] def lazyProjDelta (f : OptionFlags) : Bool := f.bits &&& 0x020 != 0
+@[inline] def lazyWhnfCore (f : OptionFlags) : Bool := f.bits &&& 0x040 != 0
+@[inline] def smartUnfolding (f : OptionFlags) : Bool := f.bits &&& 0x080 != 0
+@[inline] def throwOnStuckAfterApp (f : OptionFlags) : Bool := f.bits &&& 0x100 != 0
+@[inline] def diag (f : OptionFlags) : Bool := f.bits &&& 0x200 != 0
+
+/--
+Resolves the flags from `opts`.
+
+The definitional-equality options are read by name because their declarations live in modules this
+one does not import.
+-/
+def ofOptions (opts : Options) : OptionFlags :=
+  let getB (n : Name) (d : Bool) : Bool :=
+    ((opts.find? n).bind KVMap.Value.ofDataValue?).getD d
+  { bits :=
+      flag (getB `backward.isDefEq.respectTransparency true) 0x001 |||
+      flag (getB `backward.isDefEq.respectTransparency.types true) 0x002 |||
+      flag (getB `backward.isDefEq.respectTransparency.instanceSearchTypes true) 0x004 |||
+      flag (getB `backward.isDefEq.implicitBump true) 0x008 |||
+      flag (getB `backward.whnf.reducibleClassField true) 0x010 |||
+      flag (getB `backward.isDefEq.lazyProjDelta true) 0x020 |||
+      flag (getB `backward.isDefEq.lazyWhnfCore true) 0x040 |||
+      flag (getB `smartUnfolding true) 0x080 |||
+      flag (getB `backward.isDefEq.throwOnStuckAfterApp false) 0x100 |||
+      flag (diagnostics.get opts) 0x200 }
+
+end OptionFlags
+
 namespace Core
 
 builtin_initialize registerTraceClass `Kernel
@@ -213,37 +265,58 @@ structure State where
   snapshotTasks : Array (Language.SnapshotTask Language.SnapshotTree) := #[]
   deriving Nonempty
 
-/-- Context for the CoreM monad. -/
-structure Context where
+/--
+The pointer-typed fields of `Core.Context` that are not updated on a recursion or `withRef` step.
+
+`withReader` can never reuse the `Context` record, so every `withIncRecDepth` and `withRef` pays one
+reference count increment per pointer field. Grouping the remaining fields into a subobject makes
+them cost a single increment together.
+
+Rarely-updated fields in particular tend to be MT during async elaboration, which makes RC traffic
+elisions on them even more valueable, explaining an outsized task-clock vs instrs impact of this
+optimization.
+-/
+structure Context.Cold where
   /-- Name of the file being compiled. -/
   fileName       : String
   /-- Auxiliary datastructure for converting `String.Pos` into Line/Column number. -/
   fileMap        : FileMap
   options        : Options := {}
-  currRecDepth   : Nat := 0
   maxRecDepth    : Nat := 1000
-  ref            : Syntax := Syntax.missing
   currNamespace  : Name := Name.anonymous
   openDecls      : List OpenDecl := []
   initHeartbeats : Nat := 0
   maxHeartbeats  : Nat := getMaxHeartbeats options
   quotContext    : Name := .anonymous
   currMacroScope : MacroScope := firstFrontendMacroScope
-  /--
-  If `diag := true`, different parts of the system collect diagnostics.
-  Use the `set_option diag true` to set it to true.
-  -/
-  diag           : Bool := false
   /-- If set, used to cancel elaboration from outside when results are not needed anymore. -/
   cancelTk?      : Option IO.CancelToken := none
+  /-- Cache of `Lean.inheritedTraceOptions`. -/
+  inheritedTraceOptions : Std.HashSet Name := {}
+  deriving Nonempty
+
+/-- Context for the CoreM monad. -/
+structure Context extends Context.Cold where
+  currRecDepth   : Nat := 0
+  ref            : Syntax := Syntax.missing
+  /-- Boolean options resolved from `options`; see `Lean.OptionFlags`. -/
+  optionFlags    : OptionFlags := .ofOptions options
+  /-- Enforces that `optionFlags` is always consistent with `options`. -/
+  optionFlags_eq : optionFlags = .ofOptions options := by rfl
   /--
   If set (when `showPartialSyntaxErrors` is not set and parsing failed), suppresses most elaboration
   errors; see also `logMessage` below.
   -/
   suppressElabErrors : Bool := false
-  /-- Cache of `Lean.inheritedTraceOptions`. -/
-  inheritedTraceOptions : Std.HashSet Name := {}
-  deriving Nonempty
+
+instance : Nonempty Context := ⟨{ toCold := Classical.ofNonempty }⟩
+
+/--
+Replaces the options, re-resolving the fields derived from them. Changing `options` directly leaves
+`optionFlags` behind, which `optionFlags_eq` rejects; use this instead.
+-/
+def Context.setOptions (ctx : Context) (options : Options) : Context :=
+  { ctx with options, optionFlags := .ofOptions options, optionFlags_eq := rfl }
 
 /-- CoreM is a monad for manipulating the Lean environment.
 It is the base monad for `MetaM`.
@@ -277,14 +350,15 @@ instance : MonadOptions CoreM where
 instance : MonadWithOptions CoreM where
   withOptions f x := do
     let options := f (← read).options
-    let diag := diagnostics.get options
-    if Kernel.isDiagnosticsEnabled (← getEnv) != diag then
-      modifyEnv fun env => Kernel.enableDiag env diag
+    let optionFlags := OptionFlags.ofOptions options
+    if Kernel.isDiagnosticsEnabled (← getEnv) != optionFlags.diag then
+      modifyEnv fun env => Kernel.enableDiag env optionFlags.diag
     withReader
       (fun ctx =>
         { ctx with
           options
-          diag
+          optionFlags
+          optionFlags_eq := rfl
           maxRecDepth := maxRecDepth.get options })
       x
 
@@ -770,9 +844,13 @@ def compileDecl (decl : Declaration) (logErrors := true) : CoreM Unit := do
 def getDiag (opts : Options) : Bool :=
   diagnostics.get opts
 
+/-- The boolean options in effect, resolved eagerly; see `Lean.OptionFlags`. -/
+@[inline] def getOptionFlags [Monad m] [MonadReaderOf Core.Context m] : m OptionFlags :=
+  return (← readThe Core.Context).optionFlags
+
 /-- Return `true` if diagnostic information collection is enabled. -/
 def isDiagnosticsEnabled : CoreM Bool :=
-  return (← read).diag
+  return (← getOptionFlags).diag
 
 def ImportM.runCoreM (x : CoreM α) : ImportM α := do
   let ctx ← read

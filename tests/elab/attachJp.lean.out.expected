@@ -2,7 +2,7 @@
     def f x b : Bool :=
       jp _jp.1 _y.2 : Bool :=
         let _x.3 := instDecidableEqNat x _y.2;
-        let _x.4 := decide ◾ _x.3;
+        let _x.4 := _x.3 # 0;
         return _x.4;
       cases b : Bool
       | Bool.false =>
@@ -15,7 +15,7 @@
     def f x b : Bool :=
       jp _jp.1 _y.2 : Bool :=
         let _x.3 := instDecidableEqNat x _y.2;
-        let _x.4 := decide ◾ _x.3;
+        let _x.4 := _x.3 # 0;
         return _x.4;
       cases b : Bool
       | Bool.false =>
@@ -28,7 +28,7 @@
     def f x b : Bool :=
       jp _jp.1 _y.2 : Bool :=
         let _x.3 := instDecidableEqNat x _y.2;
-        let _x.4 := decide ◾ _x.3;
+        let _x.4 := _x.3 # 0;
         return _x.4;
       cases b : Bool
       | Bool.false =>

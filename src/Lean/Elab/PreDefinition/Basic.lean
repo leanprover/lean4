@@ -163,9 +163,9 @@ docstring. If code generation will not occur, then it should be done after addin
 to the environment.
 -/
 def addPreDefDocs (docCtx : LocalContext × LocalInstances) (preDef : PreDefinition) : TermElabM Unit := do
-  if let some (doc, isVerso) := preDef.modifiers.docString? then
+  if let some doc := preDef.modifiers.docString? then
     withLCtx docCtx.1 docCtx.2 do
-      addDocStringOf isVerso preDef.declName preDef.binders doc
+      addDocString preDef.declName preDef.binders doc
 
 /--
 Adds constant info to the definition name. This should occur after executing post-compilation
@@ -178,9 +178,9 @@ def addPreDefInfo (preDef : PreDefinition) : TermElabM Unit := do
 
 private def addNonRecAux (docCtx : LocalContext × LocalInstances) (preDef : PreDefinition) (compile : Bool)
     (all : List Name) (applyAttrAfterCompilation := true) (cacheProofs := true) (cleanupValue := false)
-    (isRecursive := false) : TermElabM Unit :=
+    (isRecursive := false) (abstractProofs := true) : TermElabM Unit :=
   withRef preDef.ref do
-    let preDef ← abstractNestedProofs (cache := cacheProofs) preDef
+    let preDef ← if abstractProofs then abstractNestedProofs (cache := cacheProofs) preDef else pure preDef
     let preDef ← letToHaveType preDef
     let preDef ← if cleanupValue then letToHaveValue preDef else pure preDef
     let mkDefDecl : TermElabM Declaration :=
@@ -234,11 +234,16 @@ def addAndCompileNonRec (docCtx : LocalContext × LocalInstances) (preDef : PreD
     (all : List Name := [preDef.declName]) (cleanupValue := false) (isRecursive := false) : TermElabM Unit := do
   addNonRecAux docCtx preDef (compile := true) (all := all) (cleanupValue := cleanupValue) (isRecursive := isRecursive)
 
+/--
+Adds `preDef` to the environment without compiling it.
+Set `abstractProofs := false` when the nested proofs in `preDef.value` have already been abstracted.
+-/
 def addNonRec (docCtx : LocalContext × LocalInstances) (preDef : PreDefinition)
     (applyAttrAfterCompilation := true) (all : List Name := [preDef.declName]) (cacheProofs := true)
-    (cleanupValue := false) (isRecursive := false) : TermElabM Unit := do
+    (cleanupValue := false) (isRecursive := false) (abstractProofs := true) : TermElabM Unit := do
   addNonRecAux docCtx preDef (compile := false) (applyAttrAfterCompilation := applyAttrAfterCompilation)
     (all := all) (cacheProofs := cacheProofs) (cleanupValue := cleanupValue) (isRecursive := isRecursive)
+    (abstractProofs := abstractProofs)
 
 /--
   Eliminate recursive application annotations containing syntax. These annotations are used by the well-founded recursion module

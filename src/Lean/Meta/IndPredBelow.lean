@@ -9,7 +9,7 @@ prelude
 public import Lean.Meta.Match.MatcherApp.Basic
 import Lean.Meta.Constructions.CasesOn
 import Lean.Meta.Match.Match
-import Init.Data.Nat.Linear
+import Init.Data.Nat.Internal.Linear
 import Init.Omega
 
 /-!

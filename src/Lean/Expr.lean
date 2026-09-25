@@ -608,7 +608,6 @@ Export functions.
 @[export lean_expr_has_fvar] def hasFVarEx : Expr → Bool := hasFVar
 @[export lean_expr_has_expr_mvar] def hasExprMVarEx : Expr → Bool := hasExprMVar
 @[export lean_expr_has_level_mvar] def hasLevelMVarEx : Expr → Bool := hasLevelMVar
-@[export lean_expr_has_mvar] def hasMVarEx : Expr → Bool := hasMVar
 @[export lean_expr_has_level_param] def hasLevelParamEx : Expr → Bool := hasLevelParam
 @[export lean_expr_loose_bvar_range] def looseBVarRangeEx (e : Expr) : UInt32 := e.data.looseBVarRange
 @[export lean_expr_binder_info] def binderInfoEx : Expr → BinderInfo := binderInfo
@@ -756,7 +755,6 @@ Recall that all theorems and definitions containing numeric literals are encoded
 
 @[export lean_expr_mk_bvar] def mkBVarEx : Nat → Expr := mkBVar
 @[export lean_expr_mk_fvar] def mkFVarEx : FVarId → Expr := mkFVar
-@[export lean_expr_mk_mvar] def mkMVarEx : MVarId → Expr := mkMVar
 @[export lean_expr_mk_sort] def mkSortEx : Level → Expr := mkSort
 @[export lean_expr_mk_const] def mkConstEx (c : Name) (lvls : List Level) : Expr := mkConst c lvls
 @[export lean_expr_mk_app] def mkAppEx : Expr → Expr → Expr := mkApp
@@ -1707,7 +1705,6 @@ def getAutoParamTactic? (e : Expr) : Option Expr :=
     none
 
 /-- Return `true` if `e` is of the form `outParam _` -/
-@[export lean_is_out_param]
 def isOutParam (e : Expr) : Bool :=
   e.isAppOfArity ``outParam 1
 

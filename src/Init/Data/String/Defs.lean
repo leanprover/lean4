@@ -90,7 +90,7 @@ Examples:
  * `"abc" ++ "def" = "abcdef"`
  * `"" ++ "" = ""`
 -/
-@[extern "lean_string_append", expose]
+@[extern "lean_string_append", expose, implicit_reducible]
 def String.append (s : String) (t : @& String) : String where
   toByteArray := s.toByteArray ++ t.toByteArray
   isValidUTF8 := s.isValidUTF8.append t.isValidUTF8
@@ -107,6 +107,30 @@ theorem String.toByteArray_inj {s t : String} : s.toByteArray = t.toByteArray �
   rcases t with ⟨t⟩
   subst h
   rfl
+
+/--
+Marks a string as linear, which is a no-op logically.
+
+At runtime the string is first made unique, copying it if the reference is not already unique, and
+then marked. If the environment variable `LEAN_ABORT_ON_NONLINEAR` is set, every non-linear use
+from that point on causes a panic instead of a silent copy.
+
+To debug where the non-linearity is coming from you can set a breakpoint on `lean_internal_panic`.
+-/
+@[never_extract, extern "lean_string_mark_linear", expose]
+def String.markLinear (s : String) : String := s
+
+@[simp, grind =] theorem String.markLinear_eq {s : String} : s.markLinear = s := rfl
+
+/--
+Returns `t`, propagating the linearity marker of `s` onto it. This is a no-op logically.
+
+See also `String.markLinear`.
+-/
+@[never_extract, extern "lean_string_propagate_mark", expose]
+def String.propagateMark (s : @& String) (t : String) : String := t
+
+@[simp, grind =] theorem String.propagateMark_eq {s t : String} : s.propagateMark t = t := rfl
 
 @[simp] theorem String.toByteArray_ofList {l : List Char} : (String.ofList l).toByteArray = l.utf8Encode := by
   simp [String.ofList]
@@ -422,7 +446,7 @@ instance : Inhabited Slice where
 /--
 Returns a slice that contains the entire string.
 -/
-@[inline, expose] -- expose for the defeq `s.toSlice.str = s`.
+@[inline, expose, implicit_reducible] -- expose for the defeq `s.toSlice.str = s`.
 def toSlice (s : String) : Slice where
   str := s
   startInclusive := s.startPos
@@ -471,7 +495,7 @@ theorem Pos.Raw.byteIdx_sub_slice {p : Pos.Raw} {s : Slice} :
     (p - s).byteIdx = p.byteIdx - s.utf8ByteSize := rfl
 
 /-- The end position of a slice, as a `Pos.Raw`. -/
-@[expose, inline]
+@[expose, inline, implicit_reducible]
 def Slice.rawEndPos (s : Slice) : Pos.Raw where
   byteIdx := s.utf8ByteSize
 

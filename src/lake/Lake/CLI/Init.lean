@@ -231,7 +231,7 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
-      - uses: actions/checkout@v5
+      - uses: actions/checkout@v7
       - uses: leanprover/lean-action@v1
 "
 
@@ -254,7 +254,7 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
-      - uses: actions/checkout@v5
+      - uses: actions/checkout@v7
       - uses: leanprover/lean-action@v1
       - uses: leanprover-community/docgen-action@v1
 "
@@ -420,7 +420,7 @@ def initPkg
     let root := name
     let rootFile := Lean.modToFilePath dir root "lean"
     if tmp = .exe || (← rootFile.pathExists) then
-      return (root, some rootFile)
+      return (root, none)
     else
       let root := toUpperCamelCase name
       let rootFile := Lean.modToFilePath dir root "lean"

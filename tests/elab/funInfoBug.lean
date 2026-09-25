@@ -1,4 +1,5 @@
 import Lean.Data.AssocList
+open Lean
 
 def l : List (Prod Nat Nat) := [(1, 1), (2, 2)]
 #eval l -- works

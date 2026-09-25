@@ -20,7 +20,7 @@ Verso:
 { text := #[Lean.Doc.Block.para
               #[Lean.Doc.Inline.text "Module docs should parse as Verso here (fallback from ",
                 Lean.Doc.Inline.other
-                  { name := `Lean.Doc.Data.Option val := Dynamic.mk `Lean.Doc.Data.Option _ }
+                  ElabInline.custom (.mk `Lean.Doc.Data.Option _)
                   #[Lean.Doc.Inline.code "doc.verso"],
                 Lean.Doc.Inline.text ")."],
             Lean.Doc.Block.para

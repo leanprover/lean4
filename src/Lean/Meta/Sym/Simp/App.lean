@@ -12,7 +12,7 @@ import Lean.Meta.Sym.InferType
 import Lean.Meta.Sym.Simp.CongrInfo
 import Init.Omega
 namespace Lean.Meta.Sym.Simp
-open Internal
+open Lean.Meta.Sym.Internal
 
 /-!
 # Simplifying Application Arguments and Congruence Lemma Application
@@ -66,6 +66,18 @@ public def mkCongr (e : Expr) (f a : Expr) (fr : Result) (ar : Result) (_ : e = 
     let h := mkApp6 (← mkCongrPrefix ``congr) f f' a a' hf ha
     return .step e' h (contextDependent := cd₁ || cd₂)
 
+/-- `mkCongr` for an unchanged function `f`: `.rfl` if `ar` is, otherwise a `congrArg` proof. -/
+public def mkCongrArg (e : Expr) (f a : Expr) (ar : Result) (_ : e = .app f a) : SymM Result := do
+  match ar with
+  | .rfl _ cd => return mkRflResultCD cd
+  | .step a' ha _ cd =>
+    let α ← inferType a
+    let u ← getLevel α
+    let β ← inferType e
+    let v ← getLevel β
+    let e' ← mkAppS f a'
+    return .step e' (mkApp6 (mkConst ``congrArg [u, v]) α β a a' f ha) (contextDependent := cd)
+
 /--
 Returns a proof using `congrFun`
 ```
@@ -116,9 +128,13 @@ public def simpOverApplied (e : Expr) (numArgs : Nat) (simpFn : Expr → SimpM R
     if i == 0 then
       simpFn e
     else
-      let i := i - 1
       match h : e with
+      | .mdata _ b =>
+        -- `getMatchWithExtra` counts applications through `mdata`, so peel it without consuming `i`.
+        -- The wrapper is dropped from the result; the proof still applies since `mdata` is transparent.
+        visit b i
       | .app f a =>
+        let i := i - 1
         let fr ← visit f i
         let .forallE _ α β _ ← whnfD (← inferType f) | unreachable!
         if !β.hasLooseBVars then

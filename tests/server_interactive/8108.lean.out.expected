@@ -1,0 +1,34 @@
+{"version": 1,
+ "uri": "file:///8108.lean",
+ "isIncremental": false,
+ "diagnostics":
+ [{"source": "Lean 4",
+   "severity": 1,
+   "range":
+   {"start": {"line": 21, "character": 13},
+    "end": {"line": 21, "character": 25}},
+   "message":
+   "overloaded, errors \n  Application type mismatch: The argument\n    eq\n  has type\n    Nat → Nat → Prop\n  of sort `Type` but is expected to have type\n    Type\n  of sort `Type 1` in the application\n    mk_cons eq\n  \n  failed to synthesize instance of type class\n    HAndThen (Nat → Nat → Prop) (Nat → Prop) ?_\n  \n  Hint: Type class instance resolution failures can be inspected with the `set_option trace.Meta.synthInstance true` command.",
+   "fullRange":
+   {"start": {"line": 21, "character": 13},
+    "end": {"line": 21, "character": 25}}},
+  {"source": "Lean 4",
+   "severity": 1,
+   "range":
+   {"start": {"line": 31, "character": 18},
+    "end": {"line": 31, "character": 20}},
+   "message":
+   "Ambiguous term\n  ??\nPossible interpretations:\n  ?_ : Nat\n  \n  1 : Nat",
+   "fullRange":
+   {"start": {"line": 31, "character": 18},
+    "end": {"line": 31, "character": 20}}}]}
+{"textDocument": {"uri": "file:///8108.lean"},
+ "position": {"line": 21, "character": 23}}
+{"range":
+ {"start": {"line": 21, "character": 23}, "end": {"line": 21, "character": 24}},
+ "goal": "⊢ Nat"}
+{"textDocument": {"uri": "file:///8108.lean"},
+ "position": {"line": 31, "character": 18}}
+{"range":
+ {"start": {"line": 31, "character": 18}, "end": {"line": 31, "character": 20}},
+ "goal": "⊢ Nat"}

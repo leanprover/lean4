@@ -62,29 +62,31 @@ fun {P} {α β} {t} {α' β'} {t'} eq_1 eq_2 eq_3 =>
 13
 @Rbnode.brecOn : {α : Type u_2} →
   {motive : Rbnode α → Sort u_1} → (t : Rbnode α) → ((t : Rbnode α) → Rbnode.below t → motive t) → motive t
-recursor test.Trie.rec.{u} : {motive_1 : Trie → Sort u} →
-  {motive_2 : Rbnode (myPair Char Trie) → Sort u} →
-    {motive_3 : myPair Char Trie → Sort u} →
-      motive_1 Trie.Empty →
-        ((a : Char) → (a_1 : Rbnode (myPair Char Trie)) → motive_2 a_1 → motive_1 (Trie.mk a a_1)) →
-          motive_2 Rbnode.leaf →
-            ((lchild : Rbnode (myPair Char Trie)) →
-                (val : myPair Char Trie) →
-                  (rchild : Rbnode (myPair Char Trie)) →
-                    motive_2 lchild → motive_3 val → motive_2 rchild → motive_2 (lchild.redNode val rchild)) →
-              ((lchild : Rbnode (myPair Char Trie)) →
-                  (val : myPair Char Trie) →
-                    (rchild : Rbnode (myPair Char Trie)) →
-                      motive_2 lchild → motive_3 val → motive_2 rchild → motive_2 (lchild.blackNode val rchild)) →
-                ((a : Char) → (a_1 : Trie) → motive_1 a_1 → motive_3 (myPair.mk a a_1)) → (t : Trie) → motive_1 t
+recursor test.Trie.rec.{u} {motive_1 : Trie → Sort u} {motive_2 : Rbnode (myPair Char Trie) → Sort u}
+  {motive_3 : myPair Char Trie → Sort u} (Empty : motive_1 Trie.Empty)
+  (mk : (a : Char) → (a_1 : Rbnode (myPair Char Trie)) → motive_2 a_1 → motive_1 (Trie.mk a a_1))
+  (leaf : motive_2 Rbnode.leaf)
+  (redNode :
+    (lchild : Rbnode (myPair Char Trie)) →
+      (val : myPair Char Trie) →
+        (rchild : Rbnode (myPair Char Trie)) →
+          motive_2 lchild → motive_3 val → motive_2 rchild → motive_2 (lchild.redNode val rchild))
+  (blackNode :
+    (lchild : Rbnode (myPair Char Trie)) →
+      (val : myPair Char Trie) →
+        (rchild : Rbnode (myPair Char Trie)) →
+          motive_2 lchild → motive_3 val → motive_2 rchild → motive_2 (lchild.blackNode val rchild)) :
+  ((a : Char) → (a_1 : Trie) → motive_1 a_1 → motive_3 (myPair.mk a a_1)) → (t : Trie) → motive_1 t
 number of parameters: 0
+number of motives: 3 (positions 1–3)
+number of minor premises: 6 (positions 4–9)
 number of indices: 0
-number of motives: 3
-number of minors: 6
+major premise position: 10
 rules:
-for test.Trie.Empty (0 fields): fun motive_1 motive_2 motive_3 Empty mk leaf redNode blackNode mk_1 => Empty
-for test.Trie.mk (2 fields): fun motive_1 motive_2 motive_3 Empty mk leaf redNode blackNode mk_1 a a_1 =>
-  mk a a_1 (Trie.rec_1 Empty mk leaf redNode blackNode mk_1 a_1)
+  Trie.rec Empty mk✝ leaf redNode blackNode mk Trie.Empty
+    ==> Empty
+  Trie.rec Empty mk✝ leaf redNode blackNode mk (Trie.mk a✝¹ a✝)
+    ==> mk✝ a✝¹ a✝ (Trie.rec_1 Empty mk✝ leaf redNode blackNode mk a✝)
 @[reducible] protected def test.Trie.noConfusion.{u} : {P : Sort u} →
   {t t' : Trie} → t = t' → Trie.noConfusionType P t t' :=
 fun {P} {t t'} eq => eq ▸ t.casesOn (fun k => k) fun a a_1 k => k ⋯ ⋯

@@ -27,8 +27,10 @@ dead-code warning that fires on the surrounding continuation is actionable — t
 remove the following code without breaking the do block's type.
 -/
 @[builtin_doElem_elab Lean.Parser.Term.doRepeat] def elabDoRepeat : DoElab := fun stx dec => do
-  let `(doElem| repeat%$tk $seq) := stx | throwUnsupportedSyntax
-  let mut expanded ← `(doElem| for%$tk _ in Loop.mk do $seq)
+  let `(doElem| repeat%$tk $[$inv?:doLoopInvariant]? $[$var?:doLoopDecreasing]? $seq) := stx
+    | throwUnsupportedSyntax
+  let mut expanded ←
+    `(doElem| for%$tk _ in Loop.mk $[$inv?:doLoopInvariant]? $[$var?:doLoopDecreasing]? do $seq)
   let info ← inferControlInfoSeq seq
   if !info.breaks then
     if !(← Meta.isDefEqGuarded dec.resultType (← mkPUnit)) then
@@ -37,11 +39,16 @@ remove the following code without breaking the do block's type.
     withRef expanded <| elabDoElem ⟨expanded⟩ dec
 
 @[builtin_macro Lean.Parser.Term.doWhile] def expandDoWhile : Macro
-  | `(doElem| while%$tk $cond:doIfCond do $seq) => `(doElem| repeat%$tk if $cond:doIfCond then $seq else break)
+  | `(doElem| while%$tk $cond:doIfCond $[$inv?:doLoopInvariant]? $[$dec?:doLoopDecreasing]? do $seq) =>
+    `(doElem| repeat%$tk $[$inv?:doLoopInvariant]? $[$dec?:doLoopDecreasing]?
+        if $cond:doIfCond then $seq else break)
   | _ => Macro.throwUnsupported
 
 @[builtin_macro Lean.Parser.Term.doRepeatUntil] def expandDoRepeatUntil : Macro
-  | `(doElem| repeat%$tk $seq until $cond) => `(doElem| repeat%$tk do $seq:doSeq; if $cond then break)
+  | `(doElem| repeat%$tk $[$inv?:doLoopInvariant]? $[$dec?:doLoopDecreasing]? $seq until $cond) =>
+    `(doElem| repeat%$tk $[$inv?:doLoopInvariant]? $[$dec?:doLoopDecreasing]?
+        do $seq:doSeq
+        if $cond then break)
   | _ => Macro.throwUnsupported
 
 end Lean.Elab.Do

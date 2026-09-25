@@ -8,6 +8,7 @@ prelude
 public import Lean.Meta.Tactic.Grind.Types
 import Init.Grind.Util
 import Lean.Meta.Tactic.Grind.Util
+import Lean.Meta.Sym.Canon
 namespace Lean.Meta.Grind
 /-!
 Debugging support code for checking basic invariants.
@@ -123,6 +124,10 @@ public def checkInvariants (expensive := false) : GoalM Unit := do
     for e in (← getExprs) do
       let node ← getENode e
       checkParents node.self
+      -- Interpreted nodes must be literals in `grind` normal form: a non-canonical spelling
+      -- breaks the assumption that distinct interpreted nodes denote distinct values.
+      if node.interpreted then
+        assert! (← Sym.Canon.normNumLit? node.self).isNone
       if node.isRoot then
         checkEqc node
     if expensive then

@@ -64,7 +64,7 @@ builtin_initialize errorExplanationExt : SimplePersistentEnvExtension (Name × E
 def getErrorExplanation? [Monad m] [MonadEnv m] (name : Name) : m (Option ErrorExplanation) := do
   return errorExplanationExt.getState (← getEnv) |>.find? name
 
-@[deprecated getErrorExplanation? (since := "2026-12-20")]
+@[deprecated getErrorExplanation? +typeChanged (since := "2025-12-20")]
 def getErrorExplanationRaw? (env : Environment) (name : Name) : Option ErrorExplanation := do
   errorExplanationExt.getState env |>.find? name
 
@@ -78,7 +78,7 @@ def getErrorExplanations [Monad m] [MonadEnv m] : m (Array (Name × ErrorExplana
     |>.toArray
     |>.qsort fun e e' => e.1.toString < e'.1.toString
 
-@[deprecated getErrorExplanations (since := "2026-12-20")]
+@[deprecated getErrorExplanations +typeChanged (since := "2025-12-20")]
 def getErrorExplanationsRaw (env : Environment) : Array (Name × ErrorExplanation) :=
   errorExplanationExt.getState env
     |>.toArray

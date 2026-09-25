@@ -56,7 +56,7 @@ created directly with `IterM.dropWhileWithPostcondition` but only with
 `Intermediate.dropWhileWithPostcondition` is meant to be used only for internally or for
 verification purposes.
 -/
-@[always_inline, inline]
+@[always_inline, inline, implicit_reducible]
 def IterM.Intermediate.dropWhileWithPostcondition (P : β → PostconditionT m (ULift Bool))
     (dropping : Bool) (it : IterM (α := α) m β) :=
   (⟨Iterators.Types.DropWhile.mk (P := P) dropping it⟩ : IterM m β)
@@ -80,7 +80,7 @@ directly with `IterM.dropWhile` but only with `Intermediate.dropWhile`.
 
 `Intermediate.dropWhile` is meant to be used only for internally or for verification purposes.
 -/
-@[always_inline, inline]
+@[always_inline, inline, implicit_reducible]
 def IterM.Intermediate.dropWhile [Monad m] (P : β → Bool) (dropping : Bool)
     (it : IterM (α := α) m β) :=
   (IterM.Intermediate.dropWhileWithPostcondition (pure ∘ ULift.up ∘ P) dropping it : IterM m β)

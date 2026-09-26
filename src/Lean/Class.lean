@@ -6,6 +6,7 @@ Authors: Leonardo de Moura
 module
 prelude
 public import Lean.Attributes
+public import Lean.ScopedEnvExtension
 import Lean.Util.CollectLevelParams
 public section
 namespace Lean
@@ -173,6 +174,48 @@ def addClass (env : Environment) (clsName : Name) : Except MessageData Environme
   let outParams ← checkOutParam 0 #[] #[] decl.type
   let outLevelParams := computeOutLevelParams decl.type outParams decl.levelParams
   return classExtension.addEntry env { name := clsName, outParams, outLevelParams }
+
+/--
+Classes marked `@[lax_instance_defeq]` are exempt from the strict instance-argument discipline of
+`backward.isDefEq.respectTransparency.instances`: a value assigned to an instance metavariable of
+such a class is not required to have a type that matches the metavariable's type at `.instances`
+transparency. The instance-argument check of `simp`/`dsimp` (`dsimp.resynthInstances`) and the
+`linter.tacticCheckInstances` linter skip these classes as well.
+-/
+builtin_initialize laxInstanceDefeqExt : SimpleScopedEnvExtension Name NameSet ←
+  registerSimpleScopedEnvExtension {
+    initial  := {}
+    addEntry := fun s n => s.insert n
+  }
+
+builtin_initialize
+  registerBuiltinAttribute {
+    name  := `lax_instance_defeq
+    descr := "exempt instances of a class from the strict defeq check at `.instances` \
+      transparency (see `backward.isDefEq.respectTransparency.instances`)"
+    add   := fun declName stx kind => do
+      Attribute.Builtin.ensureNoArgs stx
+      unless isClass (← getEnv) declName do
+        throwError "invalid `lax_instance_defeq`, `{.ofConstName declName}` is not a class"
+      laxInstanceDefeqExt.add declName kind
+  }
+
+/-- Whether a class type's result sort is `Prop`. -/
+private def isPropValued : Expr → Bool
+  | .forallE _ _ b _ => isPropValued b
+  | .sort u          => u == .zero
+  | _                => false
+
+/--
+Return `true` if instances of class `className` are exempt from the strict defeq check at
+`.instances` transparency: the class is marked `@[lax_instance_defeq]`, or it is propositional
+(proof irrelevance makes a stale instance argument harmless there). See `laxInstanceDefeqExt`.
+-/
+def isLaxInstanceDefeqClass (env : Environment) (className : Name) : Bool :=
+  (laxInstanceDefeqExt.getState env).contains className ||
+    match env.find? className with
+    | some info => isPropValued info.type
+    | none => false
 
 /--
 Registers an inductive type or structure as a type class. Using `class` or `class inductive` is

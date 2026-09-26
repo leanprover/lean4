@@ -6,6 +6,7 @@ Authors: Leonardo de Moura
 module
 prelude
 public import Lean.Meta.Sym.Simp.SimpM
+public import Lean.Meta.Sym.Simp.Discharger
 import Lean.Meta.Sym.Simp.Result
 import Lean.Meta.Sym.Arith.Norm
 public section
@@ -50,9 +51,15 @@ relations differ in what `post` sees:
   (`evalGround`), and how rewrite rules on relations apply after normalization. Its two
   sides are cached as normal forms. If `post` rewrites the relation, that step is not final
   and `simp` continues on the result as usual.
+
+The discharger `d` proves the side conditions `x ≠ 0` under which `x * x⁻¹` is cancelled in a
+field.
 -/
-def simpArith : Simproc := fun e => do
-  let r ← Arith.normalize? e simp
+def simpArith (d : Discharger := dischargeNone) : Simproc := fun e => do
+  let r ← Arith.normalize? e simp fun p => do
+    match (← d p) with
+    | .solved h _ => return some h
+    | .failed _ => return none
   match r with
   | .rfl true cd =>
     if isRelation e then postRelation e e none cd else return r

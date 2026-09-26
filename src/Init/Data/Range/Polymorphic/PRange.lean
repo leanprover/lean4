@@ -7,6 +7,7 @@ module
 
 prelude
 public import Init.Data.Range.Polymorphic.UpwardEnumerable
+public import Init.Data.Range.Polymorphic.DownwardEnumerable
 
 set_option doc.verso true
 set_option linter.missingDocs true
@@ -228,7 +229,7 @@ This is a prerequisite for many functions and instances, such as
 class Rxo.IsAlwaysFinite (α : Type u) [UpwardEnumerable α] [LT α] : Prop where
   /--
   For every pair of elements {name}`init` and {name}`hi`, there exists a chain of successors that
-  results in an element that either has no successors or is greater than {name}`hi`.
+  results in an element that either has no successors or is greater than or equal to {name}`hi`.
   -/
   finite (init : α) (hi : α) :
     ∃ n, (UpwardEnumerable.succMany? n init).elim True (¬ · < hi)
@@ -245,6 +246,44 @@ class Rxi.IsAlwaysFinite (α : Type u) [UpwardEnumerable α] : Prop where
   results in an element that has no successors.
   -/
   finite (init : α) : ∃ n, UpwardEnumerable.succMany? n init = none
+
+/--
+This type class ensures that left-closed ranges (i.e., for bounds {given (type := "α")}`a` and {given (type := "α")}`b`,
+{lean}`a...=b`, {lean}`a...b` and {lean}`a...*`) are always finite.
+This is a prerequisite for many functions and instances, such as {name}`ForIn'`.
+-/
+class Rcx.IsAlwaysFiniteRev (α : Type u) [DownwardEnumerable α] [LE α] : Prop where
+  /--
+  For every pair of elements {name}`init` and {name}`lo`, there exists a chain of predecessors that
+  results in an element that either has no predecessors or is less than {name}`lo`.
+  -/
+  finite (init : α) (lo : α) :
+    ∃ n, (DownwardEnumerable.predMany? n init).elim True (¬ lo ≤ ·)
+
+/--
+This type class ensures that left-open ranges (i.e., for bounds {given (type := "α")}`a` and {given (type := "α")}`b`,
+{lean}`a<...=b`, {lean}`a<...b` and {lean}`a<...*`) are always finite.
+This is a prerequisite for many functions and instances, such as {name}`ForIn'`.
+-/
+class Rox.IsAlwaysFiniteRev (α : Type u) [DownwardEnumerable α] [LT α] : Prop where
+  /--
+  For every pair of elements {name}`init` and {name}`lo`, there exists a chain of predecessors that
+  results in an element that either has no predecessors or is less than or equal to {name}`lo`.
+  -/
+  finite (init : α) (lo : α) :
+    ∃ n, (DownwardEnumerable.predMany? n init).elim True (¬ lo < ·)
+
+/--
+This type class ensures that left-unbounded ranges (i.e., for a bound {given (type := "α")}`a`,
+{lean}`*...=a`, {lean}`*...a` and {lean}`*...*`) are always finite.
+This is a prerequisite for many functions and instances, such as {name}`ForIn'`.
+-/
+class Rix.IsAlwaysFiniteRev (α : Type u) [DownwardEnumerable α] : Prop where
+  /--
+  For every elements {name}`init`, there exists a chain of predecessors that
+  results in an element that has no predecessors.
+  -/
+  finite (init : α) : ∃ n, DownwardEnumerable.predMany? n init = none
 
 namespace Rcc
 

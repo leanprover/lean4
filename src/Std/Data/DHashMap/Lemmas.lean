@@ -1269,10 +1269,45 @@ namespace Const
 
 variable {β : Type v} {m : DHashMap α (fun _ => β)}
 
+@[simp, grind =]
+theorem length_values [EquivBEq α] [LawfulHashable α] :
+    m.values.length = m.size :=
+  Raw₀.Const.length_values ⟨m.1, m.2.size_buckets_pos⟩ m.2
+
+@[simp, grind =]
+theorem isEmpty_values [EquivBEq α] [LawfulHashable α] :
+    m.values.isEmpty = m.isEmpty :=
+  Raw₀.Const.isEmpty_values ⟨m.1, m.2.size_buckets_pos⟩ m.2
+
+@[simp]
+theorem toArray_values :
+    m.values.toArray = m.valuesArray :=
+  Raw₀.Const.toArray_values_eq_valuesArray ⟨m.1, m.2.size_buckets_pos⟩
+
+@[simp]
+theorem toList_valuesArray :
+    m.valuesArray.toList = m.values :=
+  Raw₀.Const.toList_valuesArray_eq_values ⟨m.1, m.2.size_buckets_pos⟩
+
+@[simp]
+theorem size_valuesArray [EquivBEq α] [LawfulHashable α] :
+    m.valuesArray.size = m.size :=
+  Raw₀.Const.size_valuesArray ⟨m.1, m.2.size_buckets_pos⟩ m.2
+
+@[simp]
+theorem isEmpty_valuesArray [EquivBEq α] [LawfulHashable α] :
+    m.valuesArray.isEmpty = m.isEmpty :=
+  Raw₀.Const.isEmpty_valuesArray ⟨m.1, m.2.size_buckets_pos⟩ m.2
+
 @[simp, grind _=_]
 theorem map_fst_toList_eq_keys [EquivBEq α] [LawfulHashable α] :
     (toList m).map Prod.fst = m.keys :=
   Raw₀.Const.map_fst_toList_eq_keys ⟨m.1, m.2.size_buckets_pos⟩
+
+@[simp, grind _=_]
+theorem map_snd_toList_eq_values [EquivBEq α] [LawfulHashable α] :
+    (toList m).map Prod.snd = m.values :=
+  Raw₀.Const.map_snd_toList_eq_values ⟨m.1, m.2.size_buckets_pos⟩
 
 @[simp, grind =]
 theorem length_toList [EquivBEq α] [LawfulHashable α] :
@@ -1384,6 +1419,11 @@ theorem toList_toArray :
 theorem map_fst_toArray_eq_keysArray [EquivBEq α] [LawfulHashable α] :
     (DHashMap.Const.toArray m).map Prod.fst = m.keysArray :=
   Raw₀.Const.map_fst_toArray_eq_keysArray ⟨m.1, m.2.size_buckets_pos⟩
+
+@[simp]
+theorem map_snd_toArray_eq_valuesArray [EquivBEq α] [LawfulHashable α] :
+    (DHashMap.Const.toArray m).map Prod.snd = m.valuesArray :=
+  Raw₀.Const.map_snd_toArray_eq_valuesArray ⟨m.1, m.2.size_buckets_pos⟩
 
 @[simp]
 theorem size_toArray [EquivBEq α] [LawfulHashable α] :

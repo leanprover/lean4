@@ -1,8 +1,7 @@
-import Init.Grind
-import Init.Data.BitVec
-
 /-!
-Tests for `BitVec.toInt_signExtend` homomorphism rule in `grind`.
+Tests for the `BitVec.toInt_signExtend` homomorphism rule in `grind`: the signed value of
+`x.signExtend v` is `x.toInt.bmod (2 ^ min v w)`, so narrowing reduces modulo `2 ^ v` and
+widening is the identity on `toInt`.
 -/
 
 example (x : BitVec 16) : (x.signExtend 32).toInt = x.toInt := by grind

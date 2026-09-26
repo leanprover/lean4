@@ -80,13 +80,13 @@ example (x : BitVec 16) (n : Nat) : (x.sshiftRight n).signed = x.signed >>> n :=
 example (x y : BitVec 16) : (x.sdiv y).signed = (x.signed.tdiv y.signed).bmod (2 ^ 16) := by grind
 example (x y : BitVec 16) : (x.srem y).signed = x.signed.tmod y.signed := by grind
 example (x y : BitVec 16) : (x.smod y).signed = x.signed.fmod y.signed := by grind
--- TODO: `grind` fails (signed `pow`, `~~~`, `<<<`, `signExtend`)
+-- TODO: `grind` fails (signed `pow`, `~~~`, `<<<`)
 /-
 example (x : BitVec 16) (z : Nat) : (x.pow z).signed = (x.signed ^ z).bmod (2 ^ 16) := by grind
 example (x : BitVec 16) : (~~~x).signed = (~~~x.signed).bmod (2 ^ 16) := by grind
 example (x : BitVec 16) (n : Nat) : (x <<< n).signed = (x.signed <<< n).bmod (2 ^ 16) := by grind
-example (x : BitVec 16) (v : Nat) : (x.signExtend v).signed = x.signed.bmod (2 ^ min v 16) := by grind
 -/
+example (x : BitVec 16) (v : Nat) : (x.signExtend v).signed = x.signed.bmod (2 ^ min v 16) := by grind
 example (x : BitVec 16) (v : Nat) : (x.zeroExtend v).signed = x.unsigned.bmod (2 ^ v) := by grind
 example (x : BitVec 16) (n : Nat) : (x.setWidth n).unsigned = x.unsigned % (2 ^ n) := by grind
 example (x : BitVec 16) (n : Nat) : (x.zeroExtend n).unsigned = x.unsigned % (2 ^ n) := by grind
@@ -154,10 +154,7 @@ example (x : BitVec 16) : x <<< 1 = x + x := by grind
 example (x : BitVec 8) : (x.zeroExtend 16).zeroExtend 32 = x.zeroExtend 32 := by grind
 
 -- Sign extension preserves signed value
--- TODO: `grind` fails (`signExtend` to a larger width)
-/-
 example (x : BitVec 16) : (x.signExtend 32).signed = x.signed := by grind
--/
 
 -- Sign-extending a signed value to the same size is identity
 example (x : BitVec 16) : x.signExtend 16 = x := by grind

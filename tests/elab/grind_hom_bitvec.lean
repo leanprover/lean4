@@ -42,15 +42,12 @@ example (x : BitVec 64) :
     x.unsigned = y.unsigned := by
   grind
 
--- TODO: `grind` fails (carry propagation through `BitVec.ofInt`)
-/-
 example (x y : BitVec 64) (c : BitVec 1) :
     let s := x.unsigned + y.unsigned + c.unsigned
     let l := BitVec.ofInt 64 s
     let h := BitVec.ofInt 1 (s >>> 64)
     s = l.unsigned + 2^64 * h.unsigned := by
   grind
--/
 
 -- Tests for every supported operation
 

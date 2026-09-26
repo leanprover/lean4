@@ -31,6 +31,8 @@ public structure BuildConfig extends LogConfig where
   outputsFile? : Option FilePath := none
   /-- When tracking input-to-output mappings, the workspace index of the tracked package. -/
   outputsIdx : Nat := 0
+  /-- Print a build summary table at the end. -/
+  summary : Bool := false
   /--
   Per-package Lean option overrides, applied to every module whose owning
   package's `baseName` appears as a key. When `recFetchSetup` builds module

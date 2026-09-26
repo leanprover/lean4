@@ -148,28 +148,25 @@ def ematchThms (only : Bool) (thms : Array EMatchTheorem) : GrindTacticM Unit :=
     let thms ← thms.mapM (preprocessTheorem · 0)
     if only then ematchOnly thms else ematch thms
   unless progress do
-    throwError "`instantiate` tactic failed to instantiate new facts, use `show_patterns` to see active theorems and their patterns."
+    throwError "`instantiate` tactic failed to instantiate new facts\n\
+      Use `show_patterns` to inspect active theorem patterns, or `show_patterns [thm₁, ...]` to inspect specific theorems."
   liftAction Action.assertAll
 
-@[builtin_grind_tactic instantiate] def evalInstantiate : GrindTactic := fun stx => withMainContext do
-  let `(grind| instantiate $[ only%$only ]? $[ approx ]? $[ [ $[$thmRefs?:thm],* ] ]?) := stx | throwUnsupportedSyntax
-  let goal ← getMainGoal
-  let only := only.isSome
-  let initThms ← if only then goal.getActiveMatchEqTheorems else pure #[]
-  let mut thms := initThms
-  if let some thmRefs := thmRefs? then
-    for thmRef in thmRefs do
-      match thmRef with
-      -- **Note**: Delete `namespace` modifier. We should use a custom `grind` attribute for this.
-      | `(Parser.Tactic.Grind.thm| namespace $ns:ident) =>
-        let namespaceName := ns.getId
-        let scopedThms ← Grind.grindExt.getEMatchTheoremsForNamespace namespaceName
-        thms := thms ++ scopedThms
-      | `(Parser.Tactic.Grind.thm| #$anchor:hexnum) => thms := thms ++ (← withRef thmRef <| elabLocalEMatchTheorem anchor)
-      | `(Parser.Tactic.Grind.thm| $[$mod?:grindMod]? $id:ident) => thms := thms ++ (← withRef thmRef <| elabThm mod? id false)
-      | `(Parser.Tactic.Grind.thm| ! $[$mod?:grindMod]? $id:ident) => thms := thms ++ (← withRef thmRef <| elabThm mod? id true)
-      | _ => throwErrorAt thmRef "unexpected theorem reference"
-  ematchThms only thms
+/-- Resolves theorem references without internalizing their patterns or activating the theorems. -/
+private def elabEMatchTheoremRefs (thmRefs : TSyntaxArray ``Parser.Tactic.Grind.thm) : GrindTacticM (Array EMatchTheorem) := do
+  let mut thms := #[]
+  for thmRef in thmRefs do
+    match thmRef with
+    -- **Note**: Delete `namespace` modifier. We should use a custom `grind` attribute for this.
+    | `(Parser.Tactic.Grind.thm| namespace $ns:ident) =>
+      let namespaceName := ns.getId
+      let scopedThms ← Grind.grindExt.getEMatchTheoremsForNamespace namespaceName
+      thms := thms ++ scopedThms
+    | `(Parser.Tactic.Grind.thm| #$anchor:hexnum) => thms := thms ++ (← withRef thmRef <| elabLocalEMatchTheorem anchor)
+    | `(Parser.Tactic.Grind.thm| $[$mod?:grindMod]? $id:ident) => thms := thms ++ (← withRef thmRef <| elabThm mod? id false)
+    | `(Parser.Tactic.Grind.thm| ! $[$mod?:grindMod]? $id:ident) => thms := thms ++ (← withRef thmRef <| elabThm mod? id true)
+    | _ => throwErrorAt thmRef "unexpected theorem reference"
+  return thms
 where
   collectThms (anchorRef : AnchorRef) (thms : PArray EMatchTheorem) : StateT (Array EMatchTheorem) GrindTacticM Unit := do
     let mut found : Std.HashSet Expr := {}
@@ -254,6 +251,24 @@ where
         return thms.toArray
     | .cases _ | .intro | .inj | .ext | .symbol _ | .funCC | .norm .. | .unfold | .homo | .homoPred =>
       throwError "invalid modifier"
+
+@[builtin_grind_tactic instantiate] def evalInstantiate : GrindTactic := fun stx => withMainContext do
+  let `(grind| instantiate $[ only%$only ]? $[ approx ]? $[ [ $[$thmRefs?:thm],* ] ]?) := stx | throwUnsupportedSyntax
+  let goal ← getMainGoal
+  let only := only.isSome
+  let mut thms ← if only then goal.getActiveMatchEqTheorems else pure #[]
+  if let some thmRefs := thmRefs? then
+    thms := thms ++ (← elabEMatchTheoremRefs thmRefs)
+  ematchThms only thms
+
+@[builtin_grind_tactic showPatterns] def evalShowPatterns : GrindTactic := fun stx => withMainContext do
+  let `(grind| show_patterns $[ [ $[$thmRefs?:thm],* ] ]?) := stx | throwUnsupportedSyntax
+  let goal ← getMainGoal
+  let thms ← if let some thmRefs := thmRefs? then
+    elabEMatchTheoremRefs thmRefs
+  else
+    pure <| goal.ematch.thms.toArray ++ goal.ematch.newThms.toArray
+  logInfo (← ppEMatchTheorems thms (collapsed := false))
 
 def logAnchor (c : SplitInfo) : TermElabM Unit := do
   let e := c.getExpr

@@ -13,6 +13,7 @@ public import Init.Data.Bool
 public import Init.Data.Nat.Log2
 import Init.ByCases
 import Init.Data.Int.Pow
+import Init.Data.Nat.Dvd
 import Init.Data.Nat.Lemmas
 import Init.Omega
 import Init.RCases
@@ -496,7 +497,6 @@ theorem bitwise_mod_two_pow (of_false_false : f false false = false := by rfl) :
 @[simp, grind =] theorem testBit_and (x y i : Nat) : (x &&& y).testBit i = (x.testBit i && y.testBit i) := by
   simp [HAnd.hAnd, AndOp.and, land, testBit_bitwise ]
 
-
 @[simp, grind =] protected theorem and_self (x : Nat) : x &&& x = x := by
    apply Nat.eq_of_testBit_eq
    simp
@@ -876,3 +876,159 @@ theorem left_le_or {n m : Nat} : n ≤ n ||| m :=
 
 theorem right_le_or {n m : Nat} : m ≤ n ||| m :=
   le_of_testBit (by simp [imp_or_right_iff_true])
+
+/-! ### Trailing zeros -/
+
+/-- A bit-by-bit specification used to verify the chunked implementation. -/
+private noncomputable def trailingZerosBits (n : Nat) : Nat :=
+  n.rec (fun _ => nat_lit 0) (fun _ ih n =>
+    ((nat_lit 2).ble n).rec (nat_lit 0)
+      (((n.mod (nat_lit 2)).beq (nat_lit 0)).rec (nat_lit 0)
+        ((ih (n.div (nat_lit 2))).succ))) n
+
+private theorem trailingZerosBits_rec_irrel {n k k' : Nat} (hk : n ≤ k) (hk' : n ≤ k') :
+    (k.rec (fun _ => 0) (fun _ ih n =>
+      ((2).ble n).rec 0 (((n % 2).beq 0).rec 0 ((ih (n / 2)).succ))) n : Nat) =
+    (k'.rec (fun _ => 0) (fun _ ih n =>
+      ((2).ble n).rec 0 (((n % 2).beq 0).rec 0 ((ih (n / 2)).succ))) n : Nat) := by
+  induction k generalizing n k' with
+  | zero => cases hk; cases k' <;> rfl
+  | succ k ih =>
+    cases k'
+    · cases hk'; rfl
+    · dsimp only
+      cases h : Nat.ble 2 n
+      · rfl
+      · cases (n % 2).beq 0
+        · rfl
+        · have hn := Nat.log2_terminates n (Nat.le_of_ble_eq_true h)
+          exact congrArg Nat.succ
+            (ih (Nat.le_of_lt_add_one (Nat.lt_of_lt_of_le hn hk))
+              (Nat.le_of_lt_add_one (Nat.lt_of_lt_of_le hn hk')))
+
+private theorem trailingZerosBits_def (n : Nat) :
+    trailingZerosBits n = if n = 0 then 0 else if n % 2 = 0 then trailingZerosBits (n / 2) + 1 else 0 := by
+  rw [trailingZerosBits, trailingZerosBits]
+  cases n with
+  | zero => rfl
+  | succ n =>
+    simp only [Nat.succ_ne_zero, ↓reduceIte]
+    cases h : Nat.ble 2 (n + 1)
+    · have h' : ¬ 2 ≤ n + 1 := fun hn => Bool.noConfusion (h.symm.trans (Nat.ble_eq_true_of_le hn))
+      have : n = 0 := by omega
+      subst n
+      rfl
+    · cases hb : ((n + 1).mod 2).beq 0
+      · have he : (n + 1) % 2 ≠ 0 := Nat.ne_of_beq_eq_false hb
+        rw [ite_eq_right he]
+      · have he : (n + 1) % 2 = 0 := Nat.eq_of_beq_eq_true hb
+        rw [ite_eq_left he]
+        exact congrArg Nat.succ
+          (trailingZerosBits_rec_irrel (n := (n + 1) / 2) (k := n) (by omega) (Nat.le_refl _))
+
+private theorem trailingZerosBits_eq_zero_of_mod_eq {n : Nat} (h : n % 2 = 1) :
+    trailingZerosBits n = 0 := by
+  rw [trailingZerosBits_def]
+  split <;> simp_all
+
+private theorem trailingZerosBits_two_mul {n : Nat} (h : n ≠ 0) :
+    trailingZerosBits (2 * n) = trailingZerosBits n + 1 := by
+  rw [trailingZerosBits_def, ite_eq_right (by omega)]
+  simp
+
+private theorem trailingZerosBits_two_pow_mul {n : Nat} (h : n ≠ 0) (k : Nat) :
+    trailingZerosBits (2 ^ k * n) = trailingZerosBits n + k := by
+  induction k with
+  | zero => simp
+  | succ k ih =>
+    rw [Nat.pow_succ', Nat.mul_assoc,
+      trailingZerosBits_two_mul (Nat.mul_ne_zero (Nat.ne_of_gt (Nat.two_pow_pos k)) h), ih]
+    omega
+
+private theorem trailingZerosBits_mod_two_pow {n k : Nat} (h : n % 2 ^ k ≠ 0) :
+    trailingZerosBits (n % 2 ^ k) = trailingZerosBits n := by
+  induction k generalizing n with
+  | zero => simp only [Nat.pow_zero, Nat.mod_one, ne_eq, not_true_eq_false] at h
+  | succ k ih =>
+    rcases Nat.mod_two_eq_zero_or_one n with hn | hn
+    · obtain ⟨m, rfl⟩ := Nat.dvd_of_mod_eq_zero hn
+      rw [Nat.pow_succ', Nat.mul_mod_mul_left] at h ⊢
+      have hm : m % 2 ^ k ≠ 0 := by omega
+      have hm' : m ≠ 0 := by intro hz; simp [hz] at hm
+      rw [trailingZerosBits_two_mul hm, trailingZerosBits_two_mul hm', ih hm]
+    · rw [trailingZerosBits_eq_zero_of_mod_eq hn]
+      apply trailingZerosBits_eq_zero_of_mod_eq
+      rwa [Nat.mod_mod_of_dvd _ (by rw [Nat.pow_succ']; exact Nat.dvd_mul_right ..)]
+
+private theorem trailingZeros_lowWord_eq_mod (n : Nat) :
+    (0xffffffffffffffff).land n = n % 2 ^ 64 := by
+  change (2 ^ 64 - 1) &&& n = n % 2 ^ 64
+  rw [Nat.and_comm, Nat.and_two_pow_sub_one_eq_mod]
+
+-- The recursor mirrors `trailingZeros`; `trailingZerosBits` unfolds to its local bit counter.
+private theorem trailingZeros_rec_eq_bits {n fuel : Nat} (h : n ≤ fuel) :
+    (fuel.rec (fun _ => 0) (fun _ ih n =>
+      (n.beq 0).rec
+        ((((0xffffffffffffffff).land n).beq 0).rec
+          (trailingZerosBits ((0xffffffffffffffff).land n))
+          ((ih (n >>> 64)).add 64)) 0) n : Nat) = trailingZerosBits n := by
+  induction fuel generalizing n with
+  | zero => cases h; rfl
+  | succ fuel ih =>
+    dsimp only
+    cases hz : n.beq 0
+    · have hn : n ≠ 0 := Nat.ne_of_beq_eq_false hz
+      cases hw : ((0xffffffffffffffff).land n).beq 0
+      · have hw' : n % 2 ^ 64 ≠ 0 := by
+          rw [← trailingZeros_lowWord_eq_mod]
+          exact Nat.ne_of_beq_eq_false hw
+        simpa only [trailingZeros_lowWord_eq_mod] using trailingZerosBits_mod_two_pow hw'
+      · have hw' : n % 2 ^ 64 = 0 := by
+          rw [← trailingZeros_lowWord_eq_mod]
+          exact Nat.eq_of_beq_eq_true hw
+        have hlt : n >>> 64 < n := by
+          rw [Nat.shiftRight_eq_div_pow]
+          exact Nat.div_lt_self (Nat.pos_of_ne_zero hn) (by decide)
+        rw [ih (by omega)]
+        have heq : 2 ^ 64 * (n / 2 ^ 64) = n := Nat.mul_div_cancel' (Nat.dvd_of_mod_eq_zero hw')
+        have hq : n / 2 ^ 64 ≠ 0 := by intro hz; rw [hz, Nat.mul_zero] at heq; omega
+        simpa only [Nat.shiftRight_eq_div_pow, heq] using (trailingZerosBits_two_pow_mul hq 64).symm
+    · have hn := Nat.eq_of_beq_eq_true hz
+      subst n
+      rfl
+
+private theorem trailingZeros_eq_bits (n : Nat) : trailingZeros n = trailingZerosBits n :=
+  trailingZeros_rec_eq_bits (Nat.le_refl n)
+
+theorem trailingZeros_def (n : Nat) :
+    trailingZeros n = if n = 0 then 0 else if n % 2 = 0 then trailingZeros (n / 2) + 1 else 0 := by
+  simp only [trailingZeros_eq_bits]
+  exact trailingZerosBits_def n
+
+@[simp] theorem trailingZeros_zero : trailingZeros 0 = 0 := rfl
+
+theorem trailingZeros_eq_zero_of_mod_eq {n : Nat} (h : n % 2 = 1) :
+    trailingZeros n = 0 := by
+  rw [trailingZeros_def]
+  split <;> simp_all
+
+theorem trailingZeros_two_mul {n : Nat} (h : n ≠ 0) :
+    trailingZeros (2 * n) = trailingZeros n + 1 := by
+  rw [trailingZeros_def, ite_eq_right (by omega)]
+  simp
+
+/-- The trailing-zero count is the index of the least significant set bit. -/
+theorem trailingZeros_eq_of_testBit {n i : Nat} (hi : n.testBit i = true)
+    (hlo : ∀ j < i, n.testBit j = false) : n.trailingZeros = i := by
+  induction i generalizing n with
+  | zero => exact trailingZeros_eq_zero_of_mod_eq (mod_two_eq_one_iff_testBit_zero.mpr hi)
+  | succ i ih =>
+    have hn : n ≠ 0 := by intro h; simp [h] at hi
+    have heven : n % 2 = 0 := mod_two_eq_zero_iff_testBit_zero.mpr (hlo 0 (by omega))
+    rw [trailingZeros_def, ite_eq_right hn, ite_eq_left heven]
+    congr 1
+    apply ih
+    · simpa only [testBit_succ] using hi
+    · intro j hj
+      rw [← testBit_succ]
+      exact hlo (j + 1) (by omega)

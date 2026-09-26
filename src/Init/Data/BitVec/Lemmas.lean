@@ -21,6 +21,7 @@ import Init.Data.Int.Bitwise.Lemmas
 import Init.Data.Int.DivMod.Lemmas
 import Init.Data.Int.LemmasAux
 import Init.Data.Int.Pow
+import Init.Data.Nat.Bitwise.Lemmas
 import Init.Data.Nat.Div.Lemmas
 import Init.Data.Nat.MinMax
 import Init.Data.Nat.Mod
@@ -6714,6 +6715,33 @@ theorem two_pow_ctz_le_toNat_of_ne_zero {x : BitVec w} (hx : x ≠ 0#w) :
     2 ^ (ctz x).toNat ≤ x.toNat := by
   have hclz := getLsbD_true_ctz_of_ne_zero (x := x) hx
   exact Nat.ge_two_pow_of_testBit hclz
+
+/-- For a nonzero bitvector, `ctz` agrees with the trailing-zero count of its natural value. -/
+theorem toNat_ctz_of_ne_zero {x : BitVec w} (hx : x ≠ 0) :
+    x.ctz.toNat = x.toNat.trailingZeros := by
+  symm
+  apply Nat.trailingZeros_eq_of_testBit
+  · exact getLsbD_true_ctz_of_ne_zero hx
+  · intro i hi
+    exact getLsbD_false_of_lt_ctz hi
+
+@[simp] theorem ctz_zero : (0#w).ctz = BitVec.ofNat w w := by
+  change (0#w).reverse.clz = (w : BitVec w)
+  exact clz_eq_iff_eq_zero.mpr (reverse_eq_zero_iff.mpr rfl)
+
+/-- Unlike `Nat.trailingZeros`, `ctz` returns the bit width on zero. -/
+theorem toNat_ctz (x : BitVec w) :
+    x.ctz.toNat = if x = 0 then w else x.toNat.trailingZeros := by
+  by_cases hx : x = 0
+  · simp [hx, ctz_zero]
+  · rw [ite_eq_right hx, toNat_ctz_of_ne_zero hx]
+
+/-- Expresses `ctz` using the natural trailing-zero count, with the bit width as its zero case. -/
+theorem ctz_eq (x : BitVec w) :
+    x.ctz = if x = 0 then BitVec.ofNat w w else BitVec.ofNat w x.toNat.trailingZeros := by
+  calc
+    x.ctz = BitVec.ofNat w x.ctz.toNat := by simp
+    _ = _ := by rw [toNat_ctz]; split <;> rfl
 
 /-! ### Population Count -/
 

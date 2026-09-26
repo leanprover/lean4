@@ -33,6 +33,9 @@ for imported declarations. Results are cached in `State.seen`.
 When processing a constant not found in `extFind?` or the cache, the function temporarily
 clears the axiom accumulator, recurses into the constant's dependencies, caches the result
 in `seen`, and merges the collected axioms back.
+
+An inductive block is processed as a unit: all mutually declared types and their constructors
+share the union of their axiom dependencies, even if some siblings do not refer to each other.
 -/
 private partial def collect
     (extFind? : Environment → Name → Option (Array Name))
@@ -48,10 +51,10 @@ private partial def collect
     modify fun s => { s with axioms := insertArray s.axioms axs }
     return
   -- Recurse: temporarily clear axioms to isolate this constant's contribution.
-  -- Insert sentinel to prevent infinite recursion (e.g., inductives ↔ constructors).
   let savedAxioms := s.axioms
   modify fun s => { s with axioms := {}, seen := s.seen.insert c #[] }
   let collectExpr (e : Expr) : M Unit := e.getUsedConstants.forM (collect extFind?)
+  let mut names := #[c]
   -- Take constants from the kernel env, which may differ from the elab env for (async) errors.
   match env.checked.get.find? c with
   | some (.axiomInfo v)  =>
@@ -61,15 +64,28 @@ private partial def collect
   | some (.thmInfo v)    => collectExpr v.type *> collectExpr v.value
   | some (.opaqueInfo v) => collectExpr v.type *> collectExpr v.value
   | some (.quotInfo _)   => pure ()
-  | some (.ctorInfo v)   => collectExpr v.type
+  | some (.ctorInfo v)   => collect extFind? v.induct
   | some (.recInfo v)    => collectExpr v.type
-  | some (.inductInfo v) => collectExpr v.type *> v.ctors.forM (collect extFind?)
-  | none                 => pure ()
+  | some (.inductInfo v) =>
+      let mut block := #[]
+      for indName in v.all do
+        if let some (.inductInfo ind) := env.checked.get.find? indName then
+          block := block.push ind.toConstantVal
+          for ctorName in ind.ctors do
+            if let some (.ctorInfo ctor) := env.checked.get.find? ctorName then
+              block := block.push ctor.toConstantVal
+      names := block.map (·.name)
+      -- Mark the whole block before walking any types, so internal edges cannot cache
+      -- incomplete results for individual members.
+      modify fun s => { s with seen := names.foldl (fun seen name => seen.insert name #[]) s.seen }
+      for member in block do
+        collectExpr member.type
+  | none => pure ()
   -- Cache result (sorted for canonical order) and merge back into saved axioms
   let collected := (← get).axioms
   let result := collected.toArray.qsort Name.lt
   modify fun s => { s with
-    seen   := s.seen.insert c result
+    seen   := names.foldl (fun seen name => seen.insert name result) s.seen
     axioms := insertArray savedAxioms result
   }
 

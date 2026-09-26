@@ -29,9 +29,9 @@ inline SSL_CTX * lean_to_ssl_context(lean_object * o) { return (SSL_CTX*)lean_ge
 // Context Operations
 
 extern "C" LEAN_EXPORT lean_obj_res lean_ssl_ctx_mk_server(b_obj_arg cert, b_obj_arg key, b_obj_arg client_auth,
-    b_obj_arg client_ca, b_obj_arg alpn, uint8_t min, uint8_t max);
+    b_obj_arg client_ca, uint8_t min, uint8_t max);
 extern "C" LEAN_EXPORT lean_obj_res lean_ssl_ctx_mk_client(b_obj_arg trust, b_obj_arg ca, b_obj_arg env,
-    b_obj_arg cert, b_obj_arg key, b_obj_arg alpn, uint8_t min, uint8_t max);
+    b_obj_arg cert, b_obj_arg key, uint8_t min, uint8_t max);
 extern "C" LEAN_EXPORT uint8_t lean_ssl_env_ignored();
 
 }

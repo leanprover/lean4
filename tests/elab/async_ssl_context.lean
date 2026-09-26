@@ -602,33 +602,11 @@ def testCertEnvVars (f : Fixtures) : IO Unit := do
       (discard <| Context.Client.mk { trust := .only #[.text testRejectedCertPEM] })
 
 /-!
-Protocol settings: ALPN names, the version range, and certificates on both sides of mutual TLS.
+Protocol settings: the version range, and certificates on both sides of mutual TLS.
 Whether they take effect is a handshake matter; these check what is accepted and refused up front.
 -/
 
 def insecure : Context.Client.Config := { trust := .insecureSkipVerify }
-
-def alpnLengthError (name : String) : String :=
-  malformedPEMError s!"an ALPN protocol name must be 1 to 255 bytes long: \"{name}\""
-
-def testAlpnNames : IO Unit := do
-  let longest := String.ofList (List.replicate 255 'a')
-
-  let _clientCtx ← Context.Client.mk { insecure with alpn := #["h2", "http/1.1", longest] }
-  let _serverCtx ← Context.Server.mk
-    { cert := .text testCertPEM, key := .text testKeyPEM, alpn := #["h2", "http/1.1"] }
-
-  assertErrorMessage "empty ALPN name" (alpnLengthError "")
-    (discard <| Context.Client.mk { insecure with alpn := #["h2", ""] })
-
-  assertErrorMessage "256-byte ALPN name" (alpnLengthError (longest.push 'a'))
-    (discard <| Context.Server.mk
-      { cert := .text testCertPEM, key := .text testKeyPEM, alpn := #[longest.push 'a'] })
-
-  -- 256 entries of 256 bytes each, length bytes included.
-  assertErrorMessage "ALPN list over 65535 bytes"
-    (malformedPEMError "the ALPN protocol list is longer than 65535 bytes")
-    (discard <| Context.Client.mk { insecure with alpn := Array.replicate 256 longest })
 
 def testVersionRange : IO Unit := do
   let ranges : List (Version × Version) := [(.tls12, .tls12), (.tls12, .tls13), (.tls13, .tls13)]
@@ -761,9 +739,8 @@ def testClientCredentials (f : Fixtures) : IO Unit := do
   testRejectsDirectoryPaths f
   testReadsNonRegularFile f
 
--- Protocol settings and mutual TLS.
+-- The version range and mutual TLS.
 #eval withFixtures fun f => do
-  testAlpnNames
   testVersionRange
   testClientAuth f
   testClientCredentials f

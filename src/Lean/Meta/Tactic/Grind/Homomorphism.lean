@@ -13,6 +13,7 @@ import Lean.Meta.NatInstTesters
 import Lean.Meta.Sym.LitValues
 import Lean.Meta.Tactic.Grind.Diseq
 import Lean.Meta.Sym.Simp.Rewrite
+import Lean.Meta.Sym.Simp.EvalGround
 public section
 namespace Lean.Meta.Grind.Homo
 
@@ -135,15 +136,20 @@ private def andMaskSimproc : Sym.Simp.Simproc := fun e => do
     return .step e' h
 
 /--
-Rewriter for the `[grind hom]` rules and the builtin `andMaskSimproc`, with the stop
-condition: `grind` internalizes terms bottom-up, so when no rule applies to a term that
-is already in the E-graph, the term and all its subterms have already been processed by
-the engine, and there is nothing to do at any depth. Traversal cost is thus proportional
-to the new terms produced by the rewriting, not to the size of the input term.
+Rewriter for the `[grind hom]` rules and the builtin simprocs, with the stop condition:
+`grind` internalizes terms bottom-up, so when no rule applies to a term that is already
+in the E-graph, the term and all its subterms have already been processed by the engine,
+and there is nothing to do at any depth. Traversal cost is thus proportional to the new
+terms produced by the rewriting, not to the size of the input term.
+
+Ground terms are evaluated first: the injections produce ground subterms such as
+`63 % 2 ^ 64` for the literal `63#64`, and the literal-based simprocs (e.g.
+`andMaskSimproc`) must see the evaluated form within the same traversal.
 -/
 private def mkRewriter : GoalM Sym.Simp.Simproc := do
   let s ← get
-  let rw := (← getThms).rewrite <|> andMaskSimproc
+  -- `grind` keeps bit-vector literals in `OfNat.ofNat` form.
+  let rw := Sym.Simp.evalGround { bitVecOfNat := false } <|> (← getThms).rewrite <|> andMaskSimproc
   return fun e => do
     let r ← rw e
     if !r.isRfl then return r

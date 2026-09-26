@@ -29,9 +29,9 @@ axiom alloc_aligned (n : Nat) : alloc n &&& 0xfff#64 = 0#64
 
 grind_pattern alloc_aligned => alloc n
 
-/- The `grind => bv_decide` examples disable `[grind hom]`: with it, `grind` rewrites the
-`&&&`-by-mask goals into `%` and `/` arithmetic and closes them before `bv_decide` runs.
-Each is followed by a variant where `grind` closes the goal on its own. -/
+/- The `grind => bv_decide` and `sym => … bv_decide` examples disable `[grind hom]`: with it,
+the `&&&`-by-mask goals are rewritten into `%` and `/` arithmetic and closed before `bv_decide`
+runs. Each `grind` example is followed by a variant where `grind` closes the goal on its own. -/
 example (n m : Nat) (x : BitVec 64) (h : m = n + 1) (hx : x = alloc m) :
     (x + alloc (n + 1)) &&& 0x1fff#64 = 0#64 := by
   grind -hom =>
@@ -44,18 +44,26 @@ example (n m : Nat) (x : BitVec 64) (h : m = n + 1) (hx : x = alloc m) :
 
 example (n m : Nat) (x : BitVec 64) (h : m = n + 1) (hx : x = alloc m) :
     (x + alloc (n + 1)) &&& 0x1fff#64 = 0#64 := by
-  sym =>
+  sym -hom =>
     instantiate [alloc_aligned]
     by_contra
     bv_decide
 
 example (n m : Nat) (x : BitVec 64) (h : m = n + 1) (hx : x = alloc m) :
     (x + alloc (n + 1)) &&& 0x1fff#64 = 0#64 := by
-  sym =>
+  sym => instantiate [alloc_aligned]
+
+example (n m : Nat) (x : BitVec 64) (h : m = n + 1) (hx : x = alloc m) :
+    (x + alloc (n + 1)) &&& 0x1fff#64 = 0#64 := by
+  sym -hom =>
     instantiate [alloc_aligned]
     bv_decide_push
     by_contra
     bv_decide
+
+example (n m : Nat) (x : BitVec 64) (h : m = n + 1) (hx : x = alloc m) :
+    (x + alloc (n + 1)) &&& 0x1fff#64 = 0#64 := by
+  sym => instantiate [alloc_aligned]
 
 example (n : Nat) (h1 : 0 < n) (h2 : n < 2) (h3 : x = alloc 1) :
     (x + alloc n) &&& 0x1fff#64 = 0#64 := by

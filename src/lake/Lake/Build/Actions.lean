@@ -7,6 +7,7 @@ module
 
 prelude
 public import Lake.Util.Log
+public import Lake.Build.WrappedExec
 import Lake.Util.Proc
 import Lake.Util.FilePath
 import Lake.Util.IO
@@ -26,19 +27,78 @@ open Lean hiding SearchPath
 
 namespace Lake
 
+/--
+The `lean` invocation for a module, as computed by `mkLeanModuleArgs`.
+
+`outputs` lists the output files `args` names, with path strings
+byte-identical to the corresponding argv tokens. Wrappers rely on this
+congruence (e.g. a sandbox wrapper computes its redirect table as
+`outputs ∩ args`).
+-/
+public structure LeanModuleInvocation where
+  args : Array String
+  /-- Output files embedded in `args` (see above). -/
+  outputs : Array FilePath
+  /-- When `true`, `-c` is omitted from `args`; the C output is produced by
+  the separate `compileLeanIR` action instead. -/
+  postponeCompile : Bool
+
+/--
+Compute the argv for invoking `lean` on a module given its resolved `ModuleSetup`, output
+artifacts, and any extra `leanArgs`, together with the output files the argv names. Pure:
+performs no IO and does not create the setup file.
+
+Exposed for tooling that needs to reproduce Lake's exact `lean` invocation without running it
+(e.g. static build-graph extraction).
+-/
+public def mkLeanModuleArgs
+  (leanFile : FilePath) (setup : ModuleSetup) (setupFile : FilePath)
+  (arts : ModuleArtifacts) (leanArgs : Array String := #[])
+: LeanModuleInvocation := Id.run do
+  let mut args := leanArgs.push leanFile.toString
+  let mut outputs := #[]
+  if let some oleanFile := arts.olean? then
+    args := args ++ #["-o", oleanFile.toString]
+    outputs := outputs.push oleanFile
+  if let some ileanFile := arts.ilean? then
+    args := args ++ #["-i", ileanFile.toString]
+    outputs := outputs.push ileanFile
+  let opts := setup.options.toOptions
+  let postponeCompile := setup.isModule && Compiler.compiler.postponeCompile.get opts
+  if !postponeCompile then
+    if let some cFile := arts.c? then
+      args := args ++ #["-c", cFile.toString]
+      outputs := outputs.push cFile
+  if let some bcFile := arts.bc? then
+    args := args ++ #["-b", bcFile.toString]
+    outputs := outputs.push bcFile
+  args := args ++ #["--setup", setupFile.toString]
+  args := args.push "--json"
+  return {args, outputs, postponeCompile}
+
+/-- Run the separate code generation process, optionally through a wrapper. -/
 public def compileLeanIR
   (setupFile irFile cFile : FilePath)
   (leanPath : SearchPath := [])
   (leanir : FilePath := "leanir")
+  (wrap? : Option WrappedExec.JobIO := none)
 : LogIO Unit := do
   createParentDirs irFile
   createParentDirs cFile
-  proc {
+  let job? := wrap?.map fun job => { job with
+    inputs := job.inputs.push setupFile
+    outputs := #[irFile, irFile.addExtension "sig", cFile]
+  }
+  WrappedExec.procOrWrapped {
     cmd := leanir.toString
     args := #[setupFile.toString, irFile.toString, cFile.toString]
     env := #[("LEAN_PATH", leanPath.toString)]
-  }
+  } job?
 
+/-- Invoke Lean with optional declared-I/O metadata for `$LAKE_WRAPPED_EXEC`.
+The caller supplies import artifacts; this action adds the source, setup file,
+dynamic libraries, plugins, and the outputs of elaboration. Deferred code generation
+runs separately through `compileLeanIR`. -/
 public def compileLeanModule
   (leanFile relLeanFile : FilePath)
   (setup : ModuleSetup) (setupFile : FilePath)
@@ -46,35 +106,34 @@ public def compileLeanModule
   (leanArgs : Array String := #[])
   (leanPath : SearchPath := [])
   (lean : FilePath := "lean")
+  (wrap? : Option WrappedExec.JobIO := none)
 : LogIO Unit := do
-  let mut args := leanArgs.push leanFile.toString
-  if let some oleanFile := arts.olean? then
-    createParentDirs oleanFile
-    args := args ++ #["-o", oleanFile.toString]
-  if let some ileanFile := arts.ilean? then
-    createParentDirs ileanFile
-    args := args ++ #["-i", ileanFile.toString]
-  let opts := setup.options.toOptions
-  let postponeCompile := setup.isModule && Compiler.compiler.postponeCompile.get opts
+  if let some oleanFile := arts.olean? then createParentDirs oleanFile
+  if let some ileanFile := arts.ilean? then createParentDirs ileanFile
+  let {args, outputs, postponeCompile} := mkLeanModuleArgs leanFile setup setupFile arts leanArgs
   if !postponeCompile then
-    if let some cFile := arts.c? then
-      createParentDirs cFile
-      args := args ++ #["-c", cFile.toString]
-  if let some bcFile := arts.bc? then
-    createParentDirs bcFile
-    args := args ++ #["-b", bcFile.toString]
+    if let some cFile := arts.c? then createParentDirs cFile
+  if let some bcFile := arts.bc? then createParentDirs bcFile
   createParentDirs setupFile
   IO.FS.writeFile setupFile (toJson setup).pretty
-  args := args ++ #["--setup", setupFile.toString]
-  args := args.push "--json"
   withLogErrorPos do
-  let out ← rawProc {
-    args
-    cmd := lean.toString
-    env := #[
-      ("LEAN_PATH", leanPath.toString)
-    ]
+  let job? := wrap?.map fun job => { job with
+    -- The setup file, dynlibs, and plugins are declared inputs too.
+    -- Lake writes the setup file before dispatch. Wrappers must not return
+    -- a translated copy as an output. Undeclared metaprogram reads are not tracked.
+    inputs := #[leanFile, setupFile] ++ job.inputs
+              ++ setup.dynlibs ++ setup.plugins.map (·.path)
+    -- In module mode `lean` derives companion outputs (`.olean.server`,
+    -- `.olean.private`, `.ir.sig`, `.ir`) from the `-o` path; they never appear in
+    -- argv, so declare them from `arts`. With `postponeCompile` the `.ir.sig`,
+    -- `.ir`, and `.c` are produced by the separate `leanir` job instead.
+    outputs := outputs ++ #[arts.oleanServer?, arts.oleanPrivate?].filterMap id
+      ++ (if postponeCompile then #[] else #[arts.irSig?, arts.ir?].filterMap id)
   }
+  let out ← Lake.WrappedExec.runRawProcOrWrapped
+    { args, cmd := lean.toString,
+      env := #[("LEAN_PATH", leanPath.toString)] }
+    job?
   let outLogPos ← getLogPos
   unless out.stdout.isEmpty do
     let txt ← out.stdout.split '\n' |>.foldM (init := "") fun (txt : String) ln => do

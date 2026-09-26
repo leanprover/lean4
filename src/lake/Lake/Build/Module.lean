@@ -263,15 +263,34 @@ structure TransImportEntry where
   /-- Whether this module has been transitively imported by a `meta import`. -/
   needsMeta : Bool
 
+/--
+Fetch the transitive import artifacts reachable from `directImports`.
+
+By default the direct imports' own artifacts are expected in `directArts`
+(as computed by the import-info fold) and only their transitive children
+are walked. With `includeDirect := true` the direct imports themselves are
+walked as well, so the result is self-contained — used by the wrapped-exec
+hook to compute a module's full input closure (`nonModule := true` forces
+`importAll` on every edge, yielding `allArts` for every reachable module).
+-/
 partial def fetchTransImportArts
   (directImports : Array ModuleImport) (directArts : NameMap ImportArtifacts) (nonModule : Bool)
+  (includeDirect := false)
 : FetchM (NameMap ImportArtifacts) := do
-  let q ← directImports.foldrM (init := #[]) fun imp q => do
-    let some mod := imp.module? | return q
-    let input ← (← mod.input.fetch).await
-    let importAll := strictOr nonModule imp.importAll
-    return enqueue importAll imp.isMeta input q
+  let q ←
+    if includeDirect then
+      pure <| directImports.foldr (init := #[]) fun imp q =>
+        match imp.module? with
+        | some mod => q.push {mod, importAll := strictOr nonModule imp.importAll, needsMeta := imp.isMeta}
+        | none => q
+    else
+      directImports.foldrM (init := #[]) fun imp q => do
+        let some mod := imp.module? | return q
+        let input ← (← mod.input.fetch).await
+        let importAll := strictOr nonModule imp.importAll
+        return enqueue importAll imp.isMeta input q
   walk directArts {} {} q
+
 where
   walk s (allVisited metaVisited : NameSet) (q : Array TransImportEntry) := do
     if h : 0 < q.size then
@@ -1091,6 +1110,18 @@ def Module.recBuildLtar (self : Module) : FetchM (Job FilePath) := do
 public def Module.ltarFacetConfig : ModuleFacetConfig ltarFacet :=
   mkFacetJobConfig recBuildLtar
 
+/-- Collect declared import artifacts only when wrapped execution is enabled. -/
+def Module.wrappedJob? (mod : Module) (presetup : ModulePreSetup)
+: FetchM (Option WrappedExec.JobIO) := do
+  if (← IO.getEnv "LAKE_WRAPPED_EXEC").isNone then
+    return none
+  -- Include non-exported references followed by Lean's artifact loader.
+  let transArts ← fetchTransImportArts presetup.directImports {}
+    (nonModule := true) (includeDirect := true)
+  let inputs := transArts.foldl (init := #[]) fun fs _ arts =>
+    arts.toArrays.foldl (init := fs) fun fs parts => fs ++ parts
+  return some {jobId := s!"{mod.pkg.baseName}_{mod.name}", inputs}
+
 def Module.buildLean
   (mod : Module) (presetup : ModulePreSetup)
 : JobM ModuleOutputArtifacts := do buildAction (← getTrace) mod.traceFile do
@@ -1099,9 +1130,10 @@ def Module.buildLean
   let setup ← mkModuleSetup mod presetup
   let arts := mod.mkArtifacts presetup.srcFile presetup.isModule
   mod.clearOutputArtifacts
+  let wrap? ← mod.wrappedJob? presetup
   mod.clearOutputHashes
   compileLeanModule presetup.srcFile relSrcFile setup mod.setupFile arts args
-    (← getLeanPath) (← getLean)
+    (← getLeanPath) (← getLean) (wrap? := wrap?)
   mod.computeArtifacts setup.isModule presetup.postponeCompile
 
 def  adjustMTime (arts : ModuleOutputArtifacts) (traceFile : FilePath) : JobM ModuleOutputArtifacts := do
@@ -1306,7 +1338,14 @@ def Module.recBuildIRArts (mod : Module) : FetchM (Job ModuleOutputArtifacts) :=
       IO.FS.writeFile mod.irSetupFile (toJson irSetup).pretty
       removeFileIfExists mod.ltarFile
       mod.clearIROutputHashes
-      compileLeanIR mod.irSetupFile mod.irFile mod.cFile (← getLeanPath) (← getLeanir)
+      let wrap? := (← mod.wrappedJob? presetup).map fun job => { job with
+        jobId := s!"{job.jobId}:leanir"
+        inputs := job.inputs ++ #[elabArts.olean.path]
+          ++ #[elabArts.oleanServer?, elabArts.oleanPrivate?].filterMap (·.map (·.path))
+          ++ irSetup.dynlibs ++ irSetup.plugins.map (·.path)
+      }
+      compileLeanIR mod.irSetupFile mod.irFile mod.cFile
+        (← getLeanPath) (← getLeanir) (wrap? := wrap?)
     let arts ← mod.computeIRArtifacts elabArts upToDate
     let arts ← adjustMTime arts mod.irTraceFile
     let arts ← trackOutputsIfEnabled arts

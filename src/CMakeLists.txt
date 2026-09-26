@@ -419,8 +419,23 @@ if(NOT "${CMAKE_SYSTEM_NAME}" MATCHES "Emscripten")
   set(OPENSSL_LIBRARIES ${OPENSSL_SSL_LIBRARY} ${OPENSSL_CRYPTO_LIBRARY})
   include_directories(${OPENSSL_INCLUDE_DIR})
   string(JOIN " " OPENSSL_LIBRARIES_STR ${OPENSSL_LIBRARIES})
-  if(NOT LEAN_STANDALONE)
+  if(LEAN_STANDALONE)
+    # Keeps a bundled OpenSSL from reading the configuration file and the certificate paths of the
+    # machine the toolchain was built on.
+    add_definitions(-DLEAN_STANDALONE)
+  else()
     string(APPEND LEAN_EXTRA_LINKER_FLAGS " ${OPENSSL_LIBRARIES_STR}")
+    # macOS verifies certificates against the system trust store with the Security framework rather
+    # than against OpenSSL's default certificate paths, so link it (and its CoreFoundation dependency).
+    if(CMAKE_SYSTEM_NAME MATCHES "Darwin")
+      string(APPEND LEAN_EXTRA_LINKER_FLAGS " -framework CoreFoundation -framework Security")
+    endif()
+
+    # OpenSSL's Windows trust store loader reaches the `ROOT` store through the CryptoAPI in
+    # crypt32, which a static libcrypto expects its consumer to provide.
+    if(CMAKE_SYSTEM_NAME MATCHES "Windows")
+      string(APPEND LEAN_EXTRA_LINKER_FLAGS " -lcrypt32")
+    endif()
   endif()
 endif()
 
@@ -1224,6 +1239,13 @@ install(
   PATTERN "*.md"
   PATTERN examples EXCLUDE
 )
+
+# The standalone macOS toolchain bundles `usr/lib/libobjc.A.tbd`, which the linker reaches through
+# CoreFoundation's re-export of `/usr/lib/libobjc.A.dylib` under `--sysroot ROOT`. Every user
+# executable links CoreFoundation, so the stub has to ship alongside the ones under `lib`.
+if(LEAN_STANDALONE AND EXISTS "${CMAKE_BINARY_DIR}/usr")
+  install(DIRECTORY "${CMAKE_BINARY_DIR}/usr/" DESTINATION usr)
+endif()
 
 if(STAGE GREATER 0 AND INSTALL_LICENSE)
   install(FILES "${CMAKE_SOURCE_DIR}/../LICENSE" "${CMAKE_SOURCE_DIR}/../LICENSES" DESTINATION ".")

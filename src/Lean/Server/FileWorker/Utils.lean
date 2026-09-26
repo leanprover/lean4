@@ -71,7 +71,7 @@ structure EditableDocumentCore where
   /-- Initial processing snapshot. -/
   initSnap : Language.Lean.InitialSnapshot
   /-- Old representation for backward compatibility. -/
-  cmdSnaps : AsyncList IO.Error Snapshot := private_decl% mkCmdSnaps initSnap
+  cmdSnaps : AsyncList IO.Error Snapshot := (private_decl% mkCmdSnaps) initSnap
   /-- Per-version diagnostics state, protected by a mutex. -/
   diagnosticsMutex : Std.Mutex DiagnosticsState
 

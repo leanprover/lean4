@@ -918,7 +918,7 @@ In particular, it is like a unary operation with a fixed parameter `b`, where on
 
 /-- `private_decl% e` elaborates `e` in a private context and wraps the result in a helper `def`. -/
 @[builtin_term_parser] def «privateDecl» :=
-  leading_parser "private_decl% " >> termParser maxPrec
+  leading_parser "private_decl% " >> termParser
 
 /--
 * `with_decl_name% id e` elaborates `e` in a context while changing the effective

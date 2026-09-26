@@ -47,7 +47,7 @@ def weakCertError : String :=
     Std.Async.System.setEnvVar "OPENSSL_CONF" path.toString
 
     try
-      discard <| Context.Client.mk { verifyPeer := false }
+      discard <| Context.Client.mk { trust := .insecureSkipVerify }
 
       match ← (discard <| Context.Server.mk { cert := .text weakCertPEM, key := .text keyPEM }).toBaseIO with
       | .ok _ => throw <| IO.userError "a 512-bit certificate was accepted under a level-0 policy"

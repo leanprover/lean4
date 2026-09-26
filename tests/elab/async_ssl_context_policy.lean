@@ -35,7 +35,7 @@ def disjointPolicy : String :=
     Std.Async.System.setEnvVar "OPENSSL_CONF" path.toString
 
     try
-      match ← (discard <| Context.Client.mk { verifyPeer := false }).toBaseIO, standalone with
+      match ← (discard <| Context.Client.mk { trust := .insecureSkipVerify }).toBaseIO, standalone with
       | .ok _, true => pure ()
       | .error e, true => throw <| IO.userError s!"a standalone build read the policy: {e}"
       -- The code is the platform's `ENOTSUP`, so only the details are compared.

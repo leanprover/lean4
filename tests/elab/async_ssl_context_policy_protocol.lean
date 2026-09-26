@@ -32,7 +32,7 @@ def tls12OnlyPolicy : String :=
     Std.Async.System.setEnvVar "OPENSSL_CONF" path.toString
 
     try
-      discard <| Context.Client.mk { verifyPeer := false }
+      discard <| Context.Client.mk { trust := .insecureSkipVerify }
     finally
       match old with
       | some v => Std.Async.System.setEnvVar "OPENSSL_CONF" v

@@ -160,8 +160,8 @@ def caUnreadable : String := "could not read PEM CA certificates"
 def caNoCerts : String := "the CA material contains no certificates"
 
 def caNoAnchor : String :=
-  "the CA material holds no certificate a TLS server chain can terminate in (supply the root, or \
-    allow partial chains to anchor at an intermediate)"
+  "the CA material holds no root certificate for a chain to end at; include the root, or set \
+    `allowPartialChain := true` to trust an intermediate"
 
 /--
 Whether the host supplies platform trust anchors. A Nix sandbox or a container without
@@ -172,22 +172,22 @@ def hasSystemRoots : IO Bool := do
   | .ok _ => return true
   | .error e =>
     let fileBased := !System.Platform.isOSX && !System.Platform.isWindows
-    if fileBased && (toString e).startsWith "failed to load system trust store" then
-      return false
-    throw e
+    match e with
+    | .noSuchThing none _ _ => if fileBased then return false else throw e
+    | _ => throw e
 
 -- Smoke test.
 def testContextCreation (f : Fixtures) : IO Unit := do
   let _serverCtx ← Context.Server.mk { cert := .file f.cert, key := .file f.key }
 
   let _clientCtx ← Context.Client.mk { verifyPeer := false }
-  let _clientCtx2 ← Context.Client.mk { ca := some (.file f.cert) }
-  let _clientCtx3 ← Context.Client.mk { ca := some (.file f.cert), verifyPeer := false }
+  let _clientCtx2 ← Context.Client.mk { ca := #[.file f.cert] }
+  let _clientCtx3 ← Context.Client.mk { ca := #[.file f.cert], verifyPeer := false }
 
   if ← hasSystemRoots then
     discard <| Context.Client.mk
 
-  let _clientCtx5 ← Context.Client.mk { ca := some (.text testCertPEM) }
+  let _clientCtx5 ← Context.Client.mk { ca := #[.text testCertPEM] }
 
 /-!
 `trustSystemRoots := false` narrows the store to the supplied CA. Without a CA that store would be
@@ -195,13 +195,13 @@ empty, so the context is refused.
 -/
 
 def noAnchorsError : String :=
-  malformedPEMError "no trust anchors: peer verification is on, the platform trust anchors are \
-    excluded, and no CA certificate was given"
+  malformedPEMError "no trust anchors: `trustSystemRoots := false` needs at least one certificate in \
+    `ca`"
 
 def testPinnedToSuppliedCA (f : Fixtures) : IO Unit := do
-  let _clientCtx ← Context.Client.mk { ca := some (.file f.cert), trustSystemRoots := false }
-  let _clientCtx2 ← Context.Client.mk { ca := some (.text testCertPEM), trustSystemRoots := false }
-  let _clientCtx3 ← Context.Client.mk { ca := some (.text testBundlePEM), trustSystemRoots := false }
+  let _clientCtx ← Context.Client.mk { ca := #[.file f.cert], trustSystemRoots := false }
+  let _clientCtx2 ← Context.Client.mk { ca := #[.text testCertPEM], trustSystemRoots := false }
+  let _clientCtx3 ← Context.Client.mk { ca := #[.text testBundlePEM], trustSystemRoots := false }
 
 def testPinningRejectsEmptyCA : IO Unit := do
   assertErrorMessage "pinned with no CA at all" noAnchorsError
@@ -210,7 +210,7 @@ def testPinningRejectsEmptyCA : IO Unit := do
 -- Empty material is a bundle without certificates, not an absent CA.
 def testPinningRejectsEmptyCAMaterial : IO Unit := do
   assertErrorMessage "pinned to an empty CA string" (malformedPEMError caNoCerts)
-    (discard <| Context.Client.mk { ca := some (.text ""), trustSystemRoots := false })
+    (discard <| Context.Client.mk { ca := #[.text ""], trustSystemRoots := false })
 
 /-!
 Without `allowPartialChain`, an anchor must be self-signed (or explicitly trusted), so pinning to
@@ -220,36 +220,49 @@ intermediates alone is refused.
 def testPinningRejectsIntermediateOnly (f : Fixtures) : IO Unit := do
   assertErrorMessage "pinned to an intermediate PEM" (malformedPEMError caNoAnchor)
     (discard <| Context.Client.mk
-      { ca := some (.text testIntermediateCertPEM), trustSystemRoots := false })
+      { ca := #[.text testIntermediateCertPEM], trustSystemRoots := false })
 
   assertErrorMessage "pinned to an intermediate CA file"
     (malformedFileError f.intermediate caNoAnchor)
-    (discard <| Context.Client.mk { ca := some (.file f.intermediate), trustSystemRoots := false })
+    (discard <| Context.Client.mk { ca := #[.file f.intermediate], trustSystemRoots := false })
 
 def testPinningToIntermediateWithPartialChain (f : Fixtures) : IO Unit := do
   let _clientCtx ← Context.Client.mk
-    { ca := some (.text testIntermediateCertPEM), trustSystemRoots := false,
+    { ca := #[.text testIntermediateCertPEM], trustSystemRoots := false,
       allowPartialChain := true }
 
   let _clientCtx2 ← Context.Client.mk
-    { ca := some (.file f.intermediate), trustSystemRoots := false, allowPartialChain := true }
+    { ca := #[.file f.intermediate], trustSystemRoots := false, allowPartialChain := true }
 
 -- Order within the bundle does not matter.
 def testPinningAcceptsRootWithIntermediate : IO Unit := do
   let _clientCtx ← Context.Client.mk
-    { ca := some (.text (testIntermediateCertPEM ++ testCertPEM)), trustSystemRoots := false }
+    { ca := #[.text (testIntermediateCertPEM ++ testCertPEM)], trustSystemRoots := false }
 
   let _clientCtx2 ← Context.Client.mk
-    { ca := some (.text (testCertPEM ++ testIntermediateCertPEM)), trustSystemRoots := false }
+    { ca := #[.text (testCertPEM ++ testIntermediateCertPEM)], trustSystemRoots := false }
+
+-- The bundles share one store, so the anchor may come from any of them.
+def testPinningCombinesBundles (f : Fixtures) : IO Unit := do
+  let _clientCtx ← Context.Client.mk
+    { ca := #[.text testIntermediateCertPEM, .file f.cert], trustSystemRoots := false }
+
+  -- No single file is to blame for a missing anchor.
+  assertErrorMessage "two bundles of intermediates" (malformedPEMError caNoAnchor)
+    (discard <| Context.Client.mk
+      { ca := #[.file f.intermediate, .text testIntermediateCertPEM], trustSystemRoots := false })
+
+  assertErrorMessage "a malformed bundle beside a good one" (malformedFileError f.junk caNoCerts)
+    (discard <| Context.Client.mk { ca := #[.file f.cert, .file f.junk], trustSystemRoots := false })
 
 -- The anchor check only applies when `ca` is the sole source of anchors.
 def testIntermediateAllowedBesideSystemRoots : IO Unit := do
   if ← hasSystemRoots then
-    discard <| Context.Client.mk { ca := some (.text testIntermediateCertPEM) }
+    discard <| Context.Client.mk { ca := #[.text testIntermediateCertPEM] }
   else
     assertErrorMessage "intermediate on a host without platform anchors"
       (malformedPEMError caNoAnchor)
-      (discard <| Context.Client.mk { ca := some (.text testIntermediateCertPEM) })
+      (discard <| Context.Client.mk { ca := #[.text testIntermediateCertPEM] })
 
 /-!
 `TRUSTED CERTIFICATE` trust settings override self-signedness in either direction.
@@ -257,19 +270,19 @@ def testIntermediateAllowedBesideSystemRoots : IO Unit := do
 
 def testPinningToExplicitlyTrustedIntermediate : IO Unit := do
   let _clientCtx ← Context.Client.mk
-    { ca := some (.text testTrustedIntermediatePEM), trustSystemRoots := false }
+    { ca := #[.text testTrustedIntermediatePEM], trustSystemRoots := false }
 
 def testPinningRejectsExplicitlyRejectedRoot : IO Unit := do
   assertErrorMessage "pinned to a root rejected for TLS servers" (malformedPEMError caNoAnchor)
-    (discard <| Context.Client.mk { ca := some (.text testRejectedCertPEM), trustSystemRoots := false })
+    (discard <| Context.Client.mk { ca := #[.text testRejectedCertPEM], trustSystemRoots := false })
 
   -- The store keeps only the first copy of a repeated certificate.
   assertErrorMessage "rejected root repeated as a plain copy" (malformedPEMError caNoAnchor)
     (discard <| Context.Client.mk
-      { ca := some (.text (testRejectedCertPEM ++ testCertPEM)), trustSystemRoots := false })
+      { ca := #[.text (testRejectedCertPEM ++ testCertPEM)], trustSystemRoots := false })
 
   let _clientCtx ← Context.Client.mk
-    { ca := some (.text (testCertPEM ++ testRejectedCertPEM)), trustSystemRoots := false }
+    { ca := #[.text (testCertPEM ++ testRejectedCertPEM)], trustSystemRoots := false }
 
 -- Without verification, `trustSystemRoots` is ignored.
 def testPinningIgnoredWithoutVerification : IO Unit := do
@@ -278,11 +291,11 @@ def testPinningIgnoredWithoutVerification : IO Unit := do
 -- Unusable CA material reports the bundle failure, not "no trust anchors".
 def testPinningStillValidatesCA (f : Fixtures) : IO Unit := do
   assertErrorMessage "pinned to a malformed CA file" (malformedFileError f.junk caNoCerts)
-    (discard <| Context.Client.mk { ca := some (.file f.junk), trustSystemRoots := false })
+    (discard <| Context.Client.mk { ca := #[.file f.junk], trustSystemRoots := false })
 
   assertErrorMessage "pinned to a CA string with no certificates" (malformedPEMError caNoCerts)
     (discard <| Context.Client.mk
-      { ca := some (.text "not a certificate at all"), trustSystemRoots := false })
+      { ca := #[.text "not a certificate at all"], trustSystemRoots := false })
 
 /-!
 `PEM.text` shares the loader with `PEM.file`; these cover only what differs: no path in the error,
@@ -313,33 +326,33 @@ def testMkServerFromMemoryAcceptsNul : IO Unit := do
 
 -- Repeated certificates are skipped rather than rejected.
 def testMkFromPEMAcceptsBundle : IO Unit := do
-  let _clientCtx ← Context.Client.mk { ca := some (.text testBundlePEM) }
-  let _clientCtx2 ← Context.Client.mk { ca := some (.text (testBundlePEM ++ testCertPEM)) }
+  let _clientCtx ← Context.Client.mk { ca := #[.text testBundlePEM] }
+  let _clientCtx2 ← Context.Client.mk { ca := #[.text (testBundlePEM ++ testCertPEM)] }
 
 def testMkFromPEMAcceptsNulBytes : IO Unit := do
-  let _clientCtx ← Context.Client.mk { ca := some (.text (testCertPEM.push '\x00')) }
+  let _clientCtx ← Context.Client.mk { ca := #[.text (testCertPEM.push '\x00')] }
 
 def testMkNoVerifyIgnoresCorruptCAFile (f : Fixtures) : IO Unit := do
-  let _clientCtx ← Context.Client.mk { ca := some (.file f.corrupt), verifyPeer := false }
+  let _clientCtx ← Context.Client.mk { ca := #[.file f.corrupt], verifyPeer := false }
 
 def testMkFromPEMRejectsEmptyBlock : IO Unit := do
   assertErrorMessage "PEM without certificates" (malformedPEMError caUnreadable)
     (discard <| Context.Client.mk
-      { ca := some (.text "-----BEGIN CERTIFICATE-----\n-----END CERTIFICATE-----\n") })
+      { ca := #[.text "-----BEGIN CERTIFICATE-----\n-----END CERTIFICATE-----\n"] })
 
 -- Text without PEM armour is an empty bundle, not an unreadable one.
 def testMkRejectsMalformedCAFile (f : Fixtures) : IO Unit := do
   assertErrorMessage "malformed CA file" (malformedFileError f.junk caNoCerts)
-    (discard <| Context.Client.mk { ca := some (.file f.junk) })
+    (discard <| Context.Client.mk { ca := #[.file f.junk] })
 
 def testMkRejectsCorruptCAFile (f : Fixtures) : IO Unit := do
   assertErrorMessage "one-bit-flipped CA file" (malformedFileError f.corrupt caUnreadable)
-    (discard <| Context.Client.mk { ca := some (.file f.corrupt) })
+    (discard <| Context.Client.mk { ca := #[.file f.corrupt] })
 
 def testMkRejectsMissingCAFile : IO Unit := do
   assertErrorMessage "missing CA file"
     (missingFileError "/nonexistent/path/to/ca.pem")
-    (discard <| Context.Client.mk { ca := some (.file "/nonexistent/path/to/ca.pem") })
+    (discard <| Context.Client.mk { ca := #[.file "/nonexistent/path/to/ca.pem"] })
 
 def testMkServerRejectsMissingFiles (f : Fixtures) : IO Unit := do
   assertErrorMessage "missing server cert"
@@ -411,7 +424,7 @@ def testRejectsEncryptedMaterial (f : Fixtures) : IO Unit := do
 
   assertErrorMessage "encrypted CA certificate file"
     (malformedFileError f.encCert caUnreadable)
-    (discard <| Context.Client.mk { ca := some (.file f.encCert) })
+    (discard <| Context.Client.mk { ca := #[.file f.encCert] })
 
   assertErrorMessage "in-memory encrypted key"
     (malformedPEMError "could not read an unencrypted PEM private key")
@@ -429,10 +442,10 @@ def testRejectsNulInPaths (f : Fixtures) : IO Unit := do
     (discard <| Context.Server.mk { cert := .file f.cert, key := .file keyPath })
 
   assertErrorMessage "NUL byte in CA path" (nulByteError caPath)
-    (discard <| Context.Client.mk { ca := some (.file caPath) })
+    (discard <| Context.Client.mk { ca := #[.file caPath] })
 
   -- Without verification the CA path is never touched.
-  let _clientCtx ← Context.Client.mk { ca := some (.file caPath), verifyPeer := false }
+  let _clientCtx ← Context.Client.mk { ca := #[.file caPath], verifyPeer := false }
 
 /-!
 CA material must contain at least one certificate; keys and CRLs alone parse without error.
@@ -440,30 +453,30 @@ CA material must contain at least one certificate; keys and CRLs alone parse wit
 
 def testMkRejectsCertlessCAFile (f : Fixtures) : IO Unit := do
   assertErrorMessage "CA file holding only a private key" (malformedFileError f.key caNoCerts)
-    (discard <| Context.Client.mk { ca := some (.file f.key) })
+    (discard <| Context.Client.mk { ca := #[.file f.key] })
 
   assertErrorMessage "zero-byte CA file" (malformedFileError f.empty caNoCerts)
-    (discard <| Context.Client.mk { ca := some (.file f.empty) })
+    (discard <| Context.Client.mk { ca := #[.file f.empty] })
 
 def testMkFromPEMRejectsCertlessPEM : IO Unit := do
   assertErrorMessage "traditional RSA key with no certificate" (malformedPEMError caNoCerts)
-    (discard <| Context.Client.mk { ca := some (.text testTraditionalKeyPEM) })
+    (discard <| Context.Client.mk { ca := #[.text testTraditionalKeyPEM] })
 
   assertErrorMessage "CA string holding only a CRL" (malformedPEMError caNoCerts)
-    (discard <| Context.Client.mk { ca := some (.text testCRLPEM) })
+    (discard <| Context.Client.mk { ca := #[.text testCRLPEM] })
 
 def testMkFromPEMSkipsNonCertificates : IO Unit := do
-  let _clientCtx ← Context.Client.mk { ca := some (.text (testTraditionalKeyPEM ++ testCertPEM)) }
-  let _clientCtx2 ← Context.Client.mk { ca := some (.text (testCertPEM ++ testTraditionalKeyPEM)) }
-  let _clientCtx3 ← Context.Client.mk { ca := some (.text (testCRLPEM ++ testCertPEM)) }
-  let _clientCtx4 ← Context.Client.mk { ca := some (.text (testCertPEM ++ testCRLPEM)) }
+  let _clientCtx ← Context.Client.mk { ca := #[.text (testTraditionalKeyPEM ++ testCertPEM)] }
+  let _clientCtx2 ← Context.Client.mk { ca := #[.text (testCertPEM ++ testTraditionalKeyPEM)] }
+  let _clientCtx3 ← Context.Client.mk { ca := #[.text (testCRLPEM ++ testCertPEM)] }
+  let _clientCtx4 ← Context.Client.mk { ca := #[.text (testCertPEM ++ testCRLPEM)] }
 
 -- A file is read as bytes, like `PEM.text`: a Ctrl-Z, end of file to the Windows CRT's text mode,
 -- hides nothing behind it.
 def testMkReadsCAFilePastCtrlZ (f : Fixtures) : IO Unit := do
   let path := (System.FilePath.mk f.cert).withFileName "ctrlz.pem"
   IO.FS.writeFile path ("\x1a\n" ++ testCertPEM)
-  let _clientCtx ← Context.Client.mk { ca := some (.file path), trustSystemRoots := false }
+  let _clientCtx ← Context.Client.mk { ca := #[.file path], trustSystemRoots := false }
 
 /-!
 A NUL in `PEM.text` does not truncate the input but is junk to the PEM parser; where it sits
@@ -471,19 +484,19 @@ decides the outcome.
 -/
 
 def testMkFromPEMReadsPastNul : IO Unit := do
-  let _clientCtx ← Context.Client.mk { ca := some (.text ("\x00\n" ++ testCertPEM)) }
+  let _clientCtx ← Context.Client.mk { ca := #[.text ("\x00\n" ++ testCertPEM)] }
 
 -- On the marker's line it hides that certificate.
 def testMkFromPEMDropsCertBehindNul : IO Unit := do
   assertErrorMessage "certificate behind an unterminated NUL" (malformedPEMError caNoCerts)
-    (discard <| Context.Client.mk { ca := some (.text ("\x00" ++ testCertPEM)) })
+    (discard <| Context.Client.mk { ca := #[.text ("\x00" ++ testCertPEM)] })
 
 -- Inside the body it corrupts the whole bundle.
 def testMkFromPEMRejectsNulInsideCert : IO Unit := do
   let split := 200
   assertErrorMessage "NUL inside a certificate body" (malformedPEMError caUnreadable)
-    (discard <| Context.Client.mk { ca := some (.text
-      ((testCertPEM.take split).toString ++ "\x00" ++ (testCertPEM.drop split).toString)) })
+    (discard <| Context.Client.mk { ca := #[.text
+      ((testCertPEM.take split).toString ++ "\x00" ++ (testCertPEM.drop split).toString)] })
 
 -- The whole chain is loaded, not just the leaf.
 def testMkServerRejectsCorruptChainMember (f : Fixtures) : IO Unit := do
@@ -494,7 +507,7 @@ def testMkServerRejectsCorruptChainMember (f : Fixtures) : IO Unit := do
 -- Validity periods are checked at handshake time, not here.
 def testAcceptsExpiredCert (f : Fixtures) : IO Unit := do
   let _serverCtx ← Context.Server.mk { cert := .file f.expired, key := .file f.key }
-  let _clientCtx ← Context.Client.mk { ca := some (.text testExpiredCertPEM) }
+  let _clientCtx ← Context.Client.mk { ca := #[.text testExpiredCertPEM] }
 
 /-!
 A certificate refused by the security level is reported as such, not as unreadable PEM. The weak
@@ -515,8 +528,8 @@ def testMkServerRejectsWeakChainMember : IO Unit := do
 
 -- The security level is not applied to CA material at load time.
 def testAcceptsWeakCertAsCA (f : Fixtures) : IO Unit := do
-  let _clientCtx ← Context.Client.mk { ca := some (.text testWeakCertPEM) }
-  let _clientCtx2 ← Context.Client.mk { ca := some (.file f.weak) }
+  let _clientCtx ← Context.Client.mk { ca := #[.text testWeakCertPEM] }
+  let _clientCtx2 ← Context.Client.mk { ca := #[.file f.weak] }
 
 def testMkServerRejectsEmptyPaths (f : Fixtures) : IO Unit := do
   assertErrorMessage "empty server cert path" (missingFileError "")
@@ -526,7 +539,7 @@ def testMkServerRejectsEmptyPaths (f : Fixtures) : IO Unit := do
     (discard <| Context.Server.mk { cert := .file f.cert, key := .file "" })
 
   assertErrorMessage "empty CA path" (missingFileError "")
-    (discard <| Context.Client.mk { ca := some (.file "") })
+    (discard <| Context.Client.mk { ca := #[.file ""] })
 
 -- POSIX opens a directory and fails the read; Windows cannot open it at all.
 def testRejectsDirectoryPaths (f : Fixtures) : IO Unit := do
@@ -541,10 +554,10 @@ def testRejectsDirectoryPaths (f : Fixtures) : IO Unit := do
     (discard <| Context.Server.mk { cert := .file f.cert, key := .file f.dir })
 
   assertErrorMessageOneOf "directory as CA file" expected
-    (discard <| Context.Client.mk { ca := some (.file f.dir) })
+    (discard <| Context.Client.mk { ca := #[.file f.dir] })
 
   -- Without verification the CA path is never touched.
-  let _clientCtx ← Context.Client.mk { ca := some (.file f.dir), verifyPeer := false }
+  let _clientCtx ← Context.Client.mk { ca := #[.file f.dir], verifyPeer := false }
 
 -- A readable non-regular file is read like any other.
 def testReadsNonRegularFile (f : Fixtures) : IO Unit := do
@@ -552,7 +565,7 @@ def testReadsNonRegularFile (f : Fixtures) : IO Unit := do
     return
 
   assertErrorMessage "character device as CA file" (malformedFileError "/dev/null" caNoCerts)
-    (discard <| Context.Client.mk { ca := some (.file "/dev/null") })
+    (discard <| Context.Client.mk { ca := #[.file "/dev/null"] })
 
   assertErrorMessage "character device as server key"
     (malformedFileError "/dev/null" "could not read an unencrypted PEM private key")
@@ -565,14 +578,14 @@ def testMkRejectsUnreadableCAFile (f : Fixtures) : IO Unit := do
 
   assertErrorMessage "CA file with no read permission"
     s!"permission denied (error code: 13)\n  file: {f.unreadable}"
-    (discard <| Context.Client.mk { ca := some (.file f.unreadable) })
+    (discard <| Context.Client.mk { ca := #[.file f.unreadable] })
 
 -- A path traversing a regular file is `ENOTDIR` on POSIX and `ENOENT` on Windows.
 def testMkRejectsNonDirectoryParent (f : Fixtures) : IO Unit := do
   assertErrorMessageOneOf "CA path whose parent is a regular file"
     [ s!"inappropriate type (error code: 20, not a directory)\n  file: {f.nonDirParent}",
       missingFileError f.nonDirParent ]
-    (discard <| Context.Client.mk { ca := some (.file f.nonDirParent) })
+    (discard <| Context.Client.mk { ca := #[.file f.nonDirParent] })
 
 /-!
 `SSL_CERT_FILE` and `SSL_CERT_DIR` add to the platform anchors, so no value of theirs can break a
@@ -598,7 +611,7 @@ def testCertEnvVarsNeverBreakDefaultContext (f : Fixtures) : IO Unit := do
     assertErrorMessage "pinned context beside an anchor in SSL_CERT_FILE"
       (malformedPEMError caNoAnchor)
       (discard <| Context.Client.mk
-        { ca := some (.text testIntermediateCertPEM), trustSystemRoots := false })
+        { ca := #[.text testIntermediateCertPEM], trustSystemRoots := false })
 
   -- Named like a hash directory entry, but holding no certificate.
   let junkHashDir := System.FilePath.mk f.dir / "junkhash"
@@ -642,6 +655,7 @@ def testCertEnvVarsNeverBreakDefaultContext (f : Fixtures) : IO Unit := do
   testPinningRejectsIntermediateOnly f
   testPinningToIntermediateWithPartialChain f
   testPinningAcceptsRootWithIntermediate
+  testPinningCombinesBundles f
   testIntermediateAllowedBesideSystemRoots
   testPinningToExplicitlyTrustedIntermediate
   testPinningRejectsExplicitlyRejectedRoot

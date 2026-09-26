@@ -1390,6 +1390,8 @@ static inline obj_res mpz_to_nat(mpz const & m) {
         return mpz_to_nat_core(m);
 }
 
+static object * mpz_to_int(mpz const & m);
+
 extern "C" LEAN_EXPORT object * lean_cstr_to_nat(char const * n) {
     return mpz_to_nat(mpz(n));
 }
@@ -1652,6 +1654,32 @@ extern "C" LEAN_EXPORT lean_obj_res lean_nat_gcd(b_lean_obj_arg a1, b_lean_obj_a
       else
         return mpz_to_nat(gcd(mpz_value(a1), mpz_value(a2)));
     }
+}
+
+extern "C" LEAN_EXPORT lean_obj_res lean_nat_extended_gcd_fallback(lean_obj_arg a, lean_obj_arg b);
+
+extern "C" LEAN_EXPORT lean_obj_res lean_nat_extended_gcd(b_lean_obj_arg a, b_lean_obj_arg b) {
+#ifdef LEAN_USE_GMP
+    if (a != lean_box(0) && b != lean_box(0) && !lean_nat_dec_eq(a, b) &&
+        !(lean_is_scalar(a) && lean_is_scalar(b) && lean_unbox(a) <= UINT16_MAX && lean_unbox(b) <= UINT16_MAX)) {
+        mpz aa = lean_is_scalar(a) ? mpz::of_size_t(lean_unbox(a)) : mpz_value(a);
+        mpz bb = lean_is_scalar(b) ? mpz::of_size_t(lean_unbox(b)) : mpz_value(b);
+        mpz g, s, t;
+        // Outside the zero/equal cases, the final Euclidean quotient is at least two.
+        // The alternating-sign coefficient recurrence then gives GMP's half-size bounds;
+        // equality occurs only when a/g or b/g is two, with the corresponding coefficient +1.
+        mpz_gcdext(g.get_mpz_t(), s.get_mpz_t(), t.get_mpz_t(), aa.get_mpz_t(), bb.get_mpz_t());
+        // Match the field order of Nat.ExtendedGcdResult.
+        obj_res r = lean_alloc_ctor(0, 3, 0);
+        lean_ctor_set(r, 0, mpz_to_nat(g));
+        lean_ctor_set(r, 1, mpz_to_int(s));
+        lean_ctor_set(r, 2, mpz_to_int(t));
+        return r;
+    }
+#endif
+    lean_inc(a);
+    lean_inc(b);
+    return lean_nat_extended_gcd_fallback(a, b);
 }
 
 extern "C" LEAN_EXPORT lean_obj_res lean_nat_log2(b_lean_obj_arg a) {

@@ -116,8 +116,8 @@ register_try?_tactic apply _customPropHolds
 
 /--
 info: Try these:
-  [apply] apply _customPropHolds
   [apply] exact _customPropHolds
+  [apply] apply _customPropHolds
 -/
 #guard_msgs in
 example : CustomProp := by

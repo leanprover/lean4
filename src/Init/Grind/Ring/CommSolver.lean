@@ -23,6 +23,7 @@ import Init.Grind.Ordered.Order
 import Init.Omega
 import Init.WFTactics
 import Init.Data.Int.Repr
+public import Init.Data.Nat.Gcd
 
 @[expose] public section
 
@@ -758,6 +759,30 @@ def Poly.cancelVar' (c : Int) (x : Var) (p : Poly) (acc : Poly) : Poly :=
 
 def Poly.cancelVar (c : Int) (x : Var) (p : Poly) : Poly :=
   cancelVar' c x p (.num 0)
+
+def Poly.gcdCoeffs : Poly → Nat
+  | .num k => k.natAbs
+  | .add k _ p => go p k.natAbs
+where
+  go (p : Poly) (acc : Nat) : Nat :=
+    if acc == 1 then
+      acc
+    else match p with
+      | .num k => Nat.gcd acc k.natAbs
+      | .add k _ p => go p (Nat.gcd acc k.natAbs)
+
+def Poly.divConst (p : Poly) (a : Int) : Poly :=
+  match p with
+  | .num k => .num (k / a)
+  | .add k m p => .add (k / a) m (divConst p a)
+
+def Poly.maxDegreeOf (p : Poly) (x : Var) : Nat :=
+  go p 0
+where
+  go (p : Poly) (max : Nat) : Nat :=
+    match p with
+    | .num _ => max
+    | .add _ m p => go p (Nat.max max (m.degreeOf x))
 
 @[simp] theorem Expr.toPoly_k_eq_toPoly (e : Expr) : e.toPoly_k = e.toPoly := by
   induction e <;> simp only [toPoly, toPoly_k]

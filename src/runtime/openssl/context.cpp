@@ -245,6 +245,9 @@ static ssl_ctx_ptr mk_ssl_ctx_base(const SSL_METHOD * method, lean_obj_res * err
 
 // Wraps a fully configured SSL_CTX into a Lean external object, taking ownership of it.
 static lean_obj_res wrap_ssl_context(ssl_ctx_ptr ctx) {
+    // A successful build can still leave errors queued, e.g. from `X509_check_trust`.
+    ERR_clear_error();
+
     lean_object * obj = lean_ssl_context_new(ctx.release());
     lean_mark_mt(obj);
 
@@ -456,7 +459,10 @@ static lean_obj_res mk_client_ctx(b_obj_arg cas, uint8_t verify_peer, uint8_t tr
 template<typename F>
 static lean_obj_res ssl_entry_point(F && build) {
     try {
-        if (!ensure_openssl_initialized()) return mk_tls_unsupported("could not initialize the TLS library");
+        if (!ensure_openssl_initialized()) {
+            ERR_clear_error();
+            return mk_tls_unsupported("could not initialize the TLS library");
+        }
 
         return build();
     } catch (std::exception & ex) {

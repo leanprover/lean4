@@ -40,9 +40,10 @@ but not looser. If it leaves no usable cipher suite, creating a context fails.
 * `invalidArgument`: the configuration or the PEM material can't be used. The error names the file
   when the material came from one.
 * `noSuchThing`: the system has no root certificates to trust, and `ca` is empty.
-* `unsupportedOperation`: the TLS library can't meet the settings above, or this build of Lean has
-  no TLS support.
-* Errors from reading a file are passed on unchanged.
+* `unsupportedOperation`: the system's OpenSSL configuration leaves no cipher suite these settings
+  allow, or this build of Lean has no TLS support.
+* `userError`: OpenSSL failed for some other reason.
+* Errors from reading a file are those of `IO.FS.readBinFile`.
 
 ## Platform notes
 
@@ -57,8 +58,8 @@ The system's root certificates come from:
 * Linux and others: the distribution's certificate bundle and certificate directories.
 
 `SSL_CERT_FILE` and `SSL_CERT_DIR` add more certificates to trust, except in set-user-ID and
-set-group-ID programs. A Lean build that uses the system's OpenSSL also reads OpenSSL's default
-certificate locations.
+set-group-ID programs. Except on macOS, a Lean build that uses the system's OpenSSL also reads
+OpenSSL's default certificate locations. None of this is read with `trustSystemRoots := false`.
 
 Lean does not check whether a certificate has been revoked.
 -/

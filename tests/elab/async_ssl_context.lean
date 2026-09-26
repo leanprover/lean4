@@ -140,8 +140,10 @@ def assertErrorMessageOneOf (label : String) (expected : List String) (act : IO 
       throw <| IO.userError s!"{label}:\nexpected one of:\n\
         {String.intercalate "\n  --- or ---\n" expected}\nactual error:   {actual}"
 
+-- `readBinFile` stats the path through libuv, whose `ENOENT` on Windows is 4058 rather than `errno`.
 def missingFileError (path : String) : String :=
-  s!"no such file or directory (error code: 2)\n  file: {path}"
+  let code := if System.Platform.isWindows then 4058 else 2
+  s!"no such file or directory (error code: {code})\n  file: {path}"
 
 -- `EINVAL`: failures with no `errno` behind them, and `errno` `EINVAL` itself.
 def malformedFileError (path detail : String) : String :=
@@ -565,7 +567,7 @@ def testMkRejectsUnreadableCAFile (f : Fixtures) : IO Unit := do
     s!"permission denied (error code: 13)\n  file: {f.unreadable}"
     (discard <| Context.Client.mk { ca := some (.file f.unreadable) })
 
--- A path traversing a regular file is `ENOTDIR` on POSIX; the Windows CRT reports `ENOENT`.
+-- A path traversing a regular file is `ENOTDIR` on POSIX and `ENOENT` on Windows.
 def testMkRejectsNonDirectoryParent (f : Fixtures) : IO Unit := do
   assertErrorMessageOneOf "CA path whose parent is a regular file"
     [ s!"inappropriate type (error code: 20, not a directory)\n  file: {f.nonDirParent}",

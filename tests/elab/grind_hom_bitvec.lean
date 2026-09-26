@@ -94,14 +94,11 @@ example (x : BitVec 16) (n : Nat) : (x.rotateRight n).unsigned = (x.unsigned / (
 -/
 example (b : Bool) : (BitVec.ofBool b).unsigned = if b then 1 else 0 := by grind
 
--- TODO: `grind` fails (`&&&` with a constant mask)
-/-
 example (x : BitVec 64) : (x &&& 31).unsigned < 32 := by grind
 example (x : BitVec 64) : (x &&& 63).unsigned = x.unsigned % 64 := by grind
 example (x : BitVec 64) : ((x &&& 31) + (x &&& 31)).unsigned < 64 := by grind
 example (x : BitVec 8) : (x &&& 0xe0).unsigned = ((x.unsigned / 32) % 8) * 32 := by grind
 example (x : BitVec 64) : (x &&& ~~~31).unsigned = ((x.unsigned / 32) % 576460752303423488) * 32 := by grind
--/
 example (x : BitVec 64) : (x &&& 30).unsigned = (x &&& 30).unsigned := by grind
 example (x : BitVec 16) : (~~~x).signed < 2 ^ 15 := by grind
 -- TODO: `grind` fails (signed `<<<`)
@@ -282,15 +279,12 @@ example (a b : BitVec 8) :
   grind
 
 -- Modulus Division by Power of 2 (Obvious Modulus)
--- TODO: `grind` fails (`&&&` with a constant mask)
-/-
 example (n : BitVec 8) :
   let d : BitVec 8 := 8#8
   n.unsigned % 8 = (n &&& (d - 1)).unsigned := by
   intro d
   simp [d]
   grind
--/
 
 -- constant_time_msb_w (Most Significant Bit Mask)
 -- TODO: the ported proof uses `BitVec.ushiftRight_w_minus_1`, which does not exist in core

@@ -8,17 +8,59 @@ prelude
 public import Init.System.IO
 
 /-!
-TLS contexts for servers and clients: the certificate and key, the peer verification mode, and the
-protocol options shared by every session created from a context.
+TLS contexts. A context holds what every connection made from it shares: for a server, the
+certificate and key it presents; for a client, the certificates it trusts. Create one context and
+reuse it for many connections. It cannot be changed after creation and can be shared between threads.
 
-Every context requires TLS 1.2 or later, allows only ECDHE with AES-GCM or ChaCha20-Poly1305 (and
-the matching TLS 1.3 suites), runs at OpenSSL security level 2, and disables session tickets,
-resumption, compression and renegotiation. A toolchain linking the system's OpenSSL also reads its
-configuration, which can tighten these settings but not loosen them; a context whose configuration
-leaves no allowed suite for a TLS version it permits is refused.
+```lean
+-- A client that trusts the system's root certificates.
+let client ← Context.Client.mk
 
-Encrypted certificates and keys are refused rather than prompted for. Material reached through
-`SSL_CERT_FILE` or `SSL_CERT_DIR` is the exception: OpenSSL reads it with an empty passphrase.
+-- A client that trusts only your own CA.
+let pinned ← Context.Client.mk { ca := #[.file "ca.pem"], trustSystemRoots := false }
+
+-- A server.
+let server ← Context.Server.mk { cert := .file "cert.pem", key := .file "key.pem" }
+```
+
+Files are read when the context is created, so a renewed certificate needs a new context.
+
+## Security settings
+
+Every context requires TLS 1.2 or later. TLS 1.2 connections only use ECDHE key exchange with
+AES-GCM or ChaCha20-Poly1305; TLS 1.3 uses its three standard cipher suites. RSA keys must be at
+least 2048 bits. Session resumption, compression and
+renegotiation are off, and encrypted keys are refused rather than prompting for a passphrase.
+
+When Lean uses the system's OpenSSL, that library's configuration can make these settings stricter
+but not looser. If it leaves no usable cipher suite, creating a context fails.
+
+## Errors
+
+* `invalidArgument`: the configuration or the PEM material can't be used. The error names the file
+  when the material came from one.
+* `noSuchThing`: the system has no root certificates to trust, and `ca` is empty.
+* `unsupportedOperation`: the TLS library can't meet the settings above, or this build of Lean has
+  no TLS support.
+* Errors from reading a file are passed on unchanged.
+
+## Platform notes
+
+The system's root certificates come from:
+
+* macOS: the Keychain. A chain that OpenSSL can't verify on its own goes to the system's trust
+  evaluation, which also applies Apple's rules, such as Certificate Transparency and limits on
+  certificate lifetime. Missing intermediate certificates are never downloaded.
+* Windows: the `ROOT` certificate store, which needs OpenSSL 3.2 or later. Windows only adds a root
+  to this store the first time something on the machine needs it, so a root may be missing; pass it
+  in `ca`. The `Disallowed` store is not checked.
+* Linux and others: the distribution's certificate bundle and certificate directories.
+
+`SSL_CERT_FILE` and `SSL_CERT_DIR` add more certificates to trust, except in set-user-ID and
+set-group-ID programs. A Lean build that uses the system's OpenSSL also reads OpenSSL's default
+certificate locations.
+
+Lean does not check whether a certificate has been revoked.
 -/
 
 public section
@@ -26,24 +68,22 @@ public section
 namespace Std.Internal.SSL
 
 /--
-PEM-encoded material, given either as the path of a file holding it or as its contents. A path
-containing a NUL byte is rejected; in `PEM.text` a NUL is ordinary input to the PEM parser.
+PEM-encoded certificates or keys.
 -/
 inductive PEM where
 
   /--
-  Read the PEM from the file at `path`.
+  The contents of the file at `path`.
   -/
   | file (path : System.FilePath)
 
   /--
-  Take `contents` as the PEM bytes themselves.
+  The PEM text itself.
   -/
   | text (contents : String)
 
 /--
-PEM bytes as the runtime takes them, with the file they were read from so that a failure to parse
-them names it.
+PEM bytes as the runtime takes them, with the file they came from so that errors can name it.
 -/
 private structure LoadedPEM where
   bytes : ByteArray
@@ -81,27 +121,26 @@ instance : Nonempty Context.Client := ContextClientImpl.property
 namespace Context.Server
 
 /--
-The credentials a server presents.
+What a server presents to clients.
 -/
 structure Config where
   /--
-  The leaf certificate followed by any intermediates. The whole chain is sent, so clients can build
-  a path to a trusted root.
+  The server's certificate, followed by the intermediate certificates clients need to reach a root.
   -/
   cert : PEM
-  /-- An unencrypted private key matching the leaf in `cert`. -/
+  /--
+  The private key for `cert`. It must not be encrypted.
+  -/
   key : PEM
 
 @[extern "lean_ssl_ctx_mk_server"]
 private opaque mkImpl (cert : @& LoadedPEM) (key : @& LoadedPEM) : IO Context.Server
 
 /--
-Creates a server-side TLS context from a certificate chain and private key. The server does not
-authenticate clients (no mutual TLS).
+Creates a server context. Fails if the key doesn't match the certificate, or if either can't be read.
 
-Certificates are not checked against the clock, so an expired one loads here and the peer rejects it
-during the handshake. A key that does not match the leaf certificate is rejected, as is an encrypted
-key.
+Clients are not asked for a certificate (no mutual TLS). An expired certificate is accepted here and
+rejected by clients during the handshake.
 -/
 def mk (cfg : Config) : IO Context.Server := do
   mkImpl (← cfg.cert.load) (← cfg.key.load)
@@ -111,85 +150,51 @@ end Server
 namespace Client
 
 /--
-Which anchors a client trusts, and whether it checks the peer against them at all.
+Which certificates a client trusts.
 -/
 structure Config where
   /--
-  Trust anchors supplied by the caller, trusted alongside the platform anchors or, with
-  `trustSystemRoots := false`, instead of them.
-
-  Private keys and CRLs in the material are ignored; material holding no certificate is rejected.
-  A `TRUSTED CERTIFICATE` block rejecting a certificate is only certain to take effect with
-  `trustSystemRoots := false`, since the platform's own verdict on that certificate can take
-  precedence.
+  CA certificates to trust in addition to, or with `trustSystemRoots := false` instead of, the
+  system's. An entry may hold several certificates; other PEM blocks, such as keys, are ignored.
   -/
-  ca : Option PEM := none
+  ca : Array PEM := #[]
   /--
-  Whether to verify that the peer certificate chains to a trusted anchor. With `false` neither `ca`
-  nor the platform anchors are consulted, and the context can never be made to verify.
+  Whether to check the server's certificate at all. With `false` any certificate is accepted, so
+  anyone on the network can impersonate the server. Only use it for testing.
   -/
   verifyPeer : Bool := true
   /--
-  Whether the platform's trust anchors are trusted, so that public HTTPS servers work out of the box.
-  With `false` only `ca` is trusted, and neither the platform nor the environment is consulted.
-
-  * macOS: a chain that neither `ca` nor the environment's anchors establish goes to the system's
-    trust evaluation during the handshake. It applies the Keychain's current trust settings and
-    Apple's TLS requirements, such as Certificate Transparency, CA distrust dates, pinned Apple
-    hosts, and at most 825 days of validity even under a locally trusted root. OpenSSL then checks
-    the chain it settles on again, so hostname rules are at least as strict as on other platforms.
-    Missing intermediates are never fetched: the server, `ca` or the environment has to supply them.
-  * Windows: the `ROOT` certificate store, which needs OpenSSL 3.2 or later. Windows adds most roots
-    to it on demand, the first time its own chain engine needs one, so a public root no Windows
-    program on the machine has used yet is missing; supply it through `ca` or `SSL_CERT_FILE`. The
-    `Disallowed` store and per-certificate properties are not consulted.
-  * Elsewhere: the usual system bundle locations.
-
-  A toolchain linking the system's OpenSSL also reads that library's compiled-in certificate paths
-  (on Windows only when the `ROOT` store is unavailable); a standalone toolchain never does.
-
-  `SSL_CERT_FILE` and `SSL_CERT_DIR` are read for every verifying context and add to the platform
-  anchors, except in a set-user-ID or set-group-ID process. On macOS a chain that they or `ca`
-  establish is accepted without the system evaluation. A variable naming an unreadable file is only
-  reported when no other anchor was found.
-
-  Lean performs no revocation checking of its own.
+  Whether to trust the system's root certificates. See the platform notes in the module
+  documentation for where they come from.
   -/
   trustSystemRoots : Bool := true
   /--
-  Whether a certificate in the trust store may anchor a chain without being self-signed.
-
-  With `false`, the default, a chain must reach a self-signed certificate or one a `TRUSTED
-  CERTIFICATE` block trusts for TLS servers. A `ca` of only intermediates with
-  `trustSystemRoots := false` could then never verify anything, and is refused. With `true` any
-  certificate in the store anchors a chain, as pinning an intermediate requires. On macOS a Keychain
-  trust setting on an intermediate or leaf makes it an anchor regardless of this flag.
+  Whether a trusted certificate may end a chain without being a root. This is what trusting an
+  intermediate CA on its own requires.
   -/
   allowPartialChain : Bool := false
 
 @[extern "lean_ssl_ctx_mk_client"]
-private opaque mkImpl (ca : @& Option LoadedPEM) (verifyPeer : Bool) (trustSystemRoots : Bool)
+private opaque mkImpl (ca : @& Array LoadedPEM) (verifyPeer : Bool) (trustSystemRoots : Bool)
     (allowPartialChain : Bool) : IO Context.Client
 
 /--
-Creates a client-side TLS context trusting the anchors named by `cfg`.
+Creates a client context.
 
-To pin a specific CA, use `{ ca := some ca, trustSystemRoots := false }`: certificates from any other
-authority, public roots included, are then rejected. `ca` must then supply an anchor, which is
-checked here rather than at every handshake. The same holds when `trustSystemRoots` is set but the
-platform supplies no anchors; without `ca` that case is refused.
+The context only decides which certificates are trusted. It does not check that a certificate
+belongs to the server being contacted: the connection does that, given the server's name.
 
-Verification proves the certificate chains to a trusted anchor, **not** that it belongs to the host
-being connected to. Binding a hostname is the session layer's job.
+When `ca` is the only source of trust, it must hold a root certificate (or, with
+`allowPartialChain`, any certificate). This is checked here, not at every connection.
 -/
 def mk (cfg : Config := {}) : IO Context.Client := do
-  if cfg.verifyPeer && !cfg.trustSystemRoots && cfg.ca.isNone then
-    -- `EINVAL`, like the material the runtime rejects.
-    throw <| .invalidArgument none 22 "no trust anchors: peer verification is on, the platform \
-      trust anchors are excluded, and no CA certificate was given"
+  if cfg.verifyPeer && !cfg.trustSystemRoots && cfg.ca.isEmpty then
+    -- 22 is `EINVAL`, the code the runtime gives unusable material.
+    throw <| .invalidArgument none 22
+      "no trust anchors: `trustSystemRoots := false` needs at least one certificate in `ca`"
 
-  -- The CA material is not even read without verification.
-  let ca ← if cfg.verifyPeer then cfg.ca.mapM PEM.load else pure none
+  -- Without verification the CA material is not even read.
+  let ca ← if cfg.verifyPeer then cfg.ca.mapM PEM.load else pure #[]
   mkImpl ca cfg.verifyPeer cfg.trustSystemRoots cfg.allowPartialChain
 
 end Client

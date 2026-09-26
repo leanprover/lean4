@@ -465,7 +465,7 @@ bool use_system_trust_store(SSL_CTX * ctx, std::string * detail) {
         ? "no trust anchors: none of the usual system bundles could be read (SSL_CERT_FILE and "
           "SSL_CERT_DIR are ignored in a set-user-ID or set-group-ID process)"
         : "no trust anchors: none of the usual system bundles could be read "
-          "(set SSL_CERT_FILE or SSL_CERT_DIR)";
+          "(pass `ca`, or set SSL_CERT_FILE or SSL_CERT_DIR)";
 #endif
     if (env_ok) *detail = none;
 

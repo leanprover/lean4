@@ -3,9 +3,11 @@
 
 Division is eliminated (`a / b ↦ a * b⁻¹`) and inverses are pushed to the atoms
 (`(a * b)⁻¹ ↦ a⁻¹ * b⁻¹`, `(-a)⁻¹ ↦ -a⁻¹`, `a⁻¹⁻¹ ↦ a`, `0⁻¹ ↦ 0`, `1⁻¹ ↦ 1`); `x⁻¹` for an
-atom or a numeral `x` is then an atom of the polynomial. Two known gaps, marked `TODO` below:
-`x * x⁻¹` is not simplified (side condition), and numeral inverses are not rational
-coefficients yet, so `a / 2 + a / 2` does not reach its normal form `a`.
+atom `x` is then an atom of the polynomial. In characteristic zero, numeral inverses are
+rational coefficients: a term normalizes to `p * d⁻¹` in lowest terms (`a / 2 + b / 3` is
+`(3 * a + 2 * b) * 6⁻¹`) and a relation becomes denominator-free (`a / 2 = b / 3` is
+`3 * a = 2 * b`). One known gap, marked `TODO` below: `x * x⁻¹` is not simplified (side
+condition).
 -/
 
 set_option warn.sorry false
@@ -62,24 +64,86 @@ example (a : Rat) : a / a = 1 := by
     show_goals
     sorry
 
--- **TODO**: numeral inverses must become rational coefficients (`a / 2 + a / 2` is `a`);
--- `2⁻¹` is an atom for now, so `2 * 2⁻¹` does not cancel. This is not a normal form.
+-- Numeral inverses are rational coefficients.
+example (a : Rat) : a / 2 + a / 2 = a := by
+  sym => simp arithSimp
+
+example (a b : Rat) : a / 2 + b / 3 = (3 * a + 2 * b) * 6⁻¹ := by
+  sym => simp arithSimp
+
+example (a b : Rat) : a / 2 + b / 3 = (3 * a + 2 * b) / 6 := by
+  sym => simp arithSimp
+
+example (a : Rat) : a / 2 * 2 = a := by
+  sym => simp arithSimp
+
+example (a : Rat) : (a / 2) ^ 2 = a ^ 2 / 4 := by
+  sym => simp arithSimp
+
+example : (1 : Rat) / 2 + 1 / 3 = 5 / 6 := by
+  sym => simp arithSimp
+
+example (a : Rat) : a / (-2) = -(a / 2) := by
+  sym => simp arithSimp
+
+example (a b : Rat) : (a + b) / 2 * ((a - b) / 2) = (a ^ 2 - b ^ 2) / 4 := by
+  sym => simp arithSimp
+
+-- The normal form of a term with a denominator, and its fixpoint.
 /--
 trace: case grind
-a : Rat
-⊢ 2 * (a * 2⁻¹) = a
+f : Rat → Rat
+a b : Rat
+⊢ f ((3 * a + 2 * b) * 6⁻¹) = 0
 -/
 #guard_msgs in
-example (a : Rat) : a / 2 + a / 2 = a := by
+example (f : Rat → Rat) (a b : Rat) : f (a / 2 + b / 3) = 0 := by
   sym =>
     simp arithSimp
     show_goals
     sorry
 
--- A field given by a local instance.
+example (f : Rat → Rat) (a b : Rat) : f (a / 2 + b / 3) = f ((3 * a + 2 * b) * 6⁻¹) := by
+  sym => simp arithSimp
+
+-- Relations become denominator-free.
+example (a b : Rat) (h : 3 * a = 2 * b) : a / 2 = b / 3 := by
+  sym =>
+    simp arithSimp
+    exact h
+
+example (a b : Rat) (h : a ≤ 2 * b) : a / 2 ≤ b := by
+  sym =>
+    simp arithSimp
+    exact h
+
+example (a : Rat) (h : 0 < a) : a / 2 < a := by
+  sym =>
+    simp arithSimp
+    exact h
+
+example (a b : Rat) : a / 3 + b / 3 = (a + b) / 3 := by
+  sym => simp arithSimp
+
+-- A field given by a local instance, with and without characteristic zero: numeral inverses
+-- stay atoms when the characteristic is unknown.
 open Lean.Grind in
 example (F : Type) [Field F] (a b : F) : a / b + a / b = 2 * (a * b⁻¹) := by
   sym => simp arithSimp
+
+open Lean.Grind in
+example (F : Type) [Field F] (a : F) : a / 2 + a / 2 = 2 * (a * 2⁻¹) := by
+  sym => simp arithSimp
+
+open Lean.Grind in
+example (F : Type) [Field F] [IsCharP F 0] (a b : F) : a / 2 + b / 3 = (3 * a + 2 * b) * 6⁻¹ := by
+  sym => simp arithSimp
+
+open Lean.Grind in
+example (F : Type) [Field F] [IsCharP F 0] (a b : F) (h : 3 * a = 2 * b) : a / 2 = b / 3 := by
+  sym =>
+    simp arithSimp
+    exact h
 
 -- Division on a ring that is not a field is an atom.
 example (x y : Int) : x / y + 0 = x / y := by

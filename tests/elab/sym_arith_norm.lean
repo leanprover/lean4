@@ -237,6 +237,60 @@ def sr1 : Prop := "a" ++ "b" = "ab"
 run_meta SymM.run do
   test ``sr1
 
+/-! ## Fields of characteristic zero: numeral inverses are rational coefficients -/
+
+opaque r : Rat
+opaque s : Rat
+
+def f1 : Rat := r / 2 + r / 2
+def f2 : Rat := r / 2 + s / 3
+def f3 : Rat := r / 2 * 2
+def f4 : Rat := (r / 2) ^ 2
+def f5 : Rat := (1 : Rat) / 2 + 1 / 3
+def f6 : Rat := r / (-2)
+def f7 : Rat := (r + s) / 2 * (r - s) / 2
+def f8 : Rat := r * 2⁻¹ + s * 3⁻¹
+def f9 : Rat := (3 * r + 2 * s) * 6⁻¹
+def f10 : Rat := r / 6 + r / 3
+def fr1 : Prop := r / 2 = s / 3
+def fr2 : Prop := r / 2 ≤ s
+def fr3 : Prop := r / 2 < r
+def fr4 : Prop := r / 3 + s / 3 = (r + s) / 3
+
+/--
+info: f1: r
+---
+info: f2: (3 * r + 2 * s) * 6⁻¹
+---
+info: f3: r
+---
+info: f4: r ^ 2 * 4⁻¹
+---
+info: f5: 5 * 6⁻¹
+---
+info: f6: -1 * r * 2⁻¹
+---
+info: f7: (r ^ 2 + -1 * s ^ 2) * 4⁻¹
+---
+info: f8: (3 * r + 2 * s) * 6⁻¹
+---
+info: f9: (3 * r + 2 * s) * 6⁻¹ (normal)
+---
+info: f10: r * 2⁻¹
+---
+info: fr1: 3 * r = 2 * s
+---
+info: fr2: r ≤ 2 * s
+---
+info: fr3: 0 < r
+---
+info: fr4: 0 = 0
+-/
+#guard_msgs in
+run_meta SymM.run do
+  for n in [``f1, ``f2, ``f3, ``f4, ``f5, ``f6, ``f7, ``f8, ``f9, ``f10, ``fr1, ``fr2, ``fr3, ``fr4] do
+    test n
+
 /-! ## Atoms are simplified by the callback before normalization -/
 
 def p : Int := 1

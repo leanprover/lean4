@@ -103,7 +103,13 @@ public structure Dependency where
   -/
   src?  : Option DependencySrc
   /--
-  Arguments to pass to the dependency's package configuration.
+  Arguments to pass to the dependency's package configuration. Set via the
+  `with` clause of a `require` declaration: `require X from … with <opts>`.
+  These are exposed inside the dependency's lakefile through `get_config?`,
+  the same surface as workspace-root `-K name=value` flags. `-K` flags
+  themselves only reach the workspace-root package's `get_config?`, so the
+  `with` clause is the channel for forwarding a root option to a specific
+  dependency; see the "Lean `require`" section of `src/lake/README.md`.
   -/
   opts : NameMap String
   deriving Inhabited, TypeName

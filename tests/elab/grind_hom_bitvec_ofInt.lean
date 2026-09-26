@@ -1,8 +1,7 @@
-import Init.Grind
-import Init.Data.BitVec
-
 /-!
-Tests for `BitVec.toNat_ofInt` homomorphism rule in `grind`.
+Tests for the `BitVec.toNat_ofInt` homomorphism rule in `grind`: the unsigned value of
+`BitVec.ofInt w i` is `(i % 2 ^ w).toNat`, which lets `cutsat` reason about carries
+computed through `BitVec.ofInt`.
 -/
 
 example (i : Int) : (BitVec.ofInt 8 i).toNat = (i % 256).toNat := by grind

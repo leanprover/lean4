@@ -176,7 +176,7 @@ protected def mul (x y : Dyadic) : Dyadic :=
 
 instance : Mul Dyadic := ⟨Dyadic.mul⟩
 
-/-- Multiply two dyadic numbers. -/
+/-- Raise a dyadic number to the power of a natural number. -/
 protected def pow (x : Dyadic) (i : Nat) : Dyadic :=
   match x with
   | .zero => if i = 0 then 1 else 0

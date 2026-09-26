@@ -202,22 +202,23 @@ partial def findField? (env : Environment) (structName : Name) (fieldName : Name
 
 /--
 Given a structure `structName` and a parent projection name `projName` (e.g. `toParentStructName`),
-returns the corresponding parent structure name.
+returns the corresponding parent information, including the matched projection declaration.
 The parent projection name is a single-component name.
+At each structure, direct parents are checked before recursively searching their ancestors.
 
 Note: this relies on the fact that projection names are checked to be consistent across all parents.
 -/
-partial def findParentProjStruct? (env : Environment) (structName : Name) (projName : Name) : Option Name :=
+partial def findParentProjInfo? (env : Environment) (structName : Name) (projName : Name) : Option StructureParentInfo :=
   go structName |>.run' {}
 where
   -- Use a cache to navigate the DAG in polynomial time
-  go (structName : Name) : StateM NameSet (Option Name) := do
+  go (structName : Name) : StateM NameSet (Option StructureParentInfo) := do
     if (← get).contains structName then
       return none
     else
       let parentInfos := getStructureParentInfo env structName
       if let some parentInfo := parentInfos.find? (projName.isSuffixOf ·.projFn) then
-        return some parentInfo.structName
+        return some parentInfo
       else
         modify fun s => s.insert structName
         parentInfos.findSomeM? (go ·.structName)

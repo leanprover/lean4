@@ -8,6 +8,9 @@ prelude
 public import Lean.Meta.Tactic.Grind.Types
 public import Lean.Meta.Tactic.Grind.Homo
 public import Lean.Meta.Sym.Simp.SimpM
+import Init.Grind.Homo.Extra
+import Lean.Meta.NatInstTesters
+import Lean.Meta.Sym.LitValues
 import Lean.Meta.Tactic.Grind.Diseq
 import Lean.Meta.Sym.Simp.Rewrite
 public section
@@ -78,15 +81,69 @@ private def firePreds (e : Expr) (generation : Nat) : GoalM Unit := do
     addNewRawFact proof prop generation .input .other
 
 /--
-Rewriter for the `[grind hom]` rules with the stop condition: `grind` internalizes
-terms bottom-up, so when no rule applies to a term that is already in the E-graph, the
-term and all its subterms have already been processed by the engine, and there is
-nothing to do at any depth. Traversal cost is thus proportional to the new terms
-produced by the rewriting, not to the size of the input term.
+Decomposes a mask `c` of the form `1…10…0` (at least one `1`) into `(n, k)` with
+`c = (2^n - 1) * 2^k`.
+-/
+private def maskOnesZeros? (c : Nat) : Option (Nat × Nat) := do
+  guard (c != 0)
+  -- `c ^^^ (c - 1)` is `2^(k+1) - 1` where `k` is the number of trailing zeros of `c`.
+  let k := (c ^^^ (c - 1)).log2
+  let c := c >>> k
+  let n := c.log2 + 1
+  guard (c + 1 == 1 <<< n)
+  return (n, k)
+
+private def mkNatDiv (a b : Expr) : Expr :=
+  mkApp6 (mkConst ``HDiv.hDiv [0, 0, 0]) Nat.mkType Nat.mkType Nat.mkType Nat.mkInstHDiv a b
+
+private def mkNatMod (a b : Expr) : Expr :=
+  mkApp6 (mkConst ``HMod.hMod [0, 0, 0]) Nat.mkType Nat.mkType Nat.mkType Nat.mkInstHMod a b
+
+private def mkNatEqRefl (a : Expr) : Expr :=
+  mkApp2 (mkConst ``Eq.refl [1]) Nat.mkType a
+
+/--
+Rewrites `x &&& c` and `c &&& x` over `Nat`, where `c` is a literal mask of the form
+`1…10…0`, i.e. `c = (2^n - 1) * 2^k`, into `x % 2^n` when `k = 0` and into
+`x / 2^k % 2^n * 2^k` otherwise, with the powers evaluated to literals. `cutsat`
+supports `%`, `/`, and `*` by literals, but not `&&&`. The side conditions of the
+theorems in `Init.Grind.Homo.Extra` are ground equalities between literals and
+closed arithmetic terms, discharged by `rfl`.
+-/
+private def andMaskSimproc : Sym.Simp.Simproc := fun e => do
+  let_expr HAnd.hAnd α _ _ inst a b := e | return .rfl
+  unless α.isConstOf ``Nat do return .rfl
+  unless (← Structural.isInstHAndNat inst) do return .rfl
+  let (x, c, cVal, flipped) ←
+    if let some cVal := (Sym.getNatValue? b).run then pure (a, b, cVal, false)
+    else if let some cVal := (Sym.getNatValue? a).run then pure (b, a, cVal, true)
+    else return .rfl
+  let some (n, k) := maskOnesZeros? cVal | return .rfl
+  let nE := mkNatLit n
+  let q := mkNatLit (1 <<< n)
+  if k == 0 then
+    let e' ← Sym.share <| mkNatMod x q
+    let thm := if flipped then ``Lean.Grind.Nat.ones_and_eq_mod else ``Lean.Grind.Nat.and_eq_mod
+    let h := mkApp6 (mkConst thm) x c q nE (mkNatEqRefl c) (mkNatEqRefl q)
+    return .step e' h
+  else
+    let kE := mkNatLit k
+    let p := mkNatLit (1 <<< k)
+    let e' ← Sym.share <| mkNatMul (mkNatMod (mkNatDiv x p) q) p
+    let thm := if flipped then ``Lean.Grind.Nat.ones_zeros_and_eq_div_mod_mul else ``Lean.Grind.Nat.and_eq_div_mod_mul
+    let h := mkApp9 (mkConst thm) x c p q kE nE (mkNatEqRefl c) (mkNatEqRefl p) (mkNatEqRefl q)
+    return .step e' h
+
+/--
+Rewriter for the `[grind hom]` rules and the builtin `andMaskSimproc`, with the stop
+condition: `grind` internalizes terms bottom-up, so when no rule applies to a term that
+is already in the E-graph, the term and all its subterms have already been processed by
+the engine, and there is nothing to do at any depth. Traversal cost is thus proportional
+to the new terms produced by the rewriting, not to the size of the input term.
 -/
 private def mkRewriter : GoalM Sym.Simp.Simproc := do
   let s ← get
-  let rw := (← getThms).rewrite
+  let rw := (← getThms).rewrite <|> andMaskSimproc
   return fun e => do
     let r ← rw e
     if !r.isRfl then return r

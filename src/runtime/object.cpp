@@ -5,6 +5,7 @@ Released under Apache 2.0 license as described in the file LICENSE.
 Author: Leonardo de Moura
 */
 #include <atomic>
+#include <bit>
 #include <string>
 #include <algorithm>
 #include <vector>
@@ -1656,13 +1657,7 @@ extern "C" LEAN_EXPORT lean_obj_res lean_nat_gcd(b_lean_obj_arg a1, b_lean_obj_a
 
 extern "C" LEAN_EXPORT lean_obj_res lean_nat_log2(b_lean_obj_arg a) {
     if (lean_is_scalar(a)) {
-      unsigned res = 0;
-      size_t n = lean_unbox(a);
-      while (n >= 2) {
-        res++;
-        n /= 2;
-      }
-      return lean_box(res);
+      return lean_box(lean_usize_log2(lean_unbox(a)));
     } else {
       return lean_box(mpz_value(a).log2());
     }
@@ -1672,6 +1667,21 @@ extern "C" LEAN_EXPORT size_t lean_nat_size_in_bytes(b_lean_obj_arg a) {
     if (lean_is_scalar(a))
         return sizeof(size_t); // a scalar occupies one machine word
     return mpz_value(a).size_in_bytes();
+}
+
+static size_t trailing_zeros(size_t n) {
+    return n == 0 ? 0 : std::countr_zero(n);
+}
+
+extern "C" LEAN_EXPORT lean_obj_res lean_nat_trailing_zeros(b_lean_obj_arg a) {
+    return lean_usize_to_nat(lean_is_scalar(a)
+        ? trailing_zeros(lean_unbox(a)) : mpz_value(a).trailing_zeros());
+}
+
+extern "C" LEAN_EXPORT lean_obj_res lean_int_trailing_zeros(b_lean_obj_arg a) {
+    // Conversion to unsigned preserves the trailing zeros of negative scalars.
+    return lean_usize_to_nat(lean_is_scalar(a)
+        ? trailing_zeros(static_cast<size_t>(lean_scalar_to_int(a))) : mpz_value(a).trailing_zeros());
 }
 
 // =======================================

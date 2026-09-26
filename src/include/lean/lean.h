@@ -11,6 +11,10 @@ Author: Leonardo de Moura
 #include <limits.h>
 #include <float.h>
 
+#ifdef _MSC_VER
+#include <intrin.h>
+#endif
+
 #ifndef __has_builtin
 #  define __has_builtin(x) 0
 #endif
@@ -1819,6 +1823,7 @@ LEAN_EXPORT lean_obj_res lean_nat_pow(b_lean_obj_arg a1, b_lean_obj_arg a2);
 LEAN_EXPORT lean_obj_res lean_nat_powmod(b_lean_obj_arg b, b_lean_obj_arg e, b_lean_obj_arg m);
 LEAN_EXPORT lean_obj_res lean_nat_gcd(b_lean_obj_arg a1, b_lean_obj_arg a2);
 LEAN_EXPORT lean_obj_res lean_nat_log2(b_lean_obj_arg a);
+LEAN_EXPORT lean_obj_res lean_nat_trailing_zeros(b_lean_obj_arg a);
 /* Upper bound on the size in bytes of the representation of `a` (one word for scalars). Returns a raw `size_t`, not a boxed `Nat`. */
 LEAN_EXPORT size_t lean_nat_size_in_bytes(b_lean_obj_arg a);
 
@@ -1846,6 +1851,7 @@ LEAN_EXPORT lean_object * lean_int_big_div_exact(lean_object * a1, lean_object *
 LEAN_EXPORT lean_object * lean_int_big_mod(lean_object * a1, lean_object * a2);
 LEAN_EXPORT lean_object * lean_int_big_ediv(lean_object * a1, lean_object * a2);
 LEAN_EXPORT lean_object * lean_int_big_emod(lean_object * a1, lean_object * a2);
+LEAN_EXPORT lean_obj_res lean_int_trailing_zeros(b_lean_obj_arg a);
 LEAN_EXPORT bool lean_int_big_eq(lean_object * a1, lean_object * a2);
 LEAN_EXPORT bool lean_int_big_le(lean_object * a1, lean_object * a2);
 LEAN_EXPORT bool lean_int_big_lt(lean_object * a1, lean_object * a2);
@@ -2164,6 +2170,76 @@ static inline size_t lean_bool_to_isize(uint8_t a) { return (size_t)(ptrdiff_t)a
 
 LEAN_EXPORT uint8_t lean_uint8_of_big_nat(b_lean_obj_arg a);
 static inline uint8_t lean_uint8_of_nat(b_lean_obj_arg a) { return lean_is_scalar(a) ? (uint8_t)(lean_unbox(a)) : lean_uint8_of_big_nat(a); }
+/* Leading/trailing zero counts return the word width on zero. */
+static inline uint32_t lean_uint32_clz(uint32_t a) {
+    if (a == 0) return 32;
+#if defined(__GNUC__) || defined(__clang__)
+    return (uint32_t)__builtin_clz(a);
+#elif defined(_MSC_VER)
+    unsigned long index;
+    _BitScanReverse(&index, a);
+    return 31 - (uint32_t)index;
+#else
+    uint32_t count = 0;
+    while ((a & UINT32_C(0x80000000)) == 0) { count++; a <<= 1; }
+    return count;
+#endif
+}
+
+static inline uint32_t lean_uint32_ctz(uint32_t a) {
+    if (a == 0) return 32;
+#if defined(__GNUC__) || defined(__clang__)
+    return (uint32_t)__builtin_ctz(a);
+#elif defined(_MSC_VER)
+    unsigned long index;
+    _BitScanForward(&index, a);
+    return (uint32_t)index;
+#else
+    uint32_t count = 0;
+    while ((a & 1) == 0) { count++; a >>= 1; }
+    return count;
+#endif
+}
+
+static inline uint64_t lean_uint64_clz(uint64_t a) {
+    if (a == 0) return 64;
+#if defined(__GNUC__) || defined(__clang__)
+    return (uint64_t)__builtin_clzll(a);
+#elif defined(_MSC_VER) && (defined(_M_X64) || defined(_M_ARM64))
+    unsigned long index;
+    _BitScanReverse64(&index, a);
+    return 63 - (uint64_t)index;
+#else
+    uint32_t hi = (uint32_t)(a >> 32);
+    return hi ? lean_uint32_clz(hi) : 32 + lean_uint32_clz((uint32_t)a);
+#endif
+}
+
+static inline uint64_t lean_uint64_ctz(uint64_t a) {
+    if (a == 0) return 64;
+#if defined(__GNUC__) || defined(__clang__)
+    return (uint64_t)__builtin_ctzll(a);
+#elif defined(_MSC_VER) && (defined(_M_X64) || defined(_M_ARM64))
+    unsigned long index;
+    _BitScanForward64(&index, a);
+    return (uint64_t)index;
+#else
+    uint32_t lo = (uint32_t)a;
+    return lo ? lean_uint32_ctz(lo) : 32 + lean_uint32_ctz((uint32_t)(a >> 32));
+#endif
+}
+
+static inline uint8_t lean_uint8_clz(uint8_t a) { return (uint8_t)(lean_uint32_clz(a) - 24); }
+static inline uint8_t lean_uint8_ctz(uint8_t a) { return a ? (uint8_t)lean_uint32_ctz(a) : 8; }
+static inline uint16_t lean_uint16_clz(uint16_t a) { return (uint16_t)(lean_uint32_clz(a) - 16); }
+static inline uint16_t lean_uint16_ctz(uint16_t a) { return a ? (uint16_t)lean_uint32_ctz(a) : 16; }
+static inline size_t lean_usize_clz(size_t a) {
+    return sizeof(size_t) == 8 ? (size_t)lean_uint64_clz(a) : (size_t)lean_uint32_clz((uint32_t)a);
+}
+static inline size_t lean_usize_ctz(size_t a) {
+    return sizeof(size_t) == 8 ? (size_t)lean_uint64_ctz(a) : (size_t)lean_uint32_ctz((uint32_t)a);
+}
+
 /* Remark: the following function is used to implement the constructor `UInt8.mk`. We can't annotate constructors with `@&` */
 static inline uint8_t lean_uint8_of_nat_mk(lean_obj_arg a) { uint8_t r = lean_uint8_of_nat(a); lean_dec(a); return r; }
 static inline lean_obj_res lean_uint8_to_nat(uint8_t a) { return lean_usize_to_nat((size_t)a); }
@@ -2180,12 +2256,7 @@ static inline uint8_t lean_uint8_shift_right(uint8_t a, uint8_t b) { return a >>
 static inline uint8_t lean_uint8_complement(uint8_t a) { return ~a; }
 static inline uint8_t lean_uint8_neg(uint8_t a) { return -a; }
 static inline uint8_t lean_uint8_log2(uint8_t a) {
-    uint8_t res = 0;
-    while (a >= 2) {
-        res++;
-        a /= 2;
-    }
-    return res;
+    return a == 0 ? 0 : (uint8_t)(8 - 1 - lean_uint8_clz(a));
 }
 static inline uint8_t lean_uint8_dec_eq(uint8_t a1, uint8_t a2) { return a1 == a2; }
 static inline uint8_t lean_uint8_dec_lt(uint8_t a1, uint8_t a2) { return a1 < a2; }
@@ -2218,12 +2289,7 @@ static inline uint16_t lean_uint16_shift_right(uint16_t a, uint16_t b) { return 
 static inline uint16_t lean_uint16_complement(uint16_t a) { return ~a; }
 static inline uint16_t lean_uint16_neg(uint16_t a) { return -a; }
 static inline uint16_t lean_uint16_log2(uint16_t a) {
-    uint16_t res = 0;
-    while (a >= 2) {
-        res++;
-        a /= 2;
-    }
-    return res;
+    return a == 0 ? 0 : (uint16_t)(16 - 1 - lean_uint16_clz(a));
 }
 static inline uint8_t lean_uint16_dec_eq(uint16_t a1, uint16_t a2) { return a1 == a2; }
 static inline uint8_t lean_uint16_dec_lt(uint16_t a1, uint16_t a2) { return a1 < a2; }
@@ -2255,12 +2321,7 @@ static inline uint32_t lean_uint32_shift_right(uint32_t a, uint32_t b) { return 
 static inline uint32_t lean_uint32_complement(uint32_t a) { return ~a; }
 static inline uint32_t lean_uint32_neg(uint32_t a) { return -a; }
 static inline uint32_t lean_uint32_log2(uint32_t a) {
-    uint32_t res = 0;
-    while (a >= 2) {
-        res++;
-        a /= 2;
-    }
-    return res;
+    return a == 0 ? 0 : (uint32_t)(32 - 1 - lean_uint32_clz(a));
 }
 static inline uint8_t lean_uint32_dec_eq(uint32_t a1, uint32_t a2) { return a1 == a2; }
 static inline uint8_t lean_uint32_dec_lt(uint32_t a1, uint32_t a2) { return a1 < a2; }
@@ -2292,12 +2353,7 @@ static inline uint64_t lean_uint64_shift_right(uint64_t a, uint64_t b) { return 
 static inline uint64_t lean_uint64_complement(uint64_t a) { return ~a; }
 static inline uint64_t lean_uint64_neg(uint64_t a) { return -a; }
 static inline uint64_t lean_uint64_log2(uint64_t a) {
-    uint64_t res = 0;
-    while (a >= 2) {
-        res++;
-        a /= 2;
-    }
-    return res;
+    return a == 0 ? 0 : (uint64_t)(64 - 1 - lean_uint64_clz(a));
 }
 static inline uint8_t lean_uint64_dec_eq(uint64_t a1, uint64_t a2) { return a1 == a2; }
 static inline uint8_t lean_uint64_dec_lt(uint64_t a1, uint64_t a2) { return a1 < a2; }
@@ -2338,12 +2394,7 @@ static inline size_t lean_usize_shift_right(size_t a, size_t b) { return a >> (b
 static inline size_t lean_usize_complement(size_t a) { return ~a; }
 static inline size_t lean_usize_neg(size_t a) { return -a; }
 static inline size_t lean_usize_log2(size_t a) {
-    size_t res = 0;
-    while (a >= 2) {
-        res++;
-        a /= 2;
-    }
-    return res;
+    return a == 0 ? 0 : (size_t)((sizeof(size_t) * CHAR_BIT) - 1 - lean_usize_clz(a));
 }
 static inline uint8_t lean_usize_dec_eq(size_t a1, size_t a2) { return a1 == a2; }
 static inline uint8_t lean_usize_dec_lt(size_t a1, size_t a2) { return a1 < a2; }

@@ -36,7 +36,7 @@ def brokenConfig : String :=
     Std.Async.System.setEnvVar "OPENSSL_CONF" path.toString
 
     try
-      match ← (discard <| Context.Client.mk { verifyPeer := false }).toBaseIO, standalone with
+      match ← (discard <| Context.Client.mk { trust := .insecureSkipVerify }).toBaseIO, standalone with
       | .ok _, true => pure ()
       | .error e, true =>
         throw <| IO.userError s!"the planted configuration was read by a standalone build: {e}"

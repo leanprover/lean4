@@ -32,6 +32,7 @@ public import Lean.Elab.Structure
 public import Lean.Elab.Print
 public import Lean.Elab.MutualDef
 public import Lean.Elab.AuxDef
+public import Lean.Elab.NewType
 public import Lean.Elab.PreDefinition
 public import Lean.Elab.Deriving
 public import Lean.Elab.DeclarationRange

@@ -1819,6 +1819,7 @@ LEAN_EXPORT lean_obj_res lean_nat_pow(b_lean_obj_arg a1, b_lean_obj_arg a2);
 LEAN_EXPORT lean_obj_res lean_nat_powmod(b_lean_obj_arg b, b_lean_obj_arg e, b_lean_obj_arg m);
 LEAN_EXPORT lean_obj_res lean_nat_gcd(b_lean_obj_arg a1, b_lean_obj_arg a2);
 LEAN_EXPORT lean_obj_res lean_nat_log2(b_lean_obj_arg a);
+LEAN_EXPORT lean_obj_res lean_nat_trailing_zeros(b_lean_obj_arg a);
 /* Upper bound on the size in bytes of the representation of `a` (one word for scalars). Returns a raw `size_t`, not a boxed `Nat`. */
 LEAN_EXPORT size_t lean_nat_size_in_bytes(b_lean_obj_arg a);
 
@@ -1846,6 +1847,7 @@ LEAN_EXPORT lean_object * lean_int_big_div_exact(lean_object * a1, lean_object *
 LEAN_EXPORT lean_object * lean_int_big_mod(lean_object * a1, lean_object * a2);
 LEAN_EXPORT lean_object * lean_int_big_ediv(lean_object * a1, lean_object * a2);
 LEAN_EXPORT lean_object * lean_int_big_emod(lean_object * a1, lean_object * a2);
+LEAN_EXPORT lean_obj_res lean_int_trailing_zeros(b_lean_obj_arg a);
 LEAN_EXPORT bool lean_int_big_eq(lean_object * a1, lean_object * a2);
 LEAN_EXPORT bool lean_int_big_le(lean_object * a1, lean_object * a2);
 LEAN_EXPORT bool lean_int_big_lt(lean_object * a1, lean_object * a2);

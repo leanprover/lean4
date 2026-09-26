@@ -7,6 +7,8 @@ Author: Sofia Rodrigues
 #include "runtime/openssl/context.h"
 #include "runtime/openssl/trust_store.h"
 
+#include <cerrno>
+
 #ifndef LEAN_EMSCRIPTEN
 
 #include <openssl/err.h>
@@ -15,7 +17,6 @@ Author: Sofia Rodrigues
 #include <openssl/x509_vfy.h>
 #include <openssl/x509v3.h>
 #include <algorithm>
-#include <cerrno>
 #include <cstring>
 #include <limits>
 #include <memory>
@@ -25,6 +26,11 @@ Author: Sofia Rodrigues
 #endif
 
 namespace lean {
+
+// For a TLS library that cannot meet Lean's policy, or a build without one.
+static lean_obj_res mk_tls_unsupported(char const * msg) {
+    return lean_io_result_mk_error(lean_mk_io_error_unsupported_operation(ENOTSUP, mk_string(msg)));
+}
 
 lean_external_class * g_ssl_context_external_class = nullptr;
 
@@ -186,7 +192,7 @@ static lean_obj_res restrict_ciphers(SSL_CTX * ctx) {
         std::string msg = std::string("could not configure the TLS cipher suites: the system OpenSSL "
                                       "configuration permits ") + version + " but leaves none of its "
                                       "suites that Lean allows";
-        return lean_io_result_mk_error(lean_mk_io_user_error(mk_string(msg)));
+        return mk_tls_unsupported(msg.c_str());
     };
 
     if (narrowed && kept.empty() && tls12_permitted) return refused_by_policy("TLS 1.2");
@@ -353,9 +359,8 @@ static bool store_has_anchor(X509_STORE * store) {
     return any;
 }
 
-// Adds every certificate in `src` to the trust store. `require_anchor`, passed only when the store
-// starts empty, also requires one of them to be a chain anchor.
-static lean_obj_res load_ca_bundle(SSL_CTX * ctx, b_obj_arg src, bool require_anchor) {
+// Adds every certificate in `src` to the trust store.
+static lean_obj_res load_ca_bundle(SSL_CTX * ctx, b_obj_arg src) {
     ERR_clear_error();
 
     lean_obj_res err = nullptr;
@@ -392,17 +397,11 @@ static lean_obj_res load_ca_bundle(SSL_CTX * ctx, b_obj_arg src, bool require_an
     if (cert_count == 0)
         return mk_pem_error(src, "the CA material contains no certificates");
 
-    if (require_anchor && !store_has_anchor(store)) {
-        return mk_pem_error(src,
-            "the CA material holds no certificate a TLS server chain can terminate in (supply the "
-            "root, or allow partial chains to anchor at an intermediate)");
-    }
-
     return nullptr;
 }
 
-static lean_obj_res mk_client_ctx(b_obj_arg ca_opt, uint8_t verify_peer, uint8_t trust_system_roots, uint8_t allow_partial_chain) {
-    bool has_ca = !lean_is_scalar(ca_opt);
+static lean_obj_res mk_client_ctx(b_obj_arg cas, uint8_t verify_peer, uint8_t trust_system_roots, uint8_t allow_partial_chain) {
+    size_t ca_count = lean_array_size(cas);
 
     lean_obj_res err = nullptr;
     ssl_ctx_ptr ctx = mk_ssl_ctx_base(TLS_client_method(), &err);
@@ -425,19 +424,27 @@ static lean_obj_res mk_client_ctx(b_obj_arg ca_opt, uint8_t verify_peer, uint8_t
         system_roots = use_system_trust_store(ctx.get(), &detail);
 
         // With `ca` the context still has anchors when the platform supplies none.
-        if (!system_roots && !has_ca) {
+        if (!system_roots && ca_count == 0) {
             std::string msg("failed to load system trust store");
             if (!detail.empty()) msg += ": " + detail;
 
-            return lean_io_result_mk_error(mk_openssl_error(msg.c_str()));
+            return lean_io_result_mk_error(lean_mk_io_error_no_such_thing(ENOENT, mk_string(msg)));
         }
     }
 
-    if (has_ca) {
-        // CA material without an anchor only makes a dead context when it is the sole source.
-        bool require_anchor = !allow_partial_chain && !system_roots;
+    for (size_t i = 0; i < ca_count; i++) {
+        if (lean_obj_res ca_err = load_ca_bundle(ctx.get(), lean_array_get_core(cas, i))) return ca_err;
+    }
 
-        if (lean_obj_res ca_err = load_ca_bundle(ctx.get(), lean_ctor_get(ca_opt, 0), require_anchor)) return ca_err;
+    // CA material without an anchor only makes a dead context when it is the sole source.
+    if (ca_count > 0 && !allow_partial_chain && !system_roots &&
+        !store_has_anchor(SSL_CTX_get_cert_store(ctx.get()))) {
+        char const * msg = "the CA material holds no root certificate for a chain to end at; include "
+                           "the root, or set `allowPartialChain := true` to trust an intermediate";
+
+        // With several bundles no single file is to blame.
+        return ca_count == 1 ? mk_pem_error(lean_array_get_core(cas, 0), msg)
+                             : mk_ssl_invalid_argument(msg);
     }
 
     SSL_CTX_set_verify(ctx.get(), SSL_VERIFY_PEER, nullptr);
@@ -449,10 +456,7 @@ static lean_obj_res mk_client_ctx(b_obj_arg ca_opt, uint8_t verify_peer, uint8_t
 template<typename F>
 static lean_obj_res ssl_entry_point(F && build) {
     try {
-        if (!ensure_openssl_initialized()) {
-            return lean_io_result_mk_error(lean_mk_io_user_error(
-                mk_string("could not initialize the TLS library")));
-        }
+        if (!ensure_openssl_initialized()) return mk_tls_unsupported("could not initialize the TLS library");
 
         return build();
     } catch (std::exception & ex) {
@@ -465,7 +469,7 @@ extern "C" LEAN_EXPORT lean_obj_res lean_ssl_ctx_mk_server(b_obj_arg cert, b_obj
     return ssl_entry_point([&] { return mk_server_ctx(cert, key); });
 }
 
-/* Std.Internal.SSL.Context.Client.mkImpl (ca : @& Option LoadedPEM) (verifyPeer trustSystemRoots allowPartialChain : Bool) : IO Context.Client */
+/* Std.Internal.SSL.Context.Client.mkImpl (ca : @& Array LoadedPEM) (verifyPeer trustSystemRoots allowPartialChain : Bool) : IO Context.Client */
 extern "C" LEAN_EXPORT lean_obj_res lean_ssl_ctx_mk_client(b_obj_arg ca, uint8_t verify_peer, uint8_t trust_system_roots, uint8_t allow_partial_chain) {
     return ssl_entry_point([&] {
         return mk_client_ctx(ca, verify_peer, trust_system_roots, allow_partial_chain);
@@ -477,11 +481,11 @@ extern "C" LEAN_EXPORT lean_obj_res lean_ssl_ctx_mk_client(b_obj_arg ca, uint8_t
 void initialize_openssl_context() {}
 
 extern "C" LEAN_EXPORT lean_obj_res lean_ssl_ctx_mk_server(b_obj_arg /*cert*/, b_obj_arg /*key*/) {
-    lean_always_assert(false && "Please build a version of Lean4 with OpenSSL to invoke this.");
+    return mk_tls_unsupported("this build of Lean has no TLS support");
 }
 
 extern "C" LEAN_EXPORT lean_obj_res lean_ssl_ctx_mk_client(b_obj_arg /*ca*/, uint8_t /*verify_peer*/, uint8_t /*trust_system_roots*/, uint8_t /*allow_partial_chain*/) {
-    lean_always_assert(false && "Please build a version of Lean4 with OpenSSL to invoke this.");
+    return mk_tls_unsupported("this build of Lean has no TLS support");
 }
 
 #endif

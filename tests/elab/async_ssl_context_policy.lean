@@ -38,10 +38,12 @@ def disjointPolicy : String :=
       match ← (discard <| Context.Client.mk { verifyPeer := false }).toBaseIO, standalone with
       | .ok _, true => pure ()
       | .error e, true => throw <| IO.userError s!"a standalone build read the policy: {e}"
-      | .error e, false =>
-        unless toString e == "could not configure the TLS cipher suites: the system OpenSSL \
+      -- The code is the platform's `ENOTSUP`, so only the details are compared.
+      | .error (.unsupportedOperation _ details), false =>
+        unless details == "could not configure the TLS cipher suites: the system OpenSSL \
             configuration permits TLS 1.2 but leaves none of its suites that Lean allows" do
-          throw <| IO.userError s!"unexpected failure: {e}"
+          throw <| IO.userError s!"unexpected failure: {details}"
+      | .error e, false => throw <| IO.userError s!"unexpected failure: {e}"
       | .ok _, false =>
         throw <| IO.userError "the policy's cipher suites were replaced rather than narrowed"
     finally

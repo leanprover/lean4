@@ -13,8 +13,8 @@ presents, the certificates it trusts, and the protocol settings. Create one cont
 many connections. It cannot be changed after creation and can be shared between threads.
 
 ```lean
--- A client that trusts the system's root certificates and offers HTTP/2.
-let client ← Context.Client.mk { alpn := #["h2", "http/1.1"] }
+-- A client that trusts the system's root certificates.
+let client ← Context.Client.mk
 
 -- A client that trusts only your own CA.
 let pinned ← Context.Client.mk { trust := .only #[.file "ca.pem"] }
@@ -198,13 +198,6 @@ structure Config where
   -/
   clientAuth : ClientAuth := .none
   /--
-  The application protocols the server supports, such as `"h2"` or `"http/1.1"`, most preferred
-  first. The server picks the first of these that the client offers, and ends the handshake if the
-  client offers only others. As an exception, a client offering `"http/1.1"` to a server listing
-  `"h2"` connects with no protocol selected. With `#[]` the client's offer is ignored.
-  -/
-  alpn : Array String := #[]
-  /--
   The lowest TLS version to accept.
   -/
   minVersion : Version := .tls12
@@ -215,7 +208,7 @@ structure Config where
 
 @[extern "lean_ssl_ctx_mk_server"]
 private opaque mkImpl (cert key : @& LoadedPEM) (clientAuth : @& ClientAuth) (clientCA : @& Array LoadedPEM)
-    (alpn : @& Array String) (minVersion maxVersion : Version) : IO Context.Server
+    (minVersion maxVersion : Version) : IO Context.Server
 
 /--
 Creates a server context. Fails if the key doesn't match the certificate, if either can't be read,
@@ -227,8 +220,7 @@ def mk (cfg : Config) : IO Context.Server := do
   let clientCA ← match cfg.clientAuth with
     | .verifyIfGiven ca | .requireAndVerify ca => ca.mapM PEM.load
     | _ => pure #[]
-  mkImpl (← cfg.cert.load) (← cfg.key.load) cfg.clientAuth clientCA cfg.alpn cfg.minVersion
-    cfg.maxVersion
+  mkImpl (← cfg.cert.load) (← cfg.key.load) cfg.clientAuth clientCA cfg.minVersion cfg.maxVersion
 
 end Server
 
@@ -270,11 +262,6 @@ structure Config where
   -/
   credentials : Option Credentials := none
   /--
-  The application protocols to offer, such as `"h2"` or `"http/1.1"`, most preferred first. With
-  `#[]` none are offered.
-  -/
-  alpn : Array String := #[]
-  /--
   The lowest TLS version to accept.
   -/
   minVersion : Version := .tls12
@@ -285,8 +272,7 @@ structure Config where
 
 @[extern "lean_ssl_ctx_mk_client"]
 private opaque mkImpl (trust : @& Trust) (ca : @& Array LoadedPEM) (env : @& Option (Array LoadedPEM))
-    (cert key : @& Option LoadedPEM) (alpn : @& Array String) (minVersion maxVersion : Version) :
-    IO Context.Client
+    (cert key : @& Option LoadedPEM) (minVersion maxVersion : Version) : IO Context.Client
 
 @[extern "lean_ssl_env_ignored"]
 private opaque envIgnored : BaseIO Bool
@@ -332,7 +318,7 @@ def mk (cfg : Config := {}) : IO Context.Client := do
     | .insecureSkipVerify => pure (#[], none)
   let cert ← cfg.credentials.mapM (·.cert.load)
   let key ← cfg.credentials.mapM (·.key.load)
-  mkImpl cfg.trust ca env cert key cfg.alpn cfg.minVersion cfg.maxVersion
+  mkImpl cfg.trust ca env cert key cfg.minVersion cfg.maxVersion
 
 end Client
 end Context

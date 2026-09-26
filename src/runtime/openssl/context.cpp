@@ -471,46 +471,6 @@ static lean_obj_res load_ca_bundles(X509_STORE * store, SSL_CTX * names_for, b_o
     return n == 1 ? mk_pem_error(lean_array_get_core(cas, 0), msg) : mk_ssl_invalid_argument(msg);
 }
 
-// The index of an `SSL_CTX` extra-data slot holding the server's ALPN list, freed with the context.
-static int alpn_index() {
-    static int const index = SSL_CTX_get_ex_new_index(0, nullptr, nullptr, nullptr,
-        [](void *, void * list, CRYPTO_EX_DATA *, int, long, void *) {
-            delete static_cast<std::string *>(list);
-        });
-    return index;
-}
-
-// Whether the ALPN wire-format entry at `p` (length byte, then name) is `name`.
-static bool alpn_is(unsigned char const * p, char const * name) {
-    size_t len = strlen(name);
-    return p[0] == len && memcmp(p + 1, name, len) == 0;
-}
-
-// Picks the first protocol in the server's list that the client offered. A client offering only other
-// protocols is refused with a `no_application_protocol` alert, except that one offering `http/1.1` to a
-// server listing `h2` proceeds without ALPN.
-static int select_alpn(SSL *, unsigned char const ** out, unsigned char * out_len,
-                       unsigned char const * offered, unsigned int offered_len, void * arg) {
-    std::string const & list = *static_cast<std::string const *>(arg);
-    auto server = reinterpret_cast<unsigned char const *>(list.data());
-    bool http11_fallback = false;
-
-    for (size_t i = 0; i < list.size(); i += 1 + server[i]) {
-        // libssl has checked that each of the client's entries fits in its list.
-        for (unsigned j = 0; j < offered_len; j += 1 + offered[j]) {
-            if (server[i] == offered[j] && memcmp(server + i + 1, offered + j + 1, server[i]) == 0) {
-                *out = offered + j + 1;
-                *out_len = offered[j];
-                return SSL_TLSEXT_ERR_OK;
-            }
-
-            http11_fallback |= alpn_is(server + i, "h2") && alpn_is(offered + j, "http/1.1");
-        }
-    }
-
-    return http11_fallback ? SSL_TLSEXT_ERR_NOACK : SSL_TLSEXT_ERR_ALERT_FATAL;
-}
-
 // `Context.Server.ClientAuth`'s constructors, in declaration order.
 enum client_auth_kind : unsigned { auth_none, auth_request, auth_require_any, auth_verify_if_given,
                                    auth_require_and_verify };
@@ -518,28 +478,8 @@ enum client_auth_kind : unsigned { auth_none, auth_request, auth_require_any, au
 // `Context.Client.Trust`'s constructors, in declaration order.
 enum trust_kind : unsigned { trust_system, trust_only, trust_insecure_skip_verify };
 
-// Checks the settings every context shares and builds the ALPN list in the wire format of RFC 7301:
-// each `String` of `names` preceded by its length in one byte.
-static lean_obj_res check_common(b_obj_arg names, uint8_t min, uint8_t max, std::string * wire) {
-    if (min > max) return mk_ssl_invalid_argument("`minVersion` is above `maxVersion`");
-
-    for (size_t i = 0; i < lean_array_size(names); i++) {
-        b_obj_arg name = lean_array_get_core(names, i);
-        size_t len = lean_string_size(name) - 1;
-
-        if (len == 0 || len > 255) {
-            std::string msg = "an ALPN protocol name must be 1 to 255 bytes long: \"" +
-                              std::string(lean_string_cstr(name), len) + "\"";
-            return mk_ssl_invalid_argument(msg.c_str());
-        }
-
-        wire->push_back(static_cast<char>(len));
-        wire->append(lean_string_cstr(name), len);
-    }
-
-    if (wire->size() > 65535) return mk_ssl_invalid_argument("the ALPN protocol list is longer than 65535 bytes");
-
-    return nullptr;
+static lean_obj_res check_versions(uint8_t min, uint8_t max) {
+    return min > max ? mk_ssl_invalid_argument("`minVersion` is above `maxVersion`") : nullptr;
 }
 
 // For the client-authentication modes that take whatever certificate is sent.
@@ -547,15 +487,14 @@ static int accept_any_certificate(int, X509_STORE_CTX *) { return 1; }
 
 // `Std.Internal.SSL.Context.Server.mkImpl`. `client_ca` holds the CAs of `client_auth`, loaded.
 static lean_obj_res mk_server_ctx(b_obj_arg cert, b_obj_arg key, b_obj_arg client_auth, b_obj_arg client_ca,
-                                  b_obj_arg alpn_names, uint8_t min, uint8_t max) {
+                                  uint8_t min, uint8_t max) {
     unsigned auth = lean_obj_tag(client_auth);
     bool verifies = auth == auth_verify_if_given || auth == auth_require_and_verify;
 
     if (verifies && lean_array_size(client_ca) == 0)
         return mk_ssl_invalid_argument("verifying client certificates needs at least one CA certificate");
 
-    std::string alpn;
-    if (lean_obj_res e = check_common(alpn_names, min, max, &alpn)) return e;
+    if (lean_obj_res e = check_versions(min, max)) return e;
 
     lean_obj_res err = nullptr;
     ssl_ctx_ptr ctx = mk_ssl_ctx_base(TLS_server_method(), min, max, &err);
@@ -591,17 +530,6 @@ static lean_obj_res mk_server_ctx(b_obj_arg cert, b_obj_arg key, b_obj_arg clien
     static unsigned char const session_id_context[] = "lean";
     SSL_CTX_set_session_id_context(ctx.get(), session_id_context, sizeof(session_id_context) - 1);
 
-    if (!alpn.empty()) {
-        auto * list = new std::string(std::move(alpn));
-
-        if (SSL_CTX_set_ex_data(ctx.get(), alpn_index(), list) != 1) {
-            delete list;
-            return mk_openssl_io_error("could not configure ALPN");
-        }
-
-        SSL_CTX_set_alpn_select_cb(ctx.get(), select_alpn, list);
-    }
-
     return wrap_ssl_context(std::move(ctx));
 }
 
@@ -609,7 +537,7 @@ static lean_obj_res mk_server_ctx(b_obj_arg cert, b_obj_arg key, b_obj_arg clien
 // files `SSL_CERT_FILE` and `SSL_CERT_DIR` name for `Trust.system` if either is set, which then replace
 // the platform's anchors.
 static lean_obj_res mk_client_ctx(b_obj_arg trust, b_obj_arg cas, b_obj_arg env_opt, b_obj_arg cert_opt,
-                                  b_obj_arg key_opt, b_obj_arg alpn_names, uint8_t min, uint8_t max) {
+                                  b_obj_arg key_opt, uint8_t min, uint8_t max) {
     unsigned kind = lean_obj_tag(trust);
     bool verify = kind != trust_insecure_skip_verify;
     bool use_env = !lean_is_scalar(env_opt);
@@ -618,8 +546,7 @@ static lean_obj_res mk_client_ctx(b_obj_arg trust, b_obj_arg cas, b_obj_arg env_
     if (kind == trust_only && lean_array_size(cas) == 0)
         return mk_ssl_invalid_argument("`Trust.only` needs at least one CA certificate");
 
-    std::string alpn;
-    if (lean_obj_res e = check_common(alpn_names, min, max, &alpn)) return e;
+    if (lean_obj_res e = check_versions(min, max)) return e;
 
     lean_obj_res err = nullptr;
     ssl_ctx_ptr ctx = mk_ssl_ctx_base(TLS_client_method(), min, max, &err);
@@ -628,13 +555,6 @@ static lean_obj_res mk_client_ctx(b_obj_arg trust, b_obj_arg cas, b_obj_arg env_
     if (!lean_is_scalar(cert_opt)) {
         if (lean_obj_res e = load_credentials(ctx.get(), lean_ctor_get(cert_opt, 0), lean_ctor_get(key_opt, 0)))
             return e;
-    }
-
-    // Unlike most OpenSSL functions, 0 is success.
-    if (!alpn.empty() &&
-        SSL_CTX_set_alpn_protos(ctx.get(), reinterpret_cast<unsigned char const *>(alpn.data()),
-                                (unsigned)alpn.size()) != 0) {
-        return mk_openssl_io_error("could not configure ALPN");
     }
 
     if (!verify) {
@@ -713,21 +633,18 @@ static lean_obj_res ssl_entry_point(F && build) {
 }
 
 /* Std.Internal.SSL.Context.Server.mkImpl (cert key : @& LoadedPEM) (clientAuth : @& ClientAuth)
-     (clientCA : @& Array LoadedPEM) (alpn : @& Array String) (minVersion maxVersion : Version) :
-     IO Context.Server */
+     (clientCA : @& Array LoadedPEM) (minVersion maxVersion : Version) : IO Context.Server */
 extern "C" LEAN_EXPORT lean_obj_res lean_ssl_ctx_mk_server(b_obj_arg cert, b_obj_arg key, b_obj_arg client_auth,
-                                                           b_obj_arg client_ca, b_obj_arg alpn, uint8_t min,
-                                                           uint8_t max) {
-    return ssl_entry_point([&] { return mk_server_ctx(cert, key, client_auth, client_ca, alpn, min, max); });
+                                                           b_obj_arg client_ca, uint8_t min, uint8_t max) {
+    return ssl_entry_point([&] { return mk_server_ctx(cert, key, client_auth, client_ca, min, max); });
 }
 
 /* Std.Internal.SSL.Context.Client.mkImpl (trust : @& Trust) (ca : @& Array LoadedPEM)
-     (env : @& Option (Array LoadedPEM)) (cert key : @& Option LoadedPEM) (alpn : @& Array String)
-     (minVersion maxVersion : Version) : IO Context.Client */
+     (env : @& Option (Array LoadedPEM)) (cert key : @& Option LoadedPEM) (minVersion maxVersion : Version) :
+     IO Context.Client */
 extern "C" LEAN_EXPORT lean_obj_res lean_ssl_ctx_mk_client(b_obj_arg trust, b_obj_arg ca, b_obj_arg env,
-                                                           b_obj_arg cert, b_obj_arg key, b_obj_arg alpn,
-                                                           uint8_t min, uint8_t max) {
-    return ssl_entry_point([&] { return mk_client_ctx(trust, ca, env, cert, key, alpn, min, max); });
+                                                           b_obj_arg cert, b_obj_arg key, uint8_t min, uint8_t max) {
+    return ssl_entry_point([&] { return mk_client_ctx(trust, ca, env, cert, key, min, max); });
 }
 
 /* Std.Internal.SSL.Context.Client.envIgnored : BaseIO Bool */
@@ -740,13 +657,13 @@ extern "C" LEAN_EXPORT uint8_t lean_ssl_env_ignored() {
 
 void initialize_openssl_context() {}
 
-extern "C" LEAN_EXPORT lean_obj_res lean_ssl_ctx_mk_server(b_obj_arg, b_obj_arg, b_obj_arg, b_obj_arg, b_obj_arg,
-                                                           uint8_t, uint8_t) {
+extern "C" LEAN_EXPORT lean_obj_res lean_ssl_ctx_mk_server(b_obj_arg, b_obj_arg, b_obj_arg, b_obj_arg, uint8_t,
+                                                           uint8_t) {
     return mk_tls_unsupported("this build of Lean has no TLS support");
 }
 
 extern "C" LEAN_EXPORT lean_obj_res lean_ssl_ctx_mk_client(b_obj_arg, b_obj_arg, b_obj_arg, b_obj_arg, b_obj_arg,
-                                                           b_obj_arg, uint8_t, uint8_t) {
+                                                           uint8_t, uint8_t) {
     return mk_tls_unsupported("this build of Lean has no TLS support");
 }
 

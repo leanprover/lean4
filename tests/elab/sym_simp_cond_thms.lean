@@ -43,3 +43,33 @@ n : Nat
 example (n : Nat) : f (f n) + 0 = f n + 0 := by
   sym =>
     simp [f_idem, Nat.add_zero]
+
+/-!
+The default discharger uses a conservative `grind` configuration: one round of E-matching.
+The side condition `0 < g n` below needs a chain of two instantiations (`h₂` then `h₁`),
+which only a full `grind` discharger finds.
+-/
+
+opaque q : Nat → Prop
+
+register_sym_simp fullGrind where
+  post := ground
+  discharger := grind
+
+example (n : Nat) (h₁ : ∀ x, q x → 0 < g x) (h₂ : ∀ x, q x) : f (f (g n)) = f (g n) := by
+  sym =>
+    simp fullGrind [f_idem]
+
+/--
+trace: case grind
+n : Nat
+h₁ : ∀ (x : Nat), q x → 0 < g x
+h₂ : ∀ (x : Nat), q x
+⊢ f (f (g n)) = f (g n)
+-/
+#guard_msgs in
+example (n : Nat) (h₁ : ∀ x, q x → 0 < g x) (h₂ : ∀ x, q x) : f (f (g n)) + 0 = f (g n) + 0 := by
+  sym =>
+    simp [f_idem, Nat.add_zero]
+    show_goals
+    simp fullGrind [f_idem]

@@ -184,10 +184,26 @@ def mkSimpDefaultMethods (extraThms : Array Theorem) (d : Discharger) : GrindTac
   let post ← addExtraTheorems (evalGround >> thms.rewrite d) extraThms d
   return { pre, post }
 
+/--
+`grind` configuration of the default `Sym.simp` discharger. Side conditions are proved from the
+internalized context and a single round of E-matching with few instances. A failing attempt
+redoes the whole search, since the `grind` state is discarded after each attempt, so the search
+is kept small.
+-/
+def defaultDischargerConfig (cfg : Lean.Grind.Config) : Lean.Grind.Config :=
+  { cfg with ematch := 1, gen := 1, genLocal := 1, instances := 20 }
+
+/--
+Creates the discharger of the default `Sym.simp` variant: `grind` on `goal` with
+`defaultDischargerConfig`. See `Grind.Goal.mkSymSimpDischarger`.
+-/
+def mkDefaultDischarger (goal : Meta.Grind.Goal) : Meta.Grind.GrindM Discharger :=
+  withTheReader Meta.Grind.Context (fun ctx => { ctx with config := defaultDischargerConfig ctx.config })
+    goal.mkSymSimpDischarger
+
 def elabSimpVariant (variantName : Name) (extraThms : Array Theorem) : GrindTacticM (Sym.Simp.Methods × Sym.Simp.Config) := do
   if variantName.isAnonymous then
-    -- The default variant discharges side conditions using `grind` on the current goal.
-    let d ← liftGrindM <| (← getMainGoal).mkSymSimpDischarger
+    let d ← liftGrindM <| mkDefaultDischarger (← getMainGoal)
     return (← mkSimpDefaultMethods extraThms d, {})
   let some v := getSymSimpVariant? (← getEnv) variantName
     | throwError "unknown Sym.simp variant `{variantName}`"

@@ -75,11 +75,15 @@ example (x y : BitVec 16) : (x.sdiv y).signed = (x.signed.tdiv y.signed).bmod (2
 example (x y : BitVec 16) : (x.srem y).signed = x.signed.tmod y.signed := by grind
 example (x y : BitVec 16) : (x.smod y).signed = x.signed.fmod y.signed := by grind
 example (x : BitVec 16) (z : Nat) : (x.pow z).signed = (x.signed ^ z).bmod (2 ^ 16) := by grind
--- TODO: `grind` fails (signed `~~~`, `<<<`)
+-- TODO: `grind` fails (signed `~~~`)
 /-
 example (x : BitVec 16) : (~~~x).signed = (~~~x.signed).bmod (2 ^ 16) := by grind
-example (x : BitVec 16) (n : Nat) : (x <<< n).signed = (x.signed <<< n).bmod (2 ^ 16) := by grind
 -/
+example (x : BitVec 16) (n : Nat) : (x <<< n).signed = (x.signed <<< n).bmod (2 ^ 16) := by grind
+example (x : BitVec 16) (m n : Nat) : ((x <<< m) <<< n).signed = (x.signed * 2 ^ m * 2 ^ n).bmod (2 ^ 16) := by grind
+example (x y : BitVec 16) (n : Nat) : ((x + y) <<< n).signed = ((x.signed + y.signed) * 2 ^ n).bmod (2 ^ 16) := by grind
+example (x y : BitVec 16) (n : Nat) : ((x &&& y) <<< n).signed = ((x &&& y).signed * 2 ^ n).bmod (2 ^ 16) := by grind
+example (x y z : BitVec 16) : ((x * y) * z).signed = (x.signed * y.signed * z.signed).bmod (2 ^ 16) := by grind
 example (x : BitVec 16) (v : Nat) : (x.signExtend v).signed = x.signed.bmod (2 ^ min v 16) := by grind
 example (x : BitVec 16) (v : Nat) : (x.zeroExtend v).signed = x.unsigned.bmod (2 ^ v) := by grind
 example (x : BitVec 16) (n : Nat) : (x.setWidth n).unsigned = x.unsigned % (2 ^ n) := by grind

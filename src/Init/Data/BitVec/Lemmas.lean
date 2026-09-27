@@ -1902,6 +1902,12 @@ theorem not_xor_right {x y : BitVec w} : ~~~ (x ^^^ y) = x ^^^ ~~~ y := by
   rw [toInt_eq_toNat_bmod, toNat_shiftLeft, Nat.shiftLeft_eq]
   simp [-Int.natCast_pow]
 
+theorem toInt_shiftLeft_eq_toInt_shiftLeft_bmod (x : BitVec w) (n : Nat) :
+    (x <<< n).toInt = (x.toInt <<< n).bmod (2^w) := by
+  rw [toInt_shiftLeft, Int.shiftLeft_eq, Nat.shiftLeft_eq, toInt_eq_toNat_bmod, Int.bmod_mul_bmod,
+    Int.natCast_mul, Int.natCast_pow]
+  rfl
+
 @[simp, grind =] theorem toFin_shiftLeft {n : Nat} (x : BitVec w) :
     (x <<< n).toFin = Fin.ofNat (2^w) (x.toNat <<< n) := rfl
 

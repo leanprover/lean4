@@ -80,12 +80,7 @@ static BIO * open_pem_bio(b_obj_arg src, char const * unreadable, lean_obj_res *
 }
 
 // Owns a context while it is still being built, so no error path has to remember to free it.
-struct ssl_ctx_deleter { void operator()(SSL_CTX * ctx) const { SSL_CTX_free(ctx); } };
-using ssl_ctx_ptr = std::unique_ptr<SSL_CTX, ssl_ctx_deleter>;
-
-struct ssl_deleter { void operator()(SSL * ssl) const { SSL_free(ssl); } };
-struct x509_store_deleter { void operator()(X509_STORE * store) const { X509_STORE_free(store); } };
-using x509_store_ptr = std::unique_ptr<X509_STORE, x509_store_deleter>;
+using ssl_ctx_ptr = std::unique_ptr<SSL_CTX, released_by<SSL_CTX_free>>;
 
 void initialize_openssl_context() {
     g_ssl_context_external_class = lean_register_external_class([](void * ptr) {
@@ -236,7 +231,7 @@ static lean_obj_res check_usable(SSL_CTX * ctx) {
 
     if (!tls12 && !tls13) return refused_by_policy("versions", "permits none of the TLS versions allowed here");
 
-    std::unique_ptr<SSL, ssl_deleter> ssl(SSL_new(ctx));
+    std::unique_ptr<SSL, released_by<SSL_free>> ssl(SSL_new(ctx));
     if (ssl == nullptr) return mk_openssl_io_error("could not create the TLS context");
 
     // Null when nothing is left.
@@ -259,6 +254,11 @@ static lean_obj_res check_usable(SSL_CTX * ctx) {
 // Creates a configured SSL_CTX accepting versions `min` to `max` (as `Std.Internal.SSL.Version`), or
 // returns nullptr with an IO error stored in `*err`.
 static ssl_ctx_ptr mk_ssl_ctx_base(const SSL_METHOD * method, uint8_t min, uint8_t max, lean_obj_res * err) {
+    if (min > max) {
+        *err = mk_ssl_invalid_argument("`minVersion` is above `maxVersion`");
+        return nullptr;
+    }
+
     ERR_clear_error();
 
     ssl_ctx_ptr ctx(SSL_CTX_new(method));
@@ -385,27 +385,33 @@ static lean_obj_res load_credentials(SSL_CTX * ctx, b_obj_arg cert, b_obj_arg ke
     return nullptr;
 }
 
-// Whether the store holds a certificate a chain can end at. Every context verifies with partial chains,
-// so that is any certificate a `TRUSTED CERTIFICATE` block does not reject for `trust_id`. The store
-// keeps only the first copy of a repeated certificate, so its copies are the ones checked.
-static bool store_has_anchor(X509_STORE * store, int trust_id) {
-    STACK_OF(X509) * certs = X509_STORE_get1_all_certs(store);
-    if (certs == nullptr) return false;
-
-    bool any = false;
-    for (int i = 0; !any && i < sk_X509_num(certs); i++) {
-        any = X509_check_trust(sk_X509_value(certs, i), trust_id, 0) != X509_TRUST_REJECTED;
-    }
-
-    sk_X509_pop_free(certs, X509_free);
-    return any;
+// Whether `cert` can end a chain for `trust_id`: a `TRUSTED CERTIFICATE` block rejects neither it nor,
+// in `distrusted`, a certificate with its key. Every context verifies with partial chains, so no more is
+// needed.
+static bool can_anchor(X509 * cert, int trust_id, STACK_OF(X509) * distrusted) {
+    return X509_check_trust(cert, trust_id, 0) != X509_TRUST_REJECTED && !has_distrusted_key(distrusted, cert);
 }
 
-// Adds every certificate in `src` to `store`, and its subject to the names a server sends when asking
-// for a client certificate if `names_for` is given. `*added` counts the certificates. Material holding
-// no certificate is an error unless `lenient`, which also skips material that does not parse.
-static lean_obj_res load_ca_bundle(X509_STORE * store, SSL_CTX * names_for, b_obj_arg src, bool lenient,
-                                   int * added) {
+// Whether the store holds a certificate a chain can end at.
+static bool store_has_anchor(X509_STORE * store, int trust_id, STACK_OF(X509) * distrusted) {
+    x509_stack_ptr certs(X509_STORE_get1_all_certs(store));
+
+    for (int i = 0; certs != nullptr && i < sk_X509_num(certs.get()); i++) {
+        if (can_anchor(sk_X509_value(certs.get(), i), trust_id, distrusted)) return true;
+    }
+
+    return false;
+}
+
+// Records `cert` in `distrusted` if a `TRUSTED CERTIFICATE` block rejects it for `trust_id`. The store
+// keeps only the first copy of a repeated certificate, so a distrusting copy is collected as it is read.
+static bool note_distrust(X509 * cert, int trust_id, STACK_OF(X509) * distrusted) {
+    return X509_check_trust(cert, trust_id, 0) != X509_TRUST_REJECTED || push_ref(distrusted, cert);
+}
+
+// Adds every certificate in `src` to `store`, collecting those distrusted for `trust_id` in `distrusted`.
+// Material that does not parse or holds no certificate is an error.
+static lean_obj_res load_ca_bundle(X509_STORE * store, b_obj_arg src, int trust_id, STACK_OF(X509) * distrusted) {
     ERR_clear_error();
 
     char const * unreadable = "could not read PEM CA certificates";
@@ -417,12 +423,7 @@ static lean_obj_res load_ca_bundle(X509_STORE * store, SSL_CTX * names_for, b_ob
     STACK_OF(X509_INFO) * infos = PEM_X509_INFO_read_bio(bio, nullptr, reject_encrypted_pem, nullptr);
     BIO_free(bio);
 
-    if (infos == nullptr) {
-        if (!lenient) return mk_pem_error(src, unreadable);
-
-        ERR_clear_error();
-        return nullptr;
-    }
+    if (infos == nullptr) return mk_pem_error(src, unreadable);
 
     int cert_count = 0;
 
@@ -433,42 +434,96 @@ static lean_obj_res load_ca_bundle(X509_STORE * store, SSL_CTX * names_for, b_ob
         if (cert == nullptr) continue;
         cert_count++;
 
-        if (X509_STORE_add_cert(store, cert) != 1 ||
-            (names_for != nullptr && SSL_CTX_add_client_CA(names_for, cert) != 1)) {
+        if (X509_STORE_add_cert(store, cert) != 1 || !note_distrust(cert, trust_id, distrusted)) {
             err = mk_openssl_io_error("could not add a CA certificate to the trust store");
             break;
         }
     }
 
     sk_X509_INFO_pop_free(infos, X509_INFO_free);
-    *added += cert_count;
 
     if (err != nullptr)
         return err;
 
-    if (cert_count == 0 && !lenient)
+    if (cert_count == 0)
         return mk_pem_error(src, "the CA material contains no certificates");
 
     return nullptr;
 }
 
-// Loads each bundle of `cas` into `store`, then requires the store to hold an anchor for `trust_id`.
-static lean_obj_res load_ca_bundles(X509_STORE * store, SSL_CTX * names_for, b_obj_arg cas, int trust_id) {
-    size_t n = lean_array_size(cas);
-    int added = 0;
+// Adds the certificates in `src` to `store`, skipping any block that does not parse, counts them in
+// `*added`, and collects those distrusted for TLS server authentication in `distrusted`.
+static lean_obj_res load_env_bundle(X509_STORE * store, b_obj_arg src, int * added, STACK_OF(X509) * distrusted) {
+    ERR_clear_error();
 
-    for (size_t i = 0; i < n; i++) {
-        if (lean_obj_res err = load_ca_bundle(store, names_for, lean_array_get_core(cas, i), false, &added))
-            return err;
+    lean_obj_res err = nullptr;
+    BIO * bio = open_pem_bio(src, "could not read PEM CA certificates", &err);
+    if (bio == nullptr) return err;
+
+    // A failed read consumes the input up to the next END line, so a block missing its own takes the block
+    // after it along. The pending count guards against a read that consumes nothing.
+    for (long pending = BIO_pending(bio); pending > 0; ) {
+        X509 * cert = PEM_read_bio_X509_AUX(bio, nullptr, reject_encrypted_pem, nullptr);
+
+        if (cert != nullptr) {
+            bool stored = X509_STORE_add_cert(store, cert) == 1 &&
+                          note_distrust(cert, X509_TRUST_SSL_SERVER, distrusted);
+            X509_free(cert);
+
+            if (!stored) {
+                BIO_free(bio);
+                return mk_openssl_io_error("could not add a CA certificate to the trust store");
+            }
+
+            (*added)++;
+        } else {
+            unsigned long last = ERR_peek_last_error();
+            if (ERR_GET_LIB(last) == ERR_LIB_PEM && ERR_GET_REASON(last) == PEM_R_NO_START_LINE) break;
+        }
+
+        long left = BIO_pending(bio);
+        if (left >= pending) break;
+        pending = left;
     }
 
-    if (store_has_anchor(store, trust_id)) return nullptr;
+    BIO_free(bio);
+    ERR_clear_error();
+    return nullptr;
+}
 
-    char const * msg = "the CA material holds no certificate a chain may end at: every one is marked "
-                       "as distrusted";
+static lean_obj_res load_ca_bundles(X509_STORE * store, b_obj_arg cas, int trust_id, STACK_OF(X509) * distrusted) {
+    for (size_t i = 0; i < lean_array_size(cas); i++) {
+        if (lean_obj_res err = load_ca_bundle(store, lean_array_get_core(cas, i), trust_id, distrusted)) return err;
+    }
 
-    // With several bundles no single file is to blame.
-    return n == 1 ? mk_pem_error(lean_array_get_core(cas, 0), msg) : mk_ssl_invalid_argument(msg);
+    return nullptr;
+}
+
+// The store holds no anchor for `trust_id`. `cas` is to blame when it was the only material loaded, and a
+// single bundle is named.
+static lean_obj_res no_anchor_error(b_obj_arg cas, bool cas_alone, int trust_id) {
+    char const * msg = trust_id == X509_TRUST_SSL_CLIENT
+        ? "the CA material holds no certificate trusted for TLS client authentication (each is "
+          "distrusted, or trusted only for other uses)"
+        : "the CA material holds no certificate trusted for TLS server authentication (each is "
+          "distrusted, or trusted only for other uses)";
+
+    return cas_alone && lean_array_size(cas) == 1 ? mk_pem_error(lean_array_get_core(cas, 0), msg)
+                                                  : mk_ssl_invalid_argument(msg);
+}
+
+// Sends clients the names of the CAs in `store` that can end a client's chain, to help them pick a
+// certificate.
+static lean_obj_res advertise_client_cas(SSL_CTX * ctx, X509_STORE * store, STACK_OF(X509) * distrusted) {
+    x509_stack_ptr certs(X509_STORE_get1_all_certs(store));
+    bool ok = certs != nullptr;
+
+    for (int i = 0; ok && i < sk_X509_num(certs.get()); i++) {
+        X509 * cert = sk_X509_value(certs.get(), i);
+        ok = !can_anchor(cert, X509_TRUST_SSL_CLIENT, distrusted) || SSL_CTX_add_client_CA(ctx, cert) == 1;
+    }
+
+    return ok ? nullptr : mk_openssl_io_error("could not configure the client CA names");
 }
 
 // `Context.Server.ClientAuth`'s constructors, in declaration order.
@@ -478,12 +533,13 @@ enum client_auth_kind : unsigned { auth_none, auth_request, auth_require_any, au
 // `Context.Client.Trust`'s constructors, in declaration order.
 enum trust_kind : unsigned { trust_system, trust_only, trust_insecure_skip_verify };
 
-static lean_obj_res check_versions(uint8_t min, uint8_t max) {
-    return min > max ? mk_ssl_invalid_argument("`minVersion` is above `maxVersion`") : nullptr;
+// For the client-authentication modes that take whatever certificate is sent. Nothing could anchor the
+// chain, so it is not checked (which would only spend the peer's choice of CPU): the verdict is recorded
+// as untrusted and the certificate accepted.
+static int accept_unverified(X509_STORE_CTX * ctx, void *) {
+    X509_STORE_CTX_set_error(ctx, X509_V_ERR_CERT_UNTRUSTED);
+    return 1;
 }
-
-// For the client-authentication modes that take whatever certificate is sent.
-static int accept_any_certificate(int, X509_STORE_CTX *) { return 1; }
 
 // `Std.Internal.SSL.Context.Server.mkImpl`. `client_ca` holds the CAs of `client_auth`, loaded.
 static lean_obj_res mk_server_ctx(b_obj_arg cert, b_obj_arg key, b_obj_arg client_auth, b_obj_arg client_ca,
@@ -494,8 +550,6 @@ static lean_obj_res mk_server_ctx(b_obj_arg cert, b_obj_arg key, b_obj_arg clien
     if (verifies && lean_array_size(client_ca) == 0)
         return mk_ssl_invalid_argument("verifying client certificates needs at least one CA certificate");
 
-    if (lean_obj_res e = check_versions(min, max)) return e;
-
     lean_obj_res err = nullptr;
     ssl_ctx_ptr ctx = mk_ssl_ctx_base(TLS_server_method(), min, max, &err);
     if (ctx == nullptr) return err;
@@ -503,32 +557,37 @@ static lean_obj_res mk_server_ctx(b_obj_arg cert, b_obj_arg key, b_obj_arg clien
     if (lean_obj_res e = load_credentials(ctx.get(), cert, key)) return e;
 
     int mode = SSL_VERIFY_NONE;
-    SSL_verify_cb callback = nullptr;
+    bool unverified = false;
 
     switch (auth) {
-    case auth_request: mode = SSL_VERIFY_PEER; callback = accept_any_certificate; break;
-    case auth_require_any: mode = SSL_VERIFY_PEER | SSL_VERIFY_FAIL_IF_NO_PEER_CERT; callback = accept_any_certificate; break;
+    case auth_request: mode = SSL_VERIFY_PEER; unverified = true; break;
+    case auth_require_any: mode = SSL_VERIFY_PEER | SSL_VERIFY_FAIL_IF_NO_PEER_CERT; unverified = true; break;
     case auth_verify_if_given: mode = SSL_VERIFY_PEER; break;
     case auth_require_and_verify: mode = SSL_VERIFY_PEER | SSL_VERIFY_FAIL_IF_NO_PEER_CERT; break;
     }
 
     if (lean_array_size(client_ca) > 0) {
         // Kept apart from the context's own store, which a server never needs for its chain.
-        x509_store_ptr store(X509_STORE_new());
+        std::unique_ptr<X509_STORE, released_by<X509_STORE_free>> store(X509_STORE_new());
         if (store == nullptr) return mk_openssl_io_error("could not create the TLS context");
 
-        if (lean_obj_res e = load_ca_bundles(store.get(), ctx.get(), client_ca, X509_TRUST_SSL_CLIENT)) return e;
+        x509_stack_ptr distrusted(sk_X509_new_null());
+        if (distrusted == nullptr) return mk_openssl_io_error("could not create the TLS context");
+
+        if (lean_obj_res e = load_ca_bundles(store.get(), client_ca, X509_TRUST_SSL_CLIENT, distrusted.get())) return e;
+        if (!store_has_anchor(store.get(), X509_TRUST_SSL_CLIENT, distrusted.get()))
+            return no_anchor_error(client_ca, true, X509_TRUST_SSL_CLIENT);
+        if (lean_obj_res e = advertise_client_cas(ctx.get(), store.get(), distrusted.get())) return e;
+
+        if (!install_chain_verifier(ctx.get(), store.get(), X509_TRUST_SSL_CLIENT, false, distrusted.get()))
+            return mk_openssl_io_error("could not configure certificate verification");
 
         SSL_CTX_set0_verify_cert_store(ctx.get(), store.release());
         X509_VERIFY_PARAM_set_flags(SSL_CTX_get0_param(ctx.get()), X509_V_FLAG_PARTIAL_CHAIN);
     }
 
-    SSL_CTX_set_verify(ctx.get(), mode, callback);
-
-    // Only matters when a session could be resumed, which none can, but a verifying server without it is
-    // an error to OpenSSL.
-    static unsigned char const session_id_context[] = "lean";
-    SSL_CTX_set_session_id_context(ctx.get(), session_id_context, sizeof(session_id_context) - 1);
+    SSL_CTX_set_verify(ctx.get(), mode, nullptr);
+    if (unverified) SSL_CTX_set_cert_verify_callback(ctx.get(), accept_unverified, nullptr);
 
     return wrap_ssl_context(std::move(ctx));
 }
@@ -545,8 +604,6 @@ static lean_obj_res mk_client_ctx(b_obj_arg trust, b_obj_arg cas, b_obj_arg env_
 
     if (kind == trust_only && lean_array_size(cas) == 0)
         return mk_ssl_invalid_argument("`Trust.only` needs at least one CA certificate");
-
-    if (lean_obj_res e = check_versions(min, max)) return e;
 
     lean_obj_res err = nullptr;
     ssl_ctx_ptr ctx = mk_ssl_ctx_base(TLS_client_method(), min, max, &err);
@@ -567,8 +624,14 @@ static lean_obj_res mk_client_ctx(b_obj_arg trust, b_obj_arg cas, b_obj_arg env_
     // Any certificate in the store may end a chain, so an intermediate can be trusted on its own.
     X509_VERIFY_PARAM_set_flags(SSL_CTX_get0_param(ctx.get()), X509_V_FLAG_PARTIAL_CHAIN);
 
+    x509_stack_ptr distrusted(sk_X509_new_null());
+    if (distrusted == nullptr) return mk_openssl_io_error("could not create the TLS context");
+
+    if (lean_obj_res e = load_ca_bundles(store, cas, X509_TRUST_SSL_SERVER, distrusted.get())) return e;
+
     bool has_ca = lean_array_size(cas) > 0;
     bool platform_roots = false;
+    int env_added = 0;
 
     if (platform) {
         std::string detail;
@@ -584,33 +647,27 @@ static lean_obj_res mk_client_ctx(b_obj_arg trust, b_obj_arg cas, b_obj_arg env_
 
     if (use_env) {
         b_obj_arg env = lean_ctor_get(env_opt, 0);
-        int added = 0;
 
-        // Like `SSL_CERT_DIR` lookups, files that are not certificates are skipped.
+        // A directory may hold anything, so what is not a certificate is skipped.
         for (size_t i = 0; i < lean_array_size(env); i++) {
-            if (lean_obj_res e = load_ca_bundle(store, nullptr, lean_array_get_core(env, i), true, &added))
+            if (lean_obj_res e = load_env_bundle(store, lean_array_get_core(env, i), &env_added, distrusted.get()))
                 return e;
         }
 
-        if (added == 0 && !has_ca) {
-            return lean_io_result_mk_error(lean_mk_io_error_no_such_thing(ENOENT, mk_string(
-                "failed to load system trust store: SSL_CERT_FILE and SSL_CERT_DIR name no certificate")));
+        if (!has_ca && (env_added == 0 || !store_has_anchor(store, X509_TRUST_SSL_SERVER, distrusted.get()))) {
+            return lean_io_result_mk_error(lean_mk_io_error_no_such_thing(ENOENT, mk_string(env_added == 0
+                ? "failed to load system trust store: SSL_CERT_FILE and SSL_CERT_DIR name no certificate"
+                : "failed to load system trust store: SSL_CERT_FILE and SSL_CERT_DIR name no certificate "
+                  "trusted for TLS server authentication")));
         }
     }
 
-    // The platform's anchors are not in the store, so the check only applies without them.
-    if (has_ca) {
-        if (platform_roots) {
-            int added = 0;
+    // The platform's anchors give every chain somewhere to end, so the check only applies without them.
+    if (has_ca && !platform_roots && !store_has_anchor(store, X509_TRUST_SSL_SERVER, distrusted.get()))
+        return no_anchor_error(cas, env_added == 0, X509_TRUST_SSL_SERVER);
 
-            for (size_t i = 0; i < lean_array_size(cas); i++) {
-                if (lean_obj_res e = load_ca_bundle(store, nullptr, lean_array_get_core(cas, i), false, &added))
-                    return e;
-            }
-        } else if (lean_obj_res e = load_ca_bundles(store, nullptr, cas, X509_TRUST_SSL_SERVER)) {
-            return e;
-        }
-    }
+    if (!install_chain_verifier(ctx.get(), store, X509_TRUST_SSL_SERVER, platform_roots, distrusted.get()))
+        return mk_openssl_io_error("could not configure certificate verification");
 
     SSL_CTX_set_verify(ctx.get(), SSL_VERIFY_PEER, nullptr);
     return wrap_ssl_context(std::move(ctx));

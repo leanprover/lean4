@@ -17,7 +17,7 @@ without checking its validity period, so this one is rejected only at handshake 
 | `eckey.pem` | | P-256 key; a *different algorithm* from every certificate here, which OpenSSL accepts against an RSA certificate unless `SSL_CTX_check_private_key` is consulted |
 | `enckey.pem` | | `key.pem` encrypted with the passphrase `lean4`; encrypted keys are unsupported and must be rejected without prompting for one |
 | `emptypwkey.pem` | | `key.pem` encrypted under an *empty* passphrase; still an encrypted key, and rejected only because the password callback reports a failure rather than a zero-length passphrase |
-| `tradkey.pem` | | `key.pem` in the traditional (RFC 1421) encoding rather than PKCS#8; the only key form that reaches the bundle loader as a parsed entry carrying no certificate, so it exercises the skip branch |
+| `tradkey.pem` | | `key.pem` in the traditional (RFC 1421) encoding rather than PKCS#8; the bundle loader reads it as an entry carrying no certificate, so it exercises the skip branch |
 | `enccert.pem` | | `cert.pem` as an RFC 1421 encrypted `CERTIFICATE` block; decrypted in place while a bundle is read, so it is the input that makes a missing password callback prompt on the terminal and hang |
 | `x25519key.pem` | | X25519 key; parses as a private key but its algorithm cannot sign, so no certificate can use it for TLS |
 | `cert.pem` | `CN=localhost` | standard server cert (no SAN, so it matches no hostname: contexts never fall back to the CN) |
@@ -26,9 +26,10 @@ without checking its validity period, so this one is rejected only at handshake 
 | `expired.pem` | `CN=localhost` | valid 2020-01-01 → 2020-01-02 only |
 | `corrupt.pem` | | `cert.pem` with one bit flipped in the first DER byte (`SEQUENCE` tag → `SET`) |
 | `weakcert.pem` | `CN=localhost` | self-signed under a 512-bit RSA key; parses perfectly but is below the security level every context pins, so it is refused on policy grounds rather than as unreadable PEM |
-| `intermediate.pem` | `CN=Test Intermediate CA` | a CA signed by `cert.pem` rather than by itself, so no chain can terminate at it; with its trusted copy, the only fixtures whose issuer differs from their subject |
+| `intermediate.pem` | `CN=Test Intermediate CA` | a CA signed by `cert.pem` rather than by itself, so it is not a root; it ends a chain only because contexts accept any listed certificate as an anchor; with its trusted copy, the only fixtures whose issuer differs from their subject |
 | `trustedintermediate.pem` | `CN=Test Intermediate CA` | `intermediate.pem` as a `TRUSTED CERTIFICATE` explicitly trusted for TLS server authentication, which OpenSSL accepts as an anchor without it being self-signed |
-| `rejectedcert.pem` | `CN=localhost` | `cert.pem` as a `TRUSTED CERTIFICATE` explicitly rejected for TLS server authentication, so it anchors nothing despite being self-signed |
+| `rejectedcert.pem` | `CN=localhost` | `cert.pem` as a `TRUSTED CERTIFICATE` explicitly rejected for TLS server authentication, so it anchors no server chain despite being self-signed |
+| `clientrejectedcert.pem` | `CN=localhost` | `cert.pem` as a `TRUSTED CERTIFICATE` explicitly rejected for TLS client authentication, so it anchors no client chain |
 | `crl.pem` | | a CRL issued by `cert.pem`; the non-certificate bundle entry that is *not* a private key, so it is what distinguishes "holds no certificates" from "could not be read" |
 
 `corrupt.pem` still has intact PEM armour and valid base64 — it differs from `cert.pem` by a single
@@ -62,6 +63,7 @@ openssl x509 -req -in inter.csr -CA cert.pem -CAkey key.pem -set_serial 42 -days
   -out intermediate.pem && rm inter.csr
 openssl x509 -in intermediate.pem -addtrust serverAuth -trustout -out trustedintermediate.pem
 openssl x509 -in cert.pem -addreject serverAuth -trustout -out rejectedcert.pem
+openssl x509 -in cert.pem -addreject clientAuth -trustout -out clientrejectedcert.pem
 openssl genpkey -algorithm X25519 -out x25519key.pem
 mkdir -p ca/newcerts && touch ca/index.txt && echo 01 > ca/crlnumber
 printf '[ca]\ndefault_ca=CA_default\n[CA_default]\ndatabase=./ca/index.txt\ncrlnumber=./ca/crlnumber\ndefault_md=sha256\ndefault_crl_days=36500\n' > ca/openssl.cnf

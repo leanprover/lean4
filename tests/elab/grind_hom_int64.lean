@@ -21,6 +21,8 @@ example (x : Int64) : x ^^^ x = 0 := by grind
 example (x : Int64) : x &&& x = x := by grind
 example (x : Int64) : x ||| x = x := by grind
 example (x : Int64) : ~~~(~~~x) = x := by grind
+example (x : Int64) : ~~~x = -x - 1 := by grind
+example (x : Int64) : (~~~x).toInt = (~~~x.toInt).bmod (2 ^ 64) := by grind
 
 -- Shifts
 example (x : Int64) : x <<< 1 = x + x := by grind

@@ -9,9 +9,13 @@ case-split branch).
 
 set_option linter.unusedVariables false
 
--- `x.toNat / 2^16` is introduced by the E-matching instance of `BitVec.toInt_eq_toNat_bmod`.
+-- The homomorphism rules reduce the left-hand side to `(2 * x.toInt).bmod (2 ^ 16)`, and
+-- `x.toNat / 2^16` is introduced by the E-matching instance of `BitVec.toInt_eq_toNat_bmod`
+-- that bridges `x.toInt` and `x.toNat`.
 /--
 trace: [grind.lia.reorder] reordering variables, epoch: 1
+[grind.lia.reorder] reordering variables, epoch: 2
+[grind.lia.reorder] reordering variables, epoch: 2
 [grind.lia.reorder] reordering variables, epoch: 2
 [grind.lia.reorder] reordering variables, epoch: 2
 [grind.lia.reorder] reordering variables, epoch: 2
@@ -20,6 +24,8 @@ trace: [grind.lia.reorder] reordering variables, epoch: 1
 -/
 #guard_msgs in
 set_option trace.grind.lia.reorder true in
+example (x : BitVec 16) : (x <<< 1).toInt = (2 * x.toNat : Int).bmod (2 ^ 16) := by grind
+
 example (x : BitVec 16) : (x <<< 1).toInt = (x.toInt <<< 1).bmod (2 ^ 16) := by grind
 
 example (x : BitVec 16) : (x <<< 1).toInt = (2 * x.toInt).bmod (2 ^ 16) := by grind

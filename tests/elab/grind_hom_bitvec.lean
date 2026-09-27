@@ -61,9 +61,9 @@ example (x : BitVec 16) (start len : Nat) : (x.extractLsb' start len).unsigned =
 example (x : BitVec 16) : (~~~x).unsigned = (2 ^ 16 - 1) - x.unsigned := by grind
 example (x : BitVec 16) (n : Nat) : (x <<< n).unsigned = (x.unsigned * (2 ^ n)) % (2 ^ 16) := by grind
 example (x : BitVec 16) (n : Nat) : (x >>> n).unsigned = x.unsigned / (2 ^ n) := by grind
--- TODO: `grind` fails (`++`, `sshiftRight` as unsigned, `pow`)
-/-
 example (x : BitVec 8) (y : BitVec 8) : (x ++ y).unsigned = x.unsigned * (2 ^ 8) + y.unsigned := by grind
+-- TODO: `grind` fails (`sshiftRight` as unsigned, `pow`)
+/-
 example (x : BitVec 16) (n : Nat) : (x.sshiftRight n).unsigned = (x.signed / (2 ^ n)) % (2 ^ 16) := by grind
 example (x : BitVec 16) (z : Nat) : (x.pow z).unsigned = (x.unsigned ^ z) % (2 ^ 16) := by grind
 -/

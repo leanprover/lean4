@@ -90,7 +90,7 @@ def pushArgs (root : Bool) (fnInfos : AssocList Name ProofInstInfo) (todo : Arra
     | .bvar _ => (.star, todo)
     | .forallE _ d b _ => (.arrow, todo.push b |>.push d)
     | .const declName _ =>
-      if !root && isOffset' declName e then
+      if !root && (isOffset' declName e || isQuasiOffset e) then
         (.star, todo)
       else
         let numArgs := e.getAppNumArgs

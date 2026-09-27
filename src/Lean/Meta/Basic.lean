@@ -392,9 +392,16 @@ structure SynthInstanceCacheEntry where
 Type class resolution cache. Each key holds one entry per observed set of dependencies: the search
 records what it observes as the entry's `RecordedDeps`, and a lookup only uses an entry whose
 recorded dependencies still hold in the current context. What the search never observes does not
-partition the cache. Options are currently the only recorded dependencies: the search reads them
-through `getRecordedOption` and runs with `Core.Context.isRecordingDeps` set, so an unrecorded
-option read panics.
+partition the cache. The recorded dependencies are the option lookups (`getRecordedOption`) and the
+generations of the instance and unification-hint extensions read
+(`PersistentEnvExtensionDescrCore.trackGen`). The search runs with `Core.Context.isRecordingDeps`
+set, so an unrecorded option read panics.
+
+The generations roll back with the environment, after which a different change can bring them back.
+The entries in `Meta.Cache` survive `SavedState.restore`, so after a rollback they are protected
+only by `Meta.modifyEnv` clearing the cache. This limits custom metaprograms that roll back the
+environment and then change it without clearing the cache (e.g. through `liftCommandElabM`): they
+should call `resetSynthInstanceCache`, as otherwise a stale entry can be revalidated.
 -/
 abbrev SynthInstanceCache :=
   PersistentHashMap SynthInstanceCacheKey (List SynthInstanceCacheEntry)

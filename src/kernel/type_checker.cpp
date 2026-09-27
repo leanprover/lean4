@@ -849,15 +849,30 @@ bool type_checker::try_eta_expansion_core(expr const & t, expr const & s) {
 }
 
 /** \brief check whether \c s is of the form <tt>mk t.1 ... t.n</tt> */
-bool type_checker::try_eta_struct_core(expr const & t, expr const & s) {
+bool type_checker::try_eta_struct_core(expr const & t_, expr const & s_) {
+    expr t = t_;
+    expr s = s_;
     expr f = get_app_fn(s);
     if (!is_constant(f)) return false;
     constant_info f_info = env().get(const_name(f));
     if (!f_info.is_constructor()) return false;
     constructor_val f_val = f_info.to_constructor_val();
-    if (get_app_num_args(s) != f_val.get_nparams() + f_val.get_nfields()) return false;
     if (!is_non_rec_structure(env(), f_val.get_induct())) return false;
-    if (!is_def_eq(infer_type(t), infer_type(s))) return false;
+    expr t_type = infer_type(t);
+    expr s_type = infer_type(s);
+    if (!is_def_eq(t_type,s_type)) return false;
+    flet<local_ctx> save_lctx(m_lctx, m_lctx);
+    if (get_app_num_args(s) != f_val.get_nparams() + f_val.get_nfields()) {
+        buffer<expr> fvars;
+        while (is_pi(t_type)) {
+            expr hd = binding_domain(t_type);
+            expr x  = m_lctx.mk_local_decl(m_st->m_ngen, binding_name(t_type), hd, binding_info(t_type));
+            fvars.push_back(x);
+            t_type = whnf(instantiate(binding_body(t_type), x));
+        };
+        t = mk_app(t, fvars);
+        s = mk_app(s, fvars);
+    };
     buffer<expr> s_args;
     get_app_args(s, s_args);
     for (unsigned i = f_val.get_nparams(); i < s_args.size(); i++) {
@@ -898,7 +913,7 @@ lbool type_checker::is_def_eq_proof_irrel(expr const & t, expr const & s) {
     if (!is_prop(t_type))
         return l_undef;
     expr s_type = infer_type(s);
-    return to_lbool(is_def_eq(t_type, s_type));
+    return to_lbool(is_def_eq(t_type, s_type)); // An invariant of the kernel is that two terms getting compared should have the same type, this test shouldn't be needed.
 }
 
 bool type_checker::failed_before(expr const & t, expr const & s) const {

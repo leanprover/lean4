@@ -174,35 +174,41 @@ private def isDefEqEtaStruct (a b : Expr) : MetaM Bool := do
     else
       return false
 where
-  go ctorVal us := do
-    if ctorVal.numParams + ctorVal.numFields != b.getAppNumArgs then
-      trace[Meta.isDefEq.eta.struct] "failed, insufficient number of arguments at{indentExpr b}"
-      return false
+    -- if `b` is a *partially* applied constructor, we compare eta-expanded versions of `a` and `b`.
+  expandIfNeeded ctorVal k := do
+    if ctorVal.numParams + ctorVal.numFields == b.getAppNumArgs then
+      k a b
     else
-      if !isNonRecStructure (← getEnv) ctorVal.induct then
-        trace[Meta.isDefEq.eta.struct] "failed, type is not a non-recursive structure{indentExpr b}"
-        return false
-      else if (← isDefEq (← inferType a) (← inferType b)) then
-        checkpointDefEq do
-          let args := b.getAppArgs
-          let params := args[*...ctorVal.numParams].toArray
-          for h : i in ctorVal.numParams...args.size do
-            let j := i - ctorVal.numParams
-            let proj ← mkProjFn ctorVal us params j a
-            if ← isProof proj then
-              unless ← isAbstractedUnassignedMVar args[i] do
-                -- Skip expensive unification problem that is likely solved
-                -- using proof irrelevance.  We already know that `proj` and
-                -- `args[i]` have the same type, so they're defeq in any case.
-                -- See comment at `isAbstractedUnassignedMVar`.
-                continue
-            trace[Meta.isDefEq.eta.struct] "{a} =?= {b} @ [{j}], {proj} =?= {args[i]}"
-            unless (← isDefEq proj args[i]) do
-              trace[Meta.isDefEq.eta.struct] "failed, unexpected arg #{i}, projection{indentExpr proj}\nis not defeq to{indentExpr args[i]}"
-              return false
-          return true
-      else
-        return false
+      let bType ← inferType b
+      forallTelescopeReducing bType fun xs _ => do
+        let a' := mkAppN a xs
+        let b' := mkAppN b xs
+        k a' b'
+
+  go ctorVal us := do
+    if !isNonRecStructure (← getEnv) ctorVal.induct then
+      trace[Meta.isDefEq.eta.struct] "failed, type is not a structure{indentExpr b}"
+      return false
+    if !(← isDefEq (← inferType a) (← inferType b)) then
+      return false
+    checkpointDefEq do expandIfNeeded ctorVal fun a b => do
+      let args := b.getAppArgs
+      let params := args[*...ctorVal.numParams].toArray
+      for h : i in ctorVal.numParams...args.size do
+        let j := i - ctorVal.numParams
+        let proj ← mkProjFn ctorVal us params j a
+        if ← isProof proj then
+          unless ← isAbstractedUnassignedMVar args[i] do
+            -- Skip expensive unification problem that is likely solved
+            -- using proof irrelevance.  We already know that `proj` and
+            -- `args[i]` have the same type, so they're defeq in any case.
+            -- See comment at `isAbstractedUnassignedMVar`.
+            continue
+        trace[Meta.isDefEq.eta.struct] "{a} =?= {b} @ [{j}], {proj} =?= {args[i]}"
+        unless (← isDefEq proj args[i]) do
+          trace[Meta.isDefEq.eta.struct] "failed, unexpected arg #{i}, projection{indentExpr proj}\nis not defeq to{indentExpr args[i]}"
+          return false
+      return true
 
 /--
   Try to solve `a := (fun x => t) =?= b` by eta-expanding `b`,

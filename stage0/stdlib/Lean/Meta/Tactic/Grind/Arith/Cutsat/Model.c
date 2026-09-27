@@ -253,9 +253,7 @@ if (lean_obj_tag(v___x_10_) == 0)
 {
 lean_object* v_a_11_; uint8_t v___x_12_; 
 v_a_11_ = lean_ctor_get(v___x_10_, 0);
-lean_inc(v_a_11_);
 v___x_12_ = lean_unbox(v_a_11_);
-lean_dec(v_a_11_);
 if (v___x_12_ == 0)
 {
 lean_object* v___x_13_; lean_object* v___x_14_; 
@@ -757,7 +755,7 @@ v_resetjp_178_:
 lean_object* v_varMap_181_; lean_object* v_assignment_182_; lean_object* v___x_183_; 
 v_varMap_181_ = lean_ctor_get(v_a_177_, 1);
 lean_inc_ref(v_varMap_181_);
-v_assignment_182_ = lean_ctor_get(v_a_177_, 13);
+v_assignment_182_ = lean_ctor_get(v_a_177_, 12);
 lean_inc_ref(v_assignment_182_);
 lean_dec(v_a_177_);
 v___x_183_ = l_Lean_PersistentHashMap_find_x3f___at___00__private_Lean_Meta_Tactic_Grind_Arith_Cutsat_Model_0__Lean_Meta_Grind_Arith_Cutsat_getCutsatAssignment_x3f_spec__1___redArg(v_varMap_181_, v_val_174_);

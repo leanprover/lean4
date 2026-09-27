@@ -3528,19 +3528,11 @@ v_resetjp_1241_:
 {
 lean_object* v_start_1244_; lean_object* v_stop_1245_; lean_object* v_start_1246_; lean_object* v_stop_1247_; lean_object* v___x_1248_; lean_object* v___x_1249_; lean_object* v___x_1250_; lean_object* v___x_1251_; lean_object* v___x_1252_; lean_object* v___x_1253_; lean_object* v___x_1254_; lean_object* v___x_1255_; lean_object* v___x_1256_; lean_object* v___x_1257_; lean_object* v___x_1259_; 
 v_start_1244_ = lean_ctor_get(v_params_1226_, 1);
-lean_inc(v_start_1244_);
 v_stop_1245_ = lean_ctor_get(v_params_1226_, 2);
-lean_inc(v_stop_1245_);
 v_start_1246_ = lean_ctor_get(v_discrs_1228_, 1);
-lean_inc(v_start_1246_);
 v_stop_1247_ = lean_ctor_get(v_discrs_1228_, 2);
-lean_inc(v_stop_1247_);
 v___x_1248_ = lean_nat_sub(v_stop_1245_, v_start_1244_);
-lean_dec(v_start_1244_);
-lean_dec(v_stop_1245_);
 v___x_1249_ = lean_nat_sub(v_stop_1247_, v_start_1246_);
-lean_dec(v_start_1246_);
-lean_dec(v_stop_1247_);
 v___x_1250_ = lean_obj_once(&l_Lean_Meta_matchMatcherApp_x3f___at___00__private_Lean_Elab_PreDefinition_Structural_IndPred_0__Lean_Elab_Structural_replaceIndPredRecApps_loop_spec__5___closed__1, &l_Lean_Meta_matchMatcherApp_x3f___at___00__private_Lean_Elab_PreDefinition_Structural_IndPred_0__Lean_Elab_Structural_replaceIndPredRecApps_loop_spec__5___closed__1_once, _init_l_Lean_Meta_matchMatcherApp_x3f___at___00__private_Lean_Elab_PreDefinition_Structural_IndPred_0__Lean_Elab_Structural_replaceIndPredRecApps_loop_spec__5___closed__1);
 v___x_1251_ = lean_alloc_ctor(0, 6, 0);
 lean_ctor_set(v___x_1251_, 0, v___x_1248_);

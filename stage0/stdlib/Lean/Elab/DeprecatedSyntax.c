@@ -626,7 +626,7 @@ v___jp_206_:
 lean_object* v___x_211_; lean_object* v___x_212_; lean_object* v___x_213_; lean_object* v___x_214_; lean_object* v___x_215_; lean_object* v___x_216_; lean_object* v___x_217_; lean_object* v___x_218_; lean_object* v___x_219_; lean_object* v___x_220_; lean_object* v___x_221_; lean_object* v___x_222_; lean_object* v___x_223_; lean_object* v___x_224_; 
 v___x_211_ = l_Lean_Linter_linter_deprecated_syntax;
 v___x_212_ = lean_obj_once(&l_Lean_Elab_checkDeprecatedSyntax___redArg___lam__1___closed__1, &l_Lean_Elab_checkDeprecatedSyntax___redArg___lam__1___closed__1_once, _init_l_Lean_Elab_checkDeprecatedSyntax___redArg___lam__1___closed__1);
-v___x_213_ = l_Lean_MessageData_ofName(v___y_208_);
+v___x_213_ = l_Lean_MessageData_ofName(v___y_207_);
 v___x_214_ = lean_alloc_ctor(7, 2, 0);
 lean_ctor_set(v___x_214_, 0, v___x_212_);
 lean_ctor_set(v___x_214_, 1, v___x_213_);
@@ -650,8 +650,8 @@ lean_ctor_set(v___x_222_, 0, v___x_221_);
 lean_ctor_set(v___x_222_, 1, v___x_215_);
 v___x_223_ = lean_alloc_ctor(7, 2, 0);
 lean_ctor_set(v___x_223_, 0, v___x_222_);
-lean_ctor_set(v___x_223_, 1, v___y_209_);
-v___x_224_ = l_Lean_Linter_logLintIf___redArg(v_inst_192_, v_inst_193_, v_inst_194_, v_inst_195_, v_inst_196_, v___x_211_, v___y_207_, v___x_223_);
+lean_ctor_set(v___x_223_, 1, v___y_208_);
+v___x_224_ = l_Lean_Linter_logLintIf___redArg(v_inst_192_, v_inst_193_, v_inst_194_, v_inst_195_, v_inst_196_, v___x_211_, v___y_209_, v___x_223_);
 return v___x_224_;
 }
 v___jp_225_:
@@ -916,9 +916,9 @@ goto v_reusejp_290_;
 }
 v_reusejp_290_:
 {
-v___y_207_ = v_before_277_;
-v___y_208_ = v___x_283_;
-v___y_209_ = v___y_226_;
+v___y_207_ = v___x_283_;
+v___y_208_ = v___y_226_;
+v___y_209_ = v_before_277_;
 v___y_210_ = v___x_291_;
 goto v___jp_206_;
 }
@@ -931,9 +931,9 @@ lean_dec(v___x_282_);
 lean_del_object(v___x_280_);
 lean_del_object(v___x_275_);
 v___x_294_ = lean_obj_once(&l_Lean_Elab_checkDeprecatedSyntax___redArg___lam__1___closed__17, &l_Lean_Elab_checkDeprecatedSyntax___redArg___lam__1___closed__17_once, _init_l_Lean_Elab_checkDeprecatedSyntax___redArg___lam__1___closed__17);
-v___y_207_ = v_before_277_;
-v___y_208_ = v___x_283_;
-v___y_209_ = v___y_226_;
+v___y_207_ = v___x_283_;
+v___y_208_ = v___y_226_;
+v___y_209_ = v_before_277_;
 v___y_210_ = v___x_294_;
 goto v___jp_206_;
 }

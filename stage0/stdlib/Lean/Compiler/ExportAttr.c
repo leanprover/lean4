@@ -386,15 +386,15 @@ goto v___jp_61_;
 else
 {
 lean_object* v___x_71_; 
-lean_inc(v___y_68_);
 lean_inc(v___y_67_);
+lean_inc(v___y_68_);
 v___x_71_ = lean_alloc_ctor(0, 3, 0);
 lean_ctor_set(v___x_71_, 0, v_id_52_);
-lean_ctor_set(v___x_71_, 1, v___y_67_);
-lean_ctor_set(v___x_71_, 2, v___y_68_);
+lean_ctor_set(v___x_71_, 1, v___y_68_);
+lean_ctor_set(v___x_71_, 2, v___y_67_);
 v___y_54_ = v___x_71_;
-v_startInclusive_55_ = v___y_67_;
-v_endExclusive_56_ = v___y_68_;
+v_startInclusive_55_ = v___y_68_;
+v_endExclusive_56_ = v___y_67_;
 goto v___jp_53_;
 }
 }
@@ -416,8 +416,8 @@ v___x_78_ = lean_string_is_valid_pos(v_id_52_, v___x_77_);
 v___x_79_ = lean_string_is_valid_pos(v_id_52_, v___x_74_);
 if (v___x_79_ == 0)
 {
-v___y_67_ = v___x_77_;
-v___y_68_ = v___x_74_;
+v___y_67_ = v___x_74_;
+v___y_68_ = v___x_77_;
 v___y_69_ = v___x_78_;
 v___y_70_ = v___x_79_;
 goto v___jp_66_;
@@ -426,8 +426,8 @@ else
 {
 uint8_t v___x_80_; 
 v___x_80_ = lean_nat_dec_le(v___x_77_, v___x_74_);
-v___y_67_ = v___x_77_;
-v___y_68_ = v___x_74_;
+v___y_67_ = v___x_74_;
+v___y_68_ = v___x_77_;
 v___y_69_ = v___x_78_;
 v___y_70_ = v___x_80_;
 goto v___jp_66_;
@@ -758,11 +758,12 @@ if (lean_obj_tag(v___x_183_) == 0)
 {
 lean_object* v_a_184_; uint8_t v___x_185_; 
 v_a_184_ = lean_ctor_get(v___x_183_, 0);
-lean_inc_n(v_a_184_, 2);
+lean_inc(v_a_184_);
 v___x_185_ = l___private_Lean_Compiler_ExportAttr_0__Lean_isValidCppName(v_a_184_);
 if (v___x_185_ == 0)
 {
 lean_object* v___x_186_; lean_object* v___x_187_; lean_object* v___x_188_; lean_object* v___x_189_; lean_object* v___x_190_; lean_object* v___x_191_; lean_object* v_a_192_; lean_object* v___x_194_; uint8_t v_isShared_195_; uint8_t v_isSharedCheck_199_; 
+lean_inc(v_a_184_);
 lean_dec_ref_known(v___x_183_, 1);
 v___x_186_ = lean_obj_once(&l___private_Lean_Compiler_ExportAttr_0__Lean_initFn___lam__0___closed__1_00___x40_Lean_Compiler_ExportAttr_1307678936____hygCtx___hyg_2_, &l___private_Lean_Compiler_ExportAttr_0__Lean_initFn___lam__0___closed__1_00___x40_Lean_Compiler_ExportAttr_1307678936____hygCtx___hyg_2__once, _init_l___private_Lean_Compiler_ExportAttr_0__Lean_initFn___lam__0___closed__1_00___x40_Lean_Compiler_ExportAttr_1307678936____hygCtx___hyg_2_);
 v___x_187_ = l_Lean_MessageData_ofName(v_a_184_);
@@ -814,7 +815,6 @@ return v___x_197_;
 }
 else
 {
-lean_dec(v_a_184_);
 return v___x_183_;
 }
 }

@@ -5789,7 +5789,6 @@ lean_object* v___x_1825_; lean_object* v_pendingConsumer_1826_;
 lean_dec(v___x_1822_);
 v___x_1825_ = lean_st_ref_get(v___y_1816_);
 v_pendingConsumer_1826_ = lean_ctor_get(v___x_1825_, 1);
-lean_inc(v_pendingConsumer_1826_);
 if (lean_obj_tag(v_pendingConsumer_1826_) == 0)
 {
 lean_object* v_pendingProducer_1827_; lean_object* v_interestWaiter_1828_; uint8_t v_closed_1829_; lean_object* v_knownSize_1830_; lean_object* v_pendingIncompleteChunk_1831_; lean_object* v_closeError_1832_; lean_object* v___x_1834_; uint8_t v_isShared_1835_; uint8_t v_isSharedCheck_1847_; 
@@ -5867,7 +5866,6 @@ return v___x_1845_;
 else
 {
 lean_object* v___x_1849_; 
-lean_dec_ref_known(v_pendingConsumer_1826_, 1);
 lean_dec(v___x_1825_);
 lean_dec_ref(v___f_1815_);
 v___x_1849_ = lean_obj_once(&l___private_Std_Http_Data_Body_Stream_0__Std_Http_Body_Stream_recv_x27___lam__1___closed__3, &l___private_Std_Http_Data_Body_Stream_0__Std_Http_Body_Stream_recv_x27___lam__1___closed__3_once, _init_l___private_Std_Http_Data_Body_Stream_0__Std_Http_Body_Stream_recv_x27___lam__1___closed__3);
@@ -6863,22 +6861,21 @@ v___x_2184_ = lean_unsigned_to_nat(0u);
 v___x_2185_ = 0;
 v___x_2186_ = lean_st_ref_take(v___y_2181_);
 v_pendingProducer_2194_ = lean_ctor_get(v___x_2186_, 0);
-lean_inc(v_pendingProducer_2194_);
 v_pendingConsumer_2195_ = lean_ctor_get(v___x_2186_, 1);
-lean_inc(v_pendingConsumer_2195_);
 v_interestWaiter_2196_ = lean_ctor_get(v___x_2186_, 2);
-lean_inc(v_interestWaiter_2196_);
 v_closed_2197_ = lean_ctor_get_uint8(v___x_2186_, sizeof(void*)*6);
 v_knownSize_2198_ = lean_ctor_get(v___x_2186_, 3);
-lean_inc(v_knownSize_2198_);
 v_pendingIncompleteChunk_2199_ = lean_ctor_get(v___x_2186_, 4);
-lean_inc(v_pendingIncompleteChunk_2199_);
 v_closeError_2200_ = lean_ctor_get(v___x_2186_, 5);
-lean_inc(v_closeError_2200_);
 v___x_2201_ = lean_box(0);
 if (lean_obj_tag(v_closeError_2200_) == 0)
 {
 lean_object* v___x_2203_; uint8_t v_isShared_2204_; uint8_t v_isSharedCheck_2209_; 
+lean_inc(v_pendingIncompleteChunk_2199_);
+lean_inc(v_knownSize_2198_);
+lean_inc(v_interestWaiter_2196_);
+lean_inc(v_pendingConsumer_2195_);
+lean_inc(v_pendingProducer_2194_);
 v_isSharedCheck_2209_ = !lean_is_exclusive(v___x_2186_);
 if (v_isSharedCheck_2209_ == 0)
 {
@@ -6941,12 +6938,6 @@ goto v___jp_2187_;
 }
 else
 {
-lean_dec_ref_known(v_closeError_2200_, 1);
-lean_dec(v_pendingIncompleteChunk_2199_);
-lean_dec(v_knownSize_2198_);
-lean_dec(v_interestWaiter_2196_);
-lean_dec(v_pendingConsumer_2195_);
-lean_dec(v_pendingProducer_2194_);
 lean_dec(v_err_2180_);
 v_fst_2188_ = v___x_2201_;
 v_snd_2189_ = v___x_2186_;

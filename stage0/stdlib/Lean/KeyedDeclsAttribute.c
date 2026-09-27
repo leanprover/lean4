@@ -8220,10 +8220,8 @@ if (lean_obj_tag(v___x_2779_) == 4)
 {
 lean_object* v_declName_2782_; uint8_t v___x_2783_; 
 v_declName_2782_ = lean_ctor_get(v___x_2779_, 0);
-lean_inc(v_declName_2782_);
 v___x_2783_ = lean_name_eq(v_declName_2782_, v_valueTypeName_2762_);
 lean_dec(v_valueTypeName_2762_);
-lean_dec(v_declName_2782_);
 if (v___x_2783_ == 0)
 {
 lean_object* v___x_2784_; 
@@ -8964,9 +8962,7 @@ v_asyncMode_3045_ = lean_ctor_get(v_toEnvExtension_3044_, 2);
 v___x_3046_ = lean_obj_once(&l_Lean_KeyedDeclsAttribute_instInhabitedExtensionState_default___closed__0, &l_Lean_KeyedDeclsAttribute_instInhabitedExtensionState_default___closed__0_once, _init_l_Lean_KeyedDeclsAttribute_instInhabitedExtensionState_default___closed__0);
 v_s_3047_ = l_Lean_ScopedEnvExtension_getState___redArg(v___x_3046_, v_ext_3042_, v_env_3040_, v_asyncMode_3045_);
 v_table_3054_ = lean_ctor_get(v_s_3047_, 1);
-lean_inc_ref(v_table_3054_);
 v___x_3055_ = l_Lean_SMap_find_x3f___at___00__private_Lean_KeyedDeclsAttribute_0__Lean_KeyedDeclsAttribute_Table_insert_spec__0___redArg(v_table_3054_, v_key_3041_);
-lean_dec_ref(v_table_3054_);
 if (lean_obj_tag(v___x_3055_) == 0)
 {
 lean_object* v___x_3056_; 

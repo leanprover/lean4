@@ -4251,16 +4251,8 @@ switch(v___x_1266_)
 {
 case 0:
 {
-uint8_t v___x_1267_; 
-v___x_1267_ = l___private_Lean_Meta_Tactic_Grind_PP_0__Lean_Meta_Grind_isArithOfCastLike_go(v_b_1265_);
-if (v___x_1267_ == 0)
-{
-return v___x_1267_;
-}
-else
-{
-return v___x_1267_;
-}
+v_e_1258_ = v_b_1265_;
+goto _start;
 }
 case 1:
 {
@@ -7093,7 +7085,7 @@ v_vars_2251_ = lean_ctor_get(v_a_2247_, 0);
 lean_inc_ref(v_vars_2251_);
 v_varMap_2252_ = lean_ctor_get(v_a_2247_, 1);
 lean_inc_ref(v_varMap_2252_);
-v_assignment_2253_ = lean_ctor_get(v_a_2247_, 13);
+v_assignment_2253_ = lean_ctor_get(v_a_2247_, 12);
 lean_inc_ref(v_assignment_2253_);
 lean_dec(v_a_2247_);
 v___x_2254_ = l_Lean_PersistentHashMap_Node_isEmpty___redArg(v_varMap_2252_);
@@ -8468,7 +8460,7 @@ lean_object* v_a_2715_; lean_object* v_steps_2716_; uint8_t v___x_2717_;
 v_a_2715_ = lean_ctor_get(v___x_2714_, 0);
 lean_inc(v_a_2715_);
 lean_dec_ref_known(v___x_2714_, 1);
-v_steps_2716_ = lean_ctor_get(v_a_2715_, 15);
+v_steps_2716_ = lean_ctor_get(v_a_2715_, 14);
 lean_inc(v_steps_2716_);
 lean_dec(v_a_2715_);
 v___x_2717_ = lean_nat_dec_le(v_liaSteps_2702_, v_steps_2716_);

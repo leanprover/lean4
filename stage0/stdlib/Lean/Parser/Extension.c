@@ -10693,15 +10693,11 @@ else
 {
 lean_object* v_stxStack_3305_; lean_object* v_pos_3306_; uint8_t v___x_3307_; 
 v_stxStack_3305_ = lean_ctor_get(v_s_3298_, 0);
-lean_inc_ref(v_stxStack_3305_);
 v_pos_3306_ = lean_ctor_get(v_s_3298_, 2);
-lean_inc(v_pos_3306_);
 v___x_3307_ = l_Lean_Parser_InputContext_atEnd(v_ictx_3291_, v_pos_3306_);
-lean_dec(v_pos_3306_);
 if (v___x_3307_ == 0)
 {
 lean_object* v___x_3308_; lean_object* v___x_3309_; lean_object* v___x_3310_; lean_object* v___x_3311_; 
-lean_dec_ref(v_stxStack_3305_);
 v___x_3308_ = ((lean_object*)(l_Lean_Parser_runParserCategory___closed__1));
 v___x_3309_ = l_Lean_Parser_ParserState_mkError(v_s_3298_, v___x_3308_);
 v___x_3310_ = l_Lean_Parser_ParserState_toErrorMsg(v_ictx_3291_, v___x_3309_);
@@ -10712,6 +10708,7 @@ return v___x_3311_;
 else
 {
 lean_object* v___x_3312_; lean_object* v___x_3313_; 
+lean_inc_ref(v_stxStack_3305_);
 lean_dec_ref(v_s_3298_);
 lean_dec_ref(v_ictx_3291_);
 v___x_3312_ = l_Lean_Parser_SyntaxStack_back(v_stxStack_3305_);
@@ -11722,8 +11719,8 @@ goto v___jp_3676_;
 }
 else
 {
-lean_dec_ref_known(v_pre_3699_, 2);
 lean_dec(v_pre_3700_);
+lean_dec_ref_known(v_pre_3699_, 2);
 lean_dec_ref_known(v_declName_3698_, 2);
 lean_dec(v_a_3691_);
 lean_dec(v_catName_3663_);
@@ -11735,8 +11732,8 @@ goto v___jp_3676_;
 }
 else
 {
-lean_dec(v_pre_3699_);
 lean_dec_ref_known(v_declName_3698_, 2);
+lean_dec(v_pre_3699_);
 lean_dec(v_a_3691_);
 lean_dec(v_catName_3663_);
 v___y_3677_ = v_a_3696_;
@@ -13557,8 +13554,8 @@ goto v___jp_4442_;
 }
 else
 {
-lean_dec(v_head_4446_);
 lean_dec_ref_known(v_tail_4445_, 2);
+lean_dec(v_head_4446_);
 lean_dec_ref_known(v_head_4444_, 1);
 lean_dec(v_ref_4440_);
 goto v___jp_4442_;
@@ -13566,8 +13563,8 @@ goto v___jp_4442_;
 }
 else
 {
-lean_dec_ref_known(v_head_4444_, 1);
 lean_dec(v_tail_4445_);
+lean_dec_ref_known(v_head_4444_, 1);
 lean_dec(v_ref_4440_);
 goto v___jp_4442_;
 }

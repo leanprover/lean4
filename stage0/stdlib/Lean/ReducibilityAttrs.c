@@ -5100,7 +5100,7 @@ return v___x_1603_;
 LEAN_EXPORT lean_object* l___private_Lean_ReducibilityAttrs_0__Lean_validate___lam__0(lean_object* v_declName_1604_, lean_object* v_suffix_1605_, uint8_t v_status_1606_, uint8_t v_attrKind_1607_, lean_object* v___y_1608_, lean_object* v___y_1609_){
 _start:
 {
-lean_object* v___x_1635_; lean_object* v___x_1636_; uint8_t v___x_1637_; lean_object* v___y_1639_; lean_object* v___y_1640_; uint8_t v___y_1649_; lean_object* v___y_1650_; lean_object* v___y_1651_; lean_object* v___y_1708_; uint8_t v___y_1709_; lean_object* v___y_1710_; lean_object* v___y_1719_; lean_object* v___y_1720_; 
+lean_object* v___x_1635_; lean_object* v___x_1636_; uint8_t v___x_1637_; lean_object* v___y_1639_; lean_object* v___y_1640_; uint8_t v___y_1649_; lean_object* v___y_1650_; lean_object* v___y_1651_; uint8_t v___y_1708_; lean_object* v___y_1709_; lean_object* v___y_1710_; lean_object* v___y_1719_; lean_object* v___y_1720_; 
 v___x_1635_ = l_Lean_Core_instMonadOptionsCoreM_checkedOptions(v___y_1608_);
 v___x_1636_ = l_Lean_allowUnsafeReducibility;
 v___x_1637_ = l_Lean_Option_get___at___00__private_Lean_ReducibilityAttrs_0__Lean_validate_spec__0(v___x_1635_, v___x_1636_);
@@ -5540,7 +5540,7 @@ lean_ctor_set(v___x_1715_, 1, v___x_1714_);
 v___x_1716_ = lean_alloc_ctor(7, 2, 0);
 lean_ctor_set(v___x_1716_, 0, v___x_1715_);
 lean_ctor_set(v___x_1716_, 1, v_suffix_1605_);
-v___x_1717_ = l_Lean_throwError___at___00__private_Lean_ReducibilityAttrs_0__Lean_validate_spec__1___redArg(v___x_1716_, v___y_1708_, v___y_1710_);
+v___x_1717_ = l_Lean_throwError___at___00__private_Lean_ReducibilityAttrs_0__Lean_validate_spec__1___redArg(v___x_1716_, v___y_1709_, v___y_1710_);
 return v___x_1717_;
 }
 v___jp_1718_:
@@ -5566,8 +5566,8 @@ lean_dec_ref(v_env_1725_);
 if (lean_obj_tag(v___x_1726_) == 1)
 {
 lean_dec_ref_known(v___x_1726_, 1);
-v___y_1708_ = v___y_1719_;
-v___y_1709_ = v___x_1723_;
+v___y_1708_ = v___x_1723_;
+v___y_1709_ = v___y_1719_;
 v___y_1710_ = v___y_1720_;
 goto v___jp_1707_;
 }
@@ -5583,8 +5583,8 @@ goto v___jp_1648_;
 }
 else
 {
-v___y_1708_ = v___y_1719_;
-v___y_1709_ = v___x_1723_;
+v___y_1708_ = v___x_1723_;
+v___y_1709_ = v___y_1719_;
 v___y_1710_ = v___y_1720_;
 goto v___jp_1707_;
 }

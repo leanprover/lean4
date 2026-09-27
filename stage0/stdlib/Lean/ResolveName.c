@@ -7204,17 +7204,17 @@ lean_inc(v_val_2757_);
 lean_dec_ref_known(v___x_2756_, 1);
 v_fullDeclView_2758_ = l_Lean_extractMacroScopes(v_val_2757_);
 v_name_2781_ = lean_ctor_get(v_fullDeclView_2758_, 0);
-lean_inc_n(v_name_2781_, 2);
+lean_inc(v_name_2781_);
 v___x_2782_ = l_Lean_privateToUserName_x3f(v_name_2781_);
 if (lean_obj_tag(v___x_2782_) == 0)
 {
+lean_inc(v_name_2781_);
 v___y_2760_ = v_name_2781_;
 goto v___jp_2759_;
 }
 else
 {
 lean_object* v_val_2783_; 
-lean_dec(v_name_2781_);
 v_val_2783_ = lean_ctor_get(v___x_2782_, 0);
 lean_inc(v_val_2783_);
 lean_dec_ref_known(v___x_2782_, 1);

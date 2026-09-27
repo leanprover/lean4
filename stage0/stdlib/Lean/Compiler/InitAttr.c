@@ -2738,7 +2738,6 @@ if (lean_obj_tag(v___x_923_) == 1)
 {
 lean_object* v_val_924_; 
 v_val_924_ = lean_ctor_get(v___x_923_, 0);
-lean_inc(v_val_924_);
 if (lean_obj_tag(v_val_924_) == 0)
 {
 lean_object* v___x_925_; 
@@ -2748,7 +2747,6 @@ return v___x_925_;
 }
 else
 {
-lean_dec(v_val_924_);
 return v___x_923_;
 }
 }
@@ -4106,7 +4104,7 @@ return v_res_1383_;
 LEAN_EXPORT lean_object* l___private_Lean_Compiler_InitAttr_0__Lean_runInitAttrForMod(lean_object* v_env_1389_, lean_object* v_opts_1390_, lean_object* v_mod_1391_, lean_object* v_modIdx_1392_){
 _start:
 {
-lean_object* v___y_1395_; uint8_t v___y_1396_; uint8_t v___y_1397_; lean_object* v___y_1398_; lean_object* v___x_1415_; uint8_t v___y_1417_; uint8_t v___y_1445_; lean_object* v___y_1446_; uint8_t v_a_1447_; uint8_t v___y_1464_; lean_object* v___x_1506_; uint8_t v___x_1507_; 
+uint8_t v___y_1395_; uint8_t v___y_1396_; lean_object* v___y_1397_; lean_object* v___y_1398_; lean_object* v___x_1415_; uint8_t v___y_1417_; uint8_t v___y_1445_; lean_object* v___y_1446_; uint8_t v_a_1447_; uint8_t v___y_1464_; lean_object* v___x_1506_; uint8_t v___x_1507_; 
 v___x_1415_ = ((lean_object*)(l___private_Lean_Compiler_InitAttr_0__Lean_runInitAttrForMod___closed__0));
 v___x_1506_ = l_Lean_Elab_inServer;
 v___x_1507_ = l_Lean_Option_get___at___00__private_Lean_Compiler_InitAttr_0__Lean_runInitAttrForMod_spec__3(v_opts_1390_, v___x_1506_);
@@ -4137,12 +4135,12 @@ goto v___jp_1463_;
 v___jp_1394_:
 {
 lean_object* v___x_1399_; lean_object* v___x_1400_; size_t v_sz_1401_; size_t v___x_1402_; lean_object* v___x_1403_; 
-v___x_1399_ = l_Array_append___redArg(v___y_1395_, v___y_1398_);
+v___x_1399_ = l_Array_append___redArg(v___y_1397_, v___y_1398_);
 lean_dec_ref(v___y_1398_);
 v___x_1400_ = lean_box(0);
 v_sz_1401_ = lean_array_size(v___x_1399_);
 v___x_1402_ = ((size_t)0ULL);
-v___x_1403_ = l___private_Init_Data_Array_Basic_0__Array_forIn_x27Unsafe_loop___at___00__private_Lean_Compiler_InitAttr_0__Lean_runInitAttrForMod_spec__1(v_env_1389_, v_opts_1390_, v___y_1396_, v___y_1397_, v___x_1399_, v_sz_1401_, v___x_1402_, v___x_1400_);
+v___x_1403_ = l___private_Init_Data_Array_Basic_0__Array_forIn_x27Unsafe_loop___at___00__private_Lean_Compiler_InitAttr_0__Lean_runInitAttrForMod_spec__1(v_env_1389_, v_opts_1390_, v___y_1396_, v___y_1395_, v___x_1399_, v_sz_1401_, v___x_1402_, v___x_1400_);
 lean_dec_ref(v___x_1399_);
 if (lean_obj_tag(v___x_1403_) == 0)
 {
@@ -4231,9 +4229,9 @@ v___x_1434_ = lean_nat_dec_lt(v___x_1431_, v___x_1432_);
 if (v___x_1434_ == 0)
 {
 lean_dec_ref(v___x_1430_);
-v___y_1395_ = v___x_1429_;
+v___y_1395_ = v___x_1422_;
 v___y_1396_ = v___y_1417_;
-v___y_1397_ = v___x_1422_;
+v___y_1397_ = v___x_1429_;
 v___y_1398_ = v___x_1433_;
 goto v___jp_1394_;
 }
@@ -4246,9 +4244,9 @@ if (v___x_1435_ == 0)
 if (v___x_1434_ == 0)
 {
 lean_dec_ref(v___x_1430_);
-v___y_1395_ = v___x_1429_;
+v___y_1395_ = v___x_1422_;
 v___y_1396_ = v___y_1417_;
-v___y_1397_ = v___x_1422_;
+v___y_1397_ = v___x_1429_;
 v___y_1398_ = v___x_1433_;
 goto v___jp_1394_;
 }
@@ -4259,9 +4257,9 @@ v___x_1436_ = ((size_t)0ULL);
 v___x_1437_ = lean_usize_of_nat(v___x_1432_);
 v___x_1438_ = l___private_Init_Data_Array_Basic_0__Array_foldlMUnsafe_fold___at___00__private_Lean_Compiler_InitAttr_0__Lean_runInitAttrForMod_spec__2(v___x_1429_, v___x_1422_, v___x_1430_, v___x_1436_, v___x_1437_, v___x_1433_);
 lean_dec_ref(v___x_1430_);
-v___y_1395_ = v___x_1429_;
+v___y_1395_ = v___x_1422_;
 v___y_1396_ = v___y_1417_;
-v___y_1397_ = v___x_1422_;
+v___y_1397_ = v___x_1429_;
 v___y_1398_ = v___x_1438_;
 goto v___jp_1394_;
 }
@@ -4273,9 +4271,9 @@ v___x_1439_ = ((size_t)0ULL);
 v___x_1440_ = lean_usize_of_nat(v___x_1432_);
 v___x_1441_ = l___private_Init_Data_Array_Basic_0__Array_foldlMUnsafe_fold___at___00__private_Lean_Compiler_InitAttr_0__Lean_runInitAttrForMod_spec__2(v___x_1429_, v___x_1422_, v___x_1430_, v___x_1439_, v___x_1440_, v___x_1433_);
 lean_dec_ref(v___x_1430_);
-v___y_1395_ = v___x_1429_;
+v___y_1395_ = v___x_1422_;
 v___y_1396_ = v___y_1417_;
-v___y_1397_ = v___x_1422_;
+v___y_1397_ = v___x_1429_;
 v___y_1398_ = v___x_1441_;
 goto v___jp_1394_;
 }

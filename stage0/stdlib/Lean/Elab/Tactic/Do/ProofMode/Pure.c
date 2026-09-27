@@ -83,9 +83,10 @@ lean_object* l_Lean_Expr_getAppNumArgs(lean_object*);
 lean_object* lean_mk_array(lean_object*, lean_object*);
 lean_object* lean_nat_sub(lean_object*, lean_object*);
 lean_object* l___private_Lean_Expr_0__Lean_Expr_getAppArgsAux(lean_object*, lean_object*, lean_object*);
-lean_object* lean_array_get(lean_object*, lean_object*, lean_object*);
+lean_object* lean_array_get_borrowed(lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Elab_Tactic_Do_ProofMode_TypeList_length(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 uint8_t lean_nat_dec_eq(lean_object*, lean_object*);
+lean_object* lean_array_get(lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_MVarId_getType(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 uint8_t l_Lean_Exception_isInterrupt(lean_object*);
 uint8_t l_Lean_Exception_isRuntime(lean_object*);
@@ -4125,7 +4126,8 @@ if (v___x_1730_ == 0)
 lean_object* v___x_1731_; lean_object* v___x_1732_; lean_object* v___x_1733_; 
 lean_del_object(v___x_1706_);
 v___x_1731_ = lean_unsigned_to_nat(0u);
-v___x_1732_ = lean_array_get(v___x_1702_, v___x_1728_, v___x_1731_);
+v___x_1732_ = lean_array_get_borrowed(v___x_1702_, v___x_1728_, v___x_1731_);
+lean_inc(v___x_1732_);
 v___x_1733_ = l_Lean_Elab_Tactic_Do_ProofMode_TypeList_length(v___x_1732_, v_a_1697_, v_a_1698_, v_a_1699_, v_a_1700_);
 if (lean_obj_tag(v___x_1733_) == 0)
 {

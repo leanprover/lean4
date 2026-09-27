@@ -4765,10 +4765,10 @@ else
 {
 lean_object* v_data_1687_; lean_object* v___x_1688_; lean_object* v___f_1689_; uint8_t v___x_1690_; 
 v_data_1687_ = lean_ctor_get(v___x_1622_, 4);
-lean_inc(v_data_1687_);
 v___x_1688_ = lean_box(v_suppressElabErrors_1617_);
 v___f_1689_ = lean_alloc_closure((void*)(l___private_Init_Data_Array_Basic_0__Array_forIn_x27Unsafe_loop___at___00Lean_Elab_PostprocessTraces_elabPostprocessStoredTraces_spec__0___lam__0___boxed), 2, 1);
 lean_closure_set(v___f_1689_, 0, v___x_1688_);
+lean_inc(v_data_1687_);
 v___x_1690_ = l_Lean_MessageData_hasTag(v___f_1689_, v_data_1687_);
 if (v___x_1690_ == 0)
 {

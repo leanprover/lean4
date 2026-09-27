@@ -242,18 +242,17 @@ else
 {
 lean_object* v_a_30_; uint8_t v___y_32_; uint8_t v___x_43_; 
 v_a_30_ = lean_ctor_get(v___x_29_, 0);
-lean_inc(v_a_30_);
 v___x_43_ = l_Lean_Exception_isInterrupt(v_a_30_);
 if (v___x_43_ == 0)
 {
 uint8_t v___x_44_; 
+lean_inc(v_a_30_);
 v___x_44_ = l_Lean_Exception_isRuntime(v_a_30_);
 v___y_32_ = v___x_44_;
 goto v___jp_31_;
 }
 else
 {
-lean_dec(v_a_30_);
 v___y_32_ = v___x_43_;
 goto v___jp_31_;
 }
@@ -491,18 +490,17 @@ else
 {
 lean_object* v_a_91_; uint8_t v___y_93_; uint8_t v___x_104_; 
 v_a_91_ = lean_ctor_get(v___x_90_, 0);
-lean_inc(v_a_91_);
 v___x_104_ = l_Lean_Exception_isInterrupt(v_a_91_);
 if (v___x_104_ == 0)
 {
 uint8_t v___x_105_; 
+lean_inc(v_a_91_);
 v___x_105_ = l_Lean_Exception_isRuntime(v_a_91_);
 v___y_93_ = v___x_105_;
 goto v___jp_92_;
 }
 else
 {
-lean_dec(v_a_91_);
 v___y_93_ = v___x_104_;
 goto v___jp_92_;
 }
@@ -1811,13 +1809,13 @@ goto _start;
 LEAN_EXPORT lean_object* l___private_Init_Data_Array_Basic_0__Array_foldlMUnsafe_fold___at___00Lean_Elab_Do_getLetRecDeclsVars_spec__3___boxed(lean_object* v___x_657_, lean_object* v_as_658_, lean_object* v_i_659_, lean_object* v_stop_660_, lean_object* v_b_661_){
 _start:
 {
-uint8_t v___x_1599__boxed_662_; size_t v_i_boxed_663_; size_t v_stop_boxed_664_; lean_object* v_res_665_; 
-v___x_1599__boxed_662_ = lean_unbox(v___x_657_);
+uint8_t v___x_1616__boxed_662_; size_t v_i_boxed_663_; size_t v_stop_boxed_664_; lean_object* v_res_665_; 
+v___x_1616__boxed_662_ = lean_unbox(v___x_657_);
 v_i_boxed_663_ = lean_unbox_usize(v_i_659_);
 lean_dec(v_i_659_);
 v_stop_boxed_664_ = lean_unbox_usize(v_stop_660_);
 lean_dec(v_stop_660_);
-v_res_665_ = l___private_Init_Data_Array_Basic_0__Array_foldlMUnsafe_fold___at___00Lean_Elab_Do_getLetRecDeclsVars_spec__3(v___x_1599__boxed_662_, v_as_658_, v_i_boxed_663_, v_stop_boxed_664_, v_b_661_);
+v_res_665_ = l___private_Init_Data_Array_Basic_0__Array_foldlMUnsafe_fold___at___00Lean_Elab_Do_getLetRecDeclsVars_spec__3(v___x_1616__boxed_662_, v_as_658_, v_i_boxed_663_, v_stop_boxed_664_, v_b_661_);
 lean_dec_ref(v_as_658_);
 return v_res_665_;
 }

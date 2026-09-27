@@ -2324,7 +2324,6 @@ if (lean_obj_tag(v___x_728_) == 0)
 {
 lean_object* v_a_729_; 
 v_a_729_ = lean_ctor_get(v___x_728_, 0);
-lean_inc(v_a_729_);
 if (lean_obj_tag(v_a_729_) == 0)
 {
 lean_object* v___x_730_; 
@@ -2335,7 +2334,6 @@ goto v___jp_705_;
 }
 else
 {
-lean_dec_ref_known(v_a_729_, 1);
 lean_dec(v_val_727_);
 v___y_706_ = v___x_728_;
 goto v___jp_705_;

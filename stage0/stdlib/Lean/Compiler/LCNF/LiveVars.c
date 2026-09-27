@@ -997,12 +997,12 @@ if (lean_obj_tag(v___x_357_) == 0)
 {
 lean_object* v_a_358_; lean_object* v_fst_359_; uint8_t v___x_360_; 
 v_a_358_ = lean_ctor_get(v___x_357_, 0);
-lean_inc(v_a_358_);
 v_fst_359_ = lean_ctor_get(v_a_358_, 0);
 v___x_360_ = lean_unbox(v_fst_359_);
 if (v___x_360_ == 0)
 {
 lean_object* v_snd_361_; lean_object* v___x_362_; lean_object* v___x_363_; 
+lean_inc(v_a_358_);
 lean_dec_ref_known(v___x_357_, 1);
 v_snd_361_ = lean_ctor_get(v_a_358_, 1);
 lean_inc(v_snd_361_);
@@ -1015,7 +1015,6 @@ goto _start;
 }
 else
 {
-lean_dec(v_a_358_);
 lean_dec(v_fvarId_355_);
 lean_dec_ref(v_k_354_);
 return v___x_357_;

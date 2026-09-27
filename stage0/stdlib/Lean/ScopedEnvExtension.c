@@ -6123,7 +6123,6 @@ v_sz_2005_ = lean_array_size(v_cs_2002_);
 v___x_2006_ = ((size_t)0ULL);
 v___x_2007_ = l___private_Init_Data_Array_Basic_0__Array_forIn_x27Unsafe_loop___at___00Lean_PersistentArray_forInAux___at___00Lean_PersistentArray_forIn___at___00Lean_ScopedEnvExtension_activateScoped_spec__0_spec__0_spec__1___redArg(v_init_1998_, v_ext_1999_, v_cs_2002_, v_sz_2005_, v___x_2006_, v___x_2004_);
 v_fst_2008_ = lean_ctor_get(v___x_2007_, 0);
-lean_inc(v_fst_2008_);
 if (lean_obj_tag(v_fst_2008_) == 0)
 {
 lean_object* v_snd_2009_; lean_object* v___x_2010_; 
@@ -6137,6 +6136,7 @@ return v___x_2010_;
 else
 {
 lean_object* v_val_2011_; 
+lean_inc_ref(v_fst_2008_);
 lean_dec_ref(v___x_2007_);
 v_val_2011_ = lean_ctor_get(v_fst_2008_, 0);
 lean_inc(v_val_2011_);
@@ -6156,7 +6156,6 @@ v_sz_2015_ = lean_array_size(v_vs_2012_);
 v___x_2016_ = ((size_t)0ULL);
 v___x_2017_ = l___private_Init_Data_Array_Basic_0__Array_forIn_x27Unsafe_loop___at___00Lean_PersistentArray_forInAux___at___00Lean_PersistentArray_forIn___at___00Lean_ScopedEnvExtension_activateScoped_spec__0_spec__0_spec__2___redArg(v_ext_1999_, v_vs_2012_, v_sz_2015_, v___x_2016_, v___x_2014_);
 v_fst_2018_ = lean_ctor_get(v___x_2017_, 0);
-lean_inc(v_fst_2018_);
 if (lean_obj_tag(v_fst_2018_) == 0)
 {
 lean_object* v_snd_2019_; lean_object* v___x_2020_; 
@@ -6170,6 +6169,7 @@ return v___x_2020_;
 else
 {
 lean_object* v_val_2021_; 
+lean_inc_ref(v_fst_2018_);
 lean_dec_ref(v___x_2017_);
 v_val_2021_ = lean_ctor_get(v_fst_2018_, 0);
 lean_inc(v_val_2021_);
@@ -6506,7 +6506,6 @@ v_sz_2135_ = lean_array_size(v_tail_2129_);
 v___x_2136_ = ((size_t)0ULL);
 v___x_2137_ = l___private_Init_Data_Array_Basic_0__Array_forIn_x27Unsafe_loop___at___00Lean_PersistentArray_forIn___at___00Lean_ScopedEnvExtension_activateScoped_spec__0_spec__1___redArg(v_ext_2125_, v_tail_2129_, v_sz_2135_, v___x_2136_, v___x_2134_);
 v_fst_2138_ = lean_ctor_get(v___x_2137_, 0);
-lean_inc(v_fst_2138_);
 if (lean_obj_tag(v_fst_2138_) == 0)
 {
 lean_object* v_snd_2139_; 
@@ -6518,6 +6517,7 @@ return v_snd_2139_;
 else
 {
 lean_object* v_val_2140_; 
+lean_inc_ref(v_fst_2138_);
 lean_dec_ref(v___x_2137_);
 v_val_2140_ = lean_ctor_get(v_fst_2138_, 0);
 lean_inc(v_val_2140_);

@@ -1864,21 +1864,18 @@ if (lean_obj_tag(v___x_545_) == 1)
 {
 lean_object* v_head_546_; lean_object* v_tail_547_; lean_object* v___x_548_; uint8_t v___x_549_; 
 v_head_546_ = lean_ctor_get(v___x_545_, 0);
-lean_inc(v_head_546_);
 v_tail_547_ = lean_ctor_get(v___x_545_, 1);
-lean_inc(v_tail_547_);
 v___x_548_ = ((lean_object*)(l_Lean_SubExpr_Pos_fromString_x3f___closed__2));
 v___x_549_ = lean_string_dec_eq(v_head_546_, v___x_548_);
-lean_dec(v_head_546_);
 if (v___x_549_ == 0)
 {
-lean_dec(v_tail_547_);
 v_ss_532_ = v___x_545_;
 goto v___jp_531_;
 }
 else
 {
 lean_object* v___x_550_; size_t v_sz_551_; size_t v___x_552_; lean_object* v___x_553_; 
+lean_inc(v_tail_547_);
 lean_dec_ref_known(v___x_545_, 2);
 v___x_550_ = lean_array_mk(v_tail_547_);
 v_sz_551_ = lean_array_size(v___x_550_);

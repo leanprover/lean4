@@ -8248,8 +8248,8 @@ goto v___jp_2566_;
 }
 else
 {
-lean_dec_ref_known(v_pre_2587_, 2);
 lean_dec(v_pre_2588_);
+lean_dec_ref_known(v_pre_2587_, 2);
 lean_dec_ref_known(v_pre_2586_, 2);
 lean_dec_ref_known(v_pre_2585_, 2);
 lean_dec_ref_known(v_declName_2584_, 2);
@@ -8258,8 +8258,8 @@ goto v___jp_2566_;
 }
 else
 {
+lean_dec_ref_known(v_pre_2586_, 2);
 lean_dec(v_pre_2587_);
-lean_dec_ref_known(v_pre_2586_, 2);
 lean_dec_ref_known(v_pre_2585_, 2);
 lean_dec_ref_known(v_declName_2584_, 2);
 goto v___jp_2566_;
@@ -8267,16 +8267,16 @@ goto v___jp_2566_;
 }
 else
 {
-lean_dec_ref_known(v_pre_2585_, 2);
 lean_dec(v_pre_2586_);
+lean_dec_ref_known(v_pre_2585_, 2);
 lean_dec_ref_known(v_declName_2584_, 2);
 goto v___jp_2566_;
 }
 }
 else
 {
-lean_dec(v_pre_2585_);
 lean_dec_ref_known(v_declName_2584_, 2);
+lean_dec(v_pre_2585_);
 goto v___jp_2566_;
 }
 }
@@ -11547,7 +11547,7 @@ v___jp_3965_:
 {
 lean_object* v___x_3969_; double v___x_3970_; double v___x_3971_; lean_object* v___x_3972_; lean_object* v___x_3973_; lean_object* v___x_3974_; lean_object* v___x_3975_; lean_object* v___x_3976_; 
 v___x_3969_ = lean_io_get_num_heartbeats();
-v___x_3970_ = lean_float_of_nat(v___y_3966_);
+v___x_3970_ = lean_float_of_nat(v___y_3967_);
 v___x_3971_ = lean_float_of_nat(v___x_3969_);
 v___x_3972_ = lean_box_float(v___x_3970_);
 v___x_3973_ = lean_box_float(v___x_3971_);
@@ -11557,7 +11557,7 @@ lean_ctor_set(v___x_3974_, 1, v___x_3973_);
 v___x_3975_ = lean_alloc_ctor(0, 2, 0);
 lean_ctor_set(v___x_3975_, 0, v_a_3968_);
 lean_ctor_set(v___x_3975_, 1, v___x_3974_);
-v___x_3976_ = l___private_Lean_Util_Trace_0__Lean_withTraceNode_postCallback___at___00Lean_Meta_Tactic_Cbv_cbvSimprocDispatch_spec__2(v___x_3946_, v_hasTrace_3935_, v___x_3947_, v_options_3933_, v___x_3949_, v___y_3967_, v___f_3945_, v___x_3975_, v___y_3870_, v___y_3871_, v___y_3872_, v___y_3873_, v___y_3874_, v___y_3875_, v___y_3876_, v___y_3877_, v___y_3878_);
+v___x_3976_ = l___private_Lean_Util_Trace_0__Lean_withTraceNode_postCallback___at___00Lean_Meta_Tactic_Cbv_cbvSimprocDispatch_spec__2(v___x_3946_, v_hasTrace_3935_, v___x_3947_, v_options_3933_, v___x_3949_, v___y_3966_, v___f_3945_, v___x_3975_, v___y_3870_, v___y_3871_, v___y_3872_, v___y_3873_, v___y_3874_, v___y_3875_, v___y_3876_, v___y_3877_, v___y_3878_);
 v___y_3920_ = v___x_3976_;
 goto v___jp_3919_;
 }
@@ -11716,8 +11716,8 @@ goto v_reusejp_4006_;
 }
 v_reusejp_4006_:
 {
-v___y_3966_ = v___x_4000_;
-v___y_3967_ = v_a_3979_;
+v___y_3966_ = v_a_3979_;
+v___y_3967_ = v___x_4000_;
 v_a_3968_ = v___x_4007_;
 goto v___jp_3965_;
 }
@@ -11761,8 +11761,8 @@ goto v_reusejp_4014_;
 }
 v_reusejp_4014_:
 {
-v___y_3966_ = v___x_4000_;
-v___y_3967_ = v_a_3979_;
+v___y_3966_ = v_a_3979_;
+v___y_3967_ = v___x_4000_;
 v_a_3968_ = v___x_4015_;
 goto v___jp_3965_;
 }

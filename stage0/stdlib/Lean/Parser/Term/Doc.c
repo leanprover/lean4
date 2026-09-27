@@ -1862,7 +1862,6 @@ else
 {
 lean_object* v_tail_647_; 
 v_tail_647_ = lean_ctor_get(v___x_646_, 1);
-lean_inc(v_tail_647_);
 if (lean_obj_tag(v_tail_647_) == 0)
 {
 lean_object* v_head_648_; lean_object* v___x_649_; lean_object* v___x_650_; lean_object* v___x_651_; lean_object* v___x_652_; lean_object* v___x_653_; lean_object* v___x_654_; lean_object* v___x_655_; lean_object* v___x_656_; lean_object* v___x_657_; lean_object* v___x_658_; 
@@ -1894,7 +1893,6 @@ return v___x_658_;
 else
 {
 lean_object* v___x_659_; lean_object* v___x_660_; lean_object* v___x_661_; lean_object* v___x_662_; lean_object* v___x_663_; lean_object* v___x_664_; lean_object* v___x_665_; lean_object* v___x_666_; lean_object* v___x_667_; 
-lean_dec(v_tail_647_);
 v___x_659_ = ((lean_object*)(l___private_Lean_Parser_Term_Doc_0__Lean_Parser_Term_Doc_getRecommendedSpellingString_bullet___closed__3));
 v___x_660_ = lean_string_append(v_firstLine_634_, v___x_659_);
 v___x_661_ = lean_box(0);

@@ -5689,15 +5689,11 @@ lean_dec(v___x_2193_);
 v___x_2197_ = lean_array_get_size(v_xs_2183_);
 v___x_2198_ = l_Array_toSubarray___redArg(v_xs_2183_, v___x_2196_, v___x_2197_);
 v_start_2199_ = lean_ctor_get(v___x_2198_, 1);
-lean_inc(v_start_2199_);
 v_stop_2200_ = lean_ctor_get(v___x_2198_, 2);
-lean_inc(v_stop_2200_);
 v___x_2201_ = l_Subarray_copy___redArg(v___x_2190_);
 v___x_2202_ = l_Subarray_copy___redArg(v___x_2194_);
 v___x_2203_ = lean_array_push(v___x_2202_, v___x_2195_);
 v___x_2218_ = lean_nat_sub(v_stop_2200_, v_start_2199_);
-lean_dec(v_start_2199_);
-lean_dec(v_stop_2200_);
 v___x_2219_ = lean_nat_dec_lt(v_i_2178_, v___x_2218_);
 lean_dec(v___x_2218_);
 if (v___x_2219_ == 0)

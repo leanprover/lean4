@@ -3809,9 +3809,7 @@ else
 {
 lean_object* v_val_1408_; double v___x_1409_; uint8_t v___x_1410_; 
 v_val_1408_ = lean_ctor_get(v___x_1407_, 0);
-lean_inc(v_val_1408_);
 v___x_1409_ = lean_unbox_float(v_val_1408_);
-lean_dec(v_val_1408_);
 v___x_1410_ = lean_float_decLt(v_threshold_1406_, v___x_1409_);
 if (v___x_1410_ == 0)
 {

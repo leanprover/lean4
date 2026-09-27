@@ -1661,9 +1661,7 @@ if (lean_obj_tag(v___x_516_) == 0)
 {
 lean_object* v_a_517_; uint8_t v___x_518_; 
 v_a_517_ = lean_ctor_get(v___x_516_, 0);
-lean_inc(v_a_517_);
 v___x_518_ = lean_nat_dec_le(v_b_503_, v_a_517_);
-lean_dec(v_a_517_);
 if (v___x_518_ == 0)
 {
 lean_dec_ref_known(v___x_516_, 1);

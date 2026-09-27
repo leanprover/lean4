@@ -1778,18 +1778,17 @@ else
 {
 lean_object* v_a_424_; uint8_t v___y_426_; uint8_t v___x_436_; 
 v_a_424_ = lean_ctor_get(v___x_423_, 0);
-lean_inc(v_a_424_);
 v___x_436_ = l_Lean_Exception_isInterrupt(v_a_424_);
 if (v___x_436_ == 0)
 {
 uint8_t v___x_437_; 
+lean_inc(v_a_424_);
 v___x_437_ = l_Lean_Exception_isRuntime(v_a_424_);
 v___y_426_ = v___x_437_;
 goto v___jp_425_;
 }
 else
 {
-lean_dec(v_a_424_);
 v___y_426_ = v___x_436_;
 goto v___jp_425_;
 }
@@ -2936,8 +2935,8 @@ return v___x_804_;
 }
 else
 {
-lean_dec(v_tail_789_);
 lean_dec_ref_known(v_a_785_, 2);
+lean_dec(v_tail_789_);
 lean_del_object(v___x_787_);
 v___y_772_ = v___y_763_;
 v___y_773_ = v___y_764_;

@@ -1742,7 +1742,6 @@ else
 {
 lean_object* v_a_510_; uint8_t v___y_512_; uint8_t v___x_523_; 
 v_a_510_ = lean_ctor_get(v___x_509_, 0);
-lean_inc(v_a_510_);
 v___x_523_ = l_Lean_Exception_isInterrupt(v_a_510_);
 if (v___x_523_ == 0)
 {
@@ -1763,17 +1762,13 @@ if (v___y_512_ == 0)
 {
 if (lean_obj_tag(v_a_510_) == 0)
 {
-lean_dec_ref_known(v_a_510_, 2);
 return v___x_509_;
 }
 else
 {
 lean_object* v_id_513_; uint8_t v___x_514_; 
 v_id_513_ = lean_ctor_get(v_a_510_, 0);
-lean_inc(v_id_513_);
-lean_dec_ref_known(v_a_510_, 2);
 v___x_514_ = l_Lean_instBEqInternalExceptionId_beq(v___x_507_, v_id_513_);
-lean_dec(v_id_513_);
 if (v___x_514_ == 0)
 {
 return v___x_509_;
@@ -1826,7 +1821,6 @@ return v___x_519_;
 }
 else
 {
-lean_dec(v_a_510_);
 return v___x_509_;
 }
 }

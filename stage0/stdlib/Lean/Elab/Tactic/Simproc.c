@@ -1836,8 +1836,8 @@ goto v___jp_455_;
 }
 else
 {
-lean_dec_ref_known(v_declName_468_, 2);
 lean_dec(v_pre_469_);
+lean_dec_ref_known(v_declName_468_, 2);
 lean_del_object(v___x_453_);
 v___y_456_ = v_a_447_;
 v___y_457_ = v_a_448_;

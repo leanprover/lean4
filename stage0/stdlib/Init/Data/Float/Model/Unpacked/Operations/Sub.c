@@ -75,11 +75,6 @@ v___y_18_ = v___x_25_;
 goto v___jp_17_;
 }
 }
-case 2:
-{
-lean_dec_ref_known(v_x_11_, 0);
-return v_x_10_;
-}
 default: 
 {
 lean_dec(v_x_11_);

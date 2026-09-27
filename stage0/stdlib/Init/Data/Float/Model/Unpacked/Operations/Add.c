@@ -71,11 +71,6 @@ else
 return v_x_6_;
 }
 }
-case 2:
-{
-lean_dec_ref_known(v_x_7_, 0);
-return v_x_6_;
-}
 default: 
 {
 lean_dec(v_x_7_);
@@ -90,19 +85,7 @@ return v_x_6_;
 }
 case 2:
 {
-switch(lean_obj_tag(v_x_7_))
-{
-case 1:
-{
-lean_dec_ref_known(v_x_6_, 0);
-return v_x_7_;
-}
-case 0:
-{
-lean_dec_ref_known(v_x_6_, 0);
-return v_x_7_;
-}
-case 2:
+if (lean_obj_tag(v_x_7_) == 2)
 {
 uint8_t v_sign_14_; uint8_t v_sign_15_; lean_object* v___x_16_; lean_object* v___x_17_; uint8_t v___x_18_; 
 v_sign_14_ = lean_ctor_get_uint8(v_x_6_, 0);
@@ -125,11 +108,10 @@ else
 return v_x_6_;
 }
 }
-default: 
+else
 {
 lean_dec_ref_known(v_x_6_, 0);
 return v_x_7_;
-}
 }
 }
 default: 

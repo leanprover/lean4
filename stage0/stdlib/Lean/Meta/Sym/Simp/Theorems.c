@@ -8501,14 +8501,10 @@ if (lean_obj_tag(v___x_2802_) == 1)
 {
 lean_object* v_val_2803_; lean_object* v_ext_2804_; lean_object* v_name_2805_; uint8_t v___x_2806_; lean_object* v___x_2807_; 
 v_val_2803_ = lean_ctor_get(v___x_2802_, 0);
-lean_inc(v_val_2803_);
 v_ext_2804_ = lean_ctor_get(v_val_2803_, 1);
-lean_inc_ref(v_ext_2804_);
-lean_dec(v_val_2803_);
 v_name_2805_ = lean_ctor_get(v_ext_2804_, 1);
-lean_inc(v_name_2805_);
-lean_dec_ref(v_ext_2804_);
 v___x_2806_ = 1;
+lean_inc(v_name_2805_);
 v___x_2807_ = l_Lean_recordExtraModUseFromDecl___at___00Lean_Meta_Sym_Simp_getSymSimpExtension_x3f_spec__1(v_name_2805_, v___x_2806_, v_a_2797_, v_a_2798_);
 if (lean_obj_tag(v___x_2807_) == 0)
 {

@@ -752,9 +752,7 @@ if (lean_obj_tag(v___x_192_) == 0)
 {
 lean_object* v_a_193_; uint8_t v___x_194_; 
 v_a_193_ = lean_ctor_get(v___x_192_, 0);
-lean_inc(v_a_193_);
 v___x_194_ = lean_unbox(v_a_193_);
-lean_dec(v_a_193_);
 if (v___x_194_ == 0)
 {
 lean_dec_ref(v___y_187_);
@@ -1160,9 +1158,7 @@ if (lean_obj_tag(v___x_276_) == 0)
 {
 lean_object* v_a_277_; uint8_t v___x_278_; 
 v_a_277_ = lean_ctor_get(v___x_276_, 0);
-lean_inc(v_a_277_);
 v___x_278_ = lean_unbox(v_a_277_);
-lean_dec(v_a_277_);
 if (v___x_278_ == 0)
 {
 lean_dec_ref(v_arg_275_);

@@ -1615,7 +1615,6 @@ if (lean_obj_tag(v___x_676_) == 0)
 {
 lean_object* v_a_677_; 
 v_a_677_ = lean_ctor_get(v___x_676_, 0);
-lean_inc(v_a_677_);
 if (lean_obj_tag(v_a_677_) == 0)
 {
 uint8_t v___x_678_; lean_object* v___x_679_; 
@@ -1630,7 +1629,6 @@ goto v___jp_635_;
 }
 else
 {
-lean_dec_ref_known(v_a_677_, 1);
 lean_dec_ref(v_insts_628_);
 v___y_636_ = v___x_676_;
 goto v___jp_635_;

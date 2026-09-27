@@ -3266,19 +3266,11 @@ v_resetjp_1050_:
 {
 lean_object* v_start_1053_; lean_object* v_stop_1054_; lean_object* v_start_1055_; lean_object* v_stop_1056_; lean_object* v___x_1057_; lean_object* v___x_1058_; lean_object* v___x_1059_; lean_object* v___x_1060_; lean_object* v___x_1061_; lean_object* v___x_1062_; lean_object* v___x_1063_; lean_object* v___x_1064_; lean_object* v___x_1065_; lean_object* v___x_1066_; lean_object* v___x_1068_; 
 v_start_1053_ = lean_ctor_get(v_params_1035_, 1);
-lean_inc(v_start_1053_);
 v_stop_1054_ = lean_ctor_get(v_params_1035_, 2);
-lean_inc(v_stop_1054_);
 v_start_1055_ = lean_ctor_get(v_discrs_1037_, 1);
-lean_inc(v_start_1055_);
 v_stop_1056_ = lean_ctor_get(v_discrs_1037_, 2);
-lean_inc(v_stop_1056_);
 v___x_1057_ = lean_nat_sub(v_stop_1054_, v_start_1053_);
-lean_dec(v_start_1053_);
-lean_dec(v_stop_1054_);
 v___x_1058_ = lean_nat_sub(v_stop_1056_, v_start_1055_);
-lean_dec(v_start_1055_);
-lean_dec(v_stop_1056_);
 v___x_1059_ = lean_obj_once(&l_Lean_Meta_matchMatcherApp_x3f___at___00Lean_Meta_Grind_casesMatch_spec__0___closed__2, &l_Lean_Meta_matchMatcherApp_x3f___at___00Lean_Meta_Grind_casesMatch_spec__0___closed__2_once, _init_l_Lean_Meta_matchMatcherApp_x3f___at___00Lean_Meta_Grind_casesMatch_spec__0___closed__2);
 v___x_1060_ = lean_alloc_ctor(0, 6, 0);
 lean_ctor_set(v___x_1060_, 0, v___x_1057_);

@@ -2732,9 +2732,7 @@ if (lean_obj_tag(v___x_922_) == 0)
 {
 lean_object* v_a_923_; uint8_t v___x_924_; 
 v_a_923_ = lean_ctor_get(v___x_922_, 0);
-lean_inc(v_a_923_);
 v___x_924_ = lean_unbox(v_a_923_);
-lean_dec(v_a_923_);
 if (v___x_924_ == 0)
 {
 lean_dec(v_tail_919_);
@@ -2927,21 +2925,13 @@ v___x_1014_ = lean_unsigned_to_nat(0u);
 lean_inc_ref(v_args_u2081_936_);
 v___x_1015_ = l_Array_toSubarray___redArg(v_args_u2081_936_, v___x_1014_, v_numParams_1006_);
 v_start_1016_ = lean_ctor_get(v___x_1015_, 1);
-lean_inc(v_start_1016_);
 v_stop_1017_ = lean_ctor_get(v___x_1015_, 2);
-lean_inc(v_stop_1017_);
 lean_inc_ref(v_x_940_);
 v___x_1018_ = l_Array_toSubarray___redArg(v_x_940_, v___x_1014_, v_numParams_1008_);
 v_start_1164_ = lean_ctor_get(v___x_1018_, 1);
-lean_inc(v_start_1164_);
 v_stop_1165_ = lean_ctor_get(v___x_1018_, 2);
-lean_inc(v_stop_1165_);
 v___x_1166_ = lean_nat_sub(v_stop_1017_, v_start_1016_);
-lean_dec(v_start_1016_);
-lean_dec(v_stop_1017_);
 v___x_1167_ = lean_nat_sub(v_stop_1165_, v_start_1164_);
-lean_dec(v_start_1164_);
-lean_dec(v_stop_1165_);
 v___x_1168_ = lean_nat_dec_eq(v___x_1166_, v___x_1167_);
 lean_dec(v___x_1167_);
 lean_dec(v___x_1166_);

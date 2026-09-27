@@ -3560,8 +3560,8 @@ return v___x_1225_;
 }
 else
 {
-lean_dec_ref_known(v_pre_1169_, 2);
 lean_dec(v_pre_1170_);
+lean_dec_ref_known(v_pre_1169_, 2);
 lean_dec_ref_known(v_pre_1168_, 2);
 lean_dec_ref_known(v_pre_1167_, 2);
 lean_dec_ref_known(v_declName_1166_, 2);
@@ -3572,8 +3572,8 @@ goto v___jp_1158_;
 }
 else
 {
+lean_dec_ref_known(v_pre_1168_, 2);
 lean_dec(v_pre_1169_);
-lean_dec_ref_known(v_pre_1168_, 2);
 lean_dec_ref_known(v_pre_1167_, 2);
 lean_dec_ref_known(v_declName_1166_, 2);
 v___y_1159_ = v_a_1153_;
@@ -3583,8 +3583,8 @@ goto v___jp_1158_;
 }
 else
 {
-lean_dec_ref_known(v_pre_1167_, 2);
 lean_dec(v_pre_1168_);
+lean_dec_ref_known(v_pre_1167_, 2);
 lean_dec_ref_known(v_declName_1166_, 2);
 v___y_1159_ = v_a_1153_;
 v___y_1160_ = v_a_1154_;
@@ -3593,8 +3593,8 @@ goto v___jp_1158_;
 }
 else
 {
-lean_dec(v_pre_1167_);
 lean_dec_ref_known(v_declName_1166_, 2);
+lean_dec(v_pre_1167_);
 v___y_1159_ = v_a_1153_;
 v___y_1160_ = v_a_1154_;
 goto v___jp_1158_;

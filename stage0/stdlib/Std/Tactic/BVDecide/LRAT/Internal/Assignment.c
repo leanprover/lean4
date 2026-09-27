@@ -1526,7 +1526,6 @@ v_sz_473_ = lean_array_size(v_atoms_471_);
 v___x_474_ = ((size_t)0ULL);
 v___x_475_ = l___private_Std_Sat_CNF_Basic_0__Std_Sat_CNF_Clause_forIn_x27ImplUnsafe_loop___at___00Std_Tactic_BVDecide_LRAT_Internal_Assignment_ofClause_spec__2(v_clause_470_, v_sz_473_, v___x_474_, v___x_472_);
 v_fst_476_ = lean_ctor_get(v___x_475_, 0);
-lean_inc(v_fst_476_);
 if (lean_obj_tag(v_fst_476_) == 0)
 {
 lean_object* v_snd_477_; lean_object* v___x_478_; 
@@ -1540,6 +1539,7 @@ return v___x_478_;
 else
 {
 lean_object* v_val_479_; 
+lean_inc_ref(v_fst_476_);
 lean_dec_ref(v___x_475_);
 v_val_479_ = lean_ctor_get(v_fst_476_, 0);
 lean_inc(v_val_479_);
@@ -2060,7 +2060,6 @@ v_sz_649_ = lean_array_size(v_atoms_646_);
 v___x_650_ = ((size_t)0ULL);
 v___x_651_ = l___private_Std_Sat_CNF_Basic_0__Std_Sat_CNF_Clause_forIn_x27ImplUnsafe_loop___at___00Std_Tactic_BVDecide_LRAT_Internal_Assignment_extendOfClauseWithout_spec__0(v_lit_645_, v_c_644_, v_sz_649_, v___x_650_, v___x_648_);
 v_fst_652_ = lean_ctor_get(v___x_651_, 0);
-lean_inc(v_fst_652_);
 if (lean_obj_tag(v_fst_652_) == 0)
 {
 lean_object* v_snd_653_; lean_object* v___x_654_; 
@@ -2074,6 +2073,7 @@ return v___x_654_;
 else
 {
 lean_object* v_val_655_; 
+lean_inc_ref(v_fst_652_);
 lean_dec_ref(v___x_651_);
 v_val_655_ = lean_ctor_get(v_fst_652_, 0);
 lean_inc(v_val_655_);

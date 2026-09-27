@@ -1618,9 +1618,7 @@ v_toEnvExtension_472_ = lean_ctor_get(v_ext_471_, 0);
 v_asyncMode_473_ = lean_ctor_get(v_toEnvExtension_472_, 2);
 v___x_474_ = l_Lean_ScopedEnvExtension_getState___redArg(v___x_467_, v___x_470_, v_env_469_, v_asyncMode_473_);
 v_tree_475_ = lean_ctor_get(v___x_474_, 0);
-lean_inc_ref(v_tree_475_);
 v___x_476_ = l_Lean_Meta_DiscrTree_getMatch___redArg(v_tree_475_, v_a_466_, v_a_450_, v_a_451_, v_a_452_, v_a_453_);
-lean_dec_ref(v_tree_475_);
 if (lean_obj_tag(v___x_476_) == 0)
 {
 lean_object* v_a_477_; lean_object* v___y_479_; lean_object* v___x_484_; lean_object* v___x_485_; lean_object* v___x_486_; uint8_t v___x_487_; 
@@ -1906,10 +1904,8 @@ if (lean_obj_tag(v___x_604_) == 0)
 {
 lean_object* v_a_605_; uint8_t v___y_607_; 
 v_a_605_ = lean_ctor_get(v___x_604_, 0);
-lean_inc(v_a_605_);
 if (v_contextDependent_603_ == 0)
 {
-lean_dec(v_a_605_);
 return v___x_604_;
 }
 else
@@ -1934,6 +1930,7 @@ v___jp_606_:
 if (v___y_607_ == 0)
 {
 lean_object* v___x_609_; uint8_t v_isShared_610_; uint8_t v_isSharedCheck_615_; 
+lean_inc(v_a_605_);
 v_isSharedCheck_615_ = !lean_is_exclusive(v___x_604_);
 if (v_isSharedCheck_615_ == 0)
 {
@@ -1977,7 +1974,6 @@ return v___x_613_;
 }
 else
 {
-lean_dec(v_a_605_);
 return v___x_604_;
 }
 }
@@ -5952,9 +5948,7 @@ lean_dec_ref_known(v___x_1889_, 1);
 lean_inc_ref(v___x_1841_);
 v___x_1891_ = l_Lean_getStructureInfo(v___x_1841_, v_key_1860_);
 v_fieldNames_1892_ = lean_ctor_get(v___x_1891_, 1);
-lean_inc_ref(v_fieldNames_1892_);
 v___x_1893_ = lean_array_get_size(v_fieldNames_1892_);
-lean_dec_ref(v_fieldNames_1892_);
 v___x_1894_ = lean_unsigned_to_nat(0u);
 if (v_isShared_1874_ == 0)
 {

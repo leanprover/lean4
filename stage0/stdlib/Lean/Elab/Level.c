@@ -49,7 +49,7 @@ lean_object* l_Lean_Level_ofNat(lean_object*);
 lean_object* l_Lean_Syntax_getArgs(lean_object*);
 lean_object* lean_array_get_size(lean_object*);
 lean_object* lean_nat_sub(lean_object*, lean_object*);
-lean_object* lean_array_get(lean_object*, lean_object*, lean_object*);
+lean_object* lean_array_get_borrowed(lean_object*, lean_object*, lean_object*);
 lean_object* l_Array_toSubarray___redArg(lean_object*, lean_object*, lean_object*);
 uint8_t lean_nat_dec_lt(lean_object*, lean_object*);
 size_t lean_usize_of_nat(lean_object*);
@@ -1922,16 +1922,15 @@ v_args_610_ = l_Lean_Syntax_getArgs(v___x_609_);
 lean_dec(v___x_609_);
 v___x_611_ = lean_array_get_size(v_args_610_);
 v___x_612_ = lean_nat_sub(v___x_611_, v___x_608_);
-v___x_613_ = lean_array_get(v___x_497_, v_args_610_, v___x_612_);
+v___x_613_ = lean_array_get_borrowed(v___x_497_, v_args_610_, v___x_612_);
 lean_inc_ref(v___x_496_);
+lean_inc(v___x_613_);
 v___x_614_ = l_Lean_Elab_Level_elabLevel(v___x_613_, v___x_496_, v_a_488_);
 if (lean_obj_tag(v___x_614_) == 0)
 {
 lean_object* v_a_615_; lean_object* v_a_616_; lean_object* v___x_617_; lean_object* v___x_618_; lean_object* v_array_619_; lean_object* v_start_620_; lean_object* v_stop_621_; lean_object* v___x_622_; uint8_t v___x_623_; 
 v_a_615_ = lean_ctor_get(v___x_614_, 0);
-lean_inc(v_a_615_);
 v_a_616_ = lean_ctor_get(v___x_614_, 1);
-lean_inc(v_a_616_);
 v___x_617_ = lean_unsigned_to_nat(0u);
 v___x_618_ = l_Array_toSubarray___redArg(v_args_610_, v___x_617_, v___x_612_);
 v_array_619_ = lean_ctor_get(v___x_618_, 0);
@@ -1952,14 +1951,14 @@ if (v___x_624_ == 0)
 {
 lean_dec(v_start_620_);
 lean_dec_ref(v_array_619_);
-lean_dec(v_a_616_);
-lean_dec(v_a_615_);
 lean_dec_ref_known(v___x_496_, 2);
 return v___x_614_;
 }
 else
 {
 size_t v___x_625_; size_t v___x_626_; lean_object* v___x_627_; 
+lean_inc(v_a_616_);
+lean_inc(v_a_615_);
 lean_dec_ref_known(v___x_614_, 2);
 v___x_625_ = lean_usize_of_nat(v___x_622_);
 v___x_626_ = lean_usize_of_nat(v_start_620_);
@@ -1979,14 +1978,14 @@ if (v___x_628_ == 0)
 lean_dec(v_stop_621_);
 lean_dec(v_start_620_);
 lean_dec_ref(v_array_619_);
-lean_dec(v_a_616_);
-lean_dec(v_a_615_);
 lean_dec_ref_known(v___x_496_, 2);
 return v___x_614_;
 }
 else
 {
 size_t v___x_629_; size_t v___x_630_; lean_object* v___x_631_; 
+lean_inc(v_a_616_);
+lean_inc(v_a_615_);
 lean_dec_ref_known(v___x_614_, 2);
 v___x_629_ = lean_usize_of_nat(v_stop_621_);
 lean_dec(v_stop_621_);
@@ -2020,16 +2019,15 @@ v_args_634_ = l_Lean_Syntax_getArgs(v___x_633_);
 lean_dec(v___x_633_);
 v___x_635_ = lean_array_get_size(v_args_634_);
 v___x_636_ = lean_nat_sub(v___x_635_, v___x_632_);
-v___x_637_ = lean_array_get(v___x_497_, v_args_634_, v___x_636_);
+v___x_637_ = lean_array_get_borrowed(v___x_497_, v_args_634_, v___x_636_);
 lean_inc_ref(v___x_496_);
+lean_inc(v___x_637_);
 v___x_638_ = l_Lean_Elab_Level_elabLevel(v___x_637_, v___x_496_, v_a_488_);
 if (lean_obj_tag(v___x_638_) == 0)
 {
 lean_object* v_a_639_; lean_object* v_a_640_; lean_object* v___x_641_; lean_object* v___x_642_; lean_object* v_array_643_; lean_object* v_start_644_; lean_object* v_stop_645_; lean_object* v___x_646_; uint8_t v___x_647_; 
 v_a_639_ = lean_ctor_get(v___x_638_, 0);
-lean_inc(v_a_639_);
 v_a_640_ = lean_ctor_get(v___x_638_, 1);
-lean_inc(v_a_640_);
 v___x_641_ = lean_unsigned_to_nat(0u);
 v___x_642_ = l_Array_toSubarray___redArg(v_args_634_, v___x_641_, v___x_636_);
 v_array_643_ = lean_ctor_get(v___x_642_, 0);
@@ -2050,14 +2048,14 @@ if (v___x_648_ == 0)
 {
 lean_dec(v_start_644_);
 lean_dec_ref(v_array_643_);
-lean_dec(v_a_640_);
-lean_dec(v_a_639_);
 lean_dec_ref_known(v___x_496_, 2);
 return v___x_638_;
 }
 else
 {
 size_t v___x_649_; size_t v___x_650_; lean_object* v___x_651_; 
+lean_inc(v_a_640_);
+lean_inc(v_a_639_);
 lean_dec_ref_known(v___x_638_, 2);
 v___x_649_ = lean_usize_of_nat(v___x_646_);
 v___x_650_ = lean_usize_of_nat(v_start_644_);
@@ -2077,14 +2075,14 @@ if (v___x_652_ == 0)
 lean_dec(v_stop_645_);
 lean_dec(v_start_644_);
 lean_dec_ref(v_array_643_);
-lean_dec(v_a_640_);
-lean_dec(v_a_639_);
 lean_dec_ref_known(v___x_496_, 2);
 return v___x_638_;
 }
 else
 {
 size_t v___x_653_; size_t v___x_654_; lean_object* v___x_655_; 
+lean_inc(v_a_640_);
+lean_inc(v_a_639_);
 lean_dec_ref_known(v___x_638_, 2);
 v___x_653_ = lean_usize_of_nat(v_stop_645_);
 lean_dec(v_stop_645_);

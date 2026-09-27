@@ -2859,13 +2859,10 @@ lean_inc(v_tail_876_);
 lean_dec_ref_known(v_as_871_, 2);
 v___x_881_ = l___private_Lean_Util_SCC_0__Lean_SCC_getDataOf___at___00Lean_SCC_scc___at___00Lean_Compiler_LCNF_splitScc_spec__11_spec__16(v_head_875_, v___y_872_);
 v_fst_882_ = lean_ctor_get(v___x_881_, 0);
-lean_inc(v_fst_882_);
 v_index_x3f_883_ = lean_ctor_get(v_fst_882_, 0);
-lean_inc(v_index_x3f_883_);
 if (lean_obj_tag(v_index_x3f_883_) == 0)
 {
 lean_object* v_snd_884_; lean_object* v___x_885_; lean_object* v_snd_886_; lean_object* v___x_887_; lean_object* v_fst_888_; lean_object* v_snd_889_; lean_object* v_lowlink_x3f_890_; lean_object* v___x_891_; 
-lean_dec(v_fst_882_);
 v_snd_884_ = lean_ctor_get(v___x_881_, 1);
 lean_inc(v_snd_884_);
 lean_dec_ref(v___x_881_);
@@ -2895,11 +2892,9 @@ else
 uint8_t v_onStack_892_; 
 lean_dec(v_head_875_);
 v_onStack_892_ = lean_ctor_get_uint8(v_fst_882_, sizeof(void*)*2);
-lean_dec(v_fst_882_);
 if (v_onStack_892_ == 0)
 {
 lean_object* v_snd_893_; 
-lean_dec_ref_known(v_index_x3f_883_, 1);
 v_snd_893_ = lean_ctor_get(v___x_881_, 1);
 lean_inc(v_snd_893_);
 lean_dec_ref(v___x_881_);
@@ -2910,6 +2905,7 @@ goto _start;
 else
 {
 lean_object* v_snd_895_; lean_object* v___x_896_; 
+lean_inc_ref(v_index_x3f_883_);
 v_snd_895_ = lean_ctor_get(v___x_881_, 1);
 lean_inc(v_snd_895_);
 lean_dec_ref(v___x_881_);
@@ -3036,10 +3032,7 @@ lean_inc(v_tail_926_);
 lean_dec_ref_known(v_as_921_, 2);
 v___x_927_ = l___private_Lean_Util_SCC_0__Lean_SCC_getDataOf___at___00Lean_SCC_scc___at___00Lean_Compiler_LCNF_splitScc_spec__11_spec__16(v_head_925_, v___y_922_);
 v_fst_928_ = lean_ctor_get(v___x_927_, 0);
-lean_inc(v_fst_928_);
 v_index_x3f_929_ = lean_ctor_get(v_fst_928_, 0);
-lean_inc(v_index_x3f_929_);
-lean_dec(v_fst_928_);
 if (lean_obj_tag(v_index_x3f_929_) == 0)
 {
 lean_object* v_snd_930_; lean_object* v___x_931_; lean_object* v_snd_932_; 
@@ -3058,7 +3051,6 @@ goto _start;
 else
 {
 lean_object* v_snd_934_; 
-lean_dec_ref_known(v_index_x3f_929_, 1);
 lean_dec(v_head_925_);
 v_snd_934_ = lean_ctor_get(v___x_927_, 1);
 lean_inc(v_snd_934_);

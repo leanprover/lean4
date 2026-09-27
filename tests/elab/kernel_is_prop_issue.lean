@@ -181,8 +181,12 @@ private def expectAccepted (env : Environment) (label : String) (decl : Declarat
   | .error error => throwError "{label}: {error.toMessageData (← getOptions)}"
 
 /--
-error: eager-projection-seed: (kernel) type expected
-  resultSort gateWitness
+info: HISTORY CONTROL eager-projection-seed: accepted; axioms=[]
+---
+info: HISTORY CONTROL seed-then-unlock: accepted; axioms=[]
+---
+error: honest-Unit-endpoint: (kernel) function expected
+  identityValue Unit ⋯ ()
 -/
 #guard_msgs in
 run_meta do

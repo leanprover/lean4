@@ -7,10 +7,12 @@ module
 prelude
 public import Lean.Meta.Sym.DSimp.DSimpM
 import Lean.Meta.Sym.InstantiateS
+import Lean.Meta.Sym.AlphaShareBuilder
 import Lean.Meta.Sym.Util
 import Lean.Meta.WHNF
 import Lean.ProjFns
 namespace Lean.Meta.Sym.DSimp
+open Lean.Meta.Sym.Internal
 
 public def beta : DSimproc := fun e => do
   unless e.isApp do return .rfl
@@ -20,18 +22,27 @@ public def beta : DSimproc := fun e => do
   else
     return .rfl
 
-public def zetaDelta (s : FVarIdSet) : DSimproc := fun e => do
-  let .fvar fvarId := e | return .rfl
-  unless s.contains fvarId do return .rfl
+/--
+Unfolds `fvarId` in `e`, where `e` is `fvarId` itself or an application whose head is
+`fvarId`. `dsimp` does not visit application heads, so the head position must be
+handled here. Beta-reduction of the exposed lambda is left to `beta`.
+-/
+private def zetaDeltaCore (fvarId : FVarId) (e : Expr) : DSimpM Result := do
   let decl ← fvarId.getDecl
   let some value := decl.value? | return .rfl
-  return .step value
+  if e.isApp then
+    return .step (← mkAppNS value e.getAppArgs)
+  else
+    return .step value
+
+public def zetaDelta (s : FVarIdSet) : DSimproc := fun e => do
+  let .fvar fvarId := e.getAppFn | return .rfl
+  unless s.contains fvarId do return .rfl
+  zetaDeltaCore fvarId e
 
 public def zetaDeltaAll : DSimproc := fun e => do
-  let .fvar fvarId := e | return .rfl
-  let decl ← fvarId.getDecl
-  let some value := decl.value? | return .rfl
-  return .step value
+  let .fvar fvarId := e.getAppFn | return .rfl
+  zetaDeltaCore fvarId e
 
 public def zeta : DSimproc := fun e => do
   let .letE .. := e | return .rfl

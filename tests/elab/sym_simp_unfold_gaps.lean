@@ -62,8 +62,9 @@ example (n : Nat) : h n = match n with | 0 => 0 | n => n + 1 := by
     simp [h]
 
 /-!
-Reducible definitions and class projections. `simp [f]` delta-unfolds them. `Sym.simp` rejects
-them as arguments, even though its preprocessing already unfolds reducible definitions.
+Reducible definitions and class projections. `simp [f]` delta-unfolds them. `Sym.simp`
+ignores a reducible definition with a warning, since its preprocessing already unfolds it, and
+rejects class projections.
 -/
 
 abbrev r (a : Nat) := a * 2
@@ -71,9 +72,7 @@ abbrev r (a : Nat) := a * 2
 example (a : Nat) : r (a + 1) = a * 2 + 2 := by
   simp [r, Nat.add_mul]
 
-/--
-error: cannot use `r` as a simp theorem, it is a reducible definition or a projection, and `Sym.simp` does not support unfolding them
--/
+/-- warning: `r` is a reducible definition, `Sym.simp` unfolds it during preprocessing -/
 #guard_msgs in
 example (a : Nat) : r (a + 1) = a * 2 + 2 := by
   sym =>
@@ -83,7 +82,7 @@ example (a b : Nat) : Add.add a b = Nat.add a b := by
   simp [Add.add]
 
 /--
-error: cannot use `Add.add` as a simp theorem, it is a reducible definition or a projection, and `Sym.simp` does not support unfolding them
+error: cannot use `Add.add` as a simp theorem, it is a projection, and `Sym.simp` does not support unfolding projections
 -/
 #guard_msgs in
 example (a b : Nat) : Add.add a b = Nat.add a b := by

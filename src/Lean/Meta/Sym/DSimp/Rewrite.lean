@@ -96,6 +96,8 @@ public def Decls.add (decls : Decls) (declName : Name) : MetaM Decls := do
       throwError "cannot use `{.ofConstName declName}` as a dsimp theorem, it is not proved by `rfl`"
     return { decls with thms := decls.thms.insert (← Sym.Simp.mkTheoremFromDecl declName) }
   let names ← Sym.Simp.getSimpTheoremNames declName
+  -- A reducible definition contributes nothing: the `Sym` preprocessing unfolds it.
+  if names.thms.isEmpty then return decls
   let mut thms := decls.thms
   for name in names.thms do
     if (← isRflTheorem name) then

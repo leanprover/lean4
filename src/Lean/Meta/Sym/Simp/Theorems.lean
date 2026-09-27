@@ -226,7 +226,10 @@ def mkTheoremFromExpr (e : Expr) : MetaM Theorem := do
 
 /-- The names of the theorems contributed by a declaration used as a `Sym.simp` theorem. -/
 structure DeclTheoremNames where
-  /-- The declaration itself when it is a proposition, or the equational theorems of a definition. -/
+  /--
+  The declaration itself when it is a proposition, or the equational theorems of a definition.
+  Empty for a reducible definition, which the `Sym` preprocessing unfolds.
+  -/
   thms : Array Name
   /--
   The unfolding theorem `f.eq_def` of a non-recursive definition `f`, unless `thms` already
@@ -253,8 +256,12 @@ def getSimpTheoremNames (declName : Name) : MetaM DeclTheoremNames := do
     return { thms := #[declName] }
   unless info.kind matches .defn do
     throwError "cannot use `{.ofConstName declName}` as a simp theorem, it is not a proposition nor a definition with equational theorems"
+  if isUnfoldReducibleCandidate (← getEnv) declName then
+    -- The `Sym` preprocessing has already unfolded every application of `declName`.
+    logWarning m!"`{.ofConstName declName}` is a reducible definition, `Sym.simp` unfolds it during preprocessing"
+    return { thms := #[] }
   if (← Simp.ignoreEquations declName) then
-    throwError "cannot use `{.ofConstName declName}` as a simp theorem, it is a reducible definition or a projection, and `Sym.simp` does not support unfolding them"
+    throwError "cannot use `{.ofConstName declName}` as a simp theorem, it is a projection, and `Sym.simp` does not support unfolding projections"
   let some eqns ← getEqnsFor? declName
     | throwError "cannot use `{.ofConstName declName}` as a simp theorem, it does not have equational theorems"
   -- Recursive definitions are unfolded by their equational theorems only.

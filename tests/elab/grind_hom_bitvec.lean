@@ -101,10 +101,7 @@ example (x : BitVec 8) : (x &&& 0xe0).unsigned = ((x.unsigned / 32) % 8) * 32 :=
 example (x : BitVec 64) : (x &&& ~~~31).unsigned = ((x.unsigned / 32) % 576460752303423488) * 32 := by grind
 example (x : BitVec 64) : (x &&& 30).unsigned = (x &&& 30).unsigned := by grind
 example (x : BitVec 16) : (~~~x).signed < 2 ^ 15 := by grind
--- TODO: `grind` fails (signed `<<<`)
-/-
 example (x : BitVec 16) : (x <<< 1).signed = (x.signed <<< 1).bmod (2 ^ 16) := by grind
--/
 example (x : BitVec 16) : (x.signExtend 8).signed < 128 := by grind
 
 example (x y : BitVec 16) (n : Nat) : ((x ||| y) >>> n).unsigned = ((x >>> n) ||| (y >>> n)).unsigned := by grind [BitVec.ushiftRight_or_distrib]

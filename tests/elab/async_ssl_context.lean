@@ -25,7 +25,7 @@ def testCorruptCertPEM : String := include_cert% "async_ssl_certs/corrupt.pem"
 def testExpiredCertPEM : String := include_cert% "async_ssl_certs/expired.pem"
 
 -- `key.pem` in the traditional encoding, which `PEM_X509_INFO_read_bio` yields as a certificate-less
--- entry (PKCS#8 keys are dropped earlier).
+-- entry.
 def testTraditionalKeyPEM : String := include_cert% "async_ssl_certs/tradkey.pem"
 
 -- The key of `intermediate.pem`; it matches none of the server certificates.
@@ -46,7 +46,7 @@ def testEncryptedCertPEM : String := include_cert% "async_ssl_certs/enccert.pem"
 -- Self-signed under a 512-bit RSA key, below security level 2.
 def testWeakCertPEM : String := include_cert% "async_ssl_certs/weakcert.pem"
 
--- Signed by `cert.pem`, so no chain can terminate at it.
+-- Signed by `cert.pem`, so not a root; it ends a chain only because any listed certificate can.
 def testIntermediateCertPEM : String := include_cert% "async_ssl_certs/intermediate.pem"
 
 -- A CRL.
@@ -57,6 +57,9 @@ def testTrustedIntermediatePEM : String := include_cert% "async_ssl_certs/truste
 
 -- `cert.pem` explicitly rejected for TLS server authentication.
 def testRejectedCertPEM : String := include_cert% "async_ssl_certs/rejectedcert.pem"
+
+-- `cert.pem` distrusted for TLS client authentication.
+def testClientRejectedCertPEM : String := include_cert% "async_ssl_certs/clientrejectedcert.pem"
 
 -- A key whose algorithm cannot sign.
 def testX25519KeyPEM : String := include_cert% "async_ssl_certs/x25519key.pem"
@@ -160,7 +163,12 @@ def caUnreadable : String := "could not read PEM CA certificates"
 def caNoCerts : String := "the CA material contains no certificates"
 
 def caNoAnchor : String :=
-  "the CA material holds no certificate a chain may end at: every one is marked as distrusted"
+  "the CA material holds no certificate trusted for TLS server authentication (each is distrusted, \
+    or trusted only for other uses)"
+
+def caNoClientAnchor : String :=
+  "the CA material holds no certificate trusted for TLS client authentication (each is distrusted, \
+    or trusted only for other uses)"
 
 /--
 Whether the host supplies platform trust anchors. A Nix sandbox or a container without
@@ -243,13 +251,23 @@ def testPinningRejectsExplicitlyRejectedRoot : IO Unit := do
   assertErrorMessage "pinned to a root rejected for TLS servers" (malformedPEMError caNoAnchor)
     (discard <| Context.Client.mk { trust := .only #[.text testRejectedCertPEM] })
 
-  -- The store keeps only the first copy of a repeated certificate.
-  assertErrorMessage "rejected root repeated as a plain copy" (malformedPEMError caNoAnchor)
+  -- Distrust wins over a plain copy, in either order.
+  assertErrorMessage "rejected root before a plain copy" (malformedPEMError caNoAnchor)
     (discard <| Context.Client.mk
       { trust := .only #[.text (testRejectedCertPEM ++ testCertPEM)] })
 
-  let _clientCtx ← Context.Client.mk
-    { trust := .only #[.text (testCertPEM ++ testRejectedCertPEM)] }
+  assertErrorMessage "rejected root after a plain copy" (malformedPEMError caNoAnchor)
+    (discard <| Context.Client.mk
+      { trust := .only #[.text testCertPEM, .text testRejectedCertPEM] })
+
+-- Distrusted extras leave the context nothing to trust, unless the system supplies roots.
+def testDistrustedExtrasWithoutSystemRoots : IO Unit := do
+  if ← hasSystemRoots then
+    discard <| Context.Client.mk { trust := .system #[.text testRejectedCertPEM] }
+    return
+
+  assertErrorMessage "distrusted extra CA on a host without system roots" (malformedPEMError caNoAnchor)
+    (discard <| Context.Client.mk { trust := .system #[.text testRejectedCertPEM] })
 
 -- Unusable CA material reports the bundle failure, not "no trust anchors".
 def testPinningStillValidatesCA (f : Fixtures) : IO Unit := do
@@ -487,7 +505,7 @@ def testAcceptsWeakCertAsCA (f : Fixtures) : IO Unit := do
   let _clientCtx ← Context.Client.mk { trust := .system #[.text testWeakCertPEM] }
   let _clientCtx2 ← Context.Client.mk { trust := .system #[.file f.weak] }
 
-def testMkServerRejectsEmptyPaths (f : Fixtures) : IO Unit := do
+def testMkRejectsEmptyPaths (f : Fixtures) : IO Unit := do
   assertErrorMessage "empty server cert path" (missingFileError "")
     (discard <| Context.Server.mk { cert := .file "", key := .file f.key })
 
@@ -562,6 +580,10 @@ def envNamesNoCertificate : String :=
   "no such thing (error code: 2, failed to load system trust store: SSL_CERT_FILE and SSL_CERT_DIR \
     name no certificate)"
 
+def envNamesOnlyDistrusted : String :=
+  "no such thing (error code: 2, failed to load system trust store: SSL_CERT_FILE and SSL_CERT_DIR \
+    name no certificate trusted for TLS server authentication)"
+
 def testCertEnvVars (f : Fixtures) : IO Unit := do
   if System.Platform.isWindows then
     return
@@ -582,13 +604,60 @@ def testCertEnvVars (f : Fixtures) : IO Unit := do
   withCertEnv "/nonexistent/ca.pem" plainDir.toString (discard <| Context.Client.mk)
 
   for (file, dir) in [(f.junk, ""), ("/nonexistent/ca.pem", ""), ("", junkDir.toString),
-      ("", "/nonexistent/certs"), (f.empty, junkDir.toString)] do
+      ("", "/nonexistent/certs"), (f.empty, junkDir.toString),
+      -- Endless; skipped as not a regular file, and the 16 MiB bound would stop it too.
+      ("/dev/zero", "")] do
     withCertEnv file dir do
       assertErrorMessage s!"SSL_CERT_FILE={file} SSL_CERT_DIR={dir}" envNamesNoCertificate
         (discard <| Context.Client.mk)
 
       -- Extra CAs are still trusted.
       discard <| Context.Client.mk { trust := .system #[.text testCertPEM] }
+
+  -- A delimited block that doesn't parse costs only itself, wherever it sits in the file.
+  withCertEnv f.chain "" (discard <| Context.Client.mk)
+  let corruptFirst := System.FilePath.mk f.dir / "corrupt-first.pem"
+  IO.FS.writeFile corruptFirst (testCorruptCertPEM ++ testCertPEM)
+  withCertEnv corruptFirst.toString "" (discard <| Context.Client.mk)
+
+  -- A distrust marking in `Trust.system` wins over a plain copy from the environment.
+  withCertEnv f.cert "" do
+    assertErrorMessage "distrusted extra CA beside its plain copy in SSL_CERT_FILE"
+      (malformedPEMError caNoAnchor)
+      (discard <| Context.Client.mk { trust := .system #[.text testRejectedCertPEM] })
+
+  -- A pipe is never opened, which would block, and a file over 16 MiB is not read.
+  let pipeDir := System.FilePath.mk f.dir / "pipe"
+  IO.FS.createDirAll pipeDir
+  discard <| IO.Process.run { cmd := "mkfifo", args := #[(pipeDir / "fifo").toString] }
+  withCertEnv "" pipeDir.toString do
+    assertErrorMessage "SSL_CERT_DIR holding only a pipe" envNamesNoCertificate
+      (discard <| Context.Client.mk)
+  IO.FS.writeFile (pipeDir / "ca.pem") testCertPEM
+  withCertEnv "" pipeDir.toString (discard <| Context.Client.mk)
+
+  let big := System.FilePath.mk f.dir / "big.pem"
+  IO.FS.writeFile big (testCertPEM ++ "".pushn '\n' (16 * 1024 * 1024))
+  withCertEnv big.toString "" do
+    assertErrorMessage "SSL_CERT_FILE over 16 MiB" envNamesNoCertificate
+      (discard <| Context.Client.mk)
+
+  -- Distrust wins over a plain copy in the same directory, whichever file is named first.
+  for (distrustedName, plainName) in [("a.pem", "b.pem"), ("b.pem", "a.pem")] do
+    let dir := System.FilePath.mk f.dir / s!"order-{distrustedName}"
+    IO.FS.createDirAll dir
+    IO.FS.writeFile (dir / distrustedName) testRejectedCertPEM
+    IO.FS.writeFile (dir / plainName) testCertPEM
+    withCertEnv "" dir.toString do
+      assertErrorMessage s!"distrusted copy as {distrustedName}" envNamesOnlyDistrusted
+        (discard <| Context.Client.mk)
+
+  -- Certificates that are all distrusted leave nothing to trust.
+  let rejected := System.FilePath.mk f.dir / "rejected.pem"
+  IO.FS.writeFile rejected testRejectedCertPEM
+  withCertEnv rejected.toString "" do
+    assertErrorMessage "SSL_CERT_FILE of distrusted certificates" envNamesOnlyDistrusted
+      (discard <| Context.Client.mk)
 
   -- Empty values are ignored, leaving the system's certificates.
   withCertEnv "" "" do
@@ -645,12 +714,21 @@ def testClientAuth (f : Fixtures) : IO Unit := do
   assertErrorMessage "malformed client CA file" (malformedFileError f.junk caNoCerts)
     (discard <| Context.Server.mk { base with clientAuth := .requireAndVerify #[.file f.junk] })
 
+  -- Distrusted for client authentication, so no client chain could end at it.
+  assertErrorMessage "client CA distrusted for client authentication" (malformedPEMError caNoClientAnchor)
+    (discard <| Context.Server.mk
+      { base with clientAuth := .requireAndVerify #[.text testClientRejectedCertPEM] })
+
+  -- Distrusted only for server authentication, which does not concern clients.
+  discard <| Context.Server.mk { base with clientAuth := .requireAndVerify #[.text testRejectedCertPEM] }
+
 def testClientCredentials (f : Fixtures) : IO Unit := do
   let _clientCtx ← Context.Client.mk
     { insecure with credentials := some { cert := .file f.cert, key := .file f.key } }
 
   let _clientCtx2 ← Context.Client.mk
-    { credentials := some { cert := .text testCertPEM, key := .text testKeyPEM } }
+    { trust := .only #[.text testCertPEM],
+      credentials := some { cert := .text testCertPEM, key := .text testKeyPEM } }
 
   assertErrorMessage "client key from a different pair"
     (malformedFileError f.unrelatedKey "the private key does not match the certificate")
@@ -688,6 +766,7 @@ def testClientCredentials (f : Fixtures) : IO Unit := do
   testPinningCombinesBundles f
   testPinningToExplicitlyTrustedIntermediate
   testPinningRejectsExplicitlyRejectedRoot
+  testDistrustedExtrasWithoutSystemRoots
 
 -- The environment's certificates replace the system's.
 #eval withFixtures fun f => do
@@ -724,7 +803,8 @@ def testClientCredentials (f : Fixtures) : IO Unit := do
   testMkFromPEMDropsCertBehindNul
   testMkFromPEMRejectsNulInsideCert
 
--- Accepted here, rejected later: the clock and the security level.
+-- The clock and the security level: an expired certificate loads (peers reject it later), a weak one is
+-- refused as a server's own certificate but accepted as a CA.
 #eval withFixtures fun f => do
   testAcceptsExpiredCert f
   testMkServerRejectsWeakCert f
@@ -735,7 +815,7 @@ def testClientCredentials (f : Fixtures) : IO Unit := do
 #eval withFixtures fun f => do
   testMkRejectsUnreadableCAFile f
   testMkRejectsNonDirectoryParent f
-  testMkServerRejectsEmptyPaths f
+  testMkRejectsEmptyPaths f
   testRejectsDirectoryPaths f
   testReadsNonRegularFile f
 

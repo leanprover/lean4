@@ -431,8 +431,7 @@ if(NOT "${CMAKE_SYSTEM_NAME}" MATCHES "Emscripten")
       string(APPEND LEAN_EXTRA_LINKER_FLAGS " -framework CoreFoundation -framework Security")
     endif()
 
-    # OpenSSL's Windows trust store loader reaches the `ROOT` store through the CryptoAPI in
-    # crypt32, which a static libcrypto expects its consumer to provide.
+    # The Windows trust store is consulted through the CryptoAPI in crypt32.
     if(CMAKE_SYSTEM_NAME MATCHES "Windows")
       string(APPEND LEAN_EXTRA_LINKER_FLAGS " -lcrypt32")
     endif()

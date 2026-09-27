@@ -985,8 +985,8 @@ else
 lean_object* v_a_238_; lean_object* v___x_240_; uint8_t v_isShared_241_; uint8_t v_isSharedCheck_245_; 
 lean_dec(v_val_177_);
 lean_dec_ref(v_children_176_);
-lean_dec_ref_known(v_x_164_, 1);
 lean_dec_ref(v_i_175_);
+lean_dec_ref_known(v_x_164_, 1);
 lean_dec_ref(v_postNode_163_);
 lean_dec_ref(v_preNode_162_);
 v_a_238_ = lean_ctor_get(v___x_178_, 0);
@@ -1581,11 +1581,11 @@ v___x_434_ = lean_alloc_ctor(4, 2, 0);
 lean_ctor_set(v___x_434_, 0, v___x_433_);
 lean_ctor_set(v___x_434_, 1, v___y_422_);
 lean_inc_ref(v___y_421_);
-lean_inc_ref(v___y_417_);
+lean_inc_ref(v___y_418_);
 v___x_435_ = lean_alloc_ctor(0, 5, 3);
-lean_ctor_set(v___x_435_, 0, v___y_417_);
+lean_ctor_set(v___x_435_, 0, v___y_418_);
 lean_ctor_set(v___x_435_, 1, v___y_420_);
-lean_ctor_set(v___x_435_, 2, v___y_418_);
+lean_ctor_set(v___x_435_, 2, v___y_417_);
 lean_ctor_set(v___x_435_, 3, v___y_421_);
 lean_ctor_set(v___x_435_, 4, v___x_434_);
 lean_ctor_set_uint8(v___x_435_, sizeof(void*)*5, v___y_419_);
@@ -1695,7 +1695,7 @@ lean_object* v_a_464_; lean_object* v___x_466_; uint8_t v_isShared_467_; uint8_t
 lean_dec(v_currNamespace_426_);
 lean_dec_ref(v___y_422_);
 lean_dec_ref(v___y_420_);
-lean_dec(v___y_418_);
+lean_dec(v___y_417_);
 v_a_464_ = lean_ctor_get(v___x_427_, 0);
 v_isSharedCheck_471_ = !lean_is_exclusive(v___x_427_);
 if (v_isSharedCheck_471_ == 0)
@@ -1740,7 +1740,7 @@ else
 lean_object* v_a_472_; lean_object* v___x_474_; uint8_t v_isShared_475_; uint8_t v_isSharedCheck_479_; 
 lean_dec_ref(v___y_422_);
 lean_dec_ref(v___y_420_);
-lean_dec(v___y_418_);
+lean_dec(v___y_417_);
 v_a_472_ = lean_ctor_get(v___x_424_, 0);
 v_isSharedCheck_479_ = !lean_is_exclusive(v___x_424_);
 if (v_isSharedCheck_479_ == 0)
@@ -1825,8 +1825,8 @@ if (v_suppressElabErrors_488_ == 0)
 lean_del_object(v___x_496_);
 lean_dec_ref(v___f_491_);
 v___y_416_ = v___y_482_;
-v___y_417_ = v_fileName_486_;
-v___y_418_ = v___x_500_;
+v___y_417_ = v___x_500_;
+v___y_418_ = v_fileName_486_;
 v___y_419_ = v___y_483_;
 v___y_420_ = v___x_498_;
 v___y_421_ = v___x_501_;
@@ -1869,8 +1869,8 @@ else
 {
 lean_del_object(v___x_496_);
 v___y_416_ = v___y_482_;
-v___y_417_ = v_fileName_486_;
-v___y_418_ = v___x_500_;
+v___y_417_ = v___x_500_;
+v___y_418_ = v_fileName_486_;
 v___y_419_ = v___y_483_;
 v___y_420_ = v___x_498_;
 v___y_421_ = v___x_501_;

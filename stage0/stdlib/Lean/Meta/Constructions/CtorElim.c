@@ -7129,8 +7129,8 @@ else
 lean_object* v_a_2678_; lean_object* v___x_2680_; uint8_t v_isShared_2681_; uint8_t v_isSharedCheck_2685_; 
 lean_dec(v___x_2659_);
 lean_dec(v___x_2658_);
-lean_dec_ref_known(v___x_2656_, 2);
 lean_dec(v_tail_2657_);
+lean_dec_ref_known(v___x_2656_, 2);
 lean_del_object(v___x_2653_);
 lean_dec_ref(v_val_2647_);
 lean_dec(v_indName_2639_);

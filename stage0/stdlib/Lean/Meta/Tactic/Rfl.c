@@ -6807,8 +6807,8 @@ v___x_2415_ = l_Lean_Meta_throwTacticEx___redArg(v___x_2412_, v_goal_2224_, v___
 if (lean_obj_tag(v___x_2415_) == 0)
 {
 lean_dec_ref_known(v___x_2415_, 1);
-v___y_2235_ = v___x_2396_;
-v___y_2236_ = v___x_2398_;
+v___y_2235_ = v___x_2398_;
+v___y_2236_ = v___x_2396_;
 v___y_2237_ = v___x_2397_;
 v___y_2238_ = v___y_2354_;
 v___y_2239_ = v___y_2355_;
@@ -6831,8 +6831,8 @@ else
 lean_dec_ref_known(v___x_2401_, 7);
 lean_dec_ref(v___x_2399_);
 lean_del_object(v___x_2349_);
-v___y_2235_ = v___x_2396_;
-v___y_2236_ = v___x_2398_;
+v___y_2235_ = v___x_2398_;
+v___y_2236_ = v___x_2396_;
 v___y_2237_ = v___x_2397_;
 v___y_2238_ = v___y_2354_;
 v___y_2239_ = v___y_2355_;
@@ -7108,7 +7108,7 @@ v___x_2244_ = l_Lean_Expr_isAppOfArity(v___y_2237_, v___x_2242_, v___x_2243_);
 if (v___x_2244_ == 0)
 {
 lean_object* v___x_2245_; lean_object* v___x_2246_; 
-v___x_2245_ = l_Lean_Expr_app___override(v___y_2235_, v___y_2236_);
+v___x_2245_ = l_Lean_Expr_app___override(v___y_2236_, v___y_2235_);
 lean_inc(v_goal_2224_);
 v___x_2246_ = l_Lean_MVarId_setType___redArg(v_goal_2224_, v___x_2245_, v___y_2239_);
 if (lean_obj_tag(v___x_2246_) == 0)
@@ -7527,7 +7527,7 @@ return v___x_2246_;
 else
 {
 lean_object* v___x_2337_; lean_object* v___x_2338_; lean_object* v___x_2339_; lean_object* v___x_2340_; lean_object* v___x_2341_; lean_object* v___x_2342_; lean_object* v___x_2343_; 
-lean_dec_ref(v___y_2235_);
+lean_dec_ref(v___y_2236_);
 v___x_2337_ = l_Lean_Expr_appFn_x21(v___y_2237_);
 v___x_2338_ = l_Lean_Expr_constLevels_x21(v___x_2337_);
 lean_dec_ref(v___x_2337_);
@@ -7535,7 +7535,7 @@ v___x_2339_ = l_Lean_Expr_appArg_x21(v___y_2237_);
 lean_dec_ref(v___y_2237_);
 v___x_2340_ = ((lean_object*)(l_Lean_MVarId_applyRfl___lam__1___closed__10));
 v___x_2341_ = l_Lean_mkConst(v___x_2340_, v___x_2338_);
-v___x_2342_ = l_Lean_mkAppB(v___x_2341_, v___x_2339_, v___y_2236_);
+v___x_2342_ = l_Lean_mkAppB(v___x_2341_, v___x_2339_, v___y_2235_);
 v___x_2343_ = l_Lean_MVarId_assign___at___00Lean_MVarId_applyRfl_spec__2___redArg(v_goal_2224_, v___x_2342_, v___y_2239_);
 return v___x_2343_;
 }

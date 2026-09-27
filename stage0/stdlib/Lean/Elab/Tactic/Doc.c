@@ -6076,9 +6076,9 @@ v___jp_1699_:
 if (v___y_1704_ == 0)
 {
 lean_dec(v___y_1702_);
-v___y_1650_ = v___y_1700_;
-v___y_1651_ = v___y_1703_;
-v___y_1652_ = v___y_1701_;
+v___y_1650_ = v___y_1701_;
+v___y_1651_ = v___y_1700_;
+v___y_1652_ = v___y_1703_;
 goto v___jp_1649_;
 }
 else
@@ -6086,7 +6086,7 @@ else
 lean_object* v___x_1705_; lean_object* v___x_1706_; lean_object* v___x_1707_; lean_object* v___x_1708_; lean_object* v___x_1709_; lean_object* v___x_1710_; 
 lean_dec(v_docs_1648_);
 v___x_1705_ = lean_obj_once(&l_Lean_Elab_Tactic_Doc_elabTacticExtension___closed__5, &l_Lean_Elab_Tactic_Doc_elabTacticExtension___closed__5_once, _init_l_Lean_Elab_Tactic_Doc_elabTacticExtension___closed__5);
-v___x_1706_ = l_Lean_MessageData_ofConstName(v___y_1700_, v___x_1643_);
+v___x_1706_ = l_Lean_MessageData_ofConstName(v___y_1701_, v___x_1643_);
 v___x_1707_ = lean_alloc_ctor(7, 2, 0);
 lean_ctor_set(v___x_1707_, 0, v___x_1705_);
 lean_ctor_set(v___x_1707_, 1, v___x_1706_);
@@ -6094,7 +6094,7 @@ v___x_1708_ = lean_obj_once(&l_Lean_Elab_Tactic_Doc_elabTacticExtension___closed
 v___x_1709_ = lean_alloc_ctor(7, 2, 0);
 lean_ctor_set(v___x_1709_, 0, v___x_1707_);
 lean_ctor_set(v___x_1709_, 1, v___x_1708_);
-v___x_1710_ = l_Lean_throwErrorAt___at___00Lean_getDocStringText___at___00__private_Lean_Elab_Tactic_Doc_0__Lean_Elab_Tactic_Doc_docCommentMarkdown_spec__0_spec__0___redArg(v___y_1702_, v___x_1709_, v___y_1703_, v___y_1701_);
+v___x_1710_ = l_Lean_throwErrorAt___at___00Lean_getDocStringText___at___00__private_Lean_Elab_Tactic_Doc_0__Lean_Elab_Tactic_Doc_docCommentMarkdown_spec__0_spec__0___redArg(v___y_1702_, v___x_1709_, v___y_1700_, v___y_1703_);
 lean_dec(v___y_1702_);
 return v___x_1710_;
 }
@@ -6109,19 +6109,19 @@ lean_dec(v___x_1716_);
 v___x_1718_ = l_Lean_Parser_Tactic_Doc_isTactic(v_env_1717_, v___y_1712_);
 if (v___x_1718_ == 0)
 {
-v___y_1700_ = v___y_1712_;
-v___y_1701_ = v___y_1715_;
+v___y_1700_ = v___y_1714_;
+v___y_1701_ = v___y_1712_;
 v___y_1702_ = v___y_1713_;
-v___y_1703_ = v___y_1714_;
+v___y_1703_ = v___y_1715_;
 v___y_1704_ = v___x_1645_;
 goto v___jp_1699_;
 }
 else
 {
-v___y_1700_ = v___y_1712_;
-v___y_1701_ = v___y_1715_;
+v___y_1700_ = v___y_1714_;
+v___y_1701_ = v___y_1712_;
 v___y_1702_ = v___y_1713_;
-v___y_1703_ = v___y_1714_;
+v___y_1703_ = v___y_1715_;
 v___y_1704_ = v___x_1643_;
 goto v___jp_1699_;
 }

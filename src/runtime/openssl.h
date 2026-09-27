@@ -11,9 +11,12 @@ void initialize_openssl();
 
 #ifndef LEAN_EMSCRIPTEN
 // Initializes OpenSSL on first call and returns whether it is usable. Lazy, so programs without TLS
-// never load OpenSSL's providers. Every entry point that touches OpenSSL must call this first: on
+// never load OpenSSL's providers. Every entry point that creates OpenSSL objects must call this first: on
 // Windows it also arranges for the calling thread's OpenSSL state to be freed when the thread exits.
 bool ensure_openssl_initialized();
+
+// A `std::unique_ptr` deleter calling `release`.
+template<auto release> struct released_by { void operator()(auto * p) const { release(p); } };
 #endif
 }
 

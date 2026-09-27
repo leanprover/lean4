@@ -6,13 +6,15 @@ Author: Sofia Rodrigues
 
 #if defined(LEAN_WINDOWS)
 // Before OpenSSL's headers, which undefine the names `wincrypt.h` takes from them.
+#ifndef WIN32_LEAN_AND_MEAN
 #define WIN32_LEAN_AND_MEAN
+#endif
 #define NOMINMAX
-#define CERT_CHAIN_PARA_HAS_EXTRA_FIELDS
 #include <windows.h>
 #include <wincrypt.h>
 #endif
 
+#include "runtime/openssl.h"
 #include "runtime/openssl/trust_store.h"
 
 #ifndef LEAN_EMSCRIPTEN
@@ -42,15 +44,18 @@ namespace lean {
 
 #if !defined(__APPLE__) && !defined(LEAN_WINDOWS)
 
-// Whether the store holds a certificate; `X509_STORE_load_file` also succeeds on a CRL-only file.
-static bool store_holds_certificate(X509_STORE * store) {
+// The certificates in the store, which already holds the caller's own CAs when the system's are
+// loaded; `X509_STORE_load_file` also succeeds on a CRL-only file, so the count is what shows a load
+// added any.
+static int certificate_count(X509_STORE * store) {
     STACK_OF(X509_OBJECT) * objs = X509_STORE_get0_objects(store);
+    int count = 0;
 
     for (int i = 0, n = sk_X509_OBJECT_num(objs); i < n; i++) {
-        if (X509_OBJECT_get_type(sk_X509_OBJECT_value(objs, i)) == X509_LU_X509) return true;
+        if (X509_OBJECT_get_type(sk_X509_OBJECT_value(objs, i)) == X509_LU_X509) count++;
     }
 
-    return false;
+    return count;
 }
 
 // Whether `path` is a regular file holding a certificate as a hash directory lookup reads it: PEM,
@@ -133,13 +138,15 @@ static char const * const g_fallback_cert_dirs[] = {
     "/etc/pki/tls/certs",
 };
 
-// Adds the first readable of the well-known bundles, stored in `*bundle`, plus every hash directory
-// that exists.
+// Adds the first of the well-known bundles that adds a certificate, stored in `*bundle`, plus every hash
+// directory holding one.
 static bool load_fallback_anchors(X509_STORE * store, char const ** bundle) {
     bool any = false;
 
+    int before = certificate_count(store);
+
     for (char const * file : g_fallback_cert_files) {
-        if (X509_STORE_load_file(store, file) == 1 && store_holds_certificate(store)) {
+        if (X509_STORE_load_file(store, file) == 1 && certificate_count(store) > before) {
             *bundle = file;
             any = true;
             break;
@@ -159,18 +166,69 @@ static bool load_fallback_anchors(X509_STORE * store, char const ** bundle) {
 
 #endif
 
-#if defined(__APPLE__) || defined(LEAN_WINDOWS)
-
-template<auto release> struct released_by { void operator()(auto * p) const { release(p); } };
-
-static void free_x509_stack(STACK_OF(X509) * sk) { sk_X509_pop_free(sk, X509_free); }
-using x509_stack_ptr = std::unique_ptr<STACK_OF(X509), released_by<free_x509_stack>>;
-
-static bool push_ref(STACK_OF(X509) * sk, X509 * cert) {
+bool push_ref(STACK_OF(X509) * sk, X509 * cert) {
     if (sk_X509_push(sk, cert) <= 0) return false;
     X509_up_ref(cert);
     return true;
 }
+
+// Whether `a` and `b` carry the same public key. The keys are compared rather than their encodings, which
+// may differ for one key (an RSA key with or without its NULL parameters); keys OpenSSL cannot compare
+// still match on identical key bits.
+static bool same_key(X509 * a, X509 * b) {
+    EVP_PKEY * key_a = X509_get0_pubkey(a);
+    EVP_PKEY * key_b = X509_get0_pubkey(b);
+    if (key_a != nullptr && key_b != nullptr && EVP_PKEY_eq(key_a, key_b) == 1) return true;
+
+    ASN1_BIT_STRING const * bits_a = X509_get0_pubkey_bitstr(a);
+    ASN1_BIT_STRING const * bits_b = X509_get0_pubkey_bitstr(b);
+    return bits_a != nullptr && bits_b != nullptr && ASN1_STRING_cmp(bits_a, bits_b) == 0;
+}
+
+bool has_distrusted_key(STACK_OF(X509) * distrusted, X509 * cert) {
+    // Comparing keys of different types queues an error even though the answer is only "no". It must not
+    // outlive the comparison: during a handshake libssl would read it as the handshake's own failure.
+    ERR_set_mark();
+
+    bool found = false;
+    for (int j = 0; !found && j < sk_X509_num(distrusted); j++) {
+        found = same_key(cert, sk_X509_value(distrusted, j));
+    }
+
+    ERR_pop_to_mark();
+    return found;
+}
+
+// Whether `chain` holds a certificate with the key of one in `distrusted`. Distrust follows the key, so a
+// re-issued or cross-signed copy of a distrusted CA is distrusted too, whichever copy a chain goes through.
+static bool chain_has_distrusted(STACK_OF(X509) * distrusted, STACK_OF(X509) * chain) {
+    for (int i = 0; i < sk_X509_num(chain); i++) {
+        if (has_distrusted_key(distrusted, sk_X509_value(chain, i))) return true;
+    }
+
+    return false;
+}
+
+// What the verify callback of a verifying context needs, freed with the context.
+struct chain_verifier {
+    // The certificates, from the store or the caller's material, that a `TRUSTED CERTIFICATE` block
+    // rejects for the peer's role.
+    STACK_OF(X509) * distrusted;
+    // Whether a chain the store cannot establish goes to the platform (macOS, Windows).
+    bool platform;
+};
+
+static int chain_verifier_index() {
+    static int const index = SSL_CTX_get_ex_new_index(0, nullptr, nullptr, nullptr,
+        [](void *, void * verifier, CRYPTO_EX_DATA *, int, long, void *) {
+            if (verifier == nullptr) return;
+            free_x509_stack(static_cast<chain_verifier *>(verifier)->distrusted);
+            delete static_cast<chain_verifier *>(verifier);
+        });
+    return index;
+}
+
+#if defined(__APPLE__) || defined(LEAN_WINDOWS)
 
 // The certificates the platform may build a chain from: the peer's, leaf first, then the certificates
 // from `Trust.system`'s extra CAs that the store added to the partial chain, which the platform would
@@ -393,21 +451,28 @@ static STACK_OF(X509) * platform_chain(X509_STORE_CTX * ctx, STACK_OF(X509) * ca
 #define CERT_CHAIN_DISABLE_AIA 0x00002000
 #endif
 
-// How long the chain engine may spend downloading a root Windows trusts but has not installed yet.
-static DWORD const g_root_download_timeout_ms = 15000;
-
-struct cert_store_closer { void operator()(void * store) const { CertCloseStore(store, 0); } };
-struct cert_context_freer { void operator()(CERT_CONTEXT const * cert) const { CertFreeCertificateContext(cert); } };
-struct chain_context_freer { void operator()(CERT_CHAIN_CONTEXT const * chain) const { CertFreeCertificateChain(chain); } };
+static void close_cert_store(HCERTSTORE store) { CertCloseStore(store, 0); }
+static void free_cert_context(CERT_CONTEXT const * cert) { CertFreeCertificateContext(cert); }
+static void free_chain_context(CERT_CHAIN_CONTEXT const * chain) { CertFreeCertificateChain(chain); }
 
 // The OpenSSL error for the chain engine's rejection, falling back to the store's verdict for a chain
 // that reaches no trusted root.
-static int x509_error_for(DWORD status, int store_error) {
+static int x509_error_for(CERT_CHAIN_POLICY_STATUS const & status, CERT_CHAIN_CONTEXT const * chain,
+                          int store_error) {
     // The policy reports an `HRESULT`, whose error constants are negative.
-    switch (static_cast<HRESULT>(status)) {
-    case CERT_E_EXPIRED: return X509_V_ERR_CERT_HAS_EXPIRED;
+    switch (static_cast<HRESULT>(status.dwError)) {
+    // Also reported for a certificate that is not valid yet: the one the status points at.
+    case CERT_E_EXPIRED: {
+        LONG c = status.lChainIndex, e = status.lElementIndex;
+        bool located = c >= 0 && (DWORD)c < chain->cChain && e >= 0 && (DWORD)e < chain->rgpChain[c]->cElement;
+        bool early = located &&
+                     CertVerifyTimeValidity(nullptr, chain->rgpChain[c]->rgpElement[e]->pCertContext->pCertInfo) < 0;
+        return early ? X509_V_ERR_CERT_NOT_YET_VALID : X509_V_ERR_CERT_HAS_EXPIRED;
+    }
     case CERT_E_REVOKED: case CRYPT_E_REVOKED: return X509_V_ERR_CERT_REVOKED;
     case TRUST_E_CERT_SIGNATURE: return X509_V_ERR_CERT_SIGNATURE_FAILURE;
+    case CERT_E_WRONG_USAGE: return X509_V_ERR_INVALID_PURPOSE;
+    case TRUST_E_BASIC_CONSTRAINTS: return X509_V_ERR_INVALID_CA;
     case CERT_E_UNTRUSTEDROOT: case CERT_E_CHAINING:
         return store_error != X509_V_OK ? store_error : X509_V_ERR_CERT_UNTRUSTED;
     }
@@ -423,24 +488,27 @@ static STACK_OF(X509) * platform_chain(X509_STORE_CTX *, STACK_OF(X509) * candid
                                        int * error) {
     *error = X509_V_ERR_UNSPECIFIED;
 
-    std::unique_ptr<void, cert_store_closer> extra(
+    std::unique_ptr<void, released_by<close_cert_store>> extra(
         CertOpenStore(CERT_STORE_PROV_MEMORY, 0, 0, CERT_STORE_CREATE_NEW_FLAG, nullptr));
     if (extra == nullptr) return nullptr;
 
-    CERT_CONTEXT const * raw_leaf = nullptr;
+    // Owned before the store is: a store with an open context outlives `CertCloseStore`.
+    std::unique_ptr<CERT_CONTEXT const, released_by<free_cert_context>> leaf;
 
     for (int i = 0; i < sk_X509_num(candidates); i++) {
         unsigned char * der = nullptr;
         int len = i2d_X509(sk_X509_value(candidates, i), &der);
-        if (len < 0) return nullptr;
+        if (len < 0) continue;
 
-        BOOL added = CertAddEncodedCertificateToStore(extra.get(), X509_ASN_ENCODING, der, (DWORD)len,
-                                                      CERT_STORE_ADD_ALWAYS, i == 0 ? &raw_leaf : nullptr);
+        CERT_CONTEXT const * added = nullptr;
+        CertAddEncodedCertificateToStore(extra.get(), X509_ASN_ENCODING, der, (DWORD)len,
+                                         CERT_STORE_ADD_ALWAYS, i == 0 ? &added : nullptr);
         OPENSSL_free(der);
-        if (!added) return nullptr;
+
+        // An intermediate CryptoAPI cannot parse is left out; the chain engine may find another path.
+        if (i == 0) leaf.reset(added);
     }
 
-    std::unique_ptr<CERT_CONTEXT const, cert_context_freer> leaf(raw_leaf);
     if (leaf == nullptr) return nullptr;
 
     LPSTR server_auth[] = { const_cast<LPSTR>(szOID_PKIX_KP_SERVER_AUTH) };
@@ -450,16 +518,16 @@ static STACK_OF(X509) * platform_chain(X509_STORE_CTX *, STACK_OF(X509) * candid
     para.RequestedUsage.dwType = USAGE_MATCH_TYPE_AND;
     para.RequestedUsage.Usage.cUsageIdentifier = 1;
     para.RequestedUsage.Usage.rgpszUsageIdentifier = server_auth;
-    para.dwUrlRetrievalTimeout = g_root_download_timeout_ms;
 
-    // Downloading issuers named by the unauthenticated peer would let it stall the handshake; roots
-    // Windows trusts come from its own update list, which this leaves on.
+    // Issuers named by the unauthenticated peer are not downloaded. A root Windows trusts but has not
+    // installed yet still is, from Microsoft's update servers, which can hold the handshake for as long
+    // as Windows lets such a download take.
     CERT_CHAIN_CONTEXT const * raw_chain = nullptr;
     if (!CertGetCertificateChain(nullptr, leaf.get(), nullptr, extra.get(), &para, CERT_CHAIN_DISABLE_AIA,
                                  nullptr, &raw_chain)) {
         return nullptr;
     }
-    std::unique_ptr<CERT_CHAIN_CONTEXT const, chain_context_freer> chain_ctx(raw_chain);
+    std::unique_ptr<CERT_CHAIN_CONTEXT const, released_by<free_chain_context>> chain_ctx(raw_chain);
 
     SSL_EXTRA_CERT_CHAIN_POLICY_PARA ssl_para = {};
     ssl_para.cbSize = sizeof(ssl_para);
@@ -476,7 +544,7 @@ static STACK_OF(X509) * platform_chain(X509_STORE_CTX *, STACK_OF(X509) * candid
     if (!CertVerifyCertificateChainPolicy(CERT_CHAIN_POLICY_SSL, chain_ctx.get(), &policy, &status)) return nullptr;
 
     if (status.dwError != 0) {
-        *error = x509_error_for(status.dwError, store_error);
+        *error = x509_error_for(status, chain_ctx.get(), store_error);
         return nullptr;
     }
 
@@ -497,10 +565,8 @@ static STACK_OF(X509) * platform_chain(X509_STORE_CTX *, STACK_OF(X509) * candid
 
 #if defined(__APPLE__) || defined(LEAN_WINDOWS)
 
-// Accepts a chain the store's anchors establish, and otherwise defers to the system's trust decision.
-static int verify_with_platform_fallback(X509_STORE_CTX * ctx, void *) {
-    if (X509_verify_cert(ctx) > 0) return 1;
-
+// Defers a chain the store cannot establish to the system's trust decision.
+static int verify_with_platform(X509_STORE_CTX * ctx, STACK_OF(X509) * distrusted) {
     int store_error = X509_STORE_CTX_get_error(ctx);
 
     // A name mismatch implies the chain was already built, and a non-verifying session discards the
@@ -522,18 +588,89 @@ static int verify_with_platform_fallback(X509_STORE_CTX * ctx, void *) {
         return 0;
     }
 
+    // The platform does not know the caller's distrust. It applies to the chain the platform settled on,
+    // so a distrusted root that merely cross-signs that chain's root does not count.
+    if (chain_has_distrusted(distrusted, chain.get())) {
+        X509_STORE_CTX_set_error(ctx, X509_V_ERR_CERT_REJECTED);
+        return 0;
+    }
+
     return verify_along_chain(ctx, chain.get());
 }
 
 #endif
 
+// Verifies against the store, then (with the platform) the system's trust, and refuses the chain either
+// settles on if it goes through a distrusted key: OpenSSL's issuer lookup can pass a distrusted copy by.
+static int check_chain(X509_STORE_CTX * ctx, chain_verifier const * verifier) {
+    if (X509_verify_cert(ctx) > 0) {
+        if (!chain_has_distrusted(verifier->distrusted, X509_STORE_CTX_get0_chain(ctx))) return 1;
+
+        X509_STORE_CTX_set_error(ctx, X509_V_ERR_CERT_REJECTED);
+        return 0;
+    }
+
+#if defined(__APPLE__) || defined(LEAN_WINDOWS)
+    if (verifier->platform) return verify_with_platform(ctx, verifier->distrusted);
+#endif
+
+    return 0;
+}
+
+static int verify_chain(X509_STORE_CTX * ctx, void * arg) {
+    // Verification can queue errors even when it succeeds (a peer certificate with an undecodable key, for
+    // one), and libssl may read them as the handshake's own failure. The verdict is in `ctx`.
+    ERR_set_mark();
+    int ok = check_chain(ctx, static_cast<chain_verifier const *>(arg));
+    ERR_pop_to_mark();
+    return ok;
+}
+
+bool install_chain_verifier(SSL_CTX * ctx, X509_STORE * store, int trust_id, bool platform,
+                            STACK_OF(X509) * given) {
+    x509_stack_ptr stored(X509_STORE_get1_all_certs(store));
+    x509_stack_ptr distrusted(sk_X509_new_null());
+    if (stored == nullptr || distrusted == nullptr) return false;
+
+    // The store's own, such as a system bundle's, then the caller's, which the store may not have kept.
+    for (int i = 0; i < sk_X509_num(stored.get()); i++) {
+        X509 * cert = sk_X509_value(stored.get(), i);
+
+        if (X509_check_trust(cert, trust_id, 0) == X509_TRUST_REJECTED && !push_ref(distrusted.get(), cert)) {
+            return false;
+        }
+    }
+
+    for (int i = 0; i < sk_X509_num(given); i++) {
+        if (!push_ref(distrusted.get(), sk_X509_value(given, i))) return false;
+    }
+
+    auto * verifier = new chain_verifier{distrusted.release(), platform};
+
+    if (SSL_CTX_set_ex_data(ctx, chain_verifier_index(), verifier) != 1) {
+        free_x509_stack(verifier->distrusted);
+        delete verifier;
+        return false;
+    }
+
+    SSL_CTX_set_cert_verify_callback(ctx, verify_chain, verifier);
+    return true;
+}
+
 bool use_system_trust_store(SSL_CTX * ctx, std::string * detail) {
 #if defined(__APPLE__) || defined(LEAN_WINDOWS)
-    // The platform decides every chain the store cannot, so nothing is loaded up front.
-    SSL_CTX_set_cert_verify_callback(ctx, verify_with_platform_fallback, nullptr);
+    // The platform decides every chain the store cannot (see `install_chain_verifier`), so nothing is
+    // loaded up front.
+    (void)ctx;
+    (void)detail;
     return true;
 #else
     X509_STORE * store = SSL_CTX_get_cert_store(ctx);
+
+#if !defined(LEAN_STANDALONE)
+    // Counted before any system material: the store already holds the caller's own CAs.
+    int before = certificate_count(store);
+#endif
 
     // The distribution bundles are always read; the compiled-in paths only add to them.
     char const * bundle = nullptr;
@@ -549,7 +686,7 @@ bool use_system_trust_store(SSL_CTX * ctx, std::string * detail) {
 
     if (!same_bundle) X509_STORE_load_file(store, default_file);
     X509_STORE_load_path(store, X509_get_default_cert_dir());
-    platform = platform || any_dir_with_certs(X509_get_default_cert_dir()) || store_holds_certificate(store);
+    platform = platform || any_dir_with_certs(X509_get_default_cert_dir()) || certificate_count(store) > before;
 #endif
 
     ERR_clear_error();

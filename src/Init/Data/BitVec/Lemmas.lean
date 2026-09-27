@@ -5400,6 +5400,56 @@ theorem toNat_rotateRight {x : BitVec w} {r : Nat} :
     (x.rotateRight r).toNat = (x.toNat >>> (r % w)) ||| x.toNat <<< (w - r % w) % (2^w) := by
   simp only [rotateRight_def, toNat_shiftLeft, toNat_ushiftRight, toNat_or]
 
+/-! The shifted parts of a rotation occupy disjoint bit ranges, so the `|||` is a sum. -/
+
+private theorem or_eq_add_of_lt_of_dvd {a b s : Nat} (hb : b < 2 ^ s) (ha : 2 ^ s ∣ a) : a ||| b = a + b := by
+  obtain ⟨q, rfl⟩ := ha
+  rw [Nat.two_pow_add_eq_or_of_lt hb]
+
+private theorem toNat_div_two_pow_lt (x : BitVec w) {s t : Nat} (h : s + t = w) :
+    x.toNat / 2 ^ s < 2 ^ t := by
+  rw [Nat.div_lt_iff_lt_mul (Nat.two_pow_pos _), ← Nat.pow_add, Nat.add_comm, h]
+  exact x.isLt
+
+private theorem two_pow_dvd_mul_mod {a s w : Nat} (hs : s ≤ w) : 2 ^ s ∣ (a * 2 ^ s) % 2 ^ w := by
+  rw [Nat.dvd_mod_iff (Nat.pow_dvd_pow 2 hs)]
+  exact Nat.dvd_mul_left _ _
+
+private theorem mul_mod_add_lt {a b s w : Nat} (hs : s ≤ w) (hb : b < 2 ^ s) :
+    (a * 2 ^ s) % 2 ^ w + b < 2 ^ w := by
+  obtain ⟨q, hq⟩ := two_pow_dvd_mul_mod (a := a) hs
+  have h1 : (a * 2 ^ s) % 2 ^ w < 2 ^ w := Nat.mod_lt _ (Nat.two_pow_pos _)
+  rw [hq] at h1 ⊢
+  have hw : 2 ^ w = 2 ^ s * 2 ^ (w - s) := by rw [← Nat.pow_add, Nat.add_sub_cancel' hs]
+  rw [hw] at h1 ⊢
+  have hq' : q < 2 ^ (w - s) := Nat.lt_of_mul_lt_mul_left h1
+  calc 2 ^ s * q + b < 2 ^ s * q + 2 ^ s := by omega
+    _ = 2 ^ s * (q + 1) := by rw [Nat.mul_succ]
+    _ ≤ 2 ^ s * 2 ^ (w - s) := Nat.mul_le_mul_left _ hq'
+
+theorem toNat_rotateLeft_eq_add (x : BitVec w) (r : Nat) :
+    (x.rotateLeft r).toNat = (x.toNat * 2 ^ (r % w) + x.toNat / 2 ^ (w - r % w)) % 2 ^ w := by
+  cases w with
+  | zero => simp [BitVec.eq_nil x]
+  | succ w =>
+    rw [toNat_rotateLeft, Nat.shiftLeft_eq, Nat.shiftRight_eq_div_pow]
+    have hs : r % (w + 1) < w + 1 := Nat.mod_lt _ (by omega)
+    have hb := toNat_div_two_pow_lt x (s := w + 1 - r % (w + 1)) (t := r % (w + 1)) (by omega)
+    rw [or_eq_add_of_lt_of_dvd hb (two_pow_dvd_mul_mod (Nat.le_of_lt hs)),
+      ← Nat.mod_add_mod, Nat.mod_eq_of_lt (mul_mod_add_lt (Nat.le_of_lt hs) hb)]
+
+theorem toNat_rotateRight_eq_add (x : BitVec w) (r : Nat) :
+    (x.rotateRight r).toNat = (x.toNat / 2 ^ (r % w) + x.toNat * 2 ^ (w - r % w)) % 2 ^ w := by
+  cases w with
+  | zero => simp [BitVec.eq_nil x]
+  | succ w =>
+    rw [toNat_rotateRight, Nat.shiftLeft_eq, Nat.shiftRight_eq_div_pow, Nat.or_comm]
+    have hs : r % (w + 1) < w + 1 := Nat.mod_lt _ (by omega)
+    have hb := toNat_div_two_pow_lt x (s := r % (w + 1)) (t := w + 1 - r % (w + 1)) (by omega)
+    rw [or_eq_add_of_lt_of_dvd hb (two_pow_dvd_mul_mod (Nat.sub_le _ _)),
+      Nat.add_comm (x.toNat / 2 ^ (r % (w + 1))), ← Nat.mod_add_mod,
+      Nat.mod_eq_of_lt (mul_mod_add_lt (Nat.sub_le _ _) hb)]
+
 @[grind =]
 theorem toInt_rotateRight {x : BitVec w} {r : Nat} :
     (x.rotateRight r).toInt = ((x >>> (r % w)).toNat ||| (x <<< (w - r % w)).toNat : Int).bmod (2 ^ w) := by

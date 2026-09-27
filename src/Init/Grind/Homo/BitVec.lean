@@ -33,6 +33,7 @@ attribute [grind hom]
   BitVec.zero_xor BitVec.xor_zero BitVec.xor_self
   BitVec.toInt_signExtend
   BitVec.toNat_pow BitVec.toInt_pow
+  BitVec.toNat_rotateLeft_eq_add BitVec.toNat_rotateRight_eq_add
 
 /- `grind` keeps `BitVec` literals in `OfNat.ofNat` form, so the rule must be stated in
 this form for the structural `Sym.simp` retrieval to find it. -/

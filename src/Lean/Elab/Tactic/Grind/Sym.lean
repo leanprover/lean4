@@ -174,15 +174,21 @@ def addExtraTheorems (post : Simproc) (extraThms : Array Theorem) (d : Discharge
     thms := thms.insert thm
   return post >> thms.rewrite d
 
-def mkSimpDefaultMethods (extraThms : Array Theorem) : GrindTacticM Sym.Simp.Methods := do
+/--
+Methods of the default `Sym.simp` variant. The discharger `d` is used for the side conditions
+of the `sym_simp` theorems and of the extra theorems `extraThms`.
+-/
+def mkSimpDefaultMethods (extraThms : Array Theorem) (d : Discharger) : GrindTacticM Sym.Simp.Methods := do
   let thms ← getSymSimpTheorems
   let pre := simpControl >> simpArrowTelescope
-  let post ← addExtraTheorems (evalGround >> thms.rewrite) extraThms
+  let post ← addExtraTheorems (evalGround >> thms.rewrite d) extraThms d
   return { pre, post }
 
 def elabSimpVariant (variantName : Name) (extraThms : Array Theorem) : GrindTacticM (Sym.Simp.Methods × Sym.Simp.Config) := do
   if variantName.isAnonymous then
-    return (← mkSimpDefaultMethods extraThms, {})
+    -- The default variant discharges side conditions using `grind` on the current goal.
+    let d ← liftGrindM <| (← getMainGoal).mkSymSimpDischarger
+    return (← mkSimpDefaultMethods extraThms d, {})
   let some v := getSymSimpVariant? (← getEnv) variantName
     | throwError "unknown Sym.simp variant `{variantName}`"
   let pre ← elabOptSimproc v.pre?

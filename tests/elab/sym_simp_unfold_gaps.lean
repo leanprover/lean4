@@ -27,8 +27,7 @@ example (b : Bool) (x : Nat) : m b x = match b with | true => x | false => 0 := 
 
 /-!
 Conditional equation theorems. Overlapping patterns produce `h.eq_2 : (x = 0 → False) → h x = x + 1`.
-`simp [h]` discharges the side condition; `Sym.simp` uses no discharger for the extra
-theorems, so the equation never fires, not even when the hypothesis is provided.
+Both `simp [h]` and `Sym.simp` discharge the side condition; `Sym.simp` uses `grind`.
 -/
 
 def h : Nat → Nat
@@ -38,27 +37,28 @@ def h : Nat → Nat
 example : h 5 = 6 := by
   simp [h]
 
-/-- error: `Sym.simp` made no progress -/
-#guard_msgs in
 example : h 5 = 6 := by
   sym =>
     simp [h]
 
-example (n : Nat) : h (n + 1) = n + 2 := by
+example (n : Nat) : h (n + 1) = n + 1 + 1 := by
   simp [h]
 
-/-- error: `Sym.simp` made no progress -/
-#guard_msgs in
-example (n : Nat) : h (n + 1) = n + 2 := by
+example (n : Nat) : h (n + 1) = n + 1 + 1 := by
   sym =>
     simp [h]
 
 example (n : Nat) (hn : n ≠ 0) : h n = n + 1 := by
   simp [h]
 
+example (n : Nat) (hn : n ≠ 0) : h n = n + 1 := by
+  sym =>
+    simp [h]
+
+-- The side condition `n = 0 → False` does not hold, so `h.eq_2` must not be applied.
 /-- error: `Sym.simp` made no progress -/
 #guard_msgs in
-example (n : Nat) (hn : n ≠ 0) : h n = n + 1 := by
+example (n : Nat) : h n = n + 1 := by
   sym =>
     simp [h]
 

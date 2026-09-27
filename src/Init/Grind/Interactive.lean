@@ -337,7 +337,8 @@ Only available in `sym =>` mode.
 
 The extra parameters may be theorems, local hypotheses, or definitions. For a definition `f`,
 its equational theorems are used, so `simp [f]` unfolds `f` applications. The side conditions
-of conditional extra theorems are discharged by the variant's `discharger`.
+of conditional extra theorems are discharged by the variant's `discharger`. The default variant
+discharges them using `grind`.
 -/
 syntax (name := symSimp) "simp" (ppSpace colGt ident)? (" [" ident,* "]")? : grind
 

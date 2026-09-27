@@ -4392,6 +4392,20 @@ protected theorem pow_succ {x : BitVec w} : x ^ (n + 1) = x ^ n * x := rfl
 @[simp]
 protected theorem pow_one {x : BitVec w} : x ^ 1 = x := by simp [BitVec.pow_succ]
 
+@[simp, bitvec_to_nat] theorem toNat_pow (x : BitVec w) (n : Nat) :
+    (x ^ n).toNat = x.toNat ^ n % 2 ^ w := by
+  induction n with
+  | zero => simp
+  | succ n ih => rw [BitVec.pow_succ, toNat_mul, ih, Nat.pow_succ, Nat.mod_mul_mod]
+
+@[simp, bitvec_to_nat] theorem toInt_pow (x : BitVec w) (n : Nat) :
+    (x ^ n).toInt = (x.toInt ^ n).bmod (2 ^ w) := by
+  induction n with
+  | zero =>
+    simp only [BitVec.pow_zero, Int.pow_zero, toInt_eq_toNat_bmod, toNat_ofNat, Int.natCast_emod,
+      Int.emod_bmod, Int.natCast_one]
+  | succ n ih => rw [BitVec.pow_succ, toInt_mul, ih, Int.pow_succ, Int.bmod_mul_bmod]
+
 protected theorem pow_add {x : BitVec w} {n m : Nat}: x ^ (n + m) = (x ^ n) * (x ^ m):= by
   induction m with
   | zero => simp

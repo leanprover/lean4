@@ -2928,8 +2928,11 @@ theorem append_of_zero_width (x : BitVec w) (y : BitVec v) (h : w = 0) :
   simp [← getLsbD_eq_getElem, getLsbD_append]
   omega
 
-set_option backward.isDefEq.respectTransparency false in
 @[grind =]
+theorem toNat_append_eq_mul_add (x : BitVec m) (y : BitVec n) :
+    (x ++ y).toNat = x.toNat * 2 ^ n + y.toNat := by
+  rw [toNat_append, Nat.shiftLeft_eq, Nat.mul_comm, ← Nat.two_pow_add_eq_or_of_lt y.isLt]
+
 theorem toInt_append {x : BitVec n} {y : BitVec m} :
     (x ++ y).toInt = if n == 0 then y.toInt else (2 ^ m) * x.toInt + y.toNat := by
   by_cases n0 : n = 0

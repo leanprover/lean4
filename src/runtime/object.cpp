@@ -454,10 +454,9 @@ extern "C" LEAN_EXPORT void lean_inc_ref_huge_n(lean_object * o, size_t n) {
 }
 
 // sync with tests/elab/rc_model.lean (`decRefCold`)
-extern "C" LEAN_EXPORT void lean_dec_ref_cold(lean_object * o) {
+extern "C" LEAN_EXPORT void lean_dec_ref_cold(lean_object * o, int rc) {
     // `rc == 1` is the hot single-threaded free path and can never be sticky, so the sticky check
     // is kept out of it.
-    int rc = lean_internal_get_rc(o);
     if (!lean_rc_is_exclusive(rc)) {
         if (LEAN_UNLIKELY(lean_rc_is_never_freed(rc)))
             return;

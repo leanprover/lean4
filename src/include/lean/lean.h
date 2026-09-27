@@ -724,7 +724,7 @@ static inline void lean_inc_ref(lean_object * o) {
     lean_inc_ref_n(o, 1);
 }
 
-LEAN_EXPORT void lean_dec_ref_cold(lean_object * o);
+LEAN_EXPORT void lean_dec_ref_cold(lean_object * o, int rc);
 
 // sync with tests/elab/rc_model.lean (`decRef`)
 static inline LEAN_ALWAYS_INLINE void lean_dec_ref(lean_object * o) {
@@ -732,7 +732,7 @@ static inline LEAN_ALWAYS_INLINE void lean_dec_ref(lean_object * o) {
     if (LEAN_LIKELY(lean_rc_is_shared(rc))) {
         lean_internal_set_rc(o, rc - 1);
     } else if (lean_rc_has_rc(rc)) {
-        lean_dec_ref_cold(o);
+        lean_dec_ref_cold(o, rc);
     }
 }
 static inline void LEAN_ALWAYS_INLINE lean_inc(lean_object * o) { if (!lean_is_scalar(o)) lean_inc_ref(o); }

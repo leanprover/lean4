@@ -284,7 +284,6 @@ abbrev isDropStopped (rc : Int32) : Bool := rc ≤ LEAN_RC_STICKY_DROP
 /--
 {lit}`lean_dec_ref_cold`, as the count it leaves behind or {lit}`none` if the object was freed:
 ```
-    int rc = lean_internal_get_rc(o);
     if (!lean_rc_is_exclusive(rc)) {
         if (LEAN_UNLIKELY(lean_rc_is_never_freed(rc))) return;
         if (std::atomic_fetch_add_explicit(lean_get_rc_mt_addr(o), 1,
@@ -311,10 +310,10 @@ abbrev decRefCold (rc : Int32) : Option Int32 := Id.run do
     if (LEAN_LIKELY(lean_rc_is_shared(rc))) {
         lean_internal_set_rc(o, rc - 1);
     } else if (lean_rc_has_rc(rc)) {
-        lean_dec_ref_cold(o);
+        lean_dec_ref_cold(o, rc);
     }
 ```
-{lit}`lean_dec_ref_cold` reads the count again, which sequentially is the same count.
+{lit}`lean_dec_ref_cold` gets passed the last read count in order to avoid re-reading it.
 -/
 abbrev decRef (rc : Int32) : Option Int32 :=
   if isShared rc then some (rc - 1)

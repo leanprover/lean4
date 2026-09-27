@@ -1859,6 +1859,12 @@ structure PersistentEnvExtensionDescrCore (α β σ : Type) where
   (`EnvExtension.getGen`), so that a result computed from the state can be validated later by
   comparing generations. Generation-tracked extensions must use `AsyncMode.local` or `.mainOnly`, as
   generations are branch-local.
+
+  Generations only grow along an environment lineage, even when a modification restores an earlier
+  state: returning to an earlier generation would let a later, different modification reach a
+  generation some result was recorded at, validating it against a state it never saw. The
+  environment itself rolling back to an earlier generation is covered at
+  `Kernel.Environment.trackedGen`.
   -/
   trackGen          : Bool := false
 

@@ -18,3 +18,11 @@ initialize syncTrackedRejected : Bool ←
     pure false
   catch _ =>
     pure true
+
+initialize trackedScopedExt : SimpleScopedEnvExtension Nat (List Nat) ←
+  registerSimpleScopedEnvExtension {
+    name     := `trackedScopedExt
+    addEntry := fun s n => n :: s
+    initial  := []
+    trackGen := true
+  }

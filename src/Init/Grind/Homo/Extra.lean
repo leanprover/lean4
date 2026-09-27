@@ -45,7 +45,7 @@ registered for E-matching instead.
 -/
 
 attribute [grind hom]
-  Int.shiftLeft_eq Int.shiftRight_eq_div_pow
+  Int.shiftLeft_eq Int.shiftRight_eq_div_pow Int.not_eq_neg_sub_one
   Int.ofNat_toNat Int.toNat_sub'
   Int.emod_add_emod Int.add_emod_emod
   Int.emod_sub_emod Int.sub_emod_emod

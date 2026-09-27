@@ -253,14 +253,12 @@ structure State where
   /-- Mapping from `Expr` to a variable representing it. -/
   varMap  : PHashMap ExprPtr Var := {}
   /--
-  `vars` before they were reordered.
-  This array is empty if the variables were not reordered.
-  We need them to generate the proof term because some
-  justification objects contain terms using variables before the reordering.
+  Variable orders superseded by `reorderVars`, oldest first: entry `i` is the pair
+  `(vars, varMap)` of epoch `i`, and the current order is epoch `varsHistory.size`.
+  Justification objects created before a reordering contain polynomials in the order
+  of their epoch, so proof generation needs every superseded order.
   -/
-  vars' : PArray Expr := {}
-  /-- `varMap` before variables were reordered. -/
-  varMap' : PHashMap ExprPtr Var := {}
+  varsHistory : PArray (PArray Expr × PHashMap ExprPtr Var) := {}
   /--
   The field `natToIntMap` contains a mapping
   from a `Nat`-term `e` to the pair `(e', he)`, where

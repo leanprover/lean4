@@ -99,6 +99,8 @@ static bool dir_has_hashed_certs(char const * path) {
     return found;
 }
 
+#if !defined(LEAN_STANDALONE)
+
 // Whether any entry of a `:`-separated list names a hash directory holding a certificate.
 static bool any_dir_with_certs(char const * list_str) {
     std::string list(list_str);
@@ -113,6 +115,8 @@ static bool any_dir_with_certs(char const * list_str) {
 
     return false;
 }
+
+#endif
 
 // Where the mainstream distributions keep their anchors.
 static char const * const g_fallback_cert_files[] = {
@@ -399,7 +403,8 @@ struct chain_context_freer { void operator()(CERT_CHAIN_CONTEXT const * chain) c
 // The OpenSSL error for the chain engine's rejection, falling back to the store's verdict for a chain
 // that reaches no trusted root.
 static int x509_error_for(DWORD status, int store_error) {
-    switch (status) {
+    // The policy reports an `HRESULT`, whose error constants are negative.
+    switch (static_cast<HRESULT>(status)) {
     case CERT_E_EXPIRED: return X509_V_ERR_CERT_HAS_EXPIRED;
     case CERT_E_REVOKED: case CRYPT_E_REVOKED: return X509_V_ERR_CERT_REVOKED;
     case TRUST_E_CERT_SIGNATURE: return X509_V_ERR_CERT_SIGNATURE_FAILURE;

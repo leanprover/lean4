@@ -32,6 +32,7 @@ attribute [grind hom]
   BitVec.zero_and BitVec.and_zero BitVec.zero_or BitVec.or_zero
   BitVec.zero_xor BitVec.xor_zero BitVec.xor_self
   BitVec.toInt_signExtend
+  BitVec.toNat_pow BitVec.toInt_pow
 
 /- `grind` keeps `BitVec` literals in `OfNat.ofNat` form, so the rule must be stated in
 this form for the structural `Sym.simp` retrieval to find it. -/

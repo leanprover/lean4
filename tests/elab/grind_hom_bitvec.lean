@@ -62,10 +62,10 @@ example (x : BitVec 16) : (~~~x).unsigned = (2 ^ 16 - 1) - x.unsigned := by grin
 example (x : BitVec 16) (n : Nat) : (x <<< n).unsigned = (x.unsigned * (2 ^ n)) % (2 ^ 16) := by grind
 example (x : BitVec 16) (n : Nat) : (x >>> n).unsigned = x.unsigned / (2 ^ n) := by grind
 example (x : BitVec 8) (y : BitVec 8) : (x ++ y).unsigned = x.unsigned * (2 ^ 8) + y.unsigned := by grind
--- TODO: `grind` fails (`sshiftRight` as unsigned, `pow`)
+example (x : BitVec 16) (z : Nat) : (x.pow z).unsigned = (x.unsigned ^ z) % (2 ^ 16) := by grind
+-- TODO: `grind` fails (`sshiftRight` as unsigned)
 /-
 example (x : BitVec 16) (n : Nat) : (x.sshiftRight n).unsigned = (x.signed / (2 ^ n)) % (2 ^ 16) := by grind
-example (x : BitVec 16) (z : Nat) : (x.pow z).unsigned = (x.unsigned ^ z) % (2 ^ 16) := by grind
 -/
 example (x y : BitVec 16) : (x / y).unsigned = x.unsigned / y.unsigned := by grind
 example (x y : BitVec 16) : (x % y).unsigned = x.unsigned % y.unsigned := by grind
@@ -77,9 +77,9 @@ example (x : BitVec 16) (n : Nat) : (x.sshiftRight n).signed = x.signed >>> n :=
 example (x y : BitVec 16) : (x.sdiv y).signed = (x.signed.tdiv y.signed).bmod (2 ^ 16) := by grind
 example (x y : BitVec 16) : (x.srem y).signed = x.signed.tmod y.signed := by grind
 example (x y : BitVec 16) : (x.smod y).signed = x.signed.fmod y.signed := by grind
--- TODO: `grind` fails (signed `pow`, `~~~`, `<<<`)
-/-
 example (x : BitVec 16) (z : Nat) : (x.pow z).signed = (x.signed ^ z).bmod (2 ^ 16) := by grind
+-- TODO: `grind` fails (signed `~~~`, `<<<`)
+/-
 example (x : BitVec 16) : (~~~x).signed = (~~~x.signed).bmod (2 ^ 16) := by grind
 example (x : BitVec 16) (n : Nat) : (x <<< n).signed = (x.signed <<< n).bmod (2 ^ 16) := by grind
 -/
@@ -297,14 +297,11 @@ example (a : BitVec 8) :
 
 -- Coq ZnWords translation tests
 
--- TODO: `grind` fails
-/-
 example (a a' : BitVec 32) (f_vs1 : Nat)
     (hmod : (a' - a).toNat % 8 = 0)
     (hf : f_vs1 = (a' - a).toNat / 8) :
     a + BitVec.ofNat 32 (8 * f_vs1) = a' := by
   grind
--/
 
 example (left0 right : BitVec 32) (xs_len : Nat)
     (_h1 : (right - left0).toNat = 8 * xs_len)

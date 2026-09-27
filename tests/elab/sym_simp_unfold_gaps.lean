@@ -1,14 +1,13 @@
 import Lean
 /-!
-Documents the definition-unfolding features of `simp [f]` that `Sym.simp` does not
-support yet. Each case pairs a `simp` example that succeeds with the corresponding
-`Sym.simp` example that fails.
+Documents the definition-unfolding features of `simp [f]` and their `Sym.simp` counterparts.
+Each case pairs a `simp` example with the corresponding `Sym.simp` example.
 -/
 
 /-!
 Delta unfolding. `simp [f]` unfolds a non-recursive definition even when no equation
-theorem applies. `Sym.simp` only uses the equation theorems `m.eq_1`/`m.eq_2`, so it
-cannot unfold `m b x` when `b` is a variable.
+theorem applies. `Sym.simp` does the same: when no equation theorem `m.eq_1`/`m.eq_2` applies,
+it falls back to `m.eq_def`.
 -/
 
 def m (b : Bool) (x : Nat) : Nat :=
@@ -19,8 +18,6 @@ def m (b : Bool) (x : Nat) : Nat :=
 example (b : Bool) (x : Nat) : m b x = match b with | true => x | false => 0 := by
   simp [m]
 
-/-- error: `Sym.simp` made no progress -/
-#guard_msgs in
 example (b : Bool) (x : Nat) : m b x = match b with | true => x | false => 0 := by
   sym =>
     simp [m]
@@ -55,10 +52,12 @@ example (n : Nat) (hn : n ≠ 0) : h n = n + 1 := by
   sym =>
     simp [h]
 
--- The side condition `n = 0 → False` does not hold, so `h.eq_2` must not be applied.
-/-- error: `Sym.simp` made no progress -/
-#guard_msgs in
-example (n : Nat) : h n = n + 1 := by
+-- The side condition `n = 0 → False` does not hold, so `h.eq_2` is not applied and `h n` is
+-- unfolded with `h.eq_def`.
+example (n : Nat) : h n = match n with | 0 => 0 | n => n + 1 := by
+  simp [h]
+
+example (n : Nat) : h n = match n with | 0 => 0 | n => n + 1 := by
   sym =>
     simp [h]
 

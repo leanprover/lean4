@@ -792,7 +792,7 @@ LEAN_EXPORT void lean_mark_mt(lean_object * o);
 LEAN_EXPORT void lean_mark_persistent(lean_object * o);
 
 static inline void lean_set_st_header(lean_object * o, unsigned tag, unsigned other) {
-    lean_internal_set_rc(o, 1);
+    o->m_rc       = 1;
     o->m_tag      = tag;
     o->m_other    = other;
 #ifndef LEAN_MIMALLOC

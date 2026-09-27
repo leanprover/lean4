@@ -349,8 +349,13 @@ Only available in `sym =>` mode.
 
 - `dsimp` — uses the default (identity) variant
 - `dsimp myVariant` — uses a named variant registered via `register_sym_dsimp`
-- `dsimp [id₁, id₂, ...]` — default variant with extra declarations to unfold
+- `dsimp [id₁, id₂, ...]` — default variant with extra declarations
 - `dsimp myVariant [id₁, id₂, ...]` — named variant with extra declarations
+
+The extra declarations may be local definitions to unfold, or `*` to unfold all of them,
+`rfl`-theorems, or definitions. A definition `f` is unfolded under the same conditions as in the
+default simplifier: a structurally recursive `f` only when its recursion argument reduces, and
+any other `f` only when it is fully applied.
 -/
 syntax (name := symDSimp) "dsimp" (ppSpace colGt ident)? (" [" ("*" <|> ident),* "]")? : grind
 

@@ -41,7 +41,8 @@ structure SimpCacheKey where
 structure DSimpArgs where
   fvarIds : Array FVarId := #[]
   zetaDeltaAll : Bool := false
-  -- TODO: rfl-theorems and declarations to unfold
+  /-- Global declarations: definitions to unfold and `rfl`-theorems to rewrite with. -/
+  declNames : Array Name := #[]
   deriving BEq, Hashable
 
 /-- Cache key for `Sym.dsimp` variant invocations. -/

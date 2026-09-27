@@ -91,8 +91,8 @@ example (a b : Nat) : Add.add a b = Nat.add a b := by
     simp [Add.add]
 
 /-!
-`dsimp [f]`. The default `dsimp` unfolds global definitions; `Sym.dsimp` only accepts local
-declarations and `*`.
+`dsimp [f]`. Both definitional simplifiers unfold global definitions. `Sym.dsimp` does not
+close the resulting goal `x + x = x + x`.
 -/
 
 def f (a : Nat) := a + a
@@ -100,8 +100,7 @@ def f (a : Nat) := a + a
 example (x : Nat) : f x = x + x := by
   dsimp [f]
 
-/-- error: unknown identifier `f` -/
-#guard_msgs in
 example (x : Nat) : f x = x + x := by
   sym =>
     dsimp [f]
+    exact rfl

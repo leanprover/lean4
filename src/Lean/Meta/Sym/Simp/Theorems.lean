@@ -57,6 +57,9 @@ structure Theorems where
   fallback : DiscrTree Theorem := {}
   deriving Inhabited
 
+def Theorems.isEmpty (thms : Theorems) : Bool :=
+  thms.thms.root.isEmpty && thms.fallback.root.isEmpty
+
 def Theorems.insert (thms : Theorems) (thm : Theorem) : Theorems :=
   if thm.fallback then
     { thms with fallback := insertPattern thms.fallback thm.pattern thm }

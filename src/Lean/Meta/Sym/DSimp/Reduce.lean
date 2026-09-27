@@ -64,4 +64,20 @@ public def dsimpMatch : DSimproc := fun e => do
   let e'' ← share e''
   return .step e''
 
+/--
+Unfolds the applications of the definitions in `declNames`, like `Meta.simp` does for the
+definitions provided in `simp [f]`. A definition with smart unfolding support is unfolded only
+when its recursion argument reduces. Any other definition is unfolded only when applied to at
+least as many arguments as its number of leading lambdas.
+-/
+public def unfold (declNames : NameSet) : DSimproc := fun e => do
+  let .const declName _ := e.getAppFn | return .rfl
+  unless declNames.contains declName do return .rfl
+  let env ← getEnv
+  unless hasSmartUnfoldingDecl env declName do
+    let some value := env.find? declName |>.bind (·.value?) | return .rfl
+    if value.getNumHeadLambdas > e.getAppNumArgs then return .rfl
+  let some e' ← unfoldDefinition? e (ignoreTransparency := true) | return .rfl
+  return .step (← shareCommon e')
+
 end Lean.Meta.Sym.DSimp

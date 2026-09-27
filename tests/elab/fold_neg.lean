@@ -293,11 +293,10 @@ set_option trace.Compiler.saveBase true in
 def usNegZero : USize := -(0 : USize)
 
 /--
-trace: [Compiler.saveBase] size: 2
+trace: [Compiler.saveBase] size: 1
     def usNegOne : USize :=
-      let _x.1 := 1;
-      let _x.2 := USize.neg _x.1;
-      return _x.2
+      let _x.1 := 18446744073709551615;
+      return _x.1
 -/
 #guard_msgs in
 set_option trace.Compiler.saveBase true in

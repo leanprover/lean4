@@ -758,6 +758,7 @@ def evalGroundCore (e : Expr) : EvalM Result :=
   | HAppend.hAppend α _ _ _ a b =>
     match_expr α with
     | BitVec _ => evalBitVecAppend a b
+    | String => evalBin getStringValue? (· ++ ·) a b
     | _ => return .rfl
   | getElem α _ _ _ _ a i _ =>
     match_expr α with

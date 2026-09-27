@@ -23,7 +23,7 @@ attribute [grind hom]
   BitVec.toNat_shiftLeft BitVec.toNat_ushiftRight BitVec.toNat_append_eq_mul_add
   BitVec.ofNat_toNat BitVec.toNat_setWidth BitVec.toNat_ofInt
   BitVec.toNat_eq BitVec.le_def BitVec.lt_def
-  BitVec.sle_iff_toInt_le BitVec.slt_iff_toInt_lt
+  BitVec.sle_eq_decide BitVec.slt_eq_decide
   BitVec.toInt_add BitVec.toInt_sub BitVec.toInt_mul BitVec.toInt_neg
   BitVec.toInt_not BitVec.toInt_shiftLeft_eq_toInt_shiftLeft_bmod BitVec.toInt_sshiftRight
   BitVec.toInt_sdiv BitVec.toInt_srem BitVec.toInt_smod

@@ -17,6 +17,11 @@ theorem BitVec.lt_homo_test {w : Nat} (x y : BitVec w) : x < y ↔ x.unsigned < 
 theorem BitVec.le_homo_test {w : Nat} (x y : BitVec w) : x ≤ y ↔ x.unsigned ≤ y.unsigned := by
   grind
 
+example (x y : BitVec 64) : (x.slt y = true) ↔ x.signed < y.signed := by grind
+example (x y : BitVec 64) : x.sle y ↔ x.signed ≤ y.signed := by grind
+example (x y z : BitVec 8) : x.slt y → y.sle z → x.slt z := by grind
+example (x y : BitVec 8) : x.slt y = !(y.sle x) := by grind
+
 example (x y : BitVec 16) :
   x.unsigned < 256 → y.unsigned < 256 →
   (x + y).unsigned = x.unsigned + y.unsigned := by grind

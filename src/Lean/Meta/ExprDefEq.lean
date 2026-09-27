@@ -204,6 +204,22 @@ where
       else
         return false
 
+private def shouldEtaRecursors (a b : Expr) : MetaM Bool := do
+  let afn := a.getAppFn
+  if !afn.isConst then return false
+  let bfn := b.getAppFn
+  if bfn.isConstOf afn.constName! then return false
+  let args := a.getAppArgs
+  let t_info ← getConstInfo afn.constName!
+  let .recInfo recVal := t_info | return false
+  -- Should this be `!=` instead of `>` ?
+  if args.size > recVal.getMajorIdx then return false
+  return recVal.k || isNonRecStructure (← getEnv) recVal.getMajorInduct
+
+private def shouldEta (a b : Expr) : MetaM Bool :=
+  if a.isLambda && !b.isLambda then return true
+  else shouldEtaRecursors b a
+
 /--
   Try to solve `a := (fun x => t) =?= b` by eta-expanding `b`,
   resulting in `t =?= b x` (with a fresh free variable `x`).
@@ -222,7 +238,7 @@ where
   The fresh free variable `x` also busts the cache.
   See https://github.com/leanprover/lean4/pull/2002 -/
 private def isDefEqEta (a b : Expr) : MetaM LBool := do
-  if a.isLambda && !b.isLambda then
+  if (← shouldEta a b) then
     let bType ← inferType b
     let bType ← whnfD bType
     match bType with

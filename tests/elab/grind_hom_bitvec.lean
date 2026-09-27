@@ -87,11 +87,8 @@ example (x : BitVec 16) (v : Nat) : (x.signExtend v).signed = x.signed.bmod (2 ^
 example (x : BitVec 16) (v : Nat) : (x.zeroExtend v).signed = x.unsigned.bmod (2 ^ v) := by grind
 example (x : BitVec 16) (n : Nat) : (x.setWidth n).unsigned = x.unsigned % (2 ^ n) := by grind
 example (x : BitVec 16) (n : Nat) : (x.zeroExtend n).unsigned = x.unsigned % (2 ^ n) := by grind
--- TODO: `grind` fails (`rotateLeft`, `rotateRight`)
-/-
 example (x : BitVec 16) (n : Nat) : (x.rotateLeft n).unsigned = (x.unsigned * (2 ^ (n % 16)) + x.unsigned / (2 ^ (16 - (n % 16)))) % (2 ^ 16) := by grind
 example (x : BitVec 16) (n : Nat) : (x.rotateRight n).unsigned = (x.unsigned / (2 ^ (n % 16)) + x.unsigned * (2 ^ (16 - (n % 16)))) % (2 ^ 16) := by grind
--/
 example (b : Bool) : (BitVec.ofBool b).unsigned = if b then 1 else 0 := by grind
 
 example (x : BitVec 64) : (x &&& 31).unsigned < 32 := by grind

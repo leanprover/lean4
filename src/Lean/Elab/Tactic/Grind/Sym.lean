@@ -147,6 +147,10 @@ def elabOptSimproc (stx? : Option Syntax) : GrindTacticM Simproc := do
   let some stx := stx? | return trivialSimproc
   elabSymSimproc stx
 
+def elabOptDischarger (stx? : Option Syntax) : GrindTacticM Discharger := do
+  let some stx := stx? | return dischargeNone
+  elabSymDischarger stx
+
 def resolveExtraTheorems (ids? :  Option (Array (TSyntax `ident))) : GrindTacticM (Array ExtraTheorem × Array Theorem) := do
   let some ids := ids? | return (#[], #[])
   let mut extras := #[]
@@ -162,12 +166,13 @@ def resolveExtraTheorems (ids? :  Option (Array (TSyntax `ident))) : GrindTactic
       thms := thms ++ (← mkTheoremsFromDecl declName)
   return (extras, thms)
 
-def addExtraTheorems (post : Simproc) (extraThms : Array Theorem) : GrindTacticM Simproc := do
+/-- Appends the extra theorems `extraThms` to `post`, discharging their side conditions with `d`. -/
+def addExtraTheorems (post : Simproc) (extraThms : Array Theorem) (d : Discharger := dischargeNone) : GrindTacticM Simproc := do
   if extraThms.isEmpty then return post
   let mut thms : Theorems := {}
   for thm in extraThms do
     thms := thms.insert thm
-  return post >> thms.rewrite
+  return post >> thms.rewrite d
 
 def mkSimpDefaultMethods (extraThms : Array Theorem) : GrindTacticM Sym.Simp.Methods := do
   let thms ← getSymSimpTheorems
@@ -181,7 +186,7 @@ def elabSimpVariant (variantName : Name) (extraThms : Array Theorem) : GrindTact
   let some v := getSymSimpVariant? (← getEnv) variantName
     | throwError "unknown Sym.simp variant `{variantName}`"
   let pre ← elabOptSimproc v.pre?
-  let post ← addExtraTheorems (← elabOptSimproc v.post?) extraThms
+  let post ← addExtraTheorems (← elabOptSimproc v.post?) extraThms (← elabOptDischarger v.discharger?)
   return ({ pre, post}, v.config)
 
 @[builtin_grind_tactic Parser.Tactic.Grind.symSimp] def evalSymSimp : GrindTactic := fun stx => withMainContext do

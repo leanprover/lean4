@@ -336,7 +336,8 @@ Only available in `sym =>` mode.
 - `simp myVariant [thm₁, thm₂, ...]` — named variant with extra theorems
 
 The extra parameters may be theorems, local hypotheses, or definitions. For a definition `f`,
-its equational theorems are used, so `simp [f]` unfolds `f` applications.
+its equational theorems are used, so `simp [f]` unfolds `f` applications. The side conditions
+of conditional extra theorems are discharged by the variant's `discharger`.
 -/
 syntax (name := symSimp) "simp" (ppSpace colGt ident)? (" [" ident,* "]")? : grind
 

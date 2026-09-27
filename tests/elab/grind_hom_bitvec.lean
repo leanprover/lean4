@@ -63,10 +63,7 @@ example (x : BitVec 16) (n : Nat) : (x <<< n).unsigned = (x.unsigned * (2 ^ n)) 
 example (x : BitVec 16) (n : Nat) : (x >>> n).unsigned = x.unsigned / (2 ^ n) := by grind
 example (x : BitVec 8) (y : BitVec 8) : (x ++ y).unsigned = x.unsigned * (2 ^ 8) + y.unsigned := by grind
 example (x : BitVec 16) (z : Nat) : (x.pow z).unsigned = (x.unsigned ^ z) % (2 ^ 16) := by grind
--- TODO: `grind` fails (`sshiftRight` as unsigned)
-/-
 example (x : BitVec 16) (n : Nat) : (x.sshiftRight n).unsigned = (x.signed / (2 ^ n)) % (2 ^ 16) := by grind
--/
 example (x y : BitVec 16) : (x / y).unsigned = x.unsigned / y.unsigned := by grind
 example (x y : BitVec 16) : (x % y).unsigned = x.unsigned % y.unsigned := by grind
 example (x y : BitVec 16) : (x + y).signed = (x.signed + y.signed).bmod (2 ^ 16) := by grind

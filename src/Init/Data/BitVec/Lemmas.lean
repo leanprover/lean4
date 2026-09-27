@@ -616,6 +616,11 @@ theorem toInt_eq_toNat_bmod (x : BitVec n) : x.toInt = Int.bmod x.toNat (2^n) :=
     rw [Int.bmod_neg] <;> simp only [←Int.natCast_emod, toNat_mod_cancel]
     omega
 
+theorem toInt_emod_two_pow (x : BitVec w) : x.toInt % 2 ^ w = x.toNat := by
+  have : (2 : Int) ^ w = ((2 ^ w : Nat) : Int) := by simp
+  rw [toInt_eq_toNat_bmod, this, Int.bmod_emod,
+    Int.emod_eq_of_lt (Int.natCast_nonneg _) (Int.ofNat_lt.mpr x.isLt)]
+
 grind_pattern toInt_eq_toNat_bmod => x.toInt, x.toNat
 
 theorem toInt_neg_of_msb_true {x : BitVec w} (h : x.msb = true) : x.toInt < 0 := by
@@ -2496,6 +2501,10 @@ theorem toInt_sshiftRight {x : BitVec w} {n : Nat} :
     have := @le_toInt_shiftRight w x n
     norm_cast at *
     exact Int.bmod_eq_of_le (by omega) (by omega)
+
+theorem toNat_sshiftRight_eq_toNat_emod (x : BitVec w) (n : Nat) :
+    (x.sshiftRight n).toNat = (x.toInt >>> n % 2 ^ w).toNat := by
+  rw [← toInt_sshiftRight, toInt_emod_two_pow, Int.toNat_natCast]
 
 theorem sshiftRight_eq_sshiftRight_of_le {x : BitVec w} {m n : Nat} (h₁ : w ≤ m) (h₂ : w ≤ n) :
     x.sshiftRight m = x.sshiftRight n := by

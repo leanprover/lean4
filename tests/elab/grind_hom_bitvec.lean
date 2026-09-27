@@ -338,8 +338,6 @@ example (a b : BitVec 64) :
     (a.toNat : Int) - (b.toNat : Int) = ((a - b).toNat : Int) - 2^64 * (if a < b then 1 else 0) := by
   grind
 
--- TODO: `grind` times out (subtraction with borrow)
-/-
 example (x y borrow : BitVec 64) (h_borrow : borrow.toNat < 2) :
     let d1 := x - y
     let b1 : BitVec 64 := if x < y then 1 else 0
@@ -348,7 +346,6 @@ example (x y borrow : BitVec 64) (h_borrow : borrow.toNat < 2) :
     let res_b := b1 + b2
     (d2.toNat : Int) - 2^64 * (res_b.toNat : Int) = (x.toNat : Int) - (y.toNat : Int) - (borrow.toNat : Int) := by
   grind
--/
 
 example (x : BitVec 32) (h : x >>> 31 ≠ 0) : x ≠ 0 := by
   grind

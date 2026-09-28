@@ -91,7 +91,7 @@ def mkNormSymMethods (config : Grind.Config) (thms : NormSymTheorems) : Sym.Simp
   let mut pre : Simproc := NormSym.eraseMData >> Sym.Simp.beta >> Sym.Simp.reduceProj >> Sym.Simp.reduceMatcher
   if config.zeta then pre := pre >> Sym.Simp.zeta
   if config.zetaDelta then pre := pre >> Sym.Simp.zetaDeltaAll
-  pre := pre >> NormSym.pushNot >> Sym.Simp.simpArith d >> thms.pre.rewrite d
+  pre := pre >> NormSym.pushNot >> Sym.Simp.simpArith d (lhsOnly := true) >> thms.pre.rewrite d
   let post : Simproc := thms.post.rewrite d >> Sym.Simp.evalGround >> NormSym.simpEq >> NormSym.simpOr
     >> NormSym.simpDIte >> NormSym.reduceCtorEq >> NormSym.simpForall >> NormSym.simpExists
   return { pre, post }

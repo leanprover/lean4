@@ -124,13 +124,6 @@ example : a > b := by grind_norm check; sorry
 #guard_msgs in
 example : ¬(a ≤ b) := by grind_norm check; sorry
 
-/--
-error: `grind_norm` discrepancy
-legacy:
-  -1 * i + j + 1 ≤ 0
-sym:
-  j + 1 ≤ i
--/
 #guard_msgs in
 example : ¬(i ≤ j) := by grind_norm check; sorry
 
@@ -155,16 +148,16 @@ example : a - a = 0 - a := by grind_norm check; sorry
 #guard_msgs in
 example : a / 1 = a % 1 := by grind_norm check; sorry
 
-/--
-error: `grind_norm` discrepancy
-legacy:
-  2 * i + -1 * j = 0
-sym:
-  2 * i = j
--/
 #guard_msgs in
 example : i - j = -i := by grind_norm check; sorry
 
+/--
+error: `grind_norm` discrepancy
+legacy:
+  True
+sym:
+  ↑a + ↑b + -1 * ↑a + -1 * ↑b = 0
+-/
 #guard_msgs in
 example : ((a : Int) + (b : Int)) = ((a + b : Nat) : Int) := by grind_norm check; sorry
 
@@ -178,48 +171,18 @@ sym:
 #guard_msgs in
 example : ((a * b : Nat) : Int) = (a : Int) := by grind_norm check; sorry
 
-/--
-error: `grind_norm` discrepancy
-legacy:
-  -1 * i + ↑a + -1 * ↑b = 0
-sym:
-  ↑a = i + ↑b
--/
 #guard_msgs in
 example : Int.subNatNat a b = i := by grind_norm check; sorry
 
-/--
-error: `grind_norm` discrepancy
-legacy:
-  ((if -1 * i ≤ 0 ∨ j ∣ i then 0 else if -1 * j + 1 ≤ 0 then 1 else if j + 1 ≤ 0 then -1 else 0) +
-      if -1 * j ≤ 0 ∨ j ∣ i then 0 else 1) =
-    0
-sym:
-  ((if 0 ≤ i ∨ j ∣ i then 0 else if 1 ≤ j then 1 else if j + 1 ≤ 0 then -1 else 0) + if 0 ≤ j ∨ j ∣ i then 0 else 1) = 0
--/
 #guard_msgs in
 example : i.tdiv j = i.fdiv j := by grind_norm check; sorry
 
-/--
-error: `grind_norm` discrepancy
-legacy:
-  (if -1 * i + 1 ≤ 0 then 1 else if i + 1 ≤ 0 then -1 else 0) = j
-sym:
-  (if 1 ≤ i then 1 else if i + 1 ≤ 0 then -1 else 0) = j
--/
 #guard_msgs in
 example : i.sign = j := by grind_norm check; sorry
 
 #guard_msgs in
 example : (2 : Nat) + 3 = 5 := by grind_norm check; sorry
 
-/--
-error: `grind_norm` discrepancy
-legacy:
-  -1 * j + -1 = 0
-sym:
-  0 = j + 1
--/
 #guard_msgs in
 example : (2 : Int) * 3 - 7 = j := by grind_norm check; sorry
 
@@ -228,6 +191,52 @@ example : (10 : Nat) < 3 := by grind_norm check; sorry
 
 #guard_msgs in
 example : (2 : Nat) ∣ 4 := by grind_norm check; sorry
+
+#guard_msgs in
+example : i < j := by grind_norm check; sorry
+
+#guard_msgs in
+example : i + 1 < j := by grind_norm check; sorry
+
+#guard_msgs in
+example : 2 * i ≤ j + 3 := by grind_norm check; sorry
+
+#guard_msgs in
+example : i + j = j + i := by grind_norm check; sorry
+
+#guard_msgs in
+example : i * j + 1 = i * j := by grind_norm check; sorry
+
+#guard_msgs in
+example : -i ≤ j := by grind_norm check; sorry
+
+/--
+error: `grind_norm` discrepancy
+legacy:
+  x * 2⁻¹ = y
+sym:
+  x + -2 * y = 0
+-/
+#guard_msgs in
+example (x y : Rat) : x / 2 = y := by grind_norm check; sorry
+
+#guard_msgs in
+example : ¬(i < j) := by grind_norm check; sorry
+
+#guard_msgs in
+example : i = j := by grind_norm check; sorry
+
+#guard_msgs in
+example : i + 3 = 0 := by grind_norm check; sorry
+
+#guard_msgs in
+example : 3 = i := by grind_norm check; sorry
+
+#guard_msgs in
+example : i = 3 := by grind_norm check; sorry
+
+#guard_msgs in
+example : i * j = i := by grind_norm check; sorry
 
 end arith
 

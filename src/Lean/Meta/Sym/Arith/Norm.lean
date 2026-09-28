@@ -593,7 +593,8 @@ private def runCore [Monad m] [MonadLiftT SymM m] (kind : Kind) (discharge? : Ex
 /-! ## Relations
 
 `lhs = rhs`, `lhs ≤ rhs`, `lhs < rhs` over a ring or semiring are normalized by
-moving everything to one side and splitting by sign (`x + y = z + 2 * x` becomes `y = z + x`).
+moving everything to one side and splitting by sign (`x + y = z + 2 * x` becomes `y = z + x`),
+or, with `lhsOnly`, by keeping everything on the left (`y + -1 * z + -1 * x = 0`).
 Rings use `eq_norm_expr`, `le_norm_expr`, `lt_norm_expr` (`CommSolver.lean`); in a field of
 characteristic zero the numerator of `lhs - rhs` is split instead (`eq_normQ_expr`,
 `le_normQ_expr`, `lt_normQ_expr` in `FieldSolver.lean`, the last two under `IsLinearOrder`), so
@@ -669,7 +670,7 @@ returns the normalized relation. `relFn` is the canonical `Eq α`/`LE.le α inst
 and `order?` the order classification, required for `≤` and `<`.
 -/
 private def normalizeRelCore (rel : RelKind) (relFn : Expr) (order? : Option Order) (e lhs rhs : Expr)
-    (l r : RingExpr) (vars : Array Expr) : NormM CoreResult := do
+    (l r : RingExpr) (vars : Array Expr) (lhsOnly : Bool) : NormM CoreResult := do
   let kind ← getKind
   let opts ← getOptions
   let budget : PolyConfig := { maxTerms? := some (sym.arith.maxTerms.get opts), maxDegree? := some (sym.arith.maxDegree.get opts) }
@@ -680,6 +681,12 @@ private def normalizeRelCore (rel : RelKind) (relFn : Expr) (order? : Option Ord
     -- Instance for the certificate theorem: `CommRing` or `Ring`.
     let inst ← if kind.isComm then pure (← getCommRing).commRingInst else pure ring.ringInst
     let char? := ring.charInst?.bind fun (inst, c) => if c != 0 then some (inst, c) else none
+    -- `simp +arith` leaves equations between atoms and numerals alone (`x = y`, `x = 3`,
+    -- `3 = x`): `grind` and other tactics handle these directly.
+    if lhsOnly && rel == .eq then
+      match l, r with
+      | .var _, .var _ | .var _, .num _ | .num _, .var _ => return .normal
+      | _, _ => pure ()
     let some p ← (toPoly? (l.sub r)).run { budget with char? := char?.map (·.2) } | return .notApplicable
     -- Fields: cancel the discharged inverse atoms; in characteristic zero, split the numerator
     -- of `lhs - rhs`, whose denominator's sign needs `IsLinearOrder` for `≤`/`<`.
@@ -694,9 +701,19 @@ private def normalizeRelCore (rel : RelKind) (relFn : Expr) (order? : Option Ord
     let p := if !invs.isEmpty then (p.toPolyQ invs.toList ainvsL).num
       else if !ainvs.isEmpty then p.cancelInvs ainvsL
       else p
-    let (lp, rp, c) := splitPoly (char?.map (·.2)) p
-    let lp := if c > 0 then lp.addConst c else lp
-    let rp := if c < 0 then rp.addConst (-c) else rp
+    -- Like `simp +arith`, an equation already of the form `p = 0` is left alone, and the
+    -- equations `x = y` and `x = k` are kept in that form instead of `x - y = 0`.
+    if lhsOnly && rel == .eq && char?.isNone && r == .num 0 && p.toExpr == l then return .normal
+    let (lp, rp) :=
+      if lhsOnly then
+        match rel, char?, p with
+        | .eq, none, .add 1 m₁ (.add (-1) m₂ (.num 0)) => (.add 1 m₁ (.num 0), .add 1 m₂ (.num 0))
+        | .eq, none, .add (-1) m₂ (.add 1 m₁ (.num 0)) => (.add 1 m₁ (.num 0), .add 1 m₂ (.num 0))
+        | .eq, none, .add 1 m (.num k) => (.add 1 m (.num 0), .num (-k))
+        | _, _, _ => (p, .num 0)
+      else
+        let (lp, rp, c) := splitPoly (char?.map (·.2)) p
+        (if c > 0 then lp.addConst c else lp, if c < 0 then rp.addConst (-c) else rp)
     let l' := lp.toExpr
     let r' := rp.toExpr
     let e' ← share (mkApp2 relFn (← denoteRingExpr' vars l') (← denoteRingExpr' vars r'))
@@ -816,7 +833,8 @@ private def normalizeRelCore (rel : RelKind) (relFn : Expr) (order? : Option Ord
 
 /-- The `normalize?` path for relations; `e` is `rel lhs rhs` with carrier `α`. -/
 private def normalizeRel? [Monad m] [MonadLiftT SymM m] [MonadLiftT MetaM m]
-    (rel : RelKind) (α e lhs rhs : Expr) (simpAtom : Expr → m Result) (discharge? : Expr → m (Option Expr)) : m Result := do
+    (rel : RelKind) (α e lhs rhs : Expr) (simpAtom : Expr → m Result) (discharge? : Expr → m (Option Expr))
+    (lhsOnly : Bool) : m Result := do
   let kind ← match (← (classify? α : SymM _)) with
     | .commRing id => pure (Kind.commRing id)
     | .commSemiring id => pure (Kind.commSemiring id)
@@ -865,7 +883,7 @@ private def normalizeRel? [Monad m] [MonadLiftT SymM m] [MonadLiftT MetaM m]
       else
         let f := Grind.mkVarRename perm
         (l.renameVars f, r.renameVars f, perm.map (vars[·]!))
-    normalizeRelCore rel relFn order? e₁ lhs₁ rhs₁ l r vars
+    normalizeRelCore rel relFn order? e₁ lhs₁ rhs₁ l r vars lhsOnly
   let (r, cd) ← runCore kind discharge? core
   match r with
   | .notApplicable => return if cd then r₀.withContextDependent else r₀
@@ -933,13 +951,20 @@ close `t = t`, say) must apply it itself, as `Sym.Simp.simpArith` does.
 
 `discharge?` is asked for the side conditions `x ≠ 0` under which `x * x⁻¹` is cancelled in a
 field; by default none is proved.
+
+With `lhsOnly := true`, a relation over a ring is normalized to `p = 0`, `p ≤ 0`, or `p < 0`
+with `p` the polynomial of `lhs - rhs`, instead of being split by sign (see "Relations"); the
+exceptions follow `simp +arith`: equations between atoms and numerals (`x = y`, `x = 3`,
+`3 = x`) and equations already of the form `p = 0` are left alone, and `x - y = 0` and
+`x + k = 0` are written `x = y` and `x = -k`. This is the normal form of the `grind`
+normalizer. Semirings have no subtraction and are unaffected.
 -/
 def normalize? [Monad m] [MonadLiftT SymM m] [MonadLiftT MetaM m] (e : Expr) (simpAtom : Expr → m Result)
-    (discharge? : Expr → m (Option Expr) := fun _ => pure none) : m Result := do
+    (discharge? : Expr → m (Option Expr) := fun _ => pure none) (lhsOnly : Bool := false) : m Result := do
   match_expr e with
-  | Eq α lhs rhs => normalizeRel? .eq α e lhs rhs simpAtom discharge?
-  | LE.le α _ lhs rhs => normalizeRel? .le α e lhs rhs simpAtom discharge?
-  | LT.lt α _ lhs rhs => normalizeRel? .lt α e lhs rhs simpAtom discharge?
+  | Eq α lhs rhs => normalizeRel? .eq α e lhs rhs simpAtom discharge? lhsOnly
+  | LE.le α _ lhs rhs => normalizeRel? .le α e lhs rhs simpAtom discharge? lhsOnly
+  | LT.lt α _ lhs rhs => normalizeRel? .lt α e lhs rhs simpAtom discharge? lhsOnly
   | _ => normalizeTerm? e simpAtom discharge?
 
 end Lean.Meta.Sym.Arith

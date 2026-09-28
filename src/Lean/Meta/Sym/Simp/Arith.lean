@@ -53,10 +53,11 @@ relations differ in what `post` sees:
   and `simp` continues on the result as usual.
 
 The discharger `d` proves the side conditions `x ≠ 0` under which `x * x⁻¹` is cancelled in a
-field.
+field. With `lhsOnly := true`, relations over rings are normalized to `p = 0`, `p ≤ 0`, `p < 0`
+instead of being split by sign; see `Arith.normalize?`.
 -/
-def simpArith (d : Discharger := dischargeNone) : Simproc := fun e => do
-  let r ← Arith.normalize? e simp fun p => do
+def simpArith (d : Discharger := dischargeNone) (lhsOnly : Bool := false) : Simproc := fun e => do
+  let r ← Arith.normalize? e simp (lhsOnly := lhsOnly) fun p => do
     match (← d p) with
     | .solved h _ => return some h
     | .failed _ => return none

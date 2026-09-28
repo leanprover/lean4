@@ -38,7 +38,7 @@ inductive Nested where
 inductive Indexed : Fin axB → Type where
   | mk (i : Fin axB) : Indexed i
 
-inductive Empty : Fin axA → Type
+inductive EmptyIndexed : Fin axA → Type
 
 inductive Pure where
   | leaf
@@ -61,7 +61,7 @@ run_meta do
   checkBlock #[``SeparateA, ``SeparateA.mk, ``SeparateB, ``SeparateB.mk] #[``axA, ``axB]
   checkBlock #[``Nested, ``Nested.mk] #[``axA]
   checkBlock #[``Indexed, ``Indexed.mk] #[``axB]
-  checkBlock #[``Empty] #[``axA]
+  checkBlock #[``EmptyIndexed] #[``axA]
   checkBlock #[``Pure, ``Pure.leaf, ``Pure.node] #[]
 
 end CollectAxiomsInductive

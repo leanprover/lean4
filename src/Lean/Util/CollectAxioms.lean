@@ -52,6 +52,8 @@ private partial def collect
     return
   -- Recurse: temporarily clear axioms to isolate this constant's contribution.
   let savedAxioms := s.axioms
+  -- The placeholder prevents infinite recursion, but does not ensure complete cached results
+  -- for cycles outside the inductive blocks handled below (e.g., mutual unsafe definitions).
   modify fun s => { s with axioms := {}, seen := s.seen.insert c #[] }
   let collectExpr (e : Expr) : M Unit := e.getUsedConstants.forM (collect extFind?)
   let mut names := #[c]

@@ -130,7 +130,7 @@ invalidates the cache.
 each other's entries, so some packages are probed again; every stored root was resolved against
 the search path stored next to it, so results are unaffected.
 -/
-builtin_initialize oleanRootCacheRef : IO.Ref (SearchPath × List (Name × FilePath)) ←
+private builtin_initialize oleanRootCacheRef : IO.Ref (SearchPath × List (Name × FilePath)) ←
   IO.mkRef ([], [])
 
 /-- Find the compiled `.olean` of a module in the `LEAN_PATH` search path. -/

@@ -1,4 +1,7 @@
+module
+
 import Lean
+import all Lean.Util.Path
 open Lean System
 
 /-! `findOLean` caches, per root package, the search path entry that contains it. -/

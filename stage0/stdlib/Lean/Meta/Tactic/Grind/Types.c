@@ -4192,7 +4192,6 @@ v_grind_791_ = lean_ctor_get(v_b_785_, 1);
 lean_inc_ref(v_grind_791_);
 lean_dec_ref(v_b_785_);
 v___x_792_ = l_Lean_Meta_SavedState_restore___redArg(v_meta_790_, v_a_787_, v_a_788_);
-lean_dec_ref(v_meta_790_);
 if (lean_obj_tag(v___x_792_) == 0)
 {
 lean_object* v___x_794_; uint8_t v_isShared_795_; uint8_t v_isSharedCheck_801_; 

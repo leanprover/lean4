@@ -5617,7 +5617,6 @@ v_elab_930_ = lean_ctor_get(v_s_916_, 1);
 lean_inc_ref(v_elab_930_);
 lean_dec_ref(v_s_916_);
 v___x_931_ = l_Lean_Meta_SavedState_restore___redArg(v_meta_929_, v_a_921_, v_a_923_);
-lean_dec_ref(v_meta_929_);
 if (lean_obj_tag(v___x_931_) == 0)
 {
 lean_object* v___x_933_; uint8_t v_isShared_934_; uint8_t v_isSharedCheck_960_; 

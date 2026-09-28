@@ -29700,7 +29700,6 @@ lean_object* v___x_9305_;
 lean_del_object(v___x_9301_);
 lean_dec(v_a_9299_);
 v___x_9305_ = l_Lean_Meta_SavedState_restore___redArg(v_a_9288_, v___y_9283_, v___y_9285_);
-lean_dec(v_a_9288_);
 if (lean_obj_tag(v___x_9305_) == 0)
 {
 lean_object* v___x_9307_; uint8_t v_isShared_9308_; uint8_t v_isSharedCheck_9313_; 

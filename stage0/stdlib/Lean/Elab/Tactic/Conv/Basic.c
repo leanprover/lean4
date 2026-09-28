@@ -1703,7 +1703,6 @@ if (v___y_251_ == 0)
 lean_object* v___x_252_; 
 lean_dec_ref_known(v___x_248_, 1);
 v___x_252_ = l_Lean_Meta_SavedState_restore___redArg(v_a_247_, v___y_228_, v___y_230_);
-lean_dec(v_a_247_);
 if (lean_obj_tag(v___x_252_) == 0)
 {
 lean_object* v___x_253_; 
@@ -1866,7 +1865,6 @@ if (v___y_242_ == 0)
 lean_object* v___x_243_; 
 lean_dec_ref(v___y_240_);
 v___x_243_ = l_Lean_Meta_SavedState_restore___redArg(v___y_241_, v___y_228_, v___y_230_);
-lean_dec_ref(v___y_241_);
 if (lean_obj_tag(v___x_243_) == 0)
 {
 lean_dec_ref_known(v___x_243_, 1);

@@ -871,7 +871,6 @@ lean_object* v___x_176_;
 lean_del_object(v___x_172_);
 lean_dec(v_a_170_);
 v___x_176_ = l_Lean_Meta_SavedState_restore___redArg(v_a_159_, v___y_154_, v___y_156_);
-lean_dec(v_a_159_);
 if (lean_obj_tag(v___x_176_) == 0)
 {
 lean_object* v___x_178_; uint8_t v_isShared_179_; uint8_t v_isSharedCheck_184_; 

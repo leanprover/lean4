@@ -6074,7 +6074,6 @@ lean_object* v___x_1857_;
 lean_dec_ref_known(v___x_1853_, 1);
 v___x_1857_ = l_Lean_Meta_SavedState_restore___redArg(v_a_1852_, v___y_1843_, v___y_1845_);
 lean_dec(v___y_1845_);
-lean_dec(v_a_1852_);
 if (lean_obj_tag(v___x_1857_) == 0)
 {
 lean_object* v___x_1858_; lean_object* v___x_1859_; 

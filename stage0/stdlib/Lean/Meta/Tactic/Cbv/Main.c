@@ -18835,7 +18835,6 @@ if (v___y_5462_ == 0)
 lean_object* v___x_5463_; 
 lean_dec_ref(v___y_5459_);
 v___x_5463_ = l_Lean_Meta_SavedState_restore___redArg(v___y_5458_, v___y_5461_, v___y_5457_);
-lean_dec_ref(v___y_5458_);
 if (lean_obj_tag(v___x_5463_) == 0)
 {
 lean_object* v___x_5465_; uint8_t v_isShared_5466_; uint8_t v_isSharedCheck_5471_; 

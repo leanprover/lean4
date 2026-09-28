@@ -6211,7 +6211,6 @@ if (v___y_1952_ == 0)
 lean_object* v___x_1953_; 
 lean_dec_ref_known(v___x_1949_, 1);
 v___x_1953_ = l_Lean_Meta_SavedState_restore___redArg(v_a_1948_, v_a_1837_, v_a_1839_);
-lean_dec(v_a_1948_);
 if (lean_obj_tag(v___x_1953_) == 0)
 {
 lean_object* v___x_1954_; 
@@ -6636,7 +6635,6 @@ if (v___y_1903_ == 0)
 lean_object* v___x_1904_; 
 lean_dec_ref(v___y_1902_);
 v___x_1904_ = l_Lean_Meta_SavedState_restore___redArg(v___y_1901_, v_a_1837_, v_a_1839_);
-lean_dec_ref(v___y_1901_);
 if (lean_obj_tag(v___x_1904_) == 0)
 {
 lean_object* v___x_1905_; lean_object* v___x_1906_; uint8_t v___x_1907_; 
@@ -6971,7 +6969,6 @@ if (v___y_2042_ == 0)
 lean_object* v___x_2043_; 
 lean_dec_ref(v___y_2041_);
 v___x_2043_ = l_Lean_Meta_SavedState_restore___redArg(v_a_2039_, v_a_2015_, v_a_2017_);
-lean_dec(v_a_2039_);
 if (lean_obj_tag(v___x_2043_) == 0)
 {
 lean_object* v___x_2044_; 
@@ -7271,7 +7268,6 @@ if (v___y_2022_ == 0)
 lean_object* v___x_2023_; 
 lean_dec_ref(v___y_2020_);
 v___x_2023_ = l_Lean_Meta_SavedState_restore___redArg(v___y_2021_, v_a_2015_, v_a_2017_);
-lean_dec_ref(v___y_2021_);
 if (lean_obj_tag(v___x_2023_) == 0)
 {
 lean_object* v___x_2024_; 

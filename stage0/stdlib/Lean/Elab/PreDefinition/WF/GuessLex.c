@@ -10293,7 +10293,6 @@ v_a_3804_ = lean_ctor_get(v_r_3803_, 0);
 lean_inc(v_a_3804_);
 lean_dec_ref_known(v_r_3803_, 1);
 v___x_3805_ = l_Lean_Meta_SavedState_restore___redArg(v_a_3802_, v___y_3797_, v___y_3799_);
-lean_dec(v_a_3802_);
 if (lean_obj_tag(v___x_3805_) == 0)
 {
 lean_object* v___x_3807_; uint8_t v_isShared_3808_; uint8_t v_isSharedCheck_3812_; 
@@ -10387,7 +10386,6 @@ v_a_3822_ = lean_ctor_get(v_r_3803_, 0);
 lean_inc(v_a_3822_);
 lean_dec_ref_known(v_r_3803_, 1);
 v___x_3823_ = l_Lean_Meta_SavedState_restore___redArg(v_a_3802_, v___y_3797_, v___y_3799_);
-lean_dec(v_a_3802_);
 if (lean_obj_tag(v___x_3823_) == 0)
 {
 lean_object* v___x_3825_; uint8_t v_isShared_3826_; uint8_t v_isSharedCheck_3830_; 
@@ -10617,7 +10615,6 @@ _start:
 {
 lean_object* v_res_3895_; 
 v_res_3895_ = l_Lean_Elab_WF_GuessLex_SavedLocalContext_run___redArg___lam__0(v_savedState_3888_, v_k_3889_, v___y_3890_, v___y_3891_, v___y_3892_, v___y_3893_);
-lean_dec_ref(v_savedState_3888_);
 return v_res_3895_;
 }
 }

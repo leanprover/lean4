@@ -36265,7 +36265,7 @@ lean_del_object(v___x_11524_);
 v_name_11572_ = lean_ctor_get(v_constInfo_11545_, 0);
 v___x_11573_ = ((lean_object*)(l___private_Lean_Environment_0__Lean_AsyncConsts_add___closed__0));
 v___x_11574_ = ((lean_object*)(l_List_forIn_x27_loop___at___00__private_Lean_Environment_0__Lean_Environment_replayConsts_replayKernel_spec__3___redArg___closed__0));
-v___x_11575_ = lean_unsigned_to_nat(2759u);
+v___x_11575_ = lean_unsigned_to_nat(2765u);
 v___x_11576_ = lean_unsigned_to_nat(17u);
 v___x_11577_ = 1;
 lean_inc(v_name_11572_);
@@ -39401,7 +39401,7 @@ _start:
 lean_object* v___x_12766_; lean_object* v___x_12767_; lean_object* v___x_12768_; lean_object* v___x_12769_; lean_object* v___x_12770_; lean_object* v___x_12771_; 
 v___x_12766_ = ((lean_object*)(l_List_forIn_x27_loop___at___00Lean_Environment_addDeclCore_spec__1___redArg___closed__3));
 v___x_12767_ = lean_unsigned_to_nat(48u);
-v___x_12768_ = lean_unsigned_to_nat(2909u);
+v___x_12768_ = lean_unsigned_to_nat(2915u);
 v___x_12769_ = ((lean_object*)(l_Lean_Environment_realizeConst___closed__1));
 v___x_12770_ = ((lean_object*)(l___private_Lean_Environment_0__Lean_AsyncConsts_add___closed__0));
 v___x_12771_ = l_mkPanicMessageWithDecl(v___x_12770_, v___x_12769_, v___x_12768_, v___x_12767_, v___x_12766_);

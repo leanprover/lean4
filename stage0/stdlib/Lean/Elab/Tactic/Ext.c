@@ -15180,6 +15180,7 @@ if (v___x_5807_ == 0)
 lean_object* v___x_5808_; 
 lean_dec(v_goal_5797_);
 lean_dec_ref(v_a_5796_);
+lean_dec_ref(v_a_5795_);
 v___x_5808_ = lean_alloc_ctor(0, 1, 0);
 lean_ctor_set(v___x_5808_, 0, v_b_5801_);
 return v___x_5808_;
@@ -15242,6 +15243,7 @@ if (lean_obj_tag(v___x_5844_) == 0)
 lean_object* v_a_5845_; lean_object* v___x_5847_; uint8_t v_isShared_5848_; uint8_t v_isSharedCheck_5856_; 
 lean_dec(v_goal_5797_);
 lean_dec_ref(v_a_5796_);
+lean_dec_ref(v_a_5795_);
 v_a_5845_ = lean_ctor_get(v___x_5844_, 0);
 v_isSharedCheck_5856_ = !lean_is_exclusive(v___x_5844_);
 if (v_isSharedCheck_5856_ == 0)
@@ -15340,6 +15342,7 @@ if (v___y_5816_ == 0)
 {
 lean_object* v___x_5817_; 
 lean_dec_ref(v___y_5815_);
+lean_inc_ref(v_a_5795_);
 v___x_5817_ = l_Lean_Meta_SavedState_restore___redArg(v_a_5795_, v___y_5803_, v___y_5805_);
 if (lean_obj_tag(v___x_5817_) == 0)
 {
@@ -15356,6 +15359,7 @@ else
 lean_object* v_a_5821_; lean_object* v___x_5823_; uint8_t v_isShared_5824_; uint8_t v_isSharedCheck_5828_; 
 lean_dec(v_goal_5797_);
 lean_dec_ref(v_a_5796_);
+lean_dec_ref(v_a_5795_);
 v_a_5821_ = lean_ctor_get(v___x_5817_, 0);
 v_isSharedCheck_5828_ = !lean_is_exclusive(v___x_5817_);
 if (v_isSharedCheck_5828_ == 0)
@@ -15400,6 +15404,7 @@ else
 lean_object* v___x_5829_; 
 lean_dec(v_goal_5797_);
 lean_dec_ref(v_a_5796_);
+lean_dec_ref(v_a_5795_);
 v___x_5829_ = lean_alloc_ctor(1, 1, 0);
 lean_ctor_set(v___x_5829_, 0, v___y_5815_);
 return v___x_5829_;
@@ -15442,7 +15447,6 @@ lean_dec_ref(v___y_5870_);
 lean_dec(v___y_5869_);
 lean_dec_ref(v___y_5868_);
 lean_dec_ref(v_as_5864_);
-lean_dec_ref(v_a_5861_);
 return v_res_5875_;
 }
 }
@@ -15761,7 +15765,6 @@ v_sz_5982_ = lean_array_size(v_a_5980_);
 v___x_5983_ = ((size_t)0ULL);
 v___x_5984_ = l___private_Init_Data_Array_Basic_0__Array_forIn_x27Unsafe_loop___at___00Lean_Elab_Tactic_Ext_applyExtTheoremAt_spec__1(v___y_5979_, v_a_5972_, v_goal_5965_, v_a_5980_, v_sz_5982_, v___x_5983_, v___x_5981_, v___y_5978_, v___y_5975_, v___y_5976_, v___y_5974_);
 lean_dec_ref(v_a_5980_);
-lean_dec_ref(v___y_5979_);
 if (lean_obj_tag(v___x_5984_) == 0)
 {
 lean_object* v_a_5985_; lean_object* v___x_5987_; uint8_t v_isShared_5988_; uint8_t v_isSharedCheck_6007_; 

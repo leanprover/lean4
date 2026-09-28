@@ -84,3 +84,25 @@ run_meta do
   let batch ← Expr.relevantConstantsOfEach types
   let single ← types.mapM (·.relevantConstants)
   logInfo m!"{names.size > 100 && batch == single}"
+
+/-- info: true -/
+#guard_msgs in
+run_meta do
+  -- A statement whose traversal fails gets no constants and does not affect the other statements.
+  let good := (← getConstInfo ``sub_pos).type
+  let expected ← good.relevantConstants
+  let batch ← Expr.relevantConstantsOfEach #[good, .const `doesNotExist [], good]
+  logInfo m!"{batch == #[expected, #[], expected]}"
+
+/-- info: true -/
+#guard_msgs in
+run_meta do
+  let tk ← IO.CancelToken.new
+  tk.set
+  let action : MetaM _ := Expr.relevantConstantsOfEach #[(← getConstInfo ``sub_pos).type] tk
+  let result ← (action.run' {} (← getThe Meta.State) |>.run' (← readThe Core.Context)
+    (← getThe Core.State)).toIO'
+  let interrupted : Bool := match result with
+    | .error e => e.isInterrupt
+    | .ok _ => false
+  logInfo m!"{interrupted}"

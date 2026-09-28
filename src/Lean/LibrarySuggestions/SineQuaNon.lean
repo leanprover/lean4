@@ -88,25 +88,22 @@ def prepareTriggers (maxTolerance : Float := 3.0) : CoreM (NameMap (List (Name �
   for h : i in [0:consts.size] do
     let (name, relevant) := consts[i]
     for (trigger, tolerance) in triggersOf (frequency.getD · 0) denyList relevant maxTolerance do
-      buckets := buckets.insert trigger ((buckets.getD trigger #[]).push (i, name, tolerance))
+      buckets := buckets.alter trigger fun entries? =>
+        some ((entries?.getD #[]).push (i, name, tolerance))
   return buckets.foldl (init := {}) fun map trigger entries =>
     let sorted := entries.qsort fun (i, _, x) (j, _, y) => x < y || (x == y && i > j)
     map.insert trigger (sorted.toList.map fun (_, name, tolerance) => (name, tolerance))
 
 /-- A global `IO.Ref` containing the "sine qua non" triggers. This is initialized on first use. -/
-builtin_initialize sineQuaNonTriggersRef : IO.Ref (Option (NameMap (List (Name × Float)))) ← IO.mkRef none
+builtin_initialize sineQuaNonTriggersRef : SharedCache (NameMap (List (Name × Float))) ←
+  IO.mkRef none
 
 /--
 The "sine qua non" triggers for imported constants. This is computed and cached on first use,
 assuming the imported environment remains fixed for the lifetime of the process.
 -/
-def sineQuaNonTriggerMap : CoreM (NameMap (List (Name × Float))) := do
-  match ← sineQuaNonTriggersRef.get with
-  | some map => return map
-  | none =>
-    let map ← withUncountedHeartbeats prepareTriggers
-    sineQuaNonTriggersRef.set (some map)
-    return map
+def sineQuaNonTriggerMap : CoreM (NameMap (List (Name × Float))) :=
+  sineQuaNonTriggersRef.getOrCompute <| withUncountedHeartbeats prepareTriggers
 
 public def sineQuaNonTheorems (trigger : Name) : CoreM (List (Name × Float)) := do
   let map ← sineQuaNonTriggerMap

@@ -47,8 +47,8 @@ inductive ArgKind where
 
 /--
 The `ArgKind` of the first `n` parameters of `fn`, from the binders of its type, which is unfolded
-at default transparency. `getFunInfo` shares its results for constants between threads through one
-`IO.Ref`, on which parallel callers spin, so this computes the kinds itself.
+at default transparency. Unlike `getFunInfo`, this does not share results between threads, so
+parallel callers do not contend on a shared cache.
 -/
 def argKinds (fn : Expr) (n : Nat) : MetaM (Array ArgKind) := do
   let fnType ← inferType fn
@@ -149,14 +149,19 @@ unsafe def fold {α : Type} (f : Name → α → MetaM α) (e : Expr) (acc : α)
 @[inline] unsafe def foldUnsafe {α : Type} (e : Expr) (init : α) (f : Name → α → MetaM α) : MetaM α :=
   (fold f e init).run' {}
 
-unsafe def relevantConstantsOfEachUnsafe (es : Array Expr) : MetaM (Array (Array Name)) := do
+unsafe def relevantConstantsOfEachUnsafe (es : Array Expr)
+    (cancelTk? : Option IO.CancelToken := none) : MetaM (Array (Array Name)) := do
   let mut kinds := {}
   let mut out := Array.mkEmpty es.size
   for e in es do
+    -- Parallel callers share `cancelTk?`, and concurrent reads of one `IO.Ref` contend.
+    if out.size % 64 == 0 then
+      if let some tk := cancelTk? then
+        if ← tk.isSet then
+          throwInterruptException
     let (consts, s) ← try
         (fold (fun n ns => return ns.push n) e #[]).run { kinds }
-      catch ex =>
-        if ex.isInterrupt || ex.isRuntime then throw ex
+      catch _ =>
         -- For example, a statement that mentions a private auxiliary proof of a module whose
         -- private part is not imported.
         pure (#[], { kinds })
@@ -179,10 +184,12 @@ public def relevantConstantsAsSet (e : Expr) : MetaM NameSet := foldRelevantCons
 /--
 `relevantConstants` of each expression in `es`. It computes the parameter kinds of each head
 constant once for all of `es`, so it is faster than `relevantConstants` on each expression. An
-expression whose traversal fails gets `#[]`.
+expression whose traversal fails gets `#[]`; interrupts and resource limits still propagate. When
+`cancelTk?` is set, this throws an interrupt exception within the next 64 expressions.
 -/
 @[implemented_by FoldRelevantConstantsImpl.relevantConstantsOfEachUnsafe]
-public opaque relevantConstantsOfEach (es : Array Expr) : MetaM (Array (Array Name)) :=
+public opaque relevantConstantsOfEach (es : Array Expr)
+    (cancelTk? : Option IO.CancelToken := none) : MetaM (Array (Array Name)) :=
   pure #[]
 
 end Lean.Expr

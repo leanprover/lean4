@@ -137,23 +137,9 @@ example : a / 1 = a % 1 := by grind_norm check; sorry
 #guard_msgs in
 example : i - j = -i := by grind_norm check; sorry
 
-/--
-error: `grind_norm` discrepancy
-legacy:
-  True
-sym:
-  ↑a + ↑b + -1 * ↑a + -1 * ↑b = 0
--/
 #guard_msgs in
 example : ((a : Int) + (b : Int)) = ((a + b : Nat) : Int) := by grind_norm check; sorry
 
-/--
-error: `grind_norm` discrepancy
-legacy:
-  ↑a * ↑b = ↑a
-sym:
-  ↑a * ↑b = ↑a
--/
 #guard_msgs in
 example : ((a * b : Nat) : Int) = (a : Int) := by grind_norm check; sorry
 

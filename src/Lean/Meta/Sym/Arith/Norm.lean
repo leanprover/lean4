@@ -54,8 +54,8 @@ order in which its atoms occur, and two terms denoting the same polynomial over 
 atoms normalize to the same (maximally shared) expression.
 
 The input is not assumed to be canonicalized. Reification runs on a copy of the term whose
-operator prefixes (`HAdd.hAdd α α α inst`, ...) and numerals are canonicalized (`canonArith`);
-the atoms are shared with the original, the proof is stated for the original term, and the
+operator and cast prefixes (`HAdd.hAdd α α α inst`, `NatCast.natCast α inst`, ...) and numerals
+are canonicalized (`canonArith`); the atoms are otherwise shared with the original, the proof is stated for the original term, and the
 kernel closes the gap between the goal's instances and the canonical ones of the output
 while checking the expected type, as it does for `grind`. The copy is the term itself when
 the instances are already canonical.
@@ -341,10 +341,11 @@ private partial def visitAtoms (kind : Kind) (isField : Bool) (simpAtom : Expr �
 end Visit
 
 /--
-Canonicalizes the operator prefixes and the numerals of the arithmetic tree rooted at `e`,
-without touching the atoms, so that the reifier's pointer checks against the cached operators
-succeed. Nodes that the structure does not interpret (`-` in a semiring, `^` with a symbolic
-exponent, casts of non-literals) are atoms. Returns `e` itself when nothing changes.
+Canonicalizes the operator prefixes, the numerals, and the cast prefixes of the arithmetic tree
+rooted at `e`, without touching the atoms otherwise, so that the reifier's pointer checks against
+the cached operators succeed. Nodes that the structure does not interpret (`-` in a semiring,
+`^` with a symbolic exponent, casts of non-literals) are atoms. Returns `e` itself when nothing
+changes.
 -/
 private partial def canonArith (e : Expr) : NormM Expr := do
   let isRing := (← getKind).isRing
@@ -378,8 +379,11 @@ private partial def canonArith (e : Expr) : NormM Expr := do
     let a' ← canonArith a
     if isSameExpr f f' && isSameExpr a a' then return e
     mkAppS₂ f' a' k
-  | NatCast.natCast _ _ a => if (Sym.getNatValue? a).run.isSome then castLit e a else return e
-  | IntCast.intCast _ _ a => if isRing && (Sym.getIntValue? a).run.isSome then castLit e a else return e
+  -- Casts are canonicalized for every argument: a cast of a non-literal is an atom, and a
+  -- noncanonical instance (e.g. `Semiring.natCast` from a generic rewrite rule) would otherwise
+  -- make `↑a` a different atom from the canonical `↑a`.
+  | NatCast.natCast _ _ a => castLit e a
+  | IntCast.intCast _ _ a => if isRing then castLit e a else return e
   | OfNat.ofNat _ _ _ => canonExpr e
   | _ => return e
 

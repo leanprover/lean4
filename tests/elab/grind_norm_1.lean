@@ -1,7 +1,8 @@
 /-!
 Discrepancies between the legacy `simp`-based `grind` normalizer and the `Sym.simp`-based one,
 collected with `grind_norm check`. `grind_norm` is a debugging tactic for this migration and
-will be deleted with this test once `grind` runs on `Sym.simp`. Each `#guard_msgs` documents the current status of one
+will be deleted with this test once `grind` runs on `Sym.simp`. A recorded message is a gap to
+fix unless a comment marks it as an accepted difference. Each `#guard_msgs` documents the current status of one
 input; an empty message means both normalizers agree.
 -/
 
@@ -182,6 +183,7 @@ example : i * j + 1 = i * j := by grind_norm check; sorry
 #guard_msgs in
 example : -i ≤ j := by grind_norm check; sorry
 
+-- Accepted difference: legacy normalizes only `Nat` and `Int` arithmetic.
 /--
 error: `grind_norm` discrepancy
 legacy:
@@ -321,3 +323,158 @@ example (a : Int) : a + 1 + b + c + 5 ≥ 0 := by grind_norm check; sorry
 example (a : Int) : a + 1 + b + c + 5 = 0 := by grind_norm check; sorry
 
 end structural
+
+section int_tightening
+variable (i : Int)
+
+#guard_msgs in
+example : 2 * i = 4 := by grind_norm check; sorry
+
+#guard_msgs in
+example : 2 * i + 1 ≤ 4 := by grind_norm check; sorry
+
+#guard_msgs in
+example : (2 : Int) ∣ 2 * i := by grind_norm check; sorry
+
+#guard_msgs in
+example : (3 : Int) ∣ i := by grind_norm check; sorry
+
+#guard_msgs in
+example (j : Int) : 4 * i + 2 = 6 * j := by grind_norm check; sorry
+
+-- Accepted difference: legacy checks "already of the form `p = 0`" before its gcd step.
+/--
+error: `grind_norm` discrepancy
+legacy:
+  3 * i + 1 = 0
+sym:
+  False
+-/
+#guard_msgs in
+example : 3 * i + 1 = 0 := by grind_norm check; sorry
+
+-- Accepted difference: legacy checks "already of the form `p = 0`" before its gcd step.
+/--
+error: `grind_norm` discrepancy
+legacy:
+  2 * i + 3 ≤ 0
+sym:
+  i + 2 ≤ 0
+-/
+#guard_msgs in
+example : 2 * i + 3 ≤ 0 := by grind_norm check; sorry
+
+#guard_msgs in
+example (j : Int) : 6 * i ≤ 4 * j + 3 := by grind_norm check; sorry
+
+#guard_msgs in
+example : 4 * i < 6 := by grind_norm check; sorry
+
+#guard_msgs in
+example : -2 * i = 4 := by grind_norm check; sorry
+
+#guard_msgs in
+example : ¬(2 * i ≤ 5) := by grind_norm check; sorry
+
+#guard_msgs in
+example : (6 : Int) ∣ 4 * i + 2 := by grind_norm check; sorry
+
+#guard_msgs in
+example : (4 : Int) ∣ 2 * i + 1 := by grind_norm check; sorry
+
+#guard_msgs in
+example : (2 : Int) ∣ 4 * i := by grind_norm check; sorry
+
+#guard_msgs in
+example : (0 : Int) ∣ i := by grind_norm check; sorry
+
+#guard_msgs in
+example : (-2 : Int) ∣ 4 * i + 2 := by grind_norm check; sorry
+
+#guard_msgs in
+example (j : Int) : (3 : Int) ∣ i + j - i := by grind_norm check; sorry
+
+end int_tightening
+
+section control_flow
+variable (a b c : Nat)
+
+/--
+error: `grind_norm` discrepancy
+legacy:
+  a = c
+sym:
+  (if True then a else b) = c
+-/
+#guard_msgs in
+example : (if 1 < 2 then a else b) = c := by grind_norm check; sorry
+
+/--
+error: `grind_norm` discrepancy
+legacy:
+  b = c
+sym:
+  (if False then a else b) = c
+-/
+#guard_msgs in
+example : (if 2 < 1 then a else b) = c := by grind_norm check; sorry
+
+/--
+error: `grind_norm` discrepancy
+legacy:
+  a = c
+sym:
+  (if True then a else b) = c
+-/
+#guard_msgs in
+example : (if h : 1 < 2 then a else b) = c := by grind_norm check; sorry
+
+/--
+error: `grind_norm` discrepancy
+legacy:
+  a = c
+sym:
+  (if True then a else b) = c
+-/
+#guard_msgs in
+example : cond (1 < 2 : Bool) a b = c := by grind_norm check; sorry
+
+end control_flow
+
+section ground_char
+variable (a : Nat)
+
+/--
+error: `grind_norm` discrepancy
+legacy:
+  97 = a
+sym:
+  'a'.toNat = a
+-/
+#guard_msgs in
+example : 'a'.toNat = a := by grind_norm check; sorry
+
+/--
+error: `grind_norm` discrepancy
+legacy:
+  True
+sym:
+  Char.ofNat 97 = 'a'
+-/
+#guard_msgs in
+example : Char.ofNat 97 = 'a' := by grind_norm check; sorry
+
+/--
+error: `grind_norm` discrepancy
+legacy:
+  True
+sym:
+  'a'.isAlpha = true
+-/
+#guard_msgs in
+example : 'a'.isAlpha = true := by grind_norm check; sorry
+
+#guard_msgs in
+example : 'a' < 'b' := by grind_norm check; sorry
+
+end ground_char

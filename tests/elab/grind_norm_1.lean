@@ -321,3 +321,124 @@ example (a : Int) : a + 1 + b + c + 5 ≥ 0 := by grind_norm check; sorry
 example (a : Int) : a + 1 + b + c + 5 = 0 := by grind_norm check; sorry
 
 end structural
+
+section int_tightening
+variable (i : Int)
+
+/--
+error: `grind_norm` discrepancy
+legacy:
+  i = 2
+sym:
+  2 * i + -4 = 0
+-/
+#guard_msgs in
+example : 2 * i = 4 := by grind_norm check; sorry
+
+/--
+error: `grind_norm` discrepancy
+legacy:
+  i + -1 ≤ 0
+sym:
+  2 * i + -3 ≤ 0
+-/
+#guard_msgs in
+example : 2 * i + 1 ≤ 4 := by grind_norm check; sorry
+
+/--
+error: `grind_norm` discrepancy
+legacy:
+  True
+sym:
+  2 ∣ 2 * i
+-/
+#guard_msgs in
+example : (2 : Int) ∣ 2 * i := by grind_norm check; sorry
+
+#guard_msgs in
+example : (3 : Int) ∣ i := by grind_norm check; sorry
+
+end int_tightening
+
+section control_flow
+variable (a b c : Nat)
+
+/--
+error: `grind_norm` discrepancy
+legacy:
+  a = c
+sym:
+  (if True then a else b) = c
+-/
+#guard_msgs in
+example : (if 1 < 2 then a else b) = c := by grind_norm check; sorry
+
+/--
+error: `grind_norm` discrepancy
+legacy:
+  b = c
+sym:
+  (if False then a else b) = c
+-/
+#guard_msgs in
+example : (if 2 < 1 then a else b) = c := by grind_norm check; sorry
+
+/--
+error: `grind_norm` discrepancy
+legacy:
+  a = c
+sym:
+  (if True then a else b) = c
+-/
+#guard_msgs in
+example : (if h : 1 < 2 then a else b) = c := by grind_norm check; sorry
+
+/--
+error: `grind_norm` discrepancy
+legacy:
+  a = c
+sym:
+  (if True then a else b) = c
+-/
+#guard_msgs in
+example : cond (1 < 2 : Bool) a b = c := by grind_norm check; sorry
+
+end control_flow
+
+section ground_char
+variable (a : Nat)
+
+/--
+error: `grind_norm` discrepancy
+legacy:
+  97 = a
+sym:
+  'a'.toNat = a
+-/
+#guard_msgs in
+example : 'a'.toNat = a := by grind_norm check; sorry
+
+/--
+error: `grind_norm` discrepancy
+legacy:
+  True
+sym:
+  Char.ofNat 97 = 'a'
+-/
+#guard_msgs in
+example : Char.ofNat 97 = 'a' := by grind_norm check; sorry
+
+/--
+error: `grind_norm` discrepancy
+legacy:
+  True
+sym:
+  'a'.isAlpha = true
+-/
+#guard_msgs in
+example : 'a'.isAlpha = true := by grind_norm check; sorry
+
+#guard_msgs in
+example : 'a' < 'b' := by grind_norm check; sorry
+
+end ground_char

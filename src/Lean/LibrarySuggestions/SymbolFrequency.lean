@@ -13,10 +13,9 @@ import Init.System.Platform
 /-!
 # Symbol frequency
 
-Symbol frequencies for library suggestions are computed on first use, without storing any data in
-olean files. The first query may be expensive for large imported libraries, so the imported
-statements are traversed in parallel tasks. Index construction does not consume the caller's
-heartbeat budget, but can be interrupted.
+Symbol frequencies for library suggestions are computed on first use and cached for the process.
+The imported statements are traversed in parallel tasks. Index construction does not count against
+the caller's heartbeat budget, but it can be interrupted.
 -/
 
 namespace Lean.LibrarySuggestions
@@ -72,9 +71,8 @@ def importedRelevantConstants : CoreM (Array (Name × Array Name)) := do
         let chunk := names.extract (i * chunkSize) ((i + 1) * chunkSize)
         if chunk.isEmpty then
           continue
-        -- `visitChunk` checks `cancelTk?` once every 4096 theorems. Passing it to `wrapAsync` would
-        -- have every `Core.checkSystem` in every task read the same `IO.Ref`, and concurrent reads
-        -- of one `IO.Ref` spin.
+        -- `visitChunk` checks `cancelTk?` itself, once every 4096 theorems. `wrapAsync` gets no
+        -- token, because concurrent `Core.checkSystem` reads of one `IO.Ref` spin.
         let act ← Core.wrapAsync visitChunk none
         tasks := tasks.push (← EIO.asTask (act chunk) (prio := .dedicated))
       let mut consts := Array.mkEmpty names.size

@@ -33,73 +33,105 @@ namespace Lean.Expr.FoldRelevantConstantsImpl
 
 open Lean Meta
 
+/-- How the traversal treats an argument of an application, decided by the head's parameter. -/
+inductive ArgKind where
+  /-- An instance-implicit argument. It is not visited. -/
+  | instImplicit
+  /-- The parameter type is a proposition, so the argument is a proof. It is not visited. -/
+  | proof
+  /-- The parameter type is never a proposition, so the argument is not a proof. It is visited. -/
+  | value
+  /-- `isProof` decides whether the argument is visited. -/
+  | unknown
+  deriving Inhabited
+
 /--
-Which of the first `n` parameters of `fn` are instance implicit: `ParamInfo.isInstImplicit` of
-`getFunInfoNArgs fn n`, computed without the rest of `FunInfo`. `getFunInfo` shares its results for
-constants between threads through one `IO.Ref`, and parallel callers spin on that `IO.Ref`.
+The `ArgKind` of the first `n` parameters of `fn`, from the binders of its type, which is unfolded
+at default transparency. `getFunInfo` shares its results for constants between threads through one
+`IO.Ref`, on which parallel callers spin, so this computes the kinds itself.
 -/
-def instImplicitMask (fn : Expr) (n : Nat) : MetaM (Array Bool) := do
+def argKinds (fn : Expr) (n : Nat) : MetaM (Array ArgKind) := do
   let fnType ← inferType fn
   withAtLeastTransparency .default do
     forallBoundedTelescope fnType n fun xs _ =>
-      xs.mapM fun x => return (← x.fvarId!.getDecl).binderInfo.isInstImplicit
+      xs.mapM fun x => do
+        let decl ← x.fvarId!.getDecl
+        if decl.binderInfo.isInstImplicit then
+          return .instImplicit
+        -- The sort of the parameter type is the sort of the argument's type. It decides whether the
+        -- argument is a proof unless it depends on universe variables.
+        try
+          match ← whnfD (← inferType decl.type) with
+          | .sort u =>
+            return if u.isAlwaysZero then .proof else if u.isNeverZero then .value else .unknown
+          | _ => return .unknown
+        catch _ =>
+          return .unknown
 
 unsafe structure State where
  visited       : PtrSet Expr := mkPtrSet
  visitedConsts : NameHashSet := {}
- /-- `instImplicitMask` of constant heads, by head and number of arguments. -/
- masks         : Std.HashMap (Expr × Nat) (Array Bool) := {}
+ /-- `argKinds` of constant heads, by head and number of arguments. -/
+ kinds         : Std.HashMap (Expr × Nat) (Array ArgKind) := {}
 
 unsafe abbrev FoldM := StateT State MetaM
 
-unsafe def headMask (fn : Expr) (n : Nat) : FoldM (Array Bool) := do
+unsafe def headKinds (fn : Expr) (n : Nat) : FoldM (Array ArgKind) := do
   unless fn.isConst do
-    return ← instImplicitMask fn n
-  if let some mask := (← get).masks[(fn, n)]? then
-    return mask
-  let mask ← instImplicitMask fn n
-  modify fun s => { s with masks := s.masks.insert (fn, n) mask }
-  return mask
+    return ← argKinds fn n
+  if let some kinds := (← get).kinds[(fn, n)]? then
+    return kinds
+  let kinds ← argKinds fn n
+  modify fun s => { s with kinds := s.kinds.insert (fn, n) kinds }
+  return kinds
 
+/--
+`mayBeProof` is `false` when the context shows that `e` is not a proof, so `visit` skips `isProof`.
+This holds for a type (a binder domain or the body of a `forallE`), for the head or the body of an
+application, lambda, or `let` that is not a proof, and for an argument whose parameter type is
+never a proposition.
+-/
 unsafe def fold {α : Type} (f : Name → α → MetaM α) (e : Expr) (acc : α) : FoldM α :=
-  let rec visit (e : Expr) (acc : α) : FoldM α := do
+  let rec visit (e : Expr) (acc : α) (mayBeProof := true) : FoldM α := do
     if (← get).visited.contains e then
       return acc
     modify fun s => { s with visited := s.visited.insert e }
-    if ← isProof e then
-      -- Don't visit proofs.
-      return acc
+    if mayBeProof then
+      if ← isProof e then
+        -- Don't visit proofs.
+        return acc
     match e with
     | .forallE n d b bi  =>
-      let r ← visit d acc
+      let r ← visit d acc (mayBeProof := false)
       withLocalDecl n bi d fun x =>
-        visit (b.instantiate1 x) r
+        visit (b.instantiate1 x) r (mayBeProof := false)
     | .lam n d b bi      =>
-      let r ← visit d acc
+      let r ← visit d acc (mayBeProof := false)
       withLocalDecl n bi d fun x =>
-        visit (b.instantiate1 x) r
-    | .mdata _ b         => visit b acc
+        visit (b.instantiate1 x) r (mayBeProof := false)
+    | .mdata _ b         => visit b acc mayBeProof
     | .letE n t v b nondep    =>
-      let r₁ ← visit t acc
+      let r₁ ← visit t acc (mayBeProof := false)
       let r₂ ← visit v r₁
       withLetDecl n t v (nondep := nondep) fun x =>
-        visit (b.instantiate1 x) r₂
+        visit (b.instantiate1 x) r₂ (mayBeProof := false)
     | .app ..            =>
-      -- Visit the whole application spine at once, so that the head's parameters are computed once
-      -- instead of once per partial application.
+      -- Visit the whole application spine at once, so that the parameter kinds of the head are
+      -- computed once per application.
       let fn := e.getAppFn
       let args := e.getAppArgs
-      let mask ← headMask fn args.size
-      let mut acc ← visit fn acc
+      let kinds ← headKinds fn args.size
+      let mut acc ← visit fn acc (mayBeProof := false)
       for h : i in [0:args.size] do
-        let instImplicit ← if h' : i < mask.size then
-            pure mask[i]
+        let kind ← if h' : i < kinds.size then
+            pure kinds[i]
           else
             -- The head's type does not unfold to enough binders without the actual arguments.
-            pure ((← instImplicitMask (mkAppRange fn 0 i args) 1)[0]?.getD false)
-        -- Don't visit instance implicit arguments.
-        unless instImplicit do
-          acc ← visit args[i] acc
+            pure ((← argKinds (mkAppRange fn 0 i args) 1)[0]?.getD .unknown)
+        match kind with
+        | .instImplicit | .proof => pure ()
+        | .value => acc ← visit args[i] acc (mayBeProof := false)
+        | .unknown => acc ← visit args[i] acc
       return acc
     | .proj _ _ b        => visit b acc
     | .const c _         =>
@@ -118,11 +150,17 @@ unsafe def fold {α : Type} (f : Name → α → MetaM α) (e : Expr) (acc : α)
   (fold f e init).run' {}
 
 unsafe def relevantConstantsOfEachUnsafe (es : Array Expr) : MetaM (Array (Array Name)) := do
-  let mut masks := {}
+  let mut kinds := {}
   let mut out := Array.mkEmpty es.size
   for e in es do
-    let (consts, s) ← (fold (fun n ns => return ns.push n) e #[]).run { masks }
-    masks := s.masks
+    let (consts, s) ← try
+        (fold (fun n ns => return ns.push n) e #[]).run { kinds }
+      catch ex =>
+        if ex.isInterrupt || ex.isRuntime then throw ex
+        -- For example, a statement that mentions a private auxiliary proof of a module whose
+        -- private part is not imported.
+        pure (#[], { kinds })
+    kinds := s.kinds
     out := out.push consts
   return out
 
@@ -139,8 +177,9 @@ public def relevantConstants (e : Expr) : MetaM (Array Name) := foldRelevantCons
 public def relevantConstantsAsSet (e : Expr) : MetaM NameSet := foldRelevantConstants e ∅ (fun n ns => return ns.insert n)
 
 /--
-`relevantConstants` of each expression in `es`. This is faster than calling `relevantConstants` on
-each one, because it computes the parameters of each head constant once for all of `es`.
+`relevantConstants` of each expression in `es`. It computes the parameter kinds of each head
+constant once for all of `es`, so it is faster than `relevantConstants` on each expression. An
+expression whose traversal fails gets `#[]`.
 -/
 @[implemented_by FoldRelevantConstantsImpl.relevantConstantsOfEachUnsafe]
 public opaque relevantConstantsOfEach (es : Array Expr) : MetaM (Array (Array Name)) :=

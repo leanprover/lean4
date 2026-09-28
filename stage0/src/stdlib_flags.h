@@ -2,6 +2,7 @@
 
 // [ ] Check box to force CI to test stage 2 and run update-stage0 on PR merge
 // (any other change to this file will do the same; ALL changes should be made to the stage0/ copy)
+// update me!
 
 namespace lean {
 options get_option_overrides() {

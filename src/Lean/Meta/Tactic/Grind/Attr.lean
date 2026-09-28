@@ -28,7 +28,7 @@ inductive AttrKind where
   | funCC
   | norm (post : Bool) (inv : Bool)
   | unfold
-  | homo
+  | homo (fallback : Bool)
   | homoPred
 
 /-- Return theorem kind for `stx` of the form `Attr.grindThmMod` -/
@@ -63,7 +63,8 @@ def getAttrKindCore (stx : Syntax) : CoreM AttrKind := do
   | `(Parser.Attr.grindMod|norm ↑ ←) => return .norm true true
   | `(Parser.Attr.grindMod|norm ↓ ←) => return .norm (post := false) true
   | `(Parser.Attr.grindMod|unfold) => return .unfold
-  | `(Parser.Attr.grindMod|hom) => return .homo
+  | `(Parser.Attr.grindMod|hom) => return .homo (fallback := false)
+  | `(Parser.Attr.grindMod|hom fallback) => return .homo (fallback := true)
   | `(Parser.Attr.grindMod|hom_pred) => return .homoPred
   | `(Parser.Attr.grindMod|symbol $prio:prio) =>
     let some prio := prio.raw.isNatLit? | throwErrorAt prio "priority expected"
@@ -185,10 +186,10 @@ private def mkGrindAttr (attrName : Name) (minIndexable : Bool) (showInfo : Bool
           throwError "declaration to unfold must be set using the default `[grind]` attribute"
         unless (← addDeclToUnfold normExt declName (post := false) (inv := false) (prio := eval_prio default) (attrKind := attrKind)) do
           throwError "cannot mark declaration to be unfolded by `grind`"
-      | .homo =>
+      | .homo fallback =>
         unless attrName == `grind do
           throwError "homomorphism rules must be set using the default `[grind]` attribute"
-        addHomoAttr declName attrKind
+        addHomoAttr declName attrKind fallback
       | .homoPred =>
         unless attrName == `grind do
           throwError "homomorphism predicates must be set using the default `[grind]` attribute"

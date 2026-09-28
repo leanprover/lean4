@@ -2270,12 +2270,11 @@ private def elabAppAux (f : Syntax) (namedArgs : Array NamedArg) (args : Array A
 
 /--
   We annotate recursive applications with their `Syntax` node to make sure we can produce error messages with
-  correct position information at `WF` and `Structural`.
+  correct position information at `WF` and `Structural`. `mkRecAppWithSyntax` stores a copy of the syntax that
+  does not reference the input string; otherwise, `Expr` traversals such as hash-consing would visit the whole
+  input string once per recursive application. The annotation must be erased before the definition is sent to
+  the kernel.
 -/
--- TODO: It is overkill to store the whole `Syntax` object, and we have to make sure we erase it later.
--- We should store only the position information in the future.
--- Recall that we will need to have a compact way of storing position information in the future anyway, if we
--- want to support debugging information
 private def annotateIfRec (stx : Syntax) (e : Expr) : TermElabM Expr := do
   if (← read).saveRecAppSyntax then
     let resultFn := e.getAppFn

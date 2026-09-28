@@ -12,6 +12,7 @@ import Lean.Meta.Tactic.Grind.Arith.CommRing.Reify
 import Lean.Meta.Tactic.Grind.Arith.CommRing.DenoteExpr
 public section
 namespace Lean.Meta.Grind.Arith.CommRing
+open Sym.Arith
 
 /-- If `e` is a function application supported by the `CommRing` module, return its type. -/
 private def getType? (e : Expr) : Option Expr :=
@@ -80,8 +81,8 @@ private def processInv (e inst a : Expr) : RingM Unit := do
   unless (← isInvInst inst) do return ()
   let ring ← getCommRing
   let some fieldInst := ring.fieldInst? | return ()
-  if (← getCommRing).invSet.contains a then return ()
-  modifyCommRing fun s => { s with invSet := s.invSet.insert a }
+  if (← getCommRingState).invSet.contains a then return ()
+  modifyCommRingState fun s => { s with invSet := s.invSet.insert a }
   if let some k ← toInt? a then
     if k == 0 then
       /-
@@ -119,8 +120,8 @@ push the equation `x ^ p = x` as a new fact into grind.
 private def processPowIdentityVars : RingM Unit := do
   let ring ← getCommRing
   let some (powIdentityInst, csInst, p) := ring.powIdentityInst? | return ()
-  let startIdx := ring.powIdentityVarCount
-  let vars := ring.toRing.vars
+  let startIdx := (← getCommRingState).powIdentityVarCount
+  let vars := (← getRingState).vars
   if startIdx >= vars.size then return ()
   for i in [startIdx:vars.size] do
     let x := vars[i]!
@@ -129,7 +130,7 @@ private def processPowIdentityVars : RingM Unit := do
     let proof := mkApp5 (mkConst ``Grind.PowIdentity.pow_eq [ring.u])
       ring.type csInst (mkNatLit p) powIdentityInst x
     pushNewFact proof
-  modifyCommRing fun s => { s with powIdentityVarCount := vars.size }
+  modifyCommRingState fun s => { s with powIdentityVarCount := vars.size }
 
 /-- Returns `true` if `e` is a term `a⁻¹`. -/
 private def internalizeInv (e : Expr) : GoalM Bool := do
@@ -153,7 +154,7 @@ def internalize (e : Expr) (parent? : Option Expr) : GoalM Unit := do
     trace_goal[grind.ring.internalize] "[{ringId}]: {e}"
     setTermRingId e
     ringExt.markTerm e
-    modifyCommRing fun s => { s with
+    modifyCommRingState fun s => { s with
       denote := s.denote.insert { expr := e } re
       denoteEntries := s.denoteEntries.push (e, re)
     }
@@ -163,18 +164,18 @@ def internalize (e : Expr) (parent? : Option Expr) : GoalM Unit := do
     trace_goal[grind.ring.internalize] "semiring [{semiringId}]: {e}"
     setTermSemiringId e
     ringExt.markTerm e
-    modifySemiring fun s => { s with denote := s.denote.insert { expr := e } re }
+    modifySemiringState fun s => { s with denote := s.denote.insert { expr := e } re }
   else if let some ncRingId ← getNonCommRingId? type then NonCommRingM.run ncRingId do
     let some re ← ncreify? e | return ()
     trace_goal[grind.ring.internalize] "(non-comm) ring [{ncRingId}]: {e}"
     setTermNonCommRingId e
     ringExt.markTerm e
-    modifyRing fun s => { s with denote := s.denote.insert { expr := e } re }
+    modifyRingState fun s => { s with denote := s.denote.insert { expr := e } re }
   else if let some ncSemiringId ← getNonCommSemiringId? type then NonCommSemiringM.run ncSemiringId do
     let some re ← ncsreify? e | return ()
     trace_goal[grind.ring.internalize] "(non-comm) semiring [{ncSemiringId}]: {e}"
     setTermNonCommSemiringId e
     ringExt.markTerm e
-    modifySemiring fun s => { s with denote := s.denote.insert { expr := e } re }
+    modifySemiringState fun s => { s with denote := s.denote.insert { expr := e } re }
 
 end Lean.Meta.Grind.Arith.CommRing

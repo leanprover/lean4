@@ -401,42 +401,32 @@ def recvSelector (stream : Stream) : Selector (Option Chunk) where
 Iterates over chunks until the channel closes.
 -/
 @[inline]
-protected partial def forIn
+protected def forIn
     {β : Type} (stream : Stream) (acc : β)
-    (step : Chunk → β → Async (ForInStep β)) : Async β := do
-
-  let rec @[specialize] loop (stream : Stream) (acc : β) : Async β := do
+    (step : Chunk → β → Async (ForInStep β)) : Async β :=
+  EAsync.forIn acc fun _ acc => do
     if let some chunk ← stream.recv then
-      match ← step chunk acc with
-      | .done res => return res
-      | .yield res => loop stream res
+      step chunk acc
     else
-      return acc
-
-  loop stream acc
+      return .done acc
 
 /--
 Context-aware iteration over chunks until the channel closes.
 -/
 @[inline]
-protected partial def forIn'
+protected def forIn'
     {β : Type} (stream : Stream) (acc : β)
-    (step : Chunk → β → ContextAsync (ForInStep β)) : ContextAsync β := do
-
-  let rec @[specialize] loop (stream : Stream) (acc : β) : ContextAsync β := do
+    (step : Chunk → β → ContextAsync (ForInStep β)) : ContextAsync β :=
+  ContextAsync.forIn acc fun _ acc => do
     let data ← Selectable.one #[
       .case stream.recvSelector pure,
       .case (← ContextAsync.doneSelector) (fun _ => pure none),
     ]
 
     if let some chunk := data then
-      match ← step chunk acc with
-      | .done res => return res
-      | .yield res => loop stream res
+      step chunk acc
     else
-      return acc
-
-  loop stream acc
+      return .done acc
 
 /--
 Abstracts over how the next chunk is received, allowing `readAll` to work in both `Async`

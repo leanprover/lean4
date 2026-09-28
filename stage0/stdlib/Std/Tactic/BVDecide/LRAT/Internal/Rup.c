@@ -1405,7 +1405,6 @@ v_sz_398_ = lean_array_size(v_hints_395_);
 v___x_399_ = ((size_t)0ULL);
 v___x_400_ = l___private_Init_Data_Array_Basic_0__Array_forIn_x27Unsafe_loop___at___00Std_Tactic_BVDecide_LRAT_Internal_State_propagateHints_spec__3(v_s_393_, v_hints_395_, v_sz_398_, v___x_399_, v___x_397_);
 v_fst_401_ = lean_ctor_get(v___x_400_, 0);
-lean_inc(v_fst_401_);
 if (lean_obj_tag(v_fst_401_) == 0)
 {
 lean_object* v_snd_402_; lean_object* v___x_403_; 
@@ -1419,6 +1418,7 @@ return v___x_403_;
 else
 {
 lean_object* v_val_404_; 
+lean_inc_ref(v_fst_401_);
 lean_dec_ref(v___x_400_);
 v_val_404_ = lean_ctor_get(v_fst_401_, 0);
 lean_inc(v_val_404_);

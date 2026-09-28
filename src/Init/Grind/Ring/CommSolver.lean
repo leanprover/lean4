@@ -23,6 +23,7 @@ import Init.Grind.Ordered.Order
 import Init.Omega
 import Init.WFTactics
 import Init.Data.Int.Repr
+public import Init.Data.Nat.Gcd
 
 @[expose] public section
 
@@ -758,6 +759,30 @@ def Poly.cancelVar' (c : Int) (x : Var) (p : Poly) (acc : Poly) : Poly :=
 
 def Poly.cancelVar (c : Int) (x : Var) (p : Poly) : Poly :=
   cancelVar' c x p (.num 0)
+
+def Poly.gcdCoeffs : Poly → Nat
+  | .num k => k.natAbs
+  | .add k _ p => go p k.natAbs
+where
+  go (p : Poly) (acc : Nat) : Nat :=
+    if acc == 1 then
+      acc
+    else match p with
+      | .num k => Nat.gcd acc k.natAbs
+      | .add k _ p => go p (Nat.gcd acc k.natAbs)
+
+def Poly.divConst (p : Poly) (a : Int) : Poly :=
+  match p with
+  | .num k => .num (k / a)
+  | .add k m p => .add (k / a) m (divConst p a)
+
+def Poly.maxDegreeOf (p : Poly) (x : Var) : Nat :=
+  go p 0
+where
+  go (p : Poly) (max : Nat) : Nat :=
+    match p with
+    | .num _ => max
+    | .add _ m p => go p (Nat.max max (m.degreeOf x))
 
 @[simp] theorem Expr.toPoly_k_eq_toPoly (e : Expr) : e.toPoly_k = e.toPoly := by
   induction e <;> simp only [toPoly, toPoly_k]
@@ -1985,6 +2010,35 @@ theorem eq_norm_expr {α} [CommRing α] (ctx : Context α) (lhs rhs : Expr) (lhs
   replace h : lhs.denote ctx - rhs.denote ctx = lhs'.denote ctx - rhs'.denote ctx := h
   rw [← AddCommGroup.sub_eq_zero_iff, h, AddCommGroup.sub_eq_zero_iff]
 
+/-! Variants of the theorems above for rings with a nonzero characteristic `c`. -/
+
+noncomputable def norm_cnstrC_cert (lhs rhs lhs' rhs' : Expr) (c : Nat) : Bool :=
+  ((rhs.sub lhs).toPolyC c).beq' ((rhs'.sub lhs').toPolyC c)
+
+theorem le_norm_exprC {α c} [CommRing α] [IsCharP α c] [LE α] [LT α] [IsPreorder α] [OrderedRing α] (ctx : Context α) (lhs rhs : Expr) (lhs' rhs' : Expr)
+    : norm_cnstrC_cert lhs rhs lhs' rhs' c → (lhs.denote ctx ≤ rhs.denote ctx) = (lhs'.denote ctx ≤ rhs'.denote ctx) := by
+  simp [norm_cnstrC_cert]; intro h
+  replace h := congrArg (Poly.denote ctx) h; simp [Expr.denote_toPolyC] at h
+  replace h : rhs.denote ctx - lhs.denote ctx = rhs'.denote ctx - lhs'.denote ctx := h
+  rw [← OrderedAdd.sub_nonneg_iff, h, OrderedAdd.sub_nonneg_iff]
+
+theorem lt_norm_exprC {α c} [CommRing α] [IsCharP α c] [LE α] [LT α] [LawfulOrderLT α] [IsPreorder α] [OrderedRing α] (ctx : Context α) (lhs rhs : Expr) (lhs' rhs' : Expr)
+    : norm_cnstrC_cert lhs rhs lhs' rhs' c → (lhs.denote ctx < rhs.denote ctx) = (lhs'.denote ctx < rhs'.denote ctx) := by
+  simp [norm_cnstrC_cert]; intro h
+  replace h := congrArg (Poly.denote ctx) h; simp [Expr.denote_toPolyC] at h
+  replace h : rhs.denote ctx - lhs.denote ctx = rhs'.denote ctx - lhs'.denote ctx := h
+  rw [← OrderedAdd.sub_pos_iff, h, OrderedAdd.sub_pos_iff]
+
+noncomputable def norm_eqC_cert (lhs rhs lhs' rhs' : Expr) (c : Nat) : Bool :=
+  ((lhs.sub rhs).toPolyC c).beq' ((lhs'.sub rhs').toPolyC c)
+
+theorem eq_norm_exprC {α c} [CommRing α] [IsCharP α c] (ctx : Context α) (lhs rhs : Expr) (lhs' rhs' : Expr)
+    : norm_eqC_cert lhs rhs lhs' rhs' c → (lhs.denote ctx = rhs.denote ctx) = (lhs'.denote ctx = rhs'.denote ctx) := by
+  simp [norm_eqC_cert]; intro h
+  replace h := congrArg (Poly.denote ctx) h; simp [Expr.denote_toPolyC] at h
+  replace h : lhs.denote ctx - rhs.denote ctx = lhs'.denote ctx - rhs'.denote ctx := h
+  rw [← AddCommGroup.sub_eq_zero_iff, h, AddCommGroup.sub_eq_zero_iff]
+
 noncomputable def norm_cnstr_nc_cert (lhs rhs lhs' rhs' : Expr) : Bool :=
   (rhs.sub lhs).toPoly_nc.beq' (rhs'.sub lhs').toPoly_nc
 
@@ -2009,6 +2063,34 @@ theorem eq_norm_expr_nc {α} [Ring α] (ctx : Context α) (lhs rhs : Expr) (lhs'
     : norm_eq_nc_cert lhs rhs lhs' rhs' → (lhs.denote ctx = rhs.denote ctx) = (lhs'.denote ctx = rhs'.denote ctx) := by
   simp [norm_eq_nc_cert]; intro h
   replace h := congrArg (Poly.denote ctx) h; simp [Expr.denote_toPoly_nc] at h
+  replace h : lhs.denote ctx - rhs.denote ctx = lhs'.denote ctx - rhs'.denote ctx := h
+  rw [← AddCommGroup.sub_eq_zero_iff, h, AddCommGroup.sub_eq_zero_iff]
+
+
+noncomputable def norm_cnstrC_nc_cert (lhs rhs lhs' rhs' : Expr) (c : Nat) : Bool :=
+  ((rhs.sub lhs).toPolyC_nc c).beq' ((rhs'.sub lhs').toPolyC_nc c)
+
+theorem le_norm_exprC_nc {α c} [Ring α] [IsCharP α c] [LE α] [LT α] [IsPreorder α] [OrderedRing α] (ctx : Context α) (lhs rhs : Expr) (lhs' rhs' : Expr)
+    : norm_cnstrC_nc_cert lhs rhs lhs' rhs' c → (lhs.denote ctx ≤ rhs.denote ctx) = (lhs'.denote ctx ≤ rhs'.denote ctx) := by
+  simp [norm_cnstrC_nc_cert]; intro h
+  replace h := congrArg (Poly.denote ctx) h; simp [Expr.denote_toPolyC_nc] at h
+  replace h : rhs.denote ctx - lhs.denote ctx = rhs'.denote ctx - lhs'.denote ctx := h
+  rw [← OrderedAdd.sub_nonneg_iff, h, OrderedAdd.sub_nonneg_iff]
+
+theorem lt_norm_exprC_nc {α c} [Ring α] [IsCharP α c] [LE α] [LT α] [LawfulOrderLT α] [IsPreorder α] [OrderedRing α] (ctx : Context α) (lhs rhs : Expr) (lhs' rhs' : Expr)
+    : norm_cnstrC_nc_cert lhs rhs lhs' rhs' c → (lhs.denote ctx < rhs.denote ctx) = (lhs'.denote ctx < rhs'.denote ctx) := by
+  simp [norm_cnstrC_nc_cert]; intro h
+  replace h := congrArg (Poly.denote ctx) h; simp [Expr.denote_toPolyC_nc] at h
+  replace h : rhs.denote ctx - lhs.denote ctx = rhs'.denote ctx - lhs'.denote ctx := h
+  rw [← OrderedAdd.sub_pos_iff, h, OrderedAdd.sub_pos_iff]
+
+noncomputable def norm_eqC_nc_cert (lhs rhs lhs' rhs' : Expr) (c : Nat) : Bool :=
+  ((lhs.sub rhs).toPolyC_nc c).beq' ((lhs'.sub rhs').toPolyC_nc c)
+
+theorem eq_norm_exprC_nc {α c} [Ring α] [IsCharP α c] (ctx : Context α) (lhs rhs : Expr) (lhs' rhs' : Expr)
+    : norm_eqC_nc_cert lhs rhs lhs' rhs' c → (lhs.denote ctx = rhs.denote ctx) = (lhs'.denote ctx = rhs'.denote ctx) := by
+  simp [norm_eqC_nc_cert]; intro h
+  replace h := congrArg (Poly.denote ctx) h; simp [Expr.denote_toPolyC_nc] at h
   replace h : lhs.denote ctx - rhs.denote ctx = lhs'.denote ctx - rhs'.denote ctx := h
   rw [← AddCommGroup.sub_eq_zero_iff, h, AddCommGroup.sub_eq_zero_iff]
 

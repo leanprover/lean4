@@ -65,7 +65,8 @@ Low priority so that the `σ`-indexed instance is preferred when both apply. -/
 noncomputable instance (priority := low) {Pred : Type u} {α : Type v}
     [Assertion Pred] : NondetFun Pred α α where
   EvalsTo f a := ⌜f = a⌝
-  total f := PartialOrder.rel_antisymm (le_top _) (le_iSup_of_le f (le_ofProp _ _ rfl))
+  total f :=
+    PartialOrder.rel_antisymm (le_top _) (le_iSup_of_le f (CompleteLattice.le_ofProp _ _ rfl))
 
 /-- State-dependent nondeterministic functions: a function for `σ → Pred` is a `σ`-indexed
 function for `Pred`. -/

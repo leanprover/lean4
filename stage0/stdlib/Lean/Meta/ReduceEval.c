@@ -3595,8 +3595,8 @@ return v___x_942_;
 else
 {
 lean_object* v___x_943_; 
-lean_dec_ref_known(v_declName_890_, 2);
 lean_dec(v_pre_891_);
+lean_dec_ref_known(v_declName_890_, 2);
 lean_del_object(v___x_887_);
 lean_dec_ref(v_inst_877_);
 v___x_943_ = l___private_Lean_Meta_ReduceEval_0__Lean_Meta_throwFailedToEval___redArg(v_a_885_, v_a_879_, v_a_880_, v_a_881_, v_a_882_);

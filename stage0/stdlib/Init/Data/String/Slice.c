@@ -8987,7 +8987,6 @@ v___x_3132_ = ((lean_object*)(l_String_Slice_isNat___closed__0));
 v___x_3133_ = lean_unsigned_to_nat(0u);
 v___x_3134_ = l_WellFounded_opaqueFix_u2083___at___00String_Slice_isNat_spec__0___redArg(v_s_3131_, v___x_3133_, v___x_3132_);
 v_fst_3135_ = lean_ctor_get(v___x_3134_, 0);
-lean_inc(v_fst_3135_);
 if (lean_obj_tag(v_fst_3135_) == 0)
 {
 lean_object* v_snd_3136_; uint8_t v___x_3137_; 
@@ -9001,6 +9000,7 @@ return v___x_3137_;
 else
 {
 lean_object* v_val_3138_; uint8_t v___x_3139_; 
+lean_inc_ref(v_fst_3135_);
 lean_dec_ref(v___x_3134_);
 v_val_3138_ = lean_ctor_get(v_fst_3135_, 0);
 lean_inc(v_val_3138_);

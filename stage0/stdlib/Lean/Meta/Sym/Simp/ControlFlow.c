@@ -4415,10 +4415,10 @@ if (lean_obj_tag(v___x_1228_) == 0)
 {
 lean_object* v_a_1229_; 
 v_a_1229_ = lean_ctor_get(v___x_1228_, 0);
-lean_inc(v_a_1229_);
 if (lean_obj_tag(v_a_1229_) == 0)
 {
 lean_object* v___x_1231_; uint8_t v_isShared_1232_; uint8_t v_isSharedCheck_1239_; 
+lean_inc_ref(v_a_1229_);
 v_isSharedCheck_1239_ = !lean_is_exclusive(v___x_1228_);
 if (v_isSharedCheck_1239_ == 0)
 {
@@ -4465,7 +4465,6 @@ return v___x_1237_;
 }
 else
 {
-lean_dec_ref_known(v_a_1229_, 2);
 return v___x_1228_;
 }
 }

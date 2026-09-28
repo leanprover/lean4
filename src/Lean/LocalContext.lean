@@ -275,7 +275,6 @@ def mkEmpty : Unit → LocalContext := fun _ => {}
 
 def empty : LocalContext := {}
 
-@[export lean_local_ctx_is_empty]
 def isEmpty (lctx : LocalContext) : Bool :=
   lctx.fvarIdToDecl.isEmpty
 
@@ -367,7 +366,6 @@ private partial def popTailNoneAux (a : PArray (Option LocalDecl)) : PArray (Opt
     | none   => popTailNoneAux a.pop
     | some _ => a
 
-@[export lean_local_ctx_erase]
 def erase (lctx : LocalContext) (fvarId : FVarId) : LocalContext :=
   match lctx with
   | { fvarIdToDecl := map, decls := decls, auxDeclToFullName } =>

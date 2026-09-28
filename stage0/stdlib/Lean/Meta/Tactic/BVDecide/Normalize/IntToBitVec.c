@@ -2395,16 +2395,15 @@ if (lean_obj_tag(v___x_925_) == 0)
 {
 lean_object* v_a_926_; uint8_t v___y_928_; 
 v_a_926_ = lean_ctor_get(v___x_925_, 0);
-lean_inc(v_a_926_);
 if (v_contextDependent_924_ == 0)
 {
-lean_dec(v_a_926_);
 lean_del_object(v___x_922_);
 return v___x_925_;
 }
 else
 {
 uint8_t v___x_933_; 
+lean_inc(v_a_926_);
 lean_dec_ref_known(v___x_925_, 1);
 v___x_933_ = 0;
 v___y_928_ = v___x_933_;

@@ -1,13 +1,16 @@
-2 failures:
-  @7 (⟨1, 7⟩): expected ')'
-    ""
-  @7 (⟨1, 7⟩): unterminated string literal
-    ""
-
+Input: "(x:=\"y)"
+Failure: unterminated string literal
+ --> 1:4-1:5
+  |
+1 | (x:="y)
+  |     ^
+  = consumed input prefix: 4 bytes
 Final stack:
-  (Lean.Doc.Syntax.named
+  (Lean.Doc.Parser.Arg.named
    "("
    `x
    ":="
-   (Lean.Doc.Syntax.arg_str <missing>)
-   <missing>)
+   (Lean.Doc.Parser.ArgVal.str <missing>)
+   ")")
+All input consumed.
+Round-trip not reproduced, as the parse reported errors: leaf without original source info: <missing>

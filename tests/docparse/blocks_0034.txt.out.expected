@@ -1,6 +1,10 @@
+Input: "n\\*k "
 Success! Final stack:
-  [(Lean.Doc.Syntax.para
-    "para{"
-    [(Lean.Doc.Syntax.text (str "\"n*k \""))]
-    "}")]
+  [(Lean.Doc.Parser.Block.para
+    [(Lean.Doc.Parser.Inline.text
+      (Lean.Doc.Parser.versoText "n\\*k "))])]
 All input consumed.
+Round-trip OK
+Decoded views:
+  para
+    text (content := "n*k ")

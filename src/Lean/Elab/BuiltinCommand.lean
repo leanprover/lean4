@@ -26,20 +26,19 @@ namespace Lean.Elab.Command
     | return  -- must be from partial syntax, ignore
 
   match stx[1] with
-  | Syntax.atom _ val =>
+  | Syntax.node _ ``Lean.Parser.Command.commentBody #[.atom _ doc, _] =>
     if getMainVersoModuleDocs (← getEnv) |>.isEmpty then
-      let doc := String.Pos.Raw.extract val 0 (val.rawEndPos.unoffsetBy ⟨2⟩)
       modifyEnv fun env => addMainModuleDoc env ⟨doc, range⟩
     else
       throwError m!"Can't add Markdown-format module docs because there is already Verso-format content present."
-  | Syntax.node _ ``Lean.Parser.Command.versoCommentBody args =>
-    let docSyntax := args.getD 0 .missing
-    if docSyntax.getKind == `Lean.Doc.Syntax.parseFailure then
+  | Syntax.node _ ``Lean.Parser.Command.versoCommentBody _ =>
+    let view := VersoDocstringView.of ⟨stx⟩
+    match view.markup with
+    | .parseFailure _ =>
       -- Report parser errors without attempting elaboration
-      runTermElabM fun _ => reportVersoParseFailure docSyntax
-    else
-      runTermElabM fun _ => do
-        addVersoModDocString range ⟨docSyntax⟩
+      runTermElabM fun _ => reportVersoParseFailure view
+    | .document doc =>
+      runTermElabM fun _ => addVersoModDocString range doc
   | _ => throwErrorAt stx "unexpected module doc string{indentD <| stx}"
 
 private def addScope (isNewNamespace : Bool) (header : String) (newNamespace : Name)
@@ -473,7 +472,7 @@ where
         -- Users might be testing out buggy elaborators. Let's typecheck before proceeding:
         withRef tk <| Meta.check e
       let e ← Term.levelMVarToParam (← instantiateMVars e)
-      withTheReader Core.Context (fun ctx => { ctx with options := ctx.options.set `smartUnfolding cfg.smartUnfolding }) do
+      withTheReader Core.Context (fun ctx => ctx.setOptions (ctx.options.set `smartUnfolding cfg.smartUnfolding)) do
         let e ← withTransparency (mode := cfg.transparency) <| reduce e (explicitOnly := !cfg.implicits) (skipProofs := !cfg.proofs) (skipTypes := !cfg.types)
         logInfoAt tk e
 

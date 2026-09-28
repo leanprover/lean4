@@ -1,0 +1,16 @@
+Input: "(x := @@@ )"
+Failure: expected identifier, string, or number
+ --> 1:6-1:7
+  |
+1 | (x := @@@ )
+  |       ^
+  = consumed input prefix: 6 bytes
+Final stack:
+  (Lean.Doc.Parser.Arg.named
+   "("
+   `x
+   ":="
+   <missing>
+   ")")
+All input consumed.
+Round-trip not reproduced, as the parse reported errors: non-whitespace '@' at 5 not part of any token

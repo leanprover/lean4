@@ -8,6 +8,7 @@ module
 prelude
 public import Std.Tactic.BVDecide.Normalize
 public import Lean.Meta.Tactic.BVDecide.Attr
+import Init.Data.BitVec.Package
 import Init.Omega
 public import Lean.Meta.Sym.Simp.SimpM
 import Lean.Meta.Sym.LitValues
@@ -195,10 +196,12 @@ def mkSetWidth (oldWidthExpr newWidthExpr target : Expr) : Sym.SymM Expr :=
   Sym.share <| mkApp3 (mkConst ``BitVec.setWidth) oldWidthExpr newWidthExpr target
 
 def mkBEq (lhs rhs : Expr) (wExpr : Expr) : SimprocM Expr :=
-  withCachedBinOp wExpr ``instDecidableEqBitVec lhs rhs fun wExpr => do
+  withCachedBinOp wExpr ``BitVec.instLinearOrderPackage lhs rhs fun wExpr => do
     let ty := mkBitVecTy wExpr
-    let instDec := mkApp (mkConst ``instDecidableEqBitVec) wExpr
-    let inst := mkApp2 (mkConst ``instBEqOfDecidableEq [0]) ty instDec
+    let inst := mkApp (mkConst ``BitVec.instLinearOrderPackage) wExpr
+    let inst := mkApp2 (mkConst ``Std.LinearOrderPackage.toLinearPreorderPackage [0]) ty inst
+    let inst := mkApp2 (mkConst ``Std.LinearPreorderPackage.toPreorderPackage [0]) ty inst
+    let inst := mkApp2 (mkConst ``Std.PreorderPackage.toBEq [0]) ty inst
     Sym.share <| mkApp2 (mkConst ``BEq.beq [0]) ty inst
 
 def mkExtractLsb' (wExpr startExpr lenExpr target : Expr) : SimprocM Expr :=

@@ -92,9 +92,35 @@ abbrev evalUnaryFin' (op : {n : Nat} → Fin n → Fin n) (αExpr : Expr) (a : E
   let e ← share <| toExpr (op a.val)
   return .step e (mkApp2 (mkConst ``Eq.refl [1]) αExpr e) (done := true)
 
-abbrev evalUnaryBitVec' (op : {n : Nat} → BitVec n → BitVec n) (αExpr : Expr) (a : Expr) : SimpM Result := do
+public structure EvalStepConfig where
+  /-- Maximum exponent evaluated by `evalGround`. -/
+  maxExponent := 255
+  /--
+  When `true` (default: `true`), bit-vector literals are represented with `BitVec.ofNat`;
+  otherwise the `OfNat.ofNat` form is used (the representation used by `grind`).
+  -/
+  bitVecOfNat := true
+
+/-- Monad for the evaluation steps: `SimpM` with the `EvalStepConfig` in scope. -/
+abbrev EvalM := ReaderT EvalStepConfig SimpM
+
+/--
+Builds the (shared) literal for `a`. The representation is controlled by
+`EvalStepConfig.bitVecOfNat`: `BitVec.ofNat n a` when `true`, and `OfNat.ofNat (BitVec n) a`
+otherwise.
+-/
+def mkBitVecLit (a : BitVec n) : EvalM Expr := do
+  if (← read).bitVecOfNat then
+    share <| toExpr a
+  else
+    let nExpr := mkNatLit n
+    let v := mkRawNatLit a.toNat
+    share <| mkApp3 (mkConst ``OfNat.ofNat [0]) (mkApp (mkConst ``BitVec) nExpr) v
+      (mkApp2 (mkConst ``BitVec.instOfNat) nExpr v)
+
+abbrev evalUnaryBitVec' (op : {n : Nat} → BitVec n → BitVec n) (αExpr : Expr) (a : Expr) : EvalM Result := do
   let some a := getBitVecValue? a | return .rfl
-  let e ← share <| toExpr (op a.val)
+  let e ← mkBitVecLit (op a.val)
   return .step e (mkApp2 (mkConst ``Eq.refl [1]) αExpr e) (done := true)
 
 abbrev evalBin [ToExpr α] (toValue? : Expr → Option α) (op : α → α → α) (a b : Expr) : SimpM Result := do
@@ -125,11 +151,11 @@ abbrev evalBinFin' (op : {n : Nat} → Fin n → Fin n → Fin n) (αExpr : Expr
   else
     return .rfl
 
-abbrev evalBinBitVec' (op : {n : Nat} → BitVec n → BitVec n → BitVec n) (αExpr : Expr) (a b : Expr) : SimpM Result := do
+abbrev evalBinBitVec' (op : {n : Nat} → BitVec n → BitVec n → BitVec n) (αExpr : Expr) (a b : Expr) : EvalM Result := do
   let some a := getBitVecValue? a | return .rfl
   let some b := getBitVecValue? b | return .rfl
   if h : a.n = b.n then
-    let e ← share <| toExpr (op a.val (h ▸ b.val))
+    let e ← mkBitVecLit (op a.val (h ▸ b.val))
     return .step e (mkApp2 (mkConst ``Eq.refl [1]) αExpr e) (done := true)
   else
     return .rfl
@@ -149,7 +175,7 @@ abbrev evalPowInt [ToExpr α] (maxExponent : Nat) (toValue? : Expr → Option α
   return .step e (mkApp2 (mkConst ``Eq.refl [1]) (ToExpr.toTypeExpr (α := α)) e) (done := true)
 
 macro "declare_eval_bin" id:ident op:term : command =>
-  `(def $id:ident (α : Expr) (a b : Expr) : SimpM Result :=
+  `(def $id:ident (α : Expr) (a b : Expr) : EvalM Result :=
   match_expr α with
   | Nat => evalBinNat $op a b
   | Int => evalBinInt $op a b
@@ -171,7 +197,7 @@ declare_eval_bin evalAdd (· + ·)
 declare_eval_bin evalSub (· - ·)
 declare_eval_bin evalMul (· * ·)
 
-def evalDiv (e : Expr) (α : Expr) (a b : Expr) : SimpM Result :=
+def evalDiv (e : Expr) (α : Expr) (a b : Expr) : EvalM Result :=
   match_expr α with
   | Nat => evalBinNat (. / .) a b
   | Int => evalBinInt (. / .) a b
@@ -188,7 +214,7 @@ def evalDiv (e : Expr) (α : Expr) (a b : Expr) : SimpM Result :=
   | Int64 => evalBinInt64 (. / .) a b
   | _ => return .rfl
 
-def evalMod (α : Expr) (a b : Expr) : SimpM Result :=
+def evalMod (α : Expr) (a b : Expr) : EvalM Result :=
   match_expr α with
   | Nat => evalBinNat (· % ·) a b
   | Int => evalBinInt (· % ·) a b
@@ -204,7 +230,7 @@ def evalMod (α : Expr) (a b : Expr) : SimpM Result :=
   | Int64 => evalBinInt64 (· % ·) a b
   | _ => return .rfl
 
-def evalNeg (α : Expr) (a : Expr) : SimpM Result :=
+def evalNeg (α : Expr) (a : Expr) : EvalM Result :=
   match_expr α with
   | Int => evalUnaryInt (- ·) a
   | Rat => evalUnaryRat (- ·) a
@@ -220,7 +246,7 @@ def evalNeg (α : Expr) (a : Expr) : SimpM Result :=
   | Int64 => evalUnaryInt64 (- ·) a
   | _ => return .rfl
 
-def evalComplement (α : Expr) (a : Expr) : SimpM Result :=
+def evalComplement (α : Expr) (a : Expr) : EvalM Result :=
   match_expr α with
   | Int => evalUnaryInt (~~~ ·) a
   | BitVec _ => evalUnaryBitVec' (~~~ ·) α a
@@ -240,7 +266,7 @@ def evalInv (α : Expr) (a : Expr) : SimpM Result :=
   | _ => return .rfl
 
 macro "declare_eval_bin_bitwise" id:ident op:term : command =>
-  `(def $id:ident (α : Expr) (a b : Expr) : SimpM Result :=
+  `(def $id:ident (α : Expr) (a b : Expr) : EvalM Result :=
   match_expr α with
   | Nat => evalBinNat $op a b
   | Fin _ => evalBinFin' $op α a b
@@ -260,7 +286,8 @@ declare_eval_bin_bitwise evalAnd (· &&& ·)
 declare_eval_bin_bitwise evalOr (· ||| ·)
 declare_eval_bin_bitwise evalXOr (· ^^^ ·)
 
-def evalPow (maxExponent : Nat) (α β : Expr) (a b : Expr) : SimpM Result :=
+def evalPow (α β : Expr) (a b : Expr) : EvalM Result := do
+  let maxExponent := (← read).maxExponent
   match_expr β with
   | Nat => match_expr α with
     | Nat => evalPowNat maxExponent getNatValue? (· ^ ·) a b
@@ -283,7 +310,7 @@ def evalPow (maxExponent : Nat) (α β : Expr) (a b : Expr) : SimpM Result :=
 abbrev shift [ShiftLeft α] [ShiftRight α] (left : Bool) (a b : α) : α :=
   if left then a <<< b else a >>> b
 
-def evalShift (left : Bool) (α β : Expr) (a b : Expr) : SimpM Result :=
+def evalShift (left : Bool) (α β : Expr) (a b : Expr) : EvalM Result :=
   if isSameExpr α β then
     match_expr α with
     | Nat => evalBinNat (shift left) a b
@@ -312,7 +339,7 @@ def evalShift (left : Bool) (α β : Expr) (a b : Expr) : SimpM Result :=
       let some a := getBitVecValue? a | return .rfl
       let some b := getNatValue? b | return .rfl
       let e := if left then a.val <<< b else a.val >>> b
-      let e ← share <| toExpr e
+      let e ← mkBitVecLit e
       return .step e (mkApp2 (mkConst ``Eq.refl [1]) α e) (done := true)
     | _ => return .rfl
   | BitVec _ => do
@@ -320,7 +347,7 @@ def evalShift (left : Bool) (α β : Expr) (a b : Expr) : SimpM Result :=
     let some a := getBitVecValue? a | return .rfl
     let some b := getBitVecValue? b | return .rfl
     let e := if left then a.val <<< b.val else a.val >>> b.val
-    let e ← share <| toExpr e
+    let e ← mkBitVecLit e
     return .step e (mkApp2 (mkConst ``Eq.refl [1]) α e) (done := true)
   | _ => return .rfl
 
@@ -342,9 +369,9 @@ def evalIntBDiv (a b : Expr) : SimpM Result := do
   let e ← share <| toExpr (Int.bdiv a b)
   return .step e (mkApp2 (mkConst ``Eq.refl [1]) Int.mkType e) (done := true)
 
-def evalLog2 (a : Expr) (maxExponent : Nat) : SimpM Result := do
+def evalLog2 (a : Expr) : EvalM Result := do
   let some n := getNatValue? a | return .rfl
-  if n > 2^maxExponent then return .rfl
+  if n > 2^(← read).maxExponent then return .rfl
   let e ← share <| toExpr n.log2
   return .step e (mkApp2 (mkConst ``Eq.refl [1]) Nat.mkType e) (done := true)
 
@@ -552,44 +579,44 @@ abbrev mkRflBitVec (a : Expr) (n : Nat) : Expr :=
 abbrev mkBitVecType (w : Expr) : Expr :=
   mkApp (mkConst ``BitVec) w
 
-def evalInt8ToBitVec (a : Expr) : SimpM Result := do
+def evalInt8ToBitVec (a : Expr) : EvalM Result := do
   let some v ← getInt8Value? a |>.run | return .rfl
-  let v ← share <| toExpr v.toBitVec
+  let v ← mkBitVecLit v.toBitVec
   return .step v (mkRflBitVec v 8) (done := true)
 
-def evalInt16ToBitVec (a : Expr) : SimpM Result := do
+def evalInt16ToBitVec (a : Expr) : EvalM Result := do
   let some v ← getInt16Value? a |>.run | return .rfl
-  let v ← share <| toExpr v.toBitVec
+  let v ← mkBitVecLit v.toBitVec
   return .step v (mkRflBitVec v 16) (done := true)
 
-def evalInt32ToBitVec (a : Expr) : SimpM Result := do
+def evalInt32ToBitVec (a : Expr) : EvalM Result := do
   let some v ← getInt32Value? a |>.run | return .rfl
-  let v ← share <| toExpr v.toBitVec
+  let v ← mkBitVecLit v.toBitVec
   return .step v (mkRflBitVec v 32) (done := true)
 
-def evalInt64ToBitVec (a : Expr) : SimpM Result := do
+def evalInt64ToBitVec (a : Expr) : EvalM Result := do
   let some v ← getInt64Value? a |>.run | return .rfl
-  let v ← share <| toExpr v.toBitVec
+  let v ← mkBitVecLit v.toBitVec
   return .step v (mkRflBitVec v 64) (done := true)
 
-def evalUInt8ToBitVec (a : Expr) : SimpM Result := do
+def evalUInt8ToBitVec (a : Expr) : EvalM Result := do
   let some v ← getUInt8Value? a |>.run | return .rfl
-  let v ← share <| toExpr v.toBitVec
+  let v ← mkBitVecLit v.toBitVec
   return .step v (mkRflBitVec v 8) (done := true)
 
-def evalUInt16ToBitVec (a : Expr) : SimpM Result := do
+def evalUInt16ToBitVec (a : Expr) : EvalM Result := do
   let some v ← getUInt16Value? a |>.run | return .rfl
-  let v ← share <| toExpr v.toBitVec
+  let v ← mkBitVecLit v.toBitVec
   return .step v (mkRflBitVec v 16) (done := true)
 
-def evalUInt32ToBitVec (a : Expr) : SimpM Result := do
+def evalUInt32ToBitVec (a : Expr) : EvalM Result := do
   let some v ← getUInt32Value? a |>.run | return .rfl
-  let v ← share <| toExpr v.toBitVec
+  let v ← mkBitVecLit v.toBitVec
   return .step v (mkRflBitVec v 32) (done := true)
 
-def evalUInt64ToBitVec (a : Expr) : SimpM Result := do
+def evalUInt64ToBitVec (a : Expr) : EvalM Result := do
   let some v ← getUInt64Value? a |>.run | return .rfl
-  let v ← share <| toExpr v.toBitVec
+  let v ← mkBitVecLit v.toBitVec
   return .step v (mkRflBitVec v 64) (done := true)
 
 def evalBitVecToNat (a : Expr) : SimpM Result := do
@@ -597,17 +624,18 @@ def evalBitVecToNat (a : Expr) : SimpM Result := do
   let a ← share (toExpr a.val.toNat)
   return .step a (mkApp2 (mkConst ``Eq.refl [1]) Nat.mkType a) (done := true)
 
-def evalBitVecOfNat (n a : Expr) : SimpM Result := do
+def evalBitVecOfNat (n a : Expr) : EvalM Result := do
   let some a ← getNatValue? a |>.run | return .rfl
-  if (← getNatValue? n |>.run).isSome then return .rfl -- already in normal form
+  -- `BitVec.ofNat` with a literal width is the normal form only when `bitVecOfNat := true`
+  if (← getNatValue? n |>.run).isSome && (← read).bitVecOfNat then return .rfl
   let some n ← evalNat n |>.run | return .rfl -- TODO: consider using dsimp
-  let r ← share <| toExpr (BitVec.ofNat n a)
+  let r ← mkBitVecLit (BitVec.ofNat n a)
   return .step r (mkRflBitVec r n) (done := true)
 
-def evalBitVecOfNatClamp (n a : Expr) : SimpM Result := do
+def evalBitVecOfNatClamp (n a : Expr) : EvalM Result := do
   let some nv := getNatValue? n | return .rfl
   let some av := getNatValue? a | return .rfl
-  let r ← share <| toExpr (BitVec.ofNatClamp nv av)
+  let r ← mkBitVecLit (BitVec.ofNatClamp nv av)
   return .step r (mkRflBitVec r nv) (done := true)
 
 def evalBitVecToInt (a : Expr) : SimpM Result := do
@@ -623,58 +651,58 @@ abbrev evalBitVecNatBool (op : {n : Nat} → BitVec n → Nat → Bool) (a i : E
   return .step e (if r then eagerReflBoolTrue else eagerReflBoolFalse) (done := true)
 
 abbrev evalBitVecNatBitVec (αExpr : Expr) (op : {n : Nat} → BitVec n → Nat → BitVec n) (a i : Expr) :
-    SimpM Result := do
+    EvalM Result := do
   let some a := getBitVecValue? a | return .rfl
   let some i := getNatValue? i | return .rfl
-  let e ← share <| toExpr <| op a.val i
+  let e ← mkBitVecLit (op a.val i)
   return .step e (mkApp2 (mkConst ``Eq.refl [1]) αExpr e) (done := true)
 
-def evalBitVecAppend (a b : Expr) : SimpM Result := do
+def evalBitVecAppend (a b : Expr) : EvalM Result := do
   let some a := getBitVecValue? a | return .rfl
   let some b := getBitVecValue? b | return .rfl
-  let e ← share <| toExpr <| a.val ++ b.val
+  let e ← mkBitVecLit (a.val ++ b.val)
   return .step e (mkRflBitVec e (a.n + b.n)) (done := true)
 
-def evalBitVecCast (m a : Expr) : SimpM Result := do
+def evalBitVecCast (m a : Expr) : EvalM Result := do
   let some a := getBitVecValue? a | return .rfl
   let some m ← evalNat m |>.run | return .rfl
-  let e ← share <| toExpr <| BitVec.ofNat m a.val.toNat
+  let e ← mkBitVecLit (BitVec.ofNat m a.val.toNat)
   return .step e (mkRflBitVec e m) (done := true)
 
-def evalBitVecExtend (op : {n : Nat} → (v : Nat) → BitVec n → BitVec v) (v a : Expr) : SimpM Result := do
+def evalBitVecExtend (op : {n : Nat} → (v : Nat) → BitVec n → BitVec v) (v a : Expr) : EvalM Result := do
   let some a := getBitVecValue? a | return .rfl
   let some v ← evalNat v |>.run | return .rfl
-  let e ← share <| toExpr <| op v a.val
+  let e ← mkBitVecLit (op v a.val)
   return .step e (mkRflBitVec e v) (done := true)
 
-def evalBitVecExtractLsb' (start len a : Expr) : SimpM Result := do
+def evalBitVecExtractLsb' (start len a : Expr) : EvalM Result := do
   let some a := getBitVecValue? a | return .rfl
   let some start ← evalNat start |>.run | return .rfl
   let some len ← evalNat len |>.run | return .rfl
-  let e ← share <| toExpr <| a.val.extractLsb' start len
+  let e ← mkBitVecLit (a.val.extractLsb' start len)
   return .step e (mkRflBitVec e len) (done := true)
 
-def evalBitVecReplicate (i a : Expr) : SimpM Result := do
+def evalBitVecReplicate (i a : Expr) : EvalM Result := do
   let some a := getBitVecValue? a | return .rfl
   let some i ← evalNat i |>.run | return .rfl
-  let e ← share <| toExpr <| a.val.replicate i
+  let e ← mkBitVecLit (a.val.replicate i)
   return .step e (mkRflBitVec e (a.n * i)) (done := true)
 
-def evalBitVecShiftLeftZeroExtend (a m : Expr) : SimpM Result := do
+def evalBitVecShiftLeftZeroExtend (a m : Expr) : EvalM Result := do
   let some a := getBitVecValue? a | return .rfl
   let some m ← evalNat m |>.run | return .rfl
-  let e ← share <| toExpr <| a.val.shiftLeftZeroExtend m
+  let e ← mkBitVecLit (a.val.shiftLeftZeroExtend m)
   return .step e (mkRflBitVec e (a.n + m)) (done := true)
 
-def evalBitVecAllOnes (n : Expr) : SimpM Result := do
+def evalBitVecAllOnes (n : Expr) : EvalM Result := do
   let some n ← evalNat n |>.run | return .rfl
-  let e ← share <| toExpr <| BitVec.allOnes n
+  let e ← mkBitVecLit (BitVec.allOnes n)
   return .step e (mkRflBitVec e n) (done := true)
 
-def evalBitVecOfInt (n i : Expr) : SimpM Result := do
+def evalBitVecOfInt (n i : Expr) : EvalM Result := do
   let some n ← evalNat n |>.run | return .rfl
   let some i := getIntValue? i | return .rfl
-  let e ← share <| toExpr <| BitVec.ofInt n i
+  let e ← mkBitVecLit (BitVec.ofInt n i)
   return .step e (mkRflBitVec e n) (done := true)
 
 def evalBitVecToFin (a : Expr) : SimpM Result := do
@@ -684,34 +712,21 @@ def evalBitVecToFin (a : Expr) : SimpM Result := do
   let finType := mkApp (mkConst ``Fin) (toExpr (2 ^ a.n))
   return .step e (mkApp2 (mkConst ``Eq.refl [1]) finType e) (done := true)
 
-def evalBitVecOfFin (n a : Expr) : SimpM Result := do
+def evalBitVecOfFin (n a : Expr) : EvalM Result := do
   let some n ← evalNat n |>.run | return .rfl
   let some a := getFinValue? a | return .rfl
-  let e ← share <| toExpr <| BitVec.ofNat n a.val.val
+  let e ← mkBitVecLit (BitVec.ofNat n a.val.val)
   return .step e (mkRflBitVec e n) (done := true)
 
-public structure EvalStepConfig where
-  maxExponent := 255
-
-/--
-Simplification procedure that evaluates ground terms of builtin types.
-
-**Important:** This procedure assumes subterms have already been simplified. It evaluates
-a single operation on literal arguments only. For example:
-- `2 + 3` → evaluates to `5`
-- `2 + (3 * 4)` → returns `.rfl` (the argument `3 * 4` is not a literal)
-
-The simplifier is responsible for term traversal, ensuring subterms are reduced
-before `evalGround` is called on the parent expression.
--/
-public def evalGround (config : EvalStepConfig := {}) : Simproc := fun e =>
+/-- Evaluation step of `evalGround`. -/
+def evalGroundCore (e : Expr) : EvalM Result :=
   match_expr e with
   | HAdd.hAdd α _ _ _ a b => evalAdd α a b
   | HSub.hSub α _ _ _ a b => evalSub α a b
   | HMul.hMul α _ _ _ a b => evalMul α a b
   | HDiv.hDiv α _ _ _ a b => evalDiv e α a b
   | HMod.hMod α _ _ _ a b => evalMod α a b
-  | HPow.hPow α β _ _ a b => evalPow config.maxExponent α β a b
+  | HPow.hPow α β _ _ a b => evalPow α β a b
   | HAnd.hAnd α _ _ _ a b => evalAnd α a b
   | HXor.hXor α _ _ _ a b => evalXOr α a b
   | HOr.hOr α _ _ _ a b => evalOr α a b
@@ -722,7 +737,7 @@ public def evalGround (config : EvalStepConfig := {}) : Simproc := fun e =>
   | Complement.complement α _ a => evalComplement α a
   | Nat.gcd a b => evalBinNat Nat.gcd a b
   | Nat.succ a => evalUnaryNat (· + 1) a
-  | Nat.log2 a => evalLog2 a config.maxExponent
+  | Nat.log2 a => evalLog2 a
   | Nat.popcount a => evalUnaryNat Nat.popcount a
   | Int.gcd a b => evalIntGcd a b
   | Int.tdiv a b => evalBinInt Int.tdiv a b
@@ -744,6 +759,7 @@ public def evalGround (config : EvalStepConfig := {}) : Simproc := fun e =>
   | HAppend.hAppend α _ _ _ a b =>
     match_expr α with
     | BitVec _ => evalBitVecAppend a b
+    | String => evalBin getStringValue? (· ++ ·) a b
     | _ => return .rfl
   | getElem α _ _ _ _ a i _ =>
     match_expr α with
@@ -797,5 +813,19 @@ public def evalGround (config : EvalStepConfig := {}) : Simproc := fun e =>
   | UInt32.toBitVec a => evalUInt32ToBitVec a
   | UInt64.toBitVec a => evalUInt64ToBitVec a
   | _  => return .rfl
+
+/--
+Simplification procedure that evaluates ground terms of builtin types.
+
+**Important:** This procedure assumes subterms have already been simplified. It evaluates
+a single operation on literal arguments only. For example:
+- `2 + 3` → evaluates to `5`
+- `2 + (3 * 4)` → returns `.rfl` (the argument `3 * 4` is not a literal)
+
+The simplifier is responsible for term traversal, ensuring subterms are reduced
+before `evalGround` is called on the parent expression.
+-/
+public def evalGround (config : EvalStepConfig := {}) : Simproc := fun e =>
+  (evalGroundCore e).run config
 
 end Lean.Meta.Sym.Simp

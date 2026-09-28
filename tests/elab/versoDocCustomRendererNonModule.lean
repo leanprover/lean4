@@ -1,7 +1,6 @@
 import Lean
 
 open Lean Doc Elab Command
-open scoped Lean.Doc.Syntax
 
 /-!
 Tests user-extensible Markdown rendering of docstring elements, without the module system.
@@ -32,10 +31,11 @@ elab "#render_doc " name:ident : command => do
     | none => throwError m!"`{MessageData.ofConstName declName}` has no docstring"
 
 /-- Reads a single code inline and resolves it to a global constant. -/
-def codeTargetName (xs : TSyntaxArray `inline) : DocM Name :=
+def codeTargetName (xs : TSyntaxArray ``Parser.inline) : DocM Name :=
   match xs with
-  | #[stx] => match stx with
-    | `(inline|code($s)) => realizeGlobalConstNoOverloadWithInfo (mkIdentFrom s s.getString.toName)
+  | #[stx] => match InlineView.of stx with
+    | some (.code { content, .. }) =>
+      realizeGlobalConstNoOverloadWithInfo (mkIdentFrom content content.getVersoCode.toName)
     | _ => throwErrorAt stx "expected a code argument"
   | _ => throwError "expected one code argument"
 
@@ -49,7 +49,7 @@ deriving TypeName
 
 /-- Includes another declaration's docstring. The target is looked up when rendering to Markdown. -/
 @[doc_role]
-def include_docstring (xs : TSyntaxArray `inline) : DocM (Inline ElabInline) := do
+def include_docstring (xs : TSyntaxArray ``Parser.inline) : DocM (Inline ElabInline) := do
   return .custom (IncludeDoc.mk (← codeTargetName xs)) #[]
 
 /-- The renderer receives the decoded `IncludeDoc` directly, never a `Dynamic`. -/
@@ -82,7 +82,7 @@ deriving TypeName
 
 /-- Wraps its content in a custom element that has no renderer. -/
 @[doc_role]
-def passthrough (xs : TSyntaxArray `inline) : DocM (Inline ElabInline) := do
+def passthrough (xs : TSyntaxArray ``Parser.inline) : DocM (Inline ElabInline) := do
   return .custom Unrendered.mk (← xs.mapM elabInline)
 
 /-- Fallback shows {passthrough}[the content] here. -/
@@ -101,7 +101,7 @@ deriving TypeName
 
 /-- Wraps its content in an element rendered by a non-terminating renderer. -/
 @[doc_role]
-def slow (xs : TSyntaxArray `inline) : DocM (Inline ElabInline) := do
+def slow (xs : TSyntaxArray ``Parser.inline) : DocM (Inline ElabInline) := do
   return .custom Slow.mk (← xs.mapM elabInline)
 
 @[doc_inline_md]
@@ -128,7 +128,7 @@ deriving TypeName
 
 /-- References a constant by its shortest name valid where the docstring is rendered. -/
 @[doc_role]
-def qualName (xs : TSyntaxArray `inline) : DocM (Inline ElabInline) := do
+def qualName (xs : TSyntaxArray ``Parser.inline) : DocM (Inline ElabInline) := do
   return .custom (QualName.mk (← codeTargetName xs)) #[]
 
 @[doc_inline_md]
@@ -172,7 +172,7 @@ deriving TypeName
 
 /-- Shows a declaration's signature, pretty-printed when the docstring is rendered. -/
 @[doc_role]
-def sig (xs : TSyntaxArray `inline) : DocM (Inline ElabInline) := do
+def sig (xs : TSyntaxArray ``Parser.inline) : DocM (Inline ElabInline) := do
   return .custom (SigData.mk (← codeTargetName xs)) #[]
 
 @[doc_inline_md]
@@ -196,7 +196,7 @@ deriving TypeName
 
 /-- Wraps its content in an element whose renderer fails after rendering the content. -/
 @[doc_role]
-def leaky (xs : TSyntaxArray `inline) : DocM (Inline ElabInline) := do
+def leaky (xs : TSyntaxArray ``Parser.inline) : DocM (Inline ElabInline) := do
   return .custom Leaky.mk (← xs.mapM elabInline)
 
 @[doc_inline_md]
@@ -234,7 +234,7 @@ abbrev AliasedSyn := Aliased
 
 /-- Stores an `Aliased` element, with distinct fallback content. -/
 @[doc_role]
-def aliased (_xs : TSyntaxArray `inline) : DocM (Inline ElabInline) := do
+def aliased (_xs : TSyntaxArray ``Parser.inline) : DocM (Inline ElabInline) := do
   return .custom (Aliased.mk "rendered via alias") #[.text "fallback"]
 
 /-- The renderer is declared against the alias rather than `Aliased` itself. -/
@@ -258,7 +258,7 @@ deriving TypeName
 
 /-- A directive that wraps its blocks in a custom element. -/
 @[doc_directive]
-def banner (xs : TSyntaxArray `block) : DocM (Block ElabInline ElabBlock) := do
+def banner (xs : TSyntaxArray ``Parser.block) : DocM (Block ElabInline ElabBlock) := do
   return .custom Banner.mk (← xs.mapM elabBlock)
 
 /-- The renderer brackets the rendered block content. -/
@@ -294,7 +294,7 @@ deriving TypeName
 
 /-- A directive whose element type has no Markdown renderer. -/
 @[doc_directive]
-def plainBlock (xs : TSyntaxArray `block) : DocM (Block ElabInline ElabBlock) := do
+def plainBlock (xs : TSyntaxArray ``Parser.block) : DocM (Block ElabInline ElabBlock) := do
   return .custom PlainBlock.mk (← xs.mapM elabBlock)
 
 /--
@@ -316,7 +316,7 @@ deriving TypeName
 
 /-- A directive rendered by a non-terminating renderer. -/
 @[doc_directive]
-def slowBlock (xs : TSyntaxArray `block) : DocM (Block ElabInline ElabBlock) := do
+def slowBlock (xs : TSyntaxArray ``Parser.block) : DocM (Block ElabInline ElabBlock) := do
   return .custom SlowBlock.mk (← xs.mapM elabBlock)
 
 @[doc_block_md]

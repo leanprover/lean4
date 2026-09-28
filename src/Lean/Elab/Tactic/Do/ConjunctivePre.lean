@@ -103,9 +103,9 @@ private def specComponents? (concl : Expr) : Option (Expr × Expr × Expr × Exp
   match_expr concl with
   | PartialOrder.rel _ _ pre rhs =>
     match_expr rhs with
-    | wp _ _ _ _ _ _ _ prog post epost => some (pre, prog, post, epost)
+    | wp _ _ _ _ _ _ _ prog post eposts => some (pre, prog, post, eposts)
     | _ => none
-  | Triple _ _ _ _ _ _ x _ pre post epost => some (pre, x, post, epost)
+  | Triple _ _ _ _ _ _ x _ pre post eposts => some (pre, x, post, eposts)
   | _ => none
 
 /-- Whether any metavariable from `mvarIds` occurs in `e`. -/
@@ -139,16 +139,16 @@ private partial def isConjunctiveIn (qs : Array MVarId) (e : Expr) : Bool :=
       | Lean.Order.iInf _ _ _ f => isConjunctiveIn qs f
       | And a b => isConjunctiveIn qs a && isConjunctiveIn qs b
       | Lean.Order.himp _ _ a b => !occursMVar qs a && isConjunctiveIn qs b
-      | wp _ _ _ _ _ _ _ prog post epost =>
-        !occursMVar qs prog && isConjunctiveIn qs post && isConjunctiveIn qs epost
+      | wp _ _ _ _ _ _ _ prog post eposts =>
+        !occursMVar qs prog && isConjunctiveIn qs post && isConjunctiveIn qs eposts
       | _ => false
 
 /-- Whether the spec's precondition is conjunctive in its schematic postconditions (`Q` and/or `E`):
 each occurs only in conjunctive contexts, and in no premise nor in the program. The `binders` are the
 spec's `∀`-telescoped parameters and premises. -/
 public def isConjunctiveInPosts (concl : Expr) (binders : Array Expr) : MetaM Bool := do
-  let some (pre, prog, post, epost) := specComponents? concl | return false
-  let qs := #[post, epost].filterMap fun e => match e.eta with | .mvar q => some q | _ => none
+  let some (pre, prog, post, eposts) := specComponents? concl | return false
+  let qs := #[post, eposts].filterMap fun e => match e.eta with | .mvar q => some q | _ => none
   if qs.isEmpty then return false
   if occursMVar qs prog then return false
   -- A premise mentioning `Q`/`E` rejects the spec — this is the `Q = Q` opt-out. Incomplete: a

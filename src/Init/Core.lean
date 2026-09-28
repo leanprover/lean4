@@ -805,10 +805,6 @@ class LawfulBEq (α : Type u) [BEq α] : Prop extends ReflBEq α where
 
 export LawfulBEq (eq_of_beq)
 
-instance : LawfulBEq Bool where
-  eq_of_beq {a b} h := by cases a <;> cases b <;> first | rfl | contradiction
-  rfl {a} := by cases a <;> decide
-
 instance [DecidableEq α] : LawfulBEq α where
   eq_of_beq := of_decide_eq_true
   rfl := of_decide_eq_self_eq_true _
@@ -823,10 +819,6 @@ def instDecidableEqOfLawfulBEq [BEq α] [LawfulBEq α] : DecidableEq α := fun x
     (match h : x == y with
     | false => not_eq_of_beq_eq_false h
     | true => eq_of_beq h)
-
-instance : LawfulBEq Char := inferInstance
-
-instance : LawfulBEq String := inferInstance
 
 /-! # Logical connectives and equality -/
 
@@ -1099,6 +1091,9 @@ theorem of_toBoolUsing_eq_true {p : Prop} {d : Decidable p} (h : toBoolUsing d =
 
 theorem of_toBoolUsing_eq_false {p : Prop} {d : Decidable p} (h : toBoolUsing d = false) : ¬p :=
   of_decide_eq_false h
+
+theorem reflects_toBoolUsing {p : Prop} {d : Decidable p} : (toBoolUsing d).Reflects p :=
+  d.reflects_decide
 
 instance : Decidable True :=
   isTrue trivial

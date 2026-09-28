@@ -1,0 +1,6 @@
+Input: "+ "
+Success! Final stack:
+  "Lean.Doc.Parser.UnorderedListType.plus"
+Remaining:
+"+ "
+Round-trip not tested: this parser classifies input rather than producing document syntax

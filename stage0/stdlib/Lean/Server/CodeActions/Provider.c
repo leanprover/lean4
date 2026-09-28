@@ -1692,7 +1692,6 @@ else
 {
 lean_object* v_val_470_; 
 v_val_470_ = lean_ctor_get(v___x_469_, 0);
-lean_inc(v_val_470_);
 if (lean_obj_tag(v_val_470_) == 0)
 {
 lean_object* v___x_472_; uint8_t v_isShared_473_; uint8_t v_isSharedCheck_477_; 
@@ -1738,7 +1737,6 @@ return v___x_475_;
 }
 else
 {
-lean_dec_ref_known(v_val_470_, 1);
 lean_dec(v___y_462_);
 return v___x_469_;
 }

@@ -376,7 +376,7 @@ static const lean_ctor_object l___private_Lean_Elab_AssertExists_0__Lean_Elab_Co
 static const lean_object* l___private_Lean_Elab_AssertExists_0__Lean_Elab_Command_elabImportPath___regBuiltin_Lean_Elab_Command_elabImportPath__1___closed__4 = (const lean_object*)&l___private_Lean_Elab_AssertExists_0__Lean_Elab_Command_elabImportPath___regBuiltin_Lean_Elab_Command_elabImportPath__1___closed__4_value;
 LEAN_EXPORT lean_object* l___private_Lean_Elab_AssertExists_0__Lean_Elab_Command_elabImportPath___regBuiltin_Lean_Elab_Command_elabImportPath__1();
 LEAN_EXPORT lean_object* l___private_Lean_Elab_AssertExists_0__Lean_Elab_Command_elabImportPath___regBuiltin_Lean_Elab_Command_elabImportPath__1___boxed(lean_object*);
-static const lean_string_object l___private_Lean_Elab_AssertExists_0__Lean_Elab_Command_elabImportPath___regBuiltin_Lean_Elab_Command_elabImportPath_docString__3___closed__0_value = {.m_header = {.m_rc = 0, .m_cs_sz = 0, .m_other = 0, .m_tag = 249}, .m_size = 248, .m_capacity = 248, .m_length = 247, .m_data = "`#import_path Foo` prints the transitive import chain that brings the declaration `Foo`\ninto the current file's scope.\n\nThis is useful for understanding why a particular declaration is available,\nespecially when debugging unexpected dependencies.\n"};
+static const lean_string_object l___private_Lean_Elab_AssertExists_0__Lean_Elab_Command_elabImportPath___regBuiltin_Lean_Elab_Command_elabImportPath_docString__3___closed__0_value = {.m_header = {.m_rc = 0, .m_cs_sz = 0, .m_other = 0, .m_tag = 249}, .m_size = 247, .m_capacity = 247, .m_length = 246, .m_data = "`#import_path Foo` prints the transitive import chain that brings the declaration `Foo`\ninto the current file's scope.\n\nThis is useful for understanding why a particular declaration is available,\nespecially when debugging unexpected dependencies."};
 static const lean_object* l___private_Lean_Elab_AssertExists_0__Lean_Elab_Command_elabImportPath___regBuiltin_Lean_Elab_Command_elabImportPath_docString__3___closed__0 = (const lean_object*)&l___private_Lean_Elab_AssertExists_0__Lean_Elab_Command_elabImportPath___regBuiltin_Lean_Elab_Command_elabImportPath_docString__3___closed__0_value;
 LEAN_EXPORT lean_object* l___private_Lean_Elab_AssertExists_0__Lean_Elab_Command_elabImportPath___regBuiltin_Lean_Elab_Command_elabImportPath_docString__3();
 LEAN_EXPORT lean_object* l___private_Lean_Elab_AssertExists_0__Lean_Elab_Command_elabImportPath___regBuiltin_Lean_Elab_Command_elabImportPath_docString__3___boxed(lean_object*);
@@ -414,7 +414,7 @@ static const lean_ctor_object l___private_Lean_Elab_AssertExists_0__Lean_Elab_Co
 static const lean_object* l___private_Lean_Elab_AssertExists_0__Lean_Elab_Command_elabAssertNotExists___regBuiltin_Lean_Elab_Command_elabAssertNotExists__1___closed__3 = (const lean_object*)&l___private_Lean_Elab_AssertExists_0__Lean_Elab_Command_elabAssertNotExists___regBuiltin_Lean_Elab_Command_elabAssertNotExists__1___closed__3_value;
 LEAN_EXPORT lean_object* l___private_Lean_Elab_AssertExists_0__Lean_Elab_Command_elabAssertNotExists___regBuiltin_Lean_Elab_Command_elabAssertNotExists__1();
 LEAN_EXPORT lean_object* l___private_Lean_Elab_AssertExists_0__Lean_Elab_Command_elabAssertNotExists___regBuiltin_Lean_Elab_Command_elabAssertNotExists__1___boxed(lean_object*);
-static const lean_string_object l___private_Lean_Elab_AssertExists_0__Lean_Elab_Command_elabAssertNotExists___regBuiltin_Lean_Elab_Command_elabAssertNotExists_docString__3___closed__0_value = {.m_header = {.m_rc = 0, .m_cs_sz = 0, .m_other = 0, .m_tag = 249}, .m_size = 822, .m_capacity = 822, .m_length = 807, .m_data = "`assert_not_exists d₁ d₂ ... dₙ` is a command that asserts that the declarations named\n`d₁ d₂ ... dₙ` *do not exist* in the current import scope.\n\nBe careful to use names (e.g. `Rat`) rather than notations (e.g. `ℚ`).\n\nIt may be used (sparingly!) to enforce plans that certain files are independent of each other.\n\nIf you encounter an error on an `assert_not_exists` command while developing a library,\nit is probably because you have introduced new import dependencies to a file.\nIn this case, you should refactor your work\n(for example by creating new files rather than adding imports to existing files).\nYou should *not* delete the `assert_not_exists` statement without careful discussion ahead of time.\n\n`assert_not_exists` statements should generally live at the top of the file, after the module doc.\n"};
+static const lean_string_object l___private_Lean_Elab_AssertExists_0__Lean_Elab_Command_elabAssertNotExists___regBuiltin_Lean_Elab_Command_elabAssertNotExists_docString__3___closed__0_value = {.m_header = {.m_rc = 0, .m_cs_sz = 0, .m_other = 0, .m_tag = 249}, .m_size = 821, .m_capacity = 821, .m_length = 806, .m_data = "`assert_not_exists d₁ d₂ ... dₙ` is a command that asserts that the declarations named\n`d₁ d₂ ... dₙ` *do not exist* in the current import scope.\n\nBe careful to use names (e.g. `Rat`) rather than notations (e.g. `ℚ`).\n\nIt may be used (sparingly!) to enforce plans that certain files are independent of each other.\n\nIf you encounter an error on an `assert_not_exists` command while developing a library,\nit is probably because you have introduced new import dependencies to a file.\nIn this case, you should refactor your work\n(for example by creating new files rather than adding imports to existing files).\nYou should *not* delete the `assert_not_exists` statement without careful discussion ahead of time.\n\n`assert_not_exists` statements should generally live at the top of the file, after the module doc."};
 static const lean_object* l___private_Lean_Elab_AssertExists_0__Lean_Elab_Command_elabAssertNotExists___regBuiltin_Lean_Elab_Command_elabAssertNotExists_docString__3___closed__0 = (const lean_object*)&l___private_Lean_Elab_AssertExists_0__Lean_Elab_Command_elabAssertNotExists___regBuiltin_Lean_Elab_Command_elabAssertNotExists_docString__3___closed__0_value;
 LEAN_EXPORT lean_object* l___private_Lean_Elab_AssertExists_0__Lean_Elab_Command_elabAssertNotExists___regBuiltin_Lean_Elab_Command_elabAssertNotExists_docString__3();
 LEAN_EXPORT lean_object* l___private_Lean_Elab_AssertExists_0__Lean_Elab_Command_elabAssertNotExists___regBuiltin_Lean_Elab_Command_elabAssertNotExists_docString__3___boxed(lean_object*);
@@ -448,7 +448,7 @@ static const lean_ctor_object l___private_Lean_Elab_AssertExists_0__Lean_Elab_Co
 static const lean_object* l___private_Lean_Elab_AssertExists_0__Lean_Elab_Command_elabAssertNotImported___regBuiltin_Lean_Elab_Command_elabAssertNotImported__1___closed__3 = (const lean_object*)&l___private_Lean_Elab_AssertExists_0__Lean_Elab_Command_elabAssertNotImported___regBuiltin_Lean_Elab_Command_elabAssertNotImported__1___closed__3_value;
 LEAN_EXPORT lean_object* l___private_Lean_Elab_AssertExists_0__Lean_Elab_Command_elabAssertNotImported___regBuiltin_Lean_Elab_Command_elabAssertNotImported__1();
 LEAN_EXPORT lean_object* l___private_Lean_Elab_AssertExists_0__Lean_Elab_Command_elabAssertNotImported___regBuiltin_Lean_Elab_Command_elabAssertNotImported__1___boxed(lean_object*);
-static const lean_string_object l___private_Lean_Elab_AssertExists_0__Lean_Elab_Command_elabAssertNotImported___regBuiltin_Lean_Elab_Command_elabAssertNotImported_docString__3___closed__0_value = {.m_header = {.m_rc = 0, .m_cs_sz = 0, .m_other = 0, .m_tag = 249}, .m_size = 251, .m_capacity = 251, .m_length = 232, .m_data = "`assert_not_imported m₁ m₂ ... mₙ` checks that each one of the modules `m₁ m₂ ... mₙ` is not\namong the transitive imports of the current file.\n\nThe command does not currently check whether the modules `m₁ m₂ ... mₙ` actually exist.\n"};
+static const lean_string_object l___private_Lean_Elab_AssertExists_0__Lean_Elab_Command_elabAssertNotImported___regBuiltin_Lean_Elab_Command_elabAssertNotImported_docString__3___closed__0_value = {.m_header = {.m_rc = 0, .m_cs_sz = 0, .m_other = 0, .m_tag = 249}, .m_size = 250, .m_capacity = 250, .m_length = 231, .m_data = "`assert_not_imported m₁ m₂ ... mₙ` checks that each one of the modules `m₁ m₂ ... mₙ` is not\namong the transitive imports of the current file.\n\nThe command does not currently check whether the modules `m₁ m₂ ... mₙ` actually exist."};
 static const lean_object* l___private_Lean_Elab_AssertExists_0__Lean_Elab_Command_elabAssertNotImported___regBuiltin_Lean_Elab_Command_elabAssertNotImported_docString__3___closed__0 = (const lean_object*)&l___private_Lean_Elab_AssertExists_0__Lean_Elab_Command_elabAssertNotImported___regBuiltin_Lean_Elab_Command_elabAssertNotImported_docString__3___closed__0_value;
 LEAN_EXPORT lean_object* l___private_Lean_Elab_AssertExists_0__Lean_Elab_Command_elabAssertNotImported___regBuiltin_Lean_Elab_Command_elabAssertNotImported_docString__3();
 LEAN_EXPORT lean_object* l___private_Lean_Elab_AssertExists_0__Lean_Elab_Command_elabAssertNotImported___regBuiltin_Lean_Elab_Command_elabAssertNotImported_docString__3___boxed(lean_object*);
@@ -544,7 +544,7 @@ static const lean_ctor_object l___private_Lean_Elab_AssertExists_0__Lean_Elab_Co
 static const lean_object* l___private_Lean_Elab_AssertExists_0__Lean_Elab_Command_elabCheckAssertions___regBuiltin_Lean_Elab_Command_elabCheckAssertions__1___closed__3 = (const lean_object*)&l___private_Lean_Elab_AssertExists_0__Lean_Elab_Command_elabCheckAssertions___regBuiltin_Lean_Elab_Command_elabCheckAssertions__1___closed__3_value;
 LEAN_EXPORT lean_object* l___private_Lean_Elab_AssertExists_0__Lean_Elab_Command_elabCheckAssertions___regBuiltin_Lean_Elab_Command_elabCheckAssertions__1();
 LEAN_EXPORT lean_object* l___private_Lean_Elab_AssertExists_0__Lean_Elab_Command_elabCheckAssertions___regBuiltin_Lean_Elab_Command_elabCheckAssertions__1___boxed(lean_object*);
-static const lean_string_object l___private_Lean_Elab_AssertExists_0__Lean_Elab_Command_elabCheckAssertions___regBuiltin_Lean_Elab_Command_elabCheckAssertions_docString__3___closed__0_value = {.m_header = {.m_rc = 0, .m_cs_sz = 0, .m_other = 0, .m_tag = 249}, .m_size = 776, .m_capacity = 776, .m_length = 772, .m_data = "`#check_assertions` retrieves all declarations and all imports that were declared\nnot to exist so far (including in transitively imported files) and reports their current\nstatus:\n* ✓ means the declaration or import exists,\n* × means the declaration or import does not exist.\n\nThis means that the expectation is that all checks *succeed* by the time `#check_assertions`\nis used, typically once all of the library has been built.\n\nIf all declarations and imports are available when `#check_assertions` is used,\nthen the command logs an info message. Otherwise, it emits a warning.\n\nThe variant `#check_assertions!` only prints declarations/imports that are not present in the\nenvironment. In particular, it is silent if everything is imported, making it useful for testing.\n"};
+static const lean_string_object l___private_Lean_Elab_AssertExists_0__Lean_Elab_Command_elabCheckAssertions___regBuiltin_Lean_Elab_Command_elabCheckAssertions_docString__3___closed__0_value = {.m_header = {.m_rc = 0, .m_cs_sz = 0, .m_other = 0, .m_tag = 249}, .m_size = 775, .m_capacity = 775, .m_length = 771, .m_data = "`#check_assertions` retrieves all declarations and all imports that were declared\nnot to exist so far (including in transitively imported files) and reports their current\nstatus:\n* ✓ means the declaration or import exists,\n* × means the declaration or import does not exist.\n\nThis means that the expectation is that all checks *succeed* by the time `#check_assertions`\nis used, typically once all of the library has been built.\n\nIf all declarations and imports are available when `#check_assertions` is used,\nthen the command logs an info message. Otherwise, it emits a warning.\n\nThe variant `#check_assertions!` only prints declarations/imports that are not present in the\nenvironment. In particular, it is silent if everything is imported, making it useful for testing."};
 static const lean_object* l___private_Lean_Elab_AssertExists_0__Lean_Elab_Command_elabCheckAssertions___regBuiltin_Lean_Elab_Command_elabCheckAssertions_docString__3___closed__0 = (const lean_object*)&l___private_Lean_Elab_AssertExists_0__Lean_Elab_Command_elabCheckAssertions___regBuiltin_Lean_Elab_Command_elabCheckAssertions_docString__3___closed__0_value;
 LEAN_EXPORT lean_object* l___private_Lean_Elab_AssertExists_0__Lean_Elab_Command_elabCheckAssertions___regBuiltin_Lean_Elab_Command_elabCheckAssertions_docString__3();
 LEAN_EXPORT lean_object* l___private_Lean_Elab_AssertExists_0__Lean_Elab_Command_elabCheckAssertions___regBuiltin_Lean_Elab_Command_elabCheckAssertions_docString__3___boxed(lean_object*);
@@ -2461,7 +2461,7 @@ return v_res_733_;
 LEAN_EXPORT lean_object* l_Lean_logAt___at___00Lean_logInfoAt___at___00Lean_Elab_Command_elabImportPath_spec__1_spec__3(lean_object* v_ref_735_, lean_object* v_msgData_736_, uint8_t v_severity_737_, uint8_t v_isSilent_738_, lean_object* v___y_739_, lean_object* v___y_740_){
 _start:
 {
-lean_object* v___y_743_; lean_object* v___y_744_; uint8_t v___y_745_; lean_object* v___y_746_; uint8_t v___y_747_; lean_object* v___y_748_; lean_object* v___y_749_; lean_object* v___y_750_; uint8_t v___y_808_; lean_object* v___y_809_; uint8_t v___y_810_; uint8_t v___y_811_; lean_object* v___y_812_; uint8_t v___y_836_; uint8_t v___y_837_; uint8_t v___y_838_; lean_object* v___y_839_; lean_object* v___y_840_; uint8_t v___y_844_; uint8_t v___y_845_; uint8_t v___y_846_; uint8_t v___x_861_; uint8_t v___y_863_; uint8_t v___y_864_; uint8_t v___y_865_; uint8_t v___y_867_; uint8_t v___x_879_; 
+uint8_t v___y_743_; lean_object* v___y_744_; lean_object* v___y_745_; lean_object* v___y_746_; lean_object* v___y_747_; uint8_t v___y_748_; lean_object* v___y_749_; lean_object* v___y_750_; uint8_t v___y_808_; uint8_t v___y_809_; lean_object* v___y_810_; uint8_t v___y_811_; lean_object* v___y_812_; uint8_t v___y_836_; uint8_t v___y_837_; lean_object* v___y_838_; uint8_t v___y_839_; lean_object* v___y_840_; uint8_t v___y_844_; uint8_t v___y_845_; uint8_t v___y_846_; uint8_t v___x_861_; uint8_t v___y_863_; uint8_t v___y_864_; uint8_t v___y_865_; uint8_t v___y_867_; uint8_t v___x_879_; 
 v___x_861_ = 2;
 v___x_879_ = l_Lean_instBEqMessageSeverity_beq(v_severity_737_, v___x_861_);
 if (v___x_879_ == 0)
@@ -2522,16 +2522,16 @@ lean_ctor_set(v___x_760_, 1, v_openDecls_759_);
 v___x_761_ = lean_alloc_ctor(4, 2, 0);
 lean_ctor_set(v___x_761_, 0, v___x_760_);
 lean_ctor_set(v___x_761_, 1, v___y_744_);
-lean_inc_ref(v___y_748_);
-lean_inc_ref(v___y_743_);
+lean_inc_ref(v___y_747_);
+lean_inc_ref(v___y_745_);
 v___x_762_ = lean_alloc_ctor(0, 5, 3);
-lean_ctor_set(v___x_762_, 0, v___y_743_);
+lean_ctor_set(v___x_762_, 0, v___y_745_);
 lean_ctor_set(v___x_762_, 1, v___y_749_);
 lean_ctor_set(v___x_762_, 2, v___y_746_);
-lean_ctor_set(v___x_762_, 3, v___y_748_);
+lean_ctor_set(v___x_762_, 3, v___y_747_);
 lean_ctor_set(v___x_762_, 4, v___x_761_);
-lean_ctor_set_uint8(v___x_762_, sizeof(void*)*5, v___y_747_);
-lean_ctor_set_uint8(v___x_762_, sizeof(void*)*5 + 1, v___y_745_);
+lean_ctor_set_uint8(v___x_762_, sizeof(void*)*5, v___y_748_);
+lean_ctor_set_uint8(v___x_762_, sizeof(void*)*5 + 1, v___y_743_);
 lean_ctor_set_uint8(v___x_762_, sizeof(void*)*5 + 2, v_isSilent_738_);
 v___x_763_ = lean_st_ref_take(v___y_750_);
 v_env_764_ = lean_ctor_get(v___x_763_, 0);
@@ -2755,8 +2755,8 @@ v_resetjp_822_:
 {
 lean_object* v___x_825_; lean_object* v___x_826_; lean_object* v___x_827_; lean_object* v___x_828_; 
 lean_inc_ref_n(v_fileMap_814_, 2);
-v___x_825_ = l_Lean_FileMap_toPosition(v_fileMap_814_, v___y_809_);
-lean_dec(v___y_809_);
+v___x_825_ = l_Lean_FileMap_toPosition(v_fileMap_814_, v___y_810_);
+lean_dec(v___y_810_);
 v___x_826_ = l_Lean_FileMap_toPosition(v_fileMap_814_, v___y_812_);
 lean_dec(v___y_812_);
 v___x_827_ = lean_alloc_ctor(1, 1, 0);
@@ -2766,12 +2766,12 @@ if (v_suppressElabErrors_815_ == 0)
 {
 lean_del_object(v___x_823_);
 lean_dec_ref(v___f_818_);
-v___y_743_ = v_fileName_813_;
+v___y_743_ = v___y_809_;
 v___y_744_ = v_a_821_;
-v___y_745_ = v___y_810_;
+v___y_745_ = v_fileName_813_;
 v___y_746_ = v___x_827_;
-v___y_747_ = v___y_811_;
-v___y_748_ = v___x_828_;
+v___y_747_ = v___x_828_;
+v___y_748_ = v___y_811_;
 v___y_749_ = v___x_825_;
 v___y_750_ = v___y_740_;
 goto v___jp_742_;
@@ -2810,12 +2810,12 @@ return v___x_832_;
 else
 {
 lean_del_object(v___x_823_);
-v___y_743_ = v_fileName_813_;
+v___y_743_ = v___y_809_;
 v___y_744_ = v_a_821_;
-v___y_745_ = v___y_810_;
+v___y_745_ = v_fileName_813_;
 v___y_746_ = v___x_827_;
-v___y_747_ = v___y_811_;
-v___y_748_ = v___x_828_;
+v___y_747_ = v___x_828_;
+v___y_748_ = v___y_811_;
 v___y_749_ = v___x_825_;
 v___y_750_ = v___y_740_;
 goto v___jp_742_;
@@ -2826,15 +2826,15 @@ goto v___jp_742_;
 v___jp_835_:
 {
 lean_object* v___x_841_; 
-v___x_841_ = l_Lean_Syntax_getTailPos_x3f(v___y_839_, v___y_838_);
-lean_dec(v___y_839_);
+v___x_841_ = l_Lean_Syntax_getTailPos_x3f(v___y_838_, v___y_839_);
+lean_dec(v___y_838_);
 if (lean_obj_tag(v___x_841_) == 0)
 {
 lean_inc(v___y_840_);
 v___y_808_ = v___y_836_;
-v___y_809_ = v___y_840_;
-v___y_810_ = v___y_837_;
-v___y_811_ = v___y_838_;
+v___y_809_ = v___y_837_;
+v___y_810_ = v___y_840_;
+v___y_811_ = v___y_839_;
 v___y_812_ = v___y_840_;
 goto v___jp_807_;
 }
@@ -2845,9 +2845,9 @@ v_val_842_ = lean_ctor_get(v___x_841_, 0);
 lean_inc(v_val_842_);
 lean_dec_ref_known(v___x_841_, 1);
 v___y_808_ = v___y_836_;
-v___y_809_ = v___y_840_;
-v___y_810_ = v___y_837_;
-v___y_811_ = v___y_838_;
+v___y_809_ = v___y_837_;
+v___y_810_ = v___y_840_;
+v___y_811_ = v___y_839_;
 v___y_812_ = v_val_842_;
 goto v___jp_807_;
 }
@@ -2871,8 +2871,8 @@ lean_object* v___x_851_;
 v___x_851_ = lean_unsigned_to_nat(0u);
 v___y_836_ = v___y_844_;
 v___y_837_ = v___y_846_;
-v___y_838_ = v___y_845_;
-v___y_839_ = v_ref_849_;
+v___y_838_ = v_ref_849_;
+v___y_839_ = v___y_845_;
 v___y_840_ = v___x_851_;
 goto v___jp_835_;
 }
@@ -2884,8 +2884,8 @@ lean_inc(v_val_852_);
 lean_dec_ref_known(v___x_850_, 1);
 v___y_836_ = v___y_844_;
 v___y_837_ = v___y_846_;
-v___y_838_ = v___y_845_;
-v___y_839_ = v_ref_849_;
+v___y_838_ = v_ref_849_;
+v___y_839_ = v___y_845_;
 v___y_840_ = v_val_852_;
 goto v___jp_835_;
 }
@@ -5791,7 +5791,7 @@ goto v_resetjp_1913_;
 }
 v_resetjp_1913_:
 {
-lean_object* v_a_1916_; uint8_t v_isDecl_1917_; lean_object* v_givenName_1918_; lean_object* v_modName_1919_; lean_object* v___y_1921_; lean_object* v___y_1922_; uint8_t v___y_1923_; lean_object* v___y_1947_; lean_object* v___y_1948_; uint8_t v___y_1949_; uint8_t v___y_1950_; lean_object* v___y_1956_; uint8_t v___y_1957_; lean_object* v___y_1958_; lean_object* v___y_1962_; uint8_t v___y_1963_; lean_object* v___y_1967_; 
+lean_object* v_a_1916_; uint8_t v_isDecl_1917_; lean_object* v_givenName_1918_; lean_object* v_modName_1919_; lean_object* v___y_1921_; uint8_t v___y_1922_; lean_object* v___y_1923_; lean_object* v___y_1947_; lean_object* v___y_1948_; uint8_t v___y_1949_; uint8_t v___y_1950_; lean_object* v___y_1956_; uint8_t v___y_1957_; lean_object* v___y_1958_; lean_object* v___y_1962_; uint8_t v___y_1963_; lean_object* v___y_1967_; 
 v_a_1916_ = lean_array_uget_borrowed(v_as_1895_, v_i_1897_);
 v_isDecl_1917_ = lean_ctor_get_uint8(v_a_1916_, sizeof(void*)*2);
 v_givenName_1918_ = lean_ctor_get(v_a_1916_, 0);
@@ -5814,9 +5814,9 @@ v___jp_1920_:
 {
 lean_object* v___x_1924_; lean_object* v___x_1925_; lean_object* v___x_1926_; lean_object* v___x_1927_; lean_object* v___x_1928_; lean_object* v___x_1929_; lean_object* v___x_1930_; lean_object* v___x_1931_; lean_object* v___x_1932_; lean_object* v___x_1933_; lean_object* v___x_1934_; lean_object* v___x_1935_; lean_object* v___x_1936_; lean_object* v___x_1937_; lean_object* v___x_1938_; lean_object* v___x_1939_; lean_object* v___x_1941_; 
 v___x_1924_ = lean_obj_once(&l___private_Init_Data_Array_Basic_0__Array_forIn_x27Unsafe_loop___at___00Lean_Elab_Command_elabCheckAssertions_spec__1___redArg___closed__1, &l___private_Init_Data_Array_Basic_0__Array_forIn_x27Unsafe_loop___at___00Lean_Elab_Command_elabCheckAssertions_spec__1___redArg___closed__1_once, _init_l___private_Init_Data_Array_Basic_0__Array_forIn_x27Unsafe_loop___at___00Lean_Elab_Command_elabCheckAssertions_spec__1___redArg___closed__1);
-lean_inc_ref_n(v___y_1922_, 2);
+lean_inc_ref_n(v___y_1921_, 2);
 v___x_1925_ = lean_alloc_ctor(7, 2, 0);
-lean_ctor_set(v___x_1925_, 0, v___y_1922_);
+lean_ctor_set(v___x_1925_, 0, v___y_1921_);
 lean_ctor_set(v___x_1925_, 1, v___x_1924_);
 lean_inc(v_givenName_1918_);
 v___x_1926_ = l_Lean_MessageData_ofName(v_givenName_1918_);
@@ -5827,8 +5827,8 @@ v___x_1928_ = lean_obj_once(&l___private_Init_Data_Array_Basic_0__Array_forIn_x2
 v___x_1929_ = lean_alloc_ctor(7, 2, 0);
 lean_ctor_set(v___x_1929_, 0, v___x_1927_);
 lean_ctor_set(v___x_1929_, 1, v___x_1928_);
-lean_inc_ref(v___y_1921_);
-v___x_1930_ = l_Lean_stringToMessageData(v___y_1921_);
+lean_inc_ref(v___y_1923_);
+v___x_1930_ = l_Lean_stringToMessageData(v___y_1923_);
 v___x_1931_ = lean_alloc_ctor(7, 2, 0);
 lean_ctor_set(v___x_1931_, 0, v___x_1929_);
 lean_ctor_set(v___x_1931_, 1, v___x_1930_);
@@ -5846,11 +5846,11 @@ v___x_1937_ = lean_alloc_ctor(7, 2, 0);
 lean_ctor_set(v___x_1937_, 0, v___x_1935_);
 lean_ctor_set(v___x_1937_, 1, v___x_1936_);
 v___x_1938_ = lean_array_push(v_fst_1908_, v___x_1937_);
-v___x_1939_ = lean_box(v___y_1923_);
+v___x_1939_ = lean_box(v___y_1922_);
 if (v_isShared_1915_ == 0)
 {
 lean_ctor_set(v___x_1914_, 1, v___x_1939_);
-lean_ctor_set(v___x_1914_, 0, v___y_1922_);
+lean_ctor_set(v___x_1914_, 0, v___y_1921_);
 v___x_1941_ = v___x_1914_;
 goto v_reusejp_1940_;
 }
@@ -5858,7 +5858,7 @@ else
 {
 lean_object* v_reuseFailAlloc_1945_; 
 v_reuseFailAlloc_1945_ = lean_alloc_ctor(0, 2, 0);
-lean_ctor_set(v_reuseFailAlloc_1945_, 0, v___y_1922_);
+lean_ctor_set(v_reuseFailAlloc_1945_, 0, v___y_1921_);
 lean_ctor_set(v_reuseFailAlloc_1945_, 1, v___x_1939_);
 v___x_1941_ = v_reuseFailAlloc_1945_;
 goto v_reusejp_1940_;
@@ -5898,8 +5898,8 @@ if (v___x_1951_ == 0)
 if (v___y_1949_ == 0)
 {
 v___y_1921_ = v___y_1947_;
-v___y_1922_ = v___y_1948_;
-v___y_1923_ = v___y_1950_;
+v___y_1922_ = v___y_1950_;
+v___y_1923_ = v___y_1948_;
 goto v___jp_1920_;
 }
 else
@@ -5908,9 +5908,9 @@ lean_object* v___x_1952_; lean_object* v___x_1953_; lean_object* v___x_1954_;
 lean_del_object(v___x_1914_);
 lean_del_object(v___x_1910_);
 v___x_1952_ = lean_box(v___y_1950_);
-lean_inc_ref(v___y_1948_);
+lean_inc_ref(v___y_1947_);
 v___x_1953_ = lean_alloc_ctor(0, 2, 0);
-lean_ctor_set(v___x_1953_, 0, v___y_1948_);
+lean_ctor_set(v___x_1953_, 0, v___y_1947_);
 lean_ctor_set(v___x_1953_, 1, v___x_1952_);
 v___x_1954_ = lean_alloc_ctor(0, 2, 0);
 lean_ctor_set(v___x_1954_, 0, v_fst_1908_);
@@ -5922,8 +5922,8 @@ goto v___jp_1900_;
 else
 {
 v___y_1921_ = v___y_1947_;
-v___y_1922_ = v___y_1948_;
-v___y_1923_ = v___y_1950_;
+v___y_1922_ = v___y_1950_;
+v___y_1923_ = v___y_1948_;
 goto v___jp_1920_;
 }
 }
@@ -5936,8 +5936,8 @@ if (v___x_1959_ == 0)
 uint8_t v___x_1960_; 
 v___x_1960_ = lean_unbox(v_snd_1912_);
 lean_dec(v_snd_1912_);
-v___y_1947_ = v___y_1956_;
-v___y_1948_ = v___y_1958_;
+v___y_1947_ = v___y_1958_;
+v___y_1948_ = v___y_1956_;
 v___y_1949_ = v___y_1957_;
 v___y_1950_ = v___x_1960_;
 goto v___jp_1946_;
@@ -5945,8 +5945,8 @@ goto v___jp_1946_;
 else
 {
 lean_dec(v_snd_1912_);
-v___y_1947_ = v___y_1956_;
-v___y_1948_ = v___y_1958_;
+v___y_1947_ = v___y_1958_;
+v___y_1948_ = v___y_1956_;
 v___y_1949_ = v___y_1957_;
 v___y_1950_ = v___y_1957_;
 goto v___jp_1946_;

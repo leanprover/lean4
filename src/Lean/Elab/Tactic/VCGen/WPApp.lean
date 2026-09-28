@@ -21,7 +21,7 @@ namespace Lean.Elab.Tactic.VCGen
 
 /--
 Common metadata for a goal whose right-hand side is a weakest-precondition application
-`pre ⊑ wp Prog Value Pred EPred instAL instEAL instWP prog post epost s₁ ... sₙ`.
+`pre ⊑ wp Prog Value Pred EPosts instAL instEAL instWP prog post eposts s₁ ... sₙ`.
 -/
 public structure WPApp where
   /-- The whole `wp` application, including the excess state arguments. -/
@@ -29,9 +29,9 @@ public structure WPApp where
   /-- The `wp` function head, separated from its explicit core arguments. -/
   head : Expr
   /-- The ordered core arguments of the `wp` application:
-  `#[Prog, Value, Pred, EPred, instAL, instEAL, instWP, prog, post, epost]`. -/
+  `#[Prog, Value, Pred, EPosts, instAL, instEAL, instWP, prog, post, eposts]`. -/
   args : Array Expr
-  /-- Extra arguments applied after `wp … prog post epost`, usually concrete state arguments. -/
+  /-- Extra arguments applied after `wp … prog post eposts`, usually concrete state arguments. -/
   excessArgs : Array Expr
 
 namespace WPApp
@@ -47,7 +47,7 @@ public def Value (info : WPApp) : Expr := info.args[1]!
 /-- Predicate/lattice type argument of `wp`. -/
 public def Pred (info : WPApp) : Expr := info.args[2]!
 /-- Exception postcondition type argument of `wp`. -/
-public def EPred (info : WPApp) : Expr := info.args[3]!
+public def EPosts (info : WPApp) : Expr := info.args[3]!
 /-- `WP` instance argument of `wp`. -/
 public def instWP (info : WPApp) : Expr := info.args[6]!
 /-- Program expression classified by VCGen. -/

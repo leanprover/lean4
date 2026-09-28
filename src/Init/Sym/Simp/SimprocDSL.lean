@@ -21,6 +21,7 @@ A syntax category for specifying `pre` and `post` simproc chains in `Sym.simp` v
 - `telescope` — simplifies telescope binders (have-values, arrow hypotheses) but not the final body
 - `rewrite setName [with discharger]` — rewrites using a named theorem set
 - `rewrite [thm₁, thm₂, ...] [with discharger]` — rewrites using inline theorems
+- `arith [with discharger]` — polynomial normal form for ring, semiring, and field terms
 - `self` — recursive simplification (calls the full simplifier)
 - `none` — identity (no simplification)
 
@@ -64,6 +65,11 @@ syntax (name := rewriteSet) "rewrite" ident (" with " sym_discharger)? : sym_sim
 /-- Rewrite using inline theorems. Optionally specify a discharger for conditional rewrites. -/
 syntax (name := rewriteInline) "rewrite" " [" ident,* "]" (" with " sym_discharger)? : sym_simproc
 
+/-- Normalize ring and semiring terms into polynomial normal form (`Sym.Arith.normalize?`).
+Simplifies the atoms recursively. Intended as a `pre` simproc. The optional discharger proves
+the side conditions `x ≠ 0` under which `x * x⁻¹` is cancelled in a field. -/
+syntax (name := arith) "arith" (" with " sym_discharger)? : sym_simproc
+
 /-- Recursive simplification (calls the full simplifier). -/
 syntax (name := self) "self" : sym_simproc
 
@@ -105,12 +111,15 @@ end Lean.Parser.Sym.Simp
 /-!
 ## `register_sym_simp` command
 
-Declares a named `Sym.simp` variant with `pre`/`post` simproc chains and optional config overrides.
+Declares a named `Sym.simp` variant with `pre`/`post` simproc chains, the discharger for the
+extra theorems provided at use time (`simp myVariant [thm₁, thm₂, ...]`), and optional config
+overrides.
 
 ```
 register_sym_simp myVariant where
   pre  := telescope
   post := ground >> rewrite mySet with self
+  discharger := grind
 ```
 -/
 
@@ -123,6 +132,12 @@ syntax (name := symSimpFieldPre) "pre" " := " sym_simproc : sym_simp_field
 
 /-- Post-processing simproc chain. -/
 syntax (name := symSimpFieldPost) "post" " := " sym_simproc : sym_simp_field
+
+/--
+Discharger for the side conditions of the extra theorems provided at use time
+(`simp myVariant [thm₁, thm₂, ...]`). Defaults to `none`.
+-/
+syntax (name := symSimpFieldDischarger) "discharger" " := " sym_discharger : sym_simp_field
 
 /-- Maximum number of simplification steps. -/
 syntax (name := symSimpFieldMaxSteps) "maxSteps" " := " num : sym_simp_field
@@ -137,6 +152,7 @@ Register a named `Sym.simp` variant.
 register_sym_simp myVariant where
   pre  := telescope
   post := ground >> rewrite [thm1, thm2] with self
+  discharger := grind
   maxSteps := 50000
 ```
 -/

@@ -251,7 +251,7 @@ where
       let (lc, prf, facts) ← asLinearCombo rhs
       let prf' : OmegaM Expr := do mkEqTrans rw (← prf)
       pure (lc, prf', facts)
-    | none => panic! "Invalid rewrite rule in 'asLinearCombo'"
+    | none => panic! "Invalid rewrite rule in `asLinearCombo`"
   handleNatCast (e i n : Expr) : OmegaM (LinearCombo × OmegaM Expr × List Expr) := do
     match n with
     | .fvar h =>

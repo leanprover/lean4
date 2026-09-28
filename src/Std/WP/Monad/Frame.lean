@@ -42,19 +42,19 @@ program. A caller of a spec picks a frame and applies the frame rule for that fr
   toLawfulMonad := base.toLawfulMonad
   toWP α := WP.withFrameClosure op (base.toWP α)
   pure_le_wp_pure x post E' := by
-    show post x ⊑ (((base.toWP _).wpTrans (pure x)).frameClosure op).apply post E'
+    show post x ⊑ (((base.toWP _).trans (pure x)).frameClosure op).apply post E'
     refine (PredTrans.le_frameClosure_iff op _).mpr fun r => ?_
     exact base.pure_le_wp_pure x (fun a => op r (post a)) (opE r E')
   bind_le_wp_bind x f post E' := by
-    show (((base.toWP _).wpTrans x).frameClosure op).apply
-          (fun a => (((base.toWP _).wpTrans (f a)).frameClosure op).apply post E') E'
-        ⊑ (((base.toWP _).wpTrans (x >>= f)).frameClosure op).apply post E'
+    show (((base.toWP _).trans x).frameClosure op).apply
+          (fun a => (((base.toWP _).trans (f a)).frameClosure op).apply post E') E'
+        ⊑ (((base.toWP _).trans (x >>= f)).frameClosure op).apply post E'
     refine (PredTrans.le_frameClosure_iff op _).mpr fun r => ?_
     refine PartialOrder.rel_trans (PredTrans.frameClosure_frames op comp hact hactE _ _ _ r) ?_
     refine PartialOrder.rel_trans (PredTrans.frameClosure_le op e hunit hunitE _ _ _) ?_
     refine PartialOrder.rel_trans ?_
       (base.bind_le_wp_bind x f (fun a => op r (post a)) (opE r E'))
-    refine WP.wp_consequence x _ _ (opE r E') fun a => ?_
+    refine WP.wp_monotone_post fun a => ?_
     exact PartialOrder.rel_trans (PredTrans.frameClosure_frames op comp hact hactE _ _ _ r)
       (PredTrans.frameClosure_le op e hunit hunitE _ _ _)
 

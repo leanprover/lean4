@@ -236,6 +236,6 @@ init_grind_norm
   Semiring.one_mul Semiring.mul_one
   Semiring.zero_mul Semiring.mul_zero
   -- Bitvectors
-  BitVec.ofNatLT_eq_ofNat
+  BitVec.ofNatLT_eq_ofNat BitVec.pow_eq
 
 end Lean.Grind

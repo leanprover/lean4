@@ -1,0 +1,13 @@
+Input: "[]: url\n"
+Failure: expected a reference name
+ --> 1:1-1:2
+  |
+1 | []: url
+  |  ^
+  = consumed input prefix: 1 bytes
+Final stack:
+  [(Lean.Doc.Parser.Block.link_ref
+    "["
+    (Lean.Doc.Parser.versoRef [<missing>]))]
+All input consumed.
+Round-trip not reproduced, as the parse reported errors: leaf without original source info: <missing>

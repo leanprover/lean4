@@ -1,3 +1,7 @@
+Input: "+foo"
 Success! Final stack:
-  (Lean.Doc.Syntax.flag_on "+" `foo)
+  (Lean.Doc.Parser.Arg.flag_on "+" `foo)
 All input consumed.
+Round-trip OK
+Decoded views:
+  flag (sign := "+") (name := foo) (isOn := true)

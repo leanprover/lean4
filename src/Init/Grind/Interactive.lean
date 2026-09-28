@@ -336,7 +336,10 @@ Only available in `sym =>` mode.
 - `simp myVariant [thm₁, thm₂, ...]` — named variant with extra theorems
 
 The extra parameters may be theorems, local hypotheses, or definitions. For a definition `f`,
-its equational theorems are used, so `simp [f]` unfolds `f` applications.
+its equational theorems are used, and a non-recursive `f` is unfolded when none of them applies,
+so `simp [f]` unfolds `f` applications like the default simplifier does. The side conditions
+of conditional extra theorems are discharged by the variant's `discharger`. The default variant
+discharges them using `grind`.
 -/
 syntax (name := symSimp) "simp" (ppSpace colGt ident)? (" [" ident,* "]")? : grind
 
@@ -346,8 +349,13 @@ Only available in `sym =>` mode.
 
 - `dsimp` — uses the default (identity) variant
 - `dsimp myVariant` — uses a named variant registered via `register_sym_dsimp`
-- `dsimp [id₁, id₂, ...]` — default variant with extra declarations to unfold
+- `dsimp [id₁, id₂, ...]` — default variant with extra declarations
 - `dsimp myVariant [id₁, id₂, ...]` — named variant with extra declarations
+
+The extra declarations may be local definitions to unfold, or `*` to unfold all of them,
+`rfl`-theorems, or definitions. A definition `f` is unfolded under the same conditions as in the
+default simplifier: a structurally recursive `f` only when its recursion argument reduces, and
+any other `f` only when it is fully applied.
 -/
 syntax (name := symDSimp) "dsimp" (ppSpace colGt ident)? (" [" ("*" <|> ident),* "]")? : grind
 

@@ -1,0 +1,17 @@
+Input: "hard  linebreak\ntext"
+Success! Final stack:
+  (Lean.Doc.Parser.document
+   [(Lean.Doc.Parser.Block.para
+     [(Lean.Doc.Parser.Inline.text
+       (Lean.Doc.Parser.versoText
+        "hard  linebreak"))
+      (Lean.Doc.Parser.Inline.linebreak "\n")
+      (Lean.Doc.Parser.Inline.text
+       (Lean.Doc.Parser.versoText "text"))])])
+All input consumed.
+Round-trip OK
+Decoded views:
+  para
+    text (content := "hard  linebreak")
+    linebreak (newline := "\n")
+    text (content := "text")

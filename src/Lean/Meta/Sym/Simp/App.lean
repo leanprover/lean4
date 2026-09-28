@@ -66,6 +66,18 @@ public def mkCongr (e : Expr) (f a : Expr) (fr : Result) (ar : Result) (_ : e = 
     let h := mkApp6 (← mkCongrPrefix ``congr) f f' a a' hf ha
     return .step e' h (contextDependent := cd₁ || cd₂)
 
+/-- `mkCongr` for an unchanged function `f`: `.rfl` if `ar` is, otherwise a `congrArg` proof. -/
+public def mkCongrArg (e : Expr) (f a : Expr) (ar : Result) (_ : e = .app f a) : SymM Result := do
+  match ar with
+  | .rfl _ cd => return mkRflResultCD cd
+  | .step a' ha _ cd =>
+    let α ← inferType a
+    let u ← getLevel α
+    let β ← inferType e
+    let v ← getLevel β
+    let e' ← mkAppS f a'
+    return .step e' (mkApp6 (mkConst ``congrArg [u, v]) α β a a' f ha) (contextDependent := cd)
+
 /--
 Returns a proof using `congrFun`
 ```

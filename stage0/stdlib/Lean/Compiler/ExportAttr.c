@@ -115,7 +115,7 @@ LEAN_EXPORT lean_object* l___private_Lean_Compiler_ExportAttr_0__Lean_initFn_00_
 LEAN_EXPORT lean_object* l_Lean_throwError___at___00__private_Lean_Compiler_ExportAttr_0__Lean_initFn_00___x40_Lean_Compiler_ExportAttr_1307678936____hygCtx___hyg_2__spec__0(lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_throwError___at___00__private_Lean_Compiler_ExportAttr_0__Lean_initFn_00___x40_Lean_Compiler_ExportAttr_1307678936____hygCtx___hyg_2__spec__0___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_exportAttr;
-static const lean_string_object l___private_Lean_Compiler_ExportAttr_0__Lean_exportAttr___regBuiltin_Lean_exportAttr_docString__1___closed__0_value = {.m_header = {.m_rc = 0, .m_cs_sz = 0, .m_other = 0, .m_tag = 249}, .m_size = 742, .m_capacity = 742, .m_length = 741, .m_data = "Exports a function under the provided unmangled symbol name. This can be used to refer to Lean\nfunctions from other programming languages like C.\n\nExample:\n```\n@[export lean_color_from_map]\ndef colorValue (properties : @& Std.HashMap String String) : UInt32 :=\n  match properties[\"color\"]\? with\n  | some \"red\" => 0xff0000\n  | some \"green\" => 0x00ff00\n  | some \"blue\" => 0x0000ff\n  | _ => -1\n```\nC code:\n```c\n#include <lean/lean.h>\n\nuint32_t lean_color_from_map(b_lean_obj_arg properties);\n\nvoid fill_rectangle_from_map(b_lean_obj_arg properties) {\n    uint32_t color = lean_color_from_map(properties);\n    // ...\n}\n```\n\nThe opposite of this is `@[extern]`, which allows Lean functions to refer to functions from other\nprogramming languages.\n"};
+static const lean_string_object l___private_Lean_Compiler_ExportAttr_0__Lean_exportAttr___regBuiltin_Lean_exportAttr_docString__1___closed__0_value = {.m_header = {.m_rc = 0, .m_cs_sz = 0, .m_other = 0, .m_tag = 249}, .m_size = 741, .m_capacity = 741, .m_length = 740, .m_data = "Exports a function under the provided unmangled symbol name. This can be used to refer to Lean\nfunctions from other programming languages like C.\n\nExample:\n```\n@[export lean_color_from_map]\ndef colorValue (properties : @& Std.HashMap String String) : UInt32 :=\n  match properties[\"color\"]\? with\n  | some \"red\" => 0xff0000\n  | some \"green\" => 0x00ff00\n  | some \"blue\" => 0x0000ff\n  | _ => -1\n```\nC code:\n```c\n#include <lean/lean.h>\n\nuint32_t lean_color_from_map(b_lean_obj_arg properties);\n\nvoid fill_rectangle_from_map(b_lean_obj_arg properties) {\n    uint32_t color = lean_color_from_map(properties);\n    // ...\n}\n```\n\nThe opposite of this is `@[extern]`, which allows Lean functions to refer to functions from other\nprogramming languages."};
 static const lean_object* l___private_Lean_Compiler_ExportAttr_0__Lean_exportAttr___regBuiltin_Lean_exportAttr_docString__1___closed__0 = (const lean_object*)&l___private_Lean_Compiler_ExportAttr_0__Lean_exportAttr___regBuiltin_Lean_exportAttr_docString__1___closed__0_value;
 LEAN_EXPORT lean_object* l___private_Lean_Compiler_ExportAttr_0__Lean_exportAttr___regBuiltin_Lean_exportAttr_docString__1();
 LEAN_EXPORT lean_object* l___private_Lean_Compiler_ExportAttr_0__Lean_exportAttr___regBuiltin_Lean_exportAttr_docString__1___boxed(lean_object*);
@@ -386,15 +386,15 @@ goto v___jp_61_;
 else
 {
 lean_object* v___x_71_; 
-lean_inc(v___y_68_);
 lean_inc(v___y_67_);
+lean_inc(v___y_68_);
 v___x_71_ = lean_alloc_ctor(0, 3, 0);
 lean_ctor_set(v___x_71_, 0, v_id_52_);
-lean_ctor_set(v___x_71_, 1, v___y_67_);
-lean_ctor_set(v___x_71_, 2, v___y_68_);
+lean_ctor_set(v___x_71_, 1, v___y_68_);
+lean_ctor_set(v___x_71_, 2, v___y_67_);
 v___y_54_ = v___x_71_;
-v_startInclusive_55_ = v___y_67_;
-v_endExclusive_56_ = v___y_68_;
+v_startInclusive_55_ = v___y_68_;
+v_endExclusive_56_ = v___y_67_;
 goto v___jp_53_;
 }
 }
@@ -416,8 +416,8 @@ v___x_78_ = lean_string_is_valid_pos(v_id_52_, v___x_77_);
 v___x_79_ = lean_string_is_valid_pos(v_id_52_, v___x_74_);
 if (v___x_79_ == 0)
 {
-v___y_67_ = v___x_77_;
-v___y_68_ = v___x_74_;
+v___y_67_ = v___x_74_;
+v___y_68_ = v___x_77_;
 v___y_69_ = v___x_78_;
 v___y_70_ = v___x_79_;
 goto v___jp_66_;
@@ -426,8 +426,8 @@ else
 {
 uint8_t v___x_80_; 
 v___x_80_ = lean_nat_dec_le(v___x_77_, v___x_74_);
-v___y_67_ = v___x_77_;
-v___y_68_ = v___x_74_;
+v___y_67_ = v___x_74_;
+v___y_68_ = v___x_77_;
 v___y_69_ = v___x_78_;
 v___y_70_ = v___x_80_;
 goto v___jp_66_;
@@ -758,11 +758,12 @@ if (lean_obj_tag(v___x_183_) == 0)
 {
 lean_object* v_a_184_; uint8_t v___x_185_; 
 v_a_184_ = lean_ctor_get(v___x_183_, 0);
-lean_inc_n(v_a_184_, 2);
+lean_inc(v_a_184_);
 v___x_185_ = l___private_Lean_Compiler_ExportAttr_0__Lean_isValidCppName(v_a_184_);
 if (v___x_185_ == 0)
 {
 lean_object* v___x_186_; lean_object* v___x_187_; lean_object* v___x_188_; lean_object* v___x_189_; lean_object* v___x_190_; lean_object* v___x_191_; lean_object* v_a_192_; lean_object* v___x_194_; uint8_t v_isShared_195_; uint8_t v_isSharedCheck_199_; 
+lean_inc(v_a_184_);
 lean_dec_ref_known(v___x_183_, 1);
 v___x_186_ = lean_obj_once(&l___private_Lean_Compiler_ExportAttr_0__Lean_initFn___lam__0___closed__1_00___x40_Lean_Compiler_ExportAttr_1307678936____hygCtx___hyg_2_, &l___private_Lean_Compiler_ExportAttr_0__Lean_initFn___lam__0___closed__1_00___x40_Lean_Compiler_ExportAttr_1307678936____hygCtx___hyg_2__once, _init_l___private_Lean_Compiler_ExportAttr_0__Lean_initFn___lam__0___closed__1_00___x40_Lean_Compiler_ExportAttr_1307678936____hygCtx___hyg_2_);
 v___x_187_ = l_Lean_MessageData_ofName(v_a_184_);
@@ -814,7 +815,6 @@ return v___x_197_;
 }
 else
 {
-lean_dec(v_a_184_);
 return v___x_183_;
 }
 }
@@ -868,9 +868,9 @@ return v___x_223_;
 LEAN_EXPORT lean_object* l___private_Lean_Compiler_ExportAttr_0__Lean_initFn___lam__2_00___x40_Lean_Compiler_ExportAttr_1307678936____hygCtx___hyg_2____boxed(lean_object* v___x_224_, lean_object* v_env_225_, lean_object* v_n_226_, lean_object* v_x_227_){
 _start:
 {
-uint8_t v___x_1481__boxed_228_; uint8_t v_res_229_; lean_object* v_r_230_; 
-v___x_1481__boxed_228_ = lean_unbox(v___x_224_);
-v_res_229_ = l___private_Lean_Compiler_ExportAttr_0__Lean_initFn___lam__2_00___x40_Lean_Compiler_ExportAttr_1307678936____hygCtx___hyg_2_(v___x_1481__boxed_228_, v_env_225_, v_n_226_, v_x_227_);
+uint8_t v___x_1489__boxed_228_; uint8_t v_res_229_; lean_object* v_r_230_; 
+v___x_1489__boxed_228_ = lean_unbox(v___x_224_);
+v_res_229_ = l___private_Lean_Compiler_ExportAttr_0__Lean_initFn___lam__2_00___x40_Lean_Compiler_ExportAttr_1307678936____hygCtx___hyg_2_(v___x_1489__boxed_228_, v_env_225_, v_n_226_, v_x_227_);
 lean_dec(v_x_227_);
 v_r_230_ = lean_box(v_res_229_);
 return v_r_230_;

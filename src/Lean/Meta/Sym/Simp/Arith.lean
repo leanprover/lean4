@@ -9,6 +9,8 @@ public import Lean.Meta.Sym.Simp.SimpM
 public import Lean.Meta.Sym.Simp.Discharger
 import Lean.Meta.Sym.Simp.Result
 import Lean.Meta.Sym.Arith.Norm
+import Lean.Meta.Sym.LitValues
+import Init.Grind.Norm
 public section
 namespace Lean.Meta.Sym.Simp
 
@@ -71,5 +73,48 @@ def simpArith (d : Discharger := dischargeNone) (lhsOnly : Bool := false) : Simp
       cacheNormal e' cd
       return r
   | _ => return r
+
+/--
+Returns `some k` if `e` is `a + (k + 1)` for a numeral `k + 1`, i.e., the normal form of a
+`Nat` polynomial with a positive constant, which is nonzero for every value of its atoms.
+-/
+private def isNatAddSucc? (e : Expr) : Option (Expr × Nat) := do
+  let_expr HAdd.hAdd _ _ _ _ a k := e | none
+  let k ← (Sym.getNatValue? k).run
+  if k == 0 then none else some (a, k - 1)
+
+/-- Returns `true` if `e` is the numeral `0`. -/
+private def isNatZero (e : Expr) : Bool :=
+  match (Sym.getNatValue? e).run with
+  | some 0 => true
+  | _ => false
+
+/--
+Decides the `Nat` relations that are trivially unsatisfiable or valid after normalization by
+`simpArith`, like `Nat.Linear` does in `simp +arith`: `a + k = 0`, `0 = a + k`, and
+`a + k ≤ 0` become `False` for a positive numeral `k`, and `0 ≤ a` becomes `True`.
+The other ground cases (`k = 0`, `0 ≤ k`) are handled by `evalGround`. Intended as a
+`post` simproc, after `simpArith` has cancelled the common part of the two sides.
+-/
+def simpNatRel : Simproc := fun e => do
+  match_expr e with
+  | Eq α lhs rhs =>
+    let .const ``Nat _ := α | return .rfl
+    if isNatZero rhs then
+      if let some (a, k) := isNatAddSucc? lhs then
+        return .step (← getFalseExpr) (mkApp2 (mkConst ``Grind.Nat.add_succ_eq_zero_eq_false) a (mkRawNatLit k)) (done := true)
+    else if isNatZero lhs then
+      if let some (a, k) := isNatAddSucc? rhs then
+        return .step (← getFalseExpr) (mkApp2 (mkConst ``Grind.Nat.zero_eq_add_succ_eq_false) a (mkRawNatLit k)) (done := true)
+    return .rfl
+  | LE.le α _ lhs rhs =>
+    let .const ``Nat _ := α | return .rfl
+    if isNatZero lhs then
+      return .step (← getTrueExpr) (mkApp (mkConst ``Grind.Nat.zero_le_eq_true) rhs) (done := true)
+    else if isNatZero rhs then
+      if let some (a, k) := isNatAddSucc? lhs then
+        return .step (← getFalseExpr) (mkApp2 (mkConst ``Grind.Nat.add_succ_le_zero_eq_false) a (mkRawNatLit k)) (done := true)
+    return .rfl
+  | _ => return .rfl
 
 end Lean.Meta.Sym.Simp

@@ -283,17 +283,55 @@ example : (a = b → False) := by grind_norm check; sorry
 #guard_msgs in
 example : ((∀ x, f x = x) → a = b) := by grind_norm check; sorry
 
-/--
-error: `grind_norm` discrepancy
-legacy:
-  False
-sym:
-  a + 1 = 0
--/
 #guard_msgs in
 example : (Nat.succ a = Nat.zero) := by grind_norm check; sorry
 
 #guard_msgs in
 example : (some a = none) := by grind_norm check; sorry
+
+#guard_msgs in
+example (a : Nat) : a + 1 ≥ 0 := by grind_norm check; sorry
+
+#guard_msgs in
+example (a : Int) : a + 1 ≥ 0 := by grind_norm check; sorry
+
+#guard_msgs in
+example (a : Nat) : a + 3 = 0 := by grind_norm check; sorry
+
+#guard_msgs in
+example (a : Nat) : 0 = a + 2 := by grind_norm check; sorry
+
+#guard_msgs in
+example (a : Nat) : a + 2 ≤ 0 := by grind_norm check; sorry
+
+#guard_msgs in
+example (a : Nat) : 3 ≤ a + 5 := by grind_norm check; sorry
+
+#guard_msgs in
+example (a : Nat) : a + 5 ≤ 3 := by grind_norm check; sorry
+
+#guard_msgs in
+example (a : Nat) : 0 ≤ a := by grind_norm check; sorry
+
+#guard_msgs in
+example (a : Nat) : a ≤ a + 1 := by grind_norm check; sorry
+
+#guard_msgs in
+example (a : Nat) : a + 1 ≤ a := by grind_norm check; sorry
+
+#guard_msgs in
+example (a : Nat) : 2 * a + 1 = 0 := by grind_norm check; sorry
+
+#guard_msgs in
+example (a b : Nat) : a * b + 1 = 0 := by grind_norm check; sorry
+
+#guard_msgs in
+example (a b : Nat) : a + 1 = b := by grind_norm check; sorry
+
+#guard_msgs in
+example (a : Int) : a + 1 + b + c + 5 ≥ 0 := by grind_norm check; sorry
+
+#guard_msgs in
+example (a : Int) : a + 1 + b + c + 5 = 0 := by grind_norm check; sorry
 
 end structural

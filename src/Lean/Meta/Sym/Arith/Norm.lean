@@ -20,11 +20,13 @@ import Lean.Meta.Sym.AlphaShareBuilder
 import Lean.Data.RArray
 import Init.Grind.Norm
 import Init.Grind.Ring.FieldSolver
+import Init.Grind.Ring.IntSolver
 public section
 namespace Lean.Meta.Sym.Arith
 open Lean.Meta.Sym.Simp (Result mkEqTransResult)
 open Lean.Meta.Sym.Internal (mkAppS mkAppS₂)
 open Lean.Grind.CommRing (PolyQ InvAtoms)
+open Int.Internal.Linear (cdiv)
 
 /-!
 # Polynomial normalization of ring and semiring terms
@@ -668,6 +670,21 @@ private def mkIffSymm (a b h : Expr) : Expr :=
 private def mkPropExt (a b h : Expr) : Expr :=
   mkApp3 (mkConst ``propext) a b h
 
+/-- The constant of `p`. -/
+private def polyConst : Poly → Int
+  | .num k => k
+  | .add _ _ p => polyConst p
+
+/-- The gcd of the monomial coefficients of `p` (without the constant); `0` for a constant. -/
+private def gcdMonCoeffs : Poly → Nat
+  | .num _ => 0
+  | .add k _ p => Nat.gcd k.natAbs (gcdMonCoeffs p)
+
+/-- Divides the monomial coefficients of `p` by `k` and drops the constant. -/
+private def divMonCoeffs (k : Nat) : Poly → Poly
+  | .num _ => .num 0
+  | .add c m p => .add (c / k) m (divMonCoeffs k p)
+
 /--
 Given the reified sides `l`, `r` of `e := rel lhs rhs` (atoms already numbered in order),
 returns the normalized relation. `relFn` is the canonical `Eq α`/`LE.le α inst`/`LT.lt α inst`,
@@ -705,6 +722,24 @@ private def normalizeRelCore (rel : RelKind) (relFn : Expr) (order? : Option Ord
     let p := if !invs.isEmpty then (p.toPolyQ invs.toList ainvsL).num
       else if !ainvs.isEmpty then p.cancelInvs ainvsL
       else p
+    -- `Int`: like `simp +arith`, divide the coefficients by their gcd `k` (`p = k * q + c`).
+    -- An equation whose constant is not divisible by `k` is `False`, and `≤` is tightened by
+    -- rounding the constant up. `<` is left to the `Int.lt_eq` rewrite. `tight?` records
+    -- `(q, k, c)` for the certificate (`IntSolver.lean`).
+    let mut p := p
+    let mut tight? : Option (Poly × Int × Int) := none
+    if ring.type.isConstOf ``Int && invs.isEmpty && ainvs.isEmpty && char?.isNone && rel != .lt then
+      let k := gcdMonCoeffs p
+      if k > 1 then
+        let c := polyConst p
+        let q := divMonCoeffs k p
+        if rel == .eq && c % k != 0 then
+          let ctx ← mkContext ring.type (mkApp (← getNatCastFn) (mkNatLit 0)) vars
+          let h := mkApp7 (mkConst ``Grind.CommRing.eq_norm_unsat_expr) ctx (toExpr l) (toExpr r) (toExpr q) (toExpr (k : Int)) (toExpr c) eagerReflBoolTrue
+          let e' ← getFalseExpr
+          return .step e' (mkExpectedPropHint h (mkPropEq e e'))
+        p := q.addConst (if rel == .eq then c / k else cdiv c k)
+        tight? := some (q, k, c)
     -- Like `simp +arith`, an equation already of the form `p = 0` is left alone, and the
     -- equations `x = y` and `x = k` are kept in that form instead of `x - y = 0`.
     if lhsOnly && rel == .eq && char?.isNone && r == .num 0 && p.toExpr == l then return .normal
@@ -725,7 +760,11 @@ private def normalizeRelCore (rel : RelKind) (relFn : Expr) (order? : Option Ord
     let ctx ← mkContext ring.type (mkApp (← getNatCastFn) (mkNatLit 0)) vars
     let hoka ← if ainvs.isEmpty then pure (mkConst ``True.intro) else pure (mkInvAtomsOk (← getCommRing) ctx vars ainvs)
     let ainvsE := toExpr ainvsL
-    let h ← if invs.isEmpty && ainvs.isEmpty then
+    let h ← if let some (q, k, c) := tight? then
+      pure <| match rel with
+        | .eq => mkApp7 (mkConst ``Grind.CommRing.eq_norm_div_expr) ctx (toExpr l) (toExpr r) (toExpr l') (toExpr r') (toExpr k) eagerReflBoolTrue
+        | _ => mkApp9 (mkConst ``Grind.CommRing.le_norm_tight_expr) ctx (toExpr l) (toExpr r) (toExpr l') (toExpr r') (toExpr q) (toExpr k) (toExpr c) eagerReflBoolTrue
+    else if invs.isEmpty && ainvs.isEmpty then
       -- `thm type [c] inst [charInst]`, then the order instances.
       let base (name : Name) : Expr :=
         match char? with
@@ -945,10 +984,67 @@ private def normalizeTerm? [Monad m] [MonadLiftT SymM m] [MonadLiftT MetaM m] (e
     | .rfl _ cd₀ => return .step e' h₂ (done := true) (contextDependent := cd₀ || cd)
     | .step _ h₁ _ cd₀ => mkEqTransResult e e₁ h₁ (.step e' h₂ (done := true) (contextDependent := cd)) cd₀
 
+/-- The `NormM` part of `normalizeDvd?`: `e₁` is `k ∣ arg` with the atoms of `arg` simplified. -/
+private def normalizeDvdCore (e₁ dvdFn : Expr) (k : Int) : NormM CoreResult := do
+  let argC ← canonArith e₁.appArg!
+  let some x ← reifyRing? argC (skipVar := false) | return .notApplicable
+  let vars := (← get).vars
+  let perm := (Array.range vars.size).qsort fun i j => Expr.lt vars[i]! vars[j]!
+  let (x, vars) :=
+    if perm.zipIdx.all fun (i, j) => i == j then (x, vars)
+    else
+      let f := Grind.mkVarRename perm
+      (x.renameVars f, perm.map (vars[·]!))
+  let ring ← getRing
+  let opts ← getOptions
+  let budget : PolyConfig := { maxTerms? := some (sym.arith.maxTerms.get opts), maxDegree? := some (sym.arith.maxDegree.get opts) }
+  let some p ← (toPoly? x).run budget | return .notApplicable
+  let g : Nat := Nat.gcd k.natAbs (gcdMonCoeffs p)
+  let c := polyConst p
+  let q := divMonCoeffs g p
+  let ctx ← mkContext ring.type (mkApp (← getNatCastFn) (mkNatLit 0)) vars
+  if c % g != 0 then
+    let h := mkApp7 (mkConst ``Grind.CommRing.dvd_norm_unsat_expr) ctx (toExpr k) (toExpr x) (toExpr q) (toExpr (g : Int)) (toExpr c) eagerReflBoolTrue
+    let e' ← getFalseExpr
+    return .step e' (mkExpectedPropHint h (mkPropEq e₁ e'))
+  let k' := k / g
+  let x' := (q.addConst (c / g)).toExpr
+  let e' ← share (mkApp2 dvdFn (mkIntLit k') (← denoteRingExpr' vars x'))
+  if isSameExpr e' e₁ then return .normal
+  let h := mkApp9 (mkConst ``Grind.CommRing.dvd_norm_expr) ctx (toExpr k) (toExpr x) (toExpr x') (toExpr k') (toExpr q) (toExpr (g : Int)) (toExpr c) eagerReflBoolTrue
+  return .step e' (mkExpectedPropHint h (mkPropEq e₁ e'))
+
+/--
+The `normalize?` path for `k ∣ arg` over `Int` with a numeral `k ≠ 0`; `dvdFn` is
+`Dvd.dvd Int inst`. Like `simp +arith`, the constraint is divided by the gcd `g` of `k` and
+the coefficients of `arg`: `k ∣ g * q + c` becomes `False` when `g ∤ c`, and `k / g ∣ q + c / g`
+otherwise (`IntSolver.lean`).
+-/
+private def normalizeDvd? [Monad m] [MonadLiftT SymM m] [MonadLiftT MetaM m]
+    (e dvdFn arg : Expr) (k : Int) (simpAtom : Expr → m Result) (discharge? : Expr → m (Option Expr)) : m Result := do
+  let kind ← match (← (classify? dvdFn.appFn!.appArg! : SymM _)) with
+    | .commRing id => pure (Kind.commRing id)
+    | _ => return .rfl
+  let r₁ ← visitAtoms kind false simpAtom arg
+  let r₀ ← match h : e with
+    | .app f a => (Simp.mkCongrArg e f a r₁ h : SymM Result)
+    | _ => unreachable!
+  let e₁ := r₀.getResultExpr e
+  let core := normalizeDvdCore e₁ dvdFn k
+  let (r, cd) ← runCore kind discharge? core
+  match r with
+  | .notApplicable => return if cd then r₀.withContextDependent else r₀
+  | .normal => return if cd then r₀.markAsDone.withContextDependent else r₀.markAsDone
+  | .step e' h₂ =>
+    match r₀ with
+    | .rfl _ cd₀ => return .step e' h₂ (done := true) (contextDependent := cd₀ || cd)
+    | .step _ h₁ _ cd₀ => mkEqTransResult e e₁ h₁ (.step e' h₂ (done := true) (contextDependent := cd)) cd₀
+
 /--
 Normalizes `e` into polynomial normal form after simplifying its atoms with `simpAtom`:
-either an arithmetic term (see `normalizeTerm?`) or a relation `lhs = rhs`, `lhs ≤ rhs`,
-`lhs < rhs` whose carrier type is a `CommRing` or `CommSemiring` (see "Relations").
+either an arithmetic term (see `normalizeTerm?`), a relation `lhs = rhs`, `lhs ≤ rhs`,
+`lhs < rhs` whose carrier type is a `CommRing` or `CommSemiring` (see "Relations"), or an
+`Int` divisibility constraint `k ∣ e` with a numeral `k` (see `normalizeDvd?`).
 `e` must be maximally shared. The result cases are those of `normalizeTerm?`. A normalized
 relation is `done` as well; a simplifier that wants `post` to see normalized relations (to
 close `t = t`, say) must apply it itself, as `Sym.Simp.simpArith` does.
@@ -969,6 +1065,12 @@ def normalize? [Monad m] [MonadLiftT SymM m] [MonadLiftT MetaM m] (e : Expr) (si
   | Eq α lhs rhs => normalizeRel? .eq α e lhs rhs simpAtom discharge? lhsOnly
   | LE.le α _ lhs rhs => normalizeRel? .le α e lhs rhs simpAtom discharge? lhsOnly
   | LT.lt α _ lhs rhs => normalizeRel? .lt α e lhs rhs simpAtom discharge? lhsOnly
+  | Dvd.dvd α _ k arg =>
+    if α.isConstOf ``Int then
+      if let some kv := (Sym.getIntValue? k).run then
+        if kv != 0 then
+          return ← normalizeDvd? e e.appFn!.appFn! arg kv simpAtom discharge?
+    normalizeTerm? e simpAtom discharge?
   | _ => normalizeTerm? e simpAtom discharge?
 
 end Lean.Meta.Sym.Arith

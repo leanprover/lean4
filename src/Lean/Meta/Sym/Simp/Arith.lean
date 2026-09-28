@@ -19,6 +19,7 @@ private def isRelation (e : Expr) : Bool :=
   | Eq _ _ _ => true
   | LE.le _ _ _ _ => true
   | LT.lt _ _ _ _ => true
+  | Dvd.dvd _ _ _ _ => true
   | _ => false
 
 /-- Caches `e` as a final result: it is a normal form, so a later visit costs a lookup. -/
@@ -67,7 +68,8 @@ def simpArith (d : Discharger := dischargeNone) (lhsOnly : Bool := false) : Simp
   | .rfl true cd =>
     if isRelation e then postRelation e e none cd else return r
   | .step e' h true cd =>
-    if isRelation e then
+    -- A relation may normalize to `False` (e.g. `3 * i + 1 = 0` over `Int`).
+    if isRelation e && isRelation e' then
       postRelation e e' (some h) cd
     else
       cacheNormal e' cd

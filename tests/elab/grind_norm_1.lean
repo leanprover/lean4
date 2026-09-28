@@ -1,7 +1,8 @@
 /-!
 Discrepancies between the legacy `simp`-based `grind` normalizer and the `Sym.simp`-based one,
 collected with `grind_norm check`. `grind_norm` is a debugging tactic for this migration and
-will be deleted with this test once `grind` runs on `Sym.simp`. Each `#guard_msgs` documents the current status of one
+will be deleted with this test once `grind` runs on `Sym.simp`. A recorded message is a gap to
+fix unless a comment marks it as an accepted difference. Each `#guard_msgs` documents the current status of one
 input; an empty message means both normalizers agree.
 -/
 
@@ -182,6 +183,7 @@ example : i * j + 1 = i * j := by grind_norm check; sorry
 #guard_msgs in
 example : -i ≤ j := by grind_norm check; sorry
 
+-- Accepted difference: legacy normalizes only `Nat` and `Int` arithmetic.
 /--
 error: `grind_norm` discrepancy
 legacy:
@@ -325,38 +327,72 @@ end structural
 section int_tightening
 variable (i : Int)
 
-/--
-error: `grind_norm` discrepancy
-legacy:
-  i = 2
-sym:
-  2 * i + -4 = 0
--/
 #guard_msgs in
 example : 2 * i = 4 := by grind_norm check; sorry
 
-/--
-error: `grind_norm` discrepancy
-legacy:
-  i + -1 ≤ 0
-sym:
-  2 * i + -3 ≤ 0
--/
 #guard_msgs in
 example : 2 * i + 1 ≤ 4 := by grind_norm check; sorry
 
-/--
-error: `grind_norm` discrepancy
-legacy:
-  True
-sym:
-  2 ∣ 2 * i
--/
 #guard_msgs in
 example : (2 : Int) ∣ 2 * i := by grind_norm check; sorry
 
 #guard_msgs in
 example : (3 : Int) ∣ i := by grind_norm check; sorry
+
+#guard_msgs in
+example (j : Int) : 4 * i + 2 = 6 * j := by grind_norm check; sorry
+
+-- Accepted difference: legacy checks "already of the form `p = 0`" before its gcd step.
+/--
+error: `grind_norm` discrepancy
+legacy:
+  3 * i + 1 = 0
+sym:
+  False
+-/
+#guard_msgs in
+example : 3 * i + 1 = 0 := by grind_norm check; sorry
+
+-- Accepted difference: legacy checks "already of the form `p = 0`" before its gcd step.
+/--
+error: `grind_norm` discrepancy
+legacy:
+  2 * i + 3 ≤ 0
+sym:
+  i + 2 ≤ 0
+-/
+#guard_msgs in
+example : 2 * i + 3 ≤ 0 := by grind_norm check; sorry
+
+#guard_msgs in
+example (j : Int) : 6 * i ≤ 4 * j + 3 := by grind_norm check; sorry
+
+#guard_msgs in
+example : 4 * i < 6 := by grind_norm check; sorry
+
+#guard_msgs in
+example : -2 * i = 4 := by grind_norm check; sorry
+
+#guard_msgs in
+example : ¬(2 * i ≤ 5) := by grind_norm check; sorry
+
+#guard_msgs in
+example : (6 : Int) ∣ 4 * i + 2 := by grind_norm check; sorry
+
+#guard_msgs in
+example : (4 : Int) ∣ 2 * i + 1 := by grind_norm check; sorry
+
+#guard_msgs in
+example : (2 : Int) ∣ 4 * i := by grind_norm check; sorry
+
+#guard_msgs in
+example : (0 : Int) ∣ i := by grind_norm check; sorry
+
+#guard_msgs in
+example : (-2 : Int) ∣ 4 * i + 2 := by grind_norm check; sorry
+
+#guard_msgs in
+example (j : Int) : (3 : Int) ∣ i + j - i := by grind_norm check; sorry
 
 end int_tightening
 

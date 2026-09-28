@@ -371,7 +371,7 @@ extern "C" LEAN_EXPORT lean_obj_res lean_uv_os_getpriority(uint64_t pid) {
     return lean_io_result_mk_ok(lean_box_uint64(priority));
 }
 
-// Std.Internal.UV.System.osSetPriority : UInt64 → Int → IO Unit
+// Std.Internal.UV.System.osSetPriority : UInt64 → Int64 → IO Unit
 extern "C" LEAN_EXPORT lean_obj_res lean_uv_os_setpriority(uint64_t pid, int64_t priority) {
     if (priority < INT_MIN || priority > INT_MAX) {
         return lean_io_result_mk_error(lean_decode_uv_error(UV_EINVAL, nullptr));
@@ -416,7 +416,7 @@ extern "C" LEAN_EXPORT lean_obj_res lean_uv_hrtime() {
     return lean_io_result_mk_ok(lean_box_uint64(time));
 }
 
-// Std.Internal.UV.System.random : UInt64 → IO (IO.Promise (Except IO.Error (Array UInt8)))
+// Std.Internal.UV.System.random : UInt64 → IO (IO.Promise (Except IO.Error ByteArray))
 extern "C" LEAN_EXPORT lean_obj_res lean_uv_random(uint64_t size) {
     // libuv rejects larger requests with `UV_E2BIG`; checking first avoids allocating the array.
     if (size > 0x7FFFFFFF) {
@@ -682,7 +682,7 @@ extern "C" LEAN_EXPORT lean_obj_res lean_uv_os_getpriority(uint64_t pid) {
     );
 }
 
-// Std.Internal.UV.System.osSetPriority : UInt64 → Int → IO Unit
+// Std.Internal.UV.System.osSetPriority : UInt64 → Int64 → IO Unit
 extern "C" LEAN_EXPORT lean_obj_res lean_uv_os_setpriority(uint64_t pid, int64_t priority) {
     lean_always_assert(
         false && ("Please build a version of Lean4 with libuv to invoke this.")
@@ -703,7 +703,7 @@ extern "C" LEAN_EXPORT lean_obj_res lean_uv_hrtime() {
     );
 }
 
-// Std.Internal.UV.System.random : UInt64 → IO (IO.Promise (Except IO.Error (Array UInt8)))
+// Std.Internal.UV.System.random : UInt64 → IO (IO.Promise (Except IO.Error ByteArray))
 extern "C" LEAN_EXPORT lean_obj_res lean_uv_random(uint64_t size) {
     lean_always_assert(
         false && ("Please build a version of Lean4 with libuv to invoke this.")

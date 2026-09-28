@@ -15,8 +15,8 @@ open Std.Internal.UV
   unless ← Loop.alive do
     throw <| IO.userError "not alive while a timer runs"
   timer.stop
-  -- Lets the loop finish anything a stop leaves behind, e.g. closing a handle that was freed.
-  IO.sleep 100
   if ← Loop.alive then
     throw <| IO.userError "alive after the timer was stopped"
+  -- Keeps `timer` referenced until here, so its finalizer does not close the handle before the
+  -- check above and leave it in the loop's closing list.
   discard <| timer.next

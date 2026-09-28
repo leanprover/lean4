@@ -37,7 +37,7 @@ Configures the event loop with the specified options.
 opaque configure (options : @& Options) : IO Unit
 
 /--
-Checks if the event loop is still active and processing events.
+Checks if the event loop has pending work, i.e. an active handle or an in-flight request.
 -/
 @[extern "lean_uv_event_loop_alive"]
 opaque alive : BaseIO Bool

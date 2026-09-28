@@ -202,6 +202,8 @@ opaque osGetPriority : UInt64 → IO Int64
 
 /--
 Sets the scheduling priority of a process.
+
+Throws `IO.Error.invalidArgument` if the priority does not fit in a C `int`.
 -/
 @[extern "lean_uv_os_setpriority"]
 opaque osSetPriority : UInt64 → Int64 → IO Unit

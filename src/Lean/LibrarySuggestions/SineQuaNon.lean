@@ -42,9 +42,12 @@ builtin_initialize triggerDenyListExt : SimplePersistentEnvExtension Name NameSe
         `ite, `dite, `Exists, `OfNat, `OfNat.ofNat, `SizeOf, `SizeOf.sizeOf])
   }
 
-def triggerSymbolsUsing (frequency : Name → Nat) (denyList : NameSet)
-    (ci : ConstantInfo) (maxTolerance : Float) : MetaM (Array (Name × Float)) := do
-  let consts ← ci.type.relevantConstants
+/--
+Return the constants in `consts` that are not in `denyList` and are approximately least frequent
+(relative to the others), with their frequency relative to the least frequent one.
+-/
+def triggersOf (frequency : Name → Nat) (denyList : NameSet) (consts : Array Name)
+    (maxTolerance : Float) : Array (Name × Float) := Id.run do
   let frequencies := consts.filterMap fun n => Id.run do
     if denyList.contains n then
       return none
@@ -59,6 +62,10 @@ def triggerSymbolsUsing (frequency : Name → Nat) (denyList : NameSet)
   return frequencies.filterMap
     (fun (n, f) => if f ≤ minFrequency * maxTolerance then some (n, f / minFrequency) else none)
 
+def triggerSymbolsUsing (frequency : Name → Nat) (denyList : NameSet)
+    (ci : ConstantInfo) (maxTolerance : Float) : MetaM (Array (Name × Float)) :=
+  return triggersOf frequency denyList (← ci.type.relevantConstants) maxTolerance
+
 /--
 Return the relevant constants (i.e. ignoring instances and proofs)
 which appear in the type of `ci` and which are approximately least frequent in the library
@@ -69,26 +76,22 @@ def triggerSymbols (ci : ConstantInfo) (maxTolerance : Float := 3.0) : MetaM (Ar
   let denyList := triggerDenyListExt.getState (← getEnv)
   triggerSymbolsUsing (frequency.getD · 0) denyList ci maxTolerance
 
-def _root_.List.orderedInsert (r : α → α → Bool := by exact (· ≤ ·)) (a : α) : List α → List α
-  | [] => [a]
-  | b :: l => if r a b then a :: b :: l else b :: orderedInsert r a l
-
-def insertTrigger (map : NameMap (List (Name × Float))) (trigger decl : Name) (tolerance : Float) :
-    NameMap (List (Name × Float)) :=
-  map.insert trigger (map.getD trigger [] |>.orderedInsert (fun x y => x.2 ≤ y.2) (decl, tolerance))
-
-def prepareTriggers (names : Array Name) (maxTolerance : Float := 3.0) : MetaM (NameMap (List (Name × Float))) := do
-  let mut map := {}
-  let env ← getEnv
+/--
+The theorems triggered by each symbol, sorted by tolerance. Among equal tolerances, theorems later
+in the iteration order of `env.constants.map₁` come first.
+-/
+def prepareTriggers (maxTolerance : Float := 3.0) : CoreM (NameMap (List (Name × Float))) := do
+  let consts ← importedRelevantConstants
   let frequency ← symbolFrequencyMap
-  let denyList := triggerDenyListExt.getState env
-  let names := names.filter fun n =>
-    !isDeniedPremise env n && wasOriginallyTheorem env n
-  for name in names do
-    let triggers ← triggerSymbolsUsing (frequency.getD · 0) denyList (← getConstInfo name) maxTolerance
-    for (trigger, tolerance) in triggers do
-      map := insertTrigger map trigger name tolerance
-  return map
+  let denyList := triggerDenyListExt.getState (← getEnv)
+  let mut buckets : NameMap (Array (Nat × Name × Float)) := {}
+  for h : i in [0:consts.size] do
+    let (name, relevant) := consts[i]
+    for (trigger, tolerance) in triggersOf (frequency.getD · 0) denyList relevant maxTolerance do
+      buckets := buckets.insert trigger ((buckets.getD trigger #[]).push (i, name, tolerance))
+  return buckets.foldl (init := {}) fun map trigger entries =>
+    let sorted := entries.qsort fun (i, _, x) (j, _, y) => x < y || (x == y && i > j)
+    map.insert trigger (sorted.toList.map fun (_, name, tolerance) => (name, tolerance))
 
 /-- A global `IO.Ref` containing the "sine qua non" triggers. This is initialized on first use. -/
 builtin_initialize sineQuaNonTriggersRef : IO.Ref (Option (NameMap (List (Name × Float)))) ← IO.mkRef none
@@ -101,8 +104,7 @@ def sineQuaNonTriggerMap : CoreM (NameMap (List (Name × Float))) := do
   match ← sineQuaNonTriggersRef.get with
   | some map => return map
   | none =>
-    let map ← withUncountedHeartbeats <| Meta.MetaM.run' <| withoutExporting do
-      prepareTriggers (← getEnv).constants.map₁.keysArray
+    let map ← withUncountedHeartbeats prepareTriggers
     sineQuaNonTriggersRef.set (some map)
     return map
 

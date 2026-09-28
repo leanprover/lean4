@@ -33,11 +33,33 @@ namespace Lean.Expr.FoldRelevantConstantsImpl
 
 open Lean Meta
 
+/--
+Which of the first `n` parameters of `fn` are instance implicit: `ParamInfo.isInstImplicit` of
+`getFunInfoNArgs fn n`, computed without the rest of `FunInfo`. `getFunInfo` shares its results for
+constants between threads through one `IO.Ref`, and parallel callers spin on that `IO.Ref`.
+-/
+def instImplicitMask (fn : Expr) (n : Nat) : MetaM (Array Bool) := do
+  let fnType ← inferType fn
+  withAtLeastTransparency .default do
+    forallBoundedTelescope fnType n fun xs _ =>
+      xs.mapM fun x => return (← x.fvarId!.getDecl).binderInfo.isInstImplicit
+
 unsafe structure State where
  visited       : PtrSet Expr := mkPtrSet
  visitedConsts : NameHashSet := {}
+ /-- `instImplicitMask` of constant heads, by head and number of arguments. -/
+ masks         : Std.HashMap (Expr × Nat) (Array Bool) := {}
 
 unsafe abbrev FoldM := StateT State MetaM
+
+unsafe def headMask (fn : Expr) (n : Nat) : FoldM (Array Bool) := do
+  unless fn.isConst do
+    return ← instImplicitMask fn n
+  if let some mask := (← get).masks[(fn, n)]? then
+    return mask
+  let mask ← instImplicitMask fn n
+  modify fun s => { s with masks := s.masks.insert (fn, n) mask }
+  return mask
 
 unsafe def fold {α : Type} (f : Name → α → MetaM α) (e : Expr) (acc : α) : FoldM α :=
   let rec visit (e : Expr) (acc : α) : FoldM α := do
@@ -62,13 +84,23 @@ unsafe def fold {α : Type} (f : Name → α → MetaM α) (e : Expr) (acc : α)
       let r₂ ← visit v r₁
       withLetDecl n t v (nondep := nondep) fun x =>
         visit (b.instantiate1 x) r₂
-    | .app f a           =>
-      let fi ← getFunInfo f (some 1)
-      if fi.paramInfo[0]!.isInstImplicit then
+    | .app ..            =>
+      -- Visit the whole application spine at once, so that the head's parameters are computed once
+      -- instead of once per partial application.
+      let fn := e.getAppFn
+      let args := e.getAppArgs
+      let mask ← headMask fn args.size
+      let mut acc ← visit fn acc
+      for h : i in [0:args.size] do
+        let instImplicit ← if h' : i < mask.size then
+            pure mask[i]
+          else
+            -- The head's type does not unfold to enough binders without the actual arguments.
+            pure ((← instImplicitMask (mkAppRange fn 0 i args) 1)[0]?.getD false)
         -- Don't visit instance implicit arguments.
-        visit f acc
-      else
-        visit a (← visit f acc)
+        unless instImplicit do
+          acc ← visit args[i] acc
+      return acc
     | .proj _ _ b        => visit b acc
     | .const c _         =>
       if (← get).visitedConsts.contains c then
@@ -85,6 +117,15 @@ unsafe def fold {α : Type} (f : Name → α → MetaM α) (e : Expr) (acc : α)
 @[inline] unsafe def foldUnsafe {α : Type} (e : Expr) (init : α) (f : Name → α → MetaM α) : MetaM α :=
   (fold f e init).run' {}
 
+unsafe def relevantConstantsOfEachUnsafe (es : Array Expr) : MetaM (Array (Array Name)) := do
+  let mut masks := {}
+  let mut out := Array.mkEmpty es.size
+  for e in es do
+    let (consts, s) ← (fold (fun n ns => return ns.push n) e #[]).run { masks }
+    masks := s.masks
+    out := out.push consts
+  return out
+
 end FoldRelevantConstantsImpl
 
 /-- Apply `f` to every constant occurring in `e` once, skipping instance arguments and proofs. -/
@@ -96,6 +137,14 @@ public def relevantConstants (e : Expr) : MetaM (Array Name) := foldRelevantCons
 
 /-- Collect the constants occurring in `e` (once each), skipping instance arguments and proofs. -/
 public def relevantConstantsAsSet (e : Expr) : MetaM NameSet := foldRelevantConstants e ∅ (fun n ns => return ns.insert n)
+
+/--
+`relevantConstants` of each expression in `es`. This is faster than calling `relevantConstants` on
+each one, because it computes the parameters of each head constant once for all of `es`.
+-/
+@[implemented_by FoldRelevantConstantsImpl.relevantConstantsOfEachUnsafe]
+public opaque relevantConstantsOfEach (es : Array Expr) : MetaM (Array (Array Name)) :=
+  pure #[]
 
 end Lean.Expr
 

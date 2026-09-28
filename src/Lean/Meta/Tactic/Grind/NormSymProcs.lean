@@ -124,7 +124,7 @@ def pushNot : Simproc := fun e => do
     return .step e' (mkApp2 (mkConst ``Grind.not_exists [u]) α q)
   | _ =>
     let .forallE n α b info := p | return .rfl
-    if α.isProp && !b.hasLooseBVars then
+    if !b.hasLooseBVars && (← isProp α) then
       return .step (← mkAndS α (← mkNotS b)) (mkApp2 (mkConst ``Grind.not_implies) α b)
     else
       let q    := mkLambda n info α b

@@ -34,23 +34,9 @@ example : (p = True) := by grind_norm check; sorry
 #guard_msgs in
 example : (p = False) := by grind_norm check; sorry
 
-/--
-error: `grind_norm` discrepancy
-legacy:
-  ¬(p → q)
-sym:
-  p ∧ ¬q
--/
 #guard_msgs in
 example : ¬(p → q) := by grind_norm check; sorry
 
-/--
-error: `grind_norm` discrepancy
-legacy:
-  ¬∀ (x : Nat), x = a
-sym:
-  ∃ x, ¬x = a
--/
 #guard_msgs in
 example : ¬(∀ x : Nat, x = a) := by grind_norm check; sorry
 

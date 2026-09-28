@@ -140,7 +140,24 @@ Rewriter for the `[grind hom]` rules and the builtin simprocs, with the stop con
 `grind` internalizes terms bottom-up, so when no rule applies to a term that is already
 in the E-graph, the term and all its subterms have already been processed by the engine,
 and there is nothing to do at any depth. Traversal cost is thus proportional to the new
-terms produced by the rewriting, not to the size of the input term.
+terms produced by the rewriting, not to the size of the input term. The stop applies to
+the root as well, since `grind` creates its E-node before calling the solver hooks; the
+root is rewritten only if a rule matches it as written, and then the traversal continues
+through the new terms the rule produced.
+
+Stopping at an E-graph term loses no equality: its normal form was pushed when it was
+internalized, and the E-graph communicates that equality to the solvers. What is skipped is
+the application of a rule at the parent whose left-hand side matches only the child's normal
+form, e.g. `Nat.mod_mul_mod` on `((x <<< m).toNat <<< n) % 2 ^ w` after `(x <<< m).toNat`
+was rewritten to `x.toNat * 2 ^ m % 2 ^ w`. This matters only when the solver cannot
+reproduce the rule's effect from the equality, as here with the variable factor `2 ^ n`
+(`cutsat` proves the same goal for a literal `n`). Injections written on proper subterms
+of the goal are the usual source; the intended use, the injection at the top of a
+source-domain term, builds the whole image within one traversal. An injection that factors
+through another one (`Int16.toInt` maps to `toBitVec.toInt`) has a second consequence: if
+`t.toBitVec` is already in the E-graph when `t.toInt` is rewritten, the rules for the
+signed image of `t.toBitVec`'s normal form never fire, and the `=`-injection only produces
+the unsigned one. Such types need direct rules into the final target.
 
 Ground terms are evaluated first: the injections produce ground subterms such as
 `63 % 2 ^ 64` for the literal `63#64`, and the literal-based simprocs (e.g.

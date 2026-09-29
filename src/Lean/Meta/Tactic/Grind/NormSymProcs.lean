@@ -173,7 +173,7 @@ private def isForallOrNot? (e : Expr) : Option (Name × Expr × Expr) :=
 
 /--
 Normalizes universally quantified propositions and implications:
-`Grind.imp_true_eq`, `Grind.imp_false_eq`, `Grind.forall_imp_eq_or`, `Grind.true_imp_eq`,
+`Grind.imp_true_eq`, `Grind.imp_false_eq`, `Grind.true_imp_eq`,
 `Grind.false_imp_eq`, `Grind.imp_self_eq`, `Grind.forall_true`, `forall_false`,
 `Grind.forall_or_forall`, `Grind.forall_forall_or`, `Grind.forall_and`.
 -/
@@ -184,14 +184,7 @@ def simpForall : Simproc := fun e => do
     | True => if (← isProp b) then return .step b (mkApp (mkConst ``Grind.true_imp_eq) b) (done := true)
     | False => if (← isProp b) then return .step (← getTrueExpr) (mkApp (mkConst ``Grind.false_imp_eq) b) (done := true)
     | _ =>
-    if let .forallE aName α pRaw info' := d then
-      if (← pure pRaw.hasLooseBVars <&&> isProp d) then
-        let p := mkLambda aName info' α pRaw
-        let q := b
-        let u ← Sym.getLevel α
-        let e' ← mkOrS (← mkExistsS u α (← mkLambdaS aName info' α (← mkNotS pRaw))) q
-        return .step e' (mkApp3 (mkConst ``Grind.forall_imp_eq_or [u]) α p q)
-    else match_expr b with
+    match_expr b with
     | True => if (← isProp d) then return .step (← getTrueExpr) (mkApp (mkConst ``Grind.imp_true_eq) d) (done := true)
     | False => if (← isProp d) then return .step (← mkNotS d) (mkApp (mkConst ``Grind.imp_false_eq) d)
     | _ =>

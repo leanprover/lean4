@@ -179,7 +179,6 @@ private def isForallOrNot? (e : Expr) : Option (Name × Expr × Expr) :=
 Applies the following rewriting rules:
 - `Grind.imp_true_eq`
 - `Grind.imp_false_eq`
-- `Grind.forall_imp_eq_or`
 - `Grind.true_imp_eq`
 - `Grind.false_imp_eq`
 - `Grind.imp_self_eq`
@@ -196,14 +195,7 @@ builtin_simproc_decl simpForall ((a : _) → _) := fun e => do
     | True => if (← isProp b) then return .done { expr := b, proof? := mkApp (mkConst ``Grind.true_imp_eq) b }
     | False => if (← isProp b) then return .done { expr := mkConst ``True, proof? := mkApp (mkConst ``Grind.false_imp_eq) b }
     | _ =>
-    if let .forallE aName α pRaw info' := d then
-      if (← pure pRaw.hasLooseBVars <&&> isProp d) then
-        let p := mkLambda aName info' α pRaw
-        let q := b
-        let u ← getLevel α
-        let expr := mkOr (mkApp2 (mkConst ``Exists [u]) α (mkLambda aName info' α (mkNot pRaw))) q
-        return .visit { expr, proof? := mkApp3 (mkConst ``Grind.forall_imp_eq_or [u]) α p q }
-    else match_expr b with
+    match_expr b with
     | True => if (← isProp d) then return .done { expr := mkConst ``True, proof? := mkApp (mkConst ``Grind.imp_true_eq) d }
     | False => if (← isProp d) then return .visit { expr := mkNot d, proof? := mkApp (mkConst ``Grind.imp_false_eq) d }
     | _ => if (← isProp d <&&> isDefEq d b) then

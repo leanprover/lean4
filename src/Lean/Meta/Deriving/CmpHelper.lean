@@ -554,7 +554,7 @@ partial def computeBackDeps (vars : Array Expr) (idxOfVar : FVarIdMap Nat) :
 
 partial def computeSubstitutionVars (vars : Array Expr) (idxOfVar : FVarIdMap Nat)
     (isIH : Nat → Bool) : MetaM (Array (Array Nat)) := do
-  let mut fwdDeps : Array (Std.TreeSet Nat) := Array.emptyWithCapacity vars.size
+  let mut fwdDeps : Array (Std.TreeSet Nat) := Array.replicate vars.size {}
   let mut j := vars.size
   while j > 0 do
     j := j - 1
@@ -669,7 +669,8 @@ def recursorAltToEquation (kind : Kind) (alt : Expr) (idxOfMotive : FVarIdMap Na
     -- j ∈ allFwdDeps[i] ↔ fields[j] depends on fields[i]
     -- allBackDeps[i] are all variables lhsFields[i] transitively depends on
     -- allFwdDeps[i] are all variables that need to be touched for substitution
-    let (allFwdDeps, allBackDeps) ← computeFwdAndBackDeps lhsFields idxOfLhsField
+    let allBackDeps ← computeBackDeps lhsFields idxOfLhsField
+    let allFwdDeps ← computeSubstitutionVars lhsFields idxOfLhsField
       (isIH := fun i => lhsIHs[i]!.any (fun (_, i) => i < cmpFnsByMotiveIdx.size))
     let rec makeCmp (i : Nat) (rhsFields : Array Expr) : StateT FnAccumulator MetaM Expr := do
       if h : i < lhsFields.size then

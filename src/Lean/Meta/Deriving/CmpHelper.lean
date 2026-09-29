@@ -531,12 +531,10 @@ def makeCmpHelpersFromEquations (kind : Kind) (levelParams : List Name) (lparams
     if 2 ≤ cases.size then
       makeCmpHelperCtorIdxLaw kind helperName levelParams lparams params moreVars indName
 
-partial def computeFwdAndBackDeps (vars : Array Expr) (idxOfVar : FVarIdMap Nat) :
-    MetaM (Array (Array Nat) × Array (Array Nat)) := do
+partial def computeBackDeps (vars : Array Expr) (idxOfVar : FVarIdMap Nat) :
+    MetaM (Array (Array Nat)) := do
   -- j ∈ backDeps[i] ↔ fields[i] depends on fields[j]
-  -- j ∈ fwdDeps[i] ↔ fields[j] depends on fields[i]
   let mut backDeps : Array (Array Nat) := Array.emptyWithCapacity vars.size
-  let mut fwdDeps : Array (Array Nat) := Array.replicate vars.size #[]
   for h : j in 0...vars.size do
     let field := vars[j]
     let type ← inferType field
@@ -551,10 +549,27 @@ partial def computeFwdAndBackDeps (vars : Array Expr) (idxOfVar : FVarIdMap Nat)
         if myBackDeps.contains i' then
           continue
         myBackDeps := myBackDeps.push i'
-    for dep in myBackDeps do
-      fwdDeps := fwdDeps.modify dep (·.push j)
     backDeps := backDeps.push myBackDeps.qsort
-  return (fwdDeps, backDeps)
+  return backDeps
+
+partial def computeSubstitutionVars (vars : Array Expr) (idxOfVar : FVarIdMap Nat)
+    (isIH : Nat → Bool) : MetaM (Array (Array Nat)) := do
+  let mut fwdDeps : Array (Std.TreeSet Nat) := Array.emptyWithCapacity vars.size
+  let mut j := vars.size
+  while j > 0 do
+    j := j - 1
+    let field := vars[j]!
+    let type ← inferType field
+    let state := collectFVars {} type
+    let myDeps := fwdDeps[j]!
+    let shouldMerge ← pure (!myDeps.isEmpty) <||> (pure (!isIH j) <&&> notM (isProof field))
+    if shouldMerge then
+      let myDeps := fwdDeps[j]!
+      -- transfer forward dependencies
+      for var in state.fvarIds do
+        let some i := idxOfVar.get? var | continue
+        fwdDeps := fwdDeps.modify i fun set => set.merge myDeps |>.insert j
+  return fwdDeps.map (·.toArray)
 
 structure FnAccumulatorEntry where
   idx : Nat
@@ -652,8 +667,10 @@ def recursorAltToEquation (kind : Kind) (alt : Expr) (idxOfMotive : FVarIdMap Na
   forallTelescope alt fun lhsVars body => do
     let (lhsFields, idxOfLhsField, lhsIHs) ← decodeMinorVars lhsVars idxOfMotive
     -- j ∈ allFwdDeps[i] ↔ fields[j] depends on fields[i]
-    -- j ∈ allBackDeps[i] ↔ fields[i] depends on fields[j]
+    -- allBackDeps[i] are all variables lhsFields[i] transitively depends on
+    -- allFwdDeps[i] are all variables that need to be touched for substitution
     let (allFwdDeps, allBackDeps) ← computeFwdAndBackDeps lhsFields idxOfLhsField
+      (isIH := fun i => lhsIHs[i]!.any (fun (_, i) => i < cmpFnsByMotiveIdx.size))
     let rec makeCmp (i : Nat) (rhsFields : Array Expr) : StateT FnAccumulator MetaM Expr := do
       if h : i < lhsFields.size then
         let lhsField := lhsFields[i]
@@ -963,22 +980,6 @@ def proveEqUnitLikeApp (lhs rhs : Expr) (hyp : Expr) : MetaM Expr := do
       mkLambdaFVars vars var
     let f ← mkLambdaFVars #[var] f
     return mkApp6 (.const ``congrArg [appLvl, fnLvl]) appType fnType lhs rhs f hyp
-
-/-- Replace `b` (a free variable) with `a` in the body of `k` -/
-def withSubst (goal : Expr) (a b : Expr) (a_eq_b : Expr) (k : Expr → MetaM Expr) : MetaM Expr := do
-  let ty ← inferType a
-  let u ← getLevel ty
-  let fwdDeps := (← collectForwardDeps #[b] (preserveOrder := true)).drop 1
-  let motive ← mkLambdaFVars #[b] (← mkForallFVars fwdDeps goal)
-  let reflCase ← forallBoundedTelescope (motive.betaRev #[a]) fwdDeps.size fun vars goal => do
-    let mut lctx ← getLCtx
-    for x in fwdDeps do
-      lctx := lctx.erase x.fvarId!
-    let linsts ← getLocalInstances
-    let linsts := linsts.eraseAll (fwdDeps.contains <| .fvar ·)
-    withLCtx lctx linsts do
-      mkLambdaFVars vars <| ← k goal
-  return mkAppN (mkApp6 (.const ``Eq.ndrec [0, u]) ty a motive reflCase b a_eq_b) fwdDeps
 
 /--
 Given `hyp : cmp = kind.eqIndicator`, try to prove `goal`, which must be a `HEq` application.
@@ -1396,7 +1397,10 @@ def deriveReflCmpClass (k : Kind) : Elab.DerivingHandler :=
   let mkApp2 (.const nm [u]) α cmpFn := instValue | return false
   unless nm == k.classCtorName do return false
   withLocalDeclD `a α fun var => do
-  let cmp := cmpFn.betaRev #[var, var]
+  let mut cmp := cmpFn.betaRev #[var, var]
+  unless cmp.isAppOf (k.mkHelperName name (← getEnv)) do
+    let some cmp' ← unfoldDefinition? cmp | return false
+    cmp := cmp'
   unless cmp.isAppOf (k.mkHelperName name (← getEnv)) do return false
   if ← isNested then
     throwError "Deriving `{.ofConstName k.reflClassName}` is not supported for nested inductives"
@@ -1441,7 +1445,10 @@ def deriveLawfulEqClass (k : Kind) : Elab.DerivingHandler :=
   withLocalDeclD `a α fun lhs => do
   withLocalDeclD `b α fun rhs => do
   withLocalDeclD `hcmp (k.mkEq (mkApp3 (k.cmpField u α) inst lhs rhs)) fun hcmp => do
-  let cmp := cmpFn.betaRev #[rhs, lhs]
+  let mut cmp := cmpFn.betaRev #[rhs, lhs]
+  unless cmp.isAppOf (k.mkHelperName name (← getEnv)) do
+    let some cmp' ← unfoldDefinition? cmp | return false
+    cmp := cmp'
   unless cmp.isAppOf (k.mkHelperName name (← getEnv)) do return false
   if ← isNested then
     throwError "Deriving `{.ofConstName k.lawfulEqClassName}` is not supported for nested inductives"

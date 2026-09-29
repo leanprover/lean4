@@ -20,12 +20,10 @@ open Meta
 
 
 register_builtin_option deriving.beq.linear_construction_threshold : Nat := {
-  defValue := 10
+  defValue := 2
   descr := "If the inductive data type has this many or more constructors, use a different \
     implementation for implementing `BEq` that avoids the quadratic code size produced by the \
-    default implementation.\n\n\
-    The alternative construction compiles to less efficient code in some cases, so by default \
-    it is only used for inductive types with 10 or more constructors." }
+    default implementation." }
 
 def mkBEqHeader (indVal : InductiveVal) : TermElabM Header := do
   mkHeader `BEq 2 indVal

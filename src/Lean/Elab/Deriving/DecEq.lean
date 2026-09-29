@@ -21,12 +21,10 @@ open Lean.Parser.Term
 open Meta
 
 register_builtin_option deriving.decEq.linear_construction_threshold : Nat := {
-  defValue := 10
+  defValue := 2
   descr := "If the inductive data type has this many or more constructors, use a different \
     implementation for deciding equality that avoids the quadratic code size produced by the \
-    default implementation.\n\n\
-    The alternative construction compiles to less efficient code in some cases, so by default \
-    it is only used for inductive types with 10 or more constructors." }
+    default implementation." }
 
 def mkDecEqHeader (indVal : InductiveVal) : TermElabM Header := do
   mkHeader `DecidableEq 2 indVal

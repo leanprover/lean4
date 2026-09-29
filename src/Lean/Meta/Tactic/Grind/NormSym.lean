@@ -10,6 +10,7 @@ public import Lean.Meta.Sym.Simp.SimpM
 public import Lean.Meta.Sym.Simp.Theorems
 import Lean.Meta.Tactic.Grind.Simp
 import Lean.Meta.Tactic.Grind.SimpUtil
+import Lean.Meta.Tactic.Grind.Util
 import Lean.Meta.Sym.Simp.Main
 import Lean.Meta.Sym.Simp.Simproc
 import Lean.Meta.Sym.Simp.Rewrite
@@ -18,6 +19,7 @@ import Lean.Meta.Sym.Simp.Arith
 import Lean.Meta.Sym.Simp.Discharger
 import Lean.Meta.Tactic.Grind.NormSymProcs
 import Lean.Meta.Sym.Simp.Reduce
+import Lean.Meta.Sym.Simp.ControlFlow
 import Lean.Meta.Sym.Util
 import Lean.Meta.DiscrTree
 public section
@@ -88,7 +90,7 @@ def mkNormSymTheorems : MetaM NormSymTheorems := do
 /-- `Sym.simp` methods approximating the legacy `grind` normalizer. -/
 def mkNormSymMethods (config : Grind.Config) (thms : NormSymTheorems) : Sym.Simp.Methods := Id.run do
   let d : Discharger := Sym.Simp.dischargeSimpSelf
-  let mut pre : Simproc := NormSym.eraseMData >> Sym.Simp.beta >> Sym.Simp.reduceProj >> Sym.Simp.reduceMatcher
+  let mut pre : Simproc := NormSym.eraseMData >> Sym.Simp.beta >> Sym.Simp.reduceProj >> Sym.Simp.reduceControl
   if config.zeta then pre := pre >> Sym.Simp.zeta
   if config.zetaDelta then pre := pre >> Sym.Simp.zetaDeltaAll
   pre := pre >> NormSym.pushNot >> Sym.Simp.simpArith d (lhsOnly := true) >> thms.pre.rewrite d
@@ -96,9 +98,13 @@ def mkNormSymMethods (config : Grind.Config) (thms : NormSymTheorems) : Sym.Simp
     >> NormSym.simpDIte >> NormSym.reduceCtorEq >> NormSym.simpForall >> NormSym.simpExists
   return { pre, post }
 
-/-- Applies the legacy `simp`-based normalization step to `e`. -/
+/--
+Applies the legacy `simp`-based normalization step to `e`, and the metadata erasure that
+`preprocess` performs after it. The `Sym.simp` chain erases metadata as part of the step.
+-/
 def normLegacy (e : Expr) : GrindM Simp.Result := do
-  simpCore (← instantiateMVars e)
+  let r ← simpCore (← instantiateMVars e)
+  return { r with expr := (← eraseIrrelevantMData r.expr) }
 
 /-- Applies the `Sym.simp`-based normalization step to `e`. -/
 def normSym (e : Expr) : GrindM Simp.Result := do

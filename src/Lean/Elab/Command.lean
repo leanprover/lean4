@@ -1012,6 +1012,34 @@ instance : MonadEval TermElabM CommandElabM where
   monadEval := liftTermElabM
 
 /--
+Elaborates the section variables `varDecls` and runs `k` on them.
+
+When exporting, proofs in the section variables become auxiliary theorems that public signatures
+refer to, so they need a public name instead of the private prefix of the command-level generator.
+The macro scope keeps these names unique across modules.
+-/
+private def elabSectionVars (varDecls : Array (TSyntax ``Parser.Term.bracketedBinder))
+    (k : Array Expr → TermElabM α) : TermElabM α := do
+  let prevNGen ← getDeclNGen
+  let varsPrefix ← MonadQuotation.addMacroScope `_sectionVars
+  if (← getEnv).header.isModule && (← getEnv).isExporting then
+    setDeclNGen { namePrefix := varsPrefix }
+  -- Runs after the binders and again in `finally` for errors. The check keeps it from undoing the
+  -- generator state that `k` produced.
+  let restore := do
+    if (← getDeclNGen).namePrefix == varsPrefix then
+      setDeclNGen prevNGen
+  try
+    Term.elabBinders varDecls fun xs => do
+      -- We need to synthesize postponed terms because this is a checkpoint for the auto-bound implicit feature
+      -- If we don't use this checkpoint here, then auto-bound implicits in the postponed terms will not be handled correctly.
+      Term.synthesizeSyntheticMVarsNoPostponing
+      restore
+      k xs
+  finally
+    restore
+
+/--
 Execute the monadic action `elabFn xs` as a `CommandElabM` monadic action, where `xs` are free variables
 corresponding to all active scoped variables declared using the `variable` command.
 
@@ -1039,10 +1067,7 @@ def runTermElabM (elabFn : Array Expr → TermElabM α) : CommandElabM α := do
   let scope ← getScope
   liftTermElabM <|
     Term.withAutoBoundImplicit <|
-      Term.elabBinders scope.varDecls fun xs => do
-        -- We need to synthesize postponed terms because this is a checkpoint for the auto-bound implicit feature
-        -- If we don't use this checkpoint here, then auto-bound implicits in the postponed terms will not be handled correctly.
-        Term.synthesizeSyntheticMVarsNoPostponing
+      elabSectionVars scope.varDecls fun xs => do
         let mut sectionFVars := {}
         for uid in scope.varUIds, x in xs do
           sectionFVars := sectionFVars.insert uid x

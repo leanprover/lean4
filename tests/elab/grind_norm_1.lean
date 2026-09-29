@@ -490,39 +490,87 @@ example (o : Option Nat) : (match o with | some _ => f | none => g) (a + 0) = b 
 end control_flow
 
 section ground_char
-variable (a : Nat)
+variable (a : Nat) (c : Char) (s : String) (u : UInt32)
 
-/--
-error: `grind_norm` discrepancy
-legacy:
-  97 = a
-sym:
-  'a'.toNat = a
--/
 #guard_msgs in
 example : 'a'.toNat = a := by grind_norm check; sorry
 
-/--
-error: `grind_norm` discrepancy
-legacy:
-  True
-sym:
-  Char.ofNat 97 = 'a'
--/
 #guard_msgs in
 example : Char.ofNat 97 = 'a' := by grind_norm check; sorry
 
+-- Accepted difference. Both sides denote the same character, but they are different terms:
+-- `'a'` is `Char.ofNat` applied to the raw literal `97`, and `Char.ofNat 97` is `Char.ofNat`
+-- applied to the `OfNat` numeral `97`. `Sym` rewrites the latter into the former, so that a
+-- character has a single representation. Legacy keeps the term as written.
 /--
 error: `grind_norm` discrepancy
 legacy:
-  True
+  Char.ofNat 97 = c
 sym:
-  'a'.isAlpha = true
+  'a' = c
 -/
+#guard_msgs in
+example : Char.ofNat 97 = c := by grind_norm check; sorry
+
 #guard_msgs in
 example : 'a'.isAlpha = true := by grind_norm check; sorry
 
 #guard_msgs in
 example : 'a' < 'b' := by grind_norm check; sorry
+
+#guard_msgs in
+example : 'a' ≥ 'b' := by grind_norm check; sorry
+
+#guard_msgs in
+example : 'a' ≠ 'b' := by grind_norm check; sorry
+
+#guard_msgs in
+example : ('a' == 'b') = true := by grind_norm check; sorry
+
+#guard_msgs in
+example : ('a' != 'b') = true := by grind_norm check; sorry
+
+#guard_msgs in
+example : 'a'.toUpper = c := by grind_norm check; sorry
+
+#guard_msgs in
+example : 'A'.toLower = c := by grind_norm check; sorry
+
+#guard_msgs in
+example : '1'.isDigit = true := by grind_norm check; sorry
+
+#guard_msgs in
+example : 'a'.isDigit = true := by grind_norm check; sorry
+
+#guard_msgs in
+example : ' '.isWhitespace = true := by grind_norm check; sorry
+
+#guard_msgs in
+example : 'a'.isUpper = true := by grind_norm check; sorry
+
+#guard_msgs in
+example : 'a'.isLower = true := by grind_norm check; sorry
+
+#guard_msgs in
+example : '_'.isAlphanum = true := by grind_norm check; sorry
+
+/--
+error: `grind_norm` discrepancy
+legacy:
+  97 = u
+sym:
+  'a'.val = u
+-/
+#guard_msgs in
+example : 'a'.val = u := by grind_norm check; sorry
+
+#guard_msgs in
+example : toString 'a' = s := by grind_norm check; sorry
+
+#guard_msgs in
+example : c.toNat = a := by grind_norm check; sorry
+
+#guard_msgs in
+example : (if 'a'.isAlpha then a else 0) = a := by grind_norm check; sorry
 
 end ground_char

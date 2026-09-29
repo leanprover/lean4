@@ -16,12 +16,24 @@ import Lean.Compiler.ExportAttr
 public section
 
 namespace Lean.Compiler.LCNF
+/-- Whether substituting `e` for a variable occurring several times duplicates no work. -/
+private def isDuplicable : Expr → Bool
+  | .bvar .. | .fvar .. | .mvar .. | .sort .. | .const .. | .lit .. | .lam .. | .forallE .. => true
+  | .mdata _ e => isDuplicable e
+  | _ => false
+
 /--
-Inline constants tagged with the `[macro_inline]` attribute occurring in `e`.
+Inline constants tagged with the `[macro_inline]` attribute occurring in `e`, and beta-reduce
+applications of lambdas to duplicable arguments. The latter are created when a lambda is passed to a
+`[macro_inline]` constant; reducing them substitutes the lambda's body at each use site instead of
+sharing it as a local function.
 -/
 def macroInline (e : Expr) : CoreM Expr :=
   Core.transform e fun e => do
-    let .const declName us := e.getAppFn | return .continue
+    let f := e.getAppFn
+    if e.isApp && f.isLambda && e.getAppArgs.all isDuplicable then
+      return .visit e.headBeta
+    let .const declName us := f | return .continue
     unless hasMacroInlineAttribute (← getEnv) declName do return .continue
     let val ← Core.instantiateValueLevelParams (← getConstInfo declName) us
     return .visit <| val.beta e.getAppArgs

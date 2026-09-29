@@ -11,7 +11,6 @@ import Driver
 (`MatchesJP`) with shared continuations. `+jp` proves each trailing continuation once; without it
 every alternative zeta-unfolds the `__do_jp` body and the VC count grows exponentially. -/
 
-set_option mvcgen.warning false
 set_option experimental.vcgen true
 
 open Lean Order Parser Meta Elab Tactic Sym Std WP

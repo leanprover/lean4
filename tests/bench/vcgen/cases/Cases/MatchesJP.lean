@@ -12,7 +12,6 @@ open Lean Meta Order Std.WP
 
 namespace MatchesJP
 
-set_option mvcgen.warning false
 
 def step (v : Nat) : StateM Nat Unit := do
   let s ← get

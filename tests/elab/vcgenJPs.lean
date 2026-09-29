@@ -9,7 +9,6 @@ unfolding the tail at each jump. Ported from `mvcgenJPs.lean`. -/
 open Lean Order Meta Elab Tactic Sym Std WP
 
 set_option grind.warning false
-set_option mvcgen.warning false
 set_option experimental.vcgen true
 
 def ifs_pure (n : Nat) : Id Nat := do

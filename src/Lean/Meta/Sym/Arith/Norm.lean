@@ -199,9 +199,19 @@ variable [Monad m] [MonadLiftT SymM m] [MonadLiftT MetaM m]
 private def liftNorm (kind : Kind) (x : NormM α) : m α :=
   ((x.run { kind }).run' {} : SymM α)
 
-private def congrBin (e f a b : Expr) (ra rb : Result) (h : e = .app (.app f a) b) : m Result := do
-  let r ← (Simp.mkCongrArg (.app f a) f a ra rfl : SymM Result)
-  Simp.mkCongr e (.app f a) b r rb h
+/--
+Congruence step for the binary application `e := f a b`, given the results for `a` and `b`.
+`f a` is taken from `e` instead of being rebuilt: a fresh `.app f a` node is not maximally shared.
+-/
+private def congrBin (e : Expr) (ra rb : Result) : m Result := do
+  match h₁ : e with
+  | .app fa b =>
+    match h₂ : fa with
+    | .app f a =>
+      let r ← (Simp.mkCongrArg fa f a ra h₂ : SymM Result)
+      Simp.mkCongr e fa b r rb h₁
+    | _ => unreachable!
+  | _ => unreachable!
 
 /--
 The `k • a` rewrite hook: given `e₁ := k • a` (`k : Nat` or `Int`) whose `HSMul` instance is
@@ -274,8 +284,8 @@ private def mkInvStep? (e x : Expr) : NormM (Option (Expr × Expr)) := do
 private partial def visitAtoms (kind : Kind) (isField : Bool) (simpAtom : Expr → m Result) (e : Expr) : m Result := do
   let isRing := kind.isRing
   let bin : m Result := do
-    match h : e with
-    | .app (.app f a) b => congrBin e f a b (← visitAtoms kind isField simpAtom a) (← visitAtoms kind isField simpAtom b) h
+    match e with
+    | .app (.app _ a) b => congrBin e (← visitAtoms kind isField simpAtom a) (← visitAtoms kind isField simpAtom b)
     | _ => unreachable!
   let un : m Result := do
     match h : e with
@@ -289,8 +299,8 @@ private partial def visitAtoms (kind : Kind) (isField : Bool) (simpAtom : Expr �
   | HPow.hPow _ _ _ _ _ k =>
     -- Only literal exponents are interpreted; the exponent is not simplified.
     unless (Sym.getNatValue? k).run.isSome do return (← simpAtom e)
-    match h : e with
-    | .app (.app f a) k => congrBin e f a k (← visitAtoms kind isField simpAtom a) .rfl h
+    match e with
+    | .app (.app _ a) _ => congrBin e (← visitAtoms kind isField simpAtom a) .rfl
     | _ => unreachable!
   | HSMul.hSMul σ _ _ _ _ _ =>
     let isNat := σ.isConstOf ``Nat
@@ -303,9 +313,9 @@ private partial def visitAtoms (kind : Kind) (isField : Bool) (simpAtom : Expr �
         | false, _ => getNatSMulFn'
       return isSameExpr fn (← canonExpr e.appFn!.appFn!)
     unless ok do return (← simpAtom e)
-    match h : e with
-    | .app (.app f k) a =>
-      let r₁ ← congrBin e f k a (← simpAtom k) (← visitAtoms kind isField simpAtom a) h
+    match e with
+    | .app (.app _ k) a =>
+      let r₁ ← congrBin e (← simpAtom k) (← visitAtoms kind isField simpAtom a)
       let e₁ := r₁.getResultExpr e
       let (e₂, h₂) ← liftNorm kind (mkSMulStep kind isNat e₁ e₁.appFn!.appArg! e₁.appArg!)
       match r₁ with
@@ -860,8 +870,7 @@ private def normalizeRelCore (rel : RelKind) (relFn : Expr) (order? : Option Ord
     let erC ← if hasC then share (← denoteSemiringExpr' vars rC) else pure er
     let r₁ : Result := if isSameExpr lhs elC then .rfl else .step elC (mkTermStep l lC lhs elC)
     let r₂ : Result := if isSameExpr rhs erC then .rfl else .step erC (mkTermStep r rC rhs erC)
-    let rel₁ ← Simp.mkCongr (.app (.app relFn lhs) rhs) (.app relFn lhs) rhs
-      (← Simp.mkCongrArg (.app relFn lhs) relFn lhs r₁ rfl) r₂ rfl
+    let rel₁ ← congrBin (← mkAppS₂ relFn lhs rhs) r₁ r₂
     let eC := rel₁.getResultExpr e
     if !hasC then
       match rel₁ with
@@ -899,9 +908,7 @@ private def normalizeRel? [Monad m] [MonadLiftT SymM m] [MonadLiftT MetaM m]
   let isField ← isFieldKind kind
   let r₁ ← visitAtoms kind isField simpAtom lhs
   let r₂ ← visitAtoms kind isField simpAtom rhs
-  let r₀ ← match h : e with
-    | .app (.app f a) b => congrBin e f a b r₁ r₂ h
-    | _ => unreachable!
+  let r₀ ← congrBin e r₁ r₂
   let e₁ := r₀.getResultExpr e
   let lhs₁ := e₁.appFn!.appArg!
   let rhs₁ := e₁.appArg!

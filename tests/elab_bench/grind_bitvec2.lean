@@ -1,5 +1,6 @@
 module
 set_option linter.unusedSimpArgs false
+set_option warn.sorry false
 
 open BitVec
 

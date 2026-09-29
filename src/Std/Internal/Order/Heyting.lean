@@ -230,6 +230,46 @@ end Derived
     (rel_trans (meet_mono_left h) himp_meet_le),
    fun h => le_himp (meet_le_of_right_le h)⟩
 
+section Prod
+
+variable {α : Type u} {β : Type v} [CompleteLattice α] [CompleteLattice β]
+
+theorem Prod.fst_ofProp (p : Prop) : (⌜p⌝ : α × β).fst = ⌜p⌝ := by
+  by_cases hp : p <;>
+    simp only [CompleteLattice.ofProp, hp, ↓reduceIte, Prod.fst_top, Prod.fst_bot]
+
+theorem Prod.snd_ofProp (p : Prop) : (⌜p⌝ : α × β).snd = ⌜p⌝ := by
+  by_cases hp : p <;>
+    simp only [CompleteLattice.ofProp, hp, ↓reduceIte, Prod.snd_top, Prod.snd_bot]
+
+theorem Prod.fst_himp (a b : α × β) : (a ⇨ b).fst = a.fst ⇨ b.fst := by
+  unfold himp PreservesSup.upperAdjoint
+  rw [Prod.fst_sup]
+  congr 1
+  funext x
+  apply propext
+  constructor
+  · rintro ⟨y, h⟩
+    exact Prod.fst_meet a (x, y) ▸ h.1
+  · intro h
+    exact ⟨⊥, (Prod.fst_meet a (x, ⊥)).symm ▸ h,
+      (Prod.snd_meet a (x, ⊥)).symm ▸ rel_trans (meet_le_right _ _) (bot_le _)⟩
+
+theorem Prod.snd_himp (a b : α × β) : (a ⇨ b).snd = a.snd ⇨ b.snd := by
+  unfold himp PreservesSup.upperAdjoint
+  rw [Prod.snd_sup]
+  congr 1
+  funext y
+  apply propext
+  constructor
+  · rintro ⟨x, h⟩
+    exact Prod.snd_meet a (x, y) ▸ h.2
+  · intro h
+    exact ⟨⊥, (Prod.fst_meet a (⊥, y)).symm ▸ rel_trans (meet_le_right _ _) (bot_le _),
+      (Prod.snd_meet a (⊥, y)).symm ▸ h⟩
+
+end Prod
+
 end Lean.Order
 
 end -- public section

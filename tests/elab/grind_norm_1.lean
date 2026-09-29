@@ -397,47 +397,95 @@ example (j : Int) : (3 : Int) ∣ i + j - i := by grind_norm check; sorry
 end int_tightening
 
 section control_flow
-variable (a b c : Nat)
+variable (a b c : Nat) (x : Bool) (p q : Prop) (f g : Nat → Nat)
 
-/--
-error: `grind_norm` discrepancy
-legacy:
-  a = c
-sym:
-  (if True then a else b) = c
--/
 #guard_msgs in
 example : (if 1 < 2 then a else b) = c := by grind_norm check; sorry
 
-/--
-error: `grind_norm` discrepancy
-legacy:
-  b = c
-sym:
-  (if False then a else b) = c
--/
 #guard_msgs in
 example : (if 2 < 1 then a else b) = c := by grind_norm check; sorry
 
-/--
-error: `grind_norm` discrepancy
-legacy:
-  a = c
-sym:
-  (if True then a else b) = c
--/
 #guard_msgs in
 example : (if h : 1 < 2 then a else b) = c := by grind_norm check; sorry
 
+#guard_msgs in
+example : (if h : 2 < 1 then a else b) = c := by grind_norm check; sorry
+
+#guard_msgs in
+example : cond (1 < 2 : Bool) a b = c := by grind_norm check; sorry
+
+#guard_msgs in
+example : cond (2 < 1 : Bool) a b = c := by grind_norm check; sorry
+
+#guard_msgs in
+example : cond true a b = c := by grind_norm check; sorry
+
+#guard_msgs in
+example : cond x a b = c := by grind_norm check; sorry
+
+-- The branches are normalized when the condition is not decided.
+#guard_msgs in
+example : (if a < b then a + 0 else 0 + b) = c := by grind_norm check; sorry
+
+#guard_msgs in
+example : (if h : a < b then a + 0 else 0 + b) = c := by grind_norm check; sorry
+
+#guard_msgs in
+example : (if 1 < 2 then (if 2 < 1 then a else b + 0) else c) = c := by grind_norm check; sorry
+
+#guard_msgs in
+example : (if a < b then (if 2 < 1 then a else b) else c) = c := by grind_norm check; sorry
+
+-- Dependent branches.
+#guard_msgs in
+example : (if h : 1 < 2 then (⟨1, h⟩ : Fin 2).val else b) = c := by grind_norm check; sorry
+
+#guard_msgs in
+example (v : Array Nat) : (if h : a < v.size then v[a] else b) = c := by grind_norm check; sorry
+
+-- Over-applied.
+#guard_msgs in
+example : (if 1 < 2 then f else g) a = c := by grind_norm check; sorry
+
+#guard_msgs in
+example : (if a < b then f else g) (a + 0) = c := by grind_norm check; sorry
+
+#guard_msgs in
+example : (if 1 < 2 then p else q) := by grind_norm check; sorry
+
+#guard_msgs in
+example : ¬(if 2 < 1 then p else q) := by grind_norm check; sorry
+
+-- `match`: the discriminants are normalized first, then the alternatives.
+#guard_msgs in
+example : (match a + 0, b with | 0, _ => 1 | _, 0 => 2 | _, _ => 3) = b := by grind_norm check; sorry
+
+#guard_msgs in
+example (o : Option Nat) : (match o with | some x => x + 0 | none => 0 + b) = a := by grind_norm check; sorry
+
+#guard_msgs in
+example : (match a * 0 with | 0 => b | _ + 1 => a) = b := by grind_norm check; sorry
+
+-- The results differ in the type of `h` in the second alternative: `v.size + 0 = n + 1` (legacy)
+-- and `v.size + 0 = n.succ` (`Sym`).
 /--
 error: `grind_norm` discrepancy
 legacy:
-  a = c
+  (match h : v.size + 0 with
+    | 0 => 0
+    | n.succ => v[n]) =
+    b
 sym:
-  (if True then a else b) = c
+  (match h : v.size + 0 with
+    | 0 => 0
+    | n.succ => v[n]) =
+    b
 -/
 #guard_msgs in
-example : cond (1 < 2 : Bool) a b = c := by grind_norm check; sorry
+example (v : Array Nat) : (match h : v.size + 0 with | 0 => 0 | n + 1 => v[n]'(by grind)) = b := by grind_norm check; sorry
+
+#guard_msgs in
+example (o : Option Nat) : (match o with | some _ => f | none => g) (a + 0) = b := by grind_norm check; sorry
 
 end control_flow
 

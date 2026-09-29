@@ -9,6 +9,7 @@ public import Lean.Meta.Sym.Simp.SimpM
 import Lean.Meta.Sym.AlphaShareBuilder
 import Lean.Meta.Sym.InferType
 import Lean.Meta.Sym.Simp.App
+import Lean.Meta.Sym.Simp.Result
 import Lean.Meta.Sym.Util
 import Lean.Meta.Sym.Reduce
 import Lean.Meta.WHNF
@@ -149,5 +150,12 @@ public def simpControl : Simproc := fun e => do
     simpDIte e
   else
     simpMatch declName e
+
+/--
+Like `simpControl`, but does not block the simplifier: when the condition or the discriminants
+are not decided, the branches are visited too.
+-/
+public def reduceControl : Simproc := fun e =>
+  return (← simpControl e).markAsNotDone
 
 end Lean.Meta.Sym.Simp

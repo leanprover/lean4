@@ -1,31 +1,23 @@
-import Lean
 import Std.WP
 import Std.Tactic.Do
 
 /-!
-`Sym.intros` introduces a binder whose name starts with `__` as an implementation-detail local,
-as the elaborator does for such binders (`LocalDeclKind.ofBinderName`). `vcgen` introduces the join
-point `__do_jp` of a `do` block with `Sym.intros`, so its VCs then hide the join point.
+`sym => intro` introduces a binder whose name starts with `__` as an implementation-detail local,
+as the elaborator does for such binders, so the goal hides it. `vcgen` introduces the join point
+`__do_jp` of a `do` block the same way, so its VCs hide the join point.
 -/
 
-open Lean Meta Sym in
 /--
-info: __x: implDetail=true
-__y: implDetail=true
-z: implDetail=false
+trace: case grind
+z : Nat
+⊢ z = z
 -/
 #guard_msgs in
-#eval show MetaM Unit from do
-  let ty ← mkForallFVars #[] <| .forallE `__x (mkConst ``Nat)
-    (.letE `__y (mkConst ``Nat) (mkNatLit 1)
-      (.forallE `z (mkConst ``Nat) (mkConst ``True) .default) false) .default
-  let goal ← mkFreshExprMVar ty .syntheticOpaque
-  let .goal fvars goal ← Sym.SymM.run (Sym.intros goal.mvarId! #[`__x, `__y, `z])
-    | throwError "intros failed"
-  goal.withContext do
-    for fvar in fvars do
-      let decl ← fvar.getDecl
-      IO.println s!"{decl.userName}: implDetail={decl.isImplementationDetail}"
+example : ∀ __x : Nat, let __y := __x + 1; ∀ z : Nat, z = z := by
+  sym =>
+    intro __x __y z
+    show_goals
+    lia
 
 def f (n : Nat) : Id Nat := do
   let mut x := 0

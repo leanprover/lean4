@@ -1360,7 +1360,7 @@ theorem toNat_shiftLeft {x : BitVec v} :
 
 theorem toInt_shiftLeft {x : BitVec w} :
     (x <<< n).toInt = (x.toNat <<< n : Int).bmod (2^w) := by
-  grind [toInt_eq_toNat_bmod, Int.emod_bmod]
+  grind [toInt_shiftLeft]
 
 theorem toFin_shiftLeft {n : Nat} (x : BitVec w) :
     (x <<< n).toFin = Fin.ofNat (2^w) (x.toNat <<< n) := rfl
@@ -1784,7 +1784,7 @@ theorem toFin_sshiftRight' {x y : BitVec w} :
   rw [sshiftRight_eq', toFin_sshiftRight]
 
 theorem toInt_sshiftRight' {x y : BitVec w} :
-    (x.sshiftRight' y).toInt = x.toInt >>> y.toNat := by grind
+    (x.sshiftRight' y).toInt = x.toInt >>> y.toNat := by grind [toInt_sshiftRight]
 
 -- This should not be a `@[simp]` lemma as the left hand side is not in simp normal form.
 theorem getLsbD_sshiftRight' {x y : BitVec w} {i : Nat} :
@@ -1918,7 +1918,7 @@ and we compute a modulo by `2^v`.
 -/
 theorem toInt_signExtend_eq_toNat_bmod_of_le {x : BitVec w} (hv : v ≤ w) :
     (x.signExtend v).toInt = Int.bmod x.toNat (2^v) := by
-  grind [signExtend_eq_setWidth_of_le]
+  grind [signExtend_eq_setWidth_of_le, toInt_setWidth]
 
 /--
 Interpreting the sign extension of `(x : BitVec w)` to width `v`

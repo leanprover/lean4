@@ -33,6 +33,7 @@ lean_object* l_Lean_Syntax_getHeadInfo(lean_object*);
 uint8_t lean_name_eq(lean_object*, lean_object*);
 lean_object* l_Lean_SimplePersistentEnvExtension_getState___redArg(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Std_DTreeMap_Internal_Impl_Const_get_x3f___at___00Lean_NameMap_find_x3f_spec__0___redArg(lean_object*, lean_object*);
+uint8_t l_Std_DTreeMap_Internal_Impl_contains___at___00Lean_NameMap_contains_spec__0___redArg(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Option_register___at___00__private_Lean_Elab_DeprecatedSyntax_0__Lean_Linter_initFn_00___x40_Lean_Elab_DeprecatedSyntax_3204438947____hygCtx___hyg_4__spec__0(lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Option_register___at___00__private_Lean_Elab_DeprecatedSyntax_0__Lean_Linter_initFn_00___x40_Lean_Elab_DeprecatedSyntax_3204438947____hygCtx___hyg_4__spec__0___boxed(lean_object*, lean_object*, lean_object*, lean_object*);
 static const lean_string_object l___private_Lean_Elab_DeprecatedSyntax_0__Lean_Linter_initFn___closed__0_00___x40_Lean_Elab_DeprecatedSyntax_3204438947____hygCtx___hyg_4__value = {.m_header = {.m_rc = 0, .m_cs_sz = 0, .m_other = 0, .m_tag = 249}, .m_size = 7, .m_capacity = 7, .m_length = 6, .m_data = "linter"};
@@ -89,6 +90,8 @@ static const lean_object* l___private_Lean_Elab_DeprecatedSyntax_0__Lean_Elab_in
 LEAN_EXPORT lean_object* l___private_Lean_Elab_DeprecatedSyntax_0__Lean_Elab_initFn_00___x40_Lean_Elab_DeprecatedSyntax_2404873452____hygCtx___hyg_2_();
 LEAN_EXPORT lean_object* l___private_Lean_Elab_DeprecatedSyntax_0__Lean_Elab_initFn_00___x40_Lean_Elab_DeprecatedSyntax_2404873452____hygCtx___hyg_2____boxed(lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Elab_deprecatedSyntaxExt;
+LEAN_EXPORT uint8_t l_Lean_Elab_isDeprecatedSyntax(lean_object*, lean_object*);
+LEAN_EXPORT lean_object* l_Lean_Elab_isDeprecatedSyntax___boxed(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Elab_checkDeprecatedSyntax___redArg___lam__0(lean_object*, lean_object*);
 static const lean_string_object l_Lean_Elab_checkDeprecatedSyntax___redArg___lam__1___closed__0_value = {.m_header = {.m_rc = 0, .m_cs_sz = 0, .m_other = 0, .m_tag = 249}, .m_size = 8, .m_capacity = 8, .m_length = 7, .m_data = "macro '"};
 static const lean_object* l_Lean_Elab_checkDeprecatedSyntax___redArg___lam__1___closed__0 = (const lean_object*)&l_Lean_Elab_checkDeprecatedSyntax___redArg___lam__1___closed__0_value;
@@ -431,483 +434,508 @@ v_res_142_ = l___private_Lean_Elab_DeprecatedSyntax_0__Lean_Elab_initFn_00___x40
 return v_res_142_;
 }
 }
-LEAN_EXPORT lean_object* l_Lean_Elab_checkDeprecatedSyntax___redArg___lam__0(lean_object* v_toPure_143_, lean_object* v_____r_144_){
+LEAN_EXPORT uint8_t l_Lean_Elab_isDeprecatedSyntax(lean_object* v_env_143_, lean_object* v_kind_144_){
 _start:
 {
-lean_object* v___x_145_; lean_object* v___x_146_; 
-v___x_145_ = lean_box(0);
-v___x_146_ = lean_apply_2(v_toPure_143_, lean_box(0), v___x_145_);
-return v___x_146_;
+lean_object* v___x_145_; lean_object* v_toEnvExtension_146_; lean_object* v_asyncMode_147_; lean_object* v___x_148_; lean_object* v___x_149_; lean_object* v___x_150_; uint8_t v___x_151_; 
+v___x_145_ = l_Lean_Elab_deprecatedSyntaxExt;
+v_toEnvExtension_146_ = lean_ctor_get(v___x_145_, 0);
+v_asyncMode_147_ = lean_ctor_get(v_toEnvExtension_146_, 2);
+v___x_148_ = lean_box(1);
+v___x_149_ = lean_box(0);
+v___x_150_ = l_Lean_SimplePersistentEnvExtension_getState___redArg(v___x_148_, v___x_145_, v_env_143_, v_asyncMode_147_, v___x_149_);
+v___x_151_ = l_Std_DTreeMap_Internal_Impl_contains___at___00Lean_NameMap_contains_spec__0___redArg(v_kind_144_, v___x_150_);
+lean_dec(v___x_150_);
+return v___x_151_;
+}
+}
+LEAN_EXPORT lean_object* l_Lean_Elab_isDeprecatedSyntax___boxed(lean_object* v_env_152_, lean_object* v_kind_153_){
+_start:
+{
+uint8_t v_res_154_; lean_object* v_r_155_; 
+v_res_154_ = l_Lean_Elab_isDeprecatedSyntax(v_env_152_, v_kind_153_);
+lean_dec(v_kind_153_);
+v_r_155_ = lean_box(v_res_154_);
+return v_r_155_;
+}
+}
+LEAN_EXPORT lean_object* l_Lean_Elab_checkDeprecatedSyntax___redArg___lam__0(lean_object* v_toPure_156_, lean_object* v_____r_157_){
+_start:
+{
+lean_object* v___x_158_; lean_object* v___x_159_; 
+v___x_158_ = lean_box(0);
+v___x_159_ = lean_apply_2(v_toPure_156_, lean_box(0), v___x_158_);
+return v___x_159_;
 }
 }
 static lean_object* _init_l_Lean_Elab_checkDeprecatedSyntax___redArg___lam__1___closed__1(void){
 _start:
 {
-lean_object* v___x_148_; lean_object* v___x_149_; 
-v___x_148_ = ((lean_object*)(l_Lean_Elab_checkDeprecatedSyntax___redArg___lam__1___closed__0));
-v___x_149_ = l_Lean_stringToMessageData(v___x_148_);
-return v___x_149_;
+lean_object* v___x_161_; lean_object* v___x_162_; 
+v___x_161_ = ((lean_object*)(l_Lean_Elab_checkDeprecatedSyntax___redArg___lam__1___closed__0));
+v___x_162_ = l_Lean_stringToMessageData(v___x_161_);
+return v___x_162_;
 }
 }
 static lean_object* _init_l_Lean_Elab_checkDeprecatedSyntax___redArg___lam__1___closed__3(void){
 _start:
 {
-lean_object* v___x_151_; lean_object* v___x_152_; 
-v___x_151_ = ((lean_object*)(l_Lean_Elab_checkDeprecatedSyntax___redArg___lam__1___closed__2));
-v___x_152_ = l_Lean_stringToMessageData(v___x_151_);
-return v___x_152_;
+lean_object* v___x_164_; lean_object* v___x_165_; 
+v___x_164_ = ((lean_object*)(l_Lean_Elab_checkDeprecatedSyntax___redArg___lam__1___closed__2));
+v___x_165_ = l_Lean_stringToMessageData(v___x_164_);
+return v___x_165_;
 }
 }
 static lean_object* _init_l_Lean_Elab_checkDeprecatedSyntax___redArg___lam__1___closed__5(void){
 _start:
 {
-lean_object* v___x_154_; lean_object* v___x_155_; 
-v___x_154_ = ((lean_object*)(l_Lean_Elab_checkDeprecatedSyntax___redArg___lam__1___closed__4));
-v___x_155_ = l_Lean_stringToMessageData(v___x_154_);
-return v___x_155_;
+lean_object* v___x_167_; lean_object* v___x_168_; 
+v___x_167_ = ((lean_object*)(l_Lean_Elab_checkDeprecatedSyntax___redArg___lam__1___closed__4));
+v___x_168_ = l_Lean_stringToMessageData(v___x_167_);
+return v___x_168_;
 }
 }
 static lean_object* _init_l_Lean_Elab_checkDeprecatedSyntax___redArg___lam__1___closed__7(void){
 _start:
 {
-lean_object* v___x_157_; lean_object* v___x_158_; 
-v___x_157_ = ((lean_object*)(l_Lean_Elab_checkDeprecatedSyntax___redArg___lam__1___closed__6));
-v___x_158_ = l_Lean_stringToMessageData(v___x_157_);
-return v___x_158_;
+lean_object* v___x_170_; lean_object* v___x_171_; 
+v___x_170_ = ((lean_object*)(l_Lean_Elab_checkDeprecatedSyntax___redArg___lam__1___closed__6));
+v___x_171_ = l_Lean_stringToMessageData(v___x_170_);
+return v___x_171_;
 }
 }
 static lean_object* _init_l_Lean_Elab_checkDeprecatedSyntax___redArg___lam__1___closed__9(void){
 _start:
 {
-lean_object* v___x_160_; lean_object* v___x_161_; 
-v___x_160_ = ((lean_object*)(l_Lean_Elab_checkDeprecatedSyntax___redArg___lam__1___closed__8));
-v___x_161_ = l_Lean_stringToMessageData(v___x_160_);
-return v___x_161_;
+lean_object* v___x_173_; lean_object* v___x_174_; 
+v___x_173_ = ((lean_object*)(l_Lean_Elab_checkDeprecatedSyntax___redArg___lam__1___closed__8));
+v___x_174_ = l_Lean_stringToMessageData(v___x_173_);
+return v___x_174_;
 }
 }
 static lean_object* _init_l_Lean_Elab_checkDeprecatedSyntax___redArg___lam__1___closed__11(void){
 _start:
 {
-lean_object* v___x_163_; lean_object* v___x_164_; 
-v___x_163_ = ((lean_object*)(l_Lean_Elab_checkDeprecatedSyntax___redArg___lam__1___closed__10));
-v___x_164_ = l_Lean_stringToMessageData(v___x_163_);
-return v___x_164_;
+lean_object* v___x_176_; lean_object* v___x_177_; 
+v___x_176_ = ((lean_object*)(l_Lean_Elab_checkDeprecatedSyntax___redArg___lam__1___closed__10));
+v___x_177_ = l_Lean_stringToMessageData(v___x_176_);
+return v___x_177_;
 }
 }
 static lean_object* _init_l_Lean_Elab_checkDeprecatedSyntax___redArg___lam__1___closed__13(void){
 _start:
 {
-lean_object* v___x_166_; lean_object* v___x_167_; 
-v___x_166_ = ((lean_object*)(l_Lean_Elab_checkDeprecatedSyntax___redArg___lam__1___closed__12));
-v___x_167_ = l_Lean_stringToMessageData(v___x_166_);
-return v___x_167_;
+lean_object* v___x_179_; lean_object* v___x_180_; 
+v___x_179_ = ((lean_object*)(l_Lean_Elab_checkDeprecatedSyntax___redArg___lam__1___closed__12));
+v___x_180_ = l_Lean_stringToMessageData(v___x_179_);
+return v___x_180_;
 }
 }
 static lean_object* _init_l_Lean_Elab_checkDeprecatedSyntax___redArg___lam__1___closed__15(void){
 _start:
 {
-lean_object* v___x_169_; lean_object* v___x_170_; 
-v___x_169_ = ((lean_object*)(l_Lean_Elab_checkDeprecatedSyntax___redArg___lam__1___closed__14));
-v___x_170_ = l_Lean_stringToMessageData(v___x_169_);
-return v___x_170_;
+lean_object* v___x_182_; lean_object* v___x_183_; 
+v___x_182_ = ((lean_object*)(l_Lean_Elab_checkDeprecatedSyntax___redArg___lam__1___closed__14));
+v___x_183_ = l_Lean_stringToMessageData(v___x_182_);
+return v___x_183_;
 }
 }
 static lean_object* _init_l_Lean_Elab_checkDeprecatedSyntax___redArg___lam__1___closed__17(void){
 _start:
 {
-lean_object* v___x_172_; lean_object* v___x_173_; 
-v___x_172_ = ((lean_object*)(l_Lean_Elab_checkDeprecatedSyntax___redArg___lam__1___closed__16));
-v___x_173_ = l_Lean_stringToMessageData(v___x_172_);
-return v___x_173_;
+lean_object* v___x_185_; lean_object* v___x_186_; 
+v___x_185_ = ((lean_object*)(l_Lean_Elab_checkDeprecatedSyntax___redArg___lam__1___closed__16));
+v___x_186_ = l_Lean_stringToMessageData(v___x_185_);
+return v___x_186_;
 }
 }
 static lean_object* _init_l_Lean_Elab_checkDeprecatedSyntax___redArg___lam__1___closed__19(void){
 _start:
 {
-lean_object* v___x_175_; lean_object* v___x_176_; 
-v___x_175_ = ((lean_object*)(l_Lean_Elab_checkDeprecatedSyntax___redArg___lam__1___closed__18));
-v___x_176_ = l_Lean_stringToMessageData(v___x_175_);
-return v___x_176_;
+lean_object* v___x_188_; lean_object* v___x_189_; 
+v___x_188_ = ((lean_object*)(l_Lean_Elab_checkDeprecatedSyntax___redArg___lam__1___closed__18));
+v___x_189_ = l_Lean_stringToMessageData(v___x_188_);
+return v___x_189_;
 }
 }
-LEAN_EXPORT lean_object* l_Lean_Elab_checkDeprecatedSyntax___redArg___lam__1(lean_object* v_stx_177_, lean_object* v___x_178_, lean_object* v_inst_179_, lean_object* v_inst_180_, lean_object* v_inst_181_, lean_object* v_inst_182_, lean_object* v_inst_183_, lean_object* v_toBind_184_, lean_object* v___f_185_, lean_object* v_macroStack_186_, lean_object* v_toPure_187_, lean_object* v_env_188_){
+LEAN_EXPORT lean_object* l_Lean_Elab_checkDeprecatedSyntax___redArg___lam__1(lean_object* v_stx_190_, lean_object* v___x_191_, lean_object* v_inst_192_, lean_object* v_inst_193_, lean_object* v_inst_194_, lean_object* v_inst_195_, lean_object* v_inst_196_, lean_object* v_toBind_197_, lean_object* v___f_198_, lean_object* v_macroStack_199_, lean_object* v_toPure_200_, lean_object* v_env_201_){
 _start:
 {
-lean_object* v___x_189_; lean_object* v_toEnvExtension_190_; lean_object* v_asyncMode_191_; lean_object* v_kind_192_; lean_object* v___y_194_; lean_object* v___y_195_; lean_object* v___y_196_; lean_object* v___y_197_; lean_object* v___y_213_; lean_object* v___x_287_; lean_object* v___x_288_; lean_object* v___x_289_; 
-v___x_189_ = l_Lean_Elab_deprecatedSyntaxExt;
-v_toEnvExtension_190_ = lean_ctor_get(v___x_189_, 0);
-v_asyncMode_191_ = lean_ctor_get(v_toEnvExtension_190_, 2);
-lean_inc(v_stx_177_);
-v_kind_192_ = l_Lean_Syntax_getKind(v_stx_177_);
-v___x_287_ = lean_box(0);
-v___x_288_ = l_Lean_SimplePersistentEnvExtension_getState___redArg(v___x_178_, v___x_189_, v_env_188_, v_asyncMode_191_, v___x_287_);
-v___x_289_ = l_Std_DTreeMap_Internal_Impl_Const_get_x3f___at___00Lean_NameMap_find_x3f_spec__0___redArg(v___x_288_, v_kind_192_);
-lean_dec(v___x_288_);
-if (lean_obj_tag(v___x_289_) == 1)
+lean_object* v___x_202_; lean_object* v_toEnvExtension_203_; lean_object* v_asyncMode_204_; lean_object* v_kind_205_; lean_object* v___y_207_; lean_object* v___y_208_; lean_object* v___y_209_; lean_object* v___y_210_; lean_object* v___y_226_; lean_object* v___x_300_; lean_object* v___x_301_; lean_object* v___x_302_; 
+v___x_202_ = l_Lean_Elab_deprecatedSyntaxExt;
+v_toEnvExtension_203_ = lean_ctor_get(v___x_202_, 0);
+v_asyncMode_204_ = lean_ctor_get(v_toEnvExtension_203_, 2);
+lean_inc(v_stx_190_);
+v_kind_205_ = l_Lean_Syntax_getKind(v_stx_190_);
+v___x_300_ = lean_box(0);
+v___x_301_ = l_Lean_SimplePersistentEnvExtension_getState___redArg(v___x_191_, v___x_202_, v_env_201_, v_asyncMode_204_, v___x_300_);
+v___x_302_ = l_Std_DTreeMap_Internal_Impl_Const_get_x3f___at___00Lean_NameMap_find_x3f_spec__0___redArg(v___x_301_, v_kind_205_);
+lean_dec(v___x_301_);
+if (lean_obj_tag(v___x_302_) == 1)
 {
-lean_object* v_val_290_; lean_object* v_text_x3f_291_; 
-lean_dec(v_toPure_187_);
-v_val_290_ = lean_ctor_get(v___x_289_, 0);
-lean_inc(v_val_290_);
-lean_dec_ref_known(v___x_289_, 1);
-v_text_x3f_291_ = lean_ctor_get(v_val_290_, 1);
-lean_inc(v_text_x3f_291_);
-lean_dec(v_val_290_);
-if (lean_obj_tag(v_text_x3f_291_) == 0)
+lean_object* v_val_303_; lean_object* v_text_x3f_304_; 
+lean_dec(v_toPure_200_);
+v_val_303_ = lean_ctor_get(v___x_302_, 0);
+lean_inc(v_val_303_);
+lean_dec_ref_known(v___x_302_, 1);
+v_text_x3f_304_ = lean_ctor_get(v_val_303_, 1);
+lean_inc(v_text_x3f_304_);
+lean_dec(v_val_303_);
+if (lean_obj_tag(v_text_x3f_304_) == 0)
 {
-lean_object* v___x_292_; 
-v___x_292_ = lean_obj_once(&l_Lean_Elab_checkDeprecatedSyntax___redArg___lam__1___closed__17, &l_Lean_Elab_checkDeprecatedSyntax___redArg___lam__1___closed__17_once, _init_l_Lean_Elab_checkDeprecatedSyntax___redArg___lam__1___closed__17);
-v___y_213_ = v___x_292_;
-goto v___jp_212_;
+lean_object* v___x_305_; 
+v___x_305_ = lean_obj_once(&l_Lean_Elab_checkDeprecatedSyntax___redArg___lam__1___closed__17, &l_Lean_Elab_checkDeprecatedSyntax___redArg___lam__1___closed__17_once, _init_l_Lean_Elab_checkDeprecatedSyntax___redArg___lam__1___closed__17);
+v___y_226_ = v___x_305_;
+goto v___jp_225_;
 }
 else
 {
-lean_object* v_val_293_; lean_object* v___x_294_; lean_object* v___x_295_; lean_object* v___x_296_; 
-v_val_293_ = lean_ctor_get(v_text_x3f_291_, 0);
-lean_inc(v_val_293_);
-lean_dec_ref_known(v_text_x3f_291_, 1);
-v___x_294_ = lean_obj_once(&l_Lean_Elab_checkDeprecatedSyntax___redArg___lam__1___closed__19, &l_Lean_Elab_checkDeprecatedSyntax___redArg___lam__1___closed__19_once, _init_l_Lean_Elab_checkDeprecatedSyntax___redArg___lam__1___closed__19);
-v___x_295_ = l_Lean_stringToMessageData(v_val_293_);
-v___x_296_ = lean_alloc_ctor(7, 2, 0);
-lean_ctor_set(v___x_296_, 0, v___x_294_);
-lean_ctor_set(v___x_296_, 1, v___x_295_);
-v___y_213_ = v___x_296_;
-goto v___jp_212_;
+lean_object* v_val_306_; lean_object* v___x_307_; lean_object* v___x_308_; lean_object* v___x_309_; 
+v_val_306_ = lean_ctor_get(v_text_x3f_304_, 0);
+lean_inc(v_val_306_);
+lean_dec_ref_known(v_text_x3f_304_, 1);
+v___x_307_ = lean_obj_once(&l_Lean_Elab_checkDeprecatedSyntax___redArg___lam__1___closed__19, &l_Lean_Elab_checkDeprecatedSyntax___redArg___lam__1___closed__19_once, _init_l_Lean_Elab_checkDeprecatedSyntax___redArg___lam__1___closed__19);
+v___x_308_ = l_Lean_stringToMessageData(v_val_306_);
+v___x_309_ = lean_alloc_ctor(7, 2, 0);
+lean_ctor_set(v___x_309_, 0, v___x_307_);
+lean_ctor_set(v___x_309_, 1, v___x_308_);
+v___y_226_ = v___x_309_;
+goto v___jp_225_;
 }
 }
 else
 {
-lean_object* v___x_297_; lean_object* v___x_298_; 
-lean_dec(v___x_289_);
-lean_dec(v_kind_192_);
-lean_dec(v_macroStack_186_);
-lean_dec(v___f_185_);
-lean_dec(v_toBind_184_);
-lean_dec_ref(v_inst_183_);
-lean_dec(v_inst_182_);
-lean_dec(v_inst_181_);
-lean_dec_ref(v_inst_180_);
-lean_dec_ref(v_inst_179_);
-lean_dec(v_stx_177_);
-v___x_297_ = lean_box(0);
-v___x_298_ = lean_apply_2(v_toPure_187_, lean_box(0), v___x_297_);
-return v___x_298_;
+lean_object* v___x_310_; lean_object* v___x_311_; 
+lean_dec(v___x_302_);
+lean_dec(v_kind_205_);
+lean_dec(v_macroStack_199_);
+lean_dec(v___f_198_);
+lean_dec(v_toBind_197_);
+lean_dec_ref(v_inst_196_);
+lean_dec_ref(v_inst_195_);
+lean_dec(v_inst_194_);
+lean_dec_ref(v_inst_193_);
+lean_dec_ref(v_inst_192_);
+lean_dec(v_stx_190_);
+v___x_310_ = lean_box(0);
+v___x_311_ = lean_apply_2(v_toPure_200_, lean_box(0), v___x_310_);
+return v___x_311_;
 }
-v___jp_193_:
+v___jp_206_:
 {
-lean_object* v___x_198_; lean_object* v___x_199_; lean_object* v___x_200_; lean_object* v___x_201_; lean_object* v___x_202_; lean_object* v___x_203_; lean_object* v___x_204_; lean_object* v___x_205_; lean_object* v___x_206_; lean_object* v___x_207_; lean_object* v___x_208_; lean_object* v___x_209_; lean_object* v___x_210_; lean_object* v___x_211_; 
-v___x_198_ = l_Lean_Linter_linter_deprecated_syntax;
-v___x_199_ = lean_obj_once(&l_Lean_Elab_checkDeprecatedSyntax___redArg___lam__1___closed__1, &l_Lean_Elab_checkDeprecatedSyntax___redArg___lam__1___closed__1_once, _init_l_Lean_Elab_checkDeprecatedSyntax___redArg___lam__1___closed__1);
-v___x_200_ = l_Lean_MessageData_ofName(v___y_195_);
-v___x_201_ = lean_alloc_ctor(7, 2, 0);
-lean_ctor_set(v___x_201_, 0, v___x_199_);
-lean_ctor_set(v___x_201_, 1, v___x_200_);
-v___x_202_ = lean_obj_once(&l_Lean_Elab_checkDeprecatedSyntax___redArg___lam__1___closed__3, &l_Lean_Elab_checkDeprecatedSyntax___redArg___lam__1___closed__3_once, _init_l_Lean_Elab_checkDeprecatedSyntax___redArg___lam__1___closed__3);
-v___x_203_ = lean_alloc_ctor(7, 2, 0);
-lean_ctor_set(v___x_203_, 0, v___x_201_);
-lean_ctor_set(v___x_203_, 1, v___x_202_);
-v___x_204_ = lean_alloc_ctor(7, 2, 0);
-lean_ctor_set(v___x_204_, 0, v___x_203_);
-lean_ctor_set(v___x_204_, 1, v___y_197_);
-v___x_205_ = lean_obj_once(&l_Lean_Elab_checkDeprecatedSyntax___redArg___lam__1___closed__5, &l_Lean_Elab_checkDeprecatedSyntax___redArg___lam__1___closed__5_once, _init_l_Lean_Elab_checkDeprecatedSyntax___redArg___lam__1___closed__5);
-v___x_206_ = lean_alloc_ctor(7, 2, 0);
-lean_ctor_set(v___x_206_, 0, v___x_204_);
-lean_ctor_set(v___x_206_, 1, v___x_205_);
-v___x_207_ = l_Lean_MessageData_ofName(v_kind_192_);
-v___x_208_ = lean_alloc_ctor(7, 2, 0);
-lean_ctor_set(v___x_208_, 0, v___x_206_);
-lean_ctor_set(v___x_208_, 1, v___x_207_);
-v___x_209_ = lean_alloc_ctor(7, 2, 0);
-lean_ctor_set(v___x_209_, 0, v___x_208_);
-lean_ctor_set(v___x_209_, 1, v___x_202_);
-v___x_210_ = lean_alloc_ctor(7, 2, 0);
-lean_ctor_set(v___x_210_, 0, v___x_209_);
-lean_ctor_set(v___x_210_, 1, v___y_196_);
-v___x_211_ = l_Lean_Linter_logLintIf___redArg(v_inst_179_, v_inst_180_, v_inst_181_, v_inst_182_, v_inst_183_, v___x_198_, v___y_194_, v___x_210_);
-return v___x_211_;
-}
-v___jp_212_:
-{
-lean_object* v___x_214_; 
-v___x_214_ = l_Lean_Syntax_getHeadInfo(v_stx_177_);
-if (lean_obj_tag(v___x_214_) == 0)
-{
-lean_object* v___x_215_; lean_object* v___x_216_; lean_object* v___x_217_; lean_object* v___x_218_; lean_object* v___x_219_; lean_object* v___x_220_; lean_object* v___x_221_; lean_object* v___x_222_; lean_object* v___x_223_; 
-lean_dec_ref_known(v___x_214_, 4);
-lean_dec(v_macroStack_186_);
-v___x_215_ = l_Lean_Linter_linter_deprecated_syntax;
-v___x_216_ = lean_obj_once(&l_Lean_Elab_checkDeprecatedSyntax___redArg___lam__1___closed__7, &l_Lean_Elab_checkDeprecatedSyntax___redArg___lam__1___closed__7_once, _init_l_Lean_Elab_checkDeprecatedSyntax___redArg___lam__1___closed__7);
-v___x_217_ = l_Lean_MessageData_ofName(v_kind_192_);
-v___x_218_ = lean_alloc_ctor(7, 2, 0);
-lean_ctor_set(v___x_218_, 0, v___x_216_);
-lean_ctor_set(v___x_218_, 1, v___x_217_);
-v___x_219_ = lean_obj_once(&l_Lean_Elab_checkDeprecatedSyntax___redArg___lam__1___closed__9, &l_Lean_Elab_checkDeprecatedSyntax___redArg___lam__1___closed__9_once, _init_l_Lean_Elab_checkDeprecatedSyntax___redArg___lam__1___closed__9);
-v___x_220_ = lean_alloc_ctor(7, 2, 0);
-lean_ctor_set(v___x_220_, 0, v___x_218_);
-lean_ctor_set(v___x_220_, 1, v___x_219_);
+lean_object* v___x_211_; lean_object* v___x_212_; lean_object* v___x_213_; lean_object* v___x_214_; lean_object* v___x_215_; lean_object* v___x_216_; lean_object* v___x_217_; lean_object* v___x_218_; lean_object* v___x_219_; lean_object* v___x_220_; lean_object* v___x_221_; lean_object* v___x_222_; lean_object* v___x_223_; lean_object* v___x_224_; 
+v___x_211_ = l_Lean_Linter_linter_deprecated_syntax;
+v___x_212_ = lean_obj_once(&l_Lean_Elab_checkDeprecatedSyntax___redArg___lam__1___closed__1, &l_Lean_Elab_checkDeprecatedSyntax___redArg___lam__1___closed__1_once, _init_l_Lean_Elab_checkDeprecatedSyntax___redArg___lam__1___closed__1);
+v___x_213_ = l_Lean_MessageData_ofName(v___y_208_);
+v___x_214_ = lean_alloc_ctor(7, 2, 0);
+lean_ctor_set(v___x_214_, 0, v___x_212_);
+lean_ctor_set(v___x_214_, 1, v___x_213_);
+v___x_215_ = lean_obj_once(&l_Lean_Elab_checkDeprecatedSyntax___redArg___lam__1___closed__3, &l_Lean_Elab_checkDeprecatedSyntax___redArg___lam__1___closed__3_once, _init_l_Lean_Elab_checkDeprecatedSyntax___redArg___lam__1___closed__3);
+v___x_216_ = lean_alloc_ctor(7, 2, 0);
+lean_ctor_set(v___x_216_, 0, v___x_214_);
+lean_ctor_set(v___x_216_, 1, v___x_215_);
+v___x_217_ = lean_alloc_ctor(7, 2, 0);
+lean_ctor_set(v___x_217_, 0, v___x_216_);
+lean_ctor_set(v___x_217_, 1, v___y_210_);
+v___x_218_ = lean_obj_once(&l_Lean_Elab_checkDeprecatedSyntax___redArg___lam__1___closed__5, &l_Lean_Elab_checkDeprecatedSyntax___redArg___lam__1___closed__5_once, _init_l_Lean_Elab_checkDeprecatedSyntax___redArg___lam__1___closed__5);
+v___x_219_ = lean_alloc_ctor(7, 2, 0);
+lean_ctor_set(v___x_219_, 0, v___x_217_);
+lean_ctor_set(v___x_219_, 1, v___x_218_);
+v___x_220_ = l_Lean_MessageData_ofName(v_kind_205_);
 v___x_221_ = lean_alloc_ctor(7, 2, 0);
-lean_ctor_set(v___x_221_, 0, v___x_220_);
-lean_ctor_set(v___x_221_, 1, v___y_213_);
-v___x_222_ = l_Lean_Linter_logLintIf___redArg(v_inst_179_, v_inst_180_, v_inst_181_, v_inst_182_, v_inst_183_, v___x_215_, v_stx_177_, v___x_221_);
-v___x_223_ = lean_apply_4(v_toBind_184_, lean_box(0), lean_box(0), v___x_222_, v___f_185_);
-return v___x_223_;
+lean_ctor_set(v___x_221_, 0, v___x_219_);
+lean_ctor_set(v___x_221_, 1, v___x_220_);
+v___x_222_ = lean_alloc_ctor(7, 2, 0);
+lean_ctor_set(v___x_222_, 0, v___x_221_);
+lean_ctor_set(v___x_222_, 1, v___x_215_);
+v___x_223_ = lean_alloc_ctor(7, 2, 0);
+lean_ctor_set(v___x_223_, 0, v___x_222_);
+lean_ctor_set(v___x_223_, 1, v___y_209_);
+v___x_224_ = l_Lean_Linter_logLintIf___redArg(v_inst_192_, v_inst_193_, v_inst_194_, v_inst_195_, v_inst_196_, v___x_211_, v___y_207_, v___x_223_);
+return v___x_224_;
+}
+v___jp_225_:
+{
+lean_object* v___x_227_; 
+v___x_227_ = l_Lean_Syntax_getHeadInfo(v_stx_190_);
+if (lean_obj_tag(v___x_227_) == 0)
+{
+lean_object* v___x_228_; lean_object* v___x_229_; lean_object* v___x_230_; lean_object* v___x_231_; lean_object* v___x_232_; lean_object* v___x_233_; lean_object* v___x_234_; lean_object* v___x_235_; lean_object* v___x_236_; 
+lean_dec_ref_known(v___x_227_, 4);
+lean_dec(v_macroStack_199_);
+v___x_228_ = l_Lean_Linter_linter_deprecated_syntax;
+v___x_229_ = lean_obj_once(&l_Lean_Elab_checkDeprecatedSyntax___redArg___lam__1___closed__7, &l_Lean_Elab_checkDeprecatedSyntax___redArg___lam__1___closed__7_once, _init_l_Lean_Elab_checkDeprecatedSyntax___redArg___lam__1___closed__7);
+v___x_230_ = l_Lean_MessageData_ofName(v_kind_205_);
+v___x_231_ = lean_alloc_ctor(7, 2, 0);
+lean_ctor_set(v___x_231_, 0, v___x_229_);
+lean_ctor_set(v___x_231_, 1, v___x_230_);
+v___x_232_ = lean_obj_once(&l_Lean_Elab_checkDeprecatedSyntax___redArg___lam__1___closed__9, &l_Lean_Elab_checkDeprecatedSyntax___redArg___lam__1___closed__9_once, _init_l_Lean_Elab_checkDeprecatedSyntax___redArg___lam__1___closed__9);
+v___x_233_ = lean_alloc_ctor(7, 2, 0);
+lean_ctor_set(v___x_233_, 0, v___x_231_);
+lean_ctor_set(v___x_233_, 1, v___x_232_);
+v___x_234_ = lean_alloc_ctor(7, 2, 0);
+lean_ctor_set(v___x_234_, 0, v___x_233_);
+lean_ctor_set(v___x_234_, 1, v___y_226_);
+v___x_235_ = l_Lean_Linter_logLintIf___redArg(v_inst_192_, v_inst_193_, v_inst_194_, v_inst_195_, v_inst_196_, v___x_228_, v_stx_190_, v___x_234_);
+v___x_236_ = lean_apply_4(v_toBind_197_, lean_box(0), lean_box(0), v___x_235_, v___f_198_);
+return v___x_236_;
 }
 else
 {
-lean_dec(v___x_214_);
-lean_dec(v___f_185_);
-lean_dec(v_toBind_184_);
-if (lean_obj_tag(v_macroStack_186_) == 0)
+lean_dec(v___x_227_);
+lean_dec(v___f_198_);
+lean_dec(v_toBind_197_);
+if (lean_obj_tag(v_macroStack_199_) == 0)
 {
-lean_object* v___x_224_; lean_object* v___x_225_; lean_object* v___x_226_; lean_object* v___x_227_; lean_object* v___x_228_; lean_object* v___x_229_; lean_object* v___x_230_; lean_object* v___x_231_; 
-v___x_224_ = l_Lean_Linter_linter_deprecated_syntax;
-v___x_225_ = lean_obj_once(&l_Lean_Elab_checkDeprecatedSyntax___redArg___lam__1___closed__7, &l_Lean_Elab_checkDeprecatedSyntax___redArg___lam__1___closed__7_once, _init_l_Lean_Elab_checkDeprecatedSyntax___redArg___lam__1___closed__7);
-v___x_226_ = l_Lean_MessageData_ofName(v_kind_192_);
-v___x_227_ = lean_alloc_ctor(7, 2, 0);
-lean_ctor_set(v___x_227_, 0, v___x_225_);
-lean_ctor_set(v___x_227_, 1, v___x_226_);
-v___x_228_ = lean_obj_once(&l_Lean_Elab_checkDeprecatedSyntax___redArg___lam__1___closed__9, &l_Lean_Elab_checkDeprecatedSyntax___redArg___lam__1___closed__9_once, _init_l_Lean_Elab_checkDeprecatedSyntax___redArg___lam__1___closed__9);
-v___x_229_ = lean_alloc_ctor(7, 2, 0);
-lean_ctor_set(v___x_229_, 0, v___x_227_);
-lean_ctor_set(v___x_229_, 1, v___x_228_);
-v___x_230_ = lean_alloc_ctor(7, 2, 0);
-lean_ctor_set(v___x_230_, 0, v___x_229_);
-lean_ctor_set(v___x_230_, 1, v___y_213_);
-v___x_231_ = l_Lean_Linter_logLintIf___redArg(v_inst_179_, v_inst_180_, v_inst_181_, v_inst_182_, v_inst_183_, v___x_224_, v_stx_177_, v___x_230_);
-return v___x_231_;
+lean_object* v___x_237_; lean_object* v___x_238_; lean_object* v___x_239_; lean_object* v___x_240_; lean_object* v___x_241_; lean_object* v___x_242_; lean_object* v___x_243_; lean_object* v___x_244_; 
+v___x_237_ = l_Lean_Linter_linter_deprecated_syntax;
+v___x_238_ = lean_obj_once(&l_Lean_Elab_checkDeprecatedSyntax___redArg___lam__1___closed__7, &l_Lean_Elab_checkDeprecatedSyntax___redArg___lam__1___closed__7_once, _init_l_Lean_Elab_checkDeprecatedSyntax___redArg___lam__1___closed__7);
+v___x_239_ = l_Lean_MessageData_ofName(v_kind_205_);
+v___x_240_ = lean_alloc_ctor(7, 2, 0);
+lean_ctor_set(v___x_240_, 0, v___x_238_);
+lean_ctor_set(v___x_240_, 1, v___x_239_);
+v___x_241_ = lean_obj_once(&l_Lean_Elab_checkDeprecatedSyntax___redArg___lam__1___closed__9, &l_Lean_Elab_checkDeprecatedSyntax___redArg___lam__1___closed__9_once, _init_l_Lean_Elab_checkDeprecatedSyntax___redArg___lam__1___closed__9);
+v___x_242_ = lean_alloc_ctor(7, 2, 0);
+lean_ctor_set(v___x_242_, 0, v___x_240_);
+lean_ctor_set(v___x_242_, 1, v___x_241_);
+v___x_243_ = lean_alloc_ctor(7, 2, 0);
+lean_ctor_set(v___x_243_, 0, v___x_242_);
+lean_ctor_set(v___x_243_, 1, v___y_226_);
+v___x_244_ = l_Lean_Linter_logLintIf___redArg(v_inst_192_, v_inst_193_, v_inst_194_, v_inst_195_, v_inst_196_, v___x_237_, v_stx_190_, v___x_243_);
+return v___x_244_;
 }
 else
 {
-lean_object* v_head_232_; lean_object* v_tail_233_; lean_object* v___x_235_; uint8_t v_isShared_236_; uint8_t v_isSharedCheck_286_; 
-lean_dec(v_stx_177_);
-v_head_232_ = lean_ctor_get(v_macroStack_186_, 0);
-v_tail_233_ = lean_ctor_get(v_macroStack_186_, 1);
-v_isSharedCheck_286_ = !lean_is_exclusive(v_macroStack_186_);
-if (v_isSharedCheck_286_ == 0)
+lean_object* v_head_245_; lean_object* v_tail_246_; lean_object* v___x_248_; uint8_t v_isShared_249_; uint8_t v_isSharedCheck_299_; 
+lean_dec(v_stx_190_);
+v_head_245_ = lean_ctor_get(v_macroStack_199_, 0);
+v_tail_246_ = lean_ctor_get(v_macroStack_199_, 1);
+v_isSharedCheck_299_ = !lean_is_exclusive(v_macroStack_199_);
+if (v_isSharedCheck_299_ == 0)
 {
-v___x_235_ = v_macroStack_186_;
-v_isShared_236_ = v_isSharedCheck_286_;
-goto v_resetjp_234_;
+v___x_248_ = v_macroStack_199_;
+v_isShared_249_ = v_isSharedCheck_299_;
+goto v_resetjp_247_;
 }
 else
 {
-lean_inc(v_tail_233_);
-lean_inc(v_head_232_);
-lean_dec(v_macroStack_186_);
-v___x_235_ = lean_box(0);
-v_isShared_236_ = v_isSharedCheck_286_;
-goto v_resetjp_234_;
+lean_inc(v_tail_246_);
+lean_inc(v_head_245_);
+lean_dec(v_macroStack_199_);
+v___x_248_ = lean_box(0);
+v_isShared_249_ = v_isSharedCheck_299_;
+goto v_resetjp_247_;
 }
-v_resetjp_234_:
+v_resetjp_247_:
 {
-if (lean_obj_tag(v_tail_233_) == 0)
+if (lean_obj_tag(v_tail_246_) == 0)
 {
-lean_object* v_before_237_; lean_object* v___x_239_; uint8_t v_isShared_240_; uint8_t v_isSharedCheck_258_; 
-v_before_237_ = lean_ctor_get(v_head_232_, 0);
-v_isSharedCheck_258_ = !lean_is_exclusive(v_head_232_);
-if (v_isSharedCheck_258_ == 0)
+lean_object* v_before_250_; lean_object* v___x_252_; uint8_t v_isShared_253_; uint8_t v_isSharedCheck_271_; 
+v_before_250_ = lean_ctor_get(v_head_245_, 0);
+v_isSharedCheck_271_ = !lean_is_exclusive(v_head_245_);
+if (v_isSharedCheck_271_ == 0)
 {
-lean_object* v_unused_259_; 
-v_unused_259_ = lean_ctor_get(v_head_232_, 1);
-lean_dec(v_unused_259_);
-v___x_239_ = v_head_232_;
-v_isShared_240_ = v_isSharedCheck_258_;
-goto v_resetjp_238_;
-}
-else
-{
-lean_inc(v_before_237_);
-lean_dec(v_head_232_);
-v___x_239_ = lean_box(0);
-v_isShared_240_ = v_isSharedCheck_258_;
-goto v_resetjp_238_;
-}
-v_resetjp_238_:
-{
-lean_object* v___x_241_; lean_object* v___x_242_; lean_object* v___x_243_; lean_object* v___x_244_; lean_object* v___x_246_; 
-v___x_241_ = l_Lean_Linter_linter_deprecated_syntax;
-v___x_242_ = lean_obj_once(&l_Lean_Elab_checkDeprecatedSyntax___redArg___lam__1___closed__1, &l_Lean_Elab_checkDeprecatedSyntax___redArg___lam__1___closed__1_once, _init_l_Lean_Elab_checkDeprecatedSyntax___redArg___lam__1___closed__1);
-lean_inc(v_before_237_);
-v___x_243_ = l_Lean_Syntax_getKind(v_before_237_);
-v___x_244_ = l_Lean_MessageData_ofName(v___x_243_);
-if (v_isShared_240_ == 0)
-{
-lean_ctor_set_tag(v___x_239_, 7);
-lean_ctor_set(v___x_239_, 1, v___x_244_);
-lean_ctor_set(v___x_239_, 0, v___x_242_);
-v___x_246_ = v___x_239_;
-goto v_reusejp_245_;
+lean_object* v_unused_272_; 
+v_unused_272_ = lean_ctor_get(v_head_245_, 1);
+lean_dec(v_unused_272_);
+v___x_252_ = v_head_245_;
+v_isShared_253_ = v_isSharedCheck_271_;
+goto v_resetjp_251_;
 }
 else
 {
-lean_object* v_reuseFailAlloc_257_; 
-v_reuseFailAlloc_257_ = lean_alloc_ctor(7, 2, 0);
-lean_ctor_set(v_reuseFailAlloc_257_, 0, v___x_242_);
-lean_ctor_set(v_reuseFailAlloc_257_, 1, v___x_244_);
-v___x_246_ = v_reuseFailAlloc_257_;
-goto v_reusejp_245_;
+lean_inc(v_before_250_);
+lean_dec(v_head_245_);
+v___x_252_ = lean_box(0);
+v_isShared_253_ = v_isSharedCheck_271_;
+goto v_resetjp_251_;
 }
-v_reusejp_245_:
+v_resetjp_251_:
 {
-lean_object* v___x_247_; lean_object* v___x_249_; 
-v___x_247_ = lean_obj_once(&l_Lean_Elab_checkDeprecatedSyntax___redArg___lam__1___closed__11, &l_Lean_Elab_checkDeprecatedSyntax___redArg___lam__1___closed__11_once, _init_l_Lean_Elab_checkDeprecatedSyntax___redArg___lam__1___closed__11);
-if (v_isShared_236_ == 0)
+lean_object* v___x_254_; lean_object* v___x_255_; lean_object* v___x_256_; lean_object* v___x_257_; lean_object* v___x_259_; 
+v___x_254_ = l_Lean_Linter_linter_deprecated_syntax;
+v___x_255_ = lean_obj_once(&l_Lean_Elab_checkDeprecatedSyntax___redArg___lam__1___closed__1, &l_Lean_Elab_checkDeprecatedSyntax___redArg___lam__1___closed__1_once, _init_l_Lean_Elab_checkDeprecatedSyntax___redArg___lam__1___closed__1);
+lean_inc(v_before_250_);
+v___x_256_ = l_Lean_Syntax_getKind(v_before_250_);
+v___x_257_ = l_Lean_MessageData_ofName(v___x_256_);
+if (v_isShared_253_ == 0)
 {
-lean_ctor_set_tag(v___x_235_, 7);
-lean_ctor_set(v___x_235_, 1, v___x_247_);
-lean_ctor_set(v___x_235_, 0, v___x_246_);
-v___x_249_ = v___x_235_;
-goto v_reusejp_248_;
-}
-else
-{
-lean_object* v_reuseFailAlloc_256_; 
-v_reuseFailAlloc_256_ = lean_alloc_ctor(7, 2, 0);
-lean_ctor_set(v_reuseFailAlloc_256_, 0, v___x_246_);
-lean_ctor_set(v_reuseFailAlloc_256_, 1, v___x_247_);
-v___x_249_ = v_reuseFailAlloc_256_;
-goto v_reusejp_248_;
-}
-v_reusejp_248_:
-{
-lean_object* v___x_250_; lean_object* v___x_251_; lean_object* v___x_252_; lean_object* v___x_253_; lean_object* v___x_254_; lean_object* v___x_255_; 
-v___x_250_ = l_Lean_MessageData_ofName(v_kind_192_);
-v___x_251_ = lean_alloc_ctor(7, 2, 0);
-lean_ctor_set(v___x_251_, 0, v___x_249_);
-lean_ctor_set(v___x_251_, 1, v___x_250_);
-v___x_252_ = lean_obj_once(&l_Lean_Elab_checkDeprecatedSyntax___redArg___lam__1___closed__3, &l_Lean_Elab_checkDeprecatedSyntax___redArg___lam__1___closed__3_once, _init_l_Lean_Elab_checkDeprecatedSyntax___redArg___lam__1___closed__3);
-v___x_253_ = lean_alloc_ctor(7, 2, 0);
-lean_ctor_set(v___x_253_, 0, v___x_251_);
-lean_ctor_set(v___x_253_, 1, v___x_252_);
-v___x_254_ = lean_alloc_ctor(7, 2, 0);
-lean_ctor_set(v___x_254_, 0, v___x_253_);
-lean_ctor_set(v___x_254_, 1, v___y_213_);
-v___x_255_ = l_Lean_Linter_logLintIf___redArg(v_inst_179_, v_inst_180_, v_inst_181_, v_inst_182_, v_inst_183_, v___x_241_, v_before_237_, v___x_254_);
-return v___x_255_;
-}
-}
-}
+lean_ctor_set_tag(v___x_252_, 7);
+lean_ctor_set(v___x_252_, 1, v___x_257_);
+lean_ctor_set(v___x_252_, 0, v___x_255_);
+v___x_259_ = v___x_252_;
+goto v_reusejp_258_;
 }
 else
 {
-lean_object* v_head_260_; lean_object* v___x_262_; uint8_t v_isShared_263_; uint8_t v_isSharedCheck_284_; 
-lean_del_object(v___x_235_);
-v_head_260_ = lean_ctor_get(v_tail_233_, 0);
-v_isSharedCheck_284_ = !lean_is_exclusive(v_tail_233_);
-if (v_isSharedCheck_284_ == 0)
+lean_object* v_reuseFailAlloc_270_; 
+v_reuseFailAlloc_270_ = lean_alloc_ctor(7, 2, 0);
+lean_ctor_set(v_reuseFailAlloc_270_, 0, v___x_255_);
+lean_ctor_set(v_reuseFailAlloc_270_, 1, v___x_257_);
+v___x_259_ = v_reuseFailAlloc_270_;
+goto v_reusejp_258_;
+}
+v_reusejp_258_:
 {
-lean_object* v_unused_285_; 
-v_unused_285_ = lean_ctor_get(v_tail_233_, 1);
-lean_dec(v_unused_285_);
-v___x_262_ = v_tail_233_;
-v_isShared_263_ = v_isSharedCheck_284_;
-goto v_resetjp_261_;
+lean_object* v___x_260_; lean_object* v___x_262_; 
+v___x_260_ = lean_obj_once(&l_Lean_Elab_checkDeprecatedSyntax___redArg___lam__1___closed__11, &l_Lean_Elab_checkDeprecatedSyntax___redArg___lam__1___closed__11_once, _init_l_Lean_Elab_checkDeprecatedSyntax___redArg___lam__1___closed__11);
+if (v_isShared_249_ == 0)
+{
+lean_ctor_set_tag(v___x_248_, 7);
+lean_ctor_set(v___x_248_, 1, v___x_260_);
+lean_ctor_set(v___x_248_, 0, v___x_259_);
+v___x_262_ = v___x_248_;
+goto v_reusejp_261_;
 }
 else
 {
-lean_inc(v_head_260_);
-lean_dec(v_tail_233_);
-v___x_262_ = lean_box(0);
-v_isShared_263_ = v_isSharedCheck_284_;
-goto v_resetjp_261_;
+lean_object* v_reuseFailAlloc_269_; 
+v_reuseFailAlloc_269_ = lean_alloc_ctor(7, 2, 0);
+lean_ctor_set(v_reuseFailAlloc_269_, 0, v___x_259_);
+lean_ctor_set(v_reuseFailAlloc_269_, 1, v___x_260_);
+v___x_262_ = v_reuseFailAlloc_269_;
+goto v_reusejp_261_;
 }
-v_resetjp_261_:
+v_reusejp_261_:
 {
-lean_object* v_before_264_; lean_object* v_before_265_; lean_object* v___x_267_; uint8_t v_isShared_268_; uint8_t v_isSharedCheck_282_; 
-v_before_264_ = lean_ctor_get(v_head_232_, 0);
-lean_inc(v_before_264_);
-lean_dec(v_head_232_);
-v_before_265_ = lean_ctor_get(v_head_260_, 0);
-v_isSharedCheck_282_ = !lean_is_exclusive(v_head_260_);
-if (v_isSharedCheck_282_ == 0)
-{
-lean_object* v_unused_283_; 
-v_unused_283_ = lean_ctor_get(v_head_260_, 1);
-lean_dec(v_unused_283_);
-v___x_267_ = v_head_260_;
-v_isShared_268_ = v_isSharedCheck_282_;
-goto v_resetjp_266_;
+lean_object* v___x_263_; lean_object* v___x_264_; lean_object* v___x_265_; lean_object* v___x_266_; lean_object* v___x_267_; lean_object* v___x_268_; 
+v___x_263_ = l_Lean_MessageData_ofName(v_kind_205_);
+v___x_264_ = lean_alloc_ctor(7, 2, 0);
+lean_ctor_set(v___x_264_, 0, v___x_262_);
+lean_ctor_set(v___x_264_, 1, v___x_263_);
+v___x_265_ = lean_obj_once(&l_Lean_Elab_checkDeprecatedSyntax___redArg___lam__1___closed__3, &l_Lean_Elab_checkDeprecatedSyntax___redArg___lam__1___closed__3_once, _init_l_Lean_Elab_checkDeprecatedSyntax___redArg___lam__1___closed__3);
+v___x_266_ = lean_alloc_ctor(7, 2, 0);
+lean_ctor_set(v___x_266_, 0, v___x_264_);
+lean_ctor_set(v___x_266_, 1, v___x_265_);
+v___x_267_ = lean_alloc_ctor(7, 2, 0);
+lean_ctor_set(v___x_267_, 0, v___x_266_);
+lean_ctor_set(v___x_267_, 1, v___y_226_);
+v___x_268_ = l_Lean_Linter_logLintIf___redArg(v_inst_192_, v_inst_193_, v_inst_194_, v_inst_195_, v_inst_196_, v___x_254_, v_before_250_, v___x_267_);
+return v___x_268_;
 }
-else
-{
-lean_inc(v_before_265_);
-lean_dec(v_head_260_);
-v___x_267_ = lean_box(0);
-v_isShared_268_ = v_isSharedCheck_282_;
-goto v_resetjp_266_;
-}
-v_resetjp_266_:
-{
-lean_object* v___x_269_; lean_object* v___x_270_; uint8_t v___x_271_; 
-v___x_269_ = l_Lean_Syntax_getKind(v_before_265_);
-lean_inc(v_before_264_);
-v___x_270_ = l_Lean_Syntax_getKind(v_before_264_);
-v___x_271_ = lean_name_eq(v___x_269_, v___x_270_);
-if (v___x_271_ == 0)
-{
-lean_object* v___x_272_; lean_object* v___x_273_; lean_object* v___x_275_; 
-v___x_272_ = lean_obj_once(&l_Lean_Elab_checkDeprecatedSyntax___redArg___lam__1___closed__13, &l_Lean_Elab_checkDeprecatedSyntax___redArg___lam__1___closed__13_once, _init_l_Lean_Elab_checkDeprecatedSyntax___redArg___lam__1___closed__13);
-v___x_273_ = l_Lean_MessageData_ofName(v___x_269_);
-if (v_isShared_268_ == 0)
-{
-lean_ctor_set_tag(v___x_267_, 7);
-lean_ctor_set(v___x_267_, 1, v___x_273_);
-lean_ctor_set(v___x_267_, 0, v___x_272_);
-v___x_275_ = v___x_267_;
-goto v_reusejp_274_;
-}
-else
-{
-lean_object* v_reuseFailAlloc_280_; 
-v_reuseFailAlloc_280_ = lean_alloc_ctor(7, 2, 0);
-lean_ctor_set(v_reuseFailAlloc_280_, 0, v___x_272_);
-lean_ctor_set(v_reuseFailAlloc_280_, 1, v___x_273_);
-v___x_275_ = v_reuseFailAlloc_280_;
-goto v_reusejp_274_;
-}
-v_reusejp_274_:
-{
-lean_object* v___x_276_; lean_object* v___x_278_; 
-v___x_276_ = lean_obj_once(&l_Lean_Elab_checkDeprecatedSyntax___redArg___lam__1___closed__15, &l_Lean_Elab_checkDeprecatedSyntax___redArg___lam__1___closed__15_once, _init_l_Lean_Elab_checkDeprecatedSyntax___redArg___lam__1___closed__15);
-if (v_isShared_263_ == 0)
-{
-lean_ctor_set_tag(v___x_262_, 7);
-lean_ctor_set(v___x_262_, 1, v___x_276_);
-lean_ctor_set(v___x_262_, 0, v___x_275_);
-v___x_278_ = v___x_262_;
-goto v_reusejp_277_;
-}
-else
-{
-lean_object* v_reuseFailAlloc_279_; 
-v_reuseFailAlloc_279_ = lean_alloc_ctor(7, 2, 0);
-lean_ctor_set(v_reuseFailAlloc_279_, 0, v___x_275_);
-lean_ctor_set(v_reuseFailAlloc_279_, 1, v___x_276_);
-v___x_278_ = v_reuseFailAlloc_279_;
-goto v_reusejp_277_;
-}
-v_reusejp_277_:
-{
-v___y_194_ = v_before_264_;
-v___y_195_ = v___x_270_;
-v___y_196_ = v___y_213_;
-v___y_197_ = v___x_278_;
-goto v___jp_193_;
 }
 }
 }
 else
 {
-lean_object* v___x_281_; 
-lean_dec(v___x_269_);
-lean_del_object(v___x_267_);
-lean_del_object(v___x_262_);
-v___x_281_ = lean_obj_once(&l_Lean_Elab_checkDeprecatedSyntax___redArg___lam__1___closed__17, &l_Lean_Elab_checkDeprecatedSyntax___redArg___lam__1___closed__17_once, _init_l_Lean_Elab_checkDeprecatedSyntax___redArg___lam__1___closed__17);
-v___y_194_ = v_before_264_;
-v___y_195_ = v___x_270_;
-v___y_196_ = v___y_213_;
-v___y_197_ = v___x_281_;
-goto v___jp_193_;
+lean_object* v_head_273_; lean_object* v___x_275_; uint8_t v_isShared_276_; uint8_t v_isSharedCheck_297_; 
+lean_del_object(v___x_248_);
+v_head_273_ = lean_ctor_get(v_tail_246_, 0);
+v_isSharedCheck_297_ = !lean_is_exclusive(v_tail_246_);
+if (v_isSharedCheck_297_ == 0)
+{
+lean_object* v_unused_298_; 
+v_unused_298_ = lean_ctor_get(v_tail_246_, 1);
+lean_dec(v_unused_298_);
+v___x_275_ = v_tail_246_;
+v_isShared_276_ = v_isSharedCheck_297_;
+goto v_resetjp_274_;
+}
+else
+{
+lean_inc(v_head_273_);
+lean_dec(v_tail_246_);
+v___x_275_ = lean_box(0);
+v_isShared_276_ = v_isSharedCheck_297_;
+goto v_resetjp_274_;
+}
+v_resetjp_274_:
+{
+lean_object* v_before_277_; lean_object* v_before_278_; lean_object* v___x_280_; uint8_t v_isShared_281_; uint8_t v_isSharedCheck_295_; 
+v_before_277_ = lean_ctor_get(v_head_245_, 0);
+lean_inc(v_before_277_);
+lean_dec(v_head_245_);
+v_before_278_ = lean_ctor_get(v_head_273_, 0);
+v_isSharedCheck_295_ = !lean_is_exclusive(v_head_273_);
+if (v_isSharedCheck_295_ == 0)
+{
+lean_object* v_unused_296_; 
+v_unused_296_ = lean_ctor_get(v_head_273_, 1);
+lean_dec(v_unused_296_);
+v___x_280_ = v_head_273_;
+v_isShared_281_ = v_isSharedCheck_295_;
+goto v_resetjp_279_;
+}
+else
+{
+lean_inc(v_before_278_);
+lean_dec(v_head_273_);
+v___x_280_ = lean_box(0);
+v_isShared_281_ = v_isSharedCheck_295_;
+goto v_resetjp_279_;
+}
+v_resetjp_279_:
+{
+lean_object* v___x_282_; lean_object* v___x_283_; uint8_t v___x_284_; 
+v___x_282_ = l_Lean_Syntax_getKind(v_before_278_);
+lean_inc(v_before_277_);
+v___x_283_ = l_Lean_Syntax_getKind(v_before_277_);
+v___x_284_ = lean_name_eq(v___x_282_, v___x_283_);
+if (v___x_284_ == 0)
+{
+lean_object* v___x_285_; lean_object* v___x_286_; lean_object* v___x_288_; 
+v___x_285_ = lean_obj_once(&l_Lean_Elab_checkDeprecatedSyntax___redArg___lam__1___closed__13, &l_Lean_Elab_checkDeprecatedSyntax___redArg___lam__1___closed__13_once, _init_l_Lean_Elab_checkDeprecatedSyntax___redArg___lam__1___closed__13);
+v___x_286_ = l_Lean_MessageData_ofName(v___x_282_);
+if (v_isShared_281_ == 0)
+{
+lean_ctor_set_tag(v___x_280_, 7);
+lean_ctor_set(v___x_280_, 1, v___x_286_);
+lean_ctor_set(v___x_280_, 0, v___x_285_);
+v___x_288_ = v___x_280_;
+goto v_reusejp_287_;
+}
+else
+{
+lean_object* v_reuseFailAlloc_293_; 
+v_reuseFailAlloc_293_ = lean_alloc_ctor(7, 2, 0);
+lean_ctor_set(v_reuseFailAlloc_293_, 0, v___x_285_);
+lean_ctor_set(v_reuseFailAlloc_293_, 1, v___x_286_);
+v___x_288_ = v_reuseFailAlloc_293_;
+goto v_reusejp_287_;
+}
+v_reusejp_287_:
+{
+lean_object* v___x_289_; lean_object* v___x_291_; 
+v___x_289_ = lean_obj_once(&l_Lean_Elab_checkDeprecatedSyntax___redArg___lam__1___closed__15, &l_Lean_Elab_checkDeprecatedSyntax___redArg___lam__1___closed__15_once, _init_l_Lean_Elab_checkDeprecatedSyntax___redArg___lam__1___closed__15);
+if (v_isShared_276_ == 0)
+{
+lean_ctor_set_tag(v___x_275_, 7);
+lean_ctor_set(v___x_275_, 1, v___x_289_);
+lean_ctor_set(v___x_275_, 0, v___x_288_);
+v___x_291_ = v___x_275_;
+goto v_reusejp_290_;
+}
+else
+{
+lean_object* v_reuseFailAlloc_292_; 
+v_reuseFailAlloc_292_ = lean_alloc_ctor(7, 2, 0);
+lean_ctor_set(v_reuseFailAlloc_292_, 0, v___x_288_);
+lean_ctor_set(v_reuseFailAlloc_292_, 1, v___x_289_);
+v___x_291_ = v_reuseFailAlloc_292_;
+goto v_reusejp_290_;
+}
+v_reusejp_290_:
+{
+v___y_207_ = v_before_277_;
+v___y_208_ = v___x_283_;
+v___y_209_ = v___y_226_;
+v___y_210_ = v___x_291_;
+goto v___jp_206_;
+}
+}
+}
+else
+{
+lean_object* v___x_294_; 
+lean_dec(v___x_282_);
+lean_del_object(v___x_280_);
+lean_del_object(v___x_275_);
+v___x_294_ = lean_obj_once(&l_Lean_Elab_checkDeprecatedSyntax___redArg___lam__1___closed__17, &l_Lean_Elab_checkDeprecatedSyntax___redArg___lam__1___closed__17_once, _init_l_Lean_Elab_checkDeprecatedSyntax___redArg___lam__1___closed__17);
+v___y_207_ = v_before_277_;
+v___y_208_ = v___x_283_;
+v___y_209_ = v___y_226_;
+v___y_210_ = v___x_294_;
+goto v___jp_206_;
 }
 }
 }
@@ -918,51 +946,51 @@ goto v___jp_193_;
 }
 }
 }
-LEAN_EXPORT lean_object* l_Lean_Elab_checkDeprecatedSyntax___redArg(lean_object* v_inst_299_, lean_object* v_inst_300_, lean_object* v_inst_301_, lean_object* v_inst_302_, lean_object* v_inst_303_, lean_object* v_stx_304_, lean_object* v_macroStack_305_){
+LEAN_EXPORT lean_object* l_Lean_Elab_checkDeprecatedSyntax___redArg(lean_object* v_inst_312_, lean_object* v_inst_313_, lean_object* v_inst_314_, lean_object* v_inst_315_, lean_object* v_inst_316_, lean_object* v_stx_317_, lean_object* v_macroStack_318_){
 _start:
 {
-lean_object* v_toApplicative_306_; lean_object* v_toBind_307_; lean_object* v_getEnv_308_; lean_object* v_toPure_309_; lean_object* v___x_310_; lean_object* v___f_311_; lean_object* v___f_312_; lean_object* v___x_313_; 
-v_toApplicative_306_ = lean_ctor_get(v_inst_299_, 0);
-v_toBind_307_ = lean_ctor_get(v_inst_299_, 1);
-lean_inc_n(v_toBind_307_, 2);
-v_getEnv_308_ = lean_ctor_get(v_inst_300_, 0);
-lean_inc(v_getEnv_308_);
-v_toPure_309_ = lean_ctor_get(v_toApplicative_306_, 1);
-lean_inc_n(v_toPure_309_, 2);
-v___x_310_ = lean_box(1);
-v___f_311_ = lean_alloc_closure((void*)(l_Lean_Elab_checkDeprecatedSyntax___redArg___lam__0), 2, 1);
-lean_closure_set(v___f_311_, 0, v_toPure_309_);
-v___f_312_ = lean_alloc_closure((void*)(l_Lean_Elab_checkDeprecatedSyntax___redArg___lam__1), 12, 11);
-lean_closure_set(v___f_312_, 0, v_stx_304_);
-lean_closure_set(v___f_312_, 1, v___x_310_);
-lean_closure_set(v___f_312_, 2, v_inst_299_);
-lean_closure_set(v___f_312_, 3, v_inst_301_);
-lean_closure_set(v___f_312_, 4, v_inst_303_);
-lean_closure_set(v___f_312_, 5, v_inst_302_);
-lean_closure_set(v___f_312_, 6, v_inst_300_);
-lean_closure_set(v___f_312_, 7, v_toBind_307_);
-lean_closure_set(v___f_312_, 8, v___f_311_);
-lean_closure_set(v___f_312_, 9, v_macroStack_305_);
-lean_closure_set(v___f_312_, 10, v_toPure_309_);
-v___x_313_ = lean_apply_4(v_toBind_307_, lean_box(0), lean_box(0), v_getEnv_308_, v___f_312_);
-return v___x_313_;
+lean_object* v_toApplicative_319_; lean_object* v_toBind_320_; lean_object* v_getEnv_321_; lean_object* v_toPure_322_; lean_object* v___x_323_; lean_object* v___f_324_; lean_object* v___f_325_; lean_object* v___x_326_; 
+v_toApplicative_319_ = lean_ctor_get(v_inst_312_, 0);
+v_toBind_320_ = lean_ctor_get(v_inst_312_, 1);
+lean_inc_n(v_toBind_320_, 2);
+v_getEnv_321_ = lean_ctor_get(v_inst_313_, 0);
+lean_inc(v_getEnv_321_);
+v_toPure_322_ = lean_ctor_get(v_toApplicative_319_, 1);
+lean_inc_n(v_toPure_322_, 2);
+v___x_323_ = lean_box(1);
+v___f_324_ = lean_alloc_closure((void*)(l_Lean_Elab_checkDeprecatedSyntax___redArg___lam__0), 2, 1);
+lean_closure_set(v___f_324_, 0, v_toPure_322_);
+v___f_325_ = lean_alloc_closure((void*)(l_Lean_Elab_checkDeprecatedSyntax___redArg___lam__1), 12, 11);
+lean_closure_set(v___f_325_, 0, v_stx_317_);
+lean_closure_set(v___f_325_, 1, v___x_323_);
+lean_closure_set(v___f_325_, 2, v_inst_312_);
+lean_closure_set(v___f_325_, 3, v_inst_314_);
+lean_closure_set(v___f_325_, 4, v_inst_316_);
+lean_closure_set(v___f_325_, 5, v_inst_315_);
+lean_closure_set(v___f_325_, 6, v_inst_313_);
+lean_closure_set(v___f_325_, 7, v_toBind_320_);
+lean_closure_set(v___f_325_, 8, v___f_324_);
+lean_closure_set(v___f_325_, 9, v_macroStack_318_);
+lean_closure_set(v___f_325_, 10, v_toPure_322_);
+v___x_326_ = lean_apply_4(v_toBind_320_, lean_box(0), lean_box(0), v_getEnv_321_, v___f_325_);
+return v___x_326_;
 }
 }
-LEAN_EXPORT lean_object* l_Lean_Elab_checkDeprecatedSyntax(lean_object* v_m_314_, lean_object* v_inst_315_, lean_object* v_inst_316_, lean_object* v_inst_317_, lean_object* v_inst_318_, lean_object* v_inst_319_, lean_object* v_inst_320_, lean_object* v_stx_321_, lean_object* v_macroStack_322_){
+LEAN_EXPORT lean_object* l_Lean_Elab_checkDeprecatedSyntax(lean_object* v_m_327_, lean_object* v_inst_328_, lean_object* v_inst_329_, lean_object* v_inst_330_, lean_object* v_inst_331_, lean_object* v_inst_332_, lean_object* v_inst_333_, lean_object* v_stx_334_, lean_object* v_macroStack_335_){
 _start:
 {
-lean_object* v___x_323_; 
-v___x_323_ = l_Lean_Elab_checkDeprecatedSyntax___redArg(v_inst_315_, v_inst_316_, v_inst_317_, v_inst_318_, v_inst_319_, v_stx_321_, v_macroStack_322_);
-return v___x_323_;
+lean_object* v___x_336_; 
+v___x_336_ = l_Lean_Elab_checkDeprecatedSyntax___redArg(v_inst_328_, v_inst_329_, v_inst_330_, v_inst_331_, v_inst_332_, v_stx_334_, v_macroStack_335_);
+return v___x_336_;
 }
 }
-LEAN_EXPORT lean_object* l_Lean_Elab_checkDeprecatedSyntax___boxed(lean_object* v_m_324_, lean_object* v_inst_325_, lean_object* v_inst_326_, lean_object* v_inst_327_, lean_object* v_inst_328_, lean_object* v_inst_329_, lean_object* v_inst_330_, lean_object* v_stx_331_, lean_object* v_macroStack_332_){
+LEAN_EXPORT lean_object* l_Lean_Elab_checkDeprecatedSyntax___boxed(lean_object* v_m_337_, lean_object* v_inst_338_, lean_object* v_inst_339_, lean_object* v_inst_340_, lean_object* v_inst_341_, lean_object* v_inst_342_, lean_object* v_inst_343_, lean_object* v_stx_344_, lean_object* v_macroStack_345_){
 _start:
 {
-lean_object* v_res_333_; 
-v_res_333_ = l_Lean_Elab_checkDeprecatedSyntax(v_m_324_, v_inst_325_, v_inst_326_, v_inst_327_, v_inst_328_, v_inst_329_, v_inst_330_, v_stx_331_, v_macroStack_332_);
-lean_dec_ref(v_inst_330_);
-return v_res_333_;
+lean_object* v_res_346_; 
+v_res_346_ = l_Lean_Elab_checkDeprecatedSyntax(v_m_337_, v_inst_338_, v_inst_339_, v_inst_340_, v_inst_341_, v_inst_342_, v_inst_343_, v_stx_344_, v_macroStack_345_);
+lean_dec_ref(v_inst_343_);
+return v_res_346_;
 }
 }
 lean_object* runtime_initialize_Lean_MonadEnv(uint8_t builtin);

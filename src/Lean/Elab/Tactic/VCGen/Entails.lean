@@ -84,7 +84,8 @@ Returns `none` if the head is neither a built-in connective nor a frame operator
 not apply.
 
 An embedded proposition `⌜p⌝` is decomposed only when the precondition is `⊤`: its `⊤`-fixed terminal
-`top_le_ofProp` fails to apply otherwise, since turning `pre ⊑ ⌜p⌝` into the subgoal `p` drops `pre`.
+`CompleteLattice.top_le_ofProp` fails to apply otherwise, since turning `pre ⊑ ⌜p⌝` into the subgoal
+`p` drops `pre`.
 -/
 public def splitLatticeOp? (goal : MVarId) (rhs : Expr) :
     VCGenM (Option (List MVarId)) := do

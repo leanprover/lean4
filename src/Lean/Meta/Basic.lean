@@ -359,6 +359,18 @@ structure SynthInstanceCacheKey where
   See issue #2522.
   -/
   synthPendingDepth : Nat
+  /--
+  The maximum result size (`synthInstance.maxSize` unless overridden by the caller). It prunes
+  answers during the search, so a result, success or failure, obtained under a different limit must
+  not be reused.
+  -/
+  maxResultSize     : Nat
+  /--
+  The definitional-equality and unfolding flags in effect for the query
+  (`Core.Context.optionFlags`). Being part of the key, the search reads them without recording;
+  other options are recorded per entry (`SynthInstanceCacheEntry.deps`).
+  -/
+  optionFlags       : OptionFlags
   deriving Hashable, BEq
 
 /-- Resulting type for `abstractMVars` -/
@@ -371,7 +383,21 @@ structure AbstractMVarsResult where
 def AbstractMVarsResult.numMVars (r : AbstractMVarsResult) : Nat :=
   r.mvars.size
 
-abbrev SynthInstanceCache := PersistentHashMap SynthInstanceCacheKey (Option AbstractMVarsResult)
+/-- A type class resolution result together with the dependencies it was computed under. -/
+structure SynthInstanceCacheEntry where
+  deps    : RecordedDeps
+  result? : Option AbstractMVarsResult
+
+/--
+Type class resolution cache. Each key holds one entry per observed set of dependencies: the search
+records what it observes as the entry's `RecordedDeps`, and a lookup only uses an entry whose
+recorded dependencies still hold in the current context. What the search never observes does not
+partition the cache. Options are currently the only recorded dependencies: the search reads them
+through `getRecordedOption` and runs with `Core.Context.isRecordingDeps` set, so an unrecorded
+option read panics.
+-/
+abbrev SynthInstanceCache :=
+  PersistentHashMap SynthInstanceCacheKey (List SynthInstanceCacheEntry)
 
 -- Key for `InferType` and `WHNF` caches
 structure ExprConfigCacheKey where
@@ -2271,7 +2297,8 @@ def instantiateLambdaWithParamInfos (e : Expr) (args : Array Expr) (cleanupAnnot
   return (res, e)
 
 def getPPContext : MetaM PPContext := do
-  return { env := (← getEnv), mctx := (← getMCtx), lctx := (← getLCtx), opts := (← getOptions),
+  -- unrestricted: message rendering only
+  return { env := (← getEnv), mctx := (← getMCtx), lctx := (← getLCtx), opts := (← getOptionsUnrestricted),
            currNamespace := (← getCurrNamespace), openDecls := (← getOpenDecls) }
 
 /-- Pretty-print the given expression. -/
@@ -2592,7 +2619,8 @@ def instantiateMVarsIfMVarApp (e : Expr) : MetaM Expr := do
     return e
 
 def instantiateMVarsProfiling (e : Expr) : MetaM Expr := do
-  profileitM Exception s!"instantiate metavars" (← getOptions) do
+  -- unrestricted: profiler collection only
+  profileitM Exception s!"instantiate metavars" (← getOptionsUnrestricted) do
   withTraceNode `Meta.instantiateMVars (fun _ => pure e) do
     instantiateMVars e
 
@@ -2751,7 +2779,8 @@ def realizeConst (forConst : Name) (constName : Name) (realize : MetaM Unit) :
     let exAct ← Core.wrapAsyncAsSnapshot (cancelTk? := none) fun
       | none => return
       | some ex => do
-        logError <| ex.toMessageData (← getOptions)
+        -- unrestricted: message rendering only
+        logError <| ex.toMessageData (← getOptionsUnrestricted)
     Core.logSnapshotTask {
       stx? := none
       task := (← BaseIO.mapTask (t := exTask) exAct)

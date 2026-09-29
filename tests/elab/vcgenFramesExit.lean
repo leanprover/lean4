@@ -1,6 +1,5 @@
 import Lean
 import Std.WP
-import Std.Tactic.Do
 
 /-!
 Tests for framing the exception channel.

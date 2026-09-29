@@ -22,15 +22,18 @@ public section
 namespace Lean.Meta.Grind.Arith.Cutsat
 deriving instance Hashable for Int.Internal.Linear.Expr
 
-/--
+/-!
 State for the cutsat proof construction monad.
 
 The final proof may reference only a small subset of the cutsat variables.
 Thus, we normalize the variables and remove any that are unused from the context.
 The variable order must be preserved, as the cutsat auxiliary theorems assume the polynomials are ordered.
 
-Another complication is that cutsat may reorder variables during the search.
-This is why we maintain two fields: `vars` and `vars'`.
+Another complication is that cutsat may reorder variables during the search, possibly
+several times. Each reordering starts a new epoch (see `State.varsHistory`), and a `.reorder c`
+justification is the delimiter into the previous epoch: `c` and its dependencies use the
+variable order of the epoch before the reordering. Every epoch has its own variable context
+and declarations.
 
 We create auxiliary free variables for variables, polynomials, and expressions.
 Cutsat also uses the ring solver to normalize nonlinear polynomials.
@@ -38,66 +41,62 @@ Cutsat also uses the ring solver to normalize nonlinear polynomials.
 Remark: after normalization variable declarations are expanded. We do not create let-declarations for them
 since they are just a numeral.
 
-Remark: if cutsat did not reorder variables during the search, then the prime variables and declarations
-are not used.
-
-Remark: recall that the `.reorder` proof objects are delimiters for indicating whether regular variables and
-declarations or the prime ones should be used.
 -/
+/-- Declarations of one variable-order epoch. -/
+private structure EpochDecls where
+  /-- Map from used variables to (temporary) free variable. -/
+  varDecls  : Std.HashMap Var Expr := {}
+  /-- Map from used polynomials to free variable. -/
+  polyDecls : Std.HashMap Poly Expr := {}
+  /-- Map from used cutsat expressions to free variable. -/
+  exprDecls : Std.HashMap Int.Internal.Linear.Expr Expr := {}
+  deriving Inhabited
+
 private structure ProofM.State where
   /-- Cache for visited cutsat proof terms. The key is the pointer address. -/
   cache         : Std.HashMap UInt64 Expr := {}
-  /-- Map from used variables to (temporary) free variable. -/
-  varDecls      : Std.HashMap Var Expr := {}
-  /-- Map from used polynomials to free variable. -/
-  polyDecls     : Std.HashMap Poly Expr := {}
-  /-- Map from used cutsat expressions to free variable. -/
-  exprDecls     : Std.HashMap Int.Internal.Linear.Expr Expr := {}
-  /-- Map from used variables (before reordering) to (temporary) free variable. -/
-  varDecls'     : Std.HashMap Var Expr := {}
-  /-- Map from used polynomials (before reordering) to free variable. -/
-  polyDecls'    : Std.HashMap Poly Expr := {}
-  /-- Map from used cutsat expressions (before reordering) to free variable. -/
-  exprDecls'    : Std.HashMap Int.Internal.Linear.Expr Expr := {}
+  /-- Declarations of each epoch, indexed by epoch. The last entry is the current order. -/
+  decls         : Array EpochDecls := #[]
   /-- Map from used ring polynomials to free variable. -/
   ringPolyDecls : Std.HashMap CommRing.Poly Expr := {}
   /-- Map from used ring expressions to free variable. -/
   ringExprDecls : Std.HashMap CommRing.RingExpr Expr := {}
 
 private structure ProofM.Context where
-  ctx       : Expr
-  /-- Variables before reordering -/
-  ctx'      : Expr
+  /-- Variable context of each epoch, indexed by epoch. -/
+  ctxs      : Array Expr
+  /-- Epoch of the justification being processed. Each `.reorder c` steps into the previous one. -/
+  epoch     : Nat
   ringCtx   : Expr
-  /--
-  `unordered` is `true` if we entered a `.reorder c` justification. The variables in `c` and
-  its dependencies are unordered.
-  -/
-  unordered : Bool := false
 
 /-- Auxiliary monad for constructing cutsat proofs. -/
 private abbrev ProofM := ReaderT ProofM.Context (StateRefT ProofM.State GoalM)
 
 /-- Returns a Lean expression representing the variable context used to construct cutsat proofs. -/
 private def getContext : ProofM Expr := do
-  return (← read).ctx
+  return (← read).ctxs[(← read).epoch]!
 
 /--
-Execute `k` with `unordered := true`, and the unordered variable context.
-We use this combinator to process `.reorder c` justifications.
+Executes `k` in the previous epoch. We use this combinator to process `.reorder c`
+justifications: `c` uses the variable order of the epoch before the reordering.
 -/
-private def withUnordered (k : ProofM α) : ProofM α := do
-  withReader (fun c => { c with ctx := c.ctx', unordered := true }) k
+private def withPrevEpoch (k : ProofM α) : ProofM α := do
+  withReader (fun c => { c with epoch := c.epoch - 1 }) k
+
+/-- Returns the variables of the current epoch. -/
+private def getCurrVars : ProofM (PArray Expr) := do
+  let epoch := (← read).epoch
+  let s ← get'
+  if epoch == s.varsHistory.size then return s.vars else return s.varsHistory[epoch]!.1
 
 /--
-Returns the mapping from expressions to cutsat variables.
+Returns the mapping from expressions to cutsat variables of the current epoch.
 These are variables before the renaming them.
 -/
 private def getVarMap : ProofM (PHashMap ExprPtr Var) := do
-  if (← read).unordered then
-    return (← get').varMap'
-  else
-    return (← get').varMap
+  let epoch := (← read).epoch
+  let s ← get'
+  if epoch == s.varsHistory.size then return s.varMap else return s.varsHistory[epoch]!.2
 
 private def getVarOf (e : Expr) : ProofM Var := do
   let some x := (← getVarMap).find? { expr := e } | throwError "`grind` internal error, missing cutsat variable{indentExpr e}"
@@ -119,23 +118,25 @@ local macro "declare! " decls:ident a:ident : term =>
        modify fun s => { s with $decls:ident := (s.$decls).insert $a x };
        return x)
 
-private def mkVarDecl (x : Var) : ProofM Expr := do
-  if (← read).unordered then
-    declare! varDecls' x
-  else
-    declare! varDecls x
+/-- Returns the free variable declared for `a` in the current epoch, creating it if needed. -/
+private def declareInEpoch [BEq α] [Hashable α]
+    (proj : EpochDecls → Std.HashMap α Expr) (upd : EpochDecls → Std.HashMap α Expr → EpochDecls)
+    (a : α) : ProofM Expr := do
+  let epoch := (← read).epoch
+  if let some x := (proj (← get).decls[epoch]!)[a]? then
+    return x
+  let x := mkFVar (← mkFreshFVarId)
+  modify fun s => { s with decls := s.decls.modify epoch fun ds => upd ds ((proj ds).insert a x) }
+  return x
 
-private def mkPolyDecl (p : Poly) : ProofM Expr := do
-  if (← read).unordered then
-    declare! polyDecls' p
-  else
-    declare! polyDecls p
+private def mkVarDecl (x : Var) : ProofM Expr :=
+  declareInEpoch (·.varDecls) (fun ds m => { ds with varDecls := m }) x
 
-private def mkExprDecl (e : Int.Internal.Linear.Expr) : ProofM Expr := do
-  if (← read).unordered then
-    declare! exprDecls' e
-  else
-    declare! exprDecls e
+private def mkPolyDecl (p : Poly) : ProofM Expr :=
+  declareInEpoch (·.polyDecls) (fun ds m => { ds with polyDecls := m }) p
+
+private def mkExprDecl (e : Int.Internal.Linear.Expr) : ProofM Expr :=
+  declareInEpoch (·.exprDecls) (fun ds m => { ds with exprDecls := m }) e
 
 private def mkRingPolyDecl (p : CommRing.Poly) : ProofM Expr := do
   declare! ringPolyDecls p
@@ -149,11 +150,17 @@ private def toContextExprCore (vars : Array Expr) (type : Expr) : MetaM Expr :=
   else
     RArray.toExpr type id (RArray.leaf (mkIntLit 0))
 
--- Remark: the `prime` flag is used just to distinguish variables before/after reordering.
--- Recall that we keep two contexts. The "prime" one is the one **before** reordering.
+/--
+Wraps `h` with the declarations of one epoch: `epoch? = none` is the current order, and
+`epoch? = some i` a superseded one, whose declarations are suffixed with `i`.
+-/
 private def mkContext
-    (ctxVar : Expr) (prime : Bool) (vars : PArray Expr) (varDecls : Std.HashMap Var Expr) (polyDecls : Std.HashMap Poly Expr) (exprDecls : Std.HashMap Int.Internal.Linear.Expr Expr)
+    (ctxVar : Expr) (epoch? : Option Nat) (vars : PArray Expr) (decls : EpochDecls)
     (h : Expr) : GoalM Expr := do
+  let { varDecls, polyDecls, exprDecls } := decls
+  let mkName (n : Name) : Name := match epoch? with
+    | none => n
+    | some i => n.appendIndexAfter i
   let usedVars     := collectMapVars varDecls collectVar >> collectMapVars polyDecls (·.collectVars) >> collectMapVars exprDecls (·.collectVars) <| {}
   let vars'        := usedVars.toArray
   let varRename    := mkVarRename vars'
@@ -161,13 +168,13 @@ private def mkContext
   let varFVars     := vars'.map fun x => varDecls[x]?.getD default
   let varIdsAsExpr := List.range vars'.size |>.toArray |>.map toExpr
   let h := h.replaceFVars varFVars varIdsAsExpr
-  let h := mkLetOfMap exprDecls h (cond prime `e' `e) (mkConst ``Int.Internal.Linear.Expr) fun e => toExpr <| e.renameVars varRename
-  let h := mkLetOfMap polyDecls h (cond prime `p' `p) (mkConst ``Int.Internal.Linear.Poly) fun p => toExpr <| p.renameVars varRename
+  let h := mkLetOfMap exprDecls h (mkName `e) (mkConst ``Int.Internal.Linear.Expr) fun e => toExpr <| e.renameVars varRename
+  let h := mkLetOfMap polyDecls h (mkName `p) (mkConst ``Int.Internal.Linear.Poly) fun p => toExpr <| p.renameVars varRename
   let h := h.abstract #[ctxVar]
   if h.hasLooseBVars then
     let ctxType := mkApp (mkConst ``RArray [Level.zero]) Int.mkType
     let ctxVal ← toContextExprCore vars Int.mkType
-    return .letE (cond prime `ctx' `ctx) ctxType ctxVal h (nondep := false)
+    return .letE (mkName `ctx) ctxType ctxVal h (nondep := false)
   else
     return h
 
@@ -190,16 +197,21 @@ private def mkRingContext (h : Expr) : ProofM Expr := do
     return h
 
 private def withProofContext (x : ProofM Expr) : GoalM Expr := do
-  let ctx := mkFVar (← mkFreshFVarId)
-  let ctx' := mkFVar (← mkFreshFVarId)
+  let numEpochs := (← get').varsHistory.size + 1
+  let mut ctxs := #[]
+  for _ in [:numEpochs] do
+    ctxs := ctxs.push (mkFVar (← mkFreshFVarId))
   let ringCtx := mkFVar (← mkFreshFVarId)
-  go { ctx, ctx', ringCtx } |>.run' {}
+  go |>.run { ctxs, epoch := numEpochs - 1, ringCtx } |>.run' { decls := Array.replicate numEpochs {} }
 where
   go : ProofM Expr := do
-    let h ← x
-    let h ← mkRingContext h
-    let h ← mkContext (← read).ctx' (prime := true) (← get').vars' (← get).varDecls' (← get).polyDecls' (← get).exprDecls' h
-    mkContext (← read).ctx (prime := false) (← get').vars (← get).varDecls (← get).polyDecls (← get).exprDecls h
+    let mut h ← x
+    h ← mkRingContext h
+    let ctxs := (← read).ctxs
+    let history := (← get').varsHistory
+    for i in [:history.size] do
+      h ← mkContext ctxs[i]! (some i) history[i]!.1 (← get).decls[i]! h
+    mkContext ctxs.back! none (← get').vars (← get).decls.back! h
 
 /--
 Returns a Lean expression representing the auxiliary `CommRing` variable context needed for normalizing
@@ -213,13 +225,7 @@ private def DvdCnstr.get_d_a (c : DvdCnstr) : GoalM (Int × Int) := do
   let .add a _ _ := c.p | c.throwUnexpected
   return (d, a)
 
-private def getCurrVars : ProofM (PArray Expr) := do
-  if (← read).unordered then pure (← get').vars' else getVars
-
-/--
-Similar to `denoteExpr'`, but takes into account the `unordered` flag in the `ProofM` context.
-Recall that if `unordered` is `true`, we should use `vars'`
--/
+/-- Similar to `denoteExpr'`, but uses the variables of the current epoch. -/
 private def _root_.Int.Internal.Linear.Poly.denoteExprUsingCurrVars (p : Poly) : ProofM Expr := do
   let vars ← getCurrVars
   return (← p.denoteExpr (vars[·]!))
@@ -363,7 +369,7 @@ private partial def EqCnstr.toExprProofImpl (c' : EqCnstr) : ProofM Expr := cach
   | .ofZeroDvd c =>
     return mkApp3 (mkConst ``Int.Internal.Linear.eq_of_zero_dvd)
       (← getContext) (← mkPolyDecl c.p) (← c.toExprProof)
-  | .reorder c => withUnordered <| c.toExprProof
+  | .reorder c => withPrevEpoch <| c.toExprProof
   | .commRingNorm c e p =>
     let h := mkApp4 (mkConst ``Grind.CommRing.norm_int) (← getRingContext) (← mkRingExprDecl e) (← mkRingPolyDecl p) eagerReflBoolTrue
     return mkApp5 (mkConst ``Int.Internal.Linear.eq_norm_poly) (← getContext) (← mkPolyDecl c.p) (← mkPolyDecl c'.p) h (← c.toExprProof)
@@ -443,7 +449,7 @@ private partial def DvdCnstr.toExprProof (c' : DvdCnstr) : ProofM Expr := cachin
     return mkApp10 (mkConst thmName)
       (← getContext) (← mkPolyDecl p₁) (← mkPolyDecl p₂) (← mkPolyDecl c₃.p) (toExpr c₃.d) (toExpr s.k) (toExpr c'.d) (← mkPolyDecl c'.p)
       (← s.toExprProof) eagerReflBoolTrue
-  | .reorder c => withUnordered <| c.toExprProof
+  | .reorder c => withPrevEpoch <| c.toExprProof
   | .commRingNorm c e p =>
     let h := mkApp4 (mkConst ``Grind.CommRing.norm_int) (← getRingContext) (← mkRingExprDecl e) (← mkRingPolyDecl p) eagerReflBoolTrue
     return mkApp6 (mkConst ``Int.Internal.Linear.dvd_norm_poly) (← getContext) (toExpr c.d) (← mkPolyDecl c.p) (← mkPolyDecl c'.p) h (← c.toExprProof)
@@ -522,7 +528,7 @@ private partial def LeCnstr.toExprProof (c' : LeCnstr) : ProofM Expr := caching 
       let thmName := if left then ``Int.Internal.Linear.cooper_dvd_left_split_ineq else ``Int.Internal.Linear.cooper_dvd_right_split_ineq
       return mkApp10 (mkConst thmName)
         (← getContext) (← mkPolyDecl p₁) (← mkPolyDecl p₂) (← mkPolyDecl c₃.p) (toExpr c₃.d) (toExpr s.k) (toExpr coeff) (← mkPolyDecl c'.p) (← s.toExprProof) eagerReflBoolTrue
-  | .reorder c => withUnordered <| c.toExprProof
+  | .reorder c => withPrevEpoch <| c.toExprProof
   | .commRingNorm c e p =>
     let h := mkApp4 (mkConst ``Grind.CommRing.norm_int) (← getRingContext) (← mkRingExprDecl e) (← mkRingPolyDecl p) eagerReflBoolTrue
     return mkApp5 (mkConst ``Int.Internal.Linear.le_norm_poly) (← getContext) (← mkPolyDecl c.p) (← mkPolyDecl c'.p) h (← c.toExprProof)
@@ -548,7 +554,7 @@ private partial def DiseqCnstr.toExprProof (c' : DiseqCnstr) : ProofM Expr := ca
     return mkApp8 (mkConst ``Int.Internal.Linear.eq_diseq_subst)
       (← getContext) (← mkVarDecl x) (← mkPolyDecl c₁.p) (← mkPolyDecl c₂.p) (← mkPolyDecl c'.p)
       eagerReflBoolTrue (← c₁.toExprProof) (← c₂.toExprProof)
-  | .reorder c => withUnordered <| c.toExprProof
+  | .reorder c => withPrevEpoch <| c.toExprProof
   | .commRingNorm c e p =>
     let h := mkApp4 (mkConst ``Grind.CommRing.norm_int) (← getRingContext) (← mkRingExprDecl e) (← mkRingPolyDecl p) eagerReflBoolTrue
     return mkApp5 (mkConst ``Int.Internal.Linear.diseq_norm_poly) (← getContext) (← mkPolyDecl c.p) (← mkPolyDecl c'.p) h (← c.toExprProof)

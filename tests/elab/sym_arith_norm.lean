@@ -15,15 +15,20 @@ def getDefValue (n : Name) : MetaM Expr := do
     | throwError "expected definition: {n}"
   return info.value
 
-/-- Normalizes the body of `n` (atoms simplified by `simpAtom`), prints the result, and kernel-checks the proof. -/
-def test (n : Name) (simpAtom : Expr → SymM Sym.Simp.Result := fun _ => return .rfl) : SymM Unit := do
+/--
+Normalizes the body of `n` (atoms simplified by `simpAtom`, side conditions proved by
+`discharge?`), prints the result, and kernel-checks the proof.
+-/
+def test (n : Name) (simpAtom : Expr → SymM Sym.Simp.Result := fun _ => return .rfl)
+    (discharge? : Expr → SymM (Option Expr) := fun _ => return none) : SymM Unit := do
   let e ← preprocessExpr (← getDefValue n)
-  match (← normalize? e simpAtom) with
+  let cd (b : Bool) : String := if b then " (context-dependent)" else ""
+  match (← normalize? e simpAtom discharge?) with
   | .rfl false _ => logInfo m!"{n}: unchanged"
-  | .rfl true _ => logInfo m!"{n}: {e} (normal)"
-  | .step e' h done _ =>
+  | .rfl true b => logInfo m!"{n}: {e} (normal){cd b}"
+  | .step e' h done b =>
     addDecl <| .thmDecl { name := n ++ `norm, levelParams := [], type := ← mkEq e e', value := h }
-    logInfo m!"{n}: {e'}{if done then "" else " (not done)"}"
+    logInfo m!"{n}: {e'}{if done then "" else " (not done)"}{cd b}"
 
 opaque a : Int
 opaque b : Int
@@ -236,6 +241,107 @@ def sr1 : Prop := "a" ++ "b" = "ab"
 #guard_msgs in
 run_meta SymM.run do
   test ``sr1
+
+/-! ## Fields of characteristic zero: numeral inverses are rational coefficients -/
+
+opaque r : Rat
+opaque s : Rat
+
+def f1 : Rat := r / 2 + r / 2
+def f2 : Rat := r / 2 + s / 3
+def f3 : Rat := r / 2 * 2
+def f4 : Rat := (r / 2) ^ 2
+def f5 : Rat := (1 : Rat) / 2 + 1 / 3
+def f6 : Rat := r / (-2)
+def f7 : Rat := (r + s) / 2 * (r - s) / 2
+def f8 : Rat := r * 2⁻¹ + s * 3⁻¹
+def f9 : Rat := (3 * r + 2 * s) * 6⁻¹
+def f10 : Rat := r / 6 + r / 3
+def fr1 : Prop := r / 2 = s / 3
+def fr2 : Prop := r / 2 ≤ s
+def fr3 : Prop := r / 2 < r
+def fr4 : Prop := r / 3 + s / 3 = (r + s) / 3
+
+/--
+info: f1: r
+---
+info: f2: (3 * r + 2 * s) * 6⁻¹
+---
+info: f3: r
+---
+info: f4: r ^ 2 * 4⁻¹
+---
+info: f5: 5 * 6⁻¹
+---
+info: f6: -1 * r * 2⁻¹
+---
+info: f7: (r ^ 2 + -1 * s ^ 2) * 4⁻¹
+---
+info: f8: (3 * r + 2 * s) * 6⁻¹
+---
+info: f9: (3 * r + 2 * s) * 6⁻¹ (normal)
+---
+info: f10: r * 2⁻¹
+---
+info: fr1: 3 * r = 2 * s
+---
+info: fr2: r ≤ 2 * s
+---
+info: fr3: 0 < r
+---
+info: fr4: 0 = 0
+-/
+#guard_msgs in
+run_meta SymM.run do
+  for n in [``f1, ``f2, ``f3, ``f4, ``f5, ``f6, ``f7, ``f8, ``f9, ``f10, ``fr1, ``fr2, ``fr3, ``fr4] do
+    test n
+
+/-! ## Fields: `x * x⁻¹` is cancelled when the side condition `x ≠ 0` is discharged -/
+
+axiom r_ne_zero : r ≠ 0
+
+/-- Proves `r ≠ 0` and nothing else. -/
+def dischargeR (p : Expr) : SymM (Option Expr) := do
+  let_expr Ne _ x _ := p | return none
+  if x == mkConst ``r then return some (mkConst ``r_ne_zero) else return none
+
+def fa1 : Rat := r / r
+def fa2 : Rat := r * s / r
+def fa3 : Rat := r ^ 3 * r⁻¹
+def fa4 : Rat := s / s
+def fa5 : Rat := r / (2 * r)
+def fa6 : Rat := r⁻¹ * s
+-- The inverse of a sum is an atom; its cancellation is left to `grind`.
+def fa7 : Rat := (r + s) / (r + s)
+def far1 : Prop := r / r = 1
+def far2 : Prop := r * s / r ≤ s
+def far3 : Prop := s / s = 1
+
+/--
+info: fa1: 1 (context-dependent)
+---
+info: fa2: s (context-dependent)
+---
+info: fa3: r ^ 2 (context-dependent)
+---
+info: fa4: s * s⁻¹ (context-dependent)
+---
+info: fa5: 2⁻¹ (context-dependent)
+---
+info: fa6: s * r⁻¹
+---
+info: fa7: r * (r + s)⁻¹ + s * (r + s)⁻¹
+---
+info: far1: 0 = 0 (context-dependent)
+---
+info: far2: 0 ≤ 0 (context-dependent)
+---
+info: far3: s * s⁻¹ = 1 (context-dependent)
+-/
+#guard_msgs in
+run_meta SymM.run do
+  for n in [``fa1, ``fa2, ``fa3, ``fa4, ``fa5, ``fa6, ``fa7, ``far1, ``far2, ``far3] do
+    test n (discharge? := dischargeR)
 
 /-! ## Atoms are simplified by the callback before normalization -/
 

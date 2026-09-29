@@ -36,8 +36,8 @@ LEAN_EXPORT lean_object* l_Lean_Elab_Tactic_VCGen_WPApp_Value(lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Elab_Tactic_VCGen_WPApp_Value___boxed(lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Elab_Tactic_VCGen_WPApp_Pred(lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Elab_Tactic_VCGen_WPApp_Pred___boxed(lean_object*);
-LEAN_EXPORT lean_object* l_Lean_Elab_Tactic_VCGen_WPApp_EPred(lean_object*);
-LEAN_EXPORT lean_object* l_Lean_Elab_Tactic_VCGen_WPApp_EPred___boxed(lean_object*);
+LEAN_EXPORT lean_object* l_Lean_Elab_Tactic_VCGen_WPApp_EPosts(lean_object*);
+LEAN_EXPORT lean_object* l_Lean_Elab_Tactic_VCGen_WPApp_EPosts___boxed(lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Elab_Tactic_VCGen_WPApp_instWP(lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Elab_Tactic_VCGen_WPApp_instWP___boxed(lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Elab_Tactic_VCGen_WPApp_prog(lean_object*);
@@ -155,7 +155,7 @@ lean_dec_ref(v_info_29_);
 return v_res_30_;
 }
 }
-LEAN_EXPORT lean_object* l_Lean_Elab_Tactic_VCGen_WPApp_EPred(lean_object* v_info_31_){
+LEAN_EXPORT lean_object* l_Lean_Elab_Tactic_VCGen_WPApp_EPosts(lean_object* v_info_31_){
 _start:
 {
 lean_object* v_args_32_; lean_object* v___x_33_; lean_object* v___x_34_; lean_object* v___x_35_; 
@@ -167,11 +167,11 @@ lean_inc(v___x_35_);
 return v___x_35_;
 }
 }
-LEAN_EXPORT lean_object* l_Lean_Elab_Tactic_VCGen_WPApp_EPred___boxed(lean_object* v_info_36_){
+LEAN_EXPORT lean_object* l_Lean_Elab_Tactic_VCGen_WPApp_EPosts___boxed(lean_object* v_info_36_){
 _start:
 {
 lean_object* v_res_37_; 
-v_res_37_ = l_Lean_Elab_Tactic_VCGen_WPApp_EPred(v_info_36_);
+v_res_37_ = l_Lean_Elab_Tactic_VCGen_WPApp_EPosts(v_info_36_);
 lean_dec_ref(v_info_36_);
 return v_res_37_;
 }

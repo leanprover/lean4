@@ -2928,8 +2928,11 @@ theorem append_of_zero_width (x : BitVec w) (y : BitVec v) (h : w = 0) :
   simp [← getLsbD_eq_getElem, getLsbD_append]
   omega
 
-set_option backward.isDefEq.respectTransparency false in
 @[grind =]
+theorem toNat_append_eq_mul_add (x : BitVec m) (y : BitVec n) :
+    (x ++ y).toNat = x.toNat * 2 ^ n + y.toNat := by
+  rw [toNat_append, Nat.shiftLeft_eq, Nat.mul_comm, ← Nat.two_pow_add_eq_or_of_lt y.isLt]
+
 theorem toInt_append {x : BitVec n} {y : BitVec m} :
     (x ++ y).toInt = if n == 0 then y.toInt else (2 ^ m) * x.toInt + y.toNat := by
   by_cases n0 : n = 0
@@ -4388,6 +4391,20 @@ protected theorem pow_succ {x : BitVec w} : x ^ (n + 1) = x ^ n * x := rfl
 
 @[simp]
 protected theorem pow_one {x : BitVec w} : x ^ 1 = x := by simp [BitVec.pow_succ]
+
+@[simp, bitvec_to_nat] theorem toNat_pow (x : BitVec w) (n : Nat) :
+    (x ^ n).toNat = x.toNat ^ n % 2 ^ w := by
+  induction n with
+  | zero => simp
+  | succ n ih => rw [BitVec.pow_succ, toNat_mul, ih, Nat.pow_succ, Nat.mod_mul_mod]
+
+@[simp, bitvec_to_nat] theorem toInt_pow (x : BitVec w) (n : Nat) :
+    (x ^ n).toInt = (x.toInt ^ n).bmod (2 ^ w) := by
+  induction n with
+  | zero =>
+    simp only [BitVec.pow_zero, Int.pow_zero, toInt_eq_toNat_bmod, toNat_ofNat, Int.natCast_emod,
+      Int.emod_bmod, Int.natCast_one]
+  | succ n ih => rw [BitVec.pow_succ, toInt_mul, ih, Int.pow_succ, Int.bmod_mul_bmod]
 
 protected theorem pow_add {x : BitVec w} {n m : Nat}: x ^ (n + m) = (x ^ n) * (x ^ m):= by
   induction m with

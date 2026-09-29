@@ -56,3 +56,35 @@ attribute [grind hom]
 
 @[grind hom] theorem Lean.Grind.Int.mul_emod_emod (m n k : Int) : m * (n % k) % k = m * n % k := by
   rw [Int.mul_emod, Int.emod_emod, ← Int.mul_emod]
+
+/-!
+Support theorems for the builtin `[grind hom]` simproc that rewrites `&&&` with a
+literal mask of the form `1…10…0` over `Nat`. The simproc instantiates `n` and `k`
+from the mask, and the hypotheses are discharged by `rfl` (the kernel evaluates the
+powers). The results use `%`, `/`, and `*` by literals, which `cutsat` supports.
+-/
+
+theorem Lean.Grind.Nat.and_eq_mod (x c m n : Nat) (h₁ : c = 2^n - 1) (h₂ : m = 2^n) :
+    x &&& c = x % m := by
+  subst h₁ h₂; exact Nat.and_two_pow_sub_one_eq_mod x n
+
+theorem Lean.Grind.Nat.ones_and_eq_mod (x c m n : Nat) (h₁ : c = 2^n - 1) (h₂ : m = 2^n) :
+    c &&& x = x % m := by
+  rw [Nat.and_comm]; exact and_eq_mod x c m n h₁ h₂
+
+theorem Lean.Grind.Nat.and_eq_div_mod_mul (x c p q k n : Nat)
+    (h₁ : c = (2^n - 1) * 2^k) (h₂ : p = 2^k) (h₃ : q = 2^n) :
+    x &&& c = x / p % q * p := by
+  subst h₁ h₂ h₃
+  apply Nat.eq_of_testBit_eq
+  intro i
+  simp only [Nat.testBit_and, Nat.testBit_mul_two_pow, Nat.testBit_two_pow_sub_one,
+    Nat.testBit_mod_two_pow, Nat.testBit_div_two_pow]
+  cases Nat.lt_or_ge i k with
+  | inl h => simp [Nat.not_le_of_lt h]
+  | inr h => simp [h, Nat.sub_add_cancel h, Bool.and_comm]
+
+theorem Lean.Grind.Nat.ones_zeros_and_eq_div_mod_mul (x c p q k n : Nat)
+    (h₁ : c = (2^n - 1) * 2^k) (h₂ : p = 2^k) (h₃ : q = 2^n) :
+    c &&& x = x / p % q * p := by
+  rw [Nat.and_comm]; exact and_eq_div_mod_mul x c p q k n h₁ h₂ h₃

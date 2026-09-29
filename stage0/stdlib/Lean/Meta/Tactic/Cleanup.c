@@ -50,7 +50,7 @@ size_t lean_usize_mul(size_t, size_t);
 uint8_t lean_usize_dec_lt(size_t, size_t);
 lean_object* lean_array_uget_borrowed(lean_object*, size_t);
 lean_object* l_Lean_LocalDecl_fvarId(lean_object*);
-lean_object* lean_local_ctx_erase(lean_object*, lean_object*);
+lean_object* l_Lean_LocalContext_erase(lean_object*, lean_object*);
 size_t lean_array_size(lean_object*);
 uint8_t l_Lean_Expr_hasFVar(lean_object*);
 lean_object* l___private_Lean_MetavarContext_0__Lean_DependsOn_dep_visit(lean_object*, lean_object*, lean_object*, lean_object*);
@@ -5141,7 +5141,8 @@ v___x_1468_ = l_Std_DTreeMap_Internal_Impl_contains___at___00__private_Lean_Meta
 if (v___x_1468_ == 0)
 {
 lean_object* v___x_1469_; 
-v___x_1469_ = lean_local_ctx_erase(v_snd_1452_, v___x_1467_);
+v___x_1469_ = l_Lean_LocalContext_erase(v_snd_1452_, v___x_1467_);
+lean_dec(v___x_1467_);
 v_a_1458_ = v___x_1469_;
 goto v___jp_1457_;
 }
@@ -5252,7 +5253,8 @@ v___x_1509_ = l_Std_DTreeMap_Internal_Impl_contains___at___00__private_Lean_Meta
 if (v___x_1509_ == 0)
 {
 lean_object* v___x_1510_; 
-v___x_1510_ = lean_local_ctx_erase(v_snd_1493_, v___x_1508_);
+v___x_1510_ = l_Lean_LocalContext_erase(v_snd_1493_, v___x_1508_);
+lean_dec(v___x_1508_);
 v_a_1499_ = v___x_1510_;
 goto v___jp_1498_;
 }
@@ -5857,7 +5859,8 @@ v___x_1690_ = l_Std_DTreeMap_Internal_Impl_contains___at___00__private_Lean_Meta
 if (v___x_1690_ == 0)
 {
 lean_object* v___x_1691_; 
-v___x_1691_ = lean_local_ctx_erase(v_snd_1674_, v___x_1689_);
+v___x_1691_ = l_Lean_LocalContext_erase(v_snd_1674_, v___x_1689_);
+lean_dec(v___x_1689_);
 v_a_1680_ = v___x_1691_;
 goto v___jp_1679_;
 }
@@ -5968,7 +5971,8 @@ v___x_1731_ = l_Std_DTreeMap_Internal_Impl_contains___at___00__private_Lean_Meta
 if (v___x_1731_ == 0)
 {
 lean_object* v___x_1732_; 
-v___x_1732_ = lean_local_ctx_erase(v_snd_1715_, v___x_1730_);
+v___x_1732_ = l_Lean_LocalContext_erase(v_snd_1715_, v___x_1730_);
+lean_dec(v___x_1730_);
 v_a_1721_ = v___x_1732_;
 goto v___jp_1720_;
 }

@@ -128,8 +128,8 @@ static const lean_string_object l_Lean_DataValue_str___closed__0_value = {.m_hea
 static const lean_object* l_Lean_DataValue_str___closed__0 = (const lean_object*)&l_Lean_DataValue_str___closed__0_value;
 static const lean_string_object l_Lean_DataValue_str___closed__1_value = {.m_header = {.m_rc = 0, .m_cs_sz = 0, .m_other = 0, .m_tag = 249}, .m_size = 5, .m_capacity = 5, .m_length = 4, .m_data = "true"};
 static const lean_object* l_Lean_DataValue_str___closed__1 = (const lean_object*)&l_Lean_DataValue_str___closed__1_value;
-LEAN_EXPORT lean_object* lean_data_value_to_string(lean_object*);
-static const lean_closure_object l_Lean_instToStringDataValue___closed__0_value = {.m_header = {.m_rc = 0, .m_cs_sz = sizeof(lean_closure_object) + sizeof(void*)*0, .m_other = 0, .m_tag = 245}, .m_fun = (void*)lean_data_value_to_string, .m_arity = 1, .m_num_fixed = 0, .m_objs = {} };
+LEAN_EXPORT lean_object* l_Lean_DataValue_str(lean_object*);
+static const lean_closure_object l_Lean_instToStringDataValue___closed__0_value = {.m_header = {.m_rc = 0, .m_cs_sz = sizeof(lean_closure_object) + sizeof(void*)*0, .m_other = 0, .m_tag = 245}, .m_fun = (void*)l_Lean_DataValue_str, .m_arity = 1, .m_num_fixed = 0, .m_objs = {} };
 static const lean_object* l_Lean_instToStringDataValue___closed__0 = (const lean_object*)&l_Lean_instToStringDataValue___closed__0_value;
 LEAN_EXPORT const lean_object* l_Lean_instToStringDataValue = (const lean_object*)&l_Lean_instToStringDataValue___closed__0_value;
 LEAN_EXPORT lean_object* l_Lean_instCoeStringDataValue___lam__0(lean_object*);
@@ -1336,7 +1336,7 @@ v_r_320_ = lean_box(v_res_319_);
 return v_r_320_;
 }
 }
-LEAN_EXPORT lean_object* lean_data_value_to_string(lean_object* v_x_323_){
+LEAN_EXPORT lean_object* l_Lean_DataValue_str(lean_object* v_x_323_){
 _start:
 {
 switch(lean_obj_tag(v_x_323_))

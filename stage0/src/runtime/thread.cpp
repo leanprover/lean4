@@ -30,26 +30,6 @@ Author: Leonardo de Moura
 #endif
 
 namespace lean {
-static std::vector<std::function<void()>> * g_thread_local_reset_fns;
-
-static void initialize_thread_local_reset_fns() {
-    g_thread_local_reset_fns = new std::vector<std::function<void()>>();
-}
-
-static void finalize_thread_local_reset_fns() {
-    delete g_thread_local_reset_fns;
-}
-
-void register_thread_local_reset_fn(std::function<void()> fn) {
-    g_thread_local_reset_fns->push_back(fn);
-}
-
-void reset_thread_local() {
-    for (std::function<void()> const & fn : *g_thread_local_reset_fns) {
-        fn();
-    }
-}
-
 using runnable = std::function<void()>;
 
 extern "C" LEAN_EXPORT void lean_initialize_thread() {
@@ -61,7 +41,6 @@ extern "C" LEAN_EXPORT void lean_initialize_thread() {
 
 extern "C" LEAN_EXPORT void lean_finalize_thread() {
     run_thread_finalizers();
-    run_post_thread_finalizers();
 }
 
 static void thread_main(void * p) {
@@ -201,16 +180,9 @@ extern "C" LEAN_EXPORT lean_object * lean_run_main(lean_object * (*main_fn)(int,
     return res;
 }
 
-LEAN_THREAD_VALUE(bool, g_finalizing, false);
-
-bool in_thread_finalization() {
-    return g_finalizing;
-}
-
 typedef std::vector<std::pair<thread_finalizer, void*>> thread_finalizers;
 
 void run_thread_finalizers_core(thread_finalizers & fns) {
-    g_finalizing = true;
     unsigned i = fns.size();
     while (i > 0) {
         --i;
@@ -221,7 +193,6 @@ void run_thread_finalizers_core(thread_finalizers & fns) {
 }
 
 LEAN_THREAD_PTR(thread_finalizers, g_finalizers);
-LEAN_THREAD_PTR(thread_finalizers, g_post_finalizers);
 
 void delete_thread_finalizer_manager() {}
 
@@ -229,12 +200,6 @@ void register_thread_finalizer(thread_finalizer fn, void * p) {
     if (!g_finalizers)
         g_finalizers = new thread_finalizers();
     g_finalizers->emplace_back(fn, p);
-}
-
-void register_post_thread_finalizer(thread_finalizer fn, void * p) {
-    if (!g_post_finalizers)
-        g_post_finalizers = new thread_finalizers();
-    g_post_finalizers->emplace_back(fn, p);
 }
 
 void run_thread_finalizers(thread_finalizers * fns) {
@@ -246,18 +211,9 @@ void run_thread_finalizers(thread_finalizers * fns) {
 
 void run_thread_finalizers() {
     run_thread_finalizers(g_finalizers);
-    g_finalizers      = nullptr;
+    g_finalizers = nullptr;
 }
 
-void run_post_thread_finalizers() {
-    run_thread_finalizers(g_post_finalizers);
-    g_post_finalizers = nullptr;
-}
-
-void initialize_thread() {
-    initialize_thread_local_reset_fns();
-}
-void finalize_thread() {
-    finalize_thread_local_reset_fns();
-}
+void initialize_thread() {}
+void finalize_thread() {}
 }

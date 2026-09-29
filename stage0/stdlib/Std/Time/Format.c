@@ -5069,7 +5069,7 @@ return v___x_1748_;
 LEAN_EXPORT lean_object* l_Std_Time_PlainDateTime_toAscTimeString(lean_object* v_pdt_1749_){
 _start:
 {
-lean_object* v___x_1750_; lean_object* v_offset_1751_; lean_object* v_name_1752_; lean_object* v_abbreviation_1753_; uint8_t v_isDST_1754_; uint8_t v___x_1755_; uint8_t v___x_1756_; lean_object* v_ltt_1757_; lean_object* v___x_1758_; lean_object* v___x_1759_; lean_object* v___x_1760_; lean_object* v_wt_1761_; lean_object* v_ltt_1762_; lean_object* v_tz_1763_; lean_object* v_offset_1764_; lean_object* v_second_1765_; lean_object* v_nano_1766_; lean_object* v___f_1767_; lean_object* v___x_1768_; lean_object* v___x_1769_; lean_object* v___x_1770_; lean_object* v___x_1771_; lean_object* v___x_1772_; lean_object* v___x_1773_; lean_object* v___x_1774_; lean_object* v___x_1775_; lean_object* v___x_1776_; lean_object* v___x_1777_; lean_object* v___x_1778_; lean_object* v___x_1779_; lean_object* v___x_1780_; lean_object* v___x_1781_; 
+lean_object* v___x_1750_; lean_object* v_offset_1751_; lean_object* v_name_1752_; lean_object* v_abbreviation_1753_; uint8_t v_isDST_1754_; uint8_t v___x_1755_; uint8_t v___x_1756_; lean_object* v_ltt_1757_; lean_object* v___x_1758_; lean_object* v___x_1759_; lean_object* v___x_1760_; lean_object* v_wt_1761_; lean_object* v_ltt_1762_; lean_object* v_tz_1763_; lean_object* v_offset_1764_; lean_object* v_second_1765_; lean_object* v_nano_1766_; lean_object* v___f_1767_; lean_object* v___x_1768_; lean_object* v___x_1769_; lean_object* v___x_1770_; lean_object* v___x_1771_; lean_object* v___x_1772_; lean_object* v___x_1773_; lean_object* v___x_1774_; lean_object* v_nanos_1775_; lean_object* v___x_1776_; lean_object* v_nanos_1777_; lean_object* v___x_1778_; lean_object* v___x_1779_; lean_object* v___x_1780_; lean_object* v___x_1781_; 
 v___x_1750_ = l_Std_Time_TimeZone_UTC;
 v_offset_1751_ = lean_ctor_get(v___x_1750_, 0);
 v_name_1752_ = lean_ctor_get(v___x_1750_, 1);
@@ -5117,16 +5117,16 @@ v___x_1772_ = lean_obj_once(&l_Std_Time_PlainDateTime_toAscTimeString___closed__
 v___x_1773_ = lean_obj_once(&l_Std_Time_PlainDateTime_toAscTimeString___closed__2, &l_Std_Time_PlainDateTime_toAscTimeString___closed__2_once, _init_l_Std_Time_PlainDateTime_toAscTimeString___closed__2);
 v___x_1774_ = lean_int_mul(v_second_1765_, v___x_1773_);
 lean_dec(v_second_1765_);
-v___x_1775_ = lean_int_add(v___x_1774_, v_nano_1766_);
+v_nanos_1775_ = lean_int_add(v___x_1774_, v_nano_1766_);
 lean_dec(v_nano_1766_);
 lean_dec(v___x_1774_);
 v___x_1776_ = lean_int_mul(v___x_1771_, v___x_1773_);
 lean_dec(v___x_1771_);
-v___x_1777_ = lean_int_add(v___x_1776_, v___x_1772_);
+v_nanos_1777_ = lean_int_add(v___x_1776_, v___x_1772_);
 lean_dec(v___x_1776_);
-v___x_1778_ = lean_int_add(v___x_1775_, v___x_1777_);
-lean_dec(v___x_1777_);
-lean_dec(v___x_1775_);
+v___x_1778_ = lean_int_add(v_nanos_1775_, v_nanos_1777_);
+lean_dec(v_nanos_1777_);
+lean_dec(v_nanos_1775_);
 v___x_1779_ = l_Std_Time_Duration_ofNanoseconds(v___x_1778_);
 lean_dec(v___x_1778_);
 v___x_1780_ = lean_alloc_ctor(0, 4, 0);
@@ -5238,7 +5238,7 @@ return v___x_1801_;
 LEAN_EXPORT lean_object* l_Std_Time_PlainDateTime_toLongDateFormatString(lean_object* v_pdt_1804_){
 _start:
 {
-lean_object* v___x_1805_; lean_object* v_offset_1806_; lean_object* v_name_1807_; lean_object* v_abbreviation_1808_; uint8_t v_isDST_1809_; uint8_t v___x_1810_; uint8_t v___x_1811_; lean_object* v_ltt_1812_; lean_object* v___x_1813_; lean_object* v___x_1814_; lean_object* v___x_1815_; lean_object* v_wt_1816_; lean_object* v_ltt_1817_; lean_object* v_tz_1818_; lean_object* v_offset_1819_; lean_object* v_second_1820_; lean_object* v_nano_1821_; lean_object* v___f_1822_; lean_object* v___x_1823_; lean_object* v___x_1824_; lean_object* v___x_1825_; lean_object* v___x_1826_; lean_object* v___x_1827_; lean_object* v___x_1828_; lean_object* v___x_1829_; lean_object* v___x_1830_; lean_object* v___x_1831_; lean_object* v___x_1832_; lean_object* v___x_1833_; lean_object* v___x_1834_; lean_object* v___x_1835_; lean_object* v___x_1836_; 
+lean_object* v___x_1805_; lean_object* v_offset_1806_; lean_object* v_name_1807_; lean_object* v_abbreviation_1808_; uint8_t v_isDST_1809_; uint8_t v___x_1810_; uint8_t v___x_1811_; lean_object* v_ltt_1812_; lean_object* v___x_1813_; lean_object* v___x_1814_; lean_object* v___x_1815_; lean_object* v_wt_1816_; lean_object* v_ltt_1817_; lean_object* v_tz_1818_; lean_object* v_offset_1819_; lean_object* v_second_1820_; lean_object* v_nano_1821_; lean_object* v___f_1822_; lean_object* v___x_1823_; lean_object* v___x_1824_; lean_object* v___x_1825_; lean_object* v___x_1826_; lean_object* v___x_1827_; lean_object* v___x_1828_; lean_object* v___x_1829_; lean_object* v_nanos_1830_; lean_object* v___x_1831_; lean_object* v_nanos_1832_; lean_object* v___x_1833_; lean_object* v___x_1834_; lean_object* v___x_1835_; lean_object* v___x_1836_; 
 v___x_1805_ = l_Std_Time_TimeZone_UTC;
 v_offset_1806_ = lean_ctor_get(v___x_1805_, 0);
 v_name_1807_ = lean_ctor_get(v___x_1805_, 1);
@@ -5286,16 +5286,16 @@ v___x_1827_ = lean_obj_once(&l_Std_Time_PlainDateTime_toAscTimeString___closed__
 v___x_1828_ = lean_obj_once(&l_Std_Time_PlainDateTime_toAscTimeString___closed__2, &l_Std_Time_PlainDateTime_toAscTimeString___closed__2_once, _init_l_Std_Time_PlainDateTime_toAscTimeString___closed__2);
 v___x_1829_ = lean_int_mul(v_second_1820_, v___x_1828_);
 lean_dec(v_second_1820_);
-v___x_1830_ = lean_int_add(v___x_1829_, v_nano_1821_);
+v_nanos_1830_ = lean_int_add(v___x_1829_, v_nano_1821_);
 lean_dec(v_nano_1821_);
 lean_dec(v___x_1829_);
 v___x_1831_ = lean_int_mul(v___x_1826_, v___x_1828_);
 lean_dec(v___x_1826_);
-v___x_1832_ = lean_int_add(v___x_1831_, v___x_1827_);
+v_nanos_1832_ = lean_int_add(v___x_1831_, v___x_1827_);
 lean_dec(v___x_1831_);
-v___x_1833_ = lean_int_add(v___x_1830_, v___x_1832_);
-lean_dec(v___x_1832_);
-lean_dec(v___x_1830_);
+v___x_1833_ = lean_int_add(v_nanos_1830_, v_nanos_1832_);
+lean_dec(v_nanos_1832_);
+lean_dec(v_nanos_1830_);
 v___x_1834_ = l_Std_Time_Duration_ofNanoseconds(v___x_1833_);
 lean_dec(v___x_1833_);
 v___x_1835_ = lean_alloc_ctor(0, 4, 0);

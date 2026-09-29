@@ -20,8 +20,8 @@ fragment into `Int` via `BitVec.toInt`.
 attribute [grind hom]
   BitVec.toNat_add BitVec.toNat_sub BitVec.toNat_mul BitVec.toNat_udiv BitVec.toNat_umod
   BitVec.toNat_neg BitVec.toNat_and BitVec.toNat_or BitVec.toNat_xor
-  BitVec.toNat_shiftLeft BitVec.toNat_ushiftRight BitVec.toNat_append
-  BitVec.ofNat_toNat BitVec.toNat_setWidth
+  BitVec.toNat_shiftLeft BitVec.toNat_ushiftRight BitVec.toNat_append_eq_mul_add
+  BitVec.ofNat_toNat BitVec.toNat_setWidth BitVec.toNat_ofInt
   BitVec.toNat_eq BitVec.le_def BitVec.lt_def
   BitVec.sle_iff_toInt_le BitVec.slt_iff_toInt_lt
   BitVec.toInt_add BitVec.toInt_sub BitVec.toInt_mul BitVec.toInt_neg
@@ -31,6 +31,8 @@ attribute [grind hom]
   BitVec.xor_allOnes BitVec.allOnes_and BitVec.and_allOnes BitVec.not_zero
   BitVec.zero_and BitVec.and_zero BitVec.zero_or BitVec.or_zero
   BitVec.zero_xor BitVec.xor_zero BitVec.xor_self
+  BitVec.toInt_signExtend
+  BitVec.toNat_pow BitVec.toInt_pow
 
 /- `grind` keeps `BitVec` literals in `OfNat.ofNat` form, so the rule must be stated in
 this form for the structural `Sym.simp` retrieval to find it. -/

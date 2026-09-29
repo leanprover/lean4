@@ -1,0 +1,33 @@
+{"textDocument": {"uri": "file:///15108.lean"},
+ "position": {"line": 8, "character": 10}}
+{"rendered": "```lean\ncase grind\n⊢ False\n```",
+ "goals": ["case grind\n⊢ False"]}
+{"textDocument": {"uri": "file:///15108.lean"},
+ "position": {"line": 10, "character": 4}}
+{"rendered": "```lean\ncase grind\n⊢ False\n```",
+ "goals": ["case grind\n⊢ False"]}
+{"textDocument": {"uri": "file:///15108.lean"},
+ "position": {"line": 14, "character": 8}}
+{"rendered": "```lean\ncase grind\n⊢ False\n```",
+ "goals": ["case grind\n⊢ False"]}
+{"textDocument": {"uri": "file:///15108.lean"},
+ "position": {"line": 16, "character": 4}}
+{"rendered": "```lean\ncase grind\n⊢ False\n```",
+ "goals": ["case grind\n⊢ False"]}
+{"textDocument": {"uri": "file:///15108.lean"},
+ "position": {"line": 20, "character": 15}}
+{"rendered": "```lean\n⊢ ¬False\n```", "goals": ["⊢ ¬False"]}
+{"textDocument": {"uri": "file:///15108.lean"},
+ "position": {"line": 22, "character": 4}}
+{"rendered": "```lean\n⊢ ¬False\n```", "goals": ["⊢ ¬False"]}
+{"textDocument": {"uri": "file:///15108.lean"},
+ "position": {"line": 29, "character": 4}}
+{"rendered": "```lean\ncase grind\n⊢ False\n```",
+ "goals": ["case grind\n⊢ False"]}
+{"textDocument": {"uri": "file:///15108.lean"},
+ "position": {"line": 35, "character": 4}}
+{"rendered": "```lean\n⊢ ¬False\n```", "goals": ["⊢ ¬False"]}
+{"textDocument": {"uri": "file:///15108.lean"},
+ "position": {"line": 40, "character": 2}}
+{"rendered": "```lean\ncase grind\n⊢ False\n```",
+ "goals": ["case grind\n⊢ False"]}

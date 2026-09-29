@@ -61,7 +61,7 @@ simplifier.
 Operations dispatch on the type expression directly. It assumes non-standard instances are
 **not** used.
 
-**TODO**: additional bit-vector operations, `Char`, `String` support
+**TODO**: additional bit-vector operations, `String` support
 -/
 
 def skipIfUnchanged (e : Expr) (result : Result) : Result :=
@@ -519,6 +519,7 @@ abbrev evalBinBoolPredInt8 : (op : Int8 → Int8 → Bool) → (a b : Expr) → 
 abbrev evalBinBoolPredInt16 : (op : Int16 → Int16 → Bool) → (a b : Expr) → SimpM Result := evalBinBoolPred getInt16Value?
 abbrev evalBinBoolPredInt32 : (op : Int32 → Int32 → Bool) → (a b : Expr) → SimpM Result := evalBinBoolPred getInt32Value?
 abbrev evalBinBoolPredInt64 : (op : Int64 → Int64 → Bool) → (a b : Expr) → SimpM Result := evalBinBoolPred getInt64Value?
+abbrev evalBinBoolPredChar : (op : Char → Char → Bool) → (a b : Expr) → SimpM Result := evalBinBoolPred getCharValue?
 
 abbrev evalBinBoolPredFin (op : {n : Nat} → Fin n → Fin n → Bool) (a b : Expr) : SimpM Result := do
   let some a := getFinValue? a | return .rfl
@@ -557,6 +558,7 @@ macro "declare_eval_bin_bool_pred" id:ident op:term : command =>
   | Int16 => evalBinBoolPredInt16 $op a b
   | Int32 => evalBinBoolPredInt32 $op a b
   | Int64 => evalBinBoolPredInt64 $op a b
+  | Char => evalBinBoolPredChar $op a b
   | _ => return .rfl
   )
 
@@ -718,6 +720,30 @@ def evalBitVecOfFin (n a : Expr) : EvalM Result := do
   let e ← mkBitVecLit (BitVec.ofNat n a.val.val)
   return .step e (mkRflBitVec e n) (done := true)
 
+abbrev evalCharUnary [ToExpr α] (op : Char → α) (a : Expr) : SimpM Result := do
+  let some a := getCharValue? a | return .rfl
+  let e ← share <| toExpr (op a)
+  return .step e (mkApp2 (mkConst ``Eq.refl [1]) (ToExpr.toTypeExpr (α := α)) e) (done := true)
+
+abbrev evalCharPred (op : Char → Bool) (a : Expr) : SimpM Result := do
+  let some a := getCharValue? a | return .rfl
+  let r := op a
+  let e ← share (toExpr r)
+  return .step e (if r then eagerReflBoolTrue else eagerReflBoolFalse) (done := true)
+
+/-- Converts `Char.ofNat n` into a character literal when `n` is a numeral. -/
+def evalCharOfNat (n : Expr) : SimpM Result := do
+  -- `getNatValue?` fails on raw literals: `Char.ofNat` applied to one is the character literal.
+  let some n := getNatValue? n | return .rfl
+  let e ← share <| toExpr (Char.ofNat n)
+  return .step e (mkApp2 (mkConst ``Eq.refl [1]) (mkConst ``Char) e) (done := true)
+
+def evalToString (α : Expr) (a : Expr) : SimpM Result :=
+  match_expr α with
+  | Char => evalCharUnary (toString ·) a
+  | _ => return .rfl
+
+set_option maxRecDepth 1024 in
 /-- Evaluation step of `evalGround`. -/
 def evalGroundCore (e : Expr) : EvalM Result :=
   match_expr e with
@@ -811,6 +837,17 @@ def evalGroundCore (e : Expr) : EvalM Result :=
   | UInt16.toBitVec a => evalUInt16ToBitVec a
   | UInt32.toBitVec a => evalUInt32ToBitVec a
   | UInt64.toBitVec a => evalUInt64ToBitVec a
+  | Char.ofNat n => evalCharOfNat n
+  | Char.toNat a => evalCharUnary Char.toNat a
+  | Char.toLower a => evalCharUnary Char.toLower a
+  | Char.toUpper a => evalCharUnary Char.toUpper a
+  | Char.isWhitespace a => evalCharPred Char.isWhitespace a
+  | Char.isUpper a => evalCharPred Char.isUpper a
+  | Char.isLower a => evalCharPred Char.isLower a
+  | Char.isAlpha a => evalCharPred Char.isAlpha a
+  | Char.isDigit a => evalCharPred Char.isDigit a
+  | Char.isAlphanum a => evalCharPred Char.isAlphanum a
+  | ToString.toString α _ a => evalToString α a
   | _  => return .rfl
 
 /--

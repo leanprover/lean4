@@ -5,6 +5,7 @@ public import CollectAxioms.Right
 public import CollectAxioms.Chain.Top
 public import CollectAxioms.Chain.Middle
 public import CollectAxioms.Chain.Bottom
+public import CollectAxioms.UsesUntracked
 
 /-! ## Diamond imports with same-named private axioms
 
@@ -72,3 +73,14 @@ public noncomputable def usesMultiple : Nat := chainDef.casesOn myAxiom
 /-- info: 'usesMultiple' depends on axioms: [chainAx, myAxiom] -/
 #guard_msgs in
 #print axioms usesMultiple
+
+/-! ## Untracked dependencies
+
+`viaUntracked` is from a tracked module whose entry for it records the dependency on a module
+compiled with `trackAxioms := false`. -/
+
+/--
+error: cannot collect the axioms of 'viaUntracked': it depends on declarations from `Untracked.Base`, compiled with `trackAxioms := false`; use `lake check` to check the axioms used by the project instead
+-/
+#guard_msgs in
+#print axioms viaUntracked

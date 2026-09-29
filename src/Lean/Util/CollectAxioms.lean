@@ -10,6 +10,28 @@ public import Lean.MonadEnv
 
 namespace Lean
 
+public register_builtin_option trackAxioms : Bool := {
+  defValue := true
+  descr    := "record the axioms each declaration of the module depends on, for use by \
+    `#print axioms`. When disabled, the module's `.olean` does not depend on the axioms used in \
+    proofs, and `#print axioms` refers to `lake check` instead. Only takes effect when passed to \
+    the module as a whole, e.g. via `leanOptions` in the Lake configuration."
+}
+
+/--
+Root of the pseudo-axiom names that stand for the unknown axioms of declarations from a module
+compiled with `trackAxioms := false`. A numeric root cannot occur in declaration names.
+-/
+private def untrackedRoot : Name := .num .anonymous 0
+
+private def mkUntrackedMarker (mod : Name) : Name := untrackedRoot ++ mod
+
+private def untrackedModule? (n : Name) : Option Name :=
+  if untrackedRoot.isPrefixOf n && n != untrackedRoot then
+    some (n.replacePrefix untrackedRoot .anonymous)
+  else
+    none
+
 namespace CollectAxioms
 
 structure State where
@@ -95,18 +117,30 @@ binary search without requiring the extension object.
 -/
 private structure ExportedAxiomsState where
   importedModuleEntries : Array (Array (Name × Array Name)) := #[]
+  /-- Value of `trackAxioms` for the current module. -/
+  track : Bool := true
 
 instance : Inhabited ExportedAxiomsState := ⟨{}⟩
 
-/-- Look up pre-computed axioms for an imported declaration. -/
+/-- The sole entry exported by a module compiled with `trackAxioms := false`. -/
+private def untrackedModuleEntry : Name × Array Name := (.anonymous, #[])
+
+/--
+Look up pre-computed axioms for an imported declaration. For a declaration from a module compiled
+with `trackAxioms := false`, returns that module's untracked marker.
+-/
 private def ExportedAxiomsState.find? (s : ExportedAxiomsState) (env : Environment)
     (c : Name) : Option (Array Name) :=
   match env.getModuleIdxFor? c with
   | some modIdx =>
     if h : modIdx.toNat < s.importedModuleEntries.size then
-      match s.importedModuleEntries[modIdx].binSearch (c, #[]) (fun a b => Name.quickLt a.1 b.1) with
-      | some entry => some entry.2
-      | none       => none
+      let entries := s.importedModuleEntries[modIdx]
+      if entries[0]?.any (·.1.isAnonymous) then
+        some #[mkUntrackedMarker env.allImportedModuleNames[modIdx]!]
+      else
+        match entries.binSearch (c, #[]) (fun a b => Name.quickLt a.1 b.1) with
+        | some entry => some entry.2
+        | none       => none
     else none
   | none => none
 
@@ -116,14 +150,21 @@ Entries are computed once by `beforeExportFn` when the olean is serialized, not 
 elaboration. During elaboration, `collectAxioms` walks bodies directly. Downstream modules
 look up pre-computed entries for imported declarations, so axiom collection never crosses
 module boundaries.
+
+A module compiled with `trackAxioms := false` exports only `untrackedModuleEntry`. Axiom sets of
+declarations depending on it contain its untracked marker (see `untrackedRoot`), which downstream
+entries inherit.
 -/
 private builtin_initialize exportedAxiomsExt :
     PersistentEnvExtension (Name × Array Name) (Name × Array Name) ExportedAxiomsState ←
   registerPersistentEnvExtension {
     mkInitial     := pure {}
-    addImportedFn := fun importedEntries => pure { importedModuleEntries := importedEntries }
+    addImportedFn := fun importedEntries => return {
+      importedModuleEntries := importedEntries
+      track := trackAxioms.get (← read).opts
+    }
     addEntryFn    := fun s _ => s
-    exportEntriesFnEx := fun env s =>
+    exportEntriesFnEx := fun env s => if !s.track then .uniform #[untrackedModuleEntry] else
       let exportedEnv := env.setExporting true
       let privateEnv := env.setExporting false
       -- Collect current-module declarations visible in the exported view.
@@ -145,12 +186,47 @@ private builtin_initialize exportedAxiomsExt :
     asyncMode     := .mainOnly
   }
 
-/-- Collect all axioms transitively used by a constant. -/
-public def collectAxioms [Monad m] [MonadEnv m] (constName : Name) : m (Array Name) := do
+/-- Result of `collectAxiomsCore`. -/
+public structure CollectedAxioms where
+  /-- Axioms the constant is known to depend on, sorted. -/
+  axioms : Array Name
+  /--
+  Modules compiled with `trackAxioms := false` that the constant depends on. If nonempty, `axioms`
+  may be incomplete.
+  -/
+  untrackedModules : Array Name
+
+/--
+Collects the axioms transitively used by a constant, reporting dependencies on modules compiled
+with `trackAxioms := false` instead of failing on them.
+-/
+public def collectAxiomsCore [Monad m] [MonadEnv m] (constName : Name) : m CollectedAxioms := do
   let env ← getEnv
   let privateEnv := env.setExporting false
   let s := exportedAxiomsExt.getState (asyncMode := .mainOnly) env
-  return CollectAxioms.runM privateEnv do
+  let all := CollectAxioms.runM privateEnv do
     CollectAxioms.collectAndGet s.find? constName
+  return {
+    axioms := all.filter (untrackedModule? · |>.isNone)
+    untrackedModules := all.filterMap untrackedModule?
+  }
+
+/--
+Collects all axioms transitively used by a constant. Throws an error referring to `lake check` if
+the current module or a module the constant depends on is compiled with `trackAxioms := false`.
+-/
+public def collectAxioms [Monad m] [MonadEnv m] [MonadError m] (constName : Name) :
+    m (Array Name) := do
+  unless (exportedAxiomsExt.getState (asyncMode := .mainOnly) (← getEnv)).track do
+    throwError "cannot collect the axioms of '{.ofConstName constName}': axiom tracking is \
+      disabled in the current module (`trackAxioms := false`); use `lake check` to check the \
+      axioms used by the project instead"
+  let r ← collectAxiomsCore constName
+  unless r.untrackedModules.isEmpty do
+    let mods := ", ".intercalate (r.untrackedModules.toList.map (s!"`{·}`"))
+    throwError "cannot collect the axioms of '{.ofConstName constName}': it depends on \
+      declarations from {mods}, compiled with `trackAxioms := false`; use `lake check` to check \
+      the axioms used by the project instead"
+  return r.axioms
 
 end Lean

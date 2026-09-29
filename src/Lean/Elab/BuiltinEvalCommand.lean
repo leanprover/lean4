@@ -105,7 +105,7 @@ private def addAndCompileExprForEval (declName : Name) (value : Expr) (allowSorr
     Term.elabMutualDef #[] { header := "" } #[defView]
   assert! (← getEnv).contains declName
   unless allowSorry do
-    let axioms ← collectAxioms declName
+    let { axioms, .. } ← collectAxiomsCore declName
     if axioms.contains ``sorryAx then
       throwError "\
         Aborting evaluation since the expression depends on the 'sorry' axiom, \

@@ -24,22 +24,22 @@ _start:
 {
 switch(lean_obj_tag(v_x_1_))
 {
-case 0:
+case 2:
 {
 uint8_t v___x_2_; 
-v___x_2_ = 0;
+v___x_2_ = 1;
 return v___x_2_;
 }
-case 1:
+case 3:
 {
 uint8_t v___x_3_; 
-v___x_3_ = 0;
+v___x_3_ = 1;
 return v___x_3_;
 }
 default: 
 {
 uint8_t v___x_4_; 
-v___x_4_ = 1;
+v___x_4_ = 0;
 return v___x_4_;
 }
 }

@@ -901,13 +901,10 @@ lean_inc_ref(v_inst_299_);
 lean_inc_ref(v_inst_298_);
 v___x_304_ = l___private_Lean_Util_SCC_0__Lean_SCC_getDataOf___redArg(v_inst_298_, v_inst_299_, v_b_302_, v___y_303_);
 v_fst_305_ = lean_ctor_get(v___x_304_, 0);
-lean_inc(v_fst_305_);
 v_index_x3f_306_ = lean_ctor_get(v_fst_305_, 0);
-lean_inc(v_index_x3f_306_);
 if (lean_obj_tag(v_index_x3f_306_) == 0)
 {
 lean_object* v_snd_307_; lean_object* v___x_308_; lean_object* v_snd_309_; lean_object* v___x_310_; lean_object* v_fst_311_; lean_object* v_snd_312_; lean_object* v_lowlink_x3f_313_; lean_object* v___x_314_; 
-lean_dec(v_fst_305_);
 v_snd_307_ = lean_ctor_get(v___x_304_, 1);
 lean_inc(v_snd_307_);
 lean_dec_ref(v___x_304_);
@@ -936,11 +933,9 @@ uint8_t v_onStack_315_;
 lean_dec(v_b_302_);
 lean_dec_ref(v_successorsOf_300_);
 v_onStack_315_ = lean_ctor_get_uint8(v_fst_305_, sizeof(void*)*2);
-lean_dec(v_fst_305_);
 if (v_onStack_315_ == 0)
 {
 lean_object* v_snd_316_; lean_object* v___x_318_; uint8_t v_isShared_319_; uint8_t v_isSharedCheck_324_; 
-lean_dec_ref_known(v_index_x3f_306_, 1);
 lean_dec(v_a_301_);
 lean_dec_ref(v_inst_299_);
 lean_dec_ref(v_inst_298_);
@@ -991,6 +986,7 @@ return v___x_322_;
 else
 {
 lean_object* v_snd_326_; lean_object* v___x_327_; 
+lean_inc_ref(v_index_x3f_306_);
 v_snd_326_ = lean_ctor_get(v___x_304_, 1);
 lean_inc(v_snd_326_);
 lean_dec_ref(v___x_304_);
@@ -1017,10 +1013,7 @@ lean_inc_ref(v_inst_336_);
 lean_inc_ref(v_inst_335_);
 v___x_340_ = l___private_Lean_Util_SCC_0__Lean_SCC_getDataOf___redArg(v_inst_335_, v_inst_336_, v_a_338_, v___y_339_);
 v_fst_341_ = lean_ctor_get(v___x_340_, 0);
-lean_inc(v_fst_341_);
 v_index_x3f_342_ = lean_ctor_get(v_fst_341_, 0);
-lean_inc(v_index_x3f_342_);
-lean_dec(v_fst_341_);
 if (lean_obj_tag(v_index_x3f_342_) == 0)
 {
 lean_object* v_snd_343_; lean_object* v___x_344_; 
@@ -1033,7 +1026,6 @@ return v___x_344_;
 else
 {
 lean_object* v_snd_345_; lean_object* v___x_347_; uint8_t v_isShared_348_; uint8_t v_isSharedCheck_353_; 
-lean_dec_ref_known(v_index_x3f_342_, 1);
 lean_dec(v_a_338_);
 lean_dec_ref(v_successorsOf_337_);
 lean_dec_ref(v_inst_336_);

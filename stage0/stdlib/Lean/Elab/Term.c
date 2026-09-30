@@ -730,20 +730,17 @@ if (lean_obj_tag(v___x_157_) == 0)
 {
 lean_object* v_a_158_; lean_object* v_sectionVars_159_; lean_object* v_shortName_160_; uint8_t v___x_161_; 
 v_a_158_ = lean_ctor_get(v___x_157_, 0);
-lean_inc(v_a_158_);
 v_sectionVars_159_ = lean_ctor_get(v_a_150_, 4);
 v_shortName_160_ = lean_ctor_get(v_a_158_, 0);
-lean_inc(v_shortName_160_);
-lean_dec(v_a_158_);
 v___x_161_ = l_Std_DTreeMap_Internal_Impl_contains___at___00Lean_NameMap_contains_spec__0___redArg(v_shortName_160_, v_sectionVars_159_);
 if (v___x_161_ == 0)
 {
-lean_dec(v_shortName_160_);
 return v___x_157_;
 }
 else
 {
 lean_object* v___x_162_; lean_object* v___x_163_; lean_object* v___x_164_; lean_object* v___x_165_; lean_object* v___x_166_; lean_object* v___x_167_; lean_object* v_a_168_; lean_object* v___x_170_; uint8_t v_isShared_171_; uint8_t v_isSharedCheck_175_; 
+lean_inc(v_shortName_160_);
 lean_dec_ref_known(v___x_157_, 1);
 v___x_162_ = lean_obj_once(&l_Lean_Elab_Term_expandDeclId___closed__1, &l_Lean_Elab_Term_expandDeclId___closed__1_once, _init_l_Lean_Elab_Term_expandDeclId___closed__1);
 v___x_163_ = l_Lean_MessageData_ofName(v_shortName_160_);

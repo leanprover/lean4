@@ -7,6 +7,7 @@ module
 
 prelude
 public import Init.Data.String.Basic
+public import Init.Data.Hashable
 
 @[expose] public section
 
@@ -22,6 +23,7 @@ inductive Gate
   | xor
   | beq
   | or
+  deriving DecidableEq, Hashable
 
 namespace Gate
 
@@ -45,6 +47,7 @@ inductive BoolExpr (α : Type)
   | not : BoolExpr α → BoolExpr α
   | gate : Gate → BoolExpr α → BoolExpr α → BoolExpr α
   | ite : BoolExpr α → BoolExpr α → BoolExpr α → BoolExpr α
+  deriving DecidableEq, Hashable
 
 namespace BoolExpr
 

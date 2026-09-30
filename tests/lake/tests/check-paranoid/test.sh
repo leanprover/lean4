@@ -25,7 +25,7 @@ for exe in "${BUNDLED[@]}"; do
   [ -x "$SYSROOT/bin/$exe" ] || bundled=0
 done
 if [ $bundled = 1 ]; then
-  test_status_out 0 'Uses axioms: Classical.choice, propext, Quot.sound' check --paranoid
+  test_status_out 0 'Uses axioms: propext, Quot.sound, Classical.choice' check --paranoid
   for kernel in "${KERNELS[@]}" "Lean default"; do
     match_text "$kernel kernel accepts the solution" produced.out
   done
@@ -62,7 +62,7 @@ export LAKE_OVERRIDE_LEAN=true LEAN_SYSROOT="$STUB_SYSROOT"
 
 # `lake check` exports every axiom in scope, used or not, so a checker that polices axioms itself
 # skips the ones not permitted and fails only on a use.
-test_status_out 0 'Uses axioms: Classical.choice, propext, Quot.sound' check --paranoid
+test_status_out 0 'Uses axioms: propext, Quot.sound, Classical.choice' check --paranoid
 match_text 'leanchecker-paranoid stub got: --silent --from-export /' produced.out
 match_text 'lean4lean stub got: --import /' produced.out
 match_text 'nanoda_bin stub got: /' produced.out

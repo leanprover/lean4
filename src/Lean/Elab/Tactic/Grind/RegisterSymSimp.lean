@@ -16,6 +16,10 @@ def validateOptionSimprocSyntax (proc? : Option Syntax) : CommandElabM Unit := d
   let some proc := proc? | return ()
   discard <| withGrindTacticM <| Tactic.Grind.elabSymSimproc proc
 
+def validateOptionDischargerSyntax (d? : Option Syntax) : CommandElabM Unit := do
+  let some d := d? | return ()
+  discard <| withGrindTacticM <| Tactic.Grind.elabSymDischarger d
+
 @[builtin_command_elab Lean.Parser.Command.registerSymSimp]
 def elabRegisterSymSimp : CommandElab := fun stx => do
   let id := stx[1]
@@ -26,6 +30,7 @@ def elabRegisterSymSimp : CommandElab := fun stx => do
   let fields := stx[3].getArgs
   let mut pre? : Option Syntax := none
   let mut post? : Option Syntax := none
+  let mut discharger? : Option Syntax := none
   let mut maxSteps? : Option Nat := none
   let mut maxDischargeDepth? : Option Nat := none
   for field in fields do
@@ -42,12 +47,16 @@ def elabRegisterSymSimp : CommandElab := fun stx => do
     | `(sym_simp_field| post := $proc) =>
       unless post?.isNone do throwErrorAt field "duplicate `post` field"
       post? := some proc
+    | `(sym_simp_field| discharger := $d) =>
+      unless discharger?.isNone do throwErrorAt field "duplicate `discharger` field"
+      discharger? := some d
     | _ => throwErrorAt field "unexpected field"
   -- Validate pre/post by elaborating them
   validateOptionSimprocSyntax pre?
   validateOptionSimprocSyntax post?
+  validateOptionDischargerSyntax discharger?
   let config := { maxSteps := maxSteps?.getD 100_000, maxDischargeDepth := maxDischargeDepth?.getD 2 }
-  let variant : SymSimpVariant := { pre?, post?, config }
+  let variant : SymSimpVariant := { pre?, post?, discharger?, config }
   modifyEnv fun env => symSimpVariantExtension.addEntry env { name, variant }
 
 end Lean.Elab.Command

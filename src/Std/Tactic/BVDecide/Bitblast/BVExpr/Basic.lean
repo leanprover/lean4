@@ -419,6 +419,7 @@ Pack a `BitVec` with its width into a single parameter-less structure.
 structure PackedBitVec where
   {w : Nat}
   bv: BitVec w
+  deriving Inhabited, Hashable, DecidableEq
 
 /--
 The notion of variable assignments for `BVExpr`.
@@ -514,6 +515,7 @@ inductive BVBinPred where
   Unsigned Less Than
   -/
   | ult
+  deriving DecidableEq, Hashable
 
 namespace BVBinPred
 
@@ -547,6 +549,7 @@ inductive BVPred where
   Getting a constant LSB from a `BitVec`.
   -/
   | getLsbD (expr : BVExpr w) (idx : Nat)
+  deriving DecidableEq, Hashable
 
 namespace BVPred
 

@@ -242,20 +242,14 @@ if (lean_obj_tag(v_optConfig_7_) == 1)
 {
 lean_object* v_info_8_; lean_object* v_kind_9_; lean_object* v_args_10_; lean_object* v___x_11_; lean_object* v___x_12_; uint8_t v___x_13_; 
 v_info_8_ = lean_ctor_get(v_optConfig_7_, 0);
-lean_inc(v_info_8_);
 v_kind_9_ = lean_ctor_get(v_optConfig_7_, 1);
-lean_inc(v_kind_9_);
 v_args_10_ = lean_ctor_get(v_optConfig_7_, 2);
-lean_inc_ref(v_args_10_);
 v___x_11_ = lean_unsigned_to_nat(0u);
 v___x_12_ = lean_array_get_size(v_args_10_);
 v___x_13_ = lean_nat_dec_lt(v___x_11_, v___x_12_);
 if (v___x_13_ == 0)
 {
 lean_object* v___x_14_; 
-lean_dec_ref(v_args_10_);
-lean_dec(v_kind_9_);
-lean_dec(v_info_8_);
 lean_dec(v_item_5_);
 v___x_14_ = l_Lean_Syntax_setArg(v_stx_4_, v___x_6_, v_optConfig_7_);
 return v___x_14_;
@@ -263,6 +257,9 @@ return v___x_14_;
 else
 {
 lean_object* v___x_16_; uint8_t v_isShared_17_; uint8_t v_isSharedCheck_33_; 
+lean_inc_ref(v_args_10_);
+lean_inc(v_kind_9_);
+lean_inc(v_info_8_);
 v_isSharedCheck_33_ = !lean_is_exclusive(v_optConfig_7_);
 if (v_isSharedCheck_33_ == 0)
 {

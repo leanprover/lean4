@@ -2153,12 +2153,12 @@ if (lean_obj_tag(v___x_723_) == 0)
 {
 lean_object* v_a_724_; lean_object* v___x_725_; lean_object* v___y_727_; lean_object* v___y_728_; uint8_t v___x_733_; 
 v_a_724_ = lean_ctor_get(v___x_723_, 0);
-lean_inc(v_a_724_);
 v___x_725_ = lean_array_get_size(v_a_724_);
 v___x_733_ = lean_nat_dec_eq(v___x_725_, v___x_703_);
 if (v___x_733_ == 0)
 {
 lean_object* v___x_734_; lean_object* v___x_735_; lean_object* v___y_737_; uint8_t v___x_739_; 
+lean_inc(v_a_724_);
 lean_dec_ref_known(v___x_723_, 1);
 v___x_734_ = lean_unsigned_to_nat(1u);
 v___x_735_ = lean_nat_sub(v___x_725_, v___x_734_);
@@ -2197,7 +2197,6 @@ goto v___jp_726_;
 }
 else
 {
-lean_dec(v_a_724_);
 lean_del_object(v___x_719_);
 lean_dec(v___x_703_);
 return v___x_723_;

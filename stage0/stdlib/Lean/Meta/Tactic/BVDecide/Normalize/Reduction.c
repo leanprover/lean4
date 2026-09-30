@@ -30,9 +30,9 @@ lean_object* lean_nat_sub(lean_object*, lean_object*);
 lean_object* l___private_Lean_Expr_0__Lean_Expr_getAppArgsAux(lean_object*, lean_object*, lean_object*);
 lean_object* lean_array_get(lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Meta_isConstructorApp(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
-lean_object* l_Lean_Meta_Sym_DSimp_dsimpProj(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
+lean_object* l_Lean_Meta_Sym_DSimp_dsimpProj___redArg(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Meta_Sym_DSimp_beta___redArg(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
-lean_object* l_Lean_Meta_Sym_DSimp_zetaDeltaAll___redArg(lean_object*, lean_object*, lean_object*, lean_object*);
+lean_object* l_Lean_Meta_Sym_DSimp_zetaDeltaAll___redArg(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Meta_Sym_DSimp_zeta___redArg(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Meta_Sym_DSimp_evalGround___redArg(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* lean_array_fget_borrowed(lean_object*, lean_object*);
@@ -346,7 +346,7 @@ else
 lean_object* v___x_85_; 
 lean_del_object(v___x_77_);
 lean_dec(v_a_75_);
-v___x_85_ = l_Lean_Meta_Sym_DSimp_dsimpProj(v_e_40_, v_a_41_, v_a_42_, v_a_43_, v_a_44_, v_a_45_, v_a_46_, v_a_47_, v_a_48_, v_a_49_);
+v___x_85_ = l_Lean_Meta_Sym_DSimp_dsimpProj___redArg(v_e_40_, v_a_44_, v_a_45_, v_a_46_, v_a_47_, v_a_48_, v_a_49_);
 return v___x_85_;
 }
 }
@@ -629,7 +629,7 @@ _start:
 lean_object* v___x_251_; lean_object* v___x_252_; 
 v___x_251_ = lean_box(0);
 lean_inc_ref(v___y_240_);
-v___x_252_ = l_Lean_Meta_Sym_DSimp_zetaDeltaAll___redArg(v___y_240_, v___y_246_, v___y_248_, v___y_249_);
+v___x_252_ = l_Lean_Meta_Sym_DSimp_zetaDeltaAll___redArg(v___y_240_, v___y_244_, v___y_245_, v___y_246_, v___y_247_, v___y_248_, v___y_249_);
 if (lean_obj_tag(v___x_252_) == 0)
 {
 lean_object* v_a_253_; 
@@ -881,10 +881,10 @@ if (lean_obj_tag(v___x_311_) == 0)
 {
 lean_object* v_a_312_; 
 v_a_312_ = lean_ctor_get(v___x_311_, 0);
-lean_inc(v_a_312_);
 if (lean_obj_tag(v_a_312_) == 0)
 {
 lean_object* v___x_314_; uint8_t v_isShared_315_; uint8_t v_isSharedCheck_323_; 
+lean_inc_ref(v_a_312_);
 v_isSharedCheck_323_ = !lean_is_exclusive(v___x_311_);
 if (v_isSharedCheck_323_ == 0)
 {
@@ -947,7 +947,6 @@ return v___x_320_;
 }
 else
 {
-lean_dec_ref_known(v_a_312_, 1);
 lean_del_object(v___x_309_);
 lean_dec_ref(v_e_x27_307_);
 return v___x_311_;

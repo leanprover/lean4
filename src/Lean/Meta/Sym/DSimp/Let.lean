@@ -8,6 +8,7 @@ prelude
 public import Lean.Meta.Sym.DSimp.DSimpM
 import Lean.Meta.Sym.AbstractS
 import Lean.Meta.Sym.InstantiateS
+import Lean.Meta.Sym.Util
 namespace Lean.Meta.Sym.DSimp
 
 /--
@@ -27,13 +28,13 @@ where
       let v ← instantiateRevBetaS v fvars
       match (← dsimp t), (← dsimp v) with
       | .rfl _, .rfl _ =>
-        withLetDecl n t v (nondep := nd) fun x => go b (fvars.push x) modified
+        withLetDeclS n t v (nondep := nd) fun x => go b (fvars.push x) modified
       | .step t' _, .rfl _ =>
-        withLetDecl n t' v (nondep := nd) fun x => go b (fvars.push x) true
+        withLetDeclS n t' v (nondep := nd) fun x => go b (fvars.push x) true
       | .rfl _, .step v' _ =>
-        withLetDecl n t v' (nondep := nd) fun x => go b (fvars.push x) true
+        withLetDeclS n t v' (nondep := nd) fun x => go b (fvars.push x) true
       | .step t' _, .step v' _ =>
-        withLetDecl n t' v' (nondep := nd) fun x => go b (fvars.push x) true
+        withLetDeclS n t' v' (nondep := nd) fun x => go b (fvars.push x) true
     | _ =>
       let r ← dsimp (← instantiateRevBetaS e fvars)
       match r with

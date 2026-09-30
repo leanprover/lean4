@@ -683,10 +683,10 @@ if (lean_obj_tag(v___x_134_) == 0)
 {
 lean_object* v_a_135_; 
 v_a_135_ = lean_ctor_get(v___x_134_, 0);
-lean_inc(v_a_135_);
 if (lean_obj_tag(v_a_135_) == 1)
 {
 lean_object* v_a_136_; lean_object* v___x_138_; uint8_t v_isShared_139_; uint8_t v_isSharedCheck_144_; 
+lean_inc_ref(v_a_135_);
 lean_dec_ref(v___f_132_);
 lean_dec_ref(v_e_116_);
 v_a_136_ = lean_ctor_get(v___x_134_, 1);
@@ -737,7 +737,6 @@ return v___x_142_;
 }
 else
 {
-lean_dec(v_a_135_);
 switch(lean_obj_tag(v_e_116_))
 {
 case 9:

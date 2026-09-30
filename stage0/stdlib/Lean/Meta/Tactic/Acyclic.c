@@ -2483,9 +2483,7 @@ if (lean_obj_tag(v___x_746_) == 0)
 {
 lean_object* v_a_747_; uint8_t v___x_748_; 
 v_a_747_ = lean_ctor_get(v___x_746_, 0);
-lean_inc(v_a_747_);
 v___x_748_ = lean_unbox(v_a_747_);
-lean_dec(v_a_747_);
 if (v___x_748_ == 0)
 {
 lean_dec_ref(v___x_742_);

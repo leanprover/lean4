@@ -635,10 +635,10 @@ return v___x_144_;
 LEAN_EXPORT lean_object* l_addParenHeuristic___lam__0___boxed(lean_object* v___y_151_){
 _start:
 {
-uint32_t v___y_187__boxed_152_; uint8_t v_res_153_; lean_object* v_r_154_; 
-v___y_187__boxed_152_ = lean_unbox_uint32(v___y_151_);
+uint32_t v___y_191__boxed_152_; uint8_t v_res_153_; lean_object* v_r_154_; 
+v___y_191__boxed_152_ = lean_unbox_uint32(v___y_151_);
 lean_dec(v___y_151_);
-v_res_153_ = l_addParenHeuristic___lam__0(v___y_187__boxed_152_);
+v_res_153_ = l_addParenHeuristic___lam__0(v___y_191__boxed_152_);
 v_r_154_ = lean_box(v_res_153_);
 return v_r_154_;
 }

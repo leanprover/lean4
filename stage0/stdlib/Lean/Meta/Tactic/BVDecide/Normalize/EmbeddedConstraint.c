@@ -2048,8 +2048,8 @@ lean_inc_ref(v_type_803_);
 lean_dec(v_a_802_);
 lean_dec(v_snd_783_);
 lean_inc_ref(v_type_793_);
-v___y_755_ = v_type_793_;
-v___y_756_ = v_type_803_;
+v___y_755_ = v_type_803_;
+v___y_756_ = v_type_793_;
 v___y_757_ = v___f_808_;
 goto v___jp_754_;
 }
@@ -2070,8 +2070,8 @@ lean_inc_ref(v_type_803_);
 lean_dec(v_a_802_);
 lean_dec(v_snd_783_);
 lean_inc_ref(v_type_793_);
-v___y_755_ = v_type_793_;
-v___y_756_ = v_type_803_;
+v___y_755_ = v_type_803_;
+v___y_756_ = v_type_793_;
 v___y_757_ = v___f_808_;
 goto v___jp_754_;
 }
@@ -2453,12 +2453,12 @@ goto v___jp_750_;
 else
 {
 lean_object* v___x_765_; lean_object* v___x_766_; lean_object* v___x_767_; lean_object* v___x_768_; lean_object* v___x_769_; lean_object* v___x_770_; 
-v___x_765_ = l_Lean_MessageData_ofExpr(v___y_755_);
+v___x_765_ = l_Lean_MessageData_ofExpr(v___y_756_);
 v___x_766_ = lean_obj_once(&l_WellFounded_opaqueFix_u2083___at___00Lean_Meta_Tactic_BVDecide_Normalize_embeddedConstraintPass_spec__4___redArg___closed__7, &l_WellFounded_opaqueFix_u2083___at___00Lean_Meta_Tactic_BVDecide_Normalize_embeddedConstraintPass_spec__4___redArg___closed__7_once, _init_l_WellFounded_opaqueFix_u2083___at___00Lean_Meta_Tactic_BVDecide_Normalize_embeddedConstraintPass_spec__4___redArg___closed__7);
 v___x_767_ = lean_alloc_ctor(7, 2, 0);
 lean_ctor_set(v___x_767_, 0, v___x_765_);
 lean_ctor_set(v___x_767_, 1, v___x_766_);
-v___x_768_ = l_Lean_MessageData_ofExpr(v___y_756_);
+v___x_768_ = l_Lean_MessageData_ofExpr(v___y_755_);
 v___x_769_ = lean_alloc_ctor(7, 2, 0);
 lean_ctor_set(v___x_769_, 0, v___x_767_);
 lean_ctor_set(v___x_769_, 1, v___x_768_);
@@ -4117,9 +4117,9 @@ v___x_1464_ = lean_nat_dec_le(v_snd_1405_, v___x_1463_);
 if (v___x_1464_ == 0)
 {
 lean_dec(v_snd_1405_);
-v___y_1423_ = v___x_1461_;
-v___y_1424_ = v_fst_1456_;
-v___y_1425_ = v___x_1460_;
+v___y_1423_ = v_fst_1456_;
+v___y_1424_ = v___x_1460_;
+v___y_1425_ = v___x_1461_;
 v___y_1426_ = v_snd_1457_;
 v___y_1427_ = v___x_1463_;
 goto v___jp_1422_;
@@ -4127,9 +4127,9 @@ goto v___jp_1422_;
 else
 {
 lean_dec(v___x_1463_);
-v___y_1423_ = v___x_1461_;
-v___y_1424_ = v_fst_1456_;
-v___y_1425_ = v___x_1460_;
+v___y_1423_ = v_fst_1456_;
+v___y_1424_ = v___x_1460_;
+v___y_1425_ = v___x_1461_;
 v___y_1426_ = v_snd_1457_;
 v___y_1427_ = v_snd_1405_;
 goto v___jp_1422_;
@@ -4228,12 +4228,12 @@ lean_inc_ref(v_value_1421_);
 v___x_1428_ = lean_alloc_ctor(0, 1, 1);
 lean_ctor_set(v___x_1428_, 0, v_value_1421_);
 lean_ctor_set_uint8(v___x_1428_, sizeof(void*)*1, v___y_1426_);
-v___x_1429_ = l_Lean_PersistentHashMap_insert___at___00Lean_Meta_Tactic_BVDecide_Normalize_embeddedConstraintPass_spec__8___redArg(v_fst_1396_, v___y_1424_, v___x_1428_);
+v___x_1429_ = l_Lean_PersistentHashMap_insert___at___00Lean_Meta_Tactic_BVDecide_Normalize_embeddedConstraintPass_spec__8___redArg(v_fst_1396_, v___y_1423_, v___x_1428_);
 v___x_1430_ = lean_alloc_ctor(0, 2, 0);
-lean_ctor_set(v___x_1430_, 0, v___y_1425_);
+lean_ctor_set(v___x_1430_, 0, v___y_1424_);
 lean_ctor_set(v___x_1430_, 1, v___y_1427_);
 v___x_1431_ = lean_alloc_ctor(0, 2, 0);
-lean_ctor_set(v___x_1431_, 0, v___y_1423_);
+lean_ctor_set(v___x_1431_, 0, v___y_1425_);
 lean_ctor_set(v___x_1431_, 1, v___x_1430_);
 v___x_1432_ = lean_alloc_ctor(0, 2, 0);
 lean_ctor_set(v___x_1432_, 0, v___x_1429_);

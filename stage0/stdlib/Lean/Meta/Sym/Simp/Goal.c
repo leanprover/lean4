@@ -1912,7 +1912,6 @@ if (lean_obj_tag(v___x_659_) == 0)
 {
 lean_object* v_a_660_; 
 v_a_660_ = lean_ctor_get(v___x_659_, 0);
-lean_inc(v_a_660_);
 if (lean_obj_tag(v_a_660_) == 0)
 {
 lean_object* v___x_662_; uint8_t v_isShared_663_; uint8_t v_isSharedCheck_668_; 
@@ -1960,7 +1959,6 @@ return v___x_666_;
 }
 else
 {
-lean_dec(v_a_660_);
 lean_dec(v_mvarId_649_);
 return v___x_659_;
 }

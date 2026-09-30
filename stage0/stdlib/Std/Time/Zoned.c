@@ -1019,7 +1019,6 @@ v_ltt_240_ = l_Std_Time_TimeZone_ZoneRules_findLocalTimeTypeForWallTime(v_zr_236
 v_tz_241_ = l_Std_Time_TimeZone_LocalTimeType_getTimeZone(v_ltt_240_);
 lean_dec_ref(v_ltt_240_);
 v_offset_242_ = lean_ctor_get(v_tz_241_, 0);
-lean_inc(v_offset_242_);
 v_second_243_ = lean_ctor_get(v_wt_239_, 0);
 lean_inc(v_second_243_);
 v_nano_244_ = lean_ctor_get(v_wt_239_, 1);
@@ -1029,7 +1028,6 @@ v___f_245_ = lean_alloc_closure((void*)(l_Std_Time_DateTime_ofLocalDate___lam__0
 lean_closure_set(v___f_245_, 0, v___x_238_);
 v___x_246_ = lean_mk_thunk(v___f_245_);
 v___x_247_ = lean_int_neg(v_offset_242_);
-lean_dec(v_offset_242_);
 v___x_248_ = lean_obj_once(&l_Std_Time_DateTime_ofLocalDate___closed__0, &l_Std_Time_DateTime_ofLocalDate___closed__0_once, _init_l_Std_Time_DateTime_ofLocalDate___closed__0);
 v___x_249_ = lean_obj_once(&l_Std_Time_PlainDateTime_now___closed__1, &l_Std_Time_PlainDateTime_now___closed__1_once, _init_l_Std_Time_PlainDateTime_now___closed__1);
 v___x_250_ = lean_int_mul(v_second_243_, v___x_249_);
@@ -1091,7 +1089,6 @@ v_ltt_274_ = l_Std_Time_TimeZone_ZoneRules_findLocalTimeTypeForWallTime(v___x_27
 v_tz_275_ = l_Std_Time_TimeZone_LocalTimeType_getTimeZone(v_ltt_274_);
 lean_dec_ref(v_ltt_274_);
 v_offset_276_ = lean_ctor_get(v_tz_275_, 0);
-lean_inc(v_offset_276_);
 v_second_277_ = lean_ctor_get(v_wt_273_, 0);
 lean_inc(v_second_277_);
 v_nano_278_ = lean_ctor_get(v_wt_273_, 1);
@@ -1101,7 +1098,6 @@ v___f_279_ = lean_alloc_closure((void*)(l_Std_Time_DateTime_ofLocalDate___lam__0
 lean_closure_set(v___f_279_, 0, v___x_266_);
 v___x_280_ = lean_mk_thunk(v___f_279_);
 v___x_281_ = lean_int_neg(v_offset_276_);
-lean_dec(v_offset_276_);
 v___x_282_ = lean_obj_once(&l_Std_Time_DateTime_ofLocalDate___closed__0, &l_Std_Time_DateTime_ofLocalDate___closed__0_once, _init_l_Std_Time_DateTime_ofLocalDate___closed__0);
 v___x_283_ = lean_obj_once(&l_Std_Time_PlainDateTime_now___closed__1, &l_Std_Time_PlainDateTime_now___closed__1_once, _init_l_Std_Time_PlainDateTime_now___closed__1);
 v___x_284_ = lean_int_mul(v_second_277_, v___x_283_);
@@ -1229,7 +1225,6 @@ v_ltt_321_ = l_Std_Time_TimeZone_ZoneRules_findLocalTimeTypeForWallTime(v_a_316_
 v_tz_322_ = l_Std_Time_TimeZone_LocalTimeType_getTimeZone(v_ltt_321_);
 lean_dec_ref(v_ltt_321_);
 v_offset_323_ = lean_ctor_get(v_tz_322_, 0);
-lean_inc(v_offset_323_);
 v_second_324_ = lean_ctor_get(v_wt_320_, 0);
 lean_inc(v_second_324_);
 v_nano_325_ = lean_ctor_get(v_wt_320_, 1);
@@ -1237,7 +1232,6 @@ lean_inc(v_nano_325_);
 lean_dec_ref(v_wt_320_);
 v___x_326_ = lean_mk_thunk(v___f_314_);
 v___x_327_ = lean_int_neg(v_offset_323_);
-lean_dec(v_offset_323_);
 v___x_328_ = lean_obj_once(&l_Std_Time_DateTime_ofLocalDate___closed__0, &l_Std_Time_DateTime_ofLocalDate___closed__0_once, _init_l_Std_Time_DateTime_ofLocalDate___closed__0);
 v___x_329_ = lean_obj_once(&l_Std_Time_PlainDateTime_now___closed__1, &l_Std_Time_PlainDateTime_now___closed__1_once, _init_l_Std_Time_PlainDateTime_now___closed__1);
 v___x_330_ = lean_int_mul(v_second_324_, v___x_329_);

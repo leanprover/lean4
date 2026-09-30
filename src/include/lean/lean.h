@@ -757,6 +757,10 @@ static inline unsigned lean_obj_tag(lean_object * o) {
     if (lean_is_scalar(o)) return lean_unbox(o); else return lean_ptr_tag(o);
 }
 
+static inline lean_object* lean_obj_tag_nat(b_lean_obj_arg o) {
+    return lean_box(lean_obj_tag(o));
+}
+
 static inline lean_ctor_object * lean_to_ctor(lean_object * o) { assert(lean_is_ctor(o)); return (lean_ctor_object*)(o); }
 static inline lean_closure_object * lean_to_closure(lean_object * o) { assert(lean_is_closure(o)); return (lean_closure_object*)(o); }
 static inline lean_array_object * lean_to_array(lean_object * o) { assert(lean_is_array(o)); return (lean_array_object*)(o); }

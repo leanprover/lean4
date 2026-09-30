@@ -244,15 +244,9 @@ if (lean_obj_tag(v___x_23_) == 1)
 {
 lean_object* v_val_24_; lean_object* v_numParams_25_; lean_object* v_numFields_26_; lean_object* v___x_27_; lean_object* v___x_28_; uint8_t v___x_29_; 
 v_val_24_ = lean_ctor_get(v___x_23_, 0);
-lean_inc(v_val_24_);
 v_numParams_25_ = lean_ctor_get(v_val_24_, 3);
-lean_inc(v_numParams_25_);
 v_numFields_26_ = lean_ctor_get(v_val_24_, 4);
-lean_inc(v_numFields_26_);
-lean_dec(v_val_24_);
 v___x_27_ = lean_nat_add(v_numParams_25_, v_numFields_26_);
-lean_dec(v_numFields_26_);
-lean_dec(v_numParams_25_);
 v___x_28_ = l_Lean_Expr_getAppNumArgs(v_e_16_);
 v___x_29_ = lean_nat_dec_eq(v___x_27_, v___x_28_);
 lean_dec(v___x_28_);
@@ -1404,10 +1398,8 @@ if (lean_obj_tag(v___x_444_) == 0)
 {
 lean_object* v_a_445_; 
 v_a_445_ = lean_ctor_get(v___x_444_, 0);
-lean_inc(v_a_445_);
 if (lean_obj_tag(v_a_445_) == 1)
 {
-lean_dec_ref_known(v_a_445_, 1);
 lean_dec_ref(v_e_385_);
 return v___x_444_;
 }
@@ -1415,7 +1407,6 @@ else
 {
 lean_object* v___x_446_; 
 lean_dec_ref_known(v___x_444_, 1);
-lean_dec(v_a_445_);
 lean_inc(v_a_389_);
 lean_inc_ref(v_a_388_);
 lean_inc(v_a_387_);
@@ -1821,9 +1812,7 @@ if (lean_obj_tag(v___x_614_) == 0)
 {
 lean_object* v_a_615_; uint8_t v___x_616_; 
 v_a_615_ = lean_ctor_get(v___x_614_, 0);
-lean_inc(v_a_615_);
 v___x_616_ = lean_unbox(v_a_615_);
-lean_dec(v_a_615_);
 if (v___x_616_ == 0)
 {
 lean_object* v___x_617_; 
@@ -2527,10 +2516,8 @@ if (lean_obj_tag(v___x_788_) == 0)
 {
 lean_object* v_a_789_; 
 v_a_789_ = lean_ctor_get(v___x_788_, 0);
-lean_inc(v_a_789_);
 if (lean_obj_tag(v_a_789_) == 1)
 {
-lean_dec_ref_known(v_a_789_, 1);
 lean_dec_ref(v_e_703_);
 return v___x_788_;
 }
@@ -2538,7 +2525,6 @@ else
 {
 lean_object* v___x_790_; 
 lean_dec_ref_known(v___x_788_, 1);
-lean_dec(v_a_789_);
 lean_inc(v_a_707_);
 lean_inc_ref(v_a_706_);
 lean_inc(v_a_705_);

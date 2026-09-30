@@ -23,11 +23,9 @@ open Std.Sat Std.Sat.AIG
 
 namespace BVLogicalExpr
 
-/--
-Turn a `BoolExpr` into an `Entrypoint`.
--/
-def bitblast (expr : BVLogicalExpr) : Entrypoint BVBit :=
-  go AIG.empty expr .empty |>.result.val
+def bitblastWithCache (expr : BVLogicalExpr) (aig : AIG BVBit) (cache : BVExpr.Cache aig) :
+    Return aig :=
+  go aig expr cache
 where
   go (aig : AIG BVBit) (expr : BVLogicalExpr) (cache : BVExpr.Cache aig) : Return aig :=
     match expr with
@@ -108,7 +106,13 @@ where
           omega
         ⟨⟨ret, this⟩, cache⟩
 
-namespace bitblast
+/--
+Turn a `BoolExpr` into an `Entrypoint`.
+-/
+def bitblast (expr : BVLogicalExpr) : Entrypoint BVBit :=
+  bitblastWithCache expr AIG.empty .empty |>.result.val
+
+namespace bitblastWithCache
 
 theorem go_le_size (aig : AIG BVBit) (expr : BVLogicalExpr) (cache : BVExpr.Cache aig) :
     aig.decls.size ≤ (go aig expr cache).result.val.aig.decls.size :=
@@ -199,7 +203,17 @@ theorem go_denote_mem_prefix (aig : AIG BVBit) (cache : BVExpr.Cache aig) (hstar
   apply denote.eq_of_isPrefix (entry := ⟨aig, start, inv, hstart⟩)
   apply go_isPrefix_aig
 
-end bitblast
+end bitblastWithCache
+
+open bitblastWithCache in
+theorem bitblastWithCache_isPrefix_aig {aig : AIG BVBit} {cache : BVExpr.Cache aig} :
+    IsPrefix aig.decls (bitblastWithCache expr aig cache).result.val.aig.decls := by
+  unfold bitblastWithCache
+  apply IsPrefix.of
+  · intro idx h
+    apply go_decl_eq
+  · apply go_le_size
+
 end BVLogicalExpr
 
 end Std.Tactic.BVDecide

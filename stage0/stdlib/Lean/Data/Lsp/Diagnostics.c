@@ -1503,14 +1503,7 @@ lean_object* v_s_245_; lean_object* v_s_246_; uint8_t v___x_247_;
 v_s_245_ = lean_ctor_get(v_x_234_, 0);
 v_s_246_ = lean_ctor_get(v_x_235_, 0);
 v___x_247_ = lean_string_compare(v_s_245_, v_s_246_);
-if (v___x_247_ == 1)
-{
 return v___x_247_;
-}
-else
-{
-return v___x_247_;
-}
 }
 }
 }
@@ -2861,14 +2854,7 @@ if (v___x_693_ == 1)
 {
 uint8_t v___x_694_; 
 v___x_694_ = lean_string_compare(v_message_690_, v_message_692_);
-if (v___x_694_ == 1)
-{
 return v___x_694_;
-}
-else
-{
-return v___x_694_;
-}
 }
 else
 {

@@ -24,7 +24,7 @@ builtin support for both in its `cutsat` solver, including the `Nat` to `Int` ca
 so there is no injection out of `Nat` or `Int` and none should be added. The rules here
 support the source types (`BitVec`, `Fin`, the fixed-width integer types), applied to the
 `Nat` and `Int` images their injections produce: shifts are normalized to arithmetic,
-`testBit` decomposes bitwise operations, and the `%`-cleanup rules remove the redundant
+`testBit` decomposes bitwise operations, and the `%`/`bmod`-cleanup rules remove the redundant
 modular wrappers introduced by the injections.
 -/
 
@@ -45,11 +45,16 @@ registered for E-matching instead.
 -/
 
 attribute [grind hom]
-  Int.shiftLeft_eq Int.shiftRight_eq_div_pow
+  Int.shiftLeft_eq Int.shiftRight_eq_div_pow Int.not_eq_neg_sub_one
   Int.ofNat_toNat Int.toNat_sub'
   Int.emod_add_emod Int.add_emod_emod
   Int.emod_sub_emod Int.sub_emod_emod
   Int.emod_emod
+
+attribute [grind hom]
+  Int.bmod_add_bmod Int.add_bmod_bmod Int.bmod_sub_bmod Int.sub_bmod_bmod
+  Int.bmod_mul_bmod Int.mul_bmod_bmod Int.bmod_neg_bmod Int.bmod_bmod
+  Int.emod_bmod Int.bmod_emod
 
 @[grind hom] theorem Lean.Grind.Int.emod_mul_emod (m n k : Int) : m % n * k % n = m * k % n := by
   rw [Int.mul_emod, Int.emod_emod, ← Int.mul_emod]

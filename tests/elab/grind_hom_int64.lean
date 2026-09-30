@@ -21,6 +21,8 @@ example (x : Int64) : x ^^^ x = 0 := by grind
 example (x : Int64) : x &&& x = x := by grind
 example (x : Int64) : x ||| x = x := by grind
 example (x : Int64) : ~~~(~~~x) = x := by grind
+example (x : Int64) : ~~~x = -x - 1 := by grind
+example (x : Int64) : (~~~x).toInt = (~~~x.toInt).bmod (2 ^ 64) := by grind
 
 -- Shifts
 example (x : Int64) : x <<< 1 = x + x := by grind
@@ -30,11 +32,8 @@ example (x : Int64) : x <<< 3 = x * 8 := by grind
 -- Signed comparisons
 example (x y z : Int64) : x < y → y < z → x < z := by grind
 example (x y : Int64) : x ≤ y → y ≤ x → x = y := by grind
--- TODO: `grind` fails (`BitVec.slt`/`BitVec.sle` as `Bool`)
-/-
 example (x y : Int64) : (x < y) ↔ (x.toBitVec.slt y.toBitVec = true) := by grind
 example (x y : Int64) : (x ≤ y) ↔ (x.toBitVec.sle y.toBitVec = true) := by grind
--/
 
 -- Word boundary and overflow logic
 example : (2^63 - 1 : Int64) + 1 = -(2^63) := by grind

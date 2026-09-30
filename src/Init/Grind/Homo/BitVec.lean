@@ -23,16 +23,18 @@ attribute [grind hom]
   BitVec.toNat_shiftLeft BitVec.toNat_ushiftRight BitVec.toNat_append_eq_mul_add
   BitVec.ofNat_toNat BitVec.toNat_setWidth BitVec.toNat_ofInt
   BitVec.toNat_eq BitVec.le_def BitVec.lt_def
-  BitVec.sle_iff_toInt_le BitVec.slt_iff_toInt_lt
+  BitVec.sle_eq_decide BitVec.slt_eq_decide
   BitVec.toInt_add BitVec.toInt_sub BitVec.toInt_mul BitVec.toInt_neg
-  BitVec.toInt_not BitVec.toInt_shiftLeft BitVec.toInt_sshiftRight
+  BitVec.toInt_not BitVec.toInt_shiftLeft_eq_toInt_shiftLeft_bmod BitVec.toInt_sshiftRight
   BitVec.toInt_sdiv BitVec.toInt_srem BitVec.toInt_smod
   BitVec.setWidth_eq
   BitVec.xor_allOnes BitVec.allOnes_and BitVec.and_allOnes BitVec.not_zero
   BitVec.zero_and BitVec.and_zero BitVec.zero_or BitVec.or_zero
   BitVec.zero_xor BitVec.xor_zero BitVec.xor_self
-  BitVec.toInt_signExtend
+  BitVec.toInt_signExtend BitVec.toInt_setWidth
   BitVec.toNat_pow BitVec.toInt_pow
+  BitVec.toNat_rotateLeft_eq_add BitVec.toNat_rotateRight_eq_add
+  BitVec.toNat_sshiftRight_eq_toNat_emod
 
 /- `grind` keeps `BitVec` literals in `OfNat.ofNat` form, so the rule must be stated in
 this form for the structural `Sym.simp` retrieval to find it. -/

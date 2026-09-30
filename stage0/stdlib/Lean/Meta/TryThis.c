@@ -1266,12 +1266,8 @@ if (lean_obj_tag(v___x_430_) == 0)
 {
 lean_object* v_startInclusive_431_; lean_object* v_endExclusive_432_; lean_object* v___x_433_; 
 v_startInclusive_431_ = lean_ctor_get(v___x_419_, 1);
-lean_inc(v_startInclusive_431_);
 v_endExclusive_432_ = lean_ctor_get(v___x_419_, 2);
-lean_inc(v_endExclusive_432_);
 v___x_433_ = lean_nat_sub(v_endExclusive_432_, v_startInclusive_431_);
-lean_dec(v_startInclusive_431_);
-lean_dec(v_endExclusive_432_);
 v___y_421_ = v___x_433_;
 goto v___jp_420_;
 }

@@ -141,7 +141,7 @@ theorem getElem_setWidth (m : Nat) (x : BitVec n) (i : Nat) (h : i < m) :
     · simp_all only [getElem_setWidth, getLsbD_eq_getElem]
     · omega
 
-@[simp, bitvec_to_nat, grind =]
+@[simp, bitvec_to_nat]
 theorem toNat_neg (x : BitVec n) : (- x).toNat = (2^n - x.toNat) % 2^n := by
   simp [Neg.neg, BitVec.neg]
 

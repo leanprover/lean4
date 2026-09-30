@@ -392,9 +392,17 @@ structure SynthInstanceCacheEntry where
 Type class resolution cache. Each key holds one entry per observed set of dependencies: the search
 records what it observes as the entry's `RecordedDeps`, and a lookup only uses an entry whose
 recorded dependencies still hold in the current context. What the search never observes does not
-partition the cache. Options are currently the only recorded dependencies: the search reads them
-through `getRecordedOption` and runs with `Core.Context.isRecordingDeps` set, so an unrecorded
-option read panics.
+partition the cache. The recorded dependencies are the option lookups (`getRecordedOption`) and the
+generations of the instance and unification-hint extensions read
+(`PersistentEnvExtensionDescrCore.trackGen`). The search runs with `Core.Context.isRecordingDeps`
+set, so an unrecorded option read panics.
+
+The generations roll back with the environment, after which a different change can bring them back.
+The entries in `Meta.Cache` survive `SavedState.restore`, which therefore drops those recorded after
+a tracked change it rolls back (`SynthInstanceCache.rollBack`). This limits custom metaprograms that
+roll back the environment bypassing it (e.g. `Core.SavedState.restore` in lifted `CoreM` code) and
+then change it without clearing the cache (e.g. through `liftCommandElabM`): they should call
+`resetSynthInstanceCache`, as otherwise a stale entry can be revalidated.
 -/
 abbrev SynthInstanceCache :=
   PersistentHashMap SynthInstanceCacheKey (List SynthInstanceCacheEntry)
@@ -646,10 +654,28 @@ instance : AddMessageContext MetaM where
 protected def saveState : MetaM SavedState :=
   return { core := (← Core.saveState), «meta» := (← get) }
 
+/--
+Drops the entries recorded after the environment changes a rollback to `trackedGen` undoes. Along one
+environment lineage `Environment.trackedGen` only grows, so these are exactly the entries stamped
+with a larger value.
+-/
+def SynthInstanceCache.rollBack (c : SynthInstanceCache) (trackedGen : Nat) : SynthInstanceCache :=
+  c.foldl (init := c) fun c key entries =>
+    match entries.filter (·.deps.baseTrackedGen ≤ trackedGen) with
+    | []       => c.erase key
+    | entries' => if entries'.length == entries.length then c else c.insert key entries'
+
 /-- Restore backtrackable parts of the state. -/
 def SavedState.restore (b : SavedState) : MetaM Unit := do
+  let trackedGen := b.core.env.trackedGen
+  -- `Meta.Cache` is kept, except for type class resolution cache entries recorded after a tracked
+  -- change being rolled back; see `SynthInstanceCache`.
+  let rolledBack := (← getEnv).trackedGen != trackedGen
   b.core.restore
-  modify fun s => { s with mctx := b.meta.mctx, zetaDeltaFVarIds := b.meta.zetaDeltaFVarIds, postponed := b.meta.postponed }
+  modify fun s => { s with
+    mctx := b.meta.mctx, zetaDeltaFVarIds := b.meta.zetaDeltaFVarIds, postponed := b.meta.postponed
+    cache := if rolledBack then
+      { s.cache with synthInstance := s.cache.synthInstance.rollBack trackedGen } else s.cache }
 
 @[specialize, inherit_doc Core.withRestoreOrSaveFull]
 def withRestoreOrSaveFull (reusableResult? : Option (α × SavedState)) (act : MetaM α) :

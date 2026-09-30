@@ -183,7 +183,7 @@ info: r5: a = b (normal)
 ---
 info: r6: a = 5 (normal)
 ---
-info: r7: 2 * (a * b) ≤ 0
+info: r7: a * b ≤ 0
 ---
 info: r8: 3 * a < b
 -/

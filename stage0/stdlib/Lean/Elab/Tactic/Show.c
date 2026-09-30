@@ -951,11 +951,11 @@ else
 {
 lean_object* v_a_338_; uint8_t v___x_339_; 
 v_a_338_ = lean_ctor_get(v___x_337_, 0);
-lean_inc(v_a_338_);
 v___x_339_ = l_Lean_Exception_isInterrupt(v_a_338_);
 if (v___x_339_ == 0)
 {
 uint8_t v___x_340_; 
+lean_inc(v_a_338_);
 v___x_340_ = l_Lean_Exception_isRuntime(v_a_338_);
 v___y_321_ = v___x_337_;
 v___y_322_ = v_a_334_;
@@ -965,7 +965,6 @@ goto v___jp_320_;
 }
 else
 {
-lean_dec(v_a_338_);
 v___y_321_ = v___x_337_;
 v___y_322_ = v_a_334_;
 v___y_323_ = v___x_332_;

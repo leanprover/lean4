@@ -5025,7 +5025,7 @@ lean_object* v_a_1608_; lean_object* v_lowers_1609_; lean_object* v_vars_1610_; 
 v_a_1608_ = lean_ctor_get(v___x_1607_, 0);
 lean_inc(v_a_1608_);
 lean_dec_ref_known(v___x_1607_, 1);
-v_lowers_1609_ = lean_ctor_get(v_a_1608_, 7);
+v_lowers_1609_ = lean_ctor_get(v_a_1608_, 6);
 lean_inc_ref(v_lowers_1609_);
 v_vars_1610_ = lean_ctor_get(v_a_1608_, 0);
 lean_inc_ref(v_vars_1610_);
@@ -5137,7 +5137,7 @@ lean_object* v_a_1657_; lean_object* v_uppers_1658_; lean_object* v_vars_1659_; 
 v_a_1657_ = lean_ctor_get(v___x_1656_, 0);
 lean_inc(v_a_1657_);
 lean_dec_ref_known(v___x_1656_, 1);
-v_uppers_1658_ = lean_ctor_get(v_a_1657_, 8);
+v_uppers_1658_ = lean_ctor_get(v_a_1657_, 7);
 lean_inc_ref(v_uppers_1658_);
 v_vars_1659_ = lean_ctor_get(v_a_1657_, 0);
 lean_inc_ref(v_vars_1659_);
@@ -7377,7 +7377,7 @@ lean_inc(v_a_2361_);
 lean_dec_ref_known(v___x_2360_, 1);
 v_vars_2362_ = lean_ctor_get(v_a_2361_, 0);
 lean_inc_ref(v_vars_2362_);
-v_dvds_2363_ = lean_ctor_get(v_a_2361_, 6);
+v_dvds_2363_ = lean_ctor_get(v_a_2361_, 5);
 lean_inc_ref(v_dvds_2363_);
 lean_dec(v_a_2361_);
 v_size_2364_ = lean_ctor_get(v_vars_2362_, 2);
@@ -8940,7 +8940,7 @@ goto v___jp_3107_;
 else
 {
 lean_object* v_elimStack_3140_; uint8_t v___x_3141_; 
-v_elimStack_3140_ = lean_ctor_get(v_a_3073_, 11);
+v_elimStack_3140_ = lean_ctor_get(v_a_3073_, 10);
 v___x_3141_ = l_List_elem___at___00Lean_Meta_Grind_Arith_Cutsat_checkElimEqs_spec__0(v_snd_3091_, v_elimStack_3140_);
 if (v___x_3141_ == 0)
 {
@@ -9230,7 +9230,7 @@ goto v___jp_3202_;
 else
 {
 lean_object* v_elimStack_3235_; uint8_t v___x_3236_; 
-v_elimStack_3235_ = lean_ctor_get(v_a_3168_, 11);
+v_elimStack_3235_ = lean_ctor_get(v_a_3168_, 10);
 v___x_3236_ = l_List_elem___at___00Lean_Meta_Grind_Arith_Cutsat_checkElimEqs_spec__0(v_snd_3186_, v_elimStack_3235_);
 if (v___x_3236_ == 0)
 {
@@ -10039,7 +10039,7 @@ goto v___jp_3461_;
 else
 {
 lean_object* v_elimStack_3501_; uint8_t v___x_3502_; 
-v_elimStack_3501_ = lean_ctor_get(v_a_3427_, 11);
+v_elimStack_3501_ = lean_ctor_get(v_a_3427_, 10);
 v___x_3502_ = l_List_elem___at___00Lean_Meta_Grind_Arith_Cutsat_checkElimEqs_spec__0(v_snd_3445_, v_elimStack_3501_);
 if (v___x_3502_ == 0)
 {
@@ -10365,7 +10365,7 @@ goto v___jp_3563_;
 else
 {
 lean_object* v_elimStack_3603_; uint8_t v___x_3604_; 
-v_elimStack_3603_ = lean_ctor_get(v_a_3529_, 11);
+v_elimStack_3603_ = lean_ctor_get(v_a_3529_, 10);
 v___x_3604_ = l_List_elem___at___00Lean_Meta_Grind_Arith_Cutsat_checkElimEqs_spec__0(v_snd_3547_, v_elimStack_3603_);
 if (v___x_3604_ == 0)
 {
@@ -10899,7 +10899,7 @@ lean_object* v_a_3727_; lean_object* v_elimEqs_3728_; lean_object* v_vars_3729_;
 v_a_3727_ = lean_ctor_get(v___x_3726_, 0);
 lean_inc(v_a_3727_);
 lean_dec_ref_known(v___x_3726_, 1);
-v_elimEqs_3728_ = lean_ctor_get(v_a_3727_, 10);
+v_elimEqs_3728_ = lean_ctor_get(v_a_3727_, 9);
 lean_inc_ref(v_elimEqs_3728_);
 v_vars_3729_ = lean_ctor_get(v_a_3727_, 0);
 v_size_3730_ = lean_ctor_get(v_elimEqs_3728_, 2);
@@ -11294,7 +11294,7 @@ lean_object* v_a_3858_; lean_object* v_elimStack_3859_; lean_object* v___x_3860_
 v_a_3858_ = lean_ctor_get(v___x_3857_, 0);
 lean_inc(v_a_3858_);
 lean_dec_ref_known(v___x_3857_, 1);
-v_elimStack_3859_ = lean_ctor_get(v_a_3858_, 11);
+v_elimStack_3859_ = lean_ctor_get(v_a_3858_, 10);
 lean_inc(v_elimStack_3859_);
 lean_dec(v_a_3858_);
 v___x_3860_ = lean_box(0);
@@ -13949,7 +13949,7 @@ lean_inc(v_a_4876_);
 lean_dec_ref_known(v___x_4875_, 1);
 v_vars_4877_ = lean_ctor_get(v_a_4876_, 0);
 lean_inc_ref(v_vars_4877_);
-v_diseqs_4878_ = lean_ctor_get(v_a_4876_, 9);
+v_diseqs_4878_ = lean_ctor_get(v_a_4876_, 8);
 lean_inc_ref(v_diseqs_4878_);
 lean_dec(v_a_4876_);
 v_size_4879_ = lean_ctor_get(v_vars_4877_, 2);

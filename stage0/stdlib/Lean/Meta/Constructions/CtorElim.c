@@ -5689,15 +5689,11 @@ lean_dec(v___x_2193_);
 v___x_2197_ = lean_array_get_size(v_xs_2183_);
 v___x_2198_ = l_Array_toSubarray___redArg(v_xs_2183_, v___x_2196_, v___x_2197_);
 v_start_2199_ = lean_ctor_get(v___x_2198_, 1);
-lean_inc(v_start_2199_);
 v_stop_2200_ = lean_ctor_get(v___x_2198_, 2);
-lean_inc(v_stop_2200_);
 v___x_2201_ = l_Subarray_copy___redArg(v___x_2190_);
 v___x_2202_ = l_Subarray_copy___redArg(v___x_2194_);
 v___x_2203_ = lean_array_push(v___x_2202_, v___x_2195_);
 v___x_2218_ = lean_nat_sub(v_stop_2200_, v_start_2199_);
-lean_dec(v_start_2199_);
-lean_dec(v_stop_2200_);
 v___x_2219_ = lean_nat_dec_lt(v_i_2178_, v___x_2218_);
 lean_dec(v___x_2218_);
 if (v___x_2219_ == 0)
@@ -7133,8 +7129,8 @@ else
 lean_object* v_a_2678_; lean_object* v___x_2680_; uint8_t v_isShared_2681_; uint8_t v_isSharedCheck_2685_; 
 lean_dec(v___x_2659_);
 lean_dec(v___x_2658_);
-lean_dec_ref_known(v___x_2656_, 2);
 lean_dec(v_tail_2657_);
+lean_dec_ref_known(v___x_2656_, 2);
 lean_del_object(v___x_2653_);
 lean_dec_ref(v_val_2647_);
 lean_dec(v_indName_2639_);

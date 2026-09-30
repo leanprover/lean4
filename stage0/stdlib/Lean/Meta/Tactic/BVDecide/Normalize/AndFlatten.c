@@ -67,6 +67,7 @@ lean_object* l_Lean_Name_append(lean_object*, lean_object*);
 uint8_t l___private_Lean_Util_Trace_0__Lean_checkTraceOption_go(lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_MessageData_ofExpr(lean_object*);
 lean_object* lean_nat_sub(lean_object*, lean_object*);
+lean_object* lean_array_fget_borrowed(lean_object*, lean_object*);
 uint8_t lean_expr_eqv(lean_object*, lean_object*);
 lean_object* lean_mk_empty_array_with_capacity(lean_object*);
 lean_object* l_Lean_Meta_Tactic_BVDecide_Normalize_Target_mvarId(lean_object*);
@@ -2545,10 +2546,8 @@ lean_dec(v_n_1063_);
 if (v_isZero_1064_ == 1)
 {
 lean_object* v_newHyp_1065_; lean_object* v_type_1066_; lean_object* v_type_1067_; uint8_t v___x_1068_; 
-v_newHyp_1065_ = lean_array_fget(v___x_1020_, v___x_1016_);
+v_newHyp_1065_ = lean_array_fget_borrowed(v___x_1020_, v___x_1016_);
 v_type_1066_ = lean_ctor_get(v_newHyp_1065_, 1);
-lean_inc_ref(v_type_1066_);
-lean_dec(v_newHyp_1065_);
 v_type_1067_ = lean_ctor_get(v___x_1015_, 1);
 v___x_1068_ = lean_expr_eqv(v_type_1066_, v_type_1067_);
 if (v___x_1068_ == 0)
@@ -2560,7 +2559,6 @@ v_inheritedTraceOptions_1071_ = lean_ctor_get(v_toCold_1069_, 11);
 v_hasTrace_1072_ = lean_ctor_get_uint8(v_options_1070_, sizeof(void*)*1);
 if (v_hasTrace_1072_ == 0)
 {
-lean_dec_ref(v_type_1066_);
 goto v___jp_1073_;
 }
 else
@@ -2571,7 +2569,6 @@ v___x_1077_ = lean_obj_once(&l___private_Init_Data_Array_Basic_0__Array_foldlMUn
 v___x_1078_ = l___private_Lean_Util_Trace_0__Lean_checkTraceOption_go(v_inheritedTraceOptions_1071_, v_options_1070_, v___x_1077_);
 if (v___x_1078_ == 0)
 {
-lean_dec_ref(v_type_1066_);
 goto v___jp_1073_;
 }
 else
@@ -2583,6 +2580,7 @@ v___x_1080_ = lean_obj_once(&l___private_Init_Data_Array_Basic_0__Array_foldlMUn
 v___x_1081_ = lean_alloc_ctor(7, 2, 0);
 lean_ctor_set(v___x_1081_, 0, v___x_1079_);
 lean_ctor_set(v___x_1081_, 1, v___x_1080_);
+lean_inc_ref(v_type_1066_);
 v___x_1082_ = l_Lean_MessageData_ofExpr(v_type_1066_);
 v___x_1083_ = lean_alloc_ctor(7, 2, 0);
 lean_ctor_set(v___x_1083_, 0, v___x_1081_);
@@ -2654,7 +2652,6 @@ goto v___jp_1011_;
 }
 else
 {
-lean_dec_ref(v_type_1066_);
 v_a_1006_ = v___x_1020_;
 goto v___jp_1005_;
 }

@@ -942,10 +942,8 @@ lean_object* v_s_201_; lean_object* v_errorMsg_202_; lean_object* v___x_203_; ui
 lean_inc(v_expected_198_);
 v_s_201_ = l_Lake_Toml_digitFn(v_expected_198_, v_a_199_, v_a_200_);
 v_errorMsg_202_ = lean_ctor_get(v_s_201_, 4);
-lean_inc(v_errorMsg_202_);
 v___x_203_ = lean_box(0);
 v___x_204_ = l_Option_instBEq_beq___at___00Lake_Toml_optFn_spec__0(v_errorMsg_202_, v___x_203_);
-lean_dec(v_errorMsg_202_);
 if (v___x_204_ == 0)
 {
 lean_dec(v_expected_198_);
@@ -1029,10 +1027,8 @@ v___x_236_ = lean_string_utf8_get_fast(v_str_230_, v_strPos_232_);
 lean_inc(v_expected_231_);
 v_s_237_ = l_Lake_Toml_chFn(v___x_236_, v_expected_231_, v_c_233_, v_s_234_);
 v_errorMsg_238_ = lean_ctor_get(v_s_237_, 4);
-lean_inc(v_errorMsg_238_);
 v___x_239_ = lean_box(0);
 v___x_240_ = l_Option_instBEq_beq___at___00Lake_Toml_optFn_spec__0(v_errorMsg_238_, v___x_239_);
-lean_dec(v_errorMsg_238_);
 if (v___x_240_ == 0)
 {
 lean_dec(v_strPos_232_);

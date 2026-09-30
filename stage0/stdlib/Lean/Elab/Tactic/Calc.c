@@ -555,9 +555,7 @@ if (lean_obj_tag(v___x_249_) == 0)
 {
 lean_object* v_a_250_; uint8_t v___x_251_; 
 v_a_250_ = lean_ctor_get(v___x_249_, 0);
-lean_inc(v_a_250_);
 v___x_251_ = lean_unbox(v_a_250_);
-lean_dec(v_a_250_);
 if (v___x_251_ == 0)
 {
 lean_dec(v_a_248_);

@@ -415,7 +415,11 @@ endif()
 
 # OpenSSL
 if(NOT "${CMAKE_SYSTEM_NAME}" MATCHES "Emscripten")
-  find_package(OpenSSL 3 REQUIRED COMPONENTS Crypto SSL)
+  if(CMAKE_SYSTEM_NAME STREQUAL "OpenBSD")
+    find_package(OpenSSL REQUIRED COMPONENTS Crypto SSL)
+  else()
+    find_package(OpenSSL 3 REQUIRED COMPONENTS Crypto SSL)
+  endif()
   set(OPENSSL_LIBRARIES ${OPENSSL_SSL_LIBRARY} ${OPENSSL_CRYPTO_LIBRARY})
   include_directories(${OPENSSL_INCLUDE_DIR})
   string(JOIN " " OPENSSL_LIBRARIES_STR ${OPENSSL_LIBRARIES})

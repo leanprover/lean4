@@ -165,6 +165,9 @@ private def checkAndAddSplitCandidate (e : Expr) : GoalM Unit := do
       -- We used to add the `split` only if `lookahead := false`, but it was counterintuitive
       -- to make `grind` "stronger" by disabling a feature.
       addSplitCandidate (.imp e (h ▸ rfl) currSplitSource)
+    else if d.isForall && d.bindingBody!.hasLooseBVars && (← isProp d) then
+      -- `grind` has few propagation rules for assigning `True` to a universal quantifier.
+      addSplitCandidate (.imp e (h ▸ rfl) currSplitSource)
   | _ => pure ()
 
 /--

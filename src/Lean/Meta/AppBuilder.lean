@@ -106,6 +106,14 @@ def mkEqSymm (h : Expr) : MetaM Expr := do
       return mkApp4 (mkConst ``Eq.symm [u]) α a b h
     | none => throwAppBuilderException ``Eq.symm ("equality proof expected" ++ hasTypeMsg h hType)
 
+/-- Given `h₁ : @Eq α a b` and `h₂ : @Eq α b c` with `α : Sort u`, returns `@Eq.trans α a b c h₁ h₂`. -/
+def mkEqTransCore (u : Level) (α a b c h₁ h₂ : Expr) : Expr :=
+  mkApp6 (mkConst ``Eq.trans [u]) α a b c h₁ h₂
+
+/-- Given `h₁ : a = b` and `h₂ : b = c` for propositions `a b c`, returns a proof of `a = c`. -/
+def mkEqTransCoreProp (a b c h₁ h₂ : Expr) : Expr :=
+  mkEqTransCore 1 (mkSort 0) a b c h₁ h₂
+
 /-- Given `h₁ : a = b` and `h₂ : b = c`, returns a proof of `a = c`. -/
 def mkEqTrans (h₁ h₂ : Expr) : MetaM Expr := do
   if h₁.isAppOf ``Eq.refl then
@@ -118,7 +126,7 @@ def mkEqTrans (h₁ h₂ : Expr) : MetaM Expr := do
     match hType₁.eq?, hType₂.eq? with
     | some (α, a, b), some (_, _, c) =>
       let u ← getLevel α
-      return mkApp6 (mkConst ``Eq.trans [u]) α a b c h₁ h₂
+      return mkEqTransCore u α a b c h₁ h₂
     | none, _ => throwAppBuilderException ``Eq.trans ("equality proof expected" ++ hasTypeMsg h₁ hType₁)
     | _, none => throwAppBuilderException ``Eq.trans ("equality proof expected" ++ hasTypeMsg h₂ hType₂)
 

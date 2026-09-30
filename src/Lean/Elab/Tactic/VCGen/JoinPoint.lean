@@ -13,6 +13,7 @@ import Lean.Meta.Sym.InstantiateMVarsS
 import Lean.Meta.Sym.InstantiateS
 import Lean.Meta.Sym.AbstractS
 import Lean.Meta.Sym.Intro
+import Lean.Elab.Tactic.VCGen.Util
 
 open Lean Meta Sym Sym.Internal
 open Lean.Order
@@ -115,7 +116,7 @@ public def registerJoinPoint (goal : MVarId) (jp : FVarId) (val : Expr) (info : 
       ← mkForallFVarsS xs (← triple (← mkAppNS (.fvar jp) xs)),
       ← mkForallFVarsS xs (← triple (← betaS val xs)), numStates)
   let body ← mkFreshExprSyntheticOpaqueMVar bodyTy (← goal.getTag)
-  let goal ← goal.define `__do_jp_spec specTy body
+  let goal ← goal.replaceTargetDefEqFast (← mkLetS `__do_jp_spec specTy body (← goal.getType))
   let .goal decls goal ← Sym.introN goal 1
     | throwError "vcgen +jp: failed to introduce the proof of{indentExpr specTy}"
   let lctxSize := (← goal.getDecl).lctx.numIndices

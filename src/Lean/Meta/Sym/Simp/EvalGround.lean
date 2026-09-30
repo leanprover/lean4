@@ -839,6 +839,7 @@ def evalGroundCore (e : Expr) : EvalM Result :=
   | UInt64.toBitVec a => evalUInt64ToBitVec a
   | Char.ofNat n => evalCharOfNat n
   | Char.toNat a => evalCharUnary Char.toNat a
+  | Char.val a => evalCharUnary Char.val a
   | Char.toLower a => evalCharUnary Char.toLower a
   | Char.toUpper a => evalCharUnary Char.toUpper a
   | Char.isWhitespace a => evalCharPred Char.isWhitespace a

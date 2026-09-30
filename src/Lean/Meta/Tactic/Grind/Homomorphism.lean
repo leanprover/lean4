@@ -221,7 +221,9 @@ def processNewEq (a b : Expr) : GoalM Unit := do
   unless (← hasSameType a b) do return ()
   let eq ← shareCommon (← mkEq a b)
   let some (t, hEqProp) ← applyHomo? eq | return ()
-  let fact ← mkEqMP hEqProp (← mkEqProof a b)
+  -- The stored type of a fact may differ from the inferred type of its proof by
+  -- `zetaDelta` and ground evaluation, which `isDefEq` cannot always replay.
+  let fact ← mkEqMPCore eq t hEqProp (← mkEqProof a b)
   let generation := max (← getGeneration a) (← getGeneration b)
   trace_goal[grind.hom] "{eq}\n===>\n{t}"
   addNewRawFact fact t generation .input .other
@@ -241,7 +243,7 @@ def processNewDiseq (a b : Expr) : GoalM Unit := do
   let eq ← shareCommon (← mkEq a b)
   let some (t, hEqProp) ← applyHomo? eq | return ()
   let hne ← mkDiseqProof a b
-  let fact ← mkEqMP (← mkCongrArg (mkConst ``Not) hEqProp) hne
+  let fact ← mkEqMPCore (mkNot eq) (mkNot t) (← mkCongrArg (mkConst ``Not) hEqProp) hne
   let generation := max (← getGeneration a) (← getGeneration b)
   trace_goal[grind.hom] "{mkNot eq}\n===>\n{mkNot t}"
   addNewRawFact fact (mkNot t) generation .input .other

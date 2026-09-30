@@ -59,8 +59,6 @@ set_option maxHeartbeats 10000000
     `(tactic| vcgen) `(tactic| sorry) [10]
   runBenchUsingTactic ``MatchSplit.Goal [``MatchSplit.loop, ``MatchSplit.step]
     `(tactic| vcgen) `(tactic| grind) [10]
-  -- `+jp` shares the trailing continuation across the splitter alts; without it the VC count
-  -- grows exponentially in the number of `if`s in `step`.
   runBenchUsingTactic ``IfsJP.Goal [``IfsJP.loop, ``IfsJP.step]
     `(tactic| vcgen +jp) `(tactic| grind) [3]
   runBenchUsingTactic ``MatchesJP.Goal [``MatchesJP.loop, ``MatchesJP.step]

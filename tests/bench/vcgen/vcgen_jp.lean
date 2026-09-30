@@ -19,7 +19,7 @@ set_option maxRecDepth 10000
 set_option maxHeartbeats 10000000
 
 #eval runBenchUsingTactic ``IfsJP.Goal [``IfsJP.loop, ``IfsJP.step] `(tactic| vcgen +jp) `(tactic| sorry)
-  [30]
+  [20, 40, 60]
 
 #eval runBenchUsingTactic ``MatchesJP.Goal [``MatchesJP.loop, ``MatchesJP.step] `(tactic| vcgen +jp) `(tactic| sorry)
-  [30]
+  [20, 40, 60]

@@ -441,8 +441,21 @@ def mkEqRec (motive h1 h2 : Expr) : MetaM Expr := do
       | _ =>
         throwAppBuilderException ``Eq.rec ("invalid motive" ++ indentExpr motive)
 
-def mkEqMP (eqProof pr : Expr) : MetaM Expr :=
-  mkAppM ``Eq.mp #[eqProof, pr]
+/--
+Returns `Eq.mp h a : β` for `h : α = β` and `a : α`, without inferring or checking the
+types of `h` and `a`. Use this when `α` is only definitionally equal to the type of `a`
+in a way `isDefEq` may fail to establish (e.g. after `zetaDelta` and ground evaluation).
+-/
+def mkEqMPCore (α β h a : Expr) : MetaM Expr := do
+  let u ← getLevel α
+  return mkApp4 (mkConst ``Eq.mp [u]) α β h a
+
+/-- Given `h : α = β` and `a : α`, returns `Eq.mp h a : β`. The type of `a` is not checked. -/
+def mkEqMP (eqProof pr : Expr) : MetaM Expr := do
+  let eqType ← infer eqProof
+  match eqType.eq? with
+  | some (_, α, β) => mkEqMPCore α β eqProof pr
+  | none => throwAppBuilderException ``Eq.mp ("equality proof expected" ++ hasTypeMsg eqProof eqType)
 
 def mkEqMPR (eqProof pr : Expr) : MetaM Expr :=
   mkAppM ``Eq.mpr #[eqProof, pr]

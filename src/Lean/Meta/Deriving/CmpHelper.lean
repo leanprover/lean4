@@ -553,7 +553,7 @@ partial def computeBackDeps (vars : Array Expr) (idxOfVar : FVarIdMap Nat) :
   return backDeps
 
 partial def computeSubstitutionVars (vars : Array Expr) (idxOfVar : FVarIdMap Nat)
-    (isIH : Nat → Bool) : MetaM (Array (Array Nat)) := do
+    (isIH : Nat → MetaM Bool) : MetaM (Array (Array Nat)) := do
   let mut fwdDeps : Array (Std.TreeSet Nat) := Array.replicate vars.size {}
   let mut j := vars.size
   while j > 0 do
@@ -562,7 +562,7 @@ partial def computeSubstitutionVars (vars : Array Expr) (idxOfVar : FVarIdMap Na
     let type ← inferType field
     let state := collectFVars {} type
     let myDeps := fwdDeps[j]!
-    let shouldMerge ← pure (!myDeps.isEmpty) <||> (pure (!isIH j) <&&> notM (isProof field))
+    let shouldMerge ← pure (!myDeps.isEmpty) <||> (notM (isIH j) <&&> notM (isProof field))
     if shouldMerge then
       let myDeps := fwdDeps[j]!
       -- transfer forward dependencies
@@ -627,41 +627,6 @@ def FnAccumulator.insert (acc : FnAccumulator) (kind : Kind) (typeLambda : Expr)
     let tree := acc.tree.insertKeyValue path idx
     return (newEntry, { acc with entries, tree })
 
-def unitConstructor? (ty : Expr) : MetaM (Option Expr) := do
-  let ty ← whnf ty
-  ty.withApp fun fn args => do
-    let .const nm us := fn | return none
-    let some info ← isInductive? nm | return none
-    unless !info.isRec ∧ info.numIndices = 0 do return none
-    let [ctor] := info.ctors | return none
-    let some cinfo ← isCtor? ctor | return none
-    unless cinfo.numFields = 0 do return none
-    return mkAppN (.const ctor us) args
-
-/--
-Like `forallMetaTelescopeReducing` but allows for different arguments other than metavariables.
--/
-def forallMetaTelescopeReducingCustom (type : Expr)
-    (mkArg : (prevArgs : Array Expr) → (expectedType : Expr) → MetaM Expr) :
-    MetaM (Array Expr × Expr) := do
-  let mut args := #[]
-  let mut beginIdx := 0
-  let mut type ← whnf type
-  repeat
-    if let .forallE _ t b _ := type then
-      let t := t.instantiateBetaRevRange beginIdx args.size args
-      let val ← mkArg args t
-      args := args.push val
-      type := b
-    else
-      type := type.instantiateBetaRevRange beginIdx args.size args
-      type ← whnf type
-      beginIdx := args.size
-      let .forallE _ t b _ := type | return (args, type)
-      let val ← mkArg args t
-      args := args.push val
-      type := b
-
 def recursorAltToEquation (kind : Kind) (alt : Expr) (idxOfMotive : FVarIdMap Nat)
     (cmpFnsByMotiveIdx : Array Expr) : StateT FnAccumulator MetaM Expr := do
   forallTelescope alt fun lhsVars body => do
@@ -669,43 +634,42 @@ def recursorAltToEquation (kind : Kind) (alt : Expr) (idxOfMotive : FVarIdMap Na
     -- j ∈ allFwdDeps[i] ↔ fields[j] depends on fields[i]
     -- allBackDeps[i] are all variables lhsFields[i] transitively depends on
     -- allFwdDeps[i] are all variables that need to be touched for substitution
+    let isIH? (i : Nat) : MetaM (Option (Expr × Nat)) :=
+      lhsIHs[i]!.filterM fun (ih, i) => do
+        pure (i < cmpFnsByMotiveIdx.size) <&&> -- filter out nested occurrences
+          notM (do return (← inferType ih).isForall) -- and reflexive occurrences
     let allBackDeps ← computeBackDeps lhsFields idxOfLhsField
     let allFwdDeps ← computeSubstitutionVars lhsFields idxOfLhsField
-      (isIH := fun i => lhsIHs[i]!.any (fun (_, i) => i < cmpFnsByMotiveIdx.size))
+      (isIH := fun i => Option.isSome <$> isIH? i)
     let rec makeCmp (i : Nat) (rhsFields : Array Expr) : StateT FnAccumulator MetaM Expr := do
       if h : i < lhsFields.size then
         let lhsField := lhsFields[i]
         let rhsField := rhsFields[i]!
         let fwdDeps := allFwdDeps[i]!
         let fieldType ← inferType lhsField
-        -- We only want to consider non-nested recursive occurrences
+        -- We only want to consider non-nested, non-reflexive recursive occurrences
         -- Nested occurrences are handled later and not in `_beqHelper` / `_ordHelper` directly
-        if let some (ih, motiveIdx) := lhsIHs[i]!.filter (fun (_, i) => i < cmpFnsByMotiveIdx.size) then
+        if let some (ih, motiveIdx) ← isIH? i then
           unless fwdDeps.isEmpty do
             throwError "Unexpected forward dependencies at recursive occurrence {lhsField}"
-          /-
-          Support for simple reflexive inductives like
-
-          inductive Test where
-            | base
-            | thing (f : Unit → Test)
-          -/
-          let (fieldArgs, _) ← forallMetaTelescopeReducingCustom (← inferType lhsField) fun _ ty => do
-            let some unitValue ← unitConstructor? ty |
-              -- We don't support cases like `Fin 2 → Test` though
-              -- Maybe this would change if we introduced some kind of `Fintype`-esque type class
-              let ctor := body.appArg!.getAppFn
-              let typeSpec := m!"{lhsField} : {← inferType lhsField}"
-              throwError "Invalid reflexive occurrence{indentD typeSpec}\nof constructor `{ctor}`. \
-                For `deriving {kind.className}` the domain must be a unit-like inductive but{indentExpr ty}\nis not one"
-            return unitValue
+          -- In the future we might support reflexive occurrences properly in here and the
+          -- `fieldArgs` would be generated using a telescope. Until then, they are just empty
+          let fieldArgs := #[]
           let .app leftMotiveApp _field ← inferType (mkAppN ih fieldArgs) |
             throwError "Unexpected induction hypothesis{indentExpr ih}\nExpected {fieldArgs.size} arguments"
           let lhsField := mkAppN lhsField fieldArgs
           let rhsField := mkAppN rhsField fieldArgs
-          let indices := leftMotiveApp.getAppArgs
+          let leftIndices := leftMotiveApp.getAppArgs
+          let rightIndices := leftIndices.map fun index =>
+            -- equivalent to, but faster than `index.replaceFVars lhsFields rhsFields`
+            -- since we have access to `idxOfLhsField`
+            index.replace fun
+              | .fvar f => do
+                let i ← idxOfLhsField.get? f
+                rhsFields[i]!
+              | _ => none
           let cmpFn := cmpFnsByMotiveIdx[motiveIdx]!
-          let cmp := (mkAppN ((mkAppN cmpFn indices).app lhsField) indices).app rhsField
+          let cmp := (mkAppN ((mkAppN cmpFn leftIndices).app lhsField) rightIndices).app rhsField
           if i + 1 = lhsFields.size then
             return cmp
           let more ← makeCmp (i + 1) rhsFields
@@ -963,26 +927,6 @@ partial def makeRefl (ctx : Context) : MetaM Unit := do
     ctx.mkLemmas motiveVars motives minors reflHyps Kind.mkReflName
 
 /--
-Given `lhs = rhs`, try to prove `lhs.getAppFn = rhs.getAppFn` assuming that `lhs.getAppArgs` have
-unit-like types (e.g. `Unit`).
--/
-def proveEqUnitLikeApp (lhs rhs : Expr) (hyp : Expr) : MetaM Expr := do
-  let args := lhs.getAppArgs
-  unless rhs.getAppNumArgs = args.size do
-    throwError "Unexpected argument count mismatch in `proveEqUnitLikeApp`{indentExpr lhs}\nand{indentExpr rhs}"
-  if args.isEmpty then
-    return hyp
-  let fnType ← inferType lhs.getAppFn
-  let appType ← inferType lhs
-  let fnLvl ← getLevel fnType
-  let appLvl ← getLevel appType
-  withLocalDeclD `var appType fun var => do
-    let f ← forallBoundedTelescope fnType args.size fun vars _ => do
-      mkLambdaFVars vars var
-    let f ← mkLambdaFVars #[var] f
-    return mkApp6 (.const ``congrArg [appLvl, fnLvl]) appType fnType lhs rhs f hyp
-
-/--
 Given `hyp : cmp = kind.eqIndicator`, try to prove `goal`, which must be a `HEq` application.
 -/
 @[inline]
@@ -1000,25 +944,33 @@ private partial def proveLawfulHEq (ctx : Context) (kind : Kind) (lawfulHyps : A
     let mut proof := thm.proof
     for lhs in lhsArgs, rhs in rhsArgs, kind in thm.argKinds do
       let type ← inferType lhs
+      let rtype ← inferType rhs
       let lvl ← getLevel type
       let ignore := lvl.isAlwaysZero || lhs == rhs
       proof := mkApp2 proof lhs rhs
       if ignore then
         match kind with
         | .eq => proof := proof.app <| mkApp2 (.const ``Eq.refl [lvl]) type lhs
-        | .heq => proof := proof.app <| mkApp2 (.const ``HEq.refl [lvl]) type lhs
+        | .heq =>
+          if lhs != rhs && type != rtype && lvl.isAlwaysZero then
+            proof := proof.app <| mkApp4 (.const ``proof_irrel_heq []) type rtype lhs rhs
+          else
+            proof := proof.app <| mkApp2 (.const ``HEq.refl [lvl]) type lhs
         | _ => unreachable!
       else
-        let some hyp := equations.get? lhs.fvarId! |
+        let some (hyp, isHEq) := equations.get? lhs.fvarId! |
           throwError "Missing hypothesis for argument {lhs} of{indentExpr l}"
-        match kind with
-        | .eq => proof := proof.app hyp
-        | .heq => proof := proof.app <| mkApp4 (.const ``heq_of_eq [lvl]) type lhs rhs hyp
-        | _ => unreachable!
+        match kind, isHEq with
+        | .eq, false
+        | .heq, true =>
+          proof := proof.app hyp
+        | .eq, true => proof := proof.app <| mkApp4 (.const ``eq_of_heq [lvl]) type lhs rhs hyp
+        | .heq, false => proof := proof.app <| mkApp4 (.const ``heq_of_eq [lvl]) type lhs rhs hyp
+        | _, _ => unreachable!
     return proof
 where
-  go (cmp hyp : Expr) (goal : Expr) (equations : FVarIdMap Expr)
-      (k : (newGoal : Expr) → FVarIdMap Expr → MetaM Expr) : MetaM Expr := withIncRecDepth do
+  go (cmp hyp : Expr) (goal : Expr) (equations : FVarIdMap (Expr × Bool))
+      (k : (newGoal : Expr) → FVarIdMap (Expr × Bool) → MetaM Expr) : MetaM Expr := withIncRecDepth do
     let fn := cmp.getAppFn
     if let .fvar f := fn then
       match ctx.varInfo.get! f with
@@ -1027,7 +979,7 @@ where
         let a := cmp.appFn!.appArg!
         let _b := cmp.appArg!
         let heq := (cmp.updateFn lawfulHyps[i]!).app hyp
-        k goal (equations.insert a.fvarId! heq)
+        k goal (equations.insert a.fvarId! (heq, /- is HEq -/ false))
       | .cmpVar _i =>
         -- We have `cmp = cmpFn ⋯ (fieldᵢ ⋯) ⋯ (fieldᵢ' ⋯')`
         -- The proof we need here is `ihᵢ ⋯₁ ⋯ (fieldᵢ' ⋯')`
@@ -1035,7 +987,6 @@ where
         let arity := cmp.getAppNumArgs
         let rightArgs := cmp.getAppArgsN (arity / 2)
         let lhs := cmp.getRevArg! (arity / 2) -- fieldᵢ ⋯
-        let rhs := cmp.appArg! -- fieldᵢ' ⋯'
         lhs.withApp fun fn args => do
           let varIdx := idxOfField.get! fn.fvarId!
           let ih := ihs[varIdx]!.get!.1
@@ -1043,12 +994,7 @@ where
           -- that into an equality; we need to be careful here though, `heq` doesn't typecheck until
           -- we substitute in its value later; currently it just uses a `motive` variable
           let heq := (mkAppN (mkAppN ih args) rightArgs).app hyp
-          let α ← inferType lhs
-          let u ← getLevel α
-          let heq := mkApp4 (.const ``eq_of_heq [u]) α lhs rhs heq
-          -- Turn the equality `fieldᵢ ⋯ = fieldᵢ' ⋯'` into an equality `fieldᵢ = fieldᵢ'`
-          let heq ← proveEqUnitLikeApp lhs rhs heq
-          k goal (equations.insert fn.fvarId! heq)
+          k goal (equations.insert fn.fvarId! (heq, /- is HEq -/ true))
     else if fn == kind.eqIndicator then
       -- this hypothesis gives us no usable information
       k goal equations
@@ -1350,7 +1296,7 @@ def deriveCmpClass (k : Kind) : Elab.DerivingHandler := mkInductiveDerivingHandl
     let helperApp := mkAppN helperApp helperArgs
     let helperApp := (mkAppN ((mkAppN helperApp indices).app a) indices).app b
     return helperApp
-  if ← isNested <||> pure (indInfo.ctors.any isPrivateName) then
+  if ← isNested <||> isReflexive <||> pure (indInfo.ctors.any isPrivateName) then
     makeInstancesUsingMutualPartialBlock (preHelpers := preHelpers) <|
         ← (← read).indInfo.all.toArray.mapM fun induct => do
       let indApp := mkAppN (.const induct (← read).lparams) (← read).indParams
@@ -1376,7 +1322,7 @@ def deriveCmpClass (k : Kind) : Elab.DerivingHandler := mkInductiveDerivingHandl
           let #[helper] := helpers | unreachable!
           forallTelescope type fun indices _ => do
             let indApp := mkAppN indApp indices
-            return .app (k.classCtor lvl indApp) <| mkAppN helper indices
+            mkLambdaFVars indices <| .app (k.classCtor lvl indApp) <| mkAppN helper indices
       }
     return true
   let helperArgs ← preHelpers
@@ -1405,6 +1351,8 @@ def deriveReflCmpClass (k : Kind) : Elab.DerivingHandler :=
   unless cmp.isAppOf (k.mkHelperName name (← getEnv)) do return false
   if ← isNested then
     throwError "Deriving `{.ofConstName k.reflClassName}` is not supported for nested inductives"
+  if ← isReflexive then
+    throwError "Deriving `{.ofConstName k.reflClassName}` is not supported for reflexive inductives"
   let nvars := (← read).indInfo.numIndices + 1
   let rvars := cmp.getAppArgsN nvars
   let head := cmp.getBoundedAppFn nvars
@@ -1453,6 +1401,8 @@ def deriveLawfulEqClass (k : Kind) : Elab.DerivingHandler :=
   unless cmp.isAppOf (k.mkHelperName name (← getEnv)) do return false
   if ← isNested then
     throwError "Deriving `{.ofConstName k.lawfulEqClassName}` is not supported for nested inductives"
+  if ← isReflexive then
+    throwError "Deriving `{.ofConstName k.lawfulEqClassName}` is not supported for reflexive inductives"
   let nvars := (← read).indInfo.numIndices + 1
   let lrvars := cmp.getAppArgsN (nvars * 2)
   let head := cmp.getBoundedAppFn (nvars * 2)
@@ -1574,7 +1524,7 @@ def deriveDecidableEq : Elab.DerivingHandler := mkInductiveDerivingHandler (need
     let reflects := mkApp4 (.const ``Bool.Reflects.of_imp []) helperApp eq lawfulApp reflApp
     let decidable := mkApp3 (.const ``Decidable.intro []) eq helperApp reflects
     mkLambdaFVars (indices.push a |>.push b) decidable
-  if ← isNested <||> pure (indInfo.ctors.any isPrivateName) then
+  if ← isNested <||> isReflexive <||> pure (indInfo.ctors.any isPrivateName) then
     makeInstancesUsingMutualPartialBlock (preHelpers := preHelpers) <|
         ← (← read).indInfo.all.toArray.mapM fun induct => do
       let indApp := mkAppN (.const induct (← read).lparams) (← read).indParams

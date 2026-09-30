@@ -552,6 +552,9 @@ def isRecursive : DerivingM Bool := do
 def isNested : DerivingM Bool := do
   return (← read).indInfo.isNested
 
+def isReflexive : DerivingM Bool := do
+  return (← read).indInfo.isReflexive
+
 def eliminatesToProp : DerivingM Bool := do
   let recInfo ← getConstInfoRec (mkRecName (← read).indInfo.name)
   return recInfo.levelParams.length == (← read).indInfo.levelParams.length

@@ -34,10 +34,7 @@ register_builtin_option deriving.comparisons.linear_construction_threshold : Nat
   descr :=
     "If the inductive data type has this many or more constructors, use a different \
     implementation for deriving comparison type classes (that is, `BEq`, `Ord` and `DecidableEq`)
-    that avoids the  quadratic code size produced by the default implementation.\n\n\
-    The alternative construction compiles to less efficient code in some cases, so by default \
-    it is only used for inductive types with 5 or more constructors.\n\n\
-    Note: Changing this setting to a value below 2 may cause the deriving handler to fail"
+    that avoids the quadratic code size produced by the default implementation."
 }
 
 register_builtin_option deriving.comparisons.noEquations : Bool := {
@@ -507,7 +504,8 @@ def makeCmpHelpersFromEquations (kind : Kind) (levelParams : List Name) (lparams
   let mut predefs : Array Elab.PreDefinition := #[]
   for (indName, ctorCases) in cases do
     let helperName := kind.mkHelperName indName (← getEnv)
-    if ctorCases.size < deriving.comparisons.linear_construction_threshold.get (← getOptions) then
+    -- we have to use double match for 0 and 1 constructors because of the lack of eliminators
+    if ctorCases.size < max 2 (deriving.comparisons.linear_construction_threshold.get (← getOptions)) then
       let predef ← makeCmpHelperDoubleMatch kind helperName levelParams lparams params moreVars indName ctorCases isUnsafe
       predefs := predefs.push predef
     else

@@ -8,6 +8,7 @@ prelude
 public import Init.Grind.Propagator
 import Init.Simproc
 import Init.Grind.Norm
+import Lean.Meta.Tactic.Grind.ForallAnd
 import Lean.Meta.Tactic.Grind.Internalize
 import Lean.Meta.Tactic.Grind.Anchor
 import Lean.Meta.Tactic.Grind.EqResolution
@@ -186,7 +187,7 @@ Applies the following rewriting rules:
 - `forall_false`
 - `Grind.forall_or_forall`
 - `Grind.forall_forall_or`
-- `Grind.forall_and`
+- `Grind.forall_and` (see `forallImpAnd?`)
 -/
 builtin_simproc_decl simpForall ((a : _) → _) := fun e => do
   let .forallE varName d b info := e | return .continue
@@ -213,7 +214,7 @@ builtin_simproc_decl simpForall ((a : _) → _) := fun e => do
       if (← isDefEq (← inferType p) (mkForall varName info d (mkSort 0))) then
         return .done { expr := mkConst ``True, proof? := mkApp (mkConst ``forall_false) p }
     | _ => pure ()
-  -- We try to apply `forall_and`, `forall_or_forall`, and `forall_forall_or` whether `b` has loose bound variables or not.
+  -- We try to apply `forall_or_forall` and `forall_forall_or` whether `b` has loose bound variables or not.
   if b.isApp && b.getAppNumArgs == 2 then
     let .const bDeclName _ := b.appFn!.appFn! | return .continue
     if bDeclName == ``Or then
@@ -238,14 +239,8 @@ builtin_simproc_decl simpForall ((a : _) → _) := fun e => do
         let v ← withLocalDeclD varName α fun a => getLevel (βRaw.instantiate1 a)
         let expr := mkForall varName info α (mkForall bName .default βRaw (mkOr (pRaw.liftLooseBVars 0 1) qRaw))
         return .visit { expr, proof? := mkApp4 (mkConst ``Grind.forall_or_forall [u, v]) α β p q }
-    else if bDeclName == ``And then
-      let pRaw := b.appFn!.appArg!
-      let qRaw := b.appArg!
-      let p := mkLambda varName info d pRaw
-      let q := mkLambda varName info d qRaw
-      let expr := mkAnd (mkForall varName info d pRaw) (mkForall varName info d qRaw)
-      let u ← getLevel d
-      return .visit { expr, proof? := mkApp3 (mkConst ``Grind.forall_and [u]) d p q }
+  if let some (lhs, rhs, h) ← forallImpAnd? e then
+    return .visit { expr := mkAnd lhs rhs, proof? := h }
   -- None of the rules were applicable
   return .continue
 

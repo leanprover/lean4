@@ -2,7 +2,7 @@ module
 
 set_option warn.classDefReducibility false
 
-set_option deriving.beq.linear_construction_threshold 1000
+set_option deriving.comparisons.linear_construction_threshold 1000
 
 public section
 
@@ -105,8 +105,6 @@ error: While deriving an instance, the following complex instance requirements w
   {T : Type u} → BEq (T → Tyₛ), reason:
     The instances @instBEqOfDecidableEq and @Std.PreorderPackage.toBEq matched but none of them had the right shape to be considered
   LawfulBEq (Type u), reason:
-    The instances @instLawfulBEq, @Std.instLawfulBEqOfLawfulOrderBEqOfIsPartialOrder, and @Std.LawfulBEqOrd.lawfulBEq matched but none of them had the right shape to be considered
-  ∀ {T : Type u}, LawfulBEq (T → Tyₛ), reason:
     The instances @instLawfulBEq, @Std.instLawfulBEqOfLawfulOrderBEqOfIsPartialOrder, and @Std.LawfulBEqOrd.lawfulBEq matched but none of them had the right shape to be considered
 
 Hint: If you want to keep these hypotheses as-is, you can disable this error using `set_option deriving.strict false`

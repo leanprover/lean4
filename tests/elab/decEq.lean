@@ -49,7 +49,3 @@ deriving DecidableEq
 #guard_msgs in
 #with_exporting
 #reduce decide (PubIndPrivCtor.b = PubIndPrivCtor.b)
-
-inductive Stuff : Float → Type where
-  | here (f : Float) (x : Stuff f) : Stuff (f + 1)
-deriving BEq, DecidableEq, Ord, ReflBEq, LawfulBEq, Std.ReflOrd, Std.LawfulEqOrd

@@ -6,7 +6,7 @@ module
 -- The things it is used for (`ReflBEq` and `LawfulBEq`) work properly on the new one though
 -- without using `reduceBEq`
 set_option backward.deriving.comparisons.old true
-set_option deriving.beq.linear_construction_threshold 1000
+set_option deriving.comparisons.linear_construction_threshold 1000
 
 inductive L (α : Type u) where
   | nil  : L α
@@ -22,7 +22,7 @@ example {n m : Nat} (h : n = m) :
 
 namespace Linear
 
-set_option deriving.beq.linear_construction_threshold 0
+set_option deriving.comparisons.linear_construction_threshold 0
 
 inductive L (α : Type u) where
   | nil  : L α

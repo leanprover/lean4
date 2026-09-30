@@ -17,11 +17,11 @@ import Init.Data.Array.OfFn
 
 register_builtin_option deriving.ord.linear_construction_threshold : Nat := {
   defValue := 10
-  descr := "If the inductive data type has this many or more constructors, use a different \
-    implementation for implementing `Ord` that avoids the quadratic code size produced by the \
-    default implementation.\n\n\
-    The alternative construction compiles to less efficient code in some cases, so by default \
-    it is only used for inductive types with 10 or more constructors." }
+  deprecation? := some {
+    newName? := `deriving.comparisons.linear_construction_threshold
+    since := "2026-09-30"
+  }
+}
 
 namespace Lean.Elab.Deriving.Ord
 open Lean.Parser.Term
@@ -134,8 +134,9 @@ def mkMatchNew (header : Header) (indVal : InductiveVal) : TermElabM Term := do
         $(mkCIdent casesOnSameCtorName) $x1:term $x2:term (Nat.compare_eq_eq.mp h) $alts:term*
      )
 
+open Lean Meta CmpHelper in
 def mkMatch (header : Header) (indVal : InductiveVal) : TermElabM Term := do
-  if indVal.numCtors ≥ deriving.ord.linear_construction_threshold.get (← getOptions) then
+  if indVal.numCtors ≥ deriving.comparisons.linear_construction_threshold.get (← getOptions) then
     mkMatchNew header indVal
   else
     mkMatchOld header indVal

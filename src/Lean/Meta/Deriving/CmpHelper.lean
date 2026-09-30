@@ -552,24 +552,18 @@ partial def computeBackDeps (vars : Array Expr) (idxOfVar : FVarIdMap Nat) :
     backDeps := backDeps.push myBackDeps.qsort
   return backDeps
 
-partial def computeSubstitutionVars (vars : Array Expr) (idxOfVar : FVarIdMap Nat)
+partial def computeSubstitutionVars (vars : Array Expr) (backDeps : Array (Array Nat))
     (isIH : Nat → MetaM Bool) : MetaM (Array (Array Nat)) := do
-  let mut fwdDeps : Array (Std.TreeSet Nat) := Array.replicate vars.size {}
-  let mut j := vars.size
-  while j > 0 do
-    j := j - 1
-    let field := vars[j]!
-    let type ← inferType field
-    let state := collectFVars {} type
-    let myDeps := fwdDeps[j]!
-    let shouldMerge ← pure (!myDeps.isEmpty) <||> (notM (isIH j) <&&> notM (isProof field))
-    if shouldMerge then
-      let myDeps := fwdDeps[j]!
-      -- transfer forward dependencies
-      for var in state.fvarIds do
-        let some i := idxOfVar.get? var | continue
-        fwdDeps := fwdDeps.modify i fun set => set.merge myDeps |>.insert j
-  return fwdDeps.map (·.toArray)
+  let mut fwdDeps : Array (Array Nat) := Array.replicate vars.size {}
+  -- turn the edges around
+  for h : i in 0...backDeps.size do
+    for j in backDeps[i] do
+      fwdDeps := fwdDeps.modify j fun xs => xs.push i
+  -- if only proofs and recursive occurrences depend on it, no need to substitute
+  for h : i in 0...vars.size do
+    if ← fwdDeps[i]!.allM (fun j => isIH j <||> isProof vars[j]!) then
+      fwdDeps := fwdDeps.set! i #[]
+  return fwdDeps
 
 structure FnAccumulatorEntry where
   idx : Nat
@@ -639,7 +633,7 @@ def recursorAltToEquation (kind : Kind) (alt : Expr) (idxOfMotive : FVarIdMap Na
         pure (i < cmpFnsByMotiveIdx.size) <&&> -- filter out nested occurrences
           notM (do return (← inferType ih).isForall) -- and reflexive occurrences
     let allBackDeps ← computeBackDeps lhsFields idxOfLhsField
-    let allFwdDeps ← computeSubstitutionVars lhsFields idxOfLhsField
+    let allFwdDeps ← computeSubstitutionVars lhsFields allBackDeps
       (isIH := fun i => Option.isSome <$> isIH? i)
     let rec makeCmp (i : Nat) (rhsFields : Array Expr) : StateT FnAccumulator MetaM Expr := do
       if h : i < lhsFields.size then
@@ -698,6 +692,7 @@ def recursorAltToEquation (kind : Kind) (alt : Expr) (idxOfMotive : FVarIdMap Na
                 let mut rhsFields := rhsFields
                 for dep in fwdDeps, newVar in newFwdDepVars do
                   rhsFields := rhsFields.set! dep newVar
+                rhsFields := rhsFields.set! i lhsField
                 let more ← makeCmp (i + 1) rhsFields
                 let refl ← mkLambdaFVars newFwdDepVars more
                 let ndrecApp := mkApp6 (.const ``Eq.ndrec [motiveSort, ← getLevel fieldType])

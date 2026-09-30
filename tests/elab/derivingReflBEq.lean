@@ -1,5 +1,5 @@
 namespace RegularBEq
-set_option deriving.beq.linear_construction_threshold 1000
+set_option deriving.comparisons.linear_construction_threshold 1000
 
 -- set_option trace.Elab.Deriving.lawfulBEq true
 
@@ -86,7 +86,7 @@ end
 end RegularBEq
 
 namespace LinearBEq
-set_option deriving.beq.linear_construction_threshold 0
+set_option deriving.comparisons.linear_construction_threshold 0
 
 -- set_option trace.Elab.Deriving.lawfulBEq true
 

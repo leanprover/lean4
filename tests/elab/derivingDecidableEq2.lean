@@ -1,6 +1,6 @@
 module
 
-set_option deriving.decEq.linear_construction_threshold 1000
+set_option deriving.comparisons.linear_construction_threshold 1000
 
 public section
 

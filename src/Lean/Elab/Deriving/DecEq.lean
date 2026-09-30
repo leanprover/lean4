@@ -23,11 +23,11 @@ open Meta
 
 register_builtin_option deriving.decEq.linear_construction_threshold : Nat := {
   defValue := 10
-  descr := "If the inductive data type has this many or more constructors, use a different \
-    implementation for deciding equality that avoids the quadratic code size produced by the \
-    default implementation.\n\n\
-    The alternative construction compiles to less efficient code in some cases, so by default \
-    it is only used for inductive types with 10 or more constructors." }
+  deprecation? := some {
+    newName? := `deriving.comparisons.linear_construction_threshold
+    since := "2026-09-30"
+  }
+}
 
 def mkDecEqHeader (indVal : InductiveVal) : TermElabM Header := do
   mkHeader `DecidableEq 2 indVal
@@ -171,9 +171,9 @@ where
       else
         return rhs
 
-
+open Lean Meta CmpHelper in
 def mkMatch (ctx : Context) (header : Header) (indVal : InductiveVal) : TermElabM Term := do
-  if indVal.numCtors ≥ deriving.decEq.linear_construction_threshold.get (← getOptions) then
+  if indVal.numCtors ≥ deriving.comparisons.linear_construction_threshold.get (← getOptions) then
     mkMatchNew ctx header indVal
   else
     mkMatchOld ctx header indVal

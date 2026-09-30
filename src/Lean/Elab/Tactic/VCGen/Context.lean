@@ -147,7 +147,7 @@ public structure Scope where
 
 /-- A join point `__do_jp` that `vcgen +jp` proves once. See `Lean.Elab.Tactic.VCGen.JoinPoint`. -/
 public structure JoinPoint where
-  /-- The let-bound proof `__do_jp_spec : ∀ xs, ⦃⌜?H xs⌝⦄ __do_jp xs ⦃post⦄`. -/
+  /-- The let-bound proof `__do_jp_spec : ∀ xs, ⦃fun ss => ⌜?H xs ss⌝⦄ __do_jp xs ⦃post⦄`. -/
   spec : Expr
   /-- The precondition of `spec`, `fun xs ss => ⌜?H xs ss⌝` over the states `ss`. -/
   pre : Expr

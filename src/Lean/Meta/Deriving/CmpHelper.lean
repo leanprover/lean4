@@ -23,10 +23,7 @@ register_builtin_option backward.deriving.comparisons.old : Bool := {
     "Use the old deriving handler for comparison type classes \
     (i.e. `BEq`, `Ord` and `DecidableEq`).\n\n\
     While the new deriving handler generally supports more options, it does not yet handle some \
-    cases that were supported before, in particular certain inductives with complex indices.\n\n\
-    This is a backwards compatibility option, intended to help migrating to new Lean releases. \
-    It may be removed without further notice 6 months after their introduction. \
-    Please report an issue if you rely on this option."
+    cases that were supported before, in particular certain inductives with complex indices."
 }
 
 register_builtin_option deriving.comparisons.linear_construction_threshold : Nat := {

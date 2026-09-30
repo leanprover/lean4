@@ -554,13 +554,6 @@ example : 'a'.isLower = true := by grind_norm check; sorry
 #guard_msgs in
 example : '_'.isAlphanum = true := by grind_norm check; sorry
 
-/--
-error: `grind_norm` discrepancy
-legacy:
-  97 = u
-sym:
-  'a'.val = u
--/
 #guard_msgs in
 example : 'a'.val = u := by grind_norm check; sorry
 

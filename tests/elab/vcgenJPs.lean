@@ -287,3 +287,13 @@ theorem read_after_triple : ⦃ fun s => ⌜s > 3⌝ ⦄ read_after b ⦃ fun r 
   unfold read_after
   vcgen +jp
   all_goals grind
+
+-- `?H` is assigned before `vcgen` processes the body of the join point, so `grind` inside
+-- `with finish` sees the disjunction in the body's hypotheses.
+theorem ifs_pure_finish : ⦃ True ⦄ ifs_pure n ⦃ fun r => r > 0 ⦄ := by
+  unfold ifs_pure
+  vcgen +jp with finish
+
+theorem set_before_finish : ⦃ fun _ => True ⦄ set_before b ⦃ fun r => ⌜r ≥ 6⌝ ⦄ := by
+  unfold set_before
+  vcgen +jp with finish

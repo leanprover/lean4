@@ -284,7 +284,8 @@ private def wpConsumeMData? (goal : MVarId) (info : WPApp) : VCGenM (Option MVar
 
 /-- Strategy 11a: hoist or zeta-substitute a `let` from the program head. Under `+jp`, a hoisted
 join point is registered, which adds the goal for its body. -/
-private def wpLet? (goal : MVarId) (info : WPApp) : VCGenM (Option (List MVarId)) := do
+private def wpLet? (scope : Scope) (goal : MVarId) (info : WPApp) :
+    VCGenM (Option (Scope × List MVarId)) := do
   let .letE name type val body nondep := info.prog.getAppFn | return none
   let appArgs := info.prog.getAppRevArgs
   let val ← reduceHead val
@@ -292,7 +293,7 @@ private def wpLet? (goal : MVarId) (info : WPApp) : VCGenM (Option (List MVarId)
     trace[Elab.Tactic.Do.vcgen] "let-zeta-dup: {name}"
     let body' ← Sym.instantiateRevBetaS body #[val]
     let prog ← mkAppRevS body' appArgs
-    return some [← replaceProgDefEq goal info prog]
+    return some (scope, [← replaceProgDefEq goal info prog])
   else
     trace[Elab.Tactic.Do.vcgen] "let-hoist: {name}"
     let prog ← mkAppRevS body appArgs
@@ -307,8 +308,8 @@ private def wpLet? (goal : MVarId) (info : WPApp) : VCGenM (Option (List MVarId)
     let .goal decls goal' ← Sym.intros goal #[name]
       | throwError "Failed to intro the `let` of{indentExpr info.prog}"
     if appArgs.isEmpty && (← isJoinPointLet name val) then
-      return some (← registerJoinPoint goal' decls[0]! val info)
-    return some [goal']
+      return some (← registerJoinPoint scope goal' decls[0]! val info)
+    return some (scope, [goal'])
 
 /-- Strategy 11b: fold the state arguments of the program's `wp` application, so the symbolic
 state a spec application threads through the goal is normalized as it is produced rather than left
@@ -630,7 +631,7 @@ public def solve (scope : Scope) (goal : MVarId) : VCGenM SolveResult := goal.wi
       return .stop (.untilPatternMatched info.M)
     if let some g ← wpConsumeMData? goal info then
       return .goals scope [g]
-    if let some gs ← wpLet? goal info then
+    if let some (scope, gs) ← wpLet? scope goal info then
       burnOne
       return .goals scope gs
     if let some gs ← wpSimpStateArgs? goal info then
@@ -638,7 +639,7 @@ public def solve (scope : Scope) (goal : MVarId) : VCGenM SolveResult := goal.wi
     if let some gs ← wpMatch? goal info then
       burnOne
       return .goals scope gs
-    if let some gs ← jump? goal info then
+    if let some gs ← jump? scope goal info then
       burnOne
       return .goals scope gs
     if let some g ← wpFVarZeta? goal info then

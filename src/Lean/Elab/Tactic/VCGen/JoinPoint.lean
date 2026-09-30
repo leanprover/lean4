@@ -46,12 +46,16 @@ of the shared code. With `+jp`, `vcgen` takes three steps:
 1. `registerJoinPoint` creates `?H : Unit → Nat → Prop` and binds
    `__do_jp_spec : ∀ r x, ⦃⌜?H r x⌝⦄ __do_jp r x ⦃Q⦄` in the goal of the `if`. It adds the goal
    `∀ r x, ⦃⌜?H r x⌝⦄ pure (x + 1) ⦃Q⦄` for the body of `__do_jp`.
-2. In the `then` branch, `jump?` closes the goal of `__do_jp () 1` with `__do_jp_spec () 1`, up to
-   the goal `pre ⊑ ⌜?H () 1⌝`. It records the payload `fun r x => ∃ (h : n > 0), r = () ∧ x = 1`,
-   which closes over the locals of the branch, here the condition `h`. The `else` branch records
-   `fun r x => ∃ (h : ¬n > 0), r = () ∧ x = 2`.
-3. `finalizeJoinPoints` sets `?H` to the disjunction of the two payloads. It proves
-   `pre ⊑ ⌜?H () 1⌝` from the first disjunct, with the witness `h` and `rfl` for the equations.
+2. In the `then` branch, `jump?` builds the payload
+   `P₁ := fun r x => ∃ (h : n > 0), r = () ∧ x = 1`, which closes over the locals of the branch,
+   here the condition `h`. It closes the goal of `__do_jp () 1` through
+   `pre ⊑ ⌜P₁ () 1⌝ ⊑ ⌜?H () 1⌝ ⊑ wp⟦__do_jp () 1⟧ Q`. The first step holds by `h` and `rfl`, and
+   the last is `__do_jp_spec () 1`. The middle step is a metavariable
+   `?link₁ : ∀ r x, P₁ r x → ?H r x`. The `else` branch uses
+   `P₂ := fun r x => ∃ (h : ¬n > 0), r = () ∧ x = 2`.
+3. `vcgen` reaches the body goal after all goals of the `if`, so both jumps are known by then.
+   `finalizeJoinPoint` sets `?H := fun r x => P₁ r x ∨ P₂ r x`, `?link₁ := fun r x h => Or.inl h`,
+   and `?link₂ := fun r x h => Or.inr h`.
 
 The body goal of step 1 thus receives the hypothesis
 
@@ -79,11 +83,11 @@ private def baseInstance? (instCL : Expr) (ss : Array Expr) : SymM (Option Expr)
     inst ← betaS f #[s]
   return some inst
 
-/-- Register the join point `jp := val` that `wpLet?` introduced into `goal`. Returns `goal` with
-`__do_jp_spec : ∀ xs, ⦃P xs⦄ jp xs ⦃post⦄`, and the body goal `∀ xs, ⦃P xs⦄ val xs ⦃post⦄`, where
-`P xs = fun ss => ⌜?H xs ss⌝` over the states `ss` of `goal`. -/
-public def registerJoinPoint (goal : MVarId) (jp : FVarId) (val : Expr) (info : WPApp) :
-    VCGenM (List MVarId) := goal.withContext do
+/-- Register the join point `jp := val` that `wpLet?` introduced into `goal`. Returns `scope` with
+`jp`, `goal` with `__do_jp_spec : ∀ xs, ⦃P xs⦄ jp xs ⦃post⦄`, and the body goal
+`∀ xs, ⦃P xs⦄ val xs ⦃post⦄`, where `P xs = fun ss => ⌜?H xs ss⌝` over the states `ss` of `goal`. -/
+public def registerJoinPoint (scope : Scope) (goal : MVarId) (jp : FVarId) (val : Expr)
+    (info : WPApp) : VCGenM (Scope × List MVarId) := goal.withContext do
   let jpTy ← Sym.inferType (.fvar jp)
   let numParams ← Lean.Elab.Tactic.Do.getNumJoinParams jpTy info.Prog
   -- `Assertion` is a class abbreviation: `instAL` is `Assertion.mk instCL`, where `instCL` is the
@@ -120,10 +124,9 @@ public def registerJoinPoint (goal : MVarId) (jp : FVarId) (val : Expr) (info : 
   let .goal decls goal ← Sym.introN goal 1
     | throwError "vcgen +jp: failed to introduce the proof of{indentExpr specTy}"
   let lctxSize := (← goal.getDecl).lctx.numIndices
-  modify fun s => { s with
-    joinPoints := s.joinPoints.insert jp
-      { spec := .fvar decls[0]!, pre, hyp, numStates, lctxSize } }
-  return [goal, body.mvarId!]
+  let joinPoint : JoinPoint := { spec := .fvar decls[0]!, pre, hyp, numStates, lctxSize }
+  modify fun s => { s with joinPointBodies := s.joinPointBodies.insert body.mvarId! joinPoint }
+  return ({ scope with joinPoints := scope.joinPoints.insert jp joinPoint }, [goal, body.mvarId!])
 
 /-- The payload `fun xs => ∃ ys, xs = args` of a jump over the `locals` `ys`, and the witnesses of
 its `∃`. Here `xs` and `args` include the states. A used `let` local stays a `let`. -/
@@ -143,43 +146,6 @@ private def mkPayload (jp : JoinPoint) (args : Array Expr) (locals : Array Local
           (← mkLambdaFVars #[decl.toExpr] φ)
     return (← mkLambdaFVars xs body, (locals.filter (·.value?.isNone)).map (·.toExpr))
 
-/-- Close the goal `pre ⊑ wp⟦jp args⟧ post eposts ss` of a jump by `rel_trans` through
-`__do_jp_spec args ss`, and record the goal `pre ⊑ ⌜?H args ss⌝` for `finalizeJoinPoints`. -/
-public def jump? (goal : MVarId) (info : WPApp) : VCGenM (Option (List MVarId)) := do
-  let some fv := info.prog.getAppFn.fvarId? | return none
-  let some jp := (← get).joinPoints.get? fv | return none
-  goal.withContext do
-  let args := info.prog.getAppArgs
-  -- An implementation-detail hypothesis would become an `∃` binder, so it stays out of the payload.
-  let locals := (← getLCtx).foldl (start := jp.lctxSize) (init := #[]) fun ds d =>
-    if d.isImplementationDetail && d.value?.isNone then ds else ds.push d
-  let ss := info.excessArgs
-  unless jp.numStates ≤ ss.size do
-    throwError "vcgen +jp: the jump{indentExpr info.prog}\nhas fewer than {jp.numStates} states"
-  let (payload, witnesses) ← mkPayload jp (args ++ ss.extract 0 jp.numStates) locals
-  let goalTy ← goal.getType
-  let_expr PartialOrder.rel α inst pre rhs := goalTy
-    | throwError "vcgen +jp: unexpected jump goal{indentExpr goalTy}"
-  let lvls := goalTy.getAppFn.constLevels!
-  -- `Triple` is a structure whose one field is the `⊑ wp` entailment.
-  let specRel := Expr.proj ``Std.WP.Triple 0 (← mkAppNS jp.spec args)
-  let mid ← betaS jp.pre (args ++ ss)
-  let preGoal ← mkFreshExprSyntheticOpaqueMVar
-    (← mkAppNS (mkConst ``PartialOrder.rel lvls) #[α, inst, pre, mid]) (← goal.getTag)
-  goal.assign (← mkAppNS (mkConst ``PartialOrder.rel_trans lvls)
-    #[α, inst, pre, mid, rhs, preGoal, ← mkAppNS specRel ss])
-  let jump := { goal := preGoal.mvarId!, payload, witnesses }
-  modify fun s => { s with jumps := s.jumps.insert fv ((s.jumps.getD fv #[]).push jump) }
-  return some []
-
-/-- The disjunction of `ps[lo:hi]`, balanced so that each disjunct has depth `O(log (hi - lo))`. -/
-private partial def mkOrTree (ps : Array Expr) (lo hi : Nat) : Expr :=
-  if hi == lo then mkConst ``False
-  else if hi == lo + 1 then ps[lo]!
-  else
-    let mid := (lo + hi) / 2
-    mkOr (mkOrTree ps lo mid) (mkOrTree ps mid hi)
-
 /-- A proof of `∃ ys, args = args` from the witnesses `ys`, by `rfl` on each equation. -/
 private partial def mkPayloadProof (φ : Expr) (witnesses : List Expr) : MetaM Expr := do
   if let .letE _ _ v b _ := φ then
@@ -196,52 +162,90 @@ private partial def mkPayloadProof (φ : Expr) (witnesses : List Expr) : MetaM E
   | Eq α lhs _ => return mkApp2 (mkConst ``Eq.refl φ.getAppFn.constLevels!) α lhs
   | _ => throwError "vcgen +jp: unexpected payload{indentExpr φ}"
 
-/-- A proof of disjunct `i` of `φ = mkOrTree ps lo hi`. -/
-private partial def mkDisjunctProof (φ : Expr) (i lo hi : Nat) (witnesses : List Expr) :
-    MetaM Expr := do
-  if hi == lo + 1 then
-    return ← mkPayloadProof φ witnesses
-  let_expr Or a b := φ | throwError "vcgen +jp: expected a disjunction{indentExpr φ}"
-  let mid := (lo + hi) / 2
-  if i < mid then
-    return mkApp3 (mkConst ``Or.inl) a b (← mkDisjunctProof a i lo mid witnesses)
-  else
-    return mkApp3 (mkConst ``Or.inr) a b (← mkDisjunctProof b i mid hi witnesses)
-
-/-- Close the goal `pre ⊑ ⌜φ⌝ ss` of jump `i` of `n` with `le_ofProp (fun _ => pre)`, applied to
-disjunct `i` of `φ` and to the states `ss` outside `?H`. The kernel checks the result up to `β`. -/
-private def dischargeJump (jump : Jump) (i n : Nat) : VCGenM Unit := jump.goal.withContext do
-  let goalTy ← jump.goal.getType
-  let_expr PartialOrder.rel _α _inst pre rhs := goalTy
+/-- Close the goal `pre ⊑ wp⟦jp args⟧ post eposts ss` of a jump to a join point of `scope` through
+`pre ⊑ ⌜payload xs⌝ ⊑ ⌜?H xs⌝ ⊑ wp⟦jp args⟧ post eposts ss`, where `xs` includes the states of `?H`.
+The first step holds by the jump's locals, the last is `__do_jp_spec args ss`, and the middle one
+is a fresh `?link : ∀ xs, payload xs → ?H xs` that `finalizeJoinPoint` assigns. -/
+public def jump? (scope : Scope) (goal : MVarId) (info : WPApp) :
+    VCGenM (Option (List MVarId)) := do
+  let some fv := info.prog.getAppFn.fvarId? | return none
+  let some jp := scope.joinPoints.get? fv | return none
+  goal.withContext do
+  let args := info.prog.getAppArgs
+  let ss := info.excessArgs
+  unless jp.numStates ≤ ss.size do
+    throwError "vcgen +jp: the jump{indentExpr info.prog}\nhas fewer than {jp.numStates} states"
+  let xs := args ++ ss.extract 0 jp.numStates
+  -- An implementation-detail hypothesis would become an `∃` binder, so it stays out of the payload.
+  let locals := (← getLCtx).foldl (start := jp.lctxSize) (init := #[]) fun ds d =>
+    if d.isImplementationDetail && d.value?.isNone then ds else ds.push d
+  let (payload, witnesses) ← mkPayload jp xs locals
+  let goalTy ← goal.getType
+  let_expr PartialOrder.rel α inst pre rhs := goalTy
     | throwError "vcgen +jp: unexpected jump goal{indentExpr goalTy}"
-  let ofPropFn := rhs.getAppFn
-  let rhsArgs := rhs.getAppArgs
-  unless ofPropFn.isConstOf ``CompleteLattice.ofProp && rhsArgs.size ≥ 3 do
-    throwError "vcgen +jp: the jump precondition is not a `⌜·⌝`{indentExpr rhs}"
-  let L := rhsArgs[0]!
-  let φ := rhsArgs[2]!
-  let ss := rhsArgs.extract 3 rhsArgs.size
-  let proof ← mkDisjunctProof (← instantiateMVarsS φ) i 0 n jump.witnesses.toList
+  let lvls := goalTy.getAppFn.constLevels!
+  -- `midH` is `ofProp L instL (?H xs) rest`, with `rest` the states outside `?H`.
+  let midH ← betaS jp.pre (args ++ ss)
+  let ofPropFn := midH.getAppFn
+  let midArgs := midH.getAppArgs
+  let L := midArgs[0]!
+  let instL := midArgs[1]!
+  let rest := midArgs.extract 3 midArgs.size
+  let φ ← betaS payload xs
+  let midP ← mkAppNS ofPropFn (#[L, instL, φ] ++ rest)
   let mut stateTys := #[]
   let mut LIt := L
-  for _ in [:ss.size] do
+  for _ in [:rest.size] do
     stateTys := stateTys.push LIt.bindingDomain!
     LIt := LIt.bindingBody!
   let constFn := stateTys.foldr (fun ty body => .lam `s ty body .default) pre
-  let base := mkAppN (mkConst ``le_ofProp ofPropFn.constLevels!)
-    #[L, rhsArgs[1]!, constFn, φ, proof]
-  jump.goal.assign (← mkAppNS base ss)
+  let lvlL := ofPropFn.constLevels!
+  let toPayload ← mkAppNS (mkConst ``le_ofProp lvlL)
+    (#[L, instL, constFn, φ, ← mkPayloadProof φ witnesses.toList] ++ rest)
+  let linkTy ← forallTelescope (← jp.hyp.getType) fun ys _ => do
+    mkForallFVars ys (← mkArrow (payload.beta ys) (mkAppN (.mvar jp.hyp) ys))
+  let link ← mkFreshExprSyntheticOpaqueMVar linkTy
+  let toHyp ← mkAppNS (mkConst ``CompleteLattice.ofProp_mono lvlL)
+    (#[L, instL, φ, midArgs[2]!, ← mkAppNS link xs] ++ rest)
+  -- `Triple` is a structure whose one field is the `⊑ wp` entailment.
+  let toWP ← mkAppNS (Expr.proj ``Std.WP.Triple 0 (← mkAppNS jp.spec args)) ss
+  let relTrans := mkConst ``PartialOrder.rel_trans lvls
+  let fromH ← mkAppNS relTrans #[α, inst, midP, midH, rhs, toHyp, toWP]
+  goal.assign (← mkAppNS relTrans #[α, inst, pre, midP, rhs, toPayload, fromH])
+  let jump := { payload, link := link.mvarId! }
+  modify fun s => { s with jumps := s.jumps.insert jp.hyp ((s.jumps.getD jp.hyp #[]).push jump) }
+  return some []
 
-/-- Assign each `?H` the disjunction of its jumps' payloads, `False` if no jump reaches the join
-point, and discharge the recorded goal of each jump. -/
-public def finalizeJoinPoints : VCGenM Unit := do
-  let s ← get
-  for (fv, jp) in s.joinPoints do
-    let jumps := s.jumps.getD fv #[]
-    forallTelescope (← jp.hyp.getType) fun xs _ => do
-      let φ := mkOrTree (jumps.map (·.payload.beta xs)) 0 jumps.size
-      jp.hyp.assign (← mkLambdaFVars xs φ)
+/-- The disjunction of `ps[lo:hi]`, balanced so that each disjunct has depth `O(log (hi - lo))`. -/
+private partial def mkOrTree (ps : Array Expr) (lo hi : Nat) : Expr :=
+  if hi == lo then mkConst ``False
+  else if hi == lo + 1 then ps[lo]!
+  else
+    let mid := (lo + hi) / 2
+    mkOr (mkOrTree ps lo mid) (mkOrTree ps mid hi)
+
+/-- A proof of `φ = mkOrTree ps lo hi` from `h : ps[i]`. -/
+private partial def mkOrIntro (φ : Expr) (i lo hi : Nat) (h : Expr) : MetaM Expr := do
+  if hi == lo + 1 then
+    return h
+  let_expr Or a b := φ | throwError "vcgen +jp: expected a disjunction{indentExpr φ}"
+  let mid := (lo + hi) / 2
+  if i < mid then
+    return mkApp3 (mkConst ``Or.inl) a b (← mkOrIntro a i lo mid h)
+  else
+    return mkApp3 (mkConst ``Or.inr) a b (← mkOrIntro b i mid hi h)
+
+/-- Assign `?H` of `jp` the disjunction of its jumps' payloads, `False` if no jump reaches `jp`,
+and each jump's `?link` the injection of its payload. `vcgen` processes the body goal of `jp` after
+all goals below the registration, so every jump is known by then. -/
+public def finalizeJoinPoint (jp : JoinPoint) : VCGenM Unit := do
+  let jumps := (← get).jumps.getD jp.hyp #[]
+  modify fun s => { s with jumps := s.jumps.erase jp.hyp }
+  forallTelescope (← jp.hyp.getType) fun xs _ => do
+    let φ := mkOrTree (jumps.map (·.payload.beta xs)) 0 jumps.size
+    jp.hyp.assign (← mkLambdaFVars xs φ)
     for h : i in [:jumps.size] do
-      dischargeJump jumps[i] i jumps.size
+      withLocalDeclD `h (jumps[i].payload.beta xs) fun h => do
+        jumps[i].link.assign (← mkLambdaFVars (xs.push h) (← mkOrIntro φ i 0 jumps.size h))
 
 end Lean.Elab.Tactic.VCGen

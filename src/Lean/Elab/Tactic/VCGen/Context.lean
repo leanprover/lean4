@@ -135,6 +135,26 @@ public structure Context where
   once the program in `wp⟦e⟧` matches `pat`, before applying a spec. -/
   untilPat? : Option Sym.Pattern := none
 
+/-- A join point `__do_jp` that `vcgen +jp` proves once. See `Lean.Elab.Tactic.VCGen.JoinPoint`. -/
+public structure JoinPoint where
+  /-- The let-bound proof `__do_jp_spec : ∀ xs, ⦃fun ss => ⌜?H xs ss⌝⦄ __do_jp xs ⦃post⦄`. -/
+  spec : Expr
+  /-- The precondition of `spec`, `fun xs ss => ⌜?H xs ss⌝` over the states `ss`. -/
+  pre : Expr
+  /-- The metavariable `?H`, which `finalizeJoinPoint` assigns. -/
+  hyp : MVarId
+  /-- The number of states that `?H` takes after the join parameters. -/
+  numStates : Nat
+  /-- The size of the local context after registration. A jump closes over the later locals. -/
+  lctxSize : Nat
+  deriving Inhabited
+
+/-- A jump to a join point: its payload `fun xs => ∃ ys, xs = args`, where `xs` includes the states,
+and the metavariable `?link : ∀ xs, payload xs → ?H xs` that `finalizeJoinPoint` assigns. -/
+public structure Jump where
+  payload : Expr
+  link : MVarId
+
 public structure Scope where
   /-- Spec database in scope: globals plus locals from in-scope hypotheses. -/
   specs : SpecTheorems
@@ -143,29 +163,9 @@ public structure Scope where
   lastLiftedPre? : Option FVarId := none
   /-- Index of the next local declaration to consider for local specs. -/
   nextDeclIdx : Nat := 0
+  /-- The join points of `vcgen +jp` in scope, keyed by their `let` variable. -/
+  joinPoints : FVarIdMap JoinPoint := {}
   deriving Inhabited
-
-/-- A join point `__do_jp` that `vcgen +jp` proves once. See `Lean.Elab.Tactic.VCGen.JoinPoint`. -/
-public structure JoinPoint where
-  /-- The let-bound proof `__do_jp_spec : ∀ xs, ⦃fun ss => ⌜?H xs ss⌝⦄ __do_jp xs ⦃post⦄`. -/
-  spec : Expr
-  /-- The precondition of `spec`, `fun xs ss => ⌜?H xs ss⌝` over the states `ss`. -/
-  pre : Expr
-  /-- The metavariable `?H`, which `finalizeJoinPoints` assigns. -/
-  hyp : MVarId
-  /-- The number of states that `?H` takes after the join parameters. -/
-  numStates : Nat
-  /-- The size of the local context after registration. A jump closes over the later locals. -/
-  lctxSize : Nat
-
-/-- A jump `__do_jp args` in the states `s₁ … sₙ`, closed up to the goal `pre ⊑ ⌜?H args s₁ … sₙ⌝`. -/
-public structure Jump where
-  /-- The goal `pre ⊑ ⌜?H args s₁ … sₙ⌝`, which `finalizeJoinPoints` closes. -/
-  goal : MVarId
-  /-- `fun xs => ∃ ys, xs = args`, with `ys` the locals introduced since registration. -/
-  payload : Expr
-  /-- The locals `ys` that witness `payload`. -/
-  witnesses : Array Expr
 
 public structure State where
   /--
@@ -228,10 +228,10 @@ public structure State where
   this to know which user-provided alts have already been consumed (so it doesn't
   warn about them). -/
   inlineHandledInvariants : Std.HashSet Nat := {}
-  /-- The join points registered by `vcgen +jp`, keyed by their `let` variable. -/
-  joinPoints : Std.HashMap FVarId JoinPoint := {}
-  /-- The jumps to each join point in `joinPoints`. -/
-  jumps : Std.HashMap FVarId (Array Jump) := {}
+  /-- The join points whose body goal `vcgen` has yet to process, keyed by that goal. -/
+  joinPointBodies : Std.HashMap MVarId JoinPoint := {}
+  /-- The jumps to each join point in `joinPointBodies`, keyed by its `?H`. -/
+  jumps : Std.HashMap MVarId (Array Jump) := {}
 
 public abbrev VCGenM := ReaderT Context (StateRefT State Grind.GrindM)
 

@@ -22,7 +22,7 @@ Authors: Leonardo de Moura, Sebastian Ullrich
 #include <unistd.h> // NOLINT
 #include <sys/mman.h>
 #include <sys/file.h>
-#ifndef LEAN_EMSCRIPTEN
+#if !defined(LEAN_EMSCRIPTEN) && !defined(__OpenBSD__)
 #include <sys/random.h>
 #endif
 #endif
@@ -1378,6 +1378,11 @@ extern "C" LEAN_EXPORT obj_res lean_io_app_path() {
     if (!realpath(buf1, buf2))
         return io_result_mk_error("failed to resolve symbolic links when locating application");
     return io_result_mk_ok(mk_string(buf2));
+#elif defined(__OpenBSD__)
+    char path[PATH_MAX];
+    if (getexecpath(path, sizeof(path)) != 0)
+        return io_result_mk_error(decode_io_error(errno, nullptr));
+    return io_result_mk_ok(mk_string(path));
 #elif defined(LEAN_EMSCRIPTEN)
     // See https://emscripten.org/docs/api_reference/emscripten.h.html#c.EM_ASM_INT
     char* appPath = reinterpret_cast<char*>(EM_ASM_INT({

@@ -125,24 +125,6 @@ public def registerJoinPoint (goal : MVarId) (jp : FVarId) (val : Expr) (info : 
       { spec := .fvar decls[0]!, pre, hyp, numStates, lctxSize } }
   return [goal, body.mvarId!]
 
-/-- Throw if `payload` mentions a local introduced after registration, directly or through the
-local context of a metavariable. `?H` and thus `payload` live in the context of registration. -/
-private def checkPayloadScope (jp : JoinPoint) (jump payload : Expr) : MetaM Unit := do
-  let lctx ← getLCtx
-  let leakedRef ← IO.mkRef (#[] : Array Name)
-  let note (decl : LocalDecl) : IO Unit := do
-    if decl.index ≥ jp.lctxSize then leakedRef.modify (·.push decl.userName)
-  payload.forEach fun sub => do
-    match sub with
-    | .fvar fvarId => if let some decl := lctx.find? fvarId then note decl
-    | .mvar mvarId =>
-      (← mvarId.getDecl).lctx.foldlM (start := jp.lctxSize) (init := ()) fun _ decl => note decl
-    | _ => pure ()
-  let leaked ← leakedRef.get
-  unless leaked.isEmpty do
-    throwError "vcgen +jp: the precondition of jump{indentExpr jump}\ndepends on \
-      {leaked.toList}, which the join point's body cannot refer to"
-
 /-- The payload `fun xs => ∃ ys, xs = args` of a jump over the `locals` `ys`, and the witnesses of
 its `∃`. Here `xs` and `args` include the states. A used `let` local stays a `let`. -/
 private def mkPayload (jp : JoinPoint) (args : Array Expr) (locals : Array LocalDecl) :
@@ -168,13 +150,13 @@ public def jump? (goal : MVarId) (info : WPApp) : VCGenM (Option (List MVarId)) 
   let some jp := (← get).joinPoints.get? fv | return none
   goal.withContext do
   let args := info.prog.getAppArgs
+  -- An implementation-detail hypothesis would become an `∃` binder, so it stays out of the payload.
   let locals := (← getLCtx).foldl (start := jp.lctxSize) (init := #[]) fun ds d =>
-    if d.isImplementationDetail then ds else ds.push d
+    if d.isImplementationDetail && d.value?.isNone then ds else ds.push d
   let ss := info.excessArgs
   unless jp.numStates ≤ ss.size do
     throwError "vcgen +jp: the jump{indentExpr info.prog}\nhas fewer than {jp.numStates} states"
   let (payload, witnesses) ← mkPayload jp (args ++ ss.extract 0 jp.numStates) locals
-  checkPayloadScope jp info.prog payload
   let goalTy ← goal.getType
   let_expr PartialOrder.rel α inst pre rhs := goalTy
     | throwError "vcgen +jp: unexpected jump goal{indentExpr goalTy}"

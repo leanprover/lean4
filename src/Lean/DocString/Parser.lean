@@ -1623,7 +1623,7 @@ mutual
   Parses a block quote.
   -/
   public partial def blockquoteFn (ctxt : BlockCtxt) : ParserFn :=
-    atomicFn' <| nodeFn ``Block.blockquote <| withCurrentStackSize fun base =>
+    nodeFn ``Block.blockquote <| withCurrentStackSize fun base =>
       afterMarker (chFn '>') eatSpaces (blocksFn { ctxt with topLevel := false }) >>
       -- A blockquote with no contents has no token of its own to record the end of its line, so
       -- the marker records it and the block after the blockquote can start.

@@ -129,7 +129,8 @@ public def registerJoinPoint (scope : Scope) (goal : MVarId) (jp : FVarId) (val 
   return ({ scope with joinPoints := scope.joinPoints.insert jp joinPoint }, [goal, body.mvarId!])
 
 /-- The payload `fun xs => ∃ ys, xs = args` of a jump over the `locals` `ys`, and the witnesses of
-its `∃`. Here `xs` and `args` include the states. A used `let` local stays a `let`. -/
+its `∃` and its hypotheses. Here `xs` and `args` include the states. A used `let` local stays a
+`let`, and a hypothesis that nothing depends on becomes a conjunct. -/
 private def mkPayload (jp : JoinPoint) (args : Array Expr) (locals : Array LocalDecl) :
     VCGenM (Expr × Array Expr) := do
   forallTelescope (← jp.hyp.getType) fun xs _ => do
@@ -142,11 +143,15 @@ private def mkPayload (jp : JoinPoint) (args : Array Expr) (locals : Array Local
       if decl.value?.isSome then
         mkLetFVars #[decl.toExpr] φ (generalizeNondepLet := false)
       else
-        return mkApp2 (mkConst ``Exists [← Sym.getLevel decl.type]) decl.type
-          (← mkLambdaFVars #[decl.toExpr] φ)
+        let lam ← mkLambdaFVars #[decl.toExpr] φ
+        -- A conjunct needs no instantiation in its proof, where each `∃` copies the rest.
+        if (← Sym.inferType decl.type).isProp && !lam.bindingBody!.hasLooseBVars then
+          return mkAnd decl.type lam.bindingBody!
+        return mkApp2 (mkConst ``Exists [← Sym.getLevel decl.type]) decl.type lam
     return (← mkLambdaFVars xs body, (locals.filter (·.value?.isNone)).map (·.toExpr))
 
-/-- A proof of `∃ ys, args = args` from the witnesses `ys`, by `rfl` on each equation. -/
+/-- A proof of `∃ ys, args = args` from the witnesses `ys`, by `rfl` on each equation. Each
+witness proves the `∃` or the conjunct of its local, and the equations follow all of them. -/
 private partial def mkPayloadProof (φ : Expr) (witnesses : List Expr) : MetaM Expr := do
   if let .letE _ _ v b _ := φ then
     return ← mkPayloadProof (b.instantiate1 v) witnesses
@@ -156,6 +161,8 @@ private partial def mkPayloadProof (φ : Expr) (witnesses : List Expr) : MetaM E
     return mkApp4 (mkConst ``Exists.intro φ.getAppFn.constLevels!) α p w
       (← mkPayloadProof (p.beta #[w]) ws)
   | And a b =>
+    if let w :: ws := witnesses then
+      return mkApp4 (mkConst ``And.intro) a b w (← mkPayloadProof b ws)
     return mkApp4 (mkConst ``And.intro) a b
       (← mkPayloadProof a witnesses) (← mkPayloadProof b witnesses)
   | True => return mkConst ``True.intro

@@ -211,7 +211,7 @@ termination_by i => keys.size - i
 /--
 Returns all entries that have exactly the provided key sequence.
 -/
-def getEntriesWithKeys (d : DiscrTree α) (keys : Array Key) : Array α :=
+def getMatchExact (d : DiscrTree α) (keys : Array Key) : Array α :=
   if keys.isEmpty then panic! "invalid key sequence"
   else
     let k := keys[0]!

@@ -5,7 +5,6 @@ Authors: Sebastian Graf
 -/
 import Lean
 import Std.WP
-import Std.Tactic.Do
 
 set_option experimental.vcgen true
 set_option grind.warning false

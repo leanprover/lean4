@@ -1,5 +1,5 @@
 import Lean
-import Std.Tactic.Do
+import Std.WP
 
 /-!
 Exercises pure propositional hypotheses in preconditions. `flipp` flips a `Bool` state, but

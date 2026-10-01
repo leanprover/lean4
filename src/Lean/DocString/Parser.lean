@@ -1472,7 +1472,6 @@ surrounded by `%%%` on each side.
 public def metadataBlockFn (ctxt : BlockCtxt := {}) : ParserFn :=
   nodeFn ``Block.metadata_block <|
     atLineStart >>
-    atTopLevel >>
     opener >>
     withPercents metadataContents.fn >>
     closer
@@ -1487,17 +1486,6 @@ where
       if s'.hasError then s'
       else s'.setError { unexpectedTk := s'.stxStack.back, unexpected := misplacedMsg }
   misplacedMsg := "unexpected metadata block opener '%%%' (must be at start of line)"
-  -- A metadata block describes the document or a section of it, so one written inside another
-  -- block ends that block and attaches at the top level. The contents of a directive cannot end
-  -- this way. Inside a directive the parser therefore consumes the `%%%` before it reports the
-  -- failure, which commits the parse to the error.
-  atTopLevel : ParserFn := fun c s =>
-    if ctxt.topLevel then s
-    else if ctxt.maxDirective.isSome then
-      let s := atomicFn' (bolThen ctxt (eatSpaces >> strFn "%%%") "%%% (at line beginning)") c s
-      if s.hasError then s else s.mkUnexpectedError nestedMsg
-    else s.mkUnexpectedError nestedMsg
-  nestedMsg := "metadata blocks may only appear at the document's top level"
   opener :=
     atomicFn' (bolThen ctxt (eatSpaces >> strFn "%%%") "%%% (at line beginning)") >>
     -- The opener records the indentation before the contents, so the Lean parser that reads them
@@ -1635,7 +1623,7 @@ mutual
   Parses a block quote.
   -/
   public partial def blockquoteFn (ctxt : BlockCtxt) : ParserFn :=
-    atomicFn' <| nodeFn ``Block.blockquote <| withCurrentStackSize fun base =>
+    nodeFn ``Block.blockquote <| withCurrentStackSize fun base =>
       afterMarker (chFn '>') eatSpaces (blocksFn { ctxt with topLevel := false }) >>
       -- A blockquote with no contents has no token of its own to record the end of its line, so
       -- the marker records it and the block after the blockquote can start.

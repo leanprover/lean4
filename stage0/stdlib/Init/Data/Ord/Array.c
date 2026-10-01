@@ -242,40 +242,41 @@ return v_r_84_;
 LEAN_EXPORT uint8_t l_Array_compareLex(lean_object* v_00_u03b1_85_, lean_object* v_cmp_86_, lean_object* v_a_u2081_87_, lean_object* v_a_u2082_88_){
 _start:
 {
-uint8_t v___x_89_; 
-v___x_89_ = l_Array_compareLex___redArg(v_cmp_86_, v_a_u2081_87_, v_a_u2082_88_);
-return v___x_89_;
+lean_object* v___x_89_; uint8_t v___x_90_; 
+v___x_89_ = lean_unsigned_to_nat(0u);
+v___x_90_ = l___private_Init_Data_Ord_Array_0__Array_compareLex_go___redArg(v_cmp_86_, v_a_u2081_87_, v_a_u2082_88_, v___x_89_);
+return v___x_90_;
 }
 }
-LEAN_EXPORT lean_object* l_Array_compareLex___boxed(lean_object* v_00_u03b1_90_, lean_object* v_cmp_91_, lean_object* v_a_u2081_92_, lean_object* v_a_u2082_93_){
+LEAN_EXPORT lean_object* l_Array_compareLex___boxed(lean_object* v_00_u03b1_91_, lean_object* v_cmp_92_, lean_object* v_a_u2081_93_, lean_object* v_a_u2082_94_){
 _start:
 {
-uint8_t v_res_94_; lean_object* v_r_95_; 
-v_res_94_ = l_Array_compareLex(v_00_u03b1_90_, v_cmp_91_, v_a_u2081_92_, v_a_u2082_93_);
-lean_dec_ref(v_a_u2082_93_);
-lean_dec_ref(v_a_u2081_92_);
-v_r_95_ = lean_box(v_res_94_);
-return v_r_95_;
+uint8_t v_res_95_; lean_object* v_r_96_; 
+v_res_95_ = l_Array_compareLex(v_00_u03b1_91_, v_cmp_92_, v_a_u2081_93_, v_a_u2082_94_);
+lean_dec_ref(v_a_u2082_94_);
+lean_dec_ref(v_a_u2081_93_);
+v_r_96_ = lean_box(v_res_95_);
+return v_r_96_;
 }
 }
-LEAN_EXPORT lean_object* l_Array_instOrd___redArg(lean_object* v_inst_96_){
+LEAN_EXPORT lean_object* l_Array_instOrd___redArg(lean_object* v_inst_97_){
 _start:
 {
-lean_object* v___x_97_; 
-v___x_97_ = lean_alloc_closure((void*)(l_Array_compareLex___boxed), 4, 2);
-lean_closure_set(v___x_97_, 0, lean_box(0));
-lean_closure_set(v___x_97_, 1, v_inst_96_);
-return v___x_97_;
+lean_object* v___x_98_; 
+v___x_98_ = lean_alloc_closure((void*)(l_Array_compareLex___boxed), 4, 2);
+lean_closure_set(v___x_98_, 0, lean_box(0));
+lean_closure_set(v___x_98_, 1, v_inst_97_);
+return v___x_98_;
 }
 }
-LEAN_EXPORT lean_object* l_Array_instOrd(lean_object* v_00_u03b1_98_, lean_object* v_inst_99_){
+LEAN_EXPORT lean_object* l_Array_instOrd(lean_object* v_00_u03b1_99_, lean_object* v_inst_100_){
 _start:
 {
-lean_object* v___x_100_; 
-v___x_100_ = lean_alloc_closure((void*)(l_Array_compareLex___boxed), 4, 2);
-lean_closure_set(v___x_100_, 0, lean_box(0));
-lean_closure_set(v___x_100_, 1, v_inst_99_);
-return v___x_100_;
+lean_object* v___x_101_; 
+v___x_101_ = lean_alloc_closure((void*)(l_Array_compareLex___boxed), 4, 2);
+lean_closure_set(v___x_101_, 0, lean_box(0));
+lean_closure_set(v___x_101_, 1, v_inst_100_);
+return v___x_101_;
 }
 }
 lean_object* runtime_initialize_Init_Data_Ord_Basic(uint8_t builtin);

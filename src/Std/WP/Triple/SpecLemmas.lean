@@ -1966,10 +1966,9 @@ the lexicographic order for products.
     [WellFoundedRelation γ] (f : α → Fun) (a : α) (n : γ) :
     (ofMeasure (Pred := Pred) f).EvalsTo a n = NondetFun.EvalsTo (f a) n := rfl
 
-/-! Fixed-arity specializations of `evalsTo_ofMeasure` at a lattice tower ending in `Prop`, in the
-manner of `CompleteLattice.ofProp_apply_1` and its siblings: the ground instances leave every
-parameter recoverable from the trigger, so these are usable `@[grind =]` lemmas where the general
-`NondetFun.evalsTo_apply` is not. The `pure` family is for a measure whose value depends on the
+/-! Fixed-arity specializations of `evalsTo_ofMeasure` at a lattice tower ending in `Prop`: the
+ground instances leave every parameter recoverable from the trigger, so these are usable
+`@[grind =]` lemmas where the general `NondetFun.evalsTo_apply` is not. The `pure` family is for a measure whose value depends on the
 cursor alone, as in `ofMeasure fun i => n - i`, which `NondetFun` interprets as that value. -/
 
 @[grind =] theorem evalsTo_ofMeasure_apply_1 {α : Type} {σ₁ : Type} {γ : Type}
@@ -2045,12 +2044,12 @@ theorem evalsBelow_ofMeasure {γ : Type uγ} [WellFoundedRelation γ]
     (f : α → γ) (a' : α) (ma : γ) :
     (ofMeasure (Pred := Pred) f).EvalsBelow a' ma = ⌜WellFoundedRelation.rel (f a') ma⌝ := by
   refine PartialOrder.rel_antisymm (iSup_le _ _ fun ma' => ?_) (le_iSup_of_le (f a') ?_)
-  · refine ofProp_meet_le_left fun h => ?_
+  · refine CompleteLattice.ofProp_meet_le fun h => ?_
     subst h
     exact PartialOrder.rel_refl
   · refine le_meet _ _ _ ?_ PartialOrder.rel_refl
     simp only [evalsTo_ofMeasure, NondetFun.evalsTo_pure]
-    rw [ofProp_eq_top trivial]
+    rw [CompleteLattice.ofProp_eq_top trivial]
     exact le_top _
 
 open Lean.Order in
@@ -2070,9 +2069,9 @@ measures. -/
   rfl
 
 /-! Fixed-arity specializations of `evalsBelow_ofMeasure_apply` for `Nat`-valued measures at a
-lattice tower ending in `Prop`, in the manner of `CompleteLattice.ofProp_apply_1` and its
-siblings: the ground instances leave every parameter recoverable from the trigger, so these are
-usable `@[grind =]` lemmas where the general `evalsBelow_ofMeasure_apply` is not. -/
+lattice tower ending in `Prop`: the ground instances leave every parameter recoverable from the
+trigger, so these are usable `@[grind =]` lemmas where the general `evalsBelow_ofMeasure_apply` is
+not. -/
 
 @[grind =] theorem evalsBelow_ofMeasure_apply_1 {α : Type} {σ₁ : Type}
     (f : α → σ₁ → Nat) (a' : α) (ma : Nat) (s₁ : σ₁) :
@@ -2184,7 +2183,7 @@ theorem Spec.repeatM
     · refine Triple.intro ?_
       refine iSup_meet_le fun ma' => ?_
       rw [meet_comm (P := measure.EvalsTo a' ma'), meet_assoc]
-      exact ofProp_meet_le_left fun hlt => (ih ma' hlt a').le_wp
+      exact CompleteLattice.ofProp_meet_le fun hlt => (ih ma' hlt a').le_wp
     · exact Triple.pure b Lean.Order.PartialOrder.rel_refl
 
 /--

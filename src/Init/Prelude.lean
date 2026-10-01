@@ -1236,8 +1236,7 @@ theorem of_decide_eq_self_eq_true [inst : DecidableEq α] (a : α) : Eq (decide 
   | isTrue  _  => rfl
   | isFalse h₁ => absurd rfl h₁
 
--- TODO: consider marking as `macro_inline` once the compiler supports it (#14859)
-@[inline] instance {p q} [dp : Decidable p] [dq : Decidable q] : Decidable (And p q) where
+@[macro_inline] instance {p q} [dp : Decidable p] [dq : Decidable q] : Decidable (And p q) where
   decide := and (decide p) (decide q)
   reflects_decide :=
     match dp, dq with
@@ -1245,8 +1244,7 @@ theorem of_decide_eq_self_eq_true [inst : DecidableEq α] (a : α) : Eq (decide 
     | isTrue   _, isFalse hq => fun h => hq h.2
     | isFalse hp, _          => fun h => hp (And.left h)
 
--- TODO: consider marking as `macro_inline` once the compiler supports it (#14859)
-@[inline] instance [dp : Decidable p] [dq : Decidable q] : Decidable (Or p q) where
+@[macro_inline] instance [dp : Decidable p] [dq : Decidable q] : Decidable (Or p q) where
   decide := or (decide p) (decide q)
   reflects_decide :=
     match dp, dq with
@@ -1374,6 +1372,14 @@ inductive Nat where
 
 instance : Inhabited Nat where
   default := Nat.zero
+
+/--
+Load the object tag of `x` as a natural number.
+Note that if `α` is a trivial wrapper type `x` might at runtime not be of type `α` but instead be
+of a different type and that tag of that type will be loaded.
+-/
+@[extern "lean_obj_tag_nat", tagged_return]
+unsafe opaque getObjTagNat {α : Sort u} (x : @& α) : Nat
 
 /--
 The class `OfNat α n` powers the numeric literal parser. If you write

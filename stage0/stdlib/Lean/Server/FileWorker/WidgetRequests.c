@@ -5102,8 +5102,8 @@ if (lean_obj_tag(v_a_1275_) == 0)
 {
 lean_object* v___x_1276_; 
 v___x_1276_ = lean_box(0);
-v___y_1253_ = v_____do__lift_1273_;
-v___y_1254_ = v___y_1272_;
+v___y_1253_ = v___y_1272_;
+v___y_1254_ = v_____do__lift_1273_;
 v_____do__lift_1255_ = v___x_1276_;
 goto v___jp_1252_;
 }
@@ -5196,8 +5196,8 @@ goto v_reusejp_1291_;
 }
 v_reusejp_1291_:
 {
-v___y_1253_ = v_____do__lift_1273_;
-v___y_1254_ = v___y_1272_;
+v___y_1253_ = v___y_1272_;
+v___y_1254_ = v_____do__lift_1273_;
 v_____do__lift_1255_ = v___x_1292_;
 goto v___jp_1252_;
 }
@@ -5375,8 +5375,8 @@ v___jp_1252_:
 {
 lean_object* v___x_1256_; lean_object* v___x_1257_; 
 v___x_1256_ = lean_alloc_ctor(0, 3, 0);
-lean_ctor_set(v___x_1256_, 0, v___y_1254_);
-lean_ctor_set(v___x_1256_, 1, v___y_1253_);
+lean_ctor_set(v___x_1256_, 0, v___y_1253_);
+lean_ctor_set(v___x_1256_, 1, v___y_1254_);
 lean_ctor_set(v___x_1256_, 2, v_____do__lift_1255_);
 v___x_1257_ = lean_alloc_ctor(1, 1, 0);
 lean_ctor_set(v___x_1257_, 0, v___x_1256_);

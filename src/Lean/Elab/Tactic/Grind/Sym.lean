@@ -147,6 +147,10 @@ def elabOptSimproc (stx? : Option Syntax) : GrindTacticM Simproc := do
   let some stx := stx? | return trivialSimproc
   elabSymSimproc stx
 
+def elabOptDischarger (stx? : Option Syntax) : GrindTacticM Discharger := do
+  let some stx := stx? | return dischargeNone
+  elabSymDischarger stx
+
 def resolveExtraTheorems (ids? :  Option (Array (TSyntax `ident))) : GrindTacticM (Array ExtraTheorem × Array Theorem) := do
   let some ids := ids? | return (#[], #[])
   let mut extras := #[]
@@ -162,26 +166,49 @@ def resolveExtraTheorems (ids? :  Option (Array (TSyntax `ident))) : GrindTactic
       thms := thms ++ (← mkTheoremsFromDecl declName)
   return (extras, thms)
 
-def addExtraTheorems (post : Simproc) (extraThms : Array Theorem) : GrindTacticM Simproc := do
+/-- Appends the extra theorems `extraThms` to `post`, discharging their side conditions with `d`. -/
+def addExtraTheorems (post : Simproc) (extraThms : Array Theorem) (d : Discharger := dischargeNone) : GrindTacticM Simproc := do
   if extraThms.isEmpty then return post
   let mut thms : Theorems := {}
   for thm in extraThms do
     thms := thms.insert thm
-  return post >> thms.rewrite
+  return post >> thms.rewrite d
 
-def mkSimpDefaultMethods (extraThms : Array Theorem) : GrindTacticM Sym.Simp.Methods := do
+/--
+Methods of the default `Sym.simp` variant. The discharger `d` is used for the side conditions
+of the `sym_simp` theorems and of the extra theorems `extraThms`.
+-/
+def mkSimpDefaultMethods (extraThms : Array Theorem) (d : Discharger) : GrindTacticM Sym.Simp.Methods := do
   let thms ← getSymSimpTheorems
   let pre := simpControl >> simpArrowTelescope
-  let post ← addExtraTheorems (evalGround >> thms.rewrite) extraThms
+  let post ← addExtraTheorems (evalGround >> thms.rewrite d) extraThms d
   return { pre, post }
+
+/--
+`grind` configuration of the default `Sym.simp` discharger. Side conditions are proved from the
+internalized context and a single round of E-matching with few instances. A failing attempt
+redoes the whole search, since the `grind` state is discarded after each attempt, so the search
+is kept small.
+-/
+def defaultDischargerConfig (cfg : Lean.Grind.Config) : Lean.Grind.Config :=
+  { cfg with ematch := 1, gen := 1, genLocal := 1, instances := 20 }
+
+/--
+Creates the discharger of the default `Sym.simp` variant: `grind` on `goal` with
+`defaultDischargerConfig`. See `Grind.Goal.mkSymSimpDischarger`.
+-/
+def mkDefaultDischarger (goal : Meta.Grind.Goal) : Meta.Grind.GrindM Discharger :=
+  withTheReader Meta.Grind.Context (fun ctx => { ctx with config := defaultDischargerConfig ctx.config })
+    goal.mkSymSimpDischarger
 
 def elabSimpVariant (variantName : Name) (extraThms : Array Theorem) : GrindTacticM (Sym.Simp.Methods × Sym.Simp.Config) := do
   if variantName.isAnonymous then
-    return (← mkSimpDefaultMethods extraThms, {})
+    let d ← liftGrindM <| mkDefaultDischarger (← getMainGoal)
+    return (← mkSimpDefaultMethods extraThms d, {})
   let some v := getSymSimpVariant? (← getEnv) variantName
     | throwError "unknown Sym.simp variant `{variantName}`"
   let pre ← elabOptSimproc v.pre?
-  let post ← addExtraTheorems (← elabOptSimproc v.post?) extraThms
+  let post ← addExtraTheorems (← elabOptSimproc v.post?) extraThms (← elabOptDischarger v.discharger?)
   return ({ pre, post}, v.config)
 
 @[builtin_grind_tactic Parser.Tactic.Grind.symSimp] def evalSymSimp : GrindTactic := fun stx => withMainContext do

@@ -28,8 +28,8 @@ LEAN_EXPORT lean_object* l_Float_Model_UnpackedFloat_compare(lean_object*, lean_
 LEAN_EXPORT lean_object* l_Float_Model_UnpackedFloat_compare___boxed(lean_object*, lean_object*);
 LEAN_EXPORT uint8_t l_Float_Model_UnpackedFloat_le(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Float_Model_UnpackedFloat_le___boxed(lean_object*, lean_object*);
-LEAN_EXPORT uint8_t l_Option_instBEq_beq___at___00Float_Model_UnpackedFloat_lt_spec__0(lean_object*, lean_object*);
-LEAN_EXPORT lean_object* l_Option_instBEq_beq___at___00Float_Model_UnpackedFloat_lt_spec__0___boxed(lean_object*, lean_object*);
+LEAN_EXPORT uint8_t l_instBEqOption_beq___at___00Float_Model_UnpackedFloat_lt_spec__0(lean_object*, lean_object*);
+LEAN_EXPORT lean_object* l_instBEqOption_beq___at___00Float_Model_UnpackedFloat_lt_spec__0___boxed(lean_object*, lean_object*);
 LEAN_EXPORT uint8_t l_Float_Model_UnpackedFloat_lt(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Float_Model_UnpackedFloat_lt___boxed(lean_object*, lean_object*);
 LEAN_EXPORT uint8_t l_Float_Model_UnpackedFloat_beq(lean_object*, lean_object*);
@@ -408,7 +408,7 @@ v_r_82_ = lean_box(v_res_81_);
 return v_r_82_;
 }
 }
-LEAN_EXPORT uint8_t l_Option_instBEq_beq___at___00Float_Model_UnpackedFloat_lt_spec__0(lean_object* v_x_83_, lean_object* v_x_84_){
+LEAN_EXPORT uint8_t l_instBEqOption_beq___at___00Float_Model_UnpackedFloat_lt_spec__0(lean_object* v_x_83_, lean_object* v_x_84_){
 _start:
 {
 if (lean_obj_tag(v_x_83_) == 0)
@@ -451,11 +451,11 @@ return v___x_94_;
 }
 }
 }
-LEAN_EXPORT lean_object* l_Option_instBEq_beq___at___00Float_Model_UnpackedFloat_lt_spec__0___boxed(lean_object* v_x_95_, lean_object* v_x_96_){
+LEAN_EXPORT lean_object* l_instBEqOption_beq___at___00Float_Model_UnpackedFloat_lt_spec__0___boxed(lean_object* v_x_95_, lean_object* v_x_96_){
 _start:
 {
 uint8_t v_res_97_; lean_object* v_r_98_; 
-v_res_97_ = l_Option_instBEq_beq___at___00Float_Model_UnpackedFloat_lt_spec__0(v_x_95_, v_x_96_);
+v_res_97_ = l_instBEqOption_beq___at___00Float_Model_UnpackedFloat_lt_spec__0(v_x_95_, v_x_96_);
 lean_dec(v_x_96_);
 lean_dec(v_x_95_);
 v_r_98_ = lean_box(v_res_97_);
@@ -468,7 +468,7 @@ _start:
 lean_object* v___x_101_; lean_object* v___x_102_; uint8_t v___x_103_; 
 v___x_101_ = l_Float_Model_UnpackedFloat_compare(v_a_99_, v_b_100_);
 v___x_102_ = ((lean_object*)(l_Float_Model_UnpackedFloat_compare___closed__0));
-v___x_103_ = l_Option_instBEq_beq___at___00Float_Model_UnpackedFloat_lt_spec__0(v___x_101_, v___x_102_);
+v___x_103_ = l_instBEqOption_beq___at___00Float_Model_UnpackedFloat_lt_spec__0(v___x_101_, v___x_102_);
 lean_dec(v___x_101_);
 return v___x_103_;
 }
@@ -490,7 +490,7 @@ _start:
 lean_object* v___x_110_; lean_object* v___x_111_; uint8_t v___x_112_; 
 v___x_110_ = l_Float_Model_UnpackedFloat_compare(v_a_108_, v_b_109_);
 v___x_111_ = ((lean_object*)(l_Float_Model_UnpackedFloat_compare___closed__2));
-v___x_112_ = l_Option_instBEq_beq___at___00Float_Model_UnpackedFloat_lt_spec__0(v___x_110_, v___x_111_);
+v___x_112_ = l_instBEqOption_beq___at___00Float_Model_UnpackedFloat_lt_spec__0(v___x_110_, v___x_111_);
 lean_dec(v___x_110_);
 return v___x_112_;
 }

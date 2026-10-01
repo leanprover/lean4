@@ -95,7 +95,7 @@ return v_res_11_;
 LEAN_EXPORT lean_object* l___private_Init_WFExtrinsicFix_0__WellFounded_opaqueFix_u2082___at___00Lake_toUpperCamelCaseString_spec__1___redArg(lean_object* v_str_12_, lean_object* v___x_13_, lean_object* v___x_14_, lean_object* v_a_15_, lean_object* v_b_16_){
 _start:
 {
-lean_object* v_it_18_; lean_object* v_out_19_; lean_object* v___y_23_; lean_object* v___y_24_; uint32_t v___y_25_; lean_object* v___y_26_; uint8_t v___y_27_; lean_object* v_it_33_; lean_object* v_startInclusive_34_; lean_object* v_endExclusive_35_; 
+lean_object* v_it_18_; lean_object* v_out_19_; lean_object* v___y_23_; uint32_t v___y_24_; lean_object* v___y_25_; lean_object* v___y_26_; uint8_t v___y_27_; lean_object* v_it_33_; lean_object* v_startInclusive_34_; lean_object* v_endExclusive_35_; 
 if (lean_obj_tag(v_a_15_) == 0)
 {
 lean_object* v_currPos_43_; lean_object* v_searcher_44_; lean_object* v___x_46_; uint8_t v_isShared_47_; uint8_t v_isSharedCheck_71_; 
@@ -241,8 +241,8 @@ v___jp_22_:
 if (v___y_27_ == 0)
 {
 lean_object* v___x_28_; 
-v___x_28_ = lean_string_utf8_set(v___y_23_, v___y_26_, v___y_25_);
-v_it_18_ = v___y_24_;
+v___x_28_ = lean_string_utf8_set(v___y_25_, v___y_26_, v___y_24_);
+v_it_18_ = v___y_23_;
 v_out_19_ = v___x_28_;
 goto v___jp_17_;
 }
@@ -250,9 +250,9 @@ else
 {
 uint32_t v___x_29_; uint32_t v___x_30_; lean_object* v___x_31_; 
 v___x_29_ = 4294967264;
-v___x_30_ = lean_uint32_add(v___y_25_, v___x_29_);
-v___x_31_ = lean_string_utf8_set(v___y_23_, v___y_26_, v___x_30_);
-v_it_18_ = v___y_24_;
+v___x_30_ = lean_uint32_add(v___y_24_, v___x_29_);
+v___x_31_ = lean_string_utf8_set(v___y_25_, v___y_26_, v___x_30_);
+v_it_18_ = v___y_23_;
 v_out_19_ = v___x_31_;
 goto v___jp_17_;
 }
@@ -269,9 +269,9 @@ v___x_39_ = 97;
 v___x_40_ = lean_uint32_dec_le(v___x_39_, v___x_38_);
 if (v___x_40_ == 0)
 {
-v___y_23_ = v___x_36_;
-v___y_24_ = v_it_33_;
-v___y_25_ = v___x_38_;
+v___y_23_ = v_it_33_;
+v___y_24_ = v___x_38_;
+v___y_25_ = v___x_36_;
 v___y_26_ = v___x_37_;
 v___y_27_ = v___x_40_;
 goto v___jp_22_;
@@ -281,9 +281,9 @@ else
 uint32_t v___x_41_; uint8_t v___x_42_; 
 v___x_41_ = 122;
 v___x_42_ = lean_uint32_dec_le(v___x_38_, v___x_41_);
-v___y_23_ = v___x_36_;
-v___y_24_ = v_it_33_;
-v___y_25_ = v___x_38_;
+v___y_23_ = v_it_33_;
+v___y_24_ = v___x_38_;
+v___y_25_ = v___x_36_;
 v___y_26_ = v___x_37_;
 v___y_27_ = v___x_42_;
 goto v___jp_22_;

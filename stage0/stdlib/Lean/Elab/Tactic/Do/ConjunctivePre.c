@@ -44,7 +44,7 @@ lean_object* lean_nat_sub(lean_object*, lean_object*);
 lean_object* l___private_Lean_Expr_0__Lean_Expr_getAppArgsAux(lean_object*, lean_object*, lean_object*);
 uint8_t lean_string_dec_eq(lean_object*, lean_object*);
 lean_object* l_Lean_Expr_getRevArg_x21(lean_object*, lean_object*);
-lean_object* lean_array_fget(lean_object*, lean_object*);
+lean_object* lean_array_fget_borrowed(lean_object*, lean_object*);
 lean_object* l_List_range(lean_object*);
 extern lean_object* l_Lean_instInhabitedExpr;
 lean_object* lean_array_get_borrowed(lean_object*, lean_object*, lean_object*);
@@ -1067,7 +1067,8 @@ return v___x_236_;
 else
 {
 lean_object* v___x_332_; uint8_t v___x_333_; 
-v___x_332_ = lean_array_fget(v_args_328_, v___x_329_);
+v___x_332_ = lean_array_fget_borrowed(v_args_328_, v___x_329_);
+lean_inc(v___x_332_);
 lean_inc_ref(v_qs_232_);
 v___x_333_ = l___private_Lean_Elab_Tactic_Do_ConjunctivePre_0__Lean_Elab_Tactic_VCGen_SpecAttr_isConjunctiveIn(v_qs_232_, v___x_332_);
 if (v___x_333_ == 0)

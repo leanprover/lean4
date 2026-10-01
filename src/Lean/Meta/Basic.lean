@@ -359,6 +359,18 @@ structure SynthInstanceCacheKey where
   See issue #2522.
   -/
   synthPendingDepth : Nat
+  /--
+  The maximum result size (`synthInstance.maxSize` unless overridden by the caller). It prunes
+  answers during the search, so a result, success or failure, obtained under a different limit must
+  not be reused.
+  -/
+  maxResultSize     : Nat
+  /--
+  The definitional-equality and unfolding flags in effect for the query
+  (`Core.Context.optionFlags`). Being part of the key, the search reads them without recording;
+  other options are recorded per entry (`SynthInstanceCacheEntry.deps`).
+  -/
+  optionFlags       : OptionFlags
   deriving Hashable, BEq
 
 /-- Resulting type for `abstractMVars` -/
@@ -371,7 +383,29 @@ structure AbstractMVarsResult where
 def AbstractMVarsResult.numMVars (r : AbstractMVarsResult) : Nat :=
   r.mvars.size
 
-abbrev SynthInstanceCache := PersistentHashMap SynthInstanceCacheKey (Option AbstractMVarsResult)
+/-- A type class resolution result together with the dependencies it was computed under. -/
+structure SynthInstanceCacheEntry where
+  deps    : RecordedDeps
+  result? : Option AbstractMVarsResult
+
+/--
+Type class resolution cache. Each key holds one entry per observed set of dependencies: the search
+records what it observes as the entry's `RecordedDeps`, and a lookup only uses an entry whose
+recorded dependencies still hold in the current context. What the search never observes does not
+partition the cache. The recorded dependencies are the option lookups (`getRecordedOption`) and the
+generations of the instance and unification-hint extensions read
+(`PersistentEnvExtensionDescrCore.trackGen`). The search runs with `Core.Context.isRecordingDeps`
+set, so an unrecorded option read panics.
+
+The generations roll back with the environment, after which a different change can bring them back.
+The entries in `Meta.Cache` survive `SavedState.restore`, which therefore drops those recorded after
+a tracked change it rolls back (`SynthInstanceCache.rollBack`). This limits custom metaprograms that
+roll back the environment bypassing it (e.g. `Core.SavedState.restore` in lifted `CoreM` code) and
+then change it without clearing the cache (e.g. through `liftCommandElabM`): they should call
+`resetSynthInstanceCache`, as otherwise a stale entry can be revalidated.
+-/
+abbrev SynthInstanceCache :=
+  PersistentHashMap SynthInstanceCacheKey (List SynthInstanceCacheEntry)
 
 -- Key for `InferType` and `WHNF` caches
 structure ExprConfigCacheKey where
@@ -620,10 +654,28 @@ instance : AddMessageContext MetaM where
 protected def saveState : MetaM SavedState :=
   return { core := (← Core.saveState), «meta» := (← get) }
 
+/--
+Drops the entries recorded after the environment changes a rollback to `trackedGen` undoes. Along one
+environment lineage `Environment.trackedGen` only grows, so these are exactly the entries stamped
+with a larger value.
+-/
+def SynthInstanceCache.rollBack (c : SynthInstanceCache) (trackedGen : Nat) : SynthInstanceCache :=
+  c.foldl (init := c) fun c key entries =>
+    match entries.filter (·.deps.baseTrackedGen ≤ trackedGen) with
+    | []       => c.erase key
+    | entries' => if entries'.length == entries.length then c else c.insert key entries'
+
 /-- Restore backtrackable parts of the state. -/
 def SavedState.restore (b : SavedState) : MetaM Unit := do
+  let trackedGen := b.core.env.trackedGen
+  -- `Meta.Cache` is kept, except for type class resolution cache entries recorded after a tracked
+  -- change being rolled back; see `SynthInstanceCache`.
+  let rolledBack := (← getEnv).trackedGen != trackedGen
   b.core.restore
-  modify fun s => { s with mctx := b.meta.mctx, zetaDeltaFVarIds := b.meta.zetaDeltaFVarIds, postponed := b.meta.postponed }
+  modify fun s => { s with
+    mctx := b.meta.mctx, zetaDeltaFVarIds := b.meta.zetaDeltaFVarIds, postponed := b.meta.postponed
+    cache := if rolledBack then
+      { s.cache with synthInstance := s.cache.synthInstance.rollBack trackedGen } else s.cache }
 
 @[specialize, inherit_doc Core.withRestoreOrSaveFull]
 def withRestoreOrSaveFull (reusableResult? : Option (α × SavedState)) (act : MetaM α) :
@@ -2271,7 +2323,8 @@ def instantiateLambdaWithParamInfos (e : Expr) (args : Array Expr) (cleanupAnnot
   return (res, e)
 
 def getPPContext : MetaM PPContext := do
-  return { env := (← getEnv), mctx := (← getMCtx), lctx := (← getLCtx), opts := (← getOptions),
+  -- unrestricted: message rendering only
+  return { env := (← getEnv), mctx := (← getMCtx), lctx := (← getLCtx), opts := (← getOptionsUnrestricted),
            currNamespace := (← getCurrNamespace), openDecls := (← getOpenDecls) }
 
 /-- Pretty-print the given expression. -/
@@ -2592,7 +2645,8 @@ def instantiateMVarsIfMVarApp (e : Expr) : MetaM Expr := do
     return e
 
 def instantiateMVarsProfiling (e : Expr) : MetaM Expr := do
-  profileitM Exception s!"instantiate metavars" (← getOptions) do
+  -- unrestricted: profiler collection only
+  profileitM Exception s!"instantiate metavars" (← getOptionsUnrestricted) do
   withTraceNode `Meta.instantiateMVars (fun _ => pure e) do
     instantiateMVars e
 
@@ -2751,7 +2805,8 @@ def realizeConst (forConst : Name) (constName : Name) (realize : MetaM Unit) :
     let exAct ← Core.wrapAsyncAsSnapshot (cancelTk? := none) fun
       | none => return
       | some ex => do
-        logError <| ex.toMessageData (← getOptions)
+        -- unrestricted: message rendering only
+        logError <| ex.toMessageData (← getOptionsUnrestricted)
     Core.logSnapshotTask {
       stx? := none
       task := (← BaseIO.mapTask (t := exTask) exAct)

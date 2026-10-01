@@ -315,6 +315,20 @@ syntax (name := sym)
   " => " grindSeq : tactic
 
 /--
+`grind_norm` applies the `grind` normalizer to the goal target and replaces the goal with the
+result.
+
+**This tactic exists for debugging purposes only and will be deleted.** It is a temporary aid
+for the migration of the `grind` normalizer from `simp` to `Sym.simp`: it isolates the
+normalization step so that the two implementations can be compared. Do not use it in
+libraries or proofs.
+- `grind_norm` uses the legacy `simp`-based normalizer.
+- `grind_norm sym` uses the `Sym.simp`-based normalizer.
+- `grind_norm check` runs both and fails if the results differ.
+-/
+syntax (name := grindNorm) "grind_norm" optConfig (colGt (&" sym" <|> &" check"))? : tactic
+
+/--
 `cutsat` solves linear integer arithmetic goals.
 
 It is a implemented as a thin wrapper around the `grind` tactic, enabling only the `lia` solver.

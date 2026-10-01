@@ -1834,6 +1834,7 @@ def int? (e : Expr) : Option Int :=
 def containsFVar (e : Expr) (fvarId : FVarId) : Bool :=
   e.hasAnyFVar (· == fvarId)
 
+/-- Return true iff `e` contains a metavariable which satisfies `p` -/
 @[inline] def hasAnyMVar (e : Expr) (p : MVarId → Bool) : Bool :=
   let rec @[specialize] visit (e : Expr) := if !e.hasExprMVar then false else
     match e with
@@ -1847,7 +1848,7 @@ def containsFVar (e : Expr) (fvarId : FVarId) : Bool :=
     | _                      => false
   visit e
 
-/-- Return `true` if `e` contains the given free variable. -/
+/-- Return `true` if `e` contains the given metavariable. -/
 def containsMVar (e : Expr) (mvarId : MVarId) : Bool :=
   e.hasAnyMVar (· == mvarId)
 

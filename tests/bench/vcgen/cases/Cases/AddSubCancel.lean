@@ -1,5 +1,5 @@
 import Lean
-import Std.Tactic.Do
+import Std.WP
 
 /-!
 Basic add/sub loop in `StateM`: each `step` adds then subtracts the same value, so the

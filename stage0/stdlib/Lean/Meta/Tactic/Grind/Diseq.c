@@ -1013,9 +1013,7 @@ if (lean_obj_tag(v___x_446_) == 0)
 {
 lean_object* v_a_447_; uint8_t v___x_448_; 
 v_a_447_ = lean_ctor_get(v___x_446_, 0);
-lean_inc(v_a_447_);
 v___x_448_ = lean_unbox(v_a_447_);
-lean_dec(v_a_447_);
 if (v___x_448_ == 0)
 {
 v___y_432_ = v___x_446_;

@@ -65,8 +65,8 @@ LEAN_EXPORT lean_object* l___private_Init_Omega_Constraint_0__Lean_Omega_instRep
 static const lean_closure_object l___private_Init_Omega_Constraint_0__Lean_Omega_instReprInt___closed__0_value = {.m_header = {.m_rc = 0, .m_cs_sz = sizeof(lean_closure_object) + sizeof(void*)*0, .m_other = 0, .m_tag = 245}, .m_fun = (void*)l___private_Init_Omega_Constraint_0__Lean_Omega_instReprInt___lam__0___boxed, .m_arity = 2, .m_num_fixed = 0, .m_objs = {} };
 static const lean_object* l___private_Init_Omega_Constraint_0__Lean_Omega_instReprInt___closed__0 = (const lean_object*)&l___private_Init_Omega_Constraint_0__Lean_Omega_instReprInt___closed__0_value;
 LEAN_EXPORT const lean_object* l___private_Init_Omega_Constraint_0__Lean_Omega_instReprInt = (const lean_object*)&l___private_Init_Omega_Constraint_0__Lean_Omega_instReprInt___closed__0_value;
-LEAN_EXPORT uint8_t l_Option_instBEq_beq___at___00Lean_Omega_instBEqConstraint_beq_spec__0(lean_object*, lean_object*);
-LEAN_EXPORT lean_object* l_Option_instBEq_beq___at___00Lean_Omega_instBEqConstraint_beq_spec__0___boxed(lean_object*, lean_object*);
+LEAN_EXPORT uint8_t l_instBEqOption_beq___at___00Lean_Omega_instBEqConstraint_beq_spec__0(lean_object*, lean_object*);
+LEAN_EXPORT lean_object* l_instBEqOption_beq___at___00Lean_Omega_instBEqConstraint_beq_spec__0___boxed(lean_object*, lean_object*);
 LEAN_EXPORT uint8_t l_Lean_Omega_instBEqConstraint_beq(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Omega_instBEqConstraint_beq___boxed(lean_object*, lean_object*);
 static const lean_closure_object l_Lean_Omega_instBEqConstraint___closed__0_value = {.m_header = {.m_rc = 0, .m_cs_sz = sizeof(lean_closure_object) + sizeof(void*)*0, .m_other = 0, .m_tag = 245}, .m_fun = (void*)l_Lean_Omega_instBEqConstraint_beq___boxed, .m_arity = 2, .m_num_fixed = 0, .m_objs = {} };
@@ -405,7 +405,7 @@ lean_dec(v_i_68_);
 return v_res_70_;
 }
 }
-LEAN_EXPORT uint8_t l_Option_instBEq_beq___at___00Lean_Omega_instBEqConstraint_beq_spec__0(lean_object* v_x_73_, lean_object* v_x_74_){
+LEAN_EXPORT uint8_t l_instBEqOption_beq___at___00Lean_Omega_instBEqConstraint_beq_spec__0(lean_object* v_x_73_, lean_object* v_x_74_){
 _start:
 {
 if (lean_obj_tag(v_x_73_) == 0)
@@ -442,11 +442,11 @@ return v___x_80_;
 }
 }
 }
-LEAN_EXPORT lean_object* l_Option_instBEq_beq___at___00Lean_Omega_instBEqConstraint_beq_spec__0___boxed(lean_object* v_x_81_, lean_object* v_x_82_){
+LEAN_EXPORT lean_object* l_instBEqOption_beq___at___00Lean_Omega_instBEqConstraint_beq_spec__0___boxed(lean_object* v_x_81_, lean_object* v_x_82_){
 _start:
 {
 uint8_t v_res_83_; lean_object* v_r_84_; 
-v_res_83_ = l_Option_instBEq_beq___at___00Lean_Omega_instBEqConstraint_beq_spec__0(v_x_81_, v_x_82_);
+v_res_83_ = l_instBEqOption_beq___at___00Lean_Omega_instBEqConstraint_beq_spec__0(v_x_81_, v_x_82_);
 lean_dec(v_x_82_);
 lean_dec(v_x_81_);
 v_r_84_ = lean_box(v_res_83_);
@@ -461,7 +461,7 @@ v_lowerBound_87_ = lean_ctor_get(v_x_85_, 0);
 v_upperBound_88_ = lean_ctor_get(v_x_85_, 1);
 v_lowerBound_89_ = lean_ctor_get(v_x_86_, 0);
 v_upperBound_90_ = lean_ctor_get(v_x_86_, 1);
-v___x_91_ = l_Option_instBEq_beq___at___00Lean_Omega_instBEqConstraint_beq_spec__0(v_lowerBound_87_, v_lowerBound_89_);
+v___x_91_ = l_instBEqOption_beq___at___00Lean_Omega_instBEqConstraint_beq_spec__0(v_lowerBound_87_, v_lowerBound_89_);
 if (v___x_91_ == 0)
 {
 return v___x_91_;
@@ -469,7 +469,7 @@ return v___x_91_;
 else
 {
 uint8_t v___x_92_; 
-v___x_92_ = l_Option_instBEq_beq___at___00Lean_Omega_instBEqConstraint_beq_spec__0(v_upperBound_88_, v_upperBound_90_);
+v___x_92_ = l_instBEqOption_beq___at___00Lean_Omega_instBEqConstraint_beq_spec__0(v_upperBound_88_, v_upperBound_90_);
 return v___x_92_;
 }
 }

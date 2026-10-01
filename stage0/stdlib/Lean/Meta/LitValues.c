@@ -4917,8 +4917,8 @@ return v___x_1129_;
 else
 {
 lean_object* v___x_1130_; 
-lean_dec_ref_known(v_declName_1112_, 2);
 lean_dec(v_pre_1113_);
+lean_dec_ref_known(v_declName_1112_, 2);
 v___x_1130_ = lean_box(0);
 return v___x_1130_;
 }
@@ -5695,17 +5695,14 @@ if (lean_obj_tag(v___x_1307_) == 0)
 {
 lean_object* v_a_1308_; 
 v_a_1308_ = lean_ctor_get(v___x_1307_, 0);
-lean_inc(v_a_1308_);
 if (lean_obj_tag(v_a_1308_) == 1)
 {
-lean_dec_ref_known(v_a_1308_, 1);
 lean_dec_ref(v_e_1298_);
 return v___x_1307_;
 }
 else
 {
 lean_object* v___x_1309_; 
-lean_dec(v_a_1308_);
 lean_dec_ref_known(v___x_1307_, 1);
 v___x_1309_ = l_Lean_Meta_instantiateMVarsIfMVarApp___redArg(v_e_1298_, v_a_1300_);
 if (lean_obj_tag(v___x_1309_) == 0)
@@ -6697,10 +6694,8 @@ if (lean_obj_tag(v___x_1527_) == 0)
 {
 lean_object* v_a_1528_; 
 v_a_1528_ = lean_ctor_get(v___x_1527_, 0);
-lean_inc(v_a_1528_);
 if (lean_obj_tag(v_a_1528_) == 1)
 {
-lean_dec_ref_known(v_a_1528_, 1);
 lean_dec_ref(v_e_1518_);
 return v___x_1527_;
 }
@@ -6708,7 +6703,6 @@ else
 {
 lean_object* v___x_1529_; 
 lean_dec_ref_known(v___x_1527_, 1);
-lean_dec(v_a_1528_);
 v___x_1529_ = l_Lean_Meta_instantiateMVarsIfMVarApp___redArg(v_e_1518_, v_a_1520_);
 if (lean_obj_tag(v___x_1529_) == 0)
 {

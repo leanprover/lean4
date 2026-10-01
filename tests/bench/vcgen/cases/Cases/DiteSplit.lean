@@ -1,5 +1,5 @@
 import Lean
-import Std.Tactic.Do
+import Std.WP
 
 /-!
 Dependent if-then-else (`if h : cond then ...`) inside an `ExceptT String <| StateM Nat`
@@ -9,8 +9,6 @@ program. The add/sub around the guarded `throw` keeps the state unchanged on the
 open Lean Meta Order Std.WP
 
 namespace DiteSplit
-
-set_option mvcgen.warning false
 
 abbrev M := ExceptT String <| StateM Nat
 

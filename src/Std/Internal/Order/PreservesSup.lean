@@ -197,6 +197,46 @@ theorem Prod.mk_meet (p q : α × β) : ((p.fst ⊓ q.fst, p.snd ⊓ q.snd) : α
 @[simp] theorem Prod.snd_meet (p q : α × β) : (p ⊓ q).snd = p.snd ⊓ q.snd := by
   rw [← Prod.mk_meet]
 
+theorem Prod.fst_join (p q : α × β) : (p ⊔ q).fst = p.fst ⊔ q.fst :=
+  PartialOrder.rel_antisymm
+    (join_le p q (p.fst ⊔ q.fst, p.snd ⊔ q.snd)
+      (And.intro (left_le_join _ _) (left_le_join _ _))
+      (And.intro (right_le_join _ _) (right_le_join _ _))).1
+    (join_le _ _ _ (left_le_join p q).1 (right_le_join p q).1)
+
+theorem Prod.snd_join (p q : α × β) : (p ⊔ q).snd = p.snd ⊔ q.snd :=
+  PartialOrder.rel_antisymm
+    (join_le p q (p.fst ⊔ q.fst, p.snd ⊔ q.snd)
+      (And.intro (left_le_join _ _) (left_le_join _ _))
+      (And.intro (right_le_join _ _) (right_le_join _ _))).2
+    (join_le _ _ _ (left_le_join p q).2 (right_le_join p q).2)
+
+theorem Prod.fst_iSup {ι : Type w} (f : ι → α × β) : (iSup f).fst = ⨆ i, (f i).fst :=
+  PartialOrder.rel_antisymm
+    (iSup_le f (⨆ i, (f i).fst, ⨆ i, (f i).snd)
+      fun i => And.intro (le_iSup (fun i => (f i).fst) i) (le_iSup (fun i => (f i).snd) i)).1
+    (iSup_le _ _ fun i => (le_iSup f i).1)
+
+theorem Prod.snd_iSup {ι : Type w} (f : ι → α × β) : (iSup f).snd = ⨆ i, (f i).snd :=
+  PartialOrder.rel_antisymm
+    (iSup_le f (⨆ i, (f i).fst, ⨆ i, (f i).snd)
+      fun i => And.intro (le_iSup (fun i => (f i).fst) i) (le_iSup (fun i => (f i).snd) i)).2
+    (iSup_le _ _ fun i => (le_iSup f i).2)
+
+theorem Prod.fst_iInf {ι : Type w} (f : ι → α × β) : (iInf f).fst = ⨅ i, (f i).fst :=
+  PartialOrder.rel_antisymm
+    (le_iInf _ _ fun i => (iInf_le f i).1)
+    (le_iInf f (⨅ i, (f i).fst, ⨅ i, (f i).snd)
+      fun i => Prod.mk_le _ _ _ (iInf_le (fun i => (f i).fst) i)
+        (iInf_le (fun i => (f i).snd) i)).1
+
+theorem Prod.snd_iInf {ι : Type w} (f : ι → α × β) : (iInf f).snd = ⨅ i, (f i).snd :=
+  PartialOrder.rel_antisymm
+    (le_iInf _ _ fun i => (iInf_le f i).2)
+    (le_iInf f (⨅ i, (f i).fst, ⨅ i, (f i).snd)
+      fun i => Prod.mk_le _ _ _ (iInf_le (fun i => (f i).fst) i)
+        (iInf_le (fun i => (f i).snd) i)).2
+
 theorem Prod.mk_sup (c : α × β → Prop) :
     ((CompleteLattice.sup fun a => ∃ b, c (a, b),
       CompleteLattice.sup fun b => ∃ a, c (a, b)) : α × β) = CompleteLattice.sup c :=

@@ -383,8 +383,6 @@ LEAN_EXPORT const lean_object* l_Lean_Meta_Match_congrEqnThmSuffixBasePrefix = (
 static const lean_string_object l_Lean_Meta_Match_congrEqn1ThmSuffix___closed__0_value = {.m_header = {.m_rc = 0, .m_cs_sz = 0, .m_other = 0, .m_tag = 249}, .m_size = 11, .m_capacity = 11, .m_length = 10, .m_data = "congr_eq_1"};
 static const lean_object* l_Lean_Meta_Match_congrEqn1ThmSuffix___closed__0 = (const lean_object*)&l_Lean_Meta_Match_congrEqn1ThmSuffix___closed__0_value;
 LEAN_EXPORT const lean_object* l_Lean_Meta_Match_congrEqn1ThmSuffix = (const lean_object*)&l_Lean_Meta_Match_congrEqn1ThmSuffix___closed__0_value;
-static lean_once_cell_t l_String_dropPrefix_x3f___at___00Lean_Meta_Match_isCongrEqnReservedNameSuffix_spec__0___redArg___closed__0_once = LEAN_ONCE_CELL_INITIALIZER;
-static lean_object* l_String_dropPrefix_x3f___at___00Lean_Meta_Match_isCongrEqnReservedNameSuffix_spec__0___redArg___closed__0;
 LEAN_EXPORT lean_object* l_String_dropPrefix_x3f___at___00Lean_Meta_Match_isCongrEqnReservedNameSuffix_spec__0___redArg(lean_object*);
 LEAN_EXPORT lean_object* l_String_dropPrefix_x3f___at___00Lean_Meta_Match_isCongrEqnReservedNameSuffix_spec__0(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_String_dropPrefix_x3f___at___00Lean_Meta_Match_isCongrEqnReservedNameSuffix_spec__0___boxed(lean_object*, lean_object*);
@@ -8573,110 +8571,101 @@ lean_dec_ref(v___y_2435_);
 return v_res_2440_;
 }
 }
-static lean_object* _init_l_String_dropPrefix_x3f___at___00Lean_Meta_Match_isCongrEqnReservedNameSuffix_spec__0___redArg___closed__0(void){
+LEAN_EXPORT lean_object* l_String_dropPrefix_x3f___at___00Lean_Meta_Match_isCongrEqnReservedNameSuffix_spec__0___redArg(lean_object* v_s_2447_){
 _start:
 {
-lean_object* v___x_2447_; lean_object* v___x_2448_; 
-v___x_2447_ = ((lean_object*)(l_Lean_Meta_Match_congrEqnThmSuffixBasePrefix___closed__0));
-v___x_2448_ = lean_string_utf8_byte_size(v___x_2447_);
-return v___x_2448_;
-}
-}
-LEAN_EXPORT lean_object* l_String_dropPrefix_x3f___at___00Lean_Meta_Match_isCongrEqnReservedNameSuffix_spec__0___redArg(lean_object* v_s_2449_){
-_start:
+lean_object* v___x_2448_; lean_object* v___x_2449_; uint8_t v___x_2450_; 
+v___x_2448_ = lean_string_utf8_byte_size(v_s_2447_);
+v___x_2449_ = lean_unsigned_to_nat(9u);
+v___x_2450_ = lean_nat_dec_le(v___x_2449_, v___x_2448_);
+if (v___x_2450_ == 0)
 {
-lean_object* v___x_2450_; lean_object* v___x_2451_; lean_object* v___x_2452_; uint8_t v___x_2453_; 
-v___x_2450_ = ((lean_object*)(l_Lean_Meta_Match_congrEqnThmSuffixBasePrefix___closed__0));
-v___x_2451_ = lean_string_utf8_byte_size(v_s_2449_);
-v___x_2452_ = lean_obj_once(&l_String_dropPrefix_x3f___at___00Lean_Meta_Match_isCongrEqnReservedNameSuffix_spec__0___redArg___closed__0, &l_String_dropPrefix_x3f___at___00Lean_Meta_Match_isCongrEqnReservedNameSuffix_spec__0___redArg___closed__0_once, _init_l_String_dropPrefix_x3f___at___00Lean_Meta_Match_isCongrEqnReservedNameSuffix_spec__0___redArg___closed__0);
-v___x_2453_ = lean_nat_dec_le(v___x_2452_, v___x_2451_);
-if (v___x_2453_ == 0)
-{
-lean_object* v___x_2454_; 
-lean_dec_ref(v_s_2449_);
-v___x_2454_ = lean_box(0);
-return v___x_2454_;
+lean_object* v___x_2451_; 
+lean_dec_ref(v_s_2447_);
+v___x_2451_ = lean_box(0);
+return v___x_2451_;
 }
 else
 {
-lean_object* v___x_2455_; uint8_t v___x_2456_; 
-v___x_2455_ = lean_unsigned_to_nat(0u);
-v___x_2456_ = lean_string_memcmp(v_s_2449_, v___x_2450_, v___x_2455_, v___x_2455_, v___x_2452_);
-if (v___x_2456_ == 0)
+lean_object* v___x_2452_; lean_object* v___x_2453_; uint8_t v___x_2454_; 
+v___x_2452_ = ((lean_object*)(l_Lean_Meta_Match_congrEqnThmSuffixBasePrefix___closed__0));
+v___x_2453_ = lean_unsigned_to_nat(0u);
+v___x_2454_ = lean_string_memcmp(v_s_2447_, v___x_2452_, v___x_2453_, v___x_2453_, v___x_2449_);
+if (v___x_2454_ == 0)
 {
-lean_object* v___x_2457_; 
-lean_dec_ref(v_s_2449_);
-v___x_2457_ = lean_box(0);
-return v___x_2457_;
+lean_object* v___x_2455_; 
+lean_dec_ref(v_s_2447_);
+v___x_2455_ = lean_box(0);
+return v___x_2455_;
 }
 else
 {
-lean_object* v___x_2458_; lean_object* v___x_2459_; lean_object* v___x_2460_; lean_object* v___x_2461_; 
-lean_inc_ref(v_s_2449_);
+lean_object* v___x_2456_; lean_object* v___x_2457_; lean_object* v___x_2458_; lean_object* v___x_2459_; 
+lean_inc_ref(v_s_2447_);
+v___x_2456_ = lean_alloc_ctor(0, 3, 0);
+lean_ctor_set(v___x_2456_, 0, v_s_2447_);
+lean_ctor_set(v___x_2456_, 1, v___x_2453_);
+lean_ctor_set(v___x_2456_, 2, v___x_2448_);
+v___x_2457_ = l_String_Slice_pos_x21(v___x_2456_, v___x_2449_);
+lean_dec_ref_known(v___x_2456_, 3);
 v___x_2458_ = lean_alloc_ctor(0, 3, 0);
-lean_ctor_set(v___x_2458_, 0, v_s_2449_);
-lean_ctor_set(v___x_2458_, 1, v___x_2455_);
-lean_ctor_set(v___x_2458_, 2, v___x_2451_);
-v___x_2459_ = l_String_Slice_pos_x21(v___x_2458_, v___x_2452_);
-lean_dec_ref_known(v___x_2458_, 3);
-v___x_2460_ = lean_alloc_ctor(0, 3, 0);
-lean_ctor_set(v___x_2460_, 0, v_s_2449_);
-lean_ctor_set(v___x_2460_, 1, v___x_2459_);
-lean_ctor_set(v___x_2460_, 2, v___x_2451_);
-v___x_2461_ = lean_alloc_ctor(1, 1, 0);
-lean_ctor_set(v___x_2461_, 0, v___x_2460_);
-return v___x_2461_;
+lean_ctor_set(v___x_2458_, 0, v_s_2447_);
+lean_ctor_set(v___x_2458_, 1, v___x_2457_);
+lean_ctor_set(v___x_2458_, 2, v___x_2448_);
+v___x_2459_ = lean_alloc_ctor(1, 1, 0);
+lean_ctor_set(v___x_2459_, 0, v___x_2458_);
+return v___x_2459_;
 }
 }
 }
 }
-LEAN_EXPORT lean_object* l_String_dropPrefix_x3f___at___00Lean_Meta_Match_isCongrEqnReservedNameSuffix_spec__0(lean_object* v_s_2462_, lean_object* v_pat_2463_){
+LEAN_EXPORT lean_object* l_String_dropPrefix_x3f___at___00Lean_Meta_Match_isCongrEqnReservedNameSuffix_spec__0(lean_object* v_s_2460_, lean_object* v_pat_2461_){
 _start:
 {
-lean_object* v___x_2464_; 
-v___x_2464_ = l_String_dropPrefix_x3f___at___00Lean_Meta_Match_isCongrEqnReservedNameSuffix_spec__0___redArg(v_s_2462_);
-return v___x_2464_;
+lean_object* v___x_2462_; 
+v___x_2462_ = l_String_dropPrefix_x3f___at___00Lean_Meta_Match_isCongrEqnReservedNameSuffix_spec__0___redArg(v_s_2460_);
+return v___x_2462_;
 }
 }
-LEAN_EXPORT lean_object* l_String_dropPrefix_x3f___at___00Lean_Meta_Match_isCongrEqnReservedNameSuffix_spec__0___boxed(lean_object* v_s_2465_, lean_object* v_pat_2466_){
+LEAN_EXPORT lean_object* l_String_dropPrefix_x3f___at___00Lean_Meta_Match_isCongrEqnReservedNameSuffix_spec__0___boxed(lean_object* v_s_2463_, lean_object* v_pat_2464_){
 _start:
 {
-lean_object* v_res_2467_; 
-v_res_2467_ = l_String_dropPrefix_x3f___at___00Lean_Meta_Match_isCongrEqnReservedNameSuffix_spec__0(v_s_2465_, v_pat_2466_);
-lean_dec_ref(v_pat_2466_);
-return v_res_2467_;
+lean_object* v_res_2465_; 
+v_res_2465_ = l_String_dropPrefix_x3f___at___00Lean_Meta_Match_isCongrEqnReservedNameSuffix_spec__0(v_s_2463_, v_pat_2464_);
+lean_dec_ref(v_pat_2464_);
+return v_res_2465_;
 }
 }
-LEAN_EXPORT uint8_t l_Lean_Meta_Match_isCongrEqnReservedNameSuffix(lean_object* v_s_2468_){
+LEAN_EXPORT uint8_t l_Lean_Meta_Match_isCongrEqnReservedNameSuffix(lean_object* v_s_2466_){
 _start:
 {
-lean_object* v___x_2469_; 
-v___x_2469_ = l_String_dropPrefix_x3f___at___00Lean_Meta_Match_isCongrEqnReservedNameSuffix_spec__0___redArg(v_s_2468_);
-if (lean_obj_tag(v___x_2469_) == 0)
+lean_object* v___x_2467_; 
+v___x_2467_ = l_String_dropPrefix_x3f___at___00Lean_Meta_Match_isCongrEqnReservedNameSuffix_spec__0___redArg(v_s_2466_);
+if (lean_obj_tag(v___x_2467_) == 0)
 {
-uint8_t v___x_2470_; 
-v___x_2470_ = 0;
+uint8_t v___x_2468_; 
+v___x_2468_ = 0;
+return v___x_2468_;
+}
+else
+{
+lean_object* v_val_2469_; uint8_t v___x_2470_; 
+v_val_2469_ = lean_ctor_get(v___x_2467_, 0);
+lean_inc(v_val_2469_);
+lean_dec_ref_known(v___x_2467_, 1);
+v___x_2470_ = l_String_Slice_isNat(v_val_2469_);
+lean_dec(v_val_2469_);
 return v___x_2470_;
 }
-else
-{
-lean_object* v_val_2471_; uint8_t v___x_2472_; 
-v_val_2471_ = lean_ctor_get(v___x_2469_, 0);
-lean_inc(v_val_2471_);
-lean_dec_ref_known(v___x_2469_, 1);
-v___x_2472_ = l_String_Slice_isNat(v_val_2471_);
-lean_dec(v_val_2471_);
-return v___x_2472_;
 }
 }
-}
-LEAN_EXPORT lean_object* l_Lean_Meta_Match_isCongrEqnReservedNameSuffix___boxed(lean_object* v_s_2473_){
+LEAN_EXPORT lean_object* l_Lean_Meta_Match_isCongrEqnReservedNameSuffix___boxed(lean_object* v_s_2471_){
 _start:
 {
-uint8_t v_res_2474_; lean_object* v_r_2475_; 
-v_res_2474_ = l_Lean_Meta_Match_isCongrEqnReservedNameSuffix(v_s_2473_);
-v_r_2475_ = lean_box(v_res_2474_);
-return v_r_2475_;
+uint8_t v_res_2472_; lean_object* v_r_2473_; 
+v_res_2472_ = l_Lean_Meta_Match_isCongrEqnReservedNameSuffix(v_s_2471_);
+v_r_2473_ = lean_box(v_res_2472_);
+return v_r_2473_;
 }
 }
 lean_object* runtime_initialize_Lean_Meta_Tactic_FVarSubst(uint8_t builtin);

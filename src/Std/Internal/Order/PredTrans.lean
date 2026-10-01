@@ -336,6 +336,18 @@ postcondition. -/
     (MonadExceptOf.tryCatch x handle).apply post eposts
       = x.apply post ((fun e => (handle e).apply post eposts), eposts.snd) := rfl
 
+theorem apply_MonadExcept_throw {ε : Type u} {α : Type u} {Pred : Type u}
+    {EPosts : Type w} (e : ε) (post : α → Pred) (eposts : (ε → Pred) × EPosts) :
+    (MonadExcept.throw e : PredTrans Pred ((ε → Pred) × EPosts) α).apply post eposts
+      = eposts.fst e := rfl
+
+theorem apply_MonadExcept_tryCatch {ε : Type u} {α : Type u} {Pred : Type u}
+    {EPosts : Type w} (x : PredTrans Pred ((ε → Pred) × EPosts) α)
+    (handle : ε → PredTrans Pred ((ε → Pred) × EPosts) α)
+    (post : α → Pred) (eposts : (ε → Pred) × EPosts) :
+    (MonadExcept.tryCatch x handle).apply post eposts
+      = x.apply post ((fun e => (handle e).apply post eposts), eposts.snd) := rfl
+
 /-- Adds a first exception postcondition that the predicate transformer ignores. -/
 def liftExcept {eh : Type z} (x : PredTrans Pred EPosts α) : PredTrans Pred (eh × EPosts) α :=
   ⟨fun post eposts => x.apply post eposts.snd⟩
@@ -413,6 +425,27 @@ instance {σ : Type z} : MonadReaderOf σ (PredTrans (σ → Pred) EPosts) where
 @[simp, grind =] theorem apply_read {σ : Type z}
     (post : σ → σ → Pred) (eposts : EPosts) (s : σ) :
     (MonadReaderOf.read : PredTrans (σ → Pred) EPosts σ).apply post eposts s = post s s := rfl
+
+theorem apply_MonadState_get {σ : Type z}
+    (post : σ → σ → Pred) (eposts : EPosts) (s : σ) :
+    (MonadState.get : PredTrans (σ → Pred) EPosts σ).apply post eposts s = post s s := rfl
+
+theorem apply_MonadState_modifyGet {σ α : Type z}
+    (f : σ → α × σ) (post : α → σ → Pred) (eposts : EPosts) (s : σ) :
+    (MonadState.modifyGet f : PredTrans (σ → Pred) EPosts α).apply post eposts s
+      = post (f s).1 (f s).2 := rfl
+
+theorem apply_modify {σ : Type z}
+    (f : σ → σ) (post : PUnit → σ → Pred) (eposts : EPosts) (s : σ) :
+    (modify f : PredTrans (σ → Pred) EPosts PUnit).apply post eposts s = post ⟨⟩ (f s) := rfl
+
+theorem apply_modifyThe {σ : Type z}
+    (f : σ → σ) (post : PUnit → σ → Pred) (eposts : EPosts) (s : σ) :
+    (modifyThe σ f : PredTrans (σ → Pred) EPosts PUnit).apply post eposts s = post ⟨⟩ (f s) := rfl
+
+theorem apply_MonadReader_read {σ : Type z}
+    (post : σ → σ → Pred) (eposts : EPosts) (s : σ) :
+    (MonadReader.read : PredTrans (σ → Pred) EPosts σ).apply post eposts s = post s s := rfl
 
 instance {ε : Type u'} {σ : Type z} [MonadExceptOf ε (PredTrans Pred EPosts)] :
     MonadExceptOf ε (PredTrans (σ → Pred) EPosts) where

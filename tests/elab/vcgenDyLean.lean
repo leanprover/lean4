@@ -1,7 +1,6 @@
 module
 
 import Lean
-import Std.Tactic.Do
 public import Std.WP
 import Std.WP.Triple.SpecLemmas
 public meta import Lean.Elab.Tactic.VCGen.FrameProc

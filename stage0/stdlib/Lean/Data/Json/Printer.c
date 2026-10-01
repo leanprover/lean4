@@ -54,6 +54,7 @@ size_t lean_usize_of_nat(lean_object*);
 uint8_t lean_usize_dec_eq(size_t, size_t);
 size_t lean_usize_sub(size_t, size_t);
 lean_object* lean_array_uget_borrowed(lean_object*, size_t);
+lean_object* lean_array_fget_borrowed(lean_object*, lean_object*);
 static const lean_sarray_object l___private_Lean_Data_Json_Printer_0__Lean_Json_escapeTable___closed__0_value = {.m_header = {.m_rc = 0, .m_cs_sz = sizeof(lean_sarray_object) + 256, .m_other = 1, .m_tag = 248}, .m_size = 256, .m_capacity = 256, .m_data = {1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,0,0,1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1}};
 static const lean_object* l___private_Lean_Data_Json_Printer_0__Lean_Json_escapeTable___closed__0 = (const lean_object*)&l___private_Lean_Data_Json_Printer_0__Lean_Json_escapeTable___closed__0_value;
 LEAN_EXPORT const lean_object* l___private_Lean_Data_Json_Printer_0__Lean_Json_escapeTable = (const lean_object*)&l___private_Lean_Data_Json_Printer_0__Lean_Json_escapeTable___closed__0_value;
@@ -2123,10 +2124,9 @@ if (v___x_1208_ == 0)
 lean_object* v___x_1209_; lean_object* v___x_1210_; lean_object* v_kind_1211_; uint8_t v___x_1212_; 
 v___x_1209_ = lean_array_pop(v_values_1134_);
 v___x_1210_ = lean_nat_sub(v___x_1207_, v___x_1142_);
-v_kind_1211_ = lean_array_fget(v___x_1145_, v___x_1210_);
+v_kind_1211_ = lean_array_fget_borrowed(v___x_1145_, v___x_1210_);
 lean_dec(v___x_1210_);
 v___x_1212_ = lean_unbox(v_kind_1211_);
-lean_dec(v_kind_1211_);
 if (v___x_1212_ == 2)
 {
 uint8_t v___x_1213_; lean_object* v___x_1214_; lean_object* v___x_1215_; lean_object* v___x_1216_; lean_object* v___x_1217_; 
@@ -2211,10 +2211,9 @@ lean_object* v___x_1257_; lean_object* v___x_1258_; lean_object* v___y_1260_; le
 v___x_1257_ = lean_array_pop(v_objectFieldKeys_1135_);
 v___x_1258_ = lean_array_pop(v_values_1134_);
 v___x_1282_ = lean_nat_sub(v___x_1255_, v___x_1142_);
-v_kind_1283_ = lean_array_fget(v___x_1145_, v___x_1282_);
+v_kind_1283_ = lean_array_fget_borrowed(v___x_1145_, v___x_1282_);
 lean_dec(v___x_1282_);
 v___x_1284_ = lean_unbox(v_kind_1283_);
-lean_dec(v_kind_1283_);
 if (v___x_1284_ == 4)
 {
 lean_object* v___x_1285_; lean_object* v_acc_1286_; uint8_t v___x_1287_; 

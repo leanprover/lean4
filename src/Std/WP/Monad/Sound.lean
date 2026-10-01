@@ -52,21 +52,21 @@ instance Id.instLawfulWPMonadAttach : LawfulWPMonadAttach Id.{u} Prop EStack⟨�
   of_canReturn_wp hcan hwp := by
     subst hcan
     have h := hwp (by simp)
-    simp only [ofProp_prop_eq] at h
+    simp only [CompleteLattice.ofProp_prop_eq] at h
     exact h
 
 instance Option.instLawfulWPMonadAttach : LawfulWPMonadAttach Option.{u} Prop (Unit → Prop) where
   of_canReturn_wp hcan hwp := by
     subst hcan
     have h := hwp (by simp)
-    simp only [ofProp_prop_eq] at h
+    simp only [CompleteLattice.ofProp_prop_eq] at h
     exact h
 
 instance Except.instLawfulWPMonadAttach {ε : Type u} : LawfulWPMonadAttach (Except ε) Prop (ε → Prop) where
   of_canReturn_wp hcan hwp := by
     subst hcan
     have h := hwp (by simp)
-    simp only [ofProp_prop_eq] at h
+    simp only [CompleteLattice.ofProp_prop_eq] at h
     exact h
 
 instance EStateM.instLawfulWPMonadAttach {ε σ : Type} : LawfulWPMonadAttach (EStateM ε σ) (σ → Prop) (ε → σ → Prop) where
@@ -90,7 +90,7 @@ instance ExceptT.instLawfulWPMonadAttach {ε m Pred EPosts}
     intro r
     cases r with
     | ok b => exact PartialOrder.rel_refl
-    | error e => exact le_ofProp _ _ trivial
+    | error e => exact CompleteLattice.le_ofProp _ _ trivial
 
 instance OptionT.instLawfulWPMonadAttach {m : Type u → Type z} {Pred : Type u} {EPosts : Type w}
     [Monad m] [MonadAttach m] [LawfulMonadAttach m]
@@ -105,7 +105,7 @@ instance OptionT.instLawfulWPMonadAttach {m : Type u → Type z} {Pred : Type u}
     intro r
     cases r with
     | some b => exact PartialOrder.rel_refl
-    | none => exact le_ofProp _ _ trivial
+    | none => exact CompleteLattice.le_ofProp _ _ trivial
 
 instance StateT.instLawfulWPMonadAttach {m : Type u → Type z} {σ : Type u} {Pred : Type v} {EPosts : Type w}
     [Monad m] [MonadAttach m] [LawfulMonadAttach m]

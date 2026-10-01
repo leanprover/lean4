@@ -14,13 +14,9 @@ namespace lean {
 inline void check_stack(char const * ) { }
 inline size_t get_stack_size(bool ) { return 8192*1024; }
 inline void save_stack_info(bool = true) {}
-inline size_t get_used_stack_size() { return 0; }
-inline size_t get_available_stack_size() { return 8192*1024; }
 #else
 LEAN_EXPORT size_t get_stack_size(bool main);
 LEAN_EXPORT void save_stack_info(bool main = true);
-LEAN_EXPORT size_t get_used_stack_size();
-LEAN_EXPORT size_t get_available_stack_size();
 /**
    \brief Throw an exception if the amount of available stack space is low.
 

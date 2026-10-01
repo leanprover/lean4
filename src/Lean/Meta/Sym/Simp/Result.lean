@@ -32,6 +32,10 @@ public def Result.markAsDone : Result → Result
   | .rfl _ cd => .rfl true cd
   | .step e h _ cd => .step e h true cd
 
+public def Result.markAsNotDone : Result → Result
+  | .rfl _ cd => mkRflResultCD cd
+  | .step e h _ cd => .step e h false cd
+
 public def Result.getResultExpr : Expr → Result → Expr
   | e, .rfl _ _ => e
   | _, .step e _ _ _ => e

@@ -2488,7 +2488,8 @@ set_option compiler.ignoreBorrowAnnotation true in
 @[export lean_is_expr_def_eq]
 partial def isExprDefEqAuxImpl (t : Expr) (s : Expr) : MetaM Bool := withIncRecDepth do
   withTraceNodeBefore `Meta.isDefEq (fun _ => do
-    if trace.Meta.isDefEq.printTransparency.get (← getOptions) then
+    -- unrestricted: trace collection only
+    if trace.Meta.isDefEq.printTransparency.get (← getOptionsUnrestricted) then
       return m!"[{toString (← getTransparency)}] {t} =?= {s}"
     else
       return m!"{t} =?= {s}") do

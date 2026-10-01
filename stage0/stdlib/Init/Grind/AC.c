@@ -1433,9 +1433,7 @@ if (lean_obj_tag(v_s_x27_414_) == 0)
 {
 lean_object* v_x_415_; uint8_t v___x_416_; 
 v_x_415_ = lean_ctor_get(v_s_x27_414_, 0);
-lean_inc(v_x_415_);
 v___x_416_ = lean_nat_dec_eq(v_x_409_, v_x_415_);
-lean_dec(v_x_415_);
 if (v___x_416_ == 0)
 {
 lean_object* v___x_418_; 
@@ -1508,9 +1506,7 @@ else
 {
 lean_object* v_x_428_; uint8_t v___x_429_; 
 v_x_428_ = lean_ctor_get(v_s_x27_414_, 0);
-lean_inc(v_x_428_);
 v___x_429_ = lean_nat_dec_eq(v_x_409_, v_x_428_);
-lean_dec(v_x_428_);
 if (v___x_429_ == 0)
 {
 lean_object* v___x_431_; 

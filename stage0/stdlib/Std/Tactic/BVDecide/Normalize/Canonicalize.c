@@ -1,6 +1,6 @@
 // Lean compiler output
 // Module: Std.Tactic.BVDecide.Normalize.Canonicalize
-// Imports: public import Init.Data.BitVec.Lemmas public import Std.Tactic.BVDecide.Syntax public import Init.Data.BitVec.Bootstrap import Init.PropLemmas
+// Imports: public import Init.Data.BitVec.Lemmas public import Init.Data.BitVec.Package public import Std.Tactic.BVDecide.Syntax public import Init.Data.BitVec.Bootstrap import Init.PropLemmas
 #include <lean/lean.h>
 #if defined(__clang__)
 #pragma clang diagnostic ignored "-Wunused-parameter"
@@ -14,6 +14,7 @@
 extern "C" {
 #endif
 lean_object* runtime_initialize_Init_Data_BitVec_Lemmas(uint8_t builtin);
+lean_object* runtime_initialize_Init_Data_BitVec_Package(uint8_t builtin);
 lean_object* runtime_initialize_Std_Tactic_BVDecide_Syntax(uint8_t builtin);
 lean_object* runtime_initialize_Init_Data_BitVec_Bootstrap(uint8_t builtin);
 lean_object* runtime_initialize_Init_PropLemmas(uint8_t builtin);
@@ -25,6 +26,9 @@ if (_G_runtime_initialized) return lean_io_result_mk_ok(lean_box(0));
 _G_runtime_initialized = true;
 lean_initialize_runtime_module();
 res = runtime_initialize_Init_Data_BitVec_Lemmas(builtin);
+if (lean_io_result_is_error(res)) return res;
+lean_dec_ref(res);
+res = runtime_initialize_Init_Data_BitVec_Package(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
 res = runtime_initialize_Std_Tactic_BVDecide_Syntax(builtin);
@@ -46,6 +50,7 @@ _G_meta_initialized = true;
 return lean_io_result_mk_ok(lean_box(0));
 }
 lean_object* initialize_Init_Data_BitVec_Lemmas(uint8_t builtin);
+lean_object* initialize_Init_Data_BitVec_Package(uint8_t builtin);
 lean_object* initialize_Std_Tactic_BVDecide_Syntax(uint8_t builtin);
 lean_object* initialize_Init_Data_BitVec_Bootstrap(uint8_t builtin);
 lean_object* initialize_Init_PropLemmas(uint8_t builtin);
@@ -55,6 +60,9 @@ lean_object * res;
 if (_G_initialized) return lean_io_result_mk_ok(lean_box(0));
 _G_initialized = true;
 res = initialize_Init_Data_BitVec_Lemmas(builtin);
+if (lean_io_result_is_error(res)) return res;
+lean_dec_ref(res);
+res = initialize_Init_Data_BitVec_Package(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
 res = initialize_Std_Tactic_BVDecide_Syntax(builtin);

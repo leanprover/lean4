@@ -1067,7 +1067,6 @@ _start:
 lean_object* v___x_306_; lean_object* v_reason_307_; 
 v___x_306_ = lean_st_ref_get(v___y_304_);
 v_reason_307_ = lean_ctor_get(v___x_306_, 0);
-lean_inc(v_reason_307_);
 if (lean_obj_tag(v_reason_307_) == 0)
 {
 lean_object* v_consumers_308_; lean_object* v___x_310_; uint8_t v_isShared_311_; uint8_t v_isSharedCheck_320_; 
@@ -1127,7 +1126,6 @@ return v___x_317_;
 else
 {
 lean_object* v___x_322_; 
-lean_dec_ref_known(v_reason_307_, 1);
 lean_dec(v___x_306_);
 lean_dec(v_reason_303_);
 v___x_322_ = lean_box(0);

@@ -1351,10 +1351,8 @@ if (lean_obj_tag(v___x_364_) == 0)
 {
 lean_object* v_a_365_; 
 v_a_365_ = lean_ctor_get(v___x_364_, 0);
-lean_inc(v_a_365_);
 if (lean_obj_tag(v_a_365_) == 0)
 {
-lean_dec_ref_known(v_a_365_, 1);
 lean_dec_ref(v_caps_351_);
 lean_dec_ref(v_pos_350_);
 lean_dec_ref(v_uri_349_);
@@ -1364,14 +1362,11 @@ else
 {
 lean_object* v_a_366_; lean_object* v___x_367_; lean_object* v___x_368_; uint8_t v___x_369_; 
 v_a_366_ = lean_ctor_get(v_a_365_, 0);
-lean_inc(v_a_366_);
-lean_dec_ref_known(v_a_365_, 1);
 v___x_367_ = lean_array_get_size(v_a_366_);
 v___x_368_ = lean_unsigned_to_nat(0u);
 v___x_369_ = lean_nat_dec_eq(v___x_367_, v___x_368_);
 if (v___x_369_ == 0)
 {
-lean_dec(v_a_366_);
 lean_dec_ref(v_caps_351_);
 lean_dec_ref(v_pos_350_);
 lean_dec_ref(v_uri_349_);
@@ -1380,6 +1375,7 @@ return v___x_364_;
 else
 {
 size_t v___x_370_; size_t v___x_371_; 
+lean_inc(v_a_366_);
 lean_dec_ref_known(v___x_364_, 1);
 v___x_370_ = ((size_t)1ULL);
 v___x_371_ = lean_usize_add(v_i_354_, v___x_370_);

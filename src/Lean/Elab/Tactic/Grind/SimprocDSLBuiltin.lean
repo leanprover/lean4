@@ -35,10 +35,6 @@ def elabSimprocControl : SymSimprocElab := fun _ =>
 def elabSimprocArrowTelescope : SymSimprocElab := fun _ =>
   return simpArrowTelescope
 
-@[builtin_sym_simproc Lean.Parser.Sym.Simp.arith]
-def elabSimprocArith : SymSimprocElab := fun _ =>
-  return simpArith
-
 @[builtin_sym_simproc self]
 def elabSimprocSelf : SymSimprocElab := fun _ =>
   return simp
@@ -50,6 +46,11 @@ def elabSimprocNone : SymSimprocElab := fun _ =>
 def elabOptDischarger (discharger? : Option (TSyntax `sym_discharger)) : GrindTacticM Discharger := do
   let some discharger := discharger? | return dischargeNone
   elabSymDischarger discharger
+
+@[builtin_sym_simproc Lean.Parser.Sym.Simp.arith]
+def elabSimprocArith : SymSimprocElab := fun stx => do
+  let `(sym_simproc| arith $[with $d?]?) := stx | throwUnsupportedSyntax
+  return simpArith (← elabOptDischarger d?)
 
 @[builtin_sym_simproc rewriteSet]
 def elabSimprocRewriteSet : SymSimprocElab := fun stx => do

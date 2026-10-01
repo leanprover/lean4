@@ -9,6 +9,7 @@ prelude
 public import Init.Data.UInt.Log2
 public import Lean.Compiler.LCNF.InferType
 import Init.Data.UInt.Lemmas
+import Lean.Compiler.LCNF.Util
 
 public section
 
@@ -276,7 +277,7 @@ def Folder.mkBinaryUSize (f64 : UInt64 → UInt64 → UInt64) (f32 : UInt32 → 
   let some arg₂ ← getUSizeLit fvarId₂ | return none
   let res64 := f64 arg₁ arg₂
   let res32 := f32 arg₁.toUInt32 arg₂.toUInt32
-  unless res32.toUInt64 == res64 do return none
+  unless res64.toUInt32 == res32 do return none
   mkUSizeLit res64
 
 def Folder.mkUnaryUSize (f64 : UInt64 → UInt64) (f32 : UInt32 → UInt32) : Folder := fun args => do
@@ -284,7 +285,7 @@ def Folder.mkUnaryUSize (f64 : UInt64 → UInt64) (f32 : UInt32 → UInt32) : Fo
   let some arg ← getUSizeLit fvarId | return none
   let res64 := f64 arg
   let res32 := f32 arg.toUInt32
-  unless res32.toUInt64 == res64 do return none
+  unless res64.toUInt32 == res32 do return none
   mkUSizeLit res64
 
 def Folder.mkUnaryToUSize [Literal α] (f64 : α → UInt64) (f32 : α → UInt32) : Folder := fun args => do
@@ -292,7 +293,7 @@ def Folder.mkUnaryToUSize [Literal α] (f64 : α → UInt64) (f32 : α → UInt3
   let some arg ← getLit fvarId | return none
   let res64 := f64 arg
   let res32 := f32 arg
-  unless res32.toUInt64 == res64 do return none
+  unless res64.toUInt32 == res32 do return none
   mkUSizeLit res64
 
 def Folder.mkUnaryOfUSize [Literal β] [BEq β] (f64 : UInt64 → β) (f32 : UInt32 → β) : Folder := fun args => do
@@ -555,6 +556,27 @@ def Folder.toNat (args : Array (Arg .pure)) : FolderM (Option (LetValue .pure)) 
   | .usize v => if v.toUInt32.toUInt64 == v then return some (.lit (.nat v.toNat)) else return none
   | .nat _ | .str _ => return none
 
+def Folder.getObjTagNat (args : Array (Arg .pure)) : FolderM (Option (LetValue .pure)) := do
+  let #[_, .fvar fvarId] := args | return none
+  let some (.const declName _ _) ← findLetValue? (pu := .pure) fvarId | return none
+  let env ← getEnv
+  let some (.ctorInfo ctorVal) := env.find? declName | return none
+  let some (.inductInfo inductVal) := env.find? ctorVal.induct | return none
+  /-
+  If called on single ctor inductives we might learn that they are trivial inductives later and
+  unwrap them. Similarly for runtime built-ins their actual stored tag might be different from cidx.
+  -/
+  if inductVal.numCtors == 1 || isRuntimeBuiltinType inductVal.name then return none
+  return some (.lit (.nat ctorVal.cidx))
+
+def Folder.natCtorIdx (args : Array (Arg .pure)) : FolderM (Option (LetValue .pure)) := do
+  let #[.fvar fvarId] := args | return none
+  let some (.lit (.nat val)) ← findLetValue? (pu := .pure) fvarId | return none
+  if val == 0 then
+    return some (.lit (.nat 0))
+  else
+    return some (.lit (.nat 1))
+
 /--
 All arithmetic folders.
 -/
@@ -718,6 +740,8 @@ def conversionFolders : List (Name × Folder) := [
   (``Bool.toUInt32, Folder.mkUnary Bool.toUInt32),
   (``Bool.toUInt64, Folder.mkUnary Bool.toUInt64),
   (``Bool.toUSize, Folder.mkUnaryToUSize Bool.toUInt64 Bool.toUInt32),
+  (``getObjTagNat, Folder.getObjTagNat),
+  (``Nat.ctorIdx, Folder.natCtorIdx)
 ]
 
 /--

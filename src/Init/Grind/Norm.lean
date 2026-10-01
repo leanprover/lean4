@@ -147,6 +147,16 @@ theorem exists_and_right {α : Sort u} {p : α → Prop} {b : Prop} : (∃ x, p 
 theorem zero_sub (a : Nat) : 0 - a = 0 := by
   simp
 
+/-! Helper theorems for the simproc `Sym.Simp.simpNatRel`. -/
+theorem Nat.add_succ_eq_zero_eq_false (a k : Nat) : (a + (k + 1) = 0) = False :=
+  eq_false (Nat.add_one_ne_zero (a + k))
+theorem Nat.zero_eq_add_succ_eq_false (a k : Nat) : (0 = a + (k + 1)) = False :=
+  eq_false fun h => Nat.add_one_ne_zero (a + k) h.symm
+theorem Nat.add_succ_le_zero_eq_false (a k : Nat) : (a + (k + 1) ≤ 0) = False :=
+  eq_false (Nat.not_add_one_le_zero (a + k))
+theorem Nat.zero_le_eq_true (a : Nat) : (0 ≤ a) = True :=
+  eq_true (Nat.zero_le a)
+
 attribute [local instance] Semiring.natCast Ring.intCast
 theorem smul_nat_eq_mul {α} [Semiring α] (n : Nat) (a : α) : n • a = NatCast.natCast n * a := by
   rw [Semiring.nsmul_eq_natCast_mul]
@@ -236,6 +246,6 @@ init_grind_norm
   Semiring.one_mul Semiring.mul_one
   Semiring.zero_mul Semiring.mul_zero
   -- Bitvectors
-  BitVec.ofNatLT_eq_ofNat
+  BitVec.ofNatLT_eq_ofNat BitVec.pow_eq
 
 end Lean.Grind

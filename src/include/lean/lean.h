@@ -1290,7 +1290,6 @@ static inline bool lean_sarray_eq(b_lean_obj_arg a1, b_lean_obj_arg a2) {
 }
 static inline uint8_t lean_sarray_dec_eq(b_lean_obj_arg a1, b_lean_obj_arg a2) { return lean_sarray_eq(a1, a2); }
 
-
 /* Remark: expand sarray API after we add better support in the compiler */
 
 /* ByteArray (special case of Array of Scalars) */

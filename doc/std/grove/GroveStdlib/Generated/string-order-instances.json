@@ -1,0 +1,5268 @@
+{
+  "widgetId": "string-order-instances",
+  "selectedCellOptions": [
+    {
+      "rowValue": "String.Pos",
+      "columnValue": "BEq",
+      "layerIdentifier": "()",
+      "selectedCellOptions": [
+        "{\"typeName\": \"String.Pos\", \"parameterClassNames\": [], \"className\": \"BEq\"}"
+      ]
+    },
+    {
+      "rowValue": "String.Pos",
+      "columnValue": "LE",
+      "layerIdentifier": "()",
+      "selectedCellOptions": [
+        "{\"typeName\": \"String.Pos\", \"parameterClassNames\": [], \"className\": \"LE\"}"
+      ]
+    },
+    {
+      "rowValue": "String.Pos",
+      "columnValue": "LT",
+      "layerIdentifier": "()",
+      "selectedCellOptions": [
+        "{\"typeName\": \"String.Pos\", \"parameterClassNames\": [], \"className\": \"LT\"}"
+      ]
+    },
+    {
+      "rowValue": "String.Pos",
+      "columnValue": "Ord",
+      "layerIdentifier": "()",
+      "selectedCellOptions": [
+        "{\"typeName\": \"String.Pos\", \"parameterClassNames\": [], \"className\": \"Ord\"}"
+      ]
+    },
+    {
+      "rowValue": "String.Pos",
+      "columnValue": "Min",
+      "layerIdentifier": "()",
+      "selectedCellOptions": [
+        "{\"typeName\": \"String.Pos\", \"parameterClassNames\": [], \"className\": \"Min\"}"
+      ]
+    },
+    {
+      "rowValue": "String.Pos",
+      "columnValue": "Max",
+      "layerIdentifier": "()",
+      "selectedCellOptions": [
+        "{\"typeName\": \"String.Pos\", \"parameterClassNames\": [], \"className\": \"Max\"}"
+      ]
+    },
+    {
+      "rowValue": "String.Pos",
+      "columnValue": "DecidableEq",
+      "layerIdentifier": "()",
+      "selectedCellOptions": [
+        "{\"typeName\": \"String.Pos\",\n \"parameterClassNames\": [],\n \"className\": \"DecidableEq\"}"
+      ]
+    },
+    {
+      "rowValue": "String.Pos",
+      "columnValue": "DecidableLE",
+      "layerIdentifier": "()",
+      "selectedCellOptions": [
+        "{\"typeName\": \"String.Pos\",\n \"parameterClassNames\": [],\n \"className\": \"DecidableLE\"}"
+      ]
+    },
+    {
+      "rowValue": "String.Pos",
+      "columnValue": "DecidableLT",
+      "layerIdentifier": "()",
+      "selectedCellOptions": [
+        "{\"typeName\": \"String.Pos\",\n \"parameterClassNames\": [],\n \"className\": \"DecidableLT\"}"
+      ]
+    },
+    {
+      "rowValue": "String.Pos",
+      "columnValue": "Std.IsPreorder",
+      "layerIdentifier": "()",
+      "selectedCellOptions": [
+        "{\"typeName\": \"String.Pos\",\n \"parameterClassNames\": [],\n \"className\": \"Std.IsPreorder\"}"
+      ]
+    },
+    {
+      "rowValue": "String.Pos",
+      "columnValue": "Std.IsPartialOrder",
+      "layerIdentifier": "()",
+      "selectedCellOptions": [
+        "{\"typeName\": \"String.Pos\",\n \"parameterClassNames\": [],\n \"className\": \"Std.IsPartialOrder\"}"
+      ]
+    },
+    {
+      "rowValue": "String.Pos",
+      "columnValue": "Std.IsLinearPreorder",
+      "layerIdentifier": "()",
+      "selectedCellOptions": [
+        "{\"typeName\": \"String.Pos\",\n \"parameterClassNames\": [],\n \"className\": \"Std.IsLinearPreorder\"}"
+      ]
+    },
+    {
+      "rowValue": "String.Pos",
+      "columnValue": "Std.IsLinearOrder",
+      "layerIdentifier": "()",
+      "selectedCellOptions": [
+        "{\"typeName\": \"String.Pos\",\n \"parameterClassNames\": [],\n \"className\": \"Std.IsLinearOrder\"}"
+      ]
+    },
+    {
+      "rowValue": "String.Pos",
+      "columnValue": "Std.LawfulOrderLT",
+      "layerIdentifier": "()",
+      "selectedCellOptions": [
+        "{\"typeName\": \"String.Pos\",\n \"parameterClassNames\": [],\n \"className\": \"Std.LawfulOrderLT\"}"
+      ]
+    },
+    {
+      "rowValue": "String.Pos",
+      "columnValue": "Std.LawfulOrderBEq",
+      "layerIdentifier": "()",
+      "selectedCellOptions": [
+        "{\"typeName\": \"String.Pos\",\n \"parameterClassNames\": [],\n \"className\": \"Std.LawfulOrderBEq\"}"
+      ]
+    },
+    {
+      "rowValue": "String.Pos",
+      "columnValue": "Std.LawfulOrderOrd",
+      "layerIdentifier": "()",
+      "selectedCellOptions": [
+        "{\"typeName\": \"String.Pos\",\n \"parameterClassNames\": [],\n \"className\": \"Std.LawfulOrderOrd\"}"
+      ]
+    },
+    {
+      "rowValue": "String.Pos",
+      "columnValue": "Std.LawfulOrderMin",
+      "layerIdentifier": "()",
+      "selectedCellOptions": [
+        "{\"typeName\": \"String.Pos\",\n \"parameterClassNames\": [],\n \"className\": \"Std.LawfulOrderMin\"}"
+      ]
+    },
+    {
+      "rowValue": "String.Pos",
+      "columnValue": "Std.LawfulOrderInf",
+      "layerIdentifier": "()",
+      "selectedCellOptions": [
+        "{\"typeName\": \"String.Pos\",\n \"parameterClassNames\": [],\n \"className\": \"Std.LawfulOrderInf\"}"
+      ]
+    },
+    {
+      "rowValue": "String.Pos",
+      "columnValue": "Std.LawfulOrderLeftLeaningMin",
+      "layerIdentifier": "()",
+      "selectedCellOptions": [
+        "{\"typeName\": \"String.Pos\",\n \"parameterClassNames\": [],\n \"className\": \"Std.LawfulOrderLeftLeaningMin\"}"
+      ]
+    },
+    {
+      "rowValue": "String.Pos",
+      "columnValue": "Std.LawfulOrderMax",
+      "layerIdentifier": "()",
+      "selectedCellOptions": [
+        "{\"typeName\": \"String.Pos\",\n \"parameterClassNames\": [],\n \"className\": \"Std.LawfulOrderMax\"}"
+      ]
+    },
+    {
+      "rowValue": "String.Pos",
+      "columnValue": "Std.LawfulOrderSup",
+      "layerIdentifier": "()",
+      "selectedCellOptions": [
+        "{\"typeName\": \"String.Pos\",\n \"parameterClassNames\": [],\n \"className\": \"Std.LawfulOrderSup\"}"
+      ]
+    },
+    {
+      "rowValue": "String.Pos",
+      "columnValue": "Std.LawfulOrderLeftLeaningMax",
+      "layerIdentifier": "()",
+      "selectedCellOptions": [
+        "{\"typeName\": \"String.Pos\",\n \"parameterClassNames\": [],\n \"className\": \"Std.LawfulOrderLeftLeaningMax\"}"
+      ]
+    },
+    {
+      "rowValue": "String.Pos",
+      "columnValue": "Std.ReflOrd",
+      "layerIdentifier": "()",
+      "selectedCellOptions": [
+        "{\"typeName\": \"String.Pos\",\n \"parameterClassNames\": [],\n \"className\": \"Std.ReflOrd\"}"
+      ]
+    },
+    {
+      "rowValue": "String.Pos",
+      "columnValue": "Std.OrientedOrd",
+      "layerIdentifier": "()",
+      "selectedCellOptions": [
+        "{\"typeName\": \"String.Pos\",\n \"parameterClassNames\": [],\n \"className\": \"Std.OrientedOrd\"}"
+      ]
+    },
+    {
+      "rowValue": "String.Pos",
+      "columnValue": "Std.TransOrd",
+      "layerIdentifier": "()",
+      "selectedCellOptions": [
+        "{\"typeName\": \"String.Pos\",\n \"parameterClassNames\": [],\n \"className\": \"Std.TransOrd\"}"
+      ]
+    },
+    {
+      "rowValue": "String.Pos",
+      "columnValue": "Std.LawfulEqOrd",
+      "layerIdentifier": "()",
+      "selectedCellOptions": [
+        "{\"typeName\": \"String.Pos\",\n \"parameterClassNames\": [],\n \"className\": \"Std.LawfulEqOrd\"}"
+      ]
+    },
+    {
+      "rowValue": "String.Pos",
+      "columnValue": "Std.LawfulBEqOrd",
+      "layerIdentifier": "()",
+      "selectedCellOptions": [
+        "{\"typeName\": \"String.Pos\",\n \"parameterClassNames\": [],\n \"className\": \"Std.LawfulBEqOrd\"}"
+      ]
+    },
+    {
+      "rowValue": "String.Pos",
+      "columnValue": "EquivBEq",
+      "layerIdentifier": "()",
+      "selectedCellOptions": [
+        "{\"typeName\": \"String.Pos\", \"parameterClassNames\": [], \"className\": \"EquivBEq\"}"
+      ]
+    },
+    {
+      "rowValue": "String.Pos",
+      "columnValue": "LawfulBEq",
+      "layerIdentifier": "()",
+      "selectedCellOptions": [
+        "{\"typeName\": \"String.Pos\", \"parameterClassNames\": [], \"className\": \"LawfulBEq\"}"
+      ]
+    },
+    {
+      "rowValue": "String.Pos.Raw",
+      "columnValue": "BEq",
+      "layerIdentifier": "()",
+      "selectedCellOptions": [
+        "{\"typeName\": \"String.Pos.Raw\", \"parameterClassNames\": [], \"className\": \"BEq\"}"
+      ]
+    },
+    {
+      "rowValue": "String.Pos.Raw",
+      "columnValue": "LE",
+      "layerIdentifier": "()",
+      "selectedCellOptions": [
+        "{\"typeName\": \"String.Pos.Raw\", \"parameterClassNames\": [], \"className\": \"LE\"}"
+      ]
+    },
+    {
+      "rowValue": "String.Pos.Raw",
+      "columnValue": "LT",
+      "layerIdentifier": "()",
+      "selectedCellOptions": [
+        "{\"typeName\": \"String.Pos.Raw\", \"parameterClassNames\": [], \"className\": \"LT\"}"
+      ]
+    },
+    {
+      "rowValue": "String.Pos.Raw",
+      "columnValue": "Ord",
+      "layerIdentifier": "()",
+      "selectedCellOptions": [
+        "{\"typeName\": \"String.Pos.Raw\", \"parameterClassNames\": [], \"className\": \"Ord\"}"
+      ]
+    },
+    {
+      "rowValue": "String.Pos.Raw",
+      "columnValue": "Min",
+      "layerIdentifier": "()",
+      "selectedCellOptions": [
+        "{\"typeName\": \"String.Pos.Raw\", \"parameterClassNames\": [], \"className\": \"Min\"}"
+      ]
+    },
+    {
+      "rowValue": "String.Pos.Raw",
+      "columnValue": "Max",
+      "layerIdentifier": "()",
+      "selectedCellOptions": [
+        "{\"typeName\": \"String.Pos.Raw\", \"parameterClassNames\": [], \"className\": \"Max\"}"
+      ]
+    },
+    {
+      "rowValue": "String.Pos.Raw",
+      "columnValue": "DecidableEq",
+      "layerIdentifier": "()",
+      "selectedCellOptions": [
+        "{\"typeName\": \"String.Pos.Raw\",\n \"parameterClassNames\": [],\n \"className\": \"DecidableEq\"}"
+      ]
+    },
+    {
+      "rowValue": "String.Pos.Raw",
+      "columnValue": "DecidableLE",
+      "layerIdentifier": "()",
+      "selectedCellOptions": [
+        "{\"typeName\": \"String.Pos.Raw\",\n \"parameterClassNames\": [],\n \"className\": \"DecidableLE\"}"
+      ]
+    },
+    {
+      "rowValue": "String.Pos.Raw",
+      "columnValue": "DecidableLT",
+      "layerIdentifier": "()",
+      "selectedCellOptions": [
+        "{\"typeName\": \"String.Pos.Raw\",\n \"parameterClassNames\": [],\n \"className\": \"DecidableLT\"}"
+      ]
+    },
+    {
+      "rowValue": "String.Pos.Raw",
+      "columnValue": "Std.IsPreorder",
+      "layerIdentifier": "()",
+      "selectedCellOptions": [
+        "{\"typeName\": \"String.Pos.Raw\",\n \"parameterClassNames\": [],\n \"className\": \"Std.IsPreorder\"}"
+      ]
+    },
+    {
+      "rowValue": "String.Pos.Raw",
+      "columnValue": "Std.IsPartialOrder",
+      "layerIdentifier": "()",
+      "selectedCellOptions": [
+        "{\"typeName\": \"String.Pos.Raw\",\n \"parameterClassNames\": [],\n \"className\": \"Std.IsPartialOrder\"}"
+      ]
+    },
+    {
+      "rowValue": "String.Pos.Raw",
+      "columnValue": "Std.IsLinearPreorder",
+      "layerIdentifier": "()",
+      "selectedCellOptions": [
+        "{\"typeName\": \"String.Pos.Raw\",\n \"parameterClassNames\": [],\n \"className\": \"Std.IsLinearPreorder\"}"
+      ]
+    },
+    {
+      "rowValue": "String.Pos.Raw",
+      "columnValue": "Std.IsLinearOrder",
+      "layerIdentifier": "()",
+      "selectedCellOptions": [
+        "{\"typeName\": \"String.Pos.Raw\",\n \"parameterClassNames\": [],\n \"className\": \"Std.IsLinearOrder\"}"
+      ]
+    },
+    {
+      "rowValue": "String.Pos.Raw",
+      "columnValue": "Std.LawfulOrderLT",
+      "layerIdentifier": "()",
+      "selectedCellOptions": [
+        "{\"typeName\": \"String.Pos.Raw\",\n \"parameterClassNames\": [],\n \"className\": \"Std.LawfulOrderLT\"}"
+      ]
+    },
+    {
+      "rowValue": "String.Pos.Raw",
+      "columnValue": "Std.LawfulOrderBEq",
+      "layerIdentifier": "()",
+      "selectedCellOptions": [
+        "{\"typeName\": \"String.Pos.Raw\",\n \"parameterClassNames\": [],\n \"className\": \"Std.LawfulOrderBEq\"}"
+      ]
+    },
+    {
+      "rowValue": "String.Pos.Raw",
+      "columnValue": "Std.LawfulOrderOrd",
+      "layerIdentifier": "()",
+      "selectedCellOptions": [
+        "{\"typeName\": \"String.Pos.Raw\",\n \"parameterClassNames\": [],\n \"className\": \"Std.LawfulOrderOrd\"}"
+      ]
+    },
+    {
+      "rowValue": "String.Pos.Raw",
+      "columnValue": "Std.LawfulOrderMin",
+      "layerIdentifier": "()",
+      "selectedCellOptions": [
+        "{\"typeName\": \"String.Pos.Raw\",\n \"parameterClassNames\": [],\n \"className\": \"Std.LawfulOrderMin\"}"
+      ]
+    },
+    {
+      "rowValue": "String.Pos.Raw",
+      "columnValue": "Std.LawfulOrderInf",
+      "layerIdentifier": "()",
+      "selectedCellOptions": [
+        "{\"typeName\": \"String.Pos.Raw\",\n \"parameterClassNames\": [],\n \"className\": \"Std.LawfulOrderInf\"}"
+      ]
+    },
+    {
+      "rowValue": "String.Pos.Raw",
+      "columnValue": "Std.LawfulOrderLeftLeaningMin",
+      "layerIdentifier": "()",
+      "selectedCellOptions": [
+        "{\"typeName\": \"String.Pos.Raw\",\n \"parameterClassNames\": [],\n \"className\": \"Std.LawfulOrderLeftLeaningMin\"}"
+      ]
+    },
+    {
+      "rowValue": "String.Pos.Raw",
+      "columnValue": "Std.LawfulOrderMax",
+      "layerIdentifier": "()",
+      "selectedCellOptions": [
+        "{\"typeName\": \"String.Pos.Raw\",\n \"parameterClassNames\": [],\n \"className\": \"Std.LawfulOrderMax\"}"
+      ]
+    },
+    {
+      "rowValue": "String.Pos.Raw",
+      "columnValue": "Std.LawfulOrderSup",
+      "layerIdentifier": "()",
+      "selectedCellOptions": [
+        "{\"typeName\": \"String.Pos.Raw\",\n \"parameterClassNames\": [],\n \"className\": \"Std.LawfulOrderSup\"}"
+      ]
+    },
+    {
+      "rowValue": "String.Pos.Raw",
+      "columnValue": "Std.LawfulOrderLeftLeaningMax",
+      "layerIdentifier": "()",
+      "selectedCellOptions": [
+        "{\"typeName\": \"String.Pos.Raw\",\n \"parameterClassNames\": [],\n \"className\": \"Std.LawfulOrderLeftLeaningMax\"}"
+      ]
+    },
+    {
+      "rowValue": "String.Pos.Raw",
+      "columnValue": "Std.ReflOrd",
+      "layerIdentifier": "()",
+      "selectedCellOptions": [
+        "{\"typeName\": \"String.Pos.Raw\",\n \"parameterClassNames\": [],\n \"className\": \"Std.ReflOrd\"}"
+      ]
+    },
+    {
+      "rowValue": "String.Pos.Raw",
+      "columnValue": "Std.OrientedOrd",
+      "layerIdentifier": "()",
+      "selectedCellOptions": [
+        "{\"typeName\": \"String.Pos.Raw\",\n \"parameterClassNames\": [],\n \"className\": \"Std.OrientedOrd\"}"
+      ]
+    },
+    {
+      "rowValue": "String.Pos.Raw",
+      "columnValue": "Std.TransOrd",
+      "layerIdentifier": "()",
+      "selectedCellOptions": [
+        "{\"typeName\": \"String.Pos.Raw\",\n \"parameterClassNames\": [],\n \"className\": \"Std.TransOrd\"}"
+      ]
+    },
+    {
+      "rowValue": "String.Pos.Raw",
+      "columnValue": "Std.LawfulEqOrd",
+      "layerIdentifier": "()",
+      "selectedCellOptions": [
+        "{\"typeName\": \"String.Pos.Raw\",\n \"parameterClassNames\": [],\n \"className\": \"Std.LawfulEqOrd\"}"
+      ]
+    },
+    {
+      "rowValue": "String.Pos.Raw",
+      "columnValue": "Std.LawfulBEqOrd",
+      "layerIdentifier": "()",
+      "selectedCellOptions": [
+        "{\"typeName\": \"String.Pos.Raw\",\n \"parameterClassNames\": [],\n \"className\": \"Std.LawfulBEqOrd\"}"
+      ]
+    },
+    {
+      "rowValue": "String.Pos.Raw",
+      "columnValue": "EquivBEq",
+      "layerIdentifier": "()",
+      "selectedCellOptions": [
+        "{\"typeName\": \"String.Pos.Raw\",\n \"parameterClassNames\": [],\n \"className\": \"EquivBEq\"}"
+      ]
+    },
+    {
+      "rowValue": "String.Pos.Raw",
+      "columnValue": "LawfulBEq",
+      "layerIdentifier": "()",
+      "selectedCellOptions": [
+        "{\"typeName\": \"String.Pos.Raw\",\n \"parameterClassNames\": [],\n \"className\": \"LawfulBEq\"}"
+      ]
+    },
+    {
+      "rowValue": "String.Slice.Pos",
+      "columnValue": "BEq",
+      "layerIdentifier": "()",
+      "selectedCellOptions": [
+        "{\"typeName\": \"String.Slice.Pos\", \"parameterClassNames\": [], \"className\": \"BEq\"}"
+      ]
+    },
+    {
+      "rowValue": "String.Slice.Pos",
+      "columnValue": "LE",
+      "layerIdentifier": "()",
+      "selectedCellOptions": [
+        "{\"typeName\": \"String.Slice.Pos\", \"parameterClassNames\": [], \"className\": \"LE\"}"
+      ]
+    },
+    {
+      "rowValue": "String.Slice.Pos",
+      "columnValue": "LT",
+      "layerIdentifier": "()",
+      "selectedCellOptions": [
+        "{\"typeName\": \"String.Slice.Pos\", \"parameterClassNames\": [], \"className\": \"LT\"}"
+      ]
+    },
+    {
+      "rowValue": "String.Slice.Pos",
+      "columnValue": "Ord",
+      "layerIdentifier": "()",
+      "selectedCellOptions": [
+        "{\"typeName\": \"String.Slice.Pos\", \"parameterClassNames\": [], \"className\": \"Ord\"}"
+      ]
+    },
+    {
+      "rowValue": "String.Slice.Pos",
+      "columnValue": "Min",
+      "layerIdentifier": "()",
+      "selectedCellOptions": [
+        "{\"typeName\": \"String.Slice.Pos\", \"parameterClassNames\": [], \"className\": \"Min\"}"
+      ]
+    },
+    {
+      "rowValue": "String.Slice.Pos",
+      "columnValue": "Max",
+      "layerIdentifier": "()",
+      "selectedCellOptions": [
+        "{\"typeName\": \"String.Slice.Pos\", \"parameterClassNames\": [], \"className\": \"Max\"}"
+      ]
+    },
+    {
+      "rowValue": "String.Slice.Pos",
+      "columnValue": "DecidableEq",
+      "layerIdentifier": "()",
+      "selectedCellOptions": [
+        "{\"typeName\": \"String.Slice.Pos\",\n \"parameterClassNames\": [],\n \"className\": \"DecidableEq\"}"
+      ]
+    },
+    {
+      "rowValue": "String.Slice.Pos",
+      "columnValue": "DecidableLE",
+      "layerIdentifier": "()",
+      "selectedCellOptions": [
+        "{\"typeName\": \"String.Slice.Pos\",\n \"parameterClassNames\": [],\n \"className\": \"DecidableLE\"}"
+      ]
+    },
+    {
+      "rowValue": "String.Slice.Pos",
+      "columnValue": "DecidableLT",
+      "layerIdentifier": "()",
+      "selectedCellOptions": [
+        "{\"typeName\": \"String.Slice.Pos\",\n \"parameterClassNames\": [],\n \"className\": \"DecidableLT\"}"
+      ]
+    },
+    {
+      "rowValue": "String.Slice.Pos",
+      "columnValue": "Std.IsPreorder",
+      "layerIdentifier": "()",
+      "selectedCellOptions": [
+        "{\"typeName\": \"String.Slice.Pos\",\n \"parameterClassNames\": [],\n \"className\": \"Std.IsPreorder\"}"
+      ]
+    },
+    {
+      "rowValue": "String.Slice.Pos",
+      "columnValue": "Std.IsPartialOrder",
+      "layerIdentifier": "()",
+      "selectedCellOptions": [
+        "{\"typeName\": \"String.Slice.Pos\",\n \"parameterClassNames\": [],\n \"className\": \"Std.IsPartialOrder\"}"
+      ]
+    },
+    {
+      "rowValue": "String.Slice.Pos",
+      "columnValue": "Std.IsLinearPreorder",
+      "layerIdentifier": "()",
+      "selectedCellOptions": [
+        "{\"typeName\": \"String.Slice.Pos\",\n \"parameterClassNames\": [],\n \"className\": \"Std.IsLinearPreorder\"}"
+      ]
+    },
+    {
+      "rowValue": "String.Slice.Pos",
+      "columnValue": "Std.IsLinearOrder",
+      "layerIdentifier": "()",
+      "selectedCellOptions": [
+        "{\"typeName\": \"String.Slice.Pos\",\n \"parameterClassNames\": [],\n \"className\": \"Std.IsLinearOrder\"}"
+      ]
+    },
+    {
+      "rowValue": "String.Slice.Pos",
+      "columnValue": "Std.LawfulOrderLT",
+      "layerIdentifier": "()",
+      "selectedCellOptions": [
+        "{\"typeName\": \"String.Slice.Pos\",\n \"parameterClassNames\": [],\n \"className\": \"Std.LawfulOrderLT\"}"
+      ]
+    },
+    {
+      "rowValue": "String.Slice.Pos",
+      "columnValue": "Std.LawfulOrderBEq",
+      "layerIdentifier": "()",
+      "selectedCellOptions": [
+        "{\"typeName\": \"String.Slice.Pos\",\n \"parameterClassNames\": [],\n \"className\": \"Std.LawfulOrderBEq\"}"
+      ]
+    },
+    {
+      "rowValue": "String.Slice.Pos",
+      "columnValue": "Std.LawfulOrderOrd",
+      "layerIdentifier": "()",
+      "selectedCellOptions": [
+        "{\"typeName\": \"String.Slice.Pos\",\n \"parameterClassNames\": [],\n \"className\": \"Std.LawfulOrderOrd\"}"
+      ]
+    },
+    {
+      "rowValue": "String.Slice.Pos",
+      "columnValue": "Std.LawfulOrderMin",
+      "layerIdentifier": "()",
+      "selectedCellOptions": [
+        "{\"typeName\": \"String.Slice.Pos\",\n \"parameterClassNames\": [],\n \"className\": \"Std.LawfulOrderMin\"}"
+      ]
+    },
+    {
+      "rowValue": "String.Slice.Pos",
+      "columnValue": "Std.LawfulOrderInf",
+      "layerIdentifier": "()",
+      "selectedCellOptions": [
+        "{\"typeName\": \"String.Slice.Pos\",\n \"parameterClassNames\": [],\n \"className\": \"Std.LawfulOrderInf\"}"
+      ]
+    },
+    {
+      "rowValue": "String.Slice.Pos",
+      "columnValue": "Std.LawfulOrderLeftLeaningMin",
+      "layerIdentifier": "()",
+      "selectedCellOptions": [
+        "{\"typeName\": \"String.Slice.Pos\",\n \"parameterClassNames\": [],\n \"className\": \"Std.LawfulOrderLeftLeaningMin\"}"
+      ]
+    },
+    {
+      "rowValue": "String.Slice.Pos",
+      "columnValue": "Std.LawfulOrderMax",
+      "layerIdentifier": "()",
+      "selectedCellOptions": [
+        "{\"typeName\": \"String.Slice.Pos\",\n \"parameterClassNames\": [],\n \"className\": \"Std.LawfulOrderMax\"}"
+      ]
+    },
+    {
+      "rowValue": "String.Slice.Pos",
+      "columnValue": "Std.LawfulOrderSup",
+      "layerIdentifier": "()",
+      "selectedCellOptions": [
+        "{\"typeName\": \"String.Slice.Pos\",\n \"parameterClassNames\": [],\n \"className\": \"Std.LawfulOrderSup\"}"
+      ]
+    },
+    {
+      "rowValue": "String.Slice.Pos",
+      "columnValue": "Std.LawfulOrderLeftLeaningMax",
+      "layerIdentifier": "()",
+      "selectedCellOptions": [
+        "{\"typeName\": \"String.Slice.Pos\",\n \"parameterClassNames\": [],\n \"className\": \"Std.LawfulOrderLeftLeaningMax\"}"
+      ]
+    },
+    {
+      "rowValue": "String.Slice.Pos",
+      "columnValue": "Std.ReflOrd",
+      "layerIdentifier": "()",
+      "selectedCellOptions": [
+        "{\"typeName\": \"String.Slice.Pos\",\n \"parameterClassNames\": [],\n \"className\": \"Std.ReflOrd\"}"
+      ]
+    },
+    {
+      "rowValue": "String.Slice.Pos",
+      "columnValue": "Std.OrientedOrd",
+      "layerIdentifier": "()",
+      "selectedCellOptions": [
+        "{\"typeName\": \"String.Slice.Pos\",\n \"parameterClassNames\": [],\n \"className\": \"Std.OrientedOrd\"}"
+      ]
+    },
+    {
+      "rowValue": "String.Slice.Pos",
+      "columnValue": "Std.TransOrd",
+      "layerIdentifier": "()",
+      "selectedCellOptions": [
+        "{\"typeName\": \"String.Slice.Pos\",\n \"parameterClassNames\": [],\n \"className\": \"Std.TransOrd\"}"
+      ]
+    },
+    {
+      "rowValue": "String.Slice.Pos",
+      "columnValue": "Std.LawfulEqOrd",
+      "layerIdentifier": "()",
+      "selectedCellOptions": [
+        "{\"typeName\": \"String.Slice.Pos\",\n \"parameterClassNames\": [],\n \"className\": \"Std.LawfulEqOrd\"}"
+      ]
+    },
+    {
+      "rowValue": "String.Slice.Pos",
+      "columnValue": "Std.LawfulBEqOrd",
+      "layerIdentifier": "()",
+      "selectedCellOptions": [
+        "{\"typeName\": \"String.Slice.Pos\",\n \"parameterClassNames\": [],\n \"className\": \"Std.LawfulBEqOrd\"}"
+      ]
+    },
+    {
+      "rowValue": "String.Slice.Pos",
+      "columnValue": "EquivBEq",
+      "layerIdentifier": "()",
+      "selectedCellOptions": [
+        "{\"typeName\": \"String.Slice.Pos\",\n \"parameterClassNames\": [],\n \"className\": \"EquivBEq\"}"
+      ]
+    },
+    {
+      "rowValue": "String.Slice.Pos",
+      "columnValue": "LawfulBEq",
+      "layerIdentifier": "()",
+      "selectedCellOptions": [
+        "{\"typeName\": \"String.Slice.Pos\",\n \"parameterClassNames\": [],\n \"className\": \"LawfulBEq\"}"
+      ]
+    }
+  ],
+  "selectedColumnAssociations": [
+    "BEq",
+    "LE",
+    "LT",
+    "Ord",
+    "Min",
+    "Max",
+    "DecidableEq",
+    "DecidableLE",
+    "DecidableLT",
+    "Std.IsPreorder",
+    "Std.IsPartialOrder",
+    "Std.IsLinearPreorder",
+    "Std.IsLinearOrder",
+    "Std.LawfulOrderLT",
+    "Std.LawfulOrderBEq",
+    "Std.LawfulOrderOrd",
+    "Std.LawfulOrderMin",
+    "Std.LawfulOrderInf",
+    "Std.LawfulOrderLeftLeaningMin",
+    "Std.LawfulOrderMax",
+    "Std.LawfulOrderSup",
+    "Std.LawfulOrderLeftLeaningMax",
+    "Std.ReflOrd",
+    "Std.OrientedOrd",
+    "Std.TransOrd",
+    "Std.LawfulEqOrd",
+    "Std.LawfulBEqOrd",
+    "EquivBEq",
+    "LawfulBEq"
+  ],
+  "selectedLayers": [
+    "()"
+  ],
+  "selectedRowAssociations": [
+    "String",
+    "String.Slice",
+    "String.Pos",
+    "String.Pos.Raw",
+    "String.Slice.Pos"
+  ],
+  "facts": [
+    {
+      "widgetId": "string-order-instances",
+      "factId": "String.Pos:::BEq:::()",
+      "rowAssociationId": "String.Pos",
+      "columnAssociationId": "BEq",
+      "selectedLayers": [
+        "()"
+      ],
+      "layerStates": [
+        {
+          "layerIdentifier": "()",
+          "rowState": {
+            "value": "String.Pos",
+            "state": {
+              "constructor": "def",
+              "def": {
+                "isDeprecated": false,
+                "name": "String.Pos",
+                "renderedStatement": "String.Pos (s : String) : Type"
+              }
+            }
+          },
+          "columnState": {
+            "value": "BEq",
+            "state": {
+              "constructor": "def",
+              "def": {
+                "isDeprecated": false,
+                "name": "BEq",
+                "renderedStatement": "BEq.{u} (α : Type u) : Type u"
+              }
+            }
+          },
+          "selectedCellStates": [
+            {
+              "value": "{\"typeName\": \"String.Pos\", \"parameterClassNames\": [], \"className\": \"BEq\"}",
+              "state": {
+                "result": {
+                  "head": "Std.PreorderPackage.toBEq",
+                  "term": "@Std.PreorderPackage.toBEq s.Pos\n  (@Std.LinearPreorderPackage.toPreorderPackage s.Pos\n    (@Std.LinearOrderPackage.toLinearPreorderPackage s.Pos (@String.Pos.instLinearOrderPackage s)))",
+                  "usedInstances": []
+                }
+              }
+            }
+          ]
+        }
+      ],
+      "metadata": {
+        "status": "done",
+        "comment": ""
+      }
+    },
+    {
+      "widgetId": "string-order-instances",
+      "factId": "String.Pos:::LE:::()",
+      "rowAssociationId": "String.Pos",
+      "columnAssociationId": "LE",
+      "selectedLayers": [
+        "()"
+      ],
+      "layerStates": [
+        {
+          "layerIdentifier": "()",
+          "rowState": {
+            "value": "String.Pos",
+            "state": {
+              "constructor": "def",
+              "def": {
+                "isDeprecated": false,
+                "name": "String.Pos",
+                "renderedStatement": "String.Pos (s : String) : Type"
+              }
+            }
+          },
+          "columnState": {
+            "value": "LE",
+            "state": {
+              "constructor": "def",
+              "def": {
+                "isDeprecated": false,
+                "name": "LE",
+                "renderedStatement": "LE.{u} (α : Type u) : Type u"
+              }
+            }
+          },
+          "selectedCellStates": [
+            {
+              "value": "{\"typeName\": \"String.Pos\", \"parameterClassNames\": [], \"className\": \"LE\"}",
+              "state": {
+                "result": {
+                  "head": "String.instLEPos",
+                  "term": "@String.instLEPos s",
+                  "usedInstances": []
+                }
+              }
+            }
+          ]
+        }
+      ],
+      "metadata": {
+        "status": "done",
+        "comment": ""
+      }
+    },
+    {
+      "widgetId": "string-order-instances",
+      "factId": "String.Pos:::LT:::()",
+      "rowAssociationId": "String.Pos",
+      "columnAssociationId": "LT",
+      "selectedLayers": [
+        "()"
+      ],
+      "layerStates": [
+        {
+          "layerIdentifier": "()",
+          "rowState": {
+            "value": "String.Pos",
+            "state": {
+              "constructor": "def",
+              "def": {
+                "isDeprecated": false,
+                "name": "String.Pos",
+                "renderedStatement": "String.Pos (s : String) : Type"
+              }
+            }
+          },
+          "columnState": {
+            "value": "LT",
+            "state": {
+              "constructor": "def",
+              "def": {
+                "isDeprecated": false,
+                "name": "LT",
+                "renderedStatement": "LT.{u} (α : Type u) : Type u"
+              }
+            }
+          },
+          "selectedCellStates": [
+            {
+              "value": "{\"typeName\": \"String.Pos\", \"parameterClassNames\": [], \"className\": \"LT\"}",
+              "state": {
+                "result": {
+                  "head": "String.instLTPos",
+                  "term": "@String.instLTPos s",
+                  "usedInstances": []
+                }
+              }
+            }
+          ]
+        }
+      ],
+      "metadata": {
+        "status": "done",
+        "comment": ""
+      }
+    },
+    {
+      "widgetId": "string-order-instances",
+      "factId": "String.Pos:::Ord:::()",
+      "rowAssociationId": "String.Pos",
+      "columnAssociationId": "Ord",
+      "selectedLayers": [
+        "()"
+      ],
+      "layerStates": [
+        {
+          "layerIdentifier": "()",
+          "rowState": {
+            "value": "String.Pos",
+            "state": {
+              "constructor": "def",
+              "def": {
+                "isDeprecated": false,
+                "name": "String.Pos",
+                "renderedStatement": "String.Pos (s : String) : Type"
+              }
+            }
+          },
+          "columnState": {
+            "value": "Ord",
+            "state": {
+              "constructor": "def",
+              "def": {
+                "isDeprecated": false,
+                "name": "Ord",
+                "renderedStatement": "Ord.{u} (α : Type u) : Type u"
+              }
+            }
+          },
+          "selectedCellStates": [
+            {
+              "value": "{\"typeName\": \"String.Pos\", \"parameterClassNames\": [], \"className\": \"Ord\"}",
+              "state": {
+                "result": {
+                  "head": "Std.LinearPreorderPackage.toOrd",
+                  "term": "@Std.LinearPreorderPackage.toOrd s.Pos\n  (@Std.LinearOrderPackage.toLinearPreorderPackage s.Pos (@String.Pos.instLinearOrderPackage s))",
+                  "usedInstances": []
+                }
+              }
+            }
+          ]
+        }
+      ],
+      "metadata": {
+        "status": "done",
+        "comment": ""
+      }
+    },
+    {
+      "widgetId": "string-order-instances",
+      "factId": "String.Pos:::Min:::()",
+      "rowAssociationId": "String.Pos",
+      "columnAssociationId": "Min",
+      "selectedLayers": [
+        "()"
+      ],
+      "layerStates": [
+        {
+          "layerIdentifier": "()",
+          "rowState": {
+            "value": "String.Pos",
+            "state": {
+              "constructor": "def",
+              "def": {
+                "isDeprecated": false,
+                "name": "String.Pos",
+                "renderedStatement": "String.Pos (s : String) : Type"
+              }
+            }
+          },
+          "columnState": {
+            "value": "Min",
+            "state": {
+              "constructor": "def",
+              "def": {
+                "isDeprecated": false,
+                "name": "Min",
+                "renderedStatement": "Min.{u} (α : Type u) : Type u"
+              }
+            }
+          },
+          "selectedCellStates": [
+            {
+              "value": "{\"typeName\": \"String.Pos\", \"parameterClassNames\": [], \"className\": \"Min\"}",
+              "state": {
+                "result": {
+                  "head": "Std.LinearOrderPackage.toMin",
+                  "term": "@Std.LinearOrderPackage.toMin s.Pos (@String.Pos.instLinearOrderPackage s)",
+                  "usedInstances": []
+                }
+              }
+            }
+          ]
+        }
+      ],
+      "metadata": {
+        "status": "done",
+        "comment": ""
+      }
+    },
+    {
+      "widgetId": "string-order-instances",
+      "factId": "String.Pos:::Max:::()",
+      "rowAssociationId": "String.Pos",
+      "columnAssociationId": "Max",
+      "selectedLayers": [
+        "()"
+      ],
+      "layerStates": [
+        {
+          "layerIdentifier": "()",
+          "rowState": {
+            "value": "String.Pos",
+            "state": {
+              "constructor": "def",
+              "def": {
+                "isDeprecated": false,
+                "name": "String.Pos",
+                "renderedStatement": "String.Pos (s : String) : Type"
+              }
+            }
+          },
+          "columnState": {
+            "value": "Max",
+            "state": {
+              "constructor": "def",
+              "def": {
+                "isDeprecated": false,
+                "name": "Max",
+                "renderedStatement": "Max.{u} (α : Type u) : Type u"
+              }
+            }
+          },
+          "selectedCellStates": [
+            {
+              "value": "{\"typeName\": \"String.Pos\", \"parameterClassNames\": [], \"className\": \"Max\"}",
+              "state": {
+                "result": {
+                  "head": "Std.LinearOrderPackage.toMax",
+                  "term": "@Std.LinearOrderPackage.toMax s.Pos (@String.Pos.instLinearOrderPackage s)",
+                  "usedInstances": []
+                }
+              }
+            }
+          ]
+        }
+      ],
+      "metadata": {
+        "status": "done",
+        "comment": ""
+      }
+    },
+    {
+      "widgetId": "string-order-instances",
+      "factId": "String.Pos:::DecidableEq:::()",
+      "rowAssociationId": "String.Pos",
+      "columnAssociationId": "DecidableEq",
+      "selectedLayers": [
+        "()"
+      ],
+      "layerStates": [
+        {
+          "layerIdentifier": "()",
+          "rowState": {
+            "value": "String.Pos",
+            "state": {
+              "constructor": "def",
+              "def": {
+                "isDeprecated": false,
+                "name": "String.Pos",
+                "renderedStatement": "String.Pos (s : String) : Type"
+              }
+            }
+          },
+          "columnState": {
+            "value": "DecidableEq",
+            "state": {
+              "constructor": "def",
+              "def": {
+                "isDeprecated": false,
+                "name": "DecidableEq",
+                "renderedStatement": "DecidableEq.{u} (α : Sort u) : Sort (max 1 u)"
+              }
+            }
+          },
+          "selectedCellStates": [
+            {
+              "value": "{\"typeName\": \"String.Pos\",\n \"parameterClassNames\": [],\n \"className\": \"DecidableEq\"}",
+              "state": {
+                "result": {
+                  "head": "String.instDecidableEqPos",
+                  "term": "@String.instDecidableEqPos s",
+                  "usedInstances": []
+                }
+              }
+            }
+          ]
+        }
+      ],
+      "metadata": {
+        "status": "done",
+        "comment": ""
+      }
+    },
+    {
+      "widgetId": "string-order-instances",
+      "factId": "String.Pos:::DecidableLE:::()",
+      "rowAssociationId": "String.Pos",
+      "columnAssociationId": "DecidableLE",
+      "selectedLayers": [
+        "()"
+      ],
+      "layerStates": [
+        {
+          "layerIdentifier": "()",
+          "rowState": {
+            "value": "String.Pos",
+            "state": {
+              "constructor": "def",
+              "def": {
+                "isDeprecated": false,
+                "name": "String.Pos",
+                "renderedStatement": "String.Pos (s : String) : Type"
+              }
+            }
+          },
+          "columnState": {
+            "value": "DecidableLE",
+            "state": {
+              "constructor": "def",
+              "def": {
+                "isDeprecated": false,
+                "name": "DecidableLE",
+                "renderedStatement": "DecidableLE.{u} (α : Type u) [LE α] : Type u"
+              }
+            }
+          },
+          "selectedCellStates": [
+            {
+              "value": "{\"typeName\": \"String.Pos\",\n \"parameterClassNames\": [],\n \"className\": \"DecidableLE\"}",
+              "state": {
+                "result": {
+                  "head": "String.instDecidableLePos",
+                  "term": "@String.instDecidableLePos s",
+                  "usedInstances": []
+                }
+              }
+            }
+          ]
+        }
+      ],
+      "metadata": {
+        "status": "done",
+        "comment": ""
+      }
+    },
+    {
+      "widgetId": "string-order-instances",
+      "factId": "String.Pos:::DecidableLT:::()",
+      "rowAssociationId": "String.Pos",
+      "columnAssociationId": "DecidableLT",
+      "selectedLayers": [
+        "()"
+      ],
+      "layerStates": [
+        {
+          "layerIdentifier": "()",
+          "rowState": {
+            "value": "String.Pos",
+            "state": {
+              "constructor": "def",
+              "def": {
+                "isDeprecated": false,
+                "name": "String.Pos",
+                "renderedStatement": "String.Pos (s : String) : Type"
+              }
+            }
+          },
+          "columnState": {
+            "value": "DecidableLT",
+            "state": {
+              "constructor": "def",
+              "def": {
+                "isDeprecated": false,
+                "name": "DecidableLT",
+                "renderedStatement": "DecidableLT.{u} (α : Type u) [LT α] : Type u"
+              }
+            }
+          },
+          "selectedCellStates": [
+            {
+              "value": "{\"typeName\": \"String.Pos\",\n \"parameterClassNames\": [],\n \"className\": \"DecidableLT\"}",
+              "state": {
+                "result": {
+                  "head": "String.instDecidableLtPos",
+                  "term": "@String.instDecidableLtPos s",
+                  "usedInstances": []
+                }
+              }
+            }
+          ]
+        }
+      ],
+      "metadata": {
+        "status": "done",
+        "comment": ""
+      }
+    },
+    {
+      "widgetId": "string-order-instances",
+      "factId": "String.Pos:::Std.IsPreorder:::()",
+      "rowAssociationId": "String.Pos",
+      "columnAssociationId": "Std.IsPreorder",
+      "selectedLayers": [
+        "()"
+      ],
+      "layerStates": [
+        {
+          "layerIdentifier": "()",
+          "rowState": {
+            "value": "String.Pos",
+            "state": {
+              "constructor": "def",
+              "def": {
+                "isDeprecated": false,
+                "name": "String.Pos",
+                "renderedStatement": "String.Pos (s : String) : Type"
+              }
+            }
+          },
+          "columnState": {
+            "value": "Std.IsPreorder",
+            "state": {
+              "constructor": "def",
+              "def": {
+                "isDeprecated": false,
+                "name": "Std.IsPreorder",
+                "renderedStatement": "Std.IsPreorder.{u} (α : Type u) [LE α] : Prop"
+              }
+            }
+          },
+          "selectedCellStates": [
+            {
+              "value": "{\"typeName\": \"String.Pos\",\n \"parameterClassNames\": [],\n \"className\": \"Std.IsPreorder\"}",
+              "state": {
+                "result": {
+                  "head": "Std.PreorderPackage.toIsPreorder",
+                  "term": "@Std.PreorderPackage.toIsPreorder s.Pos\n  (@Std.LinearPreorderPackage.toPreorderPackage s.Pos\n    (@Std.LinearOrderPackage.toLinearPreorderPackage s.Pos (@String.Pos.instLinearOrderPackage s)))",
+                  "usedInstances": []
+                }
+              }
+            }
+          ]
+        }
+      ],
+      "metadata": {
+        "status": "done",
+        "comment": ""
+      }
+    },
+    {
+      "widgetId": "string-order-instances",
+      "factId": "String.Pos:::Std.IsPartialOrder:::()",
+      "rowAssociationId": "String.Pos",
+      "columnAssociationId": "Std.IsPartialOrder",
+      "selectedLayers": [
+        "()"
+      ],
+      "layerStates": [
+        {
+          "layerIdentifier": "()",
+          "rowState": {
+            "value": "String.Pos",
+            "state": {
+              "constructor": "def",
+              "def": {
+                "isDeprecated": false,
+                "name": "String.Pos",
+                "renderedStatement": "String.Pos (s : String) : Type"
+              }
+            }
+          },
+          "columnState": {
+            "value": "Std.IsPartialOrder",
+            "state": {
+              "constructor": "def",
+              "def": {
+                "isDeprecated": false,
+                "name": "Std.IsPartialOrder",
+                "renderedStatement": "Std.IsPartialOrder.{u} (α : Type u) [LE α] : Prop"
+              }
+            }
+          },
+          "selectedCellStates": [
+            {
+              "value": "{\"typeName\": \"String.Pos\",\n \"parameterClassNames\": [],\n \"className\": \"Std.IsPartialOrder\"}",
+              "state": {
+                "result": {
+                  "head": "Std.PartialOrderPackage.toIsPartialOrder",
+                  "term": "@Std.PartialOrderPackage.toIsPartialOrder s.Pos\n  (@Std.LinearOrderPackage.toPartialOrderPackage s.Pos (@String.Pos.instLinearOrderPackage s))",
+                  "usedInstances": []
+                }
+              }
+            }
+          ]
+        }
+      ],
+      "metadata": {
+        "status": "done",
+        "comment": ""
+      }
+    },
+    {
+      "widgetId": "string-order-instances",
+      "factId": "String.Pos:::Std.IsLinearPreorder:::()",
+      "rowAssociationId": "String.Pos",
+      "columnAssociationId": "Std.IsLinearPreorder",
+      "selectedLayers": [
+        "()"
+      ],
+      "layerStates": [
+        {
+          "layerIdentifier": "()",
+          "rowState": {
+            "value": "String.Pos",
+            "state": {
+              "constructor": "def",
+              "def": {
+                "isDeprecated": false,
+                "name": "String.Pos",
+                "renderedStatement": "String.Pos (s : String) : Type"
+              }
+            }
+          },
+          "columnState": {
+            "value": "Std.IsLinearPreorder",
+            "state": {
+              "constructor": "def",
+              "def": {
+                "isDeprecated": false,
+                "name": "Std.IsLinearPreorder",
+                "renderedStatement": "Std.IsLinearPreorder.{u} (α : Type u) [LE α] : Prop"
+              }
+            }
+          },
+          "selectedCellStates": [
+            {
+              "value": "{\"typeName\": \"String.Pos\",\n \"parameterClassNames\": [],\n \"className\": \"Std.IsLinearPreorder\"}",
+              "state": {
+                "result": {
+                  "head": "Std.LinearPreorderPackage.toIsLinearPreorder",
+                  "term": "@Std.LinearPreorderPackage.toIsLinearPreorder s.Pos\n  (@Std.LinearOrderPackage.toLinearPreorderPackage s.Pos (@String.Pos.instLinearOrderPackage s))",
+                  "usedInstances": []
+                }
+              }
+            }
+          ]
+        }
+      ],
+      "metadata": {
+        "status": "done",
+        "comment": ""
+      }
+    },
+    {
+      "widgetId": "string-order-instances",
+      "factId": "String.Pos:::Std.IsLinearOrder:::()",
+      "rowAssociationId": "String.Pos",
+      "columnAssociationId": "Std.IsLinearOrder",
+      "selectedLayers": [
+        "()"
+      ],
+      "layerStates": [
+        {
+          "layerIdentifier": "()",
+          "rowState": {
+            "value": "String.Pos",
+            "state": {
+              "constructor": "def",
+              "def": {
+                "isDeprecated": false,
+                "name": "String.Pos",
+                "renderedStatement": "String.Pos (s : String) : Type"
+              }
+            }
+          },
+          "columnState": {
+            "value": "Std.IsLinearOrder",
+            "state": {
+              "constructor": "def",
+              "def": {
+                "isDeprecated": false,
+                "name": "Std.IsLinearOrder",
+                "renderedStatement": "Std.IsLinearOrder.{u} (α : Type u) [LE α] : Prop"
+              }
+            }
+          },
+          "selectedCellStates": [
+            {
+              "value": "{\"typeName\": \"String.Pos\",\n \"parameterClassNames\": [],\n \"className\": \"Std.IsLinearOrder\"}",
+              "state": {
+                "result": {
+                  "head": "Std.LinearOrderPackage.toIsLinearOrder",
+                  "term": "@Std.LinearOrderPackage.toIsLinearOrder s.Pos (@String.Pos.instLinearOrderPackage s)",
+                  "usedInstances": []
+                }
+              }
+            }
+          ]
+        }
+      ],
+      "metadata": {
+        "status": "done",
+        "comment": ""
+      }
+    },
+    {
+      "widgetId": "string-order-instances",
+      "factId": "String.Pos:::Std.LawfulOrderLT:::()",
+      "rowAssociationId": "String.Pos",
+      "columnAssociationId": "Std.LawfulOrderLT",
+      "selectedLayers": [
+        "()"
+      ],
+      "layerStates": [
+        {
+          "layerIdentifier": "()",
+          "rowState": {
+            "value": "String.Pos",
+            "state": {
+              "constructor": "def",
+              "def": {
+                "isDeprecated": false,
+                "name": "String.Pos",
+                "renderedStatement": "String.Pos (s : String) : Type"
+              }
+            }
+          },
+          "columnState": {
+            "value": "Std.LawfulOrderLT",
+            "state": {
+              "constructor": "def",
+              "def": {
+                "isDeprecated": false,
+                "name": "Std.LawfulOrderLT",
+                "renderedStatement": "Std.LawfulOrderLT.{u} (α : Type u) [LT α] [LE α] : Prop"
+              }
+            }
+          },
+          "selectedCellStates": [
+            {
+              "value": "{\"typeName\": \"String.Pos\",\n \"parameterClassNames\": [],\n \"className\": \"Std.LawfulOrderLT\"}",
+              "state": {
+                "result": {
+                  "head": "String.Pos.instLawfulOrderLT",
+                  "term": "@String.Pos.instLawfulOrderLT s",
+                  "usedInstances": []
+                }
+              }
+            }
+          ]
+        }
+      ],
+      "metadata": {
+        "status": "done",
+        "comment": ""
+      }
+    },
+    {
+      "widgetId": "string-order-instances",
+      "factId": "String.Pos:::Std.LawfulOrderBEq:::()",
+      "rowAssociationId": "String.Pos",
+      "columnAssociationId": "Std.LawfulOrderBEq",
+      "selectedLayers": [
+        "()"
+      ],
+      "layerStates": [
+        {
+          "layerIdentifier": "()",
+          "rowState": {
+            "value": "String.Pos",
+            "state": {
+              "constructor": "def",
+              "def": {
+                "isDeprecated": false,
+                "name": "String.Pos",
+                "renderedStatement": "String.Pos (s : String) : Type"
+              }
+            }
+          },
+          "columnState": {
+            "value": "Std.LawfulOrderBEq",
+            "state": {
+              "constructor": "def",
+              "def": {
+                "isDeprecated": false,
+                "name": "Std.LawfulOrderBEq",
+                "renderedStatement": "Std.LawfulOrderBEq.{u} (α : Type u) [BEq α] [LE α] : Prop"
+              }
+            }
+          },
+          "selectedCellStates": [
+            {
+              "value": "{\"typeName\": \"String.Pos\",\n \"parameterClassNames\": [],\n \"className\": \"Std.LawfulOrderBEq\"}",
+              "state": {
+                "result": {
+                  "head": "String.Pos.instLawfulOrderBEq",
+                  "term": "@String.Pos.instLawfulOrderBEq s",
+                  "usedInstances": []
+                }
+              }
+            }
+          ]
+        }
+      ],
+      "metadata": {
+        "status": "done",
+        "comment": ""
+      }
+    },
+    {
+      "widgetId": "string-order-instances",
+      "factId": "String.Pos:::Std.LawfulOrderOrd:::()",
+      "rowAssociationId": "String.Pos",
+      "columnAssociationId": "Std.LawfulOrderOrd",
+      "selectedLayers": [
+        "()"
+      ],
+      "layerStates": [
+        {
+          "layerIdentifier": "()",
+          "rowState": {
+            "value": "String.Pos",
+            "state": {
+              "constructor": "def",
+              "def": {
+                "isDeprecated": false,
+                "name": "String.Pos",
+                "renderedStatement": "String.Pos (s : String) : Type"
+              }
+            }
+          },
+          "columnState": {
+            "value": "Std.LawfulOrderOrd",
+            "state": {
+              "constructor": "def",
+              "def": {
+                "isDeprecated": false,
+                "name": "Std.LawfulOrderOrd",
+                "renderedStatement": "Std.LawfulOrderOrd.{u} (α : Type u) [Ord α] [LE α] : Prop"
+              }
+            }
+          },
+          "selectedCellStates": [
+            {
+              "value": "{\"typeName\": \"String.Pos\",\n \"parameterClassNames\": [],\n \"className\": \"Std.LawfulOrderOrd\"}",
+              "state": {
+                "result": {
+                  "head": "Std.LinearPreorderPackage.toLawfulOrderOrd",
+                  "term": "@Std.LinearPreorderPackage.toLawfulOrderOrd s.Pos\n  (@Std.LinearOrderPackage.toLinearPreorderPackage s.Pos (@String.Pos.instLinearOrderPackage s))",
+                  "usedInstances": []
+                }
+              }
+            }
+          ]
+        }
+      ],
+      "metadata": {
+        "status": "done",
+        "comment": ""
+      }
+    },
+    {
+      "widgetId": "string-order-instances",
+      "factId": "String.Pos:::Std.LawfulOrderMin:::()",
+      "rowAssociationId": "String.Pos",
+      "columnAssociationId": "Std.LawfulOrderMin",
+      "selectedLayers": [
+        "()"
+      ],
+      "layerStates": [
+        {
+          "layerIdentifier": "()",
+          "rowState": {
+            "value": "String.Pos",
+            "state": {
+              "constructor": "def",
+              "def": {
+                "isDeprecated": false,
+                "name": "String.Pos",
+                "renderedStatement": "String.Pos (s : String) : Type"
+              }
+            }
+          },
+          "columnState": {
+            "value": "Std.LawfulOrderMin",
+            "state": {
+              "constructor": "def",
+              "def": {
+                "isDeprecated": false,
+                "name": "Std.LawfulOrderMin",
+                "renderedStatement": "Std.LawfulOrderMin.{u} (α : Type u) [Min α] [LE α] : Prop"
+              }
+            }
+          },
+          "selectedCellStates": [
+            {
+              "value": "{\"typeName\": \"String.Pos\",\n \"parameterClassNames\": [],\n \"className\": \"Std.LawfulOrderMin\"}",
+              "state": {
+                "result": {
+                  "head": "Std.LinearOrderPackage.toLawfulOrderMin",
+                  "term": "@Std.LinearOrderPackage.toLawfulOrderMin s.Pos (@String.Pos.instLinearOrderPackage s)",
+                  "usedInstances": []
+                }
+              }
+            }
+          ]
+        }
+      ],
+      "metadata": {
+        "status": "done",
+        "comment": ""
+      }
+    },
+    {
+      "widgetId": "string-order-instances",
+      "factId": "String.Pos:::Std.LawfulOrderInf:::()",
+      "rowAssociationId": "String.Pos",
+      "columnAssociationId": "Std.LawfulOrderInf",
+      "selectedLayers": [
+        "()"
+      ],
+      "layerStates": [
+        {
+          "layerIdentifier": "()",
+          "rowState": {
+            "value": "String.Pos",
+            "state": {
+              "constructor": "def",
+              "def": {
+                "isDeprecated": false,
+                "name": "String.Pos",
+                "renderedStatement": "String.Pos (s : String) : Type"
+              }
+            }
+          },
+          "columnState": {
+            "value": "Std.LawfulOrderInf",
+            "state": {
+              "constructor": "def",
+              "def": {
+                "isDeprecated": false,
+                "name": "Std.LawfulOrderInf",
+                "renderedStatement": "Std.LawfulOrderInf.{u} (α : Type u) [Min α] [LE α] : Prop"
+              }
+            }
+          },
+          "selectedCellStates": [
+            {
+              "value": "{\"typeName\": \"String.Pos\",\n \"parameterClassNames\": [],\n \"className\": \"Std.LawfulOrderInf\"}",
+              "state": {
+                "result": {
+                  "head": "Std.LawfulOrderMin.toLawfulOrderInf",
+                  "term": "@Std.LawfulOrderMin.toLawfulOrderInf s.Pos\n  (@Std.LinearOrderPackage.toMin s.Pos (@String.Pos.instLinearOrderPackage s)) (@String.instLEPos s)\n  (@Std.LinearOrderPackage.toLawfulOrderMin s.Pos (@String.Pos.instLinearOrderPackage s))",
+                  "usedInstances": []
+                }
+              }
+            }
+          ]
+        }
+      ],
+      "metadata": {
+        "status": "done",
+        "comment": ""
+      }
+    },
+    {
+      "widgetId": "string-order-instances",
+      "factId": "String.Pos:::Std.LawfulOrderLeftLeaningMin:::()",
+      "rowAssociationId": "String.Pos",
+      "columnAssociationId": "Std.LawfulOrderLeftLeaningMin",
+      "selectedLayers": [
+        "()"
+      ],
+      "layerStates": [
+        {
+          "layerIdentifier": "()",
+          "rowState": {
+            "value": "String.Pos",
+            "state": {
+              "constructor": "def",
+              "def": {
+                "isDeprecated": false,
+                "name": "String.Pos",
+                "renderedStatement": "String.Pos (s : String) : Type"
+              }
+            }
+          },
+          "columnState": {
+            "value": "Std.LawfulOrderLeftLeaningMin",
+            "state": {
+              "constructor": "def",
+              "def": {
+                "isDeprecated": false,
+                "name": "Std.LawfulOrderLeftLeaningMin",
+                "renderedStatement": "Std.LawfulOrderLeftLeaningMin.{u} (α : Type u) [Min α] [LE α] : Prop"
+              }
+            }
+          },
+          "selectedCellStates": [
+            {
+              "value": "{\"typeName\": \"String.Pos\",\n \"parameterClassNames\": [],\n \"className\": \"Std.LawfulOrderLeftLeaningMin\"}",
+              "state": {
+                "result": {
+                  "head": "Std.lawfulOrderLeftLeaningMin_minOfLe",
+                  "term": "@Std.lawfulOrderLeftLeaningMin_minOfLe s.Pos (@String.instLEPos s) (@String.instDecidableLePos s)",
+                  "usedInstances": []
+                }
+              }
+            }
+          ]
+        }
+      ],
+      "metadata": {
+        "status": "done",
+        "comment": ""
+      }
+    },
+    {
+      "widgetId": "string-order-instances",
+      "factId": "String.Pos:::Std.LawfulOrderMax:::()",
+      "rowAssociationId": "String.Pos",
+      "columnAssociationId": "Std.LawfulOrderMax",
+      "selectedLayers": [
+        "()"
+      ],
+      "layerStates": [
+        {
+          "layerIdentifier": "()",
+          "rowState": {
+            "value": "String.Pos",
+            "state": {
+              "constructor": "def",
+              "def": {
+                "isDeprecated": false,
+                "name": "String.Pos",
+                "renderedStatement": "String.Pos (s : String) : Type"
+              }
+            }
+          },
+          "columnState": {
+            "value": "Std.LawfulOrderMax",
+            "state": {
+              "constructor": "def",
+              "def": {
+                "isDeprecated": false,
+                "name": "Std.LawfulOrderMax",
+                "renderedStatement": "Std.LawfulOrderMax.{u} (α : Type u) [Max α] [LE α] : Prop"
+              }
+            }
+          },
+          "selectedCellStates": [
+            {
+              "value": "{\"typeName\": \"String.Pos\",\n \"parameterClassNames\": [],\n \"className\": \"Std.LawfulOrderMax\"}",
+              "state": {
+                "result": {
+                  "head": "Std.LinearOrderPackage.toLawfulOrderMax",
+                  "term": "@Std.LinearOrderPackage.toLawfulOrderMax s.Pos (@String.Pos.instLinearOrderPackage s)",
+                  "usedInstances": []
+                }
+              }
+            }
+          ]
+        }
+      ],
+      "metadata": {
+        "status": "done",
+        "comment": ""
+      }
+    },
+    {
+      "widgetId": "string-order-instances",
+      "factId": "String.Pos:::Std.LawfulOrderSup:::()",
+      "rowAssociationId": "String.Pos",
+      "columnAssociationId": "Std.LawfulOrderSup",
+      "selectedLayers": [
+        "()"
+      ],
+      "layerStates": [
+        {
+          "layerIdentifier": "()",
+          "rowState": {
+            "value": "String.Pos",
+            "state": {
+              "constructor": "def",
+              "def": {
+                "isDeprecated": false,
+                "name": "String.Pos",
+                "renderedStatement": "String.Pos (s : String) : Type"
+              }
+            }
+          },
+          "columnState": {
+            "value": "Std.LawfulOrderSup",
+            "state": {
+              "constructor": "def",
+              "def": {
+                "isDeprecated": false,
+                "name": "Std.LawfulOrderSup",
+                "renderedStatement": "Std.LawfulOrderSup.{u} (α : Type u) [Max α] [LE α] : Prop"
+              }
+            }
+          },
+          "selectedCellStates": [
+            {
+              "value": "{\"typeName\": \"String.Pos\",\n \"parameterClassNames\": [],\n \"className\": \"Std.LawfulOrderSup\"}",
+              "state": {
+                "result": {
+                  "head": "Std.LawfulOrderMax.toLawfulOrderSup",
+                  "term": "@Std.LawfulOrderMax.toLawfulOrderSup s.Pos\n  (@Std.LinearOrderPackage.toMax s.Pos (@String.Pos.instLinearOrderPackage s)) (@String.instLEPos s)\n  (@Std.LinearOrderPackage.toLawfulOrderMax s.Pos (@String.Pos.instLinearOrderPackage s))",
+                  "usedInstances": []
+                }
+              }
+            }
+          ]
+        }
+      ],
+      "metadata": {
+        "status": "done",
+        "comment": ""
+      }
+    },
+    {
+      "widgetId": "string-order-instances",
+      "factId": "String.Pos:::Std.LawfulOrderLeftLeaningMax:::()",
+      "rowAssociationId": "String.Pos",
+      "columnAssociationId": "Std.LawfulOrderLeftLeaningMax",
+      "selectedLayers": [
+        "()"
+      ],
+      "layerStates": [
+        {
+          "layerIdentifier": "()",
+          "rowState": {
+            "value": "String.Pos",
+            "state": {
+              "constructor": "def",
+              "def": {
+                "isDeprecated": false,
+                "name": "String.Pos",
+                "renderedStatement": "String.Pos (s : String) : Type"
+              }
+            }
+          },
+          "columnState": {
+            "value": "Std.LawfulOrderLeftLeaningMax",
+            "state": {
+              "constructor": "def",
+              "def": {
+                "isDeprecated": false,
+                "name": "Std.LawfulOrderLeftLeaningMax",
+                "renderedStatement": "Std.LawfulOrderLeftLeaningMax.{u} (α : Type u) [Max α] [LE α] : Prop"
+              }
+            }
+          },
+          "selectedCellStates": [
+            {
+              "value": "{\"typeName\": \"String.Pos\",\n \"parameterClassNames\": [],\n \"className\": \"Std.LawfulOrderLeftLeaningMax\"}",
+              "state": {
+                "result": {
+                  "head": "Std.instLawfulOrderLeftLeaningMax",
+                  "term": "@Std.instLawfulOrderLeftLeaningMax s.Pos (@String.instLEPos s) (@String.instDecidableLePos s)",
+                  "usedInstances": []
+                }
+              }
+            }
+          ]
+        }
+      ],
+      "metadata": {
+        "status": "done",
+        "comment": ""
+      }
+    },
+    {
+      "widgetId": "string-order-instances",
+      "factId": "String.Pos:::Std.ReflOrd:::()",
+      "rowAssociationId": "String.Pos",
+      "columnAssociationId": "Std.ReflOrd",
+      "selectedLayers": [
+        "()"
+      ],
+      "layerStates": [
+        {
+          "layerIdentifier": "()",
+          "rowState": {
+            "value": "String.Pos",
+            "state": {
+              "constructor": "def",
+              "def": {
+                "isDeprecated": false,
+                "name": "String.Pos",
+                "renderedStatement": "String.Pos (s : String) : Type"
+              }
+            }
+          },
+          "columnState": {
+            "value": "Std.ReflOrd",
+            "state": {
+              "constructor": "def",
+              "def": {
+                "isDeprecated": false,
+                "name": "Std.ReflOrd",
+                "renderedStatement": "Std.ReflOrd.{u} (α : Type u) [Ord α] : Prop"
+              }
+            }
+          },
+          "selectedCellStates": [
+            {
+              "value": "{\"typeName\": \"String.Pos\",\n \"parameterClassNames\": [],\n \"className\": \"Std.ReflOrd\"}",
+              "state": {
+                "result": {
+                  "head": "Std.LawfulEqCmp.toReflCmp",
+                  "term": "@Std.LawfulEqCmp.toReflCmp s.Pos\n  (@compare s.Pos\n    (@Std.LinearPreorderPackage.toOrd s.Pos\n      (@Std.LinearOrderPackage.toLinearPreorderPackage s.Pos\n        (@String.Pos.instLinearOrderPackage s))))\n  (@Std.instLawfulEqOrdOfLawfulOrderOrdOfAntisymmLe s.Pos\n    (@Std.LinearPreorderPackage.toOrd s.Pos\n      (@Std.LinearOrderPackage.toLinearPreorderPackage s.Pos\n        (@String.Pos.instLinearOrderPackage s)))\n    (@String.instLEPos s)\n    (@Std.LinearPreorderPackage.toLawfulOrderOrd s.Pos\n      (@Std.LinearOrderPackage.toLinearPreorderPackage s.Pos\n        (@String.Pos.instLinearOrderPackage s)))\n    (@String.Pos.instAntisymmLe s))",
+                  "usedInstances": []
+                }
+              }
+            }
+          ]
+        }
+      ],
+      "metadata": {
+        "status": "done",
+        "comment": ""
+      }
+    },
+    {
+      "widgetId": "string-order-instances",
+      "factId": "String.Pos:::Std.OrientedOrd:::()",
+      "rowAssociationId": "String.Pos",
+      "columnAssociationId": "Std.OrientedOrd",
+      "selectedLayers": [
+        "()"
+      ],
+      "layerStates": [
+        {
+          "layerIdentifier": "()",
+          "rowState": {
+            "value": "String.Pos",
+            "state": {
+              "constructor": "def",
+              "def": {
+                "isDeprecated": false,
+                "name": "String.Pos",
+                "renderedStatement": "String.Pos (s : String) : Type"
+              }
+            }
+          },
+          "columnState": {
+            "value": "Std.OrientedOrd",
+            "state": {
+              "constructor": "def",
+              "def": {
+                "isDeprecated": false,
+                "name": "Std.OrientedOrd",
+                "renderedStatement": "Std.OrientedOrd.{u} (α : Type u) [Ord α] : Prop"
+              }
+            }
+          },
+          "selectedCellStates": [
+            {
+              "value": "{\"typeName\": \"String.Pos\",\n \"parameterClassNames\": [],\n \"className\": \"Std.OrientedOrd\"}",
+              "state": {
+                "result": {
+                  "head": "Std.instOrientedOrdOfLawfulOrderOrd",
+                  "term": "@Std.instOrientedOrdOfLawfulOrderOrd s.Pos (@String.instLEPos s)\n  (@Std.LinearPreorderPackage.toOrd s.Pos\n    (@Std.LinearOrderPackage.toLinearPreorderPackage s.Pos (@String.Pos.instLinearOrderPackage s)))\n  (@Std.LinearPreorderPackage.toLawfulOrderOrd s.Pos\n    (@Std.LinearOrderPackage.toLinearPreorderPackage s.Pos (@String.Pos.instLinearOrderPackage s)))",
+                  "usedInstances": []
+                }
+              }
+            }
+          ]
+        }
+      ],
+      "metadata": {
+        "status": "done",
+        "comment": ""
+      }
+    },
+    {
+      "widgetId": "string-order-instances",
+      "factId": "String.Pos:::Std.TransOrd:::()",
+      "rowAssociationId": "String.Pos",
+      "columnAssociationId": "Std.TransOrd",
+      "selectedLayers": [
+        "()"
+      ],
+      "layerStates": [
+        {
+          "layerIdentifier": "()",
+          "rowState": {
+            "value": "String.Pos",
+            "state": {
+              "constructor": "def",
+              "def": {
+                "isDeprecated": false,
+                "name": "String.Pos",
+                "renderedStatement": "String.Pos (s : String) : Type"
+              }
+            }
+          },
+          "columnState": {
+            "value": "Std.TransOrd",
+            "state": {
+              "constructor": "def",
+              "def": {
+                "isDeprecated": false,
+                "name": "Std.TransOrd",
+                "renderedStatement": "Std.TransOrd.{u} (α : Type u) [Ord α] : Prop"
+              }
+            }
+          },
+          "selectedCellStates": [
+            {
+              "value": "{\"typeName\": \"String.Pos\",\n \"parameterClassNames\": [],\n \"className\": \"Std.TransOrd\"}",
+              "state": {
+                "result": {
+                  "head": "Std.instTransOrdOfLawfulOrderOrdOfIsPreorder",
+                  "term": "@Std.instTransOrdOfLawfulOrderOrdOfIsPreorder s.Pos\n  (@Std.LinearPreorderPackage.toOrd s.Pos\n    (@Std.LinearOrderPackage.toLinearPreorderPackage s.Pos (@String.Pos.instLinearOrderPackage s)))\n  (@String.instLEPos s)\n  (@Std.LinearPreorderPackage.toLawfulOrderOrd s.Pos\n    (@Std.LinearOrderPackage.toLinearPreorderPackage s.Pos (@String.Pos.instLinearOrderPackage s)))\n  (@Std.PreorderPackage.toIsPreorder s.Pos\n    (@Std.LinearPreorderPackage.toPreorderPackage s.Pos\n      (@Std.LinearOrderPackage.toLinearPreorderPackage s.Pos\n        (@String.Pos.instLinearOrderPackage s))))",
+                  "usedInstances": []
+                }
+              }
+            }
+          ]
+        }
+      ],
+      "metadata": {
+        "status": "done",
+        "comment": ""
+      }
+    },
+    {
+      "widgetId": "string-order-instances",
+      "factId": "String.Pos:::Std.LawfulEqOrd:::()",
+      "rowAssociationId": "String.Pos",
+      "columnAssociationId": "Std.LawfulEqOrd",
+      "selectedLayers": [
+        "()"
+      ],
+      "layerStates": [
+        {
+          "layerIdentifier": "()",
+          "rowState": {
+            "value": "String.Pos",
+            "state": {
+              "constructor": "def",
+              "def": {
+                "isDeprecated": false,
+                "name": "String.Pos",
+                "renderedStatement": "String.Pos (s : String) : Type"
+              }
+            }
+          },
+          "columnState": {
+            "value": "Std.LawfulEqOrd",
+            "state": {
+              "constructor": "def",
+              "def": {
+                "isDeprecated": false,
+                "name": "Std.LawfulEqOrd",
+                "renderedStatement": "Std.LawfulEqOrd.{u} (α : Type u) [Ord α] : Prop"
+              }
+            }
+          },
+          "selectedCellStates": [
+            {
+              "value": "{\"typeName\": \"String.Pos\",\n \"parameterClassNames\": [],\n \"className\": \"Std.LawfulEqOrd\"}",
+              "state": {
+                "result": {
+                  "head": "Std.instLawfulEqOrdOfLawfulOrderOrdOfAntisymmLe",
+                  "term": "@Std.instLawfulEqOrdOfLawfulOrderOrdOfAntisymmLe s.Pos\n  (@Std.LinearPreorderPackage.toOrd s.Pos\n    (@Std.LinearOrderPackage.toLinearPreorderPackage s.Pos (@String.Pos.instLinearOrderPackage s)))\n  (@String.instLEPos s)\n  (@Std.LinearPreorderPackage.toLawfulOrderOrd s.Pos\n    (@Std.LinearOrderPackage.toLinearPreorderPackage s.Pos (@String.Pos.instLinearOrderPackage s)))\n  (@String.Pos.instAntisymmLe s)",
+                  "usedInstances": []
+                }
+              }
+            }
+          ]
+        }
+      ],
+      "metadata": {
+        "status": "done",
+        "comment": ""
+      }
+    },
+    {
+      "widgetId": "string-order-instances",
+      "factId": "String.Pos:::Std.LawfulBEqOrd:::()",
+      "rowAssociationId": "String.Pos",
+      "columnAssociationId": "Std.LawfulBEqOrd",
+      "selectedLayers": [
+        "()"
+      ],
+      "layerStates": [
+        {
+          "layerIdentifier": "()",
+          "rowState": {
+            "value": "String.Pos",
+            "state": {
+              "constructor": "def",
+              "def": {
+                "isDeprecated": false,
+                "name": "String.Pos",
+                "renderedStatement": "String.Pos (s : String) : Type"
+              }
+            }
+          },
+          "columnState": {
+            "value": "Std.LawfulBEqOrd",
+            "state": {
+              "constructor": "def",
+              "def": {
+                "isDeprecated": false,
+                "name": "Std.LawfulBEqOrd",
+                "renderedStatement": "Std.LawfulBEqOrd.{u} (α : Type u) [BEq α] [Ord α] : Prop"
+              }
+            }
+          },
+          "selectedCellStates": [
+            {
+              "value": "{\"typeName\": \"String.Pos\",\n \"parameterClassNames\": [],\n \"className\": \"Std.LawfulBEqOrd\"}",
+              "state": {
+                "result": {
+                  "head": "Std.instLawfulBEqOrdOfLawfulOrderOrdOfLawfulOrderBEq",
+                  "term": "@Std.instLawfulBEqOrdOfLawfulOrderOrdOfLawfulOrderBEq s.Pos\n  (@Std.LinearPreorderPackage.toOrd s.Pos\n    (@Std.LinearOrderPackage.toLinearPreorderPackage s.Pos (@String.Pos.instLinearOrderPackage s)))\n  (@Std.PreorderPackage.toBEq s.Pos\n    (@Std.LinearPreorderPackage.toPreorderPackage s.Pos\n      (@Std.LinearOrderPackage.toLinearPreorderPackage s.Pos\n        (@String.Pos.instLinearOrderPackage s))))\n  (@String.instLEPos s)\n  (@Std.LinearPreorderPackage.toLawfulOrderOrd s.Pos\n    (@Std.LinearOrderPackage.toLinearPreorderPackage s.Pos (@String.Pos.instLinearOrderPackage s)))\n  (@String.Pos.instLawfulOrderBEq s)",
+                  "usedInstances": []
+                }
+              }
+            }
+          ]
+        }
+      ],
+      "metadata": {
+        "status": "done",
+        "comment": ""
+      }
+    },
+    {
+      "widgetId": "string-order-instances",
+      "factId": "String.Pos:::EquivBEq:::()",
+      "rowAssociationId": "String.Pos",
+      "columnAssociationId": "EquivBEq",
+      "selectedLayers": [
+        "()"
+      ],
+      "layerStates": [
+        {
+          "layerIdentifier": "()",
+          "rowState": {
+            "value": "String.Pos",
+            "state": {
+              "constructor": "def",
+              "def": {
+                "isDeprecated": false,
+                "name": "String.Pos",
+                "renderedStatement": "String.Pos (s : String) : Type"
+              }
+            }
+          },
+          "columnState": {
+            "value": "EquivBEq",
+            "state": {
+              "constructor": "def",
+              "def": {
+                "isDeprecated": false,
+                "name": "EquivBEq",
+                "renderedStatement": "EquivBEq.{u_1} (α : Type u_1) [BEq α] : Prop"
+              }
+            }
+          },
+          "selectedCellStates": [
+            {
+              "value": "{\"typeName\": \"String.Pos\", \"parameterClassNames\": [], \"className\": \"EquivBEq\"}",
+              "state": {
+                "result": {
+                  "head": "Std.LawfulBEqOrd.equivBEq",
+                  "term": "@Std.LawfulBEqOrd.equivBEq s.Pos\n  (@Std.PreorderPackage.toBEq s.Pos\n    (@Std.LinearPreorderPackage.toPreorderPackage s.Pos\n      (@Std.LinearOrderPackage.toLinearPreorderPackage s.Pos\n        (@String.Pos.instLinearOrderPackage s))))\n  (@Std.LinearPreorderPackage.toOrd s.Pos\n    (@Std.LinearOrderPackage.toLinearPreorderPackage s.Pos (@String.Pos.instLinearOrderPackage s)))\n  (@Std.instLawfulBEqOrdOfLawfulOrderOrdOfLawfulOrderBEq s.Pos\n    (@Std.LinearPreorderPackage.toOrd s.Pos\n      (@Std.LinearOrderPackage.toLinearPreorderPackage s.Pos\n        (@String.Pos.instLinearOrderPackage s)))\n    (@Std.PreorderPackage.toBEq s.Pos\n      (@Std.LinearPreorderPackage.toPreorderPackage s.Pos\n        (@Std.LinearOrderPackage.toLinearPreorderPackage s.Pos\n          (@String.Pos.instLinearOrderPackage s))))\n    (@String.instLEPos s)\n    (@Std.LinearPreorderPackage.toLawfulOrderOrd s.Pos\n      (@Std.LinearOrderPackage.toLinearPreorderPackage s.Pos\n        (@String.Pos.instLinearOrderPackage s)))\n    (@String.Pos.instLawfulOrderBEq s))\n  (@Std.instTransOrdOfLawfulOrderOrdOfIsPreorder s.Pos\n    (@Std.LinearPreorderPackage.toOrd s.Pos\n      (@Std.LinearOrderPackage.toLinearPreorderPackage s.Pos\n        (@String.Pos.instLinearOrderPackage s)))\n    (@String.instLEPos s)\n    (@Std.LinearPreorderPackage.toLawfulOrderOrd s.Pos\n      (@Std.LinearOrderPackage.toLinearPreorderPackage s.Pos\n        (@String.Pos.instLinearOrderPackage s)))\n    (@Std.PreorderPackage.toIsPreorder s.Pos\n      (@Std.LinearPreorderPackage.toPreorderPackage s.Pos\n        (@Std.LinearOrderPackage.toLinearPreorderPackage s.Pos\n          (@String.Pos.instLinearOrderPackage s)))))",
+                  "usedInstances": []
+                }
+              }
+            }
+          ]
+        }
+      ],
+      "metadata": {
+        "status": "done",
+        "comment": ""
+      }
+    },
+    {
+      "widgetId": "string-order-instances",
+      "factId": "String.Pos:::LawfulBEq:::()",
+      "rowAssociationId": "String.Pos",
+      "columnAssociationId": "LawfulBEq",
+      "selectedLayers": [
+        "()"
+      ],
+      "layerStates": [
+        {
+          "layerIdentifier": "()",
+          "rowState": {
+            "value": "String.Pos",
+            "state": {
+              "constructor": "def",
+              "def": {
+                "isDeprecated": false,
+                "name": "String.Pos",
+                "renderedStatement": "String.Pos (s : String) : Type"
+              }
+            }
+          },
+          "columnState": {
+            "value": "LawfulBEq",
+            "state": {
+              "constructor": "def",
+              "def": {
+                "isDeprecated": false,
+                "name": "LawfulBEq",
+                "renderedStatement": "LawfulBEq.{u} (α : Type u) [BEq α] : Prop"
+              }
+            }
+          },
+          "selectedCellStates": [
+            {
+              "value": "{\"typeName\": \"String.Pos\", \"parameterClassNames\": [], \"className\": \"LawfulBEq\"}",
+              "state": {
+                "result": {
+                  "head": "Std.LawfulBEqOrd.lawfulBEq",
+                  "term": "@Std.LawfulBEqOrd.lawfulBEq s.Pos\n  (@Std.PreorderPackage.toBEq s.Pos\n    (@Std.LinearPreorderPackage.toPreorderPackage s.Pos\n      (@Std.LinearOrderPackage.toLinearPreorderPackage s.Pos\n        (@String.Pos.instLinearOrderPackage s))))\n  (@Std.LinearPreorderPackage.toOrd s.Pos\n    (@Std.LinearOrderPackage.toLinearPreorderPackage s.Pos (@String.Pos.instLinearOrderPackage s)))\n  (@Std.instLawfulBEqOrdOfLawfulOrderOrdOfLawfulOrderBEq s.Pos\n    (@Std.LinearPreorderPackage.toOrd s.Pos\n      (@Std.LinearOrderPackage.toLinearPreorderPackage s.Pos\n        (@String.Pos.instLinearOrderPackage s)))\n    (@Std.PreorderPackage.toBEq s.Pos\n      (@Std.LinearPreorderPackage.toPreorderPackage s.Pos\n        (@Std.LinearOrderPackage.toLinearPreorderPackage s.Pos\n          (@String.Pos.instLinearOrderPackage s))))\n    (@String.instLEPos s)\n    (@Std.LinearPreorderPackage.toLawfulOrderOrd s.Pos\n      (@Std.LinearOrderPackage.toLinearPreorderPackage s.Pos\n        (@String.Pos.instLinearOrderPackage s)))\n    (@String.Pos.instLawfulOrderBEq s))\n  (@Std.instLawfulEqOrdOfLawfulOrderOrdOfAntisymmLe s.Pos\n    (@Std.LinearPreorderPackage.toOrd s.Pos\n      (@Std.LinearOrderPackage.toLinearPreorderPackage s.Pos\n        (@String.Pos.instLinearOrderPackage s)))\n    (@String.instLEPos s)\n    (@Std.LinearPreorderPackage.toLawfulOrderOrd s.Pos\n      (@Std.LinearOrderPackage.toLinearPreorderPackage s.Pos\n        (@String.Pos.instLinearOrderPackage s)))\n    (@String.Pos.instAntisymmLe s))",
+                  "usedInstances": []
+                }
+              }
+            }
+          ]
+        }
+      ],
+      "metadata": {
+        "status": "done",
+        "comment": ""
+      }
+    },
+    {
+      "widgetId": "string-order-instances",
+      "factId": "String.Pos.Raw:::BEq:::()",
+      "rowAssociationId": "String.Pos.Raw",
+      "columnAssociationId": "BEq",
+      "selectedLayers": [
+        "()"
+      ],
+      "layerStates": [
+        {
+          "layerIdentifier": "()",
+          "rowState": {
+            "value": "String.Pos.Raw",
+            "state": {
+              "constructor": "def",
+              "def": {
+                "isDeprecated": false,
+                "name": "String.Pos.Raw",
+                "renderedStatement": "String.Pos.Raw : Type"
+              }
+            }
+          },
+          "columnState": {
+            "value": "BEq",
+            "state": {
+              "constructor": "def",
+              "def": {
+                "isDeprecated": false,
+                "name": "BEq",
+                "renderedStatement": "BEq.{u} (α : Type u) : Type u"
+              }
+            }
+          },
+          "selectedCellStates": [
+            {
+              "value": "{\"typeName\": \"String.Pos.Raw\", \"parameterClassNames\": [], \"className\": \"BEq\"}",
+              "state": {
+                "result": {
+                  "head": "Std.PreorderPackage.toBEq",
+                  "term": "@Std.PreorderPackage.toBEq String.Pos.Raw\n  (@Std.LinearPreorderPackage.toPreorderPackage String.Pos.Raw\n    (@Std.LinearOrderPackage.toLinearPreorderPackage String.Pos.Raw\n      String.Pos.Raw.instLinearOrderPackage))",
+                  "usedInstances": []
+                }
+              }
+            }
+          ]
+        }
+      ],
+      "metadata": {
+        "status": "done",
+        "comment": ""
+      }
+    },
+    {
+      "widgetId": "string-order-instances",
+      "factId": "String.Pos.Raw:::LE:::()",
+      "rowAssociationId": "String.Pos.Raw",
+      "columnAssociationId": "LE",
+      "selectedLayers": [
+        "()"
+      ],
+      "layerStates": [
+        {
+          "layerIdentifier": "()",
+          "rowState": {
+            "value": "String.Pos.Raw",
+            "state": {
+              "constructor": "def",
+              "def": {
+                "isDeprecated": false,
+                "name": "String.Pos.Raw",
+                "renderedStatement": "String.Pos.Raw : Type"
+              }
+            }
+          },
+          "columnState": {
+            "value": "LE",
+            "state": {
+              "constructor": "def",
+              "def": {
+                "isDeprecated": false,
+                "name": "LE",
+                "renderedStatement": "LE.{u} (α : Type u) : Type u"
+              }
+            }
+          },
+          "selectedCellStates": [
+            {
+              "value": "{\"typeName\": \"String.Pos.Raw\", \"parameterClassNames\": [], \"className\": \"LE\"}",
+              "state": {
+                "result": {
+                  "head": "String.instLERaw",
+                  "term": "String.instLERaw",
+                  "usedInstances": []
+                }
+              }
+            }
+          ]
+        }
+      ],
+      "metadata": {
+        "status": "done",
+        "comment": ""
+      }
+    },
+    {
+      "widgetId": "string-order-instances",
+      "factId": "String.Pos.Raw:::LT:::()",
+      "rowAssociationId": "String.Pos.Raw",
+      "columnAssociationId": "LT",
+      "selectedLayers": [
+        "()"
+      ],
+      "layerStates": [
+        {
+          "layerIdentifier": "()",
+          "rowState": {
+            "value": "String.Pos.Raw",
+            "state": {
+              "constructor": "def",
+              "def": {
+                "isDeprecated": false,
+                "name": "String.Pos.Raw",
+                "renderedStatement": "String.Pos.Raw : Type"
+              }
+            }
+          },
+          "columnState": {
+            "value": "LT",
+            "state": {
+              "constructor": "def",
+              "def": {
+                "isDeprecated": false,
+                "name": "LT",
+                "renderedStatement": "LT.{u} (α : Type u) : Type u"
+              }
+            }
+          },
+          "selectedCellStates": [
+            {
+              "value": "{\"typeName\": \"String.Pos.Raw\", \"parameterClassNames\": [], \"className\": \"LT\"}",
+              "state": {
+                "result": {
+                  "head": "String.instLTRaw",
+                  "term": "String.instLTRaw",
+                  "usedInstances": []
+                }
+              }
+            }
+          ]
+        }
+      ],
+      "metadata": {
+        "status": "done",
+        "comment": ""
+      }
+    },
+    {
+      "widgetId": "string-order-instances",
+      "factId": "String.Pos.Raw:::Ord:::()",
+      "rowAssociationId": "String.Pos.Raw",
+      "columnAssociationId": "Ord",
+      "selectedLayers": [
+        "()"
+      ],
+      "layerStates": [
+        {
+          "layerIdentifier": "()",
+          "rowState": {
+            "value": "String.Pos.Raw",
+            "state": {
+              "constructor": "def",
+              "def": {
+                "isDeprecated": false,
+                "name": "String.Pos.Raw",
+                "renderedStatement": "String.Pos.Raw : Type"
+              }
+            }
+          },
+          "columnState": {
+            "value": "Ord",
+            "state": {
+              "constructor": "def",
+              "def": {
+                "isDeprecated": false,
+                "name": "Ord",
+                "renderedStatement": "Ord.{u} (α : Type u) : Type u"
+              }
+            }
+          },
+          "selectedCellStates": [
+            {
+              "value": "{\"typeName\": \"String.Pos.Raw\", \"parameterClassNames\": [], \"className\": \"Ord\"}",
+              "state": {
+                "result": {
+                  "head": "Std.LinearPreorderPackage.toOrd",
+                  "term": "@Std.LinearPreorderPackage.toOrd String.Pos.Raw\n  (@Std.LinearOrderPackage.toLinearPreorderPackage String.Pos.Raw\n    String.Pos.Raw.instLinearOrderPackage)",
+                  "usedInstances": []
+                }
+              }
+            }
+          ]
+        }
+      ],
+      "metadata": {
+        "status": "done",
+        "comment": ""
+      }
+    },
+    {
+      "widgetId": "string-order-instances",
+      "factId": "String.Pos.Raw:::Min:::()",
+      "rowAssociationId": "String.Pos.Raw",
+      "columnAssociationId": "Min",
+      "selectedLayers": [
+        "()"
+      ],
+      "layerStates": [
+        {
+          "layerIdentifier": "()",
+          "rowState": {
+            "value": "String.Pos.Raw",
+            "state": {
+              "constructor": "def",
+              "def": {
+                "isDeprecated": false,
+                "name": "String.Pos.Raw",
+                "renderedStatement": "String.Pos.Raw : Type"
+              }
+            }
+          },
+          "columnState": {
+            "value": "Min",
+            "state": {
+              "constructor": "def",
+              "def": {
+                "isDeprecated": false,
+                "name": "Min",
+                "renderedStatement": "Min.{u} (α : Type u) : Type u"
+              }
+            }
+          },
+          "selectedCellStates": [
+            {
+              "value": "{\"typeName\": \"String.Pos.Raw\", \"parameterClassNames\": [], \"className\": \"Min\"}",
+              "state": {
+                "result": {
+                  "head": "Std.LinearOrderPackage.toMin",
+                  "term": "@Std.LinearOrderPackage.toMin String.Pos.Raw String.Pos.Raw.instLinearOrderPackage",
+                  "usedInstances": []
+                }
+              }
+            }
+          ]
+        }
+      ],
+      "metadata": {
+        "status": "done",
+        "comment": ""
+      }
+    },
+    {
+      "widgetId": "string-order-instances",
+      "factId": "String.Pos.Raw:::Max:::()",
+      "rowAssociationId": "String.Pos.Raw",
+      "columnAssociationId": "Max",
+      "selectedLayers": [
+        "()"
+      ],
+      "layerStates": [
+        {
+          "layerIdentifier": "()",
+          "rowState": {
+            "value": "String.Pos.Raw",
+            "state": {
+              "constructor": "def",
+              "def": {
+                "isDeprecated": false,
+                "name": "String.Pos.Raw",
+                "renderedStatement": "String.Pos.Raw : Type"
+              }
+            }
+          },
+          "columnState": {
+            "value": "Max",
+            "state": {
+              "constructor": "def",
+              "def": {
+                "isDeprecated": false,
+                "name": "Max",
+                "renderedStatement": "Max.{u} (α : Type u) : Type u"
+              }
+            }
+          },
+          "selectedCellStates": [
+            {
+              "value": "{\"typeName\": \"String.Pos.Raw\", \"parameterClassNames\": [], \"className\": \"Max\"}",
+              "state": {
+                "result": {
+                  "head": "Std.LinearOrderPackage.toMax",
+                  "term": "@Std.LinearOrderPackage.toMax String.Pos.Raw String.Pos.Raw.instLinearOrderPackage",
+                  "usedInstances": []
+                }
+              }
+            }
+          ]
+        }
+      ],
+      "metadata": {
+        "status": "done",
+        "comment": ""
+      }
+    },
+    {
+      "widgetId": "string-order-instances",
+      "factId": "String.Pos.Raw:::DecidableEq:::()",
+      "rowAssociationId": "String.Pos.Raw",
+      "columnAssociationId": "DecidableEq",
+      "selectedLayers": [
+        "()"
+      ],
+      "layerStates": [
+        {
+          "layerIdentifier": "()",
+          "rowState": {
+            "value": "String.Pos.Raw",
+            "state": {
+              "constructor": "def",
+              "def": {
+                "isDeprecated": false,
+                "name": "String.Pos.Raw",
+                "renderedStatement": "String.Pos.Raw : Type"
+              }
+            }
+          },
+          "columnState": {
+            "value": "DecidableEq",
+            "state": {
+              "constructor": "def",
+              "def": {
+                "isDeprecated": false,
+                "name": "DecidableEq",
+                "renderedStatement": "DecidableEq.{u} (α : Sort u) : Sort (max 1 u)"
+              }
+            }
+          },
+          "selectedCellStates": [
+            {
+              "value": "{\"typeName\": \"String.Pos.Raw\",\n \"parameterClassNames\": [],\n \"className\": \"DecidableEq\"}",
+              "state": {
+                "result": {
+                  "head": "instDecidableEqRaw",
+                  "term": "instDecidableEqRaw",
+                  "usedInstances": []
+                }
+              }
+            }
+          ]
+        }
+      ],
+      "metadata": {
+        "status": "done",
+        "comment": ""
+      }
+    },
+    {
+      "widgetId": "string-order-instances",
+      "factId": "String.Pos.Raw:::DecidableLE:::()",
+      "rowAssociationId": "String.Pos.Raw",
+      "columnAssociationId": "DecidableLE",
+      "selectedLayers": [
+        "()"
+      ],
+      "layerStates": [
+        {
+          "layerIdentifier": "()",
+          "rowState": {
+            "value": "String.Pos.Raw",
+            "state": {
+              "constructor": "def",
+              "def": {
+                "isDeprecated": false,
+                "name": "String.Pos.Raw",
+                "renderedStatement": "String.Pos.Raw : Type"
+              }
+            }
+          },
+          "columnState": {
+            "value": "DecidableLE",
+            "state": {
+              "constructor": "def",
+              "def": {
+                "isDeprecated": false,
+                "name": "DecidableLE",
+                "renderedStatement": "DecidableLE.{u} (α : Type u) [LE α] : Type u"
+              }
+            }
+          },
+          "selectedCellStates": [
+            {
+              "value": "{\"typeName\": \"String.Pos.Raw\",\n \"parameterClassNames\": [],\n \"className\": \"DecidableLE\"}",
+              "state": {
+                "result": {
+                  "head": "String.instDecidableLeRaw",
+                  "term": "String.instDecidableLeRaw",
+                  "usedInstances": []
+                }
+              }
+            }
+          ]
+        }
+      ],
+      "metadata": {
+        "status": "done",
+        "comment": ""
+      }
+    },
+    {
+      "widgetId": "string-order-instances",
+      "factId": "String.Pos.Raw:::DecidableLT:::()",
+      "rowAssociationId": "String.Pos.Raw",
+      "columnAssociationId": "DecidableLT",
+      "selectedLayers": [
+        "()"
+      ],
+      "layerStates": [
+        {
+          "layerIdentifier": "()",
+          "rowState": {
+            "value": "String.Pos.Raw",
+            "state": {
+              "constructor": "def",
+              "def": {
+                "isDeprecated": false,
+                "name": "String.Pos.Raw",
+                "renderedStatement": "String.Pos.Raw : Type"
+              }
+            }
+          },
+          "columnState": {
+            "value": "DecidableLT",
+            "state": {
+              "constructor": "def",
+              "def": {
+                "isDeprecated": false,
+                "name": "DecidableLT",
+                "renderedStatement": "DecidableLT.{u} (α : Type u) [LT α] : Type u"
+              }
+            }
+          },
+          "selectedCellStates": [
+            {
+              "value": "{\"typeName\": \"String.Pos.Raw\",\n \"parameterClassNames\": [],\n \"className\": \"DecidableLT\"}",
+              "state": {
+                "result": {
+                  "head": "String.instDecidableLtRaw",
+                  "term": "String.instDecidableLtRaw",
+                  "usedInstances": []
+                }
+              }
+            }
+          ]
+        }
+      ],
+      "metadata": {
+        "status": "done",
+        "comment": ""
+      }
+    },
+    {
+      "widgetId": "string-order-instances",
+      "factId": "String.Pos.Raw:::Std.IsPreorder:::()",
+      "rowAssociationId": "String.Pos.Raw",
+      "columnAssociationId": "Std.IsPreorder",
+      "selectedLayers": [
+        "()"
+      ],
+      "layerStates": [
+        {
+          "layerIdentifier": "()",
+          "rowState": {
+            "value": "String.Pos.Raw",
+            "state": {
+              "constructor": "def",
+              "def": {
+                "isDeprecated": false,
+                "name": "String.Pos.Raw",
+                "renderedStatement": "String.Pos.Raw : Type"
+              }
+            }
+          },
+          "columnState": {
+            "value": "Std.IsPreorder",
+            "state": {
+              "constructor": "def",
+              "def": {
+                "isDeprecated": false,
+                "name": "Std.IsPreorder",
+                "renderedStatement": "Std.IsPreorder.{u} (α : Type u) [LE α] : Prop"
+              }
+            }
+          },
+          "selectedCellStates": [
+            {
+              "value": "{\"typeName\": \"String.Pos.Raw\",\n \"parameterClassNames\": [],\n \"className\": \"Std.IsPreorder\"}",
+              "state": {
+                "result": {
+                  "head": "Std.PreorderPackage.toIsPreorder",
+                  "term": "@Std.PreorderPackage.toIsPreorder String.Pos.Raw\n  (@Std.LinearPreorderPackage.toPreorderPackage String.Pos.Raw\n    (@Std.LinearOrderPackage.toLinearPreorderPackage String.Pos.Raw\n      String.Pos.Raw.instLinearOrderPackage))",
+                  "usedInstances": []
+                }
+              }
+            }
+          ]
+        }
+      ],
+      "metadata": {
+        "status": "done",
+        "comment": ""
+      }
+    },
+    {
+      "widgetId": "string-order-instances",
+      "factId": "String.Pos.Raw:::Std.IsPartialOrder:::()",
+      "rowAssociationId": "String.Pos.Raw",
+      "columnAssociationId": "Std.IsPartialOrder",
+      "selectedLayers": [
+        "()"
+      ],
+      "layerStates": [
+        {
+          "layerIdentifier": "()",
+          "rowState": {
+            "value": "String.Pos.Raw",
+            "state": {
+              "constructor": "def",
+              "def": {
+                "isDeprecated": false,
+                "name": "String.Pos.Raw",
+                "renderedStatement": "String.Pos.Raw : Type"
+              }
+            }
+          },
+          "columnState": {
+            "value": "Std.IsPartialOrder",
+            "state": {
+              "constructor": "def",
+              "def": {
+                "isDeprecated": false,
+                "name": "Std.IsPartialOrder",
+                "renderedStatement": "Std.IsPartialOrder.{u} (α : Type u) [LE α] : Prop"
+              }
+            }
+          },
+          "selectedCellStates": [
+            {
+              "value": "{\"typeName\": \"String.Pos.Raw\",\n \"parameterClassNames\": [],\n \"className\": \"Std.IsPartialOrder\"}",
+              "state": {
+                "result": {
+                  "head": "Std.PartialOrderPackage.toIsPartialOrder",
+                  "term": "@Std.PartialOrderPackage.toIsPartialOrder String.Pos.Raw\n  (@Std.LinearOrderPackage.toPartialOrderPackage String.Pos.Raw\n    String.Pos.Raw.instLinearOrderPackage)",
+                  "usedInstances": []
+                }
+              }
+            }
+          ]
+        }
+      ],
+      "metadata": {
+        "status": "done",
+        "comment": ""
+      }
+    },
+    {
+      "widgetId": "string-order-instances",
+      "factId": "String.Pos.Raw:::Std.IsLinearPreorder:::()",
+      "rowAssociationId": "String.Pos.Raw",
+      "columnAssociationId": "Std.IsLinearPreorder",
+      "selectedLayers": [
+        "()"
+      ],
+      "layerStates": [
+        {
+          "layerIdentifier": "()",
+          "rowState": {
+            "value": "String.Pos.Raw",
+            "state": {
+              "constructor": "def",
+              "def": {
+                "isDeprecated": false,
+                "name": "String.Pos.Raw",
+                "renderedStatement": "String.Pos.Raw : Type"
+              }
+            }
+          },
+          "columnState": {
+            "value": "Std.IsLinearPreorder",
+            "state": {
+              "constructor": "def",
+              "def": {
+                "isDeprecated": false,
+                "name": "Std.IsLinearPreorder",
+                "renderedStatement": "Std.IsLinearPreorder.{u} (α : Type u) [LE α] : Prop"
+              }
+            }
+          },
+          "selectedCellStates": [
+            {
+              "value": "{\"typeName\": \"String.Pos.Raw\",\n \"parameterClassNames\": [],\n \"className\": \"Std.IsLinearPreorder\"}",
+              "state": {
+                "result": {
+                  "head": "Std.LinearPreorderPackage.toIsLinearPreorder",
+                  "term": "@Std.LinearPreorderPackage.toIsLinearPreorder String.Pos.Raw\n  (@Std.LinearOrderPackage.toLinearPreorderPackage String.Pos.Raw\n    String.Pos.Raw.instLinearOrderPackage)",
+                  "usedInstances": []
+                }
+              }
+            }
+          ]
+        }
+      ],
+      "metadata": {
+        "status": "done",
+        "comment": ""
+      }
+    },
+    {
+      "widgetId": "string-order-instances",
+      "factId": "String.Pos.Raw:::Std.IsLinearOrder:::()",
+      "rowAssociationId": "String.Pos.Raw",
+      "columnAssociationId": "Std.IsLinearOrder",
+      "selectedLayers": [
+        "()"
+      ],
+      "layerStates": [
+        {
+          "layerIdentifier": "()",
+          "rowState": {
+            "value": "String.Pos.Raw",
+            "state": {
+              "constructor": "def",
+              "def": {
+                "isDeprecated": false,
+                "name": "String.Pos.Raw",
+                "renderedStatement": "String.Pos.Raw : Type"
+              }
+            }
+          },
+          "columnState": {
+            "value": "Std.IsLinearOrder",
+            "state": {
+              "constructor": "def",
+              "def": {
+                "isDeprecated": false,
+                "name": "Std.IsLinearOrder",
+                "renderedStatement": "Std.IsLinearOrder.{u} (α : Type u) [LE α] : Prop"
+              }
+            }
+          },
+          "selectedCellStates": [
+            {
+              "value": "{\"typeName\": \"String.Pos.Raw\",\n \"parameterClassNames\": [],\n \"className\": \"Std.IsLinearOrder\"}",
+              "state": {
+                "result": {
+                  "head": "Std.LinearOrderPackage.toIsLinearOrder",
+                  "term": "@Std.LinearOrderPackage.toIsLinearOrder String.Pos.Raw String.Pos.Raw.instLinearOrderPackage",
+                  "usedInstances": []
+                }
+              }
+            }
+          ]
+        }
+      ],
+      "metadata": {
+        "status": "done",
+        "comment": ""
+      }
+    },
+    {
+      "widgetId": "string-order-instances",
+      "factId": "String.Pos.Raw:::Std.LawfulOrderLT:::()",
+      "rowAssociationId": "String.Pos.Raw",
+      "columnAssociationId": "Std.LawfulOrderLT",
+      "selectedLayers": [
+        "()"
+      ],
+      "layerStates": [
+        {
+          "layerIdentifier": "()",
+          "rowState": {
+            "value": "String.Pos.Raw",
+            "state": {
+              "constructor": "def",
+              "def": {
+                "isDeprecated": false,
+                "name": "String.Pos.Raw",
+                "renderedStatement": "String.Pos.Raw : Type"
+              }
+            }
+          },
+          "columnState": {
+            "value": "Std.LawfulOrderLT",
+            "state": {
+              "constructor": "def",
+              "def": {
+                "isDeprecated": false,
+                "name": "Std.LawfulOrderLT",
+                "renderedStatement": "Std.LawfulOrderLT.{u} (α : Type u) [LT α] [LE α] : Prop"
+              }
+            }
+          },
+          "selectedCellStates": [
+            {
+              "value": "{\"typeName\": \"String.Pos.Raw\",\n \"parameterClassNames\": [],\n \"className\": \"Std.LawfulOrderLT\"}",
+              "state": {
+                "result": {
+                  "head": "String.Pos.Raw.instLawfulOrderLT",
+                  "term": "String.Pos.Raw.instLawfulOrderLT",
+                  "usedInstances": []
+                }
+              }
+            }
+          ]
+        }
+      ],
+      "metadata": {
+        "status": "done",
+        "comment": ""
+      }
+    },
+    {
+      "widgetId": "string-order-instances",
+      "factId": "String.Pos.Raw:::Std.LawfulOrderBEq:::()",
+      "rowAssociationId": "String.Pos.Raw",
+      "columnAssociationId": "Std.LawfulOrderBEq",
+      "selectedLayers": [
+        "()"
+      ],
+      "layerStates": [
+        {
+          "layerIdentifier": "()",
+          "rowState": {
+            "value": "String.Pos.Raw",
+            "state": {
+              "constructor": "def",
+              "def": {
+                "isDeprecated": false,
+                "name": "String.Pos.Raw",
+                "renderedStatement": "String.Pos.Raw : Type"
+              }
+            }
+          },
+          "columnState": {
+            "value": "Std.LawfulOrderBEq",
+            "state": {
+              "constructor": "def",
+              "def": {
+                "isDeprecated": false,
+                "name": "Std.LawfulOrderBEq",
+                "renderedStatement": "Std.LawfulOrderBEq.{u} (α : Type u) [BEq α] [LE α] : Prop"
+              }
+            }
+          },
+          "selectedCellStates": [
+            {
+              "value": "{\"typeName\": \"String.Pos.Raw\",\n \"parameterClassNames\": [],\n \"className\": \"Std.LawfulOrderBEq\"}",
+              "state": {
+                "result": {
+                  "head": "String.Pos.Raw.instLawfulOrderBEq",
+                  "term": "String.Pos.Raw.instLawfulOrderBEq",
+                  "usedInstances": []
+                }
+              }
+            }
+          ]
+        }
+      ],
+      "metadata": {
+        "status": "done",
+        "comment": ""
+      }
+    },
+    {
+      "widgetId": "string-order-instances",
+      "factId": "String.Pos.Raw:::Std.LawfulOrderOrd:::()",
+      "rowAssociationId": "String.Pos.Raw",
+      "columnAssociationId": "Std.LawfulOrderOrd",
+      "selectedLayers": [
+        "()"
+      ],
+      "layerStates": [
+        {
+          "layerIdentifier": "()",
+          "rowState": {
+            "value": "String.Pos.Raw",
+            "state": {
+              "constructor": "def",
+              "def": {
+                "isDeprecated": false,
+                "name": "String.Pos.Raw",
+                "renderedStatement": "String.Pos.Raw : Type"
+              }
+            }
+          },
+          "columnState": {
+            "value": "Std.LawfulOrderOrd",
+            "state": {
+              "constructor": "def",
+              "def": {
+                "isDeprecated": false,
+                "name": "Std.LawfulOrderOrd",
+                "renderedStatement": "Std.LawfulOrderOrd.{u} (α : Type u) [Ord α] [LE α] : Prop"
+              }
+            }
+          },
+          "selectedCellStates": [
+            {
+              "value": "{\"typeName\": \"String.Pos.Raw\",\n \"parameterClassNames\": [],\n \"className\": \"Std.LawfulOrderOrd\"}",
+              "state": {
+                "result": {
+                  "head": "Std.LinearPreorderPackage.toLawfulOrderOrd",
+                  "term": "@Std.LinearPreorderPackage.toLawfulOrderOrd String.Pos.Raw\n  (@Std.LinearOrderPackage.toLinearPreorderPackage String.Pos.Raw\n    String.Pos.Raw.instLinearOrderPackage)",
+                  "usedInstances": []
+                }
+              }
+            }
+          ]
+        }
+      ],
+      "metadata": {
+        "status": "done",
+        "comment": ""
+      }
+    },
+    {
+      "widgetId": "string-order-instances",
+      "factId": "String.Pos.Raw:::Std.LawfulOrderMin:::()",
+      "rowAssociationId": "String.Pos.Raw",
+      "columnAssociationId": "Std.LawfulOrderMin",
+      "selectedLayers": [
+        "()"
+      ],
+      "layerStates": [
+        {
+          "layerIdentifier": "()",
+          "rowState": {
+            "value": "String.Pos.Raw",
+            "state": {
+              "constructor": "def",
+              "def": {
+                "isDeprecated": false,
+                "name": "String.Pos.Raw",
+                "renderedStatement": "String.Pos.Raw : Type"
+              }
+            }
+          },
+          "columnState": {
+            "value": "Std.LawfulOrderMin",
+            "state": {
+              "constructor": "def",
+              "def": {
+                "isDeprecated": false,
+                "name": "Std.LawfulOrderMin",
+                "renderedStatement": "Std.LawfulOrderMin.{u} (α : Type u) [Min α] [LE α] : Prop"
+              }
+            }
+          },
+          "selectedCellStates": [
+            {
+              "value": "{\"typeName\": \"String.Pos.Raw\",\n \"parameterClassNames\": [],\n \"className\": \"Std.LawfulOrderMin\"}",
+              "state": {
+                "result": {
+                  "head": "Std.LinearOrderPackage.toLawfulOrderMin",
+                  "term": "@Std.LinearOrderPackage.toLawfulOrderMin String.Pos.Raw String.Pos.Raw.instLinearOrderPackage",
+                  "usedInstances": []
+                }
+              }
+            }
+          ]
+        }
+      ],
+      "metadata": {
+        "status": "done",
+        "comment": ""
+      }
+    },
+    {
+      "widgetId": "string-order-instances",
+      "factId": "String.Pos.Raw:::Std.LawfulOrderInf:::()",
+      "rowAssociationId": "String.Pos.Raw",
+      "columnAssociationId": "Std.LawfulOrderInf",
+      "selectedLayers": [
+        "()"
+      ],
+      "layerStates": [
+        {
+          "layerIdentifier": "()",
+          "rowState": {
+            "value": "String.Pos.Raw",
+            "state": {
+              "constructor": "def",
+              "def": {
+                "isDeprecated": false,
+                "name": "String.Pos.Raw",
+                "renderedStatement": "String.Pos.Raw : Type"
+              }
+            }
+          },
+          "columnState": {
+            "value": "Std.LawfulOrderInf",
+            "state": {
+              "constructor": "def",
+              "def": {
+                "isDeprecated": false,
+                "name": "Std.LawfulOrderInf",
+                "renderedStatement": "Std.LawfulOrderInf.{u} (α : Type u) [Min α] [LE α] : Prop"
+              }
+            }
+          },
+          "selectedCellStates": [
+            {
+              "value": "{\"typeName\": \"String.Pos.Raw\",\n \"parameterClassNames\": [],\n \"className\": \"Std.LawfulOrderInf\"}",
+              "state": {
+                "result": {
+                  "head": "Std.LawfulOrderMin.toLawfulOrderInf",
+                  "term": "@Std.LawfulOrderMin.toLawfulOrderInf String.Pos.Raw\n  (@Std.LinearOrderPackage.toMin String.Pos.Raw String.Pos.Raw.instLinearOrderPackage)\n  String.instLERaw\n  (@Std.LinearOrderPackage.toLawfulOrderMin String.Pos.Raw String.Pos.Raw.instLinearOrderPackage)",
+                  "usedInstances": []
+                }
+              }
+            }
+          ]
+        }
+      ],
+      "metadata": {
+        "status": "done",
+        "comment": ""
+      }
+    },
+    {
+      "widgetId": "string-order-instances",
+      "factId": "String.Pos.Raw:::Std.LawfulOrderLeftLeaningMin:::()",
+      "rowAssociationId": "String.Pos.Raw",
+      "columnAssociationId": "Std.LawfulOrderLeftLeaningMin",
+      "selectedLayers": [
+        "()"
+      ],
+      "layerStates": [
+        {
+          "layerIdentifier": "()",
+          "rowState": {
+            "value": "String.Pos.Raw",
+            "state": {
+              "constructor": "def",
+              "def": {
+                "isDeprecated": false,
+                "name": "String.Pos.Raw",
+                "renderedStatement": "String.Pos.Raw : Type"
+              }
+            }
+          },
+          "columnState": {
+            "value": "Std.LawfulOrderLeftLeaningMin",
+            "state": {
+              "constructor": "def",
+              "def": {
+                "isDeprecated": false,
+                "name": "Std.LawfulOrderLeftLeaningMin",
+                "renderedStatement": "Std.LawfulOrderLeftLeaningMin.{u} (α : Type u) [Min α] [LE α] : Prop"
+              }
+            }
+          },
+          "selectedCellStates": [
+            {
+              "value": "{\"typeName\": \"String.Pos.Raw\",\n \"parameterClassNames\": [],\n \"className\": \"Std.LawfulOrderLeftLeaningMin\"}",
+              "state": {
+                "result": {
+                  "head": "Std.lawfulOrderLeftLeaningMin_minOfLe",
+                  "term": "@Std.lawfulOrderLeftLeaningMin_minOfLe String.Pos.Raw String.instLERaw String.instDecidableLeRaw",
+                  "usedInstances": []
+                }
+              }
+            }
+          ]
+        }
+      ],
+      "metadata": {
+        "status": "done",
+        "comment": ""
+      }
+    },
+    {
+      "widgetId": "string-order-instances",
+      "factId": "String.Pos.Raw:::Std.LawfulOrderMax:::()",
+      "rowAssociationId": "String.Pos.Raw",
+      "columnAssociationId": "Std.LawfulOrderMax",
+      "selectedLayers": [
+        "()"
+      ],
+      "layerStates": [
+        {
+          "layerIdentifier": "()",
+          "rowState": {
+            "value": "String.Pos.Raw",
+            "state": {
+              "constructor": "def",
+              "def": {
+                "isDeprecated": false,
+                "name": "String.Pos.Raw",
+                "renderedStatement": "String.Pos.Raw : Type"
+              }
+            }
+          },
+          "columnState": {
+            "value": "Std.LawfulOrderMax",
+            "state": {
+              "constructor": "def",
+              "def": {
+                "isDeprecated": false,
+                "name": "Std.LawfulOrderMax",
+                "renderedStatement": "Std.LawfulOrderMax.{u} (α : Type u) [Max α] [LE α] : Prop"
+              }
+            }
+          },
+          "selectedCellStates": [
+            {
+              "value": "{\"typeName\": \"String.Pos.Raw\",\n \"parameterClassNames\": [],\n \"className\": \"Std.LawfulOrderMax\"}",
+              "state": {
+                "result": {
+                  "head": "Std.LinearOrderPackage.toLawfulOrderMax",
+                  "term": "@Std.LinearOrderPackage.toLawfulOrderMax String.Pos.Raw String.Pos.Raw.instLinearOrderPackage",
+                  "usedInstances": []
+                }
+              }
+            }
+          ]
+        }
+      ],
+      "metadata": {
+        "status": "done",
+        "comment": ""
+      }
+    },
+    {
+      "widgetId": "string-order-instances",
+      "factId": "String.Pos.Raw:::Std.LawfulOrderSup:::()",
+      "rowAssociationId": "String.Pos.Raw",
+      "columnAssociationId": "Std.LawfulOrderSup",
+      "selectedLayers": [
+        "()"
+      ],
+      "layerStates": [
+        {
+          "layerIdentifier": "()",
+          "rowState": {
+            "value": "String.Pos.Raw",
+            "state": {
+              "constructor": "def",
+              "def": {
+                "isDeprecated": false,
+                "name": "String.Pos.Raw",
+                "renderedStatement": "String.Pos.Raw : Type"
+              }
+            }
+          },
+          "columnState": {
+            "value": "Std.LawfulOrderSup",
+            "state": {
+              "constructor": "def",
+              "def": {
+                "isDeprecated": false,
+                "name": "Std.LawfulOrderSup",
+                "renderedStatement": "Std.LawfulOrderSup.{u} (α : Type u) [Max α] [LE α] : Prop"
+              }
+            }
+          },
+          "selectedCellStates": [
+            {
+              "value": "{\"typeName\": \"String.Pos.Raw\",\n \"parameterClassNames\": [],\n \"className\": \"Std.LawfulOrderSup\"}",
+              "state": {
+                "result": {
+                  "head": "Std.LawfulOrderMax.toLawfulOrderSup",
+                  "term": "@Std.LawfulOrderMax.toLawfulOrderSup String.Pos.Raw\n  (@Std.LinearOrderPackage.toMax String.Pos.Raw String.Pos.Raw.instLinearOrderPackage)\n  String.instLERaw\n  (@Std.LinearOrderPackage.toLawfulOrderMax String.Pos.Raw String.Pos.Raw.instLinearOrderPackage)",
+                  "usedInstances": []
+                }
+              }
+            }
+          ]
+        }
+      ],
+      "metadata": {
+        "status": "done",
+        "comment": ""
+      }
+    },
+    {
+      "widgetId": "string-order-instances",
+      "factId": "String.Pos.Raw:::Std.LawfulOrderLeftLeaningMax:::()",
+      "rowAssociationId": "String.Pos.Raw",
+      "columnAssociationId": "Std.LawfulOrderLeftLeaningMax",
+      "selectedLayers": [
+        "()"
+      ],
+      "layerStates": [
+        {
+          "layerIdentifier": "()",
+          "rowState": {
+            "value": "String.Pos.Raw",
+            "state": {
+              "constructor": "def",
+              "def": {
+                "isDeprecated": false,
+                "name": "String.Pos.Raw",
+                "renderedStatement": "String.Pos.Raw : Type"
+              }
+            }
+          },
+          "columnState": {
+            "value": "Std.LawfulOrderLeftLeaningMax",
+            "state": {
+              "constructor": "def",
+              "def": {
+                "isDeprecated": false,
+                "name": "Std.LawfulOrderLeftLeaningMax",
+                "renderedStatement": "Std.LawfulOrderLeftLeaningMax.{u} (α : Type u) [Max α] [LE α] : Prop"
+              }
+            }
+          },
+          "selectedCellStates": [
+            {
+              "value": "{\"typeName\": \"String.Pos.Raw\",\n \"parameterClassNames\": [],\n \"className\": \"Std.LawfulOrderLeftLeaningMax\"}",
+              "state": {
+                "result": {
+                  "head": "Std.instLawfulOrderLeftLeaningMax",
+                  "term": "@Std.instLawfulOrderLeftLeaningMax String.Pos.Raw String.instLERaw String.instDecidableLeRaw",
+                  "usedInstances": []
+                }
+              }
+            }
+          ]
+        }
+      ],
+      "metadata": {
+        "status": "done",
+        "comment": ""
+      }
+    },
+    {
+      "widgetId": "string-order-instances",
+      "factId": "String.Pos.Raw:::Std.ReflOrd:::()",
+      "rowAssociationId": "String.Pos.Raw",
+      "columnAssociationId": "Std.ReflOrd",
+      "selectedLayers": [
+        "()"
+      ],
+      "layerStates": [
+        {
+          "layerIdentifier": "()",
+          "rowState": {
+            "value": "String.Pos.Raw",
+            "state": {
+              "constructor": "def",
+              "def": {
+                "isDeprecated": false,
+                "name": "String.Pos.Raw",
+                "renderedStatement": "String.Pos.Raw : Type"
+              }
+            }
+          },
+          "columnState": {
+            "value": "Std.ReflOrd",
+            "state": {
+              "constructor": "def",
+              "def": {
+                "isDeprecated": false,
+                "name": "Std.ReflOrd",
+                "renderedStatement": "Std.ReflOrd.{u} (α : Type u) [Ord α] : Prop"
+              }
+            }
+          },
+          "selectedCellStates": [
+            {
+              "value": "{\"typeName\": \"String.Pos.Raw\",\n \"parameterClassNames\": [],\n \"className\": \"Std.ReflOrd\"}",
+              "state": {
+                "result": {
+                  "head": "Std.LawfulEqCmp.toReflCmp",
+                  "term": "@Std.LawfulEqCmp.toReflCmp String.Pos.Raw\n  (@compare String.Pos.Raw\n    (@Std.LinearPreorderPackage.toOrd String.Pos.Raw\n      (@Std.LinearOrderPackage.toLinearPreorderPackage String.Pos.Raw\n        String.Pos.Raw.instLinearOrderPackage)))\n  (@Std.instLawfulEqOrdOfLawfulOrderOrdOfAntisymmLe String.Pos.Raw\n    (@Std.LinearPreorderPackage.toOrd String.Pos.Raw\n      (@Std.LinearOrderPackage.toLinearPreorderPackage String.Pos.Raw\n        String.Pos.Raw.instLinearOrderPackage))\n    String.instLERaw\n    (@Std.LinearPreorderPackage.toLawfulOrderOrd String.Pos.Raw\n      (@Std.LinearOrderPackage.toLinearPreorderPackage String.Pos.Raw\n        String.Pos.Raw.instLinearOrderPackage))\n    String.Pos.Raw.instAntisymmLe)",
+                  "usedInstances": []
+                }
+              }
+            }
+          ]
+        }
+      ],
+      "metadata": {
+        "status": "done",
+        "comment": ""
+      }
+    },
+    {
+      "widgetId": "string-order-instances",
+      "factId": "String.Pos.Raw:::Std.OrientedOrd:::()",
+      "rowAssociationId": "String.Pos.Raw",
+      "columnAssociationId": "Std.OrientedOrd",
+      "selectedLayers": [
+        "()"
+      ],
+      "layerStates": [
+        {
+          "layerIdentifier": "()",
+          "rowState": {
+            "value": "String.Pos.Raw",
+            "state": {
+              "constructor": "def",
+              "def": {
+                "isDeprecated": false,
+                "name": "String.Pos.Raw",
+                "renderedStatement": "String.Pos.Raw : Type"
+              }
+            }
+          },
+          "columnState": {
+            "value": "Std.OrientedOrd",
+            "state": {
+              "constructor": "def",
+              "def": {
+                "isDeprecated": false,
+                "name": "Std.OrientedOrd",
+                "renderedStatement": "Std.OrientedOrd.{u} (α : Type u) [Ord α] : Prop"
+              }
+            }
+          },
+          "selectedCellStates": [
+            {
+              "value": "{\"typeName\": \"String.Pos.Raw\",\n \"parameterClassNames\": [],\n \"className\": \"Std.OrientedOrd\"}",
+              "state": {
+                "result": {
+                  "head": "Std.instOrientedOrdOfLawfulOrderOrd",
+                  "term": "@Std.instOrientedOrdOfLawfulOrderOrd String.Pos.Raw String.instLERaw\n  (@Std.LinearPreorderPackage.toOrd String.Pos.Raw\n    (@Std.LinearOrderPackage.toLinearPreorderPackage String.Pos.Raw\n      String.Pos.Raw.instLinearOrderPackage))\n  (@Std.LinearPreorderPackage.toLawfulOrderOrd String.Pos.Raw\n    (@Std.LinearOrderPackage.toLinearPreorderPackage String.Pos.Raw\n      String.Pos.Raw.instLinearOrderPackage))",
+                  "usedInstances": []
+                }
+              }
+            }
+          ]
+        }
+      ],
+      "metadata": {
+        "status": "done",
+        "comment": ""
+      }
+    },
+    {
+      "widgetId": "string-order-instances",
+      "factId": "String.Pos.Raw:::Std.TransOrd:::()",
+      "rowAssociationId": "String.Pos.Raw",
+      "columnAssociationId": "Std.TransOrd",
+      "selectedLayers": [
+        "()"
+      ],
+      "layerStates": [
+        {
+          "layerIdentifier": "()",
+          "rowState": {
+            "value": "String.Pos.Raw",
+            "state": {
+              "constructor": "def",
+              "def": {
+                "isDeprecated": false,
+                "name": "String.Pos.Raw",
+                "renderedStatement": "String.Pos.Raw : Type"
+              }
+            }
+          },
+          "columnState": {
+            "value": "Std.TransOrd",
+            "state": {
+              "constructor": "def",
+              "def": {
+                "isDeprecated": false,
+                "name": "Std.TransOrd",
+                "renderedStatement": "Std.TransOrd.{u} (α : Type u) [Ord α] : Prop"
+              }
+            }
+          },
+          "selectedCellStates": [
+            {
+              "value": "{\"typeName\": \"String.Pos.Raw\",\n \"parameterClassNames\": [],\n \"className\": \"Std.TransOrd\"}",
+              "state": {
+                "result": {
+                  "head": "Std.instTransOrdOfLawfulOrderOrdOfIsPreorder",
+                  "term": "@Std.instTransOrdOfLawfulOrderOrdOfIsPreorder String.Pos.Raw\n  (@Std.LinearPreorderPackage.toOrd String.Pos.Raw\n    (@Std.LinearOrderPackage.toLinearPreorderPackage String.Pos.Raw\n      String.Pos.Raw.instLinearOrderPackage))\n  String.instLERaw\n  (@Std.LinearPreorderPackage.toLawfulOrderOrd String.Pos.Raw\n    (@Std.LinearOrderPackage.toLinearPreorderPackage String.Pos.Raw\n      String.Pos.Raw.instLinearOrderPackage))\n  (@Std.PreorderPackage.toIsPreorder String.Pos.Raw\n    (@Std.LinearPreorderPackage.toPreorderPackage String.Pos.Raw\n      (@Std.LinearOrderPackage.toLinearPreorderPackage String.Pos.Raw\n        String.Pos.Raw.instLinearOrderPackage)))",
+                  "usedInstances": []
+                }
+              }
+            }
+          ]
+        }
+      ],
+      "metadata": {
+        "status": "done",
+        "comment": ""
+      }
+    },
+    {
+      "widgetId": "string-order-instances",
+      "factId": "String.Pos.Raw:::Std.LawfulEqOrd:::()",
+      "rowAssociationId": "String.Pos.Raw",
+      "columnAssociationId": "Std.LawfulEqOrd",
+      "selectedLayers": [
+        "()"
+      ],
+      "layerStates": [
+        {
+          "layerIdentifier": "()",
+          "rowState": {
+            "value": "String.Pos.Raw",
+            "state": {
+              "constructor": "def",
+              "def": {
+                "isDeprecated": false,
+                "name": "String.Pos.Raw",
+                "renderedStatement": "String.Pos.Raw : Type"
+              }
+            }
+          },
+          "columnState": {
+            "value": "Std.LawfulEqOrd",
+            "state": {
+              "constructor": "def",
+              "def": {
+                "isDeprecated": false,
+                "name": "Std.LawfulEqOrd",
+                "renderedStatement": "Std.LawfulEqOrd.{u} (α : Type u) [Ord α] : Prop"
+              }
+            }
+          },
+          "selectedCellStates": [
+            {
+              "value": "{\"typeName\": \"String.Pos.Raw\",\n \"parameterClassNames\": [],\n \"className\": \"Std.LawfulEqOrd\"}",
+              "state": {
+                "result": {
+                  "head": "Std.instLawfulEqOrdOfLawfulOrderOrdOfAntisymmLe",
+                  "term": "@Std.instLawfulEqOrdOfLawfulOrderOrdOfAntisymmLe String.Pos.Raw\n  (@Std.LinearPreorderPackage.toOrd String.Pos.Raw\n    (@Std.LinearOrderPackage.toLinearPreorderPackage String.Pos.Raw\n      String.Pos.Raw.instLinearOrderPackage))\n  String.instLERaw\n  (@Std.LinearPreorderPackage.toLawfulOrderOrd String.Pos.Raw\n    (@Std.LinearOrderPackage.toLinearPreorderPackage String.Pos.Raw\n      String.Pos.Raw.instLinearOrderPackage))\n  String.Pos.Raw.instAntisymmLe",
+                  "usedInstances": []
+                }
+              }
+            }
+          ]
+        }
+      ],
+      "metadata": {
+        "status": "done",
+        "comment": ""
+      }
+    },
+    {
+      "widgetId": "string-order-instances",
+      "factId": "String.Pos.Raw:::Std.LawfulBEqOrd:::()",
+      "rowAssociationId": "String.Pos.Raw",
+      "columnAssociationId": "Std.LawfulBEqOrd",
+      "selectedLayers": [
+        "()"
+      ],
+      "layerStates": [
+        {
+          "layerIdentifier": "()",
+          "rowState": {
+            "value": "String.Pos.Raw",
+            "state": {
+              "constructor": "def",
+              "def": {
+                "isDeprecated": false,
+                "name": "String.Pos.Raw",
+                "renderedStatement": "String.Pos.Raw : Type"
+              }
+            }
+          },
+          "columnState": {
+            "value": "Std.LawfulBEqOrd",
+            "state": {
+              "constructor": "def",
+              "def": {
+                "isDeprecated": false,
+                "name": "Std.LawfulBEqOrd",
+                "renderedStatement": "Std.LawfulBEqOrd.{u} (α : Type u) [BEq α] [Ord α] : Prop"
+              }
+            }
+          },
+          "selectedCellStates": [
+            {
+              "value": "{\"typeName\": \"String.Pos.Raw\",\n \"parameterClassNames\": [],\n \"className\": \"Std.LawfulBEqOrd\"}",
+              "state": {
+                "result": {
+                  "head": "Std.instLawfulBEqOrdOfLawfulOrderOrdOfLawfulOrderBEq",
+                  "term": "@Std.instLawfulBEqOrdOfLawfulOrderOrdOfLawfulOrderBEq String.Pos.Raw\n  (@Std.LinearPreorderPackage.toOrd String.Pos.Raw\n    (@Std.LinearOrderPackage.toLinearPreorderPackage String.Pos.Raw\n      String.Pos.Raw.instLinearOrderPackage))\n  (@Std.PreorderPackage.toBEq String.Pos.Raw\n    (@Std.LinearPreorderPackage.toPreorderPackage String.Pos.Raw\n      (@Std.LinearOrderPackage.toLinearPreorderPackage String.Pos.Raw\n        String.Pos.Raw.instLinearOrderPackage)))\n  String.instLERaw\n  (@Std.LinearPreorderPackage.toLawfulOrderOrd String.Pos.Raw\n    (@Std.LinearOrderPackage.toLinearPreorderPackage String.Pos.Raw\n      String.Pos.Raw.instLinearOrderPackage))\n  String.Pos.Raw.instLawfulOrderBEq",
+                  "usedInstances": []
+                }
+              }
+            }
+          ]
+        }
+      ],
+      "metadata": {
+        "status": "done",
+        "comment": ""
+      }
+    },
+    {
+      "widgetId": "string-order-instances",
+      "factId": "String.Pos.Raw:::EquivBEq:::()",
+      "rowAssociationId": "String.Pos.Raw",
+      "columnAssociationId": "EquivBEq",
+      "selectedLayers": [
+        "()"
+      ],
+      "layerStates": [
+        {
+          "layerIdentifier": "()",
+          "rowState": {
+            "value": "String.Pos.Raw",
+            "state": {
+              "constructor": "def",
+              "def": {
+                "isDeprecated": false,
+                "name": "String.Pos.Raw",
+                "renderedStatement": "String.Pos.Raw : Type"
+              }
+            }
+          },
+          "columnState": {
+            "value": "EquivBEq",
+            "state": {
+              "constructor": "def",
+              "def": {
+                "isDeprecated": false,
+                "name": "EquivBEq",
+                "renderedStatement": "EquivBEq.{u_1} (α : Type u_1) [BEq α] : Prop"
+              }
+            }
+          },
+          "selectedCellStates": [
+            {
+              "value": "{\"typeName\": \"String.Pos.Raw\",\n \"parameterClassNames\": [],\n \"className\": \"EquivBEq\"}",
+              "state": {
+                "result": {
+                  "head": "Std.LawfulBEqOrd.equivBEq",
+                  "term": "@Std.LawfulBEqOrd.equivBEq String.Pos.Raw\n  (@Std.PreorderPackage.toBEq String.Pos.Raw\n    (@Std.LinearPreorderPackage.toPreorderPackage String.Pos.Raw\n      (@Std.LinearOrderPackage.toLinearPreorderPackage String.Pos.Raw\n        String.Pos.Raw.instLinearOrderPackage)))\n  (@Std.LinearPreorderPackage.toOrd String.Pos.Raw\n    (@Std.LinearOrderPackage.toLinearPreorderPackage String.Pos.Raw\n      String.Pos.Raw.instLinearOrderPackage))\n  (@Std.instLawfulBEqOrdOfLawfulOrderOrdOfLawfulOrderBEq String.Pos.Raw\n    (@Std.LinearPreorderPackage.toOrd String.Pos.Raw\n      (@Std.LinearOrderPackage.toLinearPreorderPackage String.Pos.Raw\n        String.Pos.Raw.instLinearOrderPackage))\n    (@Std.PreorderPackage.toBEq String.Pos.Raw\n      (@Std.LinearPreorderPackage.toPreorderPackage String.Pos.Raw\n        (@Std.LinearOrderPackage.toLinearPreorderPackage String.Pos.Raw\n          String.Pos.Raw.instLinearOrderPackage)))\n    String.instLERaw\n    (@Std.LinearPreorderPackage.toLawfulOrderOrd String.Pos.Raw\n      (@Std.LinearOrderPackage.toLinearPreorderPackage String.Pos.Raw\n        String.Pos.Raw.instLinearOrderPackage))\n    String.Pos.Raw.instLawfulOrderBEq)\n  (@Std.instTransOrdOfLawfulOrderOrdOfIsPreorder String.Pos.Raw\n    (@Std.LinearPreorderPackage.toOrd String.Pos.Raw\n      (@Std.LinearOrderPackage.toLinearPreorderPackage String.Pos.Raw\n        String.Pos.Raw.instLinearOrderPackage))\n    String.instLERaw\n    (@Std.LinearPreorderPackage.toLawfulOrderOrd String.Pos.Raw\n      (@Std.LinearOrderPackage.toLinearPreorderPackage String.Pos.Raw\n        String.Pos.Raw.instLinearOrderPackage))\n    (@Std.PreorderPackage.toIsPreorder String.Pos.Raw\n      (@Std.LinearPreorderPackage.toPreorderPackage String.Pos.Raw\n        (@Std.LinearOrderPackage.toLinearPreorderPackage String.Pos.Raw\n          String.Pos.Raw.instLinearOrderPackage))))",
+                  "usedInstances": []
+                }
+              }
+            }
+          ]
+        }
+      ],
+      "metadata": {
+        "status": "done",
+        "comment": ""
+      }
+    },
+    {
+      "widgetId": "string-order-instances",
+      "factId": "String.Pos.Raw:::LawfulBEq:::()",
+      "rowAssociationId": "String.Pos.Raw",
+      "columnAssociationId": "LawfulBEq",
+      "selectedLayers": [
+        "()"
+      ],
+      "layerStates": [
+        {
+          "layerIdentifier": "()",
+          "rowState": {
+            "value": "String.Pos.Raw",
+            "state": {
+              "constructor": "def",
+              "def": {
+                "isDeprecated": false,
+                "name": "String.Pos.Raw",
+                "renderedStatement": "String.Pos.Raw : Type"
+              }
+            }
+          },
+          "columnState": {
+            "value": "LawfulBEq",
+            "state": {
+              "constructor": "def",
+              "def": {
+                "isDeprecated": false,
+                "name": "LawfulBEq",
+                "renderedStatement": "LawfulBEq.{u} (α : Type u) [BEq α] : Prop"
+              }
+            }
+          },
+          "selectedCellStates": [
+            {
+              "value": "{\"typeName\": \"String.Pos.Raw\",\n \"parameterClassNames\": [],\n \"className\": \"LawfulBEq\"}",
+              "state": {
+                "result": {
+                  "head": "Std.LawfulBEqOrd.lawfulBEq",
+                  "term": "@Std.LawfulBEqOrd.lawfulBEq String.Pos.Raw\n  (@Std.PreorderPackage.toBEq String.Pos.Raw\n    (@Std.LinearPreorderPackage.toPreorderPackage String.Pos.Raw\n      (@Std.LinearOrderPackage.toLinearPreorderPackage String.Pos.Raw\n        String.Pos.Raw.instLinearOrderPackage)))\n  (@Std.LinearPreorderPackage.toOrd String.Pos.Raw\n    (@Std.LinearOrderPackage.toLinearPreorderPackage String.Pos.Raw\n      String.Pos.Raw.instLinearOrderPackage))\n  (@Std.instLawfulBEqOrdOfLawfulOrderOrdOfLawfulOrderBEq String.Pos.Raw\n    (@Std.LinearPreorderPackage.toOrd String.Pos.Raw\n      (@Std.LinearOrderPackage.toLinearPreorderPackage String.Pos.Raw\n        String.Pos.Raw.instLinearOrderPackage))\n    (@Std.PreorderPackage.toBEq String.Pos.Raw\n      (@Std.LinearPreorderPackage.toPreorderPackage String.Pos.Raw\n        (@Std.LinearOrderPackage.toLinearPreorderPackage String.Pos.Raw\n          String.Pos.Raw.instLinearOrderPackage)))\n    String.instLERaw\n    (@Std.LinearPreorderPackage.toLawfulOrderOrd String.Pos.Raw\n      (@Std.LinearOrderPackage.toLinearPreorderPackage String.Pos.Raw\n        String.Pos.Raw.instLinearOrderPackage))\n    String.Pos.Raw.instLawfulOrderBEq)\n  (@Std.instLawfulEqOrdOfLawfulOrderOrdOfAntisymmLe String.Pos.Raw\n    (@Std.LinearPreorderPackage.toOrd String.Pos.Raw\n      (@Std.LinearOrderPackage.toLinearPreorderPackage String.Pos.Raw\n        String.Pos.Raw.instLinearOrderPackage))\n    String.instLERaw\n    (@Std.LinearPreorderPackage.toLawfulOrderOrd String.Pos.Raw\n      (@Std.LinearOrderPackage.toLinearPreorderPackage String.Pos.Raw\n        String.Pos.Raw.instLinearOrderPackage))\n    String.Pos.Raw.instAntisymmLe)",
+                  "usedInstances": []
+                }
+              }
+            }
+          ]
+        }
+      ],
+      "metadata": {
+        "status": "done",
+        "comment": ""
+      }
+    },
+    {
+      "widgetId": "string-order-instances",
+      "factId": "String.Slice.Pos:::BEq:::()",
+      "rowAssociationId": "String.Slice.Pos",
+      "columnAssociationId": "BEq",
+      "selectedLayers": [
+        "()"
+      ],
+      "layerStates": [
+        {
+          "layerIdentifier": "()",
+          "rowState": {
+            "value": "String.Slice.Pos",
+            "state": {
+              "constructor": "def",
+              "def": {
+                "isDeprecated": false,
+                "name": "String.Slice.Pos",
+                "renderedStatement": "String.Slice.Pos (s : String.Slice) : Type"
+              }
+            }
+          },
+          "columnState": {
+            "value": "BEq",
+            "state": {
+              "constructor": "def",
+              "def": {
+                "isDeprecated": false,
+                "name": "BEq",
+                "renderedStatement": "BEq.{u} (α : Type u) : Type u"
+              }
+            }
+          },
+          "selectedCellStates": [
+            {
+              "value": "{\"typeName\": \"String.Slice.Pos\", \"parameterClassNames\": [], \"className\": \"BEq\"}",
+              "state": {
+                "result": {
+                  "head": "Std.PreorderPackage.toBEq",
+                  "term": "@Std.PreorderPackage.toBEq s.Pos\n  (@Std.LinearPreorderPackage.toPreorderPackage s.Pos\n    (@Std.LinearOrderPackage.toLinearPreorderPackage s.Pos\n      (@String.Slice.Pos.instLinearOrderPackage s)))",
+                  "usedInstances": []
+                }
+              }
+            }
+          ]
+        }
+      ],
+      "metadata": {
+        "status": "done",
+        "comment": ""
+      }
+    },
+    {
+      "widgetId": "string-order-instances",
+      "factId": "String.Slice.Pos:::LE:::()",
+      "rowAssociationId": "String.Slice.Pos",
+      "columnAssociationId": "LE",
+      "selectedLayers": [
+        "()"
+      ],
+      "layerStates": [
+        {
+          "layerIdentifier": "()",
+          "rowState": {
+            "value": "String.Slice.Pos",
+            "state": {
+              "constructor": "def",
+              "def": {
+                "isDeprecated": false,
+                "name": "String.Slice.Pos",
+                "renderedStatement": "String.Slice.Pos (s : String.Slice) : Type"
+              }
+            }
+          },
+          "columnState": {
+            "value": "LE",
+            "state": {
+              "constructor": "def",
+              "def": {
+                "isDeprecated": false,
+                "name": "LE",
+                "renderedStatement": "LE.{u} (α : Type u) : Type u"
+              }
+            }
+          },
+          "selectedCellStates": [
+            {
+              "value": "{\"typeName\": \"String.Slice.Pos\", \"parameterClassNames\": [], \"className\": \"LE\"}",
+              "state": {
+                "result": {
+                  "head": "String.instLEPos_1",
+                  "term": "@String.instLEPos_1 s",
+                  "usedInstances": []
+                }
+              }
+            }
+          ]
+        }
+      ],
+      "metadata": {
+        "status": "done",
+        "comment": ""
+      }
+    },
+    {
+      "widgetId": "string-order-instances",
+      "factId": "String.Slice.Pos:::LT:::()",
+      "rowAssociationId": "String.Slice.Pos",
+      "columnAssociationId": "LT",
+      "selectedLayers": [
+        "()"
+      ],
+      "layerStates": [
+        {
+          "layerIdentifier": "()",
+          "rowState": {
+            "value": "String.Slice.Pos",
+            "state": {
+              "constructor": "def",
+              "def": {
+                "isDeprecated": false,
+                "name": "String.Slice.Pos",
+                "renderedStatement": "String.Slice.Pos (s : String.Slice) : Type"
+              }
+            }
+          },
+          "columnState": {
+            "value": "LT",
+            "state": {
+              "constructor": "def",
+              "def": {
+                "isDeprecated": false,
+                "name": "LT",
+                "renderedStatement": "LT.{u} (α : Type u) : Type u"
+              }
+            }
+          },
+          "selectedCellStates": [
+            {
+              "value": "{\"typeName\": \"String.Slice.Pos\", \"parameterClassNames\": [], \"className\": \"LT\"}",
+              "state": {
+                "result": {
+                  "head": "String.instLTPos_1",
+                  "term": "@String.instLTPos_1 s",
+                  "usedInstances": []
+                }
+              }
+            }
+          ]
+        }
+      ],
+      "metadata": {
+        "status": "done",
+        "comment": ""
+      }
+    },
+    {
+      "widgetId": "string-order-instances",
+      "factId": "String.Slice.Pos:::Ord:::()",
+      "rowAssociationId": "String.Slice.Pos",
+      "columnAssociationId": "Ord",
+      "selectedLayers": [
+        "()"
+      ],
+      "layerStates": [
+        {
+          "layerIdentifier": "()",
+          "rowState": {
+            "value": "String.Slice.Pos",
+            "state": {
+              "constructor": "def",
+              "def": {
+                "isDeprecated": false,
+                "name": "String.Slice.Pos",
+                "renderedStatement": "String.Slice.Pos (s : String.Slice) : Type"
+              }
+            }
+          },
+          "columnState": {
+            "value": "Ord",
+            "state": {
+              "constructor": "def",
+              "def": {
+                "isDeprecated": false,
+                "name": "Ord",
+                "renderedStatement": "Ord.{u} (α : Type u) : Type u"
+              }
+            }
+          },
+          "selectedCellStates": [
+            {
+              "value": "{\"typeName\": \"String.Slice.Pos\", \"parameterClassNames\": [], \"className\": \"Ord\"}",
+              "state": {
+                "result": {
+                  "head": "Std.LinearPreorderPackage.toOrd",
+                  "term": "@Std.LinearPreorderPackage.toOrd s.Pos\n  (@Std.LinearOrderPackage.toLinearPreorderPackage s.Pos\n    (@String.Slice.Pos.instLinearOrderPackage s))",
+                  "usedInstances": []
+                }
+              }
+            }
+          ]
+        }
+      ],
+      "metadata": {
+        "status": "done",
+        "comment": ""
+      }
+    },
+    {
+      "widgetId": "string-order-instances",
+      "factId": "String.Slice.Pos:::Min:::()",
+      "rowAssociationId": "String.Slice.Pos",
+      "columnAssociationId": "Min",
+      "selectedLayers": [
+        "()"
+      ],
+      "layerStates": [
+        {
+          "layerIdentifier": "()",
+          "rowState": {
+            "value": "String.Slice.Pos",
+            "state": {
+              "constructor": "def",
+              "def": {
+                "isDeprecated": false,
+                "name": "String.Slice.Pos",
+                "renderedStatement": "String.Slice.Pos (s : String.Slice) : Type"
+              }
+            }
+          },
+          "columnState": {
+            "value": "Min",
+            "state": {
+              "constructor": "def",
+              "def": {
+                "isDeprecated": false,
+                "name": "Min",
+                "renderedStatement": "Min.{u} (α : Type u) : Type u"
+              }
+            }
+          },
+          "selectedCellStates": [
+            {
+              "value": "{\"typeName\": \"String.Slice.Pos\", \"parameterClassNames\": [], \"className\": \"Min\"}",
+              "state": {
+                "result": {
+                  "head": "Std.LinearOrderPackage.toMin",
+                  "term": "@Std.LinearOrderPackage.toMin s.Pos (@String.Slice.Pos.instLinearOrderPackage s)",
+                  "usedInstances": []
+                }
+              }
+            }
+          ]
+        }
+      ],
+      "metadata": {
+        "status": "done",
+        "comment": ""
+      }
+    },
+    {
+      "widgetId": "string-order-instances",
+      "factId": "String.Slice.Pos:::Max:::()",
+      "rowAssociationId": "String.Slice.Pos",
+      "columnAssociationId": "Max",
+      "selectedLayers": [
+        "()"
+      ],
+      "layerStates": [
+        {
+          "layerIdentifier": "()",
+          "rowState": {
+            "value": "String.Slice.Pos",
+            "state": {
+              "constructor": "def",
+              "def": {
+                "isDeprecated": false,
+                "name": "String.Slice.Pos",
+                "renderedStatement": "String.Slice.Pos (s : String.Slice) : Type"
+              }
+            }
+          },
+          "columnState": {
+            "value": "Max",
+            "state": {
+              "constructor": "def",
+              "def": {
+                "isDeprecated": false,
+                "name": "Max",
+                "renderedStatement": "Max.{u} (α : Type u) : Type u"
+              }
+            }
+          },
+          "selectedCellStates": [
+            {
+              "value": "{\"typeName\": \"String.Slice.Pos\", \"parameterClassNames\": [], \"className\": \"Max\"}",
+              "state": {
+                "result": {
+                  "head": "Std.LinearOrderPackage.toMax",
+                  "term": "@Std.LinearOrderPackage.toMax s.Pos (@String.Slice.Pos.instLinearOrderPackage s)",
+                  "usedInstances": []
+                }
+              }
+            }
+          ]
+        }
+      ],
+      "metadata": {
+        "status": "done",
+        "comment": ""
+      }
+    },
+    {
+      "widgetId": "string-order-instances",
+      "factId": "String.Slice.Pos:::DecidableEq:::()",
+      "rowAssociationId": "String.Slice.Pos",
+      "columnAssociationId": "DecidableEq",
+      "selectedLayers": [
+        "()"
+      ],
+      "layerStates": [
+        {
+          "layerIdentifier": "()",
+          "rowState": {
+            "value": "String.Slice.Pos",
+            "state": {
+              "constructor": "def",
+              "def": {
+                "isDeprecated": false,
+                "name": "String.Slice.Pos",
+                "renderedStatement": "String.Slice.Pos (s : String.Slice) : Type"
+              }
+            }
+          },
+          "columnState": {
+            "value": "DecidableEq",
+            "state": {
+              "constructor": "def",
+              "def": {
+                "isDeprecated": false,
+                "name": "DecidableEq",
+                "renderedStatement": "DecidableEq.{u} (α : Sort u) : Sort (max 1 u)"
+              }
+            }
+          },
+          "selectedCellStates": [
+            {
+              "value": "{\"typeName\": \"String.Slice.Pos\",\n \"parameterClassNames\": [],\n \"className\": \"DecidableEq\"}",
+              "state": {
+                "result": {
+                  "head": "String.Slice.instDecidableEqPos",
+                  "term": "@String.Slice.instDecidableEqPos s",
+                  "usedInstances": []
+                }
+              }
+            }
+          ]
+        }
+      ],
+      "metadata": {
+        "status": "done",
+        "comment": ""
+      }
+    },
+    {
+      "widgetId": "string-order-instances",
+      "factId": "String.Slice.Pos:::DecidableLE:::()",
+      "rowAssociationId": "String.Slice.Pos",
+      "columnAssociationId": "DecidableLE",
+      "selectedLayers": [
+        "()"
+      ],
+      "layerStates": [
+        {
+          "layerIdentifier": "()",
+          "rowState": {
+            "value": "String.Slice.Pos",
+            "state": {
+              "constructor": "def",
+              "def": {
+                "isDeprecated": false,
+                "name": "String.Slice.Pos",
+                "renderedStatement": "String.Slice.Pos (s : String.Slice) : Type"
+              }
+            }
+          },
+          "columnState": {
+            "value": "DecidableLE",
+            "state": {
+              "constructor": "def",
+              "def": {
+                "isDeprecated": false,
+                "name": "DecidableLE",
+                "renderedStatement": "DecidableLE.{u} (α : Type u) [LE α] : Type u"
+              }
+            }
+          },
+          "selectedCellStates": [
+            {
+              "value": "{\"typeName\": \"String.Slice.Pos\",\n \"parameterClassNames\": [],\n \"className\": \"DecidableLE\"}",
+              "state": {
+                "result": {
+                  "head": "String.instDecidableLePos_1",
+                  "term": "@String.instDecidableLePos_1 s",
+                  "usedInstances": []
+                }
+              }
+            }
+          ]
+        }
+      ],
+      "metadata": {
+        "status": "done",
+        "comment": ""
+      }
+    },
+    {
+      "widgetId": "string-order-instances",
+      "factId": "String.Slice.Pos:::DecidableLT:::()",
+      "rowAssociationId": "String.Slice.Pos",
+      "columnAssociationId": "DecidableLT",
+      "selectedLayers": [
+        "()"
+      ],
+      "layerStates": [
+        {
+          "layerIdentifier": "()",
+          "rowState": {
+            "value": "String.Slice.Pos",
+            "state": {
+              "constructor": "def",
+              "def": {
+                "isDeprecated": false,
+                "name": "String.Slice.Pos",
+                "renderedStatement": "String.Slice.Pos (s : String.Slice) : Type"
+              }
+            }
+          },
+          "columnState": {
+            "value": "DecidableLT",
+            "state": {
+              "constructor": "def",
+              "def": {
+                "isDeprecated": false,
+                "name": "DecidableLT",
+                "renderedStatement": "DecidableLT.{u} (α : Type u) [LT α] : Type u"
+              }
+            }
+          },
+          "selectedCellStates": [
+            {
+              "value": "{\"typeName\": \"String.Slice.Pos\",\n \"parameterClassNames\": [],\n \"className\": \"DecidableLT\"}",
+              "state": {
+                "result": {
+                  "head": "String.instDecidableLtPos_1",
+                  "term": "@String.instDecidableLtPos_1 s",
+                  "usedInstances": []
+                }
+              }
+            }
+          ]
+        }
+      ],
+      "metadata": {
+        "status": "done",
+        "comment": ""
+      }
+    },
+    {
+      "widgetId": "string-order-instances",
+      "factId": "String.Slice.Pos:::Std.IsPreorder:::()",
+      "rowAssociationId": "String.Slice.Pos",
+      "columnAssociationId": "Std.IsPreorder",
+      "selectedLayers": [
+        "()"
+      ],
+      "layerStates": [
+        {
+          "layerIdentifier": "()",
+          "rowState": {
+            "value": "String.Slice.Pos",
+            "state": {
+              "constructor": "def",
+              "def": {
+                "isDeprecated": false,
+                "name": "String.Slice.Pos",
+                "renderedStatement": "String.Slice.Pos (s : String.Slice) : Type"
+              }
+            }
+          },
+          "columnState": {
+            "value": "Std.IsPreorder",
+            "state": {
+              "constructor": "def",
+              "def": {
+                "isDeprecated": false,
+                "name": "Std.IsPreorder",
+                "renderedStatement": "Std.IsPreorder.{u} (α : Type u) [LE α] : Prop"
+              }
+            }
+          },
+          "selectedCellStates": [
+            {
+              "value": "{\"typeName\": \"String.Slice.Pos\",\n \"parameterClassNames\": [],\n \"className\": \"Std.IsPreorder\"}",
+              "state": {
+                "result": {
+                  "head": "Std.PreorderPackage.toIsPreorder",
+                  "term": "@Std.PreorderPackage.toIsPreorder s.Pos\n  (@Std.LinearPreorderPackage.toPreorderPackage s.Pos\n    (@Std.LinearOrderPackage.toLinearPreorderPackage s.Pos\n      (@String.Slice.Pos.instLinearOrderPackage s)))",
+                  "usedInstances": []
+                }
+              }
+            }
+          ]
+        }
+      ],
+      "metadata": {
+        "status": "done",
+        "comment": ""
+      }
+    },
+    {
+      "widgetId": "string-order-instances",
+      "factId": "String.Slice.Pos:::Std.IsPartialOrder:::()",
+      "rowAssociationId": "String.Slice.Pos",
+      "columnAssociationId": "Std.IsPartialOrder",
+      "selectedLayers": [
+        "()"
+      ],
+      "layerStates": [
+        {
+          "layerIdentifier": "()",
+          "rowState": {
+            "value": "String.Slice.Pos",
+            "state": {
+              "constructor": "def",
+              "def": {
+                "isDeprecated": false,
+                "name": "String.Slice.Pos",
+                "renderedStatement": "String.Slice.Pos (s : String.Slice) : Type"
+              }
+            }
+          },
+          "columnState": {
+            "value": "Std.IsPartialOrder",
+            "state": {
+              "constructor": "def",
+              "def": {
+                "isDeprecated": false,
+                "name": "Std.IsPartialOrder",
+                "renderedStatement": "Std.IsPartialOrder.{u} (α : Type u) [LE α] : Prop"
+              }
+            }
+          },
+          "selectedCellStates": [
+            {
+              "value": "{\"typeName\": \"String.Slice.Pos\",\n \"parameterClassNames\": [],\n \"className\": \"Std.IsPartialOrder\"}",
+              "state": {
+                "result": {
+                  "head": "Std.PartialOrderPackage.toIsPartialOrder",
+                  "term": "@Std.PartialOrderPackage.toIsPartialOrder s.Pos\n  (@Std.LinearOrderPackage.toPartialOrderPackage s.Pos (@String.Slice.Pos.instLinearOrderPackage s))",
+                  "usedInstances": []
+                }
+              }
+            }
+          ]
+        }
+      ],
+      "metadata": {
+        "status": "done",
+        "comment": ""
+      }
+    },
+    {
+      "widgetId": "string-order-instances",
+      "factId": "String.Slice.Pos:::Std.IsLinearPreorder:::()",
+      "rowAssociationId": "String.Slice.Pos",
+      "columnAssociationId": "Std.IsLinearPreorder",
+      "selectedLayers": [
+        "()"
+      ],
+      "layerStates": [
+        {
+          "layerIdentifier": "()",
+          "rowState": {
+            "value": "String.Slice.Pos",
+            "state": {
+              "constructor": "def",
+              "def": {
+                "isDeprecated": false,
+                "name": "String.Slice.Pos",
+                "renderedStatement": "String.Slice.Pos (s : String.Slice) : Type"
+              }
+            }
+          },
+          "columnState": {
+            "value": "Std.IsLinearPreorder",
+            "state": {
+              "constructor": "def",
+              "def": {
+                "isDeprecated": false,
+                "name": "Std.IsLinearPreorder",
+                "renderedStatement": "Std.IsLinearPreorder.{u} (α : Type u) [LE α] : Prop"
+              }
+            }
+          },
+          "selectedCellStates": [
+            {
+              "value": "{\"typeName\": \"String.Slice.Pos\",\n \"parameterClassNames\": [],\n \"className\": \"Std.IsLinearPreorder\"}",
+              "state": {
+                "result": {
+                  "head": "Std.LinearPreorderPackage.toIsLinearPreorder",
+                  "term": "@Std.LinearPreorderPackage.toIsLinearPreorder s.Pos\n  (@Std.LinearOrderPackage.toLinearPreorderPackage s.Pos\n    (@String.Slice.Pos.instLinearOrderPackage s))",
+                  "usedInstances": []
+                }
+              }
+            }
+          ]
+        }
+      ],
+      "metadata": {
+        "status": "done",
+        "comment": ""
+      }
+    },
+    {
+      "widgetId": "string-order-instances",
+      "factId": "String.Slice.Pos:::Std.IsLinearOrder:::()",
+      "rowAssociationId": "String.Slice.Pos",
+      "columnAssociationId": "Std.IsLinearOrder",
+      "selectedLayers": [
+        "()"
+      ],
+      "layerStates": [
+        {
+          "layerIdentifier": "()",
+          "rowState": {
+            "value": "String.Slice.Pos",
+            "state": {
+              "constructor": "def",
+              "def": {
+                "isDeprecated": false,
+                "name": "String.Slice.Pos",
+                "renderedStatement": "String.Slice.Pos (s : String.Slice) : Type"
+              }
+            }
+          },
+          "columnState": {
+            "value": "Std.IsLinearOrder",
+            "state": {
+              "constructor": "def",
+              "def": {
+                "isDeprecated": false,
+                "name": "Std.IsLinearOrder",
+                "renderedStatement": "Std.IsLinearOrder.{u} (α : Type u) [LE α] : Prop"
+              }
+            }
+          },
+          "selectedCellStates": [
+            {
+              "value": "{\"typeName\": \"String.Slice.Pos\",\n \"parameterClassNames\": [],\n \"className\": \"Std.IsLinearOrder\"}",
+              "state": {
+                "result": {
+                  "head": "Std.LinearOrderPackage.toIsLinearOrder",
+                  "term": "@Std.LinearOrderPackage.toIsLinearOrder s.Pos (@String.Slice.Pos.instLinearOrderPackage s)",
+                  "usedInstances": []
+                }
+              }
+            }
+          ]
+        }
+      ],
+      "metadata": {
+        "status": "done",
+        "comment": ""
+      }
+    },
+    {
+      "widgetId": "string-order-instances",
+      "factId": "String.Slice.Pos:::Std.LawfulOrderLT:::()",
+      "rowAssociationId": "String.Slice.Pos",
+      "columnAssociationId": "Std.LawfulOrderLT",
+      "selectedLayers": [
+        "()"
+      ],
+      "layerStates": [
+        {
+          "layerIdentifier": "()",
+          "rowState": {
+            "value": "String.Slice.Pos",
+            "state": {
+              "constructor": "def",
+              "def": {
+                "isDeprecated": false,
+                "name": "String.Slice.Pos",
+                "renderedStatement": "String.Slice.Pos (s : String.Slice) : Type"
+              }
+            }
+          },
+          "columnState": {
+            "value": "Std.LawfulOrderLT",
+            "state": {
+              "constructor": "def",
+              "def": {
+                "isDeprecated": false,
+                "name": "Std.LawfulOrderLT",
+                "renderedStatement": "Std.LawfulOrderLT.{u} (α : Type u) [LT α] [LE α] : Prop"
+              }
+            }
+          },
+          "selectedCellStates": [
+            {
+              "value": "{\"typeName\": \"String.Slice.Pos\",\n \"parameterClassNames\": [],\n \"className\": \"Std.LawfulOrderLT\"}",
+              "state": {
+                "result": {
+                  "head": "String.Slice.Pos.instLawfulOrderLT",
+                  "term": "@String.Slice.Pos.instLawfulOrderLT s",
+                  "usedInstances": []
+                }
+              }
+            }
+          ]
+        }
+      ],
+      "metadata": {
+        "status": "done",
+        "comment": ""
+      }
+    },
+    {
+      "widgetId": "string-order-instances",
+      "factId": "String.Slice.Pos:::Std.LawfulOrderBEq:::()",
+      "rowAssociationId": "String.Slice.Pos",
+      "columnAssociationId": "Std.LawfulOrderBEq",
+      "selectedLayers": [
+        "()"
+      ],
+      "layerStates": [
+        {
+          "layerIdentifier": "()",
+          "rowState": {
+            "value": "String.Slice.Pos",
+            "state": {
+              "constructor": "def",
+              "def": {
+                "isDeprecated": false,
+                "name": "String.Slice.Pos",
+                "renderedStatement": "String.Slice.Pos (s : String.Slice) : Type"
+              }
+            }
+          },
+          "columnState": {
+            "value": "Std.LawfulOrderBEq",
+            "state": {
+              "constructor": "def",
+              "def": {
+                "isDeprecated": false,
+                "name": "Std.LawfulOrderBEq",
+                "renderedStatement": "Std.LawfulOrderBEq.{u} (α : Type u) [BEq α] [LE α] : Prop"
+              }
+            }
+          },
+          "selectedCellStates": [
+            {
+              "value": "{\"typeName\": \"String.Slice.Pos\",\n \"parameterClassNames\": [],\n \"className\": \"Std.LawfulOrderBEq\"}",
+              "state": {
+                "result": {
+                  "head": "String.Slice.Pos.instLawfulOrderBEq",
+                  "term": "@String.Slice.Pos.instLawfulOrderBEq s",
+                  "usedInstances": []
+                }
+              }
+            }
+          ]
+        }
+      ],
+      "metadata": {
+        "status": "done",
+        "comment": ""
+      }
+    },
+    {
+      "widgetId": "string-order-instances",
+      "factId": "String.Slice.Pos:::Std.LawfulOrderOrd:::()",
+      "rowAssociationId": "String.Slice.Pos",
+      "columnAssociationId": "Std.LawfulOrderOrd",
+      "selectedLayers": [
+        "()"
+      ],
+      "layerStates": [
+        {
+          "layerIdentifier": "()",
+          "rowState": {
+            "value": "String.Slice.Pos",
+            "state": {
+              "constructor": "def",
+              "def": {
+                "isDeprecated": false,
+                "name": "String.Slice.Pos",
+                "renderedStatement": "String.Slice.Pos (s : String.Slice) : Type"
+              }
+            }
+          },
+          "columnState": {
+            "value": "Std.LawfulOrderOrd",
+            "state": {
+              "constructor": "def",
+              "def": {
+                "isDeprecated": false,
+                "name": "Std.LawfulOrderOrd",
+                "renderedStatement": "Std.LawfulOrderOrd.{u} (α : Type u) [Ord α] [LE α] : Prop"
+              }
+            }
+          },
+          "selectedCellStates": [
+            {
+              "value": "{\"typeName\": \"String.Slice.Pos\",\n \"parameterClassNames\": [],\n \"className\": \"Std.LawfulOrderOrd\"}",
+              "state": {
+                "result": {
+                  "head": "Std.LinearPreorderPackage.toLawfulOrderOrd",
+                  "term": "@Std.LinearPreorderPackage.toLawfulOrderOrd s.Pos\n  (@Std.LinearOrderPackage.toLinearPreorderPackage s.Pos\n    (@String.Slice.Pos.instLinearOrderPackage s))",
+                  "usedInstances": []
+                }
+              }
+            }
+          ]
+        }
+      ],
+      "metadata": {
+        "status": "done",
+        "comment": ""
+      }
+    },
+    {
+      "widgetId": "string-order-instances",
+      "factId": "String.Slice.Pos:::Std.LawfulOrderMin:::()",
+      "rowAssociationId": "String.Slice.Pos",
+      "columnAssociationId": "Std.LawfulOrderMin",
+      "selectedLayers": [
+        "()"
+      ],
+      "layerStates": [
+        {
+          "layerIdentifier": "()",
+          "rowState": {
+            "value": "String.Slice.Pos",
+            "state": {
+              "constructor": "def",
+              "def": {
+                "isDeprecated": false,
+                "name": "String.Slice.Pos",
+                "renderedStatement": "String.Slice.Pos (s : String.Slice) : Type"
+              }
+            }
+          },
+          "columnState": {
+            "value": "Std.LawfulOrderMin",
+            "state": {
+              "constructor": "def",
+              "def": {
+                "isDeprecated": false,
+                "name": "Std.LawfulOrderMin",
+                "renderedStatement": "Std.LawfulOrderMin.{u} (α : Type u) [Min α] [LE α] : Prop"
+              }
+            }
+          },
+          "selectedCellStates": [
+            {
+              "value": "{\"typeName\": \"String.Slice.Pos\",\n \"parameterClassNames\": [],\n \"className\": \"Std.LawfulOrderMin\"}",
+              "state": {
+                "result": {
+                  "head": "Std.LinearOrderPackage.toLawfulOrderMin",
+                  "term": "@Std.LinearOrderPackage.toLawfulOrderMin s.Pos (@String.Slice.Pos.instLinearOrderPackage s)",
+                  "usedInstances": []
+                }
+              }
+            }
+          ]
+        }
+      ],
+      "metadata": {
+        "status": "done",
+        "comment": ""
+      }
+    },
+    {
+      "widgetId": "string-order-instances",
+      "factId": "String.Slice.Pos:::Std.LawfulOrderInf:::()",
+      "rowAssociationId": "String.Slice.Pos",
+      "columnAssociationId": "Std.LawfulOrderInf",
+      "selectedLayers": [
+        "()"
+      ],
+      "layerStates": [
+        {
+          "layerIdentifier": "()",
+          "rowState": {
+            "value": "String.Slice.Pos",
+            "state": {
+              "constructor": "def",
+              "def": {
+                "isDeprecated": false,
+                "name": "String.Slice.Pos",
+                "renderedStatement": "String.Slice.Pos (s : String.Slice) : Type"
+              }
+            }
+          },
+          "columnState": {
+            "value": "Std.LawfulOrderInf",
+            "state": {
+              "constructor": "def",
+              "def": {
+                "isDeprecated": false,
+                "name": "Std.LawfulOrderInf",
+                "renderedStatement": "Std.LawfulOrderInf.{u} (α : Type u) [Min α] [LE α] : Prop"
+              }
+            }
+          },
+          "selectedCellStates": [
+            {
+              "value": "{\"typeName\": \"String.Slice.Pos\",\n \"parameterClassNames\": [],\n \"className\": \"Std.LawfulOrderInf\"}",
+              "state": {
+                "result": {
+                  "head": "Std.LawfulOrderMin.toLawfulOrderInf",
+                  "term": "@Std.LawfulOrderMin.toLawfulOrderInf s.Pos\n  (@Std.LinearOrderPackage.toMin s.Pos (@String.Slice.Pos.instLinearOrderPackage s))\n  (@String.instLEPos_1 s)\n  (@Std.LinearOrderPackage.toLawfulOrderMin s.Pos (@String.Slice.Pos.instLinearOrderPackage s))",
+                  "usedInstances": []
+                }
+              }
+            }
+          ]
+        }
+      ],
+      "metadata": {
+        "status": "done",
+        "comment": ""
+      }
+    },
+    {
+      "widgetId": "string-order-instances",
+      "factId": "String.Slice.Pos:::Std.LawfulOrderLeftLeaningMin:::()",
+      "rowAssociationId": "String.Slice.Pos",
+      "columnAssociationId": "Std.LawfulOrderLeftLeaningMin",
+      "selectedLayers": [
+        "()"
+      ],
+      "layerStates": [
+        {
+          "layerIdentifier": "()",
+          "rowState": {
+            "value": "String.Slice.Pos",
+            "state": {
+              "constructor": "def",
+              "def": {
+                "isDeprecated": false,
+                "name": "String.Slice.Pos",
+                "renderedStatement": "String.Slice.Pos (s : String.Slice) : Type"
+              }
+            }
+          },
+          "columnState": {
+            "value": "Std.LawfulOrderLeftLeaningMin",
+            "state": {
+              "constructor": "def",
+              "def": {
+                "isDeprecated": false,
+                "name": "Std.LawfulOrderLeftLeaningMin",
+                "renderedStatement": "Std.LawfulOrderLeftLeaningMin.{u} (α : Type u) [Min α] [LE α] : Prop"
+              }
+            }
+          },
+          "selectedCellStates": [
+            {
+              "value": "{\"typeName\": \"String.Slice.Pos\",\n \"parameterClassNames\": [],\n \"className\": \"Std.LawfulOrderLeftLeaningMin\"}",
+              "state": {
+                "result": {
+                  "head": "Std.lawfulOrderLeftLeaningMin_minOfLe",
+                  "term": "@Std.lawfulOrderLeftLeaningMin_minOfLe s.Pos (@String.instLEPos_1 s)\n  (@String.instDecidableLePos_1 s)",
+                  "usedInstances": []
+                }
+              }
+            }
+          ]
+        }
+      ],
+      "metadata": {
+        "status": "done",
+        "comment": ""
+      }
+    },
+    {
+      "widgetId": "string-order-instances",
+      "factId": "String.Slice.Pos:::Std.LawfulOrderMax:::()",
+      "rowAssociationId": "String.Slice.Pos",
+      "columnAssociationId": "Std.LawfulOrderMax",
+      "selectedLayers": [
+        "()"
+      ],
+      "layerStates": [
+        {
+          "layerIdentifier": "()",
+          "rowState": {
+            "value": "String.Slice.Pos",
+            "state": {
+              "constructor": "def",
+              "def": {
+                "isDeprecated": false,
+                "name": "String.Slice.Pos",
+                "renderedStatement": "String.Slice.Pos (s : String.Slice) : Type"
+              }
+            }
+          },
+          "columnState": {
+            "value": "Std.LawfulOrderMax",
+            "state": {
+              "constructor": "def",
+              "def": {
+                "isDeprecated": false,
+                "name": "Std.LawfulOrderMax",
+                "renderedStatement": "Std.LawfulOrderMax.{u} (α : Type u) [Max α] [LE α] : Prop"
+              }
+            }
+          },
+          "selectedCellStates": [
+            {
+              "value": "{\"typeName\": \"String.Slice.Pos\",\n \"parameterClassNames\": [],\n \"className\": \"Std.LawfulOrderMax\"}",
+              "state": {
+                "result": {
+                  "head": "Std.LinearOrderPackage.toLawfulOrderMax",
+                  "term": "@Std.LinearOrderPackage.toLawfulOrderMax s.Pos (@String.Slice.Pos.instLinearOrderPackage s)",
+                  "usedInstances": []
+                }
+              }
+            }
+          ]
+        }
+      ],
+      "metadata": {
+        "status": "done",
+        "comment": ""
+      }
+    },
+    {
+      "widgetId": "string-order-instances",
+      "factId": "String.Slice.Pos:::Std.LawfulOrderSup:::()",
+      "rowAssociationId": "String.Slice.Pos",
+      "columnAssociationId": "Std.LawfulOrderSup",
+      "selectedLayers": [
+        "()"
+      ],
+      "layerStates": [
+        {
+          "layerIdentifier": "()",
+          "rowState": {
+            "value": "String.Slice.Pos",
+            "state": {
+              "constructor": "def",
+              "def": {
+                "isDeprecated": false,
+                "name": "String.Slice.Pos",
+                "renderedStatement": "String.Slice.Pos (s : String.Slice) : Type"
+              }
+            }
+          },
+          "columnState": {
+            "value": "Std.LawfulOrderSup",
+            "state": {
+              "constructor": "def",
+              "def": {
+                "isDeprecated": false,
+                "name": "Std.LawfulOrderSup",
+                "renderedStatement": "Std.LawfulOrderSup.{u} (α : Type u) [Max α] [LE α] : Prop"
+              }
+            }
+          },
+          "selectedCellStates": [
+            {
+              "value": "{\"typeName\": \"String.Slice.Pos\",\n \"parameterClassNames\": [],\n \"className\": \"Std.LawfulOrderSup\"}",
+              "state": {
+                "result": {
+                  "head": "Std.LawfulOrderMax.toLawfulOrderSup",
+                  "term": "@Std.LawfulOrderMax.toLawfulOrderSup s.Pos\n  (@Std.LinearOrderPackage.toMax s.Pos (@String.Slice.Pos.instLinearOrderPackage s))\n  (@String.instLEPos_1 s)\n  (@Std.LinearOrderPackage.toLawfulOrderMax s.Pos (@String.Slice.Pos.instLinearOrderPackage s))",
+                  "usedInstances": []
+                }
+              }
+            }
+          ]
+        }
+      ],
+      "metadata": {
+        "status": "done",
+        "comment": ""
+      }
+    },
+    {
+      "widgetId": "string-order-instances",
+      "factId": "String.Slice.Pos:::Std.LawfulOrderLeftLeaningMax:::()",
+      "rowAssociationId": "String.Slice.Pos",
+      "columnAssociationId": "Std.LawfulOrderLeftLeaningMax",
+      "selectedLayers": [
+        "()"
+      ],
+      "layerStates": [
+        {
+          "layerIdentifier": "()",
+          "rowState": {
+            "value": "String.Slice.Pos",
+            "state": {
+              "constructor": "def",
+              "def": {
+                "isDeprecated": false,
+                "name": "String.Slice.Pos",
+                "renderedStatement": "String.Slice.Pos (s : String.Slice) : Type"
+              }
+            }
+          },
+          "columnState": {
+            "value": "Std.LawfulOrderLeftLeaningMax",
+            "state": {
+              "constructor": "def",
+              "def": {
+                "isDeprecated": false,
+                "name": "Std.LawfulOrderLeftLeaningMax",
+                "renderedStatement": "Std.LawfulOrderLeftLeaningMax.{u} (α : Type u) [Max α] [LE α] : Prop"
+              }
+            }
+          },
+          "selectedCellStates": [
+            {
+              "value": "{\"typeName\": \"String.Slice.Pos\",\n \"parameterClassNames\": [],\n \"className\": \"Std.LawfulOrderLeftLeaningMax\"}",
+              "state": {
+                "result": {
+                  "head": "Std.instLawfulOrderLeftLeaningMax",
+                  "term": "@Std.instLawfulOrderLeftLeaningMax s.Pos (@String.instLEPos_1 s) (@String.instDecidableLePos_1 s)",
+                  "usedInstances": []
+                }
+              }
+            }
+          ]
+        }
+      ],
+      "metadata": {
+        "status": "done",
+        "comment": ""
+      }
+    },
+    {
+      "widgetId": "string-order-instances",
+      "factId": "String.Slice.Pos:::Std.ReflOrd:::()",
+      "rowAssociationId": "String.Slice.Pos",
+      "columnAssociationId": "Std.ReflOrd",
+      "selectedLayers": [
+        "()"
+      ],
+      "layerStates": [
+        {
+          "layerIdentifier": "()",
+          "rowState": {
+            "value": "String.Slice.Pos",
+            "state": {
+              "constructor": "def",
+              "def": {
+                "isDeprecated": false,
+                "name": "String.Slice.Pos",
+                "renderedStatement": "String.Slice.Pos (s : String.Slice) : Type"
+              }
+            }
+          },
+          "columnState": {
+            "value": "Std.ReflOrd",
+            "state": {
+              "constructor": "def",
+              "def": {
+                "isDeprecated": false,
+                "name": "Std.ReflOrd",
+                "renderedStatement": "Std.ReflOrd.{u} (α : Type u) [Ord α] : Prop"
+              }
+            }
+          },
+          "selectedCellStates": [
+            {
+              "value": "{\"typeName\": \"String.Slice.Pos\",\n \"parameterClassNames\": [],\n \"className\": \"Std.ReflOrd\"}",
+              "state": {
+                "result": {
+                  "head": "Std.LawfulEqCmp.toReflCmp",
+                  "term": "@Std.LawfulEqCmp.toReflCmp s.Pos\n  (@compare s.Pos\n    (@Std.LinearPreorderPackage.toOrd s.Pos\n      (@Std.LinearOrderPackage.toLinearPreorderPackage s.Pos\n        (@String.Slice.Pos.instLinearOrderPackage s))))\n  (@Std.instLawfulEqOrdOfLawfulOrderOrdOfAntisymmLe s.Pos\n    (@Std.LinearPreorderPackage.toOrd s.Pos\n      (@Std.LinearOrderPackage.toLinearPreorderPackage s.Pos\n        (@String.Slice.Pos.instLinearOrderPackage s)))\n    (@String.instLEPos_1 s)\n    (@Std.LinearPreorderPackage.toLawfulOrderOrd s.Pos\n      (@Std.LinearOrderPackage.toLinearPreorderPackage s.Pos\n        (@String.Slice.Pos.instLinearOrderPackage s)))\n    (@String.Slice.Pos.instAntisymmLe s))",
+                  "usedInstances": []
+                }
+              }
+            }
+          ]
+        }
+      ],
+      "metadata": {
+        "status": "done",
+        "comment": ""
+      }
+    },
+    {
+      "widgetId": "string-order-instances",
+      "factId": "String.Slice.Pos:::Std.OrientedOrd:::()",
+      "rowAssociationId": "String.Slice.Pos",
+      "columnAssociationId": "Std.OrientedOrd",
+      "selectedLayers": [
+        "()"
+      ],
+      "layerStates": [
+        {
+          "layerIdentifier": "()",
+          "rowState": {
+            "value": "String.Slice.Pos",
+            "state": {
+              "constructor": "def",
+              "def": {
+                "isDeprecated": false,
+                "name": "String.Slice.Pos",
+                "renderedStatement": "String.Slice.Pos (s : String.Slice) : Type"
+              }
+            }
+          },
+          "columnState": {
+            "value": "Std.OrientedOrd",
+            "state": {
+              "constructor": "def",
+              "def": {
+                "isDeprecated": false,
+                "name": "Std.OrientedOrd",
+                "renderedStatement": "Std.OrientedOrd.{u} (α : Type u) [Ord α] : Prop"
+              }
+            }
+          },
+          "selectedCellStates": [
+            {
+              "value": "{\"typeName\": \"String.Slice.Pos\",\n \"parameterClassNames\": [],\n \"className\": \"Std.OrientedOrd\"}",
+              "state": {
+                "result": {
+                  "head": "Std.instOrientedOrdOfLawfulOrderOrd",
+                  "term": "@Std.instOrientedOrdOfLawfulOrderOrd s.Pos (@String.instLEPos_1 s)\n  (@Std.LinearPreorderPackage.toOrd s.Pos\n    (@Std.LinearOrderPackage.toLinearPreorderPackage s.Pos\n      (@String.Slice.Pos.instLinearOrderPackage s)))\n  (@Std.LinearPreorderPackage.toLawfulOrderOrd s.Pos\n    (@Std.LinearOrderPackage.toLinearPreorderPackage s.Pos\n      (@String.Slice.Pos.instLinearOrderPackage s)))",
+                  "usedInstances": []
+                }
+              }
+            }
+          ]
+        }
+      ],
+      "metadata": {
+        "status": "done",
+        "comment": ""
+      }
+    },
+    {
+      "widgetId": "string-order-instances",
+      "factId": "String.Slice.Pos:::Std.TransOrd:::()",
+      "rowAssociationId": "String.Slice.Pos",
+      "columnAssociationId": "Std.TransOrd",
+      "selectedLayers": [
+        "()"
+      ],
+      "layerStates": [
+        {
+          "layerIdentifier": "()",
+          "rowState": {
+            "value": "String.Slice.Pos",
+            "state": {
+              "constructor": "def",
+              "def": {
+                "isDeprecated": false,
+                "name": "String.Slice.Pos",
+                "renderedStatement": "String.Slice.Pos (s : String.Slice) : Type"
+              }
+            }
+          },
+          "columnState": {
+            "value": "Std.TransOrd",
+            "state": {
+              "constructor": "def",
+              "def": {
+                "isDeprecated": false,
+                "name": "Std.TransOrd",
+                "renderedStatement": "Std.TransOrd.{u} (α : Type u) [Ord α] : Prop"
+              }
+            }
+          },
+          "selectedCellStates": [
+            {
+              "value": "{\"typeName\": \"String.Slice.Pos\",\n \"parameterClassNames\": [],\n \"className\": \"Std.TransOrd\"}",
+              "state": {
+                "result": {
+                  "head": "Std.instTransOrdOfLawfulOrderOrdOfIsPreorder",
+                  "term": "@Std.instTransOrdOfLawfulOrderOrdOfIsPreorder s.Pos\n  (@Std.LinearPreorderPackage.toOrd s.Pos\n    (@Std.LinearOrderPackage.toLinearPreorderPackage s.Pos\n      (@String.Slice.Pos.instLinearOrderPackage s)))\n  (@String.instLEPos_1 s)\n  (@Std.LinearPreorderPackage.toLawfulOrderOrd s.Pos\n    (@Std.LinearOrderPackage.toLinearPreorderPackage s.Pos\n      (@String.Slice.Pos.instLinearOrderPackage s)))\n  (@Std.PreorderPackage.toIsPreorder s.Pos\n    (@Std.LinearPreorderPackage.toPreorderPackage s.Pos\n      (@Std.LinearOrderPackage.toLinearPreorderPackage s.Pos\n        (@String.Slice.Pos.instLinearOrderPackage s))))",
+                  "usedInstances": []
+                }
+              }
+            }
+          ]
+        }
+      ],
+      "metadata": {
+        "status": "done",
+        "comment": ""
+      }
+    },
+    {
+      "widgetId": "string-order-instances",
+      "factId": "String.Slice.Pos:::Std.LawfulEqOrd:::()",
+      "rowAssociationId": "String.Slice.Pos",
+      "columnAssociationId": "Std.LawfulEqOrd",
+      "selectedLayers": [
+        "()"
+      ],
+      "layerStates": [
+        {
+          "layerIdentifier": "()",
+          "rowState": {
+            "value": "String.Slice.Pos",
+            "state": {
+              "constructor": "def",
+              "def": {
+                "isDeprecated": false,
+                "name": "String.Slice.Pos",
+                "renderedStatement": "String.Slice.Pos (s : String.Slice) : Type"
+              }
+            }
+          },
+          "columnState": {
+            "value": "Std.LawfulEqOrd",
+            "state": {
+              "constructor": "def",
+              "def": {
+                "isDeprecated": false,
+                "name": "Std.LawfulEqOrd",
+                "renderedStatement": "Std.LawfulEqOrd.{u} (α : Type u) [Ord α] : Prop"
+              }
+            }
+          },
+          "selectedCellStates": [
+            {
+              "value": "{\"typeName\": \"String.Slice.Pos\",\n \"parameterClassNames\": [],\n \"className\": \"Std.LawfulEqOrd\"}",
+              "state": {
+                "result": {
+                  "head": "Std.instLawfulEqOrdOfLawfulOrderOrdOfAntisymmLe",
+                  "term": "@Std.instLawfulEqOrdOfLawfulOrderOrdOfAntisymmLe s.Pos\n  (@Std.LinearPreorderPackage.toOrd s.Pos\n    (@Std.LinearOrderPackage.toLinearPreorderPackage s.Pos\n      (@String.Slice.Pos.instLinearOrderPackage s)))\n  (@String.instLEPos_1 s)\n  (@Std.LinearPreorderPackage.toLawfulOrderOrd s.Pos\n    (@Std.LinearOrderPackage.toLinearPreorderPackage s.Pos\n      (@String.Slice.Pos.instLinearOrderPackage s)))\n  (@String.Slice.Pos.instAntisymmLe s)",
+                  "usedInstances": []
+                }
+              }
+            }
+          ]
+        }
+      ],
+      "metadata": {
+        "status": "done",
+        "comment": ""
+      }
+    },
+    {
+      "widgetId": "string-order-instances",
+      "factId": "String.Slice.Pos:::Std.LawfulBEqOrd:::()",
+      "rowAssociationId": "String.Slice.Pos",
+      "columnAssociationId": "Std.LawfulBEqOrd",
+      "selectedLayers": [
+        "()"
+      ],
+      "layerStates": [
+        {
+          "layerIdentifier": "()",
+          "rowState": {
+            "value": "String.Slice.Pos",
+            "state": {
+              "constructor": "def",
+              "def": {
+                "isDeprecated": false,
+                "name": "String.Slice.Pos",
+                "renderedStatement": "String.Slice.Pos (s : String.Slice) : Type"
+              }
+            }
+          },
+          "columnState": {
+            "value": "Std.LawfulBEqOrd",
+            "state": {
+              "constructor": "def",
+              "def": {
+                "isDeprecated": false,
+                "name": "Std.LawfulBEqOrd",
+                "renderedStatement": "Std.LawfulBEqOrd.{u} (α : Type u) [BEq α] [Ord α] : Prop"
+              }
+            }
+          },
+          "selectedCellStates": [
+            {
+              "value": "{\"typeName\": \"String.Slice.Pos\",\n \"parameterClassNames\": [],\n \"className\": \"Std.LawfulBEqOrd\"}",
+              "state": {
+                "result": {
+                  "head": "Std.instLawfulBEqOrdOfLawfulOrderOrdOfLawfulOrderBEq",
+                  "term": "@Std.instLawfulBEqOrdOfLawfulOrderOrdOfLawfulOrderBEq s.Pos\n  (@Std.LinearPreorderPackage.toOrd s.Pos\n    (@Std.LinearOrderPackage.toLinearPreorderPackage s.Pos\n      (@String.Slice.Pos.instLinearOrderPackage s)))\n  (@Std.PreorderPackage.toBEq s.Pos\n    (@Std.LinearPreorderPackage.toPreorderPackage s.Pos\n      (@Std.LinearOrderPackage.toLinearPreorderPackage s.Pos\n        (@String.Slice.Pos.instLinearOrderPackage s))))\n  (@String.instLEPos_1 s)\n  (@Std.LinearPreorderPackage.toLawfulOrderOrd s.Pos\n    (@Std.LinearOrderPackage.toLinearPreorderPackage s.Pos\n      (@String.Slice.Pos.instLinearOrderPackage s)))\n  (@String.Slice.Pos.instLawfulOrderBEq s)",
+                  "usedInstances": []
+                }
+              }
+            }
+          ]
+        }
+      ],
+      "metadata": {
+        "status": "done",
+        "comment": ""
+      }
+    },
+    {
+      "widgetId": "string-order-instances",
+      "factId": "String.Slice.Pos:::EquivBEq:::()",
+      "rowAssociationId": "String.Slice.Pos",
+      "columnAssociationId": "EquivBEq",
+      "selectedLayers": [
+        "()"
+      ],
+      "layerStates": [
+        {
+          "layerIdentifier": "()",
+          "rowState": {
+            "value": "String.Slice.Pos",
+            "state": {
+              "constructor": "def",
+              "def": {
+                "isDeprecated": false,
+                "name": "String.Slice.Pos",
+                "renderedStatement": "String.Slice.Pos (s : String.Slice) : Type"
+              }
+            }
+          },
+          "columnState": {
+            "value": "EquivBEq",
+            "state": {
+              "constructor": "def",
+              "def": {
+                "isDeprecated": false,
+                "name": "EquivBEq",
+                "renderedStatement": "EquivBEq.{u_1} (α : Type u_1) [BEq α] : Prop"
+              }
+            }
+          },
+          "selectedCellStates": [
+            {
+              "value": "{\"typeName\": \"String.Slice.Pos\",\n \"parameterClassNames\": [],\n \"className\": \"EquivBEq\"}",
+              "state": {
+                "result": {
+                  "head": "Std.LawfulBEqOrd.equivBEq",
+                  "term": "@Std.LawfulBEqOrd.equivBEq s.Pos\n  (@Std.PreorderPackage.toBEq s.Pos\n    (@Std.LinearPreorderPackage.toPreorderPackage s.Pos\n      (@Std.LinearOrderPackage.toLinearPreorderPackage s.Pos\n        (@String.Slice.Pos.instLinearOrderPackage s))))\n  (@Std.LinearPreorderPackage.toOrd s.Pos\n    (@Std.LinearOrderPackage.toLinearPreorderPackage s.Pos\n      (@String.Slice.Pos.instLinearOrderPackage s)))\n  (@Std.instLawfulBEqOrdOfLawfulOrderOrdOfLawfulOrderBEq s.Pos\n    (@Std.LinearPreorderPackage.toOrd s.Pos\n      (@Std.LinearOrderPackage.toLinearPreorderPackage s.Pos\n        (@String.Slice.Pos.instLinearOrderPackage s)))\n    (@Std.PreorderPackage.toBEq s.Pos\n      (@Std.LinearPreorderPackage.toPreorderPackage s.Pos\n        (@Std.LinearOrderPackage.toLinearPreorderPackage s.Pos\n          (@String.Slice.Pos.instLinearOrderPackage s))))\n    (@String.instLEPos_1 s)\n    (@Std.LinearPreorderPackage.toLawfulOrderOrd s.Pos\n      (@Std.LinearOrderPackage.toLinearPreorderPackage s.Pos\n        (@String.Slice.Pos.instLinearOrderPackage s)))\n    (@String.Slice.Pos.instLawfulOrderBEq s))\n  (@Std.instTransOrdOfLawfulOrderOrdOfIsPreorder s.Pos\n    (@Std.LinearPreorderPackage.toOrd s.Pos\n      (@Std.LinearOrderPackage.toLinearPreorderPackage s.Pos\n        (@String.Slice.Pos.instLinearOrderPackage s)))\n    (@String.instLEPos_1 s)\n    (@Std.LinearPreorderPackage.toLawfulOrderOrd s.Pos\n      (@Std.LinearOrderPackage.toLinearPreorderPackage s.Pos\n        (@String.Slice.Pos.instLinearOrderPackage s)))\n    (@Std.PreorderPackage.toIsPreorder s.Pos\n      (@Std.LinearPreorderPackage.toPreorderPackage s.Pos\n        (@Std.LinearOrderPackage.toLinearPreorderPackage s.Pos\n          (@String.Slice.Pos.instLinearOrderPackage s)))))",
+                  "usedInstances": []
+                }
+              }
+            }
+          ]
+        }
+      ],
+      "metadata": {
+        "status": "done",
+        "comment": ""
+      }
+    },
+    {
+      "widgetId": "string-order-instances",
+      "factId": "String.Slice.Pos:::LawfulBEq:::()",
+      "rowAssociationId": "String.Slice.Pos",
+      "columnAssociationId": "LawfulBEq",
+      "selectedLayers": [
+        "()"
+      ],
+      "layerStates": [
+        {
+          "layerIdentifier": "()",
+          "rowState": {
+            "value": "String.Slice.Pos",
+            "state": {
+              "constructor": "def",
+              "def": {
+                "isDeprecated": false,
+                "name": "String.Slice.Pos",
+                "renderedStatement": "String.Slice.Pos (s : String.Slice) : Type"
+              }
+            }
+          },
+          "columnState": {
+            "value": "LawfulBEq",
+            "state": {
+              "constructor": "def",
+              "def": {
+                "isDeprecated": false,
+                "name": "LawfulBEq",
+                "renderedStatement": "LawfulBEq.{u} (α : Type u) [BEq α] : Prop"
+              }
+            }
+          },
+          "selectedCellStates": [
+            {
+              "value": "{\"typeName\": \"String.Slice.Pos\",\n \"parameterClassNames\": [],\n \"className\": \"LawfulBEq\"}",
+              "state": {
+                "result": {
+                  "head": "Std.LawfulBEqOrd.lawfulBEq",
+                  "term": "@Std.LawfulBEqOrd.lawfulBEq s.Pos\n  (@Std.PreorderPackage.toBEq s.Pos\n    (@Std.LinearPreorderPackage.toPreorderPackage s.Pos\n      (@Std.LinearOrderPackage.toLinearPreorderPackage s.Pos\n        (@String.Slice.Pos.instLinearOrderPackage s))))\n  (@Std.LinearPreorderPackage.toOrd s.Pos\n    (@Std.LinearOrderPackage.toLinearPreorderPackage s.Pos\n      (@String.Slice.Pos.instLinearOrderPackage s)))\n  (@Std.instLawfulBEqOrdOfLawfulOrderOrdOfLawfulOrderBEq s.Pos\n    (@Std.LinearPreorderPackage.toOrd s.Pos\n      (@Std.LinearOrderPackage.toLinearPreorderPackage s.Pos\n        (@String.Slice.Pos.instLinearOrderPackage s)))\n    (@Std.PreorderPackage.toBEq s.Pos\n      (@Std.LinearPreorderPackage.toPreorderPackage s.Pos\n        (@Std.LinearOrderPackage.toLinearPreorderPackage s.Pos\n          (@String.Slice.Pos.instLinearOrderPackage s))))\n    (@String.instLEPos_1 s)\n    (@Std.LinearPreorderPackage.toLawfulOrderOrd s.Pos\n      (@Std.LinearOrderPackage.toLinearPreorderPackage s.Pos\n        (@String.Slice.Pos.instLinearOrderPackage s)))\n    (@String.Slice.Pos.instLawfulOrderBEq s))\n  (@Std.instLawfulEqOrdOfLawfulOrderOrdOfAntisymmLe s.Pos\n    (@Std.LinearPreorderPackage.toOrd s.Pos\n      (@Std.LinearOrderPackage.toLinearPreorderPackage s.Pos\n        (@String.Slice.Pos.instLinearOrderPackage s)))\n    (@String.instLEPos_1 s)\n    (@Std.LinearPreorderPackage.toLawfulOrderOrd s.Pos\n      (@Std.LinearOrderPackage.toLinearPreorderPackage s.Pos\n        (@String.Slice.Pos.instLinearOrderPackage s)))\n    (@String.Slice.Pos.instAntisymmLe s))",
+                  "usedInstances": []
+                }
+              }
+            }
+          ]
+        }
+      ],
+      "metadata": {
+        "status": "done",
+        "comment": ""
+      }
+    }
+  ]
+}

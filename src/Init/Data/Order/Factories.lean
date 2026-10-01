@@ -200,7 +200,7 @@ This only makes sense for asymmetric `LT α` instances (see `Std.Asymm`).
 public def _root_.LE.ofLT (α : Type u) [LT α] : LE α where
   le a b := ¬ b < a
 
-public instance [LT α] [DecidableLT α] :
+public instance (priority := low) [LT α] [DecidableLT α] :
     letI : LE α := LE.ofLT _
     DecidableLE α :=
   fun _ _ => inferInstanceAs <| Decidable (Not _)

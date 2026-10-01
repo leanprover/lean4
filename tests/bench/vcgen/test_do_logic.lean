@@ -252,6 +252,24 @@ example (p : Nat → Prop) [DecidablePred p] (n : Nat) :
       (onContinue := fun pref _ _ => ⌜∀ i, i ∈ pref → p i⌝)
   all_goals simp_all [-Classical.not_forall]; try grind
 
+def nodup (l : List Int) : Bool := Id.run do
+  let mut seen : Std.HashSet Int := ∅
+  for x in l do
+    if x ∈ seen then
+      return false
+    seen := seen.insert x
+  return true
+
+theorem nodup_correct (l : List Int) : nodup l ↔ l.Nodup := by
+  generalize h : nodup l = r
+  apply Id.of_run_eq_wp h
+  vcgen invariants
+  · Invariant.withEarlyReturnNewDo
+      (onReturn := fun ret seen => ret = false ∧ ¬l.Nodup)
+      (onContinue := fun pref suff seen =>
+        (∀ x, x ∈ seen ↔ x ∈ pref) ∧ pref.Nodup)
+  with finish
+
 end Automated
 
 namespace HimpSplit

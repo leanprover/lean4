@@ -50,7 +50,7 @@ theorem le_himp_of_meet_le_left {a b x : α} (h : a ⊓ x ⊑ b) : x ⊑ a ⇨ b
 theorem meet_himp_le {a b : α} [PreservesSup (meet a)] : a ⊓ (a ⇨ b) ⊑ b := by
   unfold himp; exact PreservesSup.upperAdjoint_le (meet a) b
 
-@[simp] theorem himp_prop_eq_imp (a b : Prop) : ((a ⇨ b : Prop) = (a → b)) := by
+theorem himp_prop_eq_imp (a b : Prop) : ((a ⇨ b : Prop) = (a → b)) := by
   apply propext
   constructor
   · intro hab
@@ -71,7 +71,7 @@ theorem meet_himp_le {a b : α} [PreservesSup (meet a)] : a ⊓ (a ⇨ b) ⊑ b 
     exact (PreservesSup.le_upperAdjoint (meet a) (b := b) (x := (a → b)) hx) hab
 
 /-- Pointwise characterization of Heyting implication on function lattices. -/
-@[simp] theorem himp_apply
+theorem himp_apply
     {σ : Type v} {β : Type u} [CompleteLattice β]
     (a b : σ → β) (s : σ) :
     (a ⇨ b) s = (a s ⇨ b s) := by
@@ -222,7 +222,7 @@ theorem meet_le_of_le_himp_comm (h : Q ⊑ P ⇨ R) : P ⊓ Q ⊑ R := meet_le_o
 end Derived
 
 /-- `⊤ ⊑ (P ⇨ Q)` iff `P ⊑ Q`. -/
-@[simp] theorem top_le_himp_iff {l : Type u} [CompleteLattice l]
+theorem top_le_himp_iff {l : Type u} [CompleteLattice l]
     [Heyting l] (P Q : l) :
     ((⊤ : l) ⊑ P ⇨ Q) ↔ (P ⊑ Q) :=
   ⟨fun h => rel_trans

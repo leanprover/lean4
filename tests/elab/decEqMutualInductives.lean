@@ -1,10 +1,7 @@
 /-! Verify that the derive handler for `DecidableEq` handles mutual inductive types-/
 
--- Print the generated derivations
-set_option trace.Elab.Deriving.decEq true
-
 namespace A
-set_option deriving.decEq.linear_construction_threshold 1000
+set_option deriving.comparisons.linear_construction_threshold 1000
 
 mutual
 inductive Tree : Type where
@@ -32,7 +29,7 @@ end
 end A
 
 namespace B
-set_option deriving.decEq.linear_construction_threshold 0
+set_option deriving.comparisons.linear_construction_threshold 2
 
 mutual
 inductive Tree : Type where

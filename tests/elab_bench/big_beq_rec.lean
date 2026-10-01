@@ -5,6 +5,9 @@ Creates an recursive inductive data type with n constructors and deriving `BEq`.
 -/
 
 set_option Elab.async false
+-- this is currently necessary because otherwise the majority of the time is spent
+-- generating equations for `_beqHelper`
+set_option deriving.comparisons.noEquations true
 
 open Lean Elab
 open Elab.Command (CommandElab CommandElabM elabCommand)

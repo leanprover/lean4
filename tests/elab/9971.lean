@@ -9,7 +9,10 @@ inductive Tableau : History → Sequent → Type
   | loc {Hist X} (nrep : ¬ rep Hist X) (nbas : ¬ X.basic) (lt : LocalTableau X)
             (next : ∀ Y ∈ endNodesOf lt, Tableau (X :: Hist) Y) : Tableau Hist X
 
-set_option maxHeartbeats 2000 in
+-- the new `DecidableEq` does not support injectivity in the result type, i.e.
+-- being able to omit comparing `nrep`, `nbas`, `lt` and `next`
+set_option backward.deriving.comparisons.old true
+
 inductive PathIn : ∀ {Hist X}, Tableau Hist X → Type
 | nil : PathIn _
 | loc {nrep nbas lt next Y} (Y_in : Y ∈ endNodesOf lt) (tail : PathIn (next Y Y_in))

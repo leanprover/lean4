@@ -11,6 +11,7 @@ import Lean.Elab.Deriving.Basic
 import Lean.Elab.Deriving.Util
 import Lean.Meta.Constructions.CtorIdx
 import Lean.Meta.Constructions.CasesOnSameCtor
+import Lean.Meta.Deriving.CmpHelper
 import Lean.Meta.SameCtorUtils
 import Init.Data.Array.OfFn
 
@@ -21,11 +22,11 @@ open Meta
 
 register_builtin_option deriving.beq.linear_construction_threshold : Nat := {
   defValue := 10
-  descr := "If the inductive data type has this many or more constructors, use a different \
-    implementation for implementing `BEq` that avoids the quadratic code size produced by the \
-    default implementation.\n\n\
-    The alternative construction compiles to less efficient code in some cases, so by default \
-    it is only used for inductive types with 10 or more constructors." }
+  deprecation? := some {
+    newName? := `deriving.comparisons.linear_construction_threshold
+    since := "2026-09-30"
+  }
+}
 
 def mkBEqHeader (indVal : InductiveVal) : TermElabM Header := do
   mkHeader `BEq 2 indVal
@@ -176,8 +177,9 @@ def mkMatchNew (header : Header) (indVal : InductiveVal) (auxFunName : Name) : T
       | .isTrue h => $(mkCIdent casesOnSameCtorName) $x1:term $x2:term h $alts:term*
       | .isFalse _ => false)
 
+open Lean Meta CmpHelper in
 def mkMatch (header : Header) (indVal : InductiveVal) (auxFunName : Name) : TermElabM Term := do
-  if indVal.numCtors ≥ deriving.beq.linear_construction_threshold.get (← getOptions) then
+  if indVal.numCtors ≥ deriving.comparisons.linear_construction_threshold.get (← getOptions) then
     mkMatchNew header indVal auxFunName
   else
     mkMatchOld header indVal auxFunName
@@ -234,7 +236,10 @@ def mkBEqInstance (declName : Name) : CommandElabM Unit := do
     unless ctx.usePartial do
       elabCommand (← `(attribute [method_specs] $(mkIdent ctx.instName):ident))
 
+open Lean Meta CmpHelper in
 def mkBEqInstanceHandler (declNames : Array Name) : CommandElabM Bool := do
+  unless backward.deriving.comparisons.old.get (← getOptions) do
+    return false
   if (← declNames.allM isInductive) then
     for declName in declNames do
       mkBEqInstance declName

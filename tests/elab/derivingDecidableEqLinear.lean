@@ -1,6 +1,6 @@
 module
 
-set_option deriving.decEq.linear_construction_threshold 0
+set_option deriving.comparisons.linear_construction_threshold 2
 
 public section
 
@@ -61,8 +61,15 @@ inductive Tyₛ : Type (u+1)
 | SPi : (T : Type u) -> (T -> Tyₛ) -> Tyₛ
 
 /--
-error: Dependent elimination failed: Failed to solve equation
-  A✝ arg✝ = A arg
+error: While deriving an instance, the following complex instance requirements were encountered that could not be synthesized:
+  DecidableEq (Type u), reason:
+    The instances @instDecidableEqOfIff matched but none of them had the right shape to be considered
+  {T : Type u} → DecidableEq (T → Tyₛ), reason:
+    No matching instances
+
+Hint: You may be able to derive the missing instance using the syntax `deriving instance ClassName for TypeName`.
+
+Hint: If you want to keep these hypotheses as-is, you can disable this error using `set_option deriving.strict false`
 -/
 #guard_msgs in
 inductive Tmₛ.{u} :  Tyₛ.{u} -> Type (u+1)

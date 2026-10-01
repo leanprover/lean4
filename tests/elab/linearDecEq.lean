@@ -4,7 +4,7 @@ Tests for deriving decidable equality using the linear-size parallel match const
 -/
 
 -- We always want to use the new construction in this test
-set_option deriving.decEq.linear_construction_threshold 0
+set_option deriving.comparisons.linear_construction_threshold 2
 
 inductive EmptyType : Type
 deriving DecidableEq
@@ -17,12 +17,6 @@ inductive DependentStruct1 : Nat → Type where
   | mk (n : Nat) (x : Fin n): DependentStruct1 n
 deriving DecidableEq
 
-/--
-error: Dependent elimination failed: Failed to solve equation
-  Bool.rec (motive := fun x => x.Reflects (b✝ = true) → Nat) (fun x => 1) (fun x => 0) (decide (b✝ = true)) ⋯ =
-    Bool.rec (motive := fun x => x.Reflects (b = true) → Nat) (fun x => 1) (fun x => 0) (decide (b = true)) ⋯
--/
-#guard_msgs in
 inductive DependentStruct2 : Nat → Type where
   | mk (b : Bool) : DependentStruct2 (if b then 0 else 1)
 deriving DecidableEq

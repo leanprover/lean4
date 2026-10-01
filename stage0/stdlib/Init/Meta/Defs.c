@@ -18267,8 +18267,8 @@ return v___x_5376_;
 else
 {
 lean_object* v___x_5377_; 
-lean_dec_ref_known(v_pre_5348_, 2);
 lean_dec(v_pre_5349_);
+lean_dec_ref_known(v_pre_5348_, 2);
 lean_dec_ref_known(v_pre_5347_, 2);
 lean_dec_ref_known(v_kind_5346_, 2);
 lean_dec_ref_known(v___x_5345_, 3);

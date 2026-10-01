@@ -253,8 +253,8 @@ LEAN_EXPORT lean_object* l_Lean_Meta_Sym_Simp_Theorems_getMatchWithExtra(lean_ob
 LEAN_EXPORT lean_object* l_Lean_Meta_Sym_Simp_Theorems_getMatchWithExtra___boxed(lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Meta_Sym_Simp_Theorems_getFallbackMatchWithExtra(lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Meta_Sym_Simp_Theorems_getFallbackMatchWithExtra___boxed(lean_object*, lean_object*, lean_object*);
-LEAN_EXPORT uint8_t l_Option_instBEq_beq___at___00Array_contains___at___00__private_Lean_Meta_Sym_Simp_Theorems_0__Lean_Meta_Sym_Simp_isPermAux_spec__0_spec__0(lean_object*, lean_object*);
-LEAN_EXPORT lean_object* l_Option_instBEq_beq___at___00Array_contains___at___00__private_Lean_Meta_Sym_Simp_Theorems_0__Lean_Meta_Sym_Simp_isPermAux_spec__0_spec__0___boxed(lean_object*, lean_object*);
+LEAN_EXPORT uint8_t l_instBEqOption_beq___at___00Array_contains___at___00__private_Lean_Meta_Sym_Simp_Theorems_0__Lean_Meta_Sym_Simp_isPermAux_spec__0_spec__0(lean_object*, lean_object*);
+LEAN_EXPORT lean_object* l_instBEqOption_beq___at___00Array_contains___at___00__private_Lean_Meta_Sym_Simp_Theorems_0__Lean_Meta_Sym_Simp_isPermAux_spec__0_spec__0___boxed(lean_object*, lean_object*);
 LEAN_EXPORT uint8_t l___private_Init_Data_Array_Basic_0__Array_anyMUnsafe_any___at___00Array_contains___at___00__private_Lean_Meta_Sym_Simp_Theorems_0__Lean_Meta_Sym_Simp_isPermAux_spec__0_spec__1(lean_object*, lean_object*, size_t, size_t);
 LEAN_EXPORT lean_object* l___private_Init_Data_Array_Basic_0__Array_anyMUnsafe_any___at___00Array_contains___at___00__private_Lean_Meta_Sym_Simp_Theorems_0__Lean_Meta_Sym_Simp_isPermAux_spec__0_spec__1___boxed(lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT uint8_t l_Array_contains___at___00__private_Lean_Meta_Sym_Simp_Theorems_0__Lean_Meta_Sym_Simp_isPermAux_spec__0(lean_object*, lean_object*);
@@ -3168,7 +3168,7 @@ lean_dec_ref(v_thms_815_);
 return v_res_818_;
 }
 }
-LEAN_EXPORT uint8_t l_Option_instBEq_beq___at___00Array_contains___at___00__private_Lean_Meta_Sym_Simp_Theorems_0__Lean_Meta_Sym_Simp_isPermAux_spec__0_spec__0(lean_object* v_x_819_, lean_object* v_x_820_){
+LEAN_EXPORT uint8_t l_instBEqOption_beq___at___00Array_contains___at___00__private_Lean_Meta_Sym_Simp_Theorems_0__Lean_Meta_Sym_Simp_isPermAux_spec__0_spec__0(lean_object* v_x_819_, lean_object* v_x_820_){
 _start:
 {
 if (lean_obj_tag(v_x_819_) == 0)
@@ -3205,11 +3205,11 @@ return v___x_826_;
 }
 }
 }
-LEAN_EXPORT lean_object* l_Option_instBEq_beq___at___00Array_contains___at___00__private_Lean_Meta_Sym_Simp_Theorems_0__Lean_Meta_Sym_Simp_isPermAux_spec__0_spec__0___boxed(lean_object* v_x_827_, lean_object* v_x_828_){
+LEAN_EXPORT lean_object* l_instBEqOption_beq___at___00Array_contains___at___00__private_Lean_Meta_Sym_Simp_Theorems_0__Lean_Meta_Sym_Simp_isPermAux_spec__0_spec__0___boxed(lean_object* v_x_827_, lean_object* v_x_828_){
 _start:
 {
 uint8_t v_res_829_; lean_object* v_r_830_; 
-v_res_829_ = l_Option_instBEq_beq___at___00Array_contains___at___00__private_Lean_Meta_Sym_Simp_Theorems_0__Lean_Meta_Sym_Simp_isPermAux_spec__0_spec__0(v_x_827_, v_x_828_);
+v_res_829_ = l_instBEqOption_beq___at___00Array_contains___at___00__private_Lean_Meta_Sym_Simp_Theorems_0__Lean_Meta_Sym_Simp_isPermAux_spec__0_spec__0(v_x_827_, v_x_828_);
 lean_dec(v_x_828_);
 lean_dec(v_x_827_);
 v_r_830_ = lean_box(v_res_829_);
@@ -3225,7 +3225,7 @@ if (v___x_835_ == 0)
 {
 lean_object* v___x_836_; uint8_t v___x_837_; 
 v___x_836_ = lean_array_uget_borrowed(v_as_832_, v_i_833_);
-v___x_837_ = l_Option_instBEq_beq___at___00Array_contains___at___00__private_Lean_Meta_Sym_Simp_Theorems_0__Lean_Meta_Sym_Simp_isPermAux_spec__0_spec__0(v_a_831_, v___x_836_);
+v___x_837_ = l_instBEqOption_beq___at___00Array_contains___at___00__private_Lean_Meta_Sym_Simp_Theorems_0__Lean_Meta_Sym_Simp_isPermAux_spec__0_spec__0(v_a_831_, v___x_836_);
 if (v___x_837_ == 0)
 {
 size_t v___x_838_; size_t v___x_839_; 

@@ -5102,7 +5102,7 @@ return v___x_1605_;
 LEAN_EXPORT lean_object* l___private_Lean_ReducibilityAttrs_0__Lean_validate___lam__0(lean_object* v_declName_1606_, lean_object* v_suffix_1607_, uint8_t v_status_1608_, uint8_t v_attrKind_1609_, lean_object* v___y_1610_, lean_object* v___y_1611_){
 _start:
 {
-lean_object* v___x_1637_; lean_object* v___x_1638_; uint8_t v___x_1639_; lean_object* v___y_1641_; lean_object* v___y_1642_; uint8_t v___y_1651_; lean_object* v___y_1652_; lean_object* v___y_1653_; lean_object* v___y_1710_; uint8_t v___y_1711_; lean_object* v___y_1712_; lean_object* v___y_1721_; lean_object* v___y_1722_; 
+lean_object* v___x_1637_; lean_object* v___x_1638_; uint8_t v___x_1639_; lean_object* v___y_1641_; lean_object* v___y_1642_; uint8_t v___y_1651_; lean_object* v___y_1652_; lean_object* v___y_1653_; uint8_t v___y_1710_; lean_object* v___y_1711_; lean_object* v___y_1712_; lean_object* v___y_1721_; lean_object* v___y_1722_; 
 v___x_1637_ = l_Lean_Core_instMonadOptionsCoreM_checkedOptions(v___y_1610_);
 v___x_1638_ = l_Lean_allowUnsafeReducibility;
 v___x_1639_ = l_Lean_Option_get___at___00__private_Lean_ReducibilityAttrs_0__Lean_validate_spec__0(v___x_1637_, v___x_1638_);
@@ -5542,7 +5542,7 @@ lean_ctor_set(v___x_1717_, 1, v___x_1716_);
 v___x_1718_ = lean_alloc_ctor(7, 2, 0);
 lean_ctor_set(v___x_1718_, 0, v___x_1717_);
 lean_ctor_set(v___x_1718_, 1, v_suffix_1607_);
-v___x_1719_ = l_Lean_throwError___at___00__private_Lean_ReducibilityAttrs_0__Lean_validate_spec__1___redArg(v___x_1718_, v___y_1712_, v___y_1710_);
+v___x_1719_ = l_Lean_throwError___at___00__private_Lean_ReducibilityAttrs_0__Lean_validate_spec__1___redArg(v___x_1718_, v___y_1711_, v___y_1712_);
 return v___x_1719_;
 }
 v___jp_1720_:
@@ -5568,9 +5568,9 @@ lean_dec_ref(v_env_1727_);
 if (lean_obj_tag(v___x_1728_) == 1)
 {
 lean_dec_ref_known(v___x_1728_, 1);
-v___y_1710_ = v___y_1722_;
-v___y_1711_ = v___x_1725_;
-v___y_1712_ = v___y_1721_;
+v___y_1710_ = v___x_1725_;
+v___y_1711_ = v___y_1721_;
+v___y_1712_ = v___y_1722_;
 goto v___jp_1709_;
 }
 else
@@ -5585,9 +5585,9 @@ goto v___jp_1650_;
 }
 else
 {
-v___y_1710_ = v___y_1722_;
-v___y_1711_ = v___x_1725_;
-v___y_1712_ = v___y_1721_;
+v___y_1710_ = v___x_1725_;
+v___y_1711_ = v___y_1721_;
+v___y_1712_ = v___y_1722_;
 goto v___jp_1709_;
 }
 }

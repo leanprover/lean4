@@ -1,6 +1,6 @@
 // Lean compiler output
 // Module: Std.Time.Zoned.Database.TzIf
-// Imports: public import Init.Data.Range.Polymorphic.Iterators public import Std.Internal.Parsec import Init.Data.Int.Repr
+// Imports: public import Init.Data.Range.Polymorphic.Iterators public import Std.Internal.Parsec import Init.Data.Int.Repr import Init.Data.ByteArray.Extra
 #include <lean/lean.h>
 #if defined(__clang__)
 #pragma clang diagnostic ignored "-Wunused-parameter"
@@ -3486,7 +3486,7 @@ _start:
 lean_object* v___x_1213_; lean_object* v___x_1214_; lean_object* v___x_1215_; lean_object* v___x_1216_; lean_object* v___x_1217_; lean_object* v___x_1218_; 
 v___x_1213_ = ((lean_object*)(l___private_Std_Time_Zoned_Database_TzIf_0__Std_Time_TimeZone_TZif_toUInt32___closed__2));
 v___x_1214_ = lean_unsigned_to_nat(2u);
-v___x_1215_ = lean_unsigned_to_nat(182u);
+v___x_1215_ = lean_unsigned_to_nat(183u);
 v___x_1216_ = ((lean_object*)(l___private_Std_Time_Zoned_Database_TzIf_0__Std_Time_TimeZone_TZif_toUInt32___closed__1));
 v___x_1217_ = ((lean_object*)(l___private_Std_Time_Zoned_Database_TzIf_0__Std_Time_TimeZone_TZif_toUInt32___closed__0));
 v___x_1218_ = l_mkPanicMessageWithDecl(v___x_1217_, v___x_1216_, v___x_1215_, v___x_1214_, v___x_1213_);
@@ -7438,6 +7438,7 @@ return v___x_2252_;
 lean_object* runtime_initialize_Init_Data_Range_Polymorphic_Iterators(uint8_t builtin);
 lean_object* runtime_initialize_Std_Internal_Parsec(uint8_t builtin);
 lean_object* runtime_initialize_Init_Data_Int_Repr(uint8_t builtin);
+lean_object* runtime_initialize_Init_Data_ByteArray_Extra(uint8_t builtin);
 void lean_initialize_runtime_module();
 static bool _G_runtime_initialized = false;
 LEAN_EXPORT lean_object* runtime_initialize_Std_Time_Zoned_Database_TzIf(uint8_t builtin) {
@@ -7452,6 +7453,9 @@ res = runtime_initialize_Std_Internal_Parsec(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
 res = runtime_initialize_Init_Data_Int_Repr(builtin);
+if (lean_io_result_is_error(res)) return res;
+lean_dec_ref(res);
+res = runtime_initialize_Init_Data_ByteArray_Extra(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
 l_Std_Time_TimeZone_TZif_instInhabitedLocalTimeType_default = _init_l_Std_Time_TimeZone_TZif_instInhabitedLocalTimeType_default();
@@ -7476,6 +7480,7 @@ return lean_io_result_mk_ok(lean_box(0));
 lean_object* initialize_Init_Data_Range_Polymorphic_Iterators(uint8_t builtin);
 lean_object* initialize_Std_Internal_Parsec(uint8_t builtin);
 lean_object* initialize_Init_Data_Int_Repr(uint8_t builtin);
+lean_object* initialize_Init_Data_ByteArray_Extra(uint8_t builtin);
 static bool _G_initialized = false;
 LEAN_EXPORT lean_object* initialize_Std_Time_Zoned_Database_TzIf(uint8_t builtin) {
 lean_object * res;
@@ -7488,6 +7493,9 @@ res = initialize_Std_Internal_Parsec(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
 res = initialize_Init_Data_Int_Repr(builtin);
+if (lean_io_result_is_error(res)) return res;
+lean_dec_ref(res);
+res = initialize_Init_Data_ByteArray_Extra(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
 res = runtime_initialize_Std_Time_Zoned_Database_TzIf(builtin);

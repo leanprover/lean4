@@ -21833,7 +21833,7 @@ goto v_reusejp_7828_;
 v___jp_7802_:
 {
 uint8_t v_fixedInt_7815_; 
-v_fixedInt_7815_ = lean_ctor_get_uint8(v_config_7801_, sizeof(void*)*2 + 6);
+v_fixedInt_7815_ = lean_ctor_get_uint8(v_config_7801_, sizeof(void*)*3 + 6);
 if (v_fixedInt_7815_ == 0)
 {
 v_methods_7734_ = v_methods_7803_;
@@ -21927,7 +21927,7 @@ v___x_7830_ = l_Lean_Meta_Tactic_BVDecide_Normalize_addDefaultTypeAnalysisLemmas
 if (lean_obj_tag(v___x_7830_) == 0)
 {
 uint8_t v_structures_7831_; 
-v_structures_7831_ = lean_ctor_get_uint8(v_config_7801_, sizeof(void*)*2 + 5);
+v_structures_7831_ = lean_ctor_get_uint8(v_config_7801_, sizeof(void*)*3 + 5);
 if (v_structures_7831_ == 0)
 {
 lean_object* v_a_7832_; 

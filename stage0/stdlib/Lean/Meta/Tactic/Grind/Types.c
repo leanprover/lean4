@@ -12939,9 +12939,9 @@ return v___y_4262_;
 else
 {
 uint8_t v___x_4263_; 
-v___x_4263_ = l___private_Lean_Meta_Tactic_Grind_Types_0__Lean_Meta_Grind_hasSameRoot(v_enodes_4256_, v___y_4260_, v___y_4261_);
-lean_dec_ref(v___y_4261_);
+v___x_4263_ = l___private_Lean_Meta_Tactic_Grind_Types_0__Lean_Meta_Grind_hasSameRoot(v_enodes_4256_, v___y_4261_, v___y_4260_);
 lean_dec_ref(v___y_4260_);
+lean_dec_ref(v___y_4261_);
 return v___x_4263_;
 }
 }
@@ -13004,8 +13004,8 @@ if (v___x_4273_ == 0)
 {
 lean_dec_ref(v_arg_4268_);
 lean_dec_ref(v_arg_4266_);
-v___y_4260_ = v_fn_4265_;
-v___y_4261_ = v_fn_4267_;
+v___y_4260_ = v_fn_4267_;
+v___y_4261_ = v_fn_4265_;
 v___y_4262_ = v___x_4273_;
 goto v___jp_4259_;
 }
@@ -13015,8 +13015,8 @@ uint8_t v___x_4274_;
 v___x_4274_ = l___private_Lean_Meta_Tactic_Grind_Types_0__Lean_Meta_Grind_hasSameRoot(v_enodes_4256_, v_arg_4266_, v_arg_4268_);
 lean_dec_ref(v_arg_4268_);
 lean_dec_ref(v_arg_4266_);
-v___y_4260_ = v_fn_4265_;
-v___y_4261_ = v_fn_4267_;
+v___y_4260_ = v_fn_4267_;
+v___y_4261_ = v_fn_4265_;
 v___y_4262_ = v___x_4274_;
 goto v___jp_4259_;
 }

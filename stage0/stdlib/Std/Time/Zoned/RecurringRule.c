@@ -532,8 +532,8 @@ goto v_reusejp_129_;
 }
 v_reusejp_129_:
 {
-v___y_87_ = v___y_124_;
-v___y_88_ = v___x_125_;
+v___y_87_ = v___x_125_;
+v___y_88_ = v___y_124_;
 v___y_89_ = v___x_130_;
 goto v___jp_86_;
 }
@@ -563,8 +563,8 @@ v_reusejp_134_:
 {
 lean_object* v___x_136_; 
 v___x_136_ = l_Repr_addAppParen(v___x_135_, v___x_132_);
-v___y_87_ = v___y_124_;
-v___y_88_ = v___x_125_;
+v___y_87_ = v___x_125_;
+v___y_88_ = v___y_124_;
 v___y_89_ = v___x_136_;
 goto v___jp_86_;
 }
@@ -700,13 +700,13 @@ return v___x_85_;
 v___jp_86_:
 {
 lean_object* v___x_90_; lean_object* v___x_91_; uint8_t v___x_92_; lean_object* v___x_93_; lean_object* v___x_94_; 
-lean_inc(v___y_88_);
-v___x_90_ = lean_alloc_ctor(5, 2, 0);
-lean_ctor_set(v___x_90_, 0, v___y_88_);
-lean_ctor_set(v___x_90_, 1, v___y_89_);
 lean_inc(v___y_87_);
+v___x_90_ = lean_alloc_ctor(5, 2, 0);
+lean_ctor_set(v___x_90_, 0, v___y_87_);
+lean_ctor_set(v___x_90_, 1, v___y_89_);
+lean_inc(v___y_88_);
 v___x_91_ = lean_alloc_ctor(4, 2, 0);
-lean_ctor_set(v___x_91_, 0, v___y_87_);
+lean_ctor_set(v___x_91_, 0, v___y_88_);
 lean_ctor_set(v___x_91_, 1, v___x_90_);
 v___x_92_ = 0;
 v___x_93_ = lean_alloc_ctor(6, 1, 1);
@@ -1175,7 +1175,7 @@ return v___x_308_;
 LEAN_EXPORT lean_object* l_Std_Time_TimeZone_TransitionSpec_toEpochDayJulian(lean_object* v_year_309_, lean_object* v_day_310_){
 _start:
 {
-lean_object* v___y_312_; lean_object* v___y_313_; lean_object* v___y_320_; lean_object* v___y_323_; uint8_t v___y_324_; uint8_t v___y_325_; lean_object* v___y_330_; lean_object* v___x_342_; lean_object* v___x_343_; uint8_t v___y_345_; lean_object* v___x_350_; lean_object* v___x_351_; lean_object* v___x_352_; uint8_t v___x_353_; uint8_t v___y_355_; lean_object* v___x_356_; lean_object* v___x_357_; uint8_t v___x_358_; 
+lean_object* v___y_312_; lean_object* v___y_313_; lean_object* v___y_320_; uint8_t v___y_323_; lean_object* v___y_324_; uint8_t v___y_325_; lean_object* v___y_330_; lean_object* v___x_342_; lean_object* v___x_343_; uint8_t v___y_345_; lean_object* v___x_350_; lean_object* v___x_351_; lean_object* v___x_352_; uint8_t v___x_353_; uint8_t v___y_355_; lean_object* v___x_356_; lean_object* v___x_357_; uint8_t v___x_358_; 
 v___x_342_ = lean_obj_once(&l_Std_Time_TimeZone_TransitionSpec_toEpochDayJulian___closed__8, &l_Std_Time_TimeZone_TransitionSpec_toEpochDayJulian___closed__8_once, _init_l_Std_Time_TimeZone_TransitionSpec_toEpochDayJulian___closed__8);
 v___x_343_ = lean_obj_once(&l_Std_Time_TimeZone_TransitionSpec_toEpochDayMWD___closed__11, &l_Std_Time_TimeZone_TransitionSpec_toEpochDayMWD___closed__11_once, _init_l_Std_Time_TimeZone_TransitionSpec_toEpochDayMWD___closed__11);
 v___x_350_ = lean_obj_once(&l_Std_Time_TimeZone_TransitionSpec_toEpochDayMWD___closed__12, &l_Std_Time_TimeZone_TransitionSpec_toEpochDayMWD___closed__12_once, _init_l_Std_Time_TimeZone_TransitionSpec_toEpochDayMWD___closed__12);
@@ -1227,16 +1227,16 @@ goto v___jp_311_;
 }
 v___jp_322_:
 {
-if (v___y_324_ == 0)
+if (v___y_323_ == 0)
 {
-v___y_320_ = v___y_323_;
+v___y_320_ = v___y_324_;
 goto v___jp_319_;
 }
 else
 {
 if (v___y_325_ == 0)
 {
-v___y_320_ = v___y_323_;
+v___y_320_ = v___y_324_;
 goto v___jp_319_;
 }
 else
@@ -1246,14 +1246,14 @@ v___x_326_ = lean_obj_once(&l_Std_Time_TimeZone_TransitionSpec_toEpochDayJulian_
 v___x_327_ = lean_int_dec_le(v___x_326_, v_day_310_);
 if (v___x_327_ == 0)
 {
-v___y_320_ = v___y_323_;
+v___y_320_ = v___y_324_;
 goto v___jp_319_;
 }
 else
 {
 lean_object* v___x_328_; 
 v___x_328_ = lean_obj_once(&l_Std_Time_TimeZone_instReprTransitionSpec_repr___closed__4, &l_Std_Time_TimeZone_instReprTransitionSpec_repr___closed__4_once, _init_l_Std_Time_TimeZone_instReprTransitionSpec_repr___closed__4);
-v___y_312_ = v___y_323_;
+v___y_312_ = v___y_324_;
 v___y_313_ = v___x_328_;
 goto v___jp_311_;
 }
@@ -1277,8 +1277,8 @@ if (v___x_337_ == 0)
 uint8_t v___x_338_; 
 lean_dec(v_year_309_);
 v___x_338_ = 1;
-v___y_323_ = v___y_330_;
-v___y_324_ = v___x_334_;
+v___y_323_ = v___x_334_;
+v___y_324_ = v___y_330_;
 v___y_325_ = v___x_338_;
 goto v___jp_322_;
 }
@@ -1290,8 +1290,8 @@ v___x_340_ = lean_int_mod(v_year_309_, v___x_339_);
 lean_dec(v_year_309_);
 v___x_341_ = lean_int_dec_eq(v___x_340_, v___x_333_);
 lean_dec(v___x_340_);
-v___y_323_ = v___y_330_;
-v___y_324_ = v___x_334_;
+v___y_323_ = v___x_334_;
+v___y_324_ = v___y_330_;
 v___y_325_ = v___x_341_;
 goto v___jp_322_;
 }

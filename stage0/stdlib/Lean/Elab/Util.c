@@ -176,8 +176,8 @@ static const lean_ctor_object l_Lean_Elab_expandOptNamedPrio___closed__4_value =
 static const lean_object* l_Lean_Elab_expandOptNamedPrio___closed__4 = (const lean_object*)&l_Lean_Elab_expandOptNamedPrio___closed__4_value;
 LEAN_EXPORT lean_object* l_Lean_Elab_expandOptNamedPrio(lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Elab_expandOptNamedPrio___boxed(lean_object*, lean_object*, lean_object*);
-LEAN_EXPORT uint8_t l_Option_instBEq_beq___at___00Lean_Elab_getBetterRef_spec__0(lean_object*, lean_object*);
-LEAN_EXPORT lean_object* l_Option_instBEq_beq___at___00Lean_Elab_getBetterRef_spec__0___boxed(lean_object*, lean_object*);
+LEAN_EXPORT uint8_t l_instBEqOption_beq___at___00Lean_Elab_getBetterRef_spec__0(lean_object*, lean_object*);
+LEAN_EXPORT lean_object* l_instBEqOption_beq___at___00Lean_Elab_getBetterRef_spec__0___boxed(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_List_find_x3f___at___00Lean_Elab_getBetterRef_spec__1(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_List_find_x3f___at___00Lean_Elab_getBetterRef_spec__1___boxed(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Elab_getBetterRef(lean_object*, lean_object*);
@@ -992,7 +992,7 @@ lean_dec(v_stx_85_);
 return v_res_88_;
 }
 }
-LEAN_EXPORT uint8_t l_Option_instBEq_beq___at___00Lean_Elab_getBetterRef_spec__0(lean_object* v_x_89_, lean_object* v_x_90_){
+LEAN_EXPORT uint8_t l_instBEqOption_beq___at___00Lean_Elab_getBetterRef_spec__0(lean_object* v_x_89_, lean_object* v_x_90_){
 _start:
 {
 if (lean_obj_tag(v_x_89_) == 0)
@@ -1029,11 +1029,11 @@ return v_decide_96_;
 }
 }
 }
-LEAN_EXPORT lean_object* l_Option_instBEq_beq___at___00Lean_Elab_getBetterRef_spec__0___boxed(lean_object* v_x_97_, lean_object* v_x_98_){
+LEAN_EXPORT lean_object* l_instBEqOption_beq___at___00Lean_Elab_getBetterRef_spec__0___boxed(lean_object* v_x_97_, lean_object* v_x_98_){
 _start:
 {
 uint8_t v_res_99_; lean_object* v_r_100_; 
-v_res_99_ = l_Option_instBEq_beq___at___00Lean_Elab_getBetterRef_spec__0(v_x_97_, v_x_98_);
+v_res_99_ = l_instBEqOption_beq___at___00Lean_Elab_getBetterRef_spec__0(v_x_97_, v_x_98_);
 lean_dec(v_x_98_);
 lean_dec(v_x_97_);
 v_r_100_ = lean_box(v_res_99_);
@@ -1057,7 +1057,7 @@ v_tail_105_ = lean_ctor_get(v_x_102_, 1);
 v_before_106_ = lean_ctor_get(v_head_104_, 0);
 v___x_107_ = 0;
 v___x_108_ = l_Lean_Syntax_getPos_x3f(v_before_106_, v___x_107_);
-v___x_109_ = l_Option_instBEq_beq___at___00Lean_Elab_getBetterRef_spec__0(v___x_108_, v___x_101_);
+v___x_109_ = l_instBEqOption_beq___at___00Lean_Elab_getBetterRef_spec__0(v___x_108_, v___x_101_);
 lean_dec(v___x_108_);
 if (v___x_109_ == 0)
 {

@@ -72,8 +72,8 @@ LEAN_EXPORT uint8_t l___private_Lean_PostprocessTraces_Postprocessors_0__Lean_Po
 LEAN_EXPORT lean_object* l___private_Lean_PostprocessTraces_Postprocessors_0__Lean_PostprocessTraces_containsSubstr___boxed(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_WellFounded_opaqueFix_u2083___at___00__private_Lean_PostprocessTraces_Postprocessors_0__Lean_PostprocessTraces_containsSubstr_spec__0(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_WellFounded_opaqueFix_u2083___at___00__private_Lean_PostprocessTraces_Postprocessors_0__Lean_PostprocessTraces_containsSubstr_spec__0___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
-LEAN_EXPORT uint8_t l_Option_instBEq_beq___at___00Lean_PostprocessTraces_ofClass_spec__0(lean_object*, lean_object*);
-LEAN_EXPORT lean_object* l_Option_instBEq_beq___at___00Lean_PostprocessTraces_ofClass_spec__0___boxed(lean_object*, lean_object*);
+LEAN_EXPORT uint8_t l_instBEqOption_beq___at___00Lean_PostprocessTraces_ofClass_spec__0(lean_object*, lean_object*);
+LEAN_EXPORT lean_object* l_instBEqOption_beq___at___00Lean_PostprocessTraces_ofClass_spec__0___boxed(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_PostprocessTraces_ofClass___redArg(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_PostprocessTraces_ofClass___redArg___boxed(lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_PostprocessTraces_ofClass(lean_object*, lean_object*, lean_object*, lean_object*);
@@ -82,8 +82,8 @@ LEAN_EXPORT lean_object* l_Lean_PostprocessTraces_containsString___redArg(lean_o
 LEAN_EXPORT lean_object* l_Lean_PostprocessTraces_containsString___redArg___boxed(lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_PostprocessTraces_containsString(lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_PostprocessTraces_containsString___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
-LEAN_EXPORT uint8_t l_Option_instBEq_beq___at___00Lean_PostprocessTraces_succeeded_spec__0(lean_object*, lean_object*);
-LEAN_EXPORT lean_object* l_Option_instBEq_beq___at___00Lean_PostprocessTraces_succeeded_spec__0___boxed(lean_object*, lean_object*);
+LEAN_EXPORT uint8_t l_instBEqOption_beq___at___00Lean_PostprocessTraces_succeeded_spec__0(lean_object*, lean_object*);
+LEAN_EXPORT lean_object* l_instBEqOption_beq___at___00Lean_PostprocessTraces_succeeded_spec__0___boxed(lean_object*, lean_object*);
 static const lean_ctor_object l_Lean_PostprocessTraces_succeeded___redArg___closed__0_value = {.m_header = {.m_rc = 0, .m_cs_sz = sizeof(lean_ctor_object) + sizeof(void*)*1 + 0, .m_other = 1, .m_tag = 1}, .m_objs = {((lean_object*)(((size_t)(0) << 1) | 1))}};
 static const lean_object* l_Lean_PostprocessTraces_succeeded___redArg___closed__0 = (const lean_object*)&l_Lean_PostprocessTraces_succeeded___redArg___closed__0_value;
 LEAN_EXPORT lean_object* l_Lean_PostprocessTraces_succeeded___redArg(lean_object*);
@@ -601,7 +601,7 @@ lean_dec_ref(v_s_114_);
 return v_res_122_;
 }
 }
-LEAN_EXPORT uint8_t l_Option_instBEq_beq___at___00Lean_PostprocessTraces_ofClass_spec__0(lean_object* v_x_123_, lean_object* v_x_124_){
+LEAN_EXPORT uint8_t l_instBEqOption_beq___at___00Lean_PostprocessTraces_ofClass_spec__0(lean_object* v_x_123_, lean_object* v_x_124_){
 _start:
 {
 if (lean_obj_tag(v_x_123_) == 0)
@@ -638,11 +638,11 @@ return v___x_130_;
 }
 }
 }
-LEAN_EXPORT lean_object* l_Option_instBEq_beq___at___00Lean_PostprocessTraces_ofClass_spec__0___boxed(lean_object* v_x_131_, lean_object* v_x_132_){
+LEAN_EXPORT lean_object* l_instBEqOption_beq___at___00Lean_PostprocessTraces_ofClass_spec__0___boxed(lean_object* v_x_131_, lean_object* v_x_132_){
 _start:
 {
 uint8_t v_res_133_; lean_object* v_r_134_; 
-v_res_133_ = l_Option_instBEq_beq___at___00Lean_PostprocessTraces_ofClass_spec__0(v_x_131_, v_x_132_);
+v_res_133_ = l_instBEqOption_beq___at___00Lean_PostprocessTraces_ofClass_spec__0(v_x_131_, v_x_132_);
 lean_dec(v_x_132_);
 lean_dec(v_x_131_);
 v_r_134_ = lean_box(v_res_133_);
@@ -656,7 +656,7 @@ lean_object* v___x_138_; lean_object* v___x_139_; uint8_t v___x_140_; lean_objec
 v___x_138_ = l_Lean_PostprocessTraces_TraceTree_cls_x3f(v_t_136_);
 v___x_139_ = lean_alloc_ctor(1, 1, 0);
 lean_ctor_set(v___x_139_, 0, v_cls_135_);
-v___x_140_ = l_Option_instBEq_beq___at___00Lean_PostprocessTraces_ofClass_spec__0(v___x_138_, v___x_139_);
+v___x_140_ = l_instBEqOption_beq___at___00Lean_PostprocessTraces_ofClass_spec__0(v___x_138_, v___x_139_);
 lean_dec_ref_known(v___x_139_, 1);
 lean_dec(v___x_138_);
 v___x_141_ = lean_box(v___x_140_);
@@ -799,7 +799,7 @@ lean_dec_ref(v_a_192_);
 return v_res_195_;
 }
 }
-LEAN_EXPORT uint8_t l_Option_instBEq_beq___at___00Lean_PostprocessTraces_succeeded_spec__0(lean_object* v_x_196_, lean_object* v_x_197_){
+LEAN_EXPORT uint8_t l_instBEqOption_beq___at___00Lean_PostprocessTraces_succeeded_spec__0(lean_object* v_x_196_, lean_object* v_x_197_){
 _start:
 {
 if (lean_obj_tag(v_x_196_) == 0)
@@ -838,11 +838,11 @@ return v___x_205_;
 }
 }
 }
-LEAN_EXPORT lean_object* l_Option_instBEq_beq___at___00Lean_PostprocessTraces_succeeded_spec__0___boxed(lean_object* v_x_206_, lean_object* v_x_207_){
+LEAN_EXPORT lean_object* l_instBEqOption_beq___at___00Lean_PostprocessTraces_succeeded_spec__0___boxed(lean_object* v_x_206_, lean_object* v_x_207_){
 _start:
 {
 uint8_t v_res_208_; lean_object* v_r_209_; 
-v_res_208_ = l_Option_instBEq_beq___at___00Lean_PostprocessTraces_succeeded_spec__0(v_x_206_, v_x_207_);
+v_res_208_ = l_instBEqOption_beq___at___00Lean_PostprocessTraces_succeeded_spec__0(v_x_206_, v_x_207_);
 lean_dec(v_x_207_);
 lean_dec(v_x_206_);
 v_r_209_ = lean_box(v_res_208_);
@@ -855,7 +855,7 @@ _start:
 lean_object* v___x_215_; lean_object* v___x_216_; uint8_t v___x_217_; lean_object* v___x_218_; lean_object* v___x_219_; 
 v___x_215_ = l_Lean_PostprocessTraces_TraceTree_result_x3f(v_t_213_);
 v___x_216_ = ((lean_object*)(l_Lean_PostprocessTraces_succeeded___redArg___closed__0));
-v___x_217_ = l_Option_instBEq_beq___at___00Lean_PostprocessTraces_succeeded_spec__0(v___x_215_, v___x_216_);
+v___x_217_ = l_instBEqOption_beq___at___00Lean_PostprocessTraces_succeeded_spec__0(v___x_215_, v___x_216_);
 lean_dec(v___x_215_);
 v___x_218_ = lean_box(v___x_217_);
 v___x_219_ = lean_alloc_ctor(0, 1, 0);
@@ -897,7 +897,7 @@ _start:
 lean_object* v___x_238_; lean_object* v___x_239_; uint8_t v___x_240_; lean_object* v___x_241_; lean_object* v___x_242_; 
 v___x_238_ = l_Lean_PostprocessTraces_TraceTree_result_x3f(v_t_236_);
 v___x_239_ = ((lean_object*)(l_Lean_PostprocessTraces_failed___redArg___closed__0));
-v___x_240_ = l_Option_instBEq_beq___at___00Lean_PostprocessTraces_succeeded_spec__0(v___x_238_, v___x_239_);
+v___x_240_ = l_instBEqOption_beq___at___00Lean_PostprocessTraces_succeeded_spec__0(v___x_238_, v___x_239_);
 lean_dec(v___x_238_);
 v___x_241_ = lean_box(v___x_240_);
 v___x_242_ = lean_alloc_ctor(0, 1, 0);
@@ -939,7 +939,7 @@ _start:
 lean_object* v___x_261_; lean_object* v___x_262_; uint8_t v___x_263_; lean_object* v___x_264_; lean_object* v___x_265_; 
 v___x_261_ = l_Lean_PostprocessTraces_TraceTree_result_x3f(v_t_259_);
 v___x_262_ = ((lean_object*)(l_Lean_PostprocessTraces_errored___redArg___closed__0));
-v___x_263_ = l_Option_instBEq_beq___at___00Lean_PostprocessTraces_succeeded_spec__0(v___x_261_, v___x_262_);
+v___x_263_ = l_instBEqOption_beq___at___00Lean_PostprocessTraces_succeeded_spec__0(v___x_261_, v___x_262_);
 lean_dec(v___x_261_);
 v___x_264_ = lean_box(v___x_263_);
 v___x_265_ = lean_alloc_ctor(0, 1, 0);
@@ -981,12 +981,12 @@ _start:
 lean_object* v___x_281_; lean_object* v___x_282_; uint8_t v___x_283_; 
 v___x_281_ = l_Lean_PostprocessTraces_TraceTree_result_x3f(v_t_279_);
 v___x_282_ = ((lean_object*)(l_Lean_PostprocessTraces_failed___redArg___closed__0));
-v___x_283_ = l_Option_instBEq_beq___at___00Lean_PostprocessTraces_succeeded_spec__0(v___x_281_, v___x_282_);
+v___x_283_ = l_instBEqOption_beq___at___00Lean_PostprocessTraces_succeeded_spec__0(v___x_281_, v___x_282_);
 if (v___x_283_ == 0)
 {
 lean_object* v___x_284_; uint8_t v___x_285_; lean_object* v___x_286_; lean_object* v___x_287_; 
 v___x_284_ = ((lean_object*)(l_Lean_PostprocessTraces_errored___redArg___closed__0));
-v___x_285_ = l_Option_instBEq_beq___at___00Lean_PostprocessTraces_succeeded_spec__0(v___x_281_, v___x_284_);
+v___x_285_ = l_instBEqOption_beq___at___00Lean_PostprocessTraces_succeeded_spec__0(v___x_281_, v___x_284_);
 lean_dec(v___x_281_);
 v___x_286_ = lean_box(v___x_285_);
 v___x_287_ = lean_alloc_ctor(0, 1, 0);

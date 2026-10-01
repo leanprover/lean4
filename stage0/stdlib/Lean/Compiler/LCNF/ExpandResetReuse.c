@@ -581,9 +581,9 @@ v___jp_98_:
 lean_object* v___x_102_; lean_object* v___x_103_; 
 v___x_102_ = lean_alloc_ctor(0, 2, 0);
 lean_ctor_set(v___x_102_, 0, v___y_101_);
-lean_ctor_set(v___x_102_, 1, v___y_100_);
+lean_ctor_set(v___x_102_, 1, v___y_99_);
 v___x_103_ = lean_alloc_ctor(0, 2, 0);
-lean_ctor_set(v___x_103_, 0, v___y_99_);
+lean_ctor_set(v___x_103_, 0, v___y_100_);
 lean_ctor_set(v___x_103_, 1, v___x_102_);
 v_a_92_ = v___x_103_;
 goto _start;
@@ -1155,8 +1155,8 @@ v_reusejp_226_:
 {
 lean_object* v___x_228_; 
 v___x_228_ = lean_array_push(v___x_223_, v___x_227_);
-v___y_99_ = v___x_220_;
-v___y_100_ = v___x_222_;
+v___y_99_ = v___x_222_;
+v___y_100_ = v___x_220_;
 v___y_101_ = v___x_228_;
 goto v___jp_98_;
 }
@@ -1166,8 +1166,8 @@ else
 lean_del_object(v___x_217_);
 lean_dec(v_n_191_);
 lean_dec(v_fvarId_190_);
-v___y_99_ = v___x_220_;
-v___y_100_ = v___x_222_;
+v___y_99_ = v___x_222_;
+v___y_100_ = v___x_220_;
 v___y_101_ = v___x_223_;
 goto v___jp_98_;
 }

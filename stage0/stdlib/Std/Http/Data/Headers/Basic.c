@@ -170,8 +170,8 @@ static const lean_object* l_Std_Http_Header_ContentLength_inst___closed__1 = (co
 static const lean_ctor_object l_Std_Http_Header_ContentLength_inst___closed__2_value = {.m_header = {.m_rc = 0, .m_cs_sz = sizeof(lean_ctor_object) + sizeof(void*)*2 + 0, .m_other = 2, .m_tag = 0}, .m_objs = {((lean_object*)&l_Std_Http_Header_ContentLength_inst___closed__0_value),((lean_object*)&l_Std_Http_Header_ContentLength_inst___closed__1_value)}};
 static const lean_object* l_Std_Http_Header_ContentLength_inst___closed__2 = (const lean_object*)&l_Std_Http_Header_ContentLength_inst___closed__2_value;
 LEAN_EXPORT const lean_object* l_Std_Http_Header_ContentLength_inst = (const lean_object*)&l_Std_Http_Header_ContentLength_inst___closed__2_value;
-LEAN_EXPORT uint8_t l_Option_instBEq_beq___at___00Std_Http_Header_TransferEncoding_Validate_spec__0(lean_object*, lean_object*);
-LEAN_EXPORT lean_object* l_Option_instBEq_beq___at___00Std_Http_Header_TransferEncoding_Validate_spec__0___boxed(lean_object*, lean_object*);
+LEAN_EXPORT uint8_t l_instBEqOption_beq___at___00Std_Http_Header_TransferEncoding_Validate_spec__0(lean_object*, lean_object*);
+LEAN_EXPORT lean_object* l_instBEqOption_beq___at___00Std_Http_Header_TransferEncoding_Validate_spec__0___boxed(lean_object*, lean_object*);
 static const lean_string_object l___private_Init_Data_Array_Basic_0__Array_foldlMUnsafe_fold___at___00Std_Http_Header_TransferEncoding_Validate_spec__1___closed__0_value = {.m_header = {.m_rc = 0, .m_cs_sz = 0, .m_other = 0, .m_tag = 249}, .m_size = 8, .m_capacity = 8, .m_length = 7, .m_data = "chunked"};
 static const lean_object* l___private_Init_Data_Array_Basic_0__Array_foldlMUnsafe_fold___at___00Std_Http_Header_TransferEncoding_Validate_spec__1___closed__0 = (const lean_object*)&l___private_Init_Data_Array_Basic_0__Array_foldlMUnsafe_fold___at___00Std_Http_Header_TransferEncoding_Validate_spec__1___closed__0_value;
 LEAN_EXPORT lean_object* l___private_Init_Data_Array_Basic_0__Array_foldlMUnsafe_fold___at___00Std_Http_Header_TransferEncoding_Validate_spec__1(lean_object*, size_t, size_t, lean_object*);
@@ -1978,7 +1978,7 @@ lean_ctor_set(v___x_596_, 1, v___x_595_);
 return v___x_596_;
 }
 }
-LEAN_EXPORT uint8_t l_Option_instBEq_beq___at___00Std_Http_Header_TransferEncoding_Validate_spec__0(lean_object* v_x_603_, lean_object* v_x_604_){
+LEAN_EXPORT uint8_t l_instBEqOption_beq___at___00Std_Http_Header_TransferEncoding_Validate_spec__0(lean_object* v_x_603_, lean_object* v_x_604_){
 _start:
 {
 if (lean_obj_tag(v_x_603_) == 0)
@@ -2015,11 +2015,11 @@ return v___x_610_;
 }
 }
 }
-LEAN_EXPORT lean_object* l_Option_instBEq_beq___at___00Std_Http_Header_TransferEncoding_Validate_spec__0___boxed(lean_object* v_x_611_, lean_object* v_x_612_){
+LEAN_EXPORT lean_object* l_instBEqOption_beq___at___00Std_Http_Header_TransferEncoding_Validate_spec__0___boxed(lean_object* v_x_611_, lean_object* v_x_612_){
 _start:
 {
 uint8_t v_res_613_; lean_object* v_r_614_; 
-v_res_613_ = l_Option_instBEq_beq___at___00Std_Http_Header_TransferEncoding_Validate_spec__0(v_x_611_, v_x_612_);
+v_res_613_ = l_instBEqOption_beq___at___00Std_Http_Header_TransferEncoding_Validate_spec__0(v_x_611_, v_x_612_);
 lean_dec(v_x_612_);
 lean_dec(v_x_611_);
 v_r_614_ = lean_box(v_res_613_);
@@ -2203,7 +2203,7 @@ else
 {
 lean_object* v___x_672_; uint8_t v_lastIsChunked_673_; 
 v___x_672_ = ((lean_object*)(l_Std_Http_Header_TransferEncoding_Validate___closed__0));
-v_lastIsChunked_673_ = l_Option_instBEq_beq___at___00Std_Http_Header_TransferEncoding_Validate_spec__0(v___y_668_, v___x_672_);
+v_lastIsChunked_673_ = l_instBEqOption_beq___at___00Std_Http_Header_TransferEncoding_Validate_spec__0(v___y_668_, v___x_672_);
 lean_dec(v___y_668_);
 if (v_lastIsChunked_673_ == 0)
 {
@@ -2670,7 +2670,7 @@ v___jp_840_:
 {
 lean_object* v___x_842_; uint8_t v___x_843_; 
 v___x_842_ = ((lean_object*)(l_Std_Http_Header_TransferEncoding_Validate___closed__0));
-v___x_843_ = l_Option_instBEq_beq___at___00Std_Http_Header_TransferEncoding_Validate_spec__0(v___y_841_, v___x_842_);
+v___x_843_ = l_instBEqOption_beq___at___00Std_Http_Header_TransferEncoding_Validate_spec__0(v___y_841_, v___x_842_);
 lean_dec(v___y_841_);
 return v___x_843_;
 }

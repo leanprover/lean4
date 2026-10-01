@@ -4770,7 +4770,7 @@ _start:
 lean_object* v___x_1460_; lean_object* v___x_1461_; lean_object* v___x_1462_; lean_object* v___x_1463_; lean_object* v___x_1464_; lean_object* v___x_1465_; 
 v___x_1460_ = ((lean_object*)(l___private_Lean_Elab_PreDefinition_PartialFixpoint_Eqns_0__Lean_Elab_PartialFixpoint_rwFixUnder___closed__10));
 v___x_1461_ = lean_unsigned_to_nat(18u);
-v___x_1462_ = lean_unsigned_to_nat(1895u);
+v___x_1462_ = lean_unsigned_to_nat(1913u);
 v___x_1463_ = ((lean_object*)(l___private_Lean_Elab_PreDefinition_PartialFixpoint_Eqns_0__Lean_Elab_PartialFixpoint_rwFixUnder___closed__9));
 v___x_1464_ = ((lean_object*)(l___private_Lean_Elab_PreDefinition_PartialFixpoint_Eqns_0__Lean_Elab_PartialFixpoint_rwFixUnder___closed__8));
 v___x_1465_ = l_mkPanicMessageWithDecl(v___x_1464_, v___x_1463_, v___x_1462_, v___x_1461_, v___x_1460_);

@@ -54,7 +54,7 @@ extern lean_object* l_System_Platform_target;
 uint8_t lean_nat_dec_le(lean_object*, lean_object*);
 lean_object* l_Lean_LeanOptions_appendArray(lean_object*, lean_object*);
 uint8_t l_Lake_LeanLibConfig_isLocalModule___redArg(lean_object*, lean_object*);
-uint8_t l_Option_instBEq_beq___redArg(lean_object*, lean_object*, lean_object*);
+uint8_t l_instBEqOption_beq___redArg(lean_object*, lean_object*, lean_object*);
 extern lean_object* l_Lake_defaultLakeDir;
 lean_object* lean_mk_array(lean_object*, lean_object*);
 lean_object* l_Lean_Name_toStringWithToken___at___00Lean_Name_toString_spec__0(lean_object*, uint8_t);
@@ -2884,7 +2884,7 @@ lean_inc(v_platformIndependent_690_);
 lean_dec_ref(v_toLeanConfig_689_);
 v___f_691_ = ((lean_object*)(l_Lake_Package_isPlatformIndependent___closed__1));
 v___x_692_ = ((lean_object*)(l_Lake_Package_isPlatformIndependent___closed__2));
-v___x_693_ = l_Option_instBEq_beq___redArg(v___f_691_, v_platformIndependent_690_, v___x_692_);
+v___x_693_ = l_instBEqOption_beq___redArg(v___f_691_, v_platformIndependent_690_, v___x_692_);
 return v___x_693_;
 }
 }

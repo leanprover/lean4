@@ -1954,7 +1954,7 @@ return v_res_548_;
 LEAN_EXPORT lean_object* l___private_Init_System_Uri_0__System_Uri_normalizeDriveExpression(lean_object* v_p_552_){
 _start:
 {
-lean_object* v___y_559_; lean_object* v___y_560_; uint32_t v___y_561_; uint8_t v___y_562_; lean_object* v___x_586_; lean_object* v___x_587_; lean_object* v___x_588_; lean_object* v___x_589_; 
+uint32_t v___y_559_; lean_object* v___y_560_; lean_object* v___y_561_; uint8_t v___y_562_; lean_object* v___x_586_; lean_object* v___x_587_; lean_object* v___x_588_; lean_object* v___x_589_; 
 v___x_586_ = ((lean_object*)(l___private_Init_System_Uri_0__System_Uri_normalizeDriveExpression___closed__0));
 v___x_587_ = ((lean_object*)(l___private_Init_System_Uri_0__System_Uri_normalizeDriveLetter___closed__1));
 v___x_588_ = l___private_Init_WFExtrinsicFix_0__WellFounded_opaqueFix_u2082___at___00__private_Init_System_Uri_0__System_Uri_normalizeDriveExpression_spec__0___redArg(v_p_552_, v___x_586_, v___x_587_);
@@ -2104,17 +2104,17 @@ v___jp_558_:
 if (v___y_562_ == 0)
 {
 lean_object* v___x_563_; 
-v___x_563_ = lean_string_utf8_set(v___y_560_, v___y_559_, v___y_561_);
-lean_dec(v___y_559_);
+v___x_563_ = lean_string_utf8_set(v___y_561_, v___y_560_, v___y_559_);
+lean_dec(v___y_560_);
 return v___x_563_;
 }
 else
 {
 uint32_t v___x_564_; uint32_t v___x_565_; lean_object* v___x_566_; 
 v___x_564_ = 4294967264;
-v___x_565_ = lean_uint32_add(v___y_561_, v___x_564_);
-v___x_566_ = lean_string_utf8_set(v___y_560_, v___y_559_, v___x_565_);
-lean_dec(v___y_559_);
+v___x_565_ = lean_uint32_add(v___y_559_, v___x_564_);
+v___x_566_ = lean_string_utf8_set(v___y_561_, v___y_560_, v___x_565_);
+lean_dec(v___y_560_);
 return v___x_566_;
 }
 }
@@ -2136,9 +2136,9 @@ v___x_577_ = 97;
 v___x_578_ = lean_uint32_dec_le(v___x_577_, v___x_576_);
 if (v___x_578_ == 0)
 {
-v___y_559_ = v___x_572_;
-v___y_560_ = v___x_575_;
-v___y_561_ = v___x_576_;
+v___y_559_ = v___x_576_;
+v___y_560_ = v___x_572_;
+v___y_561_ = v___x_575_;
 v___y_562_ = v___x_578_;
 goto v___jp_558_;
 }
@@ -2147,9 +2147,9 @@ else
 uint32_t v___x_579_; uint8_t v___x_580_; 
 v___x_579_ = 122;
 v___x_580_ = lean_uint32_dec_le(v___x_576_, v___x_579_);
-v___y_559_ = v___x_572_;
-v___y_560_ = v___x_575_;
-v___y_561_ = v___x_576_;
+v___y_559_ = v___x_576_;
+v___y_560_ = v___x_572_;
+v___y_561_ = v___x_575_;
 v___y_562_ = v___x_580_;
 goto v___jp_558_;
 }

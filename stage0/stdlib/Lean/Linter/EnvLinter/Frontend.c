@@ -7725,13 +7725,13 @@ lean_object* v___x_2598_; lean_object* v___x_2599_; lean_object* v___x_2600_; le
 lean_inc_ref(v___y_2597_);
 v___x_2598_ = l_Lean_stringToMessageData(v___y_2597_);
 v___x_2599_ = lean_alloc_ctor(7, 2, 0);
-lean_ctor_set(v___x_2599_, 0, v___y_2596_);
+lean_ctor_set(v___x_2599_, 0, v___y_2595_);
 lean_ctor_set(v___x_2599_, 1, v___x_2598_);
 v___x_2600_ = lean_obj_once(&l_Lean_Linter_EnvLinter_formatLinterResults___closed__1, &l_Lean_Linter_EnvLinter_formatLinterResults___closed__1_once, _init_l_Lean_Linter_EnvLinter_formatLinterResults___closed__1);
 v___x_2601_ = lean_alloc_ctor(7, 2, 0);
 lean_ctor_set(v___x_2601_, 0, v___x_2599_);
 lean_ctor_set(v___x_2601_, 1, v___x_2600_);
-v___x_2602_ = lean_nat_sub(v___x_2593_, v___y_2595_);
+v___x_2602_ = lean_nat_sub(v___x_2593_, v___y_2596_);
 v___x_2603_ = l_Nat_reprFast(v___x_2602_);
 v___x_2604_ = lean_alloc_ctor(3, 1, 0);
 lean_ctor_set(v___x_2604_, 0, v___x_2603_);
@@ -7743,7 +7743,7 @@ v___x_2607_ = lean_obj_once(&l_Lean_Linter_EnvLinter_formatLinterResults___close
 v___x_2608_ = lean_alloc_ctor(7, 2, 0);
 lean_ctor_set(v___x_2608_, 0, v___x_2606_);
 lean_ctor_set(v___x_2608_, 1, v___x_2607_);
-v___x_2609_ = l_Nat_reprFast(v___y_2595_);
+v___x_2609_ = l_Nat_reprFast(v___y_2596_);
 v___x_2610_ = lean_alloc_ctor(3, 1, 0);
 lean_ctor_set(v___x_2610_, 0, v___x_2609_);
 v___x_2611_ = l_Lean_MessageData_ofFormat(v___x_2610_);
@@ -7818,8 +7818,8 @@ if (v___x_2640_ == 0)
 {
 lean_object* v___x_2641_; 
 v___x_2641_ = ((lean_object*)(l_Lean_Linter_EnvLinter_formatLinterResults___closed__14));
-v___y_2595_ = v___y_2630_;
-v___y_2596_ = v___x_2638_;
+v___y_2595_ = v___x_2638_;
+v___y_2596_ = v___y_2630_;
 v___y_2597_ = v___x_2641_;
 goto v___jp_2594_;
 }
@@ -7827,8 +7827,8 @@ else
 {
 lean_object* v___x_2642_; 
 v___x_2642_ = ((lean_object*)(l_Std_DHashMap_Internal_AssocList_foldlM___at___00Lean_Linter_EnvLinter_groupedByFilename_spec__6___closed__0));
-v___y_2595_ = v___y_2630_;
-v___y_2596_ = v___x_2638_;
+v___y_2595_ = v___x_2638_;
+v___y_2596_ = v___y_2630_;
 v___y_2597_ = v___x_2642_;
 goto v___jp_2594_;
 }

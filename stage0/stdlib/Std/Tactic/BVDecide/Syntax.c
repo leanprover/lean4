@@ -31,6 +31,8 @@ LEAN_EXPORT lean_object* l_Lean_Elab_Tactic_BVDecide_SolverMode_default_elim___r
 LEAN_EXPORT lean_object* l_Lean_Elab_Tactic_BVDecide_SolverMode_default_elim___redArg___boxed(lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Elab_Tactic_BVDecide_SolverMode_default_elim(lean_object*, uint8_t, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Elab_Tactic_BVDecide_SolverMode_default_elim___boxed(lean_object*, lean_object*, lean_object*, lean_object*);
+LEAN_EXPORT uint8_t l_Lean_Elab_Tactic_BVDecide_BVDecideConfig_needsIncremental(lean_object*);
+LEAN_EXPORT lean_object* l_Lean_Elab_Tactic_BVDecide_BVDecideConfig_needsIncremental___boxed(lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Elab_Tactic_BVDecide_SolverMode_ctorIdx(uint8_t v_x_1_){
 _start:
 {
@@ -197,6 +199,24 @@ v_t_boxed_60_ = lean_unbox(v_t_57_);
 v_res_61_ = l_Lean_Elab_Tactic_BVDecide_SolverMode_default_elim(v_motive_56_, v_t_boxed_60_, v_h_58_, v_default_59_);
 lean_dec(v_default_59_);
 return v_res_61_;
+}
+}
+LEAN_EXPORT uint8_t l_Lean_Elab_Tactic_BVDecide_BVDecideConfig_needsIncremental(lean_object* v_cfg_62_){
+_start:
+{
+uint8_t v_uf_63_; 
+v_uf_63_ = lean_ctor_get_uint8(v_cfg_62_, sizeof(void*)*3 + 11);
+return v_uf_63_;
+}
+}
+LEAN_EXPORT lean_object* l_Lean_Elab_Tactic_BVDecide_BVDecideConfig_needsIncremental___boxed(lean_object* v_cfg_64_){
+_start:
+{
+uint8_t v_res_65_; lean_object* v_r_66_; 
+v_res_65_ = l_Lean_Elab_Tactic_BVDecide_BVDecideConfig_needsIncremental(v_cfg_64_);
+lean_dec_ref(v_cfg_64_);
+v_r_66_ = lean_box(v_res_65_);
+return v_r_66_;
 }
 }
 lean_object* runtime_initialize_Init_Simproc(uint8_t builtin);

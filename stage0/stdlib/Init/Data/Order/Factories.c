@@ -192,6 +192,10 @@ LEAN_EXPORT lean_object* l_Std_LawfulOrderMax_of__le__max___auto__1;
 LEAN_EXPORT lean_object* l_LE_ofLT___redArg();
 LEAN_EXPORT lean_object* l_LE_ofLT___redArg___boxed(lean_object*);
 LEAN_EXPORT lean_object* l_LE_ofLT(lean_object*, lean_object*);
+LEAN_EXPORT uint8_t l_Std_instDecidableLEOfDecidableLT___redArg(lean_object*, lean_object*, lean_object*);
+LEAN_EXPORT lean_object* l_Std_instDecidableLEOfDecidableLT___redArg___boxed(lean_object*, lean_object*, lean_object*);
+LEAN_EXPORT uint8_t l_Std_instDecidableLEOfDecidableLT(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
+LEAN_EXPORT lean_object* l_Std_instDecidableLEOfDecidableLT___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Std_IsLinearPreorder_of__lt___auto__1;
 LEAN_EXPORT lean_object* l_Std_IsLinearPreorder_of__lt___auto__3;
 LEAN_EXPORT lean_object* l_Std_IsLinearOrder_of__lt___auto__1;
@@ -828,44 +832,90 @@ v___x_245_ = lean_box(0);
 return v___x_245_;
 }
 }
+LEAN_EXPORT uint8_t l_Std_instDecidableLEOfDecidableLT___redArg(lean_object* v_inst_246_, lean_object* v_x_247_, lean_object* v_x_248_){
+_start:
+{
+lean_object* v___x_249_; uint8_t v___x_250_; 
+v___x_249_ = lean_apply_2(v_inst_246_, v_x_248_, v_x_247_);
+v___x_250_ = lean_unbox(v___x_249_);
+if (v___x_250_ == 0)
+{
+uint8_t v___x_251_; 
+v___x_251_ = 1;
+return v___x_251_;
+}
+else
+{
+uint8_t v___x_252_; 
+v___x_252_ = 0;
+return v___x_252_;
+}
+}
+}
+LEAN_EXPORT lean_object* l_Std_instDecidableLEOfDecidableLT___redArg___boxed(lean_object* v_inst_253_, lean_object* v_x_254_, lean_object* v_x_255_){
+_start:
+{
+uint8_t v_res_256_; lean_object* v_r_257_; 
+v_res_256_ = l_Std_instDecidableLEOfDecidableLT___redArg(v_inst_253_, v_x_254_, v_x_255_);
+v_r_257_ = lean_box(v_res_256_);
+return v_r_257_;
+}
+}
+LEAN_EXPORT uint8_t l_Std_instDecidableLEOfDecidableLT(lean_object* v_00_u03b1_258_, lean_object* v_inst_259_, lean_object* v_inst_260_, lean_object* v_x_261_, lean_object* v_x_262_){
+_start:
+{
+uint8_t v___x_263_; 
+v___x_263_ = l_Std_instDecidableLEOfDecidableLT___redArg(v_inst_260_, v_x_261_, v_x_262_);
+return v___x_263_;
+}
+}
+LEAN_EXPORT lean_object* l_Std_instDecidableLEOfDecidableLT___boxed(lean_object* v_00_u03b1_264_, lean_object* v_inst_265_, lean_object* v_inst_266_, lean_object* v_x_267_, lean_object* v_x_268_){
+_start:
+{
+uint8_t v_res_269_; lean_object* v_r_270_; 
+v_res_269_ = l_Std_instDecidableLEOfDecidableLT(v_00_u03b1_264_, v_inst_265_, v_inst_266_, v_x_267_, v_x_268_);
+v_r_270_ = lean_box(v_res_269_);
+return v_r_270_;
+}
+}
 static lean_object* _init_l_Std_IsLinearPreorder_of__lt___auto__1(void){
 _start:
 {
-lean_object* v___x_246_; 
-v___x_246_ = lean_obj_once(&l_Std_IsPreorder_of__le___auto__1___closed__25, &l_Std_IsPreorder_of__le___auto__1___closed__25_once, _init_l_Std_IsPreorder_of__le___auto__1___closed__25);
-return v___x_246_;
+lean_object* v___x_271_; 
+v___x_271_ = lean_obj_once(&l_Std_IsPreorder_of__le___auto__1___closed__25, &l_Std_IsPreorder_of__le___auto__1___closed__25_once, _init_l_Std_IsPreorder_of__le___auto__1___closed__25);
+return v___x_271_;
 }
 }
 static lean_object* _init_l_Std_IsLinearPreorder_of__lt___auto__3(void){
 _start:
 {
-lean_object* v___x_247_; 
-v___x_247_ = lean_obj_once(&l_Std_IsPreorder_of__le___auto__1___closed__25, &l_Std_IsPreorder_of__le___auto__1___closed__25_once, _init_l_Std_IsPreorder_of__le___auto__1___closed__25);
-return v___x_247_;
+lean_object* v___x_272_; 
+v___x_272_ = lean_obj_once(&l_Std_IsPreorder_of__le___auto__1___closed__25, &l_Std_IsPreorder_of__le___auto__1___closed__25_once, _init_l_Std_IsPreorder_of__le___auto__1___closed__25);
+return v___x_272_;
 }
 }
 static lean_object* _init_l_Std_IsLinearOrder_of__lt___auto__1(void){
 _start:
 {
-lean_object* v___x_248_; 
-v___x_248_ = lean_obj_once(&l_Std_IsPreorder_of__le___auto__1___closed__25, &l_Std_IsPreorder_of__le___auto__1___closed__25_once, _init_l_Std_IsPreorder_of__le___auto__1___closed__25);
-return v___x_248_;
+lean_object* v___x_273_; 
+v___x_273_ = lean_obj_once(&l_Std_IsPreorder_of__le___auto__1___closed__25, &l_Std_IsPreorder_of__le___auto__1___closed__25_once, _init_l_Std_IsPreorder_of__le___auto__1___closed__25);
+return v___x_273_;
 }
 }
 static lean_object* _init_l_Std_IsLinearOrder_of__lt___auto__3(void){
 _start:
 {
-lean_object* v___x_249_; 
-v___x_249_ = lean_obj_once(&l_Std_IsPreorder_of__le___auto__1___closed__25, &l_Std_IsPreorder_of__le___auto__1___closed__25_once, _init_l_Std_IsPreorder_of__le___auto__1___closed__25);
-return v___x_249_;
+lean_object* v___x_274_; 
+v___x_274_ = lean_obj_once(&l_Std_IsPreorder_of__le___auto__1___closed__25, &l_Std_IsPreorder_of__le___auto__1___closed__25_once, _init_l_Std_IsPreorder_of__le___auto__1___closed__25);
+return v___x_274_;
 }
 }
 static lean_object* _init_l_Std_IsLinearOrder_of__lt___auto__5(void){
 _start:
 {
-lean_object* v___x_250_; 
-v___x_250_ = lean_obj_once(&l_Std_IsPreorder_of__le___auto__1___closed__25, &l_Std_IsPreorder_of__le___auto__1___closed__25_once, _init_l_Std_IsPreorder_of__le___auto__1___closed__25);
-return v___x_250_;
+lean_object* v___x_275_; 
+v___x_275_ = lean_obj_once(&l_Std_IsPreorder_of__le___auto__1___closed__25, &l_Std_IsPreorder_of__le___auto__1___closed__25_once, _init_l_Std_IsPreorder_of__le___auto__1___closed__25);
+return v___x_275_;
 }
 }
 lean_object* runtime_initialize_Init_Data_Order_Classes(uint8_t builtin);

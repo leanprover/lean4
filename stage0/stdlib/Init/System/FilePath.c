@@ -114,8 +114,8 @@ static lean_object* l_System_FilePath_normalize___closed__0;
 static lean_once_cell_t l_System_FilePath_normalize___closed__1_once = LEAN_ONCE_CELL_INITIALIZER;
 static uint8_t l_System_FilePath_normalize___closed__1;
 LEAN_EXPORT lean_object* l_System_FilePath_normalize(lean_object*);
-LEAN_EXPORT uint8_t l_Option_instBEq_beq___at___00System_FilePath_isAbsolute_spec__1(lean_object*, lean_object*);
-LEAN_EXPORT lean_object* l_Option_instBEq_beq___at___00System_FilePath_isAbsolute_spec__1___boxed(lean_object*, lean_object*);
+LEAN_EXPORT uint8_t l_instBEqOption_beq___at___00System_FilePath_isAbsolute_spec__1(lean_object*, lean_object*);
+LEAN_EXPORT lean_object* l_instBEqOption_beq___at___00System_FilePath_isAbsolute_spec__1___boxed(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l___private_Init_WFExtrinsicFix_0__WellFounded_opaqueFix_u2082___at___00Std_Iter_atIdxSlow_x3f___at___00System_FilePath_isAbsolute_spec__0_spec__0___redArg(lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l___private_Init_WFExtrinsicFix_0__WellFounded_opaqueFix_u2082___at___00Std_Iter_atIdxSlow_x3f___at___00System_FilePath_isAbsolute_spec__0_spec__0___redArg___boxed(lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_System_FilePath_isAbsolute___closed__0___boxed__const__1;
@@ -784,7 +784,7 @@ return v_p_179_;
 }
 }
 }
-LEAN_EXPORT uint8_t l_Option_instBEq_beq___at___00System_FilePath_isAbsolute_spec__1(lean_object* v_x_183_, lean_object* v_x_184_){
+LEAN_EXPORT uint8_t l_instBEqOption_beq___at___00System_FilePath_isAbsolute_spec__1(lean_object* v_x_183_, lean_object* v_x_184_){
 _start:
 {
 if (lean_obj_tag(v_x_183_) == 0)
@@ -823,11 +823,11 @@ return v___x_192_;
 }
 }
 }
-LEAN_EXPORT lean_object* l_Option_instBEq_beq___at___00System_FilePath_isAbsolute_spec__1___boxed(lean_object* v_x_193_, lean_object* v_x_194_){
+LEAN_EXPORT lean_object* l_instBEqOption_beq___at___00System_FilePath_isAbsolute_spec__1___boxed(lean_object* v_x_193_, lean_object* v_x_194_){
 _start:
 {
 uint8_t v_res_195_; lean_object* v_r_196_; 
-v_res_195_ = l_Option_instBEq_beq___at___00System_FilePath_isAbsolute_spec__1(v_x_193_, v_x_194_);
+v_res_195_ = l_instBEqOption_beq___at___00System_FilePath_isAbsolute_spec__1(v_x_193_, v_x_194_);
 lean_dec(v_x_194_);
 lean_dec(v_x_193_);
 v_r_196_ = lean_box(v_res_195_);
@@ -975,7 +975,7 @@ v___x_237_ = l___private_Init_WFExtrinsicFix_0__WellFounded_opaqueFix_u2082___at
 lean_dec_ref_known(v___x_235_, 3);
 lean_dec_ref(v_p_227_);
 v___x_238_ = lean_obj_once(&l_System_FilePath_isAbsolute___closed__0, &l_System_FilePath_isAbsolute___closed__0_once, _init_l_System_FilePath_isAbsolute___closed__0);
-v___x_239_ = l_Option_instBEq_beq___at___00System_FilePath_isAbsolute_spec__1(v___x_237_, v___x_238_);
+v___x_239_ = l_instBEqOption_beq___at___00System_FilePath_isAbsolute_spec__1(v___x_237_, v___x_238_);
 lean_dec(v___x_237_);
 return v___x_239_;
 }

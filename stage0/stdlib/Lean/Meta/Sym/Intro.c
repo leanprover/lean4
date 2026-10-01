@@ -48,6 +48,7 @@ lean_object* lean_st_ref_put(lean_object*, lean_object*);
 lean_object* lean_mk_empty_array_with_capacity(lean_object*);
 lean_object* lean_st_ref_get(lean_object*);
 lean_object* l_Lean_Name_num___override(lean_object*, lean_object*);
+uint8_t l_Lean_LocalDeclKind_ofBinderName(lean_object*);
 lean_object* l_Lean_LocalContext_mkLocalDecl(lean_object*, lean_object*, lean_object*, lean_object*, uint8_t, uint8_t);
 lean_object* l_Lean_Expr_fvar___override(lean_object*);
 lean_object* l_Lean_Meta_Sym_Internal_Sym_share1___redArg(lean_object*, lean_object*);
@@ -531,7 +532,7 @@ lean_object* v_a_159_; uint8_t v___x_160_; lean_object* v___x_161_; lean_object*
 v_a_159_ = lean_ctor_get(v___x_158_, 0);
 lean_inc(v_a_159_);
 lean_dec_ref_known(v___x_158_, 1);
-v___x_160_ = 0;
+v___x_160_ = l_Lean_LocalDeclKind_ofBinderName(v_a_159_);
 lean_inc(v_a_155_);
 lean_inc(v_a_157_);
 v___x_161_ = l_Lean_LocalContext_mkLocalDecl(v_lctx_134_, v_a_157_, v_a_159_, v_a_155_, v_binderInfo_151_, v___x_160_);
@@ -812,7 +813,7 @@ lean_object* v_a_214_; uint8_t v___x_215_; lean_object* v___x_216_; lean_object*
 v_a_214_ = lean_ctor_get(v___x_213_, 0);
 lean_inc(v_a_214_);
 lean_dec_ref_known(v___x_213_, 1);
-v___x_215_ = 0;
+v___x_215_ = l_Lean_LocalDeclKind_ofBinderName(v_a_214_);
 lean_inc(v_a_208_);
 lean_inc(v_a_212_);
 v___x_216_ = l_Lean_LocalContext_mkLetDecl(v_lctx_134_, v_a_212_, v_a_214_, v_a_208_, v_a_210_, v___x_145_, v___x_215_);

@@ -656,8 +656,8 @@ LEAN_EXPORT lean_object* l_Lean_Meta_typeFormerTypeLevel(lean_object*, lean_obje
 LEAN_EXPORT lean_object* l_Lean_Meta_typeFormerTypeLevel___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Meta_isTypeFormerType(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Meta_isTypeFormerType___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
-LEAN_EXPORT uint8_t l_Option_instBEq_beq___at___00Lean_Meta_isPropFormerType_spec__0(lean_object*, lean_object*);
-LEAN_EXPORT lean_object* l_Option_instBEq_beq___at___00Lean_Meta_isPropFormerType_spec__0___boxed(lean_object*, lean_object*);
+LEAN_EXPORT uint8_t l_instBEqOption_beq___at___00Lean_Meta_isPropFormerType_spec__0(lean_object*, lean_object*);
+LEAN_EXPORT lean_object* l_instBEqOption_beq___at___00Lean_Meta_isPropFormerType_spec__0___boxed(lean_object*, lean_object*);
 static const lean_ctor_object l_Lean_Meta_isPropFormerType___closed__0_value = {.m_header = {.m_rc = 0, .m_cs_sz = sizeof(lean_ctor_object) + sizeof(void*)*1 + 0, .m_other = 1, .m_tag = 1}, .m_objs = {((lean_object*)(((size_t)(0) << 1) | 1))}};
 static const lean_object* l_Lean_Meta_isPropFormerType___closed__0 = (const lean_object*)&l_Lean_Meta_isPropFormerType___closed__0_value;
 LEAN_EXPORT lean_object* l_Lean_Meta_isPropFormerType(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
@@ -1511,7 +1511,7 @@ _start:
 lean_object* v___x_312_; lean_object* v___x_313_; lean_object* v___x_314_; lean_object* v___x_315_; lean_object* v___x_316_; lean_object* v___x_317_; 
 v___x_312_ = ((lean_object*)(l___private_Lean_Meta_InferType_0__Lean_Expr_instantiateBetaRevRange_visitApp___closed__2));
 v___x_313_ = lean_unsigned_to_nat(18u);
-v___x_314_ = lean_unsigned_to_nat(1846u);
+v___x_314_ = lean_unsigned_to_nat(1864u);
 v___x_315_ = ((lean_object*)(l___private_Lean_Meta_InferType_0__Lean_Expr_instantiateBetaRevRange_visitApp___closed__1));
 v___x_316_ = ((lean_object*)(l___private_Lean_Meta_InferType_0__Lean_Expr_instantiateBetaRevRange_visitApp___closed__0));
 v___x_317_ = l_mkPanicMessageWithDecl(v___x_316_, v___x_315_, v___x_314_, v___x_313_, v___x_312_);
@@ -16514,7 +16514,7 @@ lean_dec_ref(v_a_5054_);
 return v_res_5059_;
 }
 }
-LEAN_EXPORT uint8_t l_Option_instBEq_beq___at___00Lean_Meta_isPropFormerType_spec__0(lean_object* v_x_5060_, lean_object* v_x_5061_){
+LEAN_EXPORT uint8_t l_instBEqOption_beq___at___00Lean_Meta_isPropFormerType_spec__0(lean_object* v_x_5060_, lean_object* v_x_5061_){
 _start:
 {
 if (lean_obj_tag(v_x_5060_) == 0)
@@ -16551,11 +16551,11 @@ return v___x_5067_;
 }
 }
 }
-LEAN_EXPORT lean_object* l_Option_instBEq_beq___at___00Lean_Meta_isPropFormerType_spec__0___boxed(lean_object* v_x_5068_, lean_object* v_x_5069_){
+LEAN_EXPORT lean_object* l_instBEqOption_beq___at___00Lean_Meta_isPropFormerType_spec__0___boxed(lean_object* v_x_5068_, lean_object* v_x_5069_){
 _start:
 {
 uint8_t v_res_5070_; lean_object* v_r_5071_; 
-v_res_5070_ = l_Option_instBEq_beq___at___00Lean_Meta_isPropFormerType_spec__0(v_x_5068_, v_x_5069_);
+v_res_5070_ = l_instBEqOption_beq___at___00Lean_Meta_isPropFormerType_spec__0(v_x_5068_, v_x_5069_);
 lean_dec(v_x_5069_);
 lean_dec(v_x_5068_);
 v_r_5071_ = lean_box(v_res_5070_);
@@ -16590,7 +16590,7 @@ v_resetjp_5082_:
 {
 lean_object* v___x_5085_; uint8_t v___x_5086_; lean_object* v___x_5087_; lean_object* v___x_5089_; 
 v___x_5085_ = ((lean_object*)(l_Lean_Meta_isPropFormerType___closed__0));
-v___x_5086_ = l_Option_instBEq_beq___at___00Lean_Meta_isPropFormerType_spec__0(v_a_5081_, v___x_5085_);
+v___x_5086_ = l_instBEqOption_beq___at___00Lean_Meta_isPropFormerType_spec__0(v_a_5081_, v___x_5085_);
 lean_dec(v_a_5081_);
 v___x_5087_ = lean_box(v___x_5086_);
 if (v_isShared_5084_ == 0)

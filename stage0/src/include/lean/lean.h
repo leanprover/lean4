@@ -757,6 +757,10 @@ static inline unsigned lean_obj_tag(lean_object * o) {
     if (lean_is_scalar(o)) return lean_unbox(o); else return lean_ptr_tag(o);
 }
 
+static inline lean_object* lean_obj_tag_nat(b_lean_obj_arg o) {
+    return lean_box(lean_obj_tag(o));
+}
+
 static inline lean_ctor_object * lean_to_ctor(lean_object * o) { assert(lean_is_ctor(o)); return (lean_ctor_object*)(o); }
 static inline lean_closure_object * lean_to_closure(lean_object * o) { assert(lean_is_closure(o)); return (lean_closure_object*)(o); }
 static inline lean_array_object * lean_to_array(lean_object * o) { assert(lean_is_array(o)); return (lean_array_object*)(o); }
@@ -1344,6 +1348,10 @@ static inline lean_obj_res lean_byte_array_set(lean_obj_arg a, b_lean_obj_arg i,
 static inline lean_obj_res lean_byte_array_fset(lean_obj_arg a, b_lean_obj_arg i, uint8_t b) {
     return lean_byte_array_uset(a, lean_unbox(i), b);
 }
+
+LEAN_EXPORT bool lean_byte_array_lt(b_lean_obj_arg s1, b_lean_obj_arg s2);
+LEAN_EXPORT uint8_t lean_byte_array_compare(b_lean_obj_arg s1, b_lean_obj_arg s2);
+static inline uint8_t lean_byte_array_dec_lt(b_lean_obj_arg s1, b_lean_obj_arg s2) { return lean_byte_array_lt(s1, s2); }
 
 /* FloatArray (special case of Array of Scalars) */
 

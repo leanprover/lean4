@@ -718,6 +718,67 @@ class interpreter {
     // caches symbol lookup successes _and_ failures
     name_hash_map<symbol_cache_entry> m_symbol_cache;
 
+    /** \brief Insert-only open-addressing map from name objects, by address, to entries of `m_symbol_cache`.
+        Call sites in different modules usually refer to the same function through different name objects, so
+        this avoids comparing names component-wise on every call. Holds a reference to each key so that its
+        address cannot be reused for another name. */
+    class name_ptr_cache {
+        struct slot {
+            object *                   m_key = nullptr;
+            symbol_cache_entry const * m_val = nullptr;
+        };
+        std::vector<slot> m_slots = std::vector<slot>(64);
+        unsigned m_shift = 64 - 6;
+        size_t m_size = 0;
+
+        size_t index(object * k) const {
+            return static_cast<size_t>((static_cast<uint64>(reinterpret_cast<uintptr_t>(k)) >> 4) * 0x9E3779B97F4A7C15ull >> m_shift);
+        }
+        void put(object * k, symbol_cache_entry const * v) {
+            size_t mask = m_slots.size() - 1;
+            for (size_t i = index(k);; i = (i + 1) & mask) {
+                if (!m_slots[i].m_key) {
+                    m_slots[i] = slot { k, v };
+                    return;
+                }
+            }
+        }
+    public:
+        name_ptr_cache() {}
+        name_ptr_cache(name_ptr_cache const &) = delete;
+        name_ptr_cache & operator=(name_ptr_cache const &) = delete;
+        ~name_ptr_cache() {
+            for (slot const & s : m_slots) {
+                if (s.m_key)
+                    lean_dec(s.m_key);
+            }
+        }
+        symbol_cache_entry const * find(object * k) const {
+            size_t mask = m_slots.size() - 1;
+            for (size_t i = index(k);; i = (i + 1) & mask) {
+                if (m_slots[i].m_key == k)
+                    return m_slots[i].m_val;
+                if (!m_slots[i].m_key)
+                    return nullptr;
+            }
+        }
+        void insert(object * k, symbol_cache_entry const * v) {
+            if (2 * (m_size + 1) > m_slots.size()) {
+                std::vector<slot> old(m_slots.size() * 2);
+                old.swap(m_slots);
+                m_shift--;
+                for (slot const & s : old) {
+                    if (s.m_key)
+                        put(s.m_key, s.m_val);
+                }
+            }
+            lean_inc(k);
+            put(k, v);
+            m_size++;
+        }
+    };
+    name_ptr_cache m_symbol_ptr_cache;
+
     /** \brief Get current stack frame */
     inline frame & get_frame() {
         return m_call_stack.back();
@@ -863,7 +924,7 @@ private:
                 }
             }
             case expr_kind::PAp: { // unsatured (partial) application of top-level function
-                symbol_cache_entry const & sym = lookup_symbol(expr_pap_fun(e));
+                symbol_cache_entry const & sym = lookup_symbol_at(expr_pap_fun(e));
                 if (sym.m_native.m_addr) {
                     // point closure directly at native symbol
                     object * cls = alloc_closure(sym.m_native.m_addr, decl_params(sym.m_decl).size(), expr_pap_args(e).size());
@@ -1135,6 +1196,15 @@ private:
        });
     }
 
+    /** \brief Like `lookup_symbol`, but first looks up the name object itself, for names stored in the IR. */
+    symbol_cache_entry const & lookup_symbol_at(name const & fn) {
+        if (symbol_cache_entry const * e = m_symbol_ptr_cache.find(fn.raw()))
+            return *e;
+        symbol_cache_entry const & e = lookup_symbol(fn);
+        m_symbol_ptr_cache.insert(fn.raw(), &e);
+        return e;
+    }
+
     /** \brief Return cached lookup result for given unmangled function name in the current binary.
         The reference stays valid for the interpreter's lifetime: the cache is node-based and never erased from. */
     symbol_cache_entry const & lookup_symbol(name const & fn) {
@@ -1248,7 +1318,7 @@ private:
     value call(name const & fn, array_ref<arg> const & args) {
         size_t old_size = m_arg_stack.size();
         value r;
-        symbol_cache_entry const & e = lookup_symbol(fn);
+        symbol_cache_entry const & e = lookup_symbol_at(fn);
         if (e.m_prim.m_fn) {
             prim_entry const & p = e.m_prim;
             value prim_args[max_prim_arity];

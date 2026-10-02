@@ -1549,12 +1549,13 @@ v___x_338_ = ((lean_object*)(l___private_Lake_Build_Index_0__Lake_recBuildWithIn
 v___x_339_ = ((lean_object*)(l___private_Lake_Build_Index_0__Lake_recBuildWithIndex___closed__1));
 v___x_340_ = 0;
 v___x_341_ = lean_obj_once(&l___private_Lake_Build_Index_0__Lake_recBuildWithIndex___closed__3, &l___private_Lake_Build_Index_0__Lake_recBuildWithIndex___closed__3_once, _init_l___private_Lake_Build_Index_0__Lake_recBuildWithIndex___closed__3);
-v___x_342_ = lean_alloc_ctor(0, 3, 2);
+v___x_342_ = lean_alloc_ctor(0, 3, 3);
 lean_ctor_set(v___x_342_, 0, v___x_338_);
 lean_ctor_set(v___x_342_, 1, v___x_341_);
 lean_ctor_set(v___x_342_, 2, v___x_337_);
 lean_ctor_set_uint8(v___x_342_, sizeof(void*)*3, v___x_340_);
 lean_ctor_set_uint8(v___x_342_, sizeof(void*)*3 + 1, v___x_335_);
+lean_ctor_set_uint8(v___x_342_, sizeof(void*)*3 + 2, v___x_335_);
 if (v_isShared_330_ == 0)
 {
 lean_ctor_set(v___x_329_, 1, v___x_342_);

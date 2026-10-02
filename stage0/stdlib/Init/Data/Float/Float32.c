@@ -157,6 +157,8 @@ float powf(float, float);
 LEAN_EXPORT lean_object* l_Float32_pow___boxed(lean_object*, lean_object*);
 float sqrtf(float);
 LEAN_EXPORT lean_object* l_Float32_sqrt___boxed(lean_object*);
+float fmaf(float, float, float);
+LEAN_EXPORT lean_object* l_Float32_fma___boxed(lean_object*, lean_object*, lean_object*);
 float cbrtf(float);
 LEAN_EXPORT lean_object* l_Float32_cbrt___boxed(lean_object*);
 float ceilf(float);
@@ -898,105 +900,92 @@ v_r_337_ = lean_box_float32(v_res_336_);
 return v_r_337_;
 }
 }
-LEAN_EXPORT lean_object* l_Float32_cbrt___boxed(lean_object* v_a_00___x40___internal___hyg_339_){
+LEAN_EXPORT lean_object* l_Float32_fma___boxed(lean_object* v_a_00___x40___internal___hyg_341_, lean_object* v_a_00___x40___internal___hyg_342_, lean_object* v_a_00___x40___internal___hyg_343_){
 _start:
 {
-float v_a_00___x40___internal___hyg_1__boxed_340_; float v_res_341_; lean_object* v_r_342_; 
-v_a_00___x40___internal___hyg_1__boxed_340_ = lean_unbox_float32(v_a_00___x40___internal___hyg_339_);
-lean_dec_ref(v_a_00___x40___internal___hyg_339_);
-v_res_341_ = cbrtf(v_a_00___x40___internal___hyg_1__boxed_340_);
-v_r_342_ = lean_box_float32(v_res_341_);
-return v_r_342_;
+float v_a_00___x40___internal___hyg_1__boxed_344_; float v_a_00___x40___internal___hyg_2__boxed_345_; float v_a_00___x40___internal___hyg_3__boxed_346_; float v_res_347_; lean_object* v_r_348_; 
+v_a_00___x40___internal___hyg_1__boxed_344_ = lean_unbox_float32(v_a_00___x40___internal___hyg_341_);
+lean_dec_ref(v_a_00___x40___internal___hyg_341_);
+v_a_00___x40___internal___hyg_2__boxed_345_ = lean_unbox_float32(v_a_00___x40___internal___hyg_342_);
+lean_dec_ref(v_a_00___x40___internal___hyg_342_);
+v_a_00___x40___internal___hyg_3__boxed_346_ = lean_unbox_float32(v_a_00___x40___internal___hyg_343_);
+lean_dec_ref(v_a_00___x40___internal___hyg_343_);
+v_res_347_ = fmaf(v_a_00___x40___internal___hyg_1__boxed_344_, v_a_00___x40___internal___hyg_2__boxed_345_, v_a_00___x40___internal___hyg_3__boxed_346_);
+v_r_348_ = lean_box_float32(v_res_347_);
+return v_r_348_;
 }
 }
-LEAN_EXPORT lean_object* l_Float32_ceil___boxed(lean_object* v_a_00___x40___internal___hyg_344_){
+LEAN_EXPORT lean_object* l_Float32_cbrt___boxed(lean_object* v_a_00___x40___internal___hyg_350_){
 _start:
 {
-float v_a_00___x40___internal___hyg_1__boxed_345_; float v_res_346_; lean_object* v_r_347_; 
-v_a_00___x40___internal___hyg_1__boxed_345_ = lean_unbox_float32(v_a_00___x40___internal___hyg_344_);
-lean_dec_ref(v_a_00___x40___internal___hyg_344_);
-v_res_346_ = ceilf(v_a_00___x40___internal___hyg_1__boxed_345_);
-v_r_347_ = lean_box_float32(v_res_346_);
-return v_r_347_;
+float v_a_00___x40___internal___hyg_1__boxed_351_; float v_res_352_; lean_object* v_r_353_; 
+v_a_00___x40___internal___hyg_1__boxed_351_ = lean_unbox_float32(v_a_00___x40___internal___hyg_350_);
+lean_dec_ref(v_a_00___x40___internal___hyg_350_);
+v_res_352_ = cbrtf(v_a_00___x40___internal___hyg_1__boxed_351_);
+v_r_353_ = lean_box_float32(v_res_352_);
+return v_r_353_;
 }
 }
-LEAN_EXPORT lean_object* l_Float32_floor___boxed(lean_object* v_a_00___x40___internal___hyg_349_){
+LEAN_EXPORT lean_object* l_Float32_ceil___boxed(lean_object* v_a_00___x40___internal___hyg_355_){
 _start:
 {
-float v_a_00___x40___internal___hyg_1__boxed_350_; float v_res_351_; lean_object* v_r_352_; 
-v_a_00___x40___internal___hyg_1__boxed_350_ = lean_unbox_float32(v_a_00___x40___internal___hyg_349_);
-lean_dec_ref(v_a_00___x40___internal___hyg_349_);
-v_res_351_ = floorf(v_a_00___x40___internal___hyg_1__boxed_350_);
-v_r_352_ = lean_box_float32(v_res_351_);
-return v_r_352_;
+float v_a_00___x40___internal___hyg_1__boxed_356_; float v_res_357_; lean_object* v_r_358_; 
+v_a_00___x40___internal___hyg_1__boxed_356_ = lean_unbox_float32(v_a_00___x40___internal___hyg_355_);
+lean_dec_ref(v_a_00___x40___internal___hyg_355_);
+v_res_357_ = ceilf(v_a_00___x40___internal___hyg_1__boxed_356_);
+v_r_358_ = lean_box_float32(v_res_357_);
+return v_r_358_;
 }
 }
-LEAN_EXPORT lean_object* l_Float32_round___boxed(lean_object* v_a_00___x40___internal___hyg_354_){
+LEAN_EXPORT lean_object* l_Float32_floor___boxed(lean_object* v_a_00___x40___internal___hyg_360_){
 _start:
 {
-float v_a_00___x40___internal___hyg_1__boxed_355_; float v_res_356_; lean_object* v_r_357_; 
-v_a_00___x40___internal___hyg_1__boxed_355_ = lean_unbox_float32(v_a_00___x40___internal___hyg_354_);
-lean_dec_ref(v_a_00___x40___internal___hyg_354_);
-v_res_356_ = roundf(v_a_00___x40___internal___hyg_1__boxed_355_);
-v_r_357_ = lean_box_float32(v_res_356_);
-return v_r_357_;
+float v_a_00___x40___internal___hyg_1__boxed_361_; float v_res_362_; lean_object* v_r_363_; 
+v_a_00___x40___internal___hyg_1__boxed_361_ = lean_unbox_float32(v_a_00___x40___internal___hyg_360_);
+lean_dec_ref(v_a_00___x40___internal___hyg_360_);
+v_res_362_ = floorf(v_a_00___x40___internal___hyg_1__boxed_361_);
+v_r_363_ = lean_box_float32(v_res_362_);
+return v_r_363_;
 }
 }
-LEAN_EXPORT lean_object* l_Float32_abs___boxed(lean_object* v_a_00___x40___internal___hyg_359_){
+LEAN_EXPORT lean_object* l_Float32_round___boxed(lean_object* v_a_00___x40___internal___hyg_365_){
 _start:
 {
-float v_a_00___x40___internal___hyg_1__boxed_360_; float v_res_361_; lean_object* v_r_362_; 
-v_a_00___x40___internal___hyg_1__boxed_360_ = lean_unbox_float32(v_a_00___x40___internal___hyg_359_);
-lean_dec_ref(v_a_00___x40___internal___hyg_359_);
-v_res_361_ = fabsf(v_a_00___x40___internal___hyg_1__boxed_360_);
-v_r_362_ = lean_box_float32(v_res_361_);
-return v_r_362_;
+float v_a_00___x40___internal___hyg_1__boxed_366_; float v_res_367_; lean_object* v_r_368_; 
+v_a_00___x40___internal___hyg_1__boxed_366_ = lean_unbox_float32(v_a_00___x40___internal___hyg_365_);
+lean_dec_ref(v_a_00___x40___internal___hyg_365_);
+v_res_367_ = roundf(v_a_00___x40___internal___hyg_1__boxed_366_);
+v_r_368_ = lean_box_float32(v_res_367_);
+return v_r_368_;
 }
 }
-LEAN_EXPORT float l_instMinFloat32___lam__0(float v_x_365_, float v_y_366_){
+LEAN_EXPORT lean_object* l_Float32_abs___boxed(lean_object* v_a_00___x40___internal___hyg_370_){
 _start:
 {
-uint8_t v___x_367_; 
-v___x_367_ = lean_float32_decLe(v_x_365_, v_y_366_);
-if (v___x_367_ == 0)
-{
-return v_y_366_;
-}
-else
-{
-return v_x_365_;
-}
-}
-}
-LEAN_EXPORT lean_object* l_instMinFloat32___lam__0___boxed(lean_object* v_x_368_, lean_object* v_y_369_){
-_start:
-{
-float v_x_boxed_370_; float v_y_boxed_371_; float v_res_372_; lean_object* v_r_373_; 
-v_x_boxed_370_ = lean_unbox_float32(v_x_368_);
-lean_dec_ref(v_x_368_);
-v_y_boxed_371_ = lean_unbox_float32(v_y_369_);
-lean_dec_ref(v_y_369_);
-v_res_372_ = l_instMinFloat32___lam__0(v_x_boxed_370_, v_y_boxed_371_);
+float v_a_00___x40___internal___hyg_1__boxed_371_; float v_res_372_; lean_object* v_r_373_; 
+v_a_00___x40___internal___hyg_1__boxed_371_ = lean_unbox_float32(v_a_00___x40___internal___hyg_370_);
+lean_dec_ref(v_a_00___x40___internal___hyg_370_);
+v_res_372_ = fabsf(v_a_00___x40___internal___hyg_1__boxed_371_);
 v_r_373_ = lean_box_float32(v_res_372_);
 return v_r_373_;
 }
 }
-LEAN_EXPORT float l_instMaxFloat32___lam__0(float v_x_376_, float v_y_377_){
+LEAN_EXPORT float l_instMinFloat32___lam__0(float v_x_376_, float v_y_377_){
 _start:
 {
 uint8_t v___x_378_; 
 v___x_378_ = lean_float32_decLe(v_x_376_, v_y_377_);
 if (v___x_378_ == 0)
 {
-return v_x_376_;
+return v_y_377_;
 }
 else
 {
-return v_y_377_;
+return v_x_376_;
 }
 }
 }
-LEAN_EXPORT lean_object* l_instMaxFloat32___lam__0___boxed(lean_object* v_x_379_, lean_object* v_y_380_){
+LEAN_EXPORT lean_object* l_instMinFloat32___lam__0___boxed(lean_object* v_x_379_, lean_object* v_y_380_){
 _start:
 {
 float v_x_boxed_381_; float v_y_boxed_382_; float v_res_383_; lean_object* v_r_384_; 
@@ -1004,43 +993,71 @@ v_x_boxed_381_ = lean_unbox_float32(v_x_379_);
 lean_dec_ref(v_x_379_);
 v_y_boxed_382_ = lean_unbox_float32(v_y_380_);
 lean_dec_ref(v_y_380_);
-v_res_383_ = l_instMaxFloat32___lam__0(v_x_boxed_381_, v_y_boxed_382_);
+v_res_383_ = l_instMinFloat32___lam__0(v_x_boxed_381_, v_y_boxed_382_);
 v_r_384_ = lean_box_float32(v_res_383_);
 return v_r_384_;
 }
 }
-LEAN_EXPORT lean_object* l_Float32_scaleB___boxed(lean_object* v_x_389_, lean_object* v_i_390_){
+LEAN_EXPORT float l_instMaxFloat32___lam__0(float v_x_387_, float v_y_388_){
 _start:
 {
-float v_x_boxed_391_; float v_res_392_; lean_object* v_r_393_; 
-v_x_boxed_391_ = lean_unbox_float32(v_x_389_);
-lean_dec_ref(v_x_389_);
-v_res_392_ = lean_float32_scaleb(v_x_boxed_391_, v_i_390_);
-lean_dec(v_i_390_);
-v_r_393_ = lean_box_float32(v_res_392_);
-return v_r_393_;
+uint8_t v___x_389_; 
+v___x_389_ = lean_float32_decLe(v_x_387_, v_y_388_);
+if (v___x_389_ == 0)
+{
+return v_x_387_;
+}
+else
+{
+return v_y_388_;
 }
 }
-LEAN_EXPORT lean_object* l_Float32_toFloat___boxed(lean_object* v_a_00___x40___internal___hyg_395_){
+}
+LEAN_EXPORT lean_object* l_instMaxFloat32___lam__0___boxed(lean_object* v_x_390_, lean_object* v_y_391_){
 _start:
 {
-float v_a_00___x40___internal___hyg_1__boxed_396_; double v_res_397_; lean_object* v_r_398_; 
-v_a_00___x40___internal___hyg_1__boxed_396_ = lean_unbox_float32(v_a_00___x40___internal___hyg_395_);
-lean_dec_ref(v_a_00___x40___internal___hyg_395_);
-v_res_397_ = lean_float32_to_float(v_a_00___x40___internal___hyg_1__boxed_396_);
-v_r_398_ = lean_box_float(v_res_397_);
-return v_r_398_;
+float v_x_boxed_392_; float v_y_boxed_393_; float v_res_394_; lean_object* v_r_395_; 
+v_x_boxed_392_ = lean_unbox_float32(v_x_390_);
+lean_dec_ref(v_x_390_);
+v_y_boxed_393_ = lean_unbox_float32(v_y_391_);
+lean_dec_ref(v_y_391_);
+v_res_394_ = l_instMaxFloat32___lam__0(v_x_boxed_392_, v_y_boxed_393_);
+v_r_395_ = lean_box_float32(v_res_394_);
+return v_r_395_;
 }
 }
-LEAN_EXPORT lean_object* l_Float_toFloat32___boxed(lean_object* v_a_00___x40___internal___hyg_400_){
+LEAN_EXPORT lean_object* l_Float32_scaleB___boxed(lean_object* v_x_400_, lean_object* v_i_401_){
 _start:
 {
-double v_a_00___x40___internal___hyg_1__boxed_401_; float v_res_402_; lean_object* v_r_403_; 
-v_a_00___x40___internal___hyg_1__boxed_401_ = lean_unbox_float(v_a_00___x40___internal___hyg_400_);
-lean_dec_ref(v_a_00___x40___internal___hyg_400_);
-v_res_402_ = lean_float_to_float32(v_a_00___x40___internal___hyg_1__boxed_401_);
-v_r_403_ = lean_box_float32(v_res_402_);
-return v_r_403_;
+float v_x_boxed_402_; float v_res_403_; lean_object* v_r_404_; 
+v_x_boxed_402_ = lean_unbox_float32(v_x_400_);
+lean_dec_ref(v_x_400_);
+v_res_403_ = lean_float32_scaleb(v_x_boxed_402_, v_i_401_);
+lean_dec(v_i_401_);
+v_r_404_ = lean_box_float32(v_res_403_);
+return v_r_404_;
+}
+}
+LEAN_EXPORT lean_object* l_Float32_toFloat___boxed(lean_object* v_a_00___x40___internal___hyg_406_){
+_start:
+{
+float v_a_00___x40___internal___hyg_1__boxed_407_; double v_res_408_; lean_object* v_r_409_; 
+v_a_00___x40___internal___hyg_1__boxed_407_ = lean_unbox_float32(v_a_00___x40___internal___hyg_406_);
+lean_dec_ref(v_a_00___x40___internal___hyg_406_);
+v_res_408_ = lean_float32_to_float(v_a_00___x40___internal___hyg_1__boxed_407_);
+v_r_409_ = lean_box_float(v_res_408_);
+return v_r_409_;
+}
+}
+LEAN_EXPORT lean_object* l_Float_toFloat32___boxed(lean_object* v_a_00___x40___internal___hyg_411_){
+_start:
+{
+double v_a_00___x40___internal___hyg_1__boxed_412_; float v_res_413_; lean_object* v_r_414_; 
+v_a_00___x40___internal___hyg_1__boxed_412_ = lean_unbox_float(v_a_00___x40___internal___hyg_411_);
+lean_dec_ref(v_a_00___x40___internal___hyg_411_);
+v_res_413_ = lean_float_to_float32(v_a_00___x40___internal___hyg_1__boxed_412_);
+v_r_414_ = lean_box_float32(v_res_413_);
+return v_r_414_;
 }
 }
 lean_object* runtime_initialize_Init_Data_Float_Float(uint8_t builtin);

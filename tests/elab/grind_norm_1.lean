@@ -404,6 +404,45 @@ example (j : Int) : (3 : Int) ∣ i + j - i := by grind_norm check; sorry
 
 end int_tightening
 
+section char_solve
+variable (x y : Fin 5) (u : UInt8)
+
+-- Accepted difference: legacy normalizes only `Nat` and `Int` arithmetic. `Sym` solves the
+-- equation when the coefficient is invertible modulo the characteristic.
+/--
+error: `grind_norm` discrepancy
+legacy:
+  3 * x + 1 = 0
+sym:
+  x = 3
+-/
+#guard_msgs in
+example : 3 * x + 1 = 0 := by grind_norm check; sorry
+
+-- Accepted difference: as above.
+/--
+error: `grind_norm` discrepancy
+legacy:
+  2 * x = 2 * y
+sym:
+  x = y
+-/
+#guard_msgs in
+example : 2 * x = 2 * y := by grind_norm check; sorry
+
+-- Accepted difference: as above.
+/--
+error: `grind_norm` discrepancy
+legacy:
+  3 * u = 1
+sym:
+  u = 171
+-/
+#guard_msgs in
+example : 3 * u = 1 := by grind_norm check; sorry
+
+end char_solve
+
 section control_flow
 variable (a b c : Nat) (x : Bool) (p q : Prop) (f g : Nat → Nat)
 
@@ -607,12 +646,13 @@ example : List.replicate 2 a = l := by grind_norm check; sorry
 #guard_msgs in
 example : (3 : Fin 5) + 4 = 2 := by grind_norm check; sorry
 
+-- Accepted difference: `Sym` solves the equation for `x`; legacy only evaluates the lhs.
 /--
 error: `grind_norm` discrepancy
 legacy:
   2 = x
 sym:
-  4 * x + 2 = 0
+  x = 2
 -/
 #guard_msgs in
 example (x : Fin 5) : (3 : Fin 5) + 4 = x := by grind_norm check; sorry
@@ -680,13 +720,6 @@ example (x : Fin 5) : (⟨2, by decide⟩ : Fin 5) = x := by grind_norm check; s
 #guard_msgs in
 example (x : Fin 5) : Fin.ofNat 5 7 = x := by grind_norm check; sorry
 
-/--
-error: `grind_norm` discrepancy
-legacy:
-  2 = x
-sym:
-  7 = x
--/
 #guard_msgs in
 example (x : Fin 5) : (7 : Fin 5) = x := by grind_norm check; sorry
 
@@ -765,12 +798,13 @@ sym:
 #guard_msgs in
 example (x : BitVec 8) : 300#8 = x := by grind_norm check; sorry
 
+-- Accepted difference: `Sym` solves the equation for `x`; legacy only evaluates the lhs.
 /--
 error: `grind_norm` discrepancy
 legacy:
   44 = x
 sym:
-  255 * x + 44 = 0
+  x = 44
 -/
 #guard_msgs in
 example (x : UInt8) : (200 : UInt8) + 100 = x := by grind_norm check; sorry
@@ -790,7 +824,7 @@ error: `grind_norm` discrepancy
 legacy:
   -56 = x
 sym:
-  255 * x + 200 = 0
+  x = 200
 -/
 #guard_msgs in
 example (x : Int8) : (100 : Int8) + 100 = x := by grind_norm check; sorry

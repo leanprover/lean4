@@ -2039,6 +2039,26 @@ theorem eq_norm_exprC {α c} [CommRing α] [IsCharP α c] (ctx : Context α) (lh
   replace h : lhs.denote ctx - rhs.denote ctx = lhs'.denote ctx - rhs'.denote ctx := h
   rw [← AddCommGroup.sub_eq_zero_iff, h, AddCommGroup.sub_eq_zero_iff]
 
+noncomputable def norm_eq_mulC_cert (lhs rhs lhs' rhs' : Expr) (k k' : Int) (c : Nat) : Bool :=
+  (Int.beq' ((k * k') % c) 1).and
+    ((((lhs.sub rhs).toPolyC c).mulConstC k' c).beq' ((lhs'.sub rhs').toPolyC c))
+
+/-- In characteristic `c`, an equation can be multiplied by `k'` when `k * k' ≡ 1` modulo `c`. -/
+theorem eq_norm_mul_exprC {α c} [CommRing α] [IsCharP α c] (ctx : Context α) (lhs rhs : Expr) (lhs' rhs' : Expr) (k k' : Int)
+    : norm_eq_mulC_cert lhs rhs lhs' rhs' k k' c → (lhs.denote ctx = rhs.denote ctx) = (lhs'.denote ctx = rhs'.denote ctx) := by
+  simp [norm_eq_mulC_cert]; intro hk h
+  replace h := congrArg (Poly.denote ctx) h; simp [Expr.denote_toPolyC, Poly.denote_mulConstC] at h
+  replace h : (IntCast.intCast k' : α) * (lhs.denote ctx - rhs.denote ctx) = lhs'.denote ctx - rhs'.denote ctx := h
+  have hkk : (IntCast.intCast k : α) * (IntCast.intCast k' : α) = 1 := by
+    rw [← intCast_mul, ← IsCharP.intCast_emod c, hk, intCast_one]
+  rw [← AddCommGroup.sub_eq_zero_iff, ← AddCommGroup.sub_eq_zero_iff (a := lhs'.denote ctx), ← h]
+  constructor
+  · intro h₁; rw [h₁, mul_zero]
+  · intro h₁
+    replace h₁ := congrArg ((IntCast.intCast k : α) * ·) h₁
+    rw [← mul_assoc, hkk, one_mul, mul_zero] at h₁
+    exact h₁
+
 noncomputable def norm_cnstr_nc_cert (lhs rhs lhs' rhs' : Expr) : Bool :=
   (rhs.sub lhs).toPoly_nc.beq' (rhs'.sub lhs').toPoly_nc
 

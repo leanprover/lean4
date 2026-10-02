@@ -605,6 +605,9 @@ private def runCore [Monad m] [MonadLiftT SymM m] (kind : Kind) (discharge? : Ex
 `lhs = rhs`, `lhs ≤ rhs`, `lhs < rhs` over a ring or semiring are normalized by
 moving everything to one side and splitting by sign (`x + y = z + 2 * x` becomes `y = z + x`),
 or, with `lhsOnly`, by keeping everything on the left (`y + -1 * z + -1 * x = 0`).
+With `lhsOnly`, an equation `k * m + k' = 0` or `k * m₁ = k * m₂` over a commutative ring of
+nonzero characteristic `c` is solved for the monomial when `k` is invertible modulo `c`
+(`eq_norm_mul_exprC`): in `Fin 5`, `4 * x + 2 = 0` becomes `x = 2`.
 Rings use `eq_norm_expr`, `le_norm_expr`, `lt_norm_expr` (`CommSolver.lean`); in a field of
 characteristic zero the numerator of `lhs - rhs` is split instead (`eq_normQ_expr`,
 `le_normQ_expr`, `lt_normQ_expr` in `FieldSolver.lean`, the last two under `IsLinearOrder`), so
@@ -689,12 +692,35 @@ private def divMonCoeffs (k : Nat) : Poly → Poly
   | .num _ => .num 0
   | .add c m p => .add (c / k) m (divMonCoeffs k p)
 
+/-- Extended Euclid. Invariant: `r₀ ≡ t₀ * k` and `r₁ ≡ t₁ * k` modulo `c`. -/
+private partial def modInvGo (c : Nat) (r₀ r₁ t₀ t₁ : Int) : Option Int :=
+  if r₁ == 0 then
+    if r₀ == 1 then some (t₀ % c) else none
+  else
+    let q := r₀ / r₁
+    modInvGo c r₁ (r₀ - q * r₁) t₁ (t₀ - q * t₁)
+
+/-- The inverse of `k` modulo `c`, in `[0, c)`, when `k` and `c` are coprime. -/
+private def modInv? (k : Int) (c : Nat) : Option Int :=
+  modInvGo c c (k % c) 0 1
+
+/--
+The leading coefficient `k` of `p` when `p` is `k * m + k'` or `k * m₁ - k * m₂` in
+characteristic `c`: the shapes for which `p = 0` is solved for a monomial by multiplying with
+the inverse of `k`.
+-/
+private def solvableCoeff? (c : Nat) : Poly → Option Int
+  | .add k _ (.num _) => some k
+  | .add k₁ _ (.add k₂ _ (.num 0)) => if k₁ + k₂ == c then some k₁ else none
+  | _ => none
+
 /--
 Given the reified sides `l`, `r` of `e := rel lhs rhs` (atoms already numbered in order),
 returns the normalized relation. `relFn` is the canonical `Eq α`/`LE.le α inst`/`LT.lt α inst`,
-and `order?` the order classification, required for `≤` and `<`.
+`order?` the order classification, required for `≤` and `<`, and `lhsC`, `rhsC` the sides after
+`canonArith`.
 -/
-private def normalizeRelCore (rel : RelKind) (relFn : Expr) (order? : Option Order) (e lhs rhs : Expr)
+private def normalizeRelCore (rel : RelKind) (relFn : Expr) (order? : Option Order) (e lhs rhs lhsC rhsC : Expr)
     (l r : RingExpr) (vars : Array Expr) (lhsOnly : Bool) : NormM CoreResult := do
   let kind ← getKind
   let opts ← getOptions
@@ -707,10 +733,14 @@ private def normalizeRelCore (rel : RelKind) (relFn : Expr) (order? : Option Ord
     let inst ← if kind.isComm then pure (← getCommRing).commRingInst else pure ring.ringInst
     let char? := ring.charInst?.bind fun (inst, c) => if c != 0 then some (inst, c) else none
     -- `simp +arith` leaves equations between atoms and numerals alone (`x = y`, `x = 3`,
-    -- `3 = x`): `grind` and other tactics handle these directly.
+    -- `3 = x`): `grind` and other tactics handle these directly. Canonicalization may still
+    -- have changed a numeral (`(7 : Fin 5)` is `2`).
     if lhsOnly && rel == .eq then
       match l, r with
-      | .var _, .var _ | .var _, .num _ | .num _, .var _ => return .normal
+      | .var _, .var _ | .var _, .num _ | .num _, .var _ =>
+        let e' ← share (mkApp2 relFn lhsC rhsC)
+        if isSameExpr e' e then return .normal
+        return .step e' (mkExpectedPropHint (mkApp2 (mkConst ``Eq.refl [1]) (mkSort .zero) e') (mkPropEq e e'))
       | _, _ => pure ()
     let some p ← (toPoly? (l.sub r)).run { budget with char? := char?.map (·.2) } | return .notApplicable
     -- Fields: cancel the discharged inverse atoms; in characteristic zero, split the numerator
@@ -744,6 +774,17 @@ private def normalizeRelCore (rel : RelKind) (relFn : Expr) (order? : Option Ord
           return .step e' (mkExpectedPropHint h (mkPropEq e e'))
         p := q.addConst (if rel == .eq then c / k else cdiv c k)
         tight? := some (q, k, c)
+    -- Nonzero characteristic `c`, `lhsOnly`: when `p` is `k * m + k'` or `k * m₁ - k * m₂` and
+    -- `k` has an inverse modulo `c`, multiply by it, so that the equation is solved for `m`
+    -- below. `scale?` records `k` and its inverse for the certificate.
+    let mut scale? : Option (Int × Int) := none
+    if lhsOnly && rel == .eq && kind.isComm && ainvs.isEmpty then
+      if let some (_, c) := char? then
+        if let some k := solvableCoeff? c p then
+          if k != 1 then
+            if let some k' := modInv? k c then
+              p := p.mulConstC k' c
+              scale? := some (k, k')
     -- Like `simp +arith`, an equation already of the form `p = 0` is left alone, and the
     -- equations `x = y` and `x = k` are kept in that form instead of `x - y = 0`.
     if lhsOnly && rel == .eq && char?.isNone && r == .num 0 && p.toExpr == l then return .normal
@@ -753,6 +794,9 @@ private def normalizeRelCore (rel : RelKind) (relFn : Expr) (order? : Option Ord
         | .eq, none, .add 1 m₁ (.add (-1) m₂ (.num 0)) => (.add 1 m₁ (.num 0), .add 1 m₂ (.num 0))
         | .eq, none, .add (-1) m₂ (.add 1 m₁ (.num 0)) => (.add 1 m₁ (.num 0), .add 1 m₂ (.num 0))
         | .eq, none, .add 1 m (.num k) => (.add 1 m (.num 0), .num (-k))
+        | .eq, some (_, c), .add 1 m₁ (.add k m₂ (.num 0)) =>
+          if k + 1 == c then (.add 1 m₁ (.num 0), .add 1 m₂ (.num 0)) else (p, .num 0)
+        | .eq, some (_, c), .add 1 m (.num k) => (.add 1 m (.num 0), .num ((c - k) % c))
         | _, _, _ => (p, .num 0)
       else
         let (lp, rp, c) := splitPoly (char?.map (·.2)) p
@@ -768,6 +812,10 @@ private def normalizeRelCore (rel : RelKind) (relFn : Expr) (order? : Option Ord
       pure <| match rel with
         | .eq => mkApp7 (mkConst ``Grind.CommRing.eq_norm_div_expr) ctx (toExpr l) (toExpr r) (toExpr l') (toExpr r') (toExpr k) eagerReflBoolTrue
         | _ => mkApp9 (mkConst ``Grind.CommRing.le_norm_tight_expr) ctx (toExpr l) (toExpr r) (toExpr l') (toExpr r') (toExpr q) (toExpr k) (toExpr c) eagerReflBoolTrue
+    else if let some (k, k') := scale? then
+      let (charInst, c) := char?.get!
+      let h := mkApp4 (mkConst ``Grind.CommRing.eq_norm_mul_exprC [u]) ring.type (toExpr c) inst charInst
+      pure (mkApp8 h ctx (toExpr l) (toExpr r) (toExpr l') (toExpr r') (toExpr k) (toExpr k') eagerReflBoolTrue)
     else if invs.isEmpty && ainvs.isEmpty then
       -- `thm type [c] inst [charInst]`, then the order instances.
       let base (name : Name) : Expr :=
@@ -932,7 +980,7 @@ private def normalizeRel? [Monad m] [MonadLiftT SymM m] [MonadLiftT MetaM m]
       else
         let f := Grind.mkVarRename perm
         (l.renameVars f, r.renameVars f, perm.map (vars[·]!))
-    normalizeRelCore rel relFn order? e₁ lhs₁ rhs₁ l r vars lhsOnly
+    normalizeRelCore rel relFn order? e₁ lhs₁ rhs₁ lhsC rhsC l r vars lhsOnly
   let (r, cd) ← runCore kind discharge? core
   match r with
   | .notApplicable => return if cd then r₀.withContextDependent else r₀

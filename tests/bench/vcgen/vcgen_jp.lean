@@ -5,11 +5,13 @@ Authors: Sebastian Graf
 -/
 import Cases.IfsJP
 import Cases.MatchesJP
+import Cases.WideJP
 import Driver
 
 /-! Benchmark driver for `vcgen +jp`: loops whose bodies chain `if`s (`IfsJP`) or `match`es
 (`MatchesJP`) with shared continuations. `+jp` proves each trailing continuation once; without it
-every alternative zeta-unfolds the `__do_jp` body and the VC count grows exponentially. -/
+every alternative zeta-unfolds the `__do_jp` body and the VC count grows exponentially. `WideJP`
+scales the number of jumps to a single join point. -/
 
 set_option experimental.vcgen true
 
@@ -23,3 +25,6 @@ set_option maxHeartbeats 10000000
 
 #eval runBenchUsingTactic ``MatchesJP.Goal [``MatchesJP.loop, ``MatchesJP.step] `(tactic| vcgen +jp) `(tactic| sorry)
   [20, 40, 60]
+
+#eval runBenchUsingTactic ``WideJP.Goal [``WideJP.wide, ``WideJP.chain] `(tactic| vcgen +jp) `(tactic| sorry)
+  [32, 64, 128]

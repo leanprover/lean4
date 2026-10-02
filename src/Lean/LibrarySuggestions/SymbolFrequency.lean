@@ -49,9 +49,10 @@ def waitInterruptibly (t : Task (Option α)) : CoreM (Option α) := do
   if ← IO.hasFinished t then
     return t.get
   let some tk := (← readThe Core.Context).cancelTk? | IO.wait t
-  let cancelled : IO.Promise Unit ← IO.Promise.new
-  tk.onSet (cancelled.resolve ())
-  match ← IO.waitAny [t.map some, cancelled.result?.map fun _ => none] with
+  let result : IO.Promise (Option (Option α)) ← IO.Promise.new
+  tk.onSet (result.resolve none)
+  BaseIO.chainTask t (fun value => result.resolve (some value)) (sync := true)
+  match ← IO.wait (result.resultD none) with
   | some result => return result
   | none => throwInterruptException
 
@@ -96,8 +97,7 @@ def importedRelevantConstants : CoreM (Array (Name × Array Name)) :=
       Meta.MetaM.run' <| withoutExporting do
         let types ← chunk.mapM fun name => return (← getConstInfo name).type
         return chunk.zip (← Expr.relevantConstantsOfEach types cancelTk?)
-    -- One chunk per hardware thread: each task starts with empty `MetaM` caches, so more
-    -- chunks repeat more work.
+    -- Chunks bound the size of each task's `MetaM` caches; more chunks repeat more work.
     let nTasks := max 1 (System.Platform.Internal.getHardwareConcurrency ()).toNat
     let chunkSize := max 1 ((names.size + nTasks - 1) / nTasks)
     let mut tasks := #[]
@@ -108,7 +108,7 @@ def importedRelevantConstants : CoreM (Array (Name × Array Name)) :=
       -- With a token, every `Core.checkSystem` in the task would read it, and concurrent reads
       -- of one `IO.Ref` spin. `relevantConstantsOfEach` checks `cancelTk?` every 64 statements.
       let act ← Core.wrapAsync visitChunk none
-      tasks := tasks.push (← EIO.asTask (act chunk) (prio := .dedicated))
+      tasks := tasks.push (← EIO.asTask (act chunk))
     let mut consts := Array.mkEmpty names.size
     for task in tasks do
       match ← IO.wait task with

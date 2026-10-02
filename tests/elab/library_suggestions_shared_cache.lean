@@ -6,16 +6,16 @@ import all Lean.LibrarySuggestions.SymbolFrequency
 Library suggestions cache their imported indexes in `SharedCache`s. Concurrent callers must share
 one computation. A computation that fails or is interrupted must not be cached, and the callers
 waiting for it must compute the value themselves. A cancelled caller must stop waiting without
-cancelling the computation.
+cancelling the computation. Run with `-j1` to check that blocked callers let queued work proceed.
 -/
 
 open Lean LibrarySuggestions
 
-/-- Run `x` in a dedicated task, with `tk?` as its cancellation token. -/
+/-- Run `x` in the worker pool, with `tk?` as its cancellation token. -/
 def spawn (x : CoreM α) (tk? : Option IO.CancelToken := none) :
     CoreM (Task (Except Exception α)) := do
   let act ← Core.wrapAsync (fun (_ : Unit) => x) tk?
-  EIO.asTask (act ()) (prio := .dedicated)
+  EIO.asTask (act ())
 
 /-- A computation that signals `started` and then blocks until `release` is resolved. -/
 def blocking (started release : IO.Promise Unit) (x : CoreM α) : CoreM α := do
@@ -102,7 +102,8 @@ unsafe def sameObject (a b : NameMap Nat) : Bool := ptrAddrUnsafe a == ptrAddrUn
 
 run_meta do
   assert! (← importedRelevantConstantsRef.get).isNone
-  let tasks ← (List.range 4).mapM fun _ => spawn symbolFrequencyMap
+  let tk ← IO.CancelToken.new
+  let tasks ← (List.range 4).mapM fun _ => spawn symbolFrequencyMap tk
   let maps ← tasks.mapM fun t => do
     let .ok map ← IO.wait t | throwError "expected the symbol frequency map"
     return map

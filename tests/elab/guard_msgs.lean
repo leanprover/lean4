@@ -2,6 +2,17 @@ import Lean.Elab.Command
 
 set_option guard_msgs.diff false
 
+-- Test absolute position reporting first so that it doesn't break if more tests are added.
+open Lean in
+/--
+@ 1:0...12:7
+info: Logging from the top of the file to end of `run_cmd`
+-/
+#guard_msgs (positions := true) in
+run_cmd
+  let some endPos := (← getRef).getTailPos? | throwError "Could not get position"
+  Lean.logInfoAt (.ofRange ⟨0, endPos⟩) "Logging from the top of the file to end of `run_cmd`"
+
 #guard_msgs in
 /-- error: Unknown identifier `x` -/
 #guard_msgs in

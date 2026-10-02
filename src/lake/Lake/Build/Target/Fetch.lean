@@ -52,7 +52,9 @@ def PartialBuildKey.fetchInCoreAux
       let job ← (pkg.target target).fetch
       return ⟨key, cast (by simp) job⟩
   | .facet target shortFacet =>
-      let ⟨key, job⟩ ← PartialBuildKey.fetchInCoreAux target false
+      -- Shadow the partial `target` with its resolved key, so the facet is
+      -- stored under the same key as every other fetch of it.
+      let ⟨target, job⟩ ← PartialBuildKey.fetchInCoreAux target false
       let kind := job.kind
       if h : kind.isAnonymous then
         error s!"invalid target '{root}': targets of opaque data kinds do not support facets"

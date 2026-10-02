@@ -48,12 +48,18 @@ public def Value (info : WPApp) : Expr := info.args[1]!
 public def Pred (info : WPApp) : Expr := info.args[2]!
 /-- Exception postcondition type argument of `wp`. -/
 public def EPosts (info : WPApp) : Expr := info.args[3]!
+/-- `Assertion Pred` instance argument of `wp`. -/
+public def instAL (info : WPApp) : Expr := info.args[4]!
+/-- `Assertion EPosts` instance argument of `wp`. -/
+public def instEAL (info : WPApp) : Expr := info.args[5]!
 /-- `WP` instance argument of `wp`. -/
 public def instWP (info : WPApp) : Expr := info.args[6]!
 /-- Program expression classified by VCGen. -/
 public def prog (info : WPApp) : Expr := info.args[7]!
 /-- Postcondition argument of `wp`. -/
 public def post (info : WPApp) : Expr := info.args[8]!
+/-- Exception postcondition argument of `wp`. -/
+public def eposts (info : WPApp) : Expr := info.args[9]!
 
 /-- The `wp` application itself, before the excess state arguments apply. -/
 public def wp (info : WPApp) : Expr := info.expr.stripArgsN info.excessArgs.size

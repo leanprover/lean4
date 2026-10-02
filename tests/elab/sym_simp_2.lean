@@ -85,6 +85,25 @@ example : (3 : Fin 5) + 4 = 2 := by sym => simp groundSimp  -- wraps
 example : (2 : Fin 10) * 3 = 6 := by sym => simp groundSimp
 example : -(1 : Fin 5) = 4 := by sym => simp groundSimp
 
+-- Fin operations
+example : (3 : Fin 5).succ = 4 := by sym => simp groundSimp
+example : (3 : Fin 5).castSucc = 3 := by sym => simp groundSimp
+example : Fin.last 4 = 4 := by sym => simp groundSimp
+example : (1 : Fin 5).rev = 3 := by sym => simp groundSimp
+example : (3 : Fin 5).pred (by decide) = 2 := by sym => simp groundSimp
+example : (2 : Fin 5).castAdd 3 = 2 := by sym => simp groundSimp
+example : (2 : Fin 5).addNat 3 = 5 := by sym => simp groundSimp
+example : Fin.natAdd 3 (2 : Fin 5) = 5 := by sym => simp groundSimp
+example : (2 : Fin 5).castLT (by decide : (2 : Fin 5).val < 3) = 2 := by sym => simp groundSimp
+example : Fin.castLE (by decide : 5 ≤ 7) (2 : Fin 5) = 2 := by sym => simp groundSimp
+example : Fin.subNat 2 (4 : Fin 5) (by decide) = 2 := by sym => simp groundSimp
+example : (⟨2, by decide⟩ : Fin 5) = 2 := by sym => simp groundSimp
+example : Fin.ofNat 5 7 = 2 := by sym => simp groundSimp
+example : (7 : Fin 5) = 2 := by sym => simp groundSimp
+example : (3 : Fin 5).val = 3 := by sym => simp groundSimp
+-- Out-of-range literals are normalized inside other operations too
+example : (7 : Fin 5).succ = 3 := by sym => simp groundSimp
+
 -- BitVec
 example : (2 : BitVec 8) + 3 = 5 := by sym => simp groundSimp
 example : (10 : BitVec 8) - 3 = 7 := by sym => simp groundSimp

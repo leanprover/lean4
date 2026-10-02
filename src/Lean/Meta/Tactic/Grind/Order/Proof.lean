@@ -13,49 +13,49 @@ namespace Lean.Meta.Grind.Order
 Returns `declName α leInst isPreorderInst`
 -/
 public def mkLePreorderPrefix (declName : Name) : OrderM Expr := do
-  let s ← getStruct
+  let s ← getOrder
   return mkApp3 (mkConst declName [s.u]) s.type s.leInst s.isPreorderInst
 
 /--
 Returns `declName α leInst isPartialInst`
 -/
 def mkLePartialPrefix (declName : Name) : OrderM Expr := do
-  let s ← getStruct
+  let s ← getOrder
   return mkApp3 (mkConst declName [s.u]) s.type s.leInst s.isPartialInst?.get!
 
 /--
 Returns `declName α leInst ltInst lawfulOrderLtInst`
 -/
 def mkLeLtPrefix (declName : Name) : OrderM Expr := do
-  let s ← getStruct
+  let s ← getOrder
   return mkApp4 (mkConst declName [s.u]) s.type s.leInst s.ltInst?.get! s.lawfulOrderLTInst?.get!
 
 /--
 Returns `declName α leInst ltInst lawfulOrderLtInst isPreorderInst`
 -/
 def mkLeLtPreorderPrefix (declName : Name) : OrderM Expr := do
-  let s ← getStruct
+  let s ← getOrder
   return mkApp (← mkLeLtPrefix declName) s.isPreorderInst
 
 /--
 Returns `declName α leInst ltInst lawfulOrderLtInst isLinearPreorderInst`
 -/
 public def mkLeLtLinearPrefix (declName : Name) : OrderM Expr := do
-  let s ← getStruct
+  let s ← getOrder
   return mkApp (← mkLeLtPrefix declName) s.isLinearPreInst?.get!
 
 /--
 Returns `declName α leInst isLinearPreorderInst`
 -/
 public def mkLeLinearPrefix (declName : Name) : OrderM Expr := do
-  let s ← getStruct
+  let s ← getOrder
   return mkApp3 (mkConst declName [s.u]) s.type s.leInst s.isLinearPreInst?.get!
 
 /--
 Returns `declName α leInst ltInst lawfulOrderLtInst isPreorderInst ringInst ordRingInst`
 -/
 public def mkOrdRingPrefix (declName : Name) : OrderM Expr := do
-  let s ← getStruct
+  let s ← getOrder
   let h ← mkLeLtPreorderPrefix declName
   return mkApp2 h s.ringInst?.get! s.orderedRingInst?.get!
 
@@ -63,7 +63,7 @@ public def mkOrdRingPrefix (declName : Name) : OrderM Expr := do
 Returns `declName α leInst ltInst lawfulOrderLtInst isLinearPreorderInst ringInst ordRingInst`
 -/
 public def mkLinearOrdRingPrefix (declName : Name) : OrderM Expr := do
-  let s ← getStruct
+  let s ← getOrder
   let h ← mkLeLtLinearPrefix declName
   return mkApp2 h s.ringInst?.get! s.orderedRingInst?.get!
 
@@ -282,7 +282,7 @@ public def mkEqProofOfLeOfLeCore (u v : Expr) (h₁ : Expr) (h₂ : Expr) : Orde
 
 public def mkEqProofOfLeOfLeOffset (u v : Expr) (h₁ : Expr) (h₂ : Expr) : OrderM Expr := do
   let h ← mkLePartialPrefix ``Grind.Order.eq_of_le_of_le_0
-  let h := mkApp h (← getStruct).ringInst?.get!
+  let h := mkApp h (← getOrder).ringInst?.get!
   return mkApp4 h u v h₁ h₂
 
 public def mkEqProofOfLeOfLe (u v : Expr) (h₁ : Expr) (h₂ : Expr) : OrderM Expr := do

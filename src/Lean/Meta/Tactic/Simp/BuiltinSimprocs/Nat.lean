@@ -11,6 +11,7 @@ public import Lean.Meta.LitValues
 public import Lean.Meta.Offset
 import Lean.Util.SafeExponentiation
 import Init.Data.Nat.Dvd
+import Init.Data.Nat.PowMod
 import Init.Data.Nat.Simproc
 public section
 namespace Lean.Nat
@@ -77,6 +78,18 @@ builtin_dsimproc [simp, seval] reducePow ((_ ^ _ : Nat)) := fun e => do
   let warning := (← Simp.getConfig).warnExponents
   unless (← checkExponent m (warning := warning)) do return .continue
   return .done <| toExpr (n ^ m)
+
+set_option linter.coreInternal.internalModule false in -- User-facing builtin simprocs are fine
+builtin_dsimproc [simp, seval] reducePowMod (Nat.powMod _ _ _) := fun e => do
+  let_expr Nat.powMod b k m := e | return .continue
+  let some b ← fromExpr? b | return .continue
+  let some k ← fromExpr? k | return .continue
+  let some m ← fromExpr? m | return .continue
+  if m == 0 then
+    -- `powMod b k 0 = b ^ k`, so guard the exponent as `reducePow` does.
+    let warning := (← Simp.getConfig).warnExponents
+    unless (← checkExponent k (warning := warning)) do return .continue
+  return .done <| toExpr (Nat.powMod b k m)
 
 set_option linter.coreInternal.internalModule false in -- User-facing builtin simprocs are fine
 builtin_dsimproc [simp, seval] reduceAnd ((_ &&& _ : Nat)) := reduceBin ``HAnd.hAnd 6 (· &&& ·)

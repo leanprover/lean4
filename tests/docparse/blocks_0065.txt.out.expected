@@ -1,0 +1,18 @@
+Input: "# foo\\\n*bar*\n"
+Success! Final stack:
+  [(Lean.Doc.Parser.Block.header
+    (Lean.Doc.Parser.headerMarker "#")
+    [(Lean.Doc.Parser.Inline.text
+      (Lean.Doc.Parser.versoText "foo\\\n"))
+     (Lean.Doc.Parser.Inline.bold
+      (Lean.Doc.Parser.boldDelimiter "*")
+      [(Lean.Doc.Parser.Inline.text
+        (Lean.Doc.Parser.versoText "bar"))]
+      (Lean.Doc.Parser.boldDelimiter "*"))])]
+All input consumed.
+Round-trip OK
+Decoded views:
+  header (marker := "#") (level := 0)
+    text (content := "foo\n")
+    bold (opener := "*") (closer := "*")
+      text (content := "bar")

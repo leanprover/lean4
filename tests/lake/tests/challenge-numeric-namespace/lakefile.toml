@@ -1,0 +1,9 @@
+name = "comparatortest"
+version = "0.1.0"
+
+[[lean_lib]]
+name = "Solution"
+
+[[lean_lib]]
+name = "Challenge"
+globs = ["Challenge.+"]

@@ -1,6 +1,6 @@
 // Lean compiler output
 // Module: Init.Data.Nat
-// Imports: public import Init.Data.Nat.Basic public import Init.Data.Nat.Div public import Init.Data.Nat.Dvd public import Init.Data.Nat.Gcd public import Init.Data.Nat.Coprime public import Init.Data.Nat.MinMax public import Init.Data.Nat.Order public import Init.Data.Nat.Bitwise public import Init.Data.Nat.Control public import Init.Data.Nat.Log2 public import Init.Data.Nat.Power2 public import Init.Data.Nat.Internal public import Init.Data.Nat.Internal public import Init.Data.Nat.Lemmas public import Init.Data.Nat.Mod public import Init.Data.Nat.Lcm public import Init.Data.Nat.Compare public import Init.Data.Nat.Simproc public import Init.Data.Nat.Fold public import Init.Data.Nat.Order public import Init.Data.Nat.ToString public import Init.Data.Nat.Sqrt
+// Imports: public import Init.Data.Nat.Basic public import Init.Data.Nat.Div public import Init.Data.Nat.Dvd public import Init.Data.Nat.Gcd public import Init.Data.Nat.Coprime public import Init.Data.Nat.MinMax public import Init.Data.Nat.Order public import Init.Data.Nat.Bitwise public import Init.Data.Nat.Control public import Init.Data.Nat.Log2 public import Init.Data.Nat.Power2 public import Init.Data.Nat.Internal public import Init.Data.Nat.Internal public import Init.Data.Nat.PowMod public import Init.Data.Nat.Lemmas public import Init.Data.Nat.Mod public import Init.Data.Nat.Lcm public import Init.Data.Nat.Compare public import Init.Data.Nat.Simproc public import Init.Data.Nat.Fold public import Init.Data.Nat.Order public import Init.Data.Nat.ToString public import Init.Data.Nat.Sqrt public import Init.Data.Nat.Package
 #include <lean/lean.h>
 #if defined(__clang__)
 #pragma clang diagnostic ignored "-Wunused-parameter"
@@ -26,6 +26,7 @@ lean_object* runtime_initialize_Init_Data_Nat_Log2(uint8_t builtin);
 lean_object* runtime_initialize_Init_Data_Nat_Power2(uint8_t builtin);
 lean_object* runtime_initialize_Init_Data_Nat_Internal(uint8_t builtin);
 lean_object* runtime_initialize_Init_Data_Nat_Internal(uint8_t builtin);
+lean_object* runtime_initialize_Init_Data_Nat_PowMod(uint8_t builtin);
 lean_object* runtime_initialize_Init_Data_Nat_Lemmas(uint8_t builtin);
 lean_object* runtime_initialize_Init_Data_Nat_Mod(uint8_t builtin);
 lean_object* runtime_initialize_Init_Data_Nat_Lcm(uint8_t builtin);
@@ -35,6 +36,7 @@ lean_object* runtime_initialize_Init_Data_Nat_Fold(uint8_t builtin);
 lean_object* runtime_initialize_Init_Data_Nat_Order(uint8_t builtin);
 lean_object* runtime_initialize_Init_Data_Nat_ToString(uint8_t builtin);
 lean_object* runtime_initialize_Init_Data_Nat_Sqrt(uint8_t builtin);
+lean_object* runtime_initialize_Init_Data_Nat_Package(uint8_t builtin);
 void lean_initialize_runtime_module();
 static bool _G_runtime_initialized = false;
 LEAN_EXPORT lean_object* runtime_initialize_Init_Data_Nat(uint8_t builtin) {
@@ -81,6 +83,9 @@ lean_dec_ref(res);
 res = runtime_initialize_Init_Data_Nat_Internal(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
+res = runtime_initialize_Init_Data_Nat_PowMod(builtin);
+if (lean_io_result_is_error(res)) return res;
+lean_dec_ref(res);
 res = runtime_initialize_Init_Data_Nat_Lemmas(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
@@ -108,6 +113,9 @@ lean_dec_ref(res);
 res = runtime_initialize_Init_Data_Nat_Sqrt(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
+res = runtime_initialize_Init_Data_Nat_Package(builtin);
+if (lean_io_result_is_error(res)) return res;
+lean_dec_ref(res);
 return lean_io_result_mk_ok(lean_box(0));
 }
 static bool _G_meta_initialized = false;
@@ -130,6 +138,7 @@ lean_object* initialize_Init_Data_Nat_Log2(uint8_t builtin);
 lean_object* initialize_Init_Data_Nat_Power2(uint8_t builtin);
 lean_object* initialize_Init_Data_Nat_Internal(uint8_t builtin);
 lean_object* initialize_Init_Data_Nat_Internal(uint8_t builtin);
+lean_object* initialize_Init_Data_Nat_PowMod(uint8_t builtin);
 lean_object* initialize_Init_Data_Nat_Lemmas(uint8_t builtin);
 lean_object* initialize_Init_Data_Nat_Mod(uint8_t builtin);
 lean_object* initialize_Init_Data_Nat_Lcm(uint8_t builtin);
@@ -139,6 +148,7 @@ lean_object* initialize_Init_Data_Nat_Fold(uint8_t builtin);
 lean_object* initialize_Init_Data_Nat_Order(uint8_t builtin);
 lean_object* initialize_Init_Data_Nat_ToString(uint8_t builtin);
 lean_object* initialize_Init_Data_Nat_Sqrt(uint8_t builtin);
+lean_object* initialize_Init_Data_Nat_Package(uint8_t builtin);
 static bool _G_initialized = false;
 LEAN_EXPORT lean_object* initialize_Init_Data_Nat(uint8_t builtin) {
 lean_object * res;
@@ -183,6 +193,9 @@ lean_dec_ref(res);
 res = initialize_Init_Data_Nat_Internal(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
+res = initialize_Init_Data_Nat_PowMod(builtin);
+if (lean_io_result_is_error(res)) return res;
+lean_dec_ref(res);
 res = initialize_Init_Data_Nat_Lemmas(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
@@ -208,6 +221,9 @@ res = initialize_Init_Data_Nat_ToString(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
 res = initialize_Init_Data_Nat_Sqrt(builtin);
+if (lean_io_result_is_error(res)) return res;
+lean_dec_ref(res);
+res = initialize_Init_Data_Nat_Package(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
 res = runtime_initialize_Init_Data_Nat(builtin);

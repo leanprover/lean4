@@ -32,7 +32,7 @@ lean_object* l_Lean_Name_toStringWithToken___at___00Lean_Name_toString_spec__0(l
 lean_object* l_Lean_Syntax_mkStrLit(lean_object*, lean_object*);
 uint8_t lean_usize_dec_eq(size_t, size_t);
 lean_object* lean_array_push(lean_object*, lean_object*);
-lean_object* l_Array_mkArray0(lean_object*);
+lean_object* l_Array_mkArray0___redArg();
 lean_object* l_Lean_mkAtom(lean_object*);
 lean_object* lean_mk_empty_array_with_capacity(lean_object*);
 lean_object* l_Lean_addMacroScope(lean_object*, lean_object*, lean_object*);
@@ -629,13 +629,13 @@ goto _start;
 LEAN_EXPORT lean_object* l___private_Init_Data_Array_Basic_0__Array_mapMUnsafe_map___at___00Lean_Json___aux__Lean__Data__Json__Elab______macroRules__Lean__Json__termJson_x25____1_spec__2___boxed(lean_object* v___x_299_, lean_object* v_sz_300_, lean_object* v_i_301_, lean_object* v_bs_302_){
 _start:
 {
-uint8_t v___x_32509__boxed_303_; size_t v_sz_boxed_304_; size_t v_i_boxed_305_; lean_object* v_res_306_; 
-v___x_32509__boxed_303_ = lean_unbox(v___x_299_);
+uint8_t v___x_32528__boxed_303_; size_t v_sz_boxed_304_; size_t v_i_boxed_305_; lean_object* v_res_306_; 
+v___x_32528__boxed_303_ = lean_unbox(v___x_299_);
 v_sz_boxed_304_ = lean_unbox_usize(v_sz_300_);
 lean_dec(v_sz_300_);
 v_i_boxed_305_ = lean_unbox_usize(v_i_301_);
 lean_dec(v_i_301_);
-v_res_306_ = l___private_Init_Data_Array_Basic_0__Array_mapMUnsafe_map___at___00Lean_Json___aux__Lean__Data__Json__Elab______macroRules__Lean__Json__termJson_x25____1_spec__2(v___x_32509__boxed_303_, v_sz_boxed_304_, v_i_boxed_305_, v_bs_302_);
+v_res_306_ = l___private_Init_Data_Array_Basic_0__Array_mapMUnsafe_map___at___00Lean_Json___aux__Lean__Data__Json__Elab______macroRules__Lean__Json__termJson_x25____1_spec__2(v___x_32528__boxed_303_, v_sz_boxed_304_, v_i_boxed_305_, v_bs_302_);
 return v_res_306_;
 }
 }
@@ -876,13 +876,13 @@ return v___x_370_;
 LEAN_EXPORT lean_object* l___private_Init_Data_Array_Basic_0__Array_mapMUnsafe_map___at___00__private_Init_Data_Array_Basic_0__Array_mapMUnsafe_map___at___00Lean_Json___aux__Lean__Data__Json__Elab______macroRules__Lean__Json__termJson_x25____1_spec__5_spec__5___redArg___boxed(lean_object* v___x_387_, lean_object* v_sz_388_, lean_object* v_i_389_, lean_object* v_bs_390_, lean_object* v___y_391_){
 _start:
 {
-uint8_t v___x_32591__boxed_392_; size_t v_sz_boxed_393_; size_t v_i_boxed_394_; lean_object* v_res_395_; 
-v___x_32591__boxed_392_ = lean_unbox(v___x_387_);
+uint8_t v___x_32610__boxed_392_; size_t v_sz_boxed_393_; size_t v_i_boxed_394_; lean_object* v_res_395_; 
+v___x_32610__boxed_392_ = lean_unbox(v___x_387_);
 v_sz_boxed_393_ = lean_unbox_usize(v_sz_388_);
 lean_dec(v_sz_388_);
 v_i_boxed_394_ = lean_unbox_usize(v_i_389_);
 lean_dec(v_i_389_);
-v_res_395_ = l___private_Init_Data_Array_Basic_0__Array_mapMUnsafe_map___at___00__private_Init_Data_Array_Basic_0__Array_mapMUnsafe_map___at___00Lean_Json___aux__Lean__Data__Json__Elab______macroRules__Lean__Json__termJson_x25____1_spec__5_spec__5___redArg(v___x_32591__boxed_392_, v_sz_boxed_393_, v_i_boxed_394_, v_bs_390_, v___y_391_);
+v_res_395_ = l___private_Init_Data_Array_Basic_0__Array_mapMUnsafe_map___at___00__private_Init_Data_Array_Basic_0__Array_mapMUnsafe_map___at___00Lean_Json___aux__Lean__Data__Json__Elab______macroRules__Lean__Json__termJson_x25____1_spec__5_spec__5___redArg(v___x_32610__boxed_392_, v_sz_boxed_393_, v_i_boxed_394_, v_bs_390_, v___y_391_);
 return v_res_395_;
 }
 }
@@ -1045,13 +1045,13 @@ return v___x_424_;
 LEAN_EXPORT lean_object* l___private_Init_Data_Array_Basic_0__Array_mapMUnsafe_map___at___00Lean_Json___aux__Lean__Data__Json__Elab______macroRules__Lean__Json__termJson_x25____1_spec__5___boxed(lean_object* v___x_441_, lean_object* v_sz_442_, lean_object* v_i_443_, lean_object* v_bs_444_, lean_object* v___y_445_, lean_object* v___y_446_){
 _start:
 {
-uint8_t v___x_32687__boxed_447_; size_t v_sz_boxed_448_; size_t v_i_boxed_449_; lean_object* v_res_450_; 
-v___x_32687__boxed_447_ = lean_unbox(v___x_441_);
+uint8_t v___x_32706__boxed_447_; size_t v_sz_boxed_448_; size_t v_i_boxed_449_; lean_object* v_res_450_; 
+v___x_32706__boxed_447_ = lean_unbox(v___x_441_);
 v_sz_boxed_448_ = lean_unbox_usize(v_sz_442_);
 lean_dec(v_sz_442_);
 v_i_boxed_449_ = lean_unbox_usize(v_i_443_);
 lean_dec(v_i_443_);
-v_res_450_ = l___private_Init_Data_Array_Basic_0__Array_mapMUnsafe_map___at___00Lean_Json___aux__Lean__Data__Json__Elab______macroRules__Lean__Json__termJson_x25____1_spec__5(v___x_32687__boxed_447_, v_sz_boxed_448_, v_i_boxed_449_, v_bs_444_, v___y_445_, v___y_446_);
+v_res_450_ = l___private_Init_Data_Array_Basic_0__Array_mapMUnsafe_map___at___00Lean_Json___aux__Lean__Data__Json__Elab______macroRules__Lean__Json__termJson_x25____1_spec__5(v___x_32706__boxed_447_, v_sz_boxed_448_, v_i_boxed_449_, v_bs_444_, v___y_445_, v___y_446_);
 lean_dec_ref(v___y_445_);
 return v_res_450_;
 }
@@ -1396,14 +1396,14 @@ goto _start;
 LEAN_EXPORT lean_object* l___private_Init_Data_Array_Basic_0__Array_foldlMUnsafe_fold___at___00Lean_Json___aux__Lean__Data__Json__Elab______macroRules__Lean__Json__termJson_x25____1_spec__7___boxed(lean_object* v___x_613_, lean_object* v___x_614_, lean_object* v_as_615_, lean_object* v_i_616_, lean_object* v_stop_617_, lean_object* v_b_618_){
 _start:
 {
-uint8_t v___x_33008__boxed_619_; uint8_t v___x_33009__boxed_620_; size_t v_i_boxed_621_; size_t v_stop_boxed_622_; lean_object* v_res_623_; 
-v___x_33008__boxed_619_ = lean_unbox(v___x_613_);
-v___x_33009__boxed_620_ = lean_unbox(v___x_614_);
+uint8_t v___x_33027__boxed_619_; uint8_t v___x_33028__boxed_620_; size_t v_i_boxed_621_; size_t v_stop_boxed_622_; lean_object* v_res_623_; 
+v___x_33027__boxed_619_ = lean_unbox(v___x_613_);
+v___x_33028__boxed_620_ = lean_unbox(v___x_614_);
 v_i_boxed_621_ = lean_unbox_usize(v_i_616_);
 lean_dec(v_i_616_);
 v_stop_boxed_622_ = lean_unbox_usize(v_stop_617_);
 lean_dec(v_stop_617_);
-v_res_623_ = l___private_Init_Data_Array_Basic_0__Array_foldlMUnsafe_fold___at___00Lean_Json___aux__Lean__Data__Json__Elab______macroRules__Lean__Json__termJson_x25____1_spec__7(v___x_33008__boxed_619_, v___x_33009__boxed_620_, v_as_615_, v_i_boxed_621_, v_stop_boxed_622_, v_b_618_);
+v_res_623_ = l___private_Init_Data_Array_Basic_0__Array_foldlMUnsafe_fold___at___00Lean_Json___aux__Lean__Data__Json__Elab______macroRules__Lean__Json__termJson_x25____1_spec__7(v___x_33027__boxed_619_, v___x_33028__boxed_620_, v_as_615_, v_i_boxed_621_, v_stop_boxed_622_, v_b_618_);
 lean_dec_ref(v_as_615_);
 return v_res_623_;
 }
@@ -1430,7 +1430,7 @@ static lean_object* _init_l_Lean_Json___aux__Lean__Data__Json__Elab______macroRu
 _start:
 {
 lean_object* v___x_671_; 
-v___x_671_ = l_Array_mkArray0(lean_box(0));
+v___x_671_ = l_Array_mkArray0___redArg();
 return v___x_671_;
 }
 }
@@ -2747,13 +2747,13 @@ return v___x_1313_;
 LEAN_EXPORT lean_object* l___private_Init_Data_Array_Basic_0__Array_mapMUnsafe_map___at___00__private_Init_Data_Array_Basic_0__Array_mapMUnsafe_map___at___00Lean_Json___aux__Lean__Data__Json__Elab______macroRules__Lean__Json__termJson_x25____1_spec__5_spec__5___boxed(lean_object* v___x_1314_, lean_object* v_sz_1315_, lean_object* v_i_1316_, lean_object* v_bs_1317_, lean_object* v___y_1318_, lean_object* v___y_1319_){
 _start:
 {
-uint8_t v___x_35052__boxed_1320_; size_t v_sz_boxed_1321_; size_t v_i_boxed_1322_; lean_object* v_res_1323_; 
-v___x_35052__boxed_1320_ = lean_unbox(v___x_1314_);
+uint8_t v___x_35071__boxed_1320_; size_t v_sz_boxed_1321_; size_t v_i_boxed_1322_; lean_object* v_res_1323_; 
+v___x_35071__boxed_1320_ = lean_unbox(v___x_1314_);
 v_sz_boxed_1321_ = lean_unbox_usize(v_sz_1315_);
 lean_dec(v_sz_1315_);
 v_i_boxed_1322_ = lean_unbox_usize(v_i_1316_);
 lean_dec(v_i_1316_);
-v_res_1323_ = l___private_Init_Data_Array_Basic_0__Array_mapMUnsafe_map___at___00__private_Init_Data_Array_Basic_0__Array_mapMUnsafe_map___at___00Lean_Json___aux__Lean__Data__Json__Elab______macroRules__Lean__Json__termJson_x25____1_spec__5_spec__5(v___x_35052__boxed_1320_, v_sz_boxed_1321_, v_i_boxed_1322_, v_bs_1317_, v___y_1318_, v___y_1319_);
+v_res_1323_ = l___private_Init_Data_Array_Basic_0__Array_mapMUnsafe_map___at___00__private_Init_Data_Array_Basic_0__Array_mapMUnsafe_map___at___00Lean_Json___aux__Lean__Data__Json__Elab______macroRules__Lean__Json__termJson_x25____1_spec__5_spec__5(v___x_35071__boxed_1320_, v_sz_boxed_1321_, v_i_boxed_1322_, v_bs_1317_, v___y_1318_, v___y_1319_);
 lean_dec_ref(v___y_1318_);
 return v_res_1323_;
 }

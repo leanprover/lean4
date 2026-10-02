@@ -1,0 +1,13 @@
+name = "test"
+enableArtifactCache = true
+platformIndependent = true
+
+[[lean_lib]]
+name = "Test"
+
+# A local dependency with neither the artifact cache nor platform
+# independence configured, so it follows the workspace default for the
+# former and is platform-dependent regardless of the root
+[[require]]
+name = "dep"
+path = "dep"

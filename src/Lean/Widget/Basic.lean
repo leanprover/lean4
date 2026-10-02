@@ -7,7 +7,7 @@ module
 
 prelude
 public import Lean.Elab.InfoTree
-public import Lean.Server.InfoUtils
+public import Lean.Elab.InfoTree.Util
 
 public section
 

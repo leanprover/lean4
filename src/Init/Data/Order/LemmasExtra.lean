@@ -170,6 +170,27 @@ theorem min_le_min [LE α] [Min α] [Std.LawfulOrderLeftLeaningMin α] [IsLinear
 public instance [LE α] [Min α] [Std.LawfulOrderLeftLeaningMin α] [IsLinearOrder α] : Commutative (min : α → α → α) where
   comm a b := by apply le_antisymm <;> simp [min_le_min]
 
+public instance [BEq α] [Ord α] [LE α] [Std.LawfulBEqOrd α] [Std.LawfulOrderOrd α] :
+    Std.LawfulOrderBEq α where
+  beq_iff_le_and_ge a b := by
+    rw [← Std.LawfulBEqOrd.compare_eq_iff_beq, ← Ordering.isEq_iff_eq_eq,
+      ← Ordering.isLE_and_isGE_eq, Bool.and_eq_true, Std.LawfulOrderOrd.isGE_compare,
+      Std.LawfulOrderOrd.isLE_compare]
+
+section compareOfLessAndEq
+
+public instance lawfulOrderOrd_compareOfLessAndEq {α : Type u} [LE α] [LT α]
+    [Std.Total (α := α) (· ≤ ·)]
+    [Std.Antisymm (α := α) (· ≤ ·)] [DecidableLT α] [LawfulOrderLT α] [DecidableEq α] :
+    letI : Ord α := ⟨(compareOfLessAndEq · ·)⟩
+    Std.LawfulOrderOrd α := by
+  let : Ord α := ⟨(compareOfLessAndEq · ·)⟩
+  refine ⟨fun a b => ?_, fun a b => ?_⟩
+  · exact isLE_compareOfLessAndEq Std.le_antisymm Std.not_le (fun _ _ => Std.le_total)
+  · exact isGE_compareOfLessAndEq Std.le_antisymm Std.not_le (fun _ _ => Std.le_total)
+
+end compareOfLessAndEq
+
 end Std
 
 namespace Classical.Order

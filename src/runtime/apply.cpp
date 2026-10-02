@@ -5,7 +5,7 @@ Released under Apache 2.0 license as described in the file LICENSE.
 Author: Leonardo de Moura
 */
 // DO NOT EDIT, this is an automatically generated file
-// Generated using script: ../../gen/apply.lean
+// Generated using script: script/apply.lean
 #include "runtime/apply.h"
 namespace lean {
 #define obj lean_object
@@ -890,12 +890,21 @@ if (arity == fixed + n) {
   lean_dec_ref(f);
   return r;
 } else if (arity < fixed + n) {
-  obj ** args = static_cast<obj**>(LEAN_ALLOCA(arity*sizeof(obj*))); // NOLINT
-  for (unsigned i = 0; i < fixed; i++) { lean_inc(fx(i)); args[i] = fx(i); }
-  for (unsigned i = 0; i < arity-fixed; i++) args[fixed+i] = as[i];
-  obj * new_f = FNN(f)(args);
-  lean_dec_ref(f);
-  return lean_apply_n(new_f, n+fixed-arity, &as[arity-fixed]);
+  unsigned m = arity - fixed;
+  obj * new_f;
+  if (arity > LEAN_CLOSURE_MAX_ARGS) {
+    // `f`'s code takes its arguments as an array
+    obj ** args = static_cast<obj**>(LEAN_ALLOCA(arity*sizeof(obj*))); // NOLINT
+    for (unsigned i = 0; i < fixed; i++) { lean_inc(fx(i)); args[i] = fx(i); }
+    for (unsigned i = 0; i < m; i++) args[fixed+i] = as[i];
+    new_f = FNN(f)(args);
+    lean_dec_ref(f);
+  } else {
+    // `f`'s code takes `arity` separate arguments, so it must not be invoked through `FNN`;
+    // `lean_apply_n` dispatches on `m` and consumes `f`.
+    new_f = lean_apply_n(f, m, as);
+  }
+  return lean_apply_n(new_f, n - m, &as[m]);
 } else {
   return fix_args(f, n, as);
 }

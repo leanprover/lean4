@@ -1,0 +1,4 @@
+name = "dep"
+
+[[lean_lib]]
+name = "Dep"

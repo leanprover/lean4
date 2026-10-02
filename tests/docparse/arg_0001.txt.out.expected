@@ -1,4 +1,8 @@
+Input: "x"
 Success! Final stack:
-  (Lean.Doc.Syntax.anon
-   (Lean.Doc.Syntax.arg_ident `x))
+  (Lean.Doc.Parser.Arg.anon
+   (Lean.Doc.Parser.ArgVal.ident `x))
 All input consumed.
+Round-trip OK
+Decoded views:
+  anon (val := name (x := x))

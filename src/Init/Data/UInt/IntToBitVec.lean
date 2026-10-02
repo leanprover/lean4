@@ -107,6 +107,22 @@ theorem USize.toBitVec32_neg {a : USize} (h : System.Platform.numBits = 32) :
   rfl
 
 @[int_toBitVec]
+theorem USize.toBitVec32_min {a b : USize} (h : System.Platform.numBits = 32) :
+    (min a b).toBitVec32 h = min (a.toBitVec32 h) (b.toBitVec32 h) := by
+  simp only [USize.toBitVec_min, USize.toBitVec32_eq_toBitVec]
+  generalize 32 = x at *
+  subst h
+  rfl
+
+@[int_toBitVec]
+theorem USize.toBitVec32_max {a b : USize} (h : System.Platform.numBits = 32) :
+    (max a b).toBitVec32 h = max (a.toBitVec32 h) (b.toBitVec32 h) := by
+  simp only [USize.toBitVec_max, USize.toBitVec32_eq_toBitVec]
+  generalize 32 = x at *
+  subst h
+  rfl
+
+@[int_toBitVec]
 theorem USize.toBitVec32_not {a : USize} (h : System.Platform.numBits = 32) :
     (~~~a).toBitVec32 h = ~~~a.toBitVec32 h := by
   simp only [USize.toBitVec_not, USize.toBitVec32_eq_toBitVec]
@@ -342,6 +358,22 @@ theorem USize.toBitVec64_mod {a b : USize} (h : System.Platform.numBits = 64) :
 theorem USize.toBitVec64_neg {a : USize} (h : System.Platform.numBits = 64) :
     (-a).toBitVec64 h = -a.toBitVec64 h := by
   simp only [USize.toBitVec_neg, USize.toBitVec64_eq_toBitVec]
+  generalize 64 = x at *
+  subst h
+  rfl
+
+@[int_toBitVec]
+theorem USize.toBitVec64_min {a b : USize} (h : System.Platform.numBits = 64) :
+    (min a b).toBitVec64 h = min (a.toBitVec64 h) (b.toBitVec64 h) := by
+  simp only [USize.toBitVec_min, USize.toBitVec64_eq_toBitVec]
+  generalize 64 = x at *
+  subst h
+  rfl
+
+@[int_toBitVec]
+theorem USize.toBitVec64_max {a b : USize} (h : System.Platform.numBits = 64) :
+    (max a b).toBitVec64 h = max (a.toBitVec64 h) (b.toBitVec64 h) := by
+  simp only [USize.toBitVec_max, USize.toBitVec64_eq_toBitVec]
   generalize 64 = x at *
   subst h
   rfl

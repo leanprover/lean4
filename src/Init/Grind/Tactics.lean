@@ -315,6 +315,20 @@ syntax (name := sym)
   " => " grindSeq : tactic
 
 /--
+`grind_norm` applies the `grind` normalizer to the goal target and replaces the goal with the
+result.
+
+**This tactic exists for debugging purposes only and will be deleted.** It is a temporary aid
+for the migration of the `grind` normalizer from `simp` to `Sym.simp`: it isolates the
+normalization step so that the two implementations can be compared. Do not use it in
+libraries or proofs.
+- `grind_norm` uses the legacy `simp`-based normalizer.
+- `grind_norm sym` uses the `Sym.simp`-based normalizer.
+- `grind_norm check` runs both and fails if the results differ.
+-/
+syntax (name := grindNorm) "grind_norm" optConfig (colGt (&" sym" <|> &" check"))? : tactic
+
+/--
 `cutsat` solves linear integer arithmetic goals.
 
 It is a implemented as a thin wrapper around the `grind` tactic, enabling only the `lia` solver.
@@ -329,8 +343,10 @@ syntax (name := cutsat) "cutsat" optConfig : tactic
 
 It is a implemented as a thin wrapper around the `grind` tactic, enabling only the `lia` solver.
 Please use `grind` instead if you need additional capabilities.
+
+Like `grind`, it accepts a list of extra facts and lemmas, e.g. `lia [foo n, = bar]`.
 -/
-syntax (name := lia) "lia" optConfig : tactic
+syntax (name := lia) "lia" optConfig (" [" withoutPosition(grindParam,*) "]")? : tactic
 
 /--
 `grind_order` solves simple goals about partial orders and linear orders.
@@ -354,8 +370,12 @@ over commutative (semi)rings, using the Grobner basis algorithm.
 
 It is a implemented as a thin wrapper around the `grind` tactic, enabling only the `grobner` solver.
 Please use `grind` instead if you need additional capabilities.
+
+Like `grind`, it accepts a list of extra facts and lemmas, e.g. `grobner [foo x y, = bar]`.
+Lemmas given this way are instantiated via E-matching, while the `@[grind]` lemma set is not enabled
+implicitly.
 -/
-syntax (name := grobner) "grobner" optConfig : tactic
+syntax (name := grobner) "grobner" optConfig (" [" withoutPosition(grindParam,*) "]")? : tactic
 
 /-!
 Sets symbol priorities for the E-matching pattern inference procedure used in `grind`

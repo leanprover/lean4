@@ -36,7 +36,7 @@ lean_object* l_Lean_Macro_throwErrorAt___redArg(lean_object*, lean_object*, lean
 lean_object* l_List_reverse___redArg(lean_object*);
 lean_object* l_Lean_Syntax_mkStrLit(lean_object*, lean_object*);
 lean_object* l_Lean_Syntax_TSepArray_push___redArg(lean_object*, lean_object*, lean_object*);
-lean_object* l_Array_mkArray0(lean_object*);
+lean_object* l_Array_mkArray0___redArg();
 lean_object* l_Array_append___redArg(lean_object*, lean_object*);
 lean_object* l_Lean_Syntax_node6(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 static const lean_string_object l___private_Std_Time_Notation_Spec_0__Std_Time_convertText___closed__0_value = {.m_header = {.m_rc = 0, .m_cs_sz = 0, .m_other = 0, .m_tag = 249}, .m_size = 20, .m_capacity = 20, .m_length = 19, .m_data = "Std.Time.Text.short"};
@@ -6607,7 +6607,7 @@ static lean_object* _init_l___private_Std_Time_Notation_Spec_0__Std_Time_formatS
 _start:
 {
 lean_object* v___x_3270_; 
-v___x_3270_ = l_Array_mkArray0(lean_box(0));
+v___x_3270_ = l_Array_mkArray0___redArg();
 return v___x_3270_;
 }
 }

@@ -1,0 +1,7 @@
+name = "test"
+
+[moreServerOptions]
+weak.foo = "baz"
+
+[[lean_lib]]
+name = "Test"

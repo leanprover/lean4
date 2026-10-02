@@ -83,6 +83,7 @@ builtin_facet imports : Module => Array Module
 /-- Dynamic information computed about a module before building. -/
 public structure ModulePreSetup where
   trace : BuildTrace
+  irSigTrace : BuildTrace
   srcMTime : MTime
   srcFile : FilePath
   isModule : Bool
@@ -119,6 +120,9 @@ builtin_facet deps : Package => Array Package
 
 /-- The package's complete array of transitive dependencies. -/
 builtin_facet transDeps : Package => Array Package
+
+/-- The Lean modules of the package's default targets. -/
+builtin_facet defaultModules : Package => Array Module
 
 /-!
 ### Facet Build Info Helper Constructors
@@ -181,13 +185,23 @@ namespace Module
 @[inherit_doc exportInfoFacet] public abbrev exportInfo (self : Module) :=
   self.facetCore exportInfoFacet
 
+@[inherit_doc metaExportInfoFacet] public abbrev metaExportInfo (self : Module) :=
+  self.facetCore metaExportInfoFacet
+
 @[inherit_doc importArtsFacet] public abbrev importArts (self : Module) :=
   self.facetCore importArtsFacet
 
 @[inherit_doc importAllArtsFacet] public abbrev importAllArts (self : Module) :=
   self.facetCore importAllArtsFacet
 
-@[inherit_doc leanArtsFacet] public abbrev leanArts (self : Module) :=
+@[inherit_doc elabArtsFacet] public abbrev elabArts (self : Module) :=
+  self.facetCore elabArtsFacet
+
+@[inherit_doc irArtsFacet] public abbrev irArts (self : Module) :=
+  self.facetCore irArtsFacet
+
+@[inherit_doc leanArtsFacet, deprecated "Use `elabArts` or `irArts` instead." (since := "2026-09-05")]
+public abbrev leanArts (self : Module) :=
   self.facetCore leanArtsFacet
 
 @[inherit_doc oleanFacet] public abbrev olean (self : Module) :=
@@ -300,6 +314,10 @@ public abbrev extraDep (self : Package) : BuildInfo :=
 public abbrev deps (self : Package) : BuildInfo :=
   self.facetCore depsFacet
 
+@[inherit_doc defaultModulesFacet]
+public abbrev defaultModules (self : Package) : BuildInfo :=
+  self.facetCore defaultModulesFacet
+
 @[inherit_doc transDepsFacet]
 public abbrev transDeps (self : Package) : BuildInfo :=
   self.facetCore transDepsFacet
@@ -329,7 +347,15 @@ public abbrev default (self : LeanLib) : BuildInfo :=
 public abbrev modules (self : LeanLib) : BuildInfo :=
   self.facetCore modulesFacet
 
-@[inherit_doc leanArtsFacet]
+@[inherit_doc elabArtsFacet]
+public abbrev elabArts (self : LeanLib) : BuildInfo :=
+  self.facetCore elabArtsFacet
+
+@[inherit_doc irArtsFacet]
+public abbrev irArts (self : LeanLib) : BuildInfo :=
+  self.facetCore irArtsFacet
+
+@[inherit_doc leanArtsFacet, deprecated "Use `elabArts` or `irArts` instead." (since := "2026-09-05")]
 public abbrev leanArts (self : LeanLib) : BuildInfo :=
   self.facetCore leanArtsFacet
 

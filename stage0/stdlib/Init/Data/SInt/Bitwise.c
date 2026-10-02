@@ -24,7 +24,7 @@ lean_object* l_Lean_Syntax_getArg(lean_object*, lean_object*);
 lean_object* l_Lean_TSyntax_getId(lean_object*);
 uint8_t lean_name_eq(lean_object*, lean_object*);
 lean_object* l_Lean_Syntax_node2(lean_object*, lean_object*, lean_object*, lean_object*);
-lean_object* l_Array_mkArray0(lean_object*);
+lean_object* l_Array_mkArray0___redArg();
 lean_object* l_Lean_Syntax_node1(lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Syntax_node4(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Syntax_node3(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
@@ -490,7 +490,7 @@ static lean_object* _init_l___aux__Init__Data__SInt__Bitwise______macroRules__co
 _start:
 {
 lean_object* v___x_56_; 
-v___x_56_ = l_Array_mkArray0(lean_box(0));
+v___x_56_ = l_Array_mkArray0___redArg();
 return v___x_56_;
 }
 }

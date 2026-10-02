@@ -145,16 +145,14 @@ null
 {"rendered": "no goals", "goals": []}
 {"textDocument": {"uri": "file:///plainGoal.lean"},
  "position": {"line": 107, "character": 4}}
-{"rendered": "```lean\nthis : True\n⊢ True\n```",
- "goals": ["this : True\n⊢ True"]}
+{"rendered": "```lean\n⊢ True\n```", "goals": ["⊢ True"]}
 {"textDocument": {"uri": "file:///plainGoal.lean"},
  "position": {"line": 109, "character": 2}}
 {"rendered": "```lean\nthis : True\n⊢ True\n```",
  "goals": ["this : True\n⊢ True"]}
 {"textDocument": {"uri": "file:///plainGoal.lean"},
  "position": {"line": 114, "character": 4}}
-{"rendered": "```lean\nthis : True\n⊢ True\n```",
- "goals": ["this : True\n⊢ True"]}
+{"rendered": "```lean\n⊢ True\n```", "goals": ["⊢ True"]}
 {"textDocument": {"uri": "file:///plainGoal.lean"},
  "position": {"line": 116, "character": 2}}
 {"rendered": "```lean\nthis : True\n⊢ True\n```",

@@ -145,11 +145,13 @@ builtin_initialize versoDocStringExt : MapDeclarationExtension VersoDocString �
 /--
 Adds a builtin docstring to the compiler.
 
+The text should have already had its leading indentation removed by the caller.
+
 Links to the Lean manual aren't validated.
 -/
 -- See the test `lean/run/docstringRewrites.lean` for the validation of builtin docstring links
 def addBuiltinDocString (declName : Name) (docString : String) : IO Unit := do
-  builtinDocStrings.modify (·.insert declName docString.removeLeadingSpaces)
+  builtinDocStrings.modify (·.insert declName docString)
 
 /--
 Removes a builtin docstring from the compiler. This is used when translating between formats.
@@ -234,14 +236,8 @@ def getModuleDoc? (env : Environment) (moduleName : Name) : Option (Array Module
 
 def getDocStringText [Monad m] [MonadError m] (stx : TSyntax `Lean.Parser.Command.docComment) : m String :=
   match stx.raw[1] with
-  | Syntax.atom _ val =>
-    return String.Pos.Raw.extract val 0 (val.rawEndPos.unoffsetBy ⟨2⟩)
-  | Syntax.node _ `Lean.Parser.Command.versoCommentBody _ =>
-    match stx.raw[1][0] with
-    | Syntax.atom _ val =>
-      return String.Pos.Raw.extract val 0 (val.rawEndPos.unoffsetBy ⟨2⟩)
-    | _ =>
-      throwErrorAt stx "unexpected doc string{indentD stx}"
+  | Syntax.node _ `Lean.Parser.Command.commentBody #[.atom _ text, _] =>
+    return text
   | _ =>
     throwErrorAt stx "unexpected doc string{indentD stx}"
 

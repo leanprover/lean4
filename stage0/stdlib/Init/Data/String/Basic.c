@@ -5522,52 +5522,52 @@ return v_res_1850_;
 LEAN_EXPORT lean_object* l_String_Slice_Pos_nextn(lean_object* v_s_1851_, lean_object* v_p_1852_, lean_object* v_n_1853_){
 _start:
 {
-lean_object* v_str_1854_; lean_object* v_startInclusive_1855_; lean_object* v_endExclusive_1856_; lean_object* v_zero_1857_; uint8_t v_isZero_1858_; 
-v_str_1854_ = lean_ctor_get(v_s_1851_, 0);
-v_startInclusive_1855_ = lean_ctor_get(v_s_1851_, 1);
-v_endExclusive_1856_ = lean_ctor_get(v_s_1851_, 2);
-v_zero_1857_ = lean_unsigned_to_nat(0u);
-v_isZero_1858_ = lean_nat_dec_eq(v_n_1853_, v_zero_1857_);
-if (v_isZero_1858_ == 1)
+lean_object* v_zero_1854_; uint8_t v_isZero_1855_; 
+v_zero_1854_ = lean_unsigned_to_nat(0u);
+v_isZero_1855_ = lean_nat_dec_eq(v_n_1853_, v_zero_1854_);
+if (v_isZero_1855_ == 1)
 {
 lean_dec(v_n_1853_);
 return v_p_1852_;
 }
 else
 {
-lean_object* v___x_1859_; uint8_t v_decide_1860_; lean_object* v_one_1861_; lean_object* v_n_1862_; 
-v___x_1859_ = lean_nat_sub(v_endExclusive_1856_, v_startInclusive_1855_);
-v_decide_1860_ = lean_nat_dec_eq(v_p_1852_, v___x_1859_);
-lean_dec(v___x_1859_);
-v_one_1861_ = lean_unsigned_to_nat(1u);
-v_n_1862_ = lean_nat_sub(v_n_1853_, v_one_1861_);
+lean_object* v_str_1856_; lean_object* v_startInclusive_1857_; lean_object* v_endExclusive_1858_; lean_object* v_one_1859_; lean_object* v_n_1860_; lean_object* v___x_1866_; uint8_t v_decide_1867_; 
+v_str_1856_ = lean_ctor_get(v_s_1851_, 0);
+v_startInclusive_1857_ = lean_ctor_get(v_s_1851_, 1);
+v_endExclusive_1858_ = lean_ctor_get(v_s_1851_, 2);
+v_one_1859_ = lean_unsigned_to_nat(1u);
+v_n_1860_ = lean_nat_sub(v_n_1853_, v_one_1859_);
 lean_dec(v_n_1853_);
-if (v_decide_1860_ == 0)
+v___x_1866_ = lean_nat_sub(v_endExclusive_1858_, v_startInclusive_1857_);
+v_decide_1867_ = lean_nat_dec_eq(v_p_1852_, v___x_1866_);
+lean_dec(v___x_1866_);
+if (v_decide_1867_ == 0)
 {
-goto v___jp_1863_;
+goto v___jp_1861_;
 }
 else
 {
-if (v_isZero_1858_ == 0)
+if (v_isZero_1855_ == 0)
 {
-lean_dec(v_n_1862_);
+lean_dec(v_n_1860_);
 return v_p_1852_;
 }
 else
 {
-goto v___jp_1863_;
+goto v___jp_1861_;
 }
 }
-v___jp_1863_:
+v___jp_1861_:
 {
-lean_object* v___x_1864_; lean_object* v___x_1865_; lean_object* v___x_1866_; 
-v___x_1864_ = lean_nat_add(v_startInclusive_1855_, v_p_1852_);
+lean_object* v___x_1862_; lean_object* v___x_1863_; lean_object* v___x_1864_; 
+v___x_1862_ = lean_nat_add(v_startInclusive_1857_, v_p_1852_);
 lean_dec(v_p_1852_);
-v___x_1865_ = lean_string_utf8_next_fast(v_str_1854_, v___x_1864_);
-lean_dec(v___x_1864_);
-v___x_1866_ = lean_nat_sub(v___x_1865_, v_startInclusive_1855_);
-v_p_1852_ = v___x_1866_;
-v_n_1853_ = v_n_1862_;
+v___x_1863_ = lean_string_utf8_next_fast(v_str_1856_, v___x_1862_);
+lean_dec(v___x_1862_);
+v___x_1864_ = lean_nat_sub(v___x_1863_, v_startInclusive_1857_);
+v_p_1852_ = v___x_1864_;
+v_n_1853_ = v_n_1860_;
 goto _start;
 }
 }

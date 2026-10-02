@@ -1,6 +1,6 @@
 // Lean compiler output
 // Module: Init.Data.Fin
-// Imports: public import Init.Data.Fin.Basic public import Init.Data.Fin.Log2 public import Init.Data.Fin.Iterate public import Init.Data.Fin.Fold public import Init.Data.Fin.Lemmas public import Init.Data.Fin.OverflowAware
+// Imports: public import Init.Data.Fin.Basic public import Init.Data.Fin.Log2 public import Init.Data.Fin.Iterate public import Init.Data.Fin.Fold public import Init.Data.Fin.Lemmas public import Init.Data.Fin.OverflowAware public import Init.Data.Fin.Package public import Init.Data.Fin.MinMax
 #include <lean/lean.h>
 #if defined(__clang__)
 #pragma clang diagnostic ignored "-Wunused-parameter"
@@ -19,6 +19,8 @@ lean_object* runtime_initialize_Init_Data_Fin_Iterate(uint8_t builtin);
 lean_object* runtime_initialize_Init_Data_Fin_Fold(uint8_t builtin);
 lean_object* runtime_initialize_Init_Data_Fin_Lemmas(uint8_t builtin);
 lean_object* runtime_initialize_Init_Data_Fin_OverflowAware(uint8_t builtin);
+lean_object* runtime_initialize_Init_Data_Fin_Package(uint8_t builtin);
+lean_object* runtime_initialize_Init_Data_Fin_MinMax(uint8_t builtin);
 void lean_initialize_runtime_module();
 static bool _G_runtime_initialized = false;
 LEAN_EXPORT lean_object* runtime_initialize_Init_Data_Fin(uint8_t builtin) {
@@ -44,6 +46,12 @@ lean_dec_ref(res);
 res = runtime_initialize_Init_Data_Fin_OverflowAware(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
+res = runtime_initialize_Init_Data_Fin_Package(builtin);
+if (lean_io_result_is_error(res)) return res;
+lean_dec_ref(res);
+res = runtime_initialize_Init_Data_Fin_MinMax(builtin);
+if (lean_io_result_is_error(res)) return res;
+lean_dec_ref(res);
 return lean_io_result_mk_ok(lean_box(0));
 }
 static bool _G_meta_initialized = false;
@@ -59,6 +67,8 @@ lean_object* initialize_Init_Data_Fin_Iterate(uint8_t builtin);
 lean_object* initialize_Init_Data_Fin_Fold(uint8_t builtin);
 lean_object* initialize_Init_Data_Fin_Lemmas(uint8_t builtin);
 lean_object* initialize_Init_Data_Fin_OverflowAware(uint8_t builtin);
+lean_object* initialize_Init_Data_Fin_Package(uint8_t builtin);
+lean_object* initialize_Init_Data_Fin_MinMax(uint8_t builtin);
 static bool _G_initialized = false;
 LEAN_EXPORT lean_object* initialize_Init_Data_Fin(uint8_t builtin) {
 lean_object * res;
@@ -80,6 +90,12 @@ res = initialize_Init_Data_Fin_Lemmas(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
 res = initialize_Init_Data_Fin_OverflowAware(builtin);
+if (lean_io_result_is_error(res)) return res;
+lean_dec_ref(res);
+res = initialize_Init_Data_Fin_Package(builtin);
+if (lean_io_result_is_error(res)) return res;
+lean_dec_ref(res);
+res = initialize_Init_Data_Fin_MinMax(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
 res = runtime_initialize_Init_Data_Fin(builtin);

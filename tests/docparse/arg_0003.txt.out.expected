@@ -1,8 +1,12 @@
+Input: "(x:=1)"
 Success! Final stack:
-  (Lean.Doc.Syntax.named
+  (Lean.Doc.Parser.Arg.named
    "("
    `x
    ":="
-   (Lean.Doc.Syntax.arg_num (num "1"))
+   (Lean.Doc.Parser.ArgVal.num (num "1"))
    ")")
 All input consumed.
+Round-trip OK
+Decoded views:
+  named (parens := some ("(", ")")) (name := x) (assign := ":=") (val := num (lit := 1) (value := 1))

@@ -33,13 +33,6 @@ def simpStep : Simproc := fun e => do
   | .letE .. => simpLet e
   | .app .. => simpAppArgs e
 
-abbrev cacheResult (e : Expr) (r : Result) : SimpM Result := do
-  if r.isContextDependent then
-    modify fun s => { s with transientCache := s.transientCache.insert { expr := e } r }
-  else
-    modify fun s => { s with persistentCache := s.persistentCache.insert { expr := e } r }
-  return r
-
 set_option compiler.ignoreBorrowAnnotation true in
 @[export lean_sym_simp]
 def simpImpl (e₁ : Expr) : SimpM Result := withIncRecDepth do

@@ -1,0 +1,5 @@
+Input: "   \n\n"
+Success! Final stack:
+  (Lean.Doc.Parser.document [])
+All input consumed.
+Round-trip skipped: no tokens (the doc comment records the whitespace)

@@ -111,6 +111,8 @@ static const lean_ctor_object l_Vector___aux__Init__Data__Vector__Perm______unex
 static const lean_object* l_Vector___aux__Init__Data__Vector__Perm______unexpand__Vector__Perm__1___closed__1 = (const lean_object*)&l_Vector___aux__Init__Data__Vector__Perm______unexpand__Vector__Perm__1___closed__1_value;
 LEAN_EXPORT lean_object* l_Vector___aux__Init__Data__Vector__Perm______unexpand__Vector__Perm__1(lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Vector___aux__Init__Data__Vector__Perm______unexpand__Vector__Perm__1___boxed(lean_object*, lean_object*, lean_object*);
+LEAN_EXPORT lean_object* l_Vector_instTransPerm___redArg();
+LEAN_EXPORT lean_object* l_Vector_instTransPerm___redArg___boxed(lean_object*);
 LEAN_EXPORT lean_object* l_Vector_instTransPerm(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Vector_instTransPerm___boxed(lean_object*, lean_object*);
 static lean_object* _init_l_Vector___aux__Init__Data__Vector__Perm______macroRules__Vector__term___x7e____1___closed__6(void){
@@ -276,21 +278,37 @@ lean_dec(v_a_139_);
 return v_res_141_;
 }
 }
-LEAN_EXPORT lean_object* l_Vector_instTransPerm(lean_object* v_00_u03b1_142_, lean_object* v_n_143_){
+LEAN_EXPORT lean_object* l_Vector_instTransPerm___redArg(){
 _start:
 {
-lean_object* v___x_144_; 
-v___x_144_ = lean_box(0);
-return v___x_144_;
+lean_object* v___x_143_; 
+v___x_143_ = lean_box(0);
+return v___x_143_;
 }
 }
-LEAN_EXPORT lean_object* l_Vector_instTransPerm___boxed(lean_object* v_00_u03b1_145_, lean_object* v_n_146_){
+LEAN_EXPORT lean_object* l_Vector_instTransPerm___redArg___boxed(lean_object* v___dummy_144_){
 _start:
 {
-lean_object* v_res_147_; 
-v_res_147_ = l_Vector_instTransPerm(v_00_u03b1_145_, v_n_146_);
-lean_dec(v_n_146_);
-return v_res_147_;
+lean_object* v_res_145_; 
+v_res_145_ = l_Vector_instTransPerm___redArg();
+return v_res_145_;
+}
+}
+LEAN_EXPORT lean_object* l_Vector_instTransPerm(lean_object* v_00_u03b1_146_, lean_object* v_n_147_){
+_start:
+{
+lean_object* v___x_148_; 
+v___x_148_ = lean_box(0);
+return v___x_148_;
+}
+}
+LEAN_EXPORT lean_object* l_Vector_instTransPerm___boxed(lean_object* v_00_u03b1_149_, lean_object* v_n_150_){
+_start:
+{
+lean_object* v_res_151_; 
+v_res_151_ = l_Vector_instTransPerm(v_00_u03b1_149_, v_n_150_);
+lean_dec(v_n_150_);
+return v_res_151_;
 }
 }
 lean_object* runtime_initialize_Init_Data_Array_Basic(uint8_t builtin);

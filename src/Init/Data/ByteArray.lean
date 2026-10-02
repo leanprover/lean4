@@ -11,4 +11,5 @@ public import Init.Data.ByteArray.Bootstrap
 public import Init.Data.ByteArray.Extra
 public import Init.Data.ByteArray.Pack
 public import Init.Data.ByteArray.Lemmas
+public import Init.Data.ByteArray.Lex
 public import Init.Data.ByteArray.Pack.Lemmas

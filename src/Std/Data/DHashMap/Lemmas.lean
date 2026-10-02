@@ -2462,6 +2462,11 @@ theorem isEmpty_inter_iff [EquivBEq α] [LawfulHashable α] :
   simpa only [mem_iff_contains, Bool.not_eq_true] using!
     @Raw₀.isEmpty_inter_iff _ _ _ _ ⟨m₁.1, m₁.2.size_buckets_pos⟩ ⟨m₂.1, m₂.2.size_buckets_pos⟩ _ _ m₁.wf m₂.wf
 
+theorem isEmpty_inter_comm [EquivBEq α] [LawfulHashable α] :
+    (m₁ ∩ m₂).isEmpty = (m₂ ∩ m₁).isEmpty :=
+  @Raw₀.isEmpty_inter_comm _ _ _ _
+    ⟨m₁.1, m₁.2.size_buckets_pos⟩ ⟨m₂.1, m₂.2.size_buckets_pos⟩ _ _ m₁.wf m₂.wf
+
 end Inter
 
 namespace Const
@@ -4576,6 +4581,12 @@ theorem equiv_emptyWithCapacity_iff_isEmpty [EquivBEq α] [LawfulHashable α] {c
 @[simp]
 theorem equiv_empty_iff_isEmpty [EquivBEq α] [LawfulHashable α] : m ~m ∅ ↔ m.isEmpty :=
   equiv_emptyWithCapacity_iff_isEmpty
+
+theorem inter_equiv_empty_comm [EquivBEq α] [LawfulHashable α]
+    {m₁ m₂ : DHashMap α β} :
+    (m₁ ∩ m₂) ~m ∅ ↔ (m₂ ∩ m₁) ~m ∅ := by
+  rw [equiv_empty_iff_isEmpty, equiv_empty_iff_isEmpty, ← Bool.eq_iff_iff]
+  exact isEmpty_inter_comm
 
 @[simp]
 theorem emptyWithCapacity_equiv_iff_isEmpty [EquivBEq α] [LawfulHashable α] {c : Nat} :

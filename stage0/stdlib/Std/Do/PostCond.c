@@ -31,7 +31,7 @@ lean_object* l_Std_Do_SPred_and(lean_object*, lean_object*, lean_object*);
 lean_object* l_Std_Do_SVal_curry___redArg(lean_object*, lean_object*);
 lean_object* l_Std_Do_SPred_imp(lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Syntax_getArgs(lean_object*);
-lean_object* l_Array_mkArray0(lean_object*);
+lean_object* l_Array_mkArray0___redArg();
 lean_object* l_Array_append___redArg(lean_object*, lean_object*);
 lean_object* lean_array_push(lean_object*, lean_object*);
 lean_object* l_Lean_Syntax_node1(lean_object*, lean_object*, lean_object*);
@@ -1715,7 +1715,7 @@ static lean_object* _init_l_Std_Do___aux__Std__Do__PostCond______macroRules__Std
 _start:
 {
 lean_object* v___x_591_; 
-v___x_591_ = l_Array_mkArray0(lean_box(0));
+v___x_591_ = l_Array_mkArray0___redArg();
 return v___x_591_;
 }
 }

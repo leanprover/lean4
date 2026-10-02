@@ -1,13 +1,19 @@
+Input: "{hello world:=gaia}[there]"
 Success! Final stack:
-  (Lean.Doc.Syntax.role
+  (Lean.Doc.Parser.Inline.role
    "{"
    `hello
-   [(Lean.Doc.Syntax.named_no_paren
+   [(Lean.Doc.Parser.Arg.named_no_paren
      `world
      ":="
-     (Lean.Doc.Syntax.arg_ident `gaia))]
+     (Lean.Doc.Parser.ArgVal.ident `gaia))]
    "}"
-   "["
-   [(Lean.Doc.Syntax.text (str "\"there\""))]
-   "]")
+   ["["]
+   [(Lean.Doc.Parser.Inline.text
+     (Lean.Doc.Parser.versoText "there"))]
+   ["]"])
 All input consumed.
+Round-trip OK
+Decoded views:
+  role (braceOpen := "{") (name := hello) (args := [named (parens := none) (name := world) (assign := ":=") (val := name (x := gaia))]) (braceClose := "}") (brackets := some ("[", "]"))
+    text (content := "there")

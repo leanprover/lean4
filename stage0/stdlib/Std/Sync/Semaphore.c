@@ -24,7 +24,7 @@ lean_object* lean_io_basemutex_lock(lean_object*);
 lean_object* lean_io_basemutex_unlock(lean_object*);
 lean_object* l_Std_Queue_dequeue_x3f___redArg(lean_object*);
 lean_object* lean_nat_add(lean_object*, lean_object*);
-lean_object* l_Std_Queue_empty(lean_object*);
+lean_object* l_Std_Queue_empty___redArg();
 lean_object* l_Std_Mutex_new___redArg(lean_object*);
 LEAN_EXPORT lean_object* l___private_Std_Sync_Semaphore_0__Std_mkResolvedPromise___redArg(lean_object*);
 LEAN_EXPORT lean_object* l___private_Std_Sync_Semaphore_0__Std_mkResolvedPromise___redArg___boxed(lean_object*, lean_object*);
@@ -99,7 +99,7 @@ static lean_object* _init_l_Std_Semaphore_new___closed__0(void){
 _start:
 {
 lean_object* v___x_18_; 
-v___x_18_ = l_Std_Queue_empty(lean_box(0));
+v___x_18_ = l_Std_Queue_empty___redArg();
 return v___x_18_;
 }
 }

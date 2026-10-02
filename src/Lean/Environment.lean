@@ -252,6 +252,21 @@ structure Environment where
   `getModuleIREntries`.
   -/
   private irBaseExts      : Array EnvExtensionState
+  /--
+  Generations of the generation-tracked extensions, indexed by `EnvExtension.genIdx?` and sized like
+  `extensions`, next to whose states they are kept so that both are always replaced together.
+  -/
+  private extGens         : Array Nat
+  /--
+  Counter bumped by every modification of a generation-tracked extension
+  (`PersistentEnvExtensionDescrCore.trackGen`): while it is unchanged, no such extension has
+  changed. Like the generations, it rolls back with the environment, so after a rollback a different
+  modification can reach a value seen before. Results stored in the environment roll back with it
+  and stay sound. As the counter only grows along one environment lineage, a result stored outside
+  the environment stays sound across a rollback only if it was stamped with at most the restored
+  value; later ones must be dropped.
+  -/
+  trackedGen              : Nat := 0
   /-- The header contains additional information that is set at import time. -/
   header                  : EnvironmentHeader := private_decl% {}
 deriving Nonempty
@@ -623,6 +638,10 @@ private def VisibilityMap.const (a : α) : VisibilityMap α :=
 
 namespace Environment
 
+@[inherit_doc Kernel.Environment.trackedGen]
+def trackedGen (env : Environment) : Nat :=
+  env.base.private.trackedGen
+
 def header (env : Environment) : EnvironmentHeader :=
   -- can be assumed to be in sync with `env.checked`; see `setMainModule`, the only modifier of the header
   env.base.private.header
@@ -640,7 +659,6 @@ private def asyncConsts (env : Environment) : AsyncConsts :=
 Constructs an elaboration environment from a given kernel environment's constants. All constants are
 accessible in both the private and public scope. All other data is empty.
 -/
-@[export lean_elab_environment_of_kernel_env]
 def ofKernelEnv (env : Kernel.Environment) : Environment :=
   { base.private := env, base.public := env, importRealizationCtx? := none }
 
@@ -849,6 +867,13 @@ system, this is any definition. -/
 def hasExposedBody (env : Environment) (n : Name) : Bool :=
   env.setExporting true |>.find? n |>.any (·.hasValue)
 
+def getModuleIdxFor? (env : Environment) (declName : Name) : Option ModuleIdx :=
+  -- async constants are always from the current module
+  env.base.get env |>.const2ModIdx[declName]?
+
+def isImportedConst (env : Environment) (declName : Name) : Bool :=
+  env.getModuleIdxFor? declName |>.isSome
+
 /--
 Allows `realizeConst` calls for the given declaration in all derived environment branches.
 Realizations will run using the given environment and options to ensure deterministic results. Note
@@ -881,7 +906,7 @@ def enableRealizationsForConst (env : Environment) (opts : Options) (c : Name) :
     realizeMapRef := (← IO.mkRef {}) } }
 
 def areRealizationsEnabledForConst (env : Environment) (c : Name) : Bool :=
-  (env.base.get env |>.const2ModIdx.contains c) || env.localRealizationCtxMap.contains c
+  env.isImportedConst c || env.localRealizationCtxMap.contains c
 
 /-- Returns debug output about the asynchronous state of the environment. -/
 def dbgFormatAsyncState (env : Environment) : BaseIO String :=
@@ -1155,6 +1180,26 @@ def containsOnBranch (env : Environment) (n : Name) : Bool :=
   (env.asyncConsts.find? n |>.isSome) || (env.base.get env).constants.contains n
 
 /--
+Returns whether `realizeConst forConst` callbacks can access `c` in the private scope, i.e. whether
+`c` is part of the realization environment of `forConst`. Returns `false` if realizations for
+`forConst` are not enabled on the current environment branch. Like `contains`, may block on
+asynchronous elaboration.
+
+Use this to choose `forConst` when a realization depends on two (or more) constants: a correct target
+is one whose realization environment contains all others.
+-/
+def realizationEnvContains (env : Environment) (forConst c : Name) : Bool :=
+  let env := env.setExporting false
+  if env.isImportedConst forConst then
+    env.isImportedConst c
+  else match env.localRealizationCtxMap.find? forConst with
+    | some ctx =>
+      -- safety: `RealizationContext` is private
+      let realizeEnv : Environment := unsafe unsafeCast ctx.env
+      realizeEnv.setExporting false |>.contains c
+    | none => false
+
+/--
 Returns the constants added in the current module, in elaboration tree pre-order: the top-level
 declarations in elaboration order, each followed by its asynchronous sub-declarations, recursively.
 The recursive part can optionally be skipped for theorems for when their sub-decls are unimportant
@@ -1193,13 +1238,6 @@ def setMainModule (env : Environment) (m : Name) : Environment := Id.run do
 
 def mainModule (env : Environment) : Name :=
   env.header.mainModule
-
-def getModuleIdxFor? (env : Environment) (declName : Name) : Option ModuleIdx :=
-  -- async constants are always from the current module
-  env.base.get env |>.const2ModIdx[declName]?
-
-def isImportedConst (env : Environment) (declName : Name) : Bool :=
-  env.getModuleIdxFor? declName |>.isSome
 
 def isConstructor (env : Environment) (declName : Name) : Bool :=
   env.findAsync? declName |>.any (·.kind == .ctor)
@@ -1310,6 +1348,44 @@ abbrev ReplayFn (σ : Type) :=
   (oldState : σ) → (newState : σ) → (newConsts : List Name) → σ → σ
 
 /--
+Implementation of `takeNewEntriesRev`. Entries are only ever consed onto an extension's list, so
+`oldEntries` is normally a physical suffix of `newEntries`: the very cons cell at which the two lists
+join. We walk `newEntries` until `ptrEq` finds that cell, so only the new entries are visited,
+whereas the reference implementation walks both lists in full to compute their lengths. The new
+entries are consed onto `acc` as they are visited, which produces them oldest first without a final
+`reverse`. If the walk reaches `[]` without finding the cell, `oldEntries` is not a physical
+suffix (e.g. `[]` is a scalar and thus always found, but a list rebuilt with the same contents is
+not), and we fall back to the reference implementation.
+-/
+private unsafe def takeNewEntriesRevUnsafe (newEntries oldEntries : List α) : List α :=
+  go newEntries []
+where
+  go (l : List α) (acc : List α) : List α :=
+    if ptrEq l oldEntries then
+      acc
+    else match l with
+      | [] => newEntries.take (newEntries.length - oldEntries.length) |>.reverse
+      | a :: as => go as (a :: acc)
+
+/--
+Returns the entries `newEntries` has in front of its suffix `oldEntries`, oldest first.
+
+This is intended for `ReplayFn` implementations of extensions that record entries in a list, where
+`newEntries` is `oldEntries` with the entries added in the meantime consed on. The suffix is found
+by pointer equality, so the cost is proportional to the number of new entries rather than to the
+number of all entries added in the current file; the latter matters because every realization
+replays every such extension. If `oldEntries` is not a physical suffix of `newEntries`, the leading
+`newEntries.length - oldEntries.length` entries are returned instead.
+-/
+@[implemented_by takeNewEntriesRevUnsafe]
+def takeNewEntriesRev (newEntries oldEntries : List α) : List α :=
+  newEntries.take (newEntries.length - oldEntries.length) |>.reverse
+
+/-- Like `takeNewEntriesRev`, but returns the new entries in their order in `newEntries`. -/
+def takeNewEntries (newEntries oldEntries : List α) : List α :=
+  takeNewEntriesRev newEntries oldEntries |>.reverse
+
+/--
 Environment extension, can only be generated by `registerEnvExtension` that allocates a unique index
 for this extension into each environment's extension state's array.
 -/
@@ -1324,11 +1400,28 @@ structure EnvExtension (σ : Type) where private mk ::
   present.
   -/
   replay?   : Option (ReplayFn σ)
+  /-- Name for diagnostics; set automatically for persistent extensions. -/
+  name      : Name
+  /--
+  For a generation-tracked extension (`PersistentEnvExtensionDescrCore.trackGen`), the index of its
+  generation in `Kernel.Environment.extGens`.
+  -/
+  genIdx?   : Option Nat
   deriving Inhabited
 
 namespace EnvExtension
 
+/-- Whether `ext` is generation-tracked; see `PersistentEnvExtensionDescrCore.trackGen`. -/
+def isGenTracked (ext : EnvExtension σ) : Bool :=
+  ext.genIdx?.isSome
+
 private builtin_initialize envExtensionsRef : IO.Ref (Array (EnvExtension EnvExtensionState)) ← IO.mkRef #[]
+private builtin_initialize numTrackedExtsRef : IO.Ref Nat ← IO.mkRef 0
+
+/-- Pads `gens` with initial generations for the generation-tracked extensions registered since. -/
+private def ensureGensArraySize (gens : Array Nat) : IO (Array Nat) := do
+  let n ← numTrackedExtsRef.get
+  return gens ++ .replicate (n - gens.size) 0
 
 /--
   User-defined environment extensions are declared using the `initialize` command.
@@ -1402,13 +1495,27 @@ def asyncMayModify (ext : EnvExtension σ) (env : Environment) (asyncDecl : Name
 Applies the given function to the extension state. See `AsyncMode` for details on how modifications
 from different environment branches are reconciled.
 
+For generation-tracked extensions the modification bumps the generation if `bumpGen` is set; see
+`PersistentEnvExtensionDescrCore.trackGen`.
+
 Note that in modes `sync` and `async`, `f` will be called twice, on the local and on the `checked`
 state.
 -/
 def modifyState {σ : Type} (ext : EnvExtension σ) (env : Environment) (f : σ → σ)
-    (asyncMode := ext.asyncMode) (asyncDecl : Name := .anonymous) : Environment := Id.run do
+    (asyncMode := ext.asyncMode) (asyncDecl : Name := .anonymous)
+    (bumpGen := true) : Environment := Id.run do
   -- for panics
   let _ : Inhabited Environment := ⟨env⟩
+  let env := match ext.genIdx? with
+    | some i =>
+      if !bumpGen then env else
+      if i < env.base.private.extGens.size then
+        { env with
+          base.private.extGens := env.base.private.extGens.modify i (· + 1)
+          base.private.trackedGen := env.base.private.trackedGen + 1 }
+      else
+        panic! invalidExtMsg
+    | none => env
   -- safety: `ext`'s constructor is private, so we can assume the entry at `ext.idx` is of type `σ`
   match asyncMode with
   | .mainOnly =>
@@ -1506,6 +1613,20 @@ only for important optimizations.
 opaque getState {σ : Type} [Inhabited σ] (ext : EnvExtension σ) (env : Environment)
   (asyncMode := ext.asyncMode) (asyncDecl : Name := .anonymous) : σ
 
+/--
+Generation of the generation-tracked extension with index `genIdx` (`EnvExtension.genIdx?`) on the
+current branch of `env`.
+-/
+def getGenAt (env : Environment) (genIdx : Nat) : Nat :=
+  env.base.private.extGens[genIdx]!
+
+/-- Generation of the generation-tracked extension `ext` on the current branch of `env`. -/
+def getGen (ext : EnvExtension σ) (env : Environment) : Nat :=
+  if let some i := ext.genIdx? then
+    getGenAt env i
+  else
+    panic! s!"environment extension `{ext.name}` (index {ext.idx}) is not generation-tracked"
+
 end EnvExtension
 
 /-- Environment extensions can only be registered during initialization.
@@ -1514,15 +1635,27 @@ end EnvExtension
    2- We do not use any synchronization primitive to access `envExtensionsRef`.
 
    Note that by default, extension state is *not* stored in .olean files and will not propagate across `import`s.
-   For that, you need to register a persistent environment extension. -/
+   For that, you need to register a persistent environment extension.
+
+   `trackGen` makes the extension generation-tracked; see
+   `PersistentEnvExtensionDescrCore.trackGen`. -/
 def registerEnvExtension {σ : Type} (mkInitial : IO σ)
     (replay? : Option (ReplayFn σ) := none)
-    (asyncMode : EnvExtension.AsyncMode := .mainOnly) : IO (EnvExtension σ) := do
+    (asyncMode : EnvExtension.AsyncMode := .mainOnly)
+    (name : Name := .anonymous)
+    (trackGen : Bool := false) : IO (EnvExtension σ) := do
   unless (← initializing) do
     throw (IO.userError "failed to register environment, extensions can only be registered during initialization")
+  if trackGen then
+    unless asyncMode matches .local | .mainOnly do
+      throw (IO.userError "generation-tracked environment extensions must use `AsyncMode.local` or \
+        `.mainOnly`; generations are branch-local (see `PersistentEnvExtensionDescrCore.trackGen`)")
   let exts ← EnvExtension.envExtensionsRef.get
   let idx := exts.size
-  let ext : EnvExtension σ := { idx, mkInitial, asyncMode, replay? }
+  let genIdx? ← if trackGen then
+    some <$> EnvExtension.numTrackedExtsRef.modifyGet fun n => (n, n + 1)
+  else pure none
+  let ext : EnvExtension σ := { idx, mkInitial, asyncMode, replay?, name, genIdx? }
   -- safety: `EnvExtensionState` is opaque, so we can upcast to it
   EnvExtension.envExtensionsRef.modify fun exts => exts.push (unsafe unsafeCast ext)
   pure ext
@@ -1541,6 +1674,7 @@ def mkEmptyEnvironment (trustLevel : UInt32 := 0) : IO Environment := do
       header          := { trustLevel }
       extensions      := exts
       irBaseExts      := exts
+      extGens         := ← EnvExtension.ensureGensArraySize #[]
     }
     importRealizationCtx? := none
   }
@@ -1701,8 +1835,10 @@ def setState {α β σ : Type} (ext : PersistentEnvExtension α β σ) (env : En
 
 /-- Modify the state of the given extension in the given environment by applying the given function. -/
 def modifyState {α β σ : Type} (ext : PersistentEnvExtension α β σ) (env : Environment) (f : σ → σ)
-    (asyncMode := ext.toEnvExtension.asyncMode) (asyncDecl : Name := Name.anonymous) : Environment :=
-  ext.toEnvExtension.modifyState (asyncMode := asyncMode) (asyncDecl := asyncDecl) env fun ps => { ps with state := f (ps.state) }
+    (asyncMode := ext.toEnvExtension.asyncMode) (asyncDecl : Name := Name.anonymous)
+    (bumpGen := true) : Environment :=
+  ext.toEnvExtension.modifyState (asyncMode := asyncMode) (asyncDecl := asyncDecl)
+    (bumpGen := bumpGen) env fun ps => { ps with state := f (ps.state) }
 
 end PersistentEnvExtension
 
@@ -1718,6 +1854,19 @@ structure PersistentEnvExtensionDescrCore (α β σ : Type) where
   statsFn           : σ → Format := fun _ => Format.nil
   asyncMode         : EnvExtension.AsyncMode := .mainOnly
   replay?           : Option (ReplayFn σ) := none
+  /--
+  Whether the extension is generation-tracked: every modification bumps its generation
+  (`EnvExtension.getGen`), so that a result computed from the state can be validated later by
+  comparing generations. Generation-tracked extensions must use `AsyncMode.local` or `.mainOnly`, as
+  generations are branch-local.
+
+  Generations only grow along an environment lineage, even when a modification restores an earlier
+  state: returning to an earlier generation would let a later, different modification reach a
+  generation some result was recorded at, validating it against a state it never saw. The
+  environment itself rolling back to an earlier generation is covered at
+  `Kernel.Environment.trackedGen`.
+  -/
+  trackGen          : Bool := false
 
 attribute [inherit_doc PersistentEnvExtension.exportEntriesFn]
   PersistentEnvExtensionDescrCore.exportEntriesFnEx
@@ -1744,7 +1893,8 @@ unsafe def registerPersistentEnvExtensionUnsafe {α β σ : Type} [Inhabited σ]
   if pExts.any (fun ext => ext.name == descr.name) then throw (IO.userError s!"invalid environment extension, '{descr.name}' has already been used")
   let replay? := descr.replay?.map fun replay =>
     fun oldState newState newConsts s => { s with state := replay oldState.state newState.state newConsts s.state }
-  let ext ← registerEnvExtension (asyncMode := descr.asyncMode) (replay? := replay?) do
+  let ext ← registerEnvExtension (asyncMode := descr.asyncMode) (replay? := replay?)
+      (name := descr.name) (trackGen := descr.trackGen) do
     let initial ← descr.mkInitial
     let s : PersistentEnvExtensionState α σ := {
       importedEntries := #[],
@@ -1972,7 +2122,8 @@ private opaque runInitAttrs (env : Environment) (opts : Options) : IO Unit
 
 private def ensureExtensionsArraySize (env : Environment) : IO Environment := do
   let exts ← EnvExtension.ensureExtensionsArraySize env.base.private.extensions
-  return env.modifyCheckedAsync ({ · with extensions := exts })
+  let extGens ← EnvExtension.ensureGensArraySize env.base.private.extGens
+  return env.modifyCheckedAsync ({ · with extensions := exts, extGens })
 
 private partial def finalizePersistentExtensions (env : Environment) (mods : Array ModuleData) (opts : Options) : IO Environment := do
   loop 0 env
@@ -2367,6 +2518,7 @@ def finalizeImport (s : ImportState) (imports : Array Import) (opts : Options) (
     quotInit        := !imports.isEmpty -- We assume `Init.Prelude` initializes quotient module
     extensions      := exts
     irBaseExts      := exts
+    extGens         := ← EnvExtension.ensureGensArraySize #[]
     header     := {
       trustLevel, imports, moduleData, isModule
       modules      := modules.map (·.toEffectiveImport)
@@ -2648,7 +2800,7 @@ def realizeValue [BEq α] [Hashable α] [TypeName α] (env : Environment) (forCo
   -- end
   let heartbeats ← IO.getNumHeartbeats
   -- find `RealizationContext` for `forConst` in `importRealizationCtx?` or `localRealizationCtxMap`
-  let ctx ← if env.base.get env |>.const2ModIdx.contains forConst then
+  let ctx ← if env.isImportedConst forConst then
     env.importRealizationCtx?.getDM <|
       throw <| .userError s!"Environment.realizeConst: `realizedImportedConsts` is empty"
   else
@@ -2656,7 +2808,7 @@ def realizeValue [BEq α] [Hashable α] [TypeName α] (env : Environment) (forCo
     | some ctx => pure ctx
     | none =>
       throw <| .userError s!"trying to realize `{TypeName.typeName α}` value but \
-        `enableRealizationsForConst` must be called for '{forConst}' first"
+        `enableRealizationsForConst` must be called for `{forConst}` first"
   let res ← (do
     -- First try checking for the key non-atomically as (de)allocating the promise is expensive.
     let m ← ctx.realizeMapRef.get
@@ -2711,6 +2863,10 @@ deriving Nonempty, TypeName
 def realizeConst (env : Environment) (forConst : Name) (constName : Name)
     (realize : Environment → Options → BaseIO (Environment × Dynamic)) :
     IO (Environment × Task (Option Kernel.Exception) × Dynamic) := do
+  -- `realizeValue` checks this as well but can only name the key type in its error message
+  unless env.areRealizationsEnabledForConst forConst do
+    throw <| .userError s!"trying to realize `{constName}` but `enableRealizationsForConst` must \
+      be called for `{forConst}` first"
   let res ← env.realizeValue forConst { constName : RealizeConstKey } fun realizeEnv realizeOpts => do
     -- ensure that environment extension modifications know they are in an async context
     let realizeEnv := realizeEnv.enterAsyncRealizing constName

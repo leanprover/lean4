@@ -1,5 +1,5 @@
 import Lean
-import Std.Tactic.Do
+import Std.WP
 
 /-!
 Pattern matching where the discriminant *is* the symbolic state (`match s with ...` after
@@ -13,12 +13,10 @@ open Lean Meta Order Std.WP
 
 namespace MatchSplit
 
-set_option mvcgen.warning false
-
 abbrev M := ExceptT String <| StateM Nat
 
 @[spec high] theorem spec_throw (e : String) {post : α → Nat → Prop} :
-    ⦃epost e⦄ (throw (m := M) e) ⦃post; estack⟨epost⟩⦄ := ⟨PartialOrder.rel_refl⟩
+    ⦃eposts e⦄ (throw (m := M) e) ⦃post; estack⟨eposts⟩⦄ := ⟨PartialOrder.rel_refl⟩
 
 @[spec high] theorem spec_set (x : Nat) {post : PUnit → Nat → Prop} :
     ⦃fun _ => post ⟨⟩ x⦄ (set (m := M) x) ⦃post⦄ := ⟨PartialOrder.rel_refl⟩

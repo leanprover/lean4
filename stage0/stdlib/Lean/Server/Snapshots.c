@@ -14,8 +14,8 @@
 extern "C" {
 #endif
 lean_object* l_Lean_Elab_Command_liftTermElabM___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
-lean_object* lean_st_mk_ref(lean_object*);
 extern lean_object* l_Lean_firstFrontendMacroScope;
+lean_object* lean_st_mk_ref(lean_object*);
 lean_object* lean_st_ref_get(lean_object*);
 lean_object* l_Lean_Syntax_getPos_x3f(lean_object*, uint8_t);
 lean_object* l_Lean_Elab_Command_liftCoreM___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
@@ -238,28 +238,28 @@ goto v___jp_60_;
 }
 v___jp_60_:
 {
-lean_object* v___x_62_; lean_object* v___x_63_; lean_object* v___x_64_; lean_object* v___x_65_; lean_object* v___x_66_; lean_object* v_ctx_67_; lean_object* v___x_68_; 
-v___x_62_ = lean_st_mk_ref(v_cmdState_57_);
+lean_object* v___x_62_; lean_object* v___x_63_; lean_object* v___x_64_; lean_object* v___x_65_; lean_object* v_ctx_66_; lean_object* v___x_67_; lean_object* v___x_68_; 
+v___x_62_ = lean_box(0);
 v___x_63_ = lean_box(0);
-v___x_64_ = lean_box(0);
-v___x_65_ = l_Lean_firstFrontendMacroScope;
-v___x_66_ = lean_box(0);
+v___x_64_ = l_Lean_firstFrontendMacroScope;
+v___x_65_ = lean_box(0);
 lean_inc_ref(v_text_55_);
 lean_inc_ref(v_uri_54_);
-v_ctx_67_ = lean_alloc_ctor(0, 10, 1);
-lean_ctor_set(v_ctx_67_, 0, v_uri_54_);
-lean_ctor_set(v_ctx_67_, 1, v_text_55_);
-lean_ctor_set(v_ctx_67_, 2, v___x_58_);
-lean_ctor_set(v_ctx_67_, 3, v___y_61_);
-lean_ctor_set(v_ctx_67_, 4, v___x_63_);
-lean_ctor_set(v_ctx_67_, 5, v___x_64_);
-lean_ctor_set(v_ctx_67_, 6, v___x_65_);
-lean_ctor_set(v_ctx_67_, 7, v___x_66_);
-lean_ctor_set(v_ctx_67_, 8, v___x_64_);
-lean_ctor_set(v_ctx_67_, 9, v___x_64_);
-lean_ctor_set_uint8(v_ctx_67_, sizeof(void*)*10, v___x_59_);
-lean_inc(v___x_62_);
-v___x_68_ = lean_apply_3(v_c_52_, v_ctx_67_, v___x_62_, lean_box(0));
+v_ctx_66_ = lean_alloc_ctor(0, 10, 1);
+lean_ctor_set(v_ctx_66_, 0, v_uri_54_);
+lean_ctor_set(v_ctx_66_, 1, v_text_55_);
+lean_ctor_set(v_ctx_66_, 2, v___x_58_);
+lean_ctor_set(v_ctx_66_, 3, v___y_61_);
+lean_ctor_set(v_ctx_66_, 4, v___x_62_);
+lean_ctor_set(v_ctx_66_, 5, v___x_63_);
+lean_ctor_set(v_ctx_66_, 6, v___x_64_);
+lean_ctor_set(v_ctx_66_, 7, v___x_65_);
+lean_ctor_set(v_ctx_66_, 8, v___x_63_);
+lean_ctor_set(v_ctx_66_, 9, v___x_63_);
+lean_ctor_set_uint8(v_ctx_66_, sizeof(void*)*10, v___x_59_);
+v___x_67_ = lean_st_mk_ref(v_cmdState_57_);
+lean_inc(v___x_67_);
+v___x_68_ = lean_apply_3(v_c_52_, v_ctx_66_, v___x_67_, lean_box(0));
 if (lean_obj_tag(v___x_68_) == 0)
 {
 lean_object* v_a_69_; lean_object* v___x_71_; uint8_t v_isShared_72_; uint8_t v_isSharedCheck_77_; 
@@ -282,8 +282,8 @@ goto v_resetjp_70_;
 v_resetjp_70_:
 {
 lean_object* v___x_73_; lean_object* v___x_75_; 
-v___x_73_ = lean_st_ref_get(v___x_62_);
-lean_dec(v___x_62_);
+v___x_73_ = lean_st_ref_get(v___x_67_);
+lean_dec(v___x_67_);
 lean_dec(v___x_73_);
 if (v_isShared_72_ == 0)
 {
@@ -306,7 +306,7 @@ return v___x_75_;
 }
 else
 {
-lean_dec(v___x_62_);
+lean_dec(v___x_67_);
 return v___x_68_;
 }
 }

@@ -9,28 +9,33 @@ Author: Leonardo de Moura
 #include "runtime/debug.h"
 #include "runtime/alloc.h"
 
-#if defined(__GNUC__) || defined(__clang__)
-#define LEAN_NOINLINE __attribute__((noinline))
+#ifndef LEAN_MIMALLOC
+// with mimalloc, `runtime/mimalloc.cpp` defines it instead (see `runtime/alloc_tls.h`)
+#ifdef _MSC_VER
+extern "C" __declspec(thread) lean_runtime_tls lean_g_tls = {};
 #else
-#define LEAN_NOINLINE
+extern "C" __thread lean_runtime_tls lean_g_tls = {};
+#endif
 #endif
 
 namespace lean {
 
 void initialize_alloc() {
+#ifdef LEAN_MIMALLOC
+    // the main thread does not go through `lean_initialize_thread`; see `runtime/alloc_tls.h`
+    lean_mi_theap_cache_init();
+#endif
 }
 
 void finalize_alloc() {
 }
 
-LEAN_THREAD_VALUE(uint64_t, g_heartbeat, 0);
-
 void set_heartbeats(uint64_t count) {
-    g_heartbeat = count;
+    lean_g_tls.heartbeat = count;
 }
 
 void add_heartbeats(uint64_t count) {
-    g_heartbeat += count;
+    lean_g_tls.heartbeat += count;
 }
 
 extern "C" LEAN_EXPORT void lean_inc_heartbeat() {
@@ -38,7 +43,7 @@ extern "C" LEAN_EXPORT void lean_inc_heartbeat() {
 }
 
 uint64_t get_num_heartbeats() {
-    return g_heartbeat;
+    return lean_g_tls.heartbeat;
 }
 
 }

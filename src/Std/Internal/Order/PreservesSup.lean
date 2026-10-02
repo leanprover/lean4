@@ -41,6 +41,28 @@ class PreservesSup {α : Type u} [CompleteLattice α] (f : α → α) : Prop whe
   map_sup (s : α → Prop) :
     f (CompleteLattice.sup s) = CompleteLattice.sup (fun y => ∃ x, s x ∧ y = f x)
 
+instance : PreservesSup (id : α → α) where
+  map_sup s := by
+    show CompleteLattice.sup s = _
+    congr 1
+    funext y
+    exact propext ⟨fun hy => ⟨y, hy, rfl⟩, fun ⟨x, hx, hxy⟩ => hxy ▸ hx⟩
+
+instance {ε : Type v} (f : α → α) [PreservesSup f] :
+    PreservesSup (Function.comp f : (ε → α) → ε → α) where
+  map_sup s := by
+    funext e
+    show f (CompleteLattice.sup s e) = _
+    rw [sup_apply, sup_apply, PreservesSup.map_sup (f := f)]
+    congr 1
+    funext v
+    apply propext
+    constructor
+    · rintro ⟨w, ⟨g, hg, rfl⟩, rfl⟩
+      exact ⟨f ∘ g, ⟨g, hg, rfl⟩, rfl⟩
+    · rintro ⟨g, ⟨g', hg', rfl⟩, rfl⟩
+      exact ⟨g' e, ⟨g', hg', rfl⟩, rfl⟩
+
 instance (a : Prop) : PreservesSup (meet a) where
   map_sup s := by
     show a ⊓ CompleteLattice.sup s = CompleteLattice.sup (fun y => ∃ x, s x ∧ y = a ⊓ x)
@@ -168,12 +190,92 @@ theorem Prod.mk_meet (p q : α × β) : ((p.fst ⊓ q.fst, p.snd ⊓ q.snd) : α
   prod_eq_of_pprod_eq <| by rw [prod_meet_toPProd, ← PProd.mk_meet]
 
 /-- The first component of a meet is the meet of the first components. -/
-@[simp] theorem Prod.fst_meet (p q : α × β) : (p ⊓ q).fst = p.fst ⊓ q.fst := by
+theorem Prod.fst_meet (p q : α × β) : (p ⊓ q).fst = p.fst ⊓ q.fst := by
   rw [← Prod.mk_meet]
 
 /-- The second component of a meet is the meet of the second components. -/
-@[simp] theorem Prod.snd_meet (p q : α × β) : (p ⊓ q).snd = p.snd ⊓ q.snd := by
+theorem Prod.snd_meet (p q : α × β) : (p ⊓ q).snd = p.snd ⊓ q.snd := by
   rw [← Prod.mk_meet]
+
+theorem Prod.fst_join (p q : α × β) : (p ⊔ q).fst = p.fst ⊔ q.fst :=
+  PartialOrder.rel_antisymm
+    (join_le p q (p.fst ⊔ q.fst, p.snd ⊔ q.snd)
+      (And.intro (left_le_join _ _) (left_le_join _ _))
+      (And.intro (right_le_join _ _) (right_le_join _ _))).1
+    (join_le _ _ _ (left_le_join p q).1 (right_le_join p q).1)
+
+theorem Prod.snd_join (p q : α × β) : (p ⊔ q).snd = p.snd ⊔ q.snd :=
+  PartialOrder.rel_antisymm
+    (join_le p q (p.fst ⊔ q.fst, p.snd ⊔ q.snd)
+      (And.intro (left_le_join _ _) (left_le_join _ _))
+      (And.intro (right_le_join _ _) (right_le_join _ _))).2
+    (join_le _ _ _ (left_le_join p q).2 (right_le_join p q).2)
+
+theorem Prod.fst_iSup {ι : Type w} (f : ι → α × β) : (iSup f).fst = ⨆ i, (f i).fst :=
+  PartialOrder.rel_antisymm
+    (iSup_le f (⨆ i, (f i).fst, ⨆ i, (f i).snd)
+      fun i => And.intro (le_iSup (fun i => (f i).fst) i) (le_iSup (fun i => (f i).snd) i)).1
+    (iSup_le _ _ fun i => (le_iSup f i).1)
+
+theorem Prod.snd_iSup {ι : Type w} (f : ι → α × β) : (iSup f).snd = ⨆ i, (f i).snd :=
+  PartialOrder.rel_antisymm
+    (iSup_le f (⨆ i, (f i).fst, ⨆ i, (f i).snd)
+      fun i => And.intro (le_iSup (fun i => (f i).fst) i) (le_iSup (fun i => (f i).snd) i)).2
+    (iSup_le _ _ fun i => (le_iSup f i).2)
+
+theorem Prod.fst_iInf {ι : Type w} (f : ι → α × β) : (iInf f).fst = ⨅ i, (f i).fst :=
+  PartialOrder.rel_antisymm
+    (le_iInf _ _ fun i => (iInf_le f i).1)
+    (le_iInf f (⨅ i, (f i).fst, ⨅ i, (f i).snd)
+      fun i => Prod.mk_le _ _ _ (iInf_le (fun i => (f i).fst) i)
+        (iInf_le (fun i => (f i).snd) i)).1
+
+theorem Prod.snd_iInf {ι : Type w} (f : ι → α × β) : (iInf f).snd = ⨅ i, (f i).snd :=
+  PartialOrder.rel_antisymm
+    (le_iInf _ _ fun i => (iInf_le f i).2)
+    (le_iInf f (⨅ i, (f i).fst, ⨅ i, (f i).snd)
+      fun i => Prod.mk_le _ _ _ (iInf_le (fun i => (f i).fst) i)
+        (iInf_le (fun i => (f i).snd) i)).2
+
+theorem Prod.mk_sup (c : α × β → Prop) :
+    ((CompleteLattice.sup fun a => ∃ b, c (a, b),
+      CompleteLattice.sup fun b => ∃ a, c (a, b)) : α × β) = CompleteLattice.sup c :=
+  prod_eq_of_pprod_eq <| by rw [prod_sup_toPProd, ← PProd.mk_sup]
+
+theorem Prod.fst_sup (c : α × β → Prop) :
+    (CompleteLattice.sup c).fst = CompleteLattice.sup fun a => ∃ b, c (a, b) := by
+  rw [← Prod.mk_sup]
+
+theorem Prod.snd_sup (c : α × β → Prop) :
+    (CompleteLattice.sup c).snd = CompleteLattice.sup fun b => ∃ a, c (a, b) := by
+  rw [← Prod.mk_sup]
+
+instance (f : α → α) (g : β → β) [PreservesSup f] [PreservesSup g] :
+    PreservesSup (Prod.map f g) where
+  map_sup s := by
+    show (f (CompleteLattice.sup s).1, g (CompleteLattice.sup s).2) = _
+    refine Eq.trans ?_ (Prod.mk_sup _)
+    congr 1
+    · rw [Prod.fst_sup, PreservesSup.map_sup (f := f)]
+      congr 1
+      funext y
+      apply propext
+      constructor
+      · rintro ⟨w, ⟨b, hs⟩, rfl⟩
+        exact ⟨g b, (w, b), hs, rfl⟩
+      · rintro ⟨b, x, hx, heq⟩
+        obtain ⟨h1, h2⟩ := Prod.mk.inj heq
+        exact ⟨x.1, ⟨x.2, hx⟩, h1⟩
+    · rw [Prod.snd_sup, PreservesSup.map_sup (f := g)]
+      congr 1
+      funext y
+      apply propext
+      constructor
+      · rintro ⟨w, ⟨a, hs⟩, rfl⟩
+        exact ⟨f a, (a, w), hs, rfl⟩
+      · rintro ⟨a, x, hx, heq⟩
+        obtain ⟨h1, h2⟩ := Prod.mk.inj heq
+        exact ⟨x.2, ⟨x.1, hx⟩, h2⟩
 
 /-- The first component of the bottom element is the bottom element. Propositional (not
 definitional), because `⊥` is `csup ∅`, not a constructor application. -/
@@ -253,6 +355,57 @@ theorem map_mono (f : α → α) [PreservesSup f] {b b' : α} (h : b ⊑ b') : f
 theorem upperAdjoint_mono (f : α → α) [PreservesSup f] {b b' : α} (h : b ⊑ b') :
     upperAdjoint f b ⊑ upperAdjoint f b' :=
   le_upperAdjoint f (PartialOrder.rel_trans (upperAdjoint_le f b) h)
+
+theorem upperAdjoint_id (b : α) : upperAdjoint (id : α → α) b = b := by
+  apply PartialOrder.rel_antisymm
+  · unfold upperAdjoint
+    exact sup_le _ fun x hx => hx
+  · exact le_upperAdjoint _ PartialOrder.rel_refl
+
+theorem upperAdjoint_comp_apply {ε : Type v} (f : α → α) [PreservesSup f] (X : ε → α) (e : ε) :
+    upperAdjoint (Function.comp f) X e = upperAdjoint f (X e) := by
+  apply PartialOrder.rel_antisymm
+  · show upperAdjoint (Function.comp f) X e ⊑ _
+    unfold upperAdjoint
+    rw [sup_apply]
+    apply sup_le
+    rintro y ⟨Y, hY, rfl⟩
+    exact le_upperAdjoint f (hY e)
+  · have h : (fun e' => upperAdjoint f (X e')) ⊑ upperAdjoint (Function.comp f) X :=
+      le_upperAdjoint _ fun e' => upperAdjoint_le f (X e')
+    exact h e
+
+theorem upperAdjoint_prodMap_fst {β : Type v} [CompleteLattice β]
+    (f : α → α) (g : β → β) [PreservesSup f] [PreservesSup g] (E : α × β) :
+    (upperAdjoint (Prod.map f g) E).fst = upperAdjoint f E.fst := by
+  apply PartialOrder.rel_antisymm
+  · show (upperAdjoint (Prod.map f g) E).fst ⊑ _
+    unfold upperAdjoint
+    rw [Prod.fst_sup]
+    apply sup_le
+    rintro a ⟨b, hab⟩
+    exact le_upperAdjoint f hab.left
+  · have h : ((upperAdjoint f E.fst, upperAdjoint g E.snd) : α × β)
+        ⊑ upperAdjoint (Prod.map f g) E :=
+      le_upperAdjoint _ (x := (upperAdjoint f E.fst, upperAdjoint g E.snd))
+        (Prod.mk_le _ _ _ (upperAdjoint_le f E.fst) (upperAdjoint_le g E.snd))
+    exact h.left
+
+theorem upperAdjoint_prodMap_snd {β : Type v} [CompleteLattice β]
+    (f : α → α) (g : β → β) [PreservesSup f] [PreservesSup g] (E : α × β) :
+    (upperAdjoint (Prod.map f g) E).snd = upperAdjoint g E.snd := by
+  apply PartialOrder.rel_antisymm
+  · show (upperAdjoint (Prod.map f g) E).snd ⊑ _
+    unfold upperAdjoint
+    rw [Prod.snd_sup]
+    apply sup_le
+    rintro b ⟨a, hab⟩
+    exact le_upperAdjoint g hab.right
+  · have h : ((upperAdjoint f E.fst, upperAdjoint g E.snd) : α × β)
+        ⊑ upperAdjoint (Prod.map f g) E :=
+      le_upperAdjoint _ (x := (upperAdjoint f E.fst, upperAdjoint g E.snd))
+        (Prod.mk_le _ _ _ (upperAdjoint_le f E.fst) (upperAdjoint_le g E.snd))
+    exact h.right
 
 end PreservesSup
 

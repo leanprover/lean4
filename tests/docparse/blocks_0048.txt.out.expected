@@ -1,5 +1,6 @@
+Input: "%%%\nfoo := 53\n%%%\nText/paragraph!"
 Success! Final stack:
-  [(Lean.Doc.Syntax.metadata_block
+  [(Lean.Doc.Parser.Block.metadata_block
     "%%%"
     (Term.structInstFields
      [(Term.structInstField
@@ -12,9 +13,13 @@ Success! Final stack:
          (num "53"))])
       []])
     "%%%")
-   (Lean.Doc.Syntax.para
-    "para{"
-    [(Lean.Doc.Syntax.text
-      (str "\"Text/paragraph!\""))]
-    "}")]
+   (Lean.Doc.Parser.Block.para
+    [(Lean.Doc.Parser.Inline.text
+      (Lean.Doc.Parser.versoText
+       "Text/paragraph!"))])]
 All input consumed.
+Round-trip OK
+Decoded views:
+  metadata (opener := "%%%") (fields := 1) (closer := "%%%")
+  para
+    text (content := "Text/paragraph!")

@@ -211,6 +211,17 @@ instance : LawfulOrderLT $typeName where
   @[simp] protected theorem toBitVec_mod {a b : $typeName} : (a % b).toBitVec = a.toBitVec % b.toBitVec := (rfl)
   @[simp] protected theorem toBitVec_neg {a : $typeName} : (-a).toBitVec = -a.toBitVec := (rfl)
 
+  protected theorem min_def {a b : $typeName} : min a b = if a ≤ b then a else b := by rfl
+  protected theorem max_def {a b : $typeName} : max a b = if a ≤ b then b else a := by rfl
+
+  open $typeName (min_def le_iff_toBitVec_le) in
+  @[simp] protected theorem toBitVec_min {a b : $typeName} : (min a b).toBitVec = min a.toBitVec b.toBitVec := by
+    simp [BitVec.min_def, min_def, apply_ite toBitVec, le_iff_toBitVec_le]
+
+  open $typeName (max_def le_iff_toBitVec_le) in
+  @[simp] protected theorem toBitVec_max {a b : $typeName} : (max a b).toBitVec = max a.toBitVec b.toBitVec := by
+    simp [BitVec.max_def, max_def, apply_ite toBitVec, le_iff_toBitVec_le]
+
   )
   if let some nbits := bits.raw.isNatLit? then
     if nbits > 8 then
@@ -239,7 +250,8 @@ instance : LawfulOrderLT $typeName where
         `(@[simp] theorem toNat_toUInt64 (x : $typeName) : x.toUInt64.toNat = x.toNat := (rfl))
   unless isUSize do
     let names := #[`le_iff_toBitVec_le, `lt_iff_toBitVec_lt, `eq_iff_toBitVec_eq, `ne_iff_toBitVec_ne,
-      `toBitVec_add, `toBitVec_sub, `toBitVec_mul, `toBitVec_div, `toBitVec_mod, `toBitVec_neg]
+      `toBitVec_add, `toBitVec_sub, `toBitVec_mul, `toBitVec_div, `toBitVec_mod, `toBitVec_neg,
+      `toBitVec_min, `toBitVec_max]
     let idents := names.map fun n => mkIdent (typeName.getId ++ n)
     cmds := cmds.push <| ← `(attribute [int_toBitVec] $idents*)
   cmds := cmds.push <| ← `(end $typeName)

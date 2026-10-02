@@ -57,8 +57,9 @@ def rewriteTarget (stx : Syntax) (symm : Bool) (config : Rewrite.Config := {}) :
   let mvarId' ← (← getMainGoal).replaceTargetEq r.eNew r.eqProof
   replaceMainGoal (mvarId' :: r.mvarIds)
 
-def rewriteLocalDecl (stx : Syntax) (symm : Bool) (fvarId : FVarId) (config : Rewrite.Config := {}) :
-    TacticM Unit := withMainContext do
+/-- Rewrites a local declaration and returns the replacement free variable. -/
+def rewriteLocalDeclCore (stx : Syntax) (symm : Bool) (fvarId : FVarId)
+    (config : Rewrite.Config := {}) : TacticM FVarId := withMainContext do
   -- Note: we cannot execute `replaceLocalDecl` inside `Term.withSynthesize`.
   -- See issues #2711 and #2727.
   let rwResult ← Term.withSynthesize <| withMainContext do
@@ -67,41 +68,55 @@ def rewriteLocalDecl (stx : Syntax) (symm : Bool) (fvarId : FVarId) (config : Re
   let rwResult ← finishElabRewrite rwResult
   let replaceResult ← (← getMainGoal).replaceLocalDecl fvarId rwResult.eNew rwResult.eqProof
   replaceMainGoal (replaceResult.mvarId :: rwResult.mvarIds)
+  return replaceResult.fvarId
 
-def withRWRulesSeq (token : Syntax) (rwRulesSeqStx : Syntax) (x : (symm : Bool) → (term : Syntax) → TacticM Unit) : TacticM Unit := do
+def rewriteLocalDecl (stx : Syntax) (symm : Bool) (fvarId : FVarId) (config : Rewrite.Config := {}) :
+    TacticM Unit := do
+  discard <| rewriteLocalDeclCore stx symm fvarId config
+
+/-- Folds a tactic action over a sequence of rewrite rules. -/
+def foldRWRulesSeq (token : Syntax) (rwRulesSeqStx : Syntax) (init : α)
+    (x : α → (symm : Bool) → (term : Syntax) → TacticM α) : TacticM α := do
   let lbrak := rwRulesSeqStx[0]
   let rules := rwRulesSeqStx[1].getArgs
   -- show initial state up to (incl.) `[`
   withTacticInfoContext (mkNullNode #[token, lbrak]) (pure ())
+  let mut acc := init
   let numRules := (rules.size + 1) / 2
   for i in *...numRules do
     let rule := rules[i * 2]!
     let sep  := rules.getD (i * 2 + 1) Syntax.missing
     -- show rule state up to (incl.) next `,`
-    withTacticInfoContext (mkNullNode #[rule, sep]) do
+    let acc' ← withTacticInfoContext (mkNullNode #[rule, sep]) do
       -- show errors on rule
       withRef rule do
         let symm := !rule[0].isNone
         let term := rule[1]
-        let processId (id : Syntax) : TacticM Unit := do
+        let processId (id : Syntax) : TacticM α := do
           -- See if we can interpret `id` as a hypothesis first.
           if (← withMainContext <| Term.isLocalIdent? id).isSome then
-            x symm term
+            x acc symm term
           else
             -- Try to get equation theorems for `id`.
-            let declName ← try realizeGlobalConstNoOverload id catch _ => return (← x symm term)
-            let some eqThms ← getEqnsFor? declName | x symm term
+            let declName ← try realizeGlobalConstNoOverload id catch _ => return (← x acc symm term)
+            let some eqThms ← getEqnsFor? declName | x acc symm term
             let hint := if eqThms.size = 1 then m!"" else
               .hint' m!"Try rewriting with `{Name.str declName unfoldThmSuffix}`"
-            let rec go : List Name →  TacticM Unit
+            let rec go : List Name → TacticM α
               | [] => throwError m!"Failed to rewrite using equation theorems for `{.ofConstName declName}`" ++ hint
-              | eqThm::eqThms => (x symm (mkCIdentFrom id eqThm)) <|> go eqThms
+              | eqThm::eqThms => (x acc symm (mkCIdentFrom id eqThm)) <|> go eqThms
             discard <| Term.addTermInfo id (← mkConstWithFreshMVarLevels declName) (lctx? := ← getLCtx)
             go eqThms.toList
         match term with
         | `($id:ident)  => processId id
         | `(@$id:ident) => processId id
-        | _ => x symm term
+        | _ => x acc symm term
+    acc := acc'
+  return acc
+
+def withRWRulesSeq (token : Syntax) (rwRulesSeqStx : Syntax)
+    (x : (symm : Bool) → (term : Syntax) → TacticM Unit) : TacticM Unit := do
+  discard <| foldRWRulesSeq token rwRulesSeqStx () fun _ symm term => x symm term
 
 
 declare_config_elab elabRewriteConfig Rewrite.Config

@@ -19,3 +19,4 @@ public import Init.Data.Int.Cooper
 public import Init.Data.Int.Linear
 public import Init.Data.Int.OfNat
 public import Init.Data.Int.ToString
+public import Init.Data.Int.Package

@@ -139,6 +139,9 @@ theorem shiftLeft_eq (a : Int) (b : Nat) : a <<< b = a * 2 ^ b := by
 theorem shiftLeft_eq' (a : Int) (b : Nat) : a <<< b = a * (2 ^ b : Nat) := by
   simp [shiftLeft_eq]
 
+theorem not_eq_neg_sub_one (a : Int) : ~~~a = -a - 1 := by
+  cases a <;> simp [Complement.complement, Int.not, Int.negSucc_eq] <;> omega
+
 theorem shiftLeft_add (a : Int) (b c : Nat) : a <<< (b + c) = a <<< b <<< c := by
   simp [shiftLeft_eq, Int.pow_add, Int.mul_assoc]
 

@@ -420,8 +420,8 @@ v___jp_86_:
 {
 lean_object* v___x_90_; lean_object* v___x_91_; 
 v___x_90_ = lean_alloc_ctor(0, 2, 0);
-lean_ctor_set(v___x_90_, 0, v___y_88_);
-lean_ctor_set(v___x_90_, 1, v___y_87_);
+lean_ctor_set(v___x_90_, 0, v___y_87_);
+lean_ctor_set(v___x_90_, 1, v___y_88_);
 v___x_91_ = lean_alloc_ctor(0, 2, 0);
 lean_ctor_set(v___x_91_, 0, v___y_89_);
 lean_ctor_set(v___x_91_, 1, v___x_90_);
@@ -447,8 +447,8 @@ lean_dec(v_z_97_);
 v___x_101_ = lean_unsigned_to_nat(2147483562u);
 v___x_102_ = lean_nat_mod(v___x_100_, v___x_101_);
 lean_dec(v___x_100_);
-v___y_87_ = v___y_94_;
-v___y_88_ = v___y_93_;
+v___y_87_ = v___y_93_;
+v___y_88_ = v___y_94_;
 v___y_89_ = v___x_102_;
 goto v___jp_86_;
 }
@@ -460,8 +460,8 @@ v___x_104_ = lean_int_add(v_z_97_, v___x_103_);
 lean_dec(v_z_97_);
 v___x_105_ = l_Int_toNat(v___x_104_);
 lean_dec(v___x_104_);
-v___y_87_ = v___y_94_;
-v___y_88_ = v___y_93_;
+v___y_87_ = v___y_93_;
+v___y_88_ = v___y_94_;
 v___y_89_ = v___x_105_;
 goto v___jp_86_;
 }
@@ -1119,10 +1119,10 @@ _start:
 lean_object* v___x_346_; lean_object* v___x_347_; lean_object* v___x_348_; lean_object* v___x_349_; 
 v___x_346_ = l_IO_stdGenRef;
 v___x_347_ = l_mkStdGen(v_n_344_);
-v___x_348_ = lean_st_ref_swap(v___x_346_, v___x_347_);
-lean_dec(v___x_348_);
-v___x_349_ = lean_box(0);
-return v___x_349_;
+v___x_348_ = lean_box(0);
+v___x_349_ = lean_st_ref_swap(v___x_346_, v___x_347_);
+lean_dec(v___x_349_);
+return v___x_348_;
 }
 }
 LEAN_EXPORT lean_object* l_IO_setRandSeed___boxed(lean_object* v_n_350_, lean_object* v_a_351_){

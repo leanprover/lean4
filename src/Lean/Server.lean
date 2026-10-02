@@ -13,3 +13,4 @@ public import Lean.Server.Rpc
 public import Lean.Server.CodeActions
 public import Lean.Server.Test
 public import Lean.Server.ProtocolOverview
+public import Lean.Server.InfoUtils -- deprecated_module: ignore

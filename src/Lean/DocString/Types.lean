@@ -180,3 +180,10 @@ deriving BEq, Ord, Repr, Inhabited
 def Part.cast (inlines_eq : i = i') (blocks_eq : b = b') (metadata_eq : p = p')
     (x : Part i b p) : Part i' b' p' :=
   inlines_eq ▸ blocks_eq ▸ metadata_eq ▸ x
+
+/--
+A Verso document, which is a sequence of blocks. Its syntax is produced by `Lean.Doc.Parser.document`.
+
+Use `VersoDocument.view` or `TSyntax.getVersoBlocks` to extract its contents.
+-/
+abbrev VersoDocument := TSyntax `Lean.Doc.Parser.document

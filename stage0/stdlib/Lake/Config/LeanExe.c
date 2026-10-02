@@ -404,7 +404,7 @@ lean_inc_ref(v_needs_105_);
 lean_inc_ref(v_exeName_104_);
 lean_inc_ref(v_srcDir_103_);
 lean_inc_ref(v_toLeanConfig_102_);
-v___x_112_ = lean_alloc_ctor(0, 9, 3);
+v___x_112_ = lean_alloc_ctor(0, 9, 4);
 lean_ctor_set(v___x_112_, 0, v_toLeanConfig_102_);
 lean_ctor_set(v___x_112_, 1, v_srcDir_103_);
 lean_ctor_set(v___x_112_, 2, v___x_108_);
@@ -417,6 +417,7 @@ lean_ctor_set(v___x_112_, 8, v_nativeFacets_107_);
 lean_ctor_set_uint8(v___x_112_, sizeof(void*)*9, v___x_110_);
 lean_ctor_set_uint8(v___x_112_, sizeof(void*)*9 + 1, v___x_110_);
 lean_ctor_set_uint8(v___x_112_, sizeof(void*)*9 + 2, v___x_110_);
+lean_ctor_set_uint8(v___x_112_, sizeof(void*)*9 + 3, v___x_110_);
 return v___x_112_;
 }
 }

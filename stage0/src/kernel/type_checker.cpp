@@ -375,10 +375,6 @@ expr type_checker::ensure_sort(expr const & e, expr const & s) {
     return ensure_sort_core(e, s);
 }
 
-expr type_checker::ensure_pi(expr const & e, expr const & s) {
-    return ensure_pi_core(e, s);
-}
-
 /** \brief Return true iff \c e is a proposition */
 bool type_checker::is_prop(expr const & e) {
     expr s = ensure_sort(infer_type(e));
@@ -601,38 +597,8 @@ optional<expr> type_checker::unfold_definition(expr const & e) {
     }
 }
 
-static expr * g_lean_reduce_bool = nullptr;
-static expr * g_lean_reduce_nat  = nullptr;
-
-namespace ir {
-object * run_boxed_kernel(environment const & env, options const & opts, name const & fn, unsigned n, object **args);
-}
-
 expr mk_bool_true();
 expr mk_bool_false();
-
-optional<expr> reduce_native(environment const & env, expr const & e) {
-    if (!is_app(e)) return none_expr();
-    expr const & arg = app_arg(e);
-    if (!is_constant(arg)) return none_expr();
-    if (app_fn(e) == *g_lean_reduce_bool) {
-        object * r = ir::run_boxed_kernel(env, options(), const_name(arg), 0, nullptr);
-        if (!lean_is_scalar(r)) {
-            lean_dec_ref(r);
-            throw kernel_exception(env, "type checker failure, unexpected result value for 'Lean.reduceBool'");
-        }
-        return lean_unbox(r) == 0 ? some_expr(mk_bool_false()) : some_expr(mk_bool_true());
-    }
-    if (app_fn(e) == *g_lean_reduce_nat) {
-        object * r = ir::run_boxed_kernel(env, options(), const_name(arg), 0, nullptr);
-        if (lean_is_scalar(r) || lean_is_mpz(r)) {
-            return some_expr(mk_lit(literal(nat(r))));
-        } else {
-            throw kernel_exception(env, "type checker failure, unexpected result value for 'Lean.reduceNat'");
-        }
-    }
-    return none_expr();
-}
 
 static inline bool is_nat_lit_ext(expr const & e) { return e == *g_nat_zero || is_nat_lit(e); }
 static inline nat get_nat_val(expr const & e) {
@@ -759,10 +725,7 @@ expr type_checker::whnf(expr const & e) {
     expr t = e;
     while (true) {
         expr t1 = whnf_core(t);
-        if (auto v = reduce_native(env(), t1)) {
-            m_st->m_whnf.insert(mk_pair(e, *v));
-            return *v;
-        } else if (auto v = reduce_nat(t1)) {
+        if (auto v = reduce_nat(t1)) {
             m_st->m_whnf.insert(mk_pair(e, *v));
             return *v;
         } else if (auto next_t = unfold_definition(t1)) {
@@ -1098,12 +1061,6 @@ lbool type_checker::lazy_delta_reduction(expr & t_n, expr & s_n) {
             }
         }
 
-        if (auto t_v = reduce_native(env(), t_n)) {
-            return to_lbool(is_def_eq_core(*t_v, s_n));
-        } else if (auto s_v = reduce_native(env(), s_n)) {
-            return to_lbool(is_def_eq_core(t_n, *s_v));
-        }
-
         switch (lazy_delta_reduction_step(t_n, s_n)) {
         case reduction_status::Continue:   break;
         case reduction_status::DefUnknown: return l_undef;
@@ -1252,43 +1209,9 @@ bool type_checker::is_def_eq(expr const & t, expr const & s) {
     return r;
 }
 
-expr type_checker::eta_expand(expr const & e) {
-    buffer<expr> fvars;
-    flet<local_ctx> save_lctx(m_lctx, m_lctx);
-    expr it = e;
-    while (is_lambda(it)) {
-        expr d = instantiate_rev(binding_domain(it), fvars.size(), fvars.data());
-        fvars.push_back(m_lctx.mk_local_decl(m_st->m_ngen, binding_name(it), d, binding_info(it)));
-        it     = binding_body(it);
-    }
-    it = instantiate_rev(it, fvars.size(), fvars.data());
-    expr it_type = whnf(infer(it));
-    if (!is_pi(it_type)) return e;
-    buffer<expr> args;
-    while (is_pi(it_type)) {
-        expr arg = m_lctx.mk_local_decl(m_st->m_ngen, binding_name(it_type), binding_domain(it_type), binding_info(it_type));
-        args.push_back(arg);
-        fvars.push_back(arg);
-        it_type  = whnf(instantiate(binding_body(it_type), arg));
-    }
-    expr r = mk_app(it, args);
-    return m_lctx.mk_lambda(fvars, r);
-}
-
 type_checker::type_checker(environment const & env, local_ctx const & lctx, diagnostics * diag, definition_safety ds):
     m_st_owner(true), m_st(new state(env)), m_diag(diag),
     m_lctx(lctx), m_definition_safety(ds), m_lparams(nullptr) {
-}
-
-type_checker::type_checker(state & st, local_ctx const & lctx, definition_safety ds):
-    m_st_owner(false), m_st(&st), m_diag(nullptr), m_lctx(lctx),
-    m_definition_safety(ds), m_lparams(nullptr) {
-}
-
-type_checker::type_checker(type_checker && src) noexcept:
-    m_st_owner(src.m_st_owner), m_st(src.m_st), m_diag(src.m_diag), m_lctx(std::move(src.m_lctx)),
-    m_definition_safety(src.m_definition_safety), m_lparams(src.m_lparams) {
-    src.m_st_owner = false;
 }
 
 type_checker::~type_checker() {
@@ -1340,8 +1263,6 @@ void initialize_type_checker() {
     g_nat_shiftLeft  = new_persistent_expr_const({"Nat", "shiftLeft"});
     g_nat_shiftRight = new_persistent_expr_const({"Nat", "shiftRight"});
     g_string_mk    = new_persistent_expr_const({"String", "ofList"});
-    g_lean_reduce_bool = new_persistent_expr_const({"Lean", "reduceBool"});
-    g_lean_reduce_nat  = new_persistent_expr_const({"Lean", "reduceNat"});
     register_name_generator_prefix(*g_kernel_fresh);
 }
 
@@ -1367,7 +1288,5 @@ void finalize_type_checker() {
     delete g_nat_shiftLeft;
     delete g_nat_shiftRight;
     delete g_string_mk;
-    delete g_lean_reduce_bool;
-    delete g_lean_reduce_nat;
 }
 }

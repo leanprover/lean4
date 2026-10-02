@@ -7578,6 +7578,16 @@ theorem isEmpty_filter_containsKey_iff [BEq α] [EquivBEq α]
           . exact hyp
           . exact heq2
 
+theorem isEmpty_filter_containsKey_comm [BEq α] [EquivBEq α]
+    {l₁ l₂ : List ((a : α) × β a)} (dl₁ : DistinctKeys l₁) (dl₂ : DistinctKeys l₂) :
+    (List.filter (fun p => containsKey p.fst l₂) l₁).isEmpty =
+      (List.filter (fun p => containsKey p.fst l₁) l₂).isEmpty := by
+  rw [Bool.eq_iff_iff, isEmpty_filter_containsKey_iff dl₁,
+    isEmpty_filter_containsKey_iff dl₂]
+  constructor <;> intro h k hk <;> apply Bool.eq_false_iff.2 <;> intro hk'
+  · exact Bool.eq_false_iff.1 (h k hk') hk
+  · exact Bool.eq_false_iff.1 (h k hk') hk
+
 theorem nil_of_containsKey_eq_false [BEq α] [EquivBEq α] {l : List ((a : α) × β a)} :
     (∀ k, containsKey k l = false) ↔ l = [] := by
   constructor

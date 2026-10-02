@@ -8,6 +8,7 @@ module
 prelude
 public import Lean.Meta.Sym.Apply
 public import Std.Internal.Order.Heyting
+import Std.Internal.Order.FrameClosure
 import Lean.Meta.Sym.Simp.Rewrite
 import Lean.Meta.AppBuilder
 import Lean.Meta.AbstractMVars
@@ -53,44 +54,50 @@ residual `upperAdjoint`.
 /-- The lattice meet `⊓`: distributes via `meet_apply`, closes with `le_meet`. -/
 public def LatticeOp.meet : LatticeOp :=
   { head := ``meet, rewrites := #[``meet_apply], terminal? := ``le_meet }
-/-- Heyting implication `⇨`: distributes via `himp_apply`, closes with `le_himp`. -/
+/-- Heyting implication `⇨`: distributes via `himp_apply`, closes with `le_himp_of_meet_le_left`. -/
 public def LatticeOp.himp : LatticeOp :=
-  { head := ``Lean.Order.himp, rewrites := #[``himp_apply], terminal? := ``Lean.Order.le_himp }
+  { head := ``Lean.Order.himp, rewrites := #[``himp_apply],
+    terminal? := ``Lean.Order.le_himp_of_meet_le_left }
 /-- The pure assertion `⌜·⌝`: distributes via `ofProp_apply`, closes with the `⊤`-fixed
-`top_le_ofProp`. -/
+`CompleteLattice.top_le_ofProp`. -/
 public def LatticeOp.ofProp : LatticeOp :=
   { head := ``Lean.Order.CompleteLattice.ofProp,
-    rewrites := #[``Lean.Order.CompleteLattice.ofProp_apply], terminal? := ``Lean.Order.top_le_ofProp }
+    rewrites := #[``Lean.Order.CompleteLattice.ofProp_apply],
+    terminal? := ``Lean.Order.CompleteLattice.top_le_ofProp }
 /-- The lattice top `⊤`: distributes via `top_apply`, closes with `le_top`. -/
 public def LatticeOp.top : LatticeOp :=
   { head := ``Lean.Order.top, rewrites := #[``Lean.Order.top_apply], terminal? := ``le_top }
 /-- The magic-wand residual `upperAdjoint f b`: point-framed, closes with `le_upperAdjoint`. -/
 public def LatticeOp.upperAdjoint : LatticeOp :=
   { head := ``Lean.Order.PreservesSup.upperAdjoint,
+    rewrites := #[``Lean.Order.FrameOp.upperAdjoint_pointwise_apply, ``Lean.Order.FrameOp.upperAdjoint_ignore],
     terminal? := ``Lean.Order.PreservesSup.le_upperAdjoint }
 /-- Indexed infimum `iInf`/`⨅`: distributes via `iInf_apply`, closes with `le_iInf`. -/
 public def LatticeOp.iInf : LatticeOp :=
   { head := ``Lean.Order.iInf, numConst := 3,
     rewrites := #[``Lean.Order.iInf_apply], terminal? := ``Lean.Order.le_iInf }
-/-- Whether a projection application `@Prod.fst/snd eh et epost x₁ … xₙ` projects a `⊥`/`⊤` tuple,
-the only operand shape the `fst`/`snd` rewrites reduce. -/
-private def projectsBotOrTop (rhs : Expr) : Bool :=
-  rhs.getAppArgs[2]?.any fun epost =>
-    epost.isAppOf ``Lean.Order.bot || epost.isAppOf ``Lean.Order.top
+/-- Whether the `fst`/`snd` rewrites decompose the projected operand: a `⊥`/`⊤`, a
+companion application `FrameOp.prod`, or a wand `upperAdjoint (FrameOp.prod …)`, whose component
+wands the `upperAdjoint` rewrites decompose further. -/
+private def projectsRewritableOperand (rhs : Expr) : Bool :=
+  rhs.getAppArgs[2]?.any fun eposts =>
+    match eposts.getAppFn with
+    | .const ``Lean.Order.bot _ | .const ``Lean.Order.top _
+    | .const ``Lean.Order.FrameOp.prod _ => true
+    | .const ``Lean.Order.PreservesSup.upperAdjoint _ =>
+      eposts.getAppArgs[2]?.any (·.isAppOf ``Lean.Order.FrameOp.prod)
+    | _ => false
 
-/-- The projection `(⊥/⊤ : _ × _).fst` of an exception-postcondition tuple: reduces to the bare
-`⊥`/`⊤` via `Prod.fst_bot`/`Prod.fst_top` and the pointwise `bot_apply`/`top_apply`. `numConst := 3`
-holds the tuple operand concrete, since which rewrite fires depends on it; only the excess state
-arguments go schematic. No terminal: the `⊥` residual becomes the subgoal, the `⊤` residual closes
-with `le_top`. `applies?` declines every other operand, whose projection the rewrites cannot
-reduce. -/
 public def LatticeOp.fst : LatticeOp :=
-  { head := ``Prod.fst, numConst := 3, applies? := projectsBotOrTop,
-    rewrites := #[``Prod.fst_bot, ``Prod.fst_top, ``Lean.Order.bot_apply, ``Lean.Order.top_apply] }
-@[inherit_doc LatticeOp.fst]
+  { head := ``Prod.fst, numConst := 3, applies? := projectsRewritableOperand,
+    rewrites := #[``Prod.fst_bot, ``Prod.fst_top, ``Lean.Order.bot_apply, ``Lean.Order.top_apply,
+      ``Lean.Order.FrameOp.prod_fst, ``Lean.Order.FrameOp.pointwise_apply, ``Lean.Order.FrameOp.ignore_apply,
+      ``Lean.Order.FrameOp.upperAdjoint_prod_fst] }
 public def LatticeOp.snd : LatticeOp :=
-  { head := ``Prod.snd, numConst := 3, applies? := projectsBotOrTop,
-    rewrites := #[``Prod.snd_bot, ``Prod.snd_top, ``Lean.Order.bot_apply, ``Lean.Order.top_apply] }
+  { head := ``Prod.snd, numConst := 3, applies? := projectsRewritableOperand,
+    rewrites := #[``Prod.snd_bot, ``Prod.snd_top, ``Lean.Order.bot_apply, ``Lean.Order.top_apply,
+      ``Lean.Order.FrameOp.prod_snd, ``Lean.Order.FrameOp.pointwise_apply, ``Lean.Order.FrameOp.ignore_apply,
+      ``Lean.Order.FrameOp.upperAdjoint_prod_snd] }
 
 /-- The built-in connective splits, whose rewrites and terminals seed every saturation. -/
 public def builtinLatticeOps : Array LatticeOp :=

@@ -4,14 +4,14 @@ import Lean
   of `erased α` are erased in the VM in the same way as types
   and proofs. This can be used to track data without storing it
   literally. -/
-def Erased (α : Sort u) : Sort max 1 u :=
+def ErasedS (α : Sort u) : Sort max 1 u :=
   Σ's : α → Prop, ∃ a, (fun b => a = b) = s
 
-namespace Erased
+namespace ErasedS
 
 /-- Erase a value. -/
 @[inline]
-def mk {α} (a : α) : Erased α :=
+def mk {α} (a : α) : ErasedS α :=
   ⟨fun b => a = b, a, rfl⟩
 
 open Lean.Compiler
@@ -21,7 +21,11 @@ set_option pp.letVarTypes true
 set_option trace.Compiler.saveMono true
 /--
 trace: [Compiler.saveMono] size: 1
-    def Erased.mk (α : lcErased) (a : lcAny) : PSigma lcErased lcAny :=
+    def ErasedS.mk._redArg (_dummy : lcVoid) : PSigma lcErased lcAny :=
+      let _x.1 : PSigma lcErased lcAny := PSigma.mk ◾ ◾ ◾ ◾;
+      return _x.1
+[Compiler.saveMono] size: 1
+    def ErasedS.mk (α : lcErased) (a : lcAny) : PSigma lcErased lcAny :=
       let _x.1 : PSigma lcErased lcAny := PSigma.mk ◾ ◾ ◾ ◾;
       return _x.1
 ---
@@ -39,7 +43,7 @@ trace: [Compiler.saveMono] size: 5
 [Compiler.saveMono] size: 9
     def _private.elab.erased.0._eval (a : @&Lean.Elab.Command.Context) (a : @&lcAny) (a.1 : lcVoid) : EST.Out
       Lean.Exception lcAny PUnit :=
-      let _x.2 : String := "Erased";
+      let _x.2 : String := "ErasedS";
       let _x.3 : String := "mk";
       let _x.4 : Lean.Name := Lean.Name.mkStr2 _x.2 _x.3;
       let _x.5 : Nat := 1;
@@ -50,8 +54,8 @@ trace: [Compiler.saveMono] size: 5
         lcAny →
           Lean.Meta.Context →
             lcAny → Lean.Core.Context → lcAny → lcVoid → EST.Out Lean.Exception lcAny PUnit := _eval._lam_0 _x.7 _x.8;
-      let _x.10 : EST.Out Lean.Exception lcAny PUnit := Lean.Elab.Command.liftTermElabM._redArg _f.9 a a a.1;
+      let _x.10 : EST.Out Lean.Exception lcAny lcAny := Lean.Elab.Command.liftTermElabM._redArg _f.9 a a a.1;
       return _x.10
 -/
 #guard_msgs in
-run_meta Lean.Compiler.compile #[``Erased.mk]
+run_meta Lean.Compiler.compile #[``ErasedS.mk]

@@ -1,15 +1,22 @@
+Input: "{\n    test\n arg}\n\n\nHere's a paragraph."
 2 failures:
-  @1 (⟨1, 1⟩): expected identifier
-    "\n    test\n arg}\n\n\nHere's a paragraph."
-  @19 (⟨6, 0⟩): '['; expected '![', '$$', '$', '*', '[', '[^', '_', '`' or '{'
-    "Here's a paragraph."
+Failure: expected identifier
+ --> 1:1
+  |
+1 | {
+  |  ^
+  = consumed input prefix: 1 bytes
+
+Failure: unexpected 'H'; expected '![', '$$', '$', '*', '[', '[^', '_', '`' or '{'
+ --> 6:0-6:1
+  |
+6 | Here's a paragraph.
+  | ^
+  = consumed input prefix: 19 bytes
 
 Final stack:
-  (Lean.Doc.Syntax.para
-   "para{"
-   [(Lean.Doc.Syntax.role
-     "{"
-     <missing>
-     "["
-     [(Lean.Doc.Syntax.footnote <missing>)]
-     "]")])
+  (Lean.Doc.Parser.Block.para
+   [(Lean.Doc.Parser.Inline.role "{" <missing>)])
+Remaining:
+"Here's a paragraph."
+Round-trip not reproduced, as the parse reported errors: leaf without original source info: <missing>

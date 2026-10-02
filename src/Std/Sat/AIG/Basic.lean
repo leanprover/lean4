@@ -111,27 +111,65 @@ inductive Decl (α : Type) where
   deriving Hashable, Repr, DecidableEq, Inhabited
 
 
+structure Cache.WF (decls : Array (Decl α)) (cache : HashMap (Decl α) Nat) : Prop where
+  /--
+  Whenever `cache[decl]?` returns an index into `decls`, `decls[index] = decl`. Note that this
+  does not force the cache to be complete for gates, if there is no entry in the cache for some
+  gate, it can still exist in `decls`.
+  -/
+  sound : ∀ (decl : Decl α) (idx : Nat), cache[decl]? = some idx →
+    ∃ h : idx < decls.size, decls[idx] = decl
+  /--
+  The cache knows about every `atom` in `decls`. This is crucial to enforce that all atoms occur
+  at most once in the AIG.
+  -/
+  atoms : ∀ (i : Nat) (h : i < decls.size) (a : α), decls[i] = .atom a → cache[Decl.atom a]? = some i
+
 /--
-`Cache.WF xs` is a predicate asserting that a `cache : HashMap (Decl α) Nat` is a valid lookup
-cache for `xs : Array (Decl α)`, that is, whenever `cache.find? decl` returns an index into
-`xs : Array Decl`, `xs[index] = decl`. Note that this predicate does not force the cache to be
-complete, if there is no entry in the cache for some node, it can still exist in the AIG.
+An empty `Cache` is valid for any `Array Decl` without atoms as it never has a hit.
 -/
-inductive Cache.WF : Array (Decl α) → HashMap (Decl α) Nat → Prop where
-  /--
-  An empty `Cache` is valid for any `Array Decl` as it never has a hit.
-  -/
-  | empty : WF decls {}
-  /--
-  Given a `cache`, valid with respect to some `decls`, we can extend the `decls` without
-  extending the cache and remain valid.
-  -/
-  | push_id (h : WF decls cache) : WF (decls.push decl) cache
-  /--
-  Given a `cache`, valid with respect to some `decls`, we can extend the `decls`
-  and the `cache` at the same time with the same values and remain valid.
-  -/
-  | push_cache (h : WF decls cache) : WF (decls.push decl) (cache.insert decl decls.size)
+theorem Cache.WF.empty {decls : Array (Decl α)}
+    (hatoms : ∀ (i : Nat) (h : i < decls.size) (a : α), decls[i] ≠ .atom a) : WF decls {} where
+  sound := by
+    intro decl idx h
+    simp at h
+  atoms := by
+    intro i h a hatom
+    exact absurd hatom (hatoms i h a)
+
+/--
+Given a `cache`, valid with respect to some `decls`, we can extend the `decls` and the `cache` at
+the same time with a `decl` that is not yet in the cache and remain valid.
+-/
+theorem Cache.WF.push_cache {decls : Array (Decl α)} {cache : HashMap (Decl α) Nat} {decl : Decl α}
+    (h : WF decls cache) (hmiss : cache[decl]? = none) :
+    WF (decls.push decl) (cache.insert decl decls.size) where
+  sound := by
+    intro decl' idx hfound
+    rw [HashMap.getElem?_insert] at hfound
+    split at hfound
+    · next heq =>
+      simp only [beq_iff_eq] at heq
+      simp only [Option.some.injEq] at hfound
+      subst heq hfound
+      constructor <;> simp
+    · rcases h.sound decl' idx hfound with ⟨hlt, heq⟩
+      exact ⟨by simp; omega, by simp [Array.getElem_push, hlt, heq]⟩
+  atoms := by
+    intro i hi a hatom
+    rw [HashMap.getElem?_insert]
+    rw [Array.getElem_push] at hatom
+    split at hatom
+    · next hlt =>
+      have := h.atoms i hlt a hatom
+      split
+      · simp_all
+      · assumption
+    · next hge =>
+      have : i = decls.size := by
+        simp only [Array.size_push] at hi
+        omega
+      simp [this, hatom]
 
 /--
 A cache for reusing elements from `decls` if they are available.
@@ -140,23 +178,22 @@ def Cache (α : Type) [DecidableEq α] [Hashable α] (decls : Array (Decl α)) :
   { map : HashMap (Decl α) Nat // Cache.WF decls map }
 
 /--
-Create an empty `Cache`, valid with respect to any `Array Decl`.
+Create an empty `Cache`, valid with respect to any `Array Decl` without atoms.
 -/
 @[irreducible, inline]
-def Cache.empty {decls : Array (Decl α)} : Cache α decls := ⟨{}, WF.empty⟩
-
-@[inherit_doc Cache.WF.push_id, irreducible, inline]
-def Cache.noUpdate (cache : Cache α decls) : Cache α (decls.push decl) :=
-  ⟨cache.val, Cache.WF.push_id cache.property⟩
+def Cache.empty {decls : Array (Decl α)}
+    (hatoms : ∀ (i : Nat) (h : i < decls.size) (a : α), decls[i] ≠ .atom a := by simp) :
+    Cache α decls :=
+  ⟨{}, WF.empty hatoms⟩
 
 /-
 We require the `decls` as an explicit argument because we use `decls.size` so accidentally mutating
 `decls` before calling `Cache.insert` will destroy `decl` linearity.
 -/
 @[inherit_doc Cache.WF.push_cache, irreducible, inline]
-def Cache.insert (decls : Array (Decl α)) (cache : Cache α decls) (decl : Decl α) :
-    Cache α (decls.push decl) :=
-  ⟨cache.val.insert decl decls.size, Cache.WF.push_cache cache.property⟩
+def Cache.insert (decls : Array (Decl α)) (cache : Cache α decls) (decl : Decl α)
+    (hmiss : cache.val[decl]? = none) : Cache α (decls.push decl) :=
+  ⟨cache.val.insert decl decls.size, Cache.WF.push_cache cache.property hmiss⟩
 
 /--
 Contains the index of `decl` in `decls` along with a proof that the index is indeed correct.
@@ -171,79 +208,118 @@ For a `c : Cache α decls`, any index `idx` that is a cache hit for some `decl` 
 -/
 theorem Cache.get?_bounds {decls : Array (Decl α)} {idx : Nat} (c : Cache α decls) (decl : Decl α)
     (hfound : c.val[decl]? = some idx) :
-    idx < decls.size := by
-  rcases c with ⟨cache, hcache⟩
-  induction hcache with
-  | empty => simp at hfound
-  | push_id wf ih =>
-    specialize ih hfound
-    simp
-    omega
-  | @push_cache _ _ decl' wf ih =>
-    simp only [HashMap.getElem?_insert, beq_iff_eq] at hfound
-    split at hfound <;> rename_i h
-    · subst h
-      simp_all
-    · specialize ih hfound
-      simp
-      omega
+    idx < decls.size :=
+  (c.property.sound decl idx hfound).1
 
 /--
 If `Cache.get? decl` returns `some i` then `decls[i] = decl` holds.
 -/
 theorem Cache.get?_property {decls : Array (Decl α)} {idx : Nat} (c : Cache α decls) (decl : Decl α)
     (hfound : c.val[decl]? = some idx) :
-    decls[idx]'(Cache.get?_bounds c decl hfound) = decl := by
-  rcases c with ⟨cache, hcache⟩
-  induction hcache generalizing decl with
-  | empty => simp at hfound
-  | push_id wf ih =>
-    rw [Array.getElem_push]
-    split
-    · apply ih
-      simp [hfound]
-    next hbounds =>
-      exfalso
-      apply hbounds
-      specialize ih _ hfound
-      apply Array.lt_of_getElem
-      assumption
-  | push_cache wf ih =>
-    rename_i decl'
-    rw [Array.getElem_push]
-    split
-    · simp only [HashMap.getElem?_insert] at hfound
-      match heq : decl == decl' with
-      | true =>
-        simp only [beq_iff_eq] at heq
-        simp [heq] at hfound
-        omega
-      | false =>
-        apply ih
-        simpa [BEq.symm_false heq] using hfound
-    next hbounds =>
-      simp only [HashMap.getElem?_insert] at hfound
-      match heq : decl == decl' with
-      | true =>
-        apply Eq.symm
-        simpa using heq
-      | false =>
-        exfalso
-        apply hbounds
-        simp only [BEq.symm_false heq] at hfound
-        specialize ih _ hfound
-        apply Array.lt_of_getElem
-        assumption
+    decls[idx]'(Cache.get?_bounds c decl hfound) = decl :=
+  (c.property.sound decl idx hfound).2
 
 /--
 Lookup a `Decl` in a `Cache`.
 -/
-@[irreducible, inline]
+@[inline]
 def Cache.get? (cache : Cache α decls) (decl : Decl α) : Option (CacheHit decls decl) :=
   match hfound : cache.val[decl]? with
   | some hit =>
     some ⟨hit, Cache.get?_bounds _ _ hfound, Cache.get?_property _ _ hfound⟩
   | none => none
+
+theorem Cache.get?_eq_none_iff {decls : Array (Decl α)} {cache : Cache α decls} {decl : Decl α} :
+    cache.get? decl = none ↔ cache.val[decl]? = none := by
+  simp only [Cache.get?]
+  split <;> simp_all
+
+theorem Cache.get?_eq_some_iff {decls : Array (Decl α)} {cache : Cache α decls} {decl : Decl α}
+    {hit : CacheHit decls decl} :
+    cache.get? decl = some hit ↔ cache.val[decl]? = some hit.idx := by
+  simp only [Cache.get?]
+  split
+  next idx hfound =>
+    constructor
+    · intro h
+      cases h
+      exact hfound
+    · intro h
+      rw [hfound] at h
+      cases hit
+      simp_all
+  next hfound => simp [hfound]
+
+theorem Cache.get?_atom {decls : Array (Decl α)} (cache : Cache α decls) {i : Nat}
+    {hi : i < decls.size} {a : α} (h : decls[i] = .atom a) :
+    cache.get? (.atom a) = some ⟨i, hi, h⟩ :=
+  Cache.get?_eq_some_iff.mpr (cache.property.atoms i hi a h)
+
+theorem Cache.ofAtoms.complete_succ {decls : Array (Decl α)} {map : HashMap (Decl α) Nat} {idx : Nat}
+    (hcomp : ∀ (i : Nat) (h : i < decls.size), i < idx → ∀ (a : α),
+      decls[i] = .atom a → map[Decl.atom a]? = some i)
+    (hnot : ∀ (h : idx < decls.size) (a : α), decls[idx] ≠ .atom a) :
+    ∀ (i : Nat) (h : i < decls.size), i < idx + 1 → ∀ (a : α),
+      decls[i] = .atom a → map[Decl.atom a]? = some i := by
+  intro i h hlt a hatom
+  cases Nat.lt_or_ge i idx with
+  | inl hlt' => exact hcomp i h hlt' a hatom
+  | inr hge =>
+    have heq : i = idx := by omega
+    subst heq
+    exact absurd hatom (hnot h a)
+
+/--
+Build a cache for `decls` that contains exactly the atoms of `decls`. This requires that every
+atom occurs at most once in `decls`.
+-/
+def Cache.ofAtoms (decls : Array (Decl α))
+    (huniq : ∀ (i j : Nat) (hi : i < decls.size) (hj : j < decls.size) (a : α),
+      decls[i] = .atom a → decls[j] = .atom a → i = j) :
+    Cache α decls :=
+  go 0 {} (by simp) (by omega)
+where
+  go (idx : Nat) (map : HashMap (Decl α) Nat)
+      (hsound : ∀ (decl : Decl α) (i : Nat), map[decl]? = some i →
+        ∃ h : i < decls.size, decls[i] = decl)
+      (hcomp : ∀ (i : Nat) (h : i < decls.size), i < idx → ∀ (a : α),
+        decls[i] = .atom a → map[Decl.atom a]? = some i) :
+      Cache α decls :=
+    if hidx : idx < decls.size then
+      match hdecl : decls[idx] with
+      | .atom a =>
+        have hsound' : ∀ (decl : Decl α) (i : Nat), (map.insert (.atom a) idx)[decl]? = some i →
+            ∃ h : i < decls.size, decls[i] = decl := by
+          intro decl i hfound
+          rw [HashMap.getElem?_insert] at hfound
+          split at hfound
+          next heq =>
+            simp only [beq_iff_eq] at heq
+            simp only [Option.some.injEq] at hfound
+            subst heq hfound
+            exact ⟨hidx, hdecl⟩
+          next => exact hsound decl i hfound
+        have hcomp' : ∀ (i : Nat) (h : i < decls.size), i < idx + 1 → ∀ (b : α),
+            decls[i] = .atom b → (map.insert (.atom a) idx)[Decl.atom b]? = some i := by
+          intro i h hlt b hatom
+          rw [HashMap.getElem?_insert]
+          split
+          next heq =>
+            simp only [beq_iff_eq, Decl.atom.injEq] at heq
+            subst heq
+            have := huniq idx i hidx h a hdecl hatom
+            rw [this]
+          next heq =>
+            have hne : i ≠ idx := by
+              intro hcontra
+              simp_all
+            exact hcomp i h (by omega) b hatom
+        go (idx + 1) (map.insert (.atom a) idx) hsound' hcomp'
+      | .false => go (idx + 1) map hsound (ofAtoms.complete_succ hcomp (by simp [hdecl]))
+      | .gate _ _ => go (idx + 1) map hsound (ofAtoms.complete_succ hcomp (by simp [hdecl]))
+    else
+      ⟨map, ⟨hsound, fun i h a hatom => hcomp i h (by omega) a hatom⟩⟩
+  termination_by decls.size - idx
 
 /--
 An `Array Decl` is a Direct Acyclic Graph (DAG) if a gate at index `i` only points to nodes with index lower than `i`.
@@ -301,6 +377,16 @@ def empty : AIG α :=
     hzero := by simp
     hconst := by simp
   }
+
+/--
+Every atom occurs at most once in an `AIG`.
+-/
+theorem atom_unique (aig : AIG α) {i j : Nat} {hi : i < aig.decls.size} {hj : j < aig.decls.size}
+    {a : α} (h1 : aig.decls[i] = .atom a) (h2 : aig.decls[j] = .atom a) : i = j := by
+  have h := aig.cache.get?_atom h1
+  rw [aig.cache.get?_atom h2] at h
+  cases h
+  rfl
 
 /--
 The atom `a` occurs in `aig`.
@@ -522,65 +608,6 @@ The denotation of the `Entrypoint` is false for all assignments.
 -/
 def Entrypoint.Unsat (entry : Entrypoint α) : Prop :=
   entry.aig.UnsatAt entry.ref.gate entry.ref.invert entry.ref.hgate
-
-/--
-Add a new and inverter gate to the AIG in `aig`. Note that this version is only meant for proving,
-for production purposes use `AIG.mkGateCached` and equality theorems to this one.
--/
-def mkGate (aig : AIG α) (input : BinaryInput aig) : Entrypoint α :=
-  let g := aig.decls.size
-  let decls :=
-    aig.decls.push <| .gate (.mk input.lhs.gate input.lhs.invert) (.mk input.rhs.gate input.rhs.invert)
-  let cache := aig.cache.noUpdate
-  have hdag := by
-    intro i lhs' rhs' h1 h2
-    simp only [decls, Array.getElem_push] at h2
-    split at h2
-    · apply aig.hdag <;> assumption
-    · injection h2 with hl hr
-      have := input.lhs.hgate
-      have := input.rhs.hgate
-      simp [← hl, ← hr]
-      omega
-  have hzero := by simp [decls]
-  have hconst := by simp [decls, Array.getElem_push, aig.hzero, aig.hconst]
-  ⟨⟨decls, cache, hdag, hzero, hconst⟩, ⟨g, false, by simp [g, decls]⟩⟩
-
-/--
-Add a new input node to the AIG in `aig`. Note that this version is only meant for proving,
-for production purposes use `AIG.mkAtomCached` and equality theorems to this one.
--/
-def mkAtom (aig : AIG α) (n : α) : Entrypoint α :=
-  let g := aig.decls.size
-  let decls := aig.decls.push (.atom n)
-  let cache := aig.cache.noUpdate
-  have hdag := by
-    intro i lhs rhs h1 h2
-    simp only [decls, Array.getElem_push] at h2
-    split at h2
-    · apply aig.hdag <;> assumption
-    · contradiction
-  have hzero := by simp [decls]
-  have hconst := by simp [decls, Array.getElem_push, aig.hzero, aig.hconst]
-  ⟨⟨decls, cache, hdag, hzero, hconst⟩, ⟨g, false, by simp [g, decls]⟩⟩
-
-/--
-Add a new constant node to `aig`. Note that this version is only meant for proving,
-for production purposes use `AIG.mkConstCached` and equality theorems to this one.
--/
-def mkConst (aig : AIG α) (val : Bool) : Entrypoint α :=
-  let g := aig.decls.size
-  let decls := aig.decls.push .false
-  let cache := aig.cache.noUpdate
-  have hdag := by
-    intro i lhs rhs h1 h2
-    simp only [decls, Array.getElem_push] at h2
-    split at h2
-    · apply aig.hdag <;> assumption
-    · contradiction
-  have hzero := by simp [decls]
-  have hconst := by simp [decls, Array.getElem_push, aig.hzero, aig.hconst]
-  ⟨⟨decls, cache, hdag, hzero, hconst⟩, ⟨g, val, by simp [g, decls]⟩⟩
 
 /--
 Determine whether `ref` is a `Decl.const` with value `b`.

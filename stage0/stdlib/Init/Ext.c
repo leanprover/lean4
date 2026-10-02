@@ -23,7 +23,7 @@ lean_object* lean_array_get_size(lean_object*);
 uint8_t lean_nat_dec_eq(lean_object*, lean_object*);
 lean_object* l_Lean_SourceInfo_fromRef(lean_object*, uint8_t);
 lean_object* l_Lean_Syntax_node1(lean_object*, lean_object*, lean_object*);
-lean_object* l_Array_mkArray0(lean_object*);
+lean_object* l_Array_mkArray0___redArg();
 lean_object* l_Array_append___redArg(lean_object*, lean_object*);
 lean_object* l_Lean_Syntax_node3(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Syntax_node2(lean_object*, lean_object*, lean_object*, lean_object*);
@@ -273,7 +273,7 @@ static lean_object* _init_l_Lean_Elab_Tactic_Ext___aux__Init__Ext______macroRule
 _start:
 {
 lean_object* v___x_266_; 
-v___x_266_ = l_Array_mkArray0(lean_box(0));
+v___x_266_ = l_Array_mkArray0___redArg();
 return v___x_266_;
 }
 }

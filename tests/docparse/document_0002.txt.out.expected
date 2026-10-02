@@ -1,0 +1,11 @@
+Input: "a\ttab"
+Success! Final stack:
+  (Lean.Doc.Parser.document
+   [(Lean.Doc.Parser.Block.para
+     [(Lean.Doc.Parser.Inline.text
+       (Lean.Doc.Parser.versoText "a\ttab"))])])
+All input consumed.
+Round-trip OK
+Decoded views:
+  para
+    text (content := "a\ttab")

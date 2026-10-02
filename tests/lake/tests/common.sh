@@ -127,6 +127,19 @@ test_status() {
   fi
 }
 
+test_status_out() {
+  expected_rc=$1; shift
+  expected=$1; shift
+  if lake_out "$@"; then rc=$?; else rc=$?; fi
+  match_text "$expected" produced.out
+  if [ $rc = $expected_rc ]; then
+    return 0
+  else
+    echo "FAILURE: Expected Lake to exit with code $expected_rc."
+    return 1
+  fi
+}
+
 program_out() {
   echo '$' "$@"
   if "$@" >produced.out 2>&1; then

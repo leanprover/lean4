@@ -36,6 +36,8 @@ task. Asynchronous elaboration tasks may not yet be finished.
 structure CommandResultSnapshot extends Language.Snapshot where
   /-- Resulting elaboration state. -/
   cmdState : Command.State
+  /-- Tasks for the code quality entries logged by the command's linters. -/
+  codeQualityEntryTasks : Array (Task (Array Linter.CodeQualityLogEntry)) := #[]
 deriving Nonempty
 instance : ToSnapshotTree CommandResultSnapshot where
   toSnapshotTreeM s := return ⟨← Snapshot.transform s.toSnapshot, #[]⟩

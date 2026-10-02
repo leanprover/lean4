@@ -13,6 +13,7 @@ public import Lean.Elab.Tactic.Generalize
 public import Lean.Elab.Tactic.Injection
 public import Lean.Elab.Tactic.Match
 public import Lean.Elab.Tactic.Rewrite
+public import Lean.Elab.Tactic.Rwa
 public import Lean.Elab.Tactic.Location
 public import Lean.Elab.Tactic.SimpTrace
 public import Lean.Elab.Tactic.Simp

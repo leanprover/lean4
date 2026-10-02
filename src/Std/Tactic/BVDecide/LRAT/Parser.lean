@@ -118,7 +118,13 @@ def parseRat (ident : Nat) : Parser IntAction := do
   match clause.size, ratHints.size with
   | 0, 0 => return .addEmpty ident rupHints
   | 0, _ => fail "There cannot be any ratHints for adding the empty clause"
-  | _, 0 => return .addRup ident clause rupHints
+  | _, 0 =>
+    if rupHints.isEmpty then
+      -- An addition without any hints can only be checked as a RAT step without resolution
+      -- candidates, e.g. a BVA definition clause on a fresh pivot variable.
+      return .addRat ident clause (getPivot clause) #[] #[]
+    else
+      return .addRup ident clause rupHints
   | _, _ => return .addRat ident clause (getPivot clause) rupHints ratHints
 
 def parseAction : Parser IntAction := do
@@ -258,7 +264,13 @@ where
     match clause.size, ratHints.size with
     | 0, 0 => return .addEmpty ident rupHints
     | 0, _ => fail "There cannot be any ratHints for adding the empty clause"
-    | _, 0 => return .addRup ident clause rupHints
+    | _, 0 =>
+      if rupHints.isEmpty then
+        -- An addition without any hints can only be checked as a RAT step without resolution
+        -- candidates, e.g. a BVA definition clause on a fresh pivot variable.
+        return .addRat ident clause (getPivot clause) #[] #[]
+      else
+        return .addRup ident clause rupHints
     | _, _ => return .addRat ident clause (getPivot clause) rupHints ratHints
 
   parseDelete : Parser IntAction := do

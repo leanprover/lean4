@@ -1,0 +1,24 @@
+Input: "{role (x := \"a\nb\")}[text]"
+Failure: unexpected token; expected a string argument on one line
+ --> 1:12-2:2
+  |
+1 | {role (x := "a
+  |             ^^
+  = consumed input prefix: 17 bytes
+Final stack:
+  (Lean.Doc.Parser.Inline.role
+   "{"
+   `role
+   [(Lean.Doc.Parser.Arg.named
+     "("
+     `x
+     ":="
+     (Lean.Doc.Parser.ArgVal.str <missing>)
+     ")")]
+   "}"
+   ["["]
+   [(Lean.Doc.Parser.Inline.text
+     (Lean.Doc.Parser.versoText "text"))]
+   ["]"])
+All input consumed.
+Round-trip not reproduced, as the parse reported errors: leaf without original source info: <missing>

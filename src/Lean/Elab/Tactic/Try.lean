@@ -8,7 +8,7 @@ prelude
 public import Lean.Meta.Tactic.ExposeNames
 public import Lean.Meta.Tactic.Try
 public import Lean.Meta.TryThis
-public import Lean.Server.InfoUtils
+public import Lean.Elab.InfoTree.Util
 public import Lean.Elab.Tactic.SimpTrace
 public import Lean.Elab.Tactic.LibrarySearch
 public import Lean.Elab.Tactic.Grind.Main
@@ -305,7 +305,7 @@ builtin_initialize registerBuiltinAttribute {
     let prio ← match stx with
       | `(attr| try_suggestion $n:num) => pure n.getNat
       | `(attr| try_suggestion) => pure 1000  -- Default priority
-      | _ => throwError "invalid 'try_suggestion' attribute syntax"
+      | _ => throwError "invalid `try_suggestion` attribute syntax"
     let attrKind := if kind == AttributeKind.local then AttributeKind.local else AttributeKind.global
     trySuggestionExtension.add {
       name := declName,

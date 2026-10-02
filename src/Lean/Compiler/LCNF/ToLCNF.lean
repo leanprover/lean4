@@ -18,7 +18,6 @@ import Init.Data.Format.Macro
 import Init.Omega
 import Lean.OriginalConstKind
 
-public section
 namespace Lean.Compiler.LCNF
 namespace ToLCNF
 
@@ -513,6 +512,79 @@ def litToValue (lit : Literal) : LitValue :=
   | .natVal val => .nat val
   | .strVal val => .str val
 
+def constantReplacer (e : Expr) : M (Option Expr) := do
+  e.withApp fun fn args => do
+    if let some e ← replaceUnsafeRecName fn args then return some e
+    if let some e ← inlineMatcher e fn args then return some e
+    if let some e ← csimp fn args then return some e
+    if let some e ← macroInline fn args then return some e
+    return none
+where
+  replaceUnsafeRecName (fn : Expr) (args : Array Expr) : M (Option Expr) := do
+    let .const declName us := fn | return none
+    let some safeDeclName := isUnsafeRecName? declName | return none
+    return some <| mkAppN (.const safeDeclName us) args
+
+  macroInline (fn : Expr) (args : Array Expr) : M (Option Expr) := do
+    let .const declName us := fn | return none
+    unless hasMacroInlineAttribute (← getEnv) declName do return none
+    let val ← Core.instantiateValueLevelParams (← getConstInfo declName) us
+    return some <| val.beta args
+
+  csimp (fn : Expr) (args : Array Expr) : M (Option Expr) := do
+    if let some fn ← CSimp.replaceConstant? (← getEnv) fn then
+      return some <| mkAppN fn args
+    else
+      return none
+
+  inlineMatcher (e : Expr) (fn : Expr) (args : Array Expr) : M (Option Expr) := do
+    let .const declName us := fn | return none
+    if let some info ← Meta.getMatcherInfo? declName then
+      let numArgs := args.size
+      if numArgs < info.arity then
+        etaExpandN e (info.arity - numArgs)
+      else
+        let overappliedArgs := args[info.arity...*].toArray
+        let mut args := args[0...info.arity].toArray
+        let altNumParams := info.altNumParams
+        let rec aux (i : Nat) (args : Array Expr) (letFVars : Array Expr) : MetaM Expr := do
+          if h : i < altNumParams.size then
+            let altIdx := i + info.getFirstAltPos
+            let numParams := altNumParams[i]
+            let alt ← normalizeAlt args[altIdx]! numParams
+            Meta.withLetDecl (← mkFreshUserName `_alt) (← Meta.inferType alt) alt fun altFVar =>
+              aux (i+1) (args.set! altIdx altFVar) (letFVars.push altFVar)
+          else
+            let info ← getConstInfo declName
+            let value := (← Core.instantiateValueLevelParams info us).beta args
+            Meta.mkLetFVars letFVars value
+        let inlined ← liftMetaM <| aux 0 args #[]
+        return some <| mkAppN inlined overappliedArgs
+    else if ← Meta.isMatcherLike declName then
+      let info ← getConstInfo declName
+      let value ← Core.instantiateValueLevelParams info us
+      /-
+      Currently the only declarations that are "matcher like" are `match_on_same_ctor.het`, for them
+      each alternative is used uniquely so we can just beta reduce without introducing code
+      duplication. If more "matcher like" things are introduced we might have to extend this with a
+      generalized notion of matcher information.
+      -/
+      return some <| value.beta args
+    else
+      return none
+
+  normalizeAlt (e : Expr) (numParams : Nat) : MetaM Expr :=
+    Meta.lambdaTelescope e fun xs body => do
+      if xs.size == numParams then
+        return e
+      else if xs.size > numParams then
+        let body ← Meta.mkLambdaFVars xs[numParams...*] body
+        let body ← Meta.withLetDecl (← mkFreshUserName `_k) (← Meta.inferType body) body fun x => Meta.mkLetFVars #[x] x
+        Meta.mkLambdaFVars xs[*...numParams] body
+      else
+        Meta.forallBoundedTelescope (← Meta.inferType e) (numParams - xs.size) fun ys _ =>
+          Meta.mkLambdaFVars (xs ++ ys) (mkAppN e ys)
+
 /--
 Put the given expression in `LCNF`.
 
@@ -520,7 +592,7 @@ Put the given expression in `LCNF`.
 - Eta-expand applications of declarations that satisfy `shouldEtaExpand`.
 - Put computationally relevant expressions in A-normal form.
 -/
-partial def toLCNF (e : Expr) (eType : Expr) : CompilerM (Code .pure) := do
+public partial def toLCNF (e : Expr) (eType : Expr) : CompilerM (Code .pure) := do
   run eType do toCode (← visit e)
 where
   visitCore (e : Expr) : M (Arg .pure) := withIncRecDepth do
@@ -581,7 +653,7 @@ where
   /-- Giving `f` a constant `.const declName us`, convert `args` into `args'`, and return `.const declName us args'` -/
   visitAppDefaultConst (f : Expr) (args : Array Expr) : M (Arg .pure) := do
     let env ← getEnv
-    let .const declName us ← CSimp.replaceConstant env f | unreachable!
+    let .const declName us := f | unreachable!
     let args ← args.mapM (withoutExpectedType do visitAppArg ·)
     if hasNeverExtractAttribute env declName then
       modify fun s => {s with shouldCache := false }
@@ -720,7 +792,7 @@ where
       let f := e.getAppFn
       let args := e.getAppArgs
       let env ← getEnv
-      let .const declName us ← CSimp.replaceConstant env f | unreachable!
+      let .const declName us := f | unreachable!
       let ctorInfo? ← isCtor? declName
       let args ← args.mapIdxM fun idx arg =>
         -- We can rely on `toMono` erasing ctor params eventually; we do not do so here so that type
@@ -853,7 +925,13 @@ where
       visit (f.beta e.getAppArgs)
 
   visitApp (e : Expr) : M (Arg .pure) := do
-    if let .const declName us ← CSimp.replaceConstant (← getEnv) e.getAppFn then
+    if let some e ← constantReplacer e then
+      visitCore e
+    else
+      visitAppCore e
+
+  visitAppCore (e : Expr) : M (Arg .pure) := do
+    if let .const declName us := e.getAppFn then
       checkComputable declName
       if declName == ``Quot.lift then
         visitQuotLift e

@@ -924,8 +924,10 @@ Message ordering:
   This helps with testing commands that are non-deterministic in their ordering.
 
 Position reporting:
-- `positions := true` reports the ranges of all messages relative to the line on which
-  `#guard_msgs` appears.
+- `positions := true` reports the ranges of all messages. If the message occurs at or after the
+  line of `#guard_msgs`, this is reported relative to the line on which
+  `#guard_msgs` appears (prefixed with `+`). If the message is logged above `#guard_msgs`, the
+  reported position is absolute.
 - `positions := false` does not report position info.
 
 Substring matching:

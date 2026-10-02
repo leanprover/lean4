@@ -720,6 +720,87 @@ def evalBitVecOfFin (n a : Expr) : EvalM Result := do
   let e ← mkBitVecLit (BitVec.ofNat n a.val.val)
   return .step e (mkRflBitVec e n) (done := true)
 
+/-- Result `e = v` for a `Fin` value `v`, proved by `Eq.refl`. -/
+def mkFinResult (v : Fin m) : SimpM Result := do
+  let e ← share <| toExpr v
+  return .step e (mkApp2 (mkConst ``Eq.refl [1]) (ToExpr.toTypeExpr (α := Fin m)) e) (done := true)
+
+abbrev evalFinUnary {f : Nat → Nat} (op : {n : Nat} → Fin n → Fin (f n)) (a : Expr) : SimpM Result := do
+  let some a := getFinValue? a | return .rfl
+  mkFinResult (op a.val)
+
+def evalFinVal (a : Expr) : SimpM Result := do
+  let some a := getFinValue? a | return .rfl
+  let e ← share <| toExpr a.val.val
+  return .step e (mkApp2 (mkConst ``Eq.refl [1]) (mkConst ``Nat) e) (done := true)
+
+def evalFinLast (n : Expr) : SimpM Result := do
+  let some n := getNatValue? n | return .rfl
+  mkFinResult (Fin.last n)
+
+def evalFinPredecessor (a : Expr) : SimpM Result := do
+  let some ⟨_ + 1, i⟩ := getFinValue? a | return .rfl
+  if h : i ≠ 0 then mkFinResult (i.pred h) else return .rfl
+
+def evalFinCastAdd (m a : Expr) : SimpM Result := do
+  let some m := getNatValue? m | return .rfl
+  let some a := getFinValue? a | return .rfl
+  mkFinResult (a.val.castAdd m)
+
+def evalFinAddNat (a m : Expr) : SimpM Result := do
+  let some a := getFinValue? a | return .rfl
+  let some m := getNatValue? m | return .rfl
+  mkFinResult (a.val.addNat m)
+
+def evalFinNatAdd (n a : Expr) : SimpM Result := do
+  let some n := getNatValue? n | return .rfl
+  let some a := getFinValue? a | return .rfl
+  mkFinResult (Fin.natAdd n a.val)
+
+def evalFinCastLT (n a : Expr) : SimpM Result := do
+  let some n := getNatValue? n | return .rfl
+  let some a := getFinValue? a | return .rfl
+  if h : a.val.val < n then mkFinResult (a.val.castLT h) else return .rfl
+
+def evalFinCastLE (m a : Expr) : SimpM Result := do
+  let some m := getNatValue? m | return .rfl
+  let some a := getFinValue? a | return .rfl
+  if h : a.n ≤ m then mkFinResult (Fin.castLE h a.val) else return .rfl
+
+def evalFinSubNat (m a : Expr) : SimpM Result := do
+  let some m := getNatValue? m | return .rfl
+  let some a := getFinValue? a | return .rfl
+  if h : m ≤ a.val.val then
+    mkFinResult (⟨a.val.val - m, by have := a.val.isLt; omega⟩ : Fin (a.n - m))
+  else
+    return .rfl
+
+/-- Converts `Fin.mk v _` and `Fin.ofNat n v` into a `Fin n` literal when `n` and `v` are numerals. -/
+def evalFinOfNat (n v : Expr) : SimpM Result := do
+  let some n := getNatValue? n | return .rfl
+  let some v := getNatValue? v | return .rfl
+  if h : n ≠ 0 then
+    have : NeZero n := ⟨h⟩
+    mkFinResult (Fin.ofNat n v)
+  else
+    return .rfl
+
+/--
+Normalizes a `Fin` literal: `(7 : Fin 5)` becomes `2`, and a type index that is not a numeral,
+as in `(4 : Fin (5 + 1))`, is evaluated.
+-/
+def evalFinLit (α v : Expr) : SimpM Result := do
+  let_expr Fin nExpr := α | return .rfl
+  let .lit (.natVal v) := v | return .rfl
+  if let some n := getNatValue? nExpr then
+    if v < n then return .rfl
+  let some n ← evalNat nExpr |>.run | return .rfl
+  if h : n ≠ 0 then
+    have : NeZero n := ⟨h⟩
+    mkFinResult (Fin.ofNat n v)
+  else
+    return .rfl
+
 abbrev evalCharUnary [ToExpr α] (op : Char → α) (a : Expr) : SimpM Result := do
   let some a := getCharValue? a | return .rfl
   let e ← share <| toExpr (op a)
@@ -837,6 +918,21 @@ def evalGroundCore (e : Expr) : EvalM Result :=
   | UInt16.toBitVec a => evalUInt16ToBitVec a
   | UInt32.toBitVec a => evalUInt32ToBitVec a
   | UInt64.toBitVec a => evalUInt64ToBitVec a
+  | Fin.succ _ a => evalFinUnary Fin.succ a
+  | Fin.castSucc _ a => evalFinUnary Fin.castSucc a
+  | Fin.rev _ a => evalFinUnary Fin.rev a
+  | Fin.last n => evalFinLast n
+  | Fin.val _ a => evalFinVal a
+  | Fin.pred _ a _ => evalFinPredecessor a
+  | Fin.castAdd _ m a => evalFinCastAdd m a
+  | Fin.addNat _ a m => evalFinAddNat a m
+  | Fin.natAdd _ n a => evalFinNatAdd n a
+  | Fin.castLT n _ a _ => evalFinCastLT n a
+  | Fin.castLE _ m _ a => evalFinCastLE m a
+  | Fin.subNat _ m a _ => evalFinSubNat m a
+  | Fin.mk n v _ => evalFinOfNat n v
+  | Fin.ofNat n _ v => evalFinOfNat n v
+  | OfNat.ofNat α v _ => evalFinLit α v
   | Char.ofNat n => evalCharOfNat n
   | Char.toNat a => evalCharUnary Char.toNat a
   | Char.val a => evalCharUnary Char.val a

@@ -247,6 +247,14 @@ example : (#[1, 2] : Array Nat).size = a := by grind_norm check; sorry
 #guard_msgs in
 example : "ab" ++ "c" = "abc" := by grind_norm check; sorry
 
+-- Accepted difference: legacy has no ground evaluation for `Fin.val`.
+/--
+error: `grind_norm` discrepancy
+legacy:
+  ↑3 = a
+sym:
+  3 = a
+-/
 #guard_msgs in
 example : (3 : Fin 5).val = a := by grind_norm check; sorry
 
@@ -469,16 +477,14 @@ example : (match a * 0 with | 0 => b | _ + 1 => a) = b := by grind_norm check; s
 -- The results differ in the type of `h` in the second alternative: `v.size + 0 = n + 1` (legacy)
 -- and `v.size + 0 = n.succ` (`Sym`).
 /--
-error: `grind_norm` discrepancy
+error: `grind_norm` discrepancy (in hidden arguments)
 legacy:
-  (match h : v.size + 0 with
-    | 0 => 0
-    | n.succ => v[n]) =
+  (_example.match_1 (fun (x : Nat) => Nat) (v.size + 0) (fun (h : v.size + 0 = 0) => 0)
+      fun (n : Nat) (h : v.size + 0 = n + 1) => v[n]) =
     b
 sym:
-  (match h : v.size + 0 with
-    | 0 => 0
-    | n.succ => v[n]) =
+  (_example.match_1 (fun (x : Nat) => Nat) (v.size + 0) (fun (h : v.size + 0 = 0) => 0)
+      fun (n : Nat) (h : v.size + 0 = n.succ) => v[n]) =
     b
 -/
 #guard_msgs in
@@ -614,35 +620,75 @@ example (x : Fin 5) : (3 : Fin 5) + 4 = x := by grind_norm check; sorry
 #guard_msgs in
 example : (Fin.mk 3 (by decide) : Fin 5).val = a := by grind_norm check; sorry
 
+-- Accepted difference: legacy `simp` also rewrites `4 + 1` to `5` in the type of the `Eq`;
+-- `Sym.simp` does not visit types. The `Fin` literals agree, see the probes below.
 /--
-error: `grind_norm` discrepancy
+error: `grind_norm` discrepancy (in hidden arguments)
 legacy:
-  4 = x
+  @Eq (Fin (@OfNat.ofNat Nat (nat_lit 5) (instOfNatNat (nat_lit 5))))
+    (@OfNat.ofNat (Fin (@OfNat.ofNat Nat (nat_lit 5) (instOfNatNat (nat_lit 5)))) (nat_lit 4)
+      (@Fin.instOfNat (@OfNat.ofNat Nat (nat_lit 5) (instOfNatNat (nat_lit 5))) ⋯ (nat_lit 4)))
+    x
 sym:
-  Fin.last 4 = x
+  @Eq
+    (Fin
+      (@HAdd.hAdd Nat Nat Nat (@instHAdd Nat instAddNat) (@OfNat.ofNat Nat (nat_lit 4) (instOfNatNat (nat_lit 4)))
+        (@OfNat.ofNat Nat (nat_lit 1) (instOfNatNat (nat_lit 1)))))
+    (@OfNat.ofNat (Fin (@OfNat.ofNat Nat (nat_lit 5) (instOfNatNat (nat_lit 5)))) (nat_lit 4)
+      (@Fin.instOfNat (@OfNat.ofNat Nat (nat_lit 5) (instOfNatNat (nat_lit 5))) ⋯ (nat_lit 4)))
+    x
 -/
 #guard_msgs in
 example (x : Fin 5) : Fin.last 4 = x := by grind_norm check; sorry
 
-/--
-error: `grind_norm` discrepancy
-legacy:
-  4 = x
-sym:
-  Fin.succ 3 = x
--/
 #guard_msgs in
-example (x : Fin 6) : (3 : Fin 5).succ = x := by grind_norm check; sorry
+example (x : Fin 5) : x = Fin.last 4 := by grind_norm check; sorry
+
+#guard_msgs in
+example (x : Fin 6) : x = (3 : Fin 5).succ := by grind_norm check; sorry
+
+#guard_msgs in
+example (x : Fin 6) : x = (3 : Fin 5).castSucc := by grind_norm check; sorry
+
+#guard_msgs in
+example (x : Fin 5) : (1 : Fin 5).rev = x := by grind_norm check; sorry
+
+#guard_msgs in
+example (x : Fin 4) : (3 : Fin 5).pred (by decide) = x := by grind_norm check; sorry
+
+#guard_msgs in
+example (x : Fin 8) : x = (2 : Fin 5).castAdd 3 := by grind_norm check; sorry
+
+#guard_msgs in
+example (x : Fin 8) : x = (2 : Fin 5).addNat 3 := by grind_norm check; sorry
+
+#guard_msgs in
+example (x : Fin 8) : x = Fin.natAdd 3 (2 : Fin 5) := by grind_norm check; sorry
+
+#guard_msgs in
+example (x : Fin 3) : (2 : Fin 5).castLT (by decide : (2 : Fin 5).val < 3) = x := by grind_norm check; sorry
+
+#guard_msgs in
+example (x : Fin 7) : Fin.castLE (by decide : 5 ≤ 7) (2 : Fin 5) = x := by grind_norm check; sorry
+
+#guard_msgs in
+example (x : Fin 3) : Fin.subNat 2 (4 : Fin 5) (by decide) = x := by grind_norm check; sorry
+
+#guard_msgs in
+example (x : Fin 5) : (⟨2, by decide⟩ : Fin 5) = x := by grind_norm check; sorry
+
+#guard_msgs in
+example (x : Fin 5) : Fin.ofNat 5 7 = x := by grind_norm check; sorry
 
 /--
 error: `grind_norm` discrepancy
 legacy:
-  3 = x
+  2 = x
 sym:
-  Fin.castSucc 3 = x
+  7 = x
 -/
 #guard_msgs in
-example (x : Fin 6) : (3 : Fin 5).castSucc = x := by grind_norm check; sorry
+example (x : Fin 5) : (7 : Fin 5) = x := by grind_norm check; sorry
 
 #guard_msgs in
 example : "abc".length = a := by grind_norm check; sorry

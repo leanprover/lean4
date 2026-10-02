@@ -33,40 +33,6 @@ end Lean
 
 namespace Lean.Elab.Tactic.GuardMsgs
 
-/--
-Gives a string representation of a message with optional position information.
-
-If `reportPos? := some line` is provided, the range of `msg` is reported. If the message begins on
-a line earlier than the provided line, the absolute position is reported. Otherwise, the position
-offset from `line` is reported (prefixed with `+`).
--/
-private def messageToString (msg : Message) (reportPos? : Option Nat) :
-    BaseIO String := do
-  let mut str ← msg.data.toString
-  unless msg.caption == "" do
-    str := msg.caption ++ ":\n" ++ str
-  if !("\n".isPrefixOf str) then str := " " ++ str
-  if msg.isTrace then
-    str := "trace:" ++ str
-  else
-    match msg.severity with
-    | MessageSeverity.information => str := "info:" ++ str
-    | MessageSeverity.warning     => str := "warning:" ++ str
-    | MessageSeverity.error       => str := "error:" ++ str
-  if let some refLine := reportPos? then
-    let startPosMsg (relative : Bool) (refLine : Nat) (pos : Position) :=
-      (if relative then s!"+{pos.line - refLine}" else s!"{pos.line}") ++ s!":{pos.column}"
-    let endPosMsg (relative : Bool) := msg.endPos.elim "*" fun endPos =>
-      -- Omit ending line if the same as starting line:
-      if endPos.line = msg.pos.line then s!"{endPos.column}" else
-        startPosMsg relative refLine endPos
-    -- Note that we need to use the same "relative" setting for both messages.
-    let relative := refLine ≤ msg.pos.line
-    str := s!"@ {startPosMsg relative refLine msg.pos}...{endPosMsg relative}\n" ++ str
-  if str.isEmpty || str.back != '\n' then
-    str := str ++ "\n"
-  return str
-
 /-- The decision made by a specification for a message. -/
 inductive FilterSpec
   /-- Capture the message and check it matches the docstring. -/
@@ -92,6 +58,14 @@ inductive MessageOrdering
   /-- Sort the produced messages. -/
   | sorted
 
+/-- If reporting positions, how to report positions of logged messages. -/
+inductive PositionReportingMode
+  /-- Report positions relative to the line of `#guard_msgs` (the default when reporting positions
+  via `positions := true`). -/
+  | relative
+  /-- Report the absolute positions (`positions := absolute`). -/
+  | absolute
+
 /-- The specification options for `#guard_msgs`. The default field values provide the default
 behavior of `#guard_msgs`. -/
 structure GuardMsgsSpec where
@@ -102,7 +76,7 @@ structure GuardMsgsSpec where
   /-- Method to use when combining multiple messages; see `MessageOrdering`. -/
   ordering : MessageOrdering := .exact
   /-- Whether to report position information. -/
-  reportPositions : Bool := false
+  reportPositions : Option PositionReportingMode := none
   /-- Whether to check for substring containment instead of exact match. -/
   substring : Bool := false
 
@@ -151,8 +125,9 @@ def parseGuardMsgsSpec (spec? : Option (TSyntax ``guardMsgsSpec)) : CommandElabM
     | `(guardMsgsSpecElt| whitespace := lax)        => whitespace := .lax
     | `(guardMsgsSpecElt| ordering := exact)        => ordering := .exact
     | `(guardMsgsSpecElt| ordering := sorted)       => ordering := .sorted
-    | `(guardMsgsSpecElt| positions := true)        => reportPositions := true
-    | `(guardMsgsSpecElt| positions := false)       => reportPositions := false
+    | `(guardMsgsSpecElt| positions := true)        => reportPositions := some .relative
+    | `(guardMsgsSpecElt| positions := absolute)    => reportPositions := some .absolute
+    | `(guardMsgsSpecElt| positions := false)       => reportPositions := none
     | `(guardMsgsSpecElt| substring := true)        => substring := true
     | `(guardMsgsSpecElt| substring := false)       => substring := false
     | _ => throwUnsupportedSyntax
@@ -198,6 +173,43 @@ def MessageOrdering.apply (mode : MessageOrdering) (msgs : List String) : List S
   | .sorted => msgs |>.toArray.qsort (· < ·) |>.toList
 
 /--
+Gives a string representation of a message with optional position information.
+
+If `showPositions := true` and `refLine? := some line` is provided, the range of `msg` is
+reported relative to `line`. if `showPositions := true` and `refLine? := none`, the absolute
+position is reported.
+-/
+private def messageToString (msg : Message) (showPositions : Bool) (refLine? : Option Nat)
+    : BaseIO String := do
+  let mut str ← msg.data.toString
+  unless msg.caption == "" do
+    str := msg.caption ++ ":\n" ++ str
+  if !("\n".isPrefixOf str) then str := " " ++ str
+  if msg.isTrace then
+    str := "trace:" ++ str
+  else
+    match msg.severity with
+    | MessageSeverity.information => str := "info:" ++ str
+    | MessageSeverity.warning     => str := "warning:" ++ str
+    | MessageSeverity.error       => str := "error:" ++ str
+  let posMsg (refLine? : Option Nat) (pos : Position) :=
+    let lineMsg :=
+      if let some refLine := refLine? then
+        if refLine ≤ pos.line then s!"+{pos.line - refLine}" else s!"-{refLine - pos.line}"
+      else
+        s!"{pos.line}"
+    s!"{lineMsg}:{pos.column}"
+  let endPosMsg (refLine? : Option Nat) := msg.endPos.elim "*" fun endPos =>
+    -- Omit ending line if the same as starting line:
+    if endPos.line = msg.pos.line then s!"{endPos.column}" else
+      posMsg refLine? endPos
+  if showPositions then
+    str := s!"@ {posMsg refLine? msg.pos}...{endPosMsg refLine?}\n" ++ str
+  if str.isEmpty || str.back != '\n' then
+    str := str ++ "\n"
+  return str
+
+/--
 Runs a command and collects all messages (sync and async) it produces.
 Clears the snapshot tasks after collection.
 Returns the collected messages.
@@ -230,11 +242,11 @@ def runAndCollectMessages (cmd : Syntax) : CommandElabM MessageLog := do
       | .drop        => pure ()
       | .pass => toPassthrough := toPassthrough.add msg
     let map ← getFileMap
-    let reportPos? :=
-      if reportPositions then
-        tk.getPos?.map (map.toPosition · |>.line)
-      else none
-    let strings ← toCheck.toList.mapM (messageToString · reportPos?)
+    let showPositions := reportPositions.isSome
+    let refLine? := reportPositions.bind fun
+      | .relative => tk.getPos?.map (map.toPosition · |>.line)
+      | .absolute => none
+    let strings ← toCheck.toList.mapM (messageToString · reportPositions.isSome refLine?)
     let strings := ordering.apply strings
     let res := "---\n".intercalate strings |>.trimAscii |>.copy
     let passed := if substring then

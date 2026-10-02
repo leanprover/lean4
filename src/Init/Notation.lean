@@ -828,7 +828,7 @@ Message ordering for `#guard_msgs`:
 syntax guardMsgsOrdering := &"ordering" " := " guardMsgsOrderingArg
 
 set_option linter.missingDocs false in
-syntax guardMsgsPositionsArg := &"true" <|> &"false"
+syntax guardMsgsPositionsArg := &"true" <|> &"false" <|> &"absolute"
 
 /--
 Position reporting for `#guard_msgs`:
@@ -839,6 +839,7 @@ Position reporting for `#guard_msgs`:
   info: <message>
   ```
   Note that the reported column is absolute.
+- `positions := absolute` will report the positions of messages with absolute line numbers.
 - `positions := false` (the default) will not render positions.
 -/
 syntax guardMsgsPositions := &"positions" " := " guardMsgsPositionsArg
@@ -924,10 +925,9 @@ Message ordering:
   This helps with testing commands that are non-deterministic in their ordering.
 
 Position reporting:
-- `positions := true` reports the ranges of all messages. If the message occurs at or after the
-  line of `#guard_msgs`, this is reported relative to the line on which
-  `#guard_msgs` appears (prefixed with `+`). If the message is logged above `#guard_msgs`, the
-  reported position is absolute.
+- `positions := true` reports the ranges of all messages relative to the line on which
+  `#guard_msgs` appears (prefixed with `+`).
+- `positions := absolute` reports the ranges of all messages with absolute line numbers.
 - `positions := false` does not report position info.
 
 Substring matching:

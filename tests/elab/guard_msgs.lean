@@ -8,7 +8,7 @@ open Lean in
 @ 1:0...12:7
 info: Logging from the top of the file to end of `run_cmd`
 -/
-#guard_msgs (positions := true) in
+#guard_msgs (positions := absolute) in
 run_cmd
   let some endPos := (← getRef).getTailPos? | throwError "Could not get position"
   Lean.logInfoAt (.ofRange ⟨0, endPos⟩) "Logging from the top of the file to end of `run_cmd`"
@@ -414,6 +414,23 @@ info: foo
 -/
 #guard_msgs (positions := false) in
 run_cmd logInfo m!"foo"
+
+/--
+@ -4:0...0
+info: Logging at top of command
+-/
+#guard_msgs (positions := true) in
+run_cmd
+  logInfoAt (.ofRange ⟨(← read).cmdPos, (← read).cmdPos⟩) "Logging at top of command"
+
+/--
+@ -4:0...+1:7
+info: Logging from top of command to end of `run_cmd`
+-/
+#guard_msgs (positions := true) in
+run_cmd
+  let some endPos := (← getRef).getTailPos? | throwError "Couldn't find position"
+  logInfoAt (.ofRange ⟨(← read).cmdPos, endPos⟩) "Logging from top of command to end of `run_cmd`"
 
 end Positions
 

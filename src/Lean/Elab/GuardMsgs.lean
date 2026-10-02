@@ -33,8 +33,13 @@ end Lean
 
 namespace Lean.Elab.Tactic.GuardMsgs
 
-/-- Gives a string representation of a message with optional position information. If
-`reportPos? := some line` is provided, the range of `msg` is reported relative to `line`.  -/
+/--
+Gives a string representation of a message with optional position information.
+
+If `reportPos? := some line` is provided, the range of `msg` is reported. If the message begins on
+a line earlier than the provided line, the absolute position is reported. Otherwise, the position
+offset from `line` is reported (prefixed with `+`).
+-/
 private def messageToString (msg : Message) (reportPos? : Option Nat) :
     BaseIO String := do
   let mut str ← msg.data.toString
@@ -48,12 +53,16 @@ private def messageToString (msg : Message) (reportPos? : Option Nat) :
     | MessageSeverity.information => str := "info:" ++ str
     | MessageSeverity.warning     => str := "warning:" ++ str
     | MessageSeverity.error       => str := "error:" ++ str
-  if let some line := reportPos? then
-    let showRelPos (line : Nat) (pos : Position) := s!"+{pos.line - line}:{pos.column}"
-    let showEndPos := msg.endPos.elim "*" fun endPos =>
+  if let some refLine := reportPos? then
+    let startPosMsg (relative : Bool) (refLine : Nat) (pos : Position) :=
+      (if relative then s!"{pos.line}" else s!"+{pos.line - refLine}") ++ s!":{pos.column}"
+    let endPosMsg (relative : Bool) := msg.endPos.elim "*" fun endPos =>
       -- Omit ending line if the same as starting line:
-      if endPos.line = msg.pos.line then s!"{endPos.column}" else showRelPos line endPos
-    str := s!"@ {showRelPos line msg.pos}...{showEndPos}\n" ++ str
+      if endPos.line = msg.pos.line then s!"{endPos.column}" else
+        startPosMsg relative refLine endPos
+    -- Note that we need to use the same "relative" setting for both messages.
+    let relative := refLine ≤ msg.pos.line
+    str := s!"@ {startPosMsg relative refLine msg.pos}...{endPosMsg relative}\n" ++ str
   if str.isEmpty || str.back != '\n' then
     str := str ++ "\n"
   return str

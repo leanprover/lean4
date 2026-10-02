@@ -55,7 +55,7 @@ private def messageToString (msg : Message) (reportPos? : Option Nat) :
     | MessageSeverity.error       => str := "error:" ++ str
   if let some refLine := reportPos? then
     let startPosMsg (relative : Bool) (refLine : Nat) (pos : Position) :=
-      (if relative then s!"{pos.line}" else s!"+{pos.line - refLine}") ++ s!":{pos.column}"
+      (if relative then s!"+{pos.line - refLine}" else s!"{pos.line}") ++ s!":{pos.column}"
     let endPosMsg (relative : Bool) := msg.endPos.elim "*" fun endPos =>
       -- Omit ending line if the same as starting line:
       if endPos.line = msg.pos.line then s!"{endPos.column}" else

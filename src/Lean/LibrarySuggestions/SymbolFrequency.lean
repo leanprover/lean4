@@ -15,7 +15,9 @@ import Init.System.Platform
 
 Symbol frequencies for library suggestions are computed on first use and cached for the process.
 The imported statements are traversed in parallel tasks. Index construction does not count against
-the caller's heartbeat budget, but it can be interrupted.
+the caller's heartbeat budget. Cancellation is checked during traversal and while waiting for
+another caller's computation. Once their inputs are available, the frequency and trigger maps are
+built without further cancellation checks, so later queries can reuse the cached results.
 -/
 
 namespace Lean.LibrarySuggestions

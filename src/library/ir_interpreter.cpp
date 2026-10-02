@@ -723,13 +723,17 @@ class interpreter {
         return m_call_stack.back();
     }
 
+    __attribute__((noinline)) void grow_arg_stack(size_t size) {
+        m_arg_stack.resize(size);
+    }
+
     /** \brief Get reference to stack slot of IR variable */
-    inline value & var(var_id const & v) {
+    LEAN_ALWAYS_INLINE inline value & var(var_id const & v) {
         // variables are 1-indexed
         size_t i = get_frame().m_arg_bp + v.get_small_value() - 1;
         // we don't know the frame size (unless we do an additional IR pass), so we extend it dynamically
-        if (i >= m_arg_stack.size()) {
-            m_arg_stack.resize(i + 1);
+        if (LEAN_UNLIKELY(i >= m_arg_stack.size())) {
+            grow_arg_stack(i + 1);
         }
         return m_arg_stack[i];
     }

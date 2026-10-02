@@ -859,7 +859,7 @@ private:
                 }
             }
             case expr_kind::PAp: { // unsatured (partial) application of top-level function
-                symbol_cache_entry sym = lookup_symbol(expr_pap_fun(e));
+                symbol_cache_entry const & sym = lookup_symbol(expr_pap_fun(e));
                 if (sym.m_native.m_addr) {
                     // point closure directly at native symbol
                     object * cls = alloc_closure(sym.m_native.m_addr, decl_params(sym.m_decl).size(), expr_pap_args(e).size());
@@ -1131,8 +1131,9 @@ private:
        });
     }
 
-    /** \brief Return cached lookup result for given unmangled function name in the current binary. */
-    symbol_cache_entry lookup_symbol(name const & fn) {
+    /** \brief Return cached lookup result for given unmangled function name in the current binary.
+        The reference stays valid for the interpreter's lifetime: the cache is node-based and never erased from. */
+    symbol_cache_entry const & lookup_symbol(name const & fn) {
         auto e = m_symbol_cache.find(fn);
         if (e != m_symbol_cache.end()) {
             return e->second;
@@ -1142,8 +1143,7 @@ private:
         if (ne != g_native_symbol_cache->end()) {
             symbol_cache_entry e_new { get_decl(fn), ne->second, {} };
             e_new.m_prim = resolve_prim(fn, e_new.m_decl);
-            m_symbol_cache.insert({ fn, e_new });
-            return e_new;
+            return m_symbol_cache.emplace(fn, std::move(e_new)).first->second;
         }
         lock.unlock();
         std::unique_lock<std::shared_mutex> unique_lock(*g_native_symbol_cache_mutex);
@@ -1151,8 +1151,7 @@ private:
         if (ne != g_native_symbol_cache->end()) {
             symbol_cache_entry e_new { get_decl(fn), ne->second, {} };
             e_new.m_prim = resolve_prim(fn, e_new.m_decl);
-            m_symbol_cache.insert({ fn, e_new });
-            return e_new;
+            return m_symbol_cache.emplace(fn, std::move(e_new)).first->second;
         }
         symbol_cache_entry e_new { get_decl(fn), {nullptr, false}, {} };
         if (m_prefer_native || decl_tag(e_new.m_decl) == decl_kind::Extern || has_init_attribute(m_env, fn)) {
@@ -1175,8 +1174,7 @@ private:
         }
         g_native_symbol_cache->insert({ fn, e_new.m_native });
         e_new.m_prim = resolve_prim(fn, e_new.m_decl);
-        m_symbol_cache.insert({ fn, e_new });
-        return e_new;
+        return m_symbol_cache.emplace(fn, std::move(e_new)).first->second;
     }
 
     /** \brief Retrieve Lean declaration from elab_environment. */
@@ -1202,7 +1200,7 @@ private:
             return type_is_scalar(t) ? unbox_t(o, t) : o;
         }
 
-        symbol_cache_entry e = lookup_symbol(fn);
+        symbol_cache_entry const & e = lookup_symbol(fn);
         if (e.m_native.m_addr) {
             // we can assume that all native code has been initialized (see e.g. `evalConst`)
 
@@ -1246,7 +1244,7 @@ private:
     value call(name const & fn, array_ref<arg> const & args) {
         size_t old_size = m_arg_stack.size();
         value r;
-        symbol_cache_entry e = lookup_symbol(fn);
+        symbol_cache_entry const & e = lookup_symbol(fn);
         if (e.m_prim.m_fn) {
             prim_entry const & p = e.m_prim;
             value prim_args[max_prim_arity];
@@ -1386,7 +1384,7 @@ public:
      *  * supports under- and over-application.
      *  * supports "calling" (evaluating) nullary constants. */
     object * call_boxed(name const & fn, unsigned n, object ** args) {
-        symbol_cache_entry e = lookup_symbol(fn);
+        symbol_cache_entry const & e = lookup_symbol(fn);
         unsigned arity = decl_params(e.m_decl).size();
         object * r;
         if (arity == 0) {
@@ -1455,7 +1453,7 @@ public:
                 object * o = io_result_get_value(r);
                 mark_persistent(o);
                 dec_ref(r);
-                symbol_cache_entry e = lookup_symbol(decl);
+                symbol_cache_entry const & e = lookup_symbol(decl);
                 if (e.m_native.m_addr) {
                     *((object **)e.m_native.m_addr) = o;
                 } else {

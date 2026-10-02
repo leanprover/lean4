@@ -417,11 +417,12 @@ run_cmd logInfo m!"foo"
 
 /--
 @ -4:0...0
-info: Logging at top of command
+info: Logging at top of command, above `#guard_msgs`
 -/
 #guard_msgs (positions := true) in
 run_cmd
-  logInfoAt (.ofRange ⟨(← read).cmdPos, (← read).cmdPos⟩) "Logging at top of command"
+  logInfoAt (.ofRange ⟨(← read).cmdPos, (← read).cmdPos⟩)
+    "Logging at top of command, above `#guard_msgs`"
 
 /--
 @ -4:0...+1:7

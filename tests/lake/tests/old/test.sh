@@ -10,9 +10,9 @@ LAKE=${LAKE:-../../.lake/build/bin/lake}
 # https://github.com/leanprover/lean4/issues/2822
 
 diff_out() {
-  grep 'Built' || true |
+  { grep 'Built' || true; } |
   sed 's/^.*\[.*\] //' |
-  sed 's/\s*(.*)$//' |
+  sed -E 's/[[:space:]]*(\(.*\))$//' |
   LANG=POSIX sort |
   diff -u --strip-trailing-cr "$1" -
 }

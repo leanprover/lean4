@@ -25,9 +25,9 @@ structure State (σ : Type) where
   /--
   Whether this state may differ from the enclosing scope's state because of changes made since this
   scope was pushed: local entries, entries of namespaces activated in this scope, and
-  `ScopedEnvExtension.modifyState`. Popping a scope with this flag set bumps the generation to a
-  fresh value (see `PersistentEnvExtensionDescrCore.trackGen`) and, for an extension with
-  `logWrites`, logs `scopeChangedDecls`. Only tracked for extensions with
+  `ScopedEnvExtension.modifyState`. Popping a scope with this flag set bumps `Environment.trackedGen`
+  for a generation-tracked extension (see `PersistentEnvExtensionDescrCore.trackGen`) and, for an
+  extension with `logWrites`, logs `scopeChangedDecls`. Only tracked for extensions with
   `Descr.tracksScopes`.
   -/
   scopeChanged : Bool := false
@@ -192,8 +192,8 @@ opaque registerScopedEnvExtension (descr : Descr α β σ) : IO (ScopedEnvExtens
 /--
 Applies a scope-stack operation `f`. `changed` must be set exactly when `f` changes the state in
 effect (see `State.scopeChanged`), with `changedDecls` the declarations of the entries it adds or
-removes. For extensions with `Descr.tracksScopes` this is recorded like a content change: the
-generation of a generation-tracked extension is bumped, and one with `logWrites` logs
+removes. For extensions with `Descr.tracksScopes` this is recorded like a content change: a
+generation-tracked extension bumps `Environment.trackedGen`, and one with `logWrites` logs
 `changedDecls`.
 -/
 private def ScopedEnvExtension.modifyScopes (ext : ScopedEnvExtension α β σ) (env : Environment)

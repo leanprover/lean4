@@ -392,15 +392,19 @@ structure SynthInstanceCacheEntry where
 Type class resolution cache. Each key holds one entry per observed set of dependencies: the search
 records what it observes as the entry's `RecordedDeps`, and a lookup only uses an entry whose
 recorded dependencies still hold in the current context. What the search never observes does not
-partition the cache. The recorded dependencies are the option lookups (`getRecordedOption`), the
-generations of the instance and unification-hint extensions read
-(`PersistentEnvExtensionDescrCore.trackGen`), and the position in `Environment.declChangeLog`,
-against whose later changes of declaration-keyed state the entry is validated. The search runs with
-`Core.Context.isRecordingDeps` set, so an unrecorded option read panics.
+partition the cache. The recorded dependencies are the option lookups (`getRecordedOption`) and the
+position in `Environment.declChangeLog`, against whose later changes of declaration-keyed state the
+entry is validated. The search runs with `Core.Context.isRecordingDeps` set, so an unrecorded option
+read panics.
+
+A change of the instances or unification hints in effect makes all entries unusable: the cache as a
+whole belongs to one value of `Environment.trackedGen` (`Meta.Cache.synthInstanceGen`), which every
+such change bumps (`PersistentEnvExtensionDescrCore.trackGen`).
 
 These counters roll back with the environment, after which a different change can bring them back.
-The entries in `Meta.Cache` survive `SavedState.restore`, which therefore drops those the rollback
-invalidates (`SynthInstanceCache.rollBack`) and carries the latest recording start
+The entries in `Meta.Cache` survive `SavedState.restore`, which therefore empties the cache when it
+belongs to another `trackedGen` than the restored one, drops the entries a rollback of the other
+counters invalidates (`SynthInstanceCache.rollBack`), and carries the latest recording start
 (`Environment.raiseRecordingConstGen`) over, so that changes the surviving entries depend on stay
 logged. Restoring a state with constants the current environment lacks, such as `Term.observing`
 followed by `applyResult`, instead takes the cache saved with that state, which is consistent with
@@ -460,6 +464,11 @@ structure Cache where
   whnf           : WhnfCache := {}
   defEqTrans     : DefEqCache := {} -- transient cache for terms containing mvars or using nonstandard configuration options, it is frequently reset.
   defEqPerm      : DefEqCache := {} -- permanent cache for terms not containing mvars and using standard configuration options
+  /--
+  `Environment.trackedGen` that the entries of `synthInstance` were recorded at. They are unusable at
+  any other value, i.e. after the instances or unification hints in effect changed.
+  -/
+  synthInstanceGen : Nat := 0
   deriving Inhabited
 
 /--
@@ -662,15 +671,15 @@ protected def saveState : MetaM SavedState :=
   return { core := (← Core.saveState), «meta» := (← get) }
 
 /--
-Drops the entries a rollback to an environment `env` invalidates: those stamped after changes it
-undoes, i.e. with a larger `trackedGen` or declaration change log position (along one environment
-branch both only grow), and those recorded after constants it removes, as a constant of the same
-name added later would count as unobserved (`Environment.checkDeclChangeLog`).
+Drops the entries a rollback to an environment `env` with the same `trackedGen` invalidates: those
+stamped after logged changes it undoes, i.e. with a larger declaration change log position (which
+only grows along one environment branch), and those recorded after constants it removes, as a
+constant of the same name added later would count as unobserved
+(`Environment.checkDeclChangeLog`).
 -/
 def SynthInstanceCache.rollBack (c : SynthInstanceCache) (env : Environment) : SynthInstanceCache :=
   c.foldl (init := c) fun c key entries =>
     match entries.filter fun e =>
-        e.deps.baseTrackedGen ≤ env.trackedGen &&
         e.deps.baseChangeLogPos ≤ env.declChangeLog.size &&
         e.deps.baseConstGen ≤ env.constGen with
     | []       => c.erase key
@@ -681,7 +690,7 @@ def SavedState.restore (b : SavedState) : MetaM Unit := do
   -- `Meta.Cache` is kept, except for the type class resolution cache; see `SynthInstanceCache`.
   let env ← getEnv
   let restored := b.core.env
-  let stampsRolledBack := env.trackedGen != restored.trackedGen ||
+  let stampsRolledBack :=
     env.declChangeLog.size != restored.declChangeLog.size || env.constGen != restored.constGen
   b.core.restore
   -- The surviving entries may have observed declarations up to the latest recording start, so
@@ -691,7 +700,11 @@ def SavedState.restore (b : SavedState) : MetaM Unit := do
   modify fun s => { s with
     mctx := b.meta.mctx, zetaDeltaFVarIds := b.meta.zetaDeltaFVarIds, postponed := b.meta.postponed
     cache := if restored.constGen > env.constGen then
-      { s.cache with synthInstance := b.meta.cache.synthInstance }
+      { s.cache with synthInstance := b.meta.cache.synthInstance
+                     synthInstanceGen := b.meta.cache.synthInstanceGen }
+    else if s.cache.synthInstanceGen != restored.trackedGen then
+      -- Emptied rather than kept for a later change to reach its `trackedGen` again.
+      { s.cache with synthInstance := {}, synthInstanceGen := restored.trackedGen }
     else if stampsRolledBack then
       { s.cache with synthInstance := s.cache.synthInstance.rollBack restored }
     else s.cache }
@@ -754,13 +767,13 @@ def resetCache : MetaM Unit :=
   modifyCache fun _ => {}
 
 @[inline] def modifyInferTypeCache (f : InferTypeCache → InferTypeCache) : MetaM Unit :=
-  modifyCache fun ⟨ic, c1, c2, c3, c4, c5⟩ => ⟨f ic, c1, c2, c3, c4, c5⟩
+  modifyCache fun ⟨ic, c1, c2, c3, c4, c5, c6⟩ => ⟨f ic, c1, c2, c3, c4, c5, c6⟩
 
 @[inline] def modifyDefEqTransientCache (f : DefEqCache → DefEqCache) : MetaM Unit :=
-  modifyCache fun ⟨c1, c2, c3, c4, defeqTrans, c5⟩ => ⟨c1, c2, c3, c4, f defeqTrans, c5⟩
+  modifyCache fun ⟨c1, c2, c3, c4, defeqTrans, c5, c6⟩ => ⟨c1, c2, c3, c4, f defeqTrans, c5, c6⟩
 
 @[inline] def modifyDefEqPermCache (f : DefEqCache → DefEqCache) : MetaM Unit :=
-  modifyCache fun ⟨c1, c2, c3, c4, c5, defeqPerm⟩ => ⟨c1, c2, c3, c4, c5, f defeqPerm⟩
+  modifyCache fun ⟨c1, c2, c3, c4, c5, defeqPerm, c6⟩ => ⟨c1, c2, c3, c4, c5, f defeqPerm, c6⟩
 
 def mkExprConfigCacheKey (expr : Expr) : MetaM ExprConfigCacheKey :=
   return { expr, configKey := (← read).configKey }

@@ -103,7 +103,6 @@ def tryUnificationHints (t s : Expr) : MetaM Bool := do
     return false
   if t.isMVar then
     return false
-  recordExtGenAccess unificationHintExtension.ext.toEnvExtension
   let hints := unificationHintExtension.getState (← getEnv)
   let candidates ← withConfigWithKey config <| hints.discrTree.getMatch t
   for candidate in candidates do

@@ -236,19 +236,9 @@ structure RecordedDeps where
   -/
   base : Options := {}
   /--
-  The generation-tracked extensions read, as `EnvExtension.genIdx?` and observed generation.
-  -/
-  extGens : Array (Nat × Nat) := #[]
-  /--
-  `Environment.trackedGen` when recording started, or when the dependencies were last validated.
-  Together with `baseChangeLogPos` it is the *stamp* of the dependencies: as long as the
-  environment's `trackedGen` and change log length still equal the stamp, none of the environment
-  dependencies can have changed since then.
-  -/
-  baseTrackedGen : Nat := 0
-  /--
   Length of `Environment.declChangeLog` when recording started, or when the dependencies were last
-  validated; see `baseTrackedGen`.
+  validated against it: the *stamp* of the dependencies. As long as the change log still has this
+  length, none of the logged dependencies can have changed.
   -/
   baseChangeLogPos : Nat := 0
   /--
@@ -956,23 +946,6 @@ private def recordOptionAccess (name : Name) (value : Option DataValue) : CoreM 
     let d := (← get).recordedDeps
     if !d.options.contains name && d.base.find? name == value then
       Core.modifyRecordedDeps fun deps => { deps with options := deps.options.push name }
-
-/--
-Inside a recording computation, records the current generation of the generation-tracked extension
-`ext` in `Core.State.recordedDeps`.
--/
-def recordExtGenAccess (ext : EnvExtension σ) : CoreM Unit := do
-  if !(← read).isRecordingDeps then
-    return
-  let d := (← get).recordedDeps
-  let some i := ext.genIdx?
-    | return panic! s!"environment extension `{ext.name}` (index {ext.idx}) is not \
-      generation-tracked"
-  -- Keep the first generation read, if any: if the extension changed since, the result also depends
-  -- on the older state, which only the older generation makes validation reject.
-  unless d.extGens.any (·.1 == i) do
-    let gen := EnvExtension.getGenAt (← getEnv) i
-    Core.modifyRecordedDeps fun deps => { deps with extGens := deps.extGens.push (i, gen) }
 
 /--
 Reads an option and, inside a recording computation, records the lookup in

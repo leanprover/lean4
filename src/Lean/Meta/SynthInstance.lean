@@ -935,12 +935,10 @@ private def applyAbstractResult? (type : Expr) (abstResult? : Option AbstractMVa
 private def validOptionAccesses (opts : Options) (log : RecordedDeps) : Bool :=
   log.options.all fun n => opts.find? n == log.base.find? n
 
-/-- Returns whether the environment dependencies in `deps` hold in `env`. -/
+/-- Returns whether the logged dependencies in `deps` hold in `env`. -/
 private def validEnvDeps (env : Environment) (deps : RecordedDeps) : Bool :=
-  -- While `trackedGen` is still `baseTrackedGen` and no change was logged since, no environment
-  -- dependency can have changed.
-  deps.baseTrackedGen == env.trackedGen && deps.baseChangeLogPos == env.declChangeLog.size ||
-    deps.extGens.all (fun (idx, gen) => EnvExtension.getGenAt env idx == gen) &&
+  -- while no change was logged since, no logged dependency can have changed
+  deps.baseChangeLogPos == env.declChangeLog.size ||
     env.checkDeclChangeLog deps.baseChangeLogPos deps.baseConstGen
 
 /-- Adds the dependencies of a nested query or a used cache entry to those of the enclosing query. -/
@@ -949,20 +947,21 @@ private def _root_.Lean.RecordedDeps.mergeInto (child parent : RecordedDeps) : R
     -- A lookup answering differently from the parent's `base` was served by a write the parent
     -- itself opened, so it is not a dependency of the parent.
     if l.contains n || parent.base.find? n != child.base.find? n then l else l.push n
-  -- Keep the parent's earlier generation, as in `recordExtGenAccess`.
-  let extGens := child.extGens.foldl (init := parent.extGens) fun l d =>
-    if l.any (·.1 == d.1) then l else l.push d
-  { parent with options, extGens }
+  { parent with options }
 
 /--
 Adds `entry` to the cache, replacing the entries for `key` that recorded the same option lookups with
 the same answers: those did not hold in the current environment, or were superseded by `entry`.
 -/
 private def insertCacheEntry (key : SynthInstanceCacheKey) (entry : SynthInstanceCacheEntry) :
-    MetaM Unit :=
-  modifyCache fun c => { c with synthInstance := c.synthInstance.alter key fun entries? =>
-    some <| entry :: (entries?.getD [] |>.filter fun e =>
-      e.deps.options != entry.deps.options || e.deps.base != entry.deps.base) }
+    MetaM Unit := do
+  let gen := (← getEnv).trackedGen
+  modifyCache fun c =>
+    -- entries recorded at another `trackedGen` are unusable; see `Meta.Cache.synthInstanceGen`
+    let cache := if c.synthInstanceGen == gen then c.synthInstance else {}
+    { c with synthInstanceGen := gen, synthInstance := cache.alter key fun entries? =>
+      some <| entry :: (entries?.getD [] |>.filter fun e =>
+        e.deps.options != entry.deps.options || e.deps.base != entry.deps.base) }
 
 /--
 Returns the entry for `key` whose recorded dependencies hold in the current context, if any.
@@ -971,14 +970,14 @@ private def findCachedResult? (key : SynthInstanceCacheKey) : MetaM (Option Synt
   -- unrestricted: compared against the recorded lookups
   let opts ← getOptionsUnrestricted
   let env ← getEnv
-  let some entries := (← get).cache.synthInstance.find? key | return none
+  let cache := (← get).cache
+  unless cache.synthInstanceGen == env.trackedGen do return none
+  let some entries := cache.synthInstance.find? key | return none
   let some entry := entries.find? fun e => validOptionAccesses opts e.deps && validEnvDeps env e.deps
     | return none
-  if entry.deps.baseTrackedGen != env.trackedGen ||
-      entry.deps.baseChangeLogPos != env.declChangeLog.size then
-    -- Re-stamped, so that later lookups skip the environment checks just done.
-    insertCacheEntry key { entry with deps := { entry.deps with
-      baseTrackedGen := env.trackedGen, baseChangeLogPos := env.declChangeLog.size } }
+  if entry.deps.baseChangeLogPos != env.declChangeLog.size then
+    -- Re-stamped, so that later lookups skip the change log check just done.
+    insertCacheEntry key { entry with deps.baseChangeLogPos := env.declChangeLog.size }
   return entry
 
 /--
@@ -1039,8 +1038,8 @@ def synthInstanceCore? (type : Expr) (maxResultSize? : Option Nat := none) : Met
   let base ← getOptionsUnrestricted
   let env ← getEnv
   let parentDeps ← modifyGetThe Core.State fun s => (s.recordedDeps, { s with
-    recordedDeps := { base, baseTrackedGen := env.trackedGen,
-                      baseChangeLogPos := env.declChangeLog.size, baseConstGen := env.constGen }
+    recordedDeps := { base, baseChangeLogPos := env.declChangeLog.size,
+                      baseConstGen := env.constGen }
     env := env.markRecordingStart })
   try
   withTheReader Core.Context (fun ctx => { ctx with isRecordingDeps := true }) do
@@ -1051,8 +1050,6 @@ def synthInstanceCore? (type : Expr) (maxResultSize? : Option Nat := none) : Met
     let localInsts ← getLocalInstances
     let type ← instantiateMVars type
     let { type, cacheKeyType, kind } ← preprocess type
-    -- Recorded once per query, covering every read of the instance table on the search path.
-    recordExtGenAccess instanceExtension.ext.toEnvExtension
     let cacheKey := { localInsts, type := cacheKeyType, synthPendingDepth := (← read).synthPendingDepth,
                       maxResultSize, optionFlags := (← getOptionFlags) }
     let runSearch : MetaM (Option AbstractMVarsResult) :=
@@ -1119,7 +1116,10 @@ def synthInstanceCore? (type : Expr) (maxResultSize? : Option Nat := none) : Met
       let abstResult? ← runSearch
       let result? ← applyAbstractResult? type abstResult?
       trace[Meta.synthInstance] "result {result?}"
-      cacheResult cacheKey ((← getThe Core.State).recordedDeps) kind abstResult? result?
+      -- A result computed while the instances or unification hints in effect changed belongs to
+      -- no single `trackedGen`.
+      if (← getEnv).trackedGen == env.trackedGen then
+        cacheResult cacheKey ((← getThe Core.State).recordedDeps) kind abstResult? result?
       return result?
   finally
     -- Restore the enclosing accumulator, merging this query's dependencies into it.

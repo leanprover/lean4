@@ -1,15 +1,14 @@
 import TrackedExt.Ext
 
 /-!
-Scope operations on a generation-tracked scoped extension bump its generation exactly when they
-change the entries in effect: activating a namespace with entries, and popping a scope that received
+Scope operations on a generation-tracked scoped extension bump `Environment.trackedGen` exactly
+when they change the entries in effect: activating a namespace with entries, and popping a scope that received
 local entries, entries of a namespace activated in it, or other state modifications.
 -/
 
 open Lean
 
-/-- Generation of `trackedScopedExt` in `env`. -/
-def gen (env : Environment) : Nat := trackedScopedExt.ext.toEnvExtension.getGen env
+def gen (env : Environment) : Nat := env.trackedGen
 
 /--
 info: push +0, activate empty +0, activate +1, pop +1, state [1]

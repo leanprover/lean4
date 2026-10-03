@@ -253,15 +253,10 @@ structure Environment where
   -/
   private irBaseExts      : Array EnvExtensionState
   /--
-  Generations of the generation-tracked extensions, indexed by `EnvExtension.genIdx?` and sized like
-  `extensions`, next to whose states they are kept so that both are always replaced together.
-  -/
-  private extGens         : Array Nat
-  /--
   Counter bumped by every modification of a generation-tracked extension
   (`PersistentEnvExtensionDescrCore.trackGen`): while it is unchanged, no such extension has
-  changed. Like the generations, it rolls back with the environment, so after a rollback a different
-  modification can reach a value seen before. Results stored in the environment roll back with it
+  changed. It rolls back with the environment, so after a rollback a different modification can
+  reach a value seen before. Results stored in the environment roll back with it
   and stay sound. As the counter only grows along one environment branch, a result stored outside
   the environment stays sound across a rollback only if it was stamped with at most the restored
   value; later ones must be dropped.
@@ -1507,11 +1502,8 @@ structure EnvExtension (σ : Type) where private mk ::
   replay?   : Option (ReplayFn σ)
   /-- Name for diagnostics; set automatically for persistent extensions. -/
   name      : Name
-  /--
-  For a generation-tracked extension (`PersistentEnvExtensionDescrCore.trackGen`), the index of its
-  generation in `Kernel.Environment.extGens`.
-  -/
-  genIdx?   : Option Nat
+  /-- See `PersistentEnvExtensionDescrCore.trackGen`. -/
+  trackGen  : Bool
   /--
   Whether writes are logged by declaration in `Environment.declChangeLog`, so that type class
   resolution may read the extension without recording the read: every write some recording
@@ -1523,17 +1515,7 @@ structure EnvExtension (σ : Type) where private mk ::
 
 namespace EnvExtension
 
-/-- Whether `ext` is generation-tracked; see `PersistentEnvExtensionDescrCore.trackGen`. -/
-def isGenTracked (ext : EnvExtension σ) : Bool :=
-  ext.genIdx?.isSome
-
 private builtin_initialize envExtensionsRef : IO.Ref (Array (EnvExtension EnvExtensionState)) ← IO.mkRef #[]
-private builtin_initialize numTrackedExtsRef : IO.Ref Nat ← IO.mkRef 0
-
-/-- Pads `gens` with initial generations for the generation-tracked extensions registered since. -/
-private def ensureGensArraySize (gens : Array Nat) : IO (Array Nat) := do
-  let n ← numTrackedExtsRef.get
-  return gens ++ .replicate (n - gens.size) 0
 
 /--
   User-defined environment extensions are declared using the `initialize` command.
@@ -1617,16 +1599,9 @@ private def modifyStateCore {σ : Type} (ext : EnvExtension σ) (env : Environme
     (asyncMode : AsyncMode) (asyncDecl : Name) (bumpGen : Bool) : Environment := Id.run do
   -- for panics
   let _ : Inhabited Environment := ⟨env⟩
-  let env := match ext.genIdx? with
-    | some i =>
-      if !bumpGen then env else
-      if i < env.base.private.extGens.size then
-        { env with
-          base.private.extGens := env.base.private.extGens.modify i (· + 1)
-          base.private.trackedGen := env.base.private.trackedGen + 1 }
-      else
-        panic! invalidExtMsg
-    | none => env
+  let env := if ext.trackGen && bumpGen then
+      { env with base.private.trackedGen := env.base.private.trackedGen + 1 }
+    else env
   -- safety: `ext`'s constructor is private, so we can assume the entry at `ext.idx` is of type `σ`
   match asyncMode with
   | .mainOnly =>
@@ -1660,9 +1635,10 @@ private def panicUnloggedWrite (ext : EnvExtension σ) (env : Environment) : Env
 Applies the given function to the extension state. See `AsyncMode` for details on how modifications
 from different environment branches are reconciled.
 
-For generation-tracked extensions the modification bumps the generation if `bumpGen` is set; see
-`PersistentEnvExtensionDescrCore.trackGen`. For an extension with `logWrites`, `log` must name the
-declaration the write is about, which logs it, or state `.unlogged`; otherwise the write panics.
+For generation-tracked extensions the modification bumps `Environment.trackedGen` if `bumpGen` is
+set; see `PersistentEnvExtensionDescrCore.trackGen`. For an extension with `logWrites`, `log` must
+name the declaration the write is about, which logs it, or state `.unlogged`; otherwise the write
+panics.
 
 Note that in modes `sync` and `async`, `f` will be called twice, on the local and on the `checked`
 state.
@@ -1751,20 +1727,6 @@ only for important optimizations.
 opaque getState {σ : Type} [Inhabited σ] (ext : EnvExtension σ) (env : Environment)
   (asyncMode := ext.asyncMode) (asyncDecl : Name := .anonymous) : σ
 
-/--
-Generation of the generation-tracked extension with index `genIdx` (`EnvExtension.genIdx?`) on the
-current branch of `env`.
--/
-def getGenAt (env : Environment) (genIdx : Nat) : Nat :=
-  env.base.private.extGens[genIdx]!
-
-/-- Generation of the generation-tracked extension `ext` on the current branch of `env`. -/
-def getGen (ext : EnvExtension σ) (env : Environment) : Nat :=
-  if let some i := ext.genIdx? then
-    getGenAt env i
-  else
-    panic! s!"environment extension `{ext.name}` (index {ext.idx}) is not generation-tracked"
-
 end EnvExtension
 
 /-- Environment extensions can only be registered during initialization.
@@ -1788,14 +1750,11 @@ def registerEnvExtension {σ : Type} (mkInitial : IO σ)
   if trackGen then
     unless asyncMode matches .local | .mainOnly do
       throw (IO.userError "generation-tracked environment extensions must use `AsyncMode.local` or \
-        `.mainOnly`; generations are branch-local (see `PersistentEnvExtensionDescrCore.trackGen`)")
+        `.mainOnly`; the counter is branch-local (see `PersistentEnvExtensionDescrCore.trackGen`)")
   let exts ← EnvExtension.envExtensionsRef.get
   let idx := exts.size
-  let genIdx? ← if trackGen then
-    some <$> EnvExtension.numTrackedExtsRef.modifyGet fun n => (n, n + 1)
-  else pure none
   let ext : EnvExtension σ :=
-    { idx, mkInitial, asyncMode, replay?, name, genIdx?, logWrites }
+    { idx, mkInitial, asyncMode, replay?, name, trackGen, logWrites }
   -- safety: `EnvExtensionState` is opaque, so we can upcast to it
   EnvExtension.envExtensionsRef.modify fun exts => exts.push (unsafe unsafeCast ext)
   pure ext
@@ -1814,7 +1773,6 @@ def mkEmptyEnvironment (trustLevel : UInt32 := 0) : IO Environment := do
       header          := { trustLevel }
       extensions      := exts
       irBaseExts      := exts
-      extGens         := ← EnvExtension.ensureGensArraySize #[]
     }
     importRealizationCtx? := none
   }
@@ -1998,16 +1956,15 @@ structure PersistentEnvExtensionDescrCore (α β σ : Type) where
   asyncMode         : EnvExtension.AsyncMode := .mainOnly
   replay?           : Option (ReplayFn σ) := none
   /--
-  Whether the extension is generation-tracked: every modification bumps its generation
-  (`EnvExtension.getGen`), so that a result computed from the state can be validated later by
-  comparing generations. Generation-tracked extensions must use `AsyncMode.local` or `.mainOnly`, as
-  generations are branch-local.
+  Whether the extension is generation-tracked: every modification bumps `Environment.trackedGen`,
+  the counter shared by all such extensions, so that a result computed from their states can be
+  validated later by comparing it. Generation-tracked extensions must use `AsyncMode.local` or
+  `.mainOnly`, as the counter is branch-local.
 
-  Generations only grow along an environment branch, even when a modification restores an earlier
-  state: returning to an earlier generation would let a later, different modification reach a
-  generation some result was recorded at, validating it against a state it never saw. The
-  environment itself rolling back to an earlier generation is covered at
-  `Kernel.Environment.trackedGen`.
+  The counter only grows along an environment branch, even when a modification restores an earlier
+  state: returning to an earlier value would let a later, different modification reach a value some
+  result was recorded at, validating it against a state it never saw. The environment itself rolling
+  back to an earlier value is covered at `Kernel.Environment.trackedGen`.
   -/
   trackGen          : Bool := false
   /-- See `EnvExtension.logWrites`. -/
@@ -2268,8 +2225,7 @@ private opaque runInitAttrs (env : Environment) (opts : Options) : IO Unit
 
 private def ensureExtensionsArraySize (env : Environment) : IO Environment := do
   let exts ← EnvExtension.ensureExtensionsArraySize env.base.private.extensions
-  let extGens ← EnvExtension.ensureGensArraySize env.base.private.extGens
-  return env.modifyCheckedAsync ({ · with extensions := exts, extGens })
+  return env.modifyCheckedAsync ({ · with extensions := exts })
 
 private partial def finalizePersistentExtensions (env : Environment) (mods : Array ModuleData) (opts : Options) : IO Environment := do
   loop 0 env
@@ -2666,7 +2622,6 @@ def finalizeImport (s : ImportState) (imports : Array Import) (opts : Options) (
     quotInit        := !imports.isEmpty -- We assume `Init.Prelude` initializes quotient module
     extensions      := exts
     irBaseExts      := exts
-    extGens         := ← EnvExtension.ensureGensArraySize #[]
     header     := {
       trustLevel, imports, moduleData, isModule
       modules      := modules.map (·.toEffectiveImport)

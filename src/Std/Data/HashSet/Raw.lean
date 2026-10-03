@@ -269,11 +269,14 @@ section Unverified
 
 /-! We currently do not provide lemmas for the functions below. -/
 
-/-- Check if all elements satisfy the predicate, short-circuiting if a predicate fails. -/
-@[inline] def all (m : Raw α) (p : α → Bool) : Bool := m.inner.all (fun x _ => p x)
+@[inline, inherit_doc HashMap.Raw.all] def all (m : Raw α) (p : α → Bool) : Bool := m.inner.all (fun x _ => p x)
 
-/-- Check if any element satisfies the predicate, short-circuiting if a predicate succeeds. -/
-@[inline] def any (m : Raw α) (p : α → Bool) : Bool := m.inner.any (fun x _ => p x)
+@[inline, inherit_doc HashMap.Raw.all] def any (m : Raw α) (p : α → Bool) : Bool := m.inner.any (fun x _ => p x)
+
+@[inline, inherit_doc HashMap.Raw.partition] def partition [BEq α] [Hashable α] (f : α → Bool)
+    (m : Raw α) : Raw α × Raw α :=
+  let ⟨l, r⟩ := m.inner.partition (fun a _ => f a)
+  ⟨⟨l⟩, ⟨r⟩⟩
 
 /-! We currently do not provide lemmas for the functions below. -/
 

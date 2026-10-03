@@ -24,6 +24,77 @@ public inductive BuildKey
 deriving Inhabited, Repr, DecidableEq, Hashable
 
 /--
+Whether every module key includes its package key.
+
+## Intent
+Describe the key shape used to register resolved module facets. Package and facet
+names are checked separately by their workspace lookups.
+-/
+public def BuildKey.moduleKeysResolved : BuildKey → Prop
+  | .module _ => False
+  | .facet target _ => target.moduleKeysResolved
+  | _ => True
+
+/--
+Resolve unscoped module keys with the supplied workspace lookup.
+
+## Intent
+Use the same package-scoped key for full-key and partial-key facet registration.
+The lookup supplies package identity; an absent module refuses resolution.
+-/
+public def BuildKey.resolveModuleKeys? (package? : Name → Option Name) :
+    BuildKey → Option BuildKey
+  | .module name => (package? name).map (.packageModule · name)
+  | .facet target facetName =>
+    (target.resolveModuleKeys? package?).map (.facet · facetName)
+  | key => some key
+
+/--
+Successful module-key resolution removes every unscoped module key.
+
+## Intent
+Establish the shape of the actual key passed to facet registration, including
+nested facets, without assuming that an arbitrary workspace is coherent.
+-/
+public theorem BuildKey.resolveModuleKeys?_resolved
+    (package? : Name → Option Name) (self resolved : BuildKey)
+    (h : self.resolveModuleKeys? package? = some resolved) :
+    resolved.moduleKeysResolved := by
+  induction self generalizing resolved with
+  | module name =>
+    cases hp : package? name with
+    | none => simp [resolveModuleKeys?, hp] at h
+    | some package =>
+      simp [resolveModuleKeys?, hp] at h
+      cases h
+      trivial
+  | facet target facet ih =>
+    cases ht : target.resolveModuleKeys? package? with
+    | none => simp [resolveModuleKeys?, ht] at h
+    | some key =>
+      simp [resolveModuleKeys?, ht] at h
+      cases h
+      exact ih key ht
+  | package name | packageModule name mod | packageTarget name target =>
+    simp [resolveModuleKeys?] at h
+    cases h
+    trivial
+
+/--
+Resolving an already scoped key preserves it independently of the lookup.
+
+## Intent
+Make repeated normalization preserve the memoization key.
+-/
+public theorem BuildKey.resolveModuleKeys?_of_resolved
+    (package? : Name → Option Name) (self : BuildKey)
+    (h : self.moduleKeysResolved) : self.resolveModuleKeys? package? = some self := by
+  induction self with
+  | module name => exact False.elim h
+  | facet target facet ih => simp [resolveModuleKeys?, ih h]
+  | package name | packageModule name mod | packageTarget name target => rfl
+
+/--
 A build key with some missing info.
 
 * Package names may be elided (replaced by `Name.anonymous`).

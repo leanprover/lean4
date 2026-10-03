@@ -1,5 +1,11 @@
-/-! The root of the executable `a`, which `NeedsElided` and `NeedsNamed` need by facet key. -/
+module
+import Lean.Linter.MissingDocs
+
+/-! # Executable facet dependency (#15435)
+
+The executable `a` is needed by both package-elided and package-named facet keys.
+-/
 
 /-- Prints the name of this executable. -/
-def main : IO Unit :=
+public def main : IO Unit :=
   IO.println "a"

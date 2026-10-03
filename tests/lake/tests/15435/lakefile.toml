@@ -1,5 +1,10 @@
 name = "test"
 
+[leanOptions]
+autoImplicit = false
+relaxedAutoImplicit = false
+linter.missingDocs = true
+
 [[lean_lib]]
 name = "Lib"
 

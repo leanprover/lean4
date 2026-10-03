@@ -1,7 +1,15 @@
+module
 import Lake
+
+/-! # Facet key resolution (#15435)
+
+Exercise package-elided, package-named and module facet dependencies.
+-/
 open Lake DSL
 
-package test
+package test where
+  leanOptions := #[⟨`autoImplicit, false⟩, ⟨`relaxedAutoImplicit, false⟩,
+    ⟨`linter.missingDocs, true⟩]
 
 lean_lib Lib
 

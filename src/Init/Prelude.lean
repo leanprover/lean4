@@ -1992,7 +1992,7 @@ Examples:
  * `(if 3 = 4 then "yes" else "no") = "no"`
  * `show 12 = 12 by decide`
 -/
-@[reducible, extern "lean_nat_dec_eq"]
+@[reducible, extern "lean_nat_dec_eq", simp]
 protected def Nat.decEq (n m : @& Nat) : Decidable (Eq n m) where
   decide := beq n m
   reflects_decide :=

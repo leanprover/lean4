@@ -20,7 +20,7 @@ Reserved names.
 We use reserved names for automatically generated theorems (e.g., equational theorems).
 Automation may register new reserved name predicates.
 In this module, we just check the registered predicates, but do not trigger actions associated with them.
-For example, give a definition `foo`, we flag `foo.def` as reserved symbol.
+For example, give a definition `foo`, we flag `foo.eq_def` as reserved symbol.
 -/
 
 def throwReservedNameNotAvailable [Monad m] [MonadError m] (declName : Name) (reservedName : Name) : m Unit := do
@@ -186,8 +186,8 @@ private def resolveOpenDecls (env : Environment) (opts : Options) (id : Name) : 
 
 /--
 Primitive global name resolution procedure. It does not trigger actions associated with reserved names.
-Recall that Lean has reserved names. For example, a definition `foo` has a reserved name `foo.def` for theorem
-containing stating that `foo` is equal to its definition. The action associated with `foo.def`
+Recall that Lean has reserved names. For example, a definition `foo` has a reserved name `foo.eq_def` for a theorem
+stating that `foo` is equal to its definition. The action associated with `foo.eq_def`
 automatically proves the theorem. At the macro level, the name is resolved, but the action is not
 executed.
 -/
@@ -241,13 +241,13 @@ def resolveNamespaceUsingOpenDecls (env : Environment) (n : Name) : List OpenDec
 /--
 Given a name `id` try to find namespaces it may refer to. The resolution procedure works as follows
 
-1- If `id` is in the scope of `namespace` commands the namespace `s_1. ... . s_n`,
-   then we include `s_1 . ... . s_i ++ n` in the result if it is the name of an existing namespace.
-   We search "backwards", and include at most one of the in the list of resulting namespaces.
+1- If `id` is in the scope of nested `namespace` commands making up the namespace `s_1 . ... . s_n`,
+   then we include `s_1 . ... . s_i . id` in the result if it is the name of an existing namespace.
+   We search "backwards", and include at most one of the matches in the list of resulting namespaces.
 
-2- If `id` is the exact name of an existing namespace, then include `id`
+2- If `id` is the exact name of an existing namespace, then include `id`.
 
-3- Finally, for each command `open N`, include in the result `N ++ n` if it is the name of an existing namespace.
+3- Finally, for each command `open N`, include in the result `N . id` if it is the name of an existing namespace.
    We only consider simple `open` commands. -/
 def resolveNamespace (env : Environment) (ns : Name) (openDecls : List OpenDecl) (id : Name) : List Name :=
   match resolveNamespaceUsingScope? env id ns with

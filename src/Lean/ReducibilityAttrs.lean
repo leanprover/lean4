@@ -121,7 +121,7 @@ Recall that the discrimination trees unfold `[reducible]` declarations while ind
 
 register_builtin_option allowUnsafeReducibility : Bool := {
   defValue := false
-  descr    := "enables users to modify the reducibility settings for declarations even when such changes are deemed potentially hazardous. For example, `simp` and type class resolution maintain term indices where reducible declarations are expanded."
+  descr    := "Enables users to modify the reducibility settings for declarations even when such changes are deemed potentially hazardous. For example, `simp` and type class resolution maintain term indices where reducible declarations are expanded."
 }
 
 private def validate (declName : Name) (status : ReducibilityStatus) (attrKind : AttributeKind) : CoreM Unit := do

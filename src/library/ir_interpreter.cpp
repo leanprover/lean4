@@ -27,6 +27,7 @@ functions, which have a (relatively) homogeneous ABI that we can use without run
 directly with unboxed arguments, just like compiled code does.
 
 */
+#include <algorithm>
 #include <climits>
 #include <string>
 #include <vector>
@@ -185,6 +186,54 @@ fn_body const & decl_fun_body(decl const & b) {
         throw exception(sstream() << "(interpreter) IR of declaration '" << decl_fun_id(b) << "' not available; this may point to a missing `meta` check in a metaprogram");
     }
     return cnstr_get_ref_t<fn_body>(b, 3);
+}
+
+/** \brief Highest index of a variable declared in `b`, or 0 if there is none. */
+static size_t fn_body_max_var(fn_body const & b0) {
+    size_t r = 0;
+    std::reference_wrapper<fn_body const> b(b0);
+    while (true) {
+        switch (fn_body_tag(b)) {
+        case fn_body_kind::VDecl:
+            r = std::max(r, fn_body_vdecl_var(b).get_small_value());
+            b = fn_body_vdecl_cont(b);
+            break;
+        case fn_body_kind::JDecl:
+            for (param const & p : fn_body_jdecl_params(b))
+                r = std::max(r, param_var(p).get_small_value());
+            r = std::max(r, fn_body_max_var(fn_body_jdecl_body(b)));
+            b = fn_body_jdecl_cont(b);
+            break;
+        case fn_body_kind::Set:    b = fn_body_set_cont(b); break;
+        case fn_body_kind::SetTag: b = fn_body_set_tag_cont(b); break;
+        case fn_body_kind::USet:   b = fn_body_uset_cont(b); break;
+        case fn_body_kind::SSet:   b = fn_body_sset_cont(b); break;
+        case fn_body_kind::Inc:    b = fn_body_inc_cont(b); break;
+        case fn_body_kind::Dec:    b = fn_body_dec_cont(b); break;
+        case fn_body_kind::Del:    b = fn_body_del_cont(b); break;
+        case fn_body_kind::Case:
+            for (alt_core const & a : fn_body_case_alts(b)) {
+                fn_body const & alt_body =
+                    alt_core_tag(a) == alt_core_kind::Ctor ? alt_core_ctor_cont(a) : alt_core_default_cont(a);
+                r = std::max(r, fn_body_max_var(alt_body));
+            }
+            return r;
+        case fn_body_kind::Ret:
+        case fn_body_kind::Jmp:
+        case fn_body_kind::Unreachable:
+            return r;
+        }
+    }
+}
+
+/** \brief Number of stack slots a frame of `d` needs. IR variables are 1-indexed, so this is the highest index. */
+static size_t decl_frame_size(decl const & d) {
+    size_t r = 0;
+    for (param const & p : decl_params(d))
+        r = std::max(r, param_var(p).get_small_value());
+    if (decl_tag(d) == decl_kind::Fun)
+        r = std::max(r, fn_body_max_var(decl_fun_body(d)));
+    return r;
 }
 
 extern "C" object * lean_ir_find_env_decl(object * env, object * n);
@@ -669,6 +718,66 @@ void * lookup_symbol_in_cur_exe(char const * sym) {
 #endif
 }
 
+/** \brief Insert-only open-addressing map keyed by object address. Holds a reference to each key so that its address
+    cannot be reused for another object. */
+template<class V>
+class object_ptr_map {
+    struct slot {
+        object * m_key = nullptr;
+        V        m_val {};
+    };
+    std::vector<slot> m_slots = std::vector<slot>(64);
+    unsigned m_shift = 64 - 6;
+    size_t m_size = 0;
+
+    size_t index(object * k) const {
+        return static_cast<size_t>((static_cast<uint64>(reinterpret_cast<uintptr_t>(k)) >> 4) * 0x9E3779B97F4A7C15ull >> m_shift);
+    }
+    void put(object * k, V const & v) {
+        size_t mask = m_slots.size() - 1;
+        for (size_t i = index(k);; i = (i + 1) & mask) {
+            if (!m_slots[i].m_key) {
+                m_slots[i] = slot { k, v };
+                return;
+            }
+        }
+    }
+public:
+    object_ptr_map() {}
+    object_ptr_map(object_ptr_map const &) = delete;
+    object_ptr_map & operator=(object_ptr_map const &) = delete;
+    ~object_ptr_map() {
+        for (slot const & s : m_slots) {
+            if (s.m_key)
+                lean_dec(s.m_key);
+        }
+    }
+    /** \brief Pointer to the value of `k`, or `nullptr`; invalidated by `insert`. */
+    V const * find(object * k) const {
+        size_t mask = m_slots.size() - 1;
+        for (size_t i = index(k);; i = (i + 1) & mask) {
+            if (m_slots[i].m_key == k)
+                return &m_slots[i].m_val;
+            if (!m_slots[i].m_key)
+                return nullptr;
+        }
+    }
+    void insert(object * k, V const & v) {
+        if (2 * (m_size + 1) > m_slots.size()) {
+            std::vector<slot> old(m_slots.size() * 2);
+            old.swap(m_slots);
+            m_shift--;
+            for (slot const & s : old) {
+                if (s.m_key)
+                    put(s.m_key, s.m_val);
+            }
+        }
+        lean_inc(k);
+        put(k, v);
+        m_size++;
+    }
+};
+
 class interpreter;
 LEAN_THREAD_PTR(interpreter, g_interpreter);
 
@@ -698,6 +807,8 @@ class interpreter {
         frame(name const & mFn, size_t mArgBp, size_t mJpBp) : m_fn(mFn), m_arg_bp(mArgBp), m_jp_bp(mJpBp) {}
     };
     std::vector<frame> m_call_stack;
+    // `m_arg_bp` of the current frame, kept outside `m_call_stack` for `var`
+    size_t m_arg_bp = 0;
     elab_environment const & m_env;
     options const & m_opts;
     // if `false`, use IR code where possible
@@ -714,88 +825,28 @@ class interpreter {
         decl m_decl;
         native_symbol_cache_entry m_native;
         prim_entry m_prim;
+        // stack slots needed when interpreting the declaration; 0 if it is not interpreted
+        size_t m_frame_size;
     };
     // caches symbol lookup successes _and_ failures
     name_hash_map<symbol_cache_entry> m_symbol_cache;
 
-    /** \brief Insert-only open-addressing map from name objects, by address, to entries of `m_symbol_cache`.
-        Call sites in different modules usually refer to the same function through different name objects, so
-        this avoids comparing names component-wise on every call. Holds a reference to each key so that its
-        address cannot be reused for another name. */
-    class name_ptr_cache {
-        struct slot {
-            object *                   m_key = nullptr;
-            symbol_cache_entry const * m_val = nullptr;
-        };
-        std::vector<slot> m_slots = std::vector<slot>(64);
-        unsigned m_shift = 64 - 6;
-        size_t m_size = 0;
-
-        size_t index(object * k) const {
-            return static_cast<size_t>((static_cast<uint64>(reinterpret_cast<uintptr_t>(k)) >> 4) * 0x9E3779B97F4A7C15ull >> m_shift);
-        }
-        void put(object * k, symbol_cache_entry const * v) {
-            size_t mask = m_slots.size() - 1;
-            for (size_t i = index(k);; i = (i + 1) & mask) {
-                if (!m_slots[i].m_key) {
-                    m_slots[i] = slot { k, v };
-                    return;
-                }
-            }
-        }
-    public:
-        name_ptr_cache() {}
-        name_ptr_cache(name_ptr_cache const &) = delete;
-        name_ptr_cache & operator=(name_ptr_cache const &) = delete;
-        ~name_ptr_cache() {
-            for (slot const & s : m_slots) {
-                if (s.m_key)
-                    lean_dec(s.m_key);
-            }
-        }
-        symbol_cache_entry const * find(object * k) const {
-            size_t mask = m_slots.size() - 1;
-            for (size_t i = index(k);; i = (i + 1) & mask) {
-                if (m_slots[i].m_key == k)
-                    return m_slots[i].m_val;
-                if (!m_slots[i].m_key)
-                    return nullptr;
-            }
-        }
-        void insert(object * k, symbol_cache_entry const * v) {
-            if (2 * (m_size + 1) > m_slots.size()) {
-                std::vector<slot> old(m_slots.size() * 2);
-                old.swap(m_slots);
-                m_shift--;
-                for (slot const & s : old) {
-                    if (s.m_key)
-                        put(s.m_key, s.m_val);
-                }
-            }
-            lean_inc(k);
-            put(k, v);
-            m_size++;
-        }
-    };
-    name_ptr_cache m_symbol_ptr_cache;
+    // entries of `m_symbol_cache` by name object; call sites in different modules usually refer to the same function
+    // through different name objects, so this avoids comparing names component-wise on every call
+    object_ptr_map<symbol_cache_entry const *> m_symbol_ptr_cache;
+    // frame sizes of declarations called through closure stubs, which only have the declaration at hand
+    object_ptr_map<size_t> m_stub_frame_sizes;
 
     /** \brief Get current stack frame */
     inline frame & get_frame() {
         return m_call_stack.back();
     }
 
-    __attribute__((noinline)) void grow_arg_stack(size_t size) {
-        m_arg_stack.resize(size);
-    }
-
     /** \brief Get reference to stack slot of IR variable */
     LEAN_ALWAYS_INLINE inline value & var(var_id const & v) {
-        // variables are 1-indexed
-        size_t i = get_frame().m_arg_bp + v.get_small_value() - 1;
-        // we don't know the frame size (unless we do an additional IR pass), so we extend it dynamically
-        if (LEAN_UNLIKELY(i >= m_arg_stack.size())) {
-            grow_arg_stack(i + 1);
-        }
+        // variables are 1-indexed; `push_frame` allocated slots for all of them
+        size_t i = m_arg_bp + v.get_small_value() - 1;
+        lean_assert(i < m_arg_stack.size());
         return m_arg_stack[i];
     }
 
@@ -1036,9 +1087,9 @@ private:
                         }
                         // now copy to parameter slots
                         for (size_t i = 0; i < args.size(); i++) {
-                            m_arg_stack[get_frame().m_arg_bp + i] = m_arg_stack[old_size + i];
+                            m_arg_stack[m_arg_bp + i] = m_arg_stack[old_size + i];
                         }
-                        m_arg_stack.resize(get_frame().m_arg_bp + args.size());
+                        m_arg_stack.resize(old_size);
                         b = b0;
                         check_system();
                         break;
@@ -1170,7 +1221,7 @@ private:
     }
 
     // specify argument base pointer explicitly because we've usually already pushed some function arguments
-    void push_frame(decl const & d, size_t arg_bp) {
+    void push_frame(decl const & d, size_t arg_bp, size_t frame_size) {
         DEBUG_CODE({
             lean_trace(*g_interpreter_call,
                        tout() << std::string(m_call_stack.size(), ' ')
@@ -1181,12 +1232,15 @@ private:
                        tout() << "\n";);
         });
         m_call_stack.emplace_back(decl_fun_id(d), arg_bp, m_jp_stack.size());
+        m_arg_bp = arg_bp;
+        m_arg_stack.resize(arg_bp + frame_size);
     }
 
     void pop_frame(value DEBUG_CODE(r), type DEBUG_CODE(t)) {
-        m_arg_stack.resize(get_frame().m_arg_bp);
+        m_arg_stack.resize(m_arg_bp);
         m_jp_stack.resize(get_frame().m_jp_bp);
         m_call_stack.pop_back();
+        m_arg_bp = m_call_stack.empty() ? 0 : get_frame().m_arg_bp;
         DEBUG_CODE({
             lean_trace(*g_interpreter_call,
                        tout() << std::string(m_call_stack.size(), ' ')
@@ -1196,10 +1250,24 @@ private:
        });
     }
 
+    void resolve_decl_info(name const & fn, symbol_cache_entry & e) {
+        e.m_prim = resolve_prim(fn, e.m_decl);
+        if (!e.m_prim.m_fn && !e.m_native.m_addr)
+            e.m_frame_size = decl_frame_size(e.m_decl);
+    }
+
+    size_t stub_frame_size(decl const & d) {
+        if (size_t const * s = m_stub_frame_sizes.find(d.raw()))
+            return *s;
+        size_t s = decl_frame_size(d);
+        m_stub_frame_sizes.insert(d.raw(), s);
+        return s;
+    }
+
     /** \brief Like `lookup_symbol`, but first looks up the name object itself, for names stored in the IR. */
     symbol_cache_entry const & lookup_symbol_at(name const & fn) {
-        if (symbol_cache_entry const * e = m_symbol_ptr_cache.find(fn.raw()))
-            return *e;
+        if (symbol_cache_entry const * const * e = m_symbol_ptr_cache.find(fn.raw()))
+            return **e;
         symbol_cache_entry const & e = lookup_symbol(fn);
         m_symbol_ptr_cache.insert(fn.raw(), &e);
         return e;
@@ -1215,19 +1283,19 @@ private:
         std::shared_lock<std::shared_mutex> lock(*g_native_symbol_cache_mutex);
         auto ne = g_native_symbol_cache->find(fn);
         if (ne != g_native_symbol_cache->end()) {
-            symbol_cache_entry e_new { get_decl(fn), ne->second, {} };
-            e_new.m_prim = resolve_prim(fn, e_new.m_decl);
+            symbol_cache_entry e_new { get_decl(fn), ne->second, {}, 0 };
+            resolve_decl_info(fn, e_new);
             return m_symbol_cache.emplace(fn, std::move(e_new)).first->second;
         }
         lock.unlock();
         std::unique_lock<std::shared_mutex> unique_lock(*g_native_symbol_cache_mutex);
         ne = g_native_symbol_cache->find(fn);
         if (ne != g_native_symbol_cache->end()) {
-            symbol_cache_entry e_new { get_decl(fn), ne->second, {} };
-            e_new.m_prim = resolve_prim(fn, e_new.m_decl);
+            symbol_cache_entry e_new { get_decl(fn), ne->second, {}, 0 };
+            resolve_decl_info(fn, e_new);
             return m_symbol_cache.emplace(fn, std::move(e_new)).first->second;
         }
-        symbol_cache_entry e_new { get_decl(fn), {nullptr, false}, {} };
+        symbol_cache_entry e_new { get_decl(fn), {nullptr, false}, {}, 0 };
         if (m_prefer_native || decl_tag(e_new.m_decl) == decl_kind::Extern || has_init_attribute(m_env, fn)) {
             string_ref mangled = get_symbol_stem(m_env, fn);
             string_ref boxed_mangled = mk_mangled_boxed_name(mangled);
@@ -1247,7 +1315,7 @@ private:
             }
         }
         g_native_symbol_cache->insert({ fn, e_new.m_native });
-        e_new.m_prim = resolve_prim(fn, e_new.m_decl);
+        resolve_decl_info(fn, e_new);
         return m_symbol_cache.emplace(fn, std::move(e_new)).first->second;
     }
 
@@ -1304,7 +1372,7 @@ private:
             // We don't know whether `[init]` decls can be re-executed, so let's not.
             throw exception(sstream() << "cannot evaluate `[init]` declaration '" << fn << "' in the same module");
         }
-        push_frame(e.m_decl, m_arg_stack.size());
+        push_frame(e.m_decl, m_arg_stack.size(), e.m_frame_size);
         // `Unreachable` can be from `mkDummyExternDecl`, which may mean that we failed to run the
         // initializer, suggesting some incorrect `meta` phase setup. Let's make sure we give a
         // better signal than a segfault in that case.
@@ -1344,7 +1412,7 @@ private:
                     inc(args2[i]);
                 }
             }
-            push_frame(e.m_decl, old_size);
+            push_frame(e.m_decl, old_size, 0);
             object * o = curry(e.m_native.m_addr, args.size(), args2);
             type t = decl_type(e.m_decl);
             if (type_is_scalar(t)) {
@@ -1368,7 +1436,7 @@ private:
             for (const auto & arg : args) {
                 m_arg_stack.push_back(eval_arg(arg));
             }
-            push_frame(e.m_decl, old_size);
+            push_frame(e.m_decl, old_size, e.m_frame_size);
             r = eval_body(decl_fun_body(e.m_decl));
         }
         pop_frame(r, decl_type(e.m_decl));
@@ -1382,7 +1450,7 @@ private:
         for (size_t i = 0; i < decl_params(d).size(); i++) {
             m_arg_stack.push_back(args[3 + i]);
         }
-        push_frame(d, old_size);
+        push_frame(d, old_size, stub_frame_size(d));
         object * r = eval_body(decl_fun_body(d)).m_obj;
         pop_frame(r, type::TObject);
         return r;

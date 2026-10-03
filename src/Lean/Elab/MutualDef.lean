@@ -1566,7 +1566,12 @@ def elabMutualDef (ds : Array Syntax) : CommandElabM Unit := do
   let sc ← getScope
   -- use hash of all names as stable quot context
   withInitQuotContext (some (hash (views.map (·.declId[0].getId)))) do
-  runTermElabM fun vars => do
+  let env ← getEnv
+  withExporting (isExporting := views.any fun view =>
+    (view.kind != .example || view.modifiers.isPublic) &&
+    view.modifiers.visibility.isInferredPublic env) do
+  -- Restore the scope's visibility before expanding the individual declaration names.
+  runTermElabM fun vars => withExporting (isExporting := env.isExporting) do
     Term.elabMutualDef vars sc views
     Term.logGoalsAccomplishedSnapshotTask views defsParsedSnap
 

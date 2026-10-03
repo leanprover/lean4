@@ -287,9 +287,9 @@ Retain the resolved registration key alongside its job for enclosing facets.
 Fetches the target specified by this key, resolving gaps as needed.
 
 * A missing package (i.e., `Name.anonymous`) is filled in with `defaultPkg`.
-* Facets are qualified by the their input target's kind, and missing facets
+* Facets are qualified by their input target's kind, and missing facets
   are replaced by their kind's `default`.
-* Package targets ending in `moduleTargetIndicator` are converted to module package targets.
+* Package modules must be found as targets in their resolved package.
 * Package targets for non-dynamic targets (i.e., non-`target`) produce their default facet
   rather than their configuration.
 

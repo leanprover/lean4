@@ -2338,16 +2338,43 @@ private def isDefEqApp (t s : Expr) : MetaM Bool := do
   else
     checkpointDefEq (Meta.isExprDefEqAux tFn s.getAppFn <&&> isDefEqArgs tFn t.getAppArgs s.getAppArgs)
 
-/-- Return `true` if the type of the given expression is an inductive datatype with a single constructor with no fields. -/
+@[inline] private def cachedUnitLike? (key : ExprConfigCacheKey) : MetaM (Option Bool) := do
+  return (← get).cache.isUnitLike.find? key
+
+private def cacheUnitLike (key : ExprConfigCacheKey) (b : Bool) : MetaM Bool := do
+  modify fun s => { s with cache.isUnitLike := s.cache.isUnitLike.insert key b }
+  return b
+
+/-- Takes a type of the form `A1 -> ... -> An-> I As`, checks that `I` is a (non-recursive) structure, and that each (instantiated) fields is itself either a proposition or a unit-like type-/
+private partial def isUnitLikeType (e : Expr) : MetaM Bool :=
+  forallTelescopeReducing (whnfType := true) e fun _ tType => do
+    let hd := tType.getAppFn
+    matchConstNonRecStructure hd (fun _ => pure false) fun _ _ ctorVal => do
+      let ctorType := ctorVal.type
+          |>.instantiateLevelParams ctorVal.levelParams hd.constLevels!
+          -- `tType` is a structure, and in particular has no indices. Furthermore, it is a type, so `args.size() = I_val.nparams()`
+          |>.getForallBodyMaxDepth tType.getAppNumArgs
+          |>.instantiateRev tType.getAppArgs
+      forallTelescope ctorType fun xs _ =>
+        xs.allM fun e => do
+          let ty ← e.fvarId!.getType
+          isProp ty <||> isUnitLikeType ty
+
+/--
+  Return `true` if the types of the given expressions is a non-recursive, non-indexed inductive datatype
+  with a single constructor for which all fields are unit-like or Prop types,
+  or a dependent arrow for which the codomain is unit-like.
+-/
 private def isDefEqUnitLike (t : Expr) (s : Expr) : MetaM Bool := do
-  let tType ← whnf (← inferType t)
-  matchConstNonRecStructure tType.getAppFn (fun _ => return false) fun _ _ ctorVal => do
-    if ctorVal.numFields != 0 then
-      return false
-    else if (← useEtaStruct ctorVal.induct) then
-      Meta.isExprDefEqAux tType (← inferType s) -- TODO: Should we recover the old state if this fails?
-    else
-      return false
+  let tType  ← inferType t
+  let key ← mkExprConfigCacheKey tType
+  match (← cachedUnitLike? key) with
+    | some false => return false
+    | some true => Meta.isExprDefEqAux tType (← inferType s)
+    | none => cacheUnitLike key <| ← do
+      let isUnit ← isUnitLikeType tType
+      if !isUnit then return false
+      Meta.isExprDefEqAux tType (← inferType s)
 
 /--
   The `whnf` procedure has support for unfolding class projections when the

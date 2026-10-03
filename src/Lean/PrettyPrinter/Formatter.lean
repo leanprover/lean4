@@ -137,6 +137,10 @@ def getStackSize : FormatterM Nat := do
 def setStack (stack : Array Format) : FormatterM Unit :=
   modify fun st => { st with stack := stack }
 
+@[inline]
+def modifyStack (f : Array Format → Array Format) : FormatterM Unit :=
+  modify fun st => { st with stack := f st.stack }
+
 def push (f : Format) : FormatterM Unit :=
   modify fun st => { st with stack := st.stack.push f, isUngrouped := false }
 
@@ -170,9 +174,9 @@ def visitArgs (x : FormatterM Unit) : FormatterM Unit := do
 def fold (fn : Array Format → Format) (x : FormatterM Unit) : FormatterM Unit := do
   let sp ← getStackSize
   x
-  let stack ← getStack
-  let f := fn $ stack.extract sp stack.size
-  setStack $ (stack.shrink sp).push f
+  modifyStack fun stack => 
+    let f := fn $ stack.extract sp stack.size
+    (stack.shrink sp).push f
 
 /-- Execute `x` and concatenate generated Format objects. -/
 def concat (x : FormatterM Unit) : FormatterM Unit := do

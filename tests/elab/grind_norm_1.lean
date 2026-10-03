@@ -745,56 +745,37 @@ sym:
 #guard_msgs in
 example : "abc".push 'd' = s := by grind_norm check; sorry
 
+-- Accepted difference: `Sym` solves the equation for `x`; legacy only evaluates the lhs.
 /--
 error: `grind_norm` discrepancy
 legacy:
   8 = x
 sym:
-  255 * x + 3#8 + 5#8 = 0
+  x = 8
 -/
 #guard_msgs in
 example (x : BitVec 8) : 3#8 + 5#8 = x := by grind_norm check; sorry
 
-/--
-error: `grind_norm` discrepancy
-legacy:
-  1 = x
-sym:
-  1#8 = x
--/
 #guard_msgs in
 example (x : BitVec 8) : (3 : BitVec 8) &&& 5 = x := by grind_norm check; sorry
 
-/--
-error: `grind_norm` discrepancy
-legacy:
-  3 = x
-sym:
-  3#16 = x
--/
 #guard_msgs in
 example (x : BitVec 16) : (3#8).zeroExtend 16 = x := by grind_norm check; sorry
 
 #guard_msgs in
 example : (3#8).toNat = a := by grind_norm check; sorry
 
+-- Accepted difference: as above.
 /--
 error: `grind_norm` discrepancy
 legacy:
   0 = x
 sym:
-  255 * x + 255#8 + 1 = 0
+  x = 0
 -/
 #guard_msgs in
 example (x : BitVec 8) : 255#8 + 1 = x := by grind_norm check; sorry
 
-/--
-error: `grind_norm` discrepancy
-legacy:
-  44 = x
-sym:
-  300#8 = x
--/
 #guard_msgs in
 example (x : BitVec 8) : 300#8 = x := by grind_norm check; sorry
 

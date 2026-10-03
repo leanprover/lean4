@@ -139,24 +139,23 @@ private def toCtorWhenK (recVal : RecursorVal) (major : Expr) : MetaM Expr := do
   let majorType ← inferType major
   let majorType ← instantiateMVars (← whnf majorType)
   let majorTypeI := majorType.getAppFn
-  if !majorTypeI.isConstOf recVal.getMajorInduct then
+  unless majorTypeI.isConstOf recVal.getMajorInduct do
     return major
-  else if majorType.hasExprMVar && majorType.getAppArgs[recVal.numParams...*].any Expr.hasExprMVar then
+  if majorType.hasExprMVar && majorType.getAppArgs[recVal.numParams...*].any Expr.hasExprMVar then
     return major
-  else do
-    let (some newCtorApp) ← mkNullaryCtor majorType recVal.numParams | pure major
-    let newType ← inferType newCtorApp
-    /- TODO: check whether changing reducibility to default hurts performance here.
-       We do that to make sure auxiliary `Eq.rec` introduced by the `match`-compiler
-       are reduced even when `TransparencyMode.reducible` (like in `simp`).
+  let (some newCtorApp) ← mkNullaryCtor majorType recVal.numParams | pure major
+  let newType ← inferType newCtorApp
+  /- TODO: check whether changing reducibility to default hurts performance here.
+     We do that to make sure auxiliary `Eq.rec` introduced by the `match`-compiler
+     are reduced even when `TransparencyMode.reducible` (like in `simp`).
 
-       We use `withNewMCtxDepth` to make sure metavariables at `majorType` are not assigned.
-       For example, given `major : Eq ?x y`, we don't want to apply K by assigning `?x := y`.
-    -/
-    if (← withAtLeastTransparency TransparencyMode.default <| withNewMCtxDepth <| isDefEq majorType newType) then
-      return newCtorApp
-    else
-      return major
+     We use `withNewMCtxDepth` to make sure metavariables at `majorType` are not assigned.
+     For example, given `major : Eq ?x y`, we don't want to apply K by assigning `?x := y`.
+  -/
+  if (← withAtLeastTransparency TransparencyMode.default <| withNewMCtxDepth <| isDefEq majorType newType) then
+    return newCtorApp
+  else
+    return major
 
 /--
   Create the `i`th projection `major`. It tries to use the auto-generated projection functions if available. Otherwise falls back
@@ -175,7 +174,8 @@ def mkProjFn (ctorVal : ConstructorVal) (us : List Level) (params : Array Expr) 
   \pre `inductName` is `C`.
 
   If `Meta.Config.etaStruct` is `false` or the condition above does not hold, this method just returns `major`. -/
-private def toCtorWhenStructure (inductName : Name) (major : Expr) : MetaM Expr := do
+private def toCtorWhenStructure (recVal : RecursorVal) (major : Expr): MetaM Expr := do
+  let inductName := recVal.getMajorInduct
   unless (← useEtaStruct inductName) do
     return major
   let env ← getEnv
@@ -184,6 +184,11 @@ private def toCtorWhenStructure (inductName : Name) (major : Expr) : MetaM Expr 
   else if let some _ ← isConstructorApp? major then
     return major
   else
+    let nonNestedInductName := recVal.all.head!
+    let nonNestedInduct ← getConstInfo nonNestedInductName
+    if recVal.levelParams.length == nonNestedInduct.levelParams.length then
+      /- We do not perform eta for non-singleton propositions, see implementation in the kernel. TODO once the "large elimination" flag is added to recursors, use that to determine whether the recursor is large-eliminating here.-/
+      return major
     let majorType ← inferType major
     let majorType ← instantiateMVars (← whnf majorType)
     let majorTypeI := majorType.getAppFn
@@ -191,16 +196,13 @@ private def toCtorWhenStructure (inductName : Name) (major : Expr) : MetaM Expr 
       return major
     match majorType.getAppFn with
     | Expr.const d us =>
-      if (← whnfD (← inferType majorType)) == mkSort Level.zero then
-        return major -- We do not perform eta for propositions, see implementation in the kernel
-      else
-        let some ctorName ← getFirstCtor d | pure major
-        let ctorInfo ← getConstInfoCtor ctorName
-        let params := majorType.getAppArgs.shrink ctorInfo.numParams
-        let mut result := mkAppN (mkConst ctorName us) params
-        for i in *...ctorInfo.numFields do
-          result := mkApp result (← mkProjFn ctorInfo us params i major)
-        return result
+      let some ctorName ← getFirstCtor d | pure major
+      let ctorInfo ← getConstInfoCtor ctorName
+      let params := majorType.getAppArgs.shrink ctorInfo.numParams
+      let mut result := mkAppN (mkConst ctorName us) params
+      for i in *...ctorInfo.numFields do
+        result := mkApp result (← mkProjFn ctorInfo us params i major)
+      return result
     | _ => return major
 
 
@@ -228,8 +230,11 @@ private def cleanupNatOffsetMajor (e : Expr) : MetaM Expr := do
 private def reduceRec (recVal : RecursorVal) (recLvls : List Level) (recArgs : Array Expr) (failK : Unit → MetaM α) (successK : Expr → MetaM α) : MetaM α :=
   let majorIdx := recVal.getMajorIdx
   if h : majorIdx < recArgs.size then do
-    let major := recArgs[majorIdx]
-    let mut major ← if isWFRec recVal.name && (← getTransparency) == .default then
+    let mut major := recArgs[majorIdx]
+    if recVal.k then
+      major ← toCtorWhenK recVal major
+    major ← toCtorWhenStructure recVal major
+    major ← if isWFRec recVal.name && (← getTransparency) == .default then
       -- If recursor is `Acc.rec` or `WellFounded.rec` and transparency is default,
       -- then we bump transparency to .all to make sure we can unfold defs defined by WellFounded recursion.
       -- We use this trick because we abstract nested proofs occurring in definitions.
@@ -237,11 +242,8 @@ private def reduceRec (recVal : RecursorVal) (recLvls : List Level) (recArgs : A
       withTransparency .all <| whnf major
     else
       whnf major
-    if recVal.k then
-      major ← toCtorWhenK recVal major
     major ← major.toCtorIfLit
     major ← cleanupNatOffsetMajor major
-    major ← toCtorWhenStructure recVal.getMajorInduct major
     match getRecRuleFor recVal major with
     | some rule =>
       let majorArgs := major.getAppArgs

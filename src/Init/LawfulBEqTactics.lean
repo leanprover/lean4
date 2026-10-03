@@ -19,7 +19,7 @@ macro "deriving_ReflEq_tactic" : tactic => `(tactic|(
   intro x
   induction x
   all_goals
-    simp only [BEq.refl, ↓reduceDIte, Bool.and_true, *, reduceBEq ,reduceCtorIdx]
+    simp only [BEq.refl, ↓reduceDIte, Bool.and_true, *, reduceBEq ,reduceCtorIdx, Nat.decEq]
 ))
 
 theorem and_true_curry {a b : Bool} {P : Prop}
@@ -86,6 +86,6 @@ macro "deriving_LawfulEq_tactic" : tactic => `(tactic|(
     intro y
     cases y
     all_goals
-      simp only [reduceBEq, reduceCtorIdx]
+      simp only [reduceBEq, reduceCtorIdx, Nat.decEq]
       repeat deriving_LawfulEq_tactic_step
 ))

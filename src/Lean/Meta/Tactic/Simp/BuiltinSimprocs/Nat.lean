@@ -52,6 +52,9 @@ set_option linter.coreInternal.internalModule false in -- User-facing builtin si
 builtin_dsimproc [simp, seval] reduceSucc (Nat.succ _) := reduceUnary ``Nat.succ 1 (· + 1)
 set_option linter.coreInternal.internalModule false in -- User-facing builtin simprocs are fine
 builtin_dsimproc [simp, seval] reduceLog2 (Nat.log2 _) := reduceUnary ``Nat.log2 1 Nat.log2
+set_option linter.coreInternal.internalModule false in -- User-facing builtin simprocs are fine
+builtin_dsimproc [simp, seval] reducePopcount (Nat.popcount _) :=
+  reduceUnary ``Nat.popcount 1 Nat.popcount
 
 
 /-

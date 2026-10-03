@@ -12,6 +12,7 @@ Author: Leonardo de Moura
 #include <cmath>
 #include <lean/lean.h>
 #include "runtime/object.h"
+#include "runtime/popcount.h"
 #include "runtime/thread.h"
 #include "runtime/utf8.h"
 #include "runtime/alloc.h"
@@ -1652,6 +1653,13 @@ extern "C" LEAN_EXPORT lean_obj_res lean_nat_gcd(b_lean_obj_arg a1, b_lean_obj_a
       else
         return mpz_to_nat(gcd(mpz_value(a1), mpz_value(a2)));
     }
+}
+
+extern "C" LEAN_EXPORT lean_obj_res lean_nat_popcount(b_lean_obj_arg a) {
+    if (lean_is_scalar(a)) {
+        return lean_box(popcount_word(lean_unbox(a)));
+    }
+    return mpz_to_nat(mpz_value(a).popcount());
 }
 
 extern "C" LEAN_EXPORT lean_obj_res lean_nat_log2(b_lean_obj_arg a) {

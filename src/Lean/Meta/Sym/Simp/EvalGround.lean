@@ -845,6 +845,7 @@ def evalGroundCore (e : Expr) : EvalM Result :=
   | Nat.gcd a b => evalBinNat Nat.gcd a b
   | Nat.succ a => evalUnaryNat (· + 1) a
   | Nat.log2 a => evalLog2 a
+  | Nat.popcount a => evalUnaryNat Nat.popcount a
   | Int.gcd a b => evalIntGcd a b
   | Int.tdiv a b => evalBinInt Int.tdiv a b
   | Int.fdiv a b => evalBinInt Int.fdiv a b

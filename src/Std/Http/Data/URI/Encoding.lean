@@ -476,12 +476,15 @@ private def byteToHex (b : UInt8) (s : EncodedQueryString r) : EncodedQueryStrin
   ⟨ba, valid⟩
 
 /--
-Encodes a raw string into an `EncodedQueryString` with automatic proof construction. Unreserved characters
-are kept as-is, spaces are encoded as '+', and all other characters are percent-encoded.
+Encodes a raw string into an `EncodedQueryString` with automatic proof construction. ASCII characters
+accepted by `r` are kept as-is, except that literal '+' is always percent-encoded as "%2B".
+Spaces not accepted by `r` are encoded as '+', and all other characters are percent-encoded.
 -/
 def encode (s : String) (r : UInt8 → Bool := isQueryChar) : EncodedQueryString r :=
   s.toUTF8.foldl (init := EncodedQueryString.empty) fun acc c =>
-    if h : isAsciiByte c ∧ r c then
+    if c == '+'.toUInt8 then
+      byteToHex c acc
+    else if h : isAsciiByte c ∧ r c then
       acc.push c (by simp [isEncodedQueryChar, isEncodedChar]; exact Or.inl (And.intro h.left (Or.inl h.right)))
     else if _ : c = ' '.toUInt8 then
       acc.push '+'.toUInt8 (by simp [isEncodedQueryChar])

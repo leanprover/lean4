@@ -260,6 +260,15 @@ def getReducibilityStatus [Monad m] [MonadEnv m] (declName : Name) : m Reducibil
 def setReducibilityStatus [MonadEnv m] (declName : Name) (s : ReducibilityStatus) : m Unit :=
   modifyEnv fun env => setReducibilityStatusCore env declName s .global .anonymous
 
+/--
+Sets the reducibility attribute for the given declaration until the end of the current scope
+(as in `attribute [local ...]`). Unlike `setReducibilityStatus`, this may be used from within the
+asynchronous elaboration of a declaration since the change is not propagated to other
+environment branches.
+-/
+def setLocalReducibilityStatus [MonadEnv m] (declName : Name) (s : ReducibilityStatus) : m Unit :=
+  modifyEnv fun env => setReducibilityStatusCore env declName s .local .anonymous
+
 /-- Set the given declaration as `[reducible]` -/
 def setReducibleAttribute [MonadEnv m] (declName : Name) : m Unit :=
   setReducibilityStatus declName ReducibilityStatus.reducible

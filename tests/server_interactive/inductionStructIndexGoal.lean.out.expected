@@ -1,0 +1,14 @@
+{"textDocument": {"uri": "file:///inductionStructIndexGoal.lean"},
+ "position": {"line": 9, "character": 2}}
+{"rendered":
+ "```lean\na b : Nat\nh : Relation.TransGen (fun a b => a = b) { inner := a } { inner := b }\n⊢ a = b\n```",
+ "goals":
+ ["a b : Nat\nh : Relation.TransGen (fun a b => a = b) { inner := a } { inner := b }\n⊢ a = b"]}
+{"textDocument": {"uri": "file:///inductionStructIndexGoal.lean"},
+ "position": {"line": 15, "character": 2}}
+{"rendered": "```lean\nn : Nat\n⊢ n + 0 = n\n```",
+ "goals": ["n : Nat\n⊢ n + 0 = n"]}
+{"textDocument": {"uri": "file:///inductionStructIndexGoal.lean"},
+ "position": {"line": 21, "character": 2}}
+{"rendered": "```lean\nn : Nat\n⊢ n + 0 = n\n```",
+ "goals": ["n : Nat\n⊢ n + 0 = n"]}

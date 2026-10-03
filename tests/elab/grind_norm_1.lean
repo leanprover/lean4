@@ -735,15 +735,11 @@ example : "abc" ≠ "abd" := by grind_norm check; sorry
 #guard_msgs in
 example : ("abc" == "abd") = true := by grind_norm check; sorry
 
-/--
-error: `grind_norm` discrepancy
-legacy:
-  "abcd" = s
-sym:
-  "abc".push 'd' = s
--/
 #guard_msgs in
 example : "abc".push 'd' = s := by grind_norm check; sorry
+
+#guard_msgs in
+example : String.singleton 'a' = s := by grind_norm check; sorry
 
 -- Accepted difference: `Sym` solves the equation for `x`; legacy only evaluates the lhs.
 /--

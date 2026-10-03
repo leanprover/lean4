@@ -812,6 +812,13 @@ abbrev evalCharPred (op : Char → Bool) (a : Expr) : SimpM Result := do
   let e ← share (toExpr r)
   return .step e (if r then eagerReflBoolTrue else eagerReflBoolFalse) (done := true)
 
+/-- Evaluates `String.push s c` on a string literal and a character literal. -/
+def evalStringPush (s c : Expr) : SimpM Result := do
+  let some s := getStringValue? s | return .rfl
+  let some c := getCharValue? c | return .rfl
+  let e ← share <| toExpr (s.push c)
+  return .step e (mkApp2 (mkConst ``Eq.refl [1]) (mkConst ``String) e) (done := true)
+
 /-- Converts `Char.ofNat n` into a character literal when `n` is a numeral. -/
 def evalCharOfNat (n : Expr) : SimpM Result := do
   -- `getNatValue?` fails on raw literals: `Char.ofNat` applied to one is the character literal.
@@ -945,6 +952,8 @@ def evalGroundCore (e : Expr) : EvalM Result :=
   | Char.isDigit a => evalCharPred Char.isDigit a
   | Char.isAlphanum a => evalCharPred Char.isAlphanum a
   | ToString.toString α _ a => evalToString α a
+  | String.push s c => evalStringPush s c
+  | String.singleton c => evalCharUnary String.singleton c
   | _  => return .rfl
 
 /--

@@ -211,6 +211,13 @@ example : ¬ "a" > "b" := by sym => simp groundSimp
 example : "a" = "a" := by sym => simp groundSimp
 example : "a" ≠ "b" := by sym => simp groundSimp
 
+-- String operations
+example : "abc".push 'd' = "abcd" := by sym => simp groundSimp
+example : "".push 'a' = "a" := by sym => simp groundSimp
+example : String.singleton 'a' = "a" := by sym => simp groundSimp
+example : ("ab".push 'c').push 'd' = "abcd" := by sym => simp groundSimp
+example : "ab" ++ String.singleton 'c' = "abc" := by sym => simp groundSimp
+
 -- Predicates: Char
 example : 'h' < 'w' := by sym => simp groundSimp
 example : 'a' ≤ 'a' := by sym => simp groundSimp

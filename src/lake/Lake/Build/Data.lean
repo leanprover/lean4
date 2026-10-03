@@ -16,6 +16,14 @@ public meta import Lake.Util.Name
 import all Lake.Config.Kinds
 import Lake.Util.Name
 
+/-!
+# Build data families
+
+Build keys select types from Lake's open data families. Resolving a module's package
+identity preserves that selection; the proof uses the actual `BuildData` definition.
+Concrete data-kind registrations remain separate assumptions of the open families.
+-/
+
 open Lean
 
 namespace Lake

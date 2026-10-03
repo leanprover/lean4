@@ -11,6 +11,14 @@ import Lake.Util.Name
 import Init.Data.String.Search
 import Init.Data.Iterators.Consumers
 
+/-!
+# Build-store keys
+
+Full keys identify package-scoped targets and qualified facets. Partial keys are
+command-line requests whose package and facet information the workspace resolves.
+Module-key normalization preserves scoped keys and refuses absent module lookups.
+-/
+
 namespace Lake
 open Lean (Name)
 

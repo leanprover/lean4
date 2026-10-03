@@ -1096,7 +1096,11 @@ def elabDoWith (ops : DoOps) (doSeq : DoSeq)
   -- expression before elaboration can propagate that `e : Expr` in the `apply` call.
   -- Term.synthesizeSyntheticMVarsUsingDefault
   trace[Elab.do] "{← instantiateMVars res}"
-  pure res
+  if res.isLet then
+    let type ← inferType res
+    let lvl ← getLevel type
+    return mkApp2 (.const ``lazyIfPossible [lvl]) type res
+  return res
 
 -- @[builtin_term_elab «do»] -- once the legacy `do` elaborator has been phased out
 def elabDo : Term.TermElab := fun e expectedType? => do

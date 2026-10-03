@@ -852,26 +852,26 @@ bool type_checker::try_eta_expansion_core(expr const & t, expr const & s) {
 bool type_checker::try_eta_struct_core(expr const & t_, expr const & s_) {
     expr t = t_;
     expr s = s_;
-    expr f = get_app_fn(s);
-    if (!is_constant(f)) return false;
-    constant_info f_info = env().get(const_name(f));
-    if (!f_info.is_constructor()) return false;
-    constructor_val f_val = f_info.to_constructor_val();
-    if (!is_non_rec_structure(env(), f_val.get_induct())) return false;
+    expr sf = get_app_fn(s);
+    if (!is_constant(sf)) return false;
+    constant_info sf_info = env().get(const_name(sf));
+    if (!sf_info.is_constructor()) return false;
+    constructor_val sf_val = sf_info.to_constructor_val();
+    if (!is_non_rec_structure(env(), sf_val.get_induct())) return false;
     expr t_type = infer_type(t);
     expr s_type = infer_type(s);
     if (!is_def_eq(t_type,s_type)) return false;
     flet<local_ctx> save_lctx(m_lctx, m_lctx);
-    unsigned num_ctor_args = f_val.get_nparams() + f_val.get_nfields();
+    unsigned num_ctor_args = sf_val.get_nparams() + sf_val.get_nfields();
     lean_assert(get_app_num_args(s) <= num_ctor_args)
     if (get_app_num_args(s) < num_ctor_args) {
         buffer<expr> fvars;
-        s_type = whnf(s_type);
+        /* note: `s` is a ctor application, its head's type must be of the form `As -> Sort _` where `As` are the structure's params. As such, no need to whnf its type here. If we were running the loop on `t_type` instead, whnfs would be necessary. */
         while (is_pi(s_type)) {
             expr hd = binding_domain(s_type);
             expr x  = m_lctx.mk_local_decl(m_st->m_ngen, binding_name(s_type), hd, binding_info(s_type));
             fvars.push_back(x);
-            s_type = whnf(instantiate(binding_body(s_type), x));
+            s_type = instantiate(binding_body(s_type), x);
         };
         t = mk_app(t, fvars);
         s = mk_app(s, fvars);
@@ -879,8 +879,8 @@ bool type_checker::try_eta_struct_core(expr const & t_, expr const & s_) {
     lean_assert(get_app_num_args(s) == num_ctor_args)
     buffer<expr> s_args;
     get_app_args(s, s_args);
-    for (unsigned i = f_val.get_nparams(); i < s_args.size(); i++) {
-        expr proj = mk_proj(f_val.get_induct(), i - f_val.get_nparams(), t);
+    for (unsigned i = sf_val.get_nparams(); i < s_args.size(); i++) {
+        expr proj = mk_proj(sf_val.get_induct(), i - sf_val.get_nparams(), t);
         if (!is_def_eq(proj, s_args[i])) return false;
     }
     return true;

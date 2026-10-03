@@ -180,7 +180,8 @@ where
       k a b
     else
       let bType ← inferType b
-      forallTelescopeReducing bType fun xs _ => do
+      /- note: `b` is a ctor application, its head's type must be of the form `As -> Sort _` where `As` are the structure's params. As such, no need to whnf its type here. If we were running the loop on `a`'s type instead instead, `forallTelescopeReducing` would be necessary.-/
+      forallTelescope bType fun xs _ => do
         let a' := mkAppN a xs
         let b' := mkAppN b xs
         assert! ctorVal.numParams + ctorVal.numFields == b'.getAppNumArgs

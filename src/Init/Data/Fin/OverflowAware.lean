@@ -8,6 +8,7 @@ module
 prelude
 public import Init.Data.Fin.Basic
 import Init.Data.Fin.Lemmas
+import Init.Omega
 
 set_option doc.verso true
 
@@ -50,5 +51,40 @@ theorem addNat?_eq_dite {i : Fin n} :
 
 @[deprecated Fin.addNat?_eq_dite (since := "2026-07-21")]
 theorem addNat?_eq_dif {n : Nat} {m : Nat} {i : Fin n} : i.addNat? m = if h : ↑i + m < n then Option.some ⟨↑i + m, h⟩ else Option.none := Fin.addNat?_eq_dite
+
+/--
+Overflow-aware subtraction of a natural number to an element of {lean}`Fin n`.
+
+Examples:
+* {lean}`(1 : Fin 3).subNat? 2 = (none : Option (Fin 3))`
+* {lean}`(2 : Fin 3).subNat? 1 = (some 1 : Option (Fin 3))`
+-/
+@[inline, expose]
+protected def subNat? (i : Fin n) (m : Nat) : Option (Fin n) :=
+  if m ≤ i then some ⟨i - m, Nat.sub_lt_of_lt i.2⟩ else none
+
+theorem subNat?_eq_some {i : Fin n} (h : m ≤ i) :
+    i.subNat? m = some ⟨i - m, Nat.sub_lt_of_lt i.2⟩ := by
+  simp [Fin.subNat?]
+  exact Fin.val_le_of_le h
+
+theorem subNat?_eq_some_iff {i : Fin n} :
+    i.subNat? m = some j ↔ m ≤ i ∧ i = m + j := by
+  simp only [Fin.subNat?]
+  split <;> simp [Fin.ext_iff] <;> omega
+
+@[simp]
+theorem subNat?_eq_none_iff {i : Fin n} : i.subNat? m = none ↔ i < m := by
+  simp only [Fin.subNat?]
+  split <;> simp_all
+
+@[simp]
+theorem subNat?_zero {i : Fin n} : i.subNat? 0 = some i := by
+  simp [subNat?_eq_some_iff]
+
+@[grind =]
+theorem subNat?_eq_dite {i : Fin n} :
+    i.subNat? m = if m ≤ i then some ⟨i - m, Nat.sub_lt_of_lt i.2⟩ else none := by
+  rfl
 
 end Fin

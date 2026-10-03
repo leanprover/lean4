@@ -124,7 +124,7 @@ where
       r := r.push (← go)
     return r
 
-private partial def createNodes (keys : Array Key) (v : α) (i : Nat) : Trie α :=
+private def createNodes (keys : Array Key) (v : α) (i : Nat) : Trie α :=
   if h : i < keys.size then
     let k := keys[i]
     let c := createNodes keys v (i+1)
@@ -151,7 +151,7 @@ where
       vs.push v
   termination_by vs.size - i
 
-private partial def insertAux [BEq α] (keys : Array Key) (v : α) : Nat → Trie α → Trie α
+private def insertAux [BEq α] (keys : Array Key) (v : α) : Nat → Trie α → Trie α
   | i, .chain k c =>
     if h : i < keys.size then
       if keys[i] == k then
@@ -172,6 +172,7 @@ private partial def insertAux [BEq α] (keys : Array Key) (v : α) : Nat → Tri
       .node vs c
     else
       .node (insertVal vs v) cs
+termination_by i => keys.size - i
 
 def insertKeyValue [BEq α] (d : DiscrTree α) (keys : Array Key) (v : α) : DiscrTree α :=
   if keys.isEmpty then panic! "invalid key sequence"
@@ -186,5 +187,32 @@ def insertKeyValue [BEq α] (d : DiscrTree α) (keys : Array Key) (v : α) : Dis
 @[deprecated insertKeyValue (since := "2026-01-02")]
 def insertCore [BEq α] (d : DiscrTree α) (keys : Array Key) (v : α) : DiscrTree α :=
   insertKeyValue d keys v
+
+private def getEntriesWithKeysAux (keys : Array Key) : Nat → Trie α → Array α
+  | i, .chain k c =>
+    if h : i < keys.size then
+      if keys[i] == k then
+        getEntriesWithKeysAux keys (i + 1) c
+      else
+        #[]
+    else
+      #[]
+  | i, .node vs cs =>
+    if h : i < keys.size then
+      let k := keys[i]
+      match cs.binSearch (k, default) (fun a b => a.1 < b.1) with
+      | none => #[]
+      | some (_, t) => getEntriesWithKeysAux keys (i + 1) t
+    else
+      vs
+termination_by i => keys.size - i
+
+def getEntriesWithKeys (d : DiscrTree α) (keys : Array Key) : Array α :=
+  if keys.isEmpty then panic! "invalid key sequence"
+  else
+    let k := keys[0]!
+    match d.root.find? k with
+    | none => #[]
+    | some t => getEntriesWithKeysAux keys 1 t
 
 end Lean.Meta.DiscrTree

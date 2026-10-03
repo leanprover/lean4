@@ -111,11 +111,6 @@ structure Machine (dir : Direction) where
   keepAlive : Bool := config.enableKeepAlive
 
   /--
-  Whether a forced flush has been requested by the user.
-  -/
-  forcedFlush : Bool := false
-
-  /--
   Set when a previous `pullBody` call could not make progress in `.readBody`.
   Cleared on new input or state reset.
   -/
@@ -363,21 +358,6 @@ private def checkMessageHead (message : Message.Head dir) : Except H1.Error Body
   | .sending => checkSendingMessageHead message
 
 /--
-Returns `true` when an `Expect` header includes `100-continue`.
-
-RFC 9110 §15.2: Since HTTP/1.0 did not define any 1xx status codes, a server MUST NOT send a 1xx response
-to an HTTP/1.0 client.
--/
-@[inline]
-private def hasExpectContinue (message : Message.Head dir) : Bool :=
-  if message.version != .v11 then
-    false
-  else
-    match message.headers.getAll? Header.Name.expect with
-    | some #[value] => Header.Expect.parse value |>.isSome
-    | _ => false
-
-/--
 Builds canonical framing headers for a chosen transfer mode.
 The caller handles status/method exceptions that should skip normalization.
 -/
@@ -398,13 +378,23 @@ private def responseForbidsFramingHeaders (status : Status) : Bool :=
   (100 ≤ code ∧ code < 200) ∨ code = 204
 
 /--
+Returns `true` when the body being read belongs to an interim (1xx) response. Such a response has no
+message body of its own: it is part of an exchange whose final response is still to come.
+-/
+@[inline]
+private def isInterimResponseBody (machine : Machine dir) : Bool :=
+  match dir with
+  | .receiving => false
+  | .sending => machine.reader.messageHead.status.isInterim
+
+/--
 Returns `true` when body chunks should be drained internally rather than surfaced to the caller.
 -/
 @[inline]
 private def drainBodyInternally (machine : Machine dir) : Bool :=
   match dir with
   | .receiving => machine.writer.sentMessage
-  | .sending => machine.reader.messageHead.status.isInformational
+  | .sending => machine.isInterimResponseBody
 
 /--
 Builds the externally exposed `PulledChunk` value from parsed body bytes.
@@ -544,6 +534,47 @@ def canPullBodyNow (machine : Machine dir) : Bool :=
   machine.canPullBody && !machine.pullBodyStalled
 
 /--
+Returns `true` while the reader still holds transport bytes it has not consumed, i.e. it can make
+progress on the current message without another read from the peer.
+-/
+@[inline]
+def hasBufferedInput (machine : Machine dir) : Bool :=
+  !machine.reader.input.atEnd
+
+/--
+Decoded body bytes accepted for the message the reader is on, reset for every new message. Counts
+bytes the machine drained internally as well as bytes handed out by `pullBody`, so a caller
+enforcing its own body limit gets the same total whether or not the body is being consumed.
+-/
+@[inline]
+def bodyBytesRead (machine : Machine dir) : Nat :=
+  machine.reader.bodyBytesRead
+
+/--
+Returns `true` while the machine can still make use of bytes from the transport, i.e. EOF has not
+been signalled with `noMoreInput`. Once this is `false` there is no point polling the socket.
+-/
+@[inline]
+def needsInput (machine : Machine dir) : Bool :=
+  !machine.reader.noMoreInput
+
+/--
+Returns `true` when the machine has no work left and never will: it halted, or the transport
+reached EOF and no buffered body data remains to hand to the application.
+-/
+@[inline]
+def exhausted (machine : Machine dir) : Bool :=
+  machine.halted || (!machine.needsInput && !machine.canPullBodyNow)
+
+/--
+Returns `true` when there are events left over from a previous step that the application has not
+consumed yet.
+-/
+@[inline]
+def hasPendingEvents (machine : Machine dir) : Bool :=
+  !machine.events.isEmpty
+
+/--
 Runs a parser against reader input and translates parser outcomes into machine
 state transitions.
 
@@ -653,7 +684,7 @@ Returns whether the machine should pause after headers waiting for a
 @[inline]
 private def waitingContinueAfterHeaders (machine : Machine dir) : Bool :=
   match dir with
-  | .receiving => hasExpectContinue machine.reader.messageHead
+  | .receiving => Message.Head.hasExpectContinue (dir := .receiving) machine.reader.messageHead
   | .sending => false
 
 /--
@@ -690,7 +721,14 @@ Processes a finished header block:
 -/
 private def processHeaders (machine : Machine dir) : Machine dir :=
   let machine := machine.updateKeepAlive (machine.reader.messageCount + 1 < machine.config.maxMessages)
-  let machine := machine.updateKeepAlive machine.reader.messageHead.shouldKeepAlive
+
+  let notUpgraded :=
+    match dir with
+    | .sending => machine.reader.messageHead.status.toCode != 101
+    | .receiving => true
+
+  let machine :=
+    machine.updateKeepAlive (machine.reader.messageHead.shouldKeepAlive && notUpgraded)
 
   match checkMessageHead machine.reader.messageHead with
   | .error err => machine.setFailure err
@@ -845,6 +883,15 @@ def noMoreInput (machine : Machine dir) : Machine dir :=
   { machine.modifyReader ({ · with noMoreInput := true }) with pullBodyStalled := false }
 
 /--
+Parks the machine in both directions: the writer emits no further output and the reader accepts and
+parses no further input. Used when the connection is torn down outside the protocol, e.g. on a
+timeout or a transport failure.
+-/
+@[inline]
+def shutdown (machine : Machine dir) : Machine dir :=
+  machine.closeWriter.noMoreInput
+
+/--
 Set a known size for the message body, replacing any previous value.
 -/
 @[inline]
@@ -964,6 +1011,32 @@ def send (machine : Machine dir) (message : Message.Head dir.swap) : Machine dir
       | .receiving, machine => machine.setWriterState .waitingForFlush
 
 /--
+Sends an outgoing request head and fixes the framing of its body.
+
+`knownSize` is the body length the caller could determine up front. When it is unknown and the
+request carries `Expect: 100-continue`, chunked framing is chosen: the head must go out before the
+interim response arrives, so there is no opportunity to compute a `Content-Length` first.
+-/
+def sendRequest (machine : Machine .sending) (head : Message.Head .receiving)
+    (knownSize : Option Body.Length) : Machine .sending :=
+  let machine := machine.send head
+  match knownSize with
+  | some size => machine.setKnownSize size
+  | none =>
+    if Message.Head.hasExpectContinue (dir := .receiving) head then
+      machine.setKnownSize .chunked
+    else
+      machine
+
+/--
+`true` when the request being written carries `Expect: 100-continue`, i.e. its body must be held
+back until the server answers with an interim response or the caller stops waiting for one.
+-/
+@[inline]
+def awaitsContinue (machine : Machine .sending) : Bool :=
+  Message.Head.hasExpectContinue (dir := .receiving) machine.writer.messageHead
+
+/--
 Resolves an `Expect: 100-continue` decision.
 
 When `status` is `100 Continue`, sends the interim response and advances to body
@@ -1003,7 +1076,7 @@ def closeWithError (machine : Machine .receiving) (status : Status) : Machine .r
       |>.closeReader
       |>.noMoreInput
   else
-    machine.closeWriter.closeReader.noMoreInput
+    machine.shutdown
 
 /--
 Enqueues body chunks into the writer buffer for encoding and sending.
@@ -1350,6 +1423,9 @@ Common body-chunk emission helper.
 Updates size accounting and reader state, optionally emits `.closeBody`, and
 returns an optional pulled chunk (suppressed when body is being internally
 drained).
+
+`.closeBody` marks the end of a message body, so it is withheld for interim responses: the caller's
+body stream must stay open for the final response that follows on the same exchange.
 -/
 private def emitBodyChunk (machine : Machine dir)
     (nextState : Reader.State dir)
@@ -1366,7 +1442,8 @@ private def emitBodyChunk (machine : Machine dir)
     let machine := machine
       |>.addBodyBytes bodySize
       |>.setReaderState nextState
-    let machine := if closeBody then machine.addEvent .closeBody else machine
+    let machine :=
+      if closeBody ∧ ¬machine.isInterimResponseBody then machine.addEvent .closeBody else machine
     (machine, mkPulledChunk? machine final incomplete extensions data, true)
 
 /--
@@ -1605,12 +1682,6 @@ When upper layers are not pulling body chunks, the machine drains body bytes
 internally to keep parsing/connection progress moving.
 -/
 private partial def processReadBodyState (machine : Machine dir) (bodyState : Reader.BodyState) : Machine dir :=
-  -- Auto-drain when the body is internal (1xx responses on the client), or
-  -- when the client is reading a response with known zero length: `.fixed 0`
-  -- has no bytes to expose, so waiting for a caller `pullBody` would stall the
-  -- connection indefinitely on responses that must not carry a body (204,
-  -- 304, HEAD responses). Server-side (`.receiving`) keeps the existing
-  -- semantics so handlers can observe the body stream explicitly.
   let autoDrain := drainBodyInternally machine || (dir matches .sending ∧ bodyState matches .fixed 0)
 
   if autoDrain then
@@ -1627,12 +1698,7 @@ private partial def processReaderCompleteState (machine : Machine dir) : Machine
   let reader := machine.reader
   match dir, machine with
   | .sending, machine =>
-    -- After an informational (1xx) response, loop back to read the real response
-    -- without resetting the request/writer state (still in the same exchange).
-
-    -- RFC 9110 §15.2: 1xx responses are not final; they must not count against the
-    -- maxMessages quota (messageCount is not incremented here).
-    if machine.reader.messageHead.status.isInformational then
+    if machine.reader.messageHead.status.isInterim then
       { machine with reader := {
         state := .needStartLine,
         input := reader.input,
@@ -1660,25 +1726,14 @@ body, completion, or failure handling).
 -/
 partial def processRead (machine : Machine dir) : Machine dir :=
   match machine.reader.state with
-  | .pending =>
-    if machine.isWriterClosed then
-      machine.setReaderState .closed
-    else
-      machine
-  | .needStartLine =>
-    processNeedStartLine machine
-  | .needHeader headerCount =>
-    processNeedHeader machine headerCount
-  | .readBody bodyState =>
-    processReadBodyState machine bodyState
-  | Reader.State.«continue» _ =>
-    machine
-  | .complete =>
-    processReaderCompleteState machine
-  | .closed =>
-    machine
-  | .failed error =>
-    handleReaderFailed machine error
+  | .pending => if machine.isWriterClosed then machine.setReaderState .closed else machine
+  | .needStartLine => processNeedStartLine machine
+  | .needHeader headerCount => processNeedHeader machine headerCount
+  | .readBody bodyState => processReadBodyState machine bodyState
+  | .«continue» _ => machine
+  | .complete => processReaderCompleteState machine
+  | .closed => machine
+  | .failed error => handleReaderFailed machine error
 
 end
 
@@ -1734,5 +1789,18 @@ def pullBody (machine : Machine dir) : Machine dir × Option PulledChunk :=
     | _ => false
 
   ({ machine with pullBodyStalled := stalled }, pulledChunk)
+
+/--
+Pulls and discards body chunks until the reader is blocked again.
+
+Used when the application will not consume the body but the connection must still advance: while
+chunks stay buffered, `canPullBody` keeps the machine pinned in `.readBody` and the next message
+can never be parsed.
+-/
+partial def drainBody (machine : Machine dir) : Machine dir :=
+  if machine.canPullBodyNow then
+    drainBody machine.pullBody.fst
+  else
+    machine
 
 end Std.Http.Protocol.H1.Machine

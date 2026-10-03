@@ -15,6 +15,14 @@ public meta import Lake.Util.Name
 import all Lake.Config.Kinds
 import Lake.Util.Name
 
+/-!
+# Build data families
+
+Build keys select types from Lake's open data families. A facet key's type depends
+only on its facet name, so scoping the facet's target key preserves that type.
+Concrete data-kind registrations remain separate assumptions of the open families.
+-/
+
 open Lean
 
 namespace Lake

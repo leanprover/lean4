@@ -1041,7 +1041,7 @@ def synthInstanceCore? (type : Expr) (maxResultSize? : Option Nat := none) : Met
   let parentDeps ← modifyGetThe Core.State fun s => (s.recordedDeps, { s with
     recordedDeps := { base, baseTrackedGen := env.trackedGen,
                       baseChangeLogPos := env.declChangeLog.size, baseConstGen := env.constGen }
-    env := env.markRecordingStart })
+    env := env.markRecordingStart.setRecordingDeps true })
   try
   withTheReader Core.Context (fun ctx => { ctx with isRecordingDeps := true }) do
   withTraceNode `Meta.synthInstance
@@ -1123,8 +1123,9 @@ def synthInstanceCore? (type : Expr) (maxResultSize? : Option Nat := none) : Met
       return result?
   finally
     -- Restore the enclosing accumulator, merging this query's dependencies into it.
-    modifyThe Core.State fun s => { s with recordedDeps :=
-      if parentRecording then s.recordedDeps.mergeInto parentDeps else parentDeps }
+    modifyThe Core.State fun s => { s with
+      env := s.env.setRecordingDeps parentRecording
+      recordedDeps := if parentRecording then s.recordedDeps.mergeInto parentDeps else parentDeps }
 
 def synthInstance? (type : Expr) (maxResultSize? : Option Nat := none) : MetaM (Option Expr) := do
   -- unrestricted: profiler collection only

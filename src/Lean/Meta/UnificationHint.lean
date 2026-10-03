@@ -97,14 +97,21 @@ builtin_initialize
       discard <| addUnificationHint declName kind |>.run
   }
 
+/--
+Returns the unification hints in effect, recording their generation inside a recording computation
+(`recordExtGenAccess`). The only way to read them during type class resolution.
+-/
+private def getRecordedHints : CoreM UnificationHints := do
+  recordExtGenAccess unificationHintExtension.ext.toEnvExtension
+  return unificationHintExtension.getState (genRecorded := true) (← getEnv)
+
 def tryUnificationHints (t s : Expr) : MetaM Bool := do
   trace[Meta.isDefEq.hint] "{t} =?= {s}"
   unless (← getConfig).unificationHints do
     return false
   if t.isMVar then
     return false
-  recordExtGenAccess unificationHintExtension.ext.toEnvExtension
-  let hints := unificationHintExtension.getState (← getEnv)
+  let hints ← getRecordedHints
   let candidates ← withConfigWithKey config <| hints.discrTree.getMatch t
   for candidate in candidates do
     if (← tryCandidate candidate) then

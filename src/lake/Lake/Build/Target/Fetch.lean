@@ -17,12 +17,14 @@ import all Lake.Build.Key
 
 Partial keys acquire package identity and qualified facet names from the workspace.
 Full keys also scope unqualified module keys before registering a facet. Both paths
-construct facet information from the key used for registration. Module-key
-normalization and facet-key construction have checked contracts about these actual
-definitions. Partial fetches retain their original request's successful lookups in
-one captured workspace. Dynamic data-family equations, build functions and asynchronous
-fetch/store effects remain separate obligations; these contracts do not establish
-concurrent job uniqueness.
+construct facet information from the key used for registration, and a partial fetch
+returns that key with its job so that an enclosing facet registers under it.
+Module-key normalization and facet-key construction have checked contracts about
+these actual definitions. Partial fetches retain their original request's successful
+lookups in one captured workspace. Dynamic data-family equations, build functions and
+asynchronous fetch/store effects remain separate obligations: the build store is not
+a transaction across fetch, creation and storage, and these contracts do not
+establish concurrent job uniqueness.
 -/
 
 open Lean
@@ -66,7 +68,6 @@ The information fetched by the delayed continuation has the returned registratio
 
 ## Intent
 Link key agreement to the actual request constructors used by both fetch paths.
-This equality does not imply atomic fetch/create/store operations.
 -/
 theorem ResolvedFacetRequest.info_key (request : ResolvedFacetRequest)
     (kind : Name) (data : DataType kind) :
@@ -82,18 +83,13 @@ def qualifyPartialFacet (kind shortFacet : Name) : Name :=
   kind ++ if shortFacet.isAnonymous then `default else shortFacet
 
 /--
-Full-key normalization selects the package-scoped key returned by partial module fetches.
+The key of the package that owns the named module in the workspace.
 
 ## Intent
-State cross-route agreement under the exact common workspace lookup. Lookup
-stability across separate fetches is a premise of applying this equality to them.
+Name the one module lookup shared by full-key normalization and its contract.
 -/
-theorem resolveModuleKeys?_workspace_module (ws : Workspace) (name : Name)
-    (mod : Module) (h : ws.findModule? name = some mod) :
-    (BuildKey.module name).resolveModuleKeys?
-        (fun name => (ws.findModule? name).map (·.pkg.keyName)) =
-      some (.packageModule mod.pkg.keyName name) := by
-  simp [BuildKey.resolveModuleKeys?, h]
+def Workspace.findModulePackageKey? (ws : Workspace) (name : Name) : Option Name :=
+  (ws.findModule? name).map (·.pkg.keyName)
 
 /--
 Resolve a requested package against one captured workspace.
@@ -174,6 +170,24 @@ theorem PartialKeyResolves.moduleKeysResolved
     (resolution : PartialKeyResolves ws defaultPkg input facetless key kind) :
     key.moduleKeysResolved := by
   induction resolution <;> first | trivial | assumption
+
+/--
+Full-key normalization of an unscoped module key selects the key returned by a
+successful partial resolution of that module.
+
+## Intent
+State cross-route agreement over the relation and lookup that the two fetch paths
+use in one workspace. Lookup stability across separate fetches is a premise of
+applying this equality to them.
+-/
+theorem PartialKeyResolves.resolveModuleKeys?_module
+    (ws : Workspace) (defaultPkg : Package) (name : Name) (facetless : Bool)
+    (key : BuildKey) (kind : Name)
+    (resolution : PartialKeyResolves ws defaultPkg (.module name) facetless key kind) :
+    (BuildKey.module name).resolveModuleKeys? ws.findModulePackageKey? = some key := by
+  cases resolution with
+  | module _ _ _ _ lookup =>
+    simp [BuildKey.resolveModuleKeys?, Workspace.findModulePackageKey?, lookup]
 
 /-- A returned job retains the resolution of its original request in the captured workspace. -/
 structure ResolvedBuildJob (ws : Workspace) (defaultPkg : Package)
@@ -260,10 +274,13 @@ def PartialBuildKey.fetchInCoreAux
             (by simpa only [OptDataKind.isAnonymous_iff_name_isAnonymous] using h) facetLookup⟩
 
 /--
-**For internal use only.** Resolve a partial key and fetch its job.
+**For internal use only.**
+Resolves this partial key in the workspace and fetches the job of the resolved target.
 
 ## Intent
-Retain the resolved registration key alongside its job for enclosing facets.
+Return the job together with the full key of the target it resolved to. A missing
+package is `defaultPkg`. It is an error if the workspace lacks the package, module,
+target or facet, or if a facet is requested of a target with an opaque data kind.
 -/
 @[inline] public def PartialBuildKey.fetchInCore
   (defaultPkg : Package) (self : PartialBuildKey)
@@ -283,9 +300,11 @@ Fetches the target specified by this key, resolving gaps as needed.
   rather than their configuration.
 
 ## Intent
-Resolve target keys written in configuration or on the command line through the
-workspace before facet registration.
-The asynchronous build store is not a transaction across fetch, creation and storage.
+Accept a target key written in configuration or on the command line and return the
+job of the target it resolves to. Each facet is requested by its target's resolved
+full key and its qualified facet name. It is an error if the workspace lacks the
+package, module, target or facet, or if a facet is requested of a target with an
+opaque data kind.
 -/
 @[inline] public def PartialBuildKey.fetchIn (defaultPkg : Package) (self : PartialBuildKey) : FetchM OpaqueJob :=
   (·.2.toOpaque) <$> fetchInCore defaultPkg self
@@ -314,11 +333,10 @@ def BuildKey.fetchCore
     fetch <| pkg.target target
   | facet target facetName => do
       let job ← BuildKey.fetchCore ws root target
-      let package? := fun name => (ws.findModule? name).map (·.pkg.keyName)
       let resolved : {key : BuildKey // key.moduleKeysResolved} ←
-        match hResolved : target.resolveModuleKeys? package? with
+        match hResolved : target.resolveModuleKeys? ws.findModulePackageKey? with
         | some key => pure ⟨key,
-            BuildKey.resolveModuleKeys?_resolved package? target key hResolved⟩
+            BuildKey.resolveModuleKeys?_resolved ws.findModulePackageKey? target key hResolved⟩
         | none => error s!"invalid target '{root}': module target not found in workspace"
       let kind := job.kind
       if h : kind.isAnonymous then
@@ -331,10 +349,13 @@ def BuildKey.fetchCore
           fetch (request.info kind data)
 
 /--
-Fetch the full target key with its declared output type.
+Fetches the target specified by this full key.
 
 ## Intent
-Normalize unscoped module targets before facet registration while preserving the public type.
+Return a job of the key's build data type `α`. A facet of a module key that names no
+package is requested by the key of the package that owns the module in the workspace.
+It is an error if the workspace lacks the package, module, target or facet, or if a
+facet is requested of a target with an opaque data kind.
 -/
 @[inline] public protected def BuildKey.fetch
   {α : Type} (self : BuildKey) [FamilyOut BuildData self α] : FetchM (Job α) := do
@@ -342,10 +363,12 @@ Normalize unscoped module targets before facet registration while preserving the
   cast (by simp) <| fetchCore ws self self
 
 /--
-Fetch a typed partial target, refusing a job whose observed data kind does not match.
+Fetches the target specified by this typed partial key and checks its data kind.
 
 ## Intent
-Retain the partial-key resolution contract before checking the requested output type.
+Resolve the key as `PartialBuildKey.fetchIn` does, with `defaultPkg` as the missing
+package, and return a job of type `α`. It is a type-mismatch error if the data kind
+of the resolved job is not the kind of `α`, including when that kind is unknown.
 -/
 public protected def Target.fetchIn
   {α : Type} [DataKind α] (defaultPkg : Package) (self : Target α) : FetchM (Job α)
@@ -362,10 +385,11 @@ public protected def Target.fetchIn
     error s!"type mismatch in target '{self.key}': expected '{kind}', got {actual}"
 
 /--
-Fetch and collect a family of typed partial targets.
+Fetches each target in this array and collects their results into one job.
 
 ## Intent
-Apply `Target.fetchIn` to each member before collecting their asynchronous results.
+Resolve and type-check every target as `Target.fetchIn` does and return their results
+in array order. An error in any one target is an error for the whole fetch.
 -/
 public protected def TargetArray.fetchIn
   {α : Type} [DataKind α] (defaultPkg : Package) (self : TargetArray α) (traceCaption := "<targets>")

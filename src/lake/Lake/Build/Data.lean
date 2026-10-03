@@ -7,7 +7,6 @@ module
 
 prelude
 public import Lake.Build.Key
-import all Lake.Build.Key
 public import Lake.Util.Family
 public import Lake.Config.Dynlib
 public import Lake.Config.Kinds
@@ -19,8 +18,8 @@ import Lake.Util.Name
 /-!
 # Build data families
 
-Build keys select types from Lake's open data families. Resolving a module's package
-identity preserves that selection; the proof uses the actual `BuildData` definition.
+Build keys select types from Lake's open data families. A facet key's type depends
+only on its facet name, so scoping the facet's target key preserves that type.
 Concrete data-kind registrations remain separate assumptions of the open families.
 -/
 
@@ -175,38 +174,6 @@ public abbrev BuildData : BuildKey → Type
 | .packageModule _ _ => DataType Module.facetKind
 | .packageTarget p t => CustomData p t
 | .facet _ f => FacetOut f
-
-/--
-Module-key resolution preserves the associated build-data type.
-
-## Intent
-Allow callers to normalize registration keys while retaining their public job
-types. This equality is definitional for module keys and independent of a facet's
-target key; it assumes no equality between an open data family and a concrete type.
--/
-theorem BuildKey.resolveModuleKeys?_data
-    (package? : Name → Option Name) (self resolved : BuildKey)
-    (h : self.resolveModuleKeys? package? = some resolved) :
-    BuildData resolved = BuildData self := by
-  cases self with
-  | module name =>
-    cases hp : package? name with
-    | none => simp [resolveModuleKeys?, hp] at h
-    | some package =>
-      simp [resolveModuleKeys?, hp] at h
-      cases h
-      rfl
-  | facet target facet =>
-    cases ht : target.resolveModuleKeys? package? with
-    | none => simp [resolveModuleKeys?, ht] at h
-    | some key =>
-      simp [resolveModuleKeys?, ht] at h
-      cases h
-      rfl
-  | package name | packageModule name mod | packageTarget name target =>
-    simp [resolveModuleKeys?] at h
-    cases h
-    rfl
 
 public instance (priority := low) : FamilyDef BuildData (.packageTarget p t) (CustomData p t) := ⟨rfl⟩
 public instance (priority := low) : FamilyDef BuildData (.facet t f) (FacetOut f) := ⟨rfl⟩

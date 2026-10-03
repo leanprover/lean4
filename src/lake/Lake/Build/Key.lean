@@ -15,7 +15,8 @@ import Init.Data.Iterators.Consumers
 # Build-store keys
 
 Full keys identify package-scoped targets and qualified facets. Partial keys are
-command-line requests whose package and facet information the workspace resolves.
+target keys written in configuration or on the command line, whose package and facet
+information the workspace resolves.
 Module-key normalization preserves scoped keys and refuses absent module lookups.
 -/
 
@@ -38,7 +39,7 @@ Whether every module key includes its package key.
 Describe the key shape used to register resolved module facets. Package and facet
 names are checked separately by their workspace lookups.
 -/
-public def BuildKey.moduleKeysResolved : BuildKey → Prop
+def BuildKey.moduleKeysResolved : BuildKey → Prop
   | .module _ => False
   | .facet target _ => target.moduleKeysResolved
   | _ => True
@@ -50,7 +51,7 @@ Resolve unscoped module keys with the supplied workspace lookup.
 Use the same package-scoped key for full-key and partial-key facet registration.
 The lookup supplies package identity; an absent module refuses resolution.
 -/
-public def BuildKey.resolveModuleKeys? (package? : Name → Option Name) :
+def BuildKey.resolveModuleKeys? (package? : Name → Option Name) :
     BuildKey → Option BuildKey
   | .module name => (package? name).map (.packageModule · name)
   | .facet target facetName =>
@@ -64,7 +65,7 @@ Successful module-key resolution removes every unscoped module key.
 Establish the shape of the actual key passed to facet registration, including
 nested facets, without assuming that an arbitrary workspace is coherent.
 -/
-public theorem BuildKey.resolveModuleKeys?_resolved
+theorem BuildKey.resolveModuleKeys?_resolved
     (package? : Name → Option Name) (self resolved : BuildKey)
     (h : self.resolveModuleKeys? package? = some resolved) :
     resolved.moduleKeysResolved := by
@@ -94,7 +95,7 @@ Resolving an already scoped key preserves it independently of the lookup.
 ## Intent
 Make repeated normalization preserve the memoization key.
 -/
-public theorem BuildKey.resolveModuleKeys?_of_resolved
+theorem BuildKey.resolveModuleKeys?_of_resolved
     (package? : Name → Option Name) (self : BuildKey)
     (h : self.moduleKeysResolved) : self.resolveModuleKeys? package? = some self := by
   induction self with

@@ -8,7 +8,7 @@ module
 prelude
 import Lake.Build.Infos
 public import Lake.Build.Job.Monad
-public import Lake.Config.Workspace
+import Lake.Config.Workspace
 import Lake.Config.Monad
 import all Lake.Build.Key
 
@@ -36,7 +36,7 @@ The target and qualified facet shared by registration and its returned key.
 Prevent an unscoped module key from reaching either facet-request constructor.
 Workspace membership is established by resolution, rather than by this shape alone.
 -/
-public structure ResolvedFacetRequest where
+structure ResolvedFacetRequest where
   /-- The recursively resolved target key. -/
   target : {key : BuildKey // key.moduleKeysResolved}
   /-- The qualified facet selected from the workspace. -/
@@ -48,7 +48,7 @@ Build information carrying exactly this request's target and facet.
 ## Intent
 Use the same target and facet as `ResolvedFacetRequest.key` in the actual fetch.
 -/
-@[expose] public def ResolvedFacetRequest.info (request : ResolvedFacetRequest)
+def ResolvedFacetRequest.info (request : ResolvedFacetRequest)
     (kind : Name) (data : DataType kind) : BuildInfo :=
   .facet request.target.val kind data request.facet
 
@@ -58,7 +58,7 @@ The registration key of this request, independent of its delayed data.
 ## Intent
 Retain the fetched information's key while its target job completes asynchronously.
 -/
-@[expose] public def ResolvedFacetRequest.key (request : ResolvedFacetRequest) : BuildKey :=
+def ResolvedFacetRequest.key (request : ResolvedFacetRequest) : BuildKey :=
   .facet request.target.val request.facet
 
 /--
@@ -68,7 +68,7 @@ The information fetched by the delayed continuation has the returned registratio
 Link key agreement to the actual request constructors used by both fetch paths.
 This equality does not imply atomic fetch/create/store operations.
 -/
-public theorem ResolvedFacetRequest.info_key (request : ResolvedFacetRequest)
+theorem ResolvedFacetRequest.info_key (request : ResolvedFacetRequest)
     (kind : Name) (data : DataType kind) :
     (request.info kind data).key = request.key := rfl
 
@@ -78,18 +78,8 @@ Qualify a partial facet, using the kind's default when its short name is elided.
 ## Intent
 Derive the registration name from the actual input job's kind and requested facet.
 -/
-@[expose] public def qualifyPartialFacet (kind shortFacet : Name) : Name :=
+def qualifyPartialFacet (kind shortFacet : Name) : Name :=
   kind ++ if shortFacet.isAnonymous then `default else shortFacet
-
-/--
-Qualification uses exactly the requested kind and the short or default facet.
-
-## Intent
-Expose the exact qualification law used by partial-key resolution.
--/
-public theorem qualifyPartialFacet_eq (kind shortFacet : Name) :
-    qualifyPartialFacet kind shortFacet =
-      kind ++ (if shortFacet.isAnonymous then `default else shortFacet) := rfl
 
 /--
 Full-key normalization selects the package-scoped key returned by partial module fetches.
@@ -98,7 +88,7 @@ Full-key normalization selects the package-scoped key returned by partial module
 State cross-route agreement under the exact common workspace lookup. Lookup
 stability across separate fetches is a premise of applying this equality to them.
 -/
-public theorem resolveModuleKeys?_workspace_module (ws : Workspace) (name : Name)
+theorem resolveModuleKeys?_workspace_module (ws : Workspace) (name : Name)
     (mod : Module) (h : ws.findModule? name = some mod) :
     (BuildKey.module name).resolveModuleKeys?
         (fun name => (ws.findModule? name).map (·.pkg.keyName)) =
@@ -111,7 +101,7 @@ Resolve a requested package against one captured workspace.
 ## Intent
 Use the default package for an elided name, and distinguish unique keys from base names.
 -/
-@[expose] public def PartialBuildKey.resolvePackage?
+def PartialBuildKey.resolvePackage?
     (ws : Workspace) (defaultPkg : Package) (name : Name) : Option Package :=
   match name with
   | .anonymous => some defaultPkg
@@ -126,7 +116,7 @@ Connect the original request to its returned key through the actual successful l
 Leaf kinds describe the returned job's interface; this relation does not prove its task's
 result. Facet qualification uses that observed input kind and the selected output kind.
 -/
-public inductive PartialKeyResolves (ws : Workspace) (defaultPkg : Package) :
+inductive PartialKeyResolves (ws : Workspace) (defaultPkg : Package) :
     PartialBuildKey → Bool → BuildKey → Name → Prop where
   /-- An unscoped module uses the package of its successful workspace lookup. -/
   | module (name : Name) (mod : Module) (facetless : Bool) (kind : Name)
@@ -178,7 +168,7 @@ Every successful partial-key resolution scopes all nested module keys.
 ## Intent
 Derive key shape from the stronger request-to-result relation carried by actual fetches.
 -/
-public theorem PartialKeyResolves.moduleKeysResolved
+theorem PartialKeyResolves.moduleKeysResolved
     (ws : Workspace) (defaultPkg : Package) (input : PartialBuildKey) (facetless : Bool)
     (key : BuildKey) (kind : Name)
     (resolution : PartialKeyResolves ws defaultPkg input facetless key kind) :
@@ -196,11 +186,11 @@ structure ResolvedBuildJob (ws : Workspace) (defaultPkg : Package)
   resolution : PartialKeyResolves ws defaultPkg input facetless key job.kind.name
 
 /-- Retain a successful lookup equation, or report the original target error. -/
-private def lookupOrError {α : Type} (lookup : Option α) (message : String) :
+@[inline] private def lookupOrError {α : Type} (lookup : Option α) (message : Unit → String) :
     FetchM {value : α // lookup = some value} :=
   match _h : lookup with
   | some value => pure ⟨value, rfl⟩
-  | none => error message
+  | none => error (message ())
 
 def PartialBuildKey.fetchInCoreAux
   (ws : Workspace) (defaultPkg : Package) (root : PartialBuildKey)
@@ -208,41 +198,40 @@ def PartialBuildKey.fetchInCoreAux
 : FetchM (ResolvedBuildJob ws defaultPkg self facetless) :=
   match self with
   | .module modName => do
-    let ⟨mod, lookup⟩ ← lookupOrError (ws.findModule? modName)
+    let ⟨mod, lookup⟩ ← lookupOrError (ws.findModule? modName) fun _ =>
       s!"invalid target '{root}': module '{modName}' not found in workspace"
     let job := cast (by simp) <| Job.pure mod
     return ⟨.packageModule mod.pkg.keyName modName, job, .module _ _ _ _ lookup⟩
   | .package pkgName => do
-    let ⟨pkg, lookup⟩ ← lookupOrError (resolvePackage? ws defaultPkg pkgName)
+    let ⟨pkg, lookup⟩ ← lookupOrError (resolvePackage? ws defaultPkg pkgName) fun _ =>
       s!"invalid target '{root}': package '{pkgName}' not found in workspace"
     let job := cast (by simp) <| Job.pure pkg
     return ⟨.package pkg.keyName, job, .package _ _ _ _ lookup⟩
   | .packageModule pkgName modName => do
-    let ⟨pkg, packageLookup⟩ ← lookupOrError (resolvePackage? ws defaultPkg pkgName)
+    let ⟨pkg, packageLookup⟩ ← lookupOrError (resolvePackage? ws defaultPkg pkgName) fun _ =>
       s!"invalid target '{root}': package '{pkgName}' not found in workspace"
-    let ⟨mod, moduleLookup⟩ ← lookupOrError (pkg.findTargetModule? modName)
+    let ⟨mod, moduleLookup⟩ ← lookupOrError (pkg.findTargetModule? modName) fun _ =>
       s!"invalid target '{root}': module target '{modName}' not found in package '{pkg.prettyName}'"
     let job := cast (by simp) <| Job.pure mod
     return ⟨.packageModule pkg.keyName modName, job,
       .packageModule _ _ _ _ _ _ packageLookup moduleLookup⟩
   | .packageTarget pkgName target => do
-    let ⟨pkg, packageLookup⟩ ← lookupOrError (resolvePackage? ws defaultPkg pkgName)
+    let ⟨pkg, packageLookup⟩ ← lookupOrError (resolvePackage? ws defaultPkg pkgName) fun _ =>
       s!"invalid target '{root}': package '{pkgName}' not found in workspace"
     let key := BuildKey.packageTarget pkg.keyName target
     if hFacetless : facetless then
-      let ⟨decl, targetLookup⟩ ← lookupOrError (pkg.findTargetDecl? target)
+      let ⟨decl, targetLookup⟩ ← lookupOrError (pkg.findTargetDecl? target) fun _ =>
         s!"invalid target '{root}': target not found in package '{pkg.prettyName}'"
       if h : decl.kind.isAnonymous then
         let job ← (pkg.target target).fetch
         let job := cast (by simp) job
         return ⟨key, job, hFacetless ▸ .opaqueTarget _ _ _ _ _ packageLookup targetLookup h⟩
       else
-        let facet := decl.kind.str "default"
         let tgt := decl.mkConfigTarget pkg
         let tgt := cast (by simp [decl.target_eq_type h]) tgt
-        let info := BuildInfo.facet key decl.kind tgt facet
-        let job ← info.fetch
-        return ⟨key.facet facet, job,
+        let request : ResolvedFacetRequest := ⟨⟨key, trivial⟩, decl.kind.str "default"⟩
+        let job ← (request.info decl.kind tgt).fetch
+        return ⟨request.key, job,
           hFacetless ▸ .defaultTarget _ _ _ _ _ packageLookup targetLookup h⟩
     else
       let job ← (pkg.target target).fetch
@@ -261,7 +250,7 @@ def PartialBuildKey.fetchInCoreAux
         error s!"invalid target '{root}': targets of opaque data kinds do not support facets"
       else
         let facet := qualifyPartialFacet kind shortFacet
-        let ⟨cfg, facetLookup⟩ ← lookupOrError (ws.findFacetConfig? facet)
+        let ⟨cfg, facetLookup⟩ ← lookupOrError (ws.findFacetConfig? facet) fun _ =>
           s!"invalid target '{root}': unknown facet '{facet}'"
         let request : ResolvedFacetRequest := ⟨⟨target, resolved⟩, facet⟩
         let job : Job (BuildData request.key) ← (job.cast h).bindM (kind := cfg.outKind) fun data =>
@@ -294,7 +283,8 @@ Fetches the target specified by this key, resolving gaps as needed.
   rather than their configuration.
 
 ## Intent
-Resolve command-line target syntax through the workspace before facet registration.
+Resolve target keys written in configuration or on the command line through the
+workspace before facet registration.
 The asynchronous build store is not a transaction across fetch, creation and storage.
 -/
 @[inline] public def PartialBuildKey.fetchIn (defaultPkg : Package) (self : PartialBuildKey) : FetchM OpaqueJob :=
@@ -355,7 +345,7 @@ Normalize unscoped module targets before facet registration while preserving the
 Fetch a typed partial target, refusing a job whose observed data kind does not match.
 
 ## Intent
-Retain the command-line resolution contract before checking the requested output type.
+Retain the partial-key resolution contract before checking the requested output type.
 -/
 public protected def Target.fetchIn
   {α : Type} [DataKind α] (defaultPkg : Package) (self : Target α) : FetchM (Job α)

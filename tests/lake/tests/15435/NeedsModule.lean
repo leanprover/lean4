@@ -1,5 +1,4 @@
 module
-import Lean.Linter.MissingDocs
 
 /-! # Nested module facet dependency (#15435)
 

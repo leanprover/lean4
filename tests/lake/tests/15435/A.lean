@@ -1,5 +1,4 @@
 module
-import Lean.Linter.MissingDocs
 
 /-! # Executable facet dependency (#15435)
 

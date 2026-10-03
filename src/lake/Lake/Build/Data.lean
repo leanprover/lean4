@@ -184,7 +184,7 @@ Allow callers to normalize registration keys while retaining their public job
 types. This equality is definitional for module keys and independent of a facet's
 target key; it assumes no equality between an open data family and a concrete type.
 -/
-public theorem BuildKey.resolveModuleKeys?_data
+theorem BuildKey.resolveModuleKeys?_data
     (package? : Name → Option Name) (self resolved : BuildKey)
     (h : self.resolveModuleKeys? package? = some resolved) :
     BuildData resolved = BuildData self := by

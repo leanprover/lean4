@@ -24,7 +24,8 @@ structure SparseCasesOnKey where
 deriving BEq, Hashable
 
 builtin_initialize sparseCasesOnCacheExt : EnvExtension (PHashMap SparseCasesOnKey Name) ←
-  registerEnvExtension (pure {}) (asyncMode := .local)  -- mere cache, keep it local
+  -- mere cache, keep it local
+  registerEnvExtension (pure {}) (asyncMode := .local) (logWrites := true)
 
 /-- Information necessary to recognize and split on sparse casesOn (in particular in MatchEqs) -/
 public structure SparseCasesOnInfo where
@@ -133,7 +134,8 @@ public def mkSparseCasesOn (indName : Name) (ctors : Array Name) : MetaM Name :=
     (value       := value)
     (hints       := ReducibilityHints.abbrev)
   addDecl (.defnDecl decl)
-  modifyEnv fun env => sparseCasesOnCacheExt.modifyState env fun s =>
+  -- unlogged: populated on demand and write-once, thus no observable change
+  modifyEnv fun env => sparseCasesOnCacheExt.modifyState (log := .unlogged) env fun s =>
     have : Inhabited _ := ⟨s⟩
     -- write-once, as for `MapDeclarationExtension.insert`
     match s.find? key with

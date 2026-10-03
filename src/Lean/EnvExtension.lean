@@ -29,6 +29,8 @@ structure SimplePersistentEnvExtensionDescr (α σ : Type) where
     Option (Environment → σ → List α → OLeanEntries (Array α)) := none
   asyncMode     : EnvExtension.AsyncMode := .mainOnly
   replay?       : Option ((newEntries : List α) → (newState : σ) → σ → List α × σ) := none
+  /-- See `EnvExtension.logWrites`. -/
+  logWrites     : Bool := false
 
 /--
 Returns a function suitable for `SimplePersistentEnvExtensionDescr.replay?` that replays all new
@@ -53,6 +55,7 @@ def registerSimplePersistentEnvExtension {α σ : Type} [Inhabited σ] (descr : 
       | none    => .uniform (descr.toArrayFn s.1.reverse)
     statsFn := fun s => format "number of local entries: " ++ format s.1.length
     asyncMode := descr.asyncMode
+    logWrites := descr.logWrites
     replay? := descr.replay?.map fun replay oldState newState _ (entries, s) =>
       let newEntries := takeNewEntries newState.1 oldState.1
       let (newEntries, s) := replay newEntries newState.2 s
@@ -90,9 +93,11 @@ end SimplePersistentEnvExtension
 @[expose] def TagDeclarationExtension := SimplePersistentEnvExtension Name NameSet
 
 def mkTagDeclarationExtension (name : Name := by exact decl_name%)
-  (asyncMode : EnvExtension.AsyncMode := .mainOnly) : IO TagDeclarationExtension :=
+  (asyncMode : EnvExtension.AsyncMode := .mainOnly)
+  (logWrites : Bool := false) : IO TagDeclarationExtension :=
   registerSimplePersistentEnvExtension {
     name          := name,
+    logWrites     := logWrites,
     addImportedFn := fun _ => {},
     addEntryFn    := fun s n => s.insert n,
     toArrayFn     := fun es => es.toArray.qsort Name.quickLt
@@ -113,7 +118,12 @@ def tag (ext : TagDeclarationExtension) (env : Environment) (declName : Name) : 
   else
     have : Inhabited Environment := ⟨env⟩
     assert! env.getModuleIdxFor? declName |>.isNone -- See comment at `TagDeclarationExtension`
-    ext.addEntry (asyncDecl := declName) env declName
+    -- Only the state visible on this branch, as in `MapDeclarationExtension.insert`: a tag added on
+    -- the still-running branch of `declName` is missed, which only costs a superfluous log entry.
+    if ext.getState (asyncMode := .local) env |>.contains declName then
+      env
+    else
+      ext.addEntry (asyncDecl := declName) (log := .decl declName) env declName
 
 def isTagged (ext : TagDeclarationExtension) (env : Environment) (declName : Name)
     (asyncMode := ext.toEnvExtension.asyncMode) : Bool :=
@@ -131,6 +141,7 @@ deriving Inhabited
 
 def mkMapDeclarationExtension (name : Name := by exact decl_name%)
     (asyncMode : EnvExtension.AsyncMode := .async .mainEnv)
+    (logWrites : Bool := false)
     (exportEntriesFn : Environment → NameMap α → OLeanEntries (Array (Name × α)) :=
       -- Do not export info for private defs by default
       fun env s =>
@@ -139,6 +150,7 @@ def mkMapDeclarationExtension (name : Name := by exact decl_name%)
     IO (MapDeclarationExtension α) :=
   .mk <$> registerPersistentEnvExtension {
     name            := name,
+    logWrites       := logWrites,
     mkInitial       := pure {}
     addImportedFn   := fun _ => pure {}
     addEntryFn      := fun s (n, v) => s.insert n v
@@ -173,7 +185,7 @@ def insert (ext : MapDeclarationExtension α) (env : Environment) (declName : Na
       declaration-keyed extension entries are write-once (pass `allowOverwrite := true` if this \
       update is intended)"
   else
-    ext.addEntry (asyncDecl := declName) env (declName, val)
+    ext.addEntry (asyncDecl := declName) (log := .decl declName) env (declName, val)
 
 def find? [Inhabited α] (ext : MapDeclarationExtension α) (env : Environment) (declName : Name)
     (asyncMode := ext.toEnvExtension.asyncMode) (level := OLeanLevel.exported) : Option α :=

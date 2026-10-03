@@ -367,7 +367,7 @@ attribute [bv_normalize] BitVec.smulOverflow_eq
 attribute [bv_normalize] BitVec.usubOverflow_eq
 attribute [bv_normalize] BitVec.ssubOverflow_eq
 attribute [bv_normalize] BitVec.sdivOverflow_eq
-attribute [bv_normalize] BitVec.ctz
+attribute [bv_normalize] BitVec.ctz_eq_reverse_clz
 
 /-- `x / (BitVec.ofNat n)` where `n = 2^k` is the same as shifting `x` right by `k`. -/
 theorem BitVec.udiv_ofNat_eq_of_lt (w : Nat) (x : BitVec w) (n : Nat) (k : Nat) (hk : 2 ^ k = n) (hlt : k < w) :

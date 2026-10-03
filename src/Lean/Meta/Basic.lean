@@ -656,7 +656,7 @@ protected def saveState : MetaM SavedState :=
 
 /--
 Drops the entries recorded after the environment changes a rollback to `trackedGen` undoes. Along one
-environment lineage `Environment.trackedGen` only grows, so these are exactly the entries stamped
+environment branch `Environment.trackedGen` only grows, so these are exactly the entries stamped
 with a larger value.
 -/
 def SynthInstanceCache.rollBack (c : SynthInstanceCache) (trackedGen : Nat) : SynthInstanceCache :=

@@ -340,9 +340,7 @@ Returns `.done` when:
   redirect codes defined by RFC 2616),
 * no `Location` header is present,
 * the `Location` value does not parse as a URI-reference (RFC 9110 §10.2.2),
-* the target resolves to a non-`http(s)` scheme (SSRF guard), or
-* `onlySafeRedirects` is `true` and the original method is not safe
-  (RFC 9110 §9.2.1: GET, HEAD, OPTIONS, TRACE).
+* the target resolves to a non-`http(s)` scheme (SSRF guard).
 
 Returns `.follow plan` otherwise. The caller is expected to drain the redirect response body and,
 when `plan.bodyAction == .replay`, reset the original body before dispatching the rewritten request.
@@ -361,7 +359,6 @@ def decideRedirect
     (current : URI.Origin)
     (request : Request.Head)
     (bodyReplayable : Bool)
-    (onlySafeRedirects : Bool)
     (responseVersion : Version)
     (status : Status)
     (responseHeaders : Headers)
@@ -385,11 +382,6 @@ def decideRedirect
   -- 300 Multiple Choices may name a preferred `Location`, but RFC 9110 §15.4.1 leaves
   -- the choice to the user agent, so we deliberately decline to auto-select one.
   if status == .useProxy || status == .unused || status == .notModified || status == .multipleChoices then
-    return .done
-
-  -- RFC 2616 §10.3: automatic redirection needs to be done with care for methods not known to be
-  -- safe, as defined in Section 9.2.1, since the user might not wish to redirect an unsafe request.
-  if onlySafeRedirects && !request.method.isSafe then
     return .done
 
   let some locationValue := responseHeaders.get? .location

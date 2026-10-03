@@ -140,6 +140,15 @@ def originTarget (uri : URI) : RequestTarget :=
   .originForm uri.path uri.query
 
 /--
+Splits this URI into the `(scheme, host, port, origin-form target)` tuple a client needs to
+dispatch a request to the referenced origin, or `none` when the URI has no authority (and hence no
+host to connect to). The port falls back to the scheme's default when the authority leaves it
+implicit.
+-/
+def toOriginRequest? (uri : URI) : Option (URI.Scheme × URI.Host × UInt16 × RequestTarget) :=
+  uri.host?.map fun host => (uri.scheme, host, uri.port, uri.originTarget)
+
+/--
 Attempts to parse a `URI` from the given string.
 -/
 @[inline]

@@ -48,7 +48,7 @@ def specializePartialApp (info : InlineCandidateInfo) : SimpM (FunDecl .pure) :=
   let mut paramsNew := #[]
   for param in info.params[info.args.size...*] do
     let type ← replaceExprFVars param.type subst (translator := true)
-    let paramNew ← mkAuxParam type
+    let paramNew ← mkAuxParam type param.borrow
     paramsNew := paramsNew.push paramNew
     subst := subst.insert param.fvarId (.fvar paramNew.fvarId)
   let code ← info.value.internalize subst

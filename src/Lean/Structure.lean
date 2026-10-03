@@ -85,6 +85,7 @@ private structure StructureState where
   deriving Inhabited
 
 private builtin_initialize structureExt : PersistentEnvExtension StructureInfo StructureInfo (Unit × StructureState) ← registerPersistentEnvExtension {
+  logWrites       := true
   mkInitial       := pure ((), {})
   addImportedFn   := fun _ => pure ((), {})
   addEntryFn      := fun (_, s) e => ((), { s with map := s.map.insert e.structName e })
@@ -107,11 +108,17 @@ Every structure created by `structure` or `class` has such an entry.
 This should be followed up with `setStructureParents` and `setStructureResolutionOrder`.
 -/
 def registerStructure (env : Environment) (e : StructureDescr) : Environment :=
-  structureExt.addEntry env {
-    structName := e.structName
-    fieldNames := e.fields.map fun e => e.fieldName
-    fieldInfo  := e.fields.qsort StructureFieldInfo.lt
-  }
+  have : Inhabited Environment := ⟨env⟩
+  -- Write-once, as for `MapDeclarationExtension.insert`, except for `setStructureParents` below
+  -- adding the parent info once the parent projections exist.
+  if structureExt.getState env |>.snd.map.contains e.structName then
+    panic! s!"structure `{e.structName}` is already registered"
+  else
+    structureExt.addEntry (log := .decl e.structName) env {
+      structName := e.structName
+      fieldNames := e.fields.map fun e => e.fieldName
+      fieldInfo  := e.fields.qsort StructureFieldInfo.lt
+    }
 
 /--
 Sets parent projection info for a structure defined in the current module.
@@ -120,7 +127,7 @@ Throws an error if the structure has not already been registered with `Lean.regi
 def setStructureParents [Monad m] [MonadEnv m] [MonadError m] (structName : Name) (parentInfo : Array StructureParentInfo) : m Unit := do
   let some info := structureExt.getState (← getEnv) |>.snd.map.find? structName
     | throwError "cannot set structure parents for `{structName}`, structure not defined in current module"
-  modifyEnv fun env => structureExt.addEntry env { info with parentInfo }
+  modifyEnv (structureExt.addEntry (log := .decl structName) · { info with parentInfo })
 
 /-- Gets the `StructureInfo` if `structName` has been declared as a structure to the elaborator. -/
 def getStructureInfo? (env : Environment) (structName : Name) : Option StructureInfo :=
@@ -419,7 +426,7 @@ We use an environment extension to cache resolution orders.
 These are not expensive to compute, but worth caching, and we save olean storage space.
 -/
 builtin_initialize structureResolutionExt : EnvExtension StructureResolutionState ←
-  registerEnvExtension (pure {}) (asyncMode := .local)  -- mere cache
+  registerEnvExtension (pure {}) (asyncMode := .local) (logWrites := true)
 
 /-- Gets the resolution order if it has already been cached. -/
 private def getStructureResolutionOrder? (env : Environment) (structName : Name) : Option (Array Name) :=
@@ -427,7 +434,8 @@ private def getStructureResolutionOrder? (env : Environment) (structName : Name)
 
 /-- Caches a structure's resolution order. -/
 private def setStructureResolutionOrder [MonadEnv m] (structName : Name) (resolutionOrder : Array Name) : m Unit :=
-  modifyEnv fun env => structureResolutionExt.modifyState env fun s =>
+  -- unlogged: a mere cache of a pure computation over tracked inputs
+  modifyEnv fun env => structureResolutionExt.modifyState (log := .unlogged) env fun s =>
     { s with resolutions := s.resolutions.insert structName resolutionOrder }
 
 /-- "The `badParent` must come after the `conflicts`. -/

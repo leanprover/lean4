@@ -38,7 +38,17 @@ builtin_initialize matchEqnsExt : EnvExtension MatchEqnsExtState ←
 def registerMatchEqns (matchDeclName : Name) (matchEqns : MatchEqns) : CoreM Unit := do
   modifyEnv fun env => matchEqnsExt.modifyState env fun { map, eqns } => {
     eqns := matchEqns.eqnNames.foldl (init := eqns) fun eqns eqn => eqns.insert eqn
-    map := map.insert matchDeclName matchEqns
+    -- Write-once, as for `MapDeclarationExtension.insert`. Re-registration with the same equations
+    -- is idempotent.
+    map :=
+      have : Inhabited _ := ⟨map⟩
+      match map.find? matchDeclName with
+      | some prev =>
+        if prev.eqnNames != matchEqns.eqnNames then
+          panic! s!"match equations for `{matchDeclName}` are already registered"
+        else
+          map
+      | none => map.insert matchDeclName matchEqns
   }
 
 /-

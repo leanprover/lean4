@@ -1605,25 +1605,35 @@ where
       -/
       let mkGroup : Array Ident → DelabM Syntax ← withBindingDomain do
         match i with
-        | .implicit       => let ty ← delabTy; pure fun curIds => `(bracketedBinderF|{$curIds* : $ty})
+        | .implicit =>
+          match ← delabFallback? d with
+          | some (ty, .inl val) => pure fun curIds => `(bracketedBinderF|{$curIds* : $ty := $val})
+          | some (ty, .inr tac) => pure fun curIds => `(bracketedBinderF|{$curIds* : $ty := by $tac})
+          | none => let ty ← delabTy; pure fun curIds => `(bracketedBinderF|{$curIds* : $ty})
         | .strictImplicit => let ty ← delabTy; pure fun curIds => `(bracketedBinderF|⦃$curIds* : $ty⦄)
         | .instImplicit   => let ty ← delabTy; pure fun curIds => `(bracketedBinderF|[$(curIds[0]!) : $ty])
         | _ =>
-          if d.isOptParam then
-            let ty ← withAppFn <| withAppArg delabTy
-            let val ← withAppArg delabTy
-            pure fun curIds => `(bracketedBinderF|($curIds* : $ty := $val))
-          else if let some (.const tacticDecl _) := d.getAutoParamTactic? then
-            let ty ← withAppFn <| withAppArg delabTy
-            let tacticSyntax ← ofExcept <| evalSyntaxConstant (← getEnv) (← getOptions) tacticDecl
-            pure fun curIds => `(bracketedBinderF|($curIds* : $ty := by $tacticSyntax))
-          else
-            let ty ← delabTy
-            pure fun curIds => `(bracketedBinderF|($curIds* : $ty))
+          match ← delabFallback? d with
+          | some (ty, .inl val) => pure fun curIds => `(bracketedBinderF|($curIds* : $ty := $val))
+          | some (ty, .inr tac) => pure fun curIds => `(bracketedBinderF|($curIds* : $ty := by $tac))
+          | none => let ty ← delabTy; pure fun curIds => `(bracketedBinderF|($curIds* : $ty))
       withBindingBody' n (mkAnnotatedIdent n) fun stxN => do
         let curIds := curIds.push stxN
         let group ← mkGroup curIds
         delabParams bindingNames (groups.push group)
+  /--
+  Delaborates the domain `d` of a binder carrying an `optParam` or `autoParam`, returning the
+  underlying type along with the default value or the tactic script.
+  -/
+  delabFallback? (d : Expr) : DelabM (Option (Term × (Term ⊕ Syntax))) := do
+    if d.isOptParam then
+      let ty ← withAppFn <| withAppArg delabTy
+      return some (ty, .inl (← withAppArg delabTy))
+    else if let some (.const tacticDecl _) := d.getAutoParamTactic? then
+      let ty ← withAppFn <| withAppArg delabTy
+      return some (ty, .inr (← ofExcept <| evalSyntaxConstant (← getEnv) (← getOptions) tacticDecl))
+    else
+      return none
   /-
   Given the forall `e` with body `e'`, determines if the binder from `e'` (if it is a forall) should be grouped with `e`'s binder.
   -/

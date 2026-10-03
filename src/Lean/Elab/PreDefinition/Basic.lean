@@ -153,7 +153,7 @@ private def reportTheoremDiag (d : TheoremVal) : TermElabM Unit := do
       let constOccs ← d.value.numApps (threshold := diagnostics.threshold.get (← getOptions))
       let constOccsMsg ← constOccs.mapM fun (declName, numOccs) => return MessageData.trace { cls := `occs } m!"{.ofConstName declName} ↦ {numOccs}" #[]
       -- let info
-      logInfo <| MessageData.trace { cls := `theorem } m!"{d.name}" (#[sizeMsg] ++ constOccsMsg)
+      logInfo <| MessageData.trace { cls := `«theorem» } m!"{d.name}" (#[sizeMsg] ++ constOccsMsg)
 
 /--
 Adds the docstring, if relevant.

@@ -196,7 +196,7 @@ the `simp` tactic. We also say this is a hint for the Lean term simplifier.
   | .plus a b => denote a + denote b
   | .app f a  => denote f (denote a)
   | .lam f    => fun x => denote (f x)
-  | .let a b  => denote (b (denote a))
+  | .let a b  => have := denote a; denote (b this)
 
 example : denote three_the_hard_way = 3 :=
   rfl

@@ -487,22 +487,28 @@ def down (t : Traverser) (idx : Nat) : Traverser :=
 /-- Advance to the parent of the current node, if any. -/
 def up (t : Traverser) : Traverser :=
   if t.parents.size > 0 then
-    let cur := if t.idxs.back! < t.parents.back!.getNumArgs then t.parents.back!.setArg t.idxs.back! t.cur else t.parents.back!
-    { cur := cur, parents := t.parents.pop, idxs := t.idxs.pop }
+    let lastIdx := t.idxs.back!
+    let lastParent := t.parents.back!
+    let parents := t.parents.pop
+    let idxs := t.idxs.pop
+    let cur := if lastIdx < lastParent.getNumArgs then lastParent.setArg lastIdx t.cur else lastParent
+    { cur, parents, idxs }
   else
     t
 
 /-- Advance to the left sibling of the current node, if any. -/
 def left (t : Traverser) : Traverser :=
   if t.parents.size > 0 then
-    t.up.down (t.idxs.back! - 1)
+    let targetIdx := t.idxs.back! - 1
+    t.up.down targetIdx
   else
     t
 
 /-- Advance to the right sibling of the current node, if any. -/
 def right (t : Traverser) : Traverser :=
   if t.parents.size > 0 then
-    t.up.down (t.idxs.back! + 1)
+    let targetIdx := t.idxs.back! + 1
+    t.up.down targetIdx
   else
     t
 

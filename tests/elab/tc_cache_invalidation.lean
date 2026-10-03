@@ -74,8 +74,7 @@ def NotBool := List Nat
 def YetAnotherNat := Nat
 
 -- The `R Nat` search succeeds without any failing unification, so it never consults the
--- unification hints and records no dependency on them: adding a hint below must not invalidate
--- this entry.
+-- unification hints.
 /-- trace: [Meta.synthInstance.cache] new: R Nat -/
 #guard_msgs in
 def q1 : Unit := let _ : R Nat := inferInstance; ()
@@ -108,8 +107,8 @@ trace: [Meta.synthInstance.cache] cached: OP Nat NotBool
 #guard_msgs in
 def q4 : Unit := let _ : OP Nat NotBool := inferInstance; ()
 
--- The hint is irrelevant to both cached queries, but only the `OP` search consulted the hint
--- table: adding the hint invalidates exactly that entry.
+-- The hint is irrelevant to both cached queries, but a change of the unification hints drops the
+-- persisted cache as a whole, whether or not a search consulted the hints.
 @[unification_hint] def yetAnotherHint : Prop := YetAnotherNat = Nat
 
 /--
@@ -123,7 +122,7 @@ trace: [Meta.synthInstance.cache] new: OP Nat NotBool
 #guard_msgs in
 def q5 : Unit := let _ : OP Nat NotBool := inferInstance; ()
 
-/-- trace: [Meta.synthInstance.cache] cached: R Nat -/
+/-- trace: [Meta.synthInstance.cache] new: R Nat -/
 #guard_msgs in
 def q6 : Unit := let _ : R Nat := inferInstance; ()
 

@@ -426,20 +426,36 @@ as otherwise a stale entry can be revalidated.
 abbrev SynthInstanceCache :=
   PersistentHashMap SynthInstanceCacheKey (List SynthInstanceCacheEntry)
 
+/-- The value stored in `Environment.synthCacheRaw?`. -/
+private structure PersistentSynthInstanceCache where
+  /-- `Environment.trackedGen` that `entries` were recorded at. -/
+  gen     : Nat
+  entries : SynthInstanceCache
+  deriving Inhabited
+
 /--
 Persistent tier of the type class resolution cache, which survives the current command. It holds
 only context-free entries (see `Lean.Meta.SynthInstance`), and as it is part of the environment, it
 rolls back together with the counters its entries are validated against.
+
+The entries are only kept until the instances or unification hints in effect change: the tier
+remembers the `Environment.trackedGen` its entries were recorded at, and this function returns an
+empty cache once the environment's value differs. Such a change invalidates almost every entry
+anyway, as almost every search depends on the instances, and dropping them all avoids keeping the
+invalidated entries in the environment until their query recurs.
 -/
 def _root_.Lean.Environment.synthCache (env : Environment) : SynthInstanceCache :=
   match env.synthCacheRaw? with
-  -- safety: only `setSynthCache` stores a value
-  | some v => unsafe unsafeCast v
+  | some v =>
+    -- safety: only `setSynthCache` stores a value
+    let c : PersistentSynthInstanceCache := unsafe unsafeCast v
+    if c.gen == env.trackedGen then c.entries else {}
   | none   => {}
 
 /-- Replaces the persistent tier of the type class resolution cache; see `Environment.synthCache`. -/
 def _root_.Lean.Environment.setSynthCache (env : Environment) (c : SynthInstanceCache) :
     Environment :=
+  let c : PersistentSynthInstanceCache := { gen := env.trackedGen, entries := c }
   { env with synthCacheRaw? := some (unsafe unsafeCast c) }
 
 -- Key for `InferType` and `WHNF` caches

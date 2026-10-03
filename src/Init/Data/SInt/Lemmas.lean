@@ -246,6 +246,17 @@ theorem ISize.toInt_ofNat_of_lt_two_pow_numBits {n : Nat}
   rw [← ofInt_eq_ofNat, toInt_ofInt_of_two_pow_numBits_le] <;>
     cases System.Platform.numBits_eq <;> simp_all <;> omega
 
+@[simp] theorem Bool.toInt_toInt8 (b : Bool) : b.toInt8.toInt = b.toNat := by
+  cases b <;> rfl
+@[simp] theorem Bool.toInt_toInt16 (b : Bool) : b.toInt16.toInt = b.toNat := by
+  cases b <;> rfl
+@[simp] theorem Bool.toInt_toInt32 (b : Bool) : b.toInt32.toInt = b.toNat := by
+  cases b <;> rfl
+@[simp] theorem Bool.toInt_toInt64 (b : Bool) : b.toInt64.toInt = b.toNat := by
+  cases b <;> rfl
+@[simp] theorem Bool.toInt_toISize (b : Bool) : b.toISize.toInt = b.toNat := by
+  cases b <;> simp [Bool.toISize]
+
 theorem Int64.toInt_neg_ofNat_of_le {n : Nat} (h : n ≤ 2^63) : toInt (-ofNat n) = -n := by
   rw [← ofInt_eq_ofNat, neg_ofInt, toInt_ofInt_of_le (by omega) (by omega)]
 theorem ISize.toInt_neg_ofNat_of_le {n : Nat} (h : n ≤ 2 ^ 31) : toInt (-ofNat n) = -n := by

@@ -69,10 +69,21 @@ structure FloatState where
   -/
   newArms : Std.HashMap Decision (List (CodeDecl .pure))
 
+structure BaseFloatState where
+  /--
+  Lexical floating decisions, indetified by the index of their cases operation.
+  -/
+  lexicalDecisions : Std.HashMap Nat (Std.HashMap FVarId Decision) := {}
+  /--
+  Preorder index of the next `cases`. `BaseFloatM` and `LexicalM` must agree on how to compute this
+  index.
+  -/
+  casesIdx : Nat := 0
+
 /--
 Use to collect relevant declarations for the floating mechanism.
 -/
-abbrev BaseFloatM :=  ReaderT BaseFloatContext CompilerM
+abbrev BaseFloatM :=  ReaderT BaseFloatContext StateRefT BaseFloatState CompilerM
 
 /--
 Use to compute the actual floating.
@@ -106,6 +117,79 @@ def ignore? (decl : LetDecl .pure) : BaseFloatM Bool :=  do
    else
      return false
 
+structure LexicalContext where
+  /--
+  The list of floatable fvarIds in scope in reverse declaration order.
+  -/
+  candidates : List FVarId := []
+
+structure LexicalState where
+  /--
+  The free variables used in the current `cases` arm
+  -/
+  currentSet : Std.HashSet FVarId := {}
+  /--
+  Preorder index of the next `cases`. `BaseFloatM` and `LexicalM` must agree on how to compute this
+  index.
+  -/
+  nextIdx : Nat := 0
+  /--
+  For every `cases` (by preorder index) the decision for each candidate, based soley on lexical
+  analysis.
+  -/
+  decisions : Std.HashMap Nat (Std.HashMap FVarId Decision) := {}
+
+abbrev LexicalM := ReaderT LexicalContext StateRefT LexicalState CompilerM
+
+/--
+Compute the floating decisions purely on lexical analysis. Later steps of the algorithm may still
+refine these decisions though only worsen, never improve them. The reason for computing this
+separately is that it allows us to get the lexical estimation in O(n).
+-/
+partial def computeLexicalDecisions (code : Code .pure) :
+    CompilerM (Std.HashMap Nat (Std.HashMap FVarId Decision)) := do
+  let (_, s) ← go code |>.run {} |>.run {}
+  return s.decisions
+where
+  recordFVar (fvarId : FVarId) : LexicalM Unit := do
+    modify fun s => { s with currentSet := s.currentSet.insert fvarId }
+
+  go (code : Code .pure) : LexicalM Unit := do
+    match code with
+    | .let decl k =>
+      forFVarM recordFVar decl
+      withReader (fun ctx => { ctx with candidates := decl.fvarId :: ctx.candidates }) do
+        go k
+    | .jp decl k | .fun decl k =>
+      withReader (fun ctx => { ctx with candidates := [] }) do
+        go decl.value
+      withReader (fun ctx => { ctx with candidates := decl.fvarId :: ctx.candidates }) do
+        go k
+    | .cases cs =>
+      let idx ← modifyGet fun s => (s.nextIdx, { s with nextIdx := s.nextIdx + 1 })
+      recordFVar cs.discr
+      let candidates := (← read).candidates
+      let mut newDecisions := Std.HashMap.ofList <| candidates.map (·, Decision.unknown)
+      newDecisions := newDecisions.insert cs.discr .dont
+      let mut newSet ← modifyGet fun s => (s.currentSet, { s with currentSet := {} })
+      for alt in cs.alts do
+        go alt.getCode
+        let altSet ← modifyGet fun s => (s.currentSet, { s with currentSet := {} })
+        let altDecision := Decision.ofAlt alt
+        for fvarId in candidates do
+          if altSet.contains fvarId then
+            if newDecisions[fvarId]! == .unknown then
+              newDecisions := newDecisions.insert fvarId altDecision
+            else
+              newDecisions := newDecisions.insert fvarId .dont
+        newSet := newSet.union altSet
+      modify fun s => { s with decisions := s.decisions.insert idx newDecisions, currentSet := newSet }
+    | .jmp fvarId args =>
+      recordFVar fvarId
+      args.forM (forFVarM recordFVar)
+    | .return fvarId => recordFVar fvarId
+    | .unreach type => forFVarM recordFVar type
+
 /--
 Compute the initial decision for all declarations that `BaseFloatM` collected
 up to this point, with respect to `cs`. The initial decisions are:
@@ -121,25 +205,32 @@ If the `cases` operates on `ST.Out` or `EST.Out` we refuse any floating. This is
 may be read from and written to at these points. See issue #15086 for how this can become
 problematic.
 -/
-def initialDecisions (cs : Cases .pure) : BaseFloatM (Std.HashMap FVarId Decision) := do
-  let mut map := Std.HashMap.emptyWithCapacity (← read).decls.length
+def initialDecisions (cs : Cases .pure) (idx : Nat) : BaseFloatM (Std.HashMap FVarId Decision) := do
+  let decls := (← read).decls
+  let mut map := Std.HashMap.emptyWithCapacity
   let owned : Std.HashSet FVarId := ∅
   let typeName := cs.typeName
   if typeName == ``EST.Out || typeName == ``ST.Out then
-    return Std.HashMap.ofList <| (← read).decls.map fun decl => (decl.fvarId, .dont)
-  (map, _) ← (← read).decls.foldlM (init := (map, owned)) fun (acc, owned) val => do
+    return Std.HashMap.ofList <| decls.map fun decl => (decl.fvarId, .dont)
+  (map, _) ← decls.foldlM (init := (map, owned)) fun (map, owned) val => do
     if let .let decl := val then
       if (← ignore? decl) then
-        return (acc.insert decl.fvarId .dont, owned)
+        return (map.insert decl.fvarId .dont, owned)
     let (dont, owned) ← (visitDecl (← getEnv) val).run owned
     if dont then
-      return (acc.insert val.fvarId .dont, owned)
+      return (map.insert val.fvarId .dont, owned)
     else
-      return (acc.insert val.fvarId .unknown, owned)
+      return (map.insert val.fvarId .unknown, owned)
 
-  if map.contains cs.discr then
-    map := map.insert cs.discr .dont
-  (_, map) ← goCases cs |>.run map
+  let lexical := (← get).lexicalDecisions[idx]!
+  for decl in decls do
+    let fvarId := decl.fvarId
+    let decision := lexical[fvarId]!
+    map := map.modify fvarId fun decision' =>
+      if decision == .dont || decision' == .dont then
+        .dont
+      else
+        decision
   return map
 where
   visitDecl (env : Environment) (value : CodeDecl .pure) : StateRefT (Std.HashSet FVarId) CompilerM Bool := do
@@ -170,20 +261,6 @@ where
     unless borrowed do
       modify (·.insert v)
     return res
-
-  goFVar (plannedDecision : Decision) (var : FVarId) : StateRefT (Std.HashMap FVarId Decision) BaseFloatM Unit := do
-    if let some decision := (← get)[var]? then
-      if decision matches .unknown then
-        modify fun s => s.insert var plannedDecision
-      else if decision != plannedDecision then
-        modify fun s => s.insert var .dont
-      -- otherwise we already have the proper decision
-
-  goAlt (alt : Alt .pure) : StateRefT (Std.HashMap FVarId Decision) BaseFloatM Unit :=
-    forFVarM (goFVar (.ofAlt alt)) alt
-
-  goCases (cs : Cases .pure) : StateRefT (Std.HashMap FVarId Decision) BaseFloatM Unit :=
-    cs.alts.forM goAlt
 
 /--
 Compute the initial new arms. This will just set up a map from all arms of
@@ -281,9 +358,13 @@ Iterate through `decl`, pushing local declarations that are only used in one
 control flow arm into said arm in order to avoid useless computations.
 -/
 partial def floatLetIn (decl : Decl .pure) : CompilerM (Decl .pure) := do
-  let newValue ← decl.value.mapCodeM go |>.run {}
+  let newValue ← decl.value.mapCodeM floatAnalysis |>.run {} |>.run' {}
   return { decl with value := newValue }
 where
+  floatAnalysis (code : Code .pure) : BaseFloatM (Code .pure) := do
+    let lexicalDecisions ← computeLexicalDecisions code
+    modify fun s => { s with lexicalDecisions, casesIdx := 0 }
+    go code
   /--
   Iterate through the collected declarations,
   determining from the bottom up whether they (and the declarations they refer to)
@@ -321,8 +402,9 @@ where
       withNewCandidate (.fun decl) do
         go k
     | .cases cs =>
+      let idx ← modifyGet fun s => (s.casesIdx, { s with casesIdx := s.casesIdx + 1 })
       let base := {
-        decision := (← initialDecisions cs)
+        decision := (← initialDecisions cs idx)
         newArms := initialNewArms cs
       }
       let (_, res) ← goCases |>.run base
@@ -331,8 +413,8 @@ where
         let decision := Decision.ofAlt alt
         let newCode := res.newArms[decision]!
         trace[Compiler.floatLetIn] "Size of code that was pushed into arm: {repr decision} {newCode.length}"
-        let fused ← withNewScope do
-          go (attachCodeDecls newCode.toArray alt.getCode)
+        let fused ← withReader (fun _ => { decls := newCode.reverse }) do
+          go alt.getCode
         return alt.updateCode fused
       let mut newCases := Code.updateCases! code cs.resultType cs.discr newAlts
       return attachCodeDecls remainders.toArray newCases

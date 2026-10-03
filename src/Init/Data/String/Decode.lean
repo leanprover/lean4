@@ -373,6 +373,15 @@ theorem isInvalidContinuationByte_eq_false_iff_toBitVec {b : UInt8} :
     UInt8.toBitVec_and, UInt8.toBitVec_ofNat]
   exact helper 6 b.toBitVec 0b10#2
 
+theorem isInvalidContinuationByte_eq_false_iff_le_and_le {b : UInt8} :
+    isInvalidContinuationByte b = false ↔ 0x80 ≤ b ∧ b ≤ 0xbf := by
+  rw [isInvalidContinuationByte_eq_false_iff_toBitVec, ← BitVec.toNat_inj,
+    BitVec.extractLsb'_toNat, UInt8.le_iff_toNat_le, UInt8.le_iff_toNat_le]
+  have := b.toNat_lt
+  simp only [UInt8.toNat_toBitVec, Nat.shiftRight_eq_div_pow, BitVec.toNat_ofNat,
+    UInt8.reduceToNat]
+  omega
+
 theorem toBitVec_eq_of_isInvalidContinuationByte_eq_false {b : UInt8} (hb : isInvalidContinuationByte b = false) :
     b.toBitVec = 0b10#2 ++ b.toBitVec.setWidth 6 := by
   exact helper₂ 6 b.toBitVec (isInvalidContinuationByte_eq_false_iff_toBitVec.1 hb)
@@ -1412,6 +1421,27 @@ public def IsUTF8FirstByte (c : UInt8) : Prop :=
 @[inline]
 public instance {c : UInt8} : Decidable c.IsUTF8FirstByte :=
   inferInstanceAs <| Decidable (c &&& 0x80 = 0 ∨ c &&& 0xe0 = 0xc0 ∨ c &&& 0xf0 = 0xe0 ∨ c &&& 0xf8 = 0xf0)
+
+/--
+Predicate for whether a byte is a UTF-8 continuation byte, i.e. of the form `10xxxxxx`. These are
+the bytes that follow the first byte in the UTF-8 encoding of a Unicode scalar value.
+-/
+@[expose]
+public def IsUTF8ContinuationByte (c : UInt8) : Prop :=
+  c &&& 0xc0 = 0x80
+
+@[inline]
+public instance {c : UInt8} : Decidable c.IsUTF8ContinuationByte :=
+  inferInstanceAs <| Decidable (c &&& 0xc0 = 0x80)
+
+theorem isUTF8ContinuationByte_iff_isInvalidContinuationByte_eq_false {c : UInt8} :
+    c.IsUTF8ContinuationByte ↔ isInvalidContinuationByte c = false :=
+  isInvalidContinuationByte_eq_false_iff.symm
+
+public theorem isUTF8ContinuationByte_iff {c : UInt8} :
+    c.IsUTF8ContinuationByte ↔ 0x80 ≤ c ∧ c ≤ 0xbf := by
+  rw [isUTF8ContinuationByte_iff_isInvalidContinuationByte_eq_false,
+    isInvalidContinuationByte_eq_false_iff_le_and_le]
 
 theorem isUTF8FirstByte_iff_parseFirstByte_ne_invalid {c : UInt8} :
     c.IsUTF8FirstByte ↔ parseFirstByte c ≠ FirstByte.invalid := by

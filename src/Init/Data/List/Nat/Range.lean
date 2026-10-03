@@ -190,22 +190,9 @@ theorem sum_range' : (range' start n step).sum = n * start + n * (n - 1) * step 
   induction n generalizing start with
   | zero => simp
   | succ n ih =>
-    simp_all only [List.range'_succ, List.sum_cons, Nat.mul_add, ← Nat.add_assoc,
-      Nat.add_mul, Nat.one_mul, Nat.add_one_sub_one]
-    have : n * step + n * (n - 1) * step / 2 = (n * n * step + n * step) / 2 := by
-      apply Nat.eq_div_of_mul_eq_left (by omega)
-      rw [Nat.add_mul, Nat.div_mul_cancel]
-      · calc  n * step * 2 + n * (n - 1) * step
-          _ = n * step * 2 + n * step * (n - 1) := by simp [Nat.mul_comm, Nat.mul_assoc]
-          _ = n * step + n * step * n := by cases n <;> simp [Nat.mul_succ, Nat.add_assoc, Nat.add_comm]
-          _ = n * n * step + n * step := by simp [Nat.mul_comm, Nat.add_comm, Nat.mul_left_comm]
-      · have : 2 ∣ n ∨ 2 ∣ (n - 1) := by omega
-        apply Nat.dvd_mul_right_of_dvd
-        apply Nat.dvd_mul.mpr
-        cases this with
-        | inl h => exists 2, 1; omega
-        | inr h => exists 1, 2; omega
-    omega
+    rw [range'_succ, sum_cons, ih]
+    cases n <;> simp only [Nat.add_one_sub_one, Nat.add_mul, Nat.mul_add, Nat.one_mul, Nat.mul_one,
+      Nat.mul_assoc] <;> omega
 
 @[simp, grind =]
 theorem drop_range' : (List.range' start n step).drop k = List.range' (start + k * step) (n - k) step := by

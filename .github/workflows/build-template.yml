@@ -106,10 +106,14 @@ jobs:
         with:
           # NOTE: must be in sync with `save` below and with "Restore CCache" in `update-stage0.yml`
           path: .ccache
-          key: ${{ matrix.name }}-build-v5-${{ github.sha }}
-          # fall back to (latest) previous cache
+          # Key on the compiled sources rather than the commit: stage0 determines the bulk of the
+          # objects, the hand-written C++ the rest, so a build with both unchanged is an exact hit
+          # (and skips the save below) and a new cache is only saved when either changes.
+          key: ${{ matrix.name }}-build-v5-${{ hashFiles('stage0/**') }}-${{ hashFiles('src/**/*.cpp', 'src/**/*.h') }}
+          # fall back to the latest cache for the same stage0, then to the latest cache overall
           restore-keys: |
-            ${{ matrix.name }}-build-v5
+            ${{ matrix.name }}-build-v5-${{ hashFiles('stage0/**') }}-
+            ${{ matrix.name }}-build-v5-
       # open nix-shell once for initial setup
       - name: Setup
         run: |

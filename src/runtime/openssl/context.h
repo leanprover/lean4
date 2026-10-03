@@ -1,0 +1,37 @@
+/*
+Copyright (c) 2026 Lean FRO, LLC. All rights reserved.
+Released under Apache 2.0 license as described in the file LICENSE.
+Author: Sofia Rodrigues
+*/
+#pragma once
+
+#include <lean/lean.h>
+#include "runtime/object.h"
+#include "runtime/openssl.h"
+#include "runtime/openssl/ssl_error.h"
+
+#ifndef LEAN_EMSCRIPTEN
+#include <openssl/ssl.h>
+#endif
+
+namespace lean {
+
+extern lean_external_class * g_ssl_context_external_class;
+void initialize_openssl_context();
+
+#ifndef LEAN_EMSCRIPTEN
+
+inline lean_object * lean_ssl_context_new(SSL_CTX * ctx) { return lean_alloc_external(g_ssl_context_external_class, ctx); }
+inline SSL_CTX * lean_to_ssl_context(lean_object * o) { return (SSL_CTX*)lean_get_external_data(o); }
+#endif
+
+// =======================================
+// Context Operations
+
+extern "C" LEAN_EXPORT lean_obj_res lean_ssl_ctx_mk_server(b_obj_arg cert, b_obj_arg key, b_obj_arg client_auth,
+    b_obj_arg client_ca, uint8_t min, uint8_t max);
+extern "C" LEAN_EXPORT lean_obj_res lean_ssl_ctx_mk_client(b_obj_arg trust, b_obj_arg ca, b_obj_arg env,
+    b_obj_arg cert, b_obj_arg key, uint8_t min, uint8_t max);
+extern "C" LEAN_EXPORT uint8_t lean_ssl_env_ignored();
+
+}

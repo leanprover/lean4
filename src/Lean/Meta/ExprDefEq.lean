@@ -183,6 +183,7 @@ where
       forallTelescopeReducing bType fun xs _ => do
         let a' := mkAppN a xs
         let b' := mkAppN b xs
+        assert! ctorVal.numParams + ctorVal.numFields == b'.getAppNumArgs
         k a' b'
 
   go ctorVal us := do

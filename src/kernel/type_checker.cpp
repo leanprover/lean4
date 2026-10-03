@@ -862,17 +862,21 @@ bool type_checker::try_eta_struct_core(expr const & t_, expr const & s_) {
     expr s_type = infer_type(s);
     if (!is_def_eq(t_type,s_type)) return false;
     flet<local_ctx> save_lctx(m_lctx, m_lctx);
-    if (get_app_num_args(s) != f_val.get_nparams() + f_val.get_nfields()) {
+    unsigned num_ctor_args = f_val.get_nparams() + f_val.get_nfields();
+    lean_assert(get_app_num_args(s) <= num_ctor_args)
+    if (get_app_num_args(s) < num_ctor_args) {
         buffer<expr> fvars;
-        while (is_pi(t_type)) {
-            expr hd = binding_domain(t_type);
-            expr x  = m_lctx.mk_local_decl(m_st->m_ngen, binding_name(t_type), hd, binding_info(t_type));
+        s_type = whnf(s_type);
+        while (is_pi(s_type)) {
+            expr hd = binding_domain(s_type);
+            expr x  = m_lctx.mk_local_decl(m_st->m_ngen, binding_name(s_type), hd, binding_info(s_type));
             fvars.push_back(x);
-            t_type = whnf(instantiate(binding_body(t_type), x));
+            s_type = whnf(instantiate(binding_body(s_type), x));
         };
         t = mk_app(t, fvars);
         s = mk_app(s, fvars);
     };
+    lean_assert(get_app_num_args(s) == num_ctor_args)
     buffer<expr> s_args;
     get_app_args(s, s_args);
     for (unsigned i = f_val.get_nparams(); i < s_args.size(); i++) {

@@ -1,0 +1,14 @@
+# Cache services with a non-default `revDiscovery` policy, for either kind of service.
+
+[[cache.service]]
+name = "s3-head"
+type = "s3"
+artifactEndpoint = "http://example.com/a0"
+revisionEndpoint = "http://example.com/r0"
+revDiscovery = "head"
+
+[[cache.service]]
+name = "reservoir-head"
+type = "reservoir"
+apiEndpoint = "http://example.com/api/v1"
+revDiscovery = "head"

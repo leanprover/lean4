@@ -168,6 +168,7 @@ private meta def queryMap : Std.DHashMap Name (fun _ => Name × Array (MacroM (T
      ⟨`Const.beq, (``Raw₀.Const.beq_eq_beqModel, #[])⟩,
      ⟨`beq, (``beq_eq_beqModel, #[])⟩,
      ⟨`keys, (``Raw.keys_eq_keys_toListModel, #[`(perm_keys_congr_left)])⟩,
+     ⟨`values, (``Raw.values_eq_values_toListModel, #[])⟩,
      ⟨`Const.toList, (``Raw.Const.toList_eq_toListModel_map, #[`(perm_map_congr_left)])⟩,
      ⟨`foldM, (``Raw.foldM_eq_foldlM_toListModel, #[])⟩,
      ⟨`fold, (``Raw.fold_eq_foldl_toListModel, #[])⟩,
@@ -177,6 +178,7 @@ private meta def queryMap : Std.DHashMap Name (fun _ => Name × Array (MacroM (T
      ⟨`forM, (``Raw.forM_eq_forM_toListModel, #[])⟩,
      ⟨`toArray, (``Raw.toArray_eq_toArray_toListModel, #[])⟩,
      ⟨`keysArray, (``Raw.keysArray_eq_toArray_keys_toListModel, #[])⟩,
+     ⟨`valuesArray, (``Raw.valuesArray_eq_toArray_values_toListModel, #[])⟩,
      ⟨`Const.toArray, (``Raw.Const.toArray_eq_toArray_map_toListModel, #[])⟩,
      ⟨`Equiv, (``Raw.equiv_iff_toListModel_perm,
       #[`(_root_.List.Perm.congr_left), `(_root_.List.Perm.congr_right)])⟩]
@@ -1060,9 +1062,23 @@ namespace Const
 
 variable {β : Type v} (m : Raw₀ α (fun _ => β))
 
+@[simp]
+theorem length_values [EquivBEq α] [LawfulHashable α] (h : m.1.WF) :
+    m.1.values.length = m.1.size := by
+  simp_to_model [size, values] using List.length_values_eq_length
+
+@[simp]
+theorem isEmpty_values [EquivBEq α] [LawfulHashable α] (h : m.1.WF) :
+    m.1.values.isEmpty = m.1.isEmpty := by
+  simp_to_model [isEmpty, values] using List.isEmpty_values_eq_isEmpty
+
 theorem map_fst_toList_eq_keys [EquivBEq α] [LawfulHashable α] :
     (Raw.Const.toList m.1).map Prod.fst = m.1.keys := by
   simp_to_model [keys, Const.toList] using List.map_fst_map_toProd_eq_keys
+
+theorem map_snd_toList_eq_values [EquivBEq α] [LawfulHashable α] :
+    (Raw.Const.toList m.1).map Prod.snd = m.1.values := by
+  simp_to_model [values, Const.toList] using List.map_snd_map_toProd_eq_values
 
 theorem length_toList [EquivBEq α] [LawfulHashable α] (h : m.1.WF) :
     (Raw.Const.toList m.1).length = m.1.size := by
@@ -1189,6 +1205,26 @@ namespace Const
 variable {β : Type v} (m : Raw₀ α (fun _ => β))
 
 omit [Hashable α] [BEq α] in
+theorem toArray_values_eq_valuesArray :
+    m.1.values.toArray = m.1.valuesArray := by
+  simp_to_model
+
+omit [Hashable α] [BEq α] in
+theorem toList_valuesArray_eq_values :
+    m.1.valuesArray.toList = m.1.values := by
+  simp_to_model
+
+@[simp]
+theorem size_valuesArray [EquivBEq α] [LawfulHashable α] (h : m.1.WF) :
+    m.1.valuesArray.size = m.1.size := by
+  simp [← toArray_values_eq_valuesArray, h]
+
+@[simp]
+theorem isEmpty_valuesArray [EquivBEq α] [LawfulHashable α] (h : m.1.WF) :
+    m.1.valuesArray.isEmpty = m.1.isEmpty := by
+  simp [← toArray_values_eq_valuesArray, h]
+
+omit [Hashable α] [BEq α] in
 theorem toArray_toList_eq_toArray :
     (Raw.Const.toList m.1).toArray = Raw.Const.toArray m.1 := by
   simp_to_model
@@ -1201,6 +1237,10 @@ theorem toList_toArray_eq_toList :
 theorem map_fst_toArray_eq_keysArray [EquivBEq α] [LawfulHashable α] :
     (Raw.Const.toArray m.1).map Prod.fst = m.1.keysArray := by
   simp [← toArray_toList_eq_toArray, List.map_toArray, ← toArray_keys_eq_keysArray, map_fst_toList_eq_keys]
+
+theorem map_snd_toArray_eq_valuesArray [EquivBEq α] [LawfulHashable α] :
+    (Raw.Const.toArray m.1).map Prod.snd = m.1.valuesArray := by
+  simp [← toArray_toList_eq_toArray, List.map_toArray, ← toArray_values_eq_valuesArray, map_snd_toList_eq_values]
 
 theorem size_toArray [EquivBEq α] [LawfulHashable α] (h : m.1.WF) :
     (Raw.Const.toArray m.1).size = m.1.size := by

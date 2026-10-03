@@ -123,6 +123,12 @@ partial def lowerLet (decl : LetDecl .pure) (k : Code .pure) : ToImpureM (Code .
         addSubst decl.fvarId .erased
         k.toImpure
   | .const name _ args =>
+    -- `unsafeCast` has a real definition, so this must come before the signature lookups below:
+    -- they would otherwise lower it to an ordinary call. Any representation mismatch introduced
+    -- by dropping the cast is repaired later by `explicitBoxing`.
+    if name == ``unsafeCast && args.size == 3 then
+      LCNF.addSubst decl.fvarId args[2]!
+      return ← k.toImpure
     let irArgs ← args.mapM (·.toImpure)
     if let some sig ← getImpureSignature? name then
       return (← mkApplication name sig.params.size irArgs)

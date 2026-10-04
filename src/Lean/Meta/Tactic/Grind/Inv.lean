@@ -118,9 +118,25 @@ def checkProofs : GoalM Unit := do
           check p
           trace_goal[grind.debug.proofs] "checked: {← inferType p}"
 
+/--
+Every entry of the congruence table must be a congruence root, and must be found by a lookup
+with its own key. The hash of a key depends on the roots of the children, so an entry that was
+not reinserted after a merge of a child's class sits in a stale bucket: a lookup for a congruent
+term finds it only when the old and new hashes collide. The per-class check in `checkEqc` is
+therefore nondeterministic for such entries; this one is not.
+-/
+def checkCongrTable : GoalM Unit := do
+  let table := (← get).congrTable
+  for { e } in table.toList do
+    assert! (← isCongrRoot e)
+    let some { e := e' } := table.find? { e }
+      | throwError "`grind` internal error, stale congruence table entry{indentExpr e}"
+    assert! isSameExpr e e'
+
 /-- Checks invariants if `grind.debug` is enabled. -/
 public def checkInvariants (expensive := false) : GoalM Unit := do
   if (← isDebugEnabled) then
+    checkCongrTable
     for e in (← getExprs) do
       let node ← getENode e
       checkParents node.self

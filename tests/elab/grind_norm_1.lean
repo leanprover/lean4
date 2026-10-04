@@ -786,15 +786,22 @@ sym:
 #guard_msgs in
 example (x : UInt8) : (200 : UInt8) + 100 = x := by grind_norm check; sorry
 
+#guard_msgs in
+example : (200 : UInt8).toNat = a := by grind_norm check; sorry
+
+#guard_msgs in
+example : (300 : UInt16).toNat = a := by grind_norm check; sorry
+
+-- Accepted difference: legacy has no ground evaluation for `^` on `UInt64`.
 /--
 error: `grind_norm` discrepancy
 legacy:
-  200 = a
+  (2 ^ 40).toNat = a
 sym:
-  UInt8.toNat 200 = a
+  1099511627776 = a
 -/
 #guard_msgs in
-example : (200 : UInt8).toNat = a := by grind_norm check; sorry
+example : (2 ^ 40 : UInt64).toNat = a := by grind_norm check; sorry
 
 /--
 error: `grind_norm` discrepancy
@@ -815,23 +822,12 @@ example : Nat.succ 2 = a := by grind_norm check; sorry
 #guard_msgs in
 example : Nat.gcd 4 6 = a := by grind_norm check; sorry
 
-/--
-error: `grind_norm` discrepancy
-legacy:
-  7 = a
-sym:
-  Int.toNat 7 = a
--/
 #guard_msgs in
 example : (7 : Int).toNat = a := by grind_norm check; sorry
 
-/--
-error: `grind_norm` discrepancy
-legacy:
-  7 = a
-sym:
-  (-7).natAbs = a
--/
+#guard_msgs in
+example : (-7 : Int).toNat = a := by grind_norm check; sorry
+
 #guard_msgs in
 example : Int.natAbs (-7) = a := by grind_norm check; sorry
 

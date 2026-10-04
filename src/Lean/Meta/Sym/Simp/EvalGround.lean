@@ -69,10 +69,10 @@ def skipIfUnchanged (e : Expr) (result : Result) : Result :=
   | .step e' _ _ cd => if isSameExpr e e' then mkRflResultCD cd else result
   | _ => result
 
-abbrev evalUnary [ToExpr α] (toValue? : Expr → Option α) (op : α → α) (a : Expr) : SimpM Result := do
+abbrev evalUnary [ToExpr β] (toValue? : Expr → Option α) (op : α → β) (a : Expr) : SimpM Result := do
   let some a := toValue? a | return .rfl
   let e ← share <| toExpr (op a)
-  return .step e (mkApp2 (mkConst ``Eq.refl [1]) (ToExpr.toTypeExpr (α := α)) e) (done := true)
+  return .step e (mkApp2 (mkConst ``Eq.refl [1]) (ToExpr.toTypeExpr (α := β)) e) (done := true)
 
 abbrev evalUnaryBool : (op : Bool → Bool) → (a : Expr) → SimpM Result := evalUnary getBoolValue?
 abbrev evalUnaryNat : (op : Nat → Nat) → (a : Expr) → SimpM Result := evalUnary getNatValue?
@@ -954,6 +954,12 @@ def evalGroundCore (e : Expr) : EvalM Result :=
   | ToString.toString α _ a => evalToString α a
   | String.push s c => evalStringPush s c
   | String.singleton c => evalCharUnary String.singleton c
+  | Int.toNat a => evalUnary getIntValue? Int.toNat a
+  | Int.natAbs a => evalUnary getIntValue? Int.natAbs a
+  | UInt8.toNat a => evalUnary getUInt8Value? UInt8.toNat a
+  | UInt16.toNat a => evalUnary getUInt16Value? UInt16.toNat a
+  | UInt32.toNat a => evalUnary getUInt32Value? UInt32.toNat a
+  | UInt64.toNat a => evalUnary getUInt64Value? UInt64.toNat a
   | _  => return .rfl
 
 /--

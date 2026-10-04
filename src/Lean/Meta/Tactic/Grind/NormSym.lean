@@ -100,7 +100,8 @@ def mkNormSymTheorems : MetaM NormSymTheorems := do
 /-- `Sym.simp` methods approximating the legacy `grind` normalizer. -/
 def mkNormSymMethods (config : Grind.Config) (thms : NormSymTheorems) : Sym.Simp.Methods := Id.run do
   let d : Discharger := Sym.Simp.dischargeSimpSelf
-  let mut pre : Simproc := NormSym.eraseMData >> Sym.Simp.beta >> Sym.Simp.reduceProj >> Sym.Simp.reduceControl
+  let mut pre : Simproc := NormSym.eraseMData >> NormSym.preMatchCond >> NormSym.simpMatchDiscrsOnly
+    >> Sym.Simp.beta >> Sym.Simp.reduceProj >> Sym.Simp.reduceControl
   if config.zeta then pre := pre >> Sym.Simp.zeta
   if config.zetaDelta then pre := pre >> Sym.Simp.zetaDeltaAll
   pre := pre >> NormSym.pushNot >> Sym.Simp.simpArith d (lhsOnly := true) >> thms.pre.rewrite d

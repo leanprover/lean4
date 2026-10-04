@@ -786,18 +786,23 @@ def evalFinOfNat (n v : Expr) : SimpM Result := do
     return .rfl
 
 /--
-Normalizes a `Fin` literal: `(7 : Fin 5)` becomes `2`, and a type index that is not a numeral,
-as in `(4 : Fin (5 + 1))`, is evaluated.
+Normalizes the `Fin` literal `e := OfNat.ofNat (Fin n) v _` to the form produced by
+`ToExpr (Fin n)`: `v` a raw literal with `v < n` and `n` a numeral, so `(7 : Fin 5)` becomes `2`.
+The value `v` may also be a nested numeral and `n` a ground term, as in
+`@OfNat.ofNat (Fin (1 + 1)) 0 _`; `grind` assumes distinct literal nodes denote distinct values,
+so every spelling must become the same term. The instance is left to `Sym.canon`.
 -/
-def evalFinLit (α v : Expr) : SimpM Result := do
+def evalFinLit (e α v : Expr) : SimpM Result := do
   let_expr Fin nExpr := α | return .rfl
-  let .lit (.natVal v) := v | return .rfl
-  if let some n := getNatValue? nExpr then
-    if v < n then return .rfl
+  let isCanonical := v.isRawNatLit && (getNatValue? nExpr).isSome
+  let some v := (match v with | .lit (.natVal v) => some v | _ => getNatValue? v) | return .rfl
   let some n ← evalNat nExpr |>.run | return .rfl
+  if isCanonical && v < n then return .rfl
   if h : n ≠ 0 then
     have : NeZero n := ⟨h⟩
-    mkFinResult (Fin.ofNat n v)
+    let e' ← share <| toExpr (Fin.ofNat n v)
+    if isSameExpr e e' then return .rfl
+    return .step e' (mkApp2 (mkConst ``Eq.refl [1]) (ToExpr.toTypeExpr (α := Fin n)) e') (done := true)
   else
     return .rfl
 
@@ -939,7 +944,7 @@ def evalGroundCore (e : Expr) : EvalM Result :=
   | Fin.subNat _ m a _ => evalFinSubNat m a
   | Fin.mk n v _ => evalFinOfNat n v
   | Fin.ofNat n _ v => evalFinOfNat n v
-  | OfNat.ofNat α v _ => evalFinLit α v
+  | OfNat.ofNat α v _ => evalFinLit e α v
   | Char.ofNat n => evalCharOfNat n
   | Char.toNat a => evalCharUnary Char.toNat a
   | Char.val a => evalCharUnary Char.val a

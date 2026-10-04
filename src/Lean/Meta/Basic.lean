@@ -487,13 +487,19 @@ not depend on the query, so every type class resolution query made under the sam
 shares it. One slot suffices, as the local instances change rarely relative to the number of
 queries made under them.
 
-The result depends on the metavariable assignments through the types of the local variables, which
-are otherwise immutable. The memo is therefore stored in the `MetavarContext`, so that it is
-reverted together with the assignments. Assignments made after it was computed do not affect a
-`closure?`, whose types are fully instantiated.
+The result depends on the local declarations of the variables it visited, and on the metavariable
+assignments through their types.
+* A local declaration can be replaced under the same `FVarId`, e.g. by `change … at`, so the memo
+  records the declarations it was computed from (`decls`) and is only used while they are still the
+  ones in the local context.
+* The memo is stored in the `MetavarContext`, so that it is reverted together with the assignments.
+  Assignments made after it was computed do not affect a `closure?`, whose types are fully
+  instantiated.
 -/
 structure SynthNormClosureMemo where
   localInsts : LocalInstances
+  /-- The local declarations visited by the normalization. -/
+  decls : Array LocalDecl
   /-- `none` if the local instances cannot be normalized. -/
   closure? : Option SynthNormClosure
   /--

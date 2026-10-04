@@ -1048,6 +1048,8 @@ private structure State where
   bail : Bool := false
   /-- See `SynthNormClosureMemo.stuckType?`. -/
   stuckType? : Option Expr := none
+  /-- See `SynthNormClosureMemo.decls`. -/
+  decls : Array LocalDecl := #[]
 
 private abbrev M := StateT State MetaM
 
@@ -1063,6 +1065,7 @@ private partial def addFVars (e : Expr) : M Unit := do
     if (← get).bail then return
     if (← get).fvarSet.contains id then continue
     let decl ← id.getDecl
+    modify fun s => { s with decls := s.decls.push decl }
     -- NOTE: A nondependent `ldecl` (`have`) has `none` as `value?` but as it hides its value from
     -- definitional unfolding as well, it is safe to consider it a value-less ldecl.
     if decl.value?.isSome then
@@ -1097,15 +1100,19 @@ instances, and normalizing it per query dominates the cost of a cache key; see
 -/
 private def getClosure? (localInsts : LocalInstances) : MetaM (Option SynthNormClosure) := do
   if let some memo := (← getMCtx).synthNormMemo? then
-    if memo.localInsts == localInsts then
+    let lctx ← getLCtx
+    -- The declarations are compared by pointer: one that was replaced is a new object.
+    if memo.localInsts == localInsts &&
+        memo.decls.all fun decl => (lctx.find? decl.fvarId).any (unsafe ptrEq decl ·) then
       match memo.stuckType? with
       | none      => return memo.closure?
       | some type => if (← instantiateMVars type).hasMVar then return none
   let (_, st) ← (localInsts.forM fun li => addFVars li.fvar).run {}
   let closure? :=
-    guard st.bail *>
+    guard (!st.bail) *>
     some { fvarSet := st.fvarSet, idx2fvar := st.idx2fvar, types := st.types }
-  modifyMCtx (·.setSynthNormMemo { localInsts, closure?, stuckType? := st.stuckType? })
+  modifyMCtx (·.setSynthNormMemo
+    { localInsts, decls := st.decls, closure?, stuckType? := st.stuckType? })
   return closure?
 
 /--

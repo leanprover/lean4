@@ -51,18 +51,20 @@ private def isForbiddenParent (parent? : Option Expr) : Bool :=
   else
     false
 
-private partial def toInt? (e : Expr) : RingM (Option Int) := do
+/--
+Returns `k` if `e` is the numeral `denoteInt k`: `OfNat.ofNat _ n _`, or `-OfNat.ofNat _ n _` with
+`n ≠ 0` and the ring's `Neg` instance. The `inv_*` theorems of `processInv` state their numeral
+as `denoteInt k`, which is definitionally equal to these spellings only; `↑(0 : Nat)`, `-0`, and
+`- -3` denote numerals as well, but a proof about `denoteInt k` is ill-typed for them.
+-/
+private def toInt? (e : Expr) : RingM (Option Int) := do
   match_expr e with
   | Neg.neg _ i a =>
-    if (← isNegInst i) then return (- .) <$> (← toInt? a) else return none
-  | IntCast.intCast _ i a =>
-    if (← isIntCastInst i) then getIntValue? a else return none
-  | NatCast.natCast _ i a =>
-    if (← isNatCastInst i) then
-      let some v ← getNatValue? a | return none
-      return some (Int.ofNat v)
-    else
-      return none
+    unless (← isNegInst i) do return none
+    let_expr OfNat.ofNat _ n _ := a | return none
+    let some v ← getNatValue? n | return none
+    if v == 0 then return none
+    return some (-v)
   | OfNat.ofNat _ n _ =>
     let some v ← getNatValue? n | return none
     return some (Int.ofNat v)
@@ -90,6 +92,7 @@ private def processInv (e inst a : Expr) : RingM Unit := do
       - `0⁻¹` appears in a subterm that cannot be rewritten by `simp` without introducing a type error.
       - `preprocessLight`, which does not apply `simp`, was used to preprocess the term. Even if we extended `preprocessLight` to
         apply `rfl` theorems, it would not be enough since `0⁻¹ = 0` is not a `rfl` theorem.
+      Other spellings of zero (`↑(0 : Nat)`, `-0`) are not numerals for `toInt?` and are handled by `inv_split` below.
       -/
       pushEq e a <| mkApp2 (mkConst ``Grind.Field.inv_zero [ring.u]) ring.type fieldInst
       return ()

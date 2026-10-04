@@ -370,9 +370,9 @@ return v___x_14_;
 LEAN_EXPORT lean_object* l_panic___at___00Int_Internal_Linear_Poly_checkNoElimVars_spec__0(lean_object* v_msg_15_, lean_object* v___y_16_, lean_object* v___y_17_, lean_object* v___y_18_, lean_object* v___y_19_, lean_object* v___y_20_, lean_object* v___y_21_, lean_object* v___y_22_, lean_object* v___y_23_, lean_object* v___y_24_, lean_object* v___y_25_){
 _start:
 {
-lean_object* v___x_27_; lean_object* v___x_1389__overap_28_; lean_object* v___x_29_; 
+lean_object* v___x_27_; lean_object* v___x_1290__overap_28_; lean_object* v___x_29_; 
 v___x_27_ = lean_obj_once(&l_panic___at___00Int_Internal_Linear_Poly_checkNoElimVars_spec__0___closed__0, &l_panic___at___00Int_Internal_Linear_Poly_checkNoElimVars_spec__0___closed__0_once, _init_l_panic___at___00Int_Internal_Linear_Poly_checkNoElimVars_spec__0___closed__0);
-v___x_1389__overap_28_ = lean_panic_fn_borrowed(v___x_27_, v_msg_15_);
+v___x_1290__overap_28_ = lean_panic_fn_borrowed(v___x_27_, v_msg_15_);
 lean_inc(v___y_25_);
 lean_inc_ref(v___y_24_);
 lean_inc(v___y_23_);
@@ -383,7 +383,7 @@ lean_inc(v___y_19_);
 lean_inc_ref(v___y_18_);
 lean_inc(v___y_17_);
 lean_inc(v___y_16_);
-v___x_29_ = lean_apply_11(v___x_1389__overap_28_, v___y_16_, v___y_17_, v___y_18_, v___y_19_, v___y_20_, v___y_21_, v___y_22_, v___y_23_, v___y_24_, v___y_25_, lean_box(0));
+v___x_29_ = lean_apply_11(v___x_1290__overap_28_, v___y_16_, v___y_17_, v___y_18_, v___y_19_, v___y_20_, v___y_21_, v___y_22_, v___y_23_, v___y_24_, v___y_25_, lean_box(0));
 return v___x_29_;
 }
 }

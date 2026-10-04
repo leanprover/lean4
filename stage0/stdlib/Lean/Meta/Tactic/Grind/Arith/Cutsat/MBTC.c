@@ -499,13 +499,13 @@ goto v___jp_55_;
 v___jp_65_:
 {
 lean_object* v___x_69_; uint8_t v___x_70_; 
-v___x_69_ = lean_int_emod(v___y_68_, v___y_66_);
+v___x_69_ = lean_int_emod(v___y_68_, v___y_67_);
 lean_dec(v___y_68_);
-v___x_70_ = l___private_Lean_Meta_Tactic_Grind_Arith_Cutsat_MBTC_0__Lean_Meta_Grind_Arith_Cutsat_isSignedType(v___y_67_);
-lean_dec_ref(v___y_67_);
+v___x_70_ = l___private_Lean_Meta_Tactic_Grind_Arith_Cutsat_MBTC_0__Lean_Meta_Grind_Arith_Cutsat_isSignedType(v___y_66_);
+lean_dec_ref(v___y_66_);
 if (v___x_70_ == 0)
 {
-v___y_61_ = v___y_66_;
+v___y_61_ = v___y_67_;
 v___y_62_ = v___x_69_;
 v___y_63_ = v___x_70_;
 goto v___jp_60_;
@@ -514,10 +514,10 @@ else
 {
 lean_object* v___x_71_; lean_object* v___x_72_; uint8_t v___x_73_; 
 v___x_71_ = lean_obj_once(&l___private_Lean_Meta_Tactic_Grind_Arith_Cutsat_MBTC_0__Lean_Meta_Grind_Arith_Cutsat_getEmbeddedLitValue_x3f___redArg___closed__0, &l___private_Lean_Meta_Tactic_Grind_Arith_Cutsat_MBTC_0__Lean_Meta_Grind_Arith_Cutsat_getEmbeddedLitValue_x3f___redArg___closed__0_once, _init_l___private_Lean_Meta_Tactic_Grind_Arith_Cutsat_MBTC_0__Lean_Meta_Grind_Arith_Cutsat_getEmbeddedLitValue_x3f___redArg___closed__0);
-v___x_72_ = lean_int_ediv(v___y_66_, v___x_71_);
+v___x_72_ = lean_int_ediv(v___y_67_, v___x_71_);
 v___x_73_ = lean_int_dec_le(v___x_72_, v___x_69_);
 lean_dec(v___x_72_);
-v___y_61_ = v___y_66_;
+v___y_61_ = v___y_67_;
 v___y_62_ = v___x_69_;
 v___y_63_ = v___x_73_;
 goto v___jp_60_;
@@ -591,8 +591,8 @@ if (v_neg_77_ == 0)
 {
 lean_object* v___x_95_; 
 v___x_95_ = lean_nat_to_int(v_val_87_);
-v___y_66_ = v___x_94_;
-v___y_67_ = v_00_u03b1_75_;
+v___y_66_ = v_00_u03b1_75_;
+v___y_67_ = v___x_94_;
 v___y_68_ = v___x_95_;
 goto v___jp_65_;
 }
@@ -602,8 +602,8 @@ lean_object* v___x_96_; lean_object* v___x_97_;
 v___x_96_ = lean_nat_to_int(v_val_87_);
 v___x_97_ = lean_int_neg(v___x_96_);
 lean_dec(v___x_96_);
-v___y_66_ = v___x_94_;
-v___y_67_ = v_00_u03b1_75_;
+v___y_66_ = v_00_u03b1_75_;
+v___y_67_ = v___x_94_;
 v___y_68_ = v___x_97_;
 goto v___jp_65_;
 }

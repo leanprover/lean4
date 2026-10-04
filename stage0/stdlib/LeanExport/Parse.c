@@ -17392,8 +17392,8 @@ goto v___jp_3749_;
 else
 {
 lean_object* v___x_3839_; lean_object* v___x_3840_; 
-lean_dec_ref_known(v_x_3745_, 2);
 lean_dec(v_head_3761_);
+lean_dec_ref_known(v_x_3745_, 2);
 lean_dec_ref(v___y_3747_);
 lean_dec(v_x_3746_);
 v___x_3839_ = ((lean_object*)(l_List_mapM_loop___at___00__private_LeanExport_Parse_0__LeanExport_Parse_parseRecInfo_spec__0___closed__1));

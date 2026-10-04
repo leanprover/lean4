@@ -265,11 +265,13 @@ lean_object* v___x_58_; lean_object* v___x_59_; lean_object* v___x_60_; lean_obj
 v___x_58_ = lean_unsigned_to_nat(0u);
 v___x_59_ = l_Lean_Options_empty;
 v___x_60_ = ((lean_object*)(l_Lake_Toml_loadToml___closed__18));
-v___x_61_ = lean_alloc_ctor(0, 4, 0);
+v___x_61_ = lean_alloc_ctor(0, 6, 0);
 lean_ctor_set(v___x_61_, 0, v___x_60_);
 lean_ctor_set(v___x_61_, 1, v___x_59_);
 lean_ctor_set(v___x_61_, 2, v___x_60_);
 lean_ctor_set(v___x_61_, 3, v___x_58_);
+lean_ctor_set(v___x_61_, 4, v___x_58_);
+lean_ctor_set(v___x_61_, 5, v___x_58_);
 return v___x_61_;
 }
 }

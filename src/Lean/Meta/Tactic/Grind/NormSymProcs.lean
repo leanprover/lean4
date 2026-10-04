@@ -7,6 +7,8 @@ module
 prelude
 public import Lean.Meta.Sym.Simp.SimpM
 import Lean.Meta.Sym.Simp.Result
+import Lean.Meta.Sym.Simp.App
+import Lean.Meta.Match.MatcherInfo
 import Lean.Meta.Sym.AlphaShareBuilder
 import Lean.Meta.Sym.InstantiateS
 import Lean.Meta.Sym.InferType
@@ -15,11 +17,12 @@ import Lean.Meta.AppBuilder
 import Lean.Meta.Tactic.Grind.ForallAnd
 import Lean.Meta.CtorRecognizer
 import Init.Grind.Norm
+import Init.Grind.Util
 import Init.Grind.Lemmas
 import Init.ByCases
 public section
 namespace Lean.Meta.Grind.NormSym
-open Sym.Simp (Simproc Result SimpM)
+open Sym.Simp (Simproc Result SimpM mkRflResult)
 open Sym (getTrueExpr getFalseExpr getBoolTrueExpr getBoolFalseExpr share isSameExpr)
 open Sym.Internal
 
@@ -49,6 +52,33 @@ private def mkExistsS (u : Level) (α p : Expr) : SimpM Expr := do
 def eraseMData : Simproc := fun e => do
   let .mdata _ b := e | return .rfl
   return .step b (← Sym.mkEqRefl b)
+
+/--
+`Grind.PreMatchCond p` is left as is: `p` is a condition of a `match` equation and must keep
+the shape produced by `annotateMatchEqnType`; `replacePreMatchCond` turns it into
+`Grind.MatchCond` after normalization.
+-/
+def preMatchCond : Simproc := fun e => do
+  let_expr Grind.PreMatchCond _ := e | return .rfl
+  return mkRflResult (done := true)
+
+/--
+`Grind.simpMatchDiscrsOnly m`, where `m` is a `match` application: only the discriminants of `m`
+are simplified, the alternatives are not visited. The annotation stays and is erased by
+`eraseSimpMatchDiscrsOnly` after normalization.
+-/
+def simpMatchDiscrsOnly : Simproc := fun e => do
+  match h : e with
+  | .app f m =>
+    let_expr Grind.simpMatchDiscrsOnly _ _ := e | return .rfl
+    let .const declName _ := m.getAppFn | return mkRflResult (done := true)
+    let some info ← getMatcherInfo? declName | return mkRflResult (done := true)
+    let start := info.numParams + 1
+    let r ← Sym.Simp.simpAppArgRange m start (start + info.numDiscrs)
+    match (← Sym.Simp.mkCongrArg e f m r h) with
+    | .rfl _ cd => return mkRflResult (done := true) (contextDependent := cd)
+    | .step e' h' _ cd => return .step e' h' (done := true) (contextDependent := cd)
+  | _ => return .rfl
 
 private def isBoolEqTarget (declName : Name) : Bool :=
   declName == ``Bool.and ||

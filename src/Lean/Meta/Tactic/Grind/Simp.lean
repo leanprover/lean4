@@ -21,19 +21,46 @@ namespace Lean.Meta.Grind
 def isLegacyNormalizer : CoreM Bool :=
   return backward.grind.normalizer.get (← getOptions)
 
-/-- Simplifies `e` with the `Sym.simp`-based normalizer, see `Context.symSimpMethods`. -/
+/--
+The `Sym.simp`-based normalization step: `Sym.simp` with `methods`, then `Sym.dsimp` of the result
+with `dmethods`. The two passes are independent, and their states are threaded through.
+
+`Sym.simp` does not visit the fixed arguments of an application, e.g. the implicit objects of a
+morphism composition, while the legacy normalizer `dsimp`s them (`Simp.Config.dsimp`). A beta-redex
+or a projection of a structure instance left in such an argument makes the term miss the E-matching
+patterns of its theorems, so the `dsimp` pass reduces them. Its result is definitionally equal to
+the `simp` result, so the proof is the one of the `simp` pass.
+
+`Sym` requires kernel projections to be folded into projection applications. The legacy normalizer
+accepts them, so `preprocessImpl` folds them only afterwards; they are folded here first.
+-/
+def symNorm (e : Expr) (methods : Sym.Simp.Methods) (dmethods : Sym.DSimp.Methods)
+    (s : Sym.Simp.State) (ds : Sym.DSimp.State) : Sym.SymM (Simp.Result × Sym.Simp.State × Sym.DSimp.State) := do
+  let e ← Sym.preprocessExpr (← foldProjs e)
+  let (r, s) ← Sym.Simp.SimpM.run (Sym.Simp.simp e) methods (s := s)
+  let (e, proof?) := match r with
+    | .rfl .. => (e, none)
+    | .step e h .. => (e, some h)
+  let (r, ds) ← Sym.DSimp.DSimpM.run (Sym.DSimp.dsimp e) dmethods (s := ds)
+  let e := match r with
+    | .rfl .. => e
+    | .step e .. => e
+  return ({ expr := e, proof? }, s, ds)
+
+/--
+Simplifies `e` with the `Sym.simp`-based normalizer: `Sym.simp` followed by `Sym.dsimp` (see
+`symNorm`), with the methods of `Context` and the states of `State`.
+-/
 private def symSimpCore (e : Expr) : GrindM Simp.Result := do profileitM Exception "grind simp" (← getOptions) do
-  let e ← Sym.preprocessExpr e
-  let s ← modifyGet fun s => (s.symSimp, { s with symSimp := {} })
-  let (r, s) ← Sym.Simp.SimpM.run (Sym.Simp.simp e) (← readThe Context).symSimpMethods (s := s)
-  modify fun s' => { s' with symSimp := s }
-  match r with
-  | .rfl .. => return { expr := e }
-  | .step e' h .. => return { expr := e', proof? := some h }
+  let ctx ← readThe Context
+  let (s, ds) ← modifyGet fun s => ((s.symSimp, s.symDSimp), { s with symSimp := {}, symDSimp := {} })
+  let (r, s, ds) ← symNorm e ctx.symSimpMethods ctx.symDSimpMethods s ds
+  modify fun s' => { s' with symSimp := s, symDSimp := ds }
+  return r
 
 /-- Simplifies `e` with the `Sym.dsimp`-based normalizer, see `Context.symDSimpMethods`. -/
 private def symDSimpCore (e : Expr) : GrindM Expr := do profileitM Exception "grind dsimp" (← getOptions) do
-  let e ← Sym.preprocessExpr e
+  let e ← Sym.preprocessExpr (← foldProjs e)
   let s ← modifyGet fun s => (s.symDSimp, { s with symDSimp := {} })
   let (r, s) ← Sym.DSimp.DSimpM.run (Sym.DSimp.dsimp e) (← readThe Context).symDSimpMethods (s := s)
   modify fun s' => { s' with symDSimp := s }

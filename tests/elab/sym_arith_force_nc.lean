@@ -57,6 +57,15 @@ example {R : Type u} [CommRing R] [IsCharP R 4] (a b : R) :
 
 end
 
+-- Integer gcd certificates must not compare noncommutative monomials with a commutative polynomial.
+example (a b : Int) (h : False) : 2 * a * b + 2 * b * a ≤ 3 := by
+  noncomm_norm
+  exact h.elim
+
+example (a b : Int) (h : False) : 2 * a * b + 2 * b * a = 3 := by
+  noncomm_norm
+  exact h.elim
+
 run_meta SymM.run do
   let type ← Sym.canon (mkConst ``Int)
   let .commRing _ ← Arith.classify? type | throwError "expected a commutative ring"

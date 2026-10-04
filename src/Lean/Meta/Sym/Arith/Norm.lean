@@ -762,7 +762,7 @@ private def normalizeRelCore (rel : RelKind) (relFn : Expr) (order? : Option Ord
     -- `(q, k, c)` for the certificate (`IntSolver.lean`).
     let mut p := p
     let mut tight? : Option (Poly × Int × Int) := none
-    if ring.type.isConstOf ``Int && invs.isEmpty && ainvs.isEmpty && char?.isNone && rel != .lt then
+    if kind.isComm && ring.type.isConstOf ``Int && invs.isEmpty && ainvs.isEmpty && char?.isNone && rel != .lt then
       let k := gcdMonCoeffs p
       if k > 1 then
         let c := polyConst p
@@ -1115,7 +1115,7 @@ normalizer. Semirings have no subtraction and are unaffected.
 
 With `commutative := false`, multiplication keeps the order of its factors even when the
 carrier has a commutative ring or semiring instance. The noncommutative certificates are used,
-and field inverse cancellation and integer divisibility normalization are disabled.
+and field normalization and integer gcd/divisibility normalization are disabled.
 -/
 def normalize? [Monad m] [MonadLiftT SymM m] [MonadLiftT MetaM m] (e : Expr) (simpAtom : Expr → m Result)
     (discharge? : Expr → m (Option Expr) := fun _ => pure none) (lhsOnly : Bool := false)

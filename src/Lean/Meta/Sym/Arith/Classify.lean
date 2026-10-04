@@ -27,8 +27,8 @@ so a type is classified once per `SymM` run and the result is shared by every
 3. `Grind.CommSemiring` (via `OfSemiring.Q` envelope)
 4. `Grind.Semiring` (non-commutative)
 
-Results (including failures) are cached in a single `PHashMap ExprPtr ClassifyResult`
-to avoid repeated synthesis attempts.
+Results (including failures) are cached separately for the default and explicitly
+noncommutative modes to avoid repeated synthesis attempts.
 -/
 
 /--

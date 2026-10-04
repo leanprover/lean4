@@ -106,3 +106,37 @@ example {M : Type u} [IntModule M] (a b : M) : a + b + a = a + a + b := by
   module_nf
   fail_if_success module_nf
   rfl
+
+-- Normalization preserves canonical operator instances on concrete carriers.
+run_meta do
+  for type in [mkConst ``Nat, mkConst ``Int] do
+    withLocalDeclD `a type fun a => withLocalDeclD `b type fun b => do
+      let vars := #[a, b] |>.qsort Expr.lt
+      let e ← mkAppM ``HAdd.hAdd #[vars[1]!, vars[0]!]
+      let r ← SymM.run do Arith.normalizeAdd? (← shareCommon (← Sym.canon e))
+      unless r matches .rfl .. do
+        throwError "already-normal addition changed its operator instance"
+      let e ← mkAppM ``HAdd.hAdd #[a, a]
+      let r ← SymM.run (Arith.normalizeAdd? e)
+      let .step e' proof .. := r | throwError "repeated atom was not collected"
+      unless (← inferType proof) == (← mkEq e e') do
+        throwError "normalization proof does not expose the input and output terms"
+      let target ← mkEq e e'
+      let some proof ← SymM.run (Arith.proveAddEq? target)
+        | throwError "normalized terms were not equal"
+      unless (← inferType proof) == target do
+        throwError "equality proof does not expose the input proposition"
+
+-- Failed equality normalization must not assign the caller's metavariables.
+run_meta do
+  let type := mkConst ``Nat
+  withLocalDeclD `a type fun a => withLocalDeclD `b type fun b =>
+    withLocalDeclD `c type fun c => do
+      let x ← mkFreshExprMVar type
+      let lhs ← mkAppM ``HAdd.hAdd #[x, a]
+      let rhs ← mkAppM ``HAdd.hAdd #[c, b]
+      let result ← SymM.run (Arith.proveAddEq? (← mkEq lhs rhs))
+      unless result.isNone do throwError "unexpected additive equality"
+      if ← x.mvarId!.isAssigned then throwError "normalization assigned a metavariable"
+      let _ ← SymM.run (Arith.normalizeAdd? lhs)
+      if ← x.mvarId!.isAssigned then throwError "normalization assigned a metavariable"

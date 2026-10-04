@@ -12,11 +12,37 @@ import Lean.Meta.Tactic.Grind.Util
 import Lean.Meta.Tactic.Grind.MatchDiscrOnly
 import Lean.Meta.Tactic.Grind.MarkNestedSubsingletons
 import Lean.Meta.Sym.Util
+import Lean.Meta.Sym.Simp.Main
+import Lean.Meta.Sym.DSimp.Main
 public section
 namespace Lean.Meta.Grind
 
-/-- Simplifies the given expression using the `grind` simprocs and normalization theorems. -/
-def simpCore (e : Expr) : GrindM Simp.Result := do profileitM Exception "grind simp" (← getOptions) do
+/-- Returns `true` if the legacy `simp`-based normalizer is selected (`backward.grind.normalizer`). -/
+def isLegacyNormalizer : CoreM Bool :=
+  return backward.grind.normalizer.get (← getOptions)
+
+/-- Simplifies `e` with the `Sym.simp`-based normalizer, see `Context.symSimpMethods`. -/
+private def symSimpCore (e : Expr) : GrindM Simp.Result := do profileitM Exception "grind simp" (← getOptions) do
+  let e ← Sym.preprocessExpr e
+  let s ← modifyGet fun s => (s.symSimp, { s with symSimp := {} })
+  let (r, s) ← Sym.Simp.SimpM.run (Sym.Simp.simp e) (← readThe Context).symSimpMethods (s := s)
+  modify fun s' => { s' with symSimp := s }
+  match r with
+  | .rfl .. => return { expr := e }
+  | .step e' h .. => return { expr := e', proof? := some h }
+
+/-- Simplifies `e` with the `Sym.dsimp`-based normalizer, see `Context.symDSimpMethods`. -/
+private def symDSimpCore (e : Expr) : GrindM Expr := do profileitM Exception "grind dsimp" (← getOptions) do
+  let e ← Sym.preprocessExpr e
+  let s ← modifyGet fun s => (s.symDSimp, { s with symDSimp := {} })
+  let (r, s) ← Sym.DSimp.DSimpM.run (Sym.DSimp.dsimp e) (← readThe Context).symDSimpMethods (s := s)
+  modify fun s' => { s' with symDSimp := s }
+  match r with
+  | .rfl .. => return e
+  | .step e' .. => return e'
+
+/-- Simplifies the given expression using the legacy `simp`-based normalizer. -/
+private def legacySimpCore (e : Expr) : GrindM Simp.Result := do profileitM Exception "grind simp" (← getOptions) do
   let simp ← modifyGet fun s => (s.simp, { s with simp := {} })
   let ctx := (← readThe Context).simp
   /-
@@ -34,13 +60,21 @@ def simpCore (e : Expr) : GrindM Simp.Result := do profileitM Exception "grind s
   modify fun s => { s with simp }
   return r
 
-/-- Similar to `simpCore`, but uses `dsimp`. -/
-def dsimpCore (e : Expr) : GrindM Expr := do profileitM Exception "grind dsimp" (← getOptions) do
+/-- Similar to `legacySimpCore`, but uses `dsimp`. -/
+private def legacyDSimpCore (e : Expr) : GrindM Expr := do profileitM Exception "grind dsimp" (← getOptions) do
   let simp ← modifyGet fun s => (s.simp, { s with simp := {} })
   let ctx := (← readThe Context).simp
   let (r, simp) ← Simp.dsimpMainCore e ctx simp (methods := (← readThe Context).simpMethods)
   modify fun s => { s with simp }
   return r
+
+/-- Simplifies the given expression using the `grind` simprocs and normalization theorems. -/
+def simpCore (e : Expr) : GrindM Simp.Result := do
+  if (← isLegacyNormalizer) then legacySimpCore e else symSimpCore e
+
+/-- Similar to `simpCore`, but uses `dsimp`. -/
+def dsimpCore (e : Expr) : GrindM Expr := do
+  if (← isLegacyNormalizer) then legacyDSimpCore e else symDSimpCore e
 
 set_option compiler.ignoreBorrowAnnotation true in
 /--

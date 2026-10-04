@@ -153,10 +153,25 @@ def mkMapDeclarationExtension (name : Name := by exact decl_name%)
 
 namespace MapDeclarationExtension
 
-def insert (ext : MapDeclarationExtension α) (env : Environment) (declName : Name) (val : α) : Environment :=
+/--
+Adds the entry for `declName`. Entries are write-once: facts derived from an entry, such as cached
+type class resolution results, assume it never changes. `allowOverwrite` permits replacing an
+existing entry, which invalidates such facts; use it only where that is justified, and say why.
+-/
+def insert (ext : MapDeclarationExtension α) (env : Environment) (declName : Name) (val : α)
+    (allowOverwrite := false) : Environment :=
   have : Inhabited Environment := ⟨env⟩
   if let some modIdx := env.getModuleIdxFor? declName then -- See comment at `MapDeclarationExtension`
     panic! s!"cannot insert `{declName}` into `{ext.name}`, it is not defined in the current module but in `{env.allImportedModuleNames[modIdx]!}`"
+  -- Check only the state visible on this branch: writes often happen here while the branch
+  -- elaborating `declName` (e.g. a theorem's proof) still runs, and waiting for it would stall the
+  -- write. This still catches every double write whose first write is visible here, in particular
+  -- all sequential ones; it misses only a first write made on that still-running branch.
+  else if !allowOverwrite &&
+      (ext.toPersistentEnvExtension.getState (asyncMode := .local) env).contains declName then
+    panic! s!"cannot insert `{declName}` into `{ext.name}`, it is already present; \
+      declaration-keyed extension entries are write-once (pass `allowOverwrite := true` if this \
+      update is intended)"
   else
     ext.addEntry (asyncDecl := declName) env (declName, val)
 
@@ -169,9 +184,10 @@ def find? [Inhabited α] (ext : MapDeclarationExtension α) (env : Environment) 
     | none   => none
   | none => (ext.getState (asyncMode := asyncMode) (asyncDecl := declName) env).find? declName
 
-def contains [Inhabited α] (ext : MapDeclarationExtension α) (env : Environment) (declName : Name) : Bool :=
+def contains [Inhabited α] (ext : MapDeclarationExtension α) (env : Environment) (declName : Name)
+    (asyncMode := ext.toEnvExtension.asyncMode) : Bool :=
   match env.getModuleIdxFor? declName with
   | some modIdx => (ext.getModuleEntries env modIdx).binSearchContains (declName, default) (fun a b => Name.quickLt a.1 b.1)
-  | none        => (ext.getState (asyncDecl := declName) env).contains declName
+  | none        => (ext.getState (asyncMode := asyncMode) (asyncDecl := declName) env).contains declName
 
 end MapDeclarationExtension

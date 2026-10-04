@@ -216,7 +216,17 @@ Stores in the `eqnsExt` environment extension that `eqThms` are the equational t
 -/
 private def registerEqnThms (declName : Name) (eqThms : Array Name) : CoreM Unit := do
   modifyEnv fun env => eqnsExt.modifyState env fun s => { s with
-    mapInv := eqThms.foldl (init := s.mapInv) fun mapInv eqThm => mapInv.insert eqThm declName
+    mapInv := eqThms.foldl (init := s.mapInv) fun mapInv eqThm =>
+      have : Inhabited _ := ⟨mapInv⟩
+      -- Write-once, as for `MapDeclarationExtension.insert`. Re-registration with the same parent is
+      -- idempotent (e.g. `alreadyGenerated?` re-registers realized equations).
+      match mapInv.find? eqThm with
+      | some prev =>
+        if prev != declName then
+          panic! s!"equation theorem `{eqThm}` is already registered for `{prev}`"
+        else
+          mapInv
+      | none => mapInv.insert eqThm declName
   }
 
 /--

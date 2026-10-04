@@ -241,9 +241,22 @@ structure RecordedDeps where
   extGens : Array (Nat × Nat) := #[]
   /--
   `Environment.trackedGen` when recording started, or when the dependencies were last validated.
-  While it is unchanged, none of the environment dependencies can have changed.
+  Together with `baseChangeLogPos` it is the *stamp* of the dependencies: as long as the
+  environment's `trackedGen` and change log length still equal the stamp, none of the environment
+  dependencies can have changed since then.
   -/
   baseTrackedGen : Nat := 0
+  /--
+  Length of `Environment.declChangeLog` when recording started, or when the dependencies were last
+  validated; see `baseTrackedGen`.
+  -/
+  baseChangeLogPos : Nat := 0
+  /--
+  `Environment.constGen` when recording started. `Environment.checkDeclChangeLog` ignores the
+  changes logged since `baseChangeLogPos` to declarations added after recording started, as the
+  recorded computation cannot have observed them.
+  -/
+  baseConstGen : Nat := 0
   deriving Inhabited
 
 namespace Core

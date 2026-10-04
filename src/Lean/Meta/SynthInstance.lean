@@ -937,9 +937,11 @@ private def validOptionAccesses (opts : Options) (log : RecordedDeps) : Bool :=
 
 /-- Returns whether the environment dependencies in `deps` hold in `env`. -/
 private def validEnvDeps (env : Environment) (deps : RecordedDeps) : Bool :=
-  -- While `trackedGen` is still `baseTrackedGen`, no environment dependency can have changed.
-  deps.baseTrackedGen == env.trackedGen ||
-    deps.extGens.all fun (idx, gen) => EnvExtension.getGenAt env idx == gen
+  -- While `trackedGen` is still `baseTrackedGen` and no change was logged since, no environment
+  -- dependency can have changed.
+  deps.baseTrackedGen == env.trackedGen && deps.baseChangeLogPos == env.declChangeLog.size ||
+    deps.extGens.all (fun (idx, gen) => EnvExtension.getGenAt env idx == gen) &&
+    env.checkDeclChangeLog deps.baseChangeLogPos deps.baseConstGen
 
 /-- Adds the dependencies of a nested query or a used cache entry to those of the enclosing query. -/
 private def _root_.Lean.RecordedDeps.mergeInto (child parent : RecordedDeps) : RecordedDeps :=
@@ -972,9 +974,11 @@ private def findCachedResult? (key : SynthInstanceCacheKey) : MetaM (Option Synt
   let some entries := (← get).cache.synthInstance.find? key | return none
   let some entry := entries.find? fun e => validOptionAccesses opts e.deps && validEnvDeps env e.deps
     | return none
-  if entry.deps.baseTrackedGen != env.trackedGen then
-    -- Re-stamped, so that later lookups skip the generation checks just done.
-    insertCacheEntry key { entry with deps := { entry.deps with baseTrackedGen := env.trackedGen } }
+  if entry.deps.baseTrackedGen != env.trackedGen ||
+      entry.deps.baseChangeLogPos != env.declChangeLog.size then
+    -- Re-stamped, so that later lookups skip the environment checks just done.
+    insertCacheEntry key { entry with deps := { entry.deps with
+      baseTrackedGen := env.trackedGen, baseChangeLogPos := env.declChangeLog.size } }
   return entry
 
 /--
@@ -1033,9 +1037,11 @@ def synthInstanceCore? (type : Expr) (maxResultSize? : Option Nat := none) : Met
   -- These are the options `findCachedResult?` below validates entries against, so a lookup is
   -- recorded with the answer that validation later compares.
   let base ← getOptionsUnrestricted
-  let baseTrackedGen := (← getEnv).trackedGen
-  let parentDeps ← modifyGetThe Core.State fun s =>
-    (s.recordedDeps, { s with recordedDeps := { base, baseTrackedGen } })
+  let env ← getEnv
+  let parentDeps ← modifyGetThe Core.State fun s => (s.recordedDeps, { s with
+    recordedDeps := { base, baseTrackedGen := env.trackedGen,
+                      baseChangeLogPos := env.declChangeLog.size, baseConstGen := env.constGen }
+    env := env.markRecordingStart })
   try
   withTheReader Core.Context (fun ctx => { ctx with isRecordingDeps := true }) do
   withTraceNode `Meta.synthInstance

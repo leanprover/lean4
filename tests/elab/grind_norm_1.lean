@@ -212,6 +212,42 @@ example : i = 3 := by grind_norm check; sorry
 #guard_msgs in
 example : i * j = i := by grind_norm check; sorry
 
+section casts
+attribute [local instance] Lean.Grind.Semiring.natCast Lean.Grind.Ring.intCast
+variable {α : Type} [Lean.Grind.Field α] (z : α) (f : α → α)
+
+#guard_msgs in
+example : z / ↑(0 : Nat) = 0 := by grind_norm check; sorry
+
+#guard_msgs in
+example : z / ↑(-0 : Int) = 0 := by grind_norm check; sorry
+
+#guard_msgs in
+example : f ↑(2 : Nat) = f 2 := by grind_norm check; sorry
+
+#guard_msgs in
+example : f ↑(-2 : Int) = f (-2) := by grind_norm check; sorry
+
+#guard_msgs in
+example : z = ↑(3 : Nat) := by grind_norm check; sorry
+
+#guard_msgs in
+example : ↑(3 : Int) = z := by grind_norm check; sorry
+
+-- Accepted difference: legacy normalizes only `Nat` and `Int` arithmetic. Over `Int`, both
+-- normalizers produce `-1 * i + -3 = 0`.
+/--
+error: `grind_norm` discrepancy
+legacy:
+  -3 = z
+sym:
+  -1 * z + -3 = 0
+-/
+#guard_msgs in
+example : -3 = z := by grind_norm check; sorry
+
+end casts
+
 end arith
 
 section structural

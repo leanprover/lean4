@@ -7,9 +7,7 @@ Exercise package-elided, package-named and module facet dependencies.
 -/
 open Lake DSL
 
-package test where
-  leanOptions := #[⟨`autoImplicit, false⟩, ⟨`relaxedAutoImplicit, false⟩,
-    ⟨`linter.missingDocs, true⟩]
+package test
 
 lean_lib Lib
 

@@ -8,8 +8,10 @@ prelude
 public import Lean.Meta.Sym.SymM
 public import Lean.Meta.Sym.Simp.Result
 import Lean.Meta.Sym.SynthInstance
+import Lean.Meta.Sym.Canon
 import Lean.Meta.Sym.LitValues
 import Lean.Meta.Tactic.Grind.Arith.Linear.ToExpr
+import Lean.Meta.Tactic.Grind.Arith.Linear.VarRename
 import Lean.Meta.AppBuilder
 import Lean.Data.RArray
 import Init.Grind.Module.NatModuleNorm
@@ -51,24 +53,13 @@ private partial def reifyModule (e : Expr) : ModuleM Grind.Linarith.Expr := with
   match_expr e with
   | HAdd.hAdd _ _ _ _ a b =>
     if ← matchesFn e ctx.addFn 2 then return .add (← reifyModule a) (← reifyModule b)
-  | Add.add _ _ a b =>
-    if ← matchesFn e ctx.addFn 2 then return .add (← reifyModule a) (← reifyModule b)
   | HSub.hSub _ _ _ _ a b =>
-    if let some fn := ctx.subFn? then
-      if ← matchesFn e fn 2 then return .sub (← reifyModule a) (← reifyModule b)
-  | Sub.sub _ _ a b =>
     if let some fn := ctx.subFn? then
       if ← matchesFn e fn 2 then return .sub (← reifyModule a) (← reifyModule b)
   | Neg.neg _ _ a =>
     if let some fn := ctx.negFn? then
       if ← matchesFn e fn 1 then return .neg (← reifyModule a)
   | HSMul.hSMul _ _ _ _ n a =>
-    if ← matchesFn e ctx.nsmulFn 2 then
-      if let some n := (Sym.getNatValue? n).run then return .natMul n (← reifyModule a)
-    if let some fn := ctx.zsmulFn? then
-      if ← matchesFn e fn 2 then
-        if let some n := (Sym.getIntValue? n).run then return .intMul n (← reifyModule a)
-  | SMul.smul _ _ _ n a =>
     if ← matchesFn e ctx.nsmulFn 2 then
       if let some n := (Sym.getNatValue? n).run then return .natMul n (← reifyModule a)
     if let some fn := ctx.zsmulFn? then
@@ -110,7 +101,16 @@ private def getModule? (type : Expr) : SymM (Option (ModuleContext × Expr × Le
     | some inst => pure (some inst)
     | none => Sym.synthInstance? (← shareCommon (mkApp (mkConst ``Grind.NatModule [u]) type))
   let some inst := inst? | return none
-  return some (mkModuleContext type inst u integers, inst, u, integers)
+  let ctx := mkModuleContext type inst u integers
+  let canonFn (fn : Expr) : SymM Expr := do shareCommon (← Sym.canon fn)
+  let ctx := { ctx with
+    addFn := ← canonFn ctx.addFn
+    zero := ← canonFn ctx.zero
+    nsmulFn := ← canonFn ctx.nsmulFn
+    subFn? := ← ctx.subFn?.mapM canonFn
+    negFn? := ← ctx.negFn?.mapM canonFn
+    zsmulFn? := ← ctx.zsmulFn?.mapM canonFn }
+  return some (ctx, inst, u, integers)
 
 private def moduleCertificate (type inst : Expr) (u : Level) (integers : Bool)
     (ctx : ModuleContext) (vars : Array Expr) (lhs rhs : Grind.Linarith.Expr) : MetaM Expr := do
@@ -130,24 +130,14 @@ Multiplication is not interpreted: a caller can first distribute products and us
 requiring associative or unital multiplication. Returns `none` when the type has neither module
 structure, the proposition is not an equality, or the additive normal forms differ.
 The returned proof is checked using the existing module normalization certificates. -/
-def proveAddEq? (e : Expr) : SymM (Option Expr) := do
+def proveAddEq? (e : Expr) : SymM (Option Expr) := withNewMCtxDepth do
   let e ← shareCommon e
   let_expr Eq type lhs rhs := e | return none
   let some (ctx, inst, u, integers) ← getModule? type | return none
   let ((lhs, rhs), s) ← ((do return (← reifyModule lhs, ← reifyModule rhs) : ModuleM _).run ctx).run {}
   let equal := if integers then lhs.norm == rhs.norm else lhs.toPolyN == rhs.toPolyN
   unless equal do return none
-  return some (← moduleCertificate type inst u integers ctx s.vars lhs rhs)
-
-private def renameModuleVars (e : Grind.Linarith.Expr) (f : Array Nat) : Grind.Linarith.Expr :=
-  match e with
-  | .zero => .zero
-  | .var x => .var f[x]!
-  | .add a b => .add (renameModuleVars a f) (renameModuleVars b f)
-  | .sub a b => .sub (renameModuleVars a f) (renameModuleVars b f)
-  | .neg a => .neg (renameModuleVars a f)
-  | .natMul n a => .natMul n (renameModuleVars a f)
-  | .intMul n a => .intMul n (renameModuleVars a f)
+  return some (mkExpectedPropHint (← moduleCertificate type inst u integers ctx s.vars lhs rhs) e)
 
 private def denoteModulePoly (ctx : ModuleContext) (vars : Array Expr)
     (p : Grind.Linarith.Poly) : Grind.Linarith.Expr × Expr :=
@@ -172,23 +162,21 @@ natural modules and integers for integer modules. Multiplication need not be ass
 Returns `.rfl` when the type has neither module structure or the expression is already in
 normal form. Can be used as a `post` procedure in `Sym.Simp` to normalize additive expressions
 inside arbitrary propositions, including goals that remain open after normalization. -/
-def normalizeAdd? (e : Expr) : SymM Simp.Result := do
-  unless e.isAppOfArity ``HAdd.hAdd 6 || e.isAppOfArity ``Add.add 4 ||
-      e.isAppOfArity ``HSub.hSub 6 || e.isAppOfArity ``Sub.sub 4 ||
-      e.isAppOfArity ``Neg.neg 3 || e.isAppOfArity ``HSMul.hSMul 6 ||
-      e.isAppOfArity ``SMul.smul 5 do return .rfl
+def normalizeAdd? (e : Expr) : SymM Simp.Result := withNewMCtxDepth do
+  unless e.isAppOfArity ``HAdd.hAdd 6 || e.isAppOfArity ``HSub.hSub 6 ||
+      e.isAppOfArity ``Neg.neg 3 || e.isAppOfArity ``HSMul.hSMul 6 do return .rfl
   let e ← shareCommon e
   let type ← Meta.inferType e
   let some (ctx, inst, u, integers) ← getModule? type | return .rfl
   let (re, s) ← ((reifyModule e).run ctx).run {}
-  let vars := s.vars.qsort Expr.lt
-  let indices := s.vars.map fun a => (vars.findIdx? (isSameExpr a ·)).get!
-  let re := renameModuleVars re indices
+  let perm := (Array.range s.vars.size).qsort fun i j => Expr.lt s.vars[i]! s.vars[j]!
+  let vars := perm.map (s.vars[·]!)
+  let re := re.renameVars (Grind.mkVarRename perm)
   let p := if integers then re.norm else re.toPolyN
   let (re', e') := denoteModulePoly ctx vars p
   let e' ← shareCommon e'
   if isSameExpr e e' then return .rfl
   let h ← moduleCertificate type inst u integers ctx vars re re'
-  return .step e' h (done := true)
+  return .step e' (mkExpectedPropHint h (mkApp3 (mkConst ``Eq [u.succ]) type e e')) (done := true)
 
 end Lean.Meta.Sym.Arith

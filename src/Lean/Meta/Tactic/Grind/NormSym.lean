@@ -126,14 +126,11 @@ def normLegacy (e : Expr) : GrindM Simp.Result := do
   let r ← simpCore (← instantiateMVars e)
   return { r with expr := (← eraseIrrelevantMData r.expr) }
 
-/-- Applies the `Sym.simp`-based normalization step to `e`. -/
+/-- Applies the `Sym.simp`-based normalization step (`symNorm`) to `e`. -/
 def normSym (e : Expr) : GrindM Simp.Result := do
-  let e ← Sym.preprocessExpr e
   let thms ← mkNormSymTheorems
-  let methods := mkNormSymMethods (← getConfig) thms
-  let (r, _) ← Sym.Simp.SimpM.run (Sym.Simp.simp e) methods
-  match r with
-  | .rfl .. => return { expr := e }
-  | .step e' h .. => return { expr := e', proof? := some h }
+  let config ← getConfig
+  let (r, _, _) ← symNorm e (mkNormSymMethods config thms) (mkNormSymDSimpMethods config thms) {} {}
+  return r
 
 end Lean.Meta.Grind

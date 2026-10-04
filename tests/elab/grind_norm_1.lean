@@ -513,19 +513,6 @@ example (o : Option Nat) : (match o with | some x => x + 0 | none => 0 + b) = a 
 #guard_msgs in
 example : (match a * 0 with | 0 => b | _ + 1 => a) = b := by grind_norm check; sorry
 
--- The results differ in the type of `h` in the second alternative: `v.size + 0 = n + 1` (legacy)
--- and `v.size + 0 = n.succ` (`Sym`).
-/--
-error: `grind_norm` discrepancy (in hidden arguments)
-legacy:
-  (_example.match_1 (fun (x : Nat) => Nat) (v.size + 0) (fun (h : v.size + 0 = 0) => 0)
-      fun (n : Nat) (h : v.size + 0 = n + 1) => v[n]) =
-    b
-sym:
-  (_example.match_1 (fun (x : Nat) => Nat) (v.size + 0) (fun (h : v.size + 0 = 0) => 0)
-      fun (n : Nat) (h : v.size + 0 = n.succ) => v[n]) =
-    b
--/
 #guard_msgs in
 example (v : Array Nat) : (match h : v.size + 0 with | 0 => 0 | n + 1 => v[n]'(by grind)) = b := by grind_norm check; sorry
 
@@ -660,24 +647,6 @@ example (x : Fin 5) : (3 : Fin 5) + 4 = x := by grind_norm check; sorry
 #guard_msgs in
 example : (Fin.mk 3 (by decide) : Fin 5).val = a := by grind_norm check; sorry
 
--- Accepted difference: legacy `simp` also rewrites `4 + 1` to `5` in the type of the `Eq`;
--- `Sym.simp` does not visit types. The `Fin` literals agree, see the probes below.
-/--
-error: `grind_norm` discrepancy (in hidden arguments)
-legacy:
-  @Eq (Fin (@OfNat.ofNat Nat (nat_lit 5) (instOfNatNat (nat_lit 5))))
-    (@OfNat.ofNat (Fin (@OfNat.ofNat Nat (nat_lit 5) (instOfNatNat (nat_lit 5)))) (nat_lit 4)
-      (@Fin.instOfNat (@OfNat.ofNat Nat (nat_lit 5) (instOfNatNat (nat_lit 5))) ⋯ (nat_lit 4)))
-    x
-sym:
-  @Eq
-    (Fin
-      (@HAdd.hAdd Nat Nat Nat (@instHAdd Nat instAddNat) (@OfNat.ofNat Nat (nat_lit 4) (instOfNatNat (nat_lit 4)))
-        (@OfNat.ofNat Nat (nat_lit 1) (instOfNatNat (nat_lit 1)))))
-    (@OfNat.ofNat (Fin (@OfNat.ofNat Nat (nat_lit 5) (instOfNatNat (nat_lit 5)))) (nat_lit 4)
-      (@Fin.instOfNat (@OfNat.ofNat Nat (nat_lit 5) (instOfNatNat (nat_lit 5))) ⋯ (nat_lit 4)))
-    x
--/
 #guard_msgs in
 example (x : Fin 5) : Fin.last 4 = x := by grind_norm check; sorry
 

@@ -46,17 +46,12 @@ example (h : g 3 y = 5) : False := by grind [g.eq_def]
 example : g (n + 1) y = n := by grind [g.eq_def]
 example : g 0 y = y := by grind [g.eq_def]
 
--- TODO: fix. `grind.debug` is off for the next two examples: with either normalizer, the
--- congruence-table check in `checkEqc` fails nondeterministically on them (about 1 run in 15 when
--- the test runs from the `Init` header snapshot, `--incr-load`).
-set_option grind.debug false in
 example (x n : Nat)
     : 0 < match x with
           | 0  => 1
           | _ => x + n := by
   grind
 
-set_option grind.debug false in
 example (x y : Nat)
     : 0 < match x, y with
           | 0, 0   => 1

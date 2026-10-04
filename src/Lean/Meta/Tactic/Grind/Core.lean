@@ -7,6 +7,7 @@ module
 prelude
 public import Lean.Meta.Tactic.Grind.Types
 import Lean.Meta.Tactic.Grind.Inv
+import Lean.Meta.Tactic.Grind.Util
 import Lean.Meta.Tactic.Grind.PP
 import Lean.Meta.Tactic.Grind.Ctor
 import Lean.Meta.Tactic.Grind.Beta
@@ -37,10 +38,12 @@ where
     }
 
 /--
-Returns `true` if the parent is relevant for congruence closure.
+Returns `true` if the parent is relevant for congruence closure. `MatchCond` nodes are not in the
+congruence table (see `internalizeMatchCond`): reinserting one would add it, hashed on the current
+root of its argument, of which it is not a registered parent, and the entry would go stale.
 -/
 private def isCongrRelevant (parent : Expr) : Bool :=
-  parent.isApp || parent.isArrow
+  (parent.isApp && !isMatchCond parent) || parent.isArrow
 
 /--
 Removes `root` parents from the congruence table.

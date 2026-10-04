@@ -667,9 +667,14 @@ where
           internalizeImpl c generation e
           registerParent e c
         else if f.isConstOf ``ite && args.size == 5 then
+          -- Only the condition is internalized; the branches are internalized by `propagateIte`
+          -- once the condition is decided. The congruence hash of `e` covers every argument,
+          -- so `e` is registered as a parent of all of them: if a branch or the instance is
+          -- internalized through another term and merged, `e` must be rehashed.
           let c := args[1]!
           internalizeImpl c generation e
-          registerParent e c
+          for arg in args do
+            registerParent e arg
         else
           if let .const fName _ := f then
             activateTheorems fName generation

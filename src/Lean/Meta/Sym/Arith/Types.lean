@@ -159,6 +159,8 @@ structure State where
   ncSemirings    : Array Semiring := {}
   /-- Mapping from types to their classification result. Caches failures as `.none`. -/
   typeClassify   : PHashMap ExprPtr ClassifyResult := {}
+  /-- Classification using only `Ring` and `Semiring`, even on commutative carriers. -/
+  typeNonCommClassify : PHashMap ExprPtr ClassifyResult := {}
   /-- Order structures. -/
   orders         : Array Order := {}
   /-- Mapping from types to their order id. Caches failures as `none`. -/

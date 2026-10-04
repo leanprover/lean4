@@ -186,18 +186,27 @@ private def tryNonCommSemiring? (type : Expr) : SymM (Option Nat) := do
 Classify the algebraic structure of `type`, trying the strongest first:
 CommRing > Ring > CommSemiring > Semiring.
 Results are cached in `Arith.State.typeClassify`.
+With `commutative := false`, only `Ring` and `Semiring` are tried, using a separate cache.
 -/
-def classify? (type : Expr) : SymM ClassifyResult := do
-  if let some result := (← getArithState).typeClassify.find? { expr := type } then
+def classify? (type : Expr) (commutative : Bool := true) : SymM ClassifyResult := do
+  let s ← getArithState
+  let cache := if commutative then s.typeClassify else s.typeNonCommClassify
+  if let some result := cache.find? { expr := type } then
     return result
   let result ← go
-  modifyArithState fun s => { s with typeClassify := s.typeClassify.insert { expr := type } result }
+  modifyArithState fun s =>
+    if commutative then
+      { s with typeClassify := s.typeClassify.insert { expr := type } result }
+    else
+      { s with typeNonCommClassify := s.typeNonCommClassify.insert { expr := type } result }
   return result
 where
   go : SymM ClassifyResult := do
-    if let some id ← tryCommRing? type then return .commRing id
+    if commutative then
+      if let some id ← tryCommRing? type then return .commRing id
     if let some id ← tryNonCommRing? type then return .nonCommRing id
-    if let some id ← tryCommSemiring? type then return .commSemiring id
+    if commutative then
+      if let some id ← tryCommSemiring? type then return .commSemiring id
     if let some id ← tryNonCommSemiring? type then return .nonCommSemiring id
     return .none
 

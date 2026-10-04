@@ -15,6 +15,7 @@ public import Lean.Compiler.InlineAttrs
 public import Lean.Meta.TransparencyMode
 import Init.Data.Range.Polymorphic.Iterators
 import all Lean.Environment  -- for accessing `Environment.synthCacheRaw?`
+import all Lean.MetavarContext  -- for accessing `SynthNormMemoSlot.raw?`
 import Init.While
 
 public section
@@ -382,6 +383,13 @@ structure SynthInstanceCacheKey where
   query: results of the public and the private scope must not be shared.
   -/
   isExporting       : Bool
+  /--
+  For a key whose free variables are normalized (see `Lean.Meta.SynthNorm`), these are the types of
+  the free variables `type` and `localInsts` mention, by canonical position. Free variables are
+  abstracted to loose bound variables, so that structurally identical queries in different local
+  contexts share an entry. Empty for other keys.
+  -/
+  normFVarTypes     : Array Expr := #[]
   deriving Hashable, BEq
 
 /-- Resulting type for `abstractMVars` -/
@@ -462,6 +470,48 @@ def _root_.Lean.Environment.setSynthCache (env : Environment) (c : SynthInstance
     Environment :=
   let c : PersistentSynthInstanceCache := { gen := env.trackedGen, entries := c }
   { env with synthCacheRaw? := some (unsafe unsafeCast c) }
+
+/--
+The free-variable normalization of a local instance context (see `Lean.Meta.SynthNorm`): every free
+variable reachable from the local instances, transitively through their types, by canonical
+position, and the normalized types of these variables.
+-/
+structure SynthNormClosure where
+  fvarSet  : PersistentHashSet FVarId
+  idx2fvar : Array Expr
+  types    : Array Expr
+
+/--
+The memoized result of normalizing the free variables of the local instances `localInsts`. It does
+not depend on the query, so every type class resolution query made under the same local instances
+shares it. One slot suffices, as the local instances change rarely relative to the number of
+queries made under them.
+
+The result depends on the metavariable assignments through the types of the local variables, which
+are otherwise immutable. The memo is therefore stored in the `MetavarContext`, so that it is
+reverted together with the assignments. Assignments made after it was computed do not affect a
+`closure?`, whose types are fully instantiated.
+-/
+structure SynthNormClosureMemo where
+  localInsts : LocalInstances
+  /-- `none` if the local instances cannot be normalized. -/
+  closure? : Option SynthNormClosure
+  /--
+  If the normalization failed on a variable whose type has an unassigned metavariable, that type.
+  The failure holds as long as the type still has an unassigned metavariable.
+  -/
+  stuckType? : Option Expr
+
+/-- The memo for the type class resolution cache key normalization; see `SynthNormClosureMemo`. -/
+def _root_.Lean.MetavarContext.synthNormMemo? (mctx : MetavarContext) :
+    Option SynthNormClosureMemo :=
+  -- safety: only `setSynthNormMemo` stores a value
+  unsafe unsafeCast mctx.synthNormMemo.raw?
+
+/-- Replaces the memo for the type class resolution cache key normalization. -/
+def _root_.Lean.MetavarContext.setSynthNormMemo (mctx : MetavarContext)
+    (memo : SynthNormClosureMemo) : MetavarContext :=
+  { mctx with synthNormMemo := { raw? := some (unsafe unsafeCast memo) } }
 
 -- Key for `InferType` and `WHNF` caches
 structure ExprConfigCacheKey where

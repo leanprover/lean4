@@ -13,11 +13,13 @@ open Sym.Arith
 
 structure SemiringM.Context where
   semiringId : Nat
+  /-- Generation assigned to terms internalized while reifying. -/
+  gen : Nat := 0
 
 abbrev SemiringM := ReaderT SemiringM.Context GoalM
 
-abbrev SemiringM.run (semiringId : Nat) (x : SemiringM α) : GoalM α :=
-  x { semiringId }
+abbrev SemiringM.run (semiringId : Nat) (x : SemiringM α) (gen : Nat := 0) : GoalM α :=
+  x { semiringId, gen }
 
 abbrev getSemiringId : SemiringM Nat :=
   return (← read).semiringId
@@ -100,15 +102,11 @@ def mkSVarCore [MonadLiftT GoalM m] [Monad m] [MonadSemiringState m] [MonadSetTe
   ringExt.markTerm e
   return var
 
-/--
-Semiring terms are reified only by the `internalize` hook, after the core has created the
-`ENode`s of the term and of all its subterms. So every variable created here is already
-internalized, and there is no generation to assign.
--/
+/-- Variables created while reifying are internalized first, using the generation in the context. -/
 instance : MonadMkVar SemiringM where
   mkVar e := do
     unless (← alreadyInternalized e) do
-      throwError "`grind` internal error, semiring term has not been internalized{indentExpr e}"
+      internalize e (← read).gen
     mkSVarCore e
 
 def _root_.Lean.Grind.CommRing.Expr.denoteAsRingExpr (e : SemiringExpr) : SemiringM Expr := do

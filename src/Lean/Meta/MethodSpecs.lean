@@ -112,12 +112,16 @@ overloaded `Cls.op` operation, and similarly `instClsT.op_spec_<n>` based on the
 `opImpl.eq_<n>`.
 -/
 @[builtin_doc]
-builtin_initialize methodSpecsAttr : ParametricAttribute MethodSpecsAttrData ←
-  registerParametricAttribute {
+builtin_initialize methodSpecsAttr : ParametricAttribute MethodSpecsAttrData ← do
+  let impl : ParametricAttributeImpl MethodSpecsAttrData := {
     name := `method_specs
     descr := "generate method specification theorems"
     getParam
   }
+  let ext ← registerParametricAttributeExt (α := MethodSpecsAttrData) impl.ref impl.preserveOrder
+    (logWrites := true)
+    impl.filterExport
+  registerParametricAttributeForExt impl ext
 
 builtin_initialize methodSpecsSimpExtension : SimpExtension ←
   registerSimpAttr `method_specs_simp

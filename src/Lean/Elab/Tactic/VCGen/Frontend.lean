@@ -149,15 +149,11 @@ public def mkContext (lemmas : Syntax) (goal : MVarId) (ignoreStarArg := false) 
   return (ctx, { specs := allSpecThms })
 
 /-- True iff `m` carries a `WPMonad m _ _` instance, i.e. it is a genuine weakest-precondition monad
-rather than a deep-embedding program type with a bespoke `WP`. The `Pred`/`EPred` `outParam`s are left
+rather than a deep-embedding program type with a bespoke `WP`. The `Pred`/`EPosts` `outParam`s are left
 as metavariables for instance search to fill; instance search runs at default transparency, while the
 caller reduces types at reducible transparency. -/
 private def isWPMonad (m : Expr) : MetaM Bool := withDefault do
-  try
-    let wpm ← mkConstWithFreshMVarLevels ``Std.WP.WPMonad
-    let (args, _, _) ← forallMetaTelescopeReducing (← inferType wpm)
-    unless ← isDefEq args[0]! m do return false
-    return (← synthInstance? (mkAppN wpm args)).isSome
+  try return (← synthInstanceOpt? ``Std.WP.WPMonad #[some m]).isSome
   catch _ => return false
 
 /-- Infer the program type of a `vcgen` goal, the key for frame-procedure selection and the expected

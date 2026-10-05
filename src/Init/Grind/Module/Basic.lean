@@ -20,6 +20,9 @@ class AddRightCancel (M : Type u) [Add M] where
   /-- Addition is right-cancellative. -/
   add_right_cancel : ∀ a b c : M, a + c = b + c → a = b
 
+theorem AddRightCancel.add_right_cancel_iff {M : Type u} [Add M] [AddRightCancel M] {a b c : M} : a + c = b + c ↔ a = b :=
+  ⟨AddRightCancel.add_right_cancel a b c, fun h => h ▸ rfl⟩
+
 /-- A type with zero and addition,
 where addition is commutative and associative,
 and the zero is the right identity for addition. -/

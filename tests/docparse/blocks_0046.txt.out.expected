@@ -1,19 +1,31 @@
+Input: "{test}\n> Here's a blockquote\n\n with multiple paras\n\nthat ends"
 Success! Final stack:
-  [(Lean.Doc.Syntax.command "{" `test [] "}")
-   (Lean.Doc.Syntax.blockquote
+  [(Lean.Doc.Parser.Block.command
+    "{"
+    `test
+    []
+    "}")
+   (Lean.Doc.Parser.Block.blockquote
     ">"
-    [(Lean.Doc.Syntax.para
-      "para{"
-      [(Lean.Doc.Syntax.text
-        (str "\"Here's a blockquote\""))]
-      "}")
-     (Lean.Doc.Syntax.para
-      "para{"
-      [(Lean.Doc.Syntax.text
-        (str "\"with multiple paras\""))]
-      "}")])
-   (Lean.Doc.Syntax.para
-    "para{"
-    [(Lean.Doc.Syntax.text (str "\"that ends\""))]
-    "}")]
+    [(Lean.Doc.Parser.Block.para
+      [(Lean.Doc.Parser.Inline.text
+        (Lean.Doc.Parser.versoText
+         "Here's a blockquote"))])
+     (Lean.Doc.Parser.Block.para
+      [(Lean.Doc.Parser.Inline.text
+        (Lean.Doc.Parser.versoText
+         "with multiple paras"))])])
+   (Lean.Doc.Parser.Block.para
+    [(Lean.Doc.Parser.Inline.text
+      (Lean.Doc.Parser.versoText "that ends"))])]
 All input consumed.
+Round-trip OK
+Decoded views:
+  command (braceOpen := "{") (name := test) (args := []) (braceClose := "}")
+  blockquote (marker := ">")
+    para
+      text (content := "Here's a blockquote")
+    para
+      text (content := "with multiple paras")
+  para
+    text (content := "that ends")

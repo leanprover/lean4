@@ -1249,9 +1249,7 @@ lean_dec_ref(v_inst_617_);
 lean_inc_ref(v_inst_618_);
 v_val_623_ = l_Std_DHashMap_Internal_Raw_u2080_cons_u2098___redArg(v_inst_618_, v_m_619_, v_a_620_, v_b_621_);
 v_size_624_ = lean_ctor_get(v_val_623_, 0);
-lean_inc(v_size_624_);
 v_buckets_625_ = lean_ctor_get(v_val_623_, 1);
-lean_inc_ref(v_buckets_625_);
 v___x_626_ = lean_unsigned_to_nat(4u);
 v___x_627_ = lean_nat_mul(v_size_624_, v___x_626_);
 v___x_628_ = lean_unsigned_to_nat(3u);
@@ -1263,6 +1261,8 @@ lean_dec(v___x_629_);
 if (v___x_631_ == 0)
 {
 lean_object* v___x_633_; uint8_t v_isShared_634_; uint8_t v_isSharedCheck_639_; 
+lean_inc_ref(v_buckets_625_);
+lean_inc(v_size_624_);
 v_isSharedCheck_639_ = !lean_is_exclusive(v_val_623_);
 if (v_isSharedCheck_639_ == 0)
 {
@@ -1309,8 +1309,6 @@ return v___x_637_;
 }
 else
 {
-lean_dec_ref(v_buckets_625_);
-lean_dec(v_size_624_);
 lean_dec_ref(v_inst_618_);
 return v_val_623_;
 }
@@ -1344,9 +1342,7 @@ lean_object* v_val_657_; lean_object* v_size_658_; lean_object* v_buckets_659_; 
 lean_inc_ref(v_inst_652_);
 v_val_657_ = l_Std_DHashMap_Internal_Raw_u2080_cons_u2098___redArg(v_inst_652_, v_m_653_, v_a_654_, v_b_655_);
 v_size_658_ = lean_ctor_get(v_val_657_, 0);
-lean_inc(v_size_658_);
 v_buckets_659_ = lean_ctor_get(v_val_657_, 1);
-lean_inc_ref(v_buckets_659_);
 v___x_660_ = lean_unsigned_to_nat(4u);
 v___x_661_ = lean_nat_mul(v_size_658_, v___x_660_);
 v___x_662_ = lean_unsigned_to_nat(3u);
@@ -1358,6 +1354,8 @@ lean_dec(v___x_663_);
 if (v___x_665_ == 0)
 {
 lean_object* v___x_667_; uint8_t v_isShared_668_; uint8_t v_isSharedCheck_673_; 
+lean_inc_ref(v_buckets_659_);
+lean_inc(v_size_658_);
 v_isSharedCheck_673_ = !lean_is_exclusive(v_val_657_);
 if (v_isSharedCheck_673_ == 0)
 {
@@ -1404,8 +1402,6 @@ return v___x_671_;
 }
 else
 {
-lean_dec_ref(v_buckets_659_);
-lean_dec(v_size_658_);
 lean_dec_ref(v_inst_652_);
 return v_val_657_;
 }
@@ -1567,9 +1563,7 @@ lean_dec_ref_known(v___x_737_, 1);
 lean_inc_ref(v_inst_731_);
 v_val_739_ = l_Std_DHashMap_Internal_Raw_u2080_cons_u2098___redArg(v_inst_731_, v_m_732_, v_a_733_, v_val_738_);
 v_size_740_ = lean_ctor_get(v_val_739_, 0);
-lean_inc(v_size_740_);
 v_buckets_741_ = lean_ctor_get(v_val_739_, 1);
-lean_inc_ref(v_buckets_741_);
 v___x_742_ = lean_unsigned_to_nat(4u);
 v___x_743_ = lean_nat_mul(v_size_740_, v___x_742_);
 v___x_744_ = lean_unsigned_to_nat(3u);
@@ -1581,6 +1575,8 @@ lean_dec(v___x_745_);
 if (v___x_747_ == 0)
 {
 lean_object* v___x_749_; uint8_t v_isShared_750_; uint8_t v_isSharedCheck_755_; 
+lean_inc_ref(v_buckets_741_);
+lean_inc(v_size_740_);
 v_isSharedCheck_755_ = !lean_is_exclusive(v_val_739_);
 if (v_isSharedCheck_755_ == 0)
 {
@@ -1627,8 +1623,6 @@ return v___x_753_;
 }
 else
 {
-lean_dec_ref(v_buckets_741_);
-lean_dec(v_size_740_);
 lean_dec_ref(v_inst_731_);
 return v_val_739_;
 }
@@ -1840,9 +1834,7 @@ lean_dec_ref_known(v___x_824_, 1);
 lean_inc_ref(v_inst_818_);
 v_val_826_ = l_Std_DHashMap_Internal_Raw_u2080_cons_u2098___redArg(v_inst_818_, v_m_819_, v_a_820_, v_val_825_);
 v_size_827_ = lean_ctor_get(v_val_826_, 0);
-lean_inc(v_size_827_);
 v_buckets_828_ = lean_ctor_get(v_val_826_, 1);
-lean_inc_ref(v_buckets_828_);
 v___x_829_ = lean_unsigned_to_nat(4u);
 v___x_830_ = lean_nat_mul(v_size_827_, v___x_829_);
 v___x_831_ = lean_unsigned_to_nat(3u);
@@ -1854,6 +1846,8 @@ lean_dec(v___x_832_);
 if (v___x_834_ == 0)
 {
 lean_object* v___x_836_; uint8_t v_isShared_837_; uint8_t v_isSharedCheck_842_; 
+lean_inc_ref(v_buckets_828_);
+lean_inc(v_size_827_);
 v_isSharedCheck_842_ = !lean_is_exclusive(v_val_826_);
 if (v_isSharedCheck_842_ == 0)
 {
@@ -1900,8 +1894,6 @@ return v___x_840_;
 }
 else
 {
-lean_dec_ref(v_buckets_828_);
-lean_dec(v_size_827_);
 lean_dec_ref(v_inst_818_);
 return v_val_826_;
 }

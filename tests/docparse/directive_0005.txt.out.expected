@@ -1,23 +1,28 @@
+Input: " ::: multiPara thing\n foo\n \n \n \n  * List item \n :::\n"
 Success! Final stack:
-  (Lean.Doc.Syntax.directive
-   ":::"
+  (Lean.Doc.Parser.Block.directive
+   (Lean.Doc.Parser.directiveDelimiter ":::")
    `multiPara
-   [(Lean.Doc.Syntax.anon
-     (Lean.Doc.Syntax.arg_ident `thing))]
-   "\n"
-   [(Lean.Doc.Syntax.para
-     "para{"
-     [(Lean.Doc.Syntax.text (str "\"foo\""))]
-     "}")
-    (Lean.Doc.Syntax.ul
-     "ul{"
-     [(Lean.Doc.Syntax.li
-       "*"
-       [(Lean.Doc.Syntax.para
-         "para{"
-         [(Lean.Doc.Syntax.text
-           (str "\"List item \""))]
-         "}")])]
-     "}")]
-   ":::")
+   [(Lean.Doc.Parser.Arg.anon
+     (Lean.Doc.Parser.ArgVal.ident `thing))]
+   [(Lean.Doc.Parser.Block.para
+     [(Lean.Doc.Parser.Inline.text
+       (Lean.Doc.Parser.versoText "foo"))])
+    (Lean.Doc.Parser.Block.ul
+     [(Lean.Doc.Parser.ListItem.item
+       (Lean.Doc.Parser.listMarker "*")
+       [(Lean.Doc.Parser.Block.para
+         [(Lean.Doc.Parser.Inline.text
+           (Lean.Doc.Parser.versoText
+            "List item "))])])])]
+   (Lean.Doc.Parser.directiveDelimiter ":::"))
 All input consumed.
+Round-trip OK
+Decoded views:
+  directive (opener := ":::") (name := multiPara) (args := [anon (val := name (x := thing))]) (closer := ":::")
+    para
+      text (content := "foo")
+    ul
+      item (marker := "*")
+        para
+          text (content := "List item ")

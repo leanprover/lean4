@@ -5,6 +5,7 @@ Released under Apache 2.0 license as described in the file LICENSE.
 Author: Sofia Rodrigues, Henrik Böving
 */
 #include "runtime/uv/event_loop.h"
+#include <cstring>
 
 
 /*
@@ -42,8 +43,8 @@ static void check_uv(int result, const char * msg) {
     }
 }
 
-// Wakes the event loop so that it gives up the mutex to a waiting requester.
-static void event_loop_interrupt(event_loop_t * event_loop) {
+// Interrupts the event loop and stops it so it can receive future requests.
+void event_loop_interrupt(event_loop_t * event_loop) {
     int result = uv_async_send(&event_loop->async);
     (void)result;
     lean_assert(result == 0);
@@ -76,6 +77,29 @@ void event_loop_unlock(event_loop_t * event_loop) {
     uv_mutex_unlock(&event_loop->mutex);
 }
 
+// `nullptr` if `size` is a valid receive buffer size. libuv reports an empty buffer as `UV_ENOBUFS`,
+// which would read as a resource shortage.
+lean_obj_res lean_uv_recv_size_error(uint64_t size) {
+    if (size != 0) {
+        return nullptr;
+    }
+    return lean_io_result_mk_error(lean_mk_io_error_invalid_argument(EINVAL, lean_mk_string("receive buffer size must be positive")));
+}
+
+// Sets the size of a receive buffer to the `nread` bytes it received. A read that fills less than half
+// of it is moved to a buffer of its own size instead, so that many small reads do not each keep a
+// full-sized buffer alive.
+lean_object * lean_uv_fit_read_buffer(lean_object * byte_array, size_t nread) {
+    if (nread * 2 >= lean_sarray_capacity(byte_array)) {
+        lean_sarray_set_size(byte_array, nread);
+        return byte_array;
+    }
+    lean_object * fitted = lean_alloc_sarray(1, nread, nread);
+    memcpy(lean_sarray_cptr(fitted), lean_sarray_cptr(byte_array), nread);
+    lean_dec(byte_array);
+    return fitted;
+}
+
 // Runs the loop and stops when it needs to register new requests.
 void event_loop_run_loop(event_loop_t * event_loop) {
     while (true) {
@@ -95,6 +119,11 @@ void event_loop_run_loop(event_loop_t * event_loop) {
         // the loop never runs out of things to wait on; a requester wakes it with `uv_async_send`
         // and this unlock is what lets that requester in.
         uv_run(event_loop->loop, UV_RUN_ONCE);
+        /*
+         * There is always the `uv_async_t` so we can never run out of things to wait on.
+         * `event_loop_interrupt` sends on it when another thread wants to work with the event loop,
+         * which makes `uv_run` return so we can give up the mutex.
+         */
 
         uv_mutex_unlock(&event_loop->mutex);
     }

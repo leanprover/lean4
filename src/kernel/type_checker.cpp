@@ -375,10 +375,6 @@ expr type_checker::ensure_sort(expr const & e, expr const & s) {
     return ensure_sort_core(e, s);
 }
 
-expr type_checker::ensure_pi(expr const & e, expr const & s) {
-    return ensure_pi_core(e, s);
-}
-
 /** \brief Return true iff \c e is a proposition */
 bool type_checker::is_prop(expr const & e) {
     expr s = ensure_sort(infer_type(e));
@@ -1213,43 +1209,9 @@ bool type_checker::is_def_eq(expr const & t, expr const & s) {
     return r;
 }
 
-expr type_checker::eta_expand(expr const & e) {
-    buffer<expr> fvars;
-    flet<local_ctx> save_lctx(m_lctx, m_lctx);
-    expr it = e;
-    while (is_lambda(it)) {
-        expr d = instantiate_rev(binding_domain(it), fvars.size(), fvars.data());
-        fvars.push_back(m_lctx.mk_local_decl(m_st->m_ngen, binding_name(it), d, binding_info(it)));
-        it     = binding_body(it);
-    }
-    it = instantiate_rev(it, fvars.size(), fvars.data());
-    expr it_type = whnf(infer(it));
-    if (!is_pi(it_type)) return e;
-    buffer<expr> args;
-    while (is_pi(it_type)) {
-        expr arg = m_lctx.mk_local_decl(m_st->m_ngen, binding_name(it_type), binding_domain(it_type), binding_info(it_type));
-        args.push_back(arg);
-        fvars.push_back(arg);
-        it_type  = whnf(instantiate(binding_body(it_type), arg));
-    }
-    expr r = mk_app(it, args);
-    return m_lctx.mk_lambda(fvars, r);
-}
-
 type_checker::type_checker(environment const & env, local_ctx const & lctx, diagnostics * diag, definition_safety ds):
     m_st_owner(true), m_st(new state(env)), m_diag(diag),
     m_lctx(lctx), m_definition_safety(ds), m_lparams(nullptr) {
-}
-
-type_checker::type_checker(state & st, local_ctx const & lctx, definition_safety ds):
-    m_st_owner(false), m_st(&st), m_diag(nullptr), m_lctx(lctx),
-    m_definition_safety(ds), m_lparams(nullptr) {
-}
-
-type_checker::type_checker(type_checker && src) noexcept:
-    m_st_owner(src.m_st_owner), m_st(src.m_st), m_diag(src.m_diag), m_lctx(std::move(src.m_lctx)),
-    m_definition_safety(src.m_definition_safety), m_lparams(src.m_lparams) {
-    src.m_st_owner = false;
 }
 
 type_checker::~type_checker() {

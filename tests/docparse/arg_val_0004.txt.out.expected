@@ -1,5 +1,9 @@
+Input: "\"a b c\t d\""
 Success! Final stack:
-  (Lean.Doc.Syntax.anon
-   (Lean.Doc.Syntax.arg_str
+  (Lean.Doc.Parser.Arg.anon
+   (Lean.Doc.Parser.ArgVal.str
     (str "\"a b c\t d\"")))
 All input consumed.
+Round-trip OK
+Decoded views:
+  anon (val := str (lit := "a b c\t d") (value := "a b c\t d"))

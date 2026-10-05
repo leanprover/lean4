@@ -20,6 +20,7 @@ structure CheckerContext where
 
 structure CheckerState where
   foundVars : IndexSet := {}
+  foundJPs : IndexSet := {}
 
 abbrev M := ReaderT CheckerContext <| StateRefT CheckerState CompilerM
 
@@ -27,17 +28,15 @@ def throwCheckerError {α : Type} (msg : String) : M α := do
   let declName := (← read).currentDecl.name
   throwError "failed to compile definition, compiler IR check failed at `{.ofConstName declName}`. Error: {msg}"
 
-def markIndex (i : Index) : M Unit := do
-  let s ← get
-  if s.foundVars.contains i then
-    throwCheckerError s!"variable / join point index {i} has already been used"
-  modify fun s => { s with foundVars := s.foundVars.insert i }
+def markVar (x : VarId) : M Unit := do
+  if (← get).foundVars.contains x.idx then
+    throwCheckerError s!"variable index {x.idx} has already been used"
+  modify fun s => { s with foundVars := s.foundVars.insert x.idx }
 
-def markVar (x : VarId) : M Unit :=
-  markIndex x.idx
-
-def markJP (j : JoinPointId) : M Unit :=
-  markIndex j.idx
+def markJP (j : JoinPointId) : M Unit := do
+  if (← get).foundJPs.contains j.idx then
+    throwCheckerError s!"join point index {j.idx} has already been used"
+  modify fun s => { s with foundJPs := s.foundJPs.insert j.idx }
 
 def getDecl (c : Name) : M Decl := do
   let ctx ← read
@@ -47,12 +46,12 @@ def getDecl (c : Name) : M Decl := do
 
 def checkVar (x : VarId) : M Unit := do
   let ctx ← read
-  unless ctx.localCtx.isLocalVar x.idx || ctx.localCtx.isParam x.idx do
+  unless ctx.localCtx.isLocalVar x || ctx.localCtx.isParam x do
    throwCheckerError s!"unknown variable '{x}'"
 
 def checkJP (j : JoinPointId) : M Unit := do
   let ctx ← read
-  unless ctx.localCtx.isJP j.idx do
+  unless ctx.localCtx.isJP j do
    throwCheckerError s!"unknown join point '{j}'"
 
 def checkArg (a : Arg) : M Unit :=

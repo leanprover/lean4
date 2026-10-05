@@ -61,7 +61,7 @@ end
 set_option doc.verso false in
 mdMacro caseMdMd
 
-/-- info: markdown: "The set {x} is a singleton. " -/
+/-- info: markdown: "The set {x} is a singleton." -/
 #guard_msgs in #dumpDoc caseMdMd
 
 -- Markdown definition site, Verso invocation site: stored as Markdown (definition site wins). The
@@ -70,7 +70,7 @@ mdMacro caseMdMd
 set_option doc.verso true in
 mdMacro caseMdVerso
 
-/-- info: markdown: "The set {x} is a singleton. " -/
+/-- info: markdown: "The set {x} is a singleton." -/
 #guard_msgs in #dumpDoc caseMdVerso
 
 -- Verso definition site, Markdown invocation site: stored as Verso (definition site wins). The Verso
@@ -98,7 +98,7 @@ set_option doc.verso false in
 /-- Uses {lean}`Nat.succ` literally. -/
 def plainMarkdown := 0
 
-/-- info: markdown: "Uses {lean}`Nat.succ` literally. " -/
+/-- info: markdown: "Uses {lean}`Nat.succ` literally." -/
 #guard_msgs in #dumpDoc plainMarkdown
 
 set_option doc.verso true in

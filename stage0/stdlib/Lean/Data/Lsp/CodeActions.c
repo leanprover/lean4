@@ -48,8 +48,9 @@ lean_object* l_Lean_Lsp_instFromJsonResolveSupport_fromJson(lean_object*);
 lean_object* l_Lean_Lsp_instToJsonResolveSupport_toJson(lean_object*);
 lean_object* l_Lean_Lsp_instFromJsonTextDocumentIdentifier_fromJson(lean_object*);
 lean_object* l_Lean_Lsp_instToJsonTextDocumentIdentifier_toJson(lean_object*);
-LEAN_EXPORT lean_object* l_Lean_Lsp_CodeActionTriggerKind_ctorIdx(uint8_t);
-LEAN_EXPORT lean_object* l_Lean_Lsp_CodeActionTriggerKind_ctorIdx___boxed(lean_object*);
+lean_object* lean_obj_tag_nat(lean_object*);
+LEAN_EXPORT lean_object* l_Lean_Lsp_CodeActionTriggerKind_ctorIdx___impl(uint8_t);
+LEAN_EXPORT lean_object* l_Lean_Lsp_CodeActionTriggerKind_ctorIdx___impl___boxed(lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Lsp_CodeActionTriggerKind_ctorElim___redArg(lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Lsp_CodeActionTriggerKind_ctorElim___redArg___boxed(lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Lsp_CodeActionTriggerKind_ctorElim(lean_object*, lean_object*, uint8_t, lean_object*, lean_object*);
@@ -859,29 +860,22 @@ LEAN_EXPORT lean_object* l_Lean_Lsp_instToJsonCodeActionClientCapabilities_toJso
 static const lean_closure_object l_Lean_Lsp_instToJsonCodeActionClientCapabilities___closed__0_value = {.m_header = {.m_rc = 0, .m_cs_sz = sizeof(lean_closure_object) + sizeof(void*)*0, .m_other = 0, .m_tag = 245}, .m_fun = (void*)l_Lean_Lsp_instToJsonCodeActionClientCapabilities_toJson, .m_arity = 1, .m_num_fixed = 0, .m_objs = {} };
 static const lean_object* l_Lean_Lsp_instToJsonCodeActionClientCapabilities___closed__0 = (const lean_object*)&l_Lean_Lsp_instToJsonCodeActionClientCapabilities___closed__0_value;
 LEAN_EXPORT const lean_object* l_Lean_Lsp_instToJsonCodeActionClientCapabilities = (const lean_object*)&l_Lean_Lsp_instToJsonCodeActionClientCapabilities___closed__0_value;
-LEAN_EXPORT lean_object* l_Lean_Lsp_CodeActionTriggerKind_ctorIdx(uint8_t v_x_1_){
+LEAN_EXPORT lean_object* l_Lean_Lsp_CodeActionTriggerKind_ctorIdx___impl(uint8_t v_x_1_){
 _start:
 {
-if (v_x_1_ == 0)
-{
-lean_object* v___x_2_; 
-v___x_2_ = lean_unsigned_to_nat(0u);
-return v___x_2_;
-}
-else
-{
-lean_object* v___x_3_; 
-v___x_3_ = lean_unsigned_to_nat(1u);
+lean_object* v___x_2_; lean_object* v___x_3_; 
+v___x_2_ = lean_box(v_x_1_);
+v___x_3_ = lean_obj_tag_nat(v___x_2_);
+lean_dec(v___x_2_);
 return v___x_3_;
 }
 }
-}
-LEAN_EXPORT lean_object* l_Lean_Lsp_CodeActionTriggerKind_ctorIdx___boxed(lean_object* v_x_4_){
+LEAN_EXPORT lean_object* l_Lean_Lsp_CodeActionTriggerKind_ctorIdx___impl___boxed(lean_object* v_x_4_){
 _start:
 {
-uint8_t v_x_boxed_5_; lean_object* v_res_6_; 
-v_x_boxed_5_ = lean_unbox(v_x_4_);
-v_res_6_ = l_Lean_Lsp_CodeActionTriggerKind_ctorIdx(v_x_boxed_5_);
+uint8_t v_x_4__boxed_5_; lean_object* v_res_6_; 
+v_x_4__boxed_5_ = lean_unbox(v_x_4_);
+v_res_6_ = l_Lean_Lsp_CodeActionTriggerKind_ctorIdx___impl(v_x_4__boxed_5_);
 return v_res_6_;
 }
 }

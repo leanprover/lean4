@@ -256,8 +256,11 @@ instance : ToLean (Target α) := ⟨(·.key.toLean)⟩
 def Dependency.mkRequire (cfg : Dependency) : RequireDecl := Unhygienic.run do
   let src? ← cfg.src?.mapM fun src =>
     match src with
-    | .path dir =>
-      `(fromSource|$(toLean dir):term)
+    | .path dir copy =>
+      if copy then
+        `(fromSource|copy $(toLean dir):term)
+      else
+        `(fromSource|$(toLean dir):term)
     | .git url rev? subDir? =>
       `(fromSource|git $(toLean url) $[@ $(rev?.map toLean)]? $[/ $(subDir?.map toLean)]?)
   let ver? ← id do

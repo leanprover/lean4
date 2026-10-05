@@ -1,8 +1,17 @@
+Input: "$`\\frac{\n  x\n}{\n  4\n}\n`"
 Success! Final stack:
-  (Lean.Doc.Syntax.inline_math
-   "$"
-   (Lean.Doc.Syntax.code
-    "`"
-    (str "\"\\\\frac{\\n  x\\n}{\\n  4\\n}\\n\"")
-    "`"))
+  (Lean.Doc.Parser.Inline.inline_math
+   (Lean.Doc.Parser.inlineMathMarker "$")
+   (Lean.Doc.Parser.Inline.code
+    (Lean.Doc.Parser.codeDelimiter "`")
+    (Lean.Doc.Parser.versoCode
+     [(Lean.Doc.Parser.versoCodeLine "\\frac{\n")
+      (Lean.Doc.Parser.versoCodeLine "  x\n")
+      (Lean.Doc.Parser.versoCodeLine "}{\n")
+      (Lean.Doc.Parser.versoCodeLine "  4\n")
+      (Lean.Doc.Parser.versoCodeLine "}\n")])
+    (Lean.Doc.Parser.codeDelimiter "`")))
 All input consumed.
+Round-trip OK
+Decoded views:
+  math (mode := inline) (marker := "$") (opener := "`") (content := "\\frac{\n  x\n}{\n  4\n}\n") (closer := "`")

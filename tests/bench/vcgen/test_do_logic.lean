@@ -5,7 +5,6 @@ Authors: Vladimir Gladshtein, Sebastian Graf
 -/
 import Lean
 import Std.WP
-import Std.Tactic.Do
 
 set_option experimental.vcgen true
 
@@ -147,13 +146,13 @@ theorem fib_impl_vcs
     apply_rules [loop_post]
 
 @[spec]
-theorem mkFreshNat_spec [Monad m] [Assertion Pred] [Assertion EPred] [WPMonad m Pred EPred] :
+theorem mkFreshNat_spec [Monad m] [Assertion Pred] [Assertion EPosts] [WPMonad m Pred EPosts] :
     ⦃ fun s => ⌜s.1 = n ∧ s.2 = o⌝ ⦄
     (mkFreshNat : StateT AppState m Nat)
     ⦃ fun r s => ⌜r = n ∧ s.1 = n + 1 ∧ s.2 = o⌝ ⦄ := by
   vcgen [mkFreshNat] <;> simp_all
 
-theorem erase_unfold [Monad m] [Assertion Pred] [Assertion EPred] [WPMonad m Pred EPred] :
+theorem erase_unfold [Monad m] [Assertion Pred] [Assertion EPosts] [WPMonad m Pred EPosts] :
   ⦃fun s => ⌜s.1 = n ∧ s.2 = o⌝ ⦄
   (mkFreshNat : StateT AppState m Nat)
   ⦃fun r s => ⌜r = n ∧ s.1 = n + 1 ∧ s.2 = o⌝ ⦄ := by
@@ -163,7 +162,7 @@ theorem erase_unfold [Monad m] [Assertion Pred] [Assertion EPred] [WPMonad m Pre
   fail_if_success done
   admit
 
-theorem add_unfold [Monad m] [Assertion Pred] [Assertion EPred] [WPMonad m Pred EPred] :
+theorem add_unfold [Monad m] [Assertion Pred] [Assertion EPosts] [WPMonad m Pred EPosts] :
     ⦃ fun s => ⌜s.1 = n ∧ s.2 = o⌝ ⦄
     (mkFreshNat : StateT AppState m Nat)
     ⦃ fun r s => ⌜r = n ∧ s.1 = n + 1 ∧ s.2 = o⌝ ⦄ := by
@@ -253,6 +252,24 @@ example (p : Nat → Prop) [DecidablePred p] (n : Nat) :
       (onContinue := fun pref _ _ => ⌜∀ i, i ∈ pref → p i⌝)
   all_goals simp_all [-Classical.not_forall]; try grind
 
+def nodup (l : List Int) : Bool := Id.run do
+  let mut seen : Std.HashSet Int := ∅
+  for x in l do
+    if x ∈ seen then
+      return false
+    seen := seen.insert x
+  return true
+
+theorem nodup_correct (l : List Int) : nodup l ↔ l.Nodup := by
+  generalize h : nodup l = r
+  apply Id.of_run_eq_wp h
+  vcgen invariants
+  · Invariant.withEarlyReturnNewDo
+      (onReturn := fun ret seen => ret = false ∧ ¬l.Nodup)
+      (onContinue := fun pref suff seen =>
+        (∀ x, x ∈ seen ↔ x ∈ pref) ∧ pref.Nodup)
+  with finish
+
 end Automated
 
 namespace HimpSplit
@@ -260,12 +277,26 @@ namespace HimpSplit
 -- A `⇨` (Heyting implication) in the postcondition exercises the `PreservesSup.le_upperAdjoint` split, whose
 -- subgoal carries a `⊓ ⊤` precondition that `meet_top_le_of_le` cancels. The abstract `Pred` keeps
 -- `⇨` from collapsing to `→`.
-theorem himp_post {m} [Monad m] [Assertion Pred] [Assertion EPred] [WPMonad m Pred EPred] :
+theorem himp_post {m} [Monad m] [Assertion Pred] [Assertion EPosts] [WPMonad m Pred EPosts] :
     ⦃ ⊤ ⦄ (pure 4 : m Nat) ⦃ fun r => ⌜r = 4⌝ ⇨ ⌜r > 0⌝ ⦄ := by
   vcgen
   all_goals grind
 
 end HimpSplit
+
+namespace AndSplit
+
+-- A pointwise `∧` precondition splits like `⊓`, so the `wp` of the second `dec` is stepped.
+def dec : StateM Nat Unit := modify (· - 1)
+
+@[spec] theorem dec_spec {Q : Unit → Nat → Prop} :
+    ⦃ fun n => 0 < n ∧ Q () (n - 1) ⦄ dec ⦃ Q ⦄ := by
+  vcgen [dec] <;> simp_all
+
+example : ⦃ fun n => n = 2 ⦄ (do dec; dec) ⦃ fun _ n => n = 0 ⦄ := by
+  vcgen <;> omega
+
+end AndSplit
 
 namespace VSTTE2010
 
@@ -447,8 +478,8 @@ section IteratorTests
 variable {m} [Monad m]
 open Std Std.Iterators
 
-theorem forIn_eq_sum (xs : Array Nat) {m} [Monad m] [Assertion Pred] [Assertion EPred]
-    [WPMonad m Pred EPred] :
+theorem forIn_eq_sum (xs : Array Nat) {m} [Monad m] [Assertion Pred] [Assertion EPosts]
+    [WPMonad m Pred EPosts] :
     ⦃ ⊤ ⦄
     (do
       let mut sum : Nat := 0
@@ -460,8 +491,8 @@ theorem forIn_eq_sum (xs : Array Nat) {m} [Monad m] [Assertion Pred] [Assertion 
   case inv1 => exact fun pref _ n => ⌜n = pref.sum⌝
   all_goals grind
 
-theorem forIn_map_eq_sum_add_size' (xs : Array Nat) {m} [Monad m] [Assertion Pred] [Assertion EPred]
-    [WPMonad m Pred EPred] :
+theorem forIn_map_eq_sum_add_size' (xs : Array Nat) {m} [Monad m] [Assertion Pred] [Assertion EPosts]
+    [WPMonad m Pred EPosts] :
     ⦃ ⊤ ⦄ (m := m) (do
       let mut sum : Nat := 0
       for n in (xs.iterM Id).map (· + 1) do
@@ -471,8 +502,8 @@ theorem forIn_map_eq_sum_add_size' (xs : Array Nat) {m} [Monad m] [Assertion Pre
   case inv1 => exact fun pref _ n => ⌜n = pref.sum + pref.length⌝
   all_goals grind
 
-theorem forIn_map_eq_sum_add_size (xs : Array Nat) {m} [Monad m] [Assertion Pred] [Assertion EPred]
-    [WPMonad m Pred EPred] :
+theorem forIn_map_eq_sum_add_size (xs : Array Nat) {m} [Monad m] [Assertion Pred] [Assertion EPosts]
+    [WPMonad m Pred EPosts] :
     ⦃ ⊤ ⦄ (m := m) (do
       let mut sum : Nat := 0
       for n in (xs.iterM Id).map (· + 1) do
@@ -484,7 +515,7 @@ theorem forIn_map_eq_sum_add_size (xs : Array Nat) {m} [Monad m] [Assertion Pred
 
 
 theorem forIn_mapM_eq_sum_add_size (xs : Array Nat) {m} [Monad m] [MonadAttach m]
-    [LawfulMonad m] [WeaklyLawfulMonadAttach m] [Assertion Pred] [Assertion EPred] [WPMonad m Pred EPred] :
+    [LawfulMonad m] [WeaklyLawfulMonadAttach m] [Assertion Pred] [Assertion EPosts] [WPMonad m Pred EPosts] :
     ⦃ ⊤ ⦄ (m := m) (do
       let mut sum : Nat := 0
       for n in (xs.iterM Id).mapM (pure (f := m) <| · + 1) do
@@ -495,7 +526,7 @@ theorem forIn_mapM_eq_sum_add_size (xs : Array Nat) {m} [Monad m] [MonadAttach m
   all_goals grind
 
 theorem forIn_filterMapM_eq_sum_add_size (xs : Array Nat) {m}
-    [Monad m] [LawfulMonad m] [MonadAttach m] [WeaklyLawfulMonadAttach m] [Assertion Pred] [Assertion EPred] [WPMonad m Pred EPred] :
+    [Monad m] [LawfulMonad m] [MonadAttach m] [WeaklyLawfulMonadAttach m] [Assertion Pred] [Assertion EPosts] [WPMonad m Pred EPosts] :
     ⦃ ⊤ ⦄ (m := m) (do
       let mut sum : Nat := 0
       for n in (xs.iterM Id).filterMapM (pure (f := m) <| some <| · + 1) do
@@ -506,7 +537,7 @@ theorem forIn_filterMapM_eq_sum_add_size (xs : Array Nat) {m}
   all_goals grind
 
 theorem foldM_eq_sum (xs : Array Nat) {m} [Monad m] [LawfulMonad m]
-    [Assertion Pred] [Assertion EPred] [WPMonad m Pred EPred] :
+    [Assertion Pred] [Assertion EPosts] [WPMonad m Pred EPosts] :
     ⦃ ⊤ ⦄ (xs.iter.foldM (m := m) (init := 0) (pure <| · + ·)) ⦃ fun r => ⌜r = xs.sum⌝ ⦄ := by
   vcgen
   case inv1 => exact fun pref _ n => ⌜n = pref.sum⌝
@@ -683,14 +714,14 @@ end InvalidSpecRejection
 
 namespace TopBetaReduction
 
-variable {m : Type → Type u} {Pred EPred} [Monad m] [Assertion Pred] [Assertion EPred] [WPMonad m Pred EPred]
+variable {m : Type → Type u} {Pred EPosts} [Monad m] [Assertion Pred] [Assertion EPosts] [WPMonad m Pred EPosts]
 
 def incr (n : Nat) : StateT Nat m PUnit := modify (· + n)
 
 @[spec]
 theorem Spec.incr
-    (post : PUnit → Nat → Pred) (epost : EPred) (n : Nat) :
-    ⦃ fun s => post ⟨⟩ (s + n) ⦄ (incr n : StateT Nat m PUnit) ⦃ post; epost ⦄ := by
+    (post : PUnit → Nat → Pred) (eposts : EPosts) (n : Nat) :
+    ⦃ fun s => post ⟨⟩ (s + n) ⦄ (incr n : StateT Nat m PUnit) ⦃ post; eposts ⦄ := by
   vcgen [TopBetaReduction.incr]; rfl
 
 /--
@@ -712,11 +743,11 @@ error: unsolved goals
 case vc1
 m : Type → Type u
 Pred : Type u_1
-EPred : Type u_2
+EPosts : Type u_2
 inst✝³ : Monad m
 inst✝² : Assertion Pred
-inst✝¹ : Assertion EPred
-inst✝ : WPMonad m Pred EPred
+inst✝¹ : Assertion EPosts
+inst✝ : WPMonad m Pred EPosts
 amounts : List Nat
 s✝ : Nat
 ⊢ ⊤ ⊑ ⊥

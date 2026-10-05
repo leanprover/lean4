@@ -6421,7 +6421,7 @@ _start:
 lean_object* v___x_2885_; lean_object* v___x_2886_; lean_object* v___x_2887_; lean_object* v___x_2888_; lean_object* v___x_2889_; lean_object* v___x_2890_; 
 v___x_2885_ = ((lean_object*)(l_Array_findSome_x21___redArg___closed__1));
 v___x_2886_ = lean_unsigned_to_nat(14u);
-v___x_2887_ = lean_unsigned_to_nat(1279u);
+v___x_2887_ = lean_unsigned_to_nat(1286u);
 v___x_2888_ = ((lean_object*)(l_Array_findSome_x21___redArg___closed__0));
 v___x_2889_ = ((lean_object*)(l_Array_swapAt_x21___redArg___closed__0));
 v___x_2890_ = l_mkPanicMessageWithDecl(v___x_2889_, v___x_2888_, v___x_2887_, v___x_2886_, v___x_2885_);
@@ -9610,7 +9610,7 @@ _start:
 lean_object* v___x_4158_; lean_object* v___x_4159_; lean_object* v___x_4160_; lean_object* v___x_4161_; lean_object* v___x_4162_; lean_object* v___x_4163_; 
 v___x_4158_ = ((lean_object*)(l_Array_eraseIdx_x21___redArg___closed__1));
 v___x_4159_ = lean_unsigned_to_nat(47u);
-v___x_4160_ = lean_unsigned_to_nat(1867u);
+v___x_4160_ = lean_unsigned_to_nat(1874u);
 v___x_4161_ = ((lean_object*)(l_Array_eraseIdx_x21___redArg___closed__0));
 v___x_4162_ = ((lean_object*)(l_Array_swapAt_x21___redArg___closed__0));
 v___x_4163_ = l_mkPanicMessageWithDecl(v___x_4162_, v___x_4161_, v___x_4160_, v___x_4159_, v___x_4158_);
@@ -9806,7 +9806,7 @@ _start:
 lean_object* v___x_4244_; lean_object* v___x_4245_; lean_object* v___x_4246_; lean_object* v___x_4247_; lean_object* v___x_4248_; lean_object* v___x_4249_; 
 v___x_4244_ = ((lean_object*)(l_Array_eraseIdx_x21___redArg___closed__1));
 v___x_4245_ = lean_unsigned_to_nat(7u);
-v___x_4246_ = lean_unsigned_to_nat(1949u);
+v___x_4246_ = lean_unsigned_to_nat(1956u);
 v___x_4247_ = ((lean_object*)(l_Array_insertIdx_x21___redArg___closed__0));
 v___x_4248_ = ((lean_object*)(l_Array_swapAt_x21___redArg___closed__0));
 v___x_4249_ = l_mkPanicMessageWithDecl(v___x_4248_, v___x_4247_, v___x_4246_, v___x_4245_, v___x_4244_);

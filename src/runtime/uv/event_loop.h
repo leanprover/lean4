@@ -38,6 +38,8 @@ void event_loop_init(event_loop_t *event_loop);
 void event_loop_lock(event_loop_t *event_loop);
 void event_loop_unlock(event_loop_t *event_loop);
 void event_loop_run_loop(event_loop_t *event_loop);
+lean_obj_res lean_uv_recv_size_error(uint64_t size);
+lean_object * lean_uv_fit_read_buffer(lean_object * byte_array, size_t nread);
 
 #endif
 

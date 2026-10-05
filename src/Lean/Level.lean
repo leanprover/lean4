@@ -155,7 +155,6 @@ abbrev levelOne := Level.one
 
 @[export lean_level_mk_zero] def mkLevelZeroEx : Unit → Level := fun _ => .zero
 @[export lean_level_mk_succ] def mkLevelSuccEx : Level → Level := mkLevelSucc
-@[export lean_level_mk_mvar] def mkLevelMVarEx : LMVarId → Level := mkLevelMVar
 @[export lean_level_mk_param] def mkLevelParamEx : Name → Level := mkLevelParam
 @[export lean_level_mk_max] def mkLevelMaxEx : Level → Level → Level := mkLevelMax
 @[export lean_level_mk_imax] def mkLevelIMaxEx : Level → Level → Level := mkLevelIMax

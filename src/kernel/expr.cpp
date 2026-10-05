@@ -12,7 +12,6 @@ Author: Leonardo de Moura
 #include <limits>
 #include "runtime/hash.h"
 #include "runtime/buffer.h"
-#include "util/list_fn.h"
 #include "kernel/expr.h"
 #include "kernel/expr_eq_fn.h"
 #include "kernel/expr_sets.h"
@@ -23,15 +22,7 @@ Author: Leonardo de Moura
 
 namespace lean {
 /* Expression literal values */
-literal::literal(char const * v):
-    object_ref(mk_cnstr(static_cast<unsigned>(literal_kind::String), mk_string(v))) {
-}
-
 literal::literal(unsigned v):
-    object_ref(mk_cnstr(static_cast<unsigned>(literal_kind::Nat), mk_nat_obj(v))) {
-}
-
-literal::literal(mpz const & v):
     object_ref(mk_cnstr(static_cast<unsigned>(literal_kind::Nat), mk_nat_obj(v))) {
 }
 
@@ -155,9 +146,6 @@ expr mk_bvar(nat const & idx) { return expr(lean_expr_mk_bvar(idx.to_obj_arg()))
 extern "C" object * lean_expr_mk_fvar(obj_arg n);
 expr mk_fvar(name const & n) { return expr(lean_expr_mk_fvar(n.to_obj_arg())); }
 
-extern "C" object * lean_expr_mk_mvar(object * n);
-expr mk_mvar(name const & n) { return expr(lean_expr_mk_mvar(n.to_obj_arg())); }
-
 extern "C" object * lean_expr_mk_const(obj_arg n, obj_arg ls);
 expr mk_const(name const & n, levels const & ls) { return expr(lean_expr_mk_const(n.to_obj_arg(), ls.to_obj_arg())); }
 
@@ -188,9 +176,7 @@ expr mk_let(name const & n, expr const & t, expr const & v, expr const & b, bool
 }
 
 static expr * g_Prop  = nullptr;
-static expr * g_Type0 = nullptr;
 expr mk_Prop() { return *g_Prop; }
-expr mk_Type() { return *g_Type0; }
 
 // =======================================
 // Auxiliary constructors and accessors
@@ -207,12 +193,6 @@ expr mk_app(unsigned num_args, expr const * args) {
     return mk_app(mk_app(args[0], args[1]), num_args - 2, args+2);
 }
 
-expr mk_app(expr const & f, list<expr> const & args) {
-    buffer<expr> _args;
-    to_buffer(args, _args);
-    return mk_app(f, _args);
-}
-
 expr mk_rev_app(expr const & f, unsigned num_args, expr const * args) {
     expr r = f;
     unsigned i = num_args;
@@ -223,32 +203,12 @@ expr mk_rev_app(expr const & f, unsigned num_args, expr const * args) {
     return r;
 }
 
-expr mk_rev_app(unsigned num_args, expr const * args) {
-    lean_assert(num_args >= 2);
-    return mk_rev_app(mk_app(args[num_args-1], args[num_args-2]), num_args-2, args);
-}
-
 expr const & get_app_args(expr const & e, buffer<expr> & args) {
     unsigned sz = args.size();
     expr const * it = &e;
     while (is_app(*it)) {
         args.push_back(app_arg(*it));
         it = &(app_fn(*it));
-    }
-    std::reverse(args.begin() + sz, args.end());
-    return *it;
-}
-
-expr const & get_app_args_at_most(expr const & e, unsigned num, buffer<expr> & args) {
-    unsigned sz = args.size();
-    expr const * it = &e;
-    unsigned i = 0;
-    while (is_app(*it)) {
-        if (i == num)
-            break;
-        args.push_back(app_arg(*it));
-        it = &(app_fn(*it));
-        i++;
     }
     std::reverse(args.begin() + sz, args.end());
     return *it;
@@ -289,10 +249,6 @@ bool is_arrow(expr const & t) {
         lean_assert(has_loose_bvars(binding_body(t)) == has_loose_bvar(binding_body(t), 0));
         return !has_loose_bvars(binding_body(t));
     }
-}
-
-bool is_default_var_name(name const & n) {
-    return n == *g_default_name;
 }
 
 extern "C" uint8 lean_expr_is_have(object * e);
@@ -506,8 +462,6 @@ void initialize_expr() {
     get_dummy();
     g_default_name = new name("a");
     mark_persistent(g_default_name->raw());
-    g_Type0        = new expr(mk_sort(mk_level_one()));
-    mark_persistent(g_Type0->raw());
     g_Prop         = new expr(mk_sort(mk_level_zero()));
     mark_persistent(g_Prop->raw());
     /* TODO(Leo): add support for builtin constants in the kernel.
@@ -516,23 +470,7 @@ void initialize_expr() {
 
 void finalize_expr() {
     delete g_Prop;
-    delete g_Type0;
     delete g_dummy;
     delete g_default_name;
-}
-
-// =======================================
-// Legacy
-
-optional<expr> has_expr_metavar_strict(expr const & e) {
-    if (!has_expr_metavar(e))
-        return none_expr();
-    optional<expr> r;
-    for_each(e, [&](expr const & e) {
-            if (r || !has_expr_metavar(e)) return false;
-            if (is_metavar_app(e)) { r = e; return false; }
-            return true;
-        });
-    return r;
 }
 }

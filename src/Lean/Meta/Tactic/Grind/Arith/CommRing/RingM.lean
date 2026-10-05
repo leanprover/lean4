@@ -6,7 +6,9 @@ Authors: Leonardo de Moura
 module
 prelude
 public import Lean.Meta.Tactic.Grind.SynthInstance
-public import Lean.Meta.Tactic.Grind.Arith.CommRing.MonadRing
+public import Lean.Meta.Tactic.Grind.Arith.CommRing.Types
+public import Lean.Meta.Sym.Arith.Functions
+public import Lean.Meta.Sym.Arith.MonadVar
 import Lean.Meta.Sym.Arith.Poly
 public section
 namespace Lean.Meta.Grind.Arith.CommRing
@@ -46,6 +48,8 @@ structure RingM.Context where
   the original equation when `k₁ ≠ ±1`. See **Note** at `EqCnstr.simplify`.
   -/
   checkCoeffDvd : Bool := false
+  /-- Generation assigned to terms internalized while reifying (see `reify?`). -/
+  gen : Nat := 0
 
 /-- We don't want to keep carrying the `RingId` around. -/
 abbrev RingM := ReaderT RingM.Context GoalM
@@ -60,21 +64,37 @@ instance : MonadCanon RingM where
   canonExpr e := do shareCommon (← canon e)
   synthInstance? e := Grind.synthInstance? e
 
-protected def RingM.getCommRing : RingM CommRing := do
-  let s ← get'
+/-- The `Sym.Arith` classification record of the current ring. -/
+protected def RingM.getCommRing : RingM Sym.Arith.CommRing := do
+  let s ← getArithState
   let ringId ← getRingId
   if h : ringId < s.rings.size then
     return s.rings[ringId]
   else
     throwError "`grind` internal error, invalid ringId"
 
-protected def RingM.modifyCommRing (f : CommRing → CommRing) : RingM Unit := do
+protected def RingM.modifyCommRing (f : Sym.Arith.CommRing → Sym.Arith.CommRing) : RingM Unit := do
   let ringId ← getRingId
-  modify' fun s => { s with rings := s.rings.modify ringId f }
+  modifyArithState fun s => { s with rings := s.rings.modify ringId f }
 
 instance : MonadCommRing RingM where
   getCommRing := RingM.getCommRing
   modifyCommRing := RingM.modifyCommRing
+
+/-- The per-goal solver state of the current ring. -/
+protected def RingM.getCommRingState : RingM CommRingState := do
+  return (← get').getRing (← getRingId)
+
+protected def RingM.modifyCommRingState (f : CommRingState → CommRingState) : RingM Unit := do
+  let ringId ← getRingId
+  modify' fun s => s.modifyRing ringId f
+
+instance : MonadCommRingState RingM where
+  getCommRingState := RingM.getCommRingState
+  modifyCommRingState := RingM.modifyCommRingState
+
+instance : MonadGetVar RingM where
+  getVar x := return (← getRingState).vars[x]!
 
 abbrev withCheckCoeffDvd (x : RingM α) : RingM α :=
   withReader (fun ctx => { ctx with checkCoeffDvd := true }) x
@@ -127,11 +147,11 @@ def isField : RingM Bool :=
   return (← getCommRing).fieldInst?.isSome
 
 def isQueueEmpty : RingM Bool :=
-  return (← getCommRing).queue.isEmpty
+  return (← getCommRingState).queue.isEmpty
 
 def getNext? : RingM (Option EqCnstr) := do
-  let some c := (← getCommRing).queue.min? | return none
-  modifyCommRing fun s => { s with queue := s.queue.erase c }
+  let some c := (← getCommRingState).queue.min? | return none
+  modifyCommRingState fun s => { s with queue := s.queue.erase c }
   incSteps
   return some c
 
@@ -146,12 +166,12 @@ def setTermRingId (e : Expr) : RingM Unit := do
     return ()
   modify' fun s => { s with exprToRingId := s.exprToRingId.insert { expr := e } ringId }
 
-def mkVarCore [MonadLiftT GoalM m] [Monad m] [MonadRing m] [MonadSetTermId m] (e : Expr) : m Var := do
-  let s ← getRing
+def mkVarCore [MonadLiftT GoalM m] [Monad m] [MonadRingState m] [MonadSetTermId m] (e : Expr) : m Var := do
+  let s ← getRingState
   if let some var := s.varMap.find? { expr := e } then
     return var
   let var : Var := s.vars.size
-  modifyRing fun s => { s with
+  modifyRingState fun s => { s with
     vars       := s.vars.push e
     varMap     := s.varMap.insert { expr := e } var
   }
@@ -162,7 +182,34 @@ def mkVarCore [MonadLiftT GoalM m] [Monad m] [MonadRing m] [MonadSetTermId m] (e
 instance : MonadSetTermId RingM where
   setTermId e := setTermRingId e
 
-def mkVar (e : Expr) : RingM Var :=
-  mkVarCore e
+/-- Variables created while reifying are internalized first, using the generation in the context. -/
+instance : MonadMkVar RingM where
+  mkVar e := do
+    unless (← alreadyInternalized e) do
+      internalize e (← read).gen
+    mkVarCore e
+
+private def mkOne (u : Level) (type : Expr) (semiringInst : Expr) : RingM Expr := do
+  let n := mkRawNatLit 1
+  let ofNatInst := mkApp3 (mkConst ``Grind.Semiring.ofNat [u]) type semiringInst n
+  canonExpr <| mkApp3 (mkConst ``OfNat.ofNat [u]) type n ofNatInst
+
+/--
+The numeral `1` of the current ring, internalized as a ring term of the current goal.
+The term is cached in the `Sym.Arith` record and thus shared by all goals, but internalization
+is per goal. The term may already be known to the core (e.g., as a subterm of a product) without
+having been registered by the ring solver, so the check is against the ring's own `denote` map.
+-/
+def getOne : RingM Expr := do
+  let ring ← getRing
+  let one ← if let some one := ring.one? then
+    pure one
+  else
+    let one ← mkOne ring.u ring.type ring.semiringInst
+    modifyRing fun s => { s with one? := some one }
+    pure one
+  unless (← getCommRingState).denote.contains { expr := one } do
+    internalize one 0
+  return one
 
 end Lean.Meta.Grind.Arith.CommRing

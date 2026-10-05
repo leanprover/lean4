@@ -1,4 +1,6 @@
-import Lean
+-- `lake check` re-checks everything in scope, so import only what `run_elab` and `addDecl` need.
+import Lean.Elab.BuiltinEvalCommand
+import Lean.AddDecl
 
 open Lean
 

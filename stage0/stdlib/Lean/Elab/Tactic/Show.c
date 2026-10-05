@@ -39,7 +39,7 @@ extern lean_object* l_Lean_Elab_Tactic_tacticElabAttribute;
 uint8_t l_Lean_Syntax_isOfKind(lean_object*, lean_object*);
 lean_object* l_Lean_Syntax_getArg(lean_object*, lean_object*);
 lean_object* l_Lean_KeyedDeclsAttribute_addBuiltin___redArg(lean_object*, lean_object*, lean_object*, lean_object*);
-static const lean_string_object l___private_Lean_Elab_Tactic_Show_0__Lean_Elab_Tactic_elabShow_simpleError___redArg___closed__0_value = {.m_header = {.m_rc = 0, .m_cs_sz = 0, .m_other = 0, .m_tag = 249}, .m_size = 30, .m_capacity = 30, .m_length = 29, .m_data = "'show' tactic failed, pattern"};
+static const lean_string_object l___private_Lean_Elab_Tactic_Show_0__Lean_Elab_Tactic_elabShow_simpleError___redArg___closed__0_value = {.m_header = {.m_rc = 0, .m_cs_sz = 0, .m_other = 0, .m_tag = 249}, .m_size = 30, .m_capacity = 30, .m_length = 29, .m_data = "`show` tactic failed, pattern"};
 static const lean_object* l___private_Lean_Elab_Tactic_Show_0__Lean_Elab_Tactic_elabShow_simpleError___redArg___closed__0 = (const lean_object*)&l___private_Lean_Elab_Tactic_Show_0__Lean_Elab_Tactic_elabShow_simpleError___redArg___closed__0_value;
 static lean_once_cell_t l___private_Lean_Elab_Tactic_Show_0__Lean_Elab_Tactic_elabShow_simpleError___redArg___closed__1_once = LEAN_ONCE_CELL_INITIALIZER;
 static lean_object* l___private_Lean_Elab_Tactic_Show_0__Lean_Elab_Tactic_elabShow_simpleError___redArg___closed__1;
@@ -51,7 +51,7 @@ LEAN_EXPORT lean_object* l___private_Lean_Elab_Tactic_Show_0__Lean_Elab_Tactic_e
 LEAN_EXPORT lean_object* l___private_Lean_Elab_Tactic_Show_0__Lean_Elab_Tactic_elabShow_simpleError___redArg___boxed(lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l___private_Lean_Elab_Tactic_Show_0__Lean_Elab_Tactic_elabShow_simpleError(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l___private_Lean_Elab_Tactic_Show_0__Lean_Elab_Tactic_elabShow_simpleError___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
-static const lean_string_object l___private_Lean_Elab_Tactic_Show_0__Lean_Elab_Tactic_elabShow_manyError___redArg___closed__0_value = {.m_header = {.m_rc = 0, .m_cs_sz = 0, .m_other = 0, .m_tag = 249}, .m_size = 93, .m_capacity = 93, .m_length = 92, .m_data = "'show' tactic failed, no goals unify with the given pattern.\n\nIn the first goal, the pattern"};
+static const lean_string_object l___private_Lean_Elab_Tactic_Show_0__Lean_Elab_Tactic_elabShow_manyError___redArg___closed__0_value = {.m_header = {.m_rc = 0, .m_cs_sz = 0, .m_other = 0, .m_tag = 249}, .m_size = 93, .m_capacity = 93, .m_length = 92, .m_data = "`show` tactic failed, no goals unify with the given pattern.\n\nIn the first goal, the pattern"};
 static const lean_object* l___private_Lean_Elab_Tactic_Show_0__Lean_Elab_Tactic_elabShow_manyError___redArg___closed__0 = (const lean_object*)&l___private_Lean_Elab_Tactic_Show_0__Lean_Elab_Tactic_elabShow_manyError___redArg___closed__0_value;
 static lean_once_cell_t l___private_Lean_Elab_Tactic_Show_0__Lean_Elab_Tactic_elabShow_manyError___redArg___closed__1_once = LEAN_ONCE_CELL_INITIALIZER;
 static lean_object* l___private_Lean_Elab_Tactic_Show_0__Lean_Elab_Tactic_elabShow_manyError___redArg___closed__1;
@@ -823,7 +823,7 @@ goto v_resetjp_317_;
 }
 v_resetjp_317_:
 {
-lean_object* v___y_321_; lean_object* v___y_322_; uint8_t v___y_323_; uint8_t v___y_324_; uint8_t v___y_331_; uint8_t v___x_351_; 
+uint8_t v___y_321_; lean_object* v___y_322_; lean_object* v___y_323_; uint8_t v___y_324_; uint8_t v___y_331_; uint8_t v___x_351_; 
 v___x_351_ = l_List_isEmpty___redArg(v_tail_316_);
 if (v___x_351_ == 0)
 {
@@ -860,8 +860,8 @@ v___jp_320_:
 if (v___y_324_ == 0)
 {
 lean_object* v___x_325_; 
-lean_dec_ref(v___y_321_);
-v___x_325_ = l_Lean_Elab_Tactic_SavedState_restore___redArg(v___y_322_, v___y_323_, v_a_292_, v_a_293_, v_a_294_, v_a_295_, v_a_296_, v_a_297_, v_a_298_);
+lean_dec_ref(v___y_323_);
+v___x_325_ = l_Lean_Elab_Tactic_SavedState_restore___redArg(v___y_322_, v___y_321_, v_a_292_, v_a_293_, v_a_294_, v_a_295_, v_a_296_, v_a_297_, v_a_298_);
 if (lean_obj_tag(v___x_325_) == 0)
 {
 lean_object* v___x_327_; 
@@ -908,7 +908,7 @@ lean_dec(v_head_315_);
 lean_dec(v_prevRev_290_);
 lean_dec(v_firstGoal_288_);
 lean_dec(v_newType_287_);
-return v___y_321_;
+return v___y_323_;
 }
 }
 v___jp_330_:
@@ -951,24 +951,23 @@ else
 {
 lean_object* v_a_338_; uint8_t v___x_339_; 
 v_a_338_ = lean_ctor_get(v___x_337_, 0);
-lean_inc(v_a_338_);
 v___x_339_ = l_Lean_Exception_isInterrupt(v_a_338_);
 if (v___x_339_ == 0)
 {
 uint8_t v___x_340_; 
+lean_inc(v_a_338_);
 v___x_340_ = l_Lean_Exception_isRuntime(v_a_338_);
-v___y_321_ = v___x_337_;
+v___y_321_ = v___x_332_;
 v___y_322_ = v_a_334_;
-v___y_323_ = v___x_332_;
+v___y_323_ = v___x_337_;
 v___y_324_ = v___x_340_;
 goto v___jp_320_;
 }
 else
 {
-lean_dec(v_a_338_);
-v___y_321_ = v___x_337_;
+v___y_321_ = v___x_332_;
 v___y_322_ = v_a_334_;
-v___y_323_ = v___x_332_;
+v___y_323_ = v___x_337_;
 v___y_324_ = v___x_339_;
 goto v___jp_320_;
 }

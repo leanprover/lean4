@@ -70,7 +70,7 @@ Resolution of intro:
  "kind": 4,
  "documentation":
  {"value":
-  "`True` is true, and `True.intro` (or more commonly, `trivial`)\nis the proof. ",
+  "`True` is true, and `True.intro` (or more commonly, `trivial`)\nis the proof.",
   "kind": "markdown"},
  "detail": "True",
  "data": ["file:///travellingCompletions.lean", 42, 25, 1, "cTrue.intro"]}

@@ -1,0 +1,20 @@
+Input: "{r x:=}[a]\n"
+Failure: expected identifier, string, or number
+ --> 1:6-1:7
+  |
+1 | {r x:=}[a]
+  |       ^
+  = consumed input prefix: 6 bytes
+Final stack:
+  (Lean.Doc.Parser.Inline.role
+   "{"
+   `r
+   [`x ":=" <missing>]
+   "}"
+   ["["]
+   [(Lean.Doc.Parser.Inline.text
+     (Lean.Doc.Parser.versoText "a"))]
+   ["]"])
+Remaining:
+"\n"
+Round-trip not reproduced, as the parse reported errors: leaf without original source info: <missing>

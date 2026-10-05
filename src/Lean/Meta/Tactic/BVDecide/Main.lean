@@ -7,6 +7,7 @@ module
 prelude
 
 public import Lean.Meta.Tactic.BVDecide.Prover.Bitblast
+public import Lean.Meta.Tactic.BVDecide.Prover.Cegar
 public import Lean.Meta.Tactic.BVDecide.Normalize
 import Lean.Meta.Sym.Util
 
@@ -16,23 +17,16 @@ This module provides the implementation of the `bv_decide` frontend itself.
 -/
 namespace Lean.Meta.Tactic.BVDecide
 
-public def TacticContext.preProcessContext (ctx : TacticContext) : Normalize.PreProcessContext :=
-  .new (.solve ctx.restrictedTypes) ctx.config
-
 def bvUnsat (g : MVarId) (hypotheses : Array Normalize.Hyp) (ctx : TacticContext) :
-    Sym.SymM (Except CounterExample LratCert) :=
-  M.run (hypotheses := hypotheses) do
-    closeWithBVReflection g (lratBitblaster ctx)
+    Grind.GrindM (Except CounterExample CegarCert) :=
+  ReifyM.run (hypotheses := hypotheses) (cfg := ctx.config) do
+    closeWithBVReflection g (cegarBlaster ctx)
 
 /--
 The result of calling `bv_decide`.
 -/
 public structure Result where
-  /--
-  If the normalization step was not enough to solve the goal this contains the LRAT proof
-  certificate.
-  -/
-  lratCert : Option LratCert
+  cegarCert : CegarCert
 
 /--
 Try to close `g` using a bitblaster. Return either a `CounterExample` if one is found or a `Result`
@@ -42,10 +36,10 @@ public def bvDecide' (target : Normalize.Target) (ctx : TacticContext) :
     Grind.GrindM (Except CounterExample Result) := do
   Normalize.PreProcessM.run' ctx.preProcessContext target do
     let solved ← Normalize.bvNormalize
-    if solved then return .ok ⟨none⟩
+    if solved then return .ok ⟨.solvedWithPreProcessing⟩
 
     match ← bvUnsat (← Normalize.PreProcessM.getTargetMVarId) (← Normalize.PreProcessM.getHyps) ctx with
-    | .ok lratCert => return .ok ⟨some lratCert⟩
+    | .ok cegarCert => return .ok ⟨cegarCert⟩
     | .error counterExample => return .error counterExample
 
 /--

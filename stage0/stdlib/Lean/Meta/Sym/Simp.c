@@ -1,6 +1,6 @@
 // Lean compiler output
 // Module: Lean.Meta.Sym.Simp
-// Imports: public import Lean.Meta.Sym.Simp.App public import Lean.Meta.Sym.Simp.CongrInfo public import Lean.Meta.Sym.Simp.DiscrTree public import Lean.Meta.Sym.Simp.Main public import Lean.Meta.Sym.Simp.Result public import Lean.Meta.Sym.Simp.Rewrite public import Lean.Meta.Sym.Simp.SimpM public import Lean.Meta.Sym.Simp.Simproc public import Lean.Meta.Sym.Simp.Theorems public import Lean.Meta.Sym.Simp.Have public import Lean.Meta.Sym.Simp.Lambda public import Lean.Meta.Sym.Simp.Forall public import Lean.Meta.Sym.Simp.Debug public import Lean.Meta.Sym.Simp.EvalGround public import Lean.Meta.Sym.Simp.Discharger public import Lean.Meta.Sym.Simp.ControlFlow public import Lean.Meta.Sym.Simp.Goal public import Lean.Meta.Sym.Simp.Telescope public import Lean.Meta.Sym.Simp.Attr public import Lean.Meta.Sym.Simp.Variant public import Lean.Meta.Sym.Simp.RegisterCommand
+// Imports: public import Lean.Meta.Sym.Simp.App public import Lean.Meta.Sym.Simp.CongrInfo public import Lean.Meta.Sym.Simp.DiscrTree public import Lean.Meta.Sym.Simp.Main public import Lean.Meta.Sym.Simp.Result public import Lean.Meta.Sym.Simp.Rewrite public import Lean.Meta.Sym.Simp.SimpM public import Lean.Meta.Sym.Simp.Simproc public import Lean.Meta.Sym.Simp.Theorems public import Lean.Meta.Sym.Simp.Have public import Lean.Meta.Sym.Simp.Lambda public import Lean.Meta.Sym.Simp.Forall public import Lean.Meta.Sym.Simp.Debug public import Lean.Meta.Sym.Simp.EvalGround public import Lean.Meta.Sym.Simp.Discharger public import Lean.Meta.Sym.Simp.ControlFlow public import Lean.Meta.Sym.Simp.Goal public import Lean.Meta.Sym.Simp.Telescope public import Lean.Meta.Sym.Simp.Attr public import Lean.Meta.Sym.Simp.Variant public import Lean.Meta.Sym.Simp.RegisterCommand public import Lean.Meta.Sym.Simp.Arith public import Lean.Meta.Sym.Simp.Reduce
 #include <lean/lean.h>
 #if defined(__clang__)
 #pragma clang diagnostic ignored "-Wunused-parameter"
@@ -34,6 +34,8 @@ lean_object* runtime_initialize_Lean_Meta_Sym_Simp_Telescope(uint8_t builtin);
 lean_object* runtime_initialize_Lean_Meta_Sym_Simp_Attr(uint8_t builtin);
 lean_object* runtime_initialize_Lean_Meta_Sym_Simp_Variant(uint8_t builtin);
 lean_object* runtime_initialize_Lean_Meta_Sym_Simp_RegisterCommand(uint8_t builtin);
+lean_object* runtime_initialize_Lean_Meta_Sym_Simp_Arith(uint8_t builtin);
+lean_object* runtime_initialize_Lean_Meta_Sym_Simp_Reduce(uint8_t builtin);
 void lean_initialize_runtime_module();
 static bool _G_runtime_initialized = false;
 LEAN_EXPORT lean_object* runtime_initialize_Lean_Meta_Sym_Simp(uint8_t builtin) {
@@ -104,6 +106,12 @@ lean_dec_ref(res);
 res = runtime_initialize_Lean_Meta_Sym_Simp_RegisterCommand(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
+res = runtime_initialize_Lean_Meta_Sym_Simp_Arith(builtin);
+if (lean_io_result_is_error(res)) return res;
+lean_dec_ref(res);
+res = runtime_initialize_Lean_Meta_Sym_Simp_Reduce(builtin);
+if (lean_io_result_is_error(res)) return res;
+lean_dec_ref(res);
 return lean_io_result_mk_ok(lean_box(0));
 }
 static bool _G_meta_initialized = false;
@@ -134,6 +142,8 @@ lean_object* initialize_Lean_Meta_Sym_Simp_Telescope(uint8_t builtin);
 lean_object* initialize_Lean_Meta_Sym_Simp_Attr(uint8_t builtin);
 lean_object* initialize_Lean_Meta_Sym_Simp_Variant(uint8_t builtin);
 lean_object* initialize_Lean_Meta_Sym_Simp_RegisterCommand(uint8_t builtin);
+lean_object* initialize_Lean_Meta_Sym_Simp_Arith(uint8_t builtin);
+lean_object* initialize_Lean_Meta_Sym_Simp_Reduce(uint8_t builtin);
 static bool _G_initialized = false;
 LEAN_EXPORT lean_object* initialize_Lean_Meta_Sym_Simp(uint8_t builtin) {
 lean_object * res;
@@ -200,6 +210,12 @@ res = initialize_Lean_Meta_Sym_Simp_Variant(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
 res = initialize_Lean_Meta_Sym_Simp_RegisterCommand(builtin);
+if (lean_io_result_is_error(res)) return res;
+lean_dec_ref(res);
+res = initialize_Lean_Meta_Sym_Simp_Arith(builtin);
+if (lean_io_result_is_error(res)) return res;
+lean_dec_ref(res);
+res = initialize_Lean_Meta_Sym_Simp_Reduce(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
 res = runtime_initialize_Lean_Meta_Sym_Simp(builtin);

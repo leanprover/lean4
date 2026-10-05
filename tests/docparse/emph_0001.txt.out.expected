@@ -1,6 +1,12 @@
+Input: "_aa_"
 Success! Final stack:
-  (Lean.Doc.Syntax.emph
-   "_"
-   [(Lean.Doc.Syntax.text (str "\"aa\""))]
-   "_")
+  (Lean.Doc.Parser.Inline.emph
+   (Lean.Doc.Parser.emphDelimiter "_")
+   [(Lean.Doc.Parser.Inline.text
+     (Lean.Doc.Parser.versoText "aa"))]
+   (Lean.Doc.Parser.emphDelimiter "_"))
 All input consumed.
+Round-trip OK
+Decoded views:
+  emph (opener := "_") (closer := "_")
+    text (content := "aa")

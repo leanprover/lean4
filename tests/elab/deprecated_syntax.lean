@@ -93,3 +93,18 @@ theorem deprecatedUsesOldTac : True := by myDepTac
 
 -- Test 11b: the same syntax outside a deprecated definition still warns
 def freshUsesOldTerm : Nat := oldThing
+
+-- Test 12: a deprecated tactic warns once, although its expansion uses itself and the deprecated
+-- `myDepTac`
+syntax (name := depRec) "depRec " num : tactic
+macro_rules
+  | `(tactic| depRec 0) => `(tactic| myDepTac)
+  | `(tactic| depRec $n) => `(tactic| depRec $(Lean.quote (n.getNat - 1)))
+deprecated_syntax depRec "use `trivial` instead" (since := "2026-09-23")
+
+example : True := by depRec 2
+
+-- Test 12b: a macro that expands to the deprecated tactic still warns once at its call site
+macro "wrapsDepRec" : tactic => `(tactic| depRec 1)
+
+example : True := by wrapsDepRec

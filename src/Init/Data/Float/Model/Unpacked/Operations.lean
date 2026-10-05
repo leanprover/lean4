@@ -13,6 +13,7 @@ public import Init.Data.Float.Model.Unpacked.Operations.Div
 public import Init.Data.Float.Model.Unpacked.Operations.Sqrt
 public import Init.Data.Float.Model.Unpacked.Operations.Fma
 public import Init.Data.Float.Model.Unpacked.Operations.Compare
+public import Init.Data.Float.Model.Unpacked.Operations.MinMax
 public import Init.Data.Float.Model.Unpacked.Operations.Sign
 public import Init.Data.Float.Model.Unpacked.Operations.Status
 public import Init.Data.Float.Model.Unpacked.Operations.OfNat

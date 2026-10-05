@@ -173,9 +173,9 @@ builtin_cbv_simproc ↓ simpIteCbv (@ite _ _ _ _ _) := fun e => do
     match (← simp c) with
     | .rfl _ cd =>
       if (← isTrueExpr c) then
-        return .step a (mkApp3 (mkConst ``ite_true f.constLevels!) α a b) (contextDependent := cd)
+        return .step a (mkApp4 (mkConst ``ite_true f.constLevels!) α inst a b) (contextDependent := cd)
       else if (← isFalseExpr c) then
-        return .step b (mkApp3 (mkConst ``ite_false f.constLevels!) α a b) (contextDependent := cd)
+        return .step b (mkApp4 (mkConst ``ite_false f.constLevels!) α inst a b) (contextDependent := cd)
       else
         simpAndMatchIteDecidable f α c inst a b do return mkRflResult (done := true) (contextDependent := cd)
     | .step c' h _ cd =>
@@ -298,10 +298,10 @@ builtin_cbv_simproc ↓ simpDIteCbv (@dite _ _ _ _ _) := fun e => do
     | .rfl _ cd =>
       if (← isTrueExpr c) then
         let a' ← share <| a.betaRev #[mkConst ``True.intro]
-        return .step a' (mkApp3 (mkConst ``dite_true f.constLevels!) α a b) (contextDependent := cd)
+        return .step a' (mkApp4 (mkConst ``dite_true f.constLevels!) α inst a b) (contextDependent := cd)
       else if (← isFalseExpr c) then
         let b' ← share <| b.betaRev #[mkConst ``not_false]
-        return .step b' (mkApp3 (mkConst ``dite_false f.constLevels!) α a b) (contextDependent := cd)
+        return .step b' (mkApp4 (mkConst ``dite_false f.constLevels!) α inst a b) (contextDependent := cd)
       else
         simpAndMatchDIteDecidable f α c inst a b do return mkRflResult (done := true) (contextDependent := cd)
     | .step c' h _ cd =>

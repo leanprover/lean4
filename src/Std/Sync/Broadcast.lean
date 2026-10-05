@@ -272,7 +272,10 @@ private def close (ch : Bounded α) : EIO Broadcast.Error Unit := do
     for consumer in st.waiters.toArray do
       consumer.resolve false
 
-    set { st with waiters := ∅, closed := true }
+    for producer in st.producers.toArray do
+      producer.resolve false
+
+    set { st with waiters := ∅, producers := ∅, closed := true }
     return ()
 
 private def isClosed (ch : Bounded α) : BaseIO Bool :=
@@ -502,7 +505,12 @@ def subscribe (ch : Broadcast α) : IO (Broadcast.Receiver α) := do
   Broadcast.Receiver.mk <$> ch.inner.subscribe
 
 /--
-Closes a `Broadcast` channel.
+Closes a `Broadcast` channel. When a channel is closed:
+- no new values can be sent successfully anymore
+- all blocked receivers are resolved to `none` (as no new messages can be sent they will never
+  resolve)
+- senders blocked on a full buffer fail with `Error.closed`
+- values that are already buffered can still be received by subsequent `recv` calls
 -/
 @[inline]
 def close (ch : Broadcast α) : IO Unit := do
@@ -572,7 +580,7 @@ instance [Inhabited α] : AsyncRead (Broadcast.Receiver α) (Option α) where
 instance [Inhabited α] : AsyncWrite (Broadcast α) α where
   write receiver x := do
     let task ← receiver.send x
-    discard <| Async.ofTask <| task
+    discard <| Async.ofAsyncTask task
 
 end Receiver
 

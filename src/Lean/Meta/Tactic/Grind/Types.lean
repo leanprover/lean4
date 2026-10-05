@@ -11,6 +11,8 @@ public import Lean.Meta.Sym.SymM
 public import Lean.Meta.Tactic.Grind.Attr
 public import Lean.Meta.Tactic.Grind.CheckResult
 public import Lean.Meta.Sym.Canon
+public import Lean.Meta.Sym.Simp.SimpM
+public import Lean.Meta.Sym.DSimp.DSimpM
 meta import Init.Data.String.Basic
 import Lean.Meta.AbstractNestedProofs
 import Lean.Meta.Match.MatchEqsExt
@@ -67,6 +69,11 @@ def isInterpreted (e : Expr) : MetaM Bool := do
 register_builtin_option grind.debug : Bool := {
   defValue := false
   descr    := "check invariants after updates"
+}
+
+register_builtin_option backward.grind.normalizer : Bool := {
+  defValue := true
+  descr    := "use the legacy `simp`-based `grind` normalizer instead of the `Sym.simp`-based one"
 }
 
 register_builtin_option grind.debug.proofs : Bool := {
@@ -161,6 +168,10 @@ inductive EMatchDiagSource where
 structure Context where
   simp         : Simp.Context
   simpMethods  : Simp.Methods
+  /-- Methods of the `Sym.simp`-based normalizer. Unused when `backward.grind.normalizer` is set. -/
+  symSimpMethods  : Sym.Simp.Methods := {}
+  /-- Methods of the `Sym.dsimp`-based normalizer. Unused when `backward.grind.normalizer` is set. -/
+  symDSimpMethods : Sym.DSimp.Methods := {}
   config       : Grind.Config
   /--
   If `anchorRefs? := some anchorRefs`, then only local instances and case-splits in `anchorRefs`
@@ -259,6 +270,10 @@ structure State where
   -/
   congrThms  : PHashMap CongrTheoremCacheKey CongrTheorem := {}
   simp       : Simp.State := {}
+  /-- State (cache) of the `Sym.simp`-based normalizer. -/
+  symSimp    : Sym.Simp.State := {}
+  /-- State (cache) of the `Sym.dsimp`-based normalizer. -/
+  symDSimp   : Sym.DSimp.State := {}
   /--
   Used to generate trace messages of the for `[grind] working on <tag>`,
   and implement the macro `trace_goal`.

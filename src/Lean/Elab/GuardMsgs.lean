@@ -176,7 +176,7 @@ def MessageOrdering.apply (mode : MessageOrdering) (msgs : List String) : List S
 Gives a string representation of a message with optional position information.
 
 If `showPositions := true` and `refLine? := some line` is provided, the range of `msg` is
-reported relative to `line`. if `showPositions := true` and `refLine? := none`, the absolute
+reported relative to `line`. If `showPositions := true` and `refLine? := none`, the absolute
 position is reported.
 -/
 private def messageToString (msg : Message) (showPositions : Bool) (refLine? : Option Nat)

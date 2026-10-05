@@ -210,3 +210,25 @@ example {M : Type u} [NatModule M] (a : M) :
 
 example {M : Type u} [IntModule M] (a : M) :
     ((2 + 3 : Int) * (-2)) • a = -(5 • a + 5 • a) := by module_eq_coeffs
+
+-- Semireducible aliases of module operations remain valid operations.
+private def subAlias {M : Type u} [IntModule M] (a b : M) : M := a - b
+private def zeroAlias {M : Type u} [NatModule M] : M := 0
+section
+variable {M : Type u} [IntModule M]
+local instance : Sub M := ⟨subAlias⟩
+example (a b : M) : a - b = a + -b := by module_eq
+example (a b : M) : a - b + b = a := by module_eq
+end
+section
+variable {M : Type u} [NatModule M]
+local instance : Zero M := ⟨zeroAlias⟩
+example (a : M) : a + 0 = a := by module_eq
+end
+
+-- Default transparency for operations does not unfold semireducible atoms.
+private def atomAlias {M : Type u} (a : M) : M := a
+example {M : Type u} [NatModule M] (a b : M) :
+    atomAlias a + b = a + b := by
+  fail_if_success module_eq
+  rfl

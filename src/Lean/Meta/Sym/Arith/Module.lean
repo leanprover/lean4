@@ -31,6 +31,8 @@ private structure ModuleContext where
 private structure ModuleState where
   vars : Array Expr := #[]
   varMap : PHashMap ExprPtr Nat := {}
+  /-- Cached operation comparisons at default transparency. -/
+  fnMap : PHashMap (ExprPtr × ExprPtr) Bool := {}
 
 private abbrev ModuleM := ReaderT ModuleContext (StateRefT ModuleState SymM)
 
@@ -43,14 +45,19 @@ private def moduleVar (e : Expr) : ModuleM Grind.Linarith.Expr := do
   modify fun s => { s with vars := s.vars.push e, varMap := s.varMap.insert { expr := e } i }
   return .var i
 
-private def matchesFn (e fn : Expr) (arity : Nat) : ModuleM Bool :=
-  withReducibleAndInstances <| isDefEq (e.getBoundedAppFn arity) fn
+private def matchesFn (e fn : Expr) (arity : Nat) : ModuleM Bool := do
+  let e := e.getBoundedAppFn arity
+  let key := (⟨e⟩, ⟨fn⟩)
+  if let some result := (← get).fnMap.find? key then return result
+  let result ← withDefault <| isDefEq e fn
+  modify fun s => { s with fnMap := s.fnMap.insert key result }
+  return result
 
 private partial def reifyModule (e : Expr) : ModuleM Grind.Linarith.Expr := withIncRecDepth do
   let ctx ← read
   let numeral : Option Nat := (Sym.getNatValue? e).run
   if e.isAppOfArity ``Zero.zero 2 || numeral == some 0 then
-    if ← withReducibleAndInstances <| isDefEq e ctx.zero then return .zero
+    if ← matchesFn e ctx.zero 0 then return .zero
   match_expr e with
   | HAdd.hAdd _ _ _ _ a b =>
     if ← matchesFn e ctx.addFn 2 then return .add (← reifyModule a) (← reifyModule b)
@@ -118,6 +125,16 @@ private def mkModuleContext (type inst : Expr) (u : Level) (integers : Bool) :
       (mkApp3 (mkConst ``instHSMul [0, u]) (mkConst ``Int) type
         (mkApp2 (mkConst ``Grind.IntModule.zsmul [u]) type inst))) }
 
+private def ModuleContext.canon (ctx : ModuleContext) : SymM ModuleContext := do
+  let canonFn (fn : Expr) : SymM Expr := do shareCommon (← Sym.canon fn)
+  return { ctx with
+    addFn := ← canonFn ctx.addFn
+    zero := ← canonFn ctx.zero
+    nsmulFn := ← canonFn ctx.nsmulFn
+    subFn? := ← ctx.subFn?.mapM canonFn
+    negFn? := ← ctx.negFn?.mapM canonFn
+    zsmulFn? := ← ctx.zsmulFn?.mapM canonFn }
+
 private def getModule? (type : Expr) : SymM (Option (ModuleContext × Expr × Level × Bool)) := do
   let some u ← getDecLevel? type | return none
   let intInst? ← Sym.synthInstance? (← shareCommon (mkApp (mkConst ``Grind.IntModule [u]) type))
@@ -127,14 +144,6 @@ private def getModule? (type : Expr) : SymM (Option (ModuleContext × Expr × Le
     | none => Sym.synthInstance? (← shareCommon (mkApp (mkConst ``Grind.NatModule [u]) type))
   let some inst := inst? | return none
   let ctx := mkModuleContext type inst u integers
-  let canonFn (fn : Expr) : SymM Expr := do shareCommon (← Sym.canon fn)
-  let ctx := { ctx with
-    addFn := ← canonFn ctx.addFn
-    zero := ← canonFn ctx.zero
-    nsmulFn := ← canonFn ctx.nsmulFn
-    subFn? := ← ctx.subFn?.mapM canonFn
-    negFn? := ← ctx.negFn?.mapM canonFn
-    zsmulFn? := ← ctx.zsmulFn?.mapM canonFn }
   return some (ctx, inst, u, integers)
 
 private def moduleCertificate (type inst : Expr) (u : Level) (integers : Bool)
@@ -150,6 +159,7 @@ private def moduleCertificate (type inst : Expr) (u : Level) (integers : Bool)
 `Grind.IntModule`. Recognizes zero, addition, and literal natural scalar multiplication;
 integer modules also support subtraction, negation, and literal integer scalar multiplication.
 
+Module operations are recognized up to definitional equality at `.default` transparency.
 Before reification, `simpAtom` simplifies atoms and scalar coefficients, with its proofs
 incorporated into the equality certificate. Other expressions are atoms, identified up to
 definitional equality at `.instances` transparency.
@@ -214,6 +224,7 @@ def normalizeAdd? [Monad m] [MonadLiftT SymM m] [MonadLiftT MetaM m] [MonadContr
   let e ← shareCommon e
   let type ← Meta.inferType e
   let some (ctx, inst, u, integers) ← getModule? type | return .rfl
+  let ctx ← ctx.canon
   let r ← visitModuleAtoms integers simpAtom e
   let e₁ ← shareCommon (r.getResultExpr e)
   let (re, s) ← (((reifyModule e₁).run ctx).run {} : SymM _)

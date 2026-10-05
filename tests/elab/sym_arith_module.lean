@@ -140,3 +140,73 @@ run_meta do
       if ← x.mvarId!.isAssigned then throwError "normalization assigned a metavariable"
       let _ ← SymM.run (Arith.normalizeAdd? lhs)
       if ← x.mvarId!.isAssigned then throwError "normalization assigned a metavariable"
+
+-- The atom callback can use the surrounding simplifier to normalize inside applications.
+elab "module_eq_atoms" : tactic => do
+  let g ← getMainGoal
+  g.withContext do
+    let target ← instantiateMVars (← g.getType)
+    let some proof ← SymM.run do
+      Simp.SimpM.run' (Arith.proveAddEq? (← shareCommon target) Simp.simp)
+        { post := fun e => Arith.normalizeAdd? e Simp.simp }
+      | throwError "the additive normal forms differ"
+    g.assign proof
+    replaceMainGoal []
+
+elab "module_nf_atoms" : tactic => do
+  let g ← getMainGoal
+  g.withContext do
+    let target ← instantiateMVars (← g.getType)
+    let r ← SymM.run do
+      Simp.SimpM.run' (Simp.simp (← shareCommon target))
+        { post := fun e => Arith.normalizeAdd? e Simp.simp }
+    let .step target proof .. := r | throwError "no additive expression changed"
+    replaceMainGoal [← g.replaceTargetEq target proof]
+
+example {M : Type u} [NatModule M] (f : M → M) (a b : M) :
+    f (a + b) + f (b + a) = 2 • f (a + b) := by module_eq_atoms
+
+example {M : Type u} [IntModule M] (f : M → M) (a b : M) :
+    f (a + b) - f (b + a) = 0 := by module_eq_atoms
+
+example {M : Type u} [NatModule M] (f : M → M) (a b : M) (P : M → Prop)
+    (h : ∀ x, P (2 • f x)) : P (f (a + b) + f (b + a)) := by
+  module_nf_atoms
+  exact h _
+
+-- Callback proofs remain attached when the prepared expression already is a normal form.
+example {M : Type u} [NatModule M] (f : M → M) (a b c : M) :
+    f (a + b) + c = f (b + a) + c := by module_eq_atoms
+
+-- Context-dependent callback proofs must remain context-dependent after normalization.
+run_meta do
+  let type := mkConst ``Nat
+  withLocalDeclD `a type fun a => withLocalDeclD `b type fun b => do
+    let eq ← mkEq a b
+    withLocalDeclD `h eq fun h => do
+      let simpAtom (e : Expr) : SymM Sym.Simp.Result := do
+        if isSameExpr e a then return .step b h (contextDependent := true)
+        return .rfl
+      let e ← mkAppM ``HAdd.hAdd #[a, a]
+      let .step e' proof _ cd ← SymM.run (Arith.normalizeAdd? e simpAtom)
+        | throwError "callback was not used"
+      unless cd do throwError "lost the callback's context dependency"
+      unless ← isDefEq (← inferType proof) (← mkEq e e') do
+        throwError "unexpected callback certificate type"
+
+-- Scalar coefficients can be evaluated by Lean's existing arithmetic normalizer.
+elab "module_eq_coeffs" : tactic => do
+  let g ← getMainGoal
+  g.withContext do
+    let target ← instantiateMVars (← g.getType)
+    let some proof ← SymM.run (Arith.proveAddEq? target fun e =>
+      Arith.normalize? e (fun _ => pure .rfl))
+      | throwError "the additive normal forms differ"
+    g.assign proof
+    replaceMainGoal []
+
+example {M : Type u} [NatModule M] (a : M) :
+    (2 + 3 : Nat) • a + a = 6 • a := by module_eq_coeffs
+
+example {M : Type u} [IntModule M] (a : M) :
+    ((2 + 3 : Int) * (-2)) • a = -(5 • a + 5 • a) := by module_eq_coeffs

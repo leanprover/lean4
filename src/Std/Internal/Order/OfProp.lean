@@ -15,9 +15,10 @@ universe u v
 set_option linter.missingDocs true
 
 /-!
-# Embedding of propositions into a complete lattice
+# Laws of the embedding of propositions
 
-`⌜p⌝` embeds a proposition `p` into an assertion lattice as `⊤` if `p` holds and `⊥` otherwise.
+`⌜p⌝` embeds a proposition `p` into an assertion lattice as `⊤` if `p` holds and `⊥` otherwise. It
+is a homomorphism from the connectives of `Prop` to the lattice operations, and it is monotone.
 -/
 
 open Classical
@@ -25,15 +26,6 @@ open Classical
 namespace Lean.Order
 
 open PartialOrder Std.Internal.Order
-
-/-- Embedding of propositions into an CompleteLattice type. `⌜p⌝` embeds `p : Prop` as `⊤` if `p` holds
-and `⊥` otherwise. -/
-noncomputable def CompleteLattice.ofProp [CompleteLattice l] (p : Prop) : l :=
-  if p then ⊤ else ⊥
-
-@[inherit_doc CompleteLattice.ofProp]
-scoped notation "⌜" p "⌝" => CompleteLattice.ofProp p
-
 theorem CompleteLattice.ofProp_true (l : Type v) [CompleteLattice l] : ⌜True⌝ = (⊤ : l) := by
   simp [CompleteLattice.ofProp]
 
@@ -81,13 +73,6 @@ theorem CompleteLattice.ofProp_meet_le_eq_imp [CompleteLattice l] (p : Prop) (x 
     next hp => exact PartialOrder.rel_trans (meet_le_right ⊤ x) (h hp)
     next => exact PartialOrder.rel_trans (meet_le_left ⊥ x) (bot_le _)
 
-/-- Pointwise characterization of `CompleteLattice.ofProp` on a function lattice. -/
-theorem CompleteLattice.ofProp_apply
-    {σ : Type v} {β : Type u} [CompleteLattice β] (p : Prop) (s : σ) :
-    (⌜p⌝ : σ → β) s = (⌜p⌝ : β) := by
-  simp only [CompleteLattice.ofProp]
-  rcases Classical.em p with h | h <;> simp [h, top_apply, bot_apply]
-
 theorem CompleteLattice.top_le_ofProp [CompleteLattice l] (p : Prop) : p → (⊤ : l) ⊑ ⌜p⌝ := by
   intro hp
   simp only [CompleteLattice.ofProp, hp, ↓reduceIte]
@@ -114,41 +99,6 @@ theorem CompleteLattice.ofProp_le [CompleteLattice l] (p : Prop) (rhs : l) :
     (p → (⊤ : l) ⊑ rhs) → ⌜p⌝ ⊑ rhs :=
   (CompleteLattice.ofProp_le_eq_imp p rhs).mpr
 
-/-- Embedding a proposition into the `Prop` lattice (`⌜p⌝`) is the proposition itself. -/
-theorem CompleteLattice.ofProp_prop_eq (p : Prop) : (⌜p⌝ : Prop) = p := by
-  simp only [CompleteLattice.ofProp]
-  rcases Classical.em p with hp | hp <;> simp [hp, top_prop_eq, bot_prop_eq]
-
-@[deprecated CompleteLattice.ofProp_apply +typeChanged (since := "2026-09-24")]
-theorem CompleteLattice.ofProp_apply_1 {σ1 : Type _}
-    (p : Prop) (s1 : σ1) :
-    (⌜p⌝ : σ1 → Prop) s1 = p := by
-  simp only [CompleteLattice.ofProp_apply, ofProp_prop_eq]
-
-@[deprecated CompleteLattice.ofProp_apply +typeChanged (since := "2026-09-24")]
-theorem CompleteLattice.ofProp_apply_2 {σ1 : Type _} {σ2 : Type _}
-    (p : Prop) (s1 : σ1) (s2 : σ2) :
-    (⌜p⌝ : σ1 → σ2 → Prop) s1 s2 = p := by
-  simp only [CompleteLattice.ofProp_apply, ofProp_prop_eq]
-
-@[deprecated CompleteLattice.ofProp_apply +typeChanged (since := "2026-09-24")]
-theorem CompleteLattice.ofProp_apply_3 {σ1 : Type _} {σ2 : Type _} {σ3 : Type _}
-    (p : Prop) (s1 : σ1) (s2 : σ2) (s3 : σ3) :
-    (⌜p⌝ : σ1 → σ2 → σ3 → Prop) s1 s2 s3 = p := by
-  simp only [CompleteLattice.ofProp_apply, ofProp_prop_eq]
-
-@[deprecated CompleteLattice.ofProp_apply +typeChanged (since := "2026-09-24")]
-theorem CompleteLattice.ofProp_apply_4 {σ1 : Type _} {σ2 : Type _} {σ3 : Type _} {σ4 : Type _}
-    (p : Prop) (s1 : σ1) (s2 : σ2) (s3 : σ3) (s4 : σ4) :
-    (⌜p⌝ : σ1 → σ2 → σ3 → σ4 → Prop) s1 s2 s3 s4 = p := by
-  simp only [CompleteLattice.ofProp_apply, ofProp_prop_eq]
-
-@[deprecated CompleteLattice.ofProp_apply +typeChanged (since := "2026-09-24")]
-theorem CompleteLattice.ofProp_apply_5 {σ1 : Type _} {σ2 : Type _} {σ3 : Type _} {σ4 : Type _} {σ5 : Type _}
-    (p : Prop) (s1 : σ1) (s2 : σ2) (s3 : σ3) (s4 : σ4) (s5 : σ5) :
-    (⌜p⌝ : σ1 → σ2 → σ3 → σ4 → σ5 → Prop) s1 s2 s3 s4 s5 = p := by
-  simp only [CompleteLattice.ofProp_apply, ofProp_prop_eq]
-
 @[deprecated CompleteLattice.top_le_ofProp (since := "2026-09-24")]
 theorem top_le_ofProp [CompleteLattice l] (p : Prop) : p → (⊤ : l) ⊑ ⌜p⌝ :=
   CompleteLattice.top_le_ofProp p
@@ -159,9 +109,6 @@ theorem le_ofProp [CompleteLattice l] (x : l) (p : Prop) : p → x ⊑ ⌜p⌝ :
 theorem ofProp_le [CompleteLattice l] (p : Prop) (rhs : l) :
     (p → (⊤ : l) ⊑ rhs) → ⌜p⌝ ⊑ rhs :=
   CompleteLattice.ofProp_le p rhs
-@[deprecated CompleteLattice.ofProp_prop_eq (since := "2026-09-24")]
-theorem ofProp_prop_eq (p : Prop) : (⌜p⌝ : Prop) = p :=
-  CompleteLattice.ofProp_prop_eq p
 @[deprecated CompleteLattice.ofProp_le_eq_imp (since := "2026-09-24")]
 theorem CompleteLattice.ofProp_intro [CompleteLattice l]
     (p : Prop) (h : l) : (⌜p⌝ ⊑ h) = (p → ⊤ ⊑ h) :=

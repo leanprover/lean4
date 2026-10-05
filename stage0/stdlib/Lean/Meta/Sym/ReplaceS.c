@@ -3562,7 +3562,7 @@ _start:
 lean_object* v___x_906_; lean_object* v___x_907_; uint8_t v_debug_908_; lean_object* v___x_909_; lean_object* v_env_910_; lean_object* v___x_911_; lean_object* v___x_912_; uint8_t v___x_913_; lean_object* v___x_914_; lean_object* v___x_915_; 
 v___x_906_ = lean_obj_once(&l_Lean_Meta_Sym_replaceS___closed__0, &l_Lean_Meta_Sym_replaceS___closed__0_once, _init_l_Lean_Meta_Sym_replaceS___closed__0);
 v___x_907_ = lean_st_ref_get(v_a_900_);
-v_debug_908_ = lean_ctor_get_uint8(v___x_907_, sizeof(void*)*11);
+v_debug_908_ = lean_ctor_get_uint8(v___x_907_, sizeof(void*)*12);
 lean_dec(v___x_907_);
 v___x_909_ = lean_st_ref_get(v_a_904_);
 v_env_910_ = lean_ctor_get(v___x_909_, 0);

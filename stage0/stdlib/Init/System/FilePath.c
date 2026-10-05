@@ -1353,23 +1353,23 @@ goto v___jp_388_;
 v___jp_377_:
 {
 lean_object* v___x_382_; uint8_t v___x_383_; 
-lean_inc(v___y_380_);
+lean_inc(v___y_379_);
 v___x_382_ = lean_alloc_ctor(1, 1, 0);
-lean_ctor_set(v___x_382_, 0, v___y_380_);
-v___x_383_ = l_Option_instDecidableEq___redArg(v___y_378_, v___y_381_, v___x_382_);
+lean_ctor_set(v___x_382_, 0, v___y_379_);
+v___x_383_ = l_Option_instDecidableEq___redArg(v___y_380_, v___y_381_, v___x_382_);
 if (v___x_383_ == 0)
 {
-lean_dec(v___y_380_);
+lean_dec(v___y_379_);
 lean_dec_ref(v_p_376_);
-return v___y_379_;
+return v___y_378_;
 }
 else
 {
 lean_object* v___x_384_; lean_object* v___x_385_; lean_object* v___x_386_; 
-lean_dec(v___y_379_);
+lean_dec(v___y_378_);
 v___x_384_ = lean_unsigned_to_nat(0u);
-v___x_385_ = lean_string_utf8_extract_fast(v_p_376_, v___x_384_, v___y_380_);
-lean_dec(v___y_380_);
+v___x_385_ = lean_string_utf8_extract_fast(v_p_376_, v___x_384_, v___y_379_);
+lean_dec(v___y_379_);
 lean_dec_ref(v_p_376_);
 v___x_386_ = lean_alloc_ctor(1, 1, 0);
 lean_ctor_set(v___x_386_, 0, v___x_385_);
@@ -1402,9 +1402,9 @@ v___x_394_ = lean_alloc_closure((void*)(l_String_instDecidableEqPos___boxed), 3,
 lean_closure_set(v___x_394_, 0, v_p_376_);
 if (lean_obj_tag(v___x_387_) == 0)
 {
-v___y_378_ = v___x_394_;
-v___y_379_ = v___y_389_;
-v___y_380_ = v_afterRootDirectory_391_;
+v___y_378_ = v___y_389_;
+v___y_379_ = v_afterRootDirectory_391_;
+v___y_380_ = v___x_394_;
 v___y_381_ = v___x_387_;
 goto v___jp_377_;
 }
@@ -1427,9 +1427,9 @@ if (lean_obj_tag(v___x_398_) == 0)
 {
 lean_object* v___x_399_; 
 v___x_399_ = lean_box(0);
-v___y_378_ = v___x_394_;
-v___y_379_ = v___y_389_;
-v___y_380_ = v_afterRootDirectory_391_;
+v___y_378_ = v___y_389_;
+v___y_379_ = v_afterRootDirectory_391_;
+v___y_380_ = v___x_394_;
 v___y_381_ = v___x_399_;
 goto v___jp_377_;
 }
@@ -1470,9 +1470,9 @@ goto v_reusejp_404_;
 }
 v_reusejp_404_:
 {
-v___y_378_ = v___x_394_;
-v___y_379_ = v___y_389_;
-v___y_380_ = v_afterRootDirectory_391_;
+v___y_378_ = v___y_389_;
+v___y_379_ = v_afterRootDirectory_391_;
+v___y_380_ = v___x_394_;
 v___y_381_ = v___x_405_;
 goto v___jp_377_;
 }

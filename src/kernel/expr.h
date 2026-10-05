@@ -121,7 +121,8 @@ inline bool is_eqp(optional<expr> const & a, optional<expr> const & b) {
 }
 
 inline uint64_t get_data(expr const & e) {
-    return lean_ctor_get_uint64(e.raw(), lean_ctor_num_objs(e.raw())*sizeof(object*));
+    // `Expr` constructors have few object fields, so the header holds their number
+    return lean_ctor_get_uint64(e.raw(), lean_ptr_other(e.raw())*sizeof(object*));
 }
 /* This is the implementation in Lean */
 unsigned hash_core(expr const & e);

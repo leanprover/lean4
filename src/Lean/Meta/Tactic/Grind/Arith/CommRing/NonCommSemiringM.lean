@@ -17,8 +17,8 @@ structure NonCommSemiringM.Context where
 
 abbrev NonCommSemiringM := ReaderT NonCommSemiringM.Context GoalM
 
-abbrev NonCommSemiringM.run (semiringId : Nat) (x : NonCommSemiringM α) (gen : Nat := 0) : GoalM α :=
-  x { semiringId, gen }
+abbrev NonCommSemiringM.run (semiringId : Nat) (x : NonCommSemiringM α) : GoalM α :=
+  x { semiringId }
 
 instance : MonadCanon NonCommSemiringM where
   canonExpr e := do shareCommon (← canon e)
@@ -67,7 +67,10 @@ def setTermNonCommSemiringId (e : Expr) : NonCommSemiringM Unit := do
 instance : MonadSetTermId NonCommSemiringM where
   setTermId e := setTermNonCommSemiringId e
 
-/-- Variables created while reifying are internalized first, using the generation in the context. -/
+/--
+Power propagation can reenter a solver hook while a term's arguments are still being
+internalized, so an atom may not have an `ENode` yet.
+-/
 instance : MonadMkVar NonCommSemiringM where
   mkVar e := do
     unless (← alreadyInternalized e) do

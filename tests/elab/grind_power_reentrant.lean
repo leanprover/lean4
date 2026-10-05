@@ -1,5 +1,4 @@
 module
-import Lean
 
 /-! Regression tests for reentrant semiring internalization (#15479). -/
 

@@ -18,8 +18,8 @@ structure SemiringM.Context where
 
 abbrev SemiringM := ReaderT SemiringM.Context GoalM
 
-abbrev SemiringM.run (semiringId : Nat) (x : SemiringM α) (gen : Nat := 0) : GoalM α :=
-  x { semiringId, gen }
+abbrev SemiringM.run (semiringId : Nat) (x : SemiringM α) : GoalM α :=
+  x { semiringId }
 
 abbrev getSemiringId : SemiringM Nat :=
   return (← read).semiringId
@@ -102,7 +102,10 @@ def mkSVarCore [MonadLiftT GoalM m] [Monad m] [MonadSemiringState m] [MonadSetTe
   ringExt.markTerm e
   return var
 
-/-- Variables created while reifying are internalized first, using the generation in the context. -/
+/--
+Power propagation can reenter a solver hook while a term's arguments are still being
+internalized, so an atom may not have an `ENode` yet.
+-/
 instance : MonadMkVar SemiringM where
   mkVar e := do
     unless (← alreadyInternalized e) do

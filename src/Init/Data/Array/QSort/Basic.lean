@@ -86,7 +86,7 @@ set_option linter.unusedVariables.funArgs false in
 /--
 Sort an array using `compare` to compare elements.
 -/
-def qsortOrd [ord : Ord α] (xs : Array α) : Array α :=
-  xs.qsort fun x y => compare x y |>.isLT
+def qsortOrd [Ord α] [OrdForMatch α] (xs : Array α) : Array α :=
+  xs.qsort fun x y => compareForMatch x y |>.isLT
 
 end Array

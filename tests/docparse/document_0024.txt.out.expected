@@ -1,0 +1,30 @@
+Input: "Text {b\n\nhello world\n\nAfter\n"
+Failure: unexpected newline; expected positional argument, named argument, flag, or '}' (use '\{' for a literal '{')
+ --> 1:7
+  |
+1 | Text {b
+  |        ^
+  = consumed input prefix: 7 bytes
+Final stack:
+  (Lean.Doc.Parser.document
+   [(Lean.Doc.Parser.Block.para
+     [(Lean.Doc.Parser.Inline.text
+       (Lean.Doc.Parser.versoText "Text "))
+      (Lean.Doc.Parser.Inline.role
+       "{"
+       `b
+       []
+       <missing>
+       []
+       []
+       [])])
+    (Lean.Doc.Parser.Block.para
+     [(Lean.Doc.Parser.Inline.text
+       (Lean.Doc.Parser.versoText
+        "hello world"))])
+    (Lean.Doc.Parser.Block.para
+     [(Lean.Doc.Parser.Inline.text
+       (Lean.Doc.Parser.versoText "After"))
+      (Lean.Doc.Parser.Inline.linebreak "\n")])])
+All input consumed.
+Round-trip not reproduced, as the parse reported errors: leaf without original source info: <missing>

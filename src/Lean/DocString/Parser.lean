@@ -469,24 +469,77 @@ def atomAt (c : ParserContext) (startPos stopPos : String.Pos.Raw) : Syntax :=
     (c.extract startPos stopPos)
 
 /--
-At the end of the input, reports the construct `what` as unterminated. The error points at the
-opening delimiter, which runs from `openPos` to `openStop`, and expects those characters again as
-the closer. Elsewhere this parser succeeds and consumes nothing.
+The error that reports the construct `what` as unterminated. It points at the opening delimiter,
+which extends from `openPos` to `openStop`, and expects those characters again as the closer.
 
 `nameOpenerLine` adds the line the opener is on to the message.
+-/
+def unterminatedError (c : ParserContext) (openPos openStop : String.Pos.Raw) (what : String)
+    (nameOpenerLine := false) : Error :=
+  let opener := atomAt c openPos openStop
+  let what :=
+    if nameOpenerLine then s!"{what} opened on line {(c.fileMap.toPosition openPos).line}"
+    else what
+  { unexpectedTk := opener, unexpected := s!"unterminated {what}",
+    expected := [s!"'{opener.getAtomVal}'"] }
+
+/--
+At the end of the input, reports the construct `what` as unterminated with `unterminatedError`.
+Elsewhere this parser succeeds and consumes nothing.
 -/
 def unterminatedAtEnd (openPos openStop : String.Pos.Raw) (what : String)
     (nameOpenerLine := false) : ParserFn := fun c s =>
   if c.atEnd s.pos then
-    let opener := atomAt c openPos openStop
-    let what :=
-      if nameOpenerLine then s!"{what} opened on line {(c.fileMap.toPosition openPos).line}"
-      else what
-    let e :=
-      { unexpectedTk := opener, unexpected := s!"unterminated {what}",
-        expected := [s!"'{opener.getAtomVal}'"] }
-    s.setError e |>.pushSyntax .missing
+    s.setError (unterminatedError c openPos openStop what nameOpenerLine) |>.pushSyntax .missing
   else s
+
+/-- The end of the sequence of `ch` that begins at `pos`. -/
+private partial def findCharSeqEnd (ictx : InputContext) (ch : Char) (pos : String.Pos.Raw) :
+    String.Pos.Raw :=
+  if ictx.atEnd pos || ictx.get pos != ch then pos else findCharSeqEnd ictx ch (ictx.next pos)
+
+/--
+When inline code has failed to parse, finds the sequence of backticks to report as "too many
+backticks". The result is the start and end of that sequence.
+
+The search covers only the opener's line, from `start`, which is the end of the opener, to the end
+of that line. Inline code may continue onto later lines, where a longer sequence of backticks is
+usually the opening fence of a code block. An error there would blame a valid block and be
+confusing. An over-long sequence on the opener's line is a miscounted closer.
+
+A sequence with fewer than `count` backticks, where `count` is the length of the opener, is part of
+the content. The first sequence with at least `count` backticks is where the code would close, and
+it is the result if it is longer than `count`. Otherwise the result is `none`, and the caller
+reports the code as unterminated.
+-/
+def longerBackticks? (c : ParserContext) (count : Nat) (start : String.Pos.Raw) :
+    Option (String.Pos.Raw × String.Pos.Raw) := do
+  let mut i := start
+  while !c.atEnd i && c.get i != '\n' do
+    if c.get i == '`' then
+      let seqStop := findCharSeqEnd c '`' i
+      let n := i.byteDistance seqStop
+      if n ≥ count then
+        guard (n > count)
+        return (i, seqStop)
+      i := seqStop
+    else
+      i := c.next i
+  failure
+
+/--
+The error for inline code whose opener, which extends from `openPos` to `openStop` and has `count`
+backticks, has no closer.  If there is a sequence of backticks on the opener's line that is longer
+than the opener, then it is reported as the error; otherwise, the error is an unterminated inline
+code at the opener.
+-/
+def unclosedCodeError (c : ParserContext) (openPos openStop : String.Pos.Raw) (count : Nat) :
+    Error :=
+  match longerBackticks? c count openStop with
+  | some (seqStart, seqStop) =>
+    { unexpectedTk := atomAt c seqStart seqStop,
+      unexpected := s!"too many backticks: expected {count} but got {seqStart.byteDistance seqStop}" }
+  | none => unterminatedError c openPos openStop "inline code"
 
 /--
 At the end of the input, reports the construct `what` as unterminated, naming the line its opening
@@ -782,12 +835,10 @@ where
       satisfyFn (!·.isWhitespace) "non-whitespace" >> skipToNewline
 
 /--
-Runs `p`, and on failure consumes input with `recover` until parsing may continue. The error is
-recorded where `p` stopped, so that it marks the input that could not be read rather than the input
-that recovery passed over.
+If the state has an error, consumes input with `recover` until parsing may continue, and records the
+error at the position where it occurred.
 -/
-def recoverAtErrPos (p recover : ParserFn) : ParserFn := fun c s =>
-  let s := p c s
+def recoverPendingError (recover : ParserFn) : ParserFn := fun c s =>
   if let some msg := s.errorMsg then
     let errPos := s.pos
     let s' := recover c { s with errorMsg := none }
@@ -800,18 +851,16 @@ def recoverAtErrPos (p recover : ParserFn) : ParserFn := fun c s =>
     }
   else s
 
+/--
+Runs `p`, and on failure consumes input with `recover` until parsing may continue. The error is
+recorded where `p` stopped, so that it marks the input that could not be read rather than the input
+that recovery passed over.
+-/
+def recoverAtErrPos (p recover : ParserFn) : ParserFn := fun c s =>
+  recoverPendingError recover c (p c s)
+
 @[inherit_doc recoverAtErrPos]
 public def recoverBlockAtErrPos (p : ParserFn) : ParserFn := recoverAtErrPos p (ignoreFn skipBlock)
-
-/--
-Recovers from a parse error in a role by reading to its closing brace and consuming it. If the line
-has no brace, recovery skips the block.
--/
-def recoverRoleAtErrPos (p : ParserFn) : ParserFn :=
-  recoverAtErrPos p <|
-    -- The brace is the role's closing delimiter, so recovery pushes it.
-    atomicFn' (ignoreFn (takeUntilFn (fun c => c == '}' || c == '\n')) >> chFn '}') <|>
-    ignoreFn skipBlock
 
 @[inherit_doc recoverAtErrPos]
 def recoverWsAtErrPos (p : ParserFn) : ParserFn :=
@@ -1112,31 +1161,48 @@ mutual
     withStartPos fun openPos =>
       atomicFn' opener >>
       ( atomicFn' <|
-        withStartPos fun openStop =>
-          let count := openPos.byteDistance openStop
-          recoverCode <|
-            nodeFn versoCodeKind (many1Fn (codeLine (count - 1))) >>
-            codeBoundarySpacesToWs >>
-            closer openPos openStop count)
+        withStartPos fun openStop => contentAndCloser openPos openStop)
   where
     opener : ParserFn :=
       nodeFn ``codeDelimiter <|
         asTokenFn (many1Fn (expectFn (· == '`') "backticks to open inline code"))
-    closer (openPos openStop : String.Pos.Raw) (count : Nat) : ParserFn := fun c s =>
-      let delimiter := c.extract openPos openStop
-      (unterminatedAtEnd openPos openStop "inline code" >>
-       nodeFn ``codeDelimiter
-         (asTokenFn
-           (atomicFn'
-             (repFn count <| expectFn (· == '`') s!"'{delimiter}' to close inline code") >>
-            notFollowedByFn (satisfyFn (· == '`') "`") "backtick")
-           ctxt.tail)) c s
-    recoverCode (p : ParserFn) : ParserFn :=
-      recoverFn p fun rctx =>
-        (show ParserFn from fun _ s => s.restore rctx.initialSize rctx.initialPos) >>
-        atomicFn' (nodeFn versoCodeKind (nodeFn nullKind (nodeFn versoCodeLineKind
-          (asTokenFn (takeWhileFn (· ≠ '\n')) (ignoreFn (chFn '\n' <|> eoiFn))))) >>
-          codeBoundarySpacesToWs >> pushMissing)
+    /-- Exactly `count` backticks, which close inline code opened with `count` backticks. -/
+    closingBackticks (count : Nat) : ParserFn :=
+      atomicFn' (repFn count <| satisfyFn (· == '`') "backtick") >>
+      notFollowedByFn (satisfyFn (· == '`') "`") "backtick"
+    /--
+    Runs `p`, which parses the content of inline code or the backticks that close it. When `p`
+    fails, the code has no closer, and the error is `unclosedCodeError`.
+    -/
+    orUnclosedAt (openPos openStop : String.Pos.Raw) (count : Nat) (p : ParserFn) : ParserFn :=
+      fun c s =>
+        let s := p c s
+        if s.hasError then { s with errorMsg := some (unclosedCodeError c openPos openStop count) }
+        else s
+    /--
+    Parses the content and closer of inline code whose opener extends from `openPos` to `openStop`.
+
+    When they fail to parse, the content is the rest of the opener's line, and parsing resumes at
+    the newline. The characters after it are then read as they would be after any other inline: a
+    further line continues the paragraph, and a blank line ends it.
+
+    If the line contains a sequence of backticks that is too long, then the error is reported there;
+    otherwise, it is reported as unterminated inline code at the opener.
+    -/
+    contentAndCloser (openPos openStop : String.Pos.Raw) : ParserFn :=
+      -- Backticks are one byte each, so this is OK
+      let count := openPos.byteDistance openStop
+      let orUnclosed := orUnclosedAt openPos openStop count
+      recoverFn (recover := restOfLine) <|
+        orUnclosed (nodeFn versoCodeKind (many1Fn (codeLine (count - 1)))) >>
+        codeBoundarySpacesToWs >>
+        nodeFn ``codeDelimiter (asTokenFn (orUnclosed (closingBackticks count)) ctxt.tail)
+    /-- The rest of the line as the content of inline code that has no closer. -/
+    restOfLine (rctx : RecoveryContext) : ParserFn :=
+      (show ParserFn from fun _ s => s.restore rctx.initialSize rctx.initialPos) >>
+      nodeFn versoCodeKind (nodeFn nullKind (nodeFn versoCodeLineKind
+        (asTokenFn (takeWhileFn (· ≠ '\n'))))) >>
+      codeBoundarySpacesToWs >> pushMissing
     codeLine (maxCount : Nat) : ParserFn :=
       atomicFn' <|
         nodeFn versoCodeLineKind <|
@@ -1217,13 +1283,25 @@ mutual
         strFn "]" >>
         linkTargetFn tail)
 
-  /-- Parses a role. -/
+  /--
+  Parses a role.
+  -/
   public partial def roleFn (ctxt : InlineCtxt) : ParserFn :=
     nodeFn ``Inline.role <| withCurrentStackSize fun base =>
-      intro base >> (bracketed <|> atomicFn' nonBracketed)
+      atomicFn' (chFn '{') >> nameAndArgsThenContent base
   where
-    intro (base : Nat) :=
-      atomicFn' (chFn '{') >> recoverRoleAtErrPos (withTrailing eatSpaces >>
+    -- An error in the name and arguments is recovered by reading to the closing brace on the same
+    -- line, after which the content is parsed as usual. If the line has no closing brace, the role
+    -- ends at the end of the line and has no content.
+    nameAndArgsThenContent (base : Nat) : ParserFn := fun c s =>
+      let s := recoverAtErrPos (nameAndArgs base) closingBraceOnLine c s
+      if s.hasError then recoverPendingError (ignoreFn skipToNewline >> noContent) c s
+      else (bracketed <|> atomicFn' nonBracketed) c s
+    -- The brace is the role's closing delimiter, so recovery pushes it.
+    closingBraceOnLine : ParserFn :=
+      atomicFn' (ignoreFn (takeUntilFn (fun c => c == '}' || c == '\n')) >> chFn '}')
+    nameAndArgs (base : Nat) :=
+      withTrailing eatSpaces >>
       nameAndArgsFn (tail := argEndWs) (closes := (· == '}')) >>
       wsFallback eatSpaces base >>
       rawFn (fun c s =>
@@ -1231,16 +1309,18 @@ mutual
         if h : c.atEnd i then s.mkEOIError [closeMsg]
         else if c.get' i h == '}' then s.next' c i h
         else (s.setPos i).mkUnexpectedError s!"unexpected {describeChar (c.get' i h)}" [closeMsg])
-          false)
+          false
     closeMsg := "positional argument, named argument, flag, or '}' (use '\\{' for a literal '{')"
     bracketed :=
       atomicFn' (nodeFn nullKind (expectChFn '[')) >>
-      recoverBlockAtErrPos (manyFn (inlineFn ctxt.inner) >>
+      recoverEolAtErrPos (manyFn (inlineFn ctxt.inner) >>
         nodeFn nullKind (expectChFn ']' >> withTrailing ctxt.tail))
     nonBracketed : ParserFn := fun c s =>
       let s := s.pushSyntax (mkNullNode #[])
       let s := nodeFn nullKind (delimitedInlineFn ctxt) c s
       s.pushSyntax (mkNullNode #[])
+    noContent : ParserFn := fun _ s =>
+      s.pushSyntax (mkNullNode #[]) |>.pushSyntax (mkNullNode #[]) |>.pushSyntax (mkNullNode #[])
 
   /--
   Parses an inline that is self-delimiting (that is, with well-defined start and stop characters).
@@ -1285,8 +1365,9 @@ public def textLineFn (ctxt : InlineCtxt := {}) (recordTrailing := false) : Pars
       first := false
       -- After an inline that parsed without error recovery, its final token's trailing parser made
       -- the line-end decision. Stopping at a newline means the next line continues. A token that
-      -- consumed its line's end as trailing whitespace ends the text. After error recovery no token
-      -- made the decision, so the next round parses a linebreak by lookahead as usual.
+      -- consumed its line's end as trailing whitespace ends the text. After error recovery, the
+      -- text ends if the inline's final token consumed its line's end; otherwise, the next
+      -- round parses a linebreak by lookahead as usual.
       if s.recoveredErrors.size == itRec then
         if h : c.atEnd s.pos then
           break
@@ -1297,6 +1378,8 @@ public def textLineFn (ctxt : InlineCtxt := {}) (recordTrailing := false) : Pars
             break
         else if consumedLineEnd s then
           break
+      else if consumedLineEnd s then
+        break
     return s.mkNode nullKind iniSz
 
 open Lean.Parser.Term in
@@ -1944,6 +2027,10 @@ mutual
 
   /--
   Parses a block.
+
+  When `recordTrailing` is set, the block's final token consumes the whitespace that follows the
+  block (including the indentation of the next line), even when error recovery lost the token that
+  would have consumed it.
   -/
   public partial def blockFn (c : BlockCtxt) : ParserFn :=
     noTabs >>
@@ -1951,13 +2038,21 @@ mutual
     -- it, so a block begins at its own first token, at or past the column the enclosing block
     -- saved.
     checkIndentGe indentMsg >>
-    (expectedFn "block opener (at line start: '#', '>', ':', '*', '-', '+', '1.', '```', '%%%', '{…}')" (
-        blockCommandFn c <|> unorderedListFn c <|> orderedListFn c <|> definitionListFn c <|>
-        headerFn c <|> codeBlockFn c <|> directiveFn c <|> blockquoteFn c <|>
-        linkRefFn c <|> footnoteRefFn c <|> metadataBlockFn c) <|>
-      paraFn c)
+    withTrailingFallback
+      (expectedFn "block opener (at line start: '#', '>', ':', '*', '-', '+', '1.', '```', '%%%', '{…}')" (
+          blockCommandFn c <|> unorderedListFn c <|> orderedListFn c <|> definitionListFn c <|>
+          headerFn c <|> codeBlockFn c <|> directiveFn c <|> blockquoteFn c <|>
+          linkRefFn c <|> footnoteRefFn c <|> metadataBlockFn c) <|>
+        paraFn c)
   where
     indentMsg := "block"
+
+    withTrailingFallback (block : ParserFn) : ParserFn := fun ctx s =>
+      if !c.recordTrailing then block ctx s
+      else
+        let base := s.stxStack.size
+        let s := block ctx s
+        if s.hasError then s else blockSepFallback base ctx s
 
     /--
     Reports a tab where a block would begin. This check records the error at the tab, consuming it
@@ -2059,11 +2154,6 @@ single delimiter rather than several.
 private def isGrowableVersoDelimiter (ch : Char) : Bool :=
   ch == '*' || ch == '_' || ch == '`' || ch == ':' || ch == '#'
 
-/-- The end of the run of `ch` that begins at `pos`. -/
-private partial def versoRunEnd (ictx : InputContext) (ch : Char) (pos : String.Pos.Raw) :
-    String.Pos.Raw :=
-  if ictx.atEnd pos || ictx.get pos != ch then pos else versoRunEnd ictx ch (ictx.next pos)
-
 /--
 Returns the start and end of the range over which a Verso parse error at `pos` is reported, along
 with the error to report. An end position of `none` indicates that the error has no range, but is to
@@ -2096,7 +2186,7 @@ public def locateError (ictx : InputContext) (pos : String.Pos.Raw) (e : Error) 
   else
     -- A delimiter is a run of its character, so the whole run is one delimiter to mark.
     let ch := ictx.get pos
-    let stop := if isGrowableVersoDelimiter ch then versoRunEnd ictx ch pos else ictx.next pos
+    let stop := if isGrowableVersoDelimiter ch then findCharSeqEnd ictx ch pos else ictx.next pos
     (pos, some stop, e)
 
 /--

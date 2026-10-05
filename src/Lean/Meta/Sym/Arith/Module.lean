@@ -240,7 +240,8 @@ def normalizeAdd? [Monad m] [MonadLiftT SymM m] [MonadLiftT MetaM m] [MonadContr
   let r ← visitModuleAtoms integers simpAtom e
   let e₁ ← shareCommon (r.getResultExpr e)
   let (re, s) ← (((reifyModule e₁).run ctx).run {} : SymM _)
-  let perm := (Array.range s.vars.size).qsort fun i j => Expr.lt s.vars[i]! s.vars[j]!
+  -- Linear polynomials emit larger indices first; number atoms in reverse to display Expr.lt order.
+  let perm := (Array.range s.vars.size).qsort fun i j => Expr.lt s.vars[j]! s.vars[i]!
   let vars := perm.map (s.vars[·]!)
   let re := re.renameVars (Grind.mkVarRename perm)
   let p := if integers then re.norm else re.toPolyN

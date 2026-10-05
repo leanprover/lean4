@@ -129,10 +129,17 @@ run_meta do
   for type in [mkConst ``Nat, mkConst ``Int] do
     withLocalDeclD `a type fun a => withLocalDeclD `b type fun b => do
       let vars := #[a, b] |>.qsort Expr.lt
-      let e ← mkAppM ``HAdd.hAdd #[vars[1]!, vars[0]!]
+      let e ← mkAppM ``HAdd.hAdd #[vars[0]!, vars[1]!]
       let r ← SymM.run do Arith.normalizeAdd? (← shareCommon (← Sym.canon e))
       unless r matches .rfl .. do
         throwError "already-normal addition changed its operator instance"
+      let reversed ← mkAppM ``HAdd.hAdd #[vars[1]!, vars[0]!]
+      let r ← SymM.run (Arith.normalizeAdd? reversed)
+      unless (r.getResultExpr reversed) == e do
+        throwError "additive normalization did not emit atoms in Expr.lt order"
+      let r ← SymM.run (Arith.normalize? reversed fun _ => pure .rfl)
+      unless (r.getResultExpr reversed) == e do
+        throwError "ring and additive normalization disagree on atom order"
       let e ← mkAppM ``HAdd.hAdd #[a, a]
       let r ← SymM.run (Arith.normalizeAdd? e)
       let .step e' proof .. := r | throwError "repeated atom was not collected"

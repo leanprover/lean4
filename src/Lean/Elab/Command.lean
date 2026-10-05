@@ -185,6 +185,12 @@ for the next command.
 `selfCurrentPreState`.
 * **Others**: Access other linters' states only via the `readPrevPostState` and
 `readCurrentPreState` closures that take typed handles of other linters.
+
+### Commands with Parse Errors
+Unlike regular linters, stateful linters also run on commands with parse errors. Their messages are
+discarded there (unless `showPartialSyntaxErrors` is set), but their info trees are kept, so code
+actions from `MessageData.hint` would be offered without the corresponding message. Linters should
+not produce hints when `(← read).suppressElabErrors` is set.
 -/
 unsafe def registerStatefulLinterImpl (init : σ)
     (pre  : Syntax → (selfPrevPostState : σ) → (readPrevPostState : PrevStateFn) → CommandElabM (Option τ) :=

@@ -81,7 +81,10 @@ private def baseInstance? (instCL : Expr) (ss : Array Expr) : SymM (Option Expr)
   for s in ss do
     let_expr instCompleteLatticePi _ _ f := inst | return none
     inst ← betaS f #[s]
-  return some inst
+  -- The goals of `vcgen` state `⌜·⌝` with `c`, not with `Assertion.toCompleteLattice (.mk c)`.
+  let_expr Std.WP.Assertion.toCompleteLattice _ a := inst | return some inst
+  let_expr Std.WP.Assertion.mk _ c := a | return some inst
+  return some c
 
 /-- Register the join point `jp := val` that `wpLet?` introduced into `goal`. Returns `scope` with
 `jp`, `goal` with `__do_jp_spec : ∀ xs, ⦃P xs⦄ jp xs ⦃post⦄`, and the body goal

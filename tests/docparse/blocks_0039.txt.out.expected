@@ -4,7 +4,7 @@ Failure: unterminated inline code; expected '`'
   |
 3 | Here is a paragraph with an unterminated `code block
   |                                          ^
-  = consumed input prefix: 65 bytes
+  = consumed input prefix: 64 bytes
 Final stack:
   [(Lean.Doc.Parser.Block.para
     [(Lean.Doc.Parser.Inline.text
@@ -19,6 +19,7 @@ Final stack:
        [(Lean.Doc.Parser.versoCodeLine
          "code block")])
       <missing>)
+     (Lean.Doc.Parser.Inline.linebreak "\n")
      (Lean.Doc.Parser.Inline.text
       (Lean.Doc.Parser.versoText
        "that would be super annoying without error recovery in the"))

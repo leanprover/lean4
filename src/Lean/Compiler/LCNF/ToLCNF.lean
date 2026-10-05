@@ -507,6 +507,12 @@ partial def etaReduceImplicit (e : Expr) : Expr :=
       e
   | _ => e
 
+/-- Whether substituting `e` for a variable occurring several times duplicates no work. -/
+private def isDuplicable : Expr → Bool
+  | .bvar .. | .fvar .. | .mvar .. | .sort .. | .const .. | .lit .. | .lam .. | .forallE .. => true
+  | .mdata _ e => isDuplicable e
+  | _ => false
+
 def litToValue (lit : Literal) : LitValue :=
   match lit with
   | .natVal val => .nat val
@@ -959,6 +965,10 @@ where
         e.withApp visitAppDefaultConst
     else
       e.withApp fun f args => do
+        -- Lambdas passed to `[macro_inline]` constants end up applied like this; substituting them
+        -- at each use site avoids sharing them as local functions the compiler may fail to inline.
+        if f.isLambda && args.all isDuplicable then
+          return ← visit (f.beta args)
         match (← withoutExpectedType do visit f) with
         | .erased | .type .. => return .erased
         | .fvar fvarId =>

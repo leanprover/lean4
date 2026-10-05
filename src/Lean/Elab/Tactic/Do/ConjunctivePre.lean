@@ -60,11 +60,14 @@ updated state. `P` is never split into a footprint and a frame.
 ## Syntactic detection
 
 `isConjunctiveInPosts` checks a sufficient syntactic condition: every occurrence of the schematic
-`Q`/`E` in `specPre` lies in a conjunctivity-preserving context — a `wp` post/exception-post, a
-`⊓`/`∧`/`⨅` operand, a `⇨` consequent, a `Prod.fst` projection, an application `Q a⋯`, or
-under a `λ` — and none in a premise or the program. For instance:
+`Q`/`E` in `specPre` lies in a conjunctivity-preserving context, and none lies in a premise or the
+program. The contexts are a `wp` post/exception-post, a `⊓`/`∧`/`⨅`/`∀` operand, a `⇨`/`→`
+consequent, a `Prod.fst` projection, an application `Q a⋯`, and the body of a `λ`. The binder type
+of a `∀` or `λ` is free of `Q`/`E`. Each context stays conjunctive when applied to further
+`Q`/`E`-free arguments, because `(f ⊓ g) a = f a ⊓ g a`. For instance:
 
     get   ↦  fun s => Q s s        throw  ↦  E.fst err        bind  ↦  wp x (fun a => wp (f a) Q E) E
+    modify f  ↦  fun s => ∀ s', s' = f s → Q () s'            guard  ↦  fun s => p s ∧ wp x Q E s
 
 The `wp` context preserves conjunctivity only because the sub-program's `wp` is assumed conjunctive
 (`WPConjunctive`), a per-program fact that every combinator preserves; a non-conjunctive leaf states
@@ -112,36 +115,41 @@ private def specComponents? (concl : Expr) : Option (Expr × Expr × Expr × Exp
 private def occursMVar (mvarIds : Array MVarId) (e : Expr) : Bool :=
   Option.isSome <| e.find? fun s => match s with | .mvar m => mvarIds.contains m | _ => false
 
+/-- The arity of a conjunctivity-preserving head, and the positions of its arguments that lie in a
+conjunctive context. -/
+private def conjunctiveArgs? : Name → Option (Nat × List Nat)
+  | ``Lean.Order.meet => some (4, [2, 3])
+  | ``And => some (2, [0, 1])
+  | ``Lean.Order.iInf => some (4, [3])
+  | ``Lean.Order.himp => some (4, [3])
+  | ``wp => some (10, [8, 9])
+  -- `Prod.fst` is a `⊓`-morphism (`Prod.fst_meet`).
+  | ``Prod.fst => some (3, [2])
+  -- `binderNameHint v b e` is definitionally `e`; the hint rides along only to name binders.
+  | ``binderNameHint => some (6, [5])
+  | _ => none
+
 /-- Whether `e` is conjunctive in the metavariables `qs`, as a sufficient syntactic condition: every
-occurrence of a `qs` metavariable lies in a conjunctive context — a `wp` postcondition or
-exception-postcondition argument (assuming the program's `wp` is conjunctive), a `⊓`/`∧`/`⨅` operand,
-a `⇨` consequent, a `Prod.fst` projection, applied at a tail, or under a `λ`. -/
+occurrence of a `qs` metavariable lies in a conjunctive context. The contexts are a `wp`
+postcondition or exception-postcondition argument (assuming the program's `wp` is conjunctive), a
+`⊓`/`∧`/`⨅`/`∀` operand, a `⇨`/`→` consequent, a `Prod.fst` projection, an application `Q a⋯`, and
+the body of a `λ`. A context applied to `qs`-free excess arguments stays conjunctive. -/
 private partial def isConjunctiveIn (qs : Array MVarId) (e : Expr) : Bool :=
   if !occursMVar qs e then true else
   match e with
   | .mdata _ b => isConjunctiveIn qs b
-  | .lam _ dom body _ => !occursMVar qs dom && isConjunctiveIn qs body
+  | .lam _ dom body _ | .forallE _ dom body _ => !occursMVar qs dom && isConjunctiveIn qs body
   | _ =>
+    let args := e.getAppArgs
     match e.getAppFn with
-    | .mvar m => qs.contains m && e.getAppArgs.all (!occursMVar qs ·)
-    -- `binderNameHint v b e` is definitionally `e`; the hint rides along only to name binders.
-    | .const ``binderNameHint _ => isConjunctiveIn qs (e.getArg! 5)
-    | .const ``Prod.fst _ =>
-      -- `Prod.fst` is a `⊓`-morphism (`Prod.fst_meet`). Its exception-stack argument stays
-      -- in a `⊓`-context. The rest (types and the applied exception) must be `qs`-free.
-      let args := e.getAppArgs
-      match args[2]? with
-      | some s => isConjunctiveIn qs s && (List.range args.size).all fun i => i == 2 || !occursMVar qs args[i]!
+    | .mvar m => qs.contains m && args.all (!occursMVar qs ·)
+    | .const c _ =>
+      match conjunctiveArgs? c with
+      | some (arity, conj) =>
+        arity ≤ args.size && (List.range args.size).all fun i =>
+          if conj.contains i then isConjunctiveIn qs args[i]! else !occursMVar qs args[i]!
       | none => false
-    | _ =>
-      match_expr e with
-      | Lean.Order.meet _ _ a b => isConjunctiveIn qs a && isConjunctiveIn qs b
-      | Lean.Order.iInf _ _ _ f => isConjunctiveIn qs f
-      | And a b => isConjunctiveIn qs a && isConjunctiveIn qs b
-      | Lean.Order.himp _ _ a b => !occursMVar qs a && isConjunctiveIn qs b
-      | wp _ _ _ _ _ _ _ prog post eposts =>
-        !occursMVar qs prog && isConjunctiveIn qs post && isConjunctiveIn qs eposts
-      | _ => false
+    | _ => false
 
 /-- Whether the spec's precondition is conjunctive in its schematic postconditions (`Q` and/or `E`):
 each occurs only in conjunctive contexts, and in no premise nor in the program. The `binders` are the

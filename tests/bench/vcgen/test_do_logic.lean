@@ -829,3 +829,32 @@ example : ⦃ True ⦄ trivial_test 0 ⦃fun r => r = 0⦄ := by
   vcgen [trivial_test] with grind
 
 end WithGrindError
+
+namespace ConjunctivePre
+
+/-! The preconditions of `bump_spec` (a `∀`/`→`) and `bump2_spec` (a `wp` applied to the state) are
+conjunctive in `Q`, so `vcgen` applies both specs directly and forms no frame. The frame
+`fun s => s = 3` fails to hold across `bump` and `bump2`: a framed application leaves the
+unprovable goal `WP.Frames meet bump (fun s => s = 3)`. -/
+
+@[irreducible] def bump : StateT Nat Id Unit := modify (· + 1)
+
+@[spec]
+theorem bump_spec (Q : Unit → Nat → Prop) :
+    ⦃ fun s => ∀ s', s' = s + 1 → Q () s' ⦄ bump ⦃ Q ⦄ := by
+  unfold bump; vcgen with finish
+
+example : ⦃ fun s => s = 3 ⦄ bump ⦃ fun _ s => s = 4 ⦄ := by
+  vcgen frames | bump => fun s => s = 3 with finish
+
+@[irreducible] def bump2 : StateT Nat Id Unit := do bump; bump
+
+@[spec]
+theorem bump2_spec (Q : Unit → Nat → Prop) (E : EStack⟨⟩) :
+    ⦃ fun s => wp bump (fun _ => wp bump Q E) E s ⦄ bump2 ⦃ Q; E ⦄ := by
+  unfold bump2; exact ⟨WPMonad.bind_le_wp_bind bump (fun _ => bump) Q E⟩
+
+example : ⦃ fun s => s = 3 ⦄ bump2 ⦃ fun _ s => s = 5 ⦄ := by
+  vcgen frames | bump2 => fun s => s = 3 with finish
+
+end ConjunctivePre

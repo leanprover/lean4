@@ -1,0 +1,11 @@
+⟪
+  synthBar := true,
+  lctx := [Bar],
+  localInstanceNames := [Bar]
+  ⟫ : True
+⟪
+  synthBar := true,
+  lctx := [Bar],
+  localInstanceNames := [Bar]
+  ⟫
+() : Unit

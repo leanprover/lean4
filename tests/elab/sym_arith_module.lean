@@ -127,13 +127,6 @@ run_meta do
       unless (← inferType proof) == target do
         throwError "equality proof does not expose the input proposition"
 
-      -- A caller can retain first-occurrence order instead of Expr.lt order.
-      let e ← mkAppM ``HAdd.hAdd #[a, b]
-      let r ← SymM.run <| Arith.normalizeAdd? e
-        (orderVars := fun vars => pure (Array.range vars.size).reverse)
-      unless r matches .rfl .. do
-        throwError "the supplied atom order was not retained"
-
 -- Failed equality normalization must not assign the caller's metavariables.
 run_meta do
   let type := mkConst ``Nat

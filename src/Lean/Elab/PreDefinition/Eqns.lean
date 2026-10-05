@@ -341,6 +341,15 @@ where
         return (lctx.mkForall xsNew type, lctx.mkLambda xsNew value)
 
 
+private structure EqnTypesKey where
+  declName : Name
+  declNames : Array Name
+deriving BEq, Hashable, TypeName
+
+private structure EqnTypes where
+  types : Array Expr
+deriving TypeName
+
 /--
 Generate equations for `declName`.
 
@@ -352,21 +361,25 @@ def mkEqns (declName : Name) (declNames : Array Name) : MetaM (Array Name) := do
   trace[Elab.definition.eqns] "mkEqns: {.ofConstName declName}"
   let info ← getConstInfoDefn declName
   let us := info.levelParams.map mkLevelParam
-  withOptions (tactic.hygienic.set · false) do
-  let target ← unfoldThmType declName
-  let eqnTypes ← withNewMCtxDepth <|
-    forallTelescope (cleanupAnnotations := true) target fun xs target => do
-      let goal ← mkFreshExprSyntheticOpaqueMVar target
-      withReducible do
-        mkEqnTypes declNames goal.mvarId!
+  -- `realizeValue` computes the types once per definition, with the options at definition time
+  -- (command-line options for an imported definition). All callers get the same statements.
+  let { types := eqnTypes } ← realizeValue declName { declName, declNames : EqnTypesKey } <|
+    withEqnOptions declName <| withOptions (tactic.hygienic.set · false) do
+      let target ← unfoldThmType declName
+      let types ← withNewMCtxDepth <|
+        forallTelescope (cleanupAnnotations := true) target fun xs target => do
+          let goal ← mkFreshExprSyntheticOpaqueMVar target
+          withReducible do
+            mkEqnTypes declNames goal.mvarId!
+      return { types : EqnTypes }
   let mut thmNames := #[]
   for h : i in *...eqnTypes.size do
     let type := eqnTypes[i]
     trace[Elab.definition.eqns] "eqnType[{i}]: {eqnTypes[i]}"
     let name := mkEqLikeNameFor (← getEnv) declName s!"{eqnThmSuffixBasePrefix}{i+1}"
     thmNames := thmNames.push name
-    -- determinism: `type` should be independent of the environment changes since `baseName` was
-    -- added
+    -- determinism: `type` comes from `realizeValue`, so it is independent of the environment
+    -- changes since `declName` was added
     realizeConst declName name (withEqnOptions declName (doRealize name info type))
   return thmNames
 where

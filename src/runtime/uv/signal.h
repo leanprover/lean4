@@ -42,6 +42,9 @@ typedef struct {
 // `m_promise` may be NULL in any state: `stop` leaves a FINISHED signal without one, and `cancel`
 // leaves it RUNNING without one. A repeating signal also keeps its last
 // promise after resolving it, until `next` replaces it.
+//
+// The event loop holds a reference to the signal object exactly while it is RUNNING with a non-NULL
+// `m_promise`.
 
 // =======================================
 // Signal object manipulation functions.

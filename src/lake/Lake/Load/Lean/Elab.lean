@@ -7,7 +7,7 @@ module
 
 prelude
 public import Lake.Load.Config
-import Lean.Compiler.IR.CompilerM
+import Lean.Compiler.Bytecode.Basic
 import Lean.Elab.Frontend
 import Lake.DSL.Extensions
 import Lake.Util.JsonObject
@@ -161,7 +161,7 @@ where
     -- Docstring Extension (e.g., for scripts)
     |>.insert ``docStringExt
     -- IR Extension (for constant evaluation)
-    |>.insert ``IR.declMapExt
+    |>.insert ``Compiler.Bytecode.declMapExt
 
 structure ConfigTrace where
   idx : Nat

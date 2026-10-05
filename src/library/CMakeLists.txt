@@ -14,7 +14,6 @@ add_library(
   elab_environment.cpp
   init_attribute.cpp
   llvm.cpp
-  ir_interpreter.cpp
   instantiate_mvars.cpp
   bytecode_interpreter.cpp
 )

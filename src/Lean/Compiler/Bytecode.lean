@@ -6,6 +6,9 @@ Authors: Robin Arnez
 module
 
 prelude
-public import Lean.Compiler.Bytecode.Assemble
+public import Lean.Compiler.Bytecode.Main
+public import Lean.Compiler.Bytecode.Sorry
 public import Lean.Compiler.Bytecode.Basic
 public import Lean.Compiler.Bytecode.Instruction
+public import Lean.Compiler.Bytecode.Eval
+public import Lean.Compiler.Bytecode.UnboxResult

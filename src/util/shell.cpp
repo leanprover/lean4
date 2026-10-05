@@ -37,7 +37,6 @@ Author: Leonardo de Moura
 #include "library/util.h"
 #include "library/print.h"
 #include "initialize/init.h"
-#include "library/ir_interpreter.h"
 #ifdef _MSC_VER
 #include <io.h>
 #define STDOUT_FILENO 1

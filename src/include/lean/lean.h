@@ -3214,7 +3214,7 @@ static inline lean_obj_res lean_io_result_take_value(lean_obj_arg r) {
     return v;
 }
 
-LEAN_EXPORT void lean_io_result_show_error(b_lean_obj_arg r);
+LEAN_EXPORT lean_object * lean_io_result_show_error(b_lean_obj_arg r);
 LEAN_EXPORT void lean_io_mark_end_initialization(void);
 static inline lean_obj_res lean_io_result_mk_ok(lean_obj_arg a) {
     lean_object * r = lean_alloc_ctor(0, 1, 0);

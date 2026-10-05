@@ -87,7 +87,7 @@ void decl_cache_foreach(void * cache_val, object * fn) {
     }
 }
 
-extern "C" object * lean_bytecode_mk_initial_cache(b_obj_arg symbols) {
+extern "C" LEAN_EXPORT object * lean_bytecode_mk_initial_cache(b_obj_arg symbols) {
     size_t count = array_size(symbols);
     size_t sz = sizeof(decl_cache) + sizeof(decl_cache_entry)*count;
     decl_cache * cache = static_cast<decl_cache *>(malloc(sz));
@@ -933,6 +933,31 @@ extern "C" obj_res lean_eval_bytecode_decl(b_obj_arg env, b_obj_arg decl) {
     g_interpreter->m_env = old_env;
     if (need_cleanup) g_interpreter = nullptr;
     return res.m_obj;
+}
+
+/* runModInitCore (sym : @& String) : IO Bool */
+extern "C" LEAN_EXPORT obj_res lean_run_mod_init_core(b_obj_arg sym) {
+    if (void * init = lookup_symbol_in_cur_exe(string_cstr(sym))) {
+        auto init_fn = reinterpret_cast<object *(*)(uint8_t)>(init);
+        uint8_t builtin = 0;
+        object * r = init_fn(builtin);
+        if (io_result_is_ok(r)) {
+            dec_ref(r);
+            return lean_io_result_mk_ok(box(true));
+        } else {
+            return r;
+        }
+    } else {
+        return lean_io_result_mk_ok(box(false));
+    }
+}
+
+extern "C" LEAN_EXPORT object * lean_bytecode_store_init_value(b_obj_arg decl, obj_arg value) {
+    object * cache_obj = lean_ctor_get(decl, 5); // DeclCache symbols
+    decl_cache * cache = reinterpret_cast<decl_cache *>(lean_get_external_data(cache_obj));
+    cache->m_value = value;
+    cache->m_once_cell.state = 1;
+    return box(0);
 }
 
 }

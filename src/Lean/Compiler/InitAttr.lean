@@ -42,7 +42,7 @@ Initializers do not have corresponding Lean definitions, so they cannot be inter
 
 /-- Run the initializer for `decl` and store its value for global access. Should only be used while importing. -/
 @[extern "lean_run_init"]
-unsafe opaque runInit (env : @& Environment) (opts : @& Options) (decl initDecl : @& Name) : IO Unit
+unsafe opaque runInit (env : Environment) (opts : Options) (decl initDecl : Name) : IO Unit
 
 /-- Set of modules for which we have already run the module initializer in the interpreter. -/
 builtin_initialize interpretedModInits : IO.Ref NameSet ← IO.mkRef {}

@@ -1,13 +1,14 @@
 /-
 Copyright (c) 2026 Robin Arnez. All rights reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
-Authors: Robin Arnez
+Authors: Robin Arnez, Sebastian Ullrich
 -/
 module
 
 prelude
 public import Lean.Compiler.LCNF.Basic
 public import Lean.Compiler.Bytecode.Instruction
+import Lean.Compiler.Bytecode.Sorry
 import Lean.Compiler.LCNF.PrettyPrinter
 import Init.While
 public meta import Lean.Elab.Term.TermElabM
@@ -871,15 +872,56 @@ def compileBytecodeDecl (d : Decl .impure) : CompilerM BytecodeDecl := do
     ToBytecode.assemble
   act.run { currDecl := d.name, params := d.params } |>.run' {}
 
-def compile (d : Decl .impure) : CompilerM Unit := do
-  unless d.value matches .code _ do
+private partial def setClosureMeta (decl : BytecodeDecl)
+    (locals : NameMap BytecodeDecl) : CompilerM Unit := do
+  for ref in decl.symbols do
+    if isDeclMeta (← getEnv) ref then
+      continue
+    let some d := locals.find? ref | continue
+    trace[compiler.ir.inferMeta] m!"Marking {ref} as meta because it is in `meta` closure"
+    modifyEnv (setDeclMeta · ref)
+    setClosureMeta d locals
+
+partial def inferMeta (decls : Array BytecodeDecl) : CompilerM Unit := do
+  if !(← getEnv).header.isModule then
     return
-  let decl ← compileBytecodeDecl d
-  modifyEnv (declMapExt.addEntry · decl)
-  trace[Compiler.bytecode.result] m!"{disassemble decl}"
+  let mut locals : NameMap BytecodeDecl := {}
+  for decl in decls do
+    locals := locals.insert decl.name decl
+  for decl in decls do
+    if isMarkedMeta (← getEnv) decl.name then
+      trace[compiler.ir.inferMeta] m!"Marking {decl.name} as meta because it is tagged with `meta`"
+      modifyEnv (setDeclMeta · decl.name)
+      setClosureMeta decl locals
+
+def compile (decls : Array (Decl .impure)) : CompilerM Unit := do
+  let mut bytecodeDecls : Array BytecodeDecl := #[]
+  for d in decls do
+    match d.value with
+    | .code _ =>
+      let decl ← compileBytecodeDecl d
+      trace[Compiler.bytecode.result] m!"{disassemble decl}"
+      bytecodeDecls := bytecodeDecls.push decl
+    | .extern data =>
+      if data.entries.isEmpty then
+        let decl : BytecodeDecl := {
+          name := d.name
+          code := assemble #[.skipIfCached 1, .move 0 0, .ret 0]
+          stackReserved := 1
+          stackSpace := 0
+          symbols := #[]
+          arity := 0
+          constants := #[]
+        }
+        bytecodeDecls := bytecodeDecls.push decl
+  bytecodeDecls ← updateSorryDep bytecodeDecls
+  bytecodeDecls.forM fun decl =>
+    modifyEnv (declMapExt.addEntry · decl)
+  inferMeta bytecodeDecls
 
 builtin_initialize
   registerTraceClass `Compiler.bytecode
   registerTraceClass `Compiler.bytecode.result (inherited := true)
+  registerTraceClass `compiler.ir.inferMeta
 
 end Lean.Compiler.Bytecode

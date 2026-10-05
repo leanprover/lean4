@@ -113,7 +113,8 @@ public def registerJoinPoint (scope : Scope) (goal : MVarId) (jp : FVarId) (val 
       .syntheticOpaque
     let entails (prog : Expr) : VCGenM Expr := do
       let wp ← mkAppNS (← mkAppNS info.head (info.args.set! 7 prog)) ss
-      let rel ← mkAppNS (mkConst ``PartialOrder.rel goalTy.getAppFn.constLevels!) #[α, inst, top, wp]
+      let rel ← mkAppNS (mkConst ``PartialOrder.rel goalTy.getAppFn.constLevels!)
+        #[α, inst, top, wp]
       mkForallFVarsS (xs ++ ss) (← mkForallS `h .default (← mkAppNS hyp (xs ++ ss)) rel)
     return some (hyp.mvarId!, top, ← entails (← mkAppNS (.fvar jp) xs), ← entails (← betaS val xs))
     | return none
@@ -121,11 +122,12 @@ public def registerJoinPoint (scope : Scope) (goal : MVarId) (jp : FVarId) (val 
   let goal ← goal.replaceTargetDefEqFast (← mkLetS `__do_jp_spec specTy body goalTy)
   let .goal decls goal ← Sym.introN goal 1
     | throwError "vcgen +jp: failed to introduce the proof of{indentExpr specTy}"
-  let lctxSize := (← goal.getDecl).lctx.numIndices
   let joinPoint : JoinPoint :=
-    { spec := .fvar decls[0]!, top, hyp, numStates := info.excessArgs.size, lctxSize }
-  modify fun s => { s with joinPointBodies := s.joinPointBodies.insert body.mvarId! joinPoint }
-  return some ({ scope with joinPoints := scope.joinPoints.insert jp joinPoint }, [goal, body.mvarId!])
+    { spec := .fvar decls[0]!, top, hyp, body := body.mvarId!, numStates := info.excessArgs.size }
+  modify fun s => { s with
+    pendingJoinPoints := s.pendingJoinPoints.insert joinPoint.body (joinPoint, #[]) }
+  let scope := { scope with joinPoints := scope.joinPoints.insert jp joinPoint }
+  return some (scope, [goal, joinPoint.body])
 
 /-- Close the goal `⊤ ⊑ wp⟦jp args⟧ post eposts ss` of a jump to a join point of `scope` with
 `__do_jp_spec args ss ?pf`, where `finalizeJoinPoint` assigns `?pf : ?H args ss`. A jump with a
@@ -142,14 +144,17 @@ public def jump? (scope : Scope) (goal : MVarId) (info : WPApp) :
   let args := info.prog.getAppArgs ++ info.excessArgs
   let pf ← mkFreshExprSyntheticOpaqueMVar (← mkAppNS (.mvar jp.hyp) args)
   goal.assign (← mkAppNS jp.spec (args.push pf))
-  let jump := { pf := pf.mvarId!, args }
-  modify fun s => { s with jumps := s.jumps.insert jp.hyp ((s.jumps.getD jp.hyp #[]).push jump) }
+  modify fun s => { s with
+    pendingJoinPoints := s.pendingJoinPoints.modify jp.body fun (jp, jumps) =>
+      (jp, jumps.push { pf := pf.mvarId!, args }) }
   return some []
 
-/-- The locals of `jump` since the registration of `jp`. -/
+/-- The locals of `jump` after `__do_jp_spec`. -/
 private def jumpLocals (jp : JoinPoint) (jump : Jump) : MetaM (Array LocalDecl) := do
+  let lctx := (← jump.pf.getDecl).lctx
+  let start := (lctx.get! jp.spec.fvarId!).index + 1
   -- An implementation-detail hypothesis would become an `∃` binder, so it stays out of `?H`.
-  return (← jump.pf.getDecl).lctx.foldl (start := jp.lctxSize) (init := #[]) fun ds d =>
+  return lctx.foldl (start := start) (init := #[]) fun ds d =>
     if d.isImplementationDetail && d.value?.isNone then ds else ds.push d
 
 /-- `φ` under the local `d`: a `let` for a `let` local, a conjunct `d.type ∧ φ` for a hypothesis
@@ -227,8 +232,8 @@ private partial def mkEqsProof (φ : Expr) : MetaM Expr := do
   | Eq α lhs _ => return mkApp2 (mkConst ``Eq.refl φ.getAppFn.constLevels!) α lhs
   | _ => throwError "vcgen +jp: unexpected equations{indentExpr φ}"
 
-/-- A proof of `φ`, a trie of `mkTrie` at the arguments of a jump, along the `path` of the jump, from
-the witnesses `ws` of its `∃`s and its conjuncts. -/
+/-- A proof of `φ`, a trie of `mkTrie` at the arguments of a jump, along the `path` of the jump,
+from the witnesses `ws` of its `∃`s and its conjuncts. -/
 private partial def mkTrieProof (φ : Expr) (path : List (Nat × Nat)) (ws : List Expr) :
     MetaM Expr := do
   let (g, n) :: path := path | throwError "vcgen +jp: empty path into{indentExpr φ}"
@@ -245,12 +250,10 @@ private partial def mkTrieProof (φ : Expr) (path : List (Nat × Nat)) (ws : Lis
     | And a b => return mkApp4 (mkConst ``And.intro) a b w (← mkTrieProof b path ws)
     | _ => throwError "vcgen +jp: unexpected binder{indentExpr φ}"
 
-/-- Assign `?H` of `jp` the trie of its jumps, `False` if no jump reaches `jp`, and each jump's `?pf`
-the proof along its path. `vcgen` processes the body goal of `jp` after all goals below the
+/-- Assign `?H` of `jp` the trie of its `jumps`, `False` if no jump reaches `jp`, and each jump's
+`?pf` the proof along its path. `vcgen` processes the body goal of `jp` after all goals below the
 registration, so every jump is known by then. -/
-public def finalizeJoinPoint (jp : JoinPoint) : VCGenM Unit := do
-  let jumps := (← get).jumps.getD jp.hyp #[]
-  modify fun s => { s with jumps := s.jumps.erase jp.hyp }
+public def finalizeJoinPoint (jp : JoinPoint) (jumps : Array Jump) : VCGenM Unit := do
   let jumps ← jumps.mapM fun jump => return (jump, ← jumpLocals jp jump)
   let paths ← forallTelescope (← jp.hyp.getType) fun xs _ => do
     let (φ, paths) ← mkTrie xs jumps 0

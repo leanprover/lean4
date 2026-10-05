@@ -143,10 +143,10 @@ public structure JoinPoint where
   top : Expr
   /-- The metavariable `?H`, which `finalizeJoinPoint` assigns. -/
   hyp : MVarId
+  /-- The goal for the body of `__do_jp`. -/
+  body : MVarId
   /-- The number of states that `?H` takes after the join parameters. -/
   numStates : Nat
-  /-- The size of the local context after registration. A jump closes over the later locals. -/
-  lctxSize : Nat
   deriving Inhabited
 
 /-- A jump to a join point with the arguments `args`, which include the states, and the proof
@@ -229,10 +229,9 @@ public structure State where
   this to know which user-provided alts have already been consumed (so it doesn't
   warn about them). -/
   inlineHandledInvariants : Std.HashSet Nat := {}
-  /-- The join points whose body goal `vcgen` has yet to process, keyed by that goal. -/
-  joinPointBodies : Std.HashMap MVarId JoinPoint := {}
-  /-- The jumps to each join point in `joinPointBodies`, keyed by its `?H`. -/
-  jumps : Std.HashMap MVarId (Array Jump) := {}
+  /-- The join points whose body goal `vcgen` has yet to process, keyed by that goal, with their
+  jumps so far. -/
+  pendingJoinPoints : Std.HashMap MVarId (JoinPoint × Array Jump) := {}
 
 public abbrev VCGenM := ReaderT Context (StateRefT State Grind.GrindM)
 

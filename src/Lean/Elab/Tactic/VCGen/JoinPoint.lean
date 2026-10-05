@@ -46,15 +46,14 @@ of the shared code. With `+jp`, `vcgen` takes three steps:
 1. `registerJoinPoint` creates `?H : Unit → Nat → Prop` and binds
    `__do_jp_spec : ∀ r x, ?H r x → ⊤ ⊑ wp⟦__do_jp r x⟧ Q` in the goal of the `if`. It adds the goal
    `∀ r x, ?H r x → ⊤ ⊑ wp⟦pure (x + 1)⟧ Q` for the body of `__do_jp`.
-2. In the `then` branch, `jump?` builds the payload
-   `P₁ := fun r x => n > 0 ∧ r = () ∧ x = 1`, which closes over the locals of the branch,
-   here the condition `n > 0`. It closes the goal `⊤ ⊑ wp⟦__do_jp () 1⟧ Q` with
-   `__do_jp_spec () 1 (?link₁ () 1 p₁)`, where `p₁ : P₁ () 1` holds by the condition and `rfl`. The
-   metavariable `?link₁ : ∀ r x, P₁ r x → ?H r x` waits for step 3. The `else` branch uses
-   `P₂ := fun r x => ¬n > 0 ∧ r = () ∧ x = 2`.
+2. In the `then` branch, under the hypothesis `h₁ : n > 0`, `jump?` closes the goal
+   `⊤ ⊑ wp⟦__do_jp () 1⟧ Q` with `__do_jp_spec () 1 ?pf₁` and records the jump. The `else` branch
+   records the jump `__do_jp () 2` under `h₂ : ¬n > 0` with `?pf₂`.
 3. `vcgen` reaches the body goal after all goals of the `if`, so both jumps are known by then.
-   `finalizeJoinPoint` sets `?H := fun r x => P₁ r x ∨ P₂ r x`, `?link₁ := fun r x h => Or.inl h`,
-   and `?link₂ := fun r x h => Or.inr h`.
+   `finalizeJoinPoint` sets `?H` to the disjunction of the jumps, each over the locals of its
+   branch and its arguments, `fun r x => (n > 0 ∧ r = () ∧ x = 1) ∨ (¬n > 0 ∧ r = () ∧ x = 2)`.
+   It proves `?pf₁ := Or.inl ⟨h₁, rfl, rfl⟩` and `?pf₂ := Or.inr ⟨h₂, rfl, rfl⟩`. Jumps under a
+   common local share its binder: the jumps of an `else if` chain share the conditions above them.
 
 The body goal of step 1 thus receives the hypothesis
 
@@ -62,9 +61,9 @@ The body goal of step 1 thus receives the hypothesis
 (n > 0 ∧ r = () ∧ x = 1) ∨ (¬n > 0 ∧ r = () ∧ x = 2)
 ```
 
-For a stateful program, `?H` also takes the states, and each payload equates them with the states
-at its jump. In `StateM Nat`, the payload of `__do_jp () 1` in state `t` is
-`fun r x s => n > 0 ∧ r = () ∧ x = 1 ∧ s = t`.
+For a stateful program, `?H` also takes the states, and each disjunct equates them with the states
+at its jump. In `StateM Nat`, the disjunct of `__do_jp () 1` in state `t` is
+`n > 0 ∧ r = () ∧ x = 1 ∧ s = t`.
 
 The proof term binds `__do_jp_spec` with a `let`, so all jumps share one proof of the body.
 -/
@@ -128,51 +127,9 @@ public def registerJoinPoint (scope : Scope) (goal : MVarId) (jp : FVarId) (val 
   modify fun s => { s with joinPointBodies := s.joinPointBodies.insert body.mvarId! joinPoint }
   return some ({ scope with joinPoints := scope.joinPoints.insert jp joinPoint }, [goal, body.mvarId!])
 
-/-- The payload `fun xs => ∃ ys, xs = args` of a jump over the `locals` `ys`, and the witnesses of
-its `∃` and its hypotheses. Here `xs` and `args` include the states. A used `let` local stays a
-`let`, and a hypothesis that nothing depends on becomes a conjunct. -/
-private def mkPayload (jp : JoinPoint) (args : Array Expr) (locals : Array LocalDecl) :
-    VCGenM (Expr × Array Expr) := do
-  forallTelescope (← jp.hyp.getType) fun xs _ => do
-    let eqs ← xs.mapIdxM fun i x => do
-      let α ← Sym.inferType x
-      return mkApp3 (mkConst ``Eq [← Sym.getLevel α]) α x args[i]!
-    -- `mkLambdaFVars`/`mkLetFVars` re-scope a metavariable whose local context contains `decl`,
-    -- such as the invariant of a loop in the branch.
-    let body ← locals.foldrM (init := mkAndN eqs.toList) fun decl φ => do
-      if decl.value?.isSome then
-        mkLetFVars #[decl.toExpr] φ (generalizeNondepLet := false)
-      else
-        let lam ← mkLambdaFVars #[decl.toExpr] φ
-        -- A conjunct needs no instantiation in its proof, where each `∃` copies the rest.
-        if (← Sym.inferType decl.type).isProp && !lam.bindingBody!.hasLooseBVars then
-          return mkAnd decl.type lam.bindingBody!
-        return mkApp2 (mkConst ``Exists [← Sym.getLevel decl.type]) decl.type lam
-    return (← mkLambdaFVars xs body, (locals.filter (·.value?.isNone)).map (·.toExpr))
-
-/-- A proof of `∃ ys, args = args` from the witnesses `ys`, by `rfl` on each equation. Each
-witness proves the `∃` or the conjunct of its local, and the equations follow all of them. -/
-private partial def mkPayloadProof (φ : Expr) (witnesses : List Expr) : MetaM Expr := do
-  if let .letE _ _ v b _ := φ then
-    return ← mkPayloadProof (b.instantiate1 v) witnesses
-  match_expr φ with
-  | Exists α p =>
-    let w :: ws := witnesses | throwError "vcgen +jp: missing witness for{indentExpr φ}"
-    return mkApp4 (mkConst ``Exists.intro φ.getAppFn.constLevels!) α p w
-      (← mkPayloadProof (p.beta #[w]) ws)
-  | And a b =>
-    if let w :: ws := witnesses then
-      return mkApp4 (mkConst ``And.intro) a b w (← mkPayloadProof b ws)
-    return mkApp4 (mkConst ``And.intro) a b
-      (← mkPayloadProof a witnesses) (← mkPayloadProof b witnesses)
-  | True => return mkConst ``True.intro
-  | Eq α lhs _ => return mkApp2 (mkConst ``Eq.refl φ.getAppFn.constLevels!) α lhs
-  | _ => throwError "vcgen +jp: unexpected payload{indentExpr φ}"
-
 /-- Close the goal `⊤ ⊑ wp⟦jp args⟧ post eposts ss` of a jump to a join point of `scope` with
-`__do_jp_spec args ss (?link args ss p)`. Here `p` proves the jump's payload from its locals, and
-`?link : ∀ xs, payload xs → ?H xs` is a fresh metavariable that `finalizeJoinPoint` assigns. A jump
-with a precondition other than `⊤` unfolds `jp` instead. -/
+`__do_jp_spec args ss ?pf`, where `finalizeJoinPoint` assigns `?pf : ?H args ss`. A jump with a
+precondition other than `⊤` unfolds `jp` instead. -/
 public def jump? (scope : Scope) (goal : MVarId) (info : WPApp) :
     VCGenM (Option (List MVarId)) := do
   let some fv := info.prog.getAppFn.fvarId? | return none
@@ -182,19 +139,31 @@ public def jump? (scope : Scope) (goal : MVarId) (info : WPApp) :
   unless pre == jp.top do return none
   unless info.excessArgs.size == jp.numStates do
     throwError "vcgen +jp: the jump{indentExpr info.prog}\ndoes not have {jp.numStates} states"
-  let xs := info.prog.getAppArgs ++ info.excessArgs
-  -- An implementation-detail hypothesis would become an `∃` binder, so it stays out of the payload.
-  let locals := (← getLCtx).foldl (start := jp.lctxSize) (init := #[]) fun ds d =>
-    if d.isImplementationDetail && d.value?.isNone then ds else ds.push d
-  let (payload, witnesses) ← mkPayload jp xs locals
-  let linkTy ← forallTelescope (← jp.hyp.getType) fun ys _ => do
-    mkForallFVars ys (← mkArrow (payload.beta ys) (mkAppN (.mvar jp.hyp) ys))
-  let link ← mkFreshExprSyntheticOpaqueMVar linkTy
-  let h ← mkAppNS link (xs.push (← mkPayloadProof (← betaS payload xs) witnesses.toList))
-  goal.assign (← mkAppNS jp.spec (xs.push h))
-  let jump := { payload, link := link.mvarId! }
+  let args := info.prog.getAppArgs ++ info.excessArgs
+  let pf ← mkFreshExprSyntheticOpaqueMVar (← mkAppNS (.mvar jp.hyp) args)
+  goal.assign (← mkAppNS jp.spec (args.push pf))
+  let jump := { pf := pf.mvarId!, args }
   modify fun s => { s with jumps := s.jumps.insert jp.hyp ((s.jumps.getD jp.hyp #[]).push jump) }
   return some []
+
+/-- The locals of `jump` since the registration of `jp`. -/
+private def jumpLocals (jp : JoinPoint) (jump : Jump) : MetaM (Array LocalDecl) := do
+  -- An implementation-detail hypothesis would become an `∃` binder, so it stays out of `?H`.
+  return (← jump.pf.getDecl).lctx.foldl (start := jp.lctxSize) (init := #[]) fun ds d =>
+    if d.isImplementationDetail && d.value?.isNone then ds else ds.push d
+
+/-- `φ` under the local `d`: a `let` for a `let` local, a conjunct `d.type ∧ φ` for a hypothesis
+that `φ` does not depend on, and `∃ d, φ` otherwise. -/
+private def bindLocal (d : LocalDecl) (φ : Expr) : VCGenM Expr := do
+  -- `mkLambdaFVars`/`mkLetFVars` re-scope a metavariable whose local context contains `d`, such as
+  -- the invariant of a loop in the branch.
+  if d.value?.isSome then
+    return ← mkLetFVars #[d.toExpr] φ (generalizeNondepLet := false)
+  let lam ← mkLambdaFVars #[d.toExpr] φ
+  -- A conjunct needs no instantiation in its proof, where each `∃` copies the rest.
+  if (← Sym.inferType d.type).isProp && !lam.bindingBody!.hasLooseBVars then
+    return mkAnd d.type lam.bindingBody!
+  return mkApp2 (mkConst ``Exists [← Sym.getLevel d.type]) d.type lam
 
 /-- The disjunction of `ps[lo:hi]`, balanced so that each disjunct has depth `O(log (hi - lo))`. -/
 private partial def mkOrTree (ps : Array Expr) (lo hi : Nat) : Expr :=
@@ -204,28 +173,92 @@ private partial def mkOrTree (ps : Array Expr) (lo hi : Nat) : Expr :=
     let mid := (lo + hi) / 2
     mkOr (mkOrTree ps lo mid) (mkOrTree ps mid hi)
 
-/-- A proof of `φ = mkOrTree ps lo hi` from `h : ps[i]`. -/
-private partial def mkOrIntro (φ : Expr) (i lo hi : Nat) (h : Expr) : MetaM Expr := do
+/-- A proof of `φ = mkOrTree ps lo hi` from the proof `k ps[i]` of its disjunct `ps[i]`. -/
+private partial def mkOrIntro (φ : Expr) (i lo hi : Nat) (k : Expr → MetaM Expr) : MetaM Expr := do
   if hi == lo + 1 then
-    return h
+    return ← k φ
   let_expr Or a b := φ | throwError "vcgen +jp: expected a disjunction{indentExpr φ}"
   let mid := (lo + hi) / 2
   if i < mid then
-    return mkApp3 (mkConst ``Or.inl) a b (← mkOrIntro a i lo mid h)
+    return mkApp3 (mkConst ``Or.inl) a b (← mkOrIntro a i lo mid k)
   else
-    return mkApp3 (mkConst ``Or.inr) a b (← mkOrIntro b i mid hi h)
+    return mkApp3 (mkConst ``Or.inr) a b (← mkOrIntro b i mid hi k)
 
-/-- Assign `?H` of `jp` the disjunction of its jumps' payloads, `False` if no jump reaches `jp`,
-and each jump's `?link` the injection of its payload. `vcgen` processes the body goal of `jp` after
-all goals below the registration, so every jump is known by then. -/
+/-- The trie of the `jumps` from local `i` on, over the parameters `xs` of `?H`. Its disjuncts bind
+each distinct local `i` of the jumps above the trie of the jumps that share it, and give the
+equations `xs = args` of each jump without local `i`. Returns the path of each jump, the index and
+number of the disjuncts it passes. -/
+private partial def mkTrie (xs : Array Expr) (jumps : Array (Jump × Array LocalDecl)) (i : Nat) :
+    VCGenM (Expr × Array (List (Nat × Nat))) := do
+  let mut groups : Array (Array Nat) := #[]
+  let mut byLocal : Std.HashMap FVarId Nat := {}
+  for h : k in [:jumps.size] do
+    if let some d := jumps[k].2[i]? then
+      if let some g := byLocal[d.fvarId]? then
+        groups := groups.modify g (·.push k)
+        continue
+      byLocal := byLocal.insert d.fvarId groups.size
+    groups := groups.push #[k]
+  let mut disjuncts := #[]
+  let mut paths := Array.replicate jumps.size []
+  for h : g in [:groups.size] do
+    let ks := groups[g]
+    let (jump, locals) := jumps[ks[0]!]!
+    let (disjunct, subPaths) ← match locals[i]? with
+      | some d =>
+        let (φ, subPaths) ← mkTrie xs (ks.map (jumps[·]!)) (i + 1)
+        let decl ← jump.pf.getDecl
+        pure (← withLCtx decl.lctx decl.localInstances (bindLocal d φ), subPaths)
+      | none =>
+        let eqs ← xs.mapIdxM fun j x => do
+          let α ← Sym.inferType x
+          return mkApp3 (mkConst ``Eq [← Sym.getLevel α]) α x jump.args[j]!
+        pure (mkAndN eqs.toList, #[[]])
+    disjuncts := disjuncts.push disjunct
+    for (k, path) in ks.zip subPaths do
+      paths := paths.set! k ((g, groups.size) :: path)
+  return (mkOrTree disjuncts 0 disjuncts.size, paths)
+
+/-- A proof of the equations `args = args`, by `rfl` on each. -/
+private partial def mkEqsProof (φ : Expr) : MetaM Expr := do
+  match_expr φ with
+  | And a b => return mkApp4 (mkConst ``And.intro) a b (← mkEqsProof a) (← mkEqsProof b)
+  | True => return mkConst ``True.intro
+  | Eq α lhs _ => return mkApp2 (mkConst ``Eq.refl φ.getAppFn.constLevels!) α lhs
+  | _ => throwError "vcgen +jp: unexpected equations{indentExpr φ}"
+
+/-- A proof of `φ`, a trie of `mkTrie` at the arguments of a jump, along the `path` of the jump, from
+the witnesses `ws` of its `∃`s and its conjuncts. -/
+private partial def mkTrieProof (φ : Expr) (path : List (Nat × Nat)) (ws : List Expr) :
+    MetaM Expr := do
+  let (g, n) :: path := path | throwError "vcgen +jp: empty path into{indentExpr φ}"
+  mkOrIntro φ g 0 n fun φ => do
+    if path.isEmpty then
+      return ← mkEqsProof φ
+    if let .letE _ _ v b _ := φ then
+      return ← mkTrieProof (b.instantiate1 v) path ws
+    let w :: ws := ws | throwError "vcgen +jp: missing witness for{indentExpr φ}"
+    match_expr φ with
+    | Exists α p =>
+      return mkApp4 (mkConst ``Exists.intro φ.getAppFn.constLevels!) α p w
+        (← mkTrieProof (p.beta #[w]) path ws)
+    | And a b => return mkApp4 (mkConst ``And.intro) a b w (← mkTrieProof b path ws)
+    | _ => throwError "vcgen +jp: unexpected binder{indentExpr φ}"
+
+/-- Assign `?H` of `jp` the trie of its jumps, `False` if no jump reaches `jp`, and each jump's `?pf`
+the proof along its path. `vcgen` processes the body goal of `jp` after all goals below the
+registration, so every jump is known by then. -/
 public def finalizeJoinPoint (jp : JoinPoint) : VCGenM Unit := do
   let jumps := (← get).jumps.getD jp.hyp #[]
   modify fun s => { s with jumps := s.jumps.erase jp.hyp }
-  forallTelescope (← jp.hyp.getType) fun xs _ => do
-    let φ := mkOrTree (jumps.map (·.payload.beta xs)) 0 jumps.size
+  let jumps ← jumps.mapM fun jump => return (jump, ← jumpLocals jp jump)
+  let paths ← forallTelescope (← jp.hyp.getType) fun xs _ => do
+    let (φ, paths) ← mkTrie xs jumps 0
     jp.hyp.assign (← mkLambdaFVars xs φ)
-    for h : i in [:jumps.size] do
-      withLocalDeclD `h (jumps[i].payload.beta xs) fun h => do
-        jumps[i].link.assign (← mkLambdaFVars (xs.push h) (← mkOrIntro φ i 0 jumps.size h))
+    return paths
+  for ((jump, locals), path) in jumps.zip paths do
+    jump.pf.withContext do
+      let witnesses := (locals.filter (·.value?.isNone)).map (·.toExpr)
+      jump.pf.assign (← mkTrieProof (← instantiateMVars (← jump.pf.getType)) path witnesses.toList)
 
 end Lean.Elab.Tactic.VCGen

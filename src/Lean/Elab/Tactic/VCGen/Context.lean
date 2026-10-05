@@ -149,11 +149,12 @@ public structure JoinPoint where
   lctxSize : Nat
   deriving Inhabited
 
-/-- A jump to a join point: its payload `fun xs => ∃ ys, xs = args`, where `xs` includes the states,
-and the metavariable `?link : ∀ xs, payload xs → ?H xs` that `finalizeJoinPoint` assigns. -/
+/-- A jump to a join point with the arguments `args`, which include the states, and the proof
+`?pf : ?H args` that `finalizeJoinPoint` assigns in the local context of the jump. -/
 public structure Jump where
-  payload : Expr
-  link : MVarId
+  pf : MVarId
+  args : Array Expr
+  deriving Inhabited
 
 public structure Scope where
   /-- Spec database in scope: globals plus locals from in-scope hypotheses. -/

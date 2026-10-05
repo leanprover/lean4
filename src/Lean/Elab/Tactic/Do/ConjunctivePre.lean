@@ -76,6 +76,13 @@ The `wp` context preserves conjunctivity only because the sub-program's `wp` is 
 (`WPConjunctive`), a per-program fact that every combinator preserves; a non-conjunctive leaf states
 its precondition with an operator no arm matches and is rejected on its own terms.
 
+The classification is an optimization. A rejected spec goes through frame inference, where a
+frameproc can recognize the same situations and decline to frame. The heads of `conjunctiveArgs?` form a fixed table. An
+attribute on lemmas such as `ite c a₁ b₁ ⊓ ite c a₂ b₂ ⊑ ite c (a₁ ⊓ a₂) (b₁ ⊓ b₂)` can extend the
+table for user-defined heads: the arguments that vary between the two operands are conjunctive, and
+the shared arguments are `Q`/`E`-free. The lemma states conjunctivity jointly in all varying
+arguments. `Or` is conjunctive in each argument separately, but not jointly.
+
 Premises are rejected because of excess state arguments: `vcgen` applies a spec at the goal's
 excess args, specializing the whole pre-VC to the current state `s`. That specialization is itself
 a frame — the point-frame `(· = s)`, the strongest one — and it reaches only the conclusion's

@@ -67,7 +67,7 @@ To avoid expensive copies, users should make sure that the tree map is used line
 Internally, the tree maps are represented as size-bounded trees, a type of self-balancing binary
 search tree with efficient order statistic lookups.
 -/
-structure Raw (α : Type u) (β : α → Type v) (_cmp : α → α → Ordering := by exact compare) where
+structure Raw (α : Type u) (β : α → Type v) (_cmp : α → α → Ordering := by exact compareForMatch) where
   /-- Internal implementation detail of the tree map. -/
   inner : Internal.Impl α β
 
@@ -633,7 +633,7 @@ def toList (t : Raw α β cmp) : List ((a : α) × β a) :=
 
 /-- Transforms a list of mappings into a tree map. -/
 @[inline]
-def ofList (l : List ((a : α) × β a)) (cmp : α → α → Ordering := by exact compare) : Raw α β cmp :=
+def ofList (l : List ((a : α) × β a)) (cmp : α → α → Ordering := by exact compareForMatch) : Raw α β cmp :=
   letI : Ord α := ⟨cmp⟩
   ⟨Impl.ofList l⟩
 
@@ -643,7 +643,7 @@ def toArray (t : Raw α β cmp) : Array ((a : α) × β a) :=
 
 /-- Transforms an array of mappings into a tree map. -/
 @[inline]
-def ofArray (a : Array ((a : α) × β a)) (cmp : α → α → Ordering := by exact compare) : Raw α β cmp :=
+def ofArray (a : Array ((a : α) × β a)) (cmp : α → α → Ordering := by exact compareForMatch) : Raw α β cmp :=
   letI : Ord α := ⟨cmp⟩
   ⟨Impl.ofArray a⟩
 
@@ -671,11 +671,11 @@ def toList (t : Raw α β cmp) : List (α × β) :=
   Impl.Const.toList t.inner
 
 @[inline, inherit_doc DTreeMap.Const.ofList]
-def ofList (l : List (α × β)) (cmp : α → α → Ordering := by exact compare) : Raw α β cmp :=
+def ofList (l : List (α × β)) (cmp : α → α → Ordering := by exact compareForMatch) : Raw α β cmp :=
   letI : Ord α := ⟨cmp⟩; ⟨Impl.Const.ofList l⟩
 
 @[inline, inherit_doc DTreeMap.Const.unitOfList]
-def unitOfList (l : List α) (cmp : α → α → Ordering := by exact compare) : Raw α Unit cmp :=
+def unitOfList (l : List α) (cmp : α → α → Ordering := by exact compareForMatch) : Raw α Unit cmp :=
   letI : Ord α := ⟨cmp⟩; ⟨Impl.Const.unitOfList l⟩
 
 @[inline, inherit_doc DTreeMap.Const.toArray]
@@ -683,11 +683,11 @@ def toArray (t : Raw α β cmp) : Array (α × β) :=
   Impl.Const.toArray t.inner
 
 @[inline, inherit_doc DTreeMap.Const.ofArray]
-def ofArray (a : Array (α × β)) (cmp : α → α → Ordering := by exact compare) : Raw α β cmp :=
+def ofArray (a : Array (α × β)) (cmp : α → α → Ordering := by exact compareForMatch) : Raw α β cmp :=
   letI : Ord α := ⟨cmp⟩; ⟨Impl.Const.ofArray a⟩
 
 @[inline, inherit_doc DTreeMap.Const.ofArray]
-def unitOfArray (a : Array α) (cmp : α → α → Ordering := by exact compare) : Raw α Unit cmp :=
+def unitOfArray (a : Array α) (cmp : α → α → Ordering := by exact compareForMatch) : Raw α Unit cmp :=
   letI : Ord α := ⟨cmp⟩; ⟨Impl.Const.unitOfArray a⟩
 
 @[inline, inherit_doc DTreeMap.Const.modify]

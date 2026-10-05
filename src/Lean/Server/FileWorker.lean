@@ -455,7 +455,7 @@ section Initialization
     let pendingServerRequestsRef ← IO.mkRef ∅
     let chanOut ← mkLspOutputChannel maxDocVersionRef
     let timestamp ← IO.monoMsNow
-    let partialHandlersRef ← IO.mkRef <| Std.TreeMap.ofArray (cmp := compare) <|
+    let partialHandlersRef ← IO.mkRef <| Std.TreeMap.ofArray (cmp := compareForMatch) <|
       (← partialLspRequestHandlerMethods).map fun (method, refreshMethod, _) =>
         (method, {
           refreshMethod

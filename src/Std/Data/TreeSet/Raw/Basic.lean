@@ -62,7 +62,7 @@ To avoid expensive copies, users should make sure that the tree set is used line
 Internally, the tree sets are represented as size-bounded trees, a type of self-balancing binary
 search tree with efficient order statistic lookups.
 -/
-structure Raw (α : Type u) (cmp : α → α → Ordering := by exact compare) where
+structure Raw (α : Type u) (cmp : α → α → Ordering := by exact compareForMatch) where
   /-- Internal implementation detail of the tree set. -/
   inner : TreeMap.Raw α Unit cmp
 
@@ -313,7 +313,7 @@ def toList (t : Raw α cmp) : List α :=
   t.inner.inner.inner.foldr (fun a _ l => a :: l) ∅
 
 @[inline, inherit_doc TreeSet.ofList]
-def ofList (l : List α) (cmp : α → α → Ordering := by exact compare) : Raw α cmp :=
+def ofList (l : List α) (cmp : α → α → Ordering := by exact compareForMatch) : Raw α cmp :=
   ⟨TreeMap.Raw.unitOfList l cmp⟩
 
 @[inline, inherit_doc TreeSet.empty]
@@ -321,7 +321,7 @@ def toArray (t : Raw α cmp) : Array α :=
   t.foldl (init := #[]) fun acc k => acc.push k
 
 @[inline, inherit_doc TreeSet.ofArray]
-def ofArray (a : Array α) (cmp : α → α → Ordering := by exact compare) : Raw α cmp :=
+def ofArray (a : Array α) (cmp : α → α → Ordering := by exact compareForMatch) : Raw α cmp :=
   ⟨TreeMap.Raw.unitOfArray a cmp⟩
 
 @[inline, inherit_doc TreeSet.empty]

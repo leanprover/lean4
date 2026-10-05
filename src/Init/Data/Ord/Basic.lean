@@ -466,6 +466,22 @@ class Ord (α : Type u) where
   /-- Compare two elements in `α` using the comparator contained in an `[Ord α]` instance. -/
   compare : α → α → Ordering
 
+class OrdForMatch (α : Type u) [Ord α] where
+  compareForMatch : α → α → Ordering
+  compareForMatch_eq : compareForMatch = Ord.compare
+
+instance {α : Type u} [Ord α] : OrdForMatch α where
+  compareForMatch := Ord.compare
+  compareForMatch_eq := rfl
+
+def compareForMatch {α : Type u} [Ord  α] [OrdForMatch α] : α → α → Ordering :=
+  OrdForMatch.compareForMatch
+
+@[simp]
+theorem compareForMatch_eq {α : Type u} [Ord α] [OrdForMatch α] :
+    compareForMatch (α := α) = Ord.compare :=
+  OrdForMatch.compareForMatch_eq
+
 export Ord (compare)
 
 /--
@@ -498,6 +514,10 @@ protected def Nat.compare (x y : @& Nat) : Ordering :=
 
 instance : Ord Nat where
   compare := Nat.compare
+
+instance : OrdForMatch Nat where
+  compareForMatch x y := compareOfLessAndEq x y
+  compareForMatch_eq := rfl
 
 instance : Ord Int where
   compare x y := compareOfLessAndEq x y

@@ -135,8 +135,8 @@ public partial def sineQuaNon (names : NameSet) (maxSuggestions : Nat) (depthFac
   let r ← go denyList targets
     (Std.TreeSet.ofList (← targets.toList.mapM (fun n => return (← frequencyScore n, n)))) #[] {}
   return r.map (fun (n, f) => { name := n, score := 1 / f })
-where go (denyList : NameSet)(pastTriggers : NameSet) (triggerQueue : Std.TreeSet (Float × Name) compare)
-    (acceptedTheorems : Array (Name × Float)) (queuedTheorems : Std.TreeSet (Float × Name) compare) : MetaM (Array (Name × Float)) := do
+where go (denyList : NameSet)(pastTriggers : NameSet) (triggerQueue : Std.TreeSet (Float × Name) compareForMatch)
+    (acceptedTheorems : Array (Name × Float)) (queuedTheorems : Std.TreeSet (Float × Name) compareForMatch) : MetaM (Array (Name × Float)) := do
   if acceptedTheorems.size ≥ maxSuggestions then return acceptedTheorems else
   -- Is there a companion to `min?` that gives the minimum element along with the rest of the set?
   match triggerQueue.min? with

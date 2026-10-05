@@ -4461,7 +4461,7 @@ theorem compare_minKey_modify_eq [TransCmp cmp] {k f he} :
   t.inductionOn (fun _ _ => DTreeMap.Const.compare_minKey_modify_eq) he
 
 @[simp]
-theorem ordCompare_minKey_modify_eq [Ord α] [TransOrd α] {t : ExtDTreeMap α β} {k f he} :
+theorem ordCompare_minKey_modify_eq [Ord α] [OrdForMatch α] [TransOrd α] {t : ExtDTreeMap α β} {k f he} :
     compare (modify t k f |>.minKey he)
       (t.minKey (mt modify_eq_empty_iff.mpr he)) = .eq :=
   t.inductionOn (fun _ _ => DTreeMap.Const.ordCompare_minKey_modify_eq) he
@@ -4605,7 +4605,7 @@ theorem compare_minKey!_modify_eq [TransCmp cmp] [Inhabited α] {k f} :
   t.inductionOn fun _ => DTreeMap.Const.compare_minKey!_modify_eq
 
 @[simp]
-theorem ordCompare_minKey!_modify_eq [Ord α] [TransOrd α] {t : ExtDTreeMap α β} [Inhabited α] {k f} :
+theorem ordCompare_minKey!_modify_eq [Ord α] [OrdForMatch α] [TransOrd α] {t : ExtDTreeMap α β} [Inhabited α] {k f} :
     compare (modify t k f).minKey! t.minKey! = .eq :=
   t.inductionOn fun _ => DTreeMap.Const.ordCompare_minKey!_modify_eq
 
@@ -4748,7 +4748,7 @@ theorem compare_minKeyD_modify_eq [TransCmp cmp] {k f fallback} :
   t.inductionOn fun _ => DTreeMap.Const.compare_minKeyD_modify_eq
 
 @[simp]
-theorem ordCompare_minKeyD_modify_eq [Ord α] [TransOrd α] {t : ExtDTreeMap α β} {k f fallback} :
+theorem ordCompare_minKeyD_modify_eq [Ord α] [OrdForMatch α] [TransOrd α] {t : ExtDTreeMap α β} {k f fallback} :
     compare (modify t k f |>.minKeyD fallback) (t.minKeyD fallback) = .eq :=
   t.inductionOn fun _ => DTreeMap.Const.ordCompare_minKeyD_modify_eq
 
@@ -5098,7 +5098,7 @@ theorem compare_maxKey_modify_eq [TransCmp cmp] {k f he} :
   t.inductionOn (fun _ _ => DTreeMap.Const.compare_maxKey_modify_eq) he
 
 @[simp]
-theorem ordCompare_maxKey_modify_eq [Ord α] [TransOrd α] {t : ExtDTreeMap α β} {k f he} :
+theorem ordCompare_maxKey_modify_eq [Ord α] [OrdForMatch α] [TransOrd α] {t : ExtDTreeMap α β} {k f he} :
     compare (modify t k f |>.maxKey he)
       (t.maxKey (mt modify_eq_empty_iff.mpr he)) = .eq :=
   t.inductionOn (fun _ _ => DTreeMap.Const.ordCompare_maxKey_modify_eq) he
@@ -5243,7 +5243,7 @@ theorem compare_maxKey!_modify_eq [TransCmp cmp] [Inhabited α] {k f} :
   t.inductionOn fun _ => DTreeMap.Const.compare_maxKey!_modify_eq
 
 @[simp]
-theorem ordCompare_maxKey!_modify_eq [Ord α] [TransOrd α] {t : ExtDTreeMap α β} [Inhabited α] {k f} :
+theorem ordCompare_maxKey!_modify_eq [Ord α] [OrdForMatch α] [TransOrd α] {t : ExtDTreeMap α β} [Inhabited α] {k f} :
     compare (modify t k f).maxKey! t.maxKey! = .eq :=
   t.inductionOn fun _ => DTreeMap.Const.ordCompare_maxKey!_modify_eq
 
@@ -5388,7 +5388,7 @@ theorem compare_maxKeyD_modify_eq [TransCmp cmp] {k f fallback} :
   t.inductionOn fun _ => DTreeMap.Const.compare_maxKeyD_modify_eq
 
 @[simp]
-theorem ordCompare_maxKeyD_modify_eq [Ord α] [TransOrd α] {t : ExtDTreeMap α β} {k f fallback} :
+theorem ordCompare_maxKeyD_modify_eq [Ord α] [OrdForMatch α] [TransOrd α] {t : ExtDTreeMap α β} {k f fallback} :
     compare (modify t k f |>.maxKeyD fallback) (t.maxKeyD fallback) = .eq :=
   t.inductionOn fun _ => DTreeMap.Const.ordCompare_maxKeyD_modify_eq
 

@@ -18,93 +18,93 @@ namespace Std.TreeMap.Raw
 open Std.Iterators
 
 public instance {α : Type u} {β : Type v}
-    (cmp : α → α → Ordering := by exact compare) :
+    (cmp : α → α → Ordering := by exact compareForMatch) :
     Rii.Sliceable (Raw α β cmp) α (DTreeMap.Internal.Const.RiiSlice α β) where
   mkSlice carrier range := ⟨carrier.inner.inner, range⟩
 
 @[simp] public theorem toList_rii {α : Type ąu} {β : Type v}
-    (cmp : α → α → Ordering := by exact compare) {t : Raw α β cmp} :
+    (cmp : α → α → Ordering := by exact compareForMatch) {t : Raw α β cmp} :
     t[*...*].toList = t.toList := by
   apply DTreeMap.Internal.Const.toList_rii
 
-public instance {α : Type u} {β : Type v} (cmp : α → α → Ordering := by exact compare) :
+public instance {α : Type u} {β : Type v} (cmp : α → α → Ordering := by exact compareForMatch) :
     Ric.Sliceable (Raw α β cmp) α (@DTreeMap.Internal.Const.RicSlice α β ⟨cmp⟩) :=
   letI _ : Ord α := ⟨cmp⟩; ⟨fun carrier range => ⟨carrier.inner.inner, range⟩⟩
 
-public theorem toList_ric {α : Type u} {β : Type v} (cmp : α → α → Ordering := by exact compare)
+public theorem toList_ric {α : Type u} {β : Type v} (cmp : α → α → Ordering := by exact compareForMatch)
     [TransCmp cmp] {t : Raw α β cmp} (wf : t.WF) {bound : α} :
     t[*...=bound].toList = t.toList.filter (fun e => (cmp e.fst bound).isLE) := by
   apply @DTreeMap.Internal.Const.toList_ric _ _ ⟨cmp⟩ _ _
   · exact @wf.out.out.ordered _ _ ⟨cmp⟩ _
 
-public instance {α : Type u} {β : Type v} (cmp : α → α → Ordering := by exact compare) :
+public instance {α : Type u} {β : Type v} (cmp : α → α → Ordering := by exact compareForMatch) :
     Rio.Sliceable (Raw α β cmp) α (@DTreeMap.Internal.Const.RioSlice α β ⟨cmp⟩) :=
   letI _ : Ord α := ⟨cmp⟩; ⟨fun carrier range => ⟨carrier.inner.inner, range⟩⟩
 
-public theorem toList_rio {α : Type u} {β : Type v} (cmp : α → α → Ordering := by exact compare)
+public theorem toList_rio {α : Type u} {β : Type v} (cmp : α → α → Ordering := by exact compareForMatch)
     [TransCmp cmp] {t : Raw α β cmp} (wf : t.WF) {bound : α} :
     t[*...<bound].toList = t.toList.filter (fun e => (cmp e.fst bound).isLT) := by
   apply @DTreeMap.Internal.Const.toList_rio _ _ ⟨cmp⟩ _ _
   · exact @wf.out.out.ordered _ _ ⟨cmp⟩ _
 
-public instance {α : Type u} {β : Type v} (cmp : α → α → Ordering := by exact compare) :
+public instance {α : Type u} {β : Type v} (cmp : α → α → Ordering := by exact compareForMatch) :
     Rci.Sliceable (Raw α β cmp) α (@DTreeMap.Internal.Const.RciSlice α β ⟨cmp⟩) :=
   letI _ : Ord α := ⟨cmp⟩; ⟨fun carrier range => ⟨carrier.inner.inner, range⟩⟩
 
-public theorem toList_rci {α : Type u} {β : Type v} (cmp : α → α → Ordering := by exact compare)
+public theorem toList_rci {α : Type u} {β : Type v} (cmp : α → α → Ordering := by exact compareForMatch)
     [TransCmp cmp] {t : Raw α β cmp} (wf : t.WF) {bound : α} :
     t[bound...*].toList = t.toList.filter (fun e => (cmp e.fst bound).isGE) := by
   apply @DTreeMap.Internal.Const.toList_rci _ _ ⟨cmp⟩ _ _
   · exact @wf.out.out.ordered _ _ ⟨cmp⟩ _
 
-public instance {α : Type u} {β : Type v} (cmp : α → α → Ordering := by exact compare) :
+public instance {α : Type u} {β : Type v} (cmp : α → α → Ordering := by exact compareForMatch) :
     Rco.Sliceable (Raw α β cmp) α (@DTreeMap.Internal.Const.RcoSlice α β ⟨cmp⟩) :=
   letI _ : Ord α := ⟨cmp⟩; ⟨fun carrier range => ⟨carrier.inner.inner, range⟩⟩
 
-public theorem toList_rco {α : Type u} {β : Type v} (cmp : α → α → Ordering := by exact compare)
+public theorem toList_rco {α : Type u} {β : Type v} (cmp : α → α → Ordering := by exact compareForMatch)
     [TransCmp cmp] {t : Raw α β cmp} (wf : t.WF) {lowerBound upperBound : α} :
     t[lowerBound...<upperBound].toList =
       t.toList.filter (fun e => (cmp e.fst lowerBound).isGE ∧ (cmp e.fst upperBound).isLT) := by
   apply @DTreeMap.Internal.Const.toList_rco _ _ ⟨cmp⟩ _ _
   · exact @wf.out.out.ordered _ _ ⟨cmp⟩ _
 
-public instance {α : Type u} {β : Type v} (cmp : α → α → Ordering := by exact compare) :
+public instance {α : Type u} {β : Type v} (cmp : α → α → Ordering := by exact compareForMatch) :
     Rcc.Sliceable (Raw α β cmp) α (@DTreeMap.Internal.Const.RccSlice α β ⟨cmp⟩) :=
   letI _ : Ord α := ⟨cmp⟩; ⟨fun carrier range => ⟨carrier.inner.inner, range⟩⟩
 
-public theorem toList_rcc {α : Type u} {β : Type v} (cmp : α → α → Ordering := by exact compare)
+public theorem toList_rcc {α : Type u} {β : Type v} (cmp : α → α → Ordering := by exact compareForMatch)
     [TransCmp cmp] {t : Raw α β cmp} (wf : t.WF) {lowerBound upperBound : α} :
     t[lowerBound...=upperBound].toList =
       t.toList.filter (fun e => (cmp e.fst lowerBound).isGE ∧ (cmp e.fst upperBound).isLE) := by
   apply @DTreeMap.Internal.Const.toList_rcc _ _ ⟨cmp⟩ _ _
   · exact @wf.out.out.ordered _ _ ⟨cmp⟩ _
 
-public instance {α : Type u} {β : Type v} (cmp : α → α → Ordering := by exact compare) :
+public instance {α : Type u} {β : Type v} (cmp : α → α → Ordering := by exact compareForMatch) :
     Roi.Sliceable (Raw α β cmp) α (@DTreeMap.Internal.Const.RoiSlice α β ⟨cmp⟩) :=
   letI _ : Ord α := ⟨cmp⟩; ⟨fun carrier range => ⟨carrier.inner.inner, range⟩⟩
 
-public theorem toList_roi {α : Type u} {β : Type v} (cmp : α → α → Ordering := by exact compare)
+public theorem toList_roi {α : Type u} {β : Type v} (cmp : α → α → Ordering := by exact compareForMatch)
     [TransCmp cmp] {t : Raw α β cmp} (wf : t.WF) {bound: α} : t[bound<...*].toList =
       t.toList.filter (fun e => (cmp e.fst bound).isGT) := by
   apply @DTreeMap.Internal.Const.toList_roi _ _ ⟨cmp⟩ _
   · exact @wf.out.out.ordered _ _ ⟨cmp⟩ _
 
-public instance {α : Type u} {β : Type v} (cmp : α → α → Ordering := by exact compare) :
+public instance {α : Type u} {β : Type v} (cmp : α → α → Ordering := by exact compareForMatch) :
     Roc.Sliceable (Raw α β cmp) α (@DTreeMap.Internal.Const.RocSlice α β ⟨cmp⟩) :=
   letI _ : Ord α := ⟨cmp⟩; ⟨fun carrier range => ⟨carrier.inner.inner, range⟩⟩
 
-public theorem toList_roc {α : Type u} {β : Type v} (cmp : α → α → Ordering := by exact compare)
+public theorem toList_roc {α : Type u} {β : Type v} (cmp : α → α → Ordering := by exact compareForMatch)
     [TransCmp cmp] {t : Raw α β cmp} (wf : t.WF) {lowerBound upperBound : α} :
     t[lowerBound<...=upperBound].toList =
       t.toList.filter (fun e => (cmp e.fst lowerBound).isGT ∧ (cmp e.fst upperBound).isLE) := by
   apply @DTreeMap.Internal.Const.toList_roc _ _ ⟨cmp⟩ _
   · exact @wf.out.out.ordered _ _ ⟨cmp⟩ _
 
-public instance {α : Type u} {β : Type v} (cmp : α → α → Ordering := by exact compare) :
+public instance {α : Type u} {β : Type v} (cmp : α → α → Ordering := by exact compareForMatch) :
     Roo.Sliceable (Raw α β cmp) α (@DTreeMap.Internal.Const.RooSlice α β ⟨cmp⟩) :=
   letI _ : Ord α := ⟨cmp⟩; ⟨fun carrier range => ⟨carrier.inner.inner, range⟩⟩
 
-public theorem toList_roo {α : Type u} {β : Type v} (cmp : α → α → Ordering := by exact compare)
+public theorem toList_roo {α : Type u} {β : Type v} (cmp : α → α → Ordering := by exact compareForMatch)
     [TransCmp cmp] {t : Raw α β cmp} (wf : t.WF) {lowerBound upperBound : α} :
     t[lowerBound<...upperBound].toList =
       t.toList.filter (fun e => (cmp e.fst lowerBound).isGT ∧ (cmp e.fst upperBound).isLT) := by

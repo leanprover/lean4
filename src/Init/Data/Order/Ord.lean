@@ -88,6 +88,10 @@ applying `Ordering.swap` to the return value.
 -/
 abbrev OrientedOrd (α : Type u) [Ord α] := OrientedCmp (compare : α → α → Ordering)
 
+instance {α : Type u} [Ord α] [OrdForMatch α] [OrientedOrd α] : OrientedCmp (compareForMatch (α := α)) := by
+  rw [compareForMatch_eq]
+  infer_instance
+
 variable {α : Type u} {cmp : α → α → Ordering}
 
 theorem OrientedOrd.eq_swap [Ord α] [OrientedOrd α] {a b : α} :
@@ -195,6 +199,10 @@ class TransCmp {α : Type u} (cmp : α → α → Ordering) : Prop extends Orien
 
 /-- A typeclass for types with a transitive ordering function. -/
 abbrev TransOrd (α : Type u) [Ord α] := TransCmp (compare : α → α → Ordering)
+
+instance {α : Type u} [Ord α] [OrdForMatch α] [TransOrd α] : TransCmp (compareForMatch (α := α)) := by
+  rw [compareForMatch_eq]
+  infer_instance
 
 variable {α : Type u} {cmp : α → α → Ordering}
 
@@ -335,6 +343,10 @@ This typeclass distinguishes itself from `LawfulBEqOrd` by using logical equalit
 boolean equality (`==`).
 -/
 abbrev LawfulEqOrd (α : Type u) [Ord α] := LawfulEqCmp (compare : α → α → Ordering)
+
+instance {α : Type u} [Ord α] [OrdForMatch α] [LawfulEqOrd α] : LawfulEqCmp (compareForMatch (α := α)) := by
+  rw [compareForMatch_eq]
+  infer_instance
 
 variable {α : Type u} {cmp : α → α → Ordering} [LawfulEqCmp cmp]
 

@@ -74,7 +74,7 @@ be used in nested inductive types. For these use cases, `Std.DTreeMap.Raw` and
 `Std.DTreeMap.Raw.WF` unbundle the invariant from the tree map. When in doubt, prefer
 `ExtDTreeMap` over `DTreeMap.Raw`.
 -/
-structure ExtDTreeMap (α : Type u) (β : α → Type v) (cmp : α → α → Ordering := by exact compare) where
+structure ExtDTreeMap (α : Type u) (β : α → Type v) (cmp : α → α → Ordering := by exact compareForMatch) where
   /-- Implementation detail of the tree map -/
   mk' ::
   /-- Implementation detail of the tree map -/
@@ -782,7 +782,7 @@ def toList [TransCmp cmp] (t : ExtDTreeMap α β cmp) : List ((a : α) × β a) 
   t.lift (fun m => m.toList) (fun _ _ h => h.toList_eq)
 
 @[inline, inherit_doc DTreeMap.ofList]
-def ofList (l : List ((a : α) × β a)) (cmp : α → α → Ordering := by exact compare) :
+def ofList (l : List ((a : α) × β a)) (cmp : α → α → Ordering := by exact compareForMatch) :
     ExtDTreeMap α β cmp :=
   mk (.ofList l cmp)
 
@@ -791,7 +791,7 @@ def toArray [TransCmp cmp] (t : ExtDTreeMap α β cmp) : Array ((a : α) × β a
   t.lift (fun m => m.toArray) (fun _ _ h => h.toArray_eq)
 
 @[inline, inherit_doc DTreeMap.ofArray]
-def ofArray (a : Array ((a : α) × β a)) (cmp : α → α → Ordering := by exact compare) :
+def ofArray (a : Array ((a : α) × β a)) (cmp : α → α → Ordering := by exact compareForMatch) :
     ExtDTreeMap α β cmp :=
   mk (.ofArray a cmp)
 
@@ -823,7 +823,7 @@ def toList [TransCmp cmp] (t : ExtDTreeMap α β cmp) : List (α × β) :=
     (fun _ _ h => h.constToList_eq)
 
 @[inline, inherit_doc ExtDTreeMap.ofList]
-def ofList (l : List (α × β)) (cmp : α → α → Ordering := by exact compare) : ExtDTreeMap α β cmp :=
+def ofList (l : List (α × β)) (cmp : α → α → Ordering := by exact compareForMatch) : ExtDTreeMap α β cmp :=
   mk (DTreeMap.Const.ofList l cmp)
 
 @[inline, inherit_doc ExtDTreeMap.toArray]
@@ -832,15 +832,15 @@ def toArray [TransCmp cmp] (t : ExtDTreeMap α β cmp) : Array (α × β) :=
     (fun _ _ h => h.constToArray_eq)
 
 @[inline, inherit_doc ExtDTreeMap.ofList]
-def ofArray (a : Array (α × β)) (cmp : α → α → Ordering := by exact compare) : ExtDTreeMap α β cmp :=
+def ofArray (a : Array (α × β)) (cmp : α → α → Ordering := by exact compareForMatch) : ExtDTreeMap α β cmp :=
   mk (DTreeMap.Const.ofArray a cmp)
 
 @[inline, inherit_doc DTreeMap.Const.unitOfList]
-def unitOfList (l : List α) (cmp : α → α → Ordering := by exact compare) : ExtDTreeMap α Unit cmp :=
+def unitOfList (l : List α) (cmp : α → α → Ordering := by exact compareForMatch) : ExtDTreeMap α Unit cmp :=
   mk (DTreeMap.Const.unitOfList l cmp)
 
 @[inline, inherit_doc DTreeMap.Const.unitOfArray]
-def unitOfArray (a : Array α) (cmp : α → α → Ordering := by exact compare) : ExtDTreeMap α Unit cmp :=
+def unitOfArray (a : Array α) (cmp : α → α → Ordering := by exact compareForMatch) : ExtDTreeMap α Unit cmp :=
   mk (DTreeMap.Const.unitOfArray a cmp)
 
 @[inline, inherit_doc ExtDTreeMap.modify]

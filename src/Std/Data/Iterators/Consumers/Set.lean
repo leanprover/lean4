@@ -81,7 +81,7 @@ the variant {lean}`it.ensureTermination.toTreeSet cmp` always terminates after f
 -/
 @[inline]
 public def Iter.toTreeSet {α β : Type w} [Iterator α Id β] [IteratorLoop α Id Id]
-    (it : Iter (α := α) β) (cmp : β → β → Ordering := by exact compare) : TreeSet β cmp :=
+    (it : Iter (α := α) β) (cmp : β → β → Ordering := by exact compareForMatch) : TreeSet β cmp :=
   it.toIterM.toTreeSet cmp |>.run
 
 set_option doc.verso true
@@ -94,7 +94,7 @@ finite. If such a proof is not available, consider using {name}`Iter.toTreeSet`.
 -/
 @[inline]
 public def Iter.Total.toTreeSet {α β : Type w} [Iterator α Id β] [Finite α Id]
-    [IteratorLoop α Id Id] (it : Total (α := α) β) (cmp : β → β → Ordering := by exact compare) :
+    [IteratorLoop α Id Id] (it : Total (α := α) β) (cmp : β → β → Ordering := by exact compareForMatch) :
     TreeSet β cmp :=
   it.it.toTreeSet cmp
 
@@ -110,7 +110,7 @@ the variant {lean}`it.ensureTermination.toExtTreeSet cmp` always terminates afte
 -/
 @[inline]
 public def Iter.toExtTreeSet {α β : Type w} [Iterator α Id β] [IteratorLoop α Id Id]
-    (it : Iter (α := α) β) (cmp : β → β → Ordering := by exact compare) [TransCmp cmp] :
+    (it : Iter (α := α) β) (cmp : β → β → Ordering := by exact compareForMatch) [TransCmp cmp] :
     ExtTreeSet β cmp :=
   it.toIterM.toExtTreeSet cmp |>.run
 
@@ -124,7 +124,7 @@ finite. If such a proof is not available, consider using {name}`Iter.toExtTreeSe
 -/
 @[inline]
 public def Iter.Total.toExtTreeSet {α β : Type w} [Iterator α Id β] [Finite α Id]
-    [IteratorLoop α Id Id] (it : Total (α := α) β) (cmp : β → β → Ordering := by exact compare)
+    [IteratorLoop α Id Id] (it : Total (α := α) β) (cmp : β → β → Ordering := by exact compareForMatch)
     [TransCmp cmp] : ExtTreeSet β cmp :=
   it.it.toExtTreeSet cmp
 

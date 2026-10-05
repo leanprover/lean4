@@ -118,7 +118,7 @@ many steps.
 -/
 @[inline]
 public def IterM.toExtTreeSet {α β : Type w} {m : Type w → Type w'} [Monad m] [Iterator α m β]
-    [IteratorLoop α m m] (it : IterM (α := α) m β) (cmp : β → β → Ordering := by exact compare)
+    [IteratorLoop α m m] (it : IterM (α := α) m β) (cmp : β → β → Ordering := by exact compareForMatch)
     [TransCmp cmp] : m (ExtTreeSet β cmp) :=
   it.fold (init := ∅) fun acc a => acc.insert a
 
@@ -133,7 +133,7 @@ finite. If such a proof is not available, consider using {name}`IterM.toExtTreeS
 @[inline]
 public def IterM.Total.toExtTreeSet {α β : Type w} {m : Type w → Type w'} [Monad m] [Iterator α m β]
     [Finite α m] [IteratorLoop α m m] (it : IterM.Total (α := α) m β)
-    (cmp : β → β → Ordering := by exact compare) [TransCmp cmp] : m (ExtTreeSet β cmp) :=
+    (cmp : β → β → Ordering := by exact compareForMatch) [TransCmp cmp] : m (ExtTreeSet β cmp) :=
   it.it.toExtTreeSet cmp
 
 docs_to_verso IterM.toExtTreeSet

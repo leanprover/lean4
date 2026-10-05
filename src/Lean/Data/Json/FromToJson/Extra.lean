@@ -19,7 +19,7 @@ chunk of the meta framework.
 
 namespace Lean
 
-private def TreeMap.toJson [ToJson α] (map : Std.TreeMap String α compare) : Json :=
+private def TreeMap.toJson [ToJson α] (map : Std.TreeMap String α) : Json :=
   let json := Std.TreeMap.map (fun _ => Lean.toJson) <| map
   -- TODO(henrik): remove this after Q4
   Json.obj <| Std.TreeMap.Raw.mk <| Std.DTreeMap.Raw.mk json.inner.inner
@@ -29,7 +29,7 @@ private def TreeMap.fromJson? {cmp} [FromJson α] (j : Json) :
   let o ← j.getObj?
   o.foldlM (fun x k v => x.insert k <$> Lean.fromJson? v) ∅
 
-instance [ToJson α] : ToJson (Std.TreeMap String α compare) where
+instance [ToJson α] : ToJson (Std.TreeMap String α) where
   toJson := private TreeMap.toJson
 
 instance {cmp} [FromJson α] : FromJson (Std.TreeMap String α cmp) where

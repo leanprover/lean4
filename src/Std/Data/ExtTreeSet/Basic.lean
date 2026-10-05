@@ -67,7 +67,7 @@ be used in nested inductive types. For these use cases, `Std.TreeSet.Raw` and
 `Std.TreeSet.Raw.WF` unbundle the invariant from the tree set. When in doubt, prefer
 `ExtTreeSet` over `TreeSet.Raw`.
 -/
-structure ExtTreeSet (α : Type u) (cmp : α → α → Ordering := by exact compare) where
+structure ExtTreeSet (α : Type u) (cmp : α → α → Ordering := by exact compareForMatch) where
   /-- Internal implementation detail of the tree map. -/
   inner : ExtTreeMap α Unit cmp
 
@@ -469,7 +469,7 @@ def toList [TransCmp cmp] (t : ExtTreeSet α cmp) : List α :=
   t.inner.keys
 
 /-- Transforms a list into a tree set. -/
-def ofList (l : List α) (cmp : α → α → Ordering := by exact compare) : ExtTreeSet α cmp :=
+def ofList (l : List α) (cmp : α → α → Ordering := by exact compareForMatch) : ExtTreeSet α cmp :=
   ⟨ExtTreeMap.unitOfList l cmp⟩
 
 /-- Transforms the tree set into an array of elements in ascending order. -/
@@ -478,7 +478,7 @@ def toArray [TransCmp cmp] (t : ExtTreeSet α cmp) : Array α :=
   t.inner.keysArray
 
 /-- Transforms an array into a tree set. -/
-def ofArray (a : Array α) (cmp : α → α → Ordering := by exact compare) : ExtTreeSet α cmp :=
+def ofArray (a : Array α) (cmp : α → α → Ordering := by exact compareForMatch) : ExtTreeSet α cmp :=
   ⟨ExtTreeMap.unitOfArray a cmp⟩
 
 /--

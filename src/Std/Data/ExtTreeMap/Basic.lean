@@ -68,7 +68,7 @@ be used in nested inductive types. For these use cases, `Std.TreeMap.Raw` and
 `Std.TreeMap.Raw.WF` unbundle the invariant from the tree map. When in doubt, prefer
 `ExtTreeMap` over `TreeMap.Raw`.
 -/
-structure ExtTreeMap (α : Type u) (β : Type v) (cmp : α → α → Ordering := by exact compare) where
+structure ExtTreeMap (α : Type u) (β : Type v) (cmp : α → α → Ordering := by exact compareForMatch) where
   /-- Internal implementation detail of the tree map. -/
   inner : ExtDTreeMap α (fun _ => β) cmp
 
@@ -486,11 +486,11 @@ def toList [TransCmp cmp] (t : ExtTreeMap α β cmp) : List (α × β) :=
   ExtDTreeMap.Const.toList t.inner
 
 @[inline, inherit_doc ExtDTreeMap.Const.ofList]
-def ofList (l : List (α × β)) (cmp : α → α → Ordering := by exact compare) : ExtTreeMap α β cmp :=
+def ofList (l : List (α × β)) (cmp : α → α → Ordering := by exact compareForMatch) : ExtTreeMap α β cmp :=
   ⟨ExtDTreeMap.Const.ofList l cmp⟩
 
 @[inline, inherit_doc ExtDTreeMap.Const.unitOfList]
-def unitOfList (l : List α) (cmp : α → α → Ordering := by exact compare) : ExtTreeMap α Unit cmp :=
+def unitOfList (l : List α) (cmp : α → α → Ordering := by exact compareForMatch) : ExtTreeMap α Unit cmp :=
   ⟨ExtDTreeMap.Const.unitOfList l cmp⟩
 
 @[inline, inherit_doc ExtDTreeMap.Const.toArray]
@@ -498,11 +498,11 @@ def toArray [TransCmp cmp] (t : ExtTreeMap α β cmp) : Array (α × β) :=
   ExtDTreeMap.Const.toArray t.inner
 
 @[inline, inherit_doc ExtDTreeMap.Const.ofArray]
-def ofArray (a : Array (α × β)) (cmp : α → α → Ordering := by exact compare) : ExtTreeMap α β cmp :=
+def ofArray (a : Array (α × β)) (cmp : α → α → Ordering := by exact compareForMatch) : ExtTreeMap α β cmp :=
   ⟨ExtDTreeMap.Const.ofArray a cmp⟩
 
 @[inline, inherit_doc ExtDTreeMap.Const.unitOfArray]
-def unitOfArray (a : Array α) (cmp : α → α → Ordering := by exact compare) : ExtTreeMap α Unit cmp :=
+def unitOfArray (a : Array α) (cmp : α → α → Ordering := by exact compareForMatch) : ExtTreeMap α Unit cmp :=
   ⟨ExtDTreeMap.Const.unitOfArray a cmp⟩
 
 @[inline, inherit_doc ExtDTreeMap.Const.modify]

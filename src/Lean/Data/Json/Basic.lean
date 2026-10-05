@@ -235,7 +235,7 @@ def isNull : Json -> Bool
   | null => true
   | _    => false
 
-def getObj? : Json → Except String (Std.TreeMap.Raw String Json compare)
+def getObj? : Json → Except String (Std.TreeMap.Raw String Json)
   | obj kvs => return kvs
   | _       => throw "object expected"
 
@@ -294,7 +294,7 @@ def mergeObj : Json → Json → Json
 
 inductive Structured where
   | arr (elems : Array Json)
-  | obj (kvPairs : Std.TreeMap.Raw String Json compare)
+  | obj (kvPairs : Std.TreeMap.Raw String Json)
 
 instance : Coe (Array Json) Structured := ⟨Structured.arr⟩
 instance : Coe (Std.TreeMap.Raw String Json) Structured := ⟨Structured.obj⟩

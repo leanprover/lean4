@@ -63,7 +63,7 @@ be used in nested inductive types. For these use cases, `Std.TreeSet.Raw` and
 `Std.TreeSet.Raw.WF` unbundle the invariant from the tree set. When in doubt, prefer
 `TreeSet` over `TreeSet.Raw`.
 -/
-structure TreeSet (α : Type u) (cmp : α → α → Ordering := by exact compare) where
+structure TreeSet (α : Type u) (cmp : α → α → Ordering := by exact compareForMatch) where
   /-- Internal implementation detail of the tree map. -/
   inner : TreeMap α Unit cmp
 
@@ -443,7 +443,7 @@ def toList (t : TreeSet α cmp) : List α :=
   t.inner.keys
 
 /-- Transforms a list into a tree set. -/
-def ofList (l : List α) (cmp : α → α → Ordering := by exact compare) : TreeSet α cmp :=
+def ofList (l : List α) (cmp : α → α → Ordering := by exact compareForMatch) : TreeSet α cmp :=
   ⟨TreeMap.unitOfList l cmp⟩
 
 /-- Transforms the tree set into an array of elements in ascending order. -/
@@ -452,7 +452,7 @@ def toArray (t : TreeSet α cmp) : Array α :=
   t.inner.keysArray
 
 /-- Transforms an array into a tree set. -/
-def ofArray (a : Array α) (cmp : α → α → Ordering := by exact compare) : TreeSet α cmp :=
+def ofArray (a : Array α) (cmp : α → α → Ordering := by exact compareForMatch) : TreeSet α cmp :=
   ⟨TreeMap.unitOfArray a cmp⟩
 
 /--

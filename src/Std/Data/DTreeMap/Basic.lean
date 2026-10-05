@@ -66,7 +66,7 @@ be used in nested inductive types. For these use cases, `Std.DTreeMap.Raw` and
 `Std.DTreeMap.Raw.WF` unbundle the invariant from the tree map. When in doubt, prefer
 `DTreeMap` over `DTreeMap.Raw`.
 -/
-structure DTreeMap (α : Type u) (β : α → Type v) (cmp : α → α → Ordering := by exact compare) where
+structure DTreeMap (α : Type u) (β : α → Type v) (cmp : α → α → Ordering := by exact compareForMatch) where
   /-- Internal implementation detail of the tree map. -/
   inner : DTreeMap.Internal.Impl α β
   /-- Internal implementation detail of the tree map. -/
@@ -903,7 +903,7 @@ def toList (t : DTreeMap α β cmp) : List ((a : α) × β a) :=
 
 /-- Transforms a list of mappings into a tree map. -/
 @[inline]
-def ofList (l : List ((a : α) × β a)) (cmp : α → α → Ordering := by exact compare) :
+def ofList (l : List ((a : α) × β a)) (cmp : α → α → Ordering := by exact compareForMatch) :
     DTreeMap α β cmp :=
   letI : Ord α := ⟨cmp⟩; ⟨Impl.ofList l, Impl.WF.empty.insertMany⟩
 
@@ -914,7 +914,7 @@ def toArray (t : DTreeMap α β cmp) : Array ((a : α) × β a) :=
 
 /-- Transforms an array of mappings into a tree map. -/
 @[inline]
-def ofArray (a : Array ((a : α) × β a)) (cmp : α → α → Ordering := by exact compare) :
+def ofArray (a : Array ((a : α) × β a)) (cmp : α → α → Ordering := by exact compareForMatch) :
     DTreeMap α β cmp :=
   letI : Ord α := ⟨cmp⟩; ⟨Impl.ofArray a, Impl.WF.empty.insertMany⟩
 
@@ -967,7 +967,7 @@ def toList (t : DTreeMap α β cmp) : List (α × β) :=
   Impl.Const.toList t.inner
 
 @[inline, inherit_doc DTreeMap.ofList]
-def ofList (l : List (α × β)) (cmp : α → α → Ordering := by exact compare) : DTreeMap α β cmp :=
+def ofList (l : List (α × β)) (cmp : α → α → Ordering := by exact compareForMatch) : DTreeMap α β cmp :=
   letI : Ord α := ⟨cmp⟩
   ⟨Impl.Const.ofList l, Impl.WF.empty.constInsertMany⟩
 
@@ -976,19 +976,19 @@ def toArray (t : DTreeMap α β cmp) : Array (α × β) :=
   t.foldl (init := ∅) fun acc k v => acc.push ⟨k,v⟩
 
 @[inline, inherit_doc DTreeMap.ofList]
-def ofArray (a : Array (α × β)) (cmp : α → α → Ordering := by exact compare) : DTreeMap α β cmp :=
+def ofArray (a : Array (α × β)) (cmp : α → α → Ordering := by exact compareForMatch) : DTreeMap α β cmp :=
   letI : Ord α := ⟨cmp⟩
   ⟨Impl.Const.ofArray a, Impl.WF.empty.constInsertMany⟩
 
 /-- Transforms a list of keys into a tree map. -/
 @[inline]
-def unitOfList (l : List α) (cmp : α → α → Ordering := by exact compare) : DTreeMap α Unit cmp :=
+def unitOfList (l : List α) (cmp : α → α → Ordering := by exact compareForMatch) : DTreeMap α Unit cmp :=
   letI : Ord α := ⟨cmp⟩
   ⟨Impl.Const.unitOfList l, Impl.WF.empty.constInsertManyIfNewUnit⟩
 
 /-- Transforms an array of keys into a tree map. -/
 @[inline]
-def unitOfArray (a : Array α) (cmp : α → α → Ordering := by exact compare) : DTreeMap α Unit cmp :=
+def unitOfArray (a : Array α) (cmp : α → α → Ordering := by exact compareForMatch) : DTreeMap α Unit cmp :=
   letI : Ord α := ⟨cmp⟩
   ⟨Impl.Const.unitOfArray a, Impl.WF.empty.constInsertManyIfNewUnit⟩
 

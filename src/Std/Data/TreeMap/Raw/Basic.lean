@@ -62,7 +62,7 @@ To avoid expensive copies, users should make sure that the tree map is used line
 Internally, the tree maps are represented as size-bounded trees, a type of self-balancing binary
 search tree with efficient order statistic lookups.
 -/
-structure Raw (α : Type u) (β : Type v) (cmp : α → α → Ordering := by exact compare) where
+structure Raw (α : Type u) (β : Type v) (cmp : α → α → Ordering := by exact compareForMatch) where
   /-- Internal implementation detail of the tree map. -/
   inner : DTreeMap.Raw α (fun _ => β) cmp
 
@@ -456,11 +456,11 @@ def toList (t : Raw α β cmp) : List (α × β) :=
   DTreeMap.Raw.Const.toList t.inner
 
 @[inline, inherit_doc DTreeMap.Raw.Const.ofList]
-def ofList (l : List (α × β)) (cmp : α → α → Ordering := by exact compare) : Raw α β cmp :=
+def ofList (l : List (α × β)) (cmp : α → α → Ordering := by exact compareForMatch) : Raw α β cmp :=
   ⟨DTreeMap.Raw.Const.ofList l cmp⟩
 
 @[inline, inherit_doc DTreeMap.Const.unitOfList]
-def unitOfList (l : List α) (cmp : α → α → Ordering := by exact compare) : Raw α Unit cmp :=
+def unitOfList (l : List α) (cmp : α → α → Ordering := by exact compareForMatch) : Raw α Unit cmp :=
   ⟨DTreeMap.Raw.Const.unitOfList l cmp⟩
 
 @[inline, inherit_doc DTreeMap.Raw.Const.toArray]
@@ -468,11 +468,11 @@ def toArray (t : Raw α β cmp) : Array (α × β) :=
   DTreeMap.Raw.Const.toArray t.inner
 
 @[inline, inherit_doc DTreeMap.Raw.Const.ofArray]
-def ofArray (a : Array (α × β)) (cmp : α → α → Ordering := by exact compare) : Raw α β cmp :=
+def ofArray (a : Array (α × β)) (cmp : α → α → Ordering := by exact compareForMatch) : Raw α β cmp :=
   ⟨DTreeMap.Raw.Const.ofArray a cmp⟩
 
 @[inline, inherit_doc DTreeMap.Const.unitOfArray]
-def unitOfArray (a : Array α) (cmp : α → α → Ordering := by exact compare) : Raw α Unit cmp :=
+def unitOfArray (a : Array α) (cmp : α → α → Ordering := by exact compareForMatch) : Raw α Unit cmp :=
   ⟨DTreeMap.Raw.Const.unitOfArray a cmp⟩
 
 @[inline, inherit_doc DTreeMap.Raw.Const.modify]

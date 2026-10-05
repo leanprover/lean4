@@ -64,7 +64,7 @@ be used in nested inductive types. For these use cases, `Std.TreeMap.Raw` and
 `Std.TreeMap.Raw.WF` unbundle the invariant from the tree map. When in doubt, prefer
 `TreeMap` over `TreeMap.Raw`.
 -/
-structure TreeMap (α : Type u) (β : Type v) (cmp : α → α → Ordering := by exact compare) where
+structure TreeMap (α : Type u) (β : Type v) (cmp : α → α → Ordering := by exact compareForMatch) where
   /-- Internal implementation detail of the tree map. -/
   inner : DTreeMap α (fun _ => β) cmp
 
@@ -454,11 +454,11 @@ def toList (t : TreeMap α β cmp) : List (α × β) :=
   DTreeMap.Const.toList t.inner
 
 @[inline, inherit_doc DTreeMap.Const.ofList]
-def ofList (l : List (α × β)) (cmp : α → α → Ordering := by exact compare) : TreeMap α β cmp :=
+def ofList (l : List (α × β)) (cmp : α → α → Ordering := by exact compareForMatch) : TreeMap α β cmp :=
   ⟨DTreeMap.Const.ofList l cmp⟩
 
 @[inline, inherit_doc DTreeMap.Const.unitOfList]
-def unitOfList (l : List α) (cmp : α → α → Ordering := by exact compare) : TreeMap α Unit cmp :=
+def unitOfList (l : List α) (cmp : α → α → Ordering := by exact compareForMatch) : TreeMap α Unit cmp :=
   ⟨DTreeMap.Const.unitOfList l cmp⟩
 
 @[inline, inherit_doc DTreeMap.Const.toArray]
@@ -466,11 +466,11 @@ def toArray (t : TreeMap α β cmp) : Array (α × β) :=
   DTreeMap.Const.toArray t.inner
 
 @[inline, inherit_doc DTreeMap.Const.ofArray]
-def ofArray (a : Array (α × β)) (cmp : α → α → Ordering := by exact compare) : TreeMap α β cmp :=
+def ofArray (a : Array (α × β)) (cmp : α → α → Ordering := by exact compareForMatch) : TreeMap α β cmp :=
   ⟨DTreeMap.Const.ofArray a cmp⟩
 
 @[inline, inherit_doc DTreeMap.Const.unitOfArray]
-def unitOfArray (a : Array α) (cmp : α → α → Ordering := by exact compare) : TreeMap α Unit cmp :=
+def unitOfArray (a : Array α) (cmp : α → α → Ordering := by exact compareForMatch) : TreeMap α Unit cmp :=
   ⟨DTreeMap.Const.unitOfArray a cmp⟩
 
 @[inline, inherit_doc DTreeMap.Const.modify]

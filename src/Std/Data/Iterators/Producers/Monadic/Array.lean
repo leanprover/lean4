@@ -16,7 +16,7 @@ import Init.Omega
 # Array iterator
 
 This module provides forward and reverse iterators for arrays that are accessible via
-`Array.iterM` and `Array.iterRevM`.
+`Array.iterM` and `Array.revIterM`.
 -/
 
 namespace Std.Iterators.Types
@@ -143,7 +143,7 @@ theorem ArrayRevIterator.exists_iff {α : Type w} {P : ArrayRevIterator α → P
 Returns a finite monadic reverse iterator for the given array starting at the given index.
 The iterator yields the elements of the array in reverse order and then terminates.
 
-The pure version of this iterator is `Array.iterRevFromIdx`.
+The pure version of this iterator is `Array.revIterFromIdx`.
 
 **Termination properties:**
 
@@ -151,7 +151,7 @@ The pure version of this iterator is `Array.iterRevFromIdx`.
 * `Productive` instance: always
 -/
 @[always_inline, inline, match_pattern]
-def _root_.Array.iterRevFromIdxM {α : Type w} (array : Array α) (m : Type w → Type w') (pos : Nat)
+def _root_.Array.revIterFromIdxM {α : Type w} (array : Array α) (m : Type w → Type w') (pos : Nat)
     [Pure m] :
     IterM (α := ArrayRevIterator α) m α :=
   ⟨{ array := array, pos := (pos + 1).min array.size, upper_bound := Nat.min_le_right _ _ }⟩
@@ -161,7 +161,7 @@ Returns a finite monadic reverse iterator for the given array.
 The iterator yields the elements of the array in reverse order and then terminates. There are
 no side effects.
 
-The pure version of this iterator is `Array.iterRev`.
+The pure version of this iterator is `Array.revIter`.
 
 **Termination properties:**
 
@@ -169,9 +169,9 @@ The pure version of this iterator is `Array.iterRev`.
 * `Productive` instance: always
 -/
 @[always_inline, inline]
-def _root_.Array.iterRevM {α : Type w} (array : Array α) (m : Type w → Type w') [Pure m] :
+def _root_.Array.revIterM {α : Type w} (array : Array α) (m : Type w → Type w') [Pure m] :
     IterM (α := ArrayRevIterator α) m α :=
-  array.iterRevFromIdxM m array.size
+  array.revIterFromIdxM m array.size
 
 @[always_inline, inline]
 instance ArrayRevIterator.instIterator {α : Type w} [Pure m] :

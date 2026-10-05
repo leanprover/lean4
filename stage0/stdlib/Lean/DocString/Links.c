@@ -1782,16 +1782,16 @@ return v___x_582_;
 else
 {
 lean_dec_ref_known(v___x_560_, 1);
-v___y_537_ = v_kind_558_;
-v___y_538_ = v_tail_556_;
+v___y_537_ = v_tail_556_;
+v___y_538_ = v_kind_558_;
 goto v___jp_536_;
 }
 }
 else
 {
 lean_dec_ref_known(v___x_560_, 1);
-v___y_537_ = v_kind_558_;
-v___y_538_ = v_tail_556_;
+v___y_537_ = v_tail_556_;
+v___y_538_ = v_kind_558_;
 goto v___jp_536_;
 }
 }
@@ -1847,12 +1847,12 @@ v___jp_536_:
 {
 lean_object* v___x_539_; lean_object* v___x_540_; lean_object* v___x_541_; lean_object* v___x_542_; lean_object* v___x_543_; lean_object* v___x_544_; lean_object* v___x_545_; 
 v___x_539_ = ((lean_object*)(l___private_Lean_DocString_Links_0__Lean_rw___closed__0));
-v___x_540_ = lean_string_append(v___x_539_, v___y_537_);
-lean_dec_ref(v___y_537_);
+v___x_540_ = lean_string_append(v___x_539_, v___y_538_);
+lean_dec_ref(v___y_538_);
 v___x_541_ = ((lean_object*)(l___private_Lean_DocString_Links_0__Lean_rw___closed__1));
 v___x_542_ = lean_string_append(v___x_540_, v___x_541_);
-v___x_543_ = l_List_toString___at___00__private_Lean_DocString_Links_0__Lean_rw_spec__0(v___y_538_);
-lean_dec(v___y_538_);
+v___x_543_ = l_List_toString___at___00__private_Lean_DocString_Links_0__Lean_rw_spec__0(v___y_537_);
+lean_dec(v___y_537_);
 v___x_544_ = lean_string_append(v___x_542_, v___x_543_);
 lean_dec_ref(v___x_543_);
 v___x_545_ = lean_alloc_ctor(0, 1, 0);

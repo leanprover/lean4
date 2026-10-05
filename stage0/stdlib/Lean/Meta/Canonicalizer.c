@@ -1858,8 +1858,8 @@ lean_dec_ref_known(v___x_596_, 1);
 v___x_598_ = lean_expr_eqv(v_a_597_, v_e_467_);
 if (v___x_598_ == 0)
 {
-lean_dec_ref_known(v_e_467_, 2);
 lean_dec_ref(v___x_594_);
+lean_dec_ref_known(v_e_467_, 2);
 v_e_467_ = v_a_597_;
 goto _start;
 }
@@ -1879,8 +1879,8 @@ goto v___jp_542_;
 else
 {
 lean_object* v_a_600_; lean_object* v___x_602_; uint8_t v_isShared_603_; uint8_t v_isSharedCheck_607_; 
-lean_dec_ref_known(v_e_467_, 2);
 lean_dec_ref(v___x_594_);
+lean_dec_ref_known(v_e_467_, 2);
 v_a_600_ = lean_ctor_get(v___x_596_, 0);
 v_isSharedCheck_607_ = !lean_is_exclusive(v___x_596_);
 if (v_isSharedCheck_607_ == 0)

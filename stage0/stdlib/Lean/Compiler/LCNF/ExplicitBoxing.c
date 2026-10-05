@@ -10150,8 +10150,8 @@ return v___x_2707_;
 else
 {
 lean_object* v_a_2717_; lean_object* v___x_2719_; uint8_t v_isShared_2720_; uint8_t v_isSharedCheck_2724_; 
-lean_dec(v_fvarId_2695_);
 lean_dec_ref_known(v_code_2509_, 1);
+lean_dec(v_fvarId_2695_);
 v_a_2717_ = lean_ctor_get(v___x_2704_, 0);
 v_isSharedCheck_2724_ = !lean_is_exclusive(v___x_2704_);
 if (v_isSharedCheck_2724_ == 0)
@@ -10194,8 +10194,8 @@ return v___x_2722_;
 else
 {
 lean_object* v_a_2725_; lean_object* v___x_2727_; uint8_t v_isShared_2728_; uint8_t v_isSharedCheck_2732_; 
-lean_dec(v_fvarId_2695_);
 lean_dec_ref_known(v_code_2509_, 1);
+lean_dec(v_fvarId_2695_);
 v_a_2725_ = lean_ctor_get(v___x_2700_, 0);
 v_isSharedCheck_2732_ = !lean_is_exclusive(v___x_2700_);
 if (v_isSharedCheck_2732_ == 0)
@@ -10248,8 +10248,8 @@ return v___x_2733_;
 else
 {
 lean_object* v_a_2734_; lean_object* v___x_2736_; uint8_t v_isShared_2737_; uint8_t v_isSharedCheck_2741_; 
-lean_dec(v_fvarId_2695_);
 lean_dec_ref_known(v_code_2509_, 1);
+lean_dec(v_fvarId_2695_);
 v_a_2734_ = lean_ctor_get(v___x_2697_, 0);
 v_isSharedCheck_2741_ = !lean_is_exclusive(v___x_2697_);
 if (v_isSharedCheck_2741_ == 0)
@@ -10463,8 +10463,8 @@ lean_dec(v_a_2762_);
 lean_dec_ref(v_k_2760_);
 lean_dec(v_y_2759_);
 lean_dec(v_i_2758_);
-lean_dec(v_fvarId_2757_);
 lean_dec_ref_known(v_code_2509_, 4);
+lean_dec(v_fvarId_2757_);
 v_a_2784_ = lean_ctor_get(v___x_2771_, 0);
 v_isSharedCheck_2791_ = !lean_is_exclusive(v___x_2771_);
 if (v_isSharedCheck_2791_ == 0)
@@ -10511,8 +10511,8 @@ lean_dec(v_a_2762_);
 lean_dec_ref(v_k_2760_);
 lean_dec(v_y_2759_);
 lean_dec(v_i_2758_);
-lean_dec(v_fvarId_2757_);
 lean_dec_ref_known(v_code_2509_, 4);
+lean_dec(v_fvarId_2757_);
 v_a_2792_ = lean_ctor_get(v___x_2767_, 0);
 v_isSharedCheck_2799_ = !lean_is_exclusive(v___x_2767_);
 if (v_isSharedCheck_2799_ == 0)
@@ -10570,8 +10570,8 @@ lean_dec(v_a_2762_);
 lean_dec_ref(v_k_2760_);
 lean_dec(v_y_2759_);
 lean_dec(v_i_2758_);
-lean_dec(v_fvarId_2757_);
 lean_dec_ref_known(v_code_2509_, 4);
+lean_dec(v_fvarId_2757_);
 v_a_2801_ = lean_ctor_get(v___x_2764_, 0);
 v_isSharedCheck_2808_ = !lean_is_exclusive(v___x_2764_);
 if (v_isSharedCheck_2808_ == 0)

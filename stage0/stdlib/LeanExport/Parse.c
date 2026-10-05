@@ -8809,8 +8809,8 @@ goto v___jp_2028_;
 }
 else
 {
-lean_dec(v_head_2034_);
 lean_dec_ref_known(v_x_2024_, 2);
+lean_dec(v_head_2034_);
 lean_dec_ref(v___y_2026_);
 lean_dec(v_x_2025_);
 goto v___jp_2028_;

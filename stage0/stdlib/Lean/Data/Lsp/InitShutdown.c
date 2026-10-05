@@ -4218,7 +4218,7 @@ goto v_resetjp_1226_;
 }
 v_resetjp_1226_:
 {
-uint8_t v___y_1230_; lean_object* v___y_1231_; lean_object* v___y_1232_; lean_object* v___y_1233_; lean_object* v___y_1234_; lean_object* v___y_1235_; uint8_t v___y_1241_; lean_object* v___y_1242_; lean_object* v___y_1243_; lean_object* v___y_1244_; lean_object* v___y_1245_; lean_object* v___y_1246_; uint8_t v___y_1257_; lean_object* v___y_1258_; lean_object* v___y_1259_; lean_object* v___y_1260_; lean_object* v___y_1261_; uint8_t v___y_1272_; lean_object* v___y_1273_; lean_object* v___y_1274_; lean_object* v___y_1275_; uint8_t v___y_1286_; lean_object* v___y_1287_; lean_object* v___y_1288_; uint8_t v___y_1299_; lean_object* v___x_1311_; lean_object* v___x_1312_; 
+lean_object* v___y_1230_; uint8_t v___y_1231_; lean_object* v___y_1232_; lean_object* v___y_1233_; lean_object* v___y_1234_; lean_object* v___y_1235_; lean_object* v___y_1241_; uint8_t v___y_1242_; lean_object* v___y_1243_; lean_object* v___y_1244_; lean_object* v___y_1245_; lean_object* v___y_1246_; lean_object* v___y_1257_; uint8_t v___y_1258_; lean_object* v___y_1259_; lean_object* v___y_1260_; lean_object* v___y_1261_; uint8_t v___y_1272_; lean_object* v___y_1273_; lean_object* v___y_1274_; lean_object* v___y_1275_; uint8_t v___y_1286_; lean_object* v___y_1287_; lean_object* v___y_1288_; uint8_t v___y_1299_; lean_object* v___x_1311_; lean_object* v___x_1312_; 
 v___x_1311_ = ((lean_object*)(l_Lean_Lsp_instToJsonInitializeParams_toJson___closed__5));
 lean_inc(v_j_1206_);
 v___x_1312_ = l_Lean_Json_getObjValAs_x3f___redArg(v_j_1206_, v___f_1205_, v___x_1311_);
@@ -4245,13 +4245,13 @@ v___jp_1229_:
 {
 lean_object* v___x_1236_; lean_object* v___x_1238_; 
 v___x_1236_ = lean_alloc_ctor(0, 6, 1);
-lean_ctor_set(v___x_1236_, 0, v___y_1233_);
-lean_ctor_set(v___x_1236_, 1, v___y_1231_);
+lean_ctor_set(v___x_1236_, 0, v___y_1232_);
+lean_ctor_set(v___x_1236_, 1, v___y_1230_);
 lean_ctor_set(v___x_1236_, 2, v___y_1234_);
-lean_ctor_set(v___x_1236_, 3, v___y_1232_);
+lean_ctor_set(v___x_1236_, 3, v___y_1233_);
 lean_ctor_set(v___x_1236_, 4, v_a_1225_);
 lean_ctor_set(v___x_1236_, 5, v___y_1235_);
-lean_ctor_set_uint8(v___x_1236_, sizeof(void*)*6, v___y_1230_);
+lean_ctor_set_uint8(v___x_1236_, sizeof(void*)*6, v___y_1231_);
 if (v_isShared_1228_ == 0)
 {
 lean_ctor_set(v___x_1227_, 0, v___x_1236_);
@@ -4280,8 +4280,8 @@ lean_dec_ref_known(v___y_1243_, 1);
 v___x_1247_ = lean_box(0);
 v___y_1230_ = v___y_1241_;
 v___y_1231_ = v___y_1242_;
-v___y_1232_ = v___y_1246_;
-v___y_1233_ = v___y_1244_;
+v___y_1232_ = v___y_1244_;
+v___y_1233_ = v___y_1246_;
 v___y_1234_ = v___y_1245_;
 v___y_1235_ = v___x_1247_;
 goto v___jp_1229_;
@@ -4325,8 +4325,8 @@ v_reusejp_1252_:
 {
 v___y_1230_ = v___y_1241_;
 v___y_1231_ = v___y_1242_;
-v___y_1232_ = v___y_1246_;
-v___y_1233_ = v___y_1244_;
+v___y_1232_ = v___y_1244_;
+v___y_1233_ = v___y_1246_;
 v___y_1234_ = v___y_1245_;
 v___y_1235_ = v___x_1253_;
 goto v___jp_1229_;
@@ -4343,8 +4343,8 @@ lean_dec_ref_known(v_initializationOptions_x3f_1214_, 1);
 v___x_1262_ = lean_box(0);
 v___y_1241_ = v___y_1257_;
 v___y_1242_ = v___y_1258_;
-v___y_1243_ = v___y_1260_;
-v___y_1244_ = v___y_1259_;
+v___y_1243_ = v___y_1259_;
+v___y_1244_ = v___y_1260_;
 v___y_1245_ = v___y_1261_;
 v___y_1246_ = v___x_1262_;
 goto v___jp_1240_;
@@ -4388,8 +4388,8 @@ v_reusejp_1267_:
 {
 v___y_1241_ = v___y_1257_;
 v___y_1242_ = v___y_1258_;
-v___y_1243_ = v___y_1260_;
-v___y_1244_ = v___y_1259_;
+v___y_1243_ = v___y_1259_;
+v___y_1244_ = v___y_1260_;
 v___y_1245_ = v___y_1261_;
 v___y_1246_ = v___x_1268_;
 goto v___jp_1240_;
@@ -4404,10 +4404,10 @@ if (lean_obj_tag(v_rootUri_x3f_1212_) == 0)
 lean_object* v___x_1276_; 
 lean_dec_ref_known(v_rootUri_x3f_1212_, 1);
 v___x_1276_ = lean_box(0);
-v___y_1257_ = v___y_1272_;
-v___y_1258_ = v___y_1275_;
-v___y_1259_ = v___y_1274_;
-v___y_1260_ = v___y_1273_;
+v___y_1257_ = v___y_1275_;
+v___y_1258_ = v___y_1272_;
+v___y_1259_ = v___y_1273_;
+v___y_1260_ = v___y_1274_;
 v___y_1261_ = v___x_1276_;
 goto v___jp_1256_;
 }
@@ -4448,10 +4448,10 @@ goto v_reusejp_1281_;
 }
 v_reusejp_1281_:
 {
-v___y_1257_ = v___y_1272_;
-v___y_1258_ = v___y_1275_;
-v___y_1259_ = v___y_1274_;
-v___y_1260_ = v___y_1273_;
+v___y_1257_ = v___y_1275_;
+v___y_1258_ = v___y_1272_;
+v___y_1259_ = v___y_1273_;
+v___y_1260_ = v___y_1274_;
 v___y_1261_ = v___x_1282_;
 goto v___jp_1256_;
 }

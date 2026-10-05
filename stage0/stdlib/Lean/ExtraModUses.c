@@ -850,7 +850,7 @@ goto v_resetjp_132_;
 v___jp_123_:
 {
 lean_object* v___x_128_; lean_object* v___x_129_; 
-v___x_128_ = lean_array_uset(v___y_126_, v___y_124_, v___y_125_);
+v___x_128_ = lean_array_uset(v___y_125_, v___y_124_, v___y_126_);
 v___x_129_ = lean_alloc_ctor(0, 2, 0);
 lean_ctor_set(v___x_129_, 0, v___y_127_);
 lean_ctor_set(v___x_129_, 1, v___x_128_);
@@ -980,16 +980,16 @@ v___x_174_ = lean_unsigned_to_nat(1u);
 v___x_175_ = lean_nat_sub(v_size_130_, v___x_174_);
 lean_dec(v_size_130_);
 v___y_124_ = v___x_148_;
-v___y_125_ = v_bkt_x27_172_;
-v___y_126_ = v_buckets_x27_171_;
+v___y_125_ = v_buckets_x27_171_;
+v___y_126_ = v_bkt_x27_172_;
 v___y_127_ = v___x_175_;
 goto v___jp_123_;
 }
 else
 {
 v___y_124_ = v___x_148_;
-v___y_125_ = v_bkt_x27_172_;
-v___y_126_ = v_buckets_x27_171_;
+v___y_125_ = v_buckets_x27_171_;
+v___y_126_ = v_bkt_x27_172_;
 v___y_127_ = v_size_130_;
 goto v___jp_123_;
 }

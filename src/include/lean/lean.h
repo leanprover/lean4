@@ -1645,6 +1645,7 @@ LEAN_EXPORT lean_object * lean_nat_big_mod(lean_object * a1, lean_object * a2);
 LEAN_EXPORT bool lean_nat_big_eq(lean_object * a1, lean_object * a2);
 LEAN_EXPORT bool lean_nat_big_le(lean_object * a1, lean_object * a2);
 LEAN_EXPORT bool lean_nat_big_lt(lean_object * a1, lean_object * a2);
+LEAN_EXPORT uint8_t lean_nat_big_compare(lean_object * a1, lean_object * a2);
 LEAN_EXPORT lean_object * lean_nat_big_land(lean_object * a1, lean_object * a2);
 LEAN_EXPORT lean_object * lean_nat_big_lor(lean_object * a1, lean_object * a2);
 LEAN_EXPORT lean_object * lean_nat_big_xor(lean_object * a1, lean_object * a2);
@@ -1795,6 +1796,18 @@ static inline LEAN_ALWAYS_INLINE bool lean_nat_lt(b_lean_obj_arg a1, b_lean_obj_
 
 static inline LEAN_ALWAYS_INLINE uint8_t lean_nat_dec_lt(b_lean_obj_arg a1, b_lean_obj_arg a2) {
     return lean_nat_lt(a1, a2);
+}
+
+/* Returns the constructor index of the `Ordering`: lt = 0, eq = 1, gt = 2. */
+static inline LEAN_ALWAYS_INLINE uint8_t lean_nat_compare(b_lean_obj_arg a1, b_lean_obj_arg a2) {
+    if (LEAN_LIKELY(lean_is_scalar(a1) && lean_is_scalar(a2))) {
+        // Boxing is strictly monotone, so the boxed words compare like the unboxed values.
+        size_t x = (size_t)a1;
+        size_t y = (size_t)a2;
+        return (uint8_t)(1 + (x > y) - (x < y));
+    } else {
+        return lean_nat_big_compare(a1, a2);
+    }
 }
 
 static inline lean_obj_res lean_nat_land(b_lean_obj_arg a1, b_lean_obj_arg a2) {

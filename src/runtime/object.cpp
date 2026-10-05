@@ -1540,6 +1540,20 @@ extern "C" LEAN_EXPORT bool lean_nat_big_lt(object * a1, object * a2) {
     }
 }
 
+// Constructor indices of `Ordering`: lt = 0, eq = 1, gt = 2.
+extern "C" LEAN_EXPORT uint8_t lean_nat_big_compare(object * a1, object * a2) {
+    if (lean_is_scalar(a1)) {
+        lean_assert(mpz::of_size_t(lean_unbox(a1)) < mpz_value(a2));
+        return 0;
+    } else if (lean_is_scalar(a2)) {
+        lean_assert(mpz_value(a1) > mpz::of_size_t(lean_unbox(a2)));
+        return 2;
+    } else {
+        int r = cmp(mpz_value(a1), mpz_value(a2));
+        return 1 + (r > 0) - (r < 0);
+    }
+}
+
 extern "C" LEAN_EXPORT object * lean_nat_big_land(object * a1, object * a2) {
     lean_assert(!lean_is_scalar(a1) || !lean_is_scalar(a2));
     if (lean_is_scalar(a1))

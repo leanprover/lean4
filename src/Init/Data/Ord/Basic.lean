@@ -481,8 +481,23 @@ Examples:
 @[inline, expose] def compareOn [ord : Ord β] (f : α → β) (x y : α) : Ordering :=
   compare (f x) (f y)
 
+/--
+Compares two natural numbers, usually accessed via the `Ord Nat` instance.
+
+This function is overridden at runtime with an implementation that is branchless when both numbers
+are small enough to be unboxed.
+
+Examples:
+ * `Nat.compare 3 5 = .lt`
+ * `Nat.compare 5 5 = .eq`
+ * `Nat.compare 6 5 = .gt`
+-/
+@[extern "lean_nat_compare", expose]
+protected def Nat.compare (x y : @& Nat) : Ordering :=
+  compareOfLessAndEq x y
+
 instance : Ord Nat where
-  compare x y := compareOfLessAndEq x y
+  compare := Nat.compare
 
 instance : Ord Int where
   compare x y := compareOfLessAndEq x y

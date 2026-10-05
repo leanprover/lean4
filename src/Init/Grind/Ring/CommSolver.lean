@@ -378,7 +378,7 @@ theorem Mon.revlex_k_eq_revlex (m₁ m₂ : Mon) : m₁.revlex_k m₂ = m₁.rev
 
 theorem Mon.grevlex_k_eq_grevlex (m₁ m₂ : Mon) : m₁.grevlex_k m₂ = m₁.grevlex m₂ := by
   unfold grevlex_k grevlex; simp [revlex_k_eq_revlex]
-  simp [*, compare, compareOfLessAndEq]
+  simp [*, compare, Nat.compare, compareOfLessAndEq]
   split
   next h =>
     have h₁ : Nat.blt m₁.degree m₂.degree = true := by simp [h]

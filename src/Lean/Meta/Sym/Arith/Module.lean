@@ -110,7 +110,8 @@ private def mkModuleContext (type inst : Expr) (u : Level) (integers : Bool) :
   let ctx : ModuleContext := {
     addFn := mkApp4 (mkConst ``HAdd.hAdd [u, u, u]) type type type
       (mkApp2 (mkConst ``instHAdd [u]) type addInst)
-    zero := mkApp2 (mkConst ``Zero.zero [u]) type zeroInst
+    zero := mkApp3 (mkConst ``OfNat.ofNat [u]) type (mkRawNatLit 0)
+      (mkApp2 (mkConst ``Zero.toOfNat0 [u]) type zeroInst)
     nsmulFn := mkApp4 (mkConst ``HSMul.hSMul [0, u, u]) (mkConst ``Nat) type type
       (mkApp3 (mkConst ``instHSMul [0, u]) (mkConst ``Nat) type smulInst) }
   if !integers then return ctx

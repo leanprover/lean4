@@ -1757,42 +1757,28 @@ theorem mul_sub_mod {x n p : Nat} (h : x < n * p) : (n * p - (x + 1)) % n = n - 
   · rwa [Nat.mul_comm]
   · refine Nat.pos_of_mul_pos_right (by omega : 0 < n * p)
 
-/-! ### Decidability of predicates -/
+/-! ### Decidability of predicates
 
--- `noncomputable` so the non-tail-recursive code is never compiled; the tail-recursive
--- `@[csimp]` replacement `decidableBallLTTR` below is the only version used at runtime.
-noncomputable instance decidableBallLT :
-  ∀ (n : Nat) (P : ∀ k, k < n → Prop) [∀ n h, Decidable (P n h)], Decidable (∀ n h, P n h)
-| 0, _, _ => isTrue fun _ => (by cases ·)
-| n + 1, P, H =>
-  match decidableBallLT n (P · <| lt_succ_of_lt ·) with
-  | isFalse h => isFalse (h fun _ _ => · _ _)
-  | isTrue h =>
-    match H n Nat.le.refl with
-    | isFalse p => isFalse (p <| · _ _)
-    | isTrue p => isTrue fun _ h' => (Nat.lt_succ_iff_lt_or_eq.1 h').elim (h _) fun hn => hn ▸ p
+`decidableBallLT`, `decidableExistsLT` and `decidableExistsLT'` decide `∀ i < n, …` and
+`∃ i < n, …` by running the tail-recursive `Bool` loops `allLTTR` and `anyLTTR`. Compiled code and
+kernel reduction (`by decide`) run the same loops, so both take time linear in `n`. The loops are
+`@[expose]` so that `by decide` in another module can unfold them, and their proofs avoid `omega`
+and `simp` so that `by decide` proofs through these instances depend on no axioms. -/
 
-/-! ### Tail-recursive runtime replacements for the bounded-quantifier decision procedures
+private theorem and_eq_true_iff' {a b : Bool} : (a && b) = true ↔ a = true ∧ b = true := by
+  cases a <;> cases b <;> decide
 
-`decidableBallLT`, `decidableExistsLT`, and `decidableExistsLT'` recurse to depth `n` in non-tail
-position, so *running* the compiled instance is either quadratic (`decidableBallLT` rebuilds the
-predicate at every level) or overflows the stack for large `n`. Each is replaced at runtime by a
-proven-equivalent tail-recursive version via `@[csimp]`; kernel reduction (`by decide`) is
-unaffected, as it uses the original structural definitions.
-
-The roots are marked `noncomputable` so the non-tail-recursive code is never compiled at all, and
-each `@[csimp]` replacement is registered immediately after its root and *before* the `Fin`/`≤`
-wrappers (`decidableForallFin`, `decidableExistsFin`, `decidableBall/ExistsLE`, …). The wrappers
-reduce to these roots through `@[inline] decidable_of_iff`, so they pick up the tail-recursive
-versions; and because the roots are `noncomputable`, a wrapper placed before its replacement fails
-to compile rather than silently regressing. -/
+private theorem or_eq_true_iff' {a b : Bool} : (a || b) = true ↔ a = true ∨ b = true := by
+  cases a <;> cases b <;> decide
 
 /-- Tail-recursive `Bool` loop: `true` iff `f i h` holds for every `i < n`
-(short-circuits on the first `false`). Used at runtime by `decidableBallLT` via `@[csimp]`. -/
-@[inline] def allLTTR (n : Nat) (f : (i : Nat) → i < n → Bool) : Bool :=
+(short-circuits on the first `false`). Backs the `decidableBallLT` instance. -/
+@[expose, inline] def allLTTR (n : Nat) (f : (i : Nat) → i < n → Bool) : Bool :=
   let rec @[specialize] loop : (i : Nat) → i ≤ n → Bool
     | 0,      _ => true
-    | i + 1, h => f (n - (i + 1)) (by omega) && loop i (by omega)
+    | i + 1, h =>
+      f (n - (i + 1)) (Nat.sub_lt (Nat.lt_of_lt_of_le (Nat.succ_pos i) h) (Nat.succ_pos i)) &&
+        loop i (Nat.le_of_succ_le h)
   loop n (Nat.le_refl n)
 
 private theorem allLTTR_loop_eq_true {n : Nat} {f : (i : Nat) → i < n → Bool} :
@@ -1801,34 +1787,36 @@ private theorem allLTTR_loop_eq_true {n : Nat} {f : (i : Nat) → i < n → Bool
   intro j
   induction j with
   | zero =>
-    intro hj
-    constructor
-    · intro _ i hi h; omega
-    · intro _; rfl
+    intro _
+    exact ⟨fun _ i hi h => absurd (Nat.lt_of_le_of_lt hi h) (Nat.lt_irrefl n), fun _ => rfl⟩
   | succ m ih =>
     intro hj
-    simp only [allLTTR.loop, Bool.and_eq_true]
-    rw [ih (by omega)]
-    constructor
-    · rintro ⟨hhead, htail⟩ i hi h
-      rcases Nat.eq_or_lt_of_le hi with heq | hlt
-      · have : i = n - (m + 1) := by omega
-        subst this; exact hhead
-      · exact htail i (by omega) h
-    · intro w
-      exact ⟨w (n - (m + 1)) (by omega) (by omega), fun i _ h => w i (by omega) h⟩
+    have hpos : 0 < n - m := Nat.pos_of_ne_zero fun h =>
+      Nat.lt_irrefl m (Nat.lt_of_lt_of_le hj (Nat.le_of_sub_eq_zero h))
+    have hsucc : n - (m + 1) + 1 = n - m := by
+      rw [Nat.sub_succ]; exact Nat.succ_pred_eq_of_pos hpos
+    rw [allLTTR.loop]
+    refine and_eq_true_iff'.trans ⟨fun ⟨hhead, htail⟩ i hi h => ?_, fun w => ⟨?_, ?_⟩⟩
+    · rcases Nat.eq_or_lt_of_le hi with heq | hlt
+      · subst heq; exact hhead
+      · exact (ih (Nat.le_of_succ_le hj)).1 htail i (hsucc ▸ hlt) h
+    · exact w (n - (m + 1)) (Nat.le_refl _) _
+    · exact (ih (Nat.le_of_succ_le hj)).2 fun i hi h =>
+        w i (Nat.le_trans (Nat.sub_succ n m ▸ Nat.pred_le (n - m)) hi) h
 
 theorem allLTTR_eq_true {n : Nat} {f : (i : Nat) → i < n → Bool} :
-    allLTTR n f = true ↔ ∀ i (h : i < n), f i h = true := by
-  rw [allLTTR, allLTTR_loop_eq_true n (Nat.le_refl n)]
-  exact ⟨fun w i h => w i (by omega) h, fun w i _ h => w i h⟩
+    allLTTR n f = true ↔ ∀ i (h : i < n), f i h = true :=
+  (allLTTR_loop_eq_true n (Nat.le_refl n)).trans
+    ⟨fun w i h => w i (Nat.sub_self n ▸ Nat.zero_le i) h, fun w i _ h => w i h⟩
 
 /-- Tail-recursive `Bool` loop: `true` iff `f i h` holds for some `i < n`
-(short-circuits on the first `true`). Used at runtime by `decidableExistsLT`/`'` via `@[csimp]`. -/
-@[inline] def anyLTTR (n : Nat) (f : (i : Nat) → i < n → Bool) : Bool :=
+(short-circuits on the first `true`). Backs the `decidableExistsLT`/`'` instances. -/
+@[expose, inline] def anyLTTR (n : Nat) (f : (i : Nat) → i < n → Bool) : Bool :=
   let rec @[specialize] loop : (i : Nat) → i ≤ n → Bool
     | 0,      _ => false
-    | i + 1, h => f (n - (i + 1)) (by omega) || loop i (by omega)
+    | i + 1, h =>
+      f (n - (i + 1)) (Nat.sub_lt (Nat.lt_of_lt_of_le (Nat.succ_pos i) h) (Nat.succ_pos i)) ||
+        loop i (Nat.le_of_succ_le h)
   loop n (Nat.le_refl n)
 
 private theorem anyLTTR_loop_eq_true {n : Nat} {f : (i : Nat) → i < n → Bool} :
@@ -1837,44 +1825,38 @@ private theorem anyLTTR_loop_eq_true {n : Nat} {f : (i : Nat) → i < n → Bool
   intro j
   induction j with
   | zero =>
-    intro hj
-    simp only [anyLTTR.loop]
-    constructor
-    · intro h; exact Bool.noConfusion h
-    · rintro ⟨i, hlt, hi, _⟩; omega
+    intro _
+    exact ⟨fun h => Bool.noConfusion h,
+      fun ⟨i, h, hi, _⟩ => absurd (Nat.lt_of_le_of_lt hi h) (Nat.lt_irrefl n)⟩
   | succ m ih =>
     intro hj
-    simp only [anyLTTR.loop, Bool.or_eq_true]
-    rw [ih (by omega)]
-    constructor
-    · rintro (hhead | ⟨i, h, hi, hf⟩)
-      · exact ⟨n - (m + 1), by omega, by omega, hhead⟩
-      · exact ⟨i, h, by omega, hf⟩
-    · rintro ⟨i, h, hi, hf⟩
-      rcases Nat.eq_or_lt_of_le hi with heq | hlt
-      · left; have : i = n - (m + 1) := by omega
-        subst this; exact hf
-      · right; exact ⟨i, h, by omega, hf⟩
+    have hpos : 0 < n - m := Nat.pos_of_ne_zero fun h =>
+      Nat.lt_irrefl m (Nat.lt_of_lt_of_le hj (Nat.le_of_sub_eq_zero h))
+    have hsucc : n - (m + 1) + 1 = n - m := by
+      rw [Nat.sub_succ]; exact Nat.succ_pred_eq_of_pos hpos
+    have hle : n - (m + 1) ≤ n - m := Nat.sub_succ n m ▸ Nat.pred_le (n - m)
+    rw [anyLTTR.loop]
+    refine or_eq_true_iff'.trans ⟨fun h => ?_, fun ⟨i, h, hi, hf⟩ => ?_⟩
+    · rcases h with hhead | htail
+      · exact ⟨n - (m + 1), _, Nat.le_refl _, hhead⟩
+      · let ⟨i, h, hi, hf⟩ := (ih (Nat.le_of_succ_le hj)).1 htail
+        exact ⟨i, h, Nat.le_trans hle hi, hf⟩
+    · rcases Nat.eq_or_lt_of_le hi with heq | hlt
+      · subst heq; exact .inl hf
+      · exact .inr ((ih (Nat.le_of_succ_le hj)).2 ⟨i, h, hsucc ▸ hlt, hf⟩)
 
 theorem anyLTTR_eq_true {n : Nat} {f : (i : Nat) → i < n → Bool} :
-    anyLTTR n f = true ↔ ∃ i, ∃ h : i < n, f i h = true := by
-  rw [anyLTTR, anyLTTR_loop_eq_true n (Nat.le_refl n)]
-  exact ⟨fun ⟨i, h, _, hf⟩ => ⟨i, h, hf⟩, fun ⟨i, h, hf⟩ => ⟨i, h, by omega, hf⟩⟩
+    anyLTTR n f = true ↔ ∃ i, ∃ h : i < n, f i h = true :=
+  (anyLTTR_loop_eq_true n (Nat.le_refl n)).trans
+    ⟨fun ⟨i, h, _, hf⟩ => ⟨i, h, hf⟩, fun ⟨i, h, hf⟩ => ⟨i, h, Nat.sub_self n ▸ Nat.zero_le i, hf⟩⟩
 
-/-- Tail-recursive runtime replacement for `decidableBallLT`. -/
-def decidableBallLTTR (n : Nat) (P : ∀ k, k < n → Prop) [∀ n h, Decidable (P n h)] :
+instance decidableBallLT (n : Nat) (P : ∀ k, k < n → Prop) [∀ n h, Decidable (P n h)] :
     Decidable (∀ n h, P n h) :=
-  decidable_of_iff (allLTTR n (fun i h => decide (P i h)) = true) <| by
-    rw [allLTTR_eq_true]
-    exact ⟨fun w i h => of_decide_eq_true (w i h), fun w i h => decide_eq_true (w i h)⟩
+  decidable_of_iff (allLTTR n (fun i h => decide (P i h)) = true) <| allLTTR_eq_true.trans
+    ⟨fun w i h => of_decide_eq_true (w i h), fun w i h => decide_eq_true (w i h)⟩
 
--- Keep this `@[csimp]` *before* the `Fin`/`≤` wrappers below: they reduce to `decidableBallLT`,
--- which is `noncomputable`, so they only compile once this tail-recursive replacement is
--- registered. Moving it later turns a wrapper into a "compiler IR check failed" / noncomputable
--- error rather than a silent regression.
-@[csimp] theorem decidableBallLT_eq_decidableBallLTTR :
-    @decidableBallLT = @decidableBallLTTR := by
-  funext n P H; exact Subsingleton.elim _ _
+@[deprecated decidableBallLT (since := "2026-10-05")]
+abbrev decidableBallLTTR := @decidableBallLT
 
 instance decidableForallFin (P : Fin n → Prop) [DecidablePred P] : Decidable (∀ i, P i) :=
   decidable_of_iff (∀ k h, P ⟨k, h⟩) ⟨fun m ⟨k, h⟩ => m k h, fun m k h => m ⟨k, h⟩⟩
@@ -1884,59 +1866,26 @@ instance decidableBallLE (n : Nat) (P : ∀ k, k ≤ n → Prop) [∀ n h, Decid
   decidable_of_iff (∀ (k) (h : k < succ n), P k (le_of_lt_succ h))
     ⟨fun m k h => m k (lt_succ_of_le h), fun m k _ => m k _⟩
 
--- `noncomputable`: replaced at runtime by the tail-recursive `decidableExistsLTTR` below.
-noncomputable instance decidableExistsLT [h : DecidablePred p] :
-    DecidablePred fun n => ∃ m : Nat, m < n ∧ p m
-  | 0 => isFalse (by simp only [not_lt_zero, false_and, exists_const, not_false_eq_true])
-  | n + 1 =>
-    @decidable_of_decidable_of_iff _ _ (@instDecidableOr _ _ (decidableExistsLT (p := p) n) (h n))
-      (by simp only [Nat.lt_succ_iff_lt_or_eq, or_and_right, exists_or, exists_eq_left])
+instance decidableExistsLT [h : DecidablePred p] :
+    DecidablePred fun n => ∃ m : Nat, m < n ∧ p m :=
+  fun n => decidable_of_iff (anyLTTR n (fun i _ => decide (p i)) = true) <| anyLTTR_eq_true.trans
+    ⟨fun ⟨i, h, hf⟩ => ⟨i, h, of_decide_eq_true hf⟩, fun ⟨i, h, hp⟩ => ⟨i, h, decide_eq_true hp⟩⟩
 
-/-- Tail-recursive runtime replacement for `decidableExistsLT`. -/
-def decidableExistsLTTR {p : Nat → Prop} [DecidablePred p] (n : Nat) :
-    Decidable (∃ m : Nat, m < n ∧ p m) :=
-  decidable_of_iff (anyLTTR n (fun i _ => decide (p i)) = true) <| by
-    rw [anyLTTR_eq_true]
-    exact ⟨fun ⟨i, h, hf⟩ => ⟨i, h, of_decide_eq_true hf⟩,
-           fun ⟨i, h, hp⟩ => ⟨i, h, decide_eq_true hp⟩⟩
-
--- Keep this `@[csimp]` *before* the wrappers below (`decidableExistsLE`, `decidableExistsFin`):
--- they reduce to the `noncomputable` `decidableExistsLT` and only compile once this is registered.
-@[csimp] theorem decidableExistsLT_eq_decidableExistsLTTR :
-    @decidableExistsLT = @decidableExistsLTTR := by
-  funext p inst n; exact Subsingleton.elim _ _
+@[deprecated decidableExistsLT (since := "2026-10-05")]
+abbrev decidableExistsLTTR := @decidableExistsLT
 
 instance decidableExistsLE [DecidablePred p] : DecidablePred fun n => ∃ m : Nat, m ≤ n ∧ p m :=
   fun n => decidable_of_iff (∃ m, m < n + 1 ∧ p m)
     (exists_congr fun _ => and_congr_left' Nat.lt_succ_iff)
 
 /-- Dependent version of `decidableExistsLT`. -/
--- `noncomputable`: replaced at runtime by the tail-recursive `decidableExistsLT'TR` below.
-noncomputable instance decidableExistsLT' {p : (m : Nat) → m < k → Prop} [I : ∀ m h, Decidable (p m h)] :
+instance decidableExistsLT' {p : (m : Nat) → m < k → Prop} [I : ∀ m h, Decidable (p m h)] :
     Decidable (∃ m : Nat, ∃ h : m < k, p m h) :=
-  match k, p, I with
-  | 0, _, _ => isFalse (by simp)
-  | (k + 1), p, I => @decidable_of_iff _ ((∃ m, ∃ h : m < k, p m (by omega)) ∨ p k (by omega))
-      ⟨by rintro (⟨m, h, w⟩ | w); exact ⟨m, by omega, w⟩; exact ⟨k, by omega, w⟩,
-        fun ⟨m, h, w⟩ => if h' : m < k then .inl ⟨m, h', w⟩ else
-          by obtain rfl := (by omega : m = k); exact .inr w⟩
-      (@instDecidableOr _ _
-        (decidableExistsLT' (p := fun m h => p m (by omega)) (I := fun m h => I m (by omega)))
-        inferInstance)
+  decidable_of_iff (anyLTTR k (fun i h => decide (p i h)) = true) <| anyLTTR_eq_true.trans
+    ⟨fun ⟨i, h, hf⟩ => ⟨i, h, of_decide_eq_true hf⟩, fun ⟨i, h, hp⟩ => ⟨i, h, decide_eq_true hp⟩⟩
 
-/-- Tail-recursive runtime replacement for `decidableExistsLT'`. -/
-def decidableExistsLT'TR {p : (m : Nat) → m < k → Prop} [∀ m h, Decidable (p m h)] :
-    Decidable (∃ m : Nat, ∃ h : m < k, p m h) :=
-  decidable_of_iff (anyLTTR k (fun i h => decide (p i h)) = true) <| by
-    rw [anyLTTR_eq_true]
-    exact ⟨fun ⟨i, h, hf⟩ => ⟨i, h, of_decide_eq_true hf⟩,
-           fun ⟨i, h, hp⟩ => ⟨i, h, decide_eq_true hp⟩⟩
-
--- Keep this `@[csimp]` *before* the wrapper below (`decidableExistsLE'`): it reduces to the
--- `noncomputable` `decidableExistsLT'` and only compiles once this is registered.
-@[csimp] theorem decidableExistsLT'_eq_decidableExistsLT'TR :
-    @decidableExistsLT' = @decidableExistsLT'TR := by
-  funext k p inst; exact Subsingleton.elim _ _
+@[deprecated decidableExistsLT' (since := "2026-10-05")]
+abbrev decidableExistsLT'TR := @decidableExistsLT'
 
 /-- Dependent version of `decidableExistsLE`. -/
 instance decidableExistsLE' {p : (m : Nat) → m ≤ k → Prop} [I : ∀ m h, Decidable (p m h)] :

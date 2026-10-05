@@ -137,10 +137,10 @@ public structure Context where
 
 /-- A join point `__do_jp` that `vcgen +jp` proves once. See `Lean.Elab.Tactic.VCGen.JoinPoint`. -/
 public structure JoinPoint where
-  /-- The let-bound proof `__do_jp_spec : ∀ xs, ⦃fun ss => ⌜?H xs ss⌝⦄ __do_jp xs ⦃post⦄`. -/
+  /-- The let-bound proof `__do_jp_spec : ∀ xs ss, ?H xs ss → ⊤ ⊑ wp⟦__do_jp xs⟧ post eposts ss`. -/
   spec : Expr
-  /-- The precondition of `spec`, `fun xs ss => ⌜?H xs ss⌝` over the states `ss`. -/
-  pre : Expr
+  /-- The `⊤` of the goals of `__do_jp`, with their lattice instance. -/
+  top : Expr
   /-- The metavariable `?H`, which `finalizeJoinPoint` assigns. -/
   hyp : MVarId
   /-- The number of states that `?H` takes after the join parameters. -/

@@ -308,7 +308,8 @@ private def wpLet? (scope : Scope) (goal : MVarId) (info : WPApp) :
     let .goal decls goal' ← Sym.intros goal #[name]
       | throwError "Failed to intro the `let` of{indentExpr info.prog}"
     if appArgs.isEmpty && (← isJoinPointLet name val) then
-      return some (← registerJoinPoint scope goal' decls[0]! val info)
+      if let some r ← registerJoinPoint scope goal' decls[0]! val info then
+        return some r
     return some (scope, [goal'])
 
 /-- Strategy 11b: fold the state arguments of the program's `wp` application, so the symbolic

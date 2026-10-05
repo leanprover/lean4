@@ -211,14 +211,19 @@ private def denoteModulePoly (ctx : ModuleContext) (vars : Array Expr)
 /-- Collect the additive terms of a `Grind.NatModule` or `Grind.IntModule` expression,
 with a proof of equality. Supports the same operations as `proveAddEq?`; `simpAtom`
 simplifies atoms and scalar coefficients before reification, with its proofs incorporated
-into the result. Atoms are ordered by `Expr.lt`; coefficients are natural numbers for
+into the result. By default, atoms are ordered by `Expr.lt`; coefficients are natural numbers for
 natural modules and integers for integer modules. Multiplication need not be associative or unital.
 
 Returns `.rfl` when the type has neither module structure or the expression is already in
 normal form. Can be used as a `post` procedure in `Sym.Simp` to normalize additive expressions
-inside arbitrary propositions, including goals that remain open after normalization. -/
+inside arbitrary propositions, including goals that remain open after normalization.
+`orderVars` returns a permutation of the atom indices, allowing a caller to use a shared
+atom ordering across multiple expressions. The default orders atoms by `Expr.lt`. -/
 def normalizeAdd? [Monad m] [MonadLiftT SymM m] [MonadLiftT MetaM m] [MonadControlT MetaM m]
-    (e : Expr) (simpAtom : Expr → m Simp.Result := fun _ => pure .rfl) : m Simp.Result :=
+    (e : Expr) (simpAtom : Expr → m Simp.Result := fun _ => pure .rfl)
+    (orderVars : Array Expr → m (Array Nat) := fun vars =>
+      pure <| (Array.range vars.size).qsort fun i j => Expr.lt vars[i]! vars[j]!) :
+    m Simp.Result :=
     withNewMCtxDepth do
   unless e.isAppOfArity ``HAdd.hAdd 6 || e.isAppOfArity ``HSub.hSub 6 ||
       e.isAppOfArity ``Neg.neg 3 || e.isAppOfArity ``HSMul.hSMul 6 do return .rfl
@@ -229,7 +234,7 @@ def normalizeAdd? [Monad m] [MonadLiftT SymM m] [MonadLiftT MetaM m] [MonadContr
   let r ← visitModuleAtoms integers simpAtom e
   let e₁ ← shareCommon (r.getResultExpr e)
   let (re, s) ← (((reifyModule e₁).run ctx).run {} : SymM _)
-  let perm := (Array.range s.vars.size).qsort fun i j => Expr.lt s.vars[i]! s.vars[j]!
+  let perm ← orderVars s.vars
   let vars := perm.map (s.vars[·]!)
   let re := re.renameVars (Grind.mkVarRename perm)
   let p := if integers then re.norm else re.toPolyN

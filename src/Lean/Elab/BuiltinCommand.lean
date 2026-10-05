@@ -329,6 +329,11 @@ private def typelessBinder? : Syntax → Option (Array (TSyntax [`ident, `Lean.P
 private def containsId (ids : Array (TSyntax [`ident, ``Parser.Term.hole])) (id : TSyntax [`ident, ``Parser.Term.hole]) : Bool :=
   id.raw.isIdent && ids.any fun id' => id'.raw.getId == id.raw.getId
 
+/-- Returns whether the most recently declared section variable named `id` is public. -/
+private def isPublicVar (scope : Scope) (id : Name) : CommandElabM Bool := do
+  let ids ← scope.varDecls.flatMapM getBracketedBinderIds
+  return (ids.zip scope.varUIds).findRev? (·.1 == id) |>.any (scope.publicVars.contains ·.2)
+
 /--
   Auxiliary method for processing binder annotation update commands:
   `variable (α)`, `variable {α}`, `variable ⦃α⦄`, and `variable [α]`.
@@ -340,10 +345,14 @@ private def containsId (ids : Array (TSyntax [`ident, ``Parser.Term.hole])) (id 
   variable (α γ)
   ```
   The second `variable` command updates the binder annotation for `α`, and returns "residue" `γ`.
+
+  Updates preserve the visibility of the variable; `isPublic?` is the visibility explicitly given in
+  the `variable` command, if any, which must not contradict it.
 -/
-private def replaceBinderAnnotation (binder : TSyntax ``Parser.Term.bracketedBinder) : CommandElabM (Array (TSyntax ``Parser.Term.bracketedBinder)) := do
+private def replaceBinderAnnotation (isPublic? : Option Bool) (binder : TSyntax ``Parser.Term.bracketedBinder) : CommandElabM (Array (TSyntax ``Parser.Term.bracketedBinder)) := do
   let some (binderIds, binderInfo) := typelessBinder? binder | return #[binder]
-  let varDecls := (← getScope).varDecls
+  let scope ← getScope
+  let varDecls := scope.varDecls
   let mut varDeclsNew := #[]
   let mut binderIds := binderIds
   let mut binderIdsIniSize := binderIds.size
@@ -387,13 +396,17 @@ private def replaceBinderAnnotation (binder : TSyntax ``Parser.Term.bracketedBin
           `(bracketedBinderF| [$(⟨id⟩) : $ty])
       for id in ids.reverse do
         if let some idx := binderIds.findFinIdx? fun binderId => binderId.raw.isIdent && binderId.raw.getId == id.raw.getId then
+          let isPublic ← isPublicVar scope id.raw.getId
+          if isPublic?.any (· != isPublic) then
+            throwErrorAt binderIds[idx] "Cannot change the visibility of the section variable `{id}` in a binder annotation update"
           binderIds := binderIds.eraseIdx idx
           modifiedVarDecls := true
           let newBinder ← mkBinder id binderInfo
           if binderInfo.isInstImplicit then
             -- We elaborate the new binder to make sure it's valid as instance implicit
             try
-              runTermElabM fun _ => Term.withSynthesize <| Term.withAutoBoundImplicit <|
+              runTermElabM fun _ => withExporting (isExporting := isPublic) <|
+                Term.withSynthesize <| Term.withAutoBoundImplicit <|
                 Term.elabBinder newBinder fun _ => pure ()
             catch e =>
               throwErrorAt binder m!"cannot update binder annotation of variable `{id}` to instance implicit:\n\
@@ -414,20 +427,38 @@ private def replaceBinderAnnotation (binder : TSyntax ``Parser.Term.bracketedBin
     return #[binder]
 
 @[builtin_command_elab «variable»] def elabVariable : CommandElab
-  | `($[$_:visibility]? variable%$tk $binders*) => do
-    let binders ← binders.flatMapM replaceBinderAnnotation
+  | `($[$vis?:visibility]? variable%$tk $binders*) => do
+    let scope ← getScope
+    let isPublic? ← withExporting (isExporting := scope.isPublic) do
+      match (← elabVisibility vis?) with
+      | .regular => pure none
+      | .private => pure (some false)
+      | .public  => pure (some true)
+    let isPublic := isPublic?.getD scope.isPublic
+    let binders ← binders.flatMapM (replaceBinderAnnotation isPublic?)
     -- Try to elaborate `binders` for sanity checking
-    runTermElabM fun _ => Term.withSynthesize <| Term.withAutoBoundImplicit <|
+    runTermElabM fun _ => withExporting (isExporting := isPublic) <|
+      Term.withSynthesize <| Term.withAutoBoundImplicit <|
       Term.elabBinders binders fun xs => do
         -- Determine the set of auto-implicits for this variable command and add an inlay hint
         -- for them. We will only actually add the auto-implicits to a type when the variables
         -- declared here are used in some other declaration, but this is nonetheless the right
         -- place to display the inlay hint.
         let _ ← Term.addAutoBoundImplicits xs (tk.getTailPos? (canonicalOnly := true))
+        if isPublic then
+          Term.synthesizeSyntheticMVarsNoPostponing
+          let privateFVars := (← read).privateSectionFVars
+          for x in xs do
+            let type ← instantiateMVars (← Meta.inferType x)
+            if let some y := type.find? fun e => e.isFVar && privateFVars.contains e.fvarId! then
+              throwError "Public section variable `{x}` cannot depend on the private section variable `{y}`"
     -- Remark: if we want to produce error messages when variables shadow existing ones, here is the place to do it.
     for binder in binders do
       let varUIds ← (← getBracketedBinderIds binder) |>.mapM (withFreshMacroScope ∘ MonadQuotation.addMacroScope)
-      modifyScope fun scope => { scope with varDecls := scope.varDecls.push binder, varUIds := scope.varUIds ++ varUIds }
+      modifyScope fun scope => { scope with
+        varDecls := scope.varDecls.push binder
+        varUIds := scope.varUIds ++ varUIds
+        publicVars := if isPublic then varUIds.foldl .insert scope.publicVars else scope.publicVars }
   | _ => throwUnsupportedSyntax
 
 open Meta
@@ -650,9 +681,13 @@ open Lean.Parser.Command.InternalSyntax in
     let levels := scope.levelNames.reverse.map mkIdent
     msg := msg.push <| ← `(command| universe $levels.toArray*)
   -- Variables
-  if !scope.varDecls.isEmpty then
-    let varDecls : Array (TSyntax `Lean.Parser.Term.bracketedBinder) := scope.varDecls.map (⟨·.raw.unsetTrailing⟩)
-    msg := msg.push <| ← `(command| variable $varDecls*)
+  let varDeclGroups ← if (← getEnv).header.isModule then scope.getVarDeclsByVisibility else
+    pure <| if scope.varDecls.isEmpty then #[] else #[(scope.isPublic, scope.varDecls)]
+  for (isPublic, varDecls) in varDeclGroups do
+    let vis? := if isPublic == scope.isPublic then none else
+      some (Parser.Command.visibility.ofBool isPublic)
+    let varDecls : Array (TSyntax ``Parser.Term.bracketedBinder) := varDecls.map (⟨·.raw.unsetTrailing⟩)
+    msg := msg.push <| ← `(command| $[$vis?:visibility]? variable $varDecls*)
   -- Included variables
   if !scope.includedVars.isEmpty then
     msg := msg.push <| ← `(command| include $(scope.includedVars.toArray.map (mkIdent ·.eraseMacroScopes))*)

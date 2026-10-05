@@ -1021,6 +1021,45 @@ instance : MonadEval TermElabM CommandElabM where
   monadEval := liftTermElabM
 
 /--
+Partitions the binders of the `variable` commands in scope into maximal runs of the same visibility
+(`true` for public).
+-/
+def Scope.getVarDeclsByVisibility (scope : Scope) :
+    CommandElabM (Array (Bool × Array (TSyntax ``Parser.Term.bracketedBinder))) := do
+  let mut groups := #[]
+  let mut uidIdx := 0
+  for binder in scope.varDecls do
+    let isPublic := scope.varUIds[uidIdx]?.any scope.publicVars.contains
+    uidIdx := uidIdx + (← getBracketedBinderIds binder).size
+    match groups.back? with
+    | some (isPublic', binders) =>
+      if isPublic' == isPublic then
+        groups := groups.pop.push (isPublic, binders.push binder)
+      else
+        groups := groups.push (isPublic, #[binder])
+    | none => groups := groups.push (isPublic, #[binder])
+  return groups
+
+/--
+Elaborates the section variable binders in `groups`, each group in the public or private scope
+according to its visibility, and runs `k` on all resulting variables in the original scope.
+-/
+private def elabVarDeclGroups (groups : List (Bool × Array (TSyntax ``Parser.Term.bracketedBinder)))
+    (acc : Array Expr) (k : Array Expr → TermElabM α) : TermElabM α :=
+  match groups with
+  | [] => k acc
+  | (isPublic, binders) :: groups => do
+    let wasExporting := (← getEnv).isExporting
+    withExporting (isExporting := isPublic) do
+      Term.elabBinders binders fun xs => do
+        -- We need to synthesize postponed terms because this is a checkpoint for the auto-bound implicit feature
+        -- If we don't use this checkpoint here, then auto-bound implicits in the postponed terms will not be handled correctly.
+        -- Doing so per group ensures that they are synthesized in the scope of their binder.
+        Term.synthesizeSyntheticMVarsNoPostponing
+        withExporting (isExporting := wasExporting) do
+          elabVarDeclGroups groups (acc ++ xs) k
+
+/--
 Execute the monadic action `elabFn xs` as a `CommandElabM` monadic action, where `xs` are free variables
 corresponding to all active scoped variables declared using the `variable` command.
 
@@ -1046,16 +1085,18 @@ variable (n : Nat)
 -/
 def runTermElabM (elabFn : Array Expr → TermElabM α) : CommandElabM α := do
   let scope ← getScope
+  let isModule := (← getEnv).header.isModule
+  let groups ← if isModule then scope.getVarDeclsByVisibility else pure #[(false, scope.varDecls)]
   liftTermElabM <|
     Term.withAutoBoundImplicit <|
-      Term.elabBinders scope.varDecls fun xs => do
-        -- We need to synthesize postponed terms because this is a checkpoint for the auto-bound implicit feature
-        -- If we don't use this checkpoint here, then auto-bound implicits in the postponed terms will not be handled correctly.
-        Term.synthesizeSyntheticMVarsNoPostponing
+      elabVarDeclGroups groups.toList #[] fun xs => do
         let mut sectionFVars := {}
+        let mut privateSectionFVars := {}
         for uid in scope.varUIds, x in xs do
           sectionFVars := sectionFVars.insert uid x
-        withReader ({ · with sectionFVars := sectionFVars }) do
+          if isModule && !scope.publicVars.contains uid then
+            privateSectionFVars := privateSectionFVars.insert x.fvarId!
+        withReader ({ · with sectionFVars, privateSectionFVars }) do
           -- We don't want to store messages produced when elaborating `(getVarDecls s)` because they have already been saved when we elaborated the `variable`(s) command.
           -- So, we use `Core.resetMessageLog`.
           Core.resetMessageLog

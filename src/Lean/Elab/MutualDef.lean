@@ -441,6 +441,11 @@ private def declValToWhereFinally (declVal : Syntax) : TermElabM WhereFinallyVie
   else
     return .none
 
+/-- Returns a header whose signature is public, if any. -/
+private def findPublicHeader? (headers : Array DefViewElabHeader) : Option DefViewElabHeader :=
+  headers.find? fun header =>
+    !isPrivateName header.declName && (header.kind != .example || header.modifiers.isPublic)
+
 /--
 Runs `k` with a restricted local context where only section variables from `vars` are included that
 * are directly referenced in any `headers`,
@@ -448,20 +453,27 @@ Runs `k` with a restricted local context where only section variables from `vars
 * are directly referenced in any variable included by these rules, OR
 * are instance-implicit variables that only reference section variables included by these rules AND
   are not listed in `sc.omittedVars` (via `omit`; note that `omit` also subtracts from
-  `sc.includedVars`).
+  `sc.includedVars`) AND are not private while any of `allHeaders`, the headers of the surrounding
+  mutual block, is public.
 
 If `check` is false, no exceptions will be produced.
 -/
 private def withHeaderSecVars {α} (vars : Array Expr) (sc : Command.Scope) (headers : Array DefViewElabHeader)
-    (k : Array Expr → TermElabM α) (check := true) : TermElabM α := do
+    (k : Array Expr → TermElabM α) (check := true) (allHeaders := headers) : TermElabM α := do
   let mut revSectionFVars : Std.HashMap FVarId Name := {}
   for (uid, var) in (← read).sectionFVars do
     revSectionFVars := revSectionFVars.insert var.fvarId! uid
-  let (_, used) ← collectUsed revSectionFVars |>.run {}
+  let publicHeader? := findPublicHeader? allHeaders
+  let privateFVars := (← read).privateSectionFVars
+  let privateFVars := if publicHeader?.isSome then privateFVars else {}
+  let (_, used) ← collectUsed revSectionFVars privateFVars |>.run {}
   let (lctx, localInsts, vars) ← removeUnused vars used
+  if check then
+    if let some header := publicHeader? then
+      withRef header.declId <| ensureNoPrivateSectionVars header.declName vars
   withLCtx lctx localInsts <| k vars
 where
-  collectUsed revSectionFVars : StateRefT CollectFVars.State MetaM Unit := do
+  collectUsed revSectionFVars (privateFVars : FVarIdSet) : StateRefT CollectFVars.State MetaM Unit := do
     -- directly referenced in headers
     headers.forM (·.type.collectFVars)
     -- included by `include`
@@ -483,6 +495,8 @@ where
       if let some uid := revSectionFVars[var.fvarId!]? then
         if sc.omittedVars.contains uid then
           continue
+      if privateFVars.contains var.fvarId! then
+        continue
       let st ← get
       if ldecl.binderInfo.isInstImplicit && (← getFVars ldecl.type).all st.fvarSet.contains then
         modify (·.add ldecl.fvarId)
@@ -531,7 +545,7 @@ private def elabFunValues (headers : Array DefViewElabHeader) (vars : Array Expr
       withTraceNode `Elab.definition.value (fun _ => pure header.declName) do
       withDeprecationContextFromAttrs header.modifiers.attrs <| withDeclName header.declName <| withLevelNames header.levelNames do
       let valStx ← declValToTerm header.value header.type
-      (if header.kind.isTheorem && !deprecated.oldSectionVars.get (← getOptions) then withHeaderSecVars vars sc #[header] else fun x => x #[]) fun vars => do
+      (if header.kind.isTheorem && !deprecated.oldSectionVars.get (← getOptions) then withHeaderSecVars vars sc #[header] (allHeaders := headers) else fun x => x #[]) fun vars => do
       withLCtx' ((← getLCtx).modifyLocalDecls fun decl => decl.setType decl.type.cleanupAnnotations) do
       forallBoundedTelescope header.type header.numParams (cleanupAnnotations := true) fun xs type => do
         -- Add new info nodes for new fvars. The server will detect all fvars of a binder by the binder's source location.
@@ -608,6 +622,8 @@ private def removeUnusedVars (vars : Array Expr) (headers : Array DefViewElabHea
 private def withUsed {α} (vars : Array Expr) (headers : Array DefViewElabHeader) (values : Array Expr) (toLift : List LetRecToLift)
     (k : Array Expr → TermElabM α) : TermElabM α := do
   let (lctx, localInsts, vars) ← removeUnusedVars vars headers values toLift
+  if let some header := findPublicHeader? headers then
+    withRef header.declId <| ensureNoPrivateSectionVars header.declName vars
   withLCtx lctx localInsts <| k vars
 
 private def isExample (views : Array DefView) : Bool :=

@@ -3629,7 +3629,8 @@ static inline size_t lean_hashset_mk_idx(lean_obj_arg sz, uint64_t hash) {
 }
 
 static inline uint64_t lean_expr_data(lean_obj_arg expr) {
-    return lean_ctor_get_uint64(expr, lean_ctor_num_objs(expr)*sizeof(void*));
+    // `Expr` constructors have few object fields, so the header holds their number
+    return lean_ctor_get_uint64(expr, lean_ptr_other(expr)*sizeof(void*));
 }
 
 // eliding unused parameter names is C23+, so ignore warning instead in the following

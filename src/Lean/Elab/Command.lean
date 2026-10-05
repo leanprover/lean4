@@ -925,7 +925,10 @@ def elabCommandTopLevel (stx : Syntax) : CommandElabM Unit := withRef stx do pro
   -- rather than engineer a general solution.
   unless (stx.find? (·.isOfKind ``Lean.guardMsgsCmd)).isSome do
     withLogging do
-      runLintersAsync stx
+      -- On partial syntax, `logMessage` would discard the linters' warnings, but code actions
+      -- attached to them via hints would still reach the info tree.
+      unless (← read).suppressElabErrors do
+        runLintersAsync stx
       runStatefulLintersAsync stx
 
 /-- Adapt a syntax transformation to a regular, command-producing elaborator. -/

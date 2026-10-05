@@ -48,10 +48,12 @@ The `wp` arm assumes that the `wp` of the sub-program is conjunctive (`WPConjunc
 
 `conjunctiveArgs?` is a fixed table. An attribute on lemmas such as
 `ite c a₁ b₁ ⊓ ite c a₂ b₂ ⊑ ite c (a₁ ⊓ a₂) (b₁ ⊓ b₂)` could extend it to user-defined heads,
-reading the varying arguments as conjunctive and the shared ones as `Q`-free. The table covers the
-heads of the `Std` specs, and a missed spec costs only frame inference, so no user needs the
-attribute yet. The lemma would have to state conjunctivity jointly in all varying arguments: `Or`
-is conjunctive in each argument separately, but not jointly.
+reading the varying arguments as conjunctive and the shared ones as `Q`-free. Such a lemma would
+have to state conjunctivity jointly in all varying arguments: `Or` is conjunctive in each argument
+separately, but not jointly. There is no such attribute because the classification only saves
+time: a spec with an unknown head goes through frame inference, and the frameproc can decline to
+frame it, which yields the same VCs. An attribute pays off only once a user-defined head makes frame
+inference measurably slow.
 
 ## Premises
 

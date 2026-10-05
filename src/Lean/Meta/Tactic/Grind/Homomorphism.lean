@@ -136,6 +136,34 @@ private def andMaskSimproc : Sym.Simp.Simproc := fun e => do
     return .step e' h
 
 /--
+Rewrites `c * x % m` and `x * c % m` over `Nat`, where `c` and `m` are literals with
+`m / 2 < c < m`, into `(m - c' * x % m) % m` with the literal `c' = m - c`. The injections
+produce this shape for a product by a negative numeral: `(-1 * a).toNat` for `a : UInt32`
+is `4294967295 * a.toNat % 2^32`, while `(-a).toNat` is `(2^32 - a.toNat) % 2^32`, with
+coefficient `1` on `a.toNat`. `cutsat` eliminates a variable exactly by splitting on its
+coefficient, so the two images differ by a factor of `2^32` in search; this rewrite gives
+them the same image. The hypothesis of `Nat.mul_mod_eq_sub_mul_mod` is a ground equality
+between literals, discharged by `rfl`.
+-/
+private def mulLargeCoeffSimproc : Sym.Simp.Simproc := fun e => do
+  let_expr HMod.hMod α _ _ instMod p mE := e | return .rfl
+  unless α.isConstOf ``Nat do return .rfl
+  unless (← Structural.isInstHModNat instMod) do return .rfl
+  let some m := Sym.getNatValue? mE | return .rfl
+  let_expr HMul.hMul _ _ _ instMul a b := p | return .rfl
+  unless (← Structural.isInstHMulNat instMul) do return .rfl
+  let (x, cE, c, flipped) ←
+    if let some c := Sym.getNatValue? a then pure (b, a, c, false)
+    else if let some c := Sym.getNatValue? b then pure (a, b, c, true)
+    else return .rfl
+  unless c < m && m < 2 * c do return .rfl
+  let c'E := mkNatLit (m - c)
+  let e' ← Sym.share <| mkNatMod (mkNatSub mE (mkNatMod (mkNatMul c'E x) mE)) mE
+  let thm := if flipped then ``Lean.Grind.Nat.mul_mod_eq_sub_mul_mod' else ``Lean.Grind.Nat.mul_mod_eq_sub_mul_mod
+  let h := mkApp5 (mkConst thm) x cE c'E mE (mkNatEqRefl mE)
+  return .step e' h
+
+/--
 Rewriter for the `[grind hom]` rules and the builtin simprocs, with the stop condition:
 `grind` internalizes terms bottom-up, so when no rule applies to a term that is already
 in the E-graph, the term and all its subterms have already been processed by the engine,
@@ -166,7 +194,9 @@ Ground terms are evaluated first: the injections produce ground subterms such as
 private def mkRewriter : GoalM Sym.Simp.Simproc := do
   let s ← get
   -- `grind` keeps bit-vector literals in `OfNat.ofNat` form.
-  let rw := Sym.Simp.evalGround { bitVecOfNat := false } <|> (← getThms).rewrite <|> andMaskSimproc
+  -- TODO: the builtin simprocs are hardcoded here; add a mechanism for users to register
+  -- their own `[grind hom]` simprocs.
+  let rw := Sym.Simp.evalGround { bitVecOfNat := false } <|> (← getThms).rewrite <|> andMaskSimproc <|> mulLargeCoeffSimproc
   return fun e => do
     let r ← rw e
     if !r.isRfl then return r

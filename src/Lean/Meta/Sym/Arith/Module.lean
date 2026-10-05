@@ -74,6 +74,17 @@ private partial def reifyModule (e : Expr) : ModuleM Grind.Linarith.Expr := with
       if ← matchesFn e fn 2 then
         if let some n := (Sym.getIntValue? n).run then return .intMul n (← reifyModule a)
   | _ => pure ()
+  if let some n := numeral then
+    let type ← inferType e
+    if type.isConstOf ``Nat then
+      let one := toExpr (1 : Nat)
+      if ← withDefault <| isDefEq e (mkApp2 ctx.nsmulFn (toExpr n) one) then
+        return .natMul n (← moduleVar one)
+    if type.isConstOf ``Int then
+      if let some fn := ctx.zsmulFn? then
+        let one := toExpr (1 : Int)
+        if ← withDefault <| isDefEq e (mkApp2 fn (toExpr (n : Int)) one) then
+          return .intMul n (← moduleVar one)
   moduleVar e
 
 /-- Simplify atoms and scalar coefficients, carrying their proofs through the additive tree. -/

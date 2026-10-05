@@ -40,6 +40,12 @@ open Parser PrettyPrinter
   describing non-user-facing implementation details.
 -/
 
+/- `[formatter k]` and `[parenthesizer k]` attributes below require `k` to be registered,
+which normally happens only when a parser is added to a syntax category. -/
+run_meta
+  for k in [`text, `comment, `attrVal, `attr, `content] do
+    modifyEnv (addSyntaxNodeKind · (`Lean.Html.Syntax ++ k))
+
 /-! ## Helpers -/
 
 /-- Consumes one character satisfying {name}`p`,
@@ -59,6 +65,7 @@ The result is stored in an atom wrapped in a node of the given {name}`kind`.
 {name}`expected` describes the expected input in error messages. -/
 private def parseFirstMany (kind : Name) (expected : String) (firstP manyP : Char → Bool) :
     Parser where
+  info := nodeInfo kind {}
   fn c s :=
     let startPos := s.pos
     let s := andthenFn (satisfyCharFn firstP [expected]) (takeWhileFn manyP) c s
@@ -206,6 +213,7 @@ def InterpView.of := @Interp.view
 /- This parser stops at an interpolation `{`, a tag `<`,
 or a closing bracket `}` (for `html%{ text }`). -/
 def text : Parser where
+  info := nodeInfo decl_name% {}
   fn c s :=
     let startPos := s.pos
     let s := takeWhile1Fn isTextChar "expected HTML text" c s
@@ -311,6 +319,7 @@ private partial def commentFn : ParserFn := fun c s =>
 
 /-- An [HTML comment](https://html.spec.whatwg.org/dev/syntax.html#comments). -/
 def comment : Parser where
+  info := nodeInfo decl_name% {}
   fn := nodeFn decl_name% <| rawFn commentFn (trailingWs := false)
 
 abbrev commentKind := ``comment

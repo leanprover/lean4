@@ -107,6 +107,23 @@ example {M : Type u} [IntModule M] (a b : M) : a + b + a = a + a + b := by
   fail_if_success module_nf
   rfl
 
+-- Concrete numerals share the atom 1, independently of where constants occur.
+example (n : Int) : n + 1 = 2 + (n - 1) := by module_eq
+example (n : Int) : 1 + n = 2 + (n - 1) := by module_eq
+example (n : Int) : n - 7 = -3 + (n - 4) := by module_eq
+example (n : Nat) : n + 1 + 1 = 2 + n := by module_eq
+example (n : Int) : n + 1 = 2 + (n - 1) := by module_nf; rfl
+example (n : Nat) : n + 1 + 1 = 2 + n := by module_nf; rfl
+
+-- A numeral from a nonstandard instance must remain an atom.
+example (n : Int) (h : n + 2 = n + (1 + 1)) : n + 2 = n + (1 + 1) := by
+  letI : OfNat Int 2 := ⟨5⟩
+  have : n + (2 : Int) = n + (1 + 1) → n + (2 : Int) = n + (1 + 1) := by
+    intro h
+    fail_if_success module_eq
+    exact h
+  exact h
+
 -- Normalization preserves canonical operator instances on concrete carriers.
 run_meta do
   for type in [mkConst ``Nat, mkConst ``Int] do

@@ -43,7 +43,7 @@ def Lean.Expr.toCType : Expr → String
   | void => "lean_object*"
   | _ => unreachable!
 
-/-- Returns whether `toCType type = "lean_object*"` -/
+/-- Returns whether the type behaves like `tobject` -/
 def Lean.Expr.isPtrType : Expr → Bool
   | object | tagged | tobject | erased => true
   | _ => false

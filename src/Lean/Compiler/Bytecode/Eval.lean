@@ -36,8 +36,8 @@ private def simpleBytecodeDecl (code : Array Instruction) (symbols : Array Name)
 
 open LCNF.ImpureType in
 @[export lean_eval_const]
-private unsafe def evalConstCoreImpl (α : Type u) (env : Environment)
-    (_opts : Options) (constName : Name) : Except String α := do
+private unsafe def evalConstCoreImpl (env : Environment)
+    (_opts : Options) (constName : Name) : Except String NonScalar := do
   unless env.contains constName do
     throw s!"(interpreter) unknown declaration {constName}"
   let boxedName := LCNF.mkBoxedName constName
@@ -47,7 +47,7 @@ private unsafe def evalConstCoreImpl (α : Type u) (env : Environment)
         throw s!"cannot evaluate code because '{sorryDep}' uses 'sorry' and/or contains errors"
     -- boxed declarations are nice, we don't need much glue code
     let runtimeDecl : RuntimeBytecodeDecl := simpleBytecodeDecl #[.pap 0 0] #[boxedName]
-    return runtimeDecl.eval α env
+    return runtimeDecl.eval NonScalar env
   let some sig := LCNF.getSigCore? env LCNF.impureSigExt constName |
     throw s!"(interpreter) unknown declaration {constName}"
   if let some bytecode := findBytecodeDecl env constName then
@@ -63,21 +63,22 @@ private unsafe def evalConstCoreImpl (α : Type u) (env : Environment)
     | usize => code := code.push (.boxUSize 0 0)
     | float => code := code.push (.boxFloat 0 0)
     | float32 => code := code.push (.boxFloat32 0 0)
-    | tobject | object | tagged | erased | void => pure ⟨⟩
+    | tobject | object => code := code.push (.inc 0 1)
+    | tagged | erased | void => pure ()
     | _ => unreachable!
   else
     -- there are parameters but no boxed version
     -- so the declaration is `pap` compatible
     code := #[.pap 0 0]
-  let runtimeDecl : RuntimeBytecodeDecl := simpleBytecodeDecl code #[boxedName]
-  return runtimeDecl.eval α env
+  let runtimeDecl : RuntimeBytecodeDecl := simpleBytecodeDecl code #[constName]
+  return runtimeDecl.eval NonScalar env
 
 @[export lean_run_init]
 private unsafe def runInitImpl (env : Environment) (opts : Options) (decl initDecl : Name) : IO Unit := do
   let some decl := findBytecodeDecl env decl |
     throw (.userError s!"Could not find declaration to be initialized: `{decl}`")
-  let act ← IO.ofExcept <| evalConstCoreImpl (IO NonScalar) env opts initDecl
-  let out ← act
+  let act ← IO.ofExcept <| evalConstCoreImpl env opts initDecl
+  let out ← (unsafeCast act : IO NonScalar)
   decl.setInitValue out
 
 @[extern "lean_io_result_show_error"]
@@ -94,22 +95,22 @@ private unsafe def runMain (env : Environment) (opts : Options) (args : List Str
       match d, b with
       | .app (.const ``List _) (.const ``String _), .app (.const ``IO _) (.const resultName _) =>
         if resultName == ``UInt32 then
-          let res ← IO.ofExcept <| evalConstCoreImpl (List String → IO UInt32) env opts `main
-          res args
+          let res ← IO.ofExcept <| evalConstCoreImpl env opts `main
+          (unsafeCast res : List String → IO UInt32) args
         else if resultName == ``Unit || resultName == ``PUnit then
-          let res ← IO.ofExcept <| evalConstCoreImpl (List String → IO Unit) env opts `main
-          res args
+          let res ← IO.ofExcept <| evalConstCoreImpl env opts `main
+          (unsafeCast res : List String → IO Unit) args
           return 0
         else
           invalidMain ()
       | _, _ => invalidMain ()
     | .app (.const ``IO _) (.const resultName _) =>
       if resultName == ``UInt32 then
-        let res ← IO.ofExcept <| evalConstCoreImpl (IO UInt32) env opts `main
-        res
+        let res ← IO.ofExcept <| evalConstCoreImpl env opts `main
+        (unsafeCast res : IO UInt32)
       else if resultName == ``Unit || resultName == ``PUnit then
-        let res ← IO.ofExcept <| evalConstCoreImpl (IO Unit) env opts `main
-        res
+        let res ← IO.ofExcept <| evalConstCoreImpl env opts `main
+        (unsafeCast res : IO Unit)
         return 0
       else
         invalidMain ()

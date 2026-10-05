@@ -334,6 +334,11 @@ unsafe def addConstant (lit : LitValue) (value : α) : M Nat := do
   }
   return i
 
+def computeScalar (usize ssize : Nat) : M Unit := do
+  if ssize = 0 ∧ usize = 0 then
+    return
+  emit (.computeScalar (← as usize 13) (← as ssize 13))
+
 def processLetDecl (decl : LetDecl .impure) : M Unit := do
   let vars? := (← get).regAlloc.map[decl.fvarId]?
   match decl.value with
@@ -396,6 +401,7 @@ def processLetDecl (decl : LetDecl .impure) : M Unit := do
     let tgt' ← maybeFromTemp tgt
     setCtorArgs tgt' args
     emit (.allocCtor (← as tgt' 8) (← as info.cidx 10) (← as info.size 8))
+    computeScalar info.usize info.ssize
   | .fap fn args =>
     let some sig ← getImpureSignature? fn | throwError "Missing impure signature for `{fn}`"
     if let some vars := vars? then
@@ -442,7 +448,7 @@ def processLetDecl (decl : LetDecl .impure) : M Unit := do
     | float32 => emit (.sproj32 (← as tgt' 8) (← as src' 8))
     | float => emit (.sproj64 (← as tgt' 8) (← as src' 8))
     | _ => unreachable!
-    emit (.computeScalar (← as i 13) (← as offset 13))
+    computeScalar i offset
     maybeToTemp src (inner := true)
   | .reset n var =>
     let some #[tgt] := vars? | throwError "Result of reset leaked"
@@ -457,6 +463,7 @@ def processLetDecl (decl : LetDecl .impure) : M Unit := do
     let #[src] ← useVar var | throwError "Unexpected input size for reuse"
     setCtorArgs tgt' args
     emit (.reuse (← as tgt' 8) (← as i.cidx 10) (← as i.size 8))
+    computeScalar i.usize i.ssize
     unless src = tgt' do
       emitMoveToReal tgt' src
   | .box ty var =>

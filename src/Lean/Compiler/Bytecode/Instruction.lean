@@ -252,6 +252,7 @@ def Instruction.toString (instr : Instruction) (pos : Nat) : String :=
   | 47 => s!"decl_const R{hi18} @{lo8}"
   | _ => s!"0x{instr.value.toBitVec.toHex}"
 
+@[export lean_bytecode_disass]
 def disassemble (code : BytecodeDecl) : String := Id.run do
   let mut str := s!"Declaration {code.name} (arity {code.arity}) with {code.stackSpace} stack \
     and {code.stackReserved} reserved\n"

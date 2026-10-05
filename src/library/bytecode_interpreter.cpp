@@ -138,7 +138,7 @@ void * lookup_symbol_in_cur_exe(char const * sym) {
 #endif
 }
 
-#define INTERP_DECL_MASK (1 << 31)
+#define INTERP_DECL_MASK (1U << 31)
 
 // env : Environment, decl_name : Name
 decl_cache_entry fill_cache_entry(b_obj_arg env, b_obj_arg decl_name) {
@@ -351,10 +351,9 @@ void store_value_and_unlock(object * decl, object * value) {
 
 // Panic with an unknown declaration error. Note: this is not recoverable
 void report_unknown_declaration(object_ref const & decl, unsigned symbol_idx) {
-    array_ref<object_ref> const & symbols_array = cnstr_get_ref_t<array_ref<object_ref>>(decl, 4);
-    object_ref const & symbol = symbols_array[symbol_idx];
-    name const & nm = cnstr_get_ref_t<name>(symbol, 1);
-    std::string error = (sstream() << "(interpreter) unknown declaration '" << nm << "'").str();
+    array_ref<name> const & symbols_array = cnstr_get_ref_t<array_ref<name>>(decl, 4);
+    name const & symbol = symbols_array[symbol_idx];
+    std::string error = (sstream() << "(interpreter) unknown declaration '" << symbol << "'").str();
     lean_internal_panic(error.c_str());
 }
 
@@ -535,7 +534,7 @@ value eval_loop(interpreter * interp, frame start_frame) {
                     cache = new_frame.m_cache;
                     decl = new_frame.m_decl;
                 } else {
-                    report_unknown_declaration(object_ref(decl), fn_id);
+                    report_unknown_declaration(object_ref(decl, true), fn_id);
                 }
                 break;
             }
@@ -563,7 +562,7 @@ value eval_loop(interpreter * interp, frame start_frame) {
                     cache = new_frame.m_cache;
                     decl = new_frame.m_decl;
                 } else {
-                    report_unknown_declaration(object_ref(decl), fn_id);
+                    report_unknown_declaration(object_ref(decl, true), fn_id);
                 }
                 break;
             }
@@ -590,7 +589,7 @@ value eval_loop(interpreter * interp, frame start_frame) {
                     cache = new_frame.m_cache;
                     decl = new_frame.m_decl;
                 } else {
-                    report_unknown_declaration(object_ref(decl), fn_id);
+                    report_unknown_declaration(object_ref(decl, true), fn_id);
                 }
                 break;
             }

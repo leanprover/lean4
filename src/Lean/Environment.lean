@@ -2719,15 +2719,18 @@ def finalizeImport (s : ImportState) (imports : Array Import) (opts : Options) (
   let extensions ← setImportedEntries privateBase.extensions moduleData
   -- fall back to basic data when not in server
   let serverData := modules.mapIdx (fun idx mod => mod.serverData? level |>.getD moduleData[idx]!)
-  let privateBase := { privateBase with
-    extensions
-    irBaseExts := (← setImportedEntries privateBase.extensions irData)
-  }
+  -- In each of these cases, `serverData?` either selects the same part as `mainModule?` or fails,
+  -- so `serverData` is `moduleData`.
+  let serverIsMain := level < .server || modules.all fun mod => mod.importAll || !mod.hasData
+  let irBaseExts ← setImportedEntries privateBase.extensions irData
+  let serverBaseExts ←
+    if serverIsMain then pure extensions else setImportedEntries privateBase.extensions serverData
+  let privateBase := { privateBase with extensions, irBaseExts }
   let mut env : Environment := {
     base.private := privateBase
     base.public  := publicBase
     importRealizationCtx? := none
-    serverBaseExts := (← setImportedEntries privateBase.extensions serverData)
+    serverBaseExts
   }
   if leakEnv then
     /- Mark persistent a first time before `finalizePersistentExtensions`, which

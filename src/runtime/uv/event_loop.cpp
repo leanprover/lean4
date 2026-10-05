@@ -115,9 +115,6 @@ void event_loop_run_loop(event_loop_t * event_loop) {
             break;
         }
 
-        // `UV_RUN_ONCE` returns after servicing one round of events. `async` is always active, so
-        // the loop never runs out of things to wait on; a requester wakes it with `uv_async_send`
-        // and this unlock is what lets that requester in.
         uv_run(event_loop->loop, UV_RUN_ONCE);
         /*
          * There is always the `uv_async_t` so we can never run out of things to wait on.

@@ -30,7 +30,9 @@ structure BytecodeDecl where
   stackReserved : Nat -- stackSpace + additional space for arguments
   stackSpace : Nat
   symbols : Array Name
+  /-- We only really care about this number for partial applications -/
   arity : Nat
+  constants : Array NonScalar
 deriving Inhabited
 
 structure RuntimeBytecodeDecl where
@@ -41,9 +43,16 @@ structure RuntimeBytecodeDecl where
   symbols : Array Name
   cache : DeclCache symbols
   arity : Nat
+  constants : Array NonScalar
 
 @[extern "lean_eval_bytecode_decl"]
 unsafe axiom RuntimeBytecodeDecl.eval (α) (env : @& Environment) (decl : @& RuntimeBytecodeDecl) : α
+
+private abbrev declLt (a b : BytecodeDecl) :=
+  Name.quickLt a.name b.name
+
+private abbrev sortDecls (decls : Array BytecodeDecl) : Array BytecodeDecl :=
+  decls.qsort declLt
 
 builtin_initialize declMapExt :
     SimplePersistentEnvExtension BytecodeDecl (PHashMap Name RuntimeBytecodeDecl) ←
@@ -54,7 +63,8 @@ builtin_initialize declMapExt :
     -- Store `meta` closure only in `.olean`, turn all other decls into opaque externs.
     -- Leave storing the remainder for `meta import` and server `#eval` to `exportIREntries` below.
     exportEntriesFnEx? := some fun env _ entries =>
-      let entries := entries.toArray
+      let decls := entries.foldl (init := #[]) fun decls decl => decls.push decl
+      let entries := sortDecls decls
       -- Do not save all IR even in .olean.private as it will be in .ir anyway
       .uniform <| if env.header.isModule then
         entries.filterMap fun d => do

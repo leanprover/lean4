@@ -941,7 +941,7 @@ def emitInterpDecl (decl : Decl .impure) : EmitM Unit := do
         args := args.push .erased
         continue
       args := args.push (.fvar x.fvarId)
-      emit x.type.toCType; emit x.fvarId; emit " = "
+      emit x.type.toCType; emit " "; emit x.fvarId; emit " = "
       match x.type with
       | uint8 | uint16 | uint32 | uint64 | usize => emitLn s!"stack[{i}].m_num;"
       | float => emitLn s!"stack[{i}].m_float;"
@@ -949,9 +949,10 @@ def emitInterpDecl (decl : Decl .impure) : EmitM Unit := do
       | tagged | object | tobject | erased => emitLn s!"stack[{i}].m_obj;"
       | void => unreachable!
       | _ => throwError "Type {x.type} not implemented yet for interpreter decls"
-    emit type.toCType; emit " res;"
     let id ← modifyGetThe CompilerM.State fun s => (s.nextIdx, { s with nextIdx := s.nextIdx + 1 })
-    let letDecl ← mkLetDecl (.num `res id) type (.fap f args)
+    let resName := .num `res id
+    emit type.toCType; emit " "; emit resName; emitLn ";"
+    let letDecl ← mkLetDecl resName type (.fap f args)
     emitLetDecl letDecl
     match type with
     | uint8 | uint16 | uint32 | uint64 | usize => emit "stack->m_num"
@@ -959,7 +960,7 @@ def emitInterpDecl (decl : Decl .impure) : EmitM Unit := do
     | float32 => emitLn s!"stack->m_float32"
     | tagged | object | tobject | erased | void => emitLn s!"stack->m_obj"
     | _ => throwError "Type {type} not implemented yet for interpreter decls"
-    emit " = "; emit letDecl.fvarId; emit ";"
+    emit " = "; emit resName; emitLn ";"
 
 def emitDecl (decl : Decl .impure) : EmitM Unit := do
   let env ← getEnv

@@ -15,21 +15,22 @@ namespace Lean.Compiler.Bytecode
 
 structure Instruction where
   value : UInt32
+deriving Inhabited
+
+def maxUConst : Nat := 1 <<< 18 - 1
+def maxNConst : Nat := maxUConst / 2
 
 def Instruction.uconst (target val : UInt32) : Instruction where
   value := (0 : UInt32) <<< 26 ||| target <<< 18 ||| val
+
+def Instruction.nconst (target val : UInt32) : Instruction :=
+  .uconst target (val <<< 1 ||| 1)
 
 def Instruction.move (target source : UInt32) : Instruction where
   value := (1 : UInt32) <<< 26 ||| target <<< 13 ||| source
 
 def Instruction.ret (target : UInt32) : Instruction where
   value := (2 : UInt32) <<< 26 ||| target
-
-def Instruction.storeCache (target : UInt32) : Instruction where
-  value := (44 : UInt32) <<< 26 ||| target
-
-def Instruction.skipIfCached (offset : UInt32) : Instruction where
-  value := (45 : UInt32) <<< 26 ||| offset
 
 def Instruction.call (fn : UInt32) : Instruction where
   value := (3 : UInt32) <<< 26 ||| fn
@@ -133,6 +134,9 @@ def Instruction.jumpTable (source limit : UInt32) : Instruction where
 def Instruction.setTag (target tag : UInt32) : Instruction where
   value := (36 : UInt32) <<< 26 ||| target <<< 10 ||| tag
 
+def Instruction.loadConst (fn : UInt32) : Instruction where
+  value := (37 : UInt32) <<< 26 ||| fn
+
 def Instruction.ifTag (target tag : UInt32) (offset : Int32) : Instruction where
   value := (38 : UInt32) <<< 26 ||| target <<< 18 ||| tag <<< 8 ||| (offset + 0x80).toUInt32
 
@@ -147,6 +151,24 @@ def Instruction.app (fn n : UInt32) : Instruction where
 
 def Instruction.pap (fn n : UInt32) : Instruction where
   value := (41 : UInt32) <<< 26 ||| n <<< 16 ||| fn
+
+def Instruction.del (target : UInt32) : Instruction where
+  value := (42 : UInt32) <<< 26 ||| target
+
+def Instruction.reset (n target source : UInt32) : Instruction where
+  value := (43 : UInt32) <<< 26 ||| n <<< 16 ||| target <<< 8 ||| source
+
+def Instruction.reuse (target tag numObjs : UInt32) : Instruction where
+  value := (44 : UInt32) <<< 26 ||| target <<< 18 ||| tag <<< 8 ||| numObjs
+
+def Instruction.storeCache (target : UInt32) : Instruction where
+  value := (45 : UInt32) <<< 26 ||| target
+
+def Instruction.skipIfCached (offset : UInt32) : Instruction where
+  value := (46 : UInt32) <<< 26 ||| offset
+
+def Instruction.declConst (tgt id : UInt32) : Instruction where
+  value := (47 : UInt32) <<< 26 ||| tgt <<< 8 ||| id
 
 def pushInstr (code : ByteArray) (instr : Instruction) : ByteArray :=
   let code := code.push instr.value.toUInt8
@@ -214,10 +236,17 @@ def Instruction.toString (instr : Instruction) (pos : Nat) : String :=
   | 34 => s!"load_tag R{hi18} R{lo8}"
   | 35 => s!"table R{hi16} {lo10}"
   | 36 => s!"set_tag R{hi16} {lo10}"
+  | 37 => s!"load_const #{all}"
   | 38 => s!"if_tag R{hi8} {mid10} {addrToString <| pos + lo8.toNat - 0x80}"
   | 39 => s!"jump {addrToString <| pos + all.toNat - 0x200_0000}"
   | 40 => s!"app {hi10} R{lo16}"
   | 41 => s!"pap {hi10} #{lo16}"
+  | 42 => s!"del R{lo8}"
+  | 43 => s!"reset {hi10} R{mid8} R{lo8}"
+  | 44 => s!"reuse R{hi8} {mid10} {lo8}"
+  | 45 => s!"store_cache R{lo8}"
+  | 46 => s!"skip_if_cached {addrToString <| pos + all.toNat}"
+  | 47 => s!"decl_const R{hi18} @{lo8}"
   | _ => s!"0x{instr.value.toBitVec.toHex}"
 
 def disassemble (code : BytecodeDecl) : String := Id.run do
@@ -235,7 +264,8 @@ def disassemble (code : BytecodeDecl) : String := Id.run do
     let val := b1.toUInt32 ||| b2.toUInt32 <<< 8 ||| b3.toUInt32 <<< 16 ||| b4.toUInt32 <<< 24
     let instr : Instruction := ⟨val⟩
     str := s!"{str}{pos}: {instr.toString (i + 1)}\n"
-  str := s!"{str}Symbol table:\n"
-  for h : i in *...code.symbols.size do
-    str := s!"{str}#{i}: {code.symbols[i]}\n"
+  unless code.symbols.isEmpty do
+    str := s!"{str}Symbol table:\n"
+    for h : i in *...code.symbols.size do
+      str := s!"{str}#{i}: {code.symbols[i]}\n"
   return str

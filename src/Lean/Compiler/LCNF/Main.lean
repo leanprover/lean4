@@ -7,6 +7,7 @@ module
 prelude
 import Lean.Compiler.Options
 import Lean.Compiler.IR
+import Lean.Compiler.Bytecode
 import Lean.Compiler.LCNF.Passes
 import Lean.Compiler.LCNF.ToDecl
 import Lean.Compiler.LCNF.ToImpureType
@@ -215,6 +216,9 @@ partial def run (declNames : Array Name) (baseOpts : Options) : CompilerM Unit :
       profileitM Exception "compilation (IR)" (← getOptions) do
         let irDecls ← IR.toIR decls
         discard <| IR.compile irDecls
+
+      profileitM Exception "compilation (bytecode)" (← getOptions) do
+        decls.forM Bytecode.compile
 where
   runPassManagerPart (inPhase outPhase : Purity) (profilerName : String)
       (passes : Array Pass) (decls : Array (Decl inPhase)) (isCheckEnabled : Bool) :

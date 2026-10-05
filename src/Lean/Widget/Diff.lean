@@ -206,7 +206,9 @@ def diffHypothesesBundle (useAfter : Bool) (ctx₀  : LocalContext) (h₁ : Inte
     if !(ctx₀.contains fvid) then
       if let some decl₀ := ctx₀.findFromUserName? (.mkSimple ppName) then
         -- on ctx₀ there is an fvar with the same name as this one.
-        let t₀ ← instantiateMVars decl₀.type
+        let mut t₀ := decl₀.type
+        if getPPInstantiateMVars (← getOptions) then
+          t₀ ← instantiateMVars t₀
         return ← withTypeDiff t₀ h₁
       else
         if useAfter then
@@ -219,7 +221,9 @@ where
   withTypeDiff (t₀ : Expr) (h₁ : InteractiveHypothesisBundle) : MetaM InteractiveHypothesisBundle := do
     let some x₁ := h₁.fvarIds[0]?
       | throwError "internal error: empty fvar list!"
-    let t₁ ← instantiateMVars =<< inferType (Expr.fvar x₁)
+    let mut t₁ ← inferType (Expr.fvar x₁)
+    if getPPInstantiateMVars (← getOptions) then
+      t₁ ← instantiateMVars t₁
     let tδ ← exprDiff t₀ t₁ useAfter
     let c₁ ← addDiffTags useAfter tδ h₁.type
     return {h₁ with type := c₁}
@@ -238,10 +242,14 @@ def diffInteractiveGoal (useAfter : Bool) (g₀ : MVarId) (i₁ : InteractiveGoa
   let hs₁ ← diffHypotheses useAfter lctx₀ i₁.hyps
   let i₁ := {i₁ with hyps := hs₁}
   let g₁ := i₁.mvarId
-  let t₀ ← instantiateMVars <|← inferType (Expr.mvar g₀)
+  let mut t₀ ← inferType (Expr.mvar g₀)
+  if getPPInstantiateMVars (← getOptions) then
+    t₀ ← instantiateMVars t₀
   let some md₁ := (← getMCtx).findDecl? g₁
     | throwError "Unknown goal {g₁}"
-  let t₁ ← instantiateMVars md₁.type
+  let mut t₁ := md₁.type
+  if getPPInstantiateMVars (← getOptions) then
+    t₁ ← instantiateMVars t₁
   let tδ ← exprDiff t₀ t₁ useAfter
   let c₁ ← addDiffTags useAfter tδ i₁.type
   let i₁ := {i₁ with type := c₁, isInserted? := false}

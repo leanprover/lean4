@@ -474,7 +474,7 @@ instance {α : Type u} [Ord α] : OrdForMatch α where
   compareForMatch := Ord.compare
   compareForMatch_eq := rfl
 
-def compareForMatch {α : Type u} [Ord  α] [OrdForMatch α] : α → α → Ordering :=
+@[inline] def compareForMatch {α : Type u} [Ord  α] [OrdForMatch α] : α → α → Ordering :=
   OrdForMatch.compareForMatch
 
 @[simp]

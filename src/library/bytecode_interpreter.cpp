@@ -153,6 +153,10 @@ decl_cache_entry fill_cache_entry(b_obj_arg env, b_obj_arg decl_name) {
         inc(result.m_object);
         dec(decl);
         arity = lean_unbox(lean_ctor_get(result.m_object, 6));
+        dec(env);
+        dec(decl_name);
+        result.m_arity = static_cast<unsigned>(arity);
+        return result;
     }
     object * mangled = lean_get_symbol_stem(env, decl_name); // String
     inc(mangled);
@@ -480,7 +484,7 @@ value eval_loop(interpreter * interp, frame start_frame) {
                 break;
             }
             case instruction_type::RET: {
-                uint32 source = instr & 0xFF;
+                uint32 source = instr & 0xFFFF;
                 value val = base[source];
                 *base = val;
                 interp->m_stack_top = base;
@@ -819,14 +823,14 @@ value eval_loop(interpreter * interp, frame start_frame) {
                 break;
             }
             case instruction_type::APP: {
-                uint32 n = (instr >> 16) & 0xFF;
+                uint32 n = (instr >> 16) & 0x3FF;
                 uint32 fn = instr & 0xFFFF;
                 object * res = lean_apply_n(base[fn].m_obj, n, reinterpret_cast<object **>(interp->m_stack_top));
                 interp->m_stack_top[0].m_obj = res;
                 break;
             }
             case instruction_type::PAP: {
-                uint32 n = (instr >> 16) & 0xFF;
+                uint32 n = (instr >> 16) & 0x3FF;
                 uint32 fn_id = instr & 0xFFFF;
                 decl_cache_entry fn = cache[fn_id];
                 if (fn.m_native) {
@@ -896,8 +900,8 @@ value eval_loop(interpreter * interp, frame start_frame) {
                 break;
             }
             case instruction_type::DECL_CONST: {
-                uint32 target = (instr >> 8) & 0xFF;
-                uint32 constant = instr & 0xFF;
+                uint32 target = (instr >> 18) & 0xFF;
+                uint32 constant = instr & 0x3FFFF;
                 object * constants_obj = lean_ctor_get(decl, 7); // Array NonScalar
                 object * value = lean_array_get_core(constants_obj, constant); // NonScalar
                 base[target].m_obj = value;

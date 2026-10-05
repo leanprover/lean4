@@ -935,20 +935,25 @@ def emitInterpDecl (decl : Decl .impure) : EmitM Unit := do
   emit "LEAN_EXPORT void "; emit baseName; emitLn "_0interp(lean_interpreter_value* stack)"
   withEmitBlock do
     let mut args : Array (Arg .impure) := #[]
-    for h : i in *...xs.size do
-      let x := xs[i]
+    let mut j := 0
+    for x in xs do
       if x.type.isVoid then
         args := args.push .erased
+        continue
+      else if x.type.isErased then
+        args := args.push .erased
+        j := j + 1
         continue
       args := args.push (.fvar x.fvarId)
       emit x.type.toCType; emit " "; emit x.fvarId; emit " = "
       match x.type with
-      | uint8 | uint16 | uint32 | uint64 | usize => emitLn s!"stack[{i}].m_num;"
-      | float => emitLn s!"stack[{i}].m_float;"
-      | float32 => emitLn s!"stack[{i}].m_float32;"
-      | tagged | object | tobject | erased => emitLn s!"stack[{i}].m_obj;"
+      | uint8 | uint16 | uint32 | uint64 | usize => emitLn s!"stack[{j}].m_num;"
+      | float => emitLn s!"stack[{j}].m_float;"
+      | float32 => emitLn s!"stack[{j}].m_float32;"
+      | tagged | object | tobject | erased => emitLn s!"stack[{j}].m_obj;"
       | void => unreachable!
       | _ => throwError "Type {x.type} not implemented yet for interpreter decls"
+      j := j + 1
     let id ← modifyGetThe CompilerM.State fun s => (s.nextIdx, { s with nextIdx := s.nextIdx + 1 })
     let resName := .num `res id
     emit type.toCType; emit " "; emit resName; emitLn ";"

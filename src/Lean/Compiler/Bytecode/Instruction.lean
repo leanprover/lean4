@@ -168,7 +168,10 @@ def Instruction.skipIfCached (offset : UInt32) : Instruction where
   value := (46 : UInt32) <<< 26 ||| offset
 
 def Instruction.declConst (tgt id : UInt32) : Instruction where
-  value := (47 : UInt32) <<< 26 ||| tgt <<< 8 ||| id
+  value := (47 : UInt32) <<< 26 ||| tgt <<< 18 ||| id
+
+def Instruction.assemblerInternal (idx : UInt32) : Instruction where
+  value := (63 : UInt32) <<< 26 ||| idx
 
 def pushInstr (code : ByteArray) (instr : Instruction) : ByteArray :=
   let code := code.push instr.value.toUInt8

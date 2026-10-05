@@ -10,6 +10,7 @@ public import Lean.Compiler.LCNF.Basic
 public import Lean.Compiler.Bytecode.Instruction
 import Lean.Compiler.LCNF.PrettyPrinter
 import Init.While
+public meta import Lean.Elab.Term.TermElabM
 
 public section
 
@@ -95,6 +96,14 @@ inductive FixUp where
   | beginRef (whereBbRev whereIndexRev : Nat) (bitlen : Nat)
 deriving Inhabited
 
+inductive ComplexInstruction where
+  | move (tgt src : Nat) (argTgt argSrc : Bool)
+  | eraseArg (tgt : Nat)
+  | referToTempSpot (base : Instruction) (bitoff : UInt32)
+  | jumpToBB (targetRev : Nat)
+  | jumpToBeginning
+deriving Inhabited
+
 structure JoinPointState where
   paramInfo : Array (Array Nat)
   bb : Nat
@@ -109,7 +118,7 @@ structure State where
   joinPoints : Std.HashMap FVarId JoinPointState := {}
   constants : Array NonScalar := #[]
   constantTable : Std.HashMap LitValue Nat := {}
-  fixUps : Array FixUp := #[]
+  complex : Array ComplexInstruction := #[]
   regAlloc : RegAlloc := {}
   returnBb : Option Nat := none -- only for constants
 
@@ -119,43 +128,79 @@ structure Context where
 
 abbrev M := ReaderT Context <| StateRefT State CompilerM
 
+elab tk:"where_am_i%" : term => do
+  let some info := tk.getInfo? | return toExpr 0
+  let some pos := info.getPos? | return toExpr 0
+  let pos := (← getFileMap).toPosition pos
+  return toExpr pos.line
+
+@[inline]
+def as (val : Nat) (bits : Nat) (decl : Name := by exact decl_name%)
+    (pos : Nat := by exact where_am_i%) : M UInt32 := do
+  if val < 1 <<< bits then
+    return val.toUInt32
+  else
+    throwError "Instruction argument out of range: {val} for {bits} at {decl}:{pos}"
+
 def emit (instr : Instruction) : M Unit := do
   modify fun state => { state with revCurrBlock := state.revCurrBlock.push instr }
 
-@[inline]
-def addFixup (f : (whereBbRev whereIndexRev : Nat) → FixUp) : M Unit := do
-  let currBbRev := (← get).revBasicBlocks.size
-  let currIndexRev := (← get).revCurrBlock.size
-  modify fun state => { state with fixUps := state.fixUps.push (f currBbRev currIndexRev) }
+def emitComplex (instr : ComplexInstruction) : M Unit := do
+  let i := (← get).complex.size
+  emit (.assemblerInternal (← as i 26))
+  modify fun state => { state with complex := state.complex.push instr }
 
 def emitJump (targetBb : Nat) : M Unit := do
   if (← get).revCurrBlock.isEmpty ∧ targetBb + 1 = (← get).revBasicBlocks.size then
     return
-  emit .nojump
-  addFixup (.basicBlockRef · · targetBb 26)
+  emitComplex (.jumpToBB targetBb)
+
+@[inline] def numTemps := 3
+@[inline] def normalRange := 256 - numTemps
+
+def adjustStackSpace (tgt : Nat) : Nat :=
+  if tgt < normalRange then tgt else tgt + numTemps
+
+def maybeTarget (var : Nat) (inner : Bool := false) : Nat :=
+  if var < normalRange then var else if inner then 254 else 255
+
+def maybeToTemp (var : Nat) (inner : Bool := false) : M Unit := do
+  if var < normalRange then
+    return
+  let pos := if inner then 254 else 255
+  emit (.move pos (← as (var + numTemps) 13))
+
+def maybeFromTemp (var : Nat) (inner : Bool := false) : M Nat := do
+  if var < normalRange then
+    return var
+  let pos := if inner then 254 else 255
+  emit (.move (← as (var + numTemps) 13) pos)
+  return pos.toNat
 
 def emitMove (tgt src : Nat) : M Unit := do
-  emit (.move tgt.toUInt32 src.toUInt32)
+  let tgt := adjustStackSpace tgt
+  let src := adjustStackSpace src
+  emit (.move (← as tgt 13) (← as src 13))
 
-def emitMoveToTemp (tgt src : Nat) : M Unit := do
-  emit (.move tgt.toUInt32 src.toUInt32)
-  addFixup (.argRel · · 13 13)
+def emitMoveToReal (tgt src : Nat) : M Unit := do
+  let src := adjustStackSpace src
+  emit (.move (← as tgt 8) (← as src 13))
 
-def emitMoveFromTemp (tgt src : Nat) : M Unit := do
-  emit (.move tgt.toUInt32 src.toUInt32)
-  addFixup (.argRel · · 0 13)
+def emitMoveToArg (tgt src : Nat) : M Unit := do
+  emitComplex (.move tgt src (argTgt := true) (argSrc := false))
 
-def emitMoveWithinTemp (tgt src : Nat) : M Unit := do
-  emit (.move tgt.toUInt32 src.toUInt32)
-  addFixup (.argRel · · 0 13)
-  addFixup (.argRel · · 13 13)
+def emitMoveFromArg (tgt src : Nat) : M Unit := do
+  emitComplex (.move tgt src (argTgt := false) (argSrc := true))
+
+def emitMoveWithinArgs (tgt src : Nat) : M Unit := do
+  emitComplex (.move tgt src (argTgt := true) (argSrc := true))
 
 def emitErasedTo (tgt : Nat) : M Unit := do
-  emit (.uconst tgt.toUInt32 1)
+  let tgt' ← maybeFromTemp tgt
+  emit (.uconst (← as tgt' 8) 1)
 
-def emitErasedToTemp (tgt : Nat) : M Unit := do
-  emit (.uconst tgt.toUInt32 1)
-  addFixup (.argRel · · 18 8)
+def emitErasedToArg (tgt : Nat) : M Unit := do
+  emitComplex (.eraseArg tgt)
 
 def endBlock : M Nat := do
   let bb := (← get).revBasicBlocks.size
@@ -211,17 +256,16 @@ def parallelAssignment (lhss rhss : Array Nat) : M Unit := do
     if assignedBefore.contains rhs then
       let tmpIdx := tempVars.size
       tempVars := tempVars.push (rhs, tmpIdx)
-      emitMoveFromTemp lhs tmpIdx
+      emitMoveFromArg lhs tmpIdx -- used as temporary storage
     else
       emitMove lhs rhs
   for (rhs, tmpIdx) in tempVars do
-    emitMoveToTemp tmpIdx rhs
+    emitMoveToArg tmpIdx rhs
 
 def prepareCallArgs (args : Array (Arg .impure)) (params : Array (Param .impure)) : M Unit := do
   let mut pos := 0
   let mut sizes := #[]
   for param in params do
-    -- erased specifically has size one
     let size := computeCallsideSpace param.type
     sizes := sizes.push size
     pos := pos + size
@@ -234,15 +278,15 @@ def prepareCallArgs (args : Array (Arg .impure)) (params : Array (Param .impure)
     match arg with
     | .erased =>
       if size != 0 then
-        emitErasedToTemp pos
+        emitErasedToArg pos
     | .fvar var =>
       let x ← useVar var
       if size = 0 then
-        emitErasedToTemp pos
+        emitErasedToArg pos
       else
         assert! x.size = size
         for j in 0...size do
-          emitMoveToTemp (pos + j) x[j]!
+          emitMoveToArg (pos + j) x[j]!
 
 -- equivalent to `prepareCallArgs args (Array.replicate { type := tobject, .. } args.size)`
 def prepareCallArgsSimple (args : Array (Arg .impure)) : M Unit := do
@@ -251,14 +295,14 @@ def prepareCallArgsSimple (args : Array (Arg .impure)) : M Unit := do
     i := i - 1
     let arg := args[i]!
     match arg with
-    | .erased => emitErasedToTemp i
+    | .erased => emitErasedToArg i
     | .fvar var =>
       let x ← useVar var
       if x.isEmpty then
-        emitErasedToTemp i
+        emitErasedToArg i
       else
         assert! x.size = 1
-        emitMoveToTemp i x[0]!
+        emitMoveToArg i x[0]!
 
 def setCtorArgs (tgt : Nat) (args : Array (Arg .impure)) : M Unit := do
   let mut i := args.size
@@ -269,13 +313,14 @@ def setCtorArgs (tgt : Nat) (args : Array (Arg .impure)) : M Unit := do
     match arg with
     | .fvar var =>
       let #[v] ← useVar var | throwError "Unexpected size for constructor argument"
-      emit (.set tgt.toUInt32 v.toUInt32 i.toUInt32)
+      let v' := maybeTarget v (inner := true)
+      emit (.set (← as tgt 8) (← as v' 8) (← as i 8))
+      maybeToTemp v (inner := true)
     | .erased =>
-      emit (.set tgt.toUInt32 0 i.toUInt32)
-      addFixup (.argRel · · 8 8)
+      emitComplex (.referToTempSpot (.set (← as tgt 8) 0 (← as i 8)) 8)
       hadErased := true
   if hadErased then
-    emitErasedToTemp 0
+    emitComplex (.referToTempSpot (.uconst 0 1) 18)
 
 unsafe def addConstant (lit : LitValue) (value : α) : M Nat := do
   if let some idx := (← get).constantTable[lit]? then
@@ -293,137 +338,161 @@ def processLetDecl (decl : LetDecl .impure) : M Unit := do
   match decl.value with
   | .lit value =>
     let some #[var] := vars? | return -- return if unused
+    let var' ← maybeFromTemp var
     match value with
-    | .uint8 val => emit (.uconst var.toUInt32 val.toUInt32)
-    | .uint16 val => emit (.uconst var.toUInt32 val.toUInt32)
+    | .uint8 val => emit (.uconst (← as var' 8) val.toUInt32)
+    | .uint16 val => emit (.uconst (← as var' 8) val.toUInt32)
     | .uint32 val =>
       if val.toNat ≤ maxUConst then
-        emit (.uconst var.toUInt32 val)
+        emit (.uconst (← as var' 8) val)
       else
         let constId ← unsafe addConstant value val
-        emit (.unboxUInt32 var.toUInt32 var.toUInt32)
-        emit (.declConst var.toUInt32 constId.toUInt32)
+        emit (.unboxUInt32 (← as var' 8) (← as var' 8))
+        emit (.declConst (← as var' 8) (← as constId 18))
     | .uint64 val =>
       if val.toNat ≤ maxUConst then
-        emit (.uconst var.toUInt32 val.toUInt32)
+        emit (.uconst (← as var' 8) val.toUInt32)
       else
         let constId ← unsafe addConstant value val
-        emit (.unboxUInt64 var.toUInt32 var.toUInt32)
-        emit (.declConst var.toUInt32 constId.toUInt32)
+        emit (.unboxUInt64 (← as var' 8) (← as var' 8))
+        emit (.declConst (← as var' 8) (← as constId 18))
     | .usize val =>
       if val.toNat ≤ maxUConst then
-        emit (.uconst var.toUInt32 val.toUInt32)
+        emit (.uconst (← as var' 8) val.toUInt32)
       else
         let constId ← unsafe addConstant value val
-        emit (.unboxUSize var.toUInt32 var.toUInt32)
-        emit (.declConst var.toUInt32 constId.toUInt32)
+        emit (.unboxUSize (← as var' 8) (← as var' 8))
+        emit (.declConst (← as var' 8) (← as constId 18))
     | .nat val =>
       if val ≤ maxNConst then
-        emit (.nconst var.toUInt32 val.toUInt32)
+        emit (.nconst (← as var' 8) val.toUInt32)
       else
         let constId ← unsafe addConstant value val
         unless unsafe isScalarObj val do
-          emit (.inc var.toUInt32 1)
-        emit (.declConst var.toUInt32 constId.toUInt32)
+          emit (.inc (← as var' 8) 1)
+        emit (.declConst (← as var' 8) (← as constId 18))
     | .str s =>
       let constId ← unsafe addConstant value s
-      emit (.inc var.toUInt32 1)
-      emit (.declConst var.toUInt32 constId.toUInt32)
+      emit (.inc (← as var' 8) 1)
+      emit (.declConst (← as var' 8) (← as constId 18))
   | .erased =>
     let some #[var] := vars? | return -- return if unused
     emitErasedTo var
-  | .fvar fvarId as =>
+  | .fvar fvarId args =>
     let #[fn] ← useVar fvarId | throwError "Unexpected size for function"
     if let some #[var] := vars? then
-      emitMoveFromTemp var 0
+      emitMoveFromArg var 0
       declareVar decl.fvarId
-    emit (.app fn.toUInt32 as.size.toUInt32)
-    prepareCallArgsSimple as
+    emit (.app (← as (adjustStackSpace fn) 16) (← as args.size 10))
+    prepareCallArgsSimple args
   | .ctor info args =>
     if info.isScalar then
       if let some #[tgt] := vars? then
-        emit (.nconst tgt.toUInt32 info.cidx.toUInt32)
+        let tgt' ← maybeFromTemp tgt
+        emit (.nconst (← as tgt' 8) (← as info.cidx 18))
       return
     let some #[tgt] := vars? | throwError "Result of constructor leaked"
-    setCtorArgs tgt args
-    emit (.allocCtor tgt.toUInt32 info.cidx.toUInt32 info.size.toUInt32)
-    declareVar decl.fvarId
-  | .fap fn as =>
+    let tgt' ← maybeFromTemp tgt
+    setCtorArgs tgt' args
+    emit (.allocCtor (← as tgt' 8) (← as info.cidx 10) (← as info.size 8))
+  | .fap fn args =>
     let some sig ← getImpureSignature? fn | throwError "Missing impure signature for `{fn}`"
     if let some vars := vars? then
       let mut i := vars.size
       while i > 0 do
         i := i - 1
-        emitMoveFromTemp vars[i]! i
+        emitMoveFromArg vars[i]! i
       declareVar decl.fvarId
-    if as.isEmpty then
-      emit (.loadConst (← recordSymbol fn).toUInt32)
+    if args.isEmpty then
+      emit (.loadConst (← as (← recordSymbol fn) 16))
     else
-      emit (.call (← recordSymbol fn).toUInt32)
-      prepareCallArgs as sig.params
-  | .pap fn as =>
+      emit (.call (← as (← recordSymbol fn) 16))
+      prepareCallArgs args sig.params
+  | .pap fn args =>
     if let some #[var] := vars? then
-      emitMoveFromTemp var 0
+      emitMoveFromArg var 0
       declareVar decl.fvarId
-    emit (.pap (← recordSymbol fn).toUInt32 as.size.toUInt32)
-    prepareCallArgsSimple as
+    emit (.pap (← as (← recordSymbol fn) 16) (← as args.size 10))
+    prepareCallArgsSimple args
   | .oproj i var =>
     let some #[tgt] := vars? | return -- return if unused
+    let tgt' ← maybeFromTemp tgt
     let #[src] ← useVar var | throwError "Unexpected input size for projection"
-    emit (.proj tgt.toUInt32 src.toUInt32 i.toUInt32)
+    let src' := maybeTarget src (inner := true)
+    emit (.proj (← as tgt' 8) (← as src' 8) (← as i 8))
+    maybeToTemp src (inner := true)
   | .uproj i var =>
     let some #[tgt] := vars? | return -- return if unused
+    let tgt' ← maybeFromTemp tgt
     let #[src] ← useVar var | throwError "Unexpected input size for projection"
-    emit (.uproj tgt.toUInt32 src.toUInt32 i.toUInt32)
+    let src' := maybeTarget src (inner := true)
+    emit (.uproj (← as tgt' 8) (← as src' 8) (← as i 8))
+    maybeToTemp src (inner := true)
   | .sproj i offset var =>
     let some #[tgt] := vars? | return -- return if unused
+    let tgt' ← maybeFromTemp tgt
     let #[src] ← useVar var | throwError "Unexpected input size for projection"
+    let src' := maybeTarget src (inner := true)
     match decl.type with
-    | uint8 => emit (.sproj8 tgt.toUInt32 src.toUInt32)
-    | uint16 => emit (.sproj16 tgt.toUInt32 src.toUInt32)
-    | uint32 => emit (.sproj32 tgt.toUInt32 src.toUInt32)
-    | uint64 => emit (.sproj64 tgt.toUInt32 src.toUInt32)
-    | float32 => emit (.sproj32 tgt.toUInt32 src.toUInt32)
-    | float => emit (.sproj64 tgt.toUInt32 src.toUInt32)
+    | uint8 => emit (.sproj8 (← as tgt' 8) (← as src' 8))
+    | uint16 => emit (.sproj16 (← as tgt' 8) (← as src' 8))
+    | uint32 => emit (.sproj32 (← as tgt' 8) (← as src' 8))
+    | uint64 => emit (.sproj64 (← as tgt' 8) (← as src' 8))
+    | float32 => emit (.sproj32 (← as tgt' 8) (← as src' 8))
+    | float => emit (.sproj64 (← as tgt' 8) (← as src' 8))
     | _ => unreachable!
-    emit (.computeScalar i.toUInt32 offset.toUInt32)
+    emit (.computeScalar (← as i 13) (← as offset 13))
+    maybeToTemp src (inner := true)
   | .reset n var =>
     let some #[tgt] := vars? | throwError "Result of reset leaked"
+    let tgt' ← maybeFromTemp tgt
     let #[src] ← useVar var | throwError "Unexpected input size for reset"
-    emit (.reset n.toUInt32 tgt.toUInt32 src.toUInt32)
+    let src' := maybeTarget src (inner := true)
+    emit (.reset (← as n 8) (← as tgt' 8) (← as src' 8))
+    maybeToTemp src (inner := true)
   | .reuse var i _updateHeader args =>
     let some #[tgt] := vars? | throwError "Result of reuse leaked"
+    let tgt' ← maybeFromTemp tgt
     let #[src] ← useVar var | throwError "Unexpected input size for reuse"
-    setCtorArgs tgt args
-    emit (.reuse tgt.toUInt32 i.cidx.toUInt32 i.size.toUInt32)
-    unless src = tgt do
-      emitMove tgt src
+    setCtorArgs tgt' args
+    emit (.reuse (← as tgt' 8) (← as i.cidx 10) (← as i.size 8))
+    unless src = tgt' do
+      emitMoveToReal tgt' src
   | .box ty var =>
     let some #[tgt] := vars? | throwError "Result of box leaked"
+    let tgt' ← maybeFromTemp tgt
     let #[src] ← useVar var | throwError "Unexpected input size for boxing function"
+    let src' := maybeTarget src (inner := true)
     match ty with
-    | uint8 | uint16 => emit (.boxSmall tgt.toUInt32 src.toUInt32)
-    | uint32 => emit (.boxUInt32 tgt.toUInt32 src.toUInt32)
-    | uint64 => emit (.boxUInt64 tgt.toUInt32 src.toUInt32)
-    | usize => emit (.boxUSize tgt.toUInt32 src.toUInt32)
-    | float32 => emit (.boxFloat32 tgt.toUInt32 src.toUInt32)
-    | float => emit (.boxFloat tgt.toUInt32 src.toUInt32)
+    | uint8 | uint16 => emit (.boxSmall (← as tgt' 8) (← as src' 8))
+    | uint32 => emit (.boxUInt32 (← as tgt' 8) (← as src' 8))
+    | uint64 => emit (.boxUInt64 (← as tgt' 8) (← as src' 8))
+    | usize => emit (.boxUSize (← as tgt' 8) (← as src' 8))
+    | float32 => emit (.boxFloat32 (← as tgt' 8) (← as src' 8))
+    | float => emit (.boxFloat (← as tgt' 8) (← as src' 8))
     | _ => unreachable!
+    maybeToTemp src (inner := true)
   | .unbox var =>
     let some #[tgt] := vars? | return -- return if unused
+    let tgt' ← maybeFromTemp tgt
     let #[src] ← useVar var | throwError "Unexpected input size for boxing function"
+    let src' := maybeTarget src (inner := true)
     match decl.type with
-    | uint8 | uint16 => emit (.unboxSmall tgt.toUInt32 src.toUInt32)
-    | uint32 => emit (.unboxUInt32 tgt.toUInt32 src.toUInt32)
-    | uint64 => emit (.unboxUInt64 tgt.toUInt32 src.toUInt32)
-    | usize => emit (.unboxUSize tgt.toUInt32 src.toUInt32)
-    | float32 => emit (.unboxFloat32 tgt.toUInt32 src.toUInt32)
-    | float => emit (.unboxFloat tgt.toUInt32 src.toUInt32)
+    | uint8 | uint16 => emit (.unboxSmall (← as tgt' 8) (← as src' 8))
+    | uint32 => emit (.unboxUInt32 (← as tgt' 8) (← as src' 8))
+    | uint64 => emit (.unboxUInt64 (← as tgt' 8) (← as src' 8))
+    | usize => emit (.unboxUSize (← as tgt' 8) (← as src' 8))
+    | float32 => emit (.unboxFloat32 (← as tgt' 8) (← as src' 8))
+    | float => emit (.unboxFloat (← as tgt' 8) (← as src' 8))
     | _ => unreachable!
+    maybeToTemp src (inner := true)
   | .isShared fvarId =>
     let some #[tgt] := vars? | return -- return if unused
+    let tgt' ← maybeFromTemp tgt
     let #[src] ← useVar fvarId | throwError "Unexpected input size for boxing function"
-    emit (.isShared tgt.toUInt32 src.toUInt32)
+    let src' := maybeTarget src (inner := true)
+    emit (.isShared (← as tgt' 8) (← as src' 8))
+    maybeToTemp src (inner := true)
 
 def processInstruction (decl : CodeDecl .impure) : M Unit := do
   match decl with
@@ -432,42 +501,69 @@ def processInstruction (decl : CodeDecl .impure) : M Unit := do
     declareVar ldecl.fvarId -- if not already done above
   | .oset v i y =>
     let #[tgt] ← useVar v | throwError "Unexpected target size for set"
+    let tgt' := maybeTarget tgt
     match y with
     | .fvar var =>
       let #[src] ← useVar var | throwError "Unexpected input size for projection"
-      emit (.set tgt.toUInt32 src.toUInt32 i.toUInt32)
+      let src' := maybeTarget src (inner := true)
+      emit (.set (← as tgt' 8) (← as src' 8) (← as i 8))
+      maybeToTemp src (inner := true)
     | .erased =>
-      emit (.set tgt.toUInt32 0 i.toUInt32)
-      addFixup (.argRel · · 8 8)
-      emitErasedToTemp 0
+      emitComplex (.referToTempSpot (.set (← as tgt' 8) 0 (← as i 8)) 8)
+      emitComplex (.referToTempSpot (.uconst 0 1) 18)
+    maybeToTemp tgt
   | .uset v i y =>
     let #[tgt] ← useVar v | throwError "Unexpected target size for uset"
     let #[src] ← useVar y | throwError "Unexpected input size for projection"
-    emit (.set tgt.toUInt32 src.toUInt32 i.toUInt32)
+    let tgt' := maybeTarget tgt
+    let src' := maybeTarget src (inner := true)
+    emit (.set (← as tgt' 8) (← as src' 8) (← as i 8))
+    maybeToTemp src (inner := true)
+    maybeToTemp tgt
   | .sset v i off y ty =>
     let #[tgt] ← useVar v | throwError "Unexpected target size for uset"
     let #[src] ← useVar y | throwError "Unexpected input size for projection"
+    let tgt' := maybeTarget tgt
+    let src' := maybeTarget src (inner := true)
     match ty with
-    | uint8 => emit (.sset8 tgt.toUInt32 src.toUInt32)
-    | uint16 => emit (.sset16 tgt.toUInt32 src.toUInt32)
-    | uint32 => emit (.sset32 tgt.toUInt32 src.toUInt32)
-    | uint64 => emit (.sset64 tgt.toUInt32 src.toUInt32)
-    | float32 => emit (.sset32 tgt.toUInt32 src.toUInt32)
-    | float => emit (.sset64 tgt.toUInt32 src.toUInt32)
+    | uint8 => emit (.sset8 (← as tgt' 8) (← as src' 8))
+    | uint16 => emit (.sset16 (← as tgt' 8) (← as src' 8))
+    | uint32 => emit (.sset32 (← as tgt' 8) (← as src' 8))
+    | uint64 => emit (.sset64 (← as tgt' 8) (← as src' 8))
+    | float32 => emit (.sset32 (← as tgt' 8) (← as src' 8))
+    | float => emit (.sset64 (← as tgt' 8) (← as src' 8))
     | _ => unreachable!
-    emit (.computeScalar i.toUInt32 off.toUInt32)
+    emit (.computeScalar (← as i 13) (← as off 13))
+    maybeToTemp src (inner := true)
+    maybeToTemp tgt
   | .inc v n _c _p =>
     let #[tgt] ← useVar v | throwError "Unexpected target size for inc"
-    emit (.inc tgt.toUInt32 n.toUInt32)
+    let tgt' := maybeTarget tgt
+    let mut n := n
+    while n >= 256 do
+      emit (.inc (← as tgt' 8) 255)
+      n := n - 255
+    emit (.inc (← as tgt' 8) (← as n 8))
+    maybeToTemp tgt
   | .dec v n _c _p _o? =>
     let #[tgt] ← useVar v | throwError "Unexpected target size for dec"
-    emit (.dec tgt.toUInt32 n.toUInt32)
+    let tgt' := maybeTarget tgt
+    let mut n := n
+    while n >= 256 do
+      emit (.dec (← as tgt' 8) 255)
+      n := n - 255
+    emit (.dec (← as tgt' 8) (← as n 8))
+    maybeToTemp tgt
   | .del v =>
     let #[tgt] ← useVar v | throwError "Unexpected target size for del"
-    emit (.del tgt.toUInt32)
+    let tgt' := maybeTarget tgt
+    emit (.del (← as tgt' 8))
+    maybeToTemp tgt
   | .setTag v i =>
     let #[tgt] ← useVar v | throwError "Unexpected target size for setTag"
-    emit (.setTag tgt.toUInt32 i.toUInt32)
+    let tgt' := maybeTarget tgt
+    emit (.setTag (← as tgt' 8) (← as i 10))
+    maybeToTemp tgt
   | .jp _ => unreachable!
 
 def processBacklog (backlog : Array (CodeDecl .impure)) : M Unit := do
@@ -575,14 +671,14 @@ partial def visit (code : Code .impure) (backlog : Array (CodeDecl .impure)) : M
       emitJump (bb.getD lastBb)
     let discr ← useVar cases.discr
     let type ← getType cases.discr
+    let discr' := maybeTarget discr[0]!
     if type.isScalar then
-      emit (.jumpTable discr[0]!.toUInt32 bbs.size.toUInt32)
+      emit (.jumpTable (← as discr' 8) (← as bbs.size 10))
     else
       -- todo: unboxed types when we have them
-      emit (.jumpTable 0 bbs.size.toUInt32)
-      addFixup (.argRel · · 10 16)
-      emit (.loadTag 0 discr[0]!.toUInt32)
-      addFixup (.argRel · · 8 18)
+      emitComplex (.referToTempSpot (.jumpTable 0 (← as bbs.size 10)) 10)
+      emitComplex (.referToTempSpot (.loadTag 0 (← as discr' 8)) 8)
+    maybeToTemp discr[0]!
     processBacklog backlog
   | .unreach _ =>
     processBacklog backlog
@@ -591,15 +687,15 @@ partial def visit (code : Code .impure) (backlog : Array (CodeDecl .impure)) : M
     if let some bb := (← get).returnBb then
       emitJump bb
       if pos.size = 1 then
-        if pos[0]!.toUInt32 != 0 then
-          emit (.move 0 pos[0]!.toUInt32)
+        if pos[0]! != 0 then
+          emit (.move 0 (← as (adjustStackSpace pos[0]!) 13))
       else if pos.isEmpty then
         pure ()
       else
         unreachable! -- todo for unboxing
     else
       if pos.size = 1 then
-        emit (.ret pos[0]!.toUInt32)
+        emit (.ret (← as (adjustStackSpace pos[0]!) 16))
       else if pos.isEmpty then
         emit (.ret 0)
       else
@@ -615,11 +711,10 @@ partial def visit (code : Code .impure) (backlog : Array (CodeDecl .impure)) : M
     if args.isEmpty then return ← cont ()
     let mut params := (← read).params
     if (← read).currDecl == nm then
-      emit .nojump
-      addFixup (.beginRef · · 26)
+      emitComplex .jumpToBeginning
     else
       let sym ← recordSymbol nm
-      emit (.retcall sym.toUInt32)
+      emit (.retcall (← as sym 16))
       let some decl ← getImpureSignature? nm | throwError "Missing impure signature for `{nm}`"
       params := decl.params
     parallelArgAssignmentRetCall args params
@@ -668,56 +763,99 @@ partial def setupParams (retType : Expr) : M Unit := do
     let returnBb ← endBlock
     modify fun state => { state with returnBb }
 
-def State.assemble (s : State) (name : Name) (arity : Nat) : BytecodeDecl := Id.run do
-  let mut bbLocsRev : Array Nat := #[]
-  let mut bbPos := 0
-  for bb in s.revBasicBlocks do
-    bbLocsRev := bbLocsRev.push bbPos
-    bbPos := bbPos + bb.size
-  bbLocsRev := bbLocsRev.push bbPos
-  let mut flatCodeRev := s.revBasicBlocks.flatten
-  let mut tempSize := 0
-  for fix in s.fixUps do
-    match fix with
-    | .basicBlockRef whereBbRev whereIndexRev targetBb bitlen =>
-      -- because we are just looking at reversed code,
-      -- we can figure out the reversed position easily
-      -- off-by-one because we register fixups after emitting instructions
-      let whereRev := bbLocsRev[whereBbRev]! + whereIndexRev - 1
-      -- we want the beginning of the basic block; `bbLocsRev` points to the beginning
-      let targetRev := bbLocsRev[targetBb + 1]! - 1
-      -- wrong way around because reversed,
-      -- off-by-one because the interpreter advances the pointer before running instructions
-      let diff : Int := whereRev - 1 - targetRev
-      let val := diff + 1 <<< (bitlen - 1)
-      flatCodeRev := flatCodeRev.modify whereRev fun instr => ⟨instr.value ||| val.toNat.toUInt32⟩
-    | .beginRef whereBbRev whereIndexRev bitlen =>
-      -- see above
-      let whereRev := bbLocsRev[whereBbRev]! + whereIndexRev - 1
-      -- point to the beginning = point to reversed end
-      let targetRev := bbPos - 1
-      let diff : Int := whereRev - 1 - targetRev
-      let val := diff + 1 <<< (bitlen - 1)
-      flatCodeRev := flatCodeRev.modify whereRev fun instr => ⟨instr.value ||| val.toNat.toUInt32⟩
-    | .argRel whereBbRev whereIndexRev bitoff bitlen =>
-      -- see above
-      let whereRev := bbLocsRev[whereBbRev]! + whereIndexRev - 1
-      let origValue := flatCodeRev[whereRev]!.value.toNat >>> bitoff &&& (1 <<< bitlen - 1)
-      tempSize := max tempSize (origValue + 1)
-      flatCodeRev := flatCodeRev.modify whereRev fun instr =>
-        ⟨instr.value + (s.regAlloc.max.toUInt32 <<< bitoff.toUInt32)⟩
+structure BasicBlockReference where
+  pos : Nat
+  targetBB : Nat
+  offset : Nat
+  bitlen : Nat
+
+def assemble : M BytecodeDecl := do
+  discard <| endBlock
+  let name := (← read).currDecl
+  let arity := (← read).params.size
+  let mut flatCode : Array Instruction := #[]
+  let mut refs : Array BasicBlockReference := #[]
+  let mut bbLocs : Array Nat := #[]
+  let revBBs := (← get).revBasicBlocks
   if arity = 0 then
-    -- we need to add a jump to the last basic block
-    let jmpAmount := bbPos - bbLocsRev[1]!
-    flatCodeRev := flatCodeRev.push (.skipIfCached jmpAmount.toUInt32)
-  let flatCode := flatCodeRev.reverse
+    -- we need to add a jump to the last basic block for constants
+    refs := refs.push {
+      pos := flatCode.size, targetBB := revBBs.size - 1,
+      offset := 0, bitlen := 26
+    }
+    flatCode := flatCode.push (.skipIfCached 0)
+  let mut i := (← get).revBasicBlocks.size
+  let regCount := (← get).regAlloc.max
+  let mut argOffset := regCount + 1
+  let mut tempSpace := regCount
+  if argOffset >= normalRange then
+    argOffset := argOffset + numTemps
+    tempSpace := 253
+  let mut argSize := 0
+  -- iterate through the reversed blocks in reverse in reverse
+  while i > 0 do
+    i := i - 1
+    bbLocs := bbLocs.push flatCode.size
+    let revBB := revBBs[i]!
+    let mut j := revBB.size
+    while j > 0 do
+      j := j - 1
+      let instr := revBB[j]!
+      unless instr.value >>> 26 = 63 do
+        flatCode := flatCode.push instr
+        continue
+      let complexInstr := (← get).complex[instr.value.toNat &&& (1 <<< 26 - 1)]!
+      match complexInstr with
+      | .move tgt src argTgt argSrc =>
+        let mut tgt := tgt; let mut src := src
+        if argTgt then
+          argSize := max argSize (tgt + 1)
+          tgt := tgt + argOffset
+        else if tgt >= normalRange then
+          tgt := tgt + numTemps
+        if argSrc then
+          argSize := max argSize (src + 1)
+          src := src + argOffset
+        else if src >= normalRange then
+          src := src + numTemps
+        flatCode := flatCode.push (.move (← as tgt 13) (← as src 13))
+      | .eraseArg tgt =>
+        argSize := max argSize (tgt + 1)
+        let tgt := tgt + argOffset
+        if tgt >= normalRange then
+          flatCode := flatCode.push (.uconst (← as tempSpace 8) 1)
+          flatCode := flatCode.push (.move (← as tgt 13) (← as tempSpace 13))
+        else
+          flatCode := flatCode.push (.uconst (← as tgt 8) 1)
+      | .referToTempSpot instr bitoff =>
+        flatCode := flatCode.push ⟨instr.value ||| (← as tempSpace 8) <<< bitoff⟩
+      | .jumpToBB bbRev =>
+        refs := refs.push {
+          pos := flatCode.size, targetBB := revBBs.size - 1 - bbRev,
+          offset := 0x200_0000, bitlen := 26
+        }
+        flatCode := flatCode.push .nojump
+      | .jumpToBeginning =>
+        refs := refs.push {
+          pos := flatCode.size, targetBB := 0,
+          offset := 0x200_0000, bitlen := 26
+        }
+        flatCode := flatCode.push .nojump
+  for ref in refs do
+    let off : Int := bbLocs[ref.targetBB]! - (ref.pos + 1)
+    let value := off + ref.offset
+    if value < 0 then
+      throwError "Backreference too large: {off} for offset {ref.offset}"
+    if value >= 1 <<< ref.bitlen then
+      throwError "Forward reference too large: {off} for offset {ref.offset}"
+    flatCode := flatCode.modify ref.pos fun ⟨instr⟩ => ⟨instr ||| value.toNat.toUInt32⟩
   return {
     name, arity,
-    symbols := s.symbols
+    symbols := (← get).symbols
     code := Bytecode.assemble flatCode
-    stackReserved := s.regAlloc.max + tempSize
-    stackSpace := s.regAlloc.max
-    constants := s.constants
+    stackReserved := argOffset + argSize
+    stackSpace := argOffset
+    constants := (← get).constants
   }
 
 end ToBytecode
@@ -727,12 +865,11 @@ def compileBytecodeDecl (d : Decl .impure) : CompilerM BytecodeDecl := do
   let d ← d.internalize
   let .code code := d.value |
     throwError "Unexpected extern decl for Bytecode.compileDecl"
-  let act : M Unit := do
+  let act : M BytecodeDecl := do
     setupParams d.type
     visit code #[]
-    discard <| endBlock
-  let ((), state) ← act.run { currDecl := d.name, params := d.params } |>.run {}
-  return state.assemble d.name d.params.size
+    ToBytecode.assemble
+  act.run { currDecl := d.name, params := d.params } |>.run' {}
 
 def compile (d : Decl .impure) : CompilerM Unit := do
   unless d.value matches .code _ do

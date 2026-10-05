@@ -45,7 +45,7 @@ def Lean.Expr.toCType : Expr → String
 
 /-- Returns whether `toCType type = "lean_object*"` -/
 def Lean.Expr.isPtrType : Expr → Bool
-  | object | tagged | tobject | erased | void => true
+  | object | tagged | tobject | erased => true
   | _ => false
 
 def Lean.Expr.unboxOpName (t : Expr) : String :=

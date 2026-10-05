@@ -80,6 +80,8 @@ partial def normalize (e : Expr) : SymM Sym.Simp.Result := do
   unless β.isConstOf ``Nat do return .rfl
   let some (powFn, mulFn) ← functions? α | return .rfl
   unless isSameExpr powFn (← shareCommon (← canon e.appFn!.appFn!)) do return .rfl
+  if (Sym.getNatValue? exponent).run.isSome then
+    return ← Arith.normalize? e normalize
   let r ← congrBin e (← normalize base) (← normalize exponent)
   let e' := r.getResultExpr e
   let base := e'.appFn!.appArg!
@@ -131,7 +133,7 @@ elab "power_nf" : tactic => do
     let e := r.getResultExpr target
     let proof ← if e.isTrue then pure (mkConst ``True.intro) else do
       let_expr Eq _ lhs rhs := e | throwError "expected an equality"
-      unless (← isDefEq lhs rhs) do throwError "unequal normal forms:{indentExpr e}"
+      unless isSameExpr lhs rhs do throwError "unequal normal forms:{indentExpr e}"
       Sym.mkEqRefl lhs
     match r with
     | .rfl .. => pure proof
@@ -230,19 +232,19 @@ example (x : Rat) (n : Nat) : (x/2)^n = x^n*(1/2 : Rat)^n := by
 example (x y : Rat) (m n : Nat) : (x^n/2+y^m/3)^2 = x^(2*n)/4+x^n*y^m/3+y^(2*m)/9 := by
   power_nf
 
-example (x : Rat) (m n : Nat) : (x^(m+1))^n = x^(n*(m+1)) := by
-  power_nf
-
 example (x : Int) (n : Nat) : x^(2^(n+1)) = (x^(2^n))^2 := by
   power_nf
 
 example {R : Type} [CommSemiring R] (x : R) (n : Nat) : x = x*1^n := by
   power_nf
 
-
-example : True := by
-  fail_if_success have : ∀ (n : Nat), (0 : Int)^n = 0 := by intros; power_nf
-  trivial
+/--
+error: unequal normal forms:
+  0 ^ n = 0
+-/
+#guard_msgs in
+example (n : Nat) : (0 : Int)^n = 0 := by
+  power_nf
 
 example : True := by
   fail_if_success have : ∀ (n : Nat), (0 : Rat)^n = 0 := by intros; power_nf

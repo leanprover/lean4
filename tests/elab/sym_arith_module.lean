@@ -166,6 +166,11 @@ elab "module_nf_atoms" : tactic => do
 example {M : Type u} [NatModule M] (f : M → M) (a b : M) :
     f (a + b) + f (b + a) = 2 • f (a + b) := by module_eq_atoms
 
+-- Normalized zero must remain a numeral for subsequent simp rewrites.
+example {R : Type u} [Ring R] (a b : R) : a * (b - b) = 0 := by
+  module_nf_atoms
+  simp only [Semiring.mul_zero]
+
 example {M : Type u} [IntModule M] (f : M → M) (a b : M) :
     f (a + b) - f (b + a) = 0 := by module_eq_atoms
 

@@ -42,7 +42,9 @@ space.
 The table maps each production-level `ParserFn` in `Lean.DocString.Parser` to the test-file
 prefixes that exercise it. These productions also exercise the generic combinators (`atLeastFn`,
 `asTokenFn`, `ignoreFn`, `withCurrentColumn`, the `recover*` family, and so on). The
-`recoverBlock`/`recoverBlocks` prefixes also target the recovery paths.
+`recoverBlock`/`recoverBlocks` prefixes also target the recovery paths. The `blockTrailing` prefix
+parses a single block whose final token consumes trailing whitespace, which is how a document is
+parsed one block at a time downstream in Verso proper.
 
 | `ParserFn` | Exercised by prefixes |
 | --- | --- |
@@ -75,7 +77,7 @@ prefixes that exercise it. These productions also exercise the generic combinato
 | `linkRefFn` | `blocks` |
 | `footnoteRefFn` | `blocks` |
 | `metadataBlockFn`, `metadataContents` | `metadataBlock`, `blocks` |
-| `blockFn`, `blocksFn`, `blocks1Fn` | `block`, `blocks`, `recoverBlock`, `recoverBlocks` |
+| `blockFn`, `blocksFn`, `blocks1Fn` | `block`, `blocks`, `recoverBlock`, `recoverBlocks`, `blockTrailing` |
 | `documentFn` (incl. empty, whitespace-only, tabs, CRLF input) | `document`, `documentIndented` |
 | `blockTailWs`, `lineTailWs`, `wsFallback` | `blocks`, `document` |
 

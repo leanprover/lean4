@@ -2027,6 +2027,10 @@ mutual
 
   /--
   Parses a block.
+
+  When `recordTrailing` is set, the block's final token consumes the whitespace that follows the
+  block (including the indentation of the next line), even when error recovery lost the token that
+  would have consumed it.
   -/
   public partial def blockFn (c : BlockCtxt) : ParserFn :=
     noTabs >>
@@ -2034,13 +2038,21 @@ mutual
     -- it, so a block begins at its own first token, at or past the column the enclosing block
     -- saved.
     checkIndentGe indentMsg >>
-    (expectedFn "block opener (at line start: '#', '>', ':', '*', '-', '+', '1.', '```', '%%%', '{…}')" (
-        blockCommandFn c <|> unorderedListFn c <|> orderedListFn c <|> definitionListFn c <|>
-        headerFn c <|> codeBlockFn c <|> directiveFn c <|> blockquoteFn c <|>
-        linkRefFn c <|> footnoteRefFn c <|> metadataBlockFn c) <|>
-      paraFn c)
+    withTrailingFallback
+      (expectedFn "block opener (at line start: '#', '>', ':', '*', '-', '+', '1.', '```', '%%%', '{…}')" (
+          blockCommandFn c <|> unorderedListFn c <|> orderedListFn c <|> definitionListFn c <|>
+          headerFn c <|> codeBlockFn c <|> directiveFn c <|> blockquoteFn c <|>
+          linkRefFn c <|> footnoteRefFn c <|> metadataBlockFn c) <|>
+        paraFn c)
   where
     indentMsg := "block"
+
+    withTrailingFallback (block : ParserFn) : ParserFn := fun ctx s =>
+      if !c.recordTrailing then block ctx s
+      else
+        let base := s.stxStack.size
+        let s := block ctx s
+        if s.hasError then s else blockSepFallback base ctx s
 
     /--
     Reports a tab where a block would begin. This check records the error at the tab, consuming it

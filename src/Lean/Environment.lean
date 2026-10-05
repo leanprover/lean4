@@ -1992,7 +1992,8 @@ def getModuleEntries {α β σ : Type} [Inhabited σ] (ext : PersistentEnvExtens
 def getModuleIREntries {α β σ : Type} [Inhabited σ] (ext : PersistentEnvExtension α β σ)
     (env : Environment) (m : ModuleIdx) : Array α :=
   -- safety: as in `getStateUnsafe`
-  unsafe (ext.toEnvExtension.getStateImpl env.base.private.irBaseExts).importedEntries[m]!
+  -- `importedEntries` is empty for extensions without any IR entries
+  unsafe (ext.toEnvExtension.getStateImpl env.base.private.irBaseExts).importedEntries[m]?.getD #[]
 
 @[inline] def addEntry {α β σ : Type} (ext : PersistentEnvExtension α β σ) (env : Environment)
     (b : β) (asyncMode := ext.toEnvExtension.asyncMode) (asyncDecl : Name := .anonymous)
@@ -2285,6 +2286,26 @@ private def setImportedEntries (states : Array EnvExtensionState) (mods : Array 
         -- safety: as in `modifyState`
         states := unsafe extDescrs[entryIdx]!.toEnvExtension.modifyStateImpl states fun s =>
           { s with importedEntries := s.importedEntries.set! modIdx entries }
+  return states
+
+/--
+Variant of `setImportedEntries` for `irBaseExts` that leaves `importedEntries` empty for extensions
+without entries in `mods`, which `getModuleIREntries` accounts for.
+-/
+private def setImportedIREntries (states : Array EnvExtensionState) (mods : Array ModuleData) :
+    IO (Array EnvExtensionState) := do
+  let mut states := states
+  let extDescrs ← persistentEnvExtensionsRef.get
+  let extNameIdx ← mkExtNameMap 0
+  for h : modIdx in *...mods.size do
+    let mod := mods[modIdx]
+    for (extName, entries) in mod.entries do
+      if let some entryIdx := extNameIdx[extName]? then
+        -- safety: as in `modifyState`
+        states := unsafe extDescrs[entryIdx]!.toEnvExtension.modifyStateImpl states fun s =>
+          let importedEntries :=
+            if s.importedEntries.isEmpty then .replicate mods.size #[] else s.importedEntries
+          { s with importedEntries := importedEntries.set! modIdx entries }
   return states
 
 set_option compiler.ignoreBorrowAnnotation true in
@@ -2723,7 +2744,7 @@ def finalizeImport (s : ImportState) (imports : Array Import) (opts : Options) (
   -- `importModulesCore` loads every module as `importAll`. Assumes `level` is the `globalLevel`
   -- the modules were loaded with.
   let serverIsMain := level != .server
-  let irBaseExts ← setImportedEntries privateBase.extensions irData
+  let irBaseExts ← setImportedIREntries privateBase.extensions irData
   let serverBaseExts ←
     if serverIsMain then pure extensions else setImportedEntries privateBase.extensions serverData
   let privateBase := { privateBase with extensions, irBaseExts }

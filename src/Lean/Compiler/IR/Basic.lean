@@ -348,6 +348,8 @@ def reshape (bs : Array FnBody) (term : FnBody) : FnBody :=
 structure DeclInfo where
   /-- If `some <blame>`, then declaration depends on `<blame>` which uses a `sorry` axiom. -/
   sorryDep? : Option Name := none
+  maxJp : Nat
+  maxVar : Nat
 
 inductive Decl where
   | fdecl  (f : FunId) (xs : Array Param) (type : IRType) (body : FnBody) (info : DeclInfo)
@@ -374,7 +376,7 @@ def isExtern : Decl → Bool
 
 def getInfo : Decl → DeclInfo
   | .fdecl (info := info) .. => info
-  | _ => {}
+  | _ => { maxJp := 0, maxVar := 0 }
 
 def updateBody! (d : Decl) (bNew : FnBody) : Decl :=
   match d with
@@ -385,7 +387,7 @@ end Decl
 
 -- Hack: we use this declaration as a stub for declarations annotated with `implemented_by` or `init`
 def mkDummyExternDecl (f : FunId) (xs : Array Param) (ty : IRType) : Decl :=
-  Decl.fdecl f xs ty FnBody.unreachable {}
+  Decl.fdecl f xs ty FnBody.unreachable { maxJp := 0, maxVar := 0 }
 
 /-- Set of variable and join point names -/
 abbrev IndexSet := Std.TreeSet Index

@@ -124,7 +124,11 @@ void lean_notify_assert(const char * fileName, int line, const char * condition)
 #define LeanExternal    254
 #define LeanReserved    255
 
-#define LEAN_MAX_CTOR_FIELDS 256
+/* Value of the header field `m_other` of a constructor object whose number of object fields does not
+   fit into that field, see `lean_ctor_num_objs`. */
+#define LEAN_CTOR_BIG_NUM_OBJS 255
+/* Keeps the size of a constructor object within the 16 bits of the header field `m_cs_sz`. */
+#define LEAN_MAX_CTOR_FIELDS 8000
 #define LEAN_MAX_CTOR_SCALARS_SIZE 1024
 
 static inline bool lean_is_big_object_tag(uint8_t tag) {
@@ -167,6 +171,9 @@ which use extra pointer bits which do not fit (https://github.com/leanprover/lea
 
 
 The field `m_other` is used to store the number of fields in a constructor object and the element size in a scalar array.
+A constructor object with `LEAN_CTOR_BIG_NUM_OBJS` or more object fields stores `LEAN_CTOR_BIG_NUM_OBJS` there
+and the actual number, boxed, in its first object field. That field is counted like any other object field, so
+the compiler places the fields of such a constructor one position later.
 For arrays, scalar arrays and strings its uppermost bit (`LEAN_LINEAR_MARK_MASK`) holds the linearity marker set by
 `markLinear`; read the element size of a scalar array with `lean_sarray_elem_size`, which masks it out.
 */
@@ -615,9 +622,9 @@ static inline unsigned lean_ptr_other(lean_object * o) {
 }
 /* The object size may be slightly bigger for constructor objects.
    The runtime does not track the size of the scalar size area.
-   All constructor objects are "small", and allocated into pages.
-   We retrieve their size by accessing the page header. The size of
-   small objects is a multiple of LEAN_OBJECT_SIZE_DELTA */
+   All constructor objects are allocated as "small" objects, which
+   record their size. The size of small objects is a multiple of
+   LEAN_OBJECT_SIZE_DELTA */
 LEAN_EXPORT size_t lean_object_byte_size(lean_object * o);
 
 /* Returns the size of the salient part of an object's storage,
@@ -836,7 +843,9 @@ static inline void lean_set_non_heap_header_for_big(lean_object * o, unsigned ta
 
 static inline unsigned lean_ctor_num_objs(lean_object * o) {
     assert(lean_is_ctor(o));
-    return lean_ptr_other(o);
+    unsigned n = lean_ptr_other(o);
+    if (LEAN_LIKELY(n != LEAN_CTOR_BIG_NUM_OBJS)) return n;
+    return (unsigned)lean_unbox(lean_to_ctor(o)->m_objs[0]);
 }
 
 static inline lean_object ** lean_ctor_obj_cptr(lean_object * o) {
@@ -852,7 +861,12 @@ static inline uint8_t * lean_ctor_scalar_cptr(lean_object * o) {
 static inline lean_object * lean_alloc_ctor(unsigned tag, unsigned num_objs, unsigned scalar_sz) {
     assert(tag <= LeanMaxCtorTag && num_objs < LEAN_MAX_CTOR_FIELDS && scalar_sz < LEAN_MAX_CTOR_SCALARS_SIZE);
     lean_object * o = lean_alloc_ctor_memory(lean_usize_add_checked(lean_usize_add_checked(sizeof(lean_ctor_object), lean_usize_mul_checked(sizeof(void*), num_objs)), scalar_sz));
-    lean_set_st_header(o, tag, num_objs);
+    if (LEAN_LIKELY(num_objs < LEAN_CTOR_BIG_NUM_OBJS)) {
+        lean_set_st_header(o, tag, num_objs);
+    } else {
+        lean_set_st_header(o, tag, LEAN_CTOR_BIG_NUM_OBJS);
+        lean_to_ctor(o)->m_objs[0] = lean_box(num_objs);
+    }
     return o;
 }
 
@@ -886,7 +900,10 @@ static inline void lean_ctor_set_tag(b_lean_obj_arg o, uint8_t new_tag) {
 static inline void lean_ctor_release(b_lean_obj_arg o, unsigned i) {
     assert(i < lean_ctor_num_objs(o));
     lean_object ** objs = lean_ctor_obj_cptr(o);
-    lean_dec(objs[i]);
+    // Scalars are kept, which preserves the number of object fields stored in the first field of a
+    // constructor object with `LEAN_CTOR_BIG_NUM_OBJS` or more of them.
+    if (lean_is_scalar(objs[i])) return;
+    lean_dec_ref(objs[i]);
     // Note: This assignment is crucial. `lean_ctor_release` is called when we are preparing a
     // `reset` for a unique object. However, in some control paths the object might not be able to
     // be reused. In these paths we just call `dec` on the object. In this situation not having this
@@ -3624,6 +3641,10 @@ static inline uint64_t lean_expr_data(lean_obj_arg expr) {
 
 static inline lean_obj_res lean_get_max_ctor_fields(lean_obj_arg _unit) {
     return lean_box(LEAN_MAX_CTOR_FIELDS);
+}
+
+static inline lean_obj_res lean_get_ctor_big_num_objs(lean_obj_arg _unit) {
+    return lean_box(LEAN_CTOR_BIG_NUM_OBJS);
 }
 
 static inline lean_obj_res lean_get_max_ctor_scalars_size(lean_obj_arg _unit) {

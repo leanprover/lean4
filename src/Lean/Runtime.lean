@@ -22,6 +22,14 @@ opaque maxSmallNatFn : Unit → Nat
 opaque getMaxCtorFields : Unit → Nat
 def maxCtorFields := getMaxCtorFields ()
 
+@[extern "lean_get_ctor_big_num_objs"]
+opaque getCtorBigNumObjs : Unit → Nat
+/--
+The number of object fields from which on a constructor object stores that number in an additional
+first object field.
+-/
+def ctorBigNumObjs := getCtorBigNumObjs ()
+
 @[extern "lean_get_max_ctor_scalars_size"]
 opaque getMaxCtorScalarsSize : Unit → Nat
 def maxCtorScalarsSize := getMaxCtorScalarsSize ()

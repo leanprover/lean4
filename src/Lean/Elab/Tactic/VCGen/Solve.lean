@@ -586,7 +586,7 @@ The function performs the following steps in order:
 7. **Bare pure precondition introduction**: on the `Prop` lattice, replace a `True`
    precondition by `⊤` and lift any other precondition into the local context.
 8. **Component projection reduction**: reduce a `Prod.fst` RHS to the projected component.
-9. **Lattice decomposition**: decompose `⊓`, `⇨`, `⌜p⌝` and `⊤` RHS connectives.
+9. **Lattice decomposition**: decompose `⊓`, `⇨`, `⌜p⌝`, `⊤` and `∧` RHS connectives.
 10. **Lifted-hypothesis discharge**: close a residual `pre ⊑ ⌜φ⌝` entailment against the most
     recently lifted precondition `h : φ` in the local context, cached in `Scope.lastLiftedPre?`.
 11. **WP decomposition**: when the RHS is `wp e post eposts s₁ ... sₙ`, in order:

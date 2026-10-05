@@ -284,6 +284,20 @@ theorem himp_post {m} [Monad m] [Assertion Pred] [Assertion EPosts] [WPMonad m P
 
 end HimpSplit
 
+namespace AndSplit
+
+-- A pointwise `∧` precondition splits like `⊓`, so the `wp` of the second `dec` is stepped.
+def dec : StateM Nat Unit := modify (· - 1)
+
+@[spec] theorem dec_spec {Q : Unit → Nat → Prop} :
+    ⦃ fun n => 0 < n ∧ Q () (n - 1) ⦄ dec ⦃ Q ⦄ := by
+  vcgen [dec] <;> simp_all
+
+example : ⦃ fun n => n = 2 ⦄ (do dec; dec) ⦃ fun _ n => n = 0 ⦄ := by
+  vcgen <;> omega
+
+end AndSplit
+
 namespace VSTTE2010
 
 namespace MaxAndSum

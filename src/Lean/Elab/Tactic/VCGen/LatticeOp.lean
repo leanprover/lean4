@@ -47,8 +47,8 @@ operator is saturated with distribution and unfolding rewrites, a terminal `⊑`
 fires on the reduced form, and any state arguments the terminal leaves over-applied are point-framed
 onto the precondition.
 
-The built-in splits cover the lattice connectives `⊓`/`⇨`/`⌜·⌝`/`⊤`/`iInf` and the magic-wand
-residual `upperAdjoint`.
+The built-in splits cover the lattice connectives `⊓`/`⇨`/`⌜·⌝`/`⊤`/`iInf`, the `Prop` conjunction
+`∧`, and the magic-wand residual `upperAdjoint`.
 -/
 
 /-- The lattice meet `⊓`: distributes via `meet_apply`, closes with `le_meet`. -/
@@ -67,6 +67,9 @@ public def LatticeOp.ofProp : LatticeOp :=
 /-- The lattice top `⊤`: distributes via `top_apply`, closes with `le_top`. -/
 public def LatticeOp.top : LatticeOp :=
   { head := ``Lean.Order.top, rewrites := #[``Lean.Order.top_apply], terminal? := ``le_top }
+/-- The conjunction `∧` on the `Prop` lattice: closes with `le_and`. -/
+public def LatticeOp.and : LatticeOp :=
+  { head := ``And, numConst := 0, terminal? := ``Lean.Order.le_and }
 /-- The magic-wand residual `upperAdjoint f b`: point-framed, closes with `le_upperAdjoint`. -/
 public def LatticeOp.upperAdjoint : LatticeOp :=
   { head := ``Lean.Order.PreservesSup.upperAdjoint,
@@ -101,7 +104,7 @@ public def LatticeOp.snd : LatticeOp :=
 
 /-- The built-in connective splits, whose rewrites and terminals seed every saturation. -/
 public def builtinLatticeOps : Array LatticeOp :=
-  #[.meet, .himp, .ofProp, .top, .upperAdjoint, .iInf, .fst, .snd]
+  #[.meet, .himp, .ofProp, .top, .and, .upperAdjoint, .iInf, .fst, .snd]
 
 /-- Lattice splits of the built-in connectives, keyed by operator head. `splitLatticeOp?` looks a
 head up here. -/
@@ -114,7 +117,7 @@ private def mkLatticeTerminals (names : Array Name) : MetaM (Std.HashMap Name (N
   let mut m : Std.HashMap Name (Name × Nat) := {}
   for n in names do
     let ty ← Meta.inferType (← mkConstWithFreshMVarLevels n)
-    let (_, _, concl) ← forallMetaTelescopeReducing ty
+    let (_, _, concl) ← forallMetaTelescope ty
     let some (_, _, _, rhs) := (← instantiateMVars concl).app4? ``PartialOrder.rel
       | throwError "lattice terminal {n} does not conclude a `⊑` relation"
     let some h := rhs.getAppFn.constName?

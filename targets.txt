@@ -1,0 +1,174 @@
+# Nat / UIntX+USize / Array primitives that are @[extern] in Init and `static inline` in lean.h
+# columns: lean name | C symbol | group from hot_inline.txt (A fully inline, B inline + cold fallback, C always calls out) | out-of-line callees | location
+
+## Nat (17)
+Nat.land	lean_nat_land	B	lean_nat_big_land	src/Init/Data/Nat/Bitwise/Basic.lean:49
+Nat.lor	lean_nat_lor	B	lean_nat_big_lor	src/Init/Data/Nat/Bitwise/Basic.lean:57
+Nat.xor	lean_nat_lxor	B	lean_nat_big_xor	src/Init/Data/Nat/Bitwise/Basic.lean:65
+Nat.shiftRight	lean_nat_shiftr	B	lean_nat_big_shiftr	src/Init/Data/Nat/Bitwise/Basic.lean:94
+Nat.divExact	lean_nat_div_exact	B	lean_nat_big_div_exact	src/Init/Data/Nat/Div/Basic.lean:113
+Nat.add	lean_nat_add	B	lean_big_usize_to_nat,lean_nat_big_add	src/Init/Prelude.lean:1897
+Nat.mul	lean_nat_mul	B	lean_nat_big_mul,lean_nat_overflow_mul	src/Init/Prelude.lean:1918
+Nat.beq	lean_nat_dec_eq	B	lean_nat_big_eq	src/Init/Prelude.lean:1947
+Nat.decEq	lean_nat_dec_eq	B	lean_nat_big_eq	src/Init/Prelude.lean:1997
+Nat.ble	lean_nat_dec_le	B	lean_nat_big_le	src/Init/Prelude.lean:2019
+Nat.pred	lean_nat_pred	B	lean_nat_big_sub	src/Init/Prelude.lean:2103
+Nat.decLe	lean_nat_dec_le	B	lean_nat_big_le	src/Init/Prelude.lean:2216
+Nat.decLt	lean_nat_dec_lt	B	lean_nat_big_lt	src/Init/Prelude.lean:2234
+Nat.sub	lean_nat_sub	B	lean_nat_big_sub	src/Init/Prelude.lean:2257
+Nat.div	lean_nat_div	B	lean_nat_big_div	src/Init/Prelude.lean:2316
+Nat.modCore	lean_nat_mod	B	lean_nat_big_mod	src/Init/Prelude.lean:2346
+Nat.mod	lean_nat_mod	B	lean_nat_big_mod	src/Init/Prelude.lean:2404
+
+## UIntX/USize (131)
+UInt8.add	lean_uint8_add	A		src/Init/Data/UInt/Basic.lean:32
+UInt8.sub	lean_uint8_sub	A		src/Init/Data/UInt/Basic.lean:40
+UInt8.mul	lean_uint8_mul	A		src/Init/Data/UInt/Basic.lean:48
+UInt8.div	lean_uint8_div	A		src/Init/Data/UInt/Basic.lean:58
+UInt8.mod	lean_uint8_mod	A		src/Init/Data/UInt/Basic.lean:84
+UInt8.land	lean_uint8_land	A		src/Init/Data/UInt/Basic.lean:98
+UInt8.lor	lean_uint8_lor	A		src/Init/Data/UInt/Basic.lean:108
+UInt8.xor	lean_uint8_xor	A		src/Init/Data/UInt/Basic.lean:118
+UInt8.shiftLeft	lean_uint8_shift_left	A		src/Init/Data/UInt/Basic.lean:125
+UInt8.shiftRight	lean_uint8_shift_right	A		src/Init/Data/UInt/Basic.lean:132
+UInt8.complement	lean_uint8_complement	A		src/Init/Data/UInt/Basic.lean:154
+UInt8.neg	lean_uint8_neg	A		src/Init/Data/UInt/Basic.lean:163
+Bool.toUInt8	lean_bool_to_uint8	A		src/Init/Data/UInt/Basic.lean:177
+UInt16.add	lean_uint16_add	A		src/Init/Data/UInt/Basic.lean:214
+UInt16.sub	lean_uint16_sub	A		src/Init/Data/UInt/Basic.lean:222
+UInt16.mul	lean_uint16_mul	A		src/Init/Data/UInt/Basic.lean:230
+UInt16.div	lean_uint16_div	A		src/Init/Data/UInt/Basic.lean:240
+UInt16.mod	lean_uint16_mod	A		src/Init/Data/UInt/Basic.lean:266
+UInt16.land	lean_uint16_land	A		src/Init/Data/UInt/Basic.lean:280
+UInt16.lor	lean_uint16_lor	A		src/Init/Data/UInt/Basic.lean:290
+UInt16.xor	lean_uint16_xor	A		src/Init/Data/UInt/Basic.lean:300
+UInt16.shiftLeft	lean_uint16_shift_left	A		src/Init/Data/UInt/Basic.lean:307
+UInt16.shiftRight	lean_uint16_shift_right	A		src/Init/Data/UInt/Basic.lean:314
+UInt16.complement	lean_uint16_complement	A		src/Init/Data/UInt/Basic.lean:348
+UInt16.neg	lean_uint16_neg	A		src/Init/Data/UInt/Basic.lean:357
+Bool.toUInt16	lean_bool_to_uint16	A		src/Init/Data/UInt/Basic.lean:371
+UInt16.decLt	lean_uint16_dec_lt	A		src/Init/Data/UInt/Basic.lean:386
+UInt16.decLe	lean_uint16_dec_le	A		src/Init/Data/UInt/Basic.lean:403
+UInt32.mul	lean_uint32_mul	A		src/Init/Data/UInt/Basic.lean:424
+UInt32.div	lean_uint32_div	A		src/Init/Data/UInt/Basic.lean:434
+UInt32.mod	lean_uint32_mod	A		src/Init/Data/UInt/Basic.lean:460
+UInt32.land	lean_uint32_land	A		src/Init/Data/UInt/Basic.lean:474
+UInt32.lor	lean_uint32_lor	A		src/Init/Data/UInt/Basic.lean:484
+UInt32.xor	lean_uint32_xor	A		src/Init/Data/UInt/Basic.lean:494
+UInt32.shiftLeft	lean_uint32_shift_left	A		src/Init/Data/UInt/Basic.lean:501
+UInt32.shiftRight	lean_uint32_shift_right	A		src/Init/Data/UInt/Basic.lean:508
+UInt32.complement	lean_uint32_complement	A		src/Init/Data/UInt/Basic.lean:541
+UInt32.neg	lean_uint32_neg	A		src/Init/Data/UInt/Basic.lean:550
+Bool.toUInt32	lean_bool_to_uint32	A		src/Init/Data/UInt/Basic.lean:564
+UInt64.add	lean_uint64_add	A		src/Init/Data/UInt/Basic.lean:579
+UInt64.sub	lean_uint64_sub	A		src/Init/Data/UInt/Basic.lean:587
+UInt64.mul	lean_uint64_mul	A		src/Init/Data/UInt/Basic.lean:595
+UInt64.div	lean_uint64_div	A		src/Init/Data/UInt/Basic.lean:605
+UInt64.mod	lean_uint64_mod	A		src/Init/Data/UInt/Basic.lean:631
+UInt64.land	lean_uint64_land	A		src/Init/Data/UInt/Basic.lean:645
+UInt64.lor	lean_uint64_lor	A		src/Init/Data/UInt/Basic.lean:655
+UInt64.xor	lean_uint64_xor	A		src/Init/Data/UInt/Basic.lean:665
+UInt64.shiftLeft	lean_uint64_shift_left	A		src/Init/Data/UInt/Basic.lean:672
+UInt64.shiftRight	lean_uint64_shift_right	A		src/Init/Data/UInt/Basic.lean:679
+UInt64.complement	lean_uint64_complement	A		src/Init/Data/UInt/Basic.lean:713
+UInt64.neg	lean_uint64_neg	A		src/Init/Data/UInt/Basic.lean:722
+Bool.toUInt64	lean_bool_to_uint64	A		src/Init/Data/UInt/Basic.lean:736
+UInt64.decLt	lean_uint64_dec_lt	A		src/Init/Data/UInt/Basic.lean:750
+UInt64.decLe	lean_uint64_dec_le	A		src/Init/Data/UInt/Basic.lean:766
+USize.mul	lean_usize_mul	A		src/Init/Data/UInt/Basic.lean:790
+USize.div	lean_usize_div	A		src/Init/Data/UInt/Basic.lean:800
+USize.mod	lean_usize_mod	A		src/Init/Data/UInt/Basic.lean:826
+USize.land	lean_usize_land	A		src/Init/Data/UInt/Basic.lean:840
+USize.lor	lean_usize_lor	A		src/Init/Data/UInt/Basic.lean:850
+USize.xor	lean_usize_xor	A		src/Init/Data/UInt/Basic.lean:860
+USize.shiftLeft	lean_usize_shift_left	A		src/Init/Data/UInt/Basic.lean:867
+USize.shiftRight	lean_usize_shift_right	A		src/Init/Data/UInt/Basic.lean:874
+UInt8.toUSize	lean_uint8_to_usize	A		src/Init/Data/UInt/Basic.lean:890
+USize.toUInt8	lean_usize_to_uint8	A		src/Init/Data/UInt/Basic.lean:898
+UInt16.toUSize	lean_uint16_to_usize	A		src/Init/Data/UInt/Basic.lean:905
+USize.toUInt16	lean_usize_to_uint16	A		src/Init/Data/UInt/Basic.lean:913
+UInt32.toUSize	lean_uint32_to_usize	A		src/Init/Data/UInt/Basic.lean:920
+USize.toUInt32	lean_usize_to_uint32	A		src/Init/Data/UInt/Basic.lean:928
+UInt64.toUSize	lean_uint64_to_usize	A		src/Init/Data/UInt/Basic.lean:936
+USize.toUInt64	lean_usize_to_uint64	A		src/Init/Data/UInt/Basic.lean:944
+USize.complement	lean_usize_complement	A		src/Init/Data/UInt/Basic.lean:981
+USize.neg	lean_usize_neg	A		src/Init/Data/UInt/Basic.lean:988
+Bool.toUSize	lean_bool_to_usize	A		src/Init/Data/UInt/Basic.lean:1002
+UInt16.toUInt8	lean_uint16_to_uint8	A		src/Init/Data/UInt/BasicAux.lean:122
+UInt8.toUInt16	lean_uint8_to_uint16	A		src/Init/Data/UInt/BasicAux.lean:129
+UInt32.toUInt8	lean_uint32_to_uint8	A		src/Init/Data/UInt/BasicAux.lean:179
+UInt32.toUInt16	lean_uint32_to_uint16	A		src/Init/Data/UInt/BasicAux.lean:186
+UInt8.toUInt32	lean_uint8_to_uint32	A		src/Init/Data/UInt/BasicAux.lean:193
+UInt16.toUInt32	lean_uint16_to_uint32	A		src/Init/Data/UInt/BasicAux.lean:200
+UInt32.add	lean_uint32_add	A		src/Init/Data/UInt/BasicAux.lean:222
+UInt32.sub	lean_uint32_sub	A		src/Init/Data/UInt/BasicAux.lean:231
+UInt64.toUInt8	lean_uint64_to_uint8	A		src/Init/Data/UInt/BasicAux.lean:289
+UInt64.toUInt16	lean_uint64_to_uint16	A		src/Init/Data/UInt/BasicAux.lean:296
+UInt64.toUInt32	lean_uint64_to_uint32	A		src/Init/Data/UInt/BasicAux.lean:303
+UInt8.toUInt64	lean_uint8_to_uint64	A		src/Init/Data/UInt/BasicAux.lean:310
+UInt16.toUInt64	lean_uint16_to_uint64	A		src/Init/Data/UInt/BasicAux.lean:317
+UInt32.toUInt64	lean_uint32_to_uint64	A		src/Init/Data/UInt/BasicAux.lean:324
+USize.add	lean_usize_add	A		src/Init/Data/UInt/BasicAux.lean:367
+USize.sub	lean_usize_sub	A		src/Init/Data/UInt/BasicAux.lean:375
+USize.decLt	lean_usize_dec_lt	A		src/Init/Data/UInt/BasicAux.lean:407
+USize.decLe	lean_usize_dec_le	A		src/Init/Data/UInt/BasicAux.lean:423
+UInt8.log2	lean_uint8_log2	A		src/Init/Data/UInt/Log2.lean:29
+UInt16.log2	lean_uint16_log2	A		src/Init/Data/UInt/Log2.lean:46
+UInt32.log2	lean_uint32_log2	A		src/Init/Data/UInt/Log2.lean:63
+UInt64.log2	lean_uint64_log2	A		src/Init/Data/UInt/Log2.lean:80
+USize.log2	lean_usize_log2	A		src/Init/Data/UInt/Log2.lean:97
+UInt8.decEq	lean_uint8_dec_eq	A		src/Init/Prelude.lean:2625
+UInt8.decLt	lean_uint8_dec_lt	A		src/Init/Prelude.lean:2662
+UInt8.decLe	lean_uint8_dec_le	A		src/Init/Prelude.lean:2678
+UInt16.decEq	lean_uint16_dec_eq	A		src/Init/Prelude.lean:2729
+UInt32.decEq	lean_uint32_dec_eq	A		src/Init/Prelude.lean:2794
+UInt32.decLt	lean_uint32_dec_lt	A		src/Init/Prelude.lean:2824
+UInt32.decLe	lean_uint32_dec_le	A		src/Init/Prelude.lean:2840
+UInt64.decEq	lean_uint64_dec_eq	A		src/Init/Prelude.lean:2894
+USize.decEq	lean_usize_dec_eq	A		src/Init/Prelude.lean:2964
+USize.ofNat32	lean_usize_of_nat	B	lean_usize_of_big_nat	src/Init/Data/UInt/Basic.lean:882
+UInt8.toNat	lean_uint8_to_nat	B	lean_big_usize_to_nat	src/Init/Data/UInt/BasicAux.lean:63
+UInt16.ofNat	lean_uint16_of_nat	B	lean_uint16_of_big_nat	src/Init/Data/UInt/BasicAux.lean:82
+UInt16.toNat	lean_uint16_to_nat	B	lean_big_usize_to_nat	src/Init/Data/UInt/BasicAux.lean:115
+UInt32.ofNat	lean_uint32_of_nat	B	lean_uint32_of_big_nat	src/Init/Data/UInt/BasicAux.lean:147
+UInt64.ofNat	lean_uint64_of_nat	B	lean_uint64_of_big_nat	src/Init/Data/UInt/BasicAux.lean:251
+UInt64.toNat	lean_uint64_to_nat	B	lean_big_uint64_to_nat	src/Init/Data/UInt/BasicAux.lean:282
+USize.ofNat	lean_usize_of_nat	B	lean_usize_of_big_nat	src/Init/Data/UInt/BasicAux.lean:338
+USize.toNat	lean_usize_to_nat	B	lean_big_usize_to_nat	src/Init/Data/UInt/BasicAux.lean:359
+UInt8.ofBitVec	lean_uint8_of_nat_mk	B	lean_uint8_of_big_nat	src/Init/Prelude.lean:2585
+UInt8.toBitVec	lean_uint8_to_nat	B	lean_big_usize_to_nat	src/Init/Prelude.lean:2586
+UInt8.ofNatLT	lean_uint8_of_nat	B	lean_uint8_of_big_nat	src/Init/Prelude.lean:2594
+UInt8.ofNat	lean_uint8_of_nat	B	lean_uint8_of_big_nat	src/Init/Prelude.lean:2610
+UInt16.ofBitVec	lean_uint16_of_nat_mk	B	lean_uint16_of_big_nat	src/Init/Prelude.lean:2703
+UInt16.toBitVec	lean_uint16_to_nat	B	lean_big_usize_to_nat	src/Init/Prelude.lean:2704
+UInt16.ofNatLT	lean_uint16_of_nat	B	lean_uint16_of_big_nat	src/Init/Prelude.lean:2712
+UInt32.ofBitVec	lean_uint32_of_nat_mk	B	lean_uint32_of_big_nat	src/Init/Prelude.lean:2761
+UInt32.toBitVec	lean_uint32_to_nat	B	lean_big_usize_to_nat	src/Init/Prelude.lean:2762
+UInt32.ofNatLT	lean_uint32_of_nat	B	lean_uint32_of_big_nat	src/Init/Prelude.lean:2770
+UInt32.toNat	lean_uint32_to_nat	B	lean_big_usize_to_nat	src/Init/Prelude.lean:2779
+UInt64.ofBitVec	lean_uint64_of_nat_mk	B	lean_uint64_of_big_nat	src/Init/Prelude.lean:2868
+UInt64.toBitVec	lean_uint64_to_nat	B	lean_big_uint64_to_nat	src/Init/Prelude.lean:2869
+UInt64.ofNatLT	lean_uint64_of_nat	B	lean_uint64_of_big_nat	src/Init/Prelude.lean:2877
+USize.ofBitVec	lean_usize_of_nat_mk	B	lean_usize_of_big_nat	src/Init/Prelude.lean:2939
+USize.toBitVec	lean_usize_to_nat	B	lean_big_usize_to_nat	src/Init/Prelude.lean:2940
+USize.ofNatLT	lean_usize_of_nat	B	lean_usize_of_big_nat	src/Init/Prelude.lean:2948
+
+## Array (18)
+Array.usize	lean_array_size	A		src/Init/Data/Array/Basic.lean:165
+Array.uget	lean_array_uget	A		src/Init/Data/Array/Basic.lean:173
+Array.ugetBorrowed	lean_array_uget_borrowed	A		src/Init/Data/Array/Basic.lean:182
+Array.size	lean_array_get_size	A		src/Init/Prelude.lean:3419
+Array.getInternalBorrowed	lean_array_fget_borrowed	A		src/Init/Prelude.lean:3428
+Array.getInternal	lean_array_fget	A		src/Init/Prelude.lean:3442
+Array.uset	lean_array_uset	B	lean_copy_expand_array_nonlinear	src/Init/Data/Array/Basic.lean:192
+Array.pop	lean_array_pop	B	lean_copy_expand_array_nonlinear	src/Init/Data/Array/Basic.lean:205
+Array.markLinear	lean_array_mark_linear	B	lean_copy_expand_array_nonlinear	src/Init/Data/Array/Basic.lean:223
+Array.propagateMark	lean_array_propagate_mark	B	lean_copy_expand_array_nonlinear	src/Init/Data/Array/Basic.lean:233
+Array.swap	lean_array_fswap	B	lean_copy_expand_array_nonlinear	src/Init/Data/Array/Basic.lean:263
+Array.swapIfInBounds	lean_array_swap	B	lean_copy_expand_array_nonlinear	src/Init/Data/Array/Basic.lean:286
+Array.set	lean_array_fset	B	lean_copy_expand_array_nonlinear	src/Init/Data/Array/Set.lean:29
+Array.set!	lean_array_set	B	lean_array_set_panic,lean_copy_expand_array_nonlinear	src/Init/Data/Array/Set.lean:54
+Array.get!InternalBorrowed	lean_array_get_borrowed	B	lean_array_get_panic	src/Init/Prelude.lean:3466
+Array.get!Internal	lean_array_get	B	lean_array_get_panic	src/Init/Prelude.lean:3474
+Array.mkEmpty	lean_mk_empty_array_with_capacity	C	lean_alloc_object	src/Init/Prelude.lean:3391
+Array.emptyWithCapacity	lean_mk_empty_array_with_capacity	C	lean_alloc_object	src/Init/Prelude.lean:3398

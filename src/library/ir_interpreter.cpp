@@ -23,12 +23,17 @@ stack metadata. The interpreted IR is taken directly from the elab_environment. 
 code by checking for the mangled symbol via dlsym/GetProcAddress, which is also how we can call external functions
 (which only works if the file declaring them has already been compiled). We always call the "boxed" versions of native
 functions, which have a (relatively) homogeneous ABI that we can use without runtime code generation; see also
-`call/lookup_symbol` below.
+`call/lookup_symbol` below. The exceptions are the hot runtime primitives listed in `g_prim_defs`, which we call
+directly with unboxed arguments, just like compiled code does.
 
 */
+#include <algorithm>
+#include <climits>
 #include <string>
 #include <vector>
 #include <shared_mutex>
+#include <type_traits>
+#include <utility>
 #ifdef LEAN_WINDOWS
 #include <windows.h>
 #include <psapi.h>
@@ -183,6 +188,54 @@ fn_body const & decl_fun_body(decl const & b) {
     return cnstr_get_ref_t<fn_body>(b, 3);
 }
 
+/** \brief Highest index of a variable declared in `b`, or 0 if there is none. */
+static size_t fn_body_max_var(fn_body const & b0) {
+    size_t r = 0;
+    std::reference_wrapper<fn_body const> b(b0);
+    while (true) {
+        switch (fn_body_tag(b)) {
+        case fn_body_kind::VDecl:
+            r = std::max(r, fn_body_vdecl_var(b).get_small_value());
+            b = fn_body_vdecl_cont(b);
+            break;
+        case fn_body_kind::JDecl:
+            for (param const & p : fn_body_jdecl_params(b))
+                r = std::max(r, param_var(p).get_small_value());
+            r = std::max(r, fn_body_max_var(fn_body_jdecl_body(b)));
+            b = fn_body_jdecl_cont(b);
+            break;
+        case fn_body_kind::Set:    b = fn_body_set_cont(b); break;
+        case fn_body_kind::SetTag: b = fn_body_set_tag_cont(b); break;
+        case fn_body_kind::USet:   b = fn_body_uset_cont(b); break;
+        case fn_body_kind::SSet:   b = fn_body_sset_cont(b); break;
+        case fn_body_kind::Inc:    b = fn_body_inc_cont(b); break;
+        case fn_body_kind::Dec:    b = fn_body_dec_cont(b); break;
+        case fn_body_kind::Del:    b = fn_body_del_cont(b); break;
+        case fn_body_kind::Case:
+            for (alt_core const & a : fn_body_case_alts(b)) {
+                fn_body const & alt_body =
+                    alt_core_tag(a) == alt_core_kind::Ctor ? alt_core_ctor_cont(a) : alt_core_default_cont(a);
+                r = std::max(r, fn_body_max_var(alt_body));
+            }
+            return r;
+        case fn_body_kind::Ret:
+        case fn_body_kind::Jmp:
+        case fn_body_kind::Unreachable:
+            return r;
+        }
+    }
+}
+
+/** \brief Number of stack slots a frame of `d` needs. IR variables are 1-indexed, so this is the highest index. */
+static size_t decl_frame_size(decl const & d) {
+    size_t r = 0;
+    for (param const & p : decl_params(d))
+        r = std::max(r, param_var(p).get_small_value());
+    if (decl_tag(d) == decl_kind::Fun)
+        r = std::max(r, fn_body_max_var(decl_fun_body(d)));
+    return r;
+}
+
 extern "C" object * lean_ir_find_env_decl(object * env, object * n);
 option_ref<decl> find_ir_decl(elab_environment const & env, name const & n) {
     return option_ref<decl>(lean_ir_find_env_decl(env.to_obj_arg(), n.to_obj_arg()));
@@ -334,6 +387,313 @@ void print_value(tout const & ios, value const & v, type t) {
   return print_value(const_cast<tout &>(ios), v, t);
 }
 
+/** \brief Conversion between interpreter `value`s and the C types of runtime primitive signatures. */
+template<class T> struct prim_conv;
+
+template<class T> requires std::is_unsigned_v<T>
+struct prim_conv<T> {
+    static constexpr bool is_object = false;
+    static T from(value v) { return static_cast<T>(v.m_num); }
+    static value to(T x) { return value(static_cast<uint64>(x)); }
+    static bool accepts(type t) {
+        switch (t) {
+        case type::UInt8:  return sizeof(T) == 1;
+        case type::UInt16: return sizeof(T) == 2;
+        case type::UInt32: return sizeof(T) == 4;
+        case type::UInt64: return sizeof(T) == 8;
+        case type::USize:  return sizeof(T) == sizeof(size_t);
+        default:           return false;
+        }
+    }
+};
+
+template<> struct prim_conv<object *> {
+    static constexpr bool is_object = true;
+    static object * from(value v) { return v.m_obj; }
+    static value to(object * o) { return value(o); }
+    static bool accepts(type t) { return t == type::Object || t == type::TObject || t == type::Tagged; }
+};
+
+static constexpr unsigned max_prim_arity = 4;
+typedef value (*prim_fn)(value const * args);
+typedef bool (*prim_accepts_fn)(type const * param_types, unsigned num_params, type ret_type);
+
+/** \brief Calls the runtime function `F` on `value` arguments; the signature of `F` determines the conversions. */
+template<auto F> struct prim;
+
+template<class R, class... As, R (*F)(As...)>
+struct prim<F> {
+    static_assert(sizeof...(As) <= max_prim_arity);
+
+    template<size_t... I>
+    static value invoke_aux(value const * args, std::index_sequence<I...>) {
+        return prim_conv<R>::to(F(prim_conv<As>::from(args[I])...));
+    }
+    static value invoke(value const * args) { return invoke_aux(args, std::index_sequence_for<As...>{}); }
+
+    template<size_t... I>
+    static bool accepts_aux(type const * param_types, std::index_sequence<I...>) {
+        return (prim_conv<As>::accepts(param_types[I]) && ...);
+    }
+    /** \brief Whether the IR signature (with erased parameters removed) matches the C signature of `F`. */
+    static bool accepts(type const * param_types, unsigned num_params, type ret_type) {
+        return num_params == sizeof...(As) && prim_conv<R>::accepts(ret_type) &&
+            accepts_aux(param_types, std::index_sequence_for<As...>{});
+    }
+
+    /** \brief Compile-time check that `borrow` has one entry per C parameter of `F`: 'b' (borrowed object),
+        'o' (owned object) or '_' (scalar). */
+    static consteval char const * check_borrow(char const * borrow) {
+        constexpr bool is_object[] = { prim_conv<As>::is_object..., false };
+        for (size_t i = 0; i < sizeof...(As); i++) {
+            if (is_object[i] ? (borrow[i] != 'b' && borrow[i] != 'o') : borrow[i] != '_')
+                throw "borrow annotation does not match the C signature of the runtime primitive";
+        }
+        if (borrow[sizeof...(As)] != '\0')
+            throw "borrow annotation does not match the C signature of the runtime primitive";
+        return borrow;
+    }
+};
+
+struct prim_def {
+    char const *    m_name;
+    prim_fn         m_fn;
+    prim_accepts_fn m_accepts;
+    // ownership convention of the C function, one character per parameter: 'b' borrowed, 'o' owned, '_' scalar.
+    // Like compiled code, we rely on it agreeing with the `@&` annotations of the Lean declaration.
+    char const *    m_borrow;
+};
+
+#define LEAN_IR_PRIM(n, f, borrow) { n, &prim<&f>::invoke, &prim<&f>::accepts, prim<&f>::check_borrow(borrow) },
+// Extern declarations whose runtime function is called directly instead of through its boxed wrapper. Each entry is
+// checked against the declaration's IR signature when first called, and ignored if it does not match.
+static prim_def const g_prim_defs[] = {
+    // Nat
+    LEAN_IR_PRIM("Nat.land", lean_nat_land, "bb")
+    LEAN_IR_PRIM("Nat.lor", lean_nat_lor, "bb")
+    LEAN_IR_PRIM("Nat.xor", lean_nat_lxor, "bb")
+    LEAN_IR_PRIM("Nat.shiftRight", lean_nat_shiftr, "bb")
+    LEAN_IR_PRIM("Nat.divExact", lean_nat_div_exact, "bb")
+    LEAN_IR_PRIM("Nat.add", lean_nat_add, "bb")
+    LEAN_IR_PRIM("Nat.mul", lean_nat_mul, "bb")
+    LEAN_IR_PRIM("Nat.beq", lean_nat_dec_eq, "bb")
+    LEAN_IR_PRIM("Nat.decEq", lean_nat_dec_eq, "bb")
+    LEAN_IR_PRIM("Nat.ble", lean_nat_dec_le, "bb")
+    LEAN_IR_PRIM("Nat.pred", lean_nat_pred, "b")
+    LEAN_IR_PRIM("Nat.decLe", lean_nat_dec_le, "bb")
+    LEAN_IR_PRIM("Nat.decLt", lean_nat_dec_lt, "bb")
+    LEAN_IR_PRIM("Nat.sub", lean_nat_sub, "bb")
+    LEAN_IR_PRIM("Nat.div", lean_nat_div, "bb")
+    LEAN_IR_PRIM("Nat.mod", lean_nat_mod, "bb")
+    // UIntX / USize
+    LEAN_IR_PRIM("UInt8.add", lean_uint8_add, "__")
+    LEAN_IR_PRIM("UInt8.sub", lean_uint8_sub, "__")
+    LEAN_IR_PRIM("UInt8.mul", lean_uint8_mul, "__")
+    LEAN_IR_PRIM("UInt8.div", lean_uint8_div, "__")
+    LEAN_IR_PRIM("UInt8.mod", lean_uint8_mod, "__")
+    LEAN_IR_PRIM("UInt8.land", lean_uint8_land, "__")
+    LEAN_IR_PRIM("UInt8.lor", lean_uint8_lor, "__")
+    LEAN_IR_PRIM("UInt8.xor", lean_uint8_xor, "__")
+    LEAN_IR_PRIM("UInt8.shiftLeft", lean_uint8_shift_left, "__")
+    LEAN_IR_PRIM("UInt8.shiftRight", lean_uint8_shift_right, "__")
+    LEAN_IR_PRIM("UInt8.complement", lean_uint8_complement, "_")
+    LEAN_IR_PRIM("UInt8.neg", lean_uint8_neg, "_")
+    LEAN_IR_PRIM("Bool.toUInt8", lean_bool_to_uint8, "_")
+    LEAN_IR_PRIM("UInt16.add", lean_uint16_add, "__")
+    LEAN_IR_PRIM("UInt16.sub", lean_uint16_sub, "__")
+    LEAN_IR_PRIM("UInt16.mul", lean_uint16_mul, "__")
+    LEAN_IR_PRIM("UInt16.div", lean_uint16_div, "__")
+    LEAN_IR_PRIM("UInt16.mod", lean_uint16_mod, "__")
+    LEAN_IR_PRIM("UInt16.land", lean_uint16_land, "__")
+    LEAN_IR_PRIM("UInt16.lor", lean_uint16_lor, "__")
+    LEAN_IR_PRIM("UInt16.xor", lean_uint16_xor, "__")
+    LEAN_IR_PRIM("UInt16.shiftLeft", lean_uint16_shift_left, "__")
+    LEAN_IR_PRIM("UInt16.shiftRight", lean_uint16_shift_right, "__")
+    LEAN_IR_PRIM("UInt16.complement", lean_uint16_complement, "_")
+    LEAN_IR_PRIM("UInt16.neg", lean_uint16_neg, "_")
+    LEAN_IR_PRIM("Bool.toUInt16", lean_bool_to_uint16, "_")
+    LEAN_IR_PRIM("UInt16.decLt", lean_uint16_dec_lt, "__")
+    LEAN_IR_PRIM("UInt16.decLe", lean_uint16_dec_le, "__")
+    LEAN_IR_PRIM("UInt32.mul", lean_uint32_mul, "__")
+    LEAN_IR_PRIM("UInt32.div", lean_uint32_div, "__")
+    LEAN_IR_PRIM("UInt32.mod", lean_uint32_mod, "__")
+    LEAN_IR_PRIM("UInt32.land", lean_uint32_land, "__")
+    LEAN_IR_PRIM("UInt32.lor", lean_uint32_lor, "__")
+    LEAN_IR_PRIM("UInt32.xor", lean_uint32_xor, "__")
+    LEAN_IR_PRIM("UInt32.shiftLeft", lean_uint32_shift_left, "__")
+    LEAN_IR_PRIM("UInt32.shiftRight", lean_uint32_shift_right, "__")
+    LEAN_IR_PRIM("UInt32.complement", lean_uint32_complement, "_")
+    LEAN_IR_PRIM("UInt32.neg", lean_uint32_neg, "_")
+    LEAN_IR_PRIM("Bool.toUInt32", lean_bool_to_uint32, "_")
+    LEAN_IR_PRIM("UInt64.add", lean_uint64_add, "__")
+    LEAN_IR_PRIM("UInt64.sub", lean_uint64_sub, "__")
+    LEAN_IR_PRIM("UInt64.mul", lean_uint64_mul, "__")
+    LEAN_IR_PRIM("UInt64.div", lean_uint64_div, "__")
+    LEAN_IR_PRIM("UInt64.mod", lean_uint64_mod, "__")
+    LEAN_IR_PRIM("UInt64.land", lean_uint64_land, "__")
+    LEAN_IR_PRIM("UInt64.lor", lean_uint64_lor, "__")
+    LEAN_IR_PRIM("UInt64.xor", lean_uint64_xor, "__")
+    LEAN_IR_PRIM("UInt64.shiftLeft", lean_uint64_shift_left, "__")
+    LEAN_IR_PRIM("UInt64.shiftRight", lean_uint64_shift_right, "__")
+    LEAN_IR_PRIM("UInt64.complement", lean_uint64_complement, "_")
+    LEAN_IR_PRIM("UInt64.neg", lean_uint64_neg, "_")
+    LEAN_IR_PRIM("Bool.toUInt64", lean_bool_to_uint64, "_")
+    LEAN_IR_PRIM("UInt64.decLt", lean_uint64_dec_lt, "__")
+    LEAN_IR_PRIM("UInt64.decLe", lean_uint64_dec_le, "__")
+    LEAN_IR_PRIM("USize.mul", lean_usize_mul, "__")
+    LEAN_IR_PRIM("USize.div", lean_usize_div, "__")
+    LEAN_IR_PRIM("USize.mod", lean_usize_mod, "__")
+    LEAN_IR_PRIM("USize.land", lean_usize_land, "__")
+    LEAN_IR_PRIM("USize.lor", lean_usize_lor, "__")
+    LEAN_IR_PRIM("USize.xor", lean_usize_xor, "__")
+    LEAN_IR_PRIM("USize.shiftLeft", lean_usize_shift_left, "__")
+    LEAN_IR_PRIM("USize.shiftRight", lean_usize_shift_right, "__")
+    LEAN_IR_PRIM("UInt8.toUSize", lean_uint8_to_usize, "_")
+    LEAN_IR_PRIM("USize.toUInt8", lean_usize_to_uint8, "_")
+    LEAN_IR_PRIM("UInt16.toUSize", lean_uint16_to_usize, "_")
+    LEAN_IR_PRIM("USize.toUInt16", lean_usize_to_uint16, "_")
+    LEAN_IR_PRIM("UInt32.toUSize", lean_uint32_to_usize, "_")
+    LEAN_IR_PRIM("USize.toUInt32", lean_usize_to_uint32, "_")
+    LEAN_IR_PRIM("UInt64.toUSize", lean_uint64_to_usize, "_")
+    LEAN_IR_PRIM("USize.toUInt64", lean_usize_to_uint64, "_")
+    LEAN_IR_PRIM("USize.complement", lean_usize_complement, "_")
+    LEAN_IR_PRIM("USize.neg", lean_usize_neg, "_")
+    LEAN_IR_PRIM("Bool.toUSize", lean_bool_to_usize, "_")
+    LEAN_IR_PRIM("UInt16.toUInt8", lean_uint16_to_uint8, "_")
+    LEAN_IR_PRIM("UInt8.toUInt16", lean_uint8_to_uint16, "_")
+    LEAN_IR_PRIM("UInt32.toUInt8", lean_uint32_to_uint8, "_")
+    LEAN_IR_PRIM("UInt32.toUInt16", lean_uint32_to_uint16, "_")
+    LEAN_IR_PRIM("UInt8.toUInt32", lean_uint8_to_uint32, "_")
+    LEAN_IR_PRIM("UInt16.toUInt32", lean_uint16_to_uint32, "_")
+    LEAN_IR_PRIM("UInt32.add", lean_uint32_add, "__")
+    LEAN_IR_PRIM("UInt32.sub", lean_uint32_sub, "__")
+    LEAN_IR_PRIM("UInt64.toUInt8", lean_uint64_to_uint8, "_")
+    LEAN_IR_PRIM("UInt64.toUInt16", lean_uint64_to_uint16, "_")
+    LEAN_IR_PRIM("UInt64.toUInt32", lean_uint64_to_uint32, "_")
+    LEAN_IR_PRIM("UInt8.toUInt64", lean_uint8_to_uint64, "_")
+    LEAN_IR_PRIM("UInt16.toUInt64", lean_uint16_to_uint64, "_")
+    LEAN_IR_PRIM("UInt32.toUInt64", lean_uint32_to_uint64, "_")
+    LEAN_IR_PRIM("USize.add", lean_usize_add, "__")
+    LEAN_IR_PRIM("USize.sub", lean_usize_sub, "__")
+    LEAN_IR_PRIM("USize.decLt", lean_usize_dec_lt, "__")
+    LEAN_IR_PRIM("USize.decLe", lean_usize_dec_le, "__")
+    LEAN_IR_PRIM("UInt8.log2", lean_uint8_log2, "_")
+    LEAN_IR_PRIM("UInt16.log2", lean_uint16_log2, "_")
+    LEAN_IR_PRIM("UInt32.log2", lean_uint32_log2, "_")
+    LEAN_IR_PRIM("UInt64.log2", lean_uint64_log2, "_")
+    LEAN_IR_PRIM("USize.log2", lean_usize_log2, "_")
+    LEAN_IR_PRIM("UInt8.decEq", lean_uint8_dec_eq, "__")
+    LEAN_IR_PRIM("UInt8.decLt", lean_uint8_dec_lt, "__")
+    LEAN_IR_PRIM("UInt8.decLe", lean_uint8_dec_le, "__")
+    LEAN_IR_PRIM("UInt16.decEq", lean_uint16_dec_eq, "__")
+    LEAN_IR_PRIM("UInt32.decEq", lean_uint32_dec_eq, "__")
+    LEAN_IR_PRIM("UInt32.decLt", lean_uint32_dec_lt, "__")
+    LEAN_IR_PRIM("UInt32.decLe", lean_uint32_dec_le, "__")
+    LEAN_IR_PRIM("UInt64.decEq", lean_uint64_dec_eq, "__")
+    LEAN_IR_PRIM("USize.decEq", lean_usize_dec_eq, "__")
+    LEAN_IR_PRIM("USize.ofNat32", lean_usize_of_nat, "b")
+    LEAN_IR_PRIM("UInt8.toNat", lean_uint8_to_nat, "_")
+    LEAN_IR_PRIM("UInt16.ofNat", lean_uint16_of_nat, "b")
+    LEAN_IR_PRIM("UInt16.toNat", lean_uint16_to_nat, "_")
+    LEAN_IR_PRIM("UInt32.ofNat", lean_uint32_of_nat, "b")
+    LEAN_IR_PRIM("UInt64.ofNat", lean_uint64_of_nat, "b")
+    LEAN_IR_PRIM("UInt64.toNat", lean_uint64_to_nat, "_")
+    LEAN_IR_PRIM("USize.ofNat", lean_usize_of_nat, "b")
+    LEAN_IR_PRIM("USize.toNat", lean_usize_to_nat, "_")
+    LEAN_IR_PRIM("UInt8.ofBitVec", lean_uint8_of_nat_mk, "o")
+    LEAN_IR_PRIM("UInt8.toBitVec", lean_uint8_to_nat, "_")
+    LEAN_IR_PRIM("UInt8.ofNatLT", lean_uint8_of_nat, "b")
+    LEAN_IR_PRIM("UInt8.ofNat", lean_uint8_of_nat, "b")
+    LEAN_IR_PRIM("UInt16.ofBitVec", lean_uint16_of_nat_mk, "o")
+    LEAN_IR_PRIM("UInt16.toBitVec", lean_uint16_to_nat, "_")
+    LEAN_IR_PRIM("UInt16.ofNatLT", lean_uint16_of_nat, "b")
+    LEAN_IR_PRIM("UInt32.ofBitVec", lean_uint32_of_nat_mk, "o")
+    LEAN_IR_PRIM("UInt32.toBitVec", lean_uint32_to_nat, "_")
+    LEAN_IR_PRIM("UInt32.ofNatLT", lean_uint32_of_nat, "b")
+    LEAN_IR_PRIM("UInt32.toNat", lean_uint32_to_nat, "_")
+    LEAN_IR_PRIM("UInt64.ofBitVec", lean_uint64_of_nat_mk, "o")
+    LEAN_IR_PRIM("UInt64.toBitVec", lean_uint64_to_nat, "_")
+    LEAN_IR_PRIM("UInt64.ofNatLT", lean_uint64_of_nat, "b")
+    LEAN_IR_PRIM("USize.ofBitVec", lean_usize_of_nat_mk, "o")
+    LEAN_IR_PRIM("USize.toBitVec", lean_usize_to_nat, "_")
+    LEAN_IR_PRIM("USize.ofNatLT", lean_usize_of_nat, "b")
+    // Array
+    LEAN_IR_PRIM("Array.usize", lean_array_size, "b")
+    LEAN_IR_PRIM("Array.uget", lean_array_uget, "b_")
+    LEAN_IR_PRIM("Array.ugetBorrowed", lean_array_uget_borrowed, "b_")
+    LEAN_IR_PRIM("Array.size", lean_array_get_size, "b")
+    LEAN_IR_PRIM("Array.getInternalBorrowed", lean_array_fget_borrowed, "bb")
+    LEAN_IR_PRIM("Array.getInternal", lean_array_fget, "bb")
+    LEAN_IR_PRIM("Array.uset", lean_array_uset, "o_o")
+    LEAN_IR_PRIM("Array.pop", lean_array_pop, "o")
+    LEAN_IR_PRIM("Array.markLinear", lean_array_mark_linear, "o")
+    LEAN_IR_PRIM("Array.propagateMark", lean_array_propagate_mark, "bo")
+    LEAN_IR_PRIM("Array.swap", lean_array_fswap, "obb")
+    LEAN_IR_PRIM("Array.swapIfInBounds", lean_array_swap, "obb")
+    LEAN_IR_PRIM("Array.set", lean_array_fset, "obo")
+    LEAN_IR_PRIM("Array.set!", lean_array_set, "obo")
+    LEAN_IR_PRIM("Array.get!InternalBorrowed", lean_array_get_borrowed, "bbb")
+    LEAN_IR_PRIM("Array.get!Internal", lean_array_get, "bbb")
+    LEAN_IR_PRIM("Array.mkEmpty", lean_mk_empty_array_with_capacity, "b")
+    LEAN_IR_PRIM("Array.emptyWithCapacity", lean_mk_empty_array_with_capacity, "b")
+};
+#undef LEAN_IR_PRIM
+
+name_hash_map<prim_def const *> * g_prims;
+
+static name dotted_to_name(char const * s) {
+    name r;
+    std::string comp;
+    for (; *s; s++) {
+        if (*s == '.') {
+            r = name(r, comp.c_str());
+            comp.clear();
+        } else {
+            comp += *s;
+        }
+    }
+    return name(r, comp.c_str());
+}
+
+/** \brief A resolved direct call of a runtime primitive. */
+struct prim_entry {
+    // `nullptr` if the function is not a primitive
+    prim_fn m_fn = nullptr;
+    unsigned m_num_args = 0;
+    // positions of the IR arguments passed to `m_fn`; erased arguments are dropped as in compiled code
+    unsigned char m_arg_idx[max_prim_arity];
+};
+
+static prim_entry resolve_prim(name const & fn, decl const & d) {
+    prim_entry r;
+    if (decl_tag(d) != decl_kind::Extern)
+        return r;
+    auto it = g_prims->find(fn);
+    if (it == g_prims->end())
+        return r;
+    prim_def const & def = *it->second;
+    type param_types[max_prim_arity];
+    unsigned n = 0;
+    array_ref<param> const & ps = decl_params(d);
+    for (size_t i = 0; i < ps.size(); i++) {
+        type t = param_type(ps[i]);
+        if (t == type::Irrelevant || t == type::Void)
+            continue;
+        if (n == max_prim_arity || i > UCHAR_MAX)
+            return r;
+        param_types[n] = t;
+        r.m_arg_idx[n] = i;
+        n++;
+    }
+    if (!def.m_accepts(param_types, n, decl_type(d))) {
+        lean_assert(false && "IR signature does not match the runtime primitive registered in `g_prim_defs`");
+        return r;
+    }
+    r.m_fn = def.m_fn;
+    r.m_num_args = n;
+    return r;
+}
+
 void * lookup_symbol_in_cur_exe(char const * sym) {
 #ifdef LEAN_WINDOWS
     std::vector<HMODULE> hmods(128);
@@ -357,6 +717,66 @@ void * lookup_symbol_in_cur_exe(char const * sym) {
     return dlsym(RTLD_DEFAULT, sym);
 #endif
 }
+
+/** \brief Insert-only open-addressing map keyed by object address. Holds a reference to each key so that its address
+    cannot be reused for another object. */
+template<class V>
+class object_ptr_map {
+    struct slot {
+        object * m_key = nullptr;
+        V        m_val {};
+    };
+    std::vector<slot> m_slots = std::vector<slot>(64);
+    unsigned m_shift = 64 - 6;
+    size_t m_size = 0;
+
+    size_t index(object * k) const {
+        return static_cast<size_t>((static_cast<uint64>(reinterpret_cast<uintptr_t>(k)) >> 4) * 0x9E3779B97F4A7C15ull >> m_shift);
+    }
+    void put(object * k, V const & v) {
+        size_t mask = m_slots.size() - 1;
+        for (size_t i = index(k);; i = (i + 1) & mask) {
+            if (!m_slots[i].m_key) {
+                m_slots[i] = slot { k, v };
+                return;
+            }
+        }
+    }
+public:
+    object_ptr_map() {}
+    object_ptr_map(object_ptr_map const &) = delete;
+    object_ptr_map & operator=(object_ptr_map const &) = delete;
+    ~object_ptr_map() {
+        for (slot const & s : m_slots) {
+            if (s.m_key)
+                lean_dec(s.m_key);
+        }
+    }
+    /** \brief Pointer to the value of `k`, or `nullptr`; invalidated by `insert`. */
+    V const * find(object * k) const {
+        size_t mask = m_slots.size() - 1;
+        for (size_t i = index(k);; i = (i + 1) & mask) {
+            if (m_slots[i].m_key == k)
+                return &m_slots[i].m_val;
+            if (!m_slots[i].m_key)
+                return nullptr;
+        }
+    }
+    void insert(object * k, V const & v) {
+        if (2 * (m_size + 1) > m_slots.size()) {
+            std::vector<slot> old(m_slots.size() * 2);
+            old.swap(m_slots);
+            m_shift--;
+            for (slot const & s : old) {
+                if (s.m_key)
+                    put(s.m_key, s.m_val);
+            }
+        }
+        lean_inc(k);
+        put(k, v);
+        m_size++;
+    }
+};
 
 class interpreter;
 LEAN_THREAD_PTR(interpreter, g_interpreter);
@@ -387,6 +807,8 @@ class interpreter {
         frame(name const & mFn, size_t mArgBp, size_t mJpBp) : m_fn(mFn), m_arg_bp(mArgBp), m_jp_bp(mJpBp) {}
     };
     std::vector<frame> m_call_stack;
+    // `m_arg_bp` of the current frame, kept outside `m_call_stack` for `var`
+    size_t m_arg_bp = 0;
     elab_environment const & m_env;
     options const & m_opts;
     // if `false`, use IR code where possible
@@ -402,9 +824,18 @@ class interpreter {
         // be backtracked, this cache needs to be local as well.
         decl m_decl;
         native_symbol_cache_entry m_native;
+        prim_entry m_prim;
+        // stack slots needed when interpreting the declaration; 0 if it is not interpreted
+        size_t m_frame_size;
     };
     // caches symbol lookup successes _and_ failures
     name_hash_map<symbol_cache_entry> m_symbol_cache;
+
+    // entries of `m_symbol_cache` by name object; call sites in different modules usually refer to the same function
+    // through different name objects, so this avoids comparing names component-wise on every call
+    object_ptr_map<symbol_cache_entry const *> m_symbol_ptr_cache;
+    // frame sizes of declarations called through closure stubs, which only have the declaration at hand
+    object_ptr_map<size_t> m_stub_frame_sizes;
 
     /** \brief Get current stack frame */
     inline frame & get_frame() {
@@ -412,13 +843,10 @@ class interpreter {
     }
 
     /** \brief Get reference to stack slot of IR variable */
-    inline value & var(var_id const & v) {
-        // variables are 1-indexed
-        size_t i = get_frame().m_arg_bp + v.get_small_value() - 1;
-        // we don't know the frame size (unless we do an additional IR pass), so we extend it dynamically
-        if (i >= m_arg_stack.size()) {
-            m_arg_stack.resize(i + 1);
-        }
+    LEAN_ALWAYS_INLINE inline value & var(var_id const & v) {
+        // variables are 1-indexed; `push_frame` allocated slots for all of them
+        size_t i = m_arg_bp + v.get_small_value() - 1;
+        lean_assert(i < m_arg_stack.size());
         return m_arg_stack[i];
     }
 
@@ -547,7 +975,7 @@ private:
                 }
             }
             case expr_kind::PAp: { // unsatured (partial) application of top-level function
-                symbol_cache_entry sym = lookup_symbol(expr_pap_fun(e));
+                symbol_cache_entry const & sym = lookup_symbol_at(expr_pap_fun(e));
                 if (sym.m_native.m_addr) {
                     // point closure directly at native symbol
                     object * cls = alloc_closure(sym.m_native.m_addr, decl_params(sym.m_decl).size(), expr_pap_args(e).size());
@@ -659,9 +1087,9 @@ private:
                         }
                         // now copy to parameter slots
                         for (size_t i = 0; i < args.size(); i++) {
-                            m_arg_stack[get_frame().m_arg_bp + i] = m_arg_stack[old_size + i];
+                            m_arg_stack[m_arg_bp + i] = m_arg_stack[old_size + i];
                         }
-                        m_arg_stack.resize(get_frame().m_arg_bp + args.size());
+                        m_arg_stack.resize(old_size);
                         b = b0;
                         check_system();
                         break;
@@ -793,7 +1221,7 @@ private:
     }
 
     // specify argument base pointer explicitly because we've usually already pushed some function arguments
-    void push_frame(decl const & d, size_t arg_bp) {
+    void push_frame(decl const & d, size_t arg_bp, size_t frame_size) {
         DEBUG_CODE({
             lean_trace(*g_interpreter_call,
                        tout() << std::string(m_call_stack.size(), ' ')
@@ -804,12 +1232,15 @@ private:
                        tout() << "\n";);
         });
         m_call_stack.emplace_back(decl_fun_id(d), arg_bp, m_jp_stack.size());
+        m_arg_bp = arg_bp;
+        m_arg_stack.resize(arg_bp + frame_size);
     }
 
     void pop_frame(value DEBUG_CODE(r), type DEBUG_CODE(t)) {
-        m_arg_stack.resize(get_frame().m_arg_bp);
+        m_arg_stack.resize(m_arg_bp);
         m_jp_stack.resize(get_frame().m_jp_bp);
         m_call_stack.pop_back();
+        m_arg_bp = m_call_stack.empty() ? 0 : get_frame().m_arg_bp;
         DEBUG_CODE({
             lean_trace(*g_interpreter_call,
                        tout() << std::string(m_call_stack.size(), ' ')
@@ -819,8 +1250,32 @@ private:
        });
     }
 
-    /** \brief Return cached lookup result for given unmangled function name in the current binary. */
-    symbol_cache_entry lookup_symbol(name const & fn) {
+    void resolve_decl_info(name const & fn, symbol_cache_entry & e) {
+        e.m_prim = resolve_prim(fn, e.m_decl);
+        if (!e.m_prim.m_fn && !e.m_native.m_addr)
+            e.m_frame_size = decl_frame_size(e.m_decl);
+    }
+
+    size_t stub_frame_size(decl const & d) {
+        if (size_t const * s = m_stub_frame_sizes.find(d.raw()))
+            return *s;
+        size_t s = decl_frame_size(d);
+        m_stub_frame_sizes.insert(d.raw(), s);
+        return s;
+    }
+
+    /** \brief Like `lookup_symbol`, but first looks up the name object itself, for names stored in the IR. */
+    symbol_cache_entry const & lookup_symbol_at(name const & fn) {
+        if (symbol_cache_entry const * const * e = m_symbol_ptr_cache.find(fn.raw()))
+            return **e;
+        symbol_cache_entry const & e = lookup_symbol(fn);
+        m_symbol_ptr_cache.insert(fn.raw(), &e);
+        return e;
+    }
+
+    /** \brief Return cached lookup result for given unmangled function name in the current binary.
+        The reference stays valid for the interpreter's lifetime: the cache is node-based and never erased from. */
+    symbol_cache_entry const & lookup_symbol(name const & fn) {
         auto e = m_symbol_cache.find(fn);
         if (e != m_symbol_cache.end()) {
             return e->second;
@@ -828,19 +1283,19 @@ private:
         std::shared_lock<std::shared_mutex> lock(*g_native_symbol_cache_mutex);
         auto ne = g_native_symbol_cache->find(fn);
         if (ne != g_native_symbol_cache->end()) {
-            symbol_cache_entry e_new { get_decl(fn), ne->second };
-            m_symbol_cache.insert({ fn, e_new });
-            return e_new;
+            symbol_cache_entry e_new { get_decl(fn), ne->second, {}, 0 };
+            resolve_decl_info(fn, e_new);
+            return m_symbol_cache.emplace(fn, std::move(e_new)).first->second;
         }
         lock.unlock();
         std::unique_lock<std::shared_mutex> unique_lock(*g_native_symbol_cache_mutex);
         ne = g_native_symbol_cache->find(fn);
         if (ne != g_native_symbol_cache->end()) {
-            symbol_cache_entry e_new { get_decl(fn), ne->second };
-            m_symbol_cache.insert({ fn, e_new });
-            return e_new;
+            symbol_cache_entry e_new { get_decl(fn), ne->second, {}, 0 };
+            resolve_decl_info(fn, e_new);
+            return m_symbol_cache.emplace(fn, std::move(e_new)).first->second;
         }
-        symbol_cache_entry e_new { get_decl(fn), {nullptr, false} };
+        symbol_cache_entry e_new { get_decl(fn), {nullptr, false}, {}, 0 };
         if (m_prefer_native || decl_tag(e_new.m_decl) == decl_kind::Extern || has_init_attribute(m_env, fn)) {
             string_ref mangled = get_symbol_stem(m_env, fn);
             string_ref boxed_mangled = mk_mangled_boxed_name(mangled);
@@ -860,8 +1315,8 @@ private:
             }
         }
         g_native_symbol_cache->insert({ fn, e_new.m_native });
-        m_symbol_cache.insert({ fn, e_new });
-        return e_new;
+        resolve_decl_info(fn, e_new);
+        return m_symbol_cache.emplace(fn, std::move(e_new)).first->second;
     }
 
     /** \brief Retrieve Lean declaration from elab_environment. */
@@ -887,7 +1342,7 @@ private:
             return type_is_scalar(t) ? unbox_t(o, t) : o;
         }
 
-        symbol_cache_entry e = lookup_symbol(fn);
+        symbol_cache_entry const & e = lookup_symbol(fn);
         if (e.m_native.m_addr) {
             // we can assume that all native code has been initialized (see e.g. `evalConst`)
 
@@ -917,7 +1372,7 @@ private:
             // We don't know whether `[init]` decls can be re-executed, so let's not.
             throw exception(sstream() << "cannot evaluate `[init]` declaration '" << fn << "' in the same module");
         }
-        push_frame(e.m_decl, m_arg_stack.size());
+        push_frame(e.m_decl, m_arg_stack.size(), e.m_frame_size);
         // `Unreachable` can be from `mkDummyExternDecl`, which may mean that we failed to run the
         // initializer, suggesting some incorrect `meta` phase setup. Let's make sure we give a
         // better signal than a segfault in that case.
@@ -931,7 +1386,16 @@ private:
     value call(name const & fn, array_ref<arg> const & args) {
         size_t old_size = m_arg_stack.size();
         value r;
-        symbol_cache_entry e = lookup_symbol(fn);
+        symbol_cache_entry const & e = lookup_symbol_at(fn);
+        if (e.m_prim.m_fn) {
+            prim_entry const & p = e.m_prim;
+            value prim_args[max_prim_arity];
+            for (unsigned i = 0; i < p.m_num_args; i++) {
+                prim_args[i] = eval_arg(args[p.m_arg_idx[i]]);
+            }
+            // no frame needed: primitives do not re-enter the interpreter
+            return p.m_fn(prim_args);
+        }
         if (e.m_native.m_addr) {
             object ** args2 = static_cast<object **>(LEAN_ALLOCA(args.size() * sizeof(object *))); // NOLINT
             for (size_t i = 0; i < args.size(); i++) {
@@ -948,7 +1412,7 @@ private:
                     inc(args2[i]);
                 }
             }
-            push_frame(e.m_decl, old_size);
+            push_frame(e.m_decl, old_size, 0);
             object * o = curry(e.m_native.m_addr, args.size(), args2);
             type t = decl_type(e.m_decl);
             if (type_is_scalar(t)) {
@@ -972,7 +1436,7 @@ private:
             for (const auto & arg : args) {
                 m_arg_stack.push_back(eval_arg(arg));
             }
-            push_frame(e.m_decl, old_size);
+            push_frame(e.m_decl, old_size, e.m_frame_size);
             r = eval_body(decl_fun_body(e.m_decl));
         }
         pop_frame(r, decl_type(e.m_decl));
@@ -986,7 +1450,7 @@ private:
         for (size_t i = 0; i < decl_params(d).size(); i++) {
             m_arg_stack.push_back(args[3 + i]);
         }
-        push_frame(d, old_size);
+        push_frame(d, old_size, stub_frame_size(d));
         object * r = eval_body(decl_fun_body(d)).m_obj;
         pop_frame(r, type::TObject);
         return r;
@@ -1062,7 +1526,7 @@ public:
      *  * supports under- and over-application.
      *  * supports "calling" (evaluating) nullary constants. */
     object * call_boxed(name const & fn, unsigned n, object ** args) {
-        symbol_cache_entry e = lookup_symbol(fn);
+        symbol_cache_entry const & e = lookup_symbol(fn);
         unsigned arity = decl_params(e.m_decl).size();
         object * r;
         if (arity == 0) {
@@ -1131,7 +1595,7 @@ public:
                 object * o = io_result_get_value(r);
                 mark_persistent(o);
                 dec_ref(r);
-                symbol_cache_entry e = lookup_symbol(decl);
+                symbol_cache_entry const & e = lookup_symbol(decl);
                 if (e.m_native.m_addr) {
                     *((object **)e.m_native.m_addr) = o;
                 } else {
@@ -1215,9 +1679,14 @@ void initialize_ir_interpreter() {
     });
     ir::g_native_symbol_cache = new name_hash_map<ir::native_symbol_cache_entry>();
     ir::g_native_symbol_cache_mutex = new std::shared_mutex();
+    ir::g_prims = new name_hash_map<ir::prim_def const *>();
+    for (ir::prim_def const & p : ir::g_prim_defs) {
+        ir::g_prims->insert({ ir::dotted_to_name(p.m_name), &p });
+    }
 }
 
 void finalize_ir_interpreter() {
+    delete ir::g_prims;
     delete ir::g_native_symbol_cache_mutex;
     delete ir::g_native_symbol_cache;
     DEBUG_CODE({

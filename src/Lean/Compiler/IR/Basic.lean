@@ -398,61 +398,53 @@ def mkIndexSet (idx : Index) : IndexSet :=
 inductive LocalContextEntry where
   | param     : IRType → LocalContextEntry
   | localVar  : IRType → Expr → LocalContextEntry
-  | joinPoint : Array Param → FnBody → LocalContextEntry
 
-abbrev LocalContext := Std.TreeMap Index LocalContextEntry
+structure LocalContext where
+  vars : Std.TreeMap Index LocalContextEntry := {}
+  jps : Std.TreeMap Index (Array Param × FnBody) := {}
 
 def LocalContext.addLocal (ctx : LocalContext) (x : VarId) (t : IRType) (v : Expr) : LocalContext :=
-  ctx.insert x.idx (LocalContextEntry.localVar t v)
+  { ctx with vars := ctx.vars.insert x.idx (LocalContextEntry.localVar t v) }
 
 def LocalContext.addJP (ctx : LocalContext) (j : JoinPointId) (xs : Array Param) (b : FnBody) : LocalContext :=
-  ctx.insert j.idx (LocalContextEntry.joinPoint xs b)
+  { ctx with jps := ctx.jps.insert j.idx (xs, b) }
 
 def LocalContext.addParam (ctx : LocalContext) (p : Param) : LocalContext :=
-  ctx.insert p.x.idx (LocalContextEntry.param p.ty)
+  { ctx with vars := ctx.vars.insert p.x.idx (LocalContextEntry.param p.ty) }
 
 def LocalContext.addParams (ctx : LocalContext) (ps : Array Param) : LocalContext :=
   ps.foldl LocalContext.addParam ctx
 
-def LocalContext.isJP (ctx : LocalContext) (idx : Index) : Bool :=
-  match ctx.get? idx with
-  | some (LocalContextEntry.joinPoint _ _) => true
-  | _     => false
+def LocalContext.isJP (ctx : LocalContext) (j : JoinPointId) : Bool :=
+  ctx.jps.contains j.idx
 
 def LocalContext.getJPBody (ctx : LocalContext) (j : JoinPointId) : Option FnBody :=
-  match ctx.get? j.idx with
-  | some (LocalContextEntry.joinPoint _ b) => some b
-  | _     => none
+  ctx.jps.get? j.idx |>.map (·.2)
 
 def LocalContext.getJPParams (ctx : LocalContext) (j : JoinPointId) : Option (Array Param) :=
-  match ctx.get? j.idx with
-  | some (LocalContextEntry.joinPoint ys _) => some ys
-  | _     => none
+  ctx.jps.get? j.idx |>.map (·.1)
 
-def LocalContext.isParam (ctx : LocalContext) (idx : Index) : Bool :=
-  match ctx.get? idx with
+def LocalContext.isParam (ctx : LocalContext) (x : VarId) : Bool :=
+  match ctx.vars.get? x.idx with
   | some (LocalContextEntry.param _) => true
   | _     => false
 
-def LocalContext.isLocalVar (ctx : LocalContext) (idx : Index) : Bool :=
-  match ctx.get? idx with
+def LocalContext.isLocalVar (ctx : LocalContext) (x : VarId) : Bool :=
+  match ctx.vars.get? x.idx with
   | some (LocalContextEntry.localVar _ _) => true
   | _     => false
 
-def LocalContext.contains (ctx : LocalContext) (idx : Index) : Bool :=
-  Std.TreeMap.contains ctx idx
-
 def LocalContext.eraseJoinPointDecl (ctx : LocalContext) (j : JoinPointId) : LocalContext :=
-  ctx.erase j.idx
+  { ctx with jps := ctx.jps.erase j.idx }
 
 def LocalContext.getType (ctx : LocalContext) (x : VarId) : Option IRType :=
-  match ctx.get? x.idx with
+  match ctx.vars.get? x.idx with
   | some (LocalContextEntry.param t) => some t
   | some (LocalContextEntry.localVar t _) => some t
   | _     => none
 
 def LocalContext.getValue (ctx : LocalContext) (x : VarId) : Option Expr :=
-  match ctx.get? x.idx with
+  match ctx.vars.get? x.idx with
   | some (LocalContextEntry.localVar _ v) => some v
   | _     => none
 

@@ -34,9 +34,11 @@ info: infSeq.coinduct (α : Type) (r : α → α → Prop) (pred : α → Prop) 
 warning: declaration uses `sorry`
 ---
 warning: declaration uses `sorry`
+---
+warning: declaration uses `sorry`
 -/
 #guard_msgs in
-coinductive infSeq'(r : α → α → Prop) : α → Prop where
+coinductive infSeq' (r : α → α → Prop) : α → Prop where
   | step : r a b → infSeq' r b → infSeq' r a
 monotonicity_by sorry
 
@@ -52,6 +54,8 @@ info: infSeq'.step (α : Type) (r : α → α → Prop) {a b : α} : r a b → i
 trace: α✝ α : Type
 r : α → α → Prop
 ⊢ monotone fun f a => ∃ b, r a b ∧ f b
+---
+warning: declaration uses `sorry`
 ---
 warning: declaration uses `sorry`
 ---
@@ -74,6 +78,8 @@ has type
 of sort `Type` but is expected to have type
   monotone fun f => ¬f
 of sort `Prop`
+---
+warning: declaration uses `sorry`
 ---
 warning: declaration uses `sorry`
 -/

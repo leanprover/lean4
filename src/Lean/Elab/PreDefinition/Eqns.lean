@@ -341,13 +341,14 @@ where
         return (lctx.mkForall xsNew type, lctx.mkLambda xsNew value)
 
 
-/-- Returns the names `eq_1`, `eq_2`, … of the equation theorems for `declName` on this branch. -/
-private partial def eqnNamesOnBranch (declName : Name) : CoreM (Array Name) := do
-  let env ← getEnv
-  let rec loop (i : Nat) (names : Array Name) : Array Name :=
-    let name := mkEqLikeNameFor env declName s!"{eqnThmSuffixBasePrefix}{i}"
-    if env.containsOnBranch name then loop (i + 1) (names.push name) else names
-  return loop 1 #[]
+private structure EqnTypesKey where
+  declName : Name
+  declNames : Array Name
+deriving BEq, Hashable, TypeName
+
+private structure EqnTypes where
+  types : Array Expr
+deriving TypeName
 
 /--
 Generate equations for `declName`.
@@ -355,34 +356,41 @@ Generate equations for `declName`.
 This unfolds the function application on the LHS (using an unfold theorem, if present, or else by
 delta-reduction), calculates the types for the equational theorems using `mkEqnTypes`, and then
 proves them using `mkEqnProof`.
-
-All equations are realized together under the name of the first one, so that their statements, like
-their proofs, use the options at definition time and not the options of the caller.
 -/
 def mkEqns (declName : Name) (declNames : Array Name) : MetaM (Array Name) := do
   trace[Elab.definition.eqns] "mkEqns: {.ofConstName declName}"
-  let eq1 := mkEqLikeNameFor (← getEnv) declName eqn1ThmSuffix
-  realizeConst declName eq1 (withEqnOptions declName doRealize)
-  eqnNamesOnBranch declName
+  let info ← getConstInfoDefn declName
+  let us := info.levelParams.map mkLevelParam
+  -- `realizeValue` computes the types once per definition, with the options at definition time
+  -- (command-line options for an imported definition). All callers get the same statements.
+  let { types := eqnTypes } ← realizeValue declName { declName, declNames : EqnTypesKey } <|
+    withEqnOptions declName <| withOptions (tactic.hygienic.set · false) do
+      let target ← unfoldThmType declName
+      let types ← withNewMCtxDepth <|
+        forallTelescope (cleanupAnnotations := true) target fun xs target => do
+          let goal ← mkFreshExprSyntheticOpaqueMVar target
+          withReducible do
+            mkEqnTypes declNames goal.mvarId!
+      return { types : EqnTypes }
+  let mut thmNames := #[]
+  for h : i in *...eqnTypes.size do
+    let type := eqnTypes[i]
+    trace[Elab.definition.eqns] "eqnType[{i}]: {eqnTypes[i]}"
+    let name := mkEqLikeNameFor (← getEnv) declName s!"{eqnThmSuffixBasePrefix}{i+1}"
+    thmNames := thmNames.push name
+    -- determinism: `type` comes from `realizeValue`, so it is independent of the environment
+    -- changes since `declName` was added
+    realizeConst declName name (withEqnOptions declName (doRealize name info type))
+  return thmNames
 where
-  doRealize := withOptions (tactic.hygienic.set · false) do
-    let info ← getConstInfoDefn declName
-    let target ← unfoldThmType declName
-    let eqnTypes ← withNewMCtxDepth <|
-      forallTelescope (cleanupAnnotations := true) target fun _ target => do
-        let goal ← mkFreshExprSyntheticOpaqueMVar target
-        withReducible do
-          mkEqnTypes declNames goal.mvarId!
-    for h : i in *...eqnTypes.size do
-      trace[Elab.definition.eqns] "eqnType[{i}]: {eqnTypes[i]}"
-      let name := mkEqLikeNameFor (← getEnv) declName s!"{eqnThmSuffixBasePrefix}{i+1}"
-      let value ← mkEqnProof declName eqnTypes[i]
-      let (type, value) ← removeUnusedEqnHypotheses eqnTypes[i] value
-      addDecl <| (←mkThmOrUnsafeDef {
-        name, type, value
-        levelParams := info.levelParams
-      })
-      inferDefEqAttr name
+  doRealize name info type := withOptions (tactic.hygienic.set · false) do
+    let value ← mkEqnProof declName type
+    let (type, value) ← removeUnusedEqnHypotheses type value
+    addDecl <| (←mkThmOrUnsafeDef {
+      name, type, value
+      levelParams := info.levelParams
+    })
+    inferDefEqAttr name
 
 def getEqnsFor? (declName : Name) : MetaM (Option (Array Name)) := do
   if (← isRecursiveDefinition declName) then

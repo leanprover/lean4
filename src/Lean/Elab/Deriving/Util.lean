@@ -10,7 +10,7 @@ public import Lean.Elab.Command
 import Lean.Elab.DeclNameGen
 
 register_builtin_option deriving.inline_threshold : Nat := {
-  defValue := 3
+  defValue := 2
   descr := "The derived `Ord`, `BEq`, `DecidableEq` and `Hashable` implementations of non-recursive \
     single-constructor types with at most this many fields are marked `@[inline]`, so that, e.g., \
     comparisons are inlined when such a type serves as the key of a tree map." }

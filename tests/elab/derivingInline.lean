@@ -4,7 +4,7 @@ import Std.Data.HashMap
 
 /-!
 Tests that the `Ord`, `BEq`, `DecidableEq` and `Hashable` deriving handlers mark their auxiliary
-functions `@[inline]` for small structures (non-recursive single-constructor types with at most three
+functions `@[inline]` for small structures (non-recursive single-constructor types with at most two
 fields by default, configurable via `deriving.inline_threshold`), so that, e.g., comparisons are
 inlined when such a structure serves as the key of a tree map.
 -/
@@ -14,14 +14,12 @@ open Lean Compiler
 structure Small where
   a : Nat
   b : String
-  c : Bool
   deriving Ord, BEq, DecidableEq, Hashable
 
 structure Large where
   a : Nat
   b : String
   c : Bool
-  d : Nat
   deriving Ord, BEq, DecidableEq, Hashable
 
 structure Pair (α β : Type) where

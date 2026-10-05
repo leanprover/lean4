@@ -843,3 +843,73 @@ example : ⦃ True ⦄ trivial_test 0 ⦃fun r => r = 0⦄ := by
   vcgen [trivial_test] with grind
 
 end WithGrindError
+
+namespace ConjunctivePre
+
+/-! Each spec below has a precondition conjunctive in `Q`, so `vcgen` applies it directly and forms
+no frame. The preconditions use `∀`/`→` (`bump_spec`), a `wp` applied to the state (`bump2_spec`),
+`if` (`bumpSat_spec`), `match` (`dec_spec`), `Prod.snd` (`bumpE_spec`) and a pair (`retryE_spec`).
+The frame `fun s => s = 3` fails to hold across each program: a framed application leaves an
+unprovable goal such as `WP.Frames meet bump (fun s => s = 3)`. -/
+
+@[irreducible] def bump : StateT Nat Id Unit := modify (· + 1)
+
+@[spec]
+theorem bump_spec (Q : Unit → Nat → Prop) :
+    ⦃ fun s => ∀ s', s' = s + 1 → Q () s' ⦄ bump ⦃ Q ⦄ := by
+  unfold bump; vcgen with finish
+
+example : ⦃ fun s => s = 3 ⦄ bump ⦃ fun _ s => s = 4 ⦄ := by
+  vcgen frames | bump => fun s => s = 3 with finish
+
+@[irreducible] def bump2 : StateT Nat Id Unit := do bump; bump
+
+@[spec]
+theorem bump2_spec (Q : Unit → Nat → Prop) (E : EStack⟨⟩) :
+    ⦃ fun s => wp bump (fun _ => wp bump Q E) E s ⦄ bump2 ⦃ Q; E ⦄ := by
+  unfold bump2; exact ⟨WPMonad.bind_le_wp_bind bump (fun _ => bump) Q E⟩
+
+example : ⦃ fun s => s = 3 ⦄ bump2 ⦃ fun _ s => s = 5 ⦄ := by
+  vcgen frames | bump2 => fun s => s = 3 with finish
+
+@[irreducible] def bumpSat : StateT Nat Id Unit := modify fun s => if s < 10 then s + 1 else s
+
+@[spec]
+theorem bumpSat_spec (Q : Unit → Nat → Prop) :
+    ⦃ fun s => if s < 10 then Q () (s + 1) else Q () s ⦄ bumpSat ⦃ Q ⦄ := by
+  unfold bumpSat; vcgen with finish
+
+example : ⦃ fun s => s = 3 ⦄ bumpSat ⦃ fun _ s => s = 4 ⦄ := by
+  vcgen frames | bumpSat => fun s => s = 3 with finish
+
+@[irreducible] def dec : StateT Nat Id Unit := modify fun | 0 => 0 | n + 1 => n
+
+@[spec]
+theorem dec_spec (Q : Unit → Nat → Prop) :
+    ⦃ fun s => match s with | 0 => Q () 0 | n + 1 => Q () n ⦄ dec ⦃ Q ⦄ := by
+  unfold dec; vcgen; rename_i s _; cases s <;> simp_all
+
+example : ⦃ fun s => s = 3 ⦄ dec ⦃ fun _ s => s = 2 ⦄ := by
+  vcgen frames | dec => fun s => s = 3 with finish
+
+@[irreducible] def bumpE : ExceptT String (StateT Nat Id) Unit := monadLift bump
+
+@[spec]
+theorem bumpE_spec (Q : Unit → Nat → Prop) (E : (String → Nat → Prop) × EStack⟨⟩) :
+    ⦃ wp bump Q E.snd ⦄ bumpE ⦃ Q; E ⦄ := by
+  unfold bumpE; exact Spec.monadLift_ExceptT bump Q E
+
+example : ⦃ fun s => s = 3 ⦄ bumpE ⦃ fun _ s => s = 4 ⦄ := by
+  vcgen frames | bumpE => fun s => s = 3 with finish
+
+@[irreducible] def retryE : ExceptT String (StateT Nat Id) Unit := tryCatch bumpE fun _ => bumpE
+
+@[spec]
+theorem retryE_spec (Q : Unit → Nat → Prop) (E : (String → Nat → Prop) × EStack⟨⟩) :
+    ⦃ wp bumpE Q (fun _ => wp bumpE Q E, E.snd) ⦄ retryE ⦃ Q; E ⦄ := by
+  unfold retryE; exact Spec.tryCatch_ExceptT bumpE (fun _ => bumpE) Q E
+
+example : ⦃ fun s => s = 3 ⦄ retryE ⦃ fun _ s => s = 4 ⦄ := by
+  vcgen frames | retryE => fun s => s = 3 with finish
+
+end ConjunctivePre

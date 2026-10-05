@@ -8,97 +8,72 @@ module
 prelude
 import Init.BinderNameHint
 public import Lean.Meta.Basic
+import Lean.Meta.Match.MatcherInfo
 public import Std.WP.Triple.Basic
 
 /-!
-# Conjunctive preconditions: spec applications that need no frame
+# Conjunctive preconditions
 
-`isConjunctiveInPosts` classifies the `@[spec]` theorems whose precondition is conjunctive in the
-schematic postconditions. `vcgen` applies such a spec directly, bypassing frame inference: any frame
-the frame procedure could carry past the call is already carried by the direct application.
+`isConjunctiveInPosts` classifies the `@[spec]` theorems whose precondition `specPre Q` is
+conjunctive in the schematic postcondition `Q`: `specPre a ⊓ specPre b ⊑ specPre (a ⊓ b)`. `vcgen`
+applies such a spec directly and skips frame inference. The classification is an optimization: a
+frameproc can recognize the same situations and decline to frame.
 
 ## Why no frame is needed
 
-Consider applying a spec `P' ⊑ wp x Q'` to a goal `P ⊑ wp x Q` (`E` suppressed in this section). The
-consequence rule yields two VCs, `P ⊑ P'` and `Q' ⊑ Q`. When the spec fixes a concrete `Q'`, the
-post-VC may be unprovable: `Q` often needs information from `P` that `x` never touches, and `Q'`
-knows nothing about it. The classical fix is framing: strengthen the spec to
-`P' ⊓ F ⊑ wp x (fun v => Q' v ⊓ F)` and apply that instead, yielding
+Apply the spec `specPre Q ⊑ wp x Q` to the goal `P ⊑ wp x Q`. The direct application emits the
+single VC `(h₁) P ⊑ specPre Q`. A framed application with frame `F` needs `(h₂) P ⊑ F` and
+`(h₃) F ⊑ specPre (fun _ => F)`, the spec-level `WP.Frames` obligation. Its conclusion follows from
+`h₁`, `h₂` and `h₃`:
 
-    (1) P ⊑ P' ⊓ F        (2) Q' ⊓ F ⊑ Q        (3) WP.Frames (· ⊓ ·) x F
-
-where (3) makes the strengthening sound. The `F` must be specified: which part of `P` to carry is
-hard to guess and undecidable in general, and guessing it is the frameproc's job.
-
-For a spec with schematic post and a **conjunctive** precondition `P' := specPre Q'`,
-`specPre a ⊓ specPre b ⊑ specPre (a ⊓ b)`, the framed application is never formed: unify
-`Q' := Q` and emit the single VC
-
-    (h₁) P ⊑ specPre Q
-
-with `P` whole on the left-hand side and no `F` anywhere. What needs proof is that this loses
-nothing against (1)–(3), and conjunctivity supplies it. Fix any `F` the framed route could have
-used; its inputs were
-
-    (h₂) P ⊑ F                       -- from (1)
-    (h₃) F ⊑ specPre (fun _ => F)    -- (3), at the spec level
-
-From (h₁)–(h₃), the framed application's conclusion is derived:
-
-    P ⊑ specPre Q ⊓ specPre (fun _ => F)    -- (h₁); (h₂) chained with (h₃)
+    P ⊑ specPre Q ⊓ specPre (fun _ => F)    -- h₁, and h₂ with h₃
       ⊑ specPre (fun v => Q v ⊓ F)          -- conjunctivity
       ⊑ wp x (fun v => Q v ⊓ F)             -- the spec
 
-So everything (1)–(3) could establish already follows from the emitted VC and the framed route's
-own inputs: every admissible `F` is carried implicitly, none named, and no `WP.Frames`
-obligation arises (`WP.frames_of_conjunctive` is this derivation with `specPre := wp x`). A schematic post
-alone does not suffice — a premise mentioning `Q` breaks the subsumption (see below). The
-derivation only needs the composite `P ⊑ specPre (fun _ => F)`, which (h₂) and (h₃) imply: for
-`get` it admits every `F` implied by `P`; for `modify f`, everything `P` guarantees about the
-updated state. `P` is never split into a footprint and a frame.
+So the direct application carries every admissible `F`. `WP.frames_of_conjunctive` is this
+derivation with `specPre := wp x`.
 
 ## Syntactic detection
 
-`isConjunctiveInPosts` checks a sufficient syntactic condition: every occurrence of the schematic
-`Q`/`E` in `specPre` lies in a conjunctivity-preserving context — a `wp` post/exception-post, a
-`⊓`/`∧`/`⨅` operand, a `⇨` consequent, a `Prod.fst` projection, an application `Q a⋯`, or
-under a `λ` — and none in a premise or the program. For instance:
+Every occurrence of `Q`/`E` in `specPre` must lie in a conjunctive context: the body of a `λ` or
+`∀` with a `Q`-free binder type, an application `Q a⋯` with `Q`-free arguments, or a conjunctive
+argument of a head in `conjunctiveArgs?`. A context applied to further `Q`-free arguments stays
+conjunctive, because `(f ⊓ g) a = f a ⊓ g a`. For example:
 
-    get   ↦  fun s => Q s s        throw  ↦  E.fst err        bind  ↦  wp x (fun a => wp (f a) Q E) E
+    get       ↦  fun s => Q s s
+    bind      ↦  wp x (fun a => wp (f a) Q E) E
+    tryCatch  ↦  wp x Q (fun e => wp (h e) Q E, E.snd)
 
-The `wp` context preserves conjunctivity only because the sub-program's `wp` is assumed conjunctive
-(`WPConjunctive`), a per-program fact that every combinator preserves; a non-conjunctive leaf states
-its precondition with an operator no arm matches and is rejected on its own terms.
+The `wp` arm assumes that the `wp` of the sub-program is conjunctive (`WPConjunctive`).
 
-Premises are rejected because of excess state arguments: `vcgen` applies a spec at the goal's
-excess args, specializing the whole pre-VC to the current state `s`. That specialization is itself
-a frame — the point-frame `(· = s)`, the strongest one — and it reaches only the conclusion's
-precondition: a premise is a separate subgoal, an entailment over all states. A naive `ite` spec
-shows the damage:
+`conjunctiveArgs?` is a fixed table. An attribute on lemmas such as
+`ite c a₁ b₁ ⊓ ite c a₂ b₂ ⊑ ite c (a₁ ⊓ a₂) (b₁ ⊓ b₂)` could extend it to user-defined heads,
+reading the varying arguments as conjunctive and the shared ones as `Q`-free. Such a lemma would
+have to state conjunctivity jointly in all varying arguments: `Or` is conjunctive in each argument
+separately, but not jointly. There is no such attribute because the classification only saves
+time: a spec with an unknown head goes through frame inference, and the frameproc can decline to
+frame it, which yields the same VCs. An attribute pays off only once a user-defined head makes frame
+inference measurably slow.
 
-    (ht : P₁ ⊑ wp t Q) → (he : P₂ ⊑ wp e Q) → (if c then P₁ else P₂) ⊑ wp (if c then t else e) Q
+## Premises
 
-everything known about the state before the `ite` must be guessed into `P₁`/`P₂` — the framing
-problem all over again. The premise-free form
-`(if c then wp t Q else wp e Q) ⊑ wp (if c then t else e) Q` keeps both branches at the current
-state. A vacuous `Q = Q` premise thus opts a spec out of the direct path.
+A spec with a premise that mentions `Q`/`E` is not considered conjunctive, because its direct
+application does not auto-frame. `vcgen` applies a spec at the current state `s` of the goal, and
+this point frame `(· = s)` reaches the conclusion but not the premises. In
 
-A middle ground exists for premise-style specs whose schematic pre `P'` heads every premise's pre
-(`P' ⊓ guard`), as in
+    (ht : P₁ ⊑ wp t Q) → (he : P₂ ⊑ wp e Q) → (if c then P₁ else P₂) ⊑ wp (ite c t e) Q
 
-    (ht : ⦃P' ⊓ (c = True)⦄ t ⦃Q'⦄) → (he : ⦃P' ⊓ (c = False)⦄ e ⦃Q'⦄) → ⦃P'⦄ ite c t e ⦃Q'⦄
-
-Applied to a goal with pre `P` at state `s`, instantiating `P' := (· = s) ⊓ (fun _ => P s)`
-re-routes the point-frame through the premises: the conclusion VC trivializes and each premise
-lands at the current state, losslessly. The analysis stays with the premise-free fragment.
+all facts about `s` must be guessed into `P₁` and `P₂`. The premise-free form
+`(if c then wp t Q else wp e Q) ⊑ wp (ite c t e) Q` keeps both branches at `s`. A premise `Q = Q`
+opts a spec out of the direct application.
 -/
 
 namespace Lean.Elab.Tactic.VCGen.SpecAttr
 
 open Lean Meta Std.WP Lean.Order
 
-/-- The precondition, program, postcondition, and exception postcondition of a spec conclusion in
-either `Triple` or `pre ⊑ wp …` shape. -/
+/-- The precondition, program, postcondition and exception postcondition of a `Triple` or
+`pre ⊑ wp …` conclusion. -/
 private def specComponents? (concl : Expr) : Option (Expr × Expr × Expr × Expr) :=
   match_expr concl with
   | PartialOrder.rel _ _ pre rhs =>
@@ -112,49 +87,49 @@ private def specComponents? (concl : Expr) : Option (Expr × Expr × Expr × Exp
 private def occursMVar (mvarIds : Array MVarId) (e : Expr) : Bool :=
   Option.isSome <| e.find? fun s => match s with | .mvar m => mvarIds.contains m | _ => false
 
-/-- Whether `e` is conjunctive in the metavariables `qs`, as a sufficient syntactic condition: every
-occurrence of a `qs` metavariable lies in a conjunctive context — a `wp` postcondition or
-exception-postcondition argument (assuming the program's `wp` is conjunctive), a `⊓`/`∧`/`⨅` operand,
-a `⇨` consequent, a `Prod.fst` projection, applied at a tail, or under a `λ`. -/
-private partial def isConjunctiveIn (qs : Array MVarId) (e : Expr) : Bool :=
+/-- The arity of a conjunctive head and the positions of its conjunctive arguments. -/
+private def conjunctiveArgs? (env : Environment) : Name → Option (Nat × List Nat)
+  | ``Lean.Order.meet => some (4, [2, 3])
+  | ``And => some (2, [0, 1])
+  | ``Lean.Order.iInf => some (4, [3])
+  | ``Lean.Order.himp => some (4, [3])
+  | ``wp => some (10, [8, 9])
+  | ``Prod.fst | ``Prod.snd => some (3, [2])
+  | ``Prod.mk => some (4, [2, 3])
+  | ``ite | ``dite => some (5, [3, 4])
+  | ``cond => some (4, [2, 3])
+  -- `binderNameHint v b e` is definitionally `e`.
+  | ``binderNameHint => some (6, [5])
+  | c => (getMatcherInfoCore? env c).map fun info =>
+    (info.arity, List.range' info.getFirstAltPos info.numAlts)
+
+/-- Whether every occurrence of `qs` in `e` lies in a conjunctive context. -/
+private partial def isConjunctiveIn (env : Environment) (qs : Array MVarId) (e : Expr) : Bool :=
   if !occursMVar qs e then true else
   match e with
-  | .mdata _ b => isConjunctiveIn qs b
-  | .lam _ dom body _ => !occursMVar qs dom && isConjunctiveIn qs body
+  | .mdata _ b => isConjunctiveIn env qs b
+  | .lam _ dom body _ | .forallE _ dom body _ => !occursMVar qs dom && isConjunctiveIn env qs body
   | _ =>
+    let args := e.getAppArgs
     match e.getAppFn with
-    | .mvar m => qs.contains m && e.getAppArgs.all (!occursMVar qs ·)
-    -- `binderNameHint v b e` is definitionally `e`; the hint rides along only to name binders.
-    | .const ``binderNameHint _ => isConjunctiveIn qs (e.getArg! 5)
-    | .const ``Prod.fst _ =>
-      -- `Prod.fst` is a `⊓`-morphism (`Prod.fst_meet`). Its exception-stack argument stays
-      -- in a `⊓`-context. The rest (types and the applied exception) must be `qs`-free.
-      let args := e.getAppArgs
-      match args[2]? with
-      | some s => isConjunctiveIn qs s && (List.range args.size).all fun i => i == 2 || !occursMVar qs args[i]!
+    | .mvar m => qs.contains m && args.all (!occursMVar qs ·)
+    | .const c _ =>
+      match conjunctiveArgs? env c with
+      | some (arity, conj) =>
+        arity ≤ args.size && (List.range args.size).all fun i =>
+          if conj.contains i then isConjunctiveIn env qs args[i]! else !occursMVar qs args[i]!
       | none => false
-    | _ =>
-      match_expr e with
-      | Lean.Order.meet _ _ a b => isConjunctiveIn qs a && isConjunctiveIn qs b
-      | Lean.Order.iInf _ _ _ f => isConjunctiveIn qs f
-      | And a b => isConjunctiveIn qs a && isConjunctiveIn qs b
-      | Lean.Order.himp _ _ a b => !occursMVar qs a && isConjunctiveIn qs b
-      | wp _ _ _ _ _ _ _ prog post eposts =>
-        !occursMVar qs prog && isConjunctiveIn qs post && isConjunctiveIn qs eposts
-      | _ => false
+    | _ => false
 
-/-- Whether the spec's precondition is conjunctive in its schematic postconditions (`Q` and/or `E`):
-each occurs only in conjunctive contexts, and in no premise nor in the program. The `binders` are the
-spec's `∀`-telescoped parameters and premises. -/
+/-- Whether the precondition of the spec `∀ binders, concl` is conjunctive in its schematic
+postconditions. -/
 public def isConjunctiveInPosts (concl : Expr) (binders : Array Expr) : MetaM Bool := do
   let some (pre, prog, post, eposts) := specComponents? concl | return false
   let qs := #[post, eposts].filterMap fun e => match e.eta with | .mvar q => some q | _ => none
   if qs.isEmpty then return false
   if occursMVar qs prog then return false
-  -- A premise mentioning `Q`/`E` rejects the spec — this is the `Q = Q` opt-out. Incomplete: a
-  -- premise that only pins a postcondition, e.g. `E = ⊥`, is rejected too.
   for b in binders do
     if occursMVar qs (← inferType b) then return false
-  return isConjunctiveIn qs pre
+  return isConjunctiveIn (← getEnv) qs pre
 
 end Lean.Elab.Tactic.VCGen.SpecAttr

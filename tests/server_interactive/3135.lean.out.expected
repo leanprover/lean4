@@ -1,0 +1,36 @@
+{"version": 1,
+ "uri": "file:///3135.lean",
+ "diagnostics":
+ [{"source": "Lean 4",
+   "severity": 1,
+   "range":
+   {"start": {"line": 19, "character": 0},
+    "end": {"line": 19, "character": 32}},
+   "message":
+   "Unexpected doc string. Doc strings must come immediately before declarations that accept them.\n\nHint: `set_option ... in` must come before docstrings.",
+   "fullRange":
+   {"start": {"line": 19, "character": 0},
+    "end": {"line": 19, "character": 32}}},
+  {"source": "Lean 4",
+   "severity": 1,
+   "range":
+   {"start": {"line": 24, "character": 0},
+    "end": {"line": 24, "character": 56}},
+   "message":
+   "Unexpected doc string. Doc strings must come immediately before declarations that accept them.\n\nHint: `set_option ... in` must come before docstrings.",
+   "fullRange":
+   {"start": {"line": 24, "character": 0},
+    "end": {"line": 24, "character": 56}}},
+  {"source": "Lean 4",
+   "severity": 3,
+   "range":
+   {"start": {"line": 30, "character": 0}, "end": {"line": 30, "character": 6}},
+   "message": "x : Nat",
+   "fullRange":
+   {"start": {"line": 30, "character": 0},
+    "end": {"line": 30, "character": 6}}}]}
+{"textDocument": {"uri": "file:///3135.lean"},
+ "position": {"line": 30, "character": 7}}
+{"range":
+ {"start": {"line": 30, "character": 7}, "end": {"line": 30, "character": 8}},
+ "contents": {"value": "```lean\nx : Nat\n```", "kind": "markdown"}}

@@ -195,28 +195,26 @@ instance ArrayRevIterator.instIterator {α : Type w} [Pure m] :
         .done (by simp; omega)
 
 private def ArrayRevIterator.instFinitenessRelation [Pure m] :
-    FinitenessRelation (ArrayIterator α) m where
+    FinitenessRelation (ArrayRevIterator α) m where
   Rel := InvImage WellFoundedRelation.rel
-      (fun it => it.internalState.array.size - it.internalState.pos)
+      (fun it => it.internalState.pos)
   wf := InvImage.wf _ WellFoundedRelation.wf
   subrelation {it it'} h := by
     simp_wf
     obtain ⟨step, h, h'⟩ := h
     cases step
     · cases h
-      obtain ⟨h, h', h'', rfl⟩ := h'
-      rw [h] at h''
-      rw [h, h']
+      obtain ⟨h, ⟨h', h''⟩, rfl⟩ := h'
       omega
     · cases h'
     · cases h
 
-instance ArrayRevIterator.instFinite [Pure m] : Finite (ArrayIterator α) m := by
-  exact Finite.of_finitenessRelation ArrayIterator.instFinitenessRelation
+instance ArrayRevIterator.instFinite [Pure m] : Finite (ArrayRevIterator α) m := by
+  exact Finite.of_finitenessRelation ArrayRevIterator.instFinitenessRelation
 
 @[always_inline, inline]
 instance ArrayRevIterator.instIteratorLoop {α : Type w} [Monad m] {n : Type x → Type x'} [Monad n] :
-    IteratorLoop (ArrayIterator α) m n :=
+    IteratorLoop (ArrayRevIterator α) m n :=
   .defaultImplementation
 
 end Std.Iterators.Types

@@ -46,10 +46,12 @@ conjunctive, because `(f ⊓ g) a = f a ⊓ g a`. For example:
 
 The `wp` arm assumes that the `wp` of the sub-program is conjunctive (`WPConjunctive`).
 
-An attribute on lemmas such as `ite c a₁ b₁ ⊓ ite c a₂ b₂ ⊑ ite c (a₁ ⊓ a₂) (b₁ ⊓ b₂)` can extend
-`conjunctiveArgs?` to user-defined heads. The arguments that vary between the two operands are
-conjunctive, and the shared arguments are `Q`-free. The lemma must state conjunctivity jointly in
-all varying arguments: `Or` is conjunctive in each argument separately, but not jointly.
+`conjunctiveArgs?` is a fixed table. An attribute on lemmas such as
+`ite c a₁ b₁ ⊓ ite c a₂ b₂ ⊑ ite c (a₁ ⊓ a₂) (b₁ ⊓ b₂)` could extend it to user-defined heads,
+reading the varying arguments as conjunctive and the shared ones as `Q`-free. The table covers the
+heads of the `Std` specs, and a missed spec costs only frame inference, so no user needs the
+attribute yet. The lemma would have to state conjunctivity jointly in all varying arguments: `Or`
+is conjunctive in each argument separately, but not jointly.
 
 ## Premises
 

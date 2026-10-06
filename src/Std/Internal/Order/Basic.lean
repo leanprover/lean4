@@ -54,14 +54,14 @@ noncomputable def join (x y : α) : α := CompleteLattice.sup (fun z => z = x �
 scoped infixl:65 " ⊔ " => join
 
 /-- Indexed infimum -/
-noncomputable def iInf {ι : Type v} (f : ι → α) : α := inf (fun x => ∃ i, f i = x)
+noncomputable def iInf {ι : Sort v} (f : ι → α) : α := inf (fun x => ∃ i, f i = x)
 
 open Lean in
 @[inherit_doc iInf] scoped macro "⨅ " bs:Lean.explicitBinders ", " b:term : term => do
   return ⟨← Lean.expandExplicitBinders ``iInf bs b⟩
 
 /-- Indexed supremum -/
-noncomputable def iSup {ι : Type v} (f : ι → α) : α :=
+noncomputable def iSup {ι : Sort v} (f : ι → α) : α :=
   CompleteLattice.sup (fun x => ∃ i, f i = x)
 
 open Lean in

@@ -66,22 +66,22 @@ theorem join_le (x y z : α) : x ⊑ z → y ⊑ z → x ⊔ y ⊑ z := by
   | inl h => rw [h]; exact hxz
   | inr h => rw [h]; exact hyz
 
-theorem iInf_le {ι : Type vₗ} (f : ι → α) (i : ι) : iInf f ⊑ f i := by
+theorem iInf_le {ι : Sort vₗ} (f : ι → α) (i : ι) : iInf f ⊑ f i := by
   apply inf_le
   exact ⟨i, rfl⟩
 
-theorem le_iInf {ι : Type vₗ} (f : ι → α) (x : α) : (∀ i, x ⊑ f i) → x ⊑ iInf f := by
+theorem le_iInf {ι : Sort vₗ} (f : ι → α) (x : α) : (∀ i, x ⊑ f i) → x ⊑ iInf f := by
   intro h
   apply le_inf
   intro y ⟨i, hi⟩
   rw [← hi]
   exact h i
 
-theorem le_iSup {ι : Type vₗ} (f : ι → α) (i : ι) : f i ⊑ iSup f := by
+theorem le_iSup {ι : Sort vₗ} (f : ι → α) (i : ι) : f i ⊑ iSup f := by
   apply le_sup
   exact ⟨i, rfl⟩
 
-theorem iSup_le {ι : Type vₗ} (f : ι → α) (x : α) : (∀ i, f i ⊑ x) → iSup f ⊑ x := by
+theorem iSup_le {ι : Sort vₗ} (f : ι → α) (x : α) : (∀ i, f i ⊑ x) → iSup f ⊑ x := by
   intro h
   apply sup_le
   intro y ⟨i, hi⟩

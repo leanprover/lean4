@@ -16,8 +16,10 @@ export COMPARATOR_BWRAP="$PWD/../fake-bwrap.sh"
 # this just skips the build.
 "$LAKE" resolve-deps
 
-# The kernel accepts `sorryAx`, so only the axiom report catches this.
+# The kernel accepts `sorryAx`, so only the axiom policy catches this, and the export already
+# refuses it: no kernel gets to run.
 test_status_out 1 "Axiom 'sorryAx' is not permitted" check
 match_text "it is used by 'bad'" produced.out
+no_match_text 'Running Lean default kernel' produced.out
 
 rm -f produced.out

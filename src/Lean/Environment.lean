@@ -2412,7 +2412,13 @@ private def ImportedModule.irData? (self : ImportedModule) (loadIRSig : Bool := 
     if (!loadIRSig && !loadCodegenIR) || self.importAll || self.irPhases != .runtime then
       self.irParts.back?.map (·.1)
     else
-      self.irParts[0]?.map (·.1)
+      let sig? := self.irParts[0]?.map (·.1)
+      -- A module that generated its code during elaboration has only a placeholder `.ir.sig`; its
+      -- signatures are in the `.olean`.
+      if !loadIRSig && sig?.any (!·.isModule) then
+        self.mainModule?
+      else
+        sig?
 
 structure ImportState where
   private moduleNameMap : Std.HashMap Name ImportedModule := {}

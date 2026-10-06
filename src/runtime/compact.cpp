@@ -279,7 +279,8 @@ object_offset object_compactor::insert_interp_cache(object * o) {
         new_o->m_entries[i].m_native = nullptr;
         new_o->m_entries[i].m_object = box(0);
     }
-    return save_max_sharing(o, (lean_object*)new_o, obj_sz);
+    // must NOT be max-shared
+    return save(o, (lean_object *) new_o);
 }
 
 object_offset object_compactor::insert_sarray(object * o) {

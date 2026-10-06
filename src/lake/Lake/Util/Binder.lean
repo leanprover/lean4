@@ -134,14 +134,16 @@ public def expandBinderCore
       modifier?
     }
   else if k == ``Lean.Parser.Term.implicitBinder then
-    -- `{` binderIdent+ binderType `}`
+    -- `{` binderIdent+ binderType (binderDefault <|> binderTactic)? `}`
     let ids ← getBinderIds stx[1]
     let type := stx[2]
+    let modifier? := expandBinderModifier stx[3]
     ids.foldlM (init := binders) fun binders id => return binders.push {
       ref := stx
       id := ← expandBinderIdent id
       type := expandBinderType id type
       info := .implicit
+      modifier?
     }
   else if k == ``Lean.Parser.Term.strictImplicitBinder then
     -- `⦃` binderIdent+ binderType `⦄`

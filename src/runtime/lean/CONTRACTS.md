@@ -231,7 +231,8 @@ implementations or a performance benchmark.
 Existing `rc_sticky` fixtures cover single-threaded overflow; the Lean initializer regression
 covers an overflowed encoding with one remaining owner.
 
-`concurrent.c` exercises 128 cases with eight workers across shared roots,
+`candidate.c` supplies deterministic changes between the first read, fresh sticky check and
+atomic update. `concurrent.c` exercises 128 cases with eight workers across shared roots,
 scanner fields, unary children, and borrowed array-field retains. In the borrowed case, one
 array field owns a child initially at RC −1; each worker holds an array reference while
 retaining that child. It checks retained payloads and exactly-once finalization after all

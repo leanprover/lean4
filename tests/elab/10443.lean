@@ -25,4 +25,3 @@ def mwe (y : UInt64) : UInt64 :=
     let x := gSize
     let y := y
     x + y
-

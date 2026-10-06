@@ -313,14 +313,19 @@ def FnBody.targetType : FnBody → IRType
   | .fap _ _ ty .. => ty
   | .pap .. => .object
   | .ap .. => .tobject
-  | .box .. => .tobject
+  | .box _ _ ty .. =>
+    match ty with
+    | .uint8 | .uint16 => .tagged
+    | .uint32 => .tobject
+    | .uint64 | .usize | .float | .float32 => .object
+    | _ => .tobject
   | .unbox _ _ ty _ => ty
   | .uint8Lit .. => .uint8
   | .uint16Lit .. => .uint16
   | .uint32Lit .. => .uint32
   | .uint64Lit .. => .uint64
   | .usizeLit .. => .usize
-  | .natLit .. => .tobject
+  | .natLit _ _ n => if n < UInt32.size / 2 then .tagged else .tobject
   | .strLit .. => .object
   | .isShared .. => .uint8
   | _ => panic! "expected var decl"

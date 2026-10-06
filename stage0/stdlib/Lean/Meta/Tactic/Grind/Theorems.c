@@ -1413,8 +1413,8 @@ return v___x_315_;
 }
 else
 {
-lean_dec(v_head_277_);
 lean_dec_ref_known(v___x_276_, 2);
+lean_dec(v_head_277_);
 lean_dec_ref(v_getOrigin_271_);
 lean_dec(v_setSymbols_270_);
 lean_dec(v_thm_268_);

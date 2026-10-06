@@ -11332,8 +11332,8 @@ v___jp_2854_:
 {
 lean_object* v___x_2859_; lean_object* v___x_2860_; 
 v___x_2859_ = lean_alloc_ctor(1, 2, 2);
-lean_ctor_set(v___x_2859_, 0, v___y_2856_);
-lean_ctor_set(v___x_2859_, 1, v___y_2855_);
+lean_ctor_set(v___x_2859_, 0, v___y_2855_);
+lean_ctor_set(v___x_2859_, 1, v___y_2856_);
 lean_ctor_set_uint8(v___x_2859_, sizeof(void*)*2, v___y_2857_);
 lean_ctor_set_uint8(v___x_2859_, sizeof(void*)*2 + 1, v___y_2858_);
 v___x_2860_ = lean_alloc_ctor(0, 1, 0);
@@ -11381,8 +11381,8 @@ uint8_t v_done_2876_; uint8_t v_contextDependent_2877_;
 v_done_2876_ = lean_ctor_get_uint8(v_a_2875_, 0);
 v_contextDependent_2877_ = lean_ctor_get_uint8(v_a_2875_, 1);
 lean_dec_ref_known(v_a_2875_, 0);
-v___y_2855_ = v_proof_2871_;
-v___y_2856_ = v_e_x27_2870_;
+v___y_2855_ = v_e_x27_2870_;
+v___y_2856_ = v_proof_2871_;
 v___y_2857_ = v_done_2876_;
 v___y_2858_ = v_contextDependent_2877_;
 goto v___jp_2854_;
@@ -11392,8 +11392,8 @@ else
 uint8_t v_done_2878_; 
 v_done_2878_ = lean_ctor_get_uint8(v_a_2875_, 0);
 lean_dec_ref_known(v_a_2875_, 0);
-v___y_2855_ = v_proof_2871_;
-v___y_2856_ = v_e_x27_2870_;
+v___y_2855_ = v_e_x27_2870_;
+v___y_2856_ = v_proof_2871_;
 v___y_2857_ = v_done_2878_;
 v___y_2858_ = v_contextDependent_2873_;
 goto v___jp_2854_;

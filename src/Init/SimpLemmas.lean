@@ -58,7 +58,7 @@ at depth 3 it becomes `#22`, etc., causing quadratic proof growth.
 With `arrow`, both arguments are explicit (not under binders), so subterms remain
 identical across nesting levels and can be shared, yielding linear-sized proofs.
 -/
-def Arrow (α : Sort u) (β : Sort v) : Sort (imax u v) := α → β
+@[expose] def Arrow (α : Sort u) (β : Sort v) : Sort (imax u v) := α → β
 
 theorem arrow_congr {p₁ p₂ : Sort u} {q₁ q₂ : Sort v} (h₁ : p₁ = p₂) (h₂ : q₁ = q₂) : Arrow p₁ q₁ = Arrow p₂ q₂ :=
   h₁ ▸ h₂ ▸ rfl

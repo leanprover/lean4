@@ -410,11 +410,11 @@ def processNewEq (a b : Expr) : GoalM Unit := do
     trace_goal[grind.ring.assert] "{← mkEq a b}"
     let some sa ← toSemiringExpr? a | return ()
     let some sb ← toSemiringExpr? b | return ()
-    let lhs ← sa.denoteAsRingExpr
-    let rhs ← sb.denoteAsRingExpr
+    let lhs ← sa.denoteAsRingExpr (← getGeneration a)
+    let rhs ← sb.denoteAsRingExpr (← getGeneration b)
     RingM.run (← getCommSemiring).ringId do
-      let some ra ← reify? lhs (skipVar := false) (gen := (← getGeneration a)) | return ()
-      let some rb ← reify? rhs (skipVar := false) (gen := (← getGeneration b)) | return ()
+      let some ra ← reify? lhs (skipVar := false) | return ()
+      let some rb ← reify? rhs (skipVar := false) | return ()
       let some p ← (ra.sub rb).toPolyM? | return ()
       addNewEq (← mkEqCnstr p (.coreS a b sa sb ra rb))
 
@@ -472,11 +472,11 @@ private def processNewDiseqCommSemiring (a b : Expr) : SemiringM Unit := do
     trace_goal[grind.ring.assert] "{mkNot (← mkEq a b)}"
     let some sa ← toSemiringExpr? a | return ()
     let some sb ← toSemiringExpr? b | return ()
-    let lhs ← sa.denoteAsRingExpr
-    let rhs ← sb.denoteAsRingExpr
+    let lhs ← sa.denoteAsRingExpr (← getGeneration a)
+    let rhs ← sb.denoteAsRingExpr (← getGeneration b)
     RingM.run (← getCommSemiring).ringId do
-      let some ra ← reify? lhs (skipVar := false) (gen := (← getGeneration a)) | return ()
-      let some rb ← reify? rhs (skipVar := false) (gen := (← getGeneration b)) | return ()
+      let some ra ← reify? lhs (skipVar := false) | return ()
+      let some rb ← reify? rhs (skipVar := false) | return ()
       let some p ← (ra.sub rb).toPolyM? | return ()
       addNewDiseq {
         lhs := a, rhs := b

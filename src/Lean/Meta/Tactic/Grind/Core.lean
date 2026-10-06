@@ -269,7 +269,7 @@ where
       we must ensure it is root `m` of its congruence class if the root is not already
       in the `False` equivalence class.
       This can happen when the equality `n = m` is still has to be processed. That is,
-      it is in the `newFacts` todo array.
+      it is in the `toProcess` todo array.
       A similar swap is performed at `addCongrTable`.
       -/
       if isFalseRoot && n.self.isAppOfArity ``Eq 3 && !n.isCongrRoot then
@@ -281,20 +281,20 @@ where
           setENode n.self { n with congr := n.self }
           setENode e { (← getENode e) with congr := n.self }
 
-/-- Ensures collection of equations to be processed is empty. -/
-private def resetNewFacts : GoalM Unit :=
-  modify fun s => { s with newFacts := #[] }
+/-- Discards all pending work. -/
+private def resetToProcess : GoalM Unit :=
+  modify fun s => { s with toProcess := #[] }
 
-/-- Pops and returns the next equality to be processed. -/
-private def popNextFact? : GoalM (Option NewFact) := do
-  let r := (← get).newFacts.back?
+/-- Pops and returns the next element to be processed. -/
+private def popToProcess? : GoalM (Option ToProcessElement) := do
+  let r := (← get).toProcess.back?
   if r.isSome then
-    modify fun s => { s with newFacts := s.newFacts.pop }
+    modify fun s => { s with toProcess := s.toProcess.pop }
   return r
 
 private def addEqCore (lhs rhs proof : Expr) (isHEq : Bool) : GoalM Unit := do
   addEqStep lhs rhs proof isHEq
-  processNewFacts
+  processToDo
 
 /-- Adds a new equality `lhs = rhs`. It assumes `lhs` and `rhs` have already been internalized. -/
 private def addEq (lhs rhs proof : Expr) : GoalM Unit := do
@@ -364,23 +364,26 @@ where
       addEqCore lhs rhs proof isHEq
 
 set_option compiler.ignoreBorrowAnnotation true in
-@[export lean_grind_process_new_facts]
-private def processNewFactsImpl : GoalM Unit := do
+@[export lean_grind_process_to_do]
+private def processToDoImpl : GoalM Unit := do
   repeat
     if (← isInconsistent) then
-      resetNewFacts
+      resetToProcess
       return ()
     checkSystem "grind"
-    let some next ← popNextFact? | return ()
+    let some next ← popToProcess? | return ()
     match next with
     | .eq lhs rhs proof isHEq => addEqStep lhs rhs proof isHEq
     | .fact prop proof gen => addFactStep prop proof gen
+    | .propagateUp e => propagateUp e
 
 /-- Adds a new `fact` justified by the given proof and using the given generation. -/
 def add (fact : Expr) (proof : Expr) (generation := 0) : GoalM Unit := do
   if fact.isTrue then return ()
   if (← isInconsistent) then return ()
-  resetNewFacts
+  -- Work queued since the last drain, e.g. by internalizing patterns of activated theorems.
+  processToDo
+  if (← isInconsistent) then return ()
   addFactStep fact proof generation
 
 /-- Adds a new hypothesis. -/

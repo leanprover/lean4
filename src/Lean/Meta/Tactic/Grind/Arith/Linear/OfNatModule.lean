@@ -9,6 +9,7 @@ public import Lean.Meta.Tactic.Grind.Arith.Linear.LinearM
 import Init.Grind.Module.OfNatModule
 import Init.Grind.Module.NatModuleNorm
 import Lean.Meta.Tactic.Grind.Diseq
+import Lean.Meta.Tactic.Grind.Arith.Util
 import Lean.Meta.Tactic.Grind.Arith.Linear.ToExpr
 import Init.Data.Nat.Order
 import Init.Data.Order.Lemmas
@@ -70,6 +71,9 @@ private def mkOfNatModuleVar (e : Expr) : OfNatModuleM (Expr × Expr) := do
   else
     let s ← getNatStruct
     let toQe ← shareCommon (mkApp s.toQFn e)
+    -- `toQe` is a new term. It must be internalized before `e` is marked as a solver term:
+    -- marking replays pending equalities of `e` into `processNewEq`, which reifies `toQe`.
+    internalize toQe (← getGeneration e)
     let h    := mkApp s.rfl_q toQe
     let r := (toQe, h)
     modifyNatStruct fun s => { s with termMap := s.termMap.insert { expr := e } r }
@@ -131,6 +135,9 @@ def ofNatModule (e : Expr) : OfNatModuleM (Expr × Expr) := do
       pure (r.expr, (← mkEqTrans h proof))
     else
       pure (r.expr, h)
+    -- `e'` is a solver-built term whose atoms may be composite (`k • toQ a` for a non-numeral
+    -- `k`), so it is internalized like the `IntModule` images of `toIntModuleExpr`.
+    internalize e' (← getGeneration e) (some getIntModuleVirtualParent)
     setTermNatStructId e
     modifyNatStruct fun s => { s with termMap := s.termMap.insert { expr := e } (e', h) }
     return (e', h)

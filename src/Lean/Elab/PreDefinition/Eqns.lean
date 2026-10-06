@@ -350,6 +350,16 @@ private structure EqnTypes where
   types : Array Expr
 deriving TypeName
 
+private def realizeEqnTypes (key : EqnTypesKey) : MetaM EqnTypes :=
+  withEqnOptions key.declName <| withOptions (tactic.hygienic.set · false) do
+    let target ← unfoldThmType key.declName
+    let types ← withNewMCtxDepth <|
+      forallTelescope (cleanupAnnotations := true) target fun _ target => do
+        let goal ← mkFreshExprSyntheticOpaqueMVar target
+        withReducible do
+          mkEqnTypes key.declNames goal.mvarId!
+    return { types }
+
 /--
 Generate equations for `declName`.
 
@@ -363,8 +373,8 @@ def mkEqns (declName : Name) (declNames : Array Name) : MetaM (Array Name) := do
   let us := info.levelParams.map mkLevelParam
   -- The caller's options (e.g. `backward.isDefEq.respectTransparency`) can change how
   -- `mkEqnTypes` splits, so the types must not be computed in the caller's context.
-  let { types := eqnTypes } ← realizeValue declName { declName, declNames : EqnTypesKey }
-    (withEqnOptions declName doRealizeTypes)
+  let key := { declName, declNames : EqnTypesKey }
+  let { types := eqnTypes } ← realizeValue declName key (realizeEqnTypes key)
   let mut thmNames := #[]
   for h : i in *...eqnTypes.size do
     let type := eqnTypes[i]
@@ -376,14 +386,6 @@ def mkEqns (declName : Name) (declNames : Array Name) : MetaM (Array Name) := do
     realizeConst declName name (withEqnOptions declName (doRealize name info type))
   return thmNames
 where
-  doRealizeTypes : MetaM EqnTypes := withOptions (tactic.hygienic.set · false) do
-    let target ← unfoldThmType declName
-    let types ← withNewMCtxDepth <|
-      forallTelescope (cleanupAnnotations := true) target fun xs target => do
-        let goal ← mkFreshExprSyntheticOpaqueMVar target
-        withReducible do
-          mkEqnTypes declNames goal.mvarId!
-    return { types }
   doRealize name info type := withOptions (tactic.hygienic.set · false) do
     let value ← mkEqnProof declName type
     let (type, value) ← removeUnusedEqnHypotheses type value

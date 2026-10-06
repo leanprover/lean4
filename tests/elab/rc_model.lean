@@ -37,7 +37,8 @@ thread-shared paths test the count and only then run their {lit}`atomic_fetch_su
 {lit}`atomic_fetch_add`, against a count another thread may have moved in between. This model treats
 each adjustment as a serial step. It does not model interleavings between the test and the atomic
 operation. {lit}`tests/misc_dir/rc_graph/Concurrent.lean` separately proves the shared-counter
-invariant across guard/update histories. The C++ memory model remains a native contract.
+invariant across guard/update histories; {lit}`ConcurrentRefinement.lean` binds the production
+release decision to that invariant. The C++ memory model remains a native contract.
 -/
 
 /-- {lit}`#define LEAN_RC_STICKY      (INT_MIN + 0x10000000)` -/

@@ -1,8 +1,9 @@
 # Native collector contracts
 
-`tests/misc_dir/rc_graph/NativeContracts.lean` proves the finite-word and byte-memory facts below
-for the runtime's intrusive deletion worklist. `object.cpp` supplies the memory operations and
-terminal effects modeled here.
+`Collector.lean` supplies the candidate counter decisions, queue insertion, tag dispatch,
+scanning and worklist control flow. Its native adapter declares the memory operations and
+terminal effects required by the generated fragment.
+`tests/misc_dir/rc_graph/NativeContracts.lean` proves the finite-word and byte-memory facts below.
 These are conditional representation proofs, not a verification of C++, its compiler, the
 allocator or the scheduler.
 
@@ -44,9 +45,9 @@ in the stated byte interpretation. Neither branch preserves the old reference co
 `pointer_tag32/64` prove that aligned object addresses are not immediates.
 `immediate32/64` and `unbox_box32/64` prove the low-bit convention and round-trip boxing when
 the input fits in `word_bits - 1` bits. Null is a separate sentinel: `lean_is_scalar(NULL)`
-is false. Thunk and reference dispatch ignore null before any header access. Constructor,
-closure and array slots must be nonnull; all field scanners ignore immediates.
-`lean_dec(NULL)` is not a valid public call.
+is false. The candidate scanner ignores null and immediate slots before any header access.
+The incumbent runtime ignores null thunk and reference members, but constructor, closure and
+array slots must remain nonnull until activation. `lean_dec(NULL)` is not a valid public call.
 
 ## Ownership, liveness and frames
 
@@ -184,6 +185,10 @@ used by the existing runtime, not enforced limits on the task pool or a theorem 
 arbitrarily many operations in flight. The large-increment helper repeatedly applies the
 same bounded chunks with a fresh guard.
 
+`ConcurrentRefinement.lean` interprets the production release with separate first-read,
+sticky-check, and atomic-old values. `history_last_exclusive` connects its deletion decision
+to the ownership invariant conditional on a permitted history and the following trusted contracts.
+
 Native guard observations must admit a history ordering that reserves every delayed enabled
 adjustment in pending credits until its atomic update, including each chunk of a huge shared
 increment. Publication, ownership transfer, and borrow lifetimes must keep the object and each
@@ -198,7 +203,8 @@ that justification for ordinary builds.
 
 Compiler correctness, the C/C++ ABI and pointer conversions, atomic publication/lifetimes,
 allocator behavior, scheduler invariants, user finalizers, compilation of the foreign calls
-and native linking remain trusted obligations.
+and native linking remain trusted obligations. The Lean binding theorems separately check
+the Lean entry point and its selected opaque primitive declarations.
 
 ## Executable evidence and limits
 

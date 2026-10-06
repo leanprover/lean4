@@ -51,6 +51,7 @@ functions, which have a (relatively) homogeneous ABI that we can use without run
 #include "util/nat.h"
 #include "util/option_declarations.h"
 #include "util/name_hash_map.h"
+#include "util/flat_hash_map.h"
 
 #ifndef LEAN_DEFAULT_INTERPRETER_PREFER_NATIVE
 #define LEAN_DEFAULT_INTERPRETER_PREFER_NATIVE true
@@ -374,7 +375,7 @@ struct native_symbol_cache_entry {
 
 // Caches native symbol lookup successes _and_ failures; we assume no native code is loaded or
 // unloaded after the interpreter is first invoked, so this can be a global cache.
-name_hash_map<native_symbol_cache_entry> * g_native_symbol_cache;
+name_flat_hash_map<native_symbol_cache_entry> * g_native_symbol_cache;
 std::shared_mutex * g_native_symbol_cache_mutex;
 
 class interpreter {
@@ -408,7 +409,7 @@ class interpreter {
         native_symbol_cache_entry m_native;
     };
     // caches symbol lookup successes _and_ failures
-    name_hash_map<symbol_cache_entry> m_symbol_cache;
+    name_flat_hash_map<symbol_cache_entry> m_symbol_cache;
 
     /** \brief Get current stack frame */
     inline frame & get_frame() {
@@ -556,7 +557,7 @@ private:
                 }
             }
             case expr_kind::PAp: { // unsatured (partial) application of top-level function
-                symbol_cache_entry sym = lookup_symbol(expr_pap_fun(e));
+                const symbol_cache_entry& sym = lookup_symbol(expr_pap_fun(e));
                 if (sym.m_native.m_addr) {
                     // point closure directly at native symbol
                     object * cls = alloc_closure(sym.m_native.m_addr, decl_params(sym.m_decl).size(), expr_pap_args(e).size());
@@ -832,8 +833,9 @@ private:
        });
     }
 
-    /** \brief Return cached lookup result for given unmangled function name in the current binary. */
-    symbol_cache_entry lookup_symbol(name const & fn) {
+    /** \brief Return cached lookup result for given unmangled function name in the current binary.
+     *  Note that this reference maybe be invalidated by the next call to `lookup_symbol`. */
+    const symbol_cache_entry& lookup_symbol(name const & fn) {
         auto e = m_symbol_cache.find(fn);
         if (e != m_symbol_cache.end()) {
             return e->second;
@@ -842,16 +844,14 @@ private:
         auto ne = g_native_symbol_cache->find(fn);
         if (ne != g_native_symbol_cache->end()) {
             symbol_cache_entry e_new { get_decl(fn), ne->second };
-            m_symbol_cache.insert({ fn, e_new });
-            return e_new;
+            return m_symbol_cache.emplace(fn, std::move(e_new)).first->second;
         }
         lock.unlock();
         std::unique_lock<std::shared_mutex> unique_lock(*g_native_symbol_cache_mutex);
         ne = g_native_symbol_cache->find(fn);
         if (ne != g_native_symbol_cache->end()) {
             symbol_cache_entry e_new { get_decl(fn), ne->second };
-            m_symbol_cache.insert({ fn, e_new });
-            return e_new;
+            return m_symbol_cache.emplace(fn, std::move(e_new)).first->second;
         }
         symbol_cache_entry e_new { get_decl(fn), {nullptr, false} };
         if (m_prefer_native || decl_tag(e_new.m_decl) == decl_kind::Extern || has_init_attribute(m_env, fn)) {
@@ -873,8 +873,7 @@ private:
             }
         }
         g_native_symbol_cache->insert({ fn, e_new.m_native });
-        m_symbol_cache.insert({ fn, e_new });
-        return e_new;
+        return m_symbol_cache.emplace(fn, std::move(e_new)).first->second;
     }
 
     /** \brief Retrieve Lean declaration from elab_environment. */
@@ -900,7 +899,7 @@ private:
             return type_is_scalar(t) ? unbox_t(o, t) : o;
         }
 
-        symbol_cache_entry e = lookup_symbol(fn);
+        const symbol_cache_entry& e = lookup_symbol(fn);
         if (e.m_native.m_addr) {
             // we can assume that all native code has been initialized (see e.g. `evalConst`)
 
@@ -936,7 +935,7 @@ private:
         // better signal than a segfault in that case.
         lean_always_assert(fn_body_tag(decl_fun_body(e.m_decl)) != fn_body_kind::Unreachable);
         value r = eval_decl_body(e.m_decl);
-        pop_frame(r, decl_type(e.m_decl));
+        pop_frame(r, t);
         m_constant_cache.insert({ fn, constant_cache_entry { type_is_scalar(t), r } });
         return r;
     }
@@ -944,7 +943,8 @@ private:
     value call(name const & fn, array_ref<arg> const & args) {
         size_t old_size = m_arg_stack.size();
         value r;
-        symbol_cache_entry e = lookup_symbol(fn);
+        const symbol_cache_entry& e = lookup_symbol(fn);
+        type t = decl_type(e.m_decl);
         if (e.m_native.m_addr) {
             object ** args2 = static_cast<object **>(LEAN_ALLOCA(args.size() * sizeof(object *))); // NOLINT
             for (size_t i = 0; i < args.size(); i++) {
@@ -962,10 +962,9 @@ private:
                 }
             }
             push_frame(e.m_decl, old_size);
+            lean_assert(!type_is_scalar(t) || e.m_native.m_boxed);
             object * o = curry(e.m_native.m_addr, args.size(), args2);
-            type t = decl_type(e.m_decl);
             if (type_is_scalar(t)) {
-                lean_assert(e.m_native.m_boxed);
                 // NOTE: this unboxing does not exist in the IR, so we should manually consume `o`
                 r = unbox_t(o, t);
                 lean_dec(o);
@@ -988,7 +987,7 @@ private:
             push_frame(e.m_decl, old_size);
             r = eval_decl_body(e.m_decl);
         }
-        pop_frame(r, decl_type(e.m_decl));
+        pop_frame(r, t);
         return r;
     }
 
@@ -1075,7 +1074,7 @@ public:
      *  * supports under- and over-application.
      *  * supports "calling" (evaluating) nullary constants. */
     object * call_boxed(name const & fn, unsigned n, object ** args) {
-        symbol_cache_entry e = lookup_symbol(fn);
+        const symbol_cache_entry& e = lookup_symbol(fn);
         unsigned arity = decl_params(e.m_decl).size();
         object * r;
         if (arity == 0) {
@@ -1144,7 +1143,7 @@ public:
                 object * o = io_result_get_value(r);
                 mark_persistent(o);
                 dec_ref(r);
-                symbol_cache_entry e = lookup_symbol(decl);
+                const symbol_cache_entry& e = lookup_symbol(decl);
                 if (e.m_native.m_addr) {
                     *((object **)e.m_native.m_addr) = o;
                 } else {
@@ -1226,7 +1225,7 @@ void initialize_ir_interpreter() {
         ir::g_interpreter_step = new name({"interpreter", "step"});
         register_trace_class(*ir::g_interpreter_step);
     });
-    ir::g_native_symbol_cache = new name_hash_map<ir::native_symbol_cache_entry>();
+    ir::g_native_symbol_cache = new name_flat_hash_map<ir::native_symbol_cache_entry>();
     ir::g_native_symbol_cache_mutex = new std::shared_mutex();
 }
 

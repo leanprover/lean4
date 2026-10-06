@@ -172,6 +172,20 @@ if(USE_MIMALLOC)
   FetchContent_MakeAvailable(mimalloc)
 endif()
 
+# Only the sources are needed: `src/util/absl.cpp` compiles the few parts of abseil we use with
+# Lean's own flags.
+FetchContent_Declare(
+  abseil
+  GIT_REPOSITORY https://github.com/abseil/abseil-cpp
+  GIT_TAG 20260817.0
+  GIT_SHALLOW TRUE
+  SOURCE_DIR "${CMAKE_BINARY_DIR}/abseil"
+  # no CMakeLists.txt here, so `FetchContent_MakeAvailable` does not add abseil's own build
+  SOURCE_SUBDIR do-not-build
+  EXCLUDE_FROM_ALL
+)
+FetchContent_MakeAvailable(abseil)
+
 if(NOT STAGE1_PREV_STAGE)
   ExternalProject_Add(
     stage0

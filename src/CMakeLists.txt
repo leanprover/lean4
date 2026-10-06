@@ -784,6 +784,7 @@ install(DIRECTORY ${LEAN_BINARY_DIR}/share/ DESTINATION share)
 include_directories(${LEAN_SOURCE_DIR})
 include_directories(${CMAKE_BINARY_DIR}) # version.h etc., "private" headers
 include_directories(${CMAKE_BINARY_DIR}/include) # config.h etc., "public" headers
+include_directories(SYSTEM ${LEAN_BINARY_DIR}/../abseil)
 
 # Lean code only needs this one include
 string(APPEND LEANC_OPTS " -I${CMAKE_BINARY_DIR}/include")

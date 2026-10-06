@@ -18,7 +18,7 @@ namespace Async
 /--
 Unix style signals for Unix and Windows.
 SIGKILL and SIGSTOP are missing because they cannot be caught.
-SIGBUS, SIGFPE, SIGILL, and SIGSEGV are missing because they cannot be caught safely.
+SIGBUS, SIGFPE, SIGILL, and SIGSEGV are missing because they cannot be caught safely by libuv.
 SIGPIPE is not present because the runtime ignores the signal.
 -/
 inductive Signal
@@ -187,7 +187,7 @@ private def toInt32 : Signal → Int32
   | .sigsys => 31
 
 /--
-`Signal.Waiter` can be used to wait for a specific signal.
+`Signal.Waiter` can be used to handle a specific signal once.
 -/
 structure Waiter where
   private ofNative ::
@@ -198,12 +198,6 @@ namespace Waiter
 /--
 Set up a `Signal.Waiter` that waits for the specified `signum`.
 This function only initializes but does not yet start listening for the signal.
-
-While the waiter listens for the signal, the default action of the signal is replaced. A waiter
-that is no longer referenced can keep listening if the last operation that reached it was `wait` or a
-select that found the signal already received: a one-shot waiter until the signal arrives, a
-repeating one for the rest of the process. After a select that checked it and found no signal, it
-stops listening once it is dropped. `stop` stops it in every case.
 -/
 @[inline]
 def mk (signum : Signal) (repeating : Bool) : IO Signal.Waiter := do
@@ -214,15 +208,9 @@ def mk (signum : Signal) (repeating : Bool) : IO Signal.Waiter := do
 If:
 - `s` is not yet running start listening and return an `AsyncTask` that will resolve once the
    previously configured signal is received.
-- `s` is running, or is a one-shot `s` that finished after receiving the signal, return an
-  `AsyncTask` for the pending signal, which is the one returned by the previous call unless that one
-  resolved (for a repeating `s`) or a select that did not find the signal already received dropped
-  it. Tasks whose promise was dropped fail.
-- `s` was stopped with `stop`, and is repeating or had not received the signal, return an
-  `AsyncTask` that fails.
+- `s` is already or not anymore running return the same `AsyncTask` as the first call to `wait`.
 
-The resolved `AsyncTask` contains the number that `Signal` assigns to the received signal, which is
-the same on every platform (the x86 Linux numbering).
+The resolved `AsyncTask` contains the signal number that was received.
 -/
 @[inline]
 def wait (s : Signal.Waiter) : IO (AsyncTask Int) := do
@@ -232,8 +220,8 @@ def wait (s : Signal.Waiter) : IO (AsyncTask Int) := do
 /--
 If:
 - `s` is still running this stops `s` without resolving any remaining `AsyncTask`s that were created
-  through `wait`. Those tasks fail once the last reference to their promise is dropped, rather than
-  producing a value.
+  through `wait`. Note that if another `AsyncTask` is binding on any of these it is going hang
+  forever without further intervention.
 - `s` is not yet or not anymore running this is a no-op.
 -/
 @[inline]
@@ -241,26 +229,17 @@ def stop (s : Signal.Waiter) : IO Unit :=
   s.native.stop
 
 /--
-Create a `Selector` that resolves once `s` has received the signal. Calling this function does not
-start the signal waiter: a select starts it when it checks it, and it may not check it at all if
-another selector is already ready.
-
-A select that checks `s` without picking it leaves it listening until `stop` is called or `s` is
-dropped, and a signal that arrives afterwards is kept and reported by the next select that checks
-`s`. For a repeating `s`, a signal that arrives while another selector wins the same select may be
-lost.
+Create a `Selector` that resolves once `s` has received the signal. Note that calling this function
+does not start the signal waiter.
 -/
 def selector (s : Signal.Waiter) : Selector Unit :=
   {
     tryFn := do
-      let signalWaiter ← s.native.next
-      if ← signalWaiter.isResolved then
+      let signalWaiter : AsyncTask _ ← async s.wait
+      if ← IO.hasFinished signalWaiter then
         return some ()
       else
         s.native.cancel
-        -- A signal that arrived before `cancel` resolved `signalWaiter` instead of being kept.
-        if ← signalWaiter.isResolved then
-          return some ()
         return none
 
     registerFn waiter := do

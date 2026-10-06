@@ -14,19 +14,17 @@ using namespace std;
 void lean_uv_signal_finalizer(void* ptr) {
     lean_uv_signal_object * signal = (lean_uv_signal_object*) ptr;
 
+    if (signal->m_promise != NULL) {
+        lean_dec(signal->m_promise);
+    }
+
     event_loop_lock(&global_ev);
 
     uv_close((uv_handle_t*)signal->m_uv_signal, [](uv_handle_t* handle) {
         free(handle);
     });
 
-    lean_object * promise = signal->m_promise;
-
     event_loop_unlock(&global_ev);
-
-    if (promise != NULL) {
-        lean_dec(promise);
-    }
 
     free(signal);
 }
@@ -43,64 +41,31 @@ void initialize_libuv_signal() {
     });
 }
 
-static lean_object * create_signal_promise() {
-    lean_object * promise = lean_io_promise_new();
-    // The loop thread resolves and releases it, so its refcount has to be atomic.
-    mark_mt(promise);
-    return promise;
-}
-
 static bool signal_promise_is_finished(lean_uv_signal_object * signal) {
     return signal->m_promise == NULL || promise_is_resolved(signal->m_promise);
 }
 
-void handle_signal_event(uv_signal_t* handle, int) {
+void handle_signal_event(uv_signal_t* handle, int signum) {
     lean_object * obj = (lean_object*)handle->data;
     lean_uv_signal_object * signal = lean_to_uv_signal(obj);
-    // Read before `lean_dec(obj)` below may free the signal.
-    int const signum = signal->m_lean_signum;
 
     lean_assert(signal->m_state == SIGNAL_STATE_RUNNING);
 
     if (signal->m_repeating) {
-        if (signal_promise_is_finished(signal)) {
-            // Kept for the next `next`, so that a signal between two waits is not lost.
-            signal->m_received = true;
-        } else {
-            // Resolving runs `(sync := true)` continuations inline, which may `cancel` or `stop` the
-            // signal and release the field's reference.
-            lean_object * promise = signal->m_promise;
-            lean_inc(promise);
-            lean_object* res = lean_io_promise_resolve(lean_box(signum), promise);
+        if (!signal_promise_is_finished(signal)) {
+            lean_object* res = lean_io_promise_resolve(lean_box(signum), signal->m_promise);
             lean_dec(res);
-            lean_dec(promise);
         }
     } else {
+        if (signal->m_promise != NULL) {
+            lean_object* res = lean_io_promise_resolve(lean_box(signum), signal->m_promise);
+            lean_dec(res);
+        }
+
         uv_signal_stop(signal->m_uv_signal);
         signal->m_state = SIGNAL_STATE_FINISHED;
 
-        // Without a pending promise the loop holds no reference. The signal is still alive, since
-        // its finalizer closes the handle under the loop lock that this callback runs under.
-        bool const loop_ref = signal->m_promise != NULL;
-        if (!loop_ref) {
-            // Kept for the next `next`, so that a signal after a `cancel` is not lost.
-            signal->m_promise = create_signal_promise();
-        }
-
-        lean_object * promise = signal->m_promise;
-        lean_inc(promise);
-
-        if (loop_ref) {
-            lean_dec(obj);
-        }
-
-        // The signal may be freed by now, so nothing below may touch it. Code holding the promise may
-        // have resolved it already.
-        if (!promise_is_resolved(promise)) {
-            lean_object* res = lean_io_promise_resolve(lean_box(signum), promise);
-            lean_dec(res);
-        }
-        lean_dec(promise);
+        lean_dec(obj);
     }
 }
 
@@ -108,7 +73,7 @@ void handle_signal_event(uv_signal_t* handle, int) {
 extern "C" LEAN_EXPORT lean_obj_res lean_uv_signal_mk(uint32_t signum_obj, uint8_t repeating) {
     int signum = (int)(int32_t)signum_obj;
 
-    // See `Signal.toInt32` in Std.Async.Signal
+    // See toInt32 in Std.Internal.IO.Async.Signal
     switch (signum) {
         case 1: signum = SIGHUP; break;
         case 2: signum = SIGINT; break;
@@ -142,9 +107,7 @@ extern "C" LEAN_EXPORT lean_obj_res lean_uv_signal_mk(uint32_t signum_obj, uint8
         return lean_io_result_mk_error(decode_io_error(ENOMEM, nullptr));
     }
     signal->m_signum = signum;
-    signal->m_lean_signum = (int)(int32_t)signum_obj;
     signal->m_repeating = repeating;
-    signal->m_received = false;
     signal->m_state = SIGNAL_STATE_INITIAL;
     signal->m_promise = NULL;
 
@@ -177,10 +140,17 @@ extern "C" LEAN_EXPORT lean_obj_res lean_uv_signal_mk(uint32_t signum_obj, uint8
 extern "C" LEAN_EXPORT lean_obj_res lean_uv_signal_next(b_obj_arg obj) {
     lean_uv_signal_object * signal = lean_to_uv_signal(obj);
 
-    auto setup_signal = [obj, signal]() {
+    auto create_promise = []() {
+        lean_object * promise = lean_io_promise_new();
+        // The loop thread resolves and releases it, so its refcount has to be atomic.
+        mark_mt(promise);
+        return promise;
+    };
+
+    auto setup_signal = [create_promise, obj, signal]() {
         lean_assert(signal->m_promise == NULL);
 
-        lean_object* promise = create_signal_promise();
+        lean_object* promise = create_promise();
         signal->m_promise = promise;
         signal->m_state = SIGNAL_STATE_RUNNING;
 
@@ -231,58 +201,39 @@ extern "C" LEAN_EXPORT lean_obj_res lean_uv_signal_next(b_obj_arg obj) {
             case SIGNAL_STATE_RUNNING:
                 {
                     if (signal_promise_is_finished(signal)) {
-                        if (signal->m_promise != NULL) {
+                         if (signal->m_promise != NULL) {
                             lean_dec(signal->m_promise);
-                        } else {
-                            // `cancel` released the loop's reference along with the promise.
-                            lean_inc(obj);
                         }
 
-                        signal->m_promise = create_signal_promise();
-
-                        if (signal->m_received) {
-                            signal->m_received = false;
-                            lean_dec(lean_io_promise_resolve(lean_box(signal->m_lean_signum), signal->m_promise));
-                        }
+                        signal->m_promise = create_promise();
                     }
 
-                    lean_object * promise = signal->m_promise;
-                    lean_inc(promise);
+                    lean_inc(signal->m_promise);
                     event_loop_unlock(&global_ev);
-                    return lean_io_result_mk_ok(promise);
+                    return lean_io_result_mk_ok(signal->m_promise);
                 }
             case SIGNAL_STATE_FINISHED:
                 {
                     if (signal->m_promise == NULL) {
-                        lean_object* finished_promise = create_signal_promise();
+                        lean_object* finished_promise = create_promise();
                         event_loop_unlock(&global_ev);
                         return lean_io_result_mk_ok(finished_promise);
                     }
 
-                    lean_object * promise = signal->m_promise;
-                    lean_inc(promise);
+                    lean_inc(signal->m_promise);
                     event_loop_unlock(&global_ev);
-                    return lean_io_result_mk_ok(promise);
+                    return lean_io_result_mk_ok(signal->m_promise);
                 }
         }
     } else {
         if (signal->m_state == SIGNAL_STATE_INITIAL) {
             return setup_signal();
-        } else if (signal->m_state == SIGNAL_STATE_RUNNING && signal->m_promise == NULL) {
-            // Still listening after a `cancel`, which released the loop's reference.
-            lean_inc(obj);
-            lean_object * promise = create_signal_promise();
-            signal->m_promise = promise;
-            lean_inc(promise);
-            event_loop_unlock(&global_ev);
-            return lean_io_result_mk_ok(promise);
         } else if (signal->m_promise != NULL) {
-            lean_object * promise = signal->m_promise;
-            lean_inc(promise);
+            lean_inc(signal->m_promise);
             event_loop_unlock(&global_ev);
-            return lean_io_result_mk_ok(promise);
+            return lean_io_result_mk_ok(signal->m_promise);
         } else {
-            lean_object* finished_promise = create_signal_promise();
+            lean_object* finished_promise = create_promise();
             event_loop_unlock(&global_ev);
             return lean_io_result_mk_ok(finished_promise);
         }
@@ -293,31 +244,26 @@ extern "C" LEAN_EXPORT lean_obj_res lean_uv_signal_next(b_obj_arg obj) {
 extern "C" LEAN_EXPORT lean_obj_res lean_uv_signal_stop(b_obj_arg obj) {
     lean_uv_signal_object * signal = lean_to_uv_signal(obj);
 
-    // Locked so that a firing one-shot signal cannot finish it concurrently.
-    event_loop_lock(&global_ev);
-
-    if (signal->m_state != SIGNAL_STATE_RUNNING) {
+    if (signal->m_state == SIGNAL_STATE_RUNNING) {
+        event_loop_lock(&global_ev);
+        int result = uv_signal_stop(signal->m_uv_signal);
         event_loop_unlock(&global_ev);
-        return lean_io_result_mk_ok(lean_box(0));
-    }
 
-    int result = uv_signal_stop(signal->m_uv_signal);
-    lean_object * promise = signal->m_promise;
-    signal->m_promise = NULL;
-    signal->m_state = SIGNAL_STATE_FINISHED;
+        if  (signal->m_promise != NULL) {
+            lean_dec(signal->m_promise);
+            signal->m_promise = NULL;
+        }
 
-    event_loop_unlock(&global_ev);
+        signal->m_state = SIGNAL_STATE_FINISHED;
 
-    // Released after the state change and outside the lock, since dropping the last reference
-    // runs continuations inline, which may re-enter this handle.
-    if (promise != NULL) {
-        lean_dec(promise);
         // The loop does not need to keep the signal alive anymore.
         lean_dec(obj);
-    }
 
-    if (result != 0) {
-        return lean_io_result_mk_error(lean_decode_uv_error(result, NULL));
+        if (result != 0) {
+            return lean_io_result_mk_error(lean_decode_uv_error(result, NULL));
+        } else {
+            return lean_io_result_mk_ok(lean_box(0));
+        }
     } else {
         return lean_io_result_mk_ok(lean_box(0));
     }
@@ -330,24 +276,20 @@ extern "C" LEAN_EXPORT lean_obj_res lean_uv_signal_cancel(b_obj_arg obj) {
     // It's locking here to avoid changing the state during other operations.
     event_loop_lock(&global_ev);
 
-    lean_object * promise = NULL;
-
-    // The signal keeps listening, so one that arrives before the next `next` is not lost. The loop
-    // stops keeping it alive, so a signal that is dropped instead is closed by its finalizer.
     if (signal->m_state == SIGNAL_STATE_RUNNING && signal->m_promise != NULL) {
-        promise = signal->m_promise;
-        signal->m_promise = NULL;
+        if (signal->m_repeating) {
+            lean_dec(signal->m_promise);
+            signal->m_promise = NULL;
+        } else {
+            uv_signal_stop(signal->m_uv_signal);
+            lean_dec(signal->m_promise);
+            signal->m_promise = NULL;
+            signal->m_state = SIGNAL_STATE_INITIAL;
+            lean_dec(obj);
+        }
     }
 
     event_loop_unlock(&global_ev);
-
-    // Released after the state change and outside the lock, since dropping the last reference
-    // runs continuations inline, which may re-enter this handle.
-    if (promise != NULL) {
-        lean_dec(promise);
-        lean_dec(obj);
-    }
-
     return lean_io_result_mk_ok(lean_box(0));
 }
 

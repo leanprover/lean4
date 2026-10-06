@@ -108,7 +108,7 @@ void handle_signal_event(uv_signal_t* handle, int) {
 extern "C" LEAN_EXPORT lean_obj_res lean_uv_signal_mk(uint32_t signum_obj, uint8_t repeating) {
     int signum = (int)(int32_t)signum_obj;
 
-    // See toInt32 in Std.Internal.IO.Async.Signal
+    // See `Signal.toInt32` in Std.Async.Signal
     switch (signum) {
         case 1: signum = SIGHUP; break;
         case 2: signum = SIGINT; break;

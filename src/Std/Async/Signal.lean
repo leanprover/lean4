@@ -187,7 +187,7 @@ private def toInt32 : Signal → Int32
   | .sigsys => 31
 
 /--
-`Signal.Waiter` can be used to handle a specific signal once.
+`Signal.Waiter` can be used to wait for a specific signal.
 -/
 structure Waiter where
   private ofNative ::
@@ -199,9 +199,11 @@ namespace Waiter
 Set up a `Signal.Waiter` that waits for the specified `signum`.
 This function only initializes but does not yet start listening for the signal.
 
-While the waiter listens for the signal, the default action of the signal is replaced. A repeating
-waiter keeps listening until `stop` is called, even if it is no longer referenced, unless its last
-use was a select that it lost; then it stops listening once it is dropped.
+While the waiter listens for the signal, the default action of the signal is replaced. A waiter
+that is no longer referenced can keep listening if the last operation that reached it was `wait` or a
+select that found the signal already received: a one-shot waiter until the signal arrives, a
+repeating one for the rest of the process. After a select that checked it and found no signal, it
+stops listening once it is dropped. `stop` stops it in every case.
 -/
 @[inline]
 def mk (signum : Signal) (repeating : Bool) : IO Signal.Waiter := do
@@ -214,8 +216,8 @@ If:
    previously configured signal is received.
 - `s` is running, or is a one-shot `s` that finished after receiving the signal, return an
   `AsyncTask` for the pending signal, which is the one returned by the previous call unless that one
-  resolved (for a repeating `s`) or a lost `selector` dropped it. Tasks whose promise was dropped
-  fail.
+  resolved (for a repeating `s`) or a select that did not find the signal already received dropped
+  it. Tasks whose promise was dropped fail.
 - `s` was stopped with `stop`, and is repeating or had not received the signal, return an
   `AsyncTask` that fails.
 
@@ -239,12 +241,14 @@ def stop (s : Signal.Waiter) : IO Unit :=
   s.native.stop
 
 /--
-Create a `Selector` that resolves once `s` has received the signal. Note that calling this function
-does not start the signal waiter.
+Create a `Selector` that resolves once `s` has received the signal. Calling this function does not
+start the signal waiter: a select starts it when it checks it, and it may not check it at all if
+another selector is already ready.
 
-A select that `s` loses leaves it listening until `stop` is called or `s` is dropped, and a signal
-that arrives between two selects is reported by the next one. For a repeating `s`, a signal that
-arrives while another selector wins the same select may be lost.
+A select that checks `s` without picking it leaves it listening until `stop` is called or `s` is
+dropped, and a signal that arrives afterwards is kept and reported by the next select that checks
+`s`. For a repeating `s`, a signal that arrives while another selector wins the same select may be
+lost.
 -/
 def selector (s : Signal.Waiter) : Selector Unit :=
   {

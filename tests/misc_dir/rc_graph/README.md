@@ -12,6 +12,8 @@ and effect contracts; see [CONTRACTS.md](../../../src/runtime/lean/CONTRACTS.md)
 for assumptions and limits.
 `Refinement.lean`, `Dispatch.lean` and `Examples.lean` certify the shared Lean
 candidate while the runtime continues to use the existing collector.
+Generation checks require the checked-in C fragment to match the compiler output
+and reject allocating or unapproved foreign operations.
 
 Scratch files stay under this test's `_tmp/`.
 `Concurrent.lean` proves the shared-counter ownership invariant across guard/update histories.

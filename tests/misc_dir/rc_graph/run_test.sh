@@ -9,6 +9,9 @@ run env LEAN_PATH=_tmp lean -o _tmp/Schedule.olean Schedule.lean
 run env LEAN_PATH=_tmp lean -o _tmp/Refinement.olean Refinement.lean
 run env LEAN_PATH=_tmp lean ConcurrentRefinement.lean
 run env LEAN_PATH=_tmp lean Examples.lean
+run lean --run "$SCRIPT_DIR/gen_gc.lean" "$SRC_DIR/runtime/lean/Collector.lean" _tmp/object_gc.inc
+run diff -u "$SRC_DIR/runtime/object_gc.inc" _tmp/object_gc.inc
+run python3 audit.py "$SCRIPT_DIR/gen_gc.lean" "$SRC_DIR/runtime/lean/Collector.lean"
 
 run leanc ${LEANC_OPTS-} -o _tmp/native native.c
 run ./_tmp/native

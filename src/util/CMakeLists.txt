@@ -11,5 +11,6 @@ add_library(
   kvmap.cpp
   options.cpp
   option_declarations.cpp
+  absl.cpp
   "${CMAKE_BINARY_DIR}/util/ffi.cpp"
 )

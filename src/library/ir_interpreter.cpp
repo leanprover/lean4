@@ -51,6 +51,7 @@ functions, which have a (relatively) homogeneous ABI that we can use without run
 #include "util/nat.h"
 #include "util/option_declarations.h"
 #include "util/name_hash_map.h"
+#include "util/flat_hash_map.h"
 
 #ifndef LEAN_DEFAULT_INTERPRETER_PREFER_NATIVE
 #define LEAN_DEFAULT_INTERPRETER_PREFER_NATIVE true
@@ -374,7 +375,7 @@ struct native_symbol_cache_entry {
 
 // Caches native symbol lookup successes _and_ failures; we assume no native code is loaded or
 // unloaded after the interpreter is first invoked, so this can be a global cache.
-name_hash_map<native_symbol_cache_entry> * g_native_symbol_cache;
+name_flat_hash_map<native_symbol_cache_entry> * g_native_symbol_cache;
 std::shared_mutex * g_native_symbol_cache_mutex;
 
 class interpreter {
@@ -408,7 +409,7 @@ class interpreter {
         native_symbol_cache_entry m_native;
     };
     // caches symbol lookup successes _and_ failures
-    name_hash_map<symbol_cache_entry> m_symbol_cache;
+    name_flat_hash_map<symbol_cache_entry> m_symbol_cache;
 
     /** \brief Get current stack frame */
     inline frame & get_frame() {
@@ -832,7 +833,8 @@ private:
        });
     }
 
-    /** \brief Return cached lookup result for given unmangled function name in the current binary. */
+    /** \brief Return cached lookup result for given unmangled function name in the current binary.
+     *  Note that this reference maybe be invalidated by the next call to `lookup_symbol`. */
     const symbol_cache_entry& lookup_symbol(name const & fn) {
         auto e = m_symbol_cache.find(fn);
         if (e != m_symbol_cache.end()) {
@@ -1223,7 +1225,7 @@ void initialize_ir_interpreter() {
         ir::g_interpreter_step = new name({"interpreter", "step"});
         register_trace_class(*ir::g_interpreter_step);
     });
-    ir::g_native_symbol_cache = new name_hash_map<ir::native_symbol_cache_entry>();
+    ir::g_native_symbol_cache = new name_flat_hash_map<ir::native_symbol_cache_entry>();
     ir::g_native_symbol_cache_mutex = new std::shared_mutex();
 }
 

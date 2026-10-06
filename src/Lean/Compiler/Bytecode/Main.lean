@@ -205,6 +205,8 @@ def emitErasedToArg (tgt : Nat) : M Unit := do
 
 def endBlock : M Nat := do
   let bb := (← get).revBasicBlocks.size
+  if (← get).revCurrBlock.isEmpty then
+    return bb - 1
   modify fun state => {
     state with
     revBasicBlocks := state.revBasicBlocks.push state.revCurrBlock
@@ -879,27 +881,29 @@ def compileBytecodeDecl (d : Decl .impure) : CompilerM BytecodeDecl := do
     ToBytecode.assemble
   act.run { currDecl := d.name, params := d.params } |>.run' {}
 
-private partial def setClosureMeta (decl : BytecodeDecl)
-    (locals : NameMap BytecodeDecl) : CompilerM Unit := do
+private partial def setClosureMeta (name : Name) : CompilerM Unit := do
+  let some decl := findBytecodeDecl (← getEnv) name | return
   for ref in decl.symbols do
     if isDeclMeta (← getEnv) ref then
       continue
-    let some d := locals.find? ref | continue
+    unless impureSigExt.getState (← getEnv) |>.contains ref do
+      -- not declared in the current module
+      continue
     trace[compiler.ir.inferMeta] m!"Marking {ref} as meta because it is in `meta` closure"
     modifyEnv (setDeclMeta · ref)
-    setClosureMeta d locals
+    setClosureMeta ref
 
-partial def inferMeta (decls : Array BytecodeDecl) : CompilerM Unit := do
+private partial def inferMeta (decls : Array (Decl .impure)) : CompilerM Unit := do
   if !(← getEnv).header.isModule then
     return
-  let mut locals : NameMap BytecodeDecl := {}
-  for decl in decls do
-    locals := locals.insert decl.name decl
   for decl in decls do
     if isMarkedMeta (← getEnv) decl.name then
       trace[compiler.ir.inferMeta] m!"Marking {decl.name} as meta because it is tagged with `meta`"
       modifyEnv (setDeclMeta · decl.name)
-      setClosureMeta decl locals
+      unless impureSigExt.getState (← getEnv) |>.contains decl.name do
+        -- not declared in the current module
+        continue
+      setClosureMeta decl.name
 
 def compile (decls : Array (Decl .impure)) : CompilerM Unit := do
   let mut bytecodeDecls : Array BytecodeDecl := #[]
@@ -924,7 +928,7 @@ def compile (decls : Array (Decl .impure)) : CompilerM Unit := do
   bytecodeDecls ← updateSorryDep bytecodeDecls
   bytecodeDecls.forM fun decl =>
     modifyEnv (declMapExt.addEntry · decl)
-  inferMeta bytecodeDecls
+  inferMeta decls
 
 builtin_initialize
   registerTraceClass `Compiler.bytecode

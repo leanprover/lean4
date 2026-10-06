@@ -26,7 +26,6 @@ Interpreter for Lean bytecode.
 #include "library/constants.h"
 #include "library/time_task.h"
 #include "library/ir_types.h"
-#include "library/init_attribute.h"
 #include "util/nat.h"
 #include "util/option_declarations.h"
 #include "util/name_hash_map.h"
@@ -106,13 +105,16 @@ extern "C" LEAN_EXPORT object * lean_bytecode_mk_initial_cache(b_obj_arg symbols
 extern "C" obj_res lean_get_symbol_stem(obj_arg env, obj_arg fn);
 
 // Environment -> Name -> Option Name
-extern "C" obj_res lean_get_export_name_for(object* env, object* fn);
+extern "C" obj_res lean_get_export_name_for(obj_arg env, obj_arg fn);
 
 // Environment -> Name -> USize
-extern "C" size_t lean_ir_decl_arity(object* env, object* fn);
+extern "C" size_t lean_ir_decl_arity(obj_arg env, obj_arg fn);
 
 // Environment -> Name -> Option RuntimeBytecodeDecl
-extern "C" obj_res lean_find_bytecode_decl(object* env, object* fn);
+extern "C" obj_res lean_find_bytecode_decl(obj_arg env, obj_arg fn);
+
+// Environment -> Name -> Bool
+extern "C" uint8 lean_has_init_attr(obj_arg env, obj_arg fn);
 
 void * lookup_symbol_in_cur_exe(char const * sym) {
 #ifdef LEAN_WINDOWS
@@ -146,17 +148,23 @@ decl_cache_entry fill_cache_entry(b_obj_arg env, b_obj_arg decl_name) {
     // For lean_ir_decl_arity, lean_find_bytecode_decl, lean_get_symbol_stem
     lean_inc_n(env, 3); lean_inc_n(decl_name, 3);
     size_t arity = lean_ir_decl_arity(env, decl_name);
-    lean_assert(arity < INTERP_DECL_MASK);
+    if (arity >= INTERP_DECL_MASK) {
+        dec(env); dec(decl_name);
+        dec(env); dec(decl_name);
+        return result;
+    }
     object * decl = lean_find_bytecode_decl(env, decl_name); // Option Name
     if (!lean_is_scalar(decl)) {
         result.m_object = lean_ctor_get(decl, 0);
         inc(result.m_object);
         dec(decl);
         arity = lean_unbox(lean_ctor_get(result.m_object, 6));
-        dec(env);
-        dec(decl_name);
-        result.m_arity = static_cast<unsigned>(arity);
-        return result;
+        if (!lean_has_init_attr(env, decl_name)) {
+            result.m_arity = static_cast<unsigned>(arity);
+            return result;
+        }
+        inc(env);
+        inc(decl_name);
     }
     object * mangled = lean_get_symbol_stem(env, decl_name); // String
     inc(mangled);
@@ -173,7 +181,7 @@ decl_cache_entry fill_cache_entry(b_obj_arg env, b_obj_arg decl_name) {
         object * res = lean_get_export_name_for(env, decl_name); // Option Name
         if (!lean_is_scalar(res)) {
             object * export_name = lean_ctor_get(res, 0); // Name
-            if (lean_obj_tag(export_name) == 2) {
+            if (lean_obj_tag(export_name) == 1) {
                 dec(mangled);
                 mangled = lean_ctor_get(export_name, 1); // String
                 inc(mangled);
@@ -322,14 +330,24 @@ frame call_init(interpreter * interp, b_obj_arg decl, bool is_constant) {
 
     decl_cache * cache = reinterpret_cast<decl_cache *>(lean_get_external_data(cache_obj));
     bool already_done = fill_cache(interp->m_env, symbols_array, cache);
-    if (already_done && is_constant) {
-        interp->m_stack_top->m_obj = cache->m_value;
-    } else if (is_constant) {
-        interp->m_stack_top->m_obj = nullptr;
-        // we keep the lock for constants
-    } else if (!already_done) {
-        cache->m_once_cell.state = 1;
-        unlock_simple_atomic(cache->m_once_cell.lock);
+    if (already_done) {
+        if (is_constant) {
+            interp->m_stack_top->m_obj = cache->m_value;
+        }
+    } else {
+        if (lean_is_mt(cache_obj) || lean_is_persistent(cache_obj)) {
+            for (size_t i = 0; i < cache->m_count; i++) {
+                lean_mark_mt(cache->m_entries[i].m_object);
+            }
+        }
+        if (is_constant) {
+            interp->m_stack_top->m_obj = nullptr;
+            // we keep the lock for constants
+            // and unlock once we run `store_value_and_unlock`
+        } else if (!already_done) {
+            cache->m_once_cell.state = 1;
+            unlock_simple_atomic(cache->m_once_cell.lock);
+        }
     }
 
     frame f;
@@ -344,6 +362,9 @@ frame call_init(interpreter * interp, b_obj_arg decl, bool is_constant) {
 void store_value_and_unlock(object * decl, object * value) {
     object * cache_obj = lean_ctor_get(decl, 5);
     decl_cache * cache = reinterpret_cast<decl_cache *>(lean_get_external_data(cache_obj));
+    if (lean_is_mt(cache_obj) || lean_is_persistent(cache_obj)) {
+        lean_mark_mt(value);
+    }
     cache->m_value = value;
     cache->m_once_cell.state = 1;
     unlock_simple_atomic(cache->m_once_cell.lock);
@@ -849,7 +870,7 @@ value eval_loop(interpreter * interp, frame start_frame) {
                         }
                         interp->m_stack_top[0].m_obj = closure;
                     }
-                } else if (fn.m_object) {
+                } else if (!lean_is_scalar(fn.m_object)) {
                     object * closure = lean_alloc_closure(get_stub(fn.m_arity + 2), fn.m_arity + 2, n + 2);
                     inc(interp->m_env);
                     inc(fn.m_object);
@@ -924,9 +945,6 @@ extern "C" obj_res lean_eval_bytecode_decl(b_obj_arg env, b_obj_arg decl) {
     g_interpreter->m_env = env;
     frame f = call_init(g_interpreter, decl, true);
     value res = eval_loop(g_interpreter, f);
-    if (res.m_obj == nullptr) {
-        res.m_obj = box(0);
-    }
     inc(res.m_obj);
 
     g_interpreter->m_env = old_env;

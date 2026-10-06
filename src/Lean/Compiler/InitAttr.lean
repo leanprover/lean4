@@ -122,7 +122,6 @@ def getBuiltinInitFnNameFor? (env : Environment) (fn : Name) : Option Name :=
 def getRegularInitFnNameFor? (env : Environment) (fn : Name) : Option Name :=
   getInitFnNameForCore? env regularInitAttr fn
 
-@[export lean_get_init_fn_name_for]
 def getInitFnNameFor? (env : Environment) (fn : Name) : Option Name :=
   getBuiltinInitFnNameFor? env fn <|> getRegularInitFnNameFor? env fn
 
@@ -140,6 +139,7 @@ def isIOUnitBuiltinInitFn (env : Environment) (fn : Name) : Bool :=
 def isIOUnitInitFn (env : Environment) (fn : Name) : Bool :=
   isIOUnitBuiltinInitFn env fn || isIOUnitRegularInitFn env fn
 
+@[export lean_has_init_attr]
 def hasInitAttr (env : Environment) (fn : Name) : Bool :=
   (getInitFnNameFor? env fn).isSome
 

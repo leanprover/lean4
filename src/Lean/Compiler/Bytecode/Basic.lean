@@ -74,7 +74,8 @@ builtin_initialize declMapExt :
     exportEntriesFnEx? := some fun env _ entries =>
       let decls := entries.foldl (init := #[]) fun decls decl => decls.push decl
       let entries := sortDecls decls
-      -- Do not save all IR even in .olean.private as it will be in .ir anyway
+      .uniform entries
+      /- -- Do not save all IR even in .olean.private as it will be in .ir anyway
       .uniform <| if env.header.isModule then
         entries.filterMap fun d => do
           if isDeclMeta env d.name then
@@ -87,7 +88,7 @@ builtin_initialize declMapExt :
             return d
           -- Bodies of imported IR decls are not relevant for codegen, only interpretation
           none
-      else entries
+      else entries -/
     -- Written to on codegen environment branch but accessed from other elaboration branches when
     -- calling into the interpreter. We cannot use `async` as the IR declarations added may not
     -- share a name prefix with the top-level Lean declaration being compiled, e.g. from
@@ -104,6 +105,11 @@ private def exportBytecodeEntries (env : Environment) : Array (Name × Array Env
   let irEntries : Array EnvExtensionEntry := unsafe unsafeCast <|
     irDecls.qsort fun a b : BytecodeDecl => a.name.quickLt b.name
 
+  let sigDecls := LCNF.impureSigExt.getState env |>.foldl (init := #[]) fun decls _ decl => decls.push decl
+  -- safety: cast to erased type
+  let sigEntries : Array EnvExtensionEntry := unsafe unsafeCast <|
+    sigDecls.qsort fun a b : LCNF.Signature .impure => a.name.quickLt b.name
+
   -- save all initializers independent of meta/private. Non-meta initializers will only be used when
   -- .ir is actually loaded, and private ones iff visible.
   let initDecls : Array (Name × Name) :=
@@ -117,6 +123,7 @@ private def exportBytecodeEntries (env : Environment) : Array (Name × Array Env
   let modPkg : Array EnvExtensionEntry := unsafe unsafeCast modPkg
 
   #[(declMapExt.name, irEntries),
+    (LCNF.impureSigExt.name, sigEntries),
     (Lean.regularInitAttr.ext.name, initDecls),
     (modPkgExt.name, modPkg)]
 
@@ -126,7 +133,7 @@ def findBytecodeDecl (env : Environment) (nm : Name) : Option RuntimeBytecodeDec
 
 @[export lean_ir_decl_arity]
 def declArity (env : Environment) (nm : Name) : USize :=
-  (LCNF.getSigCore? env LCNF.impureSigExt nm).map (·.params.usize) |>.getD 0
+  (LCNF.getSigCore? env LCNF.impureSigExt nm).map (·.params.usize) |>.getD 0x1_0000_0000
 
 @[export lean_decl_get_sorry_dep]
 def getSorryDep (env : Environment) (declName : Name) : Option Name :=
@@ -138,9 +145,10 @@ def getSorryDep (env : Environment) (declName : Name) : Option Name :=
 @[export lean_get_ir_extra_const_names]
 private def getIRExtraConstNames (env : Environment) (level : OLeanLevel) (includeDecls := false) : Array Name :=
   let env := env.setExporting (level == .exported)
-  declMapExt.getEntries env |>.toArray.map (·.name)
-    |>.filter fun n => (includeDecls || !env.contains n) &&
-      (level == .private || Compiler.LCNF.isDeclPublic env n || isDeclMeta env n)
+  LCNF.impureSigExt.getState env |>.iter.map (·.1)
+    |>.filter (fun n => (includeDecls || !env.contains n) &&
+      (level == .private || Compiler.LCNF.isDeclPublic env n || isDeclMeta env n))
+    |>.toArray
 
 @[export lean_has_compile_error]
 private def hasCompileError (env : Environment) (constName : Name) : Bool :=
@@ -148,4 +156,4 @@ private def hasCompileError (env : Environment) (constName : Name) : Bool :=
   | some _ => false  -- Compile errors in imports would have stopped the build before this point
   -- TODO: do we need to store failures as a separate state? Not if we make sure to only ever
   -- evaluate constants previously called `compileDecl` on.
-  | none => !(declMapExt.getState env |>.contains constName)
+  | none => !(LCNF.impureSigExt.getState env |>.contains constName)

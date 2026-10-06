@@ -4934,6 +4934,7 @@ abbrev mkSimple (s : String) : Name :=
 @[expose, reducible] def mkStr1 (s₁ : String) : Name :=
   .str .anonymous s₁
 
+set_option trace.Compiler.bytecode.result true in
 /-- Make name `s₁.s₂` -/
 @[expose, reducible] def mkStr2 (s₁ s₂ : String) : Name :=
   .str (.str .anonymous s₁) s₂

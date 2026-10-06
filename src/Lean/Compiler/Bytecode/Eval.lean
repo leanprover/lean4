@@ -67,6 +67,8 @@ private unsafe def evalConstCoreImpl (env : Environment)
     | tagged | erased | void => pure ()
     | _ => unreachable!
   else
+    assert! sig.params.all (!·.borrow) && !sig.type.isScalar && sig.params.all (!·.type.isScalar)
+      && sig.params.all (!·.type.isVoid) && sig.params.size <= 16
     -- there are parameters but no boxed version
     -- so the declaration is `pap` compatible
     code := #[.pap 0 0]
@@ -79,6 +81,7 @@ private unsafe def runInitImpl (env : Environment) (opts : Options) (decl initDe
     throw (.userError s!"Could not find declaration to be initialized: `{decl}`")
   let act ← IO.ofExcept <| evalConstCoreImpl env opts initDecl
   let out ← (unsafeCast act : IO NonScalar)
+  let out ← Runtime.markPersistent out
   decl.setInitValue out
 
 @[extern "lean_io_result_show_error"]

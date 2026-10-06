@@ -193,7 +193,7 @@ def Instruction.toString (instr : Instruction) (pos : Nat) : String :=
   let lo8 := instr.value &&& ((1 : UInt32) <<< 8 - 1)
   let mid8 := (instr.value >>> 8) &&& ((1 : UInt32) <<< 8 - 1)
   let hi10 := (instr.value >>> 16) &&& ((1 : UInt32) <<< 10 - 1)
-  let lo18 := instr.value &&& ((1 : UInt32) <<< 10 - 1)
+  let lo18 := instr.value &&& ((1 : UInt32) <<< 18 - 1)
   let hi8 := (instr.value >>> 18) &&& ((1 : UInt32) <<< 8 - 1)
   let mid10 := (instr.value >>> 8) &&& ((1 : UInt32) <<< 10 - 1)
   let hi18 := (instr.value >>> 8) &&& ((1 : UInt32) <<< 18 - 1)
@@ -249,7 +249,7 @@ def Instruction.toString (instr : Instruction) (pos : Nat) : String :=
   | 44 => s!"reuse R{hi8} {mid10} {lo8}"
   | 45 => s!"store_cache R{lo8}"
   | 46 => s!"skip_if_cached {addrToString <| pos + all.toNat}"
-  | 47 => s!"decl_const R{hi18} @{lo8}"
+  | 47 => s!"decl_const R{hi8} @{lo18}"
   | _ => s!"0x{instr.value.toBitVec.toHex}"
 
 @[export lean_bytecode_disass]

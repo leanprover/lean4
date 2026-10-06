@@ -27,6 +27,7 @@ example (f : F → F) (a b : F) : f (a/2 + b/3) = f ((3*a + 2*b)/6) := by
   sym => simp semifieldSimp
 example (a b : F) : a/2 + b + b = a/2 + 2*b := by sym => simp semifieldSimp
 
+-- A second normalization pass should leave the normal form unchanged.
 /-- error: `Sym.simp` made no progress -/
 #guard_msgs in
 example (f : F → F) (a b c : F) : f (a/2 + b/3) = c := by
@@ -55,5 +56,36 @@ example (a : F) : a⁻¹⁻¹ = a := by sym => simp semifieldSimp
 example (a b : F) : a / b + a / b = 2*a / b := by sym => simp semifieldSimp
 example (a b : F) : (a*b)⁻¹ + a⁻¹*b⁻¹ = 2*a⁻¹*b⁻¹ := by sym => simp semifieldSimp
 example (a : F) : a/2 + a/2 = 2*(a*2⁻¹) := by sym => simp semifieldSimp
+
+end
+
+section
+variable {F : Type} [Semifield F] [IsCharP F 0] [AddRightCancel F]
+
+-- Combine rational coefficients before cancelling common terms.
+example (a b c : F) (h : b = c) : a/2 + a/2 + b = a + c := by
+  sym => simp semifieldSimp; tactic => exact h
+example (a b c : F) (h : b = c) : a/2 + b = a/2 + c := by
+  sym => simp semifieldSimp; tactic => exact h
+example (a b c : F) (h : b = c) : a/2 + a/3 + b = 5*a/6 + c := by
+  sym => simp semifieldSimp; tactic => exact h
+
+/-- error: `Sym.simp` made no progress -/
+#guard_msgs in
+example (a b c : F) : a/2 + a/2 + b = a + c := by
+  sym =>
+    simp semifieldSimp
+    simp semifieldSimp
+
+end
+
+section
+variable {F : Type} [Semifield F] [IsCharP F 0]
+  [LE F] [LT F] [Std.IsPreorder F] [Std.LawfulOrderLT F] [OrderedRing F]
+
+example (a b c : F) (h : b ≤ c) : a/2 + a/2 + b ≤ a + c := by
+  sym => simp semifieldSimp; tactic => exact h
+example (a b c : F) (h : b < c) : a/2 + a/2 + b < a + c := by
+  sym => simp semifieldSimp; tactic => exact h
 
 end

@@ -293,11 +293,12 @@ private def mkCastLitStep? (kind : Kind) (e : Expr) : NormM (Option (Expr × Exp
   | _ => return none
 
 /-!
-Field rewrites applied by the walk, all without side conditions (`Init/Grind/Ring/Field.lean`):
+Inverse and division rewrites applied by the walk, all without side conditions
+(`Init/Grind/Ring/Semifield.lean`, with negation in `Field.lean`):
 `a / b ↦ a * b⁻¹`, `(a * b)⁻¹ ↦ a⁻¹ * b⁻¹`, `(a ^ n)⁻¹ ↦ a⁻¹ ^ n`, `(-a)⁻¹ ↦ -a⁻¹`, `a⁻¹⁻¹ ↦ a`,
 `0⁻¹ ↦ 0`, `1⁻¹ ↦ 1`. After them, `x⁻¹` for an atom or numeral `x` is an atom of the
 polynomial; the certificate eliminates numeral inverses in characteristic zero (`getInvVars`)
-and cancels `x * x⁻¹` under a discharged `x ≠ 0` (`getInvAtoms`).
+and, for fields, cancels `x * x⁻¹` under a discharged `x ≠ 0` (`getInvAtoms`).
 -/
 
 private def mkSemifieldStep (thm : Expr) (e₁ e₂ : Expr) : NormM (Expr × Expr) := do
@@ -314,7 +315,7 @@ private def mkDivStep (e a b : Expr) : NormM (Expr × Expr) := do
   let mulFn ← if (← getKind).isRing then getMulFn else getMulFn'
   mkSemifieldStep thm e (mkApp2 mulFn a (mkApp (← getInvFnForKind) b))
 
-/-- Push inverses through products, natural powers, and other inverses. -/
+/-- Simplify numeral inverses and push inverses through products, natural powers, negation, and inverses. -/
 private def mkInvStep? (e x : Expr) : NormM (Option (Expr × Expr)) := do
   let type ← inferType e
   let u ← getDecLevel type
@@ -708,8 +709,9 @@ characteristic zero the numerator of `lhs - rhs` is split instead (`eq_normQ_exp
 `le_normQ_expr`, `lt_normQ_expr` in `FieldSolver.lean`, the last two under `IsLinearOrder`), so
 the result has no numeral inverses; inverse atoms with a discharged side condition are cancelled
 (`eq_normA_expr`, `le_normA_expr`, `lt_normA_expr`). Semirings have no
-subtraction: both sides are normalized as terms after removing their common part `c`
-(`eq_normS` twice, the relation between `lhs' + c` and `rhs' + c` by congruence), and `c` is
+subtraction: both sides are normalized as terms, combining rational coefficients in a
+semifield of characteristic zero, before removing their common part `c`. Term certificates
+(`eq_normS` or `eq_of_toPolyQS_eq`) justify `lhs = lhs' + c` and `rhs = rhs' + c`, and `c` is
 cancelled with `AddRightCancel.add_right_cancel_iff`, `OrderedAdd.add_le_left_iff`, or
 `OrderedAdd.add_lt_left_iff`.
 -/
@@ -987,15 +989,23 @@ private def normalizeRelCore (rel : RelKind) (relFn : Expr) (order? : Option Ord
           pure <| some fun a b c =>
             let iff := mkApp10 (mkConst ``Grind.OrderedAdd.add_lt_left_iff [u]) sr.type o.leInst o.isPreorderInst acm ordAdd o.ltInst?.get! o.lawfulOrderLTInst?.get! a b c
             mkIffSymm (mkApp2 ltFn a b) (mkApp2 ltFn (mkApp2 addFn a c) (mkApp2 addFn b c)) iff
+    let fc? ← inverseChar0?
+    let invs ← if fc?.isSome then getInvVars vars else pure #[]
+    -- Combine rational coefficients before finding the terms to cancel.
+    let (pl, pr, den) := if invs.isEmpty then (pl, pr, 1) else
+      let ql := pl.toPolyQ invs.toList []
+      let qr := pr.toPolyQ invs.toList []
+      let den := Nat.lcm ql.den qr.den
+      (ql.num.mulConst (den / ql.den), qr.num.mulConst (den / qr.den), den)
     let c := commonPart pl pr
     let hasC := cancel?.isSome && !c.isZero
     let (lp, rp) := if hasC then (pl.combine (c.mulConst (-1)), pr.combine (c.mulConst (-1))) else (pl, pr)
-    let fc? ← inverseChar0?
-    let invs ← if fc?.isSome then getInvVars vars else pure #[]
-    let (l', vars, invs) ← if invs.isEmpty then pure (lp.toExpr, vars, invs)
-      else mkPolyQExpr (lp.toPolyQ invs.toList []) vars invs
-    let (r', vars, invs) ← if invs.isEmpty then pure (rp.toExpr, vars, invs)
-      else mkPolyQExpr (rp.toPolyQ invs.toList []) vars invs
+    let mkExpr (p : Poly) (vars : Array Expr) (invs : Array (Var × Nat)) :=
+      if den == 1 then pure (p.toExpr, vars, invs)
+      else mkPolyQExpr ((⟨p, den⟩ : PolyQ).reduce) vars invs
+    let (l', vars, invs) ← mkExpr lp vars invs
+    let (r', vars, invs) ← mkExpr rp vars invs
+    let (c', vars, invs) ← mkExpr c vars invs
     let el ← share (← denoteSemiringExpr' vars l')
     let er ← share (← denoteSemiringExpr' vars r')
     let e' ← share (mkApp2 relFn el er)
@@ -1011,7 +1021,7 @@ private def normalizeRelCore (rel : RelKind) (relFn : Expr) (order? : Option Ord
         let thm := mkApp3 (mkConst ``Grind.CommRing.Expr.eq_of_toPolyQS_eq [u]) sr.type sfInst charInst
         mkApp6 thm ctx invsE (mkInvVarsOk sr.type u ctx invsE) (toExpr x) (toExpr xC) eagerReflBoolTrue
       return mkExpectedPropHint h (mkApp3 (mkConst ``Eq [u.succ]) sr.type ex exC)
-    let (lC, rC) : RingExpr × RingExpr := if hasC then (.add l' c.toExpr, .add r' c.toExpr) else (l', r')
+    let (lC, rC) : RingExpr × RingExpr := if hasC then (.add l' c', .add r' c') else (l', r')
     let elC ← if hasC then share (← denoteSemiringExpr' vars lC) else pure el
     let erC ← if hasC then share (← denoteSemiringExpr' vars rC) else pure er
     let r₁ : Result := if isSameExpr lhs elC then .rfl else .step elC (mkTermStep l lC lhs elC)
@@ -1026,7 +1036,7 @@ private def normalizeRelCore (rel : RelKind) (relFn : Expr) (order? : Option Ord
       | .rfl .. => return .normal
       | .step _ h .. => return .step e' h
     let some mkIff := cancel? | throwError "internal error: `Sym.Arith` relation normalizer has no cancellation lemma"
-    let ec ← share (← denoteSemiringExpr' vars c.toExpr)
+    let ec ← share (← denoteSemiringExpr' vars c')
     let hCancel := mkExpectedPropHint (mkPropExt eC e' (mkIff el er ec)) (mkPropEq eC e')
     match rel₁ with
     | .rfl .. => return .step e' hCancel

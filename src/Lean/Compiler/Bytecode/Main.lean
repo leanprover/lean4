@@ -527,7 +527,7 @@ def processInstruction (decl : CodeDecl .impure) : M Unit := do
     let #[src] ← useVar y | throwError "Unexpected input size for projection"
     let tgt' := maybeTarget tgt
     let src' := maybeTarget src (inner := true)
-    emit (.set (← as tgt' 8) (← as src' 8) (← as i 8))
+    emit (.uset (← as tgt' 8) (← as src' 8) (← as i 8))
     maybeToTemp src (inner := true)
     maybeToTemp tgt
   | .sset v i off y ty =>

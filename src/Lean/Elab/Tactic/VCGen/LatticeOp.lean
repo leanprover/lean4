@@ -48,7 +48,8 @@ fires on the reduced form, and any state arguments the terminal leaves over-appl
 onto the precondition.
 
 The built-in splits cover the lattice connectives `⊓`/`⇨`/`⌜·⌝`/`⊤`/`iInf`, the `Prop` conjunction
-`∧`, and the magic-wand residual `upperAdjoint`.
+`∧`, the existential `∃ h : a, b h` and the supremum `⨆ h : a, b h` over a proposition `a`, and the
+magic-wand residual `upperAdjoint`.
 -/
 
 /-- The lattice meet `⊓`: distributes via `meet_apply`, closes with `le_meet`. -/
@@ -70,6 +71,12 @@ public def LatticeOp.top : LatticeOp :=
 /-- The conjunction `∧` on the `Prop` lattice: closes with `le_and`. -/
 public def LatticeOp.and : LatticeOp :=
   { head := ``And, numConst := 0, terminal? := ``Lean.Order.le_and }
+/-- The existential `∃ h : a, b h` over a proposition `a`: closes with `le_exists_prop`. -/
+public def LatticeOp.exists : LatticeOp :=
+  { head := ``Exists, numConst := 1, terminal? := ``Lean.Order.le_exists_prop,
+    applies? := fun rhs => match rhs.getAppFn with
+      | .const _ [u] => u.isZero
+      | _ => false }
 /-- The magic-wand residual `upperAdjoint f b`: point-framed, closes with `le_upperAdjoint`. -/
 public def LatticeOp.upperAdjoint : LatticeOp :=
   { head := ``Lean.Order.PreservesSup.upperAdjoint,
@@ -79,6 +86,14 @@ public def LatticeOp.upperAdjoint : LatticeOp :=
 public def LatticeOp.iInf : LatticeOp :=
   { head := ``Lean.Order.iInf, numConst := 3,
     rewrites := #[``Lean.Order.iInf_apply], terminal? := ``Lean.Order.le_iInf }
+/-- Indexed supremum `iSup`/`⨆` over a proposition: distributes via `iSup_apply`, closes with
+`le_iSup_prop`. -/
+public def LatticeOp.iSup : LatticeOp :=
+  { head := ``Lean.Order.iSup, numConst := 3,
+    rewrites := #[``Lean.Order.iSup_apply], terminal? := ``Lean.Order.le_iSup_prop,
+    applies? := fun rhs => match rhs.getAppFn with
+      | .const _ [_, v] => v.isZero
+      | _ => false }
 /-- Whether the `fst`/`snd` rewrites decompose the projected operand: a `⊥`/`⊤`, a
 companion application `FrameOp.prod`, or a wand `upperAdjoint (FrameOp.prod …)`, whose component
 wands the `upperAdjoint` rewrites decompose further. -/
@@ -104,7 +119,7 @@ public def LatticeOp.snd : LatticeOp :=
 
 /-- The built-in connective splits, whose rewrites and terminals seed every saturation. -/
 public def builtinLatticeOps : Array LatticeOp :=
-  #[.meet, .himp, .ofProp, .top, .and, .upperAdjoint, .iInf, .fst, .snd]
+  #[.meet, .himp, .ofProp, .top, .and, .exists, .upperAdjoint, .iInf, .iSup, .fst, .snd]
 
 /-- Lattice splits of the built-in connectives, keyed by operator head. `splitLatticeOp?` looks a
 head up here. -/

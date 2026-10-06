@@ -77,9 +77,10 @@ private def refoldHimpUpperAdjoint? (goal : MVarId) (rhs : Expr) :
     return some (← goal.replaceTargetDefEqFast newTarget, rhs')
 
 /--
-Decompose a supported lattice connective (`⊓`, `⇨`, `⌜p⌝`, `⊤`, `∧`, `iInf`, a `⊥`/`⊤` tuple projection)
-or a registered frame operator on the RHS of `pre ⊑ rhs` by saturating it with the built-in and
-`@[frameproc]` rewrites, closing it with a terminal, and point-framing any excess state arguments.
+Decompose a supported lattice connective (`⊓`, `⇨`, `⌜p⌝`, `⊤`, `∧`, `∃`, `iInf`, `⨆`, a `⊥`/`⊤`
+tuple projection) or a registered frame operator on the RHS of `pre ⊑ rhs` by saturating it with the
+built-in and `@[frameproc]` rewrites, closing it with a terminal, and point-framing any excess state
+arguments.
 Returns `none` if the head is neither a built-in connective nor a frame operator, or its rule does
 not apply.
 

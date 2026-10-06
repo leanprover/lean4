@@ -298,6 +298,34 @@ example : ⦃ fun n => n = 2 ⦄ (do dec; dec) ⦃ fun _ n => n = 0 ⦄ := by
 
 end AndSplit
 
+namespace ExistsSplit
+
+-- An `∃` over a proposition splits like `∧`, so the `wp` of the second `setAt` is stepped.
+def setAt (xs : Array Nat) (i : Nat) : StateM Nat Unit := set xs[i]!
+
+@[spec] theorem setAt_spec {xs : Array Nat} {i : Nat} {Q : Unit → Nat → Prop} :
+    ⦃ fun _ => ∃ h : i < xs.size, Q () xs[i] ⦄ setAt xs i ⦃ Q ⦄ := by
+  vcgen [setAt]
+  next _ hpre =>
+    obtain ⟨h, hq⟩ := hpre
+    simpa [getElem!_pos xs i h] using hq
+
+example : ⦃ fun _ => True ⦄ (do setAt #[1, 2, 3] 1; setAt #[4, 5] 0) ⦃ fun _ n => n = 4 ⦄ := by
+  vcgen <;> simp
+
+-- A `⨆` over a proposition splits like `∃`.
+def setAt' (xs : Array Nat) (i : Nat) : StateM Nat Unit := set xs[i]!
+
+@[spec] theorem setAt'_spec {xs : Array Nat} {i : Nat} {Q : Unit → Nat → Prop} :
+    ⦃ fun _ => ⨆ h : i < xs.size, Q () xs[i] ⦄ setAt' xs i ⦃ Q ⦄ := by
+  vcgen [setAt']
+  next _ h hq => simpa [getElem!_pos xs i h] using hq
+
+example : ⦃ fun _ => True ⦄ (do setAt' #[1, 2, 3] 1; setAt' #[4, 5] 0) ⦃ fun _ n => n = 4 ⦄ := by
+  vcgen <;> simp
+
+end ExistsSplit
+
 namespace VSTTE2010
 
 namespace MaxAndSum

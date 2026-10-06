@@ -1063,7 +1063,7 @@ if(NOT CMAKE_SYSTEM_NAME MATCHES "Emscripten")
     PREFIX nanoda
     EXCLUDE_FROM_ALL ON
     GIT_REPOSITORY https://github.com/ammkrn/nanoda_lib
-    GIT_TAG 4c544ed4099c8227f07d5de77ad1e69fb0740a27
+    GIT_TAG 3a2407216ee84a75f9e1aead6803d0578be06ae7
     CONFIGURE_COMMAND ""
     BUILD_COMMAND ${CARGO_BUILD_ENV} cargo build --release --locked
     BUILD_IN_SOURCE ON
@@ -1081,7 +1081,7 @@ if(NOT CMAKE_SYSTEM_NAME MATCHES "Emscripten")
     PREFIX con-leche
     EXCLUDE_FROM_ALL ON
     GIT_REPOSITORY https://github.com/leanprover/con-leche
-    GIT_TAG b46cb0e6138d975e657857526839a3c7d8a1df20
+    GIT_TAG 67f04630d88718e81aa4d07ab64501f68f105398
     CONFIGURE_COMMAND ""
     BUILD_COMMAND lake build con-leche
     BUILD_IN_SOURCE ON
@@ -1097,7 +1097,7 @@ if(NOT CMAKE_SYSTEM_NAME MATCHES "Emscripten")
     PREFIX con-ron
     EXCLUDE_FROM_ALL ON
     GIT_REPOSITORY https://github.com/leanprover/con-ron
-    GIT_TAG cb54c9a4e5f604a678b0230f96b8358b9fd73c82
+    GIT_TAG dd8d8218892c871276b1e569d3decbb368bba1b6
     GIT_SUBMODULES ""
     CONFIGURE_COMMAND ""
     BUILD_COMMAND ${CARGO_BUILD_ENV} cargo build --release --locked

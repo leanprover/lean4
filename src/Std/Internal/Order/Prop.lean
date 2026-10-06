@@ -59,6 +59,10 @@ theorem le_forall {β : Sort uₗ} (p : Prop) (q : β → Prop)
 theorem le_and (p a b : Prop) (ha : p ⊑ a) (hb : p ⊑ b) : p ⊑ (a ∧ b) :=
   fun hp => ⟨ha hp, hb hp⟩
 
+theorem le_exists_prop (p a : Prop) (b : a → Prop) (ha : p ⊑ a) (hb : ∀ h : a, p ⊑ b h) :
+    p ⊑ (∃ h : a, b h) :=
+  fun hp => ⟨ha hp, hb (ha hp) hp⟩
+
 theorem iSup_prop_eq_exists {ι : Type uₗ} (f : ι → Prop) :
     (iSup f : Prop) = (∃ i, f i) := by
   apply propext

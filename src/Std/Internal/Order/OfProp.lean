@@ -238,6 +238,13 @@ theorem ofProp_forall {β} {Φ : β → Prop} :
     iInf (fun x => (⌜Φ x⌝ : l)) = ⌜∀ x, Φ x⌝ :=
   CompleteLattice.iInf_ofProp
 
+theorem le_iSup_prop (p : l) (a : Prop) (b : a → l) (ha : p ⊑ ⌜a⌝) (hb : ∀ h : a, p ⊑ b h) :
+    p ⊑ ⨆ h : a, b h := by
+  by_cases h : a
+  · exact rel_trans (hb h) (le_iSup b h)
+  · rw [show a = False from propext ⟨h, False.elim⟩, CompleteLattice.ofProp_false] at ha
+    exact rel_trans ha (bot_le _)
+
 end Lemmas
 
 /-- Frame a single state coordinate: from the function-order premise `(fun u => ⌜u = s⌝ ⊓ pre) ⊑ Q`

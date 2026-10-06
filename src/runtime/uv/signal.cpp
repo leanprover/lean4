@@ -308,28 +308,6 @@ extern "C" LEAN_EXPORT lean_obj_res lean_uv_signal_stop(b_obj_arg obj) {
 
     event_loop_unlock(&global_ev);
 
-    // Released after the state change and outside the lock, since dropping the last reference
-    // runs continuations inline, which may re-enter this handle.
-    if (promise != NULL) {
-        lean_dec(promise);
-        // The loop does not need to keep the signal alive anymore.
-        lean_dec(obj);
-    }
-
-    if (result != 0) {
-        return lean_io_result_mk_error(lean_decode_uv_error(result, NULL));
-    } else {
-        return lean_io_result_mk_ok(lean_box(0));
-    }
-
-    int result = uv_signal_stop(signal->m_uv_signal);
-
-    lean_object * promise = signal->m_promise;
-    signal->m_promise = NULL;
-    signal->m_state = SIGNAL_STATE_FINISHED;
-
-    event_loop_unlock(&global_ev);
-
     // This dec can drop the last reference to the promise, which resolves its result task
     // with `none` and runs any `(sync := true)` continuation inline on this thread.
     // `Promise.result!` blocks forever on `none`, so this must happen after the unlock:
@@ -337,10 +315,9 @@ extern "C" LEAN_EXPORT lean_obj_res lean_uv_signal_stop(b_obj_arg obj) {
     // just itself.
     if (promise != NULL) {
         lean_dec(promise);
+        // The loop holds a reference only while a promise is pending.
+        lean_dec(obj);
     }
-
-    // The loop does not need to keep the signal alive anymore.
-    lean_dec(obj);
 
     if (result != 0) {
         return lean_io_result_mk_error(lean_decode_uv_error(result, NULL));

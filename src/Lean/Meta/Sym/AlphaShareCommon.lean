@@ -71,7 +71,9 @@ unfolding them produces kernel projections, which the `foldProjs` preprocessing
 step folds back into projection function applications.
 -/
 def isUnfoldReducibleCandidate (env : Environment) (declName : Name) : Bool :=
-  getReducibilityStatusCore env declName matches .reducible
+  -- For a theorem of the current module, `getReducibilityStatusCore` waits for its proof.
+  !(env.findAsync? declName (skipRealize := true)).any (·.kind matches .thm)
+    && getReducibilityStatusCore env declName matches .reducible
     && !isGrindGadget declName && !env.isProjectionFn declName
 
 structure AlphaKey where

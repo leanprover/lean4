@@ -213,3 +213,4 @@ public meta def metaUsingNonMeta : Nat :=
 
 -- #11672
 example : instA = { instA with b := 0 } := rfl
+example : instAFinally = { instAFinally with b := 0 } := rfl

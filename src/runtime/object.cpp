@@ -5,6 +5,8 @@ Released under Apache 2.0 license as described in the file LICENSE.
 Author: Leonardo de Moura
 */
 #include <atomic>
+#include <bit>
+#include <climits>
 #include <string>
 #include <algorithm>
 #include <vector>
@@ -320,31 +322,6 @@ static inline void set_next(lean_object * o, lean_object * n) {
     }
 }
 
-static inline void push_back(lean_object * & todo, lean_object * v) {
-    set_next(v, todo);
-    todo = v;
-}
-
-static inline lean_object * pop_back(lean_object * & todo) {
-    lean_object * r = todo;
-    todo = get_next(todo);
-    return r;
-}
-
-static inline void dec(lean_object * o, lean_object* & todo) {
-    if (lean_is_scalar(o))
-        return;
-    if (LEAN_LIKELY(lean_internal_get_rc(o) > 1)) {
-        lean_internal_sub_rc(o, 1);
-    } else if (lean_internal_get_rc(o) == 1) {
-        push_back(todo, o);
-    } else if (lean_is_never_freed(o)) {
-        return;
-    } else if (std::atomic_fetch_add_explicit(lean_get_rc_mt_addr(o), 1, std::memory_order_acq_rel) == -1) {
-        push_back(todo, o);
-    }
-}
-
 extern "C" LEAN_EXPORT lean_object * lean_alloc_object(size_t sz) {
 #ifdef LEAN_MIMALLOC
     void * r = mi_malloc(sz);
@@ -363,71 +340,158 @@ extern "C" LEAN_EXPORT lean_object * lean_alloc_object(size_t sz) {
 static void deactivate_task(lean_task_object * t);
 static void deactivate_promise(lean_promise_object * t);
 
-/* The deletion worklist is passed by value and returned rather than by reference so that it can
-   live in a register across the constructor loop, which is by far the hottest deletion path. */
-static object * lean_del_core_other(object * o, uint8 tag, object * todo) {
-    switch (tag) {
-    case LeanClosure: {
-        object ** it  = lean_closure_arg_cptr(o);
-        object ** end = it + lean_closure_num_fixed(o);
-        for (; it != end; ++it) dec(*it, todo);
-        lean_dealloc(o, lean_closure_byte_size(o));
-        break;
-    }
-    case LeanArray: {
-        object ** it  = lean_array_cptr(o);
-        object ** end = it + lean_array_size(o);
-        for (; it != end; ++it) dec(*it, todo);
-        lean_dealloc(o, lean_array_byte_size(o));
-        break;
-    }
-    case LeanScalarArray:
-        lean_dealloc(o, lean_sarray_byte_size(o));
-        break;
-    case LeanString:
-        lean_dealloc(o, lean_string_byte_size(o));
-        break;
-    case LeanMPZ:
-        to_mpz(o)->m_value.~mpz();
-        lean_free_small_object(o);
-        break;
-    case LeanThunk:
-        if (object * c = lean_to_thunk(o)->m_closure) dec(c, todo);
-        if (object * v = lean_to_thunk(o)->m_value) dec(v, todo);
-        lean_free_small_object(o);
-        break;
-    case LeanRef:
-        if (object * v = lean_to_ref(o)->m_value) dec(v, todo);
-        lean_free_small_object(o);
-        break;
-    case LeanTask:
-        deactivate_task(lean_to_task(o));
-        break;
-    case LeanPromise:
-        deactivate_promise(lean_to_promise(o));
-        break;
-    case LeanExternal:
-        lean_to_external(o)->m_class->m_finalize(lean_to_external(o)->m_data);
-        lean_free_small_object(o);
-        break;
-    default:
-        lean_unreachable();
-    }
-    return todo;
+/* Trusted memory primitives for runtime/lean/Collector.lean. USize values are borrowed addresses;
+   Unit results are immediate values. No primitive allocates except arbitrary external finalizers
+   and task/promise scheduler effects. Traversal, tag dispatch and count decisions live in Lean. */
+static_assert(LeanMaxCtorTag == 243 && LeanPromise == 244 && LeanClosure == 245 &&
+    LeanArray == 246 && LeanStructArray == 247 && LeanScalarArray == 248 &&
+    LeanString == 249 && LeanMPZ == 250 && LeanThunk == 251 && LeanTask == 252 &&
+    LeanRef == 253 && LeanExternal == 254 && LeanReserved == 255 &&
+    (uint32_t)LEAN_RC_STICKY_DROP == 0xA0000000,
+    "Update runtime/lean/Collector.lean and regenerate object_gc.inc when changing the encoding");
+static_assert(sizeof(int) == sizeof(uint32_t), "The collector requires 32-bit reference counts");
+static_assert(CHAR_BIT == 8 && sizeof(lean_object) == 8,
+    "The collector requires an eight-byte object header");
+static_assert(sizeof(size_t) == sizeof(void*) && (sizeof(void*) == 4 || sizeof(void*) == 8),
+    "The collector requires matching 32-bit or 64-bit address and pointer widths");
+static_assert(std::endian::native == std::endian::little,
+    "The collector requires little-endian object headers");
+
+extern "C" {
+static inline uint32_t lean_gc_read_rc(size_t p) {
+    return (uint32_t)lean_internal_get_rc((object*)p);
 }
 
-static object * lean_del_core(object * o, object * todo) {
-    uint8 tag = lean_ptr_tag(o);
-    if (LEAN_LIKELY(tag <= LeanMaxCtorTag)) {
-        object ** it  = lean_ctor_obj_cptr(o);
-        object ** end = it + lean_ctor_num_objs(o);
-        for (; it != end; ++it) dec(*it, todo);
-        lean_free_small_object(o);
-        return todo;
-    } else {
-        return lean_del_core_other(o, tag, todo);
-    }
+static inline object * lean_gc_write_rc(size_t p, uint32_t rc) {
+    lean_internal_set_rc((object*)p, (int32_t)rc);
+    return lean_box(0);
 }
+
+static inline uint32_t lean_gc_fetch_add_rc(size_t p) {
+    return (uint32_t)std::atomic_fetch_add_explicit(lean_get_rc_mt_addr((object*)p), 1,
+                                                  std::memory_order_acq_rel);
+}
+
+static inline size_t lean_gc_read_next(size_t p) {
+    return (size_t)get_next((object*)p);
+}
+
+static inline object * lean_gc_write_next(size_t p, size_t next) {
+    set_next((object*)p, (object*)next);
+    return lean_box(0);
+}
+
+static inline uint8_t lean_gc_read_tag(size_t p) {
+    return lean_ptr_tag((object*)p);
+}
+
+static inline size_t lean_gc_ctor_count(size_t p) {
+    return lean_ctor_num_objs((object*)p);
+}
+
+static inline size_t lean_gc_ctor_begin(size_t p) {
+    return (size_t)lean_ctor_obj_cptr((object*)p);
+}
+
+static inline size_t lean_gc_closure_count(size_t p) {
+    return lean_closure_num_fixed((object*)p);
+}
+
+static inline size_t lean_gc_closure_begin(size_t p) {
+    return (size_t)lean_closure_arg_cptr((object*)p);
+}
+
+static inline size_t lean_gc_array_count(size_t p) {
+    return lean_array_size((object*)p);
+}
+
+static inline size_t lean_gc_array_begin(size_t p) {
+    return (size_t)lean_array_cptr((object*)p);
+}
+
+static inline size_t lean_gc_ref_begin(size_t p) {
+    return (size_t)&lean_to_ref((object*)p)->m_value;
+}
+
+static inline size_t lean_gc_field_next(size_t cursor) {
+    return (size_t)(((object**)cursor) + 1);
+}
+
+static inline size_t lean_gc_read_field(size_t cursor) {
+    return (size_t)*((object**)cursor);
+}
+
+static inline size_t lean_gc_read_thunk_closure(size_t p) {
+    return (size_t)lean_to_thunk((object*)p)->m_closure.load();
+}
+
+static inline size_t lean_gc_read_thunk_value(size_t p) {
+    return (size_t)lean_to_thunk((object*)p)->m_value.load();
+}
+
+static inline object * lean_gc_free_small(size_t p) {
+    lean_free_small_object((object*)p);
+    return lean_box(0);
+}
+
+static inline object * lean_gc_free_closure(size_t p) {
+    lean_dealloc((object*)p, lean_closure_byte_size((object*)p));
+    return lean_box(0);
+}
+
+static inline object * lean_gc_free_array(size_t p) {
+    lean_dealloc((object*)p, lean_array_byte_size((object*)p));
+    return lean_box(0);
+}
+
+static inline object * lean_gc_free_scalar_array(size_t p) {
+    lean_dealloc((object*)p, lean_sarray_byte_size((object*)p));
+    return lean_box(0);
+}
+
+static inline object * lean_gc_free_string(size_t p) {
+    lean_dealloc((object*)p, lean_string_byte_size((object*)p));
+    return lean_box(0);
+}
+
+static inline object * lean_gc_destroy_mpz(size_t p) {
+    to_mpz((object*)p)->m_value.~mpz();
+    return lean_box(0);
+}
+
+static inline object * lean_gc_deactivate_task(size_t p) {
+    deactivate_task(lean_to_task((object*)p));
+    return lean_box(0);
+}
+
+static inline object * lean_gc_deactivate_promise(size_t p) {
+    deactivate_promise(lean_to_promise((object*)p));
+    return lean_box(0);
+}
+
+static inline object * lean_gc_finalize_external(size_t p) {
+    lean_external_object * o = lean_to_external((object*)p);
+    o->m_class->m_finalize(o->m_data);
+    return lean_box(0);
+}
+
+static inline object * lean_gc_unreachable(size_t) {
+    lean_unreachable();
+    return lean_box(0);
+}
+}
+
+#if defined(__clang__)
+#pragma clang diagnostic push
+#elif defined(__GNUC__)
+#pragma GCC diagnostic push
+#endif
+#include "runtime/object_gc.inc"
+#if defined(__clang__)
+#pragma clang diagnostic pop
+#elif defined(__GNUC__)
+#pragma GCC diagnostic pop
+#endif
 
 // sync with tests/elab/rc_model.lean (`incRefHugeN`)
 extern "C" LEAN_EXPORT void lean_inc_ref_huge_n(lean_object * o, size_t n) {
@@ -451,23 +515,8 @@ extern "C" LEAN_EXPORT void lean_inc_ref_huge_n(lean_object * o, size_t n) {
     }
 }
 
-// sync with tests/elab/rc_model.lean (`decRefCold`)
 extern "C" LEAN_EXPORT void lean_dec_ref_cold(lean_object * o) {
-    // `rc == 1` is the hot single-threaded free path and can never be sticky, so the sticky check
-    // is kept out of it.
-    if (lean_internal_get_rc(o) != 1) {
-        if (LEAN_UNLIKELY(lean_is_never_freed(o)))
-            return;
-        if (std::atomic_fetch_add_explicit(lean_get_rc_mt_addr(o), 1, std::memory_order_acq_rel) != -1)
-            return;
-    }
-    object * todo = nullptr;
-    while (true) {
-        todo = lean_del_core(o, todo);
-        if (todo == nullptr)
-            return;
-        o = pop_back(todo);
-    }
+    lean_gc_dec_ref_cold((size_t)o);
 }
 
 

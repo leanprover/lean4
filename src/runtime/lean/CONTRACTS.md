@@ -1,8 +1,7 @@
 # Native collector contracts
 
-`Collector.lean` supplies the candidate counter decisions, queue insertion, tag dispatch,
-scanning and worklist control flow. Its native adapter declares the memory operations and
-terminal effects required by the generated fragment.
+`Collector.lean` supplies the counter decisions, queue insertion, tag dispatch, scanning and
+worklist control flow. `object.cpp` supplies memory operations and terminal effects.
 `tests/misc_dir/rc_graph/NativeContracts.lean` proves the finite-word and byte-memory facts below.
 These are conditional representation proofs, not a verification of C++, its compiler, the
 allocator or the scheduler.
@@ -45,9 +44,8 @@ in the stated byte interpretation. Neither branch preserves the old reference co
 `pointer_tag32/64` prove that aligned object addresses are not immediates.
 `immediate32/64` and `unbox_box32/64` prove the low-bit convention and round-trip boxing when
 the input fits in `word_bits - 1` bits. Null is a separate sentinel: `lean_is_scalar(NULL)`
-is false. The candidate scanner ignores null and immediate slots before any header access.
-The incumbent runtime ignores null thunk and reference members, but constructor, closure and
-array slots must remain nonnull until activation. `lean_dec(NULL)` is not a valid public call.
+is false. The field scanner ignores both null and immediates before any header access;
+`lean_dec(NULL)` is not a valid public call.
 
 ## Ownership, liveness and frames
 

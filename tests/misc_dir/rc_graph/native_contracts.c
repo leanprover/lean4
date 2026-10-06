@@ -130,7 +130,7 @@ static void inspect_queue(void * data) {
     CHECK(lean_ptr_tag(ctor) == LeanMaxCtorTag && lean_ctor_num_objs(ctor) == 4);
     CHECK(lean_ctor_get(ctor, 0) == q->children[0]);
     CHECK(lean_ctor_get(ctor, 1) == lean_box(UINTPTR_MAX >> 1));
-    CHECK(lean_ctor_get(ctor, 2) == q->children[1] && lean_ctor_get(ctor, 3) == lean_box(0));
+    CHECK(lean_ctor_get(ctor, 2) == q->children[1] && lean_ctor_get(ctor, 3) == NULL);
     check_scalar_pattern(ctor);
 
     lean_object * closure = q->objects[1];
@@ -138,7 +138,7 @@ static void inspect_queue(void * data) {
     CHECK(lean_closure_arity(closure) == 5 && lean_closure_num_fixed(closure) == 4);
     CHECK(lean_closure_get(closure, 0) == q->children[2]);
     CHECK(lean_closure_get(closure, 1) == lean_box(23));
-    CHECK(lean_closure_get(closure, 2) == lean_box(0));
+    CHECK(lean_closure_get(closure, 2) == NULL);
     CHECK(lean_closure_get(closure, 3) == lean_box(0));
 
     lean_object * array = q->objects[2];
@@ -146,7 +146,7 @@ static void inspect_queue(void * data) {
     CHECK(lean_array_is_marked_linear(array));
     CHECK(lean_array_get_core(array, 0) == lean_box(0));
     CHECK(lean_array_get_core(array, 1) == q->children[3]);
-    CHECK(lean_array_get_core(array, 2) == lean_box(0));
+    CHECK(lean_array_get_core(array, 2) == NULL);
     CHECK(lean_array_get_core(array, 3) == q->children[3]);
     CHECK(lean_array_get_core(array, 4) == lean_box(UINTPTR_MAX >> 1));
     for (size_t i = 5; i < 8; ++i) CHECK(lean_array_cptr(array)[i] == q->capacity_canary);
@@ -178,17 +178,17 @@ static void queue_layout(void) {
     lean_ctor_set(q.objects[0], 0, q.children[0]);
     lean_ctor_set(q.objects[0], 1, lean_box(UINTPTR_MAX >> 1));
     lean_ctor_set(q.objects[0], 2, q.children[1]);
-    lean_ctor_set(q.objects[0], 3, lean_box(0));
+    lean_ctor_set(q.objects[0], 3, NULL);
     scalar_pattern(q.objects[0]);
     q.objects[1] = lean_alloc_closure((void *)never_called, 5, 4);
     lean_closure_set(q.objects[1], 0, q.children[2]);
     lean_closure_set(q.objects[1], 1, lean_box(23));
-    lean_closure_set(q.objects[1], 2, lean_box(0));
+    lean_closure_set(q.objects[1], 2, NULL);
     lean_closure_set(q.objects[1], 3, lean_box(0));
     q.objects[2] = lean_alloc_array(5, 8);
     lean_array_set_core(q.objects[2], 0, lean_box(0));
     lean_array_set_core(q.objects[2], 1, q.children[3]);
-    lean_array_set_core(q.objects[2], 2, lean_box(0));
+    lean_array_set_core(q.objects[2], 2, NULL);
     lean_inc(q.children[3]);
     lean_array_set_core(q.objects[2], 3, q.children[3]);
     lean_array_set_core(q.objects[2], 4, lean_box(UINTPTR_MAX >> 1));

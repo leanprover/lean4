@@ -1,11 +1,12 @@
 # Reference-counting deletion in Lean
 
-`Collector.lean` supplies a complete candidate deletion algorithm: counter
-decisions, queue insertion, field scanning, thunk dispatch, typed field-layout
-selection, destructor ordering, and the LIFO deletion loop. The normal Lean
-compiler specializes this algorithm to borrowed machine addresses and emits
-`../object_gc.inc`. The direct candidate harness supplies checked serial memory
-primitives. The runtime continues to use its existing collector.
+`Collector.lean` supplies the complete deletion control flow used by
+`lean_dec_ref_cold`: counter decisions, queue insertion, field scanning, thunk
+dispatch, typed field-layout selection, destructor ordering, and the LIFO
+deletion loop. The normal Lean compiler specializes this algorithm to borrowed
+machine addresses and emits `../object_gc.inc`. `../object.cpp` supplies typed
+memory accesses and individual deallocation, destructor, and scheduler effects.
+The public C ABI is unchanged.
 
 Fields are released in increasing address order. An object that loses its last
 reference is pushed onto the existing intrusive worklist. For a constructor
@@ -13,7 +14,7 @@ with one physical slot, the loop can continue directly into its child without
 writing a queue link. Both paths dispose the source after releasing its fields
 and before visiting its children; pending siblings keep their LIFO order.
 Thunks read their atomic closure and cached value in that order. Task and promise
-deactivation and external finalizers are separate native primitive obligations.
+deactivation and external finalizers retain their native implementations.
 This order, and hence the order of finalizers, is not a contract: every schedule
 that ownership permits reaches the same result.
 
@@ -35,8 +36,8 @@ instructions, indirect calls, global initializers, and other foreign calls.
 It checks the foreign symbols as well as the Lean declaration names.
 
 The fragment uses the compiler's C emitter, with private linkage for generated
-helpers. It contains no module initializer or boxed entry point. The direct
-candidate test compiles the regenerated fragment.
+helpers. It contains no module initializer or boxed entry point. A build consumes
+the checked-in fragment without needing to run Lean inside its own collector.
 `make -C build/release update-stage0` copies that fragment with the native sources;
 the collector's Lean source is excluded from the ordinary stdlib
 snapshot. The regression test regenerates the fragment and requires an exact
@@ -97,7 +98,7 @@ swapping a thunk primitive breaks the equality.
 `Dispatch.lean` checks classification of all 256 byte tags against an independent
 tag table, then proves the selected field operations and destructor order for
 arbitrary primitives. `native_dispatch_uses_shared` checks the native bindings.
-The compiled candidate checks the tag table against the runtime constants.
+Native static assertions bind the Lean tag table to the C constants.
 
 `Concurrent.lean` separates shared-counter guards from atomic updates. Pending
 copies may share a protected source owner token, including a borrowed field;

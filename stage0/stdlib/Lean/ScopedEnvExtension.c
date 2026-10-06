@@ -5703,8 +5703,8 @@ return v___x_1786_;
 }
 else
 {
-lean_dec_ref_known(v_stateStack_1780_, 2);
 lean_dec(v_tail_1781_);
+lean_dec_ref_known(v_stateStack_1780_, 2);
 lean_dec_ref(v_ext_1772_);
 return v_env_1773_;
 }

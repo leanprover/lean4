@@ -16415,10 +16415,10 @@ lean_dec(v_n_5157_);
 v___x_5185_ = l_Lean_mkNatLit(v___x_5184_);
 lean_inc_ref(v_e_5155_);
 v___x_5186_ = l___private_Lean_Meta_Tactic_Simp_BuiltinSimprocs_Nat_0__Nat_mkAddNat(v_e_5155_, v___x_5185_);
-v___y_5006_ = v_e_5152_;
+v___y_5006_ = v_o_5156_;
 v___y_5007_ = v_o_5153_;
 v___y_5008_ = v_e_5155_;
-v___y_5009_ = v_o_5156_;
+v___y_5009_ = v_e_5152_;
 v___y_5010_ = v___x_5186_;
 goto v___jp_5005_;
 }
@@ -16427,10 +16427,10 @@ else
 lean_dec(v_n_5157_);
 lean_dec(v_n_5154_);
 lean_inc_ref(v_e_5155_);
-v___y_5006_ = v_e_5152_;
+v___y_5006_ = v_o_5156_;
 v___y_5007_ = v_o_5153_;
 v___y_5008_ = v_e_5155_;
-v___y_5009_ = v_o_5156_;
+v___y_5009_ = v_e_5152_;
 v___y_5010_ = v_e_5155_;
 goto v___jp_5005_;
 }
@@ -16592,11 +16592,11 @@ return v___x_5210_;
 v___jp_5005_:
 {
 lean_object* v___x_5011_; lean_object* v___x_5012_; lean_object* v___x_5013_; 
-lean_inc_ref(v___y_5006_);
-v___x_5011_ = l___private_Lean_Meta_Tactic_Simp_BuiltinSimprocs_Nat_0__Nat_mkLENat(v___y_5006_, v___y_5010_);
 lean_inc_ref(v___y_5009_);
+v___x_5011_ = l___private_Lean_Meta_Tactic_Simp_BuiltinSimprocs_Nat_0__Nat_mkLENat(v___y_5009_, v___y_5010_);
+lean_inc_ref(v___y_5006_);
 lean_inc_ref(v___y_5007_);
-v___x_5012_ = l___private_Lean_Meta_Tactic_Simp_BuiltinSimprocs_Nat_0__Nat_mkLENat(v___y_5007_, v___y_5009_);
+v___x_5012_ = l___private_Lean_Meta_Tactic_Simp_BuiltinSimprocs_Nat_0__Nat_mkLENat(v___y_5007_, v___y_5006_);
 v___x_5013_ = l___private_Lean_Meta_Tactic_Simp_BuiltinSimprocs_Nat_0__Nat_mkOfDecideEqTrue(v___x_5012_, v_a_5000_, v_a_5001_, v_a_5002_, v_a_5003_);
 if (lean_obj_tag(v___x_5013_) == 0)
 {
@@ -16607,10 +16607,10 @@ lean_dec_ref_known(v___x_5013_, 1);
 v___x_5015_ = ((lean_object*)(l___private_Lean_Meta_Tactic_Simp_BuiltinSimprocs_Nat_0__Nat_reduceLTLE___redArg___closed__1));
 v___x_5016_ = lean_unsigned_to_nat(5u);
 v___x_5017_ = lean_mk_empty_array_with_capacity(v___x_5016_);
-v___x_5018_ = lean_array_push(v___x_5017_, v___y_5006_);
+v___x_5018_ = lean_array_push(v___x_5017_, v___y_5009_);
 v___x_5019_ = lean_array_push(v___x_5018_, v___y_5008_);
 v___x_5020_ = lean_array_push(v___x_5019_, v___y_5007_);
-v___x_5021_ = lean_array_push(v___x_5020_, v___y_5009_);
+v___x_5021_ = lean_array_push(v___x_5020_, v___y_5006_);
 v___x_5022_ = lean_array_push(v___x_5021_, v_a_5014_);
 v___x_5023_ = l___private_Lean_Meta_Tactic_Simp_BuiltinSimprocs_Nat_0__Nat_applySimprocConst___redArg(v___x_5011_, v___x_5015_, v___x_5022_, v_a_5003_);
 lean_dec_ref(v___x_5022_);

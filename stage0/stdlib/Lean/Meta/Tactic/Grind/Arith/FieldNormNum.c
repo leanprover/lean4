@@ -4581,7 +4581,7 @@ v___x_1504_ = l_Lean_eagerReflBoolTrue;
 lean_inc_ref(v_isChar0Inst_1494_);
 lean_inc_ref(v_fieldInst_1493_);
 lean_inc_ref(v_type_1492_);
-v___x_1505_ = l_Lean_mkApp9(v___x_1499_, v_type_1492_, v_fieldInst_1493_, v_isChar0Inst_1494_, v_arg_1277_, v___y_1501_, v___y_1502_, v___y_1503_, v___x_1504_, v_snd_1466_);
+v___x_1505_ = l_Lean_mkApp9(v___x_1499_, v_type_1492_, v_fieldInst_1493_, v_isChar0Inst_1494_, v_arg_1277_, v___y_1502_, v___y_1501_, v___y_1503_, v___x_1504_, v_snd_1466_);
 if (v_isShared_1469_ == 0)
 {
 lean_ctor_set(v___x_1468_, 1, v___x_1505_);
@@ -4658,8 +4658,8 @@ v___x_1526_ = lean_nat_to_int(v_den_1519_);
 v___x_1527_ = l_Lean_instToExprRat_mkInt(v___x_1526_);
 lean_dec(v___x_1526_);
 v___x_1528_ = l_Lean_mkApp6(v___x_1522_, v___x_1523_, v___x_1523_, v___x_1523_, v___x_1524_, v___x_1525_, v___x_1527_);
-v___y_1501_ = v___y_1516_;
-v___y_1502_ = v___y_1517_;
+v___y_1501_ = v___y_1517_;
+v___y_1502_ = v___y_1516_;
 v___y_1503_ = v___x_1528_;
 goto v___jp_1500_;
 }
@@ -4667,8 +4667,8 @@ else
 {
 lean_object* v___x_1529_; 
 v___x_1529_ = l_Lean_instToExprRat_mkInt(v_num_1518_);
-v___y_1501_ = v___y_1516_;
-v___y_1502_ = v___y_1517_;
+v___y_1501_ = v___y_1517_;
+v___y_1502_ = v___y_1516_;
 v___y_1503_ = v___x_1529_;
 goto v___jp_1500_;
 }

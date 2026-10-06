@@ -30,7 +30,7 @@ lean_object* l_Lean_Meta_Sym_DSimp_instInhabitedDSimpM___redArg();
 lean_object* lean_panic_fn_borrowed(lean_object*, lean_object*);
 lean_object* l_Lean_Expr_getAppNumArgs(lean_object*);
 lean_object* l_Lean_Expr_getAppFn(lean_object*);
-lean_object* l_Lean_Meta_Sym_getProofInstInfoOfExpr_x3f___redArg(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
+lean_object* l_Lean_Meta_Sym_getProofInstInfoOfExpr_x3f(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Meta_Sym_Internal_mkAppS___at___00__private_Lean_Meta_Sym_DSimp_App_0__Lean_Meta_Sym_DSimp_dsimpAppArgs_go_spec__0___redArg(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Meta_Sym_Internal_mkAppS___at___00__private_Lean_Meta_Sym_DSimp_App_0__Lean_Meta_Sym_DSimp_dsimpAppArgs_go_spec__0___redArg___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Meta_Sym_Internal_mkAppS___at___00__private_Lean_Meta_Sym_DSimp_App_0__Lean_Meta_Sym_DSimp_dsimpAppArgs_go_spec__0(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
@@ -58,7 +58,7 @@ _start:
 {
 lean_object* v___y_11_; lean_object* v___x_14_; uint8_t v_debug_15_; 
 v___x_14_ = lean_st_ref_get(v___y_4_);
-v_debug_15_ = lean_ctor_get_uint8(v___x_14_, sizeof(void*)*11);
+v_debug_15_ = lean_ctor_get_uint8(v___x_14_, sizeof(void*)*12);
 lean_dec(v___x_14_);
 if (v_debug_15_ == 0)
 {
@@ -861,7 +861,7 @@ if (v___x_268_ == 0)
 {
 lean_object* v_f_269_; lean_object* v___x_270_; 
 v_f_269_ = l_Lean_Expr_getAppFn(v_e_255_);
-v___x_270_ = l_Lean_Meta_Sym_getProofInstInfoOfExpr_x3f___redArg(v_f_269_, v_a_260_, v_a_261_, v_a_262_, v_a_263_, v_a_264_);
+v___x_270_ = l_Lean_Meta_Sym_getProofInstInfoOfExpr_x3f(v_f_269_, v_a_259_, v_a_260_, v_a_261_, v_a_262_, v_a_263_, v_a_264_);
 if (lean_obj_tag(v___x_270_) == 0)
 {
 lean_object* v_a_271_; 

@@ -1778,14 +1778,14 @@ goto v___jp_540_;
 }
 v___jp_633_:
 {
-if (v___y_634_ == 0)
+if (v___y_635_ == 0)
 {
-v___y_541_ = v___y_635_;
+v___y_541_ = v___y_634_;
 goto v___jp_540_;
 }
 else
 {
-v___y_631_ = v___y_635_;
+v___y_631_ = v___y_634_;
 v___y_632_ = v___x_629_;
 goto v___jp_630_;
 }
@@ -1794,8 +1794,8 @@ v___jp_636_:
 {
 if (v___y_637_ == 0)
 {
-v___y_634_ = v___y_638_;
-v___y_635_ = v___y_639_;
+v___y_634_ = v___y_639_;
+v___y_635_ = v___y_638_;
 goto v___jp_633_;
 }
 else
@@ -1808,8 +1808,8 @@ goto v___jp_630_;
 }
 else
 {
-v___y_634_ = v___y_638_;
-v___y_635_ = v___y_639_;
+v___y_634_ = v___y_639_;
+v___y_635_ = v___y_638_;
 goto v___jp_633_;
 }
 }
@@ -1919,12 +1919,12 @@ lean_object* v___x_532_; lean_object* v___x_533_; uint8_t v___x_534_;
 v___x_532_ = lean_unsigned_to_nat(3u);
 v___x_533_ = l_Lean_Syntax_getArg(v_stx_513_, v___x_532_);
 lean_dec(v_stx_513_);
-v___x_534_ = l_Lean_Syntax_matchesNull(v___x_533_, v___y_530_);
+v___x_534_ = l_Lean_Syntax_matchesNull(v___x_533_, v___y_529_);
 if (v___x_534_ == 0)
 {
 lean_object* v___x_535_; uint8_t v___x_536_; 
-v___x_535_ = lean_array_get_size(v___y_529_);
-lean_dec_ref(v___y_529_);
+v___x_535_ = lean_array_get_size(v___y_530_);
+lean_dec_ref(v___y_530_);
 v___x_536_ = lean_nat_dec_le(v___x_535_, v___y_531_);
 if (v___x_536_ == 0)
 {
@@ -1944,7 +1944,7 @@ goto v___jp_515_;
 else
 {
 lean_object* v___x_539_; 
-lean_dec_ref(v___y_529_);
+lean_dec_ref(v___y_530_);
 v___x_539_ = ((lean_object*)(l___private_Lean_Server_FileWorker_SignatureHelp_0__Lean_Server_FileWorker_SignatureHelp_findSignatureHelp_x3f_determineCandidateKind___closed__1));
 v_kind_x3f_516_ = v___x_539_;
 goto v___jp_515_;
@@ -2277,8 +2277,8 @@ goto v___jp_515_;
 else
 {
 lean_inc_ref(v_args_571_);
-v___y_529_ = v_args_571_;
-v___y_530_ = v___x_608_;
+v___y_529_ = v___x_608_;
+v___y_530_ = v_args_571_;
 v___y_531_ = v___x_609_;
 goto v___jp_528_;
 }
@@ -2286,8 +2286,8 @@ goto v___jp_528_;
 else
 {
 lean_inc_ref(v_args_571_);
-v___y_529_ = v_args_571_;
-v___y_530_ = v___x_608_;
+v___y_529_ = v___x_608_;
+v___y_530_ = v_args_571_;
 v___y_531_ = v___x_609_;
 goto v___jp_528_;
 }

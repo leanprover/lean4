@@ -1,6 +1,12 @@
 import Lean.Runtime
 
--- Non-emscripten build: expect the major version of OpenSSL (3)
-/-- info: 3 -/
+-- OpenBSD may use LibreSSL; other native platforms require OpenSSL 3.
+/-- info: true -/
 #guard_msgs in
-#eval if !System.Platform.isEmscripten then Lean.openSSLVersion >>> 28 else 3
+#eval
+  if System.Platform.isEmscripten then
+    true
+  else
+    let major := Lean.openSSLVersion >>> 28
+    let isOpenBSD := (System.Platform.target.splitOn "-").any (·.startsWith "openbsd")
+    major == 3 || (isOpenBSD && major == 2)

@@ -12,6 +12,9 @@ Port of the corresponding Rust code (see links below).
 #else
 #include <csignal>
 #include <pthread.h>
+#ifdef __OpenBSD__
+#include <pthread_np.h>
+#endif
 #include <unistd.h>
 #endif
 #include <cstdio>
@@ -54,6 +57,10 @@ bool is_within_stack_guard(void * addr) {
     char * stackaddr;
 #ifdef __APPLE__
     stackaddr = static_cast<char *>(pthread_get_stackaddr_np(pthread_self())) - pthread_get_stacksize_np(pthread_self());
+#elif defined(__OpenBSD__)
+    stack_t stack;
+    if (pthread_stackseg_np(pthread_self(), &stack) != 0) return false;
+    stackaddr = static_cast<char *>(stack.ss_sp) - stack.ss_size;
 #else
     pthread_attr_t attr;
     if (pthread_attr_init(&attr) != 0) return false;

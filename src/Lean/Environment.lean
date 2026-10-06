@@ -2719,9 +2719,10 @@ def finalizeImport (s : ImportState) (imports : Array Import) (opts : Options) (
   let extensions ← setImportedEntries privateBase.extensions moduleData
   -- fall back to basic data when not in server
   let serverData := modules.mapIdx (fun idx mod => mod.serverData? level |>.getD moduleData[idx]!)
-  -- In each of these cases, `serverData?` either selects the same part as `mainModule?` or fails,
-  -- so `serverData` is `moduleData`.
-  let serverIsMain := level < .server || modules.all fun mod => mod.importAll || !mod.hasData
+  -- `serverData?` selects a different part than `mainModule?` only at `.server`: at `.private`,
+  -- `importModulesCore` loads every module as `importAll`. Assumes `level` is the `globalLevel`
+  -- the modules were loaded with.
+  let serverIsMain := level != .server
   let irBaseExts ← setImportedEntries privateBase.extensions irData
   let serverBaseExts ←
     if serverIsMain then pure extensions else setImportedEntries privateBase.extensions serverData

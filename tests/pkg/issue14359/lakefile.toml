@@ -1,0 +1,4 @@
+name = "repro"
+
+[[lean_lib]]
+name = "Repro"

@@ -47,9 +47,7 @@ operator is saturated with distribution and unfolding rewrites, a terminal `⊑`
 fires on the reduced form, and any state arguments the terminal leaves over-applied are point-framed
 onto the precondition.
 
-The built-in splits cover the lattice connectives `⊓`/`⇨`/`⌜·⌝`/`⊤`/`iInf`, the `Prop` conjunction
-`∧`, the existential `∃ h : a, b h` and the supremum `⨆ h : a, b h` over a proposition `a`, and the
-magic-wand residual `upperAdjoint`.
+The built-in splits are the `LatticeOp` values in `builtinLatticeOps`.
 -/
 
 /-- The lattice meet `⊓`: distributes via `meet_apply`, closes with `le_meet`. -/
@@ -60,7 +58,8 @@ public def LatticeOp.himp : LatticeOp :=
   { head := ``Lean.Order.himp, rewrites := #[``himp_apply],
     terminal? := ``Lean.Order.le_himp_of_meet_le_left }
 /-- The pure assertion `⌜·⌝`: distributes via `ofProp_apply`, closes with the `⊤`-fixed
-`CompleteLattice.top_le_ofProp`. -/
+`CompleteLattice.top_le_ofProp`. It decomposes `pre ⊑ ⌜p⌝` only when `pre` is `⊤`: the subgoal `p`
+of any other `pre` would drop `pre`, and the terminal fails to apply. -/
 public def LatticeOp.ofProp : LatticeOp :=
   { head := ``Lean.Order.CompleteLattice.ofProp,
     rewrites := #[``Lean.Order.CompleteLattice.ofProp_apply],

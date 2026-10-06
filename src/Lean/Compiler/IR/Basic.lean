@@ -174,37 +174,6 @@ def CtorInfo.isScalar (info : CtorInfo) : Bool :=
 def CtorInfo.type (info : CtorInfo) : IRType :=
   if info.isRef then .object else .tagged
 
-inductive Expr where
-  /-- We use `ctor` mainly for constructing Lean object/tobject values `lean_ctor_object` in the runtime.
-  This instruction is also used to creat `struct` and `union` return values.
-  For `union`, only `i.cidx` is relevant. For `struct`, `i` is irrelevant. -/
-  | ctor (i : CtorInfo) (ys : Array Arg)
-  | reset (n : Nat) (x : VarId)
-  /-- `reuse x in ctor_i ys` instruction in the paper. -/
-  | reuse (x : VarId) (i : CtorInfo) (updtHeader : Bool) (ys : Array Arg)
-  /-- Extract the `tobject` value at Position `sizeof(void*)*i` from `x`.
-  We also use `proj` for extracting fields from `struct` return values, and casting `union` return values. -/
-  |  proj (i : Nat) (x : VarId)
-  /-- Extract the `Usize` value at Position `sizeof(void*)*i` from `x`. -/
-  | uproj (i : Nat) (x : VarId)
-  /-- Extract the scalar value at Position `sizeof(void*)*n + offset` from `x`. -/
-  | sproj (n : Nat) (offset : Nat) (x : VarId)
-  /-- Full application. -/
-  | fap (c : FunId) (ys : Array Arg)
-  /-- Partial application that creates a `pap` value (aka closure in our nonstandard terminology). -/
-  | pap (c : FunId) (ys : Array Arg)
-  /-- Application. `x` must be a `pap` value. -/
-  | ap  (x : VarId) (ys : Array Arg)
-  /-- Given `x : ty` where `ty` is a scalar type, this operation returns a value of Type `tobject`.
-  For small scalar values, the Result is a tagged pointer, and no memory allocation is performed. -/
-  | box (ty : IRType) (x : VarId)
-  /-- Given `x : [t]object`, obtain the scalar value. -/
-  | unbox (x : VarId)
-  | lit (v : LitVal)
-  /-- Return `1 : uint8` Iff `RC(x) > 1` -/
-  | isShared (x : VarId)
-  deriving Inhabited
-
 structure Param where
   x : VarId
   borrow : Bool
@@ -218,8 +187,40 @@ inductive Alt where
   | default (b : FnBody) : Alt
 
 inductive FnBody where
-  /-- `let x : ty := e; b` -/
-  | vdecl (x : VarId) (ty : IRType) (e : Expr) (b : FnBody)
+  /-- We use `ctor` mainly for constructing Lean object/tobject values `lean_ctor_object` in the runtime.
+  This instruction is also used to creat `struct` and `union` return values.
+  For `union`, only `i.cidx` is relevant. For `struct`, `i` is irrelevant. -/
+  | ctor (tgt : VarId) (b : FnBody) (i : CtorInfo) (ys : Array Arg)
+  | reset (tgt : VarId) (b : FnBody) (n : Nat) (x : VarId)
+  /-- `reuse x in ctor_i ys` instruction in the paper. -/
+  | reuse (tgt : VarId) (b : FnBody) (x : VarId) (i : CtorInfo) (updtHeader : Bool) (ys : Array Arg)
+  /-- Extract the `tobject` value at Position `sizeof(void*)*i` from `x`.
+  We also use `proj` for extracting fields from `struct` return values, and casting `union` return values. -/
+  | proj (tgt : VarId) (b : FnBody) (i : Nat) (x : VarId)
+  /-- Extract the `Usize` value at Position `sizeof(void*)*i` from `x`. -/
+  | uproj (tgt : VarId) (b : FnBody) (i : Nat) (x : VarId)
+  /-- Extract the scalar value at Position `sizeof(void*)*n + offset` from `x`. -/
+  | sproj (tgt : VarId) (b : FnBody) (ty : IRType) (n : Nat) (offset : Nat) (x : VarId)
+  /-- Full application. -/
+  | fap (tgt : VarId) (b : FnBody) (ty : IRType) (c : FunId) (ys : Array Arg)
+  /-- Partial application that creates a `pap` value (aka closure in our nonstandard terminology). -/
+  | pap (tgt : VarId) (b : FnBody) (c : FunId) (ys : Array Arg)
+  /-- Application. `x` must be a `pap` value. -/
+  | ap (tgt : VarId) (b : FnBody) (x : VarId) (ys : Array Arg)
+  /-- Given `x : ty` where `ty` is a scalar type, this operation returns a value of Type `tobject`.
+  For small scalar values, the Result is a tagged pointer, and no memory allocation is performed. -/
+  | box (tgt : VarId) (b : FnBody) (ty : IRType) (x : VarId)
+  /-- Given `x : [t]object`, obtain the scalar value. -/
+  | unbox (tgt : VarId) (b : FnBody) (ty : IRType) (x : VarId)
+  | uint8Lit (tgt : VarId) (b : FnBody) (v : UInt8)
+  | uint16Lit (tgt : VarId) (b : FnBody) (v : UInt16)
+  | uint32Lit (tgt : VarId) (b : FnBody) (v : UInt32)
+  | uint64Lit (tgt : VarId) (b : FnBody) (v : UInt64)
+  | usizeLit (tgt : VarId) (b : FnBody) (v : UInt64)
+  | natLit (tgt : VarId) (b : FnBody) (v : Nat)
+  | strLit (tgt : VarId) (b : FnBody) (v : String)
+  /-- Return `1 : uint8` Iff `RC(x) > 1` -/
+  | isShared (tgt : VarId) (b : FnBody) (x : VarId) -- type is always UInt8
   /-- Join point Declaration `block_j (xs) := e; b` -/
   | jdecl (j : JoinPointId) (xs : Array Param) (v : FnBody) (b : FnBody)
   /-- Store `y` at Position `sizeof(void*)*i` in `x`. `x` must be a Constructor object and `RC(x)` must be 1.
@@ -258,8 +259,115 @@ def FnBody.isTerminal : FnBody → Bool
   | FnBody.unreachable   => true
   | _                    => false
 
+def FnBody.isVarDecl : FnBody → Bool
+  | FnBody.ctor ..
+  | FnBody.reset ..
+  | FnBody.reuse ..
+  | FnBody.proj ..
+  | FnBody.uproj ..
+  | FnBody.sproj ..
+  | FnBody.fap ..
+  | FnBody.pap ..
+  | FnBody.ap ..
+  | FnBody.box ..
+  | FnBody.unbox ..
+  | FnBody.uint8Lit ..
+  | FnBody.uint16Lit ..
+  | FnBody.uint32Lit ..
+  | FnBody.uint64Lit ..
+  | FnBody.usizeLit ..
+  | FnBody.natLit ..
+  | FnBody.strLit ..
+  | FnBody.isShared .. => true
+  | _ => false
+
+def FnBody.targetVar : FnBody → VarId
+  | FnBody.ctor v ..
+  | FnBody.reset v ..
+  | FnBody.reuse v ..
+  | FnBody.proj v ..
+  | FnBody.uproj v ..
+  | FnBody.sproj v ..
+  | FnBody.fap v ..
+  | FnBody.pap v ..
+  | FnBody.ap v ..
+  | FnBody.box v ..
+  | FnBody.unbox v ..
+  | FnBody.uint8Lit v ..
+  | FnBody.uint16Lit v ..
+  | FnBody.uint32Lit v ..
+  | FnBody.uint64Lit v ..
+  | FnBody.usizeLit v ..
+  | FnBody.natLit v ..
+  | FnBody.strLit v ..
+  | FnBody.isShared v .. => v
+  | _ => panic! "expected var decl"
+
+def FnBody.targetType : FnBody → IRType
+  | .ctor _ _ i _ => i.type
+  | .reset .. => .tobject
+  | .reuse .. => .object
+  | .proj .. => .tobject
+  | .uproj .. => .usize
+  | .sproj _ _ ty .. => ty
+  | .fap _ _ ty .. => ty
+  | .pap .. => .object
+  | .ap .. => .tobject
+  | .box .. => .tobject
+  | .unbox _ _ ty _ => ty
+  | .uint8Lit .. => .uint8
+  | .uint16Lit .. => .uint16
+  | .uint32Lit .. => .uint32
+  | .uint64Lit .. => .uint64
+  | .usizeLit .. => .usize
+  | .natLit .. => .tobject
+  | .strLit .. => .object
+  | .isShared .. => .uint8
+  | _ => panic! "expected var decl"
+
+def FnBody.setTargetVar : FnBody → VarId → FnBody
+  | .ctor _tgt b i ys,               tgt => .ctor tgt b i ys
+  | .reset _tgt b n x,               tgt => .reset tgt b n x
+  | .reuse _tgt b x i updtHeader ys, tgt => .reuse tgt b x i updtHeader ys
+  | .proj _tgt b i x,                tgt => .proj tgt b i x
+  | .uproj _tgt b i x,               tgt => .uproj tgt b i x
+  | .sproj _tgt b ty n offset x,     tgt => .sproj tgt b ty n offset x
+  | .fap _tgt b ty c ys,             tgt => .fap tgt b ty c ys
+  | .pap _tgt b c ys,                tgt => .pap tgt b c ys
+  | .ap _tgt b x ys,                 tgt => .ap tgt b x ys
+  | .box _tgt b ty x,                tgt => .box tgt b ty x
+  | .unbox _tgt b ty x,              tgt => .unbox tgt b ty x
+  | .uint8Lit _tgt b v,              tgt => .uint8Lit tgt b v
+  | .uint16Lit _tgt b v,             tgt => .uint16Lit tgt b v
+  | .uint32Lit _tgt b v,             tgt => .uint32Lit tgt b v
+  | .uint64Lit _tgt b v,             tgt => .uint64Lit tgt b v
+  | .usizeLit _tgt b v,              tgt => .usizeLit tgt b v
+  | .natLit _tgt b v,                tgt => .natLit tgt b v
+  | .strLit _tgt b v,                tgt => .strLit tgt b v
+  | .isShared _tgt b x,              tgt => .isShared tgt b x
+  | _, _ => panic! "expected var decl"
+
+
 def FnBody.body : FnBody → FnBody
-  | FnBody.vdecl _ _ _ b    => b
+  | FnBody.ctor _ b ..      => b
+  | FnBody.reset _ b ..     => b
+  | FnBody.reuse _ b ..     => b
+  | FnBody.proj _ b ..      => b
+  | FnBody.uproj _ b ..     => b
+  | FnBody.sproj _ b ..     => b
+  | FnBody.fap _ b ..       => b
+  | FnBody.pap _ b ..       => b
+  | FnBody.ap _ b ..        => b
+  | FnBody.box _ b ..       => b
+  | FnBody.unbox _ b ..     => b
+  | FnBody.uint8Lit _ b ..  => b
+  | FnBody.uint16Lit _ b .. => b
+  | FnBody.uint32Lit _ b .. => b
+  | FnBody.uint64Lit _ b .. => b
+  | FnBody.usizeLit _ b ..  => b
+  | FnBody.natLit _ b ..    => b
+  | FnBody.strLit _ b ..    => b
+  | FnBody.isShared _ b ..  => b
   | FnBody.jdecl _ _ _ b    => b
   | FnBody.set _ _ _ b      => b
   | FnBody.uset _ _ _ b     => b
@@ -271,16 +379,34 @@ def FnBody.body : FnBody → FnBody
   | other                   => other
 
 def FnBody.setBody : FnBody → FnBody → FnBody
-  | FnBody.vdecl x t v _,    b => FnBody.vdecl x t v b
-  | FnBody.jdecl j xs v _,   b => FnBody.jdecl j xs v b
-  | FnBody.set x i y _,      b => FnBody.set x i y b
-  | FnBody.uset x i y _,     b => FnBody.uset x i y b
-  | FnBody.sset x i o y t _, b => FnBody.sset x i o y t b
-  | FnBody.setTag x i _,     b => FnBody.setTag x i b
-  | FnBody.inc x n c p _,    b => FnBody.inc x n c p b
-  | FnBody.dec x n c p _,    b => FnBody.dec x n c p b
-  | FnBody.del x _,          b => FnBody.del x b
-  | other,                   _ => other
+  | .ctor tgt _b i ys,               b => .ctor tgt b i ys
+  | .reset tgt _b n x,               b => .reset tgt b n x
+  | .reuse tgt _b x i updtHeader ys, b => .reuse tgt b x i updtHeader ys
+  | .proj tgt _b i x,                b => .proj tgt b i x
+  | .uproj tgt _b i x,               b => .uproj tgt b i x
+  | .sproj tgt _b ty n offset x,     b => .sproj tgt b ty n offset x
+  | .fap tgt _b ty c ys,             b => .fap tgt b ty c ys
+  | .pap tgt _b c ys,                b => .pap tgt b c ys
+  | .ap tgt _b x ys,                 b => .ap tgt b x ys
+  | .box tgt _b ty x,                b => .box tgt b ty x
+  | .unbox tgt _b ty x,              b => .unbox tgt b ty x
+  | .uint8Lit tgt _b v,              b => .uint8Lit tgt b v
+  | .uint16Lit tgt _b v,             b => .uint16Lit tgt b v
+  | .uint32Lit tgt _b v,             b => .uint32Lit tgt b v
+  | .uint64Lit tgt _b v,             b => .uint64Lit tgt b v
+  | .usizeLit tgt _b v,              b => .usizeLit tgt b v
+  | .natLit tgt _b v,                b => .natLit tgt b v
+  | .strLit tgt _b v,                b => .strLit tgt b v
+  | .isShared tgt _b x,              b => .isShared tgt b x
+  | .jdecl j xs v _b,                b => .jdecl j xs v b
+  | .set x i y _b,                   b => .set x i y b
+  | .setTag x cidx _b,               b => .setTag x cidx b
+  | .uset x i y _b,                  b => .uset x i y b
+  | .sset x i offset y ty _b,        b => .sset x i offset y ty b
+  | .inc x n c persistent _b,        b => .inc x n c persistent b
+  | .dec x n c persistent _b,        b => .dec x n c persistent b
+  | .del x _b,                       b => .del x b
+  | other,                           _ => other
 
 @[inline] def FnBody.resetBody (b : FnBody) : FnBody :=
   b.setBody FnBody.nil
@@ -397,13 +523,13 @@ def mkIndexSet (idx : Index) : IndexSet :=
 
 inductive LocalContextEntry where
   | param     : IRType → LocalContextEntry
-  | localVar  : IRType → Expr → LocalContextEntry
+  | localVar  : IRType → FnBody → LocalContextEntry
 
 structure LocalContext where
   vars : Std.TreeMap Index LocalContextEntry := {}
   jps : Std.TreeMap Index (Array Param × FnBody) := {}
 
-def LocalContext.addLocal (ctx : LocalContext) (x : VarId) (t : IRType) (v : Expr) : LocalContext :=
+def LocalContext.addLocal (ctx : LocalContext) (x : VarId) (t : IRType) (v : FnBody) : LocalContext :=
   { ctx with vars := ctx.vars.insert x.idx (LocalContextEntry.localVar t v) }
 
 def LocalContext.addJP (ctx : LocalContext) (j : JoinPointId) (xs : Array Param) (b : FnBody) : LocalContext :=
@@ -443,7 +569,7 @@ def LocalContext.getType (ctx : LocalContext) (x : VarId) : Option IRType :=
   | some (LocalContextEntry.localVar t _) => some t
   | _     => none
 
-def LocalContext.getValue (ctx : LocalContext) (x : VarId) : Option Expr :=
+def LocalContext.getValue (ctx : LocalContext) (x : VarId) : Option FnBody :=
   match ctx.vars.get? x.idx with
   | some (LocalContextEntry.localVar _ v) => some v
   | _     => none
@@ -472,25 +598,7 @@ instance : AlphaEqv Arg := ⟨Arg.alphaEqv⟩
 def args.alphaEqv (ρ : IndexRenaming) (args₁ args₂ : Array Arg) : Bool :=
   Array.isEqv args₁ args₂ (fun a b => aeqv ρ a b)
 
-instance: AlphaEqv (Array Arg) := ⟨args.alphaEqv⟩
-
-def Expr.alphaEqv (ρ : IndexRenaming) : Expr → Expr → Bool
-  | Expr.ctor i₁ ys₁,        Expr.ctor i₂ ys₂        => i₁ == i₂ && aeqv ρ ys₁ ys₂
-  | Expr.reset n₁ x₁,        Expr.reset n₂ x₂        => n₁ == n₂ && aeqv ρ x₁ x₂
-  | Expr.reuse x₁ i₁ u₁ ys₁, Expr.reuse x₂ i₂ u₂ ys₂ => aeqv ρ x₁ x₂ && i₁ == i₂ && u₁ == u₂ && aeqv ρ ys₁ ys₂
-  | Expr.proj i₁ x₁,         Expr.proj i₂ x₂         => i₁ == i₂ && aeqv ρ x₁ x₂
-  | Expr.uproj i₁ x₁,        Expr.uproj i₂ x₂        => i₁ == i₂ && aeqv ρ x₁ x₂
-  | Expr.sproj n₁ o₁ x₁,     Expr.sproj n₂ o₂ x₂     => n₁ == n₂ && o₁ == o₂ && aeqv ρ x₁ x₂
-  | Expr.fap c₁ ys₁,         Expr.fap c₂ ys₂         => c₁ == c₂ && aeqv ρ ys₁ ys₂
-  | Expr.pap c₁ ys₁,         Expr.pap c₂ ys₂         => c₁ == c₂ && aeqv ρ ys₁ ys₂
-  | Expr.ap x₁ ys₁,          Expr.ap x₂ ys₂          => aeqv ρ x₁ x₂ && aeqv ρ ys₁ ys₂
-  | Expr.box ty₁ x₁,         Expr.box ty₂ x₂         => ty₁ == ty₂ && aeqv ρ x₁ x₂
-  | Expr.unbox x₁,           Expr.unbox x₂           => aeqv ρ x₁ x₂
-  | Expr.lit v₁,             Expr.lit v₂             => v₁ == v₂
-  | Expr.isShared x₁,        Expr.isShared x₂        => aeqv ρ x₁ x₂
-  | _,                        _                      => false
-
-instance : AlphaEqv Expr := ⟨Expr.alphaEqv⟩
+instance : AlphaEqv (Array Arg) := ⟨args.alphaEqv⟩
 
 def addVarRename (ρ : IndexRenaming) (x₁ x₂ : Nat) :=
   if x₁ == x₂ then ρ else ρ.insert x₁ x₂
@@ -511,7 +619,25 @@ def addParamsRename (ρ : IndexRenaming) (ps₁ ps₂ : Array Param) : Option In
     pure ρ
 
 partial def FnBody.alphaEqv : IndexRenaming → FnBody → FnBody → Bool
-  | ρ, FnBody.vdecl x₁ t₁ v₁ b₁,      FnBody.vdecl x₂ t₂ v₂ b₂      => t₁ == t₂ && aeqv ρ v₁ v₂ && alphaEqv (addVarRename ρ x₁.idx x₂.idx) b₁ b₂
+  | ρ, FnBody.ctor tgt₁ b₁ i₁ ys₁,        .ctor tgt₂ b₂ i₂ ys₂        => i₁ == i₂ && aeqv ρ ys₁ ys₂ && alphaEqv (addVarRename ρ tgt₁.idx tgt₂.idx) b₁ b₂
+  | ρ, FnBody.reset tgt₁ b₁ n₁ x₁,        .reset tgt₂ b₂ n₂ x₂        => n₁ == n₂ && aeqv ρ x₁ x₂ && alphaEqv (addVarRename ρ tgt₁.idx tgt₂.idx) b₁ b₂
+  | ρ, FnBody.reuse tgt₁ b₁ x₁ i₁ u₁ ys₁, .reuse tgt₂ b₂ x₂ i₂ u₂ ys₂ => aeqv ρ x₁ x₂ && i₁ == i₂ && u₁ == u₂ && aeqv ρ ys₁ ys₂ && alphaEqv (addVarRename ρ tgt₁.idx tgt₂.idx) b₁ b₂
+  | ρ, FnBody.proj tgt₁ b₁ i₁ x₁,         .proj tgt₂ b₂ i₂ x₂         => i₁ == i₂ && aeqv ρ x₁ x₂ && alphaEqv (addVarRename ρ tgt₁.idx tgt₂.idx) b₁ b₂
+  | ρ, FnBody.uproj tgt₁ b₁ i₁ x₁,        .uproj tgt₂ b₂ i₂ x₂        => i₁ == i₂ && aeqv ρ x₁ x₂ && alphaEqv (addVarRename ρ tgt₁.idx tgt₂.idx) b₁ b₂
+  | ρ, FnBody.sproj tgt₁ b₁ ty₁ n₁ o₁ x₁, .sproj tgt₂ b₂ ty₂ n₂ o₂ x₂ => ty₁ == ty₂ && n₁ == n₂ && o₁ == o₂ && aeqv ρ x₁ x₂ && alphaEqv (addVarRename ρ tgt₁.idx tgt₂.idx) b₁ b₂
+  | ρ, FnBody.fap tgt₁ b₁ ty₁ c₁ ys₁,     .fap tgt₂ b₂ ty₂ c₂ ys₂     => ty₁ == ty₂ && c₁ == c₂ && aeqv ρ ys₁ ys₂ && alphaEqv (addVarRename ρ tgt₁.idx tgt₂.idx) b₁ b₂
+  | ρ, FnBody.pap tgt₁ b₁ c₁ ys₁,         .pap tgt₂ b₂ c₂ ys₂         => c₁ == c₂ && aeqv ρ ys₁ ys₂ && alphaEqv (addVarRename ρ tgt₁.idx tgt₂.idx) b₁ b₂
+  | ρ, FnBody.ap tgt₁ b₁ x₁ ys₁,          .ap tgt₂ b₂ x₂ ys₂          => aeqv ρ x₁ x₂ && aeqv ρ ys₁ ys₂ && alphaEqv (addVarRename ρ tgt₁.idx tgt₂.idx) b₁ b₂
+  | ρ, FnBody.box tgt₁ b₁ ty₁ x₁,         .box tgt₂ b₂ ty₂ x₂         => ty₁ == ty₂ && aeqv ρ x₁ x₂ && alphaEqv (addVarRename ρ tgt₁.idx tgt₂.idx) b₁ b₂
+  | ρ, FnBody.unbox tgt₁ b₁ ty₁ x₁,       .unbox tgt₂ b₂ ty₂ x₂       => ty₁ == ty₂ && aeqv ρ x₁ x₂ && alphaEqv (addVarRename ρ tgt₁.idx tgt₂.idx) b₁ b₂
+  | ρ, FnBody.uint8Lit tgt₁ b₁ v₁,        .uint8Lit tgt₂ b₂ v₂        => v₁ == v₂ && alphaEqv (addVarRename ρ tgt₁.idx tgt₂.idx) b₁ b₂
+  | ρ, FnBody.uint16Lit tgt₁ b₁ v₁,       .uint16Lit tgt₂ b₂ v₂       => v₁ == v₂ && alphaEqv (addVarRename ρ tgt₁.idx tgt₂.idx) b₁ b₂
+  | ρ, FnBody.uint32Lit tgt₁ b₁ v₁,       .uint32Lit tgt₂ b₂ v₂       => v₁ == v₂ && alphaEqv (addVarRename ρ tgt₁.idx tgt₂.idx) b₁ b₂
+  | ρ, FnBody.uint64Lit tgt₁ b₁ v₁,       .uint64Lit tgt₂ b₂ v₂       => v₁ == v₂ && alphaEqv (addVarRename ρ tgt₁.idx tgt₂.idx) b₁ b₂
+  | ρ, FnBody.usizeLit tgt₁ b₁ v₁,        .usizeLit tgt₂ b₂ v₂        => v₁ == v₂ && alphaEqv (addVarRename ρ tgt₁.idx tgt₂.idx) b₁ b₂
+  | ρ, FnBody.natLit tgt₁ b₁ v₁,          .natLit tgt₂ b₂ v₂          => v₁ == v₂ && alphaEqv (addVarRename ρ tgt₁.idx tgt₂.idx) b₁ b₂
+  | ρ, FnBody.strLit tgt₁ b₁ v₁,          .strLit tgt₂ b₂ v₂          => v₁ == v₂ && alphaEqv (addVarRename ρ tgt₁.idx tgt₂.idx) b₁ b₂
+  | ρ, FnBody.isShared tgt₁ b₁ x₁,        .isShared tgt₂ b₂ x₂        => aeqv ρ x₁ x₂ && alphaEqv (addVarRename ρ tgt₁.idx tgt₂.idx) b₁ b₂
   | ρ, FnBody.jdecl j₁ ys₁ v₁ b₁,  FnBody.jdecl j₂ ys₂ v₂ b₂        => match addParamsRename ρ ys₁ ys₂ with
     | some ρ' => alphaEqv ρ' v₁ v₂ && alphaEqv (addVarRename ρ j₁.idx j₂.idx) b₁ b₂
     | none    => false

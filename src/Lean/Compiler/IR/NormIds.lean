@@ -23,10 +23,14 @@ def checkParams (ps : Array Param) : M Bool :=
   ps.allM fun p => checkId p.x.idx
 
 partial def checkFnBody : FnBody → M Bool
-  | .vdecl x _ _ b    => checkId x.idx <&&> checkFnBody b
   | .jdecl j ys _ b   => checkId j.idx <&&> checkParams ys <&&> checkFnBody b
   | .case _ _ _ alts  => alts.allM fun alt => checkFnBody alt.body
-  | b                 => if b.isTerminal then pure true else checkFnBody b.body
+  | b                 =>
+    if b.isVarDecl then
+      let x := b.targetVar
+      let b := b.body
+      checkId x.idx <&&> checkFnBody b
+    else if b.isTerminal then pure true else checkFnBody b.body
 
 partial def checkDecl : Decl → M Bool
   | .fdecl (xs := xs) (body := b) .. => checkParams xs <&&> checkFnBody b
@@ -60,20 +64,27 @@ def normArg : Arg → M Arg
 def normArgs (as : Array Arg) : M (Array Arg) := fun m =>
   as.map fun a => normArg a m
 
-def normExpr : Expr → M Expr
-  | Expr.ctor c ys,      m => Expr.ctor c (normArgs ys m)
-  | Expr.reset n x,      m => Expr.reset n (normVar x m)
-  | Expr.reuse x c u ys, m => Expr.reuse (normVar x m) c u (normArgs ys m)
-  | Expr.proj i x,       m => Expr.proj i (normVar x m)
-  | Expr.uproj i x,      m => Expr.uproj i (normVar x m)
-  | Expr.sproj n o x,    m => Expr.sproj n o (normVar x m)
-  | Expr.fap c ys,       m => Expr.fap c (normArgs ys m)
-  | Expr.pap c ys,       m => Expr.pap c (normArgs ys m)
-  | Expr.ap x ys,        m => Expr.ap (normVar x m) (normArgs ys m)
-  | Expr.box t x,        m => Expr.box t (normVar x m)
-  | Expr.unbox x,        m => Expr.unbox (normVar x m)
-  | Expr.isShared x,     m => Expr.isShared (normVar x m)
-  | e@(Expr.lit _),      _ =>  e
+def normExpr : FnBody → M FnBody
+  | FnBody.ctor tgt b c ys,      m => FnBody.ctor tgt b c (normArgs ys m)
+  | FnBody.reset tgt b n x,      m => FnBody.reset tgt b n (normVar x m)
+  | FnBody.reuse tgt b x c u ys, m => FnBody.reuse tgt b (normVar x m) c u (normArgs ys m)
+  | FnBody.proj tgt b i x,       m => FnBody.proj tgt b i (normVar x m)
+  | FnBody.uproj tgt b i x,      m => FnBody.uproj tgt b i (normVar x m)
+  | FnBody.sproj tgt b ty n o x, m => FnBody.sproj tgt b ty n o (normVar x m)
+  | FnBody.fap tgt b ty c ys,    m => FnBody.fap tgt b ty c (normArgs ys m)
+  | FnBody.pap tgt b c ys,       m => FnBody.pap tgt b c (normArgs ys m)
+  | FnBody.ap tgt b x ys,        m => FnBody.ap tgt b (normVar x m) (normArgs ys m)
+  | FnBody.box tgt b t x,        m => FnBody.box tgt b t (normVar x m)
+  | FnBody.unbox tgt b ty x,     m => FnBody.unbox tgt b ty (normVar x m)
+  | FnBody.isShared tgt b x,     m => FnBody.isShared tgt b (normVar x m)
+  | e@(FnBody.uint8Lit ..),      _ =>  e
+  | e@(FnBody.uint16Lit ..),     _ =>  e
+  | e@(FnBody.uint32Lit ..),     _ =>  e
+  | e@(FnBody.uint64Lit ..),     _ =>  e
+  | e@(FnBody.usizeLit ..),      _ =>  e
+  | e@(FnBody.natLit ..),        _ =>  e
+  | e@(FnBody.strLit ..),        _ =>  e
+  | _, _ => unreachable!
 
 abbrev N := ReaderT IndexRenaming (StateM Nat)
 
@@ -96,7 +107,6 @@ instance : MonadLift M N :=
   ⟨fun x m => return x m⟩
 
 partial def normFnBody : FnBody → N FnBody
-  | FnBody.vdecl x t v b    => do let v ← normExpr v; withVar x fun x => return FnBody.vdecl x t v (← normFnBody b)
   | FnBody.jdecl j ys v b   => do
     let (ys, v) ← withParams ys fun ys => do let v ← normFnBody v; pure (ys, v)
     withJP j fun j => return FnBody.jdecl j ys v (← normFnBody b)
@@ -114,6 +124,13 @@ partial def normFnBody : FnBody → N FnBody
   | FnBody.jmp j ys        => return FnBody.jmp (← normJP j) (← normArgs ys)
   | FnBody.ret x           => return FnBody.ret (← normArg x)
   | FnBody.unreachable     => pure FnBody.unreachable
+  | b => do
+    let x := b.targetVar
+    let v := b
+    let b := b.body
+    let v ← normExpr v
+    withVar x fun x =>
+      return v.setTargetVar x |>.setBody (← normFnBody b)
 
 def normDecl (d : Decl) : N Decl :=
   match d with
@@ -137,23 +154,26 @@ namespace MapVars
 def mapArgs (f : VarId → VarId) (as : Array Arg) : Array Arg :=
   as.map (mapArg f)
 
-def mapExpr (f : VarId → VarId) : Expr → Expr
-  | Expr.ctor c ys      => Expr.ctor c (mapArgs f ys)
-  | Expr.reset n x      => Expr.reset n (f x)
-  | Expr.reuse x c u ys => Expr.reuse (f x) c u (mapArgs f ys)
-  | Expr.proj i x       => Expr.proj i (f x)
-  | Expr.uproj i x      => Expr.uproj i (f x)
-  | Expr.sproj n o x    => Expr.sproj n o (f x)
-  | Expr.fap c ys       => Expr.fap c (mapArgs f ys)
-  | Expr.pap c ys       => Expr.pap c (mapArgs f ys)
-  | Expr.ap x ys        => Expr.ap (f x) (mapArgs f ys)
-  | Expr.box t x        => Expr.box t (f x)
-  | Expr.unbox x        => Expr.unbox (f x)
-  | Expr.isShared x     => Expr.isShared (f x)
-  | e@(Expr.lit _)      =>  e
-
 partial def mapFnBody (f : VarId → VarId) : FnBody → FnBody
-  | FnBody.vdecl x t v b         => FnBody.vdecl x t (mapExpr f v) (mapFnBody f b)
+  | FnBody.ctor tgt b c ys       => FnBody.ctor tgt (mapFnBody f b) c (mapArgs f ys)
+  | FnBody.reset tgt b n x       => FnBody.reset tgt (mapFnBody f b) n (f x)
+  | FnBody.reuse tgt b x c u ys  => FnBody.reuse tgt (mapFnBody f b) (f x) c u (mapArgs f ys)
+  | FnBody.proj tgt b i x        => FnBody.proj tgt (mapFnBody f b) i (f x)
+  | FnBody.uproj tgt b i x       => FnBody.uproj tgt (mapFnBody f b) i (f x)
+  | FnBody.sproj tgt b ty n o x  => FnBody.sproj tgt (mapFnBody f b) ty n o (f x)
+  | FnBody.fap tgt b ty c ys     => FnBody.fap tgt (mapFnBody f b) ty c (mapArgs f ys)
+  | FnBody.pap tgt b c ys        => FnBody.pap tgt (mapFnBody f b) c (mapArgs f ys)
+  | FnBody.ap tgt b x ys         => FnBody.ap tgt (mapFnBody f b) (f x) (mapArgs f ys)
+  | FnBody.box tgt b t x         => FnBody.box tgt (mapFnBody f b) t (f x)
+  | FnBody.unbox tgt b ty x      => FnBody.unbox tgt (mapFnBody f b) ty (f x)
+  | FnBody.isShared tgt b x      => FnBody.isShared tgt (mapFnBody f b) (f x)
+  | FnBody.uint8Lit tgt b v      => FnBody.uint8Lit tgt (mapFnBody f b) v
+  | FnBody.uint16Lit tgt b v     => FnBody.uint16Lit tgt (mapFnBody f b) v
+  | FnBody.uint32Lit tgt b v     => FnBody.uint32Lit tgt (mapFnBody f b) v
+  | FnBody.uint64Lit tgt b v     => FnBody.uint64Lit tgt (mapFnBody f b) v
+  | FnBody.usizeLit tgt b v      => FnBody.usizeLit tgt (mapFnBody f b) v
+  | FnBody.natLit tgt b v        => FnBody.natLit tgt (mapFnBody f b) v
+  | FnBody.strLit tgt b v        => FnBody.strLit tgt (mapFnBody f b) v
   | FnBody.jdecl j ys v b        => FnBody.jdecl j ys (mapFnBody f v) (mapFnBody f b)
   | FnBody.set x i y b           => FnBody.set (f x) i (mapArg f y) (mapFnBody f b)
   | FnBody.setTag x i b          => FnBody.setTag (f x) i (mapFnBody f b)

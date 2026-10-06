@@ -40,23 +40,27 @@ private def formatCtorInfo : CtorInfo → Format
 
 instance : ToFormat CtorInfo := ⟨private_decl% formatCtorInfo⟩
 
-private def formatExpr : Expr → Format
-  | Expr.ctor i ys      => format i ++ formatArray ys
-  | Expr.reset n x      => "reset[" ++ format n ++ "] " ++ format x
-  | Expr.reuse x i u ys => "reuse" ++ (if u then "!" else "") ++ " " ++ format x ++ " in " ++ format i ++ formatArray ys
-  | Expr.proj i x       => "proj[" ++ format i ++ "] " ++ format x
-  | Expr.uproj i x      => "uproj[" ++ format i ++ "] " ++ format x
-  | Expr.sproj n o x    => "sproj[" ++ format n ++ ", " ++ format o ++ "] " ++ format x
-  | Expr.fap c ys       => format c ++ formatArray ys
-  | Expr.pap c ys       => "pap " ++ format c ++ formatArray ys
-  | Expr.ap x ys        => "app " ++ format x ++ formatArray ys
-  | Expr.box _ x        => "box " ++ format x
-  | Expr.unbox x        => "unbox " ++ format x
-  | Expr.lit v          => format v
-  | Expr.isShared x     => "isShared " ++ format x
-
-instance : ToFormat Expr := ⟨private_decl% formatExpr⟩
-instance : ToString Expr := ⟨fun e => Format.pretty (format e)⟩
+private def formatExpr : FnBody → Format
+  | FnBody.ctor _ _ i ys      => format i ++ formatArray ys
+  | FnBody.reset _ _ n x      => "reset[" ++ format n ++ "] " ++ format x
+  | FnBody.reuse _ _ x i u ys => "reuse" ++ (if u then "!" else "") ++ " " ++ format x ++ " in " ++ format i ++ formatArray ys
+  | FnBody.proj _ _ i x       => "proj[" ++ format i ++ "] " ++ format x
+  | FnBody.uproj _ _ i x      => "uproj[" ++ format i ++ "] " ++ format x
+  | FnBody.sproj _ _ _ n o x  => "sproj[" ++ format n ++ ", " ++ format o ++ "] " ++ format x
+  | FnBody.fap _ _ _ c ys     => format c ++ formatArray ys
+  | FnBody.pap _ _ c ys       => "pap " ++ format c ++ formatArray ys
+  | FnBody.ap _ _ x ys        => "app " ++ format x ++ formatArray ys
+  | FnBody.box _ _ _ x        => "box " ++ format x
+  | FnBody.unbox _ _ _ x      => "unbox " ++ format x
+  | FnBody.uint8Lit _ _ v     => format v
+  | FnBody.uint16Lit _ _ v    => format v
+  | FnBody.uint32Lit _ _ v    => format v
+  | FnBody.uint64Lit _ _ v    => format v
+  | FnBody.usizeLit _ _ v     => format v
+  | FnBody.natLit _ _ v       => format v
+  | FnBody.strLit _ _ v       => format v
+  | FnBody.isShared _ _ x     => "isShared " ++ format x
+  | _ => unreachable!
 
 private partial def formatIRType : IRType → Format
   | IRType.float        => "float"
@@ -94,7 +98,6 @@ def formatParams (ps : Array Param) : Format :=
   formatArray ps
 
 def formatFnBodyHead : FnBody → Format
-  | FnBody.vdecl x ty e _      => "let " ++ format x ++ " : " ++ format ty ++ " := " ++ format e
   | FnBody.jdecl j xs _ _      => format j ++ formatParams xs ++ " := ..."
   | FnBody.set x i y _         => "set " ++ format x ++ "[" ++ format i ++ "] := " ++ format y
   | FnBody.uset x i y _        => "uset " ++ format x ++ "[" ++ format i ++ "] := " ++ format y
@@ -107,6 +110,11 @@ def formatFnBodyHead : FnBody → Format
   | FnBody.jmp j ys            => "jmp " ++ format j ++ formatArray ys
   | FnBody.ret x               => "ret " ++ format x
   | FnBody.unreachable         => "⊥"
+  | b =>
+    assert! b.isVarDecl
+    let x := b.targetVar
+    let ty := b.targetType
+    "let " ++ format x ++ " : " ++ format ty ++ " := " ++ formatExpr b
 
 @[export lean_ir_format_fn_body_head]
 private def formatFnBodyHead' (fn : FnBody) : String :=
@@ -114,7 +122,6 @@ private def formatFnBodyHead' (fn : FnBody) : String :=
 
 partial def formatFnBody (fnBody : FnBody) (indent : Nat := 2) : Format :=
   let rec loop : FnBody → Format
-    | FnBody.vdecl x ty e b      => "let " ++ format x ++ " : " ++ format ty ++ " := " ++ format e ++ ";" ++ Format.line ++ loop b
     | FnBody.jdecl j xs v b      => format j ++ formatParams xs ++ " :=" ++ Format.nest indent (Format.line ++ loop v) ++ ";" ++ Format.line ++ loop b
     | FnBody.set x i y b         => "set " ++ format x ++ "[" ++ format i ++ "] := " ++ format y ++ ";" ++ Format.line ++ loop b
     | FnBody.uset x i y b        => "uset " ++ format x ++ "[" ++ format i ++ "] := " ++ format y ++ ";" ++ Format.line ++ loop b
@@ -127,6 +134,12 @@ partial def formatFnBody (fnBody : FnBody) (indent : Nat := 2) : Format :=
     | FnBody.jmp j ys            => "jmp " ++ format j ++ formatArray ys
     | FnBody.ret x               => "ret " ++ format x
     | FnBody.unreachable         => "⊥"
+    | b =>
+      let x := b.targetVar
+      let ty := b.targetType
+      let e := b
+      let b := b.body
+      "let " ++ format x ++ " : " ++ format ty ++ " := " ++ formatExpr e ++ ";" ++ Format.line ++ loop b
   loop fnBody
 
 instance : ToFormat FnBody := ⟨formatFnBody⟩

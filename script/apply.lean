@@ -47,6 +47,13 @@ def mkFsArgs (n : Nat) : String :=
 def mkIncFs (n : Nat) : String :=
   genSeq n (s!"lean_inc(fx({·})); ") (sep := "")
 
+def mkParamsAssigns (n : Nat) : String :=
+  genSeq n (fun i => s!"lean_object* x{i} = fx({i}); ") (sep := "")
+
+def mkParams (n : Nat) : String :=
+  genSeq n (s!"x{·}")
+
+
 def mkApplyI (n : Nat) (max : Nat) : M Unit := do
   let argDecls := mkArgDecls n
   let args := mkArgs n
@@ -58,42 +65,58 @@ if (arity == fixed + {n}) \{
   if (lean_is_exclusive(f)) \{
     switch (arity) \{\n"
   for j in [n:max + 1] do
-    let fs := mkFsArgs (j - n)
+    let paramsAssigns := mkParamsAssigns (j - n)
+    let fs := mkParams (j - n)
     let sep := if j = n then "" else ", "
-    emit s!"    case {j}: \{ obj* r = FN{j}(f)({fs}{sep}{args}); lean_free_object(f); return r; }\n"
+    emit s!"    case {j}: \{ auto func = FN{j}(f); {paramsAssigns}lean_free_object(f); obj* r = func({fs}{sep}{args}); return r; }\n"
   emit "    }
   }
   switch (arity) {\n"
   for j in [n:max + 1] do
     let lean_incfs := mkIncFs (j - n)
-    let fs := mkFsArgs (j - n)
+    let paramsAssigns := mkParamsAssigns (j - n)
+    let fs := mkParams (j - n)
     let sep := if j = n then "" else ", "
-    emit  s!"  case {j}: \{ {lean_incfs}obj* r = FN{j}(f)({fs}{sep}{args}); lean_dec_ref(f); return r; }\n"
+    emit  s!"  case {j}: \{ {lean_incfs}auto func = FN{j}(f); {paramsAssigns}lean_dec_ref(f); obj* r = func({fs}{sep}{args}); return r; }\n"
   emit s!"  default:
-    lean_assert(arity > {max});
     obj * as[{n}] = \{ {args} };
-    obj ** args = static_cast<obj**>(LEAN_ALLOCA(arity*sizeof(obj*))); // NOLINT
-    for (unsigned i = 0; i < fixed; i++) \{ lean_inc(fx(i)); args[i] = fx(i); }
-    for (unsigned i = 0; i < {n}; i++) args[fixed+i] = as[i];
-    obj * r = FNN(f)(args);
-    lean_dec_ref(f);
-    return r;
+    return apply_exact(f, as, {n});
   }
 } else if (arity < fixed + {n}) \{\n"
   if n ≥ 2 then do
     emit  s!"  obj * as[{n}] = \{ {args} };
-  obj ** args = static_cast<obj**>(LEAN_ALLOCA(arity*sizeof(obj*))); // NOLINT
-  for (unsigned i = 0; i < fixed; i++) \{ lean_inc(fx(i)); args[i] = fx(i); }
-  for (unsigned i = 0; i < arity-fixed; i++) args[fixed+i] = as[i];
-  obj * new_f = curry(f, arity, args);
-  lean_dec_ref(f);
-  return lean_apply_n(new_f, {n}+fixed-arity, &as[arity-fixed]);\n"
+  return apply_oversat(f, as, {n});\n"
   else emit s!"  lean_assert(fixed < arity);
   lean_unreachable();\n"
   emit s!"} else \{
   return fix_args(f, \{{args}});
 }
 }\n"
+
+def mkApplyExact : M Unit := emit "
+__attribute__((noinline))
+static obj* apply_exact(obj* f, obj** as, unsigned n) {
+  unsigned arity = lean_closure_arity(f);
+  unsigned fixed = lean_closure_num_fixed(f);
+  lean_assert(arity == fixed + n);
+  lean_assert(arity > LEAN_CLOSURE_MAX_ARGS);
+  obj ** args = static_cast<obj**>(LEAN_ALLOCA(arity*sizeof(obj*))); // NOLINT
+  for (unsigned i = 0; i < n; i++) args[fixed+i] = as[i];
+  obj* ret;
+  if (lean_is_exclusive(f)) {
+    for (unsigned i = 0; i < fixed; i++) args[i] = fx(i);
+    auto func = FNN(f);
+    lean_free_object(f);
+    ret = func(args);
+  } else {
+    for (unsigned i = 0; i < fixed; i++) { lean_inc(fx(i)); args[i] = fx(i); }
+    auto func = FNN(f);
+    lean_dec_ref(f);
+    ret = func(args);
+  }
+  return ret;
+}
+"
 
 def mkCurry (max : Nat) : M Unit := do
   emit "obj* curry(void* f, unsigned n, obj** as) {
@@ -106,6 +129,28 @@ case 0: lean_unreachable();\n"
 }
 }
 static obj* curry(obj* f, unsigned n, obj** as) { return curry(lean_closure_fun(f), n, as); }\n"
+
+def mkApplyOversat : M Unit := emit "
+__attribute__((noinline))
+static obj* apply_oversat(obj* f, obj** as, unsigned n) {
+  unsigned arity = lean_closure_arity(f);
+  unsigned fixed = lean_closure_num_fixed(f);
+  lean_assert(fixed < arity && arity < fixed + n);
+  obj ** args = static_cast<obj**>(LEAN_ALLOCA(arity*sizeof(obj*))); // NOLINT
+  for (unsigned i = 0; i < arity-fixed; i++) args[fixed+i] = as[i];
+  obj* new_f;
+  if (lean_is_exclusive(f)) {
+    for (unsigned i = 0; i < fixed; i++) args[i] = fx(i);
+    new_f = curry(f, arity, args);
+    lean_free_object(f);
+  } else {
+    for (unsigned i = 0; i < fixed; i++) { lean_inc(fx(i)); args[i] = fx(i); }
+    new_f = curry(f, arity, args);
+    lean_dec_ref(f);
+  }
+  return lean_apply_n(new_f, n+fixed-arity, &as[arity-fixed]);
+}
+"
 
 def mkApplyN (max : Nat) : M Unit := do
   emit "extern \"C\" LEAN_EXPORT obj* lean_apply_n(obj* f, unsigned n, obj** as) {
@@ -125,22 +170,13 @@ if (lean_is_scalar(f)) \{ for (unsigned i = 0; i < n; i++) \{ lean_dec(as[i]); }
 unsigned arity = lean_closure_arity(f);
 unsigned fixed = lean_closure_num_fixed(f);
 if (arity == fixed + n) \{
-  obj ** args = static_cast<obj**>(LEAN_ALLOCA(arity*sizeof(obj*))); // NOLINT
-  for (unsigned i = 0; i < fixed; i++) \{ lean_inc(fx(i)); args[i] = fx(i); }
-  for (unsigned i = 0; i < n; i++) args[fixed+i] = as[i];
-  obj * r = FNN(f)(args);
-  lean_dec_ref(f);
-  return r;
+  return apply_exact(f, as, n);
 } else if (arity < fixed + n) \{
   unsigned m = arity - fixed;
   obj * new_f;
   if (arity > LEAN_CLOSURE_MAX_ARGS) \{
     // `f`'s code takes its arguments as an array
-    obj ** args = static_cast<obj**>(LEAN_ALLOCA(arity*sizeof(obj*))); // NOLINT
-    for (unsigned i = 0; i < fixed; i++) \{ lean_inc(fx(i)); args[i] = fx(i); }
-    for (unsigned i = 0; i < m; i++) args[fixed+i] = as[i];
-    new_f = FNN(f)(args);
-    lean_dec_ref(f);
+    new_f = apply_exact(f, as, m);
   } else \{
     // `f`'s code takes `arity` separate arguments, so it must not be invoked through `FNN`;
     // `lean_apply_n` dispatches on `m` and consumes `f`.
@@ -204,8 +240,10 @@ namespace lean {
   for i in [0:max] do mkTypedefFn (i+1)
   emit "typedef obj* (*fnn)(obj**); // NOLINT
 #define FNN(f) reinterpret_cast<fnn>(lean_closure_fun(f))\n"
+  mkApplyExact
   mkCurry max
   emit "extern \"C\" obj* lean_apply_n(obj*, unsigned, obj**);\n"
+  mkApplyOversat
   for i in [0:max] do mkApplyI (i+1) max
   mkApplyM max
   mkApplyN max

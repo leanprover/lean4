@@ -246,6 +246,7 @@ object_offset object_compactor::compact(object * o) {
     case LeanTask:            return insert_task(o);
     case LeanPromise:         return insert_promise(o);
     case LeanRef:             return insert_ref(o);
+    case LeanInterpCache:     return insert_interp_cache(o);
     case LeanExternal:        throw exception("external objects cannot be compacted");
     case LeanReserved:        lean_unreachable();
     default:                  return insert_constructor(o);
@@ -262,6 +263,23 @@ object * object_compactor::copy_object(object * o, size_t sz) {
     lean_assert(lean_ptr_tag(r) == lean_ptr_tag(o));
     lean_assert(lean_ptr_other(r) == lean_ptr_other(o));
     return r;
+}
+
+object_offset object_compactor::insert_interp_cache(object * o) {
+    size_t sz        = lean_to_interp_cache(o)->m_count;
+    size_t obj_sz = lean_usize_add_checked(sizeof(lean_interp_decl_cache_object), lean_usize_mul_checked(sizeof(lean_interp_decl_cache_entry), sz));
+    lean_interp_decl_cache_object * new_o = (lean_interp_decl_cache_object*)alloc(obj_sz);
+    lean_set_non_heap_header_for_big((lean_object*)new_o, LeanInterpCache, 0);
+    new_o->m_once_cell.lock = 0;
+    new_o->m_once_cell.state = 0;
+    new_o->m_value = box(0);
+    new_o->m_count = sz;
+    for (size_t i = 0; i < sz; i++) {
+        new_o->m_entries[i].m_arity = 0;
+        new_o->m_entries[i].m_native = nullptr;
+        new_o->m_entries[i].m_object = box(0);
+    }
+    return save_max_sharing(o, (lean_object*)new_o, obj_sz);
 }
 
 object_offset object_compactor::insert_sarray(object * o) {
@@ -612,6 +630,10 @@ void region_reader::fix_closure(object * o) {
     move(o);
 }
 
+void region_reader::fix_interp_cache(object * o) {
+    move(o);
+}
+
 object * region_reader::read() {
     if (m_next == m_end)
         return nullptr; /* all objects have been read */
@@ -677,6 +699,7 @@ object * region_reader::read() {
             case LeanRef:             fix_ref(curr); break;
             case LeanTask:            fix_task(curr); break;
             case LeanPromise:         fix_promise(curr); break;
+            case LeanInterpCache:     fix_interp_cache(curr); break;
             case LeanExternal:        lean_unreachable();
             default:                  lean_unreachable();
             }

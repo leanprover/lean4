@@ -866,6 +866,7 @@ def assemble : M BytecodeDecl := do
     stackReserved := argOffset + argSize
     stackSpace := argOffset
     constants := (← get).constants
+    cache := .mkEmpty _
   }
 
 end ToBytecode
@@ -923,6 +924,7 @@ def compile (decls : Array (Decl .impure)) : CompilerM Unit := do
           symbols := #[]
           arity := 0
           constants := #[]
+          cache := .mkEmpty _
         }
         bytecodeDecls := bytecodeDecls.push decl
   bytecodeDecls ← updateSorryDep bytecodeDecls

@@ -23,7 +23,7 @@ private partial def evalCheckMeta (env : Environment) (declName : Name) : Except
 
 /-- `code` should put the result in register 0 -/
 private def simpleBytecodeDecl (code : Array Instruction) (symbols : Array Name) :
-    RuntimeBytecodeDecl where
+    BytecodeDecl where
   name := .anonymous
   code := assemble <| #[.skipIfCached (code.size + 1).toUInt32] ++ code ++ #[.storeCache 0, .ret 0]
   stackReserved := 1
@@ -38,15 +38,13 @@ open LCNF.ImpureType in
 @[export lean_eval_const]
 private unsafe def evalConstCoreImpl (env : Environment)
     (_opts : Options) (constName : Name) : Except String NonScalar := do
-  unless env.contains constName do
-    throw s!"(interpreter) unknown declaration {constName}"
   let boxedName := LCNF.mkBoxedName constName
   if let some _sig := LCNF.getSigCore? env LCNF.impureSigExt boxedName then
     if let some bytecode := findBytecodeDecl env boxedName then
       if let some sorryDep := bytecode.sorryDep? then
         throw s!"cannot evaluate code because '{sorryDep}' uses 'sorry' and/or contains errors"
     -- boxed declarations are nice, we don't need much glue code
-    let runtimeDecl : RuntimeBytecodeDecl := simpleBytecodeDecl #[.pap 0 0] #[boxedName]
+    let runtimeDecl : BytecodeDecl := simpleBytecodeDecl #[.pap 0 0] #[boxedName]
     return runtimeDecl.eval NonScalar env
   let some sig := LCNF.getSigCore? env LCNF.impureSigExt constName |
     throw s!"(interpreter) unknown declaration {constName}"
@@ -72,7 +70,7 @@ private unsafe def evalConstCoreImpl (env : Environment)
     -- there are parameters but no boxed version
     -- so the declaration is `pap` compatible
     code := #[.pap 0 0]
-  let runtimeDecl : RuntimeBytecodeDecl := simpleBytecodeDecl code #[constName]
+  let runtimeDecl : BytecodeDecl := simpleBytecodeDecl code #[constName]
   return runtimeDecl.eval NonScalar env
 
 @[export lean_run_init]

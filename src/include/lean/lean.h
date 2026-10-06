@@ -110,7 +110,8 @@ void lean_notify_assert(const char * fileName, int line, const char * condition)
 
 #define LEAN_BYTE(Var, Index) *(((uint8_t*)&Var)+Index)
 
-#define LeanMaxCtorTag  243
+#define LeanMaxCtorTag  242
+#define LeanInterpCache 243
 #define LeanPromise     244
 #define LeanClosure     245
 #define LeanArray       246
@@ -761,6 +762,7 @@ static inline bool lean_is_task(lean_object * o) { return lean_ptr_tag(o) == Lea
 static inline bool lean_is_promise(lean_object * o) { return lean_ptr_tag(o) == LeanPromise; }
 static inline bool lean_is_external(lean_object * o) { return lean_ptr_tag(o) == LeanExternal; }
 static inline bool lean_is_ref(lean_object * o) { return lean_ptr_tag(o) == LeanRef; }
+static inline bool lean_is_interp_cache(lean_object * o) { return lean_ptr_tag(o) == LeanInterpCache; }
 
 static inline unsigned lean_obj_tag(lean_object * o) {
     if (lean_is_scalar(o)) return lean_unbox(o); else return lean_ptr_tag(o);
@@ -3781,6 +3783,30 @@ static inline double lean_float_once(double* loc, lean_once_cell_t* tok, double 
 }
 
 LEAN_EXPORT lean_object * lean_run_main(lean_object * (*main_fn)(int, char **), int argc, char ** argv);
+
+typedef struct {
+    // Amount of parameters the function expects for m_arity != 0, m_arity == 0 for a constant
+    // highest bit set for a native interpreter declaration
+    unsigned m_arity;
+    // Native symbol address; `nullptr` if no native symbol is available
+    void * m_native;
+    // Reference to bytecode object (if applicable)
+    lean_object * m_object;
+} lean_interp_decl_cache_entry;
+
+typedef struct {
+    lean_object m_header;
+    lean_once_cell_t m_once_cell;
+    size_t m_count;
+    lean_object * m_value;
+    lean_interp_decl_cache_entry m_entries[];
+} lean_interp_decl_cache_object;
+
+static inline lean_interp_decl_cache_object * lean_to_interp_cache(lean_object * o) { assert(lean_is_interp_cache(o)); return (lean_interp_decl_cache_object*)(o); }
+
+static inline size_t lean_interp_cache_byte_size(lean_object * o) {
+    return sizeof(lean_interp_decl_cache_object) + sizeof(lean_interp_decl_cache_entry)*lean_to_interp_cache(o)->m_count;
+}
 
 #ifdef __cplusplus
 }

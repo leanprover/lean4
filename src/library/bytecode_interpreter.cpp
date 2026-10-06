@@ -41,63 +41,25 @@ typedef lean_interpreter_value value;
 static_assert(sizeof(size_t) <= sizeof(uint64), "uint64 should be the largest unboxed type"); // NOLINT
 static_assert(sizeof(value) == sizeof(uint64), "value should be 64 bits in length"); // NOLINT
 
-struct decl_cache_entry {
-    // Amount of parameters the function expects for m_arity != 0, m_arity == 0 for a constant
-    // UINT32_MAX for a native interpreter declaration
-    unsigned m_arity;
-    // Native symbol address; `nullptr` if no native symbol is available
-    void * m_native;
-    // Reference to bytecode object (if applicable)
-    object * m_object;
-};
-
-struct decl_cache {
-    lean_once_cell_t m_once_cell;
-    size_t m_count;
-    object * m_value;
-    decl_cache_entry m_entries[];
-};
-
-external_object_class * g_decl_cache_external_class;
-
-void decl_cache_finalize(void * cache_val) {
-    decl_cache * cache = reinterpret_cast<decl_cache *>(cache_val);
-    for (size_t i = 0; i < cache->m_count; i++) {
-        dec(cache->m_entries[i].m_object);
-    }
-    dec(cache->m_value);
-    free(cache);
-}
-
-void decl_cache_foreach(void * cache_val, object * fn) {
-    decl_cache * cache = reinterpret_cast<decl_cache *>(cache_val);
-    for (size_t i = 0; i < cache->m_count; i++) {
-        object * val = cache->m_entries[i].m_object;
-        if (!lean_is_scalar(val)) {
-            inc(fn);
-            inc_ref(val);
-            apply_1(fn, val);
-        }
-    }
-    if (!lean_is_scalar(cache->m_value)) {
-        inc(fn);
-        inc_ref(cache->m_value);
-        apply_1(fn, cache->m_value);
-    }
-}
+typedef lean_interp_decl_cache_entry decl_cache_entry;
+typedef lean_interp_decl_cache_object decl_cache;
 
 extern "C" LEAN_EXPORT object * lean_bytecode_mk_initial_cache(b_obj_arg symbols) {
     size_t count = array_size(symbols);
-    size_t sz = sizeof(decl_cache) + sizeof(decl_cache_entry)*count;
-    decl_cache * cache = static_cast<decl_cache *>(malloc(sz));
-    // We populate the cache on demand
-    // The cache is bound to the symbol array with dependent typing so there's no risk of
-    // using it with the wrong count, so no need to store it here
+    //size_t sz = sizeof(decl_cache) + sizeof(decl_cache_entry)*count;
+    size_t sz = lean_usize_add_checked(sizeof(decl_cache), lean_usize_mul_checked(sizeof(decl_cache_entry), count));
+    decl_cache * cache = (decl_cache *) lean_alloc_object(sz);
+    lean_set_st_header((lean_object*) cache, LeanInterpCache, 0);
     cache->m_once_cell.lock = 0;
     cache->m_once_cell.state = 0;
     cache->m_value = box(0);
-    cache->m_count = 0;
-    return alloc_external(g_decl_cache_external_class, cache);
+    cache->m_count = count;
+    for (size_t i = 0; i < count; i++) {
+        cache->m_entries[i].m_arity = 0;
+        cache->m_entries[i].m_native = nullptr;
+        cache->m_entries[i].m_object = box(0);
+    }
+    return (lean_object*) cache;
 }
 
 // reuse the compiler's name mangling to compute native symbol names
@@ -159,12 +121,12 @@ decl_cache_entry fill_cache_entry(b_obj_arg env, b_obj_arg decl_name) {
         inc(result.m_object);
         dec(decl);
         arity = lean_unbox(lean_ctor_get(result.m_object, 6));
-        if (!lean_has_init_attr(env, decl_name)) {
+        /*if (!lean_has_init_attr(env, decl_name)) {
             result.m_arity = static_cast<unsigned>(arity);
             return result;
-        }
-        inc(env);
-        inc(decl_name);
+        }*/
+        //inc(env);
+        //inc(decl_name);
     }
     object * mangled = lean_get_symbol_stem(env, decl_name); // String
     inc(mangled);
@@ -328,7 +290,7 @@ frame call_init(interpreter * interp, b_obj_arg decl, bool is_constant) {
         lean_internal_panic("interpreter stack overflow");
     }
 
-    decl_cache * cache = reinterpret_cast<decl_cache *>(lean_get_external_data(cache_obj));
+    decl_cache * cache = lean_to_interp_cache(cache_obj);
     bool already_done = fill_cache(interp->m_env, symbols_array, cache);
     if (already_done) {
         if (is_constant) {
@@ -361,7 +323,7 @@ frame call_init(interpreter * interp, b_obj_arg decl, bool is_constant) {
 
 void store_value_and_unlock(object * decl, object * value) {
     object * cache_obj = lean_ctor_get(decl, 5);
-    decl_cache * cache = reinterpret_cast<decl_cache *>(lean_get_external_data(cache_obj));
+    decl_cache * cache = lean_to_interp_cache(cache_obj);
     if (lean_is_mt(cache_obj) || lean_is_persistent(cache_obj)) {
         lean_mark_mt(value);
     }
@@ -636,9 +598,9 @@ value eval_loop(interpreter * interp, frame start_frame) {
                 break;
             }
             case instruction_type::UPROJ: {
-                uint32 target = (instr >> 18) & 0xFF;
-                uint32 source = (instr >> 10) & 0xFF;
-                uint32 idx = instr & 0x3FF;
+                uint32 target = (instr >> 16) & 0xFF;
+                uint32 source = (instr >> 8) & 0xFF;
+                uint32 idx = instr & 0xFF;
                 base[target].m_num = lean_ctor_get_usize(base[source].m_obj, idx);
                 break;
             }
@@ -678,9 +640,9 @@ value eval_loop(interpreter * interp, frame start_frame) {
                 break;
             }
             case instruction_type::USET: {
-                uint32 target = (instr >> 18) & 0xFF;
-                uint32 source = (instr >> 10) & 0xFF;
-                uint32 idx = instr & 0x3FF;
+                uint32 target = (instr >> 16) & 0xFF;
+                uint32 source = (instr >> 8) & 0xFF;
+                uint32 idx = instr & 0xFF;
                 lean_ctor_set_usize(base[target].m_obj, idx, base[source].m_num);
                 break;
             }
@@ -971,7 +933,7 @@ extern "C" LEAN_EXPORT obj_res lean_run_mod_init_core(b_obj_arg sym) {
 
 extern "C" LEAN_EXPORT object * lean_bytecode_store_init_value(b_obj_arg decl, obj_arg value) {
     object * cache_obj = lean_ctor_get(decl, 5); // DeclCache symbols
-    decl_cache * cache = reinterpret_cast<decl_cache *>(lean_get_external_data(cache_obj));
+    decl_cache * cache = lean_to_interp_cache(cache_obj);
     cache->m_value = value;
     cache->m_once_cell.state = 1;
     return box(0);
@@ -980,7 +942,6 @@ extern "C" LEAN_EXPORT object * lean_bytecode_store_init_value(b_obj_arg decl, o
 }
 
 void initialize_bytecode_interpreter() {
-    interpreter::g_decl_cache_external_class = register_external_object_class(interpreter::decl_cache_finalize, interpreter::decl_cache_foreach);
 }
 
 void finalize_bytecode_interpreter() {

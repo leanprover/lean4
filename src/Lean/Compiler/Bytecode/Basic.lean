@@ -7,8 +7,6 @@ module
 
 prelude
 import Lean.Compiler.ExportAttr
-import Lean.Compiler.InitAttr
-import all Lean.Compiler.ModPkgExt
 public import Lean.Compiler.LCNF.PhaseExt
 
 public section
@@ -34,28 +32,17 @@ structure BytecodeDecl where
   stackReserved : Nat -- stackSpace + additional space for arguments
   stackSpace : Nat
   symbols : Array Name
+  cache : DeclCache symbols
   /-- We only really care about this number for partial applications -/
   arity : Nat
   constants : Array NonScalar
   sorryDep? : Option Name := none
-deriving Inhabited
-
-structure RuntimeBytecodeDecl where
-  name : Name
-  code : ByteArray
-  stackReserved : Nat -- stackSpace + additional space for arguments
-  stackSpace : Nat
-  symbols : Array Name
-  cache : DeclCache symbols
-  arity : Nat
-  constants : Array NonScalar
-  sorryDep? : Option Name
 
 @[extern "lean_eval_bytecode_decl"]
-unsafe axiom RuntimeBytecodeDecl.eval (α) (env : @& Environment) (decl : @& RuntimeBytecodeDecl) : α
+unsafe axiom BytecodeDecl.eval (α) (env : @& Environment) (decl : @& BytecodeDecl) : α
 
 @[extern "lean_bytecode_store_init_value"]
-unsafe opaque RuntimeBytecodeDecl.setInitValue {α} (decl : @& RuntimeBytecodeDecl) (x : α) : BaseIO Unit
+unsafe opaque BytecodeDecl.setInitValue {α} (decl : @& BytecodeDecl) (x : α) : BaseIO Unit
 
 private abbrev declLt (a b : BytecodeDecl) :=
   Name.quickLt a.name b.name
@@ -64,11 +51,10 @@ private abbrev sortDecls (decls : Array BytecodeDecl) : Array BytecodeDecl :=
   decls.qsort declLt
 
 builtin_initialize declMapExt :
-    SimplePersistentEnvExtension BytecodeDecl (PHashMap Name RuntimeBytecodeDecl) ←
+    SimplePersistentEnvExtension BytecodeDecl (PHashMap Name BytecodeDecl) ←
   registerSimplePersistentEnvExtension {
-    addImportedFn := fun decls => decls.foldl (init := {}) fun acc arr =>
-      arr.foldl (init := acc) (fun s d => s.insert d.name { d with cache := .mkEmpty _ })
-    addEntryFn    := fun s d => s.insert d.name { d with cache := .mkEmpty _ }
+    addImportedFn := fun decls => {}
+    addEntryFn    := fun s d => s.insert d.name d
     -- Store `meta` closure only in `.olean`, turn all other decls into opaque externs.
     -- Leave storing the remainder for `meta import` and server `#eval` to `exportIREntries` below.
     exportEntriesFnEx? := some fun env _ entries =>
@@ -95,41 +81,29 @@ builtin_initialize declMapExt :
     -- specialization.
     asyncMode     := .sync
     replay?       := some <| SimplePersistentEnvExtension.replayOfFilter (!·.contains ·.name)
-      (fun s d => s.insert d.name { d with cache := .mkEmpty _ })
+      (fun s d => s.insert d.name d)
   }
 
-@[export lean_bytecode_export_entries]
-private def exportBytecodeEntries (env : Environment) : Array (Name × Array EnvExtensionEntry) :=
-  let irDecls := declMapExt.getEntries env |>.foldl (init := #[]) fun decls decl => decls.push decl
-  -- safety: cast to erased type
-  let irEntries : Array EnvExtensionEntry := unsafe unsafeCast <|
-    irDecls.qsort fun a b : BytecodeDecl => a.name.quickLt b.name
-
-  let sigDecls := LCNF.impureSigExt.getState env |>.foldl (init := #[]) fun decls _ decl => decls.push decl
-  -- safety: cast to erased type
-  let sigEntries : Array EnvExtensionEntry := unsafe unsafeCast <|
-    sigDecls.qsort fun a b : LCNF.Signature .impure => a.name.quickLt b.name
-
-  -- save all initializers independent of meta/private. Non-meta initializers will only be used when
-  -- .ir is actually loaded, and private ones iff visible.
-  let initDecls : Array (Name × Name) :=
-    (regularInitAttr.ext.exportEntriesFn env (regularInitAttr.ext.getState env)).private
-  -- safety: cast to erased type
-  let initDecls : Array EnvExtensionEntry := unsafe unsafeCast initDecls
-
-  -- needed during initialization via interpreter
-  let modPkg : Array (Option PkgId) := (modPkgExt.exportEntriesFn env (modPkgExt.getState env)).private
-  -- safety: cast to erased type
-  let modPkg : Array EnvExtensionEntry := unsafe unsafeCast modPkg
-
-  #[(declMapExt.name, irEntries),
-    (LCNF.impureSigExt.name, sigEntries),
-    (Lean.regularInitAttr.ext.name, initDecls),
-    (modPkgExt.name, modPkg)]
-
 @[export lean_find_bytecode_decl]
-def findBytecodeDecl (env : Environment) (nm : Name) : Option RuntimeBytecodeDecl :=
-  (declMapExt.getState env).find? nm
+partial def findBytecodeDecl (env : Environment) (nm : Name) : Option BytecodeDecl :=
+  match env.getModuleIdxFor? nm with
+  | none => (declMapExt.getState env).find? nm
+  | some idx =>
+    findIn (declMapExt.getModuleIREntries env idx) <|>
+      findIn (declMapExt.getModuleEntries env idx)
+where
+  findIn (xs : Array BytecodeDecl) (start : Nat := 0) (stop := xs.size) : Option BytecodeDecl := do
+    if stop = start then
+      none
+    else if stop = start + 1 then
+      xs[start]?
+    else
+      let mid := (start + stop) / 2
+      let midVal ← xs[mid]?
+      match nm.quickCmp midVal.name with
+      | .eq => return midVal
+      | .lt => findIn xs start mid
+      | .gt => findIn xs (mid + 1) stop
 
 @[export lean_ir_decl_arity]
 def declArity (env : Environment) (nm : Name) : USize :=

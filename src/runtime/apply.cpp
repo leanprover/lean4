@@ -86,12 +86,14 @@ static obj* apply_exact(obj* f, obj** as, unsigned n) {
   obj* ret;
   if (lean_is_exclusive(f)) {
     for (unsigned i = 0; i < fixed; i++) args[i] = fx(i);
-    ret = FNN(f)(args);
+    auto func = FNN(f);
     lean_free_object(f);
+    ret = func(args);
   } else {
     for (unsigned i = 0; i < fixed; i++) { lean_inc(fx(i)); args[i] = fx(i); }
-    ret = FNN(f)(args);
+    auto func = FNN(f);
     lean_dec_ref(f);
+    ret = func(args);
   }
   return ret;
 }
@@ -146,41 +148,41 @@ unsigned fixed = lean_closure_num_fixed(f);
 if (arity == fixed + 1) {
   if (lean_is_exclusive(f)) {
     switch (arity) {
-    case 1: { obj* r = FN1(f)(a1); lean_free_object(f); return r; }
-    case 2: { obj* r = FN2(f)(fx(0), a1); lean_free_object(f); return r; }
-    case 3: { obj* r = FN3(f)(fx(0), fx(1), a1); lean_free_object(f); return r; }
-    case 4: { obj* r = FN4(f)(fx(0), fx(1), fx(2), a1); lean_free_object(f); return r; }
-    case 5: { obj* r = FN5(f)(fx(0), fx(1), fx(2), fx(3), a1); lean_free_object(f); return r; }
-    case 6: { obj* r = FN6(f)(fx(0), fx(1), fx(2), fx(3), fx(4), a1); lean_free_object(f); return r; }
-    case 7: { obj* r = FN7(f)(fx(0), fx(1), fx(2), fx(3), fx(4), fx(5), a1); lean_free_object(f); return r; }
-    case 8: { obj* r = FN8(f)(fx(0), fx(1), fx(2), fx(3), fx(4), fx(5), fx(6), a1); lean_free_object(f); return r; }
-    case 9: { obj* r = FN9(f)(fx(0), fx(1), fx(2), fx(3), fx(4), fx(5), fx(6), fx(7), a1); lean_free_object(f); return r; }
-    case 10: { obj* r = FN10(f)(fx(0), fx(1), fx(2), fx(3), fx(4), fx(5), fx(6), fx(7), fx(8), a1); lean_free_object(f); return r; }
-    case 11: { obj* r = FN11(f)(fx(0), fx(1), fx(2), fx(3), fx(4), fx(5), fx(6), fx(7), fx(8), fx(9), a1); lean_free_object(f); return r; }
-    case 12: { obj* r = FN12(f)(fx(0), fx(1), fx(2), fx(3), fx(4), fx(5), fx(6), fx(7), fx(8), fx(9), fx(10), a1); lean_free_object(f); return r; }
-    case 13: { obj* r = FN13(f)(fx(0), fx(1), fx(2), fx(3), fx(4), fx(5), fx(6), fx(7), fx(8), fx(9), fx(10), fx(11), a1); lean_free_object(f); return r; }
-    case 14: { obj* r = FN14(f)(fx(0), fx(1), fx(2), fx(3), fx(4), fx(5), fx(6), fx(7), fx(8), fx(9), fx(10), fx(11), fx(12), a1); lean_free_object(f); return r; }
-    case 15: { obj* r = FN15(f)(fx(0), fx(1), fx(2), fx(3), fx(4), fx(5), fx(6), fx(7), fx(8), fx(9), fx(10), fx(11), fx(12), fx(13), a1); lean_free_object(f); return r; }
-    case 16: { obj* r = FN16(f)(fx(0), fx(1), fx(2), fx(3), fx(4), fx(5), fx(6), fx(7), fx(8), fx(9), fx(10), fx(11), fx(12), fx(13), fx(14), a1); lean_free_object(f); return r; }
+    case 1: { auto func = FN1(f); lean_free_object(f); obj* r = func(a1); return r; }
+    case 2: { auto func = FN2(f); lean_object* x0 = fx(0); lean_free_object(f); obj* r = func(x0, a1); return r; }
+    case 3: { auto func = FN3(f); lean_object* x0 = fx(0); lean_object* x1 = fx(1); lean_free_object(f); obj* r = func(x0, x1, a1); return r; }
+    case 4: { auto func = FN4(f); lean_object* x0 = fx(0); lean_object* x1 = fx(1); lean_object* x2 = fx(2); lean_free_object(f); obj* r = func(x0, x1, x2, a1); return r; }
+    case 5: { auto func = FN5(f); lean_object* x0 = fx(0); lean_object* x1 = fx(1); lean_object* x2 = fx(2); lean_object* x3 = fx(3); lean_free_object(f); obj* r = func(x0, x1, x2, x3, a1); return r; }
+    case 6: { auto func = FN6(f); lean_object* x0 = fx(0); lean_object* x1 = fx(1); lean_object* x2 = fx(2); lean_object* x3 = fx(3); lean_object* x4 = fx(4); lean_free_object(f); obj* r = func(x0, x1, x2, x3, x4, a1); return r; }
+    case 7: { auto func = FN7(f); lean_object* x0 = fx(0); lean_object* x1 = fx(1); lean_object* x2 = fx(2); lean_object* x3 = fx(3); lean_object* x4 = fx(4); lean_object* x5 = fx(5); lean_free_object(f); obj* r = func(x0, x1, x2, x3, x4, x5, a1); return r; }
+    case 8: { auto func = FN8(f); lean_object* x0 = fx(0); lean_object* x1 = fx(1); lean_object* x2 = fx(2); lean_object* x3 = fx(3); lean_object* x4 = fx(4); lean_object* x5 = fx(5); lean_object* x6 = fx(6); lean_free_object(f); obj* r = func(x0, x1, x2, x3, x4, x5, x6, a1); return r; }
+    case 9: { auto func = FN9(f); lean_object* x0 = fx(0); lean_object* x1 = fx(1); lean_object* x2 = fx(2); lean_object* x3 = fx(3); lean_object* x4 = fx(4); lean_object* x5 = fx(5); lean_object* x6 = fx(6); lean_object* x7 = fx(7); lean_free_object(f); obj* r = func(x0, x1, x2, x3, x4, x5, x6, x7, a1); return r; }
+    case 10: { auto func = FN10(f); lean_object* x0 = fx(0); lean_object* x1 = fx(1); lean_object* x2 = fx(2); lean_object* x3 = fx(3); lean_object* x4 = fx(4); lean_object* x5 = fx(5); lean_object* x6 = fx(6); lean_object* x7 = fx(7); lean_object* x8 = fx(8); lean_free_object(f); obj* r = func(x0, x1, x2, x3, x4, x5, x6, x7, x8, a1); return r; }
+    case 11: { auto func = FN11(f); lean_object* x0 = fx(0); lean_object* x1 = fx(1); lean_object* x2 = fx(2); lean_object* x3 = fx(3); lean_object* x4 = fx(4); lean_object* x5 = fx(5); lean_object* x6 = fx(6); lean_object* x7 = fx(7); lean_object* x8 = fx(8); lean_object* x9 = fx(9); lean_free_object(f); obj* r = func(x0, x1, x2, x3, x4, x5, x6, x7, x8, x9, a1); return r; }
+    case 12: { auto func = FN12(f); lean_object* x0 = fx(0); lean_object* x1 = fx(1); lean_object* x2 = fx(2); lean_object* x3 = fx(3); lean_object* x4 = fx(4); lean_object* x5 = fx(5); lean_object* x6 = fx(6); lean_object* x7 = fx(7); lean_object* x8 = fx(8); lean_object* x9 = fx(9); lean_object* x10 = fx(10); lean_free_object(f); obj* r = func(x0, x1, x2, x3, x4, x5, x6, x7, x8, x9, x10, a1); return r; }
+    case 13: { auto func = FN13(f); lean_object* x0 = fx(0); lean_object* x1 = fx(1); lean_object* x2 = fx(2); lean_object* x3 = fx(3); lean_object* x4 = fx(4); lean_object* x5 = fx(5); lean_object* x6 = fx(6); lean_object* x7 = fx(7); lean_object* x8 = fx(8); lean_object* x9 = fx(9); lean_object* x10 = fx(10); lean_object* x11 = fx(11); lean_free_object(f); obj* r = func(x0, x1, x2, x3, x4, x5, x6, x7, x8, x9, x10, x11, a1); return r; }
+    case 14: { auto func = FN14(f); lean_object* x0 = fx(0); lean_object* x1 = fx(1); lean_object* x2 = fx(2); lean_object* x3 = fx(3); lean_object* x4 = fx(4); lean_object* x5 = fx(5); lean_object* x6 = fx(6); lean_object* x7 = fx(7); lean_object* x8 = fx(8); lean_object* x9 = fx(9); lean_object* x10 = fx(10); lean_object* x11 = fx(11); lean_object* x12 = fx(12); lean_free_object(f); obj* r = func(x0, x1, x2, x3, x4, x5, x6, x7, x8, x9, x10, x11, x12, a1); return r; }
+    case 15: { auto func = FN15(f); lean_object* x0 = fx(0); lean_object* x1 = fx(1); lean_object* x2 = fx(2); lean_object* x3 = fx(3); lean_object* x4 = fx(4); lean_object* x5 = fx(5); lean_object* x6 = fx(6); lean_object* x7 = fx(7); lean_object* x8 = fx(8); lean_object* x9 = fx(9); lean_object* x10 = fx(10); lean_object* x11 = fx(11); lean_object* x12 = fx(12); lean_object* x13 = fx(13); lean_free_object(f); obj* r = func(x0, x1, x2, x3, x4, x5, x6, x7, x8, x9, x10, x11, x12, x13, a1); return r; }
+    case 16: { auto func = FN16(f); lean_object* x0 = fx(0); lean_object* x1 = fx(1); lean_object* x2 = fx(2); lean_object* x3 = fx(3); lean_object* x4 = fx(4); lean_object* x5 = fx(5); lean_object* x6 = fx(6); lean_object* x7 = fx(7); lean_object* x8 = fx(8); lean_object* x9 = fx(9); lean_object* x10 = fx(10); lean_object* x11 = fx(11); lean_object* x12 = fx(12); lean_object* x13 = fx(13); lean_object* x14 = fx(14); lean_free_object(f); obj* r = func(x0, x1, x2, x3, x4, x5, x6, x7, x8, x9, x10, x11, x12, x13, x14, a1); return r; }
     }
   }
   switch (arity) {
-  case 1: { obj* r = FN1(f)(a1); lean_dec_ref(f); return r; }
-  case 2: { lean_inc(fx(0)); obj* r = FN2(f)(fx(0), a1); lean_dec_ref(f); return r; }
-  case 3: { lean_inc(fx(0)); lean_inc(fx(1)); obj* r = FN3(f)(fx(0), fx(1), a1); lean_dec_ref(f); return r; }
-  case 4: { lean_inc(fx(0)); lean_inc(fx(1)); lean_inc(fx(2)); obj* r = FN4(f)(fx(0), fx(1), fx(2), a1); lean_dec_ref(f); return r; }
-  case 5: { lean_inc(fx(0)); lean_inc(fx(1)); lean_inc(fx(2)); lean_inc(fx(3)); obj* r = FN5(f)(fx(0), fx(1), fx(2), fx(3), a1); lean_dec_ref(f); return r; }
-  case 6: { lean_inc(fx(0)); lean_inc(fx(1)); lean_inc(fx(2)); lean_inc(fx(3)); lean_inc(fx(4)); obj* r = FN6(f)(fx(0), fx(1), fx(2), fx(3), fx(4), a1); lean_dec_ref(f); return r; }
-  case 7: { lean_inc(fx(0)); lean_inc(fx(1)); lean_inc(fx(2)); lean_inc(fx(3)); lean_inc(fx(4)); lean_inc(fx(5)); obj* r = FN7(f)(fx(0), fx(1), fx(2), fx(3), fx(4), fx(5), a1); lean_dec_ref(f); return r; }
-  case 8: { lean_inc(fx(0)); lean_inc(fx(1)); lean_inc(fx(2)); lean_inc(fx(3)); lean_inc(fx(4)); lean_inc(fx(5)); lean_inc(fx(6)); obj* r = FN8(f)(fx(0), fx(1), fx(2), fx(3), fx(4), fx(5), fx(6), a1); lean_dec_ref(f); return r; }
-  case 9: { lean_inc(fx(0)); lean_inc(fx(1)); lean_inc(fx(2)); lean_inc(fx(3)); lean_inc(fx(4)); lean_inc(fx(5)); lean_inc(fx(6)); lean_inc(fx(7)); obj* r = FN9(f)(fx(0), fx(1), fx(2), fx(3), fx(4), fx(5), fx(6), fx(7), a1); lean_dec_ref(f); return r; }
-  case 10: { lean_inc(fx(0)); lean_inc(fx(1)); lean_inc(fx(2)); lean_inc(fx(3)); lean_inc(fx(4)); lean_inc(fx(5)); lean_inc(fx(6)); lean_inc(fx(7)); lean_inc(fx(8)); obj* r = FN10(f)(fx(0), fx(1), fx(2), fx(3), fx(4), fx(5), fx(6), fx(7), fx(8), a1); lean_dec_ref(f); return r; }
-  case 11: { lean_inc(fx(0)); lean_inc(fx(1)); lean_inc(fx(2)); lean_inc(fx(3)); lean_inc(fx(4)); lean_inc(fx(5)); lean_inc(fx(6)); lean_inc(fx(7)); lean_inc(fx(8)); lean_inc(fx(9)); obj* r = FN11(f)(fx(0), fx(1), fx(2), fx(3), fx(4), fx(5), fx(6), fx(7), fx(8), fx(9), a1); lean_dec_ref(f); return r; }
-  case 12: { lean_inc(fx(0)); lean_inc(fx(1)); lean_inc(fx(2)); lean_inc(fx(3)); lean_inc(fx(4)); lean_inc(fx(5)); lean_inc(fx(6)); lean_inc(fx(7)); lean_inc(fx(8)); lean_inc(fx(9)); lean_inc(fx(10)); obj* r = FN12(f)(fx(0), fx(1), fx(2), fx(3), fx(4), fx(5), fx(6), fx(7), fx(8), fx(9), fx(10), a1); lean_dec_ref(f); return r; }
-  case 13: { lean_inc(fx(0)); lean_inc(fx(1)); lean_inc(fx(2)); lean_inc(fx(3)); lean_inc(fx(4)); lean_inc(fx(5)); lean_inc(fx(6)); lean_inc(fx(7)); lean_inc(fx(8)); lean_inc(fx(9)); lean_inc(fx(10)); lean_inc(fx(11)); obj* r = FN13(f)(fx(0), fx(1), fx(2), fx(3), fx(4), fx(5), fx(6), fx(7), fx(8), fx(9), fx(10), fx(11), a1); lean_dec_ref(f); return r; }
-  case 14: { lean_inc(fx(0)); lean_inc(fx(1)); lean_inc(fx(2)); lean_inc(fx(3)); lean_inc(fx(4)); lean_inc(fx(5)); lean_inc(fx(6)); lean_inc(fx(7)); lean_inc(fx(8)); lean_inc(fx(9)); lean_inc(fx(10)); lean_inc(fx(11)); lean_inc(fx(12)); obj* r = FN14(f)(fx(0), fx(1), fx(2), fx(3), fx(4), fx(5), fx(6), fx(7), fx(8), fx(9), fx(10), fx(11), fx(12), a1); lean_dec_ref(f); return r; }
-  case 15: { lean_inc(fx(0)); lean_inc(fx(1)); lean_inc(fx(2)); lean_inc(fx(3)); lean_inc(fx(4)); lean_inc(fx(5)); lean_inc(fx(6)); lean_inc(fx(7)); lean_inc(fx(8)); lean_inc(fx(9)); lean_inc(fx(10)); lean_inc(fx(11)); lean_inc(fx(12)); lean_inc(fx(13)); obj* r = FN15(f)(fx(0), fx(1), fx(2), fx(3), fx(4), fx(5), fx(6), fx(7), fx(8), fx(9), fx(10), fx(11), fx(12), fx(13), a1); lean_dec_ref(f); return r; }
-  case 16: { lean_inc(fx(0)); lean_inc(fx(1)); lean_inc(fx(2)); lean_inc(fx(3)); lean_inc(fx(4)); lean_inc(fx(5)); lean_inc(fx(6)); lean_inc(fx(7)); lean_inc(fx(8)); lean_inc(fx(9)); lean_inc(fx(10)); lean_inc(fx(11)); lean_inc(fx(12)); lean_inc(fx(13)); lean_inc(fx(14)); obj* r = FN16(f)(fx(0), fx(1), fx(2), fx(3), fx(4), fx(5), fx(6), fx(7), fx(8), fx(9), fx(10), fx(11), fx(12), fx(13), fx(14), a1); lean_dec_ref(f); return r; }
+  case 1: { auto func = FN1(f); lean_dec_ref(f); obj* r = func(a1); return r; }
+  case 2: { lean_inc(fx(0)); auto func = FN2(f); lean_object* x0 = fx(0); lean_dec_ref(f); obj* r = func(x0, a1); return r; }
+  case 3: { lean_inc(fx(0)); lean_inc(fx(1)); auto func = FN3(f); lean_object* x0 = fx(0); lean_object* x1 = fx(1); lean_dec_ref(f); obj* r = func(x0, x1, a1); return r; }
+  case 4: { lean_inc(fx(0)); lean_inc(fx(1)); lean_inc(fx(2)); auto func = FN4(f); lean_object* x0 = fx(0); lean_object* x1 = fx(1); lean_object* x2 = fx(2); lean_dec_ref(f); obj* r = func(x0, x1, x2, a1); return r; }
+  case 5: { lean_inc(fx(0)); lean_inc(fx(1)); lean_inc(fx(2)); lean_inc(fx(3)); auto func = FN5(f); lean_object* x0 = fx(0); lean_object* x1 = fx(1); lean_object* x2 = fx(2); lean_object* x3 = fx(3); lean_dec_ref(f); obj* r = func(x0, x1, x2, x3, a1); return r; }
+  case 6: { lean_inc(fx(0)); lean_inc(fx(1)); lean_inc(fx(2)); lean_inc(fx(3)); lean_inc(fx(4)); auto func = FN6(f); lean_object* x0 = fx(0); lean_object* x1 = fx(1); lean_object* x2 = fx(2); lean_object* x3 = fx(3); lean_object* x4 = fx(4); lean_dec_ref(f); obj* r = func(x0, x1, x2, x3, x4, a1); return r; }
+  case 7: { lean_inc(fx(0)); lean_inc(fx(1)); lean_inc(fx(2)); lean_inc(fx(3)); lean_inc(fx(4)); lean_inc(fx(5)); auto func = FN7(f); lean_object* x0 = fx(0); lean_object* x1 = fx(1); lean_object* x2 = fx(2); lean_object* x3 = fx(3); lean_object* x4 = fx(4); lean_object* x5 = fx(5); lean_dec_ref(f); obj* r = func(x0, x1, x2, x3, x4, x5, a1); return r; }
+  case 8: { lean_inc(fx(0)); lean_inc(fx(1)); lean_inc(fx(2)); lean_inc(fx(3)); lean_inc(fx(4)); lean_inc(fx(5)); lean_inc(fx(6)); auto func = FN8(f); lean_object* x0 = fx(0); lean_object* x1 = fx(1); lean_object* x2 = fx(2); lean_object* x3 = fx(3); lean_object* x4 = fx(4); lean_object* x5 = fx(5); lean_object* x6 = fx(6); lean_dec_ref(f); obj* r = func(x0, x1, x2, x3, x4, x5, x6, a1); return r; }
+  case 9: { lean_inc(fx(0)); lean_inc(fx(1)); lean_inc(fx(2)); lean_inc(fx(3)); lean_inc(fx(4)); lean_inc(fx(5)); lean_inc(fx(6)); lean_inc(fx(7)); auto func = FN9(f); lean_object* x0 = fx(0); lean_object* x1 = fx(1); lean_object* x2 = fx(2); lean_object* x3 = fx(3); lean_object* x4 = fx(4); lean_object* x5 = fx(5); lean_object* x6 = fx(6); lean_object* x7 = fx(7); lean_dec_ref(f); obj* r = func(x0, x1, x2, x3, x4, x5, x6, x7, a1); return r; }
+  case 10: { lean_inc(fx(0)); lean_inc(fx(1)); lean_inc(fx(2)); lean_inc(fx(3)); lean_inc(fx(4)); lean_inc(fx(5)); lean_inc(fx(6)); lean_inc(fx(7)); lean_inc(fx(8)); auto func = FN10(f); lean_object* x0 = fx(0); lean_object* x1 = fx(1); lean_object* x2 = fx(2); lean_object* x3 = fx(3); lean_object* x4 = fx(4); lean_object* x5 = fx(5); lean_object* x6 = fx(6); lean_object* x7 = fx(7); lean_object* x8 = fx(8); lean_dec_ref(f); obj* r = func(x0, x1, x2, x3, x4, x5, x6, x7, x8, a1); return r; }
+  case 11: { lean_inc(fx(0)); lean_inc(fx(1)); lean_inc(fx(2)); lean_inc(fx(3)); lean_inc(fx(4)); lean_inc(fx(5)); lean_inc(fx(6)); lean_inc(fx(7)); lean_inc(fx(8)); lean_inc(fx(9)); auto func = FN11(f); lean_object* x0 = fx(0); lean_object* x1 = fx(1); lean_object* x2 = fx(2); lean_object* x3 = fx(3); lean_object* x4 = fx(4); lean_object* x5 = fx(5); lean_object* x6 = fx(6); lean_object* x7 = fx(7); lean_object* x8 = fx(8); lean_object* x9 = fx(9); lean_dec_ref(f); obj* r = func(x0, x1, x2, x3, x4, x5, x6, x7, x8, x9, a1); return r; }
+  case 12: { lean_inc(fx(0)); lean_inc(fx(1)); lean_inc(fx(2)); lean_inc(fx(3)); lean_inc(fx(4)); lean_inc(fx(5)); lean_inc(fx(6)); lean_inc(fx(7)); lean_inc(fx(8)); lean_inc(fx(9)); lean_inc(fx(10)); auto func = FN12(f); lean_object* x0 = fx(0); lean_object* x1 = fx(1); lean_object* x2 = fx(2); lean_object* x3 = fx(3); lean_object* x4 = fx(4); lean_object* x5 = fx(5); lean_object* x6 = fx(6); lean_object* x7 = fx(7); lean_object* x8 = fx(8); lean_object* x9 = fx(9); lean_object* x10 = fx(10); lean_dec_ref(f); obj* r = func(x0, x1, x2, x3, x4, x5, x6, x7, x8, x9, x10, a1); return r; }
+  case 13: { lean_inc(fx(0)); lean_inc(fx(1)); lean_inc(fx(2)); lean_inc(fx(3)); lean_inc(fx(4)); lean_inc(fx(5)); lean_inc(fx(6)); lean_inc(fx(7)); lean_inc(fx(8)); lean_inc(fx(9)); lean_inc(fx(10)); lean_inc(fx(11)); auto func = FN13(f); lean_object* x0 = fx(0); lean_object* x1 = fx(1); lean_object* x2 = fx(2); lean_object* x3 = fx(3); lean_object* x4 = fx(4); lean_object* x5 = fx(5); lean_object* x6 = fx(6); lean_object* x7 = fx(7); lean_object* x8 = fx(8); lean_object* x9 = fx(9); lean_object* x10 = fx(10); lean_object* x11 = fx(11); lean_dec_ref(f); obj* r = func(x0, x1, x2, x3, x4, x5, x6, x7, x8, x9, x10, x11, a1); return r; }
+  case 14: { lean_inc(fx(0)); lean_inc(fx(1)); lean_inc(fx(2)); lean_inc(fx(3)); lean_inc(fx(4)); lean_inc(fx(5)); lean_inc(fx(6)); lean_inc(fx(7)); lean_inc(fx(8)); lean_inc(fx(9)); lean_inc(fx(10)); lean_inc(fx(11)); lean_inc(fx(12)); auto func = FN14(f); lean_object* x0 = fx(0); lean_object* x1 = fx(1); lean_object* x2 = fx(2); lean_object* x3 = fx(3); lean_object* x4 = fx(4); lean_object* x5 = fx(5); lean_object* x6 = fx(6); lean_object* x7 = fx(7); lean_object* x8 = fx(8); lean_object* x9 = fx(9); lean_object* x10 = fx(10); lean_object* x11 = fx(11); lean_object* x12 = fx(12); lean_dec_ref(f); obj* r = func(x0, x1, x2, x3, x4, x5, x6, x7, x8, x9, x10, x11, x12, a1); return r; }
+  case 15: { lean_inc(fx(0)); lean_inc(fx(1)); lean_inc(fx(2)); lean_inc(fx(3)); lean_inc(fx(4)); lean_inc(fx(5)); lean_inc(fx(6)); lean_inc(fx(7)); lean_inc(fx(8)); lean_inc(fx(9)); lean_inc(fx(10)); lean_inc(fx(11)); lean_inc(fx(12)); lean_inc(fx(13)); auto func = FN15(f); lean_object* x0 = fx(0); lean_object* x1 = fx(1); lean_object* x2 = fx(2); lean_object* x3 = fx(3); lean_object* x4 = fx(4); lean_object* x5 = fx(5); lean_object* x6 = fx(6); lean_object* x7 = fx(7); lean_object* x8 = fx(8); lean_object* x9 = fx(9); lean_object* x10 = fx(10); lean_object* x11 = fx(11); lean_object* x12 = fx(12); lean_object* x13 = fx(13); lean_dec_ref(f); obj* r = func(x0, x1, x2, x3, x4, x5, x6, x7, x8, x9, x10, x11, x12, x13, a1); return r; }
+  case 16: { lean_inc(fx(0)); lean_inc(fx(1)); lean_inc(fx(2)); lean_inc(fx(3)); lean_inc(fx(4)); lean_inc(fx(5)); lean_inc(fx(6)); lean_inc(fx(7)); lean_inc(fx(8)); lean_inc(fx(9)); lean_inc(fx(10)); lean_inc(fx(11)); lean_inc(fx(12)); lean_inc(fx(13)); lean_inc(fx(14)); auto func = FN16(f); lean_object* x0 = fx(0); lean_object* x1 = fx(1); lean_object* x2 = fx(2); lean_object* x3 = fx(3); lean_object* x4 = fx(4); lean_object* x5 = fx(5); lean_object* x6 = fx(6); lean_object* x7 = fx(7); lean_object* x8 = fx(8); lean_object* x9 = fx(9); lean_object* x10 = fx(10); lean_object* x11 = fx(11); lean_object* x12 = fx(12); lean_object* x13 = fx(13); lean_object* x14 = fx(14); lean_dec_ref(f); obj* r = func(x0, x1, x2, x3, x4, x5, x6, x7, x8, x9, x10, x11, x12, x13, x14, a1); return r; }
   default:
     obj * as[1] = { a1 };
     return apply_exact(f, as, 1);
@@ -199,39 +201,39 @@ unsigned fixed = lean_closure_num_fixed(f);
 if (arity == fixed + 2) {
   if (lean_is_exclusive(f)) {
     switch (arity) {
-    case 2: { obj* r = FN2(f)(a1, a2); lean_free_object(f); return r; }
-    case 3: { obj* r = FN3(f)(fx(0), a1, a2); lean_free_object(f); return r; }
-    case 4: { obj* r = FN4(f)(fx(0), fx(1), a1, a2); lean_free_object(f); return r; }
-    case 5: { obj* r = FN5(f)(fx(0), fx(1), fx(2), a1, a2); lean_free_object(f); return r; }
-    case 6: { obj* r = FN6(f)(fx(0), fx(1), fx(2), fx(3), a1, a2); lean_free_object(f); return r; }
-    case 7: { obj* r = FN7(f)(fx(0), fx(1), fx(2), fx(3), fx(4), a1, a2); lean_free_object(f); return r; }
-    case 8: { obj* r = FN8(f)(fx(0), fx(1), fx(2), fx(3), fx(4), fx(5), a1, a2); lean_free_object(f); return r; }
-    case 9: { obj* r = FN9(f)(fx(0), fx(1), fx(2), fx(3), fx(4), fx(5), fx(6), a1, a2); lean_free_object(f); return r; }
-    case 10: { obj* r = FN10(f)(fx(0), fx(1), fx(2), fx(3), fx(4), fx(5), fx(6), fx(7), a1, a2); lean_free_object(f); return r; }
-    case 11: { obj* r = FN11(f)(fx(0), fx(1), fx(2), fx(3), fx(4), fx(5), fx(6), fx(7), fx(8), a1, a2); lean_free_object(f); return r; }
-    case 12: { obj* r = FN12(f)(fx(0), fx(1), fx(2), fx(3), fx(4), fx(5), fx(6), fx(7), fx(8), fx(9), a1, a2); lean_free_object(f); return r; }
-    case 13: { obj* r = FN13(f)(fx(0), fx(1), fx(2), fx(3), fx(4), fx(5), fx(6), fx(7), fx(8), fx(9), fx(10), a1, a2); lean_free_object(f); return r; }
-    case 14: { obj* r = FN14(f)(fx(0), fx(1), fx(2), fx(3), fx(4), fx(5), fx(6), fx(7), fx(8), fx(9), fx(10), fx(11), a1, a2); lean_free_object(f); return r; }
-    case 15: { obj* r = FN15(f)(fx(0), fx(1), fx(2), fx(3), fx(4), fx(5), fx(6), fx(7), fx(8), fx(9), fx(10), fx(11), fx(12), a1, a2); lean_free_object(f); return r; }
-    case 16: { obj* r = FN16(f)(fx(0), fx(1), fx(2), fx(3), fx(4), fx(5), fx(6), fx(7), fx(8), fx(9), fx(10), fx(11), fx(12), fx(13), a1, a2); lean_free_object(f); return r; }
+    case 2: { auto func = FN2(f); lean_free_object(f); obj* r = func(a1, a2); return r; }
+    case 3: { auto func = FN3(f); lean_object* x0 = fx(0); lean_free_object(f); obj* r = func(x0, a1, a2); return r; }
+    case 4: { auto func = FN4(f); lean_object* x0 = fx(0); lean_object* x1 = fx(1); lean_free_object(f); obj* r = func(x0, x1, a1, a2); return r; }
+    case 5: { auto func = FN5(f); lean_object* x0 = fx(0); lean_object* x1 = fx(1); lean_object* x2 = fx(2); lean_free_object(f); obj* r = func(x0, x1, x2, a1, a2); return r; }
+    case 6: { auto func = FN6(f); lean_object* x0 = fx(0); lean_object* x1 = fx(1); lean_object* x2 = fx(2); lean_object* x3 = fx(3); lean_free_object(f); obj* r = func(x0, x1, x2, x3, a1, a2); return r; }
+    case 7: { auto func = FN7(f); lean_object* x0 = fx(0); lean_object* x1 = fx(1); lean_object* x2 = fx(2); lean_object* x3 = fx(3); lean_object* x4 = fx(4); lean_free_object(f); obj* r = func(x0, x1, x2, x3, x4, a1, a2); return r; }
+    case 8: { auto func = FN8(f); lean_object* x0 = fx(0); lean_object* x1 = fx(1); lean_object* x2 = fx(2); lean_object* x3 = fx(3); lean_object* x4 = fx(4); lean_object* x5 = fx(5); lean_free_object(f); obj* r = func(x0, x1, x2, x3, x4, x5, a1, a2); return r; }
+    case 9: { auto func = FN9(f); lean_object* x0 = fx(0); lean_object* x1 = fx(1); lean_object* x2 = fx(2); lean_object* x3 = fx(3); lean_object* x4 = fx(4); lean_object* x5 = fx(5); lean_object* x6 = fx(6); lean_free_object(f); obj* r = func(x0, x1, x2, x3, x4, x5, x6, a1, a2); return r; }
+    case 10: { auto func = FN10(f); lean_object* x0 = fx(0); lean_object* x1 = fx(1); lean_object* x2 = fx(2); lean_object* x3 = fx(3); lean_object* x4 = fx(4); lean_object* x5 = fx(5); lean_object* x6 = fx(6); lean_object* x7 = fx(7); lean_free_object(f); obj* r = func(x0, x1, x2, x3, x4, x5, x6, x7, a1, a2); return r; }
+    case 11: { auto func = FN11(f); lean_object* x0 = fx(0); lean_object* x1 = fx(1); lean_object* x2 = fx(2); lean_object* x3 = fx(3); lean_object* x4 = fx(4); lean_object* x5 = fx(5); lean_object* x6 = fx(6); lean_object* x7 = fx(7); lean_object* x8 = fx(8); lean_free_object(f); obj* r = func(x0, x1, x2, x3, x4, x5, x6, x7, x8, a1, a2); return r; }
+    case 12: { auto func = FN12(f); lean_object* x0 = fx(0); lean_object* x1 = fx(1); lean_object* x2 = fx(2); lean_object* x3 = fx(3); lean_object* x4 = fx(4); lean_object* x5 = fx(5); lean_object* x6 = fx(6); lean_object* x7 = fx(7); lean_object* x8 = fx(8); lean_object* x9 = fx(9); lean_free_object(f); obj* r = func(x0, x1, x2, x3, x4, x5, x6, x7, x8, x9, a1, a2); return r; }
+    case 13: { auto func = FN13(f); lean_object* x0 = fx(0); lean_object* x1 = fx(1); lean_object* x2 = fx(2); lean_object* x3 = fx(3); lean_object* x4 = fx(4); lean_object* x5 = fx(5); lean_object* x6 = fx(6); lean_object* x7 = fx(7); lean_object* x8 = fx(8); lean_object* x9 = fx(9); lean_object* x10 = fx(10); lean_free_object(f); obj* r = func(x0, x1, x2, x3, x4, x5, x6, x7, x8, x9, x10, a1, a2); return r; }
+    case 14: { auto func = FN14(f); lean_object* x0 = fx(0); lean_object* x1 = fx(1); lean_object* x2 = fx(2); lean_object* x3 = fx(3); lean_object* x4 = fx(4); lean_object* x5 = fx(5); lean_object* x6 = fx(6); lean_object* x7 = fx(7); lean_object* x8 = fx(8); lean_object* x9 = fx(9); lean_object* x10 = fx(10); lean_object* x11 = fx(11); lean_free_object(f); obj* r = func(x0, x1, x2, x3, x4, x5, x6, x7, x8, x9, x10, x11, a1, a2); return r; }
+    case 15: { auto func = FN15(f); lean_object* x0 = fx(0); lean_object* x1 = fx(1); lean_object* x2 = fx(2); lean_object* x3 = fx(3); lean_object* x4 = fx(4); lean_object* x5 = fx(5); lean_object* x6 = fx(6); lean_object* x7 = fx(7); lean_object* x8 = fx(8); lean_object* x9 = fx(9); lean_object* x10 = fx(10); lean_object* x11 = fx(11); lean_object* x12 = fx(12); lean_free_object(f); obj* r = func(x0, x1, x2, x3, x4, x5, x6, x7, x8, x9, x10, x11, x12, a1, a2); return r; }
+    case 16: { auto func = FN16(f); lean_object* x0 = fx(0); lean_object* x1 = fx(1); lean_object* x2 = fx(2); lean_object* x3 = fx(3); lean_object* x4 = fx(4); lean_object* x5 = fx(5); lean_object* x6 = fx(6); lean_object* x7 = fx(7); lean_object* x8 = fx(8); lean_object* x9 = fx(9); lean_object* x10 = fx(10); lean_object* x11 = fx(11); lean_object* x12 = fx(12); lean_object* x13 = fx(13); lean_free_object(f); obj* r = func(x0, x1, x2, x3, x4, x5, x6, x7, x8, x9, x10, x11, x12, x13, a1, a2); return r; }
     }
   }
   switch (arity) {
-  case 2: { obj* r = FN2(f)(a1, a2); lean_dec_ref(f); return r; }
-  case 3: { lean_inc(fx(0)); obj* r = FN3(f)(fx(0), a1, a2); lean_dec_ref(f); return r; }
-  case 4: { lean_inc(fx(0)); lean_inc(fx(1)); obj* r = FN4(f)(fx(0), fx(1), a1, a2); lean_dec_ref(f); return r; }
-  case 5: { lean_inc(fx(0)); lean_inc(fx(1)); lean_inc(fx(2)); obj* r = FN5(f)(fx(0), fx(1), fx(2), a1, a2); lean_dec_ref(f); return r; }
-  case 6: { lean_inc(fx(0)); lean_inc(fx(1)); lean_inc(fx(2)); lean_inc(fx(3)); obj* r = FN6(f)(fx(0), fx(1), fx(2), fx(3), a1, a2); lean_dec_ref(f); return r; }
-  case 7: { lean_inc(fx(0)); lean_inc(fx(1)); lean_inc(fx(2)); lean_inc(fx(3)); lean_inc(fx(4)); obj* r = FN7(f)(fx(0), fx(1), fx(2), fx(3), fx(4), a1, a2); lean_dec_ref(f); return r; }
-  case 8: { lean_inc(fx(0)); lean_inc(fx(1)); lean_inc(fx(2)); lean_inc(fx(3)); lean_inc(fx(4)); lean_inc(fx(5)); obj* r = FN8(f)(fx(0), fx(1), fx(2), fx(3), fx(4), fx(5), a1, a2); lean_dec_ref(f); return r; }
-  case 9: { lean_inc(fx(0)); lean_inc(fx(1)); lean_inc(fx(2)); lean_inc(fx(3)); lean_inc(fx(4)); lean_inc(fx(5)); lean_inc(fx(6)); obj* r = FN9(f)(fx(0), fx(1), fx(2), fx(3), fx(4), fx(5), fx(6), a1, a2); lean_dec_ref(f); return r; }
-  case 10: { lean_inc(fx(0)); lean_inc(fx(1)); lean_inc(fx(2)); lean_inc(fx(3)); lean_inc(fx(4)); lean_inc(fx(5)); lean_inc(fx(6)); lean_inc(fx(7)); obj* r = FN10(f)(fx(0), fx(1), fx(2), fx(3), fx(4), fx(5), fx(6), fx(7), a1, a2); lean_dec_ref(f); return r; }
-  case 11: { lean_inc(fx(0)); lean_inc(fx(1)); lean_inc(fx(2)); lean_inc(fx(3)); lean_inc(fx(4)); lean_inc(fx(5)); lean_inc(fx(6)); lean_inc(fx(7)); lean_inc(fx(8)); obj* r = FN11(f)(fx(0), fx(1), fx(2), fx(3), fx(4), fx(5), fx(6), fx(7), fx(8), a1, a2); lean_dec_ref(f); return r; }
-  case 12: { lean_inc(fx(0)); lean_inc(fx(1)); lean_inc(fx(2)); lean_inc(fx(3)); lean_inc(fx(4)); lean_inc(fx(5)); lean_inc(fx(6)); lean_inc(fx(7)); lean_inc(fx(8)); lean_inc(fx(9)); obj* r = FN12(f)(fx(0), fx(1), fx(2), fx(3), fx(4), fx(5), fx(6), fx(7), fx(8), fx(9), a1, a2); lean_dec_ref(f); return r; }
-  case 13: { lean_inc(fx(0)); lean_inc(fx(1)); lean_inc(fx(2)); lean_inc(fx(3)); lean_inc(fx(4)); lean_inc(fx(5)); lean_inc(fx(6)); lean_inc(fx(7)); lean_inc(fx(8)); lean_inc(fx(9)); lean_inc(fx(10)); obj* r = FN13(f)(fx(0), fx(1), fx(2), fx(3), fx(4), fx(5), fx(6), fx(7), fx(8), fx(9), fx(10), a1, a2); lean_dec_ref(f); return r; }
-  case 14: { lean_inc(fx(0)); lean_inc(fx(1)); lean_inc(fx(2)); lean_inc(fx(3)); lean_inc(fx(4)); lean_inc(fx(5)); lean_inc(fx(6)); lean_inc(fx(7)); lean_inc(fx(8)); lean_inc(fx(9)); lean_inc(fx(10)); lean_inc(fx(11)); obj* r = FN14(f)(fx(0), fx(1), fx(2), fx(3), fx(4), fx(5), fx(6), fx(7), fx(8), fx(9), fx(10), fx(11), a1, a2); lean_dec_ref(f); return r; }
-  case 15: { lean_inc(fx(0)); lean_inc(fx(1)); lean_inc(fx(2)); lean_inc(fx(3)); lean_inc(fx(4)); lean_inc(fx(5)); lean_inc(fx(6)); lean_inc(fx(7)); lean_inc(fx(8)); lean_inc(fx(9)); lean_inc(fx(10)); lean_inc(fx(11)); lean_inc(fx(12)); obj* r = FN15(f)(fx(0), fx(1), fx(2), fx(3), fx(4), fx(5), fx(6), fx(7), fx(8), fx(9), fx(10), fx(11), fx(12), a1, a2); lean_dec_ref(f); return r; }
-  case 16: { lean_inc(fx(0)); lean_inc(fx(1)); lean_inc(fx(2)); lean_inc(fx(3)); lean_inc(fx(4)); lean_inc(fx(5)); lean_inc(fx(6)); lean_inc(fx(7)); lean_inc(fx(8)); lean_inc(fx(9)); lean_inc(fx(10)); lean_inc(fx(11)); lean_inc(fx(12)); lean_inc(fx(13)); obj* r = FN16(f)(fx(0), fx(1), fx(2), fx(3), fx(4), fx(5), fx(6), fx(7), fx(8), fx(9), fx(10), fx(11), fx(12), fx(13), a1, a2); lean_dec_ref(f); return r; }
+  case 2: { auto func = FN2(f); lean_dec_ref(f); obj* r = func(a1, a2); return r; }
+  case 3: { lean_inc(fx(0)); auto func = FN3(f); lean_object* x0 = fx(0); lean_dec_ref(f); obj* r = func(x0, a1, a2); return r; }
+  case 4: { lean_inc(fx(0)); lean_inc(fx(1)); auto func = FN4(f); lean_object* x0 = fx(0); lean_object* x1 = fx(1); lean_dec_ref(f); obj* r = func(x0, x1, a1, a2); return r; }
+  case 5: { lean_inc(fx(0)); lean_inc(fx(1)); lean_inc(fx(2)); auto func = FN5(f); lean_object* x0 = fx(0); lean_object* x1 = fx(1); lean_object* x2 = fx(2); lean_dec_ref(f); obj* r = func(x0, x1, x2, a1, a2); return r; }
+  case 6: { lean_inc(fx(0)); lean_inc(fx(1)); lean_inc(fx(2)); lean_inc(fx(3)); auto func = FN6(f); lean_object* x0 = fx(0); lean_object* x1 = fx(1); lean_object* x2 = fx(2); lean_object* x3 = fx(3); lean_dec_ref(f); obj* r = func(x0, x1, x2, x3, a1, a2); return r; }
+  case 7: { lean_inc(fx(0)); lean_inc(fx(1)); lean_inc(fx(2)); lean_inc(fx(3)); lean_inc(fx(4)); auto func = FN7(f); lean_object* x0 = fx(0); lean_object* x1 = fx(1); lean_object* x2 = fx(2); lean_object* x3 = fx(3); lean_object* x4 = fx(4); lean_dec_ref(f); obj* r = func(x0, x1, x2, x3, x4, a1, a2); return r; }
+  case 8: { lean_inc(fx(0)); lean_inc(fx(1)); lean_inc(fx(2)); lean_inc(fx(3)); lean_inc(fx(4)); lean_inc(fx(5)); auto func = FN8(f); lean_object* x0 = fx(0); lean_object* x1 = fx(1); lean_object* x2 = fx(2); lean_object* x3 = fx(3); lean_object* x4 = fx(4); lean_object* x5 = fx(5); lean_dec_ref(f); obj* r = func(x0, x1, x2, x3, x4, x5, a1, a2); return r; }
+  case 9: { lean_inc(fx(0)); lean_inc(fx(1)); lean_inc(fx(2)); lean_inc(fx(3)); lean_inc(fx(4)); lean_inc(fx(5)); lean_inc(fx(6)); auto func = FN9(f); lean_object* x0 = fx(0); lean_object* x1 = fx(1); lean_object* x2 = fx(2); lean_object* x3 = fx(3); lean_object* x4 = fx(4); lean_object* x5 = fx(5); lean_object* x6 = fx(6); lean_dec_ref(f); obj* r = func(x0, x1, x2, x3, x4, x5, x6, a1, a2); return r; }
+  case 10: { lean_inc(fx(0)); lean_inc(fx(1)); lean_inc(fx(2)); lean_inc(fx(3)); lean_inc(fx(4)); lean_inc(fx(5)); lean_inc(fx(6)); lean_inc(fx(7)); auto func = FN10(f); lean_object* x0 = fx(0); lean_object* x1 = fx(1); lean_object* x2 = fx(2); lean_object* x3 = fx(3); lean_object* x4 = fx(4); lean_object* x5 = fx(5); lean_object* x6 = fx(6); lean_object* x7 = fx(7); lean_dec_ref(f); obj* r = func(x0, x1, x2, x3, x4, x5, x6, x7, a1, a2); return r; }
+  case 11: { lean_inc(fx(0)); lean_inc(fx(1)); lean_inc(fx(2)); lean_inc(fx(3)); lean_inc(fx(4)); lean_inc(fx(5)); lean_inc(fx(6)); lean_inc(fx(7)); lean_inc(fx(8)); auto func = FN11(f); lean_object* x0 = fx(0); lean_object* x1 = fx(1); lean_object* x2 = fx(2); lean_object* x3 = fx(3); lean_object* x4 = fx(4); lean_object* x5 = fx(5); lean_object* x6 = fx(6); lean_object* x7 = fx(7); lean_object* x8 = fx(8); lean_dec_ref(f); obj* r = func(x0, x1, x2, x3, x4, x5, x6, x7, x8, a1, a2); return r; }
+  case 12: { lean_inc(fx(0)); lean_inc(fx(1)); lean_inc(fx(2)); lean_inc(fx(3)); lean_inc(fx(4)); lean_inc(fx(5)); lean_inc(fx(6)); lean_inc(fx(7)); lean_inc(fx(8)); lean_inc(fx(9)); auto func = FN12(f); lean_object* x0 = fx(0); lean_object* x1 = fx(1); lean_object* x2 = fx(2); lean_object* x3 = fx(3); lean_object* x4 = fx(4); lean_object* x5 = fx(5); lean_object* x6 = fx(6); lean_object* x7 = fx(7); lean_object* x8 = fx(8); lean_object* x9 = fx(9); lean_dec_ref(f); obj* r = func(x0, x1, x2, x3, x4, x5, x6, x7, x8, x9, a1, a2); return r; }
+  case 13: { lean_inc(fx(0)); lean_inc(fx(1)); lean_inc(fx(2)); lean_inc(fx(3)); lean_inc(fx(4)); lean_inc(fx(5)); lean_inc(fx(6)); lean_inc(fx(7)); lean_inc(fx(8)); lean_inc(fx(9)); lean_inc(fx(10)); auto func = FN13(f); lean_object* x0 = fx(0); lean_object* x1 = fx(1); lean_object* x2 = fx(2); lean_object* x3 = fx(3); lean_object* x4 = fx(4); lean_object* x5 = fx(5); lean_object* x6 = fx(6); lean_object* x7 = fx(7); lean_object* x8 = fx(8); lean_object* x9 = fx(9); lean_object* x10 = fx(10); lean_dec_ref(f); obj* r = func(x0, x1, x2, x3, x4, x5, x6, x7, x8, x9, x10, a1, a2); return r; }
+  case 14: { lean_inc(fx(0)); lean_inc(fx(1)); lean_inc(fx(2)); lean_inc(fx(3)); lean_inc(fx(4)); lean_inc(fx(5)); lean_inc(fx(6)); lean_inc(fx(7)); lean_inc(fx(8)); lean_inc(fx(9)); lean_inc(fx(10)); lean_inc(fx(11)); auto func = FN14(f); lean_object* x0 = fx(0); lean_object* x1 = fx(1); lean_object* x2 = fx(2); lean_object* x3 = fx(3); lean_object* x4 = fx(4); lean_object* x5 = fx(5); lean_object* x6 = fx(6); lean_object* x7 = fx(7); lean_object* x8 = fx(8); lean_object* x9 = fx(9); lean_object* x10 = fx(10); lean_object* x11 = fx(11); lean_dec_ref(f); obj* r = func(x0, x1, x2, x3, x4, x5, x6, x7, x8, x9, x10, x11, a1, a2); return r; }
+  case 15: { lean_inc(fx(0)); lean_inc(fx(1)); lean_inc(fx(2)); lean_inc(fx(3)); lean_inc(fx(4)); lean_inc(fx(5)); lean_inc(fx(6)); lean_inc(fx(7)); lean_inc(fx(8)); lean_inc(fx(9)); lean_inc(fx(10)); lean_inc(fx(11)); lean_inc(fx(12)); auto func = FN15(f); lean_object* x0 = fx(0); lean_object* x1 = fx(1); lean_object* x2 = fx(2); lean_object* x3 = fx(3); lean_object* x4 = fx(4); lean_object* x5 = fx(5); lean_object* x6 = fx(6); lean_object* x7 = fx(7); lean_object* x8 = fx(8); lean_object* x9 = fx(9); lean_object* x10 = fx(10); lean_object* x11 = fx(11); lean_object* x12 = fx(12); lean_dec_ref(f); obj* r = func(x0, x1, x2, x3, x4, x5, x6, x7, x8, x9, x10, x11, x12, a1, a2); return r; }
+  case 16: { lean_inc(fx(0)); lean_inc(fx(1)); lean_inc(fx(2)); lean_inc(fx(3)); lean_inc(fx(4)); lean_inc(fx(5)); lean_inc(fx(6)); lean_inc(fx(7)); lean_inc(fx(8)); lean_inc(fx(9)); lean_inc(fx(10)); lean_inc(fx(11)); lean_inc(fx(12)); lean_inc(fx(13)); auto func = FN16(f); lean_object* x0 = fx(0); lean_object* x1 = fx(1); lean_object* x2 = fx(2); lean_object* x3 = fx(3); lean_object* x4 = fx(4); lean_object* x5 = fx(5); lean_object* x6 = fx(6); lean_object* x7 = fx(7); lean_object* x8 = fx(8); lean_object* x9 = fx(9); lean_object* x10 = fx(10); lean_object* x11 = fx(11); lean_object* x12 = fx(12); lean_object* x13 = fx(13); lean_dec_ref(f); obj* r = func(x0, x1, x2, x3, x4, x5, x6, x7, x8, x9, x10, x11, x12, x13, a1, a2); return r; }
   default:
     obj * as[2] = { a1, a2 };
     return apply_exact(f, as, 2);
@@ -250,37 +252,37 @@ unsigned fixed = lean_closure_num_fixed(f);
 if (arity == fixed + 3) {
   if (lean_is_exclusive(f)) {
     switch (arity) {
-    case 3: { obj* r = FN3(f)(a1, a2, a3); lean_free_object(f); return r; }
-    case 4: { obj* r = FN4(f)(fx(0), a1, a2, a3); lean_free_object(f); return r; }
-    case 5: { obj* r = FN5(f)(fx(0), fx(1), a1, a2, a3); lean_free_object(f); return r; }
-    case 6: { obj* r = FN6(f)(fx(0), fx(1), fx(2), a1, a2, a3); lean_free_object(f); return r; }
-    case 7: { obj* r = FN7(f)(fx(0), fx(1), fx(2), fx(3), a1, a2, a3); lean_free_object(f); return r; }
-    case 8: { obj* r = FN8(f)(fx(0), fx(1), fx(2), fx(3), fx(4), a1, a2, a3); lean_free_object(f); return r; }
-    case 9: { obj* r = FN9(f)(fx(0), fx(1), fx(2), fx(3), fx(4), fx(5), a1, a2, a3); lean_free_object(f); return r; }
-    case 10: { obj* r = FN10(f)(fx(0), fx(1), fx(2), fx(3), fx(4), fx(5), fx(6), a1, a2, a3); lean_free_object(f); return r; }
-    case 11: { obj* r = FN11(f)(fx(0), fx(1), fx(2), fx(3), fx(4), fx(5), fx(6), fx(7), a1, a2, a3); lean_free_object(f); return r; }
-    case 12: { obj* r = FN12(f)(fx(0), fx(1), fx(2), fx(3), fx(4), fx(5), fx(6), fx(7), fx(8), a1, a2, a3); lean_free_object(f); return r; }
-    case 13: { obj* r = FN13(f)(fx(0), fx(1), fx(2), fx(3), fx(4), fx(5), fx(6), fx(7), fx(8), fx(9), a1, a2, a3); lean_free_object(f); return r; }
-    case 14: { obj* r = FN14(f)(fx(0), fx(1), fx(2), fx(3), fx(4), fx(5), fx(6), fx(7), fx(8), fx(9), fx(10), a1, a2, a3); lean_free_object(f); return r; }
-    case 15: { obj* r = FN15(f)(fx(0), fx(1), fx(2), fx(3), fx(4), fx(5), fx(6), fx(7), fx(8), fx(9), fx(10), fx(11), a1, a2, a3); lean_free_object(f); return r; }
-    case 16: { obj* r = FN16(f)(fx(0), fx(1), fx(2), fx(3), fx(4), fx(5), fx(6), fx(7), fx(8), fx(9), fx(10), fx(11), fx(12), a1, a2, a3); lean_free_object(f); return r; }
+    case 3: { auto func = FN3(f); lean_free_object(f); obj* r = func(a1, a2, a3); return r; }
+    case 4: { auto func = FN4(f); lean_object* x0 = fx(0); lean_free_object(f); obj* r = func(x0, a1, a2, a3); return r; }
+    case 5: { auto func = FN5(f); lean_object* x0 = fx(0); lean_object* x1 = fx(1); lean_free_object(f); obj* r = func(x0, x1, a1, a2, a3); return r; }
+    case 6: { auto func = FN6(f); lean_object* x0 = fx(0); lean_object* x1 = fx(1); lean_object* x2 = fx(2); lean_free_object(f); obj* r = func(x0, x1, x2, a1, a2, a3); return r; }
+    case 7: { auto func = FN7(f); lean_object* x0 = fx(0); lean_object* x1 = fx(1); lean_object* x2 = fx(2); lean_object* x3 = fx(3); lean_free_object(f); obj* r = func(x0, x1, x2, x3, a1, a2, a3); return r; }
+    case 8: { auto func = FN8(f); lean_object* x0 = fx(0); lean_object* x1 = fx(1); lean_object* x2 = fx(2); lean_object* x3 = fx(3); lean_object* x4 = fx(4); lean_free_object(f); obj* r = func(x0, x1, x2, x3, x4, a1, a2, a3); return r; }
+    case 9: { auto func = FN9(f); lean_object* x0 = fx(0); lean_object* x1 = fx(1); lean_object* x2 = fx(2); lean_object* x3 = fx(3); lean_object* x4 = fx(4); lean_object* x5 = fx(5); lean_free_object(f); obj* r = func(x0, x1, x2, x3, x4, x5, a1, a2, a3); return r; }
+    case 10: { auto func = FN10(f); lean_object* x0 = fx(0); lean_object* x1 = fx(1); lean_object* x2 = fx(2); lean_object* x3 = fx(3); lean_object* x4 = fx(4); lean_object* x5 = fx(5); lean_object* x6 = fx(6); lean_free_object(f); obj* r = func(x0, x1, x2, x3, x4, x5, x6, a1, a2, a3); return r; }
+    case 11: { auto func = FN11(f); lean_object* x0 = fx(0); lean_object* x1 = fx(1); lean_object* x2 = fx(2); lean_object* x3 = fx(3); lean_object* x4 = fx(4); lean_object* x5 = fx(5); lean_object* x6 = fx(6); lean_object* x7 = fx(7); lean_free_object(f); obj* r = func(x0, x1, x2, x3, x4, x5, x6, x7, a1, a2, a3); return r; }
+    case 12: { auto func = FN12(f); lean_object* x0 = fx(0); lean_object* x1 = fx(1); lean_object* x2 = fx(2); lean_object* x3 = fx(3); lean_object* x4 = fx(4); lean_object* x5 = fx(5); lean_object* x6 = fx(6); lean_object* x7 = fx(7); lean_object* x8 = fx(8); lean_free_object(f); obj* r = func(x0, x1, x2, x3, x4, x5, x6, x7, x8, a1, a2, a3); return r; }
+    case 13: { auto func = FN13(f); lean_object* x0 = fx(0); lean_object* x1 = fx(1); lean_object* x2 = fx(2); lean_object* x3 = fx(3); lean_object* x4 = fx(4); lean_object* x5 = fx(5); lean_object* x6 = fx(6); lean_object* x7 = fx(7); lean_object* x8 = fx(8); lean_object* x9 = fx(9); lean_free_object(f); obj* r = func(x0, x1, x2, x3, x4, x5, x6, x7, x8, x9, a1, a2, a3); return r; }
+    case 14: { auto func = FN14(f); lean_object* x0 = fx(0); lean_object* x1 = fx(1); lean_object* x2 = fx(2); lean_object* x3 = fx(3); lean_object* x4 = fx(4); lean_object* x5 = fx(5); lean_object* x6 = fx(6); lean_object* x7 = fx(7); lean_object* x8 = fx(8); lean_object* x9 = fx(9); lean_object* x10 = fx(10); lean_free_object(f); obj* r = func(x0, x1, x2, x3, x4, x5, x6, x7, x8, x9, x10, a1, a2, a3); return r; }
+    case 15: { auto func = FN15(f); lean_object* x0 = fx(0); lean_object* x1 = fx(1); lean_object* x2 = fx(2); lean_object* x3 = fx(3); lean_object* x4 = fx(4); lean_object* x5 = fx(5); lean_object* x6 = fx(6); lean_object* x7 = fx(7); lean_object* x8 = fx(8); lean_object* x9 = fx(9); lean_object* x10 = fx(10); lean_object* x11 = fx(11); lean_free_object(f); obj* r = func(x0, x1, x2, x3, x4, x5, x6, x7, x8, x9, x10, x11, a1, a2, a3); return r; }
+    case 16: { auto func = FN16(f); lean_object* x0 = fx(0); lean_object* x1 = fx(1); lean_object* x2 = fx(2); lean_object* x3 = fx(3); lean_object* x4 = fx(4); lean_object* x5 = fx(5); lean_object* x6 = fx(6); lean_object* x7 = fx(7); lean_object* x8 = fx(8); lean_object* x9 = fx(9); lean_object* x10 = fx(10); lean_object* x11 = fx(11); lean_object* x12 = fx(12); lean_free_object(f); obj* r = func(x0, x1, x2, x3, x4, x5, x6, x7, x8, x9, x10, x11, x12, a1, a2, a3); return r; }
     }
   }
   switch (arity) {
-  case 3: { obj* r = FN3(f)(a1, a2, a3); lean_dec_ref(f); return r; }
-  case 4: { lean_inc(fx(0)); obj* r = FN4(f)(fx(0), a1, a2, a3); lean_dec_ref(f); return r; }
-  case 5: { lean_inc(fx(0)); lean_inc(fx(1)); obj* r = FN5(f)(fx(0), fx(1), a1, a2, a3); lean_dec_ref(f); return r; }
-  case 6: { lean_inc(fx(0)); lean_inc(fx(1)); lean_inc(fx(2)); obj* r = FN6(f)(fx(0), fx(1), fx(2), a1, a2, a3); lean_dec_ref(f); return r; }
-  case 7: { lean_inc(fx(0)); lean_inc(fx(1)); lean_inc(fx(2)); lean_inc(fx(3)); obj* r = FN7(f)(fx(0), fx(1), fx(2), fx(3), a1, a2, a3); lean_dec_ref(f); return r; }
-  case 8: { lean_inc(fx(0)); lean_inc(fx(1)); lean_inc(fx(2)); lean_inc(fx(3)); lean_inc(fx(4)); obj* r = FN8(f)(fx(0), fx(1), fx(2), fx(3), fx(4), a1, a2, a3); lean_dec_ref(f); return r; }
-  case 9: { lean_inc(fx(0)); lean_inc(fx(1)); lean_inc(fx(2)); lean_inc(fx(3)); lean_inc(fx(4)); lean_inc(fx(5)); obj* r = FN9(f)(fx(0), fx(1), fx(2), fx(3), fx(4), fx(5), a1, a2, a3); lean_dec_ref(f); return r; }
-  case 10: { lean_inc(fx(0)); lean_inc(fx(1)); lean_inc(fx(2)); lean_inc(fx(3)); lean_inc(fx(4)); lean_inc(fx(5)); lean_inc(fx(6)); obj* r = FN10(f)(fx(0), fx(1), fx(2), fx(3), fx(4), fx(5), fx(6), a1, a2, a3); lean_dec_ref(f); return r; }
-  case 11: { lean_inc(fx(0)); lean_inc(fx(1)); lean_inc(fx(2)); lean_inc(fx(3)); lean_inc(fx(4)); lean_inc(fx(5)); lean_inc(fx(6)); lean_inc(fx(7)); obj* r = FN11(f)(fx(0), fx(1), fx(2), fx(3), fx(4), fx(5), fx(6), fx(7), a1, a2, a3); lean_dec_ref(f); return r; }
-  case 12: { lean_inc(fx(0)); lean_inc(fx(1)); lean_inc(fx(2)); lean_inc(fx(3)); lean_inc(fx(4)); lean_inc(fx(5)); lean_inc(fx(6)); lean_inc(fx(7)); lean_inc(fx(8)); obj* r = FN12(f)(fx(0), fx(1), fx(2), fx(3), fx(4), fx(5), fx(6), fx(7), fx(8), a1, a2, a3); lean_dec_ref(f); return r; }
-  case 13: { lean_inc(fx(0)); lean_inc(fx(1)); lean_inc(fx(2)); lean_inc(fx(3)); lean_inc(fx(4)); lean_inc(fx(5)); lean_inc(fx(6)); lean_inc(fx(7)); lean_inc(fx(8)); lean_inc(fx(9)); obj* r = FN13(f)(fx(0), fx(1), fx(2), fx(3), fx(4), fx(5), fx(6), fx(7), fx(8), fx(9), a1, a2, a3); lean_dec_ref(f); return r; }
-  case 14: { lean_inc(fx(0)); lean_inc(fx(1)); lean_inc(fx(2)); lean_inc(fx(3)); lean_inc(fx(4)); lean_inc(fx(5)); lean_inc(fx(6)); lean_inc(fx(7)); lean_inc(fx(8)); lean_inc(fx(9)); lean_inc(fx(10)); obj* r = FN14(f)(fx(0), fx(1), fx(2), fx(3), fx(4), fx(5), fx(6), fx(7), fx(8), fx(9), fx(10), a1, a2, a3); lean_dec_ref(f); return r; }
-  case 15: { lean_inc(fx(0)); lean_inc(fx(1)); lean_inc(fx(2)); lean_inc(fx(3)); lean_inc(fx(4)); lean_inc(fx(5)); lean_inc(fx(6)); lean_inc(fx(7)); lean_inc(fx(8)); lean_inc(fx(9)); lean_inc(fx(10)); lean_inc(fx(11)); obj* r = FN15(f)(fx(0), fx(1), fx(2), fx(3), fx(4), fx(5), fx(6), fx(7), fx(8), fx(9), fx(10), fx(11), a1, a2, a3); lean_dec_ref(f); return r; }
-  case 16: { lean_inc(fx(0)); lean_inc(fx(1)); lean_inc(fx(2)); lean_inc(fx(3)); lean_inc(fx(4)); lean_inc(fx(5)); lean_inc(fx(6)); lean_inc(fx(7)); lean_inc(fx(8)); lean_inc(fx(9)); lean_inc(fx(10)); lean_inc(fx(11)); lean_inc(fx(12)); obj* r = FN16(f)(fx(0), fx(1), fx(2), fx(3), fx(4), fx(5), fx(6), fx(7), fx(8), fx(9), fx(10), fx(11), fx(12), a1, a2, a3); lean_dec_ref(f); return r; }
+  case 3: { auto func = FN3(f); lean_dec_ref(f); obj* r = func(a1, a2, a3); return r; }
+  case 4: { lean_inc(fx(0)); auto func = FN4(f); lean_object* x0 = fx(0); lean_dec_ref(f); obj* r = func(x0, a1, a2, a3); return r; }
+  case 5: { lean_inc(fx(0)); lean_inc(fx(1)); auto func = FN5(f); lean_object* x0 = fx(0); lean_object* x1 = fx(1); lean_dec_ref(f); obj* r = func(x0, x1, a1, a2, a3); return r; }
+  case 6: { lean_inc(fx(0)); lean_inc(fx(1)); lean_inc(fx(2)); auto func = FN6(f); lean_object* x0 = fx(0); lean_object* x1 = fx(1); lean_object* x2 = fx(2); lean_dec_ref(f); obj* r = func(x0, x1, x2, a1, a2, a3); return r; }
+  case 7: { lean_inc(fx(0)); lean_inc(fx(1)); lean_inc(fx(2)); lean_inc(fx(3)); auto func = FN7(f); lean_object* x0 = fx(0); lean_object* x1 = fx(1); lean_object* x2 = fx(2); lean_object* x3 = fx(3); lean_dec_ref(f); obj* r = func(x0, x1, x2, x3, a1, a2, a3); return r; }
+  case 8: { lean_inc(fx(0)); lean_inc(fx(1)); lean_inc(fx(2)); lean_inc(fx(3)); lean_inc(fx(4)); auto func = FN8(f); lean_object* x0 = fx(0); lean_object* x1 = fx(1); lean_object* x2 = fx(2); lean_object* x3 = fx(3); lean_object* x4 = fx(4); lean_dec_ref(f); obj* r = func(x0, x1, x2, x3, x4, a1, a2, a3); return r; }
+  case 9: { lean_inc(fx(0)); lean_inc(fx(1)); lean_inc(fx(2)); lean_inc(fx(3)); lean_inc(fx(4)); lean_inc(fx(5)); auto func = FN9(f); lean_object* x0 = fx(0); lean_object* x1 = fx(1); lean_object* x2 = fx(2); lean_object* x3 = fx(3); lean_object* x4 = fx(4); lean_object* x5 = fx(5); lean_dec_ref(f); obj* r = func(x0, x1, x2, x3, x4, x5, a1, a2, a3); return r; }
+  case 10: { lean_inc(fx(0)); lean_inc(fx(1)); lean_inc(fx(2)); lean_inc(fx(3)); lean_inc(fx(4)); lean_inc(fx(5)); lean_inc(fx(6)); auto func = FN10(f); lean_object* x0 = fx(0); lean_object* x1 = fx(1); lean_object* x2 = fx(2); lean_object* x3 = fx(3); lean_object* x4 = fx(4); lean_object* x5 = fx(5); lean_object* x6 = fx(6); lean_dec_ref(f); obj* r = func(x0, x1, x2, x3, x4, x5, x6, a1, a2, a3); return r; }
+  case 11: { lean_inc(fx(0)); lean_inc(fx(1)); lean_inc(fx(2)); lean_inc(fx(3)); lean_inc(fx(4)); lean_inc(fx(5)); lean_inc(fx(6)); lean_inc(fx(7)); auto func = FN11(f); lean_object* x0 = fx(0); lean_object* x1 = fx(1); lean_object* x2 = fx(2); lean_object* x3 = fx(3); lean_object* x4 = fx(4); lean_object* x5 = fx(5); lean_object* x6 = fx(6); lean_object* x7 = fx(7); lean_dec_ref(f); obj* r = func(x0, x1, x2, x3, x4, x5, x6, x7, a1, a2, a3); return r; }
+  case 12: { lean_inc(fx(0)); lean_inc(fx(1)); lean_inc(fx(2)); lean_inc(fx(3)); lean_inc(fx(4)); lean_inc(fx(5)); lean_inc(fx(6)); lean_inc(fx(7)); lean_inc(fx(8)); auto func = FN12(f); lean_object* x0 = fx(0); lean_object* x1 = fx(1); lean_object* x2 = fx(2); lean_object* x3 = fx(3); lean_object* x4 = fx(4); lean_object* x5 = fx(5); lean_object* x6 = fx(6); lean_object* x7 = fx(7); lean_object* x8 = fx(8); lean_dec_ref(f); obj* r = func(x0, x1, x2, x3, x4, x5, x6, x7, x8, a1, a2, a3); return r; }
+  case 13: { lean_inc(fx(0)); lean_inc(fx(1)); lean_inc(fx(2)); lean_inc(fx(3)); lean_inc(fx(4)); lean_inc(fx(5)); lean_inc(fx(6)); lean_inc(fx(7)); lean_inc(fx(8)); lean_inc(fx(9)); auto func = FN13(f); lean_object* x0 = fx(0); lean_object* x1 = fx(1); lean_object* x2 = fx(2); lean_object* x3 = fx(3); lean_object* x4 = fx(4); lean_object* x5 = fx(5); lean_object* x6 = fx(6); lean_object* x7 = fx(7); lean_object* x8 = fx(8); lean_object* x9 = fx(9); lean_dec_ref(f); obj* r = func(x0, x1, x2, x3, x4, x5, x6, x7, x8, x9, a1, a2, a3); return r; }
+  case 14: { lean_inc(fx(0)); lean_inc(fx(1)); lean_inc(fx(2)); lean_inc(fx(3)); lean_inc(fx(4)); lean_inc(fx(5)); lean_inc(fx(6)); lean_inc(fx(7)); lean_inc(fx(8)); lean_inc(fx(9)); lean_inc(fx(10)); auto func = FN14(f); lean_object* x0 = fx(0); lean_object* x1 = fx(1); lean_object* x2 = fx(2); lean_object* x3 = fx(3); lean_object* x4 = fx(4); lean_object* x5 = fx(5); lean_object* x6 = fx(6); lean_object* x7 = fx(7); lean_object* x8 = fx(8); lean_object* x9 = fx(9); lean_object* x10 = fx(10); lean_dec_ref(f); obj* r = func(x0, x1, x2, x3, x4, x5, x6, x7, x8, x9, x10, a1, a2, a3); return r; }
+  case 15: { lean_inc(fx(0)); lean_inc(fx(1)); lean_inc(fx(2)); lean_inc(fx(3)); lean_inc(fx(4)); lean_inc(fx(5)); lean_inc(fx(6)); lean_inc(fx(7)); lean_inc(fx(8)); lean_inc(fx(9)); lean_inc(fx(10)); lean_inc(fx(11)); auto func = FN15(f); lean_object* x0 = fx(0); lean_object* x1 = fx(1); lean_object* x2 = fx(2); lean_object* x3 = fx(3); lean_object* x4 = fx(4); lean_object* x5 = fx(5); lean_object* x6 = fx(6); lean_object* x7 = fx(7); lean_object* x8 = fx(8); lean_object* x9 = fx(9); lean_object* x10 = fx(10); lean_object* x11 = fx(11); lean_dec_ref(f); obj* r = func(x0, x1, x2, x3, x4, x5, x6, x7, x8, x9, x10, x11, a1, a2, a3); return r; }
+  case 16: { lean_inc(fx(0)); lean_inc(fx(1)); lean_inc(fx(2)); lean_inc(fx(3)); lean_inc(fx(4)); lean_inc(fx(5)); lean_inc(fx(6)); lean_inc(fx(7)); lean_inc(fx(8)); lean_inc(fx(9)); lean_inc(fx(10)); lean_inc(fx(11)); lean_inc(fx(12)); auto func = FN16(f); lean_object* x0 = fx(0); lean_object* x1 = fx(1); lean_object* x2 = fx(2); lean_object* x3 = fx(3); lean_object* x4 = fx(4); lean_object* x5 = fx(5); lean_object* x6 = fx(6); lean_object* x7 = fx(7); lean_object* x8 = fx(8); lean_object* x9 = fx(9); lean_object* x10 = fx(10); lean_object* x11 = fx(11); lean_object* x12 = fx(12); lean_dec_ref(f); obj* r = func(x0, x1, x2, x3, x4, x5, x6, x7, x8, x9, x10, x11, x12, a1, a2, a3); return r; }
   default:
     obj * as[3] = { a1, a2, a3 };
     return apply_exact(f, as, 3);
@@ -299,35 +301,35 @@ unsigned fixed = lean_closure_num_fixed(f);
 if (arity == fixed + 4) {
   if (lean_is_exclusive(f)) {
     switch (arity) {
-    case 4: { obj* r = FN4(f)(a1, a2, a3, a4); lean_free_object(f); return r; }
-    case 5: { obj* r = FN5(f)(fx(0), a1, a2, a3, a4); lean_free_object(f); return r; }
-    case 6: { obj* r = FN6(f)(fx(0), fx(1), a1, a2, a3, a4); lean_free_object(f); return r; }
-    case 7: { obj* r = FN7(f)(fx(0), fx(1), fx(2), a1, a2, a3, a4); lean_free_object(f); return r; }
-    case 8: { obj* r = FN8(f)(fx(0), fx(1), fx(2), fx(3), a1, a2, a3, a4); lean_free_object(f); return r; }
-    case 9: { obj* r = FN9(f)(fx(0), fx(1), fx(2), fx(3), fx(4), a1, a2, a3, a4); lean_free_object(f); return r; }
-    case 10: { obj* r = FN10(f)(fx(0), fx(1), fx(2), fx(3), fx(4), fx(5), a1, a2, a3, a4); lean_free_object(f); return r; }
-    case 11: { obj* r = FN11(f)(fx(0), fx(1), fx(2), fx(3), fx(4), fx(5), fx(6), a1, a2, a3, a4); lean_free_object(f); return r; }
-    case 12: { obj* r = FN12(f)(fx(0), fx(1), fx(2), fx(3), fx(4), fx(5), fx(6), fx(7), a1, a2, a3, a4); lean_free_object(f); return r; }
-    case 13: { obj* r = FN13(f)(fx(0), fx(1), fx(2), fx(3), fx(4), fx(5), fx(6), fx(7), fx(8), a1, a2, a3, a4); lean_free_object(f); return r; }
-    case 14: { obj* r = FN14(f)(fx(0), fx(1), fx(2), fx(3), fx(4), fx(5), fx(6), fx(7), fx(8), fx(9), a1, a2, a3, a4); lean_free_object(f); return r; }
-    case 15: { obj* r = FN15(f)(fx(0), fx(1), fx(2), fx(3), fx(4), fx(5), fx(6), fx(7), fx(8), fx(9), fx(10), a1, a2, a3, a4); lean_free_object(f); return r; }
-    case 16: { obj* r = FN16(f)(fx(0), fx(1), fx(2), fx(3), fx(4), fx(5), fx(6), fx(7), fx(8), fx(9), fx(10), fx(11), a1, a2, a3, a4); lean_free_object(f); return r; }
+    case 4: { auto func = FN4(f); lean_free_object(f); obj* r = func(a1, a2, a3, a4); return r; }
+    case 5: { auto func = FN5(f); lean_object* x0 = fx(0); lean_free_object(f); obj* r = func(x0, a1, a2, a3, a4); return r; }
+    case 6: { auto func = FN6(f); lean_object* x0 = fx(0); lean_object* x1 = fx(1); lean_free_object(f); obj* r = func(x0, x1, a1, a2, a3, a4); return r; }
+    case 7: { auto func = FN7(f); lean_object* x0 = fx(0); lean_object* x1 = fx(1); lean_object* x2 = fx(2); lean_free_object(f); obj* r = func(x0, x1, x2, a1, a2, a3, a4); return r; }
+    case 8: { auto func = FN8(f); lean_object* x0 = fx(0); lean_object* x1 = fx(1); lean_object* x2 = fx(2); lean_object* x3 = fx(3); lean_free_object(f); obj* r = func(x0, x1, x2, x3, a1, a2, a3, a4); return r; }
+    case 9: { auto func = FN9(f); lean_object* x0 = fx(0); lean_object* x1 = fx(1); lean_object* x2 = fx(2); lean_object* x3 = fx(3); lean_object* x4 = fx(4); lean_free_object(f); obj* r = func(x0, x1, x2, x3, x4, a1, a2, a3, a4); return r; }
+    case 10: { auto func = FN10(f); lean_object* x0 = fx(0); lean_object* x1 = fx(1); lean_object* x2 = fx(2); lean_object* x3 = fx(3); lean_object* x4 = fx(4); lean_object* x5 = fx(5); lean_free_object(f); obj* r = func(x0, x1, x2, x3, x4, x5, a1, a2, a3, a4); return r; }
+    case 11: { auto func = FN11(f); lean_object* x0 = fx(0); lean_object* x1 = fx(1); lean_object* x2 = fx(2); lean_object* x3 = fx(3); lean_object* x4 = fx(4); lean_object* x5 = fx(5); lean_object* x6 = fx(6); lean_free_object(f); obj* r = func(x0, x1, x2, x3, x4, x5, x6, a1, a2, a3, a4); return r; }
+    case 12: { auto func = FN12(f); lean_object* x0 = fx(0); lean_object* x1 = fx(1); lean_object* x2 = fx(2); lean_object* x3 = fx(3); lean_object* x4 = fx(4); lean_object* x5 = fx(5); lean_object* x6 = fx(6); lean_object* x7 = fx(7); lean_free_object(f); obj* r = func(x0, x1, x2, x3, x4, x5, x6, x7, a1, a2, a3, a4); return r; }
+    case 13: { auto func = FN13(f); lean_object* x0 = fx(0); lean_object* x1 = fx(1); lean_object* x2 = fx(2); lean_object* x3 = fx(3); lean_object* x4 = fx(4); lean_object* x5 = fx(5); lean_object* x6 = fx(6); lean_object* x7 = fx(7); lean_object* x8 = fx(8); lean_free_object(f); obj* r = func(x0, x1, x2, x3, x4, x5, x6, x7, x8, a1, a2, a3, a4); return r; }
+    case 14: { auto func = FN14(f); lean_object* x0 = fx(0); lean_object* x1 = fx(1); lean_object* x2 = fx(2); lean_object* x3 = fx(3); lean_object* x4 = fx(4); lean_object* x5 = fx(5); lean_object* x6 = fx(6); lean_object* x7 = fx(7); lean_object* x8 = fx(8); lean_object* x9 = fx(9); lean_free_object(f); obj* r = func(x0, x1, x2, x3, x4, x5, x6, x7, x8, x9, a1, a2, a3, a4); return r; }
+    case 15: { auto func = FN15(f); lean_object* x0 = fx(0); lean_object* x1 = fx(1); lean_object* x2 = fx(2); lean_object* x3 = fx(3); lean_object* x4 = fx(4); lean_object* x5 = fx(5); lean_object* x6 = fx(6); lean_object* x7 = fx(7); lean_object* x8 = fx(8); lean_object* x9 = fx(9); lean_object* x10 = fx(10); lean_free_object(f); obj* r = func(x0, x1, x2, x3, x4, x5, x6, x7, x8, x9, x10, a1, a2, a3, a4); return r; }
+    case 16: { auto func = FN16(f); lean_object* x0 = fx(0); lean_object* x1 = fx(1); lean_object* x2 = fx(2); lean_object* x3 = fx(3); lean_object* x4 = fx(4); lean_object* x5 = fx(5); lean_object* x6 = fx(6); lean_object* x7 = fx(7); lean_object* x8 = fx(8); lean_object* x9 = fx(9); lean_object* x10 = fx(10); lean_object* x11 = fx(11); lean_free_object(f); obj* r = func(x0, x1, x2, x3, x4, x5, x6, x7, x8, x9, x10, x11, a1, a2, a3, a4); return r; }
     }
   }
   switch (arity) {
-  case 4: { obj* r = FN4(f)(a1, a2, a3, a4); lean_dec_ref(f); return r; }
-  case 5: { lean_inc(fx(0)); obj* r = FN5(f)(fx(0), a1, a2, a3, a4); lean_dec_ref(f); return r; }
-  case 6: { lean_inc(fx(0)); lean_inc(fx(1)); obj* r = FN6(f)(fx(0), fx(1), a1, a2, a3, a4); lean_dec_ref(f); return r; }
-  case 7: { lean_inc(fx(0)); lean_inc(fx(1)); lean_inc(fx(2)); obj* r = FN7(f)(fx(0), fx(1), fx(2), a1, a2, a3, a4); lean_dec_ref(f); return r; }
-  case 8: { lean_inc(fx(0)); lean_inc(fx(1)); lean_inc(fx(2)); lean_inc(fx(3)); obj* r = FN8(f)(fx(0), fx(1), fx(2), fx(3), a1, a2, a3, a4); lean_dec_ref(f); return r; }
-  case 9: { lean_inc(fx(0)); lean_inc(fx(1)); lean_inc(fx(2)); lean_inc(fx(3)); lean_inc(fx(4)); obj* r = FN9(f)(fx(0), fx(1), fx(2), fx(3), fx(4), a1, a2, a3, a4); lean_dec_ref(f); return r; }
-  case 10: { lean_inc(fx(0)); lean_inc(fx(1)); lean_inc(fx(2)); lean_inc(fx(3)); lean_inc(fx(4)); lean_inc(fx(5)); obj* r = FN10(f)(fx(0), fx(1), fx(2), fx(3), fx(4), fx(5), a1, a2, a3, a4); lean_dec_ref(f); return r; }
-  case 11: { lean_inc(fx(0)); lean_inc(fx(1)); lean_inc(fx(2)); lean_inc(fx(3)); lean_inc(fx(4)); lean_inc(fx(5)); lean_inc(fx(6)); obj* r = FN11(f)(fx(0), fx(1), fx(2), fx(3), fx(4), fx(5), fx(6), a1, a2, a3, a4); lean_dec_ref(f); return r; }
-  case 12: { lean_inc(fx(0)); lean_inc(fx(1)); lean_inc(fx(2)); lean_inc(fx(3)); lean_inc(fx(4)); lean_inc(fx(5)); lean_inc(fx(6)); lean_inc(fx(7)); obj* r = FN12(f)(fx(0), fx(1), fx(2), fx(3), fx(4), fx(5), fx(6), fx(7), a1, a2, a3, a4); lean_dec_ref(f); return r; }
-  case 13: { lean_inc(fx(0)); lean_inc(fx(1)); lean_inc(fx(2)); lean_inc(fx(3)); lean_inc(fx(4)); lean_inc(fx(5)); lean_inc(fx(6)); lean_inc(fx(7)); lean_inc(fx(8)); obj* r = FN13(f)(fx(0), fx(1), fx(2), fx(3), fx(4), fx(5), fx(6), fx(7), fx(8), a1, a2, a3, a4); lean_dec_ref(f); return r; }
-  case 14: { lean_inc(fx(0)); lean_inc(fx(1)); lean_inc(fx(2)); lean_inc(fx(3)); lean_inc(fx(4)); lean_inc(fx(5)); lean_inc(fx(6)); lean_inc(fx(7)); lean_inc(fx(8)); lean_inc(fx(9)); obj* r = FN14(f)(fx(0), fx(1), fx(2), fx(3), fx(4), fx(5), fx(6), fx(7), fx(8), fx(9), a1, a2, a3, a4); lean_dec_ref(f); return r; }
-  case 15: { lean_inc(fx(0)); lean_inc(fx(1)); lean_inc(fx(2)); lean_inc(fx(3)); lean_inc(fx(4)); lean_inc(fx(5)); lean_inc(fx(6)); lean_inc(fx(7)); lean_inc(fx(8)); lean_inc(fx(9)); lean_inc(fx(10)); obj* r = FN15(f)(fx(0), fx(1), fx(2), fx(3), fx(4), fx(5), fx(6), fx(7), fx(8), fx(9), fx(10), a1, a2, a3, a4); lean_dec_ref(f); return r; }
-  case 16: { lean_inc(fx(0)); lean_inc(fx(1)); lean_inc(fx(2)); lean_inc(fx(3)); lean_inc(fx(4)); lean_inc(fx(5)); lean_inc(fx(6)); lean_inc(fx(7)); lean_inc(fx(8)); lean_inc(fx(9)); lean_inc(fx(10)); lean_inc(fx(11)); obj* r = FN16(f)(fx(0), fx(1), fx(2), fx(3), fx(4), fx(5), fx(6), fx(7), fx(8), fx(9), fx(10), fx(11), a1, a2, a3, a4); lean_dec_ref(f); return r; }
+  case 4: { auto func = FN4(f); lean_dec_ref(f); obj* r = func(a1, a2, a3, a4); return r; }
+  case 5: { lean_inc(fx(0)); auto func = FN5(f); lean_object* x0 = fx(0); lean_dec_ref(f); obj* r = func(x0, a1, a2, a3, a4); return r; }
+  case 6: { lean_inc(fx(0)); lean_inc(fx(1)); auto func = FN6(f); lean_object* x0 = fx(0); lean_object* x1 = fx(1); lean_dec_ref(f); obj* r = func(x0, x1, a1, a2, a3, a4); return r; }
+  case 7: { lean_inc(fx(0)); lean_inc(fx(1)); lean_inc(fx(2)); auto func = FN7(f); lean_object* x0 = fx(0); lean_object* x1 = fx(1); lean_object* x2 = fx(2); lean_dec_ref(f); obj* r = func(x0, x1, x2, a1, a2, a3, a4); return r; }
+  case 8: { lean_inc(fx(0)); lean_inc(fx(1)); lean_inc(fx(2)); lean_inc(fx(3)); auto func = FN8(f); lean_object* x0 = fx(0); lean_object* x1 = fx(1); lean_object* x2 = fx(2); lean_object* x3 = fx(3); lean_dec_ref(f); obj* r = func(x0, x1, x2, x3, a1, a2, a3, a4); return r; }
+  case 9: { lean_inc(fx(0)); lean_inc(fx(1)); lean_inc(fx(2)); lean_inc(fx(3)); lean_inc(fx(4)); auto func = FN9(f); lean_object* x0 = fx(0); lean_object* x1 = fx(1); lean_object* x2 = fx(2); lean_object* x3 = fx(3); lean_object* x4 = fx(4); lean_dec_ref(f); obj* r = func(x0, x1, x2, x3, x4, a1, a2, a3, a4); return r; }
+  case 10: { lean_inc(fx(0)); lean_inc(fx(1)); lean_inc(fx(2)); lean_inc(fx(3)); lean_inc(fx(4)); lean_inc(fx(5)); auto func = FN10(f); lean_object* x0 = fx(0); lean_object* x1 = fx(1); lean_object* x2 = fx(2); lean_object* x3 = fx(3); lean_object* x4 = fx(4); lean_object* x5 = fx(5); lean_dec_ref(f); obj* r = func(x0, x1, x2, x3, x4, x5, a1, a2, a3, a4); return r; }
+  case 11: { lean_inc(fx(0)); lean_inc(fx(1)); lean_inc(fx(2)); lean_inc(fx(3)); lean_inc(fx(4)); lean_inc(fx(5)); lean_inc(fx(6)); auto func = FN11(f); lean_object* x0 = fx(0); lean_object* x1 = fx(1); lean_object* x2 = fx(2); lean_object* x3 = fx(3); lean_object* x4 = fx(4); lean_object* x5 = fx(5); lean_object* x6 = fx(6); lean_dec_ref(f); obj* r = func(x0, x1, x2, x3, x4, x5, x6, a1, a2, a3, a4); return r; }
+  case 12: { lean_inc(fx(0)); lean_inc(fx(1)); lean_inc(fx(2)); lean_inc(fx(3)); lean_inc(fx(4)); lean_inc(fx(5)); lean_inc(fx(6)); lean_inc(fx(7)); auto func = FN12(f); lean_object* x0 = fx(0); lean_object* x1 = fx(1); lean_object* x2 = fx(2); lean_object* x3 = fx(3); lean_object* x4 = fx(4); lean_object* x5 = fx(5); lean_object* x6 = fx(6); lean_object* x7 = fx(7); lean_dec_ref(f); obj* r = func(x0, x1, x2, x3, x4, x5, x6, x7, a1, a2, a3, a4); return r; }
+  case 13: { lean_inc(fx(0)); lean_inc(fx(1)); lean_inc(fx(2)); lean_inc(fx(3)); lean_inc(fx(4)); lean_inc(fx(5)); lean_inc(fx(6)); lean_inc(fx(7)); lean_inc(fx(8)); auto func = FN13(f); lean_object* x0 = fx(0); lean_object* x1 = fx(1); lean_object* x2 = fx(2); lean_object* x3 = fx(3); lean_object* x4 = fx(4); lean_object* x5 = fx(5); lean_object* x6 = fx(6); lean_object* x7 = fx(7); lean_object* x8 = fx(8); lean_dec_ref(f); obj* r = func(x0, x1, x2, x3, x4, x5, x6, x7, x8, a1, a2, a3, a4); return r; }
+  case 14: { lean_inc(fx(0)); lean_inc(fx(1)); lean_inc(fx(2)); lean_inc(fx(3)); lean_inc(fx(4)); lean_inc(fx(5)); lean_inc(fx(6)); lean_inc(fx(7)); lean_inc(fx(8)); lean_inc(fx(9)); auto func = FN14(f); lean_object* x0 = fx(0); lean_object* x1 = fx(1); lean_object* x2 = fx(2); lean_object* x3 = fx(3); lean_object* x4 = fx(4); lean_object* x5 = fx(5); lean_object* x6 = fx(6); lean_object* x7 = fx(7); lean_object* x8 = fx(8); lean_object* x9 = fx(9); lean_dec_ref(f); obj* r = func(x0, x1, x2, x3, x4, x5, x6, x7, x8, x9, a1, a2, a3, a4); return r; }
+  case 15: { lean_inc(fx(0)); lean_inc(fx(1)); lean_inc(fx(2)); lean_inc(fx(3)); lean_inc(fx(4)); lean_inc(fx(5)); lean_inc(fx(6)); lean_inc(fx(7)); lean_inc(fx(8)); lean_inc(fx(9)); lean_inc(fx(10)); auto func = FN15(f); lean_object* x0 = fx(0); lean_object* x1 = fx(1); lean_object* x2 = fx(2); lean_object* x3 = fx(3); lean_object* x4 = fx(4); lean_object* x5 = fx(5); lean_object* x6 = fx(6); lean_object* x7 = fx(7); lean_object* x8 = fx(8); lean_object* x9 = fx(9); lean_object* x10 = fx(10); lean_dec_ref(f); obj* r = func(x0, x1, x2, x3, x4, x5, x6, x7, x8, x9, x10, a1, a2, a3, a4); return r; }
+  case 16: { lean_inc(fx(0)); lean_inc(fx(1)); lean_inc(fx(2)); lean_inc(fx(3)); lean_inc(fx(4)); lean_inc(fx(5)); lean_inc(fx(6)); lean_inc(fx(7)); lean_inc(fx(8)); lean_inc(fx(9)); lean_inc(fx(10)); lean_inc(fx(11)); auto func = FN16(f); lean_object* x0 = fx(0); lean_object* x1 = fx(1); lean_object* x2 = fx(2); lean_object* x3 = fx(3); lean_object* x4 = fx(4); lean_object* x5 = fx(5); lean_object* x6 = fx(6); lean_object* x7 = fx(7); lean_object* x8 = fx(8); lean_object* x9 = fx(9); lean_object* x10 = fx(10); lean_object* x11 = fx(11); lean_dec_ref(f); obj* r = func(x0, x1, x2, x3, x4, x5, x6, x7, x8, x9, x10, x11, a1, a2, a3, a4); return r; }
   default:
     obj * as[4] = { a1, a2, a3, a4 };
     return apply_exact(f, as, 4);
@@ -346,33 +348,33 @@ unsigned fixed = lean_closure_num_fixed(f);
 if (arity == fixed + 5) {
   if (lean_is_exclusive(f)) {
     switch (arity) {
-    case 5: { obj* r = FN5(f)(a1, a2, a3, a4, a5); lean_free_object(f); return r; }
-    case 6: { obj* r = FN6(f)(fx(0), a1, a2, a3, a4, a5); lean_free_object(f); return r; }
-    case 7: { obj* r = FN7(f)(fx(0), fx(1), a1, a2, a3, a4, a5); lean_free_object(f); return r; }
-    case 8: { obj* r = FN8(f)(fx(0), fx(1), fx(2), a1, a2, a3, a4, a5); lean_free_object(f); return r; }
-    case 9: { obj* r = FN9(f)(fx(0), fx(1), fx(2), fx(3), a1, a2, a3, a4, a5); lean_free_object(f); return r; }
-    case 10: { obj* r = FN10(f)(fx(0), fx(1), fx(2), fx(3), fx(4), a1, a2, a3, a4, a5); lean_free_object(f); return r; }
-    case 11: { obj* r = FN11(f)(fx(0), fx(1), fx(2), fx(3), fx(4), fx(5), a1, a2, a3, a4, a5); lean_free_object(f); return r; }
-    case 12: { obj* r = FN12(f)(fx(0), fx(1), fx(2), fx(3), fx(4), fx(5), fx(6), a1, a2, a3, a4, a5); lean_free_object(f); return r; }
-    case 13: { obj* r = FN13(f)(fx(0), fx(1), fx(2), fx(3), fx(4), fx(5), fx(6), fx(7), a1, a2, a3, a4, a5); lean_free_object(f); return r; }
-    case 14: { obj* r = FN14(f)(fx(0), fx(1), fx(2), fx(3), fx(4), fx(5), fx(6), fx(7), fx(8), a1, a2, a3, a4, a5); lean_free_object(f); return r; }
-    case 15: { obj* r = FN15(f)(fx(0), fx(1), fx(2), fx(3), fx(4), fx(5), fx(6), fx(7), fx(8), fx(9), a1, a2, a3, a4, a5); lean_free_object(f); return r; }
-    case 16: { obj* r = FN16(f)(fx(0), fx(1), fx(2), fx(3), fx(4), fx(5), fx(6), fx(7), fx(8), fx(9), fx(10), a1, a2, a3, a4, a5); lean_free_object(f); return r; }
+    case 5: { auto func = FN5(f); lean_free_object(f); obj* r = func(a1, a2, a3, a4, a5); return r; }
+    case 6: { auto func = FN6(f); lean_object* x0 = fx(0); lean_free_object(f); obj* r = func(x0, a1, a2, a3, a4, a5); return r; }
+    case 7: { auto func = FN7(f); lean_object* x0 = fx(0); lean_object* x1 = fx(1); lean_free_object(f); obj* r = func(x0, x1, a1, a2, a3, a4, a5); return r; }
+    case 8: { auto func = FN8(f); lean_object* x0 = fx(0); lean_object* x1 = fx(1); lean_object* x2 = fx(2); lean_free_object(f); obj* r = func(x0, x1, x2, a1, a2, a3, a4, a5); return r; }
+    case 9: { auto func = FN9(f); lean_object* x0 = fx(0); lean_object* x1 = fx(1); lean_object* x2 = fx(2); lean_object* x3 = fx(3); lean_free_object(f); obj* r = func(x0, x1, x2, x3, a1, a2, a3, a4, a5); return r; }
+    case 10: { auto func = FN10(f); lean_object* x0 = fx(0); lean_object* x1 = fx(1); lean_object* x2 = fx(2); lean_object* x3 = fx(3); lean_object* x4 = fx(4); lean_free_object(f); obj* r = func(x0, x1, x2, x3, x4, a1, a2, a3, a4, a5); return r; }
+    case 11: { auto func = FN11(f); lean_object* x0 = fx(0); lean_object* x1 = fx(1); lean_object* x2 = fx(2); lean_object* x3 = fx(3); lean_object* x4 = fx(4); lean_object* x5 = fx(5); lean_free_object(f); obj* r = func(x0, x1, x2, x3, x4, x5, a1, a2, a3, a4, a5); return r; }
+    case 12: { auto func = FN12(f); lean_object* x0 = fx(0); lean_object* x1 = fx(1); lean_object* x2 = fx(2); lean_object* x3 = fx(3); lean_object* x4 = fx(4); lean_object* x5 = fx(5); lean_object* x6 = fx(6); lean_free_object(f); obj* r = func(x0, x1, x2, x3, x4, x5, x6, a1, a2, a3, a4, a5); return r; }
+    case 13: { auto func = FN13(f); lean_object* x0 = fx(0); lean_object* x1 = fx(1); lean_object* x2 = fx(2); lean_object* x3 = fx(3); lean_object* x4 = fx(4); lean_object* x5 = fx(5); lean_object* x6 = fx(6); lean_object* x7 = fx(7); lean_free_object(f); obj* r = func(x0, x1, x2, x3, x4, x5, x6, x7, a1, a2, a3, a4, a5); return r; }
+    case 14: { auto func = FN14(f); lean_object* x0 = fx(0); lean_object* x1 = fx(1); lean_object* x2 = fx(2); lean_object* x3 = fx(3); lean_object* x4 = fx(4); lean_object* x5 = fx(5); lean_object* x6 = fx(6); lean_object* x7 = fx(7); lean_object* x8 = fx(8); lean_free_object(f); obj* r = func(x0, x1, x2, x3, x4, x5, x6, x7, x8, a1, a2, a3, a4, a5); return r; }
+    case 15: { auto func = FN15(f); lean_object* x0 = fx(0); lean_object* x1 = fx(1); lean_object* x2 = fx(2); lean_object* x3 = fx(3); lean_object* x4 = fx(4); lean_object* x5 = fx(5); lean_object* x6 = fx(6); lean_object* x7 = fx(7); lean_object* x8 = fx(8); lean_object* x9 = fx(9); lean_free_object(f); obj* r = func(x0, x1, x2, x3, x4, x5, x6, x7, x8, x9, a1, a2, a3, a4, a5); return r; }
+    case 16: { auto func = FN16(f); lean_object* x0 = fx(0); lean_object* x1 = fx(1); lean_object* x2 = fx(2); lean_object* x3 = fx(3); lean_object* x4 = fx(4); lean_object* x5 = fx(5); lean_object* x6 = fx(6); lean_object* x7 = fx(7); lean_object* x8 = fx(8); lean_object* x9 = fx(9); lean_object* x10 = fx(10); lean_free_object(f); obj* r = func(x0, x1, x2, x3, x4, x5, x6, x7, x8, x9, x10, a1, a2, a3, a4, a5); return r; }
     }
   }
   switch (arity) {
-  case 5: { obj* r = FN5(f)(a1, a2, a3, a4, a5); lean_dec_ref(f); return r; }
-  case 6: { lean_inc(fx(0)); obj* r = FN6(f)(fx(0), a1, a2, a3, a4, a5); lean_dec_ref(f); return r; }
-  case 7: { lean_inc(fx(0)); lean_inc(fx(1)); obj* r = FN7(f)(fx(0), fx(1), a1, a2, a3, a4, a5); lean_dec_ref(f); return r; }
-  case 8: { lean_inc(fx(0)); lean_inc(fx(1)); lean_inc(fx(2)); obj* r = FN8(f)(fx(0), fx(1), fx(2), a1, a2, a3, a4, a5); lean_dec_ref(f); return r; }
-  case 9: { lean_inc(fx(0)); lean_inc(fx(1)); lean_inc(fx(2)); lean_inc(fx(3)); obj* r = FN9(f)(fx(0), fx(1), fx(2), fx(3), a1, a2, a3, a4, a5); lean_dec_ref(f); return r; }
-  case 10: { lean_inc(fx(0)); lean_inc(fx(1)); lean_inc(fx(2)); lean_inc(fx(3)); lean_inc(fx(4)); obj* r = FN10(f)(fx(0), fx(1), fx(2), fx(3), fx(4), a1, a2, a3, a4, a5); lean_dec_ref(f); return r; }
-  case 11: { lean_inc(fx(0)); lean_inc(fx(1)); lean_inc(fx(2)); lean_inc(fx(3)); lean_inc(fx(4)); lean_inc(fx(5)); obj* r = FN11(f)(fx(0), fx(1), fx(2), fx(3), fx(4), fx(5), a1, a2, a3, a4, a5); lean_dec_ref(f); return r; }
-  case 12: { lean_inc(fx(0)); lean_inc(fx(1)); lean_inc(fx(2)); lean_inc(fx(3)); lean_inc(fx(4)); lean_inc(fx(5)); lean_inc(fx(6)); obj* r = FN12(f)(fx(0), fx(1), fx(2), fx(3), fx(4), fx(5), fx(6), a1, a2, a3, a4, a5); lean_dec_ref(f); return r; }
-  case 13: { lean_inc(fx(0)); lean_inc(fx(1)); lean_inc(fx(2)); lean_inc(fx(3)); lean_inc(fx(4)); lean_inc(fx(5)); lean_inc(fx(6)); lean_inc(fx(7)); obj* r = FN13(f)(fx(0), fx(1), fx(2), fx(3), fx(4), fx(5), fx(6), fx(7), a1, a2, a3, a4, a5); lean_dec_ref(f); return r; }
-  case 14: { lean_inc(fx(0)); lean_inc(fx(1)); lean_inc(fx(2)); lean_inc(fx(3)); lean_inc(fx(4)); lean_inc(fx(5)); lean_inc(fx(6)); lean_inc(fx(7)); lean_inc(fx(8)); obj* r = FN14(f)(fx(0), fx(1), fx(2), fx(3), fx(4), fx(5), fx(6), fx(7), fx(8), a1, a2, a3, a4, a5); lean_dec_ref(f); return r; }
-  case 15: { lean_inc(fx(0)); lean_inc(fx(1)); lean_inc(fx(2)); lean_inc(fx(3)); lean_inc(fx(4)); lean_inc(fx(5)); lean_inc(fx(6)); lean_inc(fx(7)); lean_inc(fx(8)); lean_inc(fx(9)); obj* r = FN15(f)(fx(0), fx(1), fx(2), fx(3), fx(4), fx(5), fx(6), fx(7), fx(8), fx(9), a1, a2, a3, a4, a5); lean_dec_ref(f); return r; }
-  case 16: { lean_inc(fx(0)); lean_inc(fx(1)); lean_inc(fx(2)); lean_inc(fx(3)); lean_inc(fx(4)); lean_inc(fx(5)); lean_inc(fx(6)); lean_inc(fx(7)); lean_inc(fx(8)); lean_inc(fx(9)); lean_inc(fx(10)); obj* r = FN16(f)(fx(0), fx(1), fx(2), fx(3), fx(4), fx(5), fx(6), fx(7), fx(8), fx(9), fx(10), a1, a2, a3, a4, a5); lean_dec_ref(f); return r; }
+  case 5: { auto func = FN5(f); lean_dec_ref(f); obj* r = func(a1, a2, a3, a4, a5); return r; }
+  case 6: { lean_inc(fx(0)); auto func = FN6(f); lean_object* x0 = fx(0); lean_dec_ref(f); obj* r = func(x0, a1, a2, a3, a4, a5); return r; }
+  case 7: { lean_inc(fx(0)); lean_inc(fx(1)); auto func = FN7(f); lean_object* x0 = fx(0); lean_object* x1 = fx(1); lean_dec_ref(f); obj* r = func(x0, x1, a1, a2, a3, a4, a5); return r; }
+  case 8: { lean_inc(fx(0)); lean_inc(fx(1)); lean_inc(fx(2)); auto func = FN8(f); lean_object* x0 = fx(0); lean_object* x1 = fx(1); lean_object* x2 = fx(2); lean_dec_ref(f); obj* r = func(x0, x1, x2, a1, a2, a3, a4, a5); return r; }
+  case 9: { lean_inc(fx(0)); lean_inc(fx(1)); lean_inc(fx(2)); lean_inc(fx(3)); auto func = FN9(f); lean_object* x0 = fx(0); lean_object* x1 = fx(1); lean_object* x2 = fx(2); lean_object* x3 = fx(3); lean_dec_ref(f); obj* r = func(x0, x1, x2, x3, a1, a2, a3, a4, a5); return r; }
+  case 10: { lean_inc(fx(0)); lean_inc(fx(1)); lean_inc(fx(2)); lean_inc(fx(3)); lean_inc(fx(4)); auto func = FN10(f); lean_object* x0 = fx(0); lean_object* x1 = fx(1); lean_object* x2 = fx(2); lean_object* x3 = fx(3); lean_object* x4 = fx(4); lean_dec_ref(f); obj* r = func(x0, x1, x2, x3, x4, a1, a2, a3, a4, a5); return r; }
+  case 11: { lean_inc(fx(0)); lean_inc(fx(1)); lean_inc(fx(2)); lean_inc(fx(3)); lean_inc(fx(4)); lean_inc(fx(5)); auto func = FN11(f); lean_object* x0 = fx(0); lean_object* x1 = fx(1); lean_object* x2 = fx(2); lean_object* x3 = fx(3); lean_object* x4 = fx(4); lean_object* x5 = fx(5); lean_dec_ref(f); obj* r = func(x0, x1, x2, x3, x4, x5, a1, a2, a3, a4, a5); return r; }
+  case 12: { lean_inc(fx(0)); lean_inc(fx(1)); lean_inc(fx(2)); lean_inc(fx(3)); lean_inc(fx(4)); lean_inc(fx(5)); lean_inc(fx(6)); auto func = FN12(f); lean_object* x0 = fx(0); lean_object* x1 = fx(1); lean_object* x2 = fx(2); lean_object* x3 = fx(3); lean_object* x4 = fx(4); lean_object* x5 = fx(5); lean_object* x6 = fx(6); lean_dec_ref(f); obj* r = func(x0, x1, x2, x3, x4, x5, x6, a1, a2, a3, a4, a5); return r; }
+  case 13: { lean_inc(fx(0)); lean_inc(fx(1)); lean_inc(fx(2)); lean_inc(fx(3)); lean_inc(fx(4)); lean_inc(fx(5)); lean_inc(fx(6)); lean_inc(fx(7)); auto func = FN13(f); lean_object* x0 = fx(0); lean_object* x1 = fx(1); lean_object* x2 = fx(2); lean_object* x3 = fx(3); lean_object* x4 = fx(4); lean_object* x5 = fx(5); lean_object* x6 = fx(6); lean_object* x7 = fx(7); lean_dec_ref(f); obj* r = func(x0, x1, x2, x3, x4, x5, x6, x7, a1, a2, a3, a4, a5); return r; }
+  case 14: { lean_inc(fx(0)); lean_inc(fx(1)); lean_inc(fx(2)); lean_inc(fx(3)); lean_inc(fx(4)); lean_inc(fx(5)); lean_inc(fx(6)); lean_inc(fx(7)); lean_inc(fx(8)); auto func = FN14(f); lean_object* x0 = fx(0); lean_object* x1 = fx(1); lean_object* x2 = fx(2); lean_object* x3 = fx(3); lean_object* x4 = fx(4); lean_object* x5 = fx(5); lean_object* x6 = fx(6); lean_object* x7 = fx(7); lean_object* x8 = fx(8); lean_dec_ref(f); obj* r = func(x0, x1, x2, x3, x4, x5, x6, x7, x8, a1, a2, a3, a4, a5); return r; }
+  case 15: { lean_inc(fx(0)); lean_inc(fx(1)); lean_inc(fx(2)); lean_inc(fx(3)); lean_inc(fx(4)); lean_inc(fx(5)); lean_inc(fx(6)); lean_inc(fx(7)); lean_inc(fx(8)); lean_inc(fx(9)); auto func = FN15(f); lean_object* x0 = fx(0); lean_object* x1 = fx(1); lean_object* x2 = fx(2); lean_object* x3 = fx(3); lean_object* x4 = fx(4); lean_object* x5 = fx(5); lean_object* x6 = fx(6); lean_object* x7 = fx(7); lean_object* x8 = fx(8); lean_object* x9 = fx(9); lean_dec_ref(f); obj* r = func(x0, x1, x2, x3, x4, x5, x6, x7, x8, x9, a1, a2, a3, a4, a5); return r; }
+  case 16: { lean_inc(fx(0)); lean_inc(fx(1)); lean_inc(fx(2)); lean_inc(fx(3)); lean_inc(fx(4)); lean_inc(fx(5)); lean_inc(fx(6)); lean_inc(fx(7)); lean_inc(fx(8)); lean_inc(fx(9)); lean_inc(fx(10)); auto func = FN16(f); lean_object* x0 = fx(0); lean_object* x1 = fx(1); lean_object* x2 = fx(2); lean_object* x3 = fx(3); lean_object* x4 = fx(4); lean_object* x5 = fx(5); lean_object* x6 = fx(6); lean_object* x7 = fx(7); lean_object* x8 = fx(8); lean_object* x9 = fx(9); lean_object* x10 = fx(10); lean_dec_ref(f); obj* r = func(x0, x1, x2, x3, x4, x5, x6, x7, x8, x9, x10, a1, a2, a3, a4, a5); return r; }
   default:
     obj * as[5] = { a1, a2, a3, a4, a5 };
     return apply_exact(f, as, 5);
@@ -391,31 +393,31 @@ unsigned fixed = lean_closure_num_fixed(f);
 if (arity == fixed + 6) {
   if (lean_is_exclusive(f)) {
     switch (arity) {
-    case 6: { obj* r = FN6(f)(a1, a2, a3, a4, a5, a6); lean_free_object(f); return r; }
-    case 7: { obj* r = FN7(f)(fx(0), a1, a2, a3, a4, a5, a6); lean_free_object(f); return r; }
-    case 8: { obj* r = FN8(f)(fx(0), fx(1), a1, a2, a3, a4, a5, a6); lean_free_object(f); return r; }
-    case 9: { obj* r = FN9(f)(fx(0), fx(1), fx(2), a1, a2, a3, a4, a5, a6); lean_free_object(f); return r; }
-    case 10: { obj* r = FN10(f)(fx(0), fx(1), fx(2), fx(3), a1, a2, a3, a4, a5, a6); lean_free_object(f); return r; }
-    case 11: { obj* r = FN11(f)(fx(0), fx(1), fx(2), fx(3), fx(4), a1, a2, a3, a4, a5, a6); lean_free_object(f); return r; }
-    case 12: { obj* r = FN12(f)(fx(0), fx(1), fx(2), fx(3), fx(4), fx(5), a1, a2, a3, a4, a5, a6); lean_free_object(f); return r; }
-    case 13: { obj* r = FN13(f)(fx(0), fx(1), fx(2), fx(3), fx(4), fx(5), fx(6), a1, a2, a3, a4, a5, a6); lean_free_object(f); return r; }
-    case 14: { obj* r = FN14(f)(fx(0), fx(1), fx(2), fx(3), fx(4), fx(5), fx(6), fx(7), a1, a2, a3, a4, a5, a6); lean_free_object(f); return r; }
-    case 15: { obj* r = FN15(f)(fx(0), fx(1), fx(2), fx(3), fx(4), fx(5), fx(6), fx(7), fx(8), a1, a2, a3, a4, a5, a6); lean_free_object(f); return r; }
-    case 16: { obj* r = FN16(f)(fx(0), fx(1), fx(2), fx(3), fx(4), fx(5), fx(6), fx(7), fx(8), fx(9), a1, a2, a3, a4, a5, a6); lean_free_object(f); return r; }
+    case 6: { auto func = FN6(f); lean_free_object(f); obj* r = func(a1, a2, a3, a4, a5, a6); return r; }
+    case 7: { auto func = FN7(f); lean_object* x0 = fx(0); lean_free_object(f); obj* r = func(x0, a1, a2, a3, a4, a5, a6); return r; }
+    case 8: { auto func = FN8(f); lean_object* x0 = fx(0); lean_object* x1 = fx(1); lean_free_object(f); obj* r = func(x0, x1, a1, a2, a3, a4, a5, a6); return r; }
+    case 9: { auto func = FN9(f); lean_object* x0 = fx(0); lean_object* x1 = fx(1); lean_object* x2 = fx(2); lean_free_object(f); obj* r = func(x0, x1, x2, a1, a2, a3, a4, a5, a6); return r; }
+    case 10: { auto func = FN10(f); lean_object* x0 = fx(0); lean_object* x1 = fx(1); lean_object* x2 = fx(2); lean_object* x3 = fx(3); lean_free_object(f); obj* r = func(x0, x1, x2, x3, a1, a2, a3, a4, a5, a6); return r; }
+    case 11: { auto func = FN11(f); lean_object* x0 = fx(0); lean_object* x1 = fx(1); lean_object* x2 = fx(2); lean_object* x3 = fx(3); lean_object* x4 = fx(4); lean_free_object(f); obj* r = func(x0, x1, x2, x3, x4, a1, a2, a3, a4, a5, a6); return r; }
+    case 12: { auto func = FN12(f); lean_object* x0 = fx(0); lean_object* x1 = fx(1); lean_object* x2 = fx(2); lean_object* x3 = fx(3); lean_object* x4 = fx(4); lean_object* x5 = fx(5); lean_free_object(f); obj* r = func(x0, x1, x2, x3, x4, x5, a1, a2, a3, a4, a5, a6); return r; }
+    case 13: { auto func = FN13(f); lean_object* x0 = fx(0); lean_object* x1 = fx(1); lean_object* x2 = fx(2); lean_object* x3 = fx(3); lean_object* x4 = fx(4); lean_object* x5 = fx(5); lean_object* x6 = fx(6); lean_free_object(f); obj* r = func(x0, x1, x2, x3, x4, x5, x6, a1, a2, a3, a4, a5, a6); return r; }
+    case 14: { auto func = FN14(f); lean_object* x0 = fx(0); lean_object* x1 = fx(1); lean_object* x2 = fx(2); lean_object* x3 = fx(3); lean_object* x4 = fx(4); lean_object* x5 = fx(5); lean_object* x6 = fx(6); lean_object* x7 = fx(7); lean_free_object(f); obj* r = func(x0, x1, x2, x3, x4, x5, x6, x7, a1, a2, a3, a4, a5, a6); return r; }
+    case 15: { auto func = FN15(f); lean_object* x0 = fx(0); lean_object* x1 = fx(1); lean_object* x2 = fx(2); lean_object* x3 = fx(3); lean_object* x4 = fx(4); lean_object* x5 = fx(5); lean_object* x6 = fx(6); lean_object* x7 = fx(7); lean_object* x8 = fx(8); lean_free_object(f); obj* r = func(x0, x1, x2, x3, x4, x5, x6, x7, x8, a1, a2, a3, a4, a5, a6); return r; }
+    case 16: { auto func = FN16(f); lean_object* x0 = fx(0); lean_object* x1 = fx(1); lean_object* x2 = fx(2); lean_object* x3 = fx(3); lean_object* x4 = fx(4); lean_object* x5 = fx(5); lean_object* x6 = fx(6); lean_object* x7 = fx(7); lean_object* x8 = fx(8); lean_object* x9 = fx(9); lean_free_object(f); obj* r = func(x0, x1, x2, x3, x4, x5, x6, x7, x8, x9, a1, a2, a3, a4, a5, a6); return r; }
     }
   }
   switch (arity) {
-  case 6: { obj* r = FN6(f)(a1, a2, a3, a4, a5, a6); lean_dec_ref(f); return r; }
-  case 7: { lean_inc(fx(0)); obj* r = FN7(f)(fx(0), a1, a2, a3, a4, a5, a6); lean_dec_ref(f); return r; }
-  case 8: { lean_inc(fx(0)); lean_inc(fx(1)); obj* r = FN8(f)(fx(0), fx(1), a1, a2, a3, a4, a5, a6); lean_dec_ref(f); return r; }
-  case 9: { lean_inc(fx(0)); lean_inc(fx(1)); lean_inc(fx(2)); obj* r = FN9(f)(fx(0), fx(1), fx(2), a1, a2, a3, a4, a5, a6); lean_dec_ref(f); return r; }
-  case 10: { lean_inc(fx(0)); lean_inc(fx(1)); lean_inc(fx(2)); lean_inc(fx(3)); obj* r = FN10(f)(fx(0), fx(1), fx(2), fx(3), a1, a2, a3, a4, a5, a6); lean_dec_ref(f); return r; }
-  case 11: { lean_inc(fx(0)); lean_inc(fx(1)); lean_inc(fx(2)); lean_inc(fx(3)); lean_inc(fx(4)); obj* r = FN11(f)(fx(0), fx(1), fx(2), fx(3), fx(4), a1, a2, a3, a4, a5, a6); lean_dec_ref(f); return r; }
-  case 12: { lean_inc(fx(0)); lean_inc(fx(1)); lean_inc(fx(2)); lean_inc(fx(3)); lean_inc(fx(4)); lean_inc(fx(5)); obj* r = FN12(f)(fx(0), fx(1), fx(2), fx(3), fx(4), fx(5), a1, a2, a3, a4, a5, a6); lean_dec_ref(f); return r; }
-  case 13: { lean_inc(fx(0)); lean_inc(fx(1)); lean_inc(fx(2)); lean_inc(fx(3)); lean_inc(fx(4)); lean_inc(fx(5)); lean_inc(fx(6)); obj* r = FN13(f)(fx(0), fx(1), fx(2), fx(3), fx(4), fx(5), fx(6), a1, a2, a3, a4, a5, a6); lean_dec_ref(f); return r; }
-  case 14: { lean_inc(fx(0)); lean_inc(fx(1)); lean_inc(fx(2)); lean_inc(fx(3)); lean_inc(fx(4)); lean_inc(fx(5)); lean_inc(fx(6)); lean_inc(fx(7)); obj* r = FN14(f)(fx(0), fx(1), fx(2), fx(3), fx(4), fx(5), fx(6), fx(7), a1, a2, a3, a4, a5, a6); lean_dec_ref(f); return r; }
-  case 15: { lean_inc(fx(0)); lean_inc(fx(1)); lean_inc(fx(2)); lean_inc(fx(3)); lean_inc(fx(4)); lean_inc(fx(5)); lean_inc(fx(6)); lean_inc(fx(7)); lean_inc(fx(8)); obj* r = FN15(f)(fx(0), fx(1), fx(2), fx(3), fx(4), fx(5), fx(6), fx(7), fx(8), a1, a2, a3, a4, a5, a6); lean_dec_ref(f); return r; }
-  case 16: { lean_inc(fx(0)); lean_inc(fx(1)); lean_inc(fx(2)); lean_inc(fx(3)); lean_inc(fx(4)); lean_inc(fx(5)); lean_inc(fx(6)); lean_inc(fx(7)); lean_inc(fx(8)); lean_inc(fx(9)); obj* r = FN16(f)(fx(0), fx(1), fx(2), fx(3), fx(4), fx(5), fx(6), fx(7), fx(8), fx(9), a1, a2, a3, a4, a5, a6); lean_dec_ref(f); return r; }
+  case 6: { auto func = FN6(f); lean_dec_ref(f); obj* r = func(a1, a2, a3, a4, a5, a6); return r; }
+  case 7: { lean_inc(fx(0)); auto func = FN7(f); lean_object* x0 = fx(0); lean_dec_ref(f); obj* r = func(x0, a1, a2, a3, a4, a5, a6); return r; }
+  case 8: { lean_inc(fx(0)); lean_inc(fx(1)); auto func = FN8(f); lean_object* x0 = fx(0); lean_object* x1 = fx(1); lean_dec_ref(f); obj* r = func(x0, x1, a1, a2, a3, a4, a5, a6); return r; }
+  case 9: { lean_inc(fx(0)); lean_inc(fx(1)); lean_inc(fx(2)); auto func = FN9(f); lean_object* x0 = fx(0); lean_object* x1 = fx(1); lean_object* x2 = fx(2); lean_dec_ref(f); obj* r = func(x0, x1, x2, a1, a2, a3, a4, a5, a6); return r; }
+  case 10: { lean_inc(fx(0)); lean_inc(fx(1)); lean_inc(fx(2)); lean_inc(fx(3)); auto func = FN10(f); lean_object* x0 = fx(0); lean_object* x1 = fx(1); lean_object* x2 = fx(2); lean_object* x3 = fx(3); lean_dec_ref(f); obj* r = func(x0, x1, x2, x3, a1, a2, a3, a4, a5, a6); return r; }
+  case 11: { lean_inc(fx(0)); lean_inc(fx(1)); lean_inc(fx(2)); lean_inc(fx(3)); lean_inc(fx(4)); auto func = FN11(f); lean_object* x0 = fx(0); lean_object* x1 = fx(1); lean_object* x2 = fx(2); lean_object* x3 = fx(3); lean_object* x4 = fx(4); lean_dec_ref(f); obj* r = func(x0, x1, x2, x3, x4, a1, a2, a3, a4, a5, a6); return r; }
+  case 12: { lean_inc(fx(0)); lean_inc(fx(1)); lean_inc(fx(2)); lean_inc(fx(3)); lean_inc(fx(4)); lean_inc(fx(5)); auto func = FN12(f); lean_object* x0 = fx(0); lean_object* x1 = fx(1); lean_object* x2 = fx(2); lean_object* x3 = fx(3); lean_object* x4 = fx(4); lean_object* x5 = fx(5); lean_dec_ref(f); obj* r = func(x0, x1, x2, x3, x4, x5, a1, a2, a3, a4, a5, a6); return r; }
+  case 13: { lean_inc(fx(0)); lean_inc(fx(1)); lean_inc(fx(2)); lean_inc(fx(3)); lean_inc(fx(4)); lean_inc(fx(5)); lean_inc(fx(6)); auto func = FN13(f); lean_object* x0 = fx(0); lean_object* x1 = fx(1); lean_object* x2 = fx(2); lean_object* x3 = fx(3); lean_object* x4 = fx(4); lean_object* x5 = fx(5); lean_object* x6 = fx(6); lean_dec_ref(f); obj* r = func(x0, x1, x2, x3, x4, x5, x6, a1, a2, a3, a4, a5, a6); return r; }
+  case 14: { lean_inc(fx(0)); lean_inc(fx(1)); lean_inc(fx(2)); lean_inc(fx(3)); lean_inc(fx(4)); lean_inc(fx(5)); lean_inc(fx(6)); lean_inc(fx(7)); auto func = FN14(f); lean_object* x0 = fx(0); lean_object* x1 = fx(1); lean_object* x2 = fx(2); lean_object* x3 = fx(3); lean_object* x4 = fx(4); lean_object* x5 = fx(5); lean_object* x6 = fx(6); lean_object* x7 = fx(7); lean_dec_ref(f); obj* r = func(x0, x1, x2, x3, x4, x5, x6, x7, a1, a2, a3, a4, a5, a6); return r; }
+  case 15: { lean_inc(fx(0)); lean_inc(fx(1)); lean_inc(fx(2)); lean_inc(fx(3)); lean_inc(fx(4)); lean_inc(fx(5)); lean_inc(fx(6)); lean_inc(fx(7)); lean_inc(fx(8)); auto func = FN15(f); lean_object* x0 = fx(0); lean_object* x1 = fx(1); lean_object* x2 = fx(2); lean_object* x3 = fx(3); lean_object* x4 = fx(4); lean_object* x5 = fx(5); lean_object* x6 = fx(6); lean_object* x7 = fx(7); lean_object* x8 = fx(8); lean_dec_ref(f); obj* r = func(x0, x1, x2, x3, x4, x5, x6, x7, x8, a1, a2, a3, a4, a5, a6); return r; }
+  case 16: { lean_inc(fx(0)); lean_inc(fx(1)); lean_inc(fx(2)); lean_inc(fx(3)); lean_inc(fx(4)); lean_inc(fx(5)); lean_inc(fx(6)); lean_inc(fx(7)); lean_inc(fx(8)); lean_inc(fx(9)); auto func = FN16(f); lean_object* x0 = fx(0); lean_object* x1 = fx(1); lean_object* x2 = fx(2); lean_object* x3 = fx(3); lean_object* x4 = fx(4); lean_object* x5 = fx(5); lean_object* x6 = fx(6); lean_object* x7 = fx(7); lean_object* x8 = fx(8); lean_object* x9 = fx(9); lean_dec_ref(f); obj* r = func(x0, x1, x2, x3, x4, x5, x6, x7, x8, x9, a1, a2, a3, a4, a5, a6); return r; }
   default:
     obj * as[6] = { a1, a2, a3, a4, a5, a6 };
     return apply_exact(f, as, 6);
@@ -434,29 +436,29 @@ unsigned fixed = lean_closure_num_fixed(f);
 if (arity == fixed + 7) {
   if (lean_is_exclusive(f)) {
     switch (arity) {
-    case 7: { obj* r = FN7(f)(a1, a2, a3, a4, a5, a6, a7); lean_free_object(f); return r; }
-    case 8: { obj* r = FN8(f)(fx(0), a1, a2, a3, a4, a5, a6, a7); lean_free_object(f); return r; }
-    case 9: { obj* r = FN9(f)(fx(0), fx(1), a1, a2, a3, a4, a5, a6, a7); lean_free_object(f); return r; }
-    case 10: { obj* r = FN10(f)(fx(0), fx(1), fx(2), a1, a2, a3, a4, a5, a6, a7); lean_free_object(f); return r; }
-    case 11: { obj* r = FN11(f)(fx(0), fx(1), fx(2), fx(3), a1, a2, a3, a4, a5, a6, a7); lean_free_object(f); return r; }
-    case 12: { obj* r = FN12(f)(fx(0), fx(1), fx(2), fx(3), fx(4), a1, a2, a3, a4, a5, a6, a7); lean_free_object(f); return r; }
-    case 13: { obj* r = FN13(f)(fx(0), fx(1), fx(2), fx(3), fx(4), fx(5), a1, a2, a3, a4, a5, a6, a7); lean_free_object(f); return r; }
-    case 14: { obj* r = FN14(f)(fx(0), fx(1), fx(2), fx(3), fx(4), fx(5), fx(6), a1, a2, a3, a4, a5, a6, a7); lean_free_object(f); return r; }
-    case 15: { obj* r = FN15(f)(fx(0), fx(1), fx(2), fx(3), fx(4), fx(5), fx(6), fx(7), a1, a2, a3, a4, a5, a6, a7); lean_free_object(f); return r; }
-    case 16: { obj* r = FN16(f)(fx(0), fx(1), fx(2), fx(3), fx(4), fx(5), fx(6), fx(7), fx(8), a1, a2, a3, a4, a5, a6, a7); lean_free_object(f); return r; }
+    case 7: { auto func = FN7(f); lean_free_object(f); obj* r = func(a1, a2, a3, a4, a5, a6, a7); return r; }
+    case 8: { auto func = FN8(f); lean_object* x0 = fx(0); lean_free_object(f); obj* r = func(x0, a1, a2, a3, a4, a5, a6, a7); return r; }
+    case 9: { auto func = FN9(f); lean_object* x0 = fx(0); lean_object* x1 = fx(1); lean_free_object(f); obj* r = func(x0, x1, a1, a2, a3, a4, a5, a6, a7); return r; }
+    case 10: { auto func = FN10(f); lean_object* x0 = fx(0); lean_object* x1 = fx(1); lean_object* x2 = fx(2); lean_free_object(f); obj* r = func(x0, x1, x2, a1, a2, a3, a4, a5, a6, a7); return r; }
+    case 11: { auto func = FN11(f); lean_object* x0 = fx(0); lean_object* x1 = fx(1); lean_object* x2 = fx(2); lean_object* x3 = fx(3); lean_free_object(f); obj* r = func(x0, x1, x2, x3, a1, a2, a3, a4, a5, a6, a7); return r; }
+    case 12: { auto func = FN12(f); lean_object* x0 = fx(0); lean_object* x1 = fx(1); lean_object* x2 = fx(2); lean_object* x3 = fx(3); lean_object* x4 = fx(4); lean_free_object(f); obj* r = func(x0, x1, x2, x3, x4, a1, a2, a3, a4, a5, a6, a7); return r; }
+    case 13: { auto func = FN13(f); lean_object* x0 = fx(0); lean_object* x1 = fx(1); lean_object* x2 = fx(2); lean_object* x3 = fx(3); lean_object* x4 = fx(4); lean_object* x5 = fx(5); lean_free_object(f); obj* r = func(x0, x1, x2, x3, x4, x5, a1, a2, a3, a4, a5, a6, a7); return r; }
+    case 14: { auto func = FN14(f); lean_object* x0 = fx(0); lean_object* x1 = fx(1); lean_object* x2 = fx(2); lean_object* x3 = fx(3); lean_object* x4 = fx(4); lean_object* x5 = fx(5); lean_object* x6 = fx(6); lean_free_object(f); obj* r = func(x0, x1, x2, x3, x4, x5, x6, a1, a2, a3, a4, a5, a6, a7); return r; }
+    case 15: { auto func = FN15(f); lean_object* x0 = fx(0); lean_object* x1 = fx(1); lean_object* x2 = fx(2); lean_object* x3 = fx(3); lean_object* x4 = fx(4); lean_object* x5 = fx(5); lean_object* x6 = fx(6); lean_object* x7 = fx(7); lean_free_object(f); obj* r = func(x0, x1, x2, x3, x4, x5, x6, x7, a1, a2, a3, a4, a5, a6, a7); return r; }
+    case 16: { auto func = FN16(f); lean_object* x0 = fx(0); lean_object* x1 = fx(1); lean_object* x2 = fx(2); lean_object* x3 = fx(3); lean_object* x4 = fx(4); lean_object* x5 = fx(5); lean_object* x6 = fx(6); lean_object* x7 = fx(7); lean_object* x8 = fx(8); lean_free_object(f); obj* r = func(x0, x1, x2, x3, x4, x5, x6, x7, x8, a1, a2, a3, a4, a5, a6, a7); return r; }
     }
   }
   switch (arity) {
-  case 7: { obj* r = FN7(f)(a1, a2, a3, a4, a5, a6, a7); lean_dec_ref(f); return r; }
-  case 8: { lean_inc(fx(0)); obj* r = FN8(f)(fx(0), a1, a2, a3, a4, a5, a6, a7); lean_dec_ref(f); return r; }
-  case 9: { lean_inc(fx(0)); lean_inc(fx(1)); obj* r = FN9(f)(fx(0), fx(1), a1, a2, a3, a4, a5, a6, a7); lean_dec_ref(f); return r; }
-  case 10: { lean_inc(fx(0)); lean_inc(fx(1)); lean_inc(fx(2)); obj* r = FN10(f)(fx(0), fx(1), fx(2), a1, a2, a3, a4, a5, a6, a7); lean_dec_ref(f); return r; }
-  case 11: { lean_inc(fx(0)); lean_inc(fx(1)); lean_inc(fx(2)); lean_inc(fx(3)); obj* r = FN11(f)(fx(0), fx(1), fx(2), fx(3), a1, a2, a3, a4, a5, a6, a7); lean_dec_ref(f); return r; }
-  case 12: { lean_inc(fx(0)); lean_inc(fx(1)); lean_inc(fx(2)); lean_inc(fx(3)); lean_inc(fx(4)); obj* r = FN12(f)(fx(0), fx(1), fx(2), fx(3), fx(4), a1, a2, a3, a4, a5, a6, a7); lean_dec_ref(f); return r; }
-  case 13: { lean_inc(fx(0)); lean_inc(fx(1)); lean_inc(fx(2)); lean_inc(fx(3)); lean_inc(fx(4)); lean_inc(fx(5)); obj* r = FN13(f)(fx(0), fx(1), fx(2), fx(3), fx(4), fx(5), a1, a2, a3, a4, a5, a6, a7); lean_dec_ref(f); return r; }
-  case 14: { lean_inc(fx(0)); lean_inc(fx(1)); lean_inc(fx(2)); lean_inc(fx(3)); lean_inc(fx(4)); lean_inc(fx(5)); lean_inc(fx(6)); obj* r = FN14(f)(fx(0), fx(1), fx(2), fx(3), fx(4), fx(5), fx(6), a1, a2, a3, a4, a5, a6, a7); lean_dec_ref(f); return r; }
-  case 15: { lean_inc(fx(0)); lean_inc(fx(1)); lean_inc(fx(2)); lean_inc(fx(3)); lean_inc(fx(4)); lean_inc(fx(5)); lean_inc(fx(6)); lean_inc(fx(7)); obj* r = FN15(f)(fx(0), fx(1), fx(2), fx(3), fx(4), fx(5), fx(6), fx(7), a1, a2, a3, a4, a5, a6, a7); lean_dec_ref(f); return r; }
-  case 16: { lean_inc(fx(0)); lean_inc(fx(1)); lean_inc(fx(2)); lean_inc(fx(3)); lean_inc(fx(4)); lean_inc(fx(5)); lean_inc(fx(6)); lean_inc(fx(7)); lean_inc(fx(8)); obj* r = FN16(f)(fx(0), fx(1), fx(2), fx(3), fx(4), fx(5), fx(6), fx(7), fx(8), a1, a2, a3, a4, a5, a6, a7); lean_dec_ref(f); return r; }
+  case 7: { auto func = FN7(f); lean_dec_ref(f); obj* r = func(a1, a2, a3, a4, a5, a6, a7); return r; }
+  case 8: { lean_inc(fx(0)); auto func = FN8(f); lean_object* x0 = fx(0); lean_dec_ref(f); obj* r = func(x0, a1, a2, a3, a4, a5, a6, a7); return r; }
+  case 9: { lean_inc(fx(0)); lean_inc(fx(1)); auto func = FN9(f); lean_object* x0 = fx(0); lean_object* x1 = fx(1); lean_dec_ref(f); obj* r = func(x0, x1, a1, a2, a3, a4, a5, a6, a7); return r; }
+  case 10: { lean_inc(fx(0)); lean_inc(fx(1)); lean_inc(fx(2)); auto func = FN10(f); lean_object* x0 = fx(0); lean_object* x1 = fx(1); lean_object* x2 = fx(2); lean_dec_ref(f); obj* r = func(x0, x1, x2, a1, a2, a3, a4, a5, a6, a7); return r; }
+  case 11: { lean_inc(fx(0)); lean_inc(fx(1)); lean_inc(fx(2)); lean_inc(fx(3)); auto func = FN11(f); lean_object* x0 = fx(0); lean_object* x1 = fx(1); lean_object* x2 = fx(2); lean_object* x3 = fx(3); lean_dec_ref(f); obj* r = func(x0, x1, x2, x3, a1, a2, a3, a4, a5, a6, a7); return r; }
+  case 12: { lean_inc(fx(0)); lean_inc(fx(1)); lean_inc(fx(2)); lean_inc(fx(3)); lean_inc(fx(4)); auto func = FN12(f); lean_object* x0 = fx(0); lean_object* x1 = fx(1); lean_object* x2 = fx(2); lean_object* x3 = fx(3); lean_object* x4 = fx(4); lean_dec_ref(f); obj* r = func(x0, x1, x2, x3, x4, a1, a2, a3, a4, a5, a6, a7); return r; }
+  case 13: { lean_inc(fx(0)); lean_inc(fx(1)); lean_inc(fx(2)); lean_inc(fx(3)); lean_inc(fx(4)); lean_inc(fx(5)); auto func = FN13(f); lean_object* x0 = fx(0); lean_object* x1 = fx(1); lean_object* x2 = fx(2); lean_object* x3 = fx(3); lean_object* x4 = fx(4); lean_object* x5 = fx(5); lean_dec_ref(f); obj* r = func(x0, x1, x2, x3, x4, x5, a1, a2, a3, a4, a5, a6, a7); return r; }
+  case 14: { lean_inc(fx(0)); lean_inc(fx(1)); lean_inc(fx(2)); lean_inc(fx(3)); lean_inc(fx(4)); lean_inc(fx(5)); lean_inc(fx(6)); auto func = FN14(f); lean_object* x0 = fx(0); lean_object* x1 = fx(1); lean_object* x2 = fx(2); lean_object* x3 = fx(3); lean_object* x4 = fx(4); lean_object* x5 = fx(5); lean_object* x6 = fx(6); lean_dec_ref(f); obj* r = func(x0, x1, x2, x3, x4, x5, x6, a1, a2, a3, a4, a5, a6, a7); return r; }
+  case 15: { lean_inc(fx(0)); lean_inc(fx(1)); lean_inc(fx(2)); lean_inc(fx(3)); lean_inc(fx(4)); lean_inc(fx(5)); lean_inc(fx(6)); lean_inc(fx(7)); auto func = FN15(f); lean_object* x0 = fx(0); lean_object* x1 = fx(1); lean_object* x2 = fx(2); lean_object* x3 = fx(3); lean_object* x4 = fx(4); lean_object* x5 = fx(5); lean_object* x6 = fx(6); lean_object* x7 = fx(7); lean_dec_ref(f); obj* r = func(x0, x1, x2, x3, x4, x5, x6, x7, a1, a2, a3, a4, a5, a6, a7); return r; }
+  case 16: { lean_inc(fx(0)); lean_inc(fx(1)); lean_inc(fx(2)); lean_inc(fx(3)); lean_inc(fx(4)); lean_inc(fx(5)); lean_inc(fx(6)); lean_inc(fx(7)); lean_inc(fx(8)); auto func = FN16(f); lean_object* x0 = fx(0); lean_object* x1 = fx(1); lean_object* x2 = fx(2); lean_object* x3 = fx(3); lean_object* x4 = fx(4); lean_object* x5 = fx(5); lean_object* x6 = fx(6); lean_object* x7 = fx(7); lean_object* x8 = fx(8); lean_dec_ref(f); obj* r = func(x0, x1, x2, x3, x4, x5, x6, x7, x8, a1, a2, a3, a4, a5, a6, a7); return r; }
   default:
     obj * as[7] = { a1, a2, a3, a4, a5, a6, a7 };
     return apply_exact(f, as, 7);
@@ -475,27 +477,27 @@ unsigned fixed = lean_closure_num_fixed(f);
 if (arity == fixed + 8) {
   if (lean_is_exclusive(f)) {
     switch (arity) {
-    case 8: { obj* r = FN8(f)(a1, a2, a3, a4, a5, a6, a7, a8); lean_free_object(f); return r; }
-    case 9: { obj* r = FN9(f)(fx(0), a1, a2, a3, a4, a5, a6, a7, a8); lean_free_object(f); return r; }
-    case 10: { obj* r = FN10(f)(fx(0), fx(1), a1, a2, a3, a4, a5, a6, a7, a8); lean_free_object(f); return r; }
-    case 11: { obj* r = FN11(f)(fx(0), fx(1), fx(2), a1, a2, a3, a4, a5, a6, a7, a8); lean_free_object(f); return r; }
-    case 12: { obj* r = FN12(f)(fx(0), fx(1), fx(2), fx(3), a1, a2, a3, a4, a5, a6, a7, a8); lean_free_object(f); return r; }
-    case 13: { obj* r = FN13(f)(fx(0), fx(1), fx(2), fx(3), fx(4), a1, a2, a3, a4, a5, a6, a7, a8); lean_free_object(f); return r; }
-    case 14: { obj* r = FN14(f)(fx(0), fx(1), fx(2), fx(3), fx(4), fx(5), a1, a2, a3, a4, a5, a6, a7, a8); lean_free_object(f); return r; }
-    case 15: { obj* r = FN15(f)(fx(0), fx(1), fx(2), fx(3), fx(4), fx(5), fx(6), a1, a2, a3, a4, a5, a6, a7, a8); lean_free_object(f); return r; }
-    case 16: { obj* r = FN16(f)(fx(0), fx(1), fx(2), fx(3), fx(4), fx(5), fx(6), fx(7), a1, a2, a3, a4, a5, a6, a7, a8); lean_free_object(f); return r; }
+    case 8: { auto func = FN8(f); lean_free_object(f); obj* r = func(a1, a2, a3, a4, a5, a6, a7, a8); return r; }
+    case 9: { auto func = FN9(f); lean_object* x0 = fx(0); lean_free_object(f); obj* r = func(x0, a1, a2, a3, a4, a5, a6, a7, a8); return r; }
+    case 10: { auto func = FN10(f); lean_object* x0 = fx(0); lean_object* x1 = fx(1); lean_free_object(f); obj* r = func(x0, x1, a1, a2, a3, a4, a5, a6, a7, a8); return r; }
+    case 11: { auto func = FN11(f); lean_object* x0 = fx(0); lean_object* x1 = fx(1); lean_object* x2 = fx(2); lean_free_object(f); obj* r = func(x0, x1, x2, a1, a2, a3, a4, a5, a6, a7, a8); return r; }
+    case 12: { auto func = FN12(f); lean_object* x0 = fx(0); lean_object* x1 = fx(1); lean_object* x2 = fx(2); lean_object* x3 = fx(3); lean_free_object(f); obj* r = func(x0, x1, x2, x3, a1, a2, a3, a4, a5, a6, a7, a8); return r; }
+    case 13: { auto func = FN13(f); lean_object* x0 = fx(0); lean_object* x1 = fx(1); lean_object* x2 = fx(2); lean_object* x3 = fx(3); lean_object* x4 = fx(4); lean_free_object(f); obj* r = func(x0, x1, x2, x3, x4, a1, a2, a3, a4, a5, a6, a7, a8); return r; }
+    case 14: { auto func = FN14(f); lean_object* x0 = fx(0); lean_object* x1 = fx(1); lean_object* x2 = fx(2); lean_object* x3 = fx(3); lean_object* x4 = fx(4); lean_object* x5 = fx(5); lean_free_object(f); obj* r = func(x0, x1, x2, x3, x4, x5, a1, a2, a3, a4, a5, a6, a7, a8); return r; }
+    case 15: { auto func = FN15(f); lean_object* x0 = fx(0); lean_object* x1 = fx(1); lean_object* x2 = fx(2); lean_object* x3 = fx(3); lean_object* x4 = fx(4); lean_object* x5 = fx(5); lean_object* x6 = fx(6); lean_free_object(f); obj* r = func(x0, x1, x2, x3, x4, x5, x6, a1, a2, a3, a4, a5, a6, a7, a8); return r; }
+    case 16: { auto func = FN16(f); lean_object* x0 = fx(0); lean_object* x1 = fx(1); lean_object* x2 = fx(2); lean_object* x3 = fx(3); lean_object* x4 = fx(4); lean_object* x5 = fx(5); lean_object* x6 = fx(6); lean_object* x7 = fx(7); lean_free_object(f); obj* r = func(x0, x1, x2, x3, x4, x5, x6, x7, a1, a2, a3, a4, a5, a6, a7, a8); return r; }
     }
   }
   switch (arity) {
-  case 8: { obj* r = FN8(f)(a1, a2, a3, a4, a5, a6, a7, a8); lean_dec_ref(f); return r; }
-  case 9: { lean_inc(fx(0)); obj* r = FN9(f)(fx(0), a1, a2, a3, a4, a5, a6, a7, a8); lean_dec_ref(f); return r; }
-  case 10: { lean_inc(fx(0)); lean_inc(fx(1)); obj* r = FN10(f)(fx(0), fx(1), a1, a2, a3, a4, a5, a6, a7, a8); lean_dec_ref(f); return r; }
-  case 11: { lean_inc(fx(0)); lean_inc(fx(1)); lean_inc(fx(2)); obj* r = FN11(f)(fx(0), fx(1), fx(2), a1, a2, a3, a4, a5, a6, a7, a8); lean_dec_ref(f); return r; }
-  case 12: { lean_inc(fx(0)); lean_inc(fx(1)); lean_inc(fx(2)); lean_inc(fx(3)); obj* r = FN12(f)(fx(0), fx(1), fx(2), fx(3), a1, a2, a3, a4, a5, a6, a7, a8); lean_dec_ref(f); return r; }
-  case 13: { lean_inc(fx(0)); lean_inc(fx(1)); lean_inc(fx(2)); lean_inc(fx(3)); lean_inc(fx(4)); obj* r = FN13(f)(fx(0), fx(1), fx(2), fx(3), fx(4), a1, a2, a3, a4, a5, a6, a7, a8); lean_dec_ref(f); return r; }
-  case 14: { lean_inc(fx(0)); lean_inc(fx(1)); lean_inc(fx(2)); lean_inc(fx(3)); lean_inc(fx(4)); lean_inc(fx(5)); obj* r = FN14(f)(fx(0), fx(1), fx(2), fx(3), fx(4), fx(5), a1, a2, a3, a4, a5, a6, a7, a8); lean_dec_ref(f); return r; }
-  case 15: { lean_inc(fx(0)); lean_inc(fx(1)); lean_inc(fx(2)); lean_inc(fx(3)); lean_inc(fx(4)); lean_inc(fx(5)); lean_inc(fx(6)); obj* r = FN15(f)(fx(0), fx(1), fx(2), fx(3), fx(4), fx(5), fx(6), a1, a2, a3, a4, a5, a6, a7, a8); lean_dec_ref(f); return r; }
-  case 16: { lean_inc(fx(0)); lean_inc(fx(1)); lean_inc(fx(2)); lean_inc(fx(3)); lean_inc(fx(4)); lean_inc(fx(5)); lean_inc(fx(6)); lean_inc(fx(7)); obj* r = FN16(f)(fx(0), fx(1), fx(2), fx(3), fx(4), fx(5), fx(6), fx(7), a1, a2, a3, a4, a5, a6, a7, a8); lean_dec_ref(f); return r; }
+  case 8: { auto func = FN8(f); lean_dec_ref(f); obj* r = func(a1, a2, a3, a4, a5, a6, a7, a8); return r; }
+  case 9: { lean_inc(fx(0)); auto func = FN9(f); lean_object* x0 = fx(0); lean_dec_ref(f); obj* r = func(x0, a1, a2, a3, a4, a5, a6, a7, a8); return r; }
+  case 10: { lean_inc(fx(0)); lean_inc(fx(1)); auto func = FN10(f); lean_object* x0 = fx(0); lean_object* x1 = fx(1); lean_dec_ref(f); obj* r = func(x0, x1, a1, a2, a3, a4, a5, a6, a7, a8); return r; }
+  case 11: { lean_inc(fx(0)); lean_inc(fx(1)); lean_inc(fx(2)); auto func = FN11(f); lean_object* x0 = fx(0); lean_object* x1 = fx(1); lean_object* x2 = fx(2); lean_dec_ref(f); obj* r = func(x0, x1, x2, a1, a2, a3, a4, a5, a6, a7, a8); return r; }
+  case 12: { lean_inc(fx(0)); lean_inc(fx(1)); lean_inc(fx(2)); lean_inc(fx(3)); auto func = FN12(f); lean_object* x0 = fx(0); lean_object* x1 = fx(1); lean_object* x2 = fx(2); lean_object* x3 = fx(3); lean_dec_ref(f); obj* r = func(x0, x1, x2, x3, a1, a2, a3, a4, a5, a6, a7, a8); return r; }
+  case 13: { lean_inc(fx(0)); lean_inc(fx(1)); lean_inc(fx(2)); lean_inc(fx(3)); lean_inc(fx(4)); auto func = FN13(f); lean_object* x0 = fx(0); lean_object* x1 = fx(1); lean_object* x2 = fx(2); lean_object* x3 = fx(3); lean_object* x4 = fx(4); lean_dec_ref(f); obj* r = func(x0, x1, x2, x3, x4, a1, a2, a3, a4, a5, a6, a7, a8); return r; }
+  case 14: { lean_inc(fx(0)); lean_inc(fx(1)); lean_inc(fx(2)); lean_inc(fx(3)); lean_inc(fx(4)); lean_inc(fx(5)); auto func = FN14(f); lean_object* x0 = fx(0); lean_object* x1 = fx(1); lean_object* x2 = fx(2); lean_object* x3 = fx(3); lean_object* x4 = fx(4); lean_object* x5 = fx(5); lean_dec_ref(f); obj* r = func(x0, x1, x2, x3, x4, x5, a1, a2, a3, a4, a5, a6, a7, a8); return r; }
+  case 15: { lean_inc(fx(0)); lean_inc(fx(1)); lean_inc(fx(2)); lean_inc(fx(3)); lean_inc(fx(4)); lean_inc(fx(5)); lean_inc(fx(6)); auto func = FN15(f); lean_object* x0 = fx(0); lean_object* x1 = fx(1); lean_object* x2 = fx(2); lean_object* x3 = fx(3); lean_object* x4 = fx(4); lean_object* x5 = fx(5); lean_object* x6 = fx(6); lean_dec_ref(f); obj* r = func(x0, x1, x2, x3, x4, x5, x6, a1, a2, a3, a4, a5, a6, a7, a8); return r; }
+  case 16: { lean_inc(fx(0)); lean_inc(fx(1)); lean_inc(fx(2)); lean_inc(fx(3)); lean_inc(fx(4)); lean_inc(fx(5)); lean_inc(fx(6)); lean_inc(fx(7)); auto func = FN16(f); lean_object* x0 = fx(0); lean_object* x1 = fx(1); lean_object* x2 = fx(2); lean_object* x3 = fx(3); lean_object* x4 = fx(4); lean_object* x5 = fx(5); lean_object* x6 = fx(6); lean_object* x7 = fx(7); lean_dec_ref(f); obj* r = func(x0, x1, x2, x3, x4, x5, x6, x7, a1, a2, a3, a4, a5, a6, a7, a8); return r; }
   default:
     obj * as[8] = { a1, a2, a3, a4, a5, a6, a7, a8 };
     return apply_exact(f, as, 8);
@@ -514,25 +516,25 @@ unsigned fixed = lean_closure_num_fixed(f);
 if (arity == fixed + 9) {
   if (lean_is_exclusive(f)) {
     switch (arity) {
-    case 9: { obj* r = FN9(f)(a1, a2, a3, a4, a5, a6, a7, a8, a9); lean_free_object(f); return r; }
-    case 10: { obj* r = FN10(f)(fx(0), a1, a2, a3, a4, a5, a6, a7, a8, a9); lean_free_object(f); return r; }
-    case 11: { obj* r = FN11(f)(fx(0), fx(1), a1, a2, a3, a4, a5, a6, a7, a8, a9); lean_free_object(f); return r; }
-    case 12: { obj* r = FN12(f)(fx(0), fx(1), fx(2), a1, a2, a3, a4, a5, a6, a7, a8, a9); lean_free_object(f); return r; }
-    case 13: { obj* r = FN13(f)(fx(0), fx(1), fx(2), fx(3), a1, a2, a3, a4, a5, a6, a7, a8, a9); lean_free_object(f); return r; }
-    case 14: { obj* r = FN14(f)(fx(0), fx(1), fx(2), fx(3), fx(4), a1, a2, a3, a4, a5, a6, a7, a8, a9); lean_free_object(f); return r; }
-    case 15: { obj* r = FN15(f)(fx(0), fx(1), fx(2), fx(3), fx(4), fx(5), a1, a2, a3, a4, a5, a6, a7, a8, a9); lean_free_object(f); return r; }
-    case 16: { obj* r = FN16(f)(fx(0), fx(1), fx(2), fx(3), fx(4), fx(5), fx(6), a1, a2, a3, a4, a5, a6, a7, a8, a9); lean_free_object(f); return r; }
+    case 9: { auto func = FN9(f); lean_free_object(f); obj* r = func(a1, a2, a3, a4, a5, a6, a7, a8, a9); return r; }
+    case 10: { auto func = FN10(f); lean_object* x0 = fx(0); lean_free_object(f); obj* r = func(x0, a1, a2, a3, a4, a5, a6, a7, a8, a9); return r; }
+    case 11: { auto func = FN11(f); lean_object* x0 = fx(0); lean_object* x1 = fx(1); lean_free_object(f); obj* r = func(x0, x1, a1, a2, a3, a4, a5, a6, a7, a8, a9); return r; }
+    case 12: { auto func = FN12(f); lean_object* x0 = fx(0); lean_object* x1 = fx(1); lean_object* x2 = fx(2); lean_free_object(f); obj* r = func(x0, x1, x2, a1, a2, a3, a4, a5, a6, a7, a8, a9); return r; }
+    case 13: { auto func = FN13(f); lean_object* x0 = fx(0); lean_object* x1 = fx(1); lean_object* x2 = fx(2); lean_object* x3 = fx(3); lean_free_object(f); obj* r = func(x0, x1, x2, x3, a1, a2, a3, a4, a5, a6, a7, a8, a9); return r; }
+    case 14: { auto func = FN14(f); lean_object* x0 = fx(0); lean_object* x1 = fx(1); lean_object* x2 = fx(2); lean_object* x3 = fx(3); lean_object* x4 = fx(4); lean_free_object(f); obj* r = func(x0, x1, x2, x3, x4, a1, a2, a3, a4, a5, a6, a7, a8, a9); return r; }
+    case 15: { auto func = FN15(f); lean_object* x0 = fx(0); lean_object* x1 = fx(1); lean_object* x2 = fx(2); lean_object* x3 = fx(3); lean_object* x4 = fx(4); lean_object* x5 = fx(5); lean_free_object(f); obj* r = func(x0, x1, x2, x3, x4, x5, a1, a2, a3, a4, a5, a6, a7, a8, a9); return r; }
+    case 16: { auto func = FN16(f); lean_object* x0 = fx(0); lean_object* x1 = fx(1); lean_object* x2 = fx(2); lean_object* x3 = fx(3); lean_object* x4 = fx(4); lean_object* x5 = fx(5); lean_object* x6 = fx(6); lean_free_object(f); obj* r = func(x0, x1, x2, x3, x4, x5, x6, a1, a2, a3, a4, a5, a6, a7, a8, a9); return r; }
     }
   }
   switch (arity) {
-  case 9: { obj* r = FN9(f)(a1, a2, a3, a4, a5, a6, a7, a8, a9); lean_dec_ref(f); return r; }
-  case 10: { lean_inc(fx(0)); obj* r = FN10(f)(fx(0), a1, a2, a3, a4, a5, a6, a7, a8, a9); lean_dec_ref(f); return r; }
-  case 11: { lean_inc(fx(0)); lean_inc(fx(1)); obj* r = FN11(f)(fx(0), fx(1), a1, a2, a3, a4, a5, a6, a7, a8, a9); lean_dec_ref(f); return r; }
-  case 12: { lean_inc(fx(0)); lean_inc(fx(1)); lean_inc(fx(2)); obj* r = FN12(f)(fx(0), fx(1), fx(2), a1, a2, a3, a4, a5, a6, a7, a8, a9); lean_dec_ref(f); return r; }
-  case 13: { lean_inc(fx(0)); lean_inc(fx(1)); lean_inc(fx(2)); lean_inc(fx(3)); obj* r = FN13(f)(fx(0), fx(1), fx(2), fx(3), a1, a2, a3, a4, a5, a6, a7, a8, a9); lean_dec_ref(f); return r; }
-  case 14: { lean_inc(fx(0)); lean_inc(fx(1)); lean_inc(fx(2)); lean_inc(fx(3)); lean_inc(fx(4)); obj* r = FN14(f)(fx(0), fx(1), fx(2), fx(3), fx(4), a1, a2, a3, a4, a5, a6, a7, a8, a9); lean_dec_ref(f); return r; }
-  case 15: { lean_inc(fx(0)); lean_inc(fx(1)); lean_inc(fx(2)); lean_inc(fx(3)); lean_inc(fx(4)); lean_inc(fx(5)); obj* r = FN15(f)(fx(0), fx(1), fx(2), fx(3), fx(4), fx(5), a1, a2, a3, a4, a5, a6, a7, a8, a9); lean_dec_ref(f); return r; }
-  case 16: { lean_inc(fx(0)); lean_inc(fx(1)); lean_inc(fx(2)); lean_inc(fx(3)); lean_inc(fx(4)); lean_inc(fx(5)); lean_inc(fx(6)); obj* r = FN16(f)(fx(0), fx(1), fx(2), fx(3), fx(4), fx(5), fx(6), a1, a2, a3, a4, a5, a6, a7, a8, a9); lean_dec_ref(f); return r; }
+  case 9: { auto func = FN9(f); lean_dec_ref(f); obj* r = func(a1, a2, a3, a4, a5, a6, a7, a8, a9); return r; }
+  case 10: { lean_inc(fx(0)); auto func = FN10(f); lean_object* x0 = fx(0); lean_dec_ref(f); obj* r = func(x0, a1, a2, a3, a4, a5, a6, a7, a8, a9); return r; }
+  case 11: { lean_inc(fx(0)); lean_inc(fx(1)); auto func = FN11(f); lean_object* x0 = fx(0); lean_object* x1 = fx(1); lean_dec_ref(f); obj* r = func(x0, x1, a1, a2, a3, a4, a5, a6, a7, a8, a9); return r; }
+  case 12: { lean_inc(fx(0)); lean_inc(fx(1)); lean_inc(fx(2)); auto func = FN12(f); lean_object* x0 = fx(0); lean_object* x1 = fx(1); lean_object* x2 = fx(2); lean_dec_ref(f); obj* r = func(x0, x1, x2, a1, a2, a3, a4, a5, a6, a7, a8, a9); return r; }
+  case 13: { lean_inc(fx(0)); lean_inc(fx(1)); lean_inc(fx(2)); lean_inc(fx(3)); auto func = FN13(f); lean_object* x0 = fx(0); lean_object* x1 = fx(1); lean_object* x2 = fx(2); lean_object* x3 = fx(3); lean_dec_ref(f); obj* r = func(x0, x1, x2, x3, a1, a2, a3, a4, a5, a6, a7, a8, a9); return r; }
+  case 14: { lean_inc(fx(0)); lean_inc(fx(1)); lean_inc(fx(2)); lean_inc(fx(3)); lean_inc(fx(4)); auto func = FN14(f); lean_object* x0 = fx(0); lean_object* x1 = fx(1); lean_object* x2 = fx(2); lean_object* x3 = fx(3); lean_object* x4 = fx(4); lean_dec_ref(f); obj* r = func(x0, x1, x2, x3, x4, a1, a2, a3, a4, a5, a6, a7, a8, a9); return r; }
+  case 15: { lean_inc(fx(0)); lean_inc(fx(1)); lean_inc(fx(2)); lean_inc(fx(3)); lean_inc(fx(4)); lean_inc(fx(5)); auto func = FN15(f); lean_object* x0 = fx(0); lean_object* x1 = fx(1); lean_object* x2 = fx(2); lean_object* x3 = fx(3); lean_object* x4 = fx(4); lean_object* x5 = fx(5); lean_dec_ref(f); obj* r = func(x0, x1, x2, x3, x4, x5, a1, a2, a3, a4, a5, a6, a7, a8, a9); return r; }
+  case 16: { lean_inc(fx(0)); lean_inc(fx(1)); lean_inc(fx(2)); lean_inc(fx(3)); lean_inc(fx(4)); lean_inc(fx(5)); lean_inc(fx(6)); auto func = FN16(f); lean_object* x0 = fx(0); lean_object* x1 = fx(1); lean_object* x2 = fx(2); lean_object* x3 = fx(3); lean_object* x4 = fx(4); lean_object* x5 = fx(5); lean_object* x6 = fx(6); lean_dec_ref(f); obj* r = func(x0, x1, x2, x3, x4, x5, x6, a1, a2, a3, a4, a5, a6, a7, a8, a9); return r; }
   default:
     obj * as[9] = { a1, a2, a3, a4, a5, a6, a7, a8, a9 };
     return apply_exact(f, as, 9);
@@ -551,23 +553,23 @@ unsigned fixed = lean_closure_num_fixed(f);
 if (arity == fixed + 10) {
   if (lean_is_exclusive(f)) {
     switch (arity) {
-    case 10: { obj* r = FN10(f)(a1, a2, a3, a4, a5, a6, a7, a8, a9, a10); lean_free_object(f); return r; }
-    case 11: { obj* r = FN11(f)(fx(0), a1, a2, a3, a4, a5, a6, a7, a8, a9, a10); lean_free_object(f); return r; }
-    case 12: { obj* r = FN12(f)(fx(0), fx(1), a1, a2, a3, a4, a5, a6, a7, a8, a9, a10); lean_free_object(f); return r; }
-    case 13: { obj* r = FN13(f)(fx(0), fx(1), fx(2), a1, a2, a3, a4, a5, a6, a7, a8, a9, a10); lean_free_object(f); return r; }
-    case 14: { obj* r = FN14(f)(fx(0), fx(1), fx(2), fx(3), a1, a2, a3, a4, a5, a6, a7, a8, a9, a10); lean_free_object(f); return r; }
-    case 15: { obj* r = FN15(f)(fx(0), fx(1), fx(2), fx(3), fx(4), a1, a2, a3, a4, a5, a6, a7, a8, a9, a10); lean_free_object(f); return r; }
-    case 16: { obj* r = FN16(f)(fx(0), fx(1), fx(2), fx(3), fx(4), fx(5), a1, a2, a3, a4, a5, a6, a7, a8, a9, a10); lean_free_object(f); return r; }
+    case 10: { auto func = FN10(f); lean_free_object(f); obj* r = func(a1, a2, a3, a4, a5, a6, a7, a8, a9, a10); return r; }
+    case 11: { auto func = FN11(f); lean_object* x0 = fx(0); lean_free_object(f); obj* r = func(x0, a1, a2, a3, a4, a5, a6, a7, a8, a9, a10); return r; }
+    case 12: { auto func = FN12(f); lean_object* x0 = fx(0); lean_object* x1 = fx(1); lean_free_object(f); obj* r = func(x0, x1, a1, a2, a3, a4, a5, a6, a7, a8, a9, a10); return r; }
+    case 13: { auto func = FN13(f); lean_object* x0 = fx(0); lean_object* x1 = fx(1); lean_object* x2 = fx(2); lean_free_object(f); obj* r = func(x0, x1, x2, a1, a2, a3, a4, a5, a6, a7, a8, a9, a10); return r; }
+    case 14: { auto func = FN14(f); lean_object* x0 = fx(0); lean_object* x1 = fx(1); lean_object* x2 = fx(2); lean_object* x3 = fx(3); lean_free_object(f); obj* r = func(x0, x1, x2, x3, a1, a2, a3, a4, a5, a6, a7, a8, a9, a10); return r; }
+    case 15: { auto func = FN15(f); lean_object* x0 = fx(0); lean_object* x1 = fx(1); lean_object* x2 = fx(2); lean_object* x3 = fx(3); lean_object* x4 = fx(4); lean_free_object(f); obj* r = func(x0, x1, x2, x3, x4, a1, a2, a3, a4, a5, a6, a7, a8, a9, a10); return r; }
+    case 16: { auto func = FN16(f); lean_object* x0 = fx(0); lean_object* x1 = fx(1); lean_object* x2 = fx(2); lean_object* x3 = fx(3); lean_object* x4 = fx(4); lean_object* x5 = fx(5); lean_free_object(f); obj* r = func(x0, x1, x2, x3, x4, x5, a1, a2, a3, a4, a5, a6, a7, a8, a9, a10); return r; }
     }
   }
   switch (arity) {
-  case 10: { obj* r = FN10(f)(a1, a2, a3, a4, a5, a6, a7, a8, a9, a10); lean_dec_ref(f); return r; }
-  case 11: { lean_inc(fx(0)); obj* r = FN11(f)(fx(0), a1, a2, a3, a4, a5, a6, a7, a8, a9, a10); lean_dec_ref(f); return r; }
-  case 12: { lean_inc(fx(0)); lean_inc(fx(1)); obj* r = FN12(f)(fx(0), fx(1), a1, a2, a3, a4, a5, a6, a7, a8, a9, a10); lean_dec_ref(f); return r; }
-  case 13: { lean_inc(fx(0)); lean_inc(fx(1)); lean_inc(fx(2)); obj* r = FN13(f)(fx(0), fx(1), fx(2), a1, a2, a3, a4, a5, a6, a7, a8, a9, a10); lean_dec_ref(f); return r; }
-  case 14: { lean_inc(fx(0)); lean_inc(fx(1)); lean_inc(fx(2)); lean_inc(fx(3)); obj* r = FN14(f)(fx(0), fx(1), fx(2), fx(3), a1, a2, a3, a4, a5, a6, a7, a8, a9, a10); lean_dec_ref(f); return r; }
-  case 15: { lean_inc(fx(0)); lean_inc(fx(1)); lean_inc(fx(2)); lean_inc(fx(3)); lean_inc(fx(4)); obj* r = FN15(f)(fx(0), fx(1), fx(2), fx(3), fx(4), a1, a2, a3, a4, a5, a6, a7, a8, a9, a10); lean_dec_ref(f); return r; }
-  case 16: { lean_inc(fx(0)); lean_inc(fx(1)); lean_inc(fx(2)); lean_inc(fx(3)); lean_inc(fx(4)); lean_inc(fx(5)); obj* r = FN16(f)(fx(0), fx(1), fx(2), fx(3), fx(4), fx(5), a1, a2, a3, a4, a5, a6, a7, a8, a9, a10); lean_dec_ref(f); return r; }
+  case 10: { auto func = FN10(f); lean_dec_ref(f); obj* r = func(a1, a2, a3, a4, a5, a6, a7, a8, a9, a10); return r; }
+  case 11: { lean_inc(fx(0)); auto func = FN11(f); lean_object* x0 = fx(0); lean_dec_ref(f); obj* r = func(x0, a1, a2, a3, a4, a5, a6, a7, a8, a9, a10); return r; }
+  case 12: { lean_inc(fx(0)); lean_inc(fx(1)); auto func = FN12(f); lean_object* x0 = fx(0); lean_object* x1 = fx(1); lean_dec_ref(f); obj* r = func(x0, x1, a1, a2, a3, a4, a5, a6, a7, a8, a9, a10); return r; }
+  case 13: { lean_inc(fx(0)); lean_inc(fx(1)); lean_inc(fx(2)); auto func = FN13(f); lean_object* x0 = fx(0); lean_object* x1 = fx(1); lean_object* x2 = fx(2); lean_dec_ref(f); obj* r = func(x0, x1, x2, a1, a2, a3, a4, a5, a6, a7, a8, a9, a10); return r; }
+  case 14: { lean_inc(fx(0)); lean_inc(fx(1)); lean_inc(fx(2)); lean_inc(fx(3)); auto func = FN14(f); lean_object* x0 = fx(0); lean_object* x1 = fx(1); lean_object* x2 = fx(2); lean_object* x3 = fx(3); lean_dec_ref(f); obj* r = func(x0, x1, x2, x3, a1, a2, a3, a4, a5, a6, a7, a8, a9, a10); return r; }
+  case 15: { lean_inc(fx(0)); lean_inc(fx(1)); lean_inc(fx(2)); lean_inc(fx(3)); lean_inc(fx(4)); auto func = FN15(f); lean_object* x0 = fx(0); lean_object* x1 = fx(1); lean_object* x2 = fx(2); lean_object* x3 = fx(3); lean_object* x4 = fx(4); lean_dec_ref(f); obj* r = func(x0, x1, x2, x3, x4, a1, a2, a3, a4, a5, a6, a7, a8, a9, a10); return r; }
+  case 16: { lean_inc(fx(0)); lean_inc(fx(1)); lean_inc(fx(2)); lean_inc(fx(3)); lean_inc(fx(4)); lean_inc(fx(5)); auto func = FN16(f); lean_object* x0 = fx(0); lean_object* x1 = fx(1); lean_object* x2 = fx(2); lean_object* x3 = fx(3); lean_object* x4 = fx(4); lean_object* x5 = fx(5); lean_dec_ref(f); obj* r = func(x0, x1, x2, x3, x4, x5, a1, a2, a3, a4, a5, a6, a7, a8, a9, a10); return r; }
   default:
     obj * as[10] = { a1, a2, a3, a4, a5, a6, a7, a8, a9, a10 };
     return apply_exact(f, as, 10);
@@ -586,21 +588,21 @@ unsigned fixed = lean_closure_num_fixed(f);
 if (arity == fixed + 11) {
   if (lean_is_exclusive(f)) {
     switch (arity) {
-    case 11: { obj* r = FN11(f)(a1, a2, a3, a4, a5, a6, a7, a8, a9, a10, a11); lean_free_object(f); return r; }
-    case 12: { obj* r = FN12(f)(fx(0), a1, a2, a3, a4, a5, a6, a7, a8, a9, a10, a11); lean_free_object(f); return r; }
-    case 13: { obj* r = FN13(f)(fx(0), fx(1), a1, a2, a3, a4, a5, a6, a7, a8, a9, a10, a11); lean_free_object(f); return r; }
-    case 14: { obj* r = FN14(f)(fx(0), fx(1), fx(2), a1, a2, a3, a4, a5, a6, a7, a8, a9, a10, a11); lean_free_object(f); return r; }
-    case 15: { obj* r = FN15(f)(fx(0), fx(1), fx(2), fx(3), a1, a2, a3, a4, a5, a6, a7, a8, a9, a10, a11); lean_free_object(f); return r; }
-    case 16: { obj* r = FN16(f)(fx(0), fx(1), fx(2), fx(3), fx(4), a1, a2, a3, a4, a5, a6, a7, a8, a9, a10, a11); lean_free_object(f); return r; }
+    case 11: { auto func = FN11(f); lean_free_object(f); obj* r = func(a1, a2, a3, a4, a5, a6, a7, a8, a9, a10, a11); return r; }
+    case 12: { auto func = FN12(f); lean_object* x0 = fx(0); lean_free_object(f); obj* r = func(x0, a1, a2, a3, a4, a5, a6, a7, a8, a9, a10, a11); return r; }
+    case 13: { auto func = FN13(f); lean_object* x0 = fx(0); lean_object* x1 = fx(1); lean_free_object(f); obj* r = func(x0, x1, a1, a2, a3, a4, a5, a6, a7, a8, a9, a10, a11); return r; }
+    case 14: { auto func = FN14(f); lean_object* x0 = fx(0); lean_object* x1 = fx(1); lean_object* x2 = fx(2); lean_free_object(f); obj* r = func(x0, x1, x2, a1, a2, a3, a4, a5, a6, a7, a8, a9, a10, a11); return r; }
+    case 15: { auto func = FN15(f); lean_object* x0 = fx(0); lean_object* x1 = fx(1); lean_object* x2 = fx(2); lean_object* x3 = fx(3); lean_free_object(f); obj* r = func(x0, x1, x2, x3, a1, a2, a3, a4, a5, a6, a7, a8, a9, a10, a11); return r; }
+    case 16: { auto func = FN16(f); lean_object* x0 = fx(0); lean_object* x1 = fx(1); lean_object* x2 = fx(2); lean_object* x3 = fx(3); lean_object* x4 = fx(4); lean_free_object(f); obj* r = func(x0, x1, x2, x3, x4, a1, a2, a3, a4, a5, a6, a7, a8, a9, a10, a11); return r; }
     }
   }
   switch (arity) {
-  case 11: { obj* r = FN11(f)(a1, a2, a3, a4, a5, a6, a7, a8, a9, a10, a11); lean_dec_ref(f); return r; }
-  case 12: { lean_inc(fx(0)); obj* r = FN12(f)(fx(0), a1, a2, a3, a4, a5, a6, a7, a8, a9, a10, a11); lean_dec_ref(f); return r; }
-  case 13: { lean_inc(fx(0)); lean_inc(fx(1)); obj* r = FN13(f)(fx(0), fx(1), a1, a2, a3, a4, a5, a6, a7, a8, a9, a10, a11); lean_dec_ref(f); return r; }
-  case 14: { lean_inc(fx(0)); lean_inc(fx(1)); lean_inc(fx(2)); obj* r = FN14(f)(fx(0), fx(1), fx(2), a1, a2, a3, a4, a5, a6, a7, a8, a9, a10, a11); lean_dec_ref(f); return r; }
-  case 15: { lean_inc(fx(0)); lean_inc(fx(1)); lean_inc(fx(2)); lean_inc(fx(3)); obj* r = FN15(f)(fx(0), fx(1), fx(2), fx(3), a1, a2, a3, a4, a5, a6, a7, a8, a9, a10, a11); lean_dec_ref(f); return r; }
-  case 16: { lean_inc(fx(0)); lean_inc(fx(1)); lean_inc(fx(2)); lean_inc(fx(3)); lean_inc(fx(4)); obj* r = FN16(f)(fx(0), fx(1), fx(2), fx(3), fx(4), a1, a2, a3, a4, a5, a6, a7, a8, a9, a10, a11); lean_dec_ref(f); return r; }
+  case 11: { auto func = FN11(f); lean_dec_ref(f); obj* r = func(a1, a2, a3, a4, a5, a6, a7, a8, a9, a10, a11); return r; }
+  case 12: { lean_inc(fx(0)); auto func = FN12(f); lean_object* x0 = fx(0); lean_dec_ref(f); obj* r = func(x0, a1, a2, a3, a4, a5, a6, a7, a8, a9, a10, a11); return r; }
+  case 13: { lean_inc(fx(0)); lean_inc(fx(1)); auto func = FN13(f); lean_object* x0 = fx(0); lean_object* x1 = fx(1); lean_dec_ref(f); obj* r = func(x0, x1, a1, a2, a3, a4, a5, a6, a7, a8, a9, a10, a11); return r; }
+  case 14: { lean_inc(fx(0)); lean_inc(fx(1)); lean_inc(fx(2)); auto func = FN14(f); lean_object* x0 = fx(0); lean_object* x1 = fx(1); lean_object* x2 = fx(2); lean_dec_ref(f); obj* r = func(x0, x1, x2, a1, a2, a3, a4, a5, a6, a7, a8, a9, a10, a11); return r; }
+  case 15: { lean_inc(fx(0)); lean_inc(fx(1)); lean_inc(fx(2)); lean_inc(fx(3)); auto func = FN15(f); lean_object* x0 = fx(0); lean_object* x1 = fx(1); lean_object* x2 = fx(2); lean_object* x3 = fx(3); lean_dec_ref(f); obj* r = func(x0, x1, x2, x3, a1, a2, a3, a4, a5, a6, a7, a8, a9, a10, a11); return r; }
+  case 16: { lean_inc(fx(0)); lean_inc(fx(1)); lean_inc(fx(2)); lean_inc(fx(3)); lean_inc(fx(4)); auto func = FN16(f); lean_object* x0 = fx(0); lean_object* x1 = fx(1); lean_object* x2 = fx(2); lean_object* x3 = fx(3); lean_object* x4 = fx(4); lean_dec_ref(f); obj* r = func(x0, x1, x2, x3, x4, a1, a2, a3, a4, a5, a6, a7, a8, a9, a10, a11); return r; }
   default:
     obj * as[11] = { a1, a2, a3, a4, a5, a6, a7, a8, a9, a10, a11 };
     return apply_exact(f, as, 11);
@@ -619,19 +621,19 @@ unsigned fixed = lean_closure_num_fixed(f);
 if (arity == fixed + 12) {
   if (lean_is_exclusive(f)) {
     switch (arity) {
-    case 12: { obj* r = FN12(f)(a1, a2, a3, a4, a5, a6, a7, a8, a9, a10, a11, a12); lean_free_object(f); return r; }
-    case 13: { obj* r = FN13(f)(fx(0), a1, a2, a3, a4, a5, a6, a7, a8, a9, a10, a11, a12); lean_free_object(f); return r; }
-    case 14: { obj* r = FN14(f)(fx(0), fx(1), a1, a2, a3, a4, a5, a6, a7, a8, a9, a10, a11, a12); lean_free_object(f); return r; }
-    case 15: { obj* r = FN15(f)(fx(0), fx(1), fx(2), a1, a2, a3, a4, a5, a6, a7, a8, a9, a10, a11, a12); lean_free_object(f); return r; }
-    case 16: { obj* r = FN16(f)(fx(0), fx(1), fx(2), fx(3), a1, a2, a3, a4, a5, a6, a7, a8, a9, a10, a11, a12); lean_free_object(f); return r; }
+    case 12: { auto func = FN12(f); lean_free_object(f); obj* r = func(a1, a2, a3, a4, a5, a6, a7, a8, a9, a10, a11, a12); return r; }
+    case 13: { auto func = FN13(f); lean_object* x0 = fx(0); lean_free_object(f); obj* r = func(x0, a1, a2, a3, a4, a5, a6, a7, a8, a9, a10, a11, a12); return r; }
+    case 14: { auto func = FN14(f); lean_object* x0 = fx(0); lean_object* x1 = fx(1); lean_free_object(f); obj* r = func(x0, x1, a1, a2, a3, a4, a5, a6, a7, a8, a9, a10, a11, a12); return r; }
+    case 15: { auto func = FN15(f); lean_object* x0 = fx(0); lean_object* x1 = fx(1); lean_object* x2 = fx(2); lean_free_object(f); obj* r = func(x0, x1, x2, a1, a2, a3, a4, a5, a6, a7, a8, a9, a10, a11, a12); return r; }
+    case 16: { auto func = FN16(f); lean_object* x0 = fx(0); lean_object* x1 = fx(1); lean_object* x2 = fx(2); lean_object* x3 = fx(3); lean_free_object(f); obj* r = func(x0, x1, x2, x3, a1, a2, a3, a4, a5, a6, a7, a8, a9, a10, a11, a12); return r; }
     }
   }
   switch (arity) {
-  case 12: { obj* r = FN12(f)(a1, a2, a3, a4, a5, a6, a7, a8, a9, a10, a11, a12); lean_dec_ref(f); return r; }
-  case 13: { lean_inc(fx(0)); obj* r = FN13(f)(fx(0), a1, a2, a3, a4, a5, a6, a7, a8, a9, a10, a11, a12); lean_dec_ref(f); return r; }
-  case 14: { lean_inc(fx(0)); lean_inc(fx(1)); obj* r = FN14(f)(fx(0), fx(1), a1, a2, a3, a4, a5, a6, a7, a8, a9, a10, a11, a12); lean_dec_ref(f); return r; }
-  case 15: { lean_inc(fx(0)); lean_inc(fx(1)); lean_inc(fx(2)); obj* r = FN15(f)(fx(0), fx(1), fx(2), a1, a2, a3, a4, a5, a6, a7, a8, a9, a10, a11, a12); lean_dec_ref(f); return r; }
-  case 16: { lean_inc(fx(0)); lean_inc(fx(1)); lean_inc(fx(2)); lean_inc(fx(3)); obj* r = FN16(f)(fx(0), fx(1), fx(2), fx(3), a1, a2, a3, a4, a5, a6, a7, a8, a9, a10, a11, a12); lean_dec_ref(f); return r; }
+  case 12: { auto func = FN12(f); lean_dec_ref(f); obj* r = func(a1, a2, a3, a4, a5, a6, a7, a8, a9, a10, a11, a12); return r; }
+  case 13: { lean_inc(fx(0)); auto func = FN13(f); lean_object* x0 = fx(0); lean_dec_ref(f); obj* r = func(x0, a1, a2, a3, a4, a5, a6, a7, a8, a9, a10, a11, a12); return r; }
+  case 14: { lean_inc(fx(0)); lean_inc(fx(1)); auto func = FN14(f); lean_object* x0 = fx(0); lean_object* x1 = fx(1); lean_dec_ref(f); obj* r = func(x0, x1, a1, a2, a3, a4, a5, a6, a7, a8, a9, a10, a11, a12); return r; }
+  case 15: { lean_inc(fx(0)); lean_inc(fx(1)); lean_inc(fx(2)); auto func = FN15(f); lean_object* x0 = fx(0); lean_object* x1 = fx(1); lean_object* x2 = fx(2); lean_dec_ref(f); obj* r = func(x0, x1, x2, a1, a2, a3, a4, a5, a6, a7, a8, a9, a10, a11, a12); return r; }
+  case 16: { lean_inc(fx(0)); lean_inc(fx(1)); lean_inc(fx(2)); lean_inc(fx(3)); auto func = FN16(f); lean_object* x0 = fx(0); lean_object* x1 = fx(1); lean_object* x2 = fx(2); lean_object* x3 = fx(3); lean_dec_ref(f); obj* r = func(x0, x1, x2, x3, a1, a2, a3, a4, a5, a6, a7, a8, a9, a10, a11, a12); return r; }
   default:
     obj * as[12] = { a1, a2, a3, a4, a5, a6, a7, a8, a9, a10, a11, a12 };
     return apply_exact(f, as, 12);
@@ -650,17 +652,17 @@ unsigned fixed = lean_closure_num_fixed(f);
 if (arity == fixed + 13) {
   if (lean_is_exclusive(f)) {
     switch (arity) {
-    case 13: { obj* r = FN13(f)(a1, a2, a3, a4, a5, a6, a7, a8, a9, a10, a11, a12, a13); lean_free_object(f); return r; }
-    case 14: { obj* r = FN14(f)(fx(0), a1, a2, a3, a4, a5, a6, a7, a8, a9, a10, a11, a12, a13); lean_free_object(f); return r; }
-    case 15: { obj* r = FN15(f)(fx(0), fx(1), a1, a2, a3, a4, a5, a6, a7, a8, a9, a10, a11, a12, a13); lean_free_object(f); return r; }
-    case 16: { obj* r = FN16(f)(fx(0), fx(1), fx(2), a1, a2, a3, a4, a5, a6, a7, a8, a9, a10, a11, a12, a13); lean_free_object(f); return r; }
+    case 13: { auto func = FN13(f); lean_free_object(f); obj* r = func(a1, a2, a3, a4, a5, a6, a7, a8, a9, a10, a11, a12, a13); return r; }
+    case 14: { auto func = FN14(f); lean_object* x0 = fx(0); lean_free_object(f); obj* r = func(x0, a1, a2, a3, a4, a5, a6, a7, a8, a9, a10, a11, a12, a13); return r; }
+    case 15: { auto func = FN15(f); lean_object* x0 = fx(0); lean_object* x1 = fx(1); lean_free_object(f); obj* r = func(x0, x1, a1, a2, a3, a4, a5, a6, a7, a8, a9, a10, a11, a12, a13); return r; }
+    case 16: { auto func = FN16(f); lean_object* x0 = fx(0); lean_object* x1 = fx(1); lean_object* x2 = fx(2); lean_free_object(f); obj* r = func(x0, x1, x2, a1, a2, a3, a4, a5, a6, a7, a8, a9, a10, a11, a12, a13); return r; }
     }
   }
   switch (arity) {
-  case 13: { obj* r = FN13(f)(a1, a2, a3, a4, a5, a6, a7, a8, a9, a10, a11, a12, a13); lean_dec_ref(f); return r; }
-  case 14: { lean_inc(fx(0)); obj* r = FN14(f)(fx(0), a1, a2, a3, a4, a5, a6, a7, a8, a9, a10, a11, a12, a13); lean_dec_ref(f); return r; }
-  case 15: { lean_inc(fx(0)); lean_inc(fx(1)); obj* r = FN15(f)(fx(0), fx(1), a1, a2, a3, a4, a5, a6, a7, a8, a9, a10, a11, a12, a13); lean_dec_ref(f); return r; }
-  case 16: { lean_inc(fx(0)); lean_inc(fx(1)); lean_inc(fx(2)); obj* r = FN16(f)(fx(0), fx(1), fx(2), a1, a2, a3, a4, a5, a6, a7, a8, a9, a10, a11, a12, a13); lean_dec_ref(f); return r; }
+  case 13: { auto func = FN13(f); lean_dec_ref(f); obj* r = func(a1, a2, a3, a4, a5, a6, a7, a8, a9, a10, a11, a12, a13); return r; }
+  case 14: { lean_inc(fx(0)); auto func = FN14(f); lean_object* x0 = fx(0); lean_dec_ref(f); obj* r = func(x0, a1, a2, a3, a4, a5, a6, a7, a8, a9, a10, a11, a12, a13); return r; }
+  case 15: { lean_inc(fx(0)); lean_inc(fx(1)); auto func = FN15(f); lean_object* x0 = fx(0); lean_object* x1 = fx(1); lean_dec_ref(f); obj* r = func(x0, x1, a1, a2, a3, a4, a5, a6, a7, a8, a9, a10, a11, a12, a13); return r; }
+  case 16: { lean_inc(fx(0)); lean_inc(fx(1)); lean_inc(fx(2)); auto func = FN16(f); lean_object* x0 = fx(0); lean_object* x1 = fx(1); lean_object* x2 = fx(2); lean_dec_ref(f); obj* r = func(x0, x1, x2, a1, a2, a3, a4, a5, a6, a7, a8, a9, a10, a11, a12, a13); return r; }
   default:
     obj * as[13] = { a1, a2, a3, a4, a5, a6, a7, a8, a9, a10, a11, a12, a13 };
     return apply_exact(f, as, 13);
@@ -679,15 +681,15 @@ unsigned fixed = lean_closure_num_fixed(f);
 if (arity == fixed + 14) {
   if (lean_is_exclusive(f)) {
     switch (arity) {
-    case 14: { obj* r = FN14(f)(a1, a2, a3, a4, a5, a6, a7, a8, a9, a10, a11, a12, a13, a14); lean_free_object(f); return r; }
-    case 15: { obj* r = FN15(f)(fx(0), a1, a2, a3, a4, a5, a6, a7, a8, a9, a10, a11, a12, a13, a14); lean_free_object(f); return r; }
-    case 16: { obj* r = FN16(f)(fx(0), fx(1), a1, a2, a3, a4, a5, a6, a7, a8, a9, a10, a11, a12, a13, a14); lean_free_object(f); return r; }
+    case 14: { auto func = FN14(f); lean_free_object(f); obj* r = func(a1, a2, a3, a4, a5, a6, a7, a8, a9, a10, a11, a12, a13, a14); return r; }
+    case 15: { auto func = FN15(f); lean_object* x0 = fx(0); lean_free_object(f); obj* r = func(x0, a1, a2, a3, a4, a5, a6, a7, a8, a9, a10, a11, a12, a13, a14); return r; }
+    case 16: { auto func = FN16(f); lean_object* x0 = fx(0); lean_object* x1 = fx(1); lean_free_object(f); obj* r = func(x0, x1, a1, a2, a3, a4, a5, a6, a7, a8, a9, a10, a11, a12, a13, a14); return r; }
     }
   }
   switch (arity) {
-  case 14: { obj* r = FN14(f)(a1, a2, a3, a4, a5, a6, a7, a8, a9, a10, a11, a12, a13, a14); lean_dec_ref(f); return r; }
-  case 15: { lean_inc(fx(0)); obj* r = FN15(f)(fx(0), a1, a2, a3, a4, a5, a6, a7, a8, a9, a10, a11, a12, a13, a14); lean_dec_ref(f); return r; }
-  case 16: { lean_inc(fx(0)); lean_inc(fx(1)); obj* r = FN16(f)(fx(0), fx(1), a1, a2, a3, a4, a5, a6, a7, a8, a9, a10, a11, a12, a13, a14); lean_dec_ref(f); return r; }
+  case 14: { auto func = FN14(f); lean_dec_ref(f); obj* r = func(a1, a2, a3, a4, a5, a6, a7, a8, a9, a10, a11, a12, a13, a14); return r; }
+  case 15: { lean_inc(fx(0)); auto func = FN15(f); lean_object* x0 = fx(0); lean_dec_ref(f); obj* r = func(x0, a1, a2, a3, a4, a5, a6, a7, a8, a9, a10, a11, a12, a13, a14); return r; }
+  case 16: { lean_inc(fx(0)); lean_inc(fx(1)); auto func = FN16(f); lean_object* x0 = fx(0); lean_object* x1 = fx(1); lean_dec_ref(f); obj* r = func(x0, x1, a1, a2, a3, a4, a5, a6, a7, a8, a9, a10, a11, a12, a13, a14); return r; }
   default:
     obj * as[14] = { a1, a2, a3, a4, a5, a6, a7, a8, a9, a10, a11, a12, a13, a14 };
     return apply_exact(f, as, 14);
@@ -706,13 +708,13 @@ unsigned fixed = lean_closure_num_fixed(f);
 if (arity == fixed + 15) {
   if (lean_is_exclusive(f)) {
     switch (arity) {
-    case 15: { obj* r = FN15(f)(a1, a2, a3, a4, a5, a6, a7, a8, a9, a10, a11, a12, a13, a14, a15); lean_free_object(f); return r; }
-    case 16: { obj* r = FN16(f)(fx(0), a1, a2, a3, a4, a5, a6, a7, a8, a9, a10, a11, a12, a13, a14, a15); lean_free_object(f); return r; }
+    case 15: { auto func = FN15(f); lean_free_object(f); obj* r = func(a1, a2, a3, a4, a5, a6, a7, a8, a9, a10, a11, a12, a13, a14, a15); return r; }
+    case 16: { auto func = FN16(f); lean_object* x0 = fx(0); lean_free_object(f); obj* r = func(x0, a1, a2, a3, a4, a5, a6, a7, a8, a9, a10, a11, a12, a13, a14, a15); return r; }
     }
   }
   switch (arity) {
-  case 15: { obj* r = FN15(f)(a1, a2, a3, a4, a5, a6, a7, a8, a9, a10, a11, a12, a13, a14, a15); lean_dec_ref(f); return r; }
-  case 16: { lean_inc(fx(0)); obj* r = FN16(f)(fx(0), a1, a2, a3, a4, a5, a6, a7, a8, a9, a10, a11, a12, a13, a14, a15); lean_dec_ref(f); return r; }
+  case 15: { auto func = FN15(f); lean_dec_ref(f); obj* r = func(a1, a2, a3, a4, a5, a6, a7, a8, a9, a10, a11, a12, a13, a14, a15); return r; }
+  case 16: { lean_inc(fx(0)); auto func = FN16(f); lean_object* x0 = fx(0); lean_dec_ref(f); obj* r = func(x0, a1, a2, a3, a4, a5, a6, a7, a8, a9, a10, a11, a12, a13, a14, a15); return r; }
   default:
     obj * as[15] = { a1, a2, a3, a4, a5, a6, a7, a8, a9, a10, a11, a12, a13, a14, a15 };
     return apply_exact(f, as, 15);
@@ -731,11 +733,11 @@ unsigned fixed = lean_closure_num_fixed(f);
 if (arity == fixed + 16) {
   if (lean_is_exclusive(f)) {
     switch (arity) {
-    case 16: { obj* r = FN16(f)(a1, a2, a3, a4, a5, a6, a7, a8, a9, a10, a11, a12, a13, a14, a15, a16); lean_free_object(f); return r; }
+    case 16: { auto func = FN16(f); lean_free_object(f); obj* r = func(a1, a2, a3, a4, a5, a6, a7, a8, a9, a10, a11, a12, a13, a14, a15, a16); return r; }
     }
   }
   switch (arity) {
-  case 16: { obj* r = FN16(f)(a1, a2, a3, a4, a5, a6, a7, a8, a9, a10, a11, a12, a13, a14, a15, a16); lean_dec_ref(f); return r; }
+  case 16: { auto func = FN16(f); lean_dec_ref(f); obj* r = func(a1, a2, a3, a4, a5, a6, a7, a8, a9, a10, a11, a12, a13, a14, a15, a16); return r; }
   default:
     obj * as[16] = { a1, a2, a3, a4, a5, a6, a7, a8, a9, a10, a11, a12, a13, a14, a15, a16 };
     return apply_exact(f, as, 16);

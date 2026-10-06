@@ -47,6 +47,13 @@ def mkFsArgs (n : Nat) : String :=
 def mkIncFs (n : Nat) : String :=
   genSeq n (s!"lean_inc(fx({·})); ") (sep := "")
 
+def mkParamsAssigns (n : Nat) : String :=
+  genSeq n (fun i => s!"lean_object* x{i} = fx({i}); ") (sep := "")
+
+def mkParams (n : Nat) : String :=
+  genSeq n (s!"x{·}")
+
+
 def mkApplyI (n : Nat) (max : Nat) : M Unit := do
   let argDecls := mkArgDecls n
   let args := mkArgs n
@@ -58,17 +65,19 @@ if (arity == fixed + {n}) \{
   if (lean_is_exclusive(f)) \{
     switch (arity) \{\n"
   for j in [n:max + 1] do
-    let fs := mkFsArgs (j - n)
+    let paramsAssigns := mkParamsAssigns (j - n)
+    let fs := mkParams (j - n)
     let sep := if j = n then "" else ", "
-    emit s!"    case {j}: \{ obj* r = FN{j}(f)({fs}{sep}{args}); lean_free_object(f); return r; }\n"
+    emit s!"    case {j}: \{ auto func = FN{j}(f); {paramsAssigns}lean_free_object(f); obj* r = func({fs}{sep}{args}); return r; }\n"
   emit "    }
   }
   switch (arity) {\n"
   for j in [n:max + 1] do
     let lean_incfs := mkIncFs (j - n)
-    let fs := mkFsArgs (j - n)
+    let paramsAssigns := mkParamsAssigns (j - n)
+    let fs := mkParams (j - n)
     let sep := if j = n then "" else ", "
-    emit  s!"  case {j}: \{ {lean_incfs}obj* r = FN{j}(f)({fs}{sep}{args}); lean_dec_ref(f); return r; }\n"
+    emit  s!"  case {j}: \{ {lean_incfs}auto func = FN{j}(f); {paramsAssigns}lean_dec_ref(f); obj* r = func({fs}{sep}{args}); return r; }\n"
   emit s!"  default:
     obj * as[{n}] = \{ {args} };
     return apply_exact(f, as, {n});
@@ -96,12 +105,14 @@ static obj* apply_exact(obj* f, obj** as, unsigned n) {
   obj* ret;
   if (lean_is_exclusive(f)) {
     for (unsigned i = 0; i < fixed; i++) args[i] = fx(i);
-    ret = FNN(f)(args);
+    auto func = FNN(f);
     lean_free_object(f);
+    ret = func(args);
   } else {
     for (unsigned i = 0; i < fixed; i++) { lean_inc(fx(i)); args[i] = fx(i); }
-    ret = FNN(f)(args);
+    auto func = FNN(f);
     lean_dec_ref(f);
+    ret = func(args);
   }
   return ret;
 }

@@ -1400,14 +1400,14 @@ static inline T lean_byte_array_get_uint##W##be(b_lean_obj_arg a, b_lean_obj_arg
 }                                                                                                  \
 static inline lean_object * lean_byte_array_uset_uint##W##le(lean_obj_arg a, size_t i, T v) {       \
     assert(lean_sarray_size(a) >= (W)/8 && i <= lean_sarray_size(a) - (W)/8);                       \
-    lean_obj_res r = lean_is_exclusive(a) ? a : lean_copy_byte_array(a);                            \
+    lean_obj_res r = lean_sarray_ensure_exclusive(a);                                               \
     uint8_t * p = lean_sarray_cptr(r) + i;                                                          \
     for (unsigned k = 0; k < (W)/8; k++) p[k] = (uint8_t)(v >> (8u*k));                             \
     return r;                                                                                       \
 }                                                                                                  \
 static inline lean_object * lean_byte_array_uset_uint##W##be(lean_obj_arg a, size_t i, T v) {       \
     assert(lean_sarray_size(a) >= (W)/8 && i <= lean_sarray_size(a) - (W)/8);                       \
-    lean_obj_res r = lean_is_exclusive(a) ? a : lean_copy_byte_array(a);                            \
+    lean_obj_res r = lean_sarray_ensure_exclusive(a);                                               \
     uint8_t * p = lean_sarray_cptr(r) + i;                                                          \
     for (unsigned k = 0; k < (W)/8; k++) p[k] = (uint8_t)(v >> (8u*((W)/8 - 1u - k)));              \
     return r;                                                                                       \

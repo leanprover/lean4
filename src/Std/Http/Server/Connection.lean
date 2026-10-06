@@ -175,7 +175,7 @@ and the response does not already include one.
 -/
 private def prepareResponseHead (config : Config) (head : Response.Head) : Async Response.Head := do
   if config.generateDate ∧ ¬head.headers.contains Header.Name.date then
-    let now ← Std.Time.DateTime.nowAt "UTC"
+    let now := DateTime.ofTimestamp (← Timestamp.now) TimeZone.ZoneRules.UTC
     return { head with headers := head.headers.insert Header.Name.date (Header.Value.ofString! now.toHTTPDateString) }
   else
     return head

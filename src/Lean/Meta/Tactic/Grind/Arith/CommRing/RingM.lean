@@ -48,8 +48,6 @@ structure RingM.Context where
   the original equation when `k₁ ≠ ±1`. See **Note** at `EqCnstr.simplify`.
   -/
   checkCoeffDvd : Bool := false
-  /-- Generation assigned to terms internalized while reifying (see `reify?`). -/
-  gen : Nat := 0
 
 /-- We don't want to keep carrying the `RingId` around. -/
 abbrev RingM := ReaderT RingM.Context GoalM
@@ -182,11 +180,15 @@ def mkVarCore [MonadLiftT GoalM m] [Monad m] [MonadRingState m] [MonadSetTermId 
 instance : MonadSetTermId RingM where
   setTermId e := setTermRingId e
 
-/-- Variables created while reifying are internalized first, using the generation in the context. -/
+/--
+Every term reified by the ring solver has been internalized, together with its subterms, before
+reification: the `internalize` hook runs after the core has created the `ENode`s of a term and
+its arguments, and solver-built terms are internalized where they are built.
+-/
 instance : MonadMkVar RingM where
   mkVar e := do
     unless (← alreadyInternalized e) do
-      internalize e (← read).gen
+      throwError "`grind` internal error, ring term has not been internalized{indentExpr e}"
     mkVarCore e
 
 private def mkOne (u : Level) (type : Expr) (semiringInst : Expr) : RingM Expr := do

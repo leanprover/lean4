@@ -4821,8 +4821,7 @@ return v_res_1369_;
 LEAN_EXPORT lean_object* l_Lake_parseTargetSpec(lean_object* v_ws_1372_, lean_object* v_spec_1373_){
 _start:
 {
-uint32_t v___x_1375_; lean_object* v___x_1379_; lean_object* v___x_1380_; lean_object* v___x_1381_; lean_object* v___x_1382_; lean_object* v___x_1383_; lean_object* v___x_1384_; lean_object* v___x_1385_; 
-v___x_1375_ = 58;
+lean_object* v___x_1379_; lean_object* v___x_1380_; lean_object* v___x_1381_; lean_object* v___x_1382_; lean_object* v___x_1383_; lean_object* v___x_1384_; lean_object* v___x_1385_; 
 v___x_1379_ = lean_unsigned_to_nat(0u);
 v___x_1380_ = lean_string_utf8_byte_size(v_spec_1373_);
 lean_inc_ref_n(v_spec_1373_, 2);
@@ -4873,21 +4872,22 @@ else
 {
 lean_dec_ref_known(v_tail_1386_, 2);
 lean_dec_ref_known(v___x_1385_, 2);
-goto v___jp_1376_;
+goto v___jp_1375_;
 }
 }
 }
 else
 {
 lean_dec(v___x_1385_);
-goto v___jp_1376_;
+goto v___jp_1375_;
 }
-v___jp_1376_:
+v___jp_1375_:
 {
-lean_object* v___x_1377_; lean_object* v___x_1378_; 
+uint32_t v___x_1376_; lean_object* v___x_1377_; lean_object* v___x_1378_; 
+v___x_1376_ = 58;
 v___x_1377_ = lean_alloc_ctor(19, 1, 4);
 lean_ctor_set(v___x_1377_, 0, v_spec_1373_);
-lean_ctor_set_uint32(v___x_1377_, sizeof(void*)*1, v___x_1375_);
+lean_ctor_set_uint32(v___x_1377_, sizeof(void*)*1, v___x_1376_);
 v___x_1378_ = lean_alloc_ctor(1, 1, 0);
 lean_ctor_set(v___x_1378_, 0, v___x_1377_);
 return v___x_1378_;

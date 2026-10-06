@@ -1,0 +1,4 @@
+* item {c
+* next
+
+After

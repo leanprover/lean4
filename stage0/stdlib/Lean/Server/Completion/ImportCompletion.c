@@ -1366,13 +1366,13 @@ goto _start;
 LEAN_EXPORT lean_object* l___private_Init_Data_Array_Basic_0__Array_foldlMUnsafe_fold___at___00Lean_Lsp_ImportCompletion_computePartialImportCompletions_spec__5___boxed(lean_object* v___x_368_, lean_object* v_snd_369_, lean_object* v_as_370_, lean_object* v_i_371_, lean_object* v_stop_372_, lean_object* v_b_373_){
 _start:
 {
-uint8_t v___x_3421__boxed_374_; size_t v_i_boxed_375_; size_t v_stop_boxed_376_; lean_object* v_res_377_; 
-v___x_3421__boxed_374_ = lean_unbox(v___x_368_);
+uint8_t v___x_3415__boxed_374_; size_t v_i_boxed_375_; size_t v_stop_boxed_376_; lean_object* v_res_377_; 
+v___x_3415__boxed_374_ = lean_unbox(v___x_368_);
 v_i_boxed_375_ = lean_unbox_usize(v_i_371_);
 lean_dec(v_i_371_);
 v_stop_boxed_376_ = lean_unbox_usize(v_stop_372_);
 lean_dec(v_stop_372_);
-v_res_377_ = l___private_Init_Data_Array_Basic_0__Array_foldlMUnsafe_fold___at___00Lean_Lsp_ImportCompletion_computePartialImportCompletions_spec__5(v___x_3421__boxed_374_, v_snd_369_, v_as_370_, v_i_boxed_375_, v_stop_boxed_376_, v_b_373_);
+v_res_377_ = l___private_Init_Data_Array_Basic_0__Array_foldlMUnsafe_fold___at___00Lean_Lsp_ImportCompletion_computePartialImportCompletions_spec__5(v___x_3415__boxed_374_, v_snd_369_, v_as_370_, v_i_boxed_375_, v_stop_boxed_376_, v_b_373_);
 lean_dec_ref(v_as_370_);
 lean_dec_ref(v_snd_369_);
 return v_res_377_;
@@ -1922,13 +1922,13 @@ goto _start;
 LEAN_EXPORT lean_object* l___private_Init_Data_Array_Basic_0__Array_foldlMUnsafe_fold___at___00Lean_Lsp_ImportCompletion_computePartialImportCompletions_spec__1___boxed(lean_object* v___x_572_, lean_object* v_as_573_, lean_object* v_i_574_, lean_object* v_stop_575_, lean_object* v_b_576_){
 _start:
 {
-uint8_t v___x_3837__boxed_577_; size_t v_i_boxed_578_; size_t v_stop_boxed_579_; lean_object* v_res_580_; 
-v___x_3837__boxed_577_ = lean_unbox(v___x_572_);
+uint8_t v___x_3831__boxed_577_; size_t v_i_boxed_578_; size_t v_stop_boxed_579_; lean_object* v_res_580_; 
+v___x_3831__boxed_577_ = lean_unbox(v___x_572_);
 v_i_boxed_578_ = lean_unbox_usize(v_i_574_);
 lean_dec(v_i_574_);
 v_stop_boxed_579_ = lean_unbox_usize(v_stop_575_);
 lean_dec(v_stop_575_);
-v_res_580_ = l___private_Init_Data_Array_Basic_0__Array_foldlMUnsafe_fold___at___00Lean_Lsp_ImportCompletion_computePartialImportCompletions_spec__1(v___x_3837__boxed_577_, v_as_573_, v_i_boxed_578_, v_stop_boxed_579_, v_b_576_);
+v_res_580_ = l___private_Init_Data_Array_Basic_0__Array_foldlMUnsafe_fold___at___00Lean_Lsp_ImportCompletion_computePartialImportCompletions_spec__1(v___x_3831__boxed_577_, v_as_573_, v_i_boxed_578_, v_stop_boxed_579_, v_b_576_);
 lean_dec_ref(v_as_573_);
 return v_res_580_;
 }
@@ -2008,16 +2008,16 @@ v___x_606_ = lean_nat_dec_le(v___x_599_, v___x_605_);
 if (v___x_606_ == 0)
 {
 lean_inc(v___x_605_);
-v___y_589_ = v___x_603_;
-v___y_590_ = v___y_602_;
+v___y_589_ = v___y_602_;
+v___y_590_ = v___x_603_;
 v___y_591_ = v___x_605_;
 v___y_592_ = v___x_605_;
 goto v___jp_588_;
 }
 else
 {
-v___y_589_ = v___x_603_;
-v___y_590_ = v___y_602_;
+v___y_589_ = v___y_602_;
+v___y_590_ = v___x_603_;
 v___y_591_ = v___x_605_;
 v___y_592_ = v___x_599_;
 goto v___jp_588_;
@@ -2244,17 +2244,17 @@ if (v___x_593_ == 0)
 lean_object* v___x_594_; 
 lean_dec(v___y_591_);
 lean_inc(v___y_592_);
-v___x_594_ = l___private_Init_Data_Array_QSort_Basic_0__Array_qsort_sort___at___00Lean_Lsp_ImportCompletion_computePartialImportCompletions_spec__0___redArg(v___y_589_, v___y_590_, v___y_592_, v___y_592_);
+v___x_594_ = l___private_Init_Data_Array_QSort_Basic_0__Array_qsort_sort___at___00Lean_Lsp_ImportCompletion_computePartialImportCompletions_spec__0___redArg(v___y_590_, v___y_589_, v___y_592_, v___y_592_);
 lean_dec(v___y_592_);
-lean_dec(v___y_589_);
+lean_dec(v___y_590_);
 return v___x_594_;
 }
 else
 {
 lean_object* v___x_595_; 
-v___x_595_ = l___private_Init_Data_Array_QSort_Basic_0__Array_qsort_sort___at___00Lean_Lsp_ImportCompletion_computePartialImportCompletions_spec__0___redArg(v___y_589_, v___y_590_, v___y_592_, v___y_591_);
+v___x_595_ = l___private_Init_Data_Array_QSort_Basic_0__Array_qsort_sort___at___00Lean_Lsp_ImportCompletion_computePartialImportCompletions_spec__0___redArg(v___y_590_, v___y_589_, v___y_592_, v___y_591_);
 lean_dec(v___y_591_);
-lean_dec(v___y_589_);
+lean_dec(v___y_590_);
 return v___x_595_;
 }
 }

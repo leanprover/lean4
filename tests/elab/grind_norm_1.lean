@@ -212,6 +212,42 @@ example : i = 3 := by grind_norm check; sorry
 #guard_msgs in
 example : i * j = i := by grind_norm check; sorry
 
+section casts
+attribute [local instance] Lean.Grind.Semiring.natCast Lean.Grind.Ring.intCast
+variable {α : Type} [Lean.Grind.Field α] (z : α) (f : α → α)
+
+#guard_msgs in
+example : z / ↑(0 : Nat) = 0 := by grind_norm check; sorry
+
+#guard_msgs in
+example : z / ↑(-0 : Int) = 0 := by grind_norm check; sorry
+
+#guard_msgs in
+example : f ↑(2 : Nat) = f 2 := by grind_norm check; sorry
+
+#guard_msgs in
+example : f ↑(-2 : Int) = f (-2) := by grind_norm check; sorry
+
+#guard_msgs in
+example : z = ↑(3 : Nat) := by grind_norm check; sorry
+
+#guard_msgs in
+example : ↑(3 : Int) = z := by grind_norm check; sorry
+
+-- Accepted difference: legacy normalizes only `Nat` and `Int` arithmetic. Over `Int`, both
+-- normalizers produce `-1 * i + -3 = 0`.
+/--
+error: `grind_norm` discrepancy
+legacy:
+  -3 = z
+sym:
+  -1 * z + -3 = 0
+-/
+#guard_msgs in
+example : -3 = z := by grind_norm check; sorry
+
+end casts
+
 end arith
 
 section structural
@@ -513,19 +549,6 @@ example (o : Option Nat) : (match o with | some x => x + 0 | none => 0 + b) = a 
 #guard_msgs in
 example : (match a * 0 with | 0 => b | _ + 1 => a) = b := by grind_norm check; sorry
 
--- The results differ in the type of `h` in the second alternative: `v.size + 0 = n + 1` (legacy)
--- and `v.size + 0 = n.succ` (`Sym`).
-/--
-error: `grind_norm` discrepancy (in hidden arguments)
-legacy:
-  (_example.match_1 (fun (x : Nat) => Nat) (v.size + 0) (fun (h : v.size + 0 = 0) => 0)
-      fun (n : Nat) (h : v.size + 0 = n + 1) => v[n]) =
-    b
-sym:
-  (_example.match_1 (fun (x : Nat) => Nat) (v.size + 0) (fun (h : v.size + 0 = 0) => 0)
-      fun (n : Nat) (h : v.size + 0 = n.succ) => v[n]) =
-    b
--/
 #guard_msgs in
 example (v : Array Nat) : (match h : v.size + 0 with | 0 => 0 | n + 1 => v[n]'(by grind)) = b := by grind_norm check; sorry
 
@@ -660,24 +683,6 @@ example (x : Fin 5) : (3 : Fin 5) + 4 = x := by grind_norm check; sorry
 #guard_msgs in
 example : (Fin.mk 3 (by decide) : Fin 5).val = a := by grind_norm check; sorry
 
--- Accepted difference: legacy `simp` also rewrites `4 + 1` to `5` in the type of the `Eq`;
--- `Sym.simp` does not visit types. The `Fin` literals agree, see the probes below.
-/--
-error: `grind_norm` discrepancy (in hidden arguments)
-legacy:
-  @Eq (Fin (@OfNat.ofNat Nat (nat_lit 5) (instOfNatNat (nat_lit 5))))
-    (@OfNat.ofNat (Fin (@OfNat.ofNat Nat (nat_lit 5) (instOfNatNat (nat_lit 5)))) (nat_lit 4)
-      (@Fin.instOfNat (@OfNat.ofNat Nat (nat_lit 5) (instOfNatNat (nat_lit 5))) ⋯ (nat_lit 4)))
-    x
-sym:
-  @Eq
-    (Fin
-      (@HAdd.hAdd Nat Nat Nat (@instHAdd Nat instAddNat) (@OfNat.ofNat Nat (nat_lit 4) (instOfNatNat (nat_lit 4)))
-        (@OfNat.ofNat Nat (nat_lit 1) (instOfNatNat (nat_lit 1)))))
-    (@OfNat.ofNat (Fin (@OfNat.ofNat Nat (nat_lit 5) (instOfNatNat (nat_lit 5)))) (nat_lit 4)
-      (@Fin.instOfNat (@OfNat.ofNat Nat (nat_lit 5) (instOfNatNat (nat_lit 5))) ⋯ (nat_lit 4)))
-    x
--/
 #guard_msgs in
 example (x : Fin 5) : Fin.last 4 = x := by grind_norm check; sorry
 
@@ -735,66 +740,43 @@ example : "abc" ≠ "abd" := by grind_norm check; sorry
 #guard_msgs in
 example : ("abc" == "abd") = true := by grind_norm check; sorry
 
-/--
-error: `grind_norm` discrepancy
-legacy:
-  "abcd" = s
-sym:
-  "abc".push 'd' = s
--/
 #guard_msgs in
 example : "abc".push 'd' = s := by grind_norm check; sorry
 
+#guard_msgs in
+example : String.singleton 'a' = s := by grind_norm check; sorry
+
+-- Accepted difference: `Sym` solves the equation for `x`; legacy only evaluates the lhs.
 /--
 error: `grind_norm` discrepancy
 legacy:
   8 = x
 sym:
-  255 * x + 3#8 + 5#8 = 0
+  x = 8
 -/
 #guard_msgs in
 example (x : BitVec 8) : 3#8 + 5#8 = x := by grind_norm check; sorry
 
-/--
-error: `grind_norm` discrepancy
-legacy:
-  1 = x
-sym:
-  1#8 = x
--/
 #guard_msgs in
 example (x : BitVec 8) : (3 : BitVec 8) &&& 5 = x := by grind_norm check; sorry
 
-/--
-error: `grind_norm` discrepancy
-legacy:
-  3 = x
-sym:
-  3#16 = x
--/
 #guard_msgs in
 example (x : BitVec 16) : (3#8).zeroExtend 16 = x := by grind_norm check; sorry
 
 #guard_msgs in
 example : (3#8).toNat = a := by grind_norm check; sorry
 
+-- Accepted difference: as above.
 /--
 error: `grind_norm` discrepancy
 legacy:
   0 = x
 sym:
-  255 * x + 255#8 + 1 = 0
+  x = 0
 -/
 #guard_msgs in
 example (x : BitVec 8) : 255#8 + 1 = x := by grind_norm check; sorry
 
-/--
-error: `grind_norm` discrepancy
-legacy:
-  44 = x
-sym:
-  300#8 = x
--/
 #guard_msgs in
 example (x : BitVec 8) : 300#8 = x := by grind_norm check; sorry
 
@@ -809,15 +791,22 @@ sym:
 #guard_msgs in
 example (x : UInt8) : (200 : UInt8) + 100 = x := by grind_norm check; sorry
 
+#guard_msgs in
+example : (200 : UInt8).toNat = a := by grind_norm check; sorry
+
+#guard_msgs in
+example : (300 : UInt16).toNat = a := by grind_norm check; sorry
+
+-- Accepted difference: legacy has no ground evaluation for `^` on `UInt64`.
 /--
 error: `grind_norm` discrepancy
 legacy:
-  200 = a
+  (2 ^ 40).toNat = a
 sym:
-  UInt8.toNat 200 = a
+  1099511627776 = a
 -/
 #guard_msgs in
-example : (200 : UInt8).toNat = a := by grind_norm check; sorry
+example : (2 ^ 40 : UInt64).toNat = a := by grind_norm check; sorry
 
 /--
 error: `grind_norm` discrepancy
@@ -838,23 +827,12 @@ example : Nat.succ 2 = a := by grind_norm check; sorry
 #guard_msgs in
 example : Nat.gcd 4 6 = a := by grind_norm check; sorry
 
-/--
-error: `grind_norm` discrepancy
-legacy:
-  7 = a
-sym:
-  Int.toNat 7 = a
--/
 #guard_msgs in
 example : (7 : Int).toNat = a := by grind_norm check; sorry
 
-/--
-error: `grind_norm` discrepancy
-legacy:
-  7 = a
-sym:
-  (-7).natAbs = a
--/
+#guard_msgs in
+example : (-7 : Int).toNat = a := by grind_norm check; sorry
+
 #guard_msgs in
 example : Int.natAbs (-7) = a := by grind_norm check; sorry
 

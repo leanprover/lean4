@@ -322,7 +322,7 @@ def solverAction (check : GoalM CheckResult) (mkTac : GrindM TGrind) : Action :=
   | .none       => kna goal'
   | .progress   => kp goal'
   | .propagated =>
-    let goal' ← GoalM.run' goal' processNewFacts
+    let goal' ← GoalM.run' goal' processToDo
     if goal'.inconsistent then
       closeWith mkTac
     else if (← getConfig).trace then

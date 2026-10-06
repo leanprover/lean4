@@ -930,11 +930,11 @@ goto v___jp_211_;
 v___jp_201_:
 {
 lean_object* v___x_206_; lean_object* v___x_207_; lean_object* v_a_208_; lean_object* v___x_209_; lean_object* v___x_210_; 
-v___x_206_ = l___private_Init_WFExtrinsicFix_0__WellFounded_opaqueFix_u2082___redArg(v___f_197_, v___y_205_, v___y_204_);
+v___x_206_ = l___private_Init_WFExtrinsicFix_0__WellFounded_opaqueFix_u2082___redArg(v___f_197_, v___y_205_, v___y_202_);
 v___x_207_ = lean_array_to_list(v___x_206_);
-v_a_208_ = l_List_appendTR___redArg(v___y_203_, v___x_207_);
+v_a_208_ = l_List_appendTR___redArg(v___y_204_, v___x_207_);
 v___x_209_ = l_List_lengthTR___redArg(v_a_208_);
-v___x_210_ = l_List_toSlice___redArg(v_a_208_, v___y_202_, v___x_209_);
+v___x_210_ = l_List_toSlice___redArg(v_a_208_, v___y_203_, v___x_209_);
 lean_dec(v___x_209_);
 lean_dec(v_a_208_);
 return v___x_210_;
@@ -988,9 +988,9 @@ goto v_reusejp_222_;
 }
 v_reusejp_222_:
 {
-v___y_202_ = v___x_218_;
-v___y_203_ = v___x_221_;
-v___y_204_ = v___x_219_;
+v___y_202_ = v___x_219_;
+v___y_203_ = v___x_218_;
+v___y_204_ = v___x_221_;
 v___y_205_ = v___x_223_;
 goto v___jp_201_;
 }
@@ -1022,9 +1022,9 @@ goto v_reusejp_228_;
 }
 v_reusejp_228_:
 {
-v___y_202_ = v___x_218_;
-v___y_203_ = v___x_221_;
-v___y_204_ = v___x_219_;
+v___y_202_ = v___x_219_;
+v___y_203_ = v___x_218_;
+v___y_204_ = v___x_221_;
 v___y_205_ = v___x_229_;
 goto v___jp_201_;
 }

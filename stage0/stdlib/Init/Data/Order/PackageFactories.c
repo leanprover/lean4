@@ -3251,23 +3251,26 @@ return v___f_63_;
 LEAN_EXPORT uint8_t l_Std_FactoryInstances_decidableLTOfLE___redArg(lean_object* v_inst_64_, lean_object* v_a_65_, lean_object* v_b_66_){
 _start:
 {
-lean_object* v___x_67_; lean_object* v___x_68_; uint8_t v___x_69_; 
+lean_object* v___x_67_; uint8_t v___x_68_; 
 lean_inc_ref(v_inst_64_);
 lean_inc(v_b_66_);
 lean_inc(v_a_65_);
 v___x_67_ = lean_apply_2(v_inst_64_, v_a_65_, v_b_66_);
-v___x_68_ = lean_apply_2(v_inst_64_, v_b_66_, v_a_65_);
-v___x_69_ = lean_unbox(v___x_68_);
-if (v___x_69_ == 0)
+v___x_68_ = lean_unbox(v___x_67_);
+if (v___x_68_ == 0)
 {
-uint8_t v___x_70_; 
-v___x_70_ = lean_unbox(v___x_67_);
-return v___x_70_;
+uint8_t v___x_69_; 
+lean_dec(v_b_66_);
+lean_dec(v_a_65_);
+lean_dec_ref(v_inst_64_);
+v___x_69_ = lean_unbox(v___x_67_);
+return v___x_69_;
 }
 else
 {
-uint8_t v___x_71_; 
-v___x_71_ = lean_unbox(v___x_67_);
+lean_object* v___x_70_; uint8_t v___x_71_; 
+v___x_70_ = lean_apply_2(v_inst_64_, v_b_66_, v_a_65_);
+v___x_71_ = lean_unbox(v___x_70_);
 if (v___x_71_ == 0)
 {
 uint8_t v___x_72_; 
@@ -3295,23 +3298,26 @@ return v_r_78_;
 LEAN_EXPORT uint8_t l_Std_FactoryInstances_decidableLTOfLE(lean_object* v_00_u03b1_79_, lean_object* v_inst_80_, lean_object* v_x_81_, lean_object* v_inst_82_, lean_object* v_inst_83_, lean_object* v_a_84_, lean_object* v_b_85_){
 _start:
 {
-lean_object* v___x_86_; lean_object* v___x_87_; uint8_t v___x_88_; 
+lean_object* v___x_86_; uint8_t v___x_87_; 
 lean_inc_ref(v_inst_82_);
 lean_inc(v_b_85_);
 lean_inc(v_a_84_);
 v___x_86_ = lean_apply_2(v_inst_82_, v_a_84_, v_b_85_);
-v___x_87_ = lean_apply_2(v_inst_82_, v_b_85_, v_a_84_);
-v___x_88_ = lean_unbox(v___x_87_);
-if (v___x_88_ == 0)
+v___x_87_ = lean_unbox(v___x_86_);
+if (v___x_87_ == 0)
 {
-uint8_t v___x_89_; 
-v___x_89_ = lean_unbox(v___x_86_);
-return v___x_89_;
+uint8_t v___x_88_; 
+lean_dec(v_b_85_);
+lean_dec(v_a_84_);
+lean_dec_ref(v_inst_82_);
+v___x_88_ = lean_unbox(v___x_86_);
+return v___x_88_;
 }
 else
 {
-uint8_t v___x_90_; 
-v___x_90_ = lean_unbox(v___x_86_);
+lean_object* v___x_89_; uint8_t v___x_90_; 
+v___x_89_ = lean_apply_2(v_inst_82_, v_b_85_, v_a_84_);
+v___x_90_ = lean_unbox(v___x_89_);
 if (v___x_90_ == 0)
 {
 uint8_t v___x_91_; 

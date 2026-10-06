@@ -1,0 +1,20 @@
+Input: "# Weekend `code\n         abc\ndef\n\nWe went for a walk.\n"
+Failure: unterminated inline code; expected '`'
+ --> 1:10-1:11
+  |
+1 | # Weekend `code
+  |           ^
+  = consumed input prefix: 15 bytes
+Final stack:
+  (Lean.Doc.Parser.Block.header
+   (Lean.Doc.Parser.headerMarker "#")
+   [(Lean.Doc.Parser.Inline.text
+     (Lean.Doc.Parser.versoText "Weekend "))
+    (Lean.Doc.Parser.Inline.code
+     (Lean.Doc.Parser.codeDelimiter "`")
+     (Lean.Doc.Parser.versoCode
+      [(Lean.Doc.Parser.versoCodeLine "code")])
+     <missing>)])
+Remaining:
+"abc\ndef\n\nWe went for a walk.\n"
+Round-trip not reproduced, as the parse reported errors: leaf without original source info: <missing>

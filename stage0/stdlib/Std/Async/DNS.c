@@ -208,7 +208,7 @@ return v_res_40_;
 LEAN_EXPORT lean_object* l_Std_Async_DNS_getAddrInfo(lean_object* v_host_46_, lean_object* v_service_47_, lean_object* v_addrFamily_48_){
 _start:
 {
-uint8_t v___y_51_; lean_object* v___y_52_; lean_object* v___y_53_; lean_object* v_val_54_; uint8_t v___y_59_; 
+lean_object* v___y_51_; lean_object* v___y_52_; uint8_t v___y_53_; lean_object* v_val_54_; uint8_t v___y_59_; 
 if (lean_obj_tag(v_addrFamily_48_) == 0)
 {
 uint8_t v___x_80_; 
@@ -244,7 +244,7 @@ lean_ctor_set(v___x_55_, 0, v_val_54_);
 v___x_56_ = lean_alloc_ctor(0, 1, 0);
 lean_ctor_set(v___x_56_, 0, v___x_55_);
 lean_inc_ref(v___y_52_);
-v___x_57_ = l___private_Std_Async_Basic_0__Std_Async_BaseAsync_bind_bindAsyncTask(lean_box(0), lean_box(0), v___y_53_, v___y_51_, v___x_56_, v___y_52_);
+v___x_57_ = l___private_Std_Async_Basic_0__Std_Async_BaseAsync_bind_bindAsyncTask(lean_box(0), lean_box(0), v___y_51_, v___y_53_, v___x_56_, v___y_52_);
 return v___x_57_;
 }
 v___jp_58_:
@@ -292,9 +292,9 @@ goto v_reusejp_68_;
 }
 v_reusejp_68_:
 {
-v___y_51_ = v___x_62_;
+v___y_51_ = v___x_61_;
 v___y_52_ = v___f_60_;
-v___y_53_ = v___x_61_;
+v___y_53_ = v___x_62_;
 v_val_54_ = v___x_69_;
 goto v___jp_50_;
 }
@@ -338,9 +338,9 @@ goto v_reusejp_76_;
 }
 v_reusejp_76_:
 {
-v___y_51_ = v___x_62_;
+v___y_51_ = v___x_61_;
 v___y_52_ = v___f_60_;
-v___y_53_ = v___x_61_;
+v___y_53_ = v___x_62_;
 v_val_54_ = v___x_77_;
 goto v___jp_50_;
 }

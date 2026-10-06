@@ -165,10 +165,23 @@ Retrieves all builtin Verso docstrings.
 def getBuiltinVersoDocStrings : IO (NameMap VersoDocString) :=
   builtinVersoDocStrings.get
 
+/-- Throws if `declName` already has a Markdown or Verso docstring. -/
+def throwIfHasDocString [Monad m] [MonadError m] [MonadEnv m] (declName : Name) : m Unit := do
+  let env ← getEnv
+  -- only the state visible on this branch, as in `MapDeclarationExtension.insert`
+  if docStringExt.contains (asyncMode := .local) env declName ||
+      versoDocStringExt.contains (asyncMode := .local) env declName then
+    throwError m!"invalid doc string, declaration `{.ofConstName declName}` already has one"
+
+/--
+Sets the docstring of `declName`, replacing an existing one: metaprograms extend docstrings this way
+(e.g. by appending cross-reference links). Only `add_decl_doc` rejects a second docstring.
+-/
 def addDocStringCore [Monad m] [MonadError m] [MonadEnv m] [MonadLiftT BaseIO m] (declName : Name) (docString : String) : m Unit := do
   unless (← getEnv).getModuleIdxFor? declName |>.isNone do
     throwError m!"invalid doc string, declaration `{.ofConstName declName}` is in an imported module"
-  modifyEnv fun env => docStringExt.insert env declName docString.removeLeadingSpaces
+  modifyEnv fun env =>
+    docStringExt.insert env declName docString.removeLeadingSpaces (allowOverwrite := true)
 
 def removeDocStringCore [Monad m] [MonadError m] [MonadEnv m] [MonadLiftT BaseIO m] (declName : Name) : m Unit := do
   unless (← getEnv).getModuleIdxFor? declName |>.isNone do

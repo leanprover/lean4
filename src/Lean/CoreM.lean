@@ -241,9 +241,22 @@ structure RecordedDeps where
   extGens : Array (Nat × Nat) := #[]
   /--
   `Environment.trackedGen` when recording started, or when the dependencies were last validated.
-  While it is unchanged, none of the environment dependencies can have changed.
+  Together with `baseChangeLogPos` it is the *stamp* of the dependencies: as long as the
+  environment's `trackedGen` and change log length still equal the stamp, none of the environment
+  dependencies can have changed since then.
   -/
   baseTrackedGen : Nat := 0
+  /--
+  Length of `Environment.declChangeLog` when recording started, or when the dependencies were last
+  validated; see `baseTrackedGen`.
+  -/
+  baseChangeLogPos : Nat := 0
+  /--
+  `Environment.constGen` when recording started. `Environment.checkDeclChangeLog` ignores the
+  changes logged since `baseChangeLogPos` to declarations added after recording started, as the
+  recorded computation cannot have observed them.
+  -/
+  baseConstGen : Nat := 0
   deriving Inhabited
 
 namespace Core
@@ -946,7 +959,7 @@ private def recordOptionAccess (name : Name) (value : Option DataValue) : CoreM 
 
 /--
 Inside a recording computation, records the current generation of the generation-tracked extension
-`ext` in `Core.State.recordedDeps`.
+`ext` in `Core.State.recordedDeps`. Callers then read the state with `(genRecorded := true)`.
 -/
 def recordExtGenAccess (ext : EnvExtension σ) : CoreM Unit := do
   if !(← read).isRecordingDeps then

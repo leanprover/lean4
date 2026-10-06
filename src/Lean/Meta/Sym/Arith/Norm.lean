@@ -49,7 +49,9 @@ The normalizer owns the traversal of the arithmetic tree: it recurses through th
 its structure interprets and hands every atom (maximal non-arithmetic subterm) to the
 `simpAtom` callback, so that a simplifier can rewrite the atoms before reification and the
 normal form is stated for the simplified atoms. The congruence proof for that step is built
-with `Sym.Simp.mkCongr`.
+with `Sym.Simp.mkCongr`. A cast of a numeral (`↑(2 : Nat)`, `↑(-2 : Int)`) is rewritten to the
+numeral of the carrier on the way, also when it is the whole term, so that a numeral has one
+representation.
 
 Atoms are numbered in `Expr.lt` order, so the normal form of a term does not depend on the
 order in which its atoms occur, and two terms denoting the same polynomial over the same
@@ -166,7 +168,10 @@ instance : MonadMkVar NormM where
 instance : MonadGetVar NormM where
   getVar x := return (← get).vars[x]!
 
-/-- If `e` is an application of an arithmetic operator supported by the normalizer, returns its carrier type. -/
+/--
+If `e` is an application of an arithmetic operator supported by the normalizer, or a cast of a
+numeral, returns its carrier type.
+-/
 def getArithType? (e : Expr) : Option Expr :=
   match_expr e with
   | HAdd.hAdd α _ _ _ _ _ => some α
@@ -177,6 +182,8 @@ def getArithType? (e : Expr) : Option Expr :=
   | Neg.neg α _ _ => some α
   | HDiv.hDiv α _ _ _ _ _ => some α
   | Inv.inv α _ _ => some α
+  | NatCast.natCast α _ a => if (Sym.getNatValue? a).run.isSome then some α else none
+  | IntCast.intCast α _ a => if (Sym.getIntValue? a).run.isSome then some α else none
   | _ => none
 
 /-- `true` if the structure of `kind` is a field. -/
@@ -228,6 +235,38 @@ private def mkSMulStep (kind : Kind) (isNat : Bool) (e₁ k a : Expr) : NormM (E
   let k' := if type.isConstOf (if isNat then ``Nat else ``Int) then k else mkApp castFn k
   let e₂ ← share (mkApp2 mulFn k' a)
   return (e₂, mkExpectedPropHint (mkApp2 thm k a) (mkApp3 (mkConst ``Eq [u.succ]) type e₁ e₂))
+
+/--
+The cast rewrite hook: given `e := ↑k` for a numeral `k : Nat`, or `k : Int` in a ring, whose
+cast instance is the structure's, returns the numeral `k` of the carrier with a proof of `e = k`
+by `Grind.Semiring.natCast_eq_ofNat` / `Grind.Ring.intCast_eq_ofNat_of_nonneg` /
+`Grind.Ring.intCast_eq_ofNat_of_nonpos`. Returns `none` when the instance is a different one;
+`e` is then an atom.
+-/
+private def mkCastLitStep? (kind : Kind) (e : Expr) : NormM (Option (Expr × Expr)) := do
+  match_expr e with
+  | NatCast.natCast _ _ a =>
+    let some k := (Sym.getNatValue? a).run | return none
+    let (type, u, castFn, semiringInst) ← if kind.isRing then
+        let ring ← getRing
+        pure (ring.type, ring.u, ← getNatCastFn, ring.semiringInst)
+      else
+        let sr ← getSemiring
+        pure (sr.type, sr.u, ← getNatCastFn', sr.semiringInst)
+    unless isSameExpr castFn (← canonExpr e.appFn!) do return none
+    let e₂ ← share (← if kind.isRing then denoteNum k else denoteNatNum k)
+    let thm := mkApp3 (mkConst ``Grind.Semiring.natCast_eq_ofNat [u]) type semiringInst a
+    return some (e₂, mkExpectedPropHint thm (mkApp3 (mkConst ``Eq [u.succ]) type e e₂))
+  | IntCast.intCast _ _ a =>
+    unless kind.isRing do return none
+    let some k := (Sym.getIntValue? a).run | return none
+    unless isSameExpr (← getIntCastFn) (← canonExpr e.appFn!) do return none
+    let ring ← getRing
+    let e₂ ← share (← denoteNum k)
+    let thmName := if k < 0 then ``Grind.Ring.intCast_eq_ofNat_of_nonpos else ``Grind.Ring.intCast_eq_ofNat_of_nonneg
+    let thm := mkApp4 (mkConst thmName [ring.u]) ring.type ring.ringInst a eagerReflBoolTrue
+    return some (e₂, mkExpectedPropHint thm (mkApp3 (mkConst ``Eq [ring.u.succ]) ring.type e e₂))
+  | _ => return none
 
 /-!
 Field rewrites applied by the walk, all without side conditions (`Init/Grind/Ring/Field.lean`):
@@ -285,6 +324,11 @@ private partial def visitAtoms (kind : Kind) (isField : Bool) (simpAtom : Expr �
     match h : e with
     | .app f a => (Simp.mkCongrArg e f a (← visitAtoms kind isField simpAtom a) h : SymM Result)
     | _ => unreachable!
+  -- A cast of a numeral becomes the numeral of the carrier. With a different cast instance, it is
+  -- an atom, but one `simpAtom` must not visit: `simp` would re-enter `e` through `normalizeTerm?`.
+  let castLit : m Result := do
+    let some (e₂, h) ← liftNorm kind (mkCastLitStep? kind e) | return .rfl
+    return .step e₂ h
   match_expr e with
   | HAdd.hAdd _ _ _ _ _ _ => bin
   | HMul.hMul _ _ _ _ _ _ => bin
@@ -339,8 +383,12 @@ private partial def visitAtoms (kind : Kind) (isField : Bool) (simpAtom : Expr �
       | .rfl _ cd => return if cd && !r₁.isContextDependent then r₁.withContextDependent else r₁
       | .step _ h₀ _ cd => mkEqTransResult e e₁ h₀ r₁ cd
     | _ => unreachable!
-  | NatCast.natCast _ _ a => if (Sym.getNatValue? a).run.isSome then return .rfl else simpAtom e
-  | IntCast.intCast _ _ a => if isRing && (Sym.getIntValue? a).run.isSome then return .rfl else simpAtom e
+  | NatCast.natCast _ _ a =>
+    unless (Sym.getNatValue? a).run.isSome do return (← simpAtom e)
+    castLit
+  | IntCast.intCast _ _ a =>
+    unless isRing && (Sym.getIntValue? a).run.isSome do return (← simpAtom e)
+    castLit
   | OfNat.ofNat _ _ _ => return .rfl
   | _ => simpAtom e
 
@@ -1026,6 +1074,7 @@ private def normalizeTerm? [Monad m] [MonadLiftT SymM m] [MonadLiftT MetaM m] (e
   | Neg.neg _ _ _ => unless isRing do return .rfl
   | HDiv.hDiv _ _ _ _ _ _ => unless isField do return .rfl
   | Inv.inv _ _ _ => unless isField do return .rfl
+  | IntCast.intCast _ _ _ => unless isRing do return .rfl
   | _ => pure ()
   let r₁ ← visitAtoms kind isField simpAtom e
   let e₁ := r₁.getResultExpr e

@@ -32,6 +32,17 @@ example : Int.bmod 17 5 = 2 := by sym => simp groundSimp
 example : -(-5 : Int) = 5 := by sym => simp groundSimp
 example : -(3 : Int8) = -3 := by sym => simp groundSimp
 
+-- Conversions to `Nat`
+example : (7 : Int).toNat = 7 := by sym => simp groundSimp
+example : (-7 : Int).toNat = 0 := by sym => simp groundSimp
+example : (-7 : Int).natAbs = 7 := by sym => simp groundSimp
+example : (7 : Int).natAbs = 7 := by sym => simp groundSimp
+example : (200 : UInt8).toNat = 200 := by sym => simp groundSimp
+example : (300 : UInt8).toNat = 44 := by sym => simp groundSimp
+example : (300 : UInt16).toNat = 300 := by sym => simp groundSimp
+example : (100000 : UInt32).toNat = 100000 := by sym => simp groundSimp
+example : (2 ^ 40 : UInt64).toNat = 1099511627776 := by sym => simp groundSimp
+
 -- Bitwise: Nat
 example : 5 &&& 3 = 1 := by sym => simp groundSimp
 example : 5 ||| 3 = 7 := by sym => simp groundSimp
@@ -210,6 +221,13 @@ example : "a" ≤ "a" := by sym => simp groundSimp
 example : ¬ "a" > "b" := by sym => simp groundSimp
 example : "a" = "a" := by sym => simp groundSimp
 example : "a" ≠ "b" := by sym => simp groundSimp
+
+-- String operations
+example : "abc".push 'd' = "abcd" := by sym => simp groundSimp
+example : "".push 'a' = "a" := by sym => simp groundSimp
+example : String.singleton 'a' = "a" := by sym => simp groundSimp
+example : ("ab".push 'c').push 'd' = "abcd" := by sym => simp groundSimp
+example : "ab" ++ String.singleton 'c' = "abc" := by sym => simp groundSimp
 
 -- Predicates: Char
 example : 'h' < 'w' := by sym => simp groundSimp

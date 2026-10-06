@@ -238,8 +238,8 @@ where
           throwError m!"Value for ISize was not 64 bits but {value.w} bits"
       | _ =>
         match var with
-        | .app (.const (.str p s) levels) arg =>
-          if s == Normalize.enumToBitVecSuffix then
+        | .app (.const fn levels) arg =>
+          if let some p := Normalize.enumToBitVecType? (← getEnv) fn then
             let .inductInfo inductiveInfo ← getConstInfo p | unreachable!
             let ctors := inductiveInfo.ctors
             let enumVal := mkConst ctors[value.bv.toNat]! levels

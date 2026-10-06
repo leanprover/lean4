@@ -202,6 +202,9 @@ opaque osGetPriority : UInt64 → IO Int64
 
 /--
 Sets the scheduling priority of a process.
+
+Throws `IO.Error.invalidArgument` if the priority is outside the range from -20 (highest) to 19
+(lowest).
 -/
 @[extern "lean_uv_os_setpriority"]
 opaque osSetPriority : UInt64 → Int64 → IO Unit
@@ -220,6 +223,8 @@ opaque hrtime : IO UInt64
 
 /--
 Generates cryptographically secure random bytes.
+
+Throws `IO.Error.resourceExhausted` if more than 2^31 - 1 bytes are requested.
 -/
 @[extern "lean_uv_random"]
 opaque random : UInt64 → IO (IO.Promise (Except IO.Error ByteArray))

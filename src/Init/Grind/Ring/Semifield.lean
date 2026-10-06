@@ -69,6 +69,12 @@ theorem inv_mul (a b : α) : (a * b)⁻¹ = a⁻¹ * b⁻¹ := by
   rw [Semiring.mul_assoc, CommSemiring.mul_left_comm b⁻¹ a b,
     ← Semiring.mul_assoc a⁻¹ a, inv_mul_cancel ha, Semiring.one_mul, inv_mul_cancel hb]
 
+theorem mul_mul_inv_cancel {a b c : α} (ha : a ≠ 0) :
+    a * b * (c * a)⁻¹ = b * c⁻¹ := by
+  rw [inv_mul, CommSemiring.mul_comm c⁻¹, ← Semiring.mul_assoc,
+    Semiring.mul_assoc a b, CommSemiring.mul_comm b, ← Semiring.mul_assoc,
+    mul_inv_cancel ha, Semiring.one_mul]
+
 theorem inv_pow (a : α) (n : Nat) : (a ^ n)⁻¹ = a⁻¹ ^ n := by
   induction n with
   | zero => rw [Semiring.pow_zero, Semiring.pow_zero, inv_one]

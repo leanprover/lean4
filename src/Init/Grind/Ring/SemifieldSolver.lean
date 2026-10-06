@@ -137,11 +137,6 @@ theorem PolyQ.denoteS_substInv [Semifield α] [IsCharP α 0] (ctx : Context α)
   rw [Semiring.natCast_mul, Semifield.inv_mul, ← h, Semiring.mul_assoc,
     CommSemiring.mul_comm ((q.den : α)⁻¹)]
 
-private theorem cancel_scale [Semifield α] {g a b : α} (hg : g ≠ 0) :
-    g * a * (b⁻¹ * g⁻¹) = a * b⁻¹ := by
-  rw [CommSemiring.mul_comm b⁻¹, ← Semiring.mul_assoc, Semiring.mul_assoc g a,
-    CommSemiring.mul_comm a, ← Semiring.mul_assoc, Semifield.mul_inv_cancel hg, Semiring.one_mul]
-
 theorem PolyQ.denoteS_reduce [Semifield α] [IsCharP α 0] (ctx : Context α)
     (q : PolyQ) (hq : q.num.NonnegCoeffs) : q.reduce.denoteS ctx = q.denoteS ctx := by
   unfold PolyQ.reduce
@@ -161,7 +156,7 @@ theorem PolyQ.denoteS_reduce [Semifield α] [IsCharP α 0] (ctx : Context α)
       simp only [PolyQ.denoteS]
       rw [← h.1, ← h.2,
         Poly.denoteS_mulConst ctx _ _ (Int.natCast_nonneg _) hn,
-        Int.toNat_natCast, Semiring.natCast_mul, Semifield.inv_mul, cancel_scale hg']
+        Int.toNat_natCast, Semiring.natCast_mul, Semifield.mul_mul_inv_cancel hg']
     · rfl
 
 theorem Poly.denoteS_toPolyQ [Semifield α] [IsCharP α 0] (ctx : Context α)

@@ -48,32 +48,20 @@ namespace Field
 
 variable [Field α] {a : α}
 
-theorem inv_mul_cancel (h : a ≠ 0) : a⁻¹ * a = 1 :=
-  Semifield.inv_mul_cancel h
-
-theorem eq_inv_of_mul_eq_one (h : a * b = 1) : a = b⁻¹ :=
-  Semifield.eq_inv_of_mul_eq_one h
-
-theorem inv_one : (1 : α)⁻¹ = 1 :=
-  Semifield.inv_one
-
-theorem inv_inv (a : α) : a⁻¹⁻¹ = a :=
-  Semifield.inv_inv a
-
 theorem inv_eq_iff_eq_iff (a b : α) : a⁻¹ = b ↔ a = b⁻¹ := by
   constructor
   · intro h
-    rw [← h, inv_inv]
+    rw [← h, Semifield.inv_inv]
   · intro h
-    rw [h, inv_inv]
+    rw [h, Semifield.inv_inv]
 
 theorem inv_neg (a : α) : (-a)⁻¹ = -a⁻¹ := by
   by_cases h : a = 0
   · subst h
     simp [Field.inv_zero, AddCommGroup.neg_zero]
   · symm
-    apply eq_inv_of_mul_eq_one
-    simp [Ring.neg_mul, Ring.mul_neg, AddCommGroup.neg_neg, Field.inv_mul_cancel h]
+    apply Semifield.eq_inv_of_mul_eq_one
+    simp [Ring.neg_mul, Ring.mul_neg, AddCommGroup.neg_neg, Semifield.inv_mul_cancel h]
 
 theorem inv_eq_zero_iff {a : α} : a⁻¹ = 0 ↔ a = 0 := by
   constructor
@@ -84,7 +72,7 @@ theorem inv_eq_zero_iff {a : α} : a⁻¹ = 0 ↔ a = 0 := by
     · have := congrArg (fun x => x * a) w
       -- TODO(kmill): remove after stage0 update
       try dsimp at this
-      rw [Semiring.zero_mul, inv_mul_cancel h] at this
+      rw [Semiring.zero_mul, Semifield.inv_mul_cancel h] at this
       exfalso
       exact zero_ne_one this.symm
   · intro w
@@ -93,18 +81,6 @@ theorem inv_eq_zero_iff {a : α} : a⁻¹ = 0 ↔ a = 0 := by
 
 theorem zero_eq_inv_iff {a : α} : 0 = a⁻¹ ↔ 0 = a := by
   rw [eq_comm, inv_eq_zero_iff, eq_comm]
-
-theorem of_mul_eq_zero {a b : α} : a * b = 0 → a = 0 ∨ b = 0 :=
-  Semifield.of_mul_eq_zero
-
-theorem inv_mul (a b : α) : (a*b)⁻¹ = a⁻¹*b⁻¹ :=
-  Semifield.inv_mul a b
-
-theorem inv_pow (a : α) (n : Nat) : (a ^ n)⁻¹ = a⁻¹ ^ n :=
-  Semifield.inv_pow a n
-
-theorem of_pow_eq_zero (a : α) (n : Nat) : a^n = 0 → a = 0 :=
-  Semifield.of_pow_eq_zero a n
 
 theorem zpow_natCast (a : α) (n : Nat) : a ^ (n : Int) = a ^ n := by
   induction n
@@ -123,13 +99,13 @@ theorem zpow_add_one {a : α} (h : a ≠ 0) (n : Int) : a ^ (n + 1) = a ^ n * a 
   | (n : Nat) => rw [zpow_succ, zpow_natCast]
   | -(n + 1 : Nat) =>
     rw [zpow_neg, Int.natCast_add, Int.cast_ofNat_Int, Int.neg_add, Int.neg_add_cancel_right,
-      zpow_neg, zpow_succ, inv_mul, Semiring.mul_assoc, inv_mul_cancel h, Semiring.mul_one]
+      zpow_neg, zpow_succ, Semifield.inv_mul, Semiring.mul_assoc, Semifield.inv_mul_cancel h, Semiring.mul_one]
 
 theorem zpow_sub_one {a : α} (h : a ≠ 0) (n : Int) : a ^ (n - 1) = a ^ n * a⁻¹ := by
   have h₁ := zpow_add_one h (-n)
   have h₂ : -n + 1 = - (n - 1) := by omega
   rw [h₂, zpow_neg, inv_eq_iff_eq_iff] at h₁
-  rw [h₁, inv_mul, zpow_neg, inv_inv]
+  rw [h₁, Semifield.inv_mul, zpow_neg, Semifield.inv_inv]
 
 theorem zpow_add {a : α} (h : a ≠ 0) (m n : Int) : a ^ (m + n) = a ^ m * a ^ n := by
   match n with
@@ -157,16 +133,12 @@ theorem add_div {x y z : α} (hz : z ≠ 0) : x + y / z = (x * z + y) / z := by
     Field.mul_inv_cancel hz, Semiring.mul_one]
 
 theorem div_div_right {x y z : α} : x / (y / z) = x * z / y := by
-  rw [div_eq_mul_inv, div_eq_mul_inv, div_eq_mul_inv, inv_mul, inv_inv, CommSemiring.mul_comm y⁻¹,
+  rw [div_eq_mul_inv, div_eq_mul_inv, div_eq_mul_inv, Semifield.inv_mul, Semifield.inv_inv, CommSemiring.mul_comm y⁻¹,
     Semiring.mul_assoc]
 theorem div_div_left {x y z : α} : (x / y) / z = x / (y * z) := by
-  rw [div_eq_mul_inv, div_eq_mul_inv, div_eq_mul_inv, inv_mul, Semiring.mul_assoc]
+  rw [div_eq_mul_inv, div_eq_mul_inv, div_eq_mul_inv, Semifield.inv_mul, Semiring.mul_assoc]
 theorem div_mul_cancel {x y : α} (h : y ≠ 0) : x / y * y = x := by
-  rw [div_eq_mul_inv, Semiring.mul_assoc, Field.inv_mul_cancel h, Semiring.mul_one]
-
-attribute [local instance] Semiring.natCast in
-theorem natCast_ne_zero [IsCharP α 0] {n : Nat} (h : n ≠ 0) : (n : α) ≠ 0 :=
-  Semifield.natCast_ne_zero h
+  rw [div_eq_mul_inv, Semiring.mul_assoc, Semifield.inv_mul_cancel h, Semiring.mul_one]
 
 attribute [local instance] Ring.intCast in
 theorem intCast_div_of_dvd {x y : Int} (h : y ∣ x) (w : (y : α) ≠ 0) :

@@ -223,7 +223,7 @@ private def internalizeMatchCond (matchCond : Expr) (generation : Nat) : GoalM U
   mkENode' matchCond generation (funCC := false)
   let (lhss, e') ← collectMatchCondLhssAndAbstract matchCond
   lhss.forM fun lhs => do internalize lhs generation; registerParent matchCond lhs
-  propagateUp matchCond
+  pushPropagateUp matchCond
   internalize e' generation
   trace_goal[grind.debug.matchCond.lambda] "(idx := {(← getENode e'.getAppFn).idx}) {e'.getAppFn}"
   trace_goal[grind.debug.matchCond.lambda] "auxiliary application{indentExpr e'}"
@@ -618,7 +618,7 @@ where
         registerParent e b
         addCongrTable e
       if (← isProp d <&&> isProp e) then
-        propagateUp e
+        pushPropagateUp e
         checkAndAddSplitCandidate e
       Solvers.internalize e parent?
     | .lit .. =>
@@ -705,7 +705,7 @@ where
         pushCastHEqs e
         addCongrTable e
         Solvers.internalize e parent?
-        propagateUp e
+        pushPropagateUp e
         propagateBetaForNewApp e
         mkInjEq e
 

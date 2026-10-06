@@ -1308,6 +1308,13 @@ else()
   set(CMAKE_BUILD_TYPE_TOML "Release")
 endif()
 
+# Defer code generation to a separate `leanir` job per module; not yet enabled for stage 1
+if(STAGE GREATER 1)
+  set(LEAN_POSTPONE_COMPILE_TOML "leanOptions.compiler.postponeCompile = true")
+else()
+  set(LEAN_POSTPONE_COMPILE_TOML "")
+endif()
+
 if(USE_LAKE)
   configure_file(${LEAN_SOURCE_DIR}/lakefile.toml.in ${CMAKE_BINARY_DIR}/lakefile.toml)
   # copy for editing

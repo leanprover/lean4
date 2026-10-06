@@ -204,7 +204,7 @@ public def IterM.flatMap {α : Type w} {β : Type w} {α₂ : Type w}
 
 namespace Iterators.Types
 
-variable {α α₂ β : Type w} {m : Type w → Type w'}
+public variable {α α₂ β : Type w} {m : Type w → Type w'}
 
 /-- The plausible-step predicate for `Flatten` iterators -/
 public inductive Flatten.IsPlausibleStep [Iterator α m (IterM (α := α₂) m β)] [Iterator α₂ m β] :
@@ -246,9 +246,9 @@ public instance Flatten.instIterator [Monad m] [Iterator α m (IterM (α := α�
 
 section Finite
 
-variable {α : Type w} {α₂ : Type w} {β : Type w} {m : Type w → Type w'}
+public variable {α : Type w} {α₂ : Type w} {β : Type w} {m : Type w → Type w'}
 
-variable (α m β) in
+public variable (α m β) in
 def Flatten.Rel [Monad m] [Iterator α m (IterM (α := α₂) m β)] [Iterator α₂ m β] [Finite α m] [Finite α₂ m] :
     IterM (α := Flatten α α₂ β m) m β → IterM (α := Flatten α α₂ β m) m β → Prop :=
   InvImage
@@ -309,9 +309,9 @@ end Finite
 
 section Productive
 
-variable {α : Type w} {α₂ : Type w} {β : Type w} {m : Type w → Type w'}
+public variable {α : Type w} {α₂ : Type w} {β : Type w} {m : Type w → Type w'}
 
-variable (α m β) in
+public variable (α m β) in
 def Flatten.ProductiveRel [Monad m] [Iterator α m (IterM (α := α₂) m β)] [Iterator α₂ m β] [Finite α m]
     [Productive α₂ m] :
     IterM (α := Flatten α α₂ β m) m β → IterM (α := Flatten α α₂ β m) m β → Prop :=

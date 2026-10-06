@@ -23,7 +23,7 @@ order-theoretic least fixed point `Lean.Order.fix (repeatM.body f)` and feeds it
 Unfolding `repeatM`/`Lean.Loop.forIn` requires importing this module.
 -/
 
-variable {α : Type u} {m : Type u → Type v} [Monad m]
+public variable {α : Type u} {m : Type u → Type v} [Monad m]
 
 /-- `repeatM.body f` is monotone in its `recur` argument whenever `m` admits `MonadTail`. -/
 private theorem repeatM.body_monotone_of_monadTail [Lean.Order.MonadTail m] [Nonempty β]

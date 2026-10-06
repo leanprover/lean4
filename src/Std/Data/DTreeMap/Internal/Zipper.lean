@@ -172,7 +172,7 @@ public inductive Zipper (α : Type u) (β : α → Type v) where
   | done
   | cons (k : α) (v : β k) (tree : Impl α β) (next : Zipper α β)
 
-variable {α : Type u} {β : α → Type v}
+public variable {α : Type u} {β : α → Type v}
 
 public def Zipper.toList : Zipper α β → List ((a : α) × β a)
 | .done => []
@@ -433,7 +433,7 @@ public structure RxcIterator (α : Type u) (β : α → Type v) [Ord α] where
   iter : Zipper α β
   upper : α
 
-variable {α : Type u} {β : α → Type v}
+public variable {α : Type u} {β : α → Type v}
 
 public def RxcIterator.step [Ord α] : RxcIterator α β → IterStep (IterM (α := RxcIterator α β) Id ((a : α) × β a)) ((a : α) × β a)
   | ⟨.done, _⟩ => .done
@@ -566,7 +566,7 @@ public structure RxoIterator (α : Type u) (β : α → Type v) [Ord α] where
   iter : Zipper α β
   upper : α
 
-variable {α : Type u} {β : α → Type v}
+public variable {α : Type u} {β : α → Type v}
 
 public def RxoIterator.step [Ord α] : RxoIterator α β → IterStep (IterM (α := RxoIterator α β) Id ((a : α) × β a)) ((a : α) × β a)
   | ⟨.done, _⟩ => .done

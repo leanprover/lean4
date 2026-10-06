@@ -78,7 +78,7 @@ def elabSpec (stx? : Option (TSyntax `term)) (wp : Expr) : TacticM SpecTheorem :
   | none => findSpec (← getSpecTheorems) wp
   | some stx => elabTermIntoSpecTheorem stx expectedTy
 
-variable {n} [Monad n] [MonadControlT MetaM n] [MonadLiftT MetaM n] [MonadEnv n]
+public variable {n} [Monad n] [MonadControlT MetaM n] [MonadLiftT MetaM n] [MonadEnv n]
 
 private def mkProj' (n : Name) (i : Nat) (Q : Expr) : MetaM Expr := do
   return (← projectCore? Q i).getD (mkProj n i Q)

@@ -41,7 +41,7 @@ public structure OptionHandlers (m : Type u → Type v) (α : Type u) where
 
 /-! # Utilities -/
 
-variable [Monad m] [MonadStateOf ArgList m]
+public variable [Monad m] [MonadStateOf ArgList m]
 
 /-- Get the remaining argument list. -/
 @[inline] public def getArgs : m (List String) :=

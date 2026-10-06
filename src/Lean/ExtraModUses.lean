@@ -37,7 +37,7 @@ public builtin_initialize indirectModUseExt : SimplePersistentEnvExtension Indir
 public def getIndirectModUses (env : Environment) (modIdx : ModuleIdx) : Array IndirectModUse :=
   indirectModUseExt.getModuleEntries env modIdx
 
-variable [Monad m] [MonadEnv m] [MonadTrace m] [MonadOptions m] [MonadRef m] [AddMessageContext m]
+public variable [Monad m] [MonadEnv m] [MonadTrace m] [MonadOptions m] [MonadRef m] [AddMessageContext m]
 
 /--
 Lets `shake` know that references to `declName` may also require importing the current module due to

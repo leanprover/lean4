@@ -18,7 +18,7 @@ public structure OrdHashSet (α) [Hashable α] [BEq α] where
   toArray : Array α
 
 namespace OrdHashSet
-variable [Hashable α] [BEq α]
+public variable [Hashable α] [BEq α]
 
 public instance : Coe (OrdHashSet α) (Std.HashSet α) := ⟨toHashSet⟩
 

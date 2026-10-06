@@ -44,7 +44,7 @@ open Std.Iterators
 
 section EntriesIter
 
-variable {α : Type u} {β : α → Type v} {m : Raw α β}
+public variable {α : Type u} {β : α → Type v} {m : Raw α β}
 
 @[simp]
 public theorem toList_iter :
@@ -66,7 +66,7 @@ end EntriesIter
 
 section KeysIter
 
-variable {α : Type u} {β : α → Type u} {m : Raw α β}
+public variable {α : Type u} {β : α → Type u} {m : Raw α β}
 
 @[simp]
 public theorem toList_keysIter [BEq α] [Hashable α] [EquivBEq α] [LawfulHashable α] (h : m.WF) :
@@ -87,7 +87,7 @@ end KeysIter
 
 section ValuesIter
 
-variable {α β : Type u} {m : Raw α (fun _ => β)}
+public variable {α β : Type u} {m : Raw α (fun _ => β)}
 
 @[simp]
 public theorem toList_valuesIter_eq_toList_map_snd :
@@ -113,7 +113,7 @@ open Std.Iterators
 
 section EntriesIter
 
-variable {α : Type u} {β : α → Type v} [BEq α] [Hashable α] {m : DHashMap α β}
+public variable {α : Type u} {β : α → Type v} [BEq α] [Hashable α] {m : DHashMap α β}
 
 theorem toList_inner :
     m.inner.toList = m.toList :=
@@ -138,7 +138,7 @@ end EntriesIter
 
 section KeysIter
 
-variable {α : Type u} {β : α → Type u} [BEq α] [Hashable α] {m : DHashMap α β}
+public variable {α : Type u} {β : α → Type u} [BEq α] [Hashable α] {m : DHashMap α β}
 
 theorem keys_inner :
     m.inner.keys = m.keys :=
@@ -163,7 +163,7 @@ end KeysIter
 
 section ValuesIter
 
-variable {α : Type u} {β : Type u} [BEq α] [Hashable α] {m : DHashMap α (fun _ => β)}
+public variable {α : Type u} {β : Type u} [BEq α] [Hashable α] {m : DHashMap α (fun _ => β)}
 
 @[simp]
 public theorem toList_valuesIter_eq_toList_map_snd :

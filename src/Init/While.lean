@@ -15,7 +15,7 @@ public import Init.Classical
 `repeatM f a` iterates `f : α → m (α ⊕ β)`, recursing on `.inl` and terminating on `.inr`.
 -/
 
-variable {α : Type u} {m : Type u → Type v} [Monad m]
+public variable {α : Type u} {m : Type u → Type v} [Monad m]
 
 /-- The body of `repeatM`: run `f a`, recurse via `recur` on `.inl`, return on `.inr`. -/
 public abbrev repeatM.body (f : α → m (α ⊕ β)) (recur : α → m β) (a : α) : m β := do

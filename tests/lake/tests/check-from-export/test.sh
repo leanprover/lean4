@@ -19,7 +19,7 @@ mkdir -p work
 "$LAKE" env leanexport Bad -- bad > work/bad.export
 
 test_status_out 0 'Lean default kernel accepts the solution' check --from-export work/solution.export
-match_text 'Uses axioms: Classical.choice, propext, Quot.sound' produced.out
+match_text 'Uses axioms: propext, Quot.sound, Classical.choice' produced.out
 no_match_text 'Resolving dependencies' produced.out
 no_match_text 'Building and exporting' produced.out
 

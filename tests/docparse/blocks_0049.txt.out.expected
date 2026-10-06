@@ -1,24 +1,36 @@
+Input: "[\\[link A\\]](https://example.com) [\\[link B\\]](https://more.example.com)"
 Success! Final stack:
-  [(Lean.Doc.Syntax.para
-    "para{"
-    [(Lean.Doc.Syntax.link
+  [(Lean.Doc.Parser.Block.para
+    [(Lean.Doc.Parser.Inline.link
       "["
-      [(Lean.Doc.Syntax.text
-        (str "\"[link A]\""))]
+      [(Lean.Doc.Parser.Inline.text
+        (Lean.Doc.Parser.versoText
+         "\\[link A\\]"))]
       "]"
-      (Lean.Doc.Syntax.url
+      (Lean.Doc.Parser.LinkTarget.url
        "("
-       (str "\"https://example.com\"")
+       (Lean.Doc.Parser.versoLinkUrl
+        "https://example.com")
        ")"))
-     (Lean.Doc.Syntax.text (str "\" \""))
-     (Lean.Doc.Syntax.link
+     (Lean.Doc.Parser.Inline.text
+      (Lean.Doc.Parser.versoText " "))
+     (Lean.Doc.Parser.Inline.link
       "["
-      [(Lean.Doc.Syntax.text
-        (str "\"[link B]\""))]
+      [(Lean.Doc.Parser.Inline.text
+        (Lean.Doc.Parser.versoText
+         "\\[link B\\]"))]
       "]"
-      (Lean.Doc.Syntax.url
+      (Lean.Doc.Parser.LinkTarget.url
        "("
-       (str "\"https://more.example.com\"")
-       ")"))]
-    "}")]
+       (Lean.Doc.Parser.versoLinkUrl
+        "https://more.example.com")
+       ")"))])]
 All input consumed.
+Round-trip OK
+Decoded views:
+  para
+    link (opener := "[") (closer := "]") (target := url (opener := "(") (url := "https://example.com") (closer := ")"))
+      text (content := "[link A]")
+    text (content := " ")
+    link (opener := "[") (closer := "]") (target := url (opener := "(") (url := "https://more.example.com") (closer := ")"))
+      text (content := "[link B]")

@@ -1,22 +1,30 @@
+Input: "[My link][lean]\n\n[lean]: https://lean-lang.org\nhello"
 Success! Final stack:
-  [(Lean.Doc.Syntax.para
-    "para{"
-    [(Lean.Doc.Syntax.link
+  [(Lean.Doc.Parser.Block.para
+    [(Lean.Doc.Parser.Inline.link
       "["
-      [(Lean.Doc.Syntax.text (str "\"My link\""))]
+      [(Lean.Doc.Parser.Inline.text
+        (Lean.Doc.Parser.versoText "My link"))]
       "]"
-      (Lean.Doc.Syntax.ref
+      (Lean.Doc.Parser.LinkTarget.ref
        "["
-       (str "\"lean\"")
-       "]"))]
-    "}")
-   (Lean.Doc.Syntax.link_ref
+       (Lean.Doc.Parser.versoRef "lean")
+       "]"))])
+   (Lean.Doc.Parser.Block.link_ref
     "["
-    (str "\"lean\"")
+    (Lean.Doc.Parser.versoRef "lean")
     "]:"
-    (str "\"https://lean-lang.org\""))
-   (Lean.Doc.Syntax.para
-    "para{"
-    [(Lean.Doc.Syntax.text (str "\"hello\""))]
-    "}")]
+    (Lean.Doc.Parser.versoLinkRefUrl
+     "https://lean-lang.org"))
+   (Lean.Doc.Parser.Block.para
+    [(Lean.Doc.Parser.Inline.text
+      (Lean.Doc.Parser.versoText "hello"))])]
 All input consumed.
+Round-trip OK
+Decoded views:
+  para
+    link (opener := "[") (closer := "]") (target := ref (opener := "[") (name := "lean") (closer := "]"))
+      text (content := "My link")
+  linkRef (opener := "[") (name := "lean") (closer := "]:") (url := "https://lean-lang.org")
+  para
+    text (content := "hello")

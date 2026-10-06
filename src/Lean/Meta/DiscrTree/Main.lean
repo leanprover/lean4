@@ -6,7 +6,7 @@ Authors: Leonardo de Moura, Jannis Limperg, Kim Morrison
 module
 prelude
 public import Lean.Meta.Basic
-public import Lean.Meta.DiscrTree.Basic
+public import Lean.Meta.DiscrTree.Util
 import Lean.Meta.WHNF
 public section
 namespace Lean.Meta.DiscrTree
@@ -429,14 +429,29 @@ private abbrev getUnifyKeyArgs (e : Expr) (root : Bool) : MetaM (Key × Array Ex
 private def getStarResult (d : DiscrTree α) : Array α :=
   let result : Array α := .mkEmpty initCapacity
   match d.root.find? .star with
-  | none                  => result
-  | some (.node vs _) => result ++ vs
+  | none => result
+  | some c => result ++ c.nodeValues
 
 private abbrev findKey (cs : Array (Key × Trie α)) (k : Key) : Option (Key × Trie α) :=
   cs.binSearch (k, default) (fun a b => a.1 < b.1)
 
 private partial def getMatchLoop (todo : Array Expr) (c : Trie α) (result : Array α) : MetaM (Array α) := do
   match c with
+  | .chain key child =>
+    if todo.isEmpty then
+      return result
+    else
+      let e     := todo.back!
+      let todo  := todo.pop
+      let (k, args) ← getMatchKeyArgs e (root := false)
+      if key == .star then
+        getMatchLoop todo child result
+      else
+        if key == k then
+          getMatchLoop (todo ++ args) child result
+        else
+          return result
+
   | .node vs cs =>
     if todo.isEmpty then
       return result ++ vs
@@ -544,6 +559,7 @@ private partial def getAllValuesForKey (d : DiscrTree α) (k : Key) (result : Ar
 where
   go (trie : Trie α) (result : Array α) : Array α := Id.run do
     match trie with
+    | .chain _ c => go c result
     | .node vs cs =>
       let mut result := result ++ vs
       for (_, trie) in cs do
@@ -577,15 +593,18 @@ partial def getUnify (d : DiscrTree α) (e : Expr) : MetaM (Array α) :=
 where
   process (skip : Nat) (todo : Array Expr) (c : Trie α) (result : Array α) : MetaM (Array α) := do
     match skip, c with
+    | skip+1, .chain key child =>
+      process (skip + key.arity) todo child result
     | skip+1, .node _  cs =>
       if cs.isEmpty then
         return result
       else
         cs.foldlM (init := result) fun result ⟨k, c⟩ => process (skip + k.arity) todo c result
-    | 0, .node vs cs => do
+    | 0, _ =>
       if todo.isEmpty then
-        return result ++ vs
-      else if cs.isEmpty then
+        return result ++ c.nodeValues
+      let cs := c.nodeChildren
+      if cs.isEmpty then
         return result
       else
         let e     := todo.back!

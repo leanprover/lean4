@@ -48,7 +48,7 @@ public def introPre (rule : BackwardRule) (goal : MVarId) : VCGenM (MVarId × FV
 /--
 Reduce a `Prod.fst` projection of a concrete tuple on the RHS of `pre ⊑ rhs` to the component it
 selects. An exception postcondition is a tuple with one component per exception layer, so the head
-layer of `pre ⊑ epost.fst` is a `Prod.fst` projection. `reduceHead?` performs the reduction, so a
+layer of `pre ⊑ eposts.fst` is a `Prod.fst` projection. `reduceHead?` performs the reduction, so a
 `.snd` chain below the projection and excess state arguments reduce in the same pass. Returns
 `none` if the RHS head is not `Prod.fst` or does not reduce; a `⊥`/`⊤` tuple falls through to the
 `Prod.fst` lattice split in `splitLatticeOp?`.
@@ -77,14 +77,15 @@ private def refoldHimpUpperAdjoint? (goal : MVarId) (rhs : Expr) :
     return some (← goal.replaceTargetDefEqFast newTarget, rhs')
 
 /--
-Decompose a supported lattice connective (`⊓`, `⇨`, `⌜p⌝`, `⊤`, `iInf`, a `⊥`/`⊤` tuple projection)
+Decompose a supported lattice connective (`⊓`, `⇨`, `⌜p⌝`, `⊤`, `∧`, `iInf`, a `⊥`/`⊤` tuple projection)
 or a registered frame operator on the RHS of `pre ⊑ rhs` by saturating it with the built-in and
 `@[frameproc]` rewrites, closing it with a terminal, and point-framing any excess state arguments.
 Returns `none` if the head is neither a built-in connective nor a frame operator, or its rule does
 not apply.
 
 An embedded proposition `⌜p⌝` is decomposed only when the precondition is `⊤`: its `⊤`-fixed terminal
-`top_le_ofProp` fails to apply otherwise, since turning `pre ⊑ ⌜p⌝` into the subgoal `p` drops `pre`.
+`CompleteLattice.top_le_ofProp` fails to apply otherwise, since turning `pre ⊑ ⌜p⌝` into the subgoal
+`p` drops `pre`.
 -/
 public def splitLatticeOp? (goal : MVarId) (rhs : Expr) :
     VCGenM (Option (List MVarId)) := do

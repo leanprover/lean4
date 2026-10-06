@@ -1,4 +1,9 @@
+Input: " [\\[link\\]](https://link.com)"
 Success! Final stack:
-  (Lean.Doc.Syntax.text (str "\" \""))
+  (Lean.Doc.Parser.Inline.text
+   (Lean.Doc.Parser.versoText " "))
 Remaining:
 "[\\[link\\]](https://link.com)"
+Round-trip OK
+Decoded views:
+  text (content := " ")

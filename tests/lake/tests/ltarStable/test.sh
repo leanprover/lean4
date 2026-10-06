@@ -49,5 +49,40 @@ if command -v jq > /dev/null; then # skip if no jq found
   match_text "$dep" .lake/staging/outputs.jsonl
 fi
 
+# Output tracking in a later invocation must reuse the restored bundles rather
+# than repack them, reproducing the mapping the archives were fetched under.
+test_not_out "leantar" build --no-build -v -o .lake/plain-restored.jsonl
+sort .lake/out2.jsonl > .lake/expected.jsonl
+sort .lake/plain-restored.jsonl > .lake/actual.jsonl
+test_cmd diff .lake/expected.jsonl .lake/actual.jsonl
+
+# An archive-only cache must preserve its bundles, including when the cache is
+# read-only. Neither immediate nor subsequent output tracking should repack them.
+for config in lakefile.toml readonly.toml; do
+  rm -rf .lake/cache .lake/build
+  test_run cache unstage .lake/staging
+  test_out "leantar" -f "$config" build --no-build -v -o .lake/restored.jsonl
+  no_match_text "leantar -s" produced.out
+  for module in Test Test/A Test/B; do
+    test_exp -f ".lake/build/ir/$module.ltar"
+  done
+  test_not_out "leantar" -f "$config" build --no-build -v -o .lake/reused.jsonl
+  sort .lake/out2.jsonl > .lake/expected.jsonl
+  sort .lake/restored.jsonl > .lake/actual.jsonl
+  test_cmd diff .lake/expected.jsonl .lake/actual.jsonl
+  sort .lake/reused.jsonl > .lake/actual.jsonl
+  test_cmd diff .lake/expected.jsonl .lake/actual.jsonl
+done
+
+# Preserving an archive must not retain stale outputs after its source changes.
+printf '\npublic def changed : Nat := 2\n' >> Test/A.lean
+test_out "Built Test.A" build -v -o .lake/changed.jsonl
+bundles .lake/changed.jsonl > .lake/changed-bundles.txt
+test_cmd_fails diff .lake/bundles2.txt .lake/changed-bundles.txt
+test_not_out "leantar" build --no-build -v -o .lake/changed-reused.jsonl
+sort .lake/changed.jsonl > .lake/expected.jsonl
+sort .lake/changed-reused.jsonl > .lake/actual.jsonl
+test_cmd diff .lake/expected.jsonl .lake/actual.jsonl
+
 # Cleanup
 rm -f produced.out

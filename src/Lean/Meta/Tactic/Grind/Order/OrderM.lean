@@ -6,6 +6,7 @@ Authors: Leonardo de Moura
 module
 prelude
 public import Lean.Meta.Tactic.Grind.Order.Types
+public import Lean.Meta.Sym.Arith.Types
 public section
 namespace Lean.Meta.Grind.Order
 
@@ -20,17 +21,23 @@ abbrev OrderM.run (structId : Nat) (x : OrderM α) : GoalM α :=
 abbrev getStructId : OrderM Nat :=
   return (← read).structId
 
-def getStruct : OrderM Struct := do
-  let s ← get'
+/-- The `Sym.Arith` classification record (instances, `≤`/`<` functions) of the current order. -/
+def getOrder : OrderM Sym.Arith.Order := do
+  let s ← Sym.Arith.getArithState
   let structId ← getStructId
-  if h : structId < s.structs.size then
-    return s.structs[structId]
+  if h : structId < s.orders.size then
+    return s.orders[structId]
   else
     throwError "`grind` internal error, invalid order structure id"
 
+/-- The per-goal solver state of the current order; empty if this goal has not used it yet. -/
+def getStruct : OrderM Struct := do
+  let structId ← getStructId
+  return (← get').structs.getD structId { id := structId }
+
 def modifyStruct (f : Struct → Struct) : OrderM Unit := do
   let structId ← getStructId
-  modify' fun s => { s with structs := s.structs.modify structId f }
+  modify' fun s => { s with structs := (s.structs.rightpad (structId + 1) { id := structId }).modify structId f }
 
 def getExpr (u : NodeId) : OrderM Expr := do
   return (← getStruct).nodes[u]!
@@ -55,18 +62,18 @@ def getCnstr? (e : Expr) : OrderM (Option (Cnstr NodeId)) :=
   return (← getStruct).cnstrs.find? { expr := e }
 
 def isRing : OrderM Bool :=
-  return (← getStruct).ringId?.isSome
+  return (← getOrder).ringId?.isSome
 
 def isPartialOrder : OrderM Bool :=
-  return (← getStruct).isPartialInst?.isSome
+  return (← getOrder).isPartialInst?.isSome
 
 def isLinearPreorder : OrderM Bool :=
-  return (← getStruct).isLinearPreInst?.isSome
+  return (← getOrder).isLinearPreInst?.isSome
 
 def hasLt : OrderM Bool :=
-  return (← getStruct).lawfulOrderLTInst?.isSome
+  return (← getOrder).lawfulOrderLTInst?.isSome
 
 def isInt : OrderM Bool :=
-  return isSameExpr (← getStruct).type (← getIntExpr)
+  return isSameExpr (← getOrder).type (← getIntExpr)
 
 end Lean.Meta.Grind.Order

@@ -124,10 +124,10 @@ coinductive mdCo : Prop where
   /-- md ctor doc -/
   | mk : mdCo
 
-/-- info: markdown: "md doc " -/
+/-- info: markdown: "md doc" -/
 #guard_msgs in #dumpDoc mdCo
 
-/-- info: markdown: "md ctor doc " -/
+/-- info: markdown: "md ctor doc" -/
 #guard_msgs in #dumpDoc mdCo.mk
 
 /-!

@@ -1,4 +1,6 @@
+Input: "!!![abc"
 Success! Final stack:
   "!!"
 Remaining:
 "![abc"
+Round-trip OK

@@ -349,6 +349,4 @@ list<T> remove_ith(list<T> const & l, unsigned idx) {
     else
         return idx == 0 ? tail(l) : cons(head(l), remove_ith(tail(l), idx-1));
 }
-
-list<unsigned> mk_list_range(unsigned from, unsigned to);
 }

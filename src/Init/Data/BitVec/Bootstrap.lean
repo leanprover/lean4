@@ -70,6 +70,8 @@ theorem toNat_ofFin (x : Fin (2^n)) : (BitVec.ofFin x).toNat = x.val := rfl
 -- only activated in `Init.Grind.Norm`.
 @[simp] theorem toNat_ofNatLT (x : Nat) (p : x < 2^w) : (x#'p).toNat = x := rfl
 
+@[simp] protected theorem pow_eq (x : BitVec w) (n : Nat) : x.pow n = x ^ n := rfl
+
 @[simp, grind =] theorem toNat_cons (b : Bool) (x : BitVec w) :
     (cons b x).toNat = (b.toNat <<< w) ||| x.toNat := by
   let ⟨x, _⟩ := x
@@ -139,7 +141,7 @@ theorem getElem_setWidth (m : Nat) (x : BitVec n) (i : Nat) (h : i < m) :
     · simp_all only [getElem_setWidth, getLsbD_eq_getElem]
     · omega
 
-@[simp, bitvec_to_nat, grind =]
+@[simp, bitvec_to_nat]
 theorem toNat_neg (x : BitVec n) : (- x).toNat = (2^n - x.toNat) % 2^n := by
   simp [Neg.neg, BitVec.neg]
 

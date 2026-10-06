@@ -1,4 +1,12 @@
-Failure @0 (⟨1, 0⟩): unexpected space or newline after opener
+Input: "_ aa_"
+Failure: unexpected space or newline after opener
+ --> 1:0-1:1
+  |
+1 | _ aa_
+  | ^
+  = consumed input prefix: 0 bytes
 Final stack:
-  (Lean.Doc.Syntax.emph "_" <missing>)
-Remaining: "_ aa_"
+  <missing>
+Remaining:
+"_ aa_"
+Round-trip not reproduced, as the parse reported errors: leaf without original source info: <missing>

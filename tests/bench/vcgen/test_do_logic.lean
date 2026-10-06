@@ -5,7 +5,6 @@ Authors: Vladimir Gladshtein, Sebastian Graf
 -/
 import Lean
 import Std.WP
-import Std.Tactic.Do
 
 set_option experimental.vcgen true
 
@@ -147,13 +146,13 @@ theorem fib_impl_vcs
     apply_rules [loop_post]
 
 @[spec]
-theorem mkFreshNat_spec [Monad m] [Assertion Pred] [Assertion EPred] [WPMonad m Pred EPred] :
+theorem mkFreshNat_spec [Monad m] [Assertion Pred] [Assertion EPosts] [WPMonad m Pred EPosts] :
     ⦃ fun s => ⌜s.1 = n ∧ s.2 = o⌝ ⦄
     (mkFreshNat : StateT AppState m Nat)
     ⦃ fun r s => ⌜r = n ∧ s.1 = n + 1 ∧ s.2 = o⌝ ⦄ := by
   vcgen [mkFreshNat] <;> simp_all
 
-theorem erase_unfold [Monad m] [Assertion Pred] [Assertion EPred] [WPMonad m Pred EPred] :
+theorem erase_unfold [Monad m] [Assertion Pred] [Assertion EPosts] [WPMonad m Pred EPosts] :
   ⦃fun s => ⌜s.1 = n ∧ s.2 = o⌝ ⦄
   (mkFreshNat : StateT AppState m Nat)
   ⦃fun r s => ⌜r = n ∧ s.1 = n + 1 ∧ s.2 = o⌝ ⦄ := by
@@ -163,7 +162,7 @@ theorem erase_unfold [Monad m] [Assertion Pred] [Assertion EPred] [WPMonad m Pre
   fail_if_success done
   admit
 
-theorem add_unfold [Monad m] [Assertion Pred] [Assertion EPred] [WPMonad m Pred EPred] :
+theorem add_unfold [Monad m] [Assertion Pred] [Assertion EPosts] [WPMonad m Pred EPosts] :
     ⦃ fun s => ⌜s.1 = n ∧ s.2 = o⌝ ⦄
     (mkFreshNat : StateT AppState m Nat)
     ⦃ fun r s => ⌜r = n ∧ s.1 = n + 1 ∧ s.2 = o⌝ ⦄ := by
@@ -253,6 +252,24 @@ example (p : Nat → Prop) [DecidablePred p] (n : Nat) :
       (onContinue := fun pref _ _ => ⌜∀ i, i ∈ pref → p i⌝)
   all_goals simp_all [-Classical.not_forall]; try grind
 
+def nodup (l : List Int) : Bool := Id.run do
+  let mut seen : Std.HashSet Int := ∅
+  for x in l do
+    if x ∈ seen then
+      return false
+    seen := seen.insert x
+  return true
+
+theorem nodup_correct (l : List Int) : nodup l ↔ l.Nodup := by
+  generalize h : nodup l = r
+  apply Id.of_run_eq_wp h
+  vcgen invariants
+  · Invariant.withEarlyReturnNewDo
+      (onReturn := fun ret seen => ret = false ∧ ¬l.Nodup)
+      (onContinue := fun pref suff seen =>
+        (∀ x, x ∈ seen ↔ x ∈ pref) ∧ pref.Nodup)
+  with finish
+
 end Automated
 
 namespace HimpSplit
@@ -260,12 +277,26 @@ namespace HimpSplit
 -- A `⇨` (Heyting implication) in the postcondition exercises the `PreservesSup.le_upperAdjoint` split, whose
 -- subgoal carries a `⊓ ⊤` precondition that `meet_top_le_of_le` cancels. The abstract `Pred` keeps
 -- `⇨` from collapsing to `→`.
-theorem himp_post {m} [Monad m] [Assertion Pred] [Assertion EPred] [WPMonad m Pred EPred] :
+theorem himp_post {m} [Monad m] [Assertion Pred] [Assertion EPosts] [WPMonad m Pred EPosts] :
     ⦃ ⊤ ⦄ (pure 4 : m Nat) ⦃ fun r => ⌜r = 4⌝ ⇨ ⌜r > 0⌝ ⦄ := by
   vcgen
   all_goals grind
 
 end HimpSplit
+
+namespace AndSplit
+
+-- A pointwise `∧` precondition splits like `⊓`, so the `wp` of the second `dec` is stepped.
+def dec : StateM Nat Unit := modify (· - 1)
+
+@[spec] theorem dec_spec {Q : Unit → Nat → Prop} :
+    ⦃ fun n => 0 < n ∧ Q () (n - 1) ⦄ dec ⦃ Q ⦄ := by
+  vcgen [dec] <;> simp_all
+
+example : ⦃ fun n => n = 2 ⦄ (do dec; dec) ⦃ fun _ n => n = 0 ⦄ := by
+  vcgen <;> omega
+
+end AndSplit
 
 namespace VSTTE2010
 
@@ -447,8 +478,8 @@ section IteratorTests
 variable {m} [Monad m]
 open Std Std.Iterators
 
-theorem forIn_eq_sum (xs : Array Nat) {m} [Monad m] [Assertion Pred] [Assertion EPred]
-    [WPMonad m Pred EPred] :
+theorem forIn_eq_sum (xs : Array Nat) {m} [Monad m] [Assertion Pred] [Assertion EPosts]
+    [WPMonad m Pred EPosts] :
     ⦃ ⊤ ⦄
     (do
       let mut sum : Nat := 0
@@ -460,8 +491,8 @@ theorem forIn_eq_sum (xs : Array Nat) {m} [Monad m] [Assertion Pred] [Assertion 
   case inv1 => exact fun pref _ n => ⌜n = pref.sum⌝
   all_goals grind
 
-theorem forIn_map_eq_sum_add_size' (xs : Array Nat) {m} [Monad m] [Assertion Pred] [Assertion EPred]
-    [WPMonad m Pred EPred] :
+theorem forIn_map_eq_sum_add_size' (xs : Array Nat) {m} [Monad m] [Assertion Pred] [Assertion EPosts]
+    [WPMonad m Pred EPosts] :
     ⦃ ⊤ ⦄ (m := m) (do
       let mut sum : Nat := 0
       for n in (xs.iterM Id).map (· + 1) do
@@ -471,8 +502,8 @@ theorem forIn_map_eq_sum_add_size' (xs : Array Nat) {m} [Monad m] [Assertion Pre
   case inv1 => exact fun pref _ n => ⌜n = pref.sum + pref.length⌝
   all_goals grind
 
-theorem forIn_map_eq_sum_add_size (xs : Array Nat) {m} [Monad m] [Assertion Pred] [Assertion EPred]
-    [WPMonad m Pred EPred] :
+theorem forIn_map_eq_sum_add_size (xs : Array Nat) {m} [Monad m] [Assertion Pred] [Assertion EPosts]
+    [WPMonad m Pred EPosts] :
     ⦃ ⊤ ⦄ (m := m) (do
       let mut sum : Nat := 0
       for n in (xs.iterM Id).map (· + 1) do
@@ -484,7 +515,7 @@ theorem forIn_map_eq_sum_add_size (xs : Array Nat) {m} [Monad m] [Assertion Pred
 
 
 theorem forIn_mapM_eq_sum_add_size (xs : Array Nat) {m} [Monad m] [MonadAttach m]
-    [LawfulMonad m] [WeaklyLawfulMonadAttach m] [Assertion Pred] [Assertion EPred] [WPMonad m Pred EPred] :
+    [LawfulMonad m] [WeaklyLawfulMonadAttach m] [Assertion Pred] [Assertion EPosts] [WPMonad m Pred EPosts] :
     ⦃ ⊤ ⦄ (m := m) (do
       let mut sum : Nat := 0
       for n in (xs.iterM Id).mapM (pure (f := m) <| · + 1) do
@@ -495,7 +526,7 @@ theorem forIn_mapM_eq_sum_add_size (xs : Array Nat) {m} [Monad m] [MonadAttach m
   all_goals grind
 
 theorem forIn_filterMapM_eq_sum_add_size (xs : Array Nat) {m}
-    [Monad m] [LawfulMonad m] [MonadAttach m] [WeaklyLawfulMonadAttach m] [Assertion Pred] [Assertion EPred] [WPMonad m Pred EPred] :
+    [Monad m] [LawfulMonad m] [MonadAttach m] [WeaklyLawfulMonadAttach m] [Assertion Pred] [Assertion EPosts] [WPMonad m Pred EPosts] :
     ⦃ ⊤ ⦄ (m := m) (do
       let mut sum : Nat := 0
       for n in (xs.iterM Id).filterMapM (pure (f := m) <| some <| · + 1) do
@@ -506,7 +537,7 @@ theorem forIn_filterMapM_eq_sum_add_size (xs : Array Nat) {m}
   all_goals grind
 
 theorem foldM_eq_sum (xs : Array Nat) {m} [Monad m] [LawfulMonad m]
-    [Assertion Pred] [Assertion EPred] [WPMonad m Pred EPred] :
+    [Assertion Pred] [Assertion EPosts] [WPMonad m Pred EPosts] :
     ⦃ ⊤ ⦄ (xs.iter.foldM (m := m) (init := 0) (pure <| · + ·)) ⦃ fun r => ⌜r = xs.sum⌝ ⦄ := by
   vcgen
   case inv1 => exact fun pref _ n => ⌜n = pref.sum⌝
@@ -683,14 +714,14 @@ end InvalidSpecRejection
 
 namespace TopBetaReduction
 
-variable {m : Type → Type u} {Pred EPred} [Monad m] [Assertion Pred] [Assertion EPred] [WPMonad m Pred EPred]
+variable {m : Type → Type u} {Pred EPosts} [Monad m] [Assertion Pred] [Assertion EPosts] [WPMonad m Pred EPosts]
 
 def incr (n : Nat) : StateT Nat m PUnit := modify (· + n)
 
 @[spec]
 theorem Spec.incr
-    (post : PUnit → Nat → Pred) (epost : EPred) (n : Nat) :
-    ⦃ fun s => post ⟨⟩ (s + n) ⦄ (incr n : StateT Nat m PUnit) ⦃ post; epost ⦄ := by
+    (post : PUnit → Nat → Pred) (eposts : EPosts) (n : Nat) :
+    ⦃ fun s => post ⟨⟩ (s + n) ⦄ (incr n : StateT Nat m PUnit) ⦃ post; eposts ⦄ := by
   vcgen [TopBetaReduction.incr]; rfl
 
 /--
@@ -712,11 +743,11 @@ error: unsolved goals
 case vc1
 m : Type → Type u
 Pred : Type u_1
-EPred : Type u_2
+EPosts : Type u_2
 inst✝³ : Monad m
 inst✝² : Assertion Pred
-inst✝¹ : Assertion EPred
-inst✝ : WPMonad m Pred EPred
+inst✝¹ : Assertion EPosts
+inst✝ : WPMonad m Pred EPosts
 amounts : List Nat
 s✝ : Nat
 ⊢ ⊤ ⊑ ⊥
@@ -812,3 +843,73 @@ example : ⦃ True ⦄ trivial_test 0 ⦃fun r => r = 0⦄ := by
   vcgen [trivial_test] with grind
 
 end WithGrindError
+
+namespace ConjunctivePre
+
+/-! Each spec below has a precondition conjunctive in `Q`, so `vcgen` applies it directly and forms
+no frame. The preconditions use `∀`/`→` (`bump_spec`), a `wp` applied to the state (`bump2_spec`),
+`if` (`bumpSat_spec`), `match` (`dec_spec`), `Prod.snd` (`bumpE_spec`) and a pair (`retryE_spec`).
+The frame `fun s => s = 3` fails to hold across each program: a framed application leaves an
+unprovable goal such as `WP.Frames meet bump (fun s => s = 3)`. -/
+
+@[irreducible] def bump : StateT Nat Id Unit := modify (· + 1)
+
+@[spec]
+theorem bump_spec (Q : Unit → Nat → Prop) :
+    ⦃ fun s => ∀ s', s' = s + 1 → Q () s' ⦄ bump ⦃ Q ⦄ := by
+  unfold bump; vcgen with finish
+
+example : ⦃ fun s => s = 3 ⦄ bump ⦃ fun _ s => s = 4 ⦄ := by
+  vcgen frames | bump => fun s => s = 3 with finish
+
+@[irreducible] def bump2 : StateT Nat Id Unit := do bump; bump
+
+@[spec]
+theorem bump2_spec (Q : Unit → Nat → Prop) (E : EStack⟨⟩) :
+    ⦃ fun s => wp bump (fun _ => wp bump Q E) E s ⦄ bump2 ⦃ Q; E ⦄ := by
+  unfold bump2; exact ⟨WPMonad.bind_le_wp_bind bump (fun _ => bump) Q E⟩
+
+example : ⦃ fun s => s = 3 ⦄ bump2 ⦃ fun _ s => s = 5 ⦄ := by
+  vcgen frames | bump2 => fun s => s = 3 with finish
+
+@[irreducible] def bumpSat : StateT Nat Id Unit := modify fun s => if s < 10 then s + 1 else s
+
+@[spec]
+theorem bumpSat_spec (Q : Unit → Nat → Prop) :
+    ⦃ fun s => if s < 10 then Q () (s + 1) else Q () s ⦄ bumpSat ⦃ Q ⦄ := by
+  unfold bumpSat; vcgen with finish
+
+example : ⦃ fun s => s = 3 ⦄ bumpSat ⦃ fun _ s => s = 4 ⦄ := by
+  vcgen frames | bumpSat => fun s => s = 3 with finish
+
+@[irreducible] def dec : StateT Nat Id Unit := modify fun | 0 => 0 | n + 1 => n
+
+@[spec]
+theorem dec_spec (Q : Unit → Nat → Prop) :
+    ⦃ fun s => match s with | 0 => Q () 0 | n + 1 => Q () n ⦄ dec ⦃ Q ⦄ := by
+  unfold dec; vcgen; rename_i s _; cases s <;> simp_all
+
+example : ⦃ fun s => s = 3 ⦄ dec ⦃ fun _ s => s = 2 ⦄ := by
+  vcgen frames | dec => fun s => s = 3 with finish
+
+@[irreducible] def bumpE : ExceptT String (StateT Nat Id) Unit := monadLift bump
+
+@[spec]
+theorem bumpE_spec (Q : Unit → Nat → Prop) (E : (String → Nat → Prop) × EStack⟨⟩) :
+    ⦃ wp bump Q E.snd ⦄ bumpE ⦃ Q; E ⦄ := by
+  unfold bumpE; exact Spec.monadLift_ExceptT bump Q E
+
+example : ⦃ fun s => s = 3 ⦄ bumpE ⦃ fun _ s => s = 4 ⦄ := by
+  vcgen frames | bumpE => fun s => s = 3 with finish
+
+@[irreducible] def retryE : ExceptT String (StateT Nat Id) Unit := tryCatch bumpE fun _ => bumpE
+
+@[spec]
+theorem retryE_spec (Q : Unit → Nat → Prop) (E : (String → Nat → Prop) × EStack⟨⟩) :
+    ⦃ wp bumpE Q (fun _ => wp bumpE Q E, E.snd) ⦄ retryE ⦃ Q; E ⦄ := by
+  unfold retryE; exact Spec.tryCatch_ExceptT bumpE (fun _ => bumpE) Q E
+
+example : ⦃ fun s => s = 3 ⦄ retryE ⦃ fun _ s => s = 4 ⦄ := by
+  vcgen frames | retryE => fun s => s = 3 with finish
+
+end ConjunctivePre

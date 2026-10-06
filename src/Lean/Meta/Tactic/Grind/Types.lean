@@ -11,6 +11,8 @@ public import Lean.Meta.Sym.SymM
 public import Lean.Meta.Tactic.Grind.Attr
 public import Lean.Meta.Tactic.Grind.CheckResult
 public import Lean.Meta.Sym.Canon
+public import Lean.Meta.Sym.Simp.SimpM
+public import Lean.Meta.Sym.DSimp.DSimpM
 meta import Init.Data.String.Basic
 import Lean.Meta.AbstractNestedProofs
 import Lean.Meta.Match.MatchEqsExt
@@ -67,6 +69,11 @@ def isInterpreted (e : Expr) : MetaM Bool := do
 register_builtin_option grind.debug : Bool := {
   defValue := false
   descr    := "check invariants after updates"
+}
+
+register_builtin_option backward.grind.normalizer : Bool := {
+  defValue := true
+  descr    := "use the legacy `simp`-based `grind` normalizer instead of the `Sym.simp`-based one"
 }
 
 register_builtin_option grind.debug.proofs : Bool := {
@@ -161,6 +168,10 @@ inductive EMatchDiagSource where
 structure Context where
   simp         : Simp.Context
   simpMethods  : Simp.Methods
+  /-- Methods of the `Sym.simp`-based normalizer. Unused when `backward.grind.normalizer` is set. -/
+  symSimpMethods  : Sym.Simp.Methods := {}
+  /-- Methods of the `Sym.dsimp`-based normalizer. Unused when `backward.grind.normalizer` is set. -/
+  symDSimpMethods : Sym.DSimp.Methods := {}
   config       : Grind.Config
   /--
   If `anchorRefs? := some anchorRefs`, then only local instances and case-splits in `anchorRefs`
@@ -259,6 +270,10 @@ structure State where
   -/
   congrThms  : PHashMap CongrTheoremCacheKey CongrTheorem := {}
   simp       : Simp.State := {}
+  /-- State (cache) of the `Sym.simp`-based normalizer. -/
+  symSimp    : Sym.Simp.State := {}
+  /-- State (cache) of the `Sym.dsimp`-based normalizer. -/
+  symDSimp   : Sym.DSimp.State := {}
   /--
   Used to generate trace messages of the for `[grind] working on <tag>`,
   and implement the macro `trace_goal`.
@@ -550,14 +565,16 @@ def ENode.isRoot (n : ENode) :=
 def ENode.isCongrRoot (n : ENode) :=
   isSameExpr n.self n.congr
 
-/-- New equalities and facts to be processed. -/
-inductive NewFact where
+/-- Work queued for `processToDo`: equalities and facts to assert, and terms to propagate. -/
+inductive ToProcessElement where
   | eq (lhs rhs proof : Expr) (isHEq : Bool)
   | fact (prop proof : Expr) (generation : Nat)
-
-def NewFact.toExpr : NewFact → MetaM Expr
-  | .eq lhs rhs _ _ => mkEq lhs rhs
-  | .fact p _ _ => return p
+  /--
+  Run the upward propagators of `e`. Internalization queues this instead of propagating
+  eagerly: a propagator may internalize terms, and must not do so while the arguments of an
+  enclosing application are still being internalized.
+  -/
+  | propagateUp (e : Expr)
 
 -- This type should be considered opaque outside this module.
 @[expose]  -- for codegen
@@ -1009,8 +1026,8 @@ structure GoalState where
   `appMap`'s domain. We use this collection during theorem activation.
   -/
   indicesFound : PHashSet HeadIndex := {}
-  /-- Equations and propositions to be processed. -/
-  newFacts     : Array NewFact := #[]
+  /-- Pending work for `processToDo`: equalities, facts, and upward propagations. -/
+  toProcess    : Array ToProcessElement := #[]
   /-- `inconsistent := true` if `ENode`s for `True` and `False` are in the same equivalence class. -/
   inconsistent : Bool := false
   /-- Next unique index for creating ENodes -/
@@ -1291,7 +1308,7 @@ def pushEqCore (lhs rhs proof : Expr) (isHEq : Bool) : GoalM Unit := do
             with proof{indentExpr proof}\nwhich has type{indentExpr (← inferType proof)}\n\
             which is not definitionally equal with `reducible` transparency setting"
       trace[grind.debug] "pushEqCore: {expectedType}"
-  modify fun s => { s with newFacts := s.newFacts.push <| .eq lhs rhs proof isHEq }
+  modify fun s => { s with toProcess := s.toProcess.push <| .eq lhs rhs proof isHEq }
 
 /-- Return `true` if `a` and `b` have the same type. -/
 def hasSameType (a b : Expr) : MetaM Bool := do
@@ -1306,6 +1323,10 @@ def hasSameType (a b : Expr) : MetaM Bool := do
 /-- Pushes `lhs = rhs` with `proof` to `newEqs`. -/
 @[inline] def pushEq (lhs rhs proof : Expr) : GoalM Unit :=
   pushEqCore lhs rhs proof (isHEq := false)
+
+/-- Queues the upward propagation of `e`. See `ToProcessElement.propagateUp`. -/
+def pushPropagateUp (e : Expr) : GoalM Unit :=
+  modify fun s => { s with toProcess := s.toProcess.push <| .propagateUp e }
 
 /-- Pushes `lhs ≍ rhs` with `proof` to `newEqs`. -/
 @[inline] def pushHEq (lhs rhs proof : Expr) : GoalM Unit :=
@@ -1453,8 +1474,8 @@ opaque mkHEqProof (a b : Expr) : GoalM Expr
 
 -- Forward definition
 set_option compiler.ignoreBorrowAnnotation true in
-@[extern "lean_grind_process_new_facts"]
-opaque processNewFacts : GoalM Unit
+@[extern "lean_grind_process_to_do"]
+opaque processToDo : GoalM Unit
 
 -- Forward definition
 set_option compiler.ignoreBorrowAnnotation true in
@@ -1481,7 +1502,7 @@ def internalizeLocalDecl (localDecl : LocalDecl) : GoalM Unit := do
   /-
   **Note**: `internalize` may add new facts (e.g., `etaStruct` equality)
   -/
-  processNewFacts
+  processToDo
 
 /--
 Returns a proof that `a = b` if they have the same type. Otherwise, returns a proof of `a ≍ b`.
@@ -1803,12 +1824,12 @@ def addLookaheadCandidate (sinfo : SplitInfo) : GoalM Unit := do
   updateSplitArgPosMap sinfo
 
 /--
-Helper function for executing `x` with a fresh `newFacts` and without modifying
+Helper function for executing `x` with a fresh `toProcess` and without modifying
 the goal state.
 -/
 def withoutModifyingState (x : GoalM α) : GoalM α := do
   let saved ← get
-  modify fun goal => { goal with newFacts := {} }
+  modify fun goal => { goal with toProcess := {} }
   try
     x
   finally
@@ -1961,7 +1982,7 @@ def Solvers.check? : GoalM (Option (Array Nat)) := do
     if (← ext.check) then
       result := result.push ext.id
   if !result.isEmpty then
-    processNewFacts
+    processToDo
     return some result
   else
     return none

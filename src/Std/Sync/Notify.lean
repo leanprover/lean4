@@ -19,8 +19,8 @@ and asynchronous waiting, and is useful for cases where you want to notify one o
 that an event has occurred.
 
 Unlike a channel, `Std.Notify` does not buffer messages or carry data. It's simply a trigger.
-If no one is waiting, notifications are lost. If one or more waiters are present, exactly one
-will be woken up per notification.
+If no one is waiting, notifications are lost. `notifyOne` wakes exactly one of the waiters present,
+and `notify` wakes all of them.
 -/
 
 namespace Std
@@ -92,14 +92,15 @@ was notified, false if no consumers were waiting.
 -/
 def notifyOne (x : Notify) : BaseIO Bool := do
   x.state.atomically do
-    let mut st ← get
-
-    if let some (consumer, rest) := st.consumers.dequeue? then
-      st := { st with consumers := rest }
-      set st
-      consumer.resolve ()
-    else
-      return false
+    -- A `select` consumer whose `Selectable.one` was already won by another selector declines the
+    -- notification, which then goes to the next consumer.
+    while true do
+      let st ← get
+      let some (consumer, rest) := st.consumers.dequeue? | return false
+      set { st with consumers := rest }
+      if ← consumer.resolve () then
+        return true
+    return false
 
 /--
 Wait to be notified. Returns a task that completes when notify is called.

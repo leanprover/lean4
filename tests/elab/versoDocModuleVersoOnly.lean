@@ -43,7 +43,7 @@ Verso:
 def plainMarkdown := "hello"
 
 open Lean Elab Command Term in
-/-- info: "This is a plain Markdown docstring with {nonVerso}`code` and **bold**. " -/
+/-- info: "This is a plain Markdown docstring with {nonVerso}`code` and **bold**." -/
 #guard_msgs in
 #eval show TermElabM Unit from do
   (← findDocString? (← getEnv) ``plainMarkdown).forM (IO.println ·.quote)

@@ -615,17 +615,6 @@ extern "C" LEAN_EXPORT size_t lean_llvm_build_ret(size_t ctx, size_t builder, si
 #endif  // LEAN_LLVM
 }
 
-extern "C" LEAN_EXPORT size_t lean_llvm_build_ret_void(size_t builder) {
-#ifndef LEAN_LLVM
-    lean_always_assert(
-        false && ("Please build a version of Lean4 with -DLLVM=ON to invoke "
-                  "the LLVM backend function."));
-#else
-    LLVMValueRef out = LLVMBuildRetVoid(lean_to_Builder(builder));
-    return Value_to_lean(out);
-#endif  // LEAN_LLVM
-}
-
 extern "C" LEAN_EXPORT size_t lean_llvm_build_unreachable(size_t ctx,
     size_t builder) {
 #ifndef LEAN_LLVM

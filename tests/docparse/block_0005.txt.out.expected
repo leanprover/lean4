@@ -1,4 +1,8 @@
+Input: "{test}\nHere's a paragraph."
 Success! Final stack:
-  (Lean.Doc.Syntax.command "{" `test [] "}")
+  (Lean.Doc.Parser.Block.command "{" `test [] "}")
 Remaining:
 "Here's a paragraph."
+Round-trip OK
+Decoded views:
+  command (braceOpen := "{") (name := test) (args := []) (braceClose := "}")

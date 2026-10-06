@@ -26,6 +26,19 @@ open Lean hiding SearchPath
 
 namespace Lake
 
+public def compileLeanIR
+  (setupFile irFile cFile : FilePath)
+  (leanPath : SearchPath := [])
+  (leanir : FilePath := "leanir")
+: LogIO Unit := do
+  createParentDirs irFile
+  createParentDirs cFile
+  proc {
+    cmd := leanir.toString
+    args := #[setupFile.toString, irFile.toString, cFile.toString]
+    env := #[("LEAN_PATH", leanPath.toString)]
+  }
+
 public def compileLeanModule
   (leanFile relLeanFile : FilePath)
   (setup : ModuleSetup) (setupFile : FilePath)
@@ -33,7 +46,6 @@ public def compileLeanModule
   (leanArgs : Array String := #[])
   (leanPath : SearchPath := [])
   (lean : FilePath := "lean")
-  (leanir : FilePath := "leanir")
 : LogIO Unit := do
   let mut args := leanArgs.push leanFile.toString
   if let some oleanFile := arts.olean? then
@@ -91,22 +103,6 @@ public def compileLeanModule
     failure
   else if out.exitCode ≠ 0 || hasErrors then
     error s!"Lean exited with code {out.exitCode}"
-  if postponeCompile then
-    if let (some irFile, some cFile) := (arts.ir?, arts.c?) then
-      createParentDirs irFile
-      createParentDirs cFile
-      try
-        proc {
-          cmd := leanir.toString
-          args := #[setupFile.toString, irFile.toString, cFile.toString]
-          env := #[
-            ("LEAN_PATH", leanPath.toString)
-          ]
-        }
-      catch e =>
-        if let some oleanFile := arts.olean? then
-          removeFileIfExists oleanFile
-        throw e
 
 public def compileO
   (oFile srcFile : FilePath)

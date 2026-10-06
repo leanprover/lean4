@@ -268,7 +268,6 @@ extern "C" LEAN_EXPORT lean_obj_res lean_uv_timer_reset(b_obj_arg obj) {
 extern "C" LEAN_EXPORT lean_obj_res lean_uv_timer_stop(b_obj_arg obj) {
     lean_uv_timer_object * timer = lean_to_uv_timer(obj);
 
-    // Locking to access the state in order to avoid data-race
     event_loop_lock(&global_ev);
 
     if (timer->m_state != TIMER_STATE_RUNNING) {

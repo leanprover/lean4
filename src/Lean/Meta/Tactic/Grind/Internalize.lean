@@ -14,6 +14,8 @@ import Lean.Meta.Tactic.Grind.Simp
 import Lean.Meta.Tactic.Grind.MarkNestedSubsingletons
 import Lean.Meta.Tactic.Grind.PropagateInj
 import Lean.Util.CollectLevelParams
+import Lean.Util.ForEachExpr
+import Lean.Meta.Tactic.Grind.EMatchTheorem
 import Init.Grind.Util
 public section
 namespace Lean.Meta.Grind
@@ -163,6 +165,9 @@ private def checkAndAddSplitCandidate (e : Expr) : GoalM Unit := do
       -- We used to add the `split` only if `lookahead := false`, but it was counterintuitive
       -- to make `grind` "stronger" by disabling a feature.
       addSplitCandidate (.imp e (h ▸ rfl) currSplitSource)
+    else if d.isForall && d.bindingBody!.hasLooseBVars && (← isProp d) then
+      -- `grind` has few propagation rules for assigning `True` to a universal quantifier.
+      addSplitCandidate (.imp e (h ▸ rfl) currSplitSource)
   | _ => pure ()
 
 /--
@@ -218,7 +223,7 @@ private def internalizeMatchCond (matchCond : Expr) (generation : Nat) : GoalM U
   mkENode' matchCond generation (funCC := false)
   let (lhss, e') ← collectMatchCondLhssAndAbstract matchCond
   lhss.forM fun lhs => do internalize lhs generation; registerParent matchCond lhs
-  propagateUp matchCond
+  pushPropagateUp matchCond
   internalize e' generation
   trace_goal[grind.debug.matchCond.lambda] "(idx := {(← getENode e'.getAppFn).idx}) {e'.getAppFn}"
   trace_goal[grind.debug.matchCond.lambda] "auxiliary application{indentExpr e'}"
@@ -331,6 +336,26 @@ private def activateInjectiveTheorems (declName : Name) (generation : Nat) : Goa
 private def activateTheorems (declName : Name) (generation : Nat) : GoalM Unit := do
   activateTheoremPatterns declName generation
   activateInjectiveTheorems declName generation
+
+/--
+Marks the constants occurring in `e` as found and activates their theorems.
+The internalizer does not descend into binders (lambdas, `let`s, and dependent codomains of
+`forall`s) nor into nonparametric literals (see `isNonParametricLitValue`), but pattern symbol
+collection does (see `saveSymbolsAt`). Thus, a theorem whose ground pattern is `myPred (fun _ => True)`
+is also indexed by `True`, and one whose ground pattern is `f 'a'` is also indexed by `Char.ofNat`.
+They would never be activated if these symbols were not marked as found.
+-/
+private def activateTheoremsForConstsIn (e : Expr) (generation : Nat) : GoalM Unit := do
+  e.forEach' fun e => do
+    match e with
+    | .const declName _ =>
+      updateIndicesFound (.const declName)
+      activateTheorems declName generation
+      return false
+    | .app .. =>
+      let .const declName _ := e.getAppFn | return true
+      return !isOpaqueForIndexing declName
+    | _ => return true
 
 /--
 If type of `a` is a structure and is tagged with `[grind ext]` attribute,
@@ -500,6 +525,7 @@ want to internalize the raw natural value there. See `internalizeOfNatFinBitVecL
 -/
 private def internalizeNonParametricLiteral (e : Expr) (generation : Nat) (parent? : Option Expr) : GoalM Unit := do
   mkENode e generation
+  activateTheoremsForConstsIn e generation
   Solvers.internalize e parent?
 
 /--
@@ -573,22 +599,26 @@ where
       Solvers.internalize e parent?
     | .letE .. =>
       mkENode' e generation
+      activateTheoremsForConstsIn e generation
       Solvers.internalize e parent?
     | .lam .. =>
       addSplitCandidatesForFunext e generation parent?
       mkENode' e generation
+      activateTheoremsForConstsIn e generation
       tryEta e generation
       Solvers.internalize e parent?
     | .forallE _ d b _ =>
       mkENode' e generation
       internalizeImpl d generation e
       registerParent e d
-      unless b.hasLooseBVars do
+      if b.hasLooseBVars then
+        activateTheoremsForConstsIn b generation
+      else
         internalizeImpl b generation e
         registerParent e b
         addCongrTable e
       if (← isProp d <&&> isProp e) then
-        propagateUp e
+        pushPropagateUp e
         checkAndAddSplitCandidate e
       Solvers.internalize e parent?
     | .lit .. =>
@@ -637,9 +667,14 @@ where
           internalizeImpl c generation e
           registerParent e c
         else if f.isConstOf ``ite && args.size == 5 then
+          -- Only the condition is internalized; the branches are internalized by `propagateIte`
+          -- once the condition is decided. The congruence hash of `e` covers every argument,
+          -- so `e` is registered as a parent of all of them: if a branch or the instance is
+          -- internalized through another term and merged, `e` must be rehashed.
           let c := args[1]!
           internalizeImpl c generation e
-          registerParent e c
+          for arg in args do
+            registerParent e arg
         else
           if let .const fName _ := f then
             activateTheorems fName generation
@@ -670,7 +705,7 @@ where
         pushCastHEqs e
         addCongrTable e
         Solvers.internalize e parent?
-        propagateUp e
+        pushPropagateUp e
         propagateBetaForNewApp e
         mkInjEq e
 

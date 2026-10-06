@@ -19,13 +19,18 @@ def addSymSimpTheorem (ext : SymSimpExtension) (declName : Name) (attrKind : Att
 /--
 Adds a declaration to the given `Sym.Simp` theorem extension.
 When `declName` is a proposition, it is added as a rewrite theorem.
-When it is a definition, its equational theorems are added.
+When it is a definition, its equational theorems are added, and its unfolding theorem as a
+fallback. See `getSimpTheoremNames`.
 -/
 def addSymSimpDecl (ext : SymSimpExtension) (declName : Name)
     (attrKind : AttributeKind) (validate : Name → MetaM Unit := fun _ => pure ()) : MetaM Unit := do
-  for name in (← getSimpTheoremNames declName) do
+  let names ← getSimpTheoremNames declName
+  for name in names.thms do
     validate name
     addSymSimpTheorem ext name attrKind
+  if let some unfold := names.unfold? then
+    validate unfold
+    ext.add { (← mkTheoremFromDecl unfold) with fallback := true } attrKind
 
 /--
 Creates a `Sym.Simp` attribute for a named theorem set.

@@ -28,8 +28,10 @@ def getExpectedNumArgs (e : Expr) : MetaM Nat := do
 
 private def throwApplyError {α} (mvarId : MVarId)
     (eType : Expr) (conclusionType? : Option Expr) (targetType : Expr)
-    (term? : Option MessageData) : MetaM α := do
-  throwTacticEx `apply mvarId <| MessageData.ofLazyM (es := #[eType, targetType]) do
+    (term? : Option MessageData) (approx : Bool) : MetaM α := do
+  let config ← if approx then approxDefEq getConfig else getConfig
+  throwTacticEx `apply mvarId <| MessageData.ofLazyM (es := #[eType, targetType]) <|
+      withConfig (fun _ => config) do
     let conclusionType := conclusionType?.getD eType
     let note := if conclusionType?.isSome then .note m!"The full type of {term?.getD "the term"} is{indentExpr eType}" else m!""
     let (conclusionType, targetType) ← addPPExplicitToExposeDiff conclusionType targetType
@@ -215,7 +217,7 @@ def _root_.Lean.MVarId.apply (mvarId : MVarId) (e : Expr) (cfg : ApplyConfig := 
         else
           let (_, _, r) ← forallMetaTelescopeReducing eType (some rangeNumArgs.lower)
           pure (some r)
-        throwApplyError mvarId eType conclusionType? targetType term?
+        throwApplyError mvarId eType conclusionType? targetType term? cfg.approx
       termination_by rangeNumArgs.upper - i
     let (newMVars, binderInfos) ← go rangeNumArgs.lower
     postprocessAppMVars `apply mvarId newMVars binderInfos cfg.synthAssignedInstances cfg.allowSynthFailures

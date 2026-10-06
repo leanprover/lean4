@@ -22,6 +22,20 @@ structure State (σ : Type) where
   state        : σ
   activeScopes : NameSet := {}
   delimitsLocal : Bool := true -- used for implementing `end_local_scope`.
+  /--
+  Whether this state may differ from the enclosing scope's state because of changes made since this
+  scope was pushed: local entries, entries of namespaces activated in this scope, and
+  `ScopedEnvExtension.modifyState`. Popping a scope with this flag set bumps the generation to a
+  fresh value (see `PersistentEnvExtensionDescrCore.trackGen`) and, for an extension with
+  `logWrites`, logs `scopeChangedDecls`. Only tracked for extensions with
+  `Descr.tracksScopes`.
+  -/
+  scopeChanged : Bool := false
+  /--
+  The declarations of the entries added since this scope was pushed, which popping it removes again;
+  collected only for extensions with `Descr.entryDecl?`.
+  -/
+  scopeChangedDecls : Array Name := #[]
 
 structure ScopedEntries (β : Type) where
   map : SMap Name (PArray β) := {}
@@ -40,6 +54,33 @@ structure Descr (α : Type) (β : Type) (σ : Type) where
   addEntry       : σ → β → σ
   finalizeImport : σ → σ := id
   exportEntry?   : Environment → α → OLeanEntries (Option α) := fun _ a => .uniform (some a)
+  /-- See `PersistentEnvExtensionDescrCore.trackGen`. -/
+  trackGen : Bool := false
+  /-- See `EnvExtension.logWrites`. -/
+  logWrites : Bool := false
+  /--
+  The declaration an entry is about. Required with `logWrites`: adding an entry and scope
+  operations adding or removing entries log their declarations (`Environment.logDeclChange`).
+  -/
+  entryDecl? : Option (β → Name) := none
+
+/--
+Whether scope operations that change the effective state must be recorded like content changes;
+see `State.scopeChanged`.
+-/
+def Descr.tracksScopes (descr : Descr α β σ) : Bool :=
+  descr.trackGen || descr.logWrites
+
+/-- Notes on `s` that the entry `b` was added to it; see `State.scopeChanged`. -/
+def Descr.noteScopeChange (descr : Descr α β σ) (s : State σ) (b : β) : State σ :=
+  if descr.tracksScopes then
+    { s with
+      scopeChanged := true
+      scopeChangedDecls := match descr.entryDecl? with
+        | some decl => s.scopeChangedDecls.push (decl b)
+        | none      => s.scopeChangedDecls }
+  else
+    s
 
 instance [Inhabited α] : Inhabited (Descr α β σ) where
   default := {
@@ -88,7 +129,7 @@ def addEntryFn (descr : Descr α β σ) (s : StateStack α β σ) (e : Entry β)
         newEntries    := (Entry.«scoped» ns (descr.toOLeanEntry b)) :: newEntries
         stateStack    := stateStack.map fun s =>
           if s.activeScopes.contains ns then
-            { s with state := descr.addEntry s.state b }
+            descr.noteScopeChange { s with state := descr.addEntry s.state b } b
           else
             s
       }
@@ -123,6 +164,9 @@ structure ScopedEnvExtension (α : Type) (β : Type) (σ : Type) where
 builtin_initialize scopedEnvExtensionsRef : IO.Ref (Array (ScopedEnvExtension EnvExtensionEntry EnvExtensionEntry EnvExtensionState)) ← IO.mkRef #[]
 
 unsafe def registerScopedEnvExtensionUnsafe (descr : Descr α β σ) : IO (ScopedEnvExtension α β σ) := do
+  if descr.logWrites && descr.entryDecl?.isNone then
+    throw <| IO.userError s!"scoped environment extension `{descr.name}` with `logWrites` \
+      must set `entryDecl?`"
   let ext ← registerPersistentEnvExtension {
     name            := descr.name
     mkInitial       := mkInitial descr
@@ -135,6 +179,8 @@ unsafe def registerScopedEnvExtensionUnsafe (descr : Descr α β σ) : IO (Scope
     -- `AsyncMode.local` below). Allowing the latter is important for tactics such as -- `classical`
     -- or `open in`.
     asyncMode       := .mainOnly
+    trackGen        := descr.trackGen
+    logWrites       := descr.logWrites
   }
   let ext := { descr := descr, ext := ext : ScopedEnvExtension α β σ }
   scopedEnvExtensionsRef.modify fun exts => exts.push (unsafeCast ext)
@@ -143,24 +189,45 @@ unsafe def registerScopedEnvExtensionUnsafe (descr : Descr α β σ) : IO (Scope
 @[implemented_by registerScopedEnvExtensionUnsafe]
 opaque registerScopedEnvExtension (descr : Descr α β σ) : IO (ScopedEnvExtension α β σ)
 
+/--
+Applies a scope-stack operation `f`. `changed` must be set exactly when `f` changes the state in
+effect (see `State.scopeChanged`), with `changedDecls` the declarations of the entries it adds or
+removes. For extensions with `Descr.tracksScopes` this is recorded like a content change: the
+generation of a generation-tracked extension is bumped, and one with `logWrites` logs
+`changedDecls`.
+-/
+private def ScopedEnvExtension.modifyScopes (ext : ScopedEnvExtension α β σ) (env : Environment)
+    (changed : Bool) (f : StateStack α β σ → StateStack α β σ) (changedDecls : Array Name := #[]) :
+    Environment :=
+  let record := changed && ext.descr.tracksScopes
+  let env := if record && ext.descr.logWrites then
+    changedDecls.foldl Environment.logDeclChange env
+  else env
+  -- unlogged: logged above if the state in effect changes
+  ext.ext.modifyState (asyncMode := .local) (bumpGen := record) (log := .unlogged) env f
+
 def ScopedEnvExtension.pushScope (ext : ScopedEnvExtension α β σ) (env : Environment) : Environment :=
-  ext.ext.modifyState (asyncMode := .local) env fun s =>
+  -- the new scope starts as a copy of the current state
+  ext.modifyScopes env (changed := false) fun s =>
     match s.stateStack with
     | [] => s
-    | state :: stack => { s with stateStack := { state with delimitsLocal := true } :: state :: stack }
+    | state :: stack => { s with stateStack :=
+      { state with delimitsLocal := true, scopeChanged := false, scopeChangedDecls := #[] } ::
+        state :: stack }
 
-def ScopedEnvExtension.popScope (ext : ScopedEnvExtension α β σ) (env : Environment) : Environment :=
-  ext.ext.modifyState (asyncMode := .local) env fun s =>
-    match s.stateStack with
-    | _      :: state₂ :: stack => { s with stateStack := state₂ :: stack }
-    | _ => s
+def ScopedEnvExtension.popScope (ext : ScopedEnvExtension α β σ) (env : Environment) :
+    Environment := Id.run do
+  let top :: state₂ :: stack := (ext.ext.getState (asyncMode := .local) env).stateStack | return env
+  ext.modifyScopes env (changed := top.scopeChanged) (changedDecls := top.scopeChangedDecls)
+    fun s => { s with stateStack := state₂ :: stack }
 
 /-- Modifies `delimitsLocal` flag to `false` on the top `depth` entries of the state stack,
 to turn off delimiting of local entries across multiple implicit scope levels
 (e.g. those introduced by compound `namespace A.B.C` expansions).
 -/
 def ScopedEnvExtension.setDelimitsLocal (ext : ScopedEnvExtension α β σ) (env : Environment) (depth : Nat) : Environment :=
-  ext.ext.modifyState (asyncMode := .local) env fun s =>
+  -- only affects where later local entries go
+  ext.modifyScopes env (changed := false) fun s =>
     {s with stateStack := go depth s.stateStack}
 where
   go : Nat → List (State σ) → List (State σ)
@@ -168,11 +235,18 @@ where
     | _, [] => []
     | n + 1, state :: stack => {state with delimitsLocal := false} :: go n stack
 
+/-- How to log a write of `b`. -/
+@[inline] private def ScopedEnvExtension.writeLog (ext : ScopedEnvExtension α β σ) (b : β) :
+    EnvExtension.WriteLog :=
+  -- NOTE: `Descr.entryDecl?` is set whenever `logWrites` is, and without
+  -- `logWrites` the named declaration is ignored.
+  .decl (if let some decl := ext.descr.entryDecl? then decl b else .anonymous)
+
 def ScopedEnvExtension.addEntry (ext : ScopedEnvExtension α β σ) (env : Environment) (b : β) : Environment :=
-  ext.ext.addEntry env (Entry.global b)
+  ext.ext.addEntry (log := ext.writeLog b) env (Entry.global b)
 
 def ScopedEnvExtension.addScopedEntry (ext : ScopedEnvExtension α β σ) (env : Environment) (namespaceName : Name) (b : β) : Environment :=
-  ext.ext.addEntry env (Entry.«scoped» namespaceName b)
+  ext.ext.addEntry (log := ext.writeLog b) env (Entry.«scoped» namespaceName b)
 
 /-- The following function is used to implement `end_local_scope` command.
 
@@ -184,12 +258,12 @@ def stateStackModify (ext : ScopedEnvExtension α β σ) (states : List (State �
   match states with
   | [] => states
   | top :: states =>
-    let top := { top with state := ext.descr.addEntry top.state b }
+    let top := ext.descr.noteScopeChange { top with state := ext.descr.addEntry top.state b } b
     let bot := if top.delimitsLocal then states else stateStackModify ext states b
     top :: bot
 
 def ScopedEnvExtension.addLocalEntry (ext : ScopedEnvExtension α β σ) (env : Environment) (b : β) : Environment :=
-  ext.ext.modifyState (asyncMode := .local) env fun s =>
+  ext.ext.modifyState (asyncMode := .local) (log := ext.writeLog b) env fun s =>
     {s with stateStack := stateStackModify ext s.stateStack b}
 
 def ScopedEnvExtension.addCore (env : Environment) (ext : ScopedEnvExtension α β σ) (b : β) (kind : AttributeKind) (namespaceName : Name) : Environment :=
@@ -202,36 +276,39 @@ def ScopedEnvExtension.add [Monad m] [MonadResolveName m] [MonadEnv m] (ext : Sc
   let ns ← getCurrNamespace
   modifyEnv (ext.addCore · b kind ns)
 
+/-- Returns the state in effect. For `genRecorded`, see `EnvExtension.getState`. -/
 def ScopedEnvExtension.getState [Inhabited σ] (ext : ScopedEnvExtension α β σ)
-    (env : Environment) (asyncMode := ext.ext.toEnvExtension.asyncMode) : σ :=
-  match ext.ext.getState (asyncMode := asyncMode) env |>.stateStack with
+    (env : Environment) (asyncMode := ext.ext.toEnvExtension.asyncMode)
+    (genRecorded := false) : σ :=
+  match ext.ext.getState (asyncMode := asyncMode) (genRecorded := genRecorded) env |>.stateStack with
   | top :: _ => top.state
   | _        => unreachable!
 
-def ScopedEnvExtension.activateScoped (ext : ScopedEnvExtension α β σ) (env : Environment) (namespaceName : Name) : Environment :=
-  ext.ext.modifyState (asyncMode := .local) env fun s =>
-    match s.stateStack with
-    | top :: stack =>
-      if top.activeScopes.contains namespaceName then
-        s
-      else
-        let activeScopes := top.activeScopes.insert namespaceName
-        let top :=
-          match s.scopedEntries.map.find? namespaceName with
-          | none =>
-            { top with activeScopes := activeScopes }
-          | some bs => Id.run do
-            let mut state := top.state
-            for b in bs do
-              state := ext.descr.addEntry state b
-            { state := state, activeScopes := activeScopes }
-        { s with stateStack := top :: stack }
-    | _ => s
+def ScopedEnvExtension.activateScoped (ext : ScopedEnvExtension α β σ) (env : Environment)
+    (namespaceName : Name) : Environment := Id.run do
+  let s := ext.ext.getState (asyncMode := .local) env
+  let top :: stack := s.stateStack | return env
+  if top.activeScopes.contains namespaceName then
+    return env
+  let activeScopes := top.activeScopes.insert namespaceName
+  let bs? := s.scopedEntries.map.find? namespaceName
+  let top := if let some bs := bs? then
+    bs.foldl (init := { top with activeScopes, delimitsLocal := true }) fun top b =>
+      ext.descr.noteScopeChange { top with state := ext.descr.addEntry top.state b } b
+  else
+    { top with activeScopes }
+  let decls := match bs?, ext.descr.entryDecl? with
+    | some bs, some decl => bs.foldl (init := #[]) fun ds b => ds.push (decl b)
+    | _, _ => #[]
+  ext.modifyScopes env (changed := bs?.isSome) (changedDecls := decls) fun s =>
+    { s with stateStack := top :: stack }
 
 def ScopedEnvExtension.modifyState (ext : ScopedEnvExtension α β σ) (env : Environment) (f : σ → σ) : Environment :=
   ext.ext.modifyState env fun s =>
     match s.stateStack with
-    | top :: stack => { s with stateStack := { top with state := f top.state } :: stack }
+    | top :: stack =>
+      let scopeChanged := top.scopeChanged || ext.descr.tracksScopes
+      { s with stateStack := { top with state := f top.state, scopeChanged } :: stack }
     | _ => s
 
 def pushScope [Monad m] [MonadEnv m] [MonadLiftT (ST IO.RealWorld) m] : m Unit := do
@@ -261,6 +338,12 @@ structure SimpleScopedEnvExtension.Descr (α : Type) (σ : Type) where
   initial        : σ
   finalizeImport : σ → σ := id
   exportEntry?   : Environment → α → OLeanEntries (Option α) := fun _ a => .uniform (some a)
+  /-- See `PersistentEnvExtensionDescrCore.trackGen`. -/
+  trackGen : Bool := false
+  /-- See `EnvExtension.logWrites`. -/
+  logWrites : Bool := false
+  /-- See `ScopedEnvExtension.Descr.entryDecl?`. -/
+  entryDecl? : Option (α → Name) := none
 
 def registerSimpleScopedEnvExtension (descr : SimpleScopedEnvExtension.Descr α σ) : IO (SimpleScopedEnvExtension α σ) := do
   registerScopedEnvExtension {
@@ -271,6 +354,9 @@ def registerSimpleScopedEnvExtension (descr : SimpleScopedEnvExtension.Descr α 
     ofOLeanEntry   := fun _ a => return a
     finalizeImport := descr.finalizeImport
     exportEntry?   := descr.exportEntry?
+    trackGen       := descr.trackGen
+    logWrites      := descr.logWrites
+    entryDecl?     := descr.entryDecl?
   }
 
 end Lean

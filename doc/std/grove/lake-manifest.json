@@ -1,11 +1,11 @@
-{"version": "1.1.0",
+{"version": "1.3.0",
  "packagesDir": ".lake/packages",
  "packages":
  [{"url": "https://github.com/TwoFx/grove.git",
    "type": "git",
    "subDir": "backend",
    "scope": "",
-   "rev": "c580a425c9b7fa2aebaec2a1d8de16b2e2283c40",
+   "rev": "8a9216e1147147c58ecb7b1bc020c81485184bf2",
    "name": "grove",
    "manifestFile": "lake-manifest.json",
    "inputRev": "master",
@@ -15,11 +15,12 @@
    "type": "git",
    "subDir": null,
    "scope": "leanprover",
-   "rev": "d9fc8ae23024be37424a189982c92356e37935c8",
+   "rev": "406ebb8c8e2f7e852a1b47764b42494022ce652c",
    "name": "Cli",
    "manifestFile": "lake-manifest.json",
    "inputRev": "nightly-testing",
    "inherited": true,
    "configFile": "lakefile.toml"}],
  "name": "grovestdlib",
- "lakeDir": ".lake"}
+ "lakeDir": ".lake",
+ "fixedToolchain": false}

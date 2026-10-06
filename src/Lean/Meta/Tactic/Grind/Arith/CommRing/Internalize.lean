@@ -12,6 +12,7 @@ import Lean.Meta.Tactic.Grind.Arith.CommRing.Reify
 import Lean.Meta.Tactic.Grind.Arith.CommRing.DenoteExpr
 public section
 namespace Lean.Meta.Grind.Arith.CommRing
+open Sym.Arith
 
 /-- If `e` is a function application supported by the `CommRing` module, return its type. -/
 private def getType? (e : Expr) : Option Expr :=
@@ -50,18 +51,20 @@ private def isForbiddenParent (parent? : Option Expr) : Bool :=
   else
     false
 
-private partial def toInt? (e : Expr) : RingM (Option Int) := do
+/--
+Returns `k` if `e` is the numeral `denoteInt k`: `OfNat.ofNat _ n _`, or `-OfNat.ofNat _ n _` with
+`n ≠ 0` and the ring's `Neg` instance. The `inv_*` theorems of `processInv` state their numeral
+as `denoteInt k`, which is definitionally equal to these spellings only; `↑(0 : Nat)`, `-0`, and
+`- -3` denote numerals as well, but a proof about `denoteInt k` is ill-typed for them.
+-/
+private def toInt? (e : Expr) : RingM (Option Int) := do
   match_expr e with
   | Neg.neg _ i a =>
-    if (← isNegInst i) then return (- .) <$> (← toInt? a) else return none
-  | IntCast.intCast _ i a =>
-    if (← isIntCastInst i) then getIntValue? a else return none
-  | NatCast.natCast _ i a =>
-    if (← isNatCastInst i) then
-      let some v ← getNatValue? a | return none
-      return some (Int.ofNat v)
-    else
-      return none
+    unless (← isNegInst i) do return none
+    let_expr OfNat.ofNat _ n _ := a | return none
+    let some v ← getNatValue? n | return none
+    if v == 0 then return none
+    return some (-v)
   | OfNat.ofNat _ n _ =>
     let some v ← getNatValue? n | return none
     return some (Int.ofNat v)
@@ -80,8 +83,8 @@ private def processInv (e inst a : Expr) : RingM Unit := do
   unless (← isInvInst inst) do return ()
   let ring ← getCommRing
   let some fieldInst := ring.fieldInst? | return ()
-  if (← getCommRing).invSet.contains a then return ()
-  modifyCommRing fun s => { s with invSet := s.invSet.insert a }
+  if (← getCommRingState).invSet.contains a then return ()
+  modifyCommRingState fun s => { s with invSet := s.invSet.insert a }
   if let some k ← toInt? a then
     if k == 0 then
       /-
@@ -89,6 +92,7 @@ private def processInv (e inst a : Expr) : RingM Unit := do
       - `0⁻¹` appears in a subterm that cannot be rewritten by `simp` without introducing a type error.
       - `preprocessLight`, which does not apply `simp`, was used to preprocess the term. Even if we extended `preprocessLight` to
         apply `rfl` theorems, it would not be enough since `0⁻¹ = 0` is not a `rfl` theorem.
+      Other spellings of zero (`↑(0 : Nat)`, `-0`) are not numerals for `toInt?` and are handled by `inv_split` below.
       -/
       pushEq e a <| mkApp2 (mkConst ``Grind.Field.inv_zero [ring.u]) ring.type fieldInst
       return ()
@@ -119,8 +123,8 @@ push the equation `x ^ p = x` as a new fact into grind.
 private def processPowIdentityVars : RingM Unit := do
   let ring ← getCommRing
   let some (powIdentityInst, csInst, p) := ring.powIdentityInst? | return ()
-  let startIdx := ring.powIdentityVarCount
-  let vars := ring.toRing.vars
+  let startIdx := (← getCommRingState).powIdentityVarCount
+  let vars := (← getRingState).vars
   if startIdx >= vars.size then return ()
   for i in [startIdx:vars.size] do
     let x := vars[i]!
@@ -129,7 +133,7 @@ private def processPowIdentityVars : RingM Unit := do
     let proof := mkApp5 (mkConst ``Grind.PowIdentity.pow_eq [ring.u])
       ring.type csInst (mkNatLit p) powIdentityInst x
     pushNewFact proof
-  modifyCommRing fun s => { s with powIdentityVarCount := vars.size }
+  modifyCommRingState fun s => { s with powIdentityVarCount := vars.size }
 
 /-- Returns `true` if `e` is a term `a⁻¹`. -/
 private def internalizeInv (e : Expr) : GoalM Bool := do
@@ -153,7 +157,7 @@ def internalize (e : Expr) (parent? : Option Expr) : GoalM Unit := do
     trace_goal[grind.ring.internalize] "[{ringId}]: {e}"
     setTermRingId e
     ringExt.markTerm e
-    modifyCommRing fun s => { s with
+    modifyCommRingState fun s => { s with
       denote := s.denote.insert { expr := e } re
       denoteEntries := s.denoteEntries.push (e, re)
     }
@@ -163,18 +167,18 @@ def internalize (e : Expr) (parent? : Option Expr) : GoalM Unit := do
     trace_goal[grind.ring.internalize] "semiring [{semiringId}]: {e}"
     setTermSemiringId e
     ringExt.markTerm e
-    modifySemiring fun s => { s with denote := s.denote.insert { expr := e } re }
+    modifySemiringState fun s => { s with denote := s.denote.insert { expr := e } re }
   else if let some ncRingId ← getNonCommRingId? type then NonCommRingM.run ncRingId do
     let some re ← ncreify? e | return ()
     trace_goal[grind.ring.internalize] "(non-comm) ring [{ncRingId}]: {e}"
     setTermNonCommRingId e
     ringExt.markTerm e
-    modifyRing fun s => { s with denote := s.denote.insert { expr := e } re }
+    modifyRingState fun s => { s with denote := s.denote.insert { expr := e } re }
   else if let some ncSemiringId ← getNonCommSemiringId? type then NonCommSemiringM.run ncSemiringId do
     let some re ← ncsreify? e | return ()
     trace_goal[grind.ring.internalize] "(non-comm) semiring [{ncSemiringId}]: {e}"
     setTermNonCommSemiringId e
     ringExt.markTerm e
-    modifySemiring fun s => { s with denote := s.denote.insert { expr := e } re }
+    modifySemiringState fun s => { s with denote := s.denote.insert { expr := e } re }
 
 end Lean.Meta.Grind.Arith.CommRing

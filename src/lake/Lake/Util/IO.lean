@@ -71,6 +71,18 @@ public def copyFile (src dst : FilePath) : IO Unit := do
   let contents ← IO.FS.readBinFile src
   IO.FS.writeBinFile dst contents
 
+/-- Copy a directory and all its contents from {lean}`src` to {lean}`dst`. -/
+public partial def copyDirAll (src dst : FilePath) : IO Unit := do
+  IO.FS.createDirAll dst
+  let ents ← src.readDir
+  for ent in ents do
+    let srcPath := src / ent.fileName
+    let dstPath := dst / ent.fileName
+    if (← srcPath.isDir) then
+      copyDirAll srcPath dstPath
+    else
+      copyFile srcPath dstPath
+
 /-- Returns the normalized real path of a file if it exists. Otherwise, returns {lean}`""`. -/
 public def resolvePath (path : FilePath) : BaseIO FilePath := do
   match (← (IO.FS.realPath path).toBaseIO) with

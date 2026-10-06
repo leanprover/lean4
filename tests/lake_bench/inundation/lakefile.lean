@@ -5,7 +5,8 @@ def test := get_config? test |>.getD "Test" |>.capitalize
 def testName := Lean.Name.mkSimple test
 def layers := get_config? layers >>= (·.toNat?) |>.getD 20
 def width := get_config? width >>= (·.toNat?) |>.getD 20
-def precompile := get_config? precompile >>= envToBool? |>.getD false
+def precompileModules := get_config? precompileModules >>= envToBool? |>.getD false
+def precompileLibrary := get_config? precompileLibrary >>= envToBool? |>.getD false
 
 package inundation where
   buildDir := defaultBuildDir / test
@@ -14,7 +15,8 @@ package inundation where
 lean_lib Inundation where
   srcDir := "test"
   roots := #[testName]
-  precompileModules := precompile
+  precompileModules := precompileModules
+  precompileLibrary := precompileLibrary
 
 /- Vary the number of libraries (e.g., for precompilation) -/
 section
@@ -31,37 +33,43 @@ def testRoots (lo hi : Nat) :=
 lean_lib InundationD where
   srcDir := "test"
   roots := testRoots 0 4
-  precompileModules := precompile
+  precompileModules := precompileModules
+  precompileLibrary := precompileLibrary
 
 meta if layers > 4 then
 lean_lib InundationH where
   srcDir := "test"
   roots := testRoots 4 8
-  precompileModules := precompile
+  precompileModules := precompileModules
+  precompileLibrary := precompileLibrary
 
 meta if layers > 8 then
 lean_lib InundationL where
   srcDir := "test"
   roots := testRoots 8 12
-  precompileModules := precompile
+  precompileModules := precompileModules
+  precompileLibrary := precompileLibrary
 
 meta if layers > 12 then
 lean_lib InundationP where
   srcDir := "test"
   roots := testRoots 12 16
-  precompileModules := precompile
+  precompileModules := precompileModules
+  precompileLibrary := precompileLibrary
 
 meta if layers > 16 then
 lean_lib InundationT where
   srcDir := "test"
   roots := testRoots 16 20
-  precompileModules := precompile
+  precompileModules := precompileModules
+  precompileLibrary := precompileLibrary
 
 meta if layers > 20 then
 lean_lib InundationY where
   srcDir := "test"
   roots := testRoots 20 24
-  precompileModules := precompile
+  precompileModules := precompileModules
+  precompileLibrary := precompileLibrary
 
 end
 

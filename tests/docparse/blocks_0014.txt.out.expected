@@ -1,23 +1,30 @@
+Input: "> I like quotes\n  * Also with lists in them\n\nAbc"
 Success! Final stack:
-  [(Lean.Doc.Syntax.blockquote
+  [(Lean.Doc.Parser.Block.blockquote
     ">"
-    [(Lean.Doc.Syntax.para
-      "para{"
-      [(Lean.Doc.Syntax.text
-        (str "\"I like quotes\""))]
-      "}")
-     (Lean.Doc.Syntax.ul
-      "ul{"
-      [(Lean.Doc.Syntax.li
-        "*"
-        [(Lean.Doc.Syntax.para
-          "para{"
-          [(Lean.Doc.Syntax.text
-            (str "\"Also with lists in them\""))]
-          "}")])]
-      "}")])
-   (Lean.Doc.Syntax.para
-    "para{"
-    [(Lean.Doc.Syntax.text (str "\"Abc\""))]
-    "}")]
+    [(Lean.Doc.Parser.Block.para
+      [(Lean.Doc.Parser.Inline.text
+        (Lean.Doc.Parser.versoText
+         "I like quotes"))])
+     (Lean.Doc.Parser.Block.ul
+      [(Lean.Doc.Parser.ListItem.item
+        (Lean.Doc.Parser.listMarker "*")
+        [(Lean.Doc.Parser.Block.para
+          [(Lean.Doc.Parser.Inline.text
+            (Lean.Doc.Parser.versoText
+             "Also with lists in them"))])])])])
+   (Lean.Doc.Parser.Block.para
+    [(Lean.Doc.Parser.Inline.text
+      (Lean.Doc.Parser.versoText "Abc"))])]
 All input consumed.
+Round-trip OK
+Decoded views:
+  blockquote (marker := ">")
+    para
+      text (content := "I like quotes")
+    ul
+      item (marker := "*")
+        para
+          text (content := "Also with lists in them")
+  para
+    text (content := "Abc")

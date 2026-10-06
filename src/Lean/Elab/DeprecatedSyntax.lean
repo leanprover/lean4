@@ -39,6 +39,10 @@ builtin_initialize deprecatedSyntaxExt :
     addEntryFn := fun m e => m.insert e.kind e
   }
 
+/-- Whether `kind` is marked by `deprecated_syntax`. -/
+def isDeprecatedSyntax (env : Environment) (kind : SyntaxNodeKind) : Bool :=
+  (deprecatedSyntaxExt.getState env).contains kind
+
 /--
 Check whether `stx` is a deprecated syntax kind, and if so, emit a warning.
 

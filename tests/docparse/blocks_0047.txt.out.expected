@@ -1,4 +1,13 @@
+Input: "{abc}\n{def}"
 Success! Final stack:
-  [(Lean.Doc.Syntax.command "{" `abc [] "}")
-   (Lean.Doc.Syntax.command "{" `def [] "}")]
+  [(Lean.Doc.Parser.Block.command "{" `abc [] "}")
+   (Lean.Doc.Parser.Block.command
+    "{"
+    `def
+    []
+    "}")]
 All input consumed.
+Round-trip OK
+Decoded views:
+  command (braceOpen := "{") (name := abc) (args := []) (braceClose := "}")
+  command (braceOpen := "{") (name := def) (args := []) (braceClose := "}")

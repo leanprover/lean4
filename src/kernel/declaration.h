@@ -39,7 +39,6 @@ class reducibility_hints : public object_ref {
 public:
     static reducibility_hints mk_opaque() { return reducibility_hints(box(static_cast<unsigned>(reducibility_hints_kind::Opaque))); }
     static reducibility_hints mk_abbreviation() { return reducibility_hints(box(static_cast<unsigned>(reducibility_hints_kind::Abbreviation))); }
-    static reducibility_hints mk_regular(unsigned h);
     reducibility_hints_kind kind() const { return static_cast<reducibility_hints_kind>(obj_tag(raw())); }
     bool is_regular() const { return kind() == reducibility_hints_kind::Regular; }
     bool is_abbrev() const { return kind() == reducibility_hints_kind::Abbreviation; }
@@ -61,7 +60,6 @@ structure ConstantVal where
 */
 class constant_val : public object_ref {
 public:
-    constant_val(name const & n, names const & lparams, expr const & type);
     constant_val(constant_val const & other):object_ref(other) {}
     constant_val(constant_val && other) noexcept:object_ref(std::move(other)) {}
     constant_val & operator=(constant_val const & other) { object_ref::operator=(other); return *this; }
@@ -77,7 +75,6 @@ structure AxiomVal extends ConstantVal where
 */
 class axiom_val : public object_ref {
 public:
-    axiom_val(name const & n, names const & lparams, expr const & type, bool is_unsafe);
     axiom_val(axiom_val const & other):object_ref(other) {}
     axiom_val(axiom_val && other) noexcept:object_ref(std::move(other)) {}
     axiom_val & operator=(axiom_val const & other) { object_ref::operator=(other); return *this; }
@@ -126,7 +123,6 @@ structure TheoremVal extends ConstantVal where
 */
 class theorem_val : public object_ref {
 public:
-    theorem_val(name const & n, names const & lparams, expr const & type, expr const & val, names const & all);
     theorem_val(theorem_val const & other):object_ref(other) {}
     theorem_val(theorem_val && other) noexcept:object_ref(std::move(other)) {}
     theorem_val & operator=(theorem_val const & other) { object_ref::operator=(other); return *this; }
@@ -146,7 +142,6 @@ structure OpaqueVal extends ConstantVal where
 */
 class opaque_val : public object_ref {
 public:
-    opaque_val(name const & n, names const & lparams, expr const & type, expr const & val, bool is_unsafe, names const & all);
     opaque_val(opaque_val const & other):object_ref(other) {}
     opaque_val(opaque_val && other) noexcept:object_ref(std::move(other)) {}
     opaque_val & operator=(opaque_val const & other) { object_ref::operator=(other); return *this; }
@@ -203,7 +198,6 @@ class declaration : public object_ref {
     object * get_val_obj() const { return cnstr_get(raw(), 0); }
     object_ref const & to_val() const { return cnstr_get_ref(*this, 0); }
 public:
-    declaration();
     declaration(declaration const & other):object_ref(other) {}
     declaration(declaration && other) noexcept:object_ref(std::move(other)) {}
     /* low-level constructors */
@@ -243,23 +237,12 @@ inline optional<declaration> some_declaration(declaration && o) { return optiona
 bool use_unsafe(environment const & env, expr const & e);
 declaration mk_definition(name const & n, names const & lparams, expr const & t, expr const & v,
                           reducibility_hints const & hints, definition_safety safety = definition_safety::safe);
-declaration mk_definition(environment const & env, name const & n, names const & lparams, expr const & t, expr const & v,
-                          definition_safety safety = definition_safety::safe);
-declaration mk_theorem(name const & n, names const & lparams, expr const & type, expr const & val);
-declaration mk_opaque(name const & n, names const & lparams, expr const & t, expr const & v, bool unsafe);
-declaration mk_axiom(name const & n, names const & lparams, expr const & t, bool unsafe = false);
 declaration mk_inductive_decl(names const & lparams, nat const & nparams, inductive_types const & types, bool is_unsafe);
 
 /** \brief Similar to mk_definition but infer the value of unsafe flag.
     That is, set it to true if \c t or \c v contains a unsafe declaration. */
 declaration mk_definition_inferring_unsafe(environment const & env, name const & n, names const & lparams,
                                          expr const & t, expr const & v, reducibility_hints const & hints);
-declaration mk_definition_inferring_unsafe(environment const & env, name const & n, names const & lparams,
-                                         expr const & t, expr const & v);
-/** \brief Similar to mk_axiom but infer the value of unsafe flag.
-    That is, set it to true if \c t or \c v contains a unsafe declaration. */
-declaration mk_axiom_inferring_unsafe(environment const & env, name const & n,
-                                    names const & lparams, expr const & t);
 
 /** \brief View for manipulating declaration.induct_decl constructor.
     | induct_decl      (lparams : list name) (nparams : nat) (types : list inductive_type) (is_unsafe : bool) */
@@ -408,7 +391,6 @@ public:
     name const & get_name() const { return to_constant_val().get_name(); }
     names const & get_lparams() const { return to_constant_val().get_lparams(); }
     expr const & get_type() const { return to_constant_val().get_type(); }
-    quot_kind get_quot_kind() const;
 };
 
 /*
@@ -429,7 +411,6 @@ class constant_info : public object_ref {
     object_ref const & to_val() const { return cnstr_get_ref(*this, 0); }
     constant_val const & to_constant_val() const { return static_cast<constant_val const &>(cnstr_get_ref(to_val(), 0)); }
 public:
-    constant_info();
     constant_info(declaration const & d);
     constant_info(definition_val const & v);
     constant_info(quot_val const & v);

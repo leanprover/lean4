@@ -11,6 +11,7 @@ import all Lean.Util.Path
 import all Lean.Environment
 import Lean.Compiler.Options
 import Lean.Compiler.IR.CompilerM
+import Lean.Compiler.ModPkgExt
 
 import all Lean.Compiler.CSimpAttr
 import Lean.Compiler.LCNF.EmitC
@@ -90,6 +91,7 @@ public def main (args : List String) : IO UInt32 := do
     -- level exported because otherwise we would try to load the current module's `.ir`
     finalizeImport (leakEnv := true) (loadExts := false) (level := .exported) (loadIRSig := true) s imports opts
   let env := env.setMainModule modName
+  let env := env.setModulePackage setup.package?
 
   let initExt {α β σ} [Inhabited σ] (ext : PersistentEnvExtension α β σ) (env : Environment) : IO Environment := do
     let s := ext.toEnvExtension.getState env

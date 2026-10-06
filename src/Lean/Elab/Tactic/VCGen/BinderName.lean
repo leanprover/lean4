@@ -29,7 +29,7 @@ program. `vcgen` then introduces `a` accessibly as `acc`. This module implements
 
 `Spec.bind` states the hint over the continuation `f`:
 ```
-Triple (x >>= f) (wp x (fun a => binderNameHint a f (wp (f a) post epost)) epost) post epost
+Triple (x >>= f) (wp x (fun a => binderNameHint a f (wp (f a) post eposts)) eposts) post eposts
 ```
 For a program `let acc ← e`, the continuation `f` is `fun acc => p`. `vcgen` renames the variable it
 introduced for `a` to `acc`, so the verification condition states `acc` rather than `a✝`.

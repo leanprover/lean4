@@ -40,7 +40,7 @@ public inductive SolveResult.StopReason where
   | noEntailment (target : Expr)
   /-- The target was of the form `pre ⊑ rhs`, but we couldn't make further progress. -/
   | noProgress (pre rhs : Expr)
-  /-- No spec applicable to the program `e` in `pre ⊑ wp e post epost s₁ ... sₙ` was found; `thms`
+  /-- No spec applicable to the program `e` in `pre ⊑ wp e post eposts s₁ ... sₙ` was found; `thms`
   are the candidates that were tried. Reached only when `errorOnMissingSpec` is `false`. -/
   | noSpecFound (e : Expr) (monad : Expr) (thms : Array SpecTheorem)
 
@@ -157,7 +157,7 @@ private def liftedHyp? (scope : Scope) (goal : MVarId) (α pre rhs : Expr) :
   goal.withContext do
     unless α.isProp do return none
     let some hyp ← liftedPreFor? scope rhs | return none
-    goal.assign (← mkAppM ``Lean.Order.le_of_right #[pre, rhs, hyp.toExpr])
+    goal.assign (← mkAppM ``Lean.Order.le_prop_of_right #[pre, rhs, hyp.toExpr])
     return some []
 
 /-- Close a bare `Prop` residual, such as the subgoal of the `⌜φ⌝` lattice rule, against the
@@ -586,10 +586,10 @@ The function performs the following steps in order:
 7. **Bare pure precondition introduction**: on the `Prop` lattice, replace a `True`
    precondition by `⊤` and lift any other precondition into the local context.
 8. **Component projection reduction**: reduce a `Prod.fst` RHS to the projected component.
-9. **Lattice decomposition**: decompose `⊓`, `⇨`, `⌜p⌝` and `⊤` RHS connectives.
+9. **Lattice decomposition**: decompose `⊓`, `⇨`, `⌜p⌝`, `⊤` and `∧` RHS connectives.
 10. **Lifted-hypothesis discharge**: close a residual `pre ⊑ ⌜φ⌝` entailment against the most
     recently lifted precondition `h : φ` in the local context, cached in `Scope.lastLiftedPre?`.
-11. **WP decomposition**: when the RHS is `wp e post epost s₁ ... sₙ`, in order:
+11. **WP decomposition**: when the RHS is `wp e post eposts s₁ ... sₙ`, in order:
     hoist/zeta program-head lets, split `ite`/`dite`/match, zeta-unfold fvar program heads,
     reduce projection heads, and finally apply a registered `@[spec]` theorem.
 -/

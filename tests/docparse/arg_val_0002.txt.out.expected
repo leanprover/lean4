@@ -1,4 +1,8 @@
+Input: "3"
 Success! Final stack:
-  (Lean.Doc.Syntax.anon
-   (Lean.Doc.Syntax.arg_num (num "3")))
+  (Lean.Doc.Parser.Arg.anon
+   (Lean.Doc.Parser.ArgVal.num (num "3")))
 All input consumed.
+Round-trip OK
+Decoded views:
+  anon (val := num (lit := 3) (value := 3))

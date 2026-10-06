@@ -100,7 +100,7 @@ This is the `require` DSL syntax used to specify package dependencies.
 -/
 
 public syntax fromPath :=
-  term
+  &"copy "? term
 
 public syntax fromGit :=
   &"git " term:max ("@" term:max)? ("/" term)?
@@ -110,17 +110,18 @@ public syntax fromSource :=
 
 /--
 Specifies a specific source from which to draw the package dependency.
-Dependencies that are downloaded from a remote source will be placed
-into the workspace's `packagesDir`.
+Dependencies that are downloaded from a remote source or copied from a
+relative path will be placed into the workspace's `packagesDir`.
 
 **Path Dependencies**
 
 ```
-from <path>
+from [copy] <path>
 ```
 
-Lake loads the package located at a fixed `path` relative to the
-requiring package's directory.
+Lake locates the package at a fixed `path` relative to the requiring
+package's directory. With `copy`, the package will be loaded from a local
+workspace copy rather than being loaded directly from the source.
 
 **Git Dependencies**
 

@@ -1,0 +1,27 @@
+Input: "__a {role}[_b_]__"
+Success! Final stack:
+  (Lean.Doc.Parser.Inline.emph
+   (Lean.Doc.Parser.emphDelimiter "__")
+   [(Lean.Doc.Parser.Inline.text
+     (Lean.Doc.Parser.versoText "a "))
+    (Lean.Doc.Parser.Inline.role
+     "{"
+     `role
+     []
+     "}"
+     ["["]
+     [(Lean.Doc.Parser.Inline.emph
+       (Lean.Doc.Parser.emphDelimiter "_")
+       [(Lean.Doc.Parser.Inline.text
+         (Lean.Doc.Parser.versoText "b"))]
+       (Lean.Doc.Parser.emphDelimiter "_"))]
+     ["]"])]
+   (Lean.Doc.Parser.emphDelimiter "__"))
+All input consumed.
+Round-trip OK
+Decoded views:
+  emph (opener := "__") (closer := "__")
+    text (content := "a ")
+    role (braceOpen := "{") (name := role) (args := []) (braceClose := "}") (brackets := some ("[", "]"))
+      emph (opener := "_") (closer := "_")
+        text (content := "b")

@@ -84,6 +84,7 @@ lean_object* l_Lean_PersistentHashMap_mkEmptyEntries___redArg();
 size_t lean_usize_of_nat(lean_object*);
 lean_object* l_StateT_bind(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_mkPanicMessageWithDecl(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
+lean_object* lean_obj_tag_nat(lean_object*);
 lean_object* l_USize_toUInt64___boxed(lean_object*);
 lean_object* l_instDecidableEqUSize___boxed(lean_object*, lean_object*);
 lean_object* l_instBEqOfDecidableEq___redArg___lam__0___boxed(lean_object*, lean_object*, lean_object*);
@@ -118,8 +119,8 @@ LEAN_EXPORT lean_object* l_Lean_Lsp_instToStringRpcRef___lam__0___boxed(lean_obj
 static const lean_closure_object l_Lean_Lsp_instToStringRpcRef___closed__0_value = {.m_header = {.m_rc = 0, .m_cs_sz = sizeof(lean_closure_object) + sizeof(void*)*0, .m_other = 0, .m_tag = 245}, .m_fun = (void*)l_Lean_Lsp_instToStringRpcRef___lam__0___boxed, .m_arity = 1, .m_num_fixed = 0, .m_objs = {} };
 static const lean_object* l_Lean_Lsp_instToStringRpcRef___closed__0 = (const lean_object*)&l_Lean_Lsp_instToStringRpcRef___closed__0_value;
 LEAN_EXPORT const lean_object* l_Lean_Lsp_instToStringRpcRef = (const lean_object*)&l_Lean_Lsp_instToStringRpcRef___closed__0_value;
-LEAN_EXPORT lean_object* l_Lean_Lsp_RpcWireFormat_ctorIdx(uint8_t);
-LEAN_EXPORT lean_object* l_Lean_Lsp_RpcWireFormat_ctorIdx___boxed(lean_object*);
+LEAN_EXPORT lean_object* l_Lean_Lsp_RpcWireFormat_ctorIdx___impl(uint8_t);
+LEAN_EXPORT lean_object* l_Lean_Lsp_RpcWireFormat_ctorIdx___impl___boxed(lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Lsp_RpcWireFormat_ctorElim___redArg(lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Lsp_RpcWireFormat_ctorElim___redArg___boxed(lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Lsp_RpcWireFormat_ctorElim(lean_object*, lean_object*, uint8_t, lean_object*, lean_object*);
@@ -468,29 +469,22 @@ v_res_31_ = l_Lean_Lsp_instToStringRpcRef___lam__0(v_r_boxed_30_);
 return v_res_31_;
 }
 }
-LEAN_EXPORT lean_object* l_Lean_Lsp_RpcWireFormat_ctorIdx(uint8_t v_x_34_){
+LEAN_EXPORT lean_object* l_Lean_Lsp_RpcWireFormat_ctorIdx___impl(uint8_t v_x_34_){
 _start:
 {
-if (v_x_34_ == 0)
-{
-lean_object* v___x_35_; 
-v___x_35_ = lean_unsigned_to_nat(0u);
-return v___x_35_;
-}
-else
-{
-lean_object* v___x_36_; 
-v___x_36_ = lean_unsigned_to_nat(1u);
+lean_object* v___x_35_; lean_object* v___x_36_; 
+v___x_35_ = lean_box(v_x_34_);
+v___x_36_ = lean_obj_tag_nat(v___x_35_);
+lean_dec(v___x_35_);
 return v___x_36_;
 }
 }
-}
-LEAN_EXPORT lean_object* l_Lean_Lsp_RpcWireFormat_ctorIdx___boxed(lean_object* v_x_37_){
+LEAN_EXPORT lean_object* l_Lean_Lsp_RpcWireFormat_ctorIdx___impl___boxed(lean_object* v_x_37_){
 _start:
 {
-uint8_t v_x_boxed_38_; lean_object* v_res_39_; 
-v_x_boxed_38_ = lean_unbox(v_x_37_);
-v_res_39_ = l_Lean_Lsp_RpcWireFormat_ctorIdx(v_x_boxed_38_);
+uint8_t v_x_4__boxed_38_; lean_object* v_res_39_; 
+v_x_4__boxed_38_ = lean_unbox(v_x_37_);
+v_res_39_ = l_Lean_Lsp_RpcWireFormat_ctorIdx___impl(v_x_4__boxed_38_);
 return v_res_39_;
 }
 }

@@ -461,7 +461,7 @@ goto v_reusejp_135_;
 }
 v_reusejp_135_:
 {
-lean_object* v___f_137_; lean_object* v___f_138_; lean_object* v___f_139_; lean_object* v___f_140_; lean_object* v___x_141_; lean_object* v___x_142_; lean_object* v___x_143_; lean_object* v___x_144_; lean_object* v___x_145_; lean_object* v___x_146_; uint8_t v___x_147_; lean_object* v___x_148_; lean_object* v___x_149_; lean_object* v___f_150_; lean_object* v___x_16637__overap_151_; lean_object* v___x_152_; 
+lean_object* v___f_137_; lean_object* v___f_138_; lean_object* v___f_139_; lean_object* v___f_140_; lean_object* v___x_141_; lean_object* v___x_142_; lean_object* v___x_143_; lean_object* v___x_144_; lean_object* v___x_145_; lean_object* v___x_146_; uint8_t v___x_147_; lean_object* v___x_148_; lean_object* v___x_149_; lean_object* v___f_150_; lean_object* v___x_16076__overap_151_; lean_object* v___x_152_; 
 lean_inc_ref_n(v___x_136_, 6);
 v___f_137_ = lean_alloc_closure((void*)(l_StateT_instMonad___redArg___lam__1), 6, 1);
 lean_closure_set(v___f_137_, 0, v___x_136_);
@@ -500,14 +500,14 @@ v___x_148_ = lean_box(v___x_147_);
 v___x_149_ = l_instInhabitedOfMonad___redArg(v___x_146_, v___x_148_);
 v___f_150_ = lean_alloc_closure((void*)(l_instInhabitedForall___redArg___lam__0___boxed), 2, 1);
 lean_closure_set(v___f_150_, 0, v___x_149_);
-v___x_16637__overap_151_ = lean_panic_fn_borrowed(v___f_150_, v_msg_80_);
+v___x_16076__overap_151_ = lean_panic_fn_borrowed(v___f_150_, v_msg_80_);
 lean_dec_ref(v___f_150_);
 lean_inc(v___y_86_);
 lean_inc_ref(v___y_85_);
 lean_inc(v___y_84_);
 lean_inc_ref(v___y_83_);
 lean_inc_ref(v___y_81_);
-v___x_152_ = lean_apply_7(v___x_16637__overap_151_, v___y_81_, v___y_82_, v___y_83_, v___y_84_, v___y_85_, v___y_86_, lean_box(0));
+v___x_152_ = lean_apply_7(v___x_16076__overap_151_, v___y_81_, v___y_82_, v___y_83_, v___y_84_, v___y_85_, v___y_86_, lean_box(0));
 return v___x_152_;
 }
 }
@@ -997,12 +997,12 @@ if (lean_obj_tag(v___x_357_) == 0)
 {
 lean_object* v_a_358_; lean_object* v_fst_359_; uint8_t v___x_360_; 
 v_a_358_ = lean_ctor_get(v___x_357_, 0);
-lean_inc(v_a_358_);
 v_fst_359_ = lean_ctor_get(v_a_358_, 0);
 v___x_360_ = lean_unbox(v_fst_359_);
 if (v___x_360_ == 0)
 {
 lean_object* v_snd_361_; lean_object* v___x_362_; lean_object* v___x_363_; 
+lean_inc(v_a_358_);
 lean_dec_ref_known(v___x_357_, 1);
 v_snd_361_ = lean_ctor_get(v_a_358_, 1);
 lean_inc(v_snd_361_);
@@ -1015,7 +1015,6 @@ goto _start;
 }
 else
 {
-lean_dec(v_a_358_);
 lean_dec(v_fvarId_355_);
 lean_dec_ref(v_k_354_);
 return v___x_357_;

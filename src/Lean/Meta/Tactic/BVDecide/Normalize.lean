@@ -62,9 +62,12 @@ def withCaches (x : PreProcessM α) : PreProcessM α := do
     discard <| PreProcessM.withGrindGoal <| Grind.BVDecide.setCaches (← PreProcessM.getCaches)
   return res
 
-public def bvNormalize : PreProcessM Bool := do
+public def bvNormalize (hyps? : Option (Array Hyp) := none) : PreProcessM Bool := do
   withTraceNode `Meta.Tactic.bv (fun _ => return "Preprocessing goal") do
-    if ← PreProcessM.collectTargetHyps then return true
+    if let some hyps := hyps? then
+      modify fun s => { s with hypotheses := hyps }
+    else
+      if ← PreProcessM.collectTargetHyps then return true
     withCaches runPipeline
 where
   /--

@@ -22,7 +22,7 @@ example : x = 0 := by
 -/
 
 /--
-error: 'show' tactic failed, pattern
+error: `show` tactic failed, pattern
   x = 1
 is not definitionally equal to target
   x = 0
@@ -123,7 +123,7 @@ also weren't defeq.
 -/
 
 /--
-error: 'show' tactic failed, no goals unify with the given pattern.
+error: `show` tactic failed, no goals unify with the given pattern.
 
 In the first goal, the pattern
   x = 4

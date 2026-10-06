@@ -19,10 +19,15 @@ structure State where
 
 abbrev M := StateT State CompilerM
 
-def visitExpr : Expr → ExceptT Name M Unit
-  | Expr.fap f _  => getSorryDepFor? f
-  | Expr.pap f _  => getSorryDepFor? f
-  | _             => return ()
+partial def visitFnBody (b : FnBody) : ExceptT Name M Unit := do
+  match b with
+  | .fap _ b _ f ..   => getSorryDepFor? f; visitFnBody b
+  | .pap _ b f ..   => getSorryDepFor? f; visitFnBody b
+  | .jdecl _ _ v b   => visitFnBody v; visitFnBody b
+  | .case _ _ _ alts => alts.forM fun alt => visitFnBody alt.body
+  | _ =>
+    unless b.isTerminal do
+      visitFnBody b.body
 where
   getSorryDepFor? (f : Name) : ExceptT Name M Unit := do
     let found (g : Name) :=
@@ -37,15 +42,6 @@ where
     else match (← findDecl f) with
       | some (.fdecl (info := { sorryDep? := some g, .. }) ..) => found g
       | _ => return ()
-
-partial def visitFnBody (b : FnBody) : ExceptT Name M Unit := do
-  match b with
-  | .vdecl _ _ v b   => visitExpr v; visitFnBody b
-  | .jdecl _ _ v b   => visitFnBody v; visitFnBody b
-  | .case _ _ _ alts => alts.forM fun alt => visitFnBody alt.body
-  | _ =>
-    unless b.isTerminal do
-      visitFnBody b.body
 
 def visitDecl (d : Decl) : M Unit := do
   match d with

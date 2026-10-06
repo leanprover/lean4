@@ -19,11 +19,8 @@ where
     | .fdecl (body := b) .. => collectFnBody b
     | .extern .. => pure ()
   collectFnBody : FnBody → StateM NameSet Unit
-    | .vdecl _ _ v b   =>
-      match v with
-      | .fap f _ => collect f *> collectFnBody b
-      | .pap f _ => collect f *> collectFnBody b
-      | _        => collectFnBody b
+    | .fap _ b _ f _   => collect f *> collectFnBody b
+    | .pap _ b f _     => collect f *> collectFnBody b
     | .jdecl _ _ v b   => collectFnBody v *> collectFnBody b
     | .case _ _ _ alts => alts.forM fun alt => collectFnBody alt.body
     | e => unless e.isTerminal do collectFnBody e.body

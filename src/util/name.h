@@ -137,7 +137,7 @@ public:
     }
 };
 
-struct name_hash_fn { unsigned operator()(name const & n) const { return n.hash(); } };
+struct name_hash_fn { size_t operator()(name const & n) const { return n.hash(); } };
 struct name_eq_fn { bool operator()(name const & n1, name const & n2) const { return n1 == n2; } };
 struct name_cmp {
     typedef name type;

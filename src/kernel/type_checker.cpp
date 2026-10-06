@@ -669,6 +669,8 @@ template<typename F> optional<expr> type_checker::reduce_bin_nat_pred(F const & 
 }
 
 optional<expr> type_checker::reduce_nat(expr const & e) {
+    // Reducing the arguments recurses through `whnf`, which `whnf_core`'s depth guard does not cover.
+    scope_rec_depth guard;
     unsigned nargs = get_app_num_args(e);
     if (nargs == 1) {
         expr const & f = app_fn(e);

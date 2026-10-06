@@ -163,7 +163,7 @@ def internalize (e : Expr) (parent? : Option Expr) : GoalM Unit := do
     }
     processPowIdentityVars
   else if let some semiringId ← getCommSemiringId? type then SemiringM.run semiringId do
-    let some re ← sreify? e | return ()
+    let some re ← sreify? e (gen := ← getGeneration e) | return ()
     trace_goal[grind.ring.internalize] "semiring [{semiringId}]: {e}"
     setTermSemiringId e
     ringExt.markTerm e
@@ -175,7 +175,7 @@ def internalize (e : Expr) (parent? : Option Expr) : GoalM Unit := do
     ringExt.markTerm e
     modifyRingState fun s => { s with denote := s.denote.insert { expr := e } re }
   else if let some ncSemiringId ← getNonCommSemiringId? type then NonCommSemiringM.run ncSemiringId do
-    let some re ← ncsreify? e | return ()
+    let some re ← ncsreify? e (gen := ← getGeneration e) | return ()
     trace_goal[grind.ring.internalize] "(non-comm) semiring [{ncSemiringId}]: {e}"
     setTermNonCommSemiringId e
     ringExt.markTerm e

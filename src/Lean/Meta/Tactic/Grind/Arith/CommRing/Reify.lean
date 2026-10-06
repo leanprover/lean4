@@ -26,11 +26,11 @@ def ncreify? (e : Expr) (skipVar := true) (gen : Nat := 0) : NonCommRingM (Optio
   withReader (fun ctx => { ctx with gen }) do reifyRing? e skipVar
 
 /-- Reify semiring expression. -/
-def sreify? (e : Expr) : SemiringM (Option SemiringExpr) :=
-  reifySemiring? e
+def sreify? (e : Expr) (gen : Nat := 0) : SemiringM (Option SemiringExpr) :=
+  withReader (fun ctx => { ctx with gen }) do reifySemiring? e
 
 /-- Reify non-commutative semiring expression. -/
-def ncsreify? (e : Expr) : NonCommSemiringM (Option SemiringExpr) :=
-  reifySemiring? e
+def ncsreify? (e : Expr) (gen : Nat := 0) : NonCommSemiringM (Option SemiringExpr) :=
+  withReader (fun ctx => { ctx with gen }) do reifySemiring? e
 
 end Lean.Meta.Grind.Arith.CommRing

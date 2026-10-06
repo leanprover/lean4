@@ -12,6 +12,8 @@ open Sym.Arith
 
 structure NonCommSemiringM.Context where
   semiringId : Nat
+  /-- Generation assigned to terms internalized while reifying. -/
+  gen : Nat := 0
 
 abbrev NonCommSemiringM := ReaderT NonCommSemiringM.Context GoalM
 
@@ -66,14 +68,13 @@ instance : MonadSetTermId NonCommSemiringM where
   setTermId e := setTermNonCommSemiringId e
 
 /--
-Semiring terms are reified only by the `internalize` hook, after the core has created the
-`ENode`s of the term and of all its subterms. So every variable created here is already
-internalized, and there is no generation to assign.
+Power propagation can reenter a solver hook while a term's arguments are still being
+internalized, so an atom may not have an `ENode` yet.
 -/
 instance : MonadMkVar NonCommSemiringM where
   mkVar e := do
     unless (← alreadyInternalized e) do
-      throwError "`grind` internal error, semiring term has not been internalized{indentExpr e}"
+      internalize e (← read).gen
     mkSVarCore e
 
 end Lean.Meta.Grind.Arith.CommRing

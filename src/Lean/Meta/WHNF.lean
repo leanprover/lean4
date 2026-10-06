@@ -1034,6 +1034,24 @@ def reduceNat? (e : Expr) : MetaM (Option Expr) :=
   | _ =>
     return none
 
+/--
+`Nat.ble` and `Nat.beq` take one reduction step for each `Nat.succ` they remove from both arguments, so comparing
+a literal `n` with `a + k`, where `a` is stuck, takes `min n k` steps (issue #11544). Cancel the common offset in
+one step instead.
+-/
+private def reduceNatOffset? (e : Expr) : MetaM (Option Expr) := do
+  let .app (.app f@(.const fn _) a) b := e | return none
+  unless fn == ``Nat.ble || fn == ``Nat.beq do return none
+  let some (a, i) ← getOffset? a | return none
+  let some (b, j) ← getOffset? b | return none
+  let k := min i j
+  if k == 0 then return none
+  return mkApp2 f (← mkOffset a (i - k)) (← mkOffset b (j - k))
+where
+  getOffset? (e : Expr) : MetaM (Option (Expr × Nat)) := do
+    if let some r ← (isOffset? e).run then return some r
+    return (← (evalNat e).run).map (mkNatLit 0, ·)
+
 
 @[inline] private def useWHNFCache (e : Expr) : MetaM Bool := do
   -- We cache only closed terms without expr metavars.
@@ -1069,9 +1087,12 @@ partial def whnfImp (e : Expr) : MetaM Expr :=
         match (← reduceNat? e') with
         | some v => cache useCache e v
         | none   =>
-          match (← unfoldDefinition? e') with
+          match (← reduceNatOffset? e') with
           | some e'' => cache useCache e (← whnfImp e'')
-          | none => cache useCache e e'
+          | none =>
+            match (← unfoldDefinition? e') with
+            | some e'' => cache useCache e (← whnfImp e'')
+            | none => cache useCache e e'
 
 /-- If `e` is a projection function that satisfies `p`, then reduce it -/
 def reduceProjOf? (e : Expr) (p : Name → Bool) : MetaM (Option Expr) := do

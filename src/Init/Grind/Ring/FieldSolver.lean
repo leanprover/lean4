@@ -52,14 +52,14 @@ structure PolyQ where
 def InvVars.denoteVars (ctx : Context α) (invs : InvVars) : List α :=
   invs.map fun p => p.1.denote ctx
 
-def InvVars.denoteInvs [Field α] (invs : InvVars) : List α :=
+def InvVars.denoteInvs [Semifield α] (invs : InvVars) : List α :=
   invs.map fun p => (OfNat.ofNat (α := α) p.2)⁻¹
 
 /-- Each variable recorded in `invs` denotes the inverse of its numeral. -/
-def InvVars.ok [Field α] (ctx : Context α) (invs : InvVars) : Prop :=
+def InvVars.ok [Semifield α] (ctx : Context α) (invs : InvVars) : Prop :=
   invs.denoteVars ctx = invs.denoteInvs
 
-theorem InvVars.ok_cons [Field α] (ctx : Context α) (x : Var) (c : Nat) (invs : InvVars) :
+theorem InvVars.ok_cons [Semifield α] (ctx : Context α) (x : Var) (c : Nat) (invs : InvVars) :
     InvVars.ok ctx ((x, c) :: invs) ↔ x.denote ctx = (OfNat.ofNat (α := α) c)⁻¹ ∧ InvVars.ok ctx invs := by
   simp [ok, denoteVars, denoteInvs]
 

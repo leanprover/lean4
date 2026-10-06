@@ -6,7 +6,7 @@ Authors: Kim Morrison
 module
 
 prelude
-public import Init.Grind.Ring.Basic
+public import Init.Grind.Ring.Semifield
 public import Init.Data.Nat.Div.Basic
 import Init.ByCases
 import Init.Omega
@@ -41,32 +41,24 @@ class Field (α : Type u) extends CommRing α, Inv α, Div α where
 attribute [implicit_reducible] Field.zpow
 attribute [instance 100] Field.toInv Field.toDiv Field.zpow
 
+instance (priority := 100) Field.toSemifield [Field α] : Semifield α :=
+  { (inferInstance : CommSemiring α), (inferInstance : Field α) with }
+
 namespace Field
 
 variable [Field α] {a : α}
 
-theorem inv_mul_cancel (h : a ≠ 0) : a⁻¹ * a = 1 := by
-  rw [CommSemiring.mul_comm, mul_inv_cancel h]
+theorem inv_mul_cancel (h : a ≠ 0) : a⁻¹ * a = 1 :=
+  Semifield.inv_mul_cancel h
 
-theorem eq_inv_of_mul_eq_one (h : a * b = 1) : a = b⁻¹ := by
-  by_cases h' : b = 0
-  · subst h'
-    rw [Semiring.mul_zero] at h
-    exfalso
-    exact zero_ne_one h
-  · replace h := congrArg (fun x => x * b⁻¹) h
-    simpa [Semiring.mul_assoc, mul_inv_cancel h', Semiring.mul_one, Semiring.one_mul] using h
+theorem eq_inv_of_mul_eq_one (h : a * b = 1) : a = b⁻¹ :=
+  Semifield.eq_inv_of_mul_eq_one h
 
 theorem inv_one : (1 : α)⁻¹ = 1 :=
-  (eq_inv_of_mul_eq_one (Semiring.mul_one 1)).symm
+  Semifield.inv_one
 
-theorem inv_inv (a : α) : a⁻¹⁻¹ = a := by
-  by_cases h : a = 0
-  · subst h
-    simp [Field.inv_zero]
-  · symm
-    apply eq_inv_of_mul_eq_one
-    exact mul_inv_cancel h
+theorem inv_inv (a : α) : a⁻¹⁻¹ = a :=
+  Semifield.inv_inv a
 
 theorem inv_eq_iff_eq_iff (a b : α) : a⁻¹ = b ↔ a = b⁻¹ := by
   constructor
@@ -102,49 +94,17 @@ theorem inv_eq_zero_iff {a : α} : a⁻¹ = 0 ↔ a = 0 := by
 theorem zero_eq_inv_iff {a : α} : 0 = a⁻¹ ↔ 0 = a := by
   rw [eq_comm, inv_eq_zero_iff, eq_comm]
 
-theorem of_mul_eq_zero {a b : α} : a * b = 0 → a = 0 ∨ b = 0 := by
-  cases (Classical.em (a = 0)); · simp [*, Semiring.zero_mul]
-  cases (Classical.em (b = 0)); · simp [*, Semiring.mul_zero]
-  rename_i h₁ h₂
-  replace h₁ := Field.mul_inv_cancel h₁
-  replace h₂ := Field.mul_inv_cancel h₂
-  intro h
-  replace h := congrArg (· * b⁻¹ * a⁻¹) h; simp [Semiring.zero_mul] at h
-  rw [Semiring.mul_assoc, Semiring.mul_assoc, ← Semiring.mul_assoc b, h₂, Semiring.one_mul, h₁] at h
-  have := Field.zero_ne_one (α := α)
-  simp [h] at this
+theorem of_mul_eq_zero {a b : α} : a * b = 0 → a = 0 ∨ b = 0 :=
+  Semifield.of_mul_eq_zero
 
-theorem inv_mul (a b : α) : (a*b)⁻¹ = a⁻¹*b⁻¹ := by
-  cases (Classical.em (a = 0)); simp [*, Semiring.zero_mul, Field.inv_zero]
-  cases (Classical.em (b = 0)); simp [*, Semiring.mul_zero, Field.inv_zero]
-  cases (Classical.em (a*b = 0)); simp [*, Field.inv_zero]
-  next h => cases (of_mul_eq_zero h) <;> contradiction
-  next h₁ h₂ h₃ =>
-    replace h₁ := Field.inv_mul_cancel h₁
-    replace h₂ := Field.inv_mul_cancel h₂
-    replace h₃ := Field.mul_inv_cancel h₃
-    replace h₃ := congrArg (b⁻¹*a⁻¹* ·) h₃; try simp at h₃ -- TODO(kmill): remove simp after stage0 update
-    rw [Semiring.mul_assoc, Semiring.mul_assoc, ← Semiring.mul_assoc (a⁻¹), h₁, Semiring.one_mul,
-      ← Semiring.mul_assoc, h₂, Semiring.one_mul, Semiring.mul_one, CommRing.mul_comm (b⁻¹)] at h₃
-    assumption
+theorem inv_mul (a b : α) : (a*b)⁻¹ = a⁻¹*b⁻¹ :=
+  Semifield.inv_mul a b
 
-theorem inv_pow (a : α) (n : Nat) : (a ^ n)⁻¹ = a⁻¹ ^ n := by
-  induction n with
-  | zero => rw [Semiring.pow_zero, Semiring.pow_zero, inv_one]
-  | succ n ih => rw [Semiring.pow_succ, Semiring.pow_succ, inv_mul, ih]
+theorem inv_pow (a : α) (n : Nat) : (a ^ n)⁻¹ = a⁻¹ ^ n :=
+  Semifield.inv_pow a n
 
-theorem of_pow_eq_zero (a : α) (n : Nat) : a^n = 0 → a = 0 := by
-  induction n
-  next => simp [Semiring.pow_zero]; intro h; have := zero_ne_one (α := α); exfalso; exact this h.symm
-  next n ih =>
-    simp [Semiring.pow_succ]; intro h
-    apply Classical.byContradiction
-    intro hne
-    have := Field.mul_inv_cancel hne
-    replace h := congrArg (· * a⁻¹) h; try simp at h -- TODO(kmill): remove simp after stage0 update
-    rw [Semiring.mul_assoc, this, Semiring.mul_one, Semiring.zero_mul] at h
-    have := ih h
-    contradiction
+theorem of_pow_eq_zero (a : α) (n : Nat) : a^n = 0 → a = 0 :=
+  Semifield.of_pow_eq_zero a n
 
 theorem zpow_natCast (a : α) (n : Nat) : a ^ (n : Int) = a ^ n := by
   induction n
@@ -205,8 +165,8 @@ theorem div_mul_cancel {x y : α} (h : y ≠ 0) : x / y * y = x := by
   rw [div_eq_mul_inv, Semiring.mul_assoc, Field.inv_mul_cancel h, Semiring.mul_one]
 
 attribute [local instance] Semiring.natCast in
-theorem natCast_ne_zero [IsCharP α 0] {n : Nat} (h : n ≠ 0) : (n : α) ≠ 0 := by
-    simpa [IsCharP.natCast_eq_zero_iff]
+theorem natCast_ne_zero [IsCharP α 0] {n : Nat} (h : n ≠ 0) : (n : α) ≠ 0 :=
+  Semifield.natCast_ne_zero h
 
 attribute [local instance] Ring.intCast in
 theorem intCast_div_of_dvd {x y : Int} (h : y ∣ x) (w : (y : α) ≠ 0) :

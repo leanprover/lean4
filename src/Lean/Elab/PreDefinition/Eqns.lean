@@ -360,6 +360,17 @@ private def realizeEqnTypes (key : EqnTypesKey) : MetaM EqnTypes :=
           mkEqnTypes key.declNames goal.mvarId!
     return { types }
 
+private def realizeEqn (declName name : Name) (type : Expr) : MetaM Unit :=
+  withEqnOptions declName <| withOptions (tactic.hygienic.set · false) do
+    let info ← getConstInfoDefn declName
+    let value ← mkEqnProof declName type
+    let (type, value) ← removeUnusedEqnHypotheses type value
+    addDecl <| (←mkThmOrUnsafeDef {
+      name, type, value
+      levelParams := info.levelParams
+    })
+    inferDefEqAttr name
+
 /--
 Generate equations for `declName`.
 
@@ -369,8 +380,6 @@ proves them using `mkEqnProof`.
 -/
 def mkEqns (declName : Name) (declNames : Array Name) : MetaM (Array Name) := do
   trace[Elab.definition.eqns] "mkEqns: {.ofConstName declName}"
-  let info ← getConstInfoDefn declName
-  let us := info.levelParams.map mkLevelParam
   -- The caller's options (e.g. `backward.isDefEq.respectTransparency`) can change how
   -- `mkEqnTypes` splits, so the types must not be computed in the caller's context.
   let key := { declName, declNames : EqnTypesKey }
@@ -383,17 +392,8 @@ def mkEqns (declName : Name) (declNames : Array Name) : MetaM (Array Name) := do
     thmNames := thmNames.push name
     -- determinism: `type` comes from `realizeValue`, so it is independent of the environment
     -- changes since `declName` was added
-    realizeConst declName name (withEqnOptions declName (doRealize name info type))
+    realizeConst declName name (realizeEqn declName name type)
   return thmNames
-where
-  doRealize name info type := withOptions (tactic.hygienic.set · false) do
-    let value ← mkEqnProof declName type
-    let (type, value) ← removeUnusedEqnHypotheses type value
-    addDecl <| (←mkThmOrUnsafeDef {
-      name, type, value
-      levelParams := info.levelParams
-    })
-    inferDefEqAttr name
 
 def getEqnsFor? (declName : Name) : MetaM (Option (Array Name)) := do
   if (← isRecursiveDefinition declName) then

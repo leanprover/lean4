@@ -52,40 +52,46 @@ ByteArray.decEq: (some lean_sarray_dec_eq)
 -/
 
 /--
-trace: [Compiler.IR] [result]
-    def le (x_1 : @& obj) (x_2 : @& obj) : u8 :=
-      let x_3 : u8 := ByteArray.instDecidableLE x_1 x_2;
-      ret x_3
-    def le._boxed (x_1 : obj) (x_2 : obj) : tagged :=
-      let x_3 : u8 := le x_1 x_2;
-      dec x_2;
-      dec x_1;
-      let x_4 : tagged := box x_3;
-      ret x_4
+trace: [Compiler.result] size: 1
+    def le (a : @&obj) (b : @&obj) : UInt8 :=
+      let _x.1 : UInt8 := ByteArray.instDecidableLE a b;
+      return _x.1
+[Compiler.result] size: 4
+    def le._boxed (a : obj) (b : obj) : tagged :=
+      let res : UInt8 := le a b;
+      dec[ref] b;
+      dec[ref] a;
+      let r : tagged := box res;
+      return r
 -/
 #guard_msgs in
-set_option trace.compiler.ir.result true in
+set_option trace.Compiler.result true in
+set_option pp.letVarTypes true in
+set_option pp.funBinderTypes true in
 def le (a b : ByteArray) : Bool := a ≤ b
 
 /--
-trace: [Compiler.IR] [result]
-    def mn (x_1 : @& obj) (x_2 : @& obj) : obj :=
-      let x_3 : u8 := ByteArray.instDecidableLE x_1 x_2;
-      case x_3 : u8 of
-      Bool.false →
-        inc x_2;
-        ret x_2
-      Bool.true →
-        inc x_1;
-        ret x_1
-    def mn._boxed (x_1 : obj) (x_2 : obj) : obj :=
-      let x_3 : obj := mn x_1 x_2;
-      dec x_2;
-      dec x_1;
-      ret x_3
+trace: [Compiler.result] size: 6
+    def mn (a : @&obj) (b : @&obj) : obj :=
+      let _x.1 : UInt8 := ByteArray.instDecidableLE a b;
+      cases _x.1 : obj
+      | Bool.false =>
+        inc[ref] b;
+        return b
+      | Bool.true =>
+        inc[ref] a;
+        return a
+[Compiler.result] size: 3
+    def mn._boxed (a : obj) (b : obj) : obj :=
+      let res : obj := mn a b;
+      dec[ref] b;
+      dec[ref] a;
+      return res
 -/
 #guard_msgs in
-set_option trace.compiler.ir.result true in
+set_option trace.Compiler.result true in
+set_option pp.letVarTypes true in
+set_option pp.funBinderTypes true in
 def mn (a b : ByteArray) : ByteArray := min a b
 
 /-! Some examples, computed at runtime, including bytes that a signed comparison gets wrong. -/

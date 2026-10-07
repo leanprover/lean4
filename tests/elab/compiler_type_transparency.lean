@@ -18,17 +18,20 @@ def id : Function α α := fun x => x
 end Function
 
 /--
-trace: [Compiler.IR] [result]
-    def A.foo (x_1 : @& tobj) : tobj :=
-      inc x_1;
-      ret x_1
-    def A.foo._boxed (x_1 : tobj) : tobj :=
-      let x_2 : tobj := A.foo x_1;
-      dec x_1;
-      ret x_2
+trace: [Compiler.result] size: 1
+    def A.foo (_y.1 : @&tobj) : tobj :=
+      inc _y.1;
+      return _y.1
+[Compiler.result] size: 2
+    def A.foo._boxed (_y.1 : tobj) : tobj :=
+      let res : tobj := A.foo _y.1;
+      dec _y.1;
+      return res
 -/
 #guard_msgs in
-set_option trace.compiler.ir.result true in
+set_option trace.Compiler.result true in
+set_option pp.letVarTypes true in
+set_option pp.funBinderTypes true in
 def foo : Function Nat Nat := Function.id
 
 end A
@@ -45,17 +48,20 @@ def id : Function α α := fun x => x
 end Function
 
 /--
-trace: [Compiler.IR] [result]
-    def B.foo (x_1 : @& tobj) : tobj :=
-      inc x_1;
-      ret x_1
-    def B.foo._boxed (x_1 : tobj) : tobj :=
-      let x_2 : tobj := B.foo x_1;
-      dec x_1;
-      ret x_2
+trace: [Compiler.result] size: 1
+    def B.foo (a.1 : @&tobj) : tobj :=
+      inc a.1;
+      return a.1
+[Compiler.result] size: 2
+    def B.foo._boxed (a.1 : tobj) : tobj :=
+      let res : tobj := B.foo a.1;
+      dec a.1;
+      return res
 -/
 #guard_msgs in
-set_option trace.compiler.ir.result true in
+set_option trace.Compiler.result true in
+set_option pp.letVarTypes true in
+set_option pp.funBinderTypes true in
 def foo : Function Nat Nat := Function.id
 
 end B

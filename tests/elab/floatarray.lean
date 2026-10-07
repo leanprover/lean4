@@ -1,5 +1,5 @@
 
-
+set_option trace.Compiler.result true
 def tst : IO Unit :=
 do
 let bs := [(1 : Float), 2, 3].toFloatArray;
@@ -22,3 +22,7 @@ info: [1.000000, 2.000000, 3.000000]
 -/
 #guard_msgs in
 #eval tst
+
+set_option compiler.extract_closed false
+set_option trace.Compiler.bytecode.result true
+#eval Float.ofNat 5

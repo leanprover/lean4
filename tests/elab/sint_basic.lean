@@ -105,7 +105,9 @@ def test {α : Type} [BEq α] (w : Nat) (ofBitVec : BitVec w → α) (ofInt : In
 #eval test 8 Int8.ofBitVec Int8.ofInt Int8.ofNat
 
 -- runtime representation
-set_option trace.compiler.ir.result true in
+set_option trace.Compiler.result true in
+set_option pp.letVarTypes true in
+set_option pp.funBinderTypes true in
 def myId8 (x : Int8) : Int8 := x
 
 #check Int16
@@ -186,7 +188,9 @@ def myId8 (x : Int8) : Int8 := x
 #eval test 16 Int16.ofBitVec Int16.ofInt Int16.ofNat
 
 -- runtime representation
-set_option trace.compiler.ir.result true in
+set_option trace.Compiler.result true in
+set_option pp.letVarTypes true in
+set_option pp.funBinderTypes true in
 def myId16 (x : Int16) : Int16 := x
 
 
@@ -268,7 +272,9 @@ def myId16 (x : Int16) : Int16 := x
 #eval test 32 Int32.ofBitVec Int32.ofInt Int32.ofNat
 
 -- runtime representation
-set_option trace.compiler.ir.result true in
+set_option trace.Compiler.result true in
+set_option pp.letVarTypes true in
+set_option pp.funBinderTypes true in
 def myId32 (x : Int32) : Int32 := x
 
 #check Int64
@@ -349,7 +355,9 @@ def myId32 (x : Int32) : Int32 := x
 #eval test 64 Int64.ofBitVec Int64.ofInt Int64.ofNat
 
 -- runtime representation
-set_option trace.compiler.ir.result true in
+set_option trace.Compiler.result true in
+set_option pp.letVarTypes true in
+set_option pp.funBinderTypes true in
 def myId64 (x : Int64) : Int64 := x
 
 
@@ -431,5 +439,7 @@ def myId64 (x : Int64) : Int64 := x
 #eval test System.Platform.numBits ISize.ofBitVec ISize.ofInt ISize.ofNat
 
 -- runtime representation
-set_option trace.compiler.ir.result true in
+set_option trace.Compiler.result true in
+set_option pp.letVarTypes true in
+set_option pp.funBinderTypes true in
 def myIdSize (x : ISize) : ISize := x

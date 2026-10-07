@@ -1,28 +1,33 @@
 /--
-trace: [Compiler.IR] [result]
+trace: [Compiler.result] size: 3
     def f._closed_0 : obj :=
-      let x_1 : tagged := 1;
-      let x_2 : obj := Array.mkEmpty ◾ x_1;
-      let x_3 : obj := Array.push ◾ x_2 x_1;
-      ret x_3
+      let _x.1 : tagged := 1;
+      let _x.2 : obj := Array.mkEmpty ◾ _x.1;
+      let _x.3 : obj := Array.push ◾ _x.2 _x.1;
+      return _x.3
+[Compiler.result] size: 2
     def f : obj :=
-      let x_1 : obj := f._closed_0;
-      inc x_1;
-      ret x_1
+      let _x.1 : obj := f._closed_0;
+      inc[persistent][ref] _x.1;
+      return _x.1
 -/
 #guard_msgs in
-set_option trace.compiler.ir.result true in
+set_option trace.Compiler.result true in
+set_option pp.letVarTypes true in
+set_option pp.funBinderTypes true in
 def f : Array Nat := #[1]
 
 /--
-trace: [Compiler.IR] [result]
-    def g (x_1 : tobj) : obj :=
-      let x_2 : tagged := 1;
-      let x_3 : obj := Array.mkEmpty ◾ x_2;
-      let x_4 : obj := Array.push ◾ x_3 x_1;
-      ret x_4
+trace: [Compiler.result] size: 3
+    def g (a : tobj) : obj :=
+      let _x.1 : tagged := 1;
+      let _x.2 : obj := Array.mkEmpty ◾ _x.1;
+      let _x.3 : obj := Array.push ◾ _x.2 a;
+      return _x.3
 -/
 #guard_msgs in
-set_option trace.compiler.ir.result true in
+set_option trace.Compiler.result true in
+set_option pp.letVarTypes true in
+set_option pp.funBinderTypes true in
 set_option compiler.extract_closed false in
 def g (a : Nat) : Array Nat := #[a]

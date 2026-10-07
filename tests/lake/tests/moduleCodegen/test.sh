@@ -23,8 +23,8 @@ test_exp -f .lake/build/lib/lean/Test/A.ir
 test_out "Built Test.B:irArts" build Test.B:c -v
 test_run build Test.C:c
 
-# An import's IR must be provided even for a plain `import`, as the language server loads it
-match_text 'A.ir"' .lake/build/ir/Test/B.setup.json
+# Elaboration does not need the IR of a plain `import` and so must not wait on it; `leanir` does
+no_match_text 'A.ir"' .lake/build/ir/Test/B.setup.json
 match_text 'A.ir"' .lake/build/ir/Test/B.irsetup.json
 
 # The server allows `#eval` on a plainly imported definition, so it must be able to run it

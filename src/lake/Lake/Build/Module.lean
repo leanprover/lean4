@@ -34,13 +34,24 @@ It is opt-in via `compiler.postponeCompile` and only meaningful under the module
 /--
 Fetches the information importers of the module need, including its IR.
 
-Importers need the IR because the language server imports at the `.server` level, where every
-import's IR is loaded (see `Lean.importModulesCore`). When code generation is postponed, only
-`metaExportInfo` can report it.
+The language server needs the IR because it imports at the `.server` level, where every import's
+IR is loaded (see `Lean.importModulesCore`), as does `leanir`. When code generation is postponed,
+only `metaExportInfo` can report it. See also `Module.fetchElabExportInfo`.
 -/
--- TODO: Do not always include IR
 @[inline] def Module.fetchExportInfo (self : Module) : FetchM (Job ModuleMetaExportInfo) :=
   self.metaExportInfo.fetch
+
+/--
+Fetches the information a plain `import` of the module needs outside the language server when the
+importer postpones its code generation: no IR, so this does not wait on the module's `irArts`.
+-/
+def Module.fetchElabExportInfo (self : Module) : FetchM (Job ModuleExportInfo) := do
+  let expInfoJob ← self.exportInfo.fetch
+  (← self.elabArts.fetch).bindM (sync := true) fun arts =>
+  expInfoJob.mapM (sync := true) fun info => do
+    -- keep the `.server` part so that the entry reads as a module system one
+    let some oleanServer := arts.oleanServer? | return info
+    return {info with arts := .ofArrays #[#[arts.olean.path, oleanServer.path]]}
 
 /-! ## Facet Builds
 Build function definitions for a module's builtin facets.
@@ -265,6 +276,7 @@ structure TransImportEntry where
 
 partial def fetchTransImportArts
   (directImports : Array ModuleImport) (directArts : NameMap ImportArtifacts) (nonModule : Bool)
+  (elabOnly := false)
 : FetchM (NameMap ImportArtifacts) := do
   let q ← directImports.foldrM (init := #[]) fun imp q => do
     let some mod := imp.module? | return q
@@ -298,8 +310,13 @@ where
       let metaVisited := if needsMeta then metaVisited.insert mod.name else metaVisited
       -- Widest level seen so far, never below an existing entry's (no demotion).
       let wantAll := allVisited.contains mod.name || existing?.any (·.oleanPrivate?.isSome)
-      let info ← (← mod.fetchExportInfo).await
-      let s := s.insert mod.name (if wantAll then info.allArts else info.arts)
+      let arts ←
+        if elabOnly && !wantAll && !metaVisited.contains mod.name then
+          pure (← (← mod.fetchElabExportInfo).await).arts
+        else
+          let info ← (← mod.fetchExportInfo).await
+          pure (if wantAll then info.allArts else info.arts)
+      let s := s.insert mod.name arts
       let input ← (← mod.input.fetch).await
       -- `import all`/`meta import` are transitive. Propagate both flags to children.
       let q := enqueue importAll needsMeta input q
@@ -434,10 +451,40 @@ def Package.discriminant (self : Package) :=
   else
     s!"{self.prettyName}@{self.version}"
 
+/--
+Adds a plain `import` whose IR is not needed.
+Only `directArts`, `trace`, and `transTrace` are maintained, as in `addImport`.
+-/
+def ModuleImportInfo.addElabImport
+  (info : ModuleImportInfo) (imp : Import) (expInfo : ModuleExportInfo)
+: ModuleImportInfo :=
+  let info :=
+    if !info.directArts.contains imp.module then -- do not demote `import all`
+      {info with directArts := info.directArts.insert imp.module expInfo.arts}
+    else
+      info
+  let info := {info with
+    trace := info.trace.mix expInfo.transTrace |>.mix expInfo.artsTrace.withoutInputs
+  }
+  if imp.isExported then
+    {info with
+      transTrace := info.transTrace
+      |>.mix expInfo.transTrace
+      |>.mix expInfo.artsTrace.withoutInputs
+      |>.withoutInputs
+    }
+  else
+    info
+
 set_option linter.unusedVariables.funArgs false in
+/--
+Computes the import information of a module from its header.
+
+With `elabOnly`, plain imports do not wait on the IR of the imported module; see `elabImportInfo`.
+-/
 def fetchImportInfo
   (fileName : String) (pkgName modName : Name) (header : ModuleHeader)
-  (allowNonModules : Bool := false)
+  (allowNonModules : Bool := false) (elabOnly := false)
 : FetchM (Job ModuleImportInfo) := do
   let nonModule := !header.isModule
   let info := ModuleImportInfo.nil modName
@@ -466,6 +513,11 @@ def fetchImportInfo
       --   logError s!"{fileName}: cannot `import all` \
       --     the module `{imp.module}` from the package `{mod.pkg.discriminant}`"
       --   return .error
+      -- the same module may also be imported as `meta` or `all`, which does need its IR
+      let needsIR := header.imports.any fun i => i.module == imp.module && (i.isMeta || i.importAll)
+      if elabOnly && !nonModule && !needsIR then
+        let importJob ← mod.fetchElabExportInfo
+        return s.zipWith (sync := true) (·.addElabImport imp ·) importJob
       let importJob ← mod.fetchExportInfo
       return s.zipWith (sync := true) (·.addImport nonModule imp ·) importJob
     else
@@ -510,6 +562,19 @@ public def Module.importInfoFacetConfig : ModuleFacetConfig importInfoFacet :=
     fetchImportInfo mod.relLeanFile.toString mod.pkg.keyName mod.name header
       (allowNonModules := mod.allowNonModules)
 
+/-- The `ModuleFacetConfig` for the builtin `elabImportInfoFacet`. -/
+public def Module.elabImportInfoFacetConfig : ModuleFacetConfig elabImportInfoFacet :=
+  mkFacetJobConfig fun mod => do
+    let header ← (← mod.header.fetch).await
+    let extra := (← getLeanOptOverrides).find? mod.pkg.baseName |>.getD {}
+    -- A module that postpones its code generation does not need the IR of its plain imports for
+    -- elaboration, so it must not wait on their `irArts`.
+    if header.isModule && Compiler.compiler.postponeCompile.get (mod.leanOptions ++ extra).toOptions then
+      fetchImportInfo mod.relLeanFile.toString mod.pkg.keyName mod.name header
+        (allowNonModules := mod.allowNonModules) (elabOnly := true)
+    else
+      mod.importInfo.fetch
+
 def noServerOLeanError :=
   "No server olean generated. Ensure the module system is enabled."
 
@@ -529,7 +594,8 @@ def noCError :=
 def Module.computeExportInfo (mod : Module) : FetchM (Job ModuleExportInfo) := do
   (← mod.elabArts.fetch).mapM (sync := true) fun arts => do
     let input ← (← mod.input.fetch).await
-    let importInfo ← (← mod.importInfo.fetch).await
+    -- Already complete because `elabArts` waits on it
+    let importInfo ← (← mod.elabImportInfo.fetch).await
     let artsTrace := BuildTrace.nil s!"{mod.name}:importArts"
     return {
       srcTrace := input.trace
@@ -632,7 +698,9 @@ def Module.recFetchPreSetup (mod : Module) : FetchM (Job ModulePreSetup) := ensu
   precompiled imports so that errors in the import block of transitive imports
   will not kill this job before the direct imports are built.
   -/
-  let impInfoJob ← mod.importInfo.fetch
+  let extra := (← getLeanOptOverrides).find? mod.pkg.baseName |>.getD {}
+  let leanOptions := mod.leanOptions ++ extra
+  let impInfoJob ← mod.elabImportInfo.fetch
 
   /-
   Remark: It should be possible to avoid transitive imports here when the module
@@ -672,8 +740,6 @@ def Module.recFetchPreSetup (mod : Module) : FetchM (Job ModulePreSetup) := ensu
     | some false => addTrace depTrace; addTrace libTrace; addPlatformTrace
     | some true => addTrace depTrace; addTrace nilLibTrace
     let {dynlibs, plugins} ← computeModuleDeps impLibs externLibs dynlibs plugins
-    let extra := (← getLeanOptOverrides).find? mod.pkg.baseName |>.getD {}
-    let leanOptions := mod.leanOptions ++ extra
     addLeanTrace
     addTrace input.trace
     addTrace <| traceOptions leanOptions "options"
@@ -688,7 +754,6 @@ def Module.recFetchPreSetup (mod : Module) : FetchM (Job ModulePreSetup) := ensu
       isModule := input.header.isModule
       directImports := input.imports
       directImportArts := info.directArts
-      irSigTrace := info.irSigTrace
       dynlibs, plugins, leanOptions
     }
 where
@@ -715,9 +780,12 @@ public def Module.depHashFacetConfig : ModuleFacetConfig depHashFacet :=
 public def Module.depsFacetConfig : ModuleFacetConfig depsFacet :=
   mkFacetJobConfig fun mod => (·.toOpaque) <$> mod.presetup.fetch
 
-def mkModuleSetup (mod : Module) (presetup : ModulePreSetup) : FetchM ModuleSetup := do
+def mkModuleSetup
+  (mod : Module) (presetup : ModulePreSetup)
+  (elabOnly := presetup.isModule && presetup.postponeCompile)
+: FetchM ModuleSetup := do
   let importArts ← fetchTransImportArts
-    presetup.directImports presetup.directImportArts !presetup.isModule
+    presetup.directImports presetup.directImportArts (!presetup.isModule) elabOnly
   return {
     name := mod.name
     isModule := presetup.isModule
@@ -1290,7 +1358,10 @@ Otherwise, `leanir` runs once elaboration (`elabArts`) has produced the `.olean`
 def Module.recBuildIRArts (mod : Module) : FetchM (Job ModuleOutputArtifacts) := do
   withRegisterJob s!"{mod.name}:irArts" do
   let elabJob ← mod.elabArts.fetch
-  elabJob.mapM fun elabArts => do
+  -- Unlike elaboration, `leanir` needs the IR of all imports
+  let impInfoJob ← mod.importInfo.fetch
+  elabJob.bindM (sync := true) fun elabArts =>
+  impInfoJob.mapM fun impInfo => do
     -- Already complete because `elabArts` waits on it
     let presetup ← (← mod.presetup.fetch).await
     -- Use the same trace as `elabArts` to maintain compatibility
@@ -1299,10 +1370,11 @@ def Module.recBuildIRArts (mod : Module) : FetchM (Job ModuleOutputArtifacts) :=
       let elabArts ← trackOutputsIfEnabled elabArts
       return elabArts
     let depTrace := BuildTrace.nil s!"{mod.name} (leanir)"
-      |>.mix (← importAllTrace elabArts) |>.mix presetup.irSigTrace
+      |>.mix (← importAllTrace elabArts) |>.mix impInfo.irSigTrace
     let upToDate ← buildUnlessUpToDate? (oldTrace := presetup.srcMTime) mod.irFile depTrace mod.irTraceFile do
       createParentDirs mod.irSetupFile
-      let irSetup ← mkModuleSetup mod presetup
+      let irSetup ← mkModuleSetup mod {presetup with directImportArts := impInfo.directArts}
+        (elabOnly := false)
       IO.FS.writeFile mod.irSetupFile (toJson irSetup).pretty
       removeFileIfExists mod.ltarFile
       mod.clearIROutputHashes
@@ -1559,6 +1631,7 @@ public def Module.initFacetConfigs : DNameMap ModuleFacetConfig :=
   |>.insert transImportsFacet transImportsFacetConfig
   |>.insert precompileImportsFacet precompileImportsFacetConfig
   |>.insert importInfoFacet importInfoFacetConfig
+  |>.insert elabImportInfoFacet elabImportInfoFacetConfig
   |>.insert presetupFacet presetupFacetConfig
   |>.insert setupFacet setupFacetConfig
   |>.insert depTraceFacet depTraceFacetConfig

@@ -200,10 +200,9 @@ Set up a `Signal.Waiter` that waits for the specified `signum`.
 This function only initializes but does not yet start listening for the signal.
 
 While the waiter listens for the signal, the default action of the signal is replaced. A waiter
-that is no longer referenced can keep listening if the last operation that reached it was `wait` or a
-select that found the signal already received: a one-shot waiter until the signal arrives, a
-repeating one for the rest of the process. After a select that checked it and found no signal, it
-stops listening once it is dropped. `stop` stops it in every case.
+that is no longer referenced can keep listening if the last operation that reached it was `wait`: a
+one-shot waiter until the signal arrives, a repeating one for the rest of the process. After a
+select that checked it, it stops listening once it is dropped. `stop` stops it in every case.
 -/
 @[inline]
 def mk (signum : Signal) (repeating : Bool) : IO Signal.Waiter := do
@@ -254,14 +253,13 @@ def selector (s : Signal.Waiter) : Selector Unit :=
   {
     tryFn := do
       let signalWaiter ← s.native.next
+      -- Also when `signalWaiter` is already resolved: a repeating signal otherwise keeps the loop's
+      -- reference to it, so it would keep listening after it is dropped.
+      s.native.cancel
+      -- A signal that arrived before `cancel` resolved `signalWaiter` instead of being kept.
       if ← signalWaiter.isResolved then
         return some ()
-      else
-        s.native.cancel
-        -- A signal that arrived before `cancel` resolved `signalWaiter` instead of being kept.
-        if ← signalWaiter.isResolved then
-          return some ()
-        return none
+      return none
 
     registerFn waiter := do
       let signalWaiter ← s.wait

@@ -22,6 +22,8 @@ public def macroScopes : Nat -> Nat := id
 
 public inductive Foo
 deriving Repr
+
+public theorem usesAxioms : True := .intro
 EOF
 
 lake build
@@ -67,4 +69,9 @@ test_unchanged
 
 # Lint warnings (persisted in `lintLogExt`) do not matter.
 perl -p -i -e 's/def privd : Nat := 0/def privd : Nat := let unusedLintVar := 0; 0/' Rebuild/Basic.lean
+test_unchanged
+
+# Axioms used in proofs do not matter.
+perl -p -i -e 's/usesAxioms : True := .intro/usesAxioms : True := Classical.choice ⟨.intro⟩/' Rebuild/Basic.lean
+grep -q 'usesAxioms : True := Classical.choice' Rebuild/Basic.lean
 test_unchanged

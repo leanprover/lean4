@@ -2409,7 +2409,8 @@ private def ImportedModule.irData? (self : ImportedModule) (loadIRSig : Bool := 
     -- leanir/in-process codegen: prefer the leaner `.ir.sig` (signatures + opaque stubs, matching the
     -- `.olean` view) for runtime-only modules; `import all` and any module needing comptime (`meta`)
     -- IR require the full `.ir`, which retains the comptime/private declarations the interpreter needs.
-    if (!loadIRSig && !loadCodegenIR) || self.importAll || self.irPhases != .runtime then
+    -- A module loaded without its `.olean` uses its `.ir` as `mainModule?` and must do so here too.
+    if (!loadIRSig && !loadCodegenIR) || self.importAll || self.irPhases != .runtime || !self.hasData then
       self.irParts.back?.map (·.1)
     else
       let sig? := self.irParts[0]?.map (·.1)

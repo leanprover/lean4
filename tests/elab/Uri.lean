@@ -25,7 +25,7 @@ def testShouldEscape :=
   let should_quote := String.join [controls,
                       "#%[]",
                       (Char.ofNat 127).toString] -- for 0x7F
-  assert! should_quote.data.all (λ c =>
+  assert! should_quote.toList.all (λ c =>
     let x := (escapeUri c.toString)
     x.length == 3 && x.take 1 == "%".toSlice)
   true

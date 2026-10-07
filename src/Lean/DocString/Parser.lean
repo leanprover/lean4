@@ -8,6 +8,7 @@ prelude
 public import Lean.DocString.Syntax
 import Init.While
 import Init.Data.Range.Polymorphic.Iterators
+import Init.Data.String.Csimp
 
 set_option linter.missingDocs true
 

@@ -120,9 +120,9 @@ def checkExpr (ty : IRType) (e : Expr) : M Unit := do
   | .ctor c ys =>
     if c.cidx > maxCtorTag && c.isRef then
       throwCheckerError s!"tag for constructor '{c.name}' is too big, this is a limitation of the current runtime"
-    if !c.size < maxCtorFields then
+    if c.size > maxCtorFields then
       throwCheckerError s!"constructor '{c.name}' has too many fields"
-    if !c.ssize + c.usize * usizeSize < maxCtorScalarsSize then
+    if c.ssize + c.usize * usizeSize > maxCtorScalarsSize then
       throwCheckerError s!"constructor '{c.name}' has too many scalar fields"
     if c.isRef then
       checkObjType ty

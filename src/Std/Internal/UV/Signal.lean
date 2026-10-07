@@ -62,9 +62,11 @@ This function has different behavior depending on the state and configuration of
     signal `signum` is received.
   - it is running, check whether the last returned `IO.Promise` is already resolved:
      - If it is, return a new `IO.Promise` that resolves upon receiving the next signal, or that is
-       already resolved if a signal arrived while no promise was pending
+       already resolved if signals arrived while no promise was pending. Those signals are reported
+       once, however many arrived.
      - If it is not, return the last `IO.Promise`
-     This ensures that the returned `IO.Promise` resolves at the next occurrence of the signal.
+     This ensures that the returned `IO.Promise` resolves for a signal that no earlier promise
+     reported.
   - if it is finished, return a new `IO.Promise` that is never resolved, as `stop` dropped the last
     one.
 

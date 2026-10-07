@@ -47,7 +47,8 @@ If:
 - `s` is not yet running start it and return an `Async` computation that will complete once the previously
    configured `duration` has elapsed.
 - `s` is already running, or finished after completing, return the same
-  `Async` computation as the first call to `wait`.
+  `Async` computation as the last call to `wait`. A select that checks `s` before it completes
+  restarts it, and the computations from earlier calls then fail.
 - `s` was stopped with `stop` before completing, return an `Async` computation that fails.
 -/
 @[inline]
@@ -77,7 +78,8 @@ def stop (s : Sleep) : IO Unit :=
 
 /--
 Create a `Selector` that resolves once `s` has finished. `s` only starts when it runs inside of a
-Selectable, and a select that it loses cancels it, so the next select starts it again from `duration`.
+Selectable. Every select or `Selectable.tryOne` that checks `s` before it has finished starts it again
+from `duration`, so a `Sleep` that is checked more often than `duration` never finishes.
 -/
 def selector (s : Sleep) : Selector Unit :=
   {

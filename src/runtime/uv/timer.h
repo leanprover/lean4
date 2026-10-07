@@ -36,9 +36,11 @@ typedef struct {
     uv_timer_state  m_state;       // The state of the timer.
 } lean_uv_timer_object;
 
-// `m_promise` may be NULL in any state: `stop` leaves a FINISHED timer without one, and `cancel` on
-// a repeating timer leaves it RUNNING without one. A repeating timer also keeps its last promise
-// after resolving it, until `next` replaces it.
+// `m_promise` may be NULL in any state: `stop` leaves a FINISHED timer without one, and a tick or
+// `cancel` leaves a repeating timer RUNNING without one.
+//
+// The event loop holds a reference to the timer object exactly while it is RUNNING with a non-NULL
+// `m_promise`.
 
 // =======================================
 // Timer object manipulation functions.

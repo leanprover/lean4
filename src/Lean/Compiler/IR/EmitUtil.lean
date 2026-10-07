@@ -17,7 +17,7 @@ namespace Lean.IR
 /-- Return true iff `b` is of the form `let x := g ys; ret x` -/
 def isTailCallTo (g : Name) (b : FnBody) : Bool :=
   match b with
-  | FnBody.vdecl x _ (Expr.fap f _) (FnBody.ret (.var y)) => x == y && f == g
+  | FnBody.fap x (FnBody.ret (.var y)) _ f _ => x == y && f == g
   | _  => false
 
 def usesModuleFrom (env : Environment) (modulePrefix : Name) : Bool :=
@@ -40,11 +40,8 @@ abbrev M := ReaderT Environment (StateM State)
       { set, order }
 
 partial def collectFnBody : FnBody → M Unit
-  | .vdecl _ _ v b   =>
-    match v with
-    | .fap f _ => collect f *> collectFnBody b
-    | .pap f _ => collect f *> collectFnBody b
-    | _        => collectFnBody b
+  | .fap _ b _ f _   => collect f *> collectFnBody b
+  | .pap _ b f _   => collect f *> collectFnBody b
   | .jdecl _ _ v b   => collectFnBody v *> collectFnBody b
   | .case _ _ _ alts => alts.forM fun alt => collectFnBody alt.body
   | e => do unless e.isTerminal do collectFnBody e.body
@@ -83,10 +80,15 @@ def collectParams (ps : Array Param) : Collector :=
 
 /-- `collectFnBody` assumes the variables in -/
 partial def collectFnBody : FnBody → Collector
-  | .vdecl x t _ b    => collectVar x t ∘ collectFnBody b
   | .jdecl j xs v b   => collectJP j xs ∘ collectParams xs ∘ collectFnBody v ∘ collectFnBody b
   | .case _ _ _ alts  => fun s => alts.foldl (fun s alt => collectFnBody alt.body s) s
-  | e                 => if e.isTerminal then id else collectFnBody e.body
+  | e                 =>
+    if e.isVarDecl then
+      let x := e.targetVar
+      let t := e.targetType
+      let b := e.body
+      collectVar x t ∘ collectFnBody b
+    else if e.isTerminal then id else collectFnBody e.body
 
 def collectDecl : Decl → Collector
   | .fdecl (xs := xs) (body := b) .. => collectParams xs ∘ collectFnBody b

@@ -2127,7 +2127,7 @@ return v_r_652_;
 LEAN_EXPORT uint8_t l_Std_Http_Header_TransferEncoding_Validate(lean_object* v_codings_657_){
 _start:
 {
-uint8_t v___y_659_; uint8_t v___y_660_; lean_object* v___y_661_; lean_object* v___y_662_; uint8_t v___y_669_; uint8_t v___y_670_; lean_object* v___y_671_; uint8_t v___y_681_; lean_object* v___x_694_; lean_object* v___x_695_; uint8_t v___x_696_; 
+uint8_t v___y_659_; lean_object* v___y_660_; uint8_t v___y_661_; lean_object* v___y_662_; uint8_t v___y_669_; uint8_t v___y_670_; lean_object* v___y_671_; uint8_t v___y_681_; lean_object* v___x_694_; lean_object* v___x_695_; uint8_t v___x_696_; 
 v___x_694_ = lean_array_get_size(v_codings_657_);
 v___x_695_ = lean_unsigned_to_nat(0u);
 v___x_696_ = lean_nat_dec_eq(v___x_694_, v___x_695_);
@@ -2175,16 +2175,16 @@ v___jp_658_:
 {
 lean_object* v___x_663_; uint8_t v___x_664_; 
 v___x_663_ = lean_unsigned_to_nat(1u);
-v___x_664_ = lean_nat_dec_lt(v___x_663_, v___y_661_);
+v___x_664_ = lean_nat_dec_lt(v___x_663_, v___y_660_);
 if (v___x_664_ == 0)
 {
 uint8_t v___x_665_; 
-v___x_665_ = lean_nat_dec_eq(v___y_661_, v___x_663_);
-lean_dec(v___y_661_);
+v___x_665_ = lean_nat_dec_eq(v___y_660_, v___x_663_);
+lean_dec(v___y_660_);
 if (v___x_665_ == 0)
 {
 lean_dec(v___y_662_);
-return v___y_660_;
+return v___y_661_;
 }
 else
 {
@@ -2198,14 +2198,14 @@ return v___x_664_;
 }
 else
 {
-return v___y_660_;
+return v___y_661_;
 }
 }
 }
 else
 {
 lean_dec(v___y_662_);
-lean_dec(v___y_661_);
+lean_dec(v___y_660_);
 return v___y_659_;
 }
 }
@@ -2224,8 +2224,8 @@ lean_object* v___x_677_;
 lean_dec(v___x_675_);
 v___x_677_ = lean_box(0);
 v___y_659_ = v___y_669_;
-v___y_660_ = v___y_670_;
-v___y_661_ = v_chunkedCount_672_;
+v___y_660_ = v_chunkedCount_672_;
+v___y_661_ = v___y_670_;
 v___y_662_ = v___x_677_;
 goto v___jp_658_;
 }
@@ -2238,8 +2238,8 @@ lean_inc(v___x_678_);
 v___x_679_ = lean_alloc_ctor(1, 1, 0);
 lean_ctor_set(v___x_679_, 0, v___x_678_);
 v___y_659_ = v___y_669_;
-v___y_660_ = v___y_670_;
-v___y_661_ = v_chunkedCount_672_;
+v___y_660_ = v_chunkedCount_672_;
+v___y_661_ = v___y_670_;
 v___y_662_ = v___x_679_;
 goto v___jp_658_;
 }

@@ -60,7 +60,6 @@ namespace lean {
 namespace ir {
 // C++ wrappers of Lean data types
 
-typedef object_ref lit_val;
 typedef object_ref ctor_info;
 
 type to_type(object * obj) {
@@ -72,11 +71,6 @@ type cnstr_get_type(object_ref const & o, unsigned i) { return to_type(cnstr_get
 bool arg_is_irrelevant(arg const & a) { return is_scalar(a.raw()); }
 var_id const & arg_var_id(arg const & a) { lean_assert(!arg_is_irrelevant(a)); return cnstr_get_ref_t<var_id>(a, 0); }
 
-enum class lit_val_kind { Num, Str };
-lit_val_kind lit_val_tag(lit_val const & l) { return static_cast<lit_val_kind>(cnstr_tag(l.raw())); }
-nat const & lit_val_num(lit_val const & l) { lean_assert(lit_val_tag(l) == lit_val_kind::Num); return cnstr_get_ref_t<nat>(l, 0); }
-string_ref const & lit_val_str(lit_val const & l) { lean_assert(lit_val_tag(l) == lit_val_kind::Str); return cnstr_get_ref_t<string_ref>(l, 0); }
-
 nat const & ctor_info_tag(ctor_info const & c) { return cnstr_get_ref_t<nat>(c, 1); }
 nat const & ctor_info_size(ctor_info const & c) { return cnstr_get_ref_t<nat>(c, 2); }
 nat const & ctor_info_usize(ctor_info const & c) { return cnstr_get_ref_t<nat>(c, 3); }
@@ -87,35 +81,49 @@ static inline bool get_bool_field(object * o, unsigned num_obj_fields) {
     return cnstr_get_uint8(o, sizeof(void*)*num_obj_fields);
 }
 
-enum class expr_kind { Ctor, Reset, Reuse, Proj, UProj, SProj, FAp, PAp, Ap, Box, Unbox, Lit, IsShared, IsTaggedPtr };
+enum class fn_body_kind {
+    Ctor, Reset, Reuse, Proj, UProj, SProj, FAp, PAp, Ap, Box, Unbox,
+    U8Lit, U16Lit, U32Lit, U64Lit, USizeLit, NatLit, StrLit, IsShared,
+    JDecl, Set, SetTag, USet, SSet, Inc, Dec, Del, Case, Ret, Jmp, Unreachable
+};
+typedef fn_body_kind expr_kind;
+
 expr_kind expr_tag(expr const & e) { return static_cast<expr_kind>(cnstr_tag(e.raw())); }
-ctor_info const & expr_ctor_info(expr const & e) { lean_assert(expr_tag(e) == expr_kind::Ctor); return cnstr_get_ref_t<ctor_info>(e, 0); }
-array_ref<arg> const & expr_ctor_args(expr const & e) { lean_assert(expr_tag(e) == expr_kind::Ctor); return cnstr_get_ref_t<array_ref<arg>>(e, 1); }
-nat const & expr_reset_num_objs(expr const & e) { lean_assert(expr_tag(e) == expr_kind::Reset); return cnstr_get_ref_t<nat>(e, 0); }
-var_id const & expr_reset_obj(expr const & e) { lean_assert(expr_tag(e) == expr_kind::Reset); return cnstr_get_ref_t<var_id>(e, 1); }
-var_id const & expr_reuse_obj(expr const & e) { lean_assert(expr_tag(e) == expr_kind::Reuse); return cnstr_get_ref_t<var_id>(e, 0); }
-ctor_info const & expr_reuse_ctor(expr const & e) { lean_assert(expr_tag(e) == expr_kind::Reuse); return cnstr_get_ref_t<ctor_info>(e, 1); }
-bool expr_reuse_update_header(expr const & e) { lean_assert(expr_tag(e) == expr_kind::Reuse); return get_bool_field(e.raw(), 3); }
-array_ref<arg> const & expr_reuse_args(expr const & e) { lean_assert(expr_tag(e) == expr_kind::Reuse); return cnstr_get_ref_t<array_ref<arg>>(e, 2); }
-nat const & expr_proj_idx(expr const & e) { lean_assert(expr_tag(e) == expr_kind::Proj); return cnstr_get_ref_t<nat>(e, 0); }
-var_id const & expr_proj_obj(expr const & e) { lean_assert(expr_tag(e) == expr_kind::Proj); return cnstr_get_ref_t<var_id>(e, 1); }
-nat const & expr_uproj_idx(expr const & e) { lean_assert(expr_tag(e) == expr_kind::UProj); return cnstr_get_ref_t<nat>(e, 0); }
-var_id const & expr_uproj_obj(expr const & e) { lean_assert(expr_tag(e) == expr_kind::UProj); return cnstr_get_ref_t<var_id>(e, 1); }
-nat const & expr_sproj_idx(expr const & e) { lean_assert(expr_tag(e) == expr_kind::SProj); return cnstr_get_ref_t<nat>(e, 0); }
-nat const & expr_sproj_offset(expr const & e) { lean_assert(expr_tag(e) == expr_kind::SProj); return cnstr_get_ref_t<nat>(e, 1); }
-var_id const & expr_sproj_obj(expr const & e) { lean_assert(expr_tag(e) == expr_kind::SProj); return cnstr_get_ref_t<var_id>(e, 2); }
-fun_id const & expr_fap_fun(expr const & e) { lean_assert(expr_tag(e) == expr_kind::FAp); return cnstr_get_ref_t<fun_id>(e, 0); }
-array_ref<arg> const & expr_fap_args(expr const & e) { lean_assert(expr_tag(e) == expr_kind::FAp); return cnstr_get_ref_t<array_ref<arg>>(e, 1); }
-fun_id const & expr_pap_fun(expr const & e) { lean_assert(expr_tag(e) == expr_kind::PAp); return cnstr_get_ref_t<name>(e, 0); }
-array_ref<arg> const & expr_pap_args(expr const & e) { lean_assert(expr_tag(e) == expr_kind::PAp); return cnstr_get_ref_t<array_ref<arg>>(e, 1); }
-var_id const & expr_ap_fun(expr const & e) { lean_assert(expr_tag(e) == expr_kind::Ap); return cnstr_get_ref_t<var_id>(e, 0); }
-array_ref<arg> const & expr_ap_args(expr const & e) { lean_assert(expr_tag(e) == expr_kind::Ap); return cnstr_get_ref_t<array_ref<arg>>(e, 1); }
-type expr_box_type(expr const & e) { lean_assert(expr_tag(e) == expr_kind::Box); return cnstr_get_type(e, 0); }
-var_id const & expr_box_obj(expr const & e) { lean_assert(expr_tag(e) == expr_kind::Box); return cnstr_get_ref_t<var_id>(e, 1); }
-var_id const & expr_unbox_obj(expr const & e) { lean_assert(expr_tag(e) == expr_kind::Unbox); return cnstr_get_ref_t<var_id>(e, 0); }
-lit_val const & expr_lit_val(expr const & e) { lean_assert(expr_tag(e) == expr_kind::Lit); return cnstr_get_ref_t<lit_val>(e, 0); }
-var_id const & expr_is_shared_obj(expr const & e) { lean_assert(expr_tag(e) == expr_kind::IsShared); return cnstr_get_ref_t<var_id>(e, 0); }
-var_id const & expr_is_tagged_ptr_obj(expr const & e) { lean_assert(expr_tag(e) == expr_kind::IsTaggedPtr); return cnstr_get_ref_t<var_id>(e, 0); }
+ctor_info const & expr_ctor_info(expr const & e) { lean_assert(expr_tag(e) == expr_kind::Ctor); return cnstr_get_ref_t<ctor_info>(e, 2); }
+array_ref<arg> const & expr_ctor_args(expr const & e) { lean_assert(expr_tag(e) == expr_kind::Ctor); return cnstr_get_ref_t<array_ref<arg>>(e, 3); }
+nat const & expr_reset_num_objs(expr const & e) { lean_assert(expr_tag(e) == expr_kind::Reset); return cnstr_get_ref_t<nat>(e, 2); }
+var_id const & expr_reset_obj(expr const & e) { lean_assert(expr_tag(e) == expr_kind::Reset); return cnstr_get_ref_t<var_id>(e, 3); }
+var_id const & expr_reuse_obj(expr const & e) { lean_assert(expr_tag(e) == expr_kind::Reuse); return cnstr_get_ref_t<var_id>(e, 2); }
+ctor_info const & expr_reuse_ctor(expr const & e) { lean_assert(expr_tag(e) == expr_kind::Reuse); return cnstr_get_ref_t<ctor_info>(e, 3); }
+bool expr_reuse_update_header(expr const & e) { lean_assert(expr_tag(e) == expr_kind::Reuse); return get_bool_field(e.raw(), 5); }
+array_ref<arg> const & expr_reuse_args(expr const & e) { lean_assert(expr_tag(e) == expr_kind::Reuse); return cnstr_get_ref_t<array_ref<arg>>(e, 4); }
+nat const & expr_proj_idx(expr const & e) { lean_assert(expr_tag(e) == expr_kind::Proj); return cnstr_get_ref_t<nat>(e, 2); }
+var_id const & expr_proj_obj(expr const & e) { lean_assert(expr_tag(e) == expr_kind::Proj); return cnstr_get_ref_t<var_id>(e, 3); }
+nat const & expr_uproj_idx(expr const & e) { lean_assert(expr_tag(e) == expr_kind::UProj); return cnstr_get_ref_t<nat>(e, 2); }
+var_id const & expr_uproj_obj(expr const & e) { lean_assert(expr_tag(e) == expr_kind::UProj); return cnstr_get_ref_t<var_id>(e, 3); }
+type expr_sproj_type(expr const & e) { lean_assert(expr_tag(e) == expr_kind::SProj); return cnstr_get_type(e, 2); }
+nat const & expr_sproj_idx(expr const & e) { lean_assert(expr_tag(e) == expr_kind::SProj); return cnstr_get_ref_t<nat>(e, 3); }
+nat const & expr_sproj_offset(expr const & e) { lean_assert(expr_tag(e) == expr_kind::SProj); return cnstr_get_ref_t<nat>(e, 4); }
+var_id const & expr_sproj_obj(expr const & e) { lean_assert(expr_tag(e) == expr_kind::SProj); return cnstr_get_ref_t<var_id>(e, 5); }
+type expr_fap_type(expr const & e) { lean_assert(expr_tag(e) == expr_kind::FAp); return cnstr_get_type(e, 2); }
+fun_id const & expr_fap_fun(expr const & e) { lean_assert(expr_tag(e) == expr_kind::FAp); return cnstr_get_ref_t<fun_id>(e, 3); }
+array_ref<arg> const & expr_fap_args(expr const & e) { lean_assert(expr_tag(e) == expr_kind::FAp); return cnstr_get_ref_t<array_ref<arg>>(e, 4); }
+fun_id const & expr_pap_fun(expr const & e) { lean_assert(expr_tag(e) == expr_kind::PAp); return cnstr_get_ref_t<name>(e, 2); }
+array_ref<arg> const & expr_pap_args(expr const & e) { lean_assert(expr_tag(e) == expr_kind::PAp); return cnstr_get_ref_t<array_ref<arg>>(e, 3); }
+var_id const & expr_ap_fun(expr const & e) { lean_assert(expr_tag(e) == expr_kind::Ap); return cnstr_get_ref_t<var_id>(e, 2); }
+array_ref<arg> const & expr_ap_args(expr const & e) { lean_assert(expr_tag(e) == expr_kind::Ap); return cnstr_get_ref_t<array_ref<arg>>(e, 3); }
+type expr_box_type(expr const & e) { lean_assert(expr_tag(e) == expr_kind::Box); return cnstr_get_type(e, 2); }
+var_id const & expr_box_obj(expr const & e) { lean_assert(expr_tag(e) == expr_kind::Box); return cnstr_get_ref_t<var_id>(e, 3); }
+type expr_unbox_type(expr const & e) { lean_assert(expr_tag(e) == expr_kind::Unbox); return cnstr_get_type(e, 2); }
+var_id const & expr_unbox_obj(expr const & e) { lean_assert(expr_tag(e) == expr_kind::Unbox); return cnstr_get_ref_t<var_id>(e, 3); }
+uint8 expr_uint8_lit_val(expr const & e) { lean_assert(expr_tag(e) == expr_kind::U8Lit); return cnstr_get_uint8(e.raw(), 2*sizeof(object*)); }
+uint16 expr_uint16_lit_val(expr const & e) { lean_assert(expr_tag(e) == expr_kind::U16Lit); return cnstr_get_uint16(e.raw(), 2*sizeof(object*)); }
+uint32 expr_uint32_lit_val(expr const & e) { lean_assert(expr_tag(e) == expr_kind::U32Lit); return cnstr_get_uint32(e.raw(), 2*sizeof(object*)); }
+uint64 expr_uint64_lit_val(expr const & e) { lean_assert(expr_tag(e) == expr_kind::U64Lit); return cnstr_get_uint64(e.raw(), 2*sizeof(object*)); }
+uint64 expr_usize_lit_val(expr const & e) { lean_assert(expr_tag(e) == expr_kind::USizeLit); return cnstr_get_uint64(e.raw(), 2*sizeof(object*)); }
+nat const & expr_nat_lit_val(expr const & e) { lean_assert(expr_tag(e) == expr_kind::NatLit); return cnstr_get_ref_t<nat>(e, 2); }
+string_ref const & expr_str_lit_val(expr const & e) { lean_assert(expr_tag(e) == expr_kind::StrLit); return cnstr_get_ref_t<string_ref>(e, 2); }
+var_id const & expr_is_shared_obj(expr const & e) { lean_assert(expr_tag(e) == expr_kind::IsShared); return cnstr_get_ref_t<var_id>(e, 2); }
 
 typedef object_ref param;
 var_id const & param_var(param const & p) { return cnstr_get_ref_t<var_id>(p, 0); }
@@ -129,12 +137,9 @@ ctor_info const & alt_core_ctor_info(alt_core const & a) { lean_assert(alt_core_
 fn_body const & alt_core_ctor_cont(alt_core const & a) { lean_assert(alt_core_tag(a) == alt_core_kind::Ctor); return cnstr_get_ref_t<fn_body>(a, 1); }
 fn_body const & alt_core_default_cont(alt_core const & a) { lean_assert(alt_core_tag(a) == alt_core_kind::Default); return cnstr_get_ref_t<fn_body>(a, 0); }
 
-enum class fn_body_kind { VDecl, JDecl, Set, SetTag, USet, SSet, Inc, Dec, Del, Case, Ret, Jmp, Unreachable };
 fn_body_kind fn_body_tag(fn_body const & a) { return is_scalar(a.raw()) ? static_cast<fn_body_kind>(unbox(a.raw())) : static_cast<fn_body_kind>(cnstr_tag(a.raw())); }
 var_id const & fn_body_vdecl_var(fn_body const & b) { lean_assert(fn_body_tag(b) == fn_body_kind::VDecl); return cnstr_get_ref_t<var_id>(b, 0); }
-type fn_body_vdecl_type(fn_body const & b) { lean_assert(fn_body_tag(b) == fn_body_kind::VDecl); return cnstr_get_type(b, 1); }
-expr const & fn_body_vdecl_expr(fn_body const & b) { lean_assert(fn_body_tag(b) == fn_body_kind::VDecl); return cnstr_get_ref_t<expr>(b, 2); }
-fn_body const & fn_body_vdecl_cont(fn_body const & b) { lean_assert(fn_body_tag(b) == fn_body_kind::VDecl); return cnstr_get_ref_t<fn_body>(b, 3); }
+fn_body const & fn_body_vdecl_cont(fn_body const & b) { lean_assert(fn_body_tag(b) == fn_body_kind::VDecl); return cnstr_get_ref_t<fn_body>(b, 1); }
 jp_id const & fn_body_jdecl_id(fn_body const & b) { lean_assert(fn_body_tag(b) == fn_body_kind::JDecl); return cnstr_get_ref_t<jp_id>(b, 0); }
 array_ref<param> const & fn_body_jdecl_params(fn_body const & b) { lean_assert(fn_body_tag(b) == fn_body_kind::JDecl); return cnstr_get_ref_t<array_ref<param>>(b, 1); }
 fn_body const & fn_body_jdecl_body(fn_body const & b) { lean_assert(fn_body_tag(b) == fn_body_kind::JDecl); return cnstr_get_ref_t<fn_body>(b, 2); }
@@ -487,7 +492,7 @@ private:
         return cls;
     }
 
-    value eval_expr(expr const & e, type t) {
+    value eval_expr(expr const & e) {
         switch (expr_tag(e)) {
             case expr_kind::Ctor:
                 return value { alloc_ctor(expr_ctor_info(e), expr_ctor_args(e)) };
@@ -528,7 +533,7 @@ private:
                 size_t offset = expr_sproj_idx(e).get_small_value() * sizeof(void *) +
                                 expr_sproj_offset(e).get_small_value();
                 object * o = var(expr_sproj_obj(e)).m_obj;
-                switch (t) {
+                switch (expr_sproj_type(e)) {
                     case type::Float: return value::from_float(cnstr_get_float(o, offset));
                     case type::Float32: return value::from_float32(cnstr_get_float32(o, offset));
                     case type::UInt8: return cnstr_get_uint8(o, offset);
@@ -552,7 +557,7 @@ private:
                     return call(expr_fap_fun(e), expr_fap_args(e));
                 } else {
                     // nullary function ("constant")
-                    return load(expr_fap_fun(e), t);
+                    return load(expr_fap_fun(e), expr_fap_type(e));
                 }
             }
             case expr_kind::PAp: { // unsatured (partial) application of top-level function
@@ -584,47 +589,25 @@ private:
             case expr_kind::Box: // box unboxed value
                 return box_t(var(expr_box_obj(e)).m_num, expr_box_type(e));
             case expr_kind::Unbox: // unbox boxed value
-                return unbox_t(var(expr_unbox_obj(e)).m_obj, t);
-            case expr_kind::Lit: // load numeric or string literal
-                switch (lit_val_tag(expr_lit_val(e))) {
-                    case lit_val_kind::Num: {
-                        nat const & n = lit_val_num(expr_lit_val(e));
-                        switch (t) {
-                            case type::Float:
-                                lean_inc(n.raw());
-                                return value::from_float(lean_float_of_nat(n.raw()));
-                            case type::Float32:
-                                lean_inc(n.raw());
-                                return value::from_float32(lean_float32_of_nat(n.raw()));
-                            case type::UInt8:
-                            case type::UInt16:
-                            case type::UInt32:
-                            case type::USize:
-                                return lean_usize_of_nat(n.raw());
-                            case type::UInt64:
-                                return lean_uint64_of_nat(n.raw());
-                            // `nat` literal
-                            case type::Object:
-                            case type::Tagged:
-                            case type::TObject:
-                                return n.to_obj_arg();
-                            case type::Irrelevant:
-                            case type::Void:
-                                break;
-                            case type::Union:
-                            case type::Struct:
-                                break;
-                        }
-                        throw exception("invalid instruction");
-                    }
-                    case lit_val_kind::Str:
-                        return lit_val_str(expr_lit_val(e)).to_obj_arg();
-                }
-                break;
+                return unbox_t(var(expr_unbox_obj(e)).m_obj, expr_unbox_type(e));
+            case expr_kind::U8Lit: // load numeric or string literal
+                return expr_uint8_lit_val(e);
+            case expr_kind::U16Lit: // load numeric or string literal
+                return expr_uint16_lit_val(e);
+            case expr_kind::U32Lit: // load numeric or string literal
+                return expr_uint32_lit_val(e);
+            case expr_kind::U64Lit: // load numeric or string literal
+                return expr_uint64_lit_val(e);
+            case expr_kind::USizeLit: // load numeric or string literal
+                return (size_t) expr_usize_lit_val(e);
+            case expr_kind::NatLit: // load numeric or string literal
+                return expr_nat_lit_val(e).to_obj_arg();
+            case expr_kind::StrLit: // load numeric or string literal
+                return expr_str_lit_val(e).to_obj_arg();
             case expr_kind::IsShared:
                 return !is_exclusive(var(expr_is_shared_obj(e)).m_obj);
-            case expr_kind::IsTaggedPtr:
-                return !is_scalar(var(expr_is_tagged_ptr_obj(e)).m_obj);
+            default:
+                lean_unreachable();
         }
         throw exception(sstream() << "unexpected instruction kind " << static_cast<unsigned>(expr_tag(e)));
     }
@@ -652,41 +635,6 @@ private:
             DEBUG_CODE(lean_trace(*g_interpreter_step,
                                   tout() << std::string(m_call_stack.size(), ' ') << format_fn_body_head(b) << "\n";);)
             switch (fn_body_tag(b)) {
-                case fn_body_kind::VDecl: { // variable declaration
-                    expr const & e = fn_body_vdecl_expr(b);
-                    fn_body const & cont = fn_body_vdecl_cont(b);
-                    // tail recursion?
-                    if (expr_tag(e) == expr_kind::FAp && expr_fap_fun(e) == get_frame().m_fn &&
-                        fn_body_tag(cont) == fn_body_kind::Ret && !arg_is_irrelevant(fn_body_ret_arg(cont)) &&
-                        arg_var_id(fn_body_ret_arg(cont)) == fn_body_vdecl_var(b)) {
-                        // tail recursion! copy argument values to parameter slots and reset `b`
-                        array_ref<arg> const & args = expr_fap_args(e);
-                        // argument and parameter slots may overlap, so first copy arguments to end of stack
-                        size_t old_size = m_arg_stack.size();
-                        for (const auto & arg : args) {
-                            m_arg_stack.push_back(eval_arg(arg));
-                        }
-                        // now copy to parameter slots
-                        for (size_t i = 0; i < args.size(); i++) {
-                            m_arg_stack[get_frame().m_arg_bp + i] = m_arg_stack[old_size + i];
-                        }
-                        m_arg_stack.resize(old_size);
-                        b = b0;
-                        check_system();
-                        break;
-                    }
-                    value v = eval_expr(fn_body_vdecl_expr(b), fn_body_vdecl_type(b));
-                    // NOTE: `var` must be called *after* `eval_expr` because the stack may get resized and invalidate
-                    // the pointer
-                    var(fn_body_vdecl_var(b)) = v;
-                    DEBUG_CODE(lean_trace(*g_interpreter_step,
-                                          tout() << std::string(m_call_stack.size(), ' ') << "=> x_";
-                                          tout() << fn_body_vdecl_var(b).get_small_value() << " = ";
-                                          print_value(tout(), var(fn_body_vdecl_var(b)), fn_body_vdecl_type(b));
-                                          tout() << "\n";);)
-                    b = fn_body_vdecl_cont(b);
-                    break;
-                }
                 case fn_body_kind::JDecl: { // join-point declaration; store in stack slot just like variables
                     get_jp(fn_body_jdecl_id(b)) = &b.get();
                     b = fn_body_jdecl_cont(b);
@@ -793,6 +741,42 @@ private:
                 }
                 case fn_body_kind::Unreachable:
                     throw exception("unreachable code");
+                default: { // variable declaration
+                    expr const & e = b;
+                    fn_body const & cont = fn_body_vdecl_cont(b);
+                    // tail recursion?
+                    if (expr_tag(e) == expr_kind::FAp && expr_fap_fun(e) == get_frame().m_fn &&
+                        fn_body_tag(cont) == fn_body_kind::Ret && !arg_is_irrelevant(fn_body_ret_arg(cont)) &&
+                        arg_var_id(fn_body_ret_arg(cont)) == fn_body_vdecl_var(b)) {
+                        // tail recursion! copy argument values to parameter slots and reset `b`
+                        array_ref<arg> const & args = expr_fap_args(e);
+                        // argument and parameter slots may overlap, so first copy arguments to end of stack
+                        size_t old_size = m_arg_stack.size();
+                        for (const auto & arg : args) {
+                            m_arg_stack.push_back(eval_arg(arg));
+                        }
+                        // now copy to parameter slots
+                        for (size_t i = 0; i < args.size(); i++) {
+                            m_arg_stack[get_frame().m_arg_bp + i] = m_arg_stack[old_size + i];
+                        }
+                        m_arg_stack.resize(old_size);
+                        b = b0;
+                        check_system();
+                        break;
+                    }
+                    value v = eval_expr(b);
+                    // NOTE: `var` must be called *after* `eval_expr` because the stack may get resized and invalidate
+                    // the pointer
+                    var(fn_body_vdecl_var(b)) = v;
+                    DEBUG_CODE(lean_trace(*g_interpreter_step,
+                                          tout() << std::string(m_call_stack.size(), ' ') << "=> x_";
+                                          tout() << fn_body_vdecl_var(b).get_small_value() << " = ";
+                                          print_value(tout(), var(fn_body_vdecl_var(b)), fn_body_vdecl_type(b));
+                                          tout() << "\n";);)
+                    b = fn_body_vdecl_cont(b);
+                    break;
+                }
+
             }
         }
     }

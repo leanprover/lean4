@@ -6101,8 +6101,8 @@ if (v___x_2223_ == 0)
 {
 lean_object* v___x_2224_; 
 lean_inc(v_toPure_2216_);
-lean_dec_ref_known(v_x_2213_, 4);
 lean_dec(v_toBind_2215_);
+lean_dec_ref_known(v_x_2213_, 4);
 lean_dec_ref(v_inst_2212_);
 lean_dec_ref(v_inst_2211_);
 lean_dec_ref(v_inst_2210_);
@@ -6620,8 +6620,8 @@ if (v___x_2481_ == 0)
 {
 lean_object* v___x_2482_; 
 lean_dec_ref(v_toMonadRef_2475_);
-lean_dec(v_toBind_2473_);
 lean_dec_ref_known(v_stx_2470_, 4);
+lean_dec(v_toBind_2473_);
 lean_dec(v_k_2471_);
 v___x_2482_ = lean_apply_2(v_toPure_2474_, lean_box(0), v_pre_2480_);
 return v___x_2482_;

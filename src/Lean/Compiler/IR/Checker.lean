@@ -104,20 +104,16 @@ def checkPartialApp (c : FunId) (ys : Array Arg) : M Unit := do
     throwCheckerError s!"too many arguments to partial application '{c}', num. args: {ys.size}, arity: {decl.params.size}"
   checkArgs ys
 
-def checkExpr (ty : IRType) (e : Expr) : M Unit := do
+def checkExpr (e : FnBody) : M Unit := do
   match e with
-  | .pap f ys =>
+  | .pap _ _ f ys =>
     checkPartialApp f ys
-    -- Partial applications should always produce a closure object.
-    checkObjType ty
-  | .ap x ys =>
+  | .ap _ _ x ys =>
     checkObjVar x
     checkArgs ys
-    -- Applications of closures should always produce a boxed value.
-    checkObjType ty
-  | .fap f ys =>
+  | .fap _ _ _ f ys =>
     checkFullApp f ys
-  | .ctor c ys =>
+  | .ctor _ _ c ys =>
     if c.cidx > maxCtorTag && c.isRef then
       throwCheckerError s!"tag for constructor '{c.name}' is too big, this is a limitation of the current runtime"
     if !c.size < maxCtorFields then
@@ -125,23 +121,19 @@ def checkExpr (ty : IRType) (e : Expr) : M Unit := do
     if !c.ssize + c.usize * usizeSize < maxCtorScalarsSize then
       throwCheckerError s!"constructor '{c.name}' has too many scalar fields"
     if c.isRef then
-      checkObjType ty
       checkArgs ys
-  | .reset _ x =>
+  | .reset _ _ _ x =>
     checkObjVar x
-    checkObjType ty
-  | .reuse x _ _ ys =>
+  | .reuse x _ _ _ _ ys =>
     checkObjVar x
     checkArgs ys
-    checkObjType ty
-  | .box xty x =>
-    checkObjType ty
+  | .box _ _ xty x =>
     checkScalarVar x
     checkVarType x (· == xty)
-  | .unbox x =>
+  | .unbox _ _ ty x =>
     checkScalarType ty
     checkObjVar x
-  | .proj i x =>
+  | .proj _ _ i x =>
     let xType ← getType x;
     /-
     Projections are a valid operation on `tobject`. Thus they should also
@@ -150,26 +142,22 @@ def checkExpr (ty : IRType) (e : Expr) : M Unit := do
     -/
     match xType with
     | .object | .tobject =>
-      checkObjType ty
+      pure ()
     | .struct _ tys | .union _ tys =>
-      if h : i < tys.size then
-        checkEqTypes (tys[i]) ty
+      if i < tys.size then
+        pure ()
       else
         throwCheckerError "invalid proj index"
     | .tagged => pure ()
     | _ => throwCheckerError s!"unexpected IR type '{xType}'"
-  | .uproj _ x =>
+  | .uproj _ _ _ x =>
     checkObjVar x
-    checkType ty (· == .usize)
-  | .sproj _ _ x =>
+  | .sproj _ _ ty _ _ x =>
     checkObjVar x
     checkScalarType ty
-  | .isShared x =>
+  | .isShared _ _ x =>
     checkObjVar x
-    checkType ty (· == .uint8)
-  | .lit (LitVal.str _) =>
-    checkObjType ty
-  | .lit _ => pure ()
+  | _ => pure ()
 
 @[inline] def withParams (ps : Array Param) (k : M Unit) : M Unit := do
   let ctx ← read
@@ -180,10 +168,6 @@ def checkExpr (ty : IRType) (e : Expr) : M Unit := do
 
 partial def checkFnBody (fnBody : FnBody) : M Unit := do
   match fnBody with
-  | .vdecl x t v b    => do
-    checkExpr t v
-    markVar x
-    withReader (fun ctx => { ctx with localCtx := ctx.localCtx.addLocal x t v }) (checkFnBody b)
   | .jdecl j ys v b => do
     markJP j
     withParams ys (checkFnBody v)
@@ -221,6 +205,13 @@ partial def checkFnBody (fnBody : FnBody) : M Unit := do
     checkVar x
     alts.forM (checkFnBody ·.body)
   | .unreachable => pure ()
+  | v =>
+    let x := v.targetVar
+    let t := v.targetType
+    let b := v.body
+    checkExpr v
+    markVar x
+    withReader (fun ctx => { ctx with localCtx := ctx.localCtx.addLocal x t v }) (checkFnBody b)
 
 def checkDecl : Decl → M Unit
   | .fdecl (xs := xs) (body := b) .. => withParams xs (checkFnBody b)

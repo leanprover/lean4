@@ -27,8 +27,8 @@ trace: [Compiler.IR] [result]
     def test2._closed_0 : obj :=
       let x_1 : u8 := 0;
       let x_2 : u8 := 1;
-      let x_3 : tobj := box x_2;
-      let x_4 : tobj := box x_1;
+      let x_3 : tagged := box x_2;
+      let x_4 : tagged := box x_1;
       let x_5 : obj := ctor_0[TwoThingies.mk] x_3 x_4;
       ret x_5
     def test2 : obj :=

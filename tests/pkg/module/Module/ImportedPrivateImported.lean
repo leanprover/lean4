@@ -9,9 +9,9 @@ public import Module.PrivateImported
 #guard_msgs in
 #check f
 
-/-- info: 5 -/
-#guard_msgs in
-#eval publicDefOfPrivatelyInitialized
+/-! The `#eval` of `publicDefOfPrivatelyInitialized` (which needs the IR at comptime) lives in
+`MetaImportedPrivateImported.lean`, since a plain `public import` does not load IR under separate
+codegen. -/
 
 /-! #12833: namespaces privately imported but publicly used must be re-exported. -/
 open Namespaced
@@ -30,5 +30,7 @@ trace: [Compiler.result] size: 1
       return res
 -/
 #guard_msgs in
+-- compile in-process so the `Compiler.result` trace fires here rather than in `leanir`
+set_option compiler.postponeCompile false in
 set_option trace.Compiler.result true in
 def mkSwpift2 (n : UInt8) : StructWithPrivImportedFieldType := mkSwpift n

@@ -87,7 +87,7 @@ public def instantiateS  (e : Expr) (subst : Array Expr) : SymM Expr :=
   liftBuilderM <| instantiateS' e subst
 
 /-- Internal variant of `betaRevS` that runs in `AlphaShareBuilderM`. -/
-private partial def betaRevS' (f : Expr) (revArgs : Array Expr) : AlphaShareBuilderM Expr :=
+partial def betaRevS' (f : Expr) (revArgs : Array Expr) : AlphaShareBuilderM Expr :=
   if revArgs.size == 0 then
     return f
   else

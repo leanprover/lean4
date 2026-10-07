@@ -26,7 +26,7 @@ action performs equivalent steps internally, but they are not recorded in the re
 script. This function applies the interactive `intros` and `by_contra` steps, and returns
 them so they can be included in the script suggested by `finish?`.
 -/
-private def symInit (goal : Goal) : GrindM (List TGrind × Goal) := do
+def symInit (goal : Goal) : GrindM (List TGrind × Goal) := do
   let mut seq : List TGrind := []
   let mut goal := goal
   -- Introduce hypotheses, if any

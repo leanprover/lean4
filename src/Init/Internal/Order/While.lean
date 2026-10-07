@@ -26,7 +26,7 @@ Unfolding `repeatM`/`Lean.Loop.forIn` requires importing this module.
 variable {α : Type u} {m : Type u → Type v} [Monad m]
 
 /-- `repeatM.body f` is monotone in its `recur` argument whenever `m` admits `MonadTail`. -/
-private theorem repeatM.body_monotone_of_monadTail [Lean.Order.MonadTail m] [Nonempty β]
+theorem repeatM.body_monotone_of_monadTail [Lean.Order.MonadTail m] [Nonempty β]
     (f : α → m (α ⊕ β)) :
     Lean.Order.monotone (repeatM.body f) :=
   fun _ _ h _ => Lean.Order.MonadTail.bind_mono_right fun

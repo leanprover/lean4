@@ -14,7 +14,7 @@ import Lean.Meta.Tactic.Simp.Main
 
 open Lean Meta Simp
 
-private def reduceMethod (opName : String) (e : Expr) : SimpM Simp.Step := do
+def reduceMethod (opName : String) (e : Expr) : SimpM Simp.Step := do
   let xs := e.getAppArgsN 3
   let inst := xs[0]!
   let lhs := xs[1]!

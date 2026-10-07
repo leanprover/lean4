@@ -215,7 +215,7 @@ Builds the cast `h.substr a : p₁` for `h : p₁ = p₂` and `a : p₂`. It rep
 
 Remark: `h` is not a maximally shared term.
 -/
-private def mkPropDomainCastS (p₁ p₂ h a : Expr) : SymM Expr := do
+def mkPropDomainCastS (p₁ p₂ h a : Expr) : SymM Expr := do
   let prop ← mkSortS 0
   let h ← shareCommon h
   mkAppS₆ (← mkConstS ``Eq.substr [1]) prop (← mkLambdaS `x .default prop (← mkBVarS 0)) p₂ p₁ h a

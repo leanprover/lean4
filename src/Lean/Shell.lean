@@ -191,13 +191,13 @@ inductive ShellComponent
 | watchdog
 | worker
 
-private builtin_initialize maxMemory : Lean.Option Nat ←
+builtin_initialize maxMemory : Lean.Option Nat ←
   Lean.Option.register `max_memory {defValue := Internal.getDefaultMaxMemory ()}
 
-private builtin_initialize timeout : Lean.Option Nat ←
+builtin_initialize timeout : Lean.Option Nat ←
   Lean.Option.register `timeout {defValue := Internal.getDefaultMaxHeartbeat ()}
 
-private builtin_initialize verbose : Lean.Option Bool ←
+builtin_initialize verbose : Lean.Option Bool ←
   Lean.Option.register `verbose {defValue := Internal.getDefaultVerbose ()}
 
 /-- Returns any option overrides Lean was built with (i.e., those set in `stdlib_flags.h`). -/

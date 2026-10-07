@@ -461,7 +461,7 @@ open Lean.Parser in
 private def atomOf (s : String) : Lean.Parser.Parser :=
   tokenWithAntiquot {
     fn := rawFn (trailingWs := true) fun c st =>
-      let chars := s.toList.foldl (init := (fun _ st => st : ParserFn))
+      let chars := s.foldl (init := (fun _ st => st : ParserFn))
         fun p ch => p >> satisfyFn (· == ch) ch.toString
       let st' := chars c st
       -- The characters are read one at a time, so a failure names the one that did not match. The

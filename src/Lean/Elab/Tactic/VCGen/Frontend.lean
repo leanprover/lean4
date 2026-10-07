@@ -38,7 +38,7 @@ resulting invariants and VCs.
 -/
 
 /-- A local helper for running config elaborators in TermElabM. -/
-private def runTacticM (x : TacticM α) (goals : List MVarId := [])  : TermElabM α :=
+def runTacticM (x : TacticM α) (goals : List MVarId := [])  : TermElabM α :=
   x.run { elaborator := `mvcgen } |>.run' { goals }
 
 
@@ -152,7 +152,7 @@ public def mkContext (lemmas : Syntax) (goal : MVarId) (ignoreStarArg := false) 
 rather than a deep-embedding program type with a bespoke `WP`. The `Pred`/`EPosts` `outParam`s are left
 as metavariables for instance search to fill; instance search runs at default transparency, while the
 caller reduces types at reducible transparency. -/
-private def isWPMonad (m : Expr) : MetaM Bool := withDefault do
+def isWPMonad (m : Expr) : MetaM Bool := withDefault do
   try return (← synthInstanceOpt? ``Std.WP.WPMonad #[some m]).isSome
   catch _ => return false
 
@@ -185,7 +185,7 @@ public def inferProgType? (goalType : Expr) : MetaM (Option Expr) := withReducib
 ignored at runtime. As more options gain implementation support, drop their checks
 here. Options with implemented semantics (`elimLets`, `stepLimit`, `invariants?`) are silently
 accepted. -/
-private def warnIgnoredConfig (config : Do.VCGen.Config) : MetaM Unit := do
+def warnIgnoredConfig (config : Do.VCGen.Config) : MetaM Unit := do
   let default : Do.VCGen.Config := {}
   if config.leave != default.leave then
     logWarning "vcgen: the `leave` config option is currently ignored."
@@ -197,7 +197,7 @@ Build `Sym.Simp.Methods` from a variant name and extra theorems.
 Supports the anonymous (default) variant. Named variants require a public
 `elabSimpMethods` API in `Lean.Elab.Tactic.Grind.Sym` (see TODO below).
 -/
-private def elabSymSimpParts
+def elabSymSimpParts
     (variantId? : Option (TSyntax `ident))
     (extraIds? : Option (Array (TSyntax `ident)))
     : MetaM Sym.Simp.Methods := do
@@ -231,7 +231,7 @@ private def elabSymSimpParts
     post := post >> thms.rewrite
   return { pre, post }
 
-private def elabSimplifyingAssumptions (simpClause : Syntax) : MetaM (Option Sym.Simp.Methods) := do
+def elabSimplifyingAssumptions (simpClause : Syntax) : MetaM (Option Sym.Simp.Methods) := do
   if simpClause.getNumArgs == 0 then return none
   let variantId? := if simpClause[1].getNumArgs != 0 then some ⟨simpClause[1][0]⟩ else none
   let extraIds? := if simpClause[2].getNumArgs != 0
@@ -249,7 +249,7 @@ alternatives like `invariants`. Returns `none` when no `invariants` clause is pr
 mixed bullet/labelled forms (one or the other is enforced by the `dotOrCase` flag in the upstream
 elaborator; we replicate that check here).
 -/
-private def parseInvariantMap (stx : Syntax) :
+def parseInvariantMap (stx : Syntax) :
     TermElabM (Option (Std.HashMap Nat Syntax)) := do
   let some altsStx := stx.getOptional? | return none
   match altsStx with
@@ -295,7 +295,7 @@ position (which equals the `inv<n>` tag the entry carries — `run` assigns
 tags consecutively), and elaborate the matching alt. Invariants that were already
 elaborated inline by `Driver.emitVC` (tracked in `inlineHandled`) are skipped, so
 we don't warn about alts that were already consumed there. -/
-private def elabRemainingInvariants (alts : Std.HashMap Nat Syntax)
+def elabRemainingInvariants (alts : Std.HashMap Nat Syntax)
     (invariants : Array MVarId) (inlineHandled : Std.HashSet Nat) : SymM Unit := do
   let mut handled := inlineHandled
   for h : i in 0...invariants.size do
@@ -310,7 +310,7 @@ private def elabRemainingInvariants (alts : Std.HashMap Nat Syntax)
       logWarningAt alt s!"Invariant alternative `inv{n}` does not match any invariant goal."
 
 /-- Parsed `vcgen` arguments shared by the two entry points. -/
-private structure ParsedArgs where
+structure ParsedArgs where
   config : Do.VCGen.Config
   ctx : Context
   scope : Scope
@@ -320,7 +320,7 @@ private structure ParsedArgs where
 /-- Build a `Sym.Pattern` from `e` by abstracting the metavariables `xs` into pattern variables.
 `checkTypeMask?` is `none` because `until` holes appear as function arguments, whose types the
 enclosing application already constrains. -/
-private def mkUntilPattern (xs : Array Expr) (e : Expr) : MetaM Sym.Pattern := do
+def mkUntilPattern (xs : Array Expr) (e : Expr) : MetaM Sym.Pattern := do
   let pattern := e.abstract xs
   let mut varTypes := #[]
   for h : i in [0:xs.size] do
@@ -335,7 +335,7 @@ private def mkUntilPattern (xs : Array Expr) (e : Expr) : MetaM Sym.Pattern := d
 /-- Run a program-pattern elaboration in the goal context: ignore type-class failures, disable `sorry`
 elaboration, and restore the meta state afterwards while keeping info trees so hovers work on the
 pattern. Shared by `elabUntilPattern` and `elabFrameDB`. -/
-private def withPatternElab (k : TermElabM α) : TermElabM α :=
+def withPatternElab (k : TermElabM α) : TermElabM α :=
   Term.withoutModifyingElabMetaStateWithInfo <|
   withTheReader Term.Context ({ · with ignoreTCFailures := true }) <|
   Term.withoutErrToSorry k
@@ -343,7 +343,7 @@ private def withPatternElab (k : TermElabM α) : TermElabM α :=
 /-- Elaborate a program pattern term `p` against the program monad `m` (expected type `m _`, so
 overloaded heads resolve), returning its pattern variables (the collected metavariables: holes and
 synthetic holes) and the resulting `Sym.Pattern`. -/
-private def elabProgPattern (progTy : Expr) (p : Term) : TermElabM (Array Expr × Sym.Pattern) := do
+def elabProgPattern (progTy : Expr) (p : Term) : TermElabM (Array Expr × Sym.Pattern) := do
   -- A monad `m : Type → Type` expects the program at `m _` so its overloaded head resolves; a
   -- deep-embedding program type is already saturated and is used directly.
   let expectedTy ← if (← inferType progTy).isArrow
@@ -354,7 +354,7 @@ private def elabProgPattern (progTy : Expr) (p : Term) : TermElabM (Array Expr �
 
 /-- Build an `until` pattern (holes `_` allowed, as in `conv in $t`) against the goal program type
 `progTy` as expected type, so overloaded heads resolve. The holes become pattern variables. -/
-private def elabUntilPattern (progTy : Expr) (p : Term) : TermElabM Sym.Pattern :=
+def elabUntilPattern (progTy : Expr) (p : Term) : TermElabM Sym.Pattern :=
   withPatternElab <| withRef p do
     return (← elabProgPattern progTy p).2
 
@@ -362,7 +362,7 @@ private def elabUntilPattern (progTy : Expr) (p : Term) : TermElabM Sym.Pattern 
 alternative's program pattern (a head applied to binder/`_` arguments) is elaborated at `progTy`; a
 named binder `x` becomes a synthetic hole `?x` so its name can be recovered and bound to the matched
 argument when the frame term is elaborated in `solve`. -/
-private def elabFrameDB (progTy : Expr) (alts : Array Syntax) : TermElabM FrameDB :=
+def elabFrameDB (progTy : Expr) (alts : Array Syntax) : TermElabM FrameDB :=
   withPatternElab do
     let mut tree : DiscrTree Nat := .empty
     let mut entries : Array FrameEntry := #[]
@@ -387,7 +387,7 @@ private def elabFrameDB (progTy : Expr) (alts : Array Syntax) : TermElabM FrameD
     return { tree, entries }
 
 /-- Parse `vcgen` arguments. -/
-private def parseArgs (stx : Syntax) (goal : MVarId) : TermElabM ParsedArgs := goal.withContext do
+def parseArgs (stx : Syntax) (goal : MVarId) : TermElabM ParsedArgs := goal.withContext do
   unless experimental.vcgen.get (← getOptions) do
     logWarningAt stx "The `vcgen` tactic is an experimental drop-in replacement for `mvcgen` \
       that will eventually replace it; `set_option experimental.vcgen true` acknowledges its \
@@ -444,7 +444,7 @@ def evalSymVCGen : Lean.Elab.Tactic.Grind.GrindTactic := fun stx => do
 `vcgen`'s internalised E-graph; the `vcgenDischarge` category's `tactic` alternative is a catch-all
 that exists only so a non-`grind` step is reported here with a helpful error rather than a raw
 `expected grind` parser error. -/
-private def elabVCGenDischarge (w? : Option (TSyntax `vcgenDischarge)) :
+def elabVCGenDischarge (w? : Option (TSyntax `vcgenDischarge)) :
     TacticM (Option (TSyntax `grind)) :=
   match w? with
   | none   => return none

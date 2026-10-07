@@ -64,7 +64,7 @@ public def headReduceFstRhs? (goal : MVarId) (target α inst pre rhs : Expr) :
 implication `(F ⇨ Q) s⃗`, rewriting `goal` and returning it with its new RHS, so it decomposes through
 the clean pointwise `⇨` split instead of generic point-framing. Returns `none` if the RHS is not a
 meet upper adjoint. -/
-private def refoldHimpUpperAdjoint? (goal : MVarId) (rhs : Expr) :
+def refoldHimpUpperAdjoint? (goal : MVarId) (rhs : Expr) :
     VCGenM (Option (MVarId × Expr)) :=
   rhs.withApp fun head args => do
     unless head.isConstOf ``Lean.Order.PreservesSup.upperAdjoint do return none

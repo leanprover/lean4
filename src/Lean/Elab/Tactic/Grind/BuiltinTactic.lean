@@ -454,7 +454,7 @@ public def renameInaccessibles (mvarId : MVarId) (hs : TSyntaxArray ``binderIden
 Searches `goals` for one whose case tag matches `tag`, using the same heuristic as the
 standard `case` tactic: prefer an exact match, then a suffix match, then a prefix match.
 -/
-private def findGrindTag? (goals : List Goal) (tag : Name) : GrindTacticM (Option Goal) := do
+def findGrindTag? (goals : List Goal) (tag : Name) : GrindTacticM (Option Goal) := do
   let byName (p : Name → Name → Bool) : GrindTacticM (Option Goal) :=
     goals.findM? fun g => return p tag (← g.mvarId.getDecl).userName.eraseMacroScopes
   if let some g ← byName (· == ·) then return some g
@@ -465,7 +465,7 @@ private def findGrindTag? (goals : List Goal) (tag : Name) : GrindTacticM (Optio
 Returns the goal selected by the case tag `tag` together with the remaining goals.
 If `tag` is a hole (`_`), the main goal is selected.
 -/
-private def getCaseGoal (tag : TSyntax ``binderIdent) : GrindTacticM (Goal × List Goal) := do
+def getCaseGoal (tag : TSyntax ``binderIdent) : GrindTacticM (Goal × List Goal) := do
   let gs ← getUnsolvedGoals
   if let `(binderIdent| $tagId:ident) := tag then
     let tagId := tagId.getId.eraseMacroScopes

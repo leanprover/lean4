@@ -168,7 +168,7 @@ where
 Returns `true` if `e` is already `True` in the `grind` core.
 Recall that `e` may be an auxiliary term created for a term `e'` (see `cnstrsMapInv`).
 -/
-private def isAlreadyTrue (e : Expr) : OrderM Bool := do
+def isAlreadyTrue (e : Expr) : OrderM Bool := do
   if let some (e', _) := (← get').termMapInv.find? { expr := e } then
     alreadyInternalized e' <&&> isEqTrue e'
   else
@@ -190,7 +190,7 @@ def checkEqTrue (u v : NodeId) (k : Weight) (c : Cnstr NodeId) (e : Expr) : Orde
 Returns `true` if `e` is already `False` in the `grind` core.
 Recall that `e` may be an auxiliary term created for a term `e'` (see `cnstrsMapInv`).
 -/
-private def isAlreadyFalse (e : Expr) : OrderM Bool := do
+def isAlreadyFalse (e : Expr) : OrderM Bool := do
   if let some (e', _) := (← get').termMapInv.find? { expr := e } then
     alreadyInternalized e' <&&> isEqFalse e'
   else

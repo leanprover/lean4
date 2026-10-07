@@ -99,7 +99,7 @@ structure Field where
 
 open Syntax Elab Command
 
-private def mkConfigFields
+def mkConfigFields
   (tyName : Name) (infos : NameMap ConfigFieldInfo) (fs : Array DeclField)
 : CommandElabM (TSyntax ``Term.structInstFields) := do
   let mut m := mkNameMap Field

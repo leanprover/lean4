@@ -235,7 +235,7 @@ abbrev SymM := ReaderT Context <| StateRefT State MetaM
 Auxiliary function for implementing `unfoldReducible` and `unfoldReducibleSimproc`.
 Performs a single step.
 -/
-public def unfoldReducibleStep (e : Expr) : MetaM TransformStep := do
+def unfoldReducibleStep (e : Expr) : MetaM TransformStep := do
   let .const declName _ := e.getAppFn | return .continue
   unless isUnfoldReducibleCandidate (← getEnv) declName do return .continue
   let some v ← unfoldDefinition? e | return .continue
@@ -253,7 +253,7 @@ def isUnfoldReducibleTarget (e : Expr) : CoreM Bool := do
 Unfolds all `reducible` declarations occurring in `e`.
 This is meant as a preprocessing step. It does **not** guarantee maximally shared terms
 -/
-public def unfoldReducible (e : Expr) : MetaM Expr := do
+def unfoldReducible (e : Expr) : MetaM Expr := do
   if !(← isUnfoldReducibleTarget e) then return e
   Meta.transform e (pre := unfoldReducibleStep)
 
@@ -262,7 +262,7 @@ Converts nested `Expr.proj`s into projection applications if possible.
 The structural simplifier and pattern matcher do not handle kernel projection
 terms; this preprocessing step folds them into projection function applications.
 -/
-public def foldProjs (e : Expr) : MetaM Expr := do
+def foldProjs (e : Expr) : MetaM Expr := do
   if Option.isNone <| e.find? fun e => e.isProj then return e
   let post (e : Expr) := do
     let .proj structName idx s := e | return .done e

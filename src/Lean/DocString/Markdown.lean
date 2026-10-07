@@ -34,7 +34,7 @@ plain Markdown, such as in the language server.
 public abbrev MarkdownM := StateRefT MarkdownM.State CoreM
 
 /-- Records a footnote and its rendered body. Internal to the renderer. -/
-private def MarkdownM.addFootnote (name body : String) : MarkdownM Unit :=
+def MarkdownM.addFootnote (name body : String) : MarkdownM Unit :=
   modify fun s => { s with footnotes := s.footnotes.push (name, body) }
 
 namespace MarkdownM
@@ -503,7 +503,7 @@ public structure MdRendererState where
   current : NameMap Name := {}
   deriving Inhabited
 
-private def foldEntries (init : NameMap Name) (es : Array (Array (Name × Name))) : NameMap Name :=
+def foldEntries (init : NameMap Name) (es : Array (Array (Name × Name))) : NameMap Name :=
   es.foldl (init := init) fun m arr =>
     arr.foldl (init := m) fun m (tag, w) =>
       m.insert tag w
@@ -542,7 +542,7 @@ public def addBuiltinInlineMdRenderer (type : Name) (r : InlineMdRenderer) : IO 
 public def addBuiltinBlockMdRenderer (type : Name) (r : BlockMdRenderer) : IO Unit :=
   builtinBlockMdRenderers.modify (·.insert type r)
 
-private unsafe def inlineRendererForUnsafe (type : Name) : CoreM (Option InlineMdRenderer) := do
+unsafe def inlineRendererForUnsafe (type : Name) : CoreM (Option InlineMdRenderer) := do
   let s := docInlineMdExt.getState (← getEnv)
   match s.current.find? type <|> s.imported.find? type with
   | some d => return some (← evalConst InlineMdRenderer d)
@@ -552,7 +552,7 @@ private unsafe def inlineRendererForUnsafe (type : Name) : CoreM (Option InlineM
 @[implemented_by inlineRendererForUnsafe]
 public opaque inlineRendererFor (typeName : Name) : CoreM (Option InlineMdRenderer)
 
-private unsafe def blockRendererForUnsafe (typeName : Name) : CoreM (Option BlockMdRenderer) := do
+unsafe def blockRendererForUnsafe (typeName : Name) : CoreM (Option BlockMdRenderer) := do
   let s := docBlockMdExt.getState (← getEnv)
   match s.current.find? typeName <|> s.imported.find? typeName with
   | some d => return some (← evalConst BlockMdRenderer d)

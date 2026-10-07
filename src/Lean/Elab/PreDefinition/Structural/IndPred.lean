@@ -44,7 +44,7 @@ def replaceIndPredRecApp (recArgInfo : RecArgInfo) (ctx : RecursionContext) (fid
   return mkAppN recApp ys
 
 /-- Monad for inductive predicate recursion that accumulates matcher creation side-effects. -/
-private abbrev IndPredM := StateRefT (Array (MetaM Unit)) MetaM
+abbrev IndPredM := StateRefT (Array (MetaM Unit)) MetaM
 
 partial def replaceIndPredRecApps (recArgInfos : Array RecArgInfo) (positions : Positions)
     (params : Array Expr) (ctx : RecursionContext) (e : Expr) : IndPredM Expr := do

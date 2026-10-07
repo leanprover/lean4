@@ -11,7 +11,7 @@ import Lean.Meta.WHNF
 namespace Lean.Meta.Sym.DSimp
 
 /-- Turns the result of a `Sym.Reduce` step into a `dsimp` result. -/
-private def ofReduce? (r : Option Expr) : Result :=
+def ofReduce? (r : Option Expr) : Result :=
   match r with
   | none => .rfl
   | some e' => .step e'

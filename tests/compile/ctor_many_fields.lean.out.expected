@@ -98,6 +98,22 @@ flip unique: true
 literal: true
 shareCommon literal: true
 flip literal: true
+T508
+make: true
+flip shared: true
+original: true
+flip unique: true
+literal: true
+shareCommon literal: true
+flip literal: true
+T509
+make: true
+flip shared: true
+original: true
+flip unique: true
+literal: true
+shareCommon literal: true
+flip literal: true
 T700
 make: true
 flip shared: true

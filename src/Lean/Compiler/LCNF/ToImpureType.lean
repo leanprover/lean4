@@ -193,14 +193,14 @@ end CtorFieldInfo
 /--
 The index of the object field holding the next spill object. A constructor with too many object
 fields for one constructor object keeps the first `spillLinkIdx` of them and stores the others in a
-chain of spill objects, each of which but the last is laid out the same way.
+chain of spill objects, each of which holds the next `spillLinkIdx` of them.
 -/
 public def spillLinkIdx : Nat :=
   maxCtorFields - 2
 
 /-- The number of spill objects of a constructor with `numObjs` object fields. -/
 public def numSpillObjs (numObjs : Nat) : Nat :=
-  if numObjs < maxCtorFields then 0 else (numObjs - 2) / spillLinkIdx
+  if numObjs < maxCtorFields then 0 else (numObjs - 1) / spillLinkIdx
 
 /-- The constructor information of a spill object of constructor `ctorName` with `size` fields. -/
 public def spillCtorInfo (ctorName : Name) (size : Nat) : CtorInfo :=
@@ -265,12 +265,11 @@ where
           .pure <| .scalar 8 0 ImpureType.float
         | _ => unreachable!
         fields := fields.push ctorField
-      let depth := numSpillObjs nextIdx
-      if depth > 0 then
+      if numSpillObjs nextIdx > 0 then
         fields := fields.map fun
           | .object i type =>
-            let d := min (i / spillLinkIdx) depth
-            if d == 0 then .object i type else .spilled d (i - d * spillLinkIdx) type
+            let depth := i / spillLinkIdx
+            if depth == 0 then .object i type else .spilled depth (i % spillLinkIdx) type
           | field => field
         nextIdx := spillLinkIdx + 1
       let numObjs := nextIdx

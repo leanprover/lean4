@@ -173,6 +173,10 @@ big_structure S900 900
 big_inductive T254 254
 big_inductive T255 255
 big_inductive T256 256
+-- 254 fields in each of the constructor object and the spill object
+big_inductive T508 508
+-- one field in a second spill object
+big_inductive T509 509
 big_inductive T700 700
 
 unsafe def main : IO Unit := do
@@ -183,4 +187,6 @@ unsafe def main : IO Unit := do
   T254.test
   T255.test
   T256.test
+  T508.test
+  T509.test
   T700.test

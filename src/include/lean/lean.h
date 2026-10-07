@@ -124,6 +124,7 @@ void lean_notify_assert(const char * fileName, int line, const char * condition)
 #define LeanExternal    254
 #define LeanReserved    255
 
+// The number of object fields must be storable in `m_other:8`.
 #define LEAN_MAX_CTOR_FIELDS 255
 #define LEAN_MAX_CTOR_SCALARS_SIZE 1023
 

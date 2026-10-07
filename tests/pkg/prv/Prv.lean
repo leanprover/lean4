@@ -29,3 +29,26 @@ def m2 : Name "hello" := ⟨"hello"⟩
 /-- error: Unknown constant `Name.mk` -/
 #guard_msgs in
 def m3 : Name "hello" := Name.mk "hello"
+
+/-! Tactics that select a constructor do not apply an inaccessible private constructor either. -/
+
+/--
+error: Tactic `constructor` failed: constructor `Name.mk✝` is marked as private
+
+⊢ Name "hello"
+-/
+#guard_msgs in
+def m4 : Name "hello" := by constructor; exact "hello"
+
+/--
+error: Tactic `left` failed: constructor `Choice.fst✝` is marked as private
+
+⊢ Choice
+-/
+#guard_msgs in
+def m5 : Choice := by left; exact 0
+
+/-! `Mixed.hidden` is skipped, so `Mixed.shown` is the only constructor that matches. -/
+
+#guard_msgs in
+example : (by constructor; exact 0 : Mixed) = .shown 0 := rfl

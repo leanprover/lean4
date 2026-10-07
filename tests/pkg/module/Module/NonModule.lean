@@ -82,3 +82,13 @@ info: theorem f_exp_wfrec.induct_unfolding : ∀ (motive : Nat → Nat → Nat �
       ∀ (a a_1 : Nat), motive a a_1 (f_exp_wfrec a a_1)
 -/
 #guard_msgs(pass trace, all) in #print sig f_exp_wfrec.induct_unfolding
+
+/-! Tactics that select a constructor should not apply private constructors of imported modules. -/
+
+/--
+error: Tactic `constructor` failed: constructor `StructWithPrivateCtor.mk✝` is marked as private
+
+⊢ StructWithPrivateCtor
+-/
+#guard_msgs in
+example : StructWithPrivateCtor := by constructor; exact 1

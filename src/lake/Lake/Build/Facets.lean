@@ -89,6 +89,14 @@ public structure ModuleImportInfo where
 /-- **For internal use only.** Information about the imports of this module. -/
 builtin_facet importInfo : Module => ModuleImportInfo
 
+/--
+**For internal use only.**
+The part of `importInfo` needed to elaborate the module outside the language server. If the module
+postpones its code generation, this does not wait on the IR of its plain imports and only
+`directArts`, `trace`, and `transTrace` are valid.
+-/
+builtin_facet elabImportInfo : Module => ModuleImportInfo
+
 /-- Information useful to importers of a module. -/
 public structure ModuleExportInfo where
   /-- The trace of the module's source file. -/

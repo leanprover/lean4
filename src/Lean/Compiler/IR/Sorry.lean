@@ -36,7 +36,9 @@ where
       found g
     else match (← findDecl f) with
       | some (.fdecl (info := { sorryDep? := some g, .. }) ..) => found g
-      | _ => return ()
+      | _ =>
+        if let some g := findRecordedSorryDep? (← getEnv) f then
+          found g
 
 partial def visitFnBody (b : FnBody) : ExceptT Name M Unit := do
   match b with

@@ -515,9 +515,17 @@ included section variable '[ToString α]' is not used in 'ex', consider excludin
 ```
 In such cases, the offending variable declaration should be moved down or into a section so that
 only theorems that do depend on it follow it until the end of the section.
+
+(module system) A variable is either public or private. `public variable` and `private variable`
+select the visibility explicitly; otherwise variables are public inside a `public section` and
+private elsewhere. The binders of a public variable are elaborated in the public scope and thus
+cannot refer to private declarations or private variables. Private variables cannot become
+parameters of public declarations; in particular, private instance-implicit variables are not
+automatically included in public theorems. A binder annotation update such as `variable {α}`
+preserves the visibility of the updated variable.
 -/
 @[builtin_command_parser] def «variable»     := leading_parser
-  "variable" >> many1 (ppSpace >> checkColGt >> Term.bracketedBinder)
+  optional visibility >> "variable" >> many1 (ppSpace >> checkColGt >> Term.bracketedBinder)
 /-- Declares one or more universe variables.
 
 `universe u v`

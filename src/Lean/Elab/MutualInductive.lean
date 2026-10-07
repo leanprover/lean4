@@ -1175,6 +1175,8 @@ private def removeUnused (elabs : Array InductiveElabStep2) (vars : Array Expr) 
 
 private def withUsed {α} (elabs : Array InductiveElabStep2) (vars : Array Expr) (indTypes : List InductiveType) (k : Array Expr → TermElabM α) : TermElabM α := do
   let (lctx, localInsts, vars) ← removeUnused elabs vars indTypes
+  if let some indType := indTypes.find? (!isPrivateName ·.name) then
+    Term.ensureNoPrivateSectionVars indType.name vars
   withLCtx lctx localInsts <| k vars
 
 private def updateParams (vars : Array Expr) (indTypes : List InductiveType) : TermElabM (List InductiveType) :=

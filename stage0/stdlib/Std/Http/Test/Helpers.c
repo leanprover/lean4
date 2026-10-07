@@ -19186,10 +19186,10 @@ v___x_6207_ = ((lean_object*)(l_Std_Http_Internal_Test_uriHandler___redArg___clo
 v___x_6208_ = lean_string_append(v_scheme_6197_, v___x_6207_);
 v___x_6209_ = lean_string_append(v___x_6208_, v___y_6203_);
 lean_dec_ref(v___y_6203_);
-v___x_6210_ = lean_string_append(v___x_6209_, v___y_6204_);
-lean_dec_ref(v___y_6204_);
-v___x_6211_ = lean_string_append(v___x_6210_, v___y_6205_);
+v___x_6210_ = lean_string_append(v___x_6209_, v___y_6205_);
 lean_dec_ref(v___y_6205_);
+v___x_6211_ = lean_string_append(v___x_6210_, v___y_6204_);
+lean_dec_ref(v___y_6204_);
 v___x_6212_ = lean_string_append(v___x_6211_, v___y_6206_);
 lean_dec_ref(v___y_6206_);
 v___y_6170_ = v___x_6212_;
@@ -19204,8 +19204,8 @@ if (lean_obj_tag(v_fragment_6201_) == 0)
 lean_object* v___x_6217_; 
 v___x_6217_ = ((lean_object*)(l_panic___at___00Std_Http_Internal_Test_assertStatus_spec__0___closed__0));
 v___y_6203_ = v___y_6214_;
-v___y_6204_ = v___y_6215_;
-v___y_6205_ = v_queryPart_6216_;
+v___y_6204_ = v_queryPart_6216_;
+v___y_6205_ = v___y_6215_;
 v___y_6206_ = v___x_6217_;
 goto v___jp_6202_;
 }
@@ -19222,8 +19222,8 @@ v___x_6221_ = lean_string_from_utf8_unchecked(v___x_6220_);
 v___x_6222_ = lean_string_append(v___x_6219_, v___x_6221_);
 lean_dec_ref(v___x_6221_);
 v___y_6203_ = v___y_6214_;
-v___y_6204_ = v___y_6215_;
-v___y_6205_ = v_queryPart_6216_;
+v___y_6204_ = v_queryPart_6216_;
+v___y_6205_ = v___y_6215_;
 v___y_6206_ = v___x_6222_;
 goto v___jp_6202_;
 }

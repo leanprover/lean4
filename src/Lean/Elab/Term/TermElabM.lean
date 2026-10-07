@@ -337,6 +337,8 @@ structure Context where
   sectionVars        : NameMap Name    := {}
   /-- Map from internal name to fvar -/
   sectionFVars       : NameMap Expr    := {}
+  /-- (module system) The section variables that are private. -/
+  privateSectionFVars : FVarIdSet      := {}
   /-- Enable/disable implicit lambdas feature. -/
   implicitLambda     : Bool            := true
   /-- Heed `elab_as_elim` attribute. -/
@@ -1042,6 +1044,27 @@ def ensureNoUnassignedMVars (decl : Declaration) : TermElabM Unit := do
   let pendingMVarIds ← getMVarsAtDecl decl
   if (← logUnassignedUsingErrorInfos pendingMVarIds) then
     throwAbortCommand
+
+private def privateSectionVarHint : MessageData :=
+  .hint' "Use `public variable` to make a section variable available to public declarations."
+
+/--
+(module system) Throws an error if any of the section variables `vars`, which are about to become
+parameters of the public declaration `declName`, is private.
+-/
+def ensureNoPrivateSectionVars (declName : Name) (vars : Array Expr) : TermElabM Unit := do
+  let privateFVars := (← read).privateSectionFVars
+  if privateFVars.isEmpty then
+    return
+  for var in vars do
+    if var.isFVar && privateFVars.contains var.fvarId! then
+      let decl ← var.fvarId!.getDecl
+      let var := if decl.userName.hasMacroScopes && decl.binderInfo.isInstImplicit then
+        m!"[{decl.type}]"
+      else
+        m!"{var}"
+      throwError m!"Private section variable `{var}` cannot be a parameter of the public \
+        declaration `{.ofConstName declName}`" ++ privateSectionVarHint
 
 /--
   Execute `x` without allowing it to postpone elaboration tasks.
@@ -2199,6 +2222,9 @@ def throwInvalidExplicitUniversesForLocal {α} (e : Expr) : TermElabM α :=
 def resolveName (stx : Syntax) (n : Name) (preresolved : List Syntax.Preresolved) (explicitLevels : List Level) (expectedType? : Option Expr := none) : TermElabM (List (Expr × List String × List Level)) := do
   addCompletionInfo <| CompletionInfo.id stx stx.getId (danglingDot := false) (← getLCtx) expectedType?
   let processLocal (e : Expr) (projs : List String) := do
+    if e.isFVar && (← read).privateSectionFVars.contains e.fvarId! && (← getEnv).isExporting then
+      throwError m!"Private section variable `{e}` cannot be referenced in the public scope" ++
+        privateSectionVarHint
     if projs.isEmpty then
       if explicitLevels.isEmpty then
         return [(e, [], [])]

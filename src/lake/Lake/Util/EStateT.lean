@@ -93,7 +93,7 @@ equivalent to `ExceptT ε (StateT σ m)` but more efficient.
   σ → m (EResult ε σ α)
 
 namespace EStateT
-variable {ε ε' : Type u} {σ : Type v} {α β : Type w}
+public variable {ε ε' : Type u} {σ : Type v} {α β : Type w}
 
 /-- Construct an `EStateT` from its functional representation. -/
 @[always_inline, inline]

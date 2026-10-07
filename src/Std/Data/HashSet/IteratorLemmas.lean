@@ -17,7 +17,7 @@ import all Std.Data.DHashMap.Basic
 namespace Std.HashSet.Raw
 open Std.Iterators
 
-variable {α : Type u} {m : Raw α}
+public variable {α : Type u} {m : Raw α}
 
 @[simp]
 public theorem toList_iter [BEq α] [Hashable α] [EquivBEq α] [LawfulHashable α] (h : m.WF) :
@@ -40,7 +40,7 @@ end Std.HashSet.Raw
 namespace Std.HashSet
 open Std.Iterators
 
-variable {α : Type u} [BEq α] [Hashable α] {m : HashSet α}
+public variable {α : Type u} [BEq α] [Hashable α] {m : HashSet α}
 
 @[simp]
 public theorem toList_iter [EquivBEq α] [LawfulHashable α] :

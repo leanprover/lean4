@@ -14,7 +14,7 @@ open Std
 
 namespace Array
 
-variable [LE α] [LT α] [Ord α] [h : BEq α] [DecidableEq α] [DecidableLT α] [IsLinearOrder α]
+public variable [LE α] [LT α] [Ord α] [h : BEq α] [DecidableEq α] [DecidableLT α] [IsLinearOrder α]
   [LawfulOrderLT α] [LawfulOrderOrd α] [LawfulOrderBEq α]
 
 public instance : LawfulOrderOrd (Array α) where

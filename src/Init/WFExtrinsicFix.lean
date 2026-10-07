@@ -24,7 +24,7 @@ a proof of termination is impossible or inconvenient. Given a well-foundedness p
 theorem guaranteeing that it is equal to {lean}`WellFounded.fix`.
 -/
 
-variable {α : Sort _} {β : α → Sort _} {γ : (a : α) → β a → Sort _}
+public variable {α : Sort _} {β : α → Sort _} {γ : (a : α) → β a → Sort _}
   {C : α → Sort _} {C₂ : (a : α) → β a → Sort _} {C₃ : (a : α) → (b : β a) → γ a b → Sort _}
 
 set_option doc.verso true

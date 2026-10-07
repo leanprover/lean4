@@ -115,6 +115,10 @@ def elabAxiom (modifiers : Modifiers) (stx : Syntax) : CommandElabM Unit := do
       let xs ← Term.addAutoBoundImplicits xs (declId.getTailPos? (canonicalOnly := true))
       let type ← instantiateMVars type
       let type ← mkForallFVars xs type
+      unless isPrivateName declName do
+        let (_, used) ← type.collectFVars.run {}
+        let used ← used.addDependencies
+        Term.ensureNoPrivateSectionVars declName (vars.filter (used.fvarSet.contains ·.fvarId!))
       let type ← mkForallFVars vars type (usedOnly := true)
       let type ← Term.levelMVarToParam type
       let usedParams  := collectLevelParams {} type |>.params

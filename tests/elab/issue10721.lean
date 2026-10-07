@@ -1,6 +1,6 @@
 module
 
-variable (α  : Type)
+public variable (α  : Type)
 
 -- set_option debug.skipKernelTC true
 -- set_option pp.proofs true

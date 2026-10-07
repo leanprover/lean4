@@ -7854,8 +7854,8 @@ lean_object* v___x_2395_;
 v___x_2395_ = lean_string_append(v___x_2389_, v___y_2391_);
 v___y_2142_ = v___y_2391_;
 v___y_2143_ = v___y_2392_;
-v___y_2144_ = v___y_2394_;
-v___y_2145_ = v___y_2393_;
+v___y_2144_ = v___y_2393_;
+v___y_2145_ = v___y_2394_;
 v___y_2146_ = v___x_2395_;
 goto v___jp_2141_;
 }
@@ -7878,9 +7878,9 @@ v___x_2407_ = lean_nat_dec_le(v___x_2406_, v___x_2403_);
 if (v___x_2407_ == 0)
 {
 v___y_2391_ = v___x_2400_;
-v___y_2392_ = v___y_2398_;
+v___y_2392_ = v___y_2397_;
 v___y_2393_ = v_snd_2402_;
-v___y_2394_ = v___y_2397_;
+v___y_2394_ = v___y_2398_;
 goto v___jp_2390_;
 }
 else
@@ -7892,17 +7892,17 @@ lean_dec(v___x_2408_);
 if (v___x_2409_ == 0)
 {
 v___y_2391_ = v___x_2400_;
-v___y_2392_ = v___y_2398_;
+v___y_2392_ = v___y_2397_;
 v___y_2393_ = v_snd_2402_;
-v___y_2394_ = v___y_2397_;
+v___y_2394_ = v___y_2398_;
 goto v___jp_2390_;
 }
 else
 {
 v___y_2142_ = v___x_2400_;
-v___y_2143_ = v___y_2398_;
-v___y_2144_ = v___y_2397_;
-v___y_2145_ = v_snd_2402_;
+v___y_2143_ = v___y_2397_;
+v___y_2144_ = v_snd_2402_;
+v___y_2145_ = v___y_2398_;
 v___y_2146_ = v___x_2389_;
 goto v___jp_2141_;
 }
@@ -7911,9 +7911,9 @@ goto v___jp_2141_;
 else
 {
 v___y_2142_ = v___x_2400_;
-v___y_2143_ = v___y_2398_;
-v___y_2144_ = v___y_2397_;
-v___y_2145_ = v_snd_2402_;
+v___y_2143_ = v___y_2397_;
+v___y_2144_ = v_snd_2402_;
+v___y_2145_ = v___y_2398_;
 v___y_2146_ = v___x_2389_;
 goto v___jp_2141_;
 }
@@ -8410,18 +8410,18 @@ lean_ctor_set(v___x_2149_, 1, v___x_2147_);
 lean_ctor_set(v___x_2149_, 2, v___x_2148_);
 v___x_2150_ = lean_obj_once(&l___private_Lean_DocString_Formatter_0__Lean_Doc_Parser_versoSyntaxToString_x27___closed__0, &l___private_Lean_DocString_Formatter_0__Lean_Doc_Parser_versoSyntaxToString_x27___closed__0_once, _init_l___private_Lean_DocString_Formatter_0__Lean_Doc_Parser_versoSyntaxToString_x27___closed__0);
 v___x_2151_ = ((lean_object*)(l___private_Lean_DocString_Formatter_0__Lean_Doc_Parser_versoSyntaxToString_x27___closed__1));
-v___x_2152_ = l___private_Init_WFExtrinsicFix_0__WellFounded_opaqueFix_u2082___at___00__private_Lean_DocString_Formatter_0__Lean_Doc_Parser_versoSyntaxToString_x27_spec__11___redArg(v___y_2143_, v___y_2146_, v___x_2149_, v___x_2148_, v___x_2150_, v___x_2151_);
+v___x_2152_ = l___private_Init_WFExtrinsicFix_0__WellFounded_opaqueFix_u2082___at___00__private_Lean_DocString_Formatter_0__Lean_Doc_Parser_versoSyntaxToString_x27_spec__11___redArg(v___y_2145_, v___y_2146_, v___x_2149_, v___x_2148_, v___x_2150_, v___x_2151_);
 lean_dec_ref_known(v___x_2149_, 3);
 lean_dec_ref(v___y_2146_);
 v___x_2153_ = lean_array_to_list(v___x_2152_);
 v___x_2154_ = l_String_intercalate(v___y_2142_, v___x_2153_);
-v___x_2155_ = l___private_Lean_DocString_Formatter_0__Lean_Doc_Parser_out___redArg(v___x_2154_, v___y_2145_);
+v___x_2155_ = l___private_Lean_DocString_Formatter_0__Lean_Doc_Parser_out___redArg(v___x_2154_, v___y_2144_);
 lean_dec_ref(v___x_2154_);
 v_snd_2156_ = lean_ctor_get(v___x_2155_, 1);
 lean_inc(v_snd_2156_);
 lean_dec_ref(v___x_2155_);
-v___x_2157_ = l___private_Lean_DocString_Formatter_0__Lean_Doc_Parser_out___redArg(v___y_2144_, v_snd_2156_);
-lean_dec_ref(v___y_2144_);
+v___x_2157_ = l___private_Lean_DocString_Formatter_0__Lean_Doc_Parser_out___redArg(v___y_2143_, v_snd_2156_);
+lean_dec_ref(v___y_2143_);
 v_snd_2158_ = lean_ctor_get(v___x_2157_, 1);
 lean_inc(v_snd_2158_);
 lean_dec_ref(v___x_2157_);

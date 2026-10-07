@@ -1069,9 +1069,9 @@ v___jp_230_:
 lean_object* v___x_233_; lean_object* v___x_234_; uint8_t v___x_235_; 
 v___x_233_ = lean_obj_once(&l_Std_Time_TimeZone_TransitionSpec_toEpochDayMWD___closed__1, &l_Std_Time_TimeZone_TransitionSpec_toEpochDayMWD___closed__1_once, _init_l_Std_Time_TimeZone_TransitionSpec_toEpochDayMWD___closed__1);
 v___x_234_ = lean_int_mod(v_year_209_, v___x_233_);
-v___x_235_ = lean_int_dec_eq(v___x_234_, v___y_232_);
+v___x_235_ = lean_int_dec_eq(v___x_234_, v___y_231_);
 lean_dec(v___x_234_);
-v___y_224_ = v___y_231_;
+v___y_224_ = v___y_232_;
 v___y_225_ = v___x_235_;
 goto v___jp_223_;
 }
@@ -1101,8 +1101,8 @@ if (v___x_245_ == 0)
 {
 if (v___x_242_ == 0)
 {
-v___y_231_ = v_lastDay_238_;
-v___y_232_ = v___x_241_;
+v___y_231_ = v___x_241_;
+v___y_232_ = v_lastDay_238_;
 goto v___jp_230_;
 }
 else
@@ -1114,8 +1114,8 @@ goto v___jp_223_;
 }
 else
 {
-v___y_231_ = v_lastDay_238_;
-v___y_232_ = v___x_241_;
+v___y_231_ = v___x_241_;
+v___y_232_ = v_lastDay_238_;
 goto v___jp_230_;
 }
 }

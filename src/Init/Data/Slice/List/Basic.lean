@@ -37,7 +37,7 @@ the cost of creating a list slice is linear in the start position.
 -/
 public abbrev ListSlice (α : Type u) := Slice (Internal.ListSliceData α)
 
-variable {α : Type u}
+public variable {α : Type u}
 
 /--
 Returns a slice of a list with the given bounds.

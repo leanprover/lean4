@@ -59,6 +59,11 @@ structure Scope where
   that capture these variables.
   -/
   varUIds       : Array Name := #[]
+  /--
+  Section variable names (from `varUIds`) that are public in the sense of the module system. All
+  other section variables are private.
+  -/
+  publicVars    : NameSet := {}
   /-- `include`d section variable names (from `varUIds`) -/
   includedVars  : List Name := []
   /-- `omit`ted section variable names (from `varUIds`) -/

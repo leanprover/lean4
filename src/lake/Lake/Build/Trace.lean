@@ -66,7 +66,7 @@ public class MixTrace.{u} (α : Type u) where
 export MixTrace (mixTrace)
 
 section
-variable [MixTrace τ] [NilTrace τ]
+public variable [MixTrace τ] [NilTrace τ]
 
 /-- Combine a `List` of traces (left-to-right). -/
 public def mixTraceList (traces : List τ) : τ :=
@@ -76,7 +76,7 @@ public def mixTraceList (traces : List τ) : τ :=
 public def mixTraceArray (traces : Array τ) : τ :=
   traces.foldl mixTrace nilTrace
 
-variable [ComputeTrace α m τ]
+public variable [ComputeTrace α m τ]
 
 /-- Compute the trace of each element of a `List` and combine them (left-to-right). -/
 @[inline] public def computeListTrace [MonadLiftT m n] [Monad n] (as : List α) : n τ :=

@@ -67,11 +67,11 @@ public instance [MonadWorkspace m] [Functor m] : MonadLakeEnv m where
   read := (·.lakeEnv) <$> getWorkspace
 
 section
-variable [MonadWorkspace m]
+public variable [MonadWorkspace m]
 
 /-! ## Workspace Helpers -/
 
-variable [Functor m]
+public variable [Functor m]
 
 /-- Returns the root package of the context's workspace. -/
 @[inline] public def getRootPackage : m Package :=
@@ -209,7 +209,7 @@ public abbrev Package.isArtifactCacheEnabled [MonadWorkspace m] (self : Package)
 end
 
 section
-variable [MonadLakeEnv m]
+public variable [MonadLakeEnv m]
 
 /-! ## Environment Helpers -/
 
@@ -219,7 +219,7 @@ Gets the current Lake environment.
 @[inline] public def getLakeEnv : m Lake.Env :=
   read
 
-variable [Functor m]
+public variable [Functor m]
 
 /-- Returns the {lit}`LAKE_NO_CACHE`/{lit}`--no-cache` Lake configuration. -/
 @[inline] public def getNoCache [Functor m] [MonadBuild m] : m Bool :=

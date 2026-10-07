@@ -203,7 +203,7 @@ end InDyLean
 
 section MvcgenSetup
 
-variable [ExecTraceTypes] [ProofTraceTypes]
+public variable [ExecTraceTypes] [ProofTraceTypes]
 
 open Std.WP
 open Lean.Order
@@ -405,7 +405,7 @@ public meta def dyLeanFrameProc : FrameInferenceProc := fun i => do
   proc := dyLeanFrameProc
 end DyLeanFrameProc
 
-variable [ExecTraceTypes]
+public variable [ExecTraceTypes]
 
 -- DyLean has these functions
 axiom sendMessage (b: Bytes): Traceful Nat
@@ -418,7 +418,7 @@ axiom requireRandJustGenerated (b: Bytes): Traceful Unit
 axiom requireLabelPub (b: Bytes): Traceful Unit
 axiom requireLabelSecret (b: Bytes): Traceful Unit
 
-variable [ProofTraceTypes]
+public variable [ProofTraceTypes]
 
 @[spec]
 axiom receiveMessage.spec
@@ -494,7 +494,7 @@ end TestSetup
 
 section Test
 
-variable [ExecTraceTypes]
+public variable [ExecTraceTypes]
 
 noncomputable
 def testNoNeedToFrame (handle: Nat): Traceful Nat := do
@@ -642,7 +642,7 @@ def testBench40: Traceful Unit := do
 
 open Std.WP
 
-variable [ProofTraceTypes]
+public variable [ProofTraceTypes]
 
 @[grind .]
 theorem blah : Always' p ⊓ Always' q ⊑ Always' (fun tr => p tr ∧ q tr) := by

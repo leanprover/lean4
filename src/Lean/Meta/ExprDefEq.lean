@@ -8,6 +8,8 @@ prelude
 public import Lean.Meta.UnificationHint
 public import Lean.Util.OccursCheck
 import Lean.Meta.WHNF
+import Lean.Util.CollectMVars
+import Lean.Util.CollectLevelMVars
 public section
 namespace Lean.Meta
 
@@ -2118,7 +2120,7 @@ private partial def isDefEqQuickOther (t s : Expr) : MetaM LBool := do
           let cfg ← getConfig
           if cfg.isDefEqStuckEx then do
             trace[Meta.isDefEq.stuck] "{t} =?= {s}"
-            Meta.throwIsDefEqStuck
+            Meta.throwIsDefEqStuck (#[tFn, sFn].filterMap fun | .mvar mvarId => some mvarId | _ => none)
           else
             return LBool.false
       else
@@ -2180,7 +2182,9 @@ end
         -/
         let mvarDecl ← mvarId.getDecl
         if mvarDecl.depth < (← getMCtx).depth then
-          Meta.throwIsDefEqStuck
+          -- `synthPending` may succeed once a metavariable in the type of `mvarId` is assigned.
+          let type ← instantiateMVars mvarDecl.type
+          Meta.throwIsDefEqStuck ((type.collectMVars {}).result.push mvarId) (collectLevelMVars {} type).result
       failK
   | none   => failK
 
@@ -2398,14 +2402,14 @@ private def isDefEqAppFallback (t : Expr) (s : Expr) : MetaM Bool := do
     isDefEqOnFailure t s
   else
     let saved ← saveState
-    -- `none` records a deferred `isDefEqStuck`
-    let r? ← catchInternalId isDefEqStuckExceptionId (some <$> isDefEqOnFailure t s) fun _ => do
+    -- `.error` records a deferred `isDefEqStuck`
+    let r : Except Exception Bool ← catchInternalId isDefEqStuckExceptionId (.ok <$> isDefEqOnFailure t s) fun ex => do
       saved.restore
-      return none
-    if r? == some true then return true
+      return .error ex
+    if r matches .ok true then return true
     if (← isDefEqLateSpecialCases t s) matches .true then return true
-    if r?.isNone then
-      Meta.throwIsDefEqStuck
+    if let .error ex := r then
+      throw ex
     return false
 
 private def isExprDefEqExpensive (t : Expr) (s : Expr) : MetaM Bool := do

@@ -104,9 +104,23 @@ instance : ToString SyntheticMVarKind where
     | .tactic ..    => "tactic"
     | .postponed .. => "postponed"
 
+/--
+The metavariables and universe metavariables a stuck instance problem depends on. Synthesizing the
+instance gets stuck again as long as none of them is assigned.
+-/
+structure StuckInstDeps where
+  mvarIds : Array MVarId
+  lmvarIds : Array LMVarId
+  deriving Inhabited
+
 structure SyntheticMVarDecl where
   stx : Syntax
   kind : SyntheticMVarKind
+  /--
+  For a `.typeClass` problem whose last synthesis attempt got stuck: what it depends on, if known.
+  The problem is not retried while these dependencies are unassigned.
+  -/
+  stuckDeps? : Option StuckInstDeps := none
   deriving Inhabited
 
 /--
@@ -861,11 +875,13 @@ def elabToSyntax (fixedTermElab : FixedTermElab) (k : Term → TermElabM α) (hi
 /--
   Add the given metavariable to the list of pending synthetic metavariables.
   The method `synthesizeSyntheticMVars` is used to process the metavariables on this list. -/
-def registerSyntheticMVar (stx : Syntax) (mvarId : MVarId) (kind : SyntheticMVarKind) : TermElabM Unit := do
-  modify fun s => { s with syntheticMVars := s.syntheticMVars.insert mvarId { stx, kind }, pendingMVars := mvarId :: s.pendingMVars }
+def registerSyntheticMVar (stx : Syntax) (mvarId : MVarId) (kind : SyntheticMVarKind)
+    (stuckDeps? : Option StuckInstDeps := none) : TermElabM Unit := do
+  modify fun s => { s with syntheticMVars := s.syntheticMVars.insert mvarId { stx, kind, stuckDeps? }, pendingMVars := mvarId :: s.pendingMVars }
 
-def registerSyntheticMVarWithCurrRef (mvarId : MVarId) (kind : SyntheticMVarKind) : TermElabM Unit := do
-  registerSyntheticMVar (← getRef) mvarId kind
+def registerSyntheticMVarWithCurrRef (mvarId : MVarId) (kind : SyntheticMVarKind)
+    (stuckDeps? : Option StuckInstDeps := none) : TermElabM Unit := do
+  registerSyntheticMVar (← getRef) mvarId kind stuckDeps?
 
 def registerMVarErrorInfo (mvarErrorInfo : MVarErrorInfo) : TermElabM Unit :=
   modify fun s => { s with mvarErrorInfos := mvarErrorInfo :: s.mvarErrorInfos }
@@ -1218,23 +1234,40 @@ Returns whether `className` has a `deriving` handler installed.
 def hasDerivingHandler (className : Name) : IO Bool := do
   return (← derivableRef.get).contains className
 
-/--
-  Try to synthesize metavariable using type class resolution.
-  This method assumes the local context and local instances of `instMVar` coincide
-  with the current local context and local instances.
-  Return `true` if the instance was synthesized successfully, and `false` if
-  the instance contains unassigned metavariables that are blocking the type class
-  resolution procedure. Throw an exception if resolution or assignment irrevocably fails.
+/-- Returns `true` if none of the dependencies has been assigned. -/
+def StuckInstDeps.isStuck (deps : StuckInstDeps) : MetaM Bool := do
+  let mctx ← getMCtx
+  return deps.mvarIds.all (fun mvarId => !mctx.eAssignment.contains mvarId && !mctx.dAssignment.contains mvarId)
+    && deps.lmvarIds.all (!mctx.lAssignment.contains ·)
 
-  If `extraErrorMsg?` is not none, it contains additional information that should be attached
-  to type class synthesis failures.
+/--
+Returns the dependencies of the instance problem `type` that got stuck with the `isDefEqStuck`
+exception `ex`: the blockers the exception reports and the metavariables of `type`, which must be
+instantiated. Returns `none` if the dependencies are not known.
 -/
-def synthesizeInstMVarCore (instMVar : MVarId) (maxResultSize? : Option Nat := none) (extraErrorMsg? : Option MessageData := none): TermElabM Bool := do
+private def mkStuckInstDeps? (type : Expr) (ex : Exception) : MetaM (Option StuckInstDeps) := do
+  let (mvarIds, lmvarIds) := getIsDefEqStuckBlockers ex
+  if mvarIds.isEmpty && lmvarIds.isEmpty then
+    return none
+  let mvarIds := (type.collectMVars { result := mvarIds }).result
+  let lmvarIds := (collectLevelMVars { result := lmvarIds } type).result
+  -- Instantiating a delayed-assigned metavariable depends on the metavariables of its value.
+  if (← mvarIds.anyM (·.isDelayedAssigned)) then
+    return none
+  return some { mvarIds, lmvarIds }
+
+/--
+Similar to `synthesizeInstMVarCore`, but if the result is `false` because type class resolution
+got stuck, additionally returns what it is stuck on, if known.
+-/
+def synthesizeInstMVarCoreWithDeps (instMVar : MVarId) (maxResultSize? : Option Nat := none) (extraErrorMsg? : Option MessageData := none) : TermElabM (Bool × Option StuckInstDeps) := do
   let extraErrorMsg := extraMsgToMsg extraErrorMsg?
   let instMVarDecl ← getMVarDecl instMVar
   let type := instMVarDecl.type
   let type ← instantiateMVars type
-  let result ← trySynthInstance type maxResultSize?
+  let (result, stuckDeps?) ← catchInternalId isDefEqStuckExceptionId
+    (return (← toLOptionM <| synthInstance? type maxResultSize?, none))
+    (fun ex => return (.undef, ← mkStuckInstDeps? type ex))
   match result with
   | LOption.some val =>
     if (← instMVar.isAssigned) then
@@ -1259,7 +1292,7 @@ def synthesizeInstMVarCore (instMVar : MVarId) (maxResultSize? : Option Nat := n
              The `isDefEq` test above fails for `Decidable (p.x - p.y ≤ p.x)` when the structure instance assigned to
              `p` has not been elaborated yet.
            -/
-          return false -- we will try again later
+          return (false, none) -- we will try again later
         let oldValType ← inferType oldVal
         let valType ← inferType val
         unless (← isDefEq oldValType valType) do
@@ -1270,11 +1303,11 @@ def synthesizeInstMVarCore (instMVar : MVarId) (maxResultSize? : Option Nat := n
     else
       unless (← isDefEq (mkMVar instMVar) val) do
         throwError "failed to assign synthesized type class instance{indentExpr val}{extraErrorMsg}"
-    return true
-  | .undef => return false -- we will try later
+    return (true, none)
+  | .undef => return (false, stuckDeps?) -- we will try later
   | .none  =>
     if (← read).ignoreTCFailures then
-      return false
+      return (false, none)
     else
       let msg ← match type with
         | .app (.const cls _) (.const typ _) =>
@@ -1286,6 +1319,20 @@ def synthesizeInstMVarCore (instMVar : MVarId) (maxResultSize? : Option Nat := n
         | _ =>
             pure <| extraErrorMsg ++ useTraceSynthMsg
       throwNamedError lean.synthInstanceFailed "failed to synthesize instance of type class{indentExpr type}{msg}"
+
+/--
+  Try to synthesize metavariable using type class resolution.
+  This method assumes the local context and local instances of `instMVar` coincide
+  with the current local context and local instances.
+  Return `true` if the instance was synthesized successfully, and `false` if
+  the instance contains unassigned metavariables that are blocking the type class
+  resolution procedure. Throw an exception if resolution or assignment irrevocably fails.
+
+  If `extraErrorMsg?` is not none, it contains additional information that should be attached
+  to type class synthesis failures.
+-/
+def synthesizeInstMVarCore (instMVar : MVarId) (maxResultSize? : Option Nat := none) (extraErrorMsg? : Option MessageData := none): TermElabM Bool :=
+  return (← synthesizeInstMVarCoreWithDeps instMVar maxResultSize? extraErrorMsg?).1
 
 structure CoeExpansionTrace where
   expandedCoeDecls : List Name
@@ -1954,8 +2001,9 @@ def adaptExpander (exp : Syntax → TermElabM Syntax) : TermElab := fun stx expe
 def mkInstMVar (type : Expr) (extraErrorMsg? : Option MessageData := none) : TermElabM Expr := do
   let mvar ← mkFreshExprMVar type MetavarKind.synthetic
   let mvarId := mvar.mvarId!
-  unless (← synthesizeInstMVarCore mvarId (extraErrorMsg? := extraErrorMsg?)) do
-    registerSyntheticMVarWithCurrRef mvarId (.typeClass extraErrorMsg?)
+  let (succeeded, stuckDeps?) ← synthesizeInstMVarCoreWithDeps mvarId (extraErrorMsg? := extraErrorMsg?)
+  unless succeeded do
+    registerSyntheticMVarWithCurrRef mvarId (.typeClass extraErrorMsg?) stuckDeps?
   return mvar
 
 /--

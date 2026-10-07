@@ -74,9 +74,8 @@ private def mkProjAndCheck (structName : Name) (idx : Nat) (e : Expr) : MetaM Ex
 
 def synthesizeAppInstMVars (instMVars : Array MVarId) (app : Expr) : TermElabM Unit :=
   for mvarId in instMVars do
-    let (succeeded, stuckDeps?) ← synthesizeInstMVarCoreWithDeps mvarId
-    unless succeeded do
-      registerSyntheticMVarWithCurrRef mvarId (.typeClass none) stuckDeps?
+    unless (← synthesizeInstMVarCore mvarId) do
+      registerSyntheticMVarWithCurrRef mvarId (.typeClass none)
       registerMVarErrorImplicitArgInfo mvarId (← getRef) app
 
 /-- Return `some namedArg` if `namedArgs` contains an entry for `binderName`. -/

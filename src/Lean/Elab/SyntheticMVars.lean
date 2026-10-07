@@ -76,12 +76,12 @@ private def resumePostponed (savedContext : SavedContext) (stx : Syntax) (mvarId
 /--
   Similar to `synthesizeInstMVarCore`, but makes sure that `instMVar` local context and instances
   are used. It also logs any error message produced. -/
-private def synthesizePendingInstMVar (instMVar : MVarId) (extraErrorMsg? : Option MessageData := none) : TermElabM (Bool × Option StuckInstDeps) :=
+private def synthesizePendingInstMVar (instMVar : MVarId) (extraErrorMsg? : Option MessageData := none): TermElabM Bool :=
   instMVar.withContext do
     try
-      synthesizeInstMVarCoreWithDeps instMVar (extraErrorMsg? := extraErrorMsg?)
+      synthesizeInstMVarCore instMVar (extraErrorMsg? := extraErrorMsg?)
     catch
-      | ex@(.error ..) => logException ex; return (true, none)
+      | ex@(.error ..) => logException ex; return true
       | _              => unreachable!
 
 /--
@@ -541,15 +541,7 @@ mutual
     let some mvarSyntheticDecl ← getSyntheticMVarDecl? mvarId | return true -- The metavariable has already been synthesized
     withRef mvarSyntheticDecl.stx do
     match mvarSyntheticDecl.kind with
-    | .typeClass extraErrorMsg? =>
-      if let some stuckDeps := mvarSyntheticDecl.stuckDeps? then
-        if (← stuckDeps.isStuck) then
-          trace[Elab.postpone] "skipped, still stuck"
-          return false
-      let (succeeded, stuckDeps?) ← synthesizePendingInstMVar mvarId extraErrorMsg?
-      unless succeeded do
-        modify fun s => { s with syntheticMVars := s.syntheticMVars.insert mvarId { mvarSyntheticDecl with stuckDeps? } }
-      return succeeded
+    | .typeClass extraErrorMsg? => synthesizePendingInstMVar mvarId extraErrorMsg?
     | .coe _header? expectedType e _f? _ => mvarId.withContext do
       if (← withDefault do isDefEq (← inferType e) expectedType) then
         -- Types may be defeq now due to mvar assignments, type class

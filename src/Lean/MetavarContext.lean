@@ -352,6 +352,19 @@ structure SynthNormMemoSlot where
   private raw? : Option NonScalar := none
   deriving Inhabited
 
+/--
+What a stuck attempt to synthesize an instance metavariable depends on: the metavariables and
+universe metavariables type class resolution was stuck on and those of the instantiated instance
+type, and the metavariable depths of the attempt. The attempt gets stuck again as long as none of
+the metavariables is assigned.
+-/
+structure StuckInstDeps where
+  mvarIds : Array MVarId
+  lmvarIds : Array LMVarId
+  depth : Nat
+  levelAssignDepth : Nat
+  deriving Inhabited
+
 /-- The metavariable context is a set of metavariable declarations and their assignments.
 
 For more information on specifics see the comment in the file that `MetavarContext` is defined in.
@@ -395,8 +408,25 @@ structure MetavarContext where
   assignments also reverts the memo.
   -/
   synthNormMemo : SynthNormMemoSlot := default
+  /--
+  Instance metavariables whose last synthesis attempt got stuck, with what the attempt depends on.
+  See `StuckInstDeps`.
+  -/
+  stuckInsts : PersistentHashMap MVarId StuckInstDeps := {}
 
 instance : Inhabited MetavarContext := ⟨{}⟩
+
+/--
+Returns `true` if the last attempt to synthesize the instance metavariable `mvarId` got stuck and
+nothing it depends on has changed since, so that another attempt would get stuck again.
+-/
+def MetavarContext.isStuckInst (mctx : MetavarContext) (mvarId : MVarId) : Bool :=
+  match mctx.stuckInsts.find? mvarId with
+  | none => false
+  | some deps =>
+    deps.depth == mctx.depth && deps.levelAssignDepth == mctx.levelAssignDepth
+      && deps.mvarIds.all (fun mvarId => !mctx.eAssignment.contains mvarId && !mctx.dAssignment.contains mvarId)
+      && deps.lmvarIds.all (!mctx.lAssignment.contains ·)
 
 /-- A monad with a stateful metavariable context, defining `getMCtx` and `modifyMCtx`. -/
 class MonadMCtx (m : Type → Type) where

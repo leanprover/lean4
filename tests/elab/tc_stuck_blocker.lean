@@ -58,53 +58,62 @@ run_meta do
     stuckOn (mkApp2 (mkConst ``Lvl [u]) (mkConst ``PUnit [u]) (mkConst ``Nat))
 
 /-!
-A pending instance problem is skipped while its dependencies are unassigned, even if other pending
-problems make progress, and is retried once they are assigned.
+A stuck instance problem is recorded as stuck while its dependencies are unassigned, even if other
+pending problems make progress, and is retried once they are assigned.
 -/
 
 def needsFoo (α : Type) [Foo α] : Nat := Foo.val α
 
-set_option pp.mvars.anonymous false in
 /--
-info: needsFoo Nat
+info: stuck: true
 ---
-trace: [Elab.postpone] resuming ?_
-[Elab.postpone] skipped, still stuck
-[Elab.postpone] not ready yet
-[Elab.postpone] resuming ?_
-[Elab.postpone] skipped, still stuck
-[Elab.postpone] not ready yet
-[Elab.postpone] resuming ?_
-[Elab.postpone] skipped, still stuck
-[Elab.postpone] not ready yet
-[Elab.postpone] resuming ?_
-[Elab.postpone] skipped, still stuck
-[Elab.postpone] not ready yet
-[Elab.postpone] resuming ?_
-[Elab.postpone] skipped, still stuck
-[Elab.postpone] not ready yet
-[Elab.postpone] resuming ?_
-[Elab.postpone] succeeded
-[Elab.postpone] resuming ?_
-[Elab.postpone] succeeded
-[Elab.postpone] resuming ?_
-[Elab.postpone] skipped, still stuck
-[Elab.postpone] not ready yet
-[Elab.postpone] resuming ?_
-[Elab.postpone] succeeded
+info: stuck: true
+---
+info: stuck: false
+---
+info: needsFoo Nat
 -/
 #guard_msgs in
 run_elab do
   let a ← mkFreshExprMVar (mkSort .one)
   let e ← elabTerm (← `(needsFoo $(← exprToSyntax a))) none
-  withOptions (·.setBool `trace.Elab.postpone true) do
-    synthesizeSyntheticMVars
-    -- unrelated progress
-    discard <| elabTerm (← `((1 + 2 : Nat))) none
-    synthesizeSyntheticMVars
-    a.mvarId!.assign (mkConst ``Nat)
-    synthesizeSyntheticMVarsNoPostponing
+  let [inst] := (← get).pendingMVars | throwError "unexpected pending metavariables"
+  logInfo m!"stuck: {← isStuckInst inst}"
+  -- unrelated progress
+  discard <| elabTerm (← `((1 + 2 : Nat))) none
+  synthesizeSyntheticMVars
+  logInfo m!"stuck: {← isStuckInst inst}"
+  a.mvarId!.assign (mkConst ``Nat)
+  logInfo m!"stuck: {← isStuckInst inst}"
+  synthesizeSyntheticMVarsNoPostponing
   logInfo m!"{← instantiateMVars e}"
+
+/-! `synthPending` does not search again either, and backtracking reverts the record. -/
+
+/--
+info: true
+---
+info: instFooNat
+---
+trace: [Meta.synthPending] synthPending ?inst
+[Meta.synthPending] synthPending ?inst
+[Meta.synthPending] skipped, still stuck
+[Meta.synthPending] synthPending ?inst
+[Meta.synthPending] synthPending ?inst
+-/
+#guard_msgs in
+run_meta do
+  let a ← mkFreshExprMVar (mkSort .one) (userName := `a)
+  let inst ← mkFreshExprMVar (mkApp (mkConst ``Foo) a) (kind := .synthetic) (userName := `inst)
+  withOptions (·.setBool `trace.Meta.synthPending true) do
+    let saved ← saveState
+    logInfo m!"{← Meta.synthPending inst.mvarId!}"
+    logInfo m!"{← Meta.synthPending inst.mvarId!}"
+    saved.restore
+    discard <| Meta.synthPending inst.mvarId!
+    a.mvarId!.assign (mkConst ``Nat)
+    logInfo m!"{← Meta.synthPending inst.mvarId!}"
+  logInfo m!"{← instantiateMVars inst}"
 
 /-!
 A problem stuck on a metavariable in the type of a local instance is retried when that metavariable

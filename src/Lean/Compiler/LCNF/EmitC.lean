@@ -931,7 +931,7 @@ def emitInterpDecl (decl : Decl .impure) : EmitM Unit := do
   let f := decl.name
   let xs := decl.params
   let type := decl.type
-  let baseName ← toCName f
+  let baseName := getSymbolStem (← getEnv) decl.name
   emit "LEAN_EXPORT void "; emit baseName; emitLn "_0interp(lean_interpreter_value* stack)"
   withEmitBlock do
     let mut args : Array (Arg .impure) := #[]

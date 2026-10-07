@@ -9,6 +9,10 @@ prelude
 public import Lean.Compiler.LCNF.Basic
 public import Lean.Compiler.Bytecode.Instruction
 
+/-!
+`@[export]`ed evaluation primitives
+-/
+
 namespace Lean.Compiler.Bytecode
 
 /--
@@ -17,12 +21,12 @@ should have been checked at declaration time in case of attributes. We do not so
 errors from the interpreter itself as those depend on whether we are running in the server.
 -/
 @[export lean_eval_check_meta]
-private partial def evalCheckMeta (env : Environment) (declName : Name) : Except String Unit := do
+partial def evalCheckMeta (env : Environment) (declName : Name) : Except String Unit := do
   if getIRPhases env declName == .runtime then
       throw s!"Cannot evaluate constant `{declName}` as it is neither marked nor imported as `meta`"
 
 /-- `code` should put the result in register 0 -/
-private def simpleBytecodeDecl (code : Array Instruction) (symbols : Array Name) :
+def simpleBytecodeDecl (code : Array Instruction) (symbols : Array Name) :
     BytecodeDecl where
   name := .anonymous
   code := assemble <| #[.skipIfCached (code.size + 1).toUInt32] ++ code ++ #[.storeCache 0, .ret 0]
@@ -36,7 +40,7 @@ private def simpleBytecodeDecl (code : Array Instruction) (symbols : Array Name)
 
 open LCNF.ImpureType in
 @[export lean_eval_const]
-private unsafe def evalConstCoreImpl (env : Environment)
+unsafe def evalConstCoreImpl (env : Environment)
     (_opts : Options) (constName : Name) : Except String NonScalar := do
   let boxedName := LCNF.mkBoxedName constName
   if let some _sig := LCNF.getSigCore? env LCNF.impureSigExt boxedName then
@@ -74,7 +78,7 @@ private unsafe def evalConstCoreImpl (env : Environment)
   return runtimeDecl.eval NonScalar env
 
 @[export lean_run_init]
-private unsafe def runInitImpl (env : Environment) (opts : Options) (decl initDecl : Name) : IO Unit := do
+unsafe def runInitImpl (env : Environment) (opts : Options) (decl initDecl : Name) : IO Unit := do
   let some decl := findBytecodeDecl env decl |
     throw (.userError s!"Could not find declaration to be initialized: `{decl}`")
   let act ← IO.ofExcept <| evalConstCoreImpl env opts initDecl
@@ -83,39 +87,46 @@ private unsafe def runInitImpl (env : Environment) (opts : Options) (decl initDe
   decl.setInitValue out
 
 @[extern "lean_io_result_show_error"]
-private unsafe opaque showError (e : @& EST.Out IO.Error IO.RealWorld α) : BaseIO Unit
+unsafe opaque showError (e : @& EST.Out IO.Error IO.RealWorld α) : BaseIO Unit
+
+def isIOUnit (e : Expr) : Bool :=
+  e matches .app (.const ``IO _) (.const ``Unit _) | .app (.const ``IO _) (.const ``PUnit _)
+
+def isIOUInt32 (e : Expr) : Bool :=
+  e matches .app (.const ``IO _) (.const ``UInt32 _)
+
+def isListString (e : Expr) : Bool :=
+  e matches .app (.const ``List _) (.const ``String _)
 
 @[export lean_eval_main]
-private unsafe def runMain (env : Environment) (opts : Options) (args : List String) : BaseIO UInt32 := do
+unsafe def runMain (env : Environment) (opts : Options) (args : List String) : BaseIO UInt32 := do
   let act : IO UInt32 := do
     let some info := env.find? `main | throw (.userError "Could not find `main`")
-    let invalidMain (_ : Unit) : IO UInt32 :=
+    let rec invalidMain (_ : Unit) : IO UInt32 :=
       throw (.userError s!"Invalid type for `main`: {info.type}")
     match info.type with
     | .forallE _ d b _ =>
-      match d, b with
-      | .app (.const ``List _) (.const ``String _), .app (.const ``IO _) (.const resultName _) =>
-        if resultName == ``UInt32 then
-          let res ← IO.ofExcept <| evalConstCoreImpl env opts `main
-          (unsafeCast res : List String → IO UInt32) args
-        else if resultName == ``Unit || resultName == ``PUnit then
-          let res ← IO.ofExcept <| evalConstCoreImpl env opts `main
-          (unsafeCast res : List String → IO Unit) args
-          return 0
-        else
-          invalidMain ()
-      | _, _ => invalidMain ()
-    | .app (.const ``IO _) (.const resultName _) =>
-      if resultName == ``UInt32 then
+      unless isListString d do
+        return ← invalidMain ()
+      if isIOUInt32 b then
+        let res ← IO.ofExcept <| evalConstCoreImpl env opts `main
+        (unsafeCast res : List String → IO UInt32) args
+      else if isIOUnit b then
+        let res ← IO.ofExcept <| evalConstCoreImpl env opts `main
+        (unsafeCast res : List String → IO Unit) args
+        return 0
+      else
+        invalidMain ()
+    | e =>
+      if isIOUInt32 e then
         let res ← IO.ofExcept <| evalConstCoreImpl env opts `main
         (unsafeCast res : IO UInt32)
-      else if resultName == ``Unit || resultName == ``PUnit then
+      else if isIOUnit e then
         let res ← IO.ofExcept <| evalConstCoreImpl env opts `main
         (unsafeCast res : IO Unit)
         return 0
       else
         invalidMain ()
-    | _ => invalidMain ()
   fun void =>
     let res := act void
     match res with

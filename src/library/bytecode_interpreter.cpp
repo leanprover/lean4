@@ -351,7 +351,7 @@ static object * stub_m_aux(object ** args) {
     object * decl = args[1];
     if (lean_is_scalar(env)) {
         size_t arity = unbox(env); // oh no it's not actually the environment then, it's the arity
-        value * value_stack = reinterpret_cast<value *>(alloca(sizeof(value) * arity));
+        value * value_stack = reinterpret_cast<value *>(LEAN_ALLOCA(sizeof(value) * arity));
         stack_function fn = reinterpret_cast<stack_function>(lean_unbox_usize(decl));
         dec(decl);
         for (size_t i = 0; i < arity; i++) {
@@ -362,8 +362,8 @@ static object * stub_m_aux(object ** args) {
     }
     bool need_cleanup = false;
     if (g_interpreter == nullptr) {
-        value * value_stack = reinterpret_cast<value *>(alloca(sizeof(value) * INTERPRETER_STACK_SIZE));
-        frame * frame_stack = reinterpret_cast<frame *>(alloca(sizeof(frame) * INTERPRETER_FRAME_COUNT));
+        value * value_stack = reinterpret_cast<value *>(LEAN_ALLOCA(sizeof(value) * INTERPRETER_STACK_SIZE));
+        frame * frame_stack = reinterpret_cast<frame *>(LEAN_ALLOCA(sizeof(frame) * INTERPRETER_FRAME_COUNT));
         init_interpreter(&interp, value_stack, frame_stack);
         need_cleanup = true;
     }
@@ -424,6 +424,81 @@ void * get_stub(unsigned params) {
         default: return reinterpret_cast<void *>(stub_m_aux);
     }
 }
+
+static object * apply_n_interpreter(object * f, unsigned n, value * as) {
+switch (n) {
+case 0: lean_unreachable();
+case 1: return lean_apply_1(f, as[0].m_obj);
+case 2: return lean_apply_2(f, as[0].m_obj, as[1].m_obj);
+case 3: return lean_apply_3(f, as[0].m_obj, as[1].m_obj, as[2].m_obj);
+case 4: return lean_apply_4(f, as[0].m_obj, as[1].m_obj, as[2].m_obj, as[3].m_obj);
+case 5: return lean_apply_5(f, as[0].m_obj, as[1].m_obj, as[2].m_obj, as[3].m_obj, as[4].m_obj);
+case 6: return lean_apply_6(f, as[0].m_obj, as[1].m_obj, as[2].m_obj, as[3].m_obj, as[4].m_obj, as[5].m_obj);
+case 7: return lean_apply_7(f, as[0].m_obj, as[1].m_obj, as[2].m_obj, as[3].m_obj, as[4].m_obj, as[5].m_obj, as[6].m_obj);
+case 8: return lean_apply_8(f, as[0].m_obj, as[1].m_obj, as[2].m_obj, as[3].m_obj, as[4].m_obj, as[5].m_obj, as[6].m_obj, as[7].m_obj);
+case 9: return lean_apply_9(f, as[0].m_obj, as[1].m_obj, as[2].m_obj, as[3].m_obj, as[4].m_obj, as[5].m_obj, as[6].m_obj, as[7].m_obj, as[8].m_obj);
+case 10: return lean_apply_10(f, as[0].m_obj, as[1].m_obj, as[2].m_obj, as[3].m_obj, as[4].m_obj, as[5].m_obj, as[6].m_obj, as[7].m_obj, as[8].m_obj, as[9].m_obj);
+case 11: return lean_apply_11(f, as[0].m_obj, as[1].m_obj, as[2].m_obj, as[3].m_obj, as[4].m_obj, as[5].m_obj, as[6].m_obj, as[7].m_obj, as[8].m_obj, as[9].m_obj, as[10].m_obj);
+case 12: return lean_apply_12(f, as[0].m_obj, as[1].m_obj, as[2].m_obj, as[3].m_obj, as[4].m_obj, as[5].m_obj, as[6].m_obj, as[7].m_obj, as[8].m_obj, as[9].m_obj, as[10].m_obj, as[11].m_obj);
+case 13: return lean_apply_13(f, as[0].m_obj, as[1].m_obj, as[2].m_obj, as[3].m_obj, as[4].m_obj, as[5].m_obj, as[6].m_obj, as[7].m_obj, as[8].m_obj, as[9].m_obj, as[10].m_obj, as[11].m_obj, as[12].m_obj);
+case 14: return lean_apply_14(f, as[0].m_obj, as[1].m_obj, as[2].m_obj, as[3].m_obj, as[4].m_obj, as[5].m_obj, as[6].m_obj, as[7].m_obj, as[8].m_obj, as[9].m_obj, as[10].m_obj, as[11].m_obj, as[12].m_obj, as[13].m_obj);
+case 15: return lean_apply_15(f, as[0].m_obj, as[1].m_obj, as[2].m_obj, as[3].m_obj, as[4].m_obj, as[5].m_obj, as[6].m_obj, as[7].m_obj, as[8].m_obj, as[9].m_obj, as[10].m_obj, as[11].m_obj, as[12].m_obj, as[13].m_obj, as[14].m_obj);
+case 16: return lean_apply_16(f, as[0].m_obj, as[1].m_obj, as[2].m_obj, as[3].m_obj, as[4].m_obj, as[5].m_obj, as[6].m_obj, as[7].m_obj, as[8].m_obj, as[9].m_obj, as[10].m_obj, as[11].m_obj, as[12].m_obj, as[13].m_obj, as[14].m_obj, as[15].m_obj);
+default:
+    object ** args = static_cast<object **>(LEAN_ALLOCA(n*sizeof(object *))); // NOLINT
+    for (unsigned i = 0; i < n; i++) {
+        args[i] = as[i].m_obj;
+    }
+    return lean_apply_m(f, n, args);
+}
+}
+
+typedef object* (*fn1)(object*); // NOLINT
+typedef object* (*fn2)(object*, object*); // NOLINT
+typedef object* (*fn3)(object*, object*, object*); // NOLINT
+typedef object* (*fn4)(object*, object*, object*, object*); // NOLINT
+typedef object* (*fn5)(object*, object*, object*, object*, object*); // NOLINT
+typedef object* (*fn6)(object*, object*, object*, object*, object*, object*); // NOLINT
+typedef object* (*fn7)(object*, object*, object*, object*, object*, object*, object*); // NOLINT
+typedef object* (*fn8)(object*, object*, object*, object*, object*, object*, object*, object*); // NOLINT
+typedef object* (*fn9)(object*, object*, object*, object*, object*, object*, object*, object*, object*); // NOLINT
+typedef object* (*fn10)(object*, object*, object*, object*, object*, object*, object*, object*, object*, object*); // NOLINT
+typedef object* (*fn11)(object*, object*, object*, object*, object*, object*, object*, object*, object*, object*, object*); // NOLINT
+typedef object* (*fn12)(object*, object*, object*, object*, object*, object*, object*, object*, object*, object*, object*, object*); // NOLINT
+typedef object* (*fn13)(object*, object*, object*, object*, object*, object*, object*, object*, object*, object*, object*, object*, object*); // NOLINT
+typedef object* (*fn14)(object*, object*, object*, object*, object*, object*, object*, object*, object*, object*, object*, object*, object*, object*); // NOLINT
+typedef object* (*fn15)(object*, object*, object*, object*, object*, object*, object*, object*, object*, object*, object*, object*, object*, object*, object*); // NOLINT
+typedef object* (*fn16)(object*, object*, object*, object*, object*, object*, object*, object*, object*, object*, object*, object*, object*, object*, object*, object*); // NOLINT
+typedef object* (*fnn)(object**); // NOLINT
+
+static object * curry_interpreter(void * f, unsigned n, value * as) {
+switch (n) {
+case 0: lean_unreachable();
+case 1: return reinterpret_cast<fn1>(f)(as[0].m_obj);
+case 2: return reinterpret_cast<fn2>(f)(as[0].m_obj, as[1].m_obj);
+case 3: return reinterpret_cast<fn3>(f)(as[0].m_obj, as[1].m_obj, as[2].m_obj);
+case 4: return reinterpret_cast<fn4>(f)(as[0].m_obj, as[1].m_obj, as[2].m_obj, as[3].m_obj);
+case 5: return reinterpret_cast<fn5>(f)(as[0].m_obj, as[1].m_obj, as[2].m_obj, as[3].m_obj, as[4].m_obj);
+case 6: return reinterpret_cast<fn6>(f)(as[0].m_obj, as[1].m_obj, as[2].m_obj, as[3].m_obj, as[4].m_obj, as[5].m_obj);
+case 7: return reinterpret_cast<fn7>(f)(as[0].m_obj, as[1].m_obj, as[2].m_obj, as[3].m_obj, as[4].m_obj, as[5].m_obj, as[6].m_obj);
+case 8: return reinterpret_cast<fn8>(f)(as[0].m_obj, as[1].m_obj, as[2].m_obj, as[3].m_obj, as[4].m_obj, as[5].m_obj, as[6].m_obj, as[7].m_obj);
+case 9: return reinterpret_cast<fn9>(f)(as[0].m_obj, as[1].m_obj, as[2].m_obj, as[3].m_obj, as[4].m_obj, as[5].m_obj, as[6].m_obj, as[7].m_obj, as[8].m_obj);
+case 10: return reinterpret_cast<fn10>(f)(as[0].m_obj, as[1].m_obj, as[2].m_obj, as[3].m_obj, as[4].m_obj, as[5].m_obj, as[6].m_obj, as[7].m_obj, as[8].m_obj, as[9].m_obj);
+case 11: return reinterpret_cast<fn11>(f)(as[0].m_obj, as[1].m_obj, as[2].m_obj, as[3].m_obj, as[4].m_obj, as[5].m_obj, as[6].m_obj, as[7].m_obj, as[8].m_obj, as[9].m_obj, as[10].m_obj);
+case 12: return reinterpret_cast<fn12>(f)(as[0].m_obj, as[1].m_obj, as[2].m_obj, as[3].m_obj, as[4].m_obj, as[5].m_obj, as[6].m_obj, as[7].m_obj, as[8].m_obj, as[9].m_obj, as[10].m_obj, as[11].m_obj);
+case 13: return reinterpret_cast<fn13>(f)(as[0].m_obj, as[1].m_obj, as[2].m_obj, as[3].m_obj, as[4].m_obj, as[5].m_obj, as[6].m_obj, as[7].m_obj, as[8].m_obj, as[9].m_obj, as[10].m_obj, as[11].m_obj, as[12].m_obj);
+case 14: return reinterpret_cast<fn14>(f)(as[0].m_obj, as[1].m_obj, as[2].m_obj, as[3].m_obj, as[4].m_obj, as[5].m_obj, as[6].m_obj, as[7].m_obj, as[8].m_obj, as[9].m_obj, as[10].m_obj, as[11].m_obj, as[12].m_obj, as[13].m_obj);
+case 15: return reinterpret_cast<fn15>(f)(as[0].m_obj, as[1].m_obj, as[2].m_obj, as[3].m_obj, as[4].m_obj, as[5].m_obj, as[6].m_obj, as[7].m_obj, as[8].m_obj, as[9].m_obj, as[10].m_obj, as[11].m_obj, as[12].m_obj, as[13].m_obj, as[14].m_obj);
+case 16: return reinterpret_cast<fn16>(f)(as[0].m_obj, as[1].m_obj, as[2].m_obj, as[3].m_obj, as[4].m_obj, as[5].m_obj, as[6].m_obj, as[7].m_obj, as[8].m_obj, as[9].m_obj, as[10].m_obj, as[11].m_obj, as[12].m_obj, as[13].m_obj, as[14].m_obj, as[15].m_obj);
+default:
+    object ** args = static_cast<object **>(LEAN_ALLOCA(n*sizeof(object *))); // NOLINT
+    for (unsigned i = 0; i < n; i++) {
+        args[i] = as[i].m_obj;
+    }
+    return reinterpret_cast<fnn>(f)(args);
+}
+}
+
 
 value eval_loop(interpreter * interp, frame start_frame) {
     value * base = start_frame.m_stack_base;
@@ -501,7 +576,7 @@ value eval_loop(interpreter * interp, frame start_frame) {
                     if (fn.m_arity & INTERP_DECL_MASK) {
                         ((stack_function) fn.m_native)(interp->m_stack_top);
                     } else {
-                        object * res = curry(fn.m_native, fn.m_arity, reinterpret_cast<object **>(interp->m_stack_top));
+                        object * res = curry_interpreter(fn.m_native, fn.m_arity, interp->m_stack_top);
                         interp->m_stack_top[0].m_obj = res;
                     }
                 } else if (!lean_is_scalar(fn.m_object)) {
@@ -529,8 +604,11 @@ value eval_loop(interpreter * interp, frame start_frame) {
                     if (fn.m_arity & INTERP_DECL_MASK) {
                         ((stack_function) fn.m_native)(base);
                     } else {
-                        object * res = curry(fn.m_native, fn.m_arity, reinterpret_cast<object **>(base));
+                        object * res = curry_interpreter(fn.m_native, fn.m_arity, base);
                         base[0].m_obj = res;
+                    }
+                    if (interp->m_frame_top <= orig_frame) {
+                        return base[0];
                     }
                     interp->m_frame_top--;
                     frame * new_frame = interp->m_frame_top;
@@ -807,7 +885,7 @@ value eval_loop(interpreter * interp, frame start_frame) {
             case instruction_type::APP: {
                 uint32 n = (instr >> 16) & 0x3FF;
                 uint32 fn = instr & 0xFFFF;
-                object * res = lean_apply_n(base[fn].m_obj, n, reinterpret_cast<object **>(interp->m_stack_top));
+                object * res = apply_n_interpreter(base[fn].m_obj, n, interp->m_stack_top);
                 interp->m_stack_top[0].m_obj = res;
                 break;
             }
@@ -897,8 +975,8 @@ extern "C" obj_res lean_eval_bytecode_decl(b_obj_arg env, b_obj_arg decl) {
     interpreter interp;
     bool need_cleanup = false;
     if (g_interpreter == nullptr) {
-        value * value_stack = reinterpret_cast<value *>(alloca(sizeof(value) * INTERPRETER_STACK_SIZE));
-        frame * frame_stack = reinterpret_cast<frame *>(alloca(sizeof(frame) * INTERPRETER_FRAME_COUNT));
+        value * value_stack = reinterpret_cast<value *>(LEAN_ALLOCA(sizeof(value) * INTERPRETER_STACK_SIZE));
+        frame * frame_stack = reinterpret_cast<frame *>(LEAN_ALLOCA(sizeof(frame) * INTERPRETER_FRAME_COUNT));
         init_interpreter(&interp, value_stack, frame_stack);
         need_cleanup = true;
     }

@@ -1,6 +1,6 @@
 // Lean compiler output
 // Module: Lean.Server.FileWorker.Utils
-// Imports: public import Lean.Language.Lean.Types public import Lean.Server.Snapshots public import Lean.Server.AsyncList public import Std.Sync.Mutex
+// Imports: public import Lean.Language.Lean.Types public import Lean.Server.Snapshots public import Lean.Server.AsyncList public import Std.Sync.Mutex import Init.Data.ByteArray.Extra
 #include <lean/lean.h>
 #if defined(__clang__)
 #pragma clang diagnostic ignored "-Wunused-parameter"
@@ -2166,6 +2166,7 @@ lean_object* runtime_initialize_Lean_Language_Lean_Types(uint8_t builtin);
 lean_object* runtime_initialize_Lean_Server_Snapshots(uint8_t builtin);
 lean_object* runtime_initialize_Lean_Server_AsyncList(uint8_t builtin);
 lean_object* runtime_initialize_Std_Sync_Mutex(uint8_t builtin);
+lean_object* runtime_initialize_Init_Data_ByteArray_Extra(uint8_t builtin);
 void lean_initialize_runtime_module();
 static bool _G_runtime_initialized = false;
 LEAN_EXPORT lean_object* runtime_initialize_Lean_Server_FileWorker_Utils(uint8_t builtin) {
@@ -2185,6 +2186,9 @@ lean_dec_ref(res);
 res = runtime_initialize_Std_Sync_Mutex(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
+res = runtime_initialize_Init_Data_ByteArray_Extra(builtin);
+if (lean_io_result_is_error(res)) return res;
+lean_dec_ref(res);
 l_Lean_Server_FileWorker_RpcSession_keepAliveTimeMs = _init_l_Lean_Server_FileWorker_RpcSession_keepAliveTimeMs();
 lean_mark_persistent(l_Lean_Server_FileWorker_RpcSession_keepAliveTimeMs);
 return lean_io_result_mk_ok(lean_box(0));
@@ -2200,6 +2204,7 @@ lean_object* initialize_Lean_Language_Lean_Types(uint8_t builtin);
 lean_object* initialize_Lean_Server_Snapshots(uint8_t builtin);
 lean_object* initialize_Lean_Server_AsyncList(uint8_t builtin);
 lean_object* initialize_Std_Sync_Mutex(uint8_t builtin);
+lean_object* initialize_Init_Data_ByteArray_Extra(uint8_t builtin);
 static bool _G_initialized = false;
 LEAN_EXPORT lean_object* initialize_Lean_Server_FileWorker_Utils(uint8_t builtin) {
 lean_object * res;
@@ -2215,6 +2220,9 @@ res = initialize_Lean_Server_AsyncList(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
 res = initialize_Std_Sync_Mutex(builtin);
+if (lean_io_result_is_error(res)) return res;
+lean_dec_ref(res);
+res = initialize_Init_Data_ByteArray_Extra(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
 res = runtime_initialize_Lean_Server_FileWorker_Utils(builtin);

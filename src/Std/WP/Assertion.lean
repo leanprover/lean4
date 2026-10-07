@@ -10,6 +10,7 @@ public import Init.Internal.Order
 public import Std.Internal.Order.OfProp
 public import Std.Internal.Order.PreservesSup
 public import Std.Internal.Order.Heyting
+public import Std.Internal.Order.Automation
 universe u v w s
 @[expose] public section
 

@@ -55,7 +55,7 @@ private def processNewCommRingEq' (a b : Expr) : LinearM Unit := do
   let c ← c.cleanupDenominators
   let p := c.p
   let lhs ← p.toIntModuleExpr generation
-  let some lhs ← reify? lhs (skipVar := false) generation | return ()
+  let some lhs ← reify? lhs (skipVar := false) | return ()
   let p := lhs.norm
   if p == .nil then return ()
   let c₁ : IneqCnstr := { p, strict := false, h := .ringEq c lhs }
@@ -63,13 +63,13 @@ private def processNewCommRingEq' (a b : Expr) : LinearM Unit := do
   let c := { c with p := c.p.mulConst (-1), h := .symm c }
   let p := p.mul (-1)
   let lhs ← c.p.toIntModuleExpr generation
-  let some lhs ← reify? lhs (skipVar := false) generation | return ()
+  let some lhs ← reify? lhs (skipVar := false) | return ()
   let c₂ : IneqCnstr := { p, strict := false, h := .ringEq c lhs }
   c₂.assert
 
 private def processNewIntModuleEq' (a b : Expr) : LinearM Unit := do
-  let some lhs ← reify? a (skipVar := false) (← getGeneration a) | return ()
-  let some rhs ← reify? b (skipVar := false) (← getGeneration b) | return ()
+  let some lhs ← reify? a (skipVar := false) | return ()
+  let some rhs ← reify? b (skipVar := false) | return ()
   let p := (lhs.sub rhs).norm
   if p == .nil then return ()
   let c₁ : IneqCnstr := { p, strict := false, h := .ofEq a b lhs rhs }
@@ -239,8 +239,8 @@ private def processNewCommRingEq (a b : Expr) : LinearM Unit := do
   -- TODO
 
 private def processNewIntModuleEq (a b : Expr) : LinearM Unit := do
-  let some lhs ← reify? a (skipVar := false) (← getGeneration a) | return ()
-  let some rhs ← reify? b (skipVar := false) (← getGeneration b) | return ()
+  let some lhs ← reify? a (skipVar := false) | return ()
+  let some rhs ← reify? b (skipVar := false) | return ()
   let p := (lhs.sub rhs).norm
   if p == .nil then return ()
   let c : EqCnstr := { p, h := .core a b lhs rhs }
@@ -251,8 +251,8 @@ private def processNewNatModuleEq' (a b : Expr) : OfNatModuleM Unit := do
   let (a', _) ← ofNatModule a
   let (b', _) ← ofNatModule b
   LinearM.run ns.structId do
-    let some lhs ← reify? a' (skipVar := false) (← getGeneration a) | return ()
-    let some rhs ← reify? b' (skipVar := false) (← getGeneration b) | return ()
+    let some lhs ← reify? a' (skipVar := false) | return ()
+    let some rhs ← reify? b' (skipVar := false) | return ()
     let p := (lhs.sub rhs).norm
     if p == .nil then return ()
     let c₁ : IneqCnstr := { p, strict := false, h := .ofEqOfNat a b ns.id lhs rhs }
@@ -266,8 +266,8 @@ private def processNewNatModuleEq (a b : Expr) : OfNatModuleM Unit := do
   let (a', _) ← ofNatModule a
   let (b', _) ← ofNatModule b
   LinearM.run ns.structId do
-    let some lhs ← reify? a' (skipVar := false) (← getGeneration a) | return ()
-    let some rhs ← reify? b' (skipVar := false) (← getGeneration b) | return ()
+    let some lhs ← reify? a' (skipVar := false) | return ()
+    let some rhs ← reify? b' (skipVar := false) | return ()
     let p := (lhs.sub rhs).norm
     if p == .nil then return ()
     let c : EqCnstr := { p, h := .coreOfNat a b ns.id lhs rhs }
@@ -302,14 +302,14 @@ private def processNewCommRingDiseq (a b : Expr) : LinearM Unit := do
   let p := c.p
   let generation := max (← getGeneration a) (← getGeneration b)
   let lhs ← p.toIntModuleExpr generation
-  let some lhs ← reify? lhs (skipVar := false) generation | return ()
+  let some lhs ← reify? lhs (skipVar := false) | return ()
   let p := lhs.norm
   let c : DiseqCnstr := { p, h := .ring c lhs }
   c.assert
 
 private def processNewIntModuleDiseq (a b : Expr) : LinearM Unit := do
-  let some lhs ← reify? a (skipVar := false) (← getGeneration a) | return ()
-  let some rhs ← reify? b (skipVar := false) (← getGeneration b) | return ()
+  let some lhs ← reify? a (skipVar := false) | return ()
+  let some rhs ← reify? b (skipVar := false) | return ()
   let p := (lhs.sub rhs).norm
   let c : DiseqCnstr := { p, h := .core a b lhs rhs }
   c.assert
@@ -320,8 +320,8 @@ private def processNewNatModuleDiseq (a b : Expr) : OfNatModuleM Unit := do
     let (a', _) ← ofNatModule a
     let (b', _) ← ofNatModule b
     LinearM.run ns.structId do
-      let some lhs ← reify? a' (skipVar := false) (← getGeneration a) | return ()
-      let some rhs ← reify? b' (skipVar := false) (← getGeneration b) | return ()
+      let some lhs ← reify? a' (skipVar := false) | return ()
+      let some rhs ← reify? b' (skipVar := false) | return ()
       let p := (lhs.sub rhs).norm
       let c : DiseqCnstr := { p, h := .coreOfNat a b ns.id lhs rhs }
       c.assert

@@ -14,6 +14,8 @@ public import Lean.Util.MonadBacktrack
 public import Lean.Compiler.InlineAttrs
 public import Lean.Meta.TransparencyMode
 import Init.Data.Range.Polymorphic.Iterators
+import all Lean.Environment  -- for accessing `Environment.synthCacheRaw?`
+import all Lean.MetavarContext  -- for accessing `SynthNormMemoSlot.raw?`
 import Init.While
 
 public section
@@ -371,6 +373,23 @@ structure SynthInstanceCacheKey where
   other options are recorded per entry (`SynthInstanceCacheEntry.deps`).
   -/
   optionFlags       : OptionFlags
+  /--
+  Whether `trace.Meta.synthInstance` is enabled. With the trace enabled, a query is thus only served
+  from the cache if it was already traced.
+  -/
+  tracing           : Bool
+  /--
+  `Environment.isExporting`, which determines the instances and definition bodies visible to the
+  query: results of the public and the private scope must not be shared.
+  -/
+  isExporting       : Bool
+  /--
+  For a key whose free variables are normalized (see `Lean.Meta.SynthNorm`), these are the types of
+  the free variables `type` and `localInsts` mention, by canonical position. Free variables are
+  abstracted to loose bound variables, so that structurally identical queries in different local
+  contexts share an entry. Empty for other keys.
+  -/
+  normFVarTypes     : Array Expr := #[]
   deriving Hashable, BEq
 
 /-- Resulting type for `abstractMVars` -/
@@ -392,20 +411,113 @@ structure SynthInstanceCacheEntry where
 Type class resolution cache. Each key holds one entry per observed set of dependencies: the search
 records what it observes as the entry's `RecordedDeps`, and a lookup only uses an entry whose
 recorded dependencies still hold in the current context. What the search never observes does not
-partition the cache. The recorded dependencies are the option lookups (`getRecordedOption`) and the
+partition the cache. The recorded dependencies are the option lookups (`getRecordedOption`), the
 generations of the instance and unification-hint extensions read
-(`PersistentEnvExtensionDescrCore.trackGen`). The search runs with `Core.Context.isRecordingDeps`
-set, so an unrecorded option read panics.
+(`PersistentEnvExtensionDescrCore.trackGen`), and the position in `Environment.declChangeLog`,
+against whose later changes of declaration-keyed state the entry is validated. The search runs with
+`Core.Context.isRecordingDeps` set, so an unrecorded read of an option or an environment extension
+panics.
 
-The generations roll back with the environment, after which a different change can bring them back.
-The entries in `Meta.Cache` survive `SavedState.restore`, which therefore drops those recorded after
-a tracked change it rolls back (`SynthInstanceCache.rollBack`). This limits custom metaprograms that
-roll back the environment bypassing it (e.g. `Core.SavedState.restore` in lifted `CoreM` code) and
-then change it without clearing the cache (e.g. through `liftCommandElabM`): they should call
-`resetSynthInstanceCache`, as otherwise a stale entry can be revalidated.
+The cache has two tiers. The transient tier, `Meta.Cache.synthInstance`, lives as long as the
+current `Meta.State`. Context-free entries are also stored in the persistent tier,
+`Environment.synthCache`, which serves them in later commands. The persistent tier rolls back
+together with the environment, and thus with the counters its entries are validated against.
+
+These counters roll back with the environment, after which a different change can bring them back.
+The entries in the transient tier survive `SavedState.restore`, which therefore drops those the
+rollback invalidates (`SynthInstanceCache.rollBack`) and carries the latest recording start
+(`Environment.raiseRecordingConstGen`) over, so that changes the surviving entries depend on stay
+logged. Restoring a state with constants the current environment lacks, such as `Term.observing`
+followed by `applyResult`, instead takes the cache saved with that state, which is consistent with
+the restored environment and still has the entries the preceding rollback dropped.
+
+As the cache survives rollbacks, custom metaprograms that roll back the environment bypassing
+`SavedState.restore` (e.g. `Core.SavedState.restore` in lifted `CoreM` code) and then change it
+without clearing the cache (e.g. through `liftCommandElabM`) should call `resetSynthInstanceCache`,
+as otherwise a stale entry can be revalidated.
 -/
 abbrev SynthInstanceCache :=
   PersistentHashMap SynthInstanceCacheKey (List SynthInstanceCacheEntry)
+
+/-- The value stored in `Environment.synthCacheRaw?`. -/
+private structure PersistentSynthInstanceCache where
+  /-- `Environment.trackedGen` that `entries` were recorded at. -/
+  gen     : Nat
+  entries : SynthInstanceCache
+  deriving Inhabited
+
+/--
+Persistent tier of the type class resolution cache, which survives the current command. It holds
+only context-free entries (see `Lean.Meta.SynthInstance`), and as it is part of the environment, it
+rolls back together with the counters its entries are validated against.
+
+The entries are only kept until the instances or unification hints in effect change: the tier
+remembers the `Environment.trackedGen` its entries were recorded at, and this function returns an
+empty cache once the environment's value differs. Such a change invalidates almost every entry
+anyway, as almost every search depends on the instances, and dropping them all avoids keeping the
+invalidated entries in the environment until their query recurs.
+-/
+def _root_.Lean.Environment.synthCache (env : Environment) : SynthInstanceCache :=
+  match env.synthCacheRaw? with
+  | some v =>
+    -- safety: only `setSynthCache` stores a value
+    let c : PersistentSynthInstanceCache := unsafe unsafeCast v
+    if c.gen == env.trackedGen then c.entries else {}
+  | none   => {}
+
+/-- Replaces the persistent tier of the type class resolution cache; see `Environment.synthCache`. -/
+def _root_.Lean.Environment.setSynthCache (env : Environment) (c : SynthInstanceCache) :
+    Environment :=
+  let c : PersistentSynthInstanceCache := { gen := env.trackedGen, entries := c }
+  { env with synthCacheRaw? := some (unsafe unsafeCast c) }
+
+/--
+The free-variable normalization of a local instance context (see `Lean.Meta.SynthNorm`): every free
+variable reachable from the local instances, transitively through their types, by canonical
+position, and the normalized types of these variables.
+-/
+structure SynthNormClosure where
+  fvarSet  : PersistentHashSet FVarId
+  idx2fvar : Array Expr
+  types    : Array Expr
+
+/--
+The memoized result of normalizing the free variables of the local instances `localInsts`. It does
+not depend on the query, so every type class resolution query made under the same local instances
+shares it. One slot suffices, as the local instances change rarely relative to the number of
+queries made under them.
+
+The result depends on the local declarations of the variables it visited, and on the metavariable
+assignments through their types.
+* A local declaration can be replaced under the same `FVarId`, e.g. by `change … at`, so the memo
+  records the declarations it was computed from (`decls`) and is only used while the local context
+  still has them with the same types.
+* The memo is stored in the `MetavarContext`, so that it is reverted together with the assignments.
+  Assignments made after it was computed do not affect a `closure?`, whose types are fully
+  instantiated.
+-/
+structure SynthNormClosureMemo where
+  localInsts : LocalInstances
+  /-- The local declarations visited by the normalization. -/
+  decls : Array LocalDecl
+  /-- `none` if the local instances cannot be normalized. -/
+  closure? : Option SynthNormClosure
+  /--
+  If the normalization failed on a variable whose type has an unassigned metavariable, that type.
+  The failure holds as long as the type still has an unassigned metavariable.
+  -/
+  stuckType? : Option Expr
+
+/-- The memo for the type class resolution cache key normalization; see `SynthNormClosureMemo`. -/
+def _root_.Lean.MetavarContext.synthNormMemo? (mctx : MetavarContext) :
+    Option SynthNormClosureMemo :=
+  -- safety: only `setSynthNormMemo` stores a value
+  unsafe unsafeCast mctx.synthNormMemo.raw?
+
+/-- Replaces the memo for the type class resolution cache key normalization. -/
+def _root_.Lean.MetavarContext.setSynthNormMemo (mctx : MetavarContext)
+    (memo : SynthNormClosureMemo) : MetavarContext :=
+  { mctx with synthNormMemo := { raw? := some (unsafe unsafeCast memo) } }
 
 -- Key for `InferType` and `WHNF` caches
 structure ExprConfigCacheKey where
@@ -655,27 +767,39 @@ protected def saveState : MetaM SavedState :=
   return { core := (← Core.saveState), «meta» := (← get) }
 
 /--
-Drops the entries recorded after the environment changes a rollback to `trackedGen` undoes. Along one
-environment lineage `Environment.trackedGen` only grows, so these are exactly the entries stamped
-with a larger value.
+Drops the entries a rollback to an environment `env` invalidates: those stamped after changes it
+undoes, i.e. with a larger `trackedGen` or declaration change log position (along one environment
+branch both only grow), and those recorded after constants it removes, as a constant of the same
+name added later would count as unobserved (`Environment.checkDeclChangeLog`).
 -/
-def SynthInstanceCache.rollBack (c : SynthInstanceCache) (trackedGen : Nat) : SynthInstanceCache :=
+def SynthInstanceCache.rollBack (c : SynthInstanceCache) (env : Environment) : SynthInstanceCache :=
   c.foldl (init := c) fun c key entries =>
-    match entries.filter (·.deps.baseTrackedGen ≤ trackedGen) with
+    match entries.filter fun e =>
+        e.deps.baseTrackedGen ≤ env.trackedGen &&
+        e.deps.baseChangeLogPos ≤ env.declChangeLog.size &&
+        e.deps.baseConstGen ≤ env.constGen with
     | []       => c.erase key
     | entries' => if entries'.length == entries.length then c else c.insert key entries'
 
 /-- Restore backtrackable parts of the state. -/
 def SavedState.restore (b : SavedState) : MetaM Unit := do
-  let trackedGen := b.core.env.trackedGen
-  -- `Meta.Cache` is kept, except for type class resolution cache entries recorded after a tracked
-  -- change being rolled back; see `SynthInstanceCache`.
-  let rolledBack := (← getEnv).trackedGen != trackedGen
+  -- `Meta.Cache` is kept, except for the type class resolution cache; see `SynthInstanceCache`.
+  let env ← getEnv
+  let restored := b.core.env
+  let stampsRolledBack := env.trackedGen != restored.trackedGen ||
+    env.declChangeLog.size != restored.declChangeLog.size || env.constGen != restored.constGen
   b.core.restore
+  -- The surviving entries may have observed declarations up to the latest recording start, so
+  -- changes to those must stay logged.
+  modifyThe Core.State fun s =>
+    { s with env := s.env.raiseRecordingConstGen env.recordingConstGen }
   modify fun s => { s with
     mctx := b.meta.mctx, zetaDeltaFVarIds := b.meta.zetaDeltaFVarIds, postponed := b.meta.postponed
-    cache := if rolledBack then
-      { s.cache with synthInstance := s.cache.synthInstance.rollBack trackedGen } else s.cache }
+    cache := if restored.constGen > env.constGen then
+      { s.cache with synthInstance := b.meta.cache.synthInstance }
+    else if stampsRolledBack then
+      { s.cache with synthInstance := s.cache.synthInstance.rollBack restored }
+    else s.cache }
 
 @[specialize, inherit_doc Core.withRestoreOrSaveFull]
 def withRestoreOrSaveFull (reusableResult? : Option (α × SavedState)) (act : MetaM α) :
@@ -759,7 +883,9 @@ def mkInfoCacheKey (expr : Expr) (nargs? : Option Nat) : MetaM InfoCacheKey :=
 @[inline] def resetDefEqPermCaches : MetaM Unit :=
   modifyDefEqPermCache fun _ => {}
 
-@[inline] def resetSynthInstanceCache : MetaM Unit :=
+/-- Resets both tiers of the type class resolution cache; see `SynthInstanceCache`. -/
+def resetSynthInstanceCache : MetaM Unit := do
+  modifyThe Core.State fun s => { s with env := { s.env with synthCacheRaw? := none } }
   modifyCache fun c => {c with synthInstance := {}}
 
 @[inline] def modifyDiag (f : Diagnostics → Diagnostics) : MetaM Unit := do

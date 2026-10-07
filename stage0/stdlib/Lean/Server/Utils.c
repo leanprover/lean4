@@ -23,12 +23,12 @@ lean_object* lean_string_append(lean_object*, lean_object*);
 lean_object* l_Lean_String_toFileMap(lean_object*);
 size_t lean_usize_add(size_t, size_t);
 lean_object* lean_mk_io_user_error(lean_object*);
-uint8_t lean_string_dec_eq(lean_object*, lean_object*);
 lean_object* l_Lean_FileMap_utf8PosToLspPos(lean_object*, lean_object*);
 lean_object* lean_mk_empty_array_with_capacity(lean_object*);
 lean_object* lean_array_push(lean_object*, lean_object*);
 lean_object* l_System_Uri_fileUriToPath_x3f(lean_object*);
 lean_object* l_System_FilePath_extension(lean_object*);
+uint8_t lean_string_dec_eq(lean_object*, lean_object*);
 lean_object* l_Lean_Name_str___override(lean_object*, lean_object*);
 lean_object* l_Lean_getSrcSearchPath();
 lean_object* l_Lean_searchModuleNameOfFileName(lean_object*, lean_object*);
@@ -115,8 +115,8 @@ static const lean_string_object l_Lean_Server_documentUriFromModule_x3f___closed
 static const lean_object* l_Lean_Server_documentUriFromModule_x3f___closed__0 = (const lean_object*)&l_Lean_Server_documentUriFromModule_x3f___closed__0_value;
 LEAN_EXPORT lean_object* l_Lean_Server_documentUriFromModule_x3f(lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Server_documentUriFromModule_x3f___boxed(lean_object*, lean_object*);
-LEAN_EXPORT uint8_t l_Option_instBEq_beq___at___00Lean_Server_moduleFromDocumentUri_spec__0(lean_object*, lean_object*);
-LEAN_EXPORT lean_object* l_Option_instBEq_beq___at___00Lean_Server_moduleFromDocumentUri_spec__0___boxed(lean_object*, lean_object*);
+LEAN_EXPORT uint8_t l_instBEqOption_beq___at___00Lean_Server_moduleFromDocumentUri_spec__0(lean_object*, lean_object*);
+LEAN_EXPORT lean_object* l_instBEqOption_beq___at___00Lean_Server_moduleFromDocumentUri_spec__0___boxed(lean_object*, lean_object*);
 static const lean_ctor_object l_Lean_Server_moduleFromDocumentUri___closed__0_value = {.m_header = {.m_rc = 0, .m_cs_sz = sizeof(lean_ctor_object) + sizeof(void*)*1 + 0, .m_other = 1, .m_tag = 1}, .m_objs = {((lean_object*)&l_Lean_Server_documentUriFromModule_x3f___closed__0_value)}};
 static const lean_object* l_Lean_Server_moduleFromDocumentUri___closed__0 = (const lean_object*)&l_Lean_Server_moduleFromDocumentUri___closed__0_value;
 LEAN_EXPORT lean_object* l_Lean_Server_moduleFromDocumentUri(lean_object*);
@@ -1873,7 +1873,7 @@ v_res_513_ = l_Lean_Server_documentUriFromModule_x3f(v_modName_511_);
 return v_res_513_;
 }
 }
-LEAN_EXPORT uint8_t l_Option_instBEq_beq___at___00Lean_Server_moduleFromDocumentUri_spec__0(lean_object* v_x_514_, lean_object* v_x_515_){
+LEAN_EXPORT uint8_t l_instBEqOption_beq___at___00Lean_Server_moduleFromDocumentUri_spec__0(lean_object* v_x_514_, lean_object* v_x_515_){
 _start:
 {
 if (lean_obj_tag(v_x_514_) == 0)
@@ -1910,11 +1910,11 @@ return v___x_521_;
 }
 }
 }
-LEAN_EXPORT lean_object* l_Option_instBEq_beq___at___00Lean_Server_moduleFromDocumentUri_spec__0___boxed(lean_object* v_x_522_, lean_object* v_x_523_){
+LEAN_EXPORT lean_object* l_instBEqOption_beq___at___00Lean_Server_moduleFromDocumentUri_spec__0___boxed(lean_object* v_x_522_, lean_object* v_x_523_){
 _start:
 {
 uint8_t v_res_524_; lean_object* v_r_525_; 
-v_res_524_ = l_Option_instBEq_beq___at___00Lean_Server_moduleFromDocumentUri_spec__0(v_x_522_, v_x_523_);
+v_res_524_ = l_instBEqOption_beq___at___00Lean_Server_moduleFromDocumentUri_spec__0(v_x_522_, v_x_523_);
 lean_dec(v_x_523_);
 lean_dec(v_x_522_);
 v_r_525_ = lean_box(v_res_524_);
@@ -1951,7 +1951,7 @@ lean_object* v___x_535_; lean_object* v___x_536_; uint8_t v___x_537_;
 lean_inc(v_val_531_);
 v___x_535_ = l_System_FilePath_extension(v_val_531_);
 v___x_536_ = ((lean_object*)(l_Lean_Server_moduleFromDocumentUri___closed__0));
-v___x_537_ = l_Option_instBEq_beq___at___00Lean_Server_moduleFromDocumentUri_spec__0(v___x_535_, v___x_536_);
+v___x_537_ = l_instBEqOption_beq___at___00Lean_Server_moduleFromDocumentUri_spec__0(v___x_535_, v___x_536_);
 lean_dec(v___x_535_);
 if (v___x_537_ == 0)
 {

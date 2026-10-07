@@ -2001,12 +2001,12 @@ lean_dec(v_fst_431_);
 if (v___x_433_ == 0)
 {
 lean_object* v___x_434_; lean_object* v___x_435_; 
-v___x_434_ = lean_array_push(v___y_430_, v___y_429_);
+v___x_434_ = lean_array_push(v___y_428_, v___y_429_);
 v___x_435_ = lean_alloc_ctor(0, 2, 0);
 lean_ctor_set(v___x_435_, 0, v_snd_432_);
 lean_ctor_set(v___x_435_, 1, v___x_434_);
 v_x_422_ = v_b_426_;
-v_a_423_ = v___y_428_;
+v_a_423_ = v___y_430_;
 v_a_424_ = v___x_435_;
 goto _start;
 }
@@ -2016,9 +2016,9 @@ lean_object* v___x_437_;
 lean_dec(v___y_429_);
 v___x_437_ = lean_alloc_ctor(0, 2, 0);
 lean_ctor_set(v___x_437_, 0, v_snd_432_);
-lean_ctor_set(v___x_437_, 1, v___y_430_);
+lean_ctor_set(v___x_437_, 1, v___y_428_);
 v_x_422_ = v_b_426_;
-v_a_423_ = v___y_428_;
+v_a_423_ = v___y_430_;
 v_a_424_ = v___x_437_;
 goto _start;
 }
@@ -2039,9 +2039,9 @@ v___x_446_ = lean_box(0);
 lean_inc(v_f_440_);
 v___x_447_ = l_Std_DTreeMap_Internal_Impl_insert___at___00Lean_IR_CollectUsedDecls_collectFnBody_spec__1___redArg(v_f_440_, v___x_446_, v_set_443_);
 v___x_448_ = lean_box(v___x_445_);
-v___y_428_ = v___y_441_;
+v___y_428_ = v_order_444_;
 v___y_429_ = v_f_440_;
-v___y_430_ = v_order_444_;
+v___y_430_ = v___y_441_;
 v_fst_431_ = v___x_448_;
 v_snd_432_ = v___x_447_;
 goto v___jp_427_;
@@ -2050,9 +2050,9 @@ else
 {
 lean_object* v___x_449_; 
 v___x_449_ = lean_box(v___x_445_);
-v___y_428_ = v___y_441_;
+v___y_428_ = v_order_444_;
 v___y_429_ = v_f_440_;
-v___y_430_ = v_order_444_;
+v___y_430_ = v___y_441_;
 v_fst_431_ = v___x_449_;
 v_snd_432_ = v_set_443_;
 goto v___jp_427_;

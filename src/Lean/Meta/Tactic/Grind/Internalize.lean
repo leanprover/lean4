@@ -165,6 +165,9 @@ private def checkAndAddSplitCandidate (e : Expr) : GoalM Unit := do
       -- We used to add the `split` only if `lookahead := false`, but it was counterintuitive
       -- to make `grind` "stronger" by disabling a feature.
       addSplitCandidate (.imp e (h ▸ rfl) currSplitSource)
+    else if d.isForall && d.bindingBody!.hasLooseBVars && (← isProp d) then
+      -- `grind` has few propagation rules for assigning `True` to a universal quantifier.
+      addSplitCandidate (.imp e (h ▸ rfl) currSplitSource)
   | _ => pure ()
 
 /--
@@ -220,7 +223,7 @@ private def internalizeMatchCond (matchCond : Expr) (generation : Nat) : GoalM U
   mkENode' matchCond generation (funCC := false)
   let (lhss, e') ← collectMatchCondLhssAndAbstract matchCond
   lhss.forM fun lhs => do internalize lhs generation; registerParent matchCond lhs
-  propagateUp matchCond
+  pushPropagateUp matchCond
   internalize e' generation
   trace_goal[grind.debug.matchCond.lambda] "(idx := {(← getENode e'.getAppFn).idx}) {e'.getAppFn}"
   trace_goal[grind.debug.matchCond.lambda] "auxiliary application{indentExpr e'}"
@@ -615,7 +618,7 @@ where
         registerParent e b
         addCongrTable e
       if (← isProp d <&&> isProp e) then
-        propagateUp e
+        pushPropagateUp e
         checkAndAddSplitCandidate e
       Solvers.internalize e parent?
     | .lit .. =>
@@ -664,9 +667,14 @@ where
           internalizeImpl c generation e
           registerParent e c
         else if f.isConstOf ``ite && args.size == 5 then
+          -- Only the condition is internalized; the branches are internalized by `propagateIte`
+          -- once the condition is decided. The congruence hash of `e` covers every argument,
+          -- so `e` is registered as a parent of all of them: if a branch or the instance is
+          -- internalized through another term and merged, `e` must be rehashed.
           let c := args[1]!
           internalizeImpl c generation e
-          registerParent e c
+          for arg in args do
+            registerParent e arg
         else
           if let .const fName _ := f then
             activateTheorems fName generation
@@ -697,7 +705,7 @@ where
         pushCastHEqs e
         addCongrTable e
         Solvers.internalize e parent?
-        propagateUp e
+        pushPropagateUp e
         propagateBetaForNewApp e
         mkInjEq e
 

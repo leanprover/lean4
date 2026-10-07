@@ -212,6 +212,42 @@ example : i = 3 := by grind_norm check; sorry
 #guard_msgs in
 example : i * j = i := by grind_norm check; sorry
 
+section casts
+attribute [local instance] Lean.Grind.Semiring.natCast Lean.Grind.Ring.intCast
+variable {α : Type} [Lean.Grind.Field α] (z : α) (f : α → α)
+
+#guard_msgs in
+example : z / ↑(0 : Nat) = 0 := by grind_norm check; sorry
+
+#guard_msgs in
+example : z / ↑(-0 : Int) = 0 := by grind_norm check; sorry
+
+#guard_msgs in
+example : f ↑(2 : Nat) = f 2 := by grind_norm check; sorry
+
+#guard_msgs in
+example : f ↑(-2 : Int) = f (-2) := by grind_norm check; sorry
+
+#guard_msgs in
+example : z = ↑(3 : Nat) := by grind_norm check; sorry
+
+#guard_msgs in
+example : ↑(3 : Int) = z := by grind_norm check; sorry
+
+-- Accepted difference: legacy normalizes only `Nat` and `Int` arithmetic. Over `Int`, both
+-- normalizers produce `-1 * i + -3 = 0`.
+/--
+error: `grind_norm` discrepancy
+legacy:
+  -3 = z
+sym:
+  -1 * z + -3 = 0
+-/
+#guard_msgs in
+example : -3 = z := by grind_norm check; sorry
+
+end casts
+
 end arith
 
 section structural
@@ -247,6 +283,14 @@ example : (#[1, 2] : Array Nat).size = a := by grind_norm check; sorry
 #guard_msgs in
 example : "ab" ++ "c" = "abc" := by grind_norm check; sorry
 
+-- Accepted difference: legacy has no ground evaluation for `Fin.val`.
+/--
+error: `grind_norm` discrepancy
+legacy:
+  ↑3 = a
+sym:
+  3 = a
+-/
 #guard_msgs in
 example : (3 : Fin 5).val = a := by grind_norm check; sorry
 
@@ -396,6 +440,45 @@ example (j : Int) : (3 : Int) ∣ i + j - i := by grind_norm check; sorry
 
 end int_tightening
 
+section char_solve
+variable (x y : Fin 5) (u : UInt8)
+
+-- Accepted difference: legacy normalizes only `Nat` and `Int` arithmetic. `Sym` solves the
+-- equation when the coefficient is invertible modulo the characteristic.
+/--
+error: `grind_norm` discrepancy
+legacy:
+  3 * x + 1 = 0
+sym:
+  x = 3
+-/
+#guard_msgs in
+example : 3 * x + 1 = 0 := by grind_norm check; sorry
+
+-- Accepted difference: as above.
+/--
+error: `grind_norm` discrepancy
+legacy:
+  2 * x = 2 * y
+sym:
+  x = y
+-/
+#guard_msgs in
+example : 2 * x = 2 * y := by grind_norm check; sorry
+
+-- Accepted difference: as above.
+/--
+error: `grind_norm` discrepancy
+legacy:
+  3 * u = 1
+sym:
+  u = 171
+-/
+#guard_msgs in
+example : 3 * u = 1 := by grind_norm check; sorry
+
+end char_solve
+
 section control_flow
 variable (a b c : Nat) (x : Bool) (p q : Prop) (f g : Nat → Nat)
 
@@ -466,21 +549,6 @@ example (o : Option Nat) : (match o with | some x => x + 0 | none => 0 + b) = a 
 #guard_msgs in
 example : (match a * 0 with | 0 => b | _ + 1 => a) = b := by grind_norm check; sorry
 
--- The results differ in the type of `h` in the second alternative: `v.size + 0 = n + 1` (legacy)
--- and `v.size + 0 = n.succ` (`Sym`).
-/--
-error: `grind_norm` discrepancy
-legacy:
-  (match h : v.size + 0 with
-    | 0 => 0
-    | n.succ => v[n]) =
-    b
-sym:
-  (match h : v.size + 0 with
-    | 0 => 0
-    | n.succ => v[n]) =
-    b
--/
 #guard_msgs in
 example (v : Array Nat) : (match h : v.size + 0 with | 0 => 0 | n + 1 => v[n]'(by grind)) = b := by grind_norm check; sorry
 
@@ -554,13 +622,6 @@ example : 'a'.isLower = true := by grind_norm check; sorry
 #guard_msgs in
 example : '_'.isAlphanum = true := by grind_norm check; sorry
 
-/--
-error: `grind_norm` discrepancy
-legacy:
-  97 = u
-sym:
-  'a'.val = u
--/
 #guard_msgs in
 example : 'a'.val = u := by grind_norm check; sorry
 
@@ -574,3 +635,494 @@ example : c.toNat = a := by grind_norm check; sorry
 example : (if 'a'.isAlpha then a else 0) = a := by grind_norm check; sorry
 
 end ground_char
+
+section ground_eval
+variable (a : Nat) (s : String) (l : List Nat) (v : Array Nat)
+
+#guard_msgs in
+example : ([1, 2] ++ [3]) = l := by grind_norm check; sorry
+
+#guard_msgs in
+example : [1, 2, 3].reverse = l := by grind_norm check; sorry
+
+#guard_msgs in
+example : [1, 2, 3][1] = a := by grind_norm check; sorry
+
+#guard_msgs in
+example : (#[1, 2] ++ #[3]) = v := by grind_norm check; sorry
+
+#guard_msgs in
+example : (#[1, 2].push 3) = v := by grind_norm check; sorry
+
+#guard_msgs in
+example : #[1, 2, 3][1] = a := by grind_norm check; sorry
+
+#guard_msgs in
+example : #[1, 2].toList = l := by grind_norm check; sorry
+
+#guard_msgs in
+example : [1, 2].toArray = v := by grind_norm check; sorry
+
+#guard_msgs in
+example : List.replicate 2 a = l := by grind_norm check; sorry
+
+#guard_msgs in
+example : (3 : Fin 5) + 4 = 2 := by grind_norm check; sorry
+
+-- Accepted difference: `Sym` solves the equation for `x`; legacy only evaluates the lhs.
+/--
+error: `grind_norm` discrepancy
+legacy:
+  2 = x
+sym:
+  x = 2
+-/
+#guard_msgs in
+example (x : Fin 5) : (3 : Fin 5) + 4 = x := by grind_norm check; sorry
+
+#guard_msgs in
+example : (Fin.mk 3 (by decide) : Fin 5).val = a := by grind_norm check; sorry
+
+#guard_msgs in
+example (x : Fin 5) : Fin.last 4 = x := by grind_norm check; sorry
+
+#guard_msgs in
+example (x : Fin 5) : x = Fin.last 4 := by grind_norm check; sorry
+
+#guard_msgs in
+example (x : Fin 6) : x = (3 : Fin 5).succ := by grind_norm check; sorry
+
+#guard_msgs in
+example (x : Fin 6) : x = (3 : Fin 5).castSucc := by grind_norm check; sorry
+
+#guard_msgs in
+example (x : Fin 5) : (1 : Fin 5).rev = x := by grind_norm check; sorry
+
+#guard_msgs in
+example (x : Fin 4) : (3 : Fin 5).pred (by decide) = x := by grind_norm check; sorry
+
+#guard_msgs in
+example (x : Fin 8) : x = (2 : Fin 5).castAdd 3 := by grind_norm check; sorry
+
+#guard_msgs in
+example (x : Fin 8) : x = (2 : Fin 5).addNat 3 := by grind_norm check; sorry
+
+#guard_msgs in
+example (x : Fin 8) : x = Fin.natAdd 3 (2 : Fin 5) := by grind_norm check; sorry
+
+#guard_msgs in
+example (x : Fin 3) : (2 : Fin 5).castLT (by decide : (2 : Fin 5).val < 3) = x := by grind_norm check; sorry
+
+#guard_msgs in
+example (x : Fin 7) : Fin.castLE (by decide : 5 ≤ 7) (2 : Fin 5) = x := by grind_norm check; sorry
+
+#guard_msgs in
+example (x : Fin 3) : Fin.subNat 2 (4 : Fin 5) (by decide) = x := by grind_norm check; sorry
+
+#guard_msgs in
+example (x : Fin 5) : (⟨2, by decide⟩ : Fin 5) = x := by grind_norm check; sorry
+
+#guard_msgs in
+example (x : Fin 5) : Fin.ofNat 5 7 = x := by grind_norm check; sorry
+
+#guard_msgs in
+example (x : Fin 5) : (7 : Fin 5) = x := by grind_norm check; sorry
+
+#guard_msgs in
+example : "abc".length = a := by grind_norm check; sorry
+
+#guard_msgs in
+example : "abc" < "abd" := by grind_norm check; sorry
+
+#guard_msgs in
+example : "abc" ≠ "abd" := by grind_norm check; sorry
+
+#guard_msgs in
+example : ("abc" == "abd") = true := by grind_norm check; sorry
+
+#guard_msgs in
+example : "abc".push 'd' = s := by grind_norm check; sorry
+
+#guard_msgs in
+example : String.singleton 'a' = s := by grind_norm check; sorry
+
+-- Accepted difference: `Sym` solves the equation for `x`; legacy only evaluates the lhs.
+/--
+error: `grind_norm` discrepancy
+legacy:
+  8 = x
+sym:
+  x = 8
+-/
+#guard_msgs in
+example (x : BitVec 8) : 3#8 + 5#8 = x := by grind_norm check; sorry
+
+#guard_msgs in
+example (x : BitVec 8) : (3 : BitVec 8) &&& 5 = x := by grind_norm check; sorry
+
+#guard_msgs in
+example (x : BitVec 16) : (3#8).zeroExtend 16 = x := by grind_norm check; sorry
+
+#guard_msgs in
+example : (3#8).toNat = a := by grind_norm check; sorry
+
+-- Accepted difference: as above.
+/--
+error: `grind_norm` discrepancy
+legacy:
+  0 = x
+sym:
+  x = 0
+-/
+#guard_msgs in
+example (x : BitVec 8) : 255#8 + 1 = x := by grind_norm check; sorry
+
+#guard_msgs in
+example (x : BitVec 8) : 300#8 = x := by grind_norm check; sorry
+
+-- Accepted difference: `Sym` solves the equation for `x`; legacy only evaluates the lhs.
+/--
+error: `grind_norm` discrepancy
+legacy:
+  44 = x
+sym:
+  x = 44
+-/
+#guard_msgs in
+example (x : UInt8) : (200 : UInt8) + 100 = x := by grind_norm check; sorry
+
+#guard_msgs in
+example : (200 : UInt8).toNat = a := by grind_norm check; sorry
+
+#guard_msgs in
+example : (300 : UInt16).toNat = a := by grind_norm check; sorry
+
+-- Accepted difference: legacy has no ground evaluation for `^` on `UInt64`.
+/--
+error: `grind_norm` discrepancy
+legacy:
+  (2 ^ 40).toNat = a
+sym:
+  1099511627776 = a
+-/
+#guard_msgs in
+example : (2 ^ 40 : UInt64).toNat = a := by grind_norm check; sorry
+
+/--
+error: `grind_norm` discrepancy
+legacy:
+  -56 = x
+sym:
+  x = 200
+-/
+#guard_msgs in
+example (x : Int8) : (100 : Int8) + 100 = x := by grind_norm check; sorry
+
+#guard_msgs in
+example (x : Option Nat) : (some 1).isSome = true := by grind_norm check; sorry
+
+#guard_msgs in
+example : Nat.succ 2 = a := by grind_norm check; sorry
+
+#guard_msgs in
+example : Nat.gcd 4 6 = a := by grind_norm check; sorry
+
+#guard_msgs in
+example : (7 : Int).toNat = a := by grind_norm check; sorry
+
+#guard_msgs in
+example : (-7 : Int).toNat = a := by grind_norm check; sorry
+
+#guard_msgs in
+example : Int.natAbs (-7) = a := by grind_norm check; sorry
+
+#guard_msgs in
+example : (2 : Nat) ^ 10 = a := by grind_norm check; sorry
+
+#guard_msgs in
+example : (7 : Nat) / 2 = a := by grind_norm check; sorry
+
+#guard_msgs in
+example : (7 : Int) % 2 = 1 := by grind_norm check; sorry
+
+#guard_msgs in
+example : (-7 : Int) / 2 = -4 := by grind_norm check; sorry
+
+#guard_msgs in
+example : Nat.min 2 3 = a := by grind_norm check; sorry
+
+#guard_msgs in
+example : min 2 3 = a := by grind_norm check; sorry
+
+#guard_msgs in
+example : max 2 3 = a := by grind_norm check; sorry
+
+end ground_eval
+
+section binders
+variable (f : Nat → Nat) (q : Nat → Nat → Prop) (a b : Nat)
+
+#guard_msgs in
+example : ∀ x, ∃ y, q x y := by grind_norm check; sorry
+
+#guard_msgs in
+example : ∀ x, ∃ y, q x y ∧ f x = y + 0 := by grind_norm check; sorry
+
+#guard_msgs in
+example : ∃ x, ∀ y, q x y → f y = x := by grind_norm check; sorry
+
+#guard_msgs in
+example : ¬ ∀ x, ∃ y, q x y := by grind_norm check; sorry
+
+#guard_msgs in
+example : ¬ ∃ x, ∀ y, q x y := by grind_norm check; sorry
+
+#guard_msgs in
+example : (∃ x, q x a) → b = a := by grind_norm check; sorry
+
+#guard_msgs in
+example : (∀ x, q x a → ∃ y, q y x) := by grind_norm check; sorry
+
+#guard_msgs in
+example : (fun x => f (x + 0)) = f := by grind_norm check; sorry
+
+#guard_msgs in
+example : (fun x => x + 0) = f := by grind_norm check; sorry
+
+#guard_msgs in
+example : ∀ x, x > 0 → ∀ y, y < x → q x y := by grind_norm check; sorry
+
+#guard_msgs in
+example : (∀ x, x = a → q x b) := by grind_norm check; sorry
+
+#guard_msgs in
+example : (∃ x, x = a ∧ q x b) := by grind_norm check; sorry
+
+#guard_msgs in
+example : ∃ x : Nat, True := by grind_norm check; sorry
+
+#guard_msgs in
+example : ∀ x : Nat, True := by grind_norm check; sorry
+
+#guard_msgs in
+example : ∀ x : Nat, x = x := by grind_norm check; sorry
+
+end binders
+
+section lets
+variable (f : Nat → Nat) (a b : Nat)
+
+#guard_msgs in
+example : (let x := a + 0; let y := x + x; f y) = b := by grind_norm check; sorry
+
+#guard_msgs in
+example : (have x := a + 0; f x) = b := by grind_norm check; sorry
+
+#guard_msgs in
+example : ∀ z, (let x := z + 0; f x) = b := by grind_norm check; sorry
+
+#guard_msgs in
+example : (let g := fun x => x + 0; g a) = b := by grind_norm check; sorry
+
+#guard_msgs in
+example : let x := a; f x = b := by grind_norm check; sorry
+
+#guard_msgs in
+example : let x := a; ∀ y, f x = y := by grind_norm check; sorry
+
+end lets
+
+section matching
+variable (a b : Nat) (o : Option Nat) (l : List Nat)
+
+#guard_msgs in
+example : (match o with | some x => x + 0 | none => 0) = a := by grind_norm check; sorry
+
+#guard_msgs in
+example : (match some a with | some x => x | none => 0) = b := by grind_norm check; sorry
+
+#guard_msgs in
+example : (match a + 0, b with | 0, _ => 1 | _, 0 => 2 | _, _ => 3) = b := by grind_norm check; sorry
+
+#guard_msgs in
+example : (match l with | [] => 0 | x :: _ => x) = a := by grind_norm check; sorry
+
+#guard_msgs in
+example : (match [a] with | [] => 0 | x :: _ => x) = a := by grind_norm check; sorry
+
+#guard_msgs in
+example : (match (a, b) with | (x, y) => x + y) = a := by grind_norm check; sorry
+
+#guard_msgs in
+example : (if a = 0 then 1 else match a with | 0 => 2 | n + 1 => n) = b := by grind_norm check; sorry
+
+#guard_msgs in
+example (h : o.isSome) : o.get h = a := by grind_norm check; sorry
+
+#guard_msgs in
+example : (o.getD 0) = a := by grind_norm check; sorry
+
+#guard_msgs in
+example : (some a).getD 0 = b := by grind_norm check; sorry
+
+#guard_msgs in
+example : (a, b).fst = (a, b).snd := by grind_norm check; sorry
+
+#guard_msgs in
+example : a ≠ b := by grind_norm check; sorry
+
+#guard_msgs in
+example : (a = b) = (b = a) := by grind_norm check; sorry
+
+#guard_msgs in
+example : a = b ↔ b = a := by grind_norm check; sorry
+
+#guard_msgs in
+example : (a == b) = (b == a) := by grind_norm check; sorry
+
+#guard_msgs in
+example (x y : Bool) : (x ^^ y) = true := by grind_norm check; sorry
+
+#guard_msgs in
+example (x y : Bool) : (!x) = y := by grind_norm check; sorry
+
+#guard_msgs in
+example (x : Bool) : (x = true) = (x = false) := by grind_norm check; sorry
+
+#guard_msgs in
+example (x : Bool) : (if x then a else b) = a := by grind_norm check; sorry
+
+#guard_msgs in
+example (p : Prop) [Decidable p] : decide p = true := by grind_norm check; sorry
+
+#guard_msgs in
+example (p : Prop) [Decidable p] : decide p = false := by grind_norm check; sorry
+
+#guard_msgs in
+example (p q : Prop) [Decidable p] [Decidable q] : (decide p && decide q) = true := by grind_norm check; sorry
+
+#guard_msgs in
+example (p q : Prop) : (p → q) := by grind_norm check; sorry
+
+#guard_msgs in
+example (p q : Prop) : (p → q → p) := by grind_norm check; sorry
+
+#guard_msgs in
+example (p q : Prop) : (p ∧ True) ∨ (q ∧ False) := by grind_norm check; sorry
+
+#guard_msgs in
+example (p q : Prop) : (p ↔ True) := by grind_norm check; sorry
+
+#guard_msgs in
+example (p q : Prop) : (p ∧ q) = (q ∧ p) := by grind_norm check; sorry
+
+#guard_msgs in
+example (p q : Prop) : ¬(p ↔ q) := by grind_norm check; sorry
+
+#guard_msgs in
+example (p : Prop) : p ∨ p := by grind_norm check; sorry
+
+#guard_msgs in
+example (p : Prop) : p ∧ p := by grind_norm check; sorry
+
+#guard_msgs in
+example (p : Prop) : p ∧ ¬p := by grind_norm check; sorry
+
+#guard_msgs in
+example (p : Prop) : p ∨ ¬p := by grind_norm check; sorry
+
+#guard_msgs in
+example (p : Prop) : p → p := by grind_norm check; sorry
+
+#guard_msgs in
+example (p : Prop) : (p = p) := by grind_norm check; sorry
+
+#guard_msgs in
+example (p : Prop) : (True = p) := by grind_norm check; sorry
+
+#guard_msgs in
+example (p : Prop) : (False = p) := by grind_norm check; sorry
+
+#guard_msgs in
+example (p q : Prop) [Decidable p] : (if p then q else ¬q) := by grind_norm check; sorry
+
+#guard_msgs in
+example (p q : Prop) [Decidable p] : ¬(if p then q else ¬q) := by grind_norm check; sorry
+
+#guard_msgs in
+example (p : Prop) [Decidable p] : (if p then a else a) = b := by grind_norm check; sorry
+
+#guard_msgs in
+example (p : Prop) [Decidable p] : (if ¬p then a else b) = b := by grind_norm check; sorry
+
+end matching
+
+section norm_attrs
+namespace NormAttrs
+
+opaque f : Nat → Nat
+opaque g : Nat → Nat
+opaque p : Nat → Prop
+@[grind norm] axiom fax : f x = x + 2
+@[grind norm ←] axiom gf : g (x + 1) = g x + 1
+@[grind norm ↓] axiom pax : p (x + 1) = p x
+@[grind norm] axiom cond_ax (x : Nat) : x > 0 → g (2 * x) = g x
+@[grind unfold] def h (x : Nat) := 2 * x
+def k : Nat → Nat
+  | 0 => 1
+  | n + 1 => 2 * k n
+attribute [grind unfold] k
+variable (a b : Nat)
+
+#guard_msgs in
+example : f a = b := by grind_norm check; sorry
+
+#guard_msgs in
+example : f (f a) = b := by grind_norm check; sorry
+
+/--
+error: `grind_norm` discrepancy
+legacy:
+  g (a + 1) = b
+sym:
+  g a + 1 = b
+-/
+#guard_msgs in
+example : g a + 1 = b := by grind_norm check; sorry
+
+#guard_msgs in
+example : p (a + 1) := by grind_norm check; sorry
+
+/--
+error: `grind_norm` discrepancy
+legacy:
+  p a
+sym:
+  p (a + 2)
+-/
+#guard_msgs in
+example : p (a + 2) := by grind_norm check; sorry
+
+#guard_msgs in
+example : g (2 * 3) = b := by grind_norm check; sorry
+
+#guard_msgs in
+example : g (2 * (a + 1)) = b := by grind_norm check; sorry
+
+#guard_msgs in
+example : h a = b := by grind_norm check; sorry
+
+#guard_msgs in
+example : h (h a) = b := by grind_norm check; sorry
+
+#guard_msgs in
+example : k 0 = b := by grind_norm check; sorry
+
+#guard_msgs in
+example : k (a + 1) = b := by grind_norm check; sorry
+
+#guard_msgs in
+example : k 2 = b := by grind_norm check; sorry
+
+end NormAttrs
+end norm_attrs

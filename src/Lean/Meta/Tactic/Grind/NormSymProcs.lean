@@ -7,18 +7,22 @@ module
 prelude
 public import Lean.Meta.Sym.Simp.SimpM
 import Lean.Meta.Sym.Simp.Result
+import Lean.Meta.Sym.Simp.App
+import Lean.Meta.Match.MatcherInfo
 import Lean.Meta.Sym.AlphaShareBuilder
 import Lean.Meta.Sym.InstantiateS
 import Lean.Meta.Sym.InferType
 import Lean.Meta.Sym.SynthInstance
 import Lean.Meta.AppBuilder
+import Lean.Meta.Tactic.Grind.ForallAnd
 import Lean.Meta.CtorRecognizer
 import Init.Grind.Norm
+import Init.Grind.Util
 import Init.Grind.Lemmas
 import Init.ByCases
 public section
 namespace Lean.Meta.Grind.NormSym
-open Sym.Simp (Simproc Result SimpM)
+open Sym.Simp (Simproc Result SimpM mkRflResult)
 open Sym (getTrueExpr getFalseExpr getBoolTrueExpr getBoolFalseExpr share isSameExpr)
 open Sym.Internal
 
@@ -48,6 +52,33 @@ private def mkExistsS (u : Level) (α p : Expr) : SimpM Expr := do
 def eraseMData : Simproc := fun e => do
   let .mdata _ b := e | return .rfl
   return .step b (← Sym.mkEqRefl b)
+
+/--
+`Grind.PreMatchCond p` is left as is: `p` is a condition of a `match` equation and must keep
+the shape produced by `annotateMatchEqnType`; `replacePreMatchCond` turns it into
+`Grind.MatchCond` after normalization.
+-/
+def preMatchCond : Simproc := fun e => do
+  let_expr Grind.PreMatchCond _ := e | return .rfl
+  return mkRflResult (done := true)
+
+/--
+`Grind.simpMatchDiscrsOnly m`, where `m` is a `match` application: only the discriminants of `m`
+are simplified, the alternatives are not visited. The annotation stays and is erased by
+`eraseSimpMatchDiscrsOnly` after normalization.
+-/
+def simpMatchDiscrsOnly : Simproc := fun e => do
+  match h : e with
+  | .app f m =>
+    let_expr Grind.simpMatchDiscrsOnly _ _ := e | return .rfl
+    let .const declName _ := m.getAppFn | return mkRflResult (done := true)
+    let some info ← getMatcherInfo? declName | return mkRflResult (done := true)
+    let start := info.numParams + 1
+    let r ← Sym.Simp.simpAppArgRange m start (start + info.numDiscrs)
+    match (← Sym.Simp.mkCongrArg e f m r h) with
+    | .rfl _ cd => return mkRflResult (done := true) (contextDependent := cd)
+    | .step e' h' _ cd => return .step e' h' (done := true) (contextDependent := cd)
+  | _ => return .rfl
 
 private def isBoolEqTarget (declName : Name) : Bool :=
   declName == ``Bool.and ||
@@ -173,9 +204,9 @@ private def isForallOrNot? (e : Expr) : Option (Name × Expr × Expr) :=
 
 /--
 Normalizes universally quantified propositions and implications:
-`Grind.imp_true_eq`, `Grind.imp_false_eq`, `Grind.forall_imp_eq_or`, `Grind.true_imp_eq`,
+`Grind.imp_true_eq`, `Grind.imp_false_eq`, `Grind.true_imp_eq`,
 `Grind.false_imp_eq`, `Grind.imp_self_eq`, `Grind.forall_true`, `forall_false`,
-`Grind.forall_or_forall`, `Grind.forall_forall_or`, `Grind.forall_and`.
+`Grind.forall_or_forall`, `Grind.forall_forall_or`, `Grind.forall_and` (see `forallImpAnd?`).
 -/
 def simpForall : Simproc := fun e => do
   let .forallE varName d b info := e | return .rfl
@@ -184,14 +215,7 @@ def simpForall : Simproc := fun e => do
     | True => if (← isProp b) then return .step b (mkApp (mkConst ``Grind.true_imp_eq) b) (done := true)
     | False => if (← isProp b) then return .step (← getTrueExpr) (mkApp (mkConst ``Grind.false_imp_eq) b) (done := true)
     | _ =>
-    if let .forallE aName α pRaw info' := d then
-      if (← pure pRaw.hasLooseBVars <&&> isProp d) then
-        let p := mkLambda aName info' α pRaw
-        let q := b
-        let u ← Sym.getLevel α
-        let e' ← mkOrS (← mkExistsS u α (← mkLambdaS aName info' α (← mkNotS pRaw))) q
-        return .step e' (mkApp3 (mkConst ``Grind.forall_imp_eq_or [u]) α p q)
-    else match_expr b with
+    match_expr b with
     | True => if (← isProp d) then return .step (← getTrueExpr) (mkApp (mkConst ``Grind.imp_true_eq) d) (done := true)
     | False => if (← isProp d) then return .step (← mkNotS d) (mkApp (mkConst ``Grind.imp_false_eq) d)
     | _ =>
@@ -236,14 +260,8 @@ def simpForall : Simproc := fun e => do
         let body ← mkOrS (← share (pRaw.liftLooseBVars 0 1)) qRaw
         let e' ← mkForallS varName info α (← mkForallS bName .default βRaw body)
         return .step e' (mkApp4 (mkConst ``Grind.forall_or_forall [u, v]) α β p q)
-    else if bDeclName == ``And then
-      let pRaw := b.appFn!.appArg!
-      let qRaw := b.appArg!
-      let p := mkLambda varName info d pRaw
-      let q := mkLambda varName info d qRaw
-      let e' ← mkAndS (← mkForallS varName info d pRaw) (← mkForallS varName info d qRaw)
-      let u ← Sym.getLevel d
-      return .step e' (mkApp3 (mkConst ``Grind.forall_and [u]) d p q)
+  if let some (lhs, rhs, h) ← forallImpAnd? e then
+    return .step (← mkAndS (← share lhs) (← share rhs)) h
   return .rfl
 
 /--

@@ -488,8 +488,8 @@ LEAN_EXPORT lean_object* l_Std_TreeSet_inter(lean_object*, lean_object*, lean_ob
 LEAN_EXPORT lean_object* l_Std_TreeSet_instInter___redArg(lean_object*);
 LEAN_EXPORT lean_object* l_Std_TreeSet_instInter(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Std_DTreeMap_Internal_Impl_Const_get_x3f___at___00Std_DTreeMap_Internal_Impl_Const_beq___at___00Std_DTreeMap_Const_beq___at___00Std_TreeMap_beq___at___00Std_TreeSet_beq_spec__0_spec__0_spec__1_spec__2___redArg(lean_object*, lean_object*, lean_object*);
-LEAN_EXPORT uint8_t l_Option_instBEq_beq___at___00Std_DTreeMap_Internal_Impl_Const_beq___at___00Std_DTreeMap_Const_beq___at___00Std_TreeMap_beq___at___00Std_TreeSet_beq_spec__0_spec__0_spec__1_spec__3(lean_object*, lean_object*);
-LEAN_EXPORT lean_object* l_Option_instBEq_beq___at___00Std_DTreeMap_Internal_Impl_Const_beq___at___00Std_DTreeMap_Const_beq___at___00Std_TreeMap_beq___at___00Std_TreeSet_beq_spec__0_spec__0_spec__1_spec__3___boxed(lean_object*, lean_object*);
+LEAN_EXPORT uint8_t l_instBEqOption_beq___at___00Std_DTreeMap_Internal_Impl_Const_beq___at___00Std_DTreeMap_Const_beq___at___00Std_TreeMap_beq___at___00Std_TreeSet_beq_spec__0_spec__0_spec__1_spec__3(lean_object*, lean_object*);
+LEAN_EXPORT lean_object* l_instBEqOption_beq___at___00Std_DTreeMap_Internal_Impl_Const_beq___at___00Std_DTreeMap_Const_beq___at___00Std_TreeMap_beq___at___00Std_TreeSet_beq_spec__0_spec__0_spec__1_spec__3___boxed(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Std_DTreeMap_Internal_Impl_forInStep___at___00Std_DTreeMap_Internal_Impl_Const_beq___at___00Std_DTreeMap_Const_beq___at___00Std_TreeMap_beq___at___00Std_TreeSet_beq_spec__0_spec__0_spec__1_spec__4___redArg(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Std_DTreeMap_Internal_Impl_forInStep___at___00Std_DTreeMap_Internal_Impl_Const_beq___at___00Std_DTreeMap_Const_beq___at___00Std_TreeMap_beq___at___00Std_TreeSet_beq_spec__0_spec__0_spec__1_spec__4___redArg___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT uint8_t l_Std_DTreeMap_Internal_Impl_Const_beq___at___00Std_DTreeMap_Const_beq___at___00Std_TreeMap_beq___at___00Std_TreeSet_beq_spec__0_spec__0_spec__1___redArg(lean_object*, lean_object*, lean_object*);
@@ -3525,9 +3525,9 @@ goto v___jp_1420_;
 v___jp_1408_:
 {
 lean_object* v___x_1412_; lean_object* v___x_1414_; 
-v___x_1412_ = lean_nat_add(v___y_1410_, v___y_1411_);
+v___x_1412_ = lean_nat_add(v___y_1409_, v___y_1411_);
 lean_dec(v___y_1411_);
-lean_dec(v___y_1410_);
+lean_dec(v___y_1409_);
 if (v_isShared_1405_ == 0)
 {
 lean_ctor_set(v___x_1404_, 4, v_r_1369_);
@@ -3556,7 +3556,7 @@ lean_object* v___x_1416_;
 if (v_isShared_1393_ == 0)
 {
 lean_ctor_set(v___x_1392_, 4, v___x_1414_);
-lean_ctor_set(v___x_1392_, 3, v___y_1409_);
+lean_ctor_set(v___x_1392_, 3, v___y_1410_);
 lean_ctor_set(v___x_1392_, 2, v_v_1397_);
 lean_ctor_set(v___x_1392_, 1, v_k_1396_);
 lean_ctor_set(v___x_1392_, 0, v___x_1407_);
@@ -3570,7 +3570,7 @@ v_reuseFailAlloc_1417_ = lean_alloc_ctor(0, 5, 0);
 lean_ctor_set(v_reuseFailAlloc_1417_, 0, v___x_1407_);
 lean_ctor_set(v_reuseFailAlloc_1417_, 1, v_k_1396_);
 lean_ctor_set(v_reuseFailAlloc_1417_, 2, v_v_1397_);
-lean_ctor_set(v_reuseFailAlloc_1417_, 3, v___y_1409_);
+lean_ctor_set(v_reuseFailAlloc_1417_, 3, v___y_1410_);
 lean_ctor_set(v_reuseFailAlloc_1417_, 4, v___x_1414_);
 v___x_1416_ = v_reuseFailAlloc_1417_;
 goto v_reusejp_1415_;
@@ -3618,8 +3618,8 @@ if (lean_obj_tag(v_r_1399_) == 0)
 lean_object* v_size_1426_; 
 v_size_1426_ = lean_ctor_get(v_r_1399_, 0);
 lean_inc(v_size_1426_);
-v___y_1409_ = v___x_1424_;
-v___y_1410_ = v___x_1425_;
+v___y_1409_ = v___x_1425_;
+v___y_1410_ = v___x_1424_;
 v___y_1411_ = v_size_1426_;
 goto v___jp_1408_;
 }
@@ -3627,8 +3627,8 @@ else
 {
 lean_object* v___x_1427_; 
 v___x_1427_ = lean_unsigned_to_nat(0u);
-v___y_1409_ = v___x_1424_;
-v___y_1410_ = v___x_1425_;
+v___y_1409_ = v___x_1425_;
+v___y_1410_ = v___x_1424_;
 v___y_1411_ = v___x_1427_;
 goto v___jp_1408_;
 }
@@ -4184,9 +4184,9 @@ goto v___jp_1559_;
 v___jp_1548_:
 {
 lean_object* v___x_1552_; lean_object* v___x_1554_; 
-v___x_1552_ = lean_nat_add(v___y_1550_, v___y_1551_);
+v___x_1552_ = lean_nat_add(v___y_1549_, v___y_1551_);
 lean_dec(v___y_1551_);
-lean_dec(v___y_1550_);
+lean_dec(v___y_1549_);
 if (v_isShared_1545_ == 0)
 {
 lean_ctor_set(v___x_1544_, 4, v_r_1522_);
@@ -4215,7 +4215,7 @@ lean_object* v___x_1556_;
 if (v_isShared_1533_ == 0)
 {
 lean_ctor_set(v___x_1532_, 4, v___x_1554_);
-lean_ctor_set(v___x_1532_, 3, v___y_1549_);
+lean_ctor_set(v___x_1532_, 3, v___y_1550_);
 lean_ctor_set(v___x_1532_, 2, v_v_1536_);
 lean_ctor_set(v___x_1532_, 1, v_k_1535_);
 lean_ctor_set(v___x_1532_, 0, v___x_1547_);
@@ -4229,7 +4229,7 @@ v_reuseFailAlloc_1557_ = lean_alloc_ctor(0, 5, 0);
 lean_ctor_set(v_reuseFailAlloc_1557_, 0, v___x_1547_);
 lean_ctor_set(v_reuseFailAlloc_1557_, 1, v_k_1535_);
 lean_ctor_set(v_reuseFailAlloc_1557_, 2, v_v_1536_);
-lean_ctor_set(v_reuseFailAlloc_1557_, 3, v___y_1549_);
+lean_ctor_set(v_reuseFailAlloc_1557_, 3, v___y_1550_);
 lean_ctor_set(v_reuseFailAlloc_1557_, 4, v___x_1554_);
 v___x_1556_ = v_reuseFailAlloc_1557_;
 goto v_reusejp_1555_;
@@ -4274,8 +4274,8 @@ if (lean_obj_tag(v_r_1538_) == 0)
 lean_object* v_size_1565_; 
 v_size_1565_ = lean_ctor_get(v_r_1538_, 0);
 lean_inc(v_size_1565_);
-v___y_1549_ = v___x_1563_;
-v___y_1550_ = v___x_1564_;
+v___y_1549_ = v___x_1564_;
+v___y_1550_ = v___x_1563_;
 v___y_1551_ = v_size_1565_;
 goto v___jp_1548_;
 }
@@ -4283,8 +4283,8 @@ else
 {
 lean_object* v___x_1566_; 
 v___x_1566_ = lean_unsigned_to_nat(0u);
-v___y_1549_ = v___x_1563_;
-v___y_1550_ = v___x_1564_;
+v___y_1549_ = v___x_1564_;
+v___y_1550_ = v___x_1563_;
 v___y_1551_ = v___x_1566_;
 goto v___jp_1548_;
 }
@@ -5293,7 +5293,7 @@ return v___x_1906_;
 }
 }
 }
-LEAN_EXPORT uint8_t l_Option_instBEq_beq___at___00Std_DTreeMap_Internal_Impl_Const_beq___at___00Std_DTreeMap_Const_beq___at___00Std_TreeMap_beq___at___00Std_TreeSet_beq_spec__0_spec__0_spec__1_spec__3(lean_object* v_x_1907_, lean_object* v_x_1908_){
+LEAN_EXPORT uint8_t l_instBEqOption_beq___at___00Std_DTreeMap_Internal_Impl_Const_beq___at___00Std_DTreeMap_Const_beq___at___00Std_TreeMap_beq___at___00Std_TreeSet_beq_spec__0_spec__0_spec__1_spec__3(lean_object* v_x_1907_, lean_object* v_x_1908_){
 _start:
 {
 if (lean_obj_tag(v_x_1907_) == 0)
@@ -5328,11 +5328,11 @@ return v___x_1912_;
 }
 }
 }
-LEAN_EXPORT lean_object* l_Option_instBEq_beq___at___00Std_DTreeMap_Internal_Impl_Const_beq___at___00Std_DTreeMap_Const_beq___at___00Std_TreeMap_beq___at___00Std_TreeSet_beq_spec__0_spec__0_spec__1_spec__3___boxed(lean_object* v_x_1913_, lean_object* v_x_1914_){
+LEAN_EXPORT lean_object* l_instBEqOption_beq___at___00Std_DTreeMap_Internal_Impl_Const_beq___at___00Std_DTreeMap_Const_beq___at___00Std_TreeMap_beq___at___00Std_TreeSet_beq_spec__0_spec__0_spec__1_spec__3___boxed(lean_object* v_x_1913_, lean_object* v_x_1914_){
 _start:
 {
 uint8_t v_res_1915_; lean_object* v_r_1916_; 
-v_res_1915_ = l_Option_instBEq_beq___at___00Std_DTreeMap_Internal_Impl_Const_beq___at___00Std_DTreeMap_Const_beq___at___00Std_TreeMap_beq___at___00Std_TreeSet_beq_spec__0_spec__0_spec__1_spec__3(v_x_1913_, v_x_1914_);
+v_res_1915_ = l_instBEqOption_beq___at___00Std_DTreeMap_Internal_Impl_Const_beq___at___00Std_DTreeMap_Const_beq___at___00Std_TreeMap_beq___at___00Std_TreeSet_beq_spec__0_spec__0_spec__1_spec__3(v_x_1913_, v_x_1914_);
 lean_dec(v_x_1914_);
 lean_dec(v_x_1913_);
 v_r_1916_ = lean_box(v_res_1915_);
@@ -5442,7 +5442,7 @@ goto v_reusejp_1942_;
 v_reusejp_1942_:
 {
 uint8_t v___x_1944_; 
-v___x_1944_ = l_Option_instBEq_beq___at___00Std_DTreeMap_Internal_Impl_Const_beq___at___00Std_DTreeMap_Const_beq___at___00Std_TreeMap_beq___at___00Std_TreeSet_beq_spec__0_spec__0_spec__1_spec__3(v___x_1941_, v___x_1943_);
+v___x_1944_ = l_instBEqOption_beq___at___00Std_DTreeMap_Internal_Impl_Const_beq___at___00Std_DTreeMap_Const_beq___at___00Std_TreeMap_beq___at___00Std_TreeSet_beq_spec__0_spec__0_spec__1_spec__3(v___x_1941_, v___x_1943_);
 lean_dec_ref(v___x_1943_);
 lean_dec(v___x_1941_);
 if (v___x_1944_ == 0)

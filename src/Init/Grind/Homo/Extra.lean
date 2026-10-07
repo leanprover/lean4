@@ -15,6 +15,7 @@ public import Init.Data.Int.Pow
 public import Init.Data.Int.Bitwise.Lemmas
 public import Init.Data.Int.DivMod.Bootstrap
 public import Init.Data.Int.DivMod.Lemmas
+import Init.Omega
 public section
 
 /-!
@@ -93,3 +94,42 @@ theorem Lean.Grind.Nat.ones_zeros_and_eq_div_mod_mul (x c p q k n : Nat)
     (h₁ : c = (2^n - 1) * 2^k) (h₂ : p = 2^k) (h₃ : q = 2^n) :
     c &&& x = x / p % q * p := by
   rw [Nat.and_comm]; exact and_eq_div_mod_mul x c p q k n h₁ h₂ h₃
+
+/-!
+Support theorem for the builtin `[grind hom]` simproc that rewrites `c * x % m` with
+literals `c`, `m`, `m / 2 < c < m` into `(m - c' * x % m) % m` with `c' = m - c`, so that
+`-k * a` and `-(k * a)` over `UIntN`/`BitVec` get the same image. `cutsat` splits on the
+coefficient of a variable when it has to eliminate it exactly, so a coefficient close to the
+modulus is replaced by its small complement. The hypothesis is a ground equality between
+literals, discharged by `rfl`.
+-/
+
+theorem Lean.Grind.Nat.mul_mod_eq_sub_mul_mod (x c c' m : Nat) (h : c + c' = m) :
+    c * x % m = (m - c' * x % m) % m := by
+  subst h
+  have h₁ : (c * x + c' * x) % (c + c') = 0 := by rw [← Nat.add_mul, Nat.mul_mod_right]
+  rw [Nat.add_mod] at h₁
+  cases Nat.eq_zero_or_pos (c + c') with
+  | inl h₀ =>
+    have ⟨hc, hc'⟩ := Nat.add_eq_zero_iff.mp h₀
+    subst hc hc'; simp
+  | inr hpos =>
+    have ha := Nat.mod_lt (c * x) hpos
+    have hb := Nat.mod_lt (c' * x) hpos
+    generalize c * x % (c + c') = a at *
+    generalize c' * x % (c + c') = b at *
+    generalize c + c' = n at *
+    cases Nat.lt_or_ge (a + b) n with
+    | inl hlt =>
+      rw [Nat.mod_eq_of_lt hlt] at h₁
+      have : a = 0 := by omega
+      have : b = 0 := by omega
+      subst a b; simp
+    | inr hge =>
+      rw [Nat.mod_eq_sub_mod hge, Nat.mod_eq_of_lt (by omega)] at h₁
+      have : n - b = a := by omega
+      rw [this, Nat.mod_eq_of_lt ha]
+
+theorem Lean.Grind.Nat.mul_mod_eq_sub_mul_mod' (x c c' m : Nat) (h : c + c' = m) :
+    x * c % m = (m - c' * x % m) % m := by
+  rw [Nat.mul_comm]; exact mul_mod_eq_sub_mul_mod x c c' m h

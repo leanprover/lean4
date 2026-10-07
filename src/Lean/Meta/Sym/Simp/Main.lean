@@ -17,8 +17,33 @@ builtin_initialize registerTraceClass `sym.simp.debug.cache
 
 open Lean.Meta.Sym.Internal
 
+/--
+Returns `true` if `e` is a numeral application whose arguments are not visited:
+`OfNat.ofNat _ n _`, `Char.ofNat n`, and `OfScientific.ofScientific _ _ m _ e` with raw
+literals `n`, `m`, `e`. Like `Meta.simp`, `simp` treats these as atoms; see `simpStep`.
+-/
+private def isLitApp (e : Expr) : Bool :=
+  (e.isAppOfArity ``OfNat.ofNat 3 && (e.getArg! 1).isRawNatLit) ||
+  e.isCharLit ||
+  (e.isAppOfArity ``OfScientific.ofScientific 5 && (e.getArg! 2).isRawNatLit && (e.getArg! 4).isRawNatLit)
+
+/--
+The structural step of `simp`: visits the subterms of `e` and rebuilds `e` from their
+normal forms.
+
+**Note**:
+Like `Meta.simp`, an orphan raw `Nat` literal `n` is folded into
+`OfNat.ofNat Nat n _`, the canonical numeral form that the literal recognizers
+(`getNatValue?`, `evalGround`, the arithmetic normalizer) expect; rewrite rules
+whose pattern variable binds the raw literal of a numeral produce such orphans, e.g.
+`(OfNat.ofNat a : Fin n).val = a % n` applied to `(0 : Fin n).val`. Numeral applications
+are not visited, so the raw literal inside them stays raw.
+-/
 def simpStep : Simproc := fun e => do
   match e with
+  | .lit (.natVal n) =>
+    let e' ← share (mkNatLit n)
+    return .step e' (← mkEqRefl e')
   | .lit _ | .sort _ | .bvar _ | .const .. | .fvar _  | .mvar _ => return .rfl
   | .proj .. =>
     throwError "unexpected kernel projection term during simplification{indentExpr e}\npre-process and fold them as projection applications"
@@ -31,7 +56,7 @@ def simpStep : Simproc := fun e => do
   | .lam .. => simpLambda e
   | .forallE .. => simpForall e
   | .letE .. => simpLet e
-  | .app .. => simpAppArgs e
+  | .app .. => if isLitApp e then return .rfl else simpAppArgs e
 
 set_option compiler.ignoreBorrowAnnotation true in
 @[export lean_sym_simp]

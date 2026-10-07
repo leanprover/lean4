@@ -87,10 +87,8 @@ public def main (args : List String) : IO UInt32 := do
   let env ← profileitIO "import" opts <| withImporting do
     -- `importAll` so we have access to all private data
     let imports := #[{ module := modName, importAll := true : Import }]
-    -- Do NOT pass `setup.importArts`: Lake's elab-oriented setup only has IR paths for
-    -- meta/importAll deps. leanir needs `.ir.sig` for ALL deps, found via `findIRParts` on disk
-    -- (deps' `leanIR` has already run per `depBarrier` in `recBuildLeanIR`).
-    let (_, s) ← importModulesCore (globalLevel := .exported) (loadIRSig := true) imports |>.run
+    let (_, s) ← importModulesCore (globalLevel := .exported) (loadIRSig := true)
+      (arts := setup.importArts) imports |>.run
     let s := { s with moduleNameMap := s.moduleNameMap.modify modName fun m => { m with irPhases := .runtime } }
     -- level exported because otherwise we would try to load the current module's `.ir`
     finalizeImport (leakEnv := true) (loadExts := false) (level := .exported) (loadIRSig := true) s imports opts

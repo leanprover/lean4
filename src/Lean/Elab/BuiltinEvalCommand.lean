@@ -8,6 +8,7 @@ module
 prelude
 public import Lean.Elab.MutualDef
 import Lean.Compiler.Options
+import Lean.Compiler.IR.CompilerM
 import Lean.Meta.Reduce
 import all Lean.Elab.ErrorUtils
 
@@ -105,8 +106,11 @@ private def addAndCompileExprForEval (declName : Name) (value : Expr) (allowSorr
     Term.elabMutualDef #[] { header := "" } #[defView]
   assert! (← getEnv).contains declName
   unless allowSorry do
-    let axioms ← collectAxioms declName
-    if axioms.contains ``sorryAx then
+    -- Checking imported proofs would require walking, and under the module system loading, the
+    -- bodies of all imported dependencies, so only `sorry` in declarations of the current module
+    -- and in imported compiled code is detected.
+    let { axioms, .. } ← collectAxiomsCore declName (localOnly := true)
+    if axioms.contains ``sorryAx || (IR.getSorryDep (← getEnv) declName).isSome then
       throwError "\
         Aborting evaluation since the expression depends on the 'sorry' axiom, \
         which can lead to runtime instability and crashes.\n\n\

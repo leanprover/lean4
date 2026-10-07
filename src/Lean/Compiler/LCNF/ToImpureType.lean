@@ -8,6 +8,7 @@ module
 prelude
 public import Lean.Compiler.LCNF.Irrelevant
 import Lean.Compiler.LCNF.MonoTypes
+import Lean.Runtime
 import Init.Data.Format.Macro
 
 namespace Lean.Compiler.LCNF
@@ -237,6 +238,12 @@ where
           .pure <| .scalar 8 0 ImpureType.float
         | _ => unreachable!
         fields := fields.push ctorField
+      if nextIdx ≥ ctorBigNumObjs then
+        -- Index 0 is taken by the hidden field holding the number of object fields.
+        fields := fields.map fun
+          | .object i type => .object (i + 1) type
+          | field => field
+        nextIdx := nextIdx + 1
       let numObjs := nextIdx
       ⟨fields, nextIdx⟩ := Id.run <| StateT.run (s := nextIdx) <| fields.mapM fun field => do
         match field with

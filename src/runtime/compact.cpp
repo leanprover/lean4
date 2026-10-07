@@ -558,7 +558,7 @@ inline void region_reader::fix_constructor(object * o) {
     for (; it != end; it++) {
         *it = fix_object_ptr(*it);
     }
-    lean_assert(lean_object_byte_size(o) < 4192);
+    lean_assert(lean_object_byte_size(o) < (1u << 16));
     move(o);
 }
 

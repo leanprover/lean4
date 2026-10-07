@@ -150,8 +150,12 @@ partial def lowerLet (decl : LetDecl .pure) (k : Code .pure) : ToImpureM (Code .
           -- transformations on unreachable code
           return .unreach (ImpureType.tobject) -- TODO: need a more precise type for this
 
+        let numObjsDecl? ← if ctorInfo.hasNumObjsField then
+            some <$> mkLetDecl (← mkFreshBinderName `numObjs) ImpureType.tagged (.lit (.nat ctorInfo.size))
+          else
+            pure none
         let objArgs : Array (Arg .impure) ← do
-          let mut result : Array (Arg .impure) := #[]
+          let mut result : Array (Arg .impure) := numObjsDecl?.toArray.map (.fvar ·.fvarId)
           for h : i in *...fields.size do
             match fields[i] with
             | .object .. =>
@@ -175,7 +179,10 @@ partial def lowerLet (decl : LetDecl .pure) (k : Code .pure) : ToImpureM (Code .
           loop 0
         let decl := ⟨decl.fvarId, decl.binderName, ctorInfo.type, .ctor ctorInfo objArgs⟩
         modifyLCtx fun lctx => lctx.addLetDecl decl
-        return .let decl (← lowerNonObjectFields)
+        let code := .let decl (← lowerNonObjectFields)
+        return match numObjsDecl? with
+          | some numObjsDecl => .let numObjsDecl code
+          | none => code
     | some (.defnInfo ..) | some (.opaqueInfo ..) => mkFap name irArgs
     | some (.axiomInfo ..) | .some (.quotInfo ..) | .some (.inductInfo ..) | .some (.thmInfo ..) =>
       -- Should have been caught by `ToLCNF`

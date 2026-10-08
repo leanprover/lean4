@@ -33,8 +33,8 @@ Interpreter for Lean bytecode.
 namespace lean {
 namespace interpreter {
 
-#define INTERPRETER_STACK_SIZE (1 << 18)
-#define INTERPRETER_FRAME_COUNT (1 << 12)
+#define INTERPRETER_STACK_SIZE (1 << 20)
+#define INTERPRETER_FRAME_COUNT (1 << 16)
 
 typedef lean_interpreter_value value;
 

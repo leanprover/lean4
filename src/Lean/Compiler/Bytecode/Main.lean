@@ -769,6 +769,11 @@ def boxIntoZero (ty : Expr) : Array Instruction :=
   | tobject | object | tagged | erased | void => #[]
   | _ => unreachable!
 
+def incZero (ty : Expr) : Array Instruction :=
+  match ty with
+  | tobject | object => #[.inc 0 1]
+  | _ => #[]
+
 partial def setupParams (retType : Expr) : M Unit := do
   let mut pos := 0
   for p in (← read).params do
@@ -943,6 +948,7 @@ def compile (decls : Array (Decl .impure)) : CompilerM Unit := do
           constants := #[]
           cache := .mkEmpty ..
         }
+        trace[Compiler.bytecode.result] m!"{disassemble decl}"
         bytecodeDecls := bytecodeDecls.push decl
   bytecodeDecls ← updateSorryDep bytecodeDecls
   bytecodeDecls.forM fun decl =>

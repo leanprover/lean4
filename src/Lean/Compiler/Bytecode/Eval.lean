@@ -57,7 +57,7 @@ unsafe def evalConstCoreImpl (env : Environment)
       throw s!"cannot evaluate code because '{sorryDep}' uses 'sorry' and/or contains errors"
   let mut code : Array Instruction := #[]
   if sig.params.isEmpty then
-    code := #[.loadConst 0] ++ ToBytecode.boxIntoZero sig.type
+    code := #[.loadConst 0] ++ ToBytecode.incZero sig.type ++ ToBytecode.boxIntoZero sig.type
   else
     assert! sig.params.all (!·.borrow) && !sig.type.isScalar && sig.params.all (!·.type.isScalar)
       && sig.params.all (!·.type.isVoid) && sig.params.size <= 16

@@ -205,13 +205,13 @@ $(OUTBIN)/leanc$(EXE): $(OUTARC)/libLeanc.a
 leanc: $(OUTBIN)/leanc$(EXE)
 
 # `leanir` never elaborates Lean source and is started once per module, so it gets the minimal
-# `lean_initialize`, linked ahead of the one in `libleanshared`; see `initialize_minimal` in
+# `lean_initialize`, selected by a shim linked ahead of `libleanshared`; see `initialize_minimal_shim` in
 # `src/initialize/CMakeLists.txt`. `LeanIR.lean` imports what its own initializer must cover.
-$(OUTBIN)/leanir$(EXE): $(OUTARC)/libLeanIR.a $(OUTARC)/libinitialize_minimal.a
+$(OUTBIN)/leanir$(EXE): $(OUTARC)/libLeanIR.a $(OUTARC)/libinitialize_minimal_shim.a
 	@echo "[    ] Building $@"
 # on Windows, must remove file before writing a new one (since the old one may be in use)
 	@rm -f $@
-	"${CMAKE_BINARY_DIR}/leanc.sh" $< $(OUTARC)/libinitialize_minimal.a ${CMAKE_EXE_LINKER_FLAGS_MAKE} ${CMAKE_DYN_EXE_LINKER_FLAGS_MAKE} ${LEAN_EXE_LINKER_FLAGS} -o $@
+	"${CMAKE_BINARY_DIR}/leanc.sh" $< $(OUTARC)/libinitialize_minimal_shim.a ${CMAKE_EXE_LINKER_FLAGS_MAKE} ${CMAKE_DYN_EXE_LINKER_FLAGS_MAKE} ${LEAN_EXE_LINKER_FLAGS} -o $@
 
 leanir: $(OUTBIN)/leanir$(EXE)
 

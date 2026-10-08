@@ -19,6 +19,14 @@ import Lean.Language.Lean
 import Lean.Compiler.LCNF.PhaseExt
 import Lean.Compiler.LCNF.Main
 import Lean.Compiler.LCNF.Specialize
+-- `leanir` is linked against the minimal `lean_initialize`, which leaves initializing the `Lean`
+-- modules to this module's import closure. These are the modules defining an `@[export]` whose
+-- `@[extern]` counterpart is in that closure but which the closure does not otherwise reach.
+import Lean.Meta.ExprDefEq
+import Lean.Meta.LevelDefEq
+import Lean.Meta.Match.MatchEqs
+import Lean.Elab.PreDefinition.Structural.Eqns
+import Lean.Elab.Idbg
 
 /-! Lean codegen as a separate process. -/
 

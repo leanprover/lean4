@@ -27,6 +27,11 @@ test_run build Test.C:c
 no_match_text 'A.ir"' .lake/build/ir/Test/B.setup.json
 match_text 'A.ir"' .lake/build/ir/Test/B.irsetup.json
 
+# A `meta import` does need the IR, as elaboration runs its code
+echo "# TEST: evaluation across a meta import"
+test_out "42" build Test.MetaEval -v
+match_text 'A.ir"' .lake/build/ir/Test/MetaEval.setup.json
+
 # The server allows `#eval` on a plainly imported definition, so it must be able to run it
 echo "# TEST: server eval across a plain import"
 echo '$' lake setup-file Eval.lean

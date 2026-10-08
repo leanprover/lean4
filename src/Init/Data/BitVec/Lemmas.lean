@@ -3288,7 +3288,7 @@ theorem shiftLeft_eq_concat_of_lt {x : BitVec w} {n : Nat} (hn : n < w) :
 
 /-- Combine adjacent `extractLsb'` operations into a single `extractLsb'`. -/
 theorem extractLsb'_append_extractLsb'_eq_extractLsb' {x : BitVec w} (h : start₂ = start₁ + len₁) :
-    ((x.extractLsb' start₂ len₂) ++ (x.extractLsb' start₁ len₁)) =
+    (@HAppend.hAppend _ _ (no_index _) _ (x.extractLsb' start₂ len₂) (x.extractLsb' start₁ len₁)) =
       x.extractLsb' start₁ (len₂ + len₁) := by
   ext i h
   simp only [getElem_append, getElem_extractLsb', dite_eq_ite, ite_eq_left_iff, Nat.not_lt]

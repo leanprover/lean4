@@ -285,7 +285,6 @@ protected theorem le_of_lt [LT α]
     exact h' h
 
 protected theorem le_iff_lt_or_eq [LT α]
-    [Std.Irrefl (· < · : α → α → Prop)]
     [Std.Trichotomous (· < · : α → α → Prop)]
     [Std.Asymm (· < · : α → α → Prop)]
     {l₁ l₂ : List α} : l₁ ≤ l₂ ↔ l₁ < l₂ ∨ l₁ = l₂ := by

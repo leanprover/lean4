@@ -36,7 +36,7 @@ static void lean_uv_tcp_socket_finalizer(void* ptr) {
     lean_always_assert(tcp_socket->m_promise_read == nullptr);
     lean_always_assert(tcp_socket->m_byte_array == nullptr);
 
-    event_loop_lock(&global_ev);
+    event_loop_guard guard;
 
     // The Lean object is being freed, so the close callback gets the struct instead. No callback
     // reads `data` as the Lean object after `uv_close`.
@@ -45,8 +45,6 @@ static void lean_uv_tcp_socket_finalizer(void* ptr) {
     uv_close((uv_handle_t*)&tcp_socket->m_uv_tcp, [](uv_handle_t* handle) {
         free(handle->data);
     });
-
-    event_loop_unlock(&global_ev);
 }
 
 void initialize_libuv_tcp_socket() {
@@ -104,9 +102,11 @@ extern "C" LEAN_EXPORT lean_obj_res lean_uv_tcp_new() {
     tcp_socket->m_listening = false;
     tcp_socket->m_pending_connections = 0;
 
-    event_loop_lock(&global_ev);
-    int result = uv_tcp_init(global_ev.loop, &tcp_socket->m_uv_tcp);
-    event_loop_unlock(&global_ev);
+    int result;
+    {
+        event_loop_guard guard;
+        result = uv_tcp_init(global_ev.loop, &tcp_socket->m_uv_tcp);
+    }
 
     if (result != 0) {
         free(tcp_socket);
@@ -151,9 +151,7 @@ extern "C" LEAN_EXPORT lean_obj_res lean_uv_tcp_connect(b_obj_arg socket, b_obj_
     lean_inc(socket);
     lean_inc(promise);
 
-    event_loop_lock(&global_ev);
-
-    int result = uv_tcp_connect(uv_connect, &tcp_socket->m_uv_tcp, (sockaddr*)&addr_struct, [](uv_connect_t* req, int status) {
+    auto on_connect = [](uv_connect_t* req, int status) {
         tcp_connect_data* tup = (tcp_connect_data*) req->data;
         lean_promise_resolve_with_code(status, tup->promise);
 
@@ -163,9 +161,13 @@ extern "C" LEAN_EXPORT lean_obj_res lean_uv_tcp_connect(b_obj_arg socket, b_obj_
 
         free(req->data);
         free(req);
-    });
+    };
 
-    event_loop_unlock(&global_ev);
+    int result;
+    {
+        event_loop_guard guard;
+        result = uv_tcp_connect(uv_connect, &tcp_socket->m_uv_tcp, (sockaddr*)&addr_struct, on_connect);
+    }
 
     if (result < 0) {
         lean_dec(promise); // The structure does not own it.
@@ -243,9 +245,7 @@ extern "C" LEAN_EXPORT lean_obj_res lean_uv_tcp_send(b_obj_arg socket, obj_arg d
     lean_inc(promise);
     lean_inc(socket);
 
-    event_loop_lock(&global_ev);
-
-    int result = uv_write(write_uv, (uv_stream_t*)&tcp_socket->m_uv_tcp, bufs, array_len, [](uv_write_t* req, int status) {
+    auto on_write = [](uv_write_t* req, int status) {
         tcp_send_data* tup = (tcp_send_data*) req->data;
 
         lean_promise_resolve_with_code(status, tup->promise);
@@ -257,9 +257,13 @@ extern "C" LEAN_EXPORT lean_obj_res lean_uv_tcp_send(b_obj_arg socket, obj_arg d
         free(tup->bufs);
         free(req->data);
         free(req);
-    });
+    };
 
-    event_loop_unlock(&global_ev);
+    int result;
+    {
+        event_loop_guard guard;
+        result = uv_write(write_uv, (uv_stream_t*)&tcp_socket->m_uv_tcp, bufs, array_len, on_write);
+    }
 
     if (result < 0) {
         lean_dec(promise); // The structure does not own it.
@@ -281,37 +285,14 @@ extern "C" LEAN_EXPORT lean_obj_res lean_uv_tcp_send(b_obj_arg socket, obj_arg d
 extern "C" LEAN_EXPORT lean_obj_res lean_uv_tcp_recv(b_obj_arg socket, uint64_t buffer_size) {
     lean_uv_tcp_socket_object* tcp_socket = lean_to_uv_tcp_socket(socket);
 
-    // Locking early prevents potential parallelism issues setting the byte_array.
-    event_loop_lock(&global_ev);
-
-    if (tcp_socket->m_promise_read != nullptr) {
-        event_loop_unlock(&global_ev);
-        return lean_io_result_mk_error(lean_decode_uv_error(UV_EALREADY, nullptr));
-    }
-
-    if (lean_object * size_error = lean_uv_recv_size_error(buffer_size)) {
-        event_loop_unlock(&global_ev);
-        return size_error;
-    }
-
-    lean_object* byte_array = lean_alloc_sarray(1, 0, buffer_size);
-    tcp_socket->m_byte_array = byte_array;
-
-    lean_object* promise = lean_promise_new();
-    mark_mt(promise);
-
-    tcp_socket->m_promise_read = promise;
-
-    // The event loop owns the socket.
-    lean_inc(socket);
-    lean_inc(promise);
-
-    int result = uv_read_start((uv_stream_t*)&tcp_socket->m_uv_tcp, [](uv_handle_t* handle, size_t suggested_size, uv_buf_t* buf) {
+    auto alloc_cb = [](uv_handle_t* handle, size_t suggested_size, uv_buf_t* buf) {
         lean_uv_tcp_socket_object* tcp_socket = lean_to_uv_tcp_socket((lean_object*)handle->data);
 
         buf->base = (char*)lean_sarray_cptr(tcp_socket->m_byte_array);
         buf->len = lean_sarray_capacity(tcp_socket->m_byte_array);
-    }, [](uv_stream_t* stream, ssize_t nread, const uv_buf_t* buf) {
+    };
+
+    auto read_cb = [](uv_stream_t* stream, ssize_t nread, const uv_buf_t* buf) {
         if (nread == 0) return;
 
         uv_read_stop(stream);
@@ -338,14 +319,44 @@ extern "C" LEAN_EXPORT lean_obj_res lean_uv_tcp_recv(b_obj_arg socket, uint64_t 
 
         // The event loop does not own the object anymore.
         lean_dec((lean_object*)stream->data);
-    });
+    };
+
+    lean_object* byte_array;
+    lean_object* promise;
+    int result;
+    {
+        // Locking early prevents potential parallelism issues setting the byte_array.
+        event_loop_guard guard;
+
+        if (tcp_socket->m_promise_read != nullptr) {
+            return lean_io_result_mk_error(lean_decode_uv_error(UV_EALREADY, nullptr));
+        }
+
+        if (lean_object * size_error = lean_uv_recv_size_error(buffer_size)) {
+            return size_error;
+        }
+
+        byte_array = lean_alloc_sarray(1, 0, buffer_size);
+        tcp_socket->m_byte_array = byte_array;
+
+        promise = lean_promise_new();
+        mark_mt(promise);
+
+        tcp_socket->m_promise_read = promise;
+
+        // The event loop owns the socket.
+        lean_inc(socket);
+        lean_inc(promise);
+
+        result = uv_read_start((uv_stream_t*)&tcp_socket->m_uv_tcp, alloc_cb, read_cb);
+
+        if (result < 0) {
+            tcp_socket->m_byte_array = nullptr;
+            tcp_socket->m_promise_read = nullptr;
+        }
+    }
 
     if (result < 0) {
-        tcp_socket->m_byte_array = nullptr;
-        tcp_socket->m_promise_read = nullptr;
-
-        event_loop_unlock(&global_ev);
-
         lean_dec(byte_array);
         lean_dec(promise); // The structure does not own it.
         lean_dec(promise); // We are not going to return it.
@@ -354,8 +365,6 @@ extern "C" LEAN_EXPORT lean_obj_res lean_uv_tcp_recv(b_obj_arg socket, uint64_t 
         return lean_io_result_mk_error(lean_decode_uv_error(result, nullptr));
     }
 
-    event_loop_unlock(&global_ev);
-
     return lean_io_result_mk_ok(promise);
 }
 
@@ -363,28 +372,14 @@ extern "C" LEAN_EXPORT lean_obj_res lean_uv_tcp_recv(b_obj_arg socket, uint64_t 
 extern "C" LEAN_EXPORT lean_obj_res lean_uv_tcp_wait_readable(b_obj_arg socket) {
     lean_uv_tcp_socket_object* tcp_socket = lean_to_uv_tcp_socket(socket);
 
-    event_loop_lock(&global_ev);
-
-    if (tcp_socket->m_promise_read != nullptr) {
-        event_loop_unlock(&global_ev);
-        return lean_io_result_mk_error(lean_decode_uv_error(UV_EALREADY, nullptr));
-    }
-
-    lean_object* promise = lean_promise_new();
-    mark_mt(promise);
-
-    tcp_socket->m_promise_read = promise;
-
-    // The event loop owns the socket.
-    lean_inc(socket);
-    lean_inc(promise);
-
-    int result = uv_read_start((uv_stream_t*)&tcp_socket->m_uv_tcp, [](uv_handle_t* handle, size_t suggested_size, uv_buf_t* buf) {
+    auto alloc_cb = [](uv_handle_t* handle, size_t suggested_size, uv_buf_t* buf) {
         // According to libuv documentation if we do this we do not lose data and a UV_ENOBUFS will
         // be triggered in the read cb.
         buf->base = NULL;
         buf->len = 0;
-    }, [](uv_stream_t* stream, ssize_t nread, const uv_buf_t* buf) {
+    };
+
+    auto read_cb = [](uv_stream_t* stream, ssize_t nread, const uv_buf_t* buf) {
         // `nread == 0` is libuv's equivalent of `EAGAIN`: the socket is not actually readable, so
         // keep waiting rather than resolving the promise.
         if (nread == 0) return;
@@ -408,21 +403,40 @@ extern "C" LEAN_EXPORT lean_obj_res lean_uv_tcp_wait_readable(b_obj_arg socket) 
 
         // The event loop does not own the object anymore.
         lean_dec((lean_object*)stream->data);
-    });
+    };
+
+    lean_object* promise;
+    int result;
+    {
+        event_loop_guard guard;
+
+        if (tcp_socket->m_promise_read != nullptr) {
+            return lean_io_result_mk_error(lean_decode_uv_error(UV_EALREADY, nullptr));
+        }
+
+        promise = lean_promise_new();
+        mark_mt(promise);
+
+        tcp_socket->m_promise_read = promise;
+
+        // The event loop owns the socket.
+        lean_inc(socket);
+        lean_inc(promise);
+
+        result = uv_read_start((uv_stream_t*)&tcp_socket->m_uv_tcp, alloc_cb, read_cb);
+
+        if (result < 0) {
+            tcp_socket->m_promise_read = nullptr;
+        }
+    }
 
     if (result < 0) {
-        tcp_socket->m_promise_read = nullptr;
-
-        event_loop_unlock(&global_ev);
-
         lean_dec(promise); // The structure does not own it.
         lean_dec(promise); // We are not going to return it.
         lean_dec(socket);
 
         return lean_io_result_mk_error(lean_decode_uv_error(result, nullptr));
     }
-
-    event_loop_unlock(&global_ev);
 
     return lean_io_result_mk_ok(promise);
 }
@@ -431,30 +445,31 @@ extern "C" LEAN_EXPORT lean_obj_res lean_uv_tcp_wait_readable(b_obj_arg socket) 
 extern "C" LEAN_EXPORT lean_obj_res lean_uv_tcp_cancel_recv(b_obj_arg socket) {
     lean_uv_tcp_socket_object* tcp_socket = lean_to_uv_tcp_socket(socket);
 
-    event_loop_lock(&global_ev);
+    lean_object* promise = nullptr;
+    lean_object* byte_array = nullptr;
+    {
+        event_loop_guard guard;
 
-    if (tcp_socket->m_promise_read == nullptr) {
-        event_loop_unlock(&global_ev);
-        return lean_io_result_mk_ok(lean_box(0));
+        if (tcp_socket->m_promise_read != nullptr) {
+            uv_read_stop((uv_stream_t*)&tcp_socket->m_uv_tcp);
+
+            promise = tcp_socket->m_promise_read;
+            byte_array = tcp_socket->m_byte_array;
+
+            tcp_socket->m_promise_read = nullptr;
+            tcp_socket->m_byte_array = nullptr;
+        }
     }
 
-    uv_read_stop((uv_stream_t*)&tcp_socket->m_uv_tcp);
+    if (promise != nullptr) {
+        lean_dec(promise);
 
-    lean_object* promise = tcp_socket->m_promise_read;
-    lean_object* byte_array = tcp_socket->m_byte_array;
+        if (byte_array != nullptr) {
+            lean_dec(byte_array);
+        }
 
-    tcp_socket->m_promise_read = nullptr;
-    tcp_socket->m_byte_array = nullptr;
-
-    event_loop_unlock(&global_ev);
-
-    lean_dec(promise);
-
-    if (byte_array != nullptr) {
-        lean_dec(byte_array);
+        lean_dec(socket);
     }
-
-    lean_dec(socket);
 
     return lean_io_result_mk_ok(lean_box(0));
 }
@@ -466,9 +481,11 @@ extern "C" LEAN_EXPORT lean_obj_res lean_uv_tcp_bind(b_obj_arg socket, b_obj_arg
     sockaddr_storage addr_ptr;
     lean_socket_address_to_sockaddr_storage(addr, &addr_ptr);
 
-    event_loop_lock(&global_ev);
-    int result = uv_tcp_bind(&tcp_socket->m_uv_tcp, (sockaddr*)&addr_ptr, 0);
-    event_loop_unlock(&global_ev);
+    int result;
+    {
+        event_loop_guard guard;
+        result = uv_tcp_bind(&tcp_socket->m_uv_tcp, (sockaddr*)&addr_ptr, 0);
+    }
 
     if (result < 0) {
         return lean_io_result_mk_error(lean_decode_uv_error(result, nullptr));
@@ -481,9 +498,7 @@ extern "C" LEAN_EXPORT lean_obj_res lean_uv_tcp_bind(b_obj_arg socket, b_obj_arg
 extern "C" LEAN_EXPORT lean_obj_res lean_uv_tcp_listen(b_obj_arg socket, int32_t backlog) {
     lean_uv_tcp_socket_object* tcp_socket = lean_to_uv_tcp_socket(socket);
 
-    event_loop_lock(&global_ev);
-
-    int result = uv_listen((uv_stream_t*)&tcp_socket->m_uv_tcp, backlog, [](uv_stream_t* stream, int status) {
+    auto on_connection = [](uv_stream_t* stream, int status) {
         lean_object* socket = (lean_object*)stream->data;
         lean_uv_tcp_socket_object* tcp_socket = lean_to_uv_tcp_socket(socket);
 
@@ -522,13 +537,18 @@ extern "C" LEAN_EXPORT lean_obj_res lean_uv_tcp_listen(b_obj_arg socket, int32_t
         }
 
         lean_dec(promise);
-    });
+    };
 
-    if (result == 0) {
-        tcp_socket->m_listening = true;
+    int result;
+    {
+        event_loop_guard guard;
+
+        result = uv_listen((uv_stream_t*)&tcp_socket->m_uv_tcp, backlog, on_connection);
+
+        if (result == 0) {
+            tcp_socket->m_listening = true;
+        }
     }
-
-    event_loop_unlock(&global_ev);
 
     if (result < 0) {
         return lean_io_result_mk_error(lean_decode_uv_error(result, nullptr));
@@ -546,56 +566,56 @@ static lean_obj_res lean_uv_tcp_not_listening_error() {
 extern "C" LEAN_EXPORT lean_obj_res lean_uv_tcp_accept(b_obj_arg socket) {
     lean_uv_tcp_socket_object* tcp_socket = lean_to_uv_tcp_socket(socket);
 
-    // Locking early prevents potential parallelism issues setting m_promise_accept.
-    event_loop_lock(&global_ev);
+    lean_object* client;
+    lean_object* promise;
+    int result;
+    {
+        // Locking early prevents potential parallelism issues setting m_promise_accept.
+        event_loop_guard guard;
 
-    if (tcp_socket->m_promise_accept != nullptr) {
-        event_loop_unlock(&global_ev);
-        return lean_io_result_mk_error(lean_mk_io_error_other_error(-UV_EALREADY, mk_string("parallel accept is not allowed! consider binding multiple sockets to the same address and accepting on them instead")));
-    }
+        if (tcp_socket->m_promise_accept != nullptr) {
+            return lean_io_result_mk_error(lean_mk_io_error_other_error(-UV_EALREADY, mk_string("parallel accept is not allowed! consider binding multiple sockets to the same address and accepting on them instead")));
+        }
 
-    if (!tcp_socket->m_listening) {
-        event_loop_unlock(&global_ev);
-        return lean_uv_tcp_not_listening_error();
-    }
+        if (!tcp_socket->m_listening) {
+            return lean_uv_tcp_not_listening_error();
+        }
 
-    lean_object* client_res = lean_uv_tcp_new();
+        lean_object* client_res = lean_uv_tcp_new();
 
-    if (lean_io_result_is_error(client_res)) {
-        event_loop_unlock(&global_ev);
-        return client_res;
-    }
+        if (lean_io_result_is_error(client_res)) {
+            return client_res;
+        }
 
-    lean_object* client = lean_io_result_take_value(client_res);
+        client = lean_io_result_take_value(client_res);
 
-    lean_object* promise = lean_promise_new();
-    mark_mt(promise);
+        promise = lean_promise_new();
+        mark_mt(promise);
 
-    lean_uv_tcp_socket_object* client_socket = lean_to_uv_tcp_socket(client);
+        lean_uv_tcp_socket_object* client_socket = lean_to_uv_tcp_socket(client);
 
-    int result = uv_accept((uv_stream_t*)&tcp_socket->m_uv_tcp, (uv_stream_t*)&client_socket->m_uv_tcp);
+        result = uv_accept((uv_stream_t*)&tcp_socket->m_uv_tcp, (uv_stream_t*)&client_socket->m_uv_tcp);
 
-    // `uv_accept` takes the queued connection unless there is none, even when it fails.
-    if (result != UV_EAGAIN && tcp_socket->m_pending_connections > 0) {
-        tcp_socket->m_pending_connections--;
+        // `uv_accept` takes the queued connection unless there is none, even when it fails.
+        if (result != UV_EAGAIN && tcp_socket->m_pending_connections > 0) {
+            tcp_socket->m_pending_connections--;
+        }
+
+        if (result == UV_EAGAIN) {
+            // The event loop owns the object. It will be released in the listen
+            lean_inc(socket);
+            lean_inc(promise);
+
+            tcp_socket->m_promise_accept = promise;
+            tcp_socket->m_client = client;
+        }
     }
 
     if (result < 0 && result != UV_EAGAIN) {
-        event_loop_unlock(&global_ev);
         lean_dec(client);
         lean_promise_resolve_with_code(result, promise);
     } else if (result >= 0) {
-        event_loop_unlock(&global_ev);
         lean_promise_resolve(mk_except_ok(client), promise);
-    } else {
-        // The event loop owns the object. It will be released in the listen
-        lean_inc(socket);
-        lean_inc(promise);
-
-        tcp_socket->m_promise_accept = promise;
-        tcp_socket->m_client = client;
-
-        event_loop_unlock(&global_ev);
     }
 
     return lean_io_result_mk_ok(promise);
@@ -605,45 +625,43 @@ extern "C" LEAN_EXPORT lean_obj_res lean_uv_tcp_accept(b_obj_arg socket) {
 extern "C" LEAN_EXPORT lean_obj_res lean_uv_tcp_try_accept(b_obj_arg socket) {
     lean_uv_tcp_socket_object* tcp_socket = lean_to_uv_tcp_socket(socket);
 
-    // Locking early prevents potential parallelism issues setting m_promise_accept.
-    event_loop_lock(&global_ev);
+    lean_object* client;
+    int result;
+    {
+        // Locking early prevents potential parallelism issues setting m_promise_accept.
+        event_loop_guard guard;
 
-    if (tcp_socket->m_promise_accept != nullptr) {
-        event_loop_unlock(&global_ev);
-        return lean_io_result_mk_error(lean_mk_io_error_other_error(-UV_EALREADY, mk_string("parallel accept is not allowed! consider binding multiple sockets to the same address and accepting on them instead")));
-    }
+        if (tcp_socket->m_promise_accept != nullptr) {
+            return lean_io_result_mk_error(lean_mk_io_error_other_error(-UV_EALREADY, mk_string("parallel accept is not allowed! consider binding multiple sockets to the same address and accepting on them instead")));
+        }
 
-    if (!tcp_socket->m_listening) {
-        event_loop_unlock(&global_ev);
-        return lean_uv_tcp_not_listening_error();
-    }
+        if (!tcp_socket->m_listening) {
+            return lean_uv_tcp_not_listening_error();
+        }
 
-    lean_object* client_res = lean_uv_tcp_new();
+        lean_object* client_res = lean_uv_tcp_new();
 
-    if (lean_io_result_is_error(client_res)) {
-        event_loop_unlock(&global_ev);
-        return client_res;
-    }
+        if (lean_io_result_is_error(client_res)) {
+            return client_res;
+        }
 
-    lean_object* client = lean_io_result_take_value(client_res);
-    lean_uv_tcp_socket_object* client_socket = lean_to_uv_tcp_socket(client);
+        client = lean_io_result_take_value(client_res);
+        lean_uv_tcp_socket_object* client_socket = lean_to_uv_tcp_socket(client);
 
-    int result = uv_accept((uv_stream_t*)&tcp_socket->m_uv_tcp, (uv_stream_t*)&client_socket->m_uv_tcp);
+        result = uv_accept((uv_stream_t*)&tcp_socket->m_uv_tcp, (uv_stream_t*)&client_socket->m_uv_tcp);
 
-    // `uv_accept` takes the queued connection unless there is none, even when it fails.
-    if (result != UV_EAGAIN && tcp_socket->m_pending_connections > 0) {
-        tcp_socket->m_pending_connections--;
+        // `uv_accept` takes the queued connection unless there is none, even when it fails.
+        if (result != UV_EAGAIN && tcp_socket->m_pending_connections > 0) {
+            tcp_socket->m_pending_connections--;
+        }
     }
 
     if (result < 0 && result != UV_EAGAIN) {
-        event_loop_unlock(&global_ev);
         lean_dec(client);
         return lean_io_result_mk_error(lean_decode_uv_error(result, NULL));
     } else if (result >= 0) {
-        event_loop_unlock(&global_ev);
         return lean_io_result_mk_ok(mk_except_ok(lean::mk_option_some(client)));
     } else {
-        event_loop_unlock(&global_ev);
         lean_dec(client);
         return lean_io_result_mk_ok(mk_except_ok(lean::mk_option_none()));
     }
@@ -655,33 +673,35 @@ extern "C" LEAN_EXPORT lean_obj_res lean_uv_tcp_try_accept(b_obj_arg socket) {
 extern "C" LEAN_EXPORT lean_obj_res lean_uv_tcp_wait_acceptable(b_obj_arg socket) {
     lean_uv_tcp_socket_object* tcp_socket = lean_to_uv_tcp_socket(socket);
 
-    event_loop_lock(&global_ev);
+    lean_object* promise;
+    bool ready;
+    {
+        event_loop_guard guard;
 
-    if (tcp_socket->m_promise_accept != nullptr) {
-        event_loop_unlock(&global_ev);
-        return lean_io_result_mk_error(lean_decode_uv_error(UV_EALREADY, nullptr));
+        if (tcp_socket->m_promise_accept != nullptr) {
+            return lean_io_result_mk_error(lean_decode_uv_error(UV_EALREADY, nullptr));
+        }
+
+        if (!tcp_socket->m_listening) {
+            return lean_uv_tcp_not_listening_error();
+        }
+
+        promise = lean_promise_new();
+        mark_mt(promise);
+
+        ready = tcp_socket->m_pending_connections > 0;
+
+        if (!ready) {
+            // The event loop owns the object. It will be released in the listen
+            lean_inc(socket);
+            lean_inc(promise);
+            tcp_socket->m_promise_accept = promise;
+        }
     }
 
-    if (!tcp_socket->m_listening) {
-        event_loop_unlock(&global_ev);
-        return lean_uv_tcp_not_listening_error();
-    }
-
-    lean_object* promise = lean_promise_new();
-    mark_mt(promise);
-
-    if (tcp_socket->m_pending_connections > 0) {
-        event_loop_unlock(&global_ev);
+    if (ready) {
         lean_promise_resolve(mk_except_ok(lean_box(0)), promise);
-        return lean_io_result_mk_ok(promise);
     }
-
-    // The event loop owns the object. It will be released in the listen
-    lean_inc(socket);
-    lean_inc(promise);
-    tcp_socket->m_promise_accept = promise;
-
-    event_loop_unlock(&global_ev);
 
     return lean_io_result_mk_ok(promise);
 }
@@ -690,28 +710,29 @@ extern "C" LEAN_EXPORT lean_obj_res lean_uv_tcp_wait_acceptable(b_obj_arg socket
 extern "C" LEAN_EXPORT lean_obj_res lean_uv_tcp_cancel_accept(b_obj_arg socket) {
     lean_uv_tcp_socket_object* tcp_socket = lean_to_uv_tcp_socket(socket);
 
-    event_loop_lock(&global_ev);
+    lean_object* promise = nullptr;
+    lean_object* client = nullptr;
+    {
+        event_loop_guard guard;
 
-    if (tcp_socket->m_promise_accept == nullptr) {
-        event_loop_unlock(&global_ev);
-        return lean_io_result_mk_ok(lean_box(0));
+        if (tcp_socket->m_promise_accept != nullptr) {
+            promise = tcp_socket->m_promise_accept;
+            client = tcp_socket->m_client;
+
+            tcp_socket->m_promise_accept = nullptr;
+            tcp_socket->m_client = nullptr;
+        }
     }
 
-    lean_object* promise = tcp_socket->m_promise_accept;
-    lean_object* client = tcp_socket->m_client;
+    if (promise != nullptr) {
+        lean_dec(promise);
 
-    tcp_socket->m_promise_accept = nullptr;
-    tcp_socket->m_client = nullptr;
+        if (client != nullptr) {
+            lean_dec(client);
+        }
 
-    event_loop_unlock(&global_ev);
-
-    lean_dec(promise);
-
-    if (client != nullptr) {
-        lean_dec(client);
+        lean_dec(socket);
     }
-
-    lean_dec(socket);
 
     return lean_io_result_mk_ok(lean_box(0));
 }
@@ -720,31 +741,7 @@ extern "C" LEAN_EXPORT lean_obj_res lean_uv_tcp_cancel_accept(b_obj_arg socket) 
 extern "C" LEAN_EXPORT lean_obj_res lean_uv_tcp_shutdown(b_obj_arg socket) {
     lean_uv_tcp_socket_object* tcp_socket = lean_to_uv_tcp_socket(socket);
 
-    // Locking early prevents potential parallelism issues setting the m_promise_shutdown.
-    event_loop_lock(&global_ev);
-
-    // `uv_shutdown` clears the writable flag right away, so a second request fails with `ENOTCONN`
-    // no matter whether the first one is still pending; reject it here to report a meaningful error.
-    if (tcp_socket->m_shutdown_requested) {
-        event_loop_unlock(&global_ev);
-        return lean_io_result_mk_error(lean_mk_io_error_other_error(-UV_EALREADY, mk_string("shutdown already requested")));
-    }
-
-    uv_shutdown_t* shutdown_req = (uv_shutdown_t*)malloc(sizeof(uv_shutdown_t));
-    if (shutdown_req == nullptr) {
-        event_loop_unlock(&global_ev);
-        return lean_io_result_mk_error(decode_io_error(ENOMEM, nullptr));
-    }
-    shutdown_req->data = (void*)socket;
-
-    lean_object* promise = lean_promise_new();
-    mark_mt(promise);
-    tcp_socket->m_promise_shutdown = promise;
-    lean_inc(promise);
-
-    lean_inc(socket);
-
-    int result = uv_shutdown(shutdown_req, (uv_stream_t*)&tcp_socket->m_uv_tcp, [](uv_shutdown_t* req, int status) {
+    auto on_shutdown = [](uv_shutdown_t* req, int status) {
         lean_uv_tcp_socket_object* tcp_socket = lean_to_uv_tcp_socket((lean_object*)req->data);
 
         if (status < 0) {
@@ -759,26 +756,52 @@ extern "C" LEAN_EXPORT lean_obj_res lean_uv_tcp_shutdown(b_obj_arg socket) {
 
         lean_dec((lean_object*)req->data);
         free(req);
-    });
+    };
 
+    uv_shutdown_t* shutdown_req;
+    lean_object* promise;
+    int result;
+    {
+        // Locking early prevents potential parallelism issues setting the m_promise_shutdown.
+        event_loop_guard guard;
+
+        // `uv_shutdown` clears the writable flag right away, so a second request fails with `ENOTCONN`
+        // no matter whether the first one is still pending; reject it here to report a meaningful error.
+        if (tcp_socket->m_shutdown_requested) {
+            return lean_io_result_mk_error(lean_mk_io_error_other_error(-UV_EALREADY, mk_string("shutdown already requested")));
+        }
+
+        shutdown_req = (uv_shutdown_t*)malloc(sizeof(uv_shutdown_t));
+        if (shutdown_req == nullptr) {
+            return lean_io_result_mk_error(decode_io_error(ENOMEM, nullptr));
+        }
+        shutdown_req->data = (void*)socket;
+
+        promise = lean_promise_new();
+        mark_mt(promise);
+        tcp_socket->m_promise_shutdown = promise;
+        lean_inc(promise);
+
+        lean_inc(socket);
+
+        result = uv_shutdown(shutdown_req, (uv_stream_t*)&tcp_socket->m_uv_tcp, on_shutdown);
+
+        if (result < 0) {
+            tcp_socket->m_promise_shutdown = nullptr;
+        } else {
+            tcp_socket->m_shutdown_requested = true;
+        }
+    }
 
     if (result < 0) {
         free(shutdown_req);
-
-        tcp_socket->m_promise_shutdown = nullptr;
 
         lean_dec(promise); // The socket does not own it.
         lean_dec(promise); // We are not going to return it.
         lean_dec(socket);
 
-        event_loop_unlock(&global_ev);
-
         return lean_io_result_mk_error(lean_decode_uv_error(result, nullptr));
     }
-
-    tcp_socket->m_shutdown_requested = true;
-
-    event_loop_unlock(&global_ev);
 
     return lean_io_result_mk_ok(promise);
 }
@@ -790,9 +813,11 @@ extern "C" LEAN_EXPORT lean_obj_res lean_uv_tcp_getpeername(b_obj_arg socket) {
     sockaddr_storage addr_storage;
     int addr_len = sizeof(addr_storage);
 
-    event_loop_lock(&global_ev);
-    int result = uv_tcp_getpeername(&tcp_socket->m_uv_tcp, (struct sockaddr*)&addr_storage, &addr_len);
-    event_loop_unlock(&global_ev);
+    int result;
+    {
+        event_loop_guard guard;
+        result = uv_tcp_getpeername(&tcp_socket->m_uv_tcp, (struct sockaddr*)&addr_storage, &addr_len);
+    }
 
     if (result < 0) {
         return lean_io_result_mk_error(lean_decode_uv_error(result, nullptr));
@@ -810,9 +835,11 @@ extern "C" LEAN_EXPORT lean_obj_res lean_uv_tcp_getsockname(b_obj_arg socket) {
     struct sockaddr_storage addr_storage;
     int addr_len = sizeof(addr_storage);
 
-    event_loop_lock(&global_ev);
-    int result = uv_tcp_getsockname(&tcp_socket->m_uv_tcp, (struct sockaddr*)&addr_storage, &addr_len);
-    event_loop_unlock(&global_ev);
+    int result;
+    {
+        event_loop_guard guard;
+        result = uv_tcp_getsockname(&tcp_socket->m_uv_tcp, (struct sockaddr*)&addr_storage, &addr_len);
+    }
 
     if (result < 0) {
         return lean_io_result_mk_error(lean_decode_uv_error(result, nullptr));
@@ -826,9 +853,11 @@ extern "C" LEAN_EXPORT lean_obj_res lean_uv_tcp_getsockname(b_obj_arg socket) {
 extern "C" LEAN_EXPORT lean_obj_res lean_uv_tcp_nodelay(b_obj_arg socket) {
     lean_uv_tcp_socket_object* tcp_socket = lean_to_uv_tcp_socket(socket);
 
-    event_loop_lock(&global_ev);
-    int result = uv_tcp_nodelay(&tcp_socket->m_uv_tcp, 1);
-    event_loop_unlock(&global_ev);
+    int result;
+    {
+        event_loop_guard guard;
+        result = uv_tcp_nodelay(&tcp_socket->m_uv_tcp, 1);
+    }
 
     if (result < 0) {
         return lean_io_result_mk_error(lean_decode_uv_error(result, nullptr));
@@ -841,10 +870,12 @@ extern "C" LEAN_EXPORT lean_obj_res lean_uv_tcp_nodelay(b_obj_arg socket) {
 extern "C" LEAN_EXPORT lean_obj_res lean_uv_tcp_keepalive(b_obj_arg socket, uint8_t enable, uint32_t delay) {
     lean_uv_tcp_socket_object* tcp_socket = lean_to_uv_tcp_socket(socket);
 
-    event_loop_lock(&global_ev);
-    // Lean passes `Int8` as `uint8_t`.
-    int result = uv_tcp_keepalive(&tcp_socket->m_uv_tcp, (int8_t)enable, delay);
-    event_loop_unlock(&global_ev);
+    int result;
+    {
+        event_loop_guard guard;
+        // Lean passes `Int8` as `uint8_t`.
+        result = uv_tcp_keepalive(&tcp_socket->m_uv_tcp, (int8_t)enable, delay);
+    }
 
     if (result < 0) {
         return lean_io_result_mk_error(lean_decode_uv_error(result, nullptr));

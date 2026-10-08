@@ -41,6 +41,16 @@ void event_loop_run_loop(event_loop_t *event_loop);
 lean_obj_res lean_uv_recv_size_error(uint64_t size);
 lean_object * lean_uv_fit_read_buffer(lean_object * byte_array, size_t nread);
 
+// Holds the `global_ev` lock for its scope. Must be a named local: a temporary would unlock
+// immediately. Not for libuv callbacks, which already run under the lock.
+class event_loop_guard {
+public:
+    [[nodiscard]] event_loop_guard() { event_loop_lock(&global_ev); }
+    ~event_loop_guard() { event_loop_unlock(&global_ev); }
+    event_loop_guard(event_loop_guard const &) = delete;
+    event_loop_guard & operator=(event_loop_guard const &) = delete;
+};
+
 #endif
 
 // =======================================

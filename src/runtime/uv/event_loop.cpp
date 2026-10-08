@@ -131,39 +131,37 @@ extern "C" LEAN_EXPORT lean_obj_res lean_uv_event_loop_configure(b_obj_arg optio
     bool accum = lean_ctor_get_uint8(options, 0);
     bool block = lean_ctor_get_uint8(options, 1);
 
-    event_loop_lock(&global_ev);
+    int result = 0;
 
-    if (accum) {
-        int result = uv_loop_configure(global_ev.loop, UV_METRICS_IDLE_TIME);
-        if (result != 0) {
-            event_loop_unlock(&global_ev);
-            return lean_io_result_mk_error(lean_decode_uv_error(result, NULL));
+    {
+        event_loop_guard guard;
+
+        if (accum) {
+            result = uv_loop_configure(global_ev.loop, UV_METRICS_IDLE_TIME);
         }
+
+        #if!defined(WIN32) && !defined(_WIN32)
+        if (result == 0 && block) {
+            result = uv_loop_configure(global_ev.loop, UV_LOOP_BLOCK_SIGNAL, SIGPROF);
+        }
+        #endif
     }
 
-    #if!defined(WIN32) && !defined(_WIN32)
-    if (block) {
-        int result = uv_loop_configure(global_ev.loop, UV_LOOP_BLOCK_SIGNAL, SIGPROF);
-        if (result != 0) {
-            event_loop_unlock(&global_ev);
-            return lean_io_result_mk_error(lean_decode_uv_error(result, NULL));
-        }
+    if (result != 0) {
+        return lean_io_result_mk_error(lean_decode_uv_error(result, NULL));
     }
-    #endif
-
-    event_loop_unlock(&global_ev);
 
     return lean_io_result_mk_ok(lean_box(0));
 }
 
 /* Std.Internal.UV.Loop.alive : BaseIO Bool */
 extern "C" LEAN_EXPORT uint8_t lean_uv_event_loop_alive() {
-    event_loop_lock(&global_ev);
+    event_loop_guard guard;
+
     // `async` only wakes the loop for requesters and is always active, so it is left out.
     uv_unref((uv_handle_t *)&global_ev.async);
     int is_alive = uv_loop_alive(global_ev.loop);
     uv_ref((uv_handle_t *)&global_ev.async);
-    event_loop_unlock(&global_ev);
 
     return is_alive;
 }

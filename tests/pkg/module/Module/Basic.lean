@@ -590,7 +590,16 @@ public structure CustomMulT where
 public instance instHMulNatCustom : HMul Nat CustomMulT CustomMulT where
   hMul a b := { x := a + b.x }
 
+
 /-! Declaration-keyed extension entries of private declarations are not exported. -/
 
 structure PrivStruct where
   x : Nat
+
+/-! Realizations triggered only from proofs are not exported. -/
+
+@[expose] public def f_proof_realized : Nat → Nat
+  | 0 => 0
+  | n + 1 => f_proof_realized n
+
+theorem f_proof_realized_zero : f_proof_realized 0 = 0 := by rw [f_proof_realized.eq_1]

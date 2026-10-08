@@ -11,8 +11,6 @@ public import Lean.Elab.InfoTree.Main
 import Init.Data.Range.Polymorphic.Stream
 import Lean.Compiler.NameMangling
 import Lean.Compiler.ModPkgExt
-import Lean.Compiler.Bytecode.Basic
-import all Lean.Compiler.ModPkgExt
 
 public section
 
@@ -110,36 +108,6 @@ should not be used otherwise.
 -/
 @[builtin_doc]
 builtin_initialize builtinInitAttr : ParametricAttribute Name ← registerInitAttr `builtin_init false
-
-open Compiler LCNF Bytecode in
-@[export lean_bytecode_export_entries]
-private def exportBytecodeEntries (env : Environment) : Array (Name × Array EnvExtensionEntry) :=
-  let irDecls := declMapExt.getEntries env |>.foldl (init := #[]) fun decls decl => decls.push decl
-  -- safety: cast to erased type
-  let irEntries : Array EnvExtensionEntry := unsafe unsafeCast <|
-    irDecls.qsort fun a b : BytecodeDecl => a.name.quickLt b.name
-
-  let sigDecls := LCNF.impureSigExt.getState env |>.foldl (init := #[]) fun decls _ decl => decls.push decl
-  -- safety: cast to erased type
-  let sigEntries : Array EnvExtensionEntry := unsafe unsafeCast <|
-    sigDecls.qsort fun a b : LCNF.Signature .impure => a.name.quickLt b.name
-
-  -- save all initializers independent of meta/private. Non-meta initializers will only be used when
-  -- .ir is actually loaded, and private ones iff visible.
-  let initDecls : Array (Name × Name) :=
-    (regularInitAttr.ext.exportEntriesFn env (regularInitAttr.ext.getState env)).private
-  -- safety: cast to erased type
-  let initDecls : Array EnvExtensionEntry := unsafe unsafeCast initDecls
-
-  -- needed during initialization via interpreter
-  let modPkg : Array (Option PkgId) := (modPkgExt.exportEntriesFn env (modPkgExt.getState env)).private
-  -- safety: cast to erased type
-  let modPkg : Array EnvExtensionEntry := unsafe unsafeCast modPkg
-
-  #[(declMapExt.name, irEntries),
-    (LCNF.impureSigExt.name, sigEntries),
-    (Lean.regularInitAttr.ext.name, initDecls),
-    (modPkgExt.name, modPkg)]
 
 def getInitFnNameForCore? (env : Environment) (attr : ParametricAttribute Name) (fn : Name) : Option Name :=
   match attr.getParam? env fn with

@@ -8,6 +8,8 @@ module
 prelude
 import Lean.Compiler.ExportAttr
 public import Lean.Compiler.LCNF.PhaseExt
+import all Lean.Compiler.ModPkgExt
+import Lean.Compiler.InitAttr
 
 public section
 
@@ -61,8 +63,7 @@ builtin_initialize declMapExt :
     exportEntriesFnEx? := some fun env _ entries =>
       let decls := entries.foldl (init := #[]) fun decls decl => decls.push decl
       let entries := sortDecls decls
-      .uniform entries
-      /- -- Do not save all IR even in .olean.private as it will be in .ir anyway
+      -- Do not save all IR even in .olean.private as it will be in .ir anyway
       .uniform <| if env.header.isModule then
         entries.filterMap fun d => do
           if isDeclMeta env d.name then
@@ -75,7 +76,7 @@ builtin_initialize declMapExt :
             return d
           -- Bodies of imported IR decls are not relevant for codegen, only interpretation
           none
-      else entries -/
+      else entries
     -- Written to on codegen environment branch but accessed from other elaboration branches when
     -- calling into the interpreter. We cannot use `async` as the IR declarations added may not
     -- share a name prefix with the top-level Lean declaration being compiled, e.g. from
@@ -84,6 +85,36 @@ builtin_initialize declMapExt :
     replay?       := some <| SimplePersistentEnvExtension.replayOfFilter (!·.contains ·.name)
       (fun s d => s.insert d.name d)
   }
+
+open Compiler LCNF Bytecode in
+@[export lean_bytecode_export_entries]
+private def exportBytecodeEntries (env : Environment) : Array (Name × Array EnvExtensionEntry) :=
+  let irDecls := declMapExt.getEntries env |>.foldl (init := #[]) fun decls decl => decls.push decl
+  -- safety: cast to erased type
+  let irEntries : Array EnvExtensionEntry := unsafe unsafeCast <|
+    irDecls.qsort fun a b : BytecodeDecl => a.name.quickLt b.name
+
+  let sigDecls := LCNF.impureSigExt.getState env |>.foldl (init := #[]) fun decls _ decl => decls.push decl
+  -- safety: cast to erased type
+  let sigEntries : Array EnvExtensionEntry := unsafe unsafeCast <|
+    sigDecls.qsort fun a b : LCNF.Signature .impure => a.name.quickLt b.name
+
+  -- save all initializers independent of meta/private. Non-meta initializers will only be used when
+  -- .ir is actually loaded, and private ones iff visible.
+  let initDecls : Array (Name × Name) :=
+    (regularInitAttr.ext.exportEntriesFn env (regularInitAttr.ext.getState env)).private
+  -- safety: cast to erased type
+  let initDecls : Array EnvExtensionEntry := unsafe unsafeCast initDecls
+
+  -- needed during initialization via interpreter
+  let modPkg : Array (Option PkgId) := (modPkgExt.exportEntriesFn env (modPkgExt.getState env)).private
+  -- safety: cast to erased type
+  let modPkg : Array EnvExtensionEntry := unsafe unsafeCast modPkg
+
+  #[(declMapExt.name, irEntries),
+    (LCNF.impureSigExt.name, sigEntries),
+    (Lean.regularInitAttr.ext.name, initDecls),
+    (modPkgExt.name, modPkg)]
 
 @[export lean_find_bytecode_decl]
 partial def findBytecodeDecl (env : Environment) (nm : Name) : Option BytecodeDecl :=

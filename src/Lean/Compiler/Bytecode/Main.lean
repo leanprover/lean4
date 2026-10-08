@@ -146,6 +146,12 @@ def as (val : Nat) (bits : Nat) (decl : Name := by exact decl_name%)
 def emit (instr : Instruction) : M Unit := do
   modify fun state => { state with revCurrBlock := state.revCurrBlock.push instr }
 
+def emitAll (instrs : Array Instruction) : M Unit := do
+  let mut i := instrs.size
+  while i > 0 do
+    i := i - 1
+    emit instrs[i]!
+
 def emitComplex (instr : ComplexInstruction) : M Unit := do
   let i := (← get).complex.size
   emit (.assemblerInternal (← as i 26))
@@ -741,6 +747,28 @@ partial def visit (code : Code .impure) (backlog : Array (CodeDecl .impure)) : M
   | .del v k => visit k (backlog.push (.del v))
   | .setTag v i k => visit k (backlog.push (.setTag v i))
 
+def unboxFromZero (ty : Expr) : Array Instruction :=
+  match ty with
+  | uint8 | uint16 => #[.unboxSmall 0 0]
+  | uint32 => #[.unboxUInt32 0 0]
+  | uint64 => #[.unboxUInt64 0 0]
+  | usize => #[.unboxUSize 0 0]
+  | float32 => #[.unboxFloat32 0 0]
+  | float => #[.unboxFloat 0 0]
+  | tobject | object | tagged | erased | void => #[]
+  | _ => unreachable!
+
+def boxIntoZero (ty : Expr) : Array Instruction :=
+  match ty with
+  | uint8 | uint16 => #[.boxSmall 0 0]
+  | uint32 => #[.boxUInt32 0 0]
+  | uint64 => #[.boxUInt64 0 0]
+  | usize => #[.boxUSize 0 0]
+  | float32 => #[.boxFloat32 0 0]
+  | float => #[.boxFloat 0 0]
+  | tobject | object | tagged | erased | void => #[]
+  | _ => unreachable!
+
 partial def setupParams (retType : Expr) : M Unit := do
   let mut pos := 0
   for p in (← read).params do
@@ -754,26 +782,10 @@ partial def setupParams (retType : Expr) : M Unit := do
     pos := pos + skip
   if (← read).params.isEmpty then
     emit (.ret 0)
-    match retType with
-    | uint8 | uint16 => emit (.unboxSmall 0 0)
-    | uint32 => emit (.unboxUInt32 0 0)
-    | uint64 => emit (.unboxUInt64 0 0)
-    | usize => emit (.unboxUSize 0 0)
-    | float32 => emit (.unboxFloat32 0 0)
-    | float => emit (.unboxFloat 0 0)
-    | tobject | object | tagged | erased | void => pure ()
-    | _ => unreachable!
+    emitAll (unboxFromZero retType)
     discard <| endBlock
     emit (.storeCache 0)
-    match retType with
-    | uint8 | uint16 => emit (.boxSmall 0 0)
-    | uint32 => emit (.boxUInt32 0 0)
-    | uint64 => emit (.boxUInt64 0 0)
-    | usize => emit (.boxUSize 0 0)
-    | float32 => emit (.boxFloat32 0 0)
-    | float => emit (.boxFloat 0 0)
-    | tobject | object | tagged | erased | void => pure ()
-    | _ => unreachable!
+    emitAll (boxIntoZero retType)
     let returnBb ← endBlock
     modify fun state => { state with returnBb }
 
@@ -922,7 +934,8 @@ def compile (decls : Array (Decl .impure)) : CompilerM Unit := do
       if data.entries.isEmpty then
         let decl : BytecodeDecl := {
           name := d.name
-          code := assemble #[.skipIfCached 1, .unreachable, .ret 0]
+          code := assemble <|
+            #[.skipIfCached 1, .unreachable] ++ unboxFromZero d.type ++ #[.ret 0]
           stackReserved := 1
           stackSpace := 0
           symbols := #[]

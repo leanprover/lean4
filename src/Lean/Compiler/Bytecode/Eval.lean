@@ -6,8 +6,8 @@ Authors: Robin Arnez, Sebastian Ullrich
 module
 
 prelude
-public import Lean.Compiler.LCNF.Basic
-public import Lean.Compiler.Bytecode.Instruction
+import Lean.Compiler.LCNF.Basic
+import Lean.Compiler.Bytecode.Main
 
 /-!
 `@[export]`ed evaluation primitives
@@ -57,17 +57,7 @@ unsafe def evalConstCoreImpl (env : Environment)
       throw s!"cannot evaluate code because '{sorryDep}' uses 'sorry' and/or contains errors"
   let mut code : Array Instruction := #[]
   if sig.params.isEmpty then
-    code := #[.loadConst 0]
-    match sig.type with
-    | uint8 | uint16 => code := code.push (.boxSmall 0 0)
-    | uint32 => code := code.push (.boxUInt32 0 0)
-    | uint64 => code := code.push (.boxUInt64 0 0)
-    | usize => code := code.push (.boxUSize 0 0)
-    | float => code := code.push (.boxFloat 0 0)
-    | float32 => code := code.push (.boxFloat32 0 0)
-    | tobject | object => code := code.push (.inc 0 1)
-    | tagged | erased | void => pure ()
-    | _ => unreachable!
+    code := #[.loadConst 0] ++ ToBytecode.boxIntoZero sig.type
   else
     assert! sig.params.all (!·.borrow) && !sig.type.isScalar && sig.params.all (!·.type.isScalar)
       && sig.params.all (!·.type.isVoid) && sig.params.size <= 16

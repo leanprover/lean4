@@ -42,16 +42,27 @@ only `metaExportInfo` can report it. See also `Module.fetchElabExportInfo`.
   self.metaExportInfo.fetch
 
 /--
-Fetches the information a plain `import` of the module needs outside the language server when the
-importer postpones its code generation: no IR, so this does not wait on the module's `irArts`.
+Fetches the information a plain `import` of the module needs outside the language server.
+
+An importer that postpones its code generation needs no IR, so this then does not wait on the
+module's `irArts`. One that does not (`withIRSig`) reads the `.ir.sig` of the module if the module
+postpones; otherwise the signatures are part of the module's `.olean`.
 -/
-def Module.fetchElabExportInfo (self : Module) : FetchM (Job ModuleExportInfo) := do
+def Module.fetchElabExportInfo
+  (self : Module) (withIRSig := false)
+: FetchM (Job ModuleExportInfo) := do
   let expInfoJob ← self.exportInfo.fetch
-  (← self.elabArts.fetch).bindM (sync := true) fun arts =>
+  let needsIRSig := withIRSig && self.postponeCompile
+  let artsJob ← if needsIRSig then self.irArts.fetch else self.elabArts.fetch
+  artsJob.bindM (sync := true) fun arts =>
   expInfoJob.mapM (sync := true) fun info => do
     -- keep the `.server` part so that the entry reads as a module system one
     let some oleanServer := arts.oleanServer? | return info
-    return {info with arts := .ofArrays #[#[arts.olean.path, oleanServer.path]]}
+    let oleans := #[arts.olean.path, oleanServer.path]
+    if let (true, some irSig) := (needsIRSig, arts.irSig?) then
+      return {info with arts := .ofArrays #[oleans, #[irSig.path]]}
+    else
+      return {info with arts := .ofArrays #[oleans]}
 
 /-! ## Facet Builds
 Build function definitions for a module's builtin facets.
@@ -276,7 +287,7 @@ structure TransImportEntry where
 
 partial def fetchTransImportArts
   (directImports : Array ModuleImport) (directArts : NameMap ImportArtifacts) (nonModule : Bool)
-  (elabOnly := false)
+  (elabOnly := false) (withIRSig := false)
 : FetchM (NameMap ImportArtifacts) := do
   let q ← directImports.foldrM (init := #[]) fun imp q => do
     let some mod := imp.module? | return q
@@ -312,7 +323,7 @@ where
       let wantAll := allVisited.contains mod.name || existing?.any (·.oleanPrivate?.isSome)
       let arts ←
         if elabOnly && !wantAll && !metaVisited.contains mod.name then
-          pure (← (← mod.fetchElabExportInfo).await).arts
+          pure (← (← mod.fetchElabExportInfo withIRSig).await).arts
         else
           let info ← (← mod.fetchExportInfo).await
           pure (if wantAll then info.allArts else info.arts)
@@ -480,11 +491,11 @@ set_option linter.unusedVariables.funArgs false in
 /--
 Computes the import information of a module from its header.
 
-With `elabOnly`, plain imports do not wait on the IR of the imported module; see `elabImportInfo`.
+With `elabOnly`, plain imports use `Module.fetchElabExportInfo`; see `elabImportInfo`.
 -/
 def fetchImportInfo
   (fileName : String) (pkgName modName : Name) (header : ModuleHeader)
-  (allowNonModules : Bool := false) (elabOnly := false)
+  (allowNonModules : Bool := false) (elabOnly := false) (withIRSig := false)
 : FetchM (Job ModuleImportInfo) := do
   let nonModule := !header.isModule
   let info := ModuleImportInfo.nil modName
@@ -516,7 +527,7 @@ def fetchImportInfo
       -- the same module may also be imported as `meta` or `all`, which does need its IR
       let needsIR := header.imports.any fun i => i.module == imp.module && (i.isMeta || i.importAll)
       if elabOnly && !nonModule && !needsIR then
-        let importJob ← mod.fetchElabExportInfo
+        let importJob ← mod.fetchElabExportInfo withIRSig
         return s.zipWith (sync := true) (·.addElabImport imp ·) importJob
       let importJob ← mod.fetchExportInfo
       return s.zipWith (sync := true) (·.addImport nonModule imp ·) importJob
@@ -567,11 +578,10 @@ public def Module.elabImportInfoFacetConfig : ModuleFacetConfig elabImportInfoFa
   mkFacetJobConfig fun mod => do
     let header ← (← mod.header.fetch).await
     let extra := (← getLeanOptOverrides).find? mod.pkg.baseName |>.getD {}
-    -- A module that postpones its code generation does not need the IR of its plain imports for
-    -- elaboration, so it must not wait on their `irArts`.
-    if header.isModule && Compiler.compiler.postponeCompile.get (mod.leanOptions ++ extra).toOptions then
+    if header.isModule then
+      let postpones := Compiler.compiler.postponeCompile.get (mod.leanOptions ++ extra).toOptions
       fetchImportInfo mod.relLeanFile.toString mod.pkg.keyName mod.name header
-        (allowNonModules := mod.allowNonModules) (elabOnly := true)
+        (allowNonModules := mod.allowNonModules) (elabOnly := true) (withIRSig := !postpones)
     else
       mod.importInfo.fetch
 
@@ -701,6 +711,11 @@ def Module.recFetchPreSetup (mod : Module) : FetchM (Job ModulePreSetup) := ensu
   let extra := (← getLeanOptOverrides).find? mod.pkg.baseName |>.getD {}
   let leanOptions := mod.leanOptions ++ extra
   let impInfoJob ← mod.elabImportInfo.fetch
+  let postpones := Compiler.compiler.postponeCompile.get leanOptions.toOptions
+  -- A module that generates code during its own elaboration reads the `.ir.sig` of its imports,
+  -- whose traces only the full import information has.
+  let irSigTraceJob ← if postpones then pure (.pure (.nil "imports (leanir)")) else
+    (·.map (sync := true) (·.irSigTrace)) <$> mod.importInfo.fetch
 
   /-
   Remark: It should be possible to avoid transitive imports here when the module
@@ -719,6 +734,7 @@ def Module.recFetchPreSetup (mod : Module) : FetchM (Job ModulePreSetup) := ensu
 
   inputJob.bindM (sync := true) fun input => do
   impInfoJob.bindM (sync := true) fun info => do
+  irSigTraceJob.bindM (sync := true) fun irSigTrace => do
   newTrace
   impLibsJob.bindM (sync := true) fun impLibs => do
   externLibsJob.bindM (sync := true) fun externLibs => do
@@ -727,10 +743,8 @@ def Module.recFetchPreSetup (mod : Module) : FetchM (Job ModulePreSetup) := ensu
     let libTrace ← takeTrace
     let trace := BuildTrace.nil "deps"
     let depTrace := trace.mix extraDepJob.getTrace |>.mix info.trace
-    -- A module that generates code during its own elaboration reads the `.ir.sig` of its imports
-    let postpones := Compiler.compiler.postponeCompile.get leanOptions.toOptions
     let depTrace :=
-      if input.header.isModule && !postpones then depTrace.mix info.irSigTrace else depTrace
+      if input.header.isModule && !postpones then depTrace.mix irSigTrace else depTrace
     setTraceCaption s!"{mod.name.toString}"
     let libTrace := libTrace.withCaption "libs"
     let nilLibTrace :=
@@ -786,10 +800,11 @@ public def Module.depsFacetConfig : ModuleFacetConfig depsFacet :=
 
 def mkModuleSetup
   (mod : Module) (presetup : ModulePreSetup)
-  (elabOnly := presetup.isModule && presetup.postponeCompile)
+  (elabOnly := presetup.isModule)
 : FetchM ModuleSetup := do
   let importArts ← fetchTransImportArts
     presetup.directImports presetup.directImportArts (!presetup.isModule) elabOnly
+    (withIRSig := !presetup.postponeCompile)
   return {
     name := mod.name
     isModule := presetup.isModule

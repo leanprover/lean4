@@ -2459,16 +2459,25 @@ private def readModuleDataPartsOfMod (mod : Name) : IO (Array (ModuleData × Com
   let priv ← unsafe CompactedRegion.read (α := ModuleData) pFile #[main.2, server.2]
   return #[main, server, priv]
 
-private def readIRPartsOfMod (mod : Name) : IO (Array (ModuleData × CompactedRegion)) := do
+/--
+Reads the `.ir.sig` of a module and, if `full`, its `.ir`. `loaded` is the result of a previous call
+without `full`, whose `.ir.sig` must be reused as its region is the base of the `.ir`.
+-/
+private def readIRPartsOfMod (mod : Name) (full := true)
+    (loaded : Array (ModuleData × CompactedRegion) := #[]) :
+    IO (Array (ModuleData × CompactedRegion)) := do
   let mFile ← findOLean mod
-  let irSigFile := mFile.withExtension "ir.sig"
-  -- TODO: we don't (necessarily) know whether the module is a `module` or not, but file existence
-  -- checks are not great in the face of module-ness changes
-  unless (← irSigFile.pathExists) do
-    return #[]
-  let irSig ← unsafe CompactedRegion.read (α := ModuleData) irSigFile #[]
-  -- Opportunistically load all available parts.
-  -- Necessary because the import level may be upgraded a later import.
+  let mut irSig? := loaded[0]?
+  if irSig?.isNone then
+    let irSigFile := mFile.withExtension "ir.sig"
+    -- TODO: we don't (necessarily) know whether the module is a `module` or not, but file existence
+    -- checks are not great in the face of module-ness changes
+    unless (← irSigFile.pathExists) do
+      return #[]
+    irSig? := some (← unsafe CompactedRegion.read (α := ModuleData) irSigFile #[])
+  let some irSig := irSig? | return #[]
+  unless full do
+    return #[irSig]
   let irFile := mFile.withExtension "ir"
   let ir ← unsafe CompactedRegion.read (α := ModuleData) irFile #[irSig.2]
   return #[irSig, ir]
@@ -2560,7 +2569,9 @@ where
       let needsIRTrans := needsIRTrans || (!loadIRSig && needsData && i.isMeta)
       -- `loadIRSig` only loads `.ir.sig` for modules whose `.olean` is also loaded
       -- (i.e., `needsData`), preserving the invariant that IR is never present without its olean.
-      let needsIR := needsIRTrans || importAll || globalLevel > .exported || ((loadIRSig || loadCodegenIR) && needsData)
+      -- Otherwise at most the `.ir.sig` is needed.
+      let needsFullIR := needsIRTrans || importAll || globalLevel > .exported
+      let needsIR := needsFullIR || ((loadIRSig || loadCodegenIR) && needsData)
       if !needsData && !needsIR then
         continue
 
@@ -2579,10 +2590,15 @@ where
         let isExported := isExported || mod.isExported
         let needsData := needsData || mod.hasData
         let needsIRTrans := needsIRTrans || mod.needsIRTrans
-        let needsIR := needsIRTrans || importAll || ((loadIRSig || loadCodegenIR) && needsData)
+        let needsFullIR := needsIRTrans || importAll
+        let needsIR := needsFullIR || ((loadIRSig || loadCodegenIR) && needsData)
         let irPhases := if irPhases == mod.irPhases then irPhases else .all
         let parts ← if needsData && mod.parts.isEmpty then loadData i else pure mod.parts
-        let irParts ← if needsIR && mod.irParts.isEmpty then loadIR i else pure mod.irParts
+        let irParts ←
+          if needsIR && (mod.irParts.isEmpty || needsFullIR && mod.irParts.size < 2) then
+            loadIR i needsFullIR mod.irParts
+          else
+            pure mod.irParts
         if importAll != mod.importAll || isExported != mod.isExported ||
             needsIRTrans != mod.needsIRTrans || needsData != mod.hasData || irPhases != mod.irPhases then
           modify fun s => { s with moduleNameMap := s.moduleNameMap.insert i.module { mod with
@@ -2593,7 +2609,7 @@ where
 
       -- newly discovered module
       let parts ← if needsData then loadData i else pure #[]
-      let irParts ← if needsIR then loadIR i else pure #[]
+      let irParts ← if needsIR then loadIR i needsFullIR else pure #[]
       let mod := { i with importAll, isExported, irPhases, parts, irParts, needsIRTrans, hasData := needsData }
       goRec mod
       modify fun s => { s with
@@ -2610,13 +2626,13 @@ where
     else
       readModuleDataPartsOfMod i.module
   -- .ir.sig + .ir (optional)
-  loadIR i := do
+  loadIR i (full : Bool) (loaded : Array (ModuleData × CompactedRegion) := #[]) := do
     if let some arts := arts.find? i.module then
       -- Opportunistically load all available parts.
       -- Producer (e.g., Lake) should limit parts to the proper import level.
-      readModuleDataParts arts.irParts
+      if loaded.isEmpty then readModuleDataParts arts.irParts else pure loaded
     else
-      readIRPartsOfMod i.module
+      readIRPartsOfMod i.module full loaded
 
 /--
 Returns `true` if `cinfo₁` and `cinfo₂` represent the same theorem/axiom, with `cinfo₁` potentially

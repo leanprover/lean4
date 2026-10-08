@@ -61,6 +61,13 @@ match_text 'Dep.ir"' .lake/build/ir/Test/UsesDep.irsetup.json
 # loads the `.ir.sig` of its postponed imports, with or without `import all`
 test_run build Plain.PlainImport
 test_exp -f .lake/build/ir/Plain/PlainImport.c
+# It is given the `.ir.sig` of a postponed import only, and no IR of a non-postponed one, whose
+# signatures are in its `.olean`
+match_text 'A.ir.sig"' .lake/build/ir/Plain/PlainImport.setup.json
+no_match_text 'A.ir"' .lake/build/ir/Plain/PlainImport.setup.json
+test_run build Plain
+match_text 'P.olean"' .lake/build/ir/Plain.setup.json
+no_match_text 'P.ir' .lake/build/ir/Plain.setup.json
 test_run build Plain.UsesTest
 test_exp -f .lake/build/ir/Plain/UsesTest.c
 

@@ -2,12 +2,17 @@ import Std.WP
 import Std.WP.Triple.SpecLemmas
 
 /-!
-# `vcgen` on a program type that is a `def` synonym
+# `vcgen` on a program that is not of the type of its `WP` instance
 
-The program type `Tagged n Exp` unfolds to `Exp`, so a program `e : Exp` also serves as a program of
-type `Tagged n Exp`. Only `Tagged n Exp` has a `WP` instance. Its assertion type
-`Fin (n + 1) → Prop` depends on `n`, so the instance cannot be found from `Exp`. `vcgen` builds the
-spec rules from the `Prog` and `WP` instance arguments of the goal's `wp` application.
+**This test abuses definitional equality.** The programs below have type `Exp`, but their `WP`
+instance is for `Tagged n Exp`. The two types are definitionally equal, so every triple and every
+`wp` must name its program type explicitly with `(Prog := Tagged n Exp)`. Programs normally have
+the program type of their `WP` instance.
+
+`vcgen` supports such abuse as far as `SymM` permits. It builds spec rules from the `Prog` and `WP`
+instance arguments of the goal's `wp` application, never from the type of the program. The
+assertion type `Fin (n + 1) → Prop` depends on `n`, so the type `Exp` of the program determines no
+`WP` instance.
 -/
 
 open Std.WP

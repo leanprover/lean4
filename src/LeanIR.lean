@@ -96,7 +96,8 @@ public def main (args : List String) : IO UInt32 := do
   let initExt {α β σ} [Inhabited σ] (ext : PersistentEnvExtension α β σ) (env : Environment) : IO Environment := do
     let s := ext.toEnvExtension.getState env
     let newState ← ext.addImportedFn s.importedEntries { env := env, opts := {} }
-    return ext.toEnvExtension.setState (asyncMode := .sync) env { s with state := newState }
+    -- unlogged: nothing has been recorded against this environment yet
+    return ext.toEnvExtension.setState (asyncMode := .sync) (log := .unlogged) env { s with state := newState }
 
   let env ← initExt Lean.Compiler.CSimp.ext.ext env
   let env ← initExt Meta.instanceExtension.ext env

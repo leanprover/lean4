@@ -2896,8 +2896,8 @@ return v___x_807_;
 else
 {
 lean_del_object(v___x_699_);
-lean_dec_ref(v_k_697_);
 lean_dec_ref_known(v_value_696_, 3);
+lean_dec_ref(v_k_697_);
 lean_dec_ref(v_decl_695_);
 lean_dec_ref(v_decl_679_);
 goto v___jp_688_;

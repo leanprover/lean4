@@ -158,6 +158,11 @@ structure EnvironmentHeader where
   `ModuleIdx` for the same module.
   -/
   modules      : Array EffectiveImport := #[]
+  /--
+  Name of all imported modules (directly and indirectly).
+  The index of a module name in the array equals the `ModuleIdx` for the same module.
+  -/
+  moduleNames  : Array Name := modules.map (·.module)
   /-- For `getModuleIdx?` -/
   private moduleName2Idx : Std.HashMap Name ModuleIdx := Id.run do
     let mut m := {}
@@ -174,13 +179,6 @@ structure EnvironmentHeader where
   /-- Module data for all imported modules. -/
   moduleData   : Array ModuleData := #[]
   deriving Nonempty
-
-/--
-Name of all imported modules (directly and indirectly).
-The index of a module name in the array equals the `ModuleIdx` for the same module.
--/
-def EnvironmentHeader.moduleNames (header : EnvironmentHeader) : Array Name :=
-  header.modules.map (·.module)
 
 namespace Kernel
 

@@ -12496,8 +12496,8 @@ lean_dec_ref_known(v___x_3782_, 1);
 v_fvarId_3785_ = lean_ctor_get(v_val_3779_, 1);
 lean_inc(v_fvarId_3785_);
 lean_dec(v_val_3779_);
-v___y_3773_ = v_val_3784_;
-v___y_3774_ = v___y_3781_;
+v___y_3773_ = v___y_3781_;
+v___y_3774_ = v_val_3784_;
 v___y_3775_ = v_fvarId_3785_;
 goto v___jp_3772_;
 }
@@ -12506,13 +12506,13 @@ goto v___jp_3772_;
 v___jp_3765_:
 {
 uint8_t v___x_3769_; 
-v___x_3769_ = l_Lean_instBEqFVarId_beq(v___y_3766_, v___y_3768_);
+v___x_3769_ = l_Lean_instBEqFVarId_beq(v___y_3767_, v___y_3768_);
 lean_dec(v___y_3768_);
-lean_dec(v___y_3766_);
+lean_dec(v___y_3767_);
 if (v___x_3769_ == 0)
 {
 lean_object* v___x_3770_; 
-lean_dec(v___y_3767_);
+lean_dec(v___y_3766_);
 v___x_3770_ = lean_box(0);
 return v___x_3770_;
 }
@@ -12520,18 +12520,18 @@ else
 {
 lean_object* v___x_3771_; 
 v___x_3771_ = lean_alloc_ctor(1, 1, 0);
-lean_ctor_set(v___x_3771_, 0, v___y_3767_);
+lean_ctor_set(v___x_3771_, 0, v___y_3766_);
 return v___x_3771_;
 }
 }
 v___jp_3772_:
 {
 lean_object* v_fvarId_3776_; 
-v_fvarId_3776_ = lean_ctor_get(v___y_3773_, 1);
+v_fvarId_3776_ = lean_ctor_get(v___y_3774_, 1);
 lean_inc(v_fvarId_3776_);
-lean_dec_ref(v___y_3773_);
-v___y_3766_ = v___y_3775_;
-v___y_3767_ = v___y_3774_;
+lean_dec_ref(v___y_3774_);
+v___y_3766_ = v___y_3773_;
+v___y_3767_ = v___y_3775_;
 v___y_3768_ = v_fvarId_3776_;
 goto v___jp_3765_;
 }

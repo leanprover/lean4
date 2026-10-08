@@ -25,7 +25,7 @@ import Init.Omega
 
 This file builds on the UTF-8 verification in `Init.Data.String.Decode` and the preliminary
 material in `Init.Data.String.Defs` to get the theory of strings off the ground. In particular,
-in this file we construct the decoding function `String.data : String → List Char` and show that
+in this file we construct the decoding function `String.toList : String → List Char` and show that
 it is a two-sided inverse to `List.asString : List Char → String`. This in turn enables us to
 understand the validity predicate on positions in terms of lists of characters, which forms the
 basis for all further verification for strings.
@@ -226,6 +226,8 @@ def String.Internal.toArray (b : String) : Array Char :=
 theorem String.Internal.toArray_empty : String.Internal.toArray "" = #[] := by
   simp [toArray]
 
+-- The function below is marked noncomputable as it is `csimp`-ed with a theorem in
+-- `Init.Data.String.Csimp`. If you want to use it in core this module needs to be imported.
 /--
 Converts a string to a list of characters.
 
@@ -237,32 +239,13 @@ Examples:
  * `"".toList = []`
  * `"\n".toList = ['\n']`
 -/
-@[extern "lean_string_data", expose]
-def String.toList (s : String) : List Char :=
+@[expose]
+noncomputable def String.toList (s : String) : List Char :=
   (String.Internal.toArray s).toList
-
-/--
-Converts a string to a list of characters.
-
-Since strings are represented as dynamic arrays of bytes containing the string encoded using
-UTF-8, this operation takes time and space linear in the length of the string.
-
-Examples:
- * `"abc".toList = ['a', 'b', 'c']`
- * `"".toList = []`
- * `"\n".toList = ['\n']`
--/
-@[extern "lean_string_data", expose, deprecated String.toList (since := "2025-10-30")]
-def String.data (b : String) : List Char :=
-  (String.Internal.toArray b).toList
 
 @[simp]
 theorem String.toList_empty : "".toList = [] := by
   simp [toList]
-
-@[deprecated String.toList_empty (since := "2025-10-30")]
-theorem String.data_empty : "".toList = [] :=
-  toList_empty
 
 private theorem ByteArray.utf8Decode?go_eq_utf8Decode?go_extract {b : ByteArray} {hi : i ≤ b.size} {acc : Array Char} :
     utf8Decode?.go b i acc hi = (utf8Decode?.go (b.extract i b.size) 0 #[] (by simp)).map (acc ++ ·) := by
@@ -334,18 +317,10 @@ theorem ByteArray.utf8Encode_get_utf8Decode? {b : ByteArray} {h} :
 theorem String.toList_ofList {l : List Char} : (String.ofList l).toList = l := by
   simp [String.toList, String.Internal.toArray]
 
-@[deprecated String.toList_ofList (since := "2025-10-30")]
-theorem List.data_asString {l : List Char} : (String.ofList l).toList = l :=
-  String.toList_ofList
-
 @[simp]
 theorem String.ofList_toList {s : String} : String.ofList s.toList = s := by
   obtain ⟨l, rfl⟩ := s.exists_eq_ofList
   simp
-
-@[deprecated String.ofList_toList (since := "2025-10-30")]
-theorem String.asString_data {b : String} : String.ofList b.toList = b :=
-  String.ofList_toList
 
 @[simp]
 theorem String.ofList_comp_toList : String.ofList ∘ String.toList = id := by ext; simp
@@ -370,41 +345,21 @@ theorem List.asString_inj {l₁ l₂ : List Char} : String.ofList l₁ = String.
 theorem String.toList_injective {s₁ s₂ : String} (h : s₁.toList = s₂.toList) : s₁ = s₂ := by
   simpa using congrArg String.ofList h
 
-@[deprecated String.toList_injective (since := "2025-10-30")]
-theorem String.data_injective {s₁ s₂ : String} (h : s₁.toList = s₂.toList) : s₁ = s₂ :=
-  String.toList_injective h
-
 theorem String.toList_inj {s₁ s₂ : String} : s₁.toList = s₂.toList ↔ s₁ = s₂ :=
   ⟨toList_injective, (· ▸ rfl)⟩
-
-@[deprecated String.toList_inj (since := "2025-10-30")]
-theorem String.data_inj {s₁ s₂ : String} : s₁.toList = s₂.toList ↔ s₁ = s₂ :=
-  String.toList_inj
 
 @[simp]
 theorem String.toList_append {s t : String} : (s ++ t).toList = s.toList ++ t.toList := by
   simp [← String.ofList_inj]
-
-@[deprecated String.toList_append (since := "2025-10-30")]
-theorem String.data_append {l₁ l₂ : String} : (l₁ ++ l₂).toList = l₁.toList ++ l₂.toList :=
-  String.toList_append
 
 @[simp]
 theorem String.utf8Encode_toList {b : String} : b.toList.utf8Encode = b.toByteArray := by
   have := congrArg String.toByteArray (String.ofList_toList (s := b))
   rwa [← String.toByteArray_ofList]
 
-@[deprecated String.utf8Encode_toList (since := "2025-10-30")]
-theorem String.utf8encode_data {b : String} : b.toList.utf8Encode = b.toByteArray :=
-  String.utf8Encode_toList
-
 @[simp]
 theorem String.toList_eq_nil_iff {b : String} : b.toList = [] ↔ b = "" := by
   rw [← String.ofList_inj, ofList_toList, String.ofList_nil]
-
-@[deprecated String.toList_eq_nil_iff (since := "2025-10-30")]
-theorem String.data_eq_nil_iff {b : String} : b.toList = [] ↔ b = "" :=
-  String.toList_eq_nil_iff
 
 @[simp]
 theorem String.ofList_eq_empty_iff {l : List Char} : String.ofList l = "" ↔ l = [] := by
@@ -519,11 +474,6 @@ theorem Pos.Raw.isValid_iff_exists_take_toList {s : String} {p : Pos.Raw} :
     p.IsValid s ↔ ∃ i, p.byteIdx = (ofList (s.toList.take i)).utf8ByteSize := by
   obtain ⟨l, rfl⟩ := s.exists_eq_ofList
   simp [isValid_ofList]
-
-@[deprecated Pos.Raw.isValid_iff_exists_take_toList (since := "2025-10-30")]
-theorem Pos.Raw.isValid_iff_exists_take_data {s : String} {p : Pos.Raw} :
-    p.IsValid s ↔ ∃ i, p.byteIdx = (ofList (s.toList.take i)).utf8ByteSize :=
-  Pos.Raw.isValid_iff_exists_take_toList
 
 @[simp]
 theorem Pos.Raw.isValid_singleton {c : Char} {p : Pos.Raw} :
@@ -1326,11 +1276,6 @@ theorem head_toList {b : String} {h} :
   match l with
   | [] => simp at h
   | c::cs => simp
-
-@[deprecated head_toList (since := "2025-10-30")]
-theorem head_data {b : String} {h} :
-    b.toList.head h = b.toByteArray.utf8DecodeChar 0 (isSome_utf8DecodeChar?_zero (by simpa using h)) :=
-  head_toList
 
 theorem get_startPos {b : String} (h) :
     b.startPos.get h = b.toList.head (by rwa [ne_eq, toList_eq_nil_iff, ← startPos_eq_endPos_iff]) :=
@@ -3104,17 +3049,9 @@ theorem singleton_eq {c : Char} : String.singleton c = ofList [c] :=
 @[simp] theorem toList_singleton (c : Char) : (String.singleton c).toList = [c] := by
   simp [singleton_eq_ofList]
 
-@[deprecated toList_singleton (since := "2025-10-30")]
-theorem data_singleton (c : Char) : (String.singleton c).toList = [c] :=
-  toList_singleton c
-
 @[simp]
 theorem toList_push (c : Char) : (String.push s c).toList = s.toList ++ [c] := by
   simp [← append_singleton]
-
-@[deprecated toList_push (since := "2025-10-30")]
-theorem data_push (c : Char) : (String.push s c).toList = s.toList ++ [c] :=
-  toList_push c
 
 theorem lt_iff {s t : String} : s < t ↔ s.toList < t.toList := .rfl
 

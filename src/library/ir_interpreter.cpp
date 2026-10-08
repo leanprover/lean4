@@ -1215,12 +1215,15 @@ extern "C" LEAN_EXPORT object * lean_run_init(object * env, object * opts, objec
 
 void initialize_ir_interpreter() {
     ir::g_interpreter_prefer_native = new name({"interpreter", "prefer_native"});
+    mark_persistent(ir::g_interpreter_prefer_native->raw());
     ir::g_init_globals = new name_hash_map<object *>();
     register_bool_option(*ir::g_interpreter_prefer_native, LEAN_DEFAULT_INTERPRETER_PREFER_NATIVE, "(interpreter) whether to use precompiled code where available");
     DEBUG_CODE({
         ir::g_interpreter_call = new name({"interpreter", "call"});
+        mark_persistent(ir::g_interpreter_call->raw());
         register_trace_class(*ir::g_interpreter_call);
         ir::g_interpreter_step = new name({"interpreter", "step"});
+        mark_persistent(ir::g_interpreter_step->raw());
         register_trace_class(*ir::g_interpreter_step);
     });
     ir::g_native_symbol_cache = new name_hash_map<ir::native_symbol_cache_entry>();

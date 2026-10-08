@@ -1,6 +1,6 @@
 // Lean compiler output
 // Module: Lean.Meta.Tactic.Simp.BuiltinSimprocs.String
-// Imports: public import Lean.Meta.Tactic.Simp.BuiltinSimprocs.Char import Lean.Meta.StringLitProof
+// Imports: public import Lean.Meta.Tactic.Simp.BuiltinSimprocs.Char import Lean.Meta.StringLitProof import Init.Data.String.Csimp
 #include <lean/lean.h>
 #if defined(__clang__)
 #pragma clang diagnostic ignored "-Wunused-parameter"
@@ -37,7 +37,7 @@ lean_object* l_Lean_Meta_mkStringLitNeProof(lean_object*, lean_object*, lean_obj
 lean_object* l_Lean_Meta_Simp_evalEqPropStep(lean_object*, uint8_t, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* lean_string_append(lean_object*, lean_object*);
 lean_object* l_Lean_Meta_Simp_evalNePropStep(lean_object*, uint8_t, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
-lean_object* lean_string_data(lean_object*);
+lean_object* l_String_toListImpl(lean_object*);
 lean_object* lean_uint32_to_nat(uint32_t);
 lean_object* l_Lean_mkRawNatLit(lean_object*);
 lean_object* l_Lean_Expr_app___override(lean_object*, lean_object*);
@@ -1281,7 +1281,7 @@ v_resetjp_376_:
 lean_object* v_nil_379_; lean_object* v_cons_380_; lean_object* v___x_381_; lean_object* v___x_382_; lean_object* v___x_384_; 
 v_nil_379_ = lean_obj_once(&l_String_reduceToList___redArg___closed__6, &l_String_reduceToList___redArg___closed__6_once, _init_l_String_reduceToList___redArg___closed__6);
 v_cons_380_ = lean_obj_once(&l_String_reduceToList___redArg___closed__8, &l_String_reduceToList___redArg___closed__8_once, _init_l_String_reduceToList___redArg___closed__8);
-v___x_381_ = lean_string_data(v_val_375_);
+v___x_381_ = l_String_toListImpl(v_val_375_);
 v___x_382_ = l___private_Lean_ToExpr_0__Lean_List_toExprAux___at___00String_reduceToList_spec__0(v_nil_379_, v_cons_380_, v___x_381_);
 lean_dec(v___x_381_);
 if (v_isShared_378_ == 0)
@@ -2132,7 +2132,7 @@ goto v_resetjp_705_;
 v_resetjp_705_:
 {
 lean_object* v___x_708_; 
-v___x_708_ = lean_string_data(v_val_704_);
+v___x_708_ = l_String_toListImpl(v_val_704_);
 if (lean_obj_tag(v___x_708_) == 1)
 {
 lean_object* v_tail_709_; 
@@ -5122,6 +5122,7 @@ return v_res_1874_;
 }
 lean_object* runtime_initialize_Lean_Meta_Tactic_Simp_BuiltinSimprocs_Char(uint8_t builtin);
 lean_object* runtime_initialize_Lean_Meta_StringLitProof(uint8_t builtin);
+lean_object* runtime_initialize_Init_Data_String_Csimp(uint8_t builtin);
 void lean_initialize_runtime_module();
 static bool _G_runtime_initialized = false;
 LEAN_EXPORT lean_object* runtime_initialize_Lean_Meta_Tactic_Simp_BuiltinSimprocs_String(uint8_t builtin) {
@@ -5133,6 +5134,9 @@ res = runtime_initialize_Lean_Meta_Tactic_Simp_BuiltinSimprocs_Char(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
 res = runtime_initialize_Lean_Meta_StringLitProof(builtin);
+if (lean_io_result_is_error(res)) return res;
+lean_dec_ref(res);
+res = runtime_initialize_Init_Data_String_Csimp(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
 res = l___private_Lean_Meta_Tactic_Simp_BuiltinSimprocs_String_0____regBuiltin_String_reduceAppend_declare__9_00___x40_Lean_Meta_Tactic_Simp_BuiltinSimprocs_String_1679837338____hygCtx___hyg_26_();
@@ -5266,6 +5270,7 @@ return lean_io_result_mk_ok(lean_box(0));
 }
 lean_object* initialize_Lean_Meta_Tactic_Simp_BuiltinSimprocs_Char(uint8_t builtin);
 lean_object* initialize_Lean_Meta_StringLitProof(uint8_t builtin);
+lean_object* initialize_Init_Data_String_Csimp(uint8_t builtin);
 static bool _G_initialized = false;
 LEAN_EXPORT lean_object* initialize_Lean_Meta_Tactic_Simp_BuiltinSimprocs_String(uint8_t builtin) {
 lean_object * res;
@@ -5275,6 +5280,9 @@ res = initialize_Lean_Meta_Tactic_Simp_BuiltinSimprocs_Char(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
 res = initialize_Lean_Meta_StringLitProof(builtin);
+if (lean_io_result_is_error(res)) return res;
+lean_dec_ref(res);
+res = initialize_Init_Data_String_Csimp(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
 res = runtime_initialize_Lean_Meta_Tactic_Simp_BuiltinSimprocs_String(builtin);

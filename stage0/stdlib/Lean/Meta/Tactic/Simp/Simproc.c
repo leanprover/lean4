@@ -123,7 +123,6 @@ uint8_t l_Lean_Environment_contains(lean_object*, lean_object*, uint8_t);
 extern lean_object* l_Lean_Options_empty;
 lean_object* l_Lean_MessageData_note(lean_object*);
 lean_object* l_Lean_Environment_header(lean_object*);
-lean_object* l_Lean_EnvironmentHeader_moduleNames(lean_object*);
 uint8_t l_Lean_isPrivateName(lean_object*);
 lean_object* l_Lean_MessageData_ofName(lean_object*);
 extern lean_object* l_Lean_unknownIdentifierMessageTag;
@@ -6007,16 +6006,16 @@ goto v___jp_1668_;
 }
 else
 {
-lean_dec(v_pre_1688_);
 lean_dec_ref_known(v_pre_1687_, 2);
+lean_dec(v_pre_1688_);
 lean_dec_ref_known(v_declName_1686_, 2);
 goto v___jp_1668_;
 }
 }
 else
 {
-lean_dec_ref_known(v_declName_1686_, 2);
 lean_dec(v_pre_1687_);
+lean_dec_ref_known(v_declName_1686_, 2);
 goto v___jp_1668_;
 }
 }
@@ -15453,13 +15452,15 @@ goto v_resetjp_5011_;
 }
 v_resetjp_5011_:
 {
-lean_object* v___x_5014_; lean_object* v___x_5015_; lean_object* v_mod_5016_; uint8_t v___x_5017_; 
+lean_object* v___x_5014_; lean_object* v_moduleNames_5015_; lean_object* v_mod_5016_; uint8_t v___x_5017_; 
 v___x_5014_ = l_Lean_Environment_header(v_env_4989_);
 lean_dec_ref(v_env_4989_);
-v___x_5015_ = l_Lean_EnvironmentHeader_moduleNames(v___x_5014_);
-v_mod_5016_ = lean_array_get(v___x_4987_, v___x_5015_, v_val_5010_);
+v_moduleNames_5015_ = lean_ctor_get(v___x_5014_, 4);
+lean_inc_ref(v_moduleNames_5015_);
+lean_dec_ref(v___x_5014_);
+v_mod_5016_ = lean_array_get(v___x_4987_, v_moduleNames_5015_, v_val_5010_);
 lean_dec(v_val_5010_);
-lean_dec_ref(v___x_5015_);
+lean_dec_ref(v_moduleNames_5015_);
 v___x_5017_ = l_Lean_isPrivateName(v_declHint_4984_);
 lean_dec(v_declHint_4984_);
 if (v___x_5017_ == 0)

@@ -3533,10 +3533,10 @@ v___x_1152_ = lean_unsigned_to_nat(57343u);
 v___x_1153_ = lean_nat_dec_lt(v___x_1152_, v_val_1149_);
 if (v___x_1153_ == 0)
 {
-v___y_1124_ = v___y_1148_;
+v___y_1124_ = v_val_1149_;
 v___y_1125_ = v___y_1147_;
 v___y_1126_ = v_escape_1146_;
-v___y_1127_ = v_val_1149_;
+v___y_1127_ = v___y_1148_;
 v___y_1128_ = v___x_1144_;
 goto v___jp_1123_;
 }
@@ -3545,20 +3545,20 @@ else
 lean_object* v___x_1154_; uint8_t v___x_1155_; 
 v___x_1154_ = lean_unsigned_to_nat(1114112u);
 v___x_1155_ = lean_nat_dec_lt(v_val_1149_, v___x_1154_);
-v___y_1124_ = v___y_1148_;
+v___y_1124_ = v_val_1149_;
 v___y_1125_ = v___y_1147_;
 v___y_1126_ = v_escape_1146_;
-v___y_1127_ = v_val_1149_;
+v___y_1127_ = v___y_1148_;
 v___y_1128_ = v___x_1155_;
 goto v___jp_1123_;
 }
 }
 else
 {
-v___y_1115_ = v___y_1148_;
+v___y_1115_ = v_val_1149_;
 v___y_1116_ = v___y_1147_;
 v___y_1117_ = v_escape_1146_;
-v___y_1118_ = v_val_1149_;
+v___y_1118_ = v___y_1148_;
 goto v___jp_1114_;
 }
 }
@@ -3579,13 +3579,13 @@ lean_object* v_stopPos_1119_; uint32_t v_ch_1120_; lean_object* v___x_1121_;
 v_stopPos_1119_ = lean_ctor_get(v___y_1117_, 2);
 lean_inc(v_stopPos_1119_);
 lean_dec_ref(v___y_1117_);
-v_ch_1120_ = lean_uint32_of_nat(v___y_1118_);
-lean_dec(v___y_1118_);
+v_ch_1120_ = lean_uint32_of_nat(v___y_1115_);
+lean_dec(v___y_1115_);
 v___x_1121_ = lean_string_push(v_out_1110_, v_ch_1120_);
 v_i_1109_ = v_stopPos_1119_;
 v_out_1110_ = v___x_1121_;
 v_a_1111_ = v___y_1116_;
-v_a_1112_ = v___y_1115_;
+v_a_1112_ = v___y_1118_;
 goto _start;
 }
 v___jp_1123_:
@@ -3593,7 +3593,7 @@ v___jp_1123_:
 if (v___y_1128_ == 0)
 {
 lean_object* v___x_1129_; lean_object* v___x_1130_; lean_object* v___x_1131_; lean_object* v___x_1132_; lean_object* v___x_1133_; lean_object* v___x_1134_; lean_object* v___x_1135_; lean_object* v___x_1136_; 
-lean_dec(v___y_1127_);
+lean_dec(v___y_1124_);
 lean_dec_ref(v_out_1110_);
 lean_dec_ref(v_lit_1108_);
 v___x_1129_ = lean_obj_once(&l___private_Lake_Toml_Elab_Value_0__Lake_Toml_elabBasicStringCore___closed__1, &l___private_Lake_Toml_Elab_Value_0__Lake_Toml_elabBasicStringCore___closed__1_once, _init_l___private_Lake_Toml_Elab_Value_0__Lake_Toml_elabBasicStringCore___closed__1);
@@ -3608,7 +3608,7 @@ v___x_1134_ = lean_obj_once(&l___private_Lake_Toml_Elab_Value_0__Lake_Toml_elabB
 v___x_1135_ = lean_alloc_ctor(7, 2, 0);
 lean_ctor_set(v___x_1135_, 0, v___x_1133_);
 lean_ctor_set(v___x_1135_, 1, v___x_1134_);
-v___x_1136_ = l_Lean_throwError___at___00Lean_throwErrorAt___at___00__private_Lake_Toml_Elab_Value_0__Lake_Toml_elabBoolean_spec__0_spec__0___redArg(v___x_1135_, v___y_1125_, v___y_1124_);
+v___x_1136_ = l_Lean_throwError___at___00Lean_throwErrorAt___at___00__private_Lake_Toml_Elab_Value_0__Lake_Toml_elabBoolean_spec__0_spec__0___redArg(v___x_1135_, v___y_1125_, v___y_1127_);
 return v___x_1136_;
 }
 else

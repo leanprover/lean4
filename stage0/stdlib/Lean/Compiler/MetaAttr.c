@@ -693,7 +693,7 @@ _start:
 {
 lean_object* v___x_264_; uint8_t v_isModule_265_; 
 v___x_264_ = l_Lean_Environment_header(v_env_262_);
-v_isModule_265_ = lean_ctor_get_uint8(v___x_264_, sizeof(void*)*7 + 4);
+v_isModule_265_ = lean_ctor_get_uint8(v___x_264_, sizeof(void*)*8 + 4);
 lean_dec_ref(v___x_264_);
 if (v_isModule_265_ == 0)
 {
@@ -975,7 +975,7 @@ _start:
 {
 lean_object* v___x_376_; uint8_t v_isModule_377_; 
 v___x_376_ = l_Lean_Environment_header(v_env_374_);
-v_isModule_377_ = lean_ctor_get_uint8(v___x_376_, sizeof(void*)*7 + 4);
+v_isModule_377_ = lean_ctor_get_uint8(v___x_376_, sizeof(void*)*8 + 4);
 if (v_isModule_377_ == 0)
 {
 uint8_t v___x_378_; 

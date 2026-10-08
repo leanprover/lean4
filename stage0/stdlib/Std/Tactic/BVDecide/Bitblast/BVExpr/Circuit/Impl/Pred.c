@@ -1416,7 +1416,7 @@ goto v_resetjp_380_;
 }
 v_resetjp_380_:
 {
-uint8_t v___x_383_; uint8_t v___x_384_; lean_object* v___y_386_; lean_object* v___y_387_; lean_object* v___y_388_; lean_object* v___y_407_; lean_object* v___y_408_; lean_object* v___y_409_; uint8_t v___y_433_; lean_object* v___y_434_; lean_object* v___y_435_; lean_object* v___y_436_; lean_object* v___y_437_; lean_object* v___y_451_; lean_object* v___y_476_; 
+uint8_t v___x_383_; uint8_t v___x_384_; lean_object* v___y_386_; lean_object* v___y_387_; lean_object* v___y_388_; lean_object* v___y_407_; lean_object* v___y_408_; lean_object* v___y_409_; lean_object* v___y_433_; lean_object* v___y_434_; lean_object* v___y_435_; uint8_t v___y_436_; lean_object* v___y_437_; lean_object* v___y_451_; lean_object* v___y_476_; 
 v___x_383_ = 0;
 v___x_384_ = 1;
 if (v_invert_379_ == 0)
@@ -1537,8 +1537,8 @@ goto v___jp_367_;
 v___jp_406_:
 {
 lean_object* v_res_410_; uint8_t v_invert_411_; 
-v_res_410_ = l_Std_Sat_AIG_mkGateCached___at___00Std_Tactic_BVDecide_BVPred_mkEq___at___00Std_Tactic_BVDecide_BVPred_bitblast_spec__0_spec__2(v___y_407_, v___y_409_);
-v_invert_411_ = lean_ctor_get_uint8(v___y_408_, sizeof(void*)*1);
+v_res_410_ = l_Std_Sat_AIG_mkGateCached___at___00Std_Tactic_BVDecide_BVPred_mkEq___at___00Std_Tactic_BVDecide_BVPred_bitblast_spec__0_spec__2(v___y_408_, v___y_409_);
+v_invert_411_ = lean_ctor_get_uint8(v___y_407_, sizeof(void*)*1);
 if (v_invert_411_ == 0)
 {
 lean_object* v_aig_412_; lean_object* v_ref_413_; lean_object* v_gate_414_; lean_object* v___x_416_; uint8_t v_isShared_417_; uint8_t v_isSharedCheck_421_; 
@@ -1547,18 +1547,18 @@ lean_inc_ref(v_aig_412_);
 v_ref_413_ = lean_ctor_get(v_res_410_, 1);
 lean_inc_ref(v_ref_413_);
 lean_dec_ref(v_res_410_);
-v_gate_414_ = lean_ctor_get(v___y_408_, 0);
-v_isSharedCheck_421_ = !lean_is_exclusive(v___y_408_);
+v_gate_414_ = lean_ctor_get(v___y_407_, 0);
+v_isSharedCheck_421_ = !lean_is_exclusive(v___y_407_);
 if (v_isSharedCheck_421_ == 0)
 {
-v___x_416_ = v___y_408_;
+v___x_416_ = v___y_407_;
 v_isShared_417_ = v_isSharedCheck_421_;
 goto v_resetjp_415_;
 }
 else
 {
 lean_inc(v_gate_414_);
-lean_dec(v___y_408_);
+lean_dec(v___y_407_);
 v___x_416_ = lean_box(0);
 v_isShared_417_ = v_isSharedCheck_421_;
 goto v_resetjp_415_;
@@ -1597,18 +1597,18 @@ lean_inc_ref(v_aig_422_);
 v_ref_423_ = lean_ctor_get(v_res_410_, 1);
 lean_inc_ref(v_ref_423_);
 lean_dec_ref(v_res_410_);
-v_gate_424_ = lean_ctor_get(v___y_408_, 0);
-v_isSharedCheck_431_ = !lean_is_exclusive(v___y_408_);
+v_gate_424_ = lean_ctor_get(v___y_407_, 0);
+v_isSharedCheck_431_ = !lean_is_exclusive(v___y_407_);
 if (v_isSharedCheck_431_ == 0)
 {
-v___x_426_ = v___y_408_;
+v___x_426_ = v___y_407_;
 v_isShared_427_ = v_isSharedCheck_431_;
 goto v_resetjp_425_;
 }
 else
 {
 lean_inc(v_gate_424_);
-lean_dec(v___y_408_);
+lean_dec(v___y_407_);
 v___x_426_ = lean_box(0);
 v_isShared_427_ = v_isSharedCheck_431_;
 goto v_resetjp_425_;
@@ -1642,7 +1642,7 @@ goto v___jp_385_;
 }
 v___jp_432_:
 {
-if (v___y_433_ == 0)
+if (v___y_436_ == 0)
 {
 lean_object* v___x_439_; 
 if (v_isShared_382_ == 0)
@@ -1681,8 +1681,8 @@ goto v_reusejp_440_;
 }
 v_reusejp_440_:
 {
-v___y_407_ = v___y_434_;
-v___y_408_ = v___y_436_;
+v___y_407_ = v___y_433_;
+v___y_408_ = v___y_434_;
 v___y_409_ = v___x_441_;
 goto v___jp_406_;
 }
@@ -1727,8 +1727,8 @@ goto v_reusejp_446_;
 }
 v_reusejp_446_:
 {
-v___y_407_ = v___y_434_;
-v___y_408_ = v___y_436_;
+v___y_407_ = v___y_433_;
+v___y_408_ = v___y_434_;
 v___y_409_ = v___x_447_;
 goto v___jp_406_;
 }
@@ -1784,10 +1784,10 @@ goto v_reusejp_460_;
 v_reusejp_460_:
 {
 lean_ctor_set_uint8(v___x_461_, sizeof(void*)*1, v___x_384_);
-v___y_433_ = v_invert_456_;
+v___y_433_ = v_ref_454_;
 v___y_434_ = v_aig_453_;
 v___y_435_ = v_gate_455_;
-v___y_436_ = v_ref_454_;
+v___y_436_ = v_invert_456_;
 v___y_437_ = v___x_461_;
 goto v___jp_432_;
 }
@@ -1838,10 +1838,10 @@ goto v_reusejp_471_;
 v_reusejp_471_:
 {
 lean_ctor_set_uint8(v___x_472_, sizeof(void*)*1, v___x_383_);
-v___y_433_ = v_invert_467_;
+v___y_433_ = v_ref_465_;
 v___y_434_ = v_aig_464_;
 v___y_435_ = v_gate_466_;
-v___y_436_ = v_ref_465_;
+v___y_436_ = v_invert_467_;
 v___y_437_ = v___x_472_;
 goto v___jp_432_;
 }

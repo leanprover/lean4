@@ -1,6 +1,9 @@
 /-!
-`grind` instantiates `List.min_findIdx_findIdx` only for distinct predicates and only on terms of low
-generation, so it terminates on goals that take the `min` of `List.findIdx` terms.
+Regression test for #15562: `grind` diverged on the first goal below. The `grind =` lemma
+`List.min_findIdx_findIdx` rewrote `min (l.findIdx p) (l.findIdx p)` to
+`l.findIdx (fun a => p a || p a)`. Because `min x x = x`, that term lands in the class of
+`l.findIdx p`, so the lemma matched again and produced ever longer predicates until the heartbeat
+limit. The other two goals check that `grind` still uses the lemma.
 -/
 
 set_option maxHeartbeats 20000 in

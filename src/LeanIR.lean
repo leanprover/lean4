@@ -25,7 +25,7 @@ import Lean.Meta.ExprDefEq
 import Lean.Meta.LevelDefEq
 import Lean.Meta.Match.MatchEqs
 import Lean.Elab.PreDefinition.Structural.Eqns
-import Lean.Elab.Idbg
+import Lean.Parser
 
 /-! Lean codegen as a separate process. -/
 

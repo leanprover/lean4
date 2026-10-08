@@ -589,3 +589,28 @@ public structure CustomMulT where
 @[default_instance]
 public instance instHMulNatCustom : HMul Nat CustomMulT CustomMulT where
   hMul a b := { x := a + b.x }
+
+/-! Setup for #15393: proofs in `variable` binders of a `public section`. -/
+
+public section
+
+structure SectionVarData where
+  i₀ (r : Int) (hr : 0 ≤ r := by omega) : Nat
+
+variable (data : SectionVarData) (r : Int) (hr : 0 ≤ r) (i : Nat) (hi : i = data.i₀ (r + 1))
+
+-- `(e :)` runs the tactic while the binders are elaborated, not afterwards.
+variable (hk : (data.i₀ (r + 1) :) = i)
+
+include hi in
+theorem sectionVar_le : data.i₀ (r + 1) ≤ i := Nat.le_of_eq hi.symm
+
+def sectionVarDef (_ : hi = hi) : Nat := i
+
+structure SectionVarStr where
+  h : hi = hi
+
+include hk in
+theorem sectionVar_eager : data.i₀ (r + 1) = i := hk
+
+end

@@ -213,3 +213,20 @@ public meta def metaUsingNonMeta : Nat :=
 
 -- #11672
 example : instA = { instA with b := 0 } := rfl
+
+-- #15393: the proofs in the section variable binders must be exported
+example (data : SectionVarData) (r : Int) (hr : 0 ≤ r) (i : Nat) (hi : i = data.i₀ (r + 1)) :
+    data.i₀ (r + 1) ≤ i :=
+  sectionVar_le data r hr i hi
+
+example (data : SectionVarData) (r : Int) (hr : 0 ≤ r) (i : Nat) (hi : i = data.i₀ (r + 1)) :
+    Nat :=
+  sectionVarDef data r hr i hi rfl
+
+example (data : SectionVarData) (r : Int) (hr : 0 ≤ r) (i : Nat) (hi : i = data.i₀ (r + 1)) :
+    SectionVarStr data r hr i hi :=
+  ⟨rfl⟩
+
+example (data : SectionVarData) (r : Int) (hr : 0 ≤ r) (i : Nat) (hk : data.i₀ (r + 1) = i) :
+    data.i₀ (r + 1) = i :=
+  sectionVar_eager data r hr i hk

@@ -9,3 +9,11 @@ set_target_properties(
   PROPERTIES ARCHIVE_OUTPUT_DIRECTORY ${CMAKE_ARCHIVE_OUTPUT_DIRECTORY}
 )
 target_compile_definitions(initialize_minimal PRIVATE LEAN_MINIMAL_CORE_INIT)
+
+# `leanir` never elaborates Lean source either but links against `libleanshared`, so it selects the
+# minimal initialization at run time instead; see `init_minimal_shim.c`.
+add_library(initialize_minimal_shim STATIC EXCLUDE_FROM_ALL init_minimal_shim.c)
+set_target_properties(
+  initialize_minimal_shim
+  PROPERTIES ARCHIVE_OUTPUT_DIRECTORY ${CMAKE_ARCHIVE_OUTPUT_DIRECTORY}
+)

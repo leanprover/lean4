@@ -1341,6 +1341,10 @@ theorem extractLsb'_cast {x : BitVec w} :
   ext k hk
   simp
 
+theorem extractLsb'_eq_cast {w : Nat} {x : BitVec w} {len : Nat} (h : len = w) :
+    x.extractLsb' 0 len = x.cast h.symm := by
+  rw [← BitVec.extractLsb'_eq_self (x := x.cast h.symm), BitVec.extractLsb'_cast]
+
 @[simp]
 theorem extractLsb'_extractLsb'_of_le {x : BitVec w} (hlt : start + len ≤ len') :
     (x.extractLsb' 0 len').extractLsb' start len  = x.extractLsb' start len := by
@@ -3286,6 +3290,10 @@ theorem shiftLeft_eq_concat_of_lt {x : BitVec w} {n : Nat} (hn : n < w) :
   · simp [hi']
   · simp [hi', show i - n < w by omega]
 
+-- We need the `no_index` here because otherwise the `simp` discrimination key will contain
+-- `BitVec (HAdd.hAdd ..)`, but if `w` and `v` are concrete numbers, then the RHS will have
+-- a type like `BitVec 16` rather than `BitVec (8 + 8)`, which would cause `simp` to fail to
+-- apply this lemma.
 /-- Combine adjacent `extractLsb'` operations into a single `extractLsb'`. -/
 theorem extractLsb'_append_extractLsb'_eq_extractLsb' {x : BitVec w} (h : start₂ = start₁ + len₁) :
     (@HAppend.hAppend _ _ (no_index _) _ (x.extractLsb' start₂ len₂) (x.extractLsb' start₁ len₁)) =
@@ -3295,6 +3303,12 @@ theorem extractLsb'_append_extractLsb'_eq_extractLsb' {x : BitVec w} (h : start�
   intro hi
   congr 1
   omega
+
+theorem eq_extractLsb'_append_extractLsb' {w : Nat} (x : BitVec w) (len : Nat) (h : len ≤ w) :
+    x = (x.extractLsb' (w - len) len ++ x.extractLsb' 0 (w - len)).cast (by omega) := by
+  rw [BitVec.extractLsb'_append_extractLsb'_eq_extractLsb' (by omega)]
+  rw [BitVec.extractLsb'_eq_cast (by omega)]
+  simp
 
 theorem append_extractLsb'_of_lt {x : BitVec (x_len * w)} :
     (x.extractLsb' ((x_len - 1) * w) w ++ x.extractLsb' 0 ((x_len - 1) * w)).cast hcast = x := by
@@ -4586,6 +4600,49 @@ theorem toNat_pos {n : Nat} (b : BitVec n) : 0 < b.toNat ↔ 0#_ < b := by
 
 theorem pos_iff_ne_zero {n : Nat} (b : BitVec n) : 0#_ < b ↔ b ≠ 0#_ := by
   rw [BitVec.lt_def, Ne, ← BitVec.toNat_inj, BitVec.toNat_zero, Nat.pos_iff_ne_zero]
+
+theorem append_lt_append_iff {w v : Nat} {x₁ x₂ : BitVec w} {y₁ y₂ : BitVec v} :
+    x₁ ++ y₁ < x₂ ++ y₂ ↔ x₁ < x₂ ∨ (x₁ = x₂ ∧ y₁ < y₂) := by
+  simp only [lt_def, toNat_append, ← toNat_inj]
+  rw [← Nat.shiftLeft_add_eq_or_of_lt y₁.isLt, ← Nat.shiftLeft_add_eq_or_of_lt y₂.isLt,
+    Nat.shiftLeft_eq, Nat.shiftLeft_eq, Nat.mul_add_lt_iff_of_lt y₁.isLt y₂.isLt]
+
+theorem append_le_append_iff {w v : Nat} {x₁ x₂ : BitVec w} {y₁ y₂ : BitVec v} :
+    x₁ ++ y₁ ≤ x₂ ++ y₂ ↔ x₁ < x₂ ∨ (x₁ = x₂ ∧ y₁ ≤ y₂) := by
+  simp only [le_def, lt_def, toNat_append, ← toNat_inj]
+  rw [← Nat.shiftLeft_add_eq_or_of_lt y₁.isLt, ← Nat.shiftLeft_add_eq_or_of_lt y₂.isLt,
+    Nat.shiftLeft_eq, Nat.shiftLeft_eq, Nat.mul_add_le_iff_of_lt y₁.isLt y₂.isLt]
+
+@[simp]
+theorem cast_lt_cast_iff {w w' : Nat} {h : w = w'} {x y : BitVec w} :
+    x.cast h < y.cast h ↔ x < y := by
+  cases h; simp
+
+@[simp]
+theorem cast_le_cast_iff {w w' : Nat} {h : w = w'} {x y : BitVec w} :
+    x.cast h ≤ y.cast h ↔ x ≤ y := by
+  cases h; simp
+
+theorem lt_of_lt_extractLsb' {w : Nat} {x y : BitVec w} (len : Nat)
+    (h : x.extractLsb' (w - len) len < y.extractLsb' (w - len) len) : x < y := by
+  by_cases hlen : len ≤ w
+  · rw [BitVec.eq_extractLsb'_append_extractLsb' x len hlen,
+      BitVec.eq_extractLsb'_append_extractLsb' y len hlen]
+    simp [BitVec.append_lt_append_iff, h]
+  · have : w - len = 0 := by omega
+    simp only [this, lt_def, extractLsb'_toNat, Nat.shiftRight_zero] at h
+    rw [Nat.mod_eq_of_lt, Nat.mod_eq_of_lt] at h
+    · simpa [BitVec.lt_def] using h
+    · exact Nat.lt_trans y.isLt (Nat.pow_lt_pow_right (by omega) (by omega))
+    · exact Nat.lt_trans x.isLt (Nat.pow_lt_pow_right (by omega) (by omega))
+
+theorem setWidth_lt_setWidth_iff_of_le {w w' : Nat} {x y : BitVec w} (h : w ≤ w') :
+    x.setWidth w' < y.setWidth w' ↔ x < y := by
+  rw [BitVec.lt_def, BitVec.toNat_setWidth_of_le h, BitVec.toNat_setWidth_of_le h, BitVec.lt_def]
+
+theorem setWidth_le_setWidth_iff_of_le {w w' : Nat} {x y : BitVec w} (h : w ≤ w') :
+    x.setWidth w' ≤ y.setWidth w' ↔ x ≤ y := by
+  rw [BitVec.le_def, BitVec.toNat_setWidth_of_le h, BitVec.toNat_setWidth_of_le h, BitVec.le_def]
 
 /-! ### udiv -/
 

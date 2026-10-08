@@ -78,3 +78,15 @@ instance : Trichotomous (α := ByteArray) (· < ·) where
 public instance : LinearOrderPackage ByteArray := .ofLE _ { }
 
 end ByteArray
+
+@[simp]
+public theorem List.toByteArray_lt_toByteArray {l₁ l₂ : List UInt8} :
+    l₁.toByteArray < l₂.toByteArray ↔ l₁ < l₂ := by
+  conv => rhs; rw [← List.toList_data_toByteArray (l := l₁),
+    ← List.toList_data_toByteArray (l := l₂)]
+  rw [Array.lt_toList, ByteArray.data_lt_data]
+
+@[simp]
+public theorem List.toByteArray_le_toByteArray {l₁ l₂ : List UInt8} :
+    l₁.toByteArray ≤ l₂.toByteArray ↔ l₁ ≤ l₂ :=
+  not_congr List.toByteArray_lt_toByteArray

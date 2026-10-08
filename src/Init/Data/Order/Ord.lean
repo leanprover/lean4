@@ -7,6 +7,7 @@ module
 
 prelude
 import Init.Data.List.Lemmas
+import Init.Data.Array.Bootstrap
 import Init.Data.Array.DecidableEq
 public import Init.Data.Ord.Array
 public import Init.Data.BEq
@@ -726,6 +727,24 @@ instance [Ord α] [OrientedOrd α] : OrientedOrd (List α) :=
 instance [Ord α] [TransOrd α] : TransOrd (List α) :=
   inferInstanceAs <| TransCmp (List.compareLex compare)
 
+theorem compareLex_append_append_of_length_eq {l₁ l₂ l₃ l₄ : List α} (h : l₁.length = l₂.length) :
+    (l₁ ++ l₃).compareLex cmp (l₂ ++ l₄) =
+      (l₁.compareLex cmp l₂).then (l₃.compareLex cmp l₄) := by
+  induction l₁ generalizing l₂ with
+  | nil =>
+    simp only [length_nil, eq_comm, length_eq_zero_iff] at h
+    simp [h, List.compareLex_nil_nil]
+  | cons a as ih =>
+    cases l₂ with
+    | nil => simp at h
+    | cons b bs =>
+      simp [List.compareLex_cons_cons, ih (l₂ := bs) (by simpa using h), Ordering.then_assoc]
+
+theorem compare_append_append_of_length_eq [Ord α] {l₁ l₂ l₃ l₄ : List α}
+    (h : l₁.length = l₂.length) :
+    compare (l₁ ++ l₃) (l₂ ++ l₄) = (compare l₁ l₂).then (compare l₃ l₄) :=
+  compareLex_append_append_of_length_eq h
+
 end List
 
 namespace Array
@@ -769,5 +788,16 @@ instance [Ord α] [OrientedOrd α] : OrientedOrd (Array α) :=
 
 instance [Ord α] [TransOrd α] : TransOrd (Array α) :=
   inferInstanceAs <| TransCmp (Array.compareLex compare)
+
+theorem compareLex_append_append_of_size_eq {xs₁ xs₂ ys₁ ys₂ : Array α} (h : xs₁.size = xs₂.size) :
+    (xs₁ ++ ys₁).compareLex cmp (xs₂ ++ ys₂) =
+      (xs₁.compareLex cmp xs₂).then (ys₁.compareLex cmp ys₂) := by
+  simp only [Array.compareLex_eq_compareLex_toList, toList_append]
+  exact List.compareLex_append_append_of_length_eq h
+
+theorem compare_append_append_of_size_eq [Ord α] {xs₁ xs₂ ys₁ ys₂ : Array α}
+    (h : xs₁.size = xs₂.size) :
+    compare (xs₁ ++ ys₁) (xs₂ ++ ys₂) = (compare xs₁ xs₂).then (compare ys₁ ys₂) :=
+  compareLex_append_append_of_size_eq h
 
 end Array

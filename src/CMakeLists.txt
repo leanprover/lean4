@@ -1150,7 +1150,7 @@ if(PREV_STAGE)
 endif()
 
 if(NOT CMAKE_SYSTEM_NAME MATCHES "Emscripten")
-  add_custom_target(leanir ALL DEPENDS leanshared COMMAND $(MAKE) -f ${CMAKE_BINARY_DIR}/stdlib.make leanir VERBATIM)
+  add_custom_target(leanir ALL DEPENDS leanshared initialize_minimal_shim COMMAND $(MAKE) -f ${CMAKE_BINARY_DIR}/stdlib.make leanir VERBATIM)
   add_custom_target(leanexport ALL DEPENDS leanshared COMMAND $(MAKE) -f ${CMAKE_BINARY_DIR}/stdlib.make leanexport VERBATIM)
 endif()
 
@@ -1306,6 +1306,13 @@ if(CMAKE_BUILD_TYPE MATCHES "Debug|Release|RelWithDebInfo|MinSizeRel")
   set(CMAKE_BUILD_TYPE_TOML "${CMAKE_BUILD_TYPE}")
 else()
   set(CMAKE_BUILD_TYPE_TOML "Release")
+endif()
+
+# Defer code generation to a separate `leanir` job per module; not yet enabled for stage 1
+if(STAGE GREATER 1)
+  set(LEAN_POSTPONE_COMPILE_TOML "leanOptions.compiler.postponeCompile = true")
+else()
+  set(LEAN_POSTPONE_COMPILE_TOML "")
 endif()
 
 if(USE_LAKE)

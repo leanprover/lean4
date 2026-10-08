@@ -681,6 +681,19 @@ class LeanChecker(RepoChecker):
         self.lrepo.push(branch_name)
         self.cl.success(f"{what} updated")
 
+    def check_release_branch_stage0_version(self) -> None:
+        branch_name = util.get_releases_branch(self.version)
+        path = "stage0/src/CMakeLists.txt"
+        what = f"Stage0 version on [b]{e(branch_name)}[/b]"
+        target = self.version.stable
+
+        # Stage0 produces the shipped .olean files, so it needs to be on the
+        # right version as well. This is just a sanity check, not comprehensive.
+        cur = util.get_cmake_version(self.grepo, branch_name, path).version
+        if cur != target:
+            self.cl.fatal(f"{what} is {cur}, expected {target}")
+        self.cl.success(f"{what} is correct")
+
     def check_master_branch_cmake_version(self) -> None:
         branch_name = self.grepo.default_branch
         what = f"CMake version settings on [b]{e(branch_name)}[/b]"
@@ -901,6 +914,7 @@ class LeanChecker(RepoChecker):
         self.check_blocking_label_exists(self.version.next_minor)
         self.check_release_branch_exists()
         self.check_release_branch_cmake_version()
+        self.check_release_branch_stage0_version()
         self.check_master_branch_cmake_version()
 
         self.cl.section("Release")

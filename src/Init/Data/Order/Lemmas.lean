@@ -247,6 +247,10 @@ public theorem lt_trichotomy [LT α] [Std.Trichotomous (α := α) (· < ·)] (a 
     a < b ∨ a = b ∨ b < a :=
   Trichotomous.rel_or_eq_or_rel_swap
 
+public theorem eq_of_not_lt_of_not_gt [LT α] [Std.Trichotomous (α := α) (· < ·)] {a b : α} :
+    ¬ a < b → ¬ b < a → a = b :=
+  Trichotomous.trichotomous a b
+
 end LT
 end Std
 

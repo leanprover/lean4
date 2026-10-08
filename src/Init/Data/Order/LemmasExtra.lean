@@ -69,6 +69,17 @@ public theorem compare_eq_eq_iff_eq {α : Type u} [Ord α] [LawfulEqOrd α] {a b
     compare a b = .eq ↔ a = b :=
   LawfulEqOrd.compare_eq_iff_eq
 
+public theorem compare_eq_of_lt_iff {α : Type u} [LE α] [LT α] [LawfulOrderLT α] [Ord α]
+    [LawfulOrderOrd α] {a b : α} {o : Ordering} (h₁ : a < b ↔ o = .lt) (h₂ : b < a ↔ o = .gt) :
+    compare a b = o := by
+  cases o with
+  | lt => simp_all [compare_eq_lt]
+  | eq =>
+    rw [Ordering.eq_eq_iff_isLE_and_isGE, isLE_compare, isGE_compare]
+    simp only [reduceCtorEq, iff_false] at h₁ h₂
+    cases (Std.le_total (a := a) (b := b)) <;> simp_all [lt_iff_le_and_not_ge]
+  | gt => simp_all [compare_eq_gt]
+
 public theorem IsLinearPreorder.of_ord {α : Type u} [LE α] [Ord α] [LawfulOrderOrd α]
     [TransOrd α] : IsLinearPreorder α where
   le_refl a := by simp

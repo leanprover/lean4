@@ -79,4 +79,14 @@ instance [Ord α] [OrientedOrd α] {n} : OrientedOrd (Vector α n) :=
 instance [Ord α] [TransOrd α] {n} : TransOrd (Vector α n) :=
   inferInstanceAs <| TransCmp (Vector.compareLex compare)
 
+theorem compareLex_append_append {n m} {xs₁ xs₂ : Vector α n} {ys₁ ys₂ : Vector α m} :
+    (xs₁ ++ ys₁).compareLex cmp (xs₂ ++ ys₂) =
+      (xs₁.compareLex cmp xs₂).then (ys₁.compareLex cmp ys₂) := by
+  simp only [Vector.compareLex_eq_compareLex_toArray, toArray_append]
+  exact Array.compareLex_append_append_of_size_eq (by simp)
+
+theorem compare_append_append [Ord α] {n m} {xs₁ xs₂ : Vector α n} {ys₁ ys₂ : Vector α m} :
+    compare (xs₁ ++ ys₁) (xs₂ ++ ys₂) = (compare xs₁ xs₂).then (compare ys₁ ys₂) :=
+  compareLex_append_append
+
 end Vector

@@ -11,6 +11,7 @@ public import Lean.Elab.Tactic.VCGen.Context
 public import Lean.Elab.Tactic.VCGen.Reduce
 public import Lean.Elab.Tactic.VCGen.SpecDB
 import Lean.Elab.Tactic.VCGen.Util
+import Lean.Elab.Tactic.VCGen.LatticeOp
 public import Lean.Meta.Sym.Apply
 public import Lean.Meta.Sym.Util
 meta import Std.WP.Frame
@@ -472,26 +473,36 @@ private def analyzeFrameRule (rule : BackwardRule) (opHead : Name) (numExcess : 
 
 /--
 The frame backward rule for a frame operator `op : R → Pred → Pred`, built from the frame rule
-`op_wp_upperAdjoint_le_wp`.
+`meet_op_wp_upperAdjoint_le_wp`.
 
 The rule concludes `pre ⊑ wp prog Q E s⃗` from the split VC `pre ⊑ (op F W) s⃗` and the frame
-condition `WP.Frames op prog F`, with the frame `F` left schematic and the
-weakest footprint `W = wp prog (fun a => upperAdjoint (op F) (Q a)) (upperAdjoint (opE F) E)`
-baked in, so a single rule serves every inferred frame. `analyzeFrameRule` records the positions
-of the schematic slots.
+condition `WP.Frames op prog F G`, with the frame `F` left schematic, the guard `G` the point frame
+`fun u⃗ => ⌜u⃗ = s⃗⌝ ⊓ pre`, and the weakest footprint
+`W = wp prog (fun a => upperAdjoint (op F) (Q a)) (upperAdjoint (opE F) E)` baked in, so a single
+rule serves every inferred frame. `analyzeFrameRule` records the positions of the schematic slots.
 -/
 public def mkFrameBackwardRule (fp : FrameProc) (info : WPApp) :
     MetaM FrameBackwardRule := do
-  -- Pin the program and the operator, leaving everything else schematic; instance synthesis
-  -- commits the companion, and `tryMkBackwardRuleFromSpec` turns the unassigned metavariables
-  -- into rule parameters.
   let op ← fp.mkOpAppM info
-  let specProof ← mkAppOptM ``Std.WP.op_wp_upperAdjoint_le_wp
+  let thm ← mkAppOptM ``Std.WP.meet_op_wp_upperAdjoint_le_wp
     ((info.args.take 7).map some ++ #[none, some op, none, none])
-  let some specThm ← mkSpecTheoremFromStx (← getRef) specProof
-    | throwError "frame: could not build the frame spec for operator{indentExpr op}"
-  let some rule ← (tryMkBackwardRuleFromSpec specThm info).run
-    | throwError "frame: could not build the frame rule for operator{indentExpr op}"
+  let (xs, _, concl) ← forallMetaTelescope (← instantiateMVars (← Meta.inferType thm))
+  let_expr PartialOrder.rel _ _ lhs wp := concl
+    | throwError "frame: unexpected frame rule conclusion{indentExpr concl}"
+  let_expr Lean.Order.meet _ _ guard opApp := lhs
+    | throwError "frame: unexpected frame rule precondition{indentExpr lhs}"
+  let ss ← info.excessArgs.mapM fun s => do mkFreshExprMVar (← Meta.inferType s) (userName := `s)
+  let pre ← mkFreshExprMVar (← Meta.inferType info.expr) (userName := `Pre)
+  let hsplit ← mkFreshExprMVar (← mkAppM ``PartialOrder.rel #[pre, mkAppN opApp ss])
+    (userName := `vc)
+  let gs ← mkPointGates pre ss
+  guard.mvarId!.assign gs[0]!
+  let hop ← lowerPointFrame gs opApp ss hsplit
+  let hmeet ← mkAppM ``le_meet
+    #[gs[0]!, gs[0]!, opApp, ← mkAppOptM ``PartialOrder.rel_refl #[none, none, gs[0]!], hop]
+  let prf ← raisePointFrame gs wp ss (← mkAppM ``PartialOrder.rel_trans #[hmeet, mkAppN thm xs])
+  let res ← abstractMVars (← instantiateMVars prf)
+  let rule ← mkBackwardRuleFromExpr res.expr res.paramNames.toList
   analyzeFrameRule rule fp.opHead info.excessArgs.size
 
 end Lean.Elab.Tactic.VCGen

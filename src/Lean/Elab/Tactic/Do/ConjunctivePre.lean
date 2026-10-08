@@ -23,8 +23,8 @@ frameproc can recognize the same situations and decline to frame.
 
 Apply the spec `specPre Q ⊑ wp x Q` to the goal `P ⊑ wp x Q`. The direct application emits the
 single VC `(h₁) P ⊑ specPre Q`. A framed application with frame `F` needs `(h₂) P ⊑ F` and
-`(h₃) F ⊑ specPre (fun _ => F)`, the spec-level `WP.Frames` obligation. Its conclusion follows from
-`h₁`, `h₂` and `h₃`:
+`(h₃) P ⊓ F ⊑ specPre (fun _ => F)`, the spec-level `WP.Frames` obligation under the guard `P`. Its
+conclusion follows from `h₁`, `h₂` and `h₃`:
 
     P ⊑ specPre Q ⊓ specPre (fun _ => F)    -- h₁, and h₂ with h₃
       ⊑ specPre (fun v => Q v ⊓ F)          -- conjunctivity

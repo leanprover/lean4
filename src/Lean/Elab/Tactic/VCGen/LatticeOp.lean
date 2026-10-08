@@ -151,32 +151,49 @@ where
           | some p => Simp.mkEqTrans e₀ cur p next h
         go step e₀ next (some proof) fuel
 
-/--
-Point-frame the state chain `ss` of a goal `pre ⊑ opAs s₁ … sₙ`: peel the innermost argument via
-`le_apply_of_point_meet_le`, gating the precondition to `fun u => ⌜u = sₙ⌝ ⊓ pre`, until the goal is
-the function-level `gate ⊑ opAs`, then apply the terminal `introThm`, leaving its operand subgoals as
-premises. An empty `ss` applies `introThm` directly. Returns the proof of `pre ⊑ opAs s₁ … sₙ`.
--/
-private partial def mkPointFrameApply (introThm : Name) (opAs pre : Expr) (ss : List Expr) :
+/-- The point gates of `pre` at `s₁ … sₙ`: `#[g₁, …, gₙ₊₁]` with `gₙ₊₁ = pre` and
+`gᵢ = fun u => ⌜u = sᵢ⌝ ⊓ gᵢ₊₁`. -/
+public def mkPointGates (pre : Expr) (ss : Array Expr) : MetaM (Array Expr) := do
+  let mut gs := #[pre]
+  for s in ss.reverse do
+    let g := gs.back!
+    gs := gs.push <| ← withLocalDeclD `u (← Meta.inferType s) fun u => do
+      let ofp ← mkAppOptM ``Lean.Order.CompleteLattice.ofProp #[← Meta.inferType g, none, ← mkEq u s]
+      mkLambdaFVars #[u] (← mkAppM ``Lean.Order.meet #[ofp, g])
+  return gs.reverse
+
+/-- Turn `h : g₁ ⊑ opAs` into a proof of `pre ⊑ opAs s₁ … sₙ`, for the gates `gs` of `pre` at
+`ss`. -/
+public def raisePointFrame (gs : Array Expr) (opAs : Expr) (ss : Array Expr) (h : Expr) :
     MetaM Expr := do
-  match ss with
-  | [] =>
-    let introRule ← mkConstWithFreshMVarLevels introThm
-    let (xs, _, body) ← forallMetaTelescope (← Meta.inferType introRule)
-    let target ← mkAppM ``PartialOrder.rel #[pre, opAs]
-    unless ← isDefEq body target do
-      throwError "lattice terminal {introThm} does not conclude {target}"
-    return mkAppN introRule xs
-  | _ =>
-    let s := ss.getLast!
-    let init := ss.dropLast
-    let Q := mkAppN opAs init.toArray
-    let preTy ← Meta.inferType pre
-    let gate ← withLocalDeclD `u (← Meta.inferType s) fun u => do
-      let ofp ← mkAppOptM ``Lean.Order.CompleteLattice.ofProp #[preTy, none, ← mkEq u s]
-      mkLambdaFVars #[u] (← mkAppM ``Lean.Order.meet #[ofp, pre])
-    let h ← mkPointFrameApply introThm opAs gate init
-    mkAppM ``Lean.Order.le_apply_of_point_meet_le #[s, pre, Q, h]
+  let mut h := h
+  for i in [0:ss.size] do
+    h ← mkAppM ``Lean.Order.le_apply_of_point_meet_le #[ss[i]!, gs[i+1]!, mkAppN opAs (ss.take i), h]
+  return h
+
+/-- Turn `h : pre ⊑ opAs s₁ … sₙ` into a proof of `g₁ ⊑ opAs`, for the gates `gs` of `pre` at
+`ss`. -/
+public def lowerPointFrame (gs : Array Expr) (opAs : Expr) (ss : Array Expr) (h : Expr) :
+    MetaM Expr := do
+  let mut h := h
+  for i in (List.range ss.size).reverse do
+    h ← mkAppM ``Lean.Order.point_meet_le_of_le_apply #[ss[i]!, gs[i+1]!, mkAppN opAs (ss.take i), h]
+  return h
+
+/--
+Point-frame the state chain `ss` of a goal `pre ⊑ opAs s₁ … sₙ` to the function-level goal
+`(fun u⃗ => ⌜u⃗ = s⃗⌝ ⊓ pre) ⊑ opAs`, then apply the terminal `introThm`, leaving its operand subgoals
+as premises. Returns the proof of `pre ⊑ opAs s₁ … sₙ`.
+-/
+private def mkPointFrameApply (introThm : Name) (opAs pre : Expr) (ss : List Expr) : MetaM Expr := do
+  let ss := ss.toArray
+  let gs ← mkPointGates pre ss
+  let introRule ← mkConstWithFreshMVarLevels introThm
+  let (xs, _, body) ← forallMetaTelescope (← Meta.inferType introRule)
+  let target ← mkAppM ``PartialOrder.rel #[gs[0]!, opAs]
+  unless ← isDefEq body target do
+    throwError "lattice terminal {introThm} does not conclude {target}"
+  raisePointFrame gs opAs ss (mkAppN introRule xs)
 
 /--
 Build a reusable backward rule decomposing `pre ⊑ op … s⃗` for a lattice operator. The operator's

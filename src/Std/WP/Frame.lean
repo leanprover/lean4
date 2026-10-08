@@ -17,10 +17,13 @@ set_option linter.missingDocs true
 /-!
 # Framing at the `wp` layer
 
-`WP.Frames op x F` states that the program `x` commutes `op F ·` into the postcondition of
-`wp x`, with the exception channel framed by the `FrameOp`-derived companion.
-A `WP` built as the `Lean.Order.PredTrans.frameClosure` of a base wp frames every resource by
-construction.
+`WP.Frames op x F P` states that the program `x` commutes `op F ·` into the postcondition of
+`wp x` in every state that satisfies the guard `P`, with the exception channel framed by the
+`FrameOp`-derived companion. The guard lets a program whose footprint depends on the state frame a
+resource outside that footprint: a write to `[p, p + n)` frames `fun s => s.mem a = v` under the
+guard `fun s => a < s.p ∨ s.p + s.n ≤ a`.
+A `WP` built as the `Lean.Order.PredTrans.frameClosure` of a base wp frames every resource under
+every guard.
 
 The monadic counterpart, which builds a `WPMonad` from the frame closure of a base interpretation,
 is in `Std.WP.Monad.Frame`.
@@ -33,19 +36,20 @@ namespace Std.WP
 variable {Prog : Type u} {Value : Type v} {Pred : Type w} {EPosts : Type z}
   [Assertion Pred] [Assertion EPosts] [WP Prog Value Pred EPosts]
 
-/-- The program `x` frames the resource `F`: `op F ·` commutes into the postcondition of `wp x`
-and the companion `opE F ·` into the exception postcondition. -/
+/-- The program `x` frames the resource `F` under the guard `P`: in a state that satisfies `P`,
+`op F ·` commutes into the postcondition of `wp x` and the companion `opE F ·` into the exception
+postcondition. -/
 structure WP.Frames {R : Type t} (op : R → Pred → Pred) {opE : R → EPosts → EPosts}
-    [FrameOp op EPosts opE] (x : Prog) (F : R) : Prop where
-  /-- `op F` and its companion commute into the postcondition pair of `wp x`. -/
+    [FrameOp op EPosts opE] (x : Prog) (F : R) (P : Pred) : Prop where
+  /-- Under `P`, `op F` and its companion commute into the postcondition pair of `wp x`. -/
   op_wp_le_wp_op : ∀ (Q : Value → Pred) (E : EPosts),
-    op F (wp x Q E) ⊑ wp x (fun a => op F (Q a)) (opE F E)
+    P ⊓ op F (wp x Q E) ⊑ wp x (fun a => op F (Q a)) (opE F E)
 
-theorem op_wp_upperAdjoint_le_wp {R : Type t} {op : R → Pred → Pred}
+theorem meet_op_wp_upperAdjoint_le_wp {R : Type t} {op : R → Pred → Pred}
     {opE : R → EPosts → EPosts} [FrameOp op EPosts opE]
-    {x : Prog} {F : R} {Q : Value → Pred} {E : EPosts}
-    (hframes : WP.Frames op x F) :
-    op F (wp x (fun a => PreservesSup.upperAdjoint (op F) (Q a))
+    {x : Prog} {F : R} {P : Pred} {Q : Value → Pred} {E : EPosts}
+    (hframes : WP.Frames op x F P) :
+    P ⊓ op F (wp x (fun a => PreservesSup.upperAdjoint (op F) (Q a))
         (PreservesSup.upperAdjoint (opE F) E)) ⊑ wp x Q E := by
   haveI := FrameOp.preservesSup (op := op) (EPosts := EPosts) (opE := opE)
   haveI := FrameOp.preservesSupE (op := op) (EPosts := EPosts) (opE := opE)
@@ -59,26 +63,30 @@ theorem WP.frames_of_frameClosure {R : Type t} (op : R → Pred → Pred)
     {opE : R → EPosts → EPosts} [FrameOp op EPosts opE]
     (comp : R → R → R) (hact : ∀ r r' a, op (comp r r') a = op r (op r' a))
     (hactE : ∀ r r' E, opE (comp r r') E = opE r (opE r' E))
-    {x : Prog} {F : R}
+    {x : Prog} {F : R} {P : Pred}
     (h : ∃ f : Prog → PredTrans Pred EPosts Value,
       ∀ x : Prog, WP.trans x = (f x).frameClosure op) :
-    WP.Frames op x F := by
+    WP.Frames op x F P := by
   obtain ⟨f, hf⟩ := h
   constructor
   intro Q E
+  refine PartialOrder.rel_trans (meet_le_right _ _) ?_
   show op F ((WP.trans x).apply Q E) ⊑ (WP.trans x).apply _ _
   rw [hf x]
   exact PredTrans.frameClosure_frames op comp hact hactE (f x) Q E F
 
 theorem WP.frames_of_conjunctive {x : Prog} [WPConjunctive x]
-    {opE : Pred → EPosts → EPosts} [FrameOp meet EPosts opE] {F : Pred}
-    (hF : F ⊑ wp x (fun _ => F) (opE F ⊤))
+    {opE : Pred → EPosts → EPosts} [FrameOp meet EPosts opE] {F P : Pred}
+    (hF : P ⊓ F ⊑ wp x (fun _ => F) (opE F ⊤))
     (hE : ∀ E, opE F ⊤ ⊓ E ⊑ opE F E) :
-    WP.Frames meet x F := by
+    WP.Frames meet x F P := by
   constructor
   intro Q E
   refine PartialOrder.rel_trans (y := wp x (fun _ => F) (opE F ⊤) ⊓ wp x Q E) ?_ ?_
-  · exact le_meet _ _ _ (PartialOrder.rel_trans (meet_le_left _ _) hF) (meet_le_right _ _)
+  · refine le_meet _ _ _ (PartialOrder.rel_trans ?_ hF)
+      (PartialOrder.rel_trans (meet_le_right _ _) (meet_le_right _ _))
+    exact le_meet _ _ _ (meet_le_left _ _)
+      (PartialOrder.rel_trans (meet_le_right _ _) (meet_le_left _ _))
   · refine PartialOrder.rel_trans (WPConjunctive.wp_meet_wp_le (fun _ => F) Q (opE F ⊤) E) ?_
     refine WP.wp_monotone ?_ (hE E)
     intro a

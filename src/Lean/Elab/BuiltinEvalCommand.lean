@@ -242,7 +242,15 @@ unsafe def elabEvalCoreUnsafe (bang : Bool) (tk term : Syntax) (expectedType? : 
           -- We want `#eval` to work even in the core library, so if `ofFormat` isn't available,
           -- we fall back on a `Format`-based approach.
           if (← getEnv).contains ``Lean.MessageData.ofFormat then
-            mkAct id mkMessage e
+            -- Safety: ensure that `mkMessage` yields a `MessageData`.
+            let mkCheckedMessage (x : Expr) : MetaM Expr := do
+              let msg ← mkMessage x
+              let expectedType := mkConst ``MessageData
+              let msgType ← inferType msg
+              unless ← isDefEq msgType expectedType do
+                Term.throwTypeMismatchError none expectedType msgType msg
+              return msg
+            mkAct id mkCheckedMessage e
           else
             mkAct Lean.MessageData.ofFormat (mkFormat ·) e
       let res ← act.eval

@@ -629,6 +629,9 @@ def parallelArgAssignmentRetCall (args : Array (Arg .impure)) (params : Array (P
         lhss := lhss.push lhs
         rhss := rhss.push rhs
     pos := pos + sz
+  -- `parallelAssignment` wishes to use the argument slots as temporaries
+  -- so we need to make sure that all the arguments are on the regular stack
+  modify fun state => { state with regAlloc.max := state.regAlloc.max.max pos }
   parallelAssignment lhss rhss
 
 partial def visit (code : Code .impure) (backlog : Array (CodeDecl .impure)) : M Unit :=

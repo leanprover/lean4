@@ -162,6 +162,7 @@ where
     |>.insert ``docStringExt
     -- IR Extension (for constant evaluation)
     |>.insert ``Compiler.Bytecode.declMapExt
+    |>.insert ``Compiler.LCNF.impureSigExt
 
 structure ConfigTrace where
   idx : Nat

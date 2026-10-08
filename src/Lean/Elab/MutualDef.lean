@@ -1524,7 +1524,7 @@ def elabMutualDef (ds : Array Syntax) : CommandElabM Unit := do
   let mut reusedAllHeaders := true
   for h : i in *...ds.size, headerPromise in headerPromises do
     let d := ds[i]
-    let modifiers ← elabModifiers ⟨d[0]⟩
+    let modifiers ← elabModifiers ⟨d[0]⟩ (isExample := d[1].isOfKind ``Parser.Command.example)
     if ds.size > 1 && modifiers.isNonrec then
       throwErrorAt d "invalid use of 'nonrec' modifier in 'mutual' block"
     let mut view ←

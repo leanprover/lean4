@@ -96,3 +96,11 @@ test_run build Test.A:c Test.B:c Test.C:c
 sed_i 's/^private def offset/public def extra : Nat := 7\nprivate def offset/' Test/A.lean
 test_out "Built Test.A:irArts" build Test.A:c -v
 test_out "Built Test.B:irArts" build Test.B:c -v
+
+# The body of an inlinable definition is part of the `.ir.sig` but not of the `.olean`. A module
+# that generates code during its own elaboration reads it, so it must be rebuilt as well.
+echo "# TEST: non-postponed importer on an .ir.sig-only edit"
+test_run build Plain.PlainImport
+test_run build Plain.PlainImport --no-build
+sed_i 's/n + offset/n + offset + offset/' Test/A.lean
+test_out "Built Plain.PlainImport" build Plain.PlainImport -v

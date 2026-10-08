@@ -727,6 +727,10 @@ def Module.recFetchPreSetup (mod : Module) : FetchM (Job ModulePreSetup) := ensu
     let libTrace ← takeTrace
     let trace := BuildTrace.nil "deps"
     let depTrace := trace.mix extraDepJob.getTrace |>.mix info.trace
+    -- A module that generates code during its own elaboration reads the `.ir.sig` of its imports
+    let postpones := Compiler.compiler.postponeCompile.get leanOptions.toOptions
+    let depTrace :=
+      if input.header.isModule && !postpones then depTrace.mix info.irSigTrace else depTrace
     setTraceCaption s!"{mod.name.toString}"
     let libTrace := libTrace.withCaption "libs"
     let nilLibTrace :=

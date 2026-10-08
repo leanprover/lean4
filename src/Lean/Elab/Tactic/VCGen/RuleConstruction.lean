@@ -216,15 +216,20 @@ prf : ∀ (pre : Prop) (α : Type) (x : StateT Nat Id α) (β : Type)
   pre ⊑ wp (x >>= f) post eposts s
 ```
 -/
-private def mkSpecBackwardProof
-    (pre prog postSpec epostsSpec specProof EPosts : Expr) (ss ssTypes : Array Expr)
+private def mkSpecBackwardProof (info : WPApp)
+    (pre prog postSpec epostsSpec specProof : Expr) (ss ssTypes : Array Expr)
     (stateArgNames : Array Name := #[]) : MetaM AbstractMVarsResult := do
   /- we start with `pre ⊑ wp prog post eposts` where
   1. `pre` represents the Lean expression for `pre`
   2. `prog`, `postSpec`, and `epostsSpec` are the selected arguments of the spec's `wp` RHS
   3. `specProof` is the proof of the spec `pre ⊑ wp prog postSpec epostsSpec`
   4. `ss` represents the Lean expressions for the state variables `s1`, `s2`, ..., `sn`
-  5. `ssTypes` represents the Lean types for the state variables `s1`, `s2`, ..., `sn` -/
+  5. `ssTypes` represents the Lean types for the state variables `s1`, `s2`, ..., `sn`
+  The `WP` lemmas and the `wp` application below take their leading arguments
+  `#[Prog, Value, Pred, EPosts, instAL, instEAL, instWP]` from the goal's `info`. The type of
+  `prog` can differ syntactically from `info.Prog`, e.g. for a program type that is a `def`
+  synonym of the type of `prog`. -/
+  let wpArgs := (info.args.take 7).map some
   let mut postAbstract := postSpec.consumeMData
   let mut epostsAbstract := epostsSpec.consumeMData
   let mut specApplied := specProof
@@ -248,7 +253,9 @@ private def mkSpecBackwardProof
     let hpostRel ← mkExpectedTypeHint hpost relTy
     /- get the proof of `pre ⊑ wp prog postAbstract epostsSpec`, where `post` is abstracted.
        Uses wp_monotone_post_le: post ⊑ post' → pre ⊑ wp x post eposts → pre ⊑ wp x post' eposts -/
-    specApplied ← mkAppM ``WP.wp_monotone_post_le #[prog, postSpec, postAbstract, epostsSpec, hpostRel, specApplied]
+    specApplied ← mkAppOptM ``WP.wp_monotone_post_le <| wpArgs ++
+      #[some prog, some postSpec, some postAbstract, some epostsSpec, some hpostRel, none,
+        some specApplied]
 
   /- abstract concrete `eposts` if it is not already abstract -/
   unless epostsAbstract.isMVar do
@@ -271,12 +278,15 @@ private def mkSpecBackwardProof
     if isBot then
       /- get the proof of `pre ⊑ wp prog postAbstract epostsAbstract`, where `eposts (= ⊥)` is abstracted.
         This proof DOES NOT have a `?epostsImpl` premise -/
-      specApplied ← mkAppM ``WP.wp_monotone_bot_le #[prog, postAbstract, epostsAbstract, specApplied]
+      specApplied ← mkAppOptM ``WP.wp_monotone_bot_le <| wpArgs ++
+        #[some prog, some postAbstract, some epostsAbstract, none, some specApplied]
     else
       /- Decompose `epostsSpec ⊑ epostsAbstract` into per-component proofs
         using `Prod.mk_le` and `Unit.unit_le` -/
-      let heposts ← decomposeProdRel EPosts epostsSpec epostsAbstract stateArgNames
-      specApplied ← mkAppM ``WP.wp_monotone_epost_le #[prog, postAbstract, epostsSpec, epostsAbstract, heposts, specApplied]
+      let heposts ← decomposeProdRel info.EPosts epostsSpec epostsAbstract stateArgNames
+      specApplied ← mkAppOptM ``WP.wp_monotone_epost_le <| wpArgs ++
+        #[some prog, some postAbstract, some epostsSpec, some epostsAbstract, some heposts, none,
+          some specApplied]
 
   /- By default we always abstract `pre`, since in most of the specifications
     `pre` is not schematic. In exceptional cases, where `pre` is schematic, it
@@ -288,7 +298,7 @@ private def mkSpecBackwardProof
   /- proof of the original theorem with abstracted `post` and `eposts` specialized to the excess state arguments -/
   specApplied := mkAppN specApplied ss
   /- `wp prog postAbstract epostsAbstract s₁ ... sₙ` -/
-  let wpTy ← mkAppM ``Std.WP.wp <| #[prog, postAbstract, epostsAbstract] ++ ss
+  let wpTy := mkAppN info.head <| info.args.take 7 ++ #[prog, postAbstract, epostsAbstract] ++ ss
   let specAppliedTy ← mkAppM ``PartialOrder.rel #[preApplied, wpTy]
   /- later when the whole proof is type checked, we want to help the kernel by providing the expected type -/
   specApplied ← mkExpectedTypeHint specApplied specAppliedTy
@@ -373,7 +383,7 @@ public def tryMkBackwardRuleFromSpec (specThm : SpecTheorem) (info : WPApp)
     let ty ← Meta.inferType info.excessArgs[i]
     ssTypes := ssTypes.push ty
     ss := ss.push <| ← mkFreshExprMVar (userName := stateArgNames[i]?.getD `s) ty
-  let res ← mkSpecBackwardProof pre prog postSpec epostsSpec specProof info.EPosts ss ssTypes stateArgNames
+  let res ← mkSpecBackwardProof info pre prog postSpec epostsSpec specProof ss ssTypes stateArgNames
   mkBackwardRuleFromExpr res.expr res.paramNames.toList
 
 /-! ## Split rules -/

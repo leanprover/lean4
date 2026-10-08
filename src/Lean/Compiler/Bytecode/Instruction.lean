@@ -170,6 +170,9 @@ def Instruction.skipIfCached (offset : UInt32) : Instruction where
 def Instruction.declConst (tgt id : UInt32) : Instruction where
   value := (47 : UInt32) <<< 26 ||| tgt <<< 18 ||| id
 
+def Instruction.unreachable : Instruction where
+  value := (48 : UInt32) <<< 26
+
 def Instruction.assemblerInternal (idx : UInt32) : Instruction where
   value := (63 : UInt32) <<< 26 ||| idx
 
@@ -250,6 +253,7 @@ def Instruction.toString (instr : Instruction) (pos : Nat) : String :=
   | 45 => s!"store_cache R{lo8}"
   | 46 => s!"skip_if_cached {addrToString <| pos + all.toNat}"
   | 47 => s!"decl_const R{hi8} @{lo18}"
+  | 48 => s!"unreachable"
   | _ => s!"0x{instr.value.toBitVec.toHex}"
 
 @[export lean_bytecode_disass]

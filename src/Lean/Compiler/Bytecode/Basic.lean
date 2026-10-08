@@ -17,14 +17,15 @@ register_builtin_option interpreter.prefer_native : Bool := {
   defValue := true
 }
 
-private opaque SymbolCacheImpl (symbols : Array Name) : NonemptyType.{0}
+private opaque SymbolCacheImpl (which : Name) (symbols : Array Name) : NonemptyType.{0}
 
-def DeclCache (symbols : Array Name) : Type := (SymbolCacheImpl symbols).type
+def DeclCache (which : Name) (symbols : Array Name) : Type := (SymbolCacheImpl which symbols).type
 
-instance : Nonempty (DeclCache symbols) := by exact (SymbolCacheImpl symbols).property
+instance : Nonempty (DeclCache which symbols) := by
+  exact (SymbolCacheImpl which symbols).property
 
-@[extern "lean_bytecode_mk_initial_cache"]
-opaque DeclCache.mkEmpty (symbols : @& Array Name) : DeclCache symbols
+@[extern "lean_bytecode_mk_initial_cache", never_extract]
+opaque DeclCache.mkEmpty (which : @& Name) (symbols : @& Array Name) : DeclCache which symbols
 
 structure BytecodeDecl where
   name : Name
@@ -32,7 +33,7 @@ structure BytecodeDecl where
   stackReserved : Nat -- stackSpace + additional space for arguments
   stackSpace : Nat
   symbols : Array Name
-  cache : DeclCache symbols
+  cache : DeclCache name symbols
   /-- We only really care about this number for partial applications -/
   arity : Nat
   constants : Array NonScalar

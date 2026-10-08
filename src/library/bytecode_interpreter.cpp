@@ -44,7 +44,7 @@ static_assert(sizeof(value) == sizeof(uint64), "value should be 64 bits in lengt
 typedef lean_interp_decl_cache_entry decl_cache_entry;
 typedef lean_interp_decl_cache_object decl_cache;
 
-extern "C" LEAN_EXPORT object * lean_bytecode_mk_initial_cache(b_obj_arg symbols) {
+extern "C" LEAN_EXPORT object * lean_bytecode_mk_initial_cache(b_obj_arg _decl_name, b_obj_arg symbols) {
     size_t count = array_size(symbols);
     //size_t sz = sizeof(decl_cache) + sizeof(decl_cache_entry)*count;
     size_t sz = lean_usize_add_checked(sizeof(decl_cache), lean_usize_mul_checked(sizeof(decl_cache_entry), count));
@@ -226,6 +226,23 @@ static void init_interpreter(interpreter * interp, value * value_stack, frame * 
     g_interpreter = interp;
 }
 
+extern "C" LEAN_EXPORT void lean_interpreter_backtrace() {
+    frame * frame_begin = g_interpreter->m_frame_start;
+    frame * frame_ptr = g_interpreter->m_frame_top;
+    std::cerr << "Interpreter backtrace (potentially incomplete)" << std::endl;
+    size_t i = 0;
+    while (frame_ptr > frame_begin) {
+        frame_ptr--;
+        object * decl = frame_ptr->m_decl;
+        name nm = name(lean_ctor_get(decl, 0), true);
+        object * bytecode_obj = lean_ctor_get(decl, 1); // ByteArray
+        uint32 * bytecode = reinterpret_cast<uint32 *>(sarray_cptr(bytecode_obj));
+        size_t off = frame_ptr->m_code - bytecode;
+        std::cerr << "#" << i << ": " << nm << " + " << off << std::endl;
+        i++;
+    }
+}
+
 enum instruction_type {
     UCONST,
     MOVE,
@@ -275,6 +292,7 @@ enum instruction_type {
     STORE_CACHE,
     SKIP_WHEN_CACHED,
     DECL_CONST,
+    UNREACHABLE,
 };
 
 frame call_init(interpreter * interp, b_obj_arg decl, bool is_constant) {
@@ -965,6 +983,13 @@ value eval_loop(interpreter * interp, frame start_frame) {
                 object * constants_obj = lean_ctor_get(decl, 7); // Array NonScalar
                 object * value = lean_array_get_core(constants_obj, constant); // NonScalar
                 base[target].m_obj = value;
+                break;
+            }
+            case instruction_type::UNREACHABLE: {
+                lean_interpreter_backtrace();
+                name nm = name(lean_ctor_get(decl, 0), true);
+                std::string msg = (sstream() << "unreachable code has been reached while interpreting " << nm).str();
+                lean_internal_panic(msg.c_str());
                 break;
             }
         }

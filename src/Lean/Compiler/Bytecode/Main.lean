@@ -694,6 +694,7 @@ partial def visit (code : Code .impure) (backlog : Array (CodeDecl .impure)) : M
     maybeToTemp discr[0]!
     processBacklog backlog
   | .unreach _ =>
+    emit .unreachable
     processBacklog backlog
   | .return var =>
     let pos ← useVar var
@@ -869,7 +870,7 @@ def assemble : M BytecodeDecl := do
     stackReserved := argOffset + argSize
     stackSpace := argOffset
     constants := (← get).constants
-    cache := .mkEmpty _
+    cache := .mkEmpty ..
   }
 
 end ToBytecode
@@ -921,13 +922,13 @@ def compile (decls : Array (Decl .impure)) : CompilerM Unit := do
       if data.entries.isEmpty then
         let decl : BytecodeDecl := {
           name := d.name
-          code := assemble #[.skipIfCached 1, .move 0 0, .ret 0]
+          code := assemble #[.skipIfCached 1, .unreachable, .ret 0]
           stackReserved := 1
           stackSpace := 0
           symbols := #[]
           arity := 0
           constants := #[]
-          cache := .mkEmpty _
+          cache := .mkEmpty ..
         }
         bytecodeDecls := bytecodeDecls.push decl
   bytecodeDecls ← updateSorryDep bytecodeDecls

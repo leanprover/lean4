@@ -129,7 +129,7 @@ public def main (args : List String) : IO UInt32 := do
     | f => f
   let newState :=  is.importedEntries[modIdx]!.foldl (fun (decls, m) d =>
     if isExtern env (unbox d.name) then
-      (d::decls, m.insert d.name { d with cache := .mkEmpty _ })
+      (d::decls, m.insert d.name { d with cache := .mkEmpty .. })
     else (decls, m)) is.state
   let env := Lean.Compiler.Bytecode.declMapExt.toEnvExtension.setState (asyncMode := .sync) env { is with state := newState }
 

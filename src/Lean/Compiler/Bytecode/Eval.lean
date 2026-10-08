@@ -33,7 +33,7 @@ def simpleBytecodeDecl (code : Array Instruction) (symbols : Array Name) :
   stackReserved := 1
   stackSpace := 0
   symbols
-  cache := .mkEmpty _
+  cache := .mkEmpty ..
   arity := 0
   constants := #[]
   sorryDep? := none

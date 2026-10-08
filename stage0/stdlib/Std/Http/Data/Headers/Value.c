@@ -27,7 +27,7 @@ lean_object* l_Lean_mkAtom(lean_object*);
 lean_object* lean_string_utf8_byte_size(lean_object*);
 lean_object* l_String_Slice_trimAscii(lean_object*);
 lean_object* l_String_Slice_toString(lean_object*);
-lean_object* lean_string_data(lean_object*);
+lean_object* l_String_toListImpl(lean_object*);
 uint8_t lean_uint32_dec_eq(uint32_t, uint32_t);
 uint8_t lean_uint32_dec_le(uint32_t, uint32_t);
 lean_object* l_List_getLast_x3f___redArg(lean_object*);
@@ -614,7 +614,7 @@ v___x_208_ = l_String_Slice_trimAscii(v___x_207_);
 v_val_209_ = l_String_Slice_toString(v___x_208_);
 lean_dec_ref(v___x_208_);
 lean_inc_ref(v_val_209_);
-v___x_214_ = lean_string_data(v_val_209_);
+v___x_214_ = l_String_toListImpl(v_val_209_);
 v___x_215_ = l_List_all___at___00Std_Http_Header_Value_ofString_x3f_spec__0(v___x_214_);
 if (v___x_215_ == 0)
 {

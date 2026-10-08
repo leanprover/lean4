@@ -1,6 +1,6 @@
 // Lean compiler output
 // Module: Lean.Meta.StringLitProof
-// Imports: public import Lean.Meta.AppBuilder
+// Imports: public import Lean.Meta.AppBuilder import Init.Data.String.Csimp
 #include <lean/lean.h>
 #if defined(__clang__)
 #pragma clang diagnostic ignored "-Wunused-parameter"
@@ -20,7 +20,7 @@ lean_object* l_Lean_Expr_app___override(lean_object*, lean_object*);
 lean_object* lean_uint32_to_nat(uint32_t);
 lean_object* l_Lean_mkRawNatLit(lean_object*);
 lean_object* l_Lean_mkAppB(lean_object*, lean_object*, lean_object*);
-lean_object* lean_string_data(lean_object*);
+lean_object* l_String_toListImpl(lean_object*);
 lean_object* l_Lean_mkApp3(lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_mkApp4(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_List_lengthTR___redArg(lean_object*);
@@ -587,8 +587,8 @@ LEAN_EXPORT lean_object* l_Lean_Meta_mkStringLitNeProof(lean_object* v_s_u2081_2
 _start:
 {
 lean_object* v_l_u2081_220_; lean_object* v_l_u2082_221_; lean_object* v_type_222_; lean_object* v_nil_223_; lean_object* v___x_224_; lean_object* v_cons_225_; lean_object* v_l_u2081Expr_226_; lean_object* v_l_u2082Expr_227_; lean_object* v___y_229_; lean_object* v___y_230_; lean_object* v_listNeProof_231_; lean_object* v___y_243_; lean_object* v___y_244_; lean_object* v___y_245_; lean_object* v___y_246_; lean_object* v___y_247_; lean_object* v_listCharTy_250_; lean_object* v___x_251_; lean_object* v___x_252_; lean_object* v___y_254_; lean_object* v___y_255_; lean_object* v___y_256_; lean_object* v___y_257_; lean_object* v___y_258_; uint32_t v_fst_259_; lean_object* v_snd_260_; lean_object* v___y_274_; lean_object* v___y_275_; lean_object* v___y_276_; lean_object* v___y_328_; uint8_t v___x_336_; 
-v_l_u2081_220_ = lean_string_data(v_s_u2081_213_);
-v_l_u2082_221_ = lean_string_data(v_s_u2082_214_);
+v_l_u2081_220_ = l_String_toListImpl(v_s_u2081_213_);
+v_l_u2082_221_ = l_String_toListImpl(v_s_u2082_214_);
 v_type_222_ = lean_obj_once(&l_Lean_Meta_mkStringLitNeProof___closed__1, &l_Lean_Meta_mkStringLitNeProof___closed__1_once, _init_l_Lean_Meta_mkStringLitNeProof___closed__1);
 v_nil_223_ = lean_obj_once(&l_Lean_Meta_mkStringLitNeProof___closed__7, &l_Lean_Meta_mkStringLitNeProof___closed__7_once, _init_l_Lean_Meta_mkStringLitNeProof___closed__7);
 v___x_224_ = lean_obj_once(&l_Lean_Meta_mkStringLitNeProof___closed__10, &l_Lean_Meta_mkStringLitNeProof___closed__10_once, _init_l_Lean_Meta_mkStringLitNeProof___closed__10);
@@ -887,6 +887,7 @@ return v_res_360_;
 }
 }
 lean_object* runtime_initialize_Lean_Meta_AppBuilder(uint8_t builtin);
+lean_object* runtime_initialize_Init_Data_String_Csimp(uint8_t builtin);
 void lean_initialize_runtime_module();
 static bool _G_runtime_initialized = false;
 LEAN_EXPORT lean_object* runtime_initialize_Lean_Meta_StringLitProof(uint8_t builtin) {
@@ -895,6 +896,9 @@ if (_G_runtime_initialized) return lean_io_result_mk_ok(lean_box(0));
 _G_runtime_initialized = true;
 lean_initialize_runtime_module();
 res = runtime_initialize_Lean_Meta_AppBuilder(builtin);
+if (lean_io_result_is_error(res)) return res;
+lean_dec_ref(res);
+res = runtime_initialize_Init_Data_String_Csimp(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
 l___private_Init_Data_Range_Basic_0__Std_Legacy_Range_forIn_x27_loop___at___00Lean_Meta_mkStringLitNeProof_spec__1___redArg___boxed__const__1 = _init_l___private_Init_Data_Range_Basic_0__Std_Legacy_Range_forIn_x27_loop___at___00Lean_Meta_mkStringLitNeProof_spec__1___redArg___boxed__const__1();
@@ -909,12 +913,16 @@ _G_meta_initialized = true;
 return lean_io_result_mk_ok(lean_box(0));
 }
 lean_object* initialize_Lean_Meta_AppBuilder(uint8_t builtin);
+lean_object* initialize_Init_Data_String_Csimp(uint8_t builtin);
 static bool _G_initialized = false;
 LEAN_EXPORT lean_object* initialize_Lean_Meta_StringLitProof(uint8_t builtin) {
 lean_object * res;
 if (_G_initialized) return lean_io_result_mk_ok(lean_box(0));
 _G_initialized = true;
 res = initialize_Lean_Meta_AppBuilder(builtin);
+if (lean_io_result_is_error(res)) return res;
+lean_dec_ref(res);
+res = initialize_Init_Data_String_Csimp(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
 res = runtime_initialize_Lean_Meta_StringLitProof(builtin);

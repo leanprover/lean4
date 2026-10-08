@@ -27,9 +27,8 @@ lean_object* l_Lean_Name_mkStr4(lean_object*, lean_object*, lean_object*, lean_o
 lean_object* l_Lean_registerSimplePersistentEnvExtension___redArg(lean_object*);
 lean_object* l_Lean_SimplePersistentEnvExtension_getState___redArg(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* lean_st_mk_ref(lean_object*);
-extern lean_object* l_Lean_NameSet_empty;
 lean_object* l_Lean_Environment_header(lean_object*);
-lean_object* l_Lean_EnvironmentHeader_moduleNames(lean_object*);
+extern lean_object* l_Lean_NameSet_empty;
 lean_object* lean_mk_empty_array_with_capacity(lean_object*);
 lean_object* lean_nat_add(lean_object*, lean_object*);
 lean_object* lean_array_get_borrowed(lean_object*, lean_object*, lean_object*);
@@ -2397,21 +2396,23 @@ return v_res_904_;
 LEAN_EXPORT lean_object* l___private_Lean_Elab_DocString_Builtin_Postponed_0__Lean_Doc_DeferredCheck_collect(lean_object* v_env_907_, lean_object* v_inPackage_908_){
 _start:
 {
-lean_object* v___x_909_; lean_object* v_out_910_; lean_object* v___x_911_; lean_object* v___x_912_; lean_object* v___x_913_; lean_object* v___x_914_; lean_object* v___x_915_; lean_object* v___x_916_; lean_object* v___x_917_; lean_object* v___x_918_; uint8_t v___x_919_; 
-v___x_909_ = lean_unsigned_to_nat(0u);
-v_out_910_ = ((lean_object*)(l___private_Lean_Elab_DocString_Builtin_Postponed_0__Lean_Doc_DeferredCheck_collect___closed__0));
-v___x_911_ = l_Lean_Environment_header(v_env_907_);
-v___x_912_ = l_Lean_EnvironmentHeader_moduleNames(v___x_911_);
-v___x_913_ = lean_array_get_size(v___x_912_);
+lean_object* v___x_909_; lean_object* v_moduleNames_910_; lean_object* v___x_911_; lean_object* v_out_912_; lean_object* v___x_913_; lean_object* v___x_914_; lean_object* v___x_915_; lean_object* v___x_916_; lean_object* v___x_917_; lean_object* v___x_918_; uint8_t v___x_919_; 
+v___x_909_ = l_Lean_Environment_header(v_env_907_);
+v_moduleNames_910_ = lean_ctor_get(v___x_909_, 4);
+lean_inc_ref(v_moduleNames_910_);
+lean_dec_ref(v___x_909_);
+v___x_911_ = lean_unsigned_to_nat(0u);
+v_out_912_ = ((lean_object*)(l___private_Lean_Elab_DocString_Builtin_Postponed_0__Lean_Doc_DeferredCheck_collect___closed__0));
+v___x_913_ = lean_array_get_size(v_moduleNames_910_);
 v___x_914_ = lean_unsigned_to_nat(1u);
 v___x_915_ = lean_alloc_ctor(0, 3, 0);
-lean_ctor_set(v___x_915_, 0, v___x_909_);
+lean_ctor_set(v___x_915_, 0, v___x_911_);
 lean_ctor_set(v___x_915_, 1, v___x_913_);
 lean_ctor_set(v___x_915_, 2, v___x_914_);
 lean_inc_ref(v_inPackage_908_);
-v___x_916_ = l___private_Init_Data_Range_Basic_0__Std_Legacy_Range_forIn_x27_loop___at___00__private_Lean_Elab_DocString_Builtin_Postponed_0__Lean_Doc_DeferredCheck_collect_spec__1___redArg(v___x_912_, v_inPackage_908_, v_env_907_, v___x_915_, v_out_910_, v___x_909_);
+v___x_916_ = l___private_Init_Data_Range_Basic_0__Std_Legacy_Range_forIn_x27_loop___at___00__private_Lean_Elab_DocString_Builtin_Postponed_0__Lean_Doc_DeferredCheck_collect_spec__1___redArg(v_moduleNames_910_, v_inPackage_908_, v_env_907_, v___x_915_, v_out_912_, v___x_911_);
 lean_dec_ref_known(v___x_915_, 3);
-lean_dec_ref(v___x_912_);
+lean_dec_ref(v_moduleNames_910_);
 v___x_917_ = l_Lean_Environment_mainModule(v_env_907_);
 lean_inc(v___x_917_);
 v___x_918_ = lean_apply_1(v_inPackage_908_, v___x_917_);
@@ -3076,7 +3077,7 @@ return v_res_1139_;
 LEAN_EXPORT lean_object* l_Lean_Doc_DeferredCheck_run(lean_object* v_inPackage_1142_, lean_object* v_shouldCheck_1143_, lean_object* v_a_1144_, lean_object* v_a_1145_){
 _start:
 {
-lean_object* v___x_1147_; lean_object* v___x_1148_; lean_object* v_env_1149_; lean_object* v___x_1150_; lean_object* v_toEnvExtension_1151_; lean_object* v_asyncMode_1152_; lean_object* v___x_1153_; lean_object* v___x_1154_; lean_object* v___x_1155_; lean_object* v___x_1156_; lean_object* v___x_1157_; lean_object* v___x_1158_; lean_object* v___x_1159_; lean_object* v___x_1160_; lean_object* v___y_1162_; lean_object* v___x_1168_; uint8_t v___x_1169_; 
+lean_object* v___x_1147_; lean_object* v___x_1148_; lean_object* v_env_1149_; lean_object* v___x_1150_; lean_object* v_toEnvExtension_1151_; lean_object* v_asyncMode_1152_; lean_object* v___x_1153_; lean_object* v___x_1154_; lean_object* v___x_1155_; lean_object* v___x_1156_; lean_object* v___x_1157_; lean_object* v_moduleNames_1158_; lean_object* v___x_1159_; lean_object* v___x_1160_; lean_object* v___y_1162_; lean_object* v___x_1168_; uint8_t v___x_1169_; 
 v___x_1147_ = lean_box(1);
 v___x_1148_ = lean_st_ref_get(v_a_1145_);
 v_env_1149_ = lean_ctor_get(v___x_1148_, 0);
@@ -3089,16 +3090,18 @@ v___x_1153_ = lean_box(0);
 v___x_1154_ = l_Lean_SimplePersistentEnvExtension_getState___redArg(v___x_1147_, v___x_1150_, v_env_1149_, v_asyncMode_1152_, v___x_1153_);
 v___x_1155_ = l_Lean_Doc_DeferredCheck_builtinHandlers;
 v___x_1156_ = lean_st_ref_get(v___x_1155_);
-v___x_1157_ = l_Lean_NameSet_empty;
-v___x_1158_ = l_Lean_Environment_header(v_env_1149_);
-v___x_1159_ = l_Lean_EnvironmentHeader_moduleNames(v___x_1158_);
+v___x_1157_ = l_Lean_Environment_header(v_env_1149_);
+v_moduleNames_1158_ = lean_ctor_get(v___x_1157_, 4);
+lean_inc_ref(v_moduleNames_1158_);
+lean_dec_ref(v___x_1157_);
+v___x_1159_ = l_Lean_NameSet_empty;
 v___x_1160_ = lean_unsigned_to_nat(0u);
-v___x_1168_ = lean_array_get_size(v___x_1159_);
+v___x_1168_ = lean_array_get_size(v_moduleNames_1158_);
 v___x_1169_ = lean_nat_dec_lt(v___x_1160_, v___x_1168_);
 if (v___x_1169_ == 0)
 {
-lean_dec_ref(v___x_1159_);
-v___y_1162_ = v___x_1157_;
+lean_dec_ref(v_moduleNames_1158_);
+v___y_1162_ = v___x_1159_;
 goto v___jp_1161_;
 }
 else
@@ -3109,8 +3112,8 @@ if (v___x_1170_ == 0)
 {
 if (v___x_1169_ == 0)
 {
-lean_dec_ref(v___x_1159_);
-v___y_1162_ = v___x_1157_;
+lean_dec_ref(v_moduleNames_1158_);
+v___y_1162_ = v___x_1159_;
 goto v___jp_1161_;
 }
 else
@@ -3118,8 +3121,8 @@ else
 size_t v___x_1171_; size_t v___x_1172_; lean_object* v___x_1173_; 
 v___x_1171_ = ((size_t)0ULL);
 v___x_1172_ = lean_usize_of_nat(v___x_1168_);
-v___x_1173_ = l___private_Init_Data_Array_Basic_0__Array_foldlMUnsafe_fold___at___00Lean_Doc_DeferredCheck_run_spec__3(v___x_1159_, v___x_1171_, v___x_1172_, v___x_1157_);
-lean_dec_ref(v___x_1159_);
+v___x_1173_ = l___private_Init_Data_Array_Basic_0__Array_foldlMUnsafe_fold___at___00Lean_Doc_DeferredCheck_run_spec__3(v_moduleNames_1158_, v___x_1171_, v___x_1172_, v___x_1159_);
+lean_dec_ref(v_moduleNames_1158_);
 v___y_1162_ = v___x_1173_;
 goto v___jp_1161_;
 }
@@ -3129,8 +3132,8 @@ else
 size_t v___x_1174_; size_t v___x_1175_; lean_object* v___x_1176_; 
 v___x_1174_ = ((size_t)0ULL);
 v___x_1175_ = lean_usize_of_nat(v___x_1168_);
-v___x_1176_ = l___private_Init_Data_Array_Basic_0__Array_foldlMUnsafe_fold___at___00Lean_Doc_DeferredCheck_run_spec__3(v___x_1159_, v___x_1174_, v___x_1175_, v___x_1157_);
-lean_dec_ref(v___x_1159_);
+v___x_1176_ = l___private_Init_Data_Array_Basic_0__Array_foldlMUnsafe_fold___at___00Lean_Doc_DeferredCheck_run_spec__3(v_moduleNames_1158_, v___x_1174_, v___x_1175_, v___x_1159_);
+lean_dec_ref(v_moduleNames_1158_);
 v___y_1162_ = v___x_1176_;
 goto v___jp_1161_;
 }

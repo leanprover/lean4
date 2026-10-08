@@ -3278,8 +3278,8 @@ else
 lean_inc(v_endExclusive_725_);
 lean_inc(v_startInclusive_724_);
 lean_inc_ref(v_str_723_);
-lean_dec(v_tail_824_);
 lean_dec_ref_known(v___x_823_, 2);
+lean_dec(v_tail_824_);
 v___y_742_ = v___x_820_;
 goto v___jp_741_;
 }

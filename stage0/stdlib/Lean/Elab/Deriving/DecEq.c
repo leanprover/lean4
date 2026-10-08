@@ -141,7 +141,6 @@ extern lean_object* l_Lean_Options_empty;
 lean_object* l_Lean_Environment_getModuleIdxFor_x3f(lean_object*, lean_object*);
 lean_object* l_Lean_MessageData_note(lean_object*);
 lean_object* l_Lean_Environment_header(lean_object*);
-lean_object* l_Lean_EnvironmentHeader_moduleNames(lean_object*);
 uint8_t l_Lean_isPrivateName(lean_object*);
 lean_object* l_Lean_MessageData_ofName(lean_object*);
 extern lean_object* l_Lean_unknownIdentifierMessageTag;
@@ -12929,13 +12928,15 @@ goto v_resetjp_5295_;
 }
 v_resetjp_5295_:
 {
-lean_object* v___x_5298_; lean_object* v___x_5299_; lean_object* v_mod_5300_; uint8_t v___x_5301_; 
+lean_object* v___x_5298_; lean_object* v_moduleNames_5299_; lean_object* v_mod_5300_; uint8_t v___x_5301_; 
 v___x_5298_ = l_Lean_Environment_header(v_env_5273_);
 lean_dec_ref(v_env_5273_);
-v___x_5299_ = l_Lean_EnvironmentHeader_moduleNames(v___x_5298_);
-v_mod_5300_ = lean_array_get(v___x_5271_, v___x_5299_, v_val_5294_);
+v_moduleNames_5299_ = lean_ctor_get(v___x_5298_, 4);
+lean_inc_ref(v_moduleNames_5299_);
+lean_dec_ref(v___x_5298_);
+v_mod_5300_ = lean_array_get(v___x_5271_, v_moduleNames_5299_, v_val_5294_);
 lean_dec(v_val_5294_);
-lean_dec_ref(v___x_5299_);
+lean_dec_ref(v_moduleNames_5299_);
 v___x_5301_ = l_Lean_isPrivateName(v_declHint_5268_);
 lean_dec(v_declHint_5268_);
 if (v___x_5301_ == 0)
@@ -13477,9 +13478,9 @@ goto _start;
 LEAN_EXPORT lean_object* l_List_allM___at___00Lean_isEnumType___at___00__private_Lean_Elab_Deriving_DecEq_0__Lean_Elab_Deriving_DecEq_mkDecEqInstance_spec__0_spec__1___boxed(lean_object* v___x_5476_, lean_object* v_x_5477_, lean_object* v___y_5478_, lean_object* v___y_5479_, lean_object* v___y_5480_){
 _start:
 {
-uint8_t v___x_2648__boxed_5481_; lean_object* v_res_5482_; 
-v___x_2648__boxed_5481_ = lean_unbox(v___x_5476_);
-v_res_5482_ = l_List_allM___at___00Lean_isEnumType___at___00__private_Lean_Elab_Deriving_DecEq_0__Lean_Elab_Deriving_DecEq_mkDecEqInstance_spec__0_spec__1(v___x_2648__boxed_5481_, v_x_5477_, v___y_5478_, v___y_5479_);
+uint8_t v___x_2646__boxed_5481_; lean_object* v_res_5482_; 
+v___x_2646__boxed_5481_ = lean_unbox(v___x_5476_);
+v_res_5482_ = l_List_allM___at___00Lean_isEnumType___at___00__private_Lean_Elab_Deriving_DecEq_0__Lean_Elab_Deriving_DecEq_mkDecEqInstance_spec__0_spec__1(v___x_2646__boxed_5481_, v_x_5477_, v___y_5478_, v___y_5479_);
 lean_dec(v___y_5479_);
 lean_dec_ref(v___y_5478_);
 return v_res_5482_;

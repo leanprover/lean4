@@ -2059,8 +2059,8 @@ if (v___x_755_ == 0)
 lean_dec_ref(v___x_754_);
 lean_dec(v_head_740_);
 lean_del_object(v___x_738_);
-lean_dec_ref_known(v_tail_730_, 2);
 lean_dec(v_head_736_);
+lean_dec_ref_known(v_tail_730_, 2);
 lean_dec_ref(v_alt_723_);
 lean_dec_ref(v_codomain_722_);
 lean_dec(v_u_721_);
@@ -2084,8 +2084,8 @@ lean_dec_ref(v___x_757_);
 lean_dec_ref(v_arg_756_);
 lean_dec(v_head_740_);
 lean_del_object(v___x_738_);
-lean_dec(v_head_736_);
 lean_dec_ref_known(v_tail_730_, 2);
+lean_dec(v_head_736_);
 lean_dec_ref(v_alt_723_);
 lean_dec_ref(v_codomain_722_);
 lean_dec(v_u_721_);
@@ -2112,8 +2112,8 @@ lean_dec_ref(v_arg_759_);
 lean_dec_ref(v_arg_756_);
 lean_dec(v_head_740_);
 lean_del_object(v___x_738_);
-lean_dec(v_head_736_);
 lean_dec_ref_known(v_tail_730_, 2);
+lean_dec(v_head_736_);
 lean_dec_ref(v_alt_723_);
 lean_dec_ref(v_codomain_722_);
 lean_dec(v_u_721_);
@@ -2269,8 +2269,8 @@ else
 lean_dec(v_a_742_);
 lean_dec(v_head_740_);
 lean_del_object(v___x_738_);
-lean_dec(v_head_736_);
 lean_dec_ref_known(v_tail_730_, 2);
+lean_dec(v_head_736_);
 lean_dec_ref(v_alt_723_);
 lean_dec_ref(v_codomain_722_);
 lean_dec(v_u_721_);
@@ -8248,11 +8248,11 @@ v___jp_3217_:
 {
 lean_object* v___x_3224_; lean_object* v___x_3225_; lean_object* v___x_3226_; 
 lean_inc(v_i_3204_);
-v___x_3224_ = l_List_get_x21Internal___redArg(v___x_3210_, v___y_3219_, v_i_3204_);
-lean_dec(v___y_3219_);
+v___x_3224_ = l_List_get_x21Internal___redArg(v___x_3210_, v___y_3218_, v_i_3204_);
+lean_dec(v___y_3218_);
 v___x_3225_ = l_Lean_Expr_bindingName_x21(v_a_3216_);
 lean_dec(v_a_3216_);
-v___x_3226_ = l_Lean_Meta_withLocalDeclD___at___00Lean_Meta_ArgsPacker_Unary_uncurryType_spec__1___redArg(v___x_3225_, v___x_3224_, v___y_3218_, v___y_3220_, v___y_3221_, v___y_3222_, v___y_3223_);
+v___x_3226_ = l_Lean_Meta_withLocalDeclD___at___00Lean_Meta_ArgsPacker_Unary_uncurryType_spec__1___redArg(v___x_3225_, v___x_3224_, v___y_3219_, v___y_3220_, v___y_3221_, v___y_3222_, v___y_3223_);
 if (lean_obj_tag(v___x_3226_) == 0)
 {
 lean_object* v_a_3227_; lean_object* v___x_3228_; lean_object* v___x_3229_; 
@@ -8341,8 +8341,8 @@ return v___x_3248_;
 }
 else
 {
-v___y_3218_ = v___f_3238_;
-v___y_3219_ = v_a_3237_;
+v___y_3218_ = v_a_3237_;
+v___y_3219_ = v___f_3238_;
 v___y_3220_ = v___y_3231_;
 v___y_3221_ = v___y_3232_;
 v___y_3222_ = v___y_3233_;

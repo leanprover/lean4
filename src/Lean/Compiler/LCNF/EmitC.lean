@@ -11,6 +11,7 @@ import Lean.Compiler.LCNF.EmitUtil
 import Lean.Compiler.NameMangling
 import Lean.Compiler.LCNF.PhaseExt
 import Lean.Compiler.ExportAttr
+import Lean.Compiler.MetaAttr
 import Lean.Compiler.ModPkgExt
 import Lean.Compiler.LCNF.SimpleGroundExpr
 import Lean.Compiler.ClosedTermCache
@@ -453,6 +454,18 @@ def paramsWithoutVoid (ps : Array (Param .impure)) :=
 def paramsWithoutErased (ps : Array (Param .impure)) :=
   ps.filter (!·.type.isErased)
 
+/--
+Returns whether the symbol of the given local function should be exported from its shared library.
+The answer is the same for a function and its boxed variant as the interpreter assumes that a
+function without a boxed symbol has no unboxed parameters.
+-/
+def shouldExportSymbol (declName : Name) : EmitM Bool := do
+  let env ← getEnv
+  let baseName := match declName with
+    | .str n "_boxed" => n
+    | n               => n
+  return isDeclPublic env baseName || isDeclMeta env baseName || isExport env baseName
+
 def emitFnDecls : EmitM Unit := do
   (← getOtherModuleDecls).forM fun sig => do
     match getExternNameFor (← getEnv) `c sig.name with
@@ -497,7 +510,7 @@ where
         emit "extern "
       else
         emit "LEAN_EXPORT "
-    else if !isExternal then
+    else if !isExternal && (← shouldExportSymbol sig.name) then
       emit "LEAN_EXPORT "
     emit <| sig.type.toCType ++ " " ++ cppBaseName
     unless ps.isEmpty do
@@ -933,7 +946,7 @@ def emitDecl (decl : Decl .impure) : EmitM Unit := do
     let ps := decl.params
     if ps.isEmpty then
       emit "static "
-    else
+    else if (← shouldExportSymbol decl.name) then
       -- make the symbol visible to the interpreter for native execution
       emit "LEAN_EXPORT "
 

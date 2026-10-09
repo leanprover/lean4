@@ -1,0 +1,5 @@
+name = "export_symbols"
+defaultTargets = ["ExportSymbols"]
+
+[[lean_lib]]
+name = "ExportSymbols"

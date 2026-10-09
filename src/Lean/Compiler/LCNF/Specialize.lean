@@ -41,8 +41,15 @@ builtin_initialize specCacheExt : SimplePersistentEnvExtension CacheEntry Cache 
 public def cacheSpec (key : Expr) (declName : Name) : CoreM Unit :=
   modifyEnv fun env => specCacheExt.addEntry env { key, declName }
 
-public def findSpecCache? (key : Expr) : CoreM (Option Name) :=
-  return specCacheExt.getState (← getEnv) |>.find? key
+public def findSpecCache? (key : Expr) : CoreM (Option Name) := do
+  let env ← getEnv
+  let some declName := specCacheExt.getState env |>.find? key | return none
+  -- Specializations of other modules are visible here only with access to their private scope
+  -- (`import all`, non-module importers); their symbols are not exported.
+  if let some modIdx := env.getModuleIdxFor? declName then
+    if env.getModuleIdx? env.mainModule != some modIdx then
+      return none
+  return some declName
 
 structure Context where
   /--

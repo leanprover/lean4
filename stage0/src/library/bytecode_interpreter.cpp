@@ -41,63 +41,25 @@ typedef lean_interpreter_value value;
 static_assert(sizeof(size_t) <= sizeof(uint64), "uint64 should be the largest unboxed type"); // NOLINT
 static_assert(sizeof(value) == sizeof(uint64), "value should be 64 bits in length"); // NOLINT
 
-struct decl_cache_entry {
-    // Amount of parameters the function expects for m_arity != 0, m_arity == 0 for a constant
-    // UINT32_MAX for a native interpreter declaration
-    unsigned m_arity;
-    // Native symbol address; `nullptr` if no native symbol is available
-    void * m_native;
-    // Reference to bytecode object (if applicable)
-    object * m_object;
-};
-
-struct decl_cache {
-    lean_once_cell_t m_once_cell;
-    size_t m_count;
-    object * m_value;
-    decl_cache_entry m_entries[];
-};
-
-external_object_class * g_decl_cache_external_class;
-
-void decl_cache_finalize(void * cache_val) {
-    decl_cache * cache = reinterpret_cast<decl_cache *>(cache_val);
-    for (size_t i = 0; i < cache->m_count; i++) {
-        dec(cache->m_entries[i].m_object);
-    }
-    dec(cache->m_value);
-    free(cache);
-}
-
-void decl_cache_foreach(void * cache_val, object * fn) {
-    decl_cache * cache = reinterpret_cast<decl_cache *>(cache_val);
-    for (size_t i = 0; i < cache->m_count; i++) {
-        object * val = cache->m_entries[i].m_object;
-        if (!lean_is_scalar(val)) {
-            inc(fn);
-            inc_ref(val);
-            apply_1(fn, val);
-        }
-    }
-    if (!lean_is_scalar(cache->m_value)) {
-        inc(fn);
-        inc_ref(cache->m_value);
-        apply_1(fn, cache->m_value);
-    }
-}
+typedef lean_interp_decl_cache_entry decl_cache_entry;
+typedef lean_interp_decl_cache_object decl_cache;
 
 extern "C" LEAN_EXPORT object * lean_bytecode_mk_initial_cache(b_obj_arg symbols) {
     size_t count = array_size(symbols);
-    size_t sz = sizeof(decl_cache) + sizeof(decl_cache_entry)*count;
-    decl_cache * cache = static_cast<decl_cache *>(malloc(sz));
-    // We populate the cache on demand
-    // The cache is bound to the symbol array with dependent typing so there's no risk of
-    // using it with the wrong count, so no need to store it here
+    //size_t sz = sizeof(decl_cache) + sizeof(decl_cache_entry)*count;
+    size_t sz = lean_usize_add_checked(sizeof(decl_cache), lean_usize_mul_checked(sizeof(decl_cache_entry), count));
+    decl_cache * cache = (decl_cache *) lean_alloc_object(sz);
+    lean_set_st_header((lean_object*) cache, LeanInterpCache, 0);
     cache->m_once_cell.lock = 0;
     cache->m_once_cell.state = 0;
     cache->m_value = box(0);
-    cache->m_count = 0;
-    return alloc_external(g_decl_cache_external_class, cache);
+    cache->m_count = count;
+    for (size_t i = 0; i < count; i++) {
+        cache->m_entries[i].m_arity = 0;
+        cache->m_entries[i].m_native = nullptr;
+        cache->m_entries[i].m_object = box(0);
+    }
+    return (lean_object*) cache;
 }
 
 // reuse the compiler's name mangling to compute native symbol names
@@ -159,12 +121,12 @@ decl_cache_entry fill_cache_entry(b_obj_arg env, b_obj_arg decl_name) {
         inc(result.m_object);
         dec(decl);
         arity = lean_unbox(lean_ctor_get(result.m_object, 6));
-        if (!lean_has_init_attr(env, decl_name)) {
+        /*if (!lean_has_init_attr(env, decl_name)) {
             result.m_arity = static_cast<unsigned>(arity);
             return result;
-        }
-        inc(env);
-        inc(decl_name);
+        }*/
+        //inc(env);
+        //inc(decl_name);
     }
     object * mangled = lean_get_symbol_stem(env, decl_name); // String
     inc(mangled);
@@ -328,7 +290,7 @@ frame call_init(interpreter * interp, b_obj_arg decl, bool is_constant) {
         lean_internal_panic("interpreter stack overflow");
     }
 
-    decl_cache * cache = reinterpret_cast<decl_cache *>(lean_get_external_data(cache_obj));
+    decl_cache * cache = lean_to_interp_cache(cache_obj);
     bool already_done = fill_cache(interp->m_env, symbols_array, cache);
     if (already_done) {
         if (is_constant) {
@@ -361,7 +323,7 @@ frame call_init(interpreter * interp, b_obj_arg decl, bool is_constant) {
 
 void store_value_and_unlock(object * decl, object * value) {
     object * cache_obj = lean_ctor_get(decl, 5);
-    decl_cache * cache = reinterpret_cast<decl_cache *>(lean_get_external_data(cache_obj));
+    decl_cache * cache = lean_to_interp_cache(cache_obj);
     if (lean_is_mt(cache_obj) || lean_is_persistent(cache_obj)) {
         lean_mark_mt(value);
     }
@@ -389,7 +351,7 @@ static object * stub_m_aux(object ** args) {
     object * decl = args[1];
     if (lean_is_scalar(env)) {
         size_t arity = unbox(env); // oh no it's not actually the environment then, it's the arity
-        value * value_stack = reinterpret_cast<value *>(alloca(sizeof(value) * arity));
+        value * value_stack = reinterpret_cast<value *>(LEAN_ALLOCA(sizeof(value) * arity));
         stack_function fn = reinterpret_cast<stack_function>(lean_unbox_usize(decl));
         dec(decl);
         for (size_t i = 0; i < arity; i++) {
@@ -400,8 +362,8 @@ static object * stub_m_aux(object ** args) {
     }
     bool need_cleanup = false;
     if (g_interpreter == nullptr) {
-        value * value_stack = reinterpret_cast<value *>(alloca(sizeof(value) * INTERPRETER_STACK_SIZE));
-        frame * frame_stack = reinterpret_cast<frame *>(alloca(sizeof(frame) * INTERPRETER_FRAME_COUNT));
+        value * value_stack = reinterpret_cast<value *>(LEAN_ALLOCA(sizeof(value) * INTERPRETER_STACK_SIZE));
+        frame * frame_stack = reinterpret_cast<frame *>(LEAN_ALLOCA(sizeof(frame) * INTERPRETER_FRAME_COUNT));
         init_interpreter(&interp, value_stack, frame_stack);
         need_cleanup = true;
     }
@@ -462,6 +424,81 @@ void * get_stub(unsigned params) {
         default: return reinterpret_cast<void *>(stub_m_aux);
     }
 }
+
+static object * apply_n_interpreter(object * f, unsigned n, value * as) {
+switch (n) {
+case 0: lean_unreachable();
+case 1: return lean_apply_1(f, as[0].m_obj);
+case 2: return lean_apply_2(f, as[0].m_obj, as[1].m_obj);
+case 3: return lean_apply_3(f, as[0].m_obj, as[1].m_obj, as[2].m_obj);
+case 4: return lean_apply_4(f, as[0].m_obj, as[1].m_obj, as[2].m_obj, as[3].m_obj);
+case 5: return lean_apply_5(f, as[0].m_obj, as[1].m_obj, as[2].m_obj, as[3].m_obj, as[4].m_obj);
+case 6: return lean_apply_6(f, as[0].m_obj, as[1].m_obj, as[2].m_obj, as[3].m_obj, as[4].m_obj, as[5].m_obj);
+case 7: return lean_apply_7(f, as[0].m_obj, as[1].m_obj, as[2].m_obj, as[3].m_obj, as[4].m_obj, as[5].m_obj, as[6].m_obj);
+case 8: return lean_apply_8(f, as[0].m_obj, as[1].m_obj, as[2].m_obj, as[3].m_obj, as[4].m_obj, as[5].m_obj, as[6].m_obj, as[7].m_obj);
+case 9: return lean_apply_9(f, as[0].m_obj, as[1].m_obj, as[2].m_obj, as[3].m_obj, as[4].m_obj, as[5].m_obj, as[6].m_obj, as[7].m_obj, as[8].m_obj);
+case 10: return lean_apply_10(f, as[0].m_obj, as[1].m_obj, as[2].m_obj, as[3].m_obj, as[4].m_obj, as[5].m_obj, as[6].m_obj, as[7].m_obj, as[8].m_obj, as[9].m_obj);
+case 11: return lean_apply_11(f, as[0].m_obj, as[1].m_obj, as[2].m_obj, as[3].m_obj, as[4].m_obj, as[5].m_obj, as[6].m_obj, as[7].m_obj, as[8].m_obj, as[9].m_obj, as[10].m_obj);
+case 12: return lean_apply_12(f, as[0].m_obj, as[1].m_obj, as[2].m_obj, as[3].m_obj, as[4].m_obj, as[5].m_obj, as[6].m_obj, as[7].m_obj, as[8].m_obj, as[9].m_obj, as[10].m_obj, as[11].m_obj);
+case 13: return lean_apply_13(f, as[0].m_obj, as[1].m_obj, as[2].m_obj, as[3].m_obj, as[4].m_obj, as[5].m_obj, as[6].m_obj, as[7].m_obj, as[8].m_obj, as[9].m_obj, as[10].m_obj, as[11].m_obj, as[12].m_obj);
+case 14: return lean_apply_14(f, as[0].m_obj, as[1].m_obj, as[2].m_obj, as[3].m_obj, as[4].m_obj, as[5].m_obj, as[6].m_obj, as[7].m_obj, as[8].m_obj, as[9].m_obj, as[10].m_obj, as[11].m_obj, as[12].m_obj, as[13].m_obj);
+case 15: return lean_apply_15(f, as[0].m_obj, as[1].m_obj, as[2].m_obj, as[3].m_obj, as[4].m_obj, as[5].m_obj, as[6].m_obj, as[7].m_obj, as[8].m_obj, as[9].m_obj, as[10].m_obj, as[11].m_obj, as[12].m_obj, as[13].m_obj, as[14].m_obj);
+case 16: return lean_apply_16(f, as[0].m_obj, as[1].m_obj, as[2].m_obj, as[3].m_obj, as[4].m_obj, as[5].m_obj, as[6].m_obj, as[7].m_obj, as[8].m_obj, as[9].m_obj, as[10].m_obj, as[11].m_obj, as[12].m_obj, as[13].m_obj, as[14].m_obj, as[15].m_obj);
+default:
+    object ** args = static_cast<object **>(LEAN_ALLOCA(n*sizeof(object *))); // NOLINT
+    for (unsigned i = 0; i < n; i++) {
+        args[i] = as[i].m_obj;
+    }
+    return lean_apply_m(f, n, args);
+}
+}
+
+typedef object* (*fn1)(object*); // NOLINT
+typedef object* (*fn2)(object*, object*); // NOLINT
+typedef object* (*fn3)(object*, object*, object*); // NOLINT
+typedef object* (*fn4)(object*, object*, object*, object*); // NOLINT
+typedef object* (*fn5)(object*, object*, object*, object*, object*); // NOLINT
+typedef object* (*fn6)(object*, object*, object*, object*, object*, object*); // NOLINT
+typedef object* (*fn7)(object*, object*, object*, object*, object*, object*, object*); // NOLINT
+typedef object* (*fn8)(object*, object*, object*, object*, object*, object*, object*, object*); // NOLINT
+typedef object* (*fn9)(object*, object*, object*, object*, object*, object*, object*, object*, object*); // NOLINT
+typedef object* (*fn10)(object*, object*, object*, object*, object*, object*, object*, object*, object*, object*); // NOLINT
+typedef object* (*fn11)(object*, object*, object*, object*, object*, object*, object*, object*, object*, object*, object*); // NOLINT
+typedef object* (*fn12)(object*, object*, object*, object*, object*, object*, object*, object*, object*, object*, object*, object*); // NOLINT
+typedef object* (*fn13)(object*, object*, object*, object*, object*, object*, object*, object*, object*, object*, object*, object*, object*); // NOLINT
+typedef object* (*fn14)(object*, object*, object*, object*, object*, object*, object*, object*, object*, object*, object*, object*, object*, object*); // NOLINT
+typedef object* (*fn15)(object*, object*, object*, object*, object*, object*, object*, object*, object*, object*, object*, object*, object*, object*, object*); // NOLINT
+typedef object* (*fn16)(object*, object*, object*, object*, object*, object*, object*, object*, object*, object*, object*, object*, object*, object*, object*, object*); // NOLINT
+typedef object* (*fnn)(object**); // NOLINT
+
+static object * curry_interpreter(void * f, unsigned n, value * as) {
+switch (n) {
+case 0: lean_unreachable();
+case 1: return reinterpret_cast<fn1>(f)(as[0].m_obj);
+case 2: return reinterpret_cast<fn2>(f)(as[0].m_obj, as[1].m_obj);
+case 3: return reinterpret_cast<fn3>(f)(as[0].m_obj, as[1].m_obj, as[2].m_obj);
+case 4: return reinterpret_cast<fn4>(f)(as[0].m_obj, as[1].m_obj, as[2].m_obj, as[3].m_obj);
+case 5: return reinterpret_cast<fn5>(f)(as[0].m_obj, as[1].m_obj, as[2].m_obj, as[3].m_obj, as[4].m_obj);
+case 6: return reinterpret_cast<fn6>(f)(as[0].m_obj, as[1].m_obj, as[2].m_obj, as[3].m_obj, as[4].m_obj, as[5].m_obj);
+case 7: return reinterpret_cast<fn7>(f)(as[0].m_obj, as[1].m_obj, as[2].m_obj, as[3].m_obj, as[4].m_obj, as[5].m_obj, as[6].m_obj);
+case 8: return reinterpret_cast<fn8>(f)(as[0].m_obj, as[1].m_obj, as[2].m_obj, as[3].m_obj, as[4].m_obj, as[5].m_obj, as[6].m_obj, as[7].m_obj);
+case 9: return reinterpret_cast<fn9>(f)(as[0].m_obj, as[1].m_obj, as[2].m_obj, as[3].m_obj, as[4].m_obj, as[5].m_obj, as[6].m_obj, as[7].m_obj, as[8].m_obj);
+case 10: return reinterpret_cast<fn10>(f)(as[0].m_obj, as[1].m_obj, as[2].m_obj, as[3].m_obj, as[4].m_obj, as[5].m_obj, as[6].m_obj, as[7].m_obj, as[8].m_obj, as[9].m_obj);
+case 11: return reinterpret_cast<fn11>(f)(as[0].m_obj, as[1].m_obj, as[2].m_obj, as[3].m_obj, as[4].m_obj, as[5].m_obj, as[6].m_obj, as[7].m_obj, as[8].m_obj, as[9].m_obj, as[10].m_obj);
+case 12: return reinterpret_cast<fn12>(f)(as[0].m_obj, as[1].m_obj, as[2].m_obj, as[3].m_obj, as[4].m_obj, as[5].m_obj, as[6].m_obj, as[7].m_obj, as[8].m_obj, as[9].m_obj, as[10].m_obj, as[11].m_obj);
+case 13: return reinterpret_cast<fn13>(f)(as[0].m_obj, as[1].m_obj, as[2].m_obj, as[3].m_obj, as[4].m_obj, as[5].m_obj, as[6].m_obj, as[7].m_obj, as[8].m_obj, as[9].m_obj, as[10].m_obj, as[11].m_obj, as[12].m_obj);
+case 14: return reinterpret_cast<fn14>(f)(as[0].m_obj, as[1].m_obj, as[2].m_obj, as[3].m_obj, as[4].m_obj, as[5].m_obj, as[6].m_obj, as[7].m_obj, as[8].m_obj, as[9].m_obj, as[10].m_obj, as[11].m_obj, as[12].m_obj, as[13].m_obj);
+case 15: return reinterpret_cast<fn15>(f)(as[0].m_obj, as[1].m_obj, as[2].m_obj, as[3].m_obj, as[4].m_obj, as[5].m_obj, as[6].m_obj, as[7].m_obj, as[8].m_obj, as[9].m_obj, as[10].m_obj, as[11].m_obj, as[12].m_obj, as[13].m_obj, as[14].m_obj);
+case 16: return reinterpret_cast<fn16>(f)(as[0].m_obj, as[1].m_obj, as[2].m_obj, as[3].m_obj, as[4].m_obj, as[5].m_obj, as[6].m_obj, as[7].m_obj, as[8].m_obj, as[9].m_obj, as[10].m_obj, as[11].m_obj, as[12].m_obj, as[13].m_obj, as[14].m_obj, as[15].m_obj);
+default:
+    object ** args = static_cast<object **>(LEAN_ALLOCA(n*sizeof(object *))); // NOLINT
+    for (unsigned i = 0; i < n; i++) {
+        args[i] = as[i].m_obj;
+    }
+    return reinterpret_cast<fnn>(f)(args);
+}
+}
+
 
 value eval_loop(interpreter * interp, frame start_frame) {
     value * base = start_frame.m_stack_base;
@@ -539,7 +576,7 @@ value eval_loop(interpreter * interp, frame start_frame) {
                     if (fn.m_arity & INTERP_DECL_MASK) {
                         ((stack_function) fn.m_native)(interp->m_stack_top);
                     } else {
-                        object * res = curry(fn.m_native, fn.m_arity, reinterpret_cast<object **>(interp->m_stack_top));
+                        object * res = curry_interpreter(fn.m_native, fn.m_arity, interp->m_stack_top);
                         interp->m_stack_top[0].m_obj = res;
                     }
                 } else if (!lean_is_scalar(fn.m_object)) {
@@ -567,8 +604,11 @@ value eval_loop(interpreter * interp, frame start_frame) {
                     if (fn.m_arity & INTERP_DECL_MASK) {
                         ((stack_function) fn.m_native)(base);
                     } else {
-                        object * res = curry(fn.m_native, fn.m_arity, reinterpret_cast<object **>(base));
+                        object * res = curry_interpreter(fn.m_native, fn.m_arity, base);
                         base[0].m_obj = res;
+                    }
+                    if (interp->m_frame_top <= orig_frame) {
+                        return base[0];
                     }
                     interp->m_frame_top--;
                     frame * new_frame = interp->m_frame_top;
@@ -636,9 +676,9 @@ value eval_loop(interpreter * interp, frame start_frame) {
                 break;
             }
             case instruction_type::UPROJ: {
-                uint32 target = (instr >> 18) & 0xFF;
-                uint32 source = (instr >> 10) & 0xFF;
-                uint32 idx = instr & 0x3FF;
+                uint32 target = (instr >> 16) & 0xFF;
+                uint32 source = (instr >> 8) & 0xFF;
+                uint32 idx = instr & 0xFF;
                 base[target].m_num = lean_ctor_get_usize(base[source].m_obj, idx);
                 break;
             }
@@ -678,9 +718,9 @@ value eval_loop(interpreter * interp, frame start_frame) {
                 break;
             }
             case instruction_type::USET: {
-                uint32 target = (instr >> 18) & 0xFF;
-                uint32 source = (instr >> 10) & 0xFF;
-                uint32 idx = instr & 0x3FF;
+                uint32 target = (instr >> 16) & 0xFF;
+                uint32 source = (instr >> 8) & 0xFF;
+                uint32 idx = instr & 0xFF;
                 lean_ctor_set_usize(base[target].m_obj, idx, base[source].m_num);
                 break;
             }
@@ -845,7 +885,7 @@ value eval_loop(interpreter * interp, frame start_frame) {
             case instruction_type::APP: {
                 uint32 n = (instr >> 16) & 0x3FF;
                 uint32 fn = instr & 0xFFFF;
-                object * res = lean_apply_n(base[fn].m_obj, n, reinterpret_cast<object **>(interp->m_stack_top));
+                object * res = apply_n_interpreter(base[fn].m_obj, n, interp->m_stack_top);
                 interp->m_stack_top[0].m_obj = res;
                 break;
             }
@@ -935,8 +975,8 @@ extern "C" obj_res lean_eval_bytecode_decl(b_obj_arg env, b_obj_arg decl) {
     interpreter interp;
     bool need_cleanup = false;
     if (g_interpreter == nullptr) {
-        value * value_stack = reinterpret_cast<value *>(alloca(sizeof(value) * INTERPRETER_STACK_SIZE));
-        frame * frame_stack = reinterpret_cast<frame *>(alloca(sizeof(frame) * INTERPRETER_FRAME_COUNT));
+        value * value_stack = reinterpret_cast<value *>(LEAN_ALLOCA(sizeof(value) * INTERPRETER_STACK_SIZE));
+        frame * frame_stack = reinterpret_cast<frame *>(LEAN_ALLOCA(sizeof(frame) * INTERPRETER_FRAME_COUNT));
         init_interpreter(&interp, value_stack, frame_stack);
         need_cleanup = true;
     }
@@ -971,7 +1011,7 @@ extern "C" LEAN_EXPORT obj_res lean_run_mod_init_core(b_obj_arg sym) {
 
 extern "C" LEAN_EXPORT object * lean_bytecode_store_init_value(b_obj_arg decl, obj_arg value) {
     object * cache_obj = lean_ctor_get(decl, 5); // DeclCache symbols
-    decl_cache * cache = reinterpret_cast<decl_cache *>(lean_get_external_data(cache_obj));
+    decl_cache * cache = lean_to_interp_cache(cache_obj);
     cache->m_value = value;
     cache->m_once_cell.state = 1;
     return box(0);
@@ -980,7 +1020,6 @@ extern "C" LEAN_EXPORT object * lean_bytecode_store_init_value(b_obj_arg decl, o
 }
 
 void initialize_bytecode_interpreter() {
-    interpreter::g_decl_cache_external_class = register_external_object_class(interpreter::decl_cache_finalize, interpreter::decl_cache_foreach);
 }
 
 void finalize_bytecode_interpreter() {

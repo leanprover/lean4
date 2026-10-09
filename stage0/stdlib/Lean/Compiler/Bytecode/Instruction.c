@@ -3611,7 +3611,7 @@ v_stackSpace_1540_ = lean_ctor_get(v_code_1536_, 3);
 lean_inc(v_stackSpace_1540_);
 v_symbols_1541_ = lean_ctor_get(v_code_1536_, 4);
 lean_inc_ref(v_symbols_1541_);
-v_arity_1542_ = lean_ctor_get(v_code_1536_, 5);
+v_arity_1542_ = lean_ctor_get(v_code_1536_, 6);
 lean_inc(v_arity_1542_);
 lean_dec_ref(v_code_1536_);
 v___x_1543_ = lean_byte_array_size(v_code_1538_);

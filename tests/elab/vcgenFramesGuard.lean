@@ -72,7 +72,7 @@ a✝ : s✝.mem 5 = 7
 ⊢ WP.Frames meet (Instr.poke 1) (fun s => s.mem 5 = 7) fun u => ⌜u = { ptr := 3, mem := s✝.mem }⌝ ⊓ ⊤
 -/
 #guard_msgs (trace) in
-theorem guard_point_frame :
+theorem guard_frames_poke :
     ⦃ fun s => s.mem 5 = 7 ⦄ [Instr.setPtr 3, Instr.poke 1]
     ⦃ fun _ s => s.mem 5 = 7 ∧ s.mem 3 = 1 ⦄ := by
   vcgen frames | Instr.poke _ => fun s => s.mem 5 = 7

@@ -62,7 +62,7 @@ public def headReduceFstRhs? (goal : MVarId) (target α inst pre rhs : Expr) :
 
 /-- Refold a meet upper adjoint `upperAdjoint (meet F) Q s⃗` on the RHS of `pre ⊑ rhs` to the Heyting
 implication `(F ⇨ Q) s⃗`, rewriting `goal` and returning it with its new RHS, so it decomposes through
-the clean pointwise `⇨` split instead of generic point-framing. Returns `none` if the RHS is not a
+the clean pointwise `⇨` split instead of a generic frame for the excess state arguments. Returns `none` if the RHS is not a
 meet upper adjoint. -/
 private def refoldHimpUpperAdjoint? (goal : MVarId) (rhs : Expr) :
     VCGenM (Option (MVarId × Expr)) :=
@@ -79,7 +79,7 @@ private def refoldHimpUpperAdjoint? (goal : MVarId) (rhs : Expr) :
 /--
 Decompose a supported lattice connective (`⊓`, `⇨`, `⌜p⌝`, `⊤`, `∧`, `iInf`, a `⊥`/`⊤` tuple projection)
 or a registered frame operator on the RHS of `pre ⊑ rhs` by saturating it with the built-in and
-`@[frameproc]` rewrites, closing it with a terminal, and point-framing any excess state arguments.
+`@[frameproc]` rewrites, closing it with a terminal, and building a frame for any excess state arguments.
 Returns `none` if the head is neither a built-in connective nor a frame operator, or its rule does
 not apply.
 

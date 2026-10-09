@@ -59,7 +59,7 @@ inference measurably slow.
 
 A spec with a premise that mentions `Q`/`E` is not considered conjunctive, because its direct
 application does not auto-frame. `vcgen` applies a spec at the current state `s` of the goal, and
-this point frame `(· = s)` reaches the conclusion but not the premises. In
+the frame `(· = s)` for that state argument reaches the conclusion but not the premises. In
 
     (ht : P₁ ⊑ wp t Q) → (he : P₂ ⊑ wp e Q) → (if c then P₁ else P₂) ⊑ wp (ite c t e) Q
 

@@ -293,10 +293,6 @@ theorem ofProp_forall {β} {Φ : β → Prop} :
 
 end Lemmas
 
-/-- Frame a single state coordinate: from the function-order premise `(fun u => ⌜u = s⌝ ⊓ pre) ⊑ Q`
-conclude the point entailment `pre ⊑ Q s`. Instantiating the premise at `u := s` collapses
-`⌜s = s⌝ ⊓ pre` to `pre`. Iterating it over a state chain point-frames `pre ⊑ Q s₁ … sₙ` to the
-function-order goal `(fun u⃗ => ⌜u⃗ = s⃗⌝ ⊓ pre) ⊑ Q`. -/
 theorem le_apply_of_point_meet_le {σ : Type u} {β : Type v} [CompleteLattice β]
     (s : σ) (pre : β) (Q : σ → β) (h : (fun u => ⌜u = s⌝ ⊓ pre) ⊑ Q) : pre ⊑ Q s :=
   (CompleteLattice.ofProp_meet_le_eq_imp (s = s) pre (Q s)).mp (h s) rfl

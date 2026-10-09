@@ -47,6 +47,7 @@ moreGlobalServerArgs = [${LEAN_EXTRA_OPTS_TOML}]
 
 # Enable core-only linters
 leanOptions.linter.coreInternal = true
+leanOptions.linter.redundantVisibility = true
 
 # Uncomment to limit number of reported errors further in case of overwhelming cmdline output
 #weakLeanArgs = ["-DmaxErrors=1"]

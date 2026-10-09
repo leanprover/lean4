@@ -202,7 +202,7 @@ public def defaultFrameInferenceProc : FrameInferenceProc := fun i => do
   return .ofFrame i frame
 
 /-- The lattice meet operator over the goal's assertion type. -/
-private def meetOp (info : WPApp) : MetaM Expr :=
+def meetOp (info : WPApp) : MetaM Expr :=
   Meta.mkAppOptM ``Lean.Order.meet #[info.Pred, none]
 
 /-- The default frame operator: lattice meet `pre ⊓ frame`, the Hoare frame every complete lattice

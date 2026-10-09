@@ -495,7 +495,7 @@ def unterminatedAtEnd (openPos openStop : String.Pos.Raw) (what : String)
   else s
 
 /-- The end of the sequence of `ch` that begins at `pos`. -/
-private partial def findCharSeqEnd (ictx : InputContext) (ch : Char) (pos : String.Pos.Raw) :
+partial def findCharSeqEnd (ictx : InputContext) (ch : Char) (pos : String.Pos.Raw) :
     String.Pos.Raw :=
   if ictx.atEnd pos || ictx.get pos != ch then pos else findCharSeqEnd ictx ch (ictx.next pos)
 
@@ -2152,7 +2152,7 @@ end
 Whether a Verso element may repeat `ch` to make one delimiter, so that a sequence of them is a
 single delimiter rather than several.
 -/
-private def isGrowableVersoDelimiter (ch : Char) : Bool :=
+def isGrowableVersoDelimiter (ch : Char) : Bool :=
   ch == '*' || ch == '_' || ch == '`' || ch == ':' || ch == '#'
 
 /--

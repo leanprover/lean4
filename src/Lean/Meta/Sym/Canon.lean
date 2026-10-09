@@ -120,7 +120,7 @@ representations for `(0 : Nat)` and `(0 : Int)`, complicating reasoning.
 -/
 -- Remark: This is not a great solution. We should consider writing a custom canonicalizer for
 -- `OfNat.ofNat` and other constants with built-in support in `grind`.
-private def normOfNatArgs? (args : Array Expr) : MetaM (Option (Array Expr)) := do
+def normOfNatArgs? (args : Array Expr) : MetaM (Option (Array Expr)) := do
   if h : args.size = 3 then
     let mut args : Vector Expr 3 := h ▸ args.toVector
     let mut modified := false

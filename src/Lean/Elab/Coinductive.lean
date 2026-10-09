@@ -125,7 +125,7 @@ public def removeFunctorPostfixInCtor : Name → Name :=
   fun | Name.str p s => Name.str (removeFunctorPostfix p) s
       | _ => panic! "UnexpectedName"
 
-private def rewriteGoalUsingEq (goal : MVarId) (eq : Expr) (symm : Bool := false) : MetaM MVarId := do
+def rewriteGoalUsingEq (goal : MVarId) (eq : Expr) (symm : Bool := false) : MetaM MVarId := do
   let rewriteResult ← goal.rewrite (←goal.getType) eq symm
   goal.replaceTargetEq rewriteResult.eNew rewriteResult.eqProof
 
@@ -147,7 +147,7 @@ private def rewriteGoalUsingEq (goal : MVarId) (eq : Expr) (symm : Bool := false
     infSeq.functor_unfold (α : Type) (r : α → α → Prop) (a✝ : α) : infSeq α r a✝ = infSeq._functor α r (infSeq α r) a✝
   ```
 -/
-private def generateEqLemmas (infos : Array InductiveVal) : MetaM Unit := do
+def generateEqLemmas (infos : Array InductiveVal) : MetaM Unit := do
   let levels := infos[0]!.levelParams.map mkLevelParam
   for info in infos do
     let res ← forallTelescopeReducing info.type fun args _ => do
@@ -200,7 +200,7 @@ private def generateEqLemmas (infos : Array InductiveVal) : MetaM Unit := do
   3. Converts to existential form using the equivalence lemma
   4. Applies the unfolding rule to get the final constructor form
 -/
-private def generateCoinductiveConstructor (infos : Array InductiveVal) (ctorSyntax : Syntax)
+def generateCoinductiveConstructor (infos : Array InductiveVal) (ctorSyntax : Syntax)
     (numParams : Nat) (name : Name) (ctor : ConstructorVal) : TermElabM Unit := do
   trace[Elab.coinductive] "Generating constructor: {removeFunctorPostfixInCtor ctor.name}"
   let numPreds := infos.size
@@ -283,7 +283,7 @@ private def generateCoinductiveConstructor (infos : Array InductiveVal) (ctorSyn
   predicates, generates their constructors that correspond to the
   constructors given in the original syntax.
 -/
-private def generateCoinductiveConstructors (numParams : Nat) (infos : Array InductiveVal)
+def generateCoinductiveConstructors (numParams : Nat) (infos : Array InductiveVal)
     (coinductiveElabData : Array CoinductiveElabData) : TermElabM Unit := do
   for indType in infos, e in coinductiveElabData do
     for ctor in indType.ctors, ctorSyntax in e.ctorSyntax do
@@ -295,7 +295,7 @@ private def generateCoinductiveConstructors (numParams : Nat) (infos : Array Ind
   These eliminators allow pattern matching on coinductive predicates,
   enabling case analysis in proofs.
 -/
-private def mkCasesOnCoinductive (infos : Array InductiveVal) : MetaM Unit := do
+def mkCasesOnCoinductive (infos : Array InductiveVal) : MetaM Unit := do
   let levels := infos[0]!.levelParams.map mkLevelParam
   let allCtors := infos.flatMap (·.ctors.toArray)
 

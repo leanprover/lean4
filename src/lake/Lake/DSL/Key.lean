@@ -18,11 +18,11 @@ open Lean
 
 namespace Lake.DSL
 
-private def expandFacets (tgt : Term) (facets : Array Ident) : MacroM Term := do
+def expandFacets (tgt : Term) (facets : Array Ident) : MacroM Term := do
   let facetLits := facets.map fun facet => Name.quoteFrom facet facet.getId
   facetLits.foldlM (init := tgt) fun tgt lit => `(BuildKey.facet $tgt $lit)
 
-private def expandPackageTargetLit
+def expandPackageTargetLit
   (pkg : Term) (stx : TSyntax ``packageTargetLit)
 : MacroM Term := withRef stx do
   let `(packageTargetLit|$[+%$mod?]?$tgt) := stx

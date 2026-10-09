@@ -55,12 +55,12 @@ public def rewriteWith (thm : Theorem) (e : Expr) : DSimpM Result :=
   return .step e'
 
 /-- Rewrites the prefix of `e` obtained by removing its last `numExtra` arguments. -/
-private def rewriteOverApplied (thm : Theorem) (e : Expr) (numExtra : Nat) : DSimpM Result := do
+def rewriteOverApplied (thm : Theorem) (e : Expr) (numExtra : Nat) : DSimpM Result := do
   let f := e.getBoundedAppFn numExtra
   let .step f' _ ← rewriteWith thm f | return .rfl
   return .step (← share (mkAppN f' (e.getBoundedAppArgs numExtra)))
 
-private def rewriteUsing (candidates : Array (Theorem × Nat)) (e : Expr) : DSimpM Result := do
+def rewriteUsing (candidates : Array (Theorem × Nat)) (e : Expr) : DSimpM Result := do
   for (thm, numExtra) in candidates do
     let result ← if numExtra == 0 then rewriteWith thm e else rewriteOverApplied thm e numExtra
     if let .step .. := result then

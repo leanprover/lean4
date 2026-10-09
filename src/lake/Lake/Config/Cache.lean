@@ -901,7 +901,7 @@ def transferArtifacts
   if didError then
     failure
 
-private def reservoirArtifactsUrl (service : CacheService) (scope : CacheServiceScope) : String :=
+def reservoirArtifactsUrl (service : CacheService) (scope : CacheServiceScope) : String :=
   let endpoint :=
     match scope.impl with
     | .repo scope => appendScope s!"{service.impl.apiEndpoint}/repositories" scope

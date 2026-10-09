@@ -651,7 +651,7 @@ where
       let descrs ← map.collectOutputDescrs
       service.downloadArtifacts descrs cache remoteScope opts.forceDownload
 
-private def computeUploadService
+def computeUploadService
   (service? : Option String) (lakeEnv : Env) (lakeCfg : LoadedLakeConfig)
 : CliStateM CacheService := do
   if let some service := service? then
@@ -681,7 +681,7 @@ where
     \n  LAKE_CACHE_REVISION_ENDPOINT={revisionEndpoint?.getD ""}\n\
     To upload, these environment variables must be set to non-empty strings."
 
-private def computePackageRev (pkgDir : FilePath) : CliStateM String := do
+def computePackageRev (pkgDir : FilePath) : CliStateM String := do
   let repo := GitRepo.mk pkgDir
   if (← repo.hasDiff) then
     logWarning s!"package has changes; \
@@ -690,7 +690,7 @@ private def computePackageRev (pkgDir : FilePath) : CliStateM String := do
       exit 1
   repo.getHeadRevision
 
-private def putCore
+def putCore
   (rev : GitRev)  (outputs : FilePath) (artDir : FilePath)
   (service : CacheService) (scope : CacheServiceScope)
   (platform := CachePlatform.none) (toolchain := CacheToolchain.none)
@@ -755,7 +755,7 @@ protected def add : CliM PUnit := do
   let overwrite := opts.overwrite?.getD true
   ws.lakeCache.writeMap localScope map service? opts.scope? overwrite
 
-private def stagingOutputsFile := "outputs.jsonl"
+def stagingOutputsFile := "outputs.jsonl"
 
 protected def stage : CliM PUnit := do
   processOptions lakeOption
@@ -1102,7 +1102,7 @@ protected def checkTest : CliM PUnit := do
   let pkg ← loadPackage (← mkLoadConfig (← getThe LakeOptions))
   noArgsRem do exit <| if pkg.testDriver.isEmpty then 1 else 0
 
-private def runBuiltinLint
+def runBuiltinLint
     (opts : LakeOptions) (ws : Workspace) (specifiedMods : Array Lean.Name)
     : CliM UInt32 := do
   let mods := if specifiedMods.isEmpty then ws.defaultTargetRoots else specifiedMods

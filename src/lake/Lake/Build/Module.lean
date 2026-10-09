@@ -543,7 +543,7 @@ public def Module.exportInfoFacetConfig : ModuleFacetConfig exportInfoFacet :=
   mkFacetJobConfig computeExportInfo (buildable := false)
 
 /-- Like `computeExportInfo`, but includes IR produced by a postponed code generation. -/
-private def Module.computeMetaExportInfo (mod : Module) : FetchM (Job ModuleMetaExportInfo) := do
+def Module.computeMetaExportInfo (mod : Module) : FetchM (Job ModuleMetaExportInfo) := do
   let irJob ← mod.irArts.fetch
   let expInfoJob ← mod.exportInfo.fetch
   irJob.bindM (sync := true) fun arts =>

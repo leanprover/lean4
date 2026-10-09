@@ -215,7 +215,7 @@ open Lean.Doc in
 The result of elaborating a Verso docstring, which consists of the docstring contents paired with a
 set of deferred checks.
 -/
-public structure VersoDocResult extends VersoDocString where
+structure VersoDocResult extends VersoDocString where
   /--
   Checks that cannot be carried out during elaboration, typically because they require information
   that is not yet available.

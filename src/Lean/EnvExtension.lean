@@ -143,10 +143,12 @@ def mkMapDeclarationExtension (name : Name := by exact decl_name%)
     (asyncMode : EnvExtension.AsyncMode := .async .mainEnv)
     (logWrites : Bool := false)
     (exportEntriesFn : Environment → NameMap α → OLeanEntries (Array (Name × α)) :=
-      -- Do not export info for private defs by default
       fun env s =>
         let all := s.toArray.filter (fun (n, _) => env.contains (skipRealize := false) n)
-        .uniform all) :
+        -- Do not export info for private defs by default
+        let exported := all.filter fun (n, _) =>
+          (env.setExporting true).contains (skipRealize := false) n
+        { exported, server := exported, «private» := all }) :
     IO (MapDeclarationExtension α) :=
   .mk <$> registerPersistentEnvExtension {
     name            := name,

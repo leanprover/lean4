@@ -18,7 +18,7 @@ set_option linter.missingDocs true
 
 `WPMonad.withFrameClosure` reinterprets a `WPMonad` through the
 `Lean.Order.PredTrans.frameClosure` of its base weakest precondition, so that every program frames
-every resource under every guard.
+every resource.
 -/
 
 open Lean.Order Std.WP
@@ -28,7 +28,7 @@ namespace Std.WP
 /-- Reinterpret a `WPMonad m` so its weakest precondition is the `frameClosure` of the
 base wp over a family of supremum-preserving resource operators `op r` that act by `comp` with
 unit `e`.
-Every program then frames every resource under every guard (`WP.frames_of_frameClosure`).
+Every program then frames every resource (`WP.frames_of_frameClosure`).
 
 A separation logic depends on this property: every frame `op r` passes through the `wp` of every
 program in every state. A caller of a spec picks a frame and applies the frame rule for that

@@ -19,9 +19,10 @@ set_option linter.missingDocs true
 
 `WP.Frames op x F P` states that the program `x` commutes `op F ·` into the postcondition of
 `wp x` in every state that satisfies the guard `P`, with the exception channel framed by the
-`FrameOp`-derived companion. The guard lets a program whose footprint depends on the state frame a
-resource outside that footprint: a write to `[p, p + n)` frames `fun s => s.mem a = v` under the
-guard `fun s => a < s.p ∨ s.p + s.n ≤ a`.
+`FrameOp`-derived companion.
+The guard `P` matters when the footprint of `x` depends on the state.
+For example, a write to the memory region `[s.p, s.p + s.n)` frames `F s := s.mem a = v` under the
+guard `P s := a < s.p ∨ s.p + s.n ≤ a`.
 A `WP` built as the `Lean.Order.PredTrans.frameClosure` of a base wp frames every resource under
 every guard.
 

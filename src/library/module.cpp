@@ -483,8 +483,8 @@ static mutex & shared_mappings_mutex() {
     return *m;
 }
 
-static std::unordered_map<char *, shared_mapping> & shared_mappings() {
-    static std::unordered_map<char *, shared_mapping> * m = new std::unordered_map<char *, shared_mapping>();
+static lean::unordered_map<char *, shared_mapping> & shared_mappings() {
+    static lean::unordered_map<char *, shared_mapping> * m = new lean::unordered_map<char *, shared_mapping>();
     return *m;
 }
 #endif

@@ -23,8 +23,8 @@ frameproc can recognize the same situations and decline to frame.
 
 Apply the spec `specPre Q ⊑ wp x Q` to the goal `P ⊑ wp x Q`. The direct application emits the
 single VC `(h₁) P ⊑ specPre Q`. A framed application with frame `F` needs `(h₂) P ⊑ F` and
-`(h₃) F ⊑ specPre (fun _ => F)`, the spec-level `WP.Frames` obligation. Its conclusion follows from
-`h₁`, `h₂` and `h₃`:
+`(h₃) P ⊓ F ⊑ specPre (fun _ => F)`, the spec-level `WP.Frames` obligation under the guard `P`. Its
+conclusion follows from `h₁`, `h₂` and `h₃`:
 
     P ⊑ specPre Q ⊓ specPre (fun _ => F)    -- h₁, and h₂ with h₃
       ⊑ specPre (fun v => Q v ⊓ F)          -- conjunctivity
@@ -59,7 +59,7 @@ inference measurably slow.
 
 A spec with a premise that mentions `Q`/`E` is not considered conjunctive, because its direct
 application does not auto-frame. `vcgen` applies a spec at the current state `s` of the goal, and
-this point frame `(· = s)` reaches the conclusion but not the premises. In
+the frame `(· = s)` for that state argument reaches the conclusion but not the premises. In
 
     (ht : P₁ ⊑ wp t Q) → (he : P₂ ⊑ wp e Q) → (if c then P₁ else P₂) ⊑ wp (ite c t e) Q
 

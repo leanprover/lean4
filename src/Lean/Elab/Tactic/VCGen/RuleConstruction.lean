@@ -495,12 +495,12 @@ public def mkFrameBackwardRule (fp : FrameProc) (info : WPApp) :
   let pre ← mkFreshExprMVar (← Meta.inferType info.expr) (userName := `Pre)
   let hsplit ← mkFreshExprMVar (← mkAppM ``PartialOrder.rel #[pre, mkAppN opApp ss])
     (userName := `vc)
-  let gs ← mkPointGates pre ss
-  guard.mvarId!.assign gs[0]!
-  let hop ← lowerPointFrame gs opApp ss hsplit
+  let rs ← mkPointRestrictions pre ss
+  guard.mvarId!.assign rs[0]!
+  let hop ← lowerPointFrame rs opApp ss hsplit
   let hmeet ← mkAppM ``le_meet
-    #[gs[0]!, gs[0]!, opApp, ← mkAppOptM ``PartialOrder.rel_refl #[none, none, gs[0]!], hop]
-  let prf ← raisePointFrame gs wp ss (← mkAppM ``PartialOrder.rel_trans #[hmeet, mkAppN thm xs])
+    #[rs[0]!, rs[0]!, opApp, ← mkAppOptM ``PartialOrder.rel_refl #[none, none, rs[0]!], hop]
+  let prf ← raisePointFrame rs wp ss (← mkAppM ``PartialOrder.rel_trans #[hmeet, mkAppN thm xs])
   let res ← abstractMVars (← instantiateMVars prf)
   let rule ← mkBackwardRuleFromExpr res.expr res.paramNames.toList
   analyzeFrameRule rule fp.opHead info.excessArgs.size

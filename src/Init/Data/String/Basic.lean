@@ -418,26 +418,6 @@ end
 
 namespace String
 
-instance : LT String :=
-  ⟨fun s₁ s₂ => s₁.toList < s₂.toList⟩
-
-@[extern "lean_string_dec_lt"]
-instance decidableLT (s₁ s₂ : @& String) : Decidable (s₁ < s₂) :=
-  List.decidableLT s₁.toList s₂.toList
-
-/--
-Non-strict inequality on strings, typically used via the `≤` operator.
-
-`a ≤ b` is defined to mean `¬ b < a`.
--/
-@[expose, reducible] protected def le (a b : String) : Prop := ¬ b < a
-
-instance : LE String :=
-  ⟨String.le⟩
-
-instance decLE (s₁ s₂ : String) : Decidable (s₁ ≤ s₂) :=
-  inferInstanceAs (Decidable (Not _))
-
 theorem _root_.List.isPrefix_of_utf8Encode_append_eq_utf8Encode {l m : List Char} (b : ByteArray)
     (h : l.utf8Encode ++ b = m.utf8Encode) : l <+: m := by
   induction l generalizing m with
@@ -3115,8 +3095,6 @@ theorem toList_push (c : Char) : (String.push s c).toList = s.toList ++ [c] := b
 @[deprecated toList_push (since := "2025-10-30")]
 theorem data_push (c : Char) : (String.push s c).toList = s.toList ++ [c] :=
   toList_push c
-
-theorem lt_iff {s t : String} : s < t ↔ s.toList < t.toList := .rfl
 
 namespace Pos.Raw
 

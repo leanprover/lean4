@@ -10,11 +10,8 @@ prelude
 -- TODO: Making this private leads to a panic in Init.Grind.Ring.Poly.
 import Init.Data.Array.Nat
 public import Init.Data.Array.DecidableEq
-public import Init.Data.Range.Polymorphic.RangeIterator
 import Init.Data.Array.InsertIdx
 import Init.Data.Array.MapIdx
-import Init.Data.Range.Polymorphic.Iterators
-import Init.Data.Range.Polymorphic.Nat
 import Init.Omega
 
 public section
@@ -602,10 +599,13 @@ Lexicographic comparator for vectors.
 - `v` is pairwise equivalent via `==` to `w`, or
 - there is an index `i` such that `lt v[i] w[i]`, and for all `j < i`, `v[j] == w[j]`.
 -/
-def lex [BEq α] (xs ys : Vector α n) (lt : α → α → Bool := by exact (· < ·)) : Bool := Id.run do
-  for h : i in 0...n do
-    if lt xs[i] ys[i] then
-      return true
-    else if xs[i] != ys[i] then
-      return false
-  return false
+def lex [BEq α] (xs ys : Vector α n) (lt : α → α → Bool := by exact (· < ·)) : Bool :=
+  go 0
+where @[specialize, semireducible] go (i : Nat) : Bool :=
+  if h : n ≤ i then
+    false
+  else if lt xs[i] ys[i] then
+    true
+  else if xs[i] == ys[i] then
+    go (i + 1)
+  else false

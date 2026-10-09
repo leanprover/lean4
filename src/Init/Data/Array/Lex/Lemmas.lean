@@ -8,13 +8,18 @@ module
 prelude
 import all Init.Data.Array.Lex.Basic
 public import Init.Data.Array.Lex.Basic
-import Init.Data.Range.Polymorphic.NatLemmas
 public import Init.Data.BEq
+public import Init.Data.Function
+public import Init.Data.Order.Classes
+public import Init.PropLemmas
+import Init.Data.Array.Bootstrap
 import Init.Data.Array.DecidableEq
 import Init.Data.Array.Lemmas
 import Init.Data.Bool
 import Init.Data.List.Lex
-import Init.Data.Range.Polymorphic.Lemmas
+import Init.Data.List.Nat.TakeDrop
+import Init.ByCases
+import Init.Data.List.Nat.Basic
 
 public section
 
@@ -55,44 +60,67 @@ protected theorem not_le_iff_gt [LT α] {xs ys : Array α} :
   Classical.not_not
 
 @[simp] theorem lex_empty [BEq α] {lt : α → α → Bool} {xs : Array α} : xs.lex #[] lt = false := by
-  simp [lex, Std.Rco.forIn'_eq_ite]
-
-private theorem cons_lex_cons.forIn'_congr_aux [Monad m] {as bs : ρ} {_ : Membership α ρ}
-    [ForIn' m ρ α inferInstance] (w : as = bs)
-    {b b' : β} (hb : b = b')
-    {f : (a' : α) → a' ∈ as → β → m (ForInStep β)}
-    {g : (a' : α) → a' ∈ bs → β → m (ForInStep β)}
-    (h : ∀ a m b, f a (by simpa [w] using m) b = g a m b) :
-    forIn' as b f = forIn' bs b' g := by
-  cases hb
-  cases w
-  have : f = g := by
-    ext a ha acc
-    apply h
-  cases this
-  rfl
-
-private theorem cons_lex_cons [BEq α] {lt : α → α → Bool} {a b : α} {xs ys : Array α} :
-     (#[a] ++ xs).lex (#[b] ++ ys) lt =
-       (lt a b || a == b && xs.lex ys lt) := by
-  simp only [lex, size_append, List.size_toArray, List.length_cons, List.length_nil, Nat.zero_add,
-    Nat.add_min_add_left, Nat.add_lt_add_iff_left, Std.Rco.forIn'_eq_forIn'_toList]
-  rw [cons_lex_cons.forIn'_congr_aux (Nat.toList_rco_eq_cons (by omega)) rfl (fun _ _ _ => rfl)]
-  simp only [Nat.toList_rco_succ_succ, Nat.add_comm 1]
-  cases h : lt a b
-  · cases h' : a == b <;> simp [bne, *]
-  · simp [*]
+  simp [lex, lex.go]
 
 @[simp, grind =] theorem _root_.List.lex_toArray [BEq α] {lt : α → α → Bool} {l₁ l₂ : List α} :
     l₁.toArray.lex l₂.toArray lt = l₁.lex l₂ lt := by
-  induction l₁ generalizing l₂ with
-  | nil =>
-    cases l₂ <;> simp [lex, Std.Rco.forIn'_eq_ite]
-  | cons x l₁ ih =>
-    cases l₂ with
-    | nil => simp [lex, Std.Rco.forIn'_eq_ite]
-    | cons y l₂ =>
-      rw [List.toArray_cons, List.toArray_cons y, cons_lex_cons, List.lex, ih]
+  rw [lex]
+  suffices ∀ (i : Nat), (h₁ : i ≤ l₁.length) → (h₂ : i ≤ l₂.length) →
+      (∀ j, (hj : j < i) → lt l₁[j] l₂[j] = false ∧ ((l₁[j] == l₂[j]) = true)) →
+    lex.go l₁.toArray l₂.toArray lt i = l₁.lex l₂ lt from this 0 (by simp) (by simp) (by simp)
+  intro i hi₁' hi₂' hi₁
+  fun_induction lex.go with
+  | case1 i hi₂ =>
+    simp only [List.size_toArray] at hi₂
+    obtain rfl : i = l₁.length := by omega
+    rw [eq_comm, Bool.eq_iff_iff, List.lex_eq_true_iff_exists]
+    simp only [List.size_toArray, decide_eq_true_eq]
+    refine ⟨?_, ?_⟩
+    · rintro (⟨-, h⟩|⟨j, ⟨hj₁, hj₂, hj₃, hj₄⟩⟩)
+      · exact h
+      · simp [(hi₁ j hj₁).1] at hj₄
+    · intro hlt
+      refine Or.inl ⟨?_, hlt⟩
+      rw [List.isEqv_eq_true_iff_getElem]
+      refine ⟨?_, fun i hi => ?_⟩
+      · simp only [List.length_take]
+        omega
+      · simpa using (hi₁ i hi).2
+  | case2 i hi₂ hi₃ =>
+    simp only [List.size_toArray, Nat.not_le] at hi₂ hi₃
+    obtain rfl : i = l₂.length := by omega
+    rw [eq_comm, ← Bool.not_eq_true, List.lex_eq_true_iff_exists]
+    simp only [not_or, not_and, Nat.not_lt, hi₁', implies_true, not_exists, Bool.not_eq_true,
+      true_and]
+    exact fun k hk₁ hk₂ hk₃ => (hi₁ k hk₂).1
+  | case3 i hi₂ hi₃ hi₄ =>
+    simp only [List.size_toArray, Nat.not_le] at hi₂ hi₃
+    rw [eq_comm, List.lex_eq_true_iff_exists]
+    exact Or.inr ⟨i, hi₂, hi₃, fun j hj => (hi₁ j hj).2, by simpa⟩
+  | case4 i hi₂ hi₃ hi₄ hi₅ ih =>
+    simp only [List.size_toArray, Nat.not_le] at hi₂ hi₃
+    apply ih (by omega) (by omega) _
+    intro j hj
+    by_cases hj' : j < i
+    · exact hi₁ _ hj'
+    · obtain rfl : j = i := by omega
+      exact ⟨by simpa using hi₄, by simpa⟩
+  | case5 i hi₂ hi₃ hi₄ hi₅ =>
+    simp only [List.size_toArray, Nat.not_le] at hi₂ hi₃
+    rw [eq_comm, ← Bool.not_eq_true, List.lex_eq_true_iff_exists]
+    simp only [not_or, not_and, Nat.not_lt, not_exists, Bool.not_eq_true]
+    refine ⟨fun h => ?_, ?_⟩
+    · rw [List.isEqv_eq_true_iff_getElem] at h
+      rcases h with ⟨h, h'⟩
+      have := h' i hi₂
+      simp only [List.getElem_take] at this
+      simp [this] at hi₅
+    · intro j hj₁ hj₂ hj₃
+      obtain (hji|rfl|hji) := Nat.lt_trichotomy i j
+      · have := hj₃ _ hji
+        simp [this] at hi₅
+      · simpa using hi₄
+      · exact (hi₁ j hji).1
 
 theorem singleton_lex_singleton [BEq α] {lt : α → α → Bool} : #[a].lex #[b] lt = lt a b := by
   simp
@@ -124,6 +152,9 @@ instance ltIrrefl [LT α] [Std.Irrefl (· < · : α → α → Prop)] : Std.Irre
 
 @[simp] theorem empty_lt_push [LT α] (xs : Array α) (a : α) : #[] < xs.push a := by
   rcases xs with (_ | ⟨x, xs⟩) <;> simp
+
+theorem empty_lt_iff [LT α] {xs : Array α} : #[] < xs ↔ xs ≠ #[] := by
+  rw [← lt_toList, toList_empty, List.nil_lt_iff, ne_eq, ne_eq, toList_eq_nil_iff]
 
 protected theorem le_refl [LT α] [i₀ : Std.Irrefl (· < · : α → α → Prop)] (xs : Array α) : xs ≤ xs :=
   List.le_refl xs.toList
@@ -271,6 +302,10 @@ protected theorem le_iff_exists [LT α]
   cases ys
   simp [List.le_iff_exists]
 
+theorem lt_of_getElem_zero [LT α] {xs ys : Array α} (h₁ : 0 < xs.size) (h₂ : 0 < ys.size)
+    (h : xs[0]'h₁ < ys[0]'h₂) : xs < ys :=
+  List.lt_of_getElem_zero (by simpa using h₁) (by simpa using h₂) (by simpa using h)
+
 theorem append_left_lt [LT α] {xs ys zs : Array α} (h : ys < zs) :
     xs ++ ys < xs ++ zs := by
   cases xs
@@ -286,13 +321,47 @@ theorem append_left_le [LT α]
   cases xs
   cases ys
   cases zs
-  simpa using List.append_left_le h
+  simpa using h
+
+@[simp]
+theorem append_left_lt_iff [LT α] [Std.Irrefl (· < · : α → α → Prop)] (xs : Array α)
+    {ys zs : Array α} : xs ++ ys < xs ++ zs ↔ ys < zs := by
+  simp only [← lt_toList, toList_append, List.append_left_lt_iff]
+
+@[simp]
+theorem append_left_le_iff [LT α] [Std.Irrefl (· < · : α → α → Prop)] (xs : Array α)
+    {ys zs : Array α} : xs ++ ys ≤ xs ++ zs ↔ ys ≤ zs :=
+  not_congr (append_left_lt_iff xs)
 
 theorem le_append_left [LT α] [Std.Irrefl (· < · : α → α → Prop)]
     {xs ys : Array α} : xs ≤ xs ++ ys := by
   cases xs
   cases ys
   simpa using List.le_append_left
+
+theorem append_lt_append_iff_of_size_eq [LT α] {xs₁ xs₂ ys₁ ys₂ : Array α}
+    (h : xs₁.size = xs₂.size) :
+    xs₁ ++ ys₁ < xs₂ ++ ys₂ ↔ xs₁ < xs₂ ∨ (xs₁ = xs₂ ∧ ys₁ < ys₂) := by
+  rw [← lt_toList, toList_append, toList_append,
+    List.append_lt_append_iff_of_length_eq (by simpa using h), lt_toList, lt_toList, toList_inj]
+
+theorem append_le_append_iff_of_size_eq [LT α] [Std.Asymm (· < · : α → α → Prop)]
+    [Std.Trichotomous (· < · : α → α → Prop)] {xs₁ xs₂ ys₁ ys₂ : Array α}
+    (h : xs₁.size = xs₂.size) :
+    xs₁ ++ ys₁ ≤ xs₂ ++ ys₂ ↔ xs₁ < xs₂ ∨ (xs₁ = xs₂ ∧ ys₁ ≤ ys₂) := by
+  rw [← le_toList, toList_append, toList_append,
+    List.append_le_append_iff_of_length_eq (by simpa using h), lt_toList, le_toList, toList_inj]
+
+theorem append_right_lt_iff_of_size_eq [LT α] [Std.Irrefl (· < · : α → α → Prop)]
+    {xs₁ xs₂ : Array α} (ys : Array α) (h : xs₁.size = xs₂.size) :
+    xs₁ ++ ys < xs₂ ++ ys ↔ xs₁ < xs₂ := by
+  rw [← lt_toList, toList_append, toList_append,
+    List.append_right_lt_iff_of_length_eq _ (by simpa using h), lt_toList]
+
+theorem append_right_le_iff_of_size_eq [LT α] [Std.Irrefl (· < · : α → α → Prop)]
+    {xs₁ xs₂ : Array α} (ys : Array α) (h : xs₁.size = xs₂.size) :
+    xs₁ ++ ys ≤ xs₂ ++ ys ↔ xs₁ ≤ xs₂ :=
+  not_congr (append_right_lt_iff_of_size_eq ys h.symm)
 
 protected theorem map_lt [LT α] [LT β]
     {xs ys : Array α} {f : α → β} (w : ∀ x y, x < y → f x < f y) (h : xs < ys) :
@@ -311,5 +380,50 @@ protected theorem map_le [LT α] [LT β]
   cases xs
   cases ys
   simpa using List.map_le w h
+
+/-- See `map_lt_map_iff` for a variant with fewer proof obligations for `f` but with some mild
+assumptions on the order on `α` and `β`. -/
+theorem map_lt_map_iff_of_injective [LT α] [LT β] (f : α → β) (hf : ∀ a b, f a < f b ↔ a < b)
+    (hfinj : Function.Injective f) {xs ys : Array α} :
+    xs.map f < ys.map f ↔ xs < ys := by
+  rw [← lt_toList, toList_map, toList_map, List.map_lt_map_iff_of_injective f hf hfinj, lt_toList]
+
+/-- See `map_lt_map_iff_of_injective` for a variant which does not assume anything about the order
+on `α` and `β`, but with more assumptions on `f`. -/
+theorem map_lt_map_iff [LT α] [Std.Trichotomous (· < · : α → α → Prop)] [LT β]
+    [Std.Asymm (· < · : β → β → Prop)] (f : α → β) (hf : ∀ a b, a < b → f a < f b)
+    {xs ys : Array α} : xs.map f < ys.map f ↔ xs < ys := by
+  rw [← lt_toList, toList_map, toList_map, List.map_lt_map_iff f hf, lt_toList]
+
+theorem map_le_map_iff_of_injective [LT α] [LT β] (f : α → β) (hf : ∀ a b, f a < f b ↔ a < b)
+    (hfinj : Function.Injective f) {xs ys : Array α} :
+    xs.map f ≤ ys.map f ↔ xs ≤ ys :=
+  not_congr (map_lt_map_iff_of_injective f hf hfinj)
+
+theorem map_le_map_iff [LT α] [Std.Trichotomous (· < · : α → α → Prop)] [LT β]
+    [Std.Asymm (· < · : β → β → Prop)] (f : α → β) (hf : ∀ a b, a < b → f a < f b)
+    {xs ys : Array α} : xs.map f ≤ ys.map f ↔ xs ≤ ys :=
+  not_congr (map_lt_map_iff f hf)
+
+theorem flatMap_lt_flatMap_iff [LT α] [Std.Trichotomous (· < · : α → α → Prop)] [LT β]
+    [Std.Asymm (· < · : β → β → Prop)] (f : α → Array β)
+    (hf : ∀ a b, a < b → f a < f b)
+    (hp : ∀ a b zs, f a ++ zs = f b → a = b)
+    (hx : ∀ a, f a ≠ #[])
+    {xs ys : Array α} :
+    xs.flatMap f < ys.flatMap f ↔ xs < ys := by
+  rw [← lt_toList, ← lt_toList, toList_flatMap, toList_flatMap]
+  exact List.flatMap_lt_flatMap_iff (fun a => (f a).toList) (fun a b h => hf a b h)
+    (fun a b ⟨l, hl⟩ => hp a b l.toArray (by simpa [← toList_inj] using hl))
+    (fun a => by simpa using hx a)
+
+theorem flatMap_le_flatMap_iff [LT α] [Std.Trichotomous (· < · : α → α → Prop)] [LT β]
+    [Std.Asymm (· < · : β → β → Prop)] (f : α → Array β)
+    (hf : ∀ a b, a < b → f a < f b)
+    (hp : ∀ a b zs, f a ++ zs = f b → a = b)
+    (hx : ∀ a, f a ≠ #[])
+    {xs ys : Array α} :
+    xs.flatMap f ≤ ys.flatMap f ↔ xs ≤ ys :=
+  not_congr (flatMap_lt_flatMap_iff f hf hp hx)
 
 end Array

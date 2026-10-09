@@ -273,4 +273,22 @@ theorem append_eq_append_iff_of_size_eq_right {ws xs ys zs : List α}
   rw [← reverse_inj, reverse_append, reverse_append,
     append_eq_append_iff_of_size_eq_left (by simpa), reverse_inj, reverse_inj, and_comm]
 
+/-! #### isEqv -/
+
+theorem isEqv_eq_true_iff_getElem (eqv : α → α → Bool) {l₁ l₂ : List α} :
+    l₁.isEqv l₂ eqv ↔ ∃ (h : l₁.length = l₂.length), ∀ (i : Nat) (hi : i < l₁.length), eqv l₁[i] l₂[i] := by
+  induction l₁ generalizing l₂ with
+  | nil => cases l₂ <;> simp
+  | cons a as ih =>
+    cases l₂ with
+    | nil => simp
+    | cons b bs =>
+      simp only [List.isEqv_cons_cons, Bool.and_eq_true, ih, List.length_cons,
+        Nat.add_right_cancel_iff]
+      refine ⟨fun ⟨h₁, ⟨h₂, h₃⟩⟩ => ⟨h₂, fun i hi => by cases i <;> simp [*]⟩, fun ⟨h₁, h₂⟩ => ?_⟩
+      refine ⟨by simpa using h₂ 0 (by simp), ⟨h₁, fun i hi => ?_⟩⟩
+      have := h₂ (i + 1) (by simpa)
+      simp only [List.getElem_cons_succ] at this
+      exact this
+
 end List

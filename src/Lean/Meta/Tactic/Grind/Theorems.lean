@@ -7,6 +7,7 @@ module
 prelude
 public import Lean.HeadIndex
 public import Lean.Meta.Basic
+public import Init.Data.Range.Polymorphic.RangeIterator
 import Lean.Meta.Eqns
 import Init.Data.Range.Polymorphic.Iterators
 public section

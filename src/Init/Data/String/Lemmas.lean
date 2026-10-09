@@ -22,3 +22,4 @@ public import Init.Data.String.Lemmas.Hashable
 public import Init.Data.String.Lemmas.TakeDrop
 public import Init.Data.String.Lemmas.StringOrder
 public import Init.Data.String.Lemmas.Length
+public import Init.Data.String.Lemmas.Decode

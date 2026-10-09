@@ -69,6 +69,29 @@ theorem Char.toNat_le {c : Char} : c.toNat ≤ 0x10ffff := by
   simp [UInt32.isValidChar, Nat.isValidChar] at this
   omega
 
+theorem Char.toBitVec_val_of_utf8Size_eq_one {c : Char} (hc : c.utf8Size = 1) :
+    c.val.toBitVec = BitVec.setWidth 32 (BitVec.extractLsb' 0 7 c.val.toBitVec) := by
+  rw [← BitVec.setWidth_eq_extractLsb' (by simp), BitVec.setWidth_setWidth_eq_self]
+  simpa [BitVec.lt_def, UInt32.le_iff_toNat_le] using Nat.lt_succ_iff.2 (Char.utf8Size_eq_one_iff.1 hc)
+
+theorem Char.toBitVec_val_of_utf8Size_eq_two {c : Char} (hc : c.utf8Size = 2) :
+    c.val.toBitVec = BitVec.setWidth 32 (BitVec.extractLsb' 0 11 c.val.toBitVec) := by
+  rw [← BitVec.setWidth_eq_extractLsb' (by simp), BitVec.setWidth_setWidth_eq_self]
+  simpa [BitVec.lt_def, UInt32.le_iff_toNat_le] using Nat.lt_succ_iff.2 (Char.utf8Size_eq_two_iff.1 hc).2
+
+theorem Char.toBitVec_val_of_utf8Size_eq_three {c : Char} (hc : c.utf8Size = 3) :
+    c.val.toBitVec = BitVec.setWidth 32 (BitVec.extractLsb' 0 16 c.val.toBitVec) := by
+  rw [← BitVec.setWidth_eq_extractLsb' (by simp), BitVec.setWidth_setWidth_eq_self]
+  simpa [BitVec.lt_def, UInt32.le_iff_toNat_le] using Nat.lt_succ_iff.2 (Char.utf8Size_eq_three_iff.1 hc).2
+
+theorem Char.toBitVec_val_of_utf8Size_eq_four {c : Char} (_hc : c.utf8Size = 4) :
+    c.val.toBitVec = BitVec.setWidth 32 (BitVec.extractLsb' 0 21 c.val.toBitVec) := by
+  rw [← BitVec.setWidth_eq_extractLsb' (by simp), BitVec.setWidth_setWidth_eq_self]
+  have := c.toNat_le
+  simp only [BitVec.lt_def, UInt32.toNat_toBitVec, BitVec.toNat_twoPow,
+    Nat.reducePow, Nat.reduceMod, gt_iff_lt, Char.toNat_val]
+  omega
+
 /-! # `utf8EncodeChar` -/
 
 /-! ## `utf8EncodeChar` low-level API -/
@@ -190,7 +213,6 @@ theorem helper₄ (s : Nat) (c : BitVec w₀) (v : BitVec w') (w : Nat) :
 
 /-! ### Size one -/
 
--- TODO: possibly it makes sense to factor out this proof
 theorem String.toBitVec_getElem_utf8EncodeChar_zero_of_utf8Size_eq_one {c : Char} (h : c.utf8Size = 1) :
     ((String.utf8EncodeChar c)[0]'(by simp [h])).toBitVec = 0#1 ++ c.val.toBitVec.extractLsb' 0 7 := by
   have h₀ : c.toNat < 128 := by
@@ -199,6 +221,11 @@ theorem String.toBitVec_getElem_utf8EncodeChar_zero_of_utf8Size_eq_one {c : Char
   have h₁ : c.toNat < 256 := by omega
   rw [← BitVec.toNat_inj, BitVec.toNat_append]
   simp [-Char.toUInt8_val, utf8EncodeChar_eq_singleton h, Nat.mod_eq_of_lt h₀, Nat.mod_eq_of_lt h₁]
+
+theorem String.map_toBitVec_utf8EncodeChar_of_utf8Size_eq_one {c : Char} (h : c.utf8Size = 1) :
+    (String.utf8EncodeChar c).map UInt8.toBitVec = [0#1 ++ c.val.toBitVec.extractLsb' 0 7] := by
+  rw [List.eq_getElem_of_length_eq_one (String.utf8EncodeChar c) (length_utf8EncodeChar _ ▸ h),
+    List.map_cons, List.map_nil, String.toBitVec_getElem_utf8EncodeChar_zero_of_utf8Size_eq_one h]
 
 /-! ### Size two -/
 
@@ -209,6 +236,15 @@ theorem String.toBitVec_getElem_utf8EncodeChar_zero_of_utf8Size_eq_two {c : Char
 theorem String.toBitVec_getElem_utf8EncodeChar_one_of_utf8Size_eq_two {c : Char} (h : c.utf8Size = 2) :
     ((String.utf8EncodeChar c)[1]'(by simp [h])).toBitVec = 0b10#2 ++ c.val.toBitVec.extractLsb' 0 6 := by
   simpa [String.utf8EncodeChar_eq_cons_cons h] using! helper₄ 0 c.val.toBitVec 2#2 6
+
+theorem String.map_toBitVec_utf8EncodeChar_of_utf8Size_eq_two {c : Char} (h : c.utf8Size = 2) :
+    (String.utf8EncodeChar c).map UInt8.toBitVec =
+    [0b110#3 ++ c.val.toBitVec.extractLsb' 6 5,
+     0b10#2 ++ c.val.toBitVec.extractLsb' 0 6] := by
+  rw [List.eq_getElem_of_length_eq_two (String.utf8EncodeChar c) (length_utf8EncodeChar _ ▸ h),
+    List.map_cons, List.map_cons, List.map_nil,
+    String.toBitVec_getElem_utf8EncodeChar_zero_of_utf8Size_eq_two h,
+    String.toBitVec_getElem_utf8EncodeChar_one_of_utf8Size_eq_two h]
 
 /-! ### Size three -/
 
@@ -223,6 +259,17 @@ theorem String.toBitVec_getElem_utf8EncodeChar_one_of_utf8Size_eq_three {c : Cha
 theorem String.toBitVec_getElem_utf8EncodeChar_two_of_utf8Size_eq_three {c : Char} (h : c.utf8Size = 3) :
     ((String.utf8EncodeChar c)[2]'(by simp [h])).toBitVec = 0b10#2 ++ c.val.toBitVec.extractLsb' 0 6 := by
   simpa [String.utf8EncodeChar_eq_cons_cons_cons h] using! helper₄ 0 c.val.toBitVec 0b10#2 6
+
+theorem String.map_toBitVec_utf8EncodeChar_of_utf8Size_eq_three {c : Char} (h : c.utf8Size = 3) :
+    (String.utf8EncodeChar c).map UInt8.toBitVec =
+    [0b1110#4 ++ c.val.toBitVec.extractLsb' 12 4,
+     0b10#2 ++ c.val.toBitVec.extractLsb' 6 6,
+     0b10#2 ++ c.val.toBitVec.extractLsb' 0 6] := by
+  rw [List.eq_getElem_of_length_eq_three (String.utf8EncodeChar c) (length_utf8EncodeChar _ ▸ h),
+    List.map_cons, List.map_cons, List.map_cons, List.map_nil,
+    String.toBitVec_getElem_utf8EncodeChar_zero_of_utf8Size_eq_three h,
+    String.toBitVec_getElem_utf8EncodeChar_one_of_utf8Size_eq_three h,
+    String.toBitVec_getElem_utf8EncodeChar_two_of_utf8Size_eq_three h]
 
 /-! ### Size four -/
 
@@ -241,6 +288,19 @@ theorem String.toBitVec_getElem_utf8EncodeChar_two_of_utf8Size_eq_four {c : Char
 theorem String.toBitVec_getElem_utf8EncodeChar_three_of_utf8Size_eq_four {c : Char} (h : c.utf8Size = 4) :
     ((String.utf8EncodeChar c)[3]'(by simp [h])).toBitVec = 0b10#2 ++ c.val.toBitVec.extractLsb' 0 6 := by
   simpa [String.utf8EncodeChar_eq_cons_cons_cons_cons h] using! helper₄ 0 c.val.toBitVec 0b10#2 6
+
+theorem String.map_toBitVec_utf8EncodeChar_of_utf8Size_eq_four {c : Char} (h : c.utf8Size = 4) :
+    (String.utf8EncodeChar c).map UInt8.toBitVec =
+    [0b11110#5 ++ c.val.toBitVec.extractLsb' 18 3,
+     0b10#2 ++ c.val.toBitVec.extractLsb' 12 6,
+     0b10#2 ++ c.val.toBitVec.extractLsb' 6 6,
+     0b10#2 ++ c.val.toBitVec.extractLsb' 0 6] := by
+  rw [List.eq_getElem_of_length_eq_four (String.utf8EncodeChar c) (length_utf8EncodeChar _ ▸ h),
+    List.map_cons, List.map_cons, List.map_cons, List.map_cons, List.map_nil,
+    String.toBitVec_getElem_utf8EncodeChar_zero_of_utf8Size_eq_four h,
+    String.toBitVec_getElem_utf8EncodeChar_one_of_utf8Size_eq_four h,
+    String.toBitVec_getElem_utf8EncodeChar_two_of_utf8Size_eq_four h,
+    String.toBitVec_getElem_utf8EncodeChar_three_of_utf8Size_eq_four h]
 
 namespace ByteArray.utf8DecodeChar?
 
@@ -1518,3 +1578,10 @@ public theorem ByteArray.utf8Size_utf8DecodeChar {b : ByteArray} {i} {h} :
   rw [← Char.utf8ByteSize_getElem_utf8EncodeChar]
   simp only [List.getElem_eq_getElem_toByteArray, utf8EncodeChar_utf8DecodeChar]
   simp [ByteArray.getElem_extract]
+
+/-! # Further corollaries -/
+
+public theorem String.utf8EncodeChar_inj {c d : Char}
+    (h : String.utf8EncodeChar c = String.utf8EncodeChar d) : c = d := by
+  rw [← Option.some_inj, ← ByteArray.utf8DecodeChar?_utf8EncodeChar_append (b := ByteArray.empty),
+    h, ByteArray.utf8DecodeChar?_utf8EncodeChar_append]

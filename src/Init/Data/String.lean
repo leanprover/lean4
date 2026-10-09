@@ -32,3 +32,4 @@ public import Init.Data.String.Iter
 public import Init.Data.String.Iterate
 public import Init.Data.String.Hashable
 public import Init.Data.String.Length
+public import Init.Data.String.Compare

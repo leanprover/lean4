@@ -9,6 +9,8 @@ prelude
 import Init.Data.List.Lemmas
 import Init.Data.Array.Bootstrap
 import Init.Data.Array.DecidableEq
+import Init.Data.Array.Lemmas
+import Init.Data.List.Sublist
 public import Init.Data.Ord.Array
 public import Init.Data.BEq
 public import Init.Data.Array.Basic
@@ -745,6 +747,73 @@ theorem compare_append_append_of_length_eq [Ord α] {l₁ l₂ l₃ l₄ : List 
     compare (l₁ ++ l₃) (l₂ ++ l₄) = (compare l₁ l₂).then (compare l₃ l₄) :=
   compareLex_append_append_of_length_eq h
 
+theorem compareLex_map_map {β} {cmp' : β → β → Ordering} (f : α → β)
+    (hf : ∀ a b, cmp' (f a) (f b) = cmp a b) {l₁ l₂ : List α} :
+    (l₁.map f).compareLex cmp' (l₂.map f) = l₁.compareLex cmp l₂ := by
+  induction l₁ generalizing l₂ with
+  | nil => cases l₂ <;> rfl
+  | cons a as ih =>
+    cases l₂ with
+    | nil => rfl
+    | cons b bs => simp [List.compareLex_cons_cons, hf, ih]
+
+theorem compare_map_map [Ord α] {β} [Ord β] (f : α → β)
+    (hf : ∀ a b, compare (f a) (f b) = compare a b) {l₁ l₂ : List α} :
+    compare (l₁.map f) (l₂.map f) = compare l₁ l₂ :=
+  compareLex_map_map f hf
+
+private theorem compareLex_append_append_of_not_prefix [LawfulEqCmp cmp]
+    {l₁ l₂ l₃ l₄ : List α} (h₁ : ¬ l₁ <+: l₂) (h₂ : ¬ l₂ <+: l₁) :
+    (l₁ ++ l₃).compareLex cmp (l₂ ++ l₄) = l₁.compareLex cmp l₂ := by
+  induction l₁ generalizing l₂ with
+  | nil => exact absurd nil_prefix h₁
+  | cons x xs ih =>
+    cases l₂ with
+    | nil => exact absurd nil_prefix h₂
+    | cons y ys =>
+      rw [cons_append, cons_append, List.compareLex_cons_cons, List.compareLex_cons_cons]
+      cases h : cmp x y with
+      | eq =>
+        obtain rfl := LawfulEqCmp.eq_of_compare h
+        exact congrArg _ (ih (by simpa using h₁) (by simpa using h₂))
+      | lt => rfl
+      | gt => rfl
+
+theorem compareLex_flatMap_flatMap {β} {cmp' : β → β → Ordering} [LawfulEqCmp cmp']
+    (f : α → List β) (hf : ∀ a b, (f a).compareLex cmp' (f b) = cmp a b)
+    (hp : ∀ a b, f a <+: f b → a = b) (hx : ∀ a, f a ≠ []) {l₁ l₂ : List α} :
+    (l₁.flatMap f).compareLex cmp' (l₂.flatMap f) = l₁.compareLex cmp l₂ := by
+  induction l₁ generalizing l₂ with
+  | nil =>
+    cases l₂ with
+    | nil => rfl
+    | cons b bs =>
+      obtain ⟨c, cs, hc⟩ := exists_cons_of_ne_nil (hx b)
+      rw [flatMap_cons, hc]
+      rfl
+  | cons a as ih =>
+    cases l₂ with
+    | nil =>
+      obtain ⟨c, cs, hc⟩ := exists_cons_of_ne_nil (hx a)
+      rw [flatMap_cons, hc]
+      rfl
+    | cons b bs =>
+      rw [flatMap_cons, flatMap_cons, List.compareLex_cons_cons]
+      by_cases hab : a = b
+      · subst hab
+        rw [compareLex_append_append_of_length_eq rfl, hf, ih]
+      · have hne : cmp a b ≠ .eq := fun h =>
+          hab (hp a b (LawfulEqCmp.eq_of_compare ((hf a b).trans h) ▸ prefix_refl _))
+        rw [compareLex_append_append_of_not_prefix (fun h => hab (hp a b h))
+          (fun h => hab (hp b a h).symm), hf]
+        cases h : cmp a b <;> simp_all
+
+theorem compare_flatMap_flatMap [Ord α] {β} [Ord β] [LawfulEqOrd β] (f : α → List β)
+    (hf : ∀ a b, compare (f a) (f b) = compare a b) (hp : ∀ a b, f a <+: f b → a = b)
+    (hx : ∀ a, f a ≠ []) {l₁ l₂ : List α} :
+    compare (l₁.flatMap f) (l₂.flatMap f) = compare l₁ l₂ :=
+  compareLex_flatMap_flatMap f hf hp hx
+
 end List
 
 namespace Array
@@ -799,5 +868,34 @@ theorem compare_append_append_of_size_eq [Ord α] {xs₁ xs₂ ys₁ ys₂ : Arr
     (h : xs₁.size = xs₂.size) :
     compare (xs₁ ++ ys₁) (xs₂ ++ ys₂) = (compare xs₁ xs₂).then (compare ys₁ ys₂) :=
   compareLex_append_append_of_size_eq h
+
+theorem compareLex_map_map {β} {cmp' : β → β → Ordering} (f : α → β)
+    (hf : ∀ a b, cmp' (f a) (f b) = cmp a b) {xs ys : Array α} :
+    (xs.map f).compareLex cmp' (ys.map f) = xs.compareLex cmp ys := by
+  simp only [Array.compareLex_eq_compareLex_toList, toList_map]
+  exact List.compareLex_map_map f hf
+
+theorem compare_map_map [Ord α] {β} [Ord β] (f : α → β)
+    (hf : ∀ a b, compare (f a) (f b) = compare a b) {xs ys : Array α} :
+    compare (xs.map f) (ys.map f) = compare xs ys :=
+  compareLex_map_map f hf
+
+theorem compareLex_flatMap_flatMap {β} {cmp' : β → β → Ordering} [LawfulEqCmp cmp']
+    (f : α → Array β) (hf : ∀ a b, (f a).compareLex cmp' (f b) = cmp a b)
+    (hp : ∀ a b (zs : Array β), f a ++ zs = f b → a = b) (hx : ∀ a, f a ≠ #[])
+    {xs ys : Array α} :
+    (xs.flatMap f).compareLex cmp' (ys.flatMap f) = xs.compareLex cmp ys := by
+  simp only [Array.compareLex_eq_compareLex_toList, toList_flatMap]
+  exact List.compareLex_flatMap_flatMap (fun a => (f a).toList)
+    (fun a b => by simpa [Array.compareLex_eq_compareLex_toList] using hf a b)
+    (fun a b ⟨l, hl⟩ => hp a b l.toArray (by simpa [← toList_inj] using hl))
+    (fun a => by simpa using hx a)
+
+theorem compare_flatMap_flatMap [Ord α] {β} [Ord β] [LawfulEqOrd β] (f : α → Array β)
+    (hf : ∀ a b, compare (f a) (f b) = compare a b)
+    (hp : ∀ a b (zs : Array β), f a ++ zs = f b → a = b) (hx : ∀ a, f a ≠ #[])
+    {xs ys : Array α} :
+    compare (xs.flatMap f) (ys.flatMap f) = compare xs ys :=
+  compareLex_flatMap_flatMap f hf hp hx
 
 end Array

@@ -41,7 +41,7 @@ public instance : DecidableLT ByteArray :=
 public instance : DecidableLE ByteArray :=
   fun a b => inferInstanceAs (Decidable (¬ b < a))
 
-@[extern "lean_byte_array_compare"]
+@[extern "lean_byte_array_compare", expose]
 public protected def compare (a b : @& ByteArray) : Ordering :=
   compare a.data b.data
 
@@ -90,3 +90,9 @@ public theorem List.toByteArray_lt_toByteArray {l₁ l₂ : List UInt8} :
 public theorem List.toByteArray_le_toByteArray {l₁ l₂ : List UInt8} :
     l₁.toByteArray ≤ l₂.toByteArray ↔ l₁ ≤ l₂ :=
   not_congr List.toByteArray_lt_toByteArray
+
+@[simp]
+public theorem List.compare_toByteArray_toByteArray {l₁ l₂ : List UInt8} :
+    compare l₁.toByteArray l₂.toByteArray = compare l₁ l₂ := by
+  rw [← ByteArray.compare_data_data, Array.compare_eq_compare_toList,
+    List.toList_data_toByteArray, List.toList_data_toByteArray]

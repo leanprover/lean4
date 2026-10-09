@@ -17,6 +17,9 @@ import Init.Data.Array.Lemmas
 import Init.Data.Bool
 import Init.Data.List.Lex
 import Init.Data.Range.Polymorphic.Lemmas
+import Init.Data.List.Nat.TakeDrop
+import Init.ByCases
+import Init.Data.List.Nat.Basic
 
 public section
 
@@ -57,44 +60,67 @@ protected theorem not_le_iff_gt [LT α] {xs ys : Array α} :
   Classical.not_not
 
 @[simp] theorem lex_empty [BEq α] {lt : α → α → Bool} {xs : Array α} : xs.lex #[] lt = false := by
-  simp [lex, Std.Rco.forIn'_eq_ite]
-
-private theorem cons_lex_cons.forIn'_congr_aux [Monad m] {as bs : ρ} {_ : Membership α ρ}
-    [ForIn' m ρ α inferInstance] (w : as = bs)
-    {b b' : β} (hb : b = b')
-    {f : (a' : α) → a' ∈ as → β → m (ForInStep β)}
-    {g : (a' : α) → a' ∈ bs → β → m (ForInStep β)}
-    (h : ∀ a m b, f a (by simpa [w] using m) b = g a m b) :
-    forIn' as b f = forIn' bs b' g := by
-  cases hb
-  cases w
-  have : f = g := by
-    ext a ha acc
-    apply h
-  cases this
-  rfl
-
-private theorem cons_lex_cons [BEq α] {lt : α → α → Bool} {a b : α} {xs ys : Array α} :
-     (#[a] ++ xs).lex (#[b] ++ ys) lt =
-       (lt a b || a == b && xs.lex ys lt) := by
-  simp only [lex, size_append, List.size_toArray, List.length_cons, List.length_nil, Nat.zero_add,
-    Nat.add_min_add_left, Nat.add_lt_add_iff_left, Std.Rco.forIn'_eq_forIn'_toList]
-  rw [cons_lex_cons.forIn'_congr_aux (Nat.toList_rco_eq_cons (by omega)) rfl (fun _ _ _ => rfl)]
-  simp only [Nat.toList_rco_succ_succ, Nat.add_comm 1]
-  cases h : lt a b
-  · cases h' : a == b <;> simp [bne, *]
-  · simp [*]
+  simp [lex, lex.go]
 
 @[simp, grind =] theorem _root_.List.lex_toArray [BEq α] {lt : α → α → Bool} {l₁ l₂ : List α} :
     l₁.toArray.lex l₂.toArray lt = l₁.lex l₂ lt := by
-  induction l₁ generalizing l₂ with
-  | nil =>
-    cases l₂ <;> simp [lex, Std.Rco.forIn'_eq_ite]
-  | cons x l₁ ih =>
-    cases l₂ with
-    | nil => simp [lex, Std.Rco.forIn'_eq_ite]
-    | cons y l₂ =>
-      rw [List.toArray_cons, List.toArray_cons y, cons_lex_cons, List.lex, ih]
+  rw [lex]
+  suffices ∀ (i : Nat), (h₁ : i ≤ l₁.length) → (h₂ : i ≤ l₂.length) →
+      (∀ j, (hj : j < i) → lt l₁[j] l₂[j] = false ∧ ((l₁[j] == l₂[j]) = true)) →
+    lex.go l₁.toArray l₂.toArray lt i = l₁.lex l₂ lt from this 0 (by simp) (by simp) (by simp)
+  intro i hi₁' hi₂' hi₁
+  fun_induction lex.go with
+  | case1 i hi₂ =>
+    simp only [List.size_toArray] at hi₂
+    obtain rfl : i = l₁.length := by omega
+    rw [eq_comm, Bool.eq_iff_iff, List.lex_eq_true_iff_exists]
+    simp only [List.size_toArray, decide_eq_true_eq]
+    refine ⟨?_, ?_⟩
+    · rintro (⟨-, h⟩|⟨j, ⟨hj₁, hj₂, hj₃, hj₄⟩⟩)
+      · exact h
+      · simp [(hi₁ j hj₁).1] at hj₄
+    · intro hlt
+      refine Or.inl ⟨?_, hlt⟩
+      rw [List.isEqv_eq_true_iff_getElem]
+      refine ⟨?_, fun i hi => ?_⟩
+      · simp only [List.length_take]
+        omega
+      · simpa using (hi₁ i hi).2
+  | case2 i hi₂ hi₃ =>
+    simp only [List.size_toArray, Nat.not_le] at hi₂ hi₃
+    obtain rfl : i = l₂.length := by omega
+    rw [eq_comm, ← Bool.not_eq_true, List.lex_eq_true_iff_exists]
+    simp only [not_or, not_and, Nat.not_lt, hi₁', implies_true, not_exists, Bool.not_eq_true,
+      true_and]
+    exact fun k hk₁ hk₂ hk₃ => (hi₁ k hk₂).1
+  | case3 i hi₂ hi₃ hi₄ =>
+    simp only [List.size_toArray, Nat.not_le] at hi₂ hi₃
+    rw [eq_comm, List.lex_eq_true_iff_exists]
+    exact Or.inr ⟨i, hi₂, hi₃, fun j hj => (hi₁ j hj).2, by simpa⟩
+  | case4 i hi₂ hi₃ hi₄ hi₅ ih =>
+    simp only [List.size_toArray, Nat.not_le] at hi₂ hi₃
+    apply ih (by omega) (by omega) _
+    intro j hj
+    by_cases hj' : j < i
+    · exact hi₁ _ hj'
+    · obtain rfl : j = i := by omega
+      exact ⟨by simpa using hi₄, by simpa⟩
+  | case5 i hi₂ hi₃ hi₄ hi₅ =>
+    simp only [List.size_toArray, Nat.not_le] at hi₂ hi₃
+    rw [eq_comm, ← Bool.not_eq_true, List.lex_eq_true_iff_exists]
+    simp only [not_or, not_and, Nat.not_lt, not_exists, Bool.not_eq_true]
+    refine ⟨fun h => ?_, ?_⟩
+    · rw [List.isEqv_eq_true_iff_getElem] at h
+      rcases h with ⟨h, h'⟩
+      have := h' i hi₂
+      simp only [List.getElem_take] at this
+      simp [this] at hi₅
+    · intro j hj₁ hj₂ hj₃
+      obtain (hji|rfl|hji) := Nat.lt_trichotomy i j
+      · have := hj₃ _ hji
+        simp [this] at hi₅
+      · simpa using hi₄
+      · exact (hi₁ j hji).1
 
 theorem singleton_lex_singleton [BEq α] {lt : α → α → Bool} : #[a].lex #[b] lt = lt a b := by
   simp

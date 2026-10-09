@@ -483,8 +483,19 @@ static mutex & shared_mappings_mutex() {
     return *m;
 }
 
+// Every shareable load registers its mapping, but the map is only consulted when a file is loaded
+// again or a region is freed. So registering only appends to `new_shared_mappings()`, and
+// `shared_mappings()` moves those entries into the map. Both require `shared_mappings_mutex()`.
+static std::vector<std::pair<char *, shared_mapping>> & new_shared_mappings() {
+    static std::vector<std::pair<char *, shared_mapping>> * v = new std::vector<std::pair<char *, shared_mapping>>();
+    return *v;
+}
+
 static lean::unordered_map<char *, shared_mapping> & shared_mappings() {
     static lean::unordered_map<char *, shared_mapping> * m = new lean::unordered_map<char *, shared_mapping>();
+    for (auto const & e : new_shared_mappings())
+        (*m)[e.first] = e.second;
+    new_shared_mappings().clear();
     return *m;
 }
 #endif
@@ -594,8 +605,9 @@ extern "C" LEAN_EXPORT object * lean_compacted_region_read(b_obj_arg ofname, b_o
             [](region_view const & dep) { return dep.begin == dep.base_addr; });
         if (!buffer && shareable) {
             lock_guard<mutex> _(shared_mappings_mutex());
-            auto it = shared_mappings().find(base_addr);
-            if (it != shared_mappings().end() && is_same_file(it->second, st)) {
+            auto & mappings = shared_mappings();
+            auto it = mappings.find(base_addr);
+            if (it != mappings.end() && is_same_file(it->second, st)) {
                 it->second.num_users++;
                 object * root = it->second.root;
                 object * pair = alloc_cnstr(0, 2, 0);
@@ -675,7 +687,7 @@ extern "C" LEAN_EXPORT object * lean_compacted_region_read(b_obj_arg ofname, b_o
 #ifndef LEAN_WINDOWS
         if (is_mmap && shareable) {
             lock_guard<mutex> _(shared_mappings_mutex());
-            shared_mappings()[base_addr] = { st.st_dev, st.st_ino, st.st_size, file_mtime(st), mod, 1 };
+            new_shared_mappings().push_back({ base_addr, { st.st_dev, st.st_ino, st.st_size, file_mtime(st), mod, 1 } });
         }
 #endif
         object * pair = alloc_cnstr(0, 2, 0);
@@ -704,11 +716,12 @@ extern "C" LEAN_EXPORT obj_res lean_compacted_region_free(obj_arg region, object
 #ifndef LEAN_WINDOWS
         {
             lock_guard<mutex> _(shared_mappings_mutex());
-            auto it = shared_mappings().find(buffer);
-            if (it != shared_mappings().end()) {
+            auto & mappings = shared_mappings();
+            auto it = mappings.find(buffer);
+            if (it != mappings.end()) {
                 if (--it->second.num_users > 0)
                     return lean_io_result_mk_ok(lean_box(0));
-                shared_mappings().erase(it);
+                mappings.erase(it);
             }
         }
 #endif

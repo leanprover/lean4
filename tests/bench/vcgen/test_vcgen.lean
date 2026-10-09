@@ -23,6 +23,9 @@ Each case exercises a different aspect of the VC generation:
 - `DiteSplit`: Dependent if-then-else (`if h : cond then ...`)
 - `MatchIota`: Pattern matching with concrete discriminants (iota-reduced, no split)
 - `MatchSplit`: Pattern matching with symbolic discriminant (state), exercising match split
+- `IfsJP`: several `if`s with a shared continuation, exercising `vcgen +jp`
+- `MatchesJP`: several `match`es with a shared continuation, exercising `vcgen +jp` on matchers
+- `WideJP`: one join point reached by many jumps, exercising `vcgen +jp` on wide disjunctions
 -/
 
 open Lean Order Parser Meta Elab Tactic Sym Std WP
@@ -57,6 +60,12 @@ set_option maxHeartbeats 10000000
     `(tactic| vcgen) `(tactic| sorry) [10]
   runBenchUsingTactic ``MatchSplit.Goal [``MatchSplit.loop, ``MatchSplit.step]
     `(tactic| vcgen) `(tactic| grind) [10]
+  runBenchUsingTactic ``IfsJP.Goal [``IfsJP.loop, ``IfsJP.step]
+    `(tactic| vcgen +jp) `(tactic| grind) [3]
+  runBenchUsingTactic ``MatchesJP.Goal [``MatchesJP.loop, ``MatchesJP.step]
+    `(tactic| vcgen +jp) `(tactic| sorry) [3]
+  runBenchUsingTactic ``WideJP.Goal [``WideJP.wide, ``WideJP.chain]
+    `(tactic| vcgen +jp) `(tactic| grind) [4]
 
 -- Verify `simplifying_assumptions [Nat.add_assoc]` works end-to-end with `simp only` unfolding.
 /--

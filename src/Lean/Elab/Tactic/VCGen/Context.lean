@@ -135,16 +135,37 @@ public structure Context where
   once the program in `wp⟦e⟧` matches `pat`, before applying a spec. -/
   untilPat? : Option Sym.Pattern := none
 
+/-- A join point `__do_jp` that `vcgen +jp` proves once. See `Lean.Elab.Tactic.VCGen.JoinPoint`. -/
+public structure JoinPoint where
+  /-- The let-bound proof `__do_jp_spec : ∀ xs ss, ?H xs ss → ⊤ ⊑ wp⟦__do_jp xs⟧ post eposts ss`. -/
+  spec : Expr
+  /-- The `⊤` of the goals of `__do_jp`, with their lattice instance. -/
+  top : Expr
+  /-- The metavariable `?H`, which `finalizeJoinPoint` assigns. -/
+  hyp : MVarId
+  /-- The goal for the body of `__do_jp`. -/
+  body : MVarId
+  /-- The number of states that `?H` takes after the join parameters. -/
+  numStates : Nat
+  deriving Inhabited
+
+/-- A jump to a join point with the arguments `args`, which include the states, and the proof
+`?pf : ?H args` that `finalizeJoinPoint` assigns in the local context of the jump. -/
+public structure Jump where
+  pf : MVarId
+  args : Array Expr
+  deriving Inhabited
+
 public structure Scope where
   /-- Spec database in scope: globals plus locals from in-scope hypotheses. -/
   specs : SpecTheorems
-  /-- `__do_jp` fvars currently in scope. -/
-  jps : FVarIdMap JumpSiteInfo := {}
   /-- The most recently lifted pure precondition. `tryLiftedHyp` closes handoff VCs against
   it without walking the local context. -/
   lastLiftedPre? : Option FVarId := none
   /-- Index of the next local declaration to consider for local specs. -/
   nextDeclIdx : Nat := 0
+  /-- The join points of `vcgen +jp` in scope, keyed by their `let` variable. -/
+  joinPoints : FVarIdMap JoinPoint := {}
   deriving Inhabited
 
 public structure State where
@@ -208,15 +229,12 @@ public structure State where
   this to know which user-provided alts have already been consumed (so it doesn't
   warn about them). -/
   inlineHandledInvariants : Std.HashSet Nat := {}
+  /-- The join points whose body goal `vcgen` has yet to process, keyed by that goal, with their
+  jumps so far. -/
+  pendingJoinPoints : Std.HashMap MVarId (JoinPoint × Array Jump) := {}
 
 public abbrev VCGenM := ReaderT Context (StateRefT State Grind.GrindM)
 
-
-public def Scope.registerJP (s : Scope) (fv : FVarId) (info : JumpSiteInfo) : Scope :=
-  { s with jps := s.jps.insert fv info }
-
-public def Scope.knownJP? (s : Scope) (fv : FVarId) : Option JumpSiteInfo :=
-  s.jps.get? fv
 
 public def Scope.insertSpec (s : Scope) (thm : SpecTheorem) : Scope :=
   { s with specs := s.specs.insert thm }
@@ -229,7 +247,7 @@ public def Scope.collectLocalSpecs (scope : Scope) (goal : MVarId) : VCGenM Scop
     let lctx ← getLCtx
     if scope.nextDeclIdx == lctx.decls.size then return scope
     let scope ← lctx.foldlM (init := scope) (start := scope.nextDeclIdx) fun scope decl => do
-      if decl.isAuxDecl then return scope
+      if decl.isImplementationDetail then return scope
       try
         if let some thm ← mkSpecTheoremFromLocal decl.fvarId (eval_prio low) then
           return scope.insertSpec thm

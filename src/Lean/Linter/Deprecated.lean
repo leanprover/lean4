@@ -13,6 +13,8 @@ import Lean.ExtraModUses
 import Lean.Meta.Hint
 import Init.Data.List.MapIdx
 import Init.Omega
+import Std.Time.Format
+import Std.Time.Zoned
 
 public section
 
@@ -36,6 +38,26 @@ structure DeprecationEntry where
   text? : Option String := none
   since? : Option String := none
   deriving Inhabited
+
+/-- The current date in the local time zone, falling back to UTC if the time zone is unavailable. -/
+private def currentDate : IO Std.Time.PlainDate := do
+  try Std.Time.PlainDate.now catch _ =>
+    return (Std.Time.DateTime.ofTimestamp (← Std.Time.Timestamp.now) .UTC).toPlainDate
+
+/--
+Creates a hint for a missing `(since := "...")` clause that offers to append one with the current
+date to the deprecation syntax `stx`. Returns the empty message if `stx` has no source position.
+-/
+def mkSinceHint (stx : Syntax) : CoreM MessageData := do
+  let some insertPos := stx.getTailPos? (canonicalOnly := true) | return .nil
+  let since := s!"(since := \"{(← currentDate).toLeanDateString}\")"
+  MessageData.hint "Add the current date:" (ref? := stx) #[{
+    suggestion := " " ++ since
+    messageData? := some since
+    span? := Syntax.ofRange ⟨insertPos, insertPos⟩
+    diffGranularity := .none
+    toCodeActionTitle? := some fun _ => s!"Try this: {since}"
+  }]
 
 /--
 This is the predicate we use to decide whether the old and new type of a declaration differ for the
@@ -118,7 +140,8 @@ builtin_initialize deprecatedAttr : ParametricAttribute DeprecationEntry ←
       if id?.isNone && text?.isNone then
         logWarning "`[deprecated]` attribute should specify either a new name or a deprecation message"
       if since?.isNone then
-        logWarning "`[deprecated]` attribute should specify the date or library version at which the deprecation was introduced, using `(since := \"...\")`"
+        logWarning <| m!"`[deprecated]` attribute should specify the date or library version at which the deprecation was introduced, using `(since := \"...\")`" ++
+          (← mkSinceHint stx)
       return { newName?, text?, since? }
   }
 

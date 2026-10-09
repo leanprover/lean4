@@ -1,6 +1,12 @@
 import Lean
 import Std.WP
 
+/-!
+`poke v` writes `v` at `mem ptr`, so it frames `fun s => s.mem 5 = 7` exactly in the states with
+`ptr ≠ 5`. The guard of the `WP.Frames` side goal fixes the state at `poke 1` to
+`{ ptr := 3, mem := s.mem }`, and that guard makes `poke_frames` provable.
+-/
+
 set_option experimental.vcgen true
 set_option grind.warning false
 

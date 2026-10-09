@@ -11,7 +11,6 @@ import all Init.Data.String.Defs
 import Init.Data.String.Lemmas.Order
 import Init.Data.String.Lemmas.Basic
 import Init.Data.String.OrderInstances
-import Init.Grind
 
 public section
 

@@ -754,6 +754,16 @@ public def Module.clearOutputArtifacts (mod : Module) : IO PUnit := do
   catch e =>
     error s!"failed to remove output artifacts: {e}"
 
+/-- Remove all existing artifacts produced by a `leanir` build of the module. -/
+public def Module.clearIROutputArtifacts (mod : Module) : IO PUnit := do
+  try
+    removeFileIfExists mod.ltarFile
+    removeFileIfExists mod.irSigFile
+    removeFileIfExists mod.irFile
+    removeFileIfExists mod.cFile
+  catch e =>
+    error s!"failed to remove IR output artifacts: {e}"
+
 /-- Remove any cached file hashes of the module build outputs (in `.hash` files). -/
 public def Module.clearOutputHashes (mod : Module) : IO PUnit := do
   try
@@ -1304,7 +1314,7 @@ def Module.recBuildIRArts (mod : Module) : FetchM (Job ModuleOutputArtifacts) :=
       createParentDirs mod.irSetupFile
       let irSetup ← mkModuleSetup mod presetup
       IO.FS.writeFile mod.irSetupFile (toJson irSetup).pretty
-      removeFileIfExists mod.ltarFile
+      mod.clearIROutputArtifacts
       mod.clearIROutputHashes
       compileLeanIR mod.irSetupFile mod.irFile mod.cFile (← getLeanPath) (← getLeanir)
     let arts ← mod.computeIRArtifacts elabArts upToDate

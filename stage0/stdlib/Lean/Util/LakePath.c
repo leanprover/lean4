@@ -26,7 +26,7 @@ static const lean_string_object l_Lean_determineLakePath___closed__3_value = {.m
 static const lean_object* l_Lean_determineLakePath___closed__3 = (const lean_object*)&l_Lean_determineLakePath___closed__3_value;
 LEAN_EXPORT lean_object* l_Lean_determineLakePath();
 LEAN_EXPORT lean_object* l_Lean_determineLakePath___boxed(lean_object*);
-LEAN_EXPORT lean_object* l_Lean_determineLakePath(){
+lean_object* l_Lean_determineLakePath(){
 _start:
 {
 lean_object* v___x_6_; lean_object* v___x_7_; 
@@ -183,12 +183,19 @@ return v___x_38_;
 }
 }
 }
-LEAN_EXPORT lean_object* l_Lean_determineLakePath___boxed(lean_object* v_a_41_){
+LEAN_EXPORT void l_Lean_determineLakePath_0interp(lean_interpreter_value* stack)
+{
+lean_object* v_res_41_;
+v_res_41_ = l_Lean_determineLakePath();
+stack->m_obj
+ = v_res_41_;
+}
+LEAN_EXPORT lean_object* l_Lean_determineLakePath___boxed(lean_object* v_a_42_){
 _start:
 {
-lean_object* v_res_42_; 
-v_res_42_ = l_Lean_determineLakePath();
-return v_res_42_;
+lean_object* v_res_43_; 
+v_res_43_ = l_Lean_determineLakePath();
+return v_res_43_;
 }
 }
 lean_object* runtime_initialize_Init_System_IO(uint8_t builtin);

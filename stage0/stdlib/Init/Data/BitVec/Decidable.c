@@ -52,378 +52,510 @@ LEAN_EXPORT uint8_t l_BitVec_instDecidableExistsBitVec___redArg(lean_object*, le
 LEAN_EXPORT lean_object* l_BitVec_instDecidableExistsBitVec___redArg___boxed(lean_object*, lean_object*);
 LEAN_EXPORT uint8_t l_BitVec_instDecidableExistsBitVec(lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_BitVec_instDecidableExistsBitVec___boxed(lean_object*, lean_object*, lean_object*);
-LEAN_EXPORT uint8_t l_BitVec_instDecidableForallBitVecZero___redArg(uint8_t v_x_1_){
+uint8_t l_BitVec_instDecidableForallBitVecZero___redArg(uint8_t v_x_1_){
 _start:
 {
 return v_x_1_;
 }
 }
-LEAN_EXPORT lean_object* l_BitVec_instDecidableForallBitVecZero___redArg___boxed(lean_object* v_x_2_){
+LEAN_EXPORT void l_BitVec_instDecidableForallBitVecZero___redArg_0interp(lean_interpreter_value* stack)
+{
+uint8_t v_x_1_ = stack[0].m_num;
+uint8_t v_res_2_;
+v_res_2_ = l_BitVec_instDecidableForallBitVecZero___redArg(v_x_1_);
+stack->m_num = v_res_2_;
+}
+LEAN_EXPORT lean_object* l_BitVec_instDecidableForallBitVecZero___redArg___boxed(lean_object* v_x_3_){
 _start:
 {
-uint8_t v_x_25__boxed_3_; uint8_t v_res_4_; lean_object* v_r_5_; 
-v_x_25__boxed_3_ = lean_unbox(v_x_2_);
-v_res_4_ = l_BitVec_instDecidableForallBitVecZero___redArg(v_x_25__boxed_3_);
-v_r_5_ = lean_box(v_res_4_);
-return v_r_5_;
+uint8_t v_x_25__boxed_4_; uint8_t v_res_5_; lean_object* v_r_6_; 
+v_x_25__boxed_4_ = lean_unbox(v_x_3_);
+v_res_5_ = l_BitVec_instDecidableForallBitVecZero___redArg(v_x_25__boxed_4_);
+v_r_6_ = lean_box(v_res_5_);
+return v_r_6_;
 }
 }
-LEAN_EXPORT uint8_t l_BitVec_instDecidableForallBitVecZero(lean_object* v_P_6_, uint8_t v_x_7_){
+uint8_t l_BitVec_instDecidableForallBitVecZero(lean_object* v_P_7_, uint8_t v_x_8_){
 _start:
 {
-return v_x_7_;
+return v_x_8_;
 }
 }
-LEAN_EXPORT lean_object* l_BitVec_instDecidableForallBitVecZero___boxed(lean_object* v_P_8_, lean_object* v_x_9_){
+LEAN_EXPORT void l_BitVec_instDecidableForallBitVecZero_0interp(lean_interpreter_value* stack)
+{
+uint8_t v_x_8_ = stack[1].m_num;
+uint8_t v_res_9_;
+v_res_9_ = l_BitVec_instDecidableForallBitVecZero(lean_box(0), v_x_8_);
+stack->m_num = v_res_9_;
+}
+LEAN_EXPORT lean_object* l_BitVec_instDecidableForallBitVecZero___boxed(lean_object* v_P_10_, lean_object* v_x_11_){
 _start:
 {
-uint8_t v_x_28__boxed_10_; uint8_t v_res_11_; lean_object* v_r_12_; 
-v_x_28__boxed_10_ = lean_unbox(v_x_9_);
-v_res_11_ = l_BitVec_instDecidableForallBitVecZero(v_P_8_, v_x_28__boxed_10_);
-v_r_12_ = lean_box(v_res_11_);
-return v_r_12_;
+uint8_t v_x_30__boxed_12_; uint8_t v_res_13_; lean_object* v_r_14_; 
+v_x_30__boxed_12_ = lean_unbox(v_x_11_);
+v_res_13_ = l_BitVec_instDecidableForallBitVecZero(v_P_10_, v_x_30__boxed_12_);
+v_r_14_ = lean_box(v_res_13_);
+return v_r_14_;
 }
 }
-LEAN_EXPORT uint8_t l_BitVec_instDecidableForallBitVecSucc___redArg(uint8_t v_inst_13_){
+uint8_t l_BitVec_instDecidableForallBitVecSucc___redArg(uint8_t v_inst_15_){
 _start:
 {
-return v_inst_13_;
+return v_inst_15_;
 }
 }
-LEAN_EXPORT lean_object* l_BitVec_instDecidableForallBitVecSucc___redArg___boxed(lean_object* v_inst_14_){
+LEAN_EXPORT void l_BitVec_instDecidableForallBitVecSucc___redArg_0interp(lean_interpreter_value* stack)
+{
+uint8_t v_inst_15_ = stack[0].m_num;
+uint8_t v_res_16_;
+v_res_16_ = l_BitVec_instDecidableForallBitVecSucc___redArg(v_inst_15_);
+stack->m_num = v_res_16_;
+}
+LEAN_EXPORT lean_object* l_BitVec_instDecidableForallBitVecSucc___redArg___boxed(lean_object* v_inst_17_){
 _start:
 {
-uint8_t v_inst_10__boxed_15_; uint8_t v_res_16_; lean_object* v_r_17_; 
-v_inst_10__boxed_15_ = lean_unbox(v_inst_14_);
-v_res_16_ = l_BitVec_instDecidableForallBitVecSucc___redArg(v_inst_10__boxed_15_);
-v_r_17_ = lean_box(v_res_16_);
-return v_r_17_;
+uint8_t v_inst_10__boxed_18_; uint8_t v_res_19_; lean_object* v_r_20_; 
+v_inst_10__boxed_18_ = lean_unbox(v_inst_17_);
+v_res_19_ = l_BitVec_instDecidableForallBitVecSucc___redArg(v_inst_10__boxed_18_);
+v_r_20_ = lean_box(v_res_19_);
+return v_r_20_;
 }
 }
-LEAN_EXPORT uint8_t l_BitVec_instDecidableForallBitVecSucc(lean_object* v_n_18_, lean_object* v_P_19_, lean_object* v_inst_20_, uint8_t v_inst_21_){
+uint8_t l_BitVec_instDecidableForallBitVecSucc(lean_object* v_n_21_, lean_object* v_P_22_, lean_object* v_inst_23_, uint8_t v_inst_24_){
 _start:
 {
-return v_inst_21_;
+return v_inst_24_;
 }
 }
-LEAN_EXPORT lean_object* l_BitVec_instDecidableForallBitVecSucc___boxed(lean_object* v_n_22_, lean_object* v_P_23_, lean_object* v_inst_24_, lean_object* v_inst_25_){
+LEAN_EXPORT void l_BitVec_instDecidableForallBitVecSucc_0interp(lean_interpreter_value* stack)
+{
+lean_object* v_n_21_ = stack[0].m_obj;
+lean_object* v_inst_23_ = stack[2].m_obj;
+uint8_t v_inst_24_ = stack[3].m_num;
+uint8_t v_res_25_;
+v_res_25_ = l_BitVec_instDecidableForallBitVecSucc(v_n_21_, lean_box(0), v_inst_23_, v_inst_24_);
+stack->m_num = v_res_25_;
+}
+LEAN_EXPORT lean_object* l_BitVec_instDecidableForallBitVecSucc___boxed(lean_object* v_n_26_, lean_object* v_P_27_, lean_object* v_inst_28_, lean_object* v_inst_29_){
 _start:
 {
-uint8_t v_inst_14__boxed_26_; uint8_t v_res_27_; lean_object* v_r_28_; 
-v_inst_14__boxed_26_ = lean_unbox(v_inst_25_);
-v_res_27_ = l_BitVec_instDecidableForallBitVecSucc(v_n_22_, v_P_23_, v_inst_24_, v_inst_14__boxed_26_);
-lean_dec_ref(v_inst_24_);
-lean_dec(v_n_22_);
-v_r_28_ = lean_box(v_res_27_);
-return v_r_28_;
+uint8_t v_inst_16__boxed_30_; uint8_t v_res_31_; lean_object* v_r_32_; 
+v_inst_16__boxed_30_ = lean_unbox(v_inst_29_);
+v_res_31_ = l_BitVec_instDecidableForallBitVecSucc(v_n_26_, v_P_27_, v_inst_28_, v_inst_16__boxed_30_);
+lean_dec_ref(v_inst_28_);
+lean_dec(v_n_26_);
+v_r_32_ = lean_box(v_res_31_);
+return v_r_32_;
 }
 }
-LEAN_EXPORT uint8_t l_BitVec_instDecidableExistsBitVecZero___redArg(uint8_t v_inst_29_){
+uint8_t l_BitVec_instDecidableExistsBitVecZero___redArg(uint8_t v_inst_33_){
 _start:
 {
-return v_inst_29_;
+return v_inst_33_;
 }
 }
-LEAN_EXPORT lean_object* l_BitVec_instDecidableExistsBitVecZero___redArg___boxed(lean_object* v_inst_30_){
+LEAN_EXPORT void l_BitVec_instDecidableExistsBitVecZero___redArg_0interp(lean_interpreter_value* stack)
+{
+uint8_t v_inst_33_ = stack[0].m_num;
+uint8_t v_res_34_;
+v_res_34_ = l_BitVec_instDecidableExistsBitVecZero___redArg(v_inst_33_);
+stack->m_num = v_res_34_;
+}
+LEAN_EXPORT lean_object* l_BitVec_instDecidableExistsBitVecZero___redArg___boxed(lean_object* v_inst_35_){
 _start:
 {
-uint8_t v_inst_47__boxed_31_; uint8_t v_res_32_; lean_object* v_r_33_; 
-v_inst_47__boxed_31_ = lean_unbox(v_inst_30_);
-v_res_32_ = l_BitVec_instDecidableExistsBitVecZero___redArg(v_inst_47__boxed_31_);
-v_r_33_ = lean_box(v_res_32_);
-return v_r_33_;
+uint8_t v_inst_47__boxed_36_; uint8_t v_res_37_; lean_object* v_r_38_; 
+v_inst_47__boxed_36_ = lean_unbox(v_inst_35_);
+v_res_37_ = l_BitVec_instDecidableExistsBitVecZero___redArg(v_inst_47__boxed_36_);
+v_r_38_ = lean_box(v_res_37_);
+return v_r_38_;
 }
 }
-LEAN_EXPORT uint8_t l_BitVec_instDecidableExistsBitVecZero(lean_object* v_P_34_, uint8_t v_inst_35_){
+uint8_t l_BitVec_instDecidableExistsBitVecZero(lean_object* v_P_39_, uint8_t v_inst_40_){
 _start:
 {
-return v_inst_35_;
+return v_inst_40_;
 }
 }
-LEAN_EXPORT lean_object* l_BitVec_instDecidableExistsBitVecZero___boxed(lean_object* v_P_36_, lean_object* v_inst_37_){
+LEAN_EXPORT void l_BitVec_instDecidableExistsBitVecZero_0interp(lean_interpreter_value* stack)
+{
+uint8_t v_inst_40_ = stack[1].m_num;
+uint8_t v_res_41_;
+v_res_41_ = l_BitVec_instDecidableExistsBitVecZero(lean_box(0), v_inst_40_);
+stack->m_num = v_res_41_;
+}
+LEAN_EXPORT lean_object* l_BitVec_instDecidableExistsBitVecZero___boxed(lean_object* v_P_42_, lean_object* v_inst_43_){
 _start:
 {
-uint8_t v_inst_50__boxed_38_; uint8_t v_res_39_; lean_object* v_r_40_; 
-v_inst_50__boxed_38_ = lean_unbox(v_inst_37_);
-v_res_39_ = l_BitVec_instDecidableExistsBitVecZero(v_P_36_, v_inst_50__boxed_38_);
-v_r_40_ = lean_box(v_res_39_);
-return v_r_40_;
+uint8_t v_inst_52__boxed_44_; uint8_t v_res_45_; lean_object* v_r_46_; 
+v_inst_52__boxed_44_ = lean_unbox(v_inst_43_);
+v_res_45_ = l_BitVec_instDecidableExistsBitVecZero(v_P_42_, v_inst_52__boxed_44_);
+v_r_46_ = lean_box(v_res_45_);
+return v_r_46_;
 }
 }
-LEAN_EXPORT uint8_t l_BitVec_instDecidableExistsBitVecSucc___redArg(uint8_t v_inst_41_){
+uint8_t l_BitVec_instDecidableExistsBitVecSucc___redArg(uint8_t v_inst_47_){
 _start:
 {
-if (v_inst_41_ == 0)
+if (v_inst_47_ == 0)
 {
-uint8_t v___x_42_; 
-v___x_42_ = 1;
-return v___x_42_;
+uint8_t v___x_48_; 
+v___x_48_ = 1;
+return v___x_48_;
 }
 else
 {
-uint8_t v___x_43_; 
-v___x_43_ = 0;
-return v___x_43_;
+uint8_t v___x_49_; 
+v___x_49_ = 0;
+return v___x_49_;
 }
 }
 }
-LEAN_EXPORT lean_object* l_BitVec_instDecidableExistsBitVecSucc___redArg___boxed(lean_object* v_inst_44_){
+LEAN_EXPORT void l_BitVec_instDecidableExistsBitVecSucc___redArg_0interp(lean_interpreter_value* stack)
+{
+uint8_t v_inst_47_ = stack[0].m_num;
+uint8_t v_res_50_;
+v_res_50_ = l_BitVec_instDecidableExistsBitVecSucc___redArg(v_inst_47_);
+stack->m_num = v_res_50_;
+}
+LEAN_EXPORT lean_object* l_BitVec_instDecidableExistsBitVecSucc___redArg___boxed(lean_object* v_inst_51_){
 _start:
 {
-uint8_t v_inst_41__boxed_45_; uint8_t v_res_46_; lean_object* v_r_47_; 
-v_inst_41__boxed_45_ = lean_unbox(v_inst_44_);
-v_res_46_ = l_BitVec_instDecidableExistsBitVecSucc___redArg(v_inst_41__boxed_45_);
-v_r_47_ = lean_box(v_res_46_);
-return v_r_47_;
+uint8_t v_inst_41__boxed_52_; uint8_t v_res_53_; lean_object* v_r_54_; 
+v_inst_41__boxed_52_ = lean_unbox(v_inst_51_);
+v_res_53_ = l_BitVec_instDecidableExistsBitVecSucc___redArg(v_inst_41__boxed_52_);
+v_r_54_ = lean_box(v_res_53_);
+return v_r_54_;
 }
 }
-LEAN_EXPORT uint8_t l_BitVec_instDecidableExistsBitVecSucc(lean_object* v_n_48_, lean_object* v_P_49_, lean_object* v_inst_50_, uint8_t v_inst_51_){
+uint8_t l_BitVec_instDecidableExistsBitVecSucc(lean_object* v_n_55_, lean_object* v_P_56_, lean_object* v_inst_57_, uint8_t v_inst_58_){
 _start:
 {
-uint8_t v___x_52_; 
-v___x_52_ = l_BitVec_instDecidableExistsBitVecSucc___redArg(v_inst_51_);
-return v___x_52_;
+uint8_t v___x_59_; 
+v___x_59_ = l_BitVec_instDecidableExistsBitVecSucc___redArg(v_inst_58_);
+return v___x_59_;
 }
 }
-LEAN_EXPORT lean_object* l_BitVec_instDecidableExistsBitVecSucc___boxed(lean_object* v_n_53_, lean_object* v_P_54_, lean_object* v_inst_55_, lean_object* v_inst_56_){
+LEAN_EXPORT void l_BitVec_instDecidableExistsBitVecSucc_0interp(lean_interpreter_value* stack)
+{
+lean_object* v_n_55_ = stack[0].m_obj;
+lean_object* v_inst_57_ = stack[2].m_obj;
+uint8_t v_inst_58_ = stack[3].m_num;
+uint8_t v_res_60_;
+v_res_60_ = l_BitVec_instDecidableExistsBitVecSucc(v_n_55_, lean_box(0), v_inst_57_, v_inst_58_);
+stack->m_num = v_res_60_;
+}
+LEAN_EXPORT lean_object* l_BitVec_instDecidableExistsBitVecSucc___boxed(lean_object* v_n_61_, lean_object* v_P_62_, lean_object* v_inst_63_, lean_object* v_inst_64_){
 _start:
 {
-uint8_t v_inst_49__boxed_57_; uint8_t v_res_58_; lean_object* v_r_59_; 
-v_inst_49__boxed_57_ = lean_unbox(v_inst_56_);
-v_res_58_ = l_BitVec_instDecidableExistsBitVecSucc(v_n_53_, v_P_54_, v_inst_55_, v_inst_49__boxed_57_);
-lean_dec_ref(v_inst_55_);
-lean_dec(v_n_53_);
-v_r_59_ = lean_box(v_res_58_);
-return v_r_59_;
+uint8_t v_inst_53__boxed_65_; uint8_t v_res_66_; lean_object* v_r_67_; 
+v_inst_53__boxed_65_ = lean_unbox(v_inst_64_);
+v_res_66_ = l_BitVec_instDecidableExistsBitVecSucc(v_n_61_, v_P_62_, v_inst_63_, v_inst_53__boxed_65_);
+lean_dec_ref(v_inst_63_);
+lean_dec(v_n_61_);
+v_r_67_ = lean_box(v_res_66_);
+return v_r_67_;
 }
 }
-LEAN_EXPORT uint8_t l_BitVec_instDecidableForallBitVec___redArg___lam__0(lean_object* v_n_60_, uint8_t v_a_61_, lean_object* v_x_62_, lean_object* v_a_63_){
+uint8_t l_BitVec_instDecidableForallBitVec___redArg___lam__0(lean_object* v_n_68_, uint8_t v_a_69_, lean_object* v_x_70_, lean_object* v_a_71_){
 _start:
 {
-lean_object* v___x_64_; lean_object* v___x_65_; uint8_t v___x_66_; 
-v___x_64_ = l_BitVec_cons(v_n_60_, v_a_61_, v_a_63_);
-v___x_65_ = lean_apply_1(v_x_62_, v___x_64_);
-v___x_66_ = lean_unbox(v___x_65_);
-return v___x_66_;
+lean_object* v___x_72_; lean_object* v___x_73_; uint8_t v___x_74_; 
+v___x_72_ = l_BitVec_cons(v_n_68_, v_a_69_, v_a_71_);
+v___x_73_ = lean_apply_1(v_x_70_, v___x_72_);
+v___x_74_ = lean_unbox(v___x_73_);
+return v___x_74_;
 }
 }
-LEAN_EXPORT lean_object* l_BitVec_instDecidableForallBitVec___redArg___lam__0___boxed(lean_object* v_n_67_, lean_object* v_a_68_, lean_object* v_x_69_, lean_object* v_a_70_){
+LEAN_EXPORT void l_BitVec_instDecidableForallBitVec___redArg___lam__0_0interp(lean_interpreter_value* stack)
+{
+lean_object* v_n_68_ = stack[0].m_obj;
+uint8_t v_a_69_ = stack[1].m_num;
+lean_object* v_x_70_ = stack[2].m_obj;
+lean_object* v_a_71_ = stack[3].m_obj;
+uint8_t v_res_75_;
+v_res_75_ = l_BitVec_instDecidableForallBitVec___redArg___lam__0(v_n_68_, v_a_69_, v_x_70_, v_a_71_);
+stack->m_num = v_res_75_;
+}
+LEAN_EXPORT lean_object* l_BitVec_instDecidableForallBitVec___redArg___lam__0___boxed(lean_object* v_n_76_, lean_object* v_a_77_, lean_object* v_x_78_, lean_object* v_a_79_){
 _start:
 {
-uint8_t v_a_boxed_71_; uint8_t v_res_72_; lean_object* v_r_73_; 
-v_a_boxed_71_ = lean_unbox(v_a_68_);
-v_res_72_ = l_BitVec_instDecidableForallBitVec___redArg___lam__0(v_n_67_, v_a_boxed_71_, v_x_69_, v_a_70_);
-lean_dec(v_a_70_);
-lean_dec(v_n_67_);
-v_r_73_ = lean_box(v_res_72_);
-return v_r_73_;
+uint8_t v_a_boxed_80_; uint8_t v_res_81_; lean_object* v_r_82_; 
+v_a_boxed_80_ = lean_unbox(v_a_77_);
+v_res_81_ = l_BitVec_instDecidableForallBitVec___redArg___lam__0(v_n_76_, v_a_boxed_80_, v_x_78_, v_a_79_);
+lean_dec(v_a_79_);
+lean_dec(v_n_76_);
+v_r_82_ = lean_box(v_res_81_);
+return v_r_82_;
 }
 }
 static lean_object* _init_l_BitVec_instDecidableForallBitVec___redArg___closed__0(void){
 _start:
 {
-lean_object* v_zero_74_; lean_object* v___x_75_; 
-v_zero_74_ = lean_unsigned_to_nat(0u);
-v___x_75_ = l_BitVec_ofNat(v_zero_74_, v_zero_74_);
-return v___x_75_;
+lean_object* v_zero_83_; lean_object* v___x_84_; 
+v_zero_83_ = lean_unsigned_to_nat(0u);
+v___x_84_ = l_BitVec_ofNat(v_zero_83_, v_zero_83_);
+return v___x_84_;
 }
 }
-LEAN_EXPORT lean_object* l_BitVec_instDecidableForallBitVec___redArg___lam__1___boxed(lean_object* v_n_76_, lean_object* v_x_77_, lean_object* v_a_78_){
+LEAN_EXPORT lean_object* l_BitVec_instDecidableForallBitVec___redArg___lam__1___boxed(lean_object* v_n_85_, lean_object* v_x_86_, lean_object* v_a_87_){
 _start:
 {
-uint8_t v_a_boxed_79_; uint8_t v_res_80_; lean_object* v_r_81_; 
-v_a_boxed_79_ = lean_unbox(v_a_78_);
-v_res_80_ = l_BitVec_instDecidableForallBitVec___redArg___lam__1(v_n_76_, v_x_77_, v_a_boxed_79_);
-v_r_81_ = lean_box(v_res_80_);
-return v_r_81_;
+uint8_t v_a_boxed_88_; uint8_t v_res_89_; lean_object* v_r_90_; 
+v_a_boxed_88_ = lean_unbox(v_a_87_);
+v_res_89_ = l_BitVec_instDecidableForallBitVec___redArg___lam__1(v_n_85_, v_x_86_, v_a_boxed_88_);
+v_r_90_ = lean_box(v_res_89_);
+return v_r_90_;
 }
 }
-LEAN_EXPORT uint8_t l_BitVec_instDecidableForallBitVec___redArg(lean_object* v_x_82_, lean_object* v_x_83_){
+uint8_t l_BitVec_instDecidableForallBitVec___redArg(lean_object* v_x_91_, lean_object* v_x_92_){
 _start:
 {
-lean_object* v_zero_84_; uint8_t v_isZero_85_; 
-v_zero_84_ = lean_unsigned_to_nat(0u);
-v_isZero_85_ = lean_nat_dec_eq(v_x_82_, v_zero_84_);
-if (v_isZero_85_ == 1)
+lean_object* v_zero_93_; uint8_t v_isZero_94_; 
+v_zero_93_ = lean_unsigned_to_nat(0u);
+v_isZero_94_ = lean_nat_dec_eq(v_x_91_, v_zero_93_);
+if (v_isZero_94_ == 1)
 {
-lean_object* v___x_86_; lean_object* v___x_87_; uint8_t v___x_88_; 
-v___x_86_ = lean_obj_once(&l_BitVec_instDecidableForallBitVec___redArg___closed__0, &l_BitVec_instDecidableForallBitVec___redArg___closed__0_once, _init_l_BitVec_instDecidableForallBitVec___redArg___closed__0);
-v___x_87_ = lean_apply_1(v_x_83_, v___x_86_);
-v___x_88_ = lean_unbox(v___x_87_);
-return v___x_88_;
+lean_object* v___x_95_; lean_object* v___x_96_; uint8_t v___x_97_; 
+v___x_95_ = lean_obj_once(&l_BitVec_instDecidableForallBitVec___redArg___closed__0, &l_BitVec_instDecidableForallBitVec___redArg___closed__0_once, _init_l_BitVec_instDecidableForallBitVec___redArg___closed__0);
+v___x_96_ = lean_apply_1(v_x_92_, v___x_95_);
+v___x_97_ = lean_unbox(v___x_96_);
+return v___x_97_;
 }
 else
 {
-lean_object* v_one_89_; lean_object* v_n_90_; lean_object* v___f_91_; uint8_t v___x_92_; 
-v_one_89_ = lean_unsigned_to_nat(1u);
-v_n_90_ = lean_nat_sub(v_x_82_, v_one_89_);
-v___f_91_ = lean_alloc_closure((void*)(l_BitVec_instDecidableForallBitVec___redArg___lam__1___boxed), 3, 2);
-lean_closure_set(v___f_91_, 0, v_n_90_);
-lean_closure_set(v___f_91_, 1, v_x_83_);
-v___x_92_ = l_Bool_instDecidableForallOfDecidablePred___redArg(v___f_91_);
-return v___x_92_;
+lean_object* v_one_98_; lean_object* v_n_99_; lean_object* v___f_100_; uint8_t v___x_101_; 
+v_one_98_ = lean_unsigned_to_nat(1u);
+v_n_99_ = lean_nat_sub(v_x_91_, v_one_98_);
+v___f_100_ = lean_alloc_closure((void*)(l_BitVec_instDecidableForallBitVec___redArg___lam__1___boxed), 3, 2);
+lean_closure_set(v___f_100_, 0, v_n_99_);
+lean_closure_set(v___f_100_, 1, v_x_92_);
+v___x_101_ = l_Bool_instDecidableForallOfDecidablePred___redArg(v___f_100_);
+return v___x_101_;
 }
 }
 }
-LEAN_EXPORT uint8_t l_BitVec_instDecidableForallBitVec___redArg___lam__1(lean_object* v_n_93_, lean_object* v_x_94_, uint8_t v_a_95_){
+LEAN_EXPORT void l_BitVec_instDecidableForallBitVec___redArg_0interp(lean_interpreter_value* stack)
+{
+lean_object* v_x_91_ = stack[0].m_obj;
+lean_object* v_x_92_ = stack[1].m_obj;
+uint8_t v_res_102_;
+v_res_102_ = l_BitVec_instDecidableForallBitVec___redArg(v_x_91_, v_x_92_);
+stack->m_num = v_res_102_;
+}
+uint8_t l_BitVec_instDecidableForallBitVec___redArg___lam__1(lean_object* v_n_103_, lean_object* v_x_104_, uint8_t v_a_105_){
 _start:
 {
-lean_object* v___x_96_; lean_object* v___f_97_; uint8_t v___x_98_; 
-v___x_96_ = lean_box(v_a_95_);
-lean_inc(v_n_93_);
-v___f_97_ = lean_alloc_closure((void*)(l_BitVec_instDecidableForallBitVec___redArg___lam__0___boxed), 4, 3);
-lean_closure_set(v___f_97_, 0, v_n_93_);
-lean_closure_set(v___f_97_, 1, v___x_96_);
-lean_closure_set(v___f_97_, 2, v_x_94_);
-v___x_98_ = l_BitVec_instDecidableForallBitVec___redArg(v_n_93_, v___f_97_);
-lean_dec(v_n_93_);
-return v___x_98_;
+lean_object* v___x_106_; lean_object* v___f_107_; uint8_t v___x_108_; 
+v___x_106_ = lean_box(v_a_105_);
+lean_inc(v_n_103_);
+v___f_107_ = lean_alloc_closure((void*)(l_BitVec_instDecidableForallBitVec___redArg___lam__0___boxed), 4, 3);
+lean_closure_set(v___f_107_, 0, v_n_103_);
+lean_closure_set(v___f_107_, 1, v___x_106_);
+lean_closure_set(v___f_107_, 2, v_x_104_);
+v___x_108_ = l_BitVec_instDecidableForallBitVec___redArg(v_n_103_, v___f_107_);
+lean_dec(v_n_103_);
+return v___x_108_;
 }
 }
-LEAN_EXPORT lean_object* l_BitVec_instDecidableForallBitVec___redArg___boxed(lean_object* v_x_99_, lean_object* v_x_100_){
+LEAN_EXPORT void l_BitVec_instDecidableForallBitVec___redArg___lam__1_0interp(lean_interpreter_value* stack)
+{
+lean_object* v_n_103_ = stack[0].m_obj;
+lean_object* v_x_104_ = stack[1].m_obj;
+uint8_t v_a_105_ = stack[2].m_num;
+uint8_t v_res_109_;
+v_res_109_ = l_BitVec_instDecidableForallBitVec___redArg___lam__1(v_n_103_, v_x_104_, v_a_105_);
+stack->m_num = v_res_109_;
+}
+LEAN_EXPORT lean_object* l_BitVec_instDecidableForallBitVec___redArg___boxed(lean_object* v_x_110_, lean_object* v_x_111_){
 _start:
 {
-uint8_t v_res_101_; lean_object* v_r_102_; 
-v_res_101_ = l_BitVec_instDecidableForallBitVec___redArg(v_x_99_, v_x_100_);
-lean_dec(v_x_99_);
-v_r_102_ = lean_box(v_res_101_);
-return v_r_102_;
+uint8_t v_res_112_; lean_object* v_r_113_; 
+v_res_112_ = l_BitVec_instDecidableForallBitVec___redArg(v_x_110_, v_x_111_);
+lean_dec(v_x_110_);
+v_r_113_ = lean_box(v_res_112_);
+return v_r_113_;
 }
 }
-LEAN_EXPORT uint8_t l_BitVec_instDecidableForallBitVec(lean_object* v_x_103_, lean_object* v_x_104_, lean_object* v_x_105_){
+uint8_t l_BitVec_instDecidableForallBitVec(lean_object* v_x_114_, lean_object* v_x_115_, lean_object* v_x_116_){
 _start:
 {
-uint8_t v___x_106_; 
-v___x_106_ = l_BitVec_instDecidableForallBitVec___redArg(v_x_103_, v_x_105_);
-return v___x_106_;
+uint8_t v___x_117_; 
+v___x_117_ = l_BitVec_instDecidableForallBitVec___redArg(v_x_114_, v_x_116_);
+return v___x_117_;
 }
 }
-LEAN_EXPORT lean_object* l_BitVec_instDecidableForallBitVec___boxed(lean_object* v_x_107_, lean_object* v_x_108_, lean_object* v_x_109_){
+LEAN_EXPORT void l_BitVec_instDecidableForallBitVec_0interp(lean_interpreter_value* stack)
+{
+lean_object* v_x_114_ = stack[0].m_obj;
+lean_object* v_x_116_ = stack[2].m_obj;
+uint8_t v_res_118_;
+v_res_118_ = l_BitVec_instDecidableForallBitVec(v_x_114_, lean_box(0), v_x_116_);
+stack->m_num = v_res_118_;
+}
+LEAN_EXPORT lean_object* l_BitVec_instDecidableForallBitVec___boxed(lean_object* v_x_119_, lean_object* v_x_120_, lean_object* v_x_121_){
 _start:
 {
-uint8_t v_res_110_; lean_object* v_r_111_; 
-v_res_110_ = l_BitVec_instDecidableForallBitVec(v_x_107_, v_x_108_, v_x_109_);
-lean_dec(v_x_107_);
-v_r_111_ = lean_box(v_res_110_);
-return v_r_111_;
+uint8_t v_res_122_; lean_object* v_r_123_; 
+v_res_122_ = l_BitVec_instDecidableForallBitVec(v_x_119_, v_x_120_, v_x_121_);
+lean_dec(v_x_119_);
+v_r_123_ = lean_box(v_res_122_);
+return v_r_123_;
 }
 }
-LEAN_EXPORT uint8_t l_BitVec_instDecidableExistsBitVec___redArg___lam__0(lean_object* v_n_112_, uint8_t v_a_113_, lean_object* v_x_114_, uint8_t v_isZero_115_, lean_object* v_a_116_){
+uint8_t l_BitVec_instDecidableExistsBitVec___redArg___lam__0(lean_object* v_n_124_, uint8_t v_a_125_, lean_object* v_x_126_, uint8_t v_isZero_127_, lean_object* v_a_128_){
 _start:
 {
-lean_object* v___x_117_; lean_object* v___x_118_; uint8_t v___x_119_; 
-v___x_117_ = l_BitVec_cons(v_n_112_, v_a_113_, v_a_116_);
-v___x_118_ = lean_apply_1(v_x_114_, v___x_117_);
-v___x_119_ = lean_unbox(v___x_118_);
-if (v___x_119_ == 0)
+lean_object* v___x_129_; lean_object* v___x_130_; uint8_t v___x_131_; 
+v___x_129_ = l_BitVec_cons(v_n_124_, v_a_125_, v_a_128_);
+v___x_130_ = lean_apply_1(v_x_126_, v___x_129_);
+v___x_131_ = lean_unbox(v___x_130_);
+if (v___x_131_ == 0)
 {
-uint8_t v___x_120_; 
-v___x_120_ = 1;
-return v___x_120_;
+uint8_t v___x_132_; 
+v___x_132_ = 1;
+return v___x_132_;
 }
 else
 {
-return v_isZero_115_;
+return v_isZero_127_;
 }
 }
 }
-LEAN_EXPORT lean_object* l_BitVec_instDecidableExistsBitVec___redArg___lam__0___boxed(lean_object* v_n_121_, lean_object* v_a_122_, lean_object* v_x_123_, lean_object* v_isZero_124_, lean_object* v_a_125_){
+LEAN_EXPORT void l_BitVec_instDecidableExistsBitVec___redArg___lam__0_0interp(lean_interpreter_value* stack)
+{
+lean_object* v_n_124_ = stack[0].m_obj;
+uint8_t v_a_125_ = stack[1].m_num;
+lean_object* v_x_126_ = stack[2].m_obj;
+uint8_t v_isZero_127_ = stack[3].m_num;
+lean_object* v_a_128_ = stack[4].m_obj;
+uint8_t v_res_133_;
+v_res_133_ = l_BitVec_instDecidableExistsBitVec___redArg___lam__0(v_n_124_, v_a_125_, v_x_126_, v_isZero_127_, v_a_128_);
+stack->m_num = v_res_133_;
+}
+LEAN_EXPORT lean_object* l_BitVec_instDecidableExistsBitVec___redArg___lam__0___boxed(lean_object* v_n_134_, lean_object* v_a_135_, lean_object* v_x_136_, lean_object* v_isZero_137_, lean_object* v_a_138_){
 _start:
 {
-uint8_t v_a_boxed_126_; uint8_t v_isZero_boxed_127_; uint8_t v_res_128_; lean_object* v_r_129_; 
-v_a_boxed_126_ = lean_unbox(v_a_122_);
-v_isZero_boxed_127_ = lean_unbox(v_isZero_124_);
-v_res_128_ = l_BitVec_instDecidableExistsBitVec___redArg___lam__0(v_n_121_, v_a_boxed_126_, v_x_123_, v_isZero_boxed_127_, v_a_125_);
-lean_dec(v_a_125_);
-lean_dec(v_n_121_);
-v_r_129_ = lean_box(v_res_128_);
-return v_r_129_;
+uint8_t v_a_boxed_139_; uint8_t v_isZero_boxed_140_; uint8_t v_res_141_; lean_object* v_r_142_; 
+v_a_boxed_139_ = lean_unbox(v_a_135_);
+v_isZero_boxed_140_ = lean_unbox(v_isZero_137_);
+v_res_141_ = l_BitVec_instDecidableExistsBitVec___redArg___lam__0(v_n_134_, v_a_boxed_139_, v_x_136_, v_isZero_boxed_140_, v_a_138_);
+lean_dec(v_a_138_);
+lean_dec(v_n_134_);
+v_r_142_ = lean_box(v_res_141_);
+return v_r_142_;
 }
 }
-LEAN_EXPORT uint8_t l_BitVec_instDecidableExistsBitVec___redArg___lam__1(lean_object* v_n_130_, lean_object* v_x_131_, uint8_t v_isZero_132_, uint8_t v_a_133_){
+uint8_t l_BitVec_instDecidableExistsBitVec___redArg___lam__1(lean_object* v_n_143_, lean_object* v_x_144_, uint8_t v_isZero_145_, uint8_t v_a_146_){
 _start:
 {
-lean_object* v___x_134_; lean_object* v___x_135_; lean_object* v___f_136_; uint8_t v___x_137_; 
-v___x_134_ = lean_box(v_a_133_);
-v___x_135_ = lean_box(v_isZero_132_);
-lean_inc(v_n_130_);
-v___f_136_ = lean_alloc_closure((void*)(l_BitVec_instDecidableExistsBitVec___redArg___lam__0___boxed), 5, 4);
-lean_closure_set(v___f_136_, 0, v_n_130_);
-lean_closure_set(v___f_136_, 1, v___x_134_);
-lean_closure_set(v___f_136_, 2, v_x_131_);
-lean_closure_set(v___f_136_, 3, v___x_135_);
-v___x_137_ = l_BitVec_instDecidableForallBitVec___redArg(v_n_130_, v___f_136_);
-lean_dec(v_n_130_);
-return v___x_137_;
+lean_object* v___x_147_; lean_object* v___x_148_; lean_object* v___f_149_; uint8_t v___x_150_; 
+v___x_147_ = lean_box(v_a_146_);
+v___x_148_ = lean_box(v_isZero_145_);
+lean_inc(v_n_143_);
+v___f_149_ = lean_alloc_closure((void*)(l_BitVec_instDecidableExistsBitVec___redArg___lam__0___boxed), 5, 4);
+lean_closure_set(v___f_149_, 0, v_n_143_);
+lean_closure_set(v___f_149_, 1, v___x_147_);
+lean_closure_set(v___f_149_, 2, v_x_144_);
+lean_closure_set(v___f_149_, 3, v___x_148_);
+v___x_150_ = l_BitVec_instDecidableForallBitVec___redArg(v_n_143_, v___f_149_);
+lean_dec(v_n_143_);
+return v___x_150_;
 }
 }
-LEAN_EXPORT lean_object* l_BitVec_instDecidableExistsBitVec___redArg___lam__1___boxed(lean_object* v_n_138_, lean_object* v_x_139_, lean_object* v_isZero_140_, lean_object* v_a_141_){
+LEAN_EXPORT void l_BitVec_instDecidableExistsBitVec___redArg___lam__1_0interp(lean_interpreter_value* stack)
+{
+lean_object* v_n_143_ = stack[0].m_obj;
+lean_object* v_x_144_ = stack[1].m_obj;
+uint8_t v_isZero_145_ = stack[2].m_num;
+uint8_t v_a_146_ = stack[3].m_num;
+uint8_t v_res_151_;
+v_res_151_ = l_BitVec_instDecidableExistsBitVec___redArg___lam__1(v_n_143_, v_x_144_, v_isZero_145_, v_a_146_);
+stack->m_num = v_res_151_;
+}
+LEAN_EXPORT lean_object* l_BitVec_instDecidableExistsBitVec___redArg___lam__1___boxed(lean_object* v_n_152_, lean_object* v_x_153_, lean_object* v_isZero_154_, lean_object* v_a_155_){
 _start:
 {
-uint8_t v_isZero_boxed_142_; uint8_t v_a_boxed_143_; uint8_t v_res_144_; lean_object* v_r_145_; 
-v_isZero_boxed_142_ = lean_unbox(v_isZero_140_);
-v_a_boxed_143_ = lean_unbox(v_a_141_);
-v_res_144_ = l_BitVec_instDecidableExistsBitVec___redArg___lam__1(v_n_138_, v_x_139_, v_isZero_boxed_142_, v_a_boxed_143_);
-v_r_145_ = lean_box(v_res_144_);
-return v_r_145_;
+uint8_t v_isZero_boxed_156_; uint8_t v_a_boxed_157_; uint8_t v_res_158_; lean_object* v_r_159_; 
+v_isZero_boxed_156_ = lean_unbox(v_isZero_154_);
+v_a_boxed_157_ = lean_unbox(v_a_155_);
+v_res_158_ = l_BitVec_instDecidableExistsBitVec___redArg___lam__1(v_n_152_, v_x_153_, v_isZero_boxed_156_, v_a_boxed_157_);
+v_r_159_ = lean_box(v_res_158_);
+return v_r_159_;
 }
 }
-LEAN_EXPORT uint8_t l_BitVec_instDecidableExistsBitVec___redArg(lean_object* v_x_146_, lean_object* v_x_147_){
+uint8_t l_BitVec_instDecidableExistsBitVec___redArg(lean_object* v_x_160_, lean_object* v_x_161_){
 _start:
 {
-lean_object* v_zero_148_; uint8_t v_isZero_149_; 
-v_zero_148_ = lean_unsigned_to_nat(0u);
-v_isZero_149_ = lean_nat_dec_eq(v_x_146_, v_zero_148_);
-if (v_isZero_149_ == 1)
+lean_object* v_zero_162_; uint8_t v_isZero_163_; 
+v_zero_162_ = lean_unsigned_to_nat(0u);
+v_isZero_163_ = lean_nat_dec_eq(v_x_160_, v_zero_162_);
+if (v_isZero_163_ == 1)
 {
-lean_object* v___x_150_; lean_object* v___x_151_; uint8_t v___x_152_; 
-v___x_150_ = lean_obj_once(&l_BitVec_instDecidableForallBitVec___redArg___closed__0, &l_BitVec_instDecidableForallBitVec___redArg___closed__0_once, _init_l_BitVec_instDecidableForallBitVec___redArg___closed__0);
-v___x_151_ = lean_apply_1(v_x_147_, v___x_150_);
-v___x_152_ = lean_unbox(v___x_151_);
-return v___x_152_;
-}
-else
-{
-lean_object* v_one_153_; lean_object* v_n_154_; lean_object* v___x_155_; lean_object* v___f_156_; uint8_t v___x_157_; uint8_t v___x_158_; 
-v_one_153_ = lean_unsigned_to_nat(1u);
-v_n_154_ = lean_nat_sub(v_x_146_, v_one_153_);
-v___x_155_ = lean_box(v_isZero_149_);
-v___f_156_ = lean_alloc_closure((void*)(l_BitVec_instDecidableExistsBitVec___redArg___lam__1___boxed), 4, 3);
-lean_closure_set(v___f_156_, 0, v_n_154_);
-lean_closure_set(v___f_156_, 1, v_x_147_);
-lean_closure_set(v___f_156_, 2, v___x_155_);
-v___x_157_ = l_Bool_instDecidableForallOfDecidablePred___redArg(v___f_156_);
-v___x_158_ = l_BitVec_instDecidableExistsBitVecSucc___redArg(v___x_157_);
-return v___x_158_;
-}
-}
-}
-LEAN_EXPORT lean_object* l_BitVec_instDecidableExistsBitVec___redArg___boxed(lean_object* v_x_159_, lean_object* v_x_160_){
-_start:
-{
-uint8_t v_res_161_; lean_object* v_r_162_; 
-v_res_161_ = l_BitVec_instDecidableExistsBitVec___redArg(v_x_159_, v_x_160_);
-lean_dec(v_x_159_);
-v_r_162_ = lean_box(v_res_161_);
-return v_r_162_;
-}
-}
-LEAN_EXPORT uint8_t l_BitVec_instDecidableExistsBitVec(lean_object* v_x_163_, lean_object* v_x_164_, lean_object* v_x_165_){
-_start:
-{
-uint8_t v___x_166_; 
-v___x_166_ = l_BitVec_instDecidableExistsBitVec___redArg(v_x_163_, v_x_165_);
+lean_object* v___x_164_; lean_object* v___x_165_; uint8_t v___x_166_; 
+v___x_164_ = lean_obj_once(&l_BitVec_instDecidableForallBitVec___redArg___closed__0, &l_BitVec_instDecidableForallBitVec___redArg___closed__0_once, _init_l_BitVec_instDecidableForallBitVec___redArg___closed__0);
+v___x_165_ = lean_apply_1(v_x_161_, v___x_164_);
+v___x_166_ = lean_unbox(v___x_165_);
 return v___x_166_;
 }
+else
+{
+lean_object* v_one_167_; lean_object* v_n_168_; lean_object* v___x_169_; lean_object* v___f_170_; uint8_t v___x_171_; uint8_t v___x_172_; 
+v_one_167_ = lean_unsigned_to_nat(1u);
+v_n_168_ = lean_nat_sub(v_x_160_, v_one_167_);
+v___x_169_ = lean_box(v_isZero_163_);
+v___f_170_ = lean_alloc_closure((void*)(l_BitVec_instDecidableExistsBitVec___redArg___lam__1___boxed), 4, 3);
+lean_closure_set(v___f_170_, 0, v_n_168_);
+lean_closure_set(v___f_170_, 1, v_x_161_);
+lean_closure_set(v___f_170_, 2, v___x_169_);
+v___x_171_ = l_Bool_instDecidableForallOfDecidablePred___redArg(v___f_170_);
+v___x_172_ = l_BitVec_instDecidableExistsBitVecSucc___redArg(v___x_171_);
+return v___x_172_;
 }
-LEAN_EXPORT lean_object* l_BitVec_instDecidableExistsBitVec___boxed(lean_object* v_x_167_, lean_object* v_x_168_, lean_object* v_x_169_){
+}
+}
+LEAN_EXPORT void l_BitVec_instDecidableExistsBitVec___redArg_0interp(lean_interpreter_value* stack)
+{
+lean_object* v_x_160_ = stack[0].m_obj;
+lean_object* v_x_161_ = stack[1].m_obj;
+uint8_t v_res_173_;
+v_res_173_ = l_BitVec_instDecidableExistsBitVec___redArg(v_x_160_, v_x_161_);
+stack->m_num = v_res_173_;
+}
+LEAN_EXPORT lean_object* l_BitVec_instDecidableExistsBitVec___redArg___boxed(lean_object* v_x_174_, lean_object* v_x_175_){
 _start:
 {
-uint8_t v_res_170_; lean_object* v_r_171_; 
-v_res_170_ = l_BitVec_instDecidableExistsBitVec(v_x_167_, v_x_168_, v_x_169_);
-lean_dec(v_x_167_);
-v_r_171_ = lean_box(v_res_170_);
-return v_r_171_;
+uint8_t v_res_176_; lean_object* v_r_177_; 
+v_res_176_ = l_BitVec_instDecidableExistsBitVec___redArg(v_x_174_, v_x_175_);
+lean_dec(v_x_174_);
+v_r_177_ = lean_box(v_res_176_);
+return v_r_177_;
+}
+}
+uint8_t l_BitVec_instDecidableExistsBitVec(lean_object* v_x_178_, lean_object* v_x_179_, lean_object* v_x_180_){
+_start:
+{
+uint8_t v___x_181_; 
+v___x_181_ = l_BitVec_instDecidableExistsBitVec___redArg(v_x_178_, v_x_180_);
+return v___x_181_;
+}
+}
+LEAN_EXPORT void l_BitVec_instDecidableExistsBitVec_0interp(lean_interpreter_value* stack)
+{
+lean_object* v_x_178_ = stack[0].m_obj;
+lean_object* v_x_180_ = stack[2].m_obj;
+uint8_t v_res_182_;
+v_res_182_ = l_BitVec_instDecidableExistsBitVec(v_x_178_, lean_box(0), v_x_180_);
+stack->m_num = v_res_182_;
+}
+LEAN_EXPORT lean_object* l_BitVec_instDecidableExistsBitVec___boxed(lean_object* v_x_183_, lean_object* v_x_184_, lean_object* v_x_185_){
+_start:
+{
+uint8_t v_res_186_; lean_object* v_r_187_; 
+v_res_186_ = l_BitVec_instDecidableExistsBitVec(v_x_183_, v_x_184_, v_x_185_);
+lean_dec(v_x_183_);
+v_r_187_ = lean_box(v_res_186_);
+return v_r_187_;
 }
 }
 lean_object* runtime_initialize_Init_Ext(uint8_t builtin);

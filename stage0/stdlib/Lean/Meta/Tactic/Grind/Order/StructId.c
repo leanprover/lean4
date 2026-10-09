@@ -19,7 +19,7 @@ LEAN_EXPORT lean_object* l_Lean_Meta_Grind_Order_getStructId_x3f___redArg(lean_o
 LEAN_EXPORT lean_object* l_Lean_Meta_Grind_Order_getStructId_x3f___redArg___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Meta_Grind_Order_getStructId_x3f(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Meta_Grind_Order_getStructId_x3f___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
-LEAN_EXPORT lean_object* l_Lean_Meta_Grind_Order_getStructId_x3f___redArg(lean_object* v_type_1_, lean_object* v_a_2_, lean_object* v_a_3_, lean_object* v_a_4_, lean_object* v_a_5_, lean_object* v_a_6_, lean_object* v_a_7_, lean_object* v_a_8_){
+lean_object* l_Lean_Meta_Grind_Order_getStructId_x3f___redArg(lean_object* v_type_1_, lean_object* v_a_2_, lean_object* v_a_3_, lean_object* v_a_4_, lean_object* v_a_5_, lean_object* v_a_6_, lean_object* v_a_7_, lean_object* v_a_8_){
 _start:
 {
 lean_object* v___x_10_; 
@@ -125,34 +125,69 @@ return v___x_27_;
 }
 }
 }
-LEAN_EXPORT lean_object* l_Lean_Meta_Grind_Order_getStructId_x3f___redArg___boxed(lean_object* v_type_30_, lean_object* v_a_31_, lean_object* v_a_32_, lean_object* v_a_33_, lean_object* v_a_34_, lean_object* v_a_35_, lean_object* v_a_36_, lean_object* v_a_37_, lean_object* v_a_38_){
+LEAN_EXPORT void l_Lean_Meta_Grind_Order_getStructId_x3f___redArg_0interp(lean_interpreter_value* stack)
+{
+lean_object* v_type_1_ = stack[0].m_obj;
+lean_object* v_a_2_ = stack[1].m_obj;
+lean_object* v_a_3_ = stack[2].m_obj;
+lean_object* v_a_4_ = stack[3].m_obj;
+lean_object* v_a_5_ = stack[4].m_obj;
+lean_object* v_a_6_ = stack[5].m_obj;
+lean_object* v_a_7_ = stack[6].m_obj;
+lean_object* v_a_8_ = stack[7].m_obj;
+lean_object* v_res_30_;
+v_res_30_ = l_Lean_Meta_Grind_Order_getStructId_x3f___redArg(v_type_1_, v_a_2_, v_a_3_, v_a_4_, v_a_5_, v_a_6_, v_a_7_, v_a_8_);
+stack->m_obj
+ = v_res_30_;
+}
+LEAN_EXPORT lean_object* l_Lean_Meta_Grind_Order_getStructId_x3f___redArg___boxed(lean_object* v_type_31_, lean_object* v_a_32_, lean_object* v_a_33_, lean_object* v_a_34_, lean_object* v_a_35_, lean_object* v_a_36_, lean_object* v_a_37_, lean_object* v_a_38_, lean_object* v_a_39_){
 _start:
 {
-lean_object* v_res_39_; 
-v_res_39_ = l_Lean_Meta_Grind_Order_getStructId_x3f___redArg(v_type_30_, v_a_31_, v_a_32_, v_a_33_, v_a_34_, v_a_35_, v_a_36_, v_a_37_);
-lean_dec(v_a_37_);
-lean_dec_ref(v_a_36_);
-lean_dec(v_a_35_);
-lean_dec_ref(v_a_34_);
-lean_dec(v_a_33_);
+lean_object* v_res_40_; 
+v_res_40_ = l_Lean_Meta_Grind_Order_getStructId_x3f___redArg(v_type_31_, v_a_32_, v_a_33_, v_a_34_, v_a_35_, v_a_36_, v_a_37_, v_a_38_);
+lean_dec(v_a_38_);
+lean_dec_ref(v_a_37_);
+lean_dec(v_a_36_);
+lean_dec_ref(v_a_35_);
+lean_dec(v_a_34_);
+lean_dec_ref(v_a_33_);
 lean_dec_ref(v_a_32_);
-lean_dec_ref(v_a_31_);
-return v_res_39_;
+return v_res_40_;
 }
 }
-LEAN_EXPORT lean_object* l_Lean_Meta_Grind_Order_getStructId_x3f(lean_object* v_type_40_, lean_object* v_a_41_, lean_object* v_a_42_, lean_object* v_a_43_, lean_object* v_a_44_, lean_object* v_a_45_, lean_object* v_a_46_, lean_object* v_a_47_, lean_object* v_a_48_, lean_object* v_a_49_, lean_object* v_a_50_){
+lean_object* l_Lean_Meta_Grind_Order_getStructId_x3f(lean_object* v_type_41_, lean_object* v_a_42_, lean_object* v_a_43_, lean_object* v_a_44_, lean_object* v_a_45_, lean_object* v_a_46_, lean_object* v_a_47_, lean_object* v_a_48_, lean_object* v_a_49_, lean_object* v_a_50_, lean_object* v_a_51_){
 _start:
 {
-lean_object* v___x_52_; 
-v___x_52_ = l_Lean_Meta_Grind_Order_getStructId_x3f___redArg(v_type_40_, v_a_43_, v_a_45_, v_a_46_, v_a_47_, v_a_48_, v_a_49_, v_a_50_);
-return v___x_52_;
+lean_object* v___x_53_; 
+v___x_53_ = l_Lean_Meta_Grind_Order_getStructId_x3f___redArg(v_type_41_, v_a_44_, v_a_46_, v_a_47_, v_a_48_, v_a_49_, v_a_50_, v_a_51_);
+return v___x_53_;
 }
 }
-LEAN_EXPORT lean_object* l_Lean_Meta_Grind_Order_getStructId_x3f___boxed(lean_object* v_type_53_, lean_object* v_a_54_, lean_object* v_a_55_, lean_object* v_a_56_, lean_object* v_a_57_, lean_object* v_a_58_, lean_object* v_a_59_, lean_object* v_a_60_, lean_object* v_a_61_, lean_object* v_a_62_, lean_object* v_a_63_, lean_object* v_a_64_){
+LEAN_EXPORT void l_Lean_Meta_Grind_Order_getStructId_x3f_0interp(lean_interpreter_value* stack)
+{
+lean_object* v_type_41_ = stack[0].m_obj;
+lean_object* v_a_42_ = stack[1].m_obj;
+lean_object* v_a_43_ = stack[2].m_obj;
+lean_object* v_a_44_ = stack[3].m_obj;
+lean_object* v_a_45_ = stack[4].m_obj;
+lean_object* v_a_46_ = stack[5].m_obj;
+lean_object* v_a_47_ = stack[6].m_obj;
+lean_object* v_a_48_ = stack[7].m_obj;
+lean_object* v_a_49_ = stack[8].m_obj;
+lean_object* v_a_50_ = stack[9].m_obj;
+lean_object* v_a_51_ = stack[10].m_obj;
+lean_object* v_res_54_;
+v_res_54_ = l_Lean_Meta_Grind_Order_getStructId_x3f(v_type_41_, v_a_42_, v_a_43_, v_a_44_, v_a_45_, v_a_46_, v_a_47_, v_a_48_, v_a_49_, v_a_50_, v_a_51_);
+stack->m_obj
+ = v_res_54_;
+}
+LEAN_EXPORT lean_object* l_Lean_Meta_Grind_Order_getStructId_x3f___boxed(lean_object* v_type_55_, lean_object* v_a_56_, lean_object* v_a_57_, lean_object* v_a_58_, lean_object* v_a_59_, lean_object* v_a_60_, lean_object* v_a_61_, lean_object* v_a_62_, lean_object* v_a_63_, lean_object* v_a_64_, lean_object* v_a_65_, lean_object* v_a_66_){
 _start:
 {
-lean_object* v_res_65_; 
-v_res_65_ = l_Lean_Meta_Grind_Order_getStructId_x3f(v_type_53_, v_a_54_, v_a_55_, v_a_56_, v_a_57_, v_a_58_, v_a_59_, v_a_60_, v_a_61_, v_a_62_, v_a_63_);
+lean_object* v_res_67_; 
+v_res_67_ = l_Lean_Meta_Grind_Order_getStructId_x3f(v_type_55_, v_a_56_, v_a_57_, v_a_58_, v_a_59_, v_a_60_, v_a_61_, v_a_62_, v_a_63_, v_a_64_, v_a_65_);
+lean_dec(v_a_65_);
+lean_dec_ref(v_a_64_);
 lean_dec(v_a_63_);
 lean_dec_ref(v_a_62_);
 lean_dec(v_a_61_);
@@ -160,10 +195,8 @@ lean_dec_ref(v_a_60_);
 lean_dec(v_a_59_);
 lean_dec_ref(v_a_58_);
 lean_dec(v_a_57_);
-lean_dec_ref(v_a_56_);
-lean_dec(v_a_55_);
-lean_dec(v_a_54_);
-return v_res_65_;
+lean_dec(v_a_56_);
+return v_res_67_;
 }
 }
 lean_object* runtime_initialize_Lean_Meta_Tactic_Grind_Order_Types(uint8_t builtin);

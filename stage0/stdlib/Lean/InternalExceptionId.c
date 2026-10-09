@@ -79,7 +79,7 @@ v___x_2_ = lean_unsigned_to_nat(0u);
 return v___x_2_;
 }
 }
-LEAN_EXPORT uint8_t l_Lean_instBEqInternalExceptionId_beq(lean_object* v_x_3_, lean_object* v_x_4_){
+uint8_t l_Lean_instBEqInternalExceptionId_beq(lean_object* v_x_3_, lean_object* v_x_4_){
 _start:
 {
 uint8_t v___x_5_; 
@@ -87,220 +87,269 @@ v___x_5_ = lean_nat_dec_eq(v_x_3_, v_x_4_);
 return v___x_5_;
 }
 }
-LEAN_EXPORT lean_object* l_Lean_instBEqInternalExceptionId_beq___boxed(lean_object* v_x_6_, lean_object* v_x_7_){
+LEAN_EXPORT void l_Lean_instBEqInternalExceptionId_beq_0interp(lean_interpreter_value* stack)
+{
+lean_object* v_x_3_ = stack[0].m_obj;
+lean_object* v_x_4_ = stack[1].m_obj;
+uint8_t v_res_6_;
+v_res_6_ = l_Lean_instBEqInternalExceptionId_beq(v_x_3_, v_x_4_);
+stack->m_num = v_res_6_;
+}
+LEAN_EXPORT lean_object* l_Lean_instBEqInternalExceptionId_beq___boxed(lean_object* v_x_7_, lean_object* v_x_8_){
 _start:
 {
-uint8_t v_res_8_; lean_object* v_r_9_; 
-v_res_8_ = l_Lean_instBEqInternalExceptionId_beq(v_x_6_, v_x_7_);
+uint8_t v_res_9_; lean_object* v_r_10_; 
+v_res_9_ = l_Lean_instBEqInternalExceptionId_beq(v_x_7_, v_x_8_);
+lean_dec(v_x_8_);
 lean_dec(v_x_7_);
-lean_dec(v_x_6_);
-v_r_9_ = lean_box(v_res_8_);
-return v_r_9_;
+v_r_10_ = lean_box(v_res_9_);
+return v_r_10_;
 }
 }
-LEAN_EXPORT lean_object* l___private_Lean_InternalExceptionId_0__Lean_initFn_00___x40_Lean_InternalExceptionId_3474817028____hygCtx___hyg_2_(){
+lean_object* l___private_Lean_InternalExceptionId_0__Lean_initFn_00___x40_Lean_InternalExceptionId_3474817028____hygCtx___hyg_2_(){
 _start:
 {
-lean_object* v___x_15_; lean_object* v___x_16_; lean_object* v___x_17_; 
-v___x_15_ = ((lean_object*)(l___private_Lean_InternalExceptionId_0__Lean_initFn___closed__0_00___x40_Lean_InternalExceptionId_3474817028____hygCtx___hyg_2_));
-v___x_16_ = lean_st_mk_ref(v___x_15_);
-v___x_17_ = lean_alloc_ctor(0, 1, 0);
-lean_ctor_set(v___x_17_, 0, v___x_16_);
-return v___x_17_;
+lean_object* v___x_16_; lean_object* v___x_17_; lean_object* v___x_18_; 
+v___x_16_ = ((lean_object*)(l___private_Lean_InternalExceptionId_0__Lean_initFn___closed__0_00___x40_Lean_InternalExceptionId_3474817028____hygCtx___hyg_2_));
+v___x_17_ = lean_st_mk_ref(v___x_16_);
+v___x_18_ = lean_alloc_ctor(0, 1, 0);
+lean_ctor_set(v___x_18_, 0, v___x_17_);
+return v___x_18_;
 }
 }
-LEAN_EXPORT lean_object* l___private_Lean_InternalExceptionId_0__Lean_initFn_00___x40_Lean_InternalExceptionId_3474817028____hygCtx___hyg_2____boxed(lean_object* v_a_18_){
-_start:
+LEAN_EXPORT void l___private_Lean_InternalExceptionId_0__Lean_initFn_00___x40_Lean_InternalExceptionId_3474817028____hygCtx___hyg_2__0interp(lean_interpreter_value* stack)
 {
-lean_object* v_res_19_; 
+lean_object* v_res_19_;
 v_res_19_ = l___private_Lean_InternalExceptionId_0__Lean_initFn_00___x40_Lean_InternalExceptionId_3474817028____hygCtx___hyg_2_();
-return v_res_19_;
+stack->m_obj
+ = v_res_19_;
 }
-}
-LEAN_EXPORT uint8_t l___private_Init_Data_Array_Basic_0__Array_anyMUnsafe_any___at___00Array_contains___at___00Lean_registerInternalExceptionId_spec__0_spec__0(lean_object* v_a_20_, lean_object* v_as_21_, size_t v_i_22_, size_t v_stop_23_){
+LEAN_EXPORT lean_object* l___private_Lean_InternalExceptionId_0__Lean_initFn_00___x40_Lean_InternalExceptionId_3474817028____hygCtx___hyg_2____boxed(lean_object* v_a_20_){
 _start:
 {
-uint8_t v___x_24_; 
-v___x_24_ = lean_usize_dec_eq(v_i_22_, v_stop_23_);
-if (v___x_24_ == 0)
+lean_object* v_res_21_; 
+v_res_21_ = l___private_Lean_InternalExceptionId_0__Lean_initFn_00___x40_Lean_InternalExceptionId_3474817028____hygCtx___hyg_2_();
+return v_res_21_;
+}
+}
+uint8_t l___private_Init_Data_Array_Basic_0__Array_anyMUnsafe_any___at___00Array_contains___at___00Lean_registerInternalExceptionId_spec__0_spec__0(lean_object* v_a_22_, lean_object* v_as_23_, size_t v_i_24_, size_t v_stop_25_){
+_start:
 {
-lean_object* v___x_25_; uint8_t v___x_26_; 
-v___x_25_ = lean_array_uget_borrowed(v_as_21_, v_i_22_);
-v___x_26_ = lean_name_eq(v_a_20_, v___x_25_);
+uint8_t v___x_26_; 
+v___x_26_ = lean_usize_dec_eq(v_i_24_, v_stop_25_);
 if (v___x_26_ == 0)
 {
-size_t v___x_27_; size_t v___x_28_; 
-v___x_27_ = ((size_t)1ULL);
-v___x_28_ = lean_usize_add(v_i_22_, v___x_27_);
-v_i_22_ = v___x_28_;
+lean_object* v___x_27_; uint8_t v___x_28_; 
+v___x_27_ = lean_array_uget_borrowed(v_as_23_, v_i_24_);
+v___x_28_ = lean_name_eq(v_a_22_, v___x_27_);
+if (v___x_28_ == 0)
+{
+size_t v___x_29_; size_t v___x_30_; 
+v___x_29_ = ((size_t)1ULL);
+v___x_30_ = lean_usize_add(v_i_24_, v___x_29_);
+v_i_24_ = v___x_30_;
 goto _start;
 }
 else
 {
-return v___x_26_;
+return v___x_28_;
 }
 }
 else
 {
-uint8_t v___x_30_; 
-v___x_30_ = 0;
-return v___x_30_;
+uint8_t v___x_32_; 
+v___x_32_ = 0;
+return v___x_32_;
 }
 }
 }
-LEAN_EXPORT lean_object* l___private_Init_Data_Array_Basic_0__Array_anyMUnsafe_any___at___00Array_contains___at___00Lean_registerInternalExceptionId_spec__0_spec__0___boxed(lean_object* v_a_31_, lean_object* v_as_32_, lean_object* v_i_33_, lean_object* v_stop_34_){
+LEAN_EXPORT void l___private_Init_Data_Array_Basic_0__Array_anyMUnsafe_any___at___00Array_contains___at___00Lean_registerInternalExceptionId_spec__0_spec__0_0interp(lean_interpreter_value* stack)
+{
+lean_object* v_a_22_ = stack[0].m_obj;
+lean_object* v_as_23_ = stack[1].m_obj;
+size_t v_i_24_ = stack[2].m_num;
+size_t v_stop_25_ = stack[3].m_num;
+uint8_t v_res_33_;
+v_res_33_ = l___private_Init_Data_Array_Basic_0__Array_anyMUnsafe_any___at___00Array_contains___at___00Lean_registerInternalExceptionId_spec__0_spec__0(v_a_22_, v_as_23_, v_i_24_, v_stop_25_);
+stack->m_num = v_res_33_;
+}
+LEAN_EXPORT lean_object* l___private_Init_Data_Array_Basic_0__Array_anyMUnsafe_any___at___00Array_contains___at___00Lean_registerInternalExceptionId_spec__0_spec__0___boxed(lean_object* v_a_34_, lean_object* v_as_35_, lean_object* v_i_36_, lean_object* v_stop_37_){
 _start:
 {
-size_t v_i_boxed_35_; size_t v_stop_boxed_36_; uint8_t v_res_37_; lean_object* v_r_38_; 
-v_i_boxed_35_ = lean_unbox_usize(v_i_33_);
-lean_dec(v_i_33_);
-v_stop_boxed_36_ = lean_unbox_usize(v_stop_34_);
-lean_dec(v_stop_34_);
-v_res_37_ = l___private_Init_Data_Array_Basic_0__Array_anyMUnsafe_any___at___00Array_contains___at___00Lean_registerInternalExceptionId_spec__0_spec__0(v_a_31_, v_as_32_, v_i_boxed_35_, v_stop_boxed_36_);
-lean_dec_ref(v_as_32_);
-lean_dec(v_a_31_);
-v_r_38_ = lean_box(v_res_37_);
-return v_r_38_;
+size_t v_i_boxed_38_; size_t v_stop_boxed_39_; uint8_t v_res_40_; lean_object* v_r_41_; 
+v_i_boxed_38_ = lean_unbox_usize(v_i_36_);
+lean_dec(v_i_36_);
+v_stop_boxed_39_ = lean_unbox_usize(v_stop_37_);
+lean_dec(v_stop_37_);
+v_res_40_ = l___private_Init_Data_Array_Basic_0__Array_anyMUnsafe_any___at___00Array_contains___at___00Lean_registerInternalExceptionId_spec__0_spec__0(v_a_34_, v_as_35_, v_i_boxed_38_, v_stop_boxed_39_);
+lean_dec_ref(v_as_35_);
+lean_dec(v_a_34_);
+v_r_41_ = lean_box(v_res_40_);
+return v_r_41_;
 }
 }
-LEAN_EXPORT uint8_t l_Array_contains___at___00Lean_registerInternalExceptionId_spec__0(lean_object* v_as_39_, lean_object* v_a_40_){
+uint8_t l_Array_contains___at___00Lean_registerInternalExceptionId_spec__0(lean_object* v_as_42_, lean_object* v_a_43_){
 _start:
 {
-lean_object* v___x_41_; lean_object* v___x_42_; uint8_t v___x_43_; 
-v___x_41_ = lean_unsigned_to_nat(0u);
-v___x_42_ = lean_array_get_size(v_as_39_);
-v___x_43_ = lean_nat_dec_lt(v___x_41_, v___x_42_);
-if (v___x_43_ == 0)
+lean_object* v___x_44_; lean_object* v___x_45_; uint8_t v___x_46_; 
+v___x_44_ = lean_unsigned_to_nat(0u);
+v___x_45_ = lean_array_get_size(v_as_42_);
+v___x_46_ = lean_nat_dec_lt(v___x_44_, v___x_45_);
+if (v___x_46_ == 0)
 {
-return v___x_43_;
-}
-else
-{
-if (v___x_43_ == 0)
-{
-return v___x_43_;
-}
-else
-{
-size_t v___x_44_; size_t v___x_45_; uint8_t v___x_46_; 
-v___x_44_ = ((size_t)0ULL);
-v___x_45_ = lean_usize_of_nat(v___x_42_);
-v___x_46_ = l___private_Init_Data_Array_Basic_0__Array_anyMUnsafe_any___at___00Array_contains___at___00Lean_registerInternalExceptionId_spec__0_spec__0(v_a_40_, v_as_39_, v___x_44_, v___x_45_);
 return v___x_46_;
 }
-}
-}
-}
-LEAN_EXPORT lean_object* l_Array_contains___at___00Lean_registerInternalExceptionId_spec__0___boxed(lean_object* v_as_47_, lean_object* v_a_48_){
-_start:
+else
 {
-uint8_t v_res_49_; lean_object* v_r_50_; 
-v_res_49_ = l_Array_contains___at___00Lean_registerInternalExceptionId_spec__0(v_as_47_, v_a_48_);
-lean_dec(v_a_48_);
-lean_dec_ref(v_as_47_);
-v_r_50_ = lean_box(v_res_49_);
-return v_r_50_;
-}
-}
-LEAN_EXPORT lean_object* l_Lean_registerInternalExceptionId(lean_object* v_name_53_){
-_start:
+if (v___x_46_ == 0)
 {
-lean_object* v___x_55_; lean_object* v___x_56_; uint8_t v___x_57_; 
-v___x_55_ = l_Lean_internalExceptionsRef;
-v___x_56_ = lean_st_ref_get(v___x_55_);
-v___x_57_ = l_Array_contains___at___00Lean_registerInternalExceptionId_spec__0(v___x_56_, v_name_53_);
-if (v___x_57_ == 0)
-{
-lean_object* v___x_58_; lean_object* v___x_59_; lean_object* v___x_60_; lean_object* v___x_61_; lean_object* v___x_62_; 
-v___x_58_ = lean_array_get_size(v___x_56_);
-lean_dec(v___x_56_);
-v___x_59_ = lean_st_ref_take(v___x_55_);
-v___x_60_ = lean_array_push(v___x_59_, v_name_53_);
-v___x_61_ = lean_st_ref_put(v___x_55_, v___x_60_);
-v___x_62_ = lean_alloc_ctor(0, 1, 0);
-lean_ctor_set(v___x_62_, 0, v___x_58_);
-return v___x_62_;
+return v___x_46_;
 }
 else
 {
-lean_object* v___x_63_; lean_object* v___x_64_; lean_object* v___x_65_; lean_object* v___x_66_; lean_object* v___x_67_; lean_object* v___x_68_; lean_object* v___x_69_; 
-lean_dec(v___x_56_);
-v___x_63_ = ((lean_object*)(l_Lean_registerInternalExceptionId___closed__0));
-v___x_64_ = l_Lean_Name_toStringWithToken___at___00Lean_Name_toString_spec__0(v_name_53_, v___x_57_);
-v___x_65_ = lean_string_append(v___x_63_, v___x_64_);
-lean_dec_ref(v___x_64_);
-v___x_66_ = ((lean_object*)(l_Lean_registerInternalExceptionId___closed__1));
-v___x_67_ = lean_string_append(v___x_65_, v___x_66_);
-v___x_68_ = lean_mk_io_user_error(v___x_67_);
-v___x_69_ = lean_alloc_ctor(1, 1, 0);
-lean_ctor_set(v___x_69_, 0, v___x_68_);
-return v___x_69_;
+size_t v___x_47_; size_t v___x_48_; uint8_t v___x_49_; 
+v___x_47_ = ((size_t)0ULL);
+v___x_48_ = lean_usize_of_nat(v___x_45_);
+v___x_49_ = l___private_Init_Data_Array_Basic_0__Array_anyMUnsafe_any___at___00Array_contains___at___00Lean_registerInternalExceptionId_spec__0_spec__0(v_a_43_, v_as_42_, v___x_47_, v___x_48_);
+return v___x_49_;
 }
 }
 }
-LEAN_EXPORT lean_object* l_Lean_registerInternalExceptionId___boxed(lean_object* v_name_70_, lean_object* v_a_71_){
+}
+LEAN_EXPORT void l_Array_contains___at___00Lean_registerInternalExceptionId_spec__0_0interp(lean_interpreter_value* stack)
+{
+lean_object* v_as_42_ = stack[0].m_obj;
+lean_object* v_a_43_ = stack[1].m_obj;
+uint8_t v_res_50_;
+v_res_50_ = l_Array_contains___at___00Lean_registerInternalExceptionId_spec__0(v_as_42_, v_a_43_);
+stack->m_num = v_res_50_;
+}
+LEAN_EXPORT lean_object* l_Array_contains___at___00Lean_registerInternalExceptionId_spec__0___boxed(lean_object* v_as_51_, lean_object* v_a_52_){
 _start:
 {
-lean_object* v_res_72_; 
-v_res_72_ = l_Lean_registerInternalExceptionId(v_name_70_);
-return v_res_72_;
+uint8_t v_res_53_; lean_object* v_r_54_; 
+v_res_53_ = l_Array_contains___at___00Lean_registerInternalExceptionId_spec__0(v_as_51_, v_a_52_);
+lean_dec(v_a_52_);
+lean_dec_ref(v_as_51_);
+v_r_54_ = lean_box(v_res_53_);
+return v_r_54_;
 }
 }
-LEAN_EXPORT lean_object* l_Lean_InternalExceptionId_toString(lean_object* v_id_74_){
+lean_object* l_Lean_registerInternalExceptionId(lean_object* v_name_57_){
 _start:
 {
-lean_object* v___x_75_; lean_object* v___x_76_; lean_object* v___x_77_; 
-v___x_75_ = ((lean_object*)(l_Lean_InternalExceptionId_toString___closed__0));
-v___x_76_ = l_Nat_reprFast(v_id_74_);
-v___x_77_ = lean_string_append(v___x_75_, v___x_76_);
-lean_dec_ref(v___x_76_);
-return v___x_77_;
+lean_object* v___x_59_; lean_object* v___x_60_; uint8_t v___x_61_; 
+v___x_59_ = l_Lean_internalExceptionsRef;
+v___x_60_ = lean_st_ref_get(v___x_59_);
+v___x_61_ = l_Array_contains___at___00Lean_registerInternalExceptionId_spec__0(v___x_60_, v_name_57_);
+if (v___x_61_ == 0)
+{
+lean_object* v___x_62_; lean_object* v___x_63_; lean_object* v___x_64_; lean_object* v___x_65_; lean_object* v___x_66_; 
+v___x_62_ = lean_array_get_size(v___x_60_);
+lean_dec(v___x_60_);
+v___x_63_ = lean_st_ref_take(v___x_59_);
+v___x_64_ = lean_array_push(v___x_63_, v_name_57_);
+v___x_65_ = lean_st_ref_put(v___x_59_, v___x_64_);
+v___x_66_ = lean_alloc_ctor(0, 1, 0);
+lean_ctor_set(v___x_66_, 0, v___x_62_);
+return v___x_66_;
+}
+else
+{
+lean_object* v___x_67_; lean_object* v___x_68_; lean_object* v___x_69_; lean_object* v___x_70_; lean_object* v___x_71_; lean_object* v___x_72_; lean_object* v___x_73_; 
+lean_dec(v___x_60_);
+v___x_67_ = ((lean_object*)(l_Lean_registerInternalExceptionId___closed__0));
+v___x_68_ = l_Lean_Name_toStringWithToken___at___00Lean_Name_toString_spec__0(v_name_57_, v___x_61_);
+v___x_69_ = lean_string_append(v___x_67_, v___x_68_);
+lean_dec_ref(v___x_68_);
+v___x_70_ = ((lean_object*)(l_Lean_registerInternalExceptionId___closed__1));
+v___x_71_ = lean_string_append(v___x_69_, v___x_70_);
+v___x_72_ = lean_mk_io_user_error(v___x_71_);
+v___x_73_ = lean_alloc_ctor(1, 1, 0);
+lean_ctor_set(v___x_73_, 0, v___x_72_);
+return v___x_73_;
+}
+}
+}
+LEAN_EXPORT void l_Lean_registerInternalExceptionId_0interp(lean_interpreter_value* stack)
+{
+lean_object* v_name_57_ = stack[0].m_obj;
+lean_object* v_res_74_;
+v_res_74_ = l_Lean_registerInternalExceptionId(v_name_57_);
+stack->m_obj
+ = v_res_74_;
+}
+LEAN_EXPORT lean_object* l_Lean_registerInternalExceptionId___boxed(lean_object* v_name_75_, lean_object* v_a_76_){
+_start:
+{
+lean_object* v_res_77_; 
+v_res_77_ = l_Lean_registerInternalExceptionId(v_name_75_);
+return v_res_77_;
+}
+}
+LEAN_EXPORT lean_object* l_Lean_InternalExceptionId_toString(lean_object* v_id_79_){
+_start:
+{
+lean_object* v___x_80_; lean_object* v___x_81_; lean_object* v___x_82_; 
+v___x_80_ = ((lean_object*)(l_Lean_InternalExceptionId_toString___closed__0));
+v___x_81_ = l_Nat_reprFast(v_id_79_);
+v___x_82_ = lean_string_append(v___x_80_, v___x_81_);
+lean_dec_ref(v___x_81_);
+return v___x_82_;
 }
 }
 static lean_object* _init_l_Lean_InternalExceptionId_getName___closed__1(void){
 _start:
 {
-lean_object* v___x_79_; lean_object* v___x_80_; 
-v___x_79_ = ((lean_object*)(l_Lean_InternalExceptionId_getName___closed__0));
-v___x_80_ = lean_mk_io_user_error(v___x_79_);
-return v___x_80_;
+lean_object* v___x_84_; lean_object* v___x_85_; 
+v___x_84_ = ((lean_object*)(l_Lean_InternalExceptionId_getName___closed__0));
+v___x_85_ = lean_mk_io_user_error(v___x_84_);
+return v___x_85_;
 }
 }
-LEAN_EXPORT lean_object* l_Lean_InternalExceptionId_getName(lean_object* v_id_81_){
+lean_object* l_Lean_InternalExceptionId_getName(lean_object* v_id_86_){
 _start:
 {
-lean_object* v___x_83_; lean_object* v___x_84_; lean_object* v___x_85_; uint8_t v___x_86_; 
-v___x_83_ = l_Lean_internalExceptionsRef;
-v___x_84_ = lean_st_ref_get(v___x_83_);
-v___x_85_ = lean_array_get_size(v___x_84_);
-v___x_86_ = lean_nat_dec_lt(v_id_81_, v___x_85_);
-if (v___x_86_ == 0)
+lean_object* v___x_88_; lean_object* v___x_89_; lean_object* v___x_90_; uint8_t v___x_91_; 
+v___x_88_ = l_Lean_internalExceptionsRef;
+v___x_89_ = lean_st_ref_get(v___x_88_);
+v___x_90_ = lean_array_get_size(v___x_89_);
+v___x_91_ = lean_nat_dec_lt(v_id_86_, v___x_90_);
+if (v___x_91_ == 0)
 {
-lean_object* v___x_87_; lean_object* v___x_88_; 
-lean_dec(v___x_84_);
-v___x_87_ = lean_obj_once(&l_Lean_InternalExceptionId_getName___closed__1, &l_Lean_InternalExceptionId_getName___closed__1_once, _init_l_Lean_InternalExceptionId_getName___closed__1);
-v___x_88_ = lean_alloc_ctor(1, 1, 0);
-lean_ctor_set(v___x_88_, 0, v___x_87_);
-return v___x_88_;
+lean_object* v___x_92_; lean_object* v___x_93_; 
+lean_dec(v___x_89_);
+v___x_92_ = lean_obj_once(&l_Lean_InternalExceptionId_getName___closed__1, &l_Lean_InternalExceptionId_getName___closed__1_once, _init_l_Lean_InternalExceptionId_getName___closed__1);
+v___x_93_ = lean_alloc_ctor(1, 1, 0);
+lean_ctor_set(v___x_93_, 0, v___x_92_);
+return v___x_93_;
 }
 else
 {
-lean_object* v___x_89_; lean_object* v___x_90_; 
-v___x_89_ = lean_array_fget(v___x_84_, v_id_81_);
-lean_dec(v___x_84_);
-v___x_90_ = lean_alloc_ctor(0, 1, 0);
-lean_ctor_set(v___x_90_, 0, v___x_89_);
-return v___x_90_;
+lean_object* v___x_94_; lean_object* v___x_95_; 
+v___x_94_ = lean_array_fget(v___x_89_, v_id_86_);
+lean_dec(v___x_89_);
+v___x_95_ = lean_alloc_ctor(0, 1, 0);
+lean_ctor_set(v___x_95_, 0, v___x_94_);
+return v___x_95_;
 }
 }
 }
-LEAN_EXPORT lean_object* l_Lean_InternalExceptionId_getName___boxed(lean_object* v_id_91_, lean_object* v_a_92_){
+LEAN_EXPORT void l_Lean_InternalExceptionId_getName_0interp(lean_interpreter_value* stack)
+{
+lean_object* v_id_86_ = stack[0].m_obj;
+lean_object* v_res_96_;
+v_res_96_ = l_Lean_InternalExceptionId_getName(v_id_86_);
+stack->m_obj
+ = v_res_96_;
+}
+LEAN_EXPORT lean_object* l_Lean_InternalExceptionId_getName___boxed(lean_object* v_id_97_, lean_object* v_a_98_){
 _start:
 {
-lean_object* v_res_93_; 
-v_res_93_ = l_Lean_InternalExceptionId_getName(v_id_91_);
-lean_dec(v_id_91_);
-return v_res_93_;
+lean_object* v_res_99_; 
+v_res_99_ = l_Lean_InternalExceptionId_getName(v_id_97_);
+lean_dec(v_id_97_);
+return v_res_99_;
 }
 }
 lean_object* runtime_initialize_Init_System_IO(uint8_t builtin);

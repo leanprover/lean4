@@ -17,22 +17,36 @@ lean_object* lean_uv_event_loop_configure(lean_object*);
 LEAN_EXPORT lean_object* l_Std_Internal_UV_Loop_configure___boxed(lean_object*, lean_object*);
 uint8_t lean_uv_event_loop_alive();
 LEAN_EXPORT lean_object* l_Std_Internal_UV_Loop_alive___boxed(lean_object*);
-LEAN_EXPORT lean_object* l_Std_Internal_UV_Loop_configure___boxed(lean_object* v_options_3_, lean_object* v_a_00___x40___internal___hyg_4_){
+LEAN_EXPORT void l_Std_Internal_UV_Loop_configure_0interp(lean_interpreter_value* stack)
+{
+lean_object* v_options_1_ = stack[0].m_obj;
+lean_object* v_res_3_;
+v_res_3_ = lean_uv_event_loop_configure(v_options_1_);
+stack->m_obj
+ = v_res_3_;
+}
+LEAN_EXPORT lean_object* l_Std_Internal_UV_Loop_configure___boxed(lean_object* v_options_4_, lean_object* v_a_00___x40___internal___hyg_5_){
 _start:
 {
-lean_object* v_res_5_; 
-v_res_5_ = lean_uv_event_loop_configure(v_options_3_);
-lean_dec_ref(v_options_3_);
-return v_res_5_;
+lean_object* v_res_6_; 
+v_res_6_ = lean_uv_event_loop_configure(v_options_4_);
+lean_dec_ref(v_options_4_);
+return v_res_6_;
 }
 }
-LEAN_EXPORT lean_object* l_Std_Internal_UV_Loop_alive___boxed(lean_object* v_a_00___x40___internal___hyg_7_){
-_start:
+LEAN_EXPORT void l_Std_Internal_UV_Loop_alive_0interp(lean_interpreter_value* stack)
 {
-uint8_t v_res_8_; lean_object* v_r_9_; 
+uint8_t v_res_8_;
 v_res_8_ = lean_uv_event_loop_alive();
-v_r_9_ = lean_box(v_res_8_);
-return v_r_9_;
+stack->m_num = v_res_8_;
+}
+LEAN_EXPORT lean_object* l_Std_Internal_UV_Loop_alive___boxed(lean_object* v_a_00___x40___internal___hyg_9_){
+_start:
+{
+uint8_t v_res_10_; lean_object* v_r_11_; 
+v_res_10_ = lean_uv_event_loop_alive();
+v_r_11_ = lean_box(v_res_10_);
+return v_r_11_;
 }
 }
 lean_object* runtime_initialize_Init_System_Promise(uint8_t builtin);

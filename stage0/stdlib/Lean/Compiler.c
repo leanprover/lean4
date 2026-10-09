@@ -1,6 +1,6 @@
 // Lean compiler output
 // Module: Lean.Compiler
-// Imports: public import Lean.Compiler.InlineAttrs public import Lean.Compiler.Specialize public import Lean.Compiler.ClosedTermCache public import Lean.Compiler.ExternAttr public import Lean.Compiler.ImplementedByAttr public import Lean.Compiler.NeverExtractAttr public import Lean.Compiler.IR public import Lean.Compiler.CSimpAttr public import Lean.Compiler.FFI public import Lean.Compiler.MetaAttr public import Lean.Compiler.NoncomputableAttr public import Lean.Compiler.Main public import Lean.Compiler.NameDemangling public import Lean.Compiler.Old public import Lean.Compiler.Bytecode
+// Imports: public import Lean.Compiler.InlineAttrs public import Lean.Compiler.Specialize public import Lean.Compiler.ClosedTermCache public import Lean.Compiler.ExternAttr public import Lean.Compiler.ImplementedByAttr public import Lean.Compiler.NeverExtractAttr public import Lean.Compiler.CSimpAttr public import Lean.Compiler.FFI public import Lean.Compiler.MetaAttr public import Lean.Compiler.NoncomputableAttr public import Lean.Compiler.Main public import Lean.Compiler.NameDemangling public import Lean.Compiler.Old public import Lean.Compiler.Bytecode
 #include <lean/lean.h>
 #if defined(__clang__)
 #pragma clang diagnostic ignored "-Wunused-parameter"
@@ -19,7 +19,6 @@ lean_object* runtime_initialize_Lean_Compiler_ClosedTermCache(uint8_t builtin);
 lean_object* runtime_initialize_Lean_Compiler_ExternAttr(uint8_t builtin);
 lean_object* runtime_initialize_Lean_Compiler_ImplementedByAttr(uint8_t builtin);
 lean_object* runtime_initialize_Lean_Compiler_NeverExtractAttr(uint8_t builtin);
-lean_object* runtime_initialize_Lean_Compiler_IR(uint8_t builtin);
 lean_object* runtime_initialize_Lean_Compiler_CSimpAttr(uint8_t builtin);
 lean_object* runtime_initialize_Lean_Compiler_FFI(uint8_t builtin);
 lean_object* runtime_initialize_Lean_Compiler_MetaAttr(uint8_t builtin);
@@ -51,9 +50,6 @@ res = runtime_initialize_Lean_Compiler_ImplementedByAttr(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
 res = runtime_initialize_Lean_Compiler_NeverExtractAttr(builtin);
-if (lean_io_result_is_error(res)) return res;
-lean_dec_ref(res);
-res = runtime_initialize_Lean_Compiler_IR(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
 res = runtime_initialize_Lean_Compiler_CSimpAttr(builtin);
@@ -95,7 +91,6 @@ lean_object* initialize_Lean_Compiler_ClosedTermCache(uint8_t builtin);
 lean_object* initialize_Lean_Compiler_ExternAttr(uint8_t builtin);
 lean_object* initialize_Lean_Compiler_ImplementedByAttr(uint8_t builtin);
 lean_object* initialize_Lean_Compiler_NeverExtractAttr(uint8_t builtin);
-lean_object* initialize_Lean_Compiler_IR(uint8_t builtin);
 lean_object* initialize_Lean_Compiler_CSimpAttr(uint8_t builtin);
 lean_object* initialize_Lean_Compiler_FFI(uint8_t builtin);
 lean_object* initialize_Lean_Compiler_MetaAttr(uint8_t builtin);
@@ -125,9 +120,6 @@ res = initialize_Lean_Compiler_ImplementedByAttr(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
 res = initialize_Lean_Compiler_NeverExtractAttr(builtin);
-if (lean_io_result_is_error(res)) return res;
-lean_dec_ref(res);
-res = initialize_Lean_Compiler_IR(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
 res = initialize_Lean_Compiler_CSimpAttr(builtin);

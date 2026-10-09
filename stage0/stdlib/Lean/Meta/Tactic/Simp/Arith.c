@@ -18,7 +18,7 @@ uint8_t l_Lean_Meta_Simp_Arith_isLinearTerm(lean_object*);
 uint8_t l_Lean_Meta_Simp_Arith_isLinearCnstr(lean_object*);
 LEAN_EXPORT uint8_t l_Lean_Meta_Simp_Arith_parentIsTarget(lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Meta_Simp_Arith_parentIsTarget___boxed(lean_object*);
-LEAN_EXPORT uint8_t l_Lean_Meta_Simp_Arith_parentIsTarget(lean_object* v_parent_x3f_1_){
+uint8_t l_Lean_Meta_Simp_Arith_parentIsTarget(lean_object* v_parent_x3f_1_){
 _start:
 {
 if (lean_obj_tag(v_parent_x3f_1_) == 0)
@@ -64,13 +64,20 @@ return v___y_5_;
 }
 }
 }
-LEAN_EXPORT lean_object* l_Lean_Meta_Simp_Arith_parentIsTarget___boxed(lean_object* v_parent_x3f_9_){
+LEAN_EXPORT void l_Lean_Meta_Simp_Arith_parentIsTarget_0interp(lean_interpreter_value* stack)
+{
+lean_object* v_parent_x3f_1_ = stack[0].m_obj;
+uint8_t v_res_9_;
+v_res_9_ = l_Lean_Meta_Simp_Arith_parentIsTarget(v_parent_x3f_1_);
+stack->m_num = v_res_9_;
+}
+LEAN_EXPORT lean_object* l_Lean_Meta_Simp_Arith_parentIsTarget___boxed(lean_object* v_parent_x3f_10_){
 _start:
 {
-uint8_t v_res_10_; lean_object* v_r_11_; 
-v_res_10_ = l_Lean_Meta_Simp_Arith_parentIsTarget(v_parent_x3f_9_);
-v_r_11_ = lean_box(v_res_10_);
-return v_r_11_;
+uint8_t v_res_11_; lean_object* v_r_12_; 
+v_res_11_ = l_Lean_Meta_Simp_Arith_parentIsTarget(v_parent_x3f_10_);
+v_r_12_ = lean_box(v_res_11_);
+return v_r_12_;
 }
 }
 lean_object* runtime_initialize_Lean_Meta_Tactic_Simp_Arith_Nat(uint8_t builtin);

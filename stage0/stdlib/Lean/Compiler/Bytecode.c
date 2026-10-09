@@ -1,6 +1,6 @@
 // Lean compiler output
 // Module: Lean.Compiler.Bytecode
-// Imports: public import Lean.Compiler.Bytecode.Assemble public import Lean.Compiler.Bytecode.Basic public import Lean.Compiler.Bytecode.Instruction
+// Imports: public import Lean.Compiler.Bytecode.Main public import Lean.Compiler.Bytecode.Sorry public import Lean.Compiler.Bytecode.Basic public import Lean.Compiler.Bytecode.Instruction public import Lean.Compiler.Bytecode.Eval public import Lean.Compiler.Bytecode.UnboxResult
 #include <lean/lean.h>
 #if defined(__clang__)
 #pragma clang diagnostic ignored "-Wunused-parameter"
@@ -13,9 +13,12 @@
 #ifdef __cplusplus
 extern "C" {
 #endif
-lean_object* runtime_initialize_Lean_Compiler_Bytecode_Assemble(uint8_t builtin);
+lean_object* runtime_initialize_Lean_Compiler_Bytecode_Main(uint8_t builtin);
+lean_object* runtime_initialize_Lean_Compiler_Bytecode_Sorry(uint8_t builtin);
 lean_object* runtime_initialize_Lean_Compiler_Bytecode_Basic(uint8_t builtin);
 lean_object* runtime_initialize_Lean_Compiler_Bytecode_Instruction(uint8_t builtin);
+lean_object* runtime_initialize_Lean_Compiler_Bytecode_Eval(uint8_t builtin);
+lean_object* runtime_initialize_Lean_Compiler_Bytecode_UnboxResult(uint8_t builtin);
 void lean_initialize_runtime_module();
 static bool _G_runtime_initialized = false;
 LEAN_EXPORT lean_object* runtime_initialize_Lean_Compiler_Bytecode(uint8_t builtin) {
@@ -23,13 +26,22 @@ lean_object * res;
 if (_G_runtime_initialized) return lean_io_result_mk_ok(lean_box(0));
 _G_runtime_initialized = true;
 lean_initialize_runtime_module();
-res = runtime_initialize_Lean_Compiler_Bytecode_Assemble(builtin);
+res = runtime_initialize_Lean_Compiler_Bytecode_Main(builtin);
+if (lean_io_result_is_error(res)) return res;
+lean_dec_ref(res);
+res = runtime_initialize_Lean_Compiler_Bytecode_Sorry(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
 res = runtime_initialize_Lean_Compiler_Bytecode_Basic(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
 res = runtime_initialize_Lean_Compiler_Bytecode_Instruction(builtin);
+if (lean_io_result_is_error(res)) return res;
+lean_dec_ref(res);
+res = runtime_initialize_Lean_Compiler_Bytecode_Eval(builtin);
+if (lean_io_result_is_error(res)) return res;
+lean_dec_ref(res);
+res = runtime_initialize_Lean_Compiler_Bytecode_UnboxResult(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
 return lean_io_result_mk_ok(lean_box(0));
@@ -41,21 +53,33 @@ if (_G_meta_initialized) return lean_io_result_mk_ok(lean_box(0));
 _G_meta_initialized = true;
 return lean_io_result_mk_ok(lean_box(0));
 }
-lean_object* initialize_Lean_Compiler_Bytecode_Assemble(uint8_t builtin);
+lean_object* initialize_Lean_Compiler_Bytecode_Main(uint8_t builtin);
+lean_object* initialize_Lean_Compiler_Bytecode_Sorry(uint8_t builtin);
 lean_object* initialize_Lean_Compiler_Bytecode_Basic(uint8_t builtin);
 lean_object* initialize_Lean_Compiler_Bytecode_Instruction(uint8_t builtin);
+lean_object* initialize_Lean_Compiler_Bytecode_Eval(uint8_t builtin);
+lean_object* initialize_Lean_Compiler_Bytecode_UnboxResult(uint8_t builtin);
 static bool _G_initialized = false;
 LEAN_EXPORT lean_object* initialize_Lean_Compiler_Bytecode(uint8_t builtin) {
 lean_object * res;
 if (_G_initialized) return lean_io_result_mk_ok(lean_box(0));
 _G_initialized = true;
-res = initialize_Lean_Compiler_Bytecode_Assemble(builtin);
+res = initialize_Lean_Compiler_Bytecode_Main(builtin);
+if (lean_io_result_is_error(res)) return res;
+lean_dec_ref(res);
+res = initialize_Lean_Compiler_Bytecode_Sorry(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
 res = initialize_Lean_Compiler_Bytecode_Basic(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
 res = initialize_Lean_Compiler_Bytecode_Instruction(builtin);
+if (lean_io_result_is_error(res)) return res;
+lean_dec_ref(res);
+res = initialize_Lean_Compiler_Bytecode_Eval(builtin);
+if (lean_io_result_is_error(res)) return res;
+lean_dec_ref(res);
+res = initialize_Lean_Compiler_Bytecode_UnboxResult(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
 res = runtime_initialize_Lean_Compiler_Bytecode(builtin);

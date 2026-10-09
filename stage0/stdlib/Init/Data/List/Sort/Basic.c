@@ -915,7 +915,7 @@ return v___x_287_;
 }
 }
 }
-LEAN_EXPORT uint8_t l_List_zipIdxLE___redArg(lean_object* v_le_288_, lean_object* v_a_289_, lean_object* v_b_290_){
+uint8_t l_List_zipIdxLE___redArg(lean_object* v_le_288_, lean_object* v_a_289_, lean_object* v_b_290_){
 _start:
 {
 lean_object* v_fst_291_; lean_object* v_snd_292_; lean_object* v_fst_293_; lean_object* v_snd_294_; lean_object* v___x_295_; uint8_t v___x_296_; 
@@ -967,30 +967,48 @@ return v___x_301_;
 }
 }
 }
-LEAN_EXPORT lean_object* l_List_zipIdxLE___redArg___boxed(lean_object* v_le_302_, lean_object* v_a_303_, lean_object* v_b_304_){
+LEAN_EXPORT void l_List_zipIdxLE___redArg_0interp(lean_interpreter_value* stack)
+{
+lean_object* v_le_288_ = stack[0].m_obj;
+lean_object* v_a_289_ = stack[1].m_obj;
+lean_object* v_b_290_ = stack[2].m_obj;
+uint8_t v_res_302_;
+v_res_302_ = l_List_zipIdxLE___redArg(v_le_288_, v_a_289_, v_b_290_);
+stack->m_num = v_res_302_;
+}
+LEAN_EXPORT lean_object* l_List_zipIdxLE___redArg___boxed(lean_object* v_le_303_, lean_object* v_a_304_, lean_object* v_b_305_){
 _start:
 {
-uint8_t v_res_305_; lean_object* v_r_306_; 
-v_res_305_ = l_List_zipIdxLE___redArg(v_le_302_, v_a_303_, v_b_304_);
-v_r_306_ = lean_box(v_res_305_);
-return v_r_306_;
+uint8_t v_res_306_; lean_object* v_r_307_; 
+v_res_306_ = l_List_zipIdxLE___redArg(v_le_303_, v_a_304_, v_b_305_);
+v_r_307_ = lean_box(v_res_306_);
+return v_r_307_;
 }
 }
-LEAN_EXPORT uint8_t l_List_zipIdxLE(lean_object* v_00_u03b1_307_, lean_object* v_le_308_, lean_object* v_a_309_, lean_object* v_b_310_){
+uint8_t l_List_zipIdxLE(lean_object* v_00_u03b1_308_, lean_object* v_le_309_, lean_object* v_a_310_, lean_object* v_b_311_){
 _start:
 {
-uint8_t v___x_311_; 
-v___x_311_ = l_List_zipIdxLE___redArg(v_le_308_, v_a_309_, v_b_310_);
-return v___x_311_;
+uint8_t v___x_312_; 
+v___x_312_ = l_List_zipIdxLE___redArg(v_le_309_, v_a_310_, v_b_311_);
+return v___x_312_;
 }
 }
-LEAN_EXPORT lean_object* l_List_zipIdxLE___boxed(lean_object* v_00_u03b1_312_, lean_object* v_le_313_, lean_object* v_a_314_, lean_object* v_b_315_){
+LEAN_EXPORT void l_List_zipIdxLE_0interp(lean_interpreter_value* stack)
+{
+lean_object* v_le_309_ = stack[1].m_obj;
+lean_object* v_a_310_ = stack[2].m_obj;
+lean_object* v_b_311_ = stack[3].m_obj;
+uint8_t v_res_313_;
+v_res_313_ = l_List_zipIdxLE(lean_box(0), v_le_309_, v_a_310_, v_b_311_);
+stack->m_num = v_res_313_;
+}
+LEAN_EXPORT lean_object* l_List_zipIdxLE___boxed(lean_object* v_00_u03b1_314_, lean_object* v_le_315_, lean_object* v_a_316_, lean_object* v_b_317_){
 _start:
 {
-uint8_t v_res_316_; lean_object* v_r_317_; 
-v_res_316_ = l_List_zipIdxLE(v_00_u03b1_312_, v_le_313_, v_a_314_, v_b_315_);
-v_r_317_ = lean_box(v_res_316_);
-return v_r_317_;
+uint8_t v_res_318_; lean_object* v_r_319_; 
+v_res_318_ = l_List_zipIdxLE(v_00_u03b1_314_, v_le_315_, v_a_316_, v_b_317_);
+v_r_319_ = lean_box(v_res_318_);
+return v_r_319_;
 }
 }
 lean_object* runtime_initialize_Init_Ext(uint8_t builtin);

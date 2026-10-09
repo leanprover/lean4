@@ -23,7 +23,7 @@ LEAN_EXPORT lean_object* l_Std_Sat_CNF_Clause_unit___redArg(lean_object*, uint8_
 LEAN_EXPORT lean_object* l_Std_Sat_CNF_Clause_unit___redArg___boxed(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Std_Sat_CNF_Clause_unit(lean_object*, lean_object*, uint8_t);
 LEAN_EXPORT lean_object* l_Std_Sat_CNF_Clause_unit___boxed(lean_object*, lean_object*, lean_object*);
-LEAN_EXPORT lean_object* l_Std_Sat_CNF_Clause_unit___redArg(lean_object* v_atom_3_, uint8_t v_pol_4_){
+lean_object* l_Std_Sat_CNF_Clause_unit___redArg(lean_object* v_atom_3_, uint8_t v_pol_4_){
 _start:
 {
 lean_object* v___x_5_; lean_object* v___x_6_; lean_object* v___x_7_; uint8_t v___y_9_; 
@@ -55,30 +55,48 @@ return v___x_11_;
 }
 }
 }
-LEAN_EXPORT lean_object* l_Std_Sat_CNF_Clause_unit___redArg___boxed(lean_object* v_atom_14_, lean_object* v_pol_15_){
+LEAN_EXPORT void l_Std_Sat_CNF_Clause_unit___redArg_0interp(lean_interpreter_value* stack)
+{
+lean_object* v_atom_3_ = stack[0].m_obj;
+uint8_t v_pol_4_ = stack[1].m_num;
+lean_object* v_res_14_;
+v_res_14_ = l_Std_Sat_CNF_Clause_unit___redArg(v_atom_3_, v_pol_4_);
+stack->m_obj
+ = v_res_14_;
+}
+LEAN_EXPORT lean_object* l_Std_Sat_CNF_Clause_unit___redArg___boxed(lean_object* v_atom_15_, lean_object* v_pol_16_){
 _start:
 {
-uint8_t v_pol_boxed_16_; lean_object* v_res_17_; 
-v_pol_boxed_16_ = lean_unbox(v_pol_15_);
-v_res_17_ = l_Std_Sat_CNF_Clause_unit___redArg(v_atom_14_, v_pol_boxed_16_);
-return v_res_17_;
+uint8_t v_pol_boxed_17_; lean_object* v_res_18_; 
+v_pol_boxed_17_ = lean_unbox(v_pol_16_);
+v_res_18_ = l_Std_Sat_CNF_Clause_unit___redArg(v_atom_15_, v_pol_boxed_17_);
+return v_res_18_;
 }
 }
-LEAN_EXPORT lean_object* l_Std_Sat_CNF_Clause_unit(lean_object* v_00_u03b1_18_, lean_object* v_atom_19_, uint8_t v_pol_20_){
+lean_object* l_Std_Sat_CNF_Clause_unit(lean_object* v_00_u03b1_19_, lean_object* v_atom_20_, uint8_t v_pol_21_){
 _start:
 {
-lean_object* v___x_21_; 
-v___x_21_ = l_Std_Sat_CNF_Clause_unit___redArg(v_atom_19_, v_pol_20_);
-return v___x_21_;
+lean_object* v___x_22_; 
+v___x_22_ = l_Std_Sat_CNF_Clause_unit___redArg(v_atom_20_, v_pol_21_);
+return v___x_22_;
 }
 }
-LEAN_EXPORT lean_object* l_Std_Sat_CNF_Clause_unit___boxed(lean_object* v_00_u03b1_22_, lean_object* v_atom_23_, lean_object* v_pol_24_){
+LEAN_EXPORT void l_Std_Sat_CNF_Clause_unit_0interp(lean_interpreter_value* stack)
+{
+lean_object* v_atom_20_ = stack[1].m_obj;
+uint8_t v_pol_21_ = stack[2].m_num;
+lean_object* v_res_23_;
+v_res_23_ = l_Std_Sat_CNF_Clause_unit(lean_box(0), v_atom_20_, v_pol_21_);
+stack->m_obj
+ = v_res_23_;
+}
+LEAN_EXPORT lean_object* l_Std_Sat_CNF_Clause_unit___boxed(lean_object* v_00_u03b1_24_, lean_object* v_atom_25_, lean_object* v_pol_26_){
 _start:
 {
-uint8_t v_pol_boxed_25_; lean_object* v_res_26_; 
-v_pol_boxed_25_ = lean_unbox(v_pol_24_);
-v_res_26_ = l_Std_Sat_CNF_Clause_unit(v_00_u03b1_22_, v_atom_23_, v_pol_boxed_25_);
-return v_res_26_;
+uint8_t v_pol_boxed_27_; lean_object* v_res_28_; 
+v_pol_boxed_27_ = lean_unbox(v_pol_26_);
+v_res_28_ = l_Std_Sat_CNF_Clause_unit(v_00_u03b1_24_, v_atom_25_, v_pol_boxed_27_);
+return v_res_28_;
 }
 }
 lean_object* runtime_initialize_Std_Sat_CNF_Basic(uint8_t builtin);

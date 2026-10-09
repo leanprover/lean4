@@ -50,7 +50,7 @@ v___x_16_ = l_minOn___redArg(v_inst_12_, v_f_13_, v_x_14_, v_y_15_);
 return v___x_16_;
 }
 }
-LEAN_EXPORT uint8_t l_maxOn___redArg___lam__0(lean_object* v_inst_17_, lean_object* v_a_18_, lean_object* v_b_19_){
+uint8_t l_maxOn___redArg___lam__0(lean_object* v_inst_17_, lean_object* v_a_18_, lean_object* v_b_19_){
 _start:
 {
 lean_object* v___x_20_; uint8_t v___x_21_; 
@@ -59,31 +59,40 @@ v___x_21_ = lean_unbox(v___x_20_);
 return v___x_21_;
 }
 }
-LEAN_EXPORT lean_object* l_maxOn___redArg___lam__0___boxed(lean_object* v_inst_22_, lean_object* v_a_23_, lean_object* v_b_24_){
+LEAN_EXPORT void l_maxOn___redArg___lam__0_0interp(lean_interpreter_value* stack)
+{
+lean_object* v_inst_17_ = stack[0].m_obj;
+lean_object* v_a_18_ = stack[1].m_obj;
+lean_object* v_b_19_ = stack[2].m_obj;
+uint8_t v_res_22_;
+v_res_22_ = l_maxOn___redArg___lam__0(v_inst_17_, v_a_18_, v_b_19_);
+stack->m_num = v_res_22_;
+}
+LEAN_EXPORT lean_object* l_maxOn___redArg___lam__0___boxed(lean_object* v_inst_23_, lean_object* v_a_24_, lean_object* v_b_25_){
 _start:
 {
-uint8_t v_res_25_; lean_object* v_r_26_; 
-v_res_25_ = l_maxOn___redArg___lam__0(v_inst_22_, v_a_23_, v_b_24_);
-v_r_26_ = lean_box(v_res_25_);
-return v_r_26_;
+uint8_t v_res_26_; lean_object* v_r_27_; 
+v_res_26_ = l_maxOn___redArg___lam__0(v_inst_23_, v_a_24_, v_b_25_);
+v_r_27_ = lean_box(v_res_26_);
+return v_r_27_;
 }
 }
-LEAN_EXPORT lean_object* l_maxOn___redArg(lean_object* v_inst_27_, lean_object* v_f_28_, lean_object* v_x_29_, lean_object* v_y_30_){
+LEAN_EXPORT lean_object* l_maxOn___redArg(lean_object* v_inst_28_, lean_object* v_f_29_, lean_object* v_x_30_, lean_object* v_y_31_){
 _start:
 {
-lean_object* v___f_31_; lean_object* v___x_32_; 
-v___f_31_ = lean_alloc_closure((void*)(l_maxOn___redArg___lam__0___boxed), 3, 1);
-lean_closure_set(v___f_31_, 0, v_inst_27_);
-v___x_32_ = l_minOn___redArg(v___f_31_, v_f_28_, v_x_29_, v_y_30_);
-return v___x_32_;
+lean_object* v___f_32_; lean_object* v___x_33_; 
+v___f_32_ = lean_alloc_closure((void*)(l_maxOn___redArg___lam__0___boxed), 3, 1);
+lean_closure_set(v___f_32_, 0, v_inst_28_);
+v___x_33_ = l_minOn___redArg(v___f_32_, v_f_29_, v_x_30_, v_y_31_);
+return v___x_33_;
 }
 }
-LEAN_EXPORT lean_object* l_maxOn(lean_object* v_00_u03b2_33_, lean_object* v_00_u03b1_34_, lean_object* v_i_35_, lean_object* v_inst_36_, lean_object* v_f_37_, lean_object* v_x_38_, lean_object* v_y_39_){
+LEAN_EXPORT lean_object* l_maxOn(lean_object* v_00_u03b2_34_, lean_object* v_00_u03b1_35_, lean_object* v_i_36_, lean_object* v_inst_37_, lean_object* v_f_38_, lean_object* v_x_39_, lean_object* v_y_40_){
 _start:
 {
-lean_object* v___x_40_; 
-v___x_40_ = l_maxOn___redArg(v_inst_36_, v_f_37_, v_x_38_, v_y_39_);
-return v___x_40_;
+lean_object* v___x_41_; 
+v___x_41_ = l_maxOn___redArg(v_inst_37_, v_f_38_, v_x_39_, v_y_40_);
+return v___x_41_;
 }
 }
 lean_object* runtime_initialize_Init_Data_Order_Opposite(uint8_t builtin);

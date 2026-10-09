@@ -19,7 +19,7 @@ lean_object* lean_io_error_to_string(lean_object*);
 lean_object* l_Lean_MessageData_ofFormat(lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Meta_Grind_solve(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Meta_Grind_solve___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
-LEAN_EXPORT lean_object* l_Lean_Meta_Grind_solve(lean_object* v_goal_1_, lean_object* v_a_2_, lean_object* v_a_3_, lean_object* v_a_4_, lean_object* v_a_5_, lean_object* v_a_6_, lean_object* v_a_7_, lean_object* v_a_8_, lean_object* v_a_9_, lean_object* v_a_10_){
+lean_object* l_Lean_Meta_Grind_solve(lean_object* v_goal_1_, lean_object* v_a_2_, lean_object* v_a_3_, lean_object* v_a_4_, lean_object* v_a_5_, lean_object* v_a_6_, lean_object* v_a_7_, lean_object* v_a_8_, lean_object* v_a_9_, lean_object* v_a_10_){
 _start:
 {
 lean_object* v_ref_12_; lean_object* v___x_13_; lean_object* v___x_14_; 
@@ -286,21 +286,38 @@ return v___x_61_;
 }
 }
 }
-LEAN_EXPORT lean_object* l_Lean_Meta_Grind_solve___boxed(lean_object* v_goal_64_, lean_object* v_a_65_, lean_object* v_a_66_, lean_object* v_a_67_, lean_object* v_a_68_, lean_object* v_a_69_, lean_object* v_a_70_, lean_object* v_a_71_, lean_object* v_a_72_, lean_object* v_a_73_, lean_object* v_a_74_){
+LEAN_EXPORT void l_Lean_Meta_Grind_solve_0interp(lean_interpreter_value* stack)
+{
+lean_object* v_goal_1_ = stack[0].m_obj;
+lean_object* v_a_2_ = stack[1].m_obj;
+lean_object* v_a_3_ = stack[2].m_obj;
+lean_object* v_a_4_ = stack[3].m_obj;
+lean_object* v_a_5_ = stack[4].m_obj;
+lean_object* v_a_6_ = stack[5].m_obj;
+lean_object* v_a_7_ = stack[6].m_obj;
+lean_object* v_a_8_ = stack[7].m_obj;
+lean_object* v_a_9_ = stack[8].m_obj;
+lean_object* v_a_10_ = stack[9].m_obj;
+lean_object* v_res_64_;
+v_res_64_ = l_Lean_Meta_Grind_solve(v_goal_1_, v_a_2_, v_a_3_, v_a_4_, v_a_5_, v_a_6_, v_a_7_, v_a_8_, v_a_9_, v_a_10_);
+stack->m_obj
+ = v_res_64_;
+}
+LEAN_EXPORT lean_object* l_Lean_Meta_Grind_solve___boxed(lean_object* v_goal_65_, lean_object* v_a_66_, lean_object* v_a_67_, lean_object* v_a_68_, lean_object* v_a_69_, lean_object* v_a_70_, lean_object* v_a_71_, lean_object* v_a_72_, lean_object* v_a_73_, lean_object* v_a_74_, lean_object* v_a_75_){
 _start:
 {
-lean_object* v_res_75_; 
-v_res_75_ = l_Lean_Meta_Grind_solve(v_goal_64_, v_a_65_, v_a_66_, v_a_67_, v_a_68_, v_a_69_, v_a_70_, v_a_71_, v_a_72_, v_a_73_);
-lean_dec(v_a_73_);
-lean_dec_ref(v_a_72_);
-lean_dec(v_a_71_);
-lean_dec_ref(v_a_70_);
-lean_dec(v_a_69_);
-lean_dec_ref(v_a_68_);
-lean_dec(v_a_67_);
-lean_dec_ref(v_a_66_);
-lean_dec(v_a_65_);
-return v_res_75_;
+lean_object* v_res_76_; 
+v_res_76_ = l_Lean_Meta_Grind_solve(v_goal_65_, v_a_66_, v_a_67_, v_a_68_, v_a_69_, v_a_70_, v_a_71_, v_a_72_, v_a_73_, v_a_74_);
+lean_dec(v_a_74_);
+lean_dec_ref(v_a_73_);
+lean_dec(v_a_72_);
+lean_dec_ref(v_a_71_);
+lean_dec(v_a_70_);
+lean_dec_ref(v_a_69_);
+lean_dec(v_a_68_);
+lean_dec_ref(v_a_67_);
+lean_dec(v_a_66_);
+return v_res_76_;
 }
 }
 lean_object* runtime_initialize_Lean_Meta_Tactic_Grind_Types(uint8_t builtin);

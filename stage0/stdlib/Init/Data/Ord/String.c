@@ -18,15 +18,23 @@ LEAN_EXPORT lean_object* l_String_compare___boxed(lean_object*, lean_object*);
 static const lean_closure_object l_String_instOrd___closed__0_value = {.m_header = {.m_rc = 0, .m_cs_sz = sizeof(lean_closure_object) + sizeof(void*)*0, .m_other = 0, .m_tag = 245}, .m_fun = (void*)l_String_compare___boxed, .m_arity = 2, .m_num_fixed = 0, .m_objs = {} };
 static const lean_object* l_String_instOrd___closed__0 = (const lean_object*)&l_String_instOrd___closed__0_value;
 LEAN_EXPORT const lean_object* l_String_instOrd = (const lean_object*)&l_String_instOrd___closed__0_value;
-LEAN_EXPORT lean_object* l_String_compare___boxed(lean_object* v_s_u2081_3_, lean_object* v_s_u2082_4_){
+LEAN_EXPORT void l_String_compare_0interp(lean_interpreter_value* stack)
+{
+lean_object* v_s_u2081_1_ = stack[0].m_obj;
+lean_object* v_s_u2082_2_ = stack[1].m_obj;
+uint8_t v_res_3_;
+v_res_3_ = lean_string_compare(v_s_u2081_1_, v_s_u2082_2_);
+stack->m_num = v_res_3_;
+}
+LEAN_EXPORT lean_object* l_String_compare___boxed(lean_object* v_s_u2081_4_, lean_object* v_s_u2082_5_){
 _start:
 {
-uint8_t v_res_5_; lean_object* v_r_6_; 
-v_res_5_ = lean_string_compare(v_s_u2081_3_, v_s_u2082_4_);
-lean_dec_ref(v_s_u2082_4_);
-lean_dec_ref(v_s_u2081_3_);
-v_r_6_ = lean_box(v_res_5_);
-return v_r_6_;
+uint8_t v_res_6_; lean_object* v_r_7_; 
+v_res_6_ = lean_string_compare(v_s_u2081_4_, v_s_u2082_5_);
+lean_dec_ref(v_s_u2082_5_);
+lean_dec_ref(v_s_u2081_4_);
+v_r_7_ = lean_box(v_res_6_);
+return v_r_7_;
 }
 }
 lean_object* runtime_initialize_Init_Data_Order_Ord(uint8_t builtin);

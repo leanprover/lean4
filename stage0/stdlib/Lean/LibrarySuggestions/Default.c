@@ -80,7 +80,7 @@ v___x_14_ = l_Float_ofScientific(v___x_13_, v___x_12_, v___x_11_);
 return v___x_14_;
 }
 }
-LEAN_EXPORT lean_object* l_Lean_LibrarySuggestions___librarySuggestions_00___x40_Lean_LibrarySuggestions_Default_2105568102____hygCtx___hyg_2_(lean_object* v_a_15_, lean_object* v_a_16_, lean_object* v_a_17_, lean_object* v_a_18_, lean_object* v_a_19_, lean_object* v_a_20_){
+lean_object* l_Lean_LibrarySuggestions___librarySuggestions_00___x40_Lean_LibrarySuggestions_Default_2105568102____hygCtx___hyg_2_(lean_object* v_a_15_, lean_object* v_a_16_, lean_object* v_a_17_, lean_object* v_a_18_, lean_object* v_a_19_, lean_object* v_a_20_){
 _start:
 {
 lean_object* v___x_22_; lean_object* v___x_23_; double v___x_24_; lean_object* v___x_25_; 
@@ -91,16 +91,29 @@ v___x_25_ = l_Lean_LibrarySuggestions_Selector_intersperse(v___x_22_, v___x_23_,
 return v___x_25_;
 }
 }
-LEAN_EXPORT lean_object* l_Lean_LibrarySuggestions___librarySuggestions_00___x40_Lean_LibrarySuggestions_Default_2105568102____hygCtx___hyg_2____boxed(lean_object* v_a_26_, lean_object* v_a_27_, lean_object* v_a_28_, lean_object* v_a_29_, lean_object* v_a_30_, lean_object* v_a_31_, lean_object* v_a_32_){
+LEAN_EXPORT void l_Lean_LibrarySuggestions___librarySuggestions_00___x40_Lean_LibrarySuggestions_Default_2105568102____hygCtx___hyg_2__0interp(lean_interpreter_value* stack)
+{
+lean_object* v_a_15_ = stack[0].m_obj;
+lean_object* v_a_16_ = stack[1].m_obj;
+lean_object* v_a_17_ = stack[2].m_obj;
+lean_object* v_a_18_ = stack[3].m_obj;
+lean_object* v_a_19_ = stack[4].m_obj;
+lean_object* v_a_20_ = stack[5].m_obj;
+lean_object* v_res_26_;
+v_res_26_ = l_Lean_LibrarySuggestions___librarySuggestions_00___x40_Lean_LibrarySuggestions_Default_2105568102____hygCtx___hyg_2_(v_a_15_, v_a_16_, v_a_17_, v_a_18_, v_a_19_, v_a_20_);
+stack->m_obj
+ = v_res_26_;
+}
+LEAN_EXPORT lean_object* l_Lean_LibrarySuggestions___librarySuggestions_00___x40_Lean_LibrarySuggestions_Default_2105568102____hygCtx___hyg_2____boxed(lean_object* v_a_27_, lean_object* v_a_28_, lean_object* v_a_29_, lean_object* v_a_30_, lean_object* v_a_31_, lean_object* v_a_32_, lean_object* v_a_33_){
 _start:
 {
-lean_object* v_res_33_; 
-v_res_33_ = l_Lean_LibrarySuggestions___librarySuggestions_00___x40_Lean_LibrarySuggestions_Default_2105568102____hygCtx___hyg_2_(v_a_26_, v_a_27_, v_a_28_, v_a_29_, v_a_30_, v_a_31_);
-lean_dec(v_a_31_);
-lean_dec_ref(v_a_30_);
-lean_dec(v_a_29_);
-lean_dec_ref(v_a_28_);
-return v_res_33_;
+lean_object* v_res_34_; 
+v_res_34_ = l_Lean_LibrarySuggestions___librarySuggestions_00___x40_Lean_LibrarySuggestions_Default_2105568102____hygCtx___hyg_2_(v_a_27_, v_a_28_, v_a_29_, v_a_30_, v_a_31_, v_a_32_);
+lean_dec(v_a_32_);
+lean_dec_ref(v_a_31_);
+lean_dec(v_a_30_);
+lean_dec_ref(v_a_29_);
+return v_res_34_;
 }
 }
 void lean_initialize_runtime_module();

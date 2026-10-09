@@ -61,189 +61,221 @@ v___x_2_ = lean_box(0);
 return v___x_2_;
 }
 }
-LEAN_EXPORT lean_object* l_ByteArray_decidableLT___boxed(lean_object* v_a_5_, lean_object* v_b_6_){
+LEAN_EXPORT void l_ByteArray_decidableLT_0interp(lean_interpreter_value* stack)
+{
+lean_object* v_a_3_ = stack[0].m_obj;
+lean_object* v_b_4_ = stack[1].m_obj;
+uint8_t v_res_5_;
+v_res_5_ = lean_byte_array_dec_lt(v_a_3_, v_b_4_);
+stack->m_num = v_res_5_;
+}
+LEAN_EXPORT lean_object* l_ByteArray_decidableLT___boxed(lean_object* v_a_6_, lean_object* v_b_7_){
 _start:
 {
-uint8_t v_res_7_; lean_object* v_r_8_; 
-v_res_7_ = lean_byte_array_dec_lt(v_a_5_, v_b_6_);
-lean_dec_ref(v_b_6_);
-lean_dec_ref(v_a_5_);
-v_r_8_ = lean_box(v_res_7_);
-return v_r_8_;
+uint8_t v_res_8_; lean_object* v_r_9_; 
+v_res_8_ = lean_byte_array_dec_lt(v_a_6_, v_b_7_);
+lean_dec_ref(v_b_7_);
+lean_dec_ref(v_a_6_);
+v_r_9_ = lean_box(v_res_8_);
+return v_r_9_;
 }
 }
-LEAN_EXPORT uint8_t l_ByteArray_instDecidableLT(lean_object* v_a_9_, lean_object* v_b_10_){
+uint8_t l_ByteArray_instDecidableLT(lean_object* v_a_10_, lean_object* v_b_11_){
 _start:
 {
-uint8_t v___x_11_; 
-v___x_11_ = lean_byte_array_dec_lt(v_a_9_, v_b_10_);
-return v___x_11_;
+uint8_t v___x_12_; 
+v___x_12_ = lean_byte_array_dec_lt(v_a_10_, v_b_11_);
+return v___x_12_;
 }
 }
-LEAN_EXPORT lean_object* l_ByteArray_instDecidableLT___boxed(lean_object* v_a_12_, lean_object* v_b_13_){
+LEAN_EXPORT void l_ByteArray_instDecidableLT_0interp(lean_interpreter_value* stack)
+{
+lean_object* v_a_10_ = stack[0].m_obj;
+lean_object* v_b_11_ = stack[1].m_obj;
+uint8_t v_res_13_;
+v_res_13_ = l_ByteArray_instDecidableLT(v_a_10_, v_b_11_);
+stack->m_num = v_res_13_;
+}
+LEAN_EXPORT lean_object* l_ByteArray_instDecidableLT___boxed(lean_object* v_a_14_, lean_object* v_b_15_){
 _start:
 {
-uint8_t v_res_14_; lean_object* v_r_15_; 
-v_res_14_ = l_ByteArray_instDecidableLT(v_a_12_, v_b_13_);
-lean_dec_ref(v_b_13_);
-lean_dec_ref(v_a_12_);
-v_r_15_ = lean_box(v_res_14_);
-return v_r_15_;
+uint8_t v_res_16_; lean_object* v_r_17_; 
+v_res_16_ = l_ByteArray_instDecidableLT(v_a_14_, v_b_15_);
+lean_dec_ref(v_b_15_);
+lean_dec_ref(v_a_14_);
+v_r_17_ = lean_box(v_res_16_);
+return v_r_17_;
 }
 }
-LEAN_EXPORT uint8_t l_ByteArray_instDecidableLE(lean_object* v_a_16_, lean_object* v_b_17_){
+uint8_t l_ByteArray_instDecidableLE(lean_object* v_a_18_, lean_object* v_b_19_){
 _start:
 {
-uint8_t v___x_18_; 
-v___x_18_ = lean_byte_array_dec_lt(v_b_17_, v_a_16_);
-if (v___x_18_ == 0)
+uint8_t v___x_20_; 
+v___x_20_ = lean_byte_array_dec_lt(v_b_19_, v_a_18_);
+if (v___x_20_ == 0)
 {
-uint8_t v___x_19_; 
-v___x_19_ = 1;
-return v___x_19_;
+uint8_t v___x_21_; 
+v___x_21_ = 1;
+return v___x_21_;
 }
 else
 {
-uint8_t v___x_20_; 
-v___x_20_ = 0;
-return v___x_20_;
+uint8_t v___x_22_; 
+v___x_22_ = 0;
+return v___x_22_;
 }
 }
 }
-LEAN_EXPORT lean_object* l_ByteArray_instDecidableLE___boxed(lean_object* v_a_21_, lean_object* v_b_22_){
+LEAN_EXPORT void l_ByteArray_instDecidableLE_0interp(lean_interpreter_value* stack)
+{
+lean_object* v_a_18_ = stack[0].m_obj;
+lean_object* v_b_19_ = stack[1].m_obj;
+uint8_t v_res_23_;
+v_res_23_ = l_ByteArray_instDecidableLE(v_a_18_, v_b_19_);
+stack->m_num = v_res_23_;
+}
+LEAN_EXPORT lean_object* l_ByteArray_instDecidableLE___boxed(lean_object* v_a_24_, lean_object* v_b_25_){
 _start:
 {
-uint8_t v_res_23_; lean_object* v_r_24_; 
-v_res_23_ = l_ByteArray_instDecidableLE(v_a_21_, v_b_22_);
-lean_dec_ref(v_b_22_);
-lean_dec_ref(v_a_21_);
-v_r_24_ = lean_box(v_res_23_);
-return v_r_24_;
+uint8_t v_res_26_; lean_object* v_r_27_; 
+v_res_26_ = l_ByteArray_instDecidableLE(v_a_24_, v_b_25_);
+lean_dec_ref(v_b_25_);
+lean_dec_ref(v_a_24_);
+v_r_27_ = lean_box(v_res_26_);
+return v_r_27_;
 }
 }
-LEAN_EXPORT lean_object* l_ByteArray_compare___boxed(lean_object* v_a_27_, lean_object* v_b_28_){
+LEAN_EXPORT void l_ByteArray_compare_0interp(lean_interpreter_value* stack)
+{
+lean_object* v_a_28_ = stack[0].m_obj;
+lean_object* v_b_29_ = stack[1].m_obj;
+uint8_t v_res_30_;
+v_res_30_ = lean_byte_array_compare(v_a_28_, v_b_29_);
+stack->m_num = v_res_30_;
+}
+LEAN_EXPORT lean_object* l_ByteArray_compare___boxed(lean_object* v_a_31_, lean_object* v_b_32_){
 _start:
 {
-uint8_t v_res_29_; lean_object* v_r_30_; 
-v_res_29_ = lean_byte_array_compare(v_a_27_, v_b_28_);
-lean_dec_ref(v_b_28_);
-lean_dec_ref(v_a_27_);
-v_r_30_ = lean_box(v_res_29_);
-return v_r_30_;
+uint8_t v_res_33_; lean_object* v_r_34_; 
+v_res_33_ = lean_byte_array_compare(v_a_31_, v_b_32_);
+lean_dec_ref(v_b_32_);
+lean_dec_ref(v_a_31_);
+v_r_34_ = lean_box(v_res_33_);
+return v_r_34_;
 }
 }
 static lean_object* _init_l___private_Init_Data_ByteArray_Lex_0__ByteArray_instTransNotLt(void){
 _start:
 {
-lean_object* v___x_33_; 
-v___x_33_ = lean_box(0);
-return v___x_33_;
+lean_object* v___x_37_; 
+v___x_37_ = lean_box(0);
+return v___x_37_;
 }
 }
-LEAN_EXPORT lean_object* l_ByteArray_instLinearOrderPackage___lam__0(lean_object* v_a_34_, lean_object* v_b_35_){
+LEAN_EXPORT lean_object* l_ByteArray_instLinearOrderPackage___lam__0(lean_object* v_a_38_, lean_object* v_b_39_){
 _start:
 {
-uint8_t v___x_36_; 
-v___x_36_ = l_ByteArray_instDecidableLE(v_a_34_, v_b_35_);
-if (v___x_36_ == 0)
+uint8_t v___x_40_; 
+v___x_40_ = l_ByteArray_instDecidableLE(v_a_38_, v_b_39_);
+if (v___x_40_ == 0)
 {
-lean_inc_ref(v_b_35_);
-return v_b_35_;
+lean_inc_ref(v_b_39_);
+return v_b_39_;
 }
 else
 {
-lean_inc_ref(v_a_34_);
-return v_a_34_;
+lean_inc_ref(v_a_38_);
+return v_a_38_;
 }
 }
 }
-LEAN_EXPORT lean_object* l_ByteArray_instLinearOrderPackage___lam__0___boxed(lean_object* v_a_37_, lean_object* v_b_38_){
+LEAN_EXPORT lean_object* l_ByteArray_instLinearOrderPackage___lam__0___boxed(lean_object* v_a_41_, lean_object* v_b_42_){
 _start:
 {
-lean_object* v_res_39_; 
-v_res_39_ = l_ByteArray_instLinearOrderPackage___lam__0(v_a_37_, v_b_38_);
-lean_dec_ref(v_b_38_);
-lean_dec_ref(v_a_37_);
-return v_res_39_;
+lean_object* v_res_43_; 
+v_res_43_ = l_ByteArray_instLinearOrderPackage___lam__0(v_a_41_, v_b_42_);
+lean_dec_ref(v_b_42_);
+lean_dec_ref(v_a_41_);
+return v_res_43_;
 }
 }
-LEAN_EXPORT lean_object* l_ByteArray_instLinearOrderPackage___lam__1(lean_object* v_a_40_, lean_object* v_b_41_){
+LEAN_EXPORT lean_object* l_ByteArray_instLinearOrderPackage___lam__1(lean_object* v_a_44_, lean_object* v_b_45_){
 _start:
 {
-uint8_t v___x_42_; 
-v___x_42_ = l_ByteArray_instDecidableLE(v_b_41_, v_a_40_);
-if (v___x_42_ == 0)
+uint8_t v___x_46_; 
+v___x_46_ = l_ByteArray_instDecidableLE(v_b_45_, v_a_44_);
+if (v___x_46_ == 0)
 {
-lean_inc_ref(v_b_41_);
-return v_b_41_;
+lean_inc_ref(v_b_45_);
+return v_b_45_;
 }
 else
 {
-lean_inc_ref(v_a_40_);
-return v_a_40_;
+lean_inc_ref(v_a_44_);
+return v_a_44_;
 }
 }
 }
-LEAN_EXPORT lean_object* l_ByteArray_instLinearOrderPackage___lam__1___boxed(lean_object* v_a_43_, lean_object* v_b_44_){
+LEAN_EXPORT lean_object* l_ByteArray_instLinearOrderPackage___lam__1___boxed(lean_object* v_a_47_, lean_object* v_b_48_){
 _start:
 {
-lean_object* v_res_45_; 
-v_res_45_ = l_ByteArray_instLinearOrderPackage___lam__1(v_a_43_, v_b_44_);
-lean_dec_ref(v_b_44_);
-lean_dec_ref(v_a_43_);
-return v_res_45_;
+lean_object* v_res_49_; 
+v_res_49_ = l_ByteArray_instLinearOrderPackage___lam__1(v_a_47_, v_b_48_);
+lean_dec_ref(v_b_48_);
+lean_dec_ref(v_a_47_);
+return v_res_49_;
 }
 }
 static lean_object* _init_l_ByteArray_instLinearOrderPackage___closed__3(void){
 _start:
 {
-lean_object* v___x_49_; lean_object* v_this_50_; lean_object* v___x_51_; lean_object* v_this_52_; lean_object* v_this_53_; lean_object* v___x_54_; 
-v___x_49_ = lean_alloc_closure((void*)(l_ByteArray_instDecidableLT___boxed), 2, 0);
-v_this_50_ = lean_alloc_closure((void*)(l_ByteArray_instDecidableLE___boxed), 2, 0);
-v___x_51_ = ((lean_object*)(l_ByteArray_instLinearOrderPackage___closed__2));
-v_this_52_ = lean_box(0);
-v_this_53_ = lean_box(0);
-v___x_54_ = lean_alloc_ctor(0, 5, 0);
-lean_ctor_set(v___x_54_, 0, v_this_53_);
-lean_ctor_set(v___x_54_, 1, v_this_52_);
-lean_ctor_set(v___x_54_, 2, v___x_51_);
-lean_ctor_set(v___x_54_, 3, v_this_50_);
-lean_ctor_set(v___x_54_, 4, v___x_49_);
-return v___x_54_;
+lean_object* v___x_53_; lean_object* v_this_54_; lean_object* v___x_55_; lean_object* v_this_56_; lean_object* v_this_57_; lean_object* v___x_58_; 
+v___x_53_ = lean_alloc_closure((void*)(l_ByteArray_instDecidableLT___boxed), 2, 0);
+v_this_54_ = lean_alloc_closure((void*)(l_ByteArray_instDecidableLE___boxed), 2, 0);
+v___x_55_ = ((lean_object*)(l_ByteArray_instLinearOrderPackage___closed__2));
+v_this_56_ = lean_box(0);
+v_this_57_ = lean_box(0);
+v___x_58_ = lean_alloc_ctor(0, 5, 0);
+lean_ctor_set(v___x_58_, 0, v_this_57_);
+lean_ctor_set(v___x_58_, 1, v_this_56_);
+lean_ctor_set(v___x_58_, 2, v___x_55_);
+lean_ctor_set(v___x_58_, 3, v_this_54_);
+lean_ctor_set(v___x_58_, 4, v___x_53_);
+return v___x_58_;
 }
 }
 static lean_object* _init_l_ByteArray_instLinearOrderPackage___closed__4(void){
 _start:
 {
-lean_object* v___x_55_; lean_object* v___x_56_; lean_object* v___x_57_; 
-v___x_55_ = ((lean_object*)(l_ByteArray_instOrd___closed__0));
-v___x_56_ = lean_obj_once(&l_ByteArray_instLinearOrderPackage___closed__3, &l_ByteArray_instLinearOrderPackage___closed__3_once, _init_l_ByteArray_instLinearOrderPackage___closed__3);
-v___x_57_ = lean_alloc_ctor(0, 2, 0);
-lean_ctor_set(v___x_57_, 0, v___x_56_);
-lean_ctor_set(v___x_57_, 1, v___x_55_);
-return v___x_57_;
+lean_object* v___x_59_; lean_object* v___x_60_; lean_object* v___x_61_; 
+v___x_59_ = ((lean_object*)(l_ByteArray_instOrd___closed__0));
+v___x_60_ = lean_obj_once(&l_ByteArray_instLinearOrderPackage___closed__3, &l_ByteArray_instLinearOrderPackage___closed__3_once, _init_l_ByteArray_instLinearOrderPackage___closed__3);
+v___x_61_ = lean_alloc_ctor(0, 2, 0);
+lean_ctor_set(v___x_61_, 0, v___x_60_);
+lean_ctor_set(v___x_61_, 1, v___x_59_);
+return v___x_61_;
 }
 }
 static lean_object* _init_l_ByteArray_instLinearOrderPackage___closed__5(void){
 _start:
 {
-lean_object* v___f_58_; lean_object* v___f_59_; lean_object* v___x_60_; lean_object* v___x_61_; 
-v___f_58_ = ((lean_object*)(l_ByteArray_instLinearOrderPackage___closed__1));
-v___f_59_ = ((lean_object*)(l_ByteArray_instLinearOrderPackage___closed__0));
-v___x_60_ = lean_obj_once(&l_ByteArray_instLinearOrderPackage___closed__4, &l_ByteArray_instLinearOrderPackage___closed__4_once, _init_l_ByteArray_instLinearOrderPackage___closed__4);
-v___x_61_ = lean_alloc_ctor(0, 3, 0);
-lean_ctor_set(v___x_61_, 0, v___x_60_);
-lean_ctor_set(v___x_61_, 1, v___f_59_);
-lean_ctor_set(v___x_61_, 2, v___f_58_);
-return v___x_61_;
+lean_object* v___f_62_; lean_object* v___f_63_; lean_object* v___x_64_; lean_object* v___x_65_; 
+v___f_62_ = ((lean_object*)(l_ByteArray_instLinearOrderPackage___closed__1));
+v___f_63_ = ((lean_object*)(l_ByteArray_instLinearOrderPackage___closed__0));
+v___x_64_ = lean_obj_once(&l_ByteArray_instLinearOrderPackage___closed__4, &l_ByteArray_instLinearOrderPackage___closed__4_once, _init_l_ByteArray_instLinearOrderPackage___closed__4);
+v___x_65_ = lean_alloc_ctor(0, 3, 0);
+lean_ctor_set(v___x_65_, 0, v___x_64_);
+lean_ctor_set(v___x_65_, 1, v___f_63_);
+lean_ctor_set(v___x_65_, 2, v___f_62_);
+return v___x_65_;
 }
 }
 static lean_object* _init_l_ByteArray_instLinearOrderPackage(void){
 _start:
 {
-lean_object* v___x_62_; 
-v___x_62_ = lean_obj_once(&l_ByteArray_instLinearOrderPackage___closed__5, &l_ByteArray_instLinearOrderPackage___closed__5_once, _init_l_ByteArray_instLinearOrderPackage___closed__5);
-return v___x_62_;
+lean_object* v___x_66_; 
+v___x_66_ = lean_obj_once(&l_ByteArray_instLinearOrderPackage___closed__5, &l_ByteArray_instLinearOrderPackage___closed__5_once, _init_l_ByteArray_instLinearOrderPackage___closed__5);
+return v___x_66_;
 }
 }
 lean_object* runtime_initialize_Init_Data_Order_PackageFactories(uint8_t builtin);

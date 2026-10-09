@@ -2169,10 +2169,6 @@ def OLeanLevel.adjustFileName (base : System.FilePath) : OLeanLevel → System.F
   | .server   => base.addExtension "server"
   | .private  => base.addExtension "private"
 
-private def looksLikeOldCodegenName : Name → Bool
-  | .str _ s => s.startsWith "_cstage" || s.startsWith "_spec_" || s.startsWith "_elambda"
-  | _        => false
-
 set_option compiler.ignoreBorrowAnnotation true in
 @[extern "lean_get_ir_extra_const_names"]
 private opaque getIRExtraConstNames (env : Environment) (level : OLeanLevel) (includeDecls := false) : Array Name
@@ -2221,8 +2217,7 @@ def mkModuleData (env : Environment) (level : OLeanLevel := .private)
     constNames.filterMap (fun n =>
         -- Realizations triggered only from other environment branches such as proofs are not
         -- exported; importers realize them again on demand.
-        env.find? (skipRealize := true) n <|>
-        guard (looksLikeOldCodegenName n) *> kenv.find? n)
+        env.find? (skipRealize := true) n)
       -- While `constants.foldStage2` itself results in a deterministic ordering, then filtering out
       -- some elements leaves the order of remaining dependent on those filtered elements, which
       -- would make `.olean` output dependent on `.olean.private`, so we re-sort them here.
@@ -2855,21 +2850,8 @@ def Kernel.setDiagnostics (env : Lean.Environment) (diag : Diagnostics) : Lean.E
 namespace Environment
 
 @[export lean_elab_environment_update_base_after_kernel_add]
-private def updateBaseAfterKernelAdd (env : Environment) (kenv : Kernel.Environment) (decl : Declaration) : Environment := {
-    env with
-    checked := .pure kenv
-    -- HACK: the old codegen adds some helper constants directly to the kernel environment, we need
-    -- to add them to the async consts as well in order to be able to replay them
-    asyncConstsMap := env.asyncConstsMap.map fun asyncConsts =>
-      decl.getNames.foldl (init := asyncConsts) fun asyncConsts n =>
-        if looksLikeOldCodegenName n then
-          asyncConsts.add {
-            constInfo := .ofConstantInfo (kenv.find? n |>.get!)
-            exts? := none
-            aconstsImpl := .pure <| .mk (α := AsyncConsts) default
-          }
-        else asyncConsts
-  }
+private def updateBaseAfterKernelAdd (env : Environment) (kenv : Kernel.Environment) : Environment :=
+  { env with checked := .pure kenv }
 
 def displayStats (env : Environment) : IO Unit := do
   let pExtDescrs ← persistentEnvExtensionsRef.get

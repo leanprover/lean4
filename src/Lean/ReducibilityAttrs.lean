@@ -55,9 +55,12 @@ builtin_initialize reducibilityCoreExt : PersistentEnvExtension (Name × Reducib
     mkInitial       := pure {}
     addImportedFn   := fun _ _ => pure {}
     addEntryFn      := fun (s : NameMap ReducibilityStatus) (p : Name × ReducibilityStatus) => s.insert p.1 p.2
-    exportEntriesFn := fun m =>
+    exportEntriesFnEx := fun env m =>
       let r : Array (Name × ReducibilityStatus) := m.foldl (fun a n p => a.push (n, p)) #[]
-      r.qsort (fun a b => Name.quickLt a.1 b.1)
+      let all := r.qsort (fun a b => Name.quickLt a.1 b.1)
+      -- Do not export the status of declarations that are not exported themselves
+      let exported := all.filter ((env.setExporting true).contains ·.1)
+      { exported, server := exported, «private» := all }
     statsFn         := fun s => "reducibility attribute core extension" ++ Format.line ++ "number of local entries: " ++ format s.size
     -- attribute is set by `addPreDefinitions`
     asyncMode       := .async .asyncEnv

@@ -807,8 +807,7 @@ if(NOT STAGE EQUAL 0)
   add_subdirectory(../tests "${CMAKE_CURRENT_BINARY_DIR}/tests")
 endif()
 
-# to be included in `leanshared` but not the smaller `leanshared_*` (as it would pull
-# in the world)
+# linked into `leanshared` on Windows next to `leancpp_1`
 add_library(leaninitialize STATIC $<TARGET_OBJECTS:initialize>)
 set_target_properties(
   leaninitialize

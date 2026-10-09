@@ -428,7 +428,7 @@ extern "C" LEAN_EXPORT object * lean_compacted_region_save(b_obj_arg ofname, b_o
     return io_result_mk_ok(cs_obj.steal());
 }
 
-static object * mk_compacted_region(b_obj_arg ofname, object * root,
+static LEAN_ALWAYS_INLINE object * mk_compacted_region(b_obj_arg ofname, object * root,
                                     char * buffer, size_t base_addr, size_t full_sz, bool is_mmap) {
     object * r = lean_alloc_ctor(0, 2, sizeof(size_t) * 3 + 1);
     lean_inc(ofname);

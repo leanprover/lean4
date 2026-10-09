@@ -11,7 +11,7 @@ public import Lean.Elab.Tactic.VCGen.Context
 public import Lean.Elab.Tactic.VCGen.Reduce
 public import Lean.Elab.Tactic.VCGen.SpecDB
 import Lean.Elab.Tactic.VCGen.Util
-import Lean.Elab.Tactic.VCGen.LatticeOp
+import Lean.Elab.Tactic.VCGen.ExcessArgsFrame
 public import Lean.Meta.Sym.Apply
 public import Lean.Meta.Sym.Util
 meta import Std.WP.Frame
@@ -476,8 +476,8 @@ The frame backward rule for a frame operator `op : R → Pred → Pred`, built f
 `meet_op_wp_upperAdjoint_le_wp`.
 
 The rule concludes `pre ⊑ wp prog Q E s⃗` from the split VC `pre ⊑ (op F W) s⃗` and the frame
-condition `WP.Frames op prog F G`, with the frame `F` left schematic, the guard `G` the point frame
-`fun u⃗ => ⌜u⃗ = s⃗⌝ ⊓ pre`, and the weakest footprint
+condition `WP.Frames op prog F G`, with the frame `F` left schematic, the guard `G` the frame of
+`pre` for the excess state arguments `fun u⃗ => ⌜u⃗ = s⃗⌝ ⊓ pre`, and the weakest footprint
 `W = wp prog (fun a => upperAdjoint (op F) (Q a)) (upperAdjoint (opE F) E)` baked in, so a single
 rule serves every inferred frame. `analyzeFrameRule` records the positions of the schematic slots.
 -/
@@ -495,12 +495,13 @@ public def mkFrameBackwardRule (fp : FrameProc) (info : WPApp) :
   let pre ← mkFreshExprMVar (← Meta.inferType info.expr) (userName := `Pre)
   let hsplit ← mkFreshExprMVar (← mkAppM ``PartialOrder.rel #[pre, mkAppN opApp ss])
     (userName := `vc)
-  let rs ← mkPointRestrictions pre ss
-  guard.mvarId!.assign rs[0]!
-  let hop ← lowerPointFrame rs opApp ss hsplit
+  let ssFrame ← ExcessArgsFrameInfo.new pre ss
+  guard.mvarId!.assign ssFrame.frame
+  let hop ← ssFrame.abstract opApp ss hsplit
+  let G := ssFrame.frame
   let hmeet ← mkAppM ``le_meet
-    #[rs[0]!, rs[0]!, opApp, ← mkAppOptM ``PartialOrder.rel_refl #[none, none, rs[0]!], hop]
-  let prf ← raisePointFrame rs wp ss (← mkAppM ``PartialOrder.rel_trans #[hmeet, mkAppN thm xs])
+    #[G, G, opApp, ← mkAppOptM ``PartialOrder.rel_refl #[none, none, G], hop]
+  let prf ← ssFrame.instantiate wp ss (← mkAppM ``PartialOrder.rel_trans #[hmeet, mkAppN thm xs])
   let res ← abstractMVars (← instantiateMVars prf)
   let rule ← mkBackwardRuleFromExpr res.expr res.paramNames.toList
   analyzeFrameRule rule fp.opHead info.excessArgs.size

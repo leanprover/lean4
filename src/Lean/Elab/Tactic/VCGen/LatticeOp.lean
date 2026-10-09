@@ -12,6 +12,7 @@ import Std.Internal.Order.FrameClosure
 import Lean.Meta.Sym.Simp.Rewrite
 import Lean.Meta.AppBuilder
 import Lean.Meta.AbstractMVars
+public import Lean.Elab.Tactic.VCGen.ExcessArgsFrame
 
 open Lean Meta Sym
 open Lean.Order
@@ -44,8 +45,8 @@ public structure LatticeOp where
 
 Backward rules that decompose a lattice operator on the RHS of an entailment `pre ⊑ op … s⃗`. The
 operator is saturated with distribution and unfolding rewrites, a terminal `⊑`-introduction rule
-fires on the reduced form, and any state arguments the terminal leaves over-applied are point-framed
-onto the precondition.
+fires on the reduced form, and a frame for the state arguments the terminal leaves over-applied
+moves them onto the precondition.
 
 The built-in splits cover the lattice connectives `⊓`/`⇨`/`⌜·⌝`/`⊤`/`iInf`, the `Prop` conjunction
 `∧`, and the magic-wand residual `upperAdjoint`.
@@ -70,7 +71,8 @@ public def LatticeOp.top : LatticeOp :=
 /-- The conjunction `∧` on the `Prop` lattice: closes with `le_and`. -/
 public def LatticeOp.and : LatticeOp :=
   { head := ``And, numConst := 0, terminal? := ``Lean.Order.le_and }
-/-- The magic-wand residual `upperAdjoint f b`: point-framed, closes with `le_upperAdjoint`. -/
+/-- The magic-wand residual `upperAdjoint f b`: framed for its excess state arguments, closes with
+`le_upperAdjoint`. -/
 public def LatticeOp.upperAdjoint : LatticeOp :=
   { head := ``Lean.Order.PreservesSup.upperAdjoint,
     rewrites := #[``Lean.Order.FrameOp.upperAdjoint_pointwise_apply, ``Lean.Order.FrameOp.upperAdjoint_ignore],
@@ -112,7 +114,7 @@ public def latticeOps : Std.HashMap Name LatticeOp :=
   builtinLatticeOps.foldl (fun t s => t.insert s.head s) {}
 
 /-- Index terminal lemmas by the head constant of their conclusion's RHS, recording the RHS argument
-count so a split can size the excess state arguments to point-frame. -/
+count so a split can size the excess state arguments to frame. -/
 private def mkLatticeTerminals (names : Array Name) : MetaM (Std.HashMap Name (Name × Nat)) := do
   let mut m : Std.HashMap Name (Name × Nat) := {}
   for n in names do
@@ -151,56 +153,27 @@ where
           | some p => Simp.mkEqTrans e₀ cur p next h
         go step e₀ next (some proof) fuel
 
-/-- The restrictions of `pre` to the states `ss`. For `ss = #[s₁, s₂]` the result is
-`#[fun u₁ => ⌜u₁ = s₁⌝ ⊓ fun u₂ => ⌜u₂ = s₂⌝ ⊓ pre, fun u₂ => ⌜u₂ = s₂⌝ ⊓ pre, pre]`. Its first
-entry holds at `s₁ s₂` exactly where `pre` holds, and is `⊥` at every other pair of states. -/
-public def mkPointRestrictions (pre : Expr) (ss : Array Expr) : MetaM (Array Expr) := do
-  let mut rs := #[pre]
-  for s in ss.reverse do
-    let r := rs.back!
-    rs := rs.push <| ← withLocalDeclD `u (← Meta.inferType s) fun u => do
-      let ofp ← mkAppOptM ``Lean.Order.CompleteLattice.ofProp #[← Meta.inferType r, none, ← mkEq u s]
-      mkLambdaFVars #[u] (← mkAppM ``Lean.Order.meet #[ofp, r])
-  return rs.reverse
-
-/-- Turn `h : rs[0] ⊑ opAs` into a proof of `pre ⊑ opAs s₁ … sₙ`, for
-`rs := mkPointRestrictions pre ss`. -/
-public def raisePointFrame (rs : Array Expr) (opAs : Expr) (ss : Array Expr) (h : Expr) :
-    MetaM Expr := do
-  let mut h := h
-  for i in [0:ss.size] do
-    h ← mkAppM ``Lean.Order.le_apply_of_point_meet_le #[ss[i]!, rs[i+1]!, mkAppN opAs (ss.take i), h]
-  return h
-
-/-- Turn `h : pre ⊑ opAs s₁ … sₙ` into a proof of `rs[0] ⊑ opAs`, for
-`rs := mkPointRestrictions pre ss`. -/
-public def lowerPointFrame (rs : Array Expr) (opAs : Expr) (ss : Array Expr) (h : Expr) :
-    MetaM Expr := do
-  let mut h := h
-  for i in (List.range ss.size).reverse do
-    h ← mkAppM ``Lean.Order.point_meet_le_of_le_apply #[ss[i]!, rs[i+1]!, mkAppN opAs (ss.take i), h]
-  return h
-
 /--
-Point-frame the state chain `ss` of a goal `pre ⊑ opAs s₁ … sₙ` to the function-level goal
-`(fun u⃗ => ⌜u⃗ = s⃗⌝ ⊓ pre) ⊑ opAs`, then apply the terminal `introThm`, leaving its operand subgoals
-as premises. Returns the proof of `pre ⊑ opAs s₁ … sₙ`.
+Build a frame for the excess state arguments `ss` of a goal `pre ⊑ opAs s₁ … sₙ` (see
+`ExcessArgsFrameInfo`), then apply the terminal `introThm` to the goal `frame ⊑ opAs`, leaving its
+operand subgoals as premises. Returns the proof of `pre ⊑ opAs s₁ … sₙ`.
 -/
-private def mkPointFrameApply (introThm : Name) (opAs pre : Expr) (ss : List Expr) : MetaM Expr := do
+private def mkExcessArgsFrameApply (introThm : Name) (opAs pre : Expr) (ss : List Expr) :
+    MetaM Expr := do
   let ss := ss.toArray
-  let rs ← mkPointRestrictions pre ss
+  let info ← ExcessArgsFrameInfo.new pre ss
   let introRule ← mkConstWithFreshMVarLevels introThm
   let (xs, _, body) ← forallMetaTelescope (← Meta.inferType introRule)
-  let target ← mkAppM ``PartialOrder.rel #[rs[0]!, opAs]
+  let target ← mkAppM ``PartialOrder.rel #[info.frame, opAs]
   unless ← isDefEq body target do
     throwError "lattice terminal {introThm} does not conclude {target}"
-  raisePointFrame rs opAs ss (mkAppN introRule xs)
+  info.instantiate opAs ss (mkAppN introRule xs)
 
 /--
 Build a reusable backward rule decomposing `pre ⊑ op … s⃗` for a lattice operator. The operator's
 value arguments are made schematic; `rewrites` saturate the operator through its distribution and
 unfolding equalities, the terminal keyed by the reduced head fires, and any state arguments left
-over-applied by the terminal are point-framed onto the precondition. When the reduced head has no
+over-applied by the terminal move onto the precondition through a frame for them. When the reduced head has no
 registered terminal, the saturated `pre ⊑ reduced` is handed back as the sole subgoal. Throws when the
 operator neither reduces nor has a terminal, since its rule would be the identity; the operator's
 `applies?` filter keeps such shapes away from rule construction.
@@ -228,7 +201,7 @@ public def mkLatticeOpRule (rhs : Expr) (op : LatticeOp) : SymM BackwardRule := 
     let redHead := reduced.getAppFn.constName?.getD .anonymous
     let termProof? ← terminals[redHead]?.mapM fun (termLemma, rhsArgCount) => do
       let args := reduced.getAppArgs
-      mkPointFrameApply termLemma (mkAppN reduced.getAppFn (args.extract 0 rhsArgCount)) pre
+      mkExcessArgsFrameApply termLemma (mkAppN reduced.getAppFn (args.extract 0 rhsArgCount)) pre
         (args.extract rhsArgCount).toList
     let prf ←
       match (termProof?, eqProof?) with

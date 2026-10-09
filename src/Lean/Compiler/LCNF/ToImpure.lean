@@ -56,10 +56,42 @@ def Param.toImpure (p : Param .pure) : ToImpureM (Param .impure) := do
   modifyLCtx fun lctx => lctx.addParam p
   return p
 
-def lowerProj (base : FVarId) (ctorInfo : CtorInfo) (field : CtorFieldInfo) :
-    LetValue .impure × Expr :=
+/-- Declares the first `depth` spill objects of the constructor object `base`. -/
+def lowerSpillObjs (base : FVarId) (depth : Nat) : CompilerM (Array (LetDecl .impure)) := do
+  let mut decls := #[]
+  let mut curr := base
+  for _ in 0...depth do
+    let decl ← mkLetDecl (← mkFreshBinderName `_spill) ImpureType.object (.oproj spillLinkIdx curr)
+    decls := decls.push decl
+    curr := decl.fvarId
+  return decls
+
+/--
+Moves the arguments that do not fit into a constructor object of `ctorName` into spill objects.
+Returns their declarations, innermost first, and the arguments of the constructor object.
+-/
+def mkSpillObjs (ctorName : Name) (objArgs : Array (Arg .impure)) :
+    CompilerM (Array (LetDecl .impure) × Array (Arg .impure)) := do
+  let mut decls := #[]
+  let mut args := objArgs
+  for d in (List.range (numSpillObjs objArgs.size)).reverse do
+    let start := (d + 1) * spillLinkIdx
+    let spillArgs := args.extract start args.size
+    let decl ← mkLetDecl (← mkFreshBinderName `_spill) ImpureType.object
+      (.ctor (spillCtorInfo ctorName spillArgs.size) spillArgs)
+    decls := decls.push decl
+    args := (args.extract 0 start).push (.fvar decl.fvarId)
+  return (decls, args)
+
+def attachLetDecls (decls : Array (LetDecl .impure)) (code : Code .impure) : Code .impure :=
+  decls.foldr (init := code) fun decl code => .let decl code
+
+/-- `spills` are the declarations from `lowerSpillObjs` reaching at least `field.spillDepth`. -/
+def lowerProj (base : FVarId) (spills : Array (LetDecl .impure)) (ctorInfo : CtorInfo)
+    (field : CtorFieldInfo) : LetValue .impure × Expr :=
   match field with
   | .object i irType => ⟨.oproj i base, irType⟩
+  | .spilled depth i irType => ⟨.oproj i spills[depth - 1]!.fvarId, irType⟩
   | .usize i => ⟨.uproj i base, ImpureType.usize⟩
   | .scalar _ offset irType => ⟨.sproj (ctorInfo.size + ctorInfo.usize) offset base, irType⟩
   | .erased => ⟨.erased, ImpureType.erased⟩
@@ -115,10 +147,11 @@ partial def lowerLet (decl : LetDecl .pure) (k : Code .pure) : ToImpureM (Code .
         let some (.inductInfo { ctors := [ctorName], .. }) := (← Lean.getEnv).find? typeName
           | panic! "projection of non-structure type"
         let ⟨ctorInfo, fields⟩ ← getCtorLayout ctorName
-        let ⟨result, type⟩ := lowerProj fvarId ctorInfo fields[i]!
+        let spills ← lowerSpillObjs fvarId fields[i]!.spillDepth
+        let ⟨result, type⟩ := lowerProj fvarId spills ctorInfo fields[i]!
         match result with
         | .erased => continueErased decl.fvarId
-        | _ => continueLet ⟨decl.fvarId, decl.binderName, type, result⟩
+        | _ => return attachLetDecls spills (← continueLet ⟨decl.fvarId, decl.binderName, type, result⟩)
       | .erased =>
         addSubst decl.fvarId .erased
         k.toImpure
@@ -154,10 +187,11 @@ partial def lowerLet (decl : LetDecl .pure) (k : Code .pure) : ToImpureM (Code .
           let mut result : Array (Arg .impure) := #[]
           for h : i in *...fields.size do
             match fields[i] with
-            | .object .. =>
+            | .object .. | .spilled .. =>
               result := result.push irArgs[i]!
             | .usize .. | .scalar .. | .erased | .void => pure ()
           pure result
+        let (spills, objArgs) ← mkSpillObjs name objArgs
         let rec lowerNonObjectFields : ToImpureM (Code .impure) :=
           let rec loop (i : Nat) : ToImpureM (Code .impure) := do
             match irArgs[i]? with
@@ -169,13 +203,13 @@ partial def lowerLet (decl : LetDecl .pure) (k : Code .pure) : ToImpureM (Code .
               | .scalar _ offset argType =>
                 let k ← loop (i + 1)
                 return .sset decl.fvarId (ctorInfo.size + ctorInfo.usize) offset fvarId argType k
-              | .object .. | .erased | .void => loop (i + 1)
+              | .object .. | .spilled .. | .erased | .void => loop (i + 1)
             | some .erased => loop (i + 1)
             | none => k.toImpure
           loop 0
         let decl := ⟨decl.fvarId, decl.binderName, ctorInfo.type, .ctor ctorInfo objArgs⟩
         modifyLCtx fun lctx => lctx.addLetDecl decl
-        return .let decl (← lowerNonObjectFields)
+        return attachLetDecls spills (.let decl (← lowerNonObjectFields))
     | some (.defnInfo ..) | some (.opaqueInfo ..) => mkFap name irArgs
     | some (.axiomInfo ..) | .some (.quotInfo ..) | .some (.inductInfo ..) | .some (.thmInfo ..) =>
       -- Should have been caught by `ToLCNF`
@@ -275,12 +309,13 @@ partial def Alt.toImpure (discr : FVarId) (alt : Alt .pure) : ToImpureM (Alt .im
   match alt with
   | .alt ctorName params k =>
     let ⟨ctorInfo, fields⟩ ← getCtorLayout ctorName
+    let spills ← lowerSpillObjs discr (fields.foldl (max · ·.spillDepth) 0)
     let lowerParams (params : Array (LCNF.Param .pure)) (fields : Array CtorFieldInfo) :
         ToImpureM (Code .impure) := do
       let rec loop (i : Nat) : ToImpureM (Code .impure) := do
         match params[i]?, fields[i]? with
         | some param, some field =>
-          let ⟨result, type⟩ := lowerProj discr ctorInfo field
+          let ⟨result, type⟩ := lowerProj discr spills ctorInfo field
           match result with
           | .erased =>
             addSubst param.fvarId .erased
@@ -293,7 +328,7 @@ partial def Alt.toImpure (discr : FVarId) (alt : Alt .pure) : ToImpureM (Alt .im
         | _, _ => panic! "mismatched fields and params"
       loop 0
     let body ← lowerParams params fields
-    return .ctorAlt ctorInfo body
+    return .ctorAlt ctorInfo (attachLetDecls spills body)
   | .default k => return .default (← k.toImpure)
 
 end

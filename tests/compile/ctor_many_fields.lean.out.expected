@@ -1,0 +1,124 @@
+S252
+make: true
+match: true
+scalars: true
+update: true
+update scalars: true
+original: true
+heap fields: true
+task: true
+after task: true
+promise: true
+free: true
+literal: true
+shareCommon': true
+shareCommon: true
+shareCommon literal: true
+compact: true
+compact heap fields: true
+compact literal: true
+S253
+make: true
+match: true
+scalars: true
+update: true
+update scalars: true
+original: true
+heap fields: true
+task: true
+after task: true
+promise: true
+free: true
+literal: true
+shareCommon': true
+shareCommon: true
+shareCommon literal: true
+compact: true
+compact heap fields: true
+compact literal: true
+S254
+make: true
+match: true
+scalars: true
+update: true
+update scalars: true
+original: true
+heap fields: true
+task: true
+after task: true
+promise: true
+free: true
+literal: true
+shareCommon': true
+shareCommon: true
+shareCommon literal: true
+compact: true
+compact heap fields: true
+compact literal: true
+S900
+make: true
+match: true
+scalars: true
+update: true
+update scalars: true
+original: true
+heap fields: true
+task: true
+after task: true
+promise: true
+free: true
+literal: true
+shareCommon': true
+shareCommon: true
+shareCommon literal: true
+compact: true
+compact heap fields: true
+compact literal: true
+T254
+make: true
+flip shared: true
+original: true
+flip unique: true
+literal: true
+shareCommon literal: true
+flip literal: true
+T255
+make: true
+flip shared: true
+original: true
+flip unique: true
+literal: true
+shareCommon literal: true
+flip literal: true
+T256
+make: true
+flip shared: true
+original: true
+flip unique: true
+literal: true
+shareCommon literal: true
+flip literal: true
+T508
+make: true
+flip shared: true
+original: true
+flip unique: true
+literal: true
+shareCommon literal: true
+flip literal: true
+T509
+make: true
+flip shared: true
+original: true
+flip unique: true
+literal: true
+shareCommon literal: true
+flip literal: true
+T700
+make: true
+flip shared: true
+original: true
+flip unique: true
+literal: true
+shareCommon literal: true
+flip literal: true

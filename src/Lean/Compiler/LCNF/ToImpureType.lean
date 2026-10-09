@@ -8,6 +8,7 @@ module
 prelude
 public import Lean.Compiler.LCNF.Irrelevant
 import Lean.Compiler.LCNF.MonoTypes
+import Lean.Runtime
 import Init.Data.Format.Macro
 
 namespace Lean.Compiler.LCNF
@@ -163,6 +164,11 @@ public inductive CtorFieldInfo where
   | usize  (i : Nat)
   | scalar (sz : Nat) (offset : Nat) (type : Expr)
   | void
+  /--
+  An object field that does not fit into the constructor object. It is stored at index `i` of the
+  spill object reached by following the field at `spillLinkIdx` `depth` times.
+  -/
+  | spilled (depth : Nat) (i : Nat) (type : Expr)
   deriving Inhabited
 
 namespace CtorFieldInfo
@@ -173,10 +179,32 @@ def format : CtorFieldInfo → Format
   | object i type => f!"obj@{i}:{type}"
   | usize i    => f!"usize@{i}"
   | scalar sz offset type => f!"scalar#{sz}@{offset}:{type}"
+  | spilled depth i type => f!"obj@{depth}.{i}:{type}"
+
+/-- The number of spill objects to follow to reach the field. -/
+public def spillDepth : CtorFieldInfo → Nat
+  | spilled depth .. => depth
+  | _ => 0
 
 instance : ToFormat CtorFieldInfo := ⟨format⟩
 
 end CtorFieldInfo
+
+/--
+The index of the object field holding the next spill object. A constructor with too many object
+fields for one constructor object keeps the first `spillLinkIdx` of them and stores the others in a
+chain of spill objects, each of which holds the next `spillLinkIdx` of them.
+-/
+public def spillLinkIdx : Nat :=
+  maxCtorFields - 2
+
+/-- The number of spill objects of a constructor with `numObjs` object fields. -/
+public def numSpillObjs (numObjs : Nat) : Nat :=
+  if numObjs < maxCtorFields then 0 else (numObjs - 1) / spillLinkIdx
+
+/-- The constructor information of a spill object of constructor `ctorName` with `size` fields. -/
+public def spillCtorInfo (ctorName : Name) (size : Nat) : CtorInfo :=
+  { name := ctorName ++ `spill, cidx := 0, size, usize := 0, ssize := 0 }
 
 public structure CtorLayout where
   ctorInfo : CtorInfo
@@ -237,13 +265,20 @@ where
           .pure <| .scalar 8 0 ImpureType.float
         | _ => unreachable!
         fields := fields.push ctorField
+      if numSpillObjs nextIdx > 0 then
+        fields := fields.map fun
+          | .object i type =>
+            let depth := i / spillLinkIdx
+            if depth == 0 then .object i type else .spilled depth (i % spillLinkIdx) type
+          | field => field
+        nextIdx := spillLinkIdx + 1
       let numObjs := nextIdx
       ⟨fields, nextIdx⟩ := Id.run <| StateT.run (s := nextIdx) <| fields.mapM fun field => do
         match field with
         | .usize _ => do
           let i ← modifyGet fun nextIdx => (nextIdx, nextIdx + 1)
           return .usize i
-        | .object .. | .scalar .. | .erased | .void => return field
+        | .object .. | .spilled .. | .scalar .. | .erased | .void => return field
       let numUSize := nextIdx - numObjs
       let adjustScalarsForSize (fields : Array CtorFieldInfo) (size : Nat) (nextOffset : Nat)
           : Array CtorFieldInfo × Nat :=
@@ -255,7 +290,7 @@ where
               return .scalar sz offset type
             else
               return field
-          | .object .. | .usize _ | .erased | .void => return field
+          | .object .. | .spilled .. | .usize _ | .erased | .void => return field
       let mut nextOffset := 0
       if has8BScalar then
         ⟨fields, nextOffset⟩ := adjustScalarsForSize fields 8 nextOffset

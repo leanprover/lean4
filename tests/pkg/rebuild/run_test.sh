@@ -14,6 +14,10 @@ public def matchEqn : Nat -> String
   | 0 => "world"
   | n + 1 => matchEqn n
 
+-- How a theorem is proved, including by recursion, should not matter.
+public theorem recThm (n : Nat) : 0 + n = n := Nat.zero_add n
+public theorem wfRecThm (n : Nat) : 0 + n = n := Nat.zero_add n
+
 public def testSpec (xs : List Nat) : List Nat := xs.map (fun x => x + 1)
 
 -- Public macro scopes such as from unnamed parameters and deriving handlers should not cause
@@ -67,4 +71,12 @@ test_unchanged
 
 # Lint warnings (persisted in `lintLogExt`) do not matter.
 perl -p -i -e 's/def privd : Nat := 0/def privd : Nat := let unusedLintVar := 0; 0/' Rebuild/Basic.lean
+test_unchanged
+
+# Helper declarations of proofs by recursion do not matter.
+perl -0 -p -i -e 's/public theorem recThm \(n : Nat\) : 0 \+ n = n := Nat.zero_add n/public theorem recThm : (n : Nat) → 0 + n = n\n  | 0 => rfl\n  | n + 1 => congrArg (· + 1) (recThm n)/' Rebuild/Basic.lean
+grep -q 'recThm n' Rebuild/Basic.lean
+test_unchanged
+perl -0 -p -i -e 's/public theorem wfRecThm \(n : Nat\) : 0 \+ n = n := Nat.zero_add n/public theorem wfRecThm : (n : Nat) → 0 + n = n\n  | 0 => rfl\n  | n + 1 => congrArg (· + 1) (wfRecThm n)\ntermination_by n => n\ndecreasing_by exact Nat.lt_succ_self _/' Rebuild/Basic.lean
+grep -q 'termination_by' Rebuild/Basic.lean
 test_unchanged

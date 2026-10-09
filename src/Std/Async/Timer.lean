@@ -24,6 +24,13 @@ structure Sleep where
   private ofNative ::
     native : Internal.UV.Timer
 
+/--
+The timeout of the underlying timer. Longer durations are clamped, since they cannot elapse anyway.
+-/
+private def timeoutOf (duration : Std.Time.Millisecond.Offset) : UInt64 :=
+  let ms := duration.toInt.toNat
+  if ms < UInt64.size then ms.toUInt64 else (UInt64.size - 1).toUInt64
+
 namespace Sleep
 
 /--
@@ -32,14 +39,17 @@ This function only initializes but does not yet start the timer.
 -/
 @[inline]
 def mk (duration : Std.Time.Millisecond.Offset) : Async Sleep := do
-  let native ← Internal.UV.Timer.mk duration.toInt.toNat.toUInt64 false
+  let native ← Internal.UV.Timer.mk (timeoutOf duration) false
   return ofNative native
 
 /--
 If:
 - `s` is not yet running start it and return an `Async` computation that will complete once the previously
    configured `duration` has elapsed.
-- `s` is already or not anymore running return the same `Async` computation as the first call to `wait`.
+- `s` is already running, or finished after completing, return the same
+  `Async` computation as the last call to `wait`. A select that checks `s` before it completes
+  restarts it, and the computations from earlier calls then fail.
+- `s` was stopped with `stop` before completing, return an `Async` computation that fails.
 -/
 @[inline]
 def wait (s : Sleep) : Async Unit :=
@@ -57,9 +67,9 @@ def reset (s : Sleep) : Async Unit :=
 
 /--
 If:
-- `s` is still running this stops `s` without completing any remaining `Async` computations that were created
-  through `wait`. Note that if another `Async` computation is binding on any of these it will hang
-  forever without further intervention.
+- `s` is still running this stops `s` without completing any remaining `Async` computations that
+  were created through `wait`. Those computations fail once the last reference to their promise is
+  dropped, rather than producing a value.
 - `s` is not yet or not anymore running this is a no-op.
 -/
 @[inline]
@@ -67,7 +77,9 @@ def stop (s : Sleep) : IO Unit :=
   s.native.stop
 
 /--
-Create a `Selector` that resolves once `s` has finished. `s` only starts when it runs inside of a Selectable.
+Create a `Selector` that resolves once `s` has finished. `s` only starts when it runs inside of a
+Selectable. Every select or `Selectable.tryOne` that checks `s` before it has finished starts it again
+from `duration`, so a `Sleep` that is checked more often than `duration` never finishes.
 -/
 def selector (s : Sleep) : Selector Unit :=
   {
@@ -124,7 +136,7 @@ This function only initializes but does not yet start the timer.
 -/
 @[inline]
 def mk (duration : Std.Time.Millisecond.Offset) (_ : 0 < duration := by decide) : IO Interval := do
-  let native ← Internal.UV.Timer.mk duration.toInt.toNat.toUInt64 true
+  let native ← Internal.UV.Timer.mk (timeoutOf duration) true
   return ofNative native
 
 /--
@@ -136,7 +148,8 @@ If:
     call
   - the tick from the last call of `i` has finished return a new `Async` computation that waits for the
     closest next tick from the time of calling this function.
-- `i` is not running anymore this is a no-op.
+- `i` is not running anymore, the returned `Async` computation fails, as `stop` dropped the promise
+  it would have completed.
 -/
 @[inline]
 def tick (i : Interval) : Async Unit := do
@@ -154,9 +167,9 @@ def reset (i : Interval) : IO Unit :=
 
 /--
 If:
-- `i` is still running this stops `i` without completing any remaining `Async` computations that were created
-  through `tick`. Note that if another `Async` computation is binding on any of these it will hang
-  forever without further intervention.
+- `i` is still running this stops `i` without completing any remaining `Async` computations that
+  were created through `tick`. Those computations fail once the last reference to their promise is
+  dropped, rather than producing a value.
 - `i` is not yet or not anymore running this is a no-op.
 -/
 @[inline]

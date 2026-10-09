@@ -16,6 +16,7 @@ import Init.Data.Nat.Order
 import Init.Data.Order.Lemmas
 import Init.System.Platform
 import Lean.DeprecatedModule
+import Lean.Linter.Deprecated
 
 public section
 
@@ -414,7 +415,7 @@ private def replaceBinderAnnotation (binder : TSyntax ``Parser.Term.bracketedBin
     return #[binder]
 
 @[builtin_command_elab «variable»] def elabVariable : CommandElab
-  | `(variable%$tk $binders*) => do
+  | `($[$_:visibility]? variable%$tk $binders*) => do
     let binders ← binders.flatMapM replaceBinderAnnotation
     -- Try to elaborate `binders` for sanity checking
     runTermElabM fun _ => Term.withSynthesize <| Term.withAutoBoundImplicit <|
@@ -736,14 +737,15 @@ where
 /-- Elaborate `deprecated_module`, marking the current module as deprecated. -/
 @[builtin_command_elab Parser.Command.deprecated_module]
 def elabDeprecatedModule : CommandElab
-  | `(Parser.Command.deprecated_module| deprecated_module $[$msg?]? $[(since := $since?)]?) => do
+  | stx@`(Parser.Command.deprecated_module| deprecated_module $[$msg?]? $[(since := $since?)]?) => do
     let message? := msg?.map TSyntax.getString
     let since? := since?.map TSyntax.getString
     if (deprecatedModuleExt.getState (← getEnv)).isSome then
       logWarning "module is already marked as deprecated"
     if since?.isNone then
-      logWarning "`deprecated_module` should specify the date or library version \
-        at which the deprecation was introduced, using `(since := \"...\")`"
+      logWarning <| m!"`deprecated_module` should specify the date or library version \
+        at which the deprecation was introduced, using `(since := \"...\")`" ++
+        (← liftCoreM <| Linter.mkSinceHint stx)
     modifyEnv fun env => env.setDeprecatedModule (some { message?, since? })
   | _ => throwUnsupportedSyntax
 
@@ -778,8 +780,9 @@ def elabShowDeprecatedModules : CommandElab := fun _ => do
   let text? := if stx[2].isNone then none else stx[2][0].isStrLit?
   let since? := if stx[3].isNone then none else stx[3][3].isStrLit?
   if since?.isNone then
-    logWarning "`deprecated_syntax` should specify the date or library version at which the \
-      deprecation was introduced, using `(since := \"...\")`"
+    logWarning <| m!"`deprecated_syntax` should specify the date or library version at which the \
+      deprecation was introduced, using `(since := \"...\")`" ++
+      (← liftCoreM <| Linter.mkSinceHint stx)
   modifyEnv fun env =>
     deprecatedSyntaxExt.addEntry env { kind, text?, since? }
 

@@ -69,7 +69,6 @@ extern lean_object* l_Lean_Options_empty;
 lean_object* l_Lean_Environment_getModuleIdxFor_x3f(lean_object*, lean_object*);
 lean_object* l_Lean_MessageData_note(lean_object*);
 lean_object* l_Lean_Environment_header(lean_object*);
-lean_object* l_Lean_EnvironmentHeader_moduleNames(lean_object*);
 uint8_t l_Lean_isPrivateName(lean_object*);
 lean_object* l_Lean_MessageData_ofName(lean_object*);
 extern lean_object* l_Lean_unknownIdentifierMessageTag;
@@ -1413,13 +1412,15 @@ goto v_resetjp_470_;
 }
 v_resetjp_470_:
 {
-lean_object* v___x_473_; lean_object* v___x_474_; lean_object* v_mod_475_; uint8_t v___x_476_; 
+lean_object* v___x_473_; lean_object* v_moduleNames_474_; lean_object* v_mod_475_; uint8_t v___x_476_; 
 v___x_473_ = l_Lean_Environment_header(v_env_448_);
 lean_dec_ref(v_env_448_);
-v___x_474_ = l_Lean_EnvironmentHeader_moduleNames(v___x_473_);
-v_mod_475_ = lean_array_get(v___x_446_, v___x_474_, v_val_469_);
+v_moduleNames_474_ = lean_ctor_get(v___x_473_, 4);
+lean_inc_ref(v_moduleNames_474_);
+lean_dec_ref(v___x_473_);
+v_mod_475_ = lean_array_get(v___x_446_, v_moduleNames_474_, v_val_469_);
 lean_dec(v_val_469_);
-lean_dec_ref(v___x_474_);
+lean_dec_ref(v_moduleNames_474_);
 v___x_476_ = l_Lean_isPrivateName(v_declHint_443_);
 lean_dec(v_declHint_443_);
 if (v___x_476_ == 0)
@@ -2805,10 +2806,10 @@ return v___x_964_;
 LEAN_EXPORT lean_object* l___private_Init_Data_Array_Basic_0__Array_forIn_x27Unsafe_loop___at___00__private_Lean_Elab_PreDefinition_Structural_SmartUnfolding_0__Lean_Elab_Structural_addSmartUnfoldingDefAux_visit_spec__8___lam__0___boxed(lean_object* v___x_967_, lean_object* v___x_968_, lean_object* v_e_969_){
 _start:
 {
-uint8_t v___x_12444__boxed_970_; uint8_t v___x_12445__boxed_971_; uint8_t v_res_972_; lean_object* v_r_973_; 
-v___x_12444__boxed_970_ = lean_unbox(v___x_967_);
-v___x_12445__boxed_971_ = lean_unbox(v___x_968_);
-v_res_972_ = l___private_Init_Data_Array_Basic_0__Array_forIn_x27Unsafe_loop___at___00__private_Lean_Elab_PreDefinition_Structural_SmartUnfolding_0__Lean_Elab_Structural_addSmartUnfoldingDefAux_visit_spec__8___lam__0(v___x_12444__boxed_970_, v___x_12445__boxed_971_, v_e_969_);
+uint8_t v___x_12442__boxed_970_; uint8_t v___x_12443__boxed_971_; uint8_t v_res_972_; lean_object* v_r_973_; 
+v___x_12442__boxed_970_ = lean_unbox(v___x_967_);
+v___x_12443__boxed_971_ = lean_unbox(v___x_968_);
+v_res_972_ = l___private_Init_Data_Array_Basic_0__Array_forIn_x27Unsafe_loop___at___00__private_Lean_Elab_PreDefinition_Structural_SmartUnfolding_0__Lean_Elab_Structural_addSmartUnfoldingDefAux_visit_spec__8___lam__0(v___x_12442__boxed_970_, v___x_12443__boxed_971_, v_e_969_);
 lean_dec_ref(v_e_969_);
 v_r_973_ = lean_box(v_res_972_);
 return v_r_973_;
@@ -3296,10 +3297,10 @@ return v___x_1140_;
 LEAN_EXPORT lean_object* l___private_Init_Data_Array_Basic_0__Array_forIn_x27Unsafe_loop___at___00__private_Lean_Elab_PreDefinition_Structural_SmartUnfolding_0__Lean_Elab_Structural_addSmartUnfoldingDefAux_visit_spec__8___lam__1___boxed(lean_object* v___x_1161_, lean_object* v___x_1162_, lean_object* v_preDef_1163_, lean_object* v_recArgPos_1164_, lean_object* v___f_1165_, lean_object* v___x_1166_, lean_object* v_a_1167_, lean_object* v_e_1168_, lean_object* v_xs_1169_, lean_object* v_altBody_1170_, lean_object* v___y_1171_, lean_object* v___y_1172_, lean_object* v___y_1173_, lean_object* v___y_1174_, lean_object* v___y_1175_){
 _start:
 {
-uint8_t v___x_12567__boxed_1176_; uint8_t v___x_12568__boxed_1177_; lean_object* v_res_1178_; 
-v___x_12567__boxed_1176_ = lean_unbox(v___x_1161_);
-v___x_12568__boxed_1177_ = lean_unbox(v___x_1162_);
-v_res_1178_ = l___private_Init_Data_Array_Basic_0__Array_forIn_x27Unsafe_loop___at___00__private_Lean_Elab_PreDefinition_Structural_SmartUnfolding_0__Lean_Elab_Structural_addSmartUnfoldingDefAux_visit_spec__8___lam__1(v___x_12567__boxed_1176_, v___x_12568__boxed_1177_, v_preDef_1163_, v_recArgPos_1164_, v___f_1165_, v___x_1166_, v_a_1167_, v_e_1168_, v_xs_1169_, v_altBody_1170_, v___y_1171_, v___y_1172_, v___y_1173_, v___y_1174_);
+uint8_t v___x_12565__boxed_1176_; uint8_t v___x_12566__boxed_1177_; lean_object* v_res_1178_; 
+v___x_12565__boxed_1176_ = lean_unbox(v___x_1161_);
+v___x_12566__boxed_1177_ = lean_unbox(v___x_1162_);
+v_res_1178_ = l___private_Init_Data_Array_Basic_0__Array_forIn_x27Unsafe_loop___at___00__private_Lean_Elab_PreDefinition_Structural_SmartUnfolding_0__Lean_Elab_Structural_addSmartUnfoldingDefAux_visit_spec__8___lam__1(v___x_12565__boxed_1176_, v___x_12566__boxed_1177_, v_preDef_1163_, v_recArgPos_1164_, v___f_1165_, v___x_1166_, v_a_1167_, v_e_1168_, v_xs_1169_, v_altBody_1170_, v___y_1171_, v___y_1172_, v___y_1173_, v___y_1174_);
 lean_dec(v___y_1174_);
 lean_dec_ref(v___y_1173_);
 lean_dec(v___y_1172_);
@@ -4020,13 +4021,13 @@ return v_res_1394_;
 LEAN_EXPORT lean_object* l___private_Init_Data_Array_Basic_0__Array_forIn_x27Unsafe_loop___at___00__private_Lean_Elab_PreDefinition_Structural_SmartUnfolding_0__Lean_Elab_Structural_addSmartUnfoldingDefAux_visit_spec__8___boxed(lean_object* v_preDef_1395_, lean_object* v_recArgPos_1396_, lean_object* v___x_1397_, lean_object* v_e_1398_, lean_object* v_as_1399_, lean_object* v_sz_1400_, lean_object* v_i_1401_, lean_object* v_b_1402_, lean_object* v___y_1403_, lean_object* v___y_1404_, lean_object* v___y_1405_, lean_object* v___y_1406_, lean_object* v___y_1407_){
 _start:
 {
-uint8_t v___x_12534__boxed_1408_; size_t v_sz_boxed_1409_; size_t v_i_boxed_1410_; lean_object* v_res_1411_; 
-v___x_12534__boxed_1408_ = lean_unbox(v___x_1397_);
+uint8_t v___x_12532__boxed_1408_; size_t v_sz_boxed_1409_; size_t v_i_boxed_1410_; lean_object* v_res_1411_; 
+v___x_12532__boxed_1408_ = lean_unbox(v___x_1397_);
 v_sz_boxed_1409_ = lean_unbox_usize(v_sz_1400_);
 lean_dec(v_sz_1400_);
 v_i_boxed_1410_ = lean_unbox_usize(v_i_1401_);
 lean_dec(v_i_1401_);
-v_res_1411_ = l___private_Init_Data_Array_Basic_0__Array_forIn_x27Unsafe_loop___at___00__private_Lean_Elab_PreDefinition_Structural_SmartUnfolding_0__Lean_Elab_Structural_addSmartUnfoldingDefAux_visit_spec__8(v_preDef_1395_, v_recArgPos_1396_, v___x_12534__boxed_1408_, v_e_1398_, v_as_1399_, v_sz_boxed_1409_, v_i_boxed_1410_, v_b_1402_, v___y_1403_, v___y_1404_, v___y_1405_, v___y_1406_);
+v_res_1411_ = l___private_Init_Data_Array_Basic_0__Array_forIn_x27Unsafe_loop___at___00__private_Lean_Elab_PreDefinition_Structural_SmartUnfolding_0__Lean_Elab_Structural_addSmartUnfoldingDefAux_visit_spec__8(v_preDef_1395_, v_recArgPos_1396_, v___x_12532__boxed_1408_, v_e_1398_, v_as_1399_, v_sz_boxed_1409_, v_i_boxed_1410_, v_b_1402_, v___y_1403_, v___y_1404_, v___y_1405_, v___y_1406_);
 lean_dec(v___y_1406_);
 lean_dec_ref(v___y_1405_);
 lean_dec(v___y_1404_);

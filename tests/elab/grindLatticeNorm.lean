@@ -9,6 +9,8 @@ example (q : Prop) : ¬ (⨆ r, (⌜some false = some r⌝ : Prop) ⊓ (r = fals
 example (n : Nat) (p : Nat → Prop) (hn : 3 < n) :
     (⨅ i, ⌜i < n⌝ ⇨ ⨆ j, (⌜j = i + 1⌝ ⊓ p j : Prop)) ⊑ p 4 ⊔ ⊥ := by grind
 
+example (P : Prop) (f : P → Prop) (h : P) (hf : f h) : ⨆ h : P, f h := le_iSup f h hf
+
 /-! ## Single-state assertions -/
 
 section

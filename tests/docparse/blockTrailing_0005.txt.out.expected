@@ -1,0 +1,22 @@
+Input: "Para {r\n\n         abc\ndef\n"
+Failure: unexpected newline; expected positional argument, named argument, flag, or '}' (use '\{' for a literal '{')
+ --> 1:7
+  |
+1 | Para {r
+  |        ^
+  = consumed input prefix: 7 bytes
+Final stack:
+  (Lean.Doc.Parser.Block.para
+   [(Lean.Doc.Parser.Inline.text
+     (Lean.Doc.Parser.versoText "Para "))
+    (Lean.Doc.Parser.Inline.role
+     "{"
+     `r
+     []
+     <missing>
+     []
+     []
+     [])])
+Remaining:
+"abc\ndef\n"
+Round-trip not reproduced, as the parse reported errors: leaf without original source info: <missing>

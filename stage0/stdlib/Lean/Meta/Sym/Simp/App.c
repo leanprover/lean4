@@ -2950,8 +2950,8 @@ v_a_849_ = lean_ctor_get(v___x_848_, 0);
 if (lean_obj_tag(v_a_849_) == 0)
 {
 lean_dec_ref(v_arg_845_);
-lean_dec_ref_known(v_e_830_, 2);
 lean_dec_ref(v_fn_844_);
+lean_dec_ref_known(v_e_830_, 2);
 return v___x_848_;
 }
 else
@@ -2973,8 +2973,8 @@ return v___x_854_;
 else
 {
 lean_dec_ref(v_arg_845_);
-lean_dec_ref_known(v_e_830_, 2);
 lean_dec_ref(v_fn_844_);
+lean_dec_ref_known(v_e_830_, 2);
 return v___x_848_;
 }
 }

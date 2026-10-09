@@ -1,4 +1,4 @@
-/-- error: constructor 'Foo.mk' has too many fields -/
+/-- error: constructor 'Foo.mk' has too many object fields -/
 #guard_msgs in
 structure Foo where
   f1 : Nat

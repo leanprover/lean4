@@ -145,7 +145,7 @@ def pushNewFact' (prop : Expr) (proof : Expr) (generation : Nat := 0) : GoalM Un
   else
     proof
   trace[grind.debug.pushNewFact] "{prop} ==> {prop'}"
-  modify fun s => { s with newFacts := s.newFacts.push <| .fact prop' proof generation }
+  modify fun s => { s with toProcess := s.toProcess.push <| .fact prop' proof generation }
 
 
 /-- Infers the type of the proof, preprocess it, and adds it to todo list. -/

@@ -158,6 +158,11 @@ structure EnvironmentHeader where
   `ModuleIdx` for the same module.
   -/
   modules      : Array EffectiveImport := #[]
+  /--
+  Name of all imported modules (directly and indirectly).
+  The index of a module name in the array equals the `ModuleIdx` for the same module.
+  -/
+  moduleNames  : Array Name := modules.map (·.module)
   /-- For `getModuleIdx?` -/
   private moduleName2Idx : Std.HashMap Name ModuleIdx := Id.run do
     let mut m := {}
@@ -174,13 +179,6 @@ structure EnvironmentHeader where
   /-- Module data for all imported modules. -/
   moduleData   : Array ModuleData := #[]
   deriving Nonempty
-
-/--
-Name of all imported modules (directly and indirectly).
-The index of a module name in the array equals the `ModuleIdx` for the same module.
--/
-def EnvironmentHeader.moduleNames (header : EnvironmentHeader) : Array Name :=
-  header.modules.map (·.module)
 
 namespace Kernel
 
@@ -1198,9 +1196,18 @@ def addConstAsync (env : Environment) (constName : Name) (kind : ConstantKind)
   let exportedAsyncConst? := exportedKind?.map fun exportedKind => { privateAsyncConst with
     constInfo := { privateAsyncConst.constInfo with
       kind := exportedKind
-      constInfo := constPromise.result?.map (sync := true) fun
-        | some c => c.exportedConstInfo
-        | none   => mkFallbackConstInfo constName exportedKind
+      constInfo :=
+        if kind matches .thm && exportedKind matches .axiom then
+          -- A theorem exported as an axiom is fully determined by its signature, so do not wait for
+          -- the proof. This does not hold for other kinds, whose `isUnsafe` flag is not part of the
+          -- signature.
+          sigPromise.result?.map (sync := true) fun
+            | some sig => .axiomInfo { sig with isUnsafe := false }
+            | none     => mkFallbackConstInfo constName exportedKind
+        else
+          constPromise.result?.map (sync := true) fun
+            | some c => c.exportedConstInfo
+            | none   => mkFallbackConstInfo constName exportedKind
     }
     aconstsImpl := constPromise.result?.map (sync := true) fun
       | some v => .mk v.nestedConsts.public
@@ -1992,7 +1999,8 @@ def getModuleEntries {α β σ : Type} [Inhabited σ] (ext : PersistentEnvExtens
 def getModuleIREntries {α β σ : Type} [Inhabited σ] (ext : PersistentEnvExtension α β σ)
     (env : Environment) (m : ModuleIdx) : Array α :=
   -- safety: as in `getStateUnsafe`
-  unsafe (ext.toEnvExtension.getStateImpl env.base.private.irBaseExts).importedEntries[m]!
+  -- `importedEntries` is empty for extensions without any IR entries
+  unsafe (ext.toEnvExtension.getStateImpl env.base.private.irBaseExts).importedEntries[m]?.getD #[]
 
 @[inline] def addEntry {α β σ : Type} (ext : PersistentEnvExtension α β σ) (env : Environment)
     (b : β) (asyncMode := ext.toEnvExtension.asyncMode) (asyncDecl : Name := .anonymous)
@@ -2161,10 +2169,6 @@ def OLeanLevel.adjustFileName (base : System.FilePath) : OLeanLevel → System.F
   | .server   => base.addExtension "server"
   | .private  => base.addExtension "private"
 
-private def looksLikeOldCodegenName : Name → Bool
-  | .str _ s => s.startsWith "_cstage" || s.startsWith "_spec_" || s.startsWith "_elambda"
-  | _        => false
-
 set_option compiler.ignoreBorrowAnnotation true in
 @[extern "lean_get_ir_extra_const_names"]
 private opaque getIRExtraConstNames (env : Environment) (level : OLeanLevel) (includeDecls := false) : Array Name
@@ -2211,8 +2215,9 @@ def mkModuleData (env : Environment) (level : OLeanLevel := .private)
     kenv.constants.foldStage2 (fun cs _ c => cs.push c) #[]
   else
     constNames.filterMap (fun n =>
-        env.find? n <|>
-        guard (looksLikeOldCodegenName n) *> kenv.find? n)
+        -- Realizations triggered only from other environment branches such as proofs are not
+        -- exported; importers realize them again on demand.
+        env.find? (skipRealize := true) n)
       -- While `constants.foldStage2` itself results in a deterministic ordering, then filtering out
       -- some elements leaves the order of remaining dependent on those filtered elements, which
       -- would make `.olean` output dependent on `.olean.private`, so we re-sort them here.
@@ -2285,6 +2290,26 @@ private def setImportedEntries (states : Array EnvExtensionState) (mods : Array 
         -- safety: as in `modifyState`
         states := unsafe extDescrs[entryIdx]!.toEnvExtension.modifyStateImpl states fun s =>
           { s with importedEntries := s.importedEntries.set! modIdx entries }
+  return states
+
+/--
+Variant of `setImportedEntries` for `irBaseExts` that leaves `importedEntries` empty for extensions
+without entries in `mods`, which `getModuleIREntries` accounts for.
+-/
+private def setImportedIREntries (states : Array EnvExtensionState) (mods : Array ModuleData) :
+    IO (Array EnvExtensionState) := do
+  let mut states := states
+  let extDescrs ← persistentEnvExtensionsRef.get
+  let extNameIdx ← mkExtNameMap 0
+  for h : modIdx in *...mods.size do
+    let mod := mods[modIdx]
+    for (extName, entries) in mod.entries do
+      if let some entryIdx := extNameIdx[extName]? then
+        -- safety: as in `modifyState`
+        states := unsafe extDescrs[entryIdx]!.toEnvExtension.modifyStateImpl states fun s =>
+          let importedEntries :=
+            if s.importedEntries.isEmpty then .replicate mods.size #[] else s.importedEntries
+          { s with importedEntries := importedEntries.set! modIdx entries }
   return states
 
 set_option compiler.ignoreBorrowAnnotation true in
@@ -2719,15 +2744,19 @@ def finalizeImport (s : ImportState) (imports : Array Import) (opts : Options) (
   let extensions ← setImportedEntries privateBase.extensions moduleData
   -- fall back to basic data when not in server
   let serverData := modules.mapIdx (fun idx mod => mod.serverData? level |>.getD moduleData[idx]!)
-  let privateBase := { privateBase with
-    extensions
-    irBaseExts := (← setImportedEntries privateBase.extensions irData)
-  }
+  -- `serverData?` selects a different part than `mainModule?` only at `.server`: at `.private`,
+  -- `importModulesCore` loads every module as `importAll`. Assumes `level` is the `globalLevel`
+  -- the modules were loaded with.
+  let serverIsMain := level != .server
+  let irBaseExts ← setImportedIREntries privateBase.extensions irData
+  let serverBaseExts ←
+    if serverIsMain then pure extensions else setImportedEntries privateBase.extensions serverData
+  let privateBase := { privateBase with extensions, irBaseExts }
   let mut env : Environment := {
     base.private := privateBase
     base.public  := publicBase
     importRealizationCtx? := none
-    serverBaseExts := (← setImportedEntries privateBase.extensions serverData)
+    serverBaseExts
   }
   if leakEnv then
     /- Mark persistent a first time before `finalizePersistentExtensions`, which
@@ -2821,21 +2850,8 @@ def Kernel.setDiagnostics (env : Lean.Environment) (diag : Diagnostics) : Lean.E
 namespace Environment
 
 @[export lean_elab_environment_update_base_after_kernel_add]
-private def updateBaseAfterKernelAdd (env : Environment) (kenv : Kernel.Environment) (decl : Declaration) : Environment := {
-    env with
-    checked := .pure kenv
-    -- HACK: the old codegen adds some helper constants directly to the kernel environment, we need
-    -- to add them to the async consts as well in order to be able to replay them
-    asyncConstsMap := env.asyncConstsMap.map fun asyncConsts =>
-      decl.getNames.foldl (init := asyncConsts) fun asyncConsts n =>
-        if looksLikeOldCodegenName n then
-          asyncConsts.add {
-            constInfo := .ofConstantInfo (kenv.find? n |>.get!)
-            exts? := none
-            aconstsImpl := .pure <| .mk (α := AsyncConsts) default
-          }
-        else asyncConsts
-  }
+private def updateBaseAfterKernelAdd (env : Environment) (kenv : Kernel.Environment) : Environment :=
+  { env with checked := .pure kenv }
 
 def displayStats (env : Environment) : IO Unit := do
   let pExtDescrs ← persistentEnvExtensionsRef.get

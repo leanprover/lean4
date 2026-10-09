@@ -1,0 +1,20 @@
+name = "test"
+
+[[lean_lib]]
+name = "Lib"
+
+[[lean_exe]]
+name = "a"
+root = "A"
+
+[[lean_lib]]
+name = "NeedsElided"
+needs = ["a:exe"]
+
+[[lean_lib]]
+name = "NeedsNamed"
+needs = ["test/a:exe"]
+
+[[lean_lib]]
+name = "NeedsModule"
+needs = ["+Lib:c.o.noexport"]

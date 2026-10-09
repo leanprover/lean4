@@ -29,7 +29,6 @@ lean_object* l_Lean_MessageData_ofConstName(lean_object*, uint8_t);
 lean_object* l_Lean_Environment_getModuleIdxFor_x3f(lean_object*, lean_object*);
 lean_object* l_Lean_MessageData_note(lean_object*);
 lean_object* l_Lean_Environment_header(lean_object*);
-lean_object* l_Lean_EnvironmentHeader_moduleNames(lean_object*);
 lean_object* lean_array_get(lean_object*, lean_object*, lean_object*);
 uint8_t l_Lean_isPrivateName(lean_object*);
 lean_object* l_Lean_MessageData_ofName(lean_object*);
@@ -1461,13 +1460,15 @@ goto v_resetjp_384_;
 }
 v_resetjp_384_:
 {
-lean_object* v___x_387_; lean_object* v___x_388_; lean_object* v_mod_389_; uint8_t v___x_390_; 
+lean_object* v___x_387_; lean_object* v_moduleNames_388_; lean_object* v_mod_389_; uint8_t v___x_390_; 
 v___x_387_ = l_Lean_Environment_header(v_env_362_);
 lean_dec_ref(v_env_362_);
-v___x_388_ = l_Lean_EnvironmentHeader_moduleNames(v___x_387_);
-v_mod_389_ = lean_array_get(v___x_360_, v___x_388_, v_val_383_);
+v_moduleNames_388_ = lean_ctor_get(v___x_387_, 4);
+lean_inc_ref(v_moduleNames_388_);
+lean_dec_ref(v___x_387_);
+v_mod_389_ = lean_array_get(v___x_360_, v_moduleNames_388_, v_val_383_);
 lean_dec(v_val_383_);
-lean_dec_ref(v___x_388_);
+lean_dec_ref(v_moduleNames_388_);
 v___x_390_ = l_Lean_isPrivateName(v_declHint_357_);
 lean_dec(v_declHint_357_);
 if (v___x_390_ == 0)

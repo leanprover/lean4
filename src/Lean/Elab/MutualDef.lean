@@ -1266,6 +1266,10 @@ this warning can be disabled with `set_option warn.classDefReducibility false`."
   elabAsync header view declId := do
     assert! view.kind.isTheorem
     let env ← getEnv
+    let env :=
+      if env.header.isModule && !isPrivateName declId.declName then
+        recordOriginalConstKind env declId.declName .thm
+      else env
     let async ← env.addConstAsync declId.declName .thm
       (exportedKind? :=
         guard (!isPrivateName declId.declName || (← ResolveName.backward.privateInPublic.getM)) *>

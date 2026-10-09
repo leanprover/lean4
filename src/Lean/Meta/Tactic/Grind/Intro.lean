@@ -322,8 +322,8 @@ end Action
 /-
 Creates an action that tries all solver extensions using `Action.andAlso`,
 then drains the `newRawFacts` queue via `assertAll`.
-The `assertAll` step is necessary because `processNewFacts` (called by `solverAction` on the
-`.propagated` path) drains the `newFacts` queue (equations and propositions for the e-graph),
+The `assertAll` step is necessary because `processToDo` (called by `solverAction` on the
+`.propagated` path) drains the `toProcess` queue (equations, propositions, and propagations for the e-graph),
 but the resulting propagation cascade (e.g., congruence closure, or-propagation,
 `propagateForallPropDown`) can call `addNewRawFact`, which enqueues to the separate
 `newRawFacts` queue. Without this step, these raw facts are never asserted. See issue #12581.

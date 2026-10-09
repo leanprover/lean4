@@ -138,6 +138,23 @@ def checkNoRevert (params : Grind.Params) : CoreM Unit := do
   if params.config.revert then
     throwError "invalid `grind` parameter, only global declarations are allowed when `+revert` is used"
 
+/--
+Processes a `grind` parameter given as a term, e.g. `grind [h _ _ pf]` or `grind [foo x]`.
+
+The term is elaborated as a proof, and its remaining holes become parameters of that proof.
+For example, `h _ _ pf : R (l'.head ⋯) (l'.getLast ⋯)` with the hole `?x : 1 < l'.length`
+becomes `fun x => h l' x pf : ∀ x, R (l'.head ⋯) (l'.getLast ⋯)`. The result is used in one of
+two ways:
+
+- As an E-matching theorem (`params.extra`), if some hole is not a proof, or if the user gave a
+  modifier (e.g. `grind [→ foo _]`). Such a hole is a pattern variable, to be assigned by
+  E-matching.
+
+- As a fact (`params.extraFacts`) otherwise, i.e., when the type is not a `∀`, or when every
+  hole is a proof. A proof hole `x : p` cannot be a pattern variable, since E-matching ignores
+  proofs. It is synthesized by `grind` itself: `∀ (x : p), q` is a dependent implication, and
+  `propagateForallPropUp` instantiates `q` once `grind` has established `p`.
+-/
 def processTermParam (params : Grind.Params)
     (p : TSyntax `Lean.Parser.Tactic.grindParam)
     (mod? : Option (TSyntax `Lean.Parser.Attr.grindMod))
@@ -160,14 +177,16 @@ def processTermParam (params : Grind.Params)
     let e := e.eta
     if e.hasMVar then
       let r ← abstractMVars e
-      return some (r.paramNames, r.expr)
+      -- See the docstring: a term whose holes are all proofs is a fact, not a theorem.
+      let proofHolesOnly ← r.mvars.allM fun mvar => isProof mvar
+      return some (r.paramNames, r.expr, proofHolesOnly)
     else
-      return some (#[], e)
-  let some (levelParams, proof) := thm? | return params
+      return some (#[], e, false)
+  let some (levelParams, proof, proofHolesOnly) := thm? | return params
   let type ← inferType proof
   unless (← isProp type) do
     throwError "invalid `grind` parameter, proof term expected"
-  if type.isForall then
+  if type.isForall && !(proofHolesOnly && levelParams.isEmpty && mod?.isNone) then
     let mkThm (kind : Grind.EMatchTheoremKind) (idx : Nat) : MetaM Grind.EMatchTheorem := do
       let id := ((`extra).appendIndexAfter idx)
       let some thm ← Grind.mkEMatchTheoremWithKind? (.stx id p) levelParams proof kind params.symPrios (minIndexable := minIndexable)

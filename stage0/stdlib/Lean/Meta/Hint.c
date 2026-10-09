@@ -1,6 +1,6 @@
 // Lean compiler output
 // Module: Lean.Meta.Hint
-// Imports: public import Lean.Meta.TryThis public import Lean.Util.Diff
+// Imports: public import Lean.Meta.TryThis public import Lean.Util.Diff import Init.Data.String.Csimp
 #include <lean/lean.h>
 #if defined(__clang__)
 #pragma clang diagnostic ignored "-Wunused-parameter"
@@ -55,7 +55,7 @@ lean_object* l_Lean_Json_mkObj(lean_object*);
 lean_object* lean_string_utf8_byte_size(lean_object*);
 uint32_t lean_string_utf8_get_fast(lean_object*, lean_object*);
 lean_object* lean_string_utf8_next_fast(lean_object*, lean_object*);
-lean_object* lean_string_data(lean_object*);
+lean_object* l_String_toListImpl(lean_object*);
 lean_object* lean_array_mk(lean_object*);
 size_t lean_array_size(lean_object*);
 uint8_t lean_usize_dec_lt(size_t, size_t);
@@ -954,7 +954,7 @@ switch(v___x_171_)
 case 0:
 {
 lean_object* v___x_172_; lean_object* v___x_173_; lean_object* v___x_174_; lean_object* v___x_175_; 
-v___x_172_ = lean_string_data(v_snd_162_);
+v___x_172_ = l_String_toListImpl(v_snd_162_);
 v___x_173_ = ((lean_object*)(l___private_Init_Data_Array_Basic_0__Array_mapMUnsafe_map___at___00__private_Lean_Meta_Hint_0__Lean_Meta_Hint_mkDiffString_spec__2___closed__0));
 v___x_174_ = l___private_Init_Data_List_Impl_0__List_flatMapTR_go___at___00__private_Lean_Meta_Hint_0__Lean_Meta_Hint_mkDiffString_spec__0(v___x_172_, v___x_173_);
 v___x_175_ = lean_string_mk(v___x_174_);
@@ -964,7 +964,7 @@ goto v___jp_165_;
 case 1:
 {
 lean_object* v___x_176_; lean_object* v___x_177_; lean_object* v___x_178_; lean_object* v___x_179_; 
-v___x_176_ = lean_string_data(v_snd_162_);
+v___x_176_ = l_String_toListImpl(v_snd_162_);
 v___x_177_ = ((lean_object*)(l___private_Init_Data_Array_Basic_0__Array_mapMUnsafe_map___at___00__private_Lean_Meta_Hint_0__Lean_Meta_Hint_mkDiffString_spec__2___closed__0));
 v___x_178_ = l___private_Init_Data_List_Impl_0__List_flatMapTR_go___at___00__private_Lean_Meta_Hint_0__Lean_Meta_Hint_mkDiffString_spec__1(v___x_176_, v___x_177_);
 v___x_179_ = lean_string_mk(v___x_178_);
@@ -4512,9 +4512,9 @@ lean_dec_ref_known(v___x_1387_, 3);
 if (v___x_1388_ == 0)
 {
 lean_object* v___x_1389_; lean_object* v___x_1390_; lean_object* v___x_1391_; lean_object* v___x_1392_; lean_object* v___x_1393_; lean_object* v___x_1394_; 
-v___x_1389_ = lean_string_data(v_oldWs_1383_);
+v___x_1389_ = l_String_toListImpl(v_oldWs_1383_);
 v___x_1390_ = lean_array_mk(v___x_1389_);
-v___x_1391_ = lean_string_data(v_newWs_1384_);
+v___x_1391_ = l_String_toListImpl(v_newWs_1384_);
 v___x_1392_ = lean_array_mk(v___x_1391_);
 v___x_1393_ = l_Lean_Diff_diff___at___00__private_Lean_Meta_Hint_0__Lean_Meta_Hint_readableDiff_mkWhitespaceDiff_spec__1(v___x_1390_, v___x_1392_);
 v___x_1394_ = l___private_Lean_Meta_Hint_0__Lean_Meta_Hint_readableDiff_joinCharDiff(v___x_1393_);
@@ -8917,7 +8917,7 @@ LEAN_EXPORT lean_object* l___private_Lean_Meta_Hint_0__Lean_Meta_Hint_readableDi
 _start:
 {
 lean_object* v___x_3019_; lean_object* v___x_3020_; 
-v___x_3019_ = lean_string_data(v_s_3018_);
+v___x_3019_ = l_String_toListImpl(v_s_3018_);
 v___x_3020_ = lean_array_mk(v___x_3019_);
 return v___x_3020_;
 }
@@ -10790,6 +10790,7 @@ return v_res_3707_;
 }
 lean_object* runtime_initialize_Lean_Meta_TryThis(uint8_t builtin);
 lean_object* runtime_initialize_Lean_Util_Diff(uint8_t builtin);
+lean_object* runtime_initialize_Init_Data_String_Csimp(uint8_t builtin);
 void lean_initialize_runtime_module();
 static bool _G_runtime_initialized = false;
 LEAN_EXPORT lean_object* runtime_initialize_Lean_Meta_Hint(uint8_t builtin) {
@@ -10801,6 +10802,9 @@ res = runtime_initialize_Lean_Meta_TryThis(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
 res = runtime_initialize_Lean_Util_Diff(builtin);
+if (lean_io_result_is_error(res)) return res;
+lean_dec_ref(res);
+res = runtime_initialize_Init_Data_String_Csimp(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
 l___private_Init_Data_List_Impl_0__List_flatMapTR_go___at___00__private_Lean_Meta_Hint_0__Lean_Meta_Hint_mkDiffString_spec__1___closed__0___boxed__const__1 = _init_l___private_Init_Data_List_Impl_0__List_flatMapTR_go___at___00__private_Lean_Meta_Hint_0__Lean_Meta_Hint_mkDiffString_spec__1___closed__0___boxed__const__1();
@@ -10820,6 +10824,7 @@ return lean_io_result_mk_ok(lean_box(0));
 }
 lean_object* initialize_Lean_Meta_TryThis(uint8_t builtin);
 lean_object* initialize_Lean_Util_Diff(uint8_t builtin);
+lean_object* initialize_Init_Data_String_Csimp(uint8_t builtin);
 static bool _G_initialized = false;
 LEAN_EXPORT lean_object* initialize_Lean_Meta_Hint(uint8_t builtin) {
 lean_object * res;
@@ -10829,6 +10834,9 @@ res = initialize_Lean_Meta_TryThis(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
 res = initialize_Lean_Util_Diff(builtin);
+if (lean_io_result_is_error(res)) return res;
+lean_dec_ref(res);
+res = initialize_Init_Data_String_Csimp(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
 res = runtime_initialize_Lean_Meta_Hint(builtin);

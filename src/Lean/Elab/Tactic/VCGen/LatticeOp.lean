@@ -48,8 +48,7 @@ operator is saturated with distribution and unfolding rewrites, a terminal `⊑`
 fires on the reduced form, and a frame for the state arguments the terminal leaves over-applied
 moves them onto the precondition.
 
-The built-in splits cover the lattice connectives `⊓`/`⇨`/`⌜·⌝`/`⊤`/`iInf`, the `Prop` conjunction
-`∧`, and the magic-wand residual `upperAdjoint`.
+The built-in splits are the `LatticeOp` values in `builtinLatticeOps`.
 -/
 
 /-- The lattice meet `⊓`: distributes via `meet_apply`, closes with `le_meet`. -/
@@ -60,7 +59,8 @@ public def LatticeOp.himp : LatticeOp :=
   { head := ``Lean.Order.himp, rewrites := #[``himp_apply],
     terminal? := ``Lean.Order.le_himp_of_meet_le_left }
 /-- The pure assertion `⌜·⌝`: distributes via `ofProp_apply`, closes with the `⊤`-fixed
-`CompleteLattice.top_le_ofProp`. -/
+`CompleteLattice.top_le_ofProp`. It decomposes `pre ⊑ ⌜p⌝` only when `pre` is `⊤`: the subgoal `p`
+of any other `pre` would drop `pre`, and the terminal fails to apply. -/
 public def LatticeOp.ofProp : LatticeOp :=
   { head := ``Lean.Order.CompleteLattice.ofProp,
     rewrites := #[``Lean.Order.CompleteLattice.ofProp_apply],
@@ -71,6 +71,12 @@ public def LatticeOp.top : LatticeOp :=
 /-- The conjunction `∧` on the `Prop` lattice: closes with `le_and`. -/
 public def LatticeOp.and : LatticeOp :=
   { head := ``And, numConst := 0, terminal? := ``Lean.Order.le_and }
+/-- The existential `∃ h : a, b h` over a proposition `a`: closes with `le_exists_prop`. -/
+public def LatticeOp.exists : LatticeOp :=
+  { head := ``Exists, numConst := 1, terminal? := ``Lean.Order.le_exists_prop,
+    applies? := fun rhs => match rhs.getAppFn with
+      | .const _ [u] => u.isZero
+      | _ => false }
 /-- The magic-wand residual `upperAdjoint f b`: framed for its excess state arguments, closes with
 `le_upperAdjoint`. -/
 public def LatticeOp.upperAdjoint : LatticeOp :=
@@ -81,6 +87,14 @@ public def LatticeOp.upperAdjoint : LatticeOp :=
 public def LatticeOp.iInf : LatticeOp :=
   { head := ``Lean.Order.iInf, numConst := 3,
     rewrites := #[``Lean.Order.iInf_apply], terminal? := ``Lean.Order.le_iInf }
+/-- Indexed supremum `iSup`/`⨆` over a proposition: distributes via `iSup_apply`, closes with
+`le_iSup_prop`. -/
+public def LatticeOp.iSup : LatticeOp :=
+  { head := ``Lean.Order.iSup, numConst := 3,
+    rewrites := #[``Lean.Order.iSup_apply], terminal? := ``Lean.Order.le_iSup_prop,
+    applies? := fun rhs => match rhs.getAppFn with
+      | .const _ [_, v] => v.isZero
+      | _ => false }
 /-- Whether the `fst`/`snd` rewrites decompose the projected operand: a `⊥`/`⊤`, a
 companion application `FrameOp.prod`, or a wand `upperAdjoint (FrameOp.prod …)`, whose component
 wands the `upperAdjoint` rewrites decompose further. -/
@@ -106,7 +120,7 @@ public def LatticeOp.snd : LatticeOp :=
 
 /-- The built-in connective splits, whose rewrites and terminals seed every saturation. -/
 public def builtinLatticeOps : Array LatticeOp :=
-  #[.meet, .himp, .ofProp, .top, .and, .upperAdjoint, .iInf, .fst, .snd]
+  #[.meet, .himp, .ofProp, .top, .and, .exists, .upperAdjoint, .iInf, .iSup, .fst, .snd]
 
 /-- Lattice splits of the built-in connectives, keyed by operator head. `splitLatticeOp?` looks a
 head up here. -/

@@ -46,8 +46,12 @@ Similar to `resolveGlobalName`, but also executes reserved name actions.
 def realizeGlobalName (id : Name) : CoreM (List (Name × List String)) := do
   let cs ← resolveGlobalName id
   cs.filterM fun (c, _) => do
-    if (← getEnv).contains c then
+    let env ← getEnv
+    if env.contains c then
       return true
+    else if env.isExporting && (env.setExporting false).isImportedConst c then
+      -- Imported into the private scope only, so there is nothing to realize for the public scope.
+      return false
     else
       try
         executeReservedNameAction c

@@ -2624,8 +2624,8 @@ v___x_957_ = ((lean_object*)(l___private_Lean_Meta_CtorIdxHInj_0__Lean_Meta_hinj
 v___x_958_ = lean_string_dec_eq(v_str_956_, v___x_957_);
 if (v___x_958_ == 0)
 {
-lean_dec_ref_known(v_name_947_, 2);
 lean_dec(v_pre_955_);
+lean_dec_ref_known(v_name_947_, 2);
 lean_dec(v___x_946_);
 goto v___jp_951_;
 }
@@ -2801,8 +2801,8 @@ else
 {
 uint8_t v___x_1001_; lean_object* v___x_1002_; lean_object* v___x_1003_; 
 lean_dec(v___x_961_);
-lean_dec(v_pre_955_);
 lean_dec_ref_known(v_name_947_, 2);
+lean_dec(v_pre_955_);
 lean_dec(v___x_946_);
 v___x_1001_ = 0;
 v___x_1002_ = lean_box(v___x_1001_);

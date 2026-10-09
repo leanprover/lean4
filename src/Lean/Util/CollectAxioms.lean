@@ -132,7 +132,7 @@ private builtin_initialize exportedAxiomsExt :
       -- module-local.
       let allNames := env.checked.get.constants.foldStage2
         (fun names name _ =>
-          if (exportedEnv.find? name).isSome then names.push name
+          if (exportedEnv.find? (skipRealize := true) name).isSome then names.push name
           else names) #[]
       -- Compute axioms within a shared state (for caching across declarations).
       -- Use `privateEnv` so that `collect` can see all constant bodies.

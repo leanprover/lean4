@@ -4117,7 +4117,7 @@ if (v___x_1339_ == 0)
 lean_object* v___x_1340_; uint8_t v_isModule_1341_; 
 lean_dec(v___x_1338_);
 v___x_1340_ = l_Lean_Environment_header(v_env_1334_);
-v_isModule_1341_ = lean_ctor_get_uint8(v___x_1340_, sizeof(void*)*7 + 4);
+v_isModule_1341_ = lean_ctor_get_uint8(v___x_1340_, sizeof(void*)*8 + 4);
 if (v_isModule_1341_ == 0)
 {
 lean_object* v___x_1342_; 
@@ -4130,7 +4130,7 @@ return v___x_1342_;
 else
 {
 lean_object* v_importAllModules_1343_; lean_object* v___x_1344_; lean_object* v___x_1345_; size_t v_sz_1346_; size_t v___x_1347_; lean_object* v___x_1348_; lean_object* v_fst_1349_; 
-v_importAllModules_1343_ = lean_ctor_get(v___x_1340_, 5);
+v_importAllModules_1343_ = lean_ctor_get(v___x_1340_, 6);
 lean_inc_ref(v_importAllModules_1343_);
 lean_dec_ref(v___x_1340_);
 v___x_1344_ = lean_box(0);
@@ -5256,7 +5256,7 @@ v_val_1693_ = lean_ctor_get(v___x_1690_, 0);
 lean_inc(v_val_1693_);
 lean_dec_ref_known(v___x_1690_, 1);
 v___x_1694_ = l_Lean_Environment_header(v_env_1684_);
-v_isModule_1695_ = lean_ctor_get_uint8(v___x_1694_, sizeof(void*)*7 + 4);
+v_isModule_1695_ = lean_ctor_get_uint8(v___x_1694_, sizeof(void*)*8 + 4);
 if (v_isModule_1695_ == 0)
 {
 lean_object* v___x_1696_; lean_object* v___x_1697_; 
@@ -6101,8 +6101,8 @@ if (v___x_2223_ == 0)
 {
 lean_object* v___x_2224_; 
 lean_inc(v_toPure_2216_);
-lean_dec_ref_known(v_x_2213_, 4);
 lean_dec(v_toBind_2215_);
+lean_dec_ref_known(v_x_2213_, 4);
 lean_dec_ref(v_inst_2212_);
 lean_dec_ref(v_inst_2211_);
 lean_dec_ref(v_inst_2210_);
@@ -6620,8 +6620,8 @@ if (v___x_2481_ == 0)
 {
 lean_object* v___x_2482_; 
 lean_dec_ref(v_toMonadRef_2475_);
-lean_dec(v_toBind_2473_);
 lean_dec_ref_known(v_stx_2470_, 4);
+lean_dec(v_toBind_2473_);
 lean_dec(v_k_2471_);
 v___x_2482_ = lean_apply_2(v_toPure_2474_, lean_box(0), v_pre_2480_);
 return v___x_2482_;

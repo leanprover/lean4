@@ -886,7 +886,8 @@ class LeanChecker(RepoChecker):
             self.cl.fail("Release notes not updated")
 
     def check_notify_ashley(self) -> None:
-        if not self.version.is_stable:
+        # Only v4.X.0 releases
+        if not (self.version.patch == 0 and self.version.rc is None):
             return
 
         if self.prompt("Tell Ashley that the release is finished."):

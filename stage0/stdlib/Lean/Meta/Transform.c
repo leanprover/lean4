@@ -12039,7 +12039,7 @@ v_env_5285_ = lean_ctor_get(v___x_5284_, 0);
 lean_inc_ref(v_env_5285_);
 lean_dec(v___x_5284_);
 v___x_5286_ = l_Lean_Environment_header(v_env_5285_);
-v_isModule_5287_ = lean_ctor_get_uint8(v___x_5286_, sizeof(void*)*7 + 4);
+v_isModule_5287_ = lean_ctor_get_uint8(v___x_5286_, sizeof(void*)*8 + 4);
 lean_dec_ref(v___x_5286_);
 if (v_isModule_5287_ == 0)
 {

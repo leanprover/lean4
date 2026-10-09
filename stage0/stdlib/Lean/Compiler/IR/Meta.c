@@ -1460,7 +1460,7 @@ lean_inc_ref(v_env_396_);
 lean_dec(v___x_395_);
 v___x_397_ = l_Lean_Environment_header(v_env_396_);
 lean_dec_ref(v_env_396_);
-v_isModule_398_ = lean_ctor_get_uint8(v___x_397_, sizeof(void*)*7 + 4);
+v_isModule_398_ = lean_ctor_get_uint8(v___x_397_, sizeof(void*)*8 + 4);
 lean_dec_ref(v___x_397_);
 if (v_isModule_398_ == 0)
 {

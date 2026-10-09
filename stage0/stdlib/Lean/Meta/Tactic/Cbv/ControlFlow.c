@@ -15105,8 +15105,8 @@ return v___y_4464_;
 v___jp_4466_:
 {
 lean_object* v___x_4470_; lean_object* v___x_4471_; 
-lean_dec_ref(v___y_4468_);
-v___x_4470_ = l_Lean_Meta_Sym_Simp_Result_withContextDependent(v___y_4467_);
+lean_dec_ref(v___y_4467_);
+v___x_4470_ = l_Lean_Meta_Sym_Simp_Result_withContextDependent(v___y_4468_);
 lean_inc_ref(v___x_4470_);
 v___x_4471_ = lean_alloc_ctor(0, 1, 0);
 lean_ctor_set(v___x_4471_, 0, v___x_4470_);
@@ -15141,8 +15141,8 @@ lean_object* v_a_4478_; uint8_t v___x_4479_;
 v_a_4478_ = lean_ctor_get(v___x_4477_, 0);
 lean_inc(v_a_4478_);
 v___x_4479_ = 0;
-v___y_4467_ = v_a_4478_;
-v___y_4468_ = v___x_4477_;
+v___y_4467_ = v___x_4477_;
+v___y_4468_ = v_a_4478_;
 v___y_4469_ = v___x_4479_;
 goto v___jp_4466_;
 }

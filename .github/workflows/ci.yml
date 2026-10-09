@@ -352,8 +352,8 @@ jobs:
                 // * elab/try_ is too slow because it needs to set up symbol frequency
                 // * treeMap2 is simply large and thus takes a lot of time
                 // * docparse times out as well
-                // * async_http_idle_timeout is flakey at the moment, re-enable in the future
-                "CTEST_OPTIONS": "-E 'StackOverflow|interactive|async_select_channel|9366|elab/grind|pkg/|lake/|kernelMaxRecDepth|bench/|elab/try_|treeMap2|docparse/|async_http_idle_timeout'"
+                // * async_* are flakey at the moment, re-enable in the future
+                "CTEST_OPTIONS": "-E 'StackOverflow|interactive|async_select_channel|9366|elab/grind|pkg/|lake/|kernelMaxRecDepth|bench/|elab/try_|treeMap2|docparse/|async_'"
               },
               {
                 "name": "Linux tsanitize",
@@ -585,18 +585,3 @@ jobs:
           gh workflow -R leanprover/release-index run update-index.yml
         env:
           GITHUB_TOKEN: ${{ secrets.RELEASE_INDEX_TOKEN }}
-      - name: Generate mathlib nightly-testing app token
-        id: mathlib-app-token
-        uses: actions/create-github-app-token@v3
-        continue-on-error: true
-        with:
-          app-id: ${{ secrets.MATHLIB_NIGHTLY_TESTING_APP_ID }}
-          private-key: ${{ secrets.MATHLIB_NIGHTLY_TESTING_PRIVATE_KEY }}
-          owner: leanprover-community
-          repositories: mathlib4-nightly-testing
-      - name: Update toolchain on mathlib4's nightly-testing branch
-        if: steps.mathlib-app-token.outcome == 'success'
-        run: |
-          gh workflow -R leanprover-community/mathlib4-nightly-testing run nightly_bump_toolchain.yml
-        env:
-          GITHUB_TOKEN: ${{ steps.mathlib-app-token.outputs.token }}

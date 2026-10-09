@@ -139,7 +139,6 @@ extern lean_object* l_Lean_Options_empty;
 lean_object* l_Lean_Environment_getModuleIdxFor_x3f(lean_object*, lean_object*);
 lean_object* l_Lean_MessageData_note(lean_object*);
 lean_object* l_Lean_Environment_header(lean_object*);
-lean_object* l_Lean_EnvironmentHeader_moduleNames(lean_object*);
 lean_object* lean_array_get(lean_object*, lean_object*, lean_object*);
 uint8_t l_Lean_isPrivateName(lean_object*);
 extern lean_object* l_Lean_unknownIdentifierMessageTag;
@@ -6632,8 +6631,8 @@ goto v___jp_1623_;
 }
 else
 {
-lean_dec(v_pre_1647_);
 lean_dec_ref_known(v_declName_1646_, 2);
+lean_dec(v_pre_1647_);
 lean_dec_ref(v_compileParserDescr_1620_);
 goto v___jp_1623_;
 }
@@ -11145,13 +11144,15 @@ goto v_resetjp_3530_;
 }
 v_resetjp_3530_:
 {
-lean_object* v___x_3533_; lean_object* v___x_3534_; lean_object* v_mod_3535_; uint8_t v___x_3536_; 
+lean_object* v___x_3533_; lean_object* v_moduleNames_3534_; lean_object* v_mod_3535_; uint8_t v___x_3536_; 
 v___x_3533_ = l_Lean_Environment_header(v_env_3508_);
 lean_dec_ref(v_env_3508_);
-v___x_3534_ = l_Lean_EnvironmentHeader_moduleNames(v___x_3533_);
-v_mod_3535_ = lean_array_get(v___x_3506_, v___x_3534_, v_val_3529_);
+v_moduleNames_3534_ = lean_ctor_get(v___x_3533_, 4);
+lean_inc_ref(v_moduleNames_3534_);
+lean_dec_ref(v___x_3533_);
+v_mod_3535_ = lean_array_get(v___x_3506_, v_moduleNames_3534_, v_val_3529_);
 lean_dec(v_val_3529_);
-lean_dec_ref(v___x_3534_);
+lean_dec_ref(v_moduleNames_3534_);
 v___x_3536_ = l_Lean_isPrivateName(v_declHint_3503_);
 lean_dec(v_declHint_3503_);
 if (v___x_3536_ == 0)
@@ -11679,8 +11680,8 @@ goto v___jp_3681_;
 }
 else
 {
-lean_dec(v_pre_3705_);
 lean_dec_ref_known(v_pre_3704_, 2);
+lean_dec(v_pre_3705_);
 lean_dec_ref_known(v_declName_3703_, 2);
 lean_dec(v_a_3696_);
 lean_dec(v_catName_3668_);
@@ -13517,16 +13518,16 @@ goto v___jp_4445_;
 }
 else
 {
-lean_dec_ref_known(v_head_4447_, 1);
 lean_dec(v_tail_4448_);
+lean_dec_ref_known(v_head_4447_, 1);
 lean_dec(v_ref_4443_);
 goto v___jp_4445_;
 }
 }
 else
 {
-lean_dec(v_head_4447_);
 lean_dec_ref_known(v_args_4444_, 2);
+lean_dec(v_head_4447_);
 lean_dec(v_ref_4443_);
 goto v___jp_4445_;
 }

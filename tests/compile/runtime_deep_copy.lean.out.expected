@@ -1,0 +1,25 @@
+small Nat: ok
+neg Int: ok
+Char: ok
+Float: ok
+UInt64: ok
+big Nat: ok
+big Int: ok
+String: ok
+empty String: ok
+Array: ok
+empty Array: ok
+nested Array: ok
+ByteArray: ok
+FloatArray: ok
+List: ok
+Option: ok
+structure: ok
+long list: ok
+sharing: ok
+thunk: Thunks cannot be copied
+task: Tasks cannot be copied
+ref: Refs cannot be copied
+promise: Promises cannot be copied
+external: external objects cannot be copied
+nested task: Tasks cannot be copied

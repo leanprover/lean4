@@ -36,6 +36,21 @@ match Lean.Json.parse s with
 #eval -123.456e-7 == Lean.JsonNumber.toFloat (-123.456e-7)
 #eval 123.456e20 == Lean.JsonNumber.toFloat 123.456e20
 #eval 0.0 == Lean.JsonNumber.toFloat 0
+#eval (1e10000 : Lean.JsonNumber) < 1e10001
+#eval (1e10001 : Lean.JsonNumber) < 1e10000
+#eval (-1e10001 : Lean.JsonNumber) < -1e10000
+#eval (1e-10001 : Lean.JsonNumber) < 1e-10000
+#eval (15e-1 : Lean.JsonNumber) < 2
+#eval (2 : Lean.JsonNumber) < 15e-1
+#eval (1e2 : Lean.JsonNumber) < 101
+#eval (0 : Lean.JsonNumber) < 5e-2
+#eval (5e-2 : Lean.JsonNumber) < 0
+#eval (-5 : Lean.JsonNumber) < 0
+#eval (0 : Lean.JsonNumber) < -5
+#eval (-5e-2 : Lean.JsonNumber) < 0
+#eval (0 : Lean.JsonNumber) < 0
+#eval compare (0 : Lean.JsonNumber) 5e-2
+#eval compare (Lean.JsonNumber.mk 0 5) 0
 
 open Lean Json
 

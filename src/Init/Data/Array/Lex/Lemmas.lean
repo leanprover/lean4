@@ -8,15 +8,15 @@ module
 prelude
 import all Init.Data.Array.Lex.Basic
 public import Init.Data.Array.Lex.Basic
-import Init.Data.Range.Polymorphic.NatLemmas
 public import Init.Data.BEq
 public import Init.Data.Function
+public import Init.Data.Order.Classes
+public import Init.PropLemmas
 import Init.Data.Array.Bootstrap
 import Init.Data.Array.DecidableEq
 import Init.Data.Array.Lemmas
 import Init.Data.Bool
 import Init.Data.List.Lex
-import Init.Data.Range.Polymorphic.Lemmas
 import Init.Data.List.Nat.TakeDrop
 import Init.ByCases
 import Init.Data.List.Nat.Basic

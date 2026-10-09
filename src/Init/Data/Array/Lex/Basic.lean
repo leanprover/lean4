@@ -7,8 +7,8 @@ module
 
 prelude
 public import Init.Data.Range.Polymorphic.RangeIterator
-import Init.Data.Range.Polymorphic.Iterators
-import Init.Data.Range.Polymorphic.Nat
+public import Init.Data.Range.Polymorphic.Iterators
+public import Init.Data.Range.Polymorphic.Nat
 import Init.Omega
 
 public section
@@ -26,14 +26,19 @@ Specifically, `Array.lex as bs lt` is true if
   or
 * there is an index `i` such that `lt as[i] bs[i]`, and for all `j < i`, `as[j] == bs[j]`.
 -/
-def lex [BEq α] (as bs : Array α) (lt : α → α → Bool := by exact (· < ·)) : Bool := Id.run do
-  for h : i in 0...(min as.size bs.size) do
-    -- TODO: `get_elem_tactic` should be able to find this itself.
-    have : i < min as.size bs.size := Std.Rco.lt_upper_of_mem h
-    if lt as[i] bs[i] then
-      return true
-    else if as[i] != bs[i] then
-      return false
-  return as.size < bs.size
+@[inline, expose]
+def lex [BEq α] (as bs : Array α) (lt : α → α → Bool := by exact (· < ·)) : Bool :=
+  go 0
+where @[specialize, semireducible] go (i : Nat) : Bool :=
+  if h₁ : as.size ≤ i then
+    i < bs.size
+  else if h₂ : bs.size ≤ i then
+    false
+  else if lt as[i] bs[i] then
+    true
+  else if as[i] == bs[i] then
+    go (i + 1)
+  else
+    false
 
 end Array

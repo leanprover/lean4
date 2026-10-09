@@ -13,6 +13,7 @@ public import Init.Data.String.ToSlice
 public import Init.Data.String.Subslice
 public import Init.Data.String.Iter.Basic
 public import Init.Data.String.Iterate
+public import Init.Data.String.Compare
 import Init.Data.Iterators.Consumers.Collect
 import Init.Data.Iterators.Consumers.Loop
 import Init.Data.Option.Lemmas

@@ -8,6 +8,7 @@ module
 prelude
 public import Init.Data.Order.Ord
 public import Init.Data.Vector.Basic
+import Init.Data.Array.Bootstrap
 import Init.Data.Vector.Lemmas
 
 public section
@@ -88,5 +89,35 @@ theorem compareLex_append_append {n m} {xs₁ xs₂ : Vector α n} {ys₁ ys₂ 
 theorem compare_append_append [Ord α] {n m} {xs₁ xs₂ : Vector α n} {ys₁ ys₂ : Vector α m} :
     compare (xs₁ ++ ys₁) (xs₂ ++ ys₂) = (compare xs₁ xs₂).then (compare ys₁ ys₂) :=
   compareLex_append_append
+
+theorem compareLex_map_map {n β} {cmp' : β → β → Ordering} (f : α → β)
+    (hf : ∀ a b, cmp' (f a) (f b) = cmp a b) {xs ys : Vector α n} :
+    (xs.map f).compareLex cmp' (ys.map f) = xs.compareLex cmp ys := by
+  simp only [Vector.compareLex_eq_compareLex_toArray, toArray_map]
+  exact Array.compareLex_map_map f hf
+
+theorem compare_map_map [Ord α] {n β} [Ord β] (f : α → β)
+    (hf : ∀ a b, compare (f a) (f b) = compare a b) {xs ys : Vector α n} :
+    compare (xs.map f) (ys.map f) = compare xs ys :=
+  compareLex_map_map f hf
+
+theorem compareLex_flatMap_flatMap {n m β} {cmp' : β → β → Ordering} [LawfulEqCmp cmp]
+    [LawfulEqCmp cmp'] (f : α → Vector β m) (hf : ∀ a b, (f a).compareLex cmp' (f b) = cmp a b)
+    (hm : 0 < m) {xs ys : Vector α n} :
+    (xs.flatMap f).compareLex cmp' (ys.flatMap f) = xs.compareLex cmp ys := by
+  have hinj : ∀ a b, f a = f b → a = b := fun a b h =>
+    LawfulEqCmp.eq_of_compare ((hf a b).symm.trans (h ▸ ReflCmp.compare_self))
+  show Array.compareLex cmp' (xs.toArray.flatMap fun a => (f a).toArray)
+    (ys.toArray.flatMap fun a => (f a).toArray) = Array.compareLex cmp xs.toArray ys.toArray
+  refine Array.compareLex_flatMap_flatMap _ hf (fun a b zs h => hinj a b ?_)
+    (fun a => by simpa [← Array.size_eq_zero_iff] using Nat.ne_of_gt hm)
+  have : zs = #[] := by simpa [← Array.size_eq_zero_iff] using congrArg Array.size h
+  simpa [this, ← toArray_inj] using h
+
+theorem compare_flatMap_flatMap [Ord α] [LawfulEqOrd α] {n m β} [Ord β] [LawfulEqOrd β]
+    (f : α → Vector β m) (hf : ∀ a b, compare (f a) (f b) = compare a b) (hm : 0 < m)
+    {xs ys : Vector α n} :
+    compare (xs.flatMap f) (ys.flatMap f) = compare xs ys :=
+  compareLex_flatMap_flatMap f hf hm
 
 end Vector

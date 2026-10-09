@@ -32,6 +32,13 @@ It is opt-in via `compiler.postponeCompile` and only meaningful under the module
   Compiler.compiler.postponeCompile.get self.leanOptions.toOptions
 
 /--
+Whether the options make `lean` elaborate at the `.server` level even in a build, where as in the
+language server every import's full IR is loaded.
+-/
+def elabsInServer (opts : LeanOptions) : Bool :=
+  opts.toOptions.getBool `Elab.inServer
+
+/--
 Fetches the information importers of the module need, including its IR.
 
 The language server needs the IR because it imports at the `.server` level, where every import's
@@ -569,7 +576,8 @@ public def Module.elabImportInfoFacetConfig : ModuleFacetConfig elabImportInfoFa
     let extra := (← getLeanOptOverrides).find? mod.pkg.baseName |>.getD {}
     -- A module that postpones its code generation does not need the IR of its plain imports for
     -- elaboration, so it must not wait on their `irArts`.
-    if header.isModule && Compiler.compiler.postponeCompile.get (mod.leanOptions ++ extra).toOptions then
+    let opts := mod.leanOptions ++ extra
+    if header.isModule && Compiler.compiler.postponeCompile.get opts.toOptions && !elabsInServer opts then
       fetchImportInfo mod.relLeanFile.toString mod.pkg.keyName mod.name header
         (allowNonModules := mod.allowNonModules) (elabOnly := true)
     else
@@ -782,7 +790,7 @@ public def Module.depsFacetConfig : ModuleFacetConfig depsFacet :=
 
 def mkModuleSetup
   (mod : Module) (presetup : ModulePreSetup)
-  (elabOnly := presetup.isModule && presetup.postponeCompile)
+  (elabOnly := presetup.isModule && presetup.postponeCompile && !elabsInServer presetup.leanOptions)
 : FetchM ModuleSetup := do
   let importArts ← fetchTransImportArts
     presetup.directImports presetup.directImportArts (!presetup.isModule) elabOnly

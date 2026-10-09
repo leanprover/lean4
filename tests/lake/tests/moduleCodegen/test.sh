@@ -9,7 +9,7 @@ source ../common.sh
 # ---
 
 # The rebuild tests below edit the sources, so work on a copy
-copy_to_work lakefile.toml Main.lean Mixed.lean Test.lean Test Plain.lean Plain Eval.lean dep
+copy_to_work lakefile.toml Main.lean Mixed.lean Test.lean Test Plain.lean Plain Eval.lean InServer.lean dep
 
 # Elaboration alone does not generate code
 test_run build Test.A:elabArts
@@ -31,6 +31,11 @@ match_text 'A.ir"' .lake/build/ir/Test/B.irsetup.json
 echo "# TEST: evaluation across a meta import"
 test_out "42" build Test.MetaEval -v
 match_text 'A.ir"' .lake/build/ir/Test/MetaEval.setup.json
+
+# A build that elaborates at the server level needs the IR of plain imports as well
+echo "# TEST: build with Elab.inServer"
+test_out "42" build InServer -v
+match_text 'A.ir"' .lake/build/ir/InServer.setup.json
 
 # The server allows `#eval` on a plainly imported definition, so it must be able to run it
 echo "# TEST: server eval across a plain import"

@@ -927,11 +927,13 @@ private:
             // We don't know whether `[init]` decls can be re-executed, so let's not.
             throw exception(sstream() << "cannot evaluate `[init]` declaration '" << fn << "' in the same module");
         }
-        push_frame(e.m_decl, m_arg_stack.size());
         // `Unreachable` can be from `mkDummyExternDecl`, which may mean that we failed to run the
         // initializer, suggesting some incorrect `meta` phase setup. Let's make sure we give a
         // better signal than a segfault in that case.
-        lean_always_assert(fn_body_tag(decl_fun_body(e.m_decl)) != fn_body_kind::Unreachable);
+        if (fn_body_tag(decl_fun_body(e.m_decl)) == fn_body_kind::Unreachable)
+            throw exception(sstream() << "interpreter: cannot evaluate '" << fn
+                << "', its IR body is unreachable (likely a dummy extern from incorrect `meta` phase setup)");
+        push_frame(e.m_decl, m_arg_stack.size());
         value r = eval_decl_body(e.m_decl);
         pop_frame(r, t);
         m_constant_cache.insert({ fn, constant_cache_entry { type_is_scalar(t), r } });

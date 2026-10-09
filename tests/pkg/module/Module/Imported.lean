@@ -213,3 +213,10 @@ public meta def metaUsingNonMeta : Nat :=
 
 -- #11672
 example : instA = { instA with b := 0 } := rfl
+
+/-!
+Equation theorems of an imported definition are generated using the definition-time values of the
+options affecting them.
+-/
+
+example := @EqnOptWalk.drop.eq_1

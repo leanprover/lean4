@@ -379,7 +379,9 @@ def edit(
 def join_and(items: list[str]) -> str:
     if len(items) < 2:
         return "".join(items)
-    return f"{', '.join(items[:-1])} and {items[-1]}"
+    if len(items) == 2:
+        return " and ".join(items)
+    return f"{', '.join(items[:-1])}, and {items[-1]}"
 
 
 #########

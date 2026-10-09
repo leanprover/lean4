@@ -191,7 +191,7 @@ def registerTagAttribute (name : Name) (descr : String)
     exportEntriesFnEx := fun env es =>
       let all : Array Name := es.foldl (fun a e => a.push e) #[] |>.qsort Name.quickLt
       -- Do not export info for private defs at exported/server levels
-      let exported := all.filter ((env.setExporting true).contains (skipRealize := false))
+      let exported := all.filter ((env.setExporting true).contains)
       { exported, server := exported, «private» := all }
     statsFn         := fun s => "tag attribute" ++ Format.line ++ "number of local entries: " ++ format s.size
     asyncMode       := asyncMode
@@ -260,11 +260,11 @@ structure ParametricAttributeImpl (α : Type) extends AttributeImplCore where
   only params on public declarations are exported.
   -/
   filterExport : Environment → Name → α → Bool := fun env n _ =>
-    env.contains (skipRealize := false) n
+    env.contains n
 
 def registerParametricAttributeExt (ref : Name) (preserveOrder : Bool := false)
     (filterExport : Environment → Name → α → Bool := fun env n _ =>
-      env.contains (skipRealize := false) n)
+      env.contains n)
     (logWrites : Bool := false) :
     IO (PersistentEnvExtension (Name × α) (Name × α) (List Name × NameMap α)) :=
   registerPersistentEnvExtension {
@@ -359,7 +359,7 @@ def registerEnumAttributes (attrDescrs : List (Name × String × α))
     exportEntriesFnEx := fun env m =>
       let all : Array (Name × α) := m.foldl (fun a n p => a.push (n, p)) #[] |>.qsort (fun a b => Name.quickLt a.1 b.1)
       -- Do not export info for private defs at exported/server levels
-      let exported := all.filter ((env.setExporting true).contains (skipRealize := false) ·.1)
+      let exported := all.filter ((env.setExporting true).contains ·.1)
       { exported, server := exported, «private» := all }
     statsFn         := fun s => "enumeration attribute extension" ++ Format.line ++ "number of local entries: " ++ format s.size
     -- We assume (and check in `modifyState`) that, if used asynchronously, enum attributes are set

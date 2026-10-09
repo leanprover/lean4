@@ -131,7 +131,7 @@ builtin_initialize extension : SimplePersistentEnvExtension Entry State ←
     exportEntriesFnEx? := some fun env _ entries =>
       let all := entries.toArray
       -- Do not export info for private defs at exported/server levels
-      let exported := all.filter ((env.setExporting true).contains (skipRealize := false) ·.name)
+      let exported := all.filter ((env.setExporting true).contains ·.name)
       { exported, server := exported, «private» := all }
   }
 

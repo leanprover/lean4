@@ -5,6 +5,7 @@ public import CollectAxioms.Right
 public import CollectAxioms.Chain.Top
 public import CollectAxioms.Chain.Middle
 public import CollectAxioms.Chain.Bottom
+import CollectAxioms.EvalSorry
 
 /-! ## Diamond imports with same-named private axioms
 

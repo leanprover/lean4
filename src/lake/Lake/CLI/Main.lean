@@ -30,6 +30,8 @@ import LeanExport.Basic
 import Lake.CLI.Actions
 import Lake.CLI.Translate
 import Lake.CLI.Serve
+import Lake.Build.Module
+import Lean.Util.CollectAxioms
 public import Lake.CLI.BuiltinLint
 import Lake.CLI.Samply
 import Init.Data.String.Modify
@@ -1089,6 +1091,32 @@ protected def setupFile : CliM PUnit := do
     | .error e => error s!"failed to parse header JSON: {e}"
   exit <| ← setupFile loadConfig filePath header buildConfig
 
+/--
+Collects the axioms of constants imported by a Lean file but whose bodies it has not loaded, from
+the private data of the imported modules, which must be up to date. The request is read from stdin.
+
+The `collect-axioms` command is used internally by Lean, e.g. for `#print axioms`.
+-/
+protected def collectAxioms : CliM PUnit := do
+  processOptions lakeOption
+  let opts ← getThe LakeOptions
+  let loadConfig ← mkLoadConfig opts
+  let leanFile ← takeArg "Lean file"
+  noArgsRem do
+  let req : Lean.CollectAxioms.Request ←
+    match Json.parse (← (← IO.getStdin).getLine) >>= fromJson? with
+    | .ok req => pure req
+    | .error e => error s!"failed to parse request JSON: {e}"
+  -- Without a configuration file, the modules are located via the search path of the request.
+  let importArts ← if (← realConfigFile loadConfig.configFile).toString.isEmpty then pure {} else
+    let ws ← loadWorkspace loadConfig
+    -- isModule: import private data as well
+    let header : Lean.ModuleHeader := { imports := req.imports, isModule := false }
+    let setup ← ws.runBuild (setupServerModule leanFile (← resolvePath leanFile) header)
+      (mkBuildConfig opts)
+    pure setup.importArts
+  IO.println (toJson (← Lean.CollectAxioms.handleRequest req importArts)).compress
+
 protected def test : CliM PUnit := do
   processOptions lakeOption
   let opts ← getThe LakeOptions
@@ -1406,6 +1434,7 @@ def lakeCli : (cmd : String) → CliM PUnit
 | "upload"              => lake.upload
 | "cache"               => lake.cache
 | "setup-file"          => lake.setupFile
+| "collect-axioms"      => lake.collectAxioms
 | "test"                => lake.test
 | "check-test"          => lake.checkTest
 | "lint"                => lake.lint

@@ -1196,9 +1196,18 @@ def addConstAsync (env : Environment) (constName : Name) (kind : ConstantKind)
   let exportedAsyncConst? := exportedKind?.map fun exportedKind => { privateAsyncConst with
     constInfo := { privateAsyncConst.constInfo with
       kind := exportedKind
-      constInfo := constPromise.result?.map (sync := true) fun
-        | some c => c.exportedConstInfo
-        | none   => mkFallbackConstInfo constName exportedKind
+      constInfo :=
+        if kind matches .thm && exportedKind matches .axiom then
+          -- A theorem exported as an axiom is fully determined by its signature, so do not wait for
+          -- the proof. This does not hold for other kinds, whose `isUnsafe` flag is not part of the
+          -- signature.
+          sigPromise.result?.map (sync := true) fun
+            | some sig => .axiomInfo { sig with isUnsafe := false }
+            | none     => mkFallbackConstInfo constName exportedKind
+        else
+          constPromise.result?.map (sync := true) fun
+            | some c => c.exportedConstInfo
+            | none   => mkFallbackConstInfo constName exportedKind
     }
     aconstsImpl := constPromise.result?.map (sync := true) fun
       | some v => .mk v.nestedConsts.public

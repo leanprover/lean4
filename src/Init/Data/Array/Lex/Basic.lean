@@ -6,9 +6,8 @@ Author: Kim Morrison
 module
 
 prelude
-public import Init.Data.Range.Polymorphic.RangeIterator
-public import Init.Data.Range.Polymorphic.Iterators
-public import Init.Data.Range.Polymorphic.Nat
+public import Init.Data.Array.Basic
+import Init.WFTactics
 import Init.Omega
 
 public section

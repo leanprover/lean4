@@ -10,11 +10,8 @@ prelude
 -- TODO: Making this private leads to a panic in Init.Grind.Ring.Poly.
 import Init.Data.Array.Nat
 public import Init.Data.Array.DecidableEq
-public import Init.Data.Range.Polymorphic.RangeIterator
 import Init.Data.Array.InsertIdx
 import Init.Data.Array.MapIdx
-import Init.Data.Range.Polymorphic.Iterators
-import Init.Data.Range.Polymorphic.Nat
 import Init.Omega
 
 public section

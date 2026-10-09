@@ -8,11 +8,11 @@ module
 prelude
 import all Init.Data.Vector.Basic
 import all Init.Data.Array.Lex.Basic
-import Init.Data.Range.Polymorphic.Lemmas
 public import Init.Data.Array.Lex.Basic
 public import Init.Data.BEq
 public import Init.Data.Function
 public import Init.Data.Vector.Basic
+public import Init.Data.Order.Classes
 import Init.Data.Array.Bootstrap
 import Init.Data.Array.Lex.Lemmas
 import Init.Data.Vector.Lemmas
@@ -62,8 +62,7 @@ protected theorem not_le_iff_gt [LT α] {xs ys : Vector α n} :
 @[simp] theorem mk_lex_mk [BEq α] {lt : α → α → Bool} {xs ys : Array α} {n₁ : xs.size = n} {n₂ : ys.size = n} :
     (Vector.mk xs n₁).lex (Vector.mk ys n₂) lt = xs.lex ys lt := by
   rw [Vector.lex, Array.lex, eq_comm]
-  suffices ∀ i, Array.lex.go xs ys lt i =
-    Vector.lex.go (Vector.mk xs n₁) (Vector.mk ys n₂) lt i from this 0
+  suffices ∀ i, Array.lex.go xs ys lt i = Vector.lex.go (Vector.mk xs n₁) (Vector.mk ys n₂) lt i from this 0
   intro i
   fun_induction Vector.lex.go with (rw [Array.lex.go]; simp_all)
 

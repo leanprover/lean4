@@ -80,11 +80,12 @@ private def toSemiringExpr? [Monad m] [MonadLiftT GrindM m] [MonadLiftT Sym.SymM
 
 /--
 Returns `some c`, where `c` is an equation from the basis whose leading monomial divides `m`.
-Remark: if the current ring does not satisfy the property
+Remark: if `checkCoeffDvd` is enabled and the current ring does not satisfy the property
 ```
 ∀ (k : Nat) (a : α), k ≠ 0 → OfNat.ofNat (α := α) k * a = 0 → a = 0
 ```
-then the leading coefficient of the equation must also divide `k`
+then the leading coefficient of the equation must also divide `k`. This ensures the rewrite
+is monic (i.e., `k₁ = 1` at `PolyDerivation.step`).
 -/
 def _root_.Lean.Grind.CommRing.Mon.findSimp? (k : Int) (m : Mon) : RingM (Option EqCnstr) := do
   let checkCoeff ← checkCoeffDvd
@@ -384,7 +385,9 @@ def DiseqCnstr.checkConstant (c : DiseqCnstr) : RingM Bool := do
 
 def DiseqCnstr.simplify (c : DiseqCnstr) : RingM DiseqCnstr :=
   withCheckCoeffDvd do
-    -- We must enable `checkCoeffDvd := true`. See comments at `PolyDerivation`.
+    -- `checkConstant` concludes `lhs = rhs` from `c.d.p = 0`. This is only sound if the
+    -- derivation's multiplier is `1` or the ring implements `NoNatZeroDivisors`, which
+    -- `checkCoeffDvd := true` guarantees. See comments at `PolyDerivation.step`.
     return { c with d := (← c.d.simplify) }
 
 def saveDiseq (c : DiseqCnstr) : RingM Unit := do
@@ -569,6 +572,13 @@ where
         let some p ← (ra.sub rb).toPolyM? | return ()
         let d : PolyDerivation := .input p
         let d ← d.simplify
+        unless d.p matches .num 0 do
+          -- `k*a` and `k*b` simplify to the same polynomial, but this does not imply `a = b`
+          -- when `k ≠ 1` and the ring does not implement `NoNatZeroDivisors`.
+          -- Example: in `BitVec 2` with `2*x = 0`, both `x` and `x + 2` simplify to `0`
+          -- with multiplier `2`, but `x + 2 - x = 2 ≠ 0`.
+          trace_goal[grind.ring.impEq] "skip: {← mkEq a b}, k: {k}, not zero: {← d.p.denoteExpr}"
+          return ()
         if d.getMultiplier != 1 then
           unless (← noZeroDivisors) do
             -- Given the multiplier `k' = d.getMultiplier`, we have that `k*(a - b) = 0`,

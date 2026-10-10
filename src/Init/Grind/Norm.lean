@@ -241,7 +241,7 @@ init_grind_norm
   -- Rationals
   Rat.zpow_neg
   -- Field
-  Field.inv_zero Field.inv_inv Field.inv_one Field.inv_neg
+  Field.inv_zero Semifield.inv_inv Semifield.inv_one Field.inv_neg
   -- Semiring
   Semiring.one_mul Semiring.mul_one
   Semiring.zero_mul Semiring.mul_zero

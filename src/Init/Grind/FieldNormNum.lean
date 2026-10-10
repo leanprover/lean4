@@ -19,8 +19,8 @@ abbrev ofRat {α} [Field α] (r : Rat) : α :=
   (r.num : α)/(r.den : α)
 
 attribute [local simp]
-  Field.inv_one Semiring.natCast_zero Semiring.natCast_one Ring.intCast_zero Ring.intCast_one Semiring.one_mul Semiring.mul_one
-  Semiring.pow_zero Field.inv_one Field.inv_zero
+  Semifield.inv_one Semiring.natCast_zero Semiring.natCast_one Ring.intCast_zero Ring.intCast_one Semiring.one_mul Semiring.mul_one
+  Semiring.pow_zero Field.inv_zero
 
 private theorem dvd_helper₁ {z : Int} {n : Nat} : ↑(z.natAbs.gcd n : Int) ∣ z :=
   Rat.normalize.dvd_num rfl
@@ -36,7 +36,7 @@ private theorem nonzero_helper {α} [Field α] {z : Int} {n m : Nat} (hn : (n : 
    -- TODO(kmill): remove after stage0 update
   try dsimp at hk
   rw [Semiring.natCast_mul, Semiring.natCast_mul, h, Semiring.zero_mul] at hk
-  replace hk := Field.of_mul_eq_zero hk
+  replace hk := Semifield.of_mul_eq_zero hk
   simp_all
 
 theorem ofRat_add' {α} [Field α] {a b : Rat} (ha : (a.den : α) ≠ 0) (hb : (b.den : α) ≠ 0) :
@@ -62,20 +62,20 @@ theorem ofRat_mul' {α} [Field α] {a b : Rat} (ha : (a.den : α) ≠ 0) (hb : (
 -- Note: false without `IsCharP α 0` (consider `a = b = 1/2` in `ℤ/2ℤ`):
 theorem ofRat_add {α} [Field α] [IsCharP α 0] (a b : Rat) :
     (ofRat (a + b) : α) = ofRat a + ofRat b :=
-  ofRat_add' (natCast_ne_zero a.den_nz) (natCast_ne_zero b.den_nz)
+  ofRat_add' (Semifield.natCast_ne_zero a.den_nz) (Semifield.natCast_ne_zero b.den_nz)
 -- Note: false without `IsCharP α 0` (consider `a = 2/3` and `b = 1/2` in `ℤ/2ℤ`):
 theorem ofRat_mul {α} [Field α] [IsCharP α 0] (a b : Rat) : (ofRat (a * b) : α) = ofRat a * ofRat b :=
-  ofRat_mul' (natCast_ne_zero a.den_nz) (natCast_ne_zero b.den_nz)
+  ofRat_mul' (Semifield.natCast_ne_zero a.den_nz) (Semifield.natCast_ne_zero b.den_nz)
 
 theorem ofRat_inv {α} [Field α] (a : Rat) : (ofRat (a⁻¹) : α) = (ofRat a)⁻¹ := by
   simp [ofRat]; split
   next h => simp [h, Field.div_eq_mul_inv]
   next =>
-    simp [Field.div_eq_mul_inv, Field.inv_mul, Field.inv_inv, Ring.intCast_mul, Ring.intCast_natCast]
+    simp [Field.div_eq_mul_inv, Semifield.inv_mul, Semifield.inv_inv, Ring.intCast_mul, Ring.intCast_natCast]
     generalize a.num = n
     generalize a.den = d
     conv => rhs; rw [← Int.sign_mul_natAbs n]
-    simp [Ring.intCast_mul, Ring.intCast_natCast, Field.inv_mul]
+    simp [Ring.intCast_mul, Ring.intCast_natCast, Semifield.inv_mul]
     have : (Int.cast n.sign : α) = (Int.cast n.sign : α)⁻¹ := by
       cases Int.sign_trichotomy n
       next h => simp [h]
@@ -124,7 +124,7 @@ theorem ofRat_npow' {α} [Field α] {a : Rat} (ha : (a.den : α) ≠ 0) (n : Nat
       exact Field.zero_ne_one h.symm
     | succ n ih' =>
       rw [Semiring.pow_succ] at h
-      replace h := Field.of_mul_eq_zero h
+      replace h := Semifield.of_mul_eq_zero h
       rcases h with h | h
       · exact ih' h
       · exact ha h
@@ -158,14 +158,14 @@ theorem ofRat_zpow {α} [Field α] [IsCharP α 0] (a : Rat) (n : Int) : (ofRat (
 
 theorem natCast_eq {α} [Field α] (n : Nat) : (NatCast.natCast n : α) = ofRat n := by
   simp [ofRat, Ring.intCast_natCast, Semiring.natCast_one, Field.div_eq_mul_inv,
-        Field.inv_one, Semiring.mul_one]
+        Semifield.inv_one, Semiring.mul_one]
 
 theorem ofNat_eq {α} [Field α] (n : Nat) : (OfNat.ofNat n : α) = ofRat n := by
   rw [Semiring.ofNat_eq_natCast]
   apply natCast_eq
 
 theorem intCast_eq {α} [Field α] (n : Int) : (IntCast.intCast n : α) = ofRat n := by
-  simp [ofRat, Semiring.natCast_one, Field.div_eq_mul_inv, Field.inv_one, Semiring.mul_one]
+  simp [ofRat, Semiring.natCast_one, Field.div_eq_mul_inv, Semifield.inv_one, Semiring.mul_one]
 
 theorem add_eq {α} [Field α] [IsCharP α 0] (a b : α) (v₁ v₂ v : Rat)
     : v == v₁ + v₂ → a = ofRat v₁ → b = ofRat v₂ → a + b = ofRat v := by
@@ -204,7 +204,7 @@ theorem eq_int {α} [Field α] (a : α) (v : Rat) (n : Int)
   simp; cases v; simp [ofRat]
   next den _ _ =>
   intros; subst den n a
-  simp [Semiring.natCast_one, Field.div_eq_mul_inv, Field.inv_one, Semiring.mul_one]
+  simp [Semiring.natCast_one, Field.div_eq_mul_inv, Semifield.inv_one, Semiring.mul_one]
 
 theorem eq_inv {α} [Field α] (a : α) (v : Rat) (d : Nat)
     : v.num == 1 && v.den == d → a = ofRat v → a = (NatCast.natCast d : α)⁻¹ := by

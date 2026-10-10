@@ -89,6 +89,12 @@ structure CommSemiring extends Semiring where
   ringId             : Nat
   /-- `CommSemiring` instance for `type` -/
   commSemiringInst   : Expr
+  /-- `Semifield` instance for `type` if available. -/
+  semifieldInst?     : Option Expr := none
+  /-- Characteristic of a semifield, when available. -/
+  charInst?          : Option (Expr × Nat) := none
+  invFn?             : Option Expr := none
+  divFn?             : Option Expr := none
   /-- `AddRightCancel` instance for `type` if available. -/
   addRightCancelInst? : Option (Option Expr) := none
   toQFn?             : Option Expr := none

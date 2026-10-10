@@ -162,8 +162,10 @@ private def tryCommSemiring? (type : Expr) : SymM (Option Nat) := do
   let some ringId ← tryCacheAndCommRing? q
     | reportIssue! "unexpected failure initializing ring{indentExpr q}"; return none
   let id := (← getArithState).semirings.size
+  let semifieldInst? ← Sym.synthInstance? <| mkApp (mkConst ``Grind.Semifield [u]) type
+  let charInst? ← if semifieldInst?.isSome then getIsCharInst? u type semiringInst else pure none
   let semiring : CommSemiring := {
-    id, type, ringId, u, semiringInst, commSemiringInst
+    id, type, ringId, u, semiringInst, commSemiringInst, semifieldInst?, charInst?
   }
   modifyArithState fun s => { s with semirings := s.semirings.push semiring }
   -- Link the envelope ring back to this semiring

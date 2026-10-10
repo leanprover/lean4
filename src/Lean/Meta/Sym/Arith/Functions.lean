@@ -214,6 +214,27 @@ end SemiringFns
 section CommSemiringFns
 variable [MonadCommSemiring m]
 
+def getInvFn' : m Expr := do
+  let sr ← getCommSemiring
+  let some inst := sr.semifieldInst?
+    | throwError "internal error: type is not a semifield{indentExpr sr.type}"
+  if let some fn := sr.invFn? then return fn
+  let expectedInst := mkApp2 (mkConst ``Grind.Semifield.toInv [sr.u]) sr.type inst
+  let fn ← mkUnaryFn sr.type sr.u ``Inv ``Inv.inv expectedInst
+  modifyCommSemiring fun s => { s with invFn? := some fn }
+  return fn
+
+def getDivFn' : m Expr := do
+  let sr ← getCommSemiring
+  let some inst := sr.semifieldInst?
+    | throwError "internal error: type is not a semifield{indentExpr sr.type}"
+  if let some fn := sr.divFn? then return fn
+  let expectedInst := mkApp2 (mkConst ``instHDiv [sr.u]) sr.type <|
+    mkApp2 (mkConst ``Grind.Semifield.toDiv [sr.u]) sr.type inst
+  let fn ← mkBinHomoFn sr.type sr.u ``HDiv ``HDiv.hDiv expectedInst
+  modifyCommSemiring fun s => { s with divFn? := some fn }
+  return fn
+
 /-- The embedding `OfSemiring.toQ` of the semiring into its envelope ring. -/
 def getToQFn : m Expr := do
   let s ← getCommSemiring

@@ -103,9 +103,10 @@ extern "C" LEAN_EXPORT lean_obj_res lean_uv_tcp_new() {
     tcp_socket->m_pending_connections = 0;
 
     int result;
+
     {
         event_loop_guard guard;
-        result = uv_tcp_init(global_ev.loop, &tcp_socket->m_uv_tcp);
+        result = uv_tcp_init(global_ev.m_loop, &tcp_socket->m_uv_tcp);
     }
 
     if (result != 0) {

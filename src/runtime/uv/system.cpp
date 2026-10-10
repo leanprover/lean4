@@ -455,9 +455,10 @@ extern "C" LEAN_EXPORT lean_obj_res lean_uv_random(uint64_t size) {
     };
 
     int result;
+
     {
         event_loop_guard guard;
-        result = uv_random(global_ev.loop, &req->req, lean_sarray_cptr(byte_array), size, 0, on_random);
+        result = uv_random(global_ev.m_loop, &req->req, lean_sarray_cptr(byte_array), size, 0, on_random);
     }
 
     if (result < 0) {

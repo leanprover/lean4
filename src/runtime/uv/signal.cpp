@@ -154,9 +154,10 @@ extern "C" LEAN_EXPORT lean_obj_res lean_uv_signal_mk(uint32_t signum_obj, uint8
     signal->m_promise = NULL;
 
     int result;
+
     {
         event_loop_guard guard;
-        result = uv_signal_init(global_ev.loop, &signal->m_uv_signal);
+        result = uv_signal_init(global_ev.m_loop, &signal->m_uv_signal);
     }
 
     if (result != 0) {

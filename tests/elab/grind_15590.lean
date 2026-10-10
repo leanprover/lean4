@@ -7,6 +7,7 @@ Rabinowitsch step then built and internalized `(a - b) * (a - b)⁻¹`, which wa
 internalized by an enclosing frame: the core treated it as internalized, but `(a - b)⁻¹` had no
 `ENode` yet. The replayed callbacks are now queued and run once internalization is complete.
 -/
+set_option grind.debug true
 
 theorem bug (a b : Rat) (h : a ≠ b) : (a - b) / (a - b) = 1 := by
   grind

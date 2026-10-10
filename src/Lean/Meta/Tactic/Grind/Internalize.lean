@@ -563,6 +563,42 @@ private def internalizeOfNatFinBitVecLiteral (e : Expr) (generation : Nat) (pare
   updateIndicesFound (.const ``OfNat.ofNat)
   activateTheorems ``OfNat.ofNat generation
 
+/-!
+## Re-entrant internalization
+
+`internalizeImpl` creates the `ENode` of an application before visiting its arguments, because
+`registerParent` and the congruence table need the node of the parent. Until the argument loop
+finishes, the application is *in progress*: `alreadyInternalized` holds for it, but some of its
+arguments may have no `ENode` yet.
+
+We say `u` is a *strict ancestor* of `t` if `u` is an in-progress application and `t` is one of
+its proper subterms. The in-progress applications are exactly the strict ancestors of the term
+currently being internalized.
+
+**Invariant.** While `t` is being internalized, solver code must not call `internalize` on a term
+that is, or contains, a strict ancestor of `t`.
+
+**Why it matters.** The `alreadyInternalized` branch of `internalizeImpl` treats its argument as
+complete: it does not visit the arguments again, and it hands the term to the solver hooks so that
+they can register it under a new parent. If the term is a strict ancestor, the hooks see a term
+with missing arguments. The ring solver, for example, reifies it and asks for a variable for an
+argument that has no `ENode`. The branch is also what keeps the descent finite: without it,
+re-internalizing an ancestor would visit the current term again.
+
+**How it is maintained.** The solver hooks run synchronously at the end of a term's
+internalization, so they run while the strict ancestors of that term are in progress. They are the
+only solver code that runs in this position. The `newEq`/`newDiseq` callbacks triggered by
+`SolverExtension.markTerm` are queued (`ToProcessElement.solverEq`), and so are the propagators
+(`ToProcessElement.propagateUp`); both run from `processToDo`, when no application is in progress.
+A hook therefore only has to avoid internalizing a term that contains one of its own strict
+ancestors. A hook that must state a fact about such a term queues it with `pushNewFactCore`; the
+term is internalized when the fact is processed.
+
+**Checking.** When `isDebugEnabled` holds, `GoalState.internalizing` holds the in-progress
+applications, and the `alreadyInternalized` branch throws an internal error if it reaches one of
+them.
+-/
+
 set_option compiler.ignoreBorrowAnnotation true in
 @[export lean_grind_internalize]
 private partial def internalizeImpl (e : Expr) (generation : Nat) (parent? : Option Expr := none) : GoalM Unit := withIncRecDepth do

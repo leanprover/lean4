@@ -1039,17 +1039,10 @@ structure GoalState where
   /-- Pending work for `processToDo`: equalities, facts, upward propagations, and solver callbacks. -/
   toProcess    : Array ToProcessElement := #[]
   /--
-  Applications whose internalization is in progress, outermost first. Maintained only when
-  `isDebugEnabled` holds, and empty whenever no internalization is in progress.
-
-  The internalizer creates the `ENode` of an application before visiting its arguments. While
-  the arguments are being visited, the application is on this stack. We say `u` is a
-  *strict ancestor* of `t` if `u` is on this stack and `t` is one of its proper subterms.
-  While `t` is being internalized, solver code must not call `internalize` on a term that is,
-  or contains, a strict ancestor of `t`: the strict ancestor looks internalized to the core, but
-  some of its arguments have no `ENode` yet. The internalizer checks this invariant against
-  this stack. Solver code that must state a fact about such a term queues it with
-  `pushNewFactCore`.
+  Applications whose `ENode` exists but whose arguments are still being visited, outermost
+  first. Maintained only when `isDebugEnabled` holds, and empty whenever no internalization is
+  in progress. The internalizer uses it to check that solver code never internalizes one of these
+  applications; see the section on re-entrant internalization in `Lean.Meta.Tactic.Grind.Internalize`.
   -/
   internalizing : Array Expr := #[]
   /-- `inconsistent := true` if `ENode`s for `True` and `False` are in the same equivalence class. -/

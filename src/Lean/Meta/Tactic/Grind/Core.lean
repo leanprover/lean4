@@ -376,6 +376,8 @@ private def processToDoImpl : GoalM Unit := do
     | .eq lhs rhs proof isHEq => addEqStep lhs rhs proof isHEq
     | .fact prop proof gen => addFactStep prop proof gen
     | .propagateUp e => propagateUp e
+    | .solverEq id lhs rhs => Solvers.newEq id lhs rhs
+    | .solverDiseq id lhs rhs => Solvers.newDiseq id lhs rhs
 
 /-- Adds a new `fact` justified by the given proof and using the given generation. -/
 def add (fact : Expr) (proof : Expr) (generation := 0) : GoalM Unit := do

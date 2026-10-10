@@ -563,11 +563,50 @@ private def internalizeOfNatFinBitVecLiteral (e : Expr) (generation : Nat) (pare
   updateIndicesFound (.const ``OfNat.ofNat)
   activateTheorems ``OfNat.ofNat generation
 
+/-!
+## Re-entrant internalization
+
+`internalizeImpl` creates the `ENode` of an application before visiting its arguments, because
+`registerParent` and the congruence table need the node of the parent. Until the argument loop
+finishes, the application is *in progress*: `alreadyInternalized` holds for it, but some of its
+arguments may have no `ENode` yet.
+
+We say `u` is a *strict ancestor* of `t` if `u` is an in-progress application and `t` is one of
+its proper subterms. The in-progress applications are exactly the strict ancestors of the term
+currently being internalized.
+
+**Invariant.** While `t` is being internalized, solver code must not call `internalize` on a term
+that is, or contains, a strict ancestor of `t`.
+
+**Why it matters.** The `alreadyInternalized` branch of `internalizeImpl` treats its argument as
+complete: it does not visit the arguments again, and it hands the term to the solver hooks so that
+they can register it under a new parent. If the term is a strict ancestor, the hooks see a term
+with missing arguments. The ring solver, for example, reifies it and asks for a variable for an
+argument that has no `ENode`. The branch is also what keeps the descent finite: without it,
+re-internalizing an ancestor would visit the current term again.
+
+**How it is maintained.** The solver hooks run synchronously at the end of a term's
+internalization, so they run while the strict ancestors of that term are in progress. They are the
+only solver code that runs in this position. The `newEq`/`newDiseq` callbacks triggered by
+`SolverExtension.markTerm` are queued (`ToProcessElement.solverEq`), and so are the propagators
+(`ToProcessElement.propagateUp`); both run from `processToDo`, when no application is in progress.
+A hook therefore only has to avoid internalizing a term that contains one of its own strict
+ancestors. A hook that must state a fact about such a term queues it with `pushNewFactCore`; the
+term is internalized when the fact is processed.
+
+**Checking.** When `isDebugEnabled` holds, `GoalState.internalizing` holds the in-progress
+applications, and the `alreadyInternalized` branch throws an internal error if it reaches one of
+them.
+-/
+
 set_option compiler.ignoreBorrowAnnotation true in
 @[export lean_grind_internalize]
 private partial def internalizeImpl (e : Expr) (generation : Nat) (parent? : Option Expr := none) : GoalM Unit := withIncRecDepth do
   if (← alreadyInternalized e) then
     trace_goal[grind.debug.internalize] "already internalized: {e}"
+    if (← isDebugEnabled) then
+      if (← get).internalizing.any (isSameExpr · e) then
+        throwError "`grind` internal error, `internalize` reached an application whose arguments are still being internalized{indentExpr e}"
     /-
     Even if `e` has already been internalized, we must check whether it has also been internalized in
     the satellite solvers. For example, suppose we have already internalized the term `f (a + 1)`.
@@ -653,60 +692,69 @@ where
         updateAppMap e
         checkAndAddSplitCandidate e
         addMatchEqns f generation
-        if args.size == 2 && f.isConstOf ``Grind.nestedProof then
-          -- We only internalize the proposition. We can skip the proof because of
-          -- proof irrelevance
-          let c := args[0]!
-          internalizeImpl c generation e
-          registerParent e c
-          pushEqTrue c <| mkApp2 (mkConst ``eq_true) c args[1]!
-        else if args.size == 2 && f.isConstOf ``Grind.nestedDecidable then
-          -- We only internalize the proposition. We can skip the instance because it is
-          -- a subsingleton
-          let c := args[0]!
-          internalizeImpl c generation e
-          registerParent e c
-        else if f.isConstOf ``ite && args.size == 5 then
-          -- Only the condition is internalized; the branches are internalized by `propagateIte`
-          -- once the condition is decided. The congruence hash of `e` covers every argument,
-          -- so `e` is registered as a parent of all of them: if a branch or the instance is
-          -- internalized through another term and merged, `e` must be rehashed.
-          let c := args[1]!
-          internalizeImpl c generation e
-          for arg in args do
-            registerParent e arg
+        if (← isDebugEnabled) then
+          modify fun s => { s with internalizing := s.internalizing.push e }
+          try internalizeArgs f args funCC
+          finally modify fun s => { s with internalizing := s.internalizing.pop }
         else
-          if let .const fName _ := f then
-            activateTheorems fName generation
-            if funCC then
-              internalizeImpl f generation e
-          else
-            internalizeImpl f generation e
-          registerParent e f
-          if funCC then
-            let rec traverse (curr : Expr) : GoalM Unit := do
-              let .app f a := curr | return ()
-              mkENode curr generation (funCC := true)
-              internalizeImpl a generation e
-              traverse f
-              registerParent curr a
-              registerParent curr f
-              addCongrTable curr
-            let .app curr a := e | unreachable!
-            internalizeImpl a generation e
-            traverse curr
-            registerParent e a
-            registerParent e curr
-          else
-            for h : i in *...args.size do
-              let arg := args[i]
-              internalizeImpl arg generation e
-              registerParent e arg
+          internalizeArgs f args funCC
         pushCastHEqs e
         addCongrTable e
         Solvers.internalize e parent?
         pushPropagateUp e
         propagateBetaForNewApp e
         mkInjEq e
+
+  /-- Visits the arguments of `e` and registers `e` as their parent. -/
+  internalizeArgs (f : Expr) (args : Array Expr) (funCC : Bool) : GoalM Unit := do
+    if args.size == 2 && f.isConstOf ``Grind.nestedProof then
+      -- We only internalize the proposition. We can skip the proof because of
+      -- proof irrelevance
+      let c := args[0]!
+      internalizeImpl c generation e
+      registerParent e c
+      pushEqTrue c <| mkApp2 (mkConst ``eq_true) c args[1]!
+    else if args.size == 2 && f.isConstOf ``Grind.nestedDecidable then
+      -- We only internalize the proposition. We can skip the instance because it is
+      -- a subsingleton
+      let c := args[0]!
+      internalizeImpl c generation e
+      registerParent e c
+    else if f.isConstOf ``ite && args.size == 5 then
+      -- Only the condition is internalized; the branches are internalized by `propagateIte`
+      -- once the condition is decided. The congruence hash of `e` covers every argument,
+      -- so `e` is registered as a parent of all of them: if a branch or the instance is
+      -- internalized through another term and merged, `e` must be rehashed.
+      let c := args[1]!
+      internalizeImpl c generation e
+      for arg in args do
+        registerParent e arg
+    else
+      if let .const fName _ := f then
+        activateTheorems fName generation
+        if funCC then
+          internalizeImpl f generation e
+      else
+        internalizeImpl f generation e
+      registerParent e f
+      if funCC then
+        let rec traverse (curr : Expr) : GoalM Unit := do
+          let .app f a := curr | return ()
+          mkENode curr generation (funCC := true)
+          internalizeImpl a generation e
+          traverse f
+          registerParent curr a
+          registerParent curr f
+          addCongrTable curr
+        let .app curr a := e | unreachable!
+        internalizeImpl a generation e
+        traverse curr
+        registerParent e a
+        registerParent e curr
+      else
+        for h : i in *...args.size do
+          let arg := args[i]
+          internalizeImpl arg generation e
+          registerParent e arg
 
 end Lean.Meta.Grind

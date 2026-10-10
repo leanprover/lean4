@@ -71,8 +71,8 @@ private def mkOfNatModuleVar (e : Expr) : OfNatModuleM (Expr × Expr) := do
   else
     let s ← getNatStruct
     let toQe ← shareCommon (mkApp s.toQFn e)
-    -- `toQe` is a new term. It must be internalized before `e` is marked as a solver term:
-    -- marking replays pending equalities of `e` into `processNewEq`, which reifies `toQe`.
+    -- `toQe` is a new term. It must be internalized before the equalities of `e` reach
+    -- `processNewEq`, which reifies `toQe`.
     internalize toQe (← getGeneration e)
     let h    := mkApp s.rfl_q toQe
     let r := (toQe, h)

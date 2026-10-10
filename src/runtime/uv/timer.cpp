@@ -12,17 +12,22 @@ namespace lean {
 using namespace std;
 
 // The finalizer of the `Timer`.
-void lean_uv_timer_finalizer(void* ptr) {
+static void lean_uv_timer_finalizer(void* ptr) {
     lean_uv_timer_object * timer = (lean_uv_timer_object*) ptr;
 
     // A repeating timer without a pending promise may still be running, so the handle is closed
     // under the loop lock that its callback runs under.
     event_loop_lock(&global_ev);
 
-    uv_close((uv_handle_t*)timer->m_uv_timer, [](uv_handle_t* handle) {
-        free(handle);
+    // The Lean object is being freed, so the close callback gets the struct instead. No callback
+    // reads `data` as the Lean object after `uv_close`.
+    timer->m_uv_timer.data = timer;
+
+    uv_close((uv_handle_t*)&timer->m_uv_timer, [](uv_handle_t* handle) {
+        free(handle->data);
     });
 
+    // The close callback may free `timer` as soon as the lock is released.
     lean_object * promise = timer->m_promise;
 
     event_loop_unlock(&global_ev);
@@ -30,8 +35,6 @@ void lean_uv_timer_finalizer(void* ptr) {
     if (promise != NULL) {
         lean_dec(promise);
     }
-
-    free(timer);
 }
 
 void initialize_libuv_timer() {
@@ -78,7 +81,7 @@ void handle_timer_event(uv_timer_t* handle) {
             lean_dec(promise);
         }
     } else {
-        uv_timer_stop(timer->m_uv_timer);
+        uv_timer_stop(&timer->m_uv_timer);
         timer->m_state = TIMER_STATE_FINISHED;
 
         lean_object * promise = timer->m_promise;
@@ -113,27 +116,18 @@ extern "C" LEAN_EXPORT lean_obj_res lean_uv_timer_mk(uint64_t timeout, uint8_t r
     timer->m_state = TIMER_STATE_INITIAL;
     timer->m_promise = NULL;
 
-    uv_timer_t * uv_timer = (uv_timer_t*)malloc(sizeof(uv_timer_t));
-    if (uv_timer == nullptr) {
-        free(timer);
-        return lean_io_result_mk_error(decode_io_error(ENOMEM, nullptr));
-    }
-
     event_loop_lock(&global_ev);
-    int result = uv_timer_init(global_ev.loop, uv_timer);
+    int result = uv_timer_init(global_ev.loop, &timer->m_uv_timer);
     event_loop_unlock(&global_ev);
 
     if (result != 0) {
-        free(uv_timer);
         free(timer);
         return lean_io_result_mk_error(lean_decode_uv_error(result, NULL));
     }
 
-    timer->m_uv_timer = uv_timer;
-
     lean_object * obj = lean_uv_timer_new(timer);
     lean_mark_mt(obj);
-    timer->m_uv_timer->data = obj;
+    timer->m_uv_timer.data = obj;
 
     return lean_io_result_mk_ok(obj);
 }
@@ -161,7 +155,7 @@ extern "C" LEAN_EXPORT lean_obj_res lean_uv_timer_next(b_obj_arg obj) {
         lean_inc(promise);
 
         int result = uv_timer_start(
-            timer->m_uv_timer,
+            &timer->m_uv_timer,
             handle_timer_event,
             timer->m_repeating ? 0 : timer->m_timeout,
             timer->m_repeating ? timer->m_timeout : 0
@@ -256,10 +250,10 @@ extern "C" LEAN_EXPORT lean_obj_res lean_uv_timer_reset(b_obj_arg obj) {
 
     if (timer->m_state == TIMER_STATE_RUNNING) {
 
-        uv_timer_stop(timer->m_uv_timer);
+        uv_timer_stop(&timer->m_uv_timer);
 
         int result = uv_timer_start(
-            timer->m_uv_timer,
+            &timer->m_uv_timer,
             handle_timer_event,
             timer->m_timeout,
             timer->m_repeating ? timer->m_timeout : 0
@@ -289,7 +283,7 @@ extern "C" LEAN_EXPORT lean_obj_res lean_uv_timer_stop(b_obj_arg obj) {
         return lean_io_result_mk_ok(lean_box(0));
     }
 
-    uv_timer_stop(timer->m_uv_timer);
+    uv_timer_stop(&timer->m_uv_timer);
     lean_object * promise = timer->m_promise;
     timer->m_promise = NULL;
     timer->m_state = TIMER_STATE_FINISHED;
@@ -323,7 +317,7 @@ extern "C" LEAN_EXPORT lean_obj_res lean_uv_timer_cancel(b_obj_arg obj) {
         // A repeating timer keeps running, but the loop stops keeping it alive, so a timer that is
         // dropped instead is closed by its finalizer.
         if (!timer->m_repeating) {
-            uv_timer_stop(timer->m_uv_timer);
+            uv_timer_stop(&timer->m_uv_timer);
             timer->m_state = TIMER_STATE_INITIAL;
         }
     }

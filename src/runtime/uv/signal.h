@@ -14,7 +14,7 @@ Author: Sofia Rodrigues
 
 namespace lean {
 
-static lean_external_class * g_uv_signal_external_class = NULL;
+inline lean_external_class * g_uv_signal_external_class = nullptr;
 void initialize_libuv_signal();
 
 #ifndef LEAN_EMSCRIPTEN
@@ -30,7 +30,7 @@ enum uv_signal_state {
 // repeating behavior. The repeating behavior exists to "set" a handler and avoid it not getting signals
 // between the creation of oneshot signal handlers.
 typedef struct {
-    uv_signal_t *   m_uv_signal;   // LibUV signal handle.
+    uv_signal_t     m_uv_signal;   // LibUV signal handle.
     lean_object *   m_promise;     // The associated promise for asynchronous results.
     int             m_signum;      // Signal number to watch for.
     int             m_lean_signum; // `m_signum` in the encoding of `Signal.toInt32`, reported to waiters.

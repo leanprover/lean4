@@ -15,7 +15,7 @@ Author: Sofia Rodrigues
 
 namespace lean {
 
-static lean_external_class* g_uv_tcp_socket_external_class = NULL;
+inline lean_external_class * g_uv_tcp_socket_external_class = nullptr;
 void initialize_libuv_tcp_socket();
 
 #ifndef LEAN_EMSCRIPTEN
@@ -23,7 +23,7 @@ void initialize_libuv_tcp_socket();
 // Structure for managing a single TCP socket object, including promise handling,
 // connection state, and read/write buffers.
 typedef struct {
-    uv_tcp_t*      m_uv_tcp;           // LibUV TCP handle.
+    uv_tcp_t       m_uv_tcp;           // LibUV TCP handle.
     lean_object*   m_promise_accept;   // The associated promise for asynchronous results for accepting new sockets.
     lean_object*   m_promise_read;     // The associated promise for asynchronous results for reading from the socket.
     lean_object*   m_promise_shutdown; // The associated promise for asynchronous results to shutdown the socket.

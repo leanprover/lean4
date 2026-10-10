@@ -15,7 +15,7 @@ Author: Sofia Rodrigues
 
 namespace lean {
 
-static lean_external_class * g_uv_udp_socket_external_class = NULL;
+inline lean_external_class * g_uv_udp_socket_external_class = nullptr;
 void initialize_libuv_udp_socket();
 
 #ifndef LEAN_EMSCRIPTEN
@@ -23,7 +23,7 @@ void initialize_libuv_udp_socket();
 // Structure for managing a single UDP socket object, including promise handling,
 // connection state, and read/write buffers.
 typedef struct {
-    uv_udp_t *      m_uv_udp;           // LibUV UDP handle.
+    uv_udp_t        m_uv_udp;           // LibUV UDP handle.
     lean_object *   m_promise_read;     // The associated promise for asynchronous results for reading from the socket.
     lean_object *   m_byte_array;       // The received data stored.
 } lean_uv_udp_socket_object;

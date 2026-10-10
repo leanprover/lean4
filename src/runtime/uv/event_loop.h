@@ -60,8 +60,8 @@ private:
 
 extern event_loop global_ev;
 
-lean_obj_res lean_uv_recv_size_error(uint64_t size);
-lean_object * lean_uv_fit_read_buffer(lean_object * byte_array, size_t nread);
+lean_obj_res recv_size_error(uint64_t size);
+lean_object * fit_read_buffer(lean_object * byte_array, size_t nread);
 
 // Holds the `global_ev` lock for its scope. Must be a named local: a temporary would unlock
 // immediately. Not for libuv callbacks, which already run under the lock.
@@ -79,9 +79,5 @@ public:
 // Global event loop manipulation functions
 extern "C" LEAN_EXPORT lean_obj_res lean_uv_event_loop_configure(b_obj_arg options);
 extern "C" LEAN_EXPORT uint8_t lean_uv_event_loop_alive();
-
-// Helpers
-
-void lean_promise_resolve_with_code(int status, b_obj_arg promise);
 
 }

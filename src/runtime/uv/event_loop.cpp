@@ -14,16 +14,6 @@ using namespace std;
 
 event_loop global_ev;
 
-// Helpers
-
-void lean_promise_resolve_with_code(int status, b_obj_arg promise) {
-    obj_arg res = status == 0
-        ? mk_except_ok(lean_box(0))
-        : mk_except_err(lean_decode_uv_error(status, nullptr));
-
-    lean_promise_resolve(res, promise);
-}
-
 // Utility function for error checking. This function is only used inside the
 // initializition of the event loop.
 static void check_uv(int result, const char * msg) {
@@ -71,7 +61,7 @@ bool event_loop::alive(event_loop_guard const &) {
 
 // `nullptr` if `size` is a valid receive buffer size. libuv reports an empty buffer as `UV_ENOBUFS`,
 // which would read as a resource shortage.
-lean_obj_res lean_uv_recv_size_error(uint64_t size) {
+lean_obj_res recv_size_error(uint64_t size) {
     if (size != 0) {
         return nullptr;
     }
@@ -81,7 +71,7 @@ lean_obj_res lean_uv_recv_size_error(uint64_t size) {
 // Sets the size of a receive buffer to the `nread` bytes it received. A read that fills less than half
 // of it is moved to a buffer of its own size instead, so that many small reads do not each keep a
 // full-sized buffer alive.
-lean_object * lean_uv_fit_read_buffer(lean_object * byte_array, size_t nread) {
+lean_object * fit_read_buffer(lean_object * byte_array, size_t nread) {
     if (nread * 2 >= lean_sarray_capacity(byte_array)) {
         lean_sarray_set_size(byte_array, nread);
         return byte_array;
@@ -137,7 +127,7 @@ extern "C" LEAN_EXPORT lean_obj_res lean_uv_event_loop_configure(b_obj_arg optio
     }
 
     if (result != 0) {
-        return lean_io_result_mk_error(lean_decode_uv_error(result, NULL));
+        return io_result_mk_uv_error(result);
     }
 
     return lean_io_result_mk_ok(lean_box(0));

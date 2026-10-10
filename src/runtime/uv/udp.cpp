@@ -68,9 +68,10 @@ extern "C" LEAN_EXPORT lean_obj_res lean_uv_udp_new() {
     udp_socket->m_byte_array = nullptr;
 
     int result;
+
     {
         event_loop_guard guard;
-        result = uv_udp_init(global_ev.loop, &udp_socket->m_uv_udp);
+        result = uv_udp_init(global_ev.m_loop, &udp_socket->m_uv_udp);
     }
 
     if (result != 0) {

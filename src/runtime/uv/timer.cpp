@@ -119,9 +119,10 @@ extern "C" LEAN_EXPORT lean_obj_res lean_uv_timer_mk(uint64_t timeout, uint8_t r
     timer->m_promise = NULL;
 
     int result;
+
     {
         event_loop_guard guard;
-        result = uv_timer_init(global_ev.loop, &timer->m_uv_timer);
+        result = uv_timer_init(global_ev.m_loop, &timer->m_uv_timer);
     }
 
     if (result != 0) {

@@ -361,6 +361,48 @@ def filterThms (thms : PArray EMatchTheorem) : GrindM (PArray EMatchTheorem) := 
   return result
 
 /--
+Returns the parameters of a `grind?`/`finish?` call that the suggested tactic must carry
+verbatim.
+
+Parameters that produce E-matching theorems are recorded in the generated script as
+`use`/`instantiate` steps and are omitted. The remaining parameters have effects the script
+cannot represent, so dropping them produces suggestions that fail during replay:
+- modifiers that do not create E-matching theorems (`cases`, `inj`, `funCC`, `symbol`);
+- identifiers resolving to a type marked for case-splitting (e.g., `[EqvGen]` for an
+  inductive predicate);
+- identifiers using local variable dot notation (e.g., `cs.getD_rightInvSeq` where `cs` is a
+  local variable), which produce anchors that need the original term during replay;
+- non-identifier terms (e.g., `show p by tac`).
+
+**TODO**: This syntactic filtering is a stopgap: it duplicates parameter-elaboration logic
+and silently depends on which side effects are representable in scripts. A more robust
+solution is to make the script self-contained, e.g., a script step that marks a type for
+case-splitting, and tracking which parameters were actually used.
+-/
+public def getPreservedParams (params : Array (TSyntax ``Parser.Tactic.grindParam)) :
+    TermElabM (Array (TSyntax ``Parser.Tactic.grindParam)) := do
+  let keepIdentParam (mod? : Option (TSyntax ``Parser.Attr.grindMod)) (id : Ident) : TermElabM Bool := do
+    if let some (_, _ :: _) := (← resolveLocalName id.getId) then
+      return true
+    let kind : Grind.AttrKind ← if let some mod := mod? then Grind.getAttrKindCore mod else pure .infer
+    match kind with
+    | .ematch _ | .intro => return false
+    | .infer =>
+      let declName? ← try pure (some (← realizeGlobalConstNoOverload id)) catch _ => pure none
+      if let some declName := declName? then
+        Grind.isCasesAttrCandidate declName false
+      else
+        return false
+    | _ => return true
+  params.filterM fun p => do
+    match p with
+    | `(Parser.Tactic.grindParam| $[$mod?:grindMod]? $id:ident) => keepIdentParam mod? id
+    | `(Parser.Tactic.grindParam| ! $[$mod?:grindMod]? $id:ident) => keepIdentParam mod? id
+    | `(Parser.Tactic.grindParam| - $_:ident) => return false
+    | `(Parser.Tactic.grindParam| #$_:hexnum) => return false
+    | _ => return true
+
+/--
 Helper method for processing parameters in tactics such as `finish` and `finish?`
 -/
 public def withParams (params : Grind.Params) (ps : TSyntaxArray ``Parser.Tactic.grindParam) (only : Bool)

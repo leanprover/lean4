@@ -286,6 +286,9 @@ public:
     */
     size_t log2() const;
 
+    /** Return the number of trailing zero bits of the absolute value, or zero for zero. */
+    size_t trailing_zeros() const;
+
     /**
        \brief Return an upper bound on the size in bytes of the representation,
        i.e. the number of limbs times the bytes per limb. Used to bound memory usage.

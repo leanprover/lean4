@@ -4,6 +4,7 @@ Released under Apache 2.0 license as described in the file LICENSE.
 Author: Sofia Rodrigues
 */
 #include "runtime/uv/signal.h"
+#include "runtime/uv/util.h"
 
 namespace lean {
 #ifndef LEAN_EMSCRIPTEN
@@ -11,7 +12,7 @@ namespace lean {
 using namespace std;
 
 // The finalizer of the `Signal`.
-static void lean_uv_signal_finalizer(void* ptr) {
+static void signal_finalizer(void* ptr) {
     lean_uv_signal_object * signal = (lean_uv_signal_object*) ptr;
 
     lean_object * promise;
@@ -37,7 +38,7 @@ static void lean_uv_signal_finalizer(void* ptr) {
 }
 
 void initialize_libuv_signal() {
-    g_uv_signal_external_class = lean_register_external_class(lean_uv_signal_finalizer, [](void* obj, lean_object* f) {
+    g_uv_signal_external_class = lean_register_external_class(signal_finalizer, [](void* obj, lean_object* f) {
         lean_object* promise = ((lean_uv_signal_object*)obj)->m_promise;
 
         if (promise != NULL) {
@@ -46,13 +47,6 @@ void initialize_libuv_signal() {
             lean_dec(lean_apply_1(f, promise));
         }
     });
-}
-
-static lean_object * create_signal_promise() {
-    lean_object * promise = lean_io_promise_new();
-    // The loop thread resolves and releases it, so its refcount has to be atomic.
-    mark_mt(promise);
-    return promise;
 }
 
 static bool signal_promise_is_finished(lean_uv_signal_object * signal) {
@@ -89,7 +83,7 @@ void handle_signal_event(uv_signal_t* handle, int) {
         bool const loop_ref = signal->m_promise != NULL;
         if (!loop_ref) {
             // Kept for the next `next`, so that a signal after a `cancel` is not lost.
-            signal->m_promise = create_signal_promise();
+            signal->m_promise = mk_mt_promise();
         }
 
         lean_object * promise = signal->m_promise;
@@ -144,7 +138,7 @@ extern "C" LEAN_EXPORT lean_obj_res lean_uv_signal_mk(uint32_t signum_obj, uint8
 
     lean_uv_signal_object * signal = (lean_uv_signal_object*)malloc(sizeof(lean_uv_signal_object));
     if (signal == nullptr) {
-        return lean_io_result_mk_error(decode_io_error(ENOMEM, nullptr));
+        return io_result_mk_enomem();
     }
     signal->m_signum = signum;
     signal->m_lean_signum = (int)(int32_t)signum_obj;
@@ -162,7 +156,7 @@ extern "C" LEAN_EXPORT lean_obj_res lean_uv_signal_mk(uint32_t signum_obj, uint8
 
     if (result != 0) {
         free(signal);
-        return lean_io_result_mk_error(lean_decode_uv_error(result, NULL));
+        return io_result_mk_uv_error(result);
     }
 
     lean_object * obj = lean_uv_signal_new(signal);
@@ -183,7 +177,7 @@ extern "C" LEAN_EXPORT lean_obj_res lean_uv_signal_next(b_obj_arg obj) {
     auto setup_signal = [&]() {
         lean_assert(signal->m_promise == NULL);
 
-        promise = create_signal_promise();
+        promise = mk_mt_promise();
         signal->m_promise = promise;
         signal->m_state = SIGNAL_STATE_RUNNING;
 
@@ -229,7 +223,7 @@ extern "C" LEAN_EXPORT lean_obj_res lean_uv_signal_next(b_obj_arg obj) {
                             lean_inc(obj);
                         }
 
-                        signal->m_promise = create_signal_promise();
+                        signal->m_promise = mk_mt_promise();
 
                         if (signal->m_received) {
                             signal->m_received = false;
@@ -252,7 +246,7 @@ extern "C" LEAN_EXPORT lean_obj_res lean_uv_signal_next(b_obj_arg obj) {
         } else if (signal->m_state == SIGNAL_STATE_RUNNING && signal->m_promise == NULL) {
             // Still listening after a `cancel`, which released the loop's reference.
             lean_inc(obj);
-            promise = create_signal_promise();
+            promise = mk_mt_promise();
             signal->m_promise = promise;
             lean_inc(promise);
         } else if (signal->m_promise != NULL) {
@@ -265,11 +259,11 @@ extern "C" LEAN_EXPORT lean_obj_res lean_uv_signal_next(b_obj_arg obj) {
         lean_dec(promise); // The structure does not own it.
         lean_dec(promise); // We are not going to return it.
         lean_dec(obj);
-        return lean_io_result_mk_error(lean_decode_uv_error(result, NULL));
+        return io_result_mk_uv_error(result);
     }
 
     if (promise == NULL) {
-        promise = create_signal_promise();
+        promise = mk_mt_promise();
     }
 
     return lean_io_result_mk_ok(promise);
@@ -306,7 +300,7 @@ extern "C" LEAN_EXPORT lean_obj_res lean_uv_signal_stop(b_obj_arg obj) {
     }
 
     if (result != 0) {
-        return lean_io_result_mk_error(lean_decode_uv_error(result, NULL));
+        return io_result_mk_uv_error(result);
     }
 
     return lean_io_result_mk_ok(lean_box(0));

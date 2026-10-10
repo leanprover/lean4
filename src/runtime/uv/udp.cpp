@@ -5,6 +5,7 @@ Author: Sofia Rodrigues
 */
 
 #include "runtime/uv/udp.h"
+#include "runtime/uv/util.h"
 #include <cstring>
 
 namespace lean {
@@ -19,7 +20,7 @@ typedef struct {
     uv_buf_t* bufs;
 } udp_send_data;
 
-static void lean_uv_udp_socket_finalizer(void* ptr) {
+static void udp_socket_finalizer(void* ptr) {
     lean_uv_udp_socket_object* udp_socket = (lean_uv_udp_socket_object*)ptr;
 
     lean_always_assert(udp_socket->m_promise_read == nullptr);
@@ -37,7 +38,7 @@ static void lean_uv_udp_socket_finalizer(void* ptr) {
 }
 
 void initialize_libuv_udp_socket() {
-    g_uv_udp_socket_external_class = lean_register_external_class(lean_uv_udp_socket_finalizer, [](void* obj, lean_object* f) {
+    g_uv_udp_socket_external_class = lean_register_external_class(udp_socket_finalizer, [](void* obj, lean_object* f) {
         lean_uv_udp_socket_object* udp_socket = (lean_uv_udp_socket_object*)obj;
 
         if (udp_socket->m_promise_read != nullptr) {
@@ -61,7 +62,7 @@ void initialize_libuv_udp_socket() {
 extern "C" LEAN_EXPORT lean_obj_res lean_uv_udp_new() {
     lean_uv_udp_socket_object* udp_socket = (lean_uv_udp_socket_object*)malloc(sizeof(lean_uv_udp_socket_object));
     if (udp_socket == nullptr) {
-        return lean_io_result_mk_error(decode_io_error(ENOMEM, nullptr));
+        return io_result_mk_enomem();
     }
 
     udp_socket->m_promise_read = nullptr;
@@ -77,7 +78,7 @@ extern "C" LEAN_EXPORT lean_obj_res lean_uv_udp_new() {
     if (result != 0) {
         free(udp_socket);
 
-        return lean_io_result_mk_error(lean_decode_uv_error(result, nullptr));
+        return io_result_mk_uv_error(result);
     }
 
     lean_object* obj = lean_uv_udp_socket_new(udp_socket);
@@ -102,7 +103,7 @@ extern "C" LEAN_EXPORT lean_obj_res lean_uv_udp_bind(b_obj_arg socket, b_obj_arg
     }
 
     if (result < 0) {
-        return lean_io_result_mk_error(lean_decode_uv_error(result, nullptr));
+        return io_result_mk_uv_error(result);
     }
 
     return lean_io_result_mk_ok(lean_box(0));
@@ -122,7 +123,7 @@ extern "C" LEAN_EXPORT lean_obj_res lean_uv_udp_connect(b_obj_arg socket, b_obj_
     }
 
     if (result < 0) {
-        return lean_io_result_mk_error(lean_decode_uv_error(result, nullptr));
+        return io_result_mk_uv_error(result);
     }
 
     return lean_io_result_mk_ok(lean_box(0));
@@ -137,21 +138,20 @@ extern "C" LEAN_EXPORT lean_obj_res lean_uv_udp_send(b_obj_arg socket, obj_arg d
     if (array_len == 0) {
         lean_dec(data_array);
 
-        lean_object* promise = lean_promise_new();
-        mark_mt(promise);
-        lean_promise_resolve_with_code(0, promise);
+        lean_object * promise = mk_mt_promise();
+        resolve_with_code(0, promise);
 
         return lean_io_result_mk_ok(promise);
     }
 
     if (lean_usize_mul_would_overflow(array_len, sizeof(uv_buf_t))) {
         lean_dec(data_array);
-        return lean_io_result_mk_error(decode_io_error(ENOMEM, nullptr));
+        return io_result_mk_enomem();
     }
     uv_buf_t* bufs = (uv_buf_t*)malloc(array_len * sizeof(uv_buf_t));
     if (bufs == nullptr) {
         lean_dec(data_array);
-        return lean_io_result_mk_error(decode_io_error(ENOMEM, nullptr));
+        return io_result_mk_enomem();
     }
 
     for (size_t i = 0; i < array_len; i++) {
@@ -161,15 +161,14 @@ extern "C" LEAN_EXPORT lean_obj_res lean_uv_udp_send(b_obj_arg socket, obj_arg d
         bufs[i] = uv_buf_init(data_str, data_len);
     }
 
-    lean_object* promise = lean_promise_new();
-    mark_mt(promise);
+    lean_object * promise = mk_mt_promise();
 
     uv_udp_send_t* send_uv = (uv_udp_send_t*)malloc(sizeof(uv_udp_send_t));
     if (send_uv == nullptr) {
         lean_dec(data_array);
         lean_dec(promise);
         free(bufs);
-        return lean_io_result_mk_error(decode_io_error(ENOMEM, nullptr));
+        return io_result_mk_enomem();
     }
     send_uv->data = (udp_send_data*)malloc(sizeof(udp_send_data));
     if (send_uv->data == nullptr) {
@@ -177,7 +176,7 @@ extern "C" LEAN_EXPORT lean_obj_res lean_uv_udp_send(b_obj_arg socket, obj_arg d
         lean_dec(promise);
         free(bufs);
         free(send_uv);
-        return lean_io_result_mk_error(decode_io_error(ENOMEM, nullptr));
+        return io_result_mk_enomem();
     }
 
     // The loop thread releases `data_array`, which recursively releases the `ByteArray`s the caller
@@ -207,14 +206,14 @@ extern "C" LEAN_EXPORT lean_obj_res lean_uv_udp_send(b_obj_arg socket, obj_arg d
             free(bufs);
             free(send_uv->data);
             free(send_uv);
-            return lean_io_result_mk_error(decode_io_error(ENOMEM, nullptr));
+            return io_result_mk_enomem();
         }
         lean_socket_address_to_sockaddr_storage(addr, addr_ptr);
     }
 
     auto on_send = [](uv_udp_send_t* req, int status) {
         udp_send_data* tup = (udp_send_data*) req->data;
-        lean_promise_resolve_with_code(status, tup->promise);
+        resolve_with_code(status, tup->promise);
 
         lean_dec(tup->promise);
         lean_dec(tup->socket);
@@ -245,7 +244,7 @@ extern "C" LEAN_EXPORT lean_obj_res lean_uv_udp_send(b_obj_arg socket, obj_arg d
         free(send_uv->data);
         free(send_uv);
 
-        return lean_io_result_mk_error(lean_decode_uv_error(result, nullptr));
+        return io_result_mk_uv_error(result);
     }
 
     return lean_io_result_mk_ok(promise);
@@ -278,7 +277,7 @@ extern "C" LEAN_EXPORT lean_obj_res lean_uv_udp_recv(b_obj_arg socket, uint64_t 
             lean_dec(byte_array);
             lean_promise_resolve(mk_except_err(lean_decode_uv_error(UV_EMSGSIZE, nullptr)), promise);
         } else if (nread >= 0) {
-            byte_array = lean_uv_fit_read_buffer(byte_array, nread);
+            byte_array = fit_read_buffer(byte_array, nread);
 
             lean_object* addr_obj;
 
@@ -312,16 +311,15 @@ extern "C" LEAN_EXPORT lean_obj_res lean_uv_udp_recv(b_obj_arg socket, uint64_t 
         event_loop_guard guard;
 
         if (udp_socket->m_promise_read != nullptr) {
-            return lean_io_result_mk_error(lean_decode_uv_error(UV_EALREADY, nullptr));
+            return io_result_mk_uv_error(UV_EALREADY);
         }
 
-        if (lean_object * size_error = lean_uv_recv_size_error(buffer_size)) {
+        if (lean_object * size_error = recv_size_error(buffer_size)) {
             return size_error;
         }
 
         byte_array = lean_alloc_sarray(1, 0, buffer_size);
-        promise = lean_promise_new();
-        mark_mt(promise);
+        promise = mk_mt_promise();
 
         udp_socket->m_byte_array = byte_array;
         udp_socket->m_promise_read = promise;
@@ -344,7 +342,7 @@ extern "C" LEAN_EXPORT lean_obj_res lean_uv_udp_recv(b_obj_arg socket, uint64_t 
         lean_dec(promise); // We are not going to return it.
         lean_dec(socket);
 
-        return lean_io_result_mk_error(lean_decode_uv_error(result, nullptr));
+        return io_result_mk_uv_error(result);
     }
 
     return lean_io_result_mk_ok(promise);
@@ -395,11 +393,10 @@ extern "C" LEAN_EXPORT lean_obj_res lean_uv_udp_wait_readable(b_obj_arg socket) 
         event_loop_guard guard;
 
         if (udp_socket->m_promise_read != nullptr) {
-            return lean_io_result_mk_error(lean_decode_uv_error(UV_EALREADY, nullptr));
+            return io_result_mk_uv_error(UV_EALREADY);
         }
 
-        promise = lean_promise_new();
-        mark_mt(promise);
+        promise = mk_mt_promise();
 
         udp_socket->m_promise_read = promise;
 
@@ -419,7 +416,7 @@ extern "C" LEAN_EXPORT lean_obj_res lean_uv_udp_wait_readable(b_obj_arg socket) 
         lean_dec(promise); // We are not going to return it.
         lean_dec(socket);
 
-        return lean_io_result_mk_error(lean_decode_uv_error(result, nullptr));
+        return io_result_mk_uv_error(result);
     }
 
     return lean_io_result_mk_ok(promise);
@@ -476,7 +473,7 @@ extern "C" LEAN_EXPORT lean_obj_res lean_uv_udp_getpeername(b_obj_arg socket) {
     }
 
     if (result < 0) {
-        return lean_io_result_mk_error(lean_decode_uv_error(result, nullptr));
+        return io_result_mk_uv_error(result);
     }
 
     lean_object *lean_addr = lean_sockaddr_to_socketaddress((struct sockaddr*)&addr_storage);
@@ -498,7 +495,7 @@ extern "C" LEAN_EXPORT lean_obj_res lean_uv_udp_getsockname(b_obj_arg socket) {
     }
 
     if (result < 0) {
-        return lean_io_result_mk_error(lean_decode_uv_error(result, nullptr));
+        return io_result_mk_uv_error(result);
     }
 
     lean_object *lean_addr = lean_sockaddr_to_socketaddress((struct sockaddr*)&addr_storage);
@@ -516,7 +513,7 @@ extern "C" LEAN_EXPORT lean_obj_res lean_uv_udp_set_broadcast(b_obj_arg socket, 
     }
 
     if (result < 0) {
-        return lean_io_result_mk_error(lean_decode_uv_error(result, nullptr));
+        return io_result_mk_uv_error(result);
     }
 
     return lean_io_result_mk_ok(lean_box(0));
@@ -533,7 +530,7 @@ extern "C" LEAN_EXPORT lean_obj_res lean_uv_udp_set_multicast_loop(b_obj_arg soc
     }
 
     if (result < 0) {
-        return lean_io_result_mk_error(lean_decode_uv_error(result, nullptr));
+        return io_result_mk_uv_error(result);
     }
 
     return lean_io_result_mk_ok(lean_box(0));
@@ -550,7 +547,7 @@ extern "C" LEAN_EXPORT lean_obj_res lean_uv_udp_set_multicast_ttl(b_obj_arg sock
     }
 
     if (result < 0) {
-        return lean_io_result_mk_error(lean_decode_uv_error(result, nullptr));
+        return io_result_mk_uv_error(result);
     }
 
     return lean_io_result_mk_ok(lean_box(0));
@@ -578,7 +575,7 @@ extern "C" LEAN_EXPORT lean_obj_res lean_uv_udp_set_membership(b_obj_arg socket,
     }
 
     if (result < 0) {
-        return lean_io_result_mk_error(lean_decode_uv_error(result, nullptr));
+        return io_result_mk_uv_error(result);
     }
 
     return lean_io_result_mk_ok(lean_box(0));
@@ -598,7 +595,7 @@ extern "C" LEAN_EXPORT lean_obj_res lean_uv_udp_set_multicast_interface(b_obj_ar
     }
 
     if (result < 0) {
-        return lean_io_result_mk_error(lean_decode_uv_error(result, nullptr));
+        return io_result_mk_uv_error(result);
     }
 
     return lean_io_result_mk_ok(lean_box(0));
@@ -615,7 +612,7 @@ extern "C" LEAN_EXPORT lean_obj_res lean_uv_udp_set_ttl(b_obj_arg socket, uint32
     }
 
     if (result < 0) {
-        return lean_io_result_mk_error(lean_decode_uv_error(result, nullptr));
+        return io_result_mk_uv_error(result);
     }
 
     return lean_io_result_mk_ok(lean_box(0));

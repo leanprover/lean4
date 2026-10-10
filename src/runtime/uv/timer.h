@@ -20,7 +20,7 @@ void initialize_libuv_timer();
 #ifndef LEAN_EMSCRIPTEN
 using namespace std;
 
-enum uv_timer_state {
+enum timer_state {
     TIMER_STATE_INITIAL,
     TIMER_STATE_RUNNING,
     TIMER_STATE_FINISHED,
@@ -33,7 +33,7 @@ typedef struct {
     lean_object *   m_promise;     // The associated promise for asynchronous results.
     uint64_t        m_timeout;     // Timeout duration in milliseconds.
     bool            m_repeating;   // Flag indicating if the timer is repeating.
-    uv_timer_state  m_state;       // The state of the timer.
+    timer_state     m_state;       // The state of the timer.
 } lean_uv_timer_object;
 
 // `m_promise` may be NULL in any state: `stop` leaves a FINISHED timer without one, and a tick or

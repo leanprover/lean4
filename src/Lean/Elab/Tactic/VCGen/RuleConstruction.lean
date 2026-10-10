@@ -11,6 +11,7 @@ public import Lean.Elab.Tactic.VCGen.Context
 public import Lean.Elab.Tactic.VCGen.Reduce
 public import Lean.Elab.Tactic.VCGen.SpecDB
 import Lean.Elab.Tactic.VCGen.Util
+import Lean.Elab.Tactic.VCGen.ExcessArgsFrame
 public import Lean.Meta.Sym.Apply
 public import Lean.Meta.Sym.Util
 meta import Std.WP.Frame
@@ -216,8 +217,8 @@ prf : ∀ (pre : Prop) (α : Type) (x : StateT Nat Id α) (β : Type)
   pre ⊑ wp (x >>= f) post eposts s
 ```
 -/
-private def mkSpecBackwardProof
-    (pre prog postSpec epostsSpec specProof EPosts : Expr) (ss ssTypes : Array Expr)
+private def mkSpecBackwardProof (info : WPApp)
+    (pre prog postSpec epostsSpec specProof : Expr) (ss ssTypes : Array Expr)
     (stateArgNames : Array Name := #[]) : MetaM AbstractMVarsResult := do
   /- we start with `pre ⊑ wp prog post eposts` where
   1. `pre` represents the Lean expression for `pre`
@@ -225,6 +226,8 @@ private def mkSpecBackwardProof
   3. `specProof` is the proof of the spec `pre ⊑ wp prog postSpec epostsSpec`
   4. `ss` represents the Lean expressions for the state variables `s1`, `s2`, ..., `sn`
   5. `ssTypes` represents the Lean types for the state variables `s1`, `s2`, ..., `sn` -/
+  let wpArgs := info.args.take 7
+  let wpLemma (n : Name) := mkAppN (mkConst n info.head.constLevels!) wpArgs
   let mut postAbstract := postSpec.consumeMData
   let mut epostsAbstract := epostsSpec.consumeMData
   let mut specApplied := specProof
@@ -248,7 +251,8 @@ private def mkSpecBackwardProof
     let hpostRel ← mkExpectedTypeHint hpost relTy
     /- get the proof of `pre ⊑ wp prog postAbstract epostsSpec`, where `post` is abstracted.
        Uses wp_monotone_post_le: post ⊑ post' → pre ⊑ wp x post eposts → pre ⊑ wp x post' eposts -/
-    specApplied ← mkAppM ``WP.wp_monotone_post_le #[prog, postSpec, postAbstract, epostsSpec, hpostRel, specApplied]
+    specApplied := mkAppN (wpLemma ``WP.wp_monotone_post_le)
+      #[prog, postSpec, postAbstract, epostsSpec, hpostRel, pre, specApplied]
 
   /- abstract concrete `eposts` if it is not already abstract -/
   unless epostsAbstract.isMVar do
@@ -271,12 +275,14 @@ private def mkSpecBackwardProof
     if isBot then
       /- get the proof of `pre ⊑ wp prog postAbstract epostsAbstract`, where `eposts (= ⊥)` is abstracted.
         This proof DOES NOT have a `?epostsImpl` premise -/
-      specApplied ← mkAppM ``WP.wp_monotone_bot_le #[prog, postAbstract, epostsAbstract, specApplied]
+      specApplied := mkAppN (wpLemma ``WP.wp_monotone_bot_le)
+        #[prog, postAbstract, epostsAbstract, pre, specApplied]
     else
       /- Decompose `epostsSpec ⊑ epostsAbstract` into per-component proofs
         using `Prod.mk_le` and `Unit.unit_le` -/
-      let heposts ← decomposeProdRel EPosts epostsSpec epostsAbstract stateArgNames
-      specApplied ← mkAppM ``WP.wp_monotone_epost_le #[prog, postAbstract, epostsSpec, epostsAbstract, heposts, specApplied]
+      let heposts ← decomposeProdRel info.EPosts epostsSpec epostsAbstract stateArgNames
+      specApplied := mkAppN (wpLemma ``WP.wp_monotone_epost_le)
+        #[prog, postAbstract, epostsSpec, epostsAbstract, heposts, pre, specApplied]
 
   /- By default we always abstract `pre`, since in most of the specifications
     `pre` is not schematic. In exceptional cases, where `pre` is schematic, it
@@ -288,7 +294,7 @@ private def mkSpecBackwardProof
   /- proof of the original theorem with abstracted `post` and `eposts` specialized to the excess state arguments -/
   specApplied := mkAppN specApplied ss
   /- `wp prog postAbstract epostsAbstract s₁ ... sₙ` -/
-  let wpTy ← mkAppM ``Std.WP.wp <| #[prog, postAbstract, epostsAbstract] ++ ss
+  let wpTy := mkAppN info.head <| wpArgs ++ #[prog, postAbstract, epostsAbstract] ++ ss
   let specAppliedTy ← mkAppM ``PartialOrder.rel #[preApplied, wpTy]
   /- later when the whole proof is type checked, we want to help the kernel by providing the expected type -/
   specApplied ← mkExpectedTypeHint specApplied specAppliedTy
@@ -373,7 +379,7 @@ public def tryMkBackwardRuleFromSpec (specThm : SpecTheorem) (info : WPApp)
     let ty ← Meta.inferType info.excessArgs[i]
     ssTypes := ssTypes.push ty
     ss := ss.push <| ← mkFreshExprMVar (userName := stateArgNames[i]?.getD `s) ty
-  let res ← mkSpecBackwardProof pre prog postSpec epostsSpec specProof info.EPosts ss ssTypes stateArgNames
+  let res ← mkSpecBackwardProof info pre prog postSpec epostsSpec specProof ss ssTypes stateArgNames
   mkBackwardRuleFromExpr res.expr res.paramNames.toList
 
 /-! ## Split rules -/
@@ -472,26 +478,37 @@ private def analyzeFrameRule (rule : BackwardRule) (opHead : Name) (numExcess : 
 
 /--
 The frame backward rule for a frame operator `op : R → Pred → Pred`, built from the frame rule
-`op_wp_upperAdjoint_le_wp`.
+`meet_op_wp_upperAdjoint_le_wp`.
 
 The rule concludes `pre ⊑ wp prog Q E s⃗` from the split VC `pre ⊑ (op F W) s⃗` and the frame
-condition `WP.Frames op prog F`, with the frame `F` left schematic and the
-weakest footprint `W = wp prog (fun a => upperAdjoint (op F) (Q a)) (upperAdjoint (opE F) E)`
-baked in, so a single rule serves every inferred frame. `analyzeFrameRule` records the positions
-of the schematic slots.
+condition `WP.Frames op prog F G`, with the frame `F` left schematic, the guard `G` the frame of
+`pre` for the excess state arguments `fun u⃗ => ⌜u⃗ = s⃗⌝ ⊓ pre`, and the weakest footprint
+`W = wp prog (fun a => upperAdjoint (op F) (Q a)) (upperAdjoint (opE F) E)` baked in, so a single
+rule serves every inferred frame. `analyzeFrameRule` records the positions of the schematic slots.
 -/
 public def mkFrameBackwardRule (fp : FrameProc) (info : WPApp) :
     MetaM FrameBackwardRule := do
-  -- Pin the program and the operator, leaving everything else schematic; instance synthesis
-  -- commits the companion, and `tryMkBackwardRuleFromSpec` turns the unassigned metavariables
-  -- into rule parameters.
   let op ← fp.mkOpAppM info
-  let specProof ← mkAppOptM ``Std.WP.op_wp_upperAdjoint_le_wp
+  let thm ← mkAppOptM ``Std.WP.meet_op_wp_upperAdjoint_le_wp
     ((info.args.take 7).map some ++ #[none, some op, none, none])
-  let some specThm ← mkSpecTheoremFromStx (← getRef) specProof
-    | throwError "frame: could not build the frame spec for operator{indentExpr op}"
-  let some rule ← (tryMkBackwardRuleFromSpec specThm info).run
-    | throwError "frame: could not build the frame rule for operator{indentExpr op}"
+  let (xs, _, concl) ← forallMetaTelescope (← instantiateMVars (← Meta.inferType thm))
+  let_expr PartialOrder.rel _ _ lhs wp := concl
+    | throwError "frame: unexpected frame rule conclusion{indentExpr concl}"
+  let_expr Lean.Order.meet _ _ guard opApp := lhs
+    | throwError "frame: unexpected frame rule precondition{indentExpr lhs}"
+  let ss ← info.excessArgs.mapM fun s => do mkFreshExprMVar (← Meta.inferType s) (userName := `s)
+  let pre ← mkFreshExprMVar (← Meta.inferType info.expr) (userName := `Pre)
+  let hsplit ← mkFreshExprMVar (← mkAppM ``PartialOrder.rel #[pre, mkAppN opApp ss])
+    (userName := `vc)
+  let ssFrame ← ExcessArgsFrameInfo.new pre ss
+  guard.mvarId!.assign ssFrame.frame
+  let hop ← ssFrame.abstract opApp ss hsplit
+  let G := ssFrame.frame
+  let hmeet ← mkAppM ``le_meet
+    #[G, G, opApp, ← mkAppOptM ``PartialOrder.rel_refl #[none, none, G], hop]
+  let prf ← ssFrame.instantiate wp ss (← mkAppM ``PartialOrder.rel_trans #[hmeet, mkAppN thm xs])
+  let res ← abstractMVars (← instantiateMVars prf)
+  let rule ← mkBackwardRuleFromExpr res.expr res.paramNames.toList
   analyzeFrameRule rule fp.opHead info.excessArgs.size
 
 end Lean.Elab.Tactic.VCGen

@@ -38,7 +38,6 @@ extern lean_object* l_Lean_Options_empty;
 lean_object* l_Lean_Environment_getModuleIdxFor_x3f(lean_object*, lean_object*);
 lean_object* l_Lean_MessageData_note(lean_object*);
 lean_object* l_Lean_Environment_header(lean_object*);
-lean_object* l_Lean_EnvironmentHeader_moduleNames(lean_object*);
 lean_object* lean_array_get(lean_object*, lean_object*, lean_object*);
 uint8_t l_Lean_isPrivateName(lean_object*);
 lean_object* l_Lean_MessageData_ofName(lean_object*);
@@ -2988,13 +2987,15 @@ goto v_resetjp_1024_;
 }
 v_resetjp_1024_:
 {
-lean_object* v___x_1027_; lean_object* v___x_1028_; lean_object* v_mod_1029_; uint8_t v___x_1030_; 
+lean_object* v___x_1027_; lean_object* v_moduleNames_1028_; lean_object* v_mod_1029_; uint8_t v___x_1030_; 
 v___x_1027_ = l_Lean_Environment_header(v_env_1002_);
 lean_dec_ref(v_env_1002_);
-v___x_1028_ = l_Lean_EnvironmentHeader_moduleNames(v___x_1027_);
-v_mod_1029_ = lean_array_get(v___x_1000_, v___x_1028_, v_val_1023_);
+v_moduleNames_1028_ = lean_ctor_get(v___x_1027_, 4);
+lean_inc_ref(v_moduleNames_1028_);
+lean_dec_ref(v___x_1027_);
+v_mod_1029_ = lean_array_get(v___x_1000_, v_moduleNames_1028_, v_val_1023_);
 lean_dec(v_val_1023_);
-lean_dec_ref(v___x_1028_);
+lean_dec_ref(v_moduleNames_1028_);
 v___x_1030_ = l_Lean_isPrivateName(v_declHint_997_);
 lean_dec(v_declHint_997_);
 if (v___x_1030_ == 0)
@@ -3660,8 +3661,8 @@ goto v___jp_1177_;
 }
 else
 {
-lean_dec_ref_known(v_pre_1187_, 2);
 lean_dec(v_pre_1188_);
+lean_dec_ref_known(v_pre_1187_, 2);
 lean_dec_ref_known(v_pre_1186_, 2);
 lean_dec_ref_known(v_declName_1185_, 2);
 v___y_1178_ = v_a_1172_;
@@ -3671,8 +3672,8 @@ goto v___jp_1177_;
 }
 else
 {
+lean_dec_ref_known(v_pre_1186_, 2);
 lean_dec(v_pre_1187_);
-lean_dec_ref_known(v_pre_1186_, 2);
 lean_dec_ref_known(v_declName_1185_, 2);
 v___y_1178_ = v_a_1172_;
 v___y_1179_ = v_a_1173_;
@@ -3681,8 +3682,8 @@ goto v___jp_1177_;
 }
 else
 {
-lean_dec_ref_known(v_declName_1185_, 2);
 lean_dec(v_pre_1186_);
+lean_dec_ref_known(v_declName_1185_, 2);
 v___y_1178_ = v_a_1172_;
 v___y_1179_ = v_a_1173_;
 goto v___jp_1177_;

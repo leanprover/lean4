@@ -12,7 +12,7 @@ import Init.Data.Array.GetLit
 import Init.Data.String.Search
 import Init.System.IO
 import Std.Internal.Parsec.String
-import Lean.Data.Json.Parser
+import LeanExport.Json
 
 /-!
 # Reader for the Lean 4 NDJSON export format
@@ -59,6 +59,8 @@ def getName (nidx : Nat) : M Lean.Name := do
 
 @[inline]
 def addName (nidx : Nat) (n : Lean.Name) : M Unit := do
+  if (← get).nameMap.contains nidx then
+    fail s!"Name index {nidx} bound twice"
   modify fun s => { s with nameMap := s.nameMap.insert nidx n }
 
 @[inline]
@@ -68,6 +70,8 @@ def getLevel (uidx : Nat) : M Lean.Level := do
 
 @[inline]
 def addLevel (uidx : Nat) (l : Lean.Level) : M Unit := do
+  if (← get).levelMap.contains uidx then
+    fail s!"Level index {uidx} bound twice"
   modify fun s => { s with levelMap := s.levelMap.insert uidx l }
 
 @[inline]
@@ -77,6 +81,8 @@ def getExpr (eidx : Nat) : M Lean.Expr := do
 
 @[inline]
 def addExpr (eidx : Nat) (e : Lean.Expr) : M Unit := do
+  if (← get).exprMap.contains eidx then
+    fail s!"Expr index {eidx} bound twice"
   modify fun s => { s with exprMap := s.exprMap.insert eidx e }
 
 @[inline]
@@ -86,6 +92,8 @@ def getRecursorRule (ridx : Nat) : M Lean.RecursorRule := do
 
 @[inline]
 def addRecursorRule (ridx : Nat) (r : Lean.RecursorRule) : M Unit := do
+  if (← get).recursorRuleMap.contains ridx then
+    fail s!"RecursorRule index {ridx} bound twice"
   modify fun s => { s with recursorRuleMap := s.recursorRuleMap.insert ridx r }
 
 @[inline]
@@ -100,8 +108,10 @@ def addConst (name : Lean.Name) (d : Lean.ConstantInfo) : M Unit := do
 
 @[inline]
 def parseJsonObj (line : String) : M (Std.TreeMap.Raw String Json) := do
-  let .ok (.obj obj) := Json.Parser.anyCore.run line | fail "Expected JSON object"
-  return obj
+  match LeanExport.Json.parse line with
+  | .ok (.obj obj) => return obj
+  | .ok _ => fail "Expected JSON object"
+  | .error e => fail s!"Invalid JSON: {e}"
 
 def parseNameStr (json : Json) : M Name := do
   let .obj data := json | fail s!"Name.str invalid"

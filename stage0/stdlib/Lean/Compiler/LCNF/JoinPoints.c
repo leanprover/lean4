@@ -11795,8 +11795,8 @@ return v___x_3897_;
 else
 {
 lean_object* v_a_3900_; lean_object* v___x_3902_; uint8_t v_isShared_3903_; uint8_t v_isSharedCheck_3907_; 
-lean_dec_ref(v_ty_3888_);
 lean_dec_ref_known(v_e_3667_, 2);
+lean_dec_ref(v_ty_3888_);
 v_a_3900_ = lean_ctor_get(v___x_3890_, 0);
 v_isSharedCheck_3907_ = !lean_is_exclusive(v___x_3890_);
 if (v_isSharedCheck_3907_ == 0)
@@ -13256,8 +13256,8 @@ else
 {
 lean_object* v_a_4346_; lean_object* v___x_4348_; uint8_t v_isShared_4349_; uint8_t v_isSharedCheck_4353_; 
 lean_dec_ref(v_k_4334_);
-lean_dec_ref(v_decl_4333_);
 lean_dec_ref_known(v_code_4296_, 2);
+lean_dec_ref(v_decl_4333_);
 v_a_4346_ = lean_ctor_get(v___x_4341_, 0);
 v_isSharedCheck_4353_ = !lean_is_exclusive(v___x_4341_);
 if (v_isSharedCheck_4353_ == 0)
@@ -18364,7 +18364,7 @@ v_a_6021_ = lean_ctor_get(v___x_6020_, 0);
 lean_inc(v_a_6021_);
 lean_dec_ref_known(v___x_6020_, 1);
 lean_inc_ref(v_decl_6002_);
-v___x_6022_ = l___private_Lean_Compiler_LCNF_CompilerM_0__Lean_Compiler_LCNF_updateFunDeclImp___redArg(v___x_6010_, v_decl_6002_, v_newType_6014_, v___y_6013_, v___y_6012_, v___y_6017_);
+v___x_6022_ = l___private_Lean_Compiler_LCNF_CompilerM_0__Lean_Compiler_LCNF_updateFunDeclImp___redArg(v___x_6010_, v_decl_6002_, v_newType_6014_, v___y_6012_, v___y_6013_, v___y_6017_);
 if (lean_obj_tag(v___x_6022_) == 0)
 {
 lean_object* v_a_6023_; lean_object* v___x_6025_; uint8_t v_isShared_6026_; uint8_t v_isSharedCheck_6060_; 
@@ -18648,8 +18648,8 @@ lean_object* v_a_6083_;
 v_a_6083_ = lean_ctor_get(v___x_6082_, 0);
 lean_inc(v_a_6083_);
 lean_dec_ref_known(v___x_6082_, 1);
-v___y_6012_ = v_a_6077_;
-v___y_6013_ = v_a_6072_;
+v___y_6012_ = v_a_6072_;
+v___y_6013_ = v_a_6077_;
 v_newType_6014_ = v_a_6083_;
 v___y_6015_ = v_a_5899_;
 v___y_6016_ = v_a_5900_;
@@ -18751,8 +18751,8 @@ return v___x_6097_;
 else
 {
 lean_inc_ref(v_type_6006_);
-v___y_6012_ = v_a_6077_;
-v___y_6013_ = v_a_6072_;
+v___y_6012_ = v_a_6072_;
+v___y_6013_ = v_a_6077_;
 v_newType_6014_ = v_type_6006_;
 v___y_6015_ = v_a_5899_;
 v___y_6016_ = v_a_5900_;

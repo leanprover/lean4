@@ -53,7 +53,6 @@ lean_object* lean_st_ref_put(lean_object*, lean_object*);
 lean_object* l___private_Lean_Environment_0__Lean_EnvExtension_modifyStateCore(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, uint8_t);
 lean_object* l___private_Lean_Environment_0__Lean_EnvExtension_panicUnloggedWrite(lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_SimplePersistentEnvExtension_getState___redArg(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
-lean_object* l_Lean_EnvironmentHeader_moduleNames(lean_object*);
 lean_object* lean_array_get(lean_object*, lean_object*, lean_object*);
 uint8_t l_Lean_NameSet_contains(lean_object*, lean_object*);
 extern lean_object* l_Lean_Elab_Command_commandElabAttribute;
@@ -387,22 +386,22 @@ return v_res_122_;
 LEAN_EXPORT uint8_t l_Lean_Elab_Tactic_Grind_isGrindAnnotatedModule(lean_object* v_env_123_, lean_object* v_modIdx_124_){
 _start:
 {
-lean_object* v___x_125_; lean_object* v_toEnvExtension_126_; lean_object* v_asyncMode_127_; lean_object* v___x_128_; lean_object* v___x_129_; lean_object* v_state_130_; lean_object* v___x_131_; lean_object* v___x_132_; lean_object* v_moduleName_133_; uint8_t v___x_134_; 
+lean_object* v___x_125_; lean_object* v_toEnvExtension_126_; lean_object* v_asyncMode_127_; lean_object* v___x_128_; lean_object* v_moduleNames_129_; lean_object* v___x_130_; lean_object* v___x_131_; lean_object* v_state_132_; lean_object* v_moduleName_133_; uint8_t v___x_134_; 
 v___x_125_ = l___private_Lean_Elab_Tactic_Grind_Annotated_0__Lean_Elab_Tactic_Grind_grindAnnotatedExt;
 v_toEnvExtension_126_ = lean_ctor_get(v___x_125_, 0);
 v_asyncMode_127_ = lean_ctor_get(v_toEnvExtension_126_, 2);
-v___x_128_ = lean_box(1);
-v___x_129_ = lean_box(0);
-lean_inc_ref(v_env_123_);
-v_state_130_ = l_Lean_SimplePersistentEnvExtension_getState___redArg(v___x_128_, v___x_125_, v_env_123_, v_asyncMode_127_, v___x_129_);
-v___x_131_ = l_Lean_Environment_header(v_env_123_);
-lean_dec_ref(v_env_123_);
-v___x_132_ = l_Lean_EnvironmentHeader_moduleNames(v___x_131_);
-v_moduleName_133_ = lean_array_get(v___x_129_, v___x_132_, v_modIdx_124_);
-lean_dec_ref(v___x_132_);
-v___x_134_ = l_Lean_NameSet_contains(v_state_130_, v_moduleName_133_);
+v___x_128_ = l_Lean_Environment_header(v_env_123_);
+v_moduleNames_129_ = lean_ctor_get(v___x_128_, 4);
+lean_inc_ref(v_moduleNames_129_);
+lean_dec_ref(v___x_128_);
+v___x_130_ = lean_box(1);
+v___x_131_ = lean_box(0);
+v_state_132_ = l_Lean_SimplePersistentEnvExtension_getState___redArg(v___x_130_, v___x_125_, v_env_123_, v_asyncMode_127_, v___x_131_);
+v_moduleName_133_ = lean_array_get(v___x_131_, v_moduleNames_129_, v_modIdx_124_);
+lean_dec_ref(v_moduleNames_129_);
+v___x_134_ = l_Lean_NameSet_contains(v_state_132_, v_moduleName_133_);
 lean_dec(v_moduleName_133_);
-lean_dec(v_state_130_);
+lean_dec(v_state_132_);
 return v___x_134_;
 }
 }

@@ -404,7 +404,7 @@ builtin_initialize defaultInstanceExtension : SimplePersistentEnvExtension Defau
     addImportedFn := fun es => (mkStateFromImportedEntries addDefaultInstanceEntry {} es)
     exportEntriesFnEx? := some fun env _ entries =>
       let all := entries.toArray
-      let exported := all.filter ((env.setExporting true).contains (skipRealize := false) ·.instanceName)
+      let exported := all.filter ((env.setExporting true).contains ·.instanceName)
       { exported, server := exported, «private» := all }
   }
 

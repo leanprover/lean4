@@ -428,7 +428,7 @@ end Lean.Meta.Sym.Simp
 namespace Lean.Meta.Tactic.Cbv
 open Lean.Meta.Sym.Simp
 
-builtin_cbv_simproc ↓ simpCbvCond (@cond _ _ _) := simpCond
+builtin_cbv_simproc ↓ simpCbvCond (@cond _ _ _ _) := simpCond
 
 public def reduceRecMatcher : Simproc := fun e => do
   if let some e' ← withCbvOpaqueGuard <| reduceRecMatcher? e then

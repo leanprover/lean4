@@ -833,13 +833,42 @@ bool type_checker::is_def_eq_args(expr t, expr s) {
     return !is_app(t) && !is_app(s);
 }
 
+/** Here, \c t is a neutral that is *not* a lambda-application (otherwise, \c should_eta would have returned true before reaching this function)
+ This means t is either a variable, an n-ary application whose head is itself a neutral, or another stuck recursor call. If \c s is a partial recursor call who can reduce on a neutral major, it ought to be eta-expanded appropriately. */
+unsigned type_checker::should_eta_recursor(expr const & s) {
+    buffer<expr> s_args;
+    expr const & s_fn = get_app_args(s, s_args);
+    if (!is_constant(s_fn)) return 0;
+    name s_fn_name = const_name(s_fn);
+    constant_info s_info = env().get(s_fn_name);
+    if (!s_info.is_recursor()) return 0;
+    recursor_val rec_val = s_info.to_recursor_val();
+    if (!rec_val.is_k() && !is_non_rec_structure(env(), rec_val.get_major_induct())) return 0;
+    if (s_args.size() > rec_val.get_major_idx()) return 0;
+    return rec_val.get_major_idx() + 1 - s_args.size();
+}
+
+/** \brief Return the number of times \c s should be eta-expanded.
+ * This happens either when \c t is a lambda and \c s isn't, or when \c s is a partially applied recursor call */
+unsigned type_checker::should_eta(expr const & t, expr const & s) {
+    if (is_lambda(t) && !is_lambda(s)) return 1;
+    return should_eta_recursor(s);
+}
+
 /** \brief Try to solve (fun (x : A), B) =?= s by trying eta-expansion on s */
 bool type_checker::try_eta_expansion_core(expr const & t, expr const & s) {
-    if (is_lambda(t) && !is_lambda(s)) {
+    if (unsigned n = should_eta(t, s)) {
         expr s_type = whnf(infer_type(s));
-        if (!is_pi(s_type))
-            return false;
-        expr new_s  = mk_lambda(binding_name(s_type), binding_domain(s_type), mk_app(s, mk_bvar(0)), binding_info(s_type));
+        flet<local_ctx> save_lctx(m_lctx, m_lctx);
+        buffer<expr> fvars;
+        for(unsigned i = 0; i < n; i++) {
+            if (!is_pi(s_type))
+                return false;
+            expr fvar = m_lctx.mk_local_decl(m_st->m_ngen, binding_name(s_type), binding_domain(s_type), binding_info(s_type));
+            fvars.push_back(fvar);
+            s_type = whnf(instantiate(binding_body(s_type), fvar));
+        };
+        expr new_s = m_lctx.mk_lambda(fvars, mk_app(s, fvars));
         if (!is_def_eq(t, new_s))
             return false;
         return true;
@@ -898,7 +927,7 @@ lbool type_checker::is_def_eq_proof_irrel(expr const & t, expr const & s) {
     if (!is_prop(t_type))
         return l_undef;
     expr s_type = infer_type(s);
-    return to_lbool(is_def_eq(t_type, s_type));
+    return to_lbool(is_def_eq(t_type, s_type)); // An invariant of the kernel is that two terms getting compared should have the same type, this is
 }
 
 bool type_checker::failed_before(expr const & t, expr const & s) const {

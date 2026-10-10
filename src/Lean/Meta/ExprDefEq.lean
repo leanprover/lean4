@@ -204,6 +204,24 @@ where
       else
         return false
 
+private def shouldEtaRecursor (a : Expr) : MetaM Nat := do
+  let afn := a.getAppFn
+  let args := a.getAppArgs
+  let some a_name := afn.constName? | return 0
+  let .recInfo recVal ← getConstInfo a_name | return 0
+  unless recVal.k || isNonRecStructure (← getEnv) recVal.getMajorInduct do
+    return 0
+  if args.size > recVal.getMajorIdx then
+    return 0
+  return recVal.getMajorIdx + 1 - args.size
+
+
+private def shouldEta (a b : Expr) : MetaM Nat :=
+  if a.isLambda && !b.isLambda then
+    return 1
+  else
+    shouldEtaRecursor b
+
 /--
   Try to solve `a := (fun x => t) =?= b` by eta-expanding `b`,
   resulting in `t =?= b x` (with a fresh free variable `x`).
@@ -222,14 +240,14 @@ where
   The fresh free variable `x` also busts the cache.
   See https://github.com/leanprover/lean4/pull/2002 -/
 private def isDefEqEta (a b : Expr) : MetaM LBool := do
-  if a.isLambda && !b.isLambda then
+  let n_exps ← shouldEta a b
+  if n_exps != 0 then
+    unless (← isDefEq (← inferType a) (← inferType b)) do
+      return .false
+    trace[Meta.isDefEq.eta] "eta-expanding {n_exps} times {b}"
     let bType ← inferType b
-    let bType ← whnfD bType
-    match bType with
-    | .forallE n d _ c =>
-      let b' := mkLambda n c d (mkApp b (mkBVar 0))
-      toLBoolM <| Meta.isExprDefEqAux a b'
-    | _ => return .undef
+    let b' ← forallBoundedTelescope bType (some n_exps) fun xs _ => mkLambdaFVars xs (mkAppN b xs)
+    toLBoolM <| Meta.isExprDefEqAux a b'
   else
     return .undef
 

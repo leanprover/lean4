@@ -165,6 +165,7 @@
         [Meta.isDefEq] ❌️ fun α =>
               ReaderT (ST.Ref IO.RealWorld Elab.Term.State) MetaM
                 α =?= ReaderT Context (StateRefT' IO.RealWorld State CoreM)
+          [Meta.isDefEq] ✅️ Type → Type =?= Type → Type
           [Meta.isDefEq] ❌️ fun α =>
                 ReaderT (ST.Ref IO.RealWorld Elab.Term.State) MetaM
                   α =?= fun α => ReaderT Context (StateRefT' IO.RealWorld State CoreM) α

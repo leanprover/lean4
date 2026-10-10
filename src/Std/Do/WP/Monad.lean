@@ -100,7 +100,8 @@ instance Option.instWPMonad : WPMonad Option (.except PUnit .pure) where
   wp_pure a := rfl
   wp_bind x f := by cases x <;> rfl
 
-instance State.instWPMonad : WPMonad (StateM σ) (.arg σ .pure) :=
+-- TODO investigate why the annotation is needed
+instance State.instWPMonad : WPMonad.{u} (StateM σ) (.arg σ .pure) :=
   inferInstanceAs (WPMonad (StateT σ Id) (.arg σ .pure))
 instance Reader.instWPMonad : WPMonad (ReaderM ρ) (.arg ρ .pure) :=
   inferInstanceAs (WPMonad (ReaderT ρ Id) (.arg ρ .pure))

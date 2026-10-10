@@ -72,6 +72,25 @@ public:
     friend inline name const & level_id(level const & l) { lean_assert(l.is_param() || l.is_mvar()); return static_cast<name const &>(cnstr_get_ref(l, 0)); }
 };
 
+/* Return the `Level.data` that Lean assigns to `Level.zero`. */
+uint64_t level_zero_data_core();
+inline uint64_t get_data(level const & l) {
+    if (lean_is_scalar(l.raw())) {
+        /* `Level.zero` is the scalar `box(0)` and stores no data. This is cached on first use rather than in
+           `initialize_level` because Lean code compares levels before the kernel is initialized. */
+        static uint64_t const zero_data = level_zero_data_core();
+        return zero_data;
+    }
+    return lean_ctor_get_uint64(l.raw(), lean_ctor_num_objs(l.raw())*sizeof(object*));
+}
+/* This is the implementation in Lean */
+unsigned hash_core(level const & l);
+inline unsigned level::hash() const {
+    unsigned r = static_cast<unsigned>(get_data(*this));
+    lean_assert(r == hash_core(*this)); // ensure the C++ implementation matches the Lean one.
+    return r;
+}
+
 typedef list_ref<level> levels;
 typedef pair<level, level> level_pair;
 
@@ -109,17 +128,32 @@ inline bool is_max(level const & l)    { return l.is_max(); }
 inline bool is_imax(level const & l)   { return l.is_imax(); }
 bool is_one(level const & l);
 
-unsigned get_depth(level const & l);
+unsigned get_depth_core(level const & l);
+inline unsigned get_depth(level const & l) {
+    unsigned r = static_cast<unsigned>(get_data(l) >> 40);
+    lean_assert(r == get_depth_core(l)); // ensure the C++ implementation matches the Lean one.
+    return r;
+}
 
 /** \brief Return true iff \c l is an explicit level.
     We say a level l is explicit iff
     1) l is zero OR
     2) l = succ(l') and l' is explicit */
 bool is_explicit(level const & l);
+bool has_mvar_core(level const & l);
 /** \brief Return true iff \c l contains placeholder (aka meta parameters). */
-bool has_mvar(level const & l);
+inline bool has_mvar(level const & l) {
+    bool r = ((get_data(l) >> 32) & 1) == 1;
+    lean_assert(r == has_mvar_core(l)); // ensure the C++ implementation matches the Lean one.
+    return r;
+}
+bool has_param_core(level const & l);
 /** \brief Return true iff \c l contains parameters */
-bool has_param(level const & l);
+inline bool has_param(level const & l) {
+    bool r = ((get_data(l) >> 33) & 1) == 1;
+    lean_assert(r == has_param_core(l)); // ensure the C++ implementation matches the Lean one.
+    return r;
+}
 
 /** \brief Return a new level expression based on <tt>l == succ(arg)</tt>, where \c arg is replaced with
     \c new_arg.

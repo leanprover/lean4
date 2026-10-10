@@ -5,6 +5,7 @@ Author: Sofia Rodrigues
 */
 
 #include "runtime/uv/udp.h"
+#include "runtime/uv/buffer.h"
 #include "runtime/uv/util.h"
 #include <cstring>
 
@@ -17,7 +18,6 @@ typedef struct {
     lean_object *promise;
     lean_object *data;
     lean_object *socket;
-    uv_buf_t* bufs;
 } udp_send_data;
 
 static void udp_socket_finalizer(void* ptr) {
@@ -144,21 +144,10 @@ extern "C" LEAN_EXPORT lean_obj_res lean_uv_udp_send(b_obj_arg socket, obj_arg d
         return lean_io_result_mk_ok(promise);
     }
 
-    if (lean_usize_mul_would_overflow(array_len, sizeof(uv_buf_t))) {
+    uv_send_bufs bufs;
+    if (!bufs.init(data_array)) {
         lean_dec(data_array);
         return io_result_mk_enomem();
-    }
-    uv_buf_t* bufs = (uv_buf_t*)malloc(array_len * sizeof(uv_buf_t));
-    if (bufs == nullptr) {
-        lean_dec(data_array);
-        return io_result_mk_enomem();
-    }
-
-    for (size_t i = 0; i < array_len; i++) {
-        lean_object* byte_array = lean_array_get_core(data_array, i);
-        size_t data_len = lean_sarray_size(byte_array);
-        char* data_str = (char*)lean_sarray_cptr(byte_array);
-        bufs[i] = uv_buf_init(data_str, data_len);
     }
 
     lean_object * promise = mk_mt_promise();
@@ -167,14 +156,12 @@ extern "C" LEAN_EXPORT lean_obj_res lean_uv_udp_send(b_obj_arg socket, obj_arg d
     if (send_uv == nullptr) {
         lean_dec(data_array);
         lean_dec(promise);
-        free(bufs);
         return io_result_mk_enomem();
     }
     send_uv->data = (udp_send_data*)malloc(sizeof(udp_send_data));
     if (send_uv->data == nullptr) {
         lean_dec(data_array);
         lean_dec(promise);
-        free(bufs);
         free(send_uv);
         return io_result_mk_enomem();
     }
@@ -187,28 +174,18 @@ extern "C" LEAN_EXPORT lean_obj_res lean_uv_udp_send(b_obj_arg socket, obj_arg d
     send_data->promise = promise;
     send_data->data = data_array;
     send_data->socket = socket;
-    send_data->bufs = bufs;
 
     // These objects are going to enter the loop and be owned by it
     lean_inc(promise);
     lean_inc(socket);
 
-    sockaddr_storage* addr_ptr = nullptr;
+    // libuv copies the destination address too.
+    sockaddr_storage addr_storage;
+    sockaddr* addr_ptr = nullptr;
 
     if (lean_obj_tag(opt_addr) == 1) {
-        lean_object* addr = lean_ctor_get(opt_addr, 0);
-        addr_ptr = (sockaddr_storage*)malloc(sizeof(sockaddr_storage));
-        if (addr_ptr == nullptr) {
-            lean_dec(promise);
-            lean_dec(promise);
-            lean_dec(socket);
-            lean_dec(data_array);
-            free(bufs);
-            free(send_uv->data);
-            free(send_uv);
-            return io_result_mk_enomem();
-        }
-        lean_socket_address_to_sockaddr_storage(addr, addr_ptr);
+        lean_socket_address_to_sockaddr_storage(lean_ctor_get(opt_addr, 0), &addr_storage);
+        addr_ptr = (sockaddr*)&addr_storage;
     }
 
     auto on_send = [](uv_udp_send_t* req, int status) {
@@ -219,7 +196,6 @@ extern "C" LEAN_EXPORT lean_obj_res lean_uv_udp_send(b_obj_arg socket, obj_arg d
         lean_dec(tup->socket);
         lean_dec(tup->data);
 
-        free(tup->bufs);
         free(req->data);
         free(req);
     };
@@ -227,11 +203,7 @@ extern "C" LEAN_EXPORT lean_obj_res lean_uv_udp_send(b_obj_arg socket, obj_arg d
     int result;
     {
         event_loop_guard guard;
-        result = uv_udp_send(send_uv, &udp_socket->m_uv_udp, bufs, array_len, (sockaddr*)addr_ptr, on_send);
-    }
-
-    if (addr_ptr != nullptr) {
-        free(addr_ptr);
+        result = uv_udp_send(send_uv, &udp_socket->m_uv_udp, bufs.data(), bufs.count(), addr_ptr, on_send);
     }
 
     if (result < 0) {
@@ -239,7 +211,6 @@ extern "C" LEAN_EXPORT lean_obj_res lean_uv_udp_send(b_obj_arg socket, obj_arg d
         lean_dec(promise); // We are not going to return it.
         lean_dec(socket); // The loop does not own the object.
         lean_dec(data_array); // The data is owned.
-        free(bufs);
 
         free(send_uv->data);
         free(send_uv);

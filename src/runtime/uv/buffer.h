@@ -6,7 +6,9 @@ Author: Sofia Rodrigues
 */
 #pragma once
 #include <lean/lean.h>
+#include "runtime/io.h"
 #include <cerrno>
+#include <climits>
 #include <cstring>
 
 #ifndef LEAN_EMSCRIPTEN
@@ -60,13 +62,26 @@ public:
     uv_send_bufs(uv_send_bufs const &) = delete;
     uv_send_bufs & operator=(uv_send_bufs const &) = delete;
 
-    // Points the buffers at the bytes of `data_array`. `false` if allocating the array failed.
-    [[nodiscard]] bool init(b_obj_arg data_array) {
+    // Points the buffers at the bytes of `data_array`. `nullptr` on success, and otherwise the error to
+    // return. libuv takes buffer lengths and the buffer count as `unsigned int`, so larger ones are
+    // rejected rather than truncated.
+    [[nodiscard]] lean_obj_res init(b_obj_arg data_array) {
         size_t len = lean_array_size(data_array);
+
+        if (len > UINT_MAX) {
+            return lean_io_result_mk_error(lean_mk_io_error_invalid_argument(EINVAL, lean_mk_string("too many buffers to send")));
+        }
+
+        for (size_t i = 0; i < len; i++) {
+            if (lean_sarray_size(lean_array_get_core(data_array, i)) > UINT_MAX) {
+                return lean_io_result_mk_error(lean_mk_io_error_invalid_argument(EINVAL, lean_mk_string("buffer to send must be smaller than 4 GiB")));
+            }
+        }
+
         if (len > inline_capacity) {
             m_heap.reset(new (std::nothrow) uv_buf_t[len]);
             if (m_heap == nullptr) {
-                return false;
+                return io_result_mk_enomem();
             }
             m_data = m_heap.get();
         }
@@ -77,7 +92,7 @@ public:
         }
 
         m_count = len;
-        return true;
+        return nullptr;
     }
 
     uv_buf_t const * data() const { return m_data; }

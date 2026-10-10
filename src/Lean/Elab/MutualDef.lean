@@ -1494,7 +1494,9 @@ private def logGoalsAccomplishedSnapshotTask (views : Array DefView)
         msg.severity matches .error || msg.data.hasTag (· == `hasSorry)
     if hasErrorOrSorry then
       return
-    for d in defsParsedSnap.defs, (ref, kind) in views do
+    let defs := if defsParsedSnap.defs.isEmpty then Array.replicate views.size none
+      else defsParsedSnap.defs.map some
+    for d in defs, (ref, kind) in views do
       let logGoalsAccomplished :=
         let msgData := .tagged `goalsAccomplished m!"Goals accomplished!"
         logAt ref msgData (severity := .information) (isSilent := true)
@@ -1502,10 +1504,11 @@ private def logGoalsAccomplishedSnapshotTask (views : Array DefView)
       | .theorem =>
         logGoalsAccomplished
       | .example =>
-        let some processedSnap := d.headerProcessedSnap.get
-          | continue
-        if ! (← isProp processedSnap.view.type) then
-          continue
+        if let some d := d then
+          let some processedSnap := d.headerProcessedSnap.get
+            | continue
+          if ! (← isProp processedSnap.view.type) then
+            continue
         logGoalsAccomplished
       | _ => continue
   let logGoalsAccomplishedTask ← BaseIO.mapTask (t := ← tree.waitAll) logGoalsAccomplishedAct

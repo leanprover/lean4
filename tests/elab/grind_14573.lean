@@ -2,9 +2,8 @@ module
 
 /-!
 Regression test for #14573: `grind?` and `finish?` suggestions used to omit parameters whose
-effect is not representable in the generated script (e.g., `inj f_inj`, `funCC q`). The
-suggestions closed the goal only because the parameters were still active when they were
-checked, and failed when pasted.
+effect is not representable in the generated script (e.g., `inj f_inj`, `funCC q`), so the
+suggestions failed when pasted.
 -/
 
 def f (n : Nat) := n + 3

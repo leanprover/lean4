@@ -2737,9 +2737,13 @@ def isDefEqNoConstantApprox (t s : Expr) : MetaM Bool :=
 def isDefEqD (t s : Expr) : MetaM Bool :=
   withDefault <| isDefEq t s
 
-/-- Similar to `isDefEq`, but ensures that only reducible definitions and instances can be reduced. -/
+/--
+Similar to `isDefEq`, but uses `.implicit` transparency: only `[reducible]`, `[instance_reducible]`,
+and `[implicit_reducible]` definitions can be unfolded. This is the transparency `isDefEq` uses
+for instance-implicit arguments, so it is the right choice for comparing instances.
+-/
 def isDefEqI (t s : Expr) : MetaM Bool :=
-  withReducibleAndInstances <| isDefEq t s
+  withImplicit <| isDefEq t s
 
 set_option compiler.ignoreBorrowAnnotation true in
 /--

@@ -108,31 +108,34 @@ macro_rules
       | apply Raw₀.wf_insertMany₀ | apply Raw₀.Const.wf_insertMany₀
       | apply Raw₀.Const.wf_insertManyIfNewUnit₀ | apply Raw₀.wf_union₀
       | apply Raw.WF.filter₀ | apply Raw₀.wf_map₀ | apply Raw₀.wf_filterMap₀
-      | apply Raw.WF.emptyWithCapacity₀ | apply Raw.WF.inter₀ | apply Raw₀.wf_diff₀ | apply Raw.WF.inter₀) <;> wf_trivial)
+      | apply Raw.WF.emptyWithCapacity₀ | apply Raw.WF.inter₀ | apply Raw₀.wf_diff₀
+      | apply Raw.WF.fst_partition₀ | apply Raw.WF.snd_partition₀ ) <;> wf_trivial)
+
 
 /-- Internal implementation detail of the hash map -/
 scoped macro "empty" : tactic => `(tactic| { intros; simp_all [List.isEmpty_iff] } )
 
 open Lean
 
-private meta def modifyMap : Std.DHashMap Name (fun _ => Name) :=
+private meta def modifyMap : Std.DHashMap Name (fun _ => Array Name) :=
   .ofList
-    [⟨`insert, ``toListModel_insert⟩,
-     ⟨`erase, ``toListModel_erase⟩,
-     ⟨`insertIfNew, ``toListModel_insertIfNew⟩,
-     ⟨`insertMany, ``toListModel_insertMany_list⟩,
-     ⟨`union, ``toListModel_union⟩,
-     ⟨`inter, ``toListModel_inter⟩,
-     ⟨`diff, ``toListModel_diff⟩,
-     ⟨`Const.insertMany, ``Const.toListModel_insertMany_list⟩,
-     ⟨`Const.insertManyIfNewUnit, ``Const.toListModel_insertManyIfNewUnit_list⟩,
-     ⟨`alter, ``toListModel_alter⟩,
-     ⟨`modify, ``toListModel_modify⟩,
-     ⟨`Const.alter, ``Const.toListModel_alter⟩,
-     ⟨`Const.modify, ``Const.toListModel_modify⟩,
-     ⟨`filter, ``toListModel_filter⟩,
-     ⟨`map, ``toListModel_map⟩,
-     ⟨`filterMap, ``toListModel_filterMap⟩]
+    [⟨`insert, #[``toListModel_insert]⟩,
+     ⟨`erase, #[``toListModel_erase]⟩,
+     ⟨`insertIfNew, #[``toListModel_insertIfNew]⟩,
+     ⟨`insertMany, #[``toListModel_insertMany_list]⟩,
+     ⟨`union, #[``toListModel_union]⟩,
+     ⟨`inter, #[``toListModel_inter]⟩,
+     ⟨`diff, #[``toListModel_diff]⟩,
+     ⟨`Const.insertMany, #[``Const.toListModel_insertMany_list]⟩,
+     ⟨`Const.insertManyIfNewUnit, #[``Const.toListModel_insertManyIfNewUnit_list]⟩,
+     ⟨`alter, #[``toListModel_alter]⟩,
+     ⟨`modify, #[``toListModel_modify]⟩,
+     ⟨`Const.alter, #[``Const.toListModel_alter]⟩,
+     ⟨`Const.modify, #[``Const.toListModel_modify]⟩,
+     ⟨`filter, #[``toListModel_filter]⟩,
+     ⟨`map, #[``toListModel_map]⟩,
+     ⟨`filterMap, #[``toListModel_filterMap]⟩,
+     ⟨`partition, #[``toListModel_fst_partition, ``toListModel_snd_partition]⟩]
 
 private theorem perm_map_congr_left {α : Type u} {β : Type v} {l l' : List α} {f : α → β}
     {l₂ : List β} (h : l.Perm l') : (l.map f).Perm l₂ ↔ (l'.map f).Perm l₂ :=
@@ -202,7 +205,7 @@ macro_rules
   let mut congrModify : Array (TSyntax `term) := #[]
   if let some modifyNames := names then
     for modify in modifyNames.getElems.flatMap
-        (fun n => modifyMap.get? (Lean.Syntax.getId n) |>.toArray) do
+        (fun n => modifyMap.getD (Lean.Syntax.getId n) #[]) do
       for congr in congrNames do
         congrModify := congrModify.push (← `($congr:term ($(mkIdent modify) ..)))
   `(tactic|
@@ -1056,6 +1059,21 @@ theorem distinct_keys_toList [EquivBEq α] [LawfulHashable α] (h : m.1.WF) :
     m.1.toList.Pairwise (fun a b => (a.1 == b.1) = false) := by
   simp_to_model [toList] using List.pairwise_fst_eq_false
 
+theorem nodup_toList [EquivBEq α] [LawfulHashable α] (h : m.1.WF) :
+    m.1.toList.Nodup := by
+  simp_to_model [toList] using List.nodup_of_distinctKeys
+
+theorem toList_insert_perm_of_contains_eq_false [EquivBEq α] [LawfulHashable α] (h : m.1.WF)
+    {k : α} {v : β k} :
+    m.contains k = false → (m.insert k v).1.toList.Perm (⟨k, v⟩ :: m.1.toList) := by
+  simp_to_model using fun h' => (toListModel_insert _).trans (List.Perm.of_eq (List.insertEntry_of_containsKey_eq_false h'))
+  simp [Raw.WF.out h]
+
+theorem mem_toList_insert_of_contains_eq_false [EquivBEq α] [LawfulHashable α] (h : m.1.WF)
+    {k : α} {v : β k} {x : (a : α) × β a} (h' : m.contains k = false) :
+    x ∈ (m.insert k v).1.toList ↔ x = ⟨k, v⟩ ∨ x ∈ m.1.toList := by
+  simp [(toList_insert_perm_of_contains_eq_false _ h h').mem_iff]
+
 namespace Const
 
 variable {β : Type v} (m : Raw₀ α (fun _ => β))
@@ -1104,6 +1122,19 @@ theorem mem_toList_iff_getKey?_eq_some_and_get?_eq_some [EquivBEq α] [LawfulHas
 theorem distinct_keys_toList [EquivBEq α] [LawfulHashable α] (h : m.1.WF) :
     (Raw.Const.toList m.1).Pairwise (fun a b => (a.1 == b.1) = false) := by
   simp_to_model [Const.toList] using List.pairwise_fst_eq_false_map_toProd
+
+theorem nodup_toList [EquivBEq α] [LawfulHashable α] (h : m.1.WF) :
+    (Raw.Const.toList m.1).Nodup := by
+  simp_to_model [Const.toList] using List.nodup_map_of_distinctKeys
+
+theorem mem_toList_insert_of_contains_eq_false [EquivBEq α] [LawfulHashable α] (h : m.1.WF)
+    {k : α} {v : β} {x : α × β} (h' : m.contains k = false) :
+    x ∈ (Raw.Const.toList (m.insert k v).1) ↔ x = ⟨k, v⟩ ∨ x ∈ Raw.Const.toList m.1 := by
+  have : List.filter (fun x => !k == x.fst) (Raw.Const.toList m.val) = Raw.Const.toList m.val := by
+    simp only [← find?_toList_eq_none_iff_contains_eq_false m h, BEq.comm, List.find?_eq_none,
+      Bool.not_eq_true, Prod.forall] at h'
+    simpa
+  simp [List.Perm.mem_iff (Const.toList_insert_perm m h), this]
 
 end Const
 
@@ -5193,6 +5224,55 @@ theorem toList_map {α : Type u} (m : Raw₀ α fun _ => β)
 end Const
 
 end map
+
+section partition
+
+theorem fst_partition_not_eq_snd_partition [EquivBEq α] [LawfulHashable α]
+    {p : (a : α) → β a → Bool} :
+    (m.partition (fun a b => ! p a b)).fst = (m.partition p).snd := by
+  simp only [partition, Bool.not_eq_eq_eq_not, Bool.not_true, fold_eq_foldl_toList]
+  generalize m.val.toList = l
+  let f : Raw₀ α β × Raw₀ α β → List ((a : α) × β a) → Raw₀ α β × Raw₀ α β :=
+    fun pair l => List.foldl (fun a b => if p b.1 b.2 = true
+      then (a.1.insert b.1 b.2, a.2) else (a.1, a.2.insert b.1 b.2)) pair l
+  let f' : Raw₀ α β × Raw₀ α β → List ((a : α) × β a) → Raw₀ α β × Raw₀ α β :=
+    fun pair l => List.foldl (fun a b => if p b.1 b.2 = false
+      then (a.1.insert b.1 b.2, a.2) else (a.1, a.2.insert b.1 b.2)) pair l
+  suffices ∀ (l : List ((a : α) × β a)) (m₁ m₂ : Raw₀ α β),
+    (f' (m₁, m₂) l).fst = (f (m₂, m₁) l).snd from
+      this _ _ _
+  intro l
+  induction l with
+  | nil => simp [f, f']
+  | cons hd tl ih =>
+    intro m₁ m₂
+    simp only [List.foldl_cons, f', f]
+    by_cases hhd : p hd.fst hd.snd = true
+    · simp only [hhd, Bool.true_eq_false, ↓reduceIte]
+      rw [ih]
+    · simp only [hhd, ↓reduceIte, Bool.false_eq_true]
+      rw [ih]
+
+theorem snd_partition_not_eq_fst_partition [EquivBEq α] [LawfulHashable α]
+    {p : (a : α) → β a → Bool} :
+    (m.partition (fun a b => ! p a b)).snd = (m.partition p).fst := by
+  simp [← fst_partition_not_eq_snd_partition]
+
+theorem fst_partition_equiv_filter [EquivBEq α] [LawfulHashable α]
+    {p : (a : α) → β a → Bool} (h : m.1.WF)  :
+    (m.partition p).1.1.Equiv (m.filter p).1 := by
+  simp_to_model [Equiv, filter, partition] using List.Perm.refl
+
+theorem snd_partition_equiv_filter_not [EquivBEq α] [LawfulHashable α]
+    {p : (a : α) → β a → Bool} (h : m.1.WF)  :
+    (m.partition p).2.1.Equiv (m.filter (fun a b => ! p a b)).1 := by
+  simp_to_model [Equiv, filter, partition] using List.Perm.refl
+
+theorem size_partition [EquivBEq α] [LawfulHashable α] {p : (a : α) → β a → Bool} (h : m.1.WF) :
+    (m.partition p).1.1.size + (m.partition p).2.1.size = m.1.size := by
+  simp_to_model [partition, size] using List.length_filter_add_length_filter_neg_eq_length
+
+end partition
 
 end Raw₀
 

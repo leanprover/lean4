@@ -66,4 +66,18 @@ inline void resolve_with_code(int status, b_obj_arg promise) {
     lean_promise_resolve(res, promise);
 }
 
+// An array libuv allocated together with its length, released with `Free(data, count)`.
+template<class T, void (*Free)(T*, int)>
+class uv_owned_array {
+    T * m_data;
+    int m_count;
+public:
+    uv_owned_array(T * data, int count) : m_data(data), m_count(count) {}
+    ~uv_owned_array() { Free(m_data, m_count); }
+    uv_owned_array(uv_owned_array const &) = delete;
+    uv_owned_array & operator=(uv_owned_array const &) = delete;
+    T * begin() const { return m_data; }
+    T * end() const { return m_data + m_count; }
+};
+
 }

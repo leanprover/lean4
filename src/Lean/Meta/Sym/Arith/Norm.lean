@@ -810,7 +810,7 @@ private def normalizeRelCore (rel : RelKind) (relFn : Expr) (order? : Option Ord
     -- `(q, k, c)` for the certificate (`IntSolver.lean`).
     let mut p := p
     let mut tight? : Option (Poly × Int × Int) := none
-    if ring.type.isConstOf ``Int && invs.isEmpty && ainvs.isEmpty && char?.isNone && rel != .lt then
+    if kind.isComm && ring.type.isConstOf ``Int && invs.isEmpty && ainvs.isEmpty && char?.isNone && rel != .lt then
       let k := gcdMonCoeffs p
       if k > 1 then
         let c := polyConst p
@@ -979,8 +979,8 @@ private def normalizeRelCore (rel : RelKind) (relFn : Expr) (order? : Option Ord
 /-- The `normalize?` path for relations; `e` is `rel lhs rhs` with carrier `α`. -/
 private def normalizeRel? [Monad m] [MonadLiftT SymM m] [MonadLiftT MetaM m]
     (rel : RelKind) (α e lhs rhs : Expr) (simpAtom : Expr → m Result) (discharge? : Expr → m (Option Expr))
-    (lhsOnly : Bool) : m Result := do
-  let kind ← match (← (classify? α : SymM _)) with
+    (lhsOnly : Bool) (commutative : Bool) : m Result := do
+  let kind ← match (← (classify? α (commutative := commutative) : SymM _)) with
     | .commRing id => pure (Kind.commRing id)
     | .commSemiring id => pure (Kind.commSemiring id)
     | .nonCommRing id => pure (Kind.ring id)
@@ -1056,9 +1056,9 @@ The result distinguishes three cases:
 that asked for one is `contextDependent`.
 -/
 private def normalizeTerm? [Monad m] [MonadLiftT SymM m] [MonadLiftT MetaM m] (e : Expr) (simpAtom : Expr → m Result)
-    (discharge? : Expr → m (Option Expr)) : m Result := do
+    (discharge? : Expr → m (Option Expr)) (commutative : Bool) : m Result := do
   let some α := getArithType? e | return .rfl
-  let kind ← match (← (classify? α : SymM _)) with
+  let kind ← match (← (classify? α (commutative := commutative) : SymM _)) with
     | .commRing id => pure (Kind.commRing id)
     | .commSemiring id => pure (Kind.commSemiring id)
     | .nonCommRing id => pure (Kind.ring id)
@@ -1161,19 +1161,24 @@ exceptions follow `simp +arith`: equations between atoms and numerals (`x = y`, 
 `3 = x`) and equations already of the form `p = 0` are left alone, and `x - y = 0` and
 `x + k = 0` are written `x = y` and `x = -k`. This is the normal form of the `grind`
 normalizer. Semirings have no subtraction and are unaffected.
+
+With `commutative := false`, multiplication keeps the order of its factors even when the
+carrier has a commutative ring or semiring instance. The noncommutative certificates are used,
+and field normalization and integer gcd/divisibility normalization are disabled.
 -/
 def normalize? [Monad m] [MonadLiftT SymM m] [MonadLiftT MetaM m] (e : Expr) (simpAtom : Expr → m Result)
-    (discharge? : Expr → m (Option Expr) := fun _ => pure none) (lhsOnly : Bool := false) : m Result := do
+    (discharge? : Expr → m (Option Expr) := fun _ => pure none) (lhsOnly : Bool := false)
+    (commutative : Bool := true) : m Result := do
   match_expr e with
-  | Eq α lhs rhs => normalizeRel? .eq α e lhs rhs simpAtom discharge? lhsOnly
-  | LE.le α _ lhs rhs => normalizeRel? .le α e lhs rhs simpAtom discharge? lhsOnly
-  | LT.lt α _ lhs rhs => normalizeRel? .lt α e lhs rhs simpAtom discharge? lhsOnly
+  | Eq α lhs rhs => normalizeRel? .eq α e lhs rhs simpAtom discharge? lhsOnly commutative
+  | LE.le α _ lhs rhs => normalizeRel? .le α e lhs rhs simpAtom discharge? lhsOnly commutative
+  | LT.lt α _ lhs rhs => normalizeRel? .lt α e lhs rhs simpAtom discharge? lhsOnly commutative
   | Dvd.dvd α _ k arg =>
-    if α.isConstOf ``Int then
+    if commutative && α.isConstOf ``Int then
       if let some kv := (Sym.getIntValue? k).run then
         if kv != 0 then
           return ← normalizeDvd? e e.appFn!.appFn! arg kv simpAtom discharge?
-    normalizeTerm? e simpAtom discharge?
-  | _ => normalizeTerm? e simpAtom discharge?
+    normalizeTerm? e simpAtom discharge? commutative
+  | _ => normalizeTerm? e simpAtom discharge? commutative
 
 end Lean.Meta.Sym.Arith

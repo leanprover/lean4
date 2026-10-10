@@ -129,6 +129,28 @@ public def addEMatchTheorem (params : Grind.Params) (id : Ident) (declName : Nam
   | _ =>
     throwError "invalid `grind` parameter, `{.ofConstName declName}` is not a theorem, definition, or inductive type"
 
+/--
+Returns `true` if `declName` is a universe-monomorphic theorem, axiom, or constructor whose
+statement is a proposition that is not a `∀` and is not indexable, e.g., `theorem mkP : P` where
+`P` is a nullary inductive predicate. Only applications can be used as patterns, so such a
+statement cannot be E-matched, and `grind` asserts the parameter as a fact instead. A ground
+theorem whose statement is indexable, e.g., `pi_pos : 0 < π`, is still an E-matching theorem
+activated by its ground pattern.
+-/
+def isFactDecl (declName : Name) (symPrios : Grind.SymbolPriorities := {}) : MetaM Bool := do
+  let info ← getAsyncConstInfo declName
+  unless info.kind matches .thm | .axiom | .ctor do return false
+  let { type, levelParams, .. } := info.toConstantVal
+  unless levelParams.isEmpty do return false
+  -- `grind` unfolds reducible definitions, so a statement that reduces to a `∀` is not a fact.
+  unless (← (return !(← whnfR type).isForall) <&&> isProp type) do return false
+  return (← Grind.mkEMatchTheoremWithKind? (.decl declName) #[] (mkConst declName) (.default false) symPrios).isNone
+
+/-- Adds the global proposition `declName` as a fact. See `isFactDecl`. -/
+def addFact (params : Grind.Params) (declName : Name) (minIndexable : Bool) : MetaM Grind.Params := do
+  ensureNoMinIndexable minIndexable
+  return { params with extraFacts := params.extraFacts.push (mkConst declName) }
+
 def processAnchor (params : Grind.Params) (val : TSyntax `hexnum) : CoreM Grind.Params := do
   let anchorRefs := params.anchorRefs?.getD #[]
   let anchorRef ← Grind.elabAnchorRef val
@@ -274,6 +296,8 @@ def processParam (params : Grind.Params)
         for ctor in info.ctors do
           -- **Note**: We should not warn if `declName` is an inductive
           params ← withRef p <| addEMatchTheorem params id ctor (.default false) minIndexable (warn := False)
+    else if (← isFactDecl declName params.symPrios) then
+      params ← withRef p <| addFact params declName minIndexable
     else
       params ← withRef p <| addEMatchTheorem params id declName (.default false) minIndexable (suggest := true)
   | .symbol prio =>
@@ -370,6 +394,8 @@ cannot represent, so dropping them produces suggestions that fail during replay:
 - modifiers that do not create E-matching theorems (`cases`, `inj`, `funCC`, `symbol`);
 - identifiers resolving to a type marked for case-splitting (e.g., `[EqvGen]` for an
   inductive predicate);
+- identifiers resolving to a theorem whose statement is not a `∀` and is not indexable (see
+  `isFactDecl`), which is asserted as a fact rather than recorded as an E-matching theorem;
 - identifiers using local variable dot notation (e.g., `cs.getD_rightInvSeq` where `cs` is a
   local variable), which produce anchors that need the original term during replay;
 - non-identifier terms (e.g., `show p by tac`).
@@ -390,7 +416,7 @@ public def getPreservedParams (params : Array (TSyntax ``Parser.Tactic.grindPara
     | .infer =>
       let declName? ← try pure (some (← realizeGlobalConstNoOverload id)) catch _ => pure none
       if let some declName := declName? then
-        Grind.isCasesAttrCandidate declName false
+        Grind.isCasesAttrCandidate declName false <||> isFactDecl declName
       else
         return false
     | _ => return true

@@ -145,9 +145,9 @@ extern "C" LEAN_EXPORT lean_obj_res lean_uv_udp_send(b_obj_arg socket, obj_arg d
     }
 
     uv_send_bufs bufs;
-    if (!bufs.init(data_array)) {
+    if (lean_object * error = bufs.init(data_array)) {
         lean_dec(data_array);
-        return io_result_mk_enomem();
+        return error;
     }
 
     lean_object * promise = mk_mt_promise();

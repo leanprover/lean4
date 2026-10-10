@@ -556,6 +556,23 @@ We should also investigate the impact on memory consumption.
 abbrev DefEqCache := PersistentHashMap DefEqCacheKey Bool
 
 /--
+An entry of `Meta.Cache.synthStuck`: what the outcome for a type class resolution query whose search
+got stuck depends on besides the cache key.
+-/
+structure SynthStuckEntry where
+  /--
+  Whether a retry of the query fails fast. `false` records that the query must not be memoized as
+  stuck, so that it is not examined again on every retry.
+  -/
+  stuck  : Bool
+  /-- The assignable level metavariables of the query. -/
+  lmvars : Array LMVarId := #[]
+  /-- The local declarations the outcome depends on. -/
+  decls  : Array LocalDecl
+  /-- The dependencies the stuck search recorded. -/
+  deps   : RecordedDeps := {}
+
+/--
 Cache datastructures for type inference, type class resolution, whnf, and definitional equality.
 -/
 structure Cache where
@@ -565,6 +582,11 @@ structure Cache where
   whnf           : WhnfCache := {}
   defEqTrans     : DefEqCache := {} -- transient cache for terms containing mvars or using nonstandard configuration options, it is frequently reset.
   defEqPerm      : DefEqCache := {} -- permanent cache for terms not containing mvars and using standard configuration options
+  /--
+  Type class resolution queries whose search got stuck on a metavariable. The elaborator retries
+  such a query whenever it makes progress; a retry with the same key fails fast.
+  -/
+  synthStuck     : PersistentHashMap SynthInstanceCacheKey SynthStuckEntry := {}
   deriving Inhabited
 
 /--
@@ -859,13 +881,13 @@ def resetCache : MetaM Unit :=
   modifyCache fun _ => {}
 
 @[inline] def modifyInferTypeCache (f : InferTypeCache → InferTypeCache) : MetaM Unit :=
-  modifyCache fun ⟨ic, c1, c2, c3, c4, c5⟩ => ⟨f ic, c1, c2, c3, c4, c5⟩
+  modifyCache fun ⟨ic, c1, c2, c3, c4, c5, c6⟩ => ⟨f ic, c1, c2, c3, c4, c5, c6⟩
 
 @[inline] def modifyDefEqTransientCache (f : DefEqCache → DefEqCache) : MetaM Unit :=
-  modifyCache fun ⟨c1, c2, c3, c4, defeqTrans, c5⟩ => ⟨c1, c2, c3, c4, f defeqTrans, c5⟩
+  modifyCache fun ⟨c1, c2, c3, c4, defeqTrans, c5, c6⟩ => ⟨c1, c2, c3, c4, f defeqTrans, c5, c6⟩
 
 @[inline] def modifyDefEqPermCache (f : DefEqCache → DefEqCache) : MetaM Unit :=
-  modifyCache fun ⟨c1, c2, c3, c4, c5, defeqPerm⟩ => ⟨c1, c2, c3, c4, c5, f defeqPerm⟩
+  modifyCache fun ⟨c1, c2, c3, c4, c5, defeqPerm, c6⟩ => ⟨c1, c2, c3, c4, c5, f defeqPerm, c6⟩
 
 def mkExprConfigCacheKey (expr : Expr) : MetaM ExprConfigCacheKey :=
   return { expr, configKey := (← read).configKey }

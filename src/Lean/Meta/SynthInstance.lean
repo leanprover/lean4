@@ -13,6 +13,7 @@ public import Lean.Meta.AbstractMVars
 public import Lean.Meta.Check
 import Init.While
 import Lean.Util.CollectFVars
+import Lean.Util.CollectLevelMVars
 
 public section
 namespace Lean.Meta
@@ -1093,6 +1094,14 @@ private structure Context where
   idx2fvar        : Array Expr
 
 /--
+Whether `lctx` still has the declarations `decls` as far as `addFVars` depends on them: with the same
+type and the same answer to whether they have a value.
+-/
+private def sameDecls (lctx : LocalContext) (decls : Array LocalDecl) : Bool :=
+  decls.all fun decl => (lctx.find? decl.fvarId).any fun decl' =>
+    decl'.type == decl.type && decl'.value?.isSome == decl.value?.isSome
+
+/--
 The free-variable-normalized closure of the local instances, or `none` if it cannot be soundly
 normalized. Memoized, as the closure is the same for every query made under the same local
 instances, and normalizing it per query dominates the cost of a cache key; see
@@ -1100,11 +1109,7 @@ instances, and normalizing it per query dominates the cost of a cache key; see
 -/
 private def getClosure? (localInsts : LocalInstances) : MetaM (Option SynthNormClosure) := do
   if let some memo := (← getMCtx).synthNormMemo? then
-    let lctx ← getLCtx
-    -- `addFVars` depends on a declaration's type and on whether it has a value.
-    let sameDecl (decl : LocalDecl) : Bool := (lctx.find? decl.fvarId).any fun decl' =>
-      decl'.type == decl.type && decl'.value?.isSome == decl.value?.isSome
-    if memo.localInsts == localInsts && memo.decls.all sameDecl then
+    if memo.localInsts == localInsts && sameDecls (← getLCtx) memo.decls then
       match memo.stuckType? with
       | none      => return memo.closure?
       | some type => if (← instantiateMVars type).hasMVar then return none
@@ -1115,6 +1120,15 @@ private def getClosure? (localInsts : LocalInstances) : MetaM (Option SynthNormC
   modifyMCtx (·.setSynthNormMemo
     { localInsts, decls := st.decls, closure?, stuckType? := st.stuckType? })
   return closure?
+
+/--
+The closure of the local instances as a traversal state that `addFVars` can extend, or `none` if they
+cannot be normalized; see `getClosure?`.
+-/
+private def getClosureState? (localInsts : LocalInstances) : MetaM (Option State) := do
+  let some closure ← getClosure? localInsts | return none
+  let decls := ((← getMCtx).synthNormMemo?.map (·.decls)).getD #[]
+  return some { fvarSet := closure.fvarSet, idx2fvar := closure.idx2fvar, types := closure.types, decls }
 
 /--
 Computes the free-variable-normalized cache context for a `.noMVars` query, or `none` if it cannot
@@ -1196,6 +1210,97 @@ Panics with `msg` without throwing, which a `panic!` of type `MetaM Unit` would 
 -- Not inlined, as the compiler drops a panic whose value is unused.
 @[noinline] private def panicCacheHitDiffers (msg : String) : BaseIO Unit :=
   return panic! msg
+
+/--
+What memoizing a stuck query as stuck would depend on besides the key, if it is sound; see
+`stuckMemoDeps`.
+-/
+private inductive StuckMemoDeps where
+  /-- Sound; the entry is valid while the assignable level metavariables and `decls` are unchanged. -/
+  | pure (lmvars : Array LMVarId) (decls : Array LocalDecl)
+  /--
+  Not sound because of a metavariable of the query. Remembered, so that the query is not examined
+  again on every retry; an assignment that removes the reason without changing the key is missed,
+  which only costs the memoization of that query.
+  -/
+  | impure
+  /-- Not sound for now: the local context cannot be normalized. -/
+  | unknown
+
+/--
+Determines whether the stuckness of the query `key` (with query type `type`) is a function of the
+key, the local declarations and the recorded dependencies, which is what the memo validates.
+
+The search runs at a new metavariable context depth, so it cannot assign the metavariables of the
+query, and gets stuck on them the same way every time. There is one exception: `synthPending` can
+assign a metavariable of the query that is not synthetic opaque and whose type is a class, by running
+a nested query for that type in the metavariable's own context. The memo is therefore only sound if
+that nested query is determined by what the memo validates as well.
+-/
+private def stuckMemoDeps (key : SynthInstanceCacheKey) (type : Expr) : MetaM StuckMemoDeps := do
+  -- The local context must be normalizable: no let variable and no metavariable in a variable's
+  -- type, which could be assigned without changing the key.
+  let some st ← SynthNorm.getClosureState? key.localInsts | return .unknown
+  let (_, st) ← (SynthNorm.addFVars type).run st
+  if st.bail then return .unknown
+  let keyType ← instantiateMVars key.type
+  let keyMVars := (keyType.collectMVars {}).result
+  let keyLMVars := (collectLevelMVars {} keyType).result
+  let lctx ← getLCtx
+  let mut st := st
+  for mvarId in keyMVars do
+    if (← mvarId.isDelayedAssigned) then return .impure
+    let mvarDecl ← mvarId.getDecl
+    let mvarType ← instantiateMVars mvarDecl.type
+    -- A metavariable in the type that is not in the key could be assigned without changing the key.
+    unless (mvarType.collectMVars {}).result.all keyMVars.contains &&
+        (collectLevelMVars {} mvarType).result.all keyLMVars.contains do
+      return .impure
+    if mvarDecl.kind matches .syntheticOpaque then continue
+    if mvarType.getForallBody.getAppFn.isMVar then return .impure
+    if (← isClass? mvarType).isSome then
+      -- The nested query of `synthPending` must see the local instances and declarations of this
+      -- query; the declarations its type reaches join the validated ones.
+      unless mvarDecl.localInstances == key.localInsts &&
+          (collectFVars {} mvarType).fvarIds.all lctx.contains do
+        return .impure
+      let (_, st') ← (SynthNorm.addFVars mvarType).run st
+      unless !st'.bail && SynthNorm.sameDecls mvarDecl.lctx st'.decls do return .impure
+      st := st'
+  let lmvars ← keyLMVars.filterM isLevelMVarAssignable
+  return .pure (lmvars.insertionSort fun u v => u.name.quickLt v.name) st.decls
+
+/-- Whether the query `key` is memoized as stuck and the entry is still valid. -/
+private def isMemoizedStuck (key : SynthInstanceCacheKey) (parentRecording : Bool) : MetaM Bool := do
+  let some entry := (← get).cache.synthStuck.find? key | return false
+  unless entry.stuck && SynthNorm.sameDecls (← getLCtx) entry.decls do return false
+  unless validOptionAccesses (← getOptionsUnrestricted) entry.deps &&
+      validEnvDeps (← getEnv) entry.deps do
+    return false
+  let keyType ← instantiateMVars key.type
+  if (← (keyType.collectMVars {}).result.anyM (·.isDelayedAssigned)) then return false
+  -- The search may assign level metavariables of the caller's depth (`allowLevelAssignments`).
+  let lmvars ← (collectLevelMVars {} keyType).result.filterM isLevelMVarAssignable
+  unless (lmvars.insertionSort fun u v => u.name.quickLt v.name) == entry.lmvars do return false
+  -- The stuck search's dependencies become dependencies of the enclosing query, if any.
+  if parentRecording then
+    modifyThe Core.State fun s => { s with recordedDeps := entry.deps.mergeInto s.recordedDeps }
+  return true
+
+/-- Memoizes that the search for the query `key` (with query type `type`) got stuck, if sound. -/
+private def memoizeStuck (key : SynthInstanceCacheKey) (type : Expr) : MetaM Unit := do
+  -- A query found not to be memoizable is not examined again while its declarations are unchanged.
+  if let some entry := (← get).cache.synthStuck.find? key then
+    if !entry.stuck && SynthNorm.sameDecls (← getLCtx) entry.decls then return
+  let entry? ← match ← stuckMemoDeps key type with
+    | .pure lmvars decls =>
+      pure (some { stuck := true, lmvars, decls, deps := (← getThe Core.State).recordedDeps })
+    | .impure =>
+      let fvarIds := key.localInsts.map (·.fvar.fvarId!) ++ (collectFVars {} type).fvarIds
+      pure (some { stuck := false, decls := ← fvarIds.mapM (·.getDecl) })
+    | .unknown => pure none
+  if let some entry := entry? then
+    modifyCache fun c => { c with synthStuck := c.synthStuck.insert key entry }
 
 /--
 The `Meta.Config` of every type class resolution query. It replaces the ambient configuration,
@@ -1333,8 +1438,16 @@ def synthInstanceCore? (type : Expr) (maxResultSize? : Option Nat := none) : Met
       trace[Meta.synthInstance] "result {result?} (cached)"
       return result?
     | none =>
+      -- A query that got stuck before is retried by the elaborator whenever it makes progress.
+      if (← isMemoizedStuck rawKey parentRecording) then
+        trace[Meta.synthInstance.cache] "stuck (cached): {type}"
+        Meta.throwIsDefEqStuck
       trace[Meta.synthInstance.cache] "new: {type}"
-      let abstResult? ← runSearch
+      let abstResult? ← try runSearch catch ex =>
+        if let .internal id _ := ex then
+          if id == isDefEqStuckExceptionId then
+            memoizeStuck rawKey type
+        throw ex
       let result? ← applyAbstractResult? type abstResult?
       trace[Meta.synthInstance] "result {result?}"
       cacheResult cacheKey rawKey norm? ((← getThe Core.State).recordedDeps) kind abstResult? result?

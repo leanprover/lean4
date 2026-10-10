@@ -226,6 +226,9 @@ private def reduceStep (e : Expr) : SimpM Expr := do
     | none =>
     match (← reduceProjFn? e) with
     | some e => return e
+    | none =>
+    match (← reduceVirtualProj? e) with
+    | some e => return e
     | none   => pure ()
   if cfg.iota then
     match (← reduceRecMatcher? e) with

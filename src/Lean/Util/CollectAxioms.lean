@@ -13,7 +13,11 @@ namespace Lean
 namespace CollectAxioms
 
 structure State where
-  /-- Cache mapping constants to their (sorted) axiom dependencies. -/
+  /--
+  Cache mapping constants walked by this run to their (sorted) axiom dependencies. Constants
+  answered by `extFind?` are deliberately not copied into this layer, so it contains exactly the
+  constants whose dependencies were not already recorded elsewhere.
+  -/
   seen   : NameMap (Array Name) := {}
   /-- Axioms accumulated for the current constant being processed. -/
   axioms : NameSet := {}
@@ -28,7 +32,8 @@ private def insertArray (s : NameSet) (axs : Array Name) : NameSet :=
 
 /--
 Collect axioms reachable from constant `c`, using `extFind?` to look up pre-computed axioms
-for imported declarations. Results are cached in `State.seen`.
+for imported and already-recorded declarations. Results for walked constants are cached in
+`State.seen`, the second layer of the cache on top of `extFind?`.
 
 When processing a constant not found in `extFind?` or the cache, the function temporarily
 clears the axiom accumulator, recurses into the constant's dependencies, caches the result
@@ -38,9 +43,9 @@ private partial def collect
     (extFind? : Environment → Name → Option (Array Name))
     (c : Name) : M Unit := do
   let env ← read
-  -- Check extension for pre-computed axioms (imported declarations)
+  -- Check extension for pre-computed axioms (imported and already-recorded declarations)
   if let some axs := extFind? env c then
-    modify fun s => { s with axioms := insertArray s.axioms axs, seen := s.seen.insert c axs }
+    modify fun s => { s with axioms := insertArray s.axioms axs }
     return
   -- Check local cache
   let s ← get
@@ -77,6 +82,8 @@ private partial def collect
 private def collectAndGet
     (extFind? : Environment → Name → Option (Array Name))
     (c : Name) : M (Array Name) := do
+  if let some axs := extFind? (← read) c then
+    return axs
   collect extFind? c
   let some axs := (← get).seen.find? c | panic! s!"collectAndGet: '{c}' not in seen after collect"
   return axs
@@ -95,10 +102,12 @@ binary search without requiring the extension object.
 -/
 private structure ExportedAxiomsState where
   importedModuleEntries : Array (Array (Name × Array Name)) := #[]
+  /-- Axiom dependencies of current-module declarations, filled eagerly by `recordAxioms`. -/
+  localEntries : NameMap (Array Name) := {}
 
 instance : Inhabited ExportedAxiomsState := ⟨{}⟩
 
-/-- Look up pre-computed axioms for an imported declaration. -/
+/-- Look up pre-computed axioms for an imported or already-recorded local declaration. -/
 private def ExportedAxiomsState.find? (s : ExportedAxiomsState) (env : Environment)
     (c : Name) : Option (Array Name) :=
   match env.getModuleIdxFor? c with
@@ -108,14 +117,17 @@ private def ExportedAxiomsState.find? (s : ExportedAxiomsState) (env : Environme
       | some entry => some entry.2
       | none       => none
     else none
-  | none => none
+  | none => s.localEntries.find? c
 
 /--
 Environment extension that records axiom dependencies for all declarations in a module.
-Entries are computed once by `beforeExportFn` when the olean is serialized, not during
-elaboration. During elaboration, `collectAxioms` walks bodies directly. Downstream modules
-look up pre-computed entries for imported declarations, so axiom collection never crosses
-module boundaries.
+Entries for the current module are filled eagerly by `recordAxioms` as declarations pass the
+kernel; the `sync` mode makes these writes accumulate along the `checked` environment chain so
+that recording a declaration reuses the entries of all prior declarations. When the olean is
+serialized, `exportEntriesFnEx` exports the entries of all exported declarations, computing any
+entry missing due to e.g. realizations or error recovery. Downstream modules look up
+pre-computed entries for imported declarations, so axiom collection never crosses module
+boundaries.
 -/
 private builtin_initialize exportedAxiomsExt :
     PersistentEnvExtension (Name × Array Name) (Name × Array Name) ExportedAxiomsState ←
@@ -142,14 +154,38 @@ private builtin_initialize exportedAxiomsExt :
       -- Sort by name for binary search at import time.
       let entries := entries.qsort fun a b => Name.quickLt a.1 b.1
       .uniform entries
-    asyncMode     := .mainOnly
+    asyncMode     := .sync
   }
+
+/--
+Computes and records the axiom dependencies of the given just-added declaration into
+`exportedAxiomsExt`. Entries recorded for earlier declarations are reused, so each constant is
+walked only once per module. Skipped in realization contexts, which would require extension
+replay; declarations without an entry are walked on demand by `collectAxioms` instead.
+-/
+public def recordAxioms [Monad m] [MonadEnv m] (decl : Declaration) : m Unit := do
+  let env ← getEnv
+  if env.isRealizing then return
+  let privateEnv := env.setExporting false
+  let s := exportedAxiomsExt.getState env
+  let (_, st) := decl.getTopLevelNames.mapM (CollectAxioms.collectAndGet s.find?)
+    |>.run privateEnv |>.run {}
+  -- `seen` contains exactly the walked constants; skip walked imported constants missing from
+  -- the export table, which `find?` could never answer from `localEntries`.
+  let newEntries := st.seen.foldl (init := #[]) fun acc c axs =>
+    if (env.getModuleIdxFor? c).isNone then
+      acc.push (c, axs)
+    else
+      acc
+  unless newEntries.isEmpty do
+    modifyEnv fun env => exportedAxiomsExt.modifyState env fun s =>
+      { s with localEntries := newEntries.foldl (init := s.localEntries) fun m (c, axs) => m.insert c axs }
 
 /-- Collect all axioms transitively used by a constant. -/
 public def collectAxioms [Monad m] [MonadEnv m] (constName : Name) : m (Array Name) := do
   let env ← getEnv
   let privateEnv := env.setExporting false
-  let s := exportedAxiomsExt.getState (asyncMode := .mainOnly) env
+  let s := exportedAxiomsExt.getState env
   return CollectAxioms.runM privateEnv do
     CollectAxioms.collectAndGet s.find? constName
 

@@ -36,17 +36,29 @@ def mkMatchOld (ctx : Context) (header : Header) (indVal : InductiveVal) : TermE
   let alts ← mkAlts
   `(match $[$discrs],* with $alts:matchAlt*)
 where
-  mkSameCtorRhs : List (Ident × Ident × Option Name × Bool) → TermElabM Term
-    | [] => ``(isTrue rfl)
-    | (a, b, recField, isProof) :: todo => withFreshMacroScope do
+  mkSameCtorRhs : List (Ident × Ident × Option Name × Bool × Bool) → TermElabM Term
+    | [] => ``(isTrue (by first | rfl | (subst_vars; rfl)))
+    | (a, b, recField, isProof, needsSubst) :: todo => withFreshMacroScope do
       let rhs ← if isProof then
         `(have h : @$a = @$b := rfl; by subst h; exact $(← mkSameCtorRhs todo):term)
       else
         let sameCtor ← mkSameCtorRhs todo
-        `(if h : @$a = @$b then
-           by subst h; exact $sameCtor:term
-          else
-           isFalse (by intro n; injection n; apply h _; assumption))
+        -- `subst` introduces an `h ▸ _` transport, and reducing that makes the
+        -- K-rule re-establish `@$a = @$b` by `isDefEq` on the field values,
+        -- once per comparison. Only pay for it when a later field needs it.
+        -- Recursive fields keep the `subst` too: without it the structural
+        -- recursion checker cannot see `decEq a b` as a recursive application
+        -- (`Lake.BuildKey` is the case that shows this).
+        if needsSubst || recField.isSome then
+          `(if h : @$a = @$b then
+             by subst h; exact $sameCtor:term
+            else
+             isFalse (by intro n; injection n; apply h _; assumption))
+        else
+          `(if h : @$a = @$b then
+             $sameCtor:term
+            else
+             isFalse (by intro n; injection n; apply h _; assumption))
       if let some auxFunName := recField then
         -- add local instance for `a = b` using the function being defined `auxFunName`
         `(let inst := $(mkIdent auxFunName) @$a @$b; $rhs)
@@ -93,7 +105,15 @@ where
                   (xType.isAppOf ∘ ConstantVal.name ∘ InductiveVal.toConstantVal)
                 let recField  := indValNum.map (ctx.auxFunNames[·]!)
                 let isProof ← isProp xType
-                todo := todo.push (a, b, recField, isProof)
+                -- Substituting is only necessary when a later field's type
+                -- mentions this one; otherwise it just introduces an `h ▸ _`
+                -- transport that is expensive to reduce.
+                let mut needsSubst := false
+                for j in *...ctorInfo.numFields do
+                  if i < j then
+                    if x.occurs (← inferType xs[indVal.numParams + j]!) then
+                      needsSubst := true
+                todo := todo.push (a, b, recField, isProof, needsSubst)
             patterns := patterns.push (← `(@$(mkIdent ctorName₁):ident $ctorArgs1:term*))
             patterns := patterns.push (← `(@$(mkIdent ctorName₁):ident $ctorArgs2:term*))
             let rhs ← mkSameCtorRhs todo.toList
@@ -140,7 +160,14 @@ def mkMatchNew (ctx : Context) (header : Header) (indVal : InductiveVal) : TermE
             (xType.isAppOf ∘ ConstantVal.name ∘ InductiveVal.toConstantVal)
           let recField  := indValNum.map (ctx.auxFunNames[·]!)
           let isProof ← isProp xType
-          todo := todo.push (a, b, recField, isProof)
+          -- See the comment in `mkMatchNew`: only substitute when a later
+          -- field's type mentions this one.
+          let mut needsSubst := false
+          for j in *...ctorInfo.numFields do
+            if i < j then
+              if x.occurs (← inferType xs[indVal.numParams + j]!) then
+                needsSubst := true
+          todo := todo.push (a, b, recField, isProof, needsSubst)
       if ctorArgs1.isEmpty then
         -- Unit thunking argument
         ctorArgs1 := ctorArgs1.push (← `(()))
@@ -153,17 +180,29 @@ def mkMatchNew (ctx : Context) (header : Header) (indVal : InductiveVal) : TermE
       | .isTrue h => $(mkCIdent casesOnSameCtorName) $x1:term $x2:term h $alts:term*
       | .isFalse h => isFalse (fun h' => h (congrArg $(mkCIdent ctorIdxName) h')))
 where
-  mkSameCtorRhs : List (Ident × Ident × Option Name × Bool) → TermElabM Term
-    | [] => ``(isTrue rfl)
-    | (a, b, recField, isProof) :: todo => withFreshMacroScope do
+  mkSameCtorRhs : List (Ident × Ident × Option Name × Bool × Bool) → TermElabM Term
+    | [] => ``(isTrue (by first | rfl | (subst_vars; rfl)))
+    | (a, b, recField, isProof, needsSubst) :: todo => withFreshMacroScope do
       let rhs ← if isProof then
         `(have h : @$a = @$b := rfl; by subst h; exact $(← mkSameCtorRhs todo):term)
       else
         let sameCtor ← mkSameCtorRhs todo
-        `(if h : @$a = @$b then
-           by subst h; exact $sameCtor:term
-          else
-           isFalse (by intro n; injection n; apply h _; assumption))
+        -- `subst` introduces an `h ▸ _` transport, and reducing that makes the
+        -- K-rule re-establish `@$a = @$b` by `isDefEq` on the field values,
+        -- once per comparison. Only pay for it when a later field needs it.
+        -- Recursive fields keep the `subst` too: without it the structural
+        -- recursion checker cannot see `decEq a b` as a recursive application
+        -- (`Lake.BuildKey` is the case that shows this).
+        if needsSubst || recField.isSome then
+          `(if h : @$a = @$b then
+             by subst h; exact $sameCtor:term
+            else
+             isFalse (by intro n; injection n; apply h _; assumption))
+        else
+          `(if h : @$a = @$b then
+             $sameCtor:term
+            else
+             isFalse (by intro n; injection n; apply h _; assumption))
       if let some auxFunName := recField then
         -- add local instance for `a = b` using the function being defined `auxFunName`
         `(let inst := $(mkIdent auxFunName) @$a @$b; $rhs)

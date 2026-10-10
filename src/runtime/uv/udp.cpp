@@ -19,7 +19,7 @@ typedef struct {
     uv_buf_t* bufs;
 } udp_send_data;
 
-void lean_uv_udp_socket_finalizer(void* ptr) {
+static void lean_uv_udp_socket_finalizer(void* ptr) {
     lean_uv_udp_socket_object* udp_socket = (lean_uv_udp_socket_object*)ptr;
 
     lean_always_assert(udp_socket->m_promise_read == nullptr);

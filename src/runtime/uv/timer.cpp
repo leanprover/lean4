@@ -12,7 +12,7 @@ namespace lean {
 using namespace std;
 
 // The finalizer of the `Timer`.
-void lean_uv_timer_finalizer(void* ptr) {
+static void lean_uv_timer_finalizer(void* ptr) {
     lean_uv_timer_object * timer = (lean_uv_timer_object*) ptr;
 
     // A repeating timer without a pending promise may still be running, so the handle is closed

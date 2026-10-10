@@ -14,7 +14,7 @@ Author: Sofia Rodrigues, Henrik Böving
 
 namespace lean {
 
-static lean_external_class * g_uv_timer_external_class = NULL;
+inline lean_external_class * g_uv_timer_external_class = nullptr;
 void initialize_libuv_timer();
 
 #ifndef LEAN_EMSCRIPTEN

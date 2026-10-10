@@ -28,7 +28,7 @@ typedef struct {
 // =======================================
 // TCP socket object manipulation functions.
 
-void lean_uv_tcp_socket_finalizer(void* ptr) {
+static void lean_uv_tcp_socket_finalizer(void* ptr) {
     lean_uv_tcp_socket_object* tcp_socket = (lean_uv_tcp_socket_object*)ptr;
 
     lean_always_assert(tcp_socket->m_promise_shutdown == nullptr);

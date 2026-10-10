@@ -11,7 +11,7 @@ namespace lean {
 using namespace std;
 
 // The finalizer of the `Signal`.
-void lean_uv_signal_finalizer(void* ptr) {
+static void lean_uv_signal_finalizer(void* ptr) {
     lean_uv_signal_object * signal = (lean_uv_signal_object*) ptr;
 
     event_loop_lock(&global_ev);

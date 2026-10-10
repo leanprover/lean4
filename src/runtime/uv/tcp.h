@@ -15,7 +15,7 @@ Author: Sofia Rodrigues
 
 namespace lean {
 
-static lean_external_class* g_uv_tcp_socket_external_class = NULL;
+inline lean_external_class * g_uv_tcp_socket_external_class = nullptr;
 void initialize_libuv_tcp_socket();
 
 #ifndef LEAN_EMSCRIPTEN

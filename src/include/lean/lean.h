@@ -3248,10 +3248,58 @@ LEAN_EXPORT lean_obj_res lean_mk_io_user_error(lean_obj_arg str);
 
 /* ST Ref primitives */
 LEAN_EXPORT lean_obj_res lean_st_mk_ref(lean_obj_arg);
-LEAN_EXPORT lean_obj_res lean_st_ref_get(b_lean_obj_arg);
-LEAN_EXPORT lean_obj_res lean_st_ref_put(b_lean_obj_arg, lean_obj_arg);
-LEAN_EXPORT lean_obj_res lean_st_ref_take(b_lean_obj_arg);
-LEAN_EXPORT lean_obj_res lean_st_ref_swap(b_lean_obj_arg, lean_obj_arg);
+LEAN_EXPORT lean_obj_res lean_st_ref_get_mt(b_lean_obj_arg);
+LEAN_EXPORT lean_obj_res lean_st_ref_put_mt(b_lean_obj_arg, lean_obj_arg);
+LEAN_EXPORT lean_obj_res lean_st_ref_take_mt(b_lean_obj_arg);
+LEAN_EXPORT lean_obj_res lean_st_ref_swap_mt(b_lean_obj_arg, lean_obj_arg);
+
+
+static inline lean_obj_res lean_st_ref_get(b_lean_obj_arg ref) {
+    if (LEAN_LIKELY(lean_is_st(ref))) {
+        lean_object * val = lean_to_ref(ref)->m_value;
+        assert(val != NULL);
+        lean_inc(val);
+        return val;
+    } else {
+        return lean_st_ref_get_mt(ref);
+    }
+}
+
+static inline lean_obj_res lean_st_ref_put(b_lean_obj_arg ref, lean_obj_arg a) {
+    if (LEAN_LIKELY(lean_is_st(ref))) {
+        if (lean_to_ref(ref)->m_value != NULL)
+            lean_dec(lean_to_ref(ref)->m_value);
+        lean_to_ref(ref)->m_value = a;
+        return lean_box(0);
+    } else {
+        return lean_st_ref_put_mt(ref, a);
+    }
+}
+
+static inline lean_obj_res lean_st_ref_take(b_lean_obj_arg ref) {
+    if (LEAN_LIKELY(lean_is_st(ref))) {
+        lean_object * val = lean_to_ref(ref)->m_value;
+        assert(val != NULL);
+        lean_to_ref(ref)->m_value = NULL;
+        return val;
+    }
+    else {
+        return lean_st_ref_take_mt(ref);
+    }
+}
+
+static inline lean_obj_res lean_st_ref_swap(b_lean_obj_arg ref, lean_obj_arg a) {
+    if (LEAN_LIKELY(lean_is_st(ref))) {
+        lean_object * old_a = lean_to_ref(ref)->m_value;
+        if (old_a == NULL)
+            lean_internal_panic("null reference read");
+        lean_to_ref(ref)->m_value = a;
+        return old_a;
+    }
+    else {
+        return lean_st_ref_swap_mt(ref, a);
+    }
+}
 
 /* pointer address unsafe primitive  */
 static inline size_t lean_ptr_addr(b_lean_obj_arg a) { return (size_t)a; }

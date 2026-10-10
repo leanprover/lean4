@@ -42,11 +42,7 @@ jobs:
       # Should this be the CI for a tagged release?
       # Yes only if a tag is pushed to the `leanprover` repository, and the tag is "v" followed by a valid semver.
       # It sets `set-release.outputs.RELEASE_TAG` to the tag
-      # and sets `set-release.outputs.{LEAN_VERSION_MAJOR,LEAN_VERSION_MINOR,LEAN_VERSION_PATCH,LEAN_SPECIAL_VERSION_DESC}`
-      # to the semver components parsed via regex.
-      LEAN_VERSION_MAJOR: ${{ steps.set-release.outputs.LEAN_VERSION_MAJOR }}
-      LEAN_VERSION_MINOR: ${{ steps.set-release.outputs.LEAN_VERSION_MINOR }}
-      LEAN_VERSION_PATCH: ${{ steps.set-release.outputs.LEAN_VERSION_PATCH }}
+      # and sets `set-release.outputs.LEAN_SPECIAL_VERSION_DESC` to the prerelease component parsed via regex.
       LEAN_SPECIAL_VERSION_DESC: ${{ steps.set-release.outputs.LEAN_SPECIAL_VERSION_DESC }}
       RELEASE_TAG: ${{ steps.set-release.outputs.RELEASE_TAG }}
 
@@ -462,9 +458,6 @@ jobs:
     with:
       config: ${{needs.configure.outputs.matrix}}
       nightly: ${{ needs.configure.outputs.nightly }}
-      LEAN_VERSION_MAJOR: ${{ needs.configure.outputs.LEAN_VERSION_MAJOR }}
-      LEAN_VERSION_MINOR: ${{ needs.configure.outputs.LEAN_VERSION_MINOR }}
-      LEAN_VERSION_PATCH: ${{ needs.configure.outputs.LEAN_VERSION_PATCH }}
       LEAN_SPECIAL_VERSION_DESC: ${{ needs.configure.outputs.LEAN_SPECIAL_VERSION_DESC }}
       RELEASE_TAG: ${{ needs.configure.outputs.RELEASE_TAG }}
     secrets: inherit
@@ -477,9 +470,6 @@ jobs:
     with:
       config: ${{needs.configure.outputs.matrix-secondary}}
       nightly: ${{ needs.configure.outputs.nightly }}
-      LEAN_VERSION_MAJOR: ${{ needs.configure.outputs.LEAN_VERSION_MAJOR }}
-      LEAN_VERSION_MINOR: ${{ needs.configure.outputs.LEAN_VERSION_MINOR }}
-      LEAN_VERSION_PATCH: ${{ needs.configure.outputs.LEAN_VERSION_PATCH }}
       LEAN_SPECIAL_VERSION_DESC: ${{ needs.configure.outputs.LEAN_SPECIAL_VERSION_DESC }}
       RELEASE_TAG: ${{ needs.configure.outputs.RELEASE_TAG }}
     secrets: inherit

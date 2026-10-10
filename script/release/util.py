@@ -447,18 +447,20 @@ class CMakeVersion:
 
 
 def _parse_cmake_set(text: str, component: str) -> int:
-    match = re.search(rf"set\({component}\s+(\d+) ", text)
+    match = re.search(rf"set\({component}\s+(\d+)", text)
     if not match:
         raise ValueError(f"Failed to parse {component} from CMakeLists.txt")
     return int(match.group(1))
 
 
 def _update_cmake_set(text: str, component: str, value: int) -> str:
-    return re.sub(rf"set\({component}\s+\d+ ", f"set({component} {value} ", text)
+    return re.sub(rf"set\({component}\s+\d+", f"set({component} {value}", text)
 
 
-def get_cmake_version(grepo: Repository, ref: str) -> CMakeVersion:
-    text = get_file_contents(grepo, ref, "src/CMakeLists.txt")
+def get_cmake_version(
+    grepo: Repository, ref: str, path: str = "src/CMakeLists.txt"
+) -> CMakeVersion:
+    text = get_file_contents(grepo, ref, path)
     major = _parse_cmake_set(text, "LEAN_VERSION_MAJOR")
     minor = _parse_cmake_set(text, "LEAN_VERSION_MINOR")
     patch = _parse_cmake_set(text, "LEAN_VERSION_PATCH")
@@ -466,8 +468,10 @@ def get_cmake_version(grepo: Repository, ref: str) -> CMakeVersion:
     return CMakeVersion(Version(major, minor, patch), bool(is_release))
 
 
-def set_cmake_version(lrepo: LocalRepo, version: CMakeVersion) -> None:
-    cmakelists = lrepo.path / "src" / "CMakeLists.txt"
+def set_cmake_version(
+    lrepo: LocalRepo, version: CMakeVersion, path: str = "src/CMakeLists.txt"
+) -> None:
+    cmakelists = lrepo.path / path
     text = cmakelists.read_text()
     text = _update_cmake_set(text, "LEAN_VERSION_MAJOR", version.version.major)
     text = _update_cmake_set(text, "LEAN_VERSION_MINOR", version.version.minor)

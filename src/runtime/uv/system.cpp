@@ -5,6 +5,8 @@ Author: Sofia Rodrigues
 */
 #include <climits>
 #include <cstring>
+#include <memory>
+#include <new>
 #include <string>
 #include "runtime/uv/system.h"
 #include "runtime/uv/util.h"
@@ -14,12 +16,12 @@ namespace lean {
 
 using namespace std;
 
-// Stores all the things needed to request a random sequence of bytes.
-typedef struct {
-    uv_random_t req;
-    lean_object* promise;
-    lean_object* byte_array;
-} random_req_t;
+// A `uv_random` request. The callback fills `byte_array` and deletes it, and so does a failed submit.
+struct random_req_t {
+    uv_random_t uv;
+    owned_ref   promise;
+    owned_ref   byte_array;
+};
 
 // Std.Internal.UV.System.getProcessTitle : IO String
 extern "C" LEAN_EXPORT lean_obj_res lean_uv_get_process_title() {
@@ -424,53 +426,38 @@ extern "C" LEAN_EXPORT lean_obj_res lean_uv_random(uint64_t size) {
         return io_result_mk_uv_error(UV_E2BIG);
     }
 
-    random_req_t* req = (random_req_t*)malloc(sizeof(random_req_t));
+    random_req_t * req = new (std::nothrow) random_req_t;
     if (req == nullptr) {
         return io_result_mk_enomem();
     }
+    req->uv.data = req;
+    req->promise = owned_ref(mk_mt_promise());
+    req->byte_array = owned_ref(lean_alloc_sarray(1, 0, size));
+    owned_ref promise = owned_ref::retain(req->promise.get());
 
-    lean_object * promise = mk_mt_promise();
-    req->promise = promise;
-
-    lean_object* byte_array = lean_alloc_sarray(1, 0, size);
-    req->byte_array = byte_array;
-
-    req->req.data = req;
-
-    lean_inc(promise);
-
-    auto on_random = [](uv_random_t* uv_req, int status, void* buf, size_t buflen) {
-        random_req_t* req = (random_req_t*)uv_req;
+    auto on_random = [](uv_random_t * uv, int status, void * buf, size_t buflen) {
+        std::unique_ptr<random_req_t> req(static_cast<random_req_t*>(uv->data));
 
         if (status < 0) {
-            lean_dec(req->byte_array);
-            lean_promise_resolve(mk_except_err(lean_decode_uv_error(status, nullptr)), req->promise);
+            lean_promise_resolve(mk_except_err(lean_decode_uv_error(status, nullptr)), req->promise.get());
         } else {
-            lean_sarray_set_size(req->byte_array, buflen);
-            lean_promise_resolve(mk_except_ok(req->byte_array), req->promise);
+            lean_sarray_set_size(req->byte_array.get(), buflen);
+            lean_promise_resolve(mk_except_ok(req->byte_array.release()), req->promise.get());
         }
-
-        lean_dec(req->promise);
-        free(req);
     };
 
     int result;
-
     {
         event_loop_guard guard;
-        result = uv_random(global_ev.m_loop, &req->req, lean_sarray_cptr(byte_array), size, 0, on_random);
+        result = uv_random(global_ev.m_loop, &req->uv, lean_sarray_cptr(req->byte_array.get()), size, 0, on_random);
     }
 
     if (result < 0) {
-        lean_dec(byte_array);
-        lean_dec(promise);
-        lean_dec(promise);
-        free(req);
-
+        delete req;
         return io_result_mk_uv_error(result);
     }
 
-    return lean_io_result_mk_ok(promise);
+    return lean_io_result_mk_ok(promise.release());
 }
 
 static inline uint64_t timeval_to_millis(uv_timeval_t t) {

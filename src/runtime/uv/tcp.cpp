@@ -8,23 +8,28 @@ Author: Sofia Rodrigues
 #include "runtime/uv/buffer.h"
 #include "runtime/uv/util.h"
 #include <cstring>
+#include <memory>
+#include <new>
 
 namespace lean {
 
 #ifndef LEAN_EMSCRIPTEN
 
-// Stores all the things needed to connect to a TCP socket.
-typedef struct {
-    lean_object* promise;
-    lean_object* socket;
-} tcp_connect_data;
+// A connect request. The callback deletes it, and so does a failed submit.
+struct tcp_connect_req_t {
+    uv_connect_t uv;
+    owned_ref    promise;
+    owned_ref    socket;
+};
 
-// Stores all the things needed to send data to a TCP socket.
-typedef struct {
-    lean_object* promise;
-    lean_object* data;
-    lean_object* socket;
-} tcp_send_data;
+// A write request. The callback deletes it, and so does a failed submit. It keeps `data` alive
+// because libuv writes from its bytes.
+struct tcp_send_req_t {
+    uv_write_t uv;
+    owned_ref  socket;
+    owned_ref  data;
+    owned_ref  promise;
+};
 
 // =======================================
 // TCP socket object manipulation functions.
@@ -131,68 +136,40 @@ extern "C" LEAN_EXPORT lean_obj_res lean_uv_tcp_connect(b_obj_arg socket, b_obj_
     sockaddr_storage addr_struct;
     lean_socket_address_to_sockaddr_storage(addr, &addr_struct);
 
-    uv_connect_t* uv_connect = (uv_connect_t*)malloc(sizeof(uv_connect_t));
-    if (uv_connect == nullptr) {
+    tcp_connect_req_t * req = new (std::nothrow) tcp_connect_req_t;
+    if (req == nullptr) {
         return io_result_mk_enomem();
     }
-    tcp_connect_data* connect_data = (tcp_connect_data*)malloc(sizeof(tcp_connect_data));
-    if (connect_data == nullptr) {
-        free(uv_connect);
-        return io_result_mk_enomem();
-    }
+    req->uv.data = req;
+    req->promise = owned_ref(mk_mt_promise());
+    req->socket = owned_ref::retain(socket);
+    owned_ref promise = owned_ref::retain(req->promise.get());
 
-    lean_object * promise = mk_mt_promise();
-
-    connect_data->promise = promise;
-    connect_data->socket = socket;
-
-    uv_connect->data = connect_data;
-
-    // The event loop owns the socket.
-    lean_inc(socket);
-    lean_inc(promise);
-
-    auto on_connect = [](uv_connect_t* req, int status) {
-        tcp_connect_data* tup = (tcp_connect_data*) req->data;
-        resolve_with_code(status, tup->promise);
-
-        // The event loop does not own the object anymore.
-        lean_dec(tup->socket);
-        lean_dec(tup->promise);
-
-        free(req->data);
-        free(req);
+    auto on_connect = [](uv_connect_t * uv, int status) {
+        std::unique_ptr<tcp_connect_req_t> req(static_cast<tcp_connect_req_t*>(uv->data));
+        resolve_with_code(status, req->promise.get());
     };
 
     int result;
     {
         event_loop_guard guard;
-        result = uv_tcp_connect(uv_connect, &tcp_socket->m_uv_tcp, (sockaddr*)&addr_struct, on_connect);
+        result = uv_tcp_connect(&req->uv, &tcp_socket->m_uv_tcp, (sockaddr*)&addr_struct, on_connect);
     }
 
     if (result < 0) {
-        lean_dec(promise); // The structure does not own it.
-        lean_dec(promise); // We are not going to return it.
-        lean_dec(socket);
-
-        free(uv_connect->data);
-        free(uv_connect);
-
+        delete req;
         return io_result_mk_uv_error(result);
     }
 
-    return lean_io_result_mk_ok(promise);
+    return lean_io_result_mk_ok(promise.release());
 }
 
 /* Std.Internal.UV.TCP.Socket.send (socket : @& Socket) (data : Array ByteArray) : IO (IO.Promise (Except IO.Error Unit)) */
 extern "C" LEAN_EXPORT lean_obj_res lean_uv_tcp_send(b_obj_arg socket, obj_arg data_array) {
     lean_uv_tcp_socket_object* tcp_socket = lean_to_uv_tcp_socket(socket);
+    owned_ref data(data_array);
 
-    size_t array_len = lean_array_size(data_array);
-
-    if (array_len == 0) {
-        lean_dec(data_array);
-
+    if (lean_array_size(data_array) == 0) {
         lean_object * promise = mk_mt_promise();
         resolve_with_code(0, promise);
 
@@ -200,68 +177,38 @@ extern "C" LEAN_EXPORT lean_obj_res lean_uv_tcp_send(b_obj_arg socket, obj_arg d
     }
 
     uv_send_bufs bufs;
-
     if (lean_object * error = bufs.init(data_array)) {
-        lean_dec(data_array);
         return error;
     }
 
-    uv_write_t* write_uv = (uv_write_t*)malloc(sizeof(uv_write_t));
-    if (write_uv == nullptr) {
-        lean_dec(data_array);
+    tcp_send_req_t * req = new (std::nothrow) tcp_send_req_t;
+    if (req == nullptr) {
         return io_result_mk_enomem();
     }
-    write_uv->data = (tcp_send_data*)malloc(sizeof(tcp_send_data));
-    if (write_uv->data == nullptr) {
-        lean_dec(data_array);
-        free(write_uv);
-        return io_result_mk_enomem();
-    }
-
-    lean_object * promise = mk_mt_promise();
     mark_mt(data_array);
+    req->uv.data = req;
+    req->socket = owned_ref::retain(socket);
+    req->data = std::move(data);
+    req->promise = owned_ref(mk_mt_promise());
+    owned_ref promise = owned_ref::retain(req->promise.get());
 
-    tcp_send_data* send_data = (tcp_send_data*)write_uv->data;
-    send_data->promise = promise;
-    send_data->data = data_array;
-    send_data->socket = socket;
-
-    // These objects are going to enter the loop and be owned by it
-    lean_inc(promise);
-    lean_inc(socket);
-
-    auto on_write = [](uv_write_t* req, int status) {
-        tcp_send_data* tup = (tcp_send_data*) req->data;
-
-        resolve_with_code(status, tup->promise);
-
-        lean_dec(tup->promise);
-        lean_dec(tup->data);
-        lean_dec(tup->socket);
-
-        free(req->data);
-        free(req);
+    auto on_write = [](uv_write_t * uv, int status) {
+        std::unique_ptr<tcp_send_req_t> req(static_cast<tcp_send_req_t*>(uv->data));
+        resolve_with_code(status, req->promise.get());
     };
 
     int result;
     {
         event_loop_guard guard;
-        result = uv_write(write_uv, (uv_stream_t*)&tcp_socket->m_uv_tcp, bufs.data(), bufs.count(), on_write);
+        result = uv_write(&req->uv, (uv_stream_t*)&tcp_socket->m_uv_tcp, bufs.data(), bufs.count(), on_write);
     }
 
     if (result < 0) {
-        lean_dec(promise); // The structure does not own it.
-        lean_dec(promise); // We are not going to return it.
-        lean_dec(socket);
-        lean_dec(data_array);
-
-        free(write_uv->data);
-        free(write_uv);
-
+        delete req;
         return io_result_mk_uv_error(result);
     }
 
-    return lean_io_result_mk_ok(promise);
+    return lean_io_result_mk_ok(promise.release());
 }
 
 /* Std.Internal.UV.TCP.Socket.recv? (socket : @& Socket) (size : UInt64) : IO (IO.Promise (Except IO.Error (Option ByteArray))) */

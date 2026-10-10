@@ -8,17 +8,21 @@ Author: Sofia Rodrigues
 #include "runtime/uv/buffer.h"
 #include "runtime/uv/util.h"
 #include <cstring>
+#include <memory>
+#include <new>
 
 namespace lean {
 
 #ifndef LEAN_EMSCRIPTEN
 
-// Stores all the things needed to send data to a UDP socket.
-typedef struct {
-    lean_object *promise;
-    lean_object *data;
-    lean_object *socket;
-} udp_send_data;
+// A send request. The callback deletes it, and so does a failed submit. It keeps `data` alive
+// because libuv sends from its bytes.
+struct udp_send_req_t {
+    uv_udp_send_t uv;
+    owned_ref     data;
+    owned_ref     socket;
+    owned_ref     promise;
+};
 
 static void udp_socket_finalizer(void* ptr) {
     lean_uv_udp_socket_object* udp_socket = (lean_uv_udp_socket_object*)ptr;
@@ -132,12 +136,9 @@ extern "C" LEAN_EXPORT lean_obj_res lean_uv_udp_connect(b_obj_arg socket, b_obj_
 /* Std.Internal.UV.UDP.Socket.send (socket : @& Socket) (data : Array ByteArray) (addr : @& Option SocketAddress) : IO (IO.Promise (Except IO.Error Unit)) */
 extern "C" LEAN_EXPORT lean_obj_res lean_uv_udp_send(b_obj_arg socket, obj_arg data_array, b_obj_arg opt_addr) {
     lean_uv_udp_socket_object* udp_socket = lean_to_uv_udp_socket(socket);
+    owned_ref data(data_array);
 
-    size_t array_len = lean_array_size(data_array);
-
-    if (array_len == 0) {
-        lean_dec(data_array);
-
+    if (lean_array_size(data_array) == 0) {
         lean_object * promise = mk_mt_promise();
         resolve_with_code(0, promise);
 
@@ -146,23 +147,11 @@ extern "C" LEAN_EXPORT lean_obj_res lean_uv_udp_send(b_obj_arg socket, obj_arg d
 
     uv_send_bufs bufs;
     if (lean_object * error = bufs.init(data_array)) {
-        lean_dec(data_array);
         return error;
     }
 
-    lean_object * promise = mk_mt_promise();
-
-    uv_udp_send_t* send_uv = (uv_udp_send_t*)malloc(sizeof(uv_udp_send_t));
-    if (send_uv == nullptr) {
-        lean_dec(data_array);
-        lean_dec(promise);
-        return io_result_mk_enomem();
-    }
-    send_uv->data = (udp_send_data*)malloc(sizeof(udp_send_data));
-    if (send_uv->data == nullptr) {
-        lean_dec(data_array);
-        lean_dec(promise);
-        free(send_uv);
+    udp_send_req_t * req = new (std::nothrow) udp_send_req_t;
+    if (req == nullptr) {
         return io_result_mk_enomem();
     }
 
@@ -170,14 +159,11 @@ extern "C" LEAN_EXPORT lean_obj_res lean_uv_udp_send(b_obj_arg socket, obj_arg d
     // may still hold references to, so their refcounts have to be atomic.
     mark_mt(data_array);
 
-    udp_send_data* send_data = (udp_send_data*)send_uv->data;
-    send_data->promise = promise;
-    send_data->data = data_array;
-    send_data->socket = socket;
-
-    // These objects are going to enter the loop and be owned by it
-    lean_inc(promise);
-    lean_inc(socket);
+    req->uv.data = req;
+    req->data = std::move(data);
+    req->socket = owned_ref::retain(socket);
+    req->promise = owned_ref(mk_mt_promise());
+    owned_ref promise = owned_ref::retain(req->promise.get());
 
     // libuv copies the destination address too.
     sockaddr_storage addr_storage;
@@ -188,37 +174,23 @@ extern "C" LEAN_EXPORT lean_obj_res lean_uv_udp_send(b_obj_arg socket, obj_arg d
         addr_ptr = (sockaddr*)&addr_storage;
     }
 
-    auto on_send = [](uv_udp_send_t* req, int status) {
-        udp_send_data* tup = (udp_send_data*) req->data;
-        resolve_with_code(status, tup->promise);
-
-        lean_dec(tup->promise);
-        lean_dec(tup->socket);
-        lean_dec(tup->data);
-
-        free(req->data);
-        free(req);
+    auto on_send = [](uv_udp_send_t * uv, int status) {
+        std::unique_ptr<udp_send_req_t> req(static_cast<udp_send_req_t*>(uv->data));
+        resolve_with_code(status, req->promise.get());
     };
 
     int result;
     {
         event_loop_guard guard;
-        result = uv_udp_send(send_uv, &udp_socket->m_uv_udp, bufs.data(), bufs.count(), addr_ptr, on_send);
+        result = uv_udp_send(&req->uv, &udp_socket->m_uv_udp, bufs.data(), bufs.count(), addr_ptr, on_send);
     }
 
     if (result < 0) {
-        lean_dec(promise); // The structure does not own it.
-        lean_dec(promise); // We are not going to return it.
-        lean_dec(socket); // The loop does not own the object.
-        lean_dec(data_array); // The data is owned.
-
-        free(send_uv->data);
-        free(send_uv);
-
+        delete req;
         return io_result_mk_uv_error(result);
     }
 
-    return lean_io_result_mk_ok(promise);
+    return lean_io_result_mk_ok(promise.release());
 }
 
 /* Std.Internal.UV.UDP.Socket.recv (socket : @& Socket) (size : UInt64) : IO (IO.Promise (Except IO.Error (ByteArray × SocketAddress))) */

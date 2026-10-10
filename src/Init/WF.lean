@@ -531,3 +531,13 @@ context of a termination proof inside `if-then-else` with the condition.
 -/
 @[wf_preprocess] theorem ite_eq_dite [Decidable P] :
     ite P a b = (dite P (fun h => binderNameHint h () a) (fun h => binderNameHint h () b)) := rfl
+
+/--
+Unfolds `Prod.map` during well-founded recursion preprocessing so that recursive calls applied to
+either component retain the component's relationship to the original pair.
+-/
+@[wf_preprocess] theorem Prod.map_wfParam {x : α × β} {f : α → γ} {g : β → δ} :
+    Prod.map f g (wfParam x) =
+      (binderNameHint x.1 f <| f (wfParam x.1),
+       binderNameHint x.2 g <| g (wfParam x.2)) := by
+  rfl

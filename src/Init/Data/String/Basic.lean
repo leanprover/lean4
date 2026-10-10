@@ -192,6 +192,311 @@ the corresponding string, or panics if the array is not a valid UTF-8 encoding o
 @[inline, expose] def String.fromUTF8! (a : ByteArray) : String :=
   if h : a.IsValidUTF8 then fromUTF8 a h else panic! "invalid UTF-8 string"
 
+/--
+Returns the index of the first byte at or after `i` that is not a UTF-8 continuation byte, or
+`max i b.size` if there is no such byte.
+-/
+@[expose, semireducible]
+def ByteArray.skipUTF8ContinuationBytes (b : ByteArray) (i : Nat) : Nat :=
+  if h : i < b.size then
+    if b[i].IsUTF8ContinuationByte then
+      skipUTF8ContinuationBytes b (i + 1)
+    else
+      i
+  else
+    i
+termination_by b.size - i
+
+theorem ByteArray.le_skipUTF8ContinuationBytes {b : ByteArray} {i : Nat} :
+    i ≤ b.skipUTF8ContinuationBytes i := by
+  fun_induction skipUTF8ContinuationBytes <;> omega
+
+theorem ByteArray.skipUTF8ContinuationBytes_le_size {b : ByteArray} {i : Nat} (hi : i ≤ b.size) :
+    b.skipUTF8ContinuationBytes i ≤ b.size := by
+  fun_induction skipUTF8ContinuationBytes with
+  | case1 i h₁ h₂ ih => exact ih (by omega)
+  | case2 => exact hi
+  | case3 => exact hi
+
+theorem ByteArray.skipUTF8ContinuationBytes_of_not_lt {b : ByteArray} {i : Nat} (h : ¬ i < b.size) :
+    b.skipUTF8ContinuationBytes i = i := by
+  rw [skipUTF8ContinuationBytes, dite_eq_right h]
+
+theorem ByteArray.skipUTF8ContinuationBytes_of_isUTF8ContinuationByte {b : ByteArray} {i : Nat}
+    (h : i < b.size) (hc : b[i].IsUTF8ContinuationByte) :
+    b.skipUTF8ContinuationBytes i = b.skipUTF8ContinuationBytes (i + 1) := by
+  rw [skipUTF8ContinuationBytes, dite_eq_left h, ite_eq_left hc]
+
+theorem ByteArray.skipUTF8ContinuationBytes_of_not_isUTF8ContinuationByte {b : ByteArray} {i : Nat}
+    (h : i < b.size) (hc : ¬ b[i].IsUTF8ContinuationByte) :
+    b.skipUTF8ContinuationBytes i = i := by
+  rw [skipUTF8ContinuationBytes, dite_eq_left h, ite_eq_right hc]
+
+theorem ByteArray.skipUTF8ContinuationBytes_eq_of_forall_isUTF8ContinuationByte {b : ByteArray}
+    {i j : Nat} (hij : i ≤ j) (hj : j ≤ b.size)
+    (hcont : ∀ (k : Nat) (hk : k < b.size), i ≤ k → k < j → b[k].IsUTF8ContinuationByte)
+    (hstop : ∀ (h : j < b.size), ¬ b[j].IsUTF8ContinuationByte) :
+    b.skipUTF8ContinuationBytes i = j := by
+  fun_induction skipUTF8ContinuationBytes with
+  | case1 i h₁ h₂ ih =>
+    obtain (hij|rfl) := Nat.lt_or_eq_of_le hij
+    · exact ih hij fun k hk hik hkj => hcont k hk (by omega) hkj
+    · simp_all
+  | case2 i h₁ h₂ =>
+    suffices ¬ i < j by omega
+    exact fun hlt => h₂ (hcont i h₁ (by omega) hlt)
+  | case3 => omega
+
+private theorem ByteArray.skipUTF8ContinuationBytes_extract {b : ByteArray} {i j : Nat} :
+    i + (b.extract i b.size).skipUTF8ContinuationBytes j = b.skipUTF8ContinuationBytes (i + j) := by
+  fun_induction (b.extract i b.size).skipUTF8ContinuationBytes j with
+  | case1 j h₁ h₂ ih =>
+    rw [ih, skipUTF8ContinuationBytes_of_isUTF8ContinuationByte (b := b) (i := i + j)
+      (by simp only [size_extract] at h₁; omega) (by simpa [getElem_extract] using h₂),
+      Nat.add_assoc]
+  | case2 j h₁ h₂ =>
+    rw [skipUTF8ContinuationBytes_of_not_isUTF8ContinuationByte (b := b) (i := i + j)
+      (by simp only [size_extract] at h₁; omega) (by simpa [getElem_extract] using h₂)]
+  | case3 j h₁ =>
+    rw [skipUTF8ContinuationBytes_of_not_lt (by simp only [size_extract] at h₁; omega)]
+
+/--
+Decodes a sequence of characters from their UTF-8 representation, replacing invalid byte
+sequences with `�` (`U+FFFD`, the Unicode replacement character). Whenever decoding fails at some
+byte, that byte and all immediately following continuation bytes are replaced by a single `�`.
+-/
+@[expose]
+def ByteArray.utf8DecodeLossy (b : ByteArray) : Array Char :=
+  go 0 #[] (by simp)
+where
+  @[semireducible]
+  go (i : Nat) (acc : Array Char) (hi : i ≤ b.size) : Array Char :=
+    if h : i < b.size then
+      match h' : utf8DecodeChar? b i with
+      | some c => go (i + c.utf8Size) (acc.push c) (le_size_of_utf8DecodeChar?_eq_some h')
+      | none =>
+        go (b.skipUTF8ContinuationBytes (i + 1)) (acc.push '\ufffd')
+          (skipUTF8ContinuationBytes_le_size h)
+    else
+      acc
+  termination_by b.size - i
+  decreasing_by
+    · have := c.utf8Size_pos; omega
+    · have := le_skipUTF8ContinuationBytes (b := b) (i := i + 1); omega
+
+@[simp]
+theorem ByteArray.utf8DecodeLossy_empty : ByteArray.empty.utf8DecodeLossy = #[] := by
+  simp [utf8DecodeLossy, utf8DecodeLossy.go]
+
+private theorem ByteArray.utf8DecodeLossy.go_of_not_lt {b : ByteArray} {i : Nat} {acc : Array Char}
+    {hi : i ≤ b.size} (h : ¬ i < b.size) : utf8DecodeLossy.go b i acc hi = acc := by
+  rw [utf8DecodeLossy.go, dite_eq_right h]
+
+private theorem ByteArray.utf8DecodeLossy.go_of_utf8DecodeChar?_eq_some {b : ByteArray} {i : Nat}
+    {acc : Array Char} {hi : i ≤ b.size} {c : Char} (h : i < b.size)
+    (hc : utf8DecodeChar? b i = some c) :
+    utf8DecodeLossy.go b i acc hi =
+      utf8DecodeLossy.go b (i + c.utf8Size) (acc.push c)
+        (le_size_of_utf8DecodeChar?_eq_some hc) := by
+  rw [utf8DecodeLossy.go, dite_eq_left h]
+  split
+  · rename_i d hd
+    obtain rfl : c = d := by rw [← Option.some_inj, ← hc, hd]
+    rfl
+  · simp_all
+
+private theorem ByteArray.utf8DecodeLossy.go_of_utf8DecodeChar?_eq_none {b : ByteArray} {i : Nat}
+    {acc : Array Char} {hi : i ≤ b.size} (h : i < b.size) (hc : utf8DecodeChar? b i = none) :
+    utf8DecodeLossy.go b i acc hi =
+      utf8DecodeLossy.go b (b.skipUTF8ContinuationBytes (i + 1)) (acc.push '\ufffd')
+        (skipUTF8ContinuationBytes_le_size h) := by
+  rw [utf8DecodeLossy.go, dite_eq_left h]
+  split
+  · simp_all
+  · rfl
+
+private theorem ByteArray.extract_extract_size {b : ByteArray} {i j : Nat} :
+    (b.extract i b.size).extract j (b.extract i b.size).size = b.extract (i + j) b.size := by
+  rw [extract_extract, size_extract]
+  congr 1
+  omega
+
+private theorem ByteArray.utf8DecodeLossy.go_eq_append_utf8DecodeLossy_extract {b : ByteArray}
+    {i : Nat} {acc : Array Char} {hi : i ≤ b.size} :
+    utf8DecodeLossy.go b i acc hi = acc ++ utf8DecodeLossy (b.extract i b.size) := by
+  fun_cases utf8DecodeLossy.go b i acc hi with
+  | case1 h₁ c h₂ =>
+    have h₂' : utf8DecodeChar? (b.extract i b.size) 0 = some c := by
+      rwa [← utf8DecodeChar?_eq_utf8DecodeChar?_extract]
+    have := c.utf8Size_pos
+    rw [utf8DecodeLossy, go_of_utf8DecodeChar?_eq_some (by simp only [size_extract]; omega) h₂']
+    conv => lhs; rw [go_eq_append_utf8DecodeLossy_extract]
+    conv => rhs; rw [go_eq_append_utf8DecodeLossy_extract]
+    rw [extract_extract_size, Nat.zero_add]
+    simp only [Array.push_eq_append, Array.append_assoc, Array.empty_append]
+  | case2 h₁ h₂ =>
+    have h₂' : utf8DecodeChar? (b.extract i b.size) 0 = none := by
+      rwa [← utf8DecodeChar?_eq_utf8DecodeChar?_extract]
+    have := le_skipUTF8ContinuationBytes (b := b) (i := i + 1)
+    have := le_skipUTF8ContinuationBytes (b := b.extract i b.size) (i := 1)
+    rw [utf8DecodeLossy, go_of_utf8DecodeChar?_eq_none (by simp only [size_extract]; omega) h₂']
+    conv => lhs; rw [go_eq_append_utf8DecodeLossy_extract]
+    conv => rhs; rw [go_eq_append_utf8DecodeLossy_extract]
+    rw [extract_extract_size, Nat.zero_add, skipUTF8ContinuationBytes_extract]
+    simp only [Array.push_eq_append, Array.append_assoc, Array.empty_append]
+  | case3 =>
+    rw [utf8DecodeLossy, go_of_not_lt (by simp only [size_extract]; omega), Array.append_empty]
+termination_by b.size - i
+
+theorem ByteArray.utf8DecodeLossy_of_utf8DecodeChar?_eq_some {b : ByteArray} {c : Char}
+    (hc : utf8DecodeChar? b 0 = some c) :
+    b.utf8DecodeLossy = #[c] ++ (b.extract c.utf8Size b.size).utf8DecodeLossy := by
+  rw [utf8DecodeLossy, utf8DecodeLossy.go_of_utf8DecodeChar?_eq_some
+    (lt_size_of_isSome_utf8DecodeChar? (by simp [hc])) hc,
+    utf8DecodeLossy.go_eq_append_utf8DecodeLossy_extract, Nat.zero_add]
+  simp only [List.push_toArray, List.nil_append]
+
+theorem ByteArray.utf8DecodeLossy_of_utf8DecodeChar?_eq_none {b : ByteArray} (h : 0 < b.size)
+    (hc : utf8DecodeChar? b 0 = none) :
+    b.utf8DecodeLossy =
+      #['\ufffd'] ++ (b.extract (b.skipUTF8ContinuationBytes 1) b.size).utf8DecodeLossy := by
+  rw [utf8DecodeLossy, utf8DecodeLossy.go_of_utf8DecodeChar?_eq_none h hc,
+    utf8DecodeLossy.go_eq_append_utf8DecodeLossy_extract, Nat.zero_add]
+  simp only [List.push_toArray, List.nil_append]
+
+theorem ByteArray.utf8DecodeLossy_utf8Encode_singleton_append {b : ByteArray} {c : Char} :
+    ([c].utf8Encode ++ b).utf8DecodeLossy = #[c] ++ b.utf8DecodeLossy := by
+  rw [utf8DecodeLossy_of_utf8DecodeChar?_eq_some (c := c) (by simp)]
+  congr 2
+  apply extract_append_eq_right _ (by simp)
+  simp [List.utf8Encode_singleton]
+
+@[simp]
+theorem ByteArray.utf8DecodeLossy_utf8Encode_append {l : List Char} {b : ByteArray} :
+    (l.utf8Encode ++ b).utf8DecodeLossy = l.toArray ++ b.utf8DecodeLossy := by
+  induction l with
+  | nil => simp
+  | cons c l ih =>
+    rw [List.utf8Encode_cons, ByteArray.append_assoc, utf8DecodeLossy_utf8Encode_singleton_append,
+      ih, ← Array.append_assoc, List.append_toArray [c] l, List.singleton_append]
+
+@[simp]
+theorem List.utf8DecodeLossy_utf8Encode {l : List Char} :
+    l.utf8Encode.utf8DecodeLossy = l.toArray := by
+  simpa using ByteArray.utf8DecodeLossy_utf8Encode_append (l := l) (b := ByteArray.empty)
+
+theorem ByteArray.utf8DecodeLossy_append_of_utf8DecodeChar?_eq_none {l b : ByteArray}
+    (hl : 0 < l.size) (h : utf8DecodeChar? (l ++ b) 0 = none)
+    (hcont : ∀ (i : Nat) (hi : i < l.size), 0 < i → l[i].IsUTF8ContinuationByte)
+    (hb : ∀ (h : 0 < b.size), ¬ b[0].IsUTF8ContinuationByte) :
+    (l ++ b).utf8DecodeLossy = #['\ufffd'] ++ b.utf8DecodeLossy := by
+  rw [utf8DecodeLossy_of_utf8DecodeChar?_eq_none (by simp only [size_append]; omega) h]
+  have : (l ++ b).skipUTF8ContinuationBytes 1 = l.size := by
+    apply skipUTF8ContinuationBytes_eq_of_forall_isUTF8ContinuationByte hl (by simp)
+    · intro k hk h₁ h₂
+      rw [getElem_append_left h₂]
+      exact hcont k h₂ h₁
+    · intro h'
+      rw [getElem_append_right (Nat.le_refl _)]
+      simpa using hb (by simp only [size_append] at h'; omega)
+  rw [this, extract_append_eq_right rfl size_append]
+
+private theorem ByteArray.exists_utf8DecodeChar?_eq_some_of_validateUTF8At {b : ByteArray}
+    {i : Nat} (h : b.validateUTF8At i) :
+    ∃ c, utf8DecodeChar? b i = some c ∧ c.utf8Size =
+      (b[i]'(lt_size_of_validateUTF8At h)).utf8ByteSize (isUTF8FirstByte_of_validateUTF8At h) := by
+  rw [validateUTF8At_eq_isSome_utf8DecodeChar?] at h
+  exact ⟨utf8DecodeChar b i h, by simp [utf8DecodeChar], utf8Size_utf8DecodeChar⟩
+
+private theorem ByteArray.extract_add_utf8Size_eq_utf8Encode {b : ByteArray} {i : Nat} {c : Char}
+    (h : utf8DecodeChar? b i = some c) : b.extract i (i + c.utf8Size) = [c].utf8Encode := by
+  have hle := le_size_of_utf8DecodeChar?_eq_some h
+  rw [utf8DecodeChar?_eq_utf8DecodeChar?_extract] at h
+  rw [List.utf8Encode_singleton, String.toByteArray_utf8EncodeChar_of_utf8DecodeChar?_eq_some h,
+    extract_extract, Nat.add_zero, Nat.min_eq_left hle]
+
+private theorem ByteArray.IsValidUTF8.append_extract_add_utf8ByteSize {b acc : ByteArray}
+    {s i : Nat} (hacc : (acc ++ b.extract s i).IsValidUTF8) (hsi : s ≤ i) (h : b.validateUTF8At i) :
+    (acc ++ b.extract s
+      (i + (b[i]'(lt_size_of_validateUTF8At h)).utf8ByteSize
+        (isUTF8FirstByte_of_validateUTF8At h))).IsValidUTF8 := by
+  obtain ⟨c, hc, hn⟩ := exists_utf8DecodeChar?_eq_some_of_validateUTF8At h
+  rw [← hn, extract_eq_extract_append_extract i hsi (Nat.le_add_right _ _),
+    extract_add_utf8Size_eq_utf8Encode hc, ← append_assoc]
+  exact hacc.append isValidUTF8_utf8Encode
+
+private theorem ByteArray.copySlice_size_eq_append_extract {a acc : ByteArray} {i j : Nat}
+    (h : i ≤ j) : a.copySlice i acc acc.size (j - i) false = acc ++ a.extract i j := by
+  rw [copySlice_eq_append, extract_zero_size, Nat.add_sub_cancel' h,
+    (extract_eq_empty_iff (b := acc)).2
+      (Nat.le_trans (Nat.min_le_right _ _) (Nat.le_add_right _ _)),
+    append_empty]
+
+private theorem ByteArray.dite_push_copySlice_eq_append_extract {a acc : ByteArray} {s i : Nat}
+    (hsi : s ≤ i) (hi : i ≤ a.size) :
+    (if h : s + 1 = i then acc.push a[s]
+      else a.copySlice s acc acc.size (i - s) false) = acc ++ a.extract s i := by
+  split
+  · rename_i h
+    subst h
+    rw [extract_add_one hi, append_toByteArray_singleton]
+  · exact copySlice_size_eq_append_extract hsi
+
+/-- The UTF-8 encoding of `�` (`U+FFFD`, the Unicode replacement character). -/
+@[expose]
+def ByteArray.utf8ReplacementChar : ByteArray :=
+  ⟨#[0xEF, 0xBF, 0xBD]⟩
+
+theorem ByteArray.utf8ReplacementChar_eq : utf8ReplacementChar = ['\ufffd'].utf8Encode := rfl
+
+/--
+Decodes an array of bytes that encode a string as [UTF-8](https://en.wikipedia.org/wiki/UTF-8) into
+the corresponding string. Invalid UTF-8 characters in the byte array are replaced with `�`
+(`U+FFFD`, the Unicode replacement character) in the resulting string.
+-/
+@[expose]
+def String.fromUTF8Lossy (a : ByteArray) : String :=
+  if h : a.IsValidUTF8 then
+    fromUTF8 a h
+  else
+    go 0 0 (ByteArray.emptyWithCapacity a.size) (Nat.le_refl _)
+      (ByteArray.isValidUTF8_empty.append (by simp))
+where
+  @[semireducible]
+  go (i s : Nat) (acc : ByteArray) (hsi : s ≤ i) (hacc : (acc ++ a.extract s i).IsValidUTF8) :
+      String :=
+    if h : i < a.size then
+      if h' : a.validateUTF8At i then
+        go (i + a[i].utf8ByteSize (ByteArray.isUTF8FirstByte_of_validateUTF8At h')) s acc
+          (Nat.le_trans hsi (Nat.le_add_right _ _)) ?valid
+      else
+        let j := a.skipUTF8ContinuationBytes (i + 1)
+        let acc' :=
+          if h₁ : s + 1 = i then acc.push a[s] else a.copySlice s acc acc.size (i - s) false
+        go j j (acc' ++ ByteArray.utf8ReplacementChar) (Nat.le_refl _) ?invalid
+    else
+      fromUTF8 (a.copySlice s acc acc.size (i - s) false) ?done
+  termination_by a.size - i
+  decreasing_by
+    · exact Nat.sub_lt_sub_left h (Nat.lt_add_of_pos_right (a[i].utf8ByteSize_pos _))
+    · exact Nat.sub_lt_sub_left h (Nat.lt_of_succ_le ByteArray.le_skipUTF8ContinuationBytes)
+finally
+  case valid => exact hacc.append_extract_add_utf8ByteSize hsi h'
+  case invalid =>
+    have : acc' = acc ++ a.extract s i :=
+      ByteArray.dite_push_copySlice_eq_append_extract hsi (Nat.le_of_lt h)
+    rw [ByteArray.extract_same, ByteArray.append_empty, this, ByteArray.utf8ReplacementChar_eq]
+    exact hacc.append ByteArray.isValidUTF8_utf8Encode
+  case done => rwa [ByteArray.copySlice_size_eq_append_extract hsi]
+
+theorem String.fromUTF8Lossy_of_isValidUTF8 {a : ByteArray} (h : a.IsValidUTF8) :
+    fromUTF8Lossy a = fromUTF8 a h :=
+  dite_eq_left h
+
+@[simp]
+theorem String.fromUTF8Lossy_toByteArray {s : String} : fromUTF8Lossy s.toByteArray = s := by
+  rw [fromUTF8Lossy_of_isValidUTF8 s.isValidUTF8, fromUTF8_toByteArray]
+
 @[simp]
 theorem String.empty_append {s : String} : "" ++ s = s := by
   simp [← String.toByteArray_inj]
@@ -368,6 +673,65 @@ theorem String.ofList_eq_empty_iff {l : List Char} : String.ofList l = "" ↔ l 
 @[deprecated String.ofList_eq_empty_iff (since := "2025-10-30")]
 theorem List.asString_eq_empty_iff {l : List Char} : String.ofList l = "" ↔ l = [] :=
   String.ofList_eq_empty_iff
+
+private theorem String.fromUTF8Lossy.toByteArray_go {a : ByteArray} {i s : Nat} {acc : ByteArray}
+    {hsi : s ≤ i} {hacc : (acc ++ a.extract s i).IsValidUTF8} :
+    (fromUTF8Lossy.go a i s acc hsi hacc).toByteArray =
+      acc ++ a.extract s i ++ (a.extract i a.size).utf8DecodeLossy.toList.utf8Encode := by
+  fun_induction fromUTF8Lossy.go with
+  | case1 i s acc hsi hacc h₁ h₂ ih =>
+    obtain ⟨c, hc, hn⟩ := ByteArray.exists_utf8DecodeChar?_eq_some_of_validateUTF8At h₂
+    rw [ih, ← hn, ByteArray.extract_eq_extract_append_extract i hsi (Nat.le_add_right _ _),
+      ByteArray.extract_add_utf8Size_eq_utf8Encode hc]
+    rw [ByteArray.utf8DecodeChar?_eq_utf8DecodeChar?_extract] at hc
+    rw [ByteArray.utf8DecodeLossy_of_utf8DecodeChar?_eq_some (b := a.extract i a.size) hc,
+      ByteArray.extract_extract_size]
+    simp only [Array.toList_append, List.utf8Encode_append, ByteArray.append_assoc]
+  | case2 i s acc hsi hacc h₁ h₂ j acc' ih =>
+    have hc : ByteArray.utf8DecodeChar? (a.extract i a.size) 0 = none := by
+      rw [← ByteArray.utf8DecodeChar?_eq_utf8DecodeChar?_extract]
+      simpa [ByteArray.validateUTF8At_eq_isSome_utf8DecodeChar?] using h₂
+    have hacc' : acc' = acc ++ a.extract s i :=
+      ByteArray.dite_push_copySlice_eq_append_extract hsi (Nat.le_of_lt h₁)
+    rw [ih, hacc', ByteArray.utf8ReplacementChar_eq,
+      ByteArray.utf8DecodeLossy_of_utf8DecodeChar?_eq_none
+        (by simp only [ByteArray.size_extract]; omega) hc,
+      ByteArray.extract_extract_size, ByteArray.skipUTF8ContinuationBytes_extract,
+      ByteArray.extract_same, ByteArray.append_empty]
+    simp only [j, Array.toList_append, List.utf8Encode_append, ByteArray.append_assoc]
+  | case3 i s acc hsi hacc h₁ =>
+    rw [toByteArray_fromUTF8, ByteArray.copySlice_size_eq_append_extract hsi,
+      (ByteArray.extract_eq_empty_iff (i := i)).2 (Nat.le_trans (Nat.min_le_right _ _)
+        (Nat.le_of_not_lt h₁))]
+    simp
+
+theorem String.fromUTF8Lossy_eq_ofList {a : ByteArray} :
+    fromUTF8Lossy a = String.ofList a.utf8DecodeLossy.toList := by
+  rw [fromUTF8Lossy]
+  split
+  · rename_i h
+    obtain ⟨l, rfl⟩ := h
+    simp [← String.toByteArray_inj]
+  · rw [← String.toByteArray_inj, fromUTF8Lossy.toByteArray_go, ByteArray.extract_same,
+      ByteArray.append_empty, ByteArray.extract_zero_size, String.toByteArray_ofList]
+    exact ByteArray.empty_append
+
+@[simp]
+theorem String.toList_fromUTF8Lossy {a : ByteArray} :
+    (fromUTF8Lossy a).toList = a.utf8DecodeLossy.toList := by
+  rw [fromUTF8Lossy_eq_ofList, String.toList_ofList]
+
+@[simp]
+theorem String.toByteArray_fromUTF8Lossy {a : ByteArray} :
+    (fromUTF8Lossy a).toByteArray = a.utf8DecodeLossy.toList.utf8Encode := by
+  rw [fromUTF8Lossy_eq_ofList, String.toByteArray_ofList]
+
+@[simp]
+theorem String.fromUTF8Lossy_toByteArray_append {s : String} {b : ByteArray} :
+    fromUTF8Lossy (s.toByteArray ++ b) = s ++ fromUTF8Lossy b := by
+  rw [← String.utf8Encode_toList, fromUTF8Lossy_eq_ofList, fromUTF8Lossy_eq_ofList,
+    ByteArray.utf8DecodeLossy_utf8Encode_append, Array.toList_append, List.toList_toArray,
+    String.ofList_append, String.ofList_toList]
 
 end
 

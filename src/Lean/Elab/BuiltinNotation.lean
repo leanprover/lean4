@@ -231,7 +231,7 @@ register_builtin_option debugAssertions : Bool := {
       if debugAssertions.get (← getOptions) then
         `(assert! $cond; $body)
       else
-        return body
+        `(let _ : Nonempty Bool := ⟨$cond⟩; $body)
     | _ => throwUnsupportedSyntax
 
 @[builtin_macro Lean.Parser.Term.dbgTrace]  def expandDbgTrace : Macro

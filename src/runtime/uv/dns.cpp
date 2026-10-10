@@ -5,6 +5,7 @@ Released under Apache 2.0 license as described in the file LICENSE.
 Author: Sofia Rodrigues, Henrik Böving
 */
 #include "runtime/uv/dns.h"
+#include "runtime/uv/util.h"
 #include <cstring>
 
 #ifndef LEAN_EMSCRIPTEN
@@ -47,11 +48,10 @@ extern "C" LEAN_EXPORT lean_obj_res lean_uv_dns_get_info(b_obj_arg name, b_obj_a
 
     uv_getaddrinfo_t* resolver = (uv_getaddrinfo_t*)malloc(sizeof(uv_getaddrinfo_t));
     if (resolver == nullptr) {
-        return lean_io_result_mk_error(decode_io_error(ENOMEM, nullptr));
+        return io_result_mk_enomem();
     }
 
-    lean_object* promise = lean_promise_new();
-    mark_mt(promise);
+    lean_object * promise = mk_mt_promise();
     resolver->data = promise;
 
 
@@ -73,7 +73,7 @@ extern "C" LEAN_EXPORT lean_obj_res lean_uv_dns_get_info(b_obj_arg name, b_obj_a
         lean_object* promise = (lean_object*) req->data;
 
         if (status != 0) {
-            lean_promise_resolve_with_code(status, promise);
+            resolve_with_code(status, promise);
             lean_dec(promise);
             free(req);
             return;
@@ -121,7 +121,7 @@ extern "C" LEAN_EXPORT lean_obj_res lean_uv_dns_get_info(b_obj_arg name, b_obj_a
 
         free(resolver);
 
-        return lean_io_result_mk_error(lean_decode_uv_error(result, nullptr));
+        return io_result_mk_uv_error(result);
     }
 
     return lean_io_result_mk_ok(promise);
@@ -131,11 +131,10 @@ extern "C" LEAN_EXPORT lean_obj_res lean_uv_dns_get_info(b_obj_arg name, b_obj_a
 extern "C" LEAN_EXPORT lean_obj_res lean_uv_dns_get_name(b_obj_arg addr) {
     uv_getnameinfo_t* req = (uv_getnameinfo_t*)malloc(sizeof(uv_getnameinfo_t));
     if (req == nullptr) {
-        return lean_io_result_mk_error(decode_io_error(ENOMEM, nullptr));
+        return io_result_mk_enomem();
     }
 
-    lean_object* promise = lean_promise_new();
-    mark_mt(promise);
+    lean_object * promise = mk_mt_promise();
     req->data = promise;
 
     sockaddr_storage addr_ptr;
@@ -147,7 +146,7 @@ extern "C" LEAN_EXPORT lean_obj_res lean_uv_dns_get_name(b_obj_arg addr) {
         lean_object* promise = (lean_object*) req->data;
 
         if (status != 0) {
-            lean_promise_resolve_with_code(status, promise);
+            resolve_with_code(status, promise);
             lean_dec(promise);
             free(req);
             return;
@@ -175,7 +174,7 @@ extern "C" LEAN_EXPORT lean_obj_res lean_uv_dns_get_name(b_obj_arg addr) {
 
         free(req);
 
-        return lean_io_result_mk_error(lean_decode_uv_error(result, nullptr));
+        return io_result_mk_uv_error(result);
     }
 
     return lean_io_result_mk_ok(promise);

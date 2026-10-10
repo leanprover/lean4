@@ -39,7 +39,7 @@ inline size_t unbox(object * o) { return lean_unbox(o); }
 
 inline bool is_mt_heap_obj(object * o) { return lean_is_mt(o); }
 inline bool is_st_heap_obj(object * o) { return lean_is_st(o); }
-inline bool is_heap_obj(object * o) { return is_st_heap_obj(o) || is_mt_heap_obj(o); }
+inline bool is_heap_obj(object * o) { return lean_has_rc(o); }
 inline void mark_mt(object * o) { lean_mark_mt(o); }
 inline bool is_shared(object * o) { return lean_is_shared(o); }
 inline bool is_exclusive(object * o) { return lean_is_exclusive(o); }

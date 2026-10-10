@@ -1,0 +1,13 @@
+name = "test"
+testDriver = "Test"
+testDrivers = ["Lib1", "exe1"]
+
+[[lean_lib]]
+name = "Test"
+
+[[lean_lib]]
+name = "Lib1"
+
+[[lean_exe]]
+name = "exe1"
+root = "Main"
